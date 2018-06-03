@@ -131,6 +131,13 @@ void IPlugWAM::onSysex(byte* msg, uint32_t size)
 {
   ISysEx sysex = {0, msg, (int) size };
   ProcessSysEx(sysex);
+  
+  WDL_String dataStr;
+  dataStr.SetFormatted(16, "%i", size);
+  
+  // TODO: in the future this will be done via shared array buffer
+  // if onSysex ever gets called on HPT, should defer via queue
+  postMessage("SSMFD", dataStr.Get(), "");
 }
 
 void IPlugWAM::SetControlValueFromDelegate(int controlTag, double normalizedValue)

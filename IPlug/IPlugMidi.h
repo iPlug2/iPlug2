@@ -300,7 +300,7 @@ struct IMidiMsg
   }
 };
 
-/** A struct for dealing with SysEx messages. Does not store the data. */
+/** A struct for dealing with SysEx messages. Does not own the data. */
 struct ISysEx
 {
   int mOffset, mSize;

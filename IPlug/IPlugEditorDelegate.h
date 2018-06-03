@@ -83,7 +83,7 @@ public:
   virtual void OnMidiMsgUI(const IMidiMsg& msg) {};
   
   /** TODO: */
-  virtual void OnSysexMsgUI(int size, const void* pData) {};
+  virtual void OnSysexMsgUI(const ISysEx& msg) {};
   
   /** This could be implemented in either DSP or EDITOR to receive a message from the other one */
   virtual bool OnMessage(int messageTag, int dataSize, const void* pData) { return false; }
@@ -112,6 +112,9 @@ public:
   
   /** TODO: SMMFD */
   virtual void SendMidiMsgFromDelegate(const IMidiMsg& msg) { OnMidiMsgUI(msg); }
+  
+  /** TODO: SSMFD */
+  virtual void SendSysexMsgFromDelegate(const ISysEx& msg) { OnSysexMsgUI(msg); }
   
   /** This method is called by the class implementing DELEGATE, NOT THE PLUGIN API class in order to update the user interface with the new parameter values, typically after automation.
    * This method should only be called from the main thread. The similarly named IPlugAPIBase::_SendParameterValueToUIFromAPI() should take care of queueing and deferring, if there is no main thread notification from the API
@@ -163,7 +166,7 @@ public:
   virtual void SendMidiMsgFromUI(const IMidiMsg& msg) {};
 
   /** TODO: SSMFUI */
-  virtual void SendSysexMsgFromUI(int size, const uint8_t* pData) {};
+  virtual void SendSysexMsgFromUI(const ISysEx& msg) {};
   
   /** TODO: SMFUI */
   virtual void SendMsgFromUI(int messageTag, int dataSize = 0, const void* pData = nullptr) {};

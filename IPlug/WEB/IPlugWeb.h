@@ -36,7 +36,7 @@ public:
 //  void BeginInformHostOfParamChangeFromUI(int paramIdx) override; // TODO: as soon as we actually have a WAM host these are needed
 //  void EndInformHostOfParamChangeFromUI(int paramIdx) override; // TODO: as soon as we actually have a WAM host these are needed
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
-  void SendSysexMsgFromUI(int size, const uint8_t* pData) override { /* TODO */ };
+  void SendSysexMsgFromUI(const ISysEx& msg) override;
   void SendMsgFromUI(int messageTag, int dataSize = 0, const void* pData = nullptr) override;
 
 private:

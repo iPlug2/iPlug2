@@ -41,17 +41,28 @@ void IPlugWeb::SendMidiMsgFromUI(const IMidiMsg& msg)
 
 void IPlugWeb::SendMsgFromUI(int messageTag, int dataSize, const void* pData)
 {
-//  val::global(mWAMCtrlrJSObjectName.Get()).call<void>("sendMessage", msgID, "", "");
+  WDL_String dataStr;
+  dataStr.SetFormatted(16, "%i:%i", messageTag, dataSize);
+  // TODO: pData not sent!
+  val::global(mWAMCtrlrJSObjectName.Get()).call<void>("sendMessage", std::string("SMFUI"), std::string(dataStr.Get()));
+}
+
+void IPlugWeb::SendSysexMsgFromUI(const ISysEx& msg)
+{
+  WDL_String dataStr;
+  dataStr.SetFormatted(16, "%i", msg.mSize);
+  // TODO: msg.mData not sent!
+  val::global(mWAMCtrlrJSObjectName.Get()).call<void>("sendMessage", std::string("SSMFUI"), std::string(dataStr.Get()));
 }
 
 extern IPlugWeb* gPlug;
 
 // could probably do this without these extra functions
 // https://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/embind.html#deriving-from-c-classes-in-javascript
-void _SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize)
+void _SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, uintptr_t pData)
 {
-//  DBGMSG("%i %i %i\n", controlTag, messageTag, dataSize);
-//  gPlug->SendControlMsgFromDelegate(controlTag, messageTag, dataSize, nullptr);
+  const uint8_t* pDataPtr = reinterpret_cast<uint8_t*>(pData); // embind doesn't allow us to pass raw pointers
+  gPlug->SendControlMsgFromDelegate(controlTag, messageTag, dataSize, pDataPtr);
 }
 
 void _SetControlValueFromDelegate(int controlTag, double normalizedValue)
@@ -67,7 +78,7 @@ void _SendMidiMsgFromDelegate(int status, int data1, int data2)
 }
 
 EMSCRIPTEN_BINDINGS(IPlugWeb) {
-  function("SCMFD", &_SendControlMsgFromDelegate, allow_raw_pointers());
+  function("SCMFD", &_SendControlMsgFromDelegate);
   function("SCVFD", &_SetControlValueFromDelegate);
   function("SMMFD", &_SendMidiMsgFromDelegate);
 }

@@ -22,19 +22,32 @@ class IPlugWAMController extends WAMController
   }
 
   onmessage(msg) {
+    //Received the WAM descriptor from the processor - could create a generic UI here
     if(msg.type == "descriptor") {
       console.log("got WAM descriptor...");
     }
+
+    //Send Control Message From Delegate
     if(msg.verb == "SCMFD") {
       var res = msg.prop.split(":");
-      Module.SCMFD(parseInt(res[0]), parseInt(res[1]), 0);
+      var data = new Uint8Array(msg.data);
+      const buffer = Module._malloc(data.length);
+      Module.HEAPU8.set(data, buffer);
+      Module.SCMFD(parseInt(res[0]), parseInt(res[1]), data.length, buffer);
+      Module._free(buffer);
     }
+    //Set Control Value From Delegate
     else if(msg.verb == "SCVFD") {
       Module.SCVFD(parseInt(msg.prop), parseFloat(msg.data));
     }
+    //Send Midi Message From Delegate
     else if(msg.verb == "SMMFD") {
       var res = msg.prop.split(":");
       Module.SMMFD(parseInt(res[0]), parseInt(res[1]), parseInt(res[2]));
+    }
+    //Send Sysex Message From Delegate
+    else if(msg.verb == "SSMFD") {
+//       Module.SSMFD(parseInt(res[0]), parseInt(res[1]), parseInt(res[2]));
     }
   }
 }

@@ -179,7 +179,7 @@ void IPlugAPIBase::SendMidiMsgFromUI(const IMidiMsg& msg)
   mMidiMsgsFromEditor.Push(msg);
 }
 
-void IPlugAPIBase::SendSysexMsgFromUI(int size, const uint8_t* pData)
+void IPlugAPIBase::SendSysexMsgFromUI(const ISysEx& msg)
 {
   //TODO:
 }
