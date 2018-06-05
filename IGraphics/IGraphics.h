@@ -418,7 +418,7 @@ public:
    * @param gridSizeV The height of the grid cells
    * @param pBlend Optional blend method, see IBlend documentation
    * @param thickness Optional line thickness */
-  void DrawGrid(const IColor& color, const IRECT& bounds, int gridSizeH, int gridSizeV, const IBlend* pBlend = 0, float thickness = 1.f);
+  virtual void DrawGrid(const IColor& color, const IRECT& bounds, float gridSizeH, float gridSizeV, const IBlend* pBlend = 0, float thickness = 1.f);
 
 #pragma mark - IGraphics drawing API Path support
 

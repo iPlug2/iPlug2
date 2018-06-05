@@ -56,6 +56,32 @@ public:
     PathStroke(color, thickness, IStrokeOptions(), pBlend);
   }
   
+  void DrawGrid(const IColor& color, const IRECT& bounds, float gridSizeH, float gridSizeV, const IBlend* pBlend, float thickness) override
+  {
+    PathStart();
+    // Vertical Lines grid
+
+    if (gridSizeH > 1.f)
+    {
+      for (float x = bounds.L; x < bounds.W(); x += gridSizeH)
+      {
+        PathMoveTo(x, bounds.T);
+        PathLineTo(x, bounds.B);
+      }
+    }
+    // Horizontal Lines grid
+    if (gridSizeV > 1.f)
+    {
+      for (float y = bounds.T; y < bounds.H(); y += gridSizeV)
+      {
+        PathMoveTo(bounds.L, y);
+        PathLineTo(bounds.R, y);
+      }
+    }
+    
+    PathStroke(color, thickness, IStrokeOptions(), pBlend);
+  }
+  
   void DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness) override
   {
     PathStart();
