@@ -68,7 +68,7 @@ public:
   //  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
   //  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   
-  void OnDataFromDelegate(int messageTag, int dataSize, const void* pData) override
+  void OnMsgFromDelegate(int messageTag, int dataSize, const void* pData) override
   {
     IByteChunk chnk;
     chnk.PutBytes(pData, dataSize); // unnessecary copy

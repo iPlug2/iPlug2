@@ -103,7 +103,7 @@ void IGraphicsEditorDelegate::SendControlMsgFromDelegate(int controlTag, int mes
       
       if (pControl->GetTag() == controlTag)
       {
-        pControl->OnDataFromDelegate(messageTag, dataSize, pData);
+        pControl->OnMsgFromDelegate(messageTag, dataSize, pData);
       }
     }
   }

@@ -95,7 +95,7 @@ public:
     }
   }
 
-  void OnDataFromDelegate(int messageTag, int dataSize, const void* pData) override
+  void OnMsgFromDelegate(int messageTag, int dataSize, const void* pData) override
   {
     IByteChunk chnk;
     chnk.PutBytes(pData, dataSize); // unnessecary copy
