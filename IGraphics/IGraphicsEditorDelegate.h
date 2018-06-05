@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IPlugEditorDelegate.h"
+#include "IControl.h"
 
 /**
  * @file
@@ -32,6 +33,7 @@ public:
   //IGraphicsEditorDelegate
   virtual void AttachGraphics(IGraphics* pGraphics);
   virtual IGraphics* GetUI() { assert(mGraphics); return mGraphics; }
+  void ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func);
   
 private:
   IGraphics* mGraphics = nullptr;

@@ -180,3 +180,16 @@ void IGraphicsEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
   IEditorDelegate::SendMidiMsgFromDelegate(msg);
 }
 
+void IGraphicsEditorDelegate::ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func)
+{
+  for (auto c = 0; c < mGraphics->NControls(); c++)
+  {
+    IControl* pControl = mGraphics->GetControl(c);
+    
+    if (pControl->ParamIdx() == paramIdx)
+    {
+      func(*pControl);
+      // Could be more than one, don't break until we check them all.
+    }
+  }
+}
