@@ -14,11 +14,11 @@
 #include "IPlugParameter.h"
 #include "IPlugPluginBase.h"
 
-#ifdef DEBUG
-#ifndef OS_WEB
+//#ifdef DEBUG
+//#ifndef OS_WEB
 #include "IGraphicsLiveEdit.h"
-#endif
-#endif
+//#endif
+//#endif
 
 #include "IControl.h"
 #include "IControls.h"
@@ -65,7 +65,7 @@ IGraphics::~IGraphics()
   if (mPopupControl)
     DELETE_NULL(mPopupControl);
 
-#if !defined(NDEBUG) && defined(APP_API)
+#if !defined(NDEBUG)
   if (mLiveEdit)
     DELETE_NULL(mLiveEdit);
 #endif
@@ -601,11 +601,10 @@ void IGraphics::Draw(const IRECT& bounds)
     }
   }
 
-#if defined(APP_API)
   if(mLiveEdit)
     mLiveEdit->Draw(*this);
-#endif
-//  WDL_String str;
+
+  //  WDL_String str;
 //  str.SetFormatted(32, "x: %i, y: %i", mMouseX, mMouseY);
   IText txt(CONTROL_BOUNDS_COLOR, 20);
   txt.mAlign = IText::kAlignNear;
@@ -645,7 +644,7 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
   mMouseDownX = x;
   mMouseDownY = y;
 
-#if !defined(NDEBUG) && defined(APP_API)
+#if !defined(NDEBUG)
   if(mLiveEdit)
   {
     mLiveEdit->OnMouseDown(x, y, mod);
@@ -713,7 +712,7 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
   Trace("IGraphics::OnMouseUp", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
 
-#if !defined(NDEBUG) && defined(APP_API)
+#if !defined(NDEBUG)
   if(mLiveEdit)
   {
     mLiveEdit->OnMouseUp(x, y, mod);
@@ -754,7 +753,7 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
   Trace("IGraphics::OnMouseOver", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
 
-#if !defined(NDEBUG) && defined(APP_API)
+#if !defined(NDEBUG)
   if(mLiveEdit)
   {
     mLiveEdit->OnMouseOver(x, y, mod);
@@ -817,7 +816,7 @@ void IGraphics::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMo
   Trace("IGraphics::OnMouseDrag:", __LINE__, "x:%0.2f, y:%0.2f, dX:%0.2f, dY:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, dX, dY, mod.L, mod.R, mod.S, mod.C, mod.A);
 
-#if !defined(NDEBUG) && defined(APP_API)
+#if !defined(NDEBUG)
   if(mLiveEdit)
   {
     mLiveEdit->OnMouseDrag(x, y, 0, 0, mod);
@@ -1061,7 +1060,7 @@ void IGraphics::EnableTooltips(bool enable)
 
 void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 {
-#if defined(DEBUG) && defined(APP_API)
+#if defined(DEBUG)
   if(enable)
   {
     mLiveEdit = new IGraphicsLiveEdit(mDelegate, file, gridsize);
