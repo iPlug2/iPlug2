@@ -105,7 +105,7 @@ public:
   virtual void SetControlValueFromDelegate(int controlTag, double normalizedValue) {};
   
   /** TODO: SCMFD */
-  virtual void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) {};
+  virtual void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize = 0, const void* pData = nullptr) {};
   
   /** TODO: SMFD */
   virtual void SendMsgFromDelegate(int messageTag, int dataSize, const void* pData) {};

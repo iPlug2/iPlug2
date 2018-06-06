@@ -68,7 +68,7 @@ public:
   /** Called when IControl is constructed or resized using SetRect(). NOTE: if you call SetDirty() in this method, you should pass false as the argument to avoid triggering parameter changes */
   virtual void OnResize() {}
   
-  virtual void OnDataFromDelegate(int messageTag, int dataSize, const void* pData) {};
+  virtual void OnMsgFromDelegate(int messageTag, int dataSize, const void* pData) {};
   
   virtual void OnMidi(const IMidiMsg& msg) {};
 
