@@ -99,12 +99,14 @@ public:
   void InformHostOfAddedParams(int index, int numAddedParams)
   {
     int listadj[2] = {index, numAddedParams};
+    mAEffect.numParams = NParams();
     mHostCallback(&mAEffect, audioMasterVendorSpecific, 0xdeadbeef, audioMasterAutomate, listadj, 0.0);
   }
   
   void InformHostOfRemovedParams(int index, int numRemovedParams)
   {
     int listadj[2] = {index, -numRemovedParams};
+    mAEffect.numParams = NParams();
     mHostCallback(&mAEffect, audioMasterVendorSpecific, 0xdeadbeef, audioMasterAutomate, listadj, 0.0);
   }
   

@@ -49,13 +49,23 @@ class IEditorDelegate
 public:
   IEditorDelegate(int nParams)
   {
-    for (int i = 0; i < nParams; ++i)
-      mParams.Add(new IParam());
+    for (int i = 0; i < nParams; i++)
+      AddParam();
   }
   
   virtual ~IEditorDelegate()
   {
     mParams.Empty(true);
+  }
+  
+  IParam* AddParam()
+  {
+    return mParams.Add(new IParam());
+  }
+  
+  void RemoveParam(int idx)
+  {
+    return mParams.Delete(idx);
   }
   
   /** Get a pointer to one of the delegate's IParam objects
