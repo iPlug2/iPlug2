@@ -81,7 +81,8 @@ public:
     {
       for (auto i = 0; i < data.nchans; i++) {
         pos = chnk.Get(&data.vals[i], pos);
-        mTrackData.Get()[i].value = Clip(data.vals[i], 0.f, 1.f);
+        float* pVal = GetTrackData(i);
+        *pVal = Clip(data.vals[i], 0.f, 1.f);
       }
     }
     
