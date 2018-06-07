@@ -28,6 +28,12 @@ void IGraphicsEditorDelegate::AttachGraphics(IGraphics* pGraphics)
   }
 }
 
+IGraphics* IGraphicsEditorDelegate::GetUI()
+{
+  assert(mGraphics); // can't call this till AttachGraphics() has been called
+  return mGraphics;
+}
+
 void IGraphicsEditorDelegate::OnRestoreState()
 {
   if (mGraphics)

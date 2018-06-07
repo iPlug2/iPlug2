@@ -32,7 +32,9 @@ public:
   
   //IGraphicsEditorDelegate
   virtual void AttachGraphics(IGraphics* pGraphics);
-  virtual IGraphics* GetUI() { assert(mGraphics); return mGraphics; }
+  
+  IGraphics* GetUI();
+  
   void ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func);
   
 private:
