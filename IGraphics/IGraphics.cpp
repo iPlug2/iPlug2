@@ -430,22 +430,22 @@ void IGraphics::PathRadialLine(float cx, float cy, float angle, float rMin, floa
   PathLine(data[0][0], data[0][1], data[1][0], data[1][1]);
 }
 
-void IGraphics::DrawGrid(const IColor& color, const IRECT& bounds, int gridSizeH, int gridSizeV, const IBlend* pBlend, float thickness)
+void IGraphics::DrawGrid(const IColor& color, const IRECT& bounds, float gridSizeH, float gridSizeV, const IBlend* pBlend, float thickness)
 {
   // Vertical Lines grid
-  if (gridSizeH > 1)
+  if (gridSizeH > 1.f)
   {
-    for (int x = 0; x < bounds.W(); x += gridSizeH)
+    for (float x = 0; x < bounds.W(); x += gridSizeH)
     {
-      DrawVerticalLine(color, bounds, (float)x/(float) bounds.W(), pBlend, thickness);
+      DrawVerticalLine(color, bounds, x/bounds.W(), pBlend, thickness);
     }
   }
     // Horizontal Lines grid
-  if (gridSizeV > 1)
+  if (gridSizeV > 1.f)
   {
-    for (int y = 0; y < bounds.H(); y += gridSizeV)
+    for (float y = 0; y < bounds.H(); y += gridSizeV)
     {
-      DrawHorizontalLine(color, bounds, (float)y/(float) bounds.H(), pBlend, thickness);
+      DrawHorizontalLine(color, bounds, y/bounds.H(), pBlend, thickness);
     }
   }
 }
@@ -1235,7 +1235,7 @@ void IGraphics::StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emb
   }
 }
 
-void IGraphics::GenerateSliderGUI(const IRECT& bounds, int cellWidth, int cellHeight, int startIdx, int endIdx, int paramJump, const char* groupName, EDirection dir, const IText& labelText, const char** pParamNameStrings)
+IRECT IGraphics::GenerateSliderGUI(const IRECT& bounds, int cellWidth, int cellHeight, int startIdx, int endIdx, int paramJump, const char* groupName, EDirection dir, const IText& labelText, const char** pParamNameStrings)
 {
   IPluginBase* dlg = dynamic_cast<IPluginBase*>(GetDelegate());
   
@@ -1244,23 +1244,58 @@ void IGraphics::GenerateSliderGUI(const IRECT& bounds, int cellWidth, int cellHe
   float cellsPerRow = bounds.W() / (float) cellWidth;
   float cellsPerCol = bounds.H() / (float) cellHeight;
   
-  int cols = std::floor(cellsPerRow);
-  int rows = std::floor(cellsPerCol);
-
-  int cellIdx = 0;
-
-  IRECT header = IRECT(bounds.L, bounds.T, bounds.R, bounds.T + cellHeight).GetPadded(-2);
+  IRECT header = IRECT(bounds.L, bounds.T, bounds.R, bounds.T + cellHeight);
   IRECT sliderBounds = bounds.GetPadded(0, cellHeight, 0, 0);
-  AttachControl(new IPanelControl(*dlg, header, DEFAULT_GRAPHICS_BGCOLOR));
+  
+  IText hdrText;
+  hdrText.mSize = header.H();
+  hdrText.mAlign = IText::kAlignNear;
+  hdrText.mVAlign = IText::kVAlignMiddle;
+  
+  IText labText;
+  labText.mSize = 15;
+  labText.mAlign = IText::kAlignNear;
+  labText.mVAlign = IText::kVAlignMiddle;
+  
+  AttachControl(new ITextControl(*dlg, header, hdrText, groupName, COLOR_GRAY));
+
+  IRECT total = header;
+  
+  IRECT paramRect = IRECT(sliderBounds.L, sliderBounds.T, sliderBounds.L, sliderBounds.T + cellHeight);
+  int rowIdx = 1;
   
   std::function<void(int, IParam&)> makeCell = [&](int paramIdx, IParam& param) {
-    IRECT r = sliderBounds.GetGridCell(cellIdx++, rows - 1, cols).GetPadded(-2);
-    IRECT sliderInfoRect = r.SubRectVertical(2, 0);
-    AttachControl(new IPanelControl(*dlg, r, IColor::GetRandomColor()));
+    paramRect = IRECT(paramRect.R, paramRect.T, paramRect.R + cellWidth, paramRect.B);
 
-    AttachControl(new ITextControl(*dlg, sliderInfoRect.FracRectHorizontal(0.75), labelText, param.GetNameForHost()));
-//    AttachControl(new ICaptionControl(*dlg, sliderInfoRect.FracRectHorizontal(0.25, true), paramIdx, labelText, true));
-    AttachControl(new IVSliderControl(*dlg, r, paramIdx, DEFAULT_SPEC, EDirection::kHorizontal));
+    bool miniMe = param.Type() == IParam::kTypeBool || param.Type() == IParam::kTypeEnum;
+    
+    if(miniMe)
+      paramRect = paramRect.FracRectHorizontal(0.5);
+    
+    if(paramRect.R > bounds.R) {
+      paramRect = IRECT(sliderBounds.L, sliderBounds.T + (rowIdx * cellHeight), sliderBounds.L + cellWidth, sliderBounds.T + (rowIdx * cellHeight) + cellHeight); rowIdx++;
+      
+      if(miniMe)
+        paramRect = paramRect.FracRectHorizontal(0.5);
+    }
+      
+    IRECT paramTitleRect = paramRect.SubRectVertical(2, 0).GetHPadded(-5);
+
+    AttachControl(new IPanelControl(*dlg, paramRect, COLOR_LIGHT_GRAY));
+    AttachControl(new ITextControl(*dlg, paramTitleRect, labText, param.GetNameForHost() + strlen(groupName), COLOR_TRANSPARENT));
+    
+    IRECT paramEntryRect;
+    
+    if(!miniMe) {
+      AttachControl(new IVSliderControl(*dlg, paramRect.SubRectVertical(2, 1), paramIdx, DEFAULT_SPEC, EDirection::kHorizontal));
+      paramEntryRect = paramTitleRect.FracRectHorizontal(0.33, true);
+    }
+    else
+      paramEntryRect = paramRect.SubRectVertical(2, 1).GetHPadded(-5);
+    
+    AttachControl(new ICaptionControl(*dlg, paramEntryRect, paramIdx, labText, true));
+
+    total = total.Union(paramRect);
   };
 
   if(CStringHasContents(groupName))
@@ -1278,4 +1313,6 @@ void IGraphics::GenerateSliderGUI(const IRECT& bounds, int cellWidth, int cellHe
       makeCell(paramIdx, param);
     });
   }
+  
+  return total;
 }
