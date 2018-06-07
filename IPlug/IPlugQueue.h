@@ -14,7 +14,7 @@
  ==============================================================================
  */
 
-// This is based on MLQueue.h by Randy Jones, based on https://kjellkod.wordpress.com/2012/11/28/c-debt-paid-in-full-wait-free-lock-free-IPlugQueue/
+// This is based on MLQueue.h by Randy Jones, based on https://kjellkod.wordpress.com/2012/11/28/c-debt-paid-in-full-wait-free-lock-free-queue/
 
 #pragma once
 
