@@ -21,7 +21,7 @@ public:
 	{
 	}
 
-	void Init(int maxNInputs = 0, int maxNOutputs = 0) override
+	void Init() override
 	{
 		mDSP = new FAUSTCLASS();
 		mDSP->buildUserInterface(this);

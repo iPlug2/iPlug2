@@ -24,9 +24,9 @@
 #define LLVM_DSP
 #include "faust/dsp/poly-dsp.h"
 
-#ifndef OS_WIN
-#include "faust/sound-file.h"
-#endif
+//#ifndef OS_WIN
+//#include "faust/sound-file.h"
+//#endif
 
 int FaustGen::sFaustGenCounter = 0;
 int FaustGen::Factory::sFactoryCounter = 0;
@@ -200,7 +200,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
     {
       pDSP = CreateDSPInstance();
       pDSP->metadata(&meta);
-      DBGMSG("FaustGen-%s: Compilation from source code succeeded, %i input(s), %i output(s) %i parameters\n", mName.Get(), pDSP->getNumInputs(), pDSP->getNumOutputs());
+      DBGMSG("FaustGen-%s: Compilation from source code succeeded, %i input(s), %i output(s)\n", mName.Get(), pDSP->getNumInputs(), pDSP->getNumOutputs());
       goto end;
     }
   }
@@ -346,7 +346,7 @@ void FaustGen::Factory::UpdateSourceCode(const char* str)
     // Update all instances
     for (auto inst : mInstances)
     {
-      inst->SourceCodeChanged();
+      inst->Init();
     }
   }
   else
@@ -405,13 +405,13 @@ bool FaustGen::Factory::LoadFile(const char* file)
     // Update all instances
     for (auto inst : mInstances)
     {
-      inst->SourceCodeChanged();
+      inst->Init();
     }
     
     return true;
   }
   
-  assert(0); //TODO: something sensible
+  assert(0); // The file was not found
   
   return false;
 }
@@ -492,12 +492,7 @@ FaustGen::~FaustGen()
     mFactory->RemoveInstance(this);
 }
 
-void FaustGen::SourceCodeChanged()
-{
-  Init(true);
-}
-
-void FaustGen::Init(int maxNInputs, int maxNOutputs)
+void FaustGen::Init()
 {
   mZones.Empty(); // remove existing pointers to zones
   
@@ -509,7 +504,7 @@ void FaustGen::Init(int maxNInputs, int maxNOutputs)
   mDSP->buildUserInterface(this);
   mDSP->init(DEFAULT_SAMPLE_RATE);
 
-  assert((mDSP->getNumInputs() <= maxNinputs) && (mDSP->getNumOutputs() <= maxNOutputs)); // don't have enough buffers to process the DSP
+  assert((mDSP->getNumInputs() <= mMaxNInputs) && (mDSP->getNumOutputs() <= mMaxNOutputs)); // don't have enough buffers to process the DSP
   
   if ((mFactory->mNInputs != mDSP->getNumInputs()) || (mFactory->mNOutputs != mDSP->getNumOutputs()))
   {
