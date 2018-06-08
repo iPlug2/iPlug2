@@ -137,7 +137,12 @@ void IVSliderControl::Draw(IGraphics& g)
   knob = nvgLinearGradient(vg, x,cy-kr,x,cy+kr, nvgRGBA(255,255,255,16), nvgRGBA(0,0,0,16));
   nvgBeginPath(vg);
   nvgCircle(vg, x+(int)(pos*w),cy, kr-1);
-  nvgFillColor(vg, nvgRGBA(255,255,255,255));
+  
+  if(GetMouseIsOver())
+    nvgFillColor(vg, nvgRGBA(200,200,200,255));
+  else
+    nvgFillColor(vg, nvgRGBA(255,255,255,255));
+
   nvgFill(vg);
   nvgFillPaint(vg, knob);
   nvgFill(vg);
