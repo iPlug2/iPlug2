@@ -25,30 +25,30 @@
 
 #include <math.h>
 
-// line y = x
-template<class T>
-T IEaseLinear(T x)
-{
-  return x;
-}
-
 // line y = x ^ 1/c;
 template<class T>
-T IEasePowCurve(T x, T c)
+T EasePowCurve(T x, T c)
 {
   return std::pow(x, 1.0 / c);
 }
 
+// line y = x
+template<class T>
+T EaseLinear(T x)
+{
+  return x;
+}
+
 // parabola y = x^2
 template<class T>
-T IEaseQuadraticIn(T x)
+T EaseQuadraticIn(T x)
 {
   return x * x;
 }
 
 // parabola y = -x^2 + 2x
 template<class T>
-T IEaseQuadraticOut(T x)
+T EaseQuadraticOut(T x)
 {
   return -(x * (x - 2));
 }
@@ -57,7 +57,7 @@ T IEaseQuadraticOut(T x)
 // y = (1/2)((2x)^2)             ; [0, 0.5)
 // y = -(1/2)((2x-1)*(2x-3) - 1) ; [0.5, 1]
 template<class T>
-T IEaseQuadraticInOut(T x)
+T EaseQuadraticInOut(T x)
 {
   if(x < 0.5)
   {
@@ -71,14 +71,14 @@ T IEaseQuadraticInOut(T x)
 
 // cubic y = x^3
 template<class T>
-T IEaseCubicIn(T x)
+T EaseCubicIn(T x)
 {
   return x * x * x;
 }
 
 // cubic y = (x - 1)^3 + 1
 template<class T>
-T IEaseCubicOut(T x)
+T EaseCubicOut(T x)
 {
   T f = (x - 1);
   return f * f * f + 1;
@@ -88,7 +88,7 @@ T IEaseCubicOut(T x)
 // y = (1/2)((2x)^3)       ; [0, 0.5)
 // y = (1/2)((2x-2)^3 + 2) ; [0.5, 1]
 template<class T>
-T IEaseCubicInOut(T x)
+T EaseCubicInOut(T x)
 {
   if(x < 0.5)
   {
@@ -103,14 +103,14 @@ T IEaseCubicInOut(T x)
 
 // quartic x^4
 template<class T>
-T IEaseQuarticIn(T x)
+T EaseQuarticIn(T x)
 {
   return x * x * x * x;
 }
 
 // quartic y = 1 - (x - 1)^4
 template<class T>
-T IEaseQuarticOut(T x)
+T EaseQuarticOut(T x)
 {
   T f = (x - 1);
   return f * f * f * (1 - x) + 1;
@@ -120,7 +120,7 @@ T IEaseQuarticOut(T x)
 // y = (1/2)((2x)^4)        ; [0, 0.5)
 // y = -(1/2)((2x-2)^4 - 2) ; [0.5, 1]
 template<class T>
-T IEaseQuarticInOut(T x)
+T EaseQuarticInOut(T x)
 {
   if(x < 0.5)
   {
@@ -135,14 +135,14 @@ T IEaseQuarticInOut(T x)
 
 // quintic y = x^5
 template<class T>
-T IEaseQuinticIn(T x)
+T EaseQuinticIn(T x)
 {
   return x * x * x * x * x;
 }
 
 // quintic y = (x - 1)^5 + 1
 template<class T>
-T IEaseQuinticOut(T x)
+T EaseQuinticOut(T x)
 {
   T f = (x - 1);
   return f * f * f * f * f + 1;
@@ -152,7 +152,7 @@ T IEaseQuinticOut(T x)
 // y = (1/2)((2x)^5)       ; [0, 0.5)
 // y = (1/2)((2x-2)^5 + 2) ; [0.5, 1]
 template<class T>
-T IEaseQuinticInOut(T x)
+T EaseQuinticInOut(T x)
 {
   if(x < 0.5)
   {
@@ -167,35 +167,35 @@ T IEaseQuinticInOut(T x)
 
 // Modeled after quarter-cycle of sine wave
 template<class T>
-T IEaseSineIn(T x)
+T EaseSineIn(T x)
 {
   return std::sin((x - 1) * M_PI_2) + 1;
 }
 
 // Modeled after quarter-cycle of sine wave (different phase)
 template<class T>
-T IEaseSineOut(T x)
+T EaseSineOut(T x)
 {
   return std::sin(x * M_PI_2);
 }
 
 // Modeled after half sine wave
 template<class T>
-T IEaseSineInOut(T x)
+T EaseSineInOut(T x)
 {
   return 0.5 * (1 - std::cos(x * M_PI));
 }
 
 // Modeled after shifted quadrant IV of unit circle
 template<class T>
-T IEaseCircularIn(T x)
+T EaseCircularIn(T x)
 {
   return 1 - std::sqrt(1 - (x * x));
 }
 
 // Modeled after shifted quadrant II of unit circle
 template<class T>
-T IEaseCircularOut(T x)
+T EaseCircularOut(T x)
 {
   return std::sqrt((2 - x) * x);
 }
@@ -204,7 +204,7 @@ T IEaseCircularOut(T x)
 // y = (1/2)(1 - std::sqrt(1 - 4x^2))           ; [0, 0.5)
 // y = (1/2)(std::sqrt(-(2x - 3)*(2x - 1)) + 1) ; [0.5, 1]
 template<class T>
-T IEaseCircularInOut(T x)
+T EaseCircularInOut(T x)
 {
   if(x < 0.5)
   {
@@ -218,14 +218,14 @@ T IEaseCircularInOut(T x)
 
 // exponential function y = 2^(10(x - 1))
 template<class T>
-T IEaseExponentialIn(T x)
+T EaseExponentialIn(T x)
 {
   return (x == 0.0) ? x : std::pow(2, 10 * (x - 1));
 }
 
 // exponential function y = -2^(-10x) + 1
 template<class T>
-T IEaseExponentialOut(T x)
+T EaseExponentialOut(T x)
 {
   return (x == 1.0) ? x : 1 - std::pow(2, -10 * x);
 }
@@ -234,7 +234,7 @@ T IEaseExponentialOut(T x)
 // y = (1/2)2^(10(2x - 1))         ; [0,0.5)
 // y = -(1/2)*2^(-10(2x - 1))) + 1 ; [0.5,1]
 template<class T>
-T IEaseExponentialInOut(T x)
+T EaseExponentialInOut(T x)
 {
   if(x == 0.0 || x == 1.0) return x;
 
@@ -250,14 +250,14 @@ T IEaseExponentialInOut(T x)
 
 // damped sine wave y = std::sin(13pi/2*x)*std::pow(2, 10 * (x - 1))
 template<class T>
-T IEaseElasticIn(T x)
+T EaseElasticIn(T x)
 {
   return std::sin(13 * M_PI_2 * x) * std::pow(2, 10 * (x - 1));
 }
 
 // damped sine wave y = std::sin(-13pi/2*(x + 1))*std::pow(2, -10x) + 1
 template<class T>
-T IEaseElasticOut(T x)
+T EaseElasticOut(T x)
 {
   return std::sin(-13 * M_PI_2 * (x + 1)) * std::pow(2, -10 * x) + 1;
 }
@@ -266,7 +266,7 @@ T IEaseElasticOut(T x)
 // y = (1/2)*std::sin(13pi/2*(2*x))*std::pow(2, 10 * ((2*x) - 1))      ; [0,0.5)
 // y = (1/2)*(std::sin(-13pi/2*((2x-1)+1))*std::pow(2,-10(2*x-1)) + 2) ; [0.5, 1]
 template<class T>
-T IEaseElasticInOut(T x)
+T EaseElasticInOut(T x)
 {
   if(x < 0.5)
   {
@@ -280,14 +280,14 @@ T IEaseElasticInOut(T x)
 
 // overshooting cubic y = x^3-x*std::sin(x*pi)
 template<class T>
-T IEaseBackIn(T x)
+T EaseBackIn(T x)
 {
   return x * x * x - x * std::sin(x * M_PI);
 }
 
 // Modeled after overshooting cubic y = 1-((1-x)^3-(1-x)*std::sin((1-x)*pi))
 template<class T>
-T IEaseBackOut(T x)
+T EaseBackOut(T x)
 {
   T f = (1 - x);
   return 1 - (f * f * f - f * std::sin(f * M_PI));
@@ -297,7 +297,7 @@ T IEaseBackOut(T x)
 // y = (1/2)*((2x)^3-(2x)*std::sin(2*x*pi))           ; [0, 0.5)
 // y = (1/2)*(1-((1-x)^3-(1-x)*std::sin((1-x)*pi))+1) ; [0.5, 1]
 template<class T>
-T IEaseBackInOut(T x)
+T EaseBackInOut(T x)
 {
   if(x < 0.5)
   {
@@ -312,7 +312,7 @@ T IEaseBackInOut(T x)
 }
 
 template<class T>
-T IEaseBounceOut(T x)
+T EaseBounceOut(T x)
 {
   if(x < 4/11.0)
   {
@@ -333,20 +333,20 @@ T IEaseBounceOut(T x)
 }
 
 template<class T>
-T IEaseBounceIn(T x)
+T EaseBounceIn(T x)
 {
-  return 1 - IEaseBounceOut(1 - x);
+  return 1 - EaseBounceOut(1 - x);
 }
 
 template<class T>
-T IEaseBounceInOut(T x)
+T EaseBounceInOut(T x)
 {
   if(x < 0.5)
   {
-    return 0.5 * IEaseBounceIn(x*2);
+    return 0.5 * EaseBounceIn(x*2);
   }
   else
   {
-    return 0.5 * IEaseBounceOut(x * 2 - 1) + 0.5;
+    return 0.5 * EaseBounceOut(x * 2 - 1) + 0.5;
   }
 }
