@@ -256,6 +256,19 @@ void IGraphicsMac::Resize(int w, int h, float scale)
   }
 }
 
+void IGraphicsMac::ClientToScreen(float& x, float& y)
+{
+  if (mView)
+  {
+    NSWindow* pWindow = [(IGRAPHICS_VIEW*) mView window];
+    NSPoint wndpt = [(IGRAPHICS_VIEW*) mView convertPoint:NSMakePoint(x, y) toView:nil];
+    NSPoint po = [pWindow convertBaseToScreen:wndpt];
+    
+    x = po.x;
+    y = CGDisplayPixelsHigh(CGMainDisplayID()) - po.y;
+  }
+}
+
 void IGraphicsMac::HideMouseCursor(bool hide, bool returnToStartPosition)
 {
   if(hide)

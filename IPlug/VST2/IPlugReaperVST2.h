@@ -23,6 +23,8 @@
 #define REAPERAPI_IMPLEMENT
 #include "reaper_plugin_functions.h"
 
+bool (*DoFxLastTweakParmCtxMenu2)(void* pFXDSP, void* pHWND, int xpos, int ypos, const char* headerStr);
+
 class IPlugReaperVST2 : public IPlugVST2
 {
 public:
@@ -35,7 +37,21 @@ public:
     if (errorCount > 0)
       LogToReaper("some errors when loading reaper api functions\n");
   }
+  
+  /** Pop up Reaper's "Last touched FX" dialog, in order to set envelopes etc for the last touched parameter
+   * @param pView platform view handle - in an IGraphics plug-in you can call IGraphics::GetWindow() to get this
+   * @param xpos x position on the screen to popup the menu. NOTE: screen coordinates! Can convert mouse position in IControls with IGraphics::ClientToScreen()
+   * @param ypos y position on the screen to popup the menu. NOTE: screen coordinates! Can convert mouse position in IControls with IGraphics::ClientToScreen() */
+  void CreateParameterPopup(void* pView, int xpos, int ypos)
+  {
+    void *pFXDSP = (void*)mHostCallback(&mAEffect, 0xdeadbeef, 0xdeadf00e, 4, NULL, 0.0f);
 
+    *(VstIntPtr *)&DoFxLastTweakParmCtxMenu2 = mHostCallback(NULL, 0xdeadbeef, 0xdeadf00d, 0, (void*) "DoFxLastTweakParmCtxMenu2", 0.0);
+    
+    if(DoFxLastTweakParmCtxMenu2)
+      DoFxLastTweakParmCtxMenu2(pFXDSP, pView, xpos, ypos, NULL);
+  }
+  
   void SetTrackVolume(double gain)
   {
     MediaTrack* tr = GetReaperTrack();

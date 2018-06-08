@@ -569,6 +569,11 @@ public:
   /** Get the platform draw context
    * @return void pointer to an HDC or CGContext */
   void* GetPlatformContext() { return mPlatformContext; }
+  
+  /** Convert an x, y position in the view to screen coordinates
+   * @param x the x position to convert
+   * @param y the y position to convert */
+  virtual void ClientToScreen(float& x, float& y) {};
 
   /** Find the full, absolute path of a resource based on it's filename (e.g. “background.png”) and type (e.g. “PNG”)
    * On macOS resources are usually included inside the bundle resources folder. In that case you provide a filename and this method will return the absolute path to the resource. In some cases you may want to provide an absolute path to a file in a shared resources folder here (for example if you want to reduce the disk footprint of multiple bundles, such as when you have multiple plug-in formats installed).

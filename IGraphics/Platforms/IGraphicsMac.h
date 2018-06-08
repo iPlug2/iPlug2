@@ -22,6 +22,8 @@ public:
   void CloseWindow() override;
   bool WindowIsOpen() override;
   void Resize(int w, int h, float scale) override;
+  
+  void ClientToScreen(float& x, float& y) override;
 
   void HideMouseCursor(bool hide, bool returnToStartPosition) override;
   void MoveMouseCursor(float x, float y) override;
