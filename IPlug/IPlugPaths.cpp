@@ -76,7 +76,26 @@ void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginNa
   
   path.AppendFormatted(MAX_WIN32_PATH_LEN, "\\VST3 Presets\\%s\\%s", mfrName, pluginName);
 }
+
+void SandboxSafeAppSupportPath(WDL_String& path)
+{
+}
+
 #elif defined OS_WEB
+
+void AppSupportPath(WDL_String& path, bool isSystem)
+{
+}
+
+void SandboxSafeAppSupportPath(WDL_String& path)
+{
+}
+
+void DesktopPath(WDL_String& path)
+{
+
+}
+
 void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem)
 {
   path.Set("");
