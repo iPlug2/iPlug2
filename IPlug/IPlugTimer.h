@@ -24,7 +24,7 @@
 
 #include "IPlugPlatform.h"
 
-#if defined OS_WEB || defined OS_IOS
+#if defined OS_WEB
 class Timer;
 
 class ITimerCallback
@@ -49,13 +49,22 @@ public:
 
 #else
 
-#ifdef OS_MAC
+#if defined OS_MAC
 #include "swell.h"
+#elif defined OS_IOS
+typedef bool BOOL;
+typedef unsigned int UINT;
+typedef unsigned int DWORD;
+typedef void* HWND;
+typedef void (*TIMERPROC)(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
+#define CALLBACK
+UINT_PTR SetTimer(HWND hwnd, UINT_PTR timerid, UINT rate, TIMERPROC tProc);
+BOOL KillTimer(HWND hwnd, UINT_PTR timerid);
 #endif
 
 /**
  * @file This file includes classes for implementing timers - in order to get a regular callback on the message thread
- * The code is based on the api of Steinberg's timer.cpp from the VST3_SDK, rewritten using SWELL: base/source/timer.cpp, so thanks to them
+ * The interface is based on the api of Steinberg's timer.cpp from the VST3_SDK, rewritten using SWELL: base/source/timer.cpp, so thanks to them
  *
  */
 
