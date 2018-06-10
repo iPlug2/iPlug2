@@ -1235,14 +1235,14 @@ void IGraphics::StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emb
   }
 }
 
-IRECT IGraphics::GenerateSliderGUI(const IRECT& bounds, int cellWidth, int cellHeight, int startIdx, int endIdx, int paramJump, const char* groupName, EDirection dir, const IText& labelText, const char** pParamNameStrings)
+IRECT IGraphics::GenerateSliderGUI(const IRECT& bounds, int cellWidth, int cellHeight, int startIdx, int endIdx, int paramJump, const char* groupName, EDirection dir, const IText& labelText)
 {
-  IPluginBase* dlg = dynamic_cast<IPluginBase*>(GetDelegate());
+  ::IPluginBase* dlg = dynamic_cast<::IPluginBase*>(GetDelegate());
   
   assert(dlg != nullptr);
   
-  float cellsPerRow = bounds.W() / (float) cellWidth;
-  float cellsPerCol = bounds.H() / (float) cellHeight;
+//  float cellsPerRow = bounds.W() / (float) cellWidth;
+//  float cellsPerCol = bounds.H() / (float) cellHeight;
   
   IRECT header = IRECT(bounds.L, bounds.T, bounds.R, bounds.T + cellHeight);
   IRECT sliderBounds = bounds.GetPadded(0, cellHeight, 0, 0);

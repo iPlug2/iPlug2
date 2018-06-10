@@ -878,7 +878,7 @@ public:
   /** @param fileName The name of the font to load */
   virtual void LoadFont(const char* fileName) {};
   
-  IRECT GenerateSliderGUI(const IRECT& area, int cellWidth, int cellHeight, int startIdx = 0, int endIdx = -1, int paramJump = 0, const char* group = "", EDirection dir = kVertical, const IText& labelText = DEFAULT_TEXT, const char** pParamNameStrings = nullptr);
+  IRECT GenerateSliderGUI(const IRECT& area, int cellWidth, int cellHeight, int startIdx = 0, int endIdx = -1, int paramJump = 0, const char* group = "", EDirection dir = kVertical, const IText& labelText = DEFAULT_TEXT);
   
 protected:
   virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;

@@ -594,6 +594,12 @@ struct IRECT
   {
     return (!Empty() && x >= L && x < R && y >= T && y < B);
   }
+  
+  //includes right-most and bottom-most pixels
+  inline bool ContainsEdge(float x, float y) const
+  {
+    return (!Empty() && x >= L && x <= R && y >= T && y <= B);
+  }
 
   inline void Constrain(float& x, float& y)
   {
@@ -656,19 +662,27 @@ struct IRECT
       return SubRectHorizontal(numSlices, sliceIdx);
   }
 
-  inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns, EDirection = kHorizontal) const
+  inline IRECT GetGridCell(int row, int col, int nRows, int nColumns/*, EDirection = kHorizontal*/) const
+  {
+    assert(row * col <= nRows * nColumns); // not enough cells !
+    
+    const IRECT vrect = SubRectVertical(nRows, row);
+    return vrect.SubRectHorizontal(nColumns, col);
+  }
+  
+  inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns/*, EDirection = kHorizontal*/) const
   {
     assert(cellIndex <= nRows * nColumns); // not enough cells !
 
     int cell = 0;
     for(int row = 0; row<nRows; row++)
     {
-      for(int column = 0; column<nColumns; column++)
+      for(int col = 0; col<nColumns; col++)
       {
         if(cell == cellIndex)
         {
           const IRECT vrect = SubRectVertical(nRows, row);
-          return vrect.SubRectHorizontal(nColumns, column);
+          return vrect.SubRectHorizontal(nColumns, col);
         }
 
         cell++;
