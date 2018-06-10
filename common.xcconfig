@@ -16,7 +16,7 @@ CLANG_CXX_LANGUAGE_STANDARD = c++11
 CLANG_CXX_LIBRARY = libc++
 
 // the minimum OS to support
-DEPLOYMENT_TARGET = 10.7
+DEPLOYMENT_TARGET = 10.11
 
 SHARED_PRECOMPS_DIR = $(TARGET_BUILD_DIR)/PCH
 
@@ -52,19 +52,18 @@ PKGMAN_PATH = /usr/local
 
 DEPS_PATH = $(ROOT)/Dependencies
 
-// if you want to use the homebrew or macports package managers, rather than building static libraries yourself (not advised) you can modify the STATICLIBS_PATH build setting to point to PKGMAN_PATH
-STATICLIBS_PATH = $(DEPS_PATH)/IGraphics/Libs/install
-STATICLIBS_INC_PATH = $(STATICLIBS_PATH)/include
+// if you want to use the homebrew or macports package managers, rather than building static libraries yourself (not advised) you can modify the BUILT_LIBS_PATH build setting to point to PKGMAN_PATH
+BUILT_LIBS_PATH = $(DEPS_PATH)/Libraries
+BUILT_LIBS_INC_PATH = $(BUILT_LIBS_PATH)/include
+BUILT_LIBS_LIB_PATH = $(BUILT_LIBS_PATH)/lib
 
 // IPlug dependencies
 WDL_PATH = $(ROOT)/WDL
 SWELL_PATH = $(WDL_PATH)/swell
 IPLUG_PATH = $(ROOT)/IPlug
 EXTRAS_PATH = $(IPLUG_PATH)/Extras
-FAUST_PATH = $(EXTRAS_PATH)/Faust
-OSC_PATH = $(EXTRAS_PATH)/OSC
-HIIR_PATH = $(EXTRAS_PATH)/HIIR
-WEBSOCKET_PATH = $(EXTRAS_PATH)/WebSocket
+EXTRAS_INC_PATHS = $(EXTRAS_PATH) $(EXTRAS_PATH)/Faust $(EXTRAS_PATH)/OSC $(EXTRAS_PATH)/HIIR $(EXTRAS_PATH)/WebSocket
+
 RTAUDIO_PATH = $(DEPS_PATH)/IPlug/RTAudio
 RTMIDI_PATH = $(DEPS_PATH)/IPlug/RTMidi
 
@@ -75,12 +74,9 @@ AAX_SDK = $(DEPS_PATH)/IPlug/AAX_SDK
 REAPER_SDK = $(DEPS_PATH)/IPlug/Reaper
 
 // this build setting is included at the xcode project level, since we need all these include paths
-IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(SWELL_PATH) $(IPLUG_PATH) $(EXTRAS_PATH) $(HIIR_PATH) $(WEBSOCKET_PATH) $(FAUST_PATH)
+IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(SWELL_PATH) $(IPLUG_PATH) $(EXTRAS_INC_PATHS)
 
 IGRAPHICS_PATH = $(ROOT)/IGraphics
-CONTROLS_PATH = $(IGRAPHICS_PATH)/Controls
-PLATFORMS_PATH = $(IGRAPHICS_PATH)/Platforms
-DRAWING_PATH = $(IGRAPHICS_PATH)/Drawing
 
 // IGraphics dependencies
 IGRAPHICS_DEPS_PATH = $(DEPS_PATH)/IGraphics
@@ -89,27 +85,25 @@ NSVG_PATH = $(IGRAPHICS_DEPS_PATH)/NanoSVG/src
 NVG_PATH = $(IGRAPHICS_DEPS_PATH)/NanoVG/src
 NVGMTL_PATH = $(IGRAPHICS_DEPS_PATH)/MetalNanoVG/src
 AGG_PATH = $(IGRAPHICS_DEPS_PATH)/AGG
-FT_PATH = $(STATICLIBS_INC_PATH)/freetype2
+FT_PATH = $(BUILT_LIBS_INC_PATH)/freetype2
 
 // you can optionally include this build setting, by adding it to EXTRA_INC_PATHS in MyProject.xcconfig in order to get all varieties of IGraphics support
-IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(CONTROLS_PATH) $(PLATFORMS_PATH) $(DRAWING_PATH) $(LICE_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(AGG_PATH) $(STATICLIBS_INC_PATH) $(FT_PATH)
+IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(IGRAPHICS_PATH)/Controls $(IGRAPHICS_PATH)/Platforms $(IGRAPHICS_PATH)/Drawing $(LICE_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(AGG_PATH) $(BUILT_LIBS_INC_PATH) $(FT_PATH)
 
-FAUST_INC_PATHS = /usr/local/include /usr/local/opt/include
+//FAUST_INC_PATHS = /usr/local/include /usr/local/opt/include
+FAUST_INC_PATHS = $(DEPS_PATH)/Libraries/include
 
 // *****  LINKER/LIBRARY INCLUDE PATHS AND LINKER FLAGS
-STATICLIBS_LIB_PATH = $(STATICLIBS_PATH)/lib
-
-IGRAPHICS_LIB_PATHS = $(STATICLIBS_LIB_PATH)
 
 //Static library Paths - on macOS we need to supply an absolute path to the static library, otherwise it will pick up a dynamic library with the same name
-LIB_CAIRO = $(IGRAPHICS_LIB_PATHS)/libcairo.a
-LIB_FT = $(IGRAPHICS_LIB_PATHS)/libfreetype.a
-LIB_PIXMAN = $(IGRAPHICS_LIB_PATHS)/libpixman-1.a
-LIB_PNG = $(IGRAPHICS_LIB_PATHS)/libpng.a
-LIB_FC = $(IGRAPHICS_LIB_PATHS)/libfontconfig.a
-LIB_Z = $(IGRAPHICS_LIB_PATHS)/libz.a
-LIB_BZ = $(IGRAPHICS_LIB_PATHS)/libbz2.a
-LIB_EX = $(IGRAPHICS_LIB_PATHS)/libexpat.a
+LIB_CAIRO = $(BUILT_LIBS_LIB_PATH)/libcairo.a
+LIB_FT = $(BUILT_LIBS_LIB_PATH)/libfreetype.a
+LIB_PIXMAN = $(BUILT_LIBS_LIB_PATH)/libpixman-1.a
+LIB_PNG = $(BUILT_LIBS_LIB_PATH)/libpng.a
+LIB_FC = $(BUILT_LIBS_LIB_PATH)/libfontconfig.a
+LIB_Z = $(BUILT_LIBS_LIB_PATH)/libz.a
+LIB_BZ = $(BUILT_LIBS_LIB_PATH)/libbz2.a
+LIB_EX = $(BUILT_LIBS_LIB_PATH)/libexpat.a
 
 //the following 3 libraries are "keg only" in homebrew so are not installed in /usr/local/lib
 //LIB_Z = /usr/local/opt/zlib/lib/libz.a
@@ -124,11 +118,16 @@ APP_FRAMEWORKS = -framework AppKit -framework CoreMidi -framework CoreAudio
 AU_FRAMEWORKS = -framework AudioToolbox -framework AudioUnit -framework CoreAudio
 AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework CoreAudio -framework CoreAudioKit
 
-LIB_FAUST = /usr/local/lib/libfaust.a
-LIB_CURSES = /usr/local/opt/ncurses/lib/libncurses.a
-LLVM = /usr/local/opt/llvm
+//LIB_FAUST = /usr/local/lib/libfaust.a
+//LIB_CURSES = /usr/local/opt/ncurses/lib/libncurses.a
+//LLVM = /usr/local/opt/llvm
+
+LIB_FAUST = $(DEPS_PATH)/Libraries/lib/libfaust.a
+LIB_CURSES = $(DEPS_PATH)/Libraries/lib/libncurses.a
+LLVM = $(DEPS_PATH)/Libraries/lib/llvm
 
 FAUST_LNK_FLAGS = $(LIB_FAUST) $(LIB_CURSES) $(LIB_Z) $(LIB_CRYPTO) $(LLVM)/lib/libLLVMLTO.a $(LLVM)/lib/libLLVMPasses.a $(LLVM)/lib/libLLVMObjCARCOpts.a $(LLVM)/lib/libLLVMSymbolize.a $(LLVM)/lib/libLLVMDebugInfoPDB.a $(LLVM)/lib/libLLVMDebugInfoDWARF.a $(LLVM)/lib/libLLVMMIRParser.a $(LLVM)/lib/libLLVMCoverage.a $(LLVM)/lib/libLLVMTableGen.a $(LLVM)/lib/libLLVMDlltoolDriver.a $(LLVM)/lib/libLLVMOrcJIT.a $(LLVM)/lib/libLLVMObjectYAML.a $(LLVM)/lib/libLLVMLibDriver.a $(LLVM)/lib/libLLVMOption.a $(LLVM)/lib/libLLVMX86Disassembler.a $(LLVM)/lib/libLLVMX86AsmParser.a $(LLVM)/lib/libLLVMX86CodeGen.a $(LLVM)/lib/libLLVMGlobalISel.a $(LLVM)/lib/libLLVMSelectionDAG.a $(LLVM)/lib/libLLVMAsmPrinter.a $(LLVM)/lib/libLLVMDebugInfoCodeView.a $(LLVM)/lib/libLLVMDebugInfoMSF.a $(LLVM)/lib/libLLVMX86Desc.a $(LLVM)/lib/libLLVMMCDisassembler.a $(LLVM)/lib/libLLVMX86Info.a $(LLVM)/lib/libLLVMX86AsmPrinter.a $(LLVM)/lib/libLLVMX86Utils.a $(LLVM)/lib/libLLVMMCJIT.a $(LLVM)/lib/libLLVMLineEditor.a $(LLVM)/lib/libLLVMInterpreter.a $(LLVM)/lib/libLLVMExecutionEngine.a $(LLVM)/lib/libLLVMRuntimeDyld.a $(LLVM)/lib/libLLVMCodeGen.a $(LLVM)/lib/libLLVMTarget.a $(LLVM)/lib/libLLVMCoroutines.a $(LLVM)/lib/libLLVMipo.a $(LLVM)/lib/libLLVMInstrumentation.a $(LLVM)/lib/libLLVMVectorize.a $(LLVM)/lib/libLLVMScalarOpts.a $(LLVM)/lib/libLLVMLinker.a $(LLVM)/lib/libLLVMIRReader.a $(LLVM)/lib/libLLVMAsmParser.a $(LLVM)/lib/libLLVMInstCombine.a $(LLVM)/lib/libLLVMTransformUtils.a $(LLVM)/lib/libLLVMBitWriter.a $(LLVM)/lib/libLLVMAnalysis.a $(LLVM)/lib/libLLVMProfileData.a $(LLVM)/lib/libLLVMObject.a $(LLVM)/lib/libLLVMMCParser.a $(LLVM)/lib/libLLVMMC.a $(LLVM)/lib/libLLVMBitReader.a $(LLVM)/lib/libLLVMCore.a $(LLVM)/lib/libLLVMBinaryFormat.a $(LLVM)/lib/libLLVMSupport.a $(LLVM)/lib/libLLVMDemangle.a
+
 // ***** BINARY OUTPUT LOCATIONS ------------------------------------------------------------------------------------------------------------------------
 
 // Where to build the plug-ins / app bundles ...
@@ -141,3 +140,6 @@ VST3_PATH = ~/Library/Audio/Plug-Ins/VST3
 AU_PATH = ~/Library/Audio/Plug-Ins/Components
 AAX_PATH = /Applications/Avid/ProTools_3PDev/Plug-Ins
 APP_PATH = ~/Applications
+
+FAUST_DEFS = FAUST_EXE=\"$(BUILT_LIBS_PATH)/bin/faust\" DEFAULT_FAUST_LIBRARY_PATH=\"$(BUILT_LIBS_PATH)/share/faust\"
+
