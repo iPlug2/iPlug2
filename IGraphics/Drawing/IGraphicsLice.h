@@ -91,7 +91,7 @@ public:
   void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
     
   IColor GetPoint(int x, int y) override;
-  void* GetDrawingContext() override { return mDrawBitmap->getBits(); }
+  void* GetDrawContext() override { return mDrawBitmap->getBits(); }
 
   bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure) override;
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;

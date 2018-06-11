@@ -101,7 +101,7 @@ void IVSliderControl::Draw(IGraphics& g)
 {
 #ifdef IGRAPHICS_NANOVG
   
-  NVGcontext* vg = (NVGcontext*) g.GetData();
+  NVGcontext* vg = (NVGcontext*) g.GetDrawContext();
 //
   const int h = mTrack.H();
   const int w = mTrack.W();

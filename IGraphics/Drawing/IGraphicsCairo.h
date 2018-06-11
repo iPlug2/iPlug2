@@ -67,7 +67,7 @@ public:
   void PathTransformRotate(float angle) override { cairo_rotate(mContext, DegToRad(angle)); }
     
   IColor GetPoint(int x, int y) override;
-  void* GetDrawingContext() override { return (void*) mContext; }
+  void* GetDrawContext() override { return (void*) mContext; }
 
   bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure) override;
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
