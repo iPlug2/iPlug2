@@ -277,6 +277,16 @@ bool IGraphicsNanoVG::DrawText(const IText& text, const char* str, IRECT& bounds
     default:
       break;
   }
+  
+  switch (text.mVAlign) // todo valign
+  {
+    case IText::kVAlignBottom: align |= NVG_ALIGN_BOTTOM; break;
+    case IText::kVAlignMiddle: align |= NVG_ALIGN_MIDDLE; break;
+    case IText::kVAlignTop: align |= NVG_ALIGN_TOP; break;
+    default:
+      break;
+  }
+  
   nvgTextAlign(mVG, align | NVG_ALIGN_BASELINE);
   
   if(measure)
