@@ -190,7 +190,7 @@ public:
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
 
   IColor GetPoint(int x, int y) override;
-  void* GetData() override { return 0; } //TODO
+  void* GetDrawingContext() override { return nullptr; } //TODO
   const char* GetDrawingAPIStr() override { return "AGG"; }
 
  //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;

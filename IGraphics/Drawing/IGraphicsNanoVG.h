@@ -58,7 +58,7 @@ public:
   void PathTransformRotate(float angle) override { nvgRotate(mVG, DegToRad(angle)); }
     
   IColor GetPoint(int x, int y) override;
-  void* GetData() override { return (void*) mVG; }
+  void* GetDrawingContext() override { return (void*) mVG; }
 
   bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure) override;
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;

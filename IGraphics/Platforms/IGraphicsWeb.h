@@ -59,7 +59,7 @@ public:
   void PathTransformRotate(float angle) override { GetContext().call<void>("rotate", angle); }
 
   IColor GetPoint(int x, int y) override {} // TODO:
-  void* GetData() override {} // TODO:
+  void* GetDrawingContext() override { return nullptr; } // TODO:
 
   bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure) override;
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
