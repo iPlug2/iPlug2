@@ -36,7 +36,7 @@ public:
   ~IGraphicsWeb();
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend) override;
-  void DrawRotatedBitmap(IBitmap& bitmap, int destCentreX, int destCentreY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) { IGraphicsPathBase::DrawRotatedBitmap(bitmap, destCentreX, destCentreY, DegToRad(angle), yOffsetZeroDeg, pBlend); }
+  void DrawRotatedBitmap(IBitmap& bitmap, int destCentreX, int destCentreY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override { IGraphicsPathBase::DrawRotatedBitmap(bitmap, destCentreX, destCentreY, DegToRad(angle), yOffsetZeroDeg, pBlend); }
   
   void PathClear() override { GetContext().call<void>("beginPath"); }
   void PathStart() override { GetContext().call<void>("beginPath"); } // TODO:
@@ -58,7 +58,7 @@ public:
   void PathTransformScale(float scaleX, float scaleY) override { GetContext().call<void>("scale", scaleX, scaleY); }
   void PathTransformRotate(float angle) override { GetContext().call<void>("rotate", angle); }
 
-  IColor GetPoint(int x, int y) override {} // TODO:
+  IColor GetPoint(int x, int y) override { return COLOR_BLACK; } // TODO:
   void* GetDrawContext() override { return nullptr; } // TODO:
 
   bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure) override;
@@ -78,13 +78,13 @@ public:
 
   void ForceEndUserEdit() override {} // TODO:
   void Resize(int w, int h, float scale) override;
-  void* OpenWindow(void* pParentWnd) override {} // TODO:
+  void* OpenWindow(void* pParentWnd) override { return nullptr; }
   void CloseWindow() override {} // TODO:
-  void* GetWindow() override {} // TODO:
+  void* GetWindow() override { return nullptr; } // TODO:
   bool WindowIsOpen() override { return GetWindow(); } // TODO: ??
-  bool GetTextFromClipboard(WDL_String& str) override {} // TODO:
+  bool GetTextFromClipboard(WDL_String& str) override;
   void UpdateTooltips() override {} // TODO:
-  int ShowMessageBox(const char* str, const char* caption, int type) override {} // TODO:
+  int ShowMessageBox(const char* str, const char* caption, int type) override;
   
   IPopupMenu* CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override
   {
@@ -92,14 +92,14 @@ public:
     
     assert(mPopupControl != nullptr);
     
-    mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
+    return mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
   }
   
   void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") override {} // TODO:
-  void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action = kFileOpen, const char* extensions = 0) override {} // TODO:
-  void PromptForDirectory(WDL_String& path) override {} // TODO:
-  bool PromptForColor(IColor& color, const char* str = "") override {} // TODO:
-  bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) override {} // TODO:
+  void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action = kFileOpen, const char* extensions = 0) override {} // TODO: <input type="file" style="display: none" />
+  void PromptForDirectory(WDL_String& path) override {} // TODO: <input type="file" style="display: none" />
+  bool PromptForColor(IColor& color, const char* str = "") override { return false; } // TODO: https://www.w3schools.com/jsref/dom_obj_color.asp
+  bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) override;
   const char* GetPlatformAPIStr() override { return "WEB"; }
 
   void OnMouseEvent(val event, bool outside);

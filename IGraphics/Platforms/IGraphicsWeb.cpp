@@ -55,7 +55,7 @@ IGraphicsWeb::IGraphicsWeb(IEditorDelegate& dlg, int w, int h, int fps)
   // Bind event listener to the canvas for all mouse events
   char callback[256];
 
-  sprintf(callback, "Module.mouse_web_handler('%x', e, 0);", this);
+  sprintf(callback, "Module.mouse_web_handler('%x', e, 0);", (unsigned int) this); // TODO: Fix nastiness
 
   emscripten::val canvas = GetCanvas();
   val eventListener = val::global("Function").new_(std::string("e"), std::string(callback));
@@ -67,11 +67,11 @@ IGraphicsWeb::IGraphicsWeb(IEditorDelegate& dlg, int w, int h, int fps)
   canvas.call<void>("addEventListener", std::string("mouseout"), eventListener);
   canvas.call<void>("addEventListener", std::string("mousewheel"), eventListener);
 
-  sprintf(callback, "Module.mouse_web_handler('%x', e, 1);", this);
+  sprintf(callback, "Module.mouse_web_handler('%x', e, 1);", (unsigned int) this); // TODO: Fix nastiness
 
   mWindowListener = new RetainVal(val::global("Function").new_(std::string("e"), std::string(callback)));
 
-  sprintf(callback, "Module.key_web_handler('%x', e);", this);
+  sprintf(callback, "Module.key_web_handler('%x', e);", (unsigned int) this); // TODO: Fix nastiness
 
   val eventListener2 = val::global("Function").new_(std::string("e"), std::string(callback));
   val tabIndex = GetCanvas().call<val>("setAttribute", std::string("tabindex"), 1);
@@ -250,7 +250,7 @@ bool IGraphicsWeb::DrawText(const IText& text, const char* str, IRECT& bounds, b
   std::string textString(str);
   
   char fontString[FONT_LEN + 64];
-  char* styles[] = { "normal", "bold", "italic" };
+  const char* styles[] = { "normal", "bold", "italic" };
   double textHeight = text.mSize;
   context.set("textBaseline", std::string("top"));
   val font = context["font"];
@@ -469,4 +469,46 @@ void IGraphicsWeb::OnMainLoopTimer()
   
   if (gGraphics->IsDirty(r))
     gGraphics->Draw(r);
+}
+
+bool IGraphicsWeb::GetTextFromClipboard(WDL_String& str)
+{
+  val clipboardText = val::global("window")["clipboardData"].call<val>("getData", std::string("Text"));
+  
+  str.Set(clipboardText.as<std::string>().c_str());
+
+  return true; // TODO: return?
+}
+
+#define MB_OK 0
+#define MB_OKCANCEL 1
+#define MB_YESNOCANCEL 3
+#define MB_YESNO 4
+#define MB_RETRYCANCEL 5
+
+int IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, int type)
+{
+  
+  switch (type)
+  {
+    case MB_OK:
+        val::global("window").call<val>("alert", std::string(str));
+      break;
+    case MB_YESNO:
+        val::global("window").call<val>("confirm", std::string(str));
+       break;
+    // case MB_CANCEL:
+    //   break;
+    default:
+      break;
+  }
+
+  return 0; // TODO: return value?
+}
+
+bool IGraphicsWeb::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
+{
+  val::global("window").call<val>("open", std::string(url), std::string("_blank"));
+  
+  return true;
 }
