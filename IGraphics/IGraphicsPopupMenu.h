@@ -130,7 +130,7 @@ public:
   
   Item* AddItem(const char* str, IPopupMenu* pSubmenu)
   {
-    assert(pSubmenu->GetFunction() != nullptr); // submenus should not have existing functions
+    assert(pSubmenu->GetFunction() == nullptr); // submenus should not have existing functions
     
     if(GetFunction())
       pSubmenu->SetFunction(GetFunction());
