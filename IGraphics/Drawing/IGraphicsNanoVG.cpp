@@ -364,7 +364,7 @@ void IGraphicsNanoVG::LoadFont(const char* name)
   assert (fontID != -1); // font not found!
 }
 
-void IGraphicsNanoVG::DrawDropShadow(const IRECT& bounds, float cr, float ydrop, float pad)
+void IGraphicsNanoVG::DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, float pad)
 {
   IRECT inner = bounds.GetPadded(-pad);
   NVGpaint shadowPaint = nvgBoxGradient(mVG, inner.L, inner.T + ydrop, inner.W(), inner.H(), cr * 2., 20, NanoVGColor(COLOR_BLACK_DROP_SHADOW), NanoVGColor(COLOR_TRANSPARENT));

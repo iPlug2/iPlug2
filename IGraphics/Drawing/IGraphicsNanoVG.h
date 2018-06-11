@@ -71,7 +71,7 @@ public:
 
   void LoadFont(const char* name) override;
   
-  void DrawDropShadow(const IRECT& bounds, float cr, float ydrop, float pad) override;
+  void DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, float pad) override;
   void SetPlatformContext(void* pContext) override;
 protected:
 

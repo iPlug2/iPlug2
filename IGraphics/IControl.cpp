@@ -598,7 +598,7 @@ void IPopupMenuControlBase::DrawBackground(IGraphics& g, const IRECT& bounds)
 
 void IPopupMenuControlBase::DrawShadow(IGraphics& g, const IRECT& bounds)
 {
-  g.DrawDropShadow(bounds, mRoundness, 2., mDropShadowSize);
+  g.DrawBoxShadow(bounds, mRoundness, 2., mDropShadowSize);
 }
 
 void IPopupMenuControlBase::DrawCell(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem)
