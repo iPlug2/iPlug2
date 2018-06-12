@@ -268,6 +268,11 @@ public:
     IBitmapBase::GrayOut(gray);
     IControl::GrayOut(gray);
   }
+  
+  void OnRescale() override
+  {
+    mBitmap = GetUI()->GetScaledBitmap(mBitmap);
+  }
 
 protected:
   WDL_String mStr;
