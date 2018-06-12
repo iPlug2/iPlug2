@@ -53,7 +53,7 @@ NSString* ToNSString(const char* cStr);
 - (NSMenuItem*) MenuItem;
 @end
 
-@interface IGRAPHICS_VIEW : NSView
+@interface IGRAPHICS_VIEW : NSView <NSTextFieldDelegate>
 {
   NSTimer* mTimer;
   NSTextField* mTextFieldView;
