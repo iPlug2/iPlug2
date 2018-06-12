@@ -31,16 +31,8 @@ public:
       {
         mMouseClickedOnResizeHandle = true;
       }
-      else
-      {
-        if(mod.A)
-        {
-          WDL_String json;
-          pControl->GetJSON(json, c);
-          //printf("%s\n", json.Get());
-          mClickedOnControl = GetUI()->AttachControl(new IPanelControl(mDelegate, mMouseDownRECT, COLOR_BLACK));
-        }
-      }
+      
+      //TODO: add control?
     }
     else if(mod.R)
     {

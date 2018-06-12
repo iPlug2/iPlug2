@@ -288,17 +288,6 @@ void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds
   SetDirty(); // will send parameter value to delegate
 }
 
-void IControl::GetJSON(WDL_String& json, int idx) const
-{
-  json.AppendFormatted(8192, "{");
-  json.AppendFormatted(8192, "\"id\":%i, ", idx);
-//  json.AppendFormatted(8192, "\"class\":\"%s\", ", typeid(*this).name());
-//  json.AppendFormatted(8192, "\"min\":%f, ", GetMin());
-//  json.AppendFormatted(8192, "\"max\":%f, ", GetMax());
-//  json.AppendFormatted(8192, "\"default\":%f, ", GetDefault());
-  json.AppendFormatted(8192, "}");
-}
-
 void IBitmapControl::Draw(IGraphics& g)
 {
   int i = 1;

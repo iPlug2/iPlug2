@@ -229,8 +229,6 @@ public:
   void SetGraphics(IGraphics* pGraphics) { mGraphics = pGraphics; }
   IGraphics* GetUI() { return mGraphics; }
 
-  void GetJSON(WDL_String& json, int idx) const;
-
   bool GetMouseIsOver() { return mMouseIsOver; }
   
   virtual void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar = 1.);
