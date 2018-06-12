@@ -105,7 +105,7 @@ IGraphicsNanoVG::IGraphicsNanoVG(IEditorDelegate& dlg, int w, int h, int fps)
   initGraph(mPerfGraph, GRAPH_RENDER_FPS, "Frame Time");
  #endif
   
-  DBGMSG("IGraphics NanoVG @ %i FPS", fps);
+  DBGMSG("IGraphics NanoVG @ %i FPS\n", fps);
 }
 
 IGraphicsNanoVG::~IGraphicsNanoVG() 
