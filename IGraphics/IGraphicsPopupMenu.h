@@ -188,7 +188,16 @@ public:
   
   void SetMultiCheck(bool multicheck) { mCanMultiCheck = multicheck; }
   
-  void Clear() { mMenuItems.Empty(true); }
+  void Clear(bool resetEverything = true)
+  {
+    if(resetEverything)
+    {
+      SetPrefix(0);
+      mCanMultiCheck = false;
+    }
+    
+    mMenuItems.Empty(true);
+  }
 
   bool CheckItem(int index, bool state)
   {
