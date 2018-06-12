@@ -163,6 +163,16 @@ public:
    * @return The new chunk position (endPos)*/
   virtual int UnserializeState(const IByteChunk& chunk, int startPos) { TRACE; return UnserializeParams(chunk, startPos); }
   
+  /** VST3 ONLY! - THIS IS ONLY INCLUDED FOR COMPATIBILITY - NOONE ELSE SHOULD NEED IT!
+   * @param chunk The output bytechunk where data can be serialized.
+   * @return \c true if serialization was successful */
+  virtual bool SerializeVST3CtrlrState(IByteChunk& chunk) { return true; }
+  
+  /** VST3 ONLY! - THIS IS ONLY INCLUDED FOR COMPATIBILITY - NOONE ELSE SHOULD NEED IT!
+   * @param chunk chunk The incoming chunk containing the state data.
+   * @return The new chunk position (endPos) */
+  virtual int UnserializeVST3CtrlrState(const IByteChunk& chunk, int startPos) { return startPos; }
+  
   /** Get the index of the current, active preset
    * @return The index of the current preset */
   int GetCurrentPresetIdx() const { return mCurrentPresetIdx; }
