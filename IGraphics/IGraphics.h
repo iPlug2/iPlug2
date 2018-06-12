@@ -329,7 +329,7 @@ public:
 
   /** Gets a void pointer to IGraphics Draw Class context data (e.g raw framebuffer).
    * See draw class implementation headers (e.g. IGraphicsLice.h) for what you can cast the void pointer to */
-   virtual void* GetDrawingContext() = 0;
+   virtual void* GetDrawContext() = 0;
 
   /** @return A CString representing the Drawing API in use e.g. "LICE" */
   virtual const char* GetDrawingAPIStr() = 0;
