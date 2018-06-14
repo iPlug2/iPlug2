@@ -62,8 +62,13 @@ double IParam::ShapePowCurve::ValueToNormalized(double value, const IParam& para
 // Exponential shape
 void IParam::ShapeExp::Init(const IParam& param)
 {
-  mAdd = std::log(param.GetMin());
-  mMul = std::log(param.GetMax() / param.GetMin());
+  double min = param.GetMin();
+  
+  if(min <= 0.)
+    min = 0.00000001;
+  
+  mAdd = std::log(min);
+  mMul = std::log(param.GetMax() / min);
 }
 
 double IParam::ShapeExp::NormalizedToValue(double value, const IParam& param) const
