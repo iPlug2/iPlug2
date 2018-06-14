@@ -46,7 +46,8 @@ public:
   : mBitmap(pBitmap)
   , mWidth(w)
   , mHeight(h)
-  , mScale(s) {}
+  , mScale(s)
+  {}
 
   APIBitmap()
   : mBitmap(nullptr)
@@ -72,12 +73,13 @@ public:
   int GetHeight() const { return mHeight; }
   int GetScale() const { return mScale; }
 
-  private:
+private:
   void* mBitmap;
   int mWidth;
   int mHeight;
   int mScale;
 };
+#endif // !IGRAPHICS_NANOVG
 
 /** Used to manage bitmap data, independant of draw class/platform.
  * An IBitmap's width and height are always in relation to a 1:1 (low dpi) screen. Any scaling happens at the drawing stage. */
@@ -91,8 +93,7 @@ public:
   * @param h Bitmap height (in pixels)
   * @param n Number of frames (for multibitmaps)
   * @param framesAreHorizontal \c true if the frames are positioned horizontally
-  * @param name Resource name for the bitmap
-  */
+  * @param name Resource name for the bitmap */
   IBitmap(APIBitmap* pAPIBitmap, int n, bool framesAreHorizontal, const char* name = "")
     : mAPIBitmap(pAPIBitmap)
     , mW(pAPIBitmap->GetWidth() / pAPIBitmap->GetScale())
@@ -103,7 +104,12 @@ public:
   {
   }
 
-  IBitmap() : mAPIBitmap(nullptr), mW(0), mH(0), mN(0), mFramesAreHorizontal(false)
+  IBitmap()
+  : mAPIBitmap(nullptr)
+  , mW(0)
+  , mH(0)
+  , mN(0)
+  , mFramesAreHorizontal(false)
   {
   }
 
@@ -115,39 +121,32 @@ public:
 
   /** @return Width of a single frame */
   inline int FW() const { return (mFramesAreHorizontal ? mW / mN : mW); }
-  /**
-  * @return Height of a single frame
-  */
+  
+  /** @return Height of a single frame */
   inline int FH() const { return (mFramesAreHorizontal ? mH : mH / mN); }
-  /**
-  * @return number of frames
-  */
+  
+  /** * @return number of frames */
   inline int N() const { return mN; }
-  /**
-   * @return the scale of the bitmap
-   */
+  
+  /** * @return the scale of the bitmap */
   inline int GetScale() const { return mAPIBitmap->GetScale(); }
 
-  /**
-  * @return a pointer to the referenced APIBitmap
-  */
+  /** * @return a pointer to the referenced APIBitmap */
   inline APIBitmap* GetAPIBitmap() const { return mAPIBitmap; }
-  /**
-  * @return the raw underlying bitmap
-  */
+  
+#ifndef IGRAPHICS_NANOVG
+  /** * @return the raw underlying bitmap */
   inline void* GetRawBitmap() const { return mAPIBitmap->GetBitmap(); }
-  /**
-  * @return whether or not frames are stored horiztonally
-  */
+#endif
+  /** * @return whether or not frames are stored horiztonally */
   inline bool GetFramesAreHorizontal() const { return mFramesAreHorizontal; }
-  /**
-  * @return the resource name
-  */
+  
+  /** * @return the resource name */
   inline const WDL_String& GetResourceName() const { return mResourceName; }
 
 private:
 
-  /** Pointer to the API specific bitmap data */
+  /** Pointer to the API specific bitmap */
   APIBitmap* mAPIBitmap;
   /** Bitmap width (in pixels) */
   int mW;
