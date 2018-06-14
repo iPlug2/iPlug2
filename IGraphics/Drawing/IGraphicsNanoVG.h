@@ -14,7 +14,7 @@ class PerfGraph;
 class NanoVGBitmap : public APIBitmap
 {
 public:
-  NanoVGBitmap(NVGcontext* context, const char* path, double sourceScale);
+  NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale);
   virtual ~NanoVGBitmap();
 private:
   NVGcontext* mVG;
