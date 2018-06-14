@@ -450,21 +450,25 @@ bool IGraphicsLice::MeasureText(const IText& text, const char* str, IRECT& bound
 
 APIBitmap* IGraphicsLice::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
 {
-  const char *path = resourcePath.Get();
+  const char* path = resourcePath.Get();
     
   bool ispng = strstr(path, "png") != nullptr;
-#ifdef OS_MAC
+#if defined OS_MAC
   if (ispng) return new LICEBitmap(LICE_LoadPNG(path), scale);
-#else //OS_WIN
+#elif defined OS_WIN
   if (ispng) return new LICEBitmap(LICE_LoadPNGFromResource((HINSTANCE) GetPlatformInstance(), path, 0), scale);
+#else
+  #error NOT IMPLEMENTED
 #endif
 
 #ifdef IPLUG_JPEG_SUPPORT
   bool isjpg = (strstr(path, "jpg") != nullptr) && (strstr(path, "jpeg") != nullptr);
 #ifdef OS_MAC
   if (isjpg) return new LICEBitmap(LICE_LoadJPG(path), scale);
-#else //OS_WIN
+#elif defined OS_WIN
   if (isjpg) return new LICEBitmap(LICE_LoadJPGFromResource((HINSTANCE)GetPlatformInstance(), path, 0), scale);
+#else
+  #error NOT IMPLEMENTED
 #endif
 #endif
 
