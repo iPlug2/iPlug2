@@ -316,15 +316,14 @@ void ITextControl::SetTextFromDelegate(const char* str)
 
 void ITextControl::Draw(IGraphics& g)
 {
-  char* cStr = mStr.Get();
-  if (CStringHasContents(cStr))
-  {
-    g.DrawText(mText, cStr, mRECT);
-  }
+  g.FillRect(mBGColor, mRECT);
+  
+  if (mStr.GetLength())
+    g.DrawText(mText, mStr.Get(), mRECT);
 }
 
 ICaptionControl::ICaptionControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx, const IText& text, bool showParamLabel)
-: ITextControl(dlg, bounds, text)
+: ITextControl(dlg, bounds, "", paramIdx, text)
 , mShowParamLabel(showParamLabel)
 {
   assert(paramIdx > kNoParameter);

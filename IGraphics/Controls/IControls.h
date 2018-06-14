@@ -147,7 +147,7 @@ class IBSwitchControl : public IBitmapControl
 {
 public:
   IBSwitchControl(IEditorDelegate& dlg, float x, float y, int paramIdx, IBitmap& bitmap)
-  : IBitmapControl(dlg, x, y, paramIdx, bitmap) {}
+  : IBitmapControl(dlg, x, y, bitmap, paramIdx) {}
   virtual ~IBSwitchControl() {}
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
@@ -244,8 +244,8 @@ class IBTextControl : public ITextControl
                     , public IBitmapBase
 {
 public:
-  IBTextControl(IEditorDelegate& dlg, IRECT bounds, IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType blend = kBlendNone)
-  : ITextControl(dlg, bounds, text, str)
+  IBTextControl(IEditorDelegate& dlg, IRECT bounds, IBitmap& bitmap, int paramIdx = kNoParameter, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType blend = kBlendNone)
+  : ITextControl(dlg, bounds, str, paramIdx, text)
   , IBitmapBase(bitmap, blend)
   , mCharWidth(charWidth)
   , mCharHeight(charHeight)

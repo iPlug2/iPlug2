@@ -500,8 +500,8 @@ protected:
 class IPanelControl : public IControl
 {
 public:
-  IPanelControl(IEditorDelegate& dlg, IRECT bounds, const IColor& color)
-  : IControl(dlg, bounds)
+  IPanelControl(IEditorDelegate& dlg, IRECT bounds, const IColor& color, int paramIdx = kNoParameter)
+  : IControl(dlg, bounds, paramIdx)
   , mColor(color)
   {
   }
@@ -520,21 +520,14 @@ class IBitmapControl : public IControl
                      , public IBitmapBase
 {
 public:
-  /** Creates a bitmap control with a given parameter
+  /** Creates a bitmap control
    * @param paramIdx Parameter index (-1 or kNoParameter, if this should not be linked to a parameter)
    * @param bitmap Image to be drawn */
-  IBitmapControl(IEditorDelegate& dlg, float x, float y, int paramIdx, IBitmap& bitmap, EBlendType blend = kBlendNone)
+  IBitmapControl(IEditorDelegate& dlg, float x, float y, IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendNone)
   : IControl(dlg, IRECT(x, y, bitmap), paramIdx)
   , IBitmapBase(bitmap, blend)
   {}
-
-  /** Creates a bitmap control without a parameter */
-  IBitmapControl(IEditorDelegate& dlg, float x, float y, IBitmap& bitmap, EBlendType blend = kBlendNone)
-  : IControl(dlg, IRECT(x, y, bitmap), kNoParameter)
-  , IBitmapBase(bitmap, blend)
-  {
-  }
-
+  
   virtual ~IBitmapControl() {}
 
   virtual void Draw(IGraphics& g) override;
@@ -554,7 +547,7 @@ public:
 class ISVGControl : public IControl
 {
 public:
-  ISVGControl(IEditorDelegate& dlg, ISVG& svg, IRECT bounds, int paramIdx)
+  ISVGControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx, ISVG& svg)
     : IControl(dlg, bounds, paramIdx)
     , mSVG(svg)
   {}
@@ -576,9 +569,10 @@ private:
 class ITextControl : public IControl
 {
 public:
-  ITextControl(IEditorDelegate& dlg, IRECT bounds, const IText& text, const char* str = "")
-  : IControl(dlg, bounds)
+  ITextControl(IEditorDelegate& dlg, IRECT bounds, const char* str = "", int paramIdx = kNoParameter, const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR)
+  : IControl(dlg, bounds, paramIdx)
   , mStr(str)
+  , mBGColor(BGColor)
   {
     IControl::mText = text;
   }
@@ -592,12 +586,13 @@ public:
 
 protected:
   WDL_String mStr;
+  IColor mBGColor;
 };
 
 class ICaptionControl : public ITextControl
 {
 public:
-  ICaptionControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx, const IText& text, bool showParamLabel = true);
+  ICaptionControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx, const IText& text = DEFAULT_TEXT, bool showParamLabel = true);
   ~ICaptionControl() {}
   
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
