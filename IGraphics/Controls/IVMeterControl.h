@@ -60,7 +60,7 @@ public:
   };
   
   IVMeterControl(IEditorDelegate& dlg, IRECT bounds, const char* trackNames = 0, ...)
-  : IVTrackControlBase(dlg, bounds, MAXNC, trackNames)
+  : IVTrackControlBase(dlg, bounds, MAXNC, 0, 1., trackNames)
   {
   }
   

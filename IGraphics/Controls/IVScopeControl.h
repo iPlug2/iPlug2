@@ -65,8 +65,9 @@ public:
   };
   
   IVScopeControl(IEditorDelegate& dlg, IRECT bounds, const char* trackNames = 0, ...)
-  : IControl(dlg, bounds, MAXNC)
+  : IControl(dlg, bounds)
   {
+    AttachIControl(this);
   }
   
   virtual void Draw(IGraphics& g) override

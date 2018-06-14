@@ -663,18 +663,29 @@ protected:
 };
 
 class IVTrackControlBase : public IControl
-, public IVectorBase
+                         , public IVectorBase
 {
 public:
-  IVTrackControlBase(IEditorDelegate& dlg, IRECT bounds, int maxNTracks = 1, const char* trackNames = 0, ...)
+  IVTrackControlBase(IEditorDelegate& dlg, IRECT bounds, int maxNTracks = 1, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
   : IControl(dlg, bounds)
   , mMaxNTracks(maxNTracks)
+  , mMinTrackValue(minTrackValue)
+  , mMaxTrackValue(maxTrackValue)
   {
     for (auto i=0; i<maxNTracks; i++) {
-      mTrackData.Add(TrackData());
+      mTrackData.Add(0.f);
+      mTrackBounds.Add(IRECT());
     }
     
     AttachIControl(this);
+  }
+  
+  void MakeRects()
+  {
+    for (auto ch = 0; ch < MaxNTracks(); ch++)
+    {
+      mTrackBounds.Get()[ch] = mRECT.GetPadded(-mOuterPadding).SubRect(EDirection(!mDirection), MaxNTracks(), ch);
+    }
   }
   
   void Draw(IGraphics& g) override
@@ -685,9 +696,7 @@ public:
     
     for (auto ch = 0; ch < MaxNTracks(); ch++)
     {
-      IRECT trackRect = mRECT.GetPadded(-mOuterPadding).SubRect(EDirection(!mDirection), MaxNTracks(), ch).GetPadded(-mTrackPadding);
-      
-      DrawTrack(g, trackRect, ch);
+      DrawTrack(g, mTrackBounds.Get()[ch], ch);
     }
     
     if(mDrawFrame)
@@ -696,12 +705,13 @@ public:
   
   int NTracks() { return mNTracks; }
   int MaxNTracks() { return mMaxNTracks; }
-  
+  void SetTrackData(int trackIdx, float val) { mTrackData.Get()[trackIdx] = Clip(val, mMinTrackValue, mMaxTrackValue); }
+  float* GetTrackData(int trackIdx) { return &mTrackData.Get()[trackIdx];  }
+  void SetAllTrackData(float val) { memset(mTrackData.Get(), Clip(val, mMinTrackValue, mMaxTrackValue), mTrackData.GetSize() * sizeof(float) ); }
 private:
   virtual void DrawTrack(IGraphics& g, IRECT& r, int chIdx)
   {
     DrawTrackBG(g, r, chIdx);
-    
     DrawTrackHandle(g, r, chIdx);
     
     if(mDrawTrackFrame)
@@ -715,9 +725,7 @@ private:
   
   virtual void DrawTrackHandle(IGraphics& g, IRECT& r, int chIdx)
   {
-    TrackData& data = mTrackData.Get()[chIdx];
-    
-    IRECT fillRect = r.FracRect(mDirection, data.value);
+    IRECT fillRect = r.FracRect(mDirection, *GetTrackData(chIdx));
     
     g.FillRect(GetColor(kFG), fillRect); // TODO: shadows!
     
@@ -736,17 +744,22 @@ private:
     g.FillRect(GetColor(kHL), r);
   }
   
-  struct TrackData
+  void OnResize() override
   {
-    float value = 0.;
-  };
+    MakeRects();
+  }
   
 protected:
+  
   EDirection mDirection = EDirection::kVertical;
   int mMaxNTracks;
-  WDL_TypedBuf<TrackData> mTrackData;
+  WDL_TypedBuf<float> mTrackData; // real values of sliders/meters
+  WDL_TypedBuf<IRECT> mTrackBounds;
+
   int mNTracks = 1;
   
+  float mMinTrackValue;
+  float mMaxTrackValue;
   float mOuterPadding = 10.;
   float mTrackPadding = 2;
   float mPeakSize = 5.;
