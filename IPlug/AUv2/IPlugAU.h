@@ -72,6 +72,8 @@ public:
 
 //IPlugProcessor
   bool SendMidiMsg(const IMidiMsg& msg) override;
+  bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs) override;
+  bool SendSysEx(ISysEx& msg) override;
   void SetLatency(int samples) override;
 
 //IPlugAU
@@ -188,7 +190,7 @@ private:
 #pragma mark -
 private:
   bool mActive = false; // TODO: is this necessary? is it correct?
-  double mRenderTimestamp = -1.0;
+  double mLastRenderSampleTime = -1.0;
   WDL_String mBundleID;
   WDL_String mCocoaViewFactoryClassName;
   AudioComponentInstance mCI = nullptr;
@@ -200,7 +202,8 @@ private:
   WDL_TypedBuf<AudioSampleType> mOutScratchBuf;
   WDL_PtrList<AURenderCallbackStruct> mRenderNotify;
   AUMIDIOutputCallbackStruct mMidiCallback;
-  
+  AudioTimeStamp mLastRenderTimeStamp;
+
   friend class IPlugAUFactory;
 };
 

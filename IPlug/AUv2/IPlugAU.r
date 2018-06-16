@@ -93,6 +93,8 @@ resource 'dlle' (RES_ID) {
 resource 'thng' (RES_ID, RES_NAME) {
 #if PLUG_IS_INSTRUMENT
 kAudioUnitType_MusicDevice,
+#elif PLUG_IS_MFX
+'aumi',
 #elif PLUG_DOES_MIDI
 kAudioUnitType_MusicEffect,
 #else

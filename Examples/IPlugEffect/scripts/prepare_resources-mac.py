@@ -5,6 +5,7 @@
 kAudioUnitType_MusicDevice      = "aumu"
 kAudioUnitType_MusicEffect      = "aumf"
 kAudioUnitType_Effect           = "aufx"
+kAudioUnitType_MIDIProcessor    = "aumi"
 
 DONT_COPY = ("")
 
@@ -93,6 +94,8 @@ def main():
 
   if config['PLUG_IS_INSTRUMENT']:
     COMPONENT_TYPE = kAudioUnitType_MusicDevice
+  elif config['PLUG_IS_MFX']:
+    COMPONENT_TYPE = kAudioUnitType_MIDIProcessor
   elif config['PLUG_DOES_MIDI']:
      COMPONENT_TYPE = kAudioUnitType_MusicEffect
   else:

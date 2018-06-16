@@ -83,7 +83,7 @@ public:
   /** Send a collection of MIDI messages
    * @param msg The IMidiMsg to send
    * @return \c true if successful */
-  bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs);
+  virtual bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs);
 
   /** Send a single MIDI System Exclusive (SysEx) message
    * @param msg The ISysEx to send

@@ -115,7 +115,7 @@ IGRAPHICS_LNK_FLAGS = $(LIB_CAIRO) $(LIB_FT) $(LIB_PIXMAN) $(LIB_PNG) $(LIB_FC) 
 
 ALL_FRAMEWORKS = -framework Cocoa -framework Carbon -framework CoreFoundation -framework CoreData -framework Foundation -framework CoreServices -framework Metal -framework QuartzCore
 APP_FRAMEWORKS = -framework AppKit -framework CoreMidi -framework CoreAudio
-AU_FRAMEWORKS = -framework AudioToolbox -framework AudioUnit -framework CoreAudio
+AU_FRAMEWORKS = -framework AudioToolbox -framework AudioUnit -framework CoreAudio -framework CoreMidi
 AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework CoreAudio -framework CoreAudioKit
 
 //LIB_FAUST = /usr/local/lib/libfaust.a

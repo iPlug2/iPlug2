@@ -14,6 +14,7 @@ config["PLUG_MFR_UID"] = ""
 config["AUV2_FACTORY"] = ""
 config["AUV2_ENTRY"] = ""
 config["PLUG_IS_INSTRUMENT"] = 0
+config["PLUG_IS_MFX"] = 0
 config["PLUG_DOES_MIDI"] = 0
 config["PLUG_HAS_UI"] = 0
 config["PLUG_SHARED_RESOURCES"] = 0
@@ -116,6 +117,9 @@ def parse_config(projectpath):
 
     if "#define PLUG_IS_INSTRUMENT " in line:
       config["PLUG_IS_INSTRUMENT"] = int(line[len("#define PLUG_IS_INSTRUMENT "):], 16)
+
+    if "#define PLUG_IS_MFX " in line:
+      config["PLUG_IS_MFX"] = int(line[len("#define PLUG_IS_MFX "):], 16)
 
     if "#define PLUG_DOES_MIDI " in line:
       config["PLUG_DOES_MIDI"] = int(line[len("#define PLUG_DOES_MIDI "):], 16)
