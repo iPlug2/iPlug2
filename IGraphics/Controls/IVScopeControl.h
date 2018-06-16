@@ -32,7 +32,7 @@ public:
       {
         if(mBufCount == MAXBUF)
         {
-          mQueue.Push(mBuf);
+          mQueue.Push(mBuf); // TODO: expensive?
           mBufCount = 0;
         }
         

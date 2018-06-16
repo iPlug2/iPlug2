@@ -40,7 +40,7 @@ public:
         d.vals[c] /= (float) nFrames;
       }
 
-      mQueue.Push(d);
+      mQueue.Push(d); // TODO: expensive?
     }
     
     // this must be called on the main thread - typically in MyPlugin::OnIdle()
