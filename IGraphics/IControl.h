@@ -218,8 +218,8 @@ public:
   void SetTag(int tag) { mTag = tag; }
   int GetTag() const { return mTag; }
   
-  void SetWantsMIDI(bool enable) { mWantsMIDI = true; }
-  bool WantsMIDI() { return mWantsMIDI; }
+  void SetWantsMidi(bool enable) { mWantsMidi = true; }
+  bool WantsMidi() { return mWantsMidi; }
 
   /** Gets a pointer to the class implementing the IEditorDelegate interface that handles parameter changes from this IGraphics instance.
    * If you need to call other methods on that class, you can use static_cast<PLUG_CLASS_NAME>(GetDelegate();
@@ -289,7 +289,7 @@ protected:
   bool mMOWhenGrayed = false;
   bool mMEWhenGrayed = false;
   bool mIgnoreMouse = false;
-  bool mWantsMIDI = false;
+  bool mWantsMidi = false;
   /** if mGraphics::mHandleMouseOver = true, this will be true when the mouse is over control. If you need finer grained control of mouseovers, you can override OnMouseOver() and OnMouseOut() */
   bool mMouseIsOver = false;
   IControl* mValDisplayControl = nullptr;

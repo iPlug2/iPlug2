@@ -177,7 +177,7 @@ void IGraphicsEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
   {
     IControl* pControl = mGraphics->GetControl(c);
     
-    if (pControl->WantsMIDI())
+    if (pControl->WantsMidi())
     {
       pControl->OnMidi(msg);
     }
