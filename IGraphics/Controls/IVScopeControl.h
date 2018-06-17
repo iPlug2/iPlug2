@@ -3,6 +3,7 @@
 #pragma once
 
 #include "IControl.h"
+#include "IPlugStructs.h"
 #include "IPlugQueue.h"
 
 template <int MAXNC = 1, int MAXBUF = 128>
@@ -80,7 +81,8 @@ public:
     
     float xPerData = r.W() / (float) MAXBUF;
     
-    for (auto c = 0; c < mBuf.nchans; c++) {
+    for (int c = 0; c < mBuf.nchans; c++)
+    {
       float xHi = 0.f;
       float yHi = mBuf.vals[c][0] * maxY;
       yHi = Clip(yHi, -maxY, maxY);
