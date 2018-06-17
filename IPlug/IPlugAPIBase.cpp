@@ -58,8 +58,11 @@ IPlugAPIBase::~IPlugAPIBase()
 
 void IPlugAPIBase::OnHostRequestingImportantParameters(int count, WDL_TypedBuf<int>& results)
 {
-  for (int i = 0; i < count; i++)
-    results.Add(i);
+  if(NParams() > count)
+  {
+    for (int i = 0; i < count; i++)
+      results.Add(i);
+  }
 }
 
 void IPlugAPIBase::CreateTimer()
