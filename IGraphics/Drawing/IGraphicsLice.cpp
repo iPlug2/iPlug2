@@ -41,18 +41,6 @@ void IGraphicsLice::SetDisplayScale(int scale)
   IGraphics::SetDisplayScale(scale);
 }
 
-APIBitmap* IGraphicsLice::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
-{
-  int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
-  int destH = (pBitmap->GetHeight() / pBitmap->GetScale()) * scale;
-    
-  LICE_IBitmap* pSrc = (LICE_IBitmap*) pBitmap;
-  LICE_MemBitmap* pDest = new LICE_MemBitmap(destW, destH);
-  LICE_ScaledBlit(pDest, pSrc, 0, 0, destW, destH, 0.0f, 0.0f, (float) pSrc->getWidth(), (float) pSrc->getHeight(), 1.0f, LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR);
-    
-  return new LICEBitmap(pDest, scale);
-}
-
 void IGraphicsLice::DrawSVG(ISVG& svg, const IRECT& bounds, const IBlend* pBlend)
 {
   //TODO:
@@ -480,6 +468,16 @@ APIBitmap* IGraphicsLice::LoadAPIBitmap(const WDL_String& resourcePath, int scal
 #endif
 
   return new APIBitmap();
+APIBitmap* IGraphicsLice::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
+{
+  int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
+  int destH = (pBitmap->GetHeight() / pBitmap->GetScale()) * scale;
+  
+  LICE_IBitmap* pSrc = (LICE_IBitmap*) pBitmap;
+  LICE_MemBitmap* pDest = new LICE_MemBitmap(destW, destH);
+  LICE_ScaledBlit(pDest, pSrc, 0, 0, destW, destH, 0.0f, 0.0f, (float) pSrc->getWidth(), (float) pSrc->getHeight(), 1.0f, LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR);
+  
+  return new LICEBitmap(pDest, scale);
 }
 
 void IGraphicsLice::RenderDrawBitmap()
