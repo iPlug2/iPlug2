@@ -268,36 +268,39 @@ bool IGraphicsNanoVG::DrawText(const IText& text, const char* str, IRECT& bounds
   nvgFontFace(mVG, text.mFont);
   nvgFillColor(mVG, NanoVGColor(text.mFGColor));
   
+  float xpos = 0.;
+  float ypos = 0.;
+  
   int align = 0;
-  switch (text.mAlign) // todo valign
+  switch (text.mAlign)
   {
-    case IText::kAlignNear: align = NVG_ALIGN_LEFT; break;
-    case IText::kAlignCenter: align = NVG_ALIGN_CENTER; break;
-    case IText::kAlignFar: align = NVG_ALIGN_RIGHT; break;
+    case IText::kAlignNear: align = NVG_ALIGN_LEFT; xpos = bounds.L; break;
+    case IText::kAlignCenter: align = NVG_ALIGN_CENTER; xpos = bounds.MW(); break;
+    case IText::kAlignFar: align = NVG_ALIGN_RIGHT; xpos = bounds.R; break;
     default:
       break;
   }
   
-  switch (text.mVAlign) // todo valign
+  switch (text.mVAlign)
   {
-    case IText::kVAlignBottom: align |= NVG_ALIGN_BOTTOM; break;
-    case IText::kVAlignMiddle: align |= NVG_ALIGN_MIDDLE; break;
-    case IText::kVAlignTop: align |= NVG_ALIGN_TOP; break;
-    default:
+    case IText::kVAlignBottom: align |= NVG_ALIGN_BOTTOM; ypos = bounds.B; break;
+    case IText::kVAlignMiddle: align |= NVG_ALIGN_MIDDLE; ypos = bounds.MH(); break;
+    case IText::kVAlignTop: align |= NVG_ALIGN_TOP; ypos = bounds.T; break;
+    default: break;
       break;
   }
   
-  nvgTextAlign(mVG, align | NVG_ALIGN_BASELINE);
+  nvgTextAlign(mVG, align);
   
   if(measure)
   {
     float fbounds[4];
-    nvgTextBounds(mVG, 0., 0., str, NULL, fbounds);
+    nvgTextBounds(mVG, xpos, ypos, str, NULL, fbounds);
     bounds.L = fbounds[0]; bounds.T = fbounds[1]; bounds.R = fbounds[2]; bounds.B = fbounds[3];
     return true;
   }
   else
-    nvgText(mVG, bounds.MW() , bounds.MH(), str, NULL);
+    nvgText(mVG, xpos, ypos, str, NULL);
 
   return true;
 }
