@@ -345,6 +345,13 @@ bool IGraphicsLice::DrawText(const IText& text, const char* str, IRECT& bounds, 
   else // if (text.mAlign == IText::kAlignFar)
     fmt |= DT_RIGHT;
   
+  if (text.mVAlign == IText::kVAlignTop)
+    fmt |= DT_TOP;
+  else if (text.mVAlign == IText::kVAlignBottom)
+    fmt |= DT_BOTTOM;
+  else if (text.mVAlign == IText::kVAlignMiddle)
+    fmt |= DT_VCENTER;
+  
   if (measure)
   {
     fmt |= DT_CALCRECT;
