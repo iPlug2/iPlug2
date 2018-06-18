@@ -86,20 +86,19 @@ public:
   
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    if (mod.S)
-    {
-      SnapToMouse(x, y, mDirection, mRECT);
-      return;
-    }
+    IRECT innerBounds = mRECT.GetPadded(-mOuterPadding);
+
+    if (!mod.S)
+      mPrevSliderHit = -1;
     
-    mPrevSliderHit = -1;
-    
-    SnapToMouse(x, y, mDirection, mRECT);
+    SnapToMouse(x, y, mDirection, innerBounds);
   }
   
   virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
   {
-    SnapToMouse(x, y, mDirection, mRECT);
+    IRECT innerBounds = mRECT.GetPadded(-mOuterPadding);
+
+    SnapToMouse(x, y, mDirection, innerBounds);
   }
   
   //override to do something when an individual slider is dragged
