@@ -49,10 +49,12 @@ static StaticStorage<APIBitmap> s_bitmapCache;
 static StaticStorage<SVGHolder> s_SVGCache;
 #endif
 
-IGraphics::IGraphics(IEditorDelegate& dlg, int w, int h, int fps)
+IGraphics::IGraphics(IEditorDelegate& dlg, int w, int h, int fps, float scale)
 : mDelegate(dlg)
 , mWidth(w)
 , mHeight(h)
+, mScale(scale)
+, mScaleReciprocal(1.f/scale)
 {
   mFPS = (fps > 0 ? fps : DEFAULT_FPS);
 }
@@ -87,11 +89,12 @@ void IGraphics::Resize(int w, int h, float scale)
 
   float oldScale = mScale;
   mScale = scale;
+  mScaleReciprocal = 1.f/mScale;
   mWidth = w;
   mHeight = h;
 
   if (oldScale != scale)
-    OnDisplayScale();
+    OnDisplayScale(); // TODO: is this correct?
 
   GetDelegate()->ResizeGraphicsFromUI();
 }
@@ -638,6 +641,9 @@ void IGraphics::SetStrictDrawing(bool strict)
 
 void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
+  x *= mScaleReciprocal;
+  y *= mScaleReciprocal;
+  
   Trace("IGraphics::OnMouseDown", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
 
@@ -709,6 +715,9 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 
 void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
+  x *= mScaleReciprocal;
+  y *= mScaleReciprocal;
+  
   Trace("IGraphics::OnMouseUp", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
 
@@ -750,6 +759,9 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
 
 bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
 {
+  x *= mScaleReciprocal;
+  y *= mScaleReciprocal;
+  
   Trace("IGraphics::OnMouseOver", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
 
@@ -813,6 +825,11 @@ void IGraphics::OnMouseOut()
 
 void IGraphics::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
 {
+  x *= mScaleReciprocal;
+  y *= mScaleReciprocal;
+  dX *= mScaleReciprocal;
+  dY *= mScaleReciprocal;
+  
   Trace("IGraphics::OnMouseDrag:", __LINE__, "x:%0.2f, y:%0.2f, dX:%0.2f, dY:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, dX, dY, mod.L, mod.R, mod.S, mod.C, mod.A);
 
@@ -837,6 +854,9 @@ void IGraphics::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMo
 
 bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 {
+  x *= mScaleReciprocal;
+  y *= mScaleReciprocal;
+  
   Trace("IGraphics::OnMouseDblClick", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
 
@@ -862,6 +882,9 @@ bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 
 void IGraphics::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
 {
+  x *= mScaleReciprocal;
+  y *= mScaleReciprocal;
+  
   if(mPopupControl && mPopupControl->GetExpanded())
   {
     mPopupControl->OnMouseWheel(x, y, mod, d);
@@ -883,6 +906,8 @@ void IGraphics::ReleaseMouseCapture()
 
 bool IGraphics::OnKeyDown(float x, float y, int key)
 {
+  x *= mScaleReciprocal;
+  y *= mScaleReciprocal;
   Trace("IGraphics::OnKeyDown", __LINE__, "x:%0.2f, y:%0.2f, key:%i",
         x, y, key);
 
@@ -1045,6 +1070,9 @@ IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
 
 void IGraphics::OnDrop(const char* str, float x, float y)
 {
+  x *= mScaleReciprocal;
+  y *= mScaleReciprocal;
+  
   int i = GetMouseControlIdx(x, y);
   IControl* pControl = GetControl(i);
   if (pControl != nullptr)

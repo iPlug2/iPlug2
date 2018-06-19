@@ -97,8 +97,8 @@ NVGpaint NanoVGPaint(NVGcontext* context, const IPattern& pattern, const IBlend*
 
 #pragma mark -
 
-IGraphicsNanoVG::IGraphicsNanoVG(IEditorDelegate& dlg, int w, int h, int fps)
-: IGraphicsPathBase(dlg, w, h, fps)
+IGraphicsNanoVG::IGraphicsNanoVG(IEditorDelegate& dlg, int w, int h, int fps, float scale)
+: IGraphicsPathBase(dlg, w, h, fps, scale)
 {
 #if NANOVG_PERF
   mPerfGraph = new PerfGraph;
@@ -232,7 +232,11 @@ void IGraphicsNanoVG::BeginFrame()
   glViewport(0, 0, Width()*GetDisplayScale(), Height()*GetDisplayScale());
 #endif
   
-  nvgBeginFrame(mVG, Width(), Height(), GetDisplayScale());
+  nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetDisplayScale());
+
+  const float scale = GetScale();
+  
+  nvgScale(mVG, scale, scale);
 }
 
 void IGraphicsNanoVG::EndFrame()

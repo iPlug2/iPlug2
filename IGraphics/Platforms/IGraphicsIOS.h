@@ -8,7 +8,7 @@
 class IGraphicsIOS : public IGraphicsNanoVG
 {
 public:
-  IGraphicsIOS(IEditorDelegate& dlg, int w, int h, int fps);
+  IGraphicsIOS(IEditorDelegate& dlg, int w, int h, int fps, float scale);
   virtual ~IGraphicsIOS();
   
   void SetBundleID(const char* bundleID) { mBundleID.Set(bundleID); }

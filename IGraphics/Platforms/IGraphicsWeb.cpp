@@ -38,8 +38,8 @@ WebBitmap::WebBitmap(emscripten::val imageCanvas, const char* name, int scale)
   SetBitmap(new RetainVal(imageCanvas), imageCanvas["width"].as<int>(), imageCanvas["height"].as<int>(), scale);
 }
 
-IGraphicsWeb::IGraphicsWeb(IEditorDelegate& dlg, int w, int h, int fps)
-: IGraphicsPathBase(dlg, w, h, fps)
+IGraphicsWeb::IGraphicsWeb(IEditorDelegate& dlg, int w, int h, int fps, float scale)
+: IGraphicsPathBase(dlg, w, h, fps, scale)
 {
   val imgs = val::global("Module")["preloadedImages"];
   mPreloadedImages = new RetainVal(imgs);

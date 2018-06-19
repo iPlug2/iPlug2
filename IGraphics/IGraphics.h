@@ -586,7 +586,7 @@ public:
   virtual bool OSFindResource(const char* filename, const char* type, WDL_String& result) = 0;
 
 #pragma mark - IGraphics base implementation
-  IGraphics(IEditorDelegate& dlg, int w, int h, int fps = 0);
+  IGraphics(IEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.);
   virtual ~IGraphics();
 
   /** Called repeatedly at frame rate by the platform class to check what the graphics context says is dirty
@@ -905,8 +905,9 @@ private:
   int mWidth;
   int mHeight;
   int mFPS;
-  float mDisplayScale = 1.f; // the scaling of the display that the ui is currently on e.g. 2 for retina
-  float mScale = 1.f; // scale deviation from dlg-in width and height i.e .stretching the gui by dragging
+  float mDisplayScale = 1.f; // the scaling of the display that the UI is currently on e.g. 2 for retina
+  float mScale = 1.f; // scale deviation from  default width and height i.e stretching the UI by dragging bottom right hand corner
+  float mScaleReciprocal = 1.f; // 1.f / mScale
   int mIdleTicks = 0;
   int mMouseCapture = -1;
   int mMouseOver = -1;

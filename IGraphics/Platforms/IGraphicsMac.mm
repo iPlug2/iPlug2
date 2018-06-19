@@ -67,8 +67,8 @@ static double gettm()
 
 #pragma mark -
 
-IGraphicsMac::IGraphicsMac(IEditorDelegate& dlg, int w, int h, int fps)
-: IGRAPHICS_DRAW_CLASS(dlg, w, h, fps)
+IGraphicsMac::IGraphicsMac(IEditorDelegate& dlg, int w, int h, int fps, float scale)
+: IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
 {
   SetDisplayScale(1);
   NSApplicationLoad();

@@ -10,8 +10,8 @@
 class IGraphicsPathBase : public IGraphics
 {
 public:
-  IGraphicsPathBase(IEditorDelegate& dlg, int w, int h, int fps) 
-  : IGraphics(dlg, w, h, fps) 
+  IGraphicsPathBase(IEditorDelegate& dlg, int w, int h, int fps, float scale)
+  : IGraphics(dlg, w, h, fps, scale) 
   {}
 
   void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override
