@@ -111,7 +111,7 @@ void IVSliderControl::Draw(IGraphics& g)
 //
   NVGpaint bg, knob;
   float cy = y+(int)(h*0.5f);
-  float kr = mHandleSize;
+  float kr = mHandleSize-2.f;
 
   nvgSave(vg);
   //  nvgClearState(vg);
