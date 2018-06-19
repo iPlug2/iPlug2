@@ -259,14 +259,14 @@ IColor IGraphicsNanoVG::GetPoint(int x, int y)
   return COLOR_BLACK; //TODO:
 }
 
-bool IGraphicsNanoVG::DrawText(const IText& text, const char* str, IRECT& bounds, bool measure)
+bool IGraphicsNanoVG::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
   assert(nvgFindFont(mVG, text.mFont) != -1); // did you forget to LoadFont for this font name?
   
   nvgFontBlur(mVG, 0);
   nvgFontSize(mVG, text.mSize);
   nvgFontFace(mVG, text.mFont);
-  nvgFillColor(mVG, NanoVGColor(text.mFGColor));
+  nvgFillColor(mVG, NanoVGColor(text.mFGColor, pBlend));
   
   float xpos = 0.;
   float ypos = 0.;
@@ -307,7 +307,7 @@ bool IGraphicsNanoVG::DrawText(const IText& text, const char* str, IRECT& bounds
 
 bool IGraphicsNanoVG::MeasureText(const IText& text, const char* str, IRECT& bounds)
 {
-  return DrawText(text, str, bounds, true);
+  return DrawText(text, str, bounds, 0, true);
 }
 
 void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
@@ -377,10 +377,10 @@ void IGraphicsNanoVG::LoadFont(const char* name)
   assert (fontID != -1); // font not found!
 }
 
-void IGraphicsNanoVG::DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, float pad)
+void IGraphicsNanoVG::DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, float pad, const IBlend* pBlend)
 {
   IRECT inner = bounds.GetPadded(-pad);
-  NVGpaint shadowPaint = nvgBoxGradient(mVG, inner.L, inner.T + ydrop, inner.W(), inner.H(), cr * 2., 20, NanoVGColor(COLOR_BLACK_DROP_SHADOW), NanoVGColor(COLOR_TRANSPARENT));
+  NVGpaint shadowPaint = nvgBoxGradient(mVG, inner.L, inner.T + ydrop, inner.W(), inner.H(), cr * 2., 20, NanoVGColor(COLOR_BLACK_DROP_SHADOW, pBlend), NanoVGColor(COLOR_TRANSPARENT));
   nvgBeginPath(mVG);
   nvgRect(mVG, bounds.L, bounds.T, bounds.W(), bounds.H());
   nvgRoundedRect(mVG, inner.L, inner.T, inner.W(), inner.H(), cr);

@@ -11,7 +11,7 @@ void DefaultAnimationFunc(IControl* pCaller)
   
   if(progress > 1.)
   {
-    pCaller->EndAnimation();
+    pCaller->OnEndAnimation();
     return;
   }
   
@@ -525,6 +525,19 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
 #endif
 }
 
+IPopupMenuControlBase::IPopupMenuControlBase(IEditorDelegate& dlg, IRECT collapsedBounds, IRECT expandedBounds, EDirection direction)
+: IControl(dlg, collapsedBounds, kNoParameter)
+, mSpecifiedCollapsedBounds(collapsedBounds)
+, mSpecifiedExpandedBounds(expandedBounds)
+, mDirection(direction)
+{
+  SetActionFunction(DefaultClickActionFunc);
+  
+  mText = IText(COLOR_BLACK, 24, nullptr, IText::kStyleNormal, IText::kAlignNear);
+  mDirty = false;
+}
+
+
 void IPopupMenuControlBase::Draw(IGraphics& g)
 {
   assert(mMenu != nullptr);
@@ -532,10 +545,9 @@ void IPopupMenuControlBase::Draw(IGraphics& g)
   DrawBackground(g, mTargetRECT); // mTargetRECT = inner area
   DrawShadow(g, mRECT);
 
-  for(auto i = 0; i < mCellBounds.GetSize(); i++)
+  for(auto i = 0; i < mExpandedCellBounds.GetSize(); i++)
   {
-
-    IRECT* pCellRect = mCellBounds.Get(i);
+    IRECT* pCellRect = mExpandedCellBounds.Get(i);
     IPopupMenu::Item* pMenuItem = mMenu->GetItem(i);
 
     if(pMenuItem->GetIsSeparator())
@@ -554,7 +566,7 @@ void IPopupMenuControlBase::Draw(IGraphics& g)
 
 void IPopupMenuControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
-  if(mExpanded)
+  if(GetState() == kExpanded)
   {
     mMouseCellBounds = HitTestCells(x, y);
     Collapse();
@@ -576,7 +588,9 @@ void IPopupMenuControlBase::OnMouseOver(float x, float y, const IMouseMod& mod)
 void IPopupMenuControlBase::OnMouseOut()
 {
   mMouseCellBounds = nullptr;
-  Collapse();
+  
+  if(GetState() == kExpanded)
+    Collapse();
 }
 
 void IPopupMenuControlBase::DrawBackground(IGraphics& g, const IRECT& bounds)
@@ -586,34 +600,29 @@ void IPopupMenuControlBase::DrawBackground(IGraphics& g, const IRECT& bounds)
 
 void IPopupMenuControlBase::DrawShadow(IGraphics& g, const IRECT& bounds)
 {
-  g.DrawBoxShadow(bounds, mRoundness, 2., mDropShadowSize);
+  g.DrawBoxShadow(bounds, mRoundness, 2., mDropShadowSize, &mBlend);
 }
 
 void IPopupMenuControlBase::DrawCell(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem)
 {
-  g.DrawRect(COLOR_WHITE, bounds, &mBlend);
+//  g.DrawRect(COLOR_WHITE, bounds, &mBlend);
 }
 
 void IPopupMenuControlBase::DrawHighlightCell(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem)
 {
-  g.FillRect(COLOR_WHITE, bounds);
-  g.DrawRect(COLOR_BLACK, bounds);
+  g.FillRect(COLOR_WHITE, bounds, &mBlend);
+  g.DrawRect(COLOR_BLACK, bounds, &mBlend);
 }
 
 void IPopupMenuControlBase::DrawCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem)
 {
-  IRECT textRect;
-  mText.mAlign = IText::kAlignNear;
-  g.MeasureText(mText, menuItem.GetText(), textRect);
-  textRect.HPad(TEXT_PAD);
-  mText.mAlign = IText::kAlignCenter;
-  textRect = bounds.GetCentredInside(textRect);
-  g.DrawText(mText, menuItem.GetText(), textRect);
+  IRECT textRect = bounds.GetHPadded(-TEXT_PAD);
+  g.DrawText(mText, menuItem.GetText(), textRect, &mBlend);
 }
 
 void IPopupMenuControlBase::DrawSeparator(IGraphics& g, const IRECT& bounds)
 {
-  g.FillRect(COLOR_LIGHT_GRAY, bounds);
+  g.FillRect(COLOR_LIGHT_GRAY, bounds, &mBlend);
 }
 
 IPopupMenu* IPopupMenuControlBase::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
@@ -622,7 +631,6 @@ IPopupMenu* IPopupMenuControlBase::CreatePopupMenu(IPopupMenu& menu, const IRECT
   mCaller = pCaller;
 
   IRECT span = {0, 0, bounds.W(), bounds.H() }; // this IRECT will be used to calculate the maximum dimensions of the longest text item in the menu
-  mText.mAlign = IText::kAlignNear; // temporarily left align text whilst measuring
 
   for (auto i = 0; i < mMenu->NItems(); ++i)
   {
@@ -634,11 +642,11 @@ IPopupMenu* IPopupMenuControlBase::CreatePopupMenu(IPopupMenu& menu, const IRECT
   // if the widest string is wider than the requested bounds
   if(span.W() > bounds.W())
   {
-    span.HPad(TEXT_PAD); // add some padding because we don't want to be flush the edges of the text
-    mCollapsedBounds = IRECT(bounds.L, bounds.T, bounds.L + span.W(), bounds.T + span.H());
+    span.HPad(TEXT_PAD); // add some padding because we don't want to be flush to the edges
+    mSingleCellBounds = IRECT(bounds.L, bounds.T, bounds.L + span.W(), bounds.T + span.H());
   }
   else
-    mCollapsedBounds = bounds;
+    mSingleCellBounds = bounds;
   
   Expand();
   
@@ -647,10 +655,10 @@ IPopupMenu* IPopupMenuControlBase::CreatePopupMenu(IPopupMenu& menu, const IRECT
 
 void IPopupMenuControlBase::Expand()
 {
-  mCellBounds.Empty(true);
+  mExpandedCellBounds.Empty(true);
   
-  float left = mCollapsedBounds.L + mPadding;
-  float top = mCollapsedBounds.T + mPadding;
+  float left = mSingleCellBounds.L + mPadding;
+  float top = mSingleCellBounds.T + mPadding;
   
   IRECT contextBounds = GetUI()->GetBounds();
   
@@ -681,8 +689,8 @@ void IPopupMenuControlBase::Expand()
         }
         else // new column
         {
-          left += mCollapsedBounds.W() + mCellGap;
-          top = mCollapsedBounds.T + mPadding;
+          left += mSingleCellBounds.W() + mCellGap;
+          top = mSingleCellBounds.T + mPadding;
         }
       }
       
@@ -701,21 +709,29 @@ void IPopupMenuControlBase::Expand()
       bottom = top + toAddY;
       
       IRECT* pR = new IRECT(left, top, right, bottom);
-      mCellBounds.Add(pR);
+      mExpandedCellBounds.Add(pR);
       top = bottom + mCellGap;
     }
     
-    IRECT span = *mCellBounds.Get(0);
+    IRECT span = *mExpandedCellBounds.Get(0);
     
-    for(auto i = 1; i < mCellBounds.GetSize(); i++)
+    for(auto i = 1; i < mExpandedCellBounds.GetSize(); i++)
     {
-      span = span.Union(*mCellBounds.Get(i));
+      span = span.Union(*mExpandedCellBounds.Get(i));
     }
-
-    mTargetRECT = span.GetPadded(mPadding); // pad the unioned cell rects)
-    mRECT = span.GetPadded(mDropShadowSize + mPadding);
     
-    mExpanded = true;
+    if (mSpecifiedExpandedBounds.W())
+    {
+      mTargetRECT = mSpecifiedExpandedBounds.GetPadded(mPadding); // pad the unioned cell rects)
+      mRECT = mSpecifiedExpandedBounds.GetPadded(mDropShadowSize + mPadding);
+    }
+    else
+    {
+      mTargetRECT = span.GetPadded(mPadding); // pad the unioned cell rects)
+      mRECT = span.GetPadded(mDropShadowSize + mPadding);
+    }
+    
+    mState = kExpanding;
     GetUI()->UpdateTooltips(); //will disable
 //    GetUI()->SetCursor(); // TODO: SetCursor
   }
@@ -729,13 +745,13 @@ void IPopupMenuControlBase::Expand()
 
 void IPopupMenuControlBase::Collapse()
 {
-  GetUI()->SetAllControlsDirty(); // before collapse so expanded area is dirtied
+//  GetUI()->SetAllControlsDirty(); // before collapse so expanded area is dirtied
   
   mMenu->SetChosenItemIdx(-1);
   
-  for(auto i = 0; i < mCellBounds.GetSize(); i++)
+  for(auto i = 0; i < mExpandedCellBounds.GetSize(); i++)
   {
-    if(mMouseCellBounds == mCellBounds.Get(i))
+    if(mMouseCellBounds == mExpandedCellBounds.Get(i))
     {
       mMenu->SetChosenItemIdx(i);
     }
@@ -747,8 +763,34 @@ void IPopupMenuControlBase::Collapse()
   if(mCaller)
     mCaller->OnPopupMenuSelection(mMenu); // TODO: In the synchronous pop-up menu handlers it's possible for mMenu to be null, that should also be possible here if nothing was selected
   
-  mExpanded = false;
-  mBlend.mWeight = 0.;
+  mState = kCollapsing;
+  SetDirty(true); // triggers animation
+}
 
-  GetUI()->UpdateTooltips(); // will enable the tooltips
+void IPopupMenuControlBase::Animate(double progress)
+{
+  if(mState == kExpanding)
+    mBlend.mWeight = progress * mOpacity;
+  else if(mState == kCollapsing)
+    mBlend.mWeight = (1.-progress) * mOpacity;
+
+  SetDirty(false);
+}
+
+void IPopupMenuControlBase::OnEndAnimation()
+{
+  if(mState == kExpanding)
+  {
+    mBlend.mWeight = mOpacity;
+    mState = kExpanded;
+  }
+  else if(mState == kCollapsing)
+  {
+    mTargetRECT = mRECT = mSpecifiedCollapsedBounds;
+    GetUI()->UpdateTooltips(); // will enable the tooltips
+    mBlend.mWeight = 0.;
+    mState = kCollapsed;
+  }
+  
+  IControl::OnEndAnimation();
 }

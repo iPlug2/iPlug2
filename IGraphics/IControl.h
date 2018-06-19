@@ -235,7 +235,7 @@ public:
   
   virtual void Animate(double progress) {}
 
-  virtual void EndAnimation()
+  virtual void OnEndAnimation() // if you override this you must call the base implementation, to free mAnimationFunc
   {
     mAnimationFunc = nullptr;
     SetDirty(false);
@@ -667,7 +667,8 @@ public:
   , mMinTrackValue(minTrackValue)
   , mMaxTrackValue(maxTrackValue)
   {
-    for (auto i=0; i<maxNTracks; i++) {
+    for (auto i=0; i<maxNTracks; i++)
+    {
       mTrackData.Add(0.f);
       mTrackBounds.Add(IRECT());
     }
@@ -815,22 +816,24 @@ protected:
 class IPopupMenuControlBase : public IControl
 {
 public:
-  IPopupMenuControlBase(IEditorDelegate& dlg, EDirection direction = kVertical)
-  : IControl(dlg, IRECT(), kNoParameter)
-  , mDirection(direction)
+  enum EPopupState
   {
-    SetActionFunction(DefaultClickActionFunc);
-    
-    mText = IText(COLOR_BLACK, 12, nullptr, IText::kStyleNormal, IText::kAlignNear);
-    mDirty = false;
-  }
+    kCollapsed = 0,
+    kExpanding = 1,
+    kExpanded = 2,
+    kCollapsing = 3,
+  };
   
+  /** @param dlg The editor delegate that this control is attached to
+   * @param collapsedBounds If this control, when collapsed should occupy an area of the graphics context, specify this, otherwise the collapsed area is empty
+   * @param expandedBounds If you want to explicitly specify the size of the expanded pop-up, you can specify an area here */
+  IPopupMenuControlBase(IEditorDelegate& dlg, IRECT collapsedBounds = IRECT(), IRECT expandedBounds = IRECT(), EDirection direction = kVertical);
   virtual ~IPopupMenuControlBase() {}
   
   //IControl
   virtual bool IsDirty() override
   {
-    return mExpanded | IControl::IsDirty();
+    return (GetState() > kCollapsed) | IControl::IsDirty();
   }
   
   void Draw(IGraphics& g) override;
@@ -839,19 +842,9 @@ public:
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override;
   
-  void Animate(double progress) override
-  {
-    mBlend.mWeight = progress * mOpacity;
-    SetDirty(false);
-  }
-
-  void EndAnimation() override
-  {
-    mBlend.mWeight = mOpacity;
-    SetAnimation(nullptr, 0);
-    SetDirty(false);
-  }
-
+  void Animate(double progress) override;
+  void OnEndAnimation() override;
+  
   //IPopupMenuControlBase
   virtual void DrawBackground(IGraphics& g, const IRECT& bounds);
   virtual void DrawShadow(IGraphics& g, const IRECT& bounds);
@@ -866,8 +859,8 @@ public:
    @return the menu */
   IPopupMenu* CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller);
   
-  bool GetExpanded() const { return mExpanded; }
-  
+  EPopupState GetState() const { return mState; }
+  bool GetExpanded() const { return mState == kExpanded; }
 private:
   
   /** This method is called to expand the modal pop-up menu. It calculates the dimensions and wrapping, to keep the cells within the graphics context. It handles the dirtying of the graphics context, and modification of graphics behaviours such as tooltips and mouse cursor */
@@ -876,8 +869,8 @@ private:
     /** This method is called to collapse the modal pop-up menu and make it invisible. It handles the dirtying of the graphics context, and modification of graphics behaviours such as tooltips and mouse cursor */
   virtual void Collapse();
   
-  float CellWidth() const { return mCollapsedBounds.W(); }
-  float CellHeight() const { return mCollapsedBounds.H(); }
+   float CellWidth() const { return mSingleCellBounds.W(); }
+   float CellHeight() const { return mSingleCellBounds.H(); }
   
   /** Checks if any of the expanded cells contain a x, y coordinate, and if so returns an IRECT pointer to the cell bounds
    * @param x X position to test
@@ -885,9 +878,9 @@ private:
    * @return Pointer to the cell bounds IRECT, or nullptr if nothing got hit */
   IRECT* HitTestCells(float x, float y) const
   {
-    for(auto i = 0; i < mCellBounds.GetSize(); i++)
+    for(auto i = 0; i < mExpandedCellBounds.GetSize(); i++)
     {
-      IRECT* r = mCellBounds.Get(i);
+      IRECT* r = mExpandedCellBounds.Get(i);
       if(r->Contains(x, y))
       {
         return r;
@@ -896,11 +889,14 @@ private:
     return nullptr;
   }
   
+protected:
+  IRECT mSpecifiedCollapsedBounds;
+  IRECT mSpecifiedExpandedBounds;
 private:
-  bool mExpanded = false;
+  EPopupState mState = kCollapsed;
   EDirection mDirection;
-  IRECT mCollapsedBounds; // The rectangle that the control occupies when it's collapsed. The dimensions are the dimensions of 1 cell.
-  WDL_PtrList<IRECT> mCellBounds; // The size of this array will always correspond to the number of items in the top level of the menu
+  IRECT mSingleCellBounds; // The dimensions are the dimensions of 1 cell.
+  WDL_PtrList<IRECT> mExpandedCellBounds; // The size of this array will always correspond to the number of items in the top level of the menu
   IRECT* mMouseCellBounds = nullptr;
   IControl* mCaller = nullptr;
   IPopupMenu* mMenu = nullptr; // This control does not own the menu

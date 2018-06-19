@@ -60,7 +60,7 @@ public:
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return (void*) mVG; }
 
-  bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure) override;
+  bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
   
   IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHorizontal) override;
@@ -71,7 +71,7 @@ public:
 
   void LoadFont(const char* name) override;
   
-  void DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, float pad) override;
+  void DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, float pad, const IBlend* pBlend) override;
   void SetPlatformContext(void* pContext) override;
 protected:
 

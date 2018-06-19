@@ -312,7 +312,7 @@ public:
    * or if measure == true, after calling the method this IRECT will be updated with the rectangular region the text will occupy
    * @param measure Pass true if you wish to measure the rectangular region this text will occupy, rather than draw
    * @return true on valid input data \todo check this */
-  virtual bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure = false) = 0;
+  virtual bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0, bool measure = false) = 0;
 
   /** Measure the rectangular region that some text will occupy
    * @param text An IText struct containing font and text properties and layout info
@@ -453,7 +453,7 @@ public:
   virtual void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options = IStrokeOptions(), const IBlend* pBlend = 0) {}
   virtual void PathFill(const IPattern& pattern, const IFillOptions& options = IFillOptions(), const IBlend* pBlend = 0) {}
 
-  virtual void DrawBoxShadow(const IRECT& bounds, float cr = 5.f, float ydrop = 2.f, float pad = 10.f) {};
+  virtual void DrawBoxShadow(const IRECT& bounds, float cr = 5.f, float ydrop = 2.f, float pad = 10.f, const IBlend* pBlend = 0) {};
 
 private:
     

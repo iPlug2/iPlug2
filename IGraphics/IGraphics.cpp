@@ -1190,7 +1190,7 @@ bool IGraphics::SearchImageResource(const char* name, const char* type, WDL_Stri
     char fullName[4096];
 
     if (sourceScale != 1)
-    {
+    { 
       // Form altered name
       char tempName[4096];
       tempName[4095] = 0;
