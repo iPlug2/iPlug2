@@ -91,7 +91,7 @@ void IGraphicsLice::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, 
   LICE_IBitmap* pMask = (LICE_IBitmap*) mask.GetRawBitmap();
   LICE_IBitmap* pTop = (LICE_IBitmap*) top.GetRawBitmap();
   
-  double dA = angle * PI / 180.0;
+//  double dA = angle * PI / 180.0;
   int W = base.W();
   int H = base.H();
   float xOffs = (W % 2 ? -0.5f : 0.0f);
@@ -462,16 +462,18 @@ APIBitmap* IGraphicsLice::LoadAPIBitmap(const WDL_String& resourcePath, int scal
 
 #ifdef IPLUG_JPEG_SUPPORT
   bool isjpg = (strstr(path, "jpg") != nullptr) && (strstr(path, "jpeg") != nullptr);
-#ifdef OS_MAC
-  if (isjpg) return new LICEBitmap(LICE_LoadJPG(path), scale);
-#elif defined OS_WIN
-  if (isjpg) return new LICEBitmap(LICE_LoadJPGFromResource((HINSTANCE)GetPlatformInstance(), path, 0), scale);
-#else
-  #error NOT IMPLEMENTED
-#endif
+  #ifdef OS_MAC
+    if (isjpg) return new LICEBitmap(LICE_LoadJPG(path), scale);
+  #elif defined OS_WIN
+    if (isjpg) return new LICEBitmap(LICE_LoadJPGFromResource((HINSTANCE)GetPlatformInstance(), path, 0), scale);
+  #else
+    #error NOT IMPLEMENTED
+  #endif
 #endif
 
-  return new APIBitmap();
+  return nullptr;
+}
+
 APIBitmap* IGraphicsLice::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 {
   int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
