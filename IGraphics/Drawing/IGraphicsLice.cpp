@@ -344,10 +344,12 @@ bool IGraphicsLice::DrawText(const IText& text, const char* str, IRECT& bounds, 
   {
     fmt |= DT_CALCRECT;
     RECT R = {0,0,0,0};
-#ifdef OS_MAC
+#if defined OS_MAC || defined OS_LINUX
     font->SWELL_DrawText(mDrawBitmap, str, -1, &R, fmt);
-#else
+#elif defined OS_WIN
     font->DrawTextA(mDrawBitmap, str, -1, &R, fmt);
+#else
+  #error NOT IMPLEMENTED
 #endif
     if( text.mAlign == IText::kAlignNear)
     {
@@ -373,10 +375,12 @@ bool IGraphicsLice::DrawText(const IText& text, const char* str, IRECT& bounds, 
     IRECT r = bounds;
     r.Scale(ds);
     RECT R = { (LONG) r.L, (LONG) r.T, (LONG) r.R, (LONG) r.B };
-#ifdef OS_MAC
+#ifdef OS_MAC || defined OS_LINUX
     font->SWELL_DrawText(mDrawBitmap, str, -1, &R, fmt);
 #else
     font->DrawTextA(mDrawBitmap, str, -1, &R, fmt);
+#else
+  #error NOT IMPLEMENTED
 #endif
   }
   

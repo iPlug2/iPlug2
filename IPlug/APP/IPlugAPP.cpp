@@ -15,7 +15,7 @@
  */
 
 #include "IPlugAPP.h"
-#ifdef OS_MAC
+#if defined OS_MAC || defined OS_LINUX
 #include "swell.h"
 #endif
 extern HWND gHWND;

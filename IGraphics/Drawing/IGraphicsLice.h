@@ -3,12 +3,17 @@
 #include "IPlugPlatform.h"
 
 #ifdef OS_MAC
-#include <CoreGraphics/CoreGraphics.h>
-#include "swell.h"
+  #include <CoreGraphics/CoreGraphics.h>
+  #include "swell.h"
 #elif defined OS_WIN
-#pragma comment(lib, "libpng.lib")
-#pragma comment(lib, "zlib.lib")
+  #pragma comment(lib, "libpng.lib")
+  #pragma comment(lib, "zlib.lib")
+#elif defined OS_LINUX
+  #include "swell.h"
+#else
+  #error NOT IMPLEMENTED
 #endif
+
 #include "IGraphicsLice_src.h"
 #include "IGraphics.h"
 

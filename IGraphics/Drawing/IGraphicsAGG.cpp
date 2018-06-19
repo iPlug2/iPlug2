@@ -457,7 +457,7 @@ agg::pixel_map* IGraphicsAGG::CreateAPIBitmap(int w, int h)
 #ifdef OS_MAC
   agg::pixel_map_mac* pPixelMap = new agg::pixel_map_mac();
 #else
-  //TODO: win
+  #error NOT IMPLEMENTED
 #endif
   
   pPixelMap->create(w, h, 0);
@@ -490,8 +490,8 @@ APIBitmap* IGraphicsAGG::LoadAPIBitmap(const WDL_String& resourcePath, int scale
       delete pPixelMap;
   }
   
-#else // OS_WIN
-  //TODO: win
+#else
+  #error NOT IMPLEMENTED
 #endif
   
   return new APIBitmap();
@@ -532,8 +532,8 @@ void IGraphicsAGG::RenderDrawBitmap()
 {
 #ifdef OS_MAC
   mPixelMap.draw((CGContext*) GetPlatformContext(), GetDisplayScale());
-#else // OS_WIN
-  //TODO: win
+#else
+  #error NOT IMPLEMENTED
 #endif
 }
 

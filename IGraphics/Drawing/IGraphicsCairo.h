@@ -3,21 +3,23 @@
 #include "IPlugPlatform.h"
 
 #ifdef OS_MAC
-#include "cairo/cairo.h"
-#define __QUICKDRAW__
-#define __HISERVICES__
-#include "cairo/cairo-quartz.h"
+  #include "cairo/cairo.h"
+  #define __QUICKDRAW__
+  #define __HISERVICES__
+  #include "cairo/cairo-quartz.h"
 #elif defined OS_WIN
-#define CAIRO_WIN32_STATIC_BUILD
+  #define CAIRO_WIN32_STATIC_BUILD
 
-#pragma comment(lib, "cairo.lib")
-#pragma comment(lib, "pixman.lib")
-#pragma comment(lib, "freetype.lib")
-#pragma comment(lib, "libpng.lib")
-#pragma comment(lib, "zlib.lib")
+  #pragma comment(lib, "cairo.lib")
+  #pragma comment(lib, "pixman.lib")
+  #pragma comment(lib, "freetype.lib")
+  #pragma comment(lib, "libpng.lib")
+  #pragma comment(lib, "zlib.lib")
 
-#include "cairo/src/cairo.h"
-#include "cairo/src/cairo-win32.h"
+  #include "cairo/src/cairo.h"
+  #include "cairo/src/cairo-win32.h"
+#else
+  #error NOT IMPLEMENTED
 #endif
 
 #ifdef IGRAPHICS_FREETYPE

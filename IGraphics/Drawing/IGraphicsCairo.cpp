@@ -10,7 +10,7 @@ cairo_surface_t* LoadPNGResource(void* hInst, const WDL_String& path)
 {
   return cairo_image_surface_create_from_png(path.Get());
 }
-#else //OS_WIN
+#elif defined OS_WIN
 class PNGStreamReader
 {
 public:
@@ -57,7 +57,9 @@ cairo_surface_t* LoadPNGResource(void* hInst, const WDL_String& path)
   PNGStreamReader reader((HMODULE) hInst, path);
   return cairo_image_surface_create_from_png_stream(&PNGStreamReader::StaticRead, &reader);
 }
-#endif //OS_WIN
+#else
+  #error NOT IMPLEMENTED
+#endif
 
 CairoBitmap::CairoBitmap(cairo_surface_t* s, int scale)
 {
@@ -340,11 +342,13 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
     mContext = cairo_create(mSurface);
     cairo_surface_set_device_scale(mSurface, 1, -1);
     cairo_surface_set_device_offset(mSurface, 0, Height());
-#else
+#elif defined OS_WIN
     HDC dc = (HDC) pContext;
     mSurface = cairo_win32_surface_create_with_ddb(dc, CAIRO_FORMAT_ARGB32, Width(), Height());
     mContext = cairo_create(mSurface);
     cairo_surface_set_device_scale(mSurface, GetScale(), GetScale());
+#else
+  #error NOT IMPLEMENTED
 #endif
   }
   
