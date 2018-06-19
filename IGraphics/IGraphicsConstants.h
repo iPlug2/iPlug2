@@ -130,3 +130,21 @@ enum EPatternExtend
   kExtendReflect,
   kExtendRepeat
 };
+enum ECursor
+{
+  ARROW,
+  IBEAM,
+  WAIT,
+  CROSS,
+  UPARROW,
+  SIZENWSE,
+  SIZENESW,
+  SIZEWE,
+  SIZENS,
+  SIZEALL,
+  INO,
+  HAND,
+  APPSTARTING,
+  HELP
+};
+

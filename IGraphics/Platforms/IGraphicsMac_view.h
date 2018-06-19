@@ -68,8 +68,11 @@ NSString* ToNSString(const char* cStr);
 - (BOOL) acceptsFirstResponder;
 - (BOOL) acceptsFirstMouse: (NSEvent*) pEvent;
 - (void) viewDidMoveToWindow;
+- (void) viewDidChangeBackingProperties:(NSNotification *) notification;
 - (void) drawRect: (NSRect) bounds;
 - (void) onTimer: (NSTimer*) pTimer;
+- (void) killTimer;
+//mouse
 - (void) getMouseXY: (NSEvent*) pEvent x: (float*) pX y: (float*) pY;
 - (IMouseInfo) getMouseLeft: (NSEvent*) pEvent;
 - (IMouseInfo) getMouseRight: (NSEvent*) pEvent;
@@ -82,15 +85,18 @@ NSString* ToNSString(const char* cStr);
 - (void) mouseMoved: (NSEvent*) pEvent;
 - (void) scrollWheel: (NSEvent*) pEvent;
 - (void) keyDown: (NSEvent *)pEvent;
-- (void) killTimer;
+- (void) setMouseCursor: (ECursor) cursor;
+//text entry
 - (void) removeFromSuperview;
 - (void) controlTextDidEndEditing: (NSNotification*) aNotification;
-- (IPopupMenu*) createPopupMenu: (const IPopupMenu&) menu : (NSRect) bounds;
 - (void) createTextEntry: (IControl&) control : (const IText&) text : (const char*) str : (NSRect) areaRect;
 - (void) endUserInput;
+//pop-up menu
+- (IPopupMenu*) createPopupMenu: (const IPopupMenu&) menu : (NSRect) bounds;
+//tooltip
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData;
 - (void) registerToolTip: (IRECT&) bounds;
-- (void) viewDidChangeBackingProperties:(NSNotification *) notification;
+//drag-and-drop
 - (NSDragOperation) draggingEntered: (id <NSDraggingInfo>) sender;
 - (BOOL) performDragOperation: (id<NSDraggingInfo>) sender;
 @end

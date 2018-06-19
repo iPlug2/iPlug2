@@ -636,6 +636,14 @@ void IGraphicsMac::CreateTextEntry(IControl& control, const IText& text, const I
   }
 }
 
+void IGraphicsMac::SetMouseCursor(ECursor cursor)
+{
+  if (mView)
+  {
+    [(IGRAPHICS_VIEW*) mView setMouseCursor: cursor];
+  }
+}
+
 bool IGraphicsMac::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
 {
   #pragma REMINDER("Warning and error messages for OpenURL not implemented")

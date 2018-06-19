@@ -958,8 +958,8 @@ struct IMouseMod
 
 struct IMouseInfo
 {
-    float x, y;
-    IMouseMod ms;
+  float x, y;
+  IMouseMod ms;
 };
 
 // TODO: static storage needs thread safety mechanism
