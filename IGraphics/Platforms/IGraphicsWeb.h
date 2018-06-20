@@ -61,7 +61,7 @@ public:
   IColor GetPoint(int x, int y) override { return COLOR_BLACK; } // TODO:
   void* GetDrawContext() override { return nullptr; } // TODO:
 
-  bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure) override;
+  bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
 
   void RenderDrawBitmap() override { /* Nothing to do here */ }
@@ -86,14 +86,7 @@ public:
   void UpdateTooltips() override {} // TODO:
   int ShowMessageBox(const char* str, const char* caption, int type) override;
   
-  IPopupMenu* CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override
-  {
-    ReleaseMouseCapture();
-    
-    assert(mPopupControl != nullptr);
-    
-    return mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
-  }
+  IPopupMenu* CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   
   void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") override {} // TODO:
   void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action = kFileOpen, const char* extensions = 0) override {} // TODO: <input type="file" style="display: none" />

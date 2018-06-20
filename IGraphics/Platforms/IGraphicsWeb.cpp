@@ -242,7 +242,7 @@ void IGraphicsWeb::SetWebBlendMode(const IBlend* pBlend)
   }
 }
 
-bool IGraphicsWeb::DrawText(const IText& text, const char* str, IRECT& bounds, bool measure)
+bool IGraphicsWeb::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
   // TODO: orientation
   
@@ -279,7 +279,7 @@ bool IGraphicsWeb::DrawText(const IText& text, const char* str, IRECT& bounds, b
     PathRect(bounds);
     GetContext().call<void>("clip");
     PathClear();
-    SetWebSourcePattern(text.mFGColor);
+    SetWebSourcePattern(text.mFGColor, pBlend);
     context.call<void>("fillText", textString, x, y);
     PathStateRestore();
   }
@@ -289,7 +289,7 @@ bool IGraphicsWeb::DrawText(const IText& text, const char* str, IRECT& bounds, b
 
 bool IGraphicsWeb::MeasureText(const IText& text, const char* str, IRECT& bounds)
 {
-  return DrawText(text, str, bounds, true);
+  return DrawText(text, str, bounds, 0, true);
 }
 
 void IGraphicsWeb::ClipRegion(const IRECT& r)
@@ -504,6 +504,18 @@ int IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, int type)
   }
 
   return 0; // TODO: return value?
+}
+
+IPopupMenu* IGraphicsWeb::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+{
+  ReleaseMouseCapture();
+  
+  if(mPopupControl)
+    return mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
+  else
+  {
+    //TODO: implement select box
+  }
 }
 
 bool IGraphicsWeb::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
