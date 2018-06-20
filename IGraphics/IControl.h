@@ -851,6 +851,7 @@ public:
   virtual void DrawCell(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem);
   virtual void DrawHighlightCell(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem);
   virtual void DrawCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem);
+  virtual void DrawHighlightCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem);
   virtual void DrawSeparator(IGraphics& g, const IRECT& bounds);
   
   /** Call this to create a pop-up menu. This method
