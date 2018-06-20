@@ -851,6 +851,7 @@ public:
   virtual void DrawCell(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem);
   virtual void DrawHighlightCell(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem);
   virtual void DrawCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem);
+  virtual void DrawHighlightCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem);
   virtual void DrawSeparator(IGraphics& g, const IRECT& bounds);
   
   /** Call this to create a pop-up menu. This method
@@ -918,6 +919,7 @@ class ICornerResizerBase : public IControl
 public:
   ICornerResizerBase(IEditorDelegate& dlg, IRECT graphicsBounds, float size)
   : IControl(dlg, graphicsBounds.GetRECTFromRHC(size))
+  , mInitialGraphicsBounds(graphicsBounds)
   , mSize(size)
   {
   }
@@ -932,7 +934,10 @@ public:
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    GetUI()->StartResizeGesture();
+    if(mod.S || mod.R)
+      GetUI()->Resize(mInitialGraphicsBounds.W(), mInitialGraphicsBounds.H(), 1.);
+    else
+      GetUI()->StartResizeGesture();
   }
   
   void OnRescale() override
@@ -956,4 +961,5 @@ public:
   
 private:
   float mSize;
+  IRECT mInitialGraphicsBounds;
 };

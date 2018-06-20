@@ -610,13 +610,20 @@ void IPopupMenuControlBase::DrawCell(IGraphics& g, const IRECT& bounds, const IP
 
 void IPopupMenuControlBase::DrawHighlightCell(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem)
 {
-  g.FillRect(COLOR_WHITE, bounds, &mBlend);
-  g.DrawRect(COLOR_BLACK, bounds, &mBlend);
+  g.FillRect(COLOR_BLUE, bounds.GetHPadded(mPadding), &mBlend);
 }
 
 void IPopupMenuControlBase::DrawCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem)
 {
   IRECT textRect = bounds.GetHPadded(-TEXT_PAD);
+  mText.mFGColor = COLOR_BLACK;
+  g.DrawText(mText, menuItem.GetText(), textRect, &mBlend);
+}
+
+void IPopupMenuControlBase::DrawHighlightCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem)
+{
+  IRECT textRect = bounds.GetHPadded(-TEXT_PAD);
+  mText.mFGColor = COLOR_WHITE;
   g.DrawText(mText, menuItem.GetText(), textRect, &mBlend);
 }
 
@@ -745,8 +752,6 @@ void IPopupMenuControlBase::Expand()
 
 void IPopupMenuControlBase::Collapse()
 {
-//  GetUI()->SetAllControlsDirty(); // before collapse so expanded area is dirtied
-  
   mMenu->SetChosenItemIdx(-1);
   
   for(auto i = 0; i < mExpandedCellBounds.GetSize(); i++)
@@ -774,7 +779,8 @@ void IPopupMenuControlBase::Animate(double progress)
   else if(mState == kCollapsing)
     mBlend.mWeight = (1.-progress) * mOpacity;
 
-  SetDirty(false);
+  GetUI()->SetAllControlsDirty();
+//  SetDirty(false);
 }
 
 void IPopupMenuControlBase::OnEndAnimation()
