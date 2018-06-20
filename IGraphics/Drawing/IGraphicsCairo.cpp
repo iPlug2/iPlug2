@@ -272,7 +272,7 @@ IColor IGraphicsCairo::GetPoint(int x, int y)
   return IColor(A, R, G, B);
 }
 
-bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& bounds, bool measure)
+bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
 #if defined(OS_WIN) && defined(IGRAPHICS_FREETYPE)
   // TODO: lots!
@@ -320,7 +320,7 @@ bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& bounds,
 
 bool IGraphicsCairo::MeasureText(const IText& text, const char* str, IRECT& bounds)
 {
-  return DrawText(text, str, bounds, true);
+  return DrawText(text, str, bounds, 0, true);
 }
 
 void IGraphicsCairo::SetPlatformContext(void* pContext)
@@ -346,7 +346,7 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
     HDC dc = (HDC) pContext;
     mSurface = cairo_win32_surface_create_with_ddb(dc, CAIRO_FORMAT_ARGB32, Width(), Height());
     mContext = cairo_create(mSurface);
-    cairo_surface_set_device_scale(mSurface, GetScale(), GetScale());
+    cairo_surface_set_device_scale(mSurface, GetDisplayScale(), GetDisplayScale());
 #else
   #error NOT IMPLEMENTED
 #endif

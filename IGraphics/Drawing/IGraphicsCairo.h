@@ -43,7 +43,7 @@ class IGraphicsCairo : public IGraphicsPathBase
 public:
   const char* GetDrawingAPIStr() override { return "CAIRO"; }
 
-  IGraphicsCairo(IEditorDelegate& dlg, int w, int h, int fps);
+  IGraphicsCairo(IEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsCairo();
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
@@ -71,7 +71,7 @@ public:
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return (void*) mContext; }
 
-  bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure) override;
+  bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
 
   void RenderDrawBitmap() override;
