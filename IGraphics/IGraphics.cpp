@@ -66,6 +66,9 @@ IGraphics::~IGraphics()
 
   if (mPopupControl)
     DELETE_NULL(mPopupControl);
+  
+  if (mCornerResizer)
+    DELETE_NULL(mCornerResizer);
 
 #if !defined(NDEBUG)
   if (mLiveEdit)
@@ -85,18 +88,17 @@ IGraphics::~IGraphics()
 
 void IGraphics::Resize(int w, int h, float scale)
 {
+  DBGMSG("resize %i, resize %i, scale %f\n", w, h, scale);
   ReleaseMouseCapture();
 
-  float oldScale = mScale;
   mScale = scale;
   mScaleReciprocal = 1.f/mScale;
   mWidth = w;
   mHeight = h;
+  
+  // TODO: Use natural resolution bitmaps where possible?
 
-  if (oldScale != scale)
-    OnDisplayScale(); // TODO: is this correct?
-
-  GetDelegate()->ResizeGraphicsFromUI();
+  GetDelegate()->ResizeGraphicsFromUI(w * scale, h * scale, scale);
 }
 
 void IGraphics::OnDisplayScale()
@@ -151,6 +153,18 @@ void IGraphics::AttachKeyCatcher(IControl* pControl)
 {
   mKeyCatcher = pControl;
   mKeyCatcher->SetGraphics(this);
+}
+
+void IGraphics::AttachCornerResizer(EGUISizeMode sizeMode)
+{
+  AttachCornerResizer(new ICornerResizerBase(mDelegate, GetBounds(), 20), sizeMode);
+}
+
+void IGraphics::AttachCornerResizer(ICornerResizerBase* pControl, EGUISizeMode sizeMode)
+{
+  mGUISizeMode = sizeMode;
+  mCornerResizer = pControl;
+  mCornerResizer->SetGraphics(this);
 }
 
 void IGraphics::AttachPopupMenuControl(IPopupMenuControlBase* pControl)
@@ -585,6 +599,11 @@ void IGraphics::Draw(const IRECT& bounds)
     mPopupControl->Draw(*this);
     mPopupControl->SetClean();
   }
+  
+  if(mCornerResizer != nullptr)
+  {
+    mCornerResizer->Draw(*this);
+  }
 
 #ifndef NDEBUG
   // some helpers for debugging
@@ -599,23 +618,15 @@ void IGraphics::Draw(const IRECT& bounds)
   {
     for (int j = 1; j < mControls.GetSize(); j++)
     {
-      IControl* pControl = mControls.Get(j);
-      DrawRect(CONTROL_BOUNDS_COLOR, pControl->GetRECT());
+      IRECT r = mControls.Get(j)->GetRECT();
+      ClipRegion(r);
+      DrawRect(CONTROL_BOUNDS_COLOR, r);
+      ResetClipRegion();
     }
   }
 
   if(mLiveEdit)
     mLiveEdit->Draw(*this);
-
-  //  WDL_String str;
-//  str.SetFormatted(32, "x: %i, y: %i", mMouseX, mMouseY);
-  IText txt(CONTROL_BOUNDS_COLOR, 20);
-  txt.mAlign = IText::kAlignNear;
-  IRECT r;
-//  DrawText(txt, str.Get(), r);
-//  MeasureText(txt, GetDrawingAPIStr(), r);
-//  FillRect(COLOR_BLACK, r);
-//  DrawText(txt, GetDrawingAPIStr(), r);
 
 #endif
 
@@ -668,6 +679,11 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
       return;
     }
   }
+  else if(mCornerResizer)
+  {
+    if(mCornerResizer->GetRECT().Contains(x, y))
+      mCornerResizer->OnMouseDown(x, y, mod);
+  }
 
   int c = GetMouseControlIdx(x, y);
   if (c >= 0)
@@ -717,6 +733,13 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
   x *= mScaleReciprocal;
   y *= mScaleReciprocal;
+ 
+  if(mResizingInProcess)
+  {
+    mResizingInProcess = false;
+    mCornerResizer->OnMouseUp(x, y, mod);
+    return;
+  }
   
   Trace("IGraphics::OnMouseUp", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
@@ -780,8 +803,23 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
       mPopupControl->OnMouseOver(x, y, mod);
     }
     else
-    {
       mPopupControl->OnMouseOut();
+    
+    return true;
+  }
+  else if(mCornerResizer)
+  {
+    static bool inCornerResizer = false;
+    if(mCornerResizer->GetRECT().Contains(x, y))
+    {
+      inCornerResizer = true;
+      mCornerResizer->OnMouseOver(x, y, mod);
+    }
+    else {
+      if(inCornerResizer) {
+        mCornerResizer->OnMouseOut();
+        inCornerResizer = false;
+      }
     }
   }
 
@@ -803,7 +841,7 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
   return false;
 }
 
-//TODO: if control Rect is the same as IGraphicsBounds, this doesn't fire
+//TODO: THIS DOESN'T GET CALLED ON MAC
 void IGraphics::OnMouseOut()
 {
   Trace("IGraphics::OnMouseOut", __LINE__, "");
@@ -811,6 +849,11 @@ void IGraphics::OnMouseOut()
   if(mPopupControl && mPopupControl->GetExpanded())
   {
     mPopupControl->OnMouseOut();
+  }
+
+  if(mCornerResizer)
+  {
+    mCornerResizer->OnMouseOut();
   }
 
   int i, n = mControls.GetSize();
@@ -825,6 +868,13 @@ void IGraphics::OnMouseOut()
 
 void IGraphics::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
 {
+  if(mResizingInProcess)
+  {
+    OnResizeGesture(x, y);
+
+    return;
+  }
+    
   x *= mScaleReciprocal;
   y *= mScaleReciprocal;
   dX *= mScaleReciprocal;
@@ -1061,6 +1111,19 @@ void IGraphics::OnGUIIdle()
     IControl* pControl = *ppControl;
     pControl->OnGUIIdle();
   }
+}
+
+void IGraphics::OnResizeGesture(float x, float y)
+{
+  if(mGUISizeMode == EGUISizeMode::kGUISizeScale)
+  {
+    float scale = y / Height();
+    Resize(Width(), Height(), Clip(scale, 0.1f, 10.f));
+    
+    if(mCornerResizer)
+      mCornerResizer->OnRescale();
+  }
+  
 }
 
 IBitmap IGraphics::GetScaledBitmap(IBitmap& src)

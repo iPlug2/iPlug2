@@ -47,8 +47,8 @@ public:
   void EndInformHostOfParamChange(int idx) override;
   void InformHostOfProgramChange() override;
   EHost GetHost() override;
-  void ResizeGraphics() override;
   void HostSpecificInit() override;
+  void ResizeGraphics(int viewWidth, int viewHeight, float scale) override;
 
   //IPlugProcessor
   void SetLatency(int samples) override;

@@ -796,11 +796,12 @@ void IPlugVST3::InformHostOfParameterDetailsChange()
   handler->restartComponent(kParamTitlesChanged);
 }
 
-void IPlugVST3::ResizeGraphics()
+void IPlugVST3::ResizeGraphics(int viewWidth, int viewHeight, float scale)
 {
-  if (HasUI())
-  {
-    mViews.at(0)->resize(Width(), Height()); // only resize view 0?
+  if(HasUI()) {
+    mViews.at(0)->resize(viewWidth, viewHeight);
+    IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, scale);
+    OnWindowResize();
   }
 }
 

@@ -912,3 +912,48 @@ private:
   float mDropShadowSize = 10.f;
   float mOpacity = 0.95f;
 };
+
+class ICornerResizerBase : public IControl
+{
+public:
+  ICornerResizerBase(IEditorDelegate& dlg, IRECT graphicsBounds, float size)
+  : IControl(dlg, graphicsBounds.GetRECTFromRHC(size))
+  , mSize(size)
+  {
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    if(GetMouseIsOver() | GetUI()->mResizingInProcess)
+      g.FillTriangle(COLOR_BLACK, mRECT.L, mRECT.B, mRECT.R, mRECT.T, mRECT.R, mRECT.B);
+    else
+      g.FillTriangle(COLOR_TRANSLUCENT, mRECT.L, mRECT.B, mRECT.R, mRECT.T, mRECT.R, mRECT.B);
+  }
+  
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    GetUI()->StartResizeGesture();
+  }
+  
+  void OnRescale() override
+  {
+    IRECT r = GetUI()->GetBounds().GetRECTFromRHC(mSize * (1./GetUI()->GetScale()));
+    SetTargetAndDrawRECTs(r);
+  }
+  
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override
+  {
+    GetUI()->SetMouseCursor(ECursor::SIZENWSE);
+    IControl::OnMouseOver(x, y, mod);
+  }
+  
+  void OnMouseOut() override
+  {
+    GetUI()->SetMouseCursor(ECursor::ARROW);
+    IControl::OnMouseOut();
+  }
+
+  
+private:
+  float mSize;
+};

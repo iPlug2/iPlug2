@@ -166,7 +166,7 @@ public:
   
   /** Sometimes when a plug-in wants to change its UI dimensions we need to call into the plug-in api class first when we click a button in our UI
    * This method is implemented in various classes that inherit this interface to implement that behaviour */
-  virtual void ResizeGraphicsFromUI() {};
+  virtual void ResizeGraphicsFromUI(int viewWidth, int viewHeight, float scale) {};
   
   /** TODO: SMMFUI */
   /** When we want to send a MIDI message from the UI for example clicking on a key in a virtual keyboard, this method should be used

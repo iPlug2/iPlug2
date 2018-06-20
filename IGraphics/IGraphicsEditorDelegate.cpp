@@ -159,16 +159,6 @@ void IGraphicsEditorDelegate::SendParameterValueToUIFromDelegate(int paramIdx, d
   IEditorDelegate::SendParameterValueToUIFromDelegate(paramIdx, value, normalized);
 }
 
-// TODO: ResizeGraphicsFromUI
-void IGraphicsEditorDelegate::ResizeGraphicsFromUI()
-{
-  assert(mGraphics != nullptr);
-//
-//  mWidth = mGraphics->WindowWidth();
-//  mHeight = mGraphics->WindowHeight();
-//  ResizeGraphics();
-}
-
 void IGraphicsEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
 {
   assert(mGraphics != nullptr);

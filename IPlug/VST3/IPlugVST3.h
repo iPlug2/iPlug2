@@ -59,11 +59,10 @@ public:
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;
   void InformHostOfProgramChange() override {}
-  
   void InformHostOfParameterDetailsChange() override;
   
   //IPlugProcessor
-  void ResizeGraphics() override;
+  void ResizeGraphics(int viewWidth, int viewHeight, float scale) override;
   void SetLatency(int samples) override;
   bool SendMidiMsg(const IMidiMsg& msg) override { return false; } //TODO: SendMidiMsg
   

@@ -77,7 +77,7 @@ public:
   
   void InformHostOfProgramChange() override { }; //NA
   
-  void ResizeGraphics() override;
+  void ResizeGraphics(int viewWidth, int viewHeight, float scale) override;
   
   //IPlug Processor Overrides
   void SetLatency(int samples) override;

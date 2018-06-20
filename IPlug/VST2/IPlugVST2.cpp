@@ -136,14 +136,17 @@ EHost IPlugVST2::GetHost()
   return host;
 }
 
-void IPlugVST2::ResizeGraphics()
+void IPlugVST2::ResizeGraphics(int viewWidth, int viewHeight, float scale)
 {
-  if (HasUI())
+  if(HasUI())
   {
     mEditRect.left = mEditRect.top = 0;
-    mEditRect.right = Width();
-    mEditRect.bottom = Height();
-
+    mEditRect.right = viewWidth;
+    mEditRect.bottom = viewHeight;
+    
+    mHostCallback(&mAEffect, audioMasterSizeWindow, viewWidth, viewHeight, 0, 0.f);
+    
+    IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, scale);
     OnWindowResize();
   }
 }

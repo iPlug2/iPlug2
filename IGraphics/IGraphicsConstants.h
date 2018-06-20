@@ -130,6 +130,13 @@ enum EPatternExtend
   kExtendReflect,
   kExtendRepeat
 };
+
+enum EGUISizeMode
+{
+  kGUISizeScale,
+  kGUISizeSpace
+};
+
 enum ECursor
 {
   ARROW,

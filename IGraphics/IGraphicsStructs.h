@@ -660,6 +660,11 @@ struct IRECT
     else
       return SubRectHorizontal(numSlices, sliceIdx);
   }
+  
+  inline IRECT GetRECTFromRHC(float size)
+  {
+    return IRECT(R-size, B-size, R, B);
+  }
 
   inline IRECT GetGridCell(int row, int col, int nRows, int nColumns/*, EDirection = kHorizontal*/) const
   {

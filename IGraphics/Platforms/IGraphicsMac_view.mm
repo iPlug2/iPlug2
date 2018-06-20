@@ -226,6 +226,12 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   return self;
 }
 
+- (void)dealloc
+{
+  [[NSNotificationCenter defaultCenter] removeObserver:self];
+  [super dealloc];
+}
+
 - (BOOL) isOpaque
 {
   return mGraphics ? YES : NO;
@@ -248,11 +254,15 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   {
     [pWindow makeFirstResponder: self];
     [pWindow setAcceptsMouseMovedEvents: YES];
-
+    
     if (mGraphics)
     {
       mGraphics->SetAllControlsDirty();
     }
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(windowResized:) name:NSWindowDidEndLiveResizeNotification
+                                               object:pWindow];
   }
 }
 
@@ -710,6 +720,17 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   }
 
   return YES;
+}
+
+- (void)windowResized:(NSNotification *)notification;
+{
+  NSSize windowSize = [[self window] frame].size;
+  NSRect viewFrameInWindowCoords = [self convertRect: [self bounds] toView: nil];
+
+  float width = windowSize.width - viewFrameInWindowCoords.origin.x;
+  float height = viewFrameInWindowCoords.origin.y + viewFrameInWindowCoords.size.height;
+  
+  mGraphics->OnResizeGesture(0., height);
 }
 
 @end

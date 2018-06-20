@@ -35,8 +35,8 @@ IPlugAPIBase::IPlugAPIBase(IPlugConfig c, EAPI plugAPI)
   mProductName.Set(c.productName, MAX_PLUGIN_NAME_LEN);
   mMfrName.Set(c.mfrName, MAX_PLUGIN_NAME_LEN);
   mHasUI = c.plugHasUI;
-  mWidth = c.plugWidth;
-  mHeight = c.plugHeight;
+  mViewWidth = c.plugWidth;
+  mViewHeight = c.plugHeight;
   mStateChunks = c.plugDoesChunks;
   mAPI = plugAPI;
 

@@ -41,6 +41,7 @@
 class IEditorDelegate;
 class IControl;
 class IPopupMenuControlBase;
+class ICornerResizerBase;
 class IParam;
 
 /**
@@ -66,6 +67,7 @@ public:
   /** Called by the platform IGraphics class when UI created and when moving to a new screen with different DPI, implementations in draw class must call the base implementation
    * @param scale An integer specifying the scale of the display, typically 2 on a macOS retina screen */
   virtual void SetDisplayScale(int scale) { mDisplayScale = (float) scale; OnDisplayScale(); };
+  
 #ifndef OS_WEB
   /** Draw an SVG image to the graphics context
    * @param svg The SVG image to the graphics context
@@ -474,6 +476,10 @@ public:
    * @param x New X position in pixels
    * @param y New Y position in pixels */
   virtual void MoveMouseCursor(float x, float y) {}
+  
+  /** Sets the mouse cursor to one of ECursor
+   * @param cursor The cursor type */
+  virtual void SetMouseCursor(ECursor cursor = ECursor::ARROW) {}
 
   /** Call to force end text entry (will cancel any half input text \todo check) */
   virtual void ForceEndUserEdit() = 0;
@@ -492,7 +498,7 @@ public:
   /** Close the platform view for this graphics context */
   virtual void CloseWindow() = 0;
 
-  /** Get a pointer to the platform view for this graphics context
+  /** Get a pointer to the platform view e.g. HWND or NSView for this graphics context
    * return void pointer to platform window or view handle */
   virtual void* GetWindow() = 0;
 
@@ -566,7 +572,7 @@ public:
    * @param pContext void pointer to CGContextRef or HDC */
   virtual void SetPlatformContext(void* pContext) { mPlatformContext = pContext; }
 
-  /** Get the platform draw context
+  /** Get the platform draw context - an HDC or CGContextRef
    * @return void pointer to an HDC or CGContext */
   void* GetPlatformContext() { return mPlatformContext; }
   
@@ -671,16 +677,23 @@ public:
   void AttachPanelBackground(const IColor& color);
 
   /** Attach a designated “Key Catcher” IControl.
-   * The key catcher is a special IControl that is not part of the main control stack and is not drawn in the graphics context. If you need to handle key presses globally you can create a custom IControl and override OnKeyDown(). Attach your control to the graphics context using this method. An igraphics context can only have a single key catcher control
-   @param pControl control description
-  */
+   * The key catcher is a special IControl that is not part of the main control stack and is not drawn in the graphics context.
+   * If you need to handle key presses globally you can create a custom IControl and override OnKeyDown().
+   * Attach your control to the graphics context using this method. An igraphics context can only have a single key catcher control
+   * @param pControl control A control to receive keypresses */
   void AttachKeyCatcher(IControl* pControl);
+  
+  /** Attach the default control to scale or increase the UI size by dragging the plug-in bottom right-hand corner
+   * @param sizeMode Choose whether to scale or size the UI */
+  void AttachCornerResizer(EGUISizeMode sizeMode = EGUISizeMode::kGUISizeScale);
 
-  /**
-   TODO:
+  /** Attach your own control to scale or increase the UI size by dragging the plug-in bottom right-hand corner
+   * @param pControl control a control that inherits from ICornerResizerBase
+   * @param sizeMode Choose whether to scale or size the UI */
+  void AttachCornerResizer(ICornerResizerBase* pControl, EGUISizeMode sizeMode = EGUISizeMode::kGUISizeScale);
 
-   @param pControl control description
-   */
+  /** Attach a custom control for pop-up menus, to override platform style menus
+   * @param pControl A control that inherits from IPopupMenuControlBase */
   void AttachPopupMenuControl(IPopupMenuControlBase* pControl);
   
   /** Attach an IControl to the graphics context and add it to the top of the control stack. The control is owned by the graphics context and will be deleted when the context is deleted.
@@ -696,6 +709,8 @@ public:
    * @return A pointer to the IControl object with the tag of nullptr if not found */
   IControl* GetControlWithTag(int controlTag);
   
+  /** Get a pointer to the IControl that is currently captured i.e. during dragging
+   * @return Pointer to currently captured control */
   IControl* GetCapturedControl() { if(mMouseCapture > 0) { return GetControl(mMouseCapture); } else return nullptr; }
   
   /** @return The number of controls that have been added to this graphics context */
@@ -770,7 +785,7 @@ public:
    * @return \c true if handled \todo check this */
   bool OnMouseOver(float x, float y, const IMouseMod& mod);
 
-  /** */
+  /** TODO: not called on mac*/
   void OnMouseOut();
 
   /** @param str A CString with the absolute path of the dropped item
@@ -780,6 +795,8 @@ public:
 
   /** */
   void OnGUIIdle();
+  
+  void OnResizeGesture(float x, float y);
 
   /** @param enable Set \c true if you want to handle mouse over messages. Note: this may increase the amount CPU usage if you redraw on mouse overs etc */
   void HandleMouseOver(bool canHandle) { mHandleMouseOver = canHandle; }
@@ -896,12 +913,14 @@ protected:
   bool mTabletInput = false;
   float mCursorX = -1.f;
   float mCursorY = -1.f;
+  ICornerResizerBase* mCornerResizer = nullptr;
   IPopupMenuControlBase* mPopupControl = nullptr;
   IPopupMenu mPromptPopupMenu;
 
 private:
   int GetMouseControlIdx(float x, float y, bool mo = false);
-
+  void StartResizeGesture() { mResizingInProcess = true; };
+  
   int mWidth;
   int mHeight;
   int mFPS;
@@ -920,17 +939,20 @@ private:
   bool mShowControlBounds = false;
   bool mShowAreaDrawn = false;
   IControl* mKeyCatcher = nullptr;
-
+  bool mResizingInProcess = false;
+  EGUISizeMode mGUISizeMode = EGUISizeMode::kGUISizeScale;
+  
 #if !defined(NDEBUG)
   IControl* mLiveEdit = nullptr;
 #endif
 
-#ifdef IGRAPHICS_FREETYPE
+#if defined IGRAPHICS_FREETYPE && !defined IGRAPHICS_NANOVG
 protected:
   FT_Library mFTLibrary = nullptr;
   FT_Face mFTFace = nullptr;
 #endif
 
   friend class IGraphicsLiveEdit;
+  friend class ICornerResizerBase;
 };
 

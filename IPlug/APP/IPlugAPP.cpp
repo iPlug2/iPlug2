@@ -36,18 +36,17 @@ IPlugAPP::IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   mMidiOut = instanceInfo.mRTMidiOut;
 }
 
-void IPlugAPP::ResizeGraphics()
+void IPlugAPP::ResizeGraphics(int viewWidth, int viewHeight, float scale)
 {
-  if (HasUI())
-  {
-    #ifdef OS_MAC
-    #define TITLEBAR_BODGE 22 //TODO: sort this out
-    RECT r;
-    GetWindowRect(gHWND, &r);
-    SetWindowPos(gHWND, 0, r.left, r.bottom - Height() - TITLEBAR_BODGE, Width(), Height() + TITLEBAR_BODGE, 0);
-    #endif
-    OnWindowResize();
-  }
+  #ifdef OS_MAC
+  #define TITLEBAR_BODGE 22 //TODO: sort this out
+  RECT r;
+  GetWindowRect(gHWND, &r);
+  SetWindowPos(gHWND, 0, r.left, r.bottom - viewHeight - TITLEBAR_BODGE, viewWidth, viewHeight + TITLEBAR_BODGE, 0);
+  #endif
+  
+  IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, scale);
+  OnWindowResize();
 }
 
 bool IPlugAPP::SendMidiMsg(const IMidiMsg& msg)

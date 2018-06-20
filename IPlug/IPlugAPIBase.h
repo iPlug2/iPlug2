@@ -122,8 +122,10 @@ public:
   /** This method will loop through all parameters, telling the host that they changed. You can use it if you restore a preset using a custom preset mechanism.*/
   void DirtyParameters(); // TODO: This is a hack to tell the host to dirty the project state, when a preset is recalled, is it necessary?
 
-  /** Call this method in order to notify the API of a graphics resize. */
-  virtual void ResizeGraphics() {};
+  /** Call this method from a delegate, for example if you wish to store graphics dimensions in your plug-in state in order to notify the API of a graphics resize.
+   * If calling from a UI interaction use ResizeGraphicsFromUI()
+   * When this is overridden in subclasses the subclass should call this in order to update the member variables */
+  virtual void ResizeGraphics(int viewWidth, int viewHeight, float scale) { mViewWidth = viewWidth; mViewHeight = viewHeight; mViewScale = scale; }
 
   /** Implemented by the API class, called by the UI (or by a delegate) at the beginning of a parameter change gesture
    * @param paramIdx The parameter that is being changed */
@@ -165,6 +167,7 @@ public:
   void SetParameterValueFromUI(int paramIdx, double value) override { SetParameterValue(paramIdx, value); IPluginBase::SetParameterValueFromUI(paramIdx, value); }
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { BeginInformHostOfParamChange(paramIdx); }
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }
+  void ResizeGraphicsFromUI(int viewWidth, int viewHeight, float scale) override { ResizeGraphics(viewWidth, viewHeight, scale); }
   
   //These are handled in IPlugAPIBase for non DISTRIBUTED APIs
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;

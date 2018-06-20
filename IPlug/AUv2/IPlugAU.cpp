@@ -1919,10 +1919,11 @@ void IPlugAU::HostSpecificInit()
   OnHostIdentified(); // might get called again
 }
 
-void IPlugAU::ResizeGraphics()
+void IPlugAU::ResizeGraphics(int viewWidth, int viewHeight, float scale)
 {
   if (HasUI())
   {
+    IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, scale);
     OnWindowResize();
   }
 }

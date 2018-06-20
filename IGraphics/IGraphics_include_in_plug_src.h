@@ -38,7 +38,7 @@
 
   IGraphics* MakeGraphics(IEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
   {
-    gGraphics = new IGraphicsWeb(dlg, w, h, fps);
+    gGraphics = new IGraphicsWeb(dlg, w, h, fps, scale);
     return gGraphics;
   }
 

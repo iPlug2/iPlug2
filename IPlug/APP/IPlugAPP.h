@@ -53,13 +53,13 @@ class IPlugAPP : public IPlugAPIBase
 {
 public:
   IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig config);
-
+  
   //IPlugAPIBase
   void BeginInformHostOfParamChange(int idx) override {};
   void InformHostOfParamChange(int idx, double normalizedValue) override {};
   void EndInformHostOfParamChange(int idx) override {};
   void InformHostOfProgramChange() override {};
-  void ResizeGraphics() override;
+  void ResizeGraphics(int viewWidth, int viewHeight, float scale) override;
 
   //IPlugProcessor
   bool SendMidiMsg(const IMidiMsg& msg) override;

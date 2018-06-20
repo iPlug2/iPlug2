@@ -469,3 +469,14 @@ void IPlugVST3Controller::SendMsgFromUI(int messageTag, int dataSize, const void
   sendMessage(message);
 }
 
+void IPlugVST3Controller::ResizeGraphics(int viewWidth, int viewHeight, float scale)
+{
+  if(HasUI())
+  {
+    mView->resize(viewWidth, viewHeight, scale);
+    
+    IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, scale);
+    OnWindowResize();
+  }
+}
+

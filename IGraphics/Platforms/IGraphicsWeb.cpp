@@ -77,10 +77,10 @@ IGraphicsWeb::IGraphicsWeb(IEditorDelegate& dlg, int w, int h, int fps, float sc
   val tabIndex = GetCanvas().call<val>("setAttribute", std::string("tabindex"), 1);
   canvas.call<void>("addEventListener", std::string("keydown"), eventListener2);
 
-  int scale = val::global("window")["devicePixelRatio"].as<int>();
+  int dscale = val::global("window")["devicePixelRatio"].as<int>();
   canvas["style"].set("width",val(w));
   canvas["style"].set("height",val(h));
-  GetContext().call<void>("scale", scale, scale);
+  GetContext().call<void>("scale", dscale, dscale);
   
   canvas.set("width", w * scale);
   canvas.set("height", h * scale);
