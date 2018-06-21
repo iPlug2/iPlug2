@@ -82,11 +82,11 @@ IGraphicsWeb::IGraphicsWeb(IEditorDelegate& dlg, int w, int h, int fps, float sc
   canvas["style"].set("height",val(h));
   GetContext().call<void>("scale", dscale, dscale);
   
-  canvas.set("width", w * scale);
-  canvas.set("height", h * scale);
+  canvas.set("width", w * dscale);
+  canvas.set("height", h * dscale);
   
-  SetDisplayScale(scale);
-  PathTransformScale(scale, scale);
+  SetDisplayScale(dscale);
+  PathTransformScale(dscale, dscale);
 }
 
 IGraphicsWeb::~IGraphicsWeb()
@@ -515,6 +515,7 @@ IPopupMenu* IGraphicsWeb::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds,
   else
   {
     //TODO: implement select box
+    return nullptr;
   }
 }
 
