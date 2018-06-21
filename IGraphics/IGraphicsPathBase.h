@@ -95,7 +95,7 @@ public:
       if(normXPoints)
         xPos = bounds.L + (bounds.W() * normXPoints[i]);
       else
-        xPos = bounds.L + ((bounds.W() / (float) nPoints) * i);
+        xPos = bounds.L + ((bounds.W() / (float) (nPoints - 1) * i));
       
       PathLineTo(xPos, bounds.B - (bounds.H() * normYPoints[i]));
     }
