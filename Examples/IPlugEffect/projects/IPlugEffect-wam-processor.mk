@@ -20,4 +20,4 @@ JSFLAGS = \
 --bind
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(WAM_CFLAGS) $(LDFLAGS) $(JSFLAGS) -o $@ $(WAM_SRC)
+	$(CC) $(CFLAGS) $(WAM_CFLAGS) $(LDFLAGS) $(JSFLAGS) -o $@ $(WAM_SRC)
