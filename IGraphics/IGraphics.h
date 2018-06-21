@@ -422,6 +422,8 @@ public:
    * @param thickness Optional line thickness */
   virtual void DrawGrid(const IColor& color, const IRECT& bounds, float gridSizeH, float gridSizeV, const IBlend* pBlend = 0, float thickness = 1.f);
 
+  virtual void DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints = nullptr, const IBlend* pBlend = 0, float thickness = 1.f);
+  
 #pragma mark - IGraphics drawing API Path support
 
   virtual bool HasPathSupport() const { return false; }

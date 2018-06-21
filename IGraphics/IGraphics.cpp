@@ -467,6 +467,11 @@ void IGraphics::DrawGrid(const IColor& color, const IRECT& bounds, float gridSiz
   }
 }
 
+void IGraphics::DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints, const IBlend* pBlend, float thickness)
+{
+  //TODO:
+}
+
 bool IGraphics::IsDirty(IRECT& bounds)
 {
 #ifndef NDEBUG

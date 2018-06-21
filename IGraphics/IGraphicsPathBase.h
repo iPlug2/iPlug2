@@ -82,6 +82,27 @@ public:
     PathStroke(color, thickness, IStrokeOptions(), pBlend);
   }
   
+  void DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints, const IBlend* pBlend, float thickness) override
+  {
+    PathStart();
+    
+    float xPos = bounds.L;
+
+    PathMoveTo(xPos, bounds.B - (bounds.H() * normYPoints[0]));
+
+    for (auto i = 1; i < nPoints; i++)
+    {
+      if(normXPoints)
+        xPos = bounds.L + (bounds.W() * normXPoints[i]);
+      else
+        xPos = bounds.L + ((bounds.W() / (float) nPoints) * i);
+      
+      PathLineTo(xPos, bounds.B - (bounds.H() * normYPoints[i]));
+    }
+    
+    PathStroke(color, thickness, IStrokeOptions(), pBlend);
+  }
+  
   void DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness) override
   {
     PathStart();
