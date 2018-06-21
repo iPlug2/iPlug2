@@ -78,7 +78,7 @@ void IControl::SetDirty(bool triggerAction)
   {
     if(mParamIdx > kNoParameter)
     {
-      mDelegate.SetParameterValueFromUI(mParamIdx, mValue);
+      mDelegate.SendParameterValueFromUI(mParamIdx, mValue);
       GetUI()->UpdatePeers(this);
       const IParam* pParam = mDelegate.GetParam(mParamIdx);
 
@@ -225,7 +225,7 @@ void IControl::SetAllAuxParamsFromGUI()
   for (int i=0;i<mAuxParams.GetSize();i++)
   {
     AuxParam* pAuxParam = GetAuxParam(i);
-    mDelegate.SetParameterValueFromUI(pAuxParam->mParamIdx, pAuxParam->mValue);
+    mDelegate.SendParameterValueFromUI(pAuxParam->mParamIdx, pAuxParam->mValue);
   }
 }
 

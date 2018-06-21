@@ -518,7 +518,7 @@ void IPlugVST3Processor::PrepareProcessContext()
   _SetRenderingOffline(offline);
 }
 
-void IPlugVST3Processor::SetControlValueFromDelegate(int controlTag, double normalizedValue)
+void IPlugVST3Processor::SendControlValueFromDelegate(int controlTag, double normalizedValue)
 {
   OPtr<IMessage> message = allocateMessage();
   
@@ -547,7 +547,7 @@ void IPlugVST3Processor::SendControlMsgFromDelegate(int controlTag, int messageT
   sendMessage(message);
 }
 
-void IPlugVST3Processor::SendMsgFromDelegate(int messageTag, int dataSize, const void* pData)
+void IPlugVST3Processor::SendArbitraryMsgFromDelegate(int messageTag, int dataSize, const void* pData)
 {
   OPtr<IMessage> message = allocateMessage();
   
@@ -561,7 +561,7 @@ void IPlugVST3Processor::SendMsgFromDelegate(int messageTag, int dataSize, const
     pData = &dummy;
   }
   
-  message->setMessageID("SMFD");
+  message->setMessageID("SAMFD");
   message->getAttributes()->setInt("MT", messageTag);
   message->getAttributes()->setBinary("D", pData, dataSize);
   sendMessage(message);
@@ -590,7 +590,7 @@ tresult PLUGIN_API IPlugVST3Processor::notify(IMessage* message)
       return kResultFalse;
     }
   }
-  else if (!strcmp (message->getMessageID(), "SMFUI")) // message from UI
+  else if (!strcmp (message->getMessageID(), "SAMFUI")) // message from UI
   {
     int64 val;
     

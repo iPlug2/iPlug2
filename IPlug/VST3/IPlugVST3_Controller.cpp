@@ -395,7 +395,7 @@ tresult PLUGIN_API IPlugVST3Controller::notify(IMessage* message)
     if(message->getAttributes()->getFloat("NV", normalizedValue) == kResultFalse)
       return kResultFalse;
     
-    SetControlValueFromDelegate((int) controlTag, normalizedValue);
+    SendControlValueFromDelegate((int) controlTag, normalizedValue);
 
   }
   else if (!strcmp (message->getMessageID(), "SCMFD"))
@@ -449,7 +449,7 @@ void IPlugVST3Controller::SendMidiMsgFromUI(const IMidiMsg& msg)
   sendMessage(message);
 }
 
-void IPlugVST3Controller::SendMsgFromUI(int messageTag, int dataSize, const void* pData)
+void IPlugVST3Controller::SendArbitraryMsgFromUI(int messageTag, int dataSize, const void* pData)
 {
   OPtr<IMessage> message = allocateMessage();
   
@@ -463,7 +463,7 @@ void IPlugVST3Controller::SendMsgFromUI(int messageTag, int dataSize, const void
     pData = &dummy;
   }
   
-  message->setMessageID("SMFUI");
+  message->setMessageID("SAMFUI");
   message->getAttributes()->setInt("MT", messageTag);
   message->getAttributes()->setBinary("D", pData, dataSize);
   sendMessage(message);

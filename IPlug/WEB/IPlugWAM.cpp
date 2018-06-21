@@ -140,7 +140,7 @@ void IPlugWAM::onSysex(byte* msg, uint32_t size)
   postMessage("SSMFD", dataStr.Get(), "");
 }
 
-void IPlugWAM::SetControlValueFromDelegate(int controlTag, double normalizedValue)
+void IPlugWAM::SendControlValueFromDelegate(int controlTag, double normalizedValue)
 {
   WDL_String propStr;
   WDL_String dataStr;

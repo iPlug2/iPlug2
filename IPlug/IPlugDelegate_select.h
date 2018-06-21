@@ -21,6 +21,11 @@ typedef UIKitEditorDelegate EDITOR_DELEGATE_CLASS;
   #include "IPlugEditorDelegate.h"
   typedef IEditorDelegate EDITOR_DELEGATE_CLASS;
 #else
-  #include "IGraphicsEditorDelegate.h"
-  typedef IGraphicsEditorDelegate EDITOR_DELEGATE_CLASS;
+  #if defined WEBSOCKET_SERVER
+    #include "IWebsocketEditorDelegate.h"
+    typedef IWebsocketEditorDelegate EDITOR_DELEGATE_CLASS;
+  #else
+    #include "IGraphicsEditorDelegate.h"
+    typedef IGraphicsEditorDelegate EDITOR_DELEGATE_CLASS;
+  #endif
 #endif

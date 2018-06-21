@@ -102,7 +102,7 @@ public:
    * If you need to do something when state is restored you can override it */
   virtual void OnRestoreState() {};
   
-#pragma mark - DELEGATION methods for sending values TO the user interface
+#pragma mark - Methods for sending values TO the user interface
   // The following methods are called from the plug-in/delegate class in order to update the user interface.
   
   /** TODO: SCVFD */
@@ -112,13 +112,13 @@ public:
    * If you are not using IGraphics,  you could use it in a similar way, as long as your control/meter has a unique tag
    * @param controlTag A tag for the control
    * @param normalizedValue The normalised value to set the control to. This will modify IControl::mValue; */
-  virtual void SetControlValueFromDelegate(int controlTag, double normalizedValue) {};
+  virtual void SendControlValueFromDelegate(int controlTag, double normalizedValue) {};
   
   /** TODO: SCMFD */
   virtual void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize = 0, const void* pData = nullptr) {};
   
-  /** TODO: SMFD */
-  virtual void SendMsgFromDelegate(int messageTag, int dataSize, const void* pData) {};
+  /** TODO: SAMFD */
+  virtual void SendArbitraryMsgFromDelegate(int messageTag, int dataSize, const void* pData) {};
   
   /** TODO: SMMFD */
   virtual void SendMidiMsgFromDelegate(const IMidiMsg& msg) { OnMidiMsgUI(msg); }
@@ -126,16 +126,16 @@ public:
   /** TODO: SSMFD */
   virtual void SendSysexMsgFromDelegate(const ISysEx& msg) { OnSysexMsgUI(msg); }
   
-  /** This method is called by the class implementing DELEGATE, NOT THE PLUGIN API class in order to update the user interface with the new parameter values, typically after automation.
+  /** This method is called by the class implementing the delegate interface, NOT THE PLUGIN API class in order to update the user interface with the new parameter values, typically after automation.
    * This method should only be called from the main thread. The similarly named IPlugAPIBase::_SendParameterValueToUIFromAPI() should take care of queueing and deferring, if there is no main thread notification from the API
    * If you override this method you should call the base class implementation to make sure OnParamChangeUI gets triggered
    * In IGraphics plug-ins, this will update any IControls that have their mParamIdx set > -1
    * @param paramIdx The index of the parameter to be updated
    * @param value The new value of the parameter
    * @param normalized \c true if value is normalised */
-  virtual void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) { OnParamChangeUI(paramIdx); } // TODO: normalised?
+  virtual void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) { OnParamChangeUI(paramIdx); } // TODO: normalised?
 
-#pragma mark - DELEGATION methods for sending values FROM the user interface
+#pragma mark - Methods for sending values FROM the user interface
   // The following methods are called from the user interface in order to set or query values of parameters in the class implementing IEditorDelegate
   
   /** Called by the UI at the beginning of a parameter change gesture, in order to notify the host
@@ -149,7 +149,7 @@ public:
    * If you override this method you should call the base class implementation to make sure OnParamChangeUI gets triggered
    * @param paramIdx The index of the parameter that is changing value
    * @param value The new normalised value of the parameter */
-  virtual void SetParameterValueFromUI(int paramIdx, double normalizedValue)
+  virtual void SendParameterValueFromUI(int paramIdx, double normalizedValue)
   {
     assert(paramIdx < NParams());
     
@@ -178,8 +178,8 @@ public:
   /** TODO: SSMFUI */
   virtual void SendSysexMsgFromUI(const ISysEx& msg) {};
   
-  /** TODO: SMFUI */
-  virtual void SendMsgFromUI(int messageTag, int dataSize = 0, const void* pData = nullptr) {};
+  /** TODO: SAMFUI */
+  virtual void SendArbitraryMsgFromUI(int messageTag, int dataSize = 0, const void* pData = nullptr) {};
 
 protected:
   /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plug-in class implementation constructor */

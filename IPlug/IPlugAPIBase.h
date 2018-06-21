@@ -164,7 +164,7 @@ public:
   void OnParamReset(EParamSource source);  //
 
   //IEditorDelegate
-  void SetParameterValueFromUI(int paramIdx, double value) override { SetParameterValue(paramIdx, value); IPluginBase::SetParameterValueFromUI(paramIdx, value); }
+  void SendParameterValueFromUI(int paramIdx, double value) override { SetParameterValue(paramIdx, value); IPluginBase::SendParameterValueFromUI(paramIdx, value); }
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { BeginInformHostOfParamChange(paramIdx); }
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }
   void ResizeGraphicsFromUI(int viewWidth, int viewHeight, float scale) override { ResizeGraphics(viewWidth, viewHeight, scale); }
@@ -172,7 +172,7 @@ public:
   //These are handled in IPlugAPIBase for non DISTRIBUTED APIs
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
   void SendSysexMsgFromUI(const ISysEx& msg) override;
-  void SendMsgFromUI(int messageTag, int dataSize = 0, const void* pData = nullptr) override;
+  void SendArbitraryMsgFromUI(int messageTag, int dataSize = 0, const void* pData = nullptr) override;
   
   void CreateTimer();
   

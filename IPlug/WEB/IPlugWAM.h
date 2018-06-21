@@ -55,10 +55,10 @@ public:
   bool SendSysEx(ISysEx& msg) override { return false; }
   
   //IEditorDelegate - these are overwritten because we need to use WAM messaging system
-  void SetControlValueFromDelegate(int controlTag, double normalizedValue) override;
+  void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;
   void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) override;
-  void SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized) override {} // NOOP in WAM processor?
-  void SendMsgFromDelegate(int messageTag, int dataSize = 0, const void* pData = nullptr) override {};
+  void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override {} // NOOP in WAM processor?
+  void SendArbitraryMsgFromDelegate(int messageTag, int dataSize = 0, const void* pData = nullptr) override {};
   
 private:
   int mBlockCounter = 0;

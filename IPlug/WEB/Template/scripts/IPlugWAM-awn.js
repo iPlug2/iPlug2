@@ -36,6 +36,14 @@ class IPlugWAMController extends WAMController
       Module.SCMFD(parseInt(res[0]), parseInt(res[1]), data.length, buffer);
       Module._free(buffer);
     }
+    //Send Arbitrary Message From Delegate
+    if(msg.verb == "SAMFD") {
+      var data = new Uint8Array(msg.data);
+      const buffer = Module._malloc(data.length);
+      Module.HEAPU8.set(data, buffer);
+      Module.SAMFD(parseInt(msg.prop), data.length, buffer);
+      Module._free(buffer);
+    }
     //Set Control Value From Delegate
     else if(msg.verb == "SCVFD") {
       Module.SCVFD(parseInt(msg.prop), parseFloat(msg.data));
@@ -47,7 +55,11 @@ class IPlugWAMController extends WAMController
     }
     //Send Sysex Message From Delegate
     else if(msg.verb == "SSMFD") {
-//       Module.SSMFD(parseInt(res[0]), parseInt(res[1]), parseInt(res[2]));
+      var data = new Uint8Array(msg.data);
+      const buffer = Module._malloc(data.length);
+      Module.HEAPU8.set(data, buffer);
+      Module.SSMFD(parseInt(msg.prop), data.length, buffer);
+      Module._free(buffer);
     }
   }
 }

@@ -152,7 +152,7 @@ void IPlugAPIBase::OnTimer(Timer& t)
     {
       ParamChange p;
       mParamChangeFromProcessor.Pop(p);
-      SendParameterValueToUIFromDelegate(p.paramIdx, p.value, p.normalized); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
+      SendParameterValueFromDelegate(p.paramIdx, p.value, p.normalized); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
     }
     
     while (mMidiMsgsFromProcessor.ElementsAvailable())
@@ -187,7 +187,7 @@ void IPlugAPIBase::SendSysexMsgFromUI(const ISysEx& msg)
   //TODO:
 }
 
-void IPlugAPIBase::SendMsgFromUI(int messageTag, int dataSize, const void* pData)
+void IPlugAPIBase::SendArbitraryMsgFromUI(int messageTag, int dataSize, const void* pData)
 {
   OnMessage(messageTag, dataSize, pData);
 }

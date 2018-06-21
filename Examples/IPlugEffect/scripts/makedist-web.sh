@@ -6,6 +6,13 @@ cd ..
 
 pwd
 
+if [ "$1" == "websocket" ]
+then
+  websocket=1
+else
+  websocket=0
+fi
+
 if [ -d build-web/.git ]
 then
   # trash only the scripts folder
@@ -17,7 +24,7 @@ else
   # trash the whole build-web folder
   if [ -d build-web ]
   then
-    rm -r build-web
+    rm -r build-we  b
   fi
 
   mkdir build-web
@@ -29,58 +36,72 @@ echo BUNDLING RESOURCES -----------------------------
 python /Users/oli/Dev/MyWeb/emscripten1.37.22/emscripten/1.37.22/tools/file_packager.py ./build-web/resources.data --use-preload-plugins --preload ./resources/img@/ --js-output=./build-web/resources.js
 echo -
 
-echo MAKING  - WAM WASM MODULE -----------------------------
-emmake make --makefile projects/IPlugEffect-wam-processor.mk
-
-if ! [ -a build-web/scripts/IPlugEffect-WAM.wasm ]
+if [ "$websocket" -eq "0" ]
 then
-  echo WAM compilation failed
-  exit
+  echo MAKING  - WAM WASM MODULE -----------------------------
+  emmake make --makefile projects/IPlugEffect-wam-processor.mk
+
+  if ! [ -a build-web/scripts/IPlugEffect-WAM.wasm ]
+  then
+    echo WAM compilation failed
+    exit
+  fi
+
+  cd build-web/scripts
+  # thanks to Steven Yi / Csound
+  echo "
+  fs = require('fs');
+  let wasmData = fs.readFileSync(\"IPlugEffect-WAM.wasm\");
+  let wasmStr = wasmData.join(\",\");
+  let wasmOut = \"AudioWorkletGlobalScope.WAM = AudioWorkletGlobalScope.WAM || {}\\\n\";
+  wasmOut += \"AudioWorkletGlobalScope.WAM.IPlug = { ENVIRONMENT: 'WEB' }\\\n\";
+  wasmOut += \"AudioWorkletGlobalScope.WAM.IPlug.wasmBinary = new Uint8Array([\" + wasmStr + \"]);\";
+  fs.writeFileSync(\"IPlugEffect-WAM.wasm.js\", wasmOut);
+  // later we will possibly switch to base64
+  // as suggested by Stephane Letz / Faust
+  // let base64 = wasmData.toString(\"base64\");
+  // fs.writeFileSync(\"IPlugEffect-WAM.base64.js\", base64);
+  " > encode-wasm.js
+
+  node encode-wasm.js
+  rm encode-wasm.js
+
+  cp ../../../../Dependencies/IPlug/WAM_SDK/wamsdk/*.js .
+  cp ../../../../Dependencies/IPlug/WAM_AWP/*.js .
+  cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awn.js IPlugEffect-awn.js
+  sed -i "" s/IPlugWAM/IPlugEffect/g IPlugEffect-awn.js
+  cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awp.js IPlugEffect-awp.js
+  sed -i "" s/IPlugWAM/IPlugEffect/g IPlugEffect-awp.js
+  cd ..
+
+  #copy in the template html - comment if you have customised the html
+  cp ../../../IPlug/WEB/Template/IPlugWAM-standalone.html index.html
+  sed -i "" s/IPlugWAM/IPlugEffect/g index.html
+else
+  #copy in the template html for websocket - comment if you have customised the html
+  cd build-web
+  pwd
+  cp ../../../IPlug/WEB/Template/IPlugWeb-RemoteEditor.html index.html
+  sed -i "" s/IPlugWEB/IPlugEffect/g index.html
 fi
-
-cd build-web/scripts
-# thanks to Steven Yi / Csound
-echo "
-fs = require('fs');
-let wasmData = fs.readFileSync(\"IPlugEffect-WAM.wasm\");
-let wasmStr = wasmData.join(\",\");
-let wasmOut = \"AudioWorkletGlobalScope.WAM = AudioWorkletGlobalScope.WAM || {}\\\n\";
-wasmOut += \"AudioWorkletGlobalScope.WAM.IPlug = { ENVIRONMENT: 'WEB' }\\\n\";
-wasmOut += \"AudioWorkletGlobalScope.WAM.IPlug.wasmBinary = new Uint8Array([\" + wasmStr + \"]);\";
-fs.writeFileSync(\"IPlugEffect-WAM.wasm.js\", wasmOut);
-// later we will possibly switch to base64
-// as suggested by Stephane Letz / Faust
-// let base64 = wasmData.toString(\"base64\");
-// fs.writeFileSync(\"IPlugEffect-WAM.base64.js\", base64);
-" > encode-wasm.js
-
-node encode-wasm.js
-rm encode-wasm.js
-
-cp ../../../../Dependencies/IPlug/WAM_SDK/wamsdk/*.js .
-cp ../../../../Dependencies/IPlug/WAM_AWP/*.js .
-cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awn.js IPlugEffect-awn.js
-sed -i "" s/IPlugWAM/IPlugEffect/g IPlugEffect-awn.js
-cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awp.js IPlugEffect-awp.js
-sed -i "" s/IPlugWAM/IPlugEffect/g IPlugEffect-awp.js
-cd ..
-
-#copy in the template html - comment if you have customised the html
-cp ../../../IPlug/WEB/Template/IPlugWAM-standalone.html index.html
-sed -i "" s/IPlugWAM/IPlugEffect/g index.html
 
 cd ../
 
 echo
 echo MAKING  - WEB WASM MODULE -----------------------------
 
-emmake make --makefile projects/IPlugEffect-wam-controller.mk
+emmake make --makefile projects/IPlugEffect-wam-controller.mk CFLAGS=-DWEBSOCKET_CLIENT=$websocket
 
 mv build-web/scripts/*.wasm build-web
 
 if [ -a build-web/IPlugEffect.wasm ]
 then
+  if [ "$websocket" -eq "1" ]
+  then
+    open http://localhost:8001/
+  else
   cd build-web
   emrun --no_emrun_detect --browser chrome index.html
   #   emrun --browser firefox index.html
+  fi
 fi

@@ -20,7 +20,7 @@ void IGraphicsEditorDelegate::AttachGraphics(IGraphics* pGraphics)
 
     for (auto i = 0; i < NParams(); ++i)
     {
-      SendParameterValueToUIFromDelegate(i, GetParam(i)->GetNormalized(), true);
+      SendParameterValueFromDelegate(i, GetParam(i)->GetNormalized(), true);
     }
         
     // TODO: is it safe/sensible to do this here
@@ -42,7 +42,7 @@ void IGraphicsEditorDelegate::OnRestoreState()
     for (i = 0; i < n; ++i)
     {
       double v = mParams.Get(i)->Value();
-      SendParameterValueToUIFromDelegate(i, v, false);
+      SendParameterValueFromDelegate(i, v, false);
     }
   }
 }
@@ -79,7 +79,7 @@ void IGraphicsEditorDelegate::CloseWindow()
 //#endif
 //}
 
-void IGraphicsEditorDelegate::SetControlValueFromDelegate(int controlTag, double normalizedValue)
+void IGraphicsEditorDelegate::SendControlValueFromDelegate(int controlTag, double normalizedValue)
 {
   assert(mGraphics != nullptr);
 
@@ -115,7 +115,7 @@ void IGraphicsEditorDelegate::SendControlMsgFromDelegate(int controlTag, int mes
   }
 }
 
-void IGraphicsEditorDelegate::SendParameterValueToUIFromDelegate(int paramIdx, double value, bool normalized)
+void IGraphicsEditorDelegate::SendParameterValueFromDelegate(int paramIdx, double value, bool normalized)
 {
   assert(mGraphics != nullptr); // Did you attach an IGraphics yet?
   //- maybe you wanted to #define NO_IGRAPHICS or set PLUG_HAS_UI to 0?
@@ -156,7 +156,7 @@ void IGraphicsEditorDelegate::SendParameterValueToUIFromDelegate(int paramIdx, d
 //    }
 //  }
   
-  IEditorDelegate::SendParameterValueToUIFromDelegate(paramIdx, value, normalized);
+  IEditorDelegate::SendParameterValueFromDelegate(paramIdx, value, normalized);
 }
 
 void IGraphicsEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
