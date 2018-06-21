@@ -555,11 +555,15 @@ void IPopupMenuControlBase::Draw(IGraphics& g)
     else
     {
       if(mMouseCellBounds == pCellRect)
+      {
         DrawHighlightCell(g, *pCellRect, *pMenuItem);
+        DrawHighlightCellText(g, *pCellRect, *pMenuItem);
+      }
       else
+      {
         DrawCell(g, *pCellRect, *pMenuItem);
-
-      DrawCellText(g, *pCellRect, *pMenuItem);
+        DrawCellText(g, *pCellRect, *pMenuItem);
+      }
     }
   }
 }
@@ -605,7 +609,6 @@ void IPopupMenuControlBase::DrawShadow(IGraphics& g, const IRECT& bounds)
 
 void IPopupMenuControlBase::DrawCell(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem)
 {
-//  g.DrawRect(COLOR_WHITE, bounds, &mBlend);
 }
 
 void IPopupMenuControlBase::DrawHighlightCell(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem)
@@ -709,6 +712,7 @@ void IPopupMenuControlBase::Expand()
 
       if (pMenuItem->GetSubmenu())
       {
+        assert(true);
         //TODO: submenu
       }
       
@@ -740,7 +744,6 @@ void IPopupMenuControlBase::Expand()
     
     mState = kExpanding;
     GetUI()->UpdateTooltips(); //will disable
-//    GetUI()->SetCursor(); // TODO: SetCursor
   }
 //  else // TODO: horizontal
 //  {
@@ -780,7 +783,6 @@ void IPopupMenuControlBase::Animate(double progress)
     mBlend.mWeight = (1.-progress) * mOpacity;
 
   GetUI()->SetAllControlsDirty();
-//  SetDirty(false);
 }
 
 void IPopupMenuControlBase::OnEndAnimation()
