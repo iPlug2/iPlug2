@@ -827,7 +827,7 @@ public:
   /** @param dlg The editor delegate that this control is attached to
    * @param collapsedBounds If this control, when collapsed should occupy an area of the graphics context, specify this, otherwise the collapsed area is empty
    * @param expandedBounds If you want to explicitly specify the size of the expanded pop-up, you can specify an area here */
-  IPopupMenuControlBase(IEditorDelegate& dlg, IRECT collapsedBounds = IRECT(), IRECT expandedBounds = IRECT(), EDirection direction = kVertical);
+  IPopupMenuControlBase(IEditorDelegate& dlg, int paramIdx = kNoParameter, IRECT collapsedBounds = IRECT(), IRECT expandedBounds = IRECT(), EDirection direction = kVertical);
   virtual ~IPopupMenuControlBase() {}
   
   //IControl

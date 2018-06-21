@@ -130,7 +130,7 @@ void IControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   #endif
 
   if (mod.R)
-		PromptUserInput();
+    PromptUserInput();
 }
 
 void IControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
@@ -525,8 +525,8 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
 #endif
 }
 
-IPopupMenuControlBase::IPopupMenuControlBase(IEditorDelegate& dlg, IRECT collapsedBounds, IRECT expandedBounds, EDirection direction)
-: IControl(dlg, collapsedBounds, kNoParameter)
+IPopupMenuControlBase::IPopupMenuControlBase(IEditorDelegate& dlg, int paramIdx, IRECT collapsedBounds, IRECT expandedBounds, EDirection direction)
+: IControl(dlg, collapsedBounds, paramIdx)
 , mSpecifiedCollapsedBounds(collapsedBounds)
 , mSpecifiedExpandedBounds(expandedBounds)
 , mDirection(direction)
@@ -575,6 +575,8 @@ void IPopupMenuControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
     mMouseCellBounds = HitTestCells(x, y);
     Collapse();
   }
+  else
+    IControl::OnMouseDown(x, y, mod);
 }
 
 void IPopupMenuControlBase::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
