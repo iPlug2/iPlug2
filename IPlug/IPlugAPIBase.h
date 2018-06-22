@@ -148,7 +148,7 @@ public:
    * @param paramIdx The index of the parameter that changed
    * @param value The new value
    * @param normalized /true if value is normalised */
-  virtual void _SendParameterValueToUIFromAPI(int paramIdx, double value, bool normalized);
+  virtual void _SendParameterValueFromAPI(int paramIdx, double value, bool normalized);
 
   /** Called to set the name of the current host, if known.
   * @param host The name of the plug-in host
@@ -188,14 +188,8 @@ private:
   void OnTimer(Timer& t) override;
 
 public:
-  struct ParamChange
-  {
-    int paramIdx;
-    double value;
-    bool normalized; // TODO: we shouldn't bother with this
-  };
-  
-  IPlugQueue<ParamChange> mParamChangeFromProcessor;
+
+  IPlugQueue<IParamChange> mParamChangeFromProcessor;
   IPlugQueue<IMidiMsg> mMidiMsgsFromEditor {32}; // a queue of midi messages received from the editor, by clicking keyboard UI etc
   IPlugQueue<IMidiMsg> mMidiMsgsFromProcessor {32};
   

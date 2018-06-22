@@ -3,26 +3,49 @@
 
 IWebsocketEditorDelegate::IWebsocketEditorDelegate(int nParams)
 : IGraphicsEditorDelegate(nParams)
+, mParamChangeFromClients(512) // TODO: constant
 {
+  
 }
 
 IWebsocketEditorDelegate::~IWebsocketEditorDelegate()
 {
 }
 
-void IWebsocketEditorDelegate::OnWebsocketReady(int idx)
+void IWebsocketEditorDelegate::OnWebsocketReady(int connIdx)
 {
 }
 
-bool IWebsocketEditorDelegate::OnWebsocketText(int idx, void* pData, size_t dataSize)
+bool IWebsocketEditorDelegate::OnWebsocketText(int connIdx, void* pData, size_t dataSize)
 {
   return true; // return true to keep the connection open
 }
 
-bool IWebsocketEditorDelegate::OnWebsocketData(int idx, void* pData, size_t dataSize)
+bool IWebsocketEditorDelegate::OnWebsocketData(int connIdx, void* pData, size_t dataSize)
 {
-  return true; // return true to keep the connection open
+  if (memcmp(pData, "SPVFUI" , 6) == 0) // send parameter value from user interface
+  {
+    int pos = 6;
+    uint8_t* pByteData = (uint8_t*) pData;
+    int paramIdx = * ((int*)(pByteData + pos)); pos+= 4;
+    double value = * ((double*)(pByteData + pos)); pos += 8;
+    mParamChangeFromClients.Push(IParamChange { paramIdx, value, true } );
+  }
+  else if (memcmp(pData, "SMMFUI" , 6) == 0) // send midi message from user interface
+  {
+  }
+  else if (memcmp(pData, "SSMFUI" , 6) == 0) // send sysex message from user interface
+  {
+  }
+  else if (memcmp(pData, "SAMFUI" , 6) == 0) // send arbitrary message from user interface
+  {
+  }
+  
+  //TODO: should now echo message to other clients
+  
+  return true;
 }
+
 
 //void IWebsocketEditorDelegate::BeginInformHostOfParamChangeFromUI(int paramIdx)
 //{
@@ -36,6 +59,7 @@ void IWebsocketEditorDelegate::SendParameterValueFromUI(int paramIdx, double nor
   data.Put(&paramIdx);
   data.Put(&normalizedValue);
   
+  // Server side UI edit, send to clients
   SendDataToConnection(-1, data.GetBytes(), data.Size());
 
   IGraphicsEditorDelegate::SendParameterValueFromUI(paramIdx, normalizedValue);
@@ -110,4 +134,13 @@ void IWebsocketEditorDelegate::SendSysexMsgFromDelegate(const ISysEx& msg)
   IGraphicsEditorDelegate::SendSysexMsgFromDelegate(msg);
 }
 
+void IWebsocketEditorDelegate::ProcessWebsocketQueue()
+{
+  while(mParamChangeFromClients.ElementsAvailable())
+  {
+    IParamChange p;
+    mParamChangeFromClients.Pop(p);
+    SendParameterValueFromDelegate(p.paramIdx, p.value, p.normalized); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
+  }
+}
 

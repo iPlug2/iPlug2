@@ -2,6 +2,8 @@
 
 #include "IGraphicsEditorDelegate.h"
 #include "Websocket.h"
+#include "IPlugStructs.h"
+#include "IPlugQueue.h"
 
 /**
  * @file
@@ -16,6 +18,7 @@ public:
   ~IWebsocketEditorDelegate();
  
   //IWebsocketServer
+  //THESE MESSAGES ARE ALL CALLED ON SERVER THREADS
   virtual void OnWebsocketReady(int idx) override;
   virtual bool OnWebsocketText(int idx, void* pData, size_t dataSize) override;
   virtual bool OnWebsocketData(int idx, void* pData, size_t dataSize) override;
@@ -31,4 +34,10 @@ public:
   virtual void SendMidiMsgFromDelegate(const IMidiMsg& msg) override;
   virtual void SendSysexMsgFromDelegate(const ISysEx& msg) override;
 //  void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
+  
+  // Call this repeatedly in order to handle incoming data
+  void ProcessWebsocketQueue();
+  
+private:
+  IPlugQueue<IParamChange> mParamChangeFromClients;
 };

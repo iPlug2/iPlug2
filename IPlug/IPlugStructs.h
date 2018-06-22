@@ -24,6 +24,15 @@
 #include "IPlugPlatform.h"
 #include "IPlugMidi.h" // <- Midi related structs in here
 
+
+/** In certain cases we need to queue parameter changes for transferral between threads */
+struct IParamChange
+{
+  int paramIdx;
+  double value;
+  bool normalized; // TODO: Remove this
+};
+
 /** Manages a block of memory, for plug-in settings store/recall */
 class IByteChunk
 {
