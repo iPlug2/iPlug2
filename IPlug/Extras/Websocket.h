@@ -67,6 +67,8 @@ public:
 
   int NClients()
   {
+    WDL_MutexLock lock(&mMutex);
+
     return mConnections.GetSize();
   }
   
@@ -98,6 +100,7 @@ private:
   bool DoSendToConnection(int idx, int opcode, const char* pData, size_t sizeInBytes)
   {
     std::function<bool(int)> sendFunc = [&](int connIdx) {
+      WDL_MutexLock lock(&mMutex);
       mg_connection* pConn = const_cast<mg_connection*>(mConnections.Get(connIdx));
       
       if(pConn) {
@@ -125,8 +128,11 @@ private:
   }
   
   // CivetWebSocketHandler
+  // These methods are called on the server thread
   bool handleConnection(CivetServer* pServer, const struct mg_connection* pConn) override
-  {    
+  {
+    WDL_MutexLock lock(&mMutex);
+
     mConnections.Add(pConn);
     
     DBGMSG("WS connected NClients %i\n", NClients());
@@ -136,14 +142,18 @@ private:
   
   void handleReadyState(CivetServer* pServer, struct mg_connection* pConn) override
   {
+    WDL_MutexLock lock(&mMutex);
+    
     DBGMSG("WS ready\n");
     
-    OnWebsocketReady(NClients()-1);
+    OnWebsocketReady(NClients()-1); // should defer to main thread
   }
   
   bool handleData(CivetServer* pServer, struct mg_connection* pConn, int bits, char* pData, size_t dataSize) override
   {
-    DBGMSG("WS data\n");
+    WDL_MutexLock lock(&mMutex);
+
+//    DBGMSG("WS data\n");
 
     uint8_t* firstByte = (uint8_t*) &bits;
     
@@ -161,12 +171,14 @@ private:
   
   void handleClose(CivetServer* pServer, const struct mg_connection* pConn) override
   {
+    WDL_MutexLock lock(&mMutex);
+
     mConnections.DeletePtr(pConn);
     
     DBGMSG("WS closed NClients %i\n", NClients());
   }
   
-  
+  WDL_Mutex mMutex;
   WDL_PtrList<const struct mg_connection> mConnections;
   CivetServer* mServer = nullptr;
 };
