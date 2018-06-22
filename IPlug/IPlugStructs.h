@@ -126,26 +126,6 @@ public:
     return -1;
   }
   
-  inline int PutBool(bool b)
-  {
-    int n = mBytes.GetSize();
-    mBytes.Resize(n + 1);
-    *(mBytes.Get() + n) = (uint8_t) (b ? 1 : 0);
-    return mBytes.GetSize();
-  }
-  
-  inline int GetBool(bool* pB, int startPos)
-  {
-    int endPos = startPos + 1;
-    if (startPos >= 0 && endPos <= mBytes.GetSize())
-    {
-      uint8_t byt = *(mBytes.Get() + startPos);
-      *pB = (byt);
-      return endPos;
-    }
-    return -1;
-  }
-  
   inline int PutChunk(IByteChunk* pRHS)
   {
     return PutBytes(pRHS->GetBytes(), pRHS->Size());
@@ -183,7 +163,7 @@ public:
     return n;
   }
   
-  inline uint8_t* GetBytes()
+  inline uint8_t* GetBytes() // TODO: BAD NAME!
   {
     return mBytes.Get();
   }

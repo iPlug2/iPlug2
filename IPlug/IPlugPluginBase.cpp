@@ -503,7 +503,7 @@ bool IPluginBase::SerializePresets(IByteChunk& chunk)
     
     Trace(TRACELOC, "%d %s", i, pPreset->mName);
     
-    chunk.PutBool(pPreset->mInitialized);
+    chunk.Put(&pPreset->mInitialized);
     if (pPreset->mInitialized)
     {
       savedOK &= (chunk.PutChunk(&(pPreset->mChunk)) > 0);
@@ -525,7 +525,7 @@ int IPluginBase::UnserializePresets(IByteChunk& chunk, int startPos)
     
     Trace(TRACELOC, "%d %s", i, pPreset->mName);
     
-    pos = chunk.GetBool(&(pPreset->mInitialized), pos);
+    pos = chunk.Get<bool>(&(pPreset->mInitialized), pos);
     if (pPreset->mInitialized)
     {
       pos = UnserializeState(chunk, pos);
