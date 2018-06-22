@@ -26,10 +26,10 @@ class IPlugEffectAppViewController: UIViewController {
 
     embedPlugInView()
     
-    playEngine = SimplePlayEngine(componentType: kAudioUnitType_Effect)
+    playEngine = SimplePlayEngine(componentType: kAudioUnitType_MusicDevice)
 
     var desc = AudioComponentDescription()
-    desc.componentType = kAudioUnitType_Effect
+    desc.componentType = kAudioUnitType_MusicDevice
     desc.componentSubType = fourCC("Ipef") //TODO: hardcoded!
     desc.componentManufacturer = fourCC("Acme") //TODO: hardcoded!
     desc.componentFlags = 0

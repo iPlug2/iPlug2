@@ -6,9 +6,7 @@ import UIKit
 import CoreAudioKit
 
 public class IPlugEffectViewController: AUViewController {
-  @IBOutlet weak var IGraphicsView: UIView!
-  @IBOutlet weak var GenericView: GenericUI!
-  
+
   public var audioUnit: IPlugAUAudioUnit? {
     // this variable gets set when loading in process in stand-alone app, i.e. not when loaded by a host
     didSet {
@@ -32,16 +30,11 @@ public class IPlugEffectViewController: AUViewController {
   }
   
   func connectViewWithAU() {
-    // TODO: load and attach iGraphics subview
-    GenericView.createGenericUI(audioUnit!)
-    
-    let incoming = audioUnit?.openWindow()
-    
-    print(incoming?.bounds ??  CGRect(x: 0, y: 0, width: 100, height: 100))
-    IGraphicsView.addSubview(incoming!)
-    
-//    let button = UIButton(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
-//    button.backgroundColor = #colorLiteral(red: 1, green: 0.1491314173, blue: 0, alpha: 1)
-//    IGraphicsView.addSubview(button)
+    if let view = self.view as? GenericUI {
+      view.createGenericUI(audioUnit!)
+    }
+    else {
+      audioUnit?.openWindow(self.view)
+    }
   }
 }

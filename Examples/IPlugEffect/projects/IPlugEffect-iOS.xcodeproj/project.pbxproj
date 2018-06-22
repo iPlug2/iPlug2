@@ -14,7 +14,6 @@
 		4F10E7CA20B1919A00F5B09B /* IPlugEffectViewController+AUAudioUnitFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F10E7C920B1919A00F5B09B /* IPlugEffectViewController+AUAudioUnitFactory.swift */; };
 		4F10E7CD20B1A61D00F5B09B /* IPlugEffectViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F20210120A1BF1E00F22200 /* IPlugEffectViewController.swift */; };
 		4F10E7CE20B1A69900F5B09B /* SimplePlayEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F02B67B20A1991E00C86910 /* SimplePlayEngine.swift */; };
-		4F10E7D020B1CB5800F5B09B /* GenericUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F10E7CF20B1CB5800F5B09B /* GenericUI.swift */; };
 		4F23CECB20B20C6400E8B70F /* IGraphicsNanoVG.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F63698020A463AF0022C370 /* IGraphicsNanoVG.cpp */; };
 		4F23CECC20B20C7C00E8B70F /* IGraphicsIOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F63698E20A463AF0022C370 /* IGraphicsIOS.mm */; };
 		4F23CECD20B20C7C00E8B70F /* IGraphicsIOS_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F63699120A463AF0022C370 /* IGraphicsIOS_view.mm */; };
@@ -36,10 +35,12 @@
 		4F6369CE20A463AF0022C370 /* IGraphicsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6369A020A463AF0022C370 /* IGraphicsConstants.h */; };
 		4F6369D020A463AF0022C370 /* IGraphics_select.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6369A220A463AF0022C370 /* IGraphics_select.h */; };
 		4F6369D120A463AF0022C370 /* IGraphics_include_in_plug_src.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6369A320A463AF0022C370 /* IGraphics_include_in_plug_src.h */; };
-		4F6369D420A463D80022C370 /* IGraphicsIOS_view.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63698420A463AF0022C370 /* IGraphicsIOS_view.h */; };
+		4F6369D420A463D80022C370 /* IGraphicsIOS_view.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63698420A463AF0022C370 /* IGraphicsIOS_view.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F6369D620A463D80022C370 /* IGraphicsIOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699020A463AF0022C370 /* IGraphicsIOS.h */; };
 		4F6369E620A466320022C370 /* IControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6369E420A466320022C370 /* IControl.h */; };
 		4F6369E720A466320022C370 /* IControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F6369E520A466320022C370 /* IControl.cpp */; };
+		4F6C621420CD60DF002B117F /* IPlugTimer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6C621320CD60DF002B117F /* IPlugTimer.mm */; };
+		4F6C621520CD687E002B117F /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF103920A0E55900D3092F /* IPlugTimer.cpp */; };
 		4F8028C620A24FA9003A66EC /* stb_image.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8028BF20A24FA9003A66EC /* stb_image.h */; };
 		4F8028C720A24FA9003A66EC /* nanovg_gl_utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8028C020A24FA9003A66EC /* nanovg_gl_utils.h */; };
 		4F8028C820A24FA9003A66EC /* stb_truetype.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8028C120A24FA9003A66EC /* stb_truetype.h */; };
@@ -47,6 +48,30 @@
 		4F8028CA20A24FA9003A66EC /* nanovg.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8028C320A24FA9003A66EC /* nanovg.h */; };
 		4F8028CB20A24FA9003A66EC /* nanovg_gl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8028C420A24FA9003A66EC /* nanovg_gl.h */; };
 		4F8028CC20A24FA9003A66EC /* fontstash.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8028C520A24FA9003A66EC /* fontstash.h */; };
+		4F977D5620CC9DD800D19F46 /* civetweb.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D3320CC9DD800D19F46 /* civetweb.h */; };
+		4F977D5720CC9DD800D19F46 /* CivetServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D3420CC9DD800D19F46 /* CivetServer.h */; };
+		4F977D5820CC9DD800D19F46 /* Easing.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D3520CC9DD800D19F46 /* Easing.h */; };
+		4F977D5920CC9DD800D19F46 /* NChanDelay.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D3620CC9DD800D19F46 /* NChanDelay.h */; };
+		4F977D5A20CC9DD800D19F46 /* IPlugOSC_msg.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D3820CC9DD800D19F46 /* IPlugOSC_msg.h */; };
+		4F977D5B20CC9DD800D19F46 /* IPlugOSC.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D3920CC9DD800D19F46 /* IPlugOSC.h */; };
+		4F977D5D20CC9DD800D19F46 /* Websocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D3B20CC9DD800D19F46 /* Websocket.h */; };
+		4F977D5E20CC9DD800D19F46 /* Oscillator.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D3C20CC9DD800D19F46 /* Oscillator.h */; };
+		4F977D5F20CC9DD800D19F46 /* PolyphaseIIR2Designer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D3E20CC9DD800D19F46 /* PolyphaseIIR2Designer.h */; };
+		4F977D6020CC9DD800D19F46 /* FPUUpsampler2x.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D3F20CC9DD800D19F46 /* FPUUpsampler2x.h */; };
+		4F977D6220CC9DD800D19F46 /* Array.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D4120CC9DD800D19F46 /* Array.h */; };
+		4F977D6320CC9DD800D19F46 /* FPUStageProc.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D4220CC9DD800D19F46 /* FPUStageProc.h */; };
+		4F977D6520CC9DD800D19F46 /* FPUDownsampler2x.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D4420CC9DD800D19F46 /* FPUDownsampler2x.h */; };
+		4F977D6820CC9DD800D19F46 /* MidiSynth.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D4720CC9DD800D19F46 /* MidiSynth.h */; };
+		4F977D6A20CC9DD800D19F46 /* IPlugFaust.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D4A20CC9DD800D19F46 /* IPlugFaust.h */; };
+		4F977D6E20CC9DD800D19F46 /* IPlugFaustGen.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D4E20CC9DD800D19F46 /* IPlugFaustGen.h */; };
+		4F977D7020CC9DD800D19F46 /* IPlugFaust_edit.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D5020CC9DD800D19F46 /* IPlugFaust_edit.h */; };
+		4F977D7120CC9DD800D19F46 /* MidiSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F977D5120CC9DD800D19F46 /* MidiSynth.cpp */; };
+		4F977D7220CC9DD800D19F46 /* ParamSmoothers.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D5220CC9DD800D19F46 /* ParamSmoothers.h */; };
+		4F977D7320CC9DD800D19F46 /* SVF.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D5320CC9DD800D19F46 /* SVF.h */; };
+		4F977D7420CC9DD800D19F46 /* Oscillator_table.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D5420CC9DD800D19F46 /* Oscillator_table.h */; };
+		4F977D7520CC9DD800D19F46 /* Oversampler.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D5520CC9DD800D19F46 /* Oversampler.h */; };
+		4F977D8520CCA5FB00D19F46 /* GenericUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F10E7CF20B1CB5800F5B09B /* GenericUI.swift */; };
+		4F977D8620CCA5FE00D19F46 /* GenericUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F10E7CF20B1CB5800F5B09B /* GenericUI.swift */; };
 		4FADA9C420C20367003075D3 /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = 4FC82B4820BD524700722133 /* fonts */; };
 		4FADA9C520C20367003075D3 /* img in Resources */ = {isa = PBXBuildFile; fileRef = 4FC82B4720BD524700722133 /* img */; };
 		4FB2269720A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard */; };
@@ -199,6 +224,7 @@
 		4F6369D820A464060022C370 /* IGraphicsLinux.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsLinux.cpp; sourceTree = "<group>"; };
 		4F6369E420A466320022C370 /* IControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControl.h; sourceTree = "<group>"; };
 		4F6369E520A466320022C370 /* IControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IControl.cpp; sourceTree = "<group>"; };
+		4F6C621320CD60DF002B117F /* IPlugTimer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugTimer.mm; path = ../../../IPlug/IPlugTimer.mm; sourceTree = "<group>"; };
 		4F8028BB20A24DFD003A66EC /* nanovg_mtl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = nanovg_mtl.m; path = ../../../Dependencies/IGraphics/MetalNanoVG/src/nanovg_mtl.m; sourceTree = "<group>"; };
 		4F8028BF20A24FA9003A66EC /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stb_image.h; path = ../../../Dependencies/IGraphics/NanoVG/src/stb_image.h; sourceTree = "<group>"; };
 		4F8028C020A24FA9003A66EC /* nanovg_gl_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nanovg_gl_utils.h; path = ../../../Dependencies/IGraphics/NanoVG/src/nanovg_gl_utils.h; sourceTree = "<group>"; };
@@ -207,6 +233,38 @@
 		4F8028C320A24FA9003A66EC /* nanovg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nanovg.h; path = ../../../Dependencies/IGraphics/NanoVG/src/nanovg.h; sourceTree = "<group>"; };
 		4F8028C420A24FA9003A66EC /* nanovg_gl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nanovg_gl.h; path = ../../../Dependencies/IGraphics/NanoVG/src/nanovg_gl.h; sourceTree = "<group>"; };
 		4F8028C520A24FA9003A66EC /* fontstash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fontstash.h; path = ../../../Dependencies/IGraphics/NanoVG/src/fontstash.h; sourceTree = "<group>"; };
+		4F977D3320CC9DD800D19F46 /* civetweb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = civetweb.h; sourceTree = "<group>"; };
+		4F977D3420CC9DD800D19F46 /* CivetServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CivetServer.h; sourceTree = "<group>"; };
+		4F977D3520CC9DD800D19F46 /* Easing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Easing.h; sourceTree = "<group>"; };
+		4F977D3620CC9DD800D19F46 /* NChanDelay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NChanDelay.h; sourceTree = "<group>"; };
+		4F977D3820CC9DD800D19F46 /* IPlugOSC_msg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugOSC_msg.h; sourceTree = "<group>"; };
+		4F977D3920CC9DD800D19F46 /* IPlugOSC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugOSC.h; sourceTree = "<group>"; };
+		4F977D3A20CC9DD800D19F46 /* IPlugOSC_msg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugOSC_msg.cpp; sourceTree = "<group>"; };
+		4F977D3B20CC9DD800D19F46 /* Websocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Websocket.h; sourceTree = "<group>"; };
+		4F977D3C20CC9DD800D19F46 /* Oscillator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Oscillator.h; sourceTree = "<group>"; };
+		4F977D3E20CC9DD800D19F46 /* PolyphaseIIR2Designer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PolyphaseIIR2Designer.h; sourceTree = "<group>"; };
+		4F977D3F20CC9DD800D19F46 /* FPUUpsampler2x.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPUUpsampler2x.h; sourceTree = "<group>"; };
+		4F977D4020CC9DD800D19F46 /* PolyphaseIIR2Designer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PolyphaseIIR2Designer.cpp; sourceTree = "<group>"; };
+		4F977D4120CC9DD800D19F46 /* Array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Array.h; sourceTree = "<group>"; };
+		4F977D4220CC9DD800D19F46 /* FPUStageProc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPUStageProc.h; sourceTree = "<group>"; };
+		4F977D4320CC9DD800D19F46 /* readme.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme.txt; sourceTree = "<group>"; };
+		4F977D4420CC9DD800D19F46 /* FPUDownsampler2x.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPUDownsampler2x.h; sourceTree = "<group>"; };
+		4F977D4520CC9DD800D19F46 /* license.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = license.txt; sourceTree = "<group>"; };
+		4F977D4620CC9DD800D19F46 /* halfband.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = halfband.c; sourceTree = "<group>"; };
+		4F977D4720CC9DD800D19F46 /* MidiSynth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MidiSynth.h; sourceTree = "<group>"; };
+		4F977D4820CC9DD800D19F46 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		4F977D4A20CC9DD800D19F46 /* IPlugFaust.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugFaust.h; sourceTree = "<group>"; };
+		4F977D4B20CC9DD800D19F46 /* IPlugFaust_notdone.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = IPlugFaust_notdone.txt; sourceTree = "<group>"; };
+		4F977D4C20CC9DD800D19F46 /* IPlugFaustGen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaustGen.cpp; sourceTree = "<group>"; };
+		4F977D4D20CC9DD800D19F46 /* IPlugFaust_arch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaust_arch.cpp; sourceTree = "<group>"; };
+		4F977D4E20CC9DD800D19F46 /* IPlugFaustGen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugFaustGen.h; sourceTree = "<group>"; };
+		4F977D4F20CC9DD800D19F46 /* IPlugFaust_edit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaust_edit.cpp; sourceTree = "<group>"; };
+		4F977D5020CC9DD800D19F46 /* IPlugFaust_edit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugFaust_edit.h; sourceTree = "<group>"; };
+		4F977D5120CC9DD800D19F46 /* MidiSynth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MidiSynth.cpp; sourceTree = "<group>"; };
+		4F977D5220CC9DD800D19F46 /* ParamSmoothers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParamSmoothers.h; sourceTree = "<group>"; };
+		4F977D5320CC9DD800D19F46 /* SVF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVF.h; sourceTree = "<group>"; };
+		4F977D5420CC9DD800D19F46 /* Oscillator_table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Oscillator_table.h; sourceTree = "<group>"; };
+		4F977D5520CC9DD800D19F46 /* Oversampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Oversampler.h; sourceTree = "<group>"; };
 		4F98C32920A73C9B00F120A9 /* IPlugEffect-iOS-Framework-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-iOS-Framework-Info.plist"; path = "../resources/IPlugEffect-iOS-Framework-Info.plist"; sourceTree = "<group>"; };
 		4FB2269620A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = "IPlugEffect-iOS-launchScreen.storyboard"; path = "../resources/IPlugEffect-iOS-launchScreen.storyboard"; sourceTree = "<group>"; };
 		4FB2269A20A0D3B900614769 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ../../../IPlug/AUv3/IOSApp/AppDelegate.swift; sourceTree = "<group>"; };
@@ -415,13 +473,85 @@
 				4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */,
 				4FB2269620A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard */,
 				4F10E7BF20B17EDB00F5B09B /* IPlugEffect-iOS-MainInterface.storyboard */,
-				4F3E0F6720A0BC5B00A9C2BE /* IPlugEffect-iOS.storyboard */,
 				4F3E0F6420A0BC1C00A9C2BE /* IPlugEffect-iOS-Info.plist */,
+				4F3E0F6720A0BC5B00A9C2BE /* IPlugEffect-iOS.storyboard */,
 				4F3E0F6520A0BC4000A9C2BE /* IPlugEffect-iOS-AUv3-Info.plist */,
 				4F98C32920A73C9B00F120A9 /* IPlugEffect-iOS-Framework-Info.plist */,
 				4F3E0FA220A0C74E00A9C2BE /* drumLoop.caf */,
 			);
 			name = Resources;
+			sourceTree = "<group>";
+		};
+		4F977D3120CC9DD800D19F46 /* Extras */ = {
+			isa = PBXGroup;
+			children = (
+				4F977D3220CC9DD800D19F46 /* WebSocket */,
+				4F977D3520CC9DD800D19F46 /* Easing.h */,
+				4F977D3620CC9DD800D19F46 /* NChanDelay.h */,
+				4F977D3720CC9DD800D19F46 /* OSC */,
+				4F977D3B20CC9DD800D19F46 /* Websocket.h */,
+				4F977D3C20CC9DD800D19F46 /* Oscillator.h */,
+				4F977D3D20CC9DD800D19F46 /* HIIR */,
+				4F977D4720CC9DD800D19F46 /* MidiSynth.h */,
+				4F977D4820CC9DD800D19F46 /* README.md */,
+				4F977D4920CC9DD800D19F46 /* Faust */,
+				4F977D5120CC9DD800D19F46 /* MidiSynth.cpp */,
+				4F977D5220CC9DD800D19F46 /* ParamSmoothers.h */,
+				4F977D5320CC9DD800D19F46 /* SVF.h */,
+				4F977D5420CC9DD800D19F46 /* Oscillator_table.h */,
+				4F977D5520CC9DD800D19F46 /* Oversampler.h */,
+			);
+			name = Extras;
+			path = ../../../IPlug/Extras;
+			sourceTree = "<group>";
+		};
+		4F977D3220CC9DD800D19F46 /* WebSocket */ = {
+			isa = PBXGroup;
+			children = (
+				4F977D3320CC9DD800D19F46 /* civetweb.h */,
+				4F977D3420CC9DD800D19F46 /* CivetServer.h */,
+			);
+			path = WebSocket;
+			sourceTree = "<group>";
+		};
+		4F977D3720CC9DD800D19F46 /* OSC */ = {
+			isa = PBXGroup;
+			children = (
+				4F977D3820CC9DD800D19F46 /* IPlugOSC_msg.h */,
+				4F977D3920CC9DD800D19F46 /* IPlugOSC.h */,
+				4F977D3A20CC9DD800D19F46 /* IPlugOSC_msg.cpp */,
+			);
+			path = OSC;
+			sourceTree = "<group>";
+		};
+		4F977D3D20CC9DD800D19F46 /* HIIR */ = {
+			isa = PBXGroup;
+			children = (
+				4F977D3E20CC9DD800D19F46 /* PolyphaseIIR2Designer.h */,
+				4F977D3F20CC9DD800D19F46 /* FPUUpsampler2x.h */,
+				4F977D4020CC9DD800D19F46 /* PolyphaseIIR2Designer.cpp */,
+				4F977D4120CC9DD800D19F46 /* Array.h */,
+				4F977D4220CC9DD800D19F46 /* FPUStageProc.h */,
+				4F977D4320CC9DD800D19F46 /* readme.txt */,
+				4F977D4420CC9DD800D19F46 /* FPUDownsampler2x.h */,
+				4F977D4520CC9DD800D19F46 /* license.txt */,
+				4F977D4620CC9DD800D19F46 /* halfband.c */,
+			);
+			path = HIIR;
+			sourceTree = "<group>";
+		};
+		4F977D4920CC9DD800D19F46 /* Faust */ = {
+			isa = PBXGroup;
+			children = (
+				4F977D4A20CC9DD800D19F46 /* IPlugFaust.h */,
+				4F977D4B20CC9DD800D19F46 /* IPlugFaust_notdone.txt */,
+				4F977D4C20CC9DD800D19F46 /* IPlugFaustGen.cpp */,
+				4F977D4D20CC9DD800D19F46 /* IPlugFaust_arch.cpp */,
+				4F977D4E20CC9DD800D19F46 /* IPlugFaustGen.h */,
+				4F977D4F20CC9DD800D19F46 /* IPlugFaust_edit.cpp */,
+				4F977D5020CC9DD800D19F46 /* IPlugFaust_edit.h */,
+			);
+			path = Faust;
 			sourceTree = "<group>";
 		};
 		4FB2269520A0D39C00614769 /* Standalone App */ = {
@@ -437,6 +567,7 @@
 		4FFF102E20A0E54400D3092F /* IPlug */ = {
 			isa = PBXGroup;
 			children = (
+				4F977D3120CC9DD800D19F46 /* Extras */,
 				4FFF105220A0E56400D3092F /* AUv3 */,
 				4FFF106920A0E58600D3092F /* IPlugDelegate_select.h */,
 				4FFF106820A0E58600D3092F /* IPlugEditorDelegate.h */,
@@ -453,6 +584,7 @@
 				4FFF103120A0E55900D3092F /* IPlugQueue.h */,
 				4FFF103920A0E55900D3092F /* IPlugTimer.cpp */,
 				4FFF104020A0E55A00D3092F /* IPlugTimer.h */,
+				4F6C621320CD60DF002B117F /* IPlugTimer.mm */,
 				4FFF103320A0E55900D3092F /* IPlugPlatform.h */,
 				4FFF103020A0E55900D3092F /* IPlugConstants.h */,
 				4FFF103C20A0E55A00D3092F /* IPlugUtilities.h */,
@@ -498,8 +630,8 @@
 				4FFF108420A1036200D3092F /* config.h */,
 				4FFF108820A1036200D3092F /* IPlugEffect.h */,
 				4FFF108720A1036200D3092F /* IPlugEffect.cpp */,
-				4F20210120A1BF1E00F22200 /* IPlugEffectViewController.swift */,
 				4F10E7CF20B1CB5800F5B09B /* GenericUI.swift */,
+				4F20210120A1BF1E00F22200 /* IPlugEffectViewController.swift */,
 				4F8BF48D20A12D2E0081DF0A /* Resources */,
 				4F67D51620A121F60061FB8E /* Other Sources */,
 				91D3DA171B023C1E008FFFBB /* Products */,
@@ -524,31 +656,43 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F977D6220CC9DD800D19F46 /* Array.h in Headers */,
 				4FFF105C20A0E57100D3092F /* IPlugAUAudioUnit.h in Headers */,
 				4F048C9720B1E74F002052E7 /* IPlugEffectFramework.h in Headers */,
+				4F977D6020CC9DD800D19F46 /* FPUUpsampler2x.h in Headers */,
 				4FFF108920A1036200D3092F /* config.h in Headers */,
 				4F8028CC20A24FA9003A66EC /* fontstash.h in Headers */,
 				4FFF104420A0E55A00D3092F /* IPlugPlatform.h in Headers */,
 				4F6369B220A463AF0022C370 /* IGraphics_include_in_plug_hdr.h in Headers */,
+				4F977D7020CC9DD800D19F46 /* IPlugFaust_edit.h in Headers */,
+				4F977D6520CC9DD800D19F46 /* FPUDownsampler2x.h in Headers */,
 				4FFF106120A0E57100D3092F /* IPlugAUv3.h in Headers */,
 				4F6369AC20A463AF0022C370 /* IGraphicsNanoVG.h in Headers */,
 				4F8028CB20A24FA9003A66EC /* nanovg_gl.h in Headers */,
 				4F6369C420A463AF0022C370 /* IGraphicsPathBase.h in Headers */,
+				4F977D5820CC9DD800D19F46 /* Easing.h in Headers */,
 				4F6369C120A463AF0022C370 /* IGraphicsPopupMenu.h in Headers */,
 				4FFF108D20A1036200D3092F /* IPlugEffect.h in Headers */,
 				4F8028CA20A24FA9003A66EC /* nanovg.h in Headers */,
+				4F977D5E20CC9DD800D19F46 /* Oscillator.h in Headers */,
 				4FFF107920A0E5A500D3092F /* wdlstring.h in Headers */,
+				4F977D5A20CC9DD800D19F46 /* IPlugOSC_msg.h in Headers */,
 				4FFF105D20A0E57100D3092F /* BufferedAudioBus.hpp in Headers */,
 				4FFF104920A0E55A00D3092F /* IPlugProcessor.h in Headers */,
 				4FFF107A20A0E5A500D3092F /* wdl_base64.h in Headers */,
 				4F6369CD20A463AF0022C370 /* IGraphicsStructs.h in Headers */,
 				4FFF104720A0E55A00D3092F /* IPlugParameter.h in Headers */,
+				4F977D7520CC9DD800D19F46 /* Oversampler.h in Headers */,
 				4FFF106D20A0E58600D3092F /* IPlugPluginBase.h in Headers */,
+				4F977D5620CC9DD800D19F46 /* civetweb.h in Headers */,
+				4F977D5F20CC9DD800D19F46 /* PolyphaseIIR2Designer.h in Headers */,
 				4FFF104E20A0E55A00D3092F /* IPlugMidi.h in Headers */,
+				4F977D6A20CC9DD800D19F46 /* IPlugFaust.h in Headers */,
 				4F6369CA20A463AF0022C370 /* IVKeyboardControl.h in Headers */,
 				4F6369C520A463AF0022C370 /* IControls.h in Headers */,
 				4F8028C620A24FA9003A66EC /* stb_image.h in Headers */,
 				4FFF107820A0E5A500D3092F /* heapbuf.h in Headers */,
+				4F977D6E20CC9DD800D19F46 /* IPlugFaustGen.h in Headers */,
 				4FFF104F20A0E55A00D3092F /* IPlugLogger.h in Headers */,
 				4FFF107C20A0E5A500D3092F /* wdltypes.h in Headers */,
 				4F6369D120A463AF0022C370 /* IGraphics_include_in_plug_src.h in Headers */,
@@ -558,22 +702,31 @@
 				4FFF107B20A0E5A500D3092F /* mutex.h in Headers */,
 				4F6369CE20A463AF0022C370 /* IGraphicsConstants.h in Headers */,
 				4FFF104D20A0E55A00D3092F /* IPlugUtilities.h in Headers */,
+				4F977D5D20CC9DD800D19F46 /* Websocket.h in Headers */,
 				4FFF107D20A0E5A500D3092F /* ptrlist.h in Headers */,
 				4FFF104C20A0E55A00D3092F /* IPlugStructs.h in Headers */,
 				4F6369C920A463AF0022C370 /* IVDropDownListControl.h in Headers */,
+				4F977D7220CC9DD800D19F46 /* ParamSmoothers.h in Headers */,
 				4FFF107E20A0E5A500D3092F /* wdlendian.h in Headers */,
 				4FFF104220A0E55A00D3092F /* IPlugQueue.h in Headers */,
+				4F977D7420CC9DD800D19F46 /* Oscillator_table.h in Headers */,
 				4F6369D020A463AF0022C370 /* IGraphics_select.h in Headers */,
+				4F977D5920CC9DD800D19F46 /* NChanDelay.h in Headers */,
+				4F977D6820CC9DD800D19F46 /* MidiSynth.h in Headers */,
+				4F977D7320CC9DD800D19F46 /* SVF.h in Headers */,
 				4F8028C720A24FA9003A66EC /* nanovg_gl_utils.h in Headers */,
 				4FFF106E20A0E58600D3092F /* IPlugEditorDelegate.h in Headers */,
 				4F6369D620A463D80022C370 /* IGraphicsIOS.h in Headers */,
 				4F6369C220A463AF0022C370 /* IGraphicsUtilites.h in Headers */,
 				4F6369E620A466320022C370 /* IControl.h in Headers */,
+				4F977D6320CC9DD800D19F46 /* FPUStageProc.h in Headers */,
+				4F977D5720CC9DD800D19F46 /* CivetServer.h in Headers */,
 				4FE8F3B220BA273800BF938F /* IGraphicsEditorDelegate.h in Headers */,
 				4FFF104820A0E55A00D3092F /* IPlug_include_in_plug_src.h in Headers */,
 				4FFF105020A0E55A00D3092F /* IPlugAPIBase.h in Headers */,
 				4FFF104120A0E55A00D3092F /* IPlugConstants.h in Headers */,
 				4FFF104620A0E55A00D3092F /* IPlug_include_in_plug_hdr.h in Headers */,
+				4F977D5B20CC9DD800D19F46 /* IPlugOSC.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -746,6 +899,7 @@
 				4F02B68320A1A21700C86910 /* AppDelegate.swift in Sources */,
 				4F10E7B620B16C5A00F5B09B /* IPlugEffectAppViewController.swift in Sources */,
 				4F10E7CE20B1A69900F5B09B /* SimplePlayEngine.swift in Sources */,
+				4F977D8620CCA5FE00D19F46 /* GenericUI.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -753,18 +907,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F977D8520CCA5FB00D19F46 /* GenericUI.swift in Sources */,
 				4F6369C320A463AF0022C370 /* IGraphics.cpp in Sources */,
-				4F10E7D020B1CB5800F5B09B /* GenericUI.swift in Sources */,
 				4F23CECB20B20C6400E8B70F /* IGraphicsNanoVG.cpp in Sources */,
+				4F6C621420CD60DF002B117F /* IPlugTimer.mm in Sources */,
 				4F8028C920A24FA9003A66EC /* nanovg.c in Sources */,
 				4F6369CC20A463AF0022C370 /* IControls.cpp in Sources */,
 				4FFF106020A0E57100D3092F /* IPlugAUv3.mm in Sources */,
 				4F6369E720A466320022C370 /* IControl.cpp in Sources */,
 				4F10E7CD20B1A61D00F5B09B /* IPlugEffectViewController.swift in Sources */,
+				4F6C621520CD687E002B117F /* IPlugTimer.cpp in Sources */,
 				4FE8F3B120BA273800BF938F /* IGraphicsEditorDelegate.cpp in Sources */,
 				4F23CECD20B20C7C00E8B70F /* IGraphicsIOS_view.mm in Sources */,
 				4F23CECE20B20C9300E8B70F /* nanovg_mtl.m in Sources */,
 				4FFF104320A0E55A00D3092F /* IPlugParameter.cpp in Sources */,
+				4F977D7120CC9DD800D19F46 /* MidiSynth.cpp in Sources */,
 				4FFF105B20A0E57100D3092F /* IPlugAUAudioUnit.mm in Sources */,
 				4F23CECC20B20C7C00E8B70F /* IGraphicsIOS.mm in Sources */,
 				4FFF106C20A0E58600D3092F /* IPlugPluginBase.cpp in Sources */,
@@ -954,7 +1111,10 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = "$(AUv3_FRAMEWORKS)";
+				OTHER_LDFLAGS = (
+					"$(EXTRA_LNK_FLAGS)",
+					"$(AUv3_FRAMEWORKS)",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugEffectFramework;
 				PRODUCT_NAME = IPlugEffectFramework;
 				SDKROOT = iphoneos;
@@ -1013,7 +1173,10 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_LDFLAGS = "$(AUv3_FRAMEWORKS)";
+				OTHER_LDFLAGS = (
+					"$(EXTRA_LNK_FLAGS)",
+					"$(AUv3_FRAMEWORKS)",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugEffectFramework;
 				PRODUCT_NAME = IPlugEffectFramework;
 				SDKROOT = iphoneos;
