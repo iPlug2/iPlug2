@@ -687,7 +687,10 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
   else if(mCornerResizer)
   {
     if(mCornerResizer->GetRECT().Contains(x, y))
+    {
       mCornerResizer->OnMouseDown(x, y, mod);
+      return;
+    }
   }
 
   int c = GetMouseControlIdx(x, y);
