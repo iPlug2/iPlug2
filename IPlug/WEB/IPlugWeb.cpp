@@ -28,9 +28,18 @@ IPlugWeb::IPlugWeb(IPlugInstanceInfo instanceInfo, IPlugConfig config)
 void IPlugWeb::SendParameterValueFromUI(int paramIdx, double value)
 {
 #ifdef WEBSOCKET_CLIENT
-//  val buffer = val::global("Function").new_(std::string("Uint8Array"), 12 ); // 12 bytes
-//  buffer.call<void>("setInt32", paramIdx);
-//  buffer.call<void>("setFloat64", value);
+  int pos = 0;
+  val buffer = val::global("Uint8Array").new_(18)["buffer"]; // 17 bytes
+  val dv = val::global("DataView").new_(buffer);
+  dv.call<void>("setUint8", val(pos), val('S'), val('true')); pos++;
+  dv.call<void>("setUint8", val(pos), val('P'), val('true')); pos++;
+  dv.call<void>("setUint8", val(pos), val('V'), val('true')); pos++;
+  dv.call<void>("setUint8", val(pos), val('F'), val('true')); pos++;
+  dv.call<void>("setUint8", val(pos), val('U'), val('true')); pos++;
+  dv.call<void>("setUint8", val(pos), val('I'), val('true')); pos++;
+  dv.call<void>("setInt32", val(pos), val(paramIdx), val('true')); pos+=4;
+  dv.call<void>("setFloat64", val(pos), val(value), val('true'));  pos+=8;
+  val::global("ws").call<void>("send", buffer);
 #else
   val::global(mWAMCtrlrJSObjectName.Get()).call<void>("setParam", paramIdx, value);
 #endif
@@ -39,11 +48,21 @@ void IPlugWeb::SendParameterValueFromUI(int paramIdx, double value)
 
 void IPlugWeb::SendMidiMsgFromUI(const IMidiMsg& msg)
 {
+#ifdef WEBSOCKET_CLIENT
+  val buffer = val::global("Uint8Array").new_(18)["buffer"]; // 17 bytes
+  val dv = val::global("DataView").new_(buffer);
+  dv.call<void>("setUint8", val(pos), val('S'), val('true')); pos++;
+  dv.call<void>("setUint8", val(pos), val('M'), val('true')); pos++;
+  dv.call<void>("setUint8", val(pos), val('M'), val('true')); pos++;
+  dv.call<void>("setUint8", val(pos), val('F'), val('true')); pos++;
+  dv.call<void>("setUint8", val(pos), val('U'), val('true')); pos++;
+  dv.call<void>("setUint8", val(pos), val('I'), val('true')); pos++;
+//  dv.call<void>("setInt32", val(pos), val(paramIdx), val('true')); pos+=4;
+//  dv.call<void>("setFloat64", val(pos), val(value), val('true'));  pos+=8;
+  val::global("ws").call<void>("send", buffer);
+#else
   WDL_String dataStr;
   dataStr.SetFormatted(16, "%i:%i:%i", msg.mStatus, msg.mData1, msg.mData2);
-
-#ifdef WEBSOCKET_CLIENT
-#else
   val::global(mWAMCtrlrJSObjectName.Get()).call<void>("sendMessage", std::string("SMMFUI"), std::string(dataStr.Get()));
 #endif
 }
@@ -51,22 +70,22 @@ void IPlugWeb::SendMidiMsgFromUI(const IMidiMsg& msg)
 void IPlugWeb::SendArbitraryMsgFromUI(int messageTag, int dataSize, const void* pData)
 {
 #ifdef WEBSOCKET_CLIENT
+  //TODO: SendArbitraryMsgFromUI websocket
+#else
   WDL_String dataStr;
   dataStr.SetFormatted(16, "%i:%i", messageTag, dataSize);
-#else
-  // TODO: pData not sent!
-  val::global(mWAMCtrlrJSObjectName.Get()).call<void>("sendMessage", std::string("SAMFUI"), std::string(dataStr.Get()));
+  val::global(mWAMCtrlrJSObjectName.Get()).call<void>("sendMessage", std::string("SAMFUI"), std::string(dataStr.Get()));   // TODO: SendArbitraryMsgFromUI pData not sent!
 #endif
 }
 
 void IPlugWeb::SendSysexMsgFromUI(const ISysEx& msg)
 {
 #ifdef WEBSOCKET_CLIENT
+  //TODO: SendSysexMsgFromUI websocket
 #else
   WDL_String dataStr;
   dataStr.SetFormatted(16, "%i", msg.mSize);
-  // TODO: msg.mData not sent!
-  val::global(mWAMCtrlrJSObjectName.Get()).call<void>("sendMessage", std::string("SSMFUI"), std::string(dataStr.Get()));
+  val::global(mWAMCtrlrJSObjectName.Get()).call<void>("sendMessage", std::string("SSMFUI"), std::string(dataStr.Get()));   // TODO: SendSysexMsgFromUI msg.mData not sent!
 #endif
 }
 
