@@ -127,7 +127,7 @@ public:
   virtual void SendSysexMsgFromDelegate(const ISysEx& msg) { OnSysexMsgUI(msg); }
   
   /** This method is called by the class implementing the delegate interface, NOT THE PLUGIN API class in order to update the user interface with the new parameter values, typically after automation.
-   * This method should only be called from the main thread. The similarly named IPlugAPIBase::_SendParameterValueToUIFromAPI() should take care of queueing and deferring, if there is no main thread notification from the API
+   * This method should only be called from the main thread. The similarly named IPlugAPIBase::_SendParameterValueFromAPI() should take care of queueing and deferring, if there is no main thread notification from the API
    * If you override this method you should call the base class implementation to make sure OnParamChangeUI gets triggered
    * In IGraphics plug-ins, this will update any IControls that have their mParamIdx set > -1
    * @param paramIdx The index of the parameter to be updated
@@ -145,7 +145,7 @@ public:
    * @param paramIdx The index of the parameter that is changing value */
   virtual void BeginInformHostOfParamChangeFromUI(int paramIdx) = 0;
   
-  /** Called by the UI during a parameter change gesture, in order to notify the host of the new value (via a call in the API class)
+  /** SPVFUI Called by the UI during a parameter change gesture, in order to notify the host of the new value (via a call in the API class)
    * If you override this method you should call the base class implementation to make sure OnParamChangeUI gets triggered
    * @param paramIdx The index of the parameter that is changing value
    * @param value The new normalised value of the parameter */
@@ -169,10 +169,7 @@ public:
   virtual void ResizeGraphicsFromUI(int viewWidth, int viewHeight, float scale) {};
   
   /** TODO: SMMFUI */
-  /** When we want to send a MIDI message from the UI for example clicking on a key in a virtual keyboard, this method should be used
-   * @param status The status byte of the MIDI message
-   * @param data1 The first data byte of the MIDI message
-   * @param data2 The second data byte of the MIDI message*/
+  /** When we want to send a MIDI message from the UI for example clicking on a key in a virtual keyboard, this method should be used*/
   virtual void SendMidiMsgFromUI(const IMidiMsg& msg) {};
 
   /** TODO: SSMFUI */
