@@ -98,10 +98,10 @@ if [ -a build-web/IPlugEffect.wasm ]
 then
   if [ "$websocket" -eq "1" ]
   then
-    open http://localhost:8001/
+    emrun --browser chrome --no_server --port=8001 index.html
   else
   cd build-web
-  emrun --no_emrun_detect --browser chrome index.html
+  emrun --browser chrome --no_emrun_detect index.html
   #   emrun --browser firefox index.html
   fi
 fi
