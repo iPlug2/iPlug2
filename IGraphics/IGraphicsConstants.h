@@ -2,7 +2,7 @@
 
 #include "IPlugPlatform.h"
 
-static const int DEFAULT_FPS = 25;
+static const int DEFAULT_FPS = 25; // TODO: default 60 FPS?
 
 // If not dirty for this many timer ticks, we call OnGUIIDle.
 // Only looked at if USE_IDLE_CALLS is defined.

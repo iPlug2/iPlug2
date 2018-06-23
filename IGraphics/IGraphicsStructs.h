@@ -44,7 +44,9 @@ class LICE_IFont;
  */
 
 /** APIBitmap is a wrapper around the different drawing backend bitmap representations.
- * In most cases it does own the bitmap data, the exception being with NanoVG, where the image is loaded onto the GPU as a texture */
+ * In most cases it does own the bitmap data, the exception being with NanoVG, where the image is loaded onto the GPU as a texture,
+ * but still needs to be freed
+ */
 class APIBitmap
 {
 public:
@@ -975,7 +977,7 @@ class StaticStorage
 {
 public:
 
-  // djb2 hash function (hash * 33 + c) - see http://www.cse.yorku.ca/~oz/hash.html
+  // djb2 hash function (hash * 33 + c) - see http://www.cse.yorku.ca/~oz/hash.html // TODO: can we use C++11 std::hash instead of this?
   uint32_t Hash(const char* str)
   {
     uint32_t hash = 5381;
@@ -1018,30 +1020,30 @@ public:
     return nullptr;
   }
 
-  void Add(T* data, const char* str, double scale = 1. /* scale where 2x = retina, omit if not needed */)
+  void Add(T* pData, const char* str, double scale = 1. /* scale where 2x = retina, omit if not needed */)
   {
-    DataKey* key = mDatas.Add(new DataKey);
+    DataKey* pKey = mDatas.Add(new DataKey);
 
     WDL_String cacheName(str);
     cacheName.AppendFormatted((int) strlen(str) + 6, "-%.1fx", scale);
     
-    key->hashID = Hash(cacheName.Get());
-    key->data = data;
-    key->scale = scale;
-    key->name.Set(str);
+    pKey->hashID = Hash(cacheName.Get());
+    pKey->data = pData;
+    pKey->scale = scale;
+    pKey->name.Set(str);
 
     //DBGMSG("adding %s to the static storage at %.1fx the original scale\n", str, scale);
   }
 
-  void Remove(T* data)
+  void Remove(T* pData)
   {
     int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
     {
-      if (mDatas.Get(i)->data == data)
+      if (mDatas.Get(i)->data == pData)
       {
         mDatas.Delete(i, true);
-        delete data;
+        delete pData;
         break;
       }
     }
