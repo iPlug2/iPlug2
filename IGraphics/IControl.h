@@ -241,17 +241,31 @@ public:
     SetDirty(false);
   }
   
-  void SetAnimation(IAnimationFunction func, int duration)
+  
+  /** @param duration Duration in milliseconds for the animation  */
+  void StartAnimation(int duration)
   {
-    mAnimationFunc = func;
     mAnimationStartTime = std::chrono::high_resolution_clock::now();
     mAnimationDuration = Milliseconds(duration);
   }
   
+  
+  /** Set the animation function
+   * @param func A std::function conforming to IAnimationFunction */
+  void SetAnimation(IAnimationFunction func) { mAnimationFunc = func;}
+  
+  /** Set the animation function and starts it
+   * @param func A std::function conforming to IAnimationFunction
+   * @param duration Duration in milliseconds for the animation  */
+  void SetAnimation(IAnimationFunction func, int duration) { mAnimationFunc = func; StartAnimation(duration); }
+
   IAnimationFunction GetAnimationFunction() { return mAnimationFunc; }
   
   double GetAnimationProgress()
   {
+    if(!mAnimationFunc)
+      return 0.;
+    
     auto elapsed = Milliseconds(Time::now() - mAnimationStartTime);
     return elapsed.count() / mAnimationDuration.count();
   }
@@ -513,6 +527,51 @@ public:
   
 private:
   IColor mColor;
+};
+
+class ILambdaControl : public IControl
+{
+public:
+  ILambdaControl(IEditorDelegate& dlg, IRECT bounds, IDrawFunction drawFunc, int animationDuration = 0, bool loopAnimation = false, int paramIdx = kNoParameter)
+  : IControl(dlg, bounds, paramIdx, DefaultClickActionFunc)
+  , mDrawFunc(drawFunc)
+  , mLoopAnimation(loopAnimation)
+  , mAnimationDuration(animationDuration)
+  {
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    if(mDrawFunc)
+      mDrawFunc(this, g, mRECT, mMouseInfo, GetAnimationProgress());
+  }
+  
+  virtual void OnEndAnimation() override // if you override this you must call the base implementation, to free mAnimationFunc
+  {
+    if(mLoopAnimation && mAnimationDuration)
+      StartAnimation(mAnimationDuration);
+    else
+      SetAnimation(nullptr);
+    
+    SetDirty(false);
+  }
+  
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    mMouseInfo.x = x; mMouseInfo.y = y; mMouseInfo.ms = mod;
+    SetAnimation(DefaultAnimationFunc);
+    StartAnimation(mAnimationDuration);
+  }
+  
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override { mMouseInfo.x = x; mMouseInfo.y = y; mMouseInfo.ms = mod; }
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { mMouseInfo.x = x; mMouseInfo.y = y; mMouseInfo.ms = mod; }
+  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override { mMouseInfo.x = x; mMouseInfo.y = y; mMouseInfo.ms = mod; }
+  
+private:
+  IDrawFunction mDrawFunc = nullptr;
+  IMouseInfo mMouseInfo;
+  bool mLoopAnimation;
+  int mAnimationDuration;
 };
 
 /** A basic control to draw a bitmap, or one frame of a stacked bitmap depending on the current value. */

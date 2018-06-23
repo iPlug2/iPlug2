@@ -22,9 +22,13 @@
 
 
 class IControl;
+class IRECT;
+class IGraphics;
+class IMouseInfo;
 
 typedef std::function<void(IControl*)> IActionFunction;
 typedef std::function<void(IControl*)> IAnimationFunction;
+typedef std::function<void(IControl*, IGraphics&, IRECT&, IMouseInfo&, double)> IDrawFunction;
 
 void DefaultAnimationFunc(IControl* pCaller);
 void DefaultClickActionFunc(IControl* pCaller);
