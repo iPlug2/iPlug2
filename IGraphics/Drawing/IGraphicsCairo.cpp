@@ -61,13 +61,13 @@ cairo_surface_t* LoadPNGResource(void* hInst, const WDL_String& path)
   #error NOT IMPLEMENTED
 #endif
 
-CairoBitmap::CairoBitmap(cairo_surface_t* s, int scale)
+CairoBitmap::CairoBitmap(cairo_surface_t* pSurface, int scale)
 {
-  cairo_surface_set_device_scale(s, scale, scale);
-  int width = cairo_image_surface_get_width(s);
-  int height = cairo_image_surface_get_height(s);
+  cairo_surface_set_device_scale(pSurface, scale, scale);
+  int width = cairo_image_surface_get_width(pSurface);
+  int height = cairo_image_surface_get_height(pSurface);
   
-  SetBitmap(s, width, height, scale);
+  SetBitmap(pSurface, width, height, scale);
 }
   
 CairoBitmap::~CairoBitmap()

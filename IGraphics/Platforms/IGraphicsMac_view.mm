@@ -453,7 +453,8 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   if (mTextFieldView) [self endUserInput ];
   IMouseInfo info = [self getMouseLeft:pEvent];
   float d = [pEvent deltaY];
-  if (mGraphics) mGraphics->OnMouseWheel(info.x, info.y, info.ms, d);
+  if (mGraphics)
+    mGraphics->OnMouseWheel(info.x, info.y, info.ms, d);
 }
 
 - (void) setMouseCursor: (ECursor) cursor

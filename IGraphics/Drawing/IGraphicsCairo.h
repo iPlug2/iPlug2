@@ -31,7 +31,7 @@
 class CairoBitmap : public APIBitmap
 {
 public:
-  CairoBitmap(cairo_surface_t* s, int scale);
+  CairoBitmap(cairo_surface_t* pSurface, int scale);
   virtual ~CairoBitmap();
 };
 
