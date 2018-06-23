@@ -98,7 +98,7 @@ IGraphicsWeb::~IGraphicsWeb()
 void IGraphicsWeb::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend)
 {
   val context = GetContext();
-  RetainVal* rv = (RetainVal*) bitmap.GetRawBitmap();
+  RetainVal* rv = (RetainVal*) bitmap.GetAPIBitmap()->GetBitmap();
   PathStateSave();
   SetWebBlendMode(pBlend);
   context.set("globalAlpha", BlendWeight(pBlend));
