@@ -27,7 +27,7 @@ IPlugWeb::IPlugWeb(IPlugInstanceInfo instanceInfo, IPlugConfig config)
 
 void IPlugWeb::SendParameterValueFromUI(int paramIdx, double value)
 {
-#ifdef WEBSOCKET_CLIENT
+#if WEBSOCKET_CLIENT
   int pos = 0;
   val buffer = val::global("Uint8Array").new_(18)["buffer"]; // 17 bytes
   val dv = val::global("DataView").new_(buffer);
@@ -48,8 +48,9 @@ void IPlugWeb::SendParameterValueFromUI(int paramIdx, double value)
 
 void IPlugWeb::SendMidiMsgFromUI(const IMidiMsg& msg)
 {
-#ifdef WEBSOCKET_CLIENT
-  val buffer = val::global("Uint8Array").new_(18)["buffer"]; // 17 bytes
+#if WEBSOCKET_CLIENT
+  int pos = 0;
+  val buffer = val::global("Uint8Array").new_(9)["buffer"]; //9 bytes
   val dv = val::global("DataView").new_(buffer);
   dv.call<void>("setUint8", val(pos), val('S'), val('true')); pos++;
   dv.call<void>("setUint8", val(pos), val('M'), val('true')); pos++;
@@ -57,8 +58,10 @@ void IPlugWeb::SendMidiMsgFromUI(const IMidiMsg& msg)
   dv.call<void>("setUint8", val(pos), val('F'), val('true')); pos++;
   dv.call<void>("setUint8", val(pos), val('U'), val('true')); pos++;
   dv.call<void>("setUint8", val(pos), val('I'), val('true')); pos++;
-//  dv.call<void>("setInt32", val(pos), val(paramIdx), val('true')); pos+=4;
-//  dv.call<void>("setFloat64", val(pos), val(value), val('true'));  pos+=8;
+
+  dv.call<void>("setUint8", val(pos), val(msg.mStatus), val('true')); pos++;
+  dv.call<void>("setUint8", val(pos), val(msg.mData1), val('true')); pos++;
+  dv.call<void>("setUint8", val(pos), val(msg.mData2), val('true')); pos++;
   val::global("ws").call<void>("send", buffer);
 #else
   WDL_String dataStr;
@@ -69,19 +72,48 @@ void IPlugWeb::SendMidiMsgFromUI(const IMidiMsg& msg)
 
 void IPlugWeb::SendArbitraryMsgFromUI(int messageTag, int dataSize, const void* pData)
 {
-#ifdef WEBSOCKET_CLIENT
-  //TODO: SendArbitraryMsgFromUI websocket
+#if WEBSOCKET_CLIENT
+  int pos = 0;
+  val buffer = val::global("Uint8Array").new_(14 + dataSize)["buffer"]; //14 + dataSize bytes
+  val dv = val::global("DataView").new_(buffer);
+  dv.call<void>("setUint8", val(pos), val('S'), val('true')); pos++;
+  dv.call<void>("setUint8", val(pos), val('A'), val('true')); pos++;
+  dv.call<void>("setUint8", val(pos), val('M'), val('true')); pos++;
+  dv.call<void>("setUint8", val(pos), val('F'), val('true')); pos++;
+  dv.call<void>("setUint8", val(pos), val('U'), val('true')); pos++;
+  dv.call<void>("setUint8", val(pos), val('I'), val('true')); pos++;
+  
+  dv.call<void>("setInt32", val(pos), val(messageTag), val('true')); pos+=4;
+  dv.call<void>("setInt32", val(pos), val(dataSize), val('true')); pos+=4;
+  //TODO: pData
+  val::global("ws").call<void>("send", buffer);
 #else
   WDL_String dataStr;
   dataStr.SetFormatted(16, "%i:%i", messageTag, dataSize);
-  val::global(mWAMCtrlrJSObjectName.Get()).call<void>("sendMessage", std::string("SAMFUI"), std::string(dataStr.Get()));   // TODO: SendArbitraryMsgFromUI pData not sent!
+
+  val esbuf = val::global("Module").call<val>("._malloc", val(dataSize));
+  val::global("Module")["HEAPU8"].call<void>("set", pData, esbuf);
+  
+  val::global(mWAMCtrlrJSObjectName.Get()).call<void>("sendMessage", std::string("SAMFUI"), std::string(dataStr.Get()));
+  val::global("Module").call<void>("_free", esbuf);
 #endif
 }
 
 void IPlugWeb::SendSysexMsgFromUI(const ISysEx& msg)
 {
-#ifdef WEBSOCKET_CLIENT
-  //TODO: SendSysexMsgFromUI websocket
+#if WEBSOCKET_CLIENT
+  int pos = 0;
+  val buffer = val::global("Uint8Array").new_(10 + msg.mSize)["buffer"]; //10 + msg.mSize bytes
+  val dv = val::global("DataView").new_(buffer);
+  dv.call<void>("setUint8", val(pos), val('S'), val('true')); pos++;
+  dv.call<void>("setUint8", val(pos), val('S'), val('true')); pos++;
+  dv.call<void>("setUint8", val(pos), val('M'), val('true')); pos++;
+  dv.call<void>("setUint8", val(pos), val('F'), val('true')); pos++;
+  dv.call<void>("setUint8", val(pos), val('U'), val('true')); pos++;
+  dv.call<void>("setUint8", val(pos), val('I'), val('true')); pos++;
+  
+  dv.call<void>("setInt32", val(pos), val(msg.mSize), val('true')); pos+=4;
+  //TODO: pData
 #else
   WDL_String dataStr;
   dataStr.SetFormatted(16, "%i", msg.mSize);

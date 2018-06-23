@@ -178,6 +178,10 @@ public:
   /** TODO: SAMFUI */
   virtual void SendArbitraryMsgFromUI(int messageTag, int dataSize = 0, const void* pData = nullptr) {};
 
+#pragma mark -
+  /** This method is needed, for remote editors to avoid a feedback loop */
+  virtual void DeferMidiMsg(const IMidiMsg& msg) {};
+  
 protected:
   /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plug-in class implementation constructor */
   WDL_PtrList<IParam> mParams;

@@ -114,7 +114,7 @@
                   const esbuf = Module._malloc(data.length);
                   Module.HEAPU8.set(data, esbuf);
                   Module.SCMFD(controlTag, msgTag, data.length, esbuf);
-                  Module._free(buffer);
+                  Module._free(esbuf);
                 }
                 else if(prefix == "SAMFD")
                 {
@@ -125,7 +125,7 @@
                   const esbuf = Module._malloc(data.length);
                   Module.HEAPU8.set(data, esbuf);
                   Module.SAMFD(controlTag, msgTag, data.length, esbuf);
-                  Module._free(buffer);
+                  Module._free(esbuf);
                 }
                 else if(prefix == "SMMFD")
                 {
@@ -143,7 +143,7 @@
                   const esbuf = Module._malloc(data.length);
                   Module.HEAPU8.set(data, esbuf);
                   Module.SSMFD(controlTag, msgTag, data.length, esbuf);
-                  Module._free(buffer);
+                  Module._free(esbuf);
                 }
             }
           }

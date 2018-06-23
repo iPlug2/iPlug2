@@ -179,15 +179,21 @@ void IPlugAPIBase::OnTimer(Timer& t)
 
 void IPlugAPIBase::SendMidiMsgFromUI(const IMidiMsg& msg)
 {
-  mMidiMsgsFromEditor.Push(msg);
+  DeferMidiMsg(msg);
+  
+  EDITOR_DELEGATE_CLASS::SendMidiMsgFromUI(msg);
 }
 
 void IPlugAPIBase::SendSysexMsgFromUI(const ISysEx& msg)
 {
   //TODO:
+  
+  EDITOR_DELEGATE_CLASS::SendSysexMsgFromUI(msg);
 }
 
 void IPlugAPIBase::SendArbitraryMsgFromUI(int messageTag, int dataSize, const void* pData)
 {
   OnMessage(messageTag, dataSize, pData);
+  
+  EDITOR_DELEGATE_CLASS::SendArbitraryMsgFromUI(messageTag, dataSize, pData);
 }

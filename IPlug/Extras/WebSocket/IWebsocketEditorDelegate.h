@@ -18,26 +18,30 @@ public:
   ~IWebsocketEditorDelegate();
  
   //IWebsocketServer
-  //THESE MESSAGES ARE ALL CALLED ON SERVER THREADS
-  virtual void OnWebsocketReady(int idx) override;
-  virtual bool OnWebsocketText(int idx, void* pData, size_t dataSize) override;
-  virtual bool OnWebsocketData(int idx, void* pData, size_t dataSize) override;
+  //THESE MESSAGES ARE ALL CALLED ON SERVER THREADS - 1 PER WEBSOCKET CONNECTION
+  void OnWebsocketReady(int idx) override;
+  bool OnWebsocketText(int idx, void* pData, size_t dataSize) override;
+  bool OnWebsocketData(int idx, void* pData, size_t dataSize) override;
 
   //IEditorDelegate
+  void SendMidiMsgFromUI(const IMidiMsg& msg) override;
+  void SendSysexMsgFromUI(const ISysEx& msg) override;
+  void SendArbitraryMsgFromUI(int messageTag, int dataSize, const void* pData) override;
 //  virtual void BeginInformHostOfParamChangeFromUI(int paramIdx) override;
-  virtual void SendParameterValueFromUI(int paramIdx, double normalizedValue) override;
+  void SendParameterValueFromUI(int paramIdx, double normalizedValue) override;
 //  virtual void EndInformHostOfParamChangeFromUI(int paramIdx) override;
 
-  virtual void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;
-  virtual void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize = 0, const void* pData = nullptr) override;
-  virtual void SendArbitraryMsgFromDelegate(int messageTag, int dataSize, const void* pData) override;
-  virtual void SendMidiMsgFromDelegate(const IMidiMsg& msg) override;
-  virtual void SendSysexMsgFromDelegate(const ISysEx& msg) override;
+  void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;
+  void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize = 0, const void* pData = nullptr) override;
+  void SendArbitraryMsgFromDelegate(int messageTag, int dataSize, const void* pData) override;
+  void SendMidiMsgFromDelegate(const IMidiMsg& msg) override;
+  void SendSysexMsgFromDelegate(const ISysEx& msg) override;
 //  void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
   
   // Call this repeatedly in order to handle incoming data
   void ProcessWebsocketQueue();
   
 private:
-  IPlugQueue<IParamChange> mParamChangeFromClients;
+  IPlugQueue<IParamChange> mParamChangeFromClients; // TODO: This is a single producer single consumer queue - it is not sufficient, since each client connection will be on a different server thread
+  IPlugQueue<IMidiMsg> mMIDIFromClients; // TODO: This is a single producer single consumer queue - it is not sufficient, since each client connection will be on a different server thread
 };

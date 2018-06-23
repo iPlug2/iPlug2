@@ -178,7 +178,9 @@ private:
     DBGMSG("WS closed NClients %i\n", NClients());
   }
   
-  WDL_Mutex mMutex;
   WDL_PtrList<const struct mg_connection> mConnections;
   CivetServer* mServer = nullptr;
+  
+protected:
+  WDL_Mutex mMutex;
 };

@@ -174,6 +174,8 @@ public:
   void SendSysexMsgFromUI(const ISysEx& msg) override;
   void SendArbitraryMsgFromUI(int messageTag, int dataSize = 0, const void* pData = nullptr) override;
   
+  void DeferMidiMsg(const IMidiMsg& msg) override { mMidiMsgsFromEditor.Push(msg); }
+
   void CreateTimer();
   
 private:
