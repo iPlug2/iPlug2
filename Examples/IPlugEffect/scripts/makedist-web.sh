@@ -81,7 +81,7 @@ else
   #copy in the template html for websocket - comment if you have customised the html
   cd build-web
   pwd
-  cp ../../../IPlug/WEB/Template/IPlugWeb-RemoteEditor.html index.html
+  cp ../../../IPlug/WEB/Template/IPlugWeb-remote.html index.html
   sed -i "" s/IPlugWEB/IPlugEffect/g index.html
 fi
 
