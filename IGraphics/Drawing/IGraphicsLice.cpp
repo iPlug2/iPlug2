@@ -65,7 +65,7 @@ void IGraphicsLice::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, i
   srcX *= ds;
   srcY *= ds;
   
-  LICE_IBitmap* pLB = (LICE_IBitmap*) bitmap.GetRawBitmap();
+  LICE_IBitmap* pLB = (LICE_IBitmap*) bitmap.GetAPIBitmap()->GetBitmap();
   IRECT r = sr.Intersect(sdr);
   srcX += r.L - sr.L;
   srcY += r.T - sr.T;
@@ -75,7 +75,7 @@ void IGraphicsLice::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, i
 void IGraphicsLice::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
 {
   const float ds = GetDisplayScale();
-  LICE_IBitmap* pLB = (LICE_IBitmap*) bitmap.GetRawBitmap();
+  LICE_IBitmap* pLB = (LICE_IBitmap*) bitmap.GetAPIBitmap()->GetBitmap();
   
   int W = bitmap.W() * ds;
   int H = bitmap.H() * ds;
@@ -87,9 +87,9 @@ void IGraphicsLice::DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtr
 
 void IGraphicsLice::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend)
 {
-  LICE_IBitmap* pBase = (LICE_IBitmap*) base.GetRawBitmap();
-  LICE_IBitmap* pMask = (LICE_IBitmap*) mask.GetRawBitmap();
-  LICE_IBitmap* pTop = (LICE_IBitmap*) top.GetRawBitmap();
+  LICE_IBitmap* pBase = (LICE_IBitmap*) base.GetAPIBitmap()->GetBitmap();
+  LICE_IBitmap* pMask = (LICE_IBitmap*) mask.GetAPIBitmap()->GetBitmap();
+  LICE_IBitmap* pTop = (LICE_IBitmap*) top.GetAPIBitmap()->GetBitmap();
   
 //  double dA = angle * PI / 180.0;
   int W = base.W();

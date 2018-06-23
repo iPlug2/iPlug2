@@ -205,7 +205,7 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   double scale = GetDisplayScale();
   IRECT bounds = dest.GetScaled(scale);
 
-  agg::pixel_map* pSource = (agg::pixel_map*) bitmap.GetRawBitmap();
+  agg::pixel_map* pSource = (agg::pixel_map*) bitmap.GetAPIBitmap()->GetBitmap();
   agg::rendering_buffer src(pSource->buf(), pSource->width(), pSource->height(), pSource->row_bytes());;
   PixfmtType imgPixfSrc(src);
   
@@ -251,9 +251,9 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, i
   x *= GetDisplayScale();
   y *= GetDisplayScale();
 
-  agg::pixel_map* pm_base = (agg::pixel_map*) base.GetRawBitmap();
-  agg::pixel_map* pm_mask = (agg::pixel_map*) mask.GetRawBitmap();
-  agg::pixel_map* pm_top = (agg::pixel_map*) top.GetRawBitmap();
+  agg::pixel_map* pm_base = (agg::pixel_map*) base.GetAPIBitmap()->GetBitmap();
+  agg::pixel_map* pm_mask = (agg::pixel_map*) mask.GetAPIBitmap()->GetBitmap();
+  agg::pixel_map* pm_top = (agg::pixel_map*) top.GetAPIBitmap()->GetBitmap();
   
   agg::rendering_buffer rbuf_base(pm_base->buf(), pm_base->width(), pm_base->height(), pm_base->row_bytes());
   agg::rendering_buffer rbuf_mask(pm_mask->buf(), pm_mask->width(), pm_mask->height(), pm_mask->row_bytes());

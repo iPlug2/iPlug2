@@ -43,6 +43,8 @@ class LICE_IFont;
  * @{
  */
 
+/** APIBitmap is a wrapper around the different drawing backend bitmap representations.
+ * In most cases it does own the bitmap data, the exception being with NanoVG, where the image is loaded onto the GPU as a texture */
 class APIBitmap
 {
 public:
@@ -83,9 +85,9 @@ private:
   int mHeight;
   int mScale;
 };
-#endif // !IGRAPHICS_NANOVG
 
-/** Used to manage bitmap data, independant of draw class/platform.
+/** IBitmap is IGraphics's bitmap abstraction that you use to manage bitmap data, independant of draw class/platform.
+ * IBitmap doesn't actually own the image data @see APIBitmap
  * An IBitmap's width and height are always in relation to a 1:1 (low dpi) screen. Any scaling happens at the drawing stage. */
 class IBitmap
 {
@@ -137,11 +139,7 @@ public:
 
   /** * @return a pointer to the referenced APIBitmap */
   inline APIBitmap* GetAPIBitmap() const { return mAPIBitmap; }
-  
-#ifndef IGRAPHICS_NANOVG
-  /** * @return the raw underlying bitmap */
-  inline void* GetRawBitmap() const { return mAPIBitmap->GetBitmap(); }
-#endif
+
   /** * @return whether or not frames are stored horiztonally */
   inline bool GetFramesAreHorizontal() const { return mFramesAreHorizontal; }
   
