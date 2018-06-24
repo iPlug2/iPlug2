@@ -29,7 +29,7 @@ void IPlugWeb::SendParameterValueFromUI(int paramIdx, double value)
 {
 #if WEBSOCKET_CLIENT
   int pos = 0;
-  val buffer = val::global("Uint8Array").new_(18)["buffer"]; // 17 bytes
+  val buffer = val::global("Uint8Array").new_(18)["buffer"]; // 18 bytes
   val dv = val::global("DataView").new_(buffer);
   dv.call<void>("setUint8", val(pos), val('S'), val('true')); pos++;
   dv.call<void>("setUint8", val(pos), val('P'), val('true')); pos++;
