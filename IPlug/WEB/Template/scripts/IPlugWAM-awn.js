@@ -4,7 +4,7 @@ class IPlugWAMController extends WAMController
     options = options || {};
     options.numberOfInputs  = 0;
     options.numberOfOutputs = 1;
-    options.outputChannelCount = [1];
+    options.outputChannelCount = [2];
 
     super(actx, "IPlugWAM", options);
   }

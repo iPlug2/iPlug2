@@ -4,7 +4,6 @@ class IPlugWAM_AWP extends AudioWorkletGlobalScope.WAMProcessor
     options = options || {}
     options.mod = AudioWorkletGlobalScope.WAM.IPlug;
     super(options);
-    this.numOutChannels = [1];
   }
 }
 
