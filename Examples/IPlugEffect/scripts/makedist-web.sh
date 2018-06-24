@@ -41,10 +41,10 @@ then
   echo MAKING  - WAM WASM MODULE -----------------------------
   emmake make --makefile projects/IPlugEffect-wam-processor.mk
 
-  if ! [ -a build-web/scripts/IPlugEffect-WAM.wasm ]
+  if [ $? -ne "0" ]
   then
-    echo WAM compilation failed
-    exit
+    echo IPlugWAM WASM compilation failed
+    exit 1
   fi
 
   cd build-web/scripts
@@ -92,16 +92,19 @@ echo MAKING  - WEB WASM MODULE -----------------------------
 
 emmake make --makefile projects/IPlugEffect-wam-controller.mk CFLAGS=-DWEBSOCKET_CLIENT=$websocket
 
+if [ $? -ne "0" ]
+then
+  echo IPlugWEB WASM compilation failed
+  exit 1
+fi
+
 mv build-web/scripts/*.wasm build-web
 
-if [ -a build-web/IPlugEffect.wasm ]
+if [ "$websocket" -eq "1" ]
 then
-  if [ "$websocket" -eq "1" ]
-  then
-    emrun --browser chrome --no_server --port=8001 index.html
-  else
-  cd build-web
-  emrun --browser chrome --no_emrun_detect index.html
-  #   emrun --browser firefox index.html
-  fi
+  emrun --browser chrome --no_server --port=8001 index.html
+else
+cd build-web
+emrun --browser chrome --no_emrun_detect index.html
+#   emrun --browser firefox index.html
 fi
