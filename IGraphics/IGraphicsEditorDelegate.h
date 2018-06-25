@@ -35,7 +35,8 @@ public:
   IGraphics* GetUI();
   
   void ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func);
-  
+  void ForControlInGroup(const char* group, std::function<void(IControl& control)> func);
+
 private:
   IGraphics* mGraphics = nullptr;
 };
