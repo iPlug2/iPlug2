@@ -15,31 +15,42 @@
  */
 
 #include "IPlugWeb.h"
+#include <emscripten.h>
 #include <emscripten/bind.h>
 
 using namespace emscripten;
 
+const int kNumMsgTagBytes = 6;
+const int kNumSPVFUIBytes = 18;
+const int kNumSMMFUIBytes = 9;
+const int kNumSSMFUIBytes = 10; // + data size
+const int kNumSAMFUIBytes = 14; // + data size
+
 IPlugWeb::IPlugWeb(IPlugInstanceInfo instanceInfo, IPlugConfig config)
 : IPlugAPIBase(config, kAPIWEB)
 {
+#if WEBSOCKET_CLIENT
+  mSPVFUIBuf.Resize(18); memcpy(mSPVFUIBuf.GetBytes(), "SPVFUI", kNumMsgTagBytes);
+  mSMMFUIBuf.Resize(9);  memcpy(mSMMFUIBuf.GetBytes(), "SMMFUI", kNumMsgTagBytes);
+  mSSMFUIBuf.Resize(10); memcpy(mSSMFUIBuf.GetBytes(), "SSMFUI", kNumMsgTagBytes);
+  mSAMFUIBuf.Resize(14); memcpy(mSAMFUIBuf.GetBytes(), "SAMFUI", kNumMsgTagBytes);
+#endif
+  
   mWAMCtrlrJSObjectName.SetFormatted(32, "%s_WAM", GetPluginName());
 }
 
 void IPlugWeb::SendParameterValueFromUI(int paramIdx, double value)
 {
 #if WEBSOCKET_CLIENT
-  int pos = 0;
-  val buffer = val::global("Uint8Array").new_(18)["buffer"]; // 18 bytes
-  val dv = val::global("DataView").new_(buffer);
-  dv.call<void>("setUint8", val(pos), val('S'), val('true')); pos++;
-  dv.call<void>("setUint8", val(pos), val('P'), val('true')); pos++;
-  dv.call<void>("setUint8", val(pos), val('V'), val('true')); pos++;
-  dv.call<void>("setUint8", val(pos), val('F'), val('true')); pos++;
-  dv.call<void>("setUint8", val(pos), val('U'), val('true')); pos++;
-  dv.call<void>("setUint8", val(pos), val('I'), val('true')); pos++;
-  dv.call<void>("setInt32", val(pos), val(paramIdx), val('true')); pos+=4;
-  dv.call<void>("setFloat64", val(pos), val(value), val('true'));  pos+=8;
-  val::global("ws").call<void>("send", buffer);
+  int pos = kNumMsgTagBytes;
+  *((int*)(mSPVFUIBuf.GetBytes() + pos)) = paramIdx; pos += 4;
+  *((double*)(mSPVFUIBuf.GetBytes() + pos)) = value; pos += 8;
+  
+  EM_ASM({
+    var jsbuff = Module.HEAPU8.subarray($0, $0 + kNumSPVFUIBytes);
+    ws.send(jsbuff);
+  }, (int) mSPVFUIBuf.GetBytes());
+  
 #else
   val::global(mWAMCtrlrJSObjectName.Get()).call<void>("setParam", paramIdx, value);
 #endif
@@ -49,20 +60,16 @@ void IPlugWeb::SendParameterValueFromUI(int paramIdx, double value)
 void IPlugWeb::SendMidiMsgFromUI(const IMidiMsg& msg)
 {
 #if WEBSOCKET_CLIENT
-  int pos = 0;
-  val buffer = val::global("Uint8Array").new_(9)["buffer"]; //9 bytes
-  val dv = val::global("DataView").new_(buffer);
-  dv.call<void>("setUint8", val(pos), val('S'), val('true')); pos++;
-  dv.call<void>("setUint8", val(pos), val('M'), val('true')); pos++;
-  dv.call<void>("setUint8", val(pos), val('M'), val('true')); pos++;
-  dv.call<void>("setUint8", val(pos), val('F'), val('true')); pos++;
-  dv.call<void>("setUint8", val(pos), val('U'), val('true')); pos++;
-  dv.call<void>("setUint8", val(pos), val('I'), val('true')); pos++;
+  int pos = kNumMsgTagBytes;
+  mSMMFUIBuf.GetBytes()[pos] = msg.mStatus; pos++;
+  mSMMFUIBuf.GetBytes()[pos] = msg.mData1; pos++;
+  mSMMFUIBuf.GetBytes()[pos] = msg.mData2; pos++;
 
-  dv.call<void>("setUint8", val(pos), val(msg.mStatus), val('true')); pos++;
-  dv.call<void>("setUint8", val(pos), val(msg.mData1), val('true')); pos++;
-  dv.call<void>("setUint8", val(pos), val(msg.mData2), val('true')); pos++;
-  val::global("ws").call<void>("send", buffer);
+  EM_ASM({
+    var jsbuff = Module.HEAPU8.subarray($0, $0 + kNumSMMFUIBytes);
+    ws.send(jsbuff);
+  }, (int) mSMMFUIBuf.GetBytes());
+  
 #else
   WDL_String dataStr;
   dataStr.SetFormatted(16, "%i:%i:%i", msg.mStatus, msg.mData1, msg.mData2);
@@ -70,54 +77,47 @@ void IPlugWeb::SendMidiMsgFromUI(const IMidiMsg& msg)
 #endif
 }
 
-void IPlugWeb::SendArbitraryMsgFromUI(int messageTag, int dataSize, const void* pData)
-{
-#if WEBSOCKET_CLIENT
-  int pos = 0;
-  val buffer = val::global("Uint8Array").new_(14 + dataSize)["buffer"]; //14 + dataSize bytes
-  val dv = val::global("DataView").new_(buffer);
-  dv.call<void>("setUint8", val(pos), val('S'), val('true')); pos++;
-  dv.call<void>("setUint8", val(pos), val('A'), val('true')); pos++;
-  dv.call<void>("setUint8", val(pos), val('M'), val('true')); pos++;
-  dv.call<void>("setUint8", val(pos), val('F'), val('true')); pos++;
-  dv.call<void>("setUint8", val(pos), val('U'), val('true')); pos++;
-  dv.call<void>("setUint8", val(pos), val('I'), val('true')); pos++;
-  
-  dv.call<void>("setInt32", val(pos), val(messageTag), val('true')); pos+=4;
-  dv.call<void>("setInt32", val(pos), val(dataSize), val('true')); pos+=4;
-  //TODO: pData
-  val::global("ws").call<void>("send", buffer);
-#else
-  WDL_String dataStr;
-  dataStr.SetFormatted(16, "%i:%i", messageTag, dataSize);
-
-  val esbuf = val::global("Module").call<val>("._malloc", val(dataSize));
-  val::global("Module")["HEAPU8"].call<void>("set", pData, esbuf);
-  
-  val::global(mWAMCtrlrJSObjectName.Get()).call<void>("sendMessage", std::string("SAMFUI"), std::string(dataStr.Get()));
-  val::global("Module").call<void>("_free", esbuf);
-#endif
-}
-
 void IPlugWeb::SendSysexMsgFromUI(const ISysEx& msg)
 {
 #if WEBSOCKET_CLIENT
-  int pos = 0;
-  val buffer = val::global("Uint8Array").new_(10 + msg.mSize)["buffer"]; //10 + msg.mSize bytes
-  val dv = val::global("DataView").new_(buffer);
-  dv.call<void>("setUint8", val(pos), val('S'), val('true')); pos++;
-  dv.call<void>("setUint8", val(pos), val('S'), val('true')); pos++;
-  dv.call<void>("setUint8", val(pos), val('M'), val('true')); pos++;
-  dv.call<void>("setUint8", val(pos), val('F'), val('true')); pos++;
-  dv.call<void>("setUint8", val(pos), val('U'), val('true')); pos++;
-  dv.call<void>("setUint8", val(pos), val('I'), val('true')); pos++;
+  mSSMFUIBuf.Resize(kNumSSMFUIBytes + msg.mSize);
+  int pos = kNumMsgTagBytes;
   
-  dv.call<void>("setInt32", val(pos), val(msg.mSize), val('true')); pos+=4;
-  //TODO: pData
+  *((int*)(mSSMFUIBuf.GetBytes() + pos)) = msg.mSize; pos+= 4;
+  memcpy(mSSMFUIBuf.GetBytes() + pos, msg.mData, msg.mSize);
+
+  EM_ASM({
+    var jsbuff = Module.HEAPU8.subarray($0, $0 + $1);
+    ws.send(jsbuff);
+  }, (int) mSSMFUIBuf.GetBytes(), mSSMFUIBuf.Size());
 #else
-  WDL_String dataStr;
-  dataStr.SetFormatted(16, "%i", msg.mSize);
-  val::global(mWAMCtrlrJSObjectName.Get()).call<void>("sendMessage", std::string("SSMFUI"), std::string(dataStr.Get()));   // TODO: SendSysexMsgFromUI msg.mData not sent!
+  EM_ASM({
+    var jsbuff = Module.HEAPU8.subarray($2, $2 + $1);
+    $0.sendMessage(jsbuff, 'SSMFUI', $1, jsbuf);
+  }, mWAMCtrlrJSObjectName.Get(), msg.mSize, (int) msg.mData);
+#endif
+}
+
+void IPlugWeb::SendArbitraryMsgFromUI(int messageTag, int dataSize, const void* pData)
+{
+#if WEBSOCKET_CLIENT
+  mSAMFUIBuf.Resize(kNumSAMFUIBytes + dataSize);
+  int pos = kNumMsgTagBytes;
+  
+  *((int*)(mSAMFUIBuf.GetBytes() + pos)) = messageTag; pos+= 4;
+  *((int*)(mSAMFUIBuf.GetBytes() + pos)) = dataSize; pos+= 4;
+
+  memcpy(mSAMFUIBuf.GetBytes() + pos, pData, dataSize);
+  
+  EM_ASM({
+    var jsbuff = Module.HEAPU8.subarray($0, $0 + $1);
+    ws.send(jsbuff);
+  }, (int) mSAMFUIBuf.GetBytes(), mSAMFUIBuf.Size());
+#else
+  EM_ASM({
+    var jsbuff = Module.HEAPU8.subarray($3, $3 + $2);
+    $0.sendMessage(jsbuff, 'SAMFUI', $1, $2, jsbuf);
+  }, mWAMCtrlrJSObjectName.Get(), messageTag, dataSize, (int) pData);
 #endif
 }
 
