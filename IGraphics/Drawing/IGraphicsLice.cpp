@@ -8,8 +8,8 @@ static StaticStorage<LICE_IFont> s_fontCache;
 
 #pragma mark -
 
-IGraphicsLice::IGraphicsLice(IEditorDelegate& dlg, int w, int h, int fps)
-: IGraphics(dlg, w, h, fps)
+IGraphicsLice::IGraphicsLice(IEditorDelegate& dlg, int w, int h, int fps, float scale)
+: IGraphics(dlg, w, h, fps, scale)
 {
   DBGMSG("IGraphics Lice @ %i FPS\n", fps);
 }
@@ -305,7 +305,7 @@ IColor IGraphicsLice::GetPoint(int x, int y)
   return IColor(LICE_GETA(pix), LICE_GETR(pix), LICE_GETG(pix), LICE_GETB(pix));
 }
 
-bool IGraphicsLice::DrawText(const IText& text, const char* str, IRECT& bounds, bool measure)
+bool IGraphicsLice::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
   const float ds = GetDisplayScale();
   if (!str || str[0] == '\0')
@@ -375,9 +375,9 @@ bool IGraphicsLice::DrawText(const IText& text, const char* str, IRECT& bounds, 
     IRECT r = bounds;
     r.Scale(ds);
     RECT R = { (LONG) r.L, (LONG) r.T, (LONG) r.R, (LONG) r.B };
-#ifdef OS_MAC || defined OS_LINUX
+#if defined OS_MAC || defined OS_LINUX
     font->SWELL_DrawText(mDrawBitmap, str, -1, &R, fmt);
-#else
+#elif defined OS_WIN
     font->DrawTextA(mDrawBitmap, str, -1, &R, fmt);
 #else
   #error NOT IMPLEMENTED
@@ -444,7 +444,7 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text, double scale)
 
 bool IGraphicsLice::MeasureText(const IText& text, const char* str, IRECT& bounds)
 {
-  return DrawText(text, str, bounds, true);
+  return DrawText(text, str, bounds, 0, true);
 }
 
 APIBitmap* IGraphicsLice::LoadAPIBitmap(const WDL_String& resourcePath, int scale)

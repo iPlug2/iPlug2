@@ -56,7 +56,7 @@ class IGraphicsLice : public IGraphics
 public:
   const char* GetDrawingAPIStr() override { return "LICE"; }
 
-  IGraphicsLice(IEditorDelegate& dlg, int w, int h, int fps);
+  IGraphicsLice(IEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsLice();
 
   void SetDisplayScale(int) override;
@@ -89,7 +89,7 @@ public:
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return mDrawBitmap->getBits(); }
 
-  bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure) override;
+  bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
     
   inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
