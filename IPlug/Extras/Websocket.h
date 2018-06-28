@@ -33,7 +33,7 @@ public:
   {
   }
 
-  ~IWebsocketServer()
+  virtual ~IWebsocketServer()
   {
     DestroyServer();
   }

@@ -15,7 +15,7 @@ class IWebsocketEditorDelegate : public IGraphicsEditorDelegate, public IWebsock
 {
 public:
   IWebsocketEditorDelegate(int nParams);
-  ~IWebsocketEditorDelegate();
+  virtual ~IWebsocketEditorDelegate();
  
   //IWebsocketServer
   //THESE MESSAGES ARE ALL CALLED ON SERVER THREADS - 1 PER WEBSOCKET CONNECTION
