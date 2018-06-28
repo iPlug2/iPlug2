@@ -101,11 +101,15 @@ fi
 
 mv build-web/scripts/*.wasm build-web
 
+cd build-web
+
+echo payload:
+du -sch * --exclude=.git
+
 if [ "$websocket" -eq "1" ]
 then
   emrun --browser chrome --no_server --port=8001 index.html
 else
-cd build-web
   emrun --browser chrome --no_emrun_detect index.html
 #   emrun --browser firefox index.html
 fi
