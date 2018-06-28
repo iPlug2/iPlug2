@@ -41,10 +41,7 @@ WebBitmap::WebBitmap(emscripten::val imageCanvas, const char* name, int scale)
 IGraphicsWeb::IGraphicsWeb(IEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphicsPathBase(dlg, w, h, fps, scale)
 {
-  val imgs = val::global("Module")["preloadedImages"];
-  mPreloadedImages = new RetainVal(imgs);
-  
-  val keys = val::global("Object").call<val>("keys", imgs);
+  val keys = val::global("Object").call<val>("keys", GetPreloadedImages());
   
   DBGMSG("Preloaded %i images\n", keys["length"].as<int>());
   // Seed random number generator randomly
@@ -77,22 +74,21 @@ IGraphicsWeb::IGraphicsWeb(IEditorDelegate& dlg, int w, int h, int fps, float sc
   val tabIndex = GetCanvas().call<val>("setAttribute", std::string("tabindex"), 1);
   canvas.call<void>("addEventListener", std::string("keydown"), eventListener2);
 
-  int dscale = val::global("window")["devicePixelRatio"].as<int>();
-  canvas["style"].set("width",val(w));
-  canvas["style"].set("height",val(h));
-  GetContext().call<void>("scale", dscale, dscale);
+  int displayScale = val::global("window")["devicePixelRatio"].as<int>();
+  canvas["style"].set("width", val(w));
+  canvas["style"].set("height", val(h));
+  GetContext().call<void>("scale", displayScale, displayScale);
   
-  canvas.set("width", w * dscale);
-  canvas.set("height", h * dscale);
+  canvas.set("width", w * displayScale);
+  canvas.set("height", h * displayScale);
   
-  SetDisplayScale(dscale);
-  PathTransformScale(dscale, dscale);
+  SetDisplayScale(displayScale);
+  PathTransformScale(displayScale, displayScale);
 }
 
 IGraphicsWeb::~IGraphicsWeb()
 {
   delete mWindowListener;
-  delete mPreloadedImages;
 }
 
 void IGraphicsWeb::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend)
@@ -319,7 +315,7 @@ void IGraphicsWeb::Resize(int w, int h, float scale)
 
 APIBitmap* IGraphicsWeb::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
 {
-  return new WebBitmap(mPreloadedImages->mItem[resourcePath.Get()], resourcePath.Get() + 1, scale);
+  return new WebBitmap(GetPreloadedImages()[resourcePath.Get()], resourcePath.Get() + 1, scale);
 }
 
 APIBitmap* IGraphicsWeb::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
@@ -349,21 +345,23 @@ APIBitmap* IGraphicsWeb::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 //  // Delete the canvas
 //  documentHead.call<val>("removeChild", canvasNode);
 
-  return new WebBitmap(mPreloadedImages->mItem[""], "", scale);
+  return new WebBitmap(GetPreloadedImages()[""], "", scale);
 }
 
 bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
   if (CStringHasContents(name))
   {
-    WDL_String plugSlash;
-    plugSlash.SetFormatted(strlen(name) + 1, "/%s", name);
-
-//    val canvas = mPreloadedImages->mItem[plugSlash.Get()];
+    WDL_String plusSlash;
+    plusSlash.SetFormatted(strlen(name) + 1, "/%s", name);
     
-    if(true)//TODO: should check for existence!
+    bool foundImage = GetPreloadedImages().call<bool>("hasOwnProperty", std::string(plusSlash.Get()));
+
+    DBGMSG("found image %s %i\n", plusSlash.Get(), foundImage);
+    
+    if(foundImage)
     {
-      result.Set(plugSlash.Get());
+      result.Set(plusSlash.Get());
       return true;
     }
   }

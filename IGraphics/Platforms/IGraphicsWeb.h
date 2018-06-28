@@ -119,10 +119,14 @@ private:
     return canvas.call<val>("getContext", std::string("2d"));
   }
 
+  val GetPreloadedImages()
+  {
+    return val::global("Module")["preloadedImages"];
+  }
+  
   void SetWebSourcePattern(const IPattern& pattern, const IBlend* pBlend = nullptr);
   void SetWebBlendMode(const IBlend* pBlend);
 
-  RetainVal* mPreloadedImages;
   RetainVal* mWindowListener = nullptr;
   MouseState mMouseState = kMouseStateUp;
   double mLastX = -1;
