@@ -24,7 +24,7 @@ else
   # trash the whole build-web folder
   if [ -d build-web ]
   then
-    rm -r build-we  b
+    rm -r build-web
   fi
 
   mkdir build-web
@@ -65,6 +65,7 @@ then
 
   node encode-wasm.js
   rm encode-wasm.js
+  rm IPlugEffect-WAM.wasm
 
   cp ../../../../Dependencies/IPlug/WAM_SDK/wamsdk/*.js .
   cp ../../../../Dependencies/IPlug/WAM_AWP/*.js .
@@ -105,6 +106,6 @@ then
   emrun --browser chrome --no_server --port=8001 index.html
 else
 cd build-web
-emrun --browser chrome --no_emrun_detect index.html
+  emrun --browser chrome --no_emrun_detect index.html
 #   emrun --browser firefox index.html
 fi
