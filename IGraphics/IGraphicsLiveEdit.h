@@ -70,22 +70,22 @@ public:
   
   void OnMouseOver(float x, float y, const IMouseMod& mod) override
   {
-//    int c = GetUI()->GetMouseControlIdx(x, y, true);
-//    if (c > 0)
-//    {
-//      IRECT cr = GetUI()->GetControl(c)->GetRECT();
-//      IRECT h = GetHandleRect(cr);
-//      
-//      if(h.Contains(x, y))
-//      {
-//        SetCursor(LoadCursor(NULL, IDC_SIZENWSE));
-//        return;
-//      }
-//      else
-//        SetCursor(LoadCursor(NULL, IDC_HAND));
-//    }
-//    else
-//      SetCursor(LoadCursor(NULL, IDC_ARROW));
+    int c = GetUI()->GetMouseControlIdx(x, y, true);
+    if (c > 0)
+    {
+      IRECT cr = GetUI()->GetControl(c)->GetRECT();
+      IRECT h = GetHandleRect(cr);
+      
+      if(h.Contains(x, y))
+      {
+        GetUI()->SetMouseCursor(ECursor::SIZENWSE);
+        return;
+      }
+      else
+        GetUI()->SetMouseCursor(ECursor::HAND);
+    }
+    else
+      GetUI()->SetMouseCursor(ECursor::ARROW);
   }
   
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
@@ -116,30 +116,33 @@ public:
       
       pControl->SetRECT(r);
       pControl->SetTargetRECT(r);
+      
+      DBGMSG("%i, %i, %i, %i\n", (int) r.L, (int) r.T, (int) r.R, (int) r.B);
+      
       GetUI()->SetAllControlsDirty();
     }
   }
   
-  void Draw(IGraphics& graphics) override
+  void Draw(IGraphics& g) override
   {
-    graphics.DrawGrid(mGridColor, graphics.GetBounds(), mGridSize, mGridSize, &BLEND_25);
+    g.DrawGrid(mGridColor, g.GetBounds(), mGridSize, mGridSize, &BLEND_25);
     
-    for(int i = 1; i < graphics.NControls(); i++)
+    for(int i = 1; i < g.NControls(); i++)
     {
-      IControl* pControl = graphics.GetControl(i);
+      IControl* pControl = g.GetControl(i);
       IRECT cr = pControl->GetRECT();
       
       
       if(pControl->IsHidden())
-        graphics.DrawDottedRect(COLOR_RED, cr);
+        g.DrawDottedRect(COLOR_RED, cr);
       else if(pControl->IsGrayed())
-        graphics.DrawDottedRect(COLOR_GREEN, cr);
+        g.DrawDottedRect(COLOR_GREEN, cr);
       else
-        graphics.DrawDottedRect(COLOR_BLUE, cr);
+        g.DrawDottedRect(COLOR_BLUE, cr);
       
       IRECT h = GetHandleRect(cr);
-      graphics.FillTriangle(mRectColor, h.L, h.B, h.R, h.B, h.R, h.T);
-      graphics.DrawTriangle(COLOR_BLACK, h.L, h.B, h.R, h.B, h.R, h.T);
+      g.FillTriangle(mRectColor, h.L, h.B, h.R, h.B, h.R, h.T);
+      g.DrawTriangle(COLOR_BLACK, h.L, h.B, h.R, h.B, h.R, h.T);
     }
   }
   
