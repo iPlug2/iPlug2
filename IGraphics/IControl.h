@@ -112,6 +112,9 @@ public:
   int ParamIdx() const { return mParamIdx; }
   const IParam* GetParam();
   
+  void SetGroup(const char* groupName) { mGroup.Set(groupName); }
+  const char* GetGroup() const { return mGroup.Get(); }
+  
   /** This method is called from the class implementing the IEditorDelegate interface in order to update a controls mValue and set it to be marked
    dirty for redraw. This either happens on a parameter changing value or if this control is not linked to a parameter (mParamIdx = kNoParameter);
    @param value Normalised incoming value */
@@ -284,7 +287,10 @@ protected:
 
   /** Parameter index or -1 (kNoParameter) */
   int mParamIdx = kNoParameter;
-
+  
+  /** Controls can be grouped for hiding and showing panels */
+  WDL_String mGroup;
+  
   IText mText;
 
   WDL_TypedBuf<AuxParam> mAuxParams;
