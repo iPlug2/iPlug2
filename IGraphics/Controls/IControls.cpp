@@ -67,6 +67,19 @@ IVKnobControl::IVKnobControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx,
   AttachIControl(this);
 }
 
+IVKnobControl::IVKnobControl(IEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunction,
+              const IVColorSpec& colorSpec,
+              float aMin, float aMax,
+              EDirection direction, double gearing)
+: IKnobControlBase(dlg, bounds, kNoParameter, direction, gearing)
+, IVectorBase(colorSpec)
+, mAngleMin(aMin)
+, mAngleMax(aMax)
+{
+  SetActionFunction(actionFunction);
+  AttachIControl(this);
+}
+
 void IVKnobControl::Draw(IGraphics& g)
 {
   g.FillRect(GetColor(kBG), mRECT);
