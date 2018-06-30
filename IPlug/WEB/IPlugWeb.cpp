@@ -30,10 +30,10 @@ IPlugWeb::IPlugWeb(IPlugInstanceInfo instanceInfo, IPlugConfig config)
 : IPlugAPIBase(config, kAPIWEB)
 {
 #if WEBSOCKET_CLIENT
-  mSPVFUIBuf.Resize(18); memcpy(mSPVFUIBuf.GetBytes(), "SPVFUI", kNumMsgTagBytes);
-  mSMMFUIBuf.Resize(9);  memcpy(mSMMFUIBuf.GetBytes(), "SMMFUI", kNumMsgTagBytes);
-  mSSMFUIBuf.Resize(10); memcpy(mSSMFUIBuf.GetBytes(), "SSMFUI", kNumMsgTagBytes);
-  mSAMFUIBuf.Resize(14); memcpy(mSAMFUIBuf.GetBytes(), "SAMFUI", kNumMsgTagBytes);
+  mSPVFUIBuf.Resize(kNumSPVFUIBytes); memcpy(mSPVFUIBuf.GetBytes(), "SPVFUI", kNumMsgTagBytes);
+  mSMMFUIBuf.Resize(kNumSMMFUIBytes); memcpy(mSMMFUIBuf.GetBytes(), "SMMFUI", kNumMsgTagBytes);
+  mSSMFUIBuf.Resize(kNumSSMFUIBytes); memcpy(mSSMFUIBuf.GetBytes(), "SSMFUI", kNumMsgTagBytes);
+  mSAMFUIBuf.Resize(kNumSAMFUIBytes); memcpy(mSAMFUIBuf.GetBytes(), "SAMFUI", kNumMsgTagBytes);
 #endif
   
   mWAMCtrlrJSObjectName.SetFormatted(32, "%s_WAM", GetPluginName());
@@ -43,13 +43,13 @@ void IPlugWeb::SendParameterValueFromUI(int paramIdx, double value)
 {
 #if WEBSOCKET_CLIENT
   int pos = kNumMsgTagBytes;
-  *((int*)(mSPVFUIBuf.GetBytes() + pos)) = paramIdx; pos += 4;
-  *((double*)(mSPVFUIBuf.GetBytes() + pos)) = value; pos += 8;
+  *((int*)(mSPVFUIBuf.GetBytes() + pos)) = paramIdx; pos += sizeof(int);
+  *((double*)(mSPVFUIBuf.GetBytes() + pos)) = value; pos += sizeof(double);
   
   EM_ASM({
-    var jsbuff = Module.HEAPU8.subarray($0, $0 + kNumSPVFUIBytes);
+    var jsbuff = Module.HEAPU8.subarray($0, $0 + $1);
     ws.send(jsbuff);
-  }, (int) mSPVFUIBuf.GetBytes());
+  }, (int) mSPVFUIBuf.GetBytes(), kNumSPVFUIBytes);
   
 #else
   val::global(mWAMCtrlrJSObjectName.Get()).call<void>("setParam", paramIdx, value);
@@ -66,9 +66,9 @@ void IPlugWeb::SendMidiMsgFromUI(const IMidiMsg& msg)
   mSMMFUIBuf.GetBytes()[pos] = msg.mData2; pos++;
 
   EM_ASM({
-    var jsbuff = Module.HEAPU8.subarray($0, $0 + kNumSMMFUIBytes);
+    var jsbuff = Module.HEAPU8.subarray($0, $0 + $1);
     ws.send(jsbuff);
-  }, (int) mSMMFUIBuf.GetBytes());
+  }, (int) mSMMFUIBuf.GetBytes(), kNumSMMFUIBytes);
   
 #else
   WDL_String dataStr;
@@ -83,7 +83,7 @@ void IPlugWeb::SendSysexMsgFromUI(const ISysEx& msg)
   mSSMFUIBuf.Resize(kNumSSMFUIBytes + msg.mSize);
   int pos = kNumMsgTagBytes;
   
-  *((int*)(mSSMFUIBuf.GetBytes() + pos)) = msg.mSize; pos+= 4;
+  *((int*)(mSSMFUIBuf.GetBytes() + pos)) = msg.mSize; pos += sizeof(int);
   memcpy(mSSMFUIBuf.GetBytes() + pos, msg.mData, msg.mSize);
 
   EM_ASM({
@@ -104,8 +104,8 @@ void IPlugWeb::SendArbitraryMsgFromUI(int messageTag, int dataSize, const void* 
   mSAMFUIBuf.Resize(kNumSAMFUIBytes + dataSize);
   int pos = kNumMsgTagBytes;
   
-  *((int*)(mSAMFUIBuf.GetBytes() + pos)) = messageTag; pos+= 4;
-  *((int*)(mSAMFUIBuf.GetBytes() + pos)) = dataSize; pos+= 4;
+  *((int*)(mSAMFUIBuf.GetBytes() + pos)) = messageTag; pos += sizeof(int);
+  *((int*)(mSAMFUIBuf.GetBytes() + pos)) = dataSize; pos += sizeof(int);
 
   memcpy(mSAMFUIBuf.GetBytes() + pos, pData, dataSize);
   
