@@ -18,6 +18,7 @@
 #include <cassert>
 #include <cstdint>
 #include <cstdio>
+#include <algorithm>
 
 #ifdef TRACER_BUILD
 #include "IPlugLogger.h"

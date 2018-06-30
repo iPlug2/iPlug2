@@ -142,11 +142,6 @@ END
 
 3 TEXTINCLUDE 
 BEGIN
-    "#include ""..\\config.h""\r\n"
-    "PNGKNOB_FN PNG PNGKNOB_FN\r\n"
-    "PNGKNOBROTATE_FN PNG PNGKNOBROTATE_FN\r\n"
-    "SVGKNOB_FN SVG SVGKNOB_FN\r\n"
-    "TIGER_FN SVG TIGER_FN\0"
 END
 
 #endif    // APSTUDIO_INVOKED
@@ -172,10 +167,10 @@ IDI_ICON1               ICON                    "IPlugEffect.ico"
 // Generated from the TEXTINCLUDE 3 resource.
 //
 #include "..\config.h"
-//PNGKNOB_FN PNG PNGKNOB_FN
-//PNGKNOBROTATE_FN PNG PNGKNOBROTATE_FN
-//SVGKNOB_FN SVG SVGKNOB_FN
-//TIGER_FN SVG TIGER_FN
+PNGKNOB_FN PNG PNGKNOB_FN
+PNGKNOBROTATE_FN PNG PNGKNOBROTATE_FN
+SVGKNOB_FN SVG SVGKNOB_FN
+TIGER_FN SVG TIGER_FN
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 

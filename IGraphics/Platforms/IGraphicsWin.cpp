@@ -926,7 +926,7 @@ IPopupMenu* IGraphicsWin::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds,
     cPos.x = bounds.L;
     cPos.y = bounds.B;
 
-    ClientToScreen(mDelegateWnd, &cPos);
+    ::ClientToScreen(mDelegateWnd, &cPos);
 
     if (TrackPopupMenu(hMenu, TPM_LEFTALIGN, cPos.x, cPos.y, 0, mDelegateWnd, 0))
     {

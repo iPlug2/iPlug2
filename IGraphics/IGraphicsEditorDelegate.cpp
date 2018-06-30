@@ -204,12 +204,3 @@ void IGraphicsEditorDelegate::ForControlInGroup(const char* group, std::function
     }
   }
 }
-    if (pControl->ParamIdx() > kNoParameter)
-    {
-      const IParam* pParam = pControl->GetParam();
-      if(strcmp(pParam->GetGroupForHost(), group) == 0)
-        func(*pControl);
-      // Could be more than one, don't break until we check them all.
-    }
-  }
-}
