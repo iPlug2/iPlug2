@@ -18,30 +18,30 @@ IGraphicsTest::IGraphicsTest()
   IGraphics* pGraphics = MakeGraphics(*this, UI_WIDTH, UI_HEIGHT, 60);
 
   pGraphics->AttachPanelBackground(COLOR_RED);
-  pGraphics->HandleMouseOver(true);
-  IBitmap knobBitmap = pGraphics->LoadBitmap("knob.png", 60);
-  pGraphics->LoadFont("Roboto-Regular.ttf");
-  pGraphics->LoadFont("Montserrat-LightItalic.ttf");
-  
-  IRECT bounds = pGraphics->GetBounds();
-  
-  int rows = 4;
-  int cols = 4;
-  int cellIdx = 0;
-  
-  pGraphics->AttachControl(new IGradientControl(*this, bounds.GetGridCell(cellIdx++, rows, cols), -1));
-  pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(cellIdx++, rows, cols), -1));
-  pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(cellIdx++, rows, cols), -1));
-  pGraphics->AttachControl(new IBKnobControl(*this, bounds.GetGridCell(cellIdx++, rows, cols), knobBitmap, -1));
-  pGraphics->AttachControl(new RandomTextControl(*this, bounds.GetGridCell(cellIdx++, rows, cols)));
-  pGraphics->GetControl(2)->SetValueFromDelegate((double) rand() / RAND_MAX);
-  pGraphics->GetControl(3)->SetValueFromDelegate((double) rand() / RAND_MAX);
-  pGraphics->GetControl(4)->SetValueFromDelegate((double) rand() / RAND_MAX);
+  //pGraphics->HandleMouseOver(true);
+  //IBitmap knobBitmap = pGraphics->LoadBitmap("knob.png", 60);
+  //pGraphics->LoadFont("Roboto-Regular.ttf");
+  //pGraphics->LoadFont("Montserrat-LightItalic.ttf");
+  //
+  //IRECT bounds = pGraphics->GetBounds();
+  //
+  //int rows = 4;
+  //int cols = 4;
+  //int cellIdx = 0;
+  //
+  //pGraphics->AttachControl(new IGradientControl(*this, bounds.GetGridCell(cellIdx++, rows, cols), -1));
+  //pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(cellIdx++, rows, cols), -1));
+  //pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(cellIdx++, rows, cols), -1));
+  //pGraphics->AttachControl(new IBKnobControl(*this, bounds.GetGridCell(cellIdx++, rows, cols), knobBitmap, -1));
+  //pGraphics->AttachControl(new RandomTextControl(*this, bounds.GetGridCell(cellIdx++, rows, cols)));
+  //pGraphics->GetControl(2)->SetValueFromDelegate((double) rand() / RAND_MAX);
+  //pGraphics->GetControl(3)->SetValueFromDelegate((double) rand() / RAND_MAX);
+  //pGraphics->GetControl(4)->SetValueFromDelegate((double) rand() / RAND_MAX);
 
   AttachGraphics(pGraphics);
 }
 
-void IGraphicsTest::SetParameterValueFromUI(int paramIdx, double value)
+void IGraphicsTest::SendParameterValueFromUI(int paramIdx, double value)
 {
   DBGMSG("SetParameterValueFromUI p %i %f\n", paramIdx, value);
 }
