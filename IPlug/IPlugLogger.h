@@ -109,12 +109,14 @@
   #endif
       mFP = fopen(logFilePath, "w");
       assert(mFP);
+      
+      DBGMSG("Logging to %s\n", logFilePath);
     }
     
     ~LogFile()
     {
       fclose(mFP);
-      mFP = 0;
+      mFP = nullptr;
     }
   };
 
