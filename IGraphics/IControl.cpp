@@ -329,6 +329,12 @@ ICaptionControl::ICaptionControl(IEditorDelegate& dlg, IRECT bounds, int paramId
   assert(paramIdx > kNoParameter);
 
   mParamIdx = paramIdx;
+  
+  if(GetParam()->Type() == IParam::kTypeEnum)
+  {
+    mIsListControl = true;
+  }
+  
   mDblAsSingleClick = true;
   mDisablePrompt = false;
 }
@@ -356,7 +362,12 @@ void ICaptionControl::Draw(IGraphics& g)
     }
   }
 
-  return ITextControl::Draw(g);
+  ITextControl::Draw(g);
+  
+  if(mIsListControl) {
+    IRECT triRect = mRECT.FracRectHorizontal(0.2, true).GetCentredInside(IRECT(0, 0, 8, 5));
+    g.FillTriangle(COLOR_DARK_GRAY, triRect.L, triRect.T, triRect.R, triRect.T, triRect.MW(), triRect.B, GetMouseIsOver() ? 0 : &BLEND_50);
+  }
 }
 
 ISwitchControlBase::ISwitchControlBase(IEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc,

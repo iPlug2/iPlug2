@@ -665,6 +665,7 @@ public:
 
 protected:
   bool mShowParamLabel;
+  bool mIsListControl = false ;
 };
 
 #pragma mark - Base Controls
