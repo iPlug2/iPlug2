@@ -134,6 +134,7 @@ public:
   void SetNormalized(double normalizedValue) { Set(FromNormalized(normalizedValue)); }
   void SetString(const char* str) { mValue = StringToValue(str); }
   void SetToDefault() { mValue = mDefault; }
+  void SetDefault(float value) { mDefault = value; SetToDefault(); }
 
   void SetDisplayText(double value, const char* str);
 
