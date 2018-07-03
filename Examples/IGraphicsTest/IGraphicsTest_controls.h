@@ -329,7 +329,7 @@ public:
 //    g.FillRect(COLOR_RED, mRECT.GetRandomSubRect());
 #ifdef IGRAPHICS_NANOVG
 
-    NVGcontext* vg = (NVGcontext*) g.GetData();
+    NVGcontext* vg = (NVGcontext*) g.GetDrawContext();
     //
     const int h = 28;
     const int w = mRECT.W();

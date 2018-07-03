@@ -15,7 +15,7 @@ public:
   ~ IGraphicsTest() {}
 
   //IEditorDelegate
-  void SetParameterValueFromUI(int paramIdx, double value) override;
+  void SendParameterValueFromUI(int paramIdx, double value) override;
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { };
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { };
 };
