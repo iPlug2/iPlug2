@@ -124,14 +124,14 @@ private:
   int mTrackSize;
 };
 
-class IVContactControl : public IVSwitchControl
+class IVMomentarySwitch : public IVSwitchControl
 {
 public:
-  IVContactControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx)
-  : IVSwitchControl(dlg, bounds, paramIdx)
+  IVMomentarySwitch(IEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc)
+  : IVSwitchControl(dlg, bounds, kNoParameter, actionFunc)
   {};
 
-  virtual ~IVContactControl() {};
+  virtual ~IVMomentarySwitch() {};
 
   void OnMouseUp(float x, float y, const IMouseMod& mod) override
   {
