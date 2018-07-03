@@ -80,18 +80,19 @@ void IControl::SetDirty(bool triggerAction)
     {
       mDelegate.SendParameterValueFromUI(mParamIdx, mValue);
       GetUI()->UpdatePeers(this);
-      const IParam* pParam = mDelegate.GetParam(mParamIdx);
+      
+      const IParam* pParam = GetParam();
 
       if (mValDisplayControl)
       {
         WDL_String display;
         pParam->GetDisplayForHost(display);
-        ((ITextControl*)mValDisplayControl)->SetTextFromDelegate(display.Get());
+        ((ITextControl*)mValDisplayControl)->SetStr(display.Get());
       }
 
       if (mNameDisplayControl)
       {
-        ((ITextControl*)mNameDisplayControl)->SetTextFromDelegate((char*) pParam->GetNameForHost());
+        ((ITextControl*)mNameDisplayControl)->SetStr(pParam->GetNameForHost());
       }
     }
     
@@ -305,7 +306,7 @@ void IBitmapControl::OnRescale()
   mBitmap = GetUI()->GetScaledBitmap(mBitmap);
 }
 
-void ITextControl::SetTextFromDelegate(const char* str)
+void ITextControl::SetStr(const char* str)
 {
   if (strcmp(mStr.Get(), str))
   {

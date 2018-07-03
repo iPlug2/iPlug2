@@ -644,8 +644,8 @@ public:
 
   ~ITextControl() {}
 
-  virtual void SetTextFromDelegate(const char* str);
-  virtual void ClearTextFromDelegate() { SetTextFromDelegate(""); }
+  virtual void SetStr(const char* str);
+  virtual void ClearStr() { SetStr(""); }
 
   void Draw(IGraphics& g) override;
 
@@ -828,7 +828,8 @@ protected:
   bool mDrawTrackFrame = true;
 };
 
-/** Parent for switch controls (including buttons a.k.a. momentary switches)*/
+/** Parent for switch controls (including buttons a.k.a. momentary switches)
+ */
 class ISwitchControlBase : public IControl
 {
 public:
