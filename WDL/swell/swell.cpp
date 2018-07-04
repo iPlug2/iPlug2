@@ -753,7 +753,18 @@ HINSTANCE LoadLibraryGlobals(const char *fn, bool symbolsAsGlobals)
 #endif
   {
     inst=dlopen(fn,RTLD_NOW|(symbolsAsGlobals?RTLD_GLOBAL:RTLD_LOCAL));
-    if (!inst) return 0;
+    if (!inst) 
+    {
+#ifndef SWELL_TARGET_OSX
+      struct stat ss;
+      if (fn[0] == '/' && !stat(fn,&ss) && !(ss.st_mode&S_IFDIR))
+      {
+        const char *err = dlerror();
+        printf("swell: dlopen() failed: %s\n",err ? err : fn);
+      }
+#endif
+      return 0;
+    }
   }
 
   WDL_MutexLock lock(&s_libraryMutex);

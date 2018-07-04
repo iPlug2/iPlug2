@@ -935,6 +935,7 @@ void ShowWindow(HWND hwnd, int cmd)
  
   if (cmd==SW_SHOW||cmd==SW_SHOWNA) 
   {
+    if (hwnd->m_visible) cmd = SW_SHOWNA; // do not take focus if already visible
     hwnd->m_visible=true;
   }
   else if (cmd==SW_HIDE) 
@@ -1502,7 +1503,7 @@ fakeButtonClick:
       if (hwnd)
       {
         buttonWindowState *s = (buttonWindowState*)hwnd->m_private_data;
-        return (s->state&3)==2 ? 1 : (s->state&3); 
+        return (s->state&3); 
       }
     return 0;
     case BM_GETIMAGE:
@@ -1629,6 +1630,28 @@ static LRESULT WINAPI groupWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
     return 0;
     case WM_SETTEXT:
       InvalidateRect(hwnd,NULL,TRUE);
+    break;
+    case WM_LBUTTONDBLCLK:
+    case WM_LBUTTONDOWN:
+    case WM_LBUTTONUP:
+    case WM_MBUTTONDBLCLK:
+    case WM_MBUTTONDOWN:
+    case WM_MBUTTONUP:
+    case WM_RBUTTONDBLCLK:
+    case WM_RBUTTONDOWN:
+    case WM_RBUTTONUP:
+    case WM_MOUSEMOVE:
+      if (GET_Y_LPARAM(lParam) >= SWELL_UI_SCALE(20))
+      {
+        HWND par = GetParent(hwnd);
+        if (par)
+        {
+          POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+          ClientToScreen(hwnd,&pt);
+          ScreenToClient(par,&pt);
+          return SendMessage(par,msg,wParam,MAKELPARAM(pt.x,pt.y));
+        }
+      }
     break;
   }
   return DefWindowProc(hwnd,msg,wParam,lParam);
@@ -7515,7 +7538,7 @@ BOOL ShellExecute(HWND hwndDlg, const char *action,  const char *content1, const
 
   if (!content1 || !*content1) return FALSE;
 
-  if (!strnicmp(content1,"http://",7))
+  if (!strnicmp(content1,"http://",7) || !strnicmp(content1,"https://",8))
   {
     argv[0] = xdg;
     argv[1] = content1;
@@ -7611,7 +7634,7 @@ void SWELL_DrawFocusRect(HWND hwndPar, RECT *rct, void **handle)
       h->m_style = WS_CHILD; // using this for top-level will also keep it out of the window list
       h->Retain();
       *handle = h;
-      ShowWindow(h,SW_SHOW);
+      ShowWindow(h,SW_SHOWNA);
     }
     SetWindowPos(h,HWND_TOP,rct->left,rct->top,rct->right-rct->left,rct->bottom-rct->top,SWP_NOACTIVATE);
     InvalidateRect(h,NULL,FALSE);
