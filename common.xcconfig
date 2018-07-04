@@ -140,6 +140,7 @@ VST3_PATH = ~/Library/Audio/Plug-Ins/VST3
 AU_PATH = ~/Library/Audio/Plug-Ins/Components
 AAX_PATH = /Applications/Avid/ProTools_3PDev/Plug-Ins
 APP_PATH = ~/Applications
+REAPER_EXT_PATH = ~/Library/Application Support/REAPER/UserPlugins
 
 FAUST_DEFS = FAUST_EXE=\"$(BUILT_LIBS_PATH)/bin/faust\" DEFAULT_FAUST_LIBRARY_PATH=\"$(BUILT_LIBS_PATH)/share/faust\"
 
