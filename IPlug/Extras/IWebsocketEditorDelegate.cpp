@@ -202,4 +202,3 @@ void IWebsocketEditorDelegate::ProcessWebsocketQueue()
     DeferMidiMsg(msg); // can't just call SendMidiMsgFromUI here which would cause a feedback loop
   }
 }
-

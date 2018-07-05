@@ -40,29 +40,46 @@ public:
 
   void CreateServer(const char* DOCUMENT_ROOT, const char* PORT = "8001")
   {
-    const char *options[] = {
-      "document_root", DOCUMENT_ROOT, "listening_ports", PORT, 0};
+    const char *options[] = {"document_root", DOCUMENT_ROOT, "listening_ports", PORT, 0};
 
     std::vector<std::string> cpp_options;
     for (auto i=0; i<(sizeof(options)/sizeof(options[0])-1); i++) {
       cpp_options.push_back(options[i]);
     }
-
-    mServer = new CivetServer(cpp_options);
-    mServer->addWebSocketHandler("/websocket", this);
-    DBGMSG("Websocket server running at http://localhost:%s/ws\n", PORT);
+    
+    if(sInstances == 0 && sServer == nullptr)
+    {
+      sServer = new CivetServer(cpp_options);
+      sServer->addWebSocketHandler("/ws", this);
+      DBGMSG("Websocket server running at http://localhost:%s/ws\n", PORT);
+    }
+    else {
+      WDL_String url;
+      GetURL(url);
+      DBGMSG("Websocket server allready running at %s\n", url.Get());
+    }
+    
+    sInstances++;
   }
 
   void DestroyServer()
   {
-    if(mServer)
-      delete mServer;
+    sInstances--;
+    
+    if(sInstances == 0) {
+      if(sServer) {
+        delete sServer;
+        sServer = nullptr;
+      }
+    }
   }
   
   void GetURL(WDL_String& url)
   {
-    std::vector<int> listeningPorts = mServer->getListeningPorts();
-    url.SetFormatted(256, "http://localhost:%i", listeningPorts[0]);
+    if(sServer) {
+      std::vector<int> listeningPorts = sServer->getListeningPorts();
+      url.SetFormatted(256, "http://localhost:%i", listeningPorts[0]);
+    }
   }
 
   int NClients()
@@ -72,14 +89,14 @@ public:
     return mConnections.GetSize();
   }
   
-  bool SendTextToConnection(int idx, const char* str)
+  bool SendTextToConnection(int idx, const char* str, int exclude = -1)
   {
-    return DoSendToConnection(idx, MG_WEBSOCKET_OPCODE_TEXT, str, strlen(str));
+    return DoSendToConnection(idx, MG_WEBSOCKET_OPCODE_TEXT, str, strlen(str), exclude);
   }
   
-  bool SendDataToConnection(int idx, void* pData, size_t sizeInBytes)
+  bool SendDataToConnection(int idx, void* pData, size_t sizeInBytes, int exclude = -1)
   {
-    return DoSendToConnection(idx, MG_WEBSOCKET_OPCODE_BINARY, (const char*) pData, sizeInBytes);
+    return DoSendToConnection(idx, MG_WEBSOCKET_OPCODE_BINARY, (const char*) pData, sizeInBytes, exclude);
   }
   
   virtual void OnWebsocketReady(int idx)
@@ -97,8 +114,10 @@ public:
   }
   
 private:
-  bool DoSendToConnection(int idx, int opcode, const char* pData, size_t sizeInBytes)
+  bool DoSendToConnection(int idx, int opcode, const char* pData, size_t sizeInBytes, int exclude)
   {
+    int nclients = NClients();
+    
     std::function<bool(int)> sendFunc = [&](int connIdx) {
       WDL_MutexLock lock(&mMutex);
       mg_connection* pConn = const_cast<mg_connection*>(mConnections.Get(connIdx));
@@ -115,9 +134,10 @@ private:
     
     if(idx == -1)
     {
-      for(int i=0;i<NClients();i++)
+      for(int i=0;i<nclients;i++) // TODO: sending to self?
       {
-        success &= sendFunc(i);
+        if(i != exclude)
+          success &= sendFunc(i);
       }
     }
     else {
@@ -153,8 +173,6 @@ private:
   {
     WDL_MutexLock lock(&mMutex);
 
-//    DBGMSG("WS data\n");
-
     uint8_t* firstByte = (uint8_t*) &bits;
     
     if(*firstByte == 129) // TODO: check that
@@ -179,8 +197,12 @@ private:
   }
   
   WDL_PtrList<const struct mg_connection> mConnections;
-  CivetServer* mServer = nullptr;
-  
+  static CivetServer* sServer;
+  static int sInstances;
+
 protected:
   WDL_Mutex mMutex;
 };
+
+CivetServer* IWebsocketServer::sServer = nullptr;
+int IWebsocketServer::sInstances = 0;
