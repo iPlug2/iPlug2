@@ -38,7 +38,7 @@ public:
     DestroyServer();
   }
 
-  void CreateServer(const char* DOCUMENT_ROOT, const char* PORT = "8001")
+  bool CreateServer(const char* DOCUMENT_ROOT, const char* PORT = "8001")
   {
     const char *options[] = {"document_root", DOCUMENT_ROOT, "listening_ports", PORT, 0};
 
@@ -49,7 +49,13 @@ public:
     
     if(sInstances == 0 && sServer == nullptr)
     {
-      sServer = new CivetServer(cpp_options);
+      try { sServer = new CivetServer(cpp_options); }
+      catch (const std::exception& e)
+      {
+        DBGMSG("Couldn't create server, port probably allready in use\n");
+        return false;
+      }
+      
       sServer->addWebSocketHandler("/ws", this);
       DBGMSG("Websocket server running at http://localhost:%s/ws\n", PORT);
     }
@@ -60,6 +66,8 @@ public:
     }
     
     sInstances++;
+    
+    return true;
   }
 
   void DestroyServer()
