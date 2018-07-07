@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IGraphicsEditorDelegate.h"
-#include "Websocket.h"
+#include "IWebsocketServer.h"
 #include "IPlugStructs.h"
 #include "IPlugQueue.h"
 

@@ -75,7 +75,7 @@
         preRun: [],
         postRun: [],
         onRuntimeInitialized: function main() {
-          ws = new WebSocket('ws://' + window.location.host + '/websocket');
+          ws = new WebSocket('ws://' + window.location.host + '/ws');
           ws.binaryType = 'arraybuffer';
 
           ws.onclose = function() {
