@@ -19,6 +19,7 @@
 #define OVERSAMPLING_FACTORS_VA_LIST "None", "2x", "4x", "8x", "16x"
 
 #include <functional>
+#include <cmath>
 
 #include "HIIR/FPUUpsampler2x.h"
 #include "HIIR/FPUDownsampler2x.h"
@@ -113,9 +114,9 @@ public:
    * @param std::function<double(double)> The function that processes the audio sample at the higher sampling rate
    * @param mRate A power of 2 oversampling factor or 0 for no oversampling
    * @return The audio sample output */
-  double Process(double input, std::function<T(T)> func)
+  T Process(T input, std::function<T(T)> func)
   {
-    double output;
+    T output;
 
     if(mRate == 16)
     {
@@ -178,7 +179,7 @@ public:
     return output;
   }
 
-  double ProcessGen(std::function<T()> genFunc)
+  T ProcessGen(std::function<T()> genFunc)
   {
     auto ProcessDown16x = [&](T input)
     {
@@ -196,7 +197,7 @@ public:
       }
     };
 
-    auto ProcessDown8x = [&](double input)
+    auto ProcessDown8x = [&](T input)
     {
       mDown8x[mWritePos] = (T) input;
 
@@ -211,7 +212,7 @@ public:
       }
     };
 
-    auto ProcessDown4x = [&](double input)
+    auto ProcessDown4x = [&](T input)
     {
       mDown4x[mWritePos] = (T) input;
 
@@ -225,7 +226,7 @@ public:
       }
     };
 
-    auto ProcessDown2x = [&](double input)
+    auto ProcessDown2x = [&](T input)
     {
       mDown2x[mWritePos] = (T) input;
 
@@ -237,7 +238,7 @@ public:
       }
     };
 
-    double output;
+    T output;
 
     for (int j = 0; j < mRate; j++)
     {
@@ -261,7 +262,7 @@ public:
 
   void SetOverSampling(EFactor factor)
   {
-    mRate = pow(2, (int) factor);
+    mRate = std::pow(2, (int) factor);
     Reset();
   }
   
