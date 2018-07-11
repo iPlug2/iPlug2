@@ -37,7 +37,7 @@ typedef std::chrono::high_resolution_clock Time;
 typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimePoint;
 typedef std::chrono::duration<double, std::chrono::milliseconds::period> Milliseconds;
 
-class LICE_IFont;
+class LICE_IFont; // TODO: move this
 /**
  * \defgroup IGraphicsStructs IGraphics::Structs
  * @{
@@ -47,18 +47,32 @@ class LICE_IFont;
  * In most cases it does own the bitmap data, the exception being with NanoVG, where the image is loaded onto the GPU as a texture,
  * but still needs to be freed
  */
+
+#ifdef IGRAPHICS_AGG
+typedef agg::pixel_map* BitmapData;
+#elif defined IGRAPHICS_CAIRO
+#include "cairo/cairo.h"
+typedef cairo_surface_t* BitmapData;
+#elif defined IGRAPHICS_NANOVG
+typedef int BitmapData;
+#elif defined IGRAPHICS_LICE
+typedef LICE_IBitmap* BitmapData;
+#elif defined IGRAPHICS_WEB
+#endif
+
 class APIBitmap
 {
 public:
-  APIBitmap(void* pBitmap, int w, int h, int s)
+  APIBitmap(BitmapData pBitmap, int w, int h, int s)
   : mBitmap(pBitmap)
   , mWidth(w)
   , mHeight(h)
   , mScale(s)
+    assert(((w % s) == 0) && ((h % s) == 0));
   {}
 
   APIBitmap()
-  : mBitmap(nullptr)
+  : mBitmap(0)
   , mWidth(0)
   , mHeight(0)
   , mScale(0)
@@ -66,9 +80,8 @@ public:
 
   virtual ~APIBitmap() {}
 
-  void SetBitmap(void* pBitmap, int w, int h, int s)
+  void SetBitmap(BitmapData pBitmap, int w, int h, int s)
   {
-    assert(((w % s) == 0) && ((h % s) == 0));
 
     mBitmap = pBitmap;
     mWidth = w;
@@ -76,13 +89,13 @@ public:
     mScale = s;
   }
 
-  void* GetBitmap() const { return mBitmap; }
+  BitmapData GetBitmap() const { return mBitmap; }
   int GetWidth() const { return mWidth; }
   int GetHeight() const { return mHeight; }
   int GetScale() const { return mScale; }
 
 private:
-  void* mBitmap;
+  BitmapData mBitmap; // for most drawing APIs BitmapData is a pointer. For Nanovg it is an integer index
   int mWidth;
   int mHeight;
   int mScale;

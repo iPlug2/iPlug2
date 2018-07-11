@@ -14,8 +14,6 @@
 
 #pragma mark -
 
-inline int GetBitmapIdx(APIBitmap* pBitmap) { return (int) ((long long) pBitmap->GetBitmap()); }
-
 NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale)
 {
   mVG = pContext;
@@ -23,13 +21,12 @@ NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double source
   int idx = nvgCreateImage(mVG, path, 0);
   nvgImageSize(mVG, idx, &w, &h);
       
-  SetBitmap((void*) idx, w, h, sourceScale);
+  SetBitmap(idx, w, h, sourceScale);
 }
 
 NanoVGBitmap::~NanoVGBitmap()
 {
-  int idx = GetBitmapIdx(this);
-  nvgDeleteImage(mVG, idx);
+  nvgDeleteImage(mVG, GetBitmap());
 }
 
 #pragma mark -
@@ -249,7 +246,7 @@ void IGraphicsNanoVG::EndFrame()
 
 void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
-  int idx = GetBitmapIdx(bitmap.GetAPIBitmap());
+  int idx = bitmap.GetAPIBitmap()->GetBitmap();
   NVGpaint imgPaint = nvgImagePattern(mVG, std::round(dest.L) - srcX, std::round(dest.T) - srcY, bitmap.W(), bitmap.H(), 0.f, idx, BlendWeight(pBlend));
   PathClear();
   nvgRect(mVG, dest.L, dest.T, dest.W(), dest.H());
