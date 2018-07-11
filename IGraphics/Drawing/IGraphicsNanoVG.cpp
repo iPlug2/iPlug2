@@ -107,8 +107,6 @@ IGraphicsNanoVG::IGraphicsNanoVG(IEditorDelegate& dlg, int w, int h, int fps, fl
 
 IGraphicsNanoVG::~IGraphicsNanoVG() 
 {
-  mBitmaps.Empty(true);
-  
 #if defined OS_MAC || defined OS_IOS
   if(mVG)
     nvgDeleteMTL(mVG);
@@ -130,31 +128,32 @@ IGraphicsNanoVG::~IGraphicsNanoVG()
 
 IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal)
 {
-  WDL_String fullPath;
   const int targetScale = round(GetDisplayScale());
-  int sourceScale = 0;
-  bool resourceFound = SearchImageResource(name, "png", fullPath, targetScale, sourceScale);
-  assert(resourceFound);
-    
-  NanoVGBitmap* bitmap = (NanoVGBitmap*) LoadAPIBitmap(fullPath, sourceScale);
-  assert(bitmap);
-  mBitmaps.Add(bitmap);
   
-  return IBitmap(bitmap, nStates, framesAreHorizontal, name);
+  APIBitmap* pAPIBitmap = mBitmapCache.Find(name, targetScale);
+  
+  // If the bitmap is not already cached at the targetScale
+  if (!pAPIBitmap)
+  {
+    WDL_String fullPath;
+    const int targetScale = round(GetDisplayScale());
+    int sourceScale = 0;
+    bool resourceFound = SearchImageResource(name, "png", fullPath, targetScale, sourceScale);
+    assert(resourceFound);
+    
+    pAPIBitmap = LoadAPIBitmap(fullPath, sourceScale);
+    
+    mBitmapCache.Add(pAPIBitmap, name, sourceScale);
+
+    assert(pAPIBitmap);
+  }
+  
+  return IBitmap(pAPIBitmap, nStates, framesAreHorizontal, name);
 }
 
 APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
 {
   return new NanoVGBitmap(mVG, resourcePath.Get(), scale);
-}
-
-APIBitmap* IGraphicsNanoVG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
-{
-  return nullptr;
-}
-
-void IGraphicsNanoVG::RetainBitmap(const IBitmap& bitmap, const char* cacheName)
-{
 }
 
 void IGraphicsNanoVG::SetPlatformContext(void* pContext) {
@@ -194,11 +193,6 @@ void IGraphicsNanoVG::SetPlatformContext(void* pContext) {
     mVG = nvgCreateGL2(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
   }
 #endif
-}
-
-IBitmap IGraphicsNanoVG::ScaleBitmap(const IBitmap& bitmap, const char* name, int targetScale)
-{
-  return bitmap;
 }
 
 void IGraphicsNanoVG::ViewInitialized(void* layer)
@@ -241,18 +235,20 @@ void IGraphicsNanoVG::EndFrame()
 #if NANOVG_PERF
   renderGraph(mVG, 5, 5, mPerfGraph);
 #endif
+
   nvgEndFrame(mVG);
 }
 
 void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
-  int idx = bitmap.GetAPIBitmap()->GetBitmap();
-  NVGpaint imgPaint = nvgImagePattern(mVG, std::round(dest.L) - srcX, std::round(dest.T) - srcY, bitmap.W(), bitmap.H(), 0.f, idx, BlendWeight(pBlend));
-  PathClear();
+  APIBitmap* pAPIBitmap = bitmap.GetAPIBitmap();
+  
+  NVGpaint imgPaint = nvgImagePattern(mVG, std::round(dest.L) - srcX, std::round(dest.T) - srcY, bitmap.W(), bitmap.H(), 0.f, pAPIBitmap->GetBitmap(), BlendWeight(pBlend));
+  PathStart();
   nvgRect(mVG, dest.L, dest.T, dest.W(), dest.H());
   nvgFillPaint(mVG, imgPaint);
   nvgFill(mVG);
-  PathClear();
+  PathClose();
 }
 
 IColor IGraphicsNanoVG::GetPoint(int x, int y)

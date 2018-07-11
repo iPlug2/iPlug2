@@ -64,10 +64,9 @@ public:
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
   
   IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHorizontal) override;
-  IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, int targetScale) override;
-//  void ReleaseBitmap(const IBitmap& bitmap) override;
-  void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override;
-//  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override {}
+  IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, int targetScale) override { return bitmap; } // NO-OP
+  void ReleaseBitmap(const IBitmap& bitmap) override { }; // NO-OP
+  void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override { }; // NO-OP
 
   void LoadFont(const char* name) override;
   
@@ -76,14 +75,14 @@ public:
 protected:
 
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
-  APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
+  APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override { return new APIBitmap(); } // NO-OP
 
 private:
   
   void ClipRegion(const IRECT& r) override { nvgScissor(mVG, r.L, r.T, r.W(), r.H()); }
   void ResetClipRegion() override { nvgResetScissor(mVG); }
 
-  WDL_PtrList<NanoVGBitmap> mBitmaps;
+  StaticStorage<APIBitmap> mBitmapCache; //not actually static
   NVGcontext* mVG = nullptr;
 #ifdef OS_WIN
   HGLRC mHGLRC = nullptr;
