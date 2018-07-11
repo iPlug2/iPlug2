@@ -117,8 +117,11 @@ bool IGraphicsMac::GetResourcePathFromBundle(const char* fileName, const char* s
 
     if (pPath)
     {
-      fullPath.Set([pPath cString]);
-      return true;
+      if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
+      {
+        fullPath.Set([pPath cString]);
+        return true;
+      }
     }
   }
 
@@ -152,9 +155,9 @@ bool IGraphicsMac::GetResourcePathFromUsersMusicFolder(const char* fileName, con
       NSString* pMusicLocation = [NSString stringWithCString: musicFolder.Get() encoding:NSUTF8StringEncoding];
       NSString* pPath = [[[[pMusicLocation stringByAppendingPathComponent:pPluginName] stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent: pFile] stringByAppendingPathExtension:pExt];
 
-      if (pPath)
+      if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
       {
-        fullPath.Set([pPath UTF8String]);
+        fullPath.Set([pPath cString]);
         return true;
       }
     }
