@@ -56,6 +56,7 @@ typedef cairo_surface_t* BitmapData;
 #elif defined IGRAPHICS_NANOVG
 typedef int BitmapData;
 #elif defined IGRAPHICS_LICE
+#include "lice.h"
 typedef LICE_IBitmap* BitmapData;
 #elif defined IGRAPHICS_WEB
 #endif
