@@ -82,6 +82,12 @@ public:
   {
     DELETE_NULL(mDSP);
   }
+  
+  void SetOverSamplingRate(int rate)
+  {
+    if(mOverSampler)
+      mOverSampler->SetOverSampling(OverSampler<sample>::RateToFactor(rate));
+  }
 
   // Unique methods
   void SetSampleRate(double sampleRate)
@@ -104,7 +110,15 @@ public:
   {
     if (mDSP) {
       assert(mDSP->getSampleRate() != 0); // did you forget to call SetSampleRate?
-      mDSP->compute(nFrames, inputs, outputs);
+      
+      if(mOverSampler)
+        mOverSampler->ProcessBlock(inputs, outputs, nFrames, 1 /* DOESN'T YET WORK WITH MC */,
+                                   [&](sample** inputs, sample** outputs, int nFrames)
+                                   {
+                                     mDSP->compute(nFrames, inputs, outputs);
+                                   });
+      else
+        mDSP->compute(nFrames, inputs, outputs);
     }
 //    else silence?
   }
@@ -122,6 +136,8 @@ public:
   
   void SetParameterValue(int paramIdx, double nonNormalizedValue)
   {
+    if(NParams()) {
+      
     assert(paramIdx < NParams()); // Seems like we don't have enough parameters!
     
     mParams.Get(paramIdx)->Set(nonNormalizedValue);
@@ -130,6 +146,9 @@ public:
       *(mZones.Get(paramIdx)) = nonNormalizedValue;
     else
       DBGMSG("IPlugFaust-%s:: Missing zone for parameter %s\n", mName.Get(), mParams.Get(paramIdx)->GetNameForHost());
+    }
+    else
+      DBGMSG("SetParameterValue called with no FAUST params\n");
   }
 
   void SetParameterValue(const char* labelToLookup, double nonNormalizedValue)
@@ -147,6 +166,9 @@ public:
   int CreateIPlugParameters(IPlugAPIBase* pPlug, int startIdx = 0, int endIdx = -1, bool setToDefault = true)
   {
     assert(pPlug != nullptr);
+   
+    if(NParams() == 0)
+      return -1;
     
     mPlug = pPlug;
     
@@ -300,7 +322,4 @@ protected:
   IPlugAPIBase* mPlug = nullptr;
   bool mInitialized = false;
 };
-
-
-
 

@@ -45,7 +45,8 @@ FaustGen::Factory::Factory(const char* name, const char* libraryPath, const char
   AddLibraryPath(libraryPath);
   mDrawPath.Set(drawPath);
   
-  LoadFile(inputDSP);
+  if(inputDSP)
+    LoadFile(inputDSP);
 }
 
 FaustGen::Factory::~Factory()
@@ -165,7 +166,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
     return pMonoDSP;
 }
 
-::dsp *FaustGen::Factory::GetDSP()
+::dsp *FaustGen::Factory::GetDSP(int maxInputs, int maxOutputs)
 {
   ::dsp* pDSP = nullptr;
   FMeta meta;
@@ -225,7 +226,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 //
 //  mLLVMFactory = createDSPFactoryFromString("default", DEFAULT_SOURCE_CODE, N + 2, argv, getTarget(), error, 0);
 #else
-  mSourceCodeStr.Set(DEFAULT_SOURCE_CODE);
+  mSourceCodeStr.SetFormatted(256, DEFAULT_SOURCE_CODE_FMT_STR, maxOutputs);
   mLLVMFactory = createDSPFactoryFromString("default", mSourceCodeStr.Get(), 0, 0, GetLLVMArchStr(), error, 0);
 #endif
 
@@ -411,7 +412,7 @@ bool FaustGen::Factory::LoadFile(const char* file)
     return true;
   }
   
-  assert(0); // The file was not found
+  assert(0); // The FAUST_BLOCK file was not found
   
   return false;
 }
@@ -496,7 +497,7 @@ void FaustGen::Init()
 {
   mZones.Empty(); // remove existing pointers to zones
   
-  mDSP = mFactory->GetDSP();
+  mDSP = mFactory->GetDSP(mMaxNInputs, mMaxNOutputs);
   assert(mDSP);
 
 //    AddMidiHandler();

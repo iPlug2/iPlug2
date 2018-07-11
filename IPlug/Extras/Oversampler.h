@@ -35,6 +35,8 @@ class OverSampler
 {
 public:
 
+  typedef std::function<void(T**, T**, int)> BlockProcessFunc;
+  
   enum EFactor
   {
     kNone = 0,
@@ -144,7 +146,7 @@ public:
     mDown4BufferPtrs.Empty();
     mDown2BufferPtrs.Empty();
     
-    for (auto c = 0; c < mNChannels; c++)
+    for (auto c = 0; c < mNChannels; c++) // TODO: doesn't work
     {
       mUp2BufferPtrs.Add(mUp2x.Get() + (c * 2 * blockSize));
       mUp4BufferPtrs.Add(mUp4x.Get() + (c * 4 * blockSize));
@@ -157,7 +159,7 @@ public:
     }
   }
 
-  void ProcessBlock(T** inputs, T** outputs, int nFrames, int nChans, std::function<void(T**, T**, int)> func)
+  void ProcessBlock(T** inputs, T** outputs, int nFrames, int nChans, BlockProcessFunc func)
   {
     if (mRate == 2)
     {
@@ -167,8 +169,8 @@ public:
       }
       
       func(mUp2BufferPtrs.GetList(), mDown2BufferPtrs.GetList(), nFrames);
-      
-      // TODO: move pointers in a better way!
+
+      // TODO: move pointers in a better way! TODO: this doesn't actually work
       WDL_PtrList<T> nextInputPtrs;
       WDL_PtrList<T> nextOutputPtrs;
 
