@@ -106,6 +106,11 @@ public:
     return (MediaItem_Take*)mHostCallback(&mAEffect, 0xdeadbeef, 0xdeadf00e, 2, 0, 0.0);
   }
   
+  void GetTrackColor(int& r, int& g, int& b)
+  {
+    ColorFromNative(::GetTrackColor(GetReaperTrack()), &r, &g, &b);
+  }
+  
   void LogToReaper(const char* str)
   {
     if(ShowConsoleMsg != nullptr)
