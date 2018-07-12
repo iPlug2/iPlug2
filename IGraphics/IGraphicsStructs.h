@@ -58,7 +58,8 @@ typedef int BitmapData;
 #elif defined IGRAPHICS_LICE
 #include "lice.h"
 typedef LICE_IBitmap* BitmapData;
-#elif defined IGRAPHICS_WEB
+#elif defined EMSCRIPTEN
+typedef void* BitmapData;
 #endif
 
 class APIBitmap
