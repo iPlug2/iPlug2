@@ -44,7 +44,7 @@ bool IWebsocketServer::CreateServer(const char* DOCUMENT_ROOT, const char* PORT)
     }
     
     sServer->addWebSocketHandler("/ws", this);
-    DBGMSG("Websocket server running at http://localhost:%s/ws\n", PORT);
+    DBGMSG("Websocket server running at http://localhost:%s/ws serving %s\n", PORT, DOCUMENT_ROOT);
   }
   else {
     WDL_String url;
