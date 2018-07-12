@@ -485,11 +485,20 @@ void IDirBrowseControlBase::SetUpMenu()
   }
 }
 
-void IDirBrowseControlBase::GetSelecteItemPath(WDL_String& path)
+void IDirBrowseControlBase::GetSelectedItemLabel(WDL_String& label)
 {
   if (mSelectedMenu != nullptr) {
-    path.Append(mPaths.Get(0)->Get()); //TODO: what about multiple paths
-    path.Append(mSelectedMenu->GetItem(mSelectedIndex)->GetText());
+    label.Set(mSelectedMenu->GetItem(mSelectedIndex)->GetText());
+  }
+  else
+    label.Set("");
+}
+
+void IDirBrowseControlBase::GetSelectedItemPath(WDL_String& path)
+{
+  if (mSelectedMenu != nullptr) {
+    path.Set(mPaths.Get(0)->Get()); //TODO: what about multiple paths
+    path.AppendFormatted(1024, "/%s", mSelectedMenu->GetItem(mSelectedIndex)->GetText());
     path.Append(mExtension.Get());
   }
   else

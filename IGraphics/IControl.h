@@ -861,7 +861,9 @@ public:
 
   void SetUpMenu();
 
-  void GetSelecteItemPath(WDL_String& path);
+  void GetSelectedItemLabel(WDL_String& label);
+
+  void GetSelectedItemPath(WDL_String& path);
 
 private:
   void ScanDirectory(const char* path, IPopupMenu& menuToAddTo);
