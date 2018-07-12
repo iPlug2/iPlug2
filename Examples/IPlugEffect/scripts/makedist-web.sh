@@ -33,7 +33,7 @@ fi
 mkdir build-web/scripts
 
 echo BUNDLING RESOURCES -----------------------------
-python /Users/oli/Dev/MyWeb/emscripten1.37.22/emscripten/1.37.22/tools/file_packager.py ./build-web/resources.data --use-preload-plugins --preload ./resources/img@/ --js-output=./build-web/resources.js
+python $EMSCRIPTEN/tools/file_packager.py ./build-web/resources.data --use-preload-plugins --preload ./resources/img@/ --js-output=./build-web/resources.js
 echo -
 
 if [ "$websocket" -eq "0" ]
