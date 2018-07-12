@@ -15,7 +15,7 @@ public:
     mOuterPadding = 0.f;
     mDrawTrackFrame = false;
     mTrackPadding = 1.f;
-    SetColor(kFG, COLOR_RED);
+    SetColor(kFG, COLOR_BLACK);
   }
   
   void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar = 1.) override //TODO: fixed for horizontal
