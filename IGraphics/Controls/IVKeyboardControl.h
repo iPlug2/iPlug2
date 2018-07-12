@@ -52,7 +52,7 @@ public:
   };
 
   IVKeyboardControl(IEditorDelegate& dlg, IRECT bounds,
-                    int minNote = 36, int maxNote = 60,
+                    int minNote = 36, int maxNote = 84,
                     IActionFunction actionFunc = nullptr)
   : IControl(dlg, bounds, kNoParameter, actionFunc)
   , IVectorBase(&DEFAULT_WK_COLOR, &DEFAULT_BK_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR)
