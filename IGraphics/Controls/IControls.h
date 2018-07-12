@@ -136,7 +136,7 @@ public:
   void OnMouseUp(float x, float y, const IMouseMod& mod) override
   {
     mValue = 0.0;
-    SetDirty();
+    SetDirty(false);
   }
 };
 
