@@ -2,15 +2,19 @@
 
 #define STATE_BEFORE_CODE -1
 
+#include "swell.h"
+#include "curses.h"
 #include "curses_editor.h"
-#include "../assocarray.h"
+#include "assocarray.h"
+
+void OpenFaustEditorWindow(const char* file);
 
 // add FAUST syntax highlighting and paren matching, hooks for watch/etc
-class Faust_Editor : public WDL_CursesEditor
+class FaustCursesEditor : public WDL_CursesEditor
 {
 public:
-  Faust_Editor(void *cursesCtx);
-  virtual ~Faust_Editor();
+  FaustCursesEditor(void *cursesCtx);
+  virtual ~FaustCursesEditor();
 
   virtual void draw_line_highlight(int y, const char *p, int *c_comment_state);
   virtual int do_draw_line(const char *p, int *c_comment_state, int last_attr);

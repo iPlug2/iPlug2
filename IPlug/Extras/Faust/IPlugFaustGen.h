@@ -35,7 +35,6 @@ typedef IPlugFaust FaustGen; // not used, except for CompileCPP();
 
 #include "IPlugPlatform.h"
 #include "IPlugConstants.h"
-#include "Oversampler.h"
 
 #include <sys/stat.h>
 
@@ -223,7 +222,7 @@ public:
   static bool CompileCPP();
 
   void SetAutoRecompile(bool enable);
-
+  
   //ITimerCallback
   void OnTimer(Timer& timer) override;
   

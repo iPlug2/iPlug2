@@ -47,7 +47,7 @@ public:
   : mNVoices(nVoices)
   {
     if(rate > 1)
-      mOverSampler = new OverSampler<sample>(OverSampler<sample>::RateToFactor(rate));
+      mOverSampler = new OverSampler<sample>(OverSampler<sample>::RateToFactor(rate), true, 1 /* TODO: */);
     
     mName.Set(name);
   }

@@ -14,7 +14,112 @@
 #include "win32_utf8.h"
 #include "wdlcstring.h"
 
-Faust_Editor::Faust_Editor(void *cursesCtx) : WDL_CursesEditor(cursesCtx)
+#define IDC_CUSTOM1                     1011
+#define IDC_BUTTON1                     1012
+#define IDD_DIALOG_MAIN                 40001
+
+//TODO: these should be members
+HWND gHWND;
+win32CursesCtx g_curses_context;
+FaustCursesEditor g_editor {&g_curses_context};
+
+static bool g_windowIsOpen = false;
+
+WDL_DLGRET mainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+extern HWND curses_ControlCreator(HWND parent, const char *cname, int idx, const char *classname, int style, int x, int y, int w, int h);
+
+void OpenFaustEditorWindow(const char* file)
+{
+  if(!g_windowIsOpen) {
+    SWELL_RegisterCustomControlCreator(curses_ControlCreator);
+    HWND hwnd = CreateDialog(NULL, MAKEINTRESOURCE(IDD_DIALOG_MAIN), NULL, mainDlgProc);
+    ShowWindow(hwnd, SW_SHOW);
+  }
+  
+  // else bring to front?
+}
+
+WDL_DLGRET mainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+  switch (uMsg)
+  {
+    case WM_INITDIALOG:
+    {
+      gHWND = hwndDlg;
+      curses_setWindowContext(GetDlgItem(gHWND, IDC_CUSTOM1), &g_curses_context);
+//      
+//      if(g_windowIsOpen)
+//      {
+//      }
+
+      g_editor.init("/Users/oli/Dev/MyPlugins/Examples/IPlugFaustExample/IPlugFaustExample.dsp");
+      g_editor.draw();
+      
+      ShowWindow(gHWND, SW_SHOW);
+      SetTimer(hwndDlg, 1, 1, NULL);
+      
+      RECT r;
+      GetClientRect(hwndDlg,&r);
+      SetWindowPos(GetDlgItem(hwndDlg, IDC_CUSTOM1),NULL,0,0,r.right,r.bottom,SWP_NOZORDER|SWP_NOACTIVATE);
+      
+      g_windowIsOpen = true;
+      break;
+    }
+    case WM_DESTROY:
+      gHWND = NULL;
+      g_windowIsOpen = false;
+      //      PostQuitMessage(0);
+      break;
+    case WM_CLOSE:
+      DestroyWindow(hwndDlg);
+      break;
+    case WM_TIMER:
+    {
+      g_editor.RunEditor();
+      InvalidateRect(GetDlgItem(hwndDlg, IDC_CUSTOM1), NULL, FALSE);
+      break;
+    }
+    case WM_SIZE:
+    {
+      RECT r;
+      GetClientRect(hwndDlg,&r);
+      SetWindowPos(GetDlgItem(hwndDlg, IDC_CUSTOM1), NULL, 0, 0, r.right, r.bottom, SWP_NOZORDER|SWP_NOACTIVATE);
+      break;
+    }
+  }
+  return 0;
+}
+
+#ifndef _WIN32
+#define SWELL_DLG_FLAGS_AUTOGEN SWELL_DLG_WS_FLIPPED|SWELL_DLG_WS_RESIZABLE
+#include "swell-dlggen.h"
+#ifndef SWELL_DLG_SCALE_AUTOGEN
+#ifdef __APPLE__
+#define SWELL_DLG_SCALE_AUTOGEN 1.7
+#else
+#define SWELL_DLG_SCALE_AUTOGEN 1.8
+#endif
+#endif
+#ifndef SWELL_DLG_FLAGS_AUTOGEN
+#define SWELL_DLG_FLAGS_AUTOGEN SWELL_DLG_WS_FLIPPED|SWELL_DLG_WS_NOAUTOSIZE
+#endif
+
+#ifndef SET_IDD_DIALOG_MAIN_SCALE
+#define SET_IDD_DIALOG_MAIN_SCALE SWELL_DLG_SCALE_AUTOGEN
+#endif
+#ifndef SET_IDD_DIALOG_MAIN_STYLE
+#define SET_IDD_DIALOG_MAIN_STYLE SWELL_DLG_FLAGS_AUTOGEN
+#endif
+SWELL_DEFINE_DIALOG_RESOURCE_BEGIN(IDD_DIALOG_MAIN,SET_IDD_DIALOG_MAIN_STYLE,"Faust Editor",300,300,SET_IDD_DIALOG_MAIN_SCALE)
+BEGIN
+CONTROL         "Custom1",IDC_CUSTOM1,"WDLCursesWindow",WS_TABSTOP,0,32,299,268
+END
+SWELL_DEFINE_DIALOG_RESOURCE_END(IDD_DIALOG_MAIN)
+#undef BEGIN
+#undef END
+#endif
+
+FaustCursesEditor::FaustCursesEditor(void *cursesCtx) : WDL_CursesEditor(cursesCtx)
 {
   m_added_funclist=NULL;
   m_suggestion_x=m_suggestion_y=-1;
@@ -23,13 +128,13 @@ Faust_Editor::Faust_Editor(void *cursesCtx) : WDL_CursesEditor(cursesCtx)
   m_function_prefix = "function ";
 }
 
-Faust_Editor::~Faust_Editor()
+FaustCursesEditor::~FaustCursesEditor()
 {
 }
 
 #define sh_func_ontoken(x,y)
 
-int Faust_Editor::namedTokenHighlight(const char *tokStart, int len, int state)
+int FaustCursesEditor::namedTokenHighlight(const char *tokStart, int len, int state)
 {
 //  if (len == 4 && !strnicmp(tokStart,"this",4)) return SYNTAX_KEYWORD;
   if (len == 7 && !strnicmp(tokStart,"declare",7)) return SYNTAX_KEYWORD;
@@ -68,7 +173,7 @@ int Faust_Editor::namedTokenHighlight(const char *tokStart, int len, int state)
   return A_NORMAL;
 }
 
-int Faust_Editor::parse_format_specifier(const char *fmt_in, int *var_offs, int *var_len)
+int FaustCursesEditor::parse_format_specifier(const char *fmt_in, int *var_offs, int *var_len)
 {
   const char *fmt = fmt_in+1;
   *var_offs = 0;
@@ -119,7 +224,7 @@ int Faust_Editor::parse_format_specifier(const char *fmt_in, int *var_offs, int 
 }
 
 
-void Faust_Editor::draw_string(int *skipcnt, const char *str, int amt, int *attr, int newAttr, int comment_string_state)
+void FaustCursesEditor::draw_string(int *skipcnt, const char *str, int amt, int *attr, int newAttr, int comment_string_state)
 {
   if (amt > 0 && comment_string_state=='"')
   {
@@ -181,7 +286,7 @@ void Faust_Editor::draw_string(int *skipcnt, const char *str, int amt, int *attr
   draw_string_urlchk(skipcnt,str,amt,attr,newAttr);
 }
 
-void Faust_Editor::draw_string_urlchk(int *skipcnt, const char *str, int amt, int *attr, int newAttr)
+void FaustCursesEditor::draw_string_urlchk(int *skipcnt, const char *str, int amt, int *attr, int newAttr)
 {
   if (amt > 0 && (newAttr == SYNTAX_COMMENT || newAttr == SYNTAX_STRING))
   {
@@ -225,7 +330,7 @@ void Faust_Editor::draw_string_urlchk(int *skipcnt, const char *str, int amt, in
   draw_string_internal(skipcnt,str,amt,attr,newAttr);
 }
   
-void Faust_Editor::draw_string_internal(int *skipcnt, const char *str, int amt, int *attr, int newAttr)
+void FaustCursesEditor::draw_string_internal(int *skipcnt, const char *str, int amt, int *attr, int newAttr)
 {
   if (amt>0)
   {
@@ -256,8 +361,8 @@ void Faust_Editor::draw_string_internal(int *skipcnt, const char *str, int amt, 
 }
 
 
-WDL_TypedBuf<char> Faust_Editor::s_draw_parentokenstack;
-bool Faust_Editor::sh_draw_parenttokenstack_pop(char c)
+WDL_TypedBuf<char> FaustCursesEditor::s_draw_parentokenstack;
+bool FaustCursesEditor::sh_draw_parenttokenstack_pop(char c)
 {
   int sz = s_draw_parentokenstack.GetSize();
   while (--sz >= 0)
@@ -286,7 +391,7 @@ bool Faust_Editor::sh_draw_parenttokenstack_pop(char c)
 
   return true;
 }
-bool Faust_Editor::sh_draw_parentokenstack_update(const char *tok, int toklen)
+bool FaustCursesEditor::sh_draw_parentokenstack_update(const char *tok, int toklen)
 {
   if (toklen == 1)
   {
@@ -307,7 +412,7 @@ bool Faust_Editor::sh_draw_parentokenstack_update(const char *tok, int toklen)
 }
 
 
-void Faust_Editor::draw_line_highlight(int y, const char *p, int *c_comment_state)
+void FaustCursesEditor::draw_line_highlight(int y, const char *p, int *c_comment_state)
 {
   int last_attr = A_NORMAL;
   attrset(last_attr);
@@ -318,7 +423,7 @@ void Faust_Editor::draw_line_highlight(int y, const char *p, int *c_comment_stat
   if (rv < 0) attrset(A_NORMAL);
 }
 
-int Faust_Editor::do_draw_line(const char *p, int *c_comment_state, int last_attr)
+int FaustCursesEditor::do_draw_line(const char *p, int *c_comment_state, int last_attr)
 {
   //skipcnt = m_offs_x
   if (is_code_start_line(p)) 
@@ -472,10 +577,11 @@ int Faust_Editor::do_draw_line(const char *p, int *c_comment_state, int last_att
       while (*h && *h != tok[0]) h++;
       if (*h)
       {
-        if (*c_comment_state != STATE_BEFORE_CODE && sh_draw_parentokenstack_update(tok,toklen))
-          attr = SYNTAX_ERROR;
-        else
-          attr = SYNTAX_HIGHLIGHT1;
+        //OL_FAUST
+//        if (*c_comment_state != STATE_BEFORE_CODE && sh_draw_parentokenstack_update(tok,toklen))
+//          attr = SYNTAX_ERROR;
+//        else
+//          attr = SYNTAX_HIGHLIGHT1;
       }
       else 
       {
@@ -509,7 +615,7 @@ int Faust_Editor::do_draw_line(const char *p, int *c_comment_state, int last_att
   return 1;
 }
 
-int Faust_Editor::GetCommentStateForLineStart(int line)
+int FaustCursesEditor::GetCommentStateForLineStart(int line)
 {
   if (m_write_leading_tabs<=0) m_indent_size=2;
   const bool uses_code_start_lines = !!is_code_start_line(NULL);
@@ -669,7 +775,8 @@ const char *nseel_simple_tokenizer(const char **ptr, const char *endptr, int *le
     while (p < endptr && (isalnum(*p) || *p == '_' || *p == '.')) p++;
   }
 #ifndef NSEEL_EEL1_COMPAT_MODE
-  else if (*p == '\'' || *p == '\"')
+//  else if (*p == '\'' || *p == '\"') // OL FAUST
+  else if (*p == '\"')
   {
     delim = *p++;
     if (state) *state=delim;
@@ -696,13 +803,13 @@ const char *nseel_simple_tokenizer(const char **ptr, const char *endptr, int *le
   return p>rv ? rv : NULL;
 }
 
-const char *Faust_Editor::sh_tokenize(const char **ptr, const char *endptr, int *lenOut, int *state)
+const char *FaustCursesEditor::sh_tokenize(const char **ptr, const char *endptr, int *lenOut, int *state)
 {
   return nseel_simple_tokenizer(ptr, endptr, lenOut, state); //TODO: sh_tokenize
 }
 
 
-bool Faust_Editor::LineCanAffectOtherLines(const char *txt, int spos, int slen) // if multiline comment etc
+bool FaustCursesEditor::LineCanAffectOtherLines(const char *txt, int spos, int slen) // if multiline comment etc
 {
   const char *special_start = txt + spos;
   const char *special_end = txt + spos + slen;
@@ -778,7 +885,7 @@ static int eel_sh_get_token_for_pos(const WDL_TypedBuf<eel_sh_token> *toklist, i
   return x-1;
 }
 
-static void eel_sh_generate_token_list(const WDL_PtrList<WDL_FastString> *lines, WDL_TypedBuf<eel_sh_token> *toklist, int start_line, Faust_Editor *editor)
+static void eel_sh_generate_token_list(const WDL_PtrList<WDL_FastString> *lines, WDL_TypedBuf<eel_sh_token> *toklist, int start_line, FaustCursesEditor *editor)
 {
   toklist->Resize(0,false);
   int state=0;
@@ -857,7 +964,7 @@ static void eel_sh_generate_token_list(const WDL_PtrList<WDL_FastString> *lines,
   }
 }
 
-static bool eel_sh_get_matching_pos_for_pos(WDL_PtrList<WDL_FastString> *text, int curx, int cury, int *newx, int *newy, const char **errmsg, Faust_Editor *editor)
+static bool eel_sh_get_matching_pos_for_pos(WDL_PtrList<WDL_FastString> *text, int curx, int cury, int *newx, int *newy, const char **errmsg, FaustCursesEditor *editor)
 {
   static WDL_TypedBuf<eel_sh_token> toklist;
   eel_sh_generate_token_list(text,&toklist, cury,editor);
@@ -980,7 +1087,7 @@ static bool eel_sh_get_matching_pos_for_pos(WDL_PtrList<WDL_FastString> *text, i
 }
 
 
-void Faust_Editor::doParenMatching()
+void FaustCursesEditor::doParenMatching()
 {
   WDL_FastString *curstr;
   const char *errmsg = "";
@@ -1010,7 +1117,7 @@ void Faust_Editor::doParenMatching()
   }
 }
 
-int Faust_Editor::peek_get_function_info(const char *name, char *sstr, size_t sstr_sz, int chkmask, int ignoreline)
+int FaustCursesEditor::peek_get_function_info(const char *name, char *sstr, size_t sstr_sz, int chkmask, int ignoreline)
 {
   if ((chkmask&4) && m_function_prefix && *m_function_prefix)
   {
@@ -1077,7 +1184,7 @@ int Faust_Editor::peek_get_function_info(const char *name, char *sstr, size_t ss
 
   return 0;
 }
-bool Faust_Editor::peek_get_variable_info(const char *name, char *sstr, size_t sstr_sz)
+bool FaustCursesEditor::peek_get_variable_info(const char *name, char *sstr, size_t sstr_sz)
 {
   peek_lock();
 //  NSEEL_VMCTX vm = peek_get_VM();
@@ -1122,7 +1229,7 @@ bool Faust_Editor::peek_get_variable_info(const char *name, char *sstr, size_t s
   return true;
 }
 
-void Faust_Editor::doWatchInfo(int c)
+void FaustCursesEditor::doWatchInfo(int c)
 {
     // determine the word we are on, check its value in the effect
   char sstr[512], buf[512];
@@ -1349,7 +1456,7 @@ void Faust_Editor::doWatchInfo(int c)
 }
 
 
-void Faust_Editor::draw_bottom_line()
+void FaustCursesEditor::draw_bottom_line()
 {
 #define BOLD(x) { attrset(COLOR_BOTTOMLINE|A_BOLD); addstr(x); attrset(COLOR_BOTTOMLINE&~A_BOLD); }
   addstr("ma"); BOLD("T"); addstr("ch");
@@ -1371,7 +1478,7 @@ void Faust_Editor::draw_bottom_line()
 #define SHIFT_KEY_DOWN (GetAsyncKeyState(VK_SHIFT)&0x8000)
 #define ALT_KEY_DOWN (GetAsyncKeyState(VK_MENU)&0x8000)
 
-int Faust_Editor::onChar(int c)
+int FaustCursesEditor::onChar(int c)
 {
   if ((m_ui_state == UI_STATE_NORMAL || m_ui_state == UI_STATE_MESSAGE) && 
       (c == 'K'-'A'+1 || c == 'S'-'A'+1 || !SHIFT_KEY_DOWN) && !ALT_KEY_DOWN) switch (c)
@@ -1410,7 +1517,7 @@ int Faust_Editor::onChar(int c)
   return WDL_CursesEditor::onChar(c);
 }
 
-void Faust_Editor::draw_top_line()
+void FaustCursesEditor::draw_top_line()
 {
   if (m_curs_x >= m_suggestion_x && m_curs_y == m_suggestion_y && m_suggestion.GetLength())
   {
@@ -1442,7 +1549,7 @@ void Faust_Editor::draw_top_line()
 }
 
 
-void Faust_Editor::onRightClick(HWND hwnd)
+void FaustCursesEditor::onRightClick(HWND hwnd)
 {
   WDL_LogicalSortStringKeyedArray<int> flist(m_case_sensitive);
   int i;
@@ -1522,7 +1629,7 @@ void Faust_Editor::onRightClick(HWND hwnd)
 
 #ifdef WDL_IS_FAKE_CURSES
 
-LRESULT Faust_Editor::onMouseMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT FaustCursesEditor::onMouseMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   switch (uMsg)
   {
