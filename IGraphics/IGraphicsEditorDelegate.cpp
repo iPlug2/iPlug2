@@ -47,10 +47,13 @@ void IGraphicsEditorDelegate::OnRestoreState()
   }
 }
 
-void* IGraphicsEditorDelegate::OpenWindow(void* pHandle)
+void* IGraphicsEditorDelegate::OpenWindow(void* pParent)
 {
+  if(!mGraphics)
+    CreateUI();
+  
   if(mGraphics)
-    return mGraphics->OpenWindow(pHandle);
+    return mGraphics->OpenWindow(pParent);
   else
     return nullptr;
 }
@@ -81,7 +84,8 @@ void IGraphicsEditorDelegate::SendControlValueFromDelegate(int controlTag, doubl
 
 void IGraphicsEditorDelegate::SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData)
 {
-  assert(mGraphics != nullptr);
+  if(!mGraphics)
+    return;
   
   if (controlTag > kNoTag)
   {

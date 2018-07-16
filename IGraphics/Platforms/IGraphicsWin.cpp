@@ -627,15 +627,15 @@ int IGraphicsWin::ShowMessageBox(const char* text, const char* caption, int type
   return MessageBox(GetMainWnd(), text, caption, type);
 }
 
-void* IGraphicsWin::OpenWindow(void* pParentWnd)
+void* IGraphicsWin::OpenWindow(void* pParent)
 {
   int x = 0, y = 0, w = WindowWidth(), h = WindowHeight();
-  mParentWnd = (HWND) pParentWnd;
+  mParentWnd = (HWND) pParent;
 
   if (mDelegateWnd)
   {
     RECT pR, cR;
-    GetWindowRect((HWND) pParentWnd, &pR);
+    GetWindowRect((HWND) pParent, &pR);
     GetWindowRect(mDelegateWnd, &cR);
     CloseWindow();
     x = cR.left - pR.left;

@@ -22,15 +22,16 @@ public:
   void CloseWindow() override;
   virtual void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;
   virtual void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize = 0, const void* pData = nullptr) override;
-  
   virtual void SendMidiMsgFromDelegate(const IMidiMsg& msg) override;
-
   void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
   /** If you override this method you should call this parent, or implement the same functionality in order to get controls to update, when state is restored. */
   virtual void OnRestoreState() override;
   
   //IGraphicsEditorDelegate
   virtual void AttachGraphics(IGraphics* pGraphics);
+  
+  /** This method will be called before the UI is opened */
+  virtual void CreateUI() {};
   
   IGraphics* GetUI();
   
