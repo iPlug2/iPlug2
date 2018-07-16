@@ -18,7 +18,7 @@
 			<key>subtype</key>
 			<string>Ipef</string>
 			<key>type</key>
-			<string>aufx</string>
+			<string>aumu</string>
 			<key>version</key>
 			<integer>65536</integer>
 		</dict>
@@ -48,7 +48,7 @@
 	<key>CSResourcesFileMapped</key>
 	<true/>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.7.0</string>
+	<string>10.11.0</string>
 	<key>NSPrincipalClass</key>
 	<string>IPlugEffect_View</string>
 </dict>
