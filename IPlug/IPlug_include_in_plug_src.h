@@ -345,7 +345,6 @@ extern "C"
   {
     EMSCRIPTEN_KEEPALIVE void* createModule()
     {
-      DBGMSG("WAM CREATE MODULE!\n");
       Processor* pWAM = dynamic_cast<Processor*>(MakePlug());
       return (void*) pWAM;
     }
@@ -365,14 +364,12 @@ extern "C"
 
   int main()
   {
-    DBGMSG("WEB WASM main()!\n");
-
     gPlug = MakePlug();
+    gPlug->OpenWindow(nullptr);
     
     StartMainLoopTimer();
     // TODO: when do we delete!
-    DBGMSG("delete gPlug!\n");
-//    delete gPlug;
+    // delete gPlug;
     
     return 0;
   }

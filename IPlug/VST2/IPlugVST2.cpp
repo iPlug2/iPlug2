@@ -649,6 +649,10 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
           _this->mHasVSTExtensions |= VSTEXT_COCOA;
           return 0xbeef0000;
         }
+        else if (!strcmp((char*) ptr, "wantsChannelCountNotifications"))
+        {
+          return 1;
+        }
       }
       return 0;
     }
