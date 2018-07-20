@@ -360,13 +360,14 @@ void IGraphicsNanoVG::LoadFont(const char* name)
 {
   WDL_String fontNameWithoutExt(name, (int) strlen(name));
   fontNameWithoutExt.remove_fileext();
+  const char* fontNameWithoutPath = fontNameWithoutExt.get_filepart();
   WDL_String fullPath;
   OSFindResource(name, "ttf", fullPath);
   
   int fontID = -1;
   
   if(fullPath.GetLength())
-    fontID = nvgCreateFont(mVG, fontNameWithoutExt.Get(), fullPath.Get());
+    fontID = nvgCreateFont(mVG, fontNameWithoutPath, fullPath.Get());
   else {
     DBGMSG("Could not locate font %s\n", name);
   }

@@ -521,6 +521,7 @@ bool IGraphics::IsDirty(IRECT& bounds)
 // which may be a larger area than what is strictly dirty.
 void IGraphics::Draw(const IRECT& bounds)
 {
+  BeginFrame();
   int n = mControls.GetSize();
 
   if (!n)
@@ -637,6 +638,7 @@ void IGraphics::Draw(const IRECT& bounds)
 #endif
 
   RenderDrawBitmap();
+  EndFrame();
 }
 
 void IGraphics::SetStrictDrawing(bool strict)

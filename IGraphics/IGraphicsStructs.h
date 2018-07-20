@@ -70,8 +70,7 @@ public:
   , mWidth(w)
   , mHeight(h)
   , mScale(s)
-    assert(((w % s) == 0) && ((h % s) == 0));
-  {}
+  {assert(((w % s) == 0) && ((h % s) == 0));}
 
   APIBitmap()
   : mBitmap(0)
