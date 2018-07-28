@@ -87,7 +87,7 @@ public:
   /** This is an OnParamChange that will only trigger on the UI thread at low priority, and therefore is appropriate for hiding or showing elements of the UI.
    * You should not update parameter objects using this method.
    * @param paramIdx The index of the parameter that changed */
-  virtual void OnParamChangeUI(int paramIdx) {};
+  virtual void OnParamChangeUI(int paramIdx, EParamSource source) {};
   
   /** TODO: */
   virtual void OnMidiMsgUI(const IMidiMsg& msg) {};
@@ -133,7 +133,7 @@ public:
    * @param paramIdx The index of the parameter to be updated
    * @param value The new value of the parameter
    * @param normalized \c true if value is normalised */
-  virtual void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) { OnParamChangeUI(paramIdx); } // TODO: normalised?
+  virtual void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) { OnParamChangeUI(paramIdx, EParamSource::kDelegate); } // TODO: normalised?
 
 #pragma mark - Methods for sending values FROM the user interface
   // The following methods are called from the user interface in order to set or query values of parameters in the class implementing IEditorDelegate
@@ -154,7 +154,7 @@ public:
     assert(paramIdx < NParams());
     
     GetParam(paramIdx)->SetNormalized(normalizedValue);
-    OnParamChangeUI(paramIdx);
+    OnParamChangeUI(paramIdx, EParamSource::kUI);
   }
   
   /** Called by the user interface at the end of a parameter change gesture, in order to notify the host
