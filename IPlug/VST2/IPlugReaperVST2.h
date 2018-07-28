@@ -103,12 +103,14 @@ public:
 
   MediaItem_Take* GetReaperTake()
   {
-    return (MediaItem_Take*)mHostCallback(&mAEffect, 0xdeadbeef, 0xdeadf00e, 2, 0, 0.0);
+    return (MediaItem_Take*) mHostCallback(&mAEffect, 0xdeadbeef, 0xdeadf00e, 2, 0, 0.0);
   }
   
   void GetTrackColor(int& r, int& g, int& b)
   {
-    ColorFromNative(::GetTrackColor(GetReaperTrack()), &r, &g, &b);
+    MediaTrack* pTrack = GetReaperTrack();
+    
+    ColorFromNative(::GetTrackColor(pTrack), &r, &g, &b);
   }
   
   void LogToReaper(const char* str)
