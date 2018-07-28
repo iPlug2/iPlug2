@@ -46,3 +46,4 @@ Ports/*
 /Dependencies/IGraphics/freetype/freetype
 /Dependencies/IGraphics/cairo/cairo
 /Dependencies/IGraphics/cairo/pixman
+*.aps
