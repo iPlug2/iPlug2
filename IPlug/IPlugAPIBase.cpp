@@ -50,7 +50,7 @@ IPlugAPIBase::~IPlugAPIBase()
   if(mTimer)
   {
     mTimer->Stop();
-    delete mTimer;
+    DELETE_NULL(mTimer);
   }
 
   TRACE;
