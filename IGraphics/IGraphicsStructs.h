@@ -283,6 +283,7 @@ const IColor DEFAULT_X1COLOR = COLOR_RED;
 const IColor DEFAULT_X2COLOR = COLOR_GREEN;
 const IColor DEFAULT_X3COLOR = COLOR_BLUE;
 
+const IColor DEFAULT_TEXT_FGCOLOR = COLOR_BLACK;
 const IColor DEFAULT_TEXTENTRY_BGCOLOR = COLOR_WHITE;
 const IColor DEFAULT_TEXTENTRY_FGCOLOR = COLOR_BLACK;
 
@@ -493,7 +494,7 @@ struct IText
   enum EVAlign { kVAlignTop, kVAlignMiddle, kVAlignBottom } mVAlign;
   enum EQuality { kQualityDefault, kQualityNonAntiAliased, kQualityAntiAliased, kQualityClearType } mQuality = kQualityDefault;
 
-  IText(const IColor& color = DEFAULT_TEXTENTRY_FGCOLOR,
+  IText(const IColor& color = DEFAULT_TEXT_FGCOLOR,
         int size = DEFAULT_TEXT_SIZE,
         const char* font = nullptr,
         EStyle style = kStyleNormal,
