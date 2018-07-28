@@ -115,7 +115,7 @@ void IPlugAPIBase::SetParameterValue(int idx, double normalizedValue)
   Trace(TRACELOC, "%d:%f", idx, normalizedValue);
   GetParam(idx)->SetNormalized(normalizedValue);
   InformHostOfParamChange(idx, normalizedValue);
-  OnParamChange(idx, kGUI);
+  OnParamChange(idx, kUI);
 }
 
 void IPlugAPIBase::OnParamReset(EParamSource source)
