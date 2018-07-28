@@ -47,3 +47,4 @@ Ports/*
 /Dependencies/IGraphics/cairo/cairo
 /Dependencies/IGraphics/cairo/pixman
 *.aps
+*.RPP-bak
