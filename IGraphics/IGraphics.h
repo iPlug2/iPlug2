@@ -93,6 +93,12 @@ public:
    * @param pBlend Optional blend method, see IBlend documentation */
   virtual void DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend = 0) = 0;
 
+  /** Draw a bitmap (raster) image to the graphics context
+   * @param bitmap The bitmap image to draw to the graphics context
+   * @param bounds The rectangular region to draw the image in
+   * @param pBlend Optional blend method, see IBlend documentation */
+  virtual void DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend = 0) {};//= 0;
+  
   /** Draw a bitmap (raster) image to the graphics context with rotation
    * @param bitmap The bitmap image to draw to the graphics context
    * @param destCentreX The X coordinate in the graphics context of the centre point at which to rotate the image around. \todo check this
