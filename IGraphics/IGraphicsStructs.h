@@ -70,7 +70,6 @@ public:
   , mWidth(w)
   , mHeight(h)
   , mScale(s)
-    assert(((w % s) == 0) && ((h % s) == 0));
   {}
 
   APIBitmap()
@@ -84,7 +83,6 @@ public:
 
   void SetBitmap(BitmapData pBitmap, int w, int h, int s)
   {
-
     mBitmap = pBitmap;
     mWidth = w;
     mHeight = h;
