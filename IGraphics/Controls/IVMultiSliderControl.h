@@ -30,7 +30,7 @@ public:
 
     for(auto i = 0; i < MaxNTracks(); i++)
     {
-      if(mTrackBounds.Get()[i].ContainsEdge(x, y))
+      if(mTrackBounds.Get()[i].Contains(x, mTrackBounds.Get()[i].MH()))
       {
         sliderTest = i;
         break;
