@@ -151,8 +151,10 @@ enum EParamSource
   kReset,
   kHost,
   kPresetRecall,
-  kGUI,
-  kRecompile // for FAUST JIT
+  kUI,
+  kDelegate,
+  kRecompile, // for FAUST JIT
+  kUnknown
 };
 
 static const char* ParamSourceStrs[4] = { "Reset", "Automation", "Preset", "GUI" };
