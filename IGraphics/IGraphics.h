@@ -928,6 +928,7 @@ protected:
   IPopupMenu mPromptPopupMenu;
 
 private:
+  void DrawControl(IControl* pControl);
   int GetMouseControlIdx(float x, float y, bool mo = false);
   void StartResizeGesture() { mResizingInProcess = true; };
   

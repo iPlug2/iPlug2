@@ -473,6 +473,20 @@ void IGraphics::DrawData(const IColor& color, const IRECT& bounds, float* normYP
   //TODO:
 }
 
+// TODO - Oli - are you happy with this hlepfer function?
+
+void IGraphics::DrawControl(IControl* pControl)
+{
+  ClipRegion(mDrawRECT.Intersect(pControl->GetRECT()));
+  pControl->Draw(*this);
+  
+#ifdef AAX_API
+  pControl->DrawPTHighlight(*this);
+#endif
+  
+  ResetClipRegion();
+}
+
 bool IGraphics::IsDirty(IRECT& bounds)
 {
 #ifndef NDEBUG
@@ -526,80 +540,50 @@ void IGraphics::Draw(const IRECT& bounds)
   if (!n)
     return;
 
-  if (mStrict)
-  {
+  IControl* pBG = mControls.Get(0);
+  
+  if (mStrict || pBG->IsDirty())
+  {    
     mDrawRECT = bounds;
     IControl** ppControl = mControls.GetList();
     for (auto i = 0; i < n; ++i, ++ppControl)
     {
       IControl* pControl = *ppControl;
-      if (!(pControl->IsHidden()) && bounds.Intersects(pControl->GetRECT()))
+      if (bounds.Intersects(pControl->GetRECT()))
       {
-        ClipRegion(mDrawRECT.Intersect(pControl->GetRECT()));
-        pControl->Draw(*this);
-
-#ifdef AAX_API
-        pControl->DrawPTHighlight(*this);
-#endif
-
-        ResetClipRegion();
+        if (bounds.Contains(pControl->GetRECT()))
+          pControl->SetClean();
+        if (!pControl->IsHidden())
+          DrawControl(pControl);
       }
-      pControl->SetClean();
     }
   }
   else
   {
-    IControl* pBG = mControls.Get(0);
-    if (pBG->IsDirty()) // Special case when everything needs to be drawn.
+    for (auto i = 1; i < n; ++i)   // loop through all controls starting from one (not bg)
     {
-      mDrawRECT = pBG->GetRECT();
-      for (int j = 0; j < n; ++j)
+      IControl* pControl = mControls.Get(i); // assign control i to pControl
+      mDrawRECT = pControl->GetRECT(); // put the bounds in the mDrawRect member variable
+      
+      if (pControl->IsDirty() && bounds.Contains(mDrawRECT))   // if pControl is dirty and fully in the draw bounds
       {
-        IControl* pControl2 = mControls.Get(j);
-        if (!j || !(pControl2->IsHidden()))
+        
+        pControl->SetClean();
+        
+        for (auto j = 0; j < n; ++j)   // loop through all controls
         {
-          ClipRegion(mDrawRECT.Intersect(pControl2->GetRECT()));
-          pControl2->Draw(*this);
-
-#ifdef AAX_API
-          pControl2->DrawPTHighlight(*this);
-#endif
-
-          pControl2->SetClean();
-          ResetClipRegion();
-        }
-      }
-    }
-    else
-    {
-      for (auto i = 1; i < n; ++i)   // loop through all controls starting from one (not bg)
-      {
-        IControl* pControl = mControls.Get(i); // assign control i to pControl
-        if (pControl->IsDirty())   // if pControl is dirty
-        {
-          mDrawRECT = pControl->GetRECT(); // put the bounds in the mDrawRect member variable
-          for (auto j = 0; j < n; ++j)   // loop through all controls
-          {
-            IControl* pControl2 = mControls.Get(j); // assign control j to pControl2
-
-            // if control1 == control2 OR control2 is not hidden AND control2's bounds intersects mDrawRect
-            if (!pControl2->IsHidden() && (i == j || pControl2->GetRECT().Intersects(mDrawRECT)))
-            {
-              ClipRegion(mDrawRECT.Intersect(pControl2->GetRECT()));
-              pControl2->Draw(*this);
-
-#ifdef AAX_API
-              pControl2->DrawPTHighlight(*this);
-#endif
-              ResetClipRegion();
-            }
-          }
-          pControl->SetClean();
+          IControl* pControl2 = mControls.Get(j); // assign control j to pControl2
+          
+          // if control1 == control2 OR control2 is not hidden AND control2's bounds intersects mDrawRect
+          if ((i == j || pControl2->GetRECT().Intersects(mDrawRECT)) && !pControl2->IsHidden())
+            DrawControl(pControl2);
         }
       }
     }
   }
 
+  // TODO these will blend incorrectly if constantly redrawn and overlapped
+  
   if(mPopupControl != nullptr && mPopupControl->IsDirty())
   {
     mPopupControl->Draw(*this);
