@@ -49,6 +49,7 @@ class LICE_IFont; // TODO: move this
  */
 
 #ifdef IGRAPHICS_AGG
+#include "IGraphicsAGG_src.h"
 typedef agg::pixel_map* BitmapData;
 #elif defined IGRAPHICS_CAIRO
 #include "cairo/cairo.h"
