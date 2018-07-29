@@ -553,7 +553,7 @@ void IGraphics::Draw(const IRECT& bounds)
       {
         if (bounds.Contains(pControl->GetRECT()))
           pControl->SetClean();
-        if (!pControl->IsHidden())
+        if (!i || !pControl->IsHidden())
           DrawControl(pControl);
       }
     }
@@ -575,7 +575,7 @@ void IGraphics::Draw(const IRECT& bounds)
           IControl* pControl2 = mControls.Get(j); // assign control j to pControl2
           
           // if control1 == control2 OR control2 is not hidden AND control2's bounds intersects mDrawRect
-          if ((i == j || pControl2->GetRECT().Intersects(mDrawRECT)) && !pControl2->IsHidden())
+          if ((i == j || pControl2->GetRECT().Intersects(mDrawRECT)) && (!j || !pControl2->IsHidden()))
             DrawControl(pControl2);
         }
       }
