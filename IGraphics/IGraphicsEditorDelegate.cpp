@@ -147,15 +147,16 @@ void IGraphicsEditorDelegate::SendParameterValueFromDelegate(int paramIdx, doubl
 
 void IGraphicsEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
 {
-  assert(mGraphics != nullptr);
-  
-  for (auto c = 0; c < mGraphics->NControls(); c++) // TODO: could keep a map
+  if(mGraphics)
   {
-    IControl* pControl = mGraphics->GetControl(c);
-    
-    if (pControl->WantsMidi())
+    for (auto c = 0; c < mGraphics->NControls(); c++) // TODO: could keep a map
     {
-      pControl->OnMidi(msg);
+      IControl* pControl = mGraphics->GetControl(c);
+      
+      if (pControl->WantsMidi())
+      {
+        pControl->OnMidi(msg);
+      }
     }
   }
   

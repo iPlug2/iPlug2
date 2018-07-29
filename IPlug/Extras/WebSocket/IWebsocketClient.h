@@ -47,14 +47,14 @@ public:
     DBGMSG("OnConnection\n");
   }
 
-  virtual void OnTextMsg(const char* msg)
+  virtual void OnWebsocketText(const char* msg)
   {
-    DBGMSG("OnTextMsg %s\n", msg);
+    DBGMSG("OnWebsocketText %s\n", msg);
   }
   
-  virtual void OnBinaryMsg(size_t size, const void* pData)
+  virtual void OnWebsocketData(size_t size, const void* pData)
   {
-    DBGMSG("OnBinaryMsg size %zu\n", size);
+    DBGMSG("OnWebsocketData size %zu\n", size);
   }
 
   void SendText(const char* str)
@@ -68,8 +68,8 @@ public:
     if (mWS->getReadyState() != WebSocket::CLOSED) 
     {
       mWS->poll();
-      mWS->dispatch([&](const std::string& msg){ this->OnTextMsg(msg.c_str()); });
-      mWS->dispatchBinary([&](const std::vector<uint8_t>& msg){ this->OnBinaryMsg(msg.size(), msg.data()); });
+      mWS->dispatch([&](const std::string& msg){ this->OnWebsocketText(msg.c_str()); });
+      mWS->dispatchBinary([&](const std::vector<uint8_t>& msg){ this->OnWebsocketData(msg.size(), msg.data()); });
     }
   }
   

@@ -25,7 +25,7 @@ public:
 
   int ShowMessageBox(const char* str, const char* caption, int type) override;
 
-  void* OpenWindow(void* pParentWnd) override;
+  void* OpenWindow(void* pParent) override;
   void CloseWindow() override;
   bool WindowIsOpen() override { return (mDelegateWnd); }
 

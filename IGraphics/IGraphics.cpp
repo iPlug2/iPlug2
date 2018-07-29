@@ -669,7 +669,7 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
   mMouseDownX = x;
   mMouseDownY = y;
 
-#if !defined(NDEBUG)
+#if DEBUG
   if(mLiveEdit)
   {
     mLiveEdit->OnMouseDown(x, y, mod);

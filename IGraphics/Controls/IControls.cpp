@@ -10,7 +10,6 @@ IVSwitchControl::IVSwitchControl(IEditorDelegate& dlg, IRECT bounds, int paramId
 {
   AttachIControl(this);
   mDblAsSingleClick = true;
-  mStr.Set("Hello");
   mText.mSize = 20;
   mStep = 1.f / float(mNumStates) - 1.f;
 }

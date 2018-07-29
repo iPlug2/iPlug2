@@ -6,7 +6,7 @@
 
 
 #ifdef OS_MAC
-cairo_surface_t* LoadPNGResource(void* hInst, const WDL_String& path)
+cairo_surface_t* LoadPNGResource(void*, const WDL_String& path)
 {
   return cairo_image_surface_create_from_png(path.Get());
 }

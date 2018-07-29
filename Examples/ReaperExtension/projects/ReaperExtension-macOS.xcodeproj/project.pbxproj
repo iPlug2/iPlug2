@@ -22,7 +22,6 @@
 /* Begin PBXBuildFile section */
 		4FBA83B120ECB19100423B90 /* ReaperExtension.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA837B20ECAE7B00423B90 /* ReaperExtension.cpp */; };
 		4FBA83B420ECB63400423B90 /* swell-modstub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA83A720ECAED000423B90 /* swell-modstub.mm */; };
-		4FBA83B620ECB65000423B90 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FBA83B520ECB65000423B90 /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,16 +29,19 @@
 		4F3862FF2014BCC70009F402 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
 		4F3D2B4520212D4E00842FF4 /* wdl_base64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wdl_base64.h; path = ../../../WDL/wdl_base64.h; sourceTree = "<group>"; };
 		4F78D8BD13B63A4E0032E0F3 /* wdltypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdltypes.h; path = ../../../WDL/wdltypes.h; sourceTree = SOURCE_ROOT; };
-		4FBA837B20ECAE7B00423B90 /* ReaperExtension.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = ReaperExtension.cpp; path = ../ReaperExtension.cpp; sourceTree = "<group>"; };
+		4FBA837B20ECAE7B00423B90 /* ReaperExtension.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = ReaperExtension.cpp; path = ../ReaperExtension.cpp; sourceTree = "<group>"; };
 		4FBA83A720ECAED000423B90 /* swell-modstub.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-modstub.mm"; path = "../../../WDL/swell/swell-modstub.mm"; sourceTree = "<group>"; };
 		4FBA83AC20ECAF0B00423B90 /* reaper_ReaperExtension.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = reaper_ReaperExtension.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FBA83B220ECB28900423B90 /* main.rc */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc; path = ../resources/main.rc; sourceTree = "<group>"; };
-		4FBA83B520ECB65000423B90 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		4FBA83C020ECBBBE00423B90 /* video_frame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = video_frame.h; sourceTree = "<group>"; };
 		4FBA83C120ECBBBE00423B90 /* reaper_plugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = reaper_plugin.h; sourceTree = "<group>"; };
 		4FBA83C220ECBBBE00423B90 /* reaper_plugin_functions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = reaper_plugin_functions.h; sourceTree = "<group>"; };
 		4FBA83C320ECBBBE00423B90 /* video_processor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = video_processor.h; sourceTree = "<group>"; };
 		4FBA83C420ECBBBE00423B90 /* README.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
+		4FBA83C720ECD9BD00423B90 /* swell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = swell.h; path = ../../../WDL/swell/swell.h; sourceTree = "<group>"; };
+		4FBA83C820ECD9DA00423B90 /* swell-dlggen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "swell-dlggen.h"; path = "../../../WDL/swell/swell-dlggen.h"; sourceTree = "<group>"; };
+		4FBA83C920ECD9DA00423B90 /* swell-types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "swell-types.h"; path = "../../../WDL/swell/swell-types.h"; sourceTree = "<group>"; };
+		4FBA83CA20ECD9DA00423B90 /* swell-functions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "swell-functions.h"; path = "../../../WDL/swell/swell-functions.h"; sourceTree = "<group>"; };
 		4FBBD7F320B6AB9800A37DE2 /* config */ = {isa = PBXFileReference; lastKnownFileType = folder; name = config; path = ../config; sourceTree = "<group>"; };
 		4FDA1E0E2012CDB30027C868 /* main.rc_mac_menu */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc_mac_menu; path = ../resources/main.rc_mac_menu; sourceTree = "<group>"; };
 		4FDA1E0F2012CDB30027C868 /* main.rc_mac_dlg */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc_mac_dlg; path = ../resources/main.rc_mac_dlg; sourceTree = "<group>"; };
@@ -57,7 +59,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FBA83B620ECB65000423B90 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -80,7 +81,6 @@
 			isa = PBXGroup;
 			children = (
 				4FBA83BF20ECBBBE00423B90 /* Reaper */,
-				4FBA83B520ECB65000423B90 /* Cocoa.framework */,
 				4FF01613134E0BCD001447BA /* WDL */,
 			);
 			name = Frameworks;
@@ -132,6 +132,10 @@
 		4FF01613134E0BCD001447BA /* WDL */ = {
 			isa = PBXGroup;
 			children = (
+				4FBA83C720ECD9BD00423B90 /* swell.h */,
+				4FBA83C820ECD9DA00423B90 /* swell-dlggen.h */,
+				4FBA83CA20ECD9DA00423B90 /* swell-functions.h */,
+				4FBA83C920ECD9DA00423B90 /* swell-types.h */,
 				4FBA83A720ECAED000423B90 /* swell-modstub.mm */,
 				4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */,
 				4FF01719134E153A001447BA /* heapbuf.h */,
@@ -146,25 +150,14 @@
 		};
 /* End PBXGroup section */
 
-/* Begin PBXHeadersBuildPhase section */
-		4FBA83AA20ECAF0B00423B90 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXHeadersBuildPhase section */
-
 /* Begin PBXNativeTarget section */
 		4FBA83AB20ECAF0B00423B90 /* ReaperExtension */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4FBA83AD20ECAF0B00423B90 /* Build configuration list for PBXNativeTarget "ReaperExtension" */;
 			buildPhases = (
-				4FBA83B320ECB2D300423B90 /* ShellScript */,
+				4FBA83B320ECB2D300423B90 /* Run Script - Generate SWELL Resource files */,
 				4FBA83A820ECAF0B00423B90 /* Sources */,
 				4FBA83A920ECAF0B00423B90 /* Frameworks */,
-				4FBA83AA20ECAF0B00423B90 /* Headers */,
 			);
 			buildRules = (
 			);
@@ -213,13 +206,14 @@
 /* End PBXProject section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		4FBA83B320ECB2D300423B90 /* ShellScript */ = {
+		4FBA83B320ECB2D300423B90 /* Run Script - Generate SWELL Resource files */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = "Run Script - Generate SWELL Resource files";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -457,6 +451,7 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				MACOSX_DEPLOYMENT_TARGET = "$(DEPLOYMENT_TARGET)";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.ReaperExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -489,6 +484,7 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				MACOSX_DEPLOYMENT_TARGET = "$(DEPLOYMENT_TARGET)";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.ReaperExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -522,6 +518,7 @@
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				MACOSX_DEPLOYMENT_TARGET = "$(DEPLOYMENT_TARGET)";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.ReaperExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";

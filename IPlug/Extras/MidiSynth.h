@@ -183,6 +183,11 @@ public:
   {
     mVS.Add(pVoice);
   }
+  
+  void ClearVoices()
+  {
+    mVS.Empty(true);
+  }
 
   void AddMidiMsgToQueue(const IMidiMsg& msg)
   {

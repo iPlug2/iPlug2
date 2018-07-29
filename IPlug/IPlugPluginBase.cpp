@@ -79,13 +79,16 @@ const char* IPluginBase::GetAPIStr() const
     case kAPIAAX: return "AAX";
     case kAPIAPP: return "Standalone";
     case kAPIWAM: return "WAM";
+    case kAPIWEB: return "WEB";
     default: return "";
   }
 }
 
 const char* IPluginBase::GetArchStr() const
 {
-#ifdef ARCH_64BIT
+#if defined OS_WEB
+  return "WASM";
+#elif defined ARCH_64BIT
   return "x64";
 #else
   return "x86";
@@ -96,7 +99,7 @@ void IPluginBase::GetBuildInfoStr(WDL_String& str) const
 {
   WDL_String version;
   GetPluginVersionStr(version);
-  str.SetFormatted(MAX_BUILD_INFO_STR_LEN, "%s version %s %s %s, built on %s at %.5s ", GetPluginName(), version.Get(), GetArchStr(), GetAPIStr(), __DATE__, __TIME__);
+  str.SetFormatted(MAX_BUILD_INFO_STR_LEN, "%s version %s %s (%s), built on %s at %.5s ", GetPluginName(), version.Get(), GetAPIStr(), GetArchStr(), __DATE__, __TIME__);
 }
 
 #pragma mark -

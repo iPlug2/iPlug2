@@ -36,6 +36,7 @@ public:
   void ViewInitialized(void* pLayer) override;
   
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
+  void DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend = 0) override;
 
   void PathClear() override { } //TODO:?
   void PathStart() override { nvgBeginPath(mVG); }
