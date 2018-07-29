@@ -136,8 +136,8 @@ void IGraphicsAGG::Rasterizer::RasterizePattern(agg::trans_affine transform, con
 
 #pragma mark -
 
-IGraphicsAGG::IGraphicsAGG(IEditorDelegate& dlg, int w, int h, int fps)
-: IGraphicsPathBase(dlg, w, h, fps)
+IGraphicsAGG::IGraphicsAGG(IEditorDelegate& dlg, int w, int h, int fps, float scale)
+: IGraphicsPathBase(dlg, w, h, fps, scale)
 , mFontEngine()
 , mFontManager(mFontEngine)
 , mFontCurves(mFontManager.path_adaptor())
@@ -593,7 +593,7 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IREC
   }
 }
 
-bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destBounds, bool measure)
+bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destBounds, const IBlend* pBlend, bool measure)
 {
 //  if (!str || str[0] == '\0')
 //  {

@@ -151,7 +151,7 @@ public:
     RasterizerType mRasterizer;
   };
 
-  IGraphicsAGG(IEditorDelegate& dlg, int w, int h, int fps);
+  IGraphicsAGG(IEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsAGG();
 
   void SetDisplayScale(int scale) override;
@@ -186,7 +186,7 @@ public:
   void PathTransformScale(float scaleX, float scaleY) override { mTransform = agg::trans_affine_scaling(scaleX, scaleY) * mTransform; }
   void PathTransformRotate(float angle) override { mTransform = agg::trans_affine_rotation(DegToRad(angle)) * mTransform; }
 
-  bool DrawText(const IText& text, const char* str, IRECT& bounds, bool measure = false) override;
+  bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0, bool measure = false) override;
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
 
   IColor GetPoint(int x, int y) override;
