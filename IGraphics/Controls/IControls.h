@@ -161,14 +161,14 @@ class IBKnobControl : public IKnobControlBase
                     , public IBitmapBase
 {
 public:
-  IBKnobControl(IEditorDelegate& plug, float x, float y, IBitmap& bitmap, int paramIdx)
-  : IKnobControlBase(plug, IRECT(x, y, bitmap), paramIdx)
+  IBKnobControl(IEditorDelegate& plug, float x, float y, IBitmap& bitmap, int paramIdx, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+  : IKnobControlBase(plug, IRECT(x, y, bitmap), paramIdx, direction, gearing)
   , IBitmapBase(bitmap)
   {
   }
   
-  IBKnobControl(IEditorDelegate& plug, IRECT bounds, IBitmap& bitmap, int paramIdx)
-  : IKnobControlBase(plug, bounds.GetCentredInside(bitmap), paramIdx)
+  IBKnobControl(IEditorDelegate& plug, IRECT bounds, IBitmap& bitmap, int paramIdx, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+  : IKnobControlBase(plug, bounds.GetCentredInside(bitmap), paramIdx, direction, gearing)
   , IBitmapBase(bitmap)
   {
   }
