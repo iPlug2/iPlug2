@@ -751,7 +751,9 @@ public:
   {
     for (auto ch = 0; ch < MaxNTracks(); ch++)
     {
-      mTrackBounds.Get()[ch] = mRECT.GetPadded(-mOuterPadding).SubRect(EDirection(!mDirection), MaxNTracks(), ch);
+      mTrackBounds.Get()[ch] = mRECT.GetPadded(-mOuterPadding).
+                                     SubRect(EDirection(!mDirection), MaxNTracks(), ch).
+                                     GetPadded(0, -mTrackPadding * (float) mDirection, -mTrackPadding * (float) !mDirection, -mTrackPadding);
     }
   }
   
@@ -759,15 +761,13 @@ public:
   {
     g.FillRect(GetColor(kBG), mRECT);
     
-    const float cornerRadius = mRoundness * (mRECT.W() / 2.);
-    
     for (auto ch = 0; ch < MaxNTracks(); ch++)
     {
       DrawTrack(g, mTrackBounds.Get()[ch], ch);
     }
     
     if(mDrawFrame)
-      g.DrawRoundRect(GetColor(kFR), mRECT, cornerRadius, nullptr, mFrameThickness);
+      DrawFrame(g);
   }
   
   int NTracks() { return mNTracks; }
@@ -776,6 +776,11 @@ public:
   float* GetTrackData(int trackIdx) { return &mTrackData.Get()[trackIdx];  }
   void SetAllTrackData(float val) { memset(mTrackData.Get(), Clip(val, mMinTrackValue, mMaxTrackValue), mTrackData.GetSize() * sizeof(float) ); }
 private:
+  virtual void DrawFrame(IGraphics& g)
+  {
+    g.DrawRect(GetColor(kFR), mRECT, nullptr, mFrameThickness);
+  }
+  
   virtual void DrawTrack(IGraphics& g, IRECT& r, int chIdx)
   {
     DrawTrackBG(g, r, chIdx);
