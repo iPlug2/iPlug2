@@ -18,25 +18,31 @@ IGraphicsTest::IGraphicsTest()
   IGraphics* pGraphics = MakeGraphics(*this, UI_WIDTH, UI_HEIGHT, 60);
 
   pGraphics->AttachPanelBackground(COLOR_RED);
+  pGraphics->AttachCornerResizer();
+//  pGraphics->EnableLiveEdit(true);
   //pGraphics->HandleMouseOver(true);
-  //IBitmap knobBitmap = pGraphics->LoadBitmap("knob.png", 60);
-  //pGraphics->LoadFont("Roboto-Regular.ttf");
-  //pGraphics->LoadFont("Montserrat-LightItalic.ttf");
+  pGraphics->LoadFont("Roboto-Regular.ttf");
+  pGraphics->LoadFont("Montserrat-LightItalic.ttf");
   //
-  //IRECT bounds = pGraphics->GetBounds();
+  IRECT bounds = pGraphics->GetBounds();
+  IBitmap knobBitmap = pGraphics->LoadBitmap("knob.png", 60);
+  int rows = 4;
+  int cols = 4;
+  int cellIdx = 0;
   //
-  //int rows = 4;
-  //int cols = 4;
-  //int cellIdx = 0;
-  //
-  //pGraphics->AttachControl(new IGradientControl(*this, bounds.GetGridCell(cellIdx++, rows, cols), -1));
-  //pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(cellIdx++, rows, cols), -1));
-  //pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(cellIdx++, rows, cols), -1));
-  //pGraphics->AttachControl(new IBKnobControl(*this, bounds.GetGridCell(cellIdx++, rows, cols), knobBitmap, -1));
-  //pGraphics->AttachControl(new RandomTextControl(*this, bounds.GetGridCell(cellIdx++, rows, cols)));
-  //pGraphics->GetControl(2)->SetValueFromDelegate((double) rand() / RAND_MAX);
-  //pGraphics->GetControl(3)->SetValueFromDelegate((double) rand() / RAND_MAX);
-  //pGraphics->GetControl(4)->SetValueFromDelegate((double) rand() / RAND_MAX);
+  pGraphics->AttachControl(new IGradientControl(*this, bounds.GetGridCell(cellIdx++, rows, cols), -1));
+  pGraphics->AttachControl(new IPolyControl(*this, bounds.GetGridCell(cellIdx++, rows, cols), -1));
+  pGraphics->AttachControl(new IArcControl(*this, bounds.GetGridCell(cellIdx++, rows, cols), -1));
+  pGraphics->AttachControl(new IBKnobControl(*this, bounds.GetGridCell(cellIdx++, rows, cols), knobBitmap, -1));
+  pGraphics->AttachControl(new RandomTextControl(*this, bounds.GetGridCell(cellIdx++, rows, cols)));
+
+  pGraphics->AttachControl(new ILambdaControl(*this, bounds.GetGridCell(cellIdx++, rows, cols),
+                                              [&](IControl* pCaller, IGraphics& g, IRECT& b, IMouseInfo& mi, double t)
+                                              {
+                                                static IBitmap knobBitmap = g.LoadBitmap("smiley.png");
+
+                                                g.DrawFittedBitmap(knobBitmap, b);
+                                              }));
 
   AttachGraphics(pGraphics);
 }

@@ -304,10 +304,6 @@ public:
     const char* words[] = { "there", "are many" , "possible", "ways", "to display text", "here" };
 
     g.FillRect(COLOR_BLACK, mRECT);
-    
-    IRECT bounds;
-    g.MeasureText(mText, words[mStringIndex], bounds);
-    g.FillRect(COLOR_GREEN, bounds);
     g.DrawText(mText, words[mStringIndex], mRECT);
   }
 

@@ -66,6 +66,7 @@
 		4F78DAB313B640470032E0F3 /* swellappmain.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD16D4513B635C8001D0217 /* swellappmain.h */; };
 		4F846271209CC61E00474F83 /* knob.png in Resources */ = {isa = PBXBuildFile; fileRef = 4F846270209CC61E00474F83 /* knob.png */; };
 		4F9DC953201CB51300AFC62D /* BefacoBigKnob.svg in Resources */ = {isa = PBXBuildFile; fileRef = 4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */; };
+		4FBCABCC210CB3D600D37EC2 /* smiley.png in Resources */ = {isa = PBXBuildFile; fileRef = 4FBCABCB210CB3D600D37EC2 /* smiley.png */; };
 		4FC82B5120BD659500722133 /* Montserrat-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4FC82B4F20BD659500722133 /* Montserrat-LightItalic.ttf */; };
 		4FC82B5220BD659500722133 /* Roboto-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4FC82B5020BD659500722133 /* Roboto-Regular.ttf */; };
 		4FD16CFC13B63468001D0217 /* swell-appstub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16CFB13B63468001D0217 /* swell-appstub.mm */; };
@@ -146,6 +147,7 @@
 		4F846270209CC61E00474F83 /* knob.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = knob.png; path = ../resources/img/knob.png; sourceTree = "<group>"; };
 		4F8B32602014C7D600EF1F61 /* IGraphicsTest.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = IGraphicsTest.xcconfig; sourceTree = "<group>"; };
 		4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = BefacoBigKnob.svg; path = ../resources/img/BefacoBigKnob.svg; sourceTree = "<group>"; };
+		4FBCABCB210CB3D600D37EC2 /* smiley.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = smiley.png; path = ../resources/img/smiley.png; sourceTree = "<group>"; };
 		4FC82B4F20BD659500722133 /* Montserrat-LightItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-LightItalic.ttf"; sourceTree = "<group>"; };
 		4FC82B5020BD659500722133 /* Roboto-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Regular.ttf"; sourceTree = "<group>"; };
 		4FD16A0913B63081001D0217 /* IGraphicsTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IGraphicsTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -262,8 +264,8 @@
 				4F1E0A3B20BA2538004FC7D5 /* IGraphics_include_in_plug_hdr.h */,
 				4F1E0A4B20BA2538004FC7D5 /* IGraphicsPopupMenu.h */,
 				4F1E0A4E20BA2538004FC7D5 /* IGraphicsUtilites.h */,
-				4F1E0A5F20BA2538004FC7D5 /* IGraphics.h */,
 				4F1E0A4F20BA2538004FC7D5 /* IGraphics.cpp */,
+				4F1E0A5F20BA2538004FC7D5 /* IGraphics.h */,
 				4F1E0A5020BA2538004FC7D5 /* IGraphicsPathBase.h */,
 				4F1E0A5820BA2538004FC7D5 /* IGraphicsStructs.h */,
 				4F1E0A5920BA2538004FC7D5 /* IGraphicsConstants.h */,
@@ -342,6 +344,7 @@
 		4FD16A0213B6303B001D0217 /* img */ = {
 			isa = PBXGroup;
 			children = (
+				4FBCABCB210CB3D600D37EC2 /* smiley.png */,
 				4F5F343C20C021FC00487201 /* knob@2x.png */,
 				4F846270209CC61E00474F83 /* knob.png */,
 				4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */,
@@ -508,6 +511,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FBCABCC210CB3D600D37EC2 /* smiley.png in Resources */,
 				4FC82B5220BD659500722133 /* Roboto-Regular.ttf in Resources */,
 				4F846271209CC61E00474F83 /* knob.png in Resources */,
 				4F9DC953201CB51300AFC62D /* BefacoBigKnob.svg in Resources */,
