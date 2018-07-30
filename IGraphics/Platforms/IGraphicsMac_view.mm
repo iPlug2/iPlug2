@@ -207,7 +207,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   r.size.width = (float) pGraphics->WindowWidth();
   r.size.height = (float) pGraphics->WindowHeight();
   self = [super initWithFrame:r];
-  [self setBoundsSize:NSMakeSize(pGraphics->WindowWidth(), pGraphics->WindowHeight())];
+  [self setBoundsSize:NSMakeSize(pGraphics->Width(), pGraphics->Height())];
   
 #ifdef IGRAPHICS_NANOVG
   if (!self.wantsLayer) {
@@ -319,8 +319,9 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   if (mGraphics)
   {
     NSPoint pt = [self convertPoint:[pEvent locationInWindow] fromView:nil];
-    *pX = pt.x - 2.f;
-    *pY = mGraphics->WindowHeight() - pt.y - 3.f;
+    // TODO - fix or remove these values!!
+    *pX = pt.x;//- 2.f;
+    *pY = mGraphics->Height() - pt.y;//- 3.f;
     mPrevX = *pX;
     mPrevY = *pY;
 

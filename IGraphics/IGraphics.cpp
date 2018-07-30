@@ -54,7 +54,6 @@ IGraphics::IGraphics(IEditorDelegate& dlg, int w, int h, int fps, float scale)
 , mWidth(w)
 , mHeight(h)
 , mScale(scale)
-, mScaleReciprocal(1.f/scale)
 {
   mFPS = (fps > 0 ? fps : DEFAULT_FPS);
 }
@@ -92,7 +91,6 @@ void IGraphics::Resize(int w, int h, float scale)
   ReleaseMouseCapture();
 
   mScale = scale;
-  mScaleReciprocal = 1.f/mScale;
   mWidth = w;
   mHeight = h;
   
@@ -642,9 +640,6 @@ void IGraphics::SetStrictDrawing(bool strict)
 
 void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
-  x *= mScaleReciprocal;
-  y *= mScaleReciprocal;
-  
   Trace("IGraphics::OnMouseDown", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
 
@@ -724,9 +719,6 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 
 void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
-  x *= mScaleReciprocal;
-  y *= mScaleReciprocal;
- 
   if(mResizingInProcess)
   {
     mResizingInProcess = false;
@@ -775,9 +767,6 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
 
 bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
 {
-  x *= mScaleReciprocal;
-  y *= mScaleReciprocal;
-  
   Trace("IGraphics::OnMouseOver", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
 
@@ -867,11 +856,6 @@ void IGraphics::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMo
 
     return;
   }
-    
-  x *= mScaleReciprocal;
-  y *= mScaleReciprocal;
-  dX *= mScaleReciprocal;
-  dY *= mScaleReciprocal;
   
   Trace("IGraphics::OnMouseDrag:", __LINE__, "x:%0.2f, y:%0.2f, dX:%0.2f, dY:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, dX, dY, mod.L, mod.R, mod.S, mod.C, mod.A);
@@ -897,9 +881,6 @@ void IGraphics::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMo
 
 bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 {
-  x *= mScaleReciprocal;
-  y *= mScaleReciprocal;
-  
   Trace("IGraphics::OnMouseDblClick", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
 
@@ -925,9 +906,6 @@ bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 
 void IGraphics::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
 {
-  x *= mScaleReciprocal;
-  y *= mScaleReciprocal;
-  
   if(mPopupControl && mPopupControl->GetExpanded())
   {
     mPopupControl->OnMouseWheel(x, y, mod, d);
@@ -949,8 +927,6 @@ void IGraphics::ReleaseMouseCapture()
 
 bool IGraphics::OnKeyDown(float x, float y, int key)
 {
-  x *= mScaleReciprocal;
-  y *= mScaleReciprocal;
   Trace("IGraphics::OnKeyDown", __LINE__, "x:%0.2f, y:%0.2f, key:%i",
         x, y, key);
 
@@ -1110,13 +1086,21 @@ void IGraphics::OnResizeGesture(float x, float y)
 {
   if(mGUISizeMode == EGUISizeMode::kGUISizeScale)
   {
-    float scale = y / Height();
-    Resize(Width(), Height(), Clip(scale, 0.1f, 10.f));
-    
-    if(mCornerResizer)
-      mCornerResizer->OnRescale();
+    float scaleX = (x * GetScale()) / mMouseDownX;
+    float scaleY = (y * GetScale()) / mMouseDownY;
+
+    Resize(Width(), Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
+  }
+  else
+  {
+    float width = Clip(x, 10.f, 1000.f);
+    float height = Clip(y, 10.f, 1000.f);
+
+    Resize(width, height, GetScale());
   }
   
+  if(mCornerResizer)
+    mCornerResizer->OnRescale();
 }
 
 IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
@@ -1126,9 +1110,6 @@ IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
 
 void IGraphics::OnDrop(const char* str, float x, float y)
 {
-  x *= mScaleReciprocal;
-  y *= mScaleReciprocal;
-  
   int i = GetMouseControlIdx(x, y);
   IControl* pControl = GetControl(i);
   if (pControl != nullptr)
