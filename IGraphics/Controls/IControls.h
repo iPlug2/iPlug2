@@ -148,7 +148,7 @@ public:
 class IBSwitchControl : public IBitmapControl
 {
 public:
-  IBSwitchControl(IEditorDelegate& dlg, float x, float y, int paramIdx, IBitmap& bitmap)
+  IBSwitchControl(IEditorDelegate& dlg, float x, float y, IBitmap& bitmap, int paramIdx = kNoParameter)
   : IBitmapControl(dlg, x, y, bitmap, paramIdx) {}
   virtual ~IBSwitchControl() {}
 
