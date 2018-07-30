@@ -115,7 +115,7 @@ public:
   /** Override this method to get an "idle"" call on the main thread */
   virtual void OnIdle() {}
     
-#pragma mark - Methods you can call - some of which have custom implementations in the API classes, some implemented in IPlugAPIBase.cpp;
+#pragma mark - Methods you can call - some of which have custom implementations in the API classes, some implemented in IPlugAPIBase.cpp
   /** Helper method, used to print some info to the console in debug builds. Can be overridden in other IPlugAPIBases, for specific functionality, such as printing UI details. */
   virtual void PrintDebugInfo() const;
 
@@ -140,7 +140,11 @@ public:
    * @param paramIdx The index of the parameter that changed
    * @param normalizedValue The new (normalised) value*/
   void SetParameterValue(int paramIdx, double normalizedValue);
+  
+  virtual void GetTrackColor(int& r, int& g, int& b) {};
 
+  virtual void GetTrackName(WDL_String& str) {};
+  
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
 
   /** This is called from the plug-in API class in order to update UI controls linked to plug-in parameters, prior to calling OnParamChange()

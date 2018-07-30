@@ -81,7 +81,7 @@ public:
     }
   }
 
-  void GetTrackName(WDL_String& str)
+  void GetTrackName(WDL_String& str) override
   {
     char buf[2048];
     if (GetSetMediaTrackInfo_String(GetReaperTrack(), "P_NAME", buf, false) == true)
@@ -106,7 +106,7 @@ public:
     return (MediaItem_Take*) mHostCallback(&mAEffect, 0xdeadbeef, 0xdeadf00e, 2, 0, 0.0);
   }
   
-  void GetTrackColor(int& r, int& g, int& b)
+  void GetTrackColor(int& r, int& g, int& b) override
   {
     MediaTrack* pTrack = GetReaperTrack();
     
