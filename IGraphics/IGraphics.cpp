@@ -602,13 +602,18 @@ void IGraphics::Draw(const IRECT& bounds)
 
   if(mPopupControl != nullptr && mPopupControl->IsDirty())
   {
+    ClipRegion(mPopupControl->GetRECT());
     mPopupControl->Draw(*this);
     mPopupControl->SetClean();
+    ResetClipRegion();
   }
   
-  if(mCornerResizer != nullptr)
+  if(mCornerResizer != nullptr && mCornerResizer->IsDirty())
   {
+    ClipRegion(mCornerResizer->GetRECT());
     mCornerResizer->Draw(*this);
+    mCornerResizer->SetClean();
+    ResetClipRegion();
   }
 
 #ifndef NDEBUG
