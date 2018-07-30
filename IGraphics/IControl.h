@@ -520,19 +520,24 @@ protected:
 class IPanelControl : public IControl
 {
 public:
-  IPanelControl(IEditorDelegate& dlg, IRECT bounds, const IColor& color, int paramIdx = kNoParameter)
-  : IControl(dlg, bounds, paramIdx)
+  IPanelControl(IEditorDelegate& dlg, IRECT bounds, const IColor& color, bool drawFrame = false)
+  : IControl(dlg, bounds, kNoParameter)
   , mColor(color)
+  , mDrawFrame(drawFrame)
   {
   }
 
   void Draw(IGraphics& g) override
   {
     g.FillRect(mColor, mRECT);
+    
+    if(mDrawFrame)
+      g.DrawRect(COLOR_LIGHT_GRAY, mRECT);
   }
   
 private:
   IColor mColor;
+  bool mDrawFrame;
 };
 
 class ILambdaControl : public IControl
