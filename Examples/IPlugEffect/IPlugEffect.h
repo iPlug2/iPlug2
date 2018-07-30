@@ -6,6 +6,8 @@
 #include "IVScopeControl.h"
 #include "IPlugEffect_DSP.h"
 
+#include "IWebsocketServer.h"
+
 const int kNumPrograms = 1;
 
 #define MAX_VOICES 32
@@ -24,6 +26,9 @@ enum EParams
 };
 
 class PLUG_CLASS_NAME : public IPlug
+                        #ifdef WEBSOCKET_SERVER
+                      , public IWebSocketServer
+                        #endif
 {
 public:
   PLUG_CLASS_NAME(IPlugInstanceInfo instanceInfo);
@@ -37,7 +42,6 @@ public:
   void ProcessMidiMsg(const IMidiMsg& msg) override;
   void OnReset() override;
   
-  FastSinOscillator<sample> mOsc {0., 440.};
   IVMeterControl<2>::IVMeterBallistics mMeterBallistics { kControlTagMeter };
   IVScopeControl<1>::IVScopeBallistics mScopeBallistics { kControlTagScope };
   IPlugEffectDSP mDSP {16};
