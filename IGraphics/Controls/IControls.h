@@ -29,7 +29,7 @@ public:
     SetDirty(false);
   }
 
-private:
+protected:
   WDL_String mStr;
   float mStep;
   EDirection mDirection;
@@ -127,9 +127,11 @@ private:
 class IVMomentarySwitch : public IVSwitchControl
 {
 public:
-  IVMomentarySwitch(IEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc)
+  IVMomentarySwitch(IEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc, const char* str = "")
   : IVSwitchControl(dlg, bounds, kNoParameter, actionFunc)
-  {};
+  {
+    mStr.Set(str);
+  }
 
   virtual ~IVMomentarySwitch() {};
 
