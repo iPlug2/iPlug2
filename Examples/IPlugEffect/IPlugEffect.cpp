@@ -77,7 +77,6 @@ void PLUG_CLASS_NAME::OnIdle()
 #if IPLUG_EDITOR && !defined NO_IGRAPHICS
 #include "IControls.h"
 #include "IVKeyboardControl.h"
-#include "IVDropDownListControl.h"
 #include "IPlugEffect_controls.h"
 
 void PLUG_CLASS_NAME::CreateUI()
