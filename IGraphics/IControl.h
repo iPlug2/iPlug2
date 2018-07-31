@@ -184,39 +184,6 @@ public:
   // This is an idle call from the GUI thread
   // Only active if USE_IDLE_CALLS is defined.
   virtual void OnGUIIdle() {}
-
-  /** A struct that contains a parameter index and normalized value, used when an IControl must reference multiple parameters */
-  struct AuxParam
-  {
-    /** Normalized value */
-    double mValue  = 0.;
-    /** Parameter index */
-    int mParamIdx;
-
-    AuxParam(int idx) : mParamIdx(idx)
-    {
-      assert(idx > kNoParameter); // no negative params please
-    }
-  };
-
-  //TODO: this should change
-  /** @name Auxiliary parameter
-   *  Normally an IControl is linked to a single parameter, with the index mParamIdx. In some cases it makes sense for a single IControl
-   *  to be linked to more than one parameter (for example a break point envelope control). In this case you may add Auxilliary parameter*/
-  /**@{*/
-  /** @return A pointer to the AuxParam instance at auxParamIdx in the mAuxParams list */
-  AuxParam* GetAuxParam(int auxParamIdx);
-  /** @return Index of the auxillary parameter in the mAuxParams list that holds the paramIdx */
-  int GetAuxParamIdx(int paramIdx);
-  /** Adds an auxilliary parameter linked to paramIdx */
-  void AddAuxParam(int paramIdx);
-  /** Used to update the AuxParam object at auxParamIdx in the mAuxParams list to value */
-  virtual void SetAuxParamValueFromDelegate(int auxParamIdx, double value);
-  /** If the control modifies values linked to the AuxParams, it can call this method to update all the relevant parameters in the delegate */
-  void SetAllAuxParamsFromGUI();
-  /** Get the number of Aux Params for this control */
-  int NAuxParams() const { return mAuxParams.GetSize(); }
-  /**@}*/
   
   void SetTag(int tag) { mTag = tag; }
   int GetTag() const { return mTag; }
@@ -293,7 +260,6 @@ protected:
   
   IText mText;
 
-  WDL_TypedBuf<AuxParam> mAuxParams;
   int mTextEntryLength = DEFAULT_TEXT_ENTRY_LEN;
   double mValue = 0.;
   double mDefaultValue = -1.; // it's important this is -1 to start with

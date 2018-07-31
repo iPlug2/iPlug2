@@ -119,29 +119,7 @@ void IGraphicsEditorDelegate::SendParameterValueFromDelegate(int paramIdx, doubl
       // Could be more than one, don't break until we check them all.
     }
   }
-  
-  //TODO: aux params disabled
-//  int i, n = mControls.GetSize();
-//  IControl** ppControl = mControls.GetList();
-//  for (i = 0; i < n; ++i, ++ppControl)
-//  {
-//    IControl* pControl = *ppControl;
-//    if (pControl->ParamIdx() == paramIdx)
-//    {
-//      pControl->SetValueFromDelegate(value);
-//      // Could be more than one, don't break until we check them all.
-//    }
-//
-//    // now look for any auxilliary parameters
-//    // BULL SHIP this only works with 1
-//    int auxParamIdx = pControl->GetAuxParamIdx(paramIdx);
-//    
-//    if (auxParamIdx > -1) // there are aux params
-//    {
-//      pControl->SetAuxParamValueFromPlug(auxParamIdx, value);
-//    }
-//  }
-  
+
   IEditorDelegate::SendParameterValueFromDelegate(paramIdx, value, normalized);
 }
 
