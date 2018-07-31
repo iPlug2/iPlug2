@@ -488,7 +488,8 @@ void IDirBrowseControlBase::SetUpMenu()
 void IDirBrowseControlBase::GetSelectedItemLabel(WDL_String& label)
 {
   if (mSelectedMenu != nullptr) {
-    label.Set(mSelectedMenu->GetItem(mSelectedIndex)->GetText());
+    if(mSelectedIndex > -1)
+      label.Set(mSelectedMenu->GetItem(mSelectedIndex)->GetText());
   }
   else
     label.Set("");
@@ -497,9 +498,11 @@ void IDirBrowseControlBase::GetSelectedItemLabel(WDL_String& label)
 void IDirBrowseControlBase::GetSelectedItemPath(WDL_String& path)
 {
   if (mSelectedMenu != nullptr) {
-    path.Set(mPaths.Get(0)->Get()); //TODO: what about multiple paths
-    path.AppendFormatted(1024, "/%s", mSelectedMenu->GetItem(mSelectedIndex)->GetText());
-    path.Append(mExtension.Get());
+    if(mSelectedIndex > -1) {
+      path.Set(mPaths.Get(0)->Get()); //TODO: what about multiple paths
+      path.AppendFormatted(1024, "/%s", mSelectedMenu->GetItem(mSelectedIndex)->GetText());
+      path.Append(mExtension.Get());
+    }
   }
   else
     path.Set("");
@@ -570,6 +573,9 @@ void IPopupMenuControlBase::Draw(IGraphics& g)
   {
     IRECT* pCellRect = mExpandedCellBounds.Get(i);
     IPopupMenu::Item* pMenuItem = mMenu->GetItem(i);
+    
+    if(!pMenuItem)
+      return;
 
     if(pMenuItem->GetIsSeparator())
       DrawSeparator(g, *pCellRect);

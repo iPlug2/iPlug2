@@ -6,7 +6,9 @@
 #include "IVScopeControl.h"
 #include "IPlugEffect_DSP.h"
 
+#ifdef WEBSOCKET_SERVER
 #include "IWebsocketServer.h"
+#endif
 
 const int kNumPrograms = 1;
 
