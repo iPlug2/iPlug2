@@ -339,10 +339,10 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
   else if(!mSurface)
   {
 #ifdef OS_MAC
-    mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), Width(), Height());
+    mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), WindowWidth(), WindowHeight());
     mContext = cairo_create(mSurface);
-    cairo_surface_set_device_scale(mSurface, 1, -1);
-    cairo_surface_set_device_offset(mSurface, 0, Height());
+    cairo_surface_set_device_scale(mSurface, GetScale(), -GetScale());
+    cairo_surface_set_device_offset(mSurface, 0, WindowHeight());
 #elif defined OS_WIN
     HDC dc = (HDC) pContext;
     mSurface = cairo_win32_surface_create_with_ddb(dc, CAIRO_FORMAT_ARGB32, Width(), Height());
@@ -351,8 +351,15 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
 #else
   #error NOT IMPLEMENTED
 #endif
+    
+    if (mContext)
+    {
+      cairo_set_source_rgba(mContext, 1.0, 1.0, 1.0, 1.0);
+      cairo_rectangle(mContext, 0, 0, Width(), Height());
+      cairo_fill(mContext);
+    }
   }
-  
+
   IGraphics::SetPlatformContext(pContext);
 }
 

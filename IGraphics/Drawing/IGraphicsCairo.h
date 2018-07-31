@@ -78,6 +78,8 @@ public:
 
   void SetPlatformContext(void* pContext) override;
 
+  void OnResizeOrRescale() override { SetPlatformContext(nullptr); IGraphics::OnResizeOrRescale(); }
+
 protected:
 
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;

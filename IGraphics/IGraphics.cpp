@@ -99,7 +99,7 @@ void IGraphics::Resize(int w, int h, float scale)
   GetDelegate()->ResizeGraphicsFromUI(w * scale, h * scale, scale);
 }
 
-void IGraphics::OnDisplayScale()
+void IGraphics::OnResizeOrRescale()
 {
   int i, n = mControls.GetSize();
   IControl** ppControl = mControls.GetList();
@@ -107,7 +107,7 @@ void IGraphics::OnDisplayScale()
   {
     IControl* pControl = *ppControl;
     pControl->OnRescale();
-    pControl->OnResize();
+    //pControl->OnResize();
   }
 
   SetAllControlsDirty();

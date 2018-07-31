@@ -154,7 +154,7 @@ public:
   IGraphicsAGG(IEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsAGG();
 
-  void SetDisplayScale(int scale) override;
+  void OnResizeOrRescale() override;
 
   void Draw(const IRECT& bounds) override;
 
@@ -210,7 +210,7 @@ private:
   template<typename PathType> void DoClip(PathType& path)
   {
     IRECT clip = mClipRECT.Empty() ? GetBounds() : mClipRECT;
-    clip.Scale(GetDisplayScale());
+    clip.Scale(GetDisplayScale() * GetScale());
     path.clip_box(clip.L, clip.T, clip.R, clip.B);
   }
   

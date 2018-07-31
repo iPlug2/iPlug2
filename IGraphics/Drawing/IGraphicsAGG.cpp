@@ -150,13 +150,15 @@ IGraphicsAGG::~IGraphicsAGG()
 {
 }
 
-void IGraphicsAGG::SetDisplayScale(int scale)
+void IGraphicsAGG::OnResizeOrRescale()
 {
-  mPixelMap.create(Width() * scale, Height() * scale);
+  mPixelMap.create(WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
   mRenBuf.attach(mPixelMap.buf(), mPixelMap.width(), mPixelMap.height(), mPixelMap.row_bytes());
   mRasterizer.SetOutput(mRenBuf);
-
-  IGraphics::SetDisplayScale(scale);
+  
+  mTransform = agg::trans_affine_scaling(GetScale(), GetScale());
+  
+  IGraphics::OnResizeOrRescale();
 }
 
 //IFontData IGraphicsAGG::LoadFont(const char* name, const int size)
@@ -218,6 +220,8 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   srcMtx *= agg::trans_affine_translation(srcX, srcY);
   srcMtx *= agg::trans_affine_scaling(bitmap.GetScale());
   
+  // TODO - fix clipping of bitmaps
+
   if (bounds.IsPixelAligned() && checkTransform(srcMtx))
   {
     double tx, ty;

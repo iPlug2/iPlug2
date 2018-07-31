@@ -28,17 +28,17 @@ IGraphicsLice::~IGraphicsLice()
   DELETE_NULL(mTmpBitmap);
 }
 
-void IGraphicsLice::SetDisplayScale(int scale)
+void IGraphicsLice::OnResizeOrRescale()
 {
   if(!mDrawBitmap)
   {
-    mDrawBitmap = new LICE_SysBitmap(Width() * scale, Height() * scale);
+    mDrawBitmap = new LICE_SysBitmap(Width() * GetDisplayScale(), Height() * GetDisplayScale());
     mTmpBitmap = new LICE_MemBitmap();
   }
   else
-    mDrawBitmap->resize(Width() * scale, Height() * scale);
-  
-  IGraphics::SetDisplayScale(scale);
+    mDrawBitmap->resize(Width() * GetDisplayScale(), Height() * GetDisplayScale());
+    
+  IGraphics::OnResizeOrRescale();
 }
 
 void IGraphicsLice::DrawSVG(ISVG& svg, const IRECT& bounds, const IBlend* pBlend)
@@ -495,7 +495,7 @@ void IGraphicsLice::RenderDrawBitmap()
 #endif
     
   CGImageRef img = NULL;
-  CGRect r = CGRectMake(0, 0, Width(), Height());
+  CGRect r = CGRectMake(0, 0, WindowWidth(), WindowHeight());
 
   if (!mColorSpace)
   {

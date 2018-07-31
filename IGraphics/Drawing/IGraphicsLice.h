@@ -59,7 +59,7 @@ public:
   IGraphicsLice(IEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsLice();
 
-  void SetDisplayScale(int) override;
+  void OnResizeOrRescale() override;
 
   void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override;
   void DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend) override;

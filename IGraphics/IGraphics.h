@@ -66,7 +66,7 @@ public:
 
   /** Called by the platform IGraphics class when UI created and when moving to a new screen with different DPI, implementations in draw class must call the base implementation
    * @param scale An integer specifying the scale of the display, typically 2 on a macOS retina screen */
-  virtual void SetDisplayScale(int scale) { mDisplayScale = (float) scale; OnDisplayScale(); };
+  void SetDisplayScale(int scale) { mDisplayScale = (float) scale; OnResizeOrRescale(); };
   
 #ifndef OS_WEB
   /** Draw an SVG image to the graphics context
@@ -348,8 +348,8 @@ public:
   virtual void ReleaseBitmap(const IBitmap& bitmap);
   IBitmap GetScaledBitmap(IBitmap& src);
 
-  /** This method is called when display on which the UI resides changes scale, i.e. if the window is dragged from a high DPI screen to a low DPI screen or vice versa */
-  virtual void OnDisplayScale();
+  /** This method is called when display on which the UI resides changes scale, or size i.e. if the window is dragged from a high DPI screen to a low DPI screen or vice versa */
+  virtual void OnResizeOrRescale();
 
   /** Called by some drawing API classes to finally blit the draw bitmap onto the screen */
   virtual void RenderDrawBitmap() {}
