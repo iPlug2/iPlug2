@@ -187,49 +187,6 @@ void IControl::PromptUserInput(IRECT& bounds)
   }
 }
 
-IControl::AuxParam* IControl::GetAuxParam(int idx)
-{
-  assert(idx > -1 && idx < mAuxParams.GetSize());
-  return mAuxParams.Get() + idx;
-}
-
-int IControl::GetAuxParamIdx(int paramIdx)
-{
-  for (int i=0;i<NAuxParams();i++)
-  {
-    if(GetAuxParam(i)->mParamIdx == paramIdx)
-      return i;
-  }
-
-  return -1;
-}
-
-void IControl::AddAuxParam(int paramIdx)
-{
-  mAuxParams.Add(AuxParam(paramIdx));
-}
-
-void IControl::SetAuxParamValueFromDelegate(int auxParam, double value)
-{
-  AuxParam* pAuxParam = GetAuxParam(auxParam);
-
-  if (pAuxParam->mValue != value)
-  {
-    pAuxParam->mValue = value;
-    SetDirty(false);
-    Redraw();
-  }
-}
-
-void IControl::SetAllAuxParamsFromGUI()
-{
-  for (int i=0;i<mAuxParams.GetSize();i++)
-  {
-    AuxParam* pAuxParam = GetAuxParam(i);
-    mDelegate.SendParameterValueFromUI(pAuxParam->mParamIdx, pAuxParam->mValue);
-  }
-}
-
 void IControl::SetPTParameterHighlight(bool isHighlighted, int color)
 {
   switch (color)
