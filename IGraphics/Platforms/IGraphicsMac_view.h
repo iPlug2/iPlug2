@@ -6,10 +6,10 @@
 inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& bounds)
 {
   float scale = pGraphics->GetScale();
-    float x = floor(bounds.L * scale);
-    float y = floor(bounds.T * scale);
-    float x2 = ceil(bounds.R * scale);
-    float y2 = ceil(bounds.B * scale);
+  float x = floor(bounds.L * scale);
+  float y = floor(bounds.T * scale);
+  float x2 = ceil(bounds.R * scale);
+  float y2 = ceil(bounds.B * scale);
     
   return NSMakeRect(x, y, x2 - x, y2 - y);
 }
