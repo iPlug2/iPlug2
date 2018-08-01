@@ -535,7 +535,11 @@ void IGraphicsLice::RenderDrawBitmap()
 
   if (img)
   {
+    CGContextSaveGState((CGContext*) GetPlatformContext());
+    CGContextTranslateCTM((CGContext*) GetPlatformContext(), 0.0, WindowHeight());
+    CGContextScaleCTM((CGContext*) GetPlatformContext(), 1.0, -1.0);
     CGContextDrawImage((CGContext*) GetPlatformContext(), r, img);
+    CGContextRestoreGState((CGContext*) GetPlatformContext());
     CGImageRelease(img);
   }
     

@@ -155,7 +155,8 @@ void IGraphicsAGG::OnResizeOrRescale()
   mPixelMap.create(WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
   mRenBuf.attach(mPixelMap.buf(), mPixelMap.width(), mPixelMap.height(), mPixelMap.row_bytes());
   mRasterizer.SetOutput(mRenBuf);
-  
+  mRasterizer.ClearWhite();
+    
   mTransform = agg::trans_affine_scaling(GetScale(), GetScale());
   
   IGraphics::OnResizeOrRescale();
@@ -535,7 +536,11 @@ APIBitmap* IGraphicsAGG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 void IGraphicsAGG::RenderDrawBitmap()
 {
 #ifdef OS_MAC
+  CGContextSaveGState((CGContext*) GetPlatformContext());
+  CGContextTranslateCTM((CGContext*) GetPlatformContext(), 0.0, WindowHeight());
+  CGContextScaleCTM((CGContext*) GetPlatformContext(), 1.0, -1.0);
   mPixelMap.draw((CGContext*) GetPlatformContext(), GetDisplayScale());
+  CGContextRestoreGState((CGContext*) GetPlatformContext());
 #else
   #error NOT IMPLEMENTED
 #endif
@@ -823,11 +828,5 @@ agg::pixel_map* IGraphicsAGG::load_image(const char* filename)
 }
 
 */
-
-void IGraphicsAGG::Draw(const IRECT& bounds)
-{
-  mRasterizer.ClearWhite();
-  IGraphics::Draw(bounds);
-}
 
 #include "IGraphicsAGG_src.cpp"

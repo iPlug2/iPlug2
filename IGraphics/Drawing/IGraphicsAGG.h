@@ -156,8 +156,6 @@ public:
 
   void OnResizeOrRescale() override;
 
-  void Draw(const IRECT& bounds) override;
-
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override;
 

@@ -236,6 +236,11 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   return mGraphics ? YES : NO;
 }
 
+- (BOOL) isFlipped
+{
+    return YES;
+}
+
 - (BOOL) acceptsFirstResponder
 {
   return YES;
@@ -280,13 +285,12 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
         pCGC = (CGContextRef) [gc graphicsPort];
         mGraphics->SetPlatformContext(pCGC);
     }
-
+      
     if (mGraphics->GetPlatformContext())
     {
       IRECT tmpBounds = ToIRECT(mGraphics, &bounds);
       mGraphics->Draw(tmpBounds);
     }
-
   }
 }
 
@@ -320,7 +324,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     NSPoint pt = [self convertPoint:[pEvent locationInWindow] fromView:nil];
     // TODO - fix or remove these values!!
     *pX = pt.x / mGraphics->GetScale();//- 2.f;
-    *pY = (mGraphics->WindowHeight() - pt.y) / mGraphics->GetScale();//- 3.f;
+    *pY = pt.y / mGraphics->GetScale();//- 3.f;
     mPrevX = *pX;
     mPrevY = *pY;
 
@@ -715,8 +719,9 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     NSString *pFirstFile = [pFiles firstObject];
     NSPoint point = [sender draggingLocation];
     NSPoint relativePoint = [self convertPoint: point fromView:nil];
-    float x = relativePoint.x - 2.f;
-    float y = mGraphics->Height() - relativePoint.y - 3.f;
+    // TODO - fix or remove these values
+    float x = relativePoint.x;// - 2.f;
+    float y = relativePoint.y;// - 3.f;
     mGraphics->OnDrop([pFirstFile UTF8String], x, y);
   }
 
@@ -729,9 +734,9 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   NSRect viewFrameInWindowCoords = [self convertRect: [self bounds] toView: nil];
 
   float width = windowSize.width - viewFrameInWindowCoords.origin.x;
-  float height = viewFrameInWindowCoords.origin.y + viewFrameInWindowCoords.size.height;
+  float height = windowSize.height - viewFrameInWindowCoords.origin.y;
   
-  mGraphics->OnResizeGesture(0., height);
+  //mGraphics->OnResizeGesture(0., height);
 }
 
 @end

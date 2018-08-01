@@ -341,8 +341,7 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
 #ifdef OS_MAC
     mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), WindowWidth(), WindowHeight());
     mContext = cairo_create(mSurface);
-    cairo_surface_set_device_scale(mSurface, GetScale(), -GetScale());
-    cairo_surface_set_device_offset(mSurface, 0, WindowHeight());
+    cairo_surface_set_device_scale(mSurface, GetScale(), GetScale());
 #elif defined OS_WIN
     HDC dc = (HDC) pContext;
     mSurface = cairo_win32_surface_create_with_ddb(dc, CAIRO_FORMAT_ARGB32, Width(), Height());

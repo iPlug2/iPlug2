@@ -487,14 +487,6 @@ void IGraphics::DrawControl(IControl* pControl)
 
 bool IGraphics::IsDirty(IRECT& bounds)
 {
-#ifndef NDEBUG
-  if (mShowControlBounds)
-  {
-    bounds = mDrawRECT;
-    return true;
-  }
-#endif
-
   bool dirty = false;
   int i, n = mControls.GetSize();
   IControl** ppControl = mControls.GetList();
@@ -565,7 +557,6 @@ void IGraphics::Draw(const IRECT& bounds)
       
       if (pControl->IsDirty() && bounds.Contains(mDrawRECT))   // if pControl is dirty and fully in the draw bounds
       {
-        
         pControl->SetClean();
         
         for (auto j = 0; j < n; ++j)   // loop through all controls
@@ -582,38 +573,38 @@ void IGraphics::Draw(const IRECT& bounds)
 
   // TODO these will blend incorrectly if constantly redrawn and overlapped
   
-  if(mPopupControl != nullptr && mPopupControl->IsDirty())
+  if (mPopupControl != nullptr && mPopupControl->IsDirty())
   {
     mPopupControl->Draw(*this);
     mPopupControl->SetClean();
   }
   
-  if(mCornerResizer != nullptr)
+  if (mCornerResizer != nullptr)
   {
-    mCornerResizer->Draw(*this);
+    //mCornerResizer->Draw(*this);
   }
 
 #ifndef NDEBUG
   // some helpers for debugging
-  if(mShowAreaDrawn)
+  if (mShowAreaDrawn)
   {
     static IColor c;
     c.Randomise(50);
     FillRect(c, bounds);
   }
 
-  if(mShowControlBounds)
+  if (mShowControlBounds)
   {
+    ClipRegion(bounds);
     for (int j = 1; j < mControls.GetSize(); j++)
     {
       IRECT r = mControls.Get(j)->GetRECT();
-      ClipRegion(r);
       DrawRect(CONTROL_BOUNDS_COLOR, r);
-      ResetClipRegion();
     }
+    ResetClipRegion();
   }
 
-  if(mLiveEdit)
+  if (mLiveEdit)
     mLiveEdit->Draw(*this);
 
 #endif
