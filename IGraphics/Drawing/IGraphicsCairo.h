@@ -74,7 +74,7 @@ public:
   bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
 
-  void RenderDrawBitmap() override;
+  void EndFrame() override;
 
   void SetPlatformContext(void* pContext) override;
 

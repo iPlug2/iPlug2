@@ -99,7 +99,7 @@ protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
 
-  void RenderDrawBitmap() override;
+  void EndFrame() override;
     
 private:
   LICE_IFont* CacheFont(const IText& text, double scale);

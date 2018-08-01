@@ -362,7 +362,7 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
   IGraphics::SetPlatformContext(pContext);
 }
 
-void IGraphicsCairo::RenderDrawBitmap()
+void IGraphicsCairo::EndFrame()
 {
   cairo_surface_flush(mSurface);
 

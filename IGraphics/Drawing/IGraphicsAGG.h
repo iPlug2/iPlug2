@@ -193,8 +193,6 @@ public:
 
  //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
 
-  void RenderDrawBitmap() override;
-
 private:
 
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;

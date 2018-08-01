@@ -533,7 +533,7 @@ APIBitmap* IGraphicsAGG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
   return new AGGBitmap(pCopy, scale);
 }
 
-void IGraphicsAGG::RenderDrawBitmap()
+void IGraphicsAGG::EndFrame()
 {
 #ifdef OS_MAC
   CGContextSaveGState((CGContext*) GetPlatformContext());

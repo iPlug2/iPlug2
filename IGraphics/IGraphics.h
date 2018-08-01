@@ -60,9 +60,11 @@ public:
 #pragma mark - IGraphics drawing API implementation
   //These are NanoVG only, may be refactored
   virtual void BeginFrame() {};
-  virtual void EndFrame() {};
   virtual void ViewInitialized(void* pLayer) {};
   //
+  
+  /** Called by some drawing API classes to finally blit the draw bitmap onto the screen or perform other cleanup after drawing */
+  virtual void EndFrame() {};
 
   /** Called by the platform IGraphics class when UI created and when moving to a new screen with different DPI, implementations in draw class must call the base implementation
    * @param scale An integer specifying the scale of the display, typically 2 on a macOS retina screen */
@@ -350,9 +352,6 @@ public:
 
   /** This method is called when display on which the UI resides changes scale, or size i.e. if the window is dragged from a high DPI screen to a low DPI screen or vice versa */
   virtual void OnResizeOrRescale();
-
-  /** Called by some drawing API classes to finally blit the draw bitmap onto the screen */
-  virtual void RenderDrawBitmap() {}
 
 #pragma mark - IGraphics base implementation - drawing helpers
 

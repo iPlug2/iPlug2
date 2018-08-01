@@ -486,7 +486,7 @@ APIBitmap* IGraphicsLice::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
   return new LICEBitmap(pDest, scale);
 }
 
-void IGraphicsLice::RenderDrawBitmap()
+void IGraphicsLice::EndFrame()
 {
 #ifdef OS_MAC
 

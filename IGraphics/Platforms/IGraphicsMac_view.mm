@@ -298,17 +298,15 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 {
   IRECT r;
 #ifdef IGRAPHICS_NANOVG
-  mGraphics->BeginFrame();
 
   //TODO: this is redrawing every IControl!
-  r.R = mGraphics->Width();
-  r.B = mGraphics->Height();
-//  if(mGraphics->IsDirty(r))
-  mGraphics->IsDirty(r); // TEMP TO FORCE UPDATES ON ANIMATION
-  mGraphics->Draw(r);
-
-  mGraphics->EndFrame();
-  [self setNeedsDisplay: YES];
+  mGraphics->SetAllControlsDirty();
+ 
+  if (mGraphics->IsDirty(r))
+  {
+    mGraphics->Draw(r);
+    [self setNeedsDisplayInRect:ToNSRect(mGraphics, r)];
+  }
 #else
   if (/*pTimer == mTimer && mGraphics && */mGraphics->IsDirty(r))
   {

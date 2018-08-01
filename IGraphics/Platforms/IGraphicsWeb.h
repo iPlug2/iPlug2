@@ -64,8 +64,6 @@ public:
   bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
 
-  void RenderDrawBitmap() override { /* Nothing to do here */ }
-
   void SetPlatformContext(void* pContext) override {} // TODO:
 
   void HideMouseCursor(bool hide, bool returnToStartPos) override
