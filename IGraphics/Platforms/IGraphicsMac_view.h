@@ -14,7 +14,7 @@ inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& bounds)
   return NSMakeRect(x, y, x2 - x, y2 - y);
 }
 
-inline IRECT ToIRECT(IGraphics* pGraphics, NSRect* pR)
+inline IRECT ToIRECT(IGraphics* pGraphics, const NSRect* pR)
 {
   float scale = 1.f/pGraphics->GetScale();
   float x = pR->origin.x, y = pR->origin.y, w = pR->size.width, h = pR->size.height;
