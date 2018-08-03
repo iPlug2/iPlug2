@@ -506,7 +506,7 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
 #endif
 }
 
-IPopupMenuControlBase::IPopupMenuControlBase(IEditorDelegate& dlg, int paramIdx, IRECT collapsedBounds, IRECT expandedBounds, EDirection direction)
+IPopupMenuControlBase::IPopupMenuControlBase(IEditorDelegate& dlg, int paramIdx, IText text, IRECT collapsedBounds, IRECT expandedBounds, EDirection direction)
 : IControl(dlg, collapsedBounds, paramIdx)
 , mSpecifiedCollapsedBounds(collapsedBounds)
 , mSpecifiedExpandedBounds(expandedBounds)
@@ -514,7 +514,7 @@ IPopupMenuControlBase::IPopupMenuControlBase(IEditorDelegate& dlg, int paramIdx,
 {
   SetActionFunction(DefaultClickActionFunc);
   
-  mText = IText(COLOR_BLACK, 24, nullptr, IText::kStyleNormal, IText::kAlignNear);
+  mText = text;
   mDirty = false;
 }
 
