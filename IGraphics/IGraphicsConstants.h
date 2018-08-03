@@ -39,7 +39,7 @@ static const float GRAYED_ALPHA = 0.25f;
   const int DEFAULT_TEXT_SIZE = 12;
 #elif defined OS_MAC
   const char* const DEFAULT_FONT = "Roboto-Regular";
-  const int DEFAULT_TEXT_SIZE = 10;
+  const int DEFAULT_TEXT_SIZE = 14;
   #ifndef DEFAULT_PATH
   static const char* DEFAULT_PATH = "~/Desktop";
   #endif
