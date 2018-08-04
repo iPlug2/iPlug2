@@ -191,6 +191,8 @@ public:
   void* GetDrawContext() override { return nullptr; } //TODO
   const char* GetDrawingAPIStr() override { return "AGG"; }
 
+  void EndFrame() override;
+    
  //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
 
 private:

@@ -364,9 +364,9 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
 
 void IGraphicsCairo::EndFrame()
 {
-  cairo_surface_flush(mSurface);
-
-#ifdef OS_WIN
+#ifdef OS_MAC
+  //cairo_surface_flush(mSurface);
+#elif defined OS_WIN
   PAINTSTRUCT ps;
   HWND hWnd = (HWND) GetWindow();
   HDC dc = BeginPaint(hWnd, &ps);
@@ -378,5 +378,7 @@ void IGraphicsCairo::EndFrame()
     StretchBlt(dc, 0, 0, WindowWidth(), WindowHeight(), cdc, 0, 0, Width(), Height(), SRCCOPY);
 
   EndPaint(hWnd, &ps);
+#else
+#error NOT IMPLEMENTED
 #endif
 }

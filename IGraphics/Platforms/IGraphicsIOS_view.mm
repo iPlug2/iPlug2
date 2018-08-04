@@ -65,7 +65,6 @@
 - (void)render
 {
   IRECT r;
-  mGraphics->BeginFrame();
   
   //TODO: this is redrawing every IControl!
   r.R = mGraphics->WindowWidth();
@@ -75,7 +74,6 @@
   
   mGraphics->Draw(r);
   
-  mGraphics->EndFrame();
   [self.layer setNeedsDisplay]; // TODO: if nothing is dirty shouldn't set this
 }
 
