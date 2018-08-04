@@ -94,6 +94,9 @@ void IGraphics::Resize(int w, int h, float scale)
   mWidth = w;
   mHeight = h;
   
+  if (mCornerResizer)
+    mCornerResizer->OnRescale();
+  
   // TODO: Use natural resolution bitmaps where possible?
 
   GetDelegate()->ResizeGraphicsFromUI(w * scale, h * scale, scale);
@@ -1091,9 +1094,6 @@ void IGraphics::OnResizeGesture(float x, float y)
 
     Resize(width, height, GetScale());
   }
-  
-  if(mCornerResizer)
-    mCornerResizer->OnRescale();
 }
 
 IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
