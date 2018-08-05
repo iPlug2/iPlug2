@@ -40,8 +40,9 @@ IGraphicsTest::IGraphicsTest()
                                               [&](IControl* pCaller, IGraphics& g, IRECT& b, IMouseInfo& mi, double t)
                                               {
                                                 static IBitmap knobBitmap = g.LoadBitmap("smiley.png");
-
-                                                g.DrawFittedBitmap(knobBitmap, b);
+                                                
+                                                g.DrawBitmap(knobBitmap, b, 0, 0);
+//                                                g.DrawFittedBitmap(knobBitmap, b);
                                               }));
 
   AttachGraphics(pGraphics);
