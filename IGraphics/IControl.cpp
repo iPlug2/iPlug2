@@ -169,6 +169,8 @@ void IControl::PromptUserInput()
       IRECT txtRECT = IRECT(cX - halfW, cY - halfH, cX + halfW,cY + halfH);
       GetUI()->PromptUserInput(*this, txtRECT);
     }
+    
+    SetDirty(false);
   }
 }
 
