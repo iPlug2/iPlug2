@@ -55,7 +55,6 @@ void IControl::SetValueFromDelegate(double value)
   {
     mValue = value;
     SetDirty(false);
-    Redraw();
   }
 }
 
@@ -65,7 +64,6 @@ void IControl::SetValueFromUserInput(double value)
   {
     mValue = value;
     SetDirty();
-    Redraw();
   }
 }
 
@@ -103,14 +101,12 @@ void IControl::SetDirty(bool triggerAction)
 
 void IControl::SetClean()
 {
-  mDirty = mRedraw;
-  mRedraw = false;
+  mDirty = false;
 }
 
 void IControl::Hide(bool hide)
 {
   mHide = hide;
-  mRedraw = true;
   SetDirty(false);
 }
 
@@ -173,8 +169,8 @@ void IControl::PromptUserInput()
       IRECT txtRECT = IRECT(cX - halfW, cY - halfH, cX + halfW,cY + halfH);
       GetUI()->PromptUserInput(*this, txtRECT);
     }
-
-    Redraw();
+    
+    SetDirty(false);
   }
 }
 
@@ -183,7 +179,6 @@ void IControl::PromptUserInput(IRECT& bounds)
   if (mParamIdx >= 0 && !mDisablePrompt)
   {
     GetUI()->PromptUserInput(*this, bounds);
-    Redraw();
   }
 }
 

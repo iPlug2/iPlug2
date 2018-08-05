@@ -28,17 +28,17 @@ IGraphicsLice::~IGraphicsLice()
   DELETE_NULL(mTmpBitmap);
 }
 
-void IGraphicsLice::SetDisplayScale(int scale)
+void IGraphicsLice::OnResizeOrRescale()
 {
   if(!mDrawBitmap)
   {
-    mDrawBitmap = new LICE_SysBitmap(Width() * scale, Height() * scale);
+    mDrawBitmap = new LICE_SysBitmap(Width() * GetDisplayScale(), Height() * GetDisplayScale());
     mTmpBitmap = new LICE_MemBitmap();
   }
   else
-    mDrawBitmap->resize(Width() * scale, Height() * scale);
-  
-  IGraphics::SetDisplayScale(scale);
+    mDrawBitmap->resize(Width() * GetDisplayScale(), Height() * GetDisplayScale());
+    
+  IGraphics::OnResizeOrRescale();
 }
 
 void IGraphicsLice::DrawSVG(ISVG& svg, const IRECT& bounds, const IBlend* pBlend)
@@ -486,7 +486,7 @@ APIBitmap* IGraphicsLice::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
   return new LICEBitmap(pDest, scale);
 }
 
-void IGraphicsLice::RenderDrawBitmap()
+void IGraphicsLice::EndFrame()
 {
 #ifdef OS_MAC
 
@@ -495,7 +495,7 @@ void IGraphicsLice::RenderDrawBitmap()
 #endif
     
   CGImageRef img = NULL;
-  CGRect r = CGRectMake(0, 0, Width(), Height());
+  CGRect r = CGRectMake(0, 0, WindowWidth(), WindowHeight());
 
   if (!mColorSpace)
   {
@@ -535,7 +535,11 @@ void IGraphicsLice::RenderDrawBitmap()
 
   if (img)
   {
+    CGContextSaveGState((CGContext*) GetPlatformContext());
+    CGContextTranslateCTM((CGContext*) GetPlatformContext(), 0.0, WindowHeight());
+    CGContextScaleCTM((CGContext*) GetPlatformContext(), 1.0, -1.0);
     CGContextDrawImage((CGContext*) GetPlatformContext(), r, img);
+    CGContextRestoreGState((CGContext*) GetPlatformContext());
     CGImageRelease(img);
   }
     

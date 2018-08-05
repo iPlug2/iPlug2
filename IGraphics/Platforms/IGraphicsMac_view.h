@@ -5,14 +5,20 @@
 
 inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& bounds)
 {
-  float B = (pGraphics->Height() - bounds.B);
-  return NSMakeRect(bounds.L, B, bounds.W(), bounds.H());
+  float scale = pGraphics->GetScale();
+  float x = floor(bounds.L * scale);
+  float y = floor(bounds.T * scale);
+  float x2 = ceil(bounds.R * scale);
+  float y2 = ceil(bounds.B * scale);
+    
+  return NSMakeRect(x, y, x2 - x, y2 - y);
 }
 
-inline IRECT ToIRECT(IGraphics* pGraphics, NSRect* pR)
+inline IRECT ToIRECT(IGraphics* pGraphics, const NSRect* pR)
 {
-  float x = pR->origin.x, y = pR->origin.y, w = pR->size.width, h = pR->size.height, gh = pGraphics->Height();
-  return IRECT(x, gh - (y + h), x + w, gh - y);
+  float scale = 1.f/pGraphics->GetScale();
+  float x = pR->origin.x, y = pR->origin.y, w = pR->size.width, h = pR->size.height;
+  return IRECT(floor(x * scale), floor(y * scale), ceil((x + w) * scale), ceil(y + h) * scale);
 }
 
 inline NSColor* ToNSColor(const IColor& c)

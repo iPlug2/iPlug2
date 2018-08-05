@@ -154,9 +154,7 @@ public:
   IGraphicsAGG(IEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsAGG();
 
-  void SetDisplayScale(int scale) override;
-
-  void Draw(const IRECT& bounds) override;
+  void OnResizeOrRescale() override;
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override;
@@ -193,9 +191,9 @@ public:
   void* GetDrawContext() override { return nullptr; } //TODO
   const char* GetDrawingAPIStr() override { return "AGG"; }
 
+  void EndFrame() override;
+    
  //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
-
-  void RenderDrawBitmap() override;
 
 private:
 
@@ -210,7 +208,7 @@ private:
   template<typename PathType> void DoClip(PathType& path)
   {
     IRECT clip = mClipRECT.Empty() ? GetBounds() : mClipRECT;
-    clip.Scale(GetDisplayScale());
+    clip.Scale(GetDisplayScale() * GetScale());
     path.clip_box(clip.L, clip.T, clip.R, clip.B);
   }
   

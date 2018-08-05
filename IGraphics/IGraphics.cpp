@@ -54,7 +54,6 @@ IGraphics::IGraphics(IEditorDelegate& dlg, int w, int h, int fps, float scale)
 , mWidth(w)
 , mHeight(h)
 , mScale(scale)
-, mScaleReciprocal(1.f/scale)
 {
   mFPS = (fps > 0 ? fps : DEFAULT_FPS);
 }
@@ -92,16 +91,18 @@ void IGraphics::Resize(int w, int h, float scale)
   ReleaseMouseCapture();
 
   mScale = scale;
-  mScaleReciprocal = 1.f/mScale;
   mWidth = w;
   mHeight = h;
+  
+  if (mCornerResizer)
+    mCornerResizer->OnRescale();
   
   // TODO: Use natural resolution bitmaps where possible?
 
   GetDelegate()->ResizeGraphicsFromUI(w * scale, h * scale, scale);
 }
 
-void IGraphics::OnDisplayScale()
+void IGraphics::OnResizeOrRescale()
 {
   int i, n = mControls.GetSize();
   IControl** ppControl = mControls.GetList();
@@ -473,16 +474,22 @@ void IGraphics::DrawData(const IColor& color, const IRECT& bounds, float* normYP
   //TODO:
 }
 
+// TODO - Oli - are you happy with this hlepfer function?
+
+void IGraphics::DrawControl(IControl* pControl)
+{
+  ClipRegion(mDrawRECT.Intersect(pControl->GetRECT()));
+  pControl->Draw(*this);
+  
+#ifdef AAX_API
+  pControl->DrawPTHighlight(*this);
+#endif
+  
+  ResetClipRegion();
+}
+
 bool IGraphics::IsDirty(IRECT& bounds)
 {
-#ifndef NDEBUG
-  if (mShowControlBounds)
-  {
-    bounds = mDrawRECT;
-    return true;
-  }
-#endif
-
   bool dirty = false;
   int i, n = mControls.GetSize();
   IControl** ppControl = mControls.GetList();
@@ -521,127 +528,93 @@ bool IGraphics::IsDirty(IRECT& bounds)
 // which may be a larger area than what is strictly dirty.
 void IGraphics::Draw(const IRECT& bounds)
 {
+  BeginFrame();
+
   int n = mControls.GetSize();
 
   if (!n)
     return;
 
-  if (mStrict)
-  {
+  IControl* pBG = mControls.Get(0);
+  
+  if (mStrict || pBG->IsDirty())
+  {    
     mDrawRECT = bounds;
     IControl** ppControl = mControls.GetList();
     for (auto i = 0; i < n; ++i, ++ppControl)
     {
       IControl* pControl = *ppControl;
-      if (!(pControl->IsHidden()) && bounds.Intersects(pControl->GetRECT()))
+      if (bounds.Intersects(pControl->GetRECT()))
       {
-        ClipRegion(mDrawRECT.Intersect(pControl->GetRECT()));
-        pControl->Draw(*this);
-
-#ifdef AAX_API
-        pControl->DrawPTHighlight(*this);
-#endif
-
-        ResetClipRegion();
+        if (bounds.Contains(pControl->GetRECT()))
+          pControl->SetClean();
+        if (!i || !pControl->IsHidden())
+          DrawControl(pControl);
       }
-      pControl->SetClean();
     }
   }
   else
   {
-    IControl* pBG = mControls.Get(0);
-    if (pBG->IsDirty()) // Special case when everything needs to be drawn.
+    for (auto i = 1; i < n; ++i)   // loop through all controls starting from one (not bg)
     {
-      mDrawRECT = pBG->GetRECT();
-      for (int j = 0; j < n; ++j)
+      IControl* pControl = mControls.Get(i); // assign control i to pControl
+      mDrawRECT = pControl->GetRECT(); // put the bounds in the mDrawRect member variable
+      
+      if (pControl->IsDirty() && bounds.Contains(mDrawRECT))   // if pControl is dirty and fully in the draw bounds
       {
-        IControl* pControl2 = mControls.Get(j);
-        if (!j || !(pControl2->IsHidden()))
+        pControl->SetClean();
+        
+        for (auto j = 0; j < n; ++j)   // loop through all controls
         {
-          ClipRegion(mDrawRECT.Intersect(pControl2->GetRECT()));
-          pControl2->Draw(*this);
-
-#ifdef AAX_API
-          pControl2->DrawPTHighlight(*this);
-#endif
-
-          pControl2->SetClean();
-          ResetClipRegion();
-        }
-      }
-    }
-    else
-    {
-      for (auto i = 1; i < n; ++i)   // loop through all controls starting from one (not bg)
-      {
-        IControl* pControl = mControls.Get(i); // assign control i to pControl
-        if (pControl->IsDirty())   // if pControl is dirty
-        {
-          mDrawRECT = pControl->GetRECT(); // put the bounds in the mDrawRect member variable
-          for (auto j = 0; j < n; ++j)   // loop through all controls
-          {
-            IControl* pControl2 = mControls.Get(j); // assign control j to pControl2
-
-            // if control1 == control2 OR control2 is not hidden AND control2's bounds intersects mDrawRect
-            if (!pControl2->IsHidden() && (i == j || pControl2->GetRECT().Intersects(mDrawRECT)))
-            {
-              ClipRegion(mDrawRECT.Intersect(pControl2->GetRECT()));
-              pControl2->Draw(*this);
-
-#ifdef AAX_API
-              pControl2->DrawPTHighlight(*this);
-#endif
-              ResetClipRegion();
-            }
-          }
-          pControl->SetClean();
+          IControl* pControl2 = mControls.Get(j); // assign control j to pControl2
+          
+          // if control1 == control2 OR control2 is not hidden AND control2's bounds intersects mDrawRect
+          if ((i == j || pControl2->GetRECT().Intersects(mDrawRECT)) && (!j || !pControl2->IsHidden()))
+            DrawControl(pControl2);
         }
       }
     }
   }
 
-  if(mPopupControl != nullptr && mPopupControl->IsDirty())
+  // TODO these will blend incorrectly if constantly redrawn and overlapped
+  
+  if (mPopupControl != nullptr && mPopupControl->IsDirty())
   {
-    ClipRegion(mPopupControl->GetRECT());
     mPopupControl->Draw(*this);
     mPopupControl->SetClean();
-    ResetClipRegion();
   }
   
-  if(mCornerResizer != nullptr && mCornerResizer->IsDirty())
+  if (mCornerResizer != nullptr)
   {
-    ClipRegion(mCornerResizer->GetRECT());
-    mCornerResizer->Draw(*this);
-    mCornerResizer->SetClean();
-    ResetClipRegion();
+    //mCornerResizer->Draw(*this);
   }
 
 #ifndef NDEBUG
   // some helpers for debugging
-  if(mShowAreaDrawn)
+  if (mShowAreaDrawn)
   {
     static IColor c;
     c.Randomise(50);
     FillRect(c, bounds);
   }
 
-  if(mShowControlBounds)
+  if (mShowControlBounds)
   {
+    ClipRegion(bounds);
     for (int j = 1; j < mControls.GetSize(); j++)
     {
       IRECT r = mControls.Get(j)->GetRECT();
-      ClipRegion(r);
       DrawRect(CONTROL_BOUNDS_COLOR, r);
-      ResetClipRegion();
     }
+    ResetClipRegion();
   }
 
-  if(mLiveEdit)
+  if (mLiveEdit)
     mLiveEdit->Draw(*this);
 
 #endif
 
-  RenderDrawBitmap();
+  EndFrame();
 }
 
 void IGraphics::SetStrictDrawing(bool strict)
@@ -663,9 +636,6 @@ void IGraphics::SetStrictDrawing(bool strict)
 
 void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
-  x *= mScaleReciprocal;
-  y *= mScaleReciprocal;
-  
   Trace("IGraphics::OnMouseDown", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
 
@@ -745,9 +715,6 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 
 void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
-  x *= mScaleReciprocal;
-  y *= mScaleReciprocal;
- 
   if(mResizingInProcess)
   {
     mResizingInProcess = false;
@@ -796,9 +763,6 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
 
 bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
 {
-  x *= mScaleReciprocal;
-  y *= mScaleReciprocal;
-  
   Trace("IGraphics::OnMouseOver", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
 
@@ -888,11 +852,6 @@ void IGraphics::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMo
 
     return;
   }
-    
-  x *= mScaleReciprocal;
-  y *= mScaleReciprocal;
-  dX *= mScaleReciprocal;
-  dY *= mScaleReciprocal;
   
   Trace("IGraphics::OnMouseDrag:", __LINE__, "x:%0.2f, y:%0.2f, dX:%0.2f, dY:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, dX, dY, mod.L, mod.R, mod.S, mod.C, mod.A);
@@ -918,9 +877,6 @@ void IGraphics::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMo
 
 bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 {
-  x *= mScaleReciprocal;
-  y *= mScaleReciprocal;
-  
   Trace("IGraphics::OnMouseDblClick", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
 
@@ -946,9 +902,6 @@ bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 
 void IGraphics::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
 {
-  x *= mScaleReciprocal;
-  y *= mScaleReciprocal;
-  
   if(mPopupControl && mPopupControl->GetExpanded())
   {
     mPopupControl->OnMouseWheel(x, y, mod, d);
@@ -970,8 +923,6 @@ void IGraphics::ReleaseMouseCapture()
 
 bool IGraphics::OnKeyDown(float x, float y, int key)
 {
-  x *= mScaleReciprocal;
-  y *= mScaleReciprocal;
   Trace("IGraphics::OnKeyDown", __LINE__, "x:%0.2f, y:%0.2f, key:%i",
         x, y, key);
 
@@ -1131,13 +1082,18 @@ void IGraphics::OnResizeGesture(float x, float y)
 {
   if(mGUISizeMode == EGUISizeMode::kGUISizeScale)
   {
-    float scale = y / Height();
-    Resize(Width(), Height(), Clip(scale, 0.1f, 10.f));
-    
-    if(mCornerResizer)
-      mCornerResizer->OnRescale();
+    float scaleX = (x * GetScale()) / mMouseDownX;
+    float scaleY = (y * GetScale()) / mMouseDownY;
+
+    Resize(Width(), Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
   }
-  
+  else
+  {
+    float width = Clip(x, 10.f, 1000.f);
+    float height = Clip(y, 10.f, 1000.f);
+
+    Resize(width, height, GetScale());
+  }
 }
 
 IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
@@ -1147,9 +1103,6 @@ IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
 
 void IGraphics::OnDrop(const char* str, float x, float y)
 {
-  x *= mScaleReciprocal;
-  y *= mScaleReciprocal;
-  
   int i = GetMouseControlIdx(x, y);
   IControl* pControl = GetControl(i);
   if (pControl != nullptr)

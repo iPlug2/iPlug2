@@ -177,10 +177,6 @@ public:
   void Clamp(double lo, double hi) { mClampLo = lo; mClampHi = hi; }
   void DisablePrompt(bool disable) { mDisablePrompt = disable; }  // Disables the right-click manual value entry.
 
-  // Sometimes a control changes its state as part of its Draw method.
-  // Redraw() prevents the control from being cleaned immediately after drawing.
-  void Redraw() { mRedraw = true; }
-
   // This is an idle call from the GUI thread
   // Only active if USE_IDLE_CALLS is defined.
   virtual void OnGUIIdle() {}
@@ -268,7 +264,6 @@ protected:
   bool mDirty = true;
   bool mHide = false;
   bool mGrayed = false;
-  bool mRedraw = false;
   bool mDisablePrompt = true;
   bool mClamped = false;
   bool mDblAsSingleClick = false;

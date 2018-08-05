@@ -252,11 +252,10 @@ void IGraphicsMac::Resize(int w, int h, float scale)
     [NSAnimationContext beginGrouping]; // Prevent animated resizing
     [[NSAnimationContext currentContext] setDuration:0.0];
     [(IGRAPHICS_VIEW*) mView setFrameSize: size ];
-    [(IGRAPHICS_VIEW*) mView setBoundsSize:NSMakeSize(Width(), Height())];
     [NSAnimationContext endGrouping];
-
-    SetAllControlsDirty();
   }
+  
+  OnResizeOrRescale();
 }
 
 void IGraphicsMac::ClientToScreen(float& x, float& y)

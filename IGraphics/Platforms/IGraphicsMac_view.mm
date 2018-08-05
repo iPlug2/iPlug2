@@ -207,7 +207,6 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   r.size.width = (float) pGraphics->WindowWidth();
   r.size.height = (float) pGraphics->WindowHeight();
   self = [super initWithFrame:r];
-  [self setBoundsSize:NSMakeSize(pGraphics->WindowWidth(), pGraphics->WindowHeight())];
   
 #ifdef IGRAPHICS_NANOVG
   if (!self.wantsLayer) {
@@ -235,6 +234,11 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 - (BOOL) isOpaque
 {
   return mGraphics ? YES : NO;
+}
+
+- (BOOL) isFlipped
+{
+    return YES;
 }
 
 - (BOOL) acceptsFirstResponder
@@ -281,13 +285,12 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
         pCGC = (CGContextRef) [gc graphicsPort];
         mGraphics->SetPlatformContext(pCGC);
     }
-
+      
     if (mGraphics->GetPlatformContext())
     {
       IRECT tmpBounds = ToIRECT(mGraphics, &bounds);
       mGraphics->Draw(tmpBounds);
     }
-
   }
 }
 
@@ -295,17 +298,15 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 {
   IRECT r;
 #ifdef IGRAPHICS_NANOVG
-  mGraphics->BeginFrame();
 
   //TODO: this is redrawing every IControl!
-  r.R = mGraphics->Width();
-  r.B = mGraphics->Height();
-//  if(mGraphics->IsDirty(r))
-  mGraphics->IsDirty(r); // TEMP TO FORCE UPDATES ON ANIMATION
-  mGraphics->Draw(r);
-
-  mGraphics->EndFrame();
-  [self setNeedsDisplay: YES];
+  mGraphics->SetAllControlsDirty();
+ 
+  if (mGraphics->IsDirty(r))
+  {
+    mGraphics->Draw(r);
+    [self setNeedsDisplayInRect:ToNSRect(mGraphics, r)];
+  }
 #else
   if (/*pTimer == mTimer && mGraphics && */mGraphics->IsDirty(r))
   {
@@ -319,8 +320,9 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   if (mGraphics)
   {
     NSPoint pt = [self convertPoint:[pEvent locationInWindow] fromView:nil];
-    *pX = pt.x - 2.f;
-    *pY = mGraphics->WindowHeight() - pt.y - 3.f;
+    // TODO - fix or remove these values!!
+    *pX = pt.x / mGraphics->GetScale();//- 2.f;
+    *pY = pt.y / mGraphics->GetScale();//- 3.f;
     mPrevX = *pX;
     mPrevY = *pY;
 
@@ -722,10 +724,9 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     NSString *pFirstFile = [pFiles firstObject];
     NSPoint point = [sender draggingLocation];
     NSPoint relativePoint = [self convertPoint: point fromView:nil];
-    
-    // TODO: check these bodge values!
-    float x = relativePoint.x - 2.f;
-    float y = mGraphics->WindowHeight() - relativePoint.y - 3.f;
+    // TODO - fix or remove these values
+    float x = relativePoint.x;// - 2.f;
+    float y = relativePoint.y;// - 3.f;
     mGraphics->OnDrop([pFirstFile UTF8String], x, y);
   }
 
@@ -738,9 +739,15 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   NSRect viewFrameInWindowCoords = [self convertRect: [self bounds] toView: nil];
 
   float width = windowSize.width - viewFrameInWindowCoords.origin.x;
-  float height = viewFrameInWindowCoords.origin.y + viewFrameInWindowCoords.size.height;
+  float height = windowSize.height - viewFrameInWindowCoords.origin.y;
+
+  float scaleX = width / mGraphics->Width();
+  float scaleY = height / mGraphics->Height();
   
-  mGraphics->OnResizeGesture(0., height);
+  // Rescale
+  mGraphics->Resize(mGraphics->Width(), mGraphics->Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
+  // Resize
+  //mGraphics->Resize(width, height, mGraphics->GetScale());
 }
 
 @end

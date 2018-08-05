@@ -150,13 +150,16 @@ IGraphicsAGG::~IGraphicsAGG()
 {
 }
 
-void IGraphicsAGG::SetDisplayScale(int scale)
+void IGraphicsAGG::OnResizeOrRescale()
 {
-  mPixelMap.create(Width() * scale, Height() * scale);
+  mPixelMap.create(WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
   mRenBuf.attach(mPixelMap.buf(), mPixelMap.width(), mPixelMap.height(), mPixelMap.row_bytes());
   mRasterizer.SetOutput(mRenBuf);
-
-  IGraphics::SetDisplayScale(scale);
+  mRasterizer.ClearWhite();
+    
+  mTransform = agg::trans_affine_scaling(GetScale(), GetScale());
+  
+  IGraphics::OnResizeOrRescale();
 }
 
 //IFontData IGraphicsAGG::LoadFont(const char* name, const int size)
@@ -218,6 +221,8 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   srcMtx *= agg::trans_affine_translation(srcX, srcY);
   srcMtx *= agg::trans_affine_scaling(bitmap.GetScale());
   
+  // TODO - fix clipping of bitmaps
+
   if (bounds.IsPixelAligned() && checkTransform(srcMtx))
   {
     double tx, ty;
@@ -528,10 +533,14 @@ APIBitmap* IGraphicsAGG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
   return new AGGBitmap(pCopy, scale);
 }
 
-void IGraphicsAGG::RenderDrawBitmap()
+void IGraphicsAGG::EndFrame()
 {
 #ifdef OS_MAC
+  CGContextSaveGState((CGContext*) GetPlatformContext());
+  CGContextTranslateCTM((CGContext*) GetPlatformContext(), 0.0, WindowHeight());
+  CGContextScaleCTM((CGContext*) GetPlatformContext(), 1.0, -1.0);
   mPixelMap.draw((CGContext*) GetPlatformContext(), GetDisplayScale());
+  CGContextRestoreGState((CGContext*) GetPlatformContext());
 #else
   #error NOT IMPLEMENTED
 #endif
@@ -819,11 +828,5 @@ agg::pixel_map* IGraphicsAGG::load_image(const char* filename)
 }
 
 */
-
-void IGraphicsAGG::Draw(const IRECT& bounds)
-{
-  mRasterizer.ClearWhite();
-  IGraphics::Draw(bounds);
-}
 
 #include "IGraphicsAGG_src.cpp"

@@ -24,7 +24,7 @@ void IGraphicsEditorDelegate::AttachGraphics(IGraphics* pGraphics)
     }
 
     // TODO: is it safe/sensible to do this here
-    pGraphics->OnDisplayScale();
+    pGraphics->OnResizeOrRescale();
   }
 }
 
