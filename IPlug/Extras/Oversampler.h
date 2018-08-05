@@ -161,8 +161,11 @@ public:
 
   void ProcessBlock(T** inputs, T** outputs, int nFrames, int nChans, BlockProcessFunc func)
   {
+    assert(nChans <= mNChannels);
+    
     if (mRate == 2)
     {
+      // for each channel upsample block
       for(auto c = 0; c < nChans; c++)
       {
         mUpsampler2x.process_block(mUp2BufferPtrs.Get(c), inputs[c], nFrames);
@@ -179,7 +182,7 @@ public:
         nextInputPtrs.Add(mUp2BufferPtrs.Get(c) + nFrames);
         nextOutputPtrs.Add(mDown2BufferPtrs.Get(c) + nFrames);
       }
-      
+
       func(nextInputPtrs.GetList(), nextOutputPtrs.GetList(), nFrames);
 
       for(auto c = 0; c < nChans; c++)
