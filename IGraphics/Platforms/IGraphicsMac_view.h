@@ -18,7 +18,7 @@ inline IRECT ToIRECT(IGraphics* pGraphics, const NSRect* pR)
 {
   float scale = 1.f/pGraphics->GetScale();
   float x = pR->origin.x, y = pR->origin.y, w = pR->size.width, h = pR->size.height;
-  return IRECT(floor(x * scale), floor(y * scale), ceil((x + w) * scale), ceil(y + h) * scale);
+  return IRECT(x * scale, y * scale, (x + w) * scale, (y + h) * scale);
 }
 
 inline NSColor* ToNSColor(const IColor& c)

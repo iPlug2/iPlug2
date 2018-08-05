@@ -463,10 +463,10 @@ void IGraphicsWeb::OnKeyEvent(val event)
 //static
 void IGraphicsWeb::OnMainLoopTimer()
 {
-  IRECT r;
+  IRECTList rects;
   
-  if (gGraphics->IsDirty(r))
-    gGraphics->Draw(r);
+  if (gGraphics->IsDirty(rects))
+    gGraphics->Draw(rects);
 }
 
 bool IGraphicsWeb::GetTextFromClipboard(WDL_String& str)

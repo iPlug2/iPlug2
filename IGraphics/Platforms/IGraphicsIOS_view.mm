@@ -53,28 +53,28 @@
 #ifdef IGRAPHICS_NANOVG
   [self render];
 #else
-  IRECT r;
+  IRECTList rects;
 
-  if (mGraphics->IsDirty(r))
+  if (mGraphics->IsDirty(rects))
   {
-    [self setNeedsDisplayInRect:ToNSRect(mGraphics, r)];
+    for (auto i = 0; i < rects.Size(); i++)
+      [self setNeedsDisplayInRect:ToNSRect(mGraphics, rects.Get(i))];
   }
 #endif
 }
 
 - (void)render
 {
-  IRECT r;
-  
   //TODO: this is redrawing every IControl!
-  r.R = mGraphics->WindowWidth();
-  r.B = mGraphics->WindowHeight();
-  mGraphics->IsDirty(r);
-  //
+  mGraphics->SetAllControlsDirty();
   
-  mGraphics->Draw(r);
+  IRECTList rects;
   
-  [self.layer setNeedsDisplay]; // TODO: if nothing is dirty shouldn't set this
+  if (mGraphics->IsDirty(rects))
+  {
+    mGraphics->Draw(rects);
+    [self.layer setNeedsDisplay];
+  }
 }
 
 - (BOOL) isOpaque
