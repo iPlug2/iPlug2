@@ -400,6 +400,7 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
   {
     case WM_CREATE:
       hwnd->m_classname = "__SWELL_MENU";
+      hwnd->m_style = WS_CHILD;
       m_trackingMenus.Add(hwnd);
       SetWindowLongPtr(hwnd,GWLP_USERDATA,lParam);
 
@@ -497,7 +498,6 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
         hwnd->m_extra[1] = 0; // &1=allow scroll flag (set from paint), &2=force scroll down (if sel_vis is offscreen positive)
       }
 
-      SetWindowLong(hwnd,GWL_STYLE,GetWindowLong(hwnd,GWL_STYLE)&~WS_CAPTION);
       ShowWindow(hwnd,SW_SHOW);
       SetFocus(hwnd);
       SetTimer(hwnd,1,100,NULL);
@@ -1137,7 +1137,7 @@ int TrackPopupMenu(HMENU hMenu, int flags, int xpos, int ypos, int resvd, HWND h
 
   if (flags & TPM_RETURNCMD) return m_trackingRet>0?m_trackingRet:0;
 
-  return 1;
+  return resvd!=0xbeef || m_trackingRet>0;
 }
 
 

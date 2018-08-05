@@ -254,7 +254,14 @@ public:
 #elif defined(WDL_POSIX_NATIVE_READ)
     m_filedes_locked=false;
     m_filedes_rdpos=0;
-    m_filedes=open(filename,O_RDONLY);
+    m_filedes=open(filename,O_RDONLY 
+        // todo: use fcntl() for platforms when O_CLOEXEC is not available (if we ever need to support them)
+        // (currently the only platform that meets this criteria is macOS w/ old SDK, but we don't use execve()
+        // there
+#ifdef O_CLOEXEC
+        | O_CLOEXEC
+#endif
+        );
     if (m_filedes>=0)
     {
       if (flock(m_filedes,LOCK_SH|LOCK_NB)>=0) // get shared lock

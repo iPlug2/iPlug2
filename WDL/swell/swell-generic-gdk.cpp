@@ -112,6 +112,7 @@ static int gdk_options;
 #define OPTION_KEEP_OWNED_ABOVE 1
 #define OPTION_OWNED_TASKLIST 2
 #define OPTION_BORDERLESS_OVERRIDEREDIRECT 4
+#define OPTION_BORDERLESS_DIALOG 8
 
 static HWND s_ddrop_hwnd;
 static POINT s_ddrop_pt;
@@ -165,6 +166,15 @@ static void on_activate(guint32 ftime)
   }
   s_last_desktop=0;
   s_force_window_time = 0;
+}
+
+void swell_gdk_reactivate_app(void)
+{
+  if (swell_app_is_inactive)
+  {
+    SWELL_focused_oswindow=NULL;
+    on_activate(GDK_CURRENT_TIME);
+  }
 }
 
 static void on_deactivate()
@@ -420,7 +430,7 @@ static void init_options()
 {
   if (!gdk_options)
   {
-    const char *wmname = gdk_x11_screen_get_window_manager_name(gdk_screen_get_default ());
+    //const char *wmname = gdk_x11_screen_get_window_manager_name(gdk_screen_get_default ());
 
     gdk_options = 0x40000000;
 
@@ -430,8 +440,12 @@ static void init_options()
     if (swell_gdk_option("gdk_owned_windows_in_tasklist", "auto (default is 0)",0))
       gdk_options|=OPTION_OWNED_TASKLIST;
 
-    if (swell_gdk_option("gdk_borderless_are_override_redirect", "auto (default is 0)", wmname && !stricmp(wmname,"i3")))
-      gdk_options|=OPTION_BORDERLESS_OVERRIDEREDIRECT;
+    switch (swell_gdk_option("gdk_borderless_window_mode", "auto (default is 1=dialog hint. 2=override redirect. 0=normal hint)", 1))
+    {
+      case 1: gdk_options|=OPTION_BORDERLESS_DIALOG; break;
+      case 2: gdk_options|=OPTION_BORDERLESS_OVERRIDEREDIRECT; break;
+      default: break;
+    }
   }
   
 }
@@ -457,6 +471,7 @@ void swell_oswindow_manage(HWND hwnd, bool wantfocus)
       if (swell_initwindowsys())
       {
         init_options();
+
         SWELL_OSWINDOW transient_for=NULL;
         if (hwnd->m_owner && (gdk_options&OPTION_KEEP_OWNED_ABOVE))
         {
@@ -489,11 +504,11 @@ void swell_oswindow_manage(HWND hwnd, bool wantfocus)
 
           if (!(hwnd->m_style & WS_CAPTION)) 
           {
-            if ((!hwnd->m_classname || strcmp(hwnd->m_classname,"__SWELL_MENU")) && !(gdk_options&OPTION_BORDERLESS_OVERRIDEREDIRECT))
+            if (hwnd->m_style != WS_CHILD && !(gdk_options&OPTION_BORDERLESS_OVERRIDEREDIRECT))
             {
               if (transient_for)
                 gdk_window_set_transient_for(hwnd->m_oswindow,transient_for);
-              gdk_window_set_type_hint(hwnd->m_oswindow, GDK_WINDOW_TYPE_HINT_NORMAL);
+              gdk_window_set_type_hint(hwnd->m_oswindow, (gdk_options&OPTION_BORDERLESS_DIALOG) ? GDK_WINDOW_TYPE_HINT_DIALOG : GDK_WINDOW_TYPE_HINT_NORMAL);
               gdk_window_set_decorations(hwnd->m_oswindow,(GdkWMDecoration) 0);
             }
             else
@@ -2417,6 +2432,46 @@ void SWELL_Register_Cursor_Resource(const char *idx, const char *name, int hotsp
 int SWELL_KeyToASCII(int wParam, int lParam, int *newflags)
 {
   return 0;
+}
+
+void swell_scaling_init(bool no_auto_hidpi)
+{
+  #if SWELL_TARGET_GDK == 3
+
+  if (!no_auto_hidpi && g_swell_ui_scale == 256)
+  {
+    int (*gsf)(void*);
+    void * (*gpm)(GdkDisplay *);
+    *(void **)&gsf = dlsym(RTLD_DEFAULT,"gdk_monitor_get_scale_factor");
+    *(void **)&gpm = dlsym(RTLD_DEFAULT,"gdk_display_get_primary_monitor");
+
+    if (gpm && gsf)
+    {
+      GdkDisplay *gdkdisp = gdk_display_get_default();
+      if (gdkdisp)
+      {
+        void *m = gpm(gdkdisp);
+        if (m)
+        {
+          int sf = gsf(m);
+          if (sf > 1 && sf < 8)
+            g_swell_ui_scale = sf*256;
+        }
+      }
+    }
+  }
+
+  if (g_swell_ui_scale != 256)
+  {
+    GdkDisplay *gdkdisp = gdk_display_get_default();
+    if (gdkdisp)
+    {
+      void (*p)(GdkDisplay*, gint);
+      *(void **)&p = dlsym(RTLD_DEFAULT,"gdk_x11_display_set_window_scale");
+      if (p) p(gdkdisp,1);
+    }
+  }
+  #endif
 }
 
 
