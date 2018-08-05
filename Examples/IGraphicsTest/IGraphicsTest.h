@@ -12,10 +12,11 @@ class IGraphicsTest : public IGraphicsEditorDelegate
 {
 public:
   IGraphicsTest();
-  ~ IGraphicsTest() {}
+  ~IGraphicsTest() {}
 
   //IEditorDelegate
-  void SendParameterValueFromUI(int paramIdx, double value) override;
+  void SendParameterValueFromUI(int paramIdx, double value) override { };
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { };
-  void EndInformHostOfParamChangeFromUI(int paramIdx) override { };
+  void EndInformHostOfParamChangeFromUI(int paramIdx) override { }
+  void CreateUI() override;;
 };

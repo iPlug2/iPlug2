@@ -652,7 +652,7 @@ void* IGraphicsWin::OpenWindow(void* pParent)
 
   sFPS = FPS();
   mDelegateWnd = CreateWindow(wndClassName, "IPlug", WS_CHILD | WS_VISIBLE,
-                          x, y, w, h, (HWND) pParentWnd, 0, mHInstance, this);
+                          x, y, w, h, mParentWnd, 0, mHInstance, this);
 
   HDC dc = GetDC(mDelegateWnd);
   SetPlatformContext(dc);

@@ -36,49 +36,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     
     InitCommonControls();
     gScrollMessage = RegisterWindowMessage("MSWHEEL_ROLLMSG");
-    CreateDialog(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_MAIN), GetDesktopWindow(), MainDlgProc);
-    
-    for(;;)
-    {
-      MSG msg= {0,};
-      int vvv = GetMessage(&msg, NULL, 0, 0);
-      
-      if (!vvv)
-        break;
-      
-      if (vvv<0)
-      {
-        Sleep(10);
-        continue;
+    HWND hDlg = CreateDialog(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_MAIN), GetDesktopWindow(), MainDlgProc);
+
+    BOOL ret;
+    MSG msg;
+    while ((ret = GetMessage(&msg, 0, 0, 0)) != 0) {
+      if (ret == -1) /* error found */
+        return -1;
+
+      if (!IsDialogMessage(hDlg, &msg)) {
+        TranslateMessage(&msg); /* translate virtual-key messages */
+        DispatchMessage(&msg); /* send it to dialog procedure */
       }
-      
-      if (!msg.hwnd)
-      {
-        DispatchMessage(&msg);
-        continue;
-      }
-      
-      if (gHWND && IsDialogMessage(gHWND, &msg)) continue;
-      
-      // default processing for other dialogs
-      HWND hWndParent = NULL;
-      HWND temphwnd = msg.hwnd;
-      
-      do
-      {
-        if (GetClassLong(temphwnd, GCW_ATOM) == (INT)32770)
-        {
-          hWndParent=temphwnd;
-          if (!(GetWindowLong(temphwnd, GWL_STYLE) &WS_CHILD))
-            break; // not a child, exit
-        }
-      }
-      while (temphwnd = GetParent(temphwnd));
-      
-      if (hWndParent && IsDialogMessage(hWndParent,&msg)) continue;
-      
-      TranslateMessage(&msg);
-      DispatchMessage(&msg);
     }
     
     // in case gHWND didnt get destroyed -- this corresponds to SWELLAPP_DESTROY roughly
