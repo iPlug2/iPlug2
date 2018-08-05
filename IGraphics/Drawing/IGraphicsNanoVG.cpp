@@ -251,28 +251,6 @@ void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, i
   PathClose();
 }
 
-void IGraphicsNanoVG::DrawFittedBitmap(IBitmap& bitmap, const IRECT& dest, const IBlend* pBlend)
-{
-  APIBitmap* pAPIBitmap = bitmap.GetAPIBitmap();
-  
-  NVGpaint imgPaint = nvgImagePattern(mVG, dest.L, dest.T, bitmap.W(), bitmap.H(), 0.f, pAPIBitmap->GetBitmap(), BlendWeight(pBlend));
-
-  const float imageWidth = pAPIBitmap->GetWidth();
-  const float imageHeight = pAPIBitmap->GetHeight();
-  
-  const float hscale = dest.W() / imageWidth;
-  const float vscale = dest.H() / imageHeight;
-
-  nvgSave(mVG);
-  PathStart();
-  nvgRect(mVG, dest.L, dest.T, dest.W(), dest.H());
-  nvgScale(mVG, hscale, hscale);
-  nvgFillPaint(mVG, imgPaint);
-  nvgFill(mVG);
-  PathClose();
-  nvgRestore(mVG);
-}
-
 IColor IGraphicsNanoVG::GetPoint(int x, int y)
 {
   return COLOR_BLACK; //TODO:
