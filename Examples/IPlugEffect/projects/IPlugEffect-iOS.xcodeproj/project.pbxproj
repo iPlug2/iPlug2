@@ -48,13 +48,10 @@
 		4F8028CA20A24FA9003A66EC /* nanovg.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8028C320A24FA9003A66EC /* nanovg.h */; };
 		4F8028CB20A24FA9003A66EC /* nanovg_gl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8028C420A24FA9003A66EC /* nanovg_gl.h */; };
 		4F8028CC20A24FA9003A66EC /* fontstash.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8028C520A24FA9003A66EC /* fontstash.h */; };
-		4F977D5620CC9DD800D19F46 /* civetweb.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D3320CC9DD800D19F46 /* civetweb.h */; };
-		4F977D5720CC9DD800D19F46 /* CivetServer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D3420CC9DD800D19F46 /* CivetServer.h */; };
 		4F977D5820CC9DD800D19F46 /* Easing.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D3520CC9DD800D19F46 /* Easing.h */; };
 		4F977D5920CC9DD800D19F46 /* NChanDelay.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D3620CC9DD800D19F46 /* NChanDelay.h */; };
 		4F977D5A20CC9DD800D19F46 /* IPlugOSC_msg.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D3820CC9DD800D19F46 /* IPlugOSC_msg.h */; };
 		4F977D5B20CC9DD800D19F46 /* IPlugOSC.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D3920CC9DD800D19F46 /* IPlugOSC.h */; };
-		4F977D5D20CC9DD800D19F46 /* Websocket.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D3B20CC9DD800D19F46 /* Websocket.h */; };
 		4F977D5E20CC9DD800D19F46 /* Oscillator.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D3C20CC9DD800D19F46 /* Oscillator.h */; };
 		4F977D5F20CC9DD800D19F46 /* PolyphaseIIR2Designer.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D3E20CC9DD800D19F46 /* PolyphaseIIR2Designer.h */; };
 		4F977D6020CC9DD800D19F46 /* FPUUpsampler2x.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D3F20CC9DD800D19F46 /* FPUUpsampler2x.h */; };
@@ -233,14 +230,11 @@
 		4F8028C320A24FA9003A66EC /* nanovg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nanovg.h; path = ../../../Dependencies/IGraphics/NanoVG/src/nanovg.h; sourceTree = "<group>"; };
 		4F8028C420A24FA9003A66EC /* nanovg_gl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nanovg_gl.h; path = ../../../Dependencies/IGraphics/NanoVG/src/nanovg_gl.h; sourceTree = "<group>"; };
 		4F8028C520A24FA9003A66EC /* fontstash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fontstash.h; path = ../../../Dependencies/IGraphics/NanoVG/src/fontstash.h; sourceTree = "<group>"; };
-		4F977D3320CC9DD800D19F46 /* civetweb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = civetweb.h; sourceTree = "<group>"; };
-		4F977D3420CC9DD800D19F46 /* CivetServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CivetServer.h; sourceTree = "<group>"; };
 		4F977D3520CC9DD800D19F46 /* Easing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Easing.h; sourceTree = "<group>"; };
 		4F977D3620CC9DD800D19F46 /* NChanDelay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NChanDelay.h; sourceTree = "<group>"; };
 		4F977D3820CC9DD800D19F46 /* IPlugOSC_msg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugOSC_msg.h; sourceTree = "<group>"; };
 		4F977D3920CC9DD800D19F46 /* IPlugOSC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugOSC.h; sourceTree = "<group>"; };
 		4F977D3A20CC9DD800D19F46 /* IPlugOSC_msg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugOSC_msg.cpp; sourceTree = "<group>"; };
-		4F977D3B20CC9DD800D19F46 /* Websocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Websocket.h; sourceTree = "<group>"; };
 		4F977D3C20CC9DD800D19F46 /* Oscillator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Oscillator.h; sourceTree = "<group>"; };
 		4F977D3E20CC9DD800D19F46 /* PolyphaseIIR2Designer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PolyphaseIIR2Designer.h; sourceTree = "<group>"; };
 		4F977D3F20CC9DD800D19F46 /* FPUUpsampler2x.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPUUpsampler2x.h; sourceTree = "<group>"; };
@@ -485,11 +479,9 @@
 		4F977D3120CC9DD800D19F46 /* Extras */ = {
 			isa = PBXGroup;
 			children = (
-				4F977D3220CC9DD800D19F46 /* WebSocket */,
 				4F977D3520CC9DD800D19F46 /* Easing.h */,
 				4F977D3620CC9DD800D19F46 /* NChanDelay.h */,
 				4F977D3720CC9DD800D19F46 /* OSC */,
-				4F977D3B20CC9DD800D19F46 /* Websocket.h */,
 				4F977D3C20CC9DD800D19F46 /* Oscillator.h */,
 				4F977D3D20CC9DD800D19F46 /* HIIR */,
 				4F977D4720CC9DD800D19F46 /* MidiSynth.h */,
@@ -503,15 +495,6 @@
 			);
 			name = Extras;
 			path = ../../../IPlug/Extras;
-			sourceTree = "<group>";
-		};
-		4F977D3220CC9DD800D19F46 /* WebSocket */ = {
-			isa = PBXGroup;
-			children = (
-				4F977D3320CC9DD800D19F46 /* civetweb.h */,
-				4F977D3420CC9DD800D19F46 /* CivetServer.h */,
-			);
-			path = WebSocket;
 			sourceTree = "<group>";
 		};
 		4F977D3720CC9DD800D19F46 /* OSC */ = {
@@ -684,7 +667,6 @@
 				4FFF104720A0E55A00D3092F /* IPlugParameter.h in Headers */,
 				4F977D7520CC9DD800D19F46 /* Oversampler.h in Headers */,
 				4FFF106D20A0E58600D3092F /* IPlugPluginBase.h in Headers */,
-				4F977D5620CC9DD800D19F46 /* civetweb.h in Headers */,
 				4F977D5F20CC9DD800D19F46 /* PolyphaseIIR2Designer.h in Headers */,
 				4FFF104E20A0E55A00D3092F /* IPlugMidi.h in Headers */,
 				4F977D6A20CC9DD800D19F46 /* IPlugFaust.h in Headers */,
@@ -702,7 +684,6 @@
 				4FFF107B20A0E5A500D3092F /* mutex.h in Headers */,
 				4F6369CE20A463AF0022C370 /* IGraphicsConstants.h in Headers */,
 				4FFF104D20A0E55A00D3092F /* IPlugUtilities.h in Headers */,
-				4F977D5D20CC9DD800D19F46 /* Websocket.h in Headers */,
 				4FFF107D20A0E5A500D3092F /* ptrlist.h in Headers */,
 				4FFF104C20A0E55A00D3092F /* IPlugStructs.h in Headers */,
 				4F6369C920A463AF0022C370 /* IVDropDownListControl.h in Headers */,
@@ -720,7 +701,6 @@
 				4F6369C220A463AF0022C370 /* IGraphicsUtilites.h in Headers */,
 				4F6369E620A466320022C370 /* IControl.h in Headers */,
 				4F977D6320CC9DD800D19F46 /* FPUStageProc.h in Headers */,
-				4F977D5720CC9DD800D19F46 /* CivetServer.h in Headers */,
 				4FE8F3B220BA273800BF938F /* IGraphicsEditorDelegate.h in Headers */,
 				4FFF104820A0E55A00D3092F /* IPlug_include_in_plug_src.h in Headers */,
 				4FFF105020A0E55A00D3092F /* IPlugAPIBase.h in Headers */,

@@ -60,7 +60,7 @@
       </MacroExpansion>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "$(SRCROOT)/../IPlugEffect.RPP"
+            argument = "$(SRCROOT)/../$(PRODUCT_NAME).RPP"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
