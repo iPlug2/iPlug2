@@ -110,7 +110,7 @@ void IGraphics::OnResizeOrRescale()
   {
     IControl* pControl = *ppControl;
     pControl->OnRescale();
-    //pControl->OnResize();
+    pControl->OnResize();
   }
 
   SetAllControlsDirty();
