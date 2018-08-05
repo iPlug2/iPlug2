@@ -61,12 +61,8 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
   {
     gHWND = hwndDlg;
     gIGraphicsTest = new IGraphicsTest();
-    gIGraphicsTest->CreateUI();
     gIGraphicsTest->OpenWindow(gHWND);
     ShowWindow(gHWND, SW_SHOW);
-    RECT r;
-    GetWindowRect(gHWND, &r);
-    SetWindowPos(gHWND, 0, r.left, r.bottom - UI_HEIGHT - 22, UI_WIDTH, UI_HEIGHT + 2, 0);
 
     return 1;
   }

@@ -83,6 +83,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4F0408592117A95E007E31AC /* IGraphicsTest.rc */ = {isa = PBXFileReference; lastKnownFileType = text; name = IGraphicsTest.rc; path = ../resources/IGraphicsTest.rc; sourceTree = "<group>"; };
 		4F1B4AE32014D33600BC64D4 /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = MainMenu.xib; path = ../resources/MainMenu.xib; sourceTree = "<group>"; };
 		4F1E0A2C20BA2538004FC7D5 /* IGraphicsLice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLice.h; sourceTree = "<group>"; };
 		4F1E0A2D20BA2538004FC7D5 /* IGraphicsAGG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsAGG.h; sourceTree = "<group>"; };
@@ -230,7 +231,9 @@
 				4FC82B4E20BD659500722133 /* fonts */,
 				4FD16A0213B6303B001D0217 /* img */,
 				4F1B4AE32014D33600BC64D4 /* MainMenu.xib */,
+				4F0408592117A95E007E31AC /* IGraphicsTest.rc */,
 				4FDA1E0E2012CDB30027C868 /* IGraphicsTest.rc_mac_menu */,
+				4FDA1E0F2012CDB30027C868 /* IGraphicsTest.rc_mac_dlg */,
 				4F23BA1413B647E50097A67E /* IGraphicsTest-macOS-Info.plist */,
 				4FD290A8137C34D700CEBE7E /* IGraphicsTest.icns */,
 			);
@@ -348,7 +351,6 @@
 				4F5F343C20C021FC00487201 /* knob@2x.png */,
 				4F846270209CC61E00474F83 /* knob.png */,
 				4F9DC952201CB51300AFC62D /* BefacoBigKnob.svg */,
-				4FDA1E0F2012CDB30027C868 /* IGraphicsTest.rc_mac_dlg */,
 			);
 			name = img;
 			sourceTree = "<group>";
