@@ -587,7 +587,14 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     return;
 
   mTextFieldView = [[NSTextField alloc] initWithFrame: areaRect];
+  
+  //TODO: this is wrong
+#ifdef IGRAPHICS_NANOVG
+  NSString* font = [NSString stringWithUTF8String: "Arial"];
+#else
   NSString* font = [NSString stringWithUTF8String: text.mFont];
+#endif
+  
   [mTextFieldView setFont: [NSFont fontWithName:font size: (float) AdjustFontSize(text.mSize)]];
 
   switch (text.mAlign)
