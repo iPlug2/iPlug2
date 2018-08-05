@@ -474,8 +474,6 @@ void IGraphics::DrawData(const IColor& color, const IRECT& bounds, float* normYP
   //TODO:
 }
 
-// TODO - Oli - are you happy with this hlepfer function?
-
 void IGraphics::DrawControl(IControl* pControl)
 {
   ClipRegion(mDrawRECT.Intersect(pControl->GetRECT()));
