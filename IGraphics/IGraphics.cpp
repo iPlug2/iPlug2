@@ -271,7 +271,7 @@ void IGraphics::AssignParamNameToolTips()
   }
 }
 
-void IGraphics::UpdatePeers(IControl* pCaller)
+void IGraphics::UpdatePeers(IControl* pCaller) // TODO: this could be really slow
 {
   int i, n = mControls.GetSize();
   IControl** ppControl = mControls.GetList();
@@ -279,7 +279,7 @@ void IGraphics::UpdatePeers(IControl* pCaller)
     IControl* pControl = *ppControl;
     if (pControl->ParamIdx() == pCaller->ParamIdx() && pControl != pCaller)
     {
-      //this is not actually called from the delegate. But we don't want to push the updates to the peers back to the delegate, so we use this method rather than
+      //this is not actually called from the delegate. But we don't want to push the updates to the peers back to the delegate, so we use this method
       pControl->SetValueFromDelegate(pCaller->GetValue());
       // Could be more than one, don't break until we check them all.
     }

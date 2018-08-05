@@ -22,7 +22,7 @@ void IGraphicsEditorDelegate::AttachGraphics(IGraphics* pGraphics)
     {
       SendParameterValueFromDelegate(i, GetParam(i)->GetNormalized(), true);
     }
-        
+
     // TODO: is it safe/sensible to do this here
     pGraphics->OnDisplayScale();
   }
@@ -30,7 +30,6 @@ void IGraphicsEditorDelegate::AttachGraphics(IGraphics* pGraphics)
 
 IGraphics* IGraphicsEditorDelegate::GetUI()
 {
-  assert(mGraphics); // can't call this till AttachGraphics() has been called
   return mGraphics;
 }
 
@@ -66,7 +65,8 @@ void IGraphicsEditorDelegate::CloseWindow()
 
 void IGraphicsEditorDelegate::SendControlValueFromDelegate(int controlTag, double normalizedValue)
 {
-  assert(mGraphics != nullptr);
+  if(!mGraphics)
+    return;
 
   if (controlTag > kNoTag)
   {
@@ -103,23 +103,23 @@ void IGraphicsEditorDelegate::SendControlMsgFromDelegate(int controlTag, int mes
 
 void IGraphicsEditorDelegate::SendParameterValueFromDelegate(int paramIdx, double value, bool normalized)
 {
-  assert(mGraphics != nullptr); // Did you attach an IGraphics yet?
-  //- maybe you wanted to #define NO_IGRAPHICS or set PLUG_HAS_UI to 0?
-  
-  if (!normalized)
-    value = GetParam(paramIdx)->ToNormalized(value);
-
-  for (auto c = 0; c < mGraphics->NControls(); c++)
+  if(mGraphics)
   {
-    IControl* pControl = mGraphics->GetControl(c);
-    
-    if (pControl->ParamIdx() == paramIdx)
+    if (!normalized)
+      value = GetParam(paramIdx)->ToNormalized(value);
+
+    for (auto c = 0; c < mGraphics->NControls(); c++)
     {
-      pControl->SetValueFromDelegate(value);
-      // Could be more than one, don't break until we check them all.
+      IControl* pControl = mGraphics->GetControl(c);
+      
+      if (pControl->ParamIdx() == paramIdx)
+      {
+        pControl->SetValueFromDelegate(value);
+        // Could be more than one, don't break until we check them all.
+      }
     }
   }
-
+  
   IEditorDelegate::SendParameterValueFromDelegate(paramIdx, value, normalized);
 }
 
