@@ -722,8 +722,10 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     NSString *pFirstFile = [pFiles firstObject];
     NSPoint point = [sender draggingLocation];
     NSPoint relativePoint = [self convertPoint: point fromView:nil];
+    
+    // TODO: check these bodge values!
     float x = relativePoint.x - 2.f;
-    float y = mGraphics->Height() - relativePoint.y - 3.f;
+    float y = mGraphics->WindowHeight() - relativePoint.y - 3.f;
     mGraphics->OnDrop([pFirstFile UTF8String], x, y);
   }
 
