@@ -49,7 +49,7 @@ void IGraphicsLice::DrawSVG(ISVG& svg, const IRECT& bounds, const IBlend* pBlend
 
 void IGraphicsLice::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend)
 {
-  DrawSVG(svg, GetDrawRect(), pBlend);
+  DrawSVG(svg, mDrawRECT, pBlend);
   //TODO:
 }
 
