@@ -771,6 +771,8 @@ void IGraphicsWin::CloseWindow()
 {
   if (mDelegateWnd)
   {
+    OnViewDestroyed();
+
     SetPlatformContext(nullptr);
 
     if (mTooltipWnd)
