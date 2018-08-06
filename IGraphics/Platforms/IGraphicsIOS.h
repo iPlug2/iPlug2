@@ -12,7 +12,6 @@ public:
   virtual ~IGraphicsIOS();
   
   void SetBundleID(const char* bundleID) { mBundleID.Set(bundleID); }
-  void CreateMetalLayer();
 
   void* OpenWindow(void* pWindow) override;
   void CloseWindow() override;
@@ -41,8 +40,6 @@ public:
   static int GetUserOSVersion();
   
   bool GetTextFromClipboard(WDL_String& str) override;
-
-  void* mLayer = nullptr;
 
 protected:
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;

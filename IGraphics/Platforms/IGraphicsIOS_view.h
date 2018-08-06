@@ -3,13 +3,14 @@
 #import <UIKit/UIKit.h>
 #include "IGraphicsIOS.h"
 
-@interface IGraphicsIOS_View : UIView
+inline CGRect ToCGRect(IGraphics* pGraphics, const IRECT& bounds)
 {
-#if DISPLAY_LINK
-  CADisplayLink* mDisplayLink;
-#else
-  NSTimer* mTimer;
-#endif
+  float B = (pGraphics->Height() - bounds.B);
+  return CGRectMake(bounds.L, B, bounds.W(), bounds.H());
+}
+
+@interface IGraphicsIOS_View : UIView
+{  
 @public
   IGraphicsIOS* mGraphics; // OBJC instance variables have to be pointers
 }
@@ -21,8 +22,9 @@
 - (IPopupMenu*) createPopupMenu: (const IPopupMenu&) menu : (CGRect) bounds;
 - (void) createTextEntry: (IControl&) control : (const IText&) text : (const char*) str : (CGRect) areaRect;
 - (void) endUserInput;
-- (void) onTimer: (NSTimer*) pTimer;
-- (void) killTimer;
+@property (readonly) CAMetalLayer* metalLayer;
+@property (nonatomic, strong) CADisplayLink *displayLink;
+
 @end
 
 #endif //NO_IGRAPHICS

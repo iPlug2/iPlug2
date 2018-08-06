@@ -35,21 +35,11 @@ NSString* ToNSString(const char* cStr)
 IGraphicsIOS::IGraphicsIOS(IEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphicsNanoVG(dlg, w, h, fps, scale)
 {
-  SetDisplayScale(1);
-//  NSApplicationLoad();
 }
 
 IGraphicsIOS::~IGraphicsIOS()
 {
   CloseWindow();
-}
-
-void IGraphicsIOS::CreateMetalLayer()
-{
-#ifdef IGRAPHICS_NANOVG
-  mLayer = [CAMetalLayer new];
-  ViewInitialized(mLayer);
-#endif
 }
 
 bool IGraphicsIOS::GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath)
@@ -134,6 +124,13 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
   CloseWindow();
   mView = (IGraphicsIOS_View*) [[IGraphicsIOS_View alloc] initWithIGraphics: this];
   
+  IGraphicsIOS_View* view = (IGraphicsIOS_View*) mView;
+  
+  OnViewInitialized([view layer]);
+  
+  dynamic_cast<IGraphicsEditorDelegate*>(GetDelegate())->CreateUI(this);
+  dynamic_cast<IGraphicsEditorDelegate*>(GetDelegate())->OnGraphicsReady(this);
+
   if (pParent)
   {
     [(UIView*) pParent addSubview: (IGraphicsIOS_View*) mView];
@@ -152,9 +149,10 @@ void IGraphicsIOS::CloseWindow()
     
     if (view->mGraphics)
     {
-      [view killTimer];
       [view removeFromSuperview];   // Releases.
     }
+    
+    OnViewDestroyed();
   }
 }
 

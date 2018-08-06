@@ -20,70 +20,134 @@
   self.layer.opaque = YES;
   self.layer.contentsScale = [UIScreen mainScreen].scale;
   
-#if DISPLAY_LINK
-  mDisplayLink = [CADisplayLink displayLinkWithTarget:self
-                                             selector:@selector(render)];
-  [mDisplayLink addToRunLoop:[NSRunLoop mainRunLoop]
-                     forMode:NSRunLoopCommonModes];
-#else
-  double sec = 1.0 / (double) pGraphics->FPS();
-  mTimer = [NSTimer timerWithTimeInterval:sec target:self selector:@selector(onTimer:) userInfo:nil repeats:YES];
-  [[NSRunLoop currentRunLoop] addTimer: mTimer forMode: (NSString*) kCFRunLoopCommonModes];
-#endif
+//  self.multipleTouchEnabled = YES;
   
   return self;
 }
 
-#if DISPLAY_LINK
+- (void)setFrame:(CGRect)frame
+{
+  [super setFrame:frame];
+  
+  // During the first layout pass, we will not be in a view hierarchy, so we guess our scale
+  CGFloat scale = [UIScreen mainScreen].scale;
+  
+  // If we've moved to a window by the time our frame is being set, we can take its scale as our own
+  if (self.window)
+  {
+    scale = self.window.screen.scale;
+  }
+  
+  if(mGraphics)
+    mGraphics->SetDisplayScale(scale);
+
+  CGSize drawableSize = self.bounds.size;
+  
+  // Since drawable size is in pixels, we need to multiply by the scale to move from points to pixels
+  drawableSize.width *= scale;
+  drawableSize.height *= scale;
+  
+  self.metalLayer.drawableSize = drawableSize;
+}
+
+- (void) touchesBegan: (NSSet*) pTouches withEvent: (UIEvent*) pEvent
+{
+  UITouch* pTouch = [pTouches anyObject];
+  
+  CGPoint p = [pTouch locationInView: self];
+  
+  IMouseMod mod { true };
+  
+  mGraphics->OnMouseDown(p.x, p.y, mod);
+}
+
+- (void) touchesMoved: (NSSet*) pTouches withEvent: (UIEvent*) pEvent
+{
+  UITouch* pTouch = [pTouches anyObject];
+
+  CGPoint p = [pTouch locationInView: self];
+  CGPoint pPrev = [pTouch previousLocationInView: self];
+
+  IMouseMod mod;
+  float dX = p.x - pPrev.x;
+  float dY = p.y - pPrev.y;
+  
+  mGraphics->OnMouseDrag(p.x, p.y, dX, dY, mod);
+}
+
+- (void) touchesEnded: (NSSet*) pTouches withEvent: (UIEvent*) pEvent
+{
+  UITouch* pTouch = [pTouches anyObject];
+
+  CGPoint p = [pTouch locationInView: self];
+  
+  IMouseMod mod;
+  
+  mGraphics->OnMouseUp(p.x, p.y, mod);
+}
+
+- (void) touchesCancelled: (NSSet*) pTouches withEvent: (UIEvent*) pEvent
+{
+  //  [self pTouchesEnded: pTouches withEvent: event];
+}
+
+- (CAMetalLayer *)metalLayer {
+  return (CAMetalLayer *)self.layer;
+}
+
 - (void)dealloc
 {
-  [mDisplayLink invalidate];
+  [_displayLink invalidate];
+  
   [super dealloc];
 }
-#else
-- (void) killTimer
-{
-  [mTimer invalidate];
-  mTimer = nullptr;
-}
-#endif
 
-- (void) onTimer: (NSTimer*) pTimer
+- (void)didMoveToSuperview
 {
-#ifdef IGRAPHICS_NANOVG
-  [self render];
-#else
-  IRECT r;
-
-  if (mGraphics->IsDirty(r))
+  [super didMoveToSuperview];
+  if (self.superview)
   {
-    [self setNeedsDisplayInRect:ToNSRect(mGraphics, r)];
+    self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkDidFire:)];
+    [self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
   }
-#endif
+  else
+  {
+    [self.displayLink invalidate];
+    self.displayLink = nil;
+  }
 }
 
-- (void)render
+- (void)displayLinkDidFire:(CADisplayLink *)displayLink
 {
+  [self redraw];
+}
+
+- (void)redraw
+{  
   IRECT r;
   
   //TODO: this is redrawing every IControl!
-  r.R = mGraphics->WindowWidth();
-  r.B = mGraphics->WindowHeight();
+  r.R = mGraphics->Width();
+  r.B = mGraphics->Height();
   mGraphics->IsDirty(r);
   //
   
   mGraphics->Draw(r);
   
-  [self.layer setNeedsDisplay]; // TODO: if nothing is dirty shouldn't set this
+  mGraphics->EndFrame();
 }
 
 - (BOOL) isOpaque
 {
-  return NO;
+  return YES;
 }
 
 - (BOOL) acceptsFirstResponder
 {
+  return YES;
+}
+
+- (BOOL)canBecomeFirstResponder {
   return YES;
 }
 

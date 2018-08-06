@@ -29,6 +29,8 @@
   {
     IGraphicsIOS* pGraphics = new IGraphicsIOS(dlg, w, h, fps, scale);
     pGraphics->SetBundleID(BUNDLE_ID);
+    dlg.AttachGraphics(pGraphics);
+
     return pGraphics;
   }
   #elif defined OS_WEB
