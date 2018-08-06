@@ -863,18 +863,18 @@ struct IRECT
     return r;
   }
 
-  void GetRandomPoint(double& x, double& y) const
+  void GetRandomPoint(float& x, float& y) const
   {
     std::random_device rd;
     std::mt19937 gen(rd()); // TODO: most sensible RNG?
-    std::uniform_real_distribution<> dist(0., 1.);
+    std::uniform_real_distribution<float> dist(0., 1.);
     x = L + dist(gen) * W();
     y = T + dist(gen) * H();
   }
 
   IRECT GetRandomSubRect() const
   {
-    double l, t, r, b;
+    float l, t, r, b;
     GetRandomPoint(l, t);
     IRECT tmp = IRECT(l, t, R, B);
     tmp.GetRandomPoint(r, b);
