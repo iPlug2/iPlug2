@@ -12,6 +12,7 @@
   {
     IGraphicsWin* pGraphics = new IGraphicsWin(dlg, w, h, fps, scale);
     pGraphics->SetPlatformInstance(gHINSTANCE);
+    dlg.AttachGraphics(pGraphics);
     return pGraphics;
   }
   #elif defined OS_MAC

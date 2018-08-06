@@ -6,6 +6,7 @@
 #include "IPlugParameter.h"
 #include "IGraphicsWin.h"
 #include "IControl.h"
+#include "IGraphicsEditorDelegate.h"
 
 #include <wininet.h>
 
@@ -659,6 +660,11 @@ void* IGraphicsWin::OpenWindow(void* pParent)
   ReleaseDC(mDelegateWnd, dc);
 
   SetDisplayScale(1);
+
+  OnViewInitialized((void*) dc);
+
+  dynamic_cast<IGraphicsEditorDelegate*>(GetDelegate())->CreateUI(this);
+  dynamic_cast<IGraphicsEditorDelegate*>(GetDelegate())->OnGraphicsReady(this);
 
   if (!mDelegateWnd && --nWndClassReg == 0)
   {
