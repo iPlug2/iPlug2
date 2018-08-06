@@ -27,7 +27,7 @@ public:
 
   void* OpenWindow(void* pParent) override;
   void CloseWindow() override;
-  bool WindowIsOpen() override { return (mDelegateWnd); }
+  bool WindowIsOpen() override { return (mPlugWnd); }
 
   void UpdateTooltips() override {}
 
@@ -44,7 +44,7 @@ public:
 
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure);
 
-  void* GetWindow() override { return mDelegateWnd; }
+  void* GetWindow() override { return mPlugWnd; }
   HWND GetParentWindow() const { return mParentWnd; }
   HWND GetMainWnd();
   void SetMainWndClassName(const char* name) { mMainWndClassName.Set(name); }
@@ -76,7 +76,7 @@ private:
   inline IMouseInfo IGraphicsWin::GetMouseInfoDeltas(float&dX, float& dY, LPARAM lParam, WPARAM wParam);
 
   HINSTANCE mHInstance = nullptr;
-  HWND mDelegateWnd = nullptr;
+  HWND mPlugWnd = nullptr;
   HWND mParamEditWnd = nullptr;
   HWND mTooltipWnd = nullptr;
   HWND mParentWnd = nullptr;

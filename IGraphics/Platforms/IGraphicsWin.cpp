@@ -107,7 +107,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   char txt[MAX_WIN32_PARAM_LEN];
   double v;
 
-  if (!pGraphics || hWnd != pGraphics->mDelegateWnd)
+  if (!pGraphics || hWnd != pGraphics->mPlugWnd)
   {
     return DefWindowProc(hWnd, msg, wParam, lParam);
   }
@@ -562,11 +562,11 @@ void IGraphicsWin::Resize(int w, int h, float scale)
   {
     HWND pParent = 0, pGrandparent = 0;
     int dlgW = 0, dlgH = 0, parentW = 0, parentH = 0, grandparentW = 0, grandparentH = 0;
-    GetWindowSize(mDelegateWnd, &dlgW, &dlgH);
+    GetWindowSize(mPlugWnd, &dlgW, &dlgH);
 
-    if (IsChildWindow(mDelegateWnd))
+    if (IsChildWindow(mPlugWnd))
     {
-      pParent = GetParent(mDelegateWnd);
+      pParent = GetParent(mPlugWnd);
       GetWindowSize(pParent, &parentW, &parentH);
 
       if (IsChildWindow(pParent))
@@ -576,7 +576,7 @@ void IGraphicsWin::Resize(int w, int h, float scale)
       }
     }
 
-    SetWindowPos(mDelegateWnd, 0, 0, 0, dlgW + dw, dlgH + dh, SETPOS_FLAGS);
+    SetWindowPos(mPlugWnd, 0, 0, 0, dlgW + dw, dlgH + dh, SETPOS_FLAGS);
 
     // don't want to touch the host window in VST3
 #ifndef VST3_API
@@ -592,7 +592,7 @@ void IGraphicsWin::Resize(int w, int h, float scale)
 #endif
 
     RECT r = { 0, 0, WindowWidth(), WindowHeight() };
-    InvalidateRect(mDelegateWnd, &r, FALSE);
+    InvalidateRect(mPlugWnd, &r, FALSE);
   }
 }
 
@@ -633,11 +633,11 @@ void* IGraphicsWin::OpenWindow(void* pParent)
   int x = 0, y = 0, w = WindowWidth(), h = WindowHeight();
   mParentWnd = (HWND) pParent;
 
-  if (mDelegateWnd)
+  if (mPlugWnd)
   {
     RECT pR, cR;
     GetWindowRect((HWND) pParent, &pR);
-    GetWindowRect(mDelegateWnd, &cR);
+    GetWindowRect(mPlugWnd, &cR);
     CloseWindow();
     x = cR.left - pR.left;
     y = cR.top - pR.top;
@@ -652,12 +652,12 @@ void* IGraphicsWin::OpenWindow(void* pParent)
   }
 
   sFPS = FPS();
-  mDelegateWnd = CreateWindow(wndClassName, "IPlug", WS_CHILD | WS_VISIBLE,
+  mPlugWnd = CreateWindow(wndClassName, "IPlug", WS_CHILD | WS_VISIBLE,
                           x, y, w, h, mParentWnd, 0, mHInstance, this);
 
-  HDC dc = GetDC(mDelegateWnd);
+  HDC dc = GetDC(mPlugWnd);
   SetPlatformContext(dc);
-  ReleaseDC(mDelegateWnd, dc);
+  ReleaseDC(mPlugWnd, dc);
 
   SetDisplayScale(1);
 
@@ -666,7 +666,7 @@ void* IGraphicsWin::OpenWindow(void* pParent)
   dynamic_cast<IGraphicsEditorDelegate*>(GetDelegate())->CreateUI(this);
   dynamic_cast<IGraphicsEditorDelegate*>(GetDelegate())->OnGraphicsReady(this);
 
-  if (!mDelegateWnd && --nWndClassReg == 0)
+  if (!mPlugWnd && --nWndClassReg == 0)
   {
     UnregisterClass(wndClassName, mHInstance);
   }
@@ -675,7 +675,7 @@ void* IGraphicsWin::OpenWindow(void* pParent)
     SetAllControlsDirty();
   }
 
-  if (mDelegateWnd && TooltipsEnabled())
+  if (mPlugWnd && TooltipsEnabled())
   {
     bool ok = false;
     static const INITCOMMONCONTROLSEX iccex = { sizeof(INITCOMMONCONTROLSEX), ICC_TAB_CLASSES };
@@ -683,11 +683,11 @@ void* IGraphicsWin::OpenWindow(void* pParent)
     if (InitCommonControlsEx(&iccex))
     {
       mTooltipWnd = CreateWindowEx(0, TOOLTIPS_CLASS, NULL, WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP,
-                                   CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, mDelegateWnd, NULL, mHInstance, NULL);
+                                   CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, mPlugWnd, NULL, mHInstance, NULL);
       if (mTooltipWnd)
       {
         SetWindowPos(mTooltipWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-        TOOLINFO ti = { TTTOOLINFOA_V2_SIZE, TTF_IDISHWND | TTF_SUBCLASS, mDelegateWnd, (UINT_PTR)mDelegateWnd };
+        TOOLINFO ti = { TTTOOLINFOA_V2_SIZE, TTF_IDISHWND | TTF_SUBCLASS, mPlugWnd, (UINT_PTR)mPlugWnd };
         ti.lpszText = (LPTSTR)NULL;
         SendMessage(mTooltipWnd, TTM_ADDTOOL, 0, (LPARAM)&ti);
         ok = true;
@@ -697,7 +697,7 @@ void* IGraphicsWin::OpenWindow(void* pParent)
     if (!ok) EnableTooltips(ok);
   }
 
-  return mDelegateWnd;
+  return mPlugWnd;
 }
 
 void GetWndClassName(HWND hWnd, WDL_String* pStr)
@@ -751,10 +751,10 @@ HWND IGraphicsWin::GetMainWnd()
 
 IRECT IGraphicsWin::GetWindowRECT()
 {
-  if (mDelegateWnd)
+  if (mPlugWnd)
   {
     RECT r;
-    GetWindowRect(mDelegateWnd, &r);
+    GetWindowRect(mPlugWnd, &r);
     r.right -= TOOLWIN_BORDER_W;
     r.bottom -= TOOLWIN_BORDER_H;
     return IRECT(r.left, r.top, r.right, r.bottom);
@@ -764,12 +764,12 @@ IRECT IGraphicsWin::GetWindowRECT()
 
 void IGraphicsWin::SetWindowTitle(const char* str)
 {
-  SetWindowText(mDelegateWnd, str);
+  SetWindowText(mPlugWnd, str);
 }
 
 void IGraphicsWin::CloseWindow()
 {
-  if (mDelegateWnd)
+  if (mPlugWnd)
   {
     OnViewDestroyed();
 
@@ -783,8 +783,8 @@ void IGraphicsWin::CloseWindow()
       mTooltipIdx = -1;
     }
 
-    DestroyWindow(mDelegateWnd);
-    mDelegateWnd = 0;
+    DestroyWindow(mPlugWnd);
+    mPlugWnd = 0;
 
     if (--nWndClassReg == 0)
     {
@@ -934,12 +934,12 @@ IPopupMenu* IGraphicsWin::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds,
     cPos.x = bounds.L;
     cPos.y = bounds.B;
 
-    ::ClientToScreen(mDelegateWnd, &cPos);
+    ::ClientToScreen(mPlugWnd, &cPos);
 
-    if (TrackPopupMenu(hMenu, TPM_LEFTALIGN, cPos.x, cPos.y, 0, mDelegateWnd, 0))
+    if (TrackPopupMenu(hMenu, TPM_LEFTALIGN, cPos.x, cPos.y, 0, mPlugWnd, 0))
     {
       MSG msg;
-      if (PeekMessage(&msg, mDelegateWnd, WM_COMMAND, WM_COMMAND, PM_REMOVE))
+      if (PeekMessage(&msg, mPlugWnd, WM_COMMAND, WM_COMMAND, PM_REMOVE))
       {
         if (HIWORD(msg.wParam) == 0)
         {
@@ -961,7 +961,7 @@ IPopupMenu* IGraphicsWin::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds,
     DestroyMenu(hMenu);
 
     RECT r = { 0, 0, WindowWidth(), WindowHeight() };
-    InvalidateRect(mDelegateWnd, &r, FALSE);
+    InvalidateRect(mPlugWnd, &r, FALSE);
   }
   
   if (pCaller)
@@ -987,7 +987,7 @@ void IGraphicsWin::CreateTextEntry(IControl& control, const IText& text, const I
 
   mParamEditWnd = CreateWindow("EDIT", str, ES_AUTOHSCROLL /*only works for left aligned text*/ | WS_CHILD | WS_VISIBLE | ES_MULTILINE | editStyle,
     bounds.L, bounds.T, bounds.W()+1, bounds.H()+1,
-    mDelegateWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
+    mPlugWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
 
   HFONT font = CreateFont(text.mSize, 0, 0, 0, text.mStyle == IText::kStyleBold ? FW_BOLD : 0, text.mStyle == IText::kStyleItalic ? TRUE : 0, 0, 0, 0, 0, 0, 0, 0, text.mFont);
 
@@ -1155,7 +1155,7 @@ void IGraphicsWin::PromptForDirectory(WDL_String& dir)
   memset(&bi, 0, sizeof(bi));
   
   bi.ulFlags   = BIF_USENEWUI;
-  bi.hwndOwner = mDelegateWnd;
+  bi.hwndOwner = mPlugWnd;
   bi.lpszTitle = "Choose a Directory";
   
   // must call this if using BIF_USENEWUI
@@ -1199,7 +1199,7 @@ UINT_PTR CALLBACK CCHookProc(HWND hdlg, UINT uiMsg, WPARAM wParam, LPARAM lParam
 
 bool IGraphicsWin::PromptForColor(IColor& color, const char* prompt)
 {
-  if (!mDelegateWnd)
+  if (!mPlugWnd)
   {
     return false;
   }
@@ -1210,7 +1210,7 @@ bool IGraphicsWin::PromptForColor(IColor& color, const char* prompt)
   CHOOSECOLOR cc;
   memset(&cc, 0, sizeof(CHOOSECOLOR));
   cc.lStructSize = sizeof(CHOOSECOLOR);
-  cc.hwndOwner = mDelegateWnd;
+  cc.hwndOwner = mPlugWnd;
   cc.rgbResult = RGB(color.R, color.G, color.B);
   cc.lpCustColors = mCustomColorStorage;
   cc.lCustData = (LPARAM) prompt;
@@ -1229,7 +1229,7 @@ bool IGraphicsWin::PromptForColor(IColor& color, const char* prompt)
 
 bool IGraphicsWin::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
 {
-  if (confirmMsg && MessageBox(mDelegateWnd, confirmMsg, msgWindowTitle, MB_YESNO) != IDYES)
+  if (confirmMsg && MessageBox(mPlugWnd, confirmMsg, msgWindowTitle, MB_YESNO) != IDYES)
   {
     return false;
   }
@@ -1238,21 +1238,21 @@ bool IGraphicsWin::OpenURL(const char* url, const char* msgWindowTitle, const ch
   {
     WCHAR urlWide[IPLUG_WIN_MAX_WIDE_PATH];
     UTF8ToUTF16(urlWide, url, IPLUG_WIN_MAX_WIDE_PATH);
-    if ((int) ShellExecuteW(mDelegateWnd, L"open", urlWide, 0, 0, SW_SHOWNORMAL) > MAX_INET_ERR_CODE)
+    if ((int) ShellExecuteW(mPlugWnd, L"open", urlWide, 0, 0, SW_SHOWNORMAL) > MAX_INET_ERR_CODE)
     {
       return true;
     }
   }
   if (errMsgOnFailure)
   {
-    MessageBox(mDelegateWnd, errMsgOnFailure, msgWindowTitle, MB_OK);
+    MessageBox(mPlugWnd, errMsgOnFailure, msgWindowTitle, MB_OK);
   }
   return false;
 }
 
 void IGraphicsWin::SetTooltip(const char* tooltip)
 {
-  TOOLINFO ti = { TTTOOLINFOA_V2_SIZE, 0, mDelegateWnd, (UINT_PTR)mDelegateWnd };
+  TOOLINFO ti = { TTTOOLINFOA_V2_SIZE, 0, mPlugWnd, (UINT_PTR)mPlugWnd };
   ti.lpszText = (LPTSTR)tooltip;
   SendMessage(mTooltipWnd, TTM_UPDATETIPTEXT, 0, (LPARAM)&ti);
 }
