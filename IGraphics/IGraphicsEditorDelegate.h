@@ -28,10 +28,11 @@ public:
   virtual void OnRestoreState() override;
   
   //IGraphicsEditorDelegate
-  virtual void AttachGraphics(IGraphics* pGraphics);
+  void AttachGraphics(IGraphics* pGraphics); // TODO: this should not be user callable
+  void OnGraphicsReady(IGraphics* pGraphics); // TODO: this should not be user callable
   
   /** This method will be called before the UI is opened */
-  virtual void CreateUI() {};
+  virtual void CreateUI(IGraphics* pGraphics) {};
   
   IGraphics* GetUI();
   

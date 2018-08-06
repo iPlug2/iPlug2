@@ -36,7 +36,7 @@ public:
   PLUG_CLASS_NAME(IPlugInstanceInfo instanceInfo);
   
 #if IPLUG_EDITOR // All UI methods and member variables should be within an IPLUG_EDITOR guard, should you want distributed UI
-  void CreateUI() override;
+  void CreateUI(IGraphics* pGraphics) override;
 #endif
 
 #if IPLUG_DSP // All DSP methods and member variables should be within an IPLUG_DSP guard, should you want distributed UI

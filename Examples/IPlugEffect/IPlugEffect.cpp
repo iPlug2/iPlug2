@@ -11,6 +11,9 @@ PLUG_CLASS_NAME::PLUG_CLASS_NAME(IPlugInstanceInfo instanceInfo)
   CreateServer("/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/build-web", "8001");
 #endif
   
+  
+  MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, 60, 1.);
+
   PrintDebugInfo();
 }
 
@@ -79,9 +82,8 @@ void PLUG_CLASS_NAME::OnIdle()
 #include "IVKeyboardControl.h"
 #include "IPlugEffect_controls.h"
 
-void PLUG_CLASS_NAME::CreateUI()
+void PLUG_CLASS_NAME::CreateUI(IGraphics* pGraphics)
 {  
-  IGraphics* pGraphics = MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, 60, 1.);
   pGraphics->AttachCornerResizer();
   pGraphics->AttachPanelBackground(COLOR_GRAY);
 
@@ -143,9 +145,7 @@ void PLUG_CLASS_NAME::CreateUI()
   IRECT kbrect = bounds.SubRectVertical(3, 2).GetPadded(-5.);
   pGraphics->AttachControl(new IVKeyboardControl(*this, kbrect, 36, 72));
 #endif
-  
-  AttachGraphics(pGraphics);
-  
+    
   pGraphics->HandleMouseOver(true);
   //  pGraphics->EnableLiveEdit(true);
   //  pGraphics->ShowControlBounds(true);

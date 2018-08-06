@@ -60,7 +60,9 @@ public:
 #pragma mark - IGraphics drawing API implementation
   //These are NanoVG only, may be refactored
   virtual void BeginFrame() {};
-  virtual void ViewInitialized(void* pLayer) {};
+  virtual void OnViewInitialized(void* pContext) {};
+  virtual void OnViewDestroyed() {};
+  
   //
   
   /** Called by some drawing API classes to finally blit the draw bitmap onto the screen or perform other cleanup after drawing */
@@ -575,7 +577,7 @@ public:
   virtual void* GetPlatformInstance() { return nullptr; }
 
   /** Set the platform draw context
-   Used with IGraphicsLice (possibly others) in order to set the CoreGraphics CGContextRef context on macOS and the GDI HDC draw context handle on Windows. On macOS, this is called by the platform IGraphics class.
+   Used with IGraphicsLice (possibly others) in order to set the CoreGraphics CGContextRef context on macOS and the GDI HDC draw context handle on Windows.
    * @param pContext void pointer to CGContextRef or HDC */
   virtual void SetPlatformContext(void* pContext) { mPlatformContext = pContext; }
 

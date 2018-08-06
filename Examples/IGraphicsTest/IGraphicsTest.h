@@ -14,9 +14,9 @@ public:
   IGraphicsTest();
   ~IGraphicsTest() {}
 
-  //IEditorDelegate
+  //IGraphicsEditorDelegate
   void SendParameterValueFromUI(int paramIdx, double value) override { };
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { };
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { }
-  void CreateUI() override;;
+  void CreateUI(IGraphics* pGraphics) override;
 };

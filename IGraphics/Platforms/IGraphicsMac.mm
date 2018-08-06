@@ -1,8 +1,5 @@
 #ifndef NO_IGRAPHICS
 #include <Foundation/NSArchiver.h>
-#ifdef IGRAPHICS_NANOVG
-#import <QuartzCore/QuartzCore.h>
-#endif
 
 #include "IGraphicsMac.h"
 #include "IControl.h"
@@ -88,14 +85,6 @@ bool IGraphicsMac::IsSandboxed()
     return true;
   }
   return false;
-}
-
-void IGraphicsMac::CreateMetalLayer()
-{
-#ifdef IGRAPHICS_NANOVG
-  mLayer = [CAMetalLayer new];
-  ViewInitialized(mLayer);
-#endif
 }
 
 bool IGraphicsMac::GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath)
@@ -204,6 +193,13 @@ void* IGraphicsMac::OpenWindow(void* pParent)
   TRACE;
   CloseWindow();
   mView = (IGRAPHICS_VIEW*) [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
+  
+  IGRAPHICS_VIEW* view = (IGRAPHICS_VIEW*) mView;
+
+  OnViewInitialized([view layer]);
+  
+  dynamic_cast<IGraphicsEditorDelegate*>(GetDelegate())->CreateUI(this);
+  dynamic_cast<IGraphicsEditorDelegate*>(GetDelegate())->OnGraphicsReady(this);
 
   if (pParent) // Cocoa VST host.
   {
@@ -228,6 +224,8 @@ void IGraphicsMac::CloseWindow()
     {
       [view removeFromSuperview];   // Releases.
     }
+    
+    OnViewDestroyed();
   }
 }
 

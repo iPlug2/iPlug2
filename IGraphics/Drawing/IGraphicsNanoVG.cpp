@@ -20,7 +20,7 @@ NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double source
   int w = 0, h = 0;
   int idx = nvgCreateImage(mVG, path, 0);
   nvgImageSize(mVG, idx, &w, &h);
-      
+  
   SetBitmap(idx, w, h, sourceScale);
 }
 
@@ -107,20 +107,6 @@ IGraphicsNanoVG::IGraphicsNanoVG(IEditorDelegate& dlg, int w, int h, int fps, fl
 
 IGraphicsNanoVG::~IGraphicsNanoVG() 
 {
-#if defined OS_MAC || defined OS_IOS
-  if(mVG)
-    nvgDeleteMTL(mVG);
-#endif
-
-#ifdef OS_WIN
-  if (mVG)
-    nvgDeleteGL2(mVG);
-  if (mHGLRC) {
-    wglMakeCurrent((HDC)mPlatformContext, nullptr);
-    wglDeleteContext(mHGLRC);
-  }
-#endif
-
 #if NANOVG_PERF
   delete mPerfGraph;
 #endif
@@ -159,6 +145,16 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const WDL_String& resourcePath, int sc
 void IGraphicsNanoVG::SetPlatformContext(void* pContext) {
   mPlatformContext = pContext;
 #ifdef OS_WIN
+  if(pContext)
+    OnViewInitialized(pContext);
+#endif
+}
+
+void IGraphicsNanoVG::OnViewInitialized(void* pContext)
+{
+#if defined OS_MAC || defined OS_IOS
+  mVG = nvgCreateMTL(pContext, NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_TRIPLE_BUFFER /*check!*/);
+#elif defined OS_WIN
   if (pContext) {
     PIXELFORMATDESCRIPTOR pfd =
     {
@@ -179,12 +175,12 @@ void IGraphicsNanoVG::SetPlatformContext(void* pContext) {
       0,
       0, 0, 0
     };
-
-    HDC dc = (HDC)pContext;
-
+    
+    HDC dc = (HDC) pContext;
+    
     int fmt = ChoosePixelFormat(dc, &pfd);
     SetPixelFormat(dc, fmt, &pfd);
-
+    
     mHGLRC = wglCreateContext(dc);
     wglMakeCurrent(dc, mHGLRC);
     if (!gladLoadGL())
@@ -195,11 +191,23 @@ void IGraphicsNanoVG::SetPlatformContext(void* pContext) {
 #endif
 }
 
-void IGraphicsNanoVG::ViewInitialized(void* layer)
+void IGraphicsNanoVG::OnViewDestroyed()
 {
 #if defined OS_MAC || defined OS_IOS
-  mVG = nvgCreateMTL(layer, NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_TRIPLE_BUFFER /*check!*/);
+  if(mVG)
+    nvgDeleteMTL(mVG);
 #endif
+  
+#ifdef OS_WIN
+  if (mVG)
+    nvgDeleteGL2(mVG);
+  if (mHGLRC) {
+    wglMakeCurrent((HDC)mPlatformContext, nullptr);
+    wglDeleteContext(mHGLRC);
+  }
+#endif
+  
+  mControls.Empty();
 }
 
 static double GetTimestamp() {

@@ -33,8 +33,9 @@ public:
 
   void BeginFrame() override;
   void EndFrame() override;
-  void ViewInitialized(void* pLayer) override;
-  
+  void OnViewInitialized(void* pContext) override;
+  void OnViewDestroyed() override;
+
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
 
   void PathClear() override { } //TODO:?

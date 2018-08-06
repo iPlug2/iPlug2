@@ -1,5 +1,9 @@
 #ifndef NO_IGRAPHICS
 
+#ifdef IGRAPHICS_NANOVG
+#import <QuartzCore/QuartzCore.h>
+#endif
+
 #import "IGraphicsMac_view.h"
 #include "IControl.h"
 #include "IPlugParameter.h"
@@ -210,7 +214,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   
 #ifdef IGRAPHICS_NANOVG
   if (!self.wantsLayer) {
-    self.layer = (CALayer*) mGraphics->mLayer;
+    self.layer = [CAMetalLayer new];
     self.layer.opaque = YES;
     self.wantsLayer = YES;
   }

@@ -14,18 +14,18 @@ IGraphicsEditorDelegate::~IGraphicsEditorDelegate()
 
 void IGraphicsEditorDelegate::AttachGraphics(IGraphics* pGraphics)
 {
-  if (pGraphics)
+  mGraphics = pGraphics;
+}
+
+void IGraphicsEditorDelegate::OnGraphicsReady(IGraphics* pGraphics)
+{
+  for (auto i = 0; i < NParams(); ++i)
   {
-    mGraphics = pGraphics;
-
-    for (auto i = 0; i < NParams(); ++i)
-    {
-      SendParameterValueFromDelegate(i, GetParam(i)->GetNormalized(), true);
-    }
-
-    // TODO: is it safe/sensible to do this here
-    pGraphics->OnResizeOrRescale();
+    SendParameterValueFromDelegate(i, GetParam(i)->GetNormalized(), true);
   }
+
+  // TODO: is it safe/sensible to do this here
+  pGraphics->OnResizeOrRescale();
 }
 
 IGraphics* IGraphicsEditorDelegate::GetUI()
@@ -48,9 +48,6 @@ void IGraphicsEditorDelegate::OnRestoreState()
 
 void* IGraphicsEditorDelegate::OpenWindow(void* pParent)
 {
-  if(!mGraphics)
-    CreateUI();
-  
   if(mGraphics)
     return mGraphics->OpenWindow(pParent);
   else

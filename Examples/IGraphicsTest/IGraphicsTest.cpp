@@ -13,17 +13,16 @@ extern UINT gScrollMessage;
 extern IGraphicsTest* gIGraphicsTest;
 
 IGraphicsTest::IGraphicsTest()
-  : IGraphicsEditorDelegate(0)
+: IGraphicsEditorDelegate(0)
 {
+  MakeGraphics(*this, UI_WIDTH, UI_HEIGHT, 60);
 }
 
-void IGraphicsTest::CreateUI()
+void IGraphicsTest::CreateUI(IGraphics* pGraphics)
 {
-  IGraphics* pGraphics = MakeGraphics(*this, UI_WIDTH, UI_HEIGHT, 60);
-  
   pGraphics->AttachPanelBackground(COLOR_RED);
   pGraphics->AttachCornerResizer();
-  //  pGraphics->EnableLiveEdit(true);
+  //pGraphics->EnableLiveEdit(true);
   //pGraphics->HandleMouseOver(true);
   pGraphics->LoadFont("Roboto-Regular.ttf");
   pGraphics->LoadFont("Montserrat-LightItalic.ttf");
@@ -49,7 +48,6 @@ void IGraphicsTest::CreateUI()
                                                 //                                                g.DrawFittedBitmap(knobBitmap, b);
                                               }));
   
-  AttachGraphics(pGraphics);
 }
 
 #ifndef OS_WEB

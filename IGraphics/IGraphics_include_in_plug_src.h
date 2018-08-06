@@ -8,24 +8,23 @@
  #if defined OS_WIN
   extern HINSTANCE gHINSTANCE;
 
-  IGraphics* MakeGraphics(IEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
+  IGraphics* MakeGraphics(IGraphicsEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
   {
     IGraphicsWin* pGraphics = new IGraphicsWin(dlg, w, h, fps, scale);
     pGraphics->SetPlatformInstance(gHINSTANCE);
     return pGraphics;
   }
   #elif defined OS_MAC
-  IGraphics* MakeGraphics(IEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
+  IGraphics* MakeGraphics(IGraphicsEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
   {
     IGraphicsMac* pGraphics = new IGraphicsMac(dlg, w, h, fps, scale);
     pGraphics->SetBundleID(BUNDLE_ID);
-  #ifdef IGRAPHICS_NANOVG
-    pGraphics->CreateMetalLayer();
-  #endif
+    dlg.AttachGraphics(pGraphics);
+    
     return pGraphics;
   }
   #elif defined OS_IOS
-  IGraphics* MakeGraphics(IEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
+  IGraphics* MakeGraphics(IGraphicsEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
   {
     IGraphicsIOS* pGraphics = new IGraphicsIOS(dlg, w, h, fps, scale);
     pGraphics->SetBundleID(BUNDLE_ID);
@@ -36,7 +35,7 @@
 
   IGraphicsWeb* gGraphics = nullptr;
 
-  IGraphics* MakeGraphics(IEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
+  IGraphics* MakeGraphics(IGraphicsEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
   {
     gGraphics = new IGraphicsWeb(dlg, w, h, fps, scale);
     return gGraphics;

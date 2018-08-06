@@ -14,7 +14,6 @@ public:
   virtual ~IGraphicsMac();
 
   void SetBundleID(const char* bundleID) { mBundleID.Set(bundleID); }
-  void CreateMetalLayer();
 
   bool IsSandboxed();
 
@@ -57,8 +56,6 @@ public:
 
   void SetMousePosition(float x, float y);
 
-public:
-  void* mLayer = nullptr;
 private:
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
   bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath);
