@@ -52,3 +52,4 @@
 #define PNGKNOBROTATE_FN "knob-rotate.png"
 #define SVGKNOB_FN "BefacoBigKnob.svg"
 #define TIGER_FN "23.svg"
+#define ROBOTTO_FN "Roboto-Regular.ttf"

@@ -91,11 +91,11 @@ void PLUG_CLASS_NAME::CreateUI(IGraphics* pGraphics)
   const int nColumns = 4;
   int cellIdx = 0;
   IRECT bounds = pGraphics->GetBounds();
-  pGraphics->LoadFont("Roboto-Regular.ttf");
+  pGraphics->LoadFont(ROBOTTO_FN);
   auto bitmap1 = pGraphics->LoadBitmap(PNGKNOB_FN, 60);
   auto bitmap2 = pGraphics->LoadBitmap(PNGKNOBROTATE_FN);
   
-#ifndef IGRAPHICS_WEB
+#if 0
   auto svg1 = pGraphics->LoadSVG(SVGKNOB_FN);
   auto svg2 = pGraphics->LoadSVG(TIGER_FN);
 #endif
@@ -111,7 +111,7 @@ void PLUG_CLASS_NAME::CreateUI(IGraphics* pGraphics)
   pGraphics->AttachControl(new IGradientControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.), kGain));
   pGraphics->AttachControl(new IMultiPathControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.), kGain));
 
-  #ifndef IGRAPHICS_WEB
+  #if 0
   pGraphics->AttachControl(new IVSVGKnob(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.), svg1, kGain));
   pGraphics->AttachControl(new IVSVGKnob(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.), svg2, kGain));
   #endif

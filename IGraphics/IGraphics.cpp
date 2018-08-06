@@ -1131,6 +1131,23 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 }
 
 #ifndef OS_WEB
+#ifdef OS_WIN
+NSVGimage* LoadSVGFromWinResource(HINSTANCE hInst, const char* resid)
+{
+  HRSRC hResource = FindResource(hInst, resid, "SVG");
+  if (!hResource) return NULL;
+
+  DWORD imageSize = SizeofResource(hInst, hResource);
+  if (imageSize < 8) return NULL;
+
+  HGLOBAL res = LoadResource(hInst, hResource);
+  const void* pResourceData = LockResource(res);
+  if (!pResourceData) return NULL;
+
+  return nsvgParse((char*)pResourceData, "px", 72);
+}
+#endif
+
 ISVG IGraphics::LoadSVG(const char* name)
 {
   WDL_String path;
@@ -1141,9 +1158,13 @@ ISVG IGraphics::LoadSVG(const char* name)
 
   if(!pHolder)
   {
+#ifdef OS_WIN
+    NSVGimage* pImage = LoadSVGFromWinResource((HINSTANCE) GetPlatformInstance(), path.Get());
+#else
     NSVGimage* pImage = nsvgParseFromFile(path.Get(), "px", 72);
+#endif
     assert(pImage != nullptr);
-    //TODO: get win32 resource as string - nsvgParseFromFile won't work
+
     pHolder = new SVGHolder(pImage);
     s_SVGCache.Add(pHolder, path.Get());
   }
