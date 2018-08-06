@@ -14,11 +14,50 @@
 
 #pragma mark -
 
-NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale)
+#ifdef OS_WIN
+int LoadImageFromWinResource(NVGcontext* pContext, HINSTANCE hInst, const char* resid)
+{
+  HRSRC hResource = FindResource(hInst, resid, "PNG");
+  if (!hResource) return NULL;
+
+  DWORD imageSize = SizeofResource(hInst, hResource);
+  if (imageSize < 8) return NULL;
+
+  HGLOBAL res = LoadResource(hInst, hResource);
+  const void* pResourceData = LockResource(res);
+  if (!pResourceData) return NULL;
+
+  int ret = nvgCreateImageMem(pContext, 0 /*flags*/, (unsigned char*) pResourceData, imageSize);
+
+  return ret;
+}
+
+int LoadFontFromWinResource(NVGcontext* pContext, HINSTANCE hInst, const char* name, const char* resid)
+{
+  HRSRC hResource = FindResource(hInst, resid, "TTF");
+  if (!hResource) return NULL;
+
+  DWORD fontSize = SizeofResource(hInst, hResource);
+  if (fontSize < 8) return NULL;
+
+  HGLOBAL res = LoadResource(hInst, hResource);
+  const void* pResourceData = LockResource(res);
+  if (!pResourceData) return NULL;
+
+  int ret = nvgCreateFontMem(pContext, name, (unsigned char*)pResourceData, fontSize, 0 /* ?? */);
+  return ret;
+}
+#endif
+
+NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, void* hInst)
 {
   mVG = pContext;
   int w = 0, h = 0;
+#ifdef OS_WIN
+  int idx = LoadImageFromWinResource(pContext, (HINSTANCE)hInst, path); // TODO: then try absolute path?
+#else
   int idx = nvgCreateImage(mVG, path, 0);
+#endif
   nvgImageSize(mVG, idx, &w, &h);
   
   SetBitmap(idx, w, h, sourceScale);
@@ -139,7 +178,7 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
 
 APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
 {
-  return new NanoVGBitmap(mVG, resourcePath.Get(), scale);
+  return new NanoVGBitmap(mVG, resourcePath.Get(), scale, GetPlatformInstance());
 }
 
 void IGraphicsNanoVG::SetPlatformContext(void* pContext) {
@@ -373,8 +412,14 @@ void IGraphicsNanoVG::LoadFont(const char* name)
   
   int fontID = -1;
   
-  if(fullPath.GetLength())
+  if (fullPath.GetLength())
+  {
+#ifdef OS_WIN
+    fontID = LoadFontFromWinResource(mVG, (HINSTANCE) GetPlatformInstance(), fontNameWithoutExt.Get(), fullPath.Get());
+#else
     fontID = nvgCreateFont(mVG, fontNameWithoutExt.Get(), fullPath.Get());
+#endif
+  }
   else {
     DBGMSG("Could not locate font %s\n", name);
   }

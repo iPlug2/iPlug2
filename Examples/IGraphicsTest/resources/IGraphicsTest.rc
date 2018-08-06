@@ -99,9 +99,6 @@ BEGIN
     "\0"
 END
 
-3 TEXTINCLUDE 
-BEGIN
-END
 
 #endif    // APSTUDIO_INVOKED
 
@@ -115,6 +112,7 @@ END
 // remains consistent on all systems.
 IDI_ICON1               ICON                    "IGraphicsTest.ico"
 
+/////////////////////////////////////////////////////////////////////////////
 #endif    // English (United Kingdom) resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -125,6 +123,12 @@ IDI_ICON1               ICON                    "IGraphicsTest.ico"
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
+#include "..\config.h"
+PNGKNOB_FN PNG PNGKNOB_FN
+SVGKNOB_FN SVG SVGKNOB_FN
+SMILEY_FN PNG SMILEY_FN
+ROBOTTO_FN TTF ROBOTTO_FN
+MONTSERRAT_FN TTF MONTSERRAT_FN
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 

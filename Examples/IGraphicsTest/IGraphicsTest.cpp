@@ -6,6 +6,7 @@
 #include "IGraphicsTest_controls.h"
 
 #include "IControls.h"
+#include "config.h"
 
 extern HWND gHWND;
 extern HINSTANCE gHINSTANCE;
@@ -24,11 +25,11 @@ void IGraphicsTest::CreateUI(IGraphics* pGraphics)
   pGraphics->AttachCornerResizer();
   //pGraphics->EnableLiveEdit(true);
   //pGraphics->HandleMouseOver(true);
-  pGraphics->LoadFont("Roboto-Regular.ttf");
-  pGraphics->LoadFont("Montserrat-LightItalic.ttf");
+  pGraphics->LoadFont(ROBOTTO_FN);
+  pGraphics->LoadFont(MONTSERRAT_FN);
   //
   IRECT bounds = pGraphics->GetBounds();
-  IBitmap knobBitmap = pGraphics->LoadBitmap("knob.png", 60);
+  IBitmap knobBitmap = pGraphics->LoadBitmap(PNGKNOB_FN, 60);
   int rows = 4;
   int cols = 4;
   int cellIdx = 0;
