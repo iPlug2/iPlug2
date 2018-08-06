@@ -314,7 +314,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
           case IParam::kTypeDouble:
           default:
             props->flags = kVstParameterUsesFloatStep;
-            props->largeStepFloat = props->smallStepFloat = props->stepFloat = pParam->GetStep();
+            props->largeStepFloat = props->smallStepFloat = props->stepFloat = (float) pParam->GetStep();
             break;
         }
 

@@ -74,7 +74,7 @@ public:
   
   void Animate(double progress) override
   {
-    mFlashCircleRadius = progress * mMaxFlashCircleRadius;
+    mFlashCircleRadius = (float) progress * mMaxFlashCircleRadius;
     SetDirty(false);
   }
   

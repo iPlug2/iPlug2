@@ -14,32 +14,32 @@ public:
   : IGraphics(dlg, w, h, fps, scale) 
   {}
 
-  void DrawRotatedBitmap(IBitmap& bitmap, int destCtrX, int destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override
+  void DrawRotatedBitmap(IBitmap& bitmap, float destCtrX, float destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override
   {
     //TODO: offset support
     
-    float width = bitmap.W();
-    float height = bitmap.H();
+    float width = (float) bitmap.W();
+    float height = (float) bitmap.H();
     
     PathStateSave();
-    PathTransformTranslate(destCtrX, destCtrY);
-    PathTransformRotate(angle);
-    DrawBitmap(bitmap, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), 0, 0, pBlend);
+    PathTransformTranslate((float) destCtrX, (float) destCtrY);
+    PathTransformRotate((float) angle);
+    DrawBitmap(bitmap, IRECT(-width * 0.5f, - height * 0.5f, width * 0.5f, height * 0.5f), 0, 0, pBlend);
     PathStateRestore();
   }
   
-  void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override
+  void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, float x, float y, double angle, const IBlend* pBlend) override
   {
-    float width = base.W();
-    float height = base.H();
+    float width = (float) base.W();
+    float height = (float) base.H();
     
     IBlend addBlend(kBlendAdd);
     PathStateSave();
     DrawBitmap(base, IRECT(x, y, x + width, y + height), 0, 0, pBlend);
-    PathTransformTranslate(x + 0.5 * width, y + 0.5 * height);
-    PathTransformRotate(angle);
-    DrawBitmap(mask, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), 0, 0, &addBlend);
-    DrawBitmap(top, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), 0, 0, pBlend);
+    PathTransformTranslate(x + 0.5f * width, y + 0.5f * height);
+    PathTransformRotate((float) angle);
+    DrawBitmap(mask, IRECT(-width * 0.5f, - height * 0.5f, width * 0.5f, height * 0.5f), 0, 0, &addBlend);
+    DrawBitmap(top, IRECT(-width * 0.5f, - height * 0.5f, width * 0.5f, height * 0.5f), 0, 0, pBlend);
     PathStateRestore();
   }
   
@@ -273,12 +273,12 @@ public:
   
   void PathRoundRect(const IRECT& bounds, float ctl, float ctr, float cbl, float cbr) override
   {
-    const double y = bounds.B - bounds.H();
+    const float y = bounds.B - bounds.H();
     PathMoveTo(bounds.L, y + ctl);
-    PathArc(bounds.L + ctl, y + ctl, ctl, 180.0, 270.0);
-    PathArc(bounds.L + bounds.W() - ctr, y + ctr, ctr, 270.0, 360.0);
-    PathArc(bounds.L + bounds.W() - cbr, y + bounds.H() - cbr, cbr, 0.0, 90.0);
-    PathArc(bounds.L + cbl, y + bounds.H() - cbl, cbl, 90.0, 180.0);
+    PathArc(bounds.L + ctl, y + ctl, ctl, 180.f, 270.f);
+    PathArc(bounds.L + bounds.W() - ctr, y + ctr, ctr, 270.f, 360.f);
+    PathArc(bounds.L + bounds.W() - cbr, y + bounds.H() - cbr, cbr, 0.f, 90.f);
+    PathArc(bounds.L + cbl, y + bounds.H() - cbl, cbl, 90.f, 180.f);
     PathClose();
   }
   
@@ -341,7 +341,7 @@ public:
     
     PathStateSave();
     PathTransformTranslate(dest.L, dest.T);
-    PathTransformScale(scale);
+    PathTransformScale((float) scale);
     RenderNanoSVG(svg.mImage);
     PathStateRestore();
   }
@@ -350,8 +350,8 @@ public:
   {
     PathStateSave();
     PathTransformTranslate(destCtrX, destCtrY);
-    PathTransformRotate(angle);
-    DrawSVG(svg, IRECT(-width * 0.5, - height * 0.5, width * 0.5, height * 0.5), pBlend);
+    PathTransformRotate((float) angle);
+    DrawSVG(svg, IRECT(-width * 0.5f, - height * 0.5f, width * 0.5f, height * 0.5f), pBlend);
     PathStateRestore();
   }
 

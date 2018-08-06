@@ -25,7 +25,7 @@ public:
 
   void Animate(double progress) override
   {
-    mFlashCircleRadius = progress * mMaxFlashCircleRadius;
+    mFlashCircleRadius = (float) progress * mMaxFlashCircleRadius;
     SetDirty(false);
   }
 
@@ -97,7 +97,7 @@ class IVSliderControl : public ISliderControlBase
 public:
   IVSliderControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
                   const IVColorSpec& colorSpec = DEFAULT_SPEC,
-                  EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 8, int trackSize = 2)
+                  EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f)
   : ISliderControlBase(dlg, bounds, paramIdx, dir, onlyHandle, handleSize)
   , IVectorBase(colorSpec)
   , mTrackSize(trackSize)
@@ -107,7 +107,7 @@ public:
   
   IVSliderControl(IEditorDelegate& dlg, IRECT bounds, IActionFunction aF,
                   const IVColorSpec& colorSpec = DEFAULT_SPEC,
-                  EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 8, int trackSize = 2)
+                  EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f)
   : ISliderControlBase(dlg, bounds, aF, dir, onlyHandle, handleSize)
   , IVectorBase(colorSpec)
   , mTrackSize(trackSize)
@@ -121,7 +121,7 @@ public:
   void OnResize() override;
   
 private:
-  int mTrackSize;
+  float mTrackSize;
 };
 
 class IVMomentarySwitch : public IVSwitchControl

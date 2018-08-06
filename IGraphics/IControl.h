@@ -449,7 +449,7 @@ public:
   IRECT GetAdjustedHandleBounds(IRECT handleBounds)
   {
     if(mDrawFrame)
-      handleBounds.Pad(- 0.5 * mFrameThickness);
+      handleBounds.Pad(- 0.5f * mFrameThickness);
     
     if (mDrawShadows && !mEmboss)
       handleBounds.Shift(0, 0, -mShadowOffset, -mShadowOffset);
@@ -504,7 +504,7 @@ private:
 class ILambdaControl : public IControl
 {
 public:
-  ILambdaControl(IEditorDelegate& dlg, IRECT bounds, IDrawFunction drawFunc, int animationDuration = 0, bool loopAnimation = false, int paramIdx = kNoParameter)
+  ILambdaControl(IEditorDelegate& dlg, IRECT bounds, IDrawFunction drawFunc, int animationDuration = DEFAULT_ANIMATION_DURATION, bool loopAnimation = false, int paramIdx = kNoParameter)
   : IControl(dlg, bounds, paramIdx, DefaultClickActionFunc)
   , mDrawFunc(drawFunc)
   , mLoopAnimation(loopAnimation)
@@ -662,7 +662,7 @@ class ISliderControlBase : public IControl
 {
 public:
   ISliderControlBase(IEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
-                     EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 0)
+                     EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 0.f)
   : IControl(dlg, bounds, paramIdx)
   , mDirection(dir)
   , mOnlyHandle(onlyHandle)
@@ -671,7 +671,7 @@ public:
   }
   
   ISliderControlBase(IEditorDelegate& dlg, IRECT bounds, IActionFunction aF = nullptr,
-                     EDirection dir = kVertical, bool onlyHandle = false, int handleSize = 0)
+                     EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 0.f)
   : IControl(dlg, bounds, aF)
   , mDirection(dir)
   , mOnlyHandle(onlyHandle)
@@ -686,7 +686,7 @@ protected:
   EDirection mDirection;
   IRECT mTrack;
   bool mOnlyHandle;
-  int mHandleSize;
+  float mHandleSize;
 };
 
 class IVTrackControlBase : public IControl
@@ -735,7 +735,7 @@ public:
   int MaxNTracks() { return mMaxNTracks; }
   void SetTrackData(int trackIdx, float val) { mTrackData.Get()[trackIdx] = Clip(val, mMinTrackValue, mMaxTrackValue); }
   float* GetTrackData(int trackIdx) { return &mTrackData.Get()[trackIdx];  }
-  void SetAllTrackData(float val) { memset(mTrackData.Get(), Clip(val, mMinTrackValue, mMaxTrackValue), mTrackData.GetSize() * sizeof(float) ); }
+  void SetAllTrackData(float val) { memset(mTrackData.Get(), (int) Clip(val, mMinTrackValue, mMaxTrackValue), mTrackData.GetSize() * sizeof(float) ); }
 private:
   virtual void DrawFrame(IGraphics& g)
   {
@@ -975,14 +975,14 @@ public:
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     if(mod.S || mod.R)
-      GetUI()->Resize(mInitialGraphicsBounds.W(), mInitialGraphicsBounds.H(), 1.);
+      GetUI()->Resize((int) mInitialGraphicsBounds.W(), (int) mInitialGraphicsBounds.H(), 1.f);
     else
       GetUI()->StartResizeGesture();
   }
   
   void OnRescale() override
   {
-    IRECT r = GetUI()->GetBounds().GetRECTFromRHC(mSize * (1./GetUI()->GetScale()));
+    IRECT r = GetUI()->GetBounds().GetRECTFromRHC(mSize * (1.f/GetUI()->GetScale()));
     SetTargetAndDrawRECTs(r);
   }
   

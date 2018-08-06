@@ -19,7 +19,7 @@ void IVSwitchControl::Draw(IGraphics& g)
   g.FillRect(GetColor(kBG), mRECT);
 
   IRECT handleBounds = GetAdjustedHandleBounds(mRECT);
-  const float cornerRadius = mRoundness * (handleBounds.W() / 2.);
+  const float cornerRadius = mRoundness * (handleBounds.W() / 2.f);
 
   if (mValue > 0.5)
   {
@@ -83,7 +83,7 @@ void IVKnobControl::Draw(IGraphics& g)
 {
   g.FillRect(GetColor(kBG), mRECT);
   IRECT handleBounds = GetAdjustedHandleBounds(mRECT);
-  handleBounds.ScaleAboutCentre(0.80);
+  handleBounds.ScaleAboutCentre(0.8f);
 
   const float v = mAngleMin + ((float)mValue * (mAngleMax - mAngleMin));
   const float cx = handleBounds.MW(), cy = handleBounds.MH();
@@ -96,7 +96,7 @@ void IVKnobControl::Draw(IGraphics& g)
   
   g.FillCircle(GetColor(kFG), cx, cy, radius);
 
-  g.DrawCircle(GetColor(kON), cx, cy, radius * 0.9, 0, mFrameThickness);
+  g.DrawCircle(GetColor(kON), cx, cy, radius * 0.9f, 0, mFrameThickness);
 
   if(mMouseIsOver)
     g.FillCircle(GetColor(kHL), cx, cy, radius * 0.8f);
@@ -229,12 +229,12 @@ IBSliderControl::IBSliderControl(IEditorDelegate& dlg, float x, float y, int len
   if (direction == kVertical)
   {
     mRECT = mTargetRECT = IRECT(x, y, x + bitmap.W(), y + len);
-    mTrack = mRECT.GetPadded(0, bitmap.H(), 0, 0);
+    mTrack = mRECT.GetPadded(0, (float) bitmap.H(), 0, 0);
   }
   else
   {
     mRECT = mTargetRECT = IRECT(x, y, x + len, y + bitmap.H());
-    mTrack = mRECT.GetPadded(0, 0, bitmap.W(), 0);
+    mTrack = mRECT.GetPadded(0, 0, (float) bitmap.W(), 0);
   }
 }
 
@@ -263,13 +263,13 @@ IRECT IBSliderControl::GetHandleBounds(double value) const
 
   if (mDirection == kVertical)
   {
-    float offs = (1.f - value) * mTrack.H();
+    float offs = (1.f - (float) value) * mTrack.H();
     r.T += offs;
     r.B += offs;
   }
   else
   {
-    float offs = value * mTrack.W();
+    float offs = (float) value * mTrack.W();
     r.L += offs;
     r.R += offs;
   }

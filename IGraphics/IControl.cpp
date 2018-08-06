@@ -759,9 +759,9 @@ void IPopupMenuControlBase::Collapse()
 void IPopupMenuControlBase::Animate(double progress)
 {
   if(mState == kExpanding)
-    mBlend.mWeight = progress * mOpacity;
+    mBlend.mWeight = (float) progress * mOpacity;
   else if(mState == kCollapsing)
-    mBlend.mWeight = (1.-progress) * mOpacity;
+    mBlend.mWeight = (float) (1.-progress) * mOpacity;
 
   GetUI()->SetAllControlsDirty();
 }

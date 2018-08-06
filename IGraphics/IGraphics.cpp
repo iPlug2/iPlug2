@@ -99,7 +99,7 @@ void IGraphics::Resize(int w, int h, float scale)
   
   // TODO: Use natural resolution bitmaps where possible?
 
-  GetDelegate()->ResizeGraphicsFromUI(w * scale, h * scale, scale);
+  GetDelegate()->ResizeGraphicsFromUI((int) (w * scale), (int) (h * scale), scale);
 }
 
 void IGraphics::OnResizeOrRescale()
@@ -1090,7 +1090,7 @@ void IGraphics::OnResizeGesture(float x, float y)
     float width = Clip(x, 10.f, 1000.f);
     float height = Clip(y, 10.f, 1000.f);
 
-    Resize(width, height, GetScale());
+    Resize((int) width, (int) height, GetScale());
   }
 }
 

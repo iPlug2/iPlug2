@@ -21,10 +21,10 @@
 #include "IGraphicsConstants.h"
 
 
-class IControl;
-class IRECT;
 class IGraphics;
-class IMouseInfo;
+class IControl;
+struct IRECT;
+struct IMouseInfo;
 
 typedef std::function<void(IControl*)> IActionFunction;
 typedef std::function<void(IControl*)> IAnimationFunction;
@@ -451,8 +451,8 @@ struct IPattern
   {
     mType = kRadialPattern;
 
-    const float xx = 1.0 / r;
-    const float yy = 1.0 / r;
+    const float xx = 1.f / r;
+    const float yy = 1.f / r;
     const float x0 = -(x1 * xx);
     const float y0 = -(y1 * yy);
 
@@ -848,7 +848,7 @@ struct IRECT
     B = y + (hh * scale);
   }
   
-  static void LinearInterpolateBetween(const IRECT& start, const IRECT& dest, IRECT& result, double progress)
+  static void LinearInterpolateBetween(const IRECT& start, const IRECT& dest, IRECT& result, float progress)
   {
     result.L = start.L + progress * (dest.L -  start.L);
     result.T = start.T + progress * (dest.T -  start.T);
@@ -924,8 +924,8 @@ struct IRECT
   IRECT GetCentredInside(IRECT sr) const
   {
     IRECT r;
-    r.L = MW() - sr.W() / 2.;
-    r.T = MH() - sr.H() / 2.;
+    r.L = MW() - sr.W() / 2.f;
+    r.T = MH() - sr.H() / 2.f;
     r.R = r.L + sr.W();
     r.B = r.T + sr.H();
 
@@ -940,8 +940,8 @@ struct IRECT
       h = w;
     
     IRECT r;
-    r.L = MW() - w / 2.;
-    r.T = MH() - h / 2.;
+    r.L = MW() - w / 2.f;
+    r.T = MH() - h / 2.f;
     r.R = r.L + w;
     r.B = r.T + h;
     
@@ -951,8 +951,8 @@ struct IRECT
   IRECT GetCentredInside(IBitmap bitmap)
   {
     IRECT r;
-    r.L = MW() - bitmap.FW() / 2.;
-    r.T = MH() - bitmap.FH() / 2.;
+    r.L = MW() - bitmap.FW() / 2.f;
+    r.T = MH() - bitmap.FH() / 2.f;
     r.R = r.L + (float) bitmap.FW();
     r.B = r.T + (float) bitmap.FH();
 

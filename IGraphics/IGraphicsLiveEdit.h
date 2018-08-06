@@ -6,7 +6,7 @@
 class IGraphicsLiveEdit : public IControl
 {
 public:
-  IGraphicsLiveEdit(IEditorDelegate& dlg, const char* pathToSourceFile, int gridSize)
+  IGraphicsLiveEdit(IEditorDelegate& dlg, const char* pathToSourceFile, float gridSize)
   : IControl(dlg, IRECT(0, 0, 1, 1))
   , mPathToSourceFile(pathToSourceFile)
   , mGridSize(gridSize)
@@ -176,7 +176,7 @@ private:
   IRECT mMouseDownRECT = IRECT(0, 0, 0, 0);
   IRECT mMouseDownTargetRECT = IRECT(0, 0, 0, 0);
 
-  int mGridSize = 10;
+  float mGridSize = 10;
   int mClickedOnControl = -1;
 };
 
