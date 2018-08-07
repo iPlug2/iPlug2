@@ -693,12 +693,12 @@ public:
   
   /** Attach the default control to scale or increase the UI size by dragging the plug-in bottom right-hand corner
    * @param sizeMode Choose whether to scale or size the UI */
-  void AttachCornerResizer(EGUISizeMode sizeMode = EGUISizeMode::kGUISizeScale);
+  void AttachCornerResizer(EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale);
 
   /** Attach your own control to scale or increase the UI size by dragging the plug-in bottom right-hand corner
    * @param pControl control a control that inherits from ICornerResizerBase
    * @param sizeMode Choose whether to scale or size the UI */
-  void AttachCornerResizer(ICornerResizerBase* pControl, EGUISizeMode sizeMode = EGUISizeMode::kGUISizeScale);
+  void AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale);
 
   /** Attach a custom control for pop-up menus, to override platform style menus
    * @param pControl A control that inherits from IPopupMenuControlBase */
@@ -956,7 +956,7 @@ private:
   bool mShowControlBounds = false;
   bool mShowAreaDrawn = false;
   bool mResizingInProcess = false;
-  EGUISizeMode mGUISizeMode = EGUISizeMode::kGUISizeScale;
+  EUIResizerMode mGUISizeMode = EUIResizerMode::kUIResizerScale;
   double mPrevTimestamp = 0.;
 
 #if defined IGRAPHICS_FREETYPE && !defined IGRAPHICS_NANOVG

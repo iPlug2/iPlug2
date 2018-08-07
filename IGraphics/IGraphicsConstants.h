@@ -126,10 +126,10 @@ enum EPatternExtend
   kExtendRepeat
 };
 
-enum EGUISizeMode
+enum EUIResizerMode
 {
-  kGUISizeScale,
-  kGUISizeSpace
+  kUIResizerScale,
+  kUIResizerSize
 };
 
 enum ECursor

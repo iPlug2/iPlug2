@@ -157,12 +157,12 @@ void IGraphics::AttachKeyCatcher(IControl* pControl)
   mKeyCatcher->SetGraphics(this);
 }
 
-void IGraphics::AttachCornerResizer(EGUISizeMode sizeMode)
+void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode)
 {
   AttachCornerResizer(new ICornerResizerBase(mDelegate, GetBounds(), 20), sizeMode);
 }
 
-void IGraphics::AttachCornerResizer(ICornerResizerBase* pControl, EGUISizeMode sizeMode)
+void IGraphics::AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode sizeMode)
 {
   mGUISizeMode = sizeMode;
   mCornerResizer = pControl;
@@ -1078,7 +1078,7 @@ void IGraphics::OnGUIIdle()
 
 void IGraphics::OnResizeGesture(float x, float y)
 {
-  if(mGUISizeMode == EGUISizeMode::kGUISizeScale)
+  if(mGUISizeMode == EUIResizerMode::kUIResizerScale)
   {
     float scaleX = (x * GetScale()) / mMouseDownX;
     float scaleY = (y * GetScale()) / mMouseDownY;
