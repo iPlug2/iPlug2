@@ -8,10 +8,6 @@
 #include "nanovg_gl.h"
 #endif
 
-#if NANOVG_PERF
-#include "perf.c"
-#endif
-
 #pragma mark -
 
 #ifdef OS_WIN
@@ -136,19 +132,11 @@ NVGpaint NanoVGPaint(NVGcontext* context, const IPattern& pattern, const IBlend*
 IGraphicsNanoVG::IGraphicsNanoVG(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphicsPathBase(dlg, w, h, fps, scale)
 {
-#if NANOVG_PERF
-  mPerfGraph = new PerfGraph;
-  initGraph(mPerfGraph, GRAPH_RENDER_FPS, "Frame Time");
- #endif
-  
   DBGMSG("IGraphics NanoVG @ %i FPS\n", fps);
 }
 
 IGraphicsNanoVG::~IGraphicsNanoVG() 
 {
-#if NANOVG_PERF
-  delete mPerfGraph;
-#endif
 }
 
 IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal)
@@ -249,14 +237,8 @@ void IGraphicsNanoVG::OnViewDestroyed()
 
 void IGraphicsNanoVG::BeginFrame()
 {
-#if NANOVG_PERF
-  mnvgClearWithColor(mVG, NanoVGColor(COLOR_BLACK));
-  const double timestamp = GetTimestamp();
-  const double timeDiff = timestamp - mPrevTimestamp;
-  updateGraph(mPerfGraph, timeDiff);
-  mPrevTimestamp = timestamp;
-#endif
-  
+  IGraphics::BeginFrame(); // perf graph
+
 #ifdef OS_WIN
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -272,10 +254,6 @@ void IGraphicsNanoVG::BeginFrame()
 
 void IGraphicsNanoVG::EndFrame()
 {
-#if NANOVG_PERF
-  renderGraph(mVG, 5, 5, mPerfGraph);
-#endif
-
   nvgEndFrame(mVG);
 }
 

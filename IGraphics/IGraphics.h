@@ -39,10 +39,10 @@
 #endif
 #endif
 
-class IEditorDelegate;
 class IControl;
 class IPopupMenuControlBase;
 class ICornerResizerBase;
+class IPerfDisplayControl;
 class IParam;
 
 /**
@@ -59,13 +59,11 @@ class IGraphics
 
 public:
 #pragma mark - IGraphics drawing API implementation
-  //These are NanoVG only, may be refactored
-  virtual void BeginFrame() {};
+
+  virtual void BeginFrame();
   virtual void OnViewInitialized(void* pContext) {};
   virtual void OnViewDestroyed() {};
-  
-  //
-  
+
   /** Called by some drawing API classes to finally blit the draw bitmap onto the screen or perform other cleanup after drawing */
   virtual void EndFrame() {};
 
@@ -706,6 +704,8 @@ public:
    * @param pControl A control that inherits from IPopupMenuControlBase */
   void AttachPopupMenuControl(IPopupMenuControlBase* pControl);
   
+  void AttachPerfDisplayControl(IPerfDisplayControl* pControl);
+  
   /** Attach an IControl to the graphics context and add it to the top of the control stack. The control is owned by the graphics context and will be deleted when the context is deleted.
    * @param pControl A pointer to an IControl to attach.
    * @param controlTag An integer tag that you can use to identify the control
@@ -927,6 +927,10 @@ protected:
   float mCursorY = -1.f;
   ICornerResizerBase* mCornerResizer = nullptr;
   IPopupMenuControlBase* mPopupControl = nullptr;
+  IPerfDisplayControl* mPerfDisplay = nullptr;
+  IControl* mKeyCatcher = nullptr;
+  IControl* mLiveEdit = nullptr;
+
   IPopupMenu mPromptPopupMenu;
 
 private:
@@ -951,13 +955,9 @@ private:
   bool mEnableTooltips = false;
   bool mShowControlBounds = false;
   bool mShowAreaDrawn = false;
-  IControl* mKeyCatcher = nullptr;
   bool mResizingInProcess = false;
   EGUISizeMode mGUISizeMode = EGUISizeMode::kGUISizeScale;
-  
-#if !defined(NDEBUG)
-  IControl* mLiveEdit = nullptr;
-#endif
+  double mPrevTimestamp = 0.;
 
 #if defined IGRAPHICS_FREETYPE && !defined IGRAPHICS_NANOVG
 protected:

@@ -19,6 +19,12 @@ static inline float DegToRad(float degrees)
   return (float) ::PI * (degrees / 180.f);
 }
 
+static double GetTimestamp()
+{
+  static auto start = std::chrono::steady_clock::now();
+  return std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
+}
+
 /** Calculate evenly distributed points on a radial line. NOTE: will crash if the nPoints and data array do not match size.
  * @param angle The angle to draw at in degrees clockwise where 0 is up
  * @param cx centre point x coordinate
