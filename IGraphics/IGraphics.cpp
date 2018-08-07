@@ -14,14 +14,10 @@
 #include "IPlugParameter.h"
 #include "IPlugPluginBase.h"
 
-//#ifdef DEBUG
-//#ifndef OS_WEB
-#include "IGraphicsLiveEdit.h"
-//#endif
-//#endif
-
 #include "IControl.h"
 #include "IControls.h"
+#include "IGraphicsLiveEdit.h"
+#include "IPerfDisplayControl.h"
 
 #ifndef OS_WEB
 struct SVGHolder
@@ -173,6 +169,12 @@ void IGraphics::AttachPopupMenuControl(IPopupMenuControlBase* pControl)
 {
   mPopupControl = pControl;
   mPopupControl->SetGraphics(this);
+}
+
+void IGraphics::AttachPerfDisplayControl(IPerfDisplayControl* pControl)
+{
+  mPerfDisplay = pControl;
+  mPerfDisplay->SetGraphics(this);
 }
 
 IControl* IGraphics::GetControlWithTag(int controlTag)
@@ -522,6 +524,17 @@ bool IGraphics::IsDirty(IRECT& bounds)
   return dirty;
 }
 
+void IGraphics::BeginFrame()
+{
+  if(mPerfDisplay)
+  {
+    const double timestamp = GetTimestamp();
+    const double timeDiff = timestamp - mPrevTimestamp;
+    mPerfDisplay->Update(timeDiff);
+    mPrevTimestamp = timestamp;
+  }
+}
+
 // The OS is announcing what needs to be redrawn,
 // which may be a larger area than what is strictly dirty.
 void IGraphics::Draw(const IRECT& bounds)
@@ -585,6 +598,11 @@ void IGraphics::Draw(const IRECT& bounds)
   if (mCornerResizer != nullptr)
   {
     //mCornerResizer->Draw(*this);
+  }
+  
+  if(mPerfDisplay != nullptr)
+  {
+    mPerfDisplay->Draw(*this);
   }
 
 #ifndef NDEBUG
