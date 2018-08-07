@@ -49,7 +49,7 @@ static StaticStorage<APIBitmap> s_bitmapCache;
 static StaticStorage<SVGHolder> s_SVGCache;
 #endif
 
-IGraphics::IGraphics(IEditorDelegate& dlg, int w, int h, int fps, float scale)
+IGraphics::IGraphics(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : mDelegate(dlg)
 , mWidth(w)
 , mHeight(h)

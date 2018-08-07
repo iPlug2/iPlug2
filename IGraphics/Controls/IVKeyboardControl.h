@@ -51,7 +51,7 @@ public:
     //kFR = kFR
   };
 
-  IVKeyboardControl(IEditorDelegate& dlg, IRECT bounds,
+  IVKeyboardControl(IGEditorDelegate& dlg, IRECT bounds,
                     int minNote = 36, int maxNote = 84,
                     IActionFunction actionFunc = nullptr)
   : IControl(dlg, bounds, kNoParameter, actionFunc)

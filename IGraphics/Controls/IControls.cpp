@@ -2,7 +2,7 @@
 
 #pragma mark - VECTOR CONTROLS
 
-IVSwitchControl::IVSwitchControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc
+IVSwitchControl::IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc
   , const IVColorSpec& colorSpec, int numStates, EDirection dir)
   : ISwitchControlBase(dlg, bounds, paramIdx, actionFunc, numStates)
   , IVectorBase(colorSpec)
@@ -54,7 +54,7 @@ void IVSwitchControl::Draw(IGraphics& g)
     g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius, 0, mFrameThickness);
 }
 
-IVKnobControl::IVKnobControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx,
+IVKnobControl::IVKnobControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx,
                              const IVColorSpec& colorSpec,
                              float aMin, float aMax,
                              EDirection direction, double gearing)
@@ -66,7 +66,7 @@ IVKnobControl::IVKnobControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx,
   AttachIControl(this);
 }
 
-IVKnobControl::IVKnobControl(IEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunction,
+IVKnobControl::IVKnobControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunction,
               const IVColorSpec& colorSpec,
               float aMin, float aMax,
               EDirection direction, double gearing)
@@ -215,14 +215,14 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   SetDirty();
 }
 
-IBSliderControl::IBSliderControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx, IBitmap& bitmap,
+IBSliderControl::IBSliderControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IBitmap& bitmap,
                                  EDirection dir, bool onlyHandle)
 : ISliderControlBase(dlg, bounds, paramIdx, dir, onlyHandle)
 , IBitmapBase(bitmap)
 {
 }
 
-IBSliderControl::IBSliderControl(IEditorDelegate& dlg, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
+IBSliderControl::IBSliderControl(IGEditorDelegate& dlg, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
 : ISliderControlBase(dlg, IRECT(x, y, x + bitmap.W(), y + len), paramIdx)
 , IBitmapBase(bitmap)
 {

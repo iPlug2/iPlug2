@@ -151,7 +151,7 @@ public:
     RasterizerType mRasterizer;
   };
 
-  IGraphicsAGG(IEditorDelegate& dlg, int w, int h, int fps, float scale);
+  IGraphicsAGG(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsAGG();
 
   void OnResizeOrRescale() override;

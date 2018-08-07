@@ -11,7 +11,7 @@
  */
 
 /** An IDelgate base class ... */
-class IWebsocketEditorDelegate : public IGraphicsEditorDelegate, public IWebsocketServer
+class IWebsocketEditorDelegate : public IGEditorDelegate, public IWebsocketServer
 {
 public:
   IWebsocketEditorDelegate(int nParams);

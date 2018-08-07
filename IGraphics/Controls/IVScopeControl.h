@@ -47,7 +47,7 @@ public:
     }
     
     // this must be called on the main thread - typically in MyPlugin::OnIdle()
-    void TransmitData(IEditorDelegate& dlg)
+    void TransmitData(IGEditorDelegate& dlg)
     {
       Data d;
 
@@ -65,7 +65,7 @@ public:
     IPlugQueue<Data> mQueue { 1024 };
   };
   
-  IVScopeControl(IEditorDelegate& dlg, IRECT bounds, const char* trackNames = 0, ...)
+  IVScopeControl(IGEditorDelegate& dlg, IRECT bounds, const char* trackNames = 0, ...)
   : IControl(dlg, bounds)
   {
     AttachIControl(this);

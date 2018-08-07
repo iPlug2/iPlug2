@@ -6,7 +6,6 @@
 #include "IPlugParameter.h"
 #include "IGraphicsWin.h"
 #include "IControl.h"
-#include "IGraphicsEditorDelegate.h"
 
 #include <wininet.h>
 
@@ -506,7 +505,7 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
   return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-IGraphicsWin::IGraphicsWin(IEditorDelegate& dlg, int w, int h, int fps, float scale)
+IGraphicsWin::IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
   : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
 {}
 
@@ -663,8 +662,8 @@ void* IGraphicsWin::OpenWindow(void* pParent)
 
   OnViewInitialized((void*) dc);
 
-  dynamic_cast<IGraphicsEditorDelegate*>(GetDelegate())->CreateUI(this);
-  dynamic_cast<IGraphicsEditorDelegate*>(GetDelegate())->OnGraphicsReady(this);
+  GetDelegate()->LayoutUI(this);
+  GetDelegate()->OnUIReady(this);
 
   if (!mPlugWnd && --nWndClassReg == 0)
   {

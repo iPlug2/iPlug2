@@ -8,7 +8,7 @@ static StaticStorage<LICE_IFont> s_fontCache;
 
 #pragma mark -
 
-IGraphicsLice::IGraphicsLice(IEditorDelegate& dlg, int w, int h, int fps, float scale)
+IGraphicsLice::IGraphicsLice(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphics(dlg, w, h, fps, scale)
 {
   DBGMSG("IGraphics Lice @ %i FPS\n", fps);

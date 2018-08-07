@@ -1,21 +1,21 @@
 #pragma once
 
 #include "IPlugEditorDelegate.h"
-#include "IControl.h"
 
 /**
  * @file
- * @copydoc IGraphicsEditorDelegate
+ * @copydoc IGEditorDelegate
  */
 
 class IGraphics;
+class IControl;
 
 /** An IDelgate base class for a SOMETHING that uses IGraphics for it's UI */
-class IGraphicsEditorDelegate : public IEditorDelegate
+class IGEditorDelegate : public IEditorDelegate
 {
 public:
-  IGraphicsEditorDelegate(int nParams);
-  ~IGraphicsEditorDelegate();
+  IGEditorDelegate(int nParams);
+  ~IGEditorDelegate();
 
 // IEditorDelegate
   void* OpenWindow(void* pHandle) override;
@@ -27,13 +27,11 @@ public:
   /** If you override this method you should call this parent, or implement the same functionality in order to get controls to update, when state is restored. */
   virtual void OnRestoreState() override;
   
-  //IGraphicsEditorDelegate
-  void AttachGraphics(IGraphics* pGraphics); // TODO: this should not be user callable
-  void OnGraphicsReady(IGraphics* pGraphics); // TODO: this should not be user callable
+  //IGEditorDelegate
+  void OnUIReady(IGraphics* pGraphics); // TODO: this should not be user callable
   
-  /** This method will be called before the UI is opened */
-  virtual void CreateUI(IGraphics* pGraphics) {};
-  
+  virtual IGraphics* CreateGraphics() = 0;
+  virtual void LayoutUI(IGraphics* pGraphics) = 0;
   IGraphics* GetUI();
   
   void ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func);

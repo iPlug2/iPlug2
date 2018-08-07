@@ -32,7 +32,7 @@ NSString* ToNSString(const char* cStr)
 
 #pragma mark -
 
-IGraphicsIOS::IGraphicsIOS(IEditorDelegate& dlg, int w, int h, int fps, float scale)
+IGraphicsIOS::IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphicsNanoVG(dlg, w, h, fps, scale)
 {
 }
@@ -128,8 +128,8 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
   
   OnViewInitialized([view layer]);
   
-  dynamic_cast<IGraphicsEditorDelegate*>(GetDelegate())->CreateUI(this);
-  dynamic_cast<IGraphicsEditorDelegate*>(GetDelegate())->OnGraphicsReady(this);
+  GetDelegate()->LayoutUI(this);
+  GetDelegate()->OnUIReady(this);
 
   if (pParent)
   {

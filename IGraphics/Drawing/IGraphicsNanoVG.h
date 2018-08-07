@@ -28,7 +28,7 @@ class IGraphicsNanoVG : public IGraphicsPathBase
 public:
   const char* GetDrawingAPIStr() override { return "NANOVG"; }
 
-  IGraphicsNanoVG(IEditorDelegate& dlg, int w, int h, int fps, float scale);
+  IGraphicsNanoVG(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsNanoVG();
 
   void BeginFrame() override;

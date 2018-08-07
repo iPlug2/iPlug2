@@ -2,6 +2,7 @@
 #include <Foundation/NSArchiver.h>
 
 #include "IGraphicsMac.h"
+
 #include "IControl.h"
 #import "IGraphicsMac_view.h"
 
@@ -64,7 +65,7 @@ static double gettm()
 
 #pragma mark -
 
-IGraphicsMac::IGraphicsMac(IEditorDelegate& dlg, int w, int h, int fps, float scale)
+IGraphicsMac::IGraphicsMac(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
 {
   SetDisplayScale(1);
@@ -198,8 +199,8 @@ void* IGraphicsMac::OpenWindow(void* pParent)
 
   OnViewInitialized([view layer]);
   
-  dynamic_cast<IGraphicsEditorDelegate*>(GetDelegate())->CreateUI(this);
-  dynamic_cast<IGraphicsEditorDelegate*>(GetDelegate())->OnGraphicsReady(this);
+  GetDelegate()->LayoutUI(this);
+  GetDelegate()->OnUIReady(this);
 
   if (pParent) // Cocoa VST host.
   {

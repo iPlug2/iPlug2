@@ -23,7 +23,7 @@ void DefaultClickActionFunc(IControl* pCaller)
   pCaller->SetAnimation(DefaultAnimationFunc, DEFAULT_ANIMATION_DURATION);
 };
 
-IControl::IControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc)
+IControl::IControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc)
 : mDelegate(dlg)
 , mRECT(bounds)
 , mTargetRECT(bounds)
@@ -32,7 +32,7 @@ IControl::IControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunc
 {
 }
 
-IControl::IControl(IEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc)
+IControl::IControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc)
 : mDelegate(dlg)
 , mRECT(bounds)
 , mTargetRECT(bounds)
@@ -275,7 +275,7 @@ void ITextControl::Draw(IGraphics& g)
     g.DrawText(mText, mStr.Get(), mRECT);
 }
 
-ICaptionControl::ICaptionControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx, const IText& text, bool showParamLabel)
+ICaptionControl::ICaptionControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, const IText& text, bool showParamLabel)
 : ITextControl(dlg, bounds, "", paramIdx, text)
 , mShowParamLabel(showParamLabel)
 {
@@ -323,7 +323,7 @@ void ICaptionControl::Draw(IGraphics& g)
   }
 }
 
-ISwitchControlBase::ISwitchControlBase(IEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc,
+ISwitchControlBase::ISwitchControlBase(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc,
   int numStates)
   : IControl(dlg, bounds, paramIdx, actionFunc)
 {
@@ -501,7 +501,7 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
 #endif
 }
 
-IPopupMenuControlBase::IPopupMenuControlBase(IEditorDelegate& dlg, int paramIdx, IText text, IRECT collapsedBounds, IRECT expandedBounds, EDirection direction)
+IPopupMenuControlBase::IPopupMenuControlBase(IGEditorDelegate& dlg, int paramIdx, IText text, IRECT collapsedBounds, IRECT expandedBounds, EDirection direction)
 : IControl(dlg, collapsedBounds, paramIdx)
 , mSpecifiedCollapsedBounds(collapsedBounds)
 , mSpecifiedExpandedBounds(expandedBounds)

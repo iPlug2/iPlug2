@@ -96,7 +96,7 @@ inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
 
 #pragma mark -
 
-IGraphicsCairo::IGraphicsCairo(IEditorDelegate& dlg, int w, int h, int fps, float scale)
+IGraphicsCairo::IGraphicsCairo(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphicsPathBase(dlg, w, h, fps, scale)
 , mSurface(nullptr)
 , mContext(nullptr)

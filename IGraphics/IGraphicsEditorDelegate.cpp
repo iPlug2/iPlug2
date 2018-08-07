@@ -2,22 +2,16 @@
 #include "IGraphics.h"
 #include "IControl.h"
 
-IGraphicsEditorDelegate::IGraphicsEditorDelegate(int nParams)
+IGEditorDelegate::IGEditorDelegate(int nParams)
 : IEditorDelegate(nParams)
 {  
 }
 
-IGraphicsEditorDelegate::~IGraphicsEditorDelegate()
+IGEditorDelegate::~IGEditorDelegate()
 {
-  DELETE_NULL(mGraphics);
 }
 
-void IGraphicsEditorDelegate::AttachGraphics(IGraphics* pGraphics)
-{
-  mGraphics = pGraphics;
-}
-
-void IGraphicsEditorDelegate::OnGraphicsReady(IGraphics* pGraphics)
+void IGEditorDelegate::OnUIReady(IGraphics* pGraphics)
 {
   for (auto i = 0; i < NParams(); ++i)
   {
@@ -28,12 +22,12 @@ void IGraphicsEditorDelegate::OnGraphicsReady(IGraphics* pGraphics)
   pGraphics->OnResizeOrRescale();
 }
 
-IGraphics* IGraphicsEditorDelegate::GetUI()
+IGraphics* IGEditorDelegate::GetUI()
 {
   return mGraphics;
 }
 
-void IGraphicsEditorDelegate::OnRestoreState()
+void IGEditorDelegate::OnRestoreState()
 {
   if (mGraphics)
   {
@@ -46,21 +40,26 @@ void IGraphicsEditorDelegate::OnRestoreState()
   }
 }
 
-void* IGraphicsEditorDelegate::OpenWindow(void* pParent)
+void* IGEditorDelegate::OpenWindow(void* pParent)
 {
+  if(!mGraphics)
+    mGraphics = CreateGraphics();
+  
   if(mGraphics)
     return mGraphics->OpenWindow(pParent);
   else
     return nullptr;
 }
 
-void IGraphicsEditorDelegate::CloseWindow()
+void IGEditorDelegate::CloseWindow()
 {
   if(mGraphics)
     mGraphics->CloseWindow();
+  
+  DELETE_NULL(mGraphics);
 }
 
-void IGraphicsEditorDelegate::SendControlValueFromDelegate(int controlTag, double normalizedValue)
+void IGEditorDelegate::SendControlValueFromDelegate(int controlTag, double normalizedValue)
 {
   if(!mGraphics)
     return;
@@ -79,7 +78,7 @@ void IGraphicsEditorDelegate::SendControlValueFromDelegate(int controlTag, doubl
   }
 }
 
-void IGraphicsEditorDelegate::SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData)
+void IGEditorDelegate::SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData)
 {
   if(!mGraphics)
     return;
@@ -98,7 +97,7 @@ void IGraphicsEditorDelegate::SendControlMsgFromDelegate(int controlTag, int mes
   }
 }
 
-void IGraphicsEditorDelegate::SendParameterValueFromDelegate(int paramIdx, double value, bool normalized)
+void IGEditorDelegate::SendParameterValueFromDelegate(int paramIdx, double value, bool normalized)
 {
   if(mGraphics)
   {
@@ -120,7 +119,7 @@ void IGraphicsEditorDelegate::SendParameterValueFromDelegate(int paramIdx, doubl
   IEditorDelegate::SendParameterValueFromDelegate(paramIdx, value, normalized);
 }
 
-void IGraphicsEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
+void IGEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
 {
   if(mGraphics)
   {
@@ -138,7 +137,7 @@ void IGraphicsEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
   IEditorDelegate::SendMidiMsgFromDelegate(msg);
 }
 
-void IGraphicsEditorDelegate::ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func)
+void IGEditorDelegate::ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func)
 {
   for (auto c = 0; c < mGraphics->NControls(); c++)
   {
@@ -152,7 +151,7 @@ void IGraphicsEditorDelegate::ForControlWithParam(int paramIdx, std::function<vo
   }
 }
 
-void IGraphicsEditorDelegate::ForControlInGroup(const char* group, std::function<void(IControl& control)> func)
+void IGEditorDelegate::ForControlInGroup(const char* group, std::function<void(IControl& control)> func)
 {
   for (auto c = 0; c < mGraphics->NControls(); c++)
   {

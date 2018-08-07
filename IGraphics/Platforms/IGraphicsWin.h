@@ -11,7 +11,7 @@
 class IGraphicsWin final : public IGRAPHICS_DRAW_CLASS
 {
 public:
-  IGraphicsWin(IEditorDelegate& dlg, int w, int h, int fps, float scale);
+  IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsWin();
 
   void SetPlatformInstance(void* instance) override { mHInstance = (HINSTANCE) instance; }

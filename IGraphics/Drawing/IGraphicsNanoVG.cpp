@@ -133,7 +133,7 @@ NVGpaint NanoVGPaint(NVGcontext* context, const IPattern& pattern, const IBlend*
 
 #pragma mark -
 
-IGraphicsNanoVG::IGraphicsNanoVG(IEditorDelegate& dlg, int w, int h, int fps, float scale)
+IGraphicsNanoVG::IGraphicsNanoVG(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphicsPathBase(dlg, w, h, fps, scale)
 {
 #if NANOVG_PERF
@@ -245,13 +245,6 @@ void IGraphicsNanoVG::OnViewDestroyed()
     wglDeleteContext(mHGLRC);
   }
 #endif
-  
-  mControls.Empty();
-}
-
-static double GetTimestamp() {
-  static auto start = std::chrono::steady_clock::now();
-  return std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
 }
 
 void IGraphicsNanoVG::BeginFrame()

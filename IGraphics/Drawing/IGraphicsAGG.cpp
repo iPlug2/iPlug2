@@ -136,7 +136,7 @@ void IGraphicsAGG::Rasterizer::RasterizePattern(agg::trans_affine transform, con
 
 #pragma mark -
 
-IGraphicsAGG::IGraphicsAGG(IEditorDelegate& dlg, int w, int h, int fps, float scale)
+IGraphicsAGG::IGraphicsAGG(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphicsPathBase(dlg, w, h, fps, scale)
 , mFontEngine()
 , mFontManager(mFontEngine)

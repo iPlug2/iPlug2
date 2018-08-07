@@ -21,7 +21,6 @@
 #include "ptrlist.h"
 
 #include "IGraphics.h"
-#include "IPlugEditorDelegate.h"
 
 /** The lowest level base class of an IGraphics control. A control is anything on the GUI, it could be a static bitmap, or something that moves or changes.  The control could manipulate bitmaps or do run-time vector drawing, or whatever.
  * Some controls respond to mouse actions, either by moving a bitmap, transforming a bitmap, or cycling through a set of bitmaps.
@@ -42,9 +41,9 @@ public:
    * @param bounds The rectangular area that the control occupies
    * @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a plugin parameter
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
-  IControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
+  IControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
   
-  IControl(IEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc);
+  IControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc);
 
   virtual ~IControl() {}
 
@@ -481,7 +480,7 @@ protected:
 class IPanelControl : public IControl
 {
 public:
-  IPanelControl(IEditorDelegate& dlg, IRECT bounds, const IColor& color, bool drawFrame = false)
+  IPanelControl(IGEditorDelegate& dlg, IRECT bounds, const IColor& color, bool drawFrame = false)
   : IControl(dlg, bounds, kNoParameter)
   , mColor(color)
   , mDrawFrame(drawFrame)
@@ -504,7 +503,7 @@ private:
 class ILambdaControl : public IControl
 {
 public:
-  ILambdaControl(IEditorDelegate& dlg, IRECT bounds, IDrawFunction drawFunc, int animationDuration = DEFAULT_ANIMATION_DURATION, bool loopAnimation = false, int paramIdx = kNoParameter)
+  ILambdaControl(IGEditorDelegate& dlg, IRECT bounds, IDrawFunction drawFunc, int animationDuration = DEFAULT_ANIMATION_DURATION, bool loopAnimation = false, int paramIdx = kNoParameter)
   : IControl(dlg, bounds, paramIdx, DefaultClickActionFunc)
   , mDrawFunc(drawFunc)
   , mLoopAnimation(loopAnimation)
@@ -554,7 +553,7 @@ public:
   /** Creates a bitmap control
    * @param paramIdx Parameter index (-1 or kNoParameter, if this should not be linked to a parameter)
    * @param bitmap Image to be drawn */
-  IBitmapControl(IEditorDelegate& dlg, float x, float y, IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendNone)
+  IBitmapControl(IGEditorDelegate& dlg, float x, float y, IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendNone)
   : IControl(dlg, IRECT(x, y, bitmap), paramIdx)
   , IBitmapBase(bitmap, blend)
   {}
@@ -578,7 +577,7 @@ public:
 class ISVGControl : public IControl
 {
 public:
-  ISVGControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx, ISVG& svg)
+  ISVGControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, ISVG& svg)
     : IControl(dlg, bounds, paramIdx)
     , mSVG(svg)
   {}
@@ -600,7 +599,7 @@ private:
 class ITextControl : public IControl
 {
 public:
-  ITextControl(IEditorDelegate& dlg, IRECT bounds, const char* str = "", int paramIdx = kNoParameter, const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR)
+  ITextControl(IGEditorDelegate& dlg, IRECT bounds, const char* str = "", int paramIdx = kNoParameter, const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR)
   : IControl(dlg, bounds, paramIdx)
   , mStr(str)
   , mBGColor(BGColor)
@@ -623,7 +622,7 @@ protected:
 class ICaptionControl : public ITextControl
 {
 public:
-  ICaptionControl(IEditorDelegate& dlg, IRECT bounds, int paramIdx, const IText& text = DEFAULT_TEXT, bool showParamLabel = true);
+  ICaptionControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, const IText& text = DEFAULT_TEXT, bool showParamLabel = true);
   ~ICaptionControl() {}
   
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
@@ -640,7 +639,7 @@ protected:
 class IKnobControlBase : public IControl
 {
 public:
-  IKnobControlBase(IEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
+  IKnobControlBase(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
     EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
     : IControl(dlg, bounds, paramIdx)
     , mDirection(direction)
@@ -661,7 +660,7 @@ protected:
 class ISliderControlBase : public IControl
 {
 public:
-  ISliderControlBase(IEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
+  ISliderControlBase(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
                      EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 0.f)
   : IControl(dlg, bounds, paramIdx)
   , mDirection(dir)
@@ -670,7 +669,7 @@ public:
     handleSize == 0 ? mHandleSize = bounds.W() : mHandleSize = handleSize;
   }
   
-  ISliderControlBase(IEditorDelegate& dlg, IRECT bounds, IActionFunction aF = nullptr,
+  ISliderControlBase(IGEditorDelegate& dlg, IRECT bounds, IActionFunction aF = nullptr,
                      EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 0.f)
   : IControl(dlg, bounds, aF)
   , mDirection(dir)
@@ -693,7 +692,7 @@ class IVTrackControlBase : public IControl
                          , public IVectorBase
 {
 public:
-  IVTrackControlBase(IEditorDelegate& dlg, IRECT bounds, int maxNTracks = 1, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  IVTrackControlBase(IGEditorDelegate& dlg, IRECT bounds, int maxNTracks = 1, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
   : IControl(dlg, bounds)
   , mMaxNTracks(maxNTracks)
   , mMinTrackValue(minTrackValue)
@@ -804,7 +803,7 @@ protected:
 class ISwitchControlBase : public IControl
 {
 public:
-  ISwitchControlBase(IEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction aF = nullptr,
+  ISwitchControlBase(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction aF = nullptr,
     int numStates = 2);
 
   virtual ~ISwitchControlBase() {}
@@ -818,7 +817,7 @@ protected:
 class IDirBrowseControlBase : public IControl
 {
 public:
-  IDirBrowseControlBase(IEditorDelegate& dlg, IRECT bounds, const char* extension /* e.g. ".txt"*/)
+  IDirBrowseControlBase(IGEditorDelegate& dlg, IRECT bounds, const char* extension /* e.g. ".txt"*/)
   : IControl(dlg, bounds)
   {
     mExtension.Set(extension);
@@ -867,7 +866,7 @@ public:
   /** @param dlg The editor delegate that this control is attached to
    * @param collapsedBounds If this control, when collapsed should occupy an area of the graphics context, specify this, otherwise the collapsed area is empty
    * @param expandedBounds If you want to explicitly specify the size of the expanded pop-up, you can specify an area here */
-  IPopupMenuControlBase(IEditorDelegate& dlg, int paramIdx = kNoParameter, IText text = DEFAULT_TEXT, IRECT collapsedBounds = IRECT(), IRECT expandedBounds = IRECT(), EDirection direction = kVertical);
+  IPopupMenuControlBase(IGEditorDelegate& dlg, int paramIdx = kNoParameter, IText text = DEFAULT_TEXT, IRECT collapsedBounds = IRECT(), IRECT expandedBounds = IRECT(), EDirection direction = kVertical);
   virtual ~IPopupMenuControlBase() {}
   
   //IControl
@@ -957,7 +956,7 @@ private:
 class ICornerResizerBase : public IControl
 {
 public:
-  ICornerResizerBase(IEditorDelegate& dlg, IRECT graphicsBounds, float size)
+  ICornerResizerBase(IGEditorDelegate& dlg, IRECT graphicsBounds, float size)
   : IControl(dlg, graphicsBounds.GetRECTFromRHC(size).GetPadded(-1))
   , mInitialGraphicsBounds(graphicsBounds)
   , mSize(size)

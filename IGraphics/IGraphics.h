@@ -27,6 +27,7 @@
 #include "IGraphicsStructs.h"
 #include "IGraphicsUtilites.h"
 #include "IGraphicsPopupMenu.h"
+#include "IGraphicsEditorDelegate.h"
 
 #ifdef OS_MAC
 #ifdef FillRect
@@ -601,7 +602,7 @@ public:
   virtual bool OSFindResource(const char* filename, const char* type, WDL_String& result) = 0;
 
 #pragma mark - IGraphics base implementation
-  IGraphics(IEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.);
+  IGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.);
   virtual ~IGraphics();
 
   /** Called repeatedly at frame rate by the platform class to check what the graphics context says is dirty
@@ -675,7 +676,7 @@ public:
 
   /** Gets a pointer to the delegate class that handles communication to and from this graphics context.
    * @return pointer to the delegate */
-  IEditorDelegate* GetDelegate() { return &mDelegate; }
+  IGEditorDelegate* GetDelegate() { return &mDelegate; }
 
   /** Attach an IBitmapControl as the lowest IControl in the control stack to be the background for the graphics context
    * @param filename CString filename resource id for the bitmap image \todo check this */
@@ -916,7 +917,7 @@ protected:
   APIBitmap* SearchBitmapInCache(const char* name, int targetScale, int& sourceScale);
 
 protected:
-  IEditorDelegate& mDelegate;
+  IGEditorDelegate& mDelegate;
   WDL_PtrList<IControl> mControls;
   IRECT mDrawRECT;
   void* mPlatformContext = nullptr;
