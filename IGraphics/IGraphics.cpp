@@ -521,7 +521,7 @@ bool IGraphics::IsDirty(IRECTList& rects)
 
 // Draw a control in a region if it needs to be drawn
 
-void IGraphics::DrawControlIfNeeded(IControl* pControl, const IRECT& bounds, bool alwaysShow)
+void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, bool alwaysShow)
 {
   if (pControl && bounds.Intersects(pControl->GetRECT()) && (!pControl->IsHidden() || alwaysShow))
   {
@@ -557,14 +557,14 @@ void IGraphics::Draw(const IRECT& bounds)
   
   for (auto i = 0; i < n; ++i, ++ppControl)
   {
-    DrawControlIfNeeded(*ppControl, bounds, !i);
+    DrawControl(*ppControl, bounds, !i);
   }
   
-  DrawControlIfNeeded(mPopupControl, bounds, false);
-  DrawControlIfNeeded(mCornerResizer, bounds, false);
+  DrawControl(mPopupControl, bounds, false);
+  DrawControl(mCornerResizer, bounds, false);
 
 #ifndef NDEBUG
-  DrawControlIfNeeded(mLiveEdit, bounds, false);
+  DrawControl(mLiveEdit, bounds, false);
   
   // helper for debugging
   if (mShowAreaDrawn)
