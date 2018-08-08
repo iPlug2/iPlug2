@@ -22,6 +22,7 @@ inline CGRect ToCGRect(IGraphics* pGraphics, const IRECT& bounds)
 - (IPopupMenu*) createPopupMenu: (const IPopupMenu&) menu : (CGRect) bounds;
 - (void) createTextEntry: (IControl&) control : (const IText&) text : (const char*) str : (CGRect) areaRect;
 - (void) endUserInput;
+- (void) getTouchXY: (CGPoint) pt x: (float*) pX y: (float*) pY;
 @property (readonly) CAMetalLayer* metalLayer;
 @property (nonatomic, strong) CADisplayLink *displayLink;
 

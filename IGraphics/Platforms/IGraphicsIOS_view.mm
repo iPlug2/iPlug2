@@ -50,40 +50,54 @@
   self.metalLayer.drawableSize = drawableSize;
 }
 
+- (void) getTouchXY: (CGPoint) pt x: (float*) pX y: (float*) pY
+{
+  if (mGraphics)
+  {
+    // TODO - fix or remove these values!!
+    *pX = pt.x / mGraphics->GetScale();//- 2.f;
+    *pY = pt.y / mGraphics->GetScale();//- 3.f;
+  }
+}
+
 - (void) touchesBegan: (NSSet*) pTouches withEvent: (UIEvent*) pEvent
 {
   UITouch* pTouch = [pTouches anyObject];
-  
-  CGPoint p = [pTouch locationInView: self];
-  
-  IMouseMod mod { true };
-  
-  mGraphics->OnMouseDown(p.x, p.y, mod);
+  CGPoint pt = [pTouch locationInView: self];
+
+  IMouseInfo info;
+  info.ms.L = true;
+  [self getTouchXY:pt x:&info.x y:&info.y];
+  mGraphics->OnMouseDown(info.x, info.y, info.ms);
 }
 
 - (void) touchesMoved: (NSSet*) pTouches withEvent: (UIEvent*) pEvent
 {
   UITouch* pTouch = [pTouches anyObject];
 
-  CGPoint p = [pTouch locationInView: self];
-  CGPoint pPrev = [pTouch previousLocationInView: self];
+  CGPoint pt = [pTouch locationInView: self];
+  CGPoint ptPrev = [pTouch previousLocationInView: self];
 
-  IMouseMod mod;
-  float dX = p.x - pPrev.x;
-  float dY = p.y - pPrev.y;
+  IMouseInfo info;
+  [self getTouchXY:pt x:&info.x y:&info.y];
+  float prevX, prevY;
+  [self getTouchXY:ptPrev x:&prevX y:&prevY];
+
+  float dX = info.x - prevX;
+  float dY = info.y - prevY;
   
-  mGraphics->OnMouseDrag(p.x, p.y, dX, dY, mod);
+  mGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
 }
 
 - (void) touchesEnded: (NSSet*) pTouches withEvent: (UIEvent*) pEvent
 {
   UITouch* pTouch = [pTouches anyObject];
 
-  CGPoint p = [pTouch locationInView: self];
+  CGPoint pt = [pTouch locationInView: self];
   
-  IMouseMod mod;
-  
-  mGraphics->OnMouseUp(p.x, p.y, mod);
+  IMouseInfo info;
+  [self getTouchXY:pt x:&info.x y:&info.y];
+  mGraphics->OnMouseUp(info.x, info.y, info.ms);
 }
 
 - (void) touchesCancelled: (NSSet*) pTouches withEvent: (UIEvent*) pEvent
