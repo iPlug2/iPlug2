@@ -26,10 +26,9 @@ public:
   void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
   /** If you override this method you should call this parent, or implement the same functionality in order to get controls to update, when state is restored. */
   virtual void OnRestoreState() override;
-  
+  virtual void OnUIOpen() override;
+
   //IGEditorDelegate
-  void OnUIReady(IGraphics* pGraphics); // TODO: this should not be user callable
-  
   virtual IGraphics* CreateGraphics() = 0;
   virtual void LayoutUI(IGraphics* pGraphics) = 0;
   IGraphics* GetUI();

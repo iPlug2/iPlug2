@@ -199,7 +199,6 @@ void* IGraphicsMac::OpenWindow(void* pParent)
   OnViewInitialized([view layer]);
   
   GetDelegate()->LayoutUI(this);
-  GetDelegate()->OnUIReady(this);
 
   if (pParent) // Cocoa VST host.
   {

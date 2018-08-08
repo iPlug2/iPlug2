@@ -58,12 +58,6 @@ public:
    * @return \c true in order to indicate that the states are equal. */
   virtual bool CompareState(const uint8_t* pIncomingState, int startPos);
 
-  /** Override this method to be notified when the UI is opened. */
-  virtual void OnUIOpen() { TRACE; }
-
-  /** Override this method to be notified when the UI is closed. */
-  virtual void OnUIClose() { TRACE; }
-
   /** Implement this to do something after the user interface is resized */
   virtual void OnWindowResize() {}
 

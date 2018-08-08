@@ -11,15 +11,12 @@ IGEditorDelegate::~IGEditorDelegate()
 {
 }
 
-void IGEditorDelegate::OnUIReady(IGraphics* pGraphics)
+void IGEditorDelegate::OnUIOpen()
 {
-  for (auto i = 0; i < NParams(); ++i)
-  {
-    SendParameterValueFromDelegate(i, GetParam(i)->GetNormalized(), true);
-  }
-
-  // TODO: is it safe/sensible to do this here
-  pGraphics->OnResizeOrRescale();
+  IEditorDelegate::OnUIOpen();
+  
+  GetUI()->Resize(GetEditorWidth(), GetEditorHeight(), GetEditorScale());
+  GetUI()->OnResizeOrRescale();
 }
 
 IGraphics* IGEditorDelegate::GetUI()

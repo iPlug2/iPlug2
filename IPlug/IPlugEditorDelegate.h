@@ -34,7 +34,7 @@
  *  You should be able to do that with a new graphics context and something implementing this interface in order to send/receive values
  *  to/from your new UI.
  *
- *  Note on method names: "FromUI" in a method name, means that that method is called by the UI class. "FromDelegate" in a method name mean that method is called from the class that implements the IEditorDelegate interface,
+ *  Note on method names: "FromUI" in a method name, means that that method is called by something in the UI i.e. a control. "FromDelegate" in a method name mean that method is called from the class that implements the IEditorDelegate interface,
  *  which is usually your plug-in base class, but may not be in the case of an isolated editor class, or if you are using IGraphics without IPlug, and your IEditorDelegate is not a plug-in
  *
  *  NOTES:
@@ -56,15 +56,9 @@ public:
     mParams.Empty(true);
   }
   
-  IParam* AddParam()
-  {
-    return mParams.Add(new IParam());
-  }
+  IParam* AddParam() { return mParams.Add(new IParam()); }
   
-  void RemoveParam(int idx)
-  {
-    return mParams.Delete(idx);
-  }
+  void RemoveParam(int idx) { return mParams.Delete(idx); }
   
   /** Get a pointer to one of the delegate's IParam objects
    * @param paramIdx The index of the parameter object to be got
@@ -81,6 +75,18 @@ public:
   
   /** Override this method when not using IGraphics if you need to free resources etc when the window closes */
   virtual void CloseWindow() {};
+  
+  /** Override this method to do something before the UI is opened. Call base implementations. */
+  virtual void OnUIOpen()
+  {
+    for (auto i = 0; i < NParams(); ++i)
+    {
+      SendParameterValueFromDelegate(i, GetParam(i)->GetNormalized(), true);
+    }
+  };
+  
+  /** Override this method to do something before the UI is closed. */
+  virtual void OnUIClose() {};
   
   /** This is an OnParamChange that will only trigger on the UI thread at low priority, and therefore is appropriate for hiding or showing elements of the UI.
    * You should not update parameter objects using this method.
@@ -138,8 +144,7 @@ public:
   
   /** Called by the UI at the beginning of a parameter change gesture, in order to notify the host
    * (via a call in the API class) that the parameter is going to be modified
-   * The host may be trying to automate the parameter as well, so it needs to relinquish control when the user is
-   * modifying something in the user interface.
+   * The host may be trying to automate the parameter as well, so it needs to relinquish control when the user is modifying something in the user interface.
    * @param paramIdx The index of the parameter that is changing value */
   virtual void BeginInformHostOfParamChangeFromUI(int paramIdx) = 0;
   
