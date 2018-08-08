@@ -185,7 +185,28 @@ public:
   /** This method is needed, for remote editors to avoid a feedback loop */
   virtual void DeferMidiMsg(const IMidiMsg& msg) {};
   
+#pragma mark
+  /** @return The width of the plug-in editor in pixels */
+  int GetEditorWidth() const { return mEditorWidth; }
+  
+  /** @return The height of the plug-in editor in pixels */
+  int GetEditorHeight() const { return mEditorHeight; }
+  
+  /** @return Any scaling applied to the UI  */
+  float GetEditorScale() const { return mEditorScale; }
+  
+  /** @return Get the editor layout index (if used) */
+  int GetEditorLayout() const { return mEditorLayoutIdx; }
+  
 protected:
+  /** The width of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance.  */
+  int mEditorWidth = 0;
+  /** The height of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance.*/
+  int mEditorHeight = 0;
+  /** Any scaling of the plug-in editor. Can be updated by resizing, exists here for persistance.*/
+  float mEditorScale = 1.f;
+  /* An index representing one of several UI layouts for the editor, if needed, exists here for persistance */
+  int mEditorLayoutIdx = 0;
   /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plug-in class implementation constructor */
   WDL_PtrList<IParam> mParams;
 };

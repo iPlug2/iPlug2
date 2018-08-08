@@ -99,16 +99,7 @@ public:
   
   /** @return \c true if the plug-in is meant to have a UI, as defined in config.h */
   bool HasUI() const { return mHasUI; }
-  
-  /** @return The default width of the plug-in UI in pixels, if defined in config.h */
-  int Width() const { return mViewWidth; }
-  
-  /** @return The default height of the plug-in UI in pixels, if defined in config.h */
-  int Height() const { return mViewHeight; }
-  
-  /** @return Any scaling applied to the UI  */
-  float Scale() const { return mViewScale; }
-  
+    
 #pragma mark - Parameters
   
   /** @return The number of unique parameter groups identified */
@@ -369,12 +360,7 @@ protected:
   
   /** \c true if the plug-in has a user interface. If false the host will provide a default interface */
   bool mHasUI = false;
-  /** The width of the plug-in UI if it has an interface. Can be updated by resizing, exists here for serialisation.  */
-  int mViewWidth = 0;
-  /** The height of the plug-in UI if it has an interface. Can be updated by resizing, exists here for serialisation.*/
-  int mViewHeight = 0;
-  /** Any scaling of the plug-in UI if it has an interface. Can be updated by resizing, exists here for serialisation.*/
-  float mViewScale = 1.f;
+
   /** A list of unique cstrings found specified as "parameter groups" when defining IParams. These are used in various APIs to group parameters together in automation dialogues. */
   WDL_PtrList<const char> mParamGroups;
   

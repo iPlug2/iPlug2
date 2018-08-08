@@ -119,7 +119,7 @@ public:
   /** Call this method from a delegate, for example if you wish to store graphics dimensions in your plug-in state in order to notify the API of a graphics resize.
    * If calling from a UI interaction use ResizeGraphicsFromUI()
    * When this is overridden in subclasses the subclass should call this in order to update the member variables */
-  virtual void ResizeGraphics(int viewWidth, int viewHeight, float scale) { mViewWidth = viewWidth; mViewHeight = viewHeight; mViewScale = scale; }
+  virtual void ResizeGraphics(int width, int height, float scale) { mEditorWidth = width; mEditorHeight = height; mEditorScale = scale; }
 
   /** Implemented by the API class, called by the UI (or by a delegate) at the beginning of a parameter change gesture
    * @param paramIdx The parameter that is being changed */
