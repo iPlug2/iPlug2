@@ -26,6 +26,8 @@
 using namespace Steinberg;
 using namespace Vst;
 
+class IPlugVST3View;
+
 class IPlugVST3Controller : public EditControllerEx1
                           , public IMidiMapping
                           , public IPlugAPIBase
@@ -79,7 +81,7 @@ public:
 
 private:
   Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }
-  Steinberg::IPlugView* mView = nullptr;
+  IPlugVST3View* mView = nullptr;
   Steinberg::FUID mProcessorGUID;
 };
 

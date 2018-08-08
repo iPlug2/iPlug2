@@ -895,7 +895,7 @@ tresult PLUGIN_API IPlugVST3View::getSize(ViewRect* size)
 
   if (mPlug->HasUI())
   {
-    *size = ViewRect(0, 0, mPlug->Width(), mPlug->Height());
+    *size = ViewRect(0, 0, mPlug->GetEditorWidth(), mPlug->GetEditorHeight());
 
     return kResultTrue;
   }

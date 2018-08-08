@@ -274,7 +274,7 @@ tresult PLUGIN_API IPlugVST3Controller::setParamNormalized(ParamID tag, ParamVal
     if (pParam)
     {
       pParam->SetNormalized(value);
-      OnParamChangeUI(tag);
+      OnParamChangeUI(tag, kHost);
     }
   }
 
@@ -473,7 +473,7 @@ void IPlugVST3Controller::ResizeGraphics(int viewWidth, int viewHeight, float sc
 {
   if(HasUI())
   {
-    mView->resize(viewWidth, viewHeight, scale);
+    mView->resize(viewWidth, viewHeight);
     
     IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, scale);
     OnWindowResize();
