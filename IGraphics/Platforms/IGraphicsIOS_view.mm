@@ -121,7 +121,7 @@
   [super didMoveToSuperview];
   if (self.superview)
   {
-    self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkDidFire:)];
+    self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(redraw:)];
     [self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
   }
   else
@@ -131,24 +131,13 @@
   }
 }
 
-- (void)displayLinkDidFire:(CADisplayLink *)displayLink
+- (void)redraw:(CADisplayLink *)displayLink
 {
-  [self redraw];
-}
-
-- (void)redraw
-{  
-  IRECT r;
-  
   //TODO: this is redrawing every IControl!
-  r.R = mGraphics->Width();
-  r.B = mGraphics->Height();
+  IRECT r = mGraphics->GetBounds();
   mGraphics->IsDirty(r);
-  //
   
   mGraphics->Draw(r);
-  
-  mGraphics->EndFrame();
 }
 
 - (BOOL) isOpaque
@@ -167,6 +156,8 @@
 
 - (void) removeFromSuperview
 {
+  [self.displayLink invalidate];
+  self.displayLink = nil;
 }
 
 - (void) controlTextDidEndEditing: (NSNotification*) aNotification
