@@ -1065,60 +1065,60 @@ void renderDemo(NVGcontext* vg, float mx, float my, float width, float height,
 {
 	float x,y,popy;
 
-//  drawEyes(vg, width - 250, 50, 150, 100, mx, my, t);
-//  drawParagraph(vg, width - 450, 50, 150, 100, mx, my);
-  drawGraph(vg, 0, height/2, width, height/2, t);
-//  drawColorwheel(vg, width - 300, height - 300, 250.0f, 250.0f, t);
-//
-//  // Line joints
-//  drawLines(vg, 120, height-50, 600, 50, t);
-//
-//  // Line caps
-//  drawWidths(vg, 10, 50, 30);
-//
-//  // Line caps
-//  drawCaps(vg, 10, 300, 30);
-//
-//  drawScissor(vg, 50, height-80, t);
-//
-//  nvgSave(vg);
-//  if (blowup) {
-//    nvgRotate(vg, sinf(t*0.3f)*5.0f/180.0f*NVG_PI);
-//    nvgScale(vg, 2.0f, 2.0f);
-//  }
-//
-//  // Widgets
-//  drawWindow(vg, "Widgets `n Stuff", 50, 50, 300, 400);
-//  x = 60; y = 95;
-//  drawSearchBox(vg, "Search", x,y,280,25);
-//  y += 40;
-//  drawDropDown(vg, "Effects", x,y,280,28);
-//  popy = y + 14;
-//  y += 45;
-//
-//  // Form
-//  drawLabel(vg, "Login", x,y, 280,20);
-//  y += 25;
-//  drawEditBox(vg, "Email",  x,y, 280,28);
-//  y += 35;
-//  drawEditBox(vg, "Password", x,y, 280,28);
-//  y += 38;
-//  drawCheckBox(vg, "Remember me", x,y, 140,28);
-//  drawButton(vg, ICON_LOGIN, "Sign in", x+138, y, 140, 28, nvgRGBA(0,96,128,255));
-//  y += 45;
-//
-//  // Slider
-//  drawLabel(vg, "Diameter", x,y, 280,20);
-//  y += 25;
-//  drawEditBoxNum(vg, "123.00", "px", x+180,y, 100,28);
-//  drawSlider(vg, 0.4f, x,y, 170,28);
-//  y += 55;
-//
-//  drawButton(vg, ICON_TRASH, "Delete", x, y, 160, 28, nvgRGBA(128,16,8,255));
-//  drawButton(vg, 0, "Cancel", x+170, y, 110, 28, nvgRGBA(0,0,0,0));
-//
-//  // Thumbnails box
-//  drawThumbnails(vg, 365, popy-30, 160, 300, data->images, 12, t);
+	drawEyes(vg, width - 250, 50, 150, 100, mx, my, t);
+	drawParagraph(vg, width - 450, 50, 150, 100, mx, my);
+	drawGraph(vg, 0, height/2, width, height/2, t);
+	drawColorwheel(vg, width - 300, height - 300, 250.0f, 250.0f, t);
+
+	// Line joints
+	drawLines(vg, 120, height-50, 600, 50, t);
+
+	// Line caps
+	drawWidths(vg, 10, 50, 30);
+
+	// Line caps
+	drawCaps(vg, 10, 300, 30);
+
+	drawScissor(vg, 50, height-80, t);
+
+	nvgSave(vg);
+	if (blowup) {
+		nvgRotate(vg, sinf(t*0.3f)*5.0f/180.0f*NVG_PI);
+		nvgScale(vg, 2.0f, 2.0f);
+	}
+
+	// Widgets
+	drawWindow(vg, "Widgets `n Stuff", 50, 50, 300, 400);
+	x = 60; y = 95;
+	drawSearchBox(vg, "Search", x,y,280,25);
+	y += 40;
+	drawDropDown(vg, "Effects", x,y,280,28);
+	popy = y + 14;
+	y += 45;
+
+	// Form
+	drawLabel(vg, "Login", x,y, 280,20);
+	y += 25;
+	drawEditBox(vg, "Email",  x,y, 280,28);
+	y += 35;
+	drawEditBox(vg, "Password", x,y, 280,28);
+	y += 38;
+	drawCheckBox(vg, "Remember me", x,y, 140,28);
+	drawButton(vg, ICON_LOGIN, "Sign in", x+138, y, 140, 28, nvgRGBA(0,96,128,255));
+	y += 45;
+
+	// Slider
+	drawLabel(vg, "Diameter", x,y, 280,20);
+	y += 25;
+	drawEditBoxNum(vg, "123.00", "px", x+180,y, 100,28);
+	drawSlider(vg, 0.4f, x,y, 170,28);
+	y += 55;
+
+	drawButton(vg, ICON_TRASH, "Delete", x, y, 160, 28, nvgRGBA(128,16,8,255));
+	drawButton(vg, 0, "Cancel", x+170, y, 110, 28, nvgRGBA(0,0,0,0));
+
+	// Thumbnails box
+	drawThumbnails(vg, 365, popy-30, 160, 300, data->images, 12, t);
 
 	nvgRestore(vg);
 }
