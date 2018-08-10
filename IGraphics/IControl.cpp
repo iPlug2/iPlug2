@@ -276,11 +276,9 @@ void ITextControl::Draw(IGraphics& g)
 }
 
 ICaptionControl::ICaptionControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, const IText& text, bool showParamLabel)
-: ITextControl(dlg, bounds, "", paramIdx, text)
+: ITextControl(dlg, bounds, "", text)
 , mShowParamLabel(showParamLabel)
 {
-  assert(paramIdx > kNoParameter);
-
   mParamIdx = paramIdx;
   
   if(GetParam()->Type() == IParam::kTypeEnum)

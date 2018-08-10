@@ -44,7 +44,7 @@ public:
     }
     
     // this must be called on the main thread - typically in MyPlugin::OnIdle()
-    void TransmitData(IGEditorDelegate& dlg)
+    void TransmitData(IEditorDelegate& dlg)
     {
       while(mQueue.ElementsAvailable())
       {

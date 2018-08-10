@@ -3,9 +3,9 @@
 class FileMenu : public IDirBrowseControlBase
 {
 public:
-  FileMenu(IEditorDelegate& plug, IRECT rect, const IText& text,
+  FileMenu(IGEditorDelegate& dlg, IRECT rect, const IText& text,
            const char* extension)
-  : IDirBrowseControlBase(plug, rect, extension)
+  : IDirBrowseControlBase(dlg, rect, extension)
   {
     mText = text;
     mLabel.SetFormatted(32, "%s \n%s File", "Select a", extension);
@@ -45,8 +45,8 @@ private:
 class IArcControl : public IKnobControlBase
 {
 public:
-  IArcControl(IEditorDelegate& plug, IRECT rect, int paramIdx, float angle1 = -135.f, float angle2 = 135.f)
-  : IKnobControlBase(plug, rect, paramIdx)
+  IArcControl(IGEditorDelegate& dlg, IRECT rect, int paramIdx, float angle1 = -135.f, float angle2 = 135.f)
+  : IKnobControlBase(dlg, rect, paramIdx)
   , mAngle1(angle1)
   , mAngle2(angle2)
   {
@@ -96,8 +96,8 @@ private:
 class IPolyControl : public IKnobControlBase
 {
 public:
-  IPolyControl(IEditorDelegate& plug, IRECT rect, int paramIdx)
-  : IKnobControlBase(plug, rect, paramIdx)
+  IPolyControl(IGEditorDelegate& dlg, IRECT rect, int paramIdx)
+  : IKnobControlBase(dlg, rect, paramIdx)
   {
   }
 
@@ -140,8 +140,8 @@ private:
 class IGradientControl : public IKnobControlBase
 {
 public:
-  IGradientControl(IEditorDelegate& plug, IRECT rect, int paramIdxIdx)
-  : IKnobControlBase(plug, rect, paramIdxIdx)
+  IGradientControl(IGEditorDelegate& dlg, IRECT rect, int paramIdx)
+  : IKnobControlBase(dlg, rect, paramIdx)
   {
     RandomiseGradient();
   }
@@ -198,8 +198,8 @@ private:
 class IMultiPathControl : public IKnobControlBase
 {
 public:
-  IMultiPathControl(IEditorDelegate& plug, IRECT rect, int paramIdxIdx)
-  : IKnobControlBase(plug, rect, paramIdxIdx), mShape(0)
+  IMultiPathControl(IGEditorDelegate& dlg, IRECT rect, int paramIdx)
+  : IKnobControlBase(dlg, rect, paramIdx), mShape(0)
   {
   }
 

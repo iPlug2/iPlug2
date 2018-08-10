@@ -3,9 +3,9 @@
 class FileMenu : public IDirBrowseControlBase
 {
 public:
-  FileMenu(IEditorDelegate& plug, IRECT rect, IActionFunction actionFunc, const IText& text,
+  FileMenu(IGEditorDelegate& dlg, IRECT rect, IActionFunction actionFunc, const IText& text,
            const char* extension)
-  : IDirBrowseControlBase(plug, rect, extension)
+  : IDirBrowseControlBase(dlg, rect, extension)
   {
     mText = text;
     mLabel.SetFormatted(32, "%s \n%s File", "Select a", extension);
@@ -35,7 +35,6 @@ public:
       mLabel.Set(item->GetText());
     }
 
-    //Redraw(); // TODO:  seems to need this
     SetDirty();
   }
 
@@ -46,8 +45,8 @@ private:
 class IArcControl : public IKnobControlBase
 {
 public:
-  IArcControl(IEditorDelegate& plug, IRECT rect, int paramIdx, float angle1 = -135.f, float angle2 = 135.f)
-  : IKnobControlBase(plug, rect, paramIdx)
+  IArcControl(IGEditorDelegate& dlg, IRECT rect, int paramIdx, float angle1 = -135.f, float angle2 = 135.f)
+  : IKnobControlBase(dlg, rect, paramIdx)
   , mAngle1(angle1)
   , mAngle2(angle2)
   {
@@ -97,8 +96,8 @@ private:
 class IPolyControl : public IKnobControlBase
 {
 public:
-  IPolyControl(IEditorDelegate& plug, IRECT rect, int paramIdx)
-  : IKnobControlBase(plug, rect, paramIdx)
+  IPolyControl(IGEditorDelegate& dlg, IRECT rect, int paramIdx)
+  : IKnobControlBase(dlg, rect, paramIdx)
   {
   }
 
@@ -141,8 +140,8 @@ private:
 class IGradientControl : public IKnobControlBase
 {
 public:
-  IGradientControl(IEditorDelegate& plug, IRECT rect, int paramIdxIdx)
-  : IKnobControlBase(plug, rect, paramIdxIdx)
+  IGradientControl(IGEditorDelegate& dlg, IRECT rect, int paramIdx)
+  : IKnobControlBase(dlg, rect, paramIdx)
   {
     RandomiseGradient();
   }
@@ -199,8 +198,8 @@ private:
 class IMultiPathControl : public IKnobControlBase
 {
 public:
-  IMultiPathControl(IEditorDelegate& plug, IRECT rect, int paramIdxIdx)
-  : IKnobControlBase(plug, rect, paramIdxIdx), mShape(0)
+  IMultiPathControl(IGEditorDelegate& dlg, IRECT rect, int paramIdx)
+  : IKnobControlBase(dlg, rect, paramIdx), mShape(0)
   {
   }
 
@@ -274,8 +273,8 @@ private:
 class RandomTextControl : public IControl
 {
 public:
-  RandomTextControl(IEditorDelegate& plug, IRECT bounds)
-  : IControl(plug, bounds, -1)
+  RandomTextControl(IGEditorDelegate& dlg, IRECT bounds)
+  : IControl(dlg, bounds, -1)
   {
     Randomise();
   }
@@ -296,7 +295,7 @@ public:
 
     const char* types[] = { "Roboto-Regular", "Montserrat-LightItalic" };
 
-    mText = IText(IColor::GetRandomColor(), size, types[type], (IText::EStyle) style, (IText::EAlign) align);
+    mText = IText(size, IColor::GetRandomColor(), types[type], (IText::EStyle) style, (IText::EAlign) align);
   }
 
   void Draw(IGraphics& g) override

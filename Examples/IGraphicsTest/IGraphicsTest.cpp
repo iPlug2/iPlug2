@@ -14,7 +14,7 @@ extern UINT gScrollMessage;
 extern IGraphicsTest* gIGraphicsTest;
 
 IGraphicsTest::IGraphicsTest()
-: IGraphicsEditorDelegate(0)
+: IGEditorDelegate(0)
 {
   MakeGraphics(*this, UI_WIDTH, UI_HEIGHT, 60);
 }
