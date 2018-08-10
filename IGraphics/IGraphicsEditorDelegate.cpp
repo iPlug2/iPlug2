@@ -150,15 +150,18 @@ void IGEditorDelegate::ForControlWithParam(int paramIdx, std::function<void(ICon
 
 void IGEditorDelegate::ForControlInGroup(const char* group, std::function<void(IControl& control)> func)
 {
-  for (auto c = 0; c < mGraphics->NControls(); c++)
+  if(mGraphics)
   {
-    IControl* pControl = mGraphics->GetControl(c);
-    
-    if (CStringHasContents(pControl->GetGroup()))
+    for (auto c = 0; c < mGraphics->NControls(); c++)
     {
-      if(strcmp(pControl->GetGroup(), group) == 0)
-        func(*pControl);
-      // Could be more than one, don't break until we check them all.
+      IControl* pControl = mGraphics->GetControl(c);
+      
+      if (CStringHasContents(pControl->GetGroup()))
+      {
+        if(strcmp(pControl->GetGroup(), group) == 0)
+          func(*pControl);
+        // Could be more than one, don't break until we check them all.
+      }
     }
   }
 }
