@@ -11,11 +11,6 @@
 #endif
 #endif
 
-#ifdef IGRAPHICS_FREETYPE
-#include "ft2build.h"
-#include FT_FREETYPE_H
-#endif
-
 #ifdef AAX_API
 #include "IPlugAAX_view_interface.h"
 #endif
@@ -959,12 +954,7 @@ private:
   EUIResizerMode mGUISizeMode = EUIResizerMode::kUIResizerScale;
   double mPrevTimestamp = 0.;
 
-#if defined IGRAPHICS_FREETYPE && !defined IGRAPHICS_NANOVG
 protected:
-  FT_Library mFTLibrary = nullptr;
-  FT_Face mFTFace = nullptr;
-#endif
-
   friend class IGraphicsLiveEdit;
   friend class ICornerResizerBase;
 };

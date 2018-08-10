@@ -23,7 +23,11 @@
 #endif
 
 #ifdef IGRAPHICS_FREETYPE
+#include "ft2build.h"
+#include FT_FREETYPE_H
 #include "cairo/cairo-ft.h"
+#include "hb.h"
+#include "hb-ft.h"
 #endif
 
 #include "IGraphicsPathBase.h"
@@ -80,6 +84,7 @@ public:
 
   void OnResizeOrRescale() override { SetPlatformContext(nullptr); IGraphics::OnResizeOrRescale(); }
 
+  void LoadFont(const char* fileName) override;
 protected:
 
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
@@ -104,4 +109,10 @@ private:
   
   cairo_t* mContext;
   cairo_surface_t* mSurface;
+  
+#if defined IGRAPHICS_FREETYPE
+  FT_Library mFTLibrary = nullptr;
+  WDL_PtrList<FT_FaceRec_> mFTFaces;
+  WDL_PtrList<cairo_font_face_t> mCairoFTFaces;
+#endif
 };

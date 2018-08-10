@@ -70,14 +70,6 @@ IGraphics::~IGraphics()
     DELETE_NULL(mLiveEdit);
 #endif
 
-#ifdef IGRAPHICS_FREETYPE
-  if (mFTFace != nullptr)
-  {
-    FT_Done_Face(mFTFace);
-    FT_Done_FreeType(mFTLibrary);
-  }
-#endif
-
   mControls.Empty(true);
 }
 
