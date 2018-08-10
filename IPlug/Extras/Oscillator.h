@@ -189,7 +189,7 @@ public:
       const double frac = tf.d - UNITBIT32;
       const T f1 = addr[0];
       const T f2 = addr[1];
-      pOutput[s] = T(f1 + frac * (f2 - f1));
+      mLastOutput = pOutput[s] = T(f1 + frac * (f2 - f1));
     }
 
     // Restore mPhase
@@ -200,6 +200,7 @@ public:
     IOscillator<T>::mPhase = tf.d - UNITBIT32 * tableSize;
   }
 
+  T mLastOutput = 0.;
 private:
   static const int tableSize = 512; // 2^9
   static const int tableSizeM1 = 511; // 2^9 -1
