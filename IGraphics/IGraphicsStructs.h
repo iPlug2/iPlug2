@@ -487,7 +487,7 @@ struct IPattern
   }
 };
 
-/** Used to manage font and text/text entry style, independant of draw class/platform.*/
+/** Used to manage font and text/text entry style for a piece of text on the UI, independant of draw class/platform.*/
 struct IText
 {
   enum EStyle { kStyleNormal, kStyleBold, kStyleItalic } mStyle;
