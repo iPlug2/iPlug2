@@ -63,8 +63,8 @@ AAX_Result AAX_CEffectGUI_IPLUG::GetViewSize(AAX_Point* pNewViewSize) const
 {
   if (mPlug->HasUI())
   {
-    pNewViewSize->horz = (float) mPlug->Width();
-    pNewViewSize->vert = (float) mPlug->Height();
+    pNewViewSize->horz = (float) mPlug->GetEditorWidth();
+    pNewViewSize->vert = (float) mPlug->GetEditorHeight();
   }
   
   return AAX_SUCCESS; 
