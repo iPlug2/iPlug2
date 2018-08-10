@@ -291,7 +291,7 @@ bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& bounds,
 #if defined IGRAPHICS_FREETYPE
 //  FT_Face ft_face;
 //
-//  FT_New_Face(mFTLibrary, "/Users/oli/Applications/IGraphicsTest.app/Contents/Resources/ProFontWindows.ttf", 0 /* TODO: some font files can contain multiple faces, but we don't do this*/, &ft_face);
+//  FT_New_Face(mFTLibrary, "/Users/oli/Applications/IGraphicsTest.app/Contents/Resources/ProFontWindows.ttf", 0, &ft_face);
 //
 //  FT_Set_Char_Size(ft_face, FONT_SIZE * 64, FONT_SIZE * 64, 0, 0 );
 //
@@ -368,10 +368,14 @@ bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& bounds,
   cairo_set_source_rgba(mContext, text.mFGColor.R / 255.0, text.mFGColor.G / 255.0, text.mFGColor.B / 255.0, (BlendWeight(pBlend) * text.mFGColor.A) / 255.0);
   cairo_select_font_face(mContext, text.mFont, CAIRO_FONT_SLANT_NORMAL, text.mStyle == IText::kStyleBold ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL);
   cairo_set_font_size(mContext, text.mSize);
+//  cairo_font_options_t* font_options = cairo_font_options_create ();
+//  cairo_font_options_set_antialias (font_options, CAIRO_ANTIALIAS_BEST);
+//  cairo_set_font_options (mContext, font_options);
   cairo_text_extents_t textExtents;
   cairo_font_extents_t fontExtents;
   cairo_font_extents(mContext, &fontExtents);
   cairo_text_extents(mContext, str, &textExtents);
+//  cairo_font_options_destroy(font_options);
   
   double x = 0., y = 0.;
 
@@ -434,6 +438,9 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
 #else
   #error NOT IMPLEMENTED
 #endif
+    //cairo_set_antialias(cr, CAIRO_ANTIALIAS_NONE);
+    //cairo_set_antialias(mContext, CAIRO_ANTIALIAS_FAST);
+    //cairo_set_antialias(cr, CAIRO_ANTIALIAS_GOOD);
     
     if (mContext)
     {
@@ -493,6 +500,5 @@ void IGraphicsCairo::LoadFont(const char* name)
     cairo_font_face_t* pCairoFace = cairo_ft_font_face_create_for_ft_face(ftFace, 0);
     mCairoFTFaces.Add(pCairoFace);
   }
-
-  #endif
+#endif
 }
