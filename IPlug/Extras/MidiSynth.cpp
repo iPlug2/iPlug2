@@ -236,6 +236,7 @@ void MidiSynth::NoteOnOffPoly(const IMidiMsg& msg)
 
     pVoice->mStartTime = mSampleTime;
     pVoice->mKey = note;
+    pVoice->mStackIdx = v;
     pVoice->mBasePitch = GetAdjustedPitch(note);
     pVoice->mAftertouch = 0.;
     pVoice->Trigger(theNote.mVelNorm, pVoice->GetBusy()); // if voice is busy it will retrigger
