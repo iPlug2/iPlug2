@@ -42,6 +42,11 @@ public:
   {
     mPhase = mStartPhase;
   }
+  
+  void SetPhase(double phase)
+  {
+    mPhase = phase;
+  }
 
 protected:
   double mPhase = 0.;  // float phase (goes between 0. and 1.)
