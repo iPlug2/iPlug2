@@ -129,7 +129,6 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
   OnViewInitialized([view layer]);
   
   GetDelegate()->LayoutUI(this);
-  GetDelegate()->OnUIReady(this);
 
   if (pParent)
   {

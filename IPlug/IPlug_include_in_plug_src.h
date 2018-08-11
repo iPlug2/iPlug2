@@ -366,6 +366,7 @@ extern "C"
   {
     gPlug = MakePlug();
     gPlug->OpenWindow(nullptr);
+    gPlug->OnUIOpen();
     
     StartMainLoopTimer();
     // TODO: when do we delete!

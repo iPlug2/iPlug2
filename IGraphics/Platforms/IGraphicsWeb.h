@@ -76,7 +76,7 @@ public:
 
   void ForceEndUserEdit() override {} // TODO:
   void Resize(int w, int h, float scale) override;
-  void* OpenWindow(void* pParent) override { return nullptr; }
+  void* OpenWindow(void* pParent) override { GetDelegate()->LayoutUI(this); return nullptr; }
   void CloseWindow() override {} // TODO:
   void* GetWindow() override { return nullptr; } // TODO:
   bool WindowIsOpen() override { return GetWindow(); } // TODO: ??
