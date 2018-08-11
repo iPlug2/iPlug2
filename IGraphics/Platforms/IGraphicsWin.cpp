@@ -663,7 +663,6 @@ void* IGraphicsWin::OpenWindow(void* pParent)
   OnViewInitialized((void*) dc);
 
   GetDelegate()->LayoutUI(this);
-  GetDelegate()->OnUIReady(this);
 
   if (!mPlugWnd && --nWndClassReg == 0)
   {
