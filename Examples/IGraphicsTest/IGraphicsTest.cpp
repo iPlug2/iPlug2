@@ -16,12 +16,15 @@ extern IGraphicsTest* gIGraphicsTest;
 IGraphicsTest::IGraphicsTest()
 : IGEditorDelegate(0)
 {
-  MakeGraphics(*this, UI_WIDTH, UI_HEIGHT, 60);
 }
 
-void IGraphicsTest::CreateUI(IGraphics* pGraphics)
+IGraphics* IGraphicsTest::CreateGraphics()
 {
-  pGraphics->AttachPanelBackground(COLOR_RED);
+  return MakeGraphics(*this, UI_WIDTH, UI_HEIGHT, 60);
+}
+
+void IGraphicsTest::LayoutUI(IGraphics* pGraphics)
+{
   pGraphics->AttachCornerResizer();
   //pGraphics->EnableLiveEdit(true);
   //pGraphics->HandleMouseOver(true);

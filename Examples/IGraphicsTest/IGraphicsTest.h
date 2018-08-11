@@ -14,5 +14,6 @@ public:
   void SendParameterValueFromUI(int paramIdx, double value) override { };
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { };
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { }
-  void CreateUI(IGraphics* pGraphics) override;
+  IGraphics* CreateGraphics() override;
+  void LayoutUI(IGraphics* pGraphics) override;
 };

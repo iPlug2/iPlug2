@@ -11,9 +11,6 @@ PLUG_CLASS_NAME::PLUG_CLASS_NAME(IPlugInstanceInfo instanceInfo)
   CreateServer("/Users/oli/Dev/MyPlugins/Examples/IPlugEffect/build-web", "8001");
 #endif
   
-  
-  MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, 60, 1.);
-
   PrintDebugInfo();
 }
 
@@ -82,9 +79,24 @@ void PLUG_CLASS_NAME::OnIdle()
 #include "IVKeyboardControl.h"
 #include "IPlugEffect_controls.h"
 
-void PLUG_CLASS_NAME::CreateUI(IGraphics* pGraphics)
-{  
-  pGraphics->AttachCornerResizer();
+IGraphics* PLUG_CLASS_NAME::CreateGraphics()
+{
+  return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, 60, 1.);
+}
+
+void PLUG_CLASS_NAME::LayoutUI(IGraphics* pGraphics)
+{
+  if(pGraphics->NControls()) // TODO: we need to store the UI size/scale if IGraphics gets deleted
+  {
+    IRECT bounds = pGraphics->GetBounds();
+    pGraphics->GetControl(0)->SetRECT(bounds);
+
+    IRECT kbrect = bounds.SubRectVertical(3, 2).GetPadded(-5.);
+    pGraphics->GetControl(pGraphics->NControls()-1)->SetRECT(kbrect);
+    return;
+  }
+
+  pGraphics->AttachCornerResizer(kUIResizerSize);
   pGraphics->AttachPanelBackground(COLOR_GRAY);
 
   const int nRows = 4;
