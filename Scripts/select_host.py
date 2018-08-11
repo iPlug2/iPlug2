@@ -21,10 +21,11 @@ SONAR_X64_PATH = "$(ProgramW6432)\Cakewalk\SONAR X3 Producer\SONARPDR.exe"
 VST3TESTHOST_X64_PATH = "$(ProgramW6432)\Steinberg\VST3PluginTestHost\VST3PluginTestHost.exe"
 
 SAVIHOST_ARGS = "$(TargetPath) /noload /nosave /noexc /noft"
+REAPER_ARGS = "$(SolutionDir)$(SolutionName).RPP"
 
 PATHS = [SAVIHOST_PATH, LIVE_PATH,  FL_PATH,  CUBASE_PATH,  S1_PATH,  REAPER_PATH,  SONAR_PATH, VST3TESTHOST_PATH]
 PATHS_X64 = [SAVIHOST_X64_PATH, LIVE_X64_PATH,  FL_X64_PATH,  CUBASE_X64_PATH,  S1_X64_PATH,  REAPER_X64_PATH,  SONAR_X64_PATH, VST3TESTHOST_X64_PATH]
-ARGS = [SAVIHOST_ARGS, "", "", "", "", "", "", ""]
+ARGS = [SAVIHOST_ARGS, "", "", "", "", REAPER_ARGS, "", ""]
 
 from xml.dom import minidom as md
 doc  = md.parse('common.props')
