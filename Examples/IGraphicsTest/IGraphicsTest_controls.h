@@ -313,7 +313,7 @@ private:
 class DrawingTest : public IControl
 {
 public:
-  DrawingTest(IEditorDelegate& plug, IRECT bounds)
+  DrawingTest(IGEditorDelegate& plug, IRECT bounds)
   : IControl(plug, bounds, -1)
   {
   }
