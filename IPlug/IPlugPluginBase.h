@@ -130,6 +130,10 @@ public:
   /** Another version of the OnParamChange method without an EParamSource, for backwards compatibility / simplicity. */
   virtual void OnParamChange(int paramIdx) {}
   
+  /** Calls OnParamChange() for each parameter and finally OnReset().
+   * @param source Specifies the source of this parameter change */
+  void OnParamReset(EParamSource source);
+  
 #pragma mark - State Serialization
   /** @return \c true if the plug-in has been set up to do state chunks, via config.h */
   bool DoesStateChunks() const { return mStateChunks; }

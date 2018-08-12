@@ -109,6 +109,14 @@ void IPluginBase::OnParamChange(int paramIdx, EParamSource source, int sampleOff
   OnParamChange(paramIdx);
 }
 
+void IPluginBase::OnParamReset(EParamSource source)
+{
+  for (int i = 0; i < mParams.GetSize(); ++i)
+  {
+    OnParamChange(i, source);
+  }
+}
+
 #pragma mark -
 
 bool IPluginBase::SerializeParams(IByteChunk& chunk)
@@ -139,7 +147,9 @@ int IPluginBase::UnserializeParams(const IByteChunk& chunk, int startPos)
     pParam->Set(v);
     Trace(TRACELOC, "%d %s %f", i, pParam->GetNameForHost(), pParam->Value());
   }
-  //  OnParamReset(kPresetRecall); // TODO: fix this!
+
+  OnParamReset(kPresetRecall);
+
   LEAVE_PARAMS_MUTEX;
   return pos;
 }

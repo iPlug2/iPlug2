@@ -118,14 +118,6 @@ void IPlugAPIBase::SetParameterValue(int idx, double normalizedValue)
   OnParamChange(idx, kUI);
 }
 
-void IPlugAPIBase::OnParamReset(EParamSource source)
-{
-  for (int i = 0; i < mParams.GetSize(); ++i)
-  {
-    OnParamChange(i, source);
-  }
-}
-
 void IPlugAPIBase::DirtyParameters()
 {
   for (int p = 0; p < NParams(); p++)

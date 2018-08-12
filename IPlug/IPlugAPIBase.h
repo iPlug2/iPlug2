@@ -157,10 +157,6 @@ public:
    * This is not the same as OnHostIdentified(), which you may implement in your plug-in class to do your own specific initialisation after a host has been identified */
   virtual void HostSpecificInit() {}; //TODO: sort this method out, it's called differently from different APIs
 
-  /** Calls OnParamChange() for each parameter and finally OnReset().
-   * @param source Specifies the source of this parameter change */
-  void OnParamReset(EParamSource source);  //
-
   //IEditorDelegate
   void SendParameterValueFromUI(int paramIdx, double value) override { SetParameterValue(paramIdx, value); IPluginBase::SendParameterValueFromUI(paramIdx, value); }
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { BeginInformHostOfParamChange(paramIdx); }
