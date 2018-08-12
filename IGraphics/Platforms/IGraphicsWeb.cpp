@@ -106,7 +106,7 @@ void IGraphicsWeb::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, in
   srcX *= ds;
   srcY *= ds;
   
-  context.call<void>("drawImage", rv->mItem, srcX, srcY, sr.W(), sr.H(), bounds.L, bounds.T, bounds.W(), bounds.H());
+  context.call<void>("drawImage", rv->mItem, srcX, srcY, sr.W(), sr.H(), floor(bounds.L), floor(bounds.T), floor(bounds.W()), floor(bounds.H()));
   PathStateRestore();
 }
 

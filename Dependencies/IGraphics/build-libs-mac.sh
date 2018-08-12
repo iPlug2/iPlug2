@@ -1,12 +1,21 @@
 #!/usr/bin/env bash
 set -e
 
+BASE_LOCATION="$PWD/Libs"
+BUILD_LOCATION="$BASE_LOCATION/build-mac"
+INSTALL_LOCATION="$BASE_LOCATION/install"
+INCLUDE_PATH="$INSTALL_LOCATION/include"
+LIB_PATH="$INSTALL_LOCATION/lib"
+BIN_PATH="$INSTALL_LOCATION/bin"
+LOG_PATH="$BASE_LOCATION"
+
 err_report() {
     echo
     echo "*******************************************************************************"
-    echo "Error: something went wrong during the build process, have a look to build.log "
+    echo "Error: something went wrong during the build process, printing build.log "
     echo "*******************************************************************************"
     echo
+    cat $LOG_PATH/build.log
 }
 
 trap err_report ERR
@@ -27,14 +36,6 @@ spin() {
 }
 
 cd "${0%/*}"
-
-BASE_LOCATION="$PWD/Libs"
-BUILD_LOCATION="$BASE_LOCATION/build-mac"
-INSTALL_LOCATION="$BASE_LOCATION/install"
-INCLUDE_PATH="$INSTALL_LOCATION/include"
-LIB_PATH="$INSTALL_LOCATION/lib"
-BIN_PATH="$INSTALL_LOCATION/bin"
-LOG_PATH="$BASE_LOCATION"
 
 ##echo "CFLAGS $CFLAGS"
 
@@ -94,7 +95,7 @@ else
     echo "Tarball Present..."
   else
     echo "Downloading..."
-    curl -L --progress-bar -O http://www.bzip.org/1.0.6/bzip2-1.0.6.tar.gz
+    curl -O -L --progress-bar http://www.bzip.org/1.0.6/bzip2-1.0.6.tar.gz
   fi
   echo "Unpacking..."
   tar -xf bzip2-1.0.6.tar.gz >> $LOG_PATH/build.log 2>&1
