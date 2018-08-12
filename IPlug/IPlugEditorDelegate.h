@@ -34,8 +34,10 @@
  *  You should be able to do that with a new graphics context and something implementing this interface in order to send/receive values
  *  to/from your new UI.
  *
- *  Note on method names: "FromUI" in a method name, means that that method is called by something in the UI i.e. a control. "FromDelegate" in a method name mean that method is called from the class that implements the IEditorDelegate interface,
- *  which is usually your plug-in base class, but may not be in the case of an isolated editor class, or if you are using IGraphics without IPlug, and your IEditorDelegate is not a plug-in
+ *  Note on method names:
+ *  - "FromUI" in a method name, means that that method is called by something in the UI i.e. a control.
+ *  - "FromDelegate" in a method name mean that method is called from the class that implements the IEditorDelegate interface,
+ *     which is usually your plug-in base class, but may not be in the case of an isolated editor class, or if you are using IGraphics without IPlug, and your IEditorDelegate is not a plug-in
  *
  *  NOTES:
  *  A parameter VALUE is a floating point number linked to an integer parameter index. TODO: Normalised ?

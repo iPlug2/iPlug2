@@ -893,7 +893,7 @@ public:
   virtual void DrawHighlightCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem);
   virtual void DrawSeparator(IGraphics& g, const IRECT& bounds);
   
-  /** Call this to create a pop-up menu. This method
+  /** Call this to create a pop-up menu
    @param menu Reference to a menu from which to populate this user interface control. NOTE: this object should not be a temporary, otherwise when the menu returns asynchronously, it may not exist.
    @param pCaller The IControl that called this method, and will receive the call back after menu selection
    @return the menu */
