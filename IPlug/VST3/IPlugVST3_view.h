@@ -81,7 +81,7 @@ public:
     
     if (mController->HasUI())
     {
-      *pSize = ViewRect(0, 0, mController->Width(), mController->Height());
+      *pSize = ViewRect(0, 0, mController->GetEditorWidth(), mController->GetEditorHeight());
       
       return kResultTrue;
     }
