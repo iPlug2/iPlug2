@@ -1272,23 +1272,16 @@ bool IGraphics::SearchImageResource(const char* name, const char* type, WDL_Stri
   // Search target scale, then descending
   for (sourceScale = targetScale ; sourceScale > 0; SearchNextScale(sourceScale, targetScale))
   {
-    char fullName[4096];
-
+    WDL_String fullName(name);
+    
     if (sourceScale != 1)
-    { 
-      // Form altered name
-      char tempName[4096];
-      tempName[4095] = 0;
-
-      strncpy(tempName, name, 4095);
-      char* filename = strtok(tempName, ".");
-      char* ext = strtok(nullptr, ".");
-      snprintf(fullName, 4095, "%s@%dx.%s", filename, sourceScale, ext);
+    {
+      WDL_String baseName(fullName.get_filepart()); baseName.remove_fileext();
+      WDL_String ext(fullName.get_fileext());
+      fullName.SetFormatted((int) (strlen(name) + strlen("@2x")), "%s@%dx%s", baseName.Get(), sourceScale, ext.Get());
     }
-    else
-      strncpy(fullName, name, 4095);
-
-    if (OSFindResource(fullName, type, result))
+      
+    if (OSFindResource(fullName.Get(), type, result))
       return true;
   }
 
