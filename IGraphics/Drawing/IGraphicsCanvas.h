@@ -9,15 +9,6 @@
 
 using namespace emscripten;
 
-static std::string GetColor(const IColor& color, float alpha = 1.0)
-{
-  WDL_String str;
-  
-  str.SetFormatted(64, "rgba(%d, %d, %d, %lf)", color.R, color.G, color.B, alpha * color.A / 255.0);
-  
-  return str.Get();
-}
-
 class WebBitmap : public APIBitmap
 {
 public:
@@ -85,6 +76,13 @@ private:
   val GetPreloadedImages()
   {
     return val::global("Module")["preloadedImages"];
+  }
+  
+  std::string GetColor(const IColor& color, float alpha = 1.0)
+  {
+    WDL_String str;
+    str.SetFormatted(64, "rgba(%d, %d, %d, %lf)", color.R, color.G, color.B, alpha * color.A / 255.0);
+    return str.Get();
   }
   
   void SetWebSourcePattern(const IPattern& pattern, const IBlend* pBlend = nullptr);

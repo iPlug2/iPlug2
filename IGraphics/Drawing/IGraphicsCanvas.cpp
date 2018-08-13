@@ -15,10 +15,6 @@ WebBitmap::WebBitmap(emscripten::val imageCanvas, const char* name, int scale)
 IGraphicsCanvas::IGraphicsCanvas(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphicsPathBase(dlg, w, h, fps, scale)
 {
-  val keys = val::global("Object").call<val>("keys", GetPreloadedImages());
-  
-  DBGMSG("Preloaded %i images\n", keys["length"].as<int>());
-  
   //emscripten_set_canvas_size ?
   val canvas = GetCanvas();
 
