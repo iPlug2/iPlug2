@@ -26,11 +26,14 @@ public:
   void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
   /** If you override this method you should call this parent, or implement the same functionality in order to get controls to update, when state is restored. */
   virtual void OnRestoreState() override;
+  
+  /** If you override this method you must call the parent! */
   virtual void OnUIOpen() override;
 
   //IGEditorDelegate
-  virtual IGraphics* CreateGraphics() = 0;
-  virtual void LayoutUI(IGraphics* pGraphics) = 0;
+  virtual void AttachGraphics(IGraphics* pGraphics) { mGraphics = pGraphics; mIGraphicsTransient = false; }
+  virtual IGraphics* CreateGraphics() { return nullptr; }
+  virtual void LayoutUI(IGraphics* pGraphics) {};
   IGraphics* GetUI();
   
   void ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func);
@@ -38,4 +41,5 @@ public:
 
 private:
   IGraphics* mGraphics = nullptr;
+  bool mIGraphicsTransient = false;
 };

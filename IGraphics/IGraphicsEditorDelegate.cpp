@@ -39,8 +39,10 @@ void IGEditorDelegate::OnRestoreState()
 
 void* IGEditorDelegate::OpenWindow(void* pParent)
 {
-  if(!mGraphics)
+  if(!mGraphics) {
+    mIGraphicsTransient = true;
     mGraphics = CreateGraphics();
+  }
   
   if(mGraphics)
     return mGraphics->OpenWindow(pParent);
@@ -53,7 +55,8 @@ void IGEditorDelegate::CloseWindow()
   if(mGraphics)
     mGraphics->CloseWindow();
   
-  DELETE_NULL(mGraphics);
+  if(mIGraphicsTransient)
+    DELETE_NULL(mGraphics);
 }
 
 void IGEditorDelegate::SendControlValueFromDelegate(int controlTag, double normalizedValue)
