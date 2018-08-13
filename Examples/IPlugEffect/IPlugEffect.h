@@ -6,10 +6,6 @@
 #include "IVScopeControl.h"
 #include "IPlugEffect_DSP.h"
 
-#ifdef WEBSOCKET_SERVER
-#include "IWebsocketServer.h"
-#endif
-
 const int kNumPrograms = 1;
 
 #define MAX_VOICES 32
@@ -28,9 +24,6 @@ enum EParams
 };
 
 class PLUG_CLASS_NAME : public IPlug
-                        #ifdef WEBSOCKET_SERVER
-                      , public IWebSocketServer
-                        #endif
 {
 public:
   PLUG_CLASS_NAME(IPlugInstanceInfo instanceInfo);
