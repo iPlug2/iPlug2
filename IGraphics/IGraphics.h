@@ -699,7 +699,7 @@ public:
    * @param pControl A control that inherits from IPopupMenuControlBase */
   void AttachPopupMenuControl(IPopupMenuControlBase* pControl);
   
-  void AttachPerfDisplayControl(IPerfDisplayControl* pControl);
+  void AttachPerformanceDisplay();
   
   /** Attach an IControl to the graphics context and add it to the top of the control stack. The control is owned by the graphics context and will be deleted when the context is deleted.
    * @param pControl A pointer to an IControl to attach.

@@ -682,10 +682,10 @@ struct IRECT
       return SubRectHorizontal(numSlices, sliceIdx);
   }
   
-  inline IRECT GetRECTFromRHC(float size)
-  {
-    return IRECT(R-size, B-size, R, B);
-  }
+  inline IRECT GetRECTFromTLHC(float w, float h) { return IRECT(L, T, L+w, T+h); }
+  inline IRECT GetRECTFromBLHC(float w, float h) { return IRECT(L, B-h, L+w, B); }
+  inline IRECT GetRECTFromTRHC(float w, float h) { return IRECT(R-w, T, R, T+h); }
+  inline IRECT GetRECTFromBRHC(float w, float h) { return IRECT(R-w, B-h, R, B); }
 
   inline IRECT GetGridCell(int row, int col, int nRows, int nColumns/*, EDirection = kHorizontal*/) const
   {

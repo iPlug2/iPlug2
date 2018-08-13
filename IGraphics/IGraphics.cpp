@@ -163,9 +163,9 @@ void IGraphics::AttachPopupMenuControl(IPopupMenuControlBase* pControl)
   mPopupControl->SetGraphics(this);
 }
 
-void IGraphics::AttachPerfDisplayControl(IPerfDisplayControl* pControl)
+void IGraphics::AttachPerformanceDisplay()
 {
-  mPerfDisplay = pControl;
+  mPerfDisplay = new IPerfDisplayControl(mDelegate, GetBounds().GetPadded(-10).GetRECTFromTLHC(200, 50));
   mPerfDisplay->SetGraphics(this);
 }
 
