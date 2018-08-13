@@ -220,13 +220,14 @@ IBSliderControl::IBSliderControl(IGEditorDelegate& dlg, IRECT bounds, int paramI
 : ISliderControlBase(dlg, bounds, paramIdx, dir, onlyHandle)
 , IBitmapBase(bitmap)
 {
+  mTrack = bounds; // TODO: check
 }
 
-IBSliderControl::IBSliderControl(IGEditorDelegate& dlg, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection direction, bool onlyHandle)
+IBSliderControl::IBSliderControl(IGEditorDelegate& dlg, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection dir, bool onlyHandle)
 : ISliderControlBase(dlg, IRECT(x, y, x + bitmap.W(), y + len), paramIdx)
 , IBitmapBase(bitmap)
 {
-  if (direction == kVertical)
+  if (dir == kVertical)
   {
     mRECT = mTargetRECT = IRECT(x, y, x + bitmap.W(), y + len);
     mTrack = mRECT.GetPadded(0, (float) bitmap.H(), 0, 0);
