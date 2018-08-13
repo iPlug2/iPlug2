@@ -19,6 +19,7 @@ IGraphicsCanvas::IGraphicsCanvas(IGEditorDelegate& dlg, int w, int h, int fps, f
   
   DBGMSG("Preloaded %i images\n", keys["length"].as<int>());
   
+  //emscripten_set_canvas_size ?
   val canvas = GetCanvas();
 
   int displayScale = val::global("window")["devicePixelRatio"].as<int>();
@@ -40,7 +41,7 @@ IGraphicsCanvas::~IGraphicsCanvas()
 void IGraphicsCanvas::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend)
 {
   val context = GetContext();
-  RetainVal* rv = (RetainVal*) bitmap.GetAPIBitmap()->GetBitmap();
+  RetainVal* pRV = (RetainVal*) bitmap.GetAPIBitmap()->GetBitmap();
   PathStateSave();
   SetWebBlendMode(pBlend);
   context.set("globalAlpha", BlendWeight(pBlend));
@@ -52,7 +53,7 @@ void IGraphicsCanvas::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX,
   srcX *= ds;
   srcY *= ds;
   
-  context.call<void>("drawImage", rv->mItem, srcX, srcY, sr.W(), sr.H(), floor(bounds.L), floor(bounds.T), floor(bounds.W()), floor(bounds.H()));
+  context.call<void>("drawImage", pRV->mItem, srcX, srcY, sr.W(), sr.H(), floor(bounds.L), floor(bounds.T), floor(bounds.W()), floor(bounds.H()));
   PathStateRestore();
 }
 

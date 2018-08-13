@@ -6,17 +6,16 @@
 #include "IPlugPlatform.h"
 
 #include "IGraphicsPathBase.h"
-#include "IControl.h"
 
 using namespace emscripten;
 
 static std::string GetColor(const IColor& color, float alpha = 1.0)
 {
-  char cString[64];
+  WDL_String str;
   
-  sprintf(cString, "rgba(%d, %d, %d, %lf)", color.R, color.G, color.B, alpha * color.A / 255.0);
+  str.SetFormatted(64, "rgba(%d, %d, %d, %lf)", color.R, color.G, color.B, alpha * color.A / 255.0);
   
-  return cString;
+  return str.Get();
 }
 
 class WebBitmap : public APIBitmap

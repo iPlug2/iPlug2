@@ -1,11 +1,86 @@
-#include "IGraphicsWeb.h"
 #include <cstring>
 #include <cstdio>
 
+#include "IGraphicsWeb.h"
+#include "IControl.h"
 
 using namespace emscripten;
 
 extern IGraphics* gGraphics;
+
+//EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* pUserData)
+//{
+//  return 0;
+//}
+
+EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent* pEvent, void* pUserData)
+{
+  IGraphicsWeb* pGraphicsWeb = (IGraphicsWeb*) pUserData;
+
+  switch (eventType) {
+    case EMSCRIPTEN_EVENT_KEYDOWN: pGraphicsWeb->OnKeyDown(pGraphicsWeb->mPrevX, pGraphicsWeb->mPrevY, atoi(pEvent->key)); break;
+    default:
+      break;
+  }
+  
+  return 0;
+}
+
+EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* pUserData)
+{
+  IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
+  
+  IMouseMod modifiers(0, 0, pEvent->shiftKey, pEvent->ctrlKey, pEvent->altKey);
+  
+  double x = pEvent->targetX;
+  double y = pEvent->targetY;
+  
+  x /= pGraphics->GetScale();
+  y /= pGraphics->GetScale();
+  
+  switch (eventType) {
+    case EMSCRIPTEN_EVENT_CLICK: break;
+    case EMSCRIPTEN_EVENT_MOUSEDOWN: pGraphics->OnMouseDown(x, y, modifiers); break;
+    case EMSCRIPTEN_EVENT_MOUSEUP: pGraphics->OnMouseUp(x, y, modifiers);break;
+    case EMSCRIPTEN_EVENT_DBLCLICK: pGraphics->OnMouseDblClick(x, y, modifiers);break;
+    case EMSCRIPTEN_EVENT_MOUSEMOVE:
+      if(pEvent->buttons == 0)
+        pGraphics->OnMouseOver(x, y, modifiers);
+      else
+        pGraphics->OnMouseDrag(x, y, pEvent->movementX, pEvent->movementY, modifiers);
+      break;
+    case EMSCRIPTEN_EVENT_MOUSEENTER: pGraphics->OnMouseOver(x, y, modifiers); break;
+    case EMSCRIPTEN_EVENT_MOUSELEAVE: pGraphics->OnMouseOut(); break;
+    default:
+      break;
+  }
+  
+  pGraphics->mPrevX = x;
+  pGraphics->mPrevY = y;
+
+  return 0;
+}
+
+EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* pEvent, void* pUserData)
+{
+  IGraphics* pGraphics = (IGraphics*) pUserData;
+  
+  IMouseMod modifiers(0, 0, pEvent->mouse.shiftKey, pEvent->mouse.ctrlKey, pEvent->mouse.altKey);
+  
+  double x = pEvent->mouse.targetX;
+  double y = pEvent->mouse.targetY;
+  
+  x /= pGraphics->GetScale();
+  y /= pGraphics->GetScale();
+  
+  switch (eventType) {
+    case EMSCRIPTEN_EVENT_WHEEL: pGraphics->OnMouseWheel(x, y, modifiers, pEvent->deltaY);
+    default:
+      break;
+  }
+  
+  return 0;
+}
 
 IGraphicsWeb::IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
@@ -13,6 +88,15 @@ IGraphicsWeb::IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float s
   val keys = val::global("Object").call<val>("keys", GetPreloadedImages());
   
   DBGMSG("Preloaded %i images\n", keys["length"].as<int>());
+  
+  emscripten_set_click_callback("canvas", this, 1, mouse_callback);
+  emscripten_set_mousedown_callback("canvas", this, 1, mouse_callback);
+  emscripten_set_mouseup_callback("canvas", this, 1, mouse_callback);
+  emscripten_set_dblclick_callback("canvas", this, 1, mouse_callback);
+  emscripten_set_mousemove_callback("canvas", this, 1, mouse_callback);
+//  emscripten_set_mousemove_callback("#window", this, 1, outside_mouse_callback);
+  emscripten_set_wheel_callback("canvas", this, 1, wheel_callback);
+  emscripten_set_keydown_callback("#window", this, 1, key_callback);
 }
 
 IGraphicsWeb::~IGraphicsWeb()

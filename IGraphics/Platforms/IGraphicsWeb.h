@@ -3,6 +3,7 @@
 #include <emscripten.h>
 #include <emscripten/val.h>
 #include <emscripten/bind.h>
+#include <emscripten/html5.h>
 
 #include "IPlugPlatform.h"
 
@@ -47,7 +48,11 @@ public:
   bool PromptForColor(IColor& color, const char* str) override { return false; } // TODO:
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
   
+  //IGraphicsWeb
   static void OnMainLoopTimer();
+  double mPrevX = 0.;
+  double mPrevY = 0.;
+  
 protected:
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
 
