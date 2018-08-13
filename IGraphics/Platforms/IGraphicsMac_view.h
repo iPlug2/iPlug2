@@ -47,7 +47,7 @@ NSString* ToNSString(const char* cStr);
   IPopupMenu* mIPopupMenu;
 }
 - (id) initWithIPopupMenuAndReciever:(IPopupMenu*)pMenu : (NSView*)pView;
-- (IPopupMenu*) AssociatedIPopupMenu;
+- (IPopupMenu*) iPopupMenu;
 @end
 
 // Dummy view class used to receive Menu Events inline
@@ -55,8 +55,8 @@ NSString* ToNSString(const char* cStr);
 {
   NSMenuItem* nsMenuItem;
 }
-- (void) OnMenuSelection:(id)sender;
-- (NSMenuItem*) MenuItem;
+- (void) onMenuSelection:(id)sender;
+- (NSMenuItem*) menuItem;
 @end
 
 @interface IGRAPHICS_VIEW : NSView <NSTextFieldDelegate>
