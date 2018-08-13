@@ -8,9 +8,9 @@
   #elif defined IGRAPHICS_NANOVG
     #include "IGraphicsNanoVG.h"
     typedef IGraphicsNanoVG IGRAPHICS_DRAW_CLASS;
-//#elif defined IGRAPHICS_CANVAS
-//     #include "IGraphicsCanvas.h"
-//     typedef IGraphicsCanvas IGRAPHICS_DRAW_CLASS;
+  #elif defined IGRAPHICS_CANVAS
+     #include "IGraphicsCanvas.h"
+     typedef IGraphicsCanvas IGRAPHICS_DRAW_CLASS;
   #else
     #include "IGraphicsLice.h"
     typedef IGraphicsLice IGRAPHICS_DRAW_CLASS;
