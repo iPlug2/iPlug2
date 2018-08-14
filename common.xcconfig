@@ -1,7 +1,3 @@
-// common.xcconfig
-// This file sets the compiler and base SDK for the individual IPlug projects and the LICE, AAX and VST3 Base library xcode projects
-// Along with some other global build settings, which are used in the makedist-mac shell script
-
 // this is used for macOS Developer ID / Appstore code-signing
 CERTIFICATE_ID = Oliver Larkin
 
