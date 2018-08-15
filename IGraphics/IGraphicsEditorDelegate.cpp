@@ -137,6 +137,14 @@ void IGEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
   IEditorDelegate::SendMidiMsgFromDelegate(msg);
 }
 
+void IGEditorDelegate::AttachGraphics(IGraphics* pGraphics)
+{
+  assert(mGraphics != nullptr); // protect against calling AttachGraphics() when mGraphics allready exists
+         
+  mGraphics = pGraphics;
+  mIGraphicsTransient = false;
+}
+
 void IGEditorDelegate::ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func)
 {
   for (auto c = 0; c < mGraphics->NControls(); c++)

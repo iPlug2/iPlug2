@@ -31,15 +31,21 @@ public:
   virtual void OnUIOpen() override;
 
   //IGEditorDelegate
-  virtual void AttachGraphics(IGraphics* pGraphics) { mGraphics = pGraphics; mIGraphicsTransient = false; }
+  /** Attach IGraphics context - only call this method if creating/populating your UI in your plug-in constructor.
+   ** In that case do not override CreateGraphics()! */
+  void AttachGraphics(IGraphics* pGraphics);
+  
+  /** Only override this method if you want to create IGraphics on demand (when UI window opens)! Implementation should return result of MakeGraphics() */
   virtual IGraphics* CreateGraphics() { return nullptr; }
+  
+  /** Only override this method if you want to create IGraphics on demand (when UI window opens)! */
   virtual void LayoutUI(IGraphics* pGraphics) {};
-  IGraphics* GetUI();
   
   void ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func);
   void ForControlInGroup(const char* group, std::function<void(IControl& control)> func);
 
+  IGraphics* GetUI();
 private:
   IGraphics* mGraphics = nullptr;
-  bool mIGraphicsTransient = false;
+  bool mIGraphicsTransient = false; // If creating IGraphics on demand this will be true
 };
