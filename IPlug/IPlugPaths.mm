@@ -52,6 +52,16 @@ void PluginPath(WDL_String& path, const char* bundleID)
   }
 }
 
+void BundleResourcePath(WDL_String& path, const char* bundleID)
+{
+//  CocoaAutoReleasePool pool;
+  
+  NSBundle* pBundle = [NSBundle bundleWithIdentifier:[NSString stringWithCString:bundleID encoding:NSUTF8StringEncoding]];
+  NSString* pResPath = [pBundle resourcePath];
+  
+  path.Set([pResPath UTF8String]);
+}
+
 void DesktopPath(WDL_String& path)
 {
   NSArray* pPaths = NSSearchPathForDirectoriesInDomains(NSDesktopDirectory, NSUserDomainMask, YES);
