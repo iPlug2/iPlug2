@@ -11,12 +11,12 @@
 
 @implementation IGRAPHICS_MENU_RCVR
 
-- (NSMenuItem*)MenuItem
+- (NSMenuItem*)menuItem
 {
   return nsMenuItem;
 }
 
-- (void)OnMenuSelection:(id)sender
+- (void)onMenuSelection:(id)sender
 {
   nsMenuItem = sender;
 }
@@ -103,7 +103,7 @@
   return self;
 }
 
-- (IPopupMenu*)AssociatedIPopupMenu
+- (IPopupMenu*)iPopupMenu
 {
   return mIPopupMenu;
 }
@@ -545,44 +545,22 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (IPopupMenu*) createPopupMenu: (const IPopupMenu&) menu : (NSRect) bounds;
 {
-  IGRAPHICS_MENU_RCVR* dummyView = [[[IGRAPHICS_MENU_RCVR alloc] initWithFrame:bounds] autorelease];
-  NSMenu* nsMenu = [[[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReciever:&const_cast<IPopupMenu&>(menu) :dummyView] autorelease];
-
-  NSWindow* pWindow = [self window];
-
+  IGRAPHICS_MENU_RCVR* pDummyView = [[[IGRAPHICS_MENU_RCVR alloc] initWithFrame:bounds] autorelease];
+  NSMenu* pNSMenu = [[[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReciever:&const_cast<IPopupMenu&>(menu) :pDummyView] autorelease];
   NSPoint wp = {bounds.origin.x, bounds.origin.y - 4};
-  wp = [self convertPointToBase:wp];
 
-  //fix position for retina display
-  float displayScale = 1.0f;
-  NSScreen* screen = [pWindow screen];
-  if ([screen respondsToSelector: @selector (backingScaleFactor)])
-    displayScale = screen.backingScaleFactor;
-  wp.x /= displayScale;
-  wp.y /= displayScale;
+  [pNSMenu popUpMenuPositioningItem:nil atLocation:wp inView:self];
+  
+  NSMenuItem* pChosenItem = [pDummyView menuItem];
+  NSMenu* pChosenMenu = [pChosenItem menu];
+  IPopupMenu* pIPopupMenu = [(IGRAPHICS_MENU*) pChosenMenu iPopupMenu];
 
-  NSEvent* event = [NSEvent otherEventWithType:NSApplicationDefined
-                  location:wp
-                  modifierFlags:NSApplicationDefined
-                  timestamp: (NSTimeInterval) 0
-                  windowNumber: [pWindow windowNumber]
-                  context: [NSGraphicsContext currentContext]
-                    subtype:0
-                    data1: 0
-                    data2: 0];
+  long chosenItemIdx = [pChosenMenu indexOfItem: pChosenItem];
 
-  [NSMenu popUpContextMenu:nsMenu withEvent:event forView:dummyView];
-
-  NSMenuItem* chosenItem = [dummyView MenuItem];
-  NSMenu* chosenMenu = [chosenItem menu];
-  IPopupMenu* associatedIPopupMenu = [(IGRAPHICS_MENU*) chosenMenu AssociatedIPopupMenu];
-
-  long chosenItemIdx = [chosenMenu indexOfItem: chosenItem];
-
-  if (chosenItemIdx > -1 && associatedIPopupMenu)
+  if (chosenItemIdx > -1 && pIPopupMenu)
   {
-    associatedIPopupMenu->SetChosenItemIdx((int) chosenItemIdx);
-    return associatedIPopupMenu;
+    pIPopupMenu->SetChosenItemIdx((int) chosenItemIdx);
+    return pIPopupMenu;
   }
   else return nullptr;
 }
@@ -739,6 +717,9 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void)windowResized:(NSNotification *)notification;
 {
+  if(!mGraphics) // TODO: Why does this happen with reaper?
+    return;
+  
   NSSize windowSize = [[self window] frame].size;
   NSRect viewFrameInWindowCoords = [self convertRect: [self bounds] toView: nil];
 
