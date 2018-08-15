@@ -56,7 +56,6 @@ public:
 protected:
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
 
-private:
   val GetPreloadedImages()
   {
     return val::global("Module")["preloadedImages"];
