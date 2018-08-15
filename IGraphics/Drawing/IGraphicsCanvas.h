@@ -73,11 +73,6 @@ private:
     return canvas.call<val>("getContext", std::string("2d"));
   }
 
-  val GetPreloadedImages()
-  {
-    return val::global("Module")["preloadedImages"];
-  }
-  
   std::string GetColor(const IColor& color, float alpha = 1.0)
   {
     WDL_String str;
