@@ -42,7 +42,8 @@ public:
 
   IPopupMenu* CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
-
+  void CreateWebView(const IRECT& bounds, const char* url) override;
+  
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
 
   void* GetWindow() override;

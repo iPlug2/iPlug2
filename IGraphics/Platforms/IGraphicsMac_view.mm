@@ -519,8 +519,14 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void) removeFromSuperview
 {
-  if (mTextFieldView) [self endUserInput ];
-
+  if (mTextFieldView)
+    [self endUserInput ];
+  
+  if (mWebView) {
+    [mWebView removeFromSuperview ];
+    mWebView = nullptr;
+  }
+  
   if (mGraphics)
   {
     IGraphics* graphics = mGraphics;
@@ -655,8 +661,15 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   NSWindow* pWindow = [self window];
   [pWindow makeFirstResponder: self];
 
-  mTextFieldView = 0;
-  mEdControl = 0;
+  mTextFieldView = nullptr;
+  mEdControl = nullptr;
+}
+
+- (void) createWebView: (NSRect) areaRect : (const char*) url
+{
+  mWebView = [[WKWebView alloc] initWithFrame: areaRect ];
+  [self addSubview: mWebView];
+  [mWebView loadRequest: [NSURLRequest requestWithURL: [NSURL URLWithString:[NSString stringWithUTF8String:url]]]];
 }
 
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData
