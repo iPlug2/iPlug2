@@ -34,19 +34,26 @@ static const double DEFAULT_GEARING = 4.0;
 
 static const float GRAYED_ALPHA = 0.25f;
 
+#ifndef DEFAULT_PATH
+static const char* DEFAULT_PATH = "~/Desktop";
+#endif
+
+#ifdef IGRAPHICS_NANOVG
 const char* const DEFAULT_FONT = "Roboto-Regular";
 const int DEFAULT_TEXT_SIZE = 14;
-
-#ifdef OS_WIN
-#elif defined OS_MAC
-  #ifndef DEFAULT_PATH
-  static const char* DEFAULT_PATH = "~/Desktop";
+#else
+  #if defined OS_WIN
+    const char* const DEFAULT_FONT = "Verdana";
+    const int DEFAULT_TEXT_SIZE = 12;
+  #elif defined OS_MAC
+    const char* const DEFAULT_FONT = "Monaco";
+    const int DEFAULT_TEXT_SIZE = 10;
+  #elif defined OS_LINUX
+    #error TODO
+  #elif defined OS_WEB
+    const char* const DEFAULT_FONT = "DejaVu Sans";
+    const int DEFAULT_TEXT_SIZE = 10;
   #endif
-#elif defined OS_IOS
-#elif defined OS_LINUX
-#elif defined OS_WEB
-  const char* const DEFAULT_FONT = "DejaVu Sans";
-  const int DEFAULT_TEXT_SIZE = 10;
 #endif
 
 const int FONT_LEN = 32;
