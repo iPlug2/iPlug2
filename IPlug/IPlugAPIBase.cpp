@@ -39,6 +39,7 @@ IPlugAPIBase::IPlugAPIBase(IPlugConfig c, EAPI plugAPI)
   mEditorHeight = c.plugHeight;
   mStateChunks = c.plugDoesChunks;
   mAPI = plugAPI;
+  mBundleID.Set(c.bundleID);
 
   Trace(TRACELOC, "%s:%s", c.pluginName, CurrentTime());
   

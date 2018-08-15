@@ -196,6 +196,7 @@ struct IPlugConfig
   bool plugHasUI;
   int plugWidth;
   int plugHeight;
+  const char* bundleID;
   
   IPlugConfig(int nParams,
               int nPresets,
@@ -212,7 +213,8 @@ struct IPlugConfig
               bool plugIsInstrument,
               bool plugHasUI,
               int plugWidth,
-              int plugHeight)
+              int plugHeight,
+              const char* bundleID)
               
   : nParams(nParams)
   , nPresets(nPresets)
@@ -230,6 +232,7 @@ struct IPlugConfig
   , plugHasUI(plugHasUI)
   , plugWidth(plugWidth)
   , plugHeight(plugHeight)
+  , bundleID(bundleID)
   {};
 };
 

@@ -412,7 +412,7 @@ DWORD GetTickCount()
   IPlug(instanceInfo, IPlugConfig(nParams, nPresets, PLUG_CHANNEL_IO,\
     PUBLIC_NAME, "", PLUG_MFR, PLUG_VERSION_HEX, PLUG_UNIQUE_ID, PLUG_MFR_ID, \
     PLUG_LATENCY, PLUG_DOES_MIDI, PLUG_DOES_STATE_CHUNKS, PLUG_IS_INSTRUMENT, \
-    PLUG_HAS_UI, PLUG_WIDTH, PLUG_HEIGHT))
+    PLUG_HAS_UI, PLUG_WIDTH, PLUG_HEIGHT, BUNDLE_ID))
 
 #if !defined NO_IGRAPHICS && !defined VST3P_API
 #include "IGraphics_include_in_plug_src.h"

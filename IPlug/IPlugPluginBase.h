@@ -99,6 +99,8 @@ public:
   
   /** @return \c true if the plug-in is meant to have a UI, as defined in config.h */
   bool HasUI() const { return mHasUI; }
+  
+  const char* GetBundleID() { return mBundleID.Get(); }
     
 #pragma mark - Parameters
   
@@ -361,6 +363,8 @@ protected:
   EHost mHost = kHostUninit;
   /** API of this instance */
   EAPI mAPI;
+  /** macOS/iOS bundle ID */
+  WDL_String mBundleID;
   
   /** \c true if the plug-in has a user interface. If false the host will provide a default interface */
   bool mHasUI = false;
