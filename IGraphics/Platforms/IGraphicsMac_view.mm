@@ -70,8 +70,10 @@
     }
     else
     {
-      nsMenuItem = [self addItemWithTitle:nsMenuItemTitle action:@selector(OnMenuSelection:) keyEquivalent:@""];
-
+      nsMenuItem = [self addItemWithTitle:nsMenuItemTitle action:@selector(onMenuSelection:) keyEquivalent:@""];
+      
+      [nsMenuItem setTarget:pView];
+      
       if (pMenuItem->GetIsTitle ())
       {
         [nsMenuItem setIndentationLevel:1];
