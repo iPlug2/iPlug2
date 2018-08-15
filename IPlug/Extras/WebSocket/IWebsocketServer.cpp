@@ -59,7 +59,8 @@ bool IWebsocketServer::CreateServer(const char* DOCUMENT_ROOT, const char* PORT)
 
 void IWebsocketServer::DestroyServer()
 {
-  sInstances--;
+  if(sInstances)
+    sInstances--;
   
   if(sInstances == 0) {
     if(sServer) {
