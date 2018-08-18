@@ -45,5 +45,6 @@
   #define IGRAPHICS_MENU CONCAT(IGraphicsMenu_)
   #define IGRAPHICS_MENU_RCVR CONCAT(IGraphicsMenuRcvr_)
   #define IGRAPHICS_FORMATTER CONCAT(IGraphicsFormatter_)
+  #define IGRAPHICS_TEXTFIELDCELL CONCAT(IGraphicsTextFieldCell_)
 #endif
 

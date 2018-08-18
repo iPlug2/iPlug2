@@ -55,6 +55,7 @@ public:
 
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
 
+  //IGraphicsMac
   void SetMousePosition(float x, float y);
 
 private:

@@ -43,6 +43,13 @@ NSString* ToNSString(const char* cStr);
 
 @end
 
+@interface IGRAPHICS_TEXTFIELDCELL : NSTextFieldCell
+{
+  BOOL mIsEditingOrSelecting;
+}
+
+@end
+
 @interface IGRAPHICS_MENU : NSMenu
 {
   IPopupMenu* mIPopupMenu;
