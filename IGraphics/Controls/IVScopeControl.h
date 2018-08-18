@@ -1,7 +1,5 @@
 #pragma once
 
-#pragma once
-
 #include "IControl.h"
 #include "IPlugStructs.h"
 #include "IPlugQueue.h"
