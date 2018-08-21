@@ -130,7 +130,7 @@ public:
   const IText& GetText() const { return mText; }
   int GetTextEntryLength() const { return mTextEntryLength; }
   void SetTextEntryLength(int len) { mTextEntryLength = len;  }
-  void SetText(IText& txt) { mText = txt; }
+  void SetText(const IText& txt) { mText = txt; }
   const IRECT& GetRECT() const { return mRECT; } // The draw area for this control.
   void SetRECT(const IRECT& bounds) { mRECT = bounds; mMouseIsOver = false; OnResize(); }
   const IRECT& GetTargetRECT() const { return mTargetRECT; } // The mouse target area (default = draw area).
