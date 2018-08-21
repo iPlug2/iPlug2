@@ -276,10 +276,10 @@ void IGraphicsMac::HideMouseCursor(bool hide, bool returnToStartPosition)
     {
       CGDisplayHideCursor(CGMainDisplayID());
 
-      CGAssociateMouseAndMouseCursorPosition(false);
-
       if (returnToStartPosition)
       {
+        CGAssociateMouseAndMouseCursorPosition(false);
+
         NSPoint mouse = [NSEvent mouseLocation];
         mCursorX = mouse.x;
         mCursorY = CGDisplayPixelsHigh(CGMainDisplayID()) - mouse.y; // flipped
