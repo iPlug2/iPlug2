@@ -352,9 +352,7 @@ bool IGraphicsLice::DrawText(const IText& text, const char* str, IRECT& bounds, 
   #error NOT IMPLEMENTED
 #endif
     if( text.mAlign == IText::kAlignNear)
-    {
       bounds.R = R.right;
-    }
     else if (text.mAlign == IText::kAlignCenter)
     {
       bounds.L = (int) bounds.MW() - (R.right/2);
