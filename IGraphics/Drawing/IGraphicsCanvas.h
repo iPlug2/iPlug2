@@ -15,6 +15,13 @@ public:
   WebBitmap(val imageCanvas, const char* name, int scale);
 };
 
+static std::string ToCanvasColor(const IColor& color, float alpha = 1.0)
+{
+  WDL_String str;
+  str.SetFormatted(64, "rgba(%d, %d, %d, %lf)", color.R, color.G, color.B, alpha * color.A / 255.0);
+  return str.Get();
+}
+
 /** IGraphics draw class HTML5 canvas
 * @ingroup DrawClasses */
 class IGraphicsCanvas : public IGraphicsPathBase
@@ -71,13 +78,6 @@ private:
   {
     val canvas = GetCanvas();
     return canvas.call<val>("getContext", std::string("2d"));
-  }
-
-  std::string GetColor(const IColor& color, float alpha = 1.0)
-  {
-    WDL_String str;
-    str.SetFormatted(64, "rgba(%d, %d, %d, %lf)", color.R, color.G, color.B, alpha * color.A / 255.0);
-    return str.Get();
   }
   
   void SetWebSourcePattern(const IPattern& pattern, const IBlend* pBlend = nullptr);

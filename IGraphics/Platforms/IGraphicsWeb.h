@@ -17,6 +17,11 @@ struct RetainVal
   val mItem;
 };
 
+static val GetPreloadedImages()
+{
+  return val::global("Module")["preloadedImages"];
+}
+
 /** IGraphics platform class for the web
 * @ingroup PlatformClasses */
 class IGraphicsWeb final : public IGRAPHICS_DRAW_CLASS
@@ -55,9 +60,4 @@ public:
   
 protected:
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
-
-  val GetPreloadedImages()
-  {
-    return val::global("Module")["preloadedImages"];
-  }
 };

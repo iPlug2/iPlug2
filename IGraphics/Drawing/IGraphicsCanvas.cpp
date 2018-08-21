@@ -7,6 +7,8 @@ using namespace emscripten;
 
 extern IGraphics* gGraphics;
 
+extern val GetPreloadedImages();
+
 WebBitmap::WebBitmap(emscripten::val imageCanvas, const char* name, int scale)
 {
   SetBitmap(new RetainVal(imageCanvas), imageCanvas["width"].as<int>(), imageCanvas["height"].as<int>(), scale);
@@ -126,7 +128,7 @@ void IGraphicsCanvas::SetWebSourcePattern(const IPattern& pattern, const IBlend*
     case kSolidPattern:
     {
       const IColor color = pattern.GetStop(0).mColor;
-      std::string colorString = GetColor(color, BlendWeight(pBlend));
+      std::string colorString = ToCanvasColor(color, BlendWeight(pBlend));
 
       context.set("fillStyle", colorString);
       context.set("strokeStyle", colorString);
@@ -154,7 +156,7 @@ void IGraphicsCanvas::SetWebSourcePattern(const IPattern& pattern, const IBlend*
       for (int i = 0; i < pattern.NStops(); i++)
       {
         const IColorStop& stop = pattern.GetStop(i);
-        gradient.call<void>("addColorStop", stop.mOffset, GetColor(stop.mColor));
+        gradient.call<void>("addColorStop", stop.mOffset, ToCanvasColor(stop.mColor));
       }
       
       context.set("fillStyle", gradient);
