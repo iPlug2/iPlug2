@@ -655,9 +655,13 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 #else
   NSString* font = [NSString stringWithUTF8String: text.mFont];
 #endif
-  
-  [mTextFieldView setFont: [NSFont fontWithName:font size: text.mSize]]; //(float) AdjustFontSize(text.mSize)
 
+#ifdef IGRAPHICS_LICE
+  [mTextFieldView setFont: [NSFont fontWithName:font size: text.mSize * 0.75f]];
+#else
+  [mTextFieldView setFont: [NSFont fontWithName:font size: text.mSize]];
+#endif
+  
   switch (text.mAlign)
   {
     case IText::kAlignNear:

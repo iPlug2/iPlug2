@@ -100,7 +100,6 @@ NSString* ToNSString(const char* cStr);
 - (void) mouseMoved: (NSEvent*) pEvent;
 - (void) scrollWheel: (NSEvent*) pEvent;
 - (void) keyDown: (NSEvent *)pEvent;
-- (void) setMouseCursor: (ECursor) cursor;
 //text entry
 - (void) removeFromSuperview;
 - (void) controlTextDidEndEditing: (NSNotification*) aNotification;
@@ -116,6 +115,8 @@ NSString* ToNSString(const char* cStr);
 //drag-and-drop
 - (NSDragOperation) draggingEntered: (id <NSDraggingInfo>) sender;
 - (BOOL) performDragOperation: (id<NSDraggingInfo>) sender;
+//
+- (void) setMouseCursor: (ECursor) cursor;
 @end
 
 #endif //NO_IGRAPHICS
