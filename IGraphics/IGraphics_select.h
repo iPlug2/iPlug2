@@ -1,5 +1,8 @@
 #if !defined DOXYGEN_SHOULD_SKIP_THIS
-  #ifdef IGRAPHICS_AGG
+  #if defined IGRAPHICS_LICE
+    #include "IGraphicsLice.h"
+    typedef IGraphicsLice IGRAPHICS_DRAW_CLASS;
+  #elif defined IGRAPHICS_AGG
     #include "IGraphicsAGG.h"
     typedef IGraphicsAGG IGRAPHICS_DRAW_CLASS;
   #elif defined IGRAPHICS_CAIRO
@@ -12,7 +15,6 @@
      #include "IGraphicsCanvas.h"
      typedef IGraphicsCanvas IGRAPHICS_DRAW_CLASS;
   #else
-    #include "IGraphicsLice.h"
-    typedef IGraphicsLice IGRAPHICS_DRAW_CLASS;
+    #error NO IGRAPHICS_MODE defined
   #endif
 #endif
