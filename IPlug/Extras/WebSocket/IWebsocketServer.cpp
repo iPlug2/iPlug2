@@ -99,7 +99,7 @@ void IWebsocketServer::OnWebsocketReady(int idx)
 {
 }
 
-bool IWebsocketServer::OnWebsocketText(int idx, void* pData, size_t dataSize)
+bool IWebsocketServer::OnWebsocketText(int idx, const char* str, size_t dataSize)
 {
   return true; // return true to keep the connection open
 }

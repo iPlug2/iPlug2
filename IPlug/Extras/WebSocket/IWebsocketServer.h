@@ -45,7 +45,7 @@ public:
   
   virtual void OnWebsocketReady(int idx);
   
-  virtual bool OnWebsocketText(int idx, void* pData, size_t dataSize);
+  virtual bool OnWebsocketText(int idx, const char* str, size_t dataSize);
   
   virtual bool OnWebsocketData(int idx, void* pData, size_t dataSize);
   
