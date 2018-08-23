@@ -8,11 +8,6 @@ using namespace emscripten;
 
 extern IGraphics* gGraphics;
 
-//EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* pUserData)
-//{
-//  return 0;
-//}
-
 EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent* pEvent, void* pUserData)
 {
   IGraphicsWeb* pGraphicsWeb = (IGraphicsWeb*) pUserData;
@@ -22,6 +17,42 @@ EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent* pEvent, void*
     default:
       break;
   }
+  
+  return 0;
+}
+
+EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* pUserData)
+{
+  IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
+  
+  IMouseMod modifiers(0, 0, pEvent->shiftKey, pEvent->ctrlKey, pEvent->altKey);
+  
+  double x = pEvent->targetX;
+  double y = pEvent->targetY;
+  
+  val rect = GetCanvas().call<val>("getBoundingClientRect");
+  x -= rect["left"].as<double>();
+  y -= rect["top"].as<double>();
+
+  x /= pGraphics->GetScale();
+  y /= pGraphics->GetScale();
+  
+  switch (eventType) {
+    case EMSCRIPTEN_EVENT_MOUSEUP: pGraphics->OnMouseUp(x, y, modifiers);
+      pGraphics->OnMouseUp(x, y, modifiers); break;
+      emscripten_set_mousemove_callback("#window", pGraphics, 1, nullptr);
+      emscripten_set_mouseup_callback("#window", pGraphics, 1, nullptr);
+      break;
+    case EMSCRIPTEN_EVENT_MOUSEMOVE:
+      if(pEvent->buttons != 0)
+        pGraphics->OnMouseDrag(x, y, pEvent->movementX, pEvent->movementY, modifiers);
+      break;
+    default:
+      break;
+  }
+  
+  pGraphics->mPrevX = x;
+  pGraphics->mPrevY = y;
   
   return 0;
 }
@@ -41,7 +72,7 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
   switch (eventType) {
     case EMSCRIPTEN_EVENT_CLICK: break;
     case EMSCRIPTEN_EVENT_MOUSEDOWN: pGraphics->OnMouseDown(x, y, modifiers); break;
-    case EMSCRIPTEN_EVENT_MOUSEUP: pGraphics->OnMouseUp(x, y, modifiers);break;
+    case EMSCRIPTEN_EVENT_MOUSEUP: pGraphics->OnMouseUp(x, y, modifiers); break;
     case EMSCRIPTEN_EVENT_DBLCLICK: pGraphics->OnMouseDblClick(x, y, modifiers);break;
     case EMSCRIPTEN_EVENT_MOUSEMOVE:
       if(pEvent->buttons == 0)
@@ -49,8 +80,17 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
       else
         pGraphics->OnMouseDrag(x, y, pEvent->movementX, pEvent->movementY, modifiers);
       break;
-    case EMSCRIPTEN_EVENT_MOUSEENTER: pGraphics->OnMouseOver(x, y, modifiers); break;
-    case EMSCRIPTEN_EVENT_MOUSELEAVE: pGraphics->OnMouseOut(); break;
+    case EMSCRIPTEN_EVENT_MOUSEENTER:
+      pGraphics->OnMouseOver(x, y, modifiers);
+      emscripten_set_mousemove_callback("#window", pGraphics, 1, nullptr);
+      break;
+    case EMSCRIPTEN_EVENT_MOUSELEAVE:
+      if(pEvent->buttons != 0) {
+        emscripten_set_mousemove_callback("#window", pGraphics, 1, outside_mouse_callback);
+        emscripten_set_mouseup_callback("#window", pGraphics, 1, outside_mouse_callback);
+      }
+
+      pGraphics->OnMouseOut(); break;
     default:
       break;
   }
@@ -94,7 +134,8 @@ IGraphicsWeb::IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float s
   emscripten_set_mouseup_callback("canvas", this, 1, mouse_callback);
   emscripten_set_dblclick_callback("canvas", this, 1, mouse_callback);
   emscripten_set_mousemove_callback("canvas", this, 1, mouse_callback);
-//  emscripten_set_mousemove_callback("#window", this, 1, outside_mouse_callback);
+  emscripten_set_mouseenter_callback("canvas", this, 1, mouse_callback);
+  emscripten_set_mouseleave_callback("canvas", this, 1, mouse_callback);
   emscripten_set_wheel_callback("canvas", this, 1, wheel_callback);
   emscripten_set_keydown_callback("#window", this, 1, key_callback);
 }

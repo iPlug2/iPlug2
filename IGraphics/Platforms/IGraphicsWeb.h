@@ -17,6 +17,11 @@ struct RetainVal
   val mItem;
 };
 
+static val GetCanvas()
+{
+  return val::global("document").call<val>("getElementById", std::string("canvas"));
+}
+
 static val GetPreloadedImages()
 {
   return val::global("Module")["preloadedImages"];
