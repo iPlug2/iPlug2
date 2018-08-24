@@ -330,9 +330,9 @@ void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const
   // First set options
   switch (options.mCapOption)
   {
-    case kCapButt:   nvgLineCap(mVG, NSVG_CAP_BUTT);     break;
-    case kCapRound:  nvgLineCap(mVG, NSVG_CAP_ROUND);    break;
-    case kCapSquare: nvgLineCap(mVG, NSVG_CAP_SQUARE);   break;
+    case kCapButt:   nvgLineCap(mVG, NVG_BUTT);     break;
+    case kCapRound:  nvgLineCap(mVG, NVG_ROUND);    break;
+    case kCapSquare: nvgLineCap(mVG, NVG_SQUARE);   break;
   }
   
   switch (options.mJoinOption)
