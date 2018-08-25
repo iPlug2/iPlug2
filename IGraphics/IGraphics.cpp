@@ -501,6 +501,12 @@ bool IGraphics::IsDirty(IRECT& bounds)
     dirty = true;
   }
 
+  if (mPerfDisplay)
+  {
+    bounds = bounds.Union(mPerfDisplay->GetRECT());
+    dirty = true;
+  }
+  
 #ifdef USE_IDLE_CALLS
   if (dirty)
   {
@@ -668,11 +674,21 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
       return;
     }
   }
-  else if(mCornerResizer)
+  
+  if(mCornerResizer)
   {
     if(mCornerResizer->GetRECT().Contains(x, y))
     {
       mCornerResizer->OnMouseDown(x, y, mod);
+      return;
+    }
+  }
+  
+  if(mPerfDisplay)
+  {
+    if(mPerfDisplay->GetRECT().Contains(x, y))
+    {
+      mPerfDisplay->OnMouseDown(x, y, mod);
       return;
     }
   }
