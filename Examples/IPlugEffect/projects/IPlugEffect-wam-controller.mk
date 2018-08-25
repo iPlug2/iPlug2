@@ -2,16 +2,10 @@ include ./config/IPlugEffect-web.mk
 
 TARGET = ./build-web/scripts/IPlugEffect.js
 
-EXPORTS = "['_main']"
-
-LDFLAGS = $(WEB_LDFLAGS) \
--s EXPORTED_FUNCTIONS=$(EXPORTS) \
-
-JSFLAGS = -s BINARYEN_ASYNC_COMPILATION=1 \
--s ALLOW_MEMORY_GROWTH=1 \
--s ASSERTIONS=0 \
--s FORCE_FILESYSTEM=1 \
---bind
+SRC += $(WEB_SRC)
+CFLAGS += $(WEB_CFLAGS)
+LDFLAGS += $(WEB_LDFLAGS) \
+-s EXPORTED_FUNCTIONS=$(WEB_EXPORTS)
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) $(WEB_CFLAGS) $(LDFLAGS) $(JSFLAGS) -o $@ $(WEB_SRC)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(SRC)

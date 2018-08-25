@@ -144,6 +144,15 @@ IGraphicsWeb::~IGraphicsWeb()
 {
 }
 
+void* IGraphicsWeb::OpenWindow(void* pHandle)
+{
+  OnViewInitialized(nullptr /* not used */);
+
+  GetDelegate()->LayoutUI(this);
+  
+  return nullptr;
+}
+
 void IGraphicsWeb::HideMouseCursor(bool hide, bool returnToStartPos)
 {
   if(hide)
@@ -159,11 +168,14 @@ bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String
     WDL_String plusSlash;
     plusSlash.SetFormatted(strlen(name) + 1, "/%s", name);
     
-    bool foundImage = GetPreloadedImages().call<bool>("hasOwnProperty", std::string(plusSlash.Get()));
-
-    DBGMSG("found image %s %i\n", plusSlash.Get(), foundImage);
+    bool foundResource = false;
     
-    if(foundImage)
+    if(strcmp(type, "png") == 0)
+      foundResource = GetPreloadedImages().call<bool>("hasOwnProperty", std::string(plusSlash.Get()));
+    else if(strcmp(type, "ttf") == 0)
+      foundResource = true; // TODO: check ttf
+      
+    if(foundResource)
     {
       result.Set(plusSlash.Get());
       return true;
@@ -176,6 +188,10 @@ bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String
 void IGraphicsWeb::OnMainLoopTimer()
 {
   IRECT r;
+  
+#ifdef IGRAPHICS_NANOVG
+  gGraphics->SetAllControlsDirty();
+#endif
   
   if (gGraphics->IsDirty(r))
     gGraphics->Draw(r);
@@ -240,4 +256,10 @@ bool IGraphicsWeb::OpenURL(const char* url, const char* msgWindowTitle, const ch
 #include "IGraphicsCanvas.cpp"
 #elif defined IGRAPHICS_NANOVG
 #include "IGraphicsNanoVG.cpp"
+
+#ifdef IGRAPHICS_FREETYPE
+#define FONS_USE_FREETYPE
+#endif
+
+#include "nanovg.c"
 #endif

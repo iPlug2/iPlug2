@@ -3,10 +3,6 @@
 #include "IPlugPlatform.h"
 
 #include "nanovg.h"
-#if defined OS_MAC || defined OS_IOS
-#include "nanovg_mtl.h"
-#endif
-
 #include "IGraphicsPathBase.h"
 
 class PerfGraph;

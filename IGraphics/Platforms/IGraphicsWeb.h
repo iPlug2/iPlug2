@@ -42,7 +42,7 @@ public:
   void HideMouseCursor(bool hide, bool returnToStartPos) override;
   void ForceEndUserEdit() override {} // TODO:
 //  void Resize(int w, int h, float scale) override;
-  void* OpenWindow(void* pParent) override { GetDelegate()->LayoutUI(this); return nullptr; }
+  void* OpenWindow(void* pParent) override;
   void CloseWindow() override {} // TODO:
   void* GetWindow() override { return nullptr; } // TODO:
   bool WindowIsOpen() override { return GetWindow(); } // TODO: ??

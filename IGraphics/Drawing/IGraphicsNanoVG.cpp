@@ -1,11 +1,25 @@
 #include <cmath>
 
 #include "IGraphicsNanoVG.h"
-#ifdef OS_WIN
-#pragma comment(lib, "opengl32.lib")
-#define NANOVG_GL2_IMPLEMENTATION
-#include <glad/glad.h>
-#include "nanovg_gl.h"
+
+#if defined OS_MAC || defined OS_IOS
+  #include "nanovg_mtl.h"
+#elif defined OS_WIN
+  #pragma comment(lib, "opengl32.lib")
+  #define NANOVG_GL2_IMPLEMENTATION
+  #include <glad/glad.h>
+  #include "nanovg_gl.h"
+#elif defined OS_WEB
+  #define GLFW_INCLUDE_ES3
+  #define GLFW_INCLUDE_GLEXT
+  #include <GLFW/glfw3.h>
+  #define NANOVG_GLES3_IMPLEMENTATION
+  #include "nanovg_gl.h"
+  #include "nanovg_gl_utils.h"
+  GLFWwindow* gWindow;
+  void GLFWError(int error, const char* desc) { DBGMSG("GLFW error %d: %s\n", error, desc); }
+#else
+  #error platform not yet supported
 #endif
 
 #pragma mark -
@@ -215,6 +229,33 @@ void IGraphicsNanoVG::OnViewInitialized(void* pContext)
     glGetError();
     mVG = nvgCreateGL2(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
   }
+#elif defined OS_WEB
+  if (!glfwInit()) {
+    DBGMSG("Failed to init GLFW.");
+    return;
+  }
+
+  glfwSetErrorCallback(GLFWError);
+
+  glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+
+  gWindow = glfwCreateWindow(Width(), Height(), "NanoVG", NULL, NULL);
+
+  if (!gWindow) {
+    glfwTerminate();
+    return;
+  }
+
+//  glfwSetKeyCallback(gWindow, key);
+  glfwMakeContextCurrent(gWindow);
+  
+  mVG = nvgCreateGLES3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
+  if (mVG == nullptr) {
+    DBGMSG("Could not init nanovg.\n");
+  }
+  
 #endif
 }
 
@@ -223,15 +264,16 @@ void IGraphicsNanoVG::OnViewDestroyed()
 #if defined OS_MAC || defined OS_IOS
   if(mVG)
     nvgDeleteMTL(mVG);
-#endif
-  
-#ifdef OS_WIN
+#elif defined OS_WIN
   if (mVG)
     nvgDeleteGL2(mVG);
   if (mHGLRC) {
     wglMakeCurrent((HDC)mPlatformContext, nullptr);
     wglDeleteContext(mHGLRC);
   }
+#elif defined OS_WEB
+  nvgDeleteGLES3(mVG);
+  glfwTerminate();
 #endif
 }
 
@@ -243,6 +285,15 @@ void IGraphicsNanoVG::BeginFrame()
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   glViewport(0, 0, Width()*GetDisplayScale(), Height()*GetDisplayScale());
+#elif defined OS_WEB
+  glViewport(0, 0, Width() * GetDisplayScale(), Height() * GetDisplayScale());
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_CULL_FACE);
+  glDisable(GL_DEPTH_TEST);
 #endif
   
   nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetDisplayScale());
@@ -255,6 +306,10 @@ void IGraphicsNanoVG::BeginFrame()
 void IGraphicsNanoVG::EndFrame()
 {
   nvgEndFrame(mVG);
+
+#if defined OS_WEB
+  glEnable(GL_DEPTH_TEST);
+#endif
 }
 
 void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
