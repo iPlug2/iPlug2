@@ -307,7 +307,6 @@ extern "C"
   IPlug* MakePlug()
   {
     IPlugInstanceInfo instanceInfo;
-    instanceInfo.mBundleID.Set(BUNDLE_ID);
     return new PLUG_CLASS_NAME(instanceInfo);
   }
 #pragma mark - AAX
