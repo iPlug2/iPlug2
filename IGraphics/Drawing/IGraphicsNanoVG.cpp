@@ -10,10 +10,10 @@
   #include <glad/glad.h>
   #include "nanovg_gl.h"
 #elif defined OS_WEB
-  #define GLFW_INCLUDE_ES3
+  #define GLFW_INCLUDE_ES2
   #define GLFW_INCLUDE_GLEXT
   #include <GLFW/glfw3.h>
-  #define NANOVG_GLES3_IMPLEMENTATION
+  #define NANOVG_GLES2_IMPLEMENTATION
   #include "nanovg_gl.h"
   #include "nanovg_gl_utils.h"
   GLFWwindow* gWindow;
@@ -251,7 +251,7 @@ void IGraphicsNanoVG::OnViewInitialized(void* pContext)
 //  glfwSetKeyCallback(gWindow, key);
   glfwMakeContextCurrent(gWindow);
   
-  mVG = nvgCreateGLES3(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
+  mVG = nvgCreateGLES2(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
   if (mVG == nullptr) {
     DBGMSG("Could not init nanovg.\n");
   }
@@ -272,7 +272,7 @@ void IGraphicsNanoVG::OnViewDestroyed()
     wglDeleteContext(mHGLRC);
   }
 #elif defined OS_WEB
-  nvgDeleteGLES3(mVG);
+  nvgDeleteGLES2(mVG);
   glfwTerminate();
 #endif
 }
