@@ -144,35 +144,3 @@ void IGEditorDelegate::AttachGraphics(IGraphics* pGraphics)
   mGraphics = pGraphics;
   mIGraphicsTransient = false;
 }
-
-void IGEditorDelegate::ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func)
-{
-  for (auto c = 0; c < mGraphics->NControls(); c++)
-  {
-    IControl* pControl = mGraphics->GetControl(c);
-    
-    if (pControl->ParamIdx() == paramIdx)
-    {
-      func(*pControl);
-      // Could be more than one, don't break until we check them all.
-    }
-  }
-}
-
-void IGEditorDelegate::ForControlInGroup(const char* group, std::function<void(IControl& control)> func)
-{
-  if(mGraphics)
-  {
-    for (auto c = 0; c < mGraphics->NControls(); c++)
-    {
-      IControl* pControl = mGraphics->GetControl(c);
-      
-      if (CStringHasContents(pControl->GetGroup()))
-      {
-        if(strcmp(pControl->GetGroup(), group) == 0)
-          func(*pControl);
-        // Could be more than one, don't break until we check them all.
-      }
-    }
-  }
-}

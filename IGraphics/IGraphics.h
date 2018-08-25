@@ -751,6 +751,12 @@ public:
   void ClampControl(int paramIdx, double lo, double hi, bool normalized);
 
   /***/
+  void ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func);
+
+  /***/
+  void ForControlInGroup(const char* group, std::function<void(IControl& control)> func);
+
+  /***/
   void SetAllControlsDirty();
 
   /** @param x The X coordinate in the graphics context at which the mouse event occurred

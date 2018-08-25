@@ -10,7 +10,7 @@
 class IGraphics;
 class IControl;
 
-/** An IDelgate base class for a SOMETHING that uses IGraphics for it's UI */
+/** An editor delgate base class for a SOMETHING that uses IGraphics for it's UI */
 class IGEditorDelegate : public IEditorDelegate
 {
 public:
@@ -41,9 +41,6 @@ public:
   /** Only override this method if you want to create IGraphics on demand (when UI window opens)! */
   virtual void LayoutUI(IGraphics* pGraphics) {};
   
-  void ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func);
-  void ForControlInGroup(const char* group, std::function<void(IControl& control)> func);
-
   IGraphics* GetUI();
 private:
   IGraphics* mGraphics = nullptr;

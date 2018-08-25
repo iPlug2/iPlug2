@@ -241,6 +241,36 @@ void IGraphics::ClampControl(int paramIdx, double lo, double hi, bool normalized
   }
 }
 
+void IGraphics::ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func)
+{
+  for (auto c = 0; c < NControls(); c++)
+  {
+    IControl* pControl = GetControl(c);
+
+    if (pControl->ParamIdx() == paramIdx)
+    {
+      func(*pControl);
+      // Could be more than one, don't break until we check them all.
+    }
+  }
+}
+
+void IGraphics::ForControlInGroup(const char* group, std::function<void(IControl& control)> func)
+{
+  for (auto c = 0; c < NControls(); c++)
+  {
+    IControl* pControl = GetControl(c);
+
+    if (CStringHasContents(pControl->GetGroup()))
+    {
+      if (strcmp(pControl->GetGroup(), group) == 0)
+        func(*pControl);
+      // Could be more than one, don't break until we check them all.
+    }
+  }
+}
+
+
 void IGraphics::SetAllControlsDirty()
 {
   int i, n = mControls.GetSize();
