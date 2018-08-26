@@ -58,17 +58,17 @@ public:
   /** Called at the beginning of drawing. Call base implementation if overridden. */
   virtual void BeginFrame();
   
-  /** Called after platform view initialization, so that drawing classes can e.g. get OpenGL context. */
+  /** Called after platform view initialization, so that drawing classes can e.g. create an OpenGL context. */
   virtual void OnViewInitialized(void* pContext) {};
   
-  
-  virtual void OnViewDestroyed() {};
+  /** Called after a platform view is destroyed, so that drawing classes can e.g. free any resources */
+  virtual void OnViewDestroyed() {}; //TODO: should happen before platform view is destroyed?
 
   /** Called by some drawing API classes to finally blit the draw bitmap onto the screen or perform other cleanup after drawing */
   virtual void EndFrame() {};
 
   /** Called by the platform IGraphics class when UI created and when moving to a new screen with different DPI, implementations in draw class must call the base implementation
-   * @param scale An integer specifying the scale of the display, typically 2 on a macOS retina screen */
+   * @param scale The scale of the display, typically 2 on a macOS retina screen */
   void SetDisplayScale(int scale) { mDisplayScale = (float) scale; OnResizeOrRescale(); };
   
 #ifndef OS_WEB
@@ -96,7 +96,7 @@ public:
    * @param pBlend Optional blend method, see IBlend documentation */
   virtual void DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend = 0) = 0;
 
-  /** Draw a bitmap (raster) image to the graphics context
+  /** Draw a bitmap (raster) image to the graphics context, scaling the image to fit the bounds
    * @param bitmap The bitmap image to draw to the graphics context
    * @param bounds The rectangular region to draw the image in
    * @param pBlend Optional blend method, see IBlend documentation */
@@ -121,7 +121,7 @@ public:
    * @param pBlend Optional blend method, see IBlend documentation */
   virtual void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, float x, float y, double angle, const IBlend* pBlend = 0) = 0;
 
-  /** Fill a rectangle corresponding to a pixel on a 1:! screen with a color
+  /** Fill a rectangle corresponding to a pixel on a 1:1 screen with a color
    * @param color The color to fill the point with
    * @param x The X coordinate in the graphics context at which to draw
    * @param y The Y coordinate in the graphics context at which to draw
@@ -129,7 +129,7 @@ public:
   virtual void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend = 0) = 0;
 
   /** Draw a line to the graphics context
-   * @param color The color to draw the shape with
+   * @param color The color to draw the line with
    * @param x1 The X coordinate in the graphics context of the start of the line
    * @param y1 The Y coordinate in the graphics context of the start of the line
    * @param x2 The X coordinate in the graphics context of the end of the line
