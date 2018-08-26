@@ -55,8 +55,13 @@ class IGraphics
 public:
 #pragma mark - IGraphics drawing API implementation
 
+  /** Called at the beginning of drawing. Call base implementation if overridden. */
   virtual void BeginFrame();
+  
+  /** Called after platform view initialization, so that drawing classes can e.g. get OpenGL context. */
   virtual void OnViewInitialized(void* pContext) {};
+  
+  
   virtual void OnViewDestroyed() {};
 
   /** Called by some drawing API classes to finally blit the draw bitmap onto the screen or perform other cleanup after drawing */
