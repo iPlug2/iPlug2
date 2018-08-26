@@ -391,7 +391,7 @@ bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& bounds,
   {
     case IText::EVAlign::kVAlignTop: y = bounds.T + fontExtents.ascent; break;
     case IText::EVAlign::kVAlignMiddle: y = bounds.MH() + (fontExtents.ascent/2.); break;
-    case IText::EVAlign::kVAlignBottom: y = bounds.B - fontExtents.ascent; break;
+    case IText::EVAlign::kVAlignBottom: y = bounds.B - fontExtents.descent; break;
     default: break;
   }
   
