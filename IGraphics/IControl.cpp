@@ -99,9 +99,12 @@ void IControl::SetDirty(bool triggerAction)
   }
 }
 
-void IControl::SetClean()
+bool IControl::IsDirty()
 {
-  mDirty = false;
+  if(mAnimationFunc)
+    mAnimationFunc(this);
+  
+  return mDirty;
 }
 
 void IControl::Hide(bool hide)
@@ -174,7 +177,7 @@ void IControl::PromptUserInput()
   }
 }
 
-void IControl::PromptUserInput(IRECT& bounds)
+void IControl::PromptUserInput(const IRECT& bounds)
 {
   if (mParamIdx >= 0 && !mDisablePrompt)
   {
