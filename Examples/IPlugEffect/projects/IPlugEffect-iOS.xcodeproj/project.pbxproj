@@ -28,7 +28,6 @@
 		4F6369C320A463AF0022C370 /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F63699420A463AF0022C370 /* IGraphics.cpp */; };
 		4F6369C420A463AF0022C370 /* IGraphicsPathBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699520A463AF0022C370 /* IGraphicsPathBase.h */; };
 		4F6369C520A463AF0022C370 /* IControls.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699720A463AF0022C370 /* IControls.h */; };
-		4F6369C920A463AF0022C370 /* IVDropDownListControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699B20A463AF0022C370 /* IVDropDownListControl.h */; };
 		4F6369CA20A463AF0022C370 /* IVKeyboardControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699C20A463AF0022C370 /* IVKeyboardControl.h */; };
 		4F6369CC20A463AF0022C370 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F63699E20A463AF0022C370 /* IControls.cpp */; };
 		4F6369CD20A463AF0022C370 /* IGraphicsStructs.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699F20A463AF0022C370 /* IGraphicsStructs.h */; };
@@ -209,7 +208,6 @@
 		4F63699420A463AF0022C370 /* IGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphics.cpp; sourceTree = "<group>"; };
 		4F63699520A463AF0022C370 /* IGraphicsPathBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsPathBase.h; sourceTree = "<group>"; };
 		4F63699720A463AF0022C370 /* IControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControls.h; sourceTree = "<group>"; };
-		4F63699B20A463AF0022C370 /* IVDropDownListControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVDropDownListControl.h; sourceTree = "<group>"; };
 		4F63699C20A463AF0022C370 /* IVKeyboardControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVKeyboardControl.h; sourceTree = "<group>"; };
 		4F63699E20A463AF0022C370 /* IControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IControls.cpp; sourceTree = "<group>"; };
 		4F63699F20A463AF0022C370 /* IGraphicsStructs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsStructs.h; sourceTree = "<group>"; };
@@ -420,7 +418,6 @@
 		4F63699620A463AF0022C370 /* Controls */ = {
 			isa = PBXGroup;
 			children = (
-				4F63699B20A463AF0022C370 /* IVDropDownListControl.h */,
 				4F63699C20A463AF0022C370 /* IVKeyboardControl.h */,
 				4F63699720A463AF0022C370 /* IControls.h */,
 				4F63699E20A463AF0022C370 /* IControls.cpp */,
@@ -686,7 +683,6 @@
 				4FFF104D20A0E55A00D3092F /* IPlugUtilities.h in Headers */,
 				4FFF107D20A0E5A500D3092F /* ptrlist.h in Headers */,
 				4FFF104C20A0E55A00D3092F /* IPlugStructs.h in Headers */,
-				4F6369C920A463AF0022C370 /* IVDropDownListControl.h in Headers */,
 				4F977D7220CC9DD800D19F46 /* ParamSmoothers.h in Headers */,
 				4FFF107E20A0E5A500D3092F /* wdlendian.h in Headers */,
 				4FFF104220A0E55A00D3092F /* IPlugQueue.h in Headers */,

@@ -82,7 +82,6 @@
 		4F5F344720C0226200487201 /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5F344020C0226200487201 /* IPlugPaths.mm */; };
 		4F63695A20A463090022C370 /* IControls.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63695220A463090022C370 /* IControls.h */; };
 		4F63696320A463090022C370 /* IVMeterControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63695520A463090022C370 /* IVMeterControl.h */; };
-		4F63696420A463090022C370 /* IVDropDownListControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63695620A463090022C370 /* IVDropDownListControl.h */; };
 		4F63696520A463090022C370 /* IVKeyboardControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63695720A463090022C370 /* IVKeyboardControl.h */; };
 		4F63696D20A463090022C370 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F63695920A463090022C370 /* IControls.cpp */; };
 		4F63696E20A463090022C370 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F63695920A463090022C370 /* IControls.cpp */; };
@@ -396,8 +395,6 @@
 		4F10D3D3203A6711003EF82A /* RtAudio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtAudio.cpp; path = ../../../Dependencies/IPlug/RTAudio/RtAudio.cpp; sourceTree = "<group>"; };
 		4F10D3D6203A6719003EF82A /* RtMidi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtMidi.h; path = ../../../Dependencies/IPlug/RTMidi/RtMidi.h; sourceTree = "<group>"; };
 		4F10D3D7203A6719003EF82A /* RtMidi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtMidi.cpp; path = ../../../Dependencies/IPlug/RTMidi/RtMidi.cpp; sourceTree = "<group>"; };
-		4F197F9720ACD18D009CC900 /* perf.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = perf.h; sourceTree = "<group>"; };
-		4F197F9920ACD18D009CC900 /* perf.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = perf.c; sourceTree = "<group>"; };
 		4F1A5279205D90FF00CF2908 /* IPlugVST2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugVST2.h; path = ../../../IPlug/VST2/IPlugVST2.h; sourceTree = "<group>"; };
 		4F1A527A205D910000CF2908 /* IPlugVST2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugVST2.cpp; path = ../../../IPlug/VST2/IPlugVST2.cpp; sourceTree = "<group>"; };
 		4F1A527C205D911900CF2908 /* IPlugVST3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugVST3.cpp; path = ../../../IPlug/VST3/IPlugVST3.cpp; sourceTree = "<group>"; };
@@ -473,7 +470,6 @@
 		4F5F344020C0226200487201 /* IPlugPaths.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugPaths.mm; path = ../../../IPlug/IPlugPaths.mm; sourceTree = "<group>"; };
 		4F63695220A463090022C370 /* IControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControls.h; sourceTree = "<group>"; };
 		4F63695520A463090022C370 /* IVMeterControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVMeterControl.h; sourceTree = "<group>"; };
-		4F63695620A463090022C370 /* IVDropDownListControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVDropDownListControl.h; sourceTree = "<group>"; };
 		4F63695720A463090022C370 /* IVKeyboardControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVKeyboardControl.h; sourceTree = "<group>"; };
 		4F63695920A463090022C370 /* IControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IControls.cpp; sourceTree = "<group>"; };
 		4F6369DC20A464BB0022C370 /* IGraphicsNanoVG_src.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IGraphicsNanoVG_src.m; sourceTree = "<group>"; };
@@ -896,8 +892,6 @@
 				4F03A55020A4621000EBDFFB /* IGraphicsNanoVG.h */,
 				4F03A55420A4621000EBDFFB /* IGraphicsNanoVG.cpp */,
 				4F6369DC20A464BB0022C370 /* IGraphicsNanoVG_src.m */,
-				4F197F9920ACD18D009CC900 /* perf.c */,
-				4F197F9720ACD18D009CC900 /* perf.h */,
 			);
 			name = Drawing;
 			path = ../../../IGraphics/Drawing;
@@ -1061,7 +1055,6 @@
 				4F63695920A463090022C370 /* IControls.cpp */,
 				4F63695520A463090022C370 /* IVMeterControl.h */,
 				4FF83B5E20B6E901007A0E4B /* IVScopeControl.h */,
-				4F63695620A463090022C370 /* IVDropDownListControl.h */,
 				4F63695720A463090022C370 /* IVKeyboardControl.h */,
 			);
 			name = Controls;
@@ -1576,7 +1569,6 @@
 				4F03A57B20A4621100EBDFFB /* IGraphicsAGG.h in Headers */,
 				4FF3205820B2BFAB00269268 /* IPlugPaths.h in Headers */,
 				4F03A5B720A4621100EBDFFB /* IGraphics.h in Headers */,
-				4F63696420A463090022C370 /* IVDropDownListControl.h in Headers */,
 				4F03A58320A4621100EBDFFB /* IGraphicsLice_src.h in Headers */,
 				4F03A5D220A4621100EBDFFB /* IGraphicsPopupMenu.h in Headers */,
 				4FC3EFFE2086CE5700BD11FA /* processdata.h in Headers */,
