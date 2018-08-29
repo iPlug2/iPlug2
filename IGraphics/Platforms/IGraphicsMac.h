@@ -5,8 +5,7 @@
 #include "IGraphics_select.h"
 
 /** IGraphics platform class for macOS
-*   @ingroup PlatformClasses
-*/
+*   @ingroup PlatformClasses */
 class IGraphicsMac final : public IGRAPHICS_DRAW_CLASS
 {
 public:

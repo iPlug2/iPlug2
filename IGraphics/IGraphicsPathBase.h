@@ -3,9 +3,7 @@
 
 #include "IGraphics.h"
 
-#ifndef OS_WEB
 #include "nanosvg.h"
-#endif
 
 class IGraphicsPathBase : public IGraphics
 {
@@ -332,16 +330,15 @@ public:
   
   void PathTransformScale(float scale) { PathTransformScale(scale, scale); }
   
-  #ifndef OS_WEB
   void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override
   {
-    double xScale = dest.W() / svg.W();
-    double yScale = dest.H() / svg.H();
-    double scale = xScale < yScale ? xScale : yScale;
+    float xScale = dest.W() / svg.W();
+    float yScale = dest.H() / svg.H();
+    float scale = xScale < yScale ? xScale : yScale;
     
     PathStateSave();
     PathTransformTranslate(dest.L, dest.T);
-    PathTransformScale((float) scale);
+    PathTransformScale(scale);
     RenderNanoSVG(svg.mImage);
     PathStateRestore();
   }
@@ -461,5 +458,4 @@ private:
       }
     }
   }
-  #endif
 };
