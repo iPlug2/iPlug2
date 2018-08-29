@@ -215,26 +215,26 @@ public:
   void SetRECT(const IRECT& bounds) { mRECT = bounds; mMouseIsOver = false; OnResize(); }
   
   /** Get the rectangular mouse tracking target area, within the graphics context for this control
-   * @return The control's target rectangle within the graphics context */
+   * @return The control's target bounds within the graphics context */
   const IRECT& GetTargetRECT() const { return mTargetRECT; } // The mouse target area (default = draw area).
 
   /** Set the rectangular mouse tracking target area, within the graphics context for this control
-   * @param The control's new target rectangle within the graphics context */
+   * @param The control's new target bounds within the graphics context */
   void SetTargetRECT(const IRECT& bounds) { mTargetRECT = bounds; mMouseIsOver = false; }
   
   /** Set BOTH the draw rect and the target area, within the graphics context for this control
-   * @param The control's new draw and target rectangle within the graphics context */
+   * @param The control's new draw and target bounds within the graphics context */
   void SetTargetAndDrawRECTs(const IRECT& bounds) { mRECT = mTargetRECT = bounds; mMouseIsOver = false; OnResize(); }
 
   /** Used internally by the AAX wrapper view interface to set the control parmeter highlight 
-   * @param isHighlighted /c True if the control should be highlighted 
+   * @param isHighlighted /c true if the control should be highlighted 
    * @param color An integer representing one of three colors that ProTools assigns automated controls */
   void SetPTParameterHighlight(bool isHighlighted, int color);
   
   /** Get double click as single click 
    * By default, mouse double click has its own handler. A control can set mDblAsSingleClick to true 
    * which maps double click to single click for this control (and also causes the mouse to be captured by the control on double click).
-   * @return /c True if double clicks should be mapped to single clicks */
+   * @return /c true if double clicks should be mapped to single clicks */
   bool GetMouseDblAsSingleClick() { return mDblAsSingleClick; }
 
   /** Shows or hides the IControl.
@@ -346,6 +346,7 @@ public:
    */
   virtual void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar = 1.);
   
+  /** */
   virtual void Animate(double progress) {}
 
   virtual void OnEndAnimation() // if you override this you must call the base implementation, to free mAnimationFunc
@@ -354,14 +355,12 @@ public:
     SetDirty(false);
   }
   
-  
   /** @param duration Duration in milliseconds for the animation  */
   void StartAnimation(int duration)
   {
     mAnimationStartTime = std::chrono::high_resolution_clock::now();
     mAnimationDuration = Milliseconds(duration);
   }
-  
   
   /** Set the animation function
    * @param func A std::function conforming to IAnimationFunction */
