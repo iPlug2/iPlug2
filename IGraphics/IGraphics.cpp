@@ -940,7 +940,7 @@ bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
   if (c >= 0)
   {
     IControl* pControl = mControls.Get(c);
-    if (pControl->MouseDblAsSingleClick())
+    if (pControl->GetMouseDblAsSingleClick())
     {
       mMouseCapture = c;
       pControl->OnMouseDown(x, y, mod);
