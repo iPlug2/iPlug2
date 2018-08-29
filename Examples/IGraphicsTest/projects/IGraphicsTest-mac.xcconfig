@@ -1,23 +1,23 @@
-#include "../../../common.xcconfig"
+#include "../../../common-mac.xcconfig"
 
 //------------------------------
 // Global build settings
 
 // the basename of the vst, vst3, app, component, aaxplugin
-BINARY_NAME = IPlugEffect
+BINARY_NAME = IGraphicsTest
 
 // ------------------------------
 // HEADER AND LIBRARY SEARCH PATHS
-EXTRA_INC_PATHS = $(IGRAPHICS_INC_PATHS)
+EXTRA_INC_PATHS = $(IGRAPHICS_INC_PATHS) $(YOGA_PATH)
 EXTRA_LIB_PATHS = $(IGRAPHICS_LIB_PATHS)
 EXTRA_LNK_FLAGS = $(IGRAPHICS_LNK_FLAGS)
 
-EXTRA_APP_INC_PATHS = $(RTAUDIO_PATH) $(RTMIDI_PATH)
+//EXTRA_APP_INC_PATHS = 
 
 //------------------------------
 // PREPROCESSOR MACROS
 
-EXTRA_ALL_DEFS = OBJC_PREFIX=vIPlugEffect SWELL_NO_POSTMESSAGE SWELL_APP_PREFIX=Swell_vIPlugEffect IGRAPHICS_NANOVG NO_PARAMS_MUTEX //IGRAPHICS_FREETYPE
+EXTRA_ALL_DEFS = OBJC_PREFIX=vIGraphicsTest SWELL_APP_PREFIX=Swell_vIGraphicsTest IGRAPHICS_NANOVG //IGRAPHICS_FREETYPE
 //EXTRA_DEBUG_DEFS =
 //EXTRA_RELEASE_DEFS =
 //EXTRA_TRACER_DEFS =

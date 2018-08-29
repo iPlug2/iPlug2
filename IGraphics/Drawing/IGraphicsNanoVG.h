@@ -5,8 +5,6 @@
 #include "nanovg.h"
 #include "IGraphicsPathBase.h"
 
-class PerfGraph;
-
 class NanoVGBitmap : public APIBitmap
 {
 public:
@@ -34,7 +32,7 @@ public:
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
 
-  void PathClear() override { } //TODO:?
+  void PathClear() override { nvgBeginPath(mVG); /* actually clears */ }
   void PathStart() override { nvgBeginPath(mVG); }
   void PathClose() override { nvgClosePath(mVG); }
 
