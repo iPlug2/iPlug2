@@ -33,7 +33,7 @@ public:
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
 
   void PathClear() override { nvgBeginPath(mVG); /* actually clears */ }
-  void PathStart() override { nvgBeginPath(mVG); }
+  void PathStart() override { }
   void PathClose() override { nvgClosePath(mVG); }
 
   void PathArc(float cx, float cy, float r, float aMin, float aMax) override { nvgArc(mVG, cx, cy, r, DegToRad(aMin), DegToRad(aMax), NVG_CW);}
