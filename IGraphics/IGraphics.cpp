@@ -691,11 +691,8 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 
   if(mPopupControl && mPopupControl->GetExpanded())
   {
-    if(mPopupControl->GetRECT().Contains(x, y))
-    {
-      mPopupControl->OnMouseDown(x, y, mod);
-      return;
-    }
+    mPopupControl->OnMouseDown(x, y, mod);
+    return;
   }
   
   if(mCornerResizer)

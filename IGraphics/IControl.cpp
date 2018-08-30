@@ -610,9 +610,6 @@ void IPopupMenuControlBase::OnMouseOver(float x, float y, const IMouseMod& mod)
 void IPopupMenuControlBase::OnMouseOut()
 {
   mMouseCellBounds = nullptr;
-  
-  if(GetState() == kExpanded)
-    Collapse();
 }
 
 void IPopupMenuControlBase::DrawBackground(IGraphics& g, const IRECT& bounds)
