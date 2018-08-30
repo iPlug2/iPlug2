@@ -48,7 +48,7 @@ void IVSwitchControl::Draw(IGraphics& g)
   g.DrawText(mText, mStr.Get(), handleBounds);
   
   if(GetAnimationFunction())
-    DefaultClickAnimation(g);
+    DrawFlashCircle(g);
     
   if(mDrawFrame)
     g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius, 0, mFrameThickness);

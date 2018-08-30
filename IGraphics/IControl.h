@@ -337,17 +337,13 @@ public:
    * @return \true if the mouse is over this control. */
   bool GetMouseIsOver() const { return mMouseIsOver; }
   
-  /** 
-   * @param x 
-   * @param y 
-   * @param direction 
-   * @param bounds 
-   * @param scalar 
-   */
+  /** Set control value based on x, y position within a rectangle. Commonly used for slider/fader controls.
+   * @param x The X coordinate for snapping
+   * @param y The Y coordinate for snapping
+   * @param direction The direction of the control's travel- horizontal or vertical fader
+   * @param bounds The area in which the track of e.g. a slider should be snapped
+   * @param scalar A scalar to speedup/slowdown mousing along the track */
   virtual void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar = 1.);
-  
-  /** */
-  virtual void Animate(double progress) {}
 
   virtual void OnEndAnimation() // if you override this you must call the base implementation, to free mAnimationFunc
   {
@@ -580,6 +576,7 @@ public:
   void SetEmboss(bool emboss) { mEmboss = emboss; mControl->SetDirty(false); }
   void SetShadowOffset(float offset) { mShadowOffset = offset; mControl->SetDirty(false); }
   void SetFrameThickness(float thickness) { mFrameThickness = thickness; mControl->SetDirty(false); }
+  void SetFlashCircleRadius(float radius) { mFlashCircleRadius = radius * mMaxFlashCircleRadius; }
 
   void Style(bool drawFrame, bool drawShadows, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec)
   {
@@ -603,7 +600,7 @@ public:
     return handleBounds;
   }
   
-  void DefaultClickAnimation(IGraphics& g)
+  void DrawFlashCircle(IGraphics& g)
   {
     float mouseDownX, mouseDownY;
     g.GetMouseDownPoint(mouseDownX, mouseDownY);
@@ -1028,7 +1025,6 @@ public:
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override;
   
-  void Animate(double progress) override;
   void OnEndAnimation() override;
   
   //IPopupMenuControlBase

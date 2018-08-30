@@ -14,14 +14,31 @@ void DefaultAnimationFunc(IControl* pCaller)
     pCaller->OnEndAnimation();
     return;
   }
+};
+
+void FlashCircleAnimationFunc(IControl* pCaller)
+{
+  auto progress = pCaller->GetAnimationProgress();
   
-  pCaller->Animate(progress);
+  if(progress > 1.) {
+    pCaller->OnEndAnimation();
+    return;
+  }
+  
+  dynamic_cast<IVectorBase*>(pCaller)->SetFlashCircleRadius((float) progress);
+  
+  pCaller->SetDirty(false);
 };
 
 void DefaultClickActionFunc(IControl* pCaller)
 {
   pCaller->SetAnimation(DefaultAnimationFunc, DEFAULT_ANIMATION_DURATION);
 };
+
+void FlashCircleClickActionFunc(IControl* pCaller)
+{
+  pCaller->SetAnimation(FlashCircleAnimationFunc, DEFAULT_ANIMATION_DURATION);
+}
 
 IControl::IControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc)
 : mDelegate(dlg)
@@ -101,7 +118,7 @@ void IControl::SetDirty(bool triggerAction)
 
 bool IControl::IsDirty()
 {
-  if(mAnimationFunc)
+  if(GetAnimationFunction())
     mAnimationFunc(this);
   
   return mDirty;
@@ -241,7 +258,7 @@ void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds
 
   mValue = round( val / 0.001 ) * 0.001;
 
-  SetDirty(); // will send parameter value to delegate
+  SetDirty(true); // will send parameter value to delegate
 }
 
 void IBitmapControl::Draw(IGraphics& g)
@@ -347,7 +364,7 @@ void ISwitchControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
     mValue = fmod(1., mValue);
   }
 
-  SetDirty();
+  SetDirty(true);
 }
 
 void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
@@ -508,7 +525,26 @@ IPopupMenuControlBase::IPopupMenuControlBase(IGEditorDelegate& dlg, int paramIdx
 , mSpecifiedExpandedBounds(expandedBounds)
 , mDirection(direction)
 {
-  SetActionFunction(DefaultClickActionFunc);
+  SetActionFunction([&](IControl* pCaller){
+    
+    SetAnimation([&](IControl* pCaller) {
+      auto progress = pCaller->GetAnimationProgress();
+      
+      if(progress > 1.) {
+        pCaller->OnEndAnimation();
+        return;
+      }
+      
+      if(mState == kExpanding)
+        mBlend.mWeight = (float) progress * mOpacity;
+      else if(mState == kCollapsing)
+        mBlend.mWeight = (float) (1.-progress) * mOpacity;
+      
+      GetUI()->SetAllControlsDirty();
+    },
+    DEFAULT_ANIMATION_DURATION);
+  });
+  
   
   mText = text;
   mDirty = false;
@@ -614,7 +650,8 @@ void IPopupMenuControlBase::DrawHighlightCellText(IGraphics& g, const IRECT& bou
 
 void IPopupMenuControlBase::DrawSeparator(IGraphics& g, const IRECT& bounds)
 {
-  g.FillRect(COLOR_LIGHT_GRAY, bounds, &mBlend);
+  if(mBlend.mWeight > 0.9)
+    g.FillRect(COLOR_MID_GRAY, bounds, &BLEND_25);
 }
 
 IPopupMenu* IPopupMenuControlBase::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
@@ -755,16 +792,6 @@ void IPopupMenuControlBase::Collapse()
   
   mState = kCollapsing;
   SetDirty(true); // triggers animation
-}
-
-void IPopupMenuControlBase::Animate(double progress)
-{
-  if(mState == kExpanding)
-    mBlend.mWeight = (float) progress * mOpacity;
-  else if(mState == kCollapsing)
-    mBlend.mWeight = (float) (1.-progress) * mOpacity;
-
-  GetUI()->SetAllControlsDirty();
 }
 
 void IPopupMenuControlBase::OnEndAnimation()
