@@ -157,7 +157,6 @@ public:
     if (g.HasPathSupport())
     {
       double cr = mValue * (mRECT.H() / 2.0);
-      g.PathStart();
       g.PathRoundRect(mRECT.GetPadded(-2), cr);
       IFillOptions fillOptions;
       IStrokeOptions strokeOptions;
