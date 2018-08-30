@@ -463,5 +463,5 @@ void IGraphicsNanoVG::DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, 
   nvgPathWinding(mVG, NVG_HOLE);
   nvgFillPaint(mVG, shadowPaint);
   nvgFill(mVG);
-  nvgBeginPath(mVG); // GAH! actually consuming
+  nvgBeginPath(mVG); // Clear the paths
 }
