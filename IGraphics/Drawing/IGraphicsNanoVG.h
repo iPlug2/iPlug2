@@ -73,7 +73,16 @@ protected:
 
 private:
   
-  void ClipRegion(const IRECT& r) override { nvgScissor(mVG, r.L, r.T, r.W(), r.H()); }
+  void ClipRegion(const IRECT& r) override
+  {
+    float xform[6];
+    
+    nvgCurrentTransform(mVG, xform);
+    nvgResetTransform(mVG);
+    nvgScissor(mVG, r.L, r.T, r.W(), r.H());
+    nvgTransform(mVG, xform[0], xform[1], xform[2], xform[3], xform[4], xform[5]);
+  }
+  
   void ResetClipRegion() override { nvgResetScissor(mVG); }
 
   StaticStorage<APIBitmap> mBitmapCache; //not actually static

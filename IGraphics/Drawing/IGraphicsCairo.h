@@ -95,10 +95,15 @@ private:
   
   void ClipRegion(const IRECT& r) override
   {
+    cairo_matrix_t matrix;
+    
     cairo_reset_clip(mContext);
-    PathClear();
-    PathRect(r);
+    cairo_get_matrix(mContext, &matrix);
+    cairo_identity_matrix(mContext);
+    cairo_new_path(mContext);
+    cairo_rectangle(mContext, r.L, r.T, r.W(), r.H());
     cairo_clip(mContext);
+    cairo_set_matrix(mContext, &matrix);
   }
   
   void ResetClipRegion() override
