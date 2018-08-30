@@ -317,11 +317,11 @@ void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, i
   APIBitmap* pAPIBitmap = bitmap.GetAPIBitmap();
   
   NVGpaint imgPaint = nvgImagePattern(mVG, std::round(dest.L) - srcX, std::round(dest.T) - srcY, bitmap.W(), bitmap.H(), 0.f, pAPIBitmap->GetBitmap(), BlendWeight(pBlend));
-  PathClear();
+  nvgBeginPath(mVG); // Clear's any existing path
   nvgRect(mVG, dest.L, dest.T, dest.W(), dest.H());
   nvgFillPaint(mVG, imgPaint);
   nvgFill(mVG);
-  PathClose();
+  nvgBeginPath(mVG); // Clear's the bitmap rect from the path state
 }
 
 IColor IGraphicsNanoVG::GetPoint(int x, int y)
