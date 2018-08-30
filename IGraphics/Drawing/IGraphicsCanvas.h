@@ -36,10 +36,9 @@ public:
   void DrawRotatedBitmap(IBitmap& bitmap, float destCentreX, float destCentreY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override { IGraphicsPathBase::DrawRotatedBitmap(bitmap, destCentreX, destCentreY, DegToRad(angle), yOffsetZeroDeg, pBlend); }
   
   void PathClear() override { GetContext().call<void>("beginPath"); }
-  void PathStart() override { GetContext().call<void>("beginPath"); } // TODO:
   void PathClose() override { GetContext().call<void>("closePath"); }
 
-  void PathArc(float cx, float cy, float r, float aMin, float aMax) override { GetContext().call<void>("arc", cx, cy, r, DegToRad(aMin), DegToRad(aMax)); }
+  void PathArc(float cx, float cy, float r, float aMin, float aMax) override { GetContext().call<void>("arc", cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f)); }
 
   void PathMoveTo(float x, float y) override { GetContext().call<void>("moveTo", x, y); }
   void PathLineTo(float x, float y) override { GetContext().call<void>("lineTo", x, y); }

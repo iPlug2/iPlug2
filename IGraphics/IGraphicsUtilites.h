@@ -35,7 +35,7 @@ static double GetTimestamp()
  * @param data Multidimensional array for nPoints pairs of float coordinates for the points */
 static inline void RadialPoints(float angleDegrees, float cx, float cy, float rMin, float rMax, int nPoints, float data[][2])
 {
-  const float angleRadians = DegToRad(angleDegrees-90.f);
+  const float angleRadians = DegToRad(angleDegrees - 90.f);
   const float sinV = sinf(angleRadians);
   const float cosV = cosf(angleRadians);
   

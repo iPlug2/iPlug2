@@ -53,10 +53,9 @@ public:
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
       
   void PathClear() override { cairo_new_path(mContext); }
-  void PathStart() override { cairo_new_sub_path(mContext); }
   void PathClose() override { cairo_close_path(mContext); }
 
-  void PathArc(float cx, float cy, float r, float aMin, float aMax) override { cairo_arc(mContext, cx, cy, r, DegToRad(aMin), DegToRad(aMax)); }
+  void PathArc(float cx, float cy, float r, float aMin, float aMax) override { cairo_arc(mContext, cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f)); }
     
   void PathMoveTo(float x, float y) override { cairo_move_to(mContext, x, y); }
   void PathLineTo(float x, float y) override { cairo_line_to(mContext, x, y); }

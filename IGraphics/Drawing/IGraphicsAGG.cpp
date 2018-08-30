@@ -251,7 +251,7 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   }
 }
 
-void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend)
+void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, float x, float y, double angle, const IBlend* pBlend)
 {
   x *= GetDisplayScale();
   y *= GetDisplayScale();
@@ -306,7 +306,7 @@ void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax)
   agg::trans_affine xform = mTransform;
   xform *= agg::trans_affine_scaling(GetDisplayScale());
   
-  agg::arc arc(cx, cy, r, r, DegToRad(aMin), DegToRad(aMax));
+  agg::arc arc(cx, cy, r, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f));
   arc.approximation_scale(xform.scale());
   agg::path_storage transformedPath;
   transformedPath.join_path(arc);

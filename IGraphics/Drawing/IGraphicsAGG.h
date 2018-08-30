@@ -157,10 +157,9 @@ public:
   void OnResizeOrRescale() override;
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
-  void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, int x, int y, double angle, const IBlend* pBlend) override;
+  void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, float x, float y, double angle, const IBlend* pBlend) override;
 
   void PathClear() override { mPath.remove_all(); }
-  void PathStart() override { mPath.start_new_path(); }
   void PathClose() override { mPath.close_polygon(); }
 
   void PathArc(float cx, float cy, float r, float aMin, float aMax) override;

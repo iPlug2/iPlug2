@@ -156,7 +156,6 @@ public:
   {
     if (g.HasPathSupport())
     {
-      g.PathStart();
       double cr = mValue * (mRECT.H() / 2.0);
       g.PathRoundRect(mRECT.GetPadded(-2), cr);
       IFillOptions fillOptions;
@@ -216,8 +215,6 @@ public:
 
     if (g.HasPathSupport())
     {
-      g.PathStart();
-
       double r = mValue * (mRECT.H() / 2.0);
       if (mShape == 0)
       {

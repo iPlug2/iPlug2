@@ -62,7 +62,7 @@ public:
     g.FillRect(GetColor(kBG), mRECT);
     
     // TODO: replace with IGraphics::DrawData, make it work with lice
-    g.PathStart();
+
     g.PathMoveTo(x, y+h);
     
     if (mStyle == kFPS)
