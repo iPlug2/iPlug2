@@ -52,7 +52,6 @@ protected:
   float mAngleMin, mAngleMax;
 };
 
-#ifndef OS_WEB
 /** A vector knob control which rotates an SVG image */
 class IVSVGKnob : public IKnobControlBase
 {
@@ -83,7 +82,6 @@ private:
   float mStartAngle = -135.f;
   float mEndAngle = 135.f;
 };
-#endif
 
 class IVSliderControl : public ISliderControlBase
                       , public IVectorBase
