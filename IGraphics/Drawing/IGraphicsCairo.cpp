@@ -156,14 +156,14 @@ APIBitmap* IGraphicsCairo::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 
 void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
-  PathStateSave();
-  PathRect(dest);
+  cairo_save(mContext);
+  cairo_rectangle(mContext, dest.L, dest.T, dest.W(), dest.H());
   cairo_clip(mContext);
   cairo_surface_t* surface = (cairo_surface_t*) bitmap.GetAPIBitmap()->GetBitmap();
   cairo_set_source_surface(mContext, surface, std::round(dest.L) - srcX, (int) std::round(dest.T) - srcY);
   cairo_set_operator(mContext, CairoBlendMode(pBlend));
   cairo_paint_with_alpha(mContext, BlendWeight(pBlend));
-  PathStateRestore();
+  cairo_restore(mContext);
 }
 
 void IGraphicsCairo::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)

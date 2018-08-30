@@ -425,7 +425,7 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
   }
   
   if (!options.mPreserve)
-    PathClear();
+    mPath.remove_all();
 }
 
 void IGraphicsAGG::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
@@ -436,7 +436,7 @@ void IGraphicsAGG::PathFill(const IPattern& pattern, const IFillOptions& options
   
   mRasterizer.Rasterize(path, GetRasterTransform(), pattern, pBlend, options.mFillRule);
   if (!options.mPreserve)
-    PathClear();
+    mPath.remove_all();
 }
 
 IColor IGraphicsAGG::GetPoint(int x, int y)
