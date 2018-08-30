@@ -1,10 +1,8 @@
 
 #include "IGraphics.h"
 
-#ifndef OS_WEB
 #define NANOSVG_IMPLEMENTATION
 #include "nanosvg.h"
-#endif
 
 #ifdef VST3_API
 #include "IPlugVST3.h"
@@ -19,7 +17,6 @@
 #include "IGraphicsLiveEdit.h"
 #include "IPerfDisplayControl.h"
 
-#ifndef OS_WEB
 struct SVGHolder
 {
   NSVGimage* mImage = nullptr;
@@ -37,13 +34,9 @@ struct SVGHolder
     mImage = nullptr;
   }
 };
-#endif
 
 static StaticStorage<APIBitmap> s_bitmapCache;
-
-#ifndef OS_WEB
 static StaticStorage<SVGHolder> s_SVGCache;
-#endif
 
 IGraphics::IGraphics(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : mDelegate(dlg)
@@ -698,11 +691,8 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 
   if(mPopupControl && mPopupControl->GetExpanded())
   {
-    if(mPopupControl->GetRECT().Contains(x, y))
-    {
-      mPopupControl->OnMouseDown(x, y, mod);
-      return;
-    }
+    mPopupControl->OnMouseDown(x, y, mod);
+    return;
   }
   
   if(mCornerResizer)
@@ -940,7 +930,7 @@ bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
   if (c >= 0)
   {
     IControl* pControl = mControls.Get(c);
-    if (pControl->MouseDblAsSingleClick())
+    if (pControl->GetMouseDblAsSingleClick())
     {
       mMouseCapture = c;
       pControl->OnMouseDown(x, y, mod);
@@ -1186,7 +1176,6 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 #endif
 }
 
-#ifndef OS_WEB
 #ifdef OS_WIN
 NSVGimage* LoadSVGFromWinResource(HINSTANCE hInst, const char* resid)
 {
@@ -1227,7 +1216,6 @@ ISVG IGraphics::LoadSVG(const char* name)
 
   return ISVG(pHolder->mImage);
 }
-#endif
 
 IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal)
 {

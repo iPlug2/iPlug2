@@ -72,12 +72,6 @@ public:
     SetWantsMidi(true);
   }
   
-  void Animate(double progress) override
-  {
-    mFlashCircleRadius = (float) progress * mMaxFlashCircleRadius;
-    SetDirty(false);
-  }
-  
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     int prevKey = mLastTouchedKey;
@@ -320,7 +314,7 @@ public:
     }
 
     if(GetAnimationFunction())
-      DefaultClickAnimation(g);
+      DrawFlashCircle(g);
     
 #ifdef _DEBUG
     //g.DrawRect(COLOR_GREEN, mTargetRECT);

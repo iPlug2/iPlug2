@@ -24,7 +24,8 @@
 struct IPlugInstanceInfo
 {};
 
-/**  */
+/** This is used for the UI "editor" - controller side of a WAM or remote editors that communicate with desktop iPlug plug-ins via web sockets
+ * @ingroup APIClasses */
 class IPlugWeb : public IPlugAPIBase
 {
 public:

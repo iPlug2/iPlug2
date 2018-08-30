@@ -26,8 +26,8 @@
 #include "ft2build.h"
 #include FT_FREETYPE_H
 #include "cairo/cairo-ft.h"
-#include "hb.h"
-#include "hb-ft.h"
+//#include "hb.h"
+//#include "hb-ft.h"
 #endif
 
 #include "IGraphicsPathBase.h"

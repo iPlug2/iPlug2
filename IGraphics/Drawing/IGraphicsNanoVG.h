@@ -5,8 +5,6 @@
 #include "nanovg.h"
 #include "IGraphicsPathBase.h"
 
-class PerfGraph;
-
 class NanoVGBitmap : public APIBitmap
 {
 public:

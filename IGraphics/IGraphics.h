@@ -71,7 +71,6 @@ public:
    * @param scale The scale of the display, typically 2 on a macOS retina screen */
   void SetDisplayScale(int scale) { mDisplayScale = (float) scale; OnResizeOrRescale(); };
   
-#ifndef OS_WEB
   /** Draw an SVG image to the graphics context
    * @param svg The SVG image to the graphics context
    * @param bounds The rectangular region to draw the image in
@@ -87,7 +86,7 @@ public:
    * @param angle The angle to rotate the bitmap mask at in degrees clockwise
    * @param pBlend Optional blend method, see IBlend documentation */
   virtual void DrawRotatedSVG(ISVG& svg, float destCentreX, float destCentreY, float width, float height, double angle, const IBlend* pBlend = 0) = 0;
-#endif
+
   /** Draw a bitmap (raster) image to the graphics context
    * @param bitmap The bitmap image to draw to the graphics context
    * @param bounds The rectangular region to draw the image in
@@ -905,12 +904,11 @@ public:
    * @return An IBitmap representing the image */
   virtual IBitmap LoadBitmap(const char* fileName, int nStates = 1, bool framesAreHorizontal = false);
 
-  #ifndef OS_WEB
   /** Load an SVG from disk
    * @param fileName A CString absolute path to the SVG on disk
    * @return An ISVG representing the image */
   virtual ISVG LoadSVG(const char* fileName);
-  #endif
+
   /** @param fileName The name of the font to load */
   virtual void LoadFont(const char* fileName) {};
     

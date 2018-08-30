@@ -20,7 +20,7 @@ from parse_config import parse_config, parse_xcconfig
 
 def main():
   config = parse_config(projectpath)
-  xcconfig = parse_xcconfig(projectpath + '/../../common.xcconfig')
+  xcconfig = parse_xcconfig(projectpath + '/../../common-mac.xcconfig')
 
   CFBundleGetInfoString = config['BUNDLE_NAME'] + " v" + config['FULL_VER_STR'] + " " + config['PLUG_COPYRIGHT']
   CFBundleVersion = config['FULL_VER_STR']

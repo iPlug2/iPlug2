@@ -19,15 +19,9 @@ class IVSwitchControl : public ISwitchControlBase
                       , public IVectorBase
 {
 public:
-  IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = DefaultClickActionFunc, const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2, EDirection dir = kVertical);
+  IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = FlashCircleClickActionFunc, const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2, EDirection dir = kVertical);
 
   void Draw(IGraphics& g) override;
-
-  void Animate(double progress) override
-  {
-    mFlashCircleRadius = (float) progress * mMaxFlashCircleRadius;
-    SetDirty(false);
-  }
 
 protected:
   WDL_String mStr;
@@ -58,7 +52,6 @@ protected:
   float mAngleMin, mAngleMax;
 };
 
-#ifndef OS_WEB
 /** A vector knob control which rotates an SVG image */
 class IVSVGKnob : public IKnobControlBase
 {
@@ -89,7 +82,6 @@ private:
   float mStartAngle = -135.f;
   float mEndAngle = 135.f;
 };
-#endif
 
 class IVSliderControl : public ISliderControlBase
                       , public IVectorBase

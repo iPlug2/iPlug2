@@ -13,9 +13,7 @@
 #include "swell.h"
 #endif
 
-#ifndef OS_WEB
 #include "nanosvg.h"
-#endif
 
 #include "IPlugPlatform.h"
 #include "IGraphicsConstants.h"
@@ -30,8 +28,10 @@ typedef std::function<void(IControl*)> IActionFunction;
 typedef std::function<void(IControl*)> IAnimationFunction;
 typedef std::function<void(IControl*, IGraphics&, IRECT&, IMouseInfo&, double)> IDrawFunction;
 
-void DefaultAnimationFunc(IControl* pCaller);
 void DefaultClickActionFunc(IControl* pCaller);
+void DefaultAnimationFunc(IControl* pCaller);
+void FlashCircleClickActionFunc(IControl* pCaller);
+void FlashCircleClickAnimationFunc(IControl* pCaller);
 
 typedef std::chrono::high_resolution_clock Time;
 typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimePoint;
@@ -184,8 +184,6 @@ private:
   WDL_String mResourceName;
 };
 
-#ifndef OS_WEB
-
 struct ISVG
 {
   NSVGimage* mImage = nullptr;
@@ -212,8 +210,6 @@ struct ISVG
       return 0;
   }
 };
-
-#endif
 
 /** Used to manage Color data, independant of draw class/platform.*/
 struct IColor

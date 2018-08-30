@@ -24,8 +24,7 @@
 
 /** The lowest level base class of an IGraphics control. A control is anything on the GUI, it could be a static bitmap, or something that moves or changes.  The control could manipulate bitmaps or do run-time vector drawing, or whatever.
  * Some controls respond to mouse actions, either by moving a bitmap, transforming a bitmap, or cycling through a set of bitmaps.
- * Other controls are readouts only.
- */
+ * Other controls are readouts only. */
 class IControl
 #ifdef VST3_API
 : public Steinberg::Vst::IContextMenuTarget
@@ -43,162 +42,308 @@ public:
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
   IControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
   
+  /** Constructor (no paramIdx)
+   * @param dlg The class implementing the IEditorDelegate interface that will handle parameter changes.
+   * In a plug-in, this would typically be your main plug-in class
+   * If you're doing something using IGraphics on its own (e.g. drawing into an extra window), you need to implement the IEditorDelegate interface somewhere
+   * to handle dummy "parameter" changes.
+   * @param bounds The rectangular area that the control occupies
+   * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
   IControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc);
 
+  /** Destructor. Clean up any resources that your control owns. */
   virtual ~IControl() {}
 
+  /** Implement this method to respond to a mouse down event on this control. 
+   * @param x The X coordinate of the mouse event
+   * @param y The Y coordinate of the mouse event
+   * @param mod A struct indicating which modifier keys are held for the event */
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod);
+
+/** Implement this method to respond to a mouse up event on this control. 
+   * @param x The X coordinate of the mouse event
+   * @param y The Y coordinate of the mouse event
+   * @param mod A struct indicating which modifier keys are held for the event */
   virtual void OnMouseUp(float x, float y, const IMouseMod& mod) {}
+
+  /** Implement this method to respond to a mouse drag event on this control. 
+   * @param x The X coordinate of the mouse event
+   * @param y The Y coordinate of the mouse event
+   * @param dX The X delta (difference) since the last event
+   * @param dY The Y delta (difference) since the last event
+   * @param mod A struct indicating which modifier keys are held for the event */
   virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) {}
+   
+  /** Implement this method to respond to a mouse double click event on this control. 
+   * @param x The X coordinate of the mouse event
+   * @param y The Y coordinate of the mouse event
+   * @param mod A struct indicating which modifier keys are held for the event */
   virtual void OnMouseDblClick(float x, float y, const IMouseMod& mod);
+
+  /** Implement this method to respond to a mouse wheel event on this control. 
+   * @param x The X coordinate of the mouse event
+   * @param y The Y coordinate of the mouse event
+   * @param mod A struct indicating which modifier keys are held for the event 
+   * @param d The delta value (difference) since the last mouse wheel event */
   virtual void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) {};
+
+  /** Implement this method to respond to a key down event on this control. 
+   * @param x The X coordinate of the mouse at the time of this key down event
+   * @param y The Y coordinate of the mouse at the time of this key down event
+   * @param key The key that was pressed, see EIPlugKeycodes */
   virtual bool OnKeyDown(float x, float y, int key) { return false; }
 
-  // For efficiency, mouseovers/mouseouts are ignored unless you call IGraphics::HandleMouseOver.
+  /** Implement this method to respond to a mouseover event on this control. Implementations should call base class, if you wish to use mMouseIsOver.
+   * @param x The X coordinate of the mouse event
+   * @param y The Y coordinate of the mouse event
+   * @param mod A struct indicating which modifier keys are held for the event */
   virtual void OnMouseOver(float x, float y, const IMouseMod& mod) { mMouseIsOver = true; SetDirty(false); }
+
+  /** Implement this method to respond to a mouseout event on this control. Implementations should call base class, if you wish to use mMouseIsOver. */
   virtual void OnMouseOut() { mMouseIsOver = false; SetDirty(false);  }
 
-  /** Implement to do something when something was drag n dropped onto this control */
+  /** Implement to do something when something was drag 'n dropped onto this control */
   virtual void OnDrop(const char* str) {};
 
   /** Implement to do something when graphics is scaled globally (e.g. moves to high DPI screen) */
   virtual void OnRescale() {}
 
-  /** Called when IControl is constructed or resized using SetRect(). NOTE: if you call SetDirty() in this method, you should pass false as the argument to avoid triggering parameter changes */
+  /** Called when IControl is constructed or resized using SetRect(). NOTE: if you call SetDirty() in this method, you should call SetDirty(false) to avoid triggering parameter changes */
   virtual void OnResize() {}
   
+  /** Implement to receive messages sent to the control, see IEditorDelegate:SendControlMsgFromDelegate() */
   virtual void OnMsgFromDelegate(int messageTag, int dataSize, const void* pData) {};
   
+  /** Implement to receive MIDI messages sent to the control if mWantsMidi == true, see IEditorDelegate:SendMidiMsgFromDelegate() */
   virtual void OnMidi(const IMidiMsg& msg) {};
 
   /** Called by default when the user right clicks a control. If IGRAPHICS_NO_CONTEXT_MENU is enabled as a preprocessor macro right clicking control will mean IControl::CreateContextMenu() and IControl::OnContextSelection() do not function on right clicking control. VST3 provides contextual menu support which is hard wired to right click controls by default. You can add custom items to the menu by implementing IControl::CreateContextMenu() and handle them in IControl::OnContextSelection(). In non-VST 3 hosts right clicking will still create the menu, but it will not feature entries added by the host. */
   virtual void CreateContextMenu(IPopupMenu& contextMenu) {}
   
-  /** @param pSelectedMenu If pSelectedMenu is invalid it means the user didn't select anything*/
+  /** Implement this method to hand popup menu selection after IGraphics::CreatePopupMenu/IControl::PromptUserInput
+   * @param pSelectedMenu If pSelectedMenu is invalid it means the user didn't select anything */
   virtual void OnPopupMenuSelection(IPopupMenu* pSelectedMenu);
 
+  /** Implement this method to hand text input after IGraphics::CreateTextEntry/IControl::PromptUserInput
+   * @param str A CString with the inputted text */
   virtual void OnTextEntryCompletion(const char* str) {}
 
-  /** Called in response to a menu selection from CreateContextMenu(); /see CreateContextMenu() */
+  /** Implement this to respond to a menu selection from CreateContextMenu(); /see CreateContextMenu() */
   virtual void OnContextSelection(int itemSelected) {}
 
-  // By default, mouse double click has its own handler.  A control can set mDblAsSingleClick to true to change,
-  // which maps double click to single click for this control (and also causes the mouse to be
-  // captured by the control on double click).
-  bool MouseDblAsSingleClick() { return mDblAsSingleClick; }
-
+  /** Draw the control to the graphics context. 
+   * @param g The graphics context to which this control belongs. */
   virtual void Draw(IGraphics& g) = 0;
 
+  /** Implement this to customise how a colored highlight is drawn on the control in ProTools (AAX format only), when a control is linked to a parameter that is automated.
+   * @param g The graphics context to which this control belongs. */
   virtual void DrawPTHighlight(IGraphics& g);
-  virtual void SetPTParameterHighlight(bool isHighlighted, int color);
 
-  /** Create an edit box so the user can enter a value for this control, or pop up a pop-up menu, if we are linked to a parameter. */
+  /** Call this method in reponse to a mouse event to create an edit box so the user can enter a value, or pop up a pop-up menu,
+   * if the control is linked to a parameter (mParamIdx > kNoParameter) */
   void PromptUserInput();
   
-  /** Create an edit box so the user can enter a value for this control, or pop up a pop-up menu,
-   * if we are linked to a parameter, specifying bounds for the text entry/pop-up menu corner */
-  void PromptUserInput(IRECT& bounds);
+  /** Create a text entry box so the user can enter a value, or pop up a pop-up menu,
+   * if the control is linked to a parameter (mParamIdx > kNoParameter), specifying the bounds
+   * @param bounds The rectangle for the text entry. Pop-up menu's will appear below the rectangle. /todo check */
+  void PromptUserInput(const IRECT& bounds);
   
+  /** Set an Action Function for this control. 
+   * actionfunc /see Action Functions */
   inline void SetActionFunction(IActionFunction actionFunc) { mActionFunc = actionFunc; }
 
-  /** @param tooltip Text to be displayed */
+  /** Set a tooltip for the control
+   * @param str CString tooltip to be displayed */
   inline void SetTooltip(const char* str) { mTooltip.Set(str); }
   
   /** @return Currently set tooltip text */
   inline const char* GetTooltip() const { return mTooltip.Get(); }
 
-  /** @return Parameter index */
+  /** Get the index of the parameter that this control is meant to display
+   * @return Parameter index, or kNoParameter if there is no parameter linked with this control */
   int ParamIdx() const { return mParamIdx; }
+  
+  /** Get a const pointer to the IParam object (owned by the editor delegate class), associated with this control
+   * @return const pointer to an IParam or nullptr if the control is not associated with a parameter */ 
   const IParam* GetParam();
   
+  /** Assign the control to a control group /see Control Groups
+   * @param groupName A CString indicating the control group that this control should belong to */
   void SetGroup(const char* groupName) { mGroup.Set(groupName); }
+
+  /** Get the group that the control belongs to, if any
+   * @return A CString indicating the control group that this control belongs to (may be empty) */
   const char* GetGroup() const { return mGroup.Get(); }
   
-  /** This method is called from the class implementing the IEditorDelegate interface in order to update a controls mValue and set it to be marked
-   dirty for redraw. This either happens on a parameter changing value or if this control is not linked to a parameter (mParamIdx = kNoParameter);
-   @param value Normalised incoming value */
+  /** Set the control's value from the delegate
+   * This method is called from the class implementing the IEditorDelegate interface in order to update a control's mValue member and set it to be marked
+   * dirty for redraw. 
+   * @param value Normalised incoming value */
   virtual void SetValueFromDelegate(double value);
   
-  /** This method is called after a text entry or popup menu prompt triggered by PromptUserInput();
-   * @param value the normalised value after user input via text entry or pop-up menu
-   * it calls SetDirty(true), which will mean that the new value gets sent back to the delegate */
+  /** Set the control's value after user input.
+   * This method is called after a text entry or popup menu prompt triggered by PromptUserInput(), calling SetDirty(true), which will mean that the new value gets sent back to the delegate
+   * @param value the normalised value after user input via text entry or pop-up menu */
   virtual void SetValueFromUserInput(double value);
   
-  /** @return Value of the control */
+  /** Get the control's value
+   * @return Value of the control (normalized in the range 0-1) */
   double GetValue() const { return mValue; }
 
+  /** Get the Text object for the control
+   * @return const IText& The control's mText object, typically used to determine font/layout/size etc of the main text in a control. */
   const IText& GetText() const { return mText; }
-  int GetTextEntryLength() const { return mTextEntryLength; }
-  void SetTextEntryLength(int len) { mTextEntryLength = len;  }
+
+  /** Set the Text object typically used to determine font/layout/size etc of the main text in a control
+   * @param txt An IText struct with the desired formatting */
   void SetText(const IText& txt) { mText = txt; }
-  const IRECT& GetRECT() const { return mRECT; } // The draw area for this control.
+
+  /** Get the max number of characters that are allowed in text entry 
+   * @return int The max number of characters allowed in text entry */
+  int GetTextEntryLength() const { return mTextEntryLength; }
+
+  /** Set the max number of characters that are allowed in text entry 
+   * @param len The max number of characters allowed in text entry */
+  void SetTextEntryLength(int len) { mTextEntryLength = len;  }
+  
+  /** Get the rectangular draw area for this control, within the graphics context
+   * @return The control's bounds */
+  const IRECT& GetRECT() const { return mRECT; }
+
+  /** Set the rectangular draw area for this control, within the graphics context
+   * @param bounds The control's bounds */
   void SetRECT(const IRECT& bounds) { mRECT = bounds; mMouseIsOver = false; OnResize(); }
+  
+  /** Get the rectangular mouse tracking target area, within the graphics context for this control
+   * @return The control's target bounds within the graphics context */
   const IRECT& GetTargetRECT() const { return mTargetRECT; } // The mouse target area (default = draw area).
+
+  /** Set the rectangular mouse tracking target area, within the graphics context for this control
+   * @param The control's new target bounds within the graphics context */
   void SetTargetRECT(const IRECT& bounds) { mTargetRECT = bounds; mMouseIsOver = false; }
+  
+  /** Set BOTH the draw rect and the target area, within the graphics context for this control
+   * @param The control's new draw and target bounds within the graphics context */
   void SetTargetAndDrawRECTs(const IRECT& bounds) { mRECT = mTargetRECT = bounds; mMouseIsOver = false; OnResize(); }
+
+  /** Used internally by the AAX wrapper view interface to set the control parmeter highlight 
+   * @param isHighlighted /c true if the control should be highlighted 
+   * @param color An integer representing one of three colors that ProTools assigns automated controls */
+  void SetPTParameterHighlight(bool isHighlighted, int color);
+  
+  /** Get double click as single click 
+   * By default, mouse double click has its own handler. A control can set mDblAsSingleClick to true 
+   * which maps double click to single click for this control (and also causes the mouse to be captured by the control on double click).
+   * @return /c true if double clicks should be mapped to single clicks */
+  bool GetMouseDblAsSingleClick() { return mDblAsSingleClick; }
+
   /** Shows or hides the IControl.
-   * @param hide Set to true to hide the control */
+   * @param hide Set to \c true to hide the control */
   virtual void Hide(bool hide);
   
   /** @return \c true if the control is hidden. */
   bool IsHidden() const { return mHide; }
 
-  /** Sets grayout for the control to be true or false
+  /** Sets gray out mode for the control
    * @param gray \c true for grayed out*/
   virtual void GrayOut(bool gray);
   
   /** @return \c true if the control is grayed */
   bool IsGrayed() const { return mGrayed; }
 
+  /** Specify whether the control should respond to mouse overs when grayed out
+   * @param allow \c true if it should resond to mouse overs when grayed out (false by default) */
   void SetMOWhenGrayed(bool allow) { mMOWhenGrayed = allow; }
+
+  /** Specify whether the control should respond to other mouse events when grayed out
+   * @param allow \c true if it should resond to other mouse events when grayed out (false by default) */
   void SetMEWhenGrayed(bool allow) { mMEWhenGrayed = allow; }
+
+  /** @return \c true if the control responds to mouse overs when grayed out */
   bool GetMOWhenGrayed() const { return mMOWhenGrayed; }
+
+  /** @return \c true if the control responds to other mouse events when grayed out */
   bool GetMEWhenGrayed() const { return mMEWhenGrayed; }
+  
+  /** @return \c true if the control ignores mouse events */
   bool GetIgnoreMouse() const { return mIgnoreMouse; }
 
-  // Override if you want the control to be hit only if a visible part of it is hit, or whatever.
+  /** Hit test the control. Override this method if you want the control to be hit only if a visible part of it is hit, or whatever.
+   * @param x The X coordinate within the control to test 
+   * @param y The y coordinate within the control to test
+   * @return \c Return true if the control was hit. */
   virtual bool IsHit(float x, float y) const { return mTargetRECT.Contains(x, y); }
 
+  /** Set a control which should display the value of the parameter that this control is linked to when this control is modified with the mouse  
+  * @param pValDisplayControl A pointer to an IControl which should display values. */
   void SetValDisplayControl(IControl* pValDisplayControl) { mValDisplayControl = pValDisplayControl; }
+  
+  /** Set a control which should display the name of the parameter that this control is linked to when this control is modified with the mouse  
+  * @param pValDisplayControl A pointer to an IControl which should display parameter names. */
   void SetNameDisplayControl(IControl* pNameDisplayControl) { mNameDisplayControl = pNameDisplayControl; }
 
+  /** Mark the control as dirty, i.e. it should be redrawn on the next display refresh
+   * @param triggerAction If this is true and the control is linked to a parameter (i.e. mParamidx > kNoParameter) 
+   * notify the class implementing the IEditorDelegate interface that the parameter changed. If this control has an ActionFunction, that can also be triggered.
+   * NOTE: it is easy to forget that this method always sets the control dirty, the argument is about whether a consective action should be performed */
   virtual void SetDirty(bool triggerAction = true);
-  virtual void SetClean();
-  
-  virtual bool IsDirty()
-  {
-    if(mAnimationFunc)
-      mAnimationFunc(this);
-    
-    return mDirty;
-  } // This is not const, because it may be overridden and used to update something at the fps
-  
-  void Clamp(double lo, double hi) { mClampLo = lo; mClampHi = hi; }
-  void DisablePrompt(bool disable) { mDisablePrompt = disable; }  // Disables the right-click manual value entry.
 
-  // This is an idle call from the GUI thread
-  // Only active if USE_IDLE_CALLS is defined.
+  /* Set the control clean, i.e. Called by IGraphics draw loop after control has been drawn */
+  virtual void SetClean() { mDirty = false; }
+  
+  /** Called at each display refresh by the IGraphics draw loop to determine if the control is marked as dirty. 
+   * This is not const, because it is typically  overridden and used to update something at the display refresh rate
+   * The default implementation exectutes a control's Animation Function, so if you override this you may want to call the base implementation, /see Animation Functions
+   * @return \c true if the control is marked dirty. */
+  virtual bool IsDirty();
+
+  /** Set a range with which to limit the control's movement
+   * @param lo The low bounds of the clamp (should be within the range 0-1)
+   * @param hi The high bounds of the clamp (should be within the range 0-1) */
+  void Clamp(double lo, double hi) { mClampLo = lo; mClampHi = hi; }
+
+  /** Disable/enable right-clicking the control to prompt for user input /todo check this
+   * @param disable \c true*/
+  void DisablePrompt(bool disable) { mDisablePrompt = disable; }
+
+  /** This is an idle call from the GUI thread, only active if USE_IDLE_CALLS is defined. /todo check this */
   virtual void OnGUIIdle() {}
   
+  /** Set the control's tag. Controls can be given tags, in order to direct messages to them. /see Control Tags
+   * @param tag A unique integer to identify this control */
   void SetTag(int tag) { mTag = tag; }
+  
+  /** Get the control's tag. /see Control Tags */
   int GetTag() const { return mTag; }
   
+  /** Specify whether this control wants to know about MIDI messages sent to the UI. See OnMIDIMsg() */
   void SetWantsMidi(bool enable) { mWantsMidi = true; }
-  bool WantsMidi() { return mWantsMidi; }
+
+  /** @return /c true if this control wants to know about MIDI messages send to the UI. See OnMIDIMsg() */
+  bool GetWantsMidi() const { return mWantsMidi; }
 
   /** Gets a pointer to the class implementing the IEditorDelegate interface that handles parameter changes from this IGraphics instance.
    * If you need to call other methods on that class, you can use static_cast<PLUG_CLASS_NAME>(GetDelegate();
-   * @return The class implementing the IEditorDelegate interface that handles parameter changes from this IGraphics instance.*/
+   * @return The class implementing the IEditorDelegate interface that handles communication to/from from this IGraphics instance.*/
   IEditorDelegate* GetDelegate() { return &mDelegate; }
   
+  /** Used internally to set the mGraphics variable */
   void SetGraphics(IGraphics* pGraphics) { mGraphics = pGraphics; }
+  
+  /** @return A pointer to the IGraphics context that owns this control */ 
   IGraphics* GetUI() { return mGraphics; }
 
-  bool GetMouseIsOver() { return mMouseIsOver; }
+  /* This can be used in IControl::Draw() to check if the mouse is over the control, without implementing mouse over methods 
+   * @return \true if the mouse is over this control. */
+  bool GetMouseIsOver() const { return mMouseIsOver; }
   
+  /** Set control value based on x, y position within a rectangle. Commonly used for slider/fader controls.
+   * @param x The X coordinate for snapping
+   * @param y The Y coordinate for snapping
+   * @param direction The direction of the control's travel- horizontal or vertical fader
+   * @param bounds The area in which the track of e.g. a slider should be snapped
+   * @param scalar A scalar to speedup/slowdown mousing along the track */
   virtual void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar = 1.);
-  
-  virtual void Animate(double progress) {}
 
   virtual void OnEndAnimation() // if you override this you must call the base implementation, to free mAnimationFunc
   {
@@ -206,14 +351,12 @@ public:
     SetDirty(false);
   }
   
-  
   /** @param duration Duration in milliseconds for the animation  */
   void StartAnimation(int duration)
   {
     mAnimationStartTime = std::chrono::high_resolution_clock::now();
     mAnimationDuration = Milliseconds(duration);
   }
-  
   
   /** Set the animation function
    * @param func A std::function conforming to IAnimationFunction */
@@ -433,6 +576,7 @@ public:
   void SetEmboss(bool emboss) { mEmboss = emboss; mControl->SetDirty(false); }
   void SetShadowOffset(float offset) { mShadowOffset = offset; mControl->SetDirty(false); }
   void SetFrameThickness(float thickness) { mFrameThickness = thickness; mControl->SetDirty(false); }
+  void SetFlashCircleRadius(float radius) { mFlashCircleRadius = radius * mMaxFlashCircleRadius; }
 
   void Style(bool drawFrame, bool drawShadows, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec)
   {
@@ -456,7 +600,7 @@ public:
     return handleBounds;
   }
   
-  void DefaultClickAnimation(IGraphics& g)
+  void DrawFlashCircle(IGraphics& g)
   {
     float mouseDownX, mouseDownY;
     g.GetMouseDownPoint(mouseDownX, mouseDownY);
@@ -572,13 +716,13 @@ public:
     IControl::GrayOut(gray);
   }
 };
-#ifndef OS_WEB
+
 /** A basic control to draw an SVG image to the screen. */
 class ISVGControl : public IControl
 {
 public:
-  ISVGControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, ISVG& svg)
-    : IControl(dlg, bounds, paramIdx)
+  ISVGControl(IGEditorDelegate& dlg, IRECT bounds, ISVG& svg)
+    : IControl(dlg, bounds)
     , mSVG(svg)
   {}
 
@@ -593,7 +737,7 @@ private:
   //TODO: cache the SVG to intermediate bitmap?
   ISVG mSVG;
 };
-#endif
+
 
 /** A basic control to output text to the screen. */
 class ITextControl : public IControl
@@ -881,7 +1025,6 @@ public:
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override;
   
-  void Animate(double progress) override;
   void OnEndAnimation() override;
   
   //IPopupMenuControlBase

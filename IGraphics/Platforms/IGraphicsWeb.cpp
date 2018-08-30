@@ -174,7 +174,9 @@ bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String
       foundResource = GetPreloadedImages().call<bool>("hasOwnProperty", std::string(plusSlash.Get()));
     else if(strcmp(type, "ttf") == 0)
       foundResource = true; // TODO: check ttf
-      
+    else if(strcmp(type, "svg") == 0)
+      foundResource = true; // TODO: check svg
+    
     if(foundResource)
     {
       result.Set(plusSlash.Get());
