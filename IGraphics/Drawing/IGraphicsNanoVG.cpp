@@ -297,10 +297,7 @@ void IGraphicsNanoVG::BeginFrame()
 #endif
   
   nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetDisplayScale());
-
-  const float scale = GetScale();
-  
-  nvgScale(mVG, scale, scale);
+  nvgScale(mVG, GetScale(), GetScale());
 }
 
 void IGraphicsNanoVG::EndFrame()

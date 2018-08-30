@@ -79,7 +79,9 @@ private:
     
     nvgCurrentTransform(mVG, xform);
     nvgResetTransform(mVG);
+    nvgScale(mVG, GetScale(), GetScale());
     nvgScissor(mVG, r.L, r.T, r.W(), r.H());
+    nvgResetTransform(mVG);
     nvgTransform(mVG, xform[0], xform[1], xform[2], xform[3], xform[4], xform[5]);
   }
   
