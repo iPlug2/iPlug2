@@ -81,7 +81,7 @@ void IGraphicsCanvas::PathStroke(const IPattern& pattern, float thickness, const
     dashArray[i] = val(*(options.mDash.GetArray() + i));
   
   context.call<void>("setLineDash", dashArray);
-  context.set("context.lineDashOffset", options.mDash.GetOffset());
+  context.set("lineDashOffset", options.mDash.GetOffset());
   context.set("lineWidth", thickness);
   
   SetWebSourcePattern(pattern, pBlend);
