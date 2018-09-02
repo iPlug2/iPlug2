@@ -217,6 +217,14 @@ bool IGraphicsCanvas::DrawText(const IText& text, const char* str, IRECT& bounds
       case IText::kAlignCenter:   x = bounds.MW() - (textWidth / 2.0);    break;
       case IText::kAlignFar:      x = bounds.R - textWidth;               break;
     }
+    
+    switch (text.mVAlign)
+    {
+      case IText::EVAlign::kVAlignTop: y = bounds.T; break;
+      case IText::EVAlign::kVAlignMiddle: y = bounds.MH() - (textHeight/2.); break;
+      case IText::EVAlign::kVAlignBottom: y = bounds.B - textHeight; break;
+      default: break;
+    }
 
     PathStateSave();
     PathRect(bounds);
