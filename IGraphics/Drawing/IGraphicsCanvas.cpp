@@ -58,7 +58,6 @@ void IGraphicsCanvas::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX,
 void IGraphicsCanvas::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
 {
   val context = GetContext();
-  double dashArray[8];
   
   switch (options.mCapOption)
   {
@@ -75,11 +74,14 @@ void IGraphicsCanvas::PathStroke(const IPattern& pattern, float thickness, const
   }
   
   context.set("miterLimit", options.mMiterLimit);
-  /*
+    
+  val dashArray = val::array();
+  
   for (int i = 0; i < options.mDash.GetCount(); i++)
     dashArray[i] = *(options.mDash.GetArray() + i);
   
-  cairo_set_dash(mContext, dashArray, options.mDash.GetCount(), options.mDash.GetOffset());*/
+  context..call<void>("setLineDash", dashArray);
+  context.set("context.lineDashOffset", options.mDash.GetOffset());
   context.set("lineWidth", thickness);
   
   SetWebSourcePattern(pattern, pBlend);
