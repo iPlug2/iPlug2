@@ -9,6 +9,7 @@ LIB_PATH="$INSTALL_LOCATION/lib"
 BIN_PATH="$INSTALL_LOCATION/bin"
 LOG_PATH="$BASE_LOCATION"
 PKGCONFIG_VERSION=pkg-config-0.28
+PIXMAN_VERSION=pixman-0.34.0
 EXPAT_VERSION=expat-2.2.5
 PNG_VERSION=libpng-1.6.34
 
@@ -276,16 +277,16 @@ else
   COPTPX="-Wno-unknown-attributes -Wno-unused-command-line-argument -Wno-shift-negative-value -Wno-tautological-constant-out-of-range-compare"
   echo
   echo "Installing pixman"
-  if [ -e pixman-0.34.0.tar.gz ]
+  if [ -e $PIXMAN_VERSION.tar.gz ]
   then
     echo "Tarball Present..."
   else
     echo "Downloading..."
-    curl -L --progress-bar -O https://cairographics.org/releases/pixman-0.34.0.tar.gz
+    curl -L --progress-bar -O https://cairographics.org/releases/$PIXMAN_VERSION.tar.gz
   fi
   echo "Unpacking..."
-  tar -xf pixman-0.34.0.tar.gz
-  cd pixman-0.34.0
+  tar -xf $PIXMAN_VERSION.tar.gz
+  cd $PIXMAN_VERSION
   echo -n "Configuring..."
   echo "---------------------------- Configure pixman ----------------------------" >> $LOG_PATH/build.log 2>&1
   ./configure --enable-static --disable-dependency-tracking --disable-gtk --prefix "$INSTALL_LOCATION" PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" >> $LOG_PATH/build.log 2>&1 &
