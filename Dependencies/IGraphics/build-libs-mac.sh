@@ -412,7 +412,7 @@ else
   cd $CAIRO_VERSION
   echo -n "Configuring..."
   echo "---------------------------- Configure cairo ----------------------------" >> $LOG_PATH/build.log 2>&1
-  ./configure --disable-dependency-tracking --enable-svg=no --enable-pdf=no --enable-ps=no --enable-fc=no --enable-quartz-image=yes --disable-shared --enable-static CFLAGS="$CFLAGS $COPTCR" --prefix "$INSTALL_LOCATION" PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" LDFLAGS="$LDFLAGS -framework CoreFoundation -framework CoreGraphics -framework CoreText" >> $LOG_PATH/build.log 2>&1 &
+  ./configure --disable-shared --enable-static --disable-dependency-tracking --disable-svg --disable-pdf --disable-ps --disable-fc --enable-quartz-image=yes --disable-interpreter --disable-trace CFLAGS="$CFLAGS $COPTCR" --prefix "$INSTALL_LOCATION" PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" LDFLAGS="$LDFLAGS -framework CoreFoundation -framework CoreGraphics -framework CoreText" >> $LOG_PATH/build.log 2>&1 &
   spin
   echo "done."
   echo -n "Building..."
