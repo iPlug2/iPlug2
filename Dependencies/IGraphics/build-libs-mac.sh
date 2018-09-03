@@ -302,9 +302,10 @@ else
   spin
   echo "done."
   echo
+  cp pixman-1.pc "$LIB_PATH/pkgconfig/pixman-1.pc"
   #Must remove this after build, as building without them fails
-  #rm "$LIB_PATH/libpixman-1.0.dylib"
-  #rm "$LIB_PATH/libpixman-1.dylib"
+  rm "$LIB_PATH/libpixman-1.0.dylib"
+  rm "$LIB_PATH/libpixman-1.dylib"
   echo "pixman Installed!"
   echo
   cd "$BUILD_LOCATION"
