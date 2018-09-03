@@ -8,6 +8,7 @@ INCLUDE_PATH="$INSTALL_LOCATION/include"
 LIB_PATH="$INSTALL_LOCATION/lib"
 BIN_PATH="$INSTALL_LOCATION/bin"
 LOG_PATH="$BASE_LOCATION"
+PKGCONFIG_VERSION=pkg-config-0.28
 
 err_report() {
     echo
@@ -121,16 +122,16 @@ then
   echo "Found pkg-config"
 else
   echo "Installing pkg-config"
-  if [ -e pkg-config-0.28.tar.gz ]
+  if [ -e $PKGCONFIG_VERSION.tar.gz ]
   then
     echo "Tarball Present..."
   else
     echo "Downloading..."
-    curl -L --progress-bar -O https://pkg-config.freedesktop.org/releases/pkg-config-0.28.tar.gz
+    curl -L --progress-bar -O https://pkg-config.freedesktop.org/releases/$PKGCONFIG_VERSION.tar.gz
   fi
   echo "Unpacking..."
-  tar xfz pkg-config-0.28.tar.gz
-  cd pkg-config-0.28
+  tar xfz $PKGCONFIG_VERSION.tar.gz
+  cd $PKGCONFIG_VERSION
   echo -n "Configuring..."
   echo "---------------------------- Configure pkg-config ----------------------------" >> $LOG_PATH/build.log 2>&1
   ./configure CFLAGS="-Os -arch x86_64" LDFLAGS="-arch x86_64" --prefix "$INSTALL_LOCATION" --with-internal-glib >> $LOG_PATH/build.log 2>&1 &
