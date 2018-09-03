@@ -9,6 +9,8 @@ LIB_PATH="$INSTALL_LOCATION/lib"
 BIN_PATH="$INSTALL_LOCATION/bin"
 LOG_PATH="$BASE_LOCATION"
 PKGCONFIG_VERSION=pkg-config-0.28
+PNG_VERSION=libpng-1.6.34
+
 
 err_report() {
     echo
@@ -235,16 +237,16 @@ then
 else
   echo
   echo "Installing libpng"
-  if [ -e libpng-1.6.34.tar.xz ]
+  if [ -e $PNG_VERSION.tar.xz ]
   then
     echo "Tarball Present..."
   else
     echo "Downloading..."
-    curl -L --progress-bar -O http://github.com/glennrp/libpng-releases/raw/master/libpng-1.6.34.tar.xz
+    curl -L --progress-bar -O http://github.com/glennrp/libpng-releases/raw/master/$PNG_VERSION.tar.xz
   fi
   echo "Unpacking..."
-  tar -xf libpng-1.6.34.tar.xz
-  cd libpng-1.6.34
+  tar -xf $PNG_VERSION.tar.xz
+  cd $PNG_VERSION
   echo -n "Configuring..."
   echo "---------------------------- Configure libpng ----------------------------" >> $LOG_PATH/build.log 2>&1
   ./configure --disable-dependency-tracking --enable-static --disable-shared --prefix "$INSTALL_LOCATION" >> $LOG_PATH/build.log 2>&1 &
