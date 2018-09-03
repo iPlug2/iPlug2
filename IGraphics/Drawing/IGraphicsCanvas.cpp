@@ -78,7 +78,7 @@ void IGraphicsCanvas::PathStroke(const IPattern& pattern, float thickness, const
   val dashArray = val::array();
   
   for (int i = 0; i < options.mDash.GetCount(); i++)
-    dashArray[i] = val(*(options.mDash.GetArray() + i));
+    dashArray.call<void>("push", val(*(options.mDash.GetArray() + i)));
   
   context.call<void>("setLineDash", dashArray);
   context.set("lineDashOffset", options.mDash.GetOffset());
