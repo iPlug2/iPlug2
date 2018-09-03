@@ -432,12 +432,12 @@ fi
 #rm -r $INSTALL_LOCATION/bin/
 
 echo "Verify UB Builds..."
-file "$LIB_PATH/libbz2.a"
-file "$LIB_PATH/libexpat.a"
+# file "$LIB_PATH/libbz2.a"
+# file "$LIB_PATH/libexpat.a"
 file "$LIB_PATH/libz.a"
 file "$LIB_PATH/libpixman-1.a"
 file "$LIB_PATH/libpng16.a"
 file "$LIB_PATH/libfreetype.a"
-file "$LIB_PATH/libfontconfig.a"
+# file "$LIB_PATH/libfontconfig.a"
 file "$LIB_PATH/libcairo.a"
 exit
