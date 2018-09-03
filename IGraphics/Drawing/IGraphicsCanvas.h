@@ -52,7 +52,7 @@ public:
 
   void PathTransformTranslate(float x, float y) override { GetContext().call<void>("translate", x, y); }
   void PathTransformScale(float scaleX, float scaleY) override { GetContext().call<void>("scale", scaleX, scaleY); }
-  void PathTransformRotate(float angle) override { GetContext().call<void>("rotate", angle); }
+  void PathTransformRotate(float angle) override { GetContext().call<void>("rotate", DegToRad(angle)); }
 
   IColor GetPoint(int x, int y) override { return COLOR_BLACK; } // TODO:
   void* GetDrawContext() override { return nullptr; } // TODO:
