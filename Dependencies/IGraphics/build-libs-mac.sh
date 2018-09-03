@@ -8,6 +8,8 @@ INCLUDE_PATH="$INSTALL_LOCATION/include"
 LIB_PATH="$INSTALL_LOCATION/lib"
 BIN_PATH="$INSTALL_LOCATION/bin"
 LOG_PATH="$BASE_LOCATION"
+CAIRO_VERSION=cairo-1.15.12
+FREETYPE_VERSION=freetype-2.9
 PKGCONFIG_VERSION=pkg-config-0.28
 PIXMAN_VERSION=pixman-0.34.0
 EXPAT_VERSION=expat-2.2.5
@@ -317,23 +319,19 @@ then
 else
   echo
   echo "Installing freetype"
-  if [ -e freetype-2.9.tar.bz2 ] || [ -e freetype-2.9.tar ]
+  if [ -e $FREETYPE_VERSION.tar.gz ]
   then
     echo "Tarball Present..."
   else
     echo "Downloading..."
-    curl  --progress-bar -O --disable-epsv https://ftp.osuosl.org/pub/blfs/conglomeration/freetype/freetype-2.9.tar.bz2
+    curl  --progress-bar -OL --disable-epsv https://download.savannah.gnu.org/releases/freetype/$FREETYPE_VERSION.tar.gz
   fi
   echo "Unpacking..."
-  if [ ! -e freetype-2.9.tar ]
-  then
-    "$INSTALL_LOCATION/bin/bunzip2" "$BUILD_LOCATION/freetype-2.9.tar.bz2"
-  fi
-  tar -xjf freetype-2.9.tar
-  cd freetype-2.9
+  tar -xf $FREETYPE_VERSION.tar.gz
+  cd $FREETYPE_VERSION
   echo -n "Configuring..."
   echo "---------------------------- Configure freetype ----------------------------" >> $LOG_PATH/build.log 2>&1
-  ./configure --prefix "$INSTALL_LOCATION" --disable-shared --enable-biarch-config BZIP2_CFLAGS="-I$INCLUDE_PATH" BZIP2_LIBS="-L$LIB_PATH" PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" >> $LOG_PATH/build.log 2>&1 &
+  ./configure --prefix "$INSTALL_LOCATION" --disable-shared --enable-biarch-config --without-zlib --without-bzip2 PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" >> $LOG_PATH/build.log 2>&1 &
   spin
   echo "done."
   echo -n "Building..."
