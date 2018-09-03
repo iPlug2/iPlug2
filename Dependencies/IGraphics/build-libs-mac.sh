@@ -9,6 +9,7 @@ LIB_PATH="$INSTALL_LOCATION/lib"
 BIN_PATH="$INSTALL_LOCATION/bin"
 LOG_PATH="$BASE_LOCATION"
 PKGCONFIG_VERSION=pkg-config-0.28
+EXPAT_VERSION=expat-2.2.5
 PNG_VERSION=libpng-1.6.34
 
 
@@ -87,33 +88,33 @@ fi
 #######################################################################
 
 #bzip
-if [ -e $LIB_PATH/libbz2.a ]
-then
-  echo "Found bzip2"
-else
-  echo
-  echo "Installing bzip2"
-  if [ -e bzip2-1.0.6.tar.gz ]
-  then
-    echo "Tarball Present..."
-  else
-    echo "Downloading..."
-    curl -O -L --progress-bar http://www.bzip.org/1.0.6/bzip2-1.0.6.tar.gz
-  fi
-  echo "Unpacking..."
-  tar -xf bzip2-1.0.6.tar.gz >> $LOG_PATH/build.log 2>&1
-  cd bzip2-1.0.6
-  echo -n "Building..."
-  echo "---------------------------- Build bzip2 ----------------------------" >> $LOG_PATH/build.log 2>&1
-  make CFLAGS="$CFLAGS -Wno-format" PREFIX="$INSTALL_LOCATION" -s install >> $LOG_PATH/build.log 2>&1 &
-  spin
-  make -s clean >> $LOG_PATH/build.log 2>&1 &
-  spin
-  echo "done."
-  echo "bzip2 Installed!"
-  echo
-  cd "$BUILD_LOCATION"
-fi
+# if [ -e $LIB_PATH/libbz2.a ]
+# then
+#   echo "Found bzip2"
+# else
+#   echo
+#   echo "Installing bzip2"
+#   if [ -e bzip2-1.0.6.tar.gz ]
+#   then
+#     echo "Tarball Present..."
+#   else
+#     echo "Downloading..."
+#     curl -O -L --progress-bar http://www.bzip.org/1.0.6/bzip2-1.0.6.tar.gz
+#   fi
+#   echo "Unpacking..."
+#   tar -xf bzip2-1.0.6.tar.gz >> $LOG_PATH/build.log 2>&1
+#   cd bzip2-1.0.6
+#   echo -n "Building..."
+#   echo "---------------------------- Build bzip2 ----------------------------" >> $LOG_PATH/build.log 2>&1
+#   make CFLAGS="$CFLAGS -Wno-format" PREFIX="$INSTALL_LOCATION" -s install >> $LOG_PATH/build.log 2>&1 &
+#   spin
+#   make -s clean >> $LOG_PATH/build.log 2>&1 &
+#   spin
+#   echo "done."
+#   echo "bzip2 Installed!"
+#   echo
+#   cd "$BUILD_LOCATION"
+# fi
 
 #######################################################################
 
@@ -157,39 +158,39 @@ fi
 #######################################################################
 
 #expat
-if [ -e "$LIB_PATH/libexpat.a" ]
-then
-  echo "Found expat"
-else
-  echo
-  echo "Installing expat"
-  if [ -e expat-2.2.5.tar.bz2 ]
-  then
-    echo "Tarball Present..."
-  else
-    echo "Downloading..."
-    curl -L --progress-bar -O https://github.com/libexpat/libexpat/releases/download/R_2_2_5/expat-2.2.5.tar.bz2
-  fi
-  echo "Unpacking..."
-  tar -jxf "expat-2.2.5.tar.bz2"
-  cd expat-2.2.5
-  echo -n "Configuring..."
-  echo "---------------------------- Configure expat ----------------------------" >> $LOG_PATH/build.log 2>&1
-  ./configure --disable-shared --enable-static --prefix "$INSTALL_LOCATION" >> $LOG_PATH/build.log 2>&1 &
-  spin
-  echo "done."
-  echo -n "Building..."
-  echo "---------------------------- Build expat ----------------------------" >> $LOG_PATH/build.log 2>&1
-  make -s install >> $LOG_PATH/build.log 2>&1 &
-  spin
-  make -s clean >> $LOG_PATH/build.log 2>&1 &
-  spin
-  echo "done."
-  echo
-  echo "expat Installed!"
-  echo
-  cd "$BUILD_LOCATION"
-fi
+# if [ -e "$LIB_PATH/libexpat.a" ]
+# then
+#   echo "Found expat"
+# else
+#   echo
+#   echo "Installing expat"
+#   if [ -e $EXPAT_VERSION.tar.bz2 ]
+#   then
+#     echo "Tarball Present..."
+#   else
+#     echo "Downloading..."
+#     curl -L --progress-bar -O https://github.com/libexpat/libexpat/releases/download/R_2_2_5/$EXPAT_VERSION.tar.bz2
+#   fi
+#   echo "Unpacking..."
+#   tar -jxf "$EXPAT_VERSION.tar.bz2"
+#   cd $EXPAT_VERSION
+#   echo -n "Configuring..."
+#   echo "---------------------------- Configure expat ----------------------------" >> $LOG_PATH/build.log 2>&1
+#   ./configure --disable-shared --enable-static --prefix "$INSTALL_LOCATION" >> $LOG_PATH/build.log 2>&1 &
+#   spin
+#   echo "done."
+#   echo -n "Building..."
+#   echo "---------------------------- Build expat ----------------------------" >> $LOG_PATH/build.log 2>&1
+#   make -s install >> $LOG_PATH/build.log 2>&1 &
+#   spin
+#   make -s clean >> $LOG_PATH/build.log 2>&1 &
+#   spin
+#   echo "done."
+#   echo
+#   echo "expat Installed!"
+#   echo
+#   cd "$BUILD_LOCATION"
+# fi
 #######################################################################
 
 #zlib
@@ -351,43 +352,43 @@ fi
 
 #fontconfig
 
-if [ -e "$LIB_PATH/libfontconfig.a" ]
-then
-  echo "Found fontconfig"
-else
-  COPTFC="-Wno-macro-redefined -Wno-unused-command-line-argument -Wno-non-literal-null-conversion -Wno-pointer-bool-conversion -Wno-unused-function"
-  echo
-  echo "Installing fontconfig"
-  if [ -e fontconfig-2.12.6.tar.bz2 ] || [ -e fontconfig-2.12.6.tar ]
-  then
-    echo "Tarball Present..."
-  else
-    echo "Downloading..."
-    curl -L --progress-bar -O https://www.freedesktop.org/software/fontconfig/release/fontconfig-2.12.6.tar.bz2
-  fi
-  echo "Unpacking..."
-  if [ ! -e fontconfig-2.12.6.tar ]
-  then
-    "$INSTALL_LOCATION/bin/bunzip2" "$BUILD_LOCATION/fontconfig-2.12.6.tar.bz2"
-  fi
-  tar -xf fontconfig-2.12.6.tar
-  cd fontconfig-2.12.6
-  echo -n "Configuring..."
-  echo "---------------------------- Configure fontconfig ----------------------------" >> $LOG_PATH/build.log 2>&1
-  ./configure --disable-dependency-tracking --disable-shared --enable-static --silent CFLAGS="$CFLAGS $COPTFC" --prefix "$INSTALL_LOCATION" LDFLAGS="$LDFLAGS -L$LIB_PATH" LIBS="-lbz2" PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" >> $LOG_PATH/build.log 2>&1 &
-  spin
-  echo "done."
-  echo -n "Building..."
-  echo "---------------------------- Build fontconfig ----------------------------" >> $LOG_PATH/build.log 2>&1
-  make -s RUN_FC_CACHE_TEST=false -s install >> $LOG_PATH/build.log 2>&1 &
-  spin
-  make -s clean >> $LOG_PATH/build.log 2>&1 2>&1 &
-  spin
-  echo "done."
-  echo "fontconfig Installed!"
-  echo
-  cd "$BUILD_LOCATION"
-fi
+# if [ -e "$LIB_PATH/libfontconfig.a" ]
+# then
+#   echo "Found fontconfig"
+# else
+#   COPTFC="-Wno-macro-redefined -Wno-unused-command-line-argument -Wno-non-literal-null-conversion -Wno-pointer-bool-conversion -Wno-unused-function"
+#   echo
+#   echo "Installing fontconfig"
+#   if [ -e fontconfig-2.12.6.tar.bz2 ] || [ -e fontconfig-2.12.6.tar ]
+#   then
+#     echo "Tarball Present..."
+#   else
+#     echo "Downloading..."
+#     curl -L --progress-bar -O https://www.freedesktop.org/software/fontconfig/release/fontconfig-2.12.6.tar.bz2
+#   fi
+#   echo "Unpacking..."
+#   if [ ! -e fontconfig-2.12.6.tar ]
+#   then
+#     "$INSTALL_LOCATION/bin/bunzip2" "$BUILD_LOCATION/fontconfig-2.12.6.tar.bz2"
+#   fi
+#   tar -xf fontconfig-2.12.6.tar
+#   cd fontconfig-2.12.6
+#   echo -n "Configuring..."
+#   echo "---------------------------- Configure fontconfig ----------------------------" >> $LOG_PATH/build.log 2>&1
+#   ./configure --disable-dependency-tracking --disable-shared --enable-static --silent CFLAGS="$CFLAGS $COPTFC" --prefix "$INSTALL_LOCATION" LDFLAGS="$LDFLAGS -L$LIB_PATH" LIBS="-lbz2" PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" >> $LOG_PATH/build.log 2>&1 &
+#   spin
+#   echo "done."
+#   echo -n "Building..."
+#   echo "---------------------------- Build fontconfig ----------------------------" >> $LOG_PATH/build.log 2>&1
+#   make -s RUN_FC_CACHE_TEST=false -s install >> $LOG_PATH/build.log 2>&1 &
+#   spin
+#   make -s clean >> $LOG_PATH/build.log 2>&1 2>&1 &
+#   spin
+#   echo "done."
+#   echo "fontconfig Installed!"
+#   echo
+#   cd "$BUILD_LOCATION"
+# fi
 
 #######################################################################
 
@@ -399,19 +400,19 @@ else
   COPTCR="-Wno-logical-not-parentheses -Wno-parentheses-equality -Wno-enum-conversion -Wno-unused-command-line-argument -Wno-unused-function -Wno-unused-variable -Wno-unused-local-typedef -Wno-tautological-constant-out-of-range-compare -Wno-absolute-value -Wno-literal-conversion"
   echo
   echo "Installing cairo"
-  if [ -e cairo-1.14.12.tar.xz ]
+  if [ -e $CAIRO_VERSION.tar.xz ]
   then
     echo "Tarball Present..."
   else
     echo "Downloading..."
-    curl -L --progress-bar -O https://cairographics.org/releases/cairo-1.14.12.tar.xz
+    curl -L --progress-bar -O http://cairographics.org/snapshots/$CAIRO_VERSION.tar.xz
   fi
   echo "Unpacking..."
-  tar -xf cairo-1.14.12.tar.xz
-  cd cairo-1.14.12
+  tar -xf $CAIRO_VERSION.tar.xz
+  cd $CAIRO_VERSION
   echo -n "Configuring..."
   echo "---------------------------- Configure cairo ----------------------------" >> $LOG_PATH/build.log 2>&1
-  ./configure --disable-dependency-tracking --enable-svg=yes --enable-quartz-image=yes --disable-shared --enable-static --silent CFLAGS="$CFLAGS $COPTCR" --prefix "$INSTALL_LOCATION" PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" LDFLAGS="$LDFLAGS -framework CoreFoundation -framework CoreGraphics -framework CoreText" >> $LOG_PATH/build.log 2>&1 &
+  ./configure --disable-dependency-tracking --enable-svg=no --enable-pdf=no --enable-ps=no --enable-fc=no --enable-quartz-image=yes --disable-shared --enable-static CFLAGS="$CFLAGS $COPTCR" --prefix "$INSTALL_LOCATION" PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" LDFLAGS="$LDFLAGS -framework CoreFoundation -framework CoreGraphics -framework CoreText" >> $LOG_PATH/build.log 2>&1 &
   spin
   echo "done."
   echo -n "Building..."
