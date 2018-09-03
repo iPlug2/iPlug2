@@ -3,6 +3,7 @@
 
 #include "IGraphicsWeb.h"
 #include "IControl.h"
+#include "IPopupMenuControl.h"
 
 using namespace emscripten;
 

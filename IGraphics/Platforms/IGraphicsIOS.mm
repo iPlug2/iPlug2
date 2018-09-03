@@ -4,6 +4,7 @@
 
 #include "IGraphicsIOS.h"
 #include "IControl.h"
+#include "IPopupMenuControl.h"
 
 #include "IPlugPluginBase.h"
 #include "IPlugPaths.h"

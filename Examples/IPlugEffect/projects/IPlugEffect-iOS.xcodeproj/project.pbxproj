@@ -27,9 +27,6 @@
 		4F6369C220A463AF0022C370 /* IGraphicsUtilites.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699320A463AF0022C370 /* IGraphicsUtilites.h */; };
 		4F6369C320A463AF0022C370 /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F63699420A463AF0022C370 /* IGraphics.cpp */; };
 		4F6369C420A463AF0022C370 /* IGraphicsPathBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699520A463AF0022C370 /* IGraphicsPathBase.h */; };
-		4F6369C520A463AF0022C370 /* IControls.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699720A463AF0022C370 /* IControls.h */; };
-		4F6369CA20A463AF0022C370 /* IVKeyboardControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699C20A463AF0022C370 /* IVKeyboardControl.h */; };
-		4F6369CC20A463AF0022C370 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F63699E20A463AF0022C370 /* IControls.cpp */; };
 		4F6369CD20A463AF0022C370 /* IGraphicsStructs.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699F20A463AF0022C370 /* IGraphicsStructs.h */; };
 		4F6369CE20A463AF0022C370 /* IGraphicsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6369A020A463AF0022C370 /* IGraphicsConstants.h */; };
 		4F6369D020A463AF0022C370 /* IGraphics_select.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6369A220A463AF0022C370 /* IGraphics_select.h */; };
@@ -68,6 +65,15 @@
 		4F977D7520CC9DD800D19F46 /* Oversampler.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D5520CC9DD800D19F46 /* Oversampler.h */; };
 		4F977D8520CCA5FB00D19F46 /* GenericUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F10E7CF20B1CB5800F5B09B /* GenericUI.swift */; };
 		4F977D8620CCA5FE00D19F46 /* GenericUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F10E7CF20B1CB5800F5B09B /* GenericUI.swift */; };
+		4F9A8307213DE87600BE63A4 /* IPopupMenuControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A82FE213DE87600BE63A4 /* IPopupMenuControl.h */; };
+		4F9A8308213DE87600BE63A4 /* IVMultiSliderControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A82FF213DE87600BE63A4 /* IVMultiSliderControl.h */; };
+		4F9A8309213DE87600BE63A4 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F9A8300213DE87600BE63A4 /* IControls.cpp */; };
+		4F9A830A213DE87600BE63A4 /* IPopupMenuControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F9A8301213DE87600BE63A4 /* IPopupMenuControl.cpp */; };
+		4F9A830B213DE87600BE63A4 /* IControls.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8302213DE87600BE63A4 /* IControls.h */; };
+		4F9A830C213DE87600BE63A4 /* IPerfDisplayControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8303213DE87600BE63A4 /* IPerfDisplayControl.h */; };
+		4F9A830D213DE87600BE63A4 /* IVMeterControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8304213DE87600BE63A4 /* IVMeterControl.h */; };
+		4F9A830E213DE87600BE63A4 /* IVKeyboardControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8305213DE87600BE63A4 /* IVKeyboardControl.h */; };
+		4F9A830F213DE87600BE63A4 /* IVScopeControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8306213DE87600BE63A4 /* IVScopeControl.h */; };
 		4FADA9C420C20367003075D3 /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = 4FC82B4820BD524700722133 /* fonts */; };
 		4FADA9C520C20367003075D3 /* img in Resources */ = {isa = PBXBuildFile; fileRef = 4FC82B4720BD524700722133 /* img */; };
 		4FB2269720A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard */; };
@@ -207,9 +213,6 @@
 		4F63699320A463AF0022C370 /* IGraphicsUtilites.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsUtilites.h; sourceTree = "<group>"; };
 		4F63699420A463AF0022C370 /* IGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphics.cpp; sourceTree = "<group>"; };
 		4F63699520A463AF0022C370 /* IGraphicsPathBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsPathBase.h; sourceTree = "<group>"; };
-		4F63699720A463AF0022C370 /* IControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControls.h; sourceTree = "<group>"; };
-		4F63699C20A463AF0022C370 /* IVKeyboardControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVKeyboardControl.h; sourceTree = "<group>"; };
-		4F63699E20A463AF0022C370 /* IControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IControls.cpp; sourceTree = "<group>"; };
 		4F63699F20A463AF0022C370 /* IGraphicsStructs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsStructs.h; sourceTree = "<group>"; };
 		4F6369A020A463AF0022C370 /* IGraphicsConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsConstants.h; sourceTree = "<group>"; };
 		4F6369A120A463AF0022C370 /* IGraphicsLiveEdit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLiveEdit.h; sourceTree = "<group>"; };
@@ -258,6 +261,15 @@
 		4F977D5420CC9DD800D19F46 /* Oscillator_table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Oscillator_table.h; sourceTree = "<group>"; };
 		4F977D5520CC9DD800D19F46 /* Oversampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Oversampler.h; sourceTree = "<group>"; };
 		4F98C32920A73C9B00F120A9 /* IPlugEffect-iOS-Framework-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-iOS-Framework-Info.plist"; path = "../resources/IPlugEffect-iOS-Framework-Info.plist"; sourceTree = "<group>"; };
+		4F9A82FE213DE87600BE63A4 /* IPopupMenuControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPopupMenuControl.h; sourceTree = "<group>"; };
+		4F9A82FF213DE87600BE63A4 /* IVMultiSliderControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVMultiSliderControl.h; sourceTree = "<group>"; };
+		4F9A8300213DE87600BE63A4 /* IControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IControls.cpp; sourceTree = "<group>"; };
+		4F9A8301213DE87600BE63A4 /* IPopupMenuControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPopupMenuControl.cpp; sourceTree = "<group>"; };
+		4F9A8302213DE87600BE63A4 /* IControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControls.h; sourceTree = "<group>"; };
+		4F9A8303213DE87600BE63A4 /* IPerfDisplayControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPerfDisplayControl.h; sourceTree = "<group>"; };
+		4F9A8304213DE87600BE63A4 /* IVMeterControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVMeterControl.h; sourceTree = "<group>"; };
+		4F9A8305213DE87600BE63A4 /* IVKeyboardControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVKeyboardControl.h; sourceTree = "<group>"; };
+		4F9A8306213DE87600BE63A4 /* IVScopeControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVScopeControl.h; sourceTree = "<group>"; };
 		4FB2269620A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = "IPlugEffect-iOS-launchScreen.storyboard"; path = "../resources/IPlugEffect-iOS-launchScreen.storyboard"; sourceTree = "<group>"; };
 		4FB2269A20A0D3B900614769 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ../../../IPlug/AUv3/IOSApp/AppDelegate.swift; sourceTree = "<group>"; };
 		4FBBD7F420B6ABE700A37DE2 /* config */ = {isa = PBXFileReference; lastKnownFileType = folder; name = config; path = ../config; sourceTree = "<group>"; };
@@ -418,9 +430,15 @@
 		4F63699620A463AF0022C370 /* Controls */ = {
 			isa = PBXGroup;
 			children = (
-				4F63699C20A463AF0022C370 /* IVKeyboardControl.h */,
-				4F63699720A463AF0022C370 /* IControls.h */,
-				4F63699E20A463AF0022C370 /* IControls.cpp */,
+				4F9A8300213DE87600BE63A4 /* IControls.cpp */,
+				4F9A8302213DE87600BE63A4 /* IControls.h */,
+				4F9A8303213DE87600BE63A4 /* IPerfDisplayControl.h */,
+				4F9A8301213DE87600BE63A4 /* IPopupMenuControl.cpp */,
+				4F9A82FE213DE87600BE63A4 /* IPopupMenuControl.h */,
+				4F9A8305213DE87600BE63A4 /* IVKeyboardControl.h */,
+				4F9A8304213DE87600BE63A4 /* IVMeterControl.h */,
+				4F9A82FF213DE87600BE63A4 /* IVMultiSliderControl.h */,
+				4F9A8306213DE87600BE63A4 /* IVScopeControl.h */,
 			);
 			path = Controls;
 			sourceTree = "<group>";
@@ -640,8 +658,10 @@
 				4FFF105C20A0E57100D3092F /* IPlugAUAudioUnit.h in Headers */,
 				4F048C9720B1E74F002052E7 /* IPlugEffectFramework.h in Headers */,
 				4F977D6020CC9DD800D19F46 /* FPUUpsampler2x.h in Headers */,
+				4F9A830C213DE87600BE63A4 /* IPerfDisplayControl.h in Headers */,
 				4FFF108920A1036200D3092F /* config.h in Headers */,
 				4F8028CC20A24FA9003A66EC /* fontstash.h in Headers */,
+				4F9A830B213DE87600BE63A4 /* IControls.h in Headers */,
 				4FFF104420A0E55A00D3092F /* IPlugPlatform.h in Headers */,
 				4F6369B220A463AF0022C370 /* IGraphics_include_in_plug_hdr.h in Headers */,
 				4F977D7020CC9DD800D19F46 /* IPlugFaust_edit.h in Headers */,
@@ -654,6 +674,7 @@
 				4F6369C120A463AF0022C370 /* IGraphicsPopupMenu.h in Headers */,
 				4FFF108D20A1036200D3092F /* IPlugEffect.h in Headers */,
 				4F8028CA20A24FA9003A66EC /* nanovg.h in Headers */,
+				4F9A8308213DE87600BE63A4 /* IVMultiSliderControl.h in Headers */,
 				4F977D5E20CC9DD800D19F46 /* Oscillator.h in Headers */,
 				4FFF107920A0E5A500D3092F /* wdlstring.h in Headers */,
 				4F977D5A20CC9DD800D19F46 /* IPlugOSC_msg.h in Headers */,
@@ -664,21 +685,22 @@
 				4FFF104720A0E55A00D3092F /* IPlugParameter.h in Headers */,
 				4F977D7520CC9DD800D19F46 /* Oversampler.h in Headers */,
 				4FFF106D20A0E58600D3092F /* IPlugPluginBase.h in Headers */,
+				4F9A830D213DE87600BE63A4 /* IVMeterControl.h in Headers */,
 				4F977D5F20CC9DD800D19F46 /* PolyphaseIIR2Designer.h in Headers */,
 				4FFF104E20A0E55A00D3092F /* IPlugMidi.h in Headers */,
 				4F977D6A20CC9DD800D19F46 /* IPlugFaust.h in Headers */,
-				4F6369CA20A463AF0022C370 /* IVKeyboardControl.h in Headers */,
-				4F6369C520A463AF0022C370 /* IControls.h in Headers */,
 				4F8028C620A24FA9003A66EC /* stb_image.h in Headers */,
 				4FFF107820A0E5A500D3092F /* heapbuf.h in Headers */,
 				4F977D6E20CC9DD800D19F46 /* IPlugFaustGen.h in Headers */,
 				4FFF104F20A0E55A00D3092F /* IPlugLogger.h in Headers */,
 				4FFF107C20A0E5A500D3092F /* wdltypes.h in Headers */,
+				4F9A830F213DE87600BE63A4 /* IVScopeControl.h in Headers */,
 				4F6369D120A463AF0022C370 /* IGraphics_include_in_plug_src.h in Headers */,
 				4FFF106F20A0E58600D3092F /* IPlugDelegate_select.h in Headers */,
 				4F6369D420A463D80022C370 /* IGraphicsIOS_view.h in Headers */,
 				4F8028C820A24FA9003A66EC /* stb_truetype.h in Headers */,
 				4FFF107B20A0E5A500D3092F /* mutex.h in Headers */,
+				4F9A830E213DE87600BE63A4 /* IVKeyboardControl.h in Headers */,
 				4F6369CE20A463AF0022C370 /* IGraphicsConstants.h in Headers */,
 				4FFF104D20A0E55A00D3092F /* IPlugUtilities.h in Headers */,
 				4FFF107D20A0E5A500D3092F /* ptrlist.h in Headers */,
@@ -690,6 +712,7 @@
 				4F6369D020A463AF0022C370 /* IGraphics_select.h in Headers */,
 				4F977D5920CC9DD800D19F46 /* NChanDelay.h in Headers */,
 				4F977D6820CC9DD800D19F46 /* MidiSynth.h in Headers */,
+				4F9A8307213DE87600BE63A4 /* IPopupMenuControl.h in Headers */,
 				4F977D7320CC9DD800D19F46 /* SVF.h in Headers */,
 				4F8028C720A24FA9003A66EC /* nanovg_gl_utils.h in Headers */,
 				4FFF106E20A0E58600D3092F /* IPlugEditorDelegate.h in Headers */,
@@ -883,12 +906,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F9A830A213DE87600BE63A4 /* IPopupMenuControl.cpp in Sources */,
 				4F977D8520CCA5FB00D19F46 /* GenericUI.swift in Sources */,
 				4F6369C320A463AF0022C370 /* IGraphics.cpp in Sources */,
 				4F23CECB20B20C6400E8B70F /* IGraphicsNanoVG.cpp in Sources */,
 				4F6C621420CD60DF002B117F /* IPlugTimer.mm in Sources */,
 				4F8028C920A24FA9003A66EC /* nanovg.c in Sources */,
-				4F6369CC20A463AF0022C370 /* IControls.cpp in Sources */,
 				4FFF106020A0E57100D3092F /* IPlugAUv3.mm in Sources */,
 				4F6369E720A466320022C370 /* IControl.cpp in Sources */,
 				4F10E7CD20B1A61D00F5B09B /* IPlugEffectViewController.swift in Sources */,
@@ -899,6 +922,7 @@
 				4FFF104320A0E55A00D3092F /* IPlugParameter.cpp in Sources */,
 				4F977D7120CC9DD800D19F46 /* MidiSynth.cpp in Sources */,
 				4FFF105B20A0E57100D3092F /* IPlugAUAudioUnit.mm in Sources */,
+				4F9A8309213DE87600BE63A4 /* IControls.cpp in Sources */,
 				4F23CECC20B20C7C00E8B70F /* IGraphicsIOS.mm in Sources */,
 				4FFF106C20A0E58600D3092F /* IPlugPluginBase.cpp in Sources */,
 				4FFF108C20A1036200D3092F /* IPlugEffect.cpp in Sources */,

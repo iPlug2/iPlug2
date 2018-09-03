@@ -16,6 +16,7 @@
 #include "IControls.h"
 #include "IGraphicsLiveEdit.h"
 #include "IPerfDisplayControl.h"
+#include "IPopupMenuControl.h"
 
 struct SVGHolder
 {
@@ -150,7 +151,7 @@ void IGraphics::AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode
   mCornerResizer->SetGraphics(this);
 }
 
-void IGraphics::AttachPopupMenuControl(IPopupMenuControlBase* pControl)
+void IGraphics::AttachPopupMenuControl(IPopupMenuControl* pControl)
 {
   mPopupControl = pControl;
   mPopupControl->SetGraphics(this);

@@ -21,7 +21,7 @@ IPLUG_SRC = $(IPLUG_PATH)/IPlugAPIBase.cpp \
 
 IGRAPHICS_SRC = $(IGRAPHICS_PATH)/IGraphics.cpp \
 	$(IGRAPHICS_PATH)/IControl.cpp \
-	$(CONTROLS_PATH)/IControls.cpp \
+	$(CONTROLS_PATH)/*.cpp \
 	$(PLATFORMS_PATH)/IGraphicsWeb.cpp
 
 INCLUDE_PATHS = -I$(PROJECT_ROOT) \

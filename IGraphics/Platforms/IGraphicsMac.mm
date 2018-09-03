@@ -4,6 +4,8 @@
 #include "IGraphicsMac.h"
 
 #include "IControl.h"
+#include "IPopupMenuControl.h"
+
 #import "IGraphicsMac_view.h"
 
 #include "IPlugPluginBase.h"

@@ -35,7 +35,7 @@
 #endif
 
 class IControl;
-class IPopupMenuControlBase;
+class IPopupMenuControl;
 class ICornerResizerBase;
 class IPerfDisplayControl;
 class IParam;
@@ -701,8 +701,8 @@ public:
   void AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale);
 
   /** Attach a custom control for pop-up menus, to override platform style menus
-   * @param pControl A control that inherits from IPopupMenuControlBase */
-  void AttachPopupMenuControl(IPopupMenuControlBase* pControl);
+   * @param pControl A control that inherits from IPopupMenuControl */
+  void AttachPopupMenuControl(IPopupMenuControl* pControl);
   
   void AttachPerformanceDisplay();
   
@@ -931,7 +931,7 @@ protected:
   float mCursorX = -1.f;
   float mCursorY = -1.f;
   ICornerResizerBase* mCornerResizer = nullptr;
-  IPopupMenuControlBase* mPopupControl = nullptr;
+  IPopupMenuControl* mPopupControl = nullptr;
   IPerfDisplayControl* mPerfDisplay = nullptr;
   IControl* mKeyCatcher = nullptr;
   IControl* mLiveEdit = nullptr;

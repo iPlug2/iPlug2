@@ -6,6 +6,7 @@
 #include "IPlugParameter.h"
 #include "IGraphicsWin.h"
 #include "IControl.h"
+#include "IPopupMenuControl.h"
 
 #include <wininet.h>
 
