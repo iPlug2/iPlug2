@@ -1010,7 +1010,7 @@ bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
   if (path.GetLength())
   {
     WCHAR winDir[IPLUG_WIN_MAX_WIDE_PATH];
-  WCHAR explorerWide[IPLUG_WIN_MAX_WIDE_PATH];
+    WCHAR explorerWide[IPLUG_WIN_MAX_WIDE_PATH];
     UINT len = GetSystemDirectoryW(winDir, IPLUG_WIN_MAX_WIDE_PATH);
     
     if (len || !(len > MAX_PATH - 2))
@@ -1027,7 +1027,7 @@ bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
       explorerParams.Append(path.Get());
       explorerParams.Append("\\\"");
       
-    UTF8ToUTF16(explorerWide, explorerParams.Get(), IPLUG_WIN_MAX_WIDE_PATH);
+      UTF8ToUTF16(explorerWide, explorerParams.Get(), IPLUG_WIN_MAX_WIDE_PATH);
       HINSTANCE result;
       
       if ((result=::ShellExecuteW(NULL, L"open", L"explorer.exe", explorerWide, winDir, SW_SHOWNORMAL)) <= (HINSTANCE) 32)

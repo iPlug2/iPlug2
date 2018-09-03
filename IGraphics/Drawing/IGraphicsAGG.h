@@ -223,7 +223,6 @@ private:
   agg::trans_affine mTransform;
   PixelMapType mPixelMap;
 
-  // TODO Oli probably wants this to not be STL but there's nothing in WDL for this...
   std::stack<agg::trans_affine> mState;
 
   //pipeline to process the vectors glyph paths(curves + contour)
