@@ -22,6 +22,12 @@ static std::string ToCanvasColor(const IColor& color, float alpha = 1.0)
   return str.Get();
 }
 
+static val GetContext()
+{
+  val canvas = val::global("document").call<val>("getElementById", std::string("canvas"));
+  return canvas.call<val>("getContext", std::string("2d"));
+}
+
 /** IGraphics draw class HTML5 canvas
 * @ingroup DrawClasses */
 class IGraphicsCanvas : public IGraphicsPathBase
@@ -67,17 +73,6 @@ protected:
 private:
   void ClipRegion(const IRECT& r) override;
   void ResetClipRegion() override;
-
-  val GetCanvas()
-  {
-    return val::global("document").call<val>("getElementById", std::string("canvas"));
-  }
-
-  val GetContext()
-  {
-    val canvas = GetCanvas();
-    return canvas.call<val>("getContext", std::string("2d"));
-  }
   
   void SetWebSourcePattern(const IPattern& pattern, const IBlend* pBlend = nullptr);
   void SetWebBlendMode(const IBlend* pBlend);

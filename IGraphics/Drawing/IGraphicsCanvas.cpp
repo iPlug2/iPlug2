@@ -8,6 +8,7 @@ using namespace emscripten;
 extern IGraphics* gGraphics;
 
 extern val GetPreloadedImages();
+extern val GetCanvas();
 
 WebBitmap::WebBitmap(emscripten::val imageCanvas, const char* name, int scale)
 {
@@ -20,11 +21,14 @@ IGraphicsCanvas::IGraphicsCanvas(IGEditorDelegate& dlg, int w, int h, int fps, f
   //emscripten_set_canvas_size ?
   val canvas = GetCanvas();
 
+#ifdef IGRAPHICS_NOSCALING
+  int displayScale = 1;
+#else
   int displayScale = val::global("window")["devicePixelRatio"].as<int>();
   canvas["style"].set("width", val(w));
   canvas["style"].set("height", val(h));
   GetContext().call<void>("scale", displayScale, displayScale);
-  
+#endif
   canvas.set("width", w * displayScale);
   canvas.set("height", h * displayScale);
   
