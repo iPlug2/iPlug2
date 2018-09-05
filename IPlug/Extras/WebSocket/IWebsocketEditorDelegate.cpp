@@ -17,7 +17,7 @@ void IWebsocketEditorDelegate::OnWebsocketReady(int connIdx)
 {
 }
 
-bool IWebsocketEditorDelegate::OnWebsocketText(int connIdx, void* pData, size_t dataSize)
+bool IWebsocketEditorDelegate::OnWebsocketText(int connIdx, const char* pStr, size_t dataSize)
 {
   return true; // return true to keep the connection open
 }

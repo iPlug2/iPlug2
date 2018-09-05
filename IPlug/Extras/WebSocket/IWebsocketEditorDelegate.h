@@ -20,7 +20,7 @@ public:
   //IWebsocketServer
   //THESE MESSAGES ARE ALL CALLED ON SERVER THREADS - 1 PER WEBSOCKET CONNECTION
   void OnWebsocketReady(int idx) override;
-  bool OnWebsocketText(int idx, void* pData, size_t dataSize) override;
+  bool OnWebsocketText(int idx, const char* pStr, size_t dataSize) override;
   bool OnWebsocketData(int idx, void* pData, size_t dataSize) override;
 
   //IEditorDelegate
