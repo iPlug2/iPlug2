@@ -84,18 +84,19 @@ void IWebsocketEditorDelegate::SendSysexMsgFromUI(const ISysEx& msg)
   IGEditorDelegate::SendSysexMsgFromUI(msg);
 }
 
-void IWebsocketEditorDelegate::SendArbitraryMsgFromUI(int messageTag, int dataSize, const void* pData)
+void IWebsocketEditorDelegate::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData)
 {
   IByteChunk data; // TODO: this is dumb allocating/copying memory
   data.PutStr("SSMFD");
   data.Put(&messageTag);
+  data.Put(&controlTag);
   data.Put(&dataSize);
   data.PutBytes(pData, dataSize);
   
   // Server side UI edit, send to clients
   SendDataToConnection(-1, data.GetBytes(), data.Size());
   
-  IGEditorDelegate::SendArbitraryMsgFromUI(messageTag, dataSize, pData);
+  IGEditorDelegate::SendArbitraryMsgFromUI(messageTag, controlTag, dataSize, pData);
 }
 
 

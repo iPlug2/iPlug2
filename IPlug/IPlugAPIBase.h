@@ -166,7 +166,7 @@ public:
   //These are handled in IPlugAPIBase for non DISTRIBUTED APIs
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
   void SendSysexMsgFromUI(const ISysEx& msg) override;
-  void SendArbitraryMsgFromUI(int messageTag, int dataSize = 0, const void* pData = nullptr) override;
+  void SendArbitraryMsgFromUI(int messageTag, int controlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) override;
   
   void DeferMidiMsg(const IMidiMsg& msg) override { mMidiMsgsFromEditor.Push(msg); }
 

@@ -184,9 +184,9 @@ void IPlugAPIBase::SendSysexMsgFromUI(const ISysEx& msg)
   EDITOR_DELEGATE_CLASS::SendSysexMsgFromUI(msg);
 }
 
-void IPlugAPIBase::SendArbitraryMsgFromUI(int messageTag, int dataSize, const void* pData)
+void IPlugAPIBase::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData)
 {
-  OnMessage(messageTag, dataSize, pData);
+  OnMessage(messageTag, controlTag, dataSize, pData);
   
-  EDITOR_DELEGATE_CLASS::SendArbitraryMsgFromUI(messageTag, dataSize, pData);
+  EDITOR_DELEGATE_CLASS::SendArbitraryMsgFromUI(messageTag, controlTag, dataSize, pData);
 }

@@ -102,7 +102,7 @@ public:
   virtual void OnSysexMsgUI(const ISysEx& msg) {};
   
   /** This could be implemented in either DSP or EDITOR to receive a message from the other one */
-  virtual bool OnMessage(int messageTag, int dataSize, const void* pData) { return false; }
+  virtual bool OnMessage(int messageTag, int controlTag, int dataSize, const void* pData) { return false; }
   
   /** This is called by API classes after restoring state and by IPluginBase::RestorePreset(). Typically used to update user interface, where multiple parameter values have changed.
    * If you need to do something when state is restored you can override it */
@@ -181,7 +181,7 @@ public:
   virtual void SendSysexMsgFromUI(const ISysEx& msg) {};
   
   /** TODO: SAMFUI */
-  virtual void SendArbitraryMsgFromUI(int messageTag, int dataSize = 0, const void* pData = nullptr) {};
+  virtual void SendArbitraryMsgFromUI(int messageTag, int controlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) {};
 
 #pragma mark -
   /** This method is needed, for remote editors to avoid a feedback loop */

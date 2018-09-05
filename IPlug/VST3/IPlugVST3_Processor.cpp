@@ -592,13 +592,14 @@ tresult PLUGIN_API IPlugVST3Processor::notify(IMessage* message)
   }
   else if (!strcmp (message->getMessageID(), "SAMFUI")) // message from UI
   {
-    int64 val;
-    
-    if (message->getAttributes()->getInt("MT", val) == kResultOk)
+    int64 messageTag;
+    int64 controlTag;
+
+    if (message->getAttributes()->getInt("MT", messageTag) == kResultOk && message->getAttributes()->getInt("CT", controlTag) == kResultOk)
     {
       if (message->getAttributes()->getBinary("D", data, size) == kResultOk)
       {
-        if(OnMessage((int) val, size, data))
+        if(OnMessage((int) messageTag, (int) controlTag, size, data))
         {
           return kResultOk;
         }

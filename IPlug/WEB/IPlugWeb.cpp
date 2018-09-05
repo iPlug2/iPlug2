@@ -24,7 +24,7 @@ const int kNumMsgTagBytes = 6;
 const int kNumSPVFUIBytes = 18;
 const int kNumSMMFUIBytes = 9;
 const int kNumSSMFUIBytes = 10; // + data size
-const int kNumSAMFUIBytes = 14; // + data size
+const int kNumSAMFUIBytes = 18; // + data size
 
 IPlugWeb::IPlugWeb(IPlugInstanceInfo instanceInfo, IPlugConfig config)
 : IPlugAPIBase(config, kAPIWEB)
@@ -98,13 +98,14 @@ void IPlugWeb::SendSysexMsgFromUI(const ISysEx& msg)
 #endif
 }
 
-void IPlugWeb::SendArbitraryMsgFromUI(int messageTag, int dataSize, const void* pData)
+void IPlugWeb::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData)
 {
 #if WEBSOCKET_CLIENT
   mSAMFUIBuf.Resize(kNumSAMFUIBytes + dataSize);
   int pos = kNumMsgTagBytes;
   
   *((int*)(mSAMFUIBuf.GetBytes() + pos)) = messageTag; pos += sizeof(int);
+  *((int*)(mSAMFUIBuf.GetBytes() + pos)) = controlTag; pos += sizeof(int);
   *((int*)(mSAMFUIBuf.GetBytes() + pos)) = dataSize; pos += sizeof(int);
 
   memcpy(mSAMFUIBuf.GetBytes() + pos, pData, dataSize);

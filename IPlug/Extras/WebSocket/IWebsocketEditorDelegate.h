@@ -26,7 +26,7 @@ public:
   //IEditorDelegate
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
   void SendSysexMsgFromUI(const ISysEx& msg) override;
-  void SendArbitraryMsgFromUI(int messageTag, int dataSize, const void* pData) override;
+  void SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData) override;
 //  virtual void BeginInformHostOfParamChangeFromUI(int paramIdx) override;
   void SendParameterValueFromUI(int paramIdx, double normalizedValue) override;
 //  virtual void EndInformHostOfParamChangeFromUI(int paramIdx) override;

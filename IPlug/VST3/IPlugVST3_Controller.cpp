@@ -449,7 +449,7 @@ void IPlugVST3Controller::SendMidiMsgFromUI(const IMidiMsg& msg)
   sendMessage(message);
 }
 
-void IPlugVST3Controller::SendArbitraryMsgFromUI(int messageTag, int dataSize, const void* pData)
+void IPlugVST3Controller::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData)
 {
   OPtr<IMessage> message = allocateMessage();
   
@@ -465,6 +465,7 @@ void IPlugVST3Controller::SendArbitraryMsgFromUI(int messageTag, int dataSize, c
   
   message->setMessageID("SAMFUI");
   message->getAttributes()->setInt("MT", messageTag);
+  message->getAttributes()->setInt("CT", controlTag);
   message->getAttributes()->setBinary("D", pData, dataSize);
   sendMessage(message);
 }
