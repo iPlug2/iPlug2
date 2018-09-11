@@ -191,7 +191,6 @@ private:
 private:
   bool mActive = false; // TODO: is this necessary? is it correct?
   double mLastRenderSampleTime = -1.0;
-  WDL_String mBundleID;
   WDL_String mCocoaViewFactoryClassName;
   AudioComponentInstance mCI = nullptr;
   HostCallbackInfo mHostCallbacks;
