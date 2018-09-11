@@ -23,7 +23,7 @@ IPopupMenuControl::IPopupMenuControl(IGEditorDelegate& dlg, int paramIdx, IText 
       
       GetUI()->SetAllControlsDirty();
     },
-                 DEFAULT_ANIMATION_DURATION);
+    DEFAULT_ANIMATION_DURATION);
   });
   
   
