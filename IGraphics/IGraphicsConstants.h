@@ -46,12 +46,12 @@ const int DEFAULT_TEXT_SIZE = 14;
     const char* const DEFAULT_FONT = "Verdana";
     const int DEFAULT_TEXT_SIZE = 12;
   #elif defined OS_MAC
-    const char* const DEFAULT_FONT = "Monaco";
+    const char* const DEFAULT_FONT = "Verdana";
     const int DEFAULT_TEXT_SIZE = 10;
   #elif defined OS_LINUX
     #error TODO
   #elif defined OS_WEB
-    const char* const DEFAULT_FONT = "DejaVu Sans";
+    const char* const DEFAULT_FONT = "Verdana";
     const int DEFAULT_TEXT_SIZE = 10;
   #endif
 #endif
