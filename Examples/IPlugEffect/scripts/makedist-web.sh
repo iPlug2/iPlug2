@@ -91,7 +91,7 @@ cd ../
 echo
 echo MAKING  - WEB WASM MODULE -----------------------------
 
-emmake make --makefile projects/IPlugEffect-wam-controller.mk CFLAGS=-DWEBSOCKET_CLIENT=$websocket
+emmake make --makefile projects/IPlugEffect-wam-controller.mk EXTRA_CFLAGS=-DWEBSOCKET_CLIENT=$websocket
 
 if [ $? -ne "0" ]
 then
