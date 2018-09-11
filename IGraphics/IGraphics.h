@@ -700,9 +700,9 @@ public:
    * @param sizeMode Choose whether to scale or size the UI */
   void AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale);
 
-  /** Attach a custom control for pop-up menus, to override platform style menus
+  /** Attach a control for pop-up menus, to override platform style menus
    * @param pControl A control that inherits from IPopupMenuControl */
-  void AttachPopupMenuControl(IPopupMenuControl* pControl);
+  void AttachPopupMenuControl();
   
   void AttachPerformanceDisplay();
   

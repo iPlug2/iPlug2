@@ -151,9 +151,9 @@ void IGraphics::AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode
   mCornerResizer->SetGraphics(this);
 }
 
-void IGraphics::AttachPopupMenuControl(IPopupMenuControl* pControl)
+void IGraphics::AttachPopupMenuControl()
 {
-  mPopupControl = pControl;
+  mPopupControl = new IPopupMenuControl(mDelegate);
   mPopupControl->SetGraphics(this);
 }
 
