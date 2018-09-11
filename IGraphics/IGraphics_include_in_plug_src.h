@@ -43,7 +43,7 @@
 
   void StartMainLoopTimer()
   {
-    emscripten_set_main_loop(gGraphics->OnMainLoopTimer, gGraphics->FPS(), 1);
+    emscripten_set_main_loop(gGraphics->OnMainLoopTimer, 0 /*gGraphics->FPS()*/, 1);
   }
   #else
     #error "No OS defined!"
