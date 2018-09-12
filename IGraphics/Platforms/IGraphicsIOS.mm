@@ -61,7 +61,7 @@ bool IGraphicsIOS::GetResourcePathFromBundle(const char* fileName, const char* s
   {
     NSString* pParent = [[[pBundle bundlePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent];
     NSString* pPath = nullptr;
-    if(strcmp(searchExt, "png") == 0)
+    if(strcmp(searchExt, "png") == 0 || strcmp(searchExt, "svg") == 0)
       pPath = [[[[pParent stringByAppendingString:@"/img/"] stringByAppendingString:pFile] stringByAppendingString: @"."] stringByAppendingString:pExt];
     else if(strcmp(searchExt, "ttf") == 0)
       pPath = [[[[pParent stringByAppendingString:@"/fonts/"] stringByAppendingString:pFile] stringByAppendingString: @"."] stringByAppendingString:pExt];
