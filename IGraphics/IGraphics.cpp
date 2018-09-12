@@ -834,7 +834,7 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
   if (mHandleMouseOver)
   {
     int c = GetMouseControlIdx(x, y, true);
-    if (mMouseOver >= 0 && mMouseOver != c)
+    if (mMouseOver > 0 && mMouseOver != c) // the background should not receive MouseOver calls
     {
       mControls.Get(mMouseOver)->OnMouseOut();
     }
