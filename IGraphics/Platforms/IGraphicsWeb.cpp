@@ -255,6 +255,14 @@ bool IGraphicsWeb::OpenURL(const char* url, const char* msgWindowTitle, const ch
   return true;
 }
 
+void IGraphicsWeb::Resize(int w, int h, float scale)
+{
+  if (w == Width() && h == Height() && scale == GetScale()) return;
+  
+  IGraphics::Resize(w, h, scale);
+  OnResizeOrRescale();
+}
+
 #if defined IGRAPHICS_CANVAS
 #include "IGraphicsCanvas.cpp"
 #elif defined IGRAPHICS_NANOVG
