@@ -16,7 +16,6 @@ void IGEditorDelegate::OnUIOpen()
   IEditorDelegate::OnUIOpen();
   
   GetUI()->Resize(GetEditorWidth(), GetEditorHeight(), GetEditorScale());
-  GetUI()->OnResizeOrRescale();
 }
 
 IGraphics* IGEditorDelegate::GetUI()

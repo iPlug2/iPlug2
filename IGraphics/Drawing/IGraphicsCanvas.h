@@ -35,7 +35,7 @@ public:
   void DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedBitmap(IBitmap& bitmap, float destCentreX, float destCentreY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override { IGraphicsPathBase::DrawRotatedBitmap(bitmap, destCentreX, destCentreY, DegToRad(angle), yOffsetZeroDeg, pBlend); }
   
-  void OnResizeOrRescale() override;
+  void DrawResize() override;
 
   void PathClear() override { GetContext().call<void>("beginPath"); }
   void PathClose() override { GetContext().call<void>("closePath"); }

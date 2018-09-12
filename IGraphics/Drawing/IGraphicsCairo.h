@@ -74,7 +74,7 @@ public:
 
   void SetPlatformContext(void* pContext) override;
 
-  void OnResizeOrRescale() override { SetPlatformContext(nullptr); IGraphics::OnResizeOrRescale(); }
+  void DrawResize() override { SetPlatformContext(nullptr); }
 
   void LoadFont(const char* fileName) override;
 protected:

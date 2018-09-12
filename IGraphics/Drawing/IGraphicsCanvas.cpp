@@ -256,7 +256,7 @@ void IGraphicsCanvas::SetClipRegion(const IRECT& r)
   }
 }
 
-void IGraphicsCanvas::OnResizeOrRescale()
+void IGraphicsCanvas::DrawResize()
 {
   val canvas = GetCanvas();
 
@@ -266,7 +266,6 @@ void IGraphicsCanvas::OnResizeOrRescale()
   canvas.set("width", Width() * GetScale() * GetDisplayScale());
   canvas.set("height", Height() * GetScale() * GetDisplayScale());
   
-  IGraphics::OnResizeOrRescale();
   IGraphicsWeb::OnMainLoopTimer();
 }
 

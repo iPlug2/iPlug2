@@ -161,17 +161,11 @@ bool IGraphicsIOS::WindowIsOpen()
   return mView;
 }
 
-void IGraphicsIOS::Resize(int w, int h, float scale)
+void IGraphicsIOS::PlatformResize()
 {
-  if (w == Width() && h == Height() && scale == GetScale()) return;
-  
-  IGraphics::Resize(w, h, scale);
-  
   if (mView)
   {
     //TODO
-    
-    SetAllControlsDirty();
   }
 }
 

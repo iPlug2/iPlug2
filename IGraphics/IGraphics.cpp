@@ -67,8 +67,25 @@ IGraphics::~IGraphics()
   mControls.Empty(true);
 }
 
+void IGraphics::SetDisplayScale(int scale)
+{
+  mDisplayScale = (float) scale;
+
+  int i, n = mControls.GetSize();
+  IControl** ppControl = mControls.GetList();
+  for (i = 0; i < n; ++i, ++ppControl)
+  {
+    (*ppControl)->OnRescale();
+  }
+  
+  SetAllControlsDirty();
+  DrawResize();
+}
+
 void IGraphics::Resize(int w, int h, float scale)
 {
+  if (w == Width() && h == Height() && scale == GetScale()) return;
+  
   DBGMSG("resize %i, resize %i, scale %f\n", w, h, scale);
   ReleaseMouseCapture();
 
@@ -82,20 +99,17 @@ void IGraphics::Resize(int w, int h, float scale)
   // TODO: Use natural resolution bitmaps where possible?
 
   GetDelegate()->ResizeGraphicsFromUI((int) (w * scale), (int) (h * scale), scale);
-}
+  PlatformResize();
 
-void IGraphics::OnResizeOrRescale()
-{
   int i, n = mControls.GetSize();
   IControl** ppControl = mControls.GetList();
   for (i = 0; i < n; ++i, ++ppControl)
   {
-    IControl* pControl = *ppControl;
-    pControl->OnRescale();
-    pControl->OnResize();
+    (*ppControl)->OnResize();
   }
 
   SetAllControlsDirty();
+  DrawResize();
 }
 
 void IGraphics::SetControlValueFromStringAfterPrompt(IControl& control, const char* str)

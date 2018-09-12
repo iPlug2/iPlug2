@@ -69,7 +69,7 @@ public:
 
   /** Called by the platform IGraphics class when UI created and when moving to a new screen with different DPI, implementations in draw class must call the base implementation
    * @param scale The scale of the display, typically 2 on a macOS retina screen */
-  void SetDisplayScale(int scale) { mDisplayScale = (float) scale; OnResizeOrRescale(); };
+  void SetDisplayScale(int scale);
   
   /** Draw an SVG image to the graphics context
    * @param svg The SVG image to the graphics context
@@ -350,9 +350,6 @@ public:
   virtual void ReleaseBitmap(const IBitmap& bitmap);
   IBitmap GetScaledBitmap(IBitmap& src);
 
-  /** This method is called when display on which the UI resides changes scale, or size i.e. if the window is dragged from a high DPI screen to a low DPI screen or vice versa */
-  virtual void OnResizeOrRescale();
-
 #pragma mark - IGraphics base implementation - drawing helpers
 
   /** Draws a bitmap into the graphics context. NOTE: this helper method handles multi-frame bitmaps, indexable via frame
@@ -490,12 +487,12 @@ public:
   /** Call to force end text entry (will cancel any half input text \todo check) */
   virtual void ForceEndUserEdit() = 0;
 
-  /** \todo detailled description of how this works
+  /** \todo detailed description of how this works
    * @param w New width in pixels
    * @param h New height in pixels
    * @param scale New scale ratio */
-  virtual void Resize(int w, int h, float scale);
-
+  void Resize(int w, int h, float scale);
+    
   /** Open a new platform view for this graphics context
    * @param pParentWnd void pointer to parent platform window or view handle (if applicable) \todo check
    * @return void pointer to newly created IGraphics platform view */
@@ -940,6 +937,9 @@ private:
   int GetMouseControlIdx(float x, float y, bool mo = false);
   void StartResizeGesture() { mResizingInProcess = true; };
   
+  virtual void PlatformResize() {}
+  virtual void DrawResize() {}
+    
   int mWidth;
   int mHeight;
   int mFPS;
