@@ -22,7 +22,7 @@ def main():
   config = parse_config(projectpath)
   xcconfig = parse_xcconfig(projectpath + '/../../common-mac.xcconfig')
 
-  CFBundleGetInfoString = config['BUNDLE_NAME'] + " v" + config['FULL_VER_STR'] + " " + config['PLUG_COPYRIGHT']
+  CFBundleGetInfoString = config['BUNDLE_NAME'] + " v" + config['FULL_VER_STR'] + " " + config['PLUG_COPYRIGHT_STR']
   CFBundleVersion = config['FULL_VER_STR']
   CFBundlePackageType = "BNDL"
   CSResourcesFileMapped = True
@@ -55,7 +55,7 @@ def main():
   vst3['CFBundleShortVersionString'] = CFBundleVersion
   vst3['LSMinimumSystemVersion'] = LSMinimumSystemVersion
   vst3['CFBundlePackageType'] = CFBundlePackageType
-  vst3['CFBundleSignature'] = config['PLUG_UID']
+  vst3['CFBundleSignature'] = config['PLUG_UNIQUE_ID']
   vst3['CSResourcesFileMapped'] = CSResourcesFileMapped
 
   plistlib.writePlist(vst3, plistpath)
@@ -72,7 +72,7 @@ def main():
   vst2['CFBundleShortVersionString'] = CFBundleVersion
   vst2['LSMinimumSystemVersion'] = LSMinimumSystemVersion
   vst2['CFBundlePackageType'] = CFBundlePackageType
-  vst2['CFBundleSignature'] = config['PLUG_UID']
+  vst2['CFBundleSignature'] = config['PLUG_UNIQUE_ID']
   vst2['CSResourcesFileMapped'] = CSResourcesFileMapped
 
   plistlib.writePlist(vst2, plistpath)
@@ -89,7 +89,7 @@ def main():
   auv2['CFBundleShortVersionString'] = CFBundleVersion
   auv2['LSMinimumSystemVersion'] = LSMinimumSystemVersion
   auv2['CFBundlePackageType'] = CFBundlePackageType
-  auv2['CFBundleSignature'] = config['PLUG_UID']
+  auv2['CFBundleSignature'] = config['PLUG_UNIQUE_ID']
   auv2['CSResourcesFileMapped'] = CSResourcesFileMapped
 
   if config['PLUG_IS_INSTRUMENT']:
@@ -101,15 +101,15 @@ def main():
   else:
      COMPONENT_TYPE = kAudioUnitType_Effect
 
-  auv2['AudioUnit Version'] = config['PLUG_VER_HEX']
+  auv2['AudioUnit Version'] = config['PLUG_VERSION_HEX']
   auv2['AudioComponents'] = [{}]
   auv2['AudioComponents'][0]['description'] = config['PLUG_NAME']
   auv2['AudioComponents'][0]['factoryFunction'] = config['AUV2_FACTORY']
-  auv2['AudioComponents'][0]['manufacturer'] = config['PLUG_MFR_UID']
+  auv2['AudioComponents'][0]['manufacturer'] = config['PLUG_MFR_ID']
   auv2['AudioComponents'][0]['name'] = config['PLUG_MFR'] + ": " + config['PLUG_NAME']
-  auv2['AudioComponents'][0]['subtype'] = config['PLUG_UID']
+  auv2['AudioComponents'][0]['subtype'] = config['PLUG_UNIQUE_ID']
   auv2['AudioComponents'][0]['type'] = COMPONENT_TYPE
-  auv2['AudioComponents'][0]['version'] = config['PLUG_VER_INT']
+  auv2['AudioComponents'][0]['version'] = config['PLUG_VERSION_INT']
   auv2['AudioComponents'][0]['sandboxSafe'] = True
 
   plistlib.writePlist(auv2, plistpath)
@@ -141,11 +141,11 @@ def main():
                              )
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'] = [{}]
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['description'] = config['PLUG_NAME']
-  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['manufacturer'] = config['PLUG_MFR_UID']
+  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['manufacturer'] = config['PLUG_MFR_ID']
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['name'] = config['PLUG_MFR'] + ": " + config['PLUG_NAME']
-  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['subtype'] = config['PLUG_UID']
+  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['subtype'] = config['PLUG_UNIQUE_ID']
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['type'] = COMPONENT_TYPE
-  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['version'] = config['PLUG_VER_INT']
+  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['version'] = config['PLUG_VERSION_INT']
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['sandboxSafe'] = True
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['tags'] = [{}]
 
@@ -183,7 +183,7 @@ def main():
   macOSapp['CFBundleShortVersionString'] = CFBundleVersion
   macOSapp['LSMinimumSystemVersion'] = LSMinimumSystemVersion
   macOSapp['CFBundlePackageType'] = CFBundlePackageType
-  macOSapp['CFBundleSignature'] = config['PLUG_UID']
+  macOSapp['CFBundleSignature'] = config['PLUG_UNIQUE_ID']
   macOSapp['CSResourcesFileMapped'] = CSResourcesFileMapped
   macOSapp['NSPrincipalClass'] = "SWELLApplication"
   macOSapp['NSMainNibFile'] = "IPlugEffect-macOS-MainMenu"

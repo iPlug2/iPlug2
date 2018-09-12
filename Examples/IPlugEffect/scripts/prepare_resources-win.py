@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-# populate config.h with tags for resource filenames and ids based on images in ../resources/img
 import plistlib, os, datetime, fileinput, glob, sys, string, shutil
 
 scriptpath = os.path.dirname(os.path.realpath(__file__))

@@ -130,7 +130,7 @@ fi
 
 # build xcode project. Change target to build individual formats 
 
-xcodebuild -project ./projects/$PLUGIN_NAME.xcodeproj -xcconfig ./projects/$PLUGIN_NAME.xcconfig DEMO_VERSION=$DEMO -target "All" -configuration Release 2> ./build-mac.log
+xcodebuild -project ./projects/$PLUGIN_NAME-macOS.xcodeproj -xcconfig ./config/$PLUGIN_NAME-mac.xcconfig DEMO_VERSION=$DEMO -target "All" -configuration Release 2> ./build-mac.log
 
 if [ -s build-mac.log ]
 then
