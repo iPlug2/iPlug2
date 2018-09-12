@@ -339,9 +339,6 @@ struct ITimeInfo
 
   bool mTransportIsRunning = false;
   bool mTransportLoopEnabled = false;
-
-  ITimeInfo()
-  {}
 };
 
 /** A struct used for specifying baked-in factory presets */
