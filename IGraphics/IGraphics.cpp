@@ -558,9 +558,15 @@ void IGraphics::BeginFrame()
 
 void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, bool alwaysShow)
 {
-  if (pControl && bounds.Intersects(pControl->GetRECT()) && (!pControl->IsHidden() || alwaysShow))
+  
+  if (pControl && (!pControl->IsHidden() || alwaysShow))
   {
-    ClipRegion(bounds.Intersect(pControl->GetRECT()));
+    IRECT clipBounds = bounds.Intersect(pControl->GetRECT());
+
+    if (clipBounds.W() <= 0.0 || clipBounds.H() <= 0)
+      return;
+    
+    ClipRegion(clipBounds);
     pControl->Draw(*this);
     
 #ifdef AAX_API
