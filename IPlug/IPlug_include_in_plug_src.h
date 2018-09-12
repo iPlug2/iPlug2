@@ -195,7 +195,6 @@ END_FACTORY
   IPlug* MakePlug(void* pMemory)
   {
     IPlugInstanceInfo instanceInfo;
-    instanceInfo.mBundleID.Set(BUNDLE_ID);
     instanceInfo.mCocoaViewFactoryClassName.Set(AUV2_VIEW_CLASS_STR);
 
     if(pMemory)
