@@ -54,8 +54,8 @@ EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent
   
   pGraphics->mPrevX = x;
   pGraphics->mPrevY = y;
-  
-  return 0;
+    
+  return true;
 }
 
 EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* pUserData)
@@ -99,7 +99,7 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
   pGraphics->mPrevX = x;
   pGraphics->mPrevY = y;
 
-  return 0;
+  return true;
 }
 
 EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* pEvent, void* pUserData)
@@ -120,7 +120,7 @@ EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* pEvent, void* 
       break;
   }
   
-  return 0;
+  return true;
 }
 
 IGraphicsWeb::IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
