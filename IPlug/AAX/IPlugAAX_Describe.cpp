@@ -26,7 +26,7 @@
 #include "AAX_Assert.h"
 
 #ifndef BUNDLE_ID
-  #define BUNDLE_ID "com." BUNDLE_MFR ".aax." BUNDLE_NAME
+#define BUNDLE_ID BUNDLE_DOMAIN "." BUNDLE_MFR ".aax." BUNDLE_NAME
 #endif
 
 #define args(...) __VA_ARGS__
