@@ -583,10 +583,10 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   if (mTextFieldView)
     [self endUserInput ];
   
-  if (mWebView) {
-    [mWebView removeFromSuperview ];
-    mWebView = nullptr;
-  }
+//  if (mWebView) {
+//    [mWebView removeFromSuperview ];
+//    mWebView = nullptr;
+//  }
   
   if (mGraphics)
   {
@@ -738,12 +738,17 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   mEdControl = nullptr;
 }
 
-- (void) createWebView: (NSRect) areaRect : (const char*) url
-{
-  mWebView = [[WKWebView alloc] initWithFrame: areaRect ];
-  [self addSubview: mWebView];
-  [mWebView loadRequest: [NSURLRequest requestWithURL: [NSURL URLWithString:[NSString stringWithUTF8String:url]]]];
-}
+//- (void) createWebView: (NSRect) areaRect : (const char*) url
+//{
+//  mWebView = [[WKWebView alloc] initWithFrame: areaRect ];
+//  [self addSubview: mWebView];
+//  [mWebView loadRequest: [NSURLRequest requestWithURL: [NSURL URLWithString:[NSString stringWithUTF8String:url]]]];
+//}
+//
+//-(void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message
+//{
+//  NSLog(@"%@",message.body);
+//}
 
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData
 {
