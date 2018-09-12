@@ -17,6 +17,7 @@
 
 #include "IPlugPlatform.h"
 #include "IGraphicsConstants.h"
+#include "IGraphicsUtilities.h"
 
 
 class IGraphics;
@@ -389,6 +390,69 @@ struct IStrokeOptions
   DashOptions mDash;
 };
 
+/** Used to store transformation matrices**/
+
+struct IMatrix
+{
+  IMatrix()
+  {
+    mTransform[0] = 1.0;
+    mTransform[1] = 0.0;
+    mTransform[2] = 0.0;
+    mTransform[3] = 1.0;
+    mTransform[4] = 0.0;
+    mTransform[5] = 0.0;
+  }
+  
+  void Translate(float x, float y)
+  {
+    mTransform[4] += x;
+    mTransform[5] += y;
+  }
+  
+  void Scale(float x, float y)
+  {
+    mTransform[0] *= x;
+    mTransform[2] *= x;
+    mTransform[4] *= x;
+    mTransform[1] *= y;
+    mTransform[3] *= y;
+    mTransform[5] *= y;
+  }
+  
+  void Rotate(float a)
+  {
+    a = DegToRad(a);
+    const double ca = cos(a);
+    const double sa = sin(a);
+    const double sx = mTransform[0];
+    const double hx = mTransform[1];
+    const double hy = mTransform[2];
+    const double sy = mTransform[3];
+    const double tx = mTransform[4];
+    const double ty = mTransform[5];
+    mTransform[0] = sx * ca - hy * sa;
+    mTransform[1] = hx * ca - sy * sa;
+    mTransform[2] = sx * sa + hy * ca;
+    mTransform[3] = hx * sa + sy * ca;
+    mTransform[4] = tx * ca - ty * sa;
+    mTransform[5] = tx * sa + ty * ca;
+  }
+  
+  void Transform(const IMatrix& m)
+  {
+    IMatrix p = *this;
+
+    mTransform[0] = p.mTransform[0] * m.mTransform[0] + p.mTransform[2] * m.mTransform[1];
+    mTransform[1] = p.mTransform[1] * m.mTransform[0] + p.mTransform[3] * m.mTransform[1];
+    mTransform[2] = p.mTransform[0] * m.mTransform[2] + p.mTransform[2] * m.mTransform[3];
+    mTransform[3] = p.mTransform[1] * m.mTransform[2] + p.mTransform[3] * m.mTransform[3];
+    mTransform[4] = p.mTransform[4] * m.mTransform[0] + p.mTransform[5] * m.mTransform[1] + m.mTransform[4];
+    mTransform[5] = p.mTransform[4] * m.mTransform[2] + p.mTransform[5] * m.mTransform[3] + m.mTransform[5];
+  }
+  
+  float mTransform[6];
+};
 struct IColorStop
 {
   IColorStop()

@@ -502,3 +502,21 @@ void IGraphicsCairo::LoadFont(const char* name)
   }
 #endif
 }
+
+void IGraphicsCairo::PathTransformSetMatrix(const IMatrix& m)
+{
+  cairo_matrix_t matrix;
+  cairo_matrix_init(&matrix, m.mTransform[0], m.mTransform[1], m.mTransform[2], m.mTransform[3], m.mTransform[4], m.mTransform[5]);
+  cairo_set_matrix(mContext, &matrix);
+}
+
+void IGraphicsCairo::SetClipRegion(const IRECT& r) 
+{
+  cairo_reset_clip(mContext);
+  if (!r.Empty())
+  {
+    cairo_new_path(mContext);
+    cairo_rectangle(mContext, r.L, r.T, r.W(), r.H());
+    cairo_clip(mContext);
+  }
+}

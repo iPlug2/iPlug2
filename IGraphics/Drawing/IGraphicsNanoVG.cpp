@@ -462,3 +462,18 @@ void IGraphicsNanoVG::DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, 
   nvgFill(mVG);
   nvgBeginPath(mVG); // Clear the paths
 }
+
+void IGraphicsNanoVG::PathTransformSetMatrix(const IMatrix& m)
+{
+  nvgResetTransform(mVG);
+  nvgTransform(mVG, m.mTransform[0], m.mTransform[1], m.mTransform[2], m.mTransform[3], m.mTransform[4], m.mTransform[5]);
+  nvgScale(mVG, GetScale(), GetScale());
+}
+
+void IGraphicsNanoVG::SetClipRegion(const IRECT& r)
+{
+  if (!r.Empty())
+    nvgScissor(mVG, r.L, r.T, r.W(), r.H());
+  else
+    nvgResetScissor(mVG);
+}

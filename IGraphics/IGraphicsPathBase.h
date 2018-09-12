@@ -1,5 +1,6 @@
 #pragma once
 #include <algorithm>
+#include <stack>
 
 #include "IGraphics.h"
 
@@ -19,11 +20,11 @@ public:
     float width = (float) bitmap.W();
     float height = (float) bitmap.H();
     
-    PathStateSave();
+    PathTransformSave();
     PathTransformTranslate((float) destCtrX, (float) destCtrY);
     PathTransformRotate((float) angle);
     DrawBitmap(bitmap, IRECT(-width * 0.5f, - height * 0.5f, width * 0.5f, height * 0.5f), 0, 0, pBlend);
-    PathStateRestore();
+    PathTransformRestore();
   }
   
   void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, float x, float y, double angle, const IBlend* pBlend) override
@@ -32,13 +33,13 @@ public:
     float height = (float) base.H();
     
     IBlend addBlend(kBlendAdd);
-    PathStateSave();
+    PathTransformSave();
     DrawBitmap(base, IRECT(x, y, x + width, y + height), 0, 0, pBlend);
     PathTransformTranslate(x + 0.5f * width, y + 0.5f * height);
     PathTransformRotate((float) angle);
     DrawBitmap(mask, IRECT(-width * 0.5f, - height * 0.5f, width * 0.5f, height * 0.5f), 0, 0, &addBlend);
     DrawBitmap(top, IRECT(-width * 0.5f, - height * 0.5f, width * 0.5f, height * 0.5f), 0, 0, pBlend);
-    PathStateRestore();
+    PathTransformRestore();
   }
   
   void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override
@@ -289,7 +290,7 @@ public:
   
   virtual void PathEllipse(float x, float y, float r1, float r2, float angle = 0.0) override
   {
-    PathStateSave();
+    PathTransformSave();
     
     if (r1 <= 0.0 || r2 <= 0.0)
       return;
@@ -300,7 +301,7 @@ public:
     
     PathCircle(0.0, 0.0, 1.0);
     
-    PathStateRestore();
+    PathTransformRestore();
   }
   
   void PathEllipse(const IRECT& bounds) override
@@ -323,14 +324,71 @@ public:
     PathClose();
   }
   
-  virtual void PathStateSave() = 0;
-  virtual void PathStateRestore() = 0;
+  // FIX - make these overrides of IGraphics
+    
+  void PathTransformSave()
+  {
+    mTransformStates.push(mTransform);
+  }
   
-  virtual void PathTransformTranslate(float x, float y) = 0;
-  virtual void PathTransformScale(float scaleX, float scaleY) = 0;
-  virtual void PathTransformRotate(float angle) = 0;
+  void PathTransformRestore()
+  {
+    if (!mTransformStates.empty())
+    {
+      mTransform = mTransformStates.top();
+      mTransformStates.pop();
+      PathTransformSetMatrix(mTransform);
+    }
+  }
   
-  void PathTransformScale(float scale) { PathTransformScale(scale, scale); }
+  void PathTransformReset(bool clearStates = false)
+  {
+    if (clearStates)
+    {
+      std::stack<IMatrix> newStack;
+      mTransformStates.swap(newStack);
+    }
+    
+    mTransform = IMatrix();
+    PathTransformSetMatrix(mTransform);
+  }
+  
+  void PathTransformTranslate(float x, float y)
+  {
+    mTransform.Translate(x, y);
+    PathTransformSetMatrix(mTransform);
+  }
+  
+  void PathTransformScale(float scaleX, float scaleY)
+  {
+    mTransform.Scale(scaleX, scaleY);
+    PathTransformSetMatrix(mTransform);
+  }
+  
+  void PathTransformScale(float scale)
+  {
+    PathTransformScale(scale, scale);
+  }
+  
+  void PathTransformRotate(float angle)
+  {
+    mTransform.Rotate(angle);
+    PathTransformSetMatrix(mTransform);
+  }
+
+  void PathTransformMatrix(const IMatrix& matrix)
+  {
+    mTransform.Transform(matrix);
+    PathTransformSetMatrix(mTransform);
+  }
+
+  void PathClipRegion(const IRECT r = IRECT())
+  {
+    IRECT clip = r.Intersect(mClipRECT);
+    PathTransformSetMatrix(IMatrix());
+    SetClipRegion(clip);
+    PathTransformSetMatrix(mTransform);
+  }
   
   void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override
   {
@@ -338,20 +396,20 @@ public:
     float yScale = dest.H() / svg.H();
     float scale = xScale < yScale ? xScale : yScale;
     
-    PathStateSave();
+    PathTransformSave();
     PathTransformTranslate(dest.L, dest.T);
     PathTransformScale(scale);
     RenderNanoSVG(svg.mImage);
-    PathStateRestore();
+    PathTransformRestore();
   }
   
   void DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend) override
   {
-    PathStateSave();
+    PathTransformSave();
     PathTransformTranslate(destCtrX, destCtrY);
     PathTransformRotate((float) angle);
     DrawSVG(svg, IRECT(-width * 0.5f, - height * 0.5f, width * 0.5f, height * 0.5f), pBlend);
-    PathStateRestore();
+    PathTransformRestore();
   }
 
 private:
@@ -460,4 +518,21 @@ private:
       }
     }
   }
+  
+private:
+  
+  void ClipRegion(const IRECT& r) override
+  {
+    PathTransformReset(true);
+    SetClipRegion(r);
+    mClipRECT = r;
+  }
+  
+  virtual void SetClipRegion(const IRECT& r) = 0;
+  virtual void PathTransformSetMatrix(const IMatrix& matrix) = 0;
+
+  IRECT mClipRECT;
+  IMatrix mTransform;
+  std::stack<IMatrix> mTransformStates;
 };
+
