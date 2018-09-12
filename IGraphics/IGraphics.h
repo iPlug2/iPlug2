@@ -606,11 +606,12 @@ public:
   /** Called repeatedly at frame rate by the platform class to check what the graphics context says is dirty
    * @param bounds The rectangular region which will be added to to mark what is dirty in the context
    * @return /c true if a control is dirty */
-  bool IsDirty(IRECT& bounds);
+  bool IsDirty(IRECTList& rects);
 
   /** Called by the platform class when an area needs to be redrawn
    * @param bounds The rectangular region to draw */
   virtual void Draw(const IRECT& bounds);
+  virtual void Draw(IRECTList& rects);
 
   /** This method is called after interacting with a control, so that any other controls linked to the same parameter index, will also be set dirty, and have their values updated.
    * @param pCaller The control that triggered the parameter change. */
@@ -761,7 +762,8 @@ public:
 
   /***/
   void SetAllControlsDirty();
-
+  void SetAllControlsClean();
+  
   /** @param x The X coordinate in the graphics context at which the mouse event occurred
    * @param y The Y coordinate in the graphics context at which the mouse event occurred
    * @param mod IMouseMod struct contain information about the modifiers held */
@@ -839,10 +841,6 @@ public:
    * @param file The absolute path of the file which contains the layout info (correctly tagged) for live editing
    * @param gridsize The size of the layout grid in pixels */
   void EnableLiveEdit(bool enable, const char* file = 0, int gridsize = 10);
-
-  /** Return the rectangular region of the graphics context marked for drawing
-   * @return An IRECT that corresponds to the rectangular region currently marked for drawing */
-  IRECT GetDrawRect() const { return mDrawRECT; }
 
   /** Returns an IRECT that represents the entire UI bounds
    * This is useful for programatically arranging UI elements by slicing up the IRECT using the various IRECT methods
@@ -924,7 +922,6 @@ protected:
 protected:
   IGEditorDelegate& mDelegate;
   WDL_PtrList<IControl> mControls;
-  IRECT mDrawRECT;
   void* mPlatformContext = nullptr;
   bool mCursorHidden = false;
   bool mTabletInput = false;
@@ -939,7 +936,7 @@ protected:
   IPopupMenu mPromptPopupMenu;
 
 private:
-  void DrawControl(IControl* pControl);
+  void DrawControl(IControl* pControl, const IRECT& bounds, bool alwaysShow);
   int GetMouseControlIdx(float x, float y, bool mo = false);
   void StartResizeGesture() { mResizingInProcess = true; };
   

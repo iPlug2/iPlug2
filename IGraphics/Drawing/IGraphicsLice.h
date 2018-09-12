@@ -102,8 +102,17 @@ protected:
   void EndFrame() override;
     
 private:
+  
+  void ClipRegion(const IRECT& r) override
+  {
+    mDrawRECT = r;
+    mDrawRECT.PixelAlign();
+  }
+  
   LICE_IFont* CacheFont(const IText& text, double scale);
 
+  IRECT mDrawRECT;
+    
   LICE_SysBitmap* mDrawBitmap = nullptr;
   LICE_MemBitmap* mTmpBitmap = nullptr;
 #ifdef OS_MAC

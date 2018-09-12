@@ -271,8 +271,17 @@ void IGraphics::SetAllControlsDirty()
   IControl** ppControl = mControls.GetList();
   for (i = 0; i < n; ++i, ++ppControl)
   {
-    IControl* pControl = *ppControl;
-    pControl->SetDirty(false);
+    (*ppControl)->SetDirty(false);
+  }
+}
+
+void IGraphics::SetAllControlsClean()
+{
+  int i, n = mControls.GetSize();
+  IControl** ppControl = mControls.GetList();
+  for (i = 0; i < n; ++i, ++ppControl)
+  {
+   (*ppControl)->SetClean();
   }
 }
 
@@ -492,19 +501,7 @@ void IGraphics::DrawData(const IColor& color, const IRECT& bounds, float* normYP
   //TODO:
 }
 
-void IGraphics::DrawControl(IControl* pControl)
-{
-  ClipRegion(mDrawRECT.Intersect(pControl->GetRECT()));
-  pControl->Draw(*this);
-  
-#ifdef AAX_API
-  pControl->DrawPTHighlight(*this);
-#endif
-  
-  ResetClipRegion();
-}
-
-bool IGraphics::IsDirty(IRECT& bounds)
+bool IGraphics::IsDirty(IRECTList& rects)
 {
   bool dirty = false;
   int i, n = mControls.GetSize();
@@ -514,20 +511,20 @@ bool IGraphics::IsDirty(IRECT& bounds)
     IControl* pControl = *ppControl;
     if (pControl->IsDirty())
     {
-      bounds = bounds.Union(pControl->GetRECT());
+      rects.Add(pControl->GetRECT());
       dirty = true;
     }
   }
 
   if (mPopupControl && mPopupControl->IsDirty())
   {
-    bounds = bounds.Union(mPopupControl->GetRECT());
+    rects.Add(mPopupControl->GetRECT());
     dirty = true;
   }
 
   if (mPerfDisplay)
   {
-    bounds = bounds.Union(mPerfDisplay->GetRECT());
+    rects.Add(mPerfDisplay->GetRECT());
     dirty = true;
   }
   
@@ -557,101 +554,89 @@ void IGraphics::BeginFrame()
   }
 }
 
-// The OS is announcing what needs to be redrawn,
-// which may be a larger area than what is strictly dirty.
+// Draw a control in a region if it needs to be drawn
+
+void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, bool alwaysShow)
+{
+  if (pControl && bounds.Intersects(pControl->GetRECT()) && (!pControl->IsHidden() || alwaysShow))
+  {
+    ClipRegion(bounds.Intersect(pControl->GetRECT()));
+    pControl->Draw(*this);
+    
+#ifdef AAX_API
+    pControl->DrawPTHighlight(*this);
+#endif
+    
+#ifndef NDEBUG
+    // helper for debugging
+    if (mShowControlBounds)
+    {
+      DrawRect(CONTROL_BOUNDS_COLOR, pControl->GetRECT());
+    }
+#endif
+    
+    ResetClipRegion();
+  }
+}
+
+// Draw a region of the graphics (redrawing all contained items)
+
 void IGraphics::Draw(const IRECT& bounds)
 {
-  BeginFrame();
-
   int n = mControls.GetSize();
-
-  if (!n)
+  
+  if (!n && !mPopupControl && !mCornerResizer)
     return;
-
-  IControl* pBG = mControls.Get(0);
   
-  if (mStrict || pBG->IsDirty())
-  {    
-    mDrawRECT = bounds;
-    IControl** ppControl = mControls.GetList();
-    for (auto i = 0; i < n; ++i, ++ppControl)
-    {
-      IControl* pControl = *ppControl;
-      if (bounds.Intersects(pControl->GetRECT()))
-      {
-        if (bounds.Contains(pControl->GetRECT()))
-          pControl->SetClean();
-        if (!i || !pControl->IsHidden())
-          DrawControl(pControl);
-      }
-    }
-  }
-  else
-  {
-    for (auto i = 1; i < n; ++i)   // loop through all controls starting from one (not bg)
-    {
-      IControl* pControl = mControls.Get(i); // assign control i to pControl
-      mDrawRECT = pControl->GetRECT(); // put the bounds in the mDrawRect member variable
-      
-      if (pControl->IsDirty() && bounds.Contains(mDrawRECT))   // if pControl is dirty and fully in the draw bounds
-      {
-        pControl->SetClean();
-        
-        for (auto j = 0; j < n; ++j)   // loop through all controls
-        {
-          IControl* pControl2 = mControls.Get(j); // assign control j to pControl2
-          
-          // if control1 == control2 OR control2 is not hidden AND control2's bounds intersects mDrawRect
-          if ((i == j || pControl2->GetRECT().Intersects(mDrawRECT)) && (!j || !pControl2->IsHidden()))
-            DrawControl(pControl2);
-        }
-      }
-    }
-  }
-
-  // TODO these will blend incorrectly if constantly redrawn and overlapped
+  IControl** ppControl = mControls.GetList();
   
-  if (mPopupControl != nullptr && mPopupControl->IsDirty())
+  for (auto i = 0; i < n; ++i, ++ppControl)
   {
-    mPopupControl->Draw(*this);
-    mPopupControl->SetClean();
+    DrawControl(*ppControl, bounds, !i);
   }
   
-  if (mCornerResizer != nullptr)
-  {
-    //mCornerResizer->Draw(*this);
-  }
-  
-  if(mPerfDisplay != nullptr)
-  {
-    mPerfDisplay->Draw(*this);
-  }
+  DrawControl(mPopupControl, bounds, false);
+  DrawControl(mCornerResizer, bounds, false);
 
 #ifndef NDEBUG
-  // some helpers for debugging
+  DrawControl(mLiveEdit, bounds, false);
+  
+  // helper for debugging
   if (mShowAreaDrawn)
   {
+    ClipRegion(bounds);
     static IColor c;
     c.Randomise(50);
     FillRect(c, bounds);
-  }
-
-  if (mShowControlBounds)
-  {
-    ClipRegion(bounds);
-    for (int j = 1; j < mControls.GetSize(); j++)
-    {
-      IRECT r = mControls.Get(j)->GetRECT();
-      DrawRect(CONTROL_BOUNDS_COLOR, r);
-    }
     ResetClipRegion();
   }
-
-  if (mLiveEdit)
-    mLiveEdit->Draw(*this);
-
 #endif
+}
 
+// Called indicating a number of rectangles in the UI that need to redraw
+
+void IGraphics::Draw(IRECTList& rects)
+{
+  if (!rects.Size())
+    return;
+  
+  BeginFrame();
+    
+  if (mStrict)
+  {
+    IRECT r = rects.Bounds();
+    r.PixelAlign();
+    Draw(r);
+  }
+  else
+  {
+    rects.PixelAlign();
+    rects.Optimize();
+    
+    for (auto i = 0; i < rects.Size(); i++)
+      Draw(rects.Get(i));
+  }
+  
   EndFrame();
 }
 
@@ -849,14 +834,14 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
   if (mHandleMouseOver)
   {
     int c = GetMouseControlIdx(x, y, true);
+    if (mMouseOver >= 0 && mMouseOver != c)
+    {
+      mControls.Get(mMouseOver)->OnMouseOut();
+    }
+    mMouseOver = c;
     if (c > 0) // the background should not receive MouseOver calls
     {
       mControls.Get(c)->OnMouseOver(x, y, mod);
-      if (mMouseOver >= 0 && mMouseOver != c)
-      {
-        mControls.Get(mMouseOver)->OnMouseOut();
-      }
-      mMouseOver = c;
       return true;
     }
   }

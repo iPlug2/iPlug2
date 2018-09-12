@@ -355,29 +355,39 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
       
     if (mGraphics->GetPlatformContext())
     {
-      IRECT tmpBounds = ToIRECT(mGraphics, &bounds);
-      mGraphics->Draw(tmpBounds);
+      const NSRect *rects;
+      NSInteger numRects;
+      [self getRectsBeingDrawn:&rects count:&numRects];
+      IRECTList drawRects;
+
+      for (int i = 0; i < numRects; i++)
+        drawRects.Add(ToIRECT(mGraphics, &rects[i]));
+      
+      mGraphics->Draw(drawRects);
     }
   }
 }
 
 - (void) onTimer: (NSTimer*) pTimer
 {
-  IRECT r;
+  IRECTList rects;
 #ifdef IGRAPHICS_NANOVG
-
   //TODO: this is redrawing every IControl!
   mGraphics->SetAllControlsDirty();
- 
-  if (mGraphics->IsDirty(r))
+  
+  if (mGraphics->IsDirty(rects))
   {
-    mGraphics->Draw(r);
-    [self setNeedsDisplayInRect:ToNSRect(mGraphics, r)];
+    mGraphics->SetAllControlsClean();
+    mGraphics->Draw(rects);
+    for (int i = 0; i < rects.Size(); i++)
+      [self setNeedsDisplayInRect:ToNSRect(mGraphics, rects.Get(i))];
   }
 #else
-  if (/*pTimer == mTimer && mGraphics && */mGraphics->IsDirty(r))
+  if (/*pTimer == mTimer && mGraphics && */mGraphics->IsDirty(rects))
   {
-    [self setNeedsDisplayInRect:ToNSRect(mGraphics, r)];
+    mGraphics->SetAllControlsClean();
+    for (int i = 0; i < rects.Size(); i++)
+      [self setNeedsDisplayInRect:ToNSRect(mGraphics, rects.Get(i))];
   }
 #endif
 }

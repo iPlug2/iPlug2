@@ -190,14 +190,14 @@ bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String
 //static
 void IGraphicsWeb::OnMainLoopTimer()
 {
-  IRECT r;
+  IRECTList rects;
   
 #ifdef IGRAPHICS_NANOVG
   gGraphics->SetAllControlsDirty();
 #endif
   
-  if (gGraphics->IsDirty(r))
-    gGraphics->Draw(r);
+  if (gGraphics->IsDirty(rects))
+    gGraphics->Draw(rects);
 }
 
 bool IGraphicsWeb::GetTextFromClipboard(WDL_String& str)
