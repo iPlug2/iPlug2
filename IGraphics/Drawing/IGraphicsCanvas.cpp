@@ -91,13 +91,11 @@ void IGraphicsCanvas::PathStroke(const IPattern& pattern, float thickness, const
 void IGraphicsCanvas::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
 {
   val context = GetContext();
-
-  // FIX - fill rules?
-  //options.mFillRule
+  std::string fillRule(options.mFillRule == kFillWinding ? "nonzero" : "evenodd");
   
   SetWebSourcePattern(pattern, pBlend);
 
-  context.call<void>("fill");
+  context.call<void>("fill", fillRule);
 
   if (!options.mPreserve)
     PathClear();
