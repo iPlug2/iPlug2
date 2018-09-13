@@ -638,6 +638,14 @@ public:
     mMaxScale = std::max(lo, hi);
   }
   
+  void SetSizeBounds(int widthLo, int widthHi, int heightLo, int heightHi)
+  {
+    mMinWidth = std::min(widthLo, widthHi);
+    mMaxWidth = std::max(widthLo, widthHi);
+    mMinHeight = std::min(heightLo, heightHi);
+    mMaxHeight = std::max(heightLo, heightHi);
+  }
+  
   /** \todo detailed description of how this works
    * @param w New width in pixels
    * @param h New height in pixels
@@ -957,8 +965,12 @@ private:
   int mMouseOver = -1;
   float mMouseDownX = -1.f;
   float mMouseDownY = -1.f;
-  float mMinScale = 1.f;
-  float mMaxScale = 2.f;
+  float mMinScale;
+  float mMaxScale;
+  int mMinWidth;
+  int mMaxWidth;
+  int mMinHeight;
+  int mMaxHeight;
   int mLastClickedParam = kNoParameter;
   bool mHandleMouseOver = false;
   bool mStrict = true;

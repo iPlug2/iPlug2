@@ -44,6 +44,12 @@ IGraphics::IGraphics(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 , mWidth(w)
 , mHeight(h)
 , mScale(scale)
+, mMinScale(scale / 2)
+, mMaxScale(scale * 2)
+, mMinWidth(w / 2)
+, mMaxWidth(w * 2)
+, mMinHeight(h / 2)
+, mMaxHeight(h * 2)
 {
   mFPS = (fps > 0 ? fps : DEFAULT_FPS);
 }
@@ -84,7 +90,10 @@ void IGraphics::SetDisplayScale(int scale)
 
 void IGraphics::Resize(int w, int h, float scale)
 {
+  w = Clip(w, mMinWidth, mMaxWidth);
+  h = Clip(h, mMinHeight, mMaxHeight);
   scale = Clip(scale, mMinScale, mMaxScale);
+  
   if (w == Width() && h == Height() && scale == GetScale()) return;
   
   DBGMSG("resize %i, resize %i, scale %f\n", w, h, scale);
@@ -1140,10 +1149,7 @@ void IGraphics::OnResizeGesture(float x, float y)
   }
   else
   {
-    float width = Clip(x, 10.f, 1000.f);
-    float height = Clip(y, 10.f, 1000.f);
-
-    Resize((int) width, (int) height, GetScale());
+    Resize((int) x, (int) y, GetScale());
   }
 }
 
