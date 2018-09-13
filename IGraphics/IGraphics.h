@@ -486,12 +486,6 @@ public:
 
   /** Call to force end text entry (will cancel any half input text \todo check) */
   virtual void ForceEndUserEdit() = 0;
-
-  /** \todo detailed description of how this works
-   * @param w New width in pixels
-   * @param h New height in pixels
-   * @param scale New scale ratio */
-  void Resize(int w, int h, float scale);
     
   /** Open a new platform view for this graphics context
    * @param pParentWnd void pointer to parent platform window or view handle (if applicable) \todo check
@@ -638,6 +632,18 @@ public:
    * @return Pointer to an IPopupMenu that represents the menu that user finally clicked on (might not be the same as menu if they clicked a submenu) */
   IPopupMenu* CreatePopupMenu(IPopupMenu& menu, float x, float y, IControl* pCaller = nullptr) { const IRECT bounds = IRECT(x,y,x,y); return CreatePopupMenu(menu, bounds, pCaller); }
 
+  void SetScaleBounds(float lo, float hi)
+  {
+    mMinScale = std::min(lo, hi);
+    mMaxScale = std::max(lo, hi);
+  }
+  
+  /** \todo detailed description of how this works
+   * @param w New width in pixels
+   * @param h New height in pixels
+   * @param scale New scale ratio */
+  void Resize(int w, int h, float scale);
+  
   /** Enables strict drawing mode. \todo explain strict drawing
    * @param strict Set /true to enable strict drawing mode */
   void SetStrictDrawing(bool strict);
@@ -951,6 +957,8 @@ private:
   int mMouseOver = -1;
   float mMouseDownX = -1.f;
   float mMouseDownY = -1.f;
+  float mMinScale = 1.f;
+  float mMaxScale = 2.f;
   int mLastClickedParam = kNoParameter;
   bool mHandleMouseOver = false;
   bool mStrict = true;

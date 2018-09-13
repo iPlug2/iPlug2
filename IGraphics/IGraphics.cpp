@@ -84,6 +84,7 @@ void IGraphics::SetDisplayScale(int scale)
 
 void IGraphics::Resize(int w, int h, float scale)
 {
+  scale = Clip(scale, mMinScale, mMaxScale);
   if (w == Width() && h == Height() && scale == GetScale()) return;
   
   DBGMSG("resize %i, resize %i, scale %f\n", w, h, scale);
@@ -1135,7 +1136,7 @@ void IGraphics::OnResizeGesture(float x, float y)
     float scaleX = (x * GetScale()) / mMouseDownX;
     float scaleY = (y * GetScale()) / mMouseDownY;
 
-    Resize(Width(), Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
+    Resize(Width(), Height(), std::min(scaleX, scaleY));
   }
   else
   {
