@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets">
-    <Import Project="$(SolutionDir)..\..\common.props" />
+    <Import Project="$(SolutionDir)..\..\common-win.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros">
     <BINARY_NAME>IPlugEffect</BINARY_NAME>
     <AAX_BUNDLE>$(SolutionDir)build-win\aax\bin\$(BINARY_NAME).aaxplugin</AAX_BUNDLE>
-    <EXTRA_ALL_DEFS>IGRAPHICS_NANOVG</EXTRA_ALL_DEFS>
+    <EXTRA_ALL_DEFS>IGRAPHICS_LICE</EXTRA_ALL_DEFS>
     <EXTRA_DEBUG_DEFS />
     <EXTRA_RELEASE_DEFS />
     <EXTRA_TRACER_DEFS />

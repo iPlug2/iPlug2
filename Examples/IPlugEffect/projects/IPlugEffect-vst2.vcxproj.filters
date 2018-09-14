@@ -225,10 +225,10 @@
     <None Include="..\config\IPlugEffect-web.mk">
       <Filter>config</Filter>
     </None>
-    <None Include="..\config\IPlugEffect.props">
+    <None Include="..\config\IPlugEffect-win.props">
       <Filter>config</Filter>
     </None>
-    <None Include="..\config\IPlugEffect.xcconfig">
+    <None Include="..\config\IPlugEffect-mac.xcconfig">
       <Filter>config</Filter>
     </None>
     <None Include="..\config\IPlugEffect-ios.xcconfig">
