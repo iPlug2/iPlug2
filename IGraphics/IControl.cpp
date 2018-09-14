@@ -336,7 +336,7 @@ void ICaptionControl::Draw(IGraphics& g)
   ITextControl::Draw(g);
   
   if(mIsListControl) {
-    IRECT triRect = mRECT.FracRectHorizontal(0.2, true).GetCentredInside(IRECT(0, 0, 8, 5));
+    IRECT triRect = mRECT.FracRectHorizontal(0.2f, true).GetCentredInside(IRECT(0, 0, 8, 5));
     g.FillTriangle(COLOR_DARK_GRAY, triRect.L, triRect.T, triRect.R, triRect.T, triRect.MW(), triRect.B, GetMouseIsOver() ? 0 : &BLEND_50);
   }
 }
