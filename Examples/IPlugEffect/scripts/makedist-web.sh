@@ -70,22 +70,22 @@ then
   cp ../../../../Dependencies/IPlug/WAM_SDK/wamsdk/*.js .
   cp ../../../../Dependencies/IPlug/WAM_AWP/*.js .
   cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awn.js IPlugEffect-awn.js
-  sed -i.bak s/IPlugWAM/IPlugEffect/ IPlugEffect-awn.js
+  sed -i.bak s/IPlugWAM/IPlugEffect/g IPlugEffect-awn.js
   cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awp.js IPlugEffect-awp.js
-  sed -i.bak s/IPlugWAM/IPlugEffect/ IPlugEffect-awp.js
+  sed -i.bak s/IPlugWAM/IPlugEffect/g IPlugEffect-awp.js
   rm *.bak
   cd ..
 
   #copy in the template html - comment if you have customised the html
   cp ../../../IPlug/WEB/Template/IPlugWAM-standalone.html index.html
-  sed -i.bak s/IPlugWAM/IPlugEffect/ index.html
+  sed -i.bak s/IPlugWAM/IPlugEffect/g index.html
   rm *.bak
 else
   #copy in the template html for websocket - comment if you have customised the html
   cd build-web
   pwd
   cp ../../../IPlug/WEB/Template/IPlugWeb-remote.html index.html
-  sed -i.bak s/IPlugWEB/IPlugEffect/ index.html
+  sed -i.bak s/IPlugWEB/IPlugEffect/g index.html
   rm *.bak
 fi
 
