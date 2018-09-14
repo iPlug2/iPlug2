@@ -102,24 +102,29 @@
       }
 
       function main() {
-        var controllerScripts = [
-          "scripts/wam-controller.js",
-          "scripts/IPlugWAM-awn.js"
-           ];
-
         var actx = new AudioContext();
-        AWPF.polyfill(actx, controllerScripts).then( function () {
-          audioWorkletSupported(!AWPF.isAudioWorkletPolyfilled);
-          IPlugWAMController.importScripts(actx).then(() => {
-            IPlugWAM_WAM = new IPlugWAMController(actx);
-            IPlugWAM_WAM.connect(actx.destination);
+        AWPF.polyfill(actx).then( function () {
+          var script1 = document.createElement("script");
+          script1.src = "scripts/wam-controller.js";
+          script1.onload = () => {
+            var script2 = document.createElement("script");
+            script2.src = "scripts/IPlugWAM-awn.js";
+            script2.onload = () => {
 
-            if(IPlugWAM_WAM != undefined) {
-              //initGUI();
-              document.getElementById('wam').hidden = false;
-              initMidi();
+              audioWorkletSupported(!AWPF.isAudioWorkletPolyfilled);
+              IPlugWAMController.importScripts(actx).then(() => {
+                IPlugWAM_WAM = new IPlugWAMController(actx);
+                IPlugWAM_WAM.connect(actx.destination);
+
+                if(IPlugWAM_WAM != undefined) {
+                  document.getElementById('wam').hidden = false;
+                  initMidi();
+                }
+              });
             }
-          });
+            document.head.appendChild(script2);
+          }
+          document.head.appendChild(script1);
         });
       }
 
