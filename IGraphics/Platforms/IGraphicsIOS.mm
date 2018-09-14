@@ -208,7 +208,31 @@ bool IGraphicsIOS::PromptForColor(IColor& color, const char* str)
 
 IPopupMenu* IGraphicsIOS::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
 {
-  return nullptr;
+  ReleaseMouseCapture();
+  
+  IPopupMenu* pReturnMenu = nullptr;
+  
+  if(mPopupControl) // if we are not using platform pop-up menus
+  {
+    pReturnMenu = mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
+  }
+  else
+  {
+    if (mView)
+    {
+      CGRect areaRect = ToCGRect(this, bounds);
+      pReturnMenu = [(IGraphicsIOS_View*) mView createPopupMenu: menu: areaRect];
+    }
+    
+    //synchronous
+    if(pReturnMenu && pReturnMenu->GetFunction())
+      pReturnMenu->ExecFunction();
+    
+    if(pCaller)
+      pCaller->OnPopupMenuSelection(pReturnMenu); // should fire even if pReturnMenu == nullptr
+  }
+  
+  return pReturnMenu;
 }
 
 void IGraphicsIOS::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
