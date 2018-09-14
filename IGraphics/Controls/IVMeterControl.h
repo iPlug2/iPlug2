@@ -13,6 +13,20 @@ public:
   {
     int nchans = MAXNC;
     float vals[MAXNC] = {};
+    
+    bool AboveThreshold()
+    {
+      static const float threshold = DBToAmp(-90.);
+
+      float sum = 0.f;
+      
+      for(auto i = 0; i < MAXNC; i++)
+      {
+        sum += vals[i];
+      }
+      
+      return std::abs(sum) > threshold;
+    }
   };
   
   class IVMeterBallistics
@@ -40,7 +54,10 @@ public:
         d.vals[c] /= (float) nFrames;
       }
 
-      mQueue.Push(d); // TODO: expensive?
+      if(mPrevAboveThreshold)
+        mQueue.Push(d); // TODO: expensive?
+      
+      mPrevAboveThreshold = d.AboveThreshold();
     }
     
     // this must be called on the main thread - typically in MyPlugin::OnIdle()
@@ -56,6 +73,7 @@ public:
     
   private:
     int mControlTag;
+    bool mPrevAboveThreshold = true;
     IPlugQueue<Data> mQueue { 1024 };
   };
   
@@ -71,7 +89,7 @@ public:
   void OnMsgFromDelegate(int messageTag, int dataSize, const void* pData) override
   {
     IByteChunk chnk;
-    chnk.PutBytes(pData, dataSize); // unnessecary copy
+    chnk.PutBytes(pData, dataSize); // TODO:: unnessecary copy
     
     int pos = 0;
     Data data;
