@@ -154,7 +154,7 @@ void _SendMidiMsgFromDelegate(int status, int data1, int data2)
   gPlug->SendMidiMsgFromDelegate(msg);
 }
 
-void _SendSysexMsgFromDelegate(int messageTag, int dataSize, uintptr_t pData)
+void _SendSysexMsgFromDelegate(int dataSize, uintptr_t pData)
 {
   const uint8_t* pDataPtr = reinterpret_cast<uint8_t*>(pData); // embind doesn't allow us to pass raw pointers
   ISysEx msg(0, pDataPtr, dataSize);
