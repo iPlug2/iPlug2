@@ -380,7 +380,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     }
     case effEditOpen:
     {
-#if defined(_WIN32) || defined(__LP64__) // __LP64__ = cocoa macOS
+#if defined OS_WIN || defined ARCH_64BIT
       if (_this->OpenWindow(ptr))
       {
         _this->OnUIOpen();
