@@ -24,7 +24,9 @@ public:
   {
     AttachIControl(this);
     
-    mNameLabelText = IText(14, GetColor(kFR), DEFAULT_FONT, IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop);
+    SetColor(kBG, COLOR_WHITE);
+    
+    mNameLabelText = IText(14, GetColor(kFR), DEFAULT_FONT, IText::kStyleNormal, IText::kAlignNear, IText::kVAlignBottom);
   }
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
@@ -54,12 +56,15 @@ public:
     
     avg = avg / (float)MAXBUF;
     
-    float x = mRECT.L;
-    float y = mRECT.T;
-    float w = mRECT.W();
-    float h = mRECT.H();
-    
     g.FillRect(GetColor(kBG), mRECT);
+    g.DrawRect(COLOR_BLACK, mRECT);
+
+    IRECT padded = mRECT.GetPadded(-2);
+    
+    float x = padded.L;
+    float y = padded.T;
+    float w = padded.W();
+    float h = padded.H();
     
     // TODO: replace with IGraphics::DrawData, make it work with lice
 
@@ -101,29 +106,31 @@ public:
     
     g.PathLineTo(mRECT.R, mRECT.B);
     g.PathFill(GetColor(kFG));
+    
+    g.DrawText(mAPILabelText, g.GetDrawingAPIStr(), padded);
 
     if (mNameLabel.GetLength())
-      g.DrawText(mNameLabelText, mNameLabel.Get(), mRECT);
+      g.DrawText(mNameLabelText, mNameLabel.Get(), padded);
     
     WDL_String str;
 
     if (mStyle == kFPS)
     {
       str.SetFormatted(32, "%.2f FPS\n", 1.0f / avg);
-      g.DrawText(mTopLabelText, str.Get(), mRECT);
+      g.DrawText(mTopLabelText, str.Get(), padded);
 
       str.SetFormatted(32, "%.2f ms", avg * 1000.0f);
-      g.DrawText(mBottomLabelText, str.Get(), mRECT);
+      g.DrawText(mBottomLabelText, str.Get(), padded);
     }
     else if (mStyle == kPercentage)
     {
       str.SetFormatted(32, "%.1f %%", avg * 1.0f);
-      g.DrawText(mTopLabelText, str.Get(), mRECT);
+      g.DrawText(mTopLabelText, str.Get(), padded);
     }
     else
     {
       str.SetFormatted(32, "%.2f ms", avg * 1000.0f);
-      g.DrawText(mTopLabelText, str.Get(), mRECT);
+      g.DrawText(mTopLabelText, str.Get(), padded);
     }
   }
 private:
@@ -134,6 +141,7 @@ private:
 
   float mPadding = 1.f;
   IText& mNameLabelText = mText;
+  IText mAPILabelText = IText(14, GetColor(kFR), DEFAULT_FONT, IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop);
   IText mTopLabelText = IText(18, GetColor(kFR), DEFAULT_FONT, IText::kStyleNormal, IText::kAlignFar, IText::kVAlignTop);
   IText mBottomLabelText = IText(15, GetColor(kFR), DEFAULT_FONT, IText::kStyleNormal, IText::kAlignFar, IText::kVAlignBottom);
 };
