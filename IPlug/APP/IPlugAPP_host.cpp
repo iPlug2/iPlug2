@@ -29,8 +29,6 @@
 #define STRBUFSZ 100
 
 IPlugAPPHost* IPlugAPPHost::sInstance = nullptr;
-HWND gHWND;
-HINSTANCE gHINST;
 UINT gSCROLLMSG;
 
 IPlugAPPHost::IPlugAPPHost()
@@ -68,9 +66,9 @@ bool IPlugAPPHost::Init ()
   return true;
 }
 
-bool IPlugAPPHost::OpenWindow()
+bool IPlugAPPHost::OpenWindow(HWND pParent)
 {
-  if(mIPlug->OpenWindow(gHWND) != nullptr)
+  if(mIPlug->OpenWindow(pParent) != nullptr)
   {
     mIPlug->OnUIOpen();
     return true;
@@ -404,7 +402,7 @@ bool IPlugAPPHost::TryToChangeAudio()
   int outputID = -1;
 
 #if defined OS_WIN
-  if(mState.mAudioDriverType == DAC_ASIO)
+  if(mState.mAudioDriverType == kDeviceASIO)
     inputID = GetAudioDeviceIdx(mState.mAudioOutDev.Get());
   else
     inputID = GetAudioDeviceIdx(mState.mAudioInDev.Get());

@@ -473,7 +473,7 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
         case IDC_BUTTON_OS_DEV_SETTINGS:
           if (HIWORD(wParam) == BN_CLICKED)
             #ifdef OS_WIN
-            if( (_this->mState.mAudioDriverType == DAC_ASIO) && (_this->mDAC->isStreamRunning() == true)) // TODO: still not right
+            if( (_this->mState.mAudioDriverType == kDeviceASIO) && (_this->mDAC->isStreamRunning() == true)) // TODO: still not right
               ASIOControlPanel();
             #elif defined OS_MAC
             system("open \"/Applications/Utilities/Audio MIDI Setup.app\"");
@@ -551,7 +551,7 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_INITDIALOG:
       gHWND = hwndDlg;
 
-      if(!pAppHost->OpenWindow())
+      if(!pAppHost->OpenWindow(gHWND))
         DBGMSG("couldn't attach gui\n");
 
       ClientResize(hwndDlg, PLUG_WIDTH, PLUG_HEIGHT);
@@ -610,7 +610,7 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 //        }
         case ID_PREFERENCES:
         {
-          INT_PTR ret = DialogBox(gHINST, MAKEINTRESOURCE(IDD_DIALOG_PREF), hwndDlg, IPlugAPPHost::PreferencesDlgProc);
+          INT_PTR ret = DialogBox(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_PREF), hwndDlg, IPlugAPPHost::PreferencesDlgProc);
 
           if(ret == IDOK)
             pAppHost->UpdateINI();

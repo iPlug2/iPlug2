@@ -31,20 +31,20 @@
 extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 HWND gHWND;
-HINSTANCE gHINSTANCE;
+extern HINSTANCE gHINSTANCE;
 UINT gScrollMessage;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nShowCmd)
 {
   try
   {
-    HANDLE hMutex = OpenMutex(MUTEX_ALL_ACCESS, 0, PLUG_CLASS_NAME); // PLUG_CLASS_NAME used because it won't have spaces in it
+    HANDLE hMutex = OpenMutex(MUTEX_ALL_ACCESS, 0, BUNDLE_NAME); // BUNDLE_NAME used because it won't have spaces in it
     
     if (!hMutex)
-      hMutex = CreateMutex(0, 0, PLUG_CLASS_NAME);
+      hMutex = CreateMutex(0, 0, BUNDLE_NAME);
     else
     {
-      HWND hWnd = FindWindow(0, PLUG_CLASS_NAME);
+      HWND hWnd = FindWindow(0, BUNDLE_NAME);
       SetForegroundWindow(hWnd);
       return 0; // should return 1?
     }
@@ -53,6 +53,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     
     InitCommonControls();
     gScrollMessage = RegisterWindowMessage("MSWHEEL_ROLLMSG");
+
+    IPlugAPPHost* pAppHost = IPlugAPPHost::Create();
+    pAppHost->Init();
+    pAppHost->TryToChangeAudio();
+
     CreateDialog(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_MAIN), GetDesktopWindow(), MainDlgProc);
     
     for(;;)
@@ -101,6 +106,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     // in case gHWND didnt get destroyed -- this corresponds to SWELLAPP_DESTROY roughly
     if (gHWND)
       DestroyWindow(gHWND);
+
+    delete pAppHost;
     
     ReleaseMutex(hMutex);
   }
