@@ -1973,6 +1973,9 @@ void IPlugAU::SetLatency(int samples)
 
 bool IPlugAU::SendMidiMsg(const IMidiMsg& msg)
 {
+  if(mMidiCallback.midiOutputCallback == nullptr)
+    return false;
+  
   MIDIPacketList packetList;
   
   packetList.packet[0].data[0] = msg.mStatus;
@@ -1989,6 +1992,9 @@ bool IPlugAU::SendMidiMsg(const IMidiMsg& msg)
 
 bool IPlugAU::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
 {
+  if(mMidiCallback.midiOutputCallback == nullptr)
+    return false;
+  
   ByteCount listSize = msgs.GetSize() * 3;
   MIDIPacketList* pPktlist = (MIDIPacketList*) malloc(listSize);
   MIDIPacket* pPkt = MIDIPacketListInit(pPktlist);
@@ -2009,6 +2015,9 @@ bool IPlugAU::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
 
 bool IPlugAU::SendSysEx(ISysEx& sysEx)
 {
+  if(mMidiCallback.midiOutputCallback == nullptr)
+    return false;
+  
   ByteCount listSize = sysEx.mSize;
   
   assert(listSize > 65536); // maximum packet list size
