@@ -23,20 +23,7 @@
 #include "IPlugStructs.h"
 #include "IPlugLogger.h"
 
-/** This is the main plugin base class provides a base interface for remote editors as well as the main plug-in,
- *  because we may have state/preset management in remote editors
- *  depending on the arrangement/separation we have chosen
- *  It needn't be a "plug-in" that implements this interface, it can also be used for other things
- *  An example use case: you would like to pop up a custom preferences window with a few simple checkboxes.
- *  You should be able to do that with a new graphics context and something implementing this interface in order to send/receive values
- *  to/from your new UI.
- *
- *  Note on method names: "FromUI" in a method name, means that that method is called by the UI class. Likewise "ToUI" means
- *  that the method is delivering something wait for it... to the UI.
- *  The words "FromDelegate" in a method name mean that method is called from the class that implements the IEditorDelegate interface,
- *  which is usually your plug-in base class. A parameter value is a floating point number linked to an integer parameter index.
- *  A parameter object is an instance of the IParam class as defined in IPlugParameter.h, owned by IPlugAPIBase.
- *  A parameter object is also referred to as a "param", in method names such as IPlugAPIBase::GetParam(int paramIdx) and IControl::GetParam(). */
+/** TODO: */
 class IPluginBase : public EDITOR_DELEGATE_CLASS
 {
 public:

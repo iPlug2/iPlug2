@@ -318,17 +318,11 @@ extern "C"
   }
 #pragma mark - APP
 #elif defined APP_API
-  IPlug* MakePlug(void* pMidiOutput, uint16_t& midiOutChan)
+  IPlug* MakePlug(void* pAppHost)
   {
     IPlugInstanceInfo instanceInfo;
-
-    instanceInfo.mRTMidiOut = (RtMidiOut*) pMidiOutput;
-    instanceInfo.mMidiOutChan = midiOutChan;
-
-    #if defined OS_MAC
-      instanceInfo.mBundleID.Set(BUNDLE_ID);
-    #endif
-
+    instanceInfo.pAppHost = pAppHost;
+    
     return new PLUG_CLASS_NAME(instanceInfo);
   }
 #pragma mark - WAM

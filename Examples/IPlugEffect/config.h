@@ -41,12 +41,10 @@
 
 #define VST3_SUBCATEGORY "Fx"
 
-#define APP_ENABLE_SYSEX 0
-#define APP_ENABLE_MIDICLOCK 0
-#define APP_ENABLE_ACTIVE_SENSING 0
 #define APP_NUM_CHANNELS 2
-#define APP_N_VECTOR_WAIT 50
-#define APP_MULT 0.25
+#define APP_N_VECTOR_WAIT 0
+#define APP_MULT 1
+#define APP_COPY_AUV3 0
 
 #define PNGKNOB_FN "knob.png"
 #define PNGKNOBROTATE_FN "knob-rotate.png"

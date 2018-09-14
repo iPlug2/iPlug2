@@ -12,7 +12,7 @@
 #define IDC_COMBO_AUDIO_DRIVER          40008
 #define IDC_COMBO_AUDIO_IN_DEV          40009
 #define IDC_COMBO_AUDIO_OUT_DEV         40010
-#define IDC_COMBO_AUDIO_IOVS            40011
+#define IDC_COMBO_AUDIO_BUF_SIZE        40011
 #define IDC_COMBO_AUDIO_SIGVS           40012
 #define IDC_COMBO_AUDIO_SR              40013
 #define IDC_COMBO_AUDIO_IN_L            40014
@@ -23,7 +23,7 @@
 #define IDC_COMBO_MIDI_OUT_DEV          40019
 #define IDC_COMBO_MIDI_IN_CHAN          40020
 #define IDC_COMBO_MIDI_OUT_CHAN         40021
-#define IDC_BUTTON_ASIO                 40022
+#define IDC_BUTTON_OS_DEV_SETTINGS      40022
 #define IDC_CB_MONO_INPUT               40023
 #define IDAPPLY                         40024
 

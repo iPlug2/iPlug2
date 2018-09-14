@@ -27,23 +27,12 @@
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
-#include "RtMidi.h"
+struct IPlugInstanceInfo
+{
+  void* pAppHost;
+};
 
-#ifdef OS_WIN
-  struct IPlugInstanceInfo
-  {
-    RtMidiOut* mRTMidiOut;
-    uint16_t mMidiOutChan; // 0 = any, 1 = midi chan 1
-  };
-
-#elif defined OS_MAC
-  struct IPlugInstanceInfo
-  {
-    WDL_String mBundleID;
-    RtMidiOut* mRTMidiOut;
-    uint16_t mMidiOutChan; // 0 = any, 1 = midi chan 1
-  };
-#endif
+class IPlugAPPHost;
 
 /**  Standalone application base class for an IPlug plug-in, inherits from IPlugAPIBase
 *   @ingroup APIClasses
@@ -64,12 +53,14 @@ public:
   //IPlugProcessor
   bool SendMidiMsg(const IMidiMsg& msg) override;
   bool SendSysEx(ISysEx& msg) override;
+  
+  //IPlugAPP
+  void AppProcess(double** inputs, double** outputs, int nFrames);
 
 private:
-  RtMidiOut* mMidiOut = nullptr;
-  uint16_t mMidiOutChan;
+  IPlugAPPHost* mAppHost = nullptr;
 };
 
-IPlugAPP* MakePlug(void* pMidiOutput, uint16_t& midiOutChannel);
+IPlugAPP* MakePlug(void* pAPPHost);
 
 #endif

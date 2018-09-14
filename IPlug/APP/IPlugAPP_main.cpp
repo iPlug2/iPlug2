@@ -16,7 +16,10 @@
 
 #include "wdltypes.h"
 #include "wdlstring.h"
+
 #include "IPlugPlatform.h"
+#include "IPlugAPP_host.h"
+
 #include "config.h"
 #include "resource.h"
 
@@ -118,6 +121,7 @@ extern HMENU SWELL_app_stocksysmenu;
 
 int main(int argc, char *argv[])
 {
+#if APP_COPY_AUV3
   //if invoked with an argument registerauv3 use plug-in kit to explicitly register auv3 app extension (doesn't happen from debugger)
   if(strcmp(argv[2], "registerauv3"))
   {
@@ -131,18 +135,26 @@ int main(int argc, char *argv[])
 //    if(IsSandboxed())
 //      NSLog(@"SANDBOXED\n");
   }
+#endif
   
   return NSApplicationMain(argc,  (const char **) argv);
 }
 
 INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 {
+  IPlugAPPHost* pAppHost = nullptr;
+  
   switch (msg)
   {
     case SWELLAPP_ONLOAD:
+      pAppHost = IPlugAPPHost::Create();
+      pAppHost->Init();
+      pAppHost->TryToChangeAudio();
       break;
     case SWELLAPP_LOADED:
     {
+      pAppHost = IPlugAPPHost::sInstance;
+
       HMENU menu = SWELL_GetCurrentMenu();
 
       if (menu)
