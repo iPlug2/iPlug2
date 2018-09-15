@@ -15,6 +15,23 @@ public:
   {
     int nchans = MAXNC;
     float vals[MAXNC][MAXBUF] = {};
+    
+    bool AboveThreshold()
+    {
+      static const float threshold = DBToAmp(-90.);
+      
+      float sum = 0.f;
+      
+      for(auto c = 0; c < MAXNC; c++)
+      {
+        for(auto s = 0; s < MAXBUF; s++)
+        {
+          sum += vals[c][s];
+        }
+      }
+      
+      return std::abs(sum) > threshold;
+    }
   };
   
   class IVScopeBallistics
@@ -31,7 +48,11 @@ public:
       {
         if(mBufCount == MAXBUF)
         {
-          mQueue.Push(mBuf); // TODO: expensive?
+          if(mPrevAboveThreshold)
+            mQueue.Push(mBuf); // TODO: expensive?
+          
+          mPrevAboveThreshold = mBuf.AboveThreshold();
+          
           mBufCount = 0;
         }
         
@@ -61,6 +82,7 @@ public:
     int mControlTag;
     int mBufCount = 0;
     IPlugQueue<Data> mQueue { 1024 };
+    bool mPrevAboveThreshold = true;
   };
   
   IVScopeControl(IGEditorDelegate& dlg, IRECT bounds, const char* trackNames = 0, ...)
