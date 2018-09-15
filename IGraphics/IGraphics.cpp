@@ -552,7 +552,7 @@ void IGraphics::BeginFrame()
   {
     const double timestamp = GetTimestamp();
     const double timeDiff = timestamp - mPrevTimestamp;
-    mPerfDisplay->Update(timeDiff);
+    mPerfDisplay->Update((float) timeDiff);
     mPrevTimestamp = timestamp;
   }
 }

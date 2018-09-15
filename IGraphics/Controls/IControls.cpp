@@ -170,7 +170,7 @@ void IVSliderControl::Draw(IGraphics& g)
 
   const float halfHandleSize = mHandleSize / 2.f;
 
-  IRECT filledTrack = mTrack.FracRect(mDirection, mValue);
+  IRECT filledTrack = mTrack.FracRect(mDirection, (float) mValue);
 
   g.FillRect(GetColor(kFG), mTrack);
   g.FillRect(GetColor(kSH), filledTrack);
