@@ -103,7 +103,11 @@ then
   exit 1
 fi
 
-mv build-web/scripts/*.wasm build-web
+# TODO: why is this a problem on mac?
+if [ "$(uname)" == "Darwin" ]
+then
+  mv build-web/scripts/*.wasm build-web
+fi
 
 cd build-web
 
