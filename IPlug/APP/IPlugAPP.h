@@ -59,6 +59,9 @@ public:
 
 private:
   IPlugAPPHost* mAppHost = nullptr;
+  IPlugQueue<IMidiMsg> mMidiMsgsFromCallback {32};
+  
+  friend class IPlugAPPHost;
 };
 
 IPlugAPP* MakePlug(void* pAPPHost);

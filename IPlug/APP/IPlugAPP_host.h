@@ -193,8 +193,6 @@ private:
   RtMidiOut* mMidiOut = nullptr;
   int mMidiOutChannel = -1;
   int mMidiInChannel = -1;
-
-  IPlugQueue<IMidiMsg> mMidiMsgsFromCallback {32};
   
   /**  */
   AppState mState;

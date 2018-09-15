@@ -673,11 +673,6 @@ int IPlugAPPHost::AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_
         double* inputs[2] = {pInputBufferD + i, pInputBufferD + inRightOffset + i};
         double* outputs[2] = {pOutputBufferD + i, pOutputBufferD + nFrames + i};
 
-        IMidiMsg msg;
-        while (_this->mMidiMsgsFromCallback.Pop(msg)) {
-          _this->mIPlug->ProcessMidiMsg(msg);
-        }
-        
         _this->mIPlug->AppProcess(inputs, outputs, nFrames);
 
         _this->mSamplesElapsed += _this->mBufferSize;
@@ -725,7 +720,7 @@ void IPlugAPPHost::MIDICallback(double deltatime, std::vector<uint8_t>* pMsg, vo
   {
     IMidiMsg msg(0, pMsg->at(0), pMsg->at(1), pMsg->at(2));
     
-    _this->mMidiMsgsFromCallback.Push(msg);
+    _this->mIPlug->mMidiMsgsFromCallback.Push(msg);
   }
   
   //TODO:

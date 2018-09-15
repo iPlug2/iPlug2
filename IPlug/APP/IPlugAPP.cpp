@@ -106,6 +106,12 @@ void IPlugAPP::AppProcess(double** inputs, double** outputs, int nFrames)
   
   IMidiMsg msg;
   
+  while (mMidiMsgsFromCallback.Pop(msg))
+  {
+    ProcessMidiMsg(msg);
+    mMidiMsgsFromProcessor.Push(msg); // queue incoming MIDI for UI
+  }
+  
   while (mMidiMsgsFromEditor.Pop(msg))
   {
     ProcessMidiMsg(msg);

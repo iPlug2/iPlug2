@@ -123,7 +123,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 #include "swell.h"
 extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-extern HWND gHWND;
+HWND gHWND;
 extern HMENU SWELL_app_stocksysmenu;
 
 int main(int argc, char *argv[])
