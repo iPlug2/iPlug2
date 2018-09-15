@@ -9,18 +9,28 @@
         margin: 0;
         padding: none;
         background: white;
-/*         background: white url("page_background.jpg") no-repeat fixed center; */
         background-size: cover;
+        text-align: center;
+        overflow: hidden;
+
+        /* disable selection */
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none;   /* Safari */
+        -khtml-user-select: none;    /* Konqueror HTML */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
       }
 
-      .control { margin:0 10px; }
-      label  { color:#bbb; font-size:12px; }
-      select { background:#222; color:#eee; height:20px; margin-top:10px; cursor:pointer; }
-
-      .iplug { margin-right: auto; margin-left: auto; margin-xright: auto; display: block; outline:0; }
-      div.iplug { text-align: center; }
-      /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
-      canvas.iplug { border: 0px none; background-color: black; display: block; box-shadow: 10px 10px 5px grey; }
+      #buttons {
+        display: inline-block;
+        /* vertical-align: top; */
+        margin-top: 50px;
+        margin-bottom: 10px;
+        margin-left: 20px;
+        font-weight: bold;
+        color: rgb(120, 120, 120);
+      }
 
       #status {
         display: inline-block;
@@ -30,6 +40,21 @@
         font-weight: bold;
         color: black;
       }
+
+      a, u { text-decoration: none; }
+      a:link { color: #222; }
+      a:visited { color: #222; }
+      a:hover { color: black; }
+      a:active { color: #222; }
+      label  { color:#bbb; font-size:12px; }
+      select { background:#222; color:#eee; height:20px; margin-top:10px; cursor:pointer; }
+      img { pointer-events: none; } /*stops dragging imgs */
+
+      .pluginArea { margin-right: auto; margin-left: auto; margin-right: auto; display: block; outline:0; }
+      div.pluginArea { text-align: center; }
+      /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+      canvas.pluginArea { border: 0px none; background-color: black; display: block; box-shadow: 10px 10px 5px rgba(0,0,0,0.3); }
+
     </style>
 <!--
     <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
@@ -53,26 +78,44 @@
     <script src="scripts/audioworklet.js"></script>
     <script async src="resources.js"></script>
     <script async src="scripts/IPlugWAM.js"></script>
+
   </head>
   <body>
-    <div id="content">
-<!--
-      <h4>IPlugWAM_WAM Web Audio Module</h4>
- -->
-      <button type="button" onclick="main()">Start web audio!</button>
+    <div id="main">
     </div>
-    <div class="iplug" id="status">Downloading...</div>
-    <div class="iplug">
-      <progress value="0" max="100" id="progress" hidden=1></progress>
-    </div>
-    <div id="wam" hidden=1>
-      <div class="control">
-        <label>MIDI in</label>
-        <select id="midiInSelect"></select>
+    <div id="buttons">
+        <button type="button" id="startWebAudioButton" onclick="main()" disabled>Start web audio!</button>
+        <button type="button" onclick="toggleFullScreen()">Fullscreen</button>
+        <select id="midiInSelect" disabled="true"><option value="default">Midi input</option></select>
+        <progress value="0" max="100" id="progress"></progress>
+        <div id="status">downloading (~15mb with hi-dpi bitmaps)...</div>
       </div>
+    <div id="wam" hidden=1>
       <canvas class="iplug" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
     </div>
     <script type='text/javascript'>
+
+      function toggleFullScreen() {
+        if ((document.fullScreenElement && document.fullScreenElement !== null) ||
+        (!document.mozFullScreen && !document.webkitIsFullScreen)) {
+          if (document.documentElement.requestFullScreen) {
+            document.documentElement.requestFullScreen();
+          } else if (document.documentElement.mozRequestFullScreen) {
+            document.documentElement.mozRequestFullScreen();
+          } else if (document.documentElement.webkitRequestFullScreen) {
+            document.documentElement.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+          }
+        } else {
+          if (document.cancelFullScreen) {
+            document.cancelFullScreen();
+          } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+          } else if (document.webkitCancelFullScreen) {
+            document.webkitCancelFullScreen();
+          }
+        }
+      }
+
       var IPlugWAM_WAM;
 
       function initMidi () {
@@ -89,6 +132,7 @@
           if (combo.options.length > 0)
             combo.onchange({ target:combo });
         })
+        combo.removeAttribute("disabled");
       }
 
       function audioWorkletSupported(supported)
@@ -118,6 +162,7 @@
 
                 if(IPlugWAM_WAM != undefined) {
                   document.getElementById('wam').hidden = false;
+                  document.getElementById('startWebAudioButton').setAttribute("disabled", "true");
                   initMidi();
                 }
               });
@@ -133,7 +178,9 @@
 
       var Module = {
         preRun: [],
-        postRun: [],
+        postRun: function() {
+          document.getElementById('startWebAudioButton').removeAttribute("disabled");
+        },
         setStatus: function(text) {
           if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
           if (text === Module.setStatus.text) return;
