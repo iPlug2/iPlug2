@@ -627,6 +627,7 @@ void IGraphics::Draw(const IRECT& bounds)
   
   DrawControl(mPopupControl, bounds, false);
   DrawControl(mCornerResizer, bounds, false);
+  DrawControl(mPerfDisplay, bounds, false);
 
 #ifndef NDEBUG
   DrawControl(mLiveEdit, bounds, false);
