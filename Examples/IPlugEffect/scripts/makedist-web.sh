@@ -4,8 +4,6 @@ cd "$(dirname "$0")"
 
 cd ..
 
-pwd
-
 if [ "$1" == "websocket" ]
 then
   websocket=1
@@ -80,6 +78,9 @@ then
   cp ../../../IPlug/WEB/Template/IPlugWAM-standalone.html index.html
   sed -i.bak s/IPlugWAM/IPlugEffect/g index.html
   rm *.bak
+
+  cp ../../../IPlug/WEB/Template/favicon.ico favicon.ico
+
 else
   #copy in the template html for websocket - comment if you have customised the html
   cd build-web
