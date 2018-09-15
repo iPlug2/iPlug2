@@ -121,7 +121,7 @@ public:
   void OnMsgFromDelegate(int messageTag, int dataSize, const void* pData) override
   {
     IByteChunk chnk;
-    chnk.PutBytes(pData, dataSize); // unnessecary copy
+    chnk.PutBytes(pData, dataSize); // FIXME: unnessecary copy
     
     int pos = chnk.Get(&mBuf.nchans, 0);
     
