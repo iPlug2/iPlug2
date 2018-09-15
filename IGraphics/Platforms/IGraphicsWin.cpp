@@ -549,21 +549,15 @@ void IGraphicsWin::ForceEndUserEdit()
 
 #define SETPOS_FLAGS SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE
 
-void IGraphicsWin::Resize(int w, int h, float scale)
+void IGraphicsWin::PlatformResize()
 {
-  if (w == Width() && h == Height() && scale == GetScale()) return;
-
-  int oldWindowWidth = WindowWidth(), oldWindowHeight = WindowHeight();
-  IGraphics::Resize(w, h, scale);
-
-  int dw = WindowWidth() - oldWindowWidth, dh = WindowHeight() - oldWindowHeight;
-
   if (WindowIsOpen())
   {
     HWND pParent = 0, pGrandparent = 0;
     int dlgW = 0, dlgH = 0, parentW = 0, parentH = 0, grandparentW = 0, grandparentH = 0;
     GetWindowSize(mPlugWnd, &dlgW, &dlgH);
-
+    int dw = WindowWidth() - dlgW, dh = WindowHeight() - dlgH;
+      
     if (IsChildWindow(mPlugWnd))
     {
       pParent = GetParent(mPlugWnd);
@@ -580,15 +574,15 @@ void IGraphicsWin::Resize(int w, int h, float scale)
 
     // don't want to touch the host window in VST3
 #ifndef VST3_API
-      if(pParent)
-      {
-        SetWindowPos(pParent, 0, 0, 0, parentW + dw, parentH + dh, SETPOS_FLAGS);
-      }
+    if(pParent)
+    {
+      SetWindowPos(pParent, 0, 0, 0, parentW + dw, parentH + dh, SETPOS_FLAGS);
+    }
 
-      if(pGrandparent)
-      {
-        SetWindowPos(pGrandparent, 0, 0, 0, grandparentW + dw, grandparentH + dh, SETPOS_FLAGS);
-      }
+    if(pGrandparent)
+    {
+      SetWindowPos(pGrandparent, 0, 0, 0, grandparentW + dw, grandparentH + dh, SETPOS_FLAGS);
+    }
 #endif
 
     RECT r = { 0, 0, WindowWidth(), WindowHeight() };

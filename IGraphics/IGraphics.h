@@ -20,7 +20,7 @@
 
 #include "IGraphicsConstants.h"
 #include "IGraphicsStructs.h"
-#include "IGraphicsUtilites.h"
+#include "IGraphicsUtilities.h"
 #include "IGraphicsPopupMenu.h"
 #include "IGraphicsEditorDelegate.h"
 
@@ -69,7 +69,7 @@ public:
 
   /** Called by the platform IGraphics class when UI created and when moving to a new screen with different DPI, implementations in draw class must call the base implementation
    * @param scale The scale of the display, typically 2 on a macOS retina screen */
-  void SetDisplayScale(int scale) { mDisplayScale = (float) scale; OnResizeOrRescale(); };
+  void SetDisplayScale(int scale);
   
   /** Draw an SVG image to the graphics context
    * @param svg The SVG image to the graphics context
@@ -350,9 +350,6 @@ public:
   virtual void ReleaseBitmap(const IBitmap& bitmap);
   IBitmap GetScaledBitmap(IBitmap& src);
 
-  /** This method is called when display on which the UI resides changes scale, or size i.e. if the window is dragged from a high DPI screen to a low DPI screen or vice versa */
-  virtual void OnResizeOrRescale();
-
 #pragma mark - IGraphics base implementation - drawing helpers
 
   /** Draws a bitmap into the graphics context. NOTE: this helper method handles multi-frame bitmaps, indexable via frame
@@ -489,13 +486,7 @@ public:
 
   /** Call to force end text entry (will cancel any half input text \todo check) */
   virtual void ForceEndUserEdit() = 0;
-
-  /** \todo detailled description of how this works
-   * @param w New width in pixels
-   * @param h New height in pixels
-   * @param scale New scale ratio */
-  virtual void Resize(int w, int h, float scale);
-
+    
   /** Open a new platform view for this graphics context
    * @param pParentWnd void pointer to parent platform window or view handle (if applicable) \todo check
    * @return void pointer to newly created IGraphics platform view */
@@ -606,11 +597,12 @@ public:
   /** Called repeatedly at frame rate by the platform class to check what the graphics context says is dirty
    * @param bounds The rectangular region which will be added to to mark what is dirty in the context
    * @return /c true if a control is dirty */
-  bool IsDirty(IRECT& bounds);
+  bool IsDirty(IRECTList& rects);
 
   /** Called by the platform class when an area needs to be redrawn
    * @param bounds The rectangular region to draw */
   virtual void Draw(const IRECT& bounds);
+  virtual void Draw(IRECTList& rects);
 
   /** This method is called after interacting with a control, so that any other controls linked to the same parameter index, will also be set dirty, and have their values updated.
    * @param pCaller The control that triggered the parameter change. */
@@ -640,6 +632,26 @@ public:
    * @return Pointer to an IPopupMenu that represents the menu that user finally clicked on (might not be the same as menu if they clicked a submenu) */
   IPopupMenu* CreatePopupMenu(IPopupMenu& menu, float x, float y, IControl* pCaller = nullptr) { const IRECT bounds = IRECT(x,y,x,y); return CreatePopupMenu(menu, bounds, pCaller); }
 
+  void SetScaleBounds(float lo, float hi)
+  {
+    mMinScale = std::min(lo, hi);
+    mMaxScale = std::max(lo, hi);
+  }
+  
+  void SetSizeBounds(int widthLo, int widthHi, int heightLo, int heightHi)
+  {
+    mMinWidth = std::min(widthLo, widthHi);
+    mMaxWidth = std::max(widthLo, widthHi);
+    mMinHeight = std::min(heightLo, heightHi);
+    mMaxHeight = std::max(heightLo, heightHi);
+  }
+  
+  /** \todo detailed description of how this works
+   * @param w New width in pixels
+   * @param h New height in pixels
+   * @param scale New scale ratio */
+  void Resize(int w, int h, float scale);
+  
   /** Enables strict drawing mode. \todo explain strict drawing
    * @param strict Set /true to enable strict drawing mode */
   void SetStrictDrawing(bool strict);
@@ -761,7 +773,8 @@ public:
 
   /***/
   void SetAllControlsDirty();
-
+  void SetAllControlsClean();
+  
   /** @param x The X coordinate in the graphics context at which the mouse event occurred
    * @param y The Y coordinate in the graphics context at which the mouse event occurred
    * @param mod IMouseMod struct contain information about the modifiers held */
@@ -839,10 +852,6 @@ public:
    * @param file The absolute path of the file which contains the layout info (correctly tagged) for live editing
    * @param gridsize The size of the layout grid in pixels */
   void EnableLiveEdit(bool enable, const char* file = 0, int gridsize = 10);
-
-  /** Return the rectangular region of the graphics context marked for drawing
-   * @return An IRECT that corresponds to the rectangular region currently marked for drawing */
-  IRECT GetDrawRect() const { return mDrawRECT; }
 
   /** Returns an IRECT that represents the entire UI bounds
    * This is useful for programatically arranging UI elements by slicing up the IRECT using the various IRECT methods
@@ -924,7 +933,6 @@ protected:
 protected:
   IGEditorDelegate& mDelegate;
   WDL_PtrList<IControl> mControls;
-  IRECT mDrawRECT;
   void* mPlatformContext = nullptr;
   bool mCursorHidden = false;
   bool mTabletInput = false;
@@ -939,10 +947,13 @@ protected:
   IPopupMenu mPromptPopupMenu;
 
 private:
-  void DrawControl(IControl* pControl);
+  void DrawControl(IControl* pControl, const IRECT& bounds, bool alwaysShow);
   int GetMouseControlIdx(float x, float y, bool mo = false);
   void StartResizeGesture() { mResizingInProcess = true; };
   
+  virtual void PlatformResize() {}
+  virtual void DrawResize() {}
+    
   int mWidth;
   int mHeight;
   int mFPS;
@@ -954,6 +965,12 @@ private:
   int mMouseOver = -1;
   float mMouseDownX = -1.f;
   float mMouseDownY = -1.f;
+  float mMinScale;
+  float mMaxScale;
+  int mMinWidth;
+  int mMaxWidth;
+  int mMinHeight;
+  int mMaxHeight;
   int mLastClickedParam = kNoParameter;
   bool mHandleMouseOver = false;
   bool mStrict = true;

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <stack>
-
 /*
 
  AGG 2.4 should be modified to avoid bringing carbon headers on mac, which can cause conflicts
@@ -154,7 +152,7 @@ public:
   IGraphicsAGG(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsAGG();
 
-  void OnResizeOrRescale() override;
+  void DrawResize() override;
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, float x, float y, double angle, const IBlend* pBlend) override;
@@ -170,19 +168,7 @@ public:
 
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
-
-  void PathStateSave() override { mState.push(mTransform); }
-
-  void PathStateRestore() override
-  {
-    mTransform = mState.top();
-    mState.pop();
-  }
-
-  void PathTransformTranslate(float x, float y) override { mTransform = agg::trans_affine_translation(x, y) * mTransform; }
-  void PathTransformScale(float scaleX, float scaleY) override { mTransform = agg::trans_affine_scaling(scaleX, scaleY) * mTransform; }
-  void PathTransformRotate(float angle) override { mTransform = agg::trans_affine_rotation(DegToRad(angle)) * mTransform; }
-
+    
   bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0, bool measure = false) override;
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
 
@@ -211,8 +197,14 @@ private:
     path.clip_box(clip.L, clip.T, clip.R, clip.B);
   }
   
-  void ClipRegion(const IRECT& r) override { mClipRECT = r; }
-  void ResetClipRegion() override { mClipRECT = IRECT(); }
+  void PathTransformSetMatrix(const IMatrix& m) override
+  {
+    IMatrix t(m);
+    t.Scale(GetScale(), GetScale());
+    mTransform = agg::trans_affine(t.mTransform[0], t.mTransform[1], t.mTransform[2], t.mTransform[3], t.mTransform[4], t.mTransform[5]);
+  }
+  
+  void SetClipRegion(const IRECT& r) override { mClipRECT = r; }
 
   IRECT mClipRECT;
   FontEngineType mFontEngine;
@@ -222,8 +214,6 @@ private:
   Rasterizer mRasterizer;
   agg::trans_affine mTransform;
   PixelMapType mPixelMap;
-
-  std::stack<agg::trans_affine> mState;
 
   //pipeline to process the vectors glyph paths(curves + contour)
   agg::conv_curve<FontManagerType::path_adaptor_type> mFontCurves;

@@ -150,16 +150,14 @@ IGraphicsAGG::~IGraphicsAGG()
 {
 }
 
-void IGraphicsAGG::OnResizeOrRescale()
+void IGraphicsAGG::DrawResize()
 {
   mPixelMap.create(WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
   mRenBuf.attach(mPixelMap.buf(), mPixelMap.width(), mPixelMap.height(), mPixelMap.row_bytes());
   mRasterizer.SetOutput(mRenBuf);
   mRasterizer.ClearWhite();
     
-  mTransform = agg::trans_affine_scaling(GetScale(), GetScale());
-  
-  IGraphics::OnResizeOrRescale();
+  mTransform = agg::trans_affine_scaling(GetScale(), GetScale());  
 }
 
 //IFontData IGraphicsAGG::LoadFont(const char* name, const int size)
