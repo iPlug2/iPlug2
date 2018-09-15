@@ -86,7 +86,7 @@
     <ClInclude Include="..\..\..\IGraphics\IGraphicsStructs.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsUtilites.h">
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsUtilities.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Controls\IControls.h">
