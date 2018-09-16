@@ -954,6 +954,9 @@ private:
   virtual void PlatformResize() {}
   virtual void DrawResize() {}
     
+  template<typename T, typename... Args>
+  void ForAllControls(T op, Args... args);
+  
   int mWidth;
   int mHeight;
   int mFPS;

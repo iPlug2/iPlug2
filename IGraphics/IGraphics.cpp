@@ -76,14 +76,7 @@ IGraphics::~IGraphics()
 void IGraphics::SetDisplayScale(int scale)
 {
   mDisplayScale = (float) scale;
-
-  int i, n = mControls.GetSize();
-  IControl** ppControl = mControls.GetList();
-  for (i = 0; i < n; ++i, ++ppControl)
-  {
-    (*ppControl)->OnRescale();
-  }
-  
+  ForAllControls(&IControl::OnRescale);
   SetAllControlsDirty();
   DrawResize();
 }
@@ -110,14 +103,7 @@ void IGraphics::Resize(int w, int h, float scale)
 
   GetDelegate()->ResizeGraphicsFromUI((int) (w * scale), (int) (h * scale), scale);
   PlatformResize();
-
-  int i, n = mControls.GetSize();
-  IControl** ppControl = mControls.GetList();
-  for (i = 0; i < n; ++i, ++ppControl)
-  {
-    (*ppControl)->OnResize();
-  }
-
+  ForAllControls(&IControl::OnResize);
   SetAllControlsDirty();
   DrawResize();
 }
@@ -288,25 +274,25 @@ void IGraphics::ForControlInGroup(const char* group, std::function<void(IControl
   }
 }
 
-
-void IGraphics::SetAllControlsDirty()
+template<typename T, typename... Args>
+void IGraphics::ForAllControls(T method, Args... args)
 {
   int i, n = mControls.GetSize();
   IControl** ppControl = mControls.GetList();
   for (i = 0; i < n; ++i, ++ppControl)
   {
-    (*ppControl)->SetDirty(false);
+    ((*ppControl)->*method)(args...);
   }
+}
+
+void IGraphics::SetAllControlsDirty()
+{
+  ForAllControls(&IControl::SetDirty, false);
 }
 
 void IGraphics::SetAllControlsClean()
 {
-  int i, n = mControls.GetSize();
-  IControl** ppControl = mControls.GetList();
-  for (i = 0; i < n; ++i, ++ppControl)
-  {
-   (*ppControl)->SetClean();
-  }
+  ForAllControls(&IControl::SetClean);
 }
 
 void IGraphics::AssignParamNameToolTips()
@@ -894,13 +880,7 @@ void IGraphics::OnMouseOut()
     mCornerResizer->OnMouseOut();
   }
 
-  int i, n = mControls.GetSize();
-  IControl** ppControl = mControls.GetList();
-  for (i = 0; i < n; ++i, ++ppControl)
-  {
-    IControl* pControl = *ppControl;
-    pControl->OnMouseOut();
-  }
+  ForAllControls(&IControl::OnMouseOut);
   mMouseOver = -1;
 }
 
@@ -1129,13 +1109,7 @@ void IGraphics::OnGUIIdle()
 {
   TRACE;
 
-  int i, n = mControls.GetSize();
-  IControl** ppControl = mControls.GetList();
-  for (i = 0; i < n; ++i, ++ppControl)
-  {
-    IControl* pControl = *ppControl;
-    pControl->OnGUIIdle();
-  }
+  ForAllControls(&IControl::OnGUIIdle);
 }
 
 void IGraphics::OnResizeGesture(float x, float y)
