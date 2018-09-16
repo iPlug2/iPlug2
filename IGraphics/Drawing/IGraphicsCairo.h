@@ -74,7 +74,18 @@ public:
 
   void SetPlatformContext(void* pContext) override;
 
-  void DrawResize() override { SetPlatformContext(nullptr); }
+  void DrawResize() override
+  {
+    SetPlatformContext(nullptr);
+#ifdef OS_WIN
+    HWND window = static_cast<HWND>(GetWindow());
+    if (window)
+    {
+      HDC dc = GetDC(window);
+      SetPlatformContext(dc);
+    }
+#endif
+  }
 
   void LoadFont(const char* fileName) override;
 protected:
