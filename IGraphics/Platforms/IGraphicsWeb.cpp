@@ -197,7 +197,10 @@ void IGraphicsWeb::OnMainLoopTimer()
 #endif
   
   if (gGraphics->IsDirty(rects))
+  {
+    gGraphics->SetAllControlsClean();
     gGraphics->Draw(rects);
+  }
 }
 
 bool IGraphicsWeb::GetTextFromClipboard(WDL_String& str)

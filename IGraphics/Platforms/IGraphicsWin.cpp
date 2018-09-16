@@ -182,8 +182,12 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         dirtyR = pGraphics->GetBounds();
         {
 #else
-        if (pGraphics->IsDirty(dirtyR))
+        IRECTList rects;
+            
+        if (pGraphics->IsDirty(rects))
         {
+          pGraphics->SetAllControlsClean();
+          dirtyR = rects.Bounds();
 #endif
           dirtyR.ScaleBounds(pGraphics->GetScale());
           RECT r = { (LONG) dirtyR.L, (LONG) dirtyR.T, (LONG) dirtyR.R, (LONG) dirtyR.B };
