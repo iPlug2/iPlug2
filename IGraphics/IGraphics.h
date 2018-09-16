@@ -632,13 +632,13 @@ public:
    * @return Pointer to an IPopupMenu that represents the menu that user finally clicked on (might not be the same as menu if they clicked a submenu) */
   IPopupMenu* CreatePopupMenu(IPopupMenu& menu, float x, float y, IControl* pCaller = nullptr) { const IRECT bounds = IRECT(x,y,x,y); return CreatePopupMenu(menu, bounds, pCaller); }
 
-  void SetScaleBounds(float lo, float hi)
+  void SetScaleConstraints(float lo, float hi)
   {
     mMinScale = std::min(lo, hi);
     mMaxScale = std::max(lo, hi);
   }
   
-  void SetSizeBounds(int widthLo, int widthHi, int heightLo, int heightHi)
+  void SetSizeConstraints(int widthLo, int widthHi, int heightLo, int heightHi)
   {
     mMinWidth = std::min(widthLo, widthHi);
     mMaxWidth = std::max(widthLo, widthHi);
