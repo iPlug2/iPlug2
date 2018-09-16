@@ -122,7 +122,7 @@ void IPopupMenuControl::DrawCellText(IGraphics& g, const IRECT& bounds, const IP
   g.DrawText(mText, menuItem.GetText(), textRect, &mBlend);
   
   if(menuItem.GetChecked())
-    g.FillRoundRect(COLOR_BLACK, tickRect.GetCentredInside(TICK_SIZE/2.), 2);
+    g.FillRoundRect(COLOR_BLACK, tickRect.GetCentredInside(TICK_SIZE/2.), 2, &mBlend);
 }
 
 void IPopupMenuControl::DrawHighlightCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem)
@@ -134,7 +134,7 @@ void IPopupMenuControl::DrawHighlightCellText(IGraphics& g, const IRECT& bounds,
   g.DrawText(mText, menuItem.GetText(), textRect, &mBlend);
   
   if(menuItem.GetChecked())
-    g.FillRoundRect(COLOR_WHITE, tickRect.GetCentredInside(TICK_SIZE/2.), 2);
+    g.FillRoundRect(COLOR_WHITE, tickRect.GetCentredInside(TICK_SIZE/2.), 2, &mBlend);
 }
 
 void IPopupMenuControl::DrawSeparator(IGraphics& g, const IRECT& bounds)
