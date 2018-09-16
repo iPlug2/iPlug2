@@ -116,7 +116,7 @@
     <ClInclude Include="..\..\..\IGraphics\IGraphicsStructs.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsUtilites.h">
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsUtilities.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\IGraphics_include_in_plug_hdr.h">

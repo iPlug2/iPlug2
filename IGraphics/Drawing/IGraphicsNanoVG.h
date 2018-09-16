@@ -44,13 +44,6 @@ public:
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
   
-  void PathStateSave() override { nvgSave(mVG); }
-  void PathStateRestore() override { nvgRestore(mVG); }
-    
-  void PathTransformTranslate(float x, float y) override { nvgTranslate(mVG, x, y); }
-  void PathTransformScale(float scaleX, float scaleY) override { nvgScale(mVG, scaleX, scaleY); }
-  void PathTransformRotate(float angle) override { nvgRotate(mVG, DegToRad(angle)); }
-    
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return (void*) mVG; }
 
@@ -73,20 +66,9 @@ protected:
 
 private:
   
-  void ClipRegion(const IRECT& r) override
-  {
-    float xform[6];
-    
-    nvgCurrentTransform(mVG, xform);
-    nvgResetTransform(mVG);
-    nvgScale(mVG, GetScale(), GetScale());
-    nvgScissor(mVG, r.L, r.T, r.W(), r.H());
-    nvgResetTransform(mVG);
-    nvgTransform(mVG, xform[0], xform[1], xform[2], xform[3], xform[4], xform[5]);
-  }
+  void PathTransformSetMatrix(const IMatrix& m) override;
+  void SetClipRegion(const IRECT& r) override;
   
-  void ResetClipRegion() override { nvgResetScissor(mVG); }
-
   StaticStorage<APIBitmap> mBitmapCache; //not actually static
   NVGcontext* mVG = nullptr;
 #ifdef OS_WIN

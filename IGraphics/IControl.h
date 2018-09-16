@@ -328,7 +328,12 @@ public:
   IEditorDelegate* GetDelegate() { return &mDelegate; }
   
   /** Used internally to set the mGraphics variable */
-  void SetGraphics(IGraphics* pGraphics) { mGraphics = pGraphics; }
+  void SetGraphics(IGraphics* pGraphics)
+  {
+    mGraphics = pGraphics;
+    OnResize();
+    OnRescale();
+  }
   
   /** @return A pointer to the IGraphics context that owns this control */ 
   IGraphics* GetUI() { return mGraphics; }

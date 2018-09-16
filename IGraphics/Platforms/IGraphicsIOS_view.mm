@@ -134,10 +134,15 @@
 - (void)redraw:(CADisplayLink *)displayLink
 {
   //TODO: this is redrawing every IControl!
-  IRECT r = mGraphics->GetBounds();
-  mGraphics->IsDirty(r);
+  mGraphics->SetAllControlsDirty();
   
-  mGraphics->Draw(r);
+  IRECTList rects;
+  
+  if (mGraphics->IsDirty(rects))
+  {
+    mGraphics->SetAllControlsClean();
+    mGraphics->Draw(rects);
+  }
 }
 
 - (BOOL) isOpaque

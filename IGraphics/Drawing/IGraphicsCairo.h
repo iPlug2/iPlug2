@@ -64,13 +64,6 @@ public:
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
   
-  void PathStateSave() override { cairo_save(mContext); }
-  void PathStateRestore() override { cairo_restore(mContext); }
-  
-  void PathTransformTranslate(float x, float y) override { cairo_translate(mContext, x, y); }
-  void PathTransformScale(float scaleX, float scaleY) override { cairo_scale(mContext, scaleX, scaleY); }
-  void PathTransformRotate(float angle) override { cairo_rotate(mContext, DegToRad(angle)); }
-    
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return (void*) mContext; }
 
@@ -81,7 +74,7 @@ public:
 
   void SetPlatformContext(void* pContext) override;
 
-  void OnResizeOrRescale() override { SetPlatformContext(nullptr); IGraphics::OnResizeOrRescale(); }
+  void DrawResize() override { SetPlatformContext(nullptr); }
 
   void LoadFont(const char* fileName) override;
 protected:
@@ -93,23 +86,8 @@ protected:
   
 private:
   
-  void ClipRegion(const IRECT& r) override
-  {
-    cairo_matrix_t matrix;
-    
-    cairo_reset_clip(mContext);
-    cairo_get_matrix(mContext, &matrix);
-    cairo_identity_matrix(mContext);
-    cairo_new_path(mContext);
-    cairo_rectangle(mContext, r.L, r.T, r.W(), r.H());
-    cairo_clip(mContext);
-    cairo_set_matrix(mContext, &matrix);
-  }
-  
-  void ResetClipRegion() override
-  {
-    cairo_reset_clip(mContext);
-  }
+  void PathTransformSetMatrix(const IMatrix& m) override;
+  void SetClipRegion(const IRECT& r) override;
   
   cairo_t* mContext;
   cairo_surface_t* mSurface;

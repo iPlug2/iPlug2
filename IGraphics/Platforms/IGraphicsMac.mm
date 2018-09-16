@@ -235,12 +235,8 @@ bool IGraphicsMac::WindowIsOpen()
   return mView;
 }
 
-void IGraphicsMac::Resize(int w, int h, float scale)
+void IGraphicsMac::PlatformResize()
 {
-  if (w == Width() && h == Height() && scale == GetScale()) return;
-
-  IGraphics::Resize(w, h, scale);
-
   if (mView)
   {
     NSSize size = { static_cast<CGFloat>(WindowWidth()), static_cast<CGFloat>(WindowHeight()) };
@@ -252,9 +248,7 @@ void IGraphicsMac::Resize(int w, int h, float scale)
     [[NSAnimationContext currentContext] setDuration:0.0];
     [(IGRAPHICS_VIEW*) mView setFrameSize: size ];
     [NSAnimationContext endGrouping];
-  }
-  
-  OnResizeOrRescale();
+  }  
 }
 
 void IGraphicsMac::ClientToScreen(float& x, float& y)

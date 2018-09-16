@@ -17,6 +17,7 @@
 
 #include "IPlugPlatform.h"
 #include "IGraphicsConstants.h"
+#include "IGraphicsUtilities.h"
 
 
 class IGraphics;
@@ -389,6 +390,69 @@ struct IStrokeOptions
   DashOptions mDash;
 };
 
+/** Used to store transformation matrices**/
+
+struct IMatrix
+{
+  IMatrix()
+  {
+    mTransform[0] = 1.0;
+    mTransform[1] = 0.0;
+    mTransform[2] = 0.0;
+    mTransform[3] = 1.0;
+    mTransform[4] = 0.0;
+    mTransform[5] = 0.0;
+  }
+  
+  void Translate(float x, float y)
+  {
+    mTransform[4] += x;
+    mTransform[5] += y;
+  }
+  
+  void Scale(float x, float y)
+  {
+    mTransform[0] *= x;
+    mTransform[2] *= x;
+    mTransform[4] *= x;
+    mTransform[1] *= y;
+    mTransform[3] *= y;
+    mTransform[5] *= y;
+  }
+  
+  void Rotate(float a)
+  {
+    a = DegToRad(a);
+    const double ca = cos(a);
+    const double sa = sin(a);
+    const double sx = mTransform[0];
+    const double hx = mTransform[1];
+    const double hy = mTransform[2];
+    const double sy = mTransform[3];
+    const double tx = mTransform[4];
+    const double ty = mTransform[5];
+    mTransform[0] = sx * ca - hy * sa;
+    mTransform[1] = hx * ca - sy * sa;
+    mTransform[2] = sx * sa + hy * ca;
+    mTransform[3] = hx * sa + sy * ca;
+    mTransform[4] = tx * ca - ty * sa;
+    mTransform[5] = tx * sa + ty * ca;
+  }
+  
+  void Transform(const IMatrix& m)
+  {
+    IMatrix p = *this;
+
+    mTransform[0] = p.mTransform[0] * m.mTransform[0] + p.mTransform[2] * m.mTransform[1];
+    mTransform[1] = p.mTransform[1] * m.mTransform[0] + p.mTransform[3] * m.mTransform[1];
+    mTransform[2] = p.mTransform[0] * m.mTransform[2] + p.mTransform[2] * m.mTransform[3];
+    mTransform[3] = p.mTransform[1] * m.mTransform[2] + p.mTransform[3] * m.mTransform[3];
+    mTransform[4] = p.mTransform[4] * m.mTransform[0] + p.mTransform[5] * m.mTransform[1] + m.mTransform[4];
+    mTransform[5] = p.mTransform[4] * m.mTransform[2] + p.mTransform[5] * m.mTransform[3] + m.mTransform[5];
+  }
+  
+  float mTransform[6];
+};
 struct IColorStop
 {
   IColorStop()
@@ -580,7 +644,8 @@ struct IRECT
   inline float H() const { return B - T; }
   inline float MW() const { return 0.5f * (L + R); }
   inline float MH() const { return 0.5f * (T + B); }
-
+  inline float Area() const { return W() * H(); }
+  
   inline IRECT Union(const IRECT& rhs) const
   {
     if (Empty()) { return rhs; }
@@ -624,6 +689,16 @@ struct IRECT
 
     if (y < T) y = T;
     else if (y > B) y = B;
+  }
+  
+  //The two rects cover exactly the area returned by Union()
+  bool Mergeable(const IRECT& rhs) const
+  {
+    if (Empty() || rhs.Empty())
+      return true;
+    if (L == rhs.L && R == rhs.R && ((T >= rhs.T && T <= rhs.B) || (rhs.T >= T && rhs.T <= B)))
+      return true;
+    return T == rhs.T && B == rhs.B && ((L >= rhs.L && L <= rhs.R) || (rhs.L >= L && rhs.L <= R));
   }
   
   inline IRECT FracRect(EDirection layoutDir, float frac, bool fromTopOrRight = false) const
@@ -716,6 +791,15 @@ struct IRECT
   bool IsPixelAligned() const
   {
     return !(L - floor(L) && T - floor(T) && R - floor(R) && B - floor(B));
+  }
+  
+  // Pixel Aligns in an inclusive manner (moves all points outwards)
+  inline void PixelAlign() 
+  {
+    L = std::floor(L);
+    T = std::floor(T);
+    R = std::ceil(R);
+    B = std::ceil(B);
   }
   
   inline void Pad(float padding)
@@ -918,11 +1002,6 @@ struct IRECT
     B = std::ceil(B * scale);
   }
 
-  IRECT GetFlipped(int graphicsHeight) const
-  {
-    return IRECT(L, graphicsHeight - T, R, graphicsHeight - B);
-  }
-
   IRECT GetCentredInside(IRECT sr) const
   {
     IRECT r;
@@ -982,6 +1061,148 @@ struct IMouseInfo
 {
   float x, y;
   IMouseMod ms;
+};
+
+/** Used to manage a list of rectangular areas and optimize them for drawing to the screen. */
+
+class IRECTList
+{
+public:
+  
+  int Size() const { return mRects.GetSize(); }
+  
+  void Add(const IRECT rect)
+  {
+    mRects.Add(rect);
+  }
+  
+  void Set(int idx, const IRECT rect)
+  {
+    *(mRects.GetFast() + idx) = rect;
+  }
+  
+  const IRECT& Get(int idx) const
+  {
+    return *(mRects.GetFast() + idx);
+  }
+  
+  void Clear()
+  {
+    mRects.Resize(0);
+  }
+  
+  IRECT Bounds()
+  {
+    IRECT rect = Get(0);
+    for (auto i = 1; i < mRects.GetSize(); i++)
+      rect = rect.Union(Get(i));
+    return rect;
+  }
+  
+  void PixelAlign()
+  {
+    for (int i = 0; i < Size(); i++)
+    {
+      IRECT rect = Get(i);
+      rect.PixelAlign();
+      Set(i, rect);
+    }
+  }
+  
+  void Optimize()
+  {
+    // Remove rects that are contained by other rects and intersections
+    
+    for (int i = 0; i < Size(); i++)
+    {
+      for (int j = i + 1; j < Size(); j++)
+      {
+        if (Get(i).Contains(Get(j)))
+        {
+          mRects.Delete(j);
+          j--;
+        }
+        else if (Get(j).Contains(Get(i)))
+        {
+          mRects.Delete(i);
+          i--;
+          break;
+        }
+        else if (Get(i).Intersects(Get(j)))
+        {
+          IRECT intersection = Get(i).Intersect(Get(j));
+            
+          if (Get(i).Mergeable(intersection))
+            Set(i, Shrink(Get(i), intersection));
+          else if (Get(j).Mergeable(intersection))
+            Set(j, Shrink(Get(j), intersection));
+          else if (Get(i).Area() < Get(j).Area())
+            Set(i, Split(Get(i), intersection));
+          else
+            Set(j, Split(Get(j), intersection));
+        }
+      }
+    }
+    
+    // Merge any rects that can be merged
+    
+    for (int i = 0; i < Size(); i++)
+    {
+      for (int j = i + 1; j < Size(); j++)
+      {
+        if (Get(i).Mergeable(Get(j)))
+        {
+          Set(j, Get(i).Union(Get(j)));
+          mRects.Delete(i);
+          i = -1;
+          break;
+        }
+      }
+    }
+  }
+  
+private:
+  
+  IRECT Shrink(const IRECT &r, const IRECT &i)
+  {
+    if (i.L != r.L)
+      return IRECT(r.L, r.T, i.L, r.B);
+    if (i.T != r.T)
+      return IRECT(r.L, r.T, r.R, i.T);
+    if (i.R != r.R)
+      return IRECT(i.R, r.T, r.R, r.B);
+    return IRECT(r.L, i.B, r.R, r.B);
+  }
+  
+  IRECT Split(const IRECT r, const IRECT &i)
+  {
+    if (r.L == i.L)
+    {
+      if (r.T == i.T)
+      {
+        Add(IRECT(i.R, r.T, r.R, i.B));
+        return IRECT(r.L, i.B, r.R, r.B);
+      }
+      else
+      {
+        Add(IRECT(r.L, r.T, r.R, i.T));
+        return IRECT(i.R, i.T, r.R, r.B);
+      }
+    }
+    
+    if (r.T == i.T)
+    {
+      Add(IRECT(r.L, r.T, i.L, i.B));
+      return IRECT(r.L, i.B, r.R, r.B);
+    }
+    else
+    {
+      Add(IRECT(r.L, r.T, r.R, i.T));
+      return IRECT(r.L, i.T, i.L, r.B);
+    }
+  }
+  
+  WDL_TypedBuf<IRECT> mRects;
 };
 
 // TODO: static storage needs thread safety mechanism
