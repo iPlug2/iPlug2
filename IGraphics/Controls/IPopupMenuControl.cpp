@@ -114,17 +114,27 @@ void IPopupMenuControl::DrawHighlightCell(IGraphics& g, const IRECT& bounds, con
 
 void IPopupMenuControl::DrawCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem)
 {
-  IRECT textRect = bounds.GetHPadded(-TEXT_PAD);
+  IRECT tickRect = IRECT(bounds.L, bounds.T, bounds.L + TICK_SIZE, bounds.B).GetCentredInside(TICK_SIZE);
+  IRECT textRect = IRECT(tickRect.R + TEXT_PAD, bounds.T, bounds.R - TEXT_PAD, bounds.B);
+  
   mText.mFGColor = COLOR_BLACK;
   mText.mAlign = IText::kAlignNear;
   g.DrawText(mText, menuItem.GetText(), textRect, &mBlend);
+  
+  if(menuItem.GetChecked())
+    g.FillRoundRect(COLOR_BLACK, tickRect.GetCentredInside(TICK_SIZE/2.), 2);
 }
 
 void IPopupMenuControl::DrawHighlightCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem)
 {
-  IRECT textRect = bounds.GetHPadded(-TEXT_PAD);
+  IRECT tickRect = IRECT(bounds.L, bounds.T, bounds.L + TICK_SIZE, bounds.B).GetCentredInside(TICK_SIZE);
+  IRECT textRect = IRECT(tickRect.R + TEXT_PAD, bounds.T, bounds.R - TEXT_PAD, bounds.B);
+  
   mText.mFGColor = COLOR_WHITE;
   g.DrawText(mText, menuItem.GetText(), textRect, &mBlend);
+  
+  if(menuItem.GetChecked())
+    g.FillRoundRect(COLOR_WHITE, tickRect.GetCentredInside(TICK_SIZE/2.), 2);
 }
 
 void IPopupMenuControl::DrawSeparator(IGraphics& g, const IRECT& bounds)
@@ -138,23 +148,20 @@ IPopupMenu* IPopupMenuControl::CreatePopupMenu(IPopupMenu& menu, const IRECT& bo
   mMenu = &menu;
   mCaller = pCaller;
   
-  IRECT span = {0, 0, bounds.W(), bounds.H() }; // this IRECT will be used to calculate the maximum dimensions of the longest text item in the menu
+  IRECT span; // this IRECT will be used to calculate the maximum dimensions of the longest text item in the menu
   
   for (auto i = 0; i < mMenu->NItems(); ++i)
   {
+    IPopupMenu::Item* pItem = mMenu->GetItem(i);
     IRECT textBounds;
-    GetUI()->MeasureText(mText, mMenu->GetItem(i)->GetText(), textBounds);
+    GetUI()->MeasureText(mText, pItem->GetText(), textBounds);
     span = span.Union(textBounds);
   }
   
-  // if the widest string is wider than the requested bounds
-  if(span.W() > bounds.W())
-  {
-    span.HPad(TEXT_PAD); // add some padding because we don't want to be flush to the edges
-    mSingleCellBounds = IRECT(bounds.L, bounds.T, bounds.L + span.W(), bounds.T + span.H());
-  }
-  else
-    mSingleCellBounds = bounds;
+  span.HPad(TEXT_PAD); // add some padding because we don't want to be flush to the edges
+  span.Pad(-TICK_SIZE, 0, 0, 0);
+
+  mSingleCellBounds = IRECT(bounds.L, bounds.T, bounds.L + span.W(), bounds.T + span.H());
   
   Expand();
   
@@ -189,7 +196,12 @@ void IPopupMenuControl::Expand()
         toAddY = CellHeight();
       }
       
-      if((top + toAddY + mPadding) > contextBounds.B) // it's gonna go off the bottom
+      bool newColumn = false;
+      
+      if(mMaxColumnItems > 0 && i > 1)
+       newColumn = !(i % mMaxColumnItems);
+      
+      if((top + toAddY + mPadding) > contextBounds.B || newColumn) // it's gonna go off the bottom
       {
         if(mScrollIfTooBig)
         {

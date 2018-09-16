@@ -98,6 +98,7 @@ private:
   float mSeparatorSize = 2.; // The size in pixels of a separator. This could be width or height
   bool mScrollIfTooBig = false;
   const float TEXT_PAD = 5.; // 5px on either side of text
+  const float TICK_SIZE = 10.; // The size of the area on the left where a tick mark appears on checked items
   float mPadding = 5.; // How much white space between the background and the cells
   IBlend mBlend = { kBlendNone, 0.f };
   float mRoundness = 5.f;
