@@ -24,7 +24,7 @@
 		4F6369AC20A463AF0022C370 /* IGraphicsNanoVG.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63697C20A463AF0022C370 /* IGraphicsNanoVG.h */; };
 		4F6369B220A463AF0022C370 /* IGraphics_include_in_plug_hdr.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63698220A463AF0022C370 /* IGraphics_include_in_plug_hdr.h */; };
 		4F6369C120A463AF0022C370 /* IGraphicsPopupMenu.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699220A463AF0022C370 /* IGraphicsPopupMenu.h */; };
-		4F6369C220A463AF0022C370 /* IGraphicsUtilites.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699320A463AF0022C370 /* IGraphicsUtilites.h */; };
+		4F6369C220A463AF0022C370 /* IGraphicsUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699320A463AF0022C370 /* IGraphicsUtilities.h */; };
 		4F6369C320A463AF0022C370 /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F63699420A463AF0022C370 /* IGraphics.cpp */; };
 		4F6369C420A463AF0022C370 /* IGraphicsPathBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699520A463AF0022C370 /* IGraphicsPathBase.h */; };
 		4F6369CD20A463AF0022C370 /* IGraphicsStructs.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699F20A463AF0022C370 /* IGraphicsStructs.h */; };
@@ -210,7 +210,7 @@
 		4F63699020A463AF0022C370 /* IGraphicsIOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsIOS.h; sourceTree = "<group>"; };
 		4F63699120A463AF0022C370 /* IGraphicsIOS_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsIOS_view.mm; sourceTree = "<group>"; };
 		4F63699220A463AF0022C370 /* IGraphicsPopupMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsPopupMenu.h; sourceTree = "<group>"; };
-		4F63699320A463AF0022C370 /* IGraphicsUtilites.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsUtilites.h; sourceTree = "<group>"; };
+		4F63699320A463AF0022C370 /* IGraphicsUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsUtilities.h; sourceTree = "<group>"; };
 		4F63699420A463AF0022C370 /* IGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphics.cpp; sourceTree = "<group>"; };
 		4F63699520A463AF0022C370 /* IGraphicsPathBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsPathBase.h; sourceTree = "<group>"; };
 		4F63699F20A463AF0022C370 /* IGraphicsStructs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsStructs.h; sourceTree = "<group>"; };
@@ -369,7 +369,7 @@
 				4F63699620A463AF0022C370 /* Controls */,
 				4F63698220A463AF0022C370 /* IGraphics_include_in_plug_hdr.h */,
 				4F63699220A463AF0022C370 /* IGraphicsPopupMenu.h */,
-				4F63699320A463AF0022C370 /* IGraphicsUtilites.h */,
+				4F63699320A463AF0022C370 /* IGraphicsUtilities.h */,
 				4F6369A420A463AF0022C370 /* IGraphics.h */,
 				4F63699420A463AF0022C370 /* IGraphics.cpp */,
 				4F63699520A463AF0022C370 /* IGraphicsPathBase.h */,
@@ -717,7 +717,7 @@
 				4F8028C720A24FA9003A66EC /* nanovg_gl_utils.h in Headers */,
 				4FFF106E20A0E58600D3092F /* IPlugEditorDelegate.h in Headers */,
 				4F6369D620A463D80022C370 /* IGraphicsIOS.h in Headers */,
-				4F6369C220A463AF0022C370 /* IGraphicsUtilites.h in Headers */,
+				4F6369C220A463AF0022C370 /* IGraphicsUtilities.h in Headers */,
 				4F6369E620A466320022C370 /* IControl.h in Headers */,
 				4F977D6320CC9DD800D19F46 /* FPUStageProc.h in Headers */,
 				4FE8F3B220BA273800BF938F /* IGraphicsEditorDelegate.h in Headers */,

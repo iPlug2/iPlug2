@@ -28,7 +28,7 @@ IGraphicsLice::~IGraphicsLice()
   DELETE_NULL(mTmpBitmap);
 }
 
-void IGraphicsLice::OnResizeOrRescale()
+void IGraphicsLice::DrawResize()
 {
   if(!mDrawBitmap)
   {
@@ -36,9 +36,7 @@ void IGraphicsLice::OnResizeOrRescale()
     mTmpBitmap = new LICE_MemBitmap();
   }
   else
-    mDrawBitmap->resize(Width() * GetDisplayScale(), Height() * GetDisplayScale());
-    
-  IGraphics::OnResizeOrRescale();
+    mDrawBitmap->resize(Width() * GetDisplayScale(), Height() * GetDisplayScale());    
 }
 
 void IGraphicsLice::DrawSVG(ISVG& svg, const IRECT& bounds, const IBlend* pBlend)
@@ -49,7 +47,7 @@ void IGraphicsLice::DrawSVG(ISVG& svg, const IRECT& bounds, const IBlend* pBlend
 
 void IGraphicsLice::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend)
 {
-  DrawSVG(svg, GetDrawRect(), pBlend);
+  DrawSVG(svg, mDrawRECT, pBlend);
   //TODO:
 }
 

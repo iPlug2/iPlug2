@@ -79,26 +79,29 @@ void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginNa
 
 void SandboxSafeAppSupportPath(WDL_String& path)
 {
+  AppSupportPath(path);
 }
 
 #elif defined OS_WEB
 
 void AppSupportPath(WDL_String& path, bool isSystem)
 {
+  path.Set("Settings");
 }
 
 void SandboxSafeAppSupportPath(WDL_String& path)
 {
+  path.Set("Settings");
 }
 
 void DesktopPath(WDL_String& path)
 {
-
+  path.Set("");
 }
 
 void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem)
 {
-  path.Set("");
+  path.Set("Presets");
 }
 
 #endif
