@@ -16,9 +16,7 @@
 
 #include <cstdio>
 #include "IPlugVST2.h"
-#ifndef NO_PRESETS
 #include "IPlugPluginBase.h"
-#endif
 
 const int VST_VERSION = 2400;
 
