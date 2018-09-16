@@ -33,8 +33,42 @@ struct IParamChange
   bool normalized; // TODO: Remove this
 };
 
+/** A helper class for IBtyeChunk and IBtyeStream that avoids code duplication **/
+struct IByteGetter
+{
+  static inline int GetBytes(const uint8_t* pData, int dataSize, void* pBuf, int size, int startPos)
+  {
+    int endPos = startPos + size;
+    if (startPos >= 0 && endPos <= dataSize)
+    {
+      memcpy(pBuf, pData + startPos, size);
+      return endPos;
+    }
+    return -1;
+  }
+  
+  static inline int GetStr(const uint8_t* pData, int dataSize, WDL_String& str, int startPos)
+  {
+    int len;
+    int strStartPos = GetBytes(pData, dataSize, &len, sizeof(len), startPos);
+    if (strStartPos >= 0)
+    {
+      int strEndPos = strStartPos + len;
+      if (strEndPos <= dataSize)
+      {
+        if (len > 0)
+          str.Set((char*) (pData + strStartPos), len);
+        else
+          str.Set("");
+      }
+      return strEndPos;
+    }
+    return -1;
+  }
+};
+  
 /** Manages a block of memory, for plug-in settings store/recall */
-class IByteChunk
+class IByteChunk : private IByteGetter
 {
 public:
   IByteChunk() {}
@@ -81,13 +115,7 @@ public:
   
   inline int GetBytes(void* pBuf, int size, int startPos) const
   {
-    int endPos = startPos + size;
-    if (startPos >= 0 && endPos <= mBytes.GetSize())
-    {
-      memcpy(pBuf, mBytes.Get() + startPos, size);
-      return endPos;
-    }
-    return -1;
+    return IByteGetter::GetBytes(mBytes.Get(), Size(), pBuf, size, startPos);
   }
   
   template <class T> inline int Put(const T* pVal)
@@ -109,21 +137,7 @@ public:
   
   inline int GetStr(WDL_String& str, int startPos) const
   {
-    int len;
-    int strStartPos = Get(&len, startPos);
-    if (strStartPos >= 0)
-    {
-      int strEndPos = strStartPos + len;
-      if (strEndPos <= mBytes.GetSize())
-      {
-        if (len > 0)
-          str.Set((char*) (mBytes.Get() + strStartPos), len);
-        else
-          str.Set("");
-      }
-      return strEndPos;
-    }
-    return -1;
+    return IByteGetter::GetStr(mBytes.Get(), Size(), str, startPos);
   }
   
   inline int PutChunk(IByteChunk* pRHS)
@@ -144,7 +158,7 @@ public:
    * Returns the current size of the chunk
    * @return Current size (in bytes)
    */
-  inline int Size()
+  inline int Size() const
   {
     return mBytes.GetSize();
   }
@@ -168,13 +182,54 @@ public:
     return mBytes.Get();
   }
   
-  inline bool IsEqual(IByteChunk& otherChunk)
+  inline bool IsEqual(IByteChunk& otherChunk) const
   {
-    return (otherChunk.Size() == Size() && !memcmp(otherChunk.GetBytes(), GetBytes(), Size()));
+    return (otherChunk.Size() == Size() && !memcmp(otherChunk.mBytes.Get(), mBytes.Get(), Size()));
   }
   
 private:
   WDL_TypedBuf<uint8_t> mBytes;
+};
+
+/** Manages a non-owned block of memory, for receiving arbitrary message byte streams */
+  class IByteStream : private IByteGetter
+{
+public:
+  IByteStream(const void *pData, int dataSize) : mBytes(reinterpret_cast<const uint8_t *>(pData)), mSize(dataSize) {}
+  ~IByteStream() {}
+  
+  inline int GetBytes(void* pBuf, int size, int startPos) const
+  {
+    return IByteGetter::GetBytes(mBytes, Size(), pBuf, size, startPos);
+  }
+  
+  template <class T> inline int Get(T* pVal, int startPos) const
+  {
+    return GetBytes(pVal, sizeof(T), startPos);
+  }
+  
+  inline int GetStr(WDL_String& str, int startPos) const
+  {
+    return IByteGetter::GetStr(mBytes, Size(), str, startPos);
+  }
+  
+  /**
+   * Returns the  size of the chunk
+   * @return  size (in bytes)
+   */
+  inline int Size() const
+  {
+    return mSize;
+  }
+  
+  inline bool IsEqual(IByteStream& otherStream) const
+  {
+    return (otherStream.Size() == Size() && !memcmp(otherStream.mBytes, mBytes, Size()));
+  }
+  
+private:
+  const uint8_t* mBytes;
+  int mSize;
 };
 
 /** Helper struct to set compile time options to an API class constructor  */
