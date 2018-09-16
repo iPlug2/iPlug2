@@ -354,8 +354,10 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         BeginPaint(hWnd, &ps);
         #endif
         IRECT ir(r.left, r.top, r.right, r.bottom);
+        IRECTList rects;
         ir.ScaleBounds(1. / pGraphics->GetScale());
-        pGraphics->Draw(ir);
+        rects.Add(ir);
+        pGraphics->Draw(rects);
         #ifdef IGRAPHICS_NANOVG
         SwapBuffers((HDC)pGraphics->mPlatformContext);
         EndPaint(hWnd, &ps);
