@@ -140,6 +140,7 @@
   
   if (mGraphics->IsDirty(rects))
   {
+    mGraphics->SetAllControlsClean();
     mGraphics->Draw(rects);
   }
 }

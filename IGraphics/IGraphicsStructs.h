@@ -796,10 +796,10 @@ struct IRECT
   // Pixel Aligns in an inclusive manner (moves all points outwards)
   inline void PixelAlign() 
   {
-    L = floor(L);
-    T = floor(T);
-    R = ceil(R);
-    B = ceil(B);
+    L = std::floor(L);
+    T = std::floor(T);
+    R = std::ceil(R);
+    B = std::ceil(B);
   }
   
   inline void Pad(float padding)
