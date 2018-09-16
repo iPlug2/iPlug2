@@ -83,6 +83,7 @@ public:
     {
       HDC dc = GetDC(window);
       SetPlatformContext(dc);
+      ReleaseDC(window, dc);
     }
 #endif
   }
