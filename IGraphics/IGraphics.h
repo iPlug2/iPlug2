@@ -600,8 +600,7 @@ public:
   bool IsDirty(IRECTList& rects);
 
   /** Called by the platform class when an area needs to be redrawn
-   * @param bounds The rectangular region to draw */
-  virtual void Draw(const IRECT& bounds);
+   * @param rects A set of rectangular regions to draw */
   virtual void Draw(IRECTList& rects);
 
   /** This method is called after interacting with a control, so that any other controls linked to the same parameter index, will also be set dirty, and have their values updated.
@@ -947,6 +946,8 @@ protected:
   IPopupMenu mPromptPopupMenu;
 
 private:
+    
+  void Draw(const IRECT& bounds);
   void DrawControl(IControl* pControl, const IRECT& bounds, bool alwaysShow);
   int GetMouseControlIdx(float x, float y, bool mo = false);
   void StartResizeGesture() { mResizingInProcess = true; };
