@@ -32,7 +32,7 @@ scriptpath = os.path.dirname(os.path.realpath(__file__))
 
 sys.path.insert(0, scriptpath + '/../scripts/')
 
-from parse_config import parse_config, parse_xcconfig, write_config
+from parse_config import parse_config, parse_xcconfig#, write_config
 
 VERSION = "0.93"
 

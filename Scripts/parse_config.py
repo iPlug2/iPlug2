@@ -1,4 +1,4 @@
-import fileinput, json
+import fileinput
 
 config = {}
 
@@ -82,8 +82,6 @@ def parse_config(projectpath):
   config["FULL_VER_STR"] = config["MAJOR_STR"] + "." + config["MINOR_STR"] + "." + config["BUGFIX_STR"]
 
   fileinput.close()
-
-  print(json.dumps(config, indent = 2))
 
   return config
 
