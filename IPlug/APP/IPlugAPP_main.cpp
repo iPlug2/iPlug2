@@ -24,7 +24,7 @@
 #include "resource.h"
 
 #pragma mark - WINDOWS
-#if defined(OS_WIN)
+#if defined OS_WIN
 #include <windows.h>
 #include <commctrl.h>
 
