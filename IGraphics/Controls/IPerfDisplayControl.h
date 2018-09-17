@@ -116,7 +116,7 @@ public:
 
     if (mStyle == kFPS)
     {
-      str.SetFormatted(32, "%.2f FPS\n", 1.0f / avg);
+      str.SetFormatted(32, "%.2f FPS", 1.0f / avg);
       g.DrawText(mTopLabelText, str.Get(), padded);
 
       str.SetFormatted(32, "%.2f ms", avg * 1000.0f);
