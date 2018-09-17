@@ -829,8 +829,8 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   float width = windowSize.width - viewFrameInWindowCoords.origin.x;
   float height = windowSize.height - viewFrameInWindowCoords.origin.y;
 
-  float scaleX = width / mGraphics->Width();
-  float scaleY = height / mGraphics->Height();
+//  float scaleX = width / mGraphics->Width();
+//  float scaleY = height / mGraphics->Height();
   
   // Rescale
   //mGraphics->Resize(mGraphics->Width(), mGraphics->Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
