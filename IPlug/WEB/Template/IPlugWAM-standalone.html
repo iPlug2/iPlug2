@@ -120,6 +120,7 @@
 
       function initMidi () {
         let combo = document.querySelector("#midiInSelect");
+        combo.options.length = 0;
         navigator.requestMIDIAccess().then((midiIF) => {
           for (let input of midiIF.inputs.values()) {
             let option = new Option(input.name);
