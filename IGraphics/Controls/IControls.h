@@ -19,7 +19,7 @@ class IVSwitchControl : public ISwitchControlBase
                       , public IVectorBase
 {
 public:
-  IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = FlashCircleClickActionFunc, const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2, EDirection dir = kVertical);
+  IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = FlashCircleClickActionFunc, const char* label = "", const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2, EDirection dir = kVertical);
 
   void Draw(IGraphics& g) override;
 
@@ -119,10 +119,9 @@ private:
 class IVMomentarySwitch : public IVSwitchControl
 {
 public:
-  IVMomentarySwitch(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc, const char* str = "")
-  : IVSwitchControl(dlg, bounds, kNoParameter, actionFunc)
+  IVMomentarySwitch(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc, const char* str)
+  : IVSwitchControl(dlg, bounds, kNoParameter, actionFunc, str)
   {
-    mStr.Set(str);
   }
 
   virtual ~IVMomentarySwitch() {};

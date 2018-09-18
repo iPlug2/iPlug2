@@ -3,7 +3,7 @@
 #pragma mark - VECTOR CONTROLS
 
 IVSwitchControl::IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc
-  , const IVColorSpec& colorSpec, int numStates, EDirection dir)
+  , const char* label, const IVColorSpec& colorSpec, int numStates, EDirection dir)
   : ISwitchControlBase(dlg, bounds, paramIdx, actionFunc, numStates)
   , IVectorBase(colorSpec)
   , mDirection(dir)
@@ -12,6 +12,7 @@ IVSwitchControl::IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, int paramI
   mDblAsSingleClick = true;
   mText.mSize = 20;
   mStep = 1.f / float(mNumStates) - 1.f;
+  mStr.Set(label);
 }
 
 void IVSwitchControl::Draw(IGraphics& g)
@@ -45,10 +46,10 @@ void IVSwitchControl::Draw(IGraphics& g)
   if(mMouseIsOver)
     g.FillRoundRect(GetColor(kHL), handleBounds, cornerRadius);
   
-  g.DrawText(mText, mStr.Get(), handleBounds);
-  
   if(GetAnimationFunction())
     DrawFlashCircle(g);
+  
+  g.DrawText(mText, mStr.Get(), handleBounds);
     
   if(mDrawFrame)
     g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius, 0, mFrameThickness);
