@@ -440,12 +440,12 @@ struct IMatrix
   {
     IMatrix p = *this;
 
-    mTransform[0] = m.mTransform[0] * p.mTransform[0] + m.mTransform[2] * p.mTransform[1];
-    mTransform[1] = m.mTransform[1] * p.mTransform[0] + m.mTransform[3] * p.mTransform[1];
-    mTransform[2] = m.mTransform[0] * p.mTransform[2] + m.mTransform[2] * p.mTransform[3];
-    mTransform[3] = m.mTransform[1] * p.mTransform[2] + m.mTransform[3] * p.mTransform[3];
-    mTransform[4] = m.mTransform[4] * p.mTransform[0] + m.mTransform[5] * p.mTransform[1] + p.mTransform[4];
-    mTransform[5] = m.mTransform[4] * p.mTransform[2] + m.mTransform[5] * p.mTransform[3] + p.mTransform[5];
+    mTransform[0] = m.mTransform[0] * p.mTransform[0] + m.mTransform[1] * p.mTransform[2];
+    mTransform[1] = m.mTransform[0] * p.mTransform[1] + m.mTransform[1] * p.mTransform[3];
+    mTransform[2] = m.mTransform[2] * p.mTransform[0] + m.mTransform[3] * p.mTransform[2];
+    mTransform[3] = m.mTransform[2] * p.mTransform[1] + m.mTransform[3] * p.mTransform[3];
+    mTransform[4] = m.mTransform[4] * p.mTransform[0] + m.mTransform[5] * p.mTransform[2] + p.mTransform[4];
+    mTransform[5] = m.mTransform[4] * p.mTransform[1] + m.mTransform[5] * p.mTransform[3] + p.mTransform[5];
   }
   
   double mTransform[6];
