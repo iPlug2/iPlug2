@@ -18,13 +18,17 @@ WebBitmap::WebBitmap(emscripten::val imageCanvas, const char* name, int scale)
 IGraphicsCanvas::IGraphicsCanvas(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphicsPathBase(dlg, w, h, fps, scale)
 {
+#if defined GRAPHICS_SCALING
   SetDisplayScale(val::global("window")["devicePixelRatio"].as<int>());
+#else
+  SetDisplayScale(1);
+#endif
   
   val canvas = GetCanvas();
 
   canvas["style"].set("width", val(Width() * GetScale()));
   canvas["style"].set("height", val(Height() * GetScale()));
-  
+
   canvas.set("width", Width() * GetScale() * GetDisplayScale());
   canvas.set("height", Height() * GetScale() * GetDisplayScale());
 }
