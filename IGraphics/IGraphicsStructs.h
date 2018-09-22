@@ -51,23 +51,23 @@ class LICE_IFont; // TODO: move this
 
 #ifdef IGRAPHICS_AGG
 #include "IGraphicsAGG_src.h"
-typedef agg::pixel_map* BitmapData;
+  typedef agg::pixel_map* BitmapData;
 #elif defined IGRAPHICS_CAIRO
-#if defined OS_MAC || defined OS_LINUX
-#include "cairo/cairo.h"
-#elif defined OS_WIN
-#include "cairo/src/cairo.h"
-#else
-#error Cairo not supported on this platform
-#endif
-typedef cairo_surface_t* BitmapData;
+  #if defined OS_MAC || defined OS_LINUX
+    #include "cairo/cairo.h"
+  #elif defined OS_WIN
+    #include "cairo/src/cairo.h"
+  #else
+    #error NOT IMPLEMENTED
+  #endif
+  typedef cairo_surface_t* BitmapData;
 #elif defined IGRAPHICS_NANOVG
-typedef int BitmapData;
+  typedef int BitmapData;
 #elif defined IGRAPHICS_LICE
-#include "lice.h"
-typedef LICE_IBitmap* BitmapData;
-#elif defined EMSCRIPTEN
-typedef void* BitmapData;
+  #include "lice.h"
+  typedef LICE_IBitmap* BitmapData;
+#elif defined IGRAPHICS_CANVAS
+  typedef void* BitmapData;
 #endif
 
 class APIBitmap

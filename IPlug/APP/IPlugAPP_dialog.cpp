@@ -295,7 +295,7 @@ void IPlugAPPHost::PopulatePreferencesDialog(HWND hwndDlg)
   PopulateMidiDialogs(hwndDlg);
 }
 #else
- #error no linux
+  #error NOT IMPLEMENTED
 #endif
 
 WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -478,7 +478,7 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
             #elif defined OS_MAC
             system("open \"/Applications/Utilities/Audio MIDI Setup.app\"");
             #else
-              #error no linux
+              #error NOT IMPLEMENTED
             #endif
           break;
 

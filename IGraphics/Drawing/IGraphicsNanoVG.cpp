@@ -19,7 +19,7 @@
   GLFWwindow* gWindow;
   void GLFWError(int error, const char* desc) { DBGMSG("GLFW error %d: %s\n", error, desc); }
 #else
-  #error platform not yet supported
+  #error NOT IMPLEMENTED
 #endif
 
 #pragma mark -
