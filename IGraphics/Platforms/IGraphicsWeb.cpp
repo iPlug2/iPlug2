@@ -62,7 +62,7 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
 {
   IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
   
-  IMouseMod modifiers(0, 0, pEvent->shiftKey, pEvent->ctrlKey, pEvent->altKey);
+  IMouseMod modifiers(pEvent->buttons == 1, pEvent->buttons == 2, pEvent->shiftKey, pEvent->ctrlKey, pEvent->altKey);
   
   double x = pEvent->targetX;
   double y = pEvent->targetY;
