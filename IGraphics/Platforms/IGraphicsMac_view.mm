@@ -823,11 +823,11 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   if(!mGraphics) // TODO: Why does this happen with reaper?
     return;
   
-  NSSize windowSize = [[self window] frame].size;
-  NSRect viewFrameInWindowCoords = [self convertRect: [self bounds] toView: nil];
-
-  float width = windowSize.width - viewFrameInWindowCoords.origin.x;
-  float height = windowSize.height - viewFrameInWindowCoords.origin.y;
+//  NSSize windowSize = [[self window] frame].size;
+//  NSRect viewFrameInWindowCoords = [self convertRect: [self bounds] toView: nil];
+//
+//  float width = windowSize.width - viewFrameInWindowCoords.origin.x;
+//  float height = windowSize.height - viewFrameInWindowCoords.origin.y;
 
 //  float scaleX = width / mGraphics->Width();
 //  float scaleY = height / mGraphics->Height();
