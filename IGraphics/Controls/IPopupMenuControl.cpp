@@ -123,6 +123,12 @@ void IPopupMenuControl::DrawCellText(IGraphics& g, const IRECT& bounds, const IP
   
   if(menuItem.GetChecked())
     g.FillRoundRect(COLOR_BLACK, tickRect.GetCentredInside(TICK_SIZE/2.), 2, &mBlend);
+  
+  if(menuItem.GetSubmenu() != nullptr)
+  {
+    IRECT tri = IRECT(bounds.R-ARROW_SIZE, bounds.T+2, bounds.R-2, bounds.B-2);
+    g.FillTriangle(COLOR_BLACK, tri.L, tri.T, tri.L, tri.B, tri.R, tri.MH(), &mBlend);
+  }
 }
 
 void IPopupMenuControl::DrawHighlightCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem)
@@ -135,6 +141,12 @@ void IPopupMenuControl::DrawHighlightCellText(IGraphics& g, const IRECT& bounds,
   
   if(menuItem.GetChecked())
     g.FillRoundRect(COLOR_WHITE, tickRect.GetCentredInside(TICK_SIZE/2.), 2, &mBlend);
+  
+  if(menuItem.GetSubmenu() != nullptr)
+  {
+    IRECT tri = IRECT(bounds.R-ARROW_SIZE, bounds.T+2, bounds.R-2, bounds.B-2);
+    g.FillTriangle(COLOR_WHITE, tri.L, tri.T, tri.L, tri.B, tri.R, tri.MH(), &mBlend);
+  }
 }
 
 void IPopupMenuControl::DrawSeparator(IGraphics& g, const IRECT& bounds)
@@ -159,13 +171,26 @@ IPopupMenu* IPopupMenuControl::CreatePopupMenu(IPopupMenu& menu, const IRECT& bo
   }
   
   span.HPad(TEXT_PAD); // add some padding because we don't want to be flush to the edges
-  span.Pad(-TICK_SIZE, 0, 0, 0);
+  span.Pad(-TICK_SIZE, 0, ARROW_SIZE, 0);
 
   mSingleCellBounds = IRECT(bounds.L, bounds.T, bounds.L + span.W(), bounds.T + span.H());
   
   Expand();
   
   return mMenu;
+}
+
+IRECT* IPopupMenuControl::HitTestCells(float x, float y) const
+{
+  for(auto i = 0; i < mExpandedCellBounds.GetSize(); i++)
+  {
+    IRECT* r = mExpandedCellBounds.Get(i);
+    if(r->Contains(x, y))
+    {
+      return r;
+    }
+  }
+  return nullptr;
 }
 
 void IPopupMenuControl::Expand()

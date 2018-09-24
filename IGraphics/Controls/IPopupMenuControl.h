@@ -19,21 +19,16 @@ public:
   /** @param dlg The editor delegate that this control is attached to
    * @param collapsedBounds If this control, when collapsed should occupy an area of the graphics context, specify this, otherwise the collapsed area is empty
    * @param expandedBounds If you want to explicitly specify the size of the expanded pop-up, you can specify an area here */
-  IPopupMenuControl(IGEditorDelegate& dlg, int paramIdx = kNoParameter, IText text = DEFAULT_TEXT, IRECT collapsedBounds = IRECT(), IRECT expandedBounds = IRECT(), EDirection direction = kVertical);
+  IPopupMenuControl(IGEditorDelegate& dlg, int paramIdx = kNoParameter, IText text = IText(16), IRECT collapsedBounds = IRECT(), IRECT expandedBounds = IRECT(), EDirection direction = kVertical);
   virtual ~IPopupMenuControl() {}
   
   //IControl
-  virtual bool IsDirty() override
-  {
-    return (GetState() > kCollapsed) | IControl::IsDirty();
-  }
-  
+  virtual bool IsDirty() override { return (GetState() > kCollapsed) | IControl::IsDirty(); }
   void Draw(IGraphics& g) override;
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override;
-  
   void OnEndAnimation() override;
   
   //IPopupMenuControl
@@ -68,18 +63,7 @@ private:
    * @param x X position to test
    * @param y Y position to test
    * @return Pointer to the cell bounds IRECT, or nullptr if nothing got hit */
-  IRECT* HitTestCells(float x, float y) const
-  {
-    for(auto i = 0; i < mExpandedCellBounds.GetSize(); i++)
-    {
-      IRECT* r = mExpandedCellBounds.Get(i);
-      if(r->Contains(x, y))
-      {
-        return r;
-      }
-    }
-    return nullptr;
-  }
+  IRECT* HitTestCells(float x, float y) const;
   
 protected:
   IRECT mSpecifiedCollapsedBounds;
@@ -99,6 +83,7 @@ private:
   bool mScrollIfTooBig = false;
   const float TEXT_PAD = 5.; // 5px on either side of text
   const float TICK_SIZE = 10.; // The size of the area on the left where a tick mark appears on checked items
+  const float ARROW_SIZE = 8;
   float mPadding = 5.; // How much white space between the background and the cells
   IBlend mBlend = { kBlendNone, 0.f };
   float mRoundness = 5.f;
