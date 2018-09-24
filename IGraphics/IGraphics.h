@@ -627,7 +627,7 @@ public:
   /** Shows a platform pop up/contextual menu at point in the graphics context
    * @param x The X coordinate in the graphics context at which to pop up the menu
    * @param y The Y coordinate in the graphics context at which to pop up the menu
-   * @param pCaller A pointed to the IControl creating this pop-up menu. If it exists IControl::OnPopupMenuSelection() will be called on successful selection
+   * @param pCaller A pointer to the IControl creating this pop-up menu. If it exists IControl::OnPopupMenuSelection() will be called on successful selection
    * @return Pointer to an IPopupMenu that represents the menu that user finally clicked on (might not be the same as menu if they clicked a submenu) */
   IPopupMenu* CreatePopupMenu(IPopupMenu& menu, float x, float y, IControl* pCaller = nullptr) { const IRECT bounds = IRECT(x,y,x,y); return CreatePopupMenu(menu, bounds, pCaller); }
 
