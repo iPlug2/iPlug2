@@ -88,17 +88,16 @@ public:
   
   void OnMsgFromDelegate(int messageTag, int dataSize, const void* pData) override
   {
-    IByteChunk chnk;
-    chnk.PutBytes(pData, dataSize); // FIXME: unnessecary copy
+    IByteStream stream(pData, dataSize);
     
     int pos = 0;
     Data data;
-    pos = chnk.Get(&data.nchans, pos);
+    pos = stream.Get(&data.nchans, pos);
 
-    while(pos < chnk.Size())
+    while(pos < stream.Size())
     {
       for (auto i = 0; i < data.nchans; i++) {
-        pos = chnk.Get(&data.vals[i], pos);
+        pos = stream.Get(&data.vals[i], pos);
         float* pVal = GetTrackData(i);
         *pVal = Clip(data.vals[i], 0.f, 1.f);
       }
