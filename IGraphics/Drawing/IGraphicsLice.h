@@ -49,8 +49,7 @@ public:
 };
 
 /** IGraphics draw class using Cockos' LICE  
-*   @ingroup DrawClasses
-*/
+*   @ingroup DrawClasses */
 class IGraphicsLice : public IGraphics
 {
 public:

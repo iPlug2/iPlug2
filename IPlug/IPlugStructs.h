@@ -145,10 +145,7 @@ public:
     return PutBytes(pRHS->GetBytes(), pRHS->Size());
   }
   
-  /** @brief Clears the chunk
-   *
-   * This also sets the size to 0 bytes
-   */
+  /** Clears the chunk */
   inline void Clear()
   {
     mBytes.Resize(0);
