@@ -160,6 +160,15 @@ IPopupMenu* IPopupMenuControl::CreatePopupMenu(IPopupMenu& menu, const IRECT& bo
   mMenu = &menu;
   mCaller = pCaller;
   
+  mSingleCellBounds = GetLargestCellRectForMenu(menu, bounds.L, bounds.T);
+  
+  Expand();
+  
+  return mMenu;
+}
+
+IRECT IPopupMenuControl::GetLargestCellRectForMenu(IPopupMenu& menu, float x, float y)
+{
   IRECT span; // this IRECT will be used to calculate the maximum dimensions of the longest text item in the menu
   
   for (auto i = 0; i < mMenu->NItems(); ++i)
@@ -172,12 +181,8 @@ IPopupMenu* IPopupMenuControl::CreatePopupMenu(IPopupMenu& menu, const IRECT& bo
   
   span.HPad(TEXT_PAD); // add some padding because we don't want to be flush to the edges
   span.Pad(-TICK_SIZE, 0, ARROW_SIZE, 0);
-
-  mSingleCellBounds = IRECT(bounds.L, bounds.T, bounds.L + span.W(), bounds.T + span.H());
   
-  Expand();
-  
-  return mMenu;
+  return IRECT(x, y, x + span.W(), y + span.H());
 }
 
 IRECT* IPopupMenuControl::HitTestCells(float x, float y) const

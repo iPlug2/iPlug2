@@ -46,6 +46,8 @@ public:
    @return the menu */
   IPopupMenu* CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller);
   
+  IRECT GetLargestCellRectForMenu(IPopupMenu& menu, float x, float y);
+  
   EPopupState GetState() const { return mState; }
   bool GetExpanded() const { return mState == kExpanded; }
 private:
