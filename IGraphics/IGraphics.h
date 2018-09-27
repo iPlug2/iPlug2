@@ -713,7 +713,7 @@ public:
 
   /** Attach a control for pop-up menus, to override platform style menus
    * @param pControl A control that inherits from IPopupMenuControl */
-  void AttachPopupMenuControl();
+  void AttachPopupMenuControl(IText text = DEFAULT_TEXT);
   
   void AttachPerformanceDisplay();
   

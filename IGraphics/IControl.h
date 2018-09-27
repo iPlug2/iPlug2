@@ -972,7 +972,7 @@ public:
     mExtension.Set(extension);
   }
 
-  ~IDirBrowseControlBase();
+  virtual ~IDirBrowseControlBase();
 
   int NItems();
 
@@ -991,6 +991,7 @@ protected:
   int mSelectedIndex = -1;
   IPopupMenu* mSelectedMenu = nullptr;
   IPopupMenu mMainMenu;
+  //TODO: Paths/Labels could be done with a std::map
   WDL_PtrList<WDL_String> mPaths;
   WDL_PtrList<WDL_String> mPathLabels;
   WDL_PtrList<WDL_String> mFiles;

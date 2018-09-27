@@ -1,12 +1,17 @@
 #include "IPopupMenuControl.h"
 
-IPopupMenuControl::IPopupMenuControl(IGEditorDelegate& dlg, int paramIdx, IText text, IRECT collapsedBounds, IRECT expandedBounds, EDirection direction)
+
+IPopupMenuControl::IPopupMenuControl(IGEditorDelegate& dlg, int paramIdx, IText text, IRECT collapsedBounds, IRECT expandedBounds)
 : IControl(dlg, collapsedBounds, paramIdx)
 , mSpecifiedCollapsedBounds(collapsedBounds)
 , mSpecifiedExpandedBounds(expandedBounds)
-, mDirection(direction)
 {
-  SetActionFunction([&](IControl* pCaller){
+  SetActionFunction([&](IControl* pCaller) {
+    
+    int duration = DEFAULT_ANIMATION_DURATION;
+    
+    if(mState == kSubMenuAppearing)
+      duration = DEFAULT_ANIMATION_DURATION * 2;
     
     SetAnimation([&](IControl* pCaller) {
       auto progress = pCaller->GetAnimationProgress();
@@ -17,13 +22,29 @@ IPopupMenuControl::IPopupMenuControl(IGEditorDelegate& dlg, int paramIdx, IText 
       }
       
       if(mState == kExpanding)
-        mBlend.mWeight = (float) progress * mOpacity;
+      {
+        if(mAppearingMenuPanel != nullptr)
+          mAppearingMenuPanel->mBlend.mWeight = (float) progress * mOpacity;
+      }
+      else if(mState == kSubMenuAppearing)
+      {
+        if(mAppearingMenuPanel != nullptr)
+          mAppearingMenuPanel->mBlend.mWeight = (float) (progress > 0.9) * mOpacity;
+      }
       else if(mState == kCollapsing)
-        mBlend.mWeight = (float) (1.-progress) * mOpacity;
-      
-      GetUI()->SetAllControlsDirty();
+      {
+        for (auto i = 0; i < mMenuPanels.GetSize(); i++) {
+          mMenuPanels.Get(i)->mBlend.mWeight = (float) (1.-progress) * mOpacity;
+        }
+      }
+      else if(mState == kIdling) // Idling is a special stage, to force the menu to redraw, before complete collapse
+      {
+        for (auto i = 0; i < mMenuPanels.GetSize(); i++) {
+          mMenuPanels.Get(i)->mBlend.mWeight = 0.f;
+        }
+      }
     },
-    DEFAULT_ANIMATION_DURATION);
+    duration);
   });
   
   
@@ -31,35 +52,63 @@ IPopupMenuControl::IPopupMenuControl(IGEditorDelegate& dlg, int paramIdx, IText 
   mDirty = false;
 }
 
+IPopupMenuControl::~IPopupMenuControl()
+{
+  mMenuPanels.Empty(true);
+}
 
 void IPopupMenuControl::Draw(IGraphics& g)
 {
   assert(mMenu != nullptr);
   
-  DrawBackground(g, mTargetRECT); // mTargetRECT = inner area
-  DrawShadow(g, mRECT);
-  
-  for(auto i = 0; i < mExpandedCellBounds.GetSize(); i++)
+  for (auto mr = 0; mr < mMenuPanels.GetSize(); mr++)
   {
-    IRECT* pCellRect = mExpandedCellBounds.Get(i);
-    IPopupMenu::Item* pMenuItem = mMenu->GetItem(i);
+    MenuPanel* pMenuPanel = mMenuPanels.Get(mr);
     
-    if(!pMenuItem)
-      return;
-    
-    if(pMenuItem->GetIsSeparator())
-      DrawSeparator(g, *pCellRect);
-    else
+    if(pMenuPanel->mShouldDraw)
     {
-      if(mMouseCellBounds == pCellRect)
+      DrawBackground(g, pMenuPanel->mTargetRECT, &pMenuPanel->mBlend); // mTargetRECT = inner area
+      DrawShadow(g, pMenuPanel->mRECT, &pMenuPanel->mBlend);
+    
+      for(auto i = 0; i < pMenuPanel->mCellBounds.GetSize(); i++)
       {
-        DrawHighlightCell(g, *pCellRect, *pMenuItem);
-        DrawHighlightCellText(g, *pCellRect, *pMenuItem);
-      }
-      else
-      {
-        DrawCell(g, *pCellRect, *pMenuItem);
-        DrawCellText(g, *pCellRect, *pMenuItem);
+        IRECT* pCellRect = pMenuPanel->mCellBounds.Get(i);
+        IPopupMenu::Item* pMenuItem = pMenuPanel->mMenu.GetItem(i);
+    
+        if(!pMenuItem)
+          return;
+    
+        if(pMenuItem->GetIsSeparator())
+          DrawSeparator(g, *pCellRect, &pMenuPanel->mBlend);
+        else
+        {
+          if(mMouseCellBounds == pCellRect || pCellRect == pMenuPanel->mHighlightedCell)
+          {
+            if(pMenuPanel->mClickedCell)
+              DrawClickedCellBackground(g, *pCellRect, *pMenuItem, &pMenuPanel->mBlend);
+            else
+              DrawHighlightedCellBackground(g, *pCellRect, *pMenuItem, &pMenuPanel->mBlend);
+            
+            DrawHighlightCellText(g, *pCellRect, *pMenuItem, &pMenuPanel->mBlend);
+            
+            if(pMenuItem->GetChecked())
+              DrawHighlitedTick(g, *pCellRect, *pMenuItem, &pMenuPanel->mBlend);
+            
+            if(pMenuItem->GetSubmenu())
+              DrawHighlitedArrow(g, *pCellRect, *pMenuItem, &pMenuPanel->mBlend);
+          }
+          else
+          {
+            DrawCellBackground(g, *pCellRect, *pMenuItem, &pMenuPanel->mBlend);
+            DrawCellText(g, *pCellRect, *pMenuItem, &pMenuPanel->mBlend);
+            
+            if(pMenuItem->GetChecked())
+              DrawTick(g, *pCellRect, *pMenuItem, &pMenuPanel->mBlend);
+            
+            if(pMenuItem->GetSubmenu())
+              DrawArrow(g, *pCellRect, *pMenuItem, &pMenuPanel->mBlend);
+          }
+        }
       }
     }
   }
@@ -69,8 +118,8 @@ void IPopupMenuControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   if(GetState() == kExpanded)
   {
-    mMouseCellBounds = HitTestCells(x, y);
-    Collapse();
+    mMouseCellBounds = mActiveMenuPanel->HitTestCells(x, y);
+    CollapseEverything();
   }
   else
     IControl::OnMouseDown(x, y, mod);
@@ -78,13 +127,14 @@ void IPopupMenuControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 
 void IPopupMenuControl::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
 {
-  mMouseCellBounds = HitTestCells(x, y);
+  mMouseCellBounds = mActiveMenuPanel->HitTestCells(x, y);
   SetDirty(false);
 }
 
 void IPopupMenuControl::OnMouseOver(float x, float y, const IMouseMod& mod)
 {
-  mMouseCellBounds = HitTestCells(x, y);
+  mMouseCellBounds = mActiveMenuPanel->HitTestCells(x, y);
+  CalculateMenuPanels(x, y);
   SetDirty(false);
 }
 
@@ -93,65 +143,81 @@ void IPopupMenuControl::OnMouseOut()
   mMouseCellBounds = nullptr;
 }
 
-void IPopupMenuControl::DrawBackground(IGraphics& g, const IRECT& bounds)
+void IPopupMenuControl::DrawBackground(IGraphics& g, const IRECT& bounds, IBlend* blend)
 {
-  g.FillRoundRect(COLOR_WHITE, bounds, mRoundness, &mBlend);
+  g.FillRoundRect(COLOR_WHITE, bounds, mRoundness, blend);
 }
 
-void IPopupMenuControl::DrawShadow(IGraphics& g, const IRECT& bounds)
+void IPopupMenuControl::DrawShadow(IGraphics& g, const IRECT& bounds, IBlend* blend)
 {
-  g.DrawBoxShadow(bounds, mRoundness, 2., mDropShadowSize, &mBlend);
+  g.DrawBoxShadow(bounds, mRoundness, 2., mDropShadowSize, blend);
 }
 
-void IPopupMenuControl::DrawCell(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem)
+void IPopupMenuControl::DrawCellBackground(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem, IBlend* blend)
 {
 }
 
-void IPopupMenuControl::DrawHighlightCell(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem)
+void IPopupMenuControl::DrawHighlightedCellBackground(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem, IBlend* blend)
 {
-  g.FillRect(COLOR_BLUE, bounds.GetHPadded(mPadding), &mBlend);
+  g.FillRect(COLOR_BLUE, bounds.GetHPadded(mPadding), blend);
 }
 
-void IPopupMenuControl::DrawCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem)
+void IPopupMenuControl::DrawClickedCellBackground(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem, IBlend* blend)
+{
+  if(mState != kFlickering)
+    g.FillRect(COLOR_BLUE, bounds.GetHPadded(mPadding), blend);
+}
+
+void IPopupMenuControl::DrawCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem, IBlend* blend)
 {
   IRECT tickRect = IRECT(bounds.L, bounds.T, bounds.L + TICK_SIZE, bounds.B).GetCentredInside(TICK_SIZE);
-  IRECT textRect = IRECT(tickRect.R + TEXT_PAD, bounds.T, bounds.R - TEXT_PAD, bounds.B);
+  IRECT textRect = IRECT(tickRect.R + TEXT_HPAD, bounds.T, bounds.R - TEXT_HPAD, bounds.B);
   
-  mText.mFGColor = COLOR_BLACK;
+  if(menuItem.GetEnabled())
+    mText.mFGColor = COLOR_BLACK;
+  else
+    mText.mFGColor = COLOR_GRAY;
+
   mText.mAlign = IText::kAlignNear;
-  g.DrawText(mText, menuItem.GetText(), textRect, &mBlend);
-  
-  if(menuItem.GetChecked())
-    g.FillRoundRect(COLOR_BLACK, tickRect.GetCentredInside(TICK_SIZE/2.), 2, &mBlend);
-  
-  if(menuItem.GetSubmenu() != nullptr)
-  {
-    IRECT tri = IRECT(bounds.R-ARROW_SIZE, bounds.T+2, bounds.R-2, bounds.B-2);
-    g.FillTriangle(COLOR_BLACK, tri.L, tri.T, tri.L, tri.B, tri.R, tri.MH(), &mBlend);
-  }
+  g.DrawText(mText, menuItem.GetText(), textRect, blend);
 }
 
-void IPopupMenuControl::DrawHighlightCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem)
+void IPopupMenuControl::DrawHighlightCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem, IBlend* blend)
 {
   IRECT tickRect = IRECT(bounds.L, bounds.T, bounds.L + TICK_SIZE, bounds.B).GetCentredInside(TICK_SIZE);
-  IRECT textRect = IRECT(tickRect.R + TEXT_PAD, bounds.T, bounds.R - TEXT_PAD, bounds.B);
+  IRECT textRect = IRECT(tickRect.R + TEXT_HPAD, bounds.T, bounds.R - TEXT_HPAD, bounds.B);
   
   mText.mFGColor = COLOR_WHITE;
-  g.DrawText(mText, menuItem.GetText(), textRect, &mBlend);
-  
-  if(menuItem.GetChecked())
-    g.FillRoundRect(COLOR_WHITE, tickRect.GetCentredInside(TICK_SIZE/2.), 2, &mBlend);
-  
-  if(menuItem.GetSubmenu() != nullptr)
-  {
-    IRECT tri = IRECT(bounds.R-ARROW_SIZE, bounds.T+2, bounds.R-2, bounds.B-2);
-    g.FillTriangle(COLOR_WHITE, tri.L, tri.T, tri.L, tri.B, tri.R, tri.MH(), &mBlend);
-  }
+  g.DrawText(mText, menuItem.GetText(), textRect, blend);
 }
 
-void IPopupMenuControl::DrawSeparator(IGraphics& g, const IRECT& bounds)
+void IPopupMenuControl::DrawTick(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem, IBlend* blend)
 {
-  if(mBlend.mWeight > 0.9)
+  IRECT tickRect = IRECT(bounds.L, bounds.T, bounds.L + TICK_SIZE, bounds.B).GetCentredInside(TICK_SIZE);
+  g.FillRoundRect(COLOR_BLACK, tickRect.GetCentredInside(TICK_SIZE/2.), 2, blend);
+}
+
+void IPopupMenuControl::DrawHighlitedTick(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem, IBlend* blend)
+{
+  IRECT tickRect = IRECT(bounds.L, bounds.T, bounds.L + TICK_SIZE, bounds.B).GetCentredInside(TICK_SIZE);
+  g.FillRoundRect(COLOR_WHITE, tickRect.GetCentredInside(TICK_SIZE/2.), 2, blend);
+}
+
+void IPopupMenuControl::DrawArrow(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem, IBlend* blend)
+{
+  IRECT tri = IRECT(bounds.R-ARROW_SIZE, bounds.T+2, bounds.R-2, bounds.B-2); // FIXME: triangle doesn't look good at all font sizes
+  g.FillTriangle(COLOR_BLACK, tri.L, tri.T, tri.L, tri.B, tri.R, tri.MH(), blend);
+}
+
+void IPopupMenuControl::DrawHighlitedArrow(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem, IBlend* blend)
+{
+  IRECT tri = IRECT(bounds.R-ARROW_SIZE, bounds.T+2, bounds.R-2, bounds.B-2); // FIXME: triangle doesn't look good at all font sizes
+  g.FillTriangle(COLOR_WHITE, tri.L, tri.T, tri.L, tri.B, tri.R, tri.MH(), blend);
+}
+
+void IPopupMenuControl::DrawSeparator(IGraphics& g, const IRECT& bounds, IBlend* blend)
+{
+  if(blend->mWeight > 0.9)
     g.FillRect(COLOR_MID_GRAY, bounds, &BLEND_25);
 }
 
@@ -160,158 +226,185 @@ IPopupMenu* IPopupMenuControl::CreatePopupMenu(IPopupMenu& menu, const IRECT& bo
   mMenu = &menu;
   mCaller = pCaller;
   
-  mSingleCellBounds = GetLargestCellRectForMenu(menu, bounds.L, bounds.T);
-  
-  Expand();
+  Expand(bounds.L, bounds.T);
   
   return mMenu;
 }
 
-IRECT IPopupMenuControl::GetLargestCellRectForMenu(IPopupMenu& menu, float x, float y)
+IRECT IPopupMenuControl::GetLargestCellRectForMenu(IPopupMenu& menu, float x, float y) const
 {
-  IRECT span; // this IRECT will be used to calculate the maximum dimensions of the longest text item in the menu
+  IRECT span;
   
-  for (auto i = 0; i < mMenu->NItems(); ++i)
+  for (auto i = 0; i < menu.NItems(); ++i)
   {
-    IPopupMenu::Item* pItem = mMenu->GetItem(i);
+    IPopupMenu::Item* pItem = menu.GetItem(i);
     IRECT textBounds;
-    GetUI()->MeasureText(mText, pItem->GetText(), textBounds);
+    
+    IGraphics* pGraphics =  const_cast<IPopupMenuControl*>(this)->GetUI();
+    
+    pGraphics->MeasureText(mText, pItem->GetText(), textBounds);
     span = span.Union(textBounds);
   }
   
-  span.HPad(TEXT_PAD); // add some padding because we don't want to be flush to the edges
+  span.HPad(TEXT_HPAD); // add some padding because we don't want to be flush to the edges
   span.Pad(-TICK_SIZE, 0, ARROW_SIZE, 0);
   
   return IRECT(x, y, x + span.W(), y + span.H());
 }
 
-IRECT* IPopupMenuControl::HitTestCells(float x, float y) const
+void IPopupMenuControl::CalculateMenuPanels(float x, float y)
 {
-  for(auto i = 0; i < mExpandedCellBounds.GetSize(); i++)
+  // if the mouse event was outside of the active MenuPanel - could be on another menu or completely outside
+  if(mMouseCellBounds == nullptr)
   {
-    IRECT* r = mExpandedCellBounds.Get(i);
-    if(r->Contains(x, y))
+    MenuPanel* pMousedMenuPanel = nullptr;
+    
+    for (auto mr = 0; mr < mMenuPanels.GetSize(); mr++)
     {
-      return r;
+      MenuPanel* pMenuPanel = mMenuPanels.Get(mr);
+      
+      if(pMenuPanel->mShouldDraw && pMenuPanel->mRECT.Contains(x, y))
+      {
+        pMousedMenuPanel = pMenuPanel;
+      }
+    }
+    
+    if(pMousedMenuPanel != nullptr)
+      mActiveMenuPanel = pMousedMenuPanel;
+  }
+  
+  for(auto i = 0; i < mActiveMenuPanel->mCellBounds.GetSize(); i++)
+  {
+    IRECT* pCellRect = mActiveMenuPanel->mCellBounds.Get(i);
+    IPopupMenu::Item* pMenuItem = mActiveMenuPanel->mMenu.GetItem(i);
+    IPopupMenu* pSubMenu = pMenuItem->GetSubmenu();
+    
+    if(pCellRect == mMouseCellBounds)
+    {
+      if(pSubMenu != nullptr)
+      {
+        MenuPanel* pMenuPanelForThisMenu = nullptr;
+        
+        for (auto mr = 0; mr < mMenuPanels.GetSize(); mr++)
+        {
+          MenuPanel* pMenuPanel = mMenuPanels.Get(mr);
+          
+          if(&pMenuPanel->mMenu == pSubMenu)
+          {
+            pMenuPanelForThisMenu = pMenuPanel;
+            pMenuPanel->mShouldDraw = true;
+          }
+          else
+            pMenuPanel->mShouldDraw = false;
+        }
+      
+        if(pMenuItem->GetEnabled())
+          mActiveMenuPanel->mHighlightedCell = pCellRect;
+        else
+          mActiveMenuPanel->mHighlightedCell = nullptr;
+      
+        // There is no MenuPanel for this menu, make a new one
+        if(pMenuPanelForThisMenu == nullptr) {
+          pMenuPanelForThisMenu = mMenuPanels.Add(new MenuPanel(*this, GetUI()->GetBounds(), *pSubMenu, pCellRect->R + mPadding, pCellRect->T, mMenuPanels.Find(mActiveMenuPanel)));
+        }
+        
+        for (auto mr = 0; mr < mMenuPanels.GetSize(); mr++)
+        {
+          MenuPanel* pMenuPanel = mMenuPanels.Get(mr);
+          
+          if(pMenuPanel->mShouldDraw)
+          {
+            IRECT drawRECT = pMenuPanel->mRECT;
+            IRECT targetRECT = pMenuPanel->mTargetRECT;
+            
+            MenuPanel* pParentMenuPanel = mMenuPanels.Get(pMenuPanel->mParentIdx);
+            
+            while (pParentMenuPanel != nullptr)
+            {
+              pParentMenuPanel->mShouldDraw = true;
+              drawRECT = drawRECT.Union(pParentMenuPanel->mTargetRECT);
+              targetRECT = targetRECT.Union(pParentMenuPanel->mRECT);
+              pParentMenuPanel = mMenuPanels.Get(pParentMenuPanel->mParentIdx);
+            }
+            
+            SetTargetRECT(mTargetRECT.Union(targetRECT));
+            SetRECT(mRECT.Union(drawRECT));
+            
+            if(mAppearingMenuPanel != pMenuPanel)
+            {
+              mState = kSubMenuAppearing;
+              mAppearingMenuPanel = pMenuPanelForThisMenu;
+            }
+            
+            SetDirty(true);
+            break; // STOP LOOP!
+            
+          }
+        }
+      }
+      else // (pSubMenu == nullptr)
+      {
+        for (auto mr = 0; mr < mMenuPanels.GetSize(); mr++)
+        {
+          MenuPanel* pMenuPanel = mMenuPanels.Get(mr);
+          
+          if(pMenuPanel->mParentIdx == mMenuPanels.Find(mActiveMenuPanel))
+          {
+            mActiveMenuPanel->mHighlightedCell = nullptr;
+            pMenuPanel->mShouldDraw = false;
+          }
+        }
+      }
     }
   }
-  return nullptr;
+  
+  SetDirty(false);
 }
 
-void IPopupMenuControl::Expand()
+void IPopupMenuControl::Expand(float x, float y)
 {
-  mExpandedCellBounds.Empty(true);
+  mState = kExpanding;
+  GetUI()->UpdateTooltips(); //will disable
   
-  float left = mSingleCellBounds.L + mPadding;
-  float top = mSingleCellBounds.T + mPadding;
-  
-  IRECT contextBounds = GetUI()->GetBounds();
-  
-  if(mDirection == kVertical)
-  {
-    for (auto i = 0; i < mMenu->NItems(); ++i)
-    {
-      IPopupMenu::Item* pMenuItem = mMenu->GetItem(i);
-      float right, bottom;
-      float toAddX, toAddY; // the increments, different depending on item type
-      
-      if (pMenuItem->GetIsSeparator())
-      {
-        toAddX = CellWidth();
-        toAddY = mSeparatorSize;
-      }
-      else
-      {
-        toAddX = CellWidth();
-        toAddY = CellHeight();
-      }
-      
-      bool newColumn = false;
-      
-      if(mMaxColumnItems > 0 && i > 1)
-       newColumn = !(i % mMaxColumnItems);
-      
-      if((top + toAddY + mPadding) > contextBounds.B || newColumn) // it's gonna go off the bottom
-      {
-        if(mScrollIfTooBig)
-        {
-          //TODO: scroll
-        }
-        else // new column
-        {
-          left += mSingleCellBounds.W() + mCellGap;
-          top = mSingleCellBounds.T + mPadding;
-        }
-      }
-      
-      if((left + toAddX + mPadding) > contextBounds.R) // it's gonna go off the right hand side
-      {
-        assert(true);
-        // TODO: the whole thing is gonna have to go the other way mate
-      }
-      
-      if (pMenuItem->GetSubmenu())
-      {
-        assert(true);
-        //TODO: submenu
-      }
-      
-      right = left + toAddX;
-      bottom = top + toAddY;
-      
-      IRECT* pR = new IRECT(left, top, right, bottom);
-      mExpandedCellBounds.Add(pR);
-      top = bottom + mCellGap;
-    }
-    
-    IRECT span = *mExpandedCellBounds.Get(0);
-    
-    for(auto i = 1; i < mExpandedCellBounds.GetSize(); i++)
-    {
-      span = span.Union(*mExpandedCellBounds.Get(i));
-    }
-    
-    if (mSpecifiedExpandedBounds.W())
-    {
-      mTargetRECT = mSpecifiedExpandedBounds.GetPadded(mPadding); // pad the unioned cell rects)
-      mRECT = mSpecifiedExpandedBounds.GetPadded(mDropShadowSize + mPadding);
-    }
-    else
-    {
-      mTargetRECT = span.GetPadded(mPadding); // pad the unioned cell rects)
-      mRECT = span.GetPadded(mDropShadowSize + mPadding);
-    }
-    
-    mState = kExpanding;
-    GetUI()->UpdateTooltips(); //will disable
-  }
-  //  else // TODO: horizontal
-  //  {
-  //
-  //  }
-  
+  mMenuPanels.Empty(true);
+  mActiveMenuPanel = mAppearingMenuPanel = mMenuPanels.Add(new MenuPanel(*this, GetUI()->GetBounds(), *mMenu, x, y, -1));
+
+  SetTargetRECT(mActiveMenuPanel->mTargetRECT);
+  SetRECT(mActiveMenuPanel->mRECT);
+
   SetDirty(true); // triggers animation
 }
 
-void IPopupMenuControl::Collapse()
+void IPopupMenuControl::CollapseEverything()
 {
-  mMenu->SetChosenItemIdx(-1);
+  IPopupMenu* pClickedMenu = &mActiveMenuPanel->mMenu;
   
-  for(auto i = 0; i < mExpandedCellBounds.GetSize(); i++)
+  pClickedMenu->SetChosenItemIdx(-1);
+
+  for(auto i = 0; i < mActiveMenuPanel->mCellBounds.GetSize(); i++)
   {
-    if(mMouseCellBounds == mExpandedCellBounds.Get(i))
+    IRECT* pR = mActiveMenuPanel->mCellBounds.Get(i);
+    IPopupMenu::Item* pItem = pClickedMenu->GetItem(i);
+    
+    if(mMouseCellBounds == pR)
     {
-      mMenu->SetChosenItemIdx(i);
+      if(pItem->GetIsChoosable())
+      {
+        pClickedMenu->SetChosenItemIdx(i);
+        mActiveMenuPanel->mClickedCell = pR;
+      }
     }
   }
   
-  if(mMenu->GetFunction())
-    mMenu->ExecFunction();
+  if(pClickedMenu->GetFunction())
+    pClickedMenu->ExecFunction();
   
   if(mCaller)
-    mCaller->OnPopupMenuSelection(mMenu); // TODO: In the synchronous pop-up menu handlers it's possible for mMenu to be null, that should also be possible here if nothing was selected
+    mCaller->OnPopupMenuSelection(pClickedMenu); // TODO: In the synchronous pop-up menu handlers it's possible for mMenu to be null, that should also be possible here if nothing was selected
   
-  mState = kCollapsing;
+  mActiveMenuPanel = nullptr;
+
+  mState = kFlickering;
   SetDirty(true); // triggers animation
 }
 
@@ -319,16 +412,179 @@ void IPopupMenuControl::OnEndAnimation()
 {
   if(mState == kExpanding)
   {
-    mBlend.mWeight = mOpacity;
+    for (auto i = 0; i < mMenuPanels.GetSize(); i++) {
+      mMenuPanels.Get(i)->mBlend.mWeight = mOpacity;
+    }
+
+    mState = kExpanded;
+  }
+  else if (mState == kFlickering)
+  {
+    mState = kCollapsing;
+    SetDirty(true); // triggers animation again
+    return; // don't cancel animation
+  }
+  else if (mState == kSubMenuAppearing)
+  {
+    for (auto i = 0; i < mMenuPanels.GetSize(); i++) {
+      mMenuPanels.Get(i)->mBlend.mWeight = mOpacity;
+    }
+    
     mState = kExpanded;
   }
   else if(mState == kCollapsing)
   {
-    mTargetRECT = mRECT = mSpecifiedCollapsedBounds;
+    mTargetRECT = mSpecifiedCollapsedBounds;
     GetUI()->UpdateTooltips(); // will enable the tooltips
-    mBlend.mWeight = 0.;
+    
+    for (auto i = 0; i < mMenuPanels.GetSize(); i++) {
+      mMenuPanels.Get(i)->mBlend.mWeight = 0.;
+    }
+    
+    mState = kIdling;
+    mMouseCellBounds = nullptr;
+  }
+  else if(mState == kIdling)
+  {
+    mMenuPanels.Empty(true);
+    mRECT = mSpecifiedCollapsedBounds;
     mState = kCollapsed;
+    
+    SetDirty(true); // triggers animation again
+    return; // don't cancel animation
   }
   
   IControl::OnEndAnimation();
+}
+
+IPopupMenuControl::MenuPanel::MenuPanel(IPopupMenuControl& control, const IRECT& contextBounds, IPopupMenu& menu, float x, float y, int parentIdx)
+: mMenu(menu)
+, mParentIdx(parentIdx)
+{
+  mSingleCellBounds = control.GetLargestCellRectForMenu(menu, x, y);
+  
+  float left = x + control.mPadding;
+  float top = y + control.mPadding;
+  
+  // cell height can change depending on if cell is a separator or not
+  auto getIncrements = [&](IPopupMenu::Item* pMenuItem, float& incX, float& incY)
+  {
+    incX = CellWidth();
+
+    if (pMenuItem->GetIsSeparator())
+      incY = control.mSeparatorSize;
+    else
+      incY = CellHeight();
+  };
+  
+  for (auto i = 0; i < menu.NItems(); ++i)
+  {
+    IPopupMenu::Item* pMenuItem = menu.GetItem(i);
+    float right, bottom;
+    float toAddX, toAddY; // the increments, different depending on item type
+    bool newColumn = false;
+    
+    getIncrements(pMenuItem, toAddX, toAddY);
+    
+    if(control.mMaxColumnItems > 0 && i > 1)
+      newColumn = !(i % control.mMaxColumnItems);
+    
+    if((top + toAddY + control.mPadding) > contextBounds.B || newColumn) // it's gonna go off the bottom
+    {
+      if(control.mScrollIfTooBig)
+      {
+        const float maxTop = contextBounds.T + control.mPadding + control.mDropShadowSize;
+        const float maxBottom = contextBounds.B - control.mPadding - control.mDropShadowSize;
+        const float maxH = (maxBottom - maxTop);
+        mScrollMaxRows = (maxH  / CellHeight());
+        
+        // clear everything added so far
+        mCellBounds.Empty(true);
+        getIncrements(menu.GetItem(0), toAddX, toAddY);
+        
+        if(menu.NItems() < mScrollMaxRows)
+        {
+          top = maxTop; // FIXME: menus that will go off the bottom, but have fewer rows than mScrollMaxRows, should not start at the top of the screen
+//            top = (y + owner.mPadding + CellHeight()) - (menu.NItems() * CellHeight());
+          bottom = top + toAddY;
+          right = left + toAddX;
+
+          for (auto r = 0; r < menu.NItems(); r++)
+          {
+            getIncrements(menu.GetItem(r), toAddX, toAddY);
+            mCellBounds.Add(new IRECT(left, top, right, bottom));
+            top = bottom + control.mCellGap;
+            bottom = top + toAddY;
+          }
+        }
+        else
+        {
+          top = maxTop;
+          bottom = top + toAddY;
+          right = left + toAddX;
+          
+          for (auto r = 0; r < mScrollMaxRows; r++)
+          {
+            mCellBounds.Add(new IRECT(left, top, right, bottom));
+            top = bottom + control.mCellGap;
+            bottom = top + toAddY;
+          }
+        }
+        break;
+      }
+      else // new column
+      {
+        left += mSingleCellBounds.W() + control.mCellGap;
+        top = mSingleCellBounds.T + control.mPadding;
+      }
+    }
+    
+    if((left + toAddX + control.mPadding) > contextBounds.R) // it's gonna go off the right hand side
+    {
+      assert(true);
+      // FIXME: handle panel going off the right-hand side of the context
+    }
+    
+    right = left + toAddX;
+    bottom = top + toAddY;
+    
+    mCellBounds.Add(new IRECT(left, top, right, bottom));
+    top = bottom + control.mCellGap;
+  }
+  
+  IRECT span;
+  
+  if(mCellBounds.GetSize())
+  {
+    span = *mCellBounds.Get(0);
+    
+    for(auto i = 1; i < mCellBounds.GetSize(); i++)
+    {
+      span = span.Union(*mCellBounds.Get(i));
+    }
+  }
+  //    if (mSpecifiedExpandedBounds.W())
+  //    {
+  //      mTargetRECT = mSpecifiedExpandedBounds.GetPadded(mPadding); // pad the unioned cell rects)
+  //      mRECT = mSpecifiedExpandedBounds.GetPadded(mDropShadowSize + mPadding);
+  //    }
+  
+  mTargetRECT = span.GetPadded(control.mPadding); // pad the unioned cell rects)
+  mRECT = span.GetPadded(control.mDropShadowSize + control.mPadding);
+}
+
+IPopupMenuControl::MenuPanel::~MenuPanel()
+{
+  mCellBounds.Empty(true);
+}
+
+IRECT* IPopupMenuControl::MenuPanel::HitTestCells(float x, float y) const
+{
+  for(auto i = 0; i < mCellBounds.GetSize(); i++)
+  {
+    IRECT* pR = mCellBounds.Get(i);
+    if(pR->Contains(x, y) && mMenu.GetItem(i)->GetEnabled())
+      return pR;
+  }
+  return nullptr;
 }

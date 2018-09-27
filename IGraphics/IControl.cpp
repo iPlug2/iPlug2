@@ -496,7 +496,7 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
           WDL_String subdir;
           d.GetCurrentFullFN(&subdir);
           IPopupMenu* pNewMenu = new IPopupMenu();
-          parentDirMenu.AddItem(d.GetCurrentFN(), pNewMenu);
+          parentDirMenu.AddItem(d.GetCurrentFN(), pNewMenu, -2);
           ScanDirectory(subdir.Get(), *pNewMenu);
         }
         else
@@ -505,7 +505,7 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
           if (a && a > f && strlen(a) == strlen(mExtension.Get()))
           {
             WDL_String menuEntry = WDL_String(f, (int) (a - f));
-            parentDirMenu.AddItem(new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize()));
+            parentDirMenu.AddItem(new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize()), -2);
             WDL_String* pFullPath = new WDL_String("");
             d.GetCurrentFullFN(pFullPath);
             mFiles.Add(pFullPath);

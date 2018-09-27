@@ -175,9 +175,9 @@ void IGraphics::AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode
   mCornerResizer->SetGraphics(this);
 }
 
-void IGraphics::AttachPopupMenuControl()
+void IGraphics::AttachPopupMenuControl(IText text)
 {
-  mPopupControl = new IPopupMenuControl(mDelegate);
+  mPopupControl = new IPopupMenuControl(mDelegate, kNoParameter, text);
   mPopupControl->SetGraphics(this);
 }
 
@@ -287,7 +287,6 @@ void IGraphics::ForControlInGroup(const char* group, std::function<void(IControl
     }
   }
 }
-
 
 void IGraphics::SetAllControlsDirty()
 {
@@ -579,10 +578,8 @@ void IGraphics::BeginFrame()
 }
 
 // Draw a control in a region if it needs to be drawn
-
 void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, bool alwaysShow)
 {
-  
   if (pControl && (!pControl->IsHidden() || alwaysShow))
   {
     IRECT clipBounds = bounds.Intersect(pControl->GetRECT());
@@ -610,7 +607,6 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, bool always
 }
 
 // Draw a region of the graphics (redrawing all contained items)
-
 void IGraphics::Draw(const IRECT& bounds)
 {
   int n = mControls.GetSize();
@@ -645,7 +641,6 @@ void IGraphics::Draw(const IRECT& bounds)
 }
 
 // Called indicating a number of rectangles in the UI that need to redraw
-
 void IGraphics::Draw(IRECTList& rects)
 {
   if (!rects.Size())

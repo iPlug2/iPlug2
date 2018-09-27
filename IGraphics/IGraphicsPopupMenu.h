@@ -68,17 +68,22 @@ public:
     bool GetIsSeparator() const { return (mFlags & kSeparator) != 0; }
     int GetTag() const { return mTag; }
     IPopupMenu* GetSubmenu() const { return mSubmenu; }
+    bool GetIsChoosable() const
+    {
+      if(GetIsTitle()) return false;
+      if(GetIsSeparator()) return false;
+      if(GetSubmenu() != nullptr) return false;
+      if(!GetEnabled()) return false;
+      
+      return true;
+    }
     
     void SetChecked(bool state)
     {
       if (state)
-      {
         mFlags |= kChecked;
-      }
       else
-      {
         mFlags &= ~kChecked;
-      }
     }
     
   protected:
@@ -102,16 +107,19 @@ public:
     mMenuItems.Empty(true);
   }
 
+  static int sortfunc(const Item **a, const Item **b)
+  {
+    return stricmp((*a)->GetText(),(*b)->GetText());
+  }
+  
   Item* AddItem(Item* pItem, int index = -1)
   {
     if (index == -1)
-    {
       mMenuItems.Add(pItem); // add it to the end
-    }
+    else if (index == -2)
+      mMenuItems.InsertSorted(pItem, sortfunc);
     else
-    {
       mMenuItems.Insert(index, pItem);
-    }
     
     return pItem;
   }
@@ -128,14 +136,14 @@ public:
     return AddItem(new Item(str, pSubmenu), index);
   }
   
-  Item* AddItem(const char* str, IPopupMenu* pSubmenu)
+  Item* AddItem(const char* str, IPopupMenu* pSubmenu, int index = -1)
   {
     assert(pSubmenu->GetFunction() == nullptr); // submenus should not have existing functions
     
     if(GetFunction())
       pSubmenu->SetFunction(GetFunction());
     
-    return AddItem(new Item(str, pSubmenu), -1);
+    return AddItem(new Item(str, pSubmenu), index);
   }
   
   Item* AddSeparator(int index = -1)
