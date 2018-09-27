@@ -240,48 +240,48 @@ int IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, int type)
 
 void IGraphicsWeb::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
 {
-  val input = val::global("document").call<val>("createElement", std::string("input"));
-  
-  val rect = GetCanvas().call<val>("getBoundingClientRect");
-  
-  WDL_String dimstr;
-  
-  input["style"].set("position", val("fixed"));
-  dimstr.SetFormatted(32, "%fpx",  rect["left"].as<double>() + bounds.L);
-  input["style"].set("left", std::string(dimstr.Get()));
-  dimstr.SetFormatted(32, "%fpx",  rect["top"].as<double>() + bounds.T);
-  input["style"].set("top", std::string(dimstr.Get()));
-  dimstr.SetFormatted(32, "%fpx",  bounds.W());
-  input["style"].set("width", std::string(dimstr.Get()));
-  dimstr.SetFormatted(32, "%fpx",  bounds.H());
-  input["style"].set("height", std::string(dimstr.Get()));
-  
-  if (control.ParamIdx() > kNoParameter)
-  {
-    const IParam* pParam = control.GetParam();
-    
-    switch ( pParam->Type() )
-    {
-      case IParam::kTypeEnum:
-      case IParam::kTypeInt:
-      case IParam::kTypeBool:
-        input.set("type", val("number"));
-        break;
-      case IParam::kTypeDouble:
-        input.set("type", val("number")); // TODO
-        break;
-      default:
-        break;
-    }
-  }
-  else
-  {
-    input.set("type", val("text"));
-  }
-
-  val::global("document")["body"].call<void>("appendChild", input);
-  
-  input.call<void>("focus");
+//  val input = val::global("document").call<val>("createElement", std::string("input"));
+//  
+//  val rect = GetCanvas().call<val>("getBoundingClientRect");
+//  
+//  WDL_String dimstr;
+//  
+//  input["style"].set("position", val("fixed"));
+//  dimstr.SetFormatted(32, "%fpx",  rect["left"].as<double>() + bounds.L);
+//  input["style"].set("left", std::string(dimstr.Get()));
+//  dimstr.SetFormatted(32, "%fpx",  rect["top"].as<double>() + bounds.T);
+//  input["style"].set("top", std::string(dimstr.Get()));
+//  dimstr.SetFormatted(32, "%fpx",  bounds.W());
+//  input["style"].set("width", std::string(dimstr.Get()));
+//  dimstr.SetFormatted(32, "%fpx",  bounds.H());
+//  input["style"].set("height", std::string(dimstr.Get()));
+//  
+//  if (control.ParamIdx() > kNoParameter)
+//  {
+//    const IParam* pParam = control.GetParam();
+//    
+//    switch ( pParam->Type() )
+//    {
+//      case IParam::kTypeEnum:
+//      case IParam::kTypeInt:
+//      case IParam::kTypeBool:
+//        input.set("type", val("number"));
+//        break;
+//      case IParam::kTypeDouble:
+//        input.set("type", val("number")); // TODO
+//        break;
+//      default:
+//        break;
+//    }
+//  }
+//  else
+//  {
+//    input.set("type", val("text"));
+//  }
+//
+//  val::global("document")["body"].call<void>("appendChild", input);
+//  
+//  input.call<void>("focus");
 }
 
 IPopupMenu* IGraphicsWeb::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
