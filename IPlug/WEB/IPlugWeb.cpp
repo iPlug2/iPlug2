@@ -93,7 +93,7 @@ void IPlugWeb::SendSysexMsgFromUI(const ISysEx& msg)
 #else
   EM_ASM({
     var jsbuff = Module.HEAPU8.subarray($2, $2 + $1);
-    $0.sendMessage(jsbuff, 'SSMFUI', $1, jsbuf);
+    window[Module.Pointer_stringify($0)].sendMessage('SSMFUI', $1, jsbuff);
   }, mWAMCtrlrJSObjectName.Get(), msg.mSize, (int) msg.mData);
 #endif
 }
@@ -117,7 +117,7 @@ void IPlugWeb::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSi
 #else
   EM_ASM({
     var jsbuff = Module.HEAPU8.subarray($3, $3 + $2);
-    $0.sendMessage(jsbuff, 'SAMFUI', $1, $2, jsbuf);
+    window[Module.Pointer_stringify($0)].sendMessage('SAMFUI', $1, $2, jsbuff);
   }, mWAMCtrlrJSObjectName.Get(), messageTag, dataSize, (int) pData);
 #endif
 }
