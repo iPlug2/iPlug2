@@ -411,7 +411,7 @@ void IGraphicsMac::UpdateTooltips()
 
   [(IGRAPHICS_VIEW*) mView removeAllToolTips];
 
-  if(mPopupControl && mPopupControl->GetExpanded())
+  if(mPopupControl && mPopupControl->GetState() > IPopupMenuControl::kCollapsed)
   {
     return;
   }
