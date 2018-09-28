@@ -193,16 +193,18 @@ bool IGraphicsCanvas::DrawText(const IText& text, const char* str, IRECT& bounds
   
   char fontString[FONT_LEN + 64];
   const char* styles[] = { "normal", "bold", "italic" };
-  double textHeight = text.mSize;
   context.set("textBaseline", std::string("top"));
   val font = context["font"];
-  sprintf(fontString, "%s %lfpx %s", styles[text.mStyle], textHeight, text.mFont);
+  sprintf(fontString, "%s %dpt %s", styles[text.mStyle], text.mSize, text.mFont);
   context.set("font", std::string(fontString));
-  double textWidth = GetContext().call<val>("measureText", textString)["width"].as<double>();
+  double textWidth = context.call<val>("measureText", textString)["width"].as<double>();
+  double textHeight = EM_ASM_DOUBLE({
+    return parseFloat(document.getElementById("canvas").getContext("2d").font);
+  });
   
   if (measure)
   {
-    bounds = IRECT(0, 0, textWidth, textHeight);
+    bounds = IRECT(0, 0, (float) textWidth, (float) textHeight * 1.3); // FIXME bodge for canvas text height!
     return true;
   }
   else
@@ -225,13 +227,13 @@ bool IGraphicsCanvas::DrawText(const IText& text, const char* str, IRECT& bounds
       default: break;
     }
 
-    GetContext().call<void>("save");
+    context.call<void>("save");
     PathRect(bounds);
-    GetContext().call<void>("clip");
+    context.call<void>("clip");
     PathClear();
     SetWebSourcePattern(text.mFGColor, pBlend);
     context.call<void>("fillText", textString, x, y);
-    GetContext().call<void>("restore");
+    context.call<void>("restore");
   }
   
   return true;
@@ -250,14 +252,15 @@ void IGraphicsCanvas::PathTransformSetMatrix(const IMatrix& m)
 
 void IGraphicsCanvas::SetClipRegion(const IRECT& r)
 {
-  GetContext().call<void>("restore");
-  GetContext().call<void>("save");
+  val context = GetContext();
+  context.call<void>("restore");
+  context.call<void>("save");
   if (!r.Empty())
   {
-    GetContext().call<void>("beginPath");
-    GetContext().call<void>("rect", r.L, r.T, r.W(), r.H());
-    GetContext().call<void>("clip");
-    GetContext().call<void>("beginPath");
+    context.call<void>("beginPath");
+    context.call<void>("rect", r.L, r.T, r.W(), r.H());
+    context.call<void>("clip");
+    context.call<void>("beginPath");
   }
 }
 
