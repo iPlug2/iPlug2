@@ -134,8 +134,41 @@ void IPopupMenuControl::OnMouseDrag(float x, float y, float dX, float dY, const 
 void IPopupMenuControl::OnMouseOver(float x, float y, const IMouseMod& mod)
 {
   mMouseCellBounds = mActiveMenuPanel->HitTestCells(x, y);
-  CalculateMenuPanels(x, y);
-  SetDirty(false);
+  
+  // if the mouse event was outside of the active MenuPanel - could be on another menu or completely outside
+  if(mMouseCellBounds == nullptr)
+  {
+    MenuPanel* pMousedMenuPanel = nullptr;
+    
+    const int nPanels = mMenuPanels.GetSize();
+    
+    for (auto p = nPanels-1; p >= 0; p--)
+    {
+      MenuPanel* pMenuPanel = mMenuPanels.Get(p);
+      
+      if(pMenuPanel->mShouldDraw && pMenuPanel->mRECT.Contains(x, y))
+      {
+        pMousedMenuPanel = pMenuPanel;
+        break;
+      }
+    }
+    
+    if(pMousedMenuPanel != nullptr)
+    {
+      mActiveMenuPanel = pMousedMenuPanel;
+      mMouseCellBounds = mActiveMenuPanel->HitTestCells(x, y);
+    }
+  }
+  
+  if(mMouseCellBounds != mPrevMouseCellBounds)
+  {
+    CalculateMenuPanels(x, y);
+    SetDirty(false);
+  }
+  else
+    SetClean();
+  
+  mPrevMouseCellBounds = mMouseCellBounds;
 }
 
 void IPopupMenuControl::OnMouseOut()
@@ -254,25 +287,6 @@ IRECT IPopupMenuControl::GetLargestCellRectForMenu(IPopupMenu& menu, float x, fl
 
 void IPopupMenuControl::CalculateMenuPanels(float x, float y)
 {
-  // if the mouse event was outside of the active MenuPanel - could be on another menu or completely outside
-  if(mMouseCellBounds == nullptr)
-  {
-    MenuPanel* pMousedMenuPanel = nullptr;
-    
-    for (auto mr = 0; mr < mMenuPanels.GetSize(); mr++)
-    {
-      MenuPanel* pMenuPanel = mMenuPanels.Get(mr);
-      
-      if(pMenuPanel->mShouldDraw && pMenuPanel->mRECT.Contains(x, y))
-      {
-        pMousedMenuPanel = pMenuPanel;
-      }
-    }
-    
-    if(pMousedMenuPanel != nullptr)
-      mActiveMenuPanel = pMousedMenuPanel;
-  }
-  
   for(auto i = 0; i < mActiveMenuPanel->mCellBounds.GetSize(); i++)
   {
     IRECT* pCellRect = mActiveMenuPanel->mCellBounds.Get(i);
@@ -410,6 +424,8 @@ void IPopupMenuControl::CollapseEverything()
 
 void IPopupMenuControl::OnEndAnimation()
 {
+//  DBGMSG("state %i\n", mState);
+  
   if(mState == kExpanding)
   {
     for (auto i = 0; i < mMenuPanels.GetSize(); i++) {
@@ -435,7 +451,6 @@ void IPopupMenuControl::OnEndAnimation()
   else if(mState == kCollapsing)
   {
     mTargetRECT = mSpecifiedCollapsedBounds;
-    GetUI()->UpdateTooltips(); // will enable the tooltips
     
     for (auto i = 0; i < mMenuPanels.GetSize(); i++) {
       mMenuPanels.Get(i)->mBlend.mWeight = 0.;
@@ -443,15 +458,17 @@ void IPopupMenuControl::OnEndAnimation()
     
     mState = kIdling;
     mMouseCellBounds = nullptr;
-  }
-  else if(mState == kIdling)
-  {
-    mMenuPanels.Empty(true);
-    mRECT = mSpecifiedCollapsedBounds;
-    mState = kCollapsed;
     
     SetDirty(true); // triggers animation again
     return; // don't cancel animation
+  }
+  else if(mState == kIdling)
+  {
+    GetUI()->UpdateTooltips(); // will enable the tooltips
+    
+    mMenuPanels.Empty(true);
+    mRECT = mSpecifiedCollapsedBounds;
+    mState = kCollapsed;
   }
   
   IControl::OnEndAnimation();

@@ -30,7 +30,6 @@ public:
   virtual ~IPopupMenuControl();
   
   //IControl
-  virtual bool IsDirty() override { return (GetState() > kCollapsed) | IControl::IsDirty(); }
   void Draw(IGraphics& g) override;
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
@@ -137,6 +136,7 @@ private:
   MenuPanel* mAppearingMenuPanel = nullptr; // A pointer to a MenuPanel that's in the process of fading in
   EPopupState mState = kCollapsed; // The state of the pop-up, mainly used for animation
   IRECT* mMouseCellBounds = nullptr;
+  IRECT* mPrevMouseCellBounds = nullptr;
   IControl* mCaller = nullptr; // Pointer to the IControl that created this pop-up menu, for callback
   IPopupMenu* mMenu = nullptr; // Pointer to the main IPopupMenu, that this control is visualising. This control does not own the menu.
 
