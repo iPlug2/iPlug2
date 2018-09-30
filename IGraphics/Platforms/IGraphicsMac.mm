@@ -200,9 +200,7 @@ void* IGraphicsMac::OpenWindow(void* pParent)
 
   OnViewInitialized([pView layer]);
   
-  CGFloat mainScreenScale = [[NSScreen mainScreen] backingScaleFactor];
-  
-  SetDisplayScale(mainScreenScale);
+  SetDisplayScale([[NSScreen mainScreen] backingScaleFactor]);
     
   GetDelegate()->LayoutUI(this);
 
