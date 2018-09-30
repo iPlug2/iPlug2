@@ -2,20 +2,6 @@
 
 #include "IGraphicsNanoVG.h"
 
-//#if !defined IGRAPHICS_GL && !defined IGRAPHICS_METAL
-//  #if defined OS_MAC || defined OS_IOS
-//    #define IGRAPHICS_METAL
-//  #elif defined OS_WIN
-//    #define IGRAPHICS_GL
-//    #define IGRAPHICS_GL2
-//  #elif defined OS_WIN
-//    #error NOT IMPLEMENTED
-//  #elif defined OS_WEB
-//    #define IGRAPHICS_GL
-//    #define IGRAPHICS_GLES2
-//  #endif
-//#endif
-//
 #if defined IGRAPHICS_GL
   #if defined OS_MAC
 //    #if defined IGRAPHICS_GL2
@@ -65,7 +51,6 @@
     void GLFWError(int error, const char* desc) { DBGMSG("GLFW error %d: %s\n", error, desc); }
   #endif
   #include "nanovg_gl.h"
-  #include "nanovg_gl_utils.h"
 #elif defined IGRAPHICS_METAL
   #if defined OS_MAC || defined OS_IOS
     #include "nanovg_mtl.h"
@@ -75,48 +60,6 @@
 #else
   #error you must define either IGRAPHICS_GL or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
 #endif
-
-#if defined IGRAPHICS_GL2
-  #define nvgCreateContext(flags) nvgCreateGL2(flags)
-  #define nvgDeleteContext(context) nvgDeleteGL2(context)
-#elif defined IGRAPHICS_GLES2
-  #define nvgCreateContext(flags) nvgCreateGLES2(flags)
-  #define nvgDeleteContext(context) nvgDeleteGLES2(context)
-#elif defined IGRAPHICS_GL3
-  #define nvgCreateContext(flags) nvgCreateGL3(flags)
-  #define nvgDeleteContext(context) nvgDeleteGL3(context)
-#elif defined IGRAPHICS_GLES3
-  #define nvgCreateContext(flags) nvgCreateGLES3(flags)
-  #define nvgDeleteContext(context) nvgDeleteGLES3(context)
-#elif defined IGRAPHICS_METAL
-  #define nvgCreateContext(layer, flags) nvgCreateMTL(layer, flags)
-  #define nvgDeleteContext(context) nvgDeleteMTL(context)
-#endif
-
-#if defined IGRAPHICS_GL
-  #define nvgBindFramebuffer(fb) nvgluBindFramebuffer(fb)
-  #define nvgCreateFramebuffer(ctx, w, h, flags) nvgluCreateFramebuffer(ctx, w, h, flags)
-  #define nvgDeleteFramebuffer(fb) nvgluDeleteFramebuffer(fb)
-  typedef NVGLUframebuffer NVGframebuffer;
-#elif defined IGRAPHICS_METAL
-  #define nvgBindFramebuffer(fb) mnvgBindFramebuffer(fb)
-  #define nvgCreateFramebuffer(ctx, w, h, flags) mnvgCreateFramebuffer(ctx, w, h, flags)
-  #define nvgDeleteFramebuffer(fb) mnvgDeleteFramebuffer(fb)
-  typedef MNVGframebuffer NVGframebuffer;
-#endif
-
-//#if defined IGRAPHICS_GL
-//
-//  #elif defined OS_WEB
-//
-//  #endif
-//  #include "nanovg_gl.h"
-//  #include "nanovg_gl_utils.h"
-//#elif defined IGRAPHICS_METAL
-//  //
-//#else
-//  #error you must define either IGRAPHICS_GL or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
-//#endif
 
 #ifdef OS_WIN
 int LoadImageFromWinResource(NVGcontext* pContext, HINSTANCE hInst, const char* resid)
@@ -363,7 +306,7 @@ void IGraphicsNanoVG::OnViewInitialized(void* pContext)
 void IGraphicsNanoVG::OnViewDestroyed()
 {
   if(mMainFrameBuffer != nullptr)
-    nvgDeleteFramebuffer((NVGframebuffer*) mMainFrameBuffer);
+    nvgDeleteFramebuffer(mMainFrameBuffer);
   
   if(mVG)
     nvgDeleteContext(mVG);
@@ -381,7 +324,7 @@ void IGraphicsNanoVG::OnViewDestroyed()
 void IGraphicsNanoVG::DrawResize()
 {
   if (mMainFrameBuffer != nullptr)
-    nvgDeleteFramebuffer((NVGframebuffer*) mMainFrameBuffer);
+    nvgDeleteFramebuffer(mMainFrameBuffer);
   
   mMainFrameBuffer = nvgCreateFramebuffer(mVG, WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale(), 0);
   
@@ -408,7 +351,7 @@ void IGraphicsNanoVG::BeginFrame()
   glDisable(GL_DEPTH_TEST);
 #endif
   
-  nvgBindFramebuffer((NVGframebuffer*) mMainFrameBuffer); // begin main frame buffer update
+  nvgBindFramebuffer(mMainFrameBuffer); // begin main frame buffer update
   nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetDisplayScale());
 //  nvgScale(mVG, GetScale(), GetScale());
 }
@@ -420,7 +363,7 @@ void IGraphicsNanoVG::EndFrame()
   
   nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetDisplayScale());
 
-  NVGpaint img = nvgImagePattern(mVG, 0, 0, WindowWidth(), WindowHeight(), 0, reinterpret_cast<NVGframebuffer*>(mMainFrameBuffer)->image, 1.0f);
+  NVGpaint img = nvgImagePattern(mVG, 0, 0, WindowWidth(), WindowHeight(), 0, mMainFrameBuffer->image, 1.0f);
   nvgSave(mVG);
   
   nvgBeginPath(mVG);
