@@ -40,6 +40,8 @@
   #include "nanovg_gl_utils.h"
 #elif defined IGRAPHICS_METAL
   #include "nanovg_mtl.h"
+#else
+  #error you must define either IGRAPHICS_GL or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
 #endif
 
 #if defined IGRAPHICS_GL2
