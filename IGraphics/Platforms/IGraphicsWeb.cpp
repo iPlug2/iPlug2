@@ -149,6 +149,12 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
 {
   OnViewInitialized(nullptr /* not used */);
 
+#if defined GRAPHICS_SCALING
+  SetDisplayScale(val::global("window")["devicePixelRatio"].as<int>());
+#else
+  SetDisplayScale(1);
+#endif
+  
   GetDelegate()->LayoutUI(this);
   
   return nullptr;
