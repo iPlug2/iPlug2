@@ -196,10 +196,14 @@ void* IGraphicsMac::OpenWindow(void* pParent)
   CloseWindow();
   mView = (IGRAPHICS_VIEW*) [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
   
-  IGRAPHICS_VIEW* view = (IGRAPHICS_VIEW*) mView;
+  IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
 
-  OnViewInitialized([view layer]);
+  OnViewInitialized([pView layer]);
   
+  CGFloat mainScreenScale = [[NSScreen mainScreen] backingScaleFactor];
+  
+  SetDisplayScale(mainScreenScale);
+    
   GetDelegate()->LayoutUI(this);
 
   if (pParent) // Cocoa VST host.

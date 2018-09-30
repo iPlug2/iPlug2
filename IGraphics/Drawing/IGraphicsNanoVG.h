@@ -1,9 +1,9 @@
 #pragma once
 
 #include "IPlugPlatform.h"
+#include "IGraphicsPathBase.h"
 
 #include "nanovg.h"
-#include "IGraphicsPathBase.h"
 
 class NanoVGBitmap : public APIBitmap
 {
@@ -17,6 +17,7 @@ private:
 /** IGraphics draw class using NanoVG  
 *   @ingroup DrawClasses
 */
+
 class IGraphicsNanoVG : public IGraphicsPathBase
 {
 public:
@@ -29,6 +30,7 @@ public:
   void EndFrame() override;
   void OnViewInitialized(void* pContext) override;
   void OnViewDestroyed() override;
+  void DrawResize() override;
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
 
@@ -71,7 +73,8 @@ private:
   
   StaticStorage<APIBitmap> mBitmapCache; //not actually static
   NVGcontext* mVG = nullptr;
-#ifdef OS_WIN
+  void* mMainFrameBuffer = nullptr;
+#if defined OS_WIN
   HGLRC mHGLRC = nullptr;
 #endif
 };

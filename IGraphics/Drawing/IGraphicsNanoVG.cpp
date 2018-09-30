@@ -2,27 +2,121 @@
 
 #include "IGraphicsNanoVG.h"
 
-#if defined OS_MAC || defined OS_IOS
-  #include "nanovg_mtl.h"
-#elif defined OS_WIN
-  #pragma comment(lib, "opengl32.lib")
-  #define NANOVG_GL2_IMPLEMENTATION
-  #include <glad/glad.h>
-  #include "nanovg_gl.h"
-#elif defined OS_WEB
-  #define GLFW_INCLUDE_ES2
-  #define GLFW_INCLUDE_GLEXT
-  #include <GLFW/glfw3.h>
-  #define NANOVG_GLES2_IMPLEMENTATION
+//#if !defined IGRAPHICS_GL && !defined IGRAPHICS_METAL
+//  #if defined OS_MAC || defined OS_IOS
+//    #define IGRAPHICS_METAL
+//  #elif defined OS_WIN
+//    #define IGRAPHICS_GL
+//    #define IGRAPHICS_GL2
+//  #elif defined OS_WIN
+//    #error NOT IMPLEMENTED
+//  #elif defined OS_WEB
+//    #define IGRAPHICS_GL
+//    #define IGRAPHICS_GLES2
+//  #endif
+//#endif
+//
+#if defined IGRAPHICS_GL
+  #if defined OS_MAC
+//    #if defined IGRAPHICS_GL2
+//      #define NANOVG_GL2_IMPLEMENTATION
+//    #elif defined IGRAPHICS_GL3
+//      #define NANOVG_GL3_IMPLEMENTATION
+//    #else
+//      #error Define either IGRAPHICS_GL2 or IGRAPHICS_GL3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with OS_MAC
+//    #endif
+    #error NOT IMPLEMENTED
+  #elif defined OS_IOS
+//    #if defined IGRAPHICS_GLES2
+//      #include <OpenGLES/ES2/gl.h>
+//      #define NANOVG_GLES2_IMPLEMENTATION
+//    #elif defined IGRAPHICS_GLES3
+//      #include <OpenGLES/ES3/gl.h>
+//      #define NANOVG_GLES2_IMPLEMENTATION
+//    #else
+//      #error Define either IGRAPHICS_GLES2 or IGRAPHICS_GLES3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with OS_IOS
+//    #endif
+    #error NOT IMPLEMENTED
+  #elif defined OS_WIN
+    #pragma comment(lib, "opengl32.lib")
+    #include <glad/glad.h>
+    #if defined IGRAPHICS_GL2
+      #define NANOVG_GL2_IMPLEMENTATION
+    #elif defined IGRAPHICS_GL3
+      #define NANOVG_GL3_IMPLEMENTATION
+    #else
+      #error Define either IGRAPHICS_GL2 or IGRAPHICS_GL3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with OS_WIN
+    #endif
+  #elif defined OS_LINUX
+    #error NOT IMPLEMENTED
+  #elif defined OS_WEB
+    #define GLFW_INCLUDE_GLEXT
+    #if defined IGRAPHICS_GLES2
+      #define GLFW_INCLUDE_ES2
+      #define NANOVG_GLES2_IMPLEMENTATION
+    #elif defined IGRAPHICS_GLES3
+      #define NANOVG_GLES3_IMPLEMENTATION
+      #define GLFW_INCLUDE_ES3
+    #else
+      #error Define either IGRAPHICS_GLES2 or IGRAPHICS_GLES3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with OS_WEB
+    #endif
+    #include <GLFW/glfw3.h>
+    GLFWwindow* gWindow;
+    void GLFWError(int error, const char* desc) { DBGMSG("GLFW error %d: %s\n", error, desc); }
+  #endif
   #include "nanovg_gl.h"
   #include "nanovg_gl_utils.h"
-  GLFWwindow* gWindow;
-  void GLFWError(int error, const char* desc) { DBGMSG("GLFW error %d: %s\n", error, desc); }
+#elif defined IGRAPHICS_METAL
+  #if defined OS_MAC || defined OS_IOS
+    #include "nanovg_mtl.h"
+  #else
+    #error NOT IMPLEMENTED
+  #endif
 #else
-  #error NOT IMPLEMENTED
+  #error you must define either IGRAPHICS_GL or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
 #endif
 
-#pragma mark -
+#if defined IGRAPHICS_GL2
+  #define nvgCreateContext(flags) nvgCreateGL2(flags)
+  #define nvgDeleteContext(context) nvgDeleteGL2(context)
+#elif defined IGRAPHICS_GLES2
+  #define nvgCreateContext(flags) nvgCreateGLES2(flags)
+  #define nvgDeleteContext(context) nvgDeleteGLES2(context)
+#elif defined IGRAPHICS_GL3
+  #define nvgCreateContext(flags) nvgCreateGL3(flags)
+  #define nvgDeleteContext(context) nvgDeleteGL3(context)
+#elif defined IGRAPHICS_GLES3
+  #define nvgCreateContext(flags) nvgCreateGLES3(flags)
+  #define nvgDeleteContext(context) nvgDeleteGLES3(context)
+#elif defined IGRAPHICS_METAL
+  #define nvgCreateContext(layer, flags) nvgCreateMTL(layer, flags)
+  #define nvgDeleteContext(context) nvgDeleteMTL(context)
+#endif
+
+#if defined IGRAPHICS_GL
+  #define nvgBindFramebuffer(fb) nvgluBindFramebuffer(fb)
+  #define nvgCreateFramebuffer(ctx, w, h, flags) nvgluCreateFramebuffer(ctx, w, h, flags)
+  #define nvgDeleteFramebuffer(fb) nvgluDeleteFramebuffer(fb)
+  typedef NVGLUframebuffer NVGframebuffer;
+#elif defined IGRAPHICS_METAL
+  #define nvgBindFramebuffer(fb) mnvgBindFramebuffer(fb)
+  #define nvgCreateFramebuffer(ctx, w, h, flags) mnvgCreateFramebuffer(ctx, w, h, flags)
+  #define nvgDeleteFramebuffer(fb) mnvgDeleteFramebuffer(fb)
+  typedef MNVGframebuffer NVGframebuffer;
+#endif
+
+//#if defined IGRAPHICS_GL
+//
+//  #elif defined OS_WEB
+//
+//  #endif
+//  #include "nanovg_gl.h"
+//  #include "nanovg_gl_utils.h"
+//#elif defined IGRAPHICS_METAL
+//  //
+//#else
+//  #error you must define either IGRAPHICS_GL or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
+//#endif
 
 #ifdef OS_WIN
 int LoadImageFromWinResource(NVGcontext* pContext, HINSTANCE hInst, const char* resid)
@@ -183,7 +277,8 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const WDL_String& resourcePath, int sc
   return new NanoVGBitmap(mVG, resourcePath.Get(), scale, GetPlatformInstance());
 }
 
-void IGraphicsNanoVG::SetPlatformContext(void* pContext) {
+void IGraphicsNanoVG::SetPlatformContext(void* pContext)
+{
   mPlatformContext = pContext;
 #ifdef OS_WIN
   if(pContext)
@@ -193,10 +288,9 @@ void IGraphicsNanoVG::SetPlatformContext(void* pContext) {
 
 void IGraphicsNanoVG::OnViewInitialized(void* pContext)
 {
-#if defined OS_MAC || defined OS_IOS
-  mVG = nvgCreateMTL(pContext, NVG_ANTIALIAS | NVG_STENCIL_STROKES | NVG_TRIPLE_BUFFER /*check!*/);
-#elif defined OS_WIN
-  if (pContext) {
+#if defined OS_WIN
+  if (pContext)
+  {
     PIXELFORMATDESCRIPTOR pfd =
     {
       sizeof(PIXELFORMATDESCRIPTOR),
@@ -227,10 +321,10 @@ void IGraphicsNanoVG::OnViewInitialized(void* pContext)
     if (!gladLoadGL())
       throw std::runtime_error{"Error initializing glad"};
     glGetError();
-    mVG = nvgCreateGL2(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
   }
 #elif defined OS_WEB
-  if (!glfwInit()) {
+  if (!glfwInit())
+  {
     DBGMSG("Failed to init GLFW.");
     return;
   }
@@ -243,38 +337,56 @@ void IGraphicsNanoVG::OnViewInitialized(void* pContext)
 
   gWindow = glfwCreateWindow(Width(), Height(), "NanoVG", NULL, NULL);
 
-  if (!gWindow) {
+  if (!gWindow)
+  {
     glfwTerminate();
     return;
   }
 
 //  glfwSetKeyCallback(gWindow, key);
   glfwMakeContextCurrent(gWindow);
+#endif // OS_WEB
+ 
+  int flags = NVG_ANTIALIAS | NVG_STENCIL_STROKES /*| NVG_TRIPLE_BUFFER check!*/;
   
-  mVG = nvgCreateGLES2(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
-  if (mVG == nullptr) {
-    DBGMSG("Could not init nanovg.\n");
-  }
-  
+#if defined IGRAPHICS_METAL
+  mVG = nvgCreateContext(pContext, flags);
+#else
+  mVG = nvgCreateContext(flags);
 #endif
+  
+  if (mVG == nullptr)
+    DBGMSG("Could not init nanovg.\n");
+
 }
 
 void IGraphicsNanoVG::OnViewDestroyed()
 {
-#if defined OS_MAC || defined OS_IOS
+  if(mMainFrameBuffer != nullptr)
+    nvgDeleteFramebuffer((NVGframebuffer*) mMainFrameBuffer);
+  
   if(mVG)
-    nvgDeleteMTL(mVG);
-#elif defined OS_WIN
-  if (mVG)
-    nvgDeleteGL2(mVG);
-  if (mHGLRC) {
+    nvgDeleteContext(mVG);
+#if defined OS_WIN
+  if (mHGLRC)
+  {
     wglMakeCurrent((HDC)mPlatformContext, nullptr);
     wglDeleteContext(mHGLRC);
   }
 #elif defined OS_WEB
-  nvgDeleteGLES2(mVG);
   glfwTerminate();
 #endif
+}
+
+void IGraphicsNanoVG::DrawResize()
+{
+  if (mMainFrameBuffer != nullptr)
+    nvgDeleteFramebuffer((NVGframebuffer*) mMainFrameBuffer);
+  
+  mMainFrameBuffer = nvgCreateFramebuffer(mVG, WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale(), 0);
+  
+  if (mMainFrameBuffer == nullptr)
+    DBGMSG("Could not init FBO.\n");
 }
 
 void IGraphicsNanoVG::BeginFrame()
@@ -296,12 +408,28 @@ void IGraphicsNanoVG::BeginFrame()
   glDisable(GL_DEPTH_TEST);
 #endif
   
+  nvgBindFramebuffer((NVGframebuffer*) mMainFrameBuffer); // begin main frame buffer update
   nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetDisplayScale());
-  nvgScale(mVG, GetScale(), GetScale());
+//  nvgScale(mVG, GetScale(), GetScale());
 }
 
 void IGraphicsNanoVG::EndFrame()
 {
+  nvgEndFrame(mVG); // end main frame buffer update
+  nvgBindFramebuffer(nullptr);
+  
+  nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetDisplayScale());
+
+  NVGpaint img = nvgImagePattern(mVG, 0, 0, WindowWidth(), WindowHeight(), 0, reinterpret_cast<NVGframebuffer*>(mMainFrameBuffer)->image, 1.0f);
+  nvgSave(mVG);
+  
+  nvgBeginPath(mVG);
+  nvgRect(mVG, 0, 0, WindowWidth(), WindowHeight());
+  nvgFillPaint(mVG, img);
+  nvgFill(mVG);
+  
+  nvgRestore(mVG);
+  
   nvgEndFrame(mVG);
 
 #if defined OS_WEB

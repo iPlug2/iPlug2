@@ -191,11 +191,7 @@ bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String
 void IGraphicsWeb::OnMainLoopTimer()
 {
   IRECTList rects;
-  
-#ifdef IGRAPHICS_NANOVG
-  gGraphics->SetAllControlsDirty();
-#endif
-  
+
   if (gGraphics->IsDirty(rects))
   {
     gGraphics->SetAllControlsClean();

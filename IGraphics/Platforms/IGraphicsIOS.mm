@@ -129,6 +129,8 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
   
   OnViewInitialized([view layer]);
   
+  SetDisplayScale([UIScreen mainScreen].scale);
+  
   GetDelegate()->LayoutUI(this);
 
   if (pParent)
