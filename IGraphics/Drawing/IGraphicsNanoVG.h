@@ -35,7 +35,12 @@
       #include <GLES3/gl3.h>
     #endif
   #elif defined IGRAPHICS_GL2
-    #include <OpenGL/gl.h>
+    #if defined OS_WIN
+      #define NANOVG_FBO_VALID 1
+      #include <glad/glad.h>
+    #else
+      #include <OpenGL/gl.h>
+    #endif
   #endif
   #include "nanovg_gl_utils.h"
 #elif defined IGRAPHICS_METAL

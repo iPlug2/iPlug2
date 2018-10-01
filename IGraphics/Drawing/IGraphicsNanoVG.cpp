@@ -25,7 +25,6 @@
     #error NOT IMPLEMENTED
   #elif defined OS_WIN
     #pragma comment(lib, "opengl32.lib")
-    #include <glad/glad.h>
     #if defined IGRAPHICS_GL2
       #define NANOVG_GL2_IMPLEMENTATION
     #elif defined IGRAPHICS_GL3
