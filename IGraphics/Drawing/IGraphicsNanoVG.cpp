@@ -51,6 +51,7 @@
     void GLFWError(int error, const char* desc) { DBGMSG("GLFW error %d: %s\n", error, desc); }
   #endif
   #include "nanovg_gl.h"
+  #include "nanovg_gl_utils.h"
 #elif defined IGRAPHICS_METAL
   #if defined OS_MAC || defined OS_IOS
     #include "nanovg_mtl.h"
