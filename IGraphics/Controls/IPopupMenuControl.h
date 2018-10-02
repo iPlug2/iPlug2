@@ -45,31 +45,21 @@ public:
   void CalculateMenuPanels(float x, float y);
   
   /** Override this method to change the background of the pop-up menu panel */
-  virtual void DrawBackground(IGraphics& g, const IRECT& bounds, IBlend* blend);
+  virtual void DrawPanelBackground(IGraphics& g, const IRECT& bounds, IBlend* blend);
   /** Override this method to change the shadow of the pop-up menu panel */
-  virtual void DrawShadow(IGraphics& g, const IRECT& bounds, IBlend* blend);
+  virtual void DrawPanelShadow(IGraphics& g, const IRECT& bounds, IBlend* blend);
   /** Override this method to change the way a cell's background is drawn */
-  virtual void DrawCellBackground(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem, IBlend* blend);
-  /** Override this method to change the way a cell's background is drawn when the cell is highlighted  */
-  virtual void DrawHighlightedCellBackground(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem, IBlend* blend);
-  /** Override this method to change the way a cell's background is drawn when the cell is clicked  */
-  virtual void DrawClickedCellBackground(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem, IBlend* blend);
-  
+  virtual void DrawCellBackground(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item* pItem, bool sel, IBlend* blend);
   /** Override this method to change the way a cell's text is drawn */
-  virtual void DrawCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem, IBlend* blend);
-  /** Override this method to change the way a cell's text is drawn when the cell is highlighted */
-  virtual void DrawHighlightCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem, IBlend* blend);
-  
+  virtual void DrawCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item* pItem, bool sel, IBlend* blend);
   /** Override this method to change the way a checked cell's "tick" is drawn */
-  virtual void DrawTick(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem, IBlend* blend);
-  /** Override this method to change the way a checked cell's "tick" is drawn when a cell is highlighted */
-  virtual void DrawHighlitedTick(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem, IBlend* blend);
-  
+  virtual void DrawTick(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item* pItem, bool sel, IBlend* blend);
   /** Override this method to change the way a submenu cell's arrow is drawn */
-  virtual void DrawArrow(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem, IBlend* blend);
-  /** Override this method to change the way a submenu cell's arrow is drawn when a cell is highlighted */
-  virtual void DrawHighlitedArrow(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item& menuItem, IBlend* blend);
-  
+  virtual void DrawSubMenuArrow(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item* pItem, bool sel, IBlend* blend);
+  /** Override this method to change the way a scroll up cell's arrow is drawn */
+  virtual void DrawUpArrow(IGraphics& g, const IRECT& bounds, bool sel, IBlend* blend);
+  /** Override this method to change the way a scroll Down cell's arrow is drawn */
+  virtual void DrawDownArrow(IGraphics& g, const IRECT& bounds, bool sel, IBlend* blend);
   /** Override this method to change the way a cell separator is drawn  */
   virtual void DrawSeparator(IGraphics& g, const IRECT& bounds, IBlend* blend);
   
@@ -109,6 +99,10 @@ private:
     /** Get's the height of a cell */
     float CellHeight() const { return mSingleCellBounds.H(); }
     
+    void ScrollUp() { mScrollItemOffset--; mScrollItemOffset = Clip(mScrollItemOffset, 0, mCellBounds.GetSize()-1); }
+    
+    void ScrollDown() { mScrollItemOffset++; mScrollItemOffset = Clip(mScrollItemOffset, 0, mMenu.NItems()-mCellBounds.GetSize()); }
+
     /** Checks if any of the expanded cells for this panel contain a x, y coordinate, and if so returns an IRECT pointer to the cell bounds
      * @param x X position to test
      * @param y Y position to test
@@ -129,6 +123,8 @@ private:
     IRECT* mHighlightedCell = nullptr; // A pointer to one of the IRECTs in mCellBounds, if one should be highlighted
     IRECT* mClickedCell = nullptr; // A pointer to one of the IRECTs in mCellBounds, if one has been clicked
     int mParentIdx = 0; // An index into the IPopupMenuControl::mMenuPanels lists, representing the parent menu panel
+    bool mScroller = false;
+    int mScrollItemOffset = 0;
   };
   
   WDL_PtrList<MenuPanel> mMenuPanels; // An array of ptrs to MenuPanel objects for every panel, expands as sub menus are revealed, contents deleted when the menu is dismissed
@@ -141,7 +137,7 @@ private:
   IPopupMenu* mMenu = nullptr; // Pointer to the main IPopupMenu, that this control is visualising. This control does not own the menu.
 
   int mMaxColumnItems = 0; // How long the list can get before adding a new column - 0 equals no limit
-  bool mScrollIfTooBig = false; // If the menu is higher than the graphics context, should it scroll or should it start a new column //FIXME: not yet scrolling
+  bool mScrollIfTooBig = true; // If the menu is higher than the graphics context, should it scroll or should it start a new column //FIXME: not yet scrolling
   
   float mCellGap = 2.f; // The gap between cells in pixels
   float mSeparatorSize = 2.; // The size in pixels of a separator. This could be width or height
