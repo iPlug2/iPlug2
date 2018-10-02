@@ -68,6 +68,8 @@ class LICE_IFont; // TODO: move this
   typedef LICE_IBitmap* BitmapData;
 #elif defined IGRAPHICS_CANVAS
   typedef void* BitmapData;
+#else // NO_IGRAPHICS
+  typedef void* BitmapData;
 #endif
 
 class APIBitmap
@@ -1280,7 +1282,7 @@ public:
     int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
     {
-      // FIX - this doesn't work - why not?
+      // FIXME: - this doesn't work - why not?
       /*
       DataKey* key = mDatas.Get(i);
       T* data = key->data;
