@@ -183,11 +183,9 @@ private:
   void OnTimer(Timer& t);
 
 public:
-
-  IPlugQueue<IParamChange> mParamChangeFromProcessor;
-  IPlugQueue<IMidiMsg> mMidiMsgsFromEditor {32}; // a queue of midi messages received from the editor, by clicking keyboard UI etc
-  IPlugQueue<IMidiMsg> mMidiMsgsFromProcessor {32};
-  
+  IPlugQueue<IParamChange> mParamChangeFromProcessor {PARAM_TRANSFER_SIZE};
+  IPlugQueue<IMidiMsg> mMidiMsgsFromEditor {MIDI_TRANSFER_SIZE}; // a queue of midi messages received from the editor, by clicking keyboard UI etc
+  IPlugQueue<IMidiMsg> mMidiMsgsFromProcessor {MIDI_TRANSFER_SIZE};
   WDL_String mParamDisplayStr;
   Timer* mTimer = nullptr;
 };

@@ -26,7 +26,6 @@
 
 IPlugAPIBase::IPlugAPIBase(IPlugConfig c, EAPI plugAPI)
   : IPluginBase(c.nParams, c.nPresets)
-  , mParamChangeFromProcessor(512) // TODO: CONSTANT
 {
   mUniqueID = c.uniqueID;
   mMfrID = c.mfrID;
