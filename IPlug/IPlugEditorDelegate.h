@@ -124,7 +124,7 @@ public:
   virtual void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize = 0, const void* pData = nullptr) {};
   
   /** TODO: SAMFD */
-  virtual void SendArbitraryMsgFromDelegate(int messageTag, int dataSize, const void* pData) {};
+  virtual void SendArbitraryMsgFromDelegate(int messageTag, int dataSize = 0, const void* pData = nullptr) {};
   
   /** TODO: SMMFD */
   virtual void SendMidiMsgFromDelegate(const IMidiMsg& msg) { OnMidiMsgUI(msg); }
