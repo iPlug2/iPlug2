@@ -97,9 +97,9 @@ def main():
   elif config['PLUG_IS_MFX']:
     COMPONENT_TYPE = kAudioUnitType_MIDIProcessor
   elif config['PLUG_DOES_MIDI']:
-     COMPONENT_TYPE = kAudioUnitType_MusicEffect
+    COMPONENT_TYPE = kAudioUnitType_MusicEffect
   else:
-     COMPONENT_TYPE = kAudioUnitType_Effect
+    COMPONENT_TYPE = kAudioUnitType_Effect
 
   auv2['AudioUnit Version'] = config['PLUG_VERSION_HEX']
   auv2['AudioComponents'] = [{}]
@@ -186,7 +186,7 @@ def main():
   macOSapp['CFBundleSignature'] = config['PLUG_UNIQUE_ID']
   macOSapp['CSResourcesFileMapped'] = CSResourcesFileMapped
   macOSapp['NSPrincipalClass'] = "SWELLApplication"
-  macOSapp['NSMainNibFile'] = "IPlugEffect-macOS-MainMenu"
+  macOSapp['NSMainNibFile'] = config['BUNDLE_NAME'] + "-macOS-MainMenu"
   macOSapp['LSApplicationCategoryType'] = "public.app-category.music"
   macOSapp['CFBundleIconFile'] = config['BUNDLE_NAME'] + ".icns"
 
