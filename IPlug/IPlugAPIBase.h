@@ -42,7 +42,6 @@ struct IPlugConfig;
 /** The base class of an IPlug plug-in, which interacts with the different plug-in APIs. No UI framework code here.
  *  This interface does not handle audio processing, see @IPlugProcessor  */
 class IPlugAPIBase : public IPluginBase
-                   , public ITimerCallback
 {
 
 public:
@@ -181,7 +180,7 @@ private:
   //DISTRIBUTED ONLY
   virtual void _TransmitMidiMsgFromProcessor(const IMidiMsg& msg) {};
   
-  void OnTimer(Timer& t) override;
+  void OnTimer(Timer& t);
 
 public:
 

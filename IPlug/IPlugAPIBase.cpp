@@ -68,7 +68,7 @@ void IPlugAPIBase::OnHostRequestingImportantParameters(int count, WDL_TypedBuf<i
 
 void IPlugAPIBase::CreateTimer()
 {
-  mTimer = Timer::Create(*this, IDLE_TIMER_RATE);
+  mTimer = Timer::Create(std::bind(&IPlugAPIBase::OnTimer, this, std::placeholders::_1), IDLE_TIMER_RATE);
 }
 
 bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos)
