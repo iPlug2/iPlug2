@@ -419,11 +419,12 @@ IDirBrowseControlBase::~IDirBrowseControlBase()
   mFiles.Empty(true);
   mPaths.Empty(true);
   mPathLabels.Empty(true);
+  mItems.Empty(false);
 }
 
 int IDirBrowseControlBase::NItems()
 {
-  return mFiles.GetSize();
+  return mItems.GetSize();
 }
 
 void IDirBrowseControlBase::AddPath(const char * path, const char * label)
@@ -432,9 +433,26 @@ void IDirBrowseControlBase::AddPath(const char * path, const char * label)
   mPathLabels.Add(new WDL_String(label));
 }
 
+void IDirBrowseControlBase::CollectSortedItems(IPopupMenu* pMenu)
+{
+  int nItems = pMenu->NItems();
+  
+  for (int i = 0; i < nItems; i++)
+  {
+    IPopupMenu::Item* pItem = pMenu->GetItem(i);
+    
+    if(pItem->GetSubmenu())
+      CollectSortedItems(pItem->GetSubmenu());
+    else
+      mItems.Add(pItem);
+  }
+}
+
 void IDirBrowseControlBase::SetUpMenu()
 {
   mFiles.Empty(true);
+  mItems.Empty(false);
+  
   mMainMenu.Clear();
   mSelectedIndex = -1;
 
@@ -453,6 +471,8 @@ void IDirBrowseControlBase::SetUpMenu()
       ScanDirectory(mPaths.Get(p)->Get(), *pNewMenu);
     }
   }
+  
+  CollectSortedItems(&mMainMenu);
 }
 
 void IDirBrowseControlBase::GetSelectedItemLabel(WDL_String& label)
@@ -505,7 +525,8 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
           if (a && a > f && strlen(a) == strlen(mExtension.Get()))
           {
             WDL_String menuEntry = WDL_String(f, (int) (a - f));
-            parentDirMenu.AddItem(new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize()), -2);
+            IPopupMenu::Item* pItem = new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize());
+            parentDirMenu.AddItem(pItem, -2 /* sort alphabetically */);
             WDL_String* pFullPath = new WDL_String("");
             d.GetCurrentFullFN(pFullPath);
             mFiles.Add(pFullPath);

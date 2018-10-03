@@ -986,7 +986,8 @@ public:
 
 private:
   void ScanDirectory(const char* path, IPopupMenu& menuToAddTo);
-
+  void CollectSortedItems(IPopupMenu* pMenu);
+  
 protected:
   int mSelectedIndex = -1;
   IPopupMenu* mSelectedMenu = nullptr;
@@ -994,7 +995,9 @@ protected:
   //TODO: Paths/Labels could be done with a std::map
   WDL_PtrList<WDL_String> mPaths;
   WDL_PtrList<WDL_String> mPathLabels;
+  
   WDL_PtrList<WDL_String> mFiles;
+  WDL_PtrList<IPopupMenu::Item> mItems; // ptr to item for each file
   WDL_String mExtension;
 };
 
