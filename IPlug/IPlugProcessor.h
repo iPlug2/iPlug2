@@ -77,20 +77,20 @@ public:
 
 #pragma mark - Methods you can call - some of which have custom implementations in the API classes, some implemented in IPlugProcessor.cpp
 
-  /** Send a single MIDI message
+  /** Send a single MIDI message // TODO: info about what thread should this be called on or not called on!
    * @param msg The IMidiMsg to send
    * @return \c true if successful */
   virtual bool SendMidiMsg(const IMidiMsg& msg) = 0;
 
-  /** Send a collection of MIDI messages
+  /** Send a collection of MIDI messages // TODO: info about what thread should this be called on or not called on!
    * @param msg The IMidiMsg to send
    * @return \c true if successful */
   virtual bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs);
 
-  /** Send a single MIDI System Exclusive (SysEx) message
+  /** Send a single MIDI System Exclusive (SysEx) message // TODO: info about what thread should this be called on or not called on!
    * @param msg The ISysEx to send
    * @return \c true if successful */
-  virtual bool SendSysEx(ISysEx& msg) { return false; }
+  virtual bool SendSysEx(ISysEx& msg /* TODO: const? */) { return false; }
 
   /** @return Sample rate (in Hz) */
   double GetSampleRate() const { return mSampleRate; }

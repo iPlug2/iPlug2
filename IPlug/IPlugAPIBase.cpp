@@ -171,9 +171,8 @@ void IPlugAPIBase::OnTimer(Timer& t)
 
 void IPlugAPIBase::SendMidiMsgFromUI(const IMidiMsg& msg)
 {
-  DeferMidiMsg(msg);
-  
-  EDITOR_DELEGATE_CLASS::SendMidiMsgFromUI(msg);
+  DeferMidiMsg(msg); // queue the message so that it will be handled by the processor
+  EDITOR_DELEGATE_CLASS::SendMidiMsgFromUI(msg); // for remote editors
 }
 
 void IPlugAPIBase::SendSysexMsgFromUI(const ISysEx& msg)
@@ -185,7 +184,7 @@ void IPlugAPIBase::SendSysexMsgFromUI(const ISysEx& msg)
 
 void IPlugAPIBase::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData)
 {
-  OnMessage(messageTag, controlTag, dataSize, pData);
+  OnMessage(messageTag, controlTag, dataSize, pData); // IPlugAPIBase implementation handles non distributed plug-ins - just call OnMessage() directly
   
   EDITOR_DELEGATE_CLASS::SendArbitraryMsgFromUI(messageTag, controlTag, dataSize, pData);
 }

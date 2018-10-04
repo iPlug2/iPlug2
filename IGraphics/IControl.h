@@ -404,7 +404,7 @@ protected:
   IText mText;
 
   int mTextEntryLength = DEFAULT_TEXT_ENTRY_LEN;
-  double mValue = 0.;
+  double mValue = 0.; // mValue is mapped to the normalized parameter value in controls where mParamIdx > -1
   double mDefaultValue = -1.; // it's important this is -1 to start with
   double mClampLo = 0.;
   double mClampHi = 1.;

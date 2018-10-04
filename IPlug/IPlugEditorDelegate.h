@@ -169,15 +169,17 @@ public:
    * @param paramIdx The index of the parameter that is changing value */
   virtual void EndInformHostOfParamChangeFromUI(int paramIdx) = 0;
   
-  /** Sometimes when a plug-in wants to change its UI dimensions we need to call into the plug-in api class first when we click a button in our UI
+  /** Sometimes when a plug-in wants to change its UI dimensions we need to call into the plug-in API class first when we click a button in our UI
    * This method is implemented in various classes that inherit this interface to implement that behaviour */
   virtual void ResizeGraphicsFromUI(int viewWidth, int viewHeight, float scale) {};
   
-  /** TODO: SMMFUI */
-  /** When we want to send a MIDI message from the UI for example clicking on a key in a virtual keyboard, this method should be used*/
+  /** When we want to send a MIDI message from the UI for example clicking on a key in a virtual keyboard, this method should be used.
+   * Eventually the MIDI message can be handled in IPlugProcessor::ProcessMidiMsg(), from where it can be used to trigger sound and or forwarded to the API's MIDI output. */
   virtual void SendMidiMsgFromUI(const IMidiMsg& msg) {};
 
-  /** TODO: SSMFUI */
+  /** If a plug-in can send Sysex data (e.g. a sysex editor for a hardware device, this method can be used.
+   * Unlike SendMidiMsgFromUI, Sysex messages will not be received in IPlugProcessor::ProcessSysex()
+   * Since it is extremely unlikely that you would want to use Sysex to communicate between editor and processor \todo is this correct? */
   virtual void SendSysexMsgFromUI(const ISysEx& msg) {};
   
   /** TODO: SAMFUI */
@@ -187,6 +189,8 @@ public:
   /** This method is needed, for remote editors to avoid a feedback loop */
   virtual void DeferMidiMsg(const IMidiMsg& msg) {};
   
+  /** This method is needed, for remote editors to avoid a feedback loop */
+  virtual void DeferSysexMsg(const ISysEx& msg) {};
 #pragma mark
   /** @return The width of the plug-in editor in pixels */
   int GetEditorWidth() const { return mEditorWidth; }
