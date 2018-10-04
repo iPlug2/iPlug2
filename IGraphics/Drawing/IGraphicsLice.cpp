@@ -41,14 +41,13 @@ void IGraphicsLice::DrawResize()
 
 void IGraphicsLice::DrawSVG(ISVG& svg, const IRECT& bounds, const IBlend* pBlend)
 {
-  //TODO:
-//  LiceNanoSVGRender::RenderNanoSVG(mDrawBitmap, svg.mImage);
+  DrawText(DEFAULT_TEXT, "UNSUPPORTED", const_cast<IRECT&>(bounds), nullptr, false);
 }
 
 void IGraphicsLice::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend)
 {
-  DrawSVG(svg, mDrawRECT, pBlend);
-  //TODO:
+  IRECT r = IRECT(destCtrX - (width/2.), destCtrY - (height/2.), destCtrX + width, destCtrY + height);
+  DrawText(DEFAULT_TEXT, "UNSUPPORTED", r, nullptr, false);
 }
 
 void IGraphicsLice::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend)
