@@ -240,6 +240,23 @@ int IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, int type)
   return 0; // TODO: return value?
 }
 
+void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext)
+{
+  val inputEl = val::global("document").call<val>("getElementById", std::string("pluginInput"));
+  
+  inputEl.call<void>("setAttribute", std::string("accept"), std::string(ext));
+  inputEl.call<void>("click");
+}
+
+void IGraphicsWeb::PromptForDirectory(WDL_String& path)
+{
+  val inputEl = val::global("document").call<val>("getElementById", std::string("pluginInput"));
+  
+  inputEl.call<void>("setAttribute", std::string("directory"));
+  inputEl.call<void>("setAttribute", std::string("webkitdirectory"));
+  inputEl.call<void>("click");
+}
+
 void IGraphicsWeb::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
 {
 //  val input = val::global("document").call<val>("createElement", std::string("input"));
