@@ -137,7 +137,7 @@ private:
   IPopupMenu* mMenu = nullptr; // Pointer to the main IPopupMenu, that this control is visualising. This control does not own the menu.
 
   int mMaxColumnItems = 0; // How long the list can get before adding a new column - 0 equals no limit
-  bool mScrollIfTooBig = true; // If the menu is higher than the graphics context, should it scroll or should it start a new column //FIXME: not yet scrolling
+  bool mScrollIfTooBig = true; // If the menu is higher than the graphics context, should it scroll or should it start a new column
   
   float mCellGap = 2.f; // The gap between cells in pixels
   float mSeparatorSize = 2.; // The size in pixels of a separator. This could be width or height
