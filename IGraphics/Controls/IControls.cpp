@@ -2,57 +2,107 @@
 
 #pragma mark - VECTOR CONTROLS
 
-IVSwitchControl::IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc
-  , const char* label, const IVColorSpec& colorSpec, int numStates, EDirection dir)
-  : ISwitchControlBase(dlg, bounds, paramIdx, actionFunc, numStates)
-  , IVectorBase(colorSpec)
-  , mDirection(dir)
+IVButtonControl::IVButtonControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc, const char* str, const IVColorSpec& colorSpec)
+: IButtonControlBase(dlg, bounds, actionFunc)
+, IVectorBase(colorSpec)
 {
   AttachIControl(this);
   mDblAsSingleClick = true;
-  mText.mSize = 20;
-  mStep = 1.f / float(mNumStates) - 1.f;
-  mStr.Set(label);
+  mText.mSize = 20; //FIXME: text size
+  mStr.Set(str);
+}
+
+void IVButtonControl::Draw(IGraphics& g)
+{
+  IRECT handleBounds = DrawVectorButton(g, mRECT, (bool) mValue, mMouseIsOver);
+  
+  if(CStringHasContents(mStr.Get()))
+    g.DrawText(mText, mStr.Get(), handleBounds);
+}
+
+IVSwitchControl::IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc
+  , const char* str, const IVColorSpec& colorSpec, int numStates)
+  : ISwitchControlBase(dlg, bounds, paramIdx, actionFunc, numStates)
+  , IVectorBase(colorSpec)
+{
+  AttachIControl(this);
+  mDblAsSingleClick = true;
+  mText.mSize = 20; //FIXME: text size
+  mStr.Set(str);
+}
+
+void IVSwitchControl::SetDirty(bool push)
+{
+  const IParam* pParam = GetParam();
+
+  IControl::SetDirty(push);
+
+  pParam->GetDisplayForHost(mStr);
 }
 
 void IVSwitchControl::Draw(IGraphics& g)
 {
-  g.FillRect(GetColor(kBG), mRECT);
+  IRECT handleBounds = DrawVectorButton(g, mRECT, mMouseDown, mMouseIsOver);
+  
+  if(CStringHasContents(mStr.Get()))
+    g.DrawText(mText, mStr.Get(), handleBounds);
+}
 
-  IRECT handleBounds = GetAdjustedHandleBounds(mRECT);
-  const float cornerRadius = mRoundness * (handleBounds.W() / 2.f);
+IVRadioButtonControl::IVRadioButtonControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc, const IVColorSpec& colorSpec, int numStates, EDirection dir)
+: ISwitchControlBase(dlg, bounds, paramIdx, actionFunc, numStates)
+, IVectorBase(colorSpec)
+, mDirection(dir)
+{
+  AttachIControl(this);
+  mDblAsSingleClick = true;
+  mText.mSize = 20; //FIXME: text size
+  mText.mAlign = IText::kAlignNear;
+  mText.mVAlign = IText::kVAlignMiddle;
+  mDrawShadows = false;
 
-  if (mValue > 0.5)
+  if(GetParam())
   {
-    g.FillRoundRect(GetColor(kPR), handleBounds, cornerRadius);
-
-    //inner shadow
-    if (mDrawShadows && mEmboss)
+    for (int i = 0; i < mNumStates; i++)
     {
-      g.PathRect(handleBounds.GetHSliced(mShadowOffset));
-      g.PathRect(handleBounds.GetVSliced(mShadowOffset));
-      g.PathFill(GetColor(kSH));
+      mLabels.Add(new WDL_String(GetParam()->GetDisplayText(i)));
     }
   }
-  else
-  {
-    //outer shadow
-    if (mDrawShadows && !mEmboss)
-      g.FillRoundRect(GetColor(kSH), handleBounds.GetShifted(mShadowOffset, mShadowOffset), cornerRadius);
+}
 
-    g.FillRoundRect(GetColor(kFG), handleBounds, cornerRadius);
+void IVRadioButtonControl::Draw(IGraphics& g)
+{
+  int hit = int(0.5 + mValue * (double) (mNumStates - 1));
+  
+  for (int i = 0; i < mNumStates; i++)
+  {
+    IRECT r = mButtons.Get()[i];
+    DrawVectorButton(g, r.FracRectHorizontal(0.25).GetCentredInside(10), i == hit , mMouseIsOver);
+    r = r.FracRectHorizontal(0.7, true);
+    i == hit ? mText.mFGColor = COLOR_WHITE : mText.mFGColor = COLOR_BLACK;
+    g.DrawText(mText, mLabels.Get(i)->Get(), r);
   }
+}
+
+//bool IVRadioButtonControl::IsHit(float x, float y) const
+//{
+//  bool hit = false;
+//  
+//  for (int i = 0; i < mNumStates; i++)
+//  {
+//    hit |= mButtons.Get()[i].Contains(x, y);
+//  }
+//  
+//  return hit;
+//}
+
+void IVRadioButtonControl::OnResize()
+{
+  mButtons.Resize(0);
   
-  if(mMouseIsOver)
-    g.FillRoundRect(GetColor(kHL), handleBounds, cornerRadius);
-  
-  if(GetAnimationFunction())
-    DrawFlashCircle(g);
-  
-  g.DrawText(mText, mStr.Get(), handleBounds);
-    
-  if(mDrawFrame)
-    g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius, 0, mFrameThickness);
+  for (int i = 0; i < mNumStates; i++)
+  {
+    mButtons.Add(mRECT.SubRect(mDirection, mNumStates, i));
+  }
 }
 
 IVKnobControl::IVKnobControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx,

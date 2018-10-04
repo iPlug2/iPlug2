@@ -612,6 +612,46 @@ public:
     g.FillCircle(GetColor(kHL), mouseDownX, mouseDownY, mFlashCircleRadius);
   }
   
+  IRECT DrawVectorButton(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver)
+  {
+    g.FillRect(GetColor(kBG), bounds);
+    
+    IRECT handleBounds = GetAdjustedHandleBounds(bounds);
+    const float cornerRadius = mRoundness * (handleBounds.W() / 2.f);
+    
+    if (pressed)
+    {
+      g.FillRoundRect(GetColor(kPR), handleBounds, cornerRadius);
+      
+      //inner shadow
+      if (mDrawShadows && mEmboss)
+      {
+        g.PathRect(handleBounds.GetHSliced(mShadowOffset));
+        g.PathRect(handleBounds.GetVSliced(mShadowOffset));
+        g.PathFill(GetColor(kSH));
+      }
+    }
+    else
+    {
+      //outer shadow
+      if (mDrawShadows && !mEmboss)
+        g.FillRoundRect(GetColor(kSH), handleBounds.GetShifted(mShadowOffset, mShadowOffset), cornerRadius);
+      
+      g.FillRoundRect(GetColor(kFG), handleBounds, cornerRadius);
+    }
+    
+    if(mouseOver)
+      g.FillRoundRect(GetColor(kHL), handleBounds, cornerRadius);
+    
+    if(mControl->GetAnimationFunction())
+      DrawFlashCircle(g);
+    
+    if(mDrawFrame)
+      g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius, 0, mFrameThickness);
+    
+    return handleBounds;
+  }
+  
 protected:
   IControl* mControl = nullptr;
   WDL_TypedBuf<IColor> mColors;
@@ -947,19 +987,31 @@ protected:
   bool mDrawTrackFrame = true;
 };
 
-/** Parent for switch controls (including buttons a.k.a. momentary switches)
- */
+/** Parent for buttons a.k.a. momentary switches - cannot be linked to parameters.
+ * The default action function triggers the default click function, which returns mValue to 0. after DEFAULT_ANIMATION_DURATION */
+class IButtonControlBase : public IControl
+{
+public:
+  IButtonControlBase(IGEditorDelegate& dlg, IRECT bounds, IActionFunction aF);
+  
+  virtual ~IButtonControlBase() {}
+  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  virtual void OnEndAnimation() override;
+};
+
+/** Parent for switch controls */
 class ISwitchControlBase : public IControl
 {
 public:
-  ISwitchControlBase(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction aF = nullptr,
-    int numStates = 2);
+  ISwitchControlBase(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction aF = nullptr, int numStates = 2);
 
   virtual ~ISwitchControlBase() {}
 
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  virtual void OnMouseUp(float x, float y, const IMouseMod& mod) override;
 protected:
   int mNumStates;
+  bool mMouseDown = false;
 };
 
 /** An abstract IControl base class that you can inherit from in order to make a control that pops up a menu to browse files */
@@ -992,10 +1044,8 @@ protected:
   int mSelectedIndex = -1;
   IPopupMenu* mSelectedMenu = nullptr;
   IPopupMenu mMainMenu;
-  //TODO: Paths/Labels could be done with a std::map
   WDL_PtrList<WDL_String> mPaths;
   WDL_PtrList<WDL_String> mPathLabels;
-  
   WDL_PtrList<WDL_String> mFiles;
   WDL_PtrList<IPopupMenu::Item> mItems; // ptr to item for each file
   WDL_String mExtension;

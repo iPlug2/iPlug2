@@ -30,15 +30,8 @@ void FlashCircleAnimationFunc(IControl* pCaller)
   pCaller->SetDirty(false);
 };
 
-void DefaultClickActionFunc(IControl* pCaller)
-{
-  pCaller->SetAnimation(DefaultAnimationFunc, DEFAULT_ANIMATION_DURATION);
-};
-
-void FlashCircleClickActionFunc(IControl* pCaller)
-{
-  pCaller->SetAnimation(FlashCircleAnimationFunc, DEFAULT_ANIMATION_DURATION);
-}
+void DefaultClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(DefaultAnimationFunc, DEFAULT_ANIMATION_DURATION); };
+void FlashCircleClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(FlashCircleAnimationFunc, DEFAULT_ANIMATION_DURATION); }
 
 IControl::IControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc)
 : mDelegate(dlg)
@@ -341,6 +334,23 @@ void ICaptionControl::Draw(IGraphics& g)
   }
 }
 
+IButtonControlBase::IButtonControlBase(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc)
+: IControl(dlg, bounds, kNoParameter, actionFunc)
+{
+}
+
+void IButtonControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  mValue = 1.;
+  SetDirty(true);
+}
+
+void IButtonControlBase::OnEndAnimation()
+{
+  mValue = 0.;
+  IControl::OnEndAnimation();
+}
+
 ISwitchControlBase::ISwitchControlBase(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc,
   int numStates)
   : IControl(dlg, bounds, paramIdx, actionFunc)
@@ -349,7 +359,7 @@ ISwitchControlBase::ISwitchControlBase(IGEditorDelegate& dlg, IRECT bounds, int 
     mNumStates = (int) GetParam()->GetRange() + 1;
   else
     mNumStates = numStates;
-
+  
   assert(mNumStates > 1);
 }
 
@@ -359,12 +369,20 @@ void ISwitchControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
     mValue = !mValue;
   else
   {
-    const float step = 1.f / float(mNumStates) - 1.f;
+    const double step = 1. / (double(mNumStates) - 1.);
     mValue += step;
-    mValue = fmod(1., mValue);
+    if(mValue > 1.)
+      mValue = 0.;
   }
-
+  
+  mMouseDown = true;
   SetDirty(true);
+}
+
+void ISwitchControlBase::OnMouseUp(float x, float y, const IMouseMod& mod)
+{
+  mMouseDown = false;
+  SetDirty(false);
 }
 
 void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)

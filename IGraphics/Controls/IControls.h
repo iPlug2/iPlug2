@@ -14,19 +14,52 @@
 
 #pragma mark - Vector Controls
 
+/** A vector button/momentary switch control. */
+class IVButtonControl : public IButtonControlBase
+                      , public IVectorBase
+{
+public:
+  IVButtonControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc = FlashCircleClickActionFunc, const char* str = "", const IVColorSpec& colorSpec = DEFAULT_SPEC);
+  
+  void Draw(IGraphics& g) override;
+  
+protected:
+  WDL_String mStr;
+};
+
 /** A vector switch control. Click to cycle through states. */
 class IVSwitchControl : public ISwitchControlBase
                       , public IVectorBase
 {
 public:
-  IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = FlashCircleClickActionFunc, const char* label = "", const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2, EDirection dir = kVertical);
+  IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = FlashCircleClickActionFunc,
+                  const char* label = "", const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2);
 
   void Draw(IGraphics& g) override;
+  
+  void SetDirty(bool push) override;
 
 protected:
   WDL_String mStr;
-  float mStep;
+};
+
+/** A vector switch control. Click to cycle through states. */
+class IVRadioButtonControl : public ISwitchControlBase
+                           , public IVectorBase
+{
+public:
+  IVRadioButtonControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = FlashCircleClickActionFunc,
+                       const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2, EDirection dir = kVertical);
+  
+  virtual ~IVRadioButtonControl() { mLabels.Empty(true); }
+  virtual void Draw(IGraphics& g) override;
+  virtual void OnResize() override;
+//  virtual bool IsHit(float x, float y) const override;
+
+protected:
   EDirection mDirection;
+  WDL_TypedBuf<IRECT> mButtons;
+  WDL_PtrList<WDL_String> mLabels;
 };
 
 /** A vector knob control drawn using graphics primitves */
@@ -112,24 +145,34 @@ private:
   float mTrackSize;
 };
 
-class IVMomentarySwitch : public IVSwitchControl
+#pragma mark - Bitmap Controls
+
+/** A bitmap button/momentary switch control. */
+class IBButtonControl : public IButtonControlBase
+                      , public IBitmapBase
 {
 public:
-  IVMomentarySwitch(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc, const char* str)
-  : IVSwitchControl(dlg, bounds, kNoParameter, actionFunc, str)
+  IBButtonControl(IGEditorDelegate& dlg, float x, float y, IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
+  : IButtonControlBase(dlg, IRECT(x, y, bitmap), actionFunc)
+  , IBitmapBase(bitmap)
+  {}
+  
+  void Draw(IGraphics& g) override
   {
+    g.DrawBitmap(mBitmap, mRECT, (int) mValue + 1, &mBlend);
   }
-
-  virtual ~IVMomentarySwitch() {};
-
-  void OnMouseUp(float x, float y, const IMouseMod& mod) override
+  
+  virtual void OnRescale() override
   {
-    mValue = 0.0;
-    SetDirty(false);
+    mBitmap = GetUI()->GetScaledBitmap(mBitmap);
+  }
+  
+  virtual void GrayOut(bool gray) override
+  {
+    IBitmapBase::GrayOut(gray);
+    IControl::GrayOut(gray);
   }
 };
-
-#pragma mark - Bitmap Controls
 
 /** A bitmap switch control. Click to cycle through states. */
 class IBSwitchControl : public IBitmapControl
@@ -141,6 +184,12 @@ public:
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {  OnMouseDown(x, y, mod); }
+  
+  virtual void GrayOut(bool gray) override
+  {
+    IBitmapBase::GrayOut(gray);
+    IControl::GrayOut(gray);
+  }
 };
 
 /** A bitmap knob/dial control */
