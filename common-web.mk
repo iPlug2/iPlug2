@@ -4,6 +4,7 @@ DEPS_PATH = $(ROOT)/Dependencies
 WAM_SDK_PATH = $(DEPS_PATH)/IPlug/WAM_SDK/wamsdk
 WDL_PATH = $(ROOT)/WDL
 IPLUG_PATH = $(ROOT)/IPlug
+SWELL_PATH = $(WDL_PATH)/swell
 IGRAPHICS_PATH = $(ROOT)/IGraphics
 CONTROLS_PATH = $(IGRAPHICS_PATH)/Controls
 PLATFORMS_PATH = $(IGRAPHICS_PATH)/Platforms
@@ -68,7 +69,7 @@ WAM_EXPORTS = "[\
   '_wam_onmessageN', '_wam_onmessageS', '_wam_onmessageA', '_wam_onpatch' \
   ]"
 
-WEB_EXPORTS = "['_main']"
+WEB_EXPORTS = "['_main', '_iplug_fsready', '_iplug_syncfs']"
 
 LDFLAGS = -O2 \
 -s ASSERTIONS=0 \
