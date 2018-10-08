@@ -13,6 +13,7 @@ IPopupMenuControl::IPopupMenuControl(IGEditorDelegate& dlg, int paramIdx, IText 
     if(mState == kSubMenuAppearing)
       duration = DEFAULT_ANIMATION_DURATION * 2;
     
+#pragma mark animations
     SetAnimation([&](IControl* pCaller) {
       auto progress = pCaller->GetAnimationProgress();
       
@@ -251,7 +252,6 @@ void IPopupMenuControl::DrawTick(IGraphics& g, const IRECT& bounds, const IPopup
   g.FillRoundRect(sel ? COLOR_WHITE : COLOR_BLACK, tickRect.GetCentredInside(TICK_SIZE/2.), 2, blend);
 }
 
-
 void IPopupMenuControl::DrawSubMenuArrow(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item* pItem, bool sel, IBlend* blend)
 {
   IRECT tri = IRECT(bounds.R-ARROW_SIZE, bounds.T+2, bounds.R-2, bounds.B-2); // FIXME: triangle doesn't look good at all font sizes
@@ -281,7 +281,8 @@ IPopupMenu* IPopupMenuControl::CreatePopupMenu(IPopupMenu& menu, const IRECT& bo
   mMenu = &menu;
   mCaller = pCaller;
   
-  Expand(bounds.L, bounds.T);
+  if(GetState() == kCollapsed)
+    Expand(bounds.L, bounds.T);
   
   return mMenu;
 }
