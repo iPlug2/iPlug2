@@ -31,7 +31,7 @@ def main():
   print "Copying resources to shared folder..."
 
   if config['PLUG_SHARED_RESOURCES']:
-    dst = os.path.expanduser("~") + "/Music/IPlugEffect/Resources"
+    dst = os.path.expanduser("~") + "/Music/" + config['BUNDLE_NAME'] + "/Resources"
     if os.path.exists(dst):
      shutil.rmtree(dst)
 
@@ -133,7 +133,7 @@ def main():
   auv3['CFBundlePackageType'] = "XPC!"
   auv3['NSExtension'] = dict(
   NSExtensionAttributes = dict(
-#                               AudioComponentBundle = "com.AcmeInc.app.IPlugEffect.AUv3.framework",
+#                               AudioComponentBundle = "com.AcmeInc.app." + config['BUNDLE_NAME'] + ".AUv3.framework",
                                AudioComponents = [{}]),
 #                               NSExtensionServiceRoleType = "NSExtensionServiceRoleTypeEditor",
   NSExtensionPointIdentifier = NSEXTENSIONPOINTIDENTIFIER,

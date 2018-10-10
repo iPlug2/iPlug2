@@ -52,12 +52,12 @@ def main():
   auv3['CFBundlePackageType'] = "XPC!"
   auv3['NSExtension'] = dict(
   NSExtensionAttributes = dict(AudioComponents = [{}]),
-                               NSExtensionMainStoryboard = "IPlugEffect-iOS-MainInterface",
+                               NSExtensionMainStoryboard = config['BUNDLE_NAME'] + "-iOS-MainInterface",
                                NSExtensionPointIdentifier = NSEXTENSIONPOINTIDENTIFIER)
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'] = [{}]
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['description'] = config['PLUG_NAME']
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['manufacturer'] = config['PLUG_MFR_ID']
-  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['factoryFunction'] = "IPlugEffectViewController"
+  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['factoryFunction'] = config['BUNDLE_NAME'] + "ViewController"
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['name'] = config['PLUG_MFR'] + ": " + config['PLUG_NAME']
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['subtype'] = config['PLUG_UNIQUE_ID']
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['type'] = COMPONENT_TYPE
