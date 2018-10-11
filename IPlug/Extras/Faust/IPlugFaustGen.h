@@ -88,8 +88,7 @@ static inline Time TimeZero() { return (Time) 0; }
 
 using namespace std;
 
-class FaustGen : public IPlugFaust,
-                 public ITimerCallback
+class FaustGen : public IPlugFaust
 {
   class Factory
   {
@@ -223,8 +222,7 @@ public:
 
   void SetAutoRecompile(bool enable);
   
-  //ITimerCallback
-  void OnTimer(Timer& timer) override;
+  void OnTimer(Timer& timer);
   
 private:
   Factory* mFactory = nullptr;
