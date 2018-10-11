@@ -211,6 +211,23 @@ void IPopupMenuControl::OnMouseOut()
   mMouseCellBounds = nullptr;
 }
 
+void IPopupMenuControl::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
+{
+  //FIXME:
+//  if(mActiveMenuPanel)
+//  {
+//    if(mActiveMenuPanel->mScroller)
+//    {
+//      if(d > 0.)
+//        mActiveMenuPanel->ScrollUp();
+//      else
+//        mActiveMenuPanel->ScrollDown();
+//    }
+//
+//    SetDirty(false);
+//  }
+}
+
 void IPopupMenuControl::DrawPanelBackground(IGraphics& g, const IRECT& bounds, IBlend* blend)
 {
   g.FillRoundRect(COLOR_WHITE, bounds, mRoundness, blend);
