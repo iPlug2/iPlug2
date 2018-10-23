@@ -1,28 +1,30 @@
 #!/usr/bin/env bash
 set -e
 
-BASE_LOCATION="$PWD/Libs"
-BUILD_LOCATION="$BASE_LOCATION/build-mac"
-INSTALL_LOCATION="$BASE_LOCATION/install"
+BASE_LOCATION="$PWD/../Build"
+BUILD_LOCATION="$BASE_LOCATION/src"
+INSTALL_LOCATION="$BASE_LOCATION/mac"
 INCLUDE_PATH="$INSTALL_LOCATION/include"
 LIB_PATH="$INSTALL_LOCATION/lib"
 BIN_PATH="$INSTALL_LOCATION/bin"
 LOG_PATH="$BASE_LOCATION"
-CAIRO_VERSION=cairo-1.15.12
-FREETYPE_VERSION=freetype-2.9
+LOG_NAME="build-mac.log"
+
+CAIRO_VERSION=cairo-1.16.0
+FREETYPE_VERSION=freetype-2.9.1
 PKGCONFIG_VERSION=pkg-config-0.28
 PIXMAN_VERSION=pixman-0.34.0
 EXPAT_VERSION=expat-2.2.5
 PNG_VERSION=libpng-1.6.34
-
+ZLIB_VERSION=zlib-1.2.11
 
 err_report() {
     echo
     echo "*******************************************************************************"
-    echo "Error: something went wrong during the build process, printing build.log "
+    echo "Error: something went wrong during the build process, printing $LOG_NAME "
     echo "*******************************************************************************"
     echo
-    cat $LOG_PATH/build.log
+    cat $LOG_PATH/$LOG_NAME
 }
 
 trap err_report ERR
@@ -49,7 +51,7 @@ cd "${0%/*}"
 echo
 echo "###################################################################################"
 echo
-echo "     This script will download and build libraries required for IPlug/IGraphics on macOS,"
+echo "     This script will download and build libraries required for IGraphics on macOS,"
 echo "     please relax and have a cup of tea, it'll take a while..."
 echo
 echo "###################################################################################"
@@ -81,11 +83,11 @@ export CFLAGS="-Os -arch i386 -arch x86_64"
 export CXXFLAGS="-Os -arch i386 -arch x86_64"
 
 # remove old log file if exists
-if [ -e $LOG_PATH/build.log ]
+if [ -e $LOG_PATH/$LOG_NAME ]
 then
-    rm $LOG_PATH/build.log
+    rm $LOG_PATH/$LOG_NAME
 else
-    touch $LOG_PATH/build.log
+    touch $LOG_PATH/$LOG_NAME
 fi
 
 #######################################################################
@@ -105,13 +107,13 @@ fi
 #     curl -O -L --progress-bar http://www.bzip.org/1.0.6/bzip2-1.0.6.tar.gz
 #   fi
 #   echo "Unpacking..."
-#   tar -xf bzip2-1.0.6.tar.gz >> $LOG_PATH/build.log 2>&1
+#   tar -xf bzip2-1.0.6.tar.gz >> $LOG_PATH/$LOG_NAME 2>&1
 #   cd bzip2-1.0.6
 #   echo -n "Building..."
-#   echo "---------------------------- Build bzip2 ----------------------------" >> $LOG_PATH/build.log 2>&1
-#   make CFLAGS="$CFLAGS -Wno-format" PREFIX="$INSTALL_LOCATION" -s install >> $LOG_PATH/build.log 2>&1 &
+#   echo "---------------------------- Build bzip2 ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
+#   make CFLAGS="$CFLAGS -Wno-format" PREFIX="$INSTALL_LOCATION" -s install >> $LOG_PATH/$LOG_NAME 2>&1 &
 #   spin
-#   make -s clean >> $LOG_PATH/build.log 2>&1 &
+#   make -s clean >> $LOG_PATH/$LOG_NAME 2>&1 &
 #   spin
 #   echo "done."
 #   echo "bzip2 Installed!"
@@ -139,18 +141,18 @@ else
   tar xfz $PKGCONFIG_VERSION.tar.gz
   cd $PKGCONFIG_VERSION
   echo -n "Configuring..."
-  echo "---------------------------- Configure pkg-config ----------------------------" >> $LOG_PATH/build.log 2>&1
-  ./configure CFLAGS="-Os -arch x86_64" LDFLAGS="-arch x86_64" --prefix "$INSTALL_LOCATION" --with-internal-glib >> $LOG_PATH/build.log 2>&1 &
+  echo "---------------------------- Configure pkg-config ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
+  ./configure CFLAGS="-Os -arch x86_64" LDFLAGS="-arch x86_64" --prefix "$INSTALL_LOCATION" --with-internal-glib >> $LOG_PATH/$LOG_NAME 2>&1 &
   spin
   echo "done."
   echo -n "Building..."
-  echo "---------------------------- Build pkg-config ----------------------------" >> $LOG_PATH/build.log 2>&1
-  #make -s RUN_FC_CACHE_TEST=false -s install >> $LOG_PATH/build.log 2>&1 &
+  echo "---------------------------- Build pkg-config ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
+  #make -s RUN_FC_CACHE_TEST=false -s install >> $LOG_PATH/$LOG_NAME 2>&1 &
   #spin
-  make -s install >> $LOG_PATH/build.log 2>&1 &
-  #>> $LOG_PATH/build.log 2>&1 &
+  make -s install >> $LOG_PATH/$LOG_NAME 2>&1 &
+  #>> $LOG_PATH/$LOG_NAME 2>&1 &
   spin
-  make -s clean >> $LOG_PATH/build.log 2>&1 &
+  make -s clean >> $LOG_PATH/$LOG_NAME 2>&1 &
   spin
   echo "done."
   echo "pkg-config Installed!"
@@ -178,15 +180,15 @@ fi
 #   tar -jxf "$EXPAT_VERSION.tar.bz2"
 #   cd $EXPAT_VERSION
 #   echo -n "Configuring..."
-#   echo "---------------------------- Configure expat ----------------------------" >> $LOG_PATH/build.log 2>&1
-#   ./configure --disable-shared --enable-static --prefix "$INSTALL_LOCATION" >> $LOG_PATH/build.log 2>&1 &
+#   echo "---------------------------- Configure expat ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
+#   ./configure --disable-shared --enable-static --prefix "$INSTALL_LOCATION" >> $LOG_PATH/$LOG_NAME 2>&1 &
 #   spin
 #   echo "done."
 #   echo -n "Building..."
-#   echo "---------------------------- Build expat ----------------------------" >> $LOG_PATH/build.log 2>&1
-#   make -s install >> $LOG_PATH/build.log 2>&1 &
+#   echo "---------------------------- Build expat ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
+#   make -s install >> $LOG_PATH/$LOG_NAME 2>&1 &
 #   spin
-#   make -s clean >> $LOG_PATH/build.log 2>&1 &
+#   make -s clean >> $LOG_PATH/$LOG_NAME 2>&1 &
 #   spin
 #   echo "done."
 #   echo
@@ -204,26 +206,26 @@ else
   COPTZL="-Wno-shift-negative-value"
   echo
   echo "Installing zlib"
-  if [ -e zlib-1.2.11.tar.gz ]
+  if [ -e $ZLIB_VERSION.tar.gz ]
   then
     echo "Tarball Present..."
   else
     echo "Downloading..."
-    curl -L --progress-bar -O https://www.zlib.net/zlib-1.2.11.tar.gz
+    curl -L --progress-bar -O https://www.zlib.net/$ZLIB_VERSION.tar.gz
   fi
   echo "Unpacking..."
-  tar -xf zlib-1.2.11.tar.gz
-  cd zlib-1.2.11
+  tar -xf $ZLIB_VERSION.tar.gz
+  cd $ZLIB_VERSION
   echo -n "Configuring..."
-  echo "---------------------------- Configure zlib ----------------------------" >> $LOG_PATH/build.log 2>&1
-  ./configure --static --archs="-arch i386 -arch x86_64" --prefix "$INSTALL_LOCATION" >> $LOG_PATH/build.log 2>&1 &
+  echo "---------------------------- Configure zlib ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
+  ./configure --static --archs="-arch i386 -arch x86_64" --prefix "$INSTALL_LOCATION" >> $LOG_PATH/$LOG_NAME 2>&1 &
   spin
   echo "done."
   echo -n "Building..."
-  echo "---------------------------- Build zlib ----------------------------" >> $LOG_PATH/build.log 2>&1
-  make CFLAGS="$CFLAGS $COPTZL" -s install >> $LOG_PATH/build.log 2>&1 &
+  echo "---------------------------- Build zlib ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
+  make CFLAGS="$CFLAGS $COPTZL" -s install >> $LOG_PATH/$LOG_NAME 2>&1 &
   spin
-  make -s clean >> $LOG_PATH/build.log 2>&1 &
+  make -s clean >> $LOG_PATH/$LOG_NAME 2>&1 &
   spin
   echo "done."
   echo
@@ -252,15 +254,15 @@ else
   tar -xf $PNG_VERSION.tar.xz
   cd $PNG_VERSION
   echo -n "Configuring..."
-  echo "---------------------------- Configure libpng ----------------------------" >> $LOG_PATH/build.log 2>&1
-  ./configure --disable-dependency-tracking --enable-static --disable-shared --prefix "$INSTALL_LOCATION" >> $LOG_PATH/build.log 2>&1 &
+  echo "---------------------------- Configure libpng ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
+  ./configure --disable-dependency-tracking --enable-static --disable-shared --prefix "$INSTALL_LOCATION" >> $LOG_PATH/$LOG_NAME 2>&1 &
   spin
   echo "done."
   echo -n "Building..."
-  echo "---------------------------- Build libpng ----------------------------" >> $LOG_PATH/build.log 2>&1
-  make -s install  >> $LOG_PATH/build.log 2>&1 &
+  echo "---------------------------- Build libpng ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
+  make -s install  >> $LOG_PATH/$LOG_NAME 2>&1 &
   spin
-  make -s clean >> $LOG_PATH/build.log 2>&1 &
+  make -s clean >> $LOG_PATH/$LOG_NAME 2>&1 &
   spin
   echo "done."
   echo
@@ -290,15 +292,15 @@ else
   tar -xf $PIXMAN_VERSION.tar.gz
   cd $PIXMAN_VERSION
   echo -n "Configuring..."
-  echo "---------------------------- Configure pixman ----------------------------" >> $LOG_PATH/build.log 2>&1
-  ./configure --enable-static --disable-dependency-tracking --disable-gtk --prefix "$INSTALL_LOCATION" PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" >> $LOG_PATH/build.log 2>&1 &
+  echo "---------------------------- Configure pixman ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
+  ./configure --enable-static --disable-dependency-tracking --disable-gtk --prefix "$INSTALL_LOCATION" PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" >> $LOG_PATH/$LOG_NAME 2>&1 &
   spin
   echo "done."
   echo -n "Building..."
-  echo "---------------------------- Build pixman ----------------------------" >> $LOG_PATH/build.log 2>&1
-  make CFLAGS="-DHAVE_CONFIG_H $COPTPX $CFLAGS" -s install >> $LOG_PATH/build.log 2>&1 &
+  echo "---------------------------- Build pixman ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
+  make CFLAGS="-DHAVE_CONFIG_H $COPTPX $CFLAGS" -s install >> $LOG_PATH/$LOG_NAME 2>&1 &
   spin
-  make -s clean >> $LOG_PATH/build.log 2>&1 &
+  make -s clean >> $LOG_PATH/$LOG_NAME 2>&1 &
   spin
   echo "done."
   echo
@@ -331,15 +333,15 @@ else
   tar -xf $FREETYPE_VERSION.tar.gz
   cd $FREETYPE_VERSION
   echo -n "Configuring..."
-  echo "---------------------------- Configure freetype ----------------------------" >> $LOG_PATH/build.log 2>&1
-  ./configure --prefix "$INSTALL_LOCATION" --disable-shared --enable-biarch-config --without-zlib --without-bzip2 PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" >> $LOG_PATH/build.log 2>&1 &
+  echo "---------------------------- Configure freetype ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
+  ./configure --prefix "$INSTALL_LOCATION" --disable-shared --enable-biarch-config --without-zlib --without-bzip2 PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" >> $LOG_PATH/$LOG_NAME 2>&1 &
   spin
   echo "done."
   echo -n "Building..."
-  echo "---------------------------- Build freetype ----------------------------" >> $LOG_PATH/build.log 2>&1
-  make -s install >> $LOG_PATH/build.log 2>&1 &
+  echo "---------------------------- Build freetype ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
+  make -s install >> $LOG_PATH/$LOG_NAME 2>&1 &
   spin
-  make -s clean >> $LOG_PATH/build.log 2>&1 &
+  make -s clean >> $LOG_PATH/$LOG_NAME 2>&1 &
   spin
   echo "done."
   echo
@@ -374,15 +376,15 @@ fi
 #   tar -xf fontconfig-2.12.6.tar
 #   cd fontconfig-2.12.6
 #   echo -n "Configuring..."
-#   echo "---------------------------- Configure fontconfig ----------------------------" >> $LOG_PATH/build.log 2>&1
-#   ./configure --disable-dependency-tracking --disable-shared --enable-static --silent CFLAGS="$CFLAGS $COPTFC" --prefix "$INSTALL_LOCATION" LDFLAGS="$LDFLAGS -L$LIB_PATH" LIBS="-lbz2" PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" >> $LOG_PATH/build.log 2>&1 &
+#   echo "---------------------------- Configure fontconfig ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
+#   ./configure --disable-dependency-tracking --disable-shared --enable-static --silent CFLAGS="$CFLAGS $COPTFC" --prefix "$INSTALL_LOCATION" LDFLAGS="$LDFLAGS -L$LIB_PATH" LIBS="-lbz2" PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" >> $LOG_PATH/$LOG_NAME 2>&1 &
 #   spin
 #   echo "done."
 #   echo -n "Building..."
-#   echo "---------------------------- Build fontconfig ----------------------------" >> $LOG_PATH/build.log 2>&1
-#   make -s RUN_FC_CACHE_TEST=false -s install >> $LOG_PATH/build.log 2>&1 &
+#   echo "---------------------------- Build fontconfig ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
+#   make -s RUN_FC_CACHE_TEST=false -s install >> $LOG_PATH/$LOG_NAME 2>&1 &
 #   spin
-#   make -s clean >> $LOG_PATH/build.log 2>&1 2>&1 &
+#   make -s clean >> $LOG_PATH/$LOG_NAME 2>&1 2>&1 &
 #   spin
 #   echo "done."
 #   echo "fontconfig Installed!"
@@ -405,21 +407,21 @@ else
     echo "Tarball Present..."
   else
     echo "Downloading..."
-    curl -L --progress-bar -O http://cairographics.org/snapshots/$CAIRO_VERSION.tar.xz
+    curl -L --progress-bar -O https://cairographics.org/releases/$CAIRO_VERSION.tar.xz
   fi
   echo "Unpacking..."
   tar -xf $CAIRO_VERSION.tar.xz
   cd $CAIRO_VERSION
   echo -n "Configuring..."
-  echo "---------------------------- Configure cairo ----------------------------" >> $LOG_PATH/build.log 2>&1
-  ./configure --disable-shared --enable-static --disable-dependency-tracking --disable-svg --disable-pdf --disable-ps --disable-fc --enable-quartz-image=yes --disable-interpreter --disable-trace CFLAGS="$CFLAGS $COPTCR" --prefix "$INSTALL_LOCATION" PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" LDFLAGS="$LDFLAGS -framework CoreFoundation -framework CoreGraphics -framework CoreText" >> $LOG_PATH/build.log 2>&1 &
+  echo "---------------------------- Configure cairo ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
+  ./configure --disable-shared --enable-static --disable-dependency-tracking --disable-svg --disable-pdf --disable-ps --disable-fc --enable-quartz-image=yes --disable-interpreter --disable-trace CFLAGS="$CFLAGS $COPTCR" --prefix "$INSTALL_LOCATION" PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" LDFLAGS="$LDFLAGS -framework CoreFoundation -framework CoreGraphics -framework CoreText" >> $LOG_PATH/$LOG_NAME 2>&1 &
   spin
   echo "done."
   echo -n "Building..."
-  echo "---------------------------- Build cairo ----------------------------" >> $LOG_PATH/build.log 2>&1
-  make -s install >> $LOG_PATH/build.log 2>&1 &
+  echo "---------------------------- Build cairo ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
+  make -s install >> $LOG_PATH/$LOG_NAME 2>&1 &
   spin
-  make -s clean >> $LOG_PATH/build.log 2>&1 &
+  make -s clean >> $LOG_PATH/$LOG_NAME 2>&1 &
   spin
   echo "done."
   echo "cairo Installed!"
@@ -442,3 +444,5 @@ file "$LIB_PATH/libfreetype.a"
 # file "$LIB_PATH/libfontconfig.a"
 file "$LIB_PATH/libcairo.a"
 exit
+
+#rm -r $BUILD_LOCATION
