@@ -7,7 +7,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <PreprocessorDefinitions>PNG_WRITE_SUPPORTED;_LIB; PNG_USE_PNGVCRD; PNG_LIBPNG_SPECIALBUILD; __MMX__; PNG_HAVE_MMX_COMBINE_ROW; PNG_HAVE_MMX_READ_INTERLACE; PNG_HAVE_MMX_READ_FILTER_ROW</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_LIB; PNG_USE_PNGVCRD; PNG_LIBPNG_SPECIALBUILD; __MMX__; PNG_HAVE_MMX_COMBINE_ROW; PNG_HAVE_MMX_READ_INTERLACE; PNG_HAVE_MMX_READ_FILTER_ROW</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup />
