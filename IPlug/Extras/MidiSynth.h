@@ -133,7 +133,7 @@ public:
 
 public:
 #pragma mark - Engine class
-  MidiSynth(EPolyMode polyMode = kPolyModePoly, int blockSize = 16);
+  MidiSynth(EPolyMode polyMode = kPolyModePoly, int blockSize = 16, int nUnisonVoices = 1);
   ~MidiSynth();
 
   void Reset()
@@ -144,7 +144,7 @@ public:
     HardKillAllVoices();
   }
 
-  void SetSampleRateAndBlockSize(double sampleRate, int blockSize);
+  virtual void SetSampleRateAndBlockSize(double sampleRate, int blockSize);
   
   /** If you are using this class in a non-traditional mode of polyphony (e.g.to stack loads of voices) you might want to manually SetVoicesActive()
    * usually this would happen when you trigger notes
@@ -154,12 +154,17 @@ public:
     mVoicesAreActive = active;
   }
   
-  void SetPolyMode(EPolyMode mode)
+  virtual void SetPolyMode(EPolyMode mode)
   {
     mPolyMode = mode; //TODO: implement click safe solution
   }
-
-  void SetATMode(EATMode mode)
+  
+  void SetUnisonVoices(int nVoices)
+  {
+    mUnisonVoices = (uint16_t) Clip(nVoices, 1, NVoices());
+  }
+  
+  virtual void SetATMode(EATMode mode)
   {
     mATMode = mode; //TODO: implement click safe solution
   }
@@ -177,6 +182,16 @@ public:
   int NVoices() const
   {
     return mVS.GetSize();
+  }
+  
+  int NUnisonVoices() const
+  {
+    return mUnisonVoices;
+  }
+  
+  EPolyMode GetPolyMode() const
+  {
+    return mPolyMode;
   }
 
   void AddVoice(Voice* pVoice)
@@ -206,7 +221,7 @@ public:
    * @param nOutputs input channels that contain valid data
    * @param nFrames The number of sample frames to process
    * @return \c true if the synth is silent */
-  bool ProcessBlock(sample** inputs, sample** outputs, int nInputs, int nOutputs, int nFrames);
+  virtual bool ProcessBlock(sample** inputs, sample** outputs, int nInputs, int nOutputs, int nFrames);
 
 protected:
   /** Override this method if you need to implement a tuning table for microtonal support
@@ -217,7 +232,7 @@ protected:
     return key + mPitchOffset;
   }
 
-private:
+protected:
   void NoteOnOffMono(const IMidiMsg& msg);
 
   void NoteOnOffPoly(const IMidiMsg& msg);
