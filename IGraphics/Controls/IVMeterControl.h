@@ -16,7 +16,7 @@ public:
     
     bool AboveThreshold()
     {
-      static const float threshold = DBToAmp(-90.);
+      static const float threshold = DBToAmp(-90.f);
 
       float sum = 0.f;
       

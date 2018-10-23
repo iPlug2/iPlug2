@@ -431,10 +431,10 @@ struct IMatrix
   void Rotate(float a)
   {
     a = DegToRad(a);
-    const double c = cos(a);
-    const double s = sin(a);
+    const float c = std::cos(a);
+    const float s = std::sin(a);
     
-    IMatrix multiplier(c, s, -s, c, 0.0, 0.0);
+    IMatrix multiplier(c, s, -s, c, 0.f, 0.f);
     Transform(multiplier);
   }
   
