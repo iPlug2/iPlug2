@@ -15,126 +15,126 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-access-accessors.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-access-accessors.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-access.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-access.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-arm.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-arm.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-bits-image.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-bits-image.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-combine-float.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-combine-float.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-combine32.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-combine32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-conical-gradient.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-conical-gradient.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-edge-accessors.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-edge-accessors.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-edge.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-edge.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-fast-path.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-fast-path.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-filter.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-filter.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-general.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-general.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-glyph.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-glyph.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-gradient-walker.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-gradient-walker.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-image.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-image.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-implementation.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-implementation.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-linear-gradient.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-linear-gradient.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-matrix.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-matrix.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-mips.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-mips.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-mmx.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-mmx.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-noop.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-noop.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-ppc.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-ppc.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-radial-gradient.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-radial-gradient.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-region16.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-region16.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-region32.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-region32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-solid-fill.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-solid-fill.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-sse2.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-sse2.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-ssse3.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-ssse3.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-timer.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-timer.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-trap.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-trap.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-utils.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-utils.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman-x86.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman-x86.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)..\pixman\pixman\pixman.c">
+    <ClCompile Include="..\..\..\Build\src\pixman\pixman\pixman.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="$(ProjectDir)..\pixman\pixman\pixman-accessor.h">
+    <ClInclude Include="..\..\..\Build\src\pixman\pixman\pixman-accessor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="$(ProjectDir)..\pixman\pixman\pixman-combine32.h">
+    <ClInclude Include="..\..\..\Build\src\pixman\pixman\pixman-combine32.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="$(ProjectDir)..\pixman\pixman\pixman-compiler.h">
+    <ClInclude Include="..\..\..\Build\src\pixman\pixman\pixman-compiler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="$(ProjectDir)..\pixman\pixman\pixman-edge-imp.h">
+    <ClInclude Include="..\..\..\Build\src\pixman\pixman\pixman-edge-imp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="$(ProjectDir)..\pixman\pixman\pixman-inlines.h">
+    <ClInclude Include="..\..\..\Build\src\pixman\pixman\pixman-inlines.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="$(ProjectDir)..\pixman\pixman\pixman-private.h">
+    <ClInclude Include="..\..\..\Build\src\pixman\pixman\pixman-private.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="$(ProjectDir)..\pixman\pixman\pixman.h">
+    <ClInclude Include="..\..\..\Build\src\pixman\pixman\pixman.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

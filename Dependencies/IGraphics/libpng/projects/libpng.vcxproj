@@ -19,30 +19,30 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\WDL\libpng\png.c" />
-    <ClCompile Include="..\..\..\..\WDL\libpng\pngerror.c" />
-    <ClCompile Include="..\..\..\..\WDL\libpng\pngget.c" />
-    <ClCompile Include="..\..\..\..\WDL\libpng\pngmem.c" />
-    <ClCompile Include="..\..\..\..\WDL\libpng\pngpread.c" />
-    <ClCompile Include="..\..\..\..\WDL\libpng\pngread.c" />
-    <ClCompile Include="..\..\..\..\WDL\libpng\pngrio.c" />
-    <ClCompile Include="..\..\..\..\WDL\libpng\pngrtran.c" />
-    <ClCompile Include="..\..\..\..\WDL\libpng\pngrutil.c" />
-    <ClCompile Include="..\..\..\..\WDL\libpng\pngset.c" />
-    <ClCompile Include="..\..\..\..\WDL\libpng\pngtrans.c" />
-    <ClCompile Include="..\..\..\..\WDL\libpng\pngwio.c" />
-    <ClCompile Include="..\..\..\..\WDL\libpng\pngwrite.c" />
-    <ClCompile Include="..\..\..\..\WDL\libpng\pngwtran.c" />
-    <ClCompile Include="..\..\..\..\WDL\libpng\pngwutil.c" />
+    <ClCompile Include="..\..\..\Build\src\libpng\png.c" />
+    <ClCompile Include="..\..\..\Build\src\libpng\pngerror.c" />
+    <ClCompile Include="..\..\..\Build\src\libpng\pngget.c" />
+    <ClCompile Include="..\..\..\Build\src\libpng\pngmem.c" />
+    <ClCompile Include="..\..\..\Build\src\libpng\pngpread.c" />
+    <ClCompile Include="..\..\..\Build\src\libpng\pngread.c" />
+    <ClCompile Include="..\..\..\Build\src\libpng\pngrio.c" />
+    <ClCompile Include="..\..\..\Build\src\libpng\pngrtran.c" />
+    <ClCompile Include="..\..\..\Build\src\libpng\pngrutil.c" />
+    <ClCompile Include="..\..\..\Build\src\libpng\pngset.c" />
+    <ClCompile Include="..\..\..\Build\src\libpng\pngtrans.c" />
+    <ClCompile Include="..\..\..\Build\src\libpng\pngwio.c" />
+    <ClCompile Include="..\..\..\Build\src\libpng\pngwrite.c" />
+    <ClCompile Include="..\..\..\Build\src\libpng\pngwtran.c" />
+    <ClCompile Include="..\..\..\Build\src\libpng\pngwutil.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\WDL\libpng\png.h" />
-    <ClInclude Include="..\..\..\..\WDL\libpng\pngconf.h" />
-    <ClInclude Include="..\..\..\..\WDL\libpng\pngdebug.h" />
-    <ClInclude Include="..\..\..\..\WDL\libpng\pnginfo.h" />
-    <ClInclude Include="..\..\..\..\WDL\libpng\pnglibconf.h" />
-    <ClInclude Include="..\..\..\..\WDL\libpng\pngpriv.h" />
-    <ClInclude Include="..\..\..\..\WDL\libpng\pngstruct.h" />
+    <ClInclude Include="..\..\..\Build\src\libpng\png.h" />
+    <ClInclude Include="..\..\..\Build\src\libpng\pngconf.h" />
+    <ClInclude Include="..\..\..\Build\src\libpng\pngdebug.h" />
+    <ClInclude Include="..\..\..\Build\src\libpng\pnginfo.h" />
+    <ClInclude Include="..\..\..\Build\src\libpng\pnglibconf.h" />
+    <ClInclude Include="..\..\..\Build\src\libpng\pngpriv.h" />
+    <ClInclude Include="..\..\..\Build\src\libpng\pngstruct.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <RootNamespace>libpng</RootNamespace>

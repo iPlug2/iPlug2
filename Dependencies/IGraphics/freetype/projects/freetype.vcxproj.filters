@@ -14,138 +14,138 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\freetype\src\base\ftdebug.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\autofit\autofit.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\autofit\autofit.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\bdf\bdf.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\bdf\bdf.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\cff\cff.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\cff\cff.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\base\ftbase.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\base\ftbase.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\base\ftbitmap.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\base\ftbitmap.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\cache\ftcache.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\cache\ftcache.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\base\ftfstype.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\base\ftfstype.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\base\ftgasp.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\base\ftgasp.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\base\ftglyph.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\base\ftglyph.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\gzip\ftgzip.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\gzip\ftgzip.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\base\ftinit.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\base\ftinit.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\lzw\ftlzw.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\lzw\ftlzw.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\base\ftstroke.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\base\ftstroke.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\base\ftsystem.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\base\ftsystem.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\smooth\smooth.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\smooth\smooth.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\base\ftbbox.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\base\ftbbox.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\base\ftmm.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\base\ftmm.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\base\ftpfr.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\base\ftpfr.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\base\ftsynth.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\base\ftsynth.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\base\fttype1.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\base\fttype1.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\base\ftwinfnt.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\base\ftwinfnt.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\base\ftlcdfil.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\base\ftlcdfil.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\base\ftgxval.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\base\ftgxval.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\base\ftotval.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\base\ftotval.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\base\ftpatent.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\base\ftpatent.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\pcf\pcf.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\pcf\pcf.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\pfr\pfr.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\pfr\pfr.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\psaux\psaux.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\psaux\psaux.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\pshinter\pshinter.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\pshinter\pshinter.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\psnames\psmodule.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\psnames\psmodule.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\raster\raster.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\raster\raster.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\sfnt\sfnt.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\sfnt\sfnt.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\truetype\truetype.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\truetype\truetype.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\type1\type1.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\type1\type1.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\cid\type1cid.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\cid\type1cid.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\type42\type42.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\type42\type42.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\winfonts\winfnt.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="$(ProjectDir)\..\freetype\src\winfonts\winfnt.c">
+    <ClCompile Include="..\..\..\Build\src\freetype\src\base\ftdebug.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="freetype\include\ft2build.h">
+    <ClInclude Include="..\..\..\Build\src\freetype\include\ft2build.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="freetype\include\freetype\config\ftconfig.h">
+    <ClInclude Include="..\..\..\Build\src\freetype\include\freetype\config\ftconfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="freetype\include\freetype\config\ftheader.h">
+    <ClInclude Include="..\..\..\Build\src\freetype\include\freetype\config\ftheader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="freetype\include\freetype\config\ftmodule.h">
+    <ClInclude Include="..\..\..\Build\src\freetype\include\freetype\config\ftmodule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="freetype\include\freetype\config\ftoption.h">
+    <ClInclude Include="..\..\..\Build\src\freetype\include\freetype\config\ftoption.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="freetype\include\freetype\config\ftstdlib.h">
+    <ClInclude Include="..\..\..\Build\src\freetype\include\freetype\config\ftstdlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

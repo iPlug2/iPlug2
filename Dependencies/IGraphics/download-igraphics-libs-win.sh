@@ -8,9 +8,11 @@ INSTALL_DIR="$BUILD_DIR/win"
 LOG_PATH="$BUILD_DIR"
 LOG_NAME="build-win.log"
 
-# CAIRO_VERSION=cairo-1.15.12
-FREETYPE_VERSION=freetype-2.9
+CAIRO_VERSION=cairo-1.16.0
+FREETYPE_VERSION=freetype-2.9.1
+PKGCONFIG_VERSION=pkg-config-0.28
 PIXMAN_VERSION=pixman-0.34.0
+EXPAT_VERSION=expat-2.2.5
 PNG_VERSION=libpng-1.6.34
 ZLIB_VERSION=zlib-1.2.11
 
@@ -83,38 +85,44 @@ fi
 #######################################################################
 
 #zlib
-# if [ -d "zlib" ]
-# then
-  # echo "Found zlib"
-# else
-  # echo "Installing zlib"
-  # if [ -e $ZLIB_VERSION.tar.gz ]
-  # then
-    # echo "Tarball Present..."
-  # else
-    # echo "Downloading zlib"
-    # curl -L --progress-bar -O https://www.zlib.net/$ZLIB_VERSION.tar.gz
-  # fi
-  # echo "Unpacking zlib..."
-  # tar -xf $ZLIB_VERSION.tar.gz
-  # mv $ZLIB_VERSION $IGRAPHICS_DIR/libpng/zlib
-# fi
+if [ -d "zlib" ]
+then
+  echo "Found zlib"
+else
+  echo "Installing zlib"
+  if [ -e $ZLIB_VERSION.tar.gz ]
+  then
+    echo "Tarball Present..."
+  else
+    echo "Downloading zlib"
+    curl -L --progress-bar -O https://www.zlib.net/$ZLIB_VERSION.tar.gz
+  fi
+  echo "Unpacking zlib..."
+  tar -xf $ZLIB_VERSION.tar.gz
+  mv $ZLIB_VERSION zlib
+fi
 
 #######################################################################
 
 #libpng
-# if [ -d "libpng" ]
- # then
-   # echo "Found libpng"
- # else
+if [ -d "libpng" ]
+ then
+   echo "Found libpng"
+ else
+  echo "Downloading libpng..."
+  curl -L --progress-bar -O http://github.com/glennrp/libpng-releases/raw/master/$PNG_VERSION.tar.xz
+    echo "Unpacking..."
+  tar -xf $PNG_VERSION.tar.xz
+  mv $PNG_VERSION libpng
 # echo
 # echo "Installing libpng"
   # git clone https://git.code.sf.net/p/libpng/code libpng
   # cd libpng
   # git checkout -b build libpng-1.6.9-signed
+  # rm -r .git
   # cd ..
-  # mv libpng $IGRAPHICS_DIR/libpng/libpng
-# fi
+  cp libpng/scripts/pnglibconf.h.prebuilt libpng/pnglibconf.h
+fi
   
 #######################################################################
 
@@ -134,7 +142,7 @@ if [ -d "pixman" ]
   echo "Unpacking..."
   tar -xf $PIXMAN_VERSION.tar.gz
   
-  mv $PIXMAN_VERSION $IGRAPHICS_DIR/cairo/pixman
+  mv $PIXMAN_VERSION pixman
 fi
 
 #######################################################################
@@ -155,7 +163,7 @@ else
   fi
   echo "Unpacking..."
   tar -xf $FREETYPE_VERSION.tar.gz
-  mv $FREETYPE_VERSION $IGRAPHICS_DIR/freetype/freetype
+  mv $FREETYPE_VERSION freetype
 fi
 
 #######################################################################
@@ -169,8 +177,8 @@ else
   git clone git://git.cairographics.org/git/cairo cairo
   cd cairo
   git checkout -b build 1.16.0
+  rm -r -f .git
   cd ..
-  mv cairo $IGRAPHICS_DIR/cairo/cairo
 fi
 
 
