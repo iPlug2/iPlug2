@@ -51,8 +51,12 @@ ifdef DEBUG
 CFLAGS += -O0 -g -D_DEBUG
 else
 CFLAGS += -O2 -DNDEBUG
-  ifneq ($(COMPILER),CLANG)
-    CFLAGS += -s
+  ifdef DEBUG_INFO
+    CFLAGS += -g
+  else
+    ifneq ($(COMPILER),CLANG)
+      CFLAGS += -s
+    endif
   endif
 endif
 
@@ -114,6 +118,10 @@ ifndef NOGDK
     CFLAGS += -DSWELL_FREETYPE $(shell $(PKG_CONFIG) --cflags freetype2)
     ifndef PRELOAD_GDK
       LINKEXTRA += $(shell $(PKG_CONFIG) --libs freetype2)
+    endif
+    ifndef NOFONTCONFIG
+      CFLAGS += -DSWELL_FONTCONFIG
+      LINKEXTRA += -lfontconfig
     endif
   endif
 endif

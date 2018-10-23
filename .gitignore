@@ -42,7 +42,7 @@ Ports/*
 *.pyc
 /IPlug/AUv3
 /Dependencies/IGraphics/glew/
-/Dependencies/Libraries
+/Dependencies/Build
 /Dependencies/IGraphics/freetype/freetype
 /Dependencies/IGraphics/cairo/cairo
 /Dependencies/IGraphics/cairo/pixman

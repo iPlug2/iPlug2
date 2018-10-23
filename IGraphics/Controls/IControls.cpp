@@ -76,8 +76,8 @@ void IVRadioButtonControl::Draw(IGraphics& g)
   for (int i = 0; i < mNumStates; i++)
   {
     IRECT r = mButtons.Get()[i];
-    DrawVectorButton(g, r.FracRectHorizontal(0.25).GetCentredInside(10), i == hit , mMouseIsOver);
-    r = r.FracRectHorizontal(0.7, true);
+    DrawVectorButton(g, r.FracRectHorizontal(0.25f).GetCentredInside(10.f), i == hit , mMouseIsOver);
+    r = r.FracRectHorizontal(0.7f, true);
     i == hit ? mText.mFGColor = COLOR_WHITE : mText.mFGColor = COLOR_BLACK;
     g.DrawText(mText, mLabels.Get(i)->Get(), r);
   }
