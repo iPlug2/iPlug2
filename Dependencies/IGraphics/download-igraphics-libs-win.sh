@@ -74,7 +74,7 @@ cd "$DL_DIR"
 
 echo
 
-# remove old log file if exists
+
 if [ -e $LOG_PATH/$LOG_NAME ]
 then
     rm $LOG_PATH/$LOG_NAME
