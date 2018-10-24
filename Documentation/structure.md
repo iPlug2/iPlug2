@@ -33,7 +33,7 @@ TODO: explain
 | IPlugEffect.h                             | Source code - plugin's interface                                                                                   |
 | IPlugEffect.rc                            | WIN .rc resource file                                                                                              |
 | IPlugEffect.sln                           | "Visual Studio 2017 solution for WIN VST2, VST3 and standalone builds"                                             |
-| IPlugEffect.xcconfig                      | Xcode xcconfig file to provide settings that span various targets (includes ../../common.xcconfig)                 | 
+| IPlugEffect.xcconfig                      | Xcode xcconfig file to provide settings that span various targets (includes ../../common-mac.xcconfig)                 | 
 | IPlugEffect.xcodeproj                     | main xcode project (3.2) for all macOS builds                                                                      |
 | makedist-mac.command                      | macOS script to build all binaries and package them in an installer with accompanying files                        |
 | makedist-win.bat                          | WIN script to build all binaries and package them in an installer with accompanying files                          |

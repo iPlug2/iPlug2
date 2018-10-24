@@ -439,7 +439,6 @@
 		4F5369CE20C446430089212E /* MidiSynth.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MidiSynth.h; sourceTree = "<group>"; };
 		4F5369CF20C446430089212E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4F5369D120C446430089212E /* IPlugFaust.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugFaust.h; sourceTree = "<group>"; };
-		4F5369D220C446430089212E /* IPlugFaust_notdone.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = IPlugFaust_notdone.txt; sourceTree = "<group>"; };
 		4F5369D320C446430089212E /* IPlugFaustGen.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaustGen.cpp; sourceTree = "<group>"; };
 		4F5369D420C446430089212E /* IPlugFaust_arch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaust_arch.cpp; sourceTree = "<group>"; };
 		4F5369D520C446430089212E /* IPlugFaustGen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugFaustGen.h; sourceTree = "<group>"; };
@@ -1030,7 +1029,6 @@
 			isa = PBXGroup;
 			children = (
 				4F5369D120C446430089212E /* IPlugFaust.h */,
-				4F5369D220C446430089212E /* IPlugFaust_notdone.txt */,
 				4F5369D320C446430089212E /* IPlugFaustGen.cpp */,
 				4F5369D420C446430089212E /* IPlugFaust_arch.cpp */,
 				4F5369D520C446430089212E /* IPlugFaustGen.h */,
@@ -1796,8 +1794,8 @@
 				4F9828AA140A9EB700F3FCC1 /* VST3 */,
 				4F3AE17812C0E5E2001FD7A4 /* AU */,
 				4FB600121567CB0A0020189A /* AAX */,
-				4F39075F2013EBA300DDA490 /* AUv3 */,
 				4FFBB8F820863B0E00DDD0E7 /* VST3P */,
+				4F39075F2013EBA300DDA490 /* AUv3 */,
 				4FC3EFC32086C0A600BD11FA /* VST3C */,
 			);
 		};

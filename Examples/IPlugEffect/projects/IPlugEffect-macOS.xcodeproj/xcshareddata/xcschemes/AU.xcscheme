@@ -46,7 +46,7 @@
       allowLocationSimulation = "YES">
       <PathRunnable
          runnableDebuggingMode = "0"
-         FilePath = "/Users/oli/Dev/MyPlugins/TestApps/auvaltool">
+         FilePath = "/Applications/Logic Pro X.app">
       </PathRunnable>
       <MacroExpansion>
          <BuildableReference

@@ -20,4 +20,4 @@ However, if you want to install these dependencies with homebrew for any reason,
 
 This will install the following packagaes: cairo, libpng, freetype, fontconfig, pixman, gettext, libffi, pcre, glib, zlib, bzip2, expat
 
-NOTE: you will need to modify common.xcconfig, so that the build setting **STATICLIBS_PATH** refers to the homebrew path, e.g. ```/usr/local```
+NOTE: you will need to modify common-mac.xcconfig, so that the build setting **STATICLIBS_PATH** refers to the homebrew path, e.g. ```/usr/local```
