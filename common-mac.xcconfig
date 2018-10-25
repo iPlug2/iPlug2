@@ -94,6 +94,7 @@ IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(IGRAPHICS_PATH)/Controls $(IGRAPHICS_P
 FAUST_LIB_PATHS = $(BUILT_LIBS_LIB_PATH)
 FAUST_INC_PATHS = $(BUILT_LIBS_INC_PATH) $(WDL_PATH)/win32_curses
 FAUST_DEFS = DEFAULT_FAUST_LIBRARY_PATH=$(BUILT_LIBS_LIB_PATH)/share/faust/
+//FAUST_LNK_FLAGS = $(BUILT_LIBS_LIB_PATH)/lib/libfaust.dylib
 
 // *****  LINKER/LIBRARY INCLUDE PATHS AND LINKER FLAGS
 
@@ -119,7 +120,6 @@ APP_FRAMEWORKS = -framework AppKit -framework CoreMidi -framework CoreAudio
 AU_FRAMEWORKS = -framework AudioToolbox -framework AudioUnit -framework CoreAudio -framework CoreMidi
 AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework CoreAudio -framework CoreAudioKit
 
-FAUST_LNK_FLAGS = $(DEPS_PATH)/Libraries/lib/libfaust.dylib
 
 // ***** BINARY OUTPUT LOCATIONS ------------------------------------------------------------------------------------------------------------------------
 
