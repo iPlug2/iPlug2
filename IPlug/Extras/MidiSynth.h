@@ -213,7 +213,22 @@ public:
 
     mMidiQueue.Add(quantizedMsg);
   }
+  
+  double GetModWheel() const
+  {
+    return mModWheel;
+  }
+  
+  double GetPitchBend() const
+  {
+    return mPitchBend;
+  }
 
+  double GetSampleRate() const
+  {
+    return mSampleRate;
+  }
+  
   /** Processes a block of audio samples
    * @param inputs Pointer to input Arrays
    * @param outputs Pointer to output Arrays
