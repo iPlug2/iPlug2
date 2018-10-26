@@ -177,9 +177,8 @@ void IPlugAPIBase::SendMidiMsgFromUI(const IMidiMsg& msg)
 
 void IPlugAPIBase::SendSysexMsgFromUI(const ISysEx& msg)
 {
-  //TODO:
-  
-  EDITOR_DELEGATE_CLASS::SendSysexMsgFromUI(msg);
+  DeferSysexMsg(msg); // queue the message so that it will be handled by the processor
+  EDITOR_DELEGATE_CLASS::SendSysexMsgFromUI(msg); // for remote editors
 }
 
 void IPlugAPIBase::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData)

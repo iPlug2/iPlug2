@@ -76,7 +76,7 @@ public:
 
   //IEditorDelegate
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
-  void SendSysexMsgFromUI(const ISysEx& msg) override { /* TODO */ };
+  void SendSysexMsgFromUI(const ISysEx& msg) override;
   void SendArbitraryMsgFromUI(int messageTag, int controlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) override;
 
 private:

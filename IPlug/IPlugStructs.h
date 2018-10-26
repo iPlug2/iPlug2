@@ -33,6 +33,26 @@ struct IParamChange
   bool normalized; // TODO: Remove this
 };
 
+/** This structure is used when queueing Sysex messages. You may need to set MAX_SYSEX_SIZE to reflect the max sysex payload in bytes */
+struct SysExData
+{
+  SysExData(int offset = 0, int size = 0, const void* pData = 0)
+  : mOffset(offset)
+  , mSize(size)
+  {
+    assert(size < MAX_SYSEX_SIZE);
+    
+    if (pData)
+      memcpy(mData, pData, size);
+    else
+      memset(mData, 0, MAX_SYSEX_SIZE);
+  }
+  
+  int mOffset;
+  int mSize;
+  uint8_t mData[MAX_SYSEX_SIZE];
+};
+
 /** A helper class for IBtyeChunk and IBtyeStream that avoids code duplication **/
 struct IByteGetter
 {

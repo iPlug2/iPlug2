@@ -449,6 +449,19 @@ void IPlugVST3Controller::SendMidiMsgFromUI(const IMidiMsg& msg)
   sendMessage(message);
 }
 
+void IPlugVST3Controller::SendSysexMsgFromUI(const ISysEx& msg)
+{
+  OPtr<IMessage> message = allocateMessage();
+  
+  if (!message)
+    return;
+  
+  message->setMessageID ("SSMFUI");
+  message->getAttributes ()->setInt ("O", (int64) msg.mOffset);
+  message->getAttributes ()->setBinary ("D", msg.mData, msg.mSize);
+  sendMessage(message);
+}
+
 void IPlugVST3Controller::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData)
 {
   OPtr<IMessage> message = allocateMessage();

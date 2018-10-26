@@ -428,6 +428,12 @@ tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
   //    if (eventList)
   //    {
   //      Event event;
+  
+  //  while (mSysexDataFromEditor.Pop(mSysexBuf))
+  //  {
+  //    ISysEx smsg {mSysexBuf.mOffset, mSysexBuf.mData, mSysexBuf.mSize};
+  //    ProcessSysEx(smsg);
+  //  }
   //
   //      while (!mMidiOutputQueue.Empty()) {
   //        //TODO: parse events and add

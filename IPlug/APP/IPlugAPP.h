@@ -50,6 +50,10 @@ public:
   void InformHostOfProgramChange() override {};
   void ResizeGraphics(int viewWidth, int viewHeight, float scale) override;
 
+  //IEditorDelegate
+  // SendSysexMsgFromUI overridden here, to avoid unnecessarily queueing sysex data up
+  void SendSysexMsgFromUI(const ISysEx& msg) override;
+  
   //IPlugProcessor
   bool SendMidiMsg(const IMidiMsg& msg) override;
   bool SendSysEx(ISysEx& msg) override;

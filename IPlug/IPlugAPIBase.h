@@ -168,6 +168,11 @@ public:
   void SendArbitraryMsgFromUI(int messageTag, int controlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) override;
   
   void DeferMidiMsg(const IMidiMsg& msg) override { mMidiMsgsFromEditor.Push(msg); }
+  void DeferSysexMsg(const ISysEx& msg) override
+  {
+    SysExData data(msg.mOffset, msg.mSize, msg.mData); // copies data
+    mSysexDataFromEditor.Push(data);
+  }
 
   void CreateTimer();
   
@@ -186,6 +191,8 @@ public:
   IPlugQueue<IParamChange> mParamChangeFromProcessor {PARAM_TRANSFER_SIZE};
   IPlugQueue<IMidiMsg> mMidiMsgsFromEditor {MIDI_TRANSFER_SIZE}; // a queue of midi messages received from the editor, by clicking keyboard UI etc
   IPlugQueue<IMidiMsg> mMidiMsgsFromProcessor {MIDI_TRANSFER_SIZE};
+  IPlugQueue<SysExData> mSysexDataFromEditor {SYSEX_TRANSFER_SIZE};
   WDL_String mParamDisplayStr;
   Timer* mTimer = nullptr;
+  SysExData mSysexBuf;
 };

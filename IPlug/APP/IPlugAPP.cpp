@@ -82,7 +82,6 @@ bool IPlugAPP::SendSysEx(ISysEx& msg)
   if (DoesMIDI() && mAppHost->mMidiOut)
   {
     //TODO: midi out channel
-
     std::vector<uint8_t> message;
     
     for (int i = 0; i < msg.mSize; i++)
@@ -95,6 +94,11 @@ bool IPlugAPP::SendSysEx(ISysEx& msg)
   }
   
   return false;
+}
+
+void IPlugAPP::SendSysexMsgFromUI(const ISysEx& msg)
+{
+  SendSysEx(const_cast<ISysEx&>(msg));
 }
 
 void IPlugAPP::AppProcess(double** inputs, double** outputs, int nFrames)
@@ -116,6 +120,13 @@ void IPlugAPP::AppProcess(double** inputs, double** outputs, int nFrames)
   {
     ProcessMidiMsg(msg);
   }
+
+  // SendSysexMsgFromUI overridden
+//  while (mSysexDataFromEditor.Pop(mSysexBuf))
+//  {
+//    ISysEx smsg {mSysexBuf.mOffset, mSysexBuf.mData, mSysexBuf.mSize};
+//    ProcessSysEx(smsg);
+//  }
   
   _ProcessBuffers(0.0, GetBlockSize());
 }

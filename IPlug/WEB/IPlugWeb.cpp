@@ -79,23 +79,29 @@ void IPlugWeb::SendMidiMsgFromUI(const IMidiMsg& msg)
 
 void IPlugWeb::SendSysexMsgFromUI(const ISysEx& msg)
 {
-#if WEBSOCKET_CLIENT
-  mSSMFUIBuf.Resize(kNumSSMFUIBytes + msg.mSize);
-  int pos = kNumMsgTagBytes;
-  
-  *((int*)(mSSMFUIBuf.GetBytes() + pos)) = msg.mSize; pos += sizeof(int);
-  memcpy(mSSMFUIBuf.GetBytes() + pos, msg.mData, msg.mSize);
+  EM_ASM({
+    window[Module.Pointer_stringify($0)]["midiOut"].send(0x90, 0x45, 0x7f);
+  }, mWAMCtrlrJSObjectName.Get());
 
-  EM_ASM({
-    var jsbuff = Module.HEAPU8.subarray($0, $0 + $1);
-    ws.send(jsbuff);
-  }, (int) mSSMFUIBuf.GetBytes(), mSSMFUIBuf.Size());
-#else
-  EM_ASM({
-    var jsbuff = Module.HEAPU8.subarray($2, $2 + $1);
-    window[Module.Pointer_stringify($0)].sendMessage('SSMFUI', $1, jsbuff);
-  }, mWAMCtrlrJSObjectName.Get(), msg.mSize, (int) msg.mData);
-#endif
+//  val::global(mWAMCtrlrJSObjectName.Get())["midiOut"].call<void>("send", {0x90, 0x45, 0x7f} );
+  
+//#if WEBSOCKET_CLIENT
+//  mSSMFUIBuf.Resize(kNumSSMFUIBytes + msg.mSize);
+//  int pos = kNumMsgTagBytes;
+//
+//  *((int*)(mSSMFUIBuf.GetBytes() + pos)) = msg.mSize; pos += sizeof(int);
+//  memcpy(mSSMFUIBuf.GetBytes() + pos, msg.mData, msg.mSize);
+//
+//  EM_ASM({
+//    var jsbuff = Module.HEAPU8.subarray($0, $0 + $1);
+//    ws.send(jsbuff);
+//  }, (int) mSSMFUIBuf.GetBytes(), mSSMFUIBuf.Size());
+//#else
+//  EM_ASM({
+//    var jsbuff = Module.HEAPU8.subarray($2, $2 + $1);
+//    window[Module.Pointer_stringify($0)].sendMessage('SSMFUI', $1, jsbuff);
+//  }, mWAMCtrlrJSObjectName.Get(), msg.mSize, (int) msg.mData);
+//#endif
 }
 
 void IPlugWeb::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData)
