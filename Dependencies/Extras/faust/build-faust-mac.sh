@@ -14,7 +14,7 @@ if [ -d "$FAUST_REPO_DIR" ]
 then
   echo faust repo exists
 else
-  git clone git@github.com:grame-cncm/faust.git $FAUST_REPO_DIR
+  git clone https://github.com/grame-cncm/faust.git $FAUST_REPO_DIR
 fi
 cd $FAUST_CMAKE_BUILD_DIR
 cmake -C $DEPS_DIR/iplug-backends.cmake -C $DEPS_DIR/iplug-targets-mac.cmake -DINCLUDE_STATIC=on -DINCLUDE_DYNAMIC=on -DINCLUDE_OSC=off -DINCLUDE_HTTP=off -DUNIVERSAL=off ../faust/build
