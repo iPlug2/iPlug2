@@ -241,8 +241,9 @@ public:
   bool SaveBankAsFXPs(const char* path) { return false; }
   
   //VST3 format
-  bool SaveProgramAsVSTPreset(const char* file) { return false; }
-  bool LoadProgramFromVSTPreset(const char* file) { return false; }
+  void MakeVSTPresetChunk(IByteChunk& chunk, IByteChunk& componentState, IByteChunk& controllerState);
+  bool SaveProgramAsVSTPreset(const char* file);
+  bool LoadProgramFromVSTPreset(const char* file);
   bool SaveBankAsVSTPresets(const char* path) { return false; }
   
   //AU format
