@@ -2466,6 +2466,7 @@
 			buildSettings = {
 				DSTROOT = "$(VST2_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST2_DEFS)",
 					"$(VST2_DEFS)",
 					"$(inherited)",
@@ -2483,6 +2484,7 @@
 			buildSettings = {
 				DSTROOT = "$(VST2_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST2_DEFS)",
 					"$(VST2_DEFS)",
 					"$(inherited)",
@@ -2500,6 +2502,7 @@
 			buildSettings = {
 				DSTROOT = "$(VST2_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST2_DEFS)",
 					"$(VST2_DEFS)",
 					"$(inherited)",
@@ -2535,6 +2538,7 @@
 				EXECUTABLE_EXTENSION = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_AUv3_DEFS)",
 					"$(AUv3_DEFS)",
 					"$(inherited)",
@@ -2582,6 +2586,7 @@
 				EXECUTABLE_EXTENSION = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_AUv3_DEFS)",
 					"$(AUv3_DEFS)",
 					"$(inherited)",
@@ -2629,6 +2634,7 @@
 				EXECUTABLE_EXTENSION = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_AUv3_DEFS)",
 					"$(AUv3_DEFS)",
 					"$(inherited)",
@@ -2657,6 +2663,7 @@
 			buildSettings = {
 				DSTROOT = "$(AU_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_AU_DEFS)",
 					"$(AU_DEFS)",
 					"$(inherited)",
@@ -2683,6 +2690,7 @@
 			buildSettings = {
 				DSTROOT = "$(AU_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_AU_DEFS)",
 					"$(AU_DEFS)",
 					"$(inherited)",
@@ -2709,6 +2717,7 @@
 			buildSettings = {
 				DSTROOT = "$(AU_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_AU_DEFS)",
 					"$(AU_DEFS)",
 					"$(inherited)",
@@ -2763,6 +2772,7 @@
 			buildSettings = {
 				DSTROOT = "$(VST3_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST3_DEFS)",
 					"$(VST3_DEFS)",
 					"$(inherited)",
@@ -2783,6 +2793,7 @@
 			buildSettings = {
 				DSTROOT = "$(VST3_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST3_DEFS)",
 					"$(VST3_DEFS)",
 					"$(inherited)",
@@ -2803,6 +2814,7 @@
 			buildSettings = {
 				DSTROOT = "$(VST3_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST3_DEFS)",
 					"$(VST3_DEFS)",
 					"$(inherited)",
@@ -2829,6 +2841,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_AAX_DEFS)",
 					"$(AAX_DEFS)",
 					"$(EXTRA_DEBUG_DEFS)",
@@ -2879,6 +2892,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_AAX_DEFS)",
 					"$(AAX_DEFS)",
 					"$(EXTRA_RELEASE_DEFS)",
@@ -2938,6 +2952,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_AAX_DEFS)",
 					"$(AAX_DEFS)",
 					"$(EXTRA_TRACER_DEFS)",
@@ -2999,6 +3014,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST3C_DEFS)",
 					"$(VST3C_DEFS)",
 					"$(inherited)",
@@ -3033,6 +3049,7 @@
 				EXECUTABLE_PREFIX = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST3C_DEFS)",
 					"$(VST3C_DEFS)",
 					"$(inherited)",
@@ -3098,7 +3115,6 @@
 					"$(inherited)",
 				);
 				HEADER_SEARCH_PATHS = (
-					"$(EXTRA_APP_INC_PATHS)",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "../resources/IPlugEffect-macOS-Info.plist";
@@ -3130,7 +3146,6 @@
 					"$(inherited)",
 				);
 				HEADER_SEARCH_PATHS = (
-					"$(EXTRA_APP_INC_PATHS)",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "../resources/IPlugEffect-macOS-Info.plist";
@@ -3162,7 +3177,6 @@
 					"$(inherited)",
 				);
 				HEADER_SEARCH_PATHS = (
-					"$(EXTRA_APP_INC_PATHS)",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "../resources/IPlugEffect-macOS-Info.plist";
@@ -3185,6 +3199,7 @@
 			buildSettings = {
 				DSTROOT = "$(VST3_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST3P_DEFS)",
 					"$(VST3P_DEFS)",
 					"$(inherited)",
@@ -3205,6 +3220,7 @@
 			buildSettings = {
 				DSTROOT = "$(VST3_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST3P_DEFS)",
 					"$(VST3P_DEFS)",
 					"$(inherited)",
@@ -3225,6 +3241,7 @@
 			buildSettings = {
 				DSTROOT = "$(VST3_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST3P_DEFS)",
 					"$(VST3P_DEFS)",
 					"$(inherited)",
