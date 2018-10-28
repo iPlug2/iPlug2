@@ -107,7 +107,10 @@ def parse_xcconfig(configFile):
       extractStringElement(line, 'BASE_SDK_MAC')
 
       if "MACOSX_DEPLOYMENT_TARGET = " in line:
-        xcconfig['MACOSX_DEPLOYMENT_TARGET'] = line[len("MACOSX_DEPLOYMENT_TARGET = "):-1].strip('\"') + ".0"
+        xcconfig['DEPLOYMENT_TARGET'] = line[len("MACOSX_DEPLOYMENT_TARGET = "):-1].strip('\"') + ".0"
+
+      if "IPHONEOS_DEPLOYMENT_TARGET = " in line:
+        xcconfig['DEPLOYMENT_TARGET'] = line[len("IPHONEOS_DEPLOYMENT_TARGET = "):-1].strip('\"') + ".0"
 
   fileinput.close()
 

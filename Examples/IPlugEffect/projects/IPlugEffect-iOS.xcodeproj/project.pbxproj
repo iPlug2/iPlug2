@@ -74,6 +74,7 @@
 		4F9A830D213DE87600BE63A4 /* IVMeterControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8304213DE87600BE63A4 /* IVMeterControl.h */; };
 		4F9A830E213DE87600BE63A4 /* IVKeyboardControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8305213DE87600BE63A4 /* IVKeyboardControl.h */; };
 		4F9A830F213DE87600BE63A4 /* IVScopeControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8306213DE87600BE63A4 /* IVScopeControl.h */; };
+		4FA758462186222E00F1BCC3 /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FA758452186222E00F1BCC3 /* IPlugPaths.mm */; };
 		4FADA9C420C20367003075D3 /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = 4FC82B4820BD524700722133 /* fonts */; };
 		4FADA9C520C20367003075D3 /* img in Resources */ = {isa = PBXBuildFile; fileRef = 4FC82B4720BD524700722133 /* img */; };
 		4FB2269720A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard */; };
@@ -270,6 +271,7 @@
 		4F9A8304213DE87600BE63A4 /* IVMeterControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVMeterControl.h; sourceTree = "<group>"; };
 		4F9A8305213DE87600BE63A4 /* IVKeyboardControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVKeyboardControl.h; sourceTree = "<group>"; };
 		4F9A8306213DE87600BE63A4 /* IVScopeControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVScopeControl.h; sourceTree = "<group>"; };
+		4FA758452186222E00F1BCC3 /* IPlugPaths.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugPaths.mm; path = ../../../IPlug/IPlugPaths.mm; sourceTree = "<group>"; };
 		4FB2269620A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = "IPlugEffect-iOS-launchScreen.storyboard"; path = "../resources/IPlugEffect-iOS-launchScreen.storyboard"; sourceTree = "<group>"; };
 		4FB2269A20A0D3B900614769 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ../../../IPlug/AUv3/IOSApp/AppDelegate.swift; sourceTree = "<group>"; };
 		4FBBD7F420B6ABE700A37DE2 /* config */ = {isa = PBXFileReference; lastKnownFileType = folder; name = config; path = ../config; sourceTree = "<group>"; };
@@ -590,6 +592,7 @@
 				4FFF103D20A0E55A00D3092F /* IPlugMidi.h */,
 				4FFF103E20A0E55A00D3092F /* IPlugLogger.h */,
 				4FF3204920B2BC4C00269268 /* IPlugPaths.h */,
+				4FA758452186222E00F1BCC3 /* IPlugPaths.mm */,
 			);
 			name = IPlug;
 			sourceTree = "<group>";
@@ -908,6 +911,7 @@
 			files = (
 				4F9A830A213DE87600BE63A4 /* IPopupMenuControl.cpp in Sources */,
 				4F977D8520CCA5FB00D19F46 /* GenericUI.swift in Sources */,
+				4FA758462186222E00F1BCC3 /* IPlugPaths.mm in Sources */,
 				4F6369C320A463AF0022C370 /* IGraphics.cpp in Sources */,
 				4F23CECB20B20C6400E8B70F /* IGraphicsNanoVG.cpp in Sources */,
 				4F6C621420CD60DF002B117F /* IPlugTimer.mm in Sources */,
@@ -1000,7 +1004,6 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugEffect-iOS-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1048,7 +1051,6 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugEffect-iOS-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugEffectApp;
@@ -1107,7 +1109,6 @@
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugEffect-iOS-Framework-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1170,7 +1171,6 @@
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugEffect-iOS-Framework-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
@@ -1227,7 +1227,6 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugEffect-iOS-AUv3-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1272,7 +1271,6 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugEffect-iOS-AUv3-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugEffectApp.IPlugEffectAppExtension;
