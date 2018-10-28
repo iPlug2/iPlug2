@@ -29,7 +29,7 @@ EXTRA_ALL_DEFS = OBJC_PREFIX=vIPlugEffect SWELL_APP_PREFIX=Swell_vIPlugEffect IG
 //Enable/Disable Profiling code
 PROFILE = NO //NO, YES - enable this if you want to use instruments to profile a plugin
 
-// GCC optimization level -
+// Optimization level -
 // None: [-O0] Fast: [-O, -O1] Faster:[-O2] Fastest: [-O3] Fastest, smallest: Optimize for size. [-Os]
 RELEASE_OPTIMIZE = 3 //0,1,2,3,s
 
@@ -47,3 +47,6 @@ GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO
 
 // Flags to pass to compiler for all builds
 GCC_CFLAGS = -Wno-write-strings -mfpmath=sse -msse -msse2 -msse3 -mavx
+
+// uncomment this to enable codesigning - necessary for AUv3 delivery
+//CODE_SIGN_IDENTITY=Mac Developer

@@ -26,7 +26,7 @@ def main():
   CFBundleVersion = config['FULL_VER_STR']
   CFBundlePackageType = "BNDL"
   CSResourcesFileMapped = True
-  LSMinimumSystemVersion = xcconfig['DEPLOYMENT_TARGET']
+  LSMinimumSystemVersion = xcconfig['MACOSX_DEPLOYMENT_TARGET']
 
   print "Copying resources to shared folder..."
 
