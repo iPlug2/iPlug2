@@ -20,9 +20,7 @@
 #include <cstdio>
 #include <algorithm>
 
-#ifdef TRACER_BUILD
 #include "IPlugLogger.h"
-#endif
 
 /** Encapsulates a MIDI message and provides helper functions */
 struct IMidiMsg
@@ -267,10 +265,11 @@ struct IMidiMsg
     return -1.0;
   }
   
+  /** @return \c true = on */
   static bool ControlChangeOnOff(double msgValue)
   {
     return (msgValue >= 0.5);
-  }  // true = on.
+  }
   
   void Clear()
   {
@@ -278,7 +277,7 @@ struct IMidiMsg
     mStatus = mData1 = mData2 = 0;
   }
   
-  const char* StatusMsgStr(EStatusMsg msg)
+  const char* StatusMsgStr(EStatusMsg msg) const
   {
     switch (msg)
     {
@@ -296,9 +295,12 @@ struct IMidiMsg
   
   void LogMsg()
   {
-#ifdef TRACER_BUILD
     Trace(TRACELOC, "midi:(%s:%d:%d:%d)", StatusMsgStr(StatusMsg()), Channel(), mData1, mData2);
-#endif
+  }
+  
+  void PrintMsg() const
+  {
+    DBGMSG("midi: offset %i, (%s:%d:%d:%d)\n", mOffset, StatusMsgStr(StatusMsg()), Channel(), mData1, mData2);
   }
 };
 
@@ -344,10 +346,8 @@ struct ISysEx
   
   void LogMsg()
   {
-#ifdef TRACER_BUILD
     char str[96];
     Trace(TRACELOC, "sysex:(%d:%s)", mSize, SysExStr(str, sizeof(str), mData, mSize));
-#endif
   }
 
 };
