@@ -193,6 +193,17 @@ void IWebsocketEditorDelegate::ProcessWebsocketQueue()
   {
     IParamChange p;
     mParamChangeFromClients.Pop(p);
+    
+    //FIXME: how do params get updated?
+//    ENTER_PARAMS_MUTEX;
+//    if(p.normalized)
+//      GetParam(p.paramIdx)->SetNormalized(p.value);
+//    else
+//      GetParam(p.paramIdx)->Set(p.value);
+//
+//    OnParamChange(p.paramIdx, kHost);
+//    LEAVE_PARAMS_MUTEX;
+    
     SendParameterValueFromDelegate(p.paramIdx, p.value, p.normalized); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
   }
   
