@@ -196,10 +196,12 @@ void* IGraphicsMac::OpenWindow(void* pParent)
   CloseWindow();
   mView = (IGRAPHICS_VIEW*) [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
   
-  IGRAPHICS_VIEW* view = (IGRAPHICS_VIEW*) mView;
+  IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
 
-  OnViewInitialized([view layer]);
+  OnViewInitialized([pView layer]);
   
+  SetDisplayScale([[NSScreen mainScreen] backingScaleFactor]);
+    
   GetDelegate()->LayoutUI(this);
 
   if (pParent) // Cocoa VST host.
@@ -411,7 +413,7 @@ void IGraphicsMac::UpdateTooltips()
 
   [(IGRAPHICS_VIEW*) mView removeAllToolTips];
 
-  if(mPopupControl && mPopupControl->GetExpanded())
+  if(mPopupControl && mPopupControl->GetState() > IPopupMenuControl::kCollapsed)
   {
     return;
   }

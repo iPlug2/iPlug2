@@ -20,7 +20,7 @@
 WDL_PtrList<Timer_impl> Timer_impl::sTimers;
 
 //static
-Timer* Timer::Create(ITimerCallback& callback, uint32_t intervalMs)
+Timer* Timer::Create(ITimerFunction func, uint32_t intervalMs)
 {
-  return new Timer_impl(callback, intervalMs);
+  return new Timer_impl(func, intervalMs);
 }

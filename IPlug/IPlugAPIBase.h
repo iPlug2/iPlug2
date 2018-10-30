@@ -42,7 +42,6 @@ struct IPlugConfig;
 /** The base class of an IPlug plug-in, which interacts with the different plug-in APIs. No UI framework code here.
  *  This interface does not handle audio processing, see @IPlugProcessor  */
 class IPlugAPIBase : public IPluginBase
-                   , public ITimerCallback
 {
 
 public:
@@ -181,14 +180,12 @@ private:
   //DISTRIBUTED ONLY
   virtual void _TransmitMidiMsgFromProcessor(const IMidiMsg& msg) {};
   
-  void OnTimer(Timer& t) override;
+  void OnTimer(Timer& t);
 
 public:
-
-  IPlugQueue<IParamChange> mParamChangeFromProcessor;
-  IPlugQueue<IMidiMsg> mMidiMsgsFromEditor {32}; // a queue of midi messages received from the editor, by clicking keyboard UI etc
-  IPlugQueue<IMidiMsg> mMidiMsgsFromProcessor {32};
-  
+  IPlugQueue<IParamChange> mParamChangeFromProcessor {PARAM_TRANSFER_SIZE};
+  IPlugQueue<IMidiMsg> mMidiMsgsFromEditor {MIDI_TRANSFER_SIZE}; // a queue of midi messages received from the editor, by clicking keyboard UI etc
+  IPlugQueue<IMidiMsg> mMidiMsgsFromProcessor {MIDI_TRANSFER_SIZE};
   WDL_String mParamDisplayStr;
   Timer* mTimer = nullptr;
 };

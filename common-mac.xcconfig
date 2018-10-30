@@ -12,7 +12,7 @@ CLANG_CXX_LANGUAGE_STANDARD = c++11
 CLANG_CXX_LIBRARY = libc++
 
 // the minimum OS to support
-DEPLOYMENT_TARGET = 10.11
+MACOSX_DEPLOYMENT_TARGET = 10.11
 
 SHARED_PRECOMPS_DIR = $(TARGET_BUILD_DIR)/PCH
 
@@ -26,7 +26,7 @@ RELEASE_DEFS = RELEASE=1 NDEBUG=1
 TRACER_DEFS = $DEBUG_DEFS TRACER_BUILD // here you can change if a TRACER build is a DEBUG or RELEASE build
 
 // macros for individual plug-in format builds etc
-ALL_DEFS = NOMINMAX
+ALL_DEFS = NOMINMAX 
 PLUGIN_DEFS = SWELL_CLEANUP_ON_UNLOAD // macros for all plug-in builds
 VST2_DEFS = VST2_API $PLUGIN_DEFS IPLUG_EDITOR=1 IPLUG_DSP=1
 VST3_DEFS = VST3_API $PLUGIN_DEFS IPLUG_EDITOR=1 IPLUG_DSP=1
@@ -49,7 +49,7 @@ PKGMAN_PATH = /usr/local
 DEPS_PATH = $(ROOT)/Dependencies
 
 // if you want to use the homebrew or macports package managers, rather than building static libraries yourself (not advised) you can modify the BUILT_LIBS_PATH build setting to point to PKGMAN_PATH
-BUILT_LIBS_PATH = $(DEPS_PATH)/Libraries
+BUILT_LIBS_PATH = $(DEPS_PATH)/Build/mac
 BUILT_LIBS_INC_PATH = $(BUILT_LIBS_PATH)/include
 BUILT_LIBS_LIB_PATH = $(BUILT_LIBS_PATH)/lib
 
@@ -57,16 +57,24 @@ BUILT_LIBS_LIB_PATH = $(BUILT_LIBS_PATH)/lib
 WDL_PATH = $(ROOT)/WDL
 SWELL_PATH = $(WDL_PATH)/swell
 IPLUG_PATH = $(ROOT)/IPlug
-EXTRAS_PATH = $(IPLUG_PATH)/Extras
-
-CIVETWEB_PATH = $(DEPS_PATH)/Extras/Civetweb/include
-JSON11_PATH = $(DEPS_PATH)/Extras/json11
-YOGA_PATH = $(DEPS_PATH)/IGraphics/yoga/yoga
-PUGL_PATH = $(DEPS_PATH)/pugl
 RTAUDIO_PATH = $(DEPS_PATH)/IPlug/RTAudio
 RTMIDI_PATH = $(DEPS_PATH)/IPlug/RTMidi
-EXTRAS_INC_PATHS = $(EXTRAS_PATH) $(EXTRAS_PATH)/Faust $(EXTRAS_PATH)/OSC $(EXTRAS_PATH)/HIIR $(EXTRAS_PATH)/WebSocket $(CIVETWEB_PATH) $(JSON11_PATH) $(RTAUDIO_PATH) $(RTMIDI_PATH)
 
+EXTRAS_PATH = $(IPLUG_PATH)/Extras
+JSON11_PATH = $(DEPS_PATH)/Extras/json11
+YOGA_PATH = $(DEPS_PATH)/IGraphics/yoga/yoga
+PUGL_PATH = $(DEPS_PATH)/Extras/pugl
+
+//faust is linked as a dynamic library
+FAUST_LIB_PATHS = $(BUILT_LIBS_LIB_PATH)
+FAUST_INC_PATHS = $(BUILT_LIBS_INC_PATH) $(WDL_PATH)/win32_curses
+FAUST_DEFS = DEFAULT_FAUST_LIBRARY_PATH=$(BUILT_LIBS_LIB_PATH)/share/faust/
+//FAUST_LNK_FLAGS = $(BUILT_LIBS_LIB_PATH)/lib/libfaust.dylib
+
+CIVETWEB_INC_PATHS = $(BUILT_LIBS_INC_PATH)
+CIVETWEB_LNK_FLAGS = $(BUILT_LIBS_LIB_PATH)/libcivetweb.a
+
+EXTRAS_INC_PATHS = $(EXTRAS_PATH) $(EXTRAS_PATH)/Faust $(EXTRAS_PATH)/OSC $(EXTRAS_PATH)/HIIR $(EXTRAS_PATH)/WebSocket $(CIVETWEB_PATH) $(JSON11_PATH) $(RTAUDIO_PATH) $(RTMIDI_PATH)
 
 // Plug-in SDK paths
 VST2_SDK = $(DEPS_PATH)/IPlug/VST2_SDK
@@ -90,9 +98,6 @@ FT_PATH = $(BUILT_LIBS_INC_PATH)/freetype2
 //HB_PATH = /usr/local/Cellar/harfbuzz/1.8.7/include/harfbuzz
 // you can optionally include this build setting, by adding it to EXTRA_INC_PATHS in MyProject.xcconfig in order to get all varieties of IGraphics support
 IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(IGRAPHICS_PATH)/Controls $(IGRAPHICS_PATH)/Platforms $(IGRAPHICS_PATH)/Drawing $(LICE_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(AGG_PATH) $(BUILT_LIBS_INC_PATH) $(FT_PATH) //$(HB_PATH)
-
-//FAUST_INC_PATHS = /usr/local/include /usr/local/opt/include
-FAUST_INC_PATHS = $(DEPS_PATH)/Libraries/include $(WDL_PATH)/win32_curses
 
 // *****  LINKER/LIBRARY INCLUDE PATHS AND LINKER FLAGS
 
@@ -118,15 +123,6 @@ APP_FRAMEWORKS = -framework AppKit -framework CoreMidi -framework CoreAudio
 AU_FRAMEWORKS = -framework AudioToolbox -framework AudioUnit -framework CoreAudio -framework CoreMidi
 AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework CoreAudio -framework CoreAudioKit
 
-//LIB_FAUST = /usr/local/lib/libfaust.a
-//LIB_CURSES = /usr/local/opt/ncurses/lib/libncurses.a
-//LLVM = /usr/local/opt/llvm
-
-LIB_FAUST = $(DEPS_PATH)/Libraries/lib/libfaust.a
-LIB_CURSES = $(DEPS_PATH)/Libraries/lib/libncurses.a
-LLVM = $(DEPS_PATH)/Libraries/lib/llvm
-
-FAUST_LNK_FLAGS = $(LIB_FAUST) $(LIB_CURSES) $(LIB_Z) $(LIB_CRYPTO) $(LLVM)/lib/libLLVMLTO.a $(LLVM)/lib/libLLVMPasses.a $(LLVM)/lib/libLLVMObjCARCOpts.a $(LLVM)/lib/libLLVMSymbolize.a $(LLVM)/lib/libLLVMDebugInfoPDB.a $(LLVM)/lib/libLLVMDebugInfoDWARF.a $(LLVM)/lib/libLLVMMIRParser.a $(LLVM)/lib/libLLVMCoverage.a $(LLVM)/lib/libLLVMTableGen.a $(LLVM)/lib/libLLVMDlltoolDriver.a $(LLVM)/lib/libLLVMOrcJIT.a $(LLVM)/lib/libLLVMObjectYAML.a $(LLVM)/lib/libLLVMLibDriver.a $(LLVM)/lib/libLLVMOption.a $(LLVM)/lib/libLLVMX86Disassembler.a $(LLVM)/lib/libLLVMX86AsmParser.a $(LLVM)/lib/libLLVMX86CodeGen.a $(LLVM)/lib/libLLVMGlobalISel.a $(LLVM)/lib/libLLVMSelectionDAG.a $(LLVM)/lib/libLLVMAsmPrinter.a $(LLVM)/lib/libLLVMDebugInfoCodeView.a $(LLVM)/lib/libLLVMDebugInfoMSF.a $(LLVM)/lib/libLLVMX86Desc.a $(LLVM)/lib/libLLVMMCDisassembler.a $(LLVM)/lib/libLLVMX86Info.a $(LLVM)/lib/libLLVMX86AsmPrinter.a $(LLVM)/lib/libLLVMX86Utils.a $(LLVM)/lib/libLLVMMCJIT.a $(LLVM)/lib/libLLVMLineEditor.a $(LLVM)/lib/libLLVMInterpreter.a $(LLVM)/lib/libLLVMExecutionEngine.a $(LLVM)/lib/libLLVMRuntimeDyld.a $(LLVM)/lib/libLLVMCodeGen.a $(LLVM)/lib/libLLVMTarget.a $(LLVM)/lib/libLLVMCoroutines.a $(LLVM)/lib/libLLVMipo.a $(LLVM)/lib/libLLVMInstrumentation.a $(LLVM)/lib/libLLVMVectorize.a $(LLVM)/lib/libLLVMScalarOpts.a $(LLVM)/lib/libLLVMLinker.a $(LLVM)/lib/libLLVMIRReader.a $(LLVM)/lib/libLLVMAsmParser.a $(LLVM)/lib/libLLVMInstCombine.a $(LLVM)/lib/libLLVMTransformUtils.a $(LLVM)/lib/libLLVMBitWriter.a $(LLVM)/lib/libLLVMAnalysis.a $(LLVM)/lib/libLLVMProfileData.a $(LLVM)/lib/libLLVMObject.a $(LLVM)/lib/libLLVMMCParser.a $(LLVM)/lib/libLLVMMC.a $(LLVM)/lib/libLLVMBitReader.a $(LLVM)/lib/libLLVMCore.a $(LLVM)/lib/libLLVMBinaryFormat.a $(LLVM)/lib/libLLVMSupport.a $(LLVM)/lib/libLLVMDemangle.a
 
 // ***** BINARY OUTPUT LOCATIONS ------------------------------------------------------------------------------------------------------------------------
 

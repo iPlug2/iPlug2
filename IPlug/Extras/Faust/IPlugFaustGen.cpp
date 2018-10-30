@@ -618,7 +618,7 @@ void FaustGen::SetAutoRecompile(bool enable)
   if(enable)
   {
     if(sTimer == nullptr)
-      sTimer = Timer::Create(*this, FAUST_RECOMPILE_INTERVAL);
+      sTimer = Timer::Create(std::bind(&FaustGen::OnTimer, this, std::placeholders::_1), FAUST_RECOMPILE_INTERVAL);
   }
   else
   {

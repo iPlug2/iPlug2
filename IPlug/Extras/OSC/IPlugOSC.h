@@ -259,7 +259,7 @@ WDL_PtrList<IODevice > g_devices;
 
 class OSCReciever;
 
-class OSCInterface : public ITimerCallback
+class OSCInterface
 {
 public:
   OSCInterface(int updateRateMs = 100)
@@ -267,7 +267,7 @@ public:
     JNL::open_socketlib();
     
     if(mTimer == nullptr)
-      mTimer = Timer::Create(*this, updateRateMs);
+      mTimer = Timer::Create(std::bind(&OSCInterface::OnTimer, this, std::placeholders::_1), updateRateMs);
   }
   
   virtual ~OSCInterface()

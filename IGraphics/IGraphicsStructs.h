@@ -68,6 +68,8 @@ class LICE_IFont; // TODO: move this
   typedef LICE_IBitmap* BitmapData;
 #elif defined IGRAPHICS_CANVAS
   typedef void* BitmapData;
+#else // NO_IGRAPHICS
+  typedef void* BitmapData;
 #endif
 
 class APIBitmap
@@ -429,10 +431,10 @@ struct IMatrix
   void Rotate(float a)
   {
     a = DegToRad(a);
-    const double c = cos(a);
-    const double s = sin(a);
+    const float c = std::cos(a);
+    const float s = std::sin(a);
     
-    IMatrix multiplier(c, s, -s, c, 0.0, 0.0);
+    IMatrix multiplier(c, s, -s, c, 0.f, 0.f);
     Transform(multiplier);
   }
   
@@ -1061,11 +1063,9 @@ struct IMouseInfo
 };
 
 /** Used to manage a list of rectangular areas and optimize them for drawing to the screen. */
-
 class IRECTList
 {
 public:
-  
   int Size() const { return mRects.GetSize(); }
   
   void Add(const IRECT rect)
@@ -1090,26 +1090,25 @@ public:
   
   IRECT Bounds()
   {
-    IRECT rect = Get(0);
+    IRECT r = Get(0);
     for (auto i = 1; i < mRects.GetSize(); i++)
-      rect = rect.Union(Get(i));
-    return rect;
+      r = r.Union(Get(i));
+    return r;
   }
   
   void PixelAlign()
   {
-    for (int i = 0; i < Size(); i++)
+    for (auto i = 0; i < Size(); i++)
     {
-      IRECT rect = Get(i);
-      rect.PixelAlign();
-      Set(i, rect);
+      IRECT r = Get(i);
+      r.PixelAlign();
+      Set(i, r);
     }
   }
   
   void Optimize()
   {
     // Remove rects that are contained by other rects and intersections
-    
     for (int i = 0; i < Size(); i++)
     {
       for (int j = i + 1; j < Size(); j++)
@@ -1142,7 +1141,6 @@ public:
     }
     
     // Merge any rects that can be merged
-    
     for (int i = 0; i < Size(); i++)
     {
       for (int j = i + 1; j < Size(); j++)
@@ -1225,7 +1223,6 @@ public:
   struct DataKey
   {
     // N.B. - hashID is not guaranteed to be unique
-
     uint32_t hashID;
     WDL_String name;
     double scale;
@@ -1242,11 +1239,11 @@ public:
     int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
     {
-      DataKey* key = mDatas.Get(i);
+      DataKey* pKey = mDatas.Get(i);
 
       // Use the hash id for a quick search and then confirm with the scale and identifier to ensure uniqueness
-      if (key->hashID == hashID && scale == key->scale && !strcmp(str, key->name.Get()))
-        return key->data;
+      if (pKey->hashID == hashID && scale == pKey->scale && !strcmp(str, pKey->name.Get()))
+        return pKey->data;
     }
     return nullptr;
   }
@@ -1285,7 +1282,7 @@ public:
     int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
     {
-      // FIX - this doesn't work - why not?
+      // FIXME: - this doesn't work - why not?
       /*
       DataKey* key = mDatas.Get(i);
       T* data = key->data;

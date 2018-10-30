@@ -30,15 +30,8 @@ void FlashCircleAnimationFunc(IControl* pCaller)
   pCaller->SetDirty(false);
 };
 
-void DefaultClickActionFunc(IControl* pCaller)
-{
-  pCaller->SetAnimation(DefaultAnimationFunc, DEFAULT_ANIMATION_DURATION);
-};
-
-void FlashCircleClickActionFunc(IControl* pCaller)
-{
-  pCaller->SetAnimation(FlashCircleAnimationFunc, DEFAULT_ANIMATION_DURATION);
-}
+void DefaultClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(DefaultAnimationFunc, DEFAULT_ANIMATION_DURATION); };
+void FlashCircleClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(FlashCircleAnimationFunc, DEFAULT_ANIMATION_DURATION); }
 
 IControl::IControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc)
 : mDelegate(dlg)
@@ -341,6 +334,23 @@ void ICaptionControl::Draw(IGraphics& g)
   }
 }
 
+IButtonControlBase::IButtonControlBase(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc)
+: IControl(dlg, bounds, kNoParameter, actionFunc)
+{
+}
+
+void IButtonControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  mValue = 1.;
+  SetDirty(true);
+}
+
+void IButtonControlBase::OnEndAnimation()
+{
+  mValue = 0.;
+  IControl::OnEndAnimation();
+}
+
 ISwitchControlBase::ISwitchControlBase(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc,
   int numStates)
   : IControl(dlg, bounds, paramIdx, actionFunc)
@@ -349,7 +359,7 @@ ISwitchControlBase::ISwitchControlBase(IGEditorDelegate& dlg, IRECT bounds, int 
     mNumStates = (int) GetParam()->GetRange() + 1;
   else
     mNumStates = numStates;
-
+  
   assert(mNumStates > 1);
 }
 
@@ -359,12 +369,20 @@ void ISwitchControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
     mValue = !mValue;
   else
   {
-    const float step = 1.f / float(mNumStates) - 1.f;
+    const double step = 1. / (double(mNumStates) - 1.);
     mValue += step;
-    mValue = fmod(1., mValue);
+    if(mValue > 1.)
+      mValue = 0.;
   }
-
+  
+  mMouseDown = true;
   SetDirty(true);
+}
+
+void ISwitchControlBase::OnMouseUp(float x, float y, const IMouseMod& mod)
+{
+  mMouseDown = false;
+  SetDirty(false);
 }
 
 void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
@@ -419,11 +437,12 @@ IDirBrowseControlBase::~IDirBrowseControlBase()
   mFiles.Empty(true);
   mPaths.Empty(true);
   mPathLabels.Empty(true);
+  mItems.Empty(false);
 }
 
 int IDirBrowseControlBase::NItems()
 {
-  return mFiles.GetSize();
+  return mItems.GetSize();
 }
 
 void IDirBrowseControlBase::AddPath(const char * path, const char * label)
@@ -432,9 +451,26 @@ void IDirBrowseControlBase::AddPath(const char * path, const char * label)
   mPathLabels.Add(new WDL_String(label));
 }
 
+void IDirBrowseControlBase::CollectSortedItems(IPopupMenu* pMenu)
+{
+  int nItems = pMenu->NItems();
+  
+  for (int i = 0; i < nItems; i++)
+  {
+    IPopupMenu::Item* pItem = pMenu->GetItem(i);
+    
+    if(pItem->GetSubmenu())
+      CollectSortedItems(pItem->GetSubmenu());
+    else
+      mItems.Add(pItem);
+  }
+}
+
 void IDirBrowseControlBase::SetUpMenu()
 {
   mFiles.Empty(true);
+  mItems.Empty(false);
+  
   mMainMenu.Clear();
   mSelectedIndex = -1;
 
@@ -453,6 +489,8 @@ void IDirBrowseControlBase::SetUpMenu()
       ScanDirectory(mPaths.Get(p)->Get(), *pNewMenu);
     }
   }
+  
+  CollectSortedItems(&mMainMenu);
 }
 
 void IDirBrowseControlBase::GetSelectedItemLabel(WDL_String& label)
@@ -496,7 +534,7 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
           WDL_String subdir;
           d.GetCurrentFullFN(&subdir);
           IPopupMenu* pNewMenu = new IPopupMenu();
-          parentDirMenu.AddItem(d.GetCurrentFN(), pNewMenu);
+          parentDirMenu.AddItem(d.GetCurrentFN(), pNewMenu, -2);
           ScanDirectory(subdir.Get(), *pNewMenu);
         }
         else
@@ -505,7 +543,8 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
           if (a && a > f && strlen(a) == strlen(mExtension.Get()))
           {
             WDL_String menuEntry = WDL_String(f, (int) (a - f));
-            parentDirMenu.AddItem(new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize()));
+            IPopupMenu::Item* pItem = new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize());
+            parentDirMenu.AddItem(pItem, -2 /* sort alphabetically */);
             WDL_String* pFullPath = new WDL_String("");
             d.GetCurrentFullFN(pFullPath);
             mFiles.Add(pFullPath);

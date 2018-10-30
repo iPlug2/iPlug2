@@ -26,7 +26,6 @@
 
 IPlugAPIBase::IPlugAPIBase(IPlugConfig c, EAPI plugAPI)
   : IPluginBase(c.nParams, c.nPresets)
-  , mParamChangeFromProcessor(512) // TODO: CONSTANT
 {
   mUniqueID = c.uniqueID;
   mMfrID = c.mfrID;
@@ -68,7 +67,7 @@ void IPlugAPIBase::OnHostRequestingImportantParameters(int count, WDL_TypedBuf<i
 
 void IPlugAPIBase::CreateTimer()
 {
-  mTimer = Timer::Create(*this, IDLE_TIMER_RATE);
+  mTimer = Timer::Create(std::bind(&IPlugAPIBase::OnTimer, this, std::placeholders::_1), IDLE_TIMER_RATE);
 }
 
 bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos)
@@ -172,9 +171,8 @@ void IPlugAPIBase::OnTimer(Timer& t)
 
 void IPlugAPIBase::SendMidiMsgFromUI(const IMidiMsg& msg)
 {
-  DeferMidiMsg(msg);
-  
-  EDITOR_DELEGATE_CLASS::SendMidiMsgFromUI(msg);
+  DeferMidiMsg(msg); // queue the message so that it will be handled by the processor
+  EDITOR_DELEGATE_CLASS::SendMidiMsgFromUI(msg); // for remote editors
 }
 
 void IPlugAPIBase::SendSysexMsgFromUI(const ISysEx& msg)
@@ -186,7 +184,7 @@ void IPlugAPIBase::SendSysexMsgFromUI(const ISysEx& msg)
 
 void IPlugAPIBase::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData)
 {
-  OnMessage(messageTag, controlTag, dataSize, pData);
+  OnMessage(messageTag, controlTag, dataSize, pData); // IPlugAPIBase implementation handles non distributed plug-ins - just call OnMessage() directly
   
   EDITOR_DELEGATE_CLASS::SendArbitraryMsgFromUI(messageTag, controlTag, dataSize, pData);
 }

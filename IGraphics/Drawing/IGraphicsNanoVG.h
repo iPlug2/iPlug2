@@ -1,9 +1,89 @@
 #pragma once
 
 #include "IPlugPlatform.h"
+#include "IGraphicsPathBase.h"
 
 #include "nanovg.h"
-#include "IGraphicsPathBase.h"
+
+// Thanks to Olli Wang for much of this macro magic  https://github.com/ollix/moui
+
+//#if !defined IGRAPHICS_GL && !defined IGRAPHICS_METAL
+//  #if defined OS_MAC || defined OS_IOS
+//    #define IGRAPHICS_METAL
+//  #elif defined OS_WIN
+//    #define IGRAPHICS_GL
+//    #define IGRAPHICS_GL2
+//  #elif defined OS_WIN
+//    #error NOT IMPLEMENTED
+//  #elif defined OS_WEB
+//    #define IGRAPHICS_GL
+//    #define IGRAPHICS_GLES2
+//  #endif
+//#endif
+
+#ifdef IGRAPHICS_GL
+  #if defined IGRAPHICS_GLES2
+    #if defined OS_IOS
+      #include <OpenGLES/ES2/gl.h>
+    #elif defined OS_WEB
+      #include <GLES2/gl2.h>
+    #endif
+  #elif defined IGRAPHICS_GLES3
+    #if defined OS_IOS
+      #include <OpenGLES/ES3/gl.h>
+    #elif defined OS_WEB
+      #include <GLES3/gl3.h>
+    #endif
+  #elif defined IGRAPHICS_GL2
+    #if defined OS_WIN
+      #define NANOVG_FBO_VALID 1
+      #include <glad/glad.h>
+    #else
+      #include <OpenGL/gl.h>
+    #endif
+  #endif
+  #include "nanovg_gl_utils.h"
+#elif defined IGRAPHICS_METAL
+  #include "nanovg_mtl.h"
+#else
+  #error you must define either IGRAPHICS_GL or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
+#endif
+
+#if defined IGRAPHICS_GL2
+  #define NANOVG_GL2 1
+  #define nvgCreateContext(flags) nvgCreateGL2(flags)
+  #define nvgDeleteContext(context) nvgDeleteGL2(context)
+#elif defined IGRAPHICS_GLES2
+  #define NANOVG_GLES2 1
+  #define nvgCreateContext(flags) nvgCreateGLES2(flags)
+  #define nvgDeleteContext(context) nvgDeleteGLES2(context)
+#elif defined IGRAPHICS_GL3
+  #define NANOVG_GL3 1
+  #define nvgCreateContext(flags) nvgCreateGL3(flags)
+  #define nvgDeleteContext(context) nvgDeleteGL3(context)
+#elif defined IGRAPHICS_GLES3
+  #define NANOVG_GLES3 1
+  #define nvgCreateContext(flags) nvgCreateGLES3(flags)
+  #define nvgDeleteContext(context) nvgDeleteGLES3(context)
+#elif defined IGRAPHICS_METAL
+  #define nvgCreateContext(layer, flags) nvgCreateMTL(layer, flags)
+  #define nvgDeleteContext(context) nvgDeleteMTL(context)
+  #define nvgBindFramebuffer(fb) mnvgBindFramebuffer(fb)
+  #define nvgCreateFramebuffer(ctx, w, h, flags) mnvgCreateFramebuffer(ctx, w, h, flags)
+  #define nvgDeleteFramebuffer(fb) mnvgDeleteFramebuffer(fb)
+#endif
+
+#ifdef IGRAPHICS_GL
+  #define nvgBindFramebuffer(fb) nvgluBindFramebuffer(fb)
+  #define nvgCreateFramebuffer(ctx, w, h, flags) nvgluCreateFramebuffer(ctx, w, h, flags)
+  #define nvgDeleteFramebuffer(fb) nvgluDeleteFramebuffer(fb)
+#endif
+
+#if defined IGRAPHICS_GL
+typedef NVGLUframebuffer NVGframebuffer;
+#elif defined IGRAPHICS_METAL
+typedef MNVGframebuffer NVGframebuffer;
+#endif
 
 class NanoVGBitmap : public APIBitmap
 {
@@ -17,6 +97,7 @@ private:
 /** IGraphics draw class using NanoVG  
 *   @ingroup DrawClasses
 */
+
 class IGraphicsNanoVG : public IGraphicsPathBase
 {
 public:
@@ -29,6 +110,7 @@ public:
   void EndFrame() override;
   void OnViewInitialized(void* pContext) override;
   void OnViewDestroyed() override;
+  void DrawResize() override;
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
 
@@ -71,7 +153,8 @@ private:
   
   StaticStorage<APIBitmap> mBitmapCache; //not actually static
   NVGcontext* mVG = nullptr;
-#ifdef OS_WIN
+  NVGframebuffer* mMainFrameBuffer = nullptr;
+#if defined OS_WIN
   HGLRC mHGLRC = nullptr;
 #endif
 };

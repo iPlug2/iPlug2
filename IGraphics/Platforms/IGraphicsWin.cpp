@@ -176,19 +176,12 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           return 0; // TODO: check this!
         }
 
-        IRECT dirtyR;
-
-#ifdef IGRAPHICS_NANOVG
-        dirtyR = pGraphics->GetBounds();
-        {
-#else
         IRECTList rects;
-            
+         
         if (pGraphics->IsDirty(rects))
         {
           pGraphics->SetAllControlsClean();
-          dirtyR = rects.Bounds();
-#endif
+          IRECT dirtyR = rects.Bounds();
           dirtyR.ScaleBounds(pGraphics->GetScale());
           RECT r = { (LONG) dirtyR.L, (LONG) dirtyR.T, (LONG) dirtyR.R, (LONG) dirtyR.B };
 
@@ -652,16 +645,15 @@ void* IGraphicsWin::OpenWindow(void* pParent)
   }
 
   sFPS = FPS();
-  mPlugWnd = CreateWindow(wndClassName, "IPlug", WS_CHILD | WS_VISIBLE,
-                          x, y, w, h, mParentWnd, 0, mHInstance, this);
+  mPlugWnd = CreateWindow(wndClassName, "IPlug", WS_CHILD | WS_VISIBLE, x, y, w, h, mParentWnd, 0, mHInstance, this);
 
   HDC dc = GetDC(mPlugWnd);
   SetPlatformContext(dc);
   ReleaseDC(mPlugWnd, dc);
 
-  SetDisplayScale(1);
-
   OnViewInitialized((void*) dc);
+  
+  SetDisplayScale(1); // CHECK!
 
   GetDelegate()->LayoutUI(this);
 
@@ -737,6 +729,7 @@ HWND IGraphicsWin::GetMainWnd()
         mMainWnd = parentWnd;
         parentWnd = GetParent(mMainWnd);
       }
+      
       GetWndClassName(mMainWnd, &mMainWndClassName);
     }
     else if (CStringHasContents(mMainWndClassName.Get()))

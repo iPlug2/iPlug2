@@ -34,13 +34,8 @@
   
   // If we've moved to a window by the time our frame is being set, we can take its scale as our own
   if (self.window)
-  {
     scale = self.window.screen.scale;
-  }
   
-  if(mGraphics)
-    mGraphics->SetDisplayScale(scale);
-
   CGSize drawableSize = self.bounds.size;
   
   // Since drawable size is in pixels, we need to multiply by the scale to move from points to pixels
@@ -133,9 +128,6 @@
 
 - (void)redraw:(CADisplayLink *)displayLink
 {
-  //TODO: this is redrawing every IControl!
-  mGraphics->SetAllControlsDirty();
-  
   IRECTList rects;
   
   if (mGraphics->IsDirty(rects))

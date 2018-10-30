@@ -100,14 +100,14 @@ def parse_xcconfig(configFile):
   xcconfig = {}
 
   xcconfig['BASE_SDK_MAC'] = "macosx10.13"
-  xcconfig['DEPLOYMENT_TARGET'] = "10.7"
+  xcconfig['MACOSX_DEPLOYMENT_TARGET'] = "10.7"
 
   for line in fileinput.input(configFile, inplace=0):
     if not "//" in line:
       extractStringElement(line, 'BASE_SDK_MAC')
 
-      if "DEPLOYMENT_TARGET = " in line:
-        xcconfig['DEPLOYMENT_TARGET'] = line[len("DEPLOYMENT_TARGET = "):-1].strip('\"') + ".0"
+      if "MACOSX_DEPLOYMENT_TARGET = " in line:
+        xcconfig['MACOSX_DEPLOYMENT_TARGET'] = line[len("MACOSX_DEPLOYMENT_TARGET = "):-1].strip('\"') + ".0"
 
   fileinput.close()
 

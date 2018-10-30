@@ -129,9 +129,9 @@ void IPlugWAM::onParam(uint32_t idparam, double value)
   SetParameterValue(idparam, value);
 }
 
-void IPlugWAM::onSysex(byte* msg, uint32_t size)
+void IPlugWAM::onSysex(byte* pData, uint32_t size)
 {
-  ISysEx sysex = {0, msg, (int) size };
+  ISysEx sysex = {0 /* no offset */, pData, (int) size };
   ProcessSysEx(sysex);
   
   WDL_String dataStr;

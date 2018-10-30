@@ -275,7 +275,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   r.size.height = (float) pGraphics->WindowHeight();
   self = [super initWithFrame:r];
   
-#ifdef IGRAPHICS_NANOVG
+#if defined IGRAPHICS_NANOVG && defined IGRAPHICS_METAL
   if (!self.wantsLayer) {
     self.layer = [CAMetalLayer new];
     self.layer.opaque = YES;
@@ -321,20 +321,32 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 - (void) viewDidMoveToWindow
 {
   NSWindow* pWindow = [self window];
+  
   if (pWindow)
   {
     [pWindow makeFirstResponder: self];
     [pWindow setAcceptsMouseMovedEvents: YES];
     
     if (mGraphics)
-    {
-      mGraphics->SetAllControlsDirty();
-    }
+      mGraphics->SetDisplayScale([pWindow backingScaleFactor]);
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(windowResized:) name:NSWindowDidEndLiveResizeNotification
                                                object:pWindow];
   }
+}
+
+- (void) viewDidChangeBackingProperties:(NSNotification *) notification
+{
+  NSWindow* pWindow = [self window];
+  
+  if (!pWindow)
+    return;
+  
+  CGFloat newScale = [pWindow backingScaleFactor];
+  
+  if (newScale != mGraphics->GetDisplayScale())
+    mGraphics->SetDisplayScale(newScale);
 }
 
 // not called for opengl/metal
@@ -343,7 +355,6 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   if (mGraphics)
   {
     //TODO: can we really only get this context on the first draw call?
-
     if (!mGraphics->GetPlatformContext())
     {
         CGContextRef pCGC = nullptr;
@@ -371,25 +382,16 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 - (void) onTimer: (NSTimer*) pTimer
 {
   IRECTList rects;
-#ifdef IGRAPHICS_NANOVG
-  //TODO: this is redrawing every IControl!
-  mGraphics->SetAllControlsDirty();
-  
   if (mGraphics->IsDirty(rects))
   {
     mGraphics->SetAllControlsClean();
-    mGraphics->Draw(rects);
+#if !defined IGRAPHICS_NANOVG
     for (int i = 0; i < rects.Size(); i++)
       [self setNeedsDisplayInRect:ToNSRect(mGraphics, rects.Get(i))];
-  }
 #else
-  if (/*pTimer == mTimer && mGraphics && */mGraphics->IsDirty(rects))
-  {
-    mGraphics->SetAllControlsClean();
-    for (int i = 0; i < rects.Size(); i++)
-      [self setNeedsDisplayInRect:ToNSRect(mGraphics, rects.Get(i))];
-  }
+    mGraphics->Draw(rects); // for metal/opengl drawRect is not called
 #endif
+  }
 }
 
 - (void) getMouseXY: (NSEvent*) pEvent x: (float*) pX y: (float*) pY
@@ -772,21 +774,6 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 - (void) registerToolTip: (IRECT&) bounds
 {
   [self addToolTipRect: ToNSRect(mGraphics, bounds) owner: self userData: nil];
-}
-
-- (void) viewDidChangeBackingProperties:(NSNotification *) notification
-{
-  NSWindow* pWindow = [self window];
-
-  if (!pWindow)
-    return;
-
-  CGFloat newScale = [pWindow backingScaleFactor];
-
-  if (newScale != mGraphics->GetDisplayScale())
-  {
-    mGraphics->SetDisplayScale(newScale);
-  }
 }
 
 - (NSDragOperation)draggingEntered: (id <NSDraggingInfo>) sender

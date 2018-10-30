@@ -439,7 +439,6 @@
 		4F5369CE20C446430089212E /* MidiSynth.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MidiSynth.h; sourceTree = "<group>"; };
 		4F5369CF20C446430089212E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4F5369D120C446430089212E /* IPlugFaust.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugFaust.h; sourceTree = "<group>"; };
-		4F5369D220C446430089212E /* IPlugFaust_notdone.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = IPlugFaust_notdone.txt; sourceTree = "<group>"; };
 		4F5369D320C446430089212E /* IPlugFaustGen.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaustGen.cpp; sourceTree = "<group>"; };
 		4F5369D420C446430089212E /* IPlugFaust_arch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaust_arch.cpp; sourceTree = "<group>"; };
 		4F5369D520C446430089212E /* IPlugFaustGen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugFaustGen.h; sourceTree = "<group>"; };
@@ -1030,7 +1029,6 @@
 			isa = PBXGroup;
 			children = (
 				4F5369D120C446430089212E /* IPlugFaust.h */,
-				4F5369D220C446430089212E /* IPlugFaust_notdone.txt */,
 				4F5369D320C446430089212E /* IPlugFaustGen.cpp */,
 				4F5369D420C446430089212E /* IPlugFaust_arch.cpp */,
 				4F5369D520C446430089212E /* IPlugFaustGen.h */,
@@ -1737,7 +1735,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 0900;
+				LastUpgradeCheck = 0940;
 				TargetAttributes = {
 					4F39075F2013EBA300DDA490 = {
 						CreatedOnToolsVersion = 9.2;
@@ -1796,8 +1794,8 @@
 				4F9828AA140A9EB700F3FCC1 /* VST3 */,
 				4F3AE17812C0E5E2001FD7A4 /* AU */,
 				4FB600121567CB0A0020189A /* AAX */,
-				4F39075F2013EBA300DDA490 /* AUv3 */,
 				4FFBB8F820863B0E00DDD0E7 /* VST3P */,
+				4F39075F2013EBA300DDA490 /* AUv3 */,
 				4FC3EFC32086C0A600BD11FA /* VST3C */,
 			);
 		};
@@ -2313,11 +2311,13 @@
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
@@ -2361,7 +2361,6 @@
 				INSTALL_OWNER = root;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "$(EXTRA_LIB_PATHS)";
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
@@ -2391,11 +2390,13 @@
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
@@ -2439,7 +2440,6 @@
 				INSTALL_OWNER = root;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "$(EXTRA_LIB_PATHS)";
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"$(GCC_CFLAGS)",
@@ -2464,6 +2464,7 @@
 			buildSettings = {
 				DSTROOT = "$(VST2_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST2_DEFS)",
 					"$(VST2_DEFS)",
 					"$(inherited)",
@@ -2481,6 +2482,7 @@
 			buildSettings = {
 				DSTROOT = "$(VST2_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST2_DEFS)",
 					"$(VST2_DEFS)",
 					"$(inherited)",
@@ -2498,6 +2500,7 @@
 			buildSettings = {
 				DSTROOT = "$(VST2_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST2_DEFS)",
 					"$(VST2_DEFS)",
 					"$(inherited)",
@@ -2526,13 +2529,13 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = "IPlugEffect-macOS.entitlements";
-				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 686EDA2T8T;
 				EXECUTABLE_EXTENSION = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_AUv3_DEFS)",
 					"$(AUv3_DEFS)",
 					"$(inherited)",
@@ -2572,7 +2575,6 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = "IPlugEffect-macOS.entitlements";
-				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEVELOPMENT_TEAM = 686EDA2T8T;
@@ -2580,6 +2582,7 @@
 				EXECUTABLE_EXTENSION = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_AUv3_DEFS)",
 					"$(AUv3_DEFS)",
 					"$(inherited)",
@@ -2619,7 +2622,6 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = "IPlugEffect-macOS.entitlements";
-				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEVELOPMENT_TEAM = 686EDA2T8T;
@@ -2627,6 +2629,7 @@
 				EXECUTABLE_EXTENSION = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_AUv3_DEFS)",
 					"$(AUv3_DEFS)",
 					"$(inherited)",
@@ -2655,6 +2658,7 @@
 			buildSettings = {
 				DSTROOT = "$(AU_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_AU_DEFS)",
 					"$(AU_DEFS)",
 					"$(inherited)",
@@ -2681,6 +2685,7 @@
 			buildSettings = {
 				DSTROOT = "$(AU_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_AU_DEFS)",
 					"$(AU_DEFS)",
 					"$(inherited)",
@@ -2707,6 +2712,7 @@
 			buildSettings = {
 				DSTROOT = "$(AU_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_AU_DEFS)",
 					"$(AU_DEFS)",
 					"$(inherited)",
@@ -2761,6 +2767,7 @@
 			buildSettings = {
 				DSTROOT = "$(VST3_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST3_DEFS)",
 					"$(VST3_DEFS)",
 					"$(inherited)",
@@ -2781,6 +2788,7 @@
 			buildSettings = {
 				DSTROOT = "$(VST3_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST3_DEFS)",
 					"$(VST3_DEFS)",
 					"$(inherited)",
@@ -2801,6 +2809,7 @@
 			buildSettings = {
 				DSTROOT = "$(VST3_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST3_DEFS)",
 					"$(VST3_DEFS)",
 					"$(inherited)",
@@ -2827,6 +2836,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_AAX_DEFS)",
 					"$(AAX_DEFS)",
 					"$(EXTRA_DEBUG_DEFS)",
@@ -2877,6 +2887,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_AAX_DEFS)",
 					"$(AAX_DEFS)",
 					"$(EXTRA_RELEASE_DEFS)",
@@ -2936,6 +2947,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_AAX_DEFS)",
 					"$(AAX_DEFS)",
 					"$(EXTRA_TRACER_DEFS)",
@@ -2997,6 +3009,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST3C_DEFS)",
 					"$(VST3C_DEFS)",
 					"$(inherited)",
@@ -3031,6 +3044,7 @@
 				EXECUTABLE_PREFIX = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST3C_DEFS)",
 					"$(VST3C_DEFS)",
 					"$(inherited)",
@@ -3086,7 +3100,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "IPlugEffect-macOS.entitlements";
-				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 686EDA2T8T;
 				DSTROOT = "$(APP_PATH)";
@@ -3095,10 +3108,7 @@
 					"$(APP_DEFS)",
 					"$(inherited)",
 				);
-				HEADER_SEARCH_PATHS = (
-					"$(EXTRA_APP_INC_PATHS)",
-					"$(inherited)",
-				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "../resources/IPlugEffect-macOS-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
@@ -3118,7 +3128,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "IPlugEffect-macOS.entitlements";
-				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 686EDA2T8T;
 				DSTROOT = "$(APP_PATH)";
@@ -3127,10 +3136,7 @@
 					"$(APP_DEFS)",
 					"$(inherited)",
 				);
-				HEADER_SEARCH_PATHS = (
-					"$(EXTRA_APP_INC_PATHS)",
-					"$(inherited)",
-				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "../resources/IPlugEffect-macOS-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
@@ -3150,7 +3156,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "IPlugEffect-macOS.entitlements";
-				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 686EDA2T8T;
 				DSTROOT = "$(APP_PATH)";
@@ -3159,10 +3164,7 @@
 					"$(APP_DEFS)",
 					"$(inherited)",
 				);
-				HEADER_SEARCH_PATHS = (
-					"$(EXTRA_APP_INC_PATHS)",
-					"$(inherited)",
-				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "../resources/IPlugEffect-macOS-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
@@ -3183,6 +3185,7 @@
 			buildSettings = {
 				DSTROOT = "$(VST3_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST3P_DEFS)",
 					"$(VST3P_DEFS)",
 					"$(inherited)",
@@ -3203,6 +3206,7 @@
 			buildSettings = {
 				DSTROOT = "$(VST3_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST3P_DEFS)",
 					"$(VST3P_DEFS)",
 					"$(inherited)",
@@ -3223,6 +3227,7 @@
 			buildSettings = {
 				DSTROOT = "$(VST3_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST3P_DEFS)",
 					"$(VST3P_DEFS)",
 					"$(inherited)",
@@ -3247,11 +3252,13 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
@@ -3292,7 +3299,6 @@
 				INSTALL_OWNER = root;
 				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "$(EXTRA_LIB_PATHS)";
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"$(GCC_CFLAGS)",

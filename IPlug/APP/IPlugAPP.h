@@ -59,7 +59,7 @@ public:
 
 private:
   IPlugAPPHost* mAppHost = nullptr;
-  IPlugQueue<IMidiMsg> mMidiMsgsFromCallback {32};
+  IPlugQueue<IMidiMsg> mMidiMsgsFromCallback {MIDI_TRANSFER_SIZE};
   
   friend class IPlugAPPHost;
 };

@@ -67,7 +67,7 @@ public:
   /** Called by some drawing API classes to finally blit the draw bitmap onto the screen or perform other cleanup after drawing */
   virtual void EndFrame() {};
 
-  /** Called by the platform IGraphics class when UI created and when moving to a new screen with different DPI, implementations in draw class must call the base implementation
+  /** Called by the platform IGraphics class XXXXX /todo and when moving to a new screen with different DPI, implementations in draw class must call the base implementation
    * @param scale The scale of the display, typically 2 on a macOS retina screen */
   void SetDisplayScale(int scale);
   
@@ -663,11 +663,11 @@ public:
    * @return A whole number representing the height of the graphics context in pixels on a 1:1 screen */
   int Height() const { return mHeight; }
 
-  /** Gets the width of the graphics context including scaling \todo better explanation
+  /** Gets the width of the graphics context including scaling (not display scaling!)
    * @return A whole number representing the width of the graphics context with scaling in pixels on a 1:1 screen */
   int WindowWidth() const { return int((float) mWidth * mScale); }
 
-  /** Gets the height of the graphics context including scaling \todo better explanation
+  /** Gets the height of the graphics context including scaling (not display scaling!)
    * @return A whole number representing the height of the graphics context with scaling in pixels on a 1:1 screen */
   int WindowHeight() const { return int((float) mHeight * mScale); }
 
@@ -713,7 +713,7 @@ public:
 
   /** Attach a control for pop-up menus, to override platform style menus
    * @param pControl A control that inherits from IPopupMenuControl */
-  void AttachPopupMenuControl();
+  void AttachPopupMenuControl(IText text = DEFAULT_TEXT);
   
   void AttachPerformanceDisplay();
   

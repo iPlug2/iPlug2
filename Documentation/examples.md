@@ -63,7 +63,7 @@ Rather than changing settings for individual targets/projects inside the Xcode P
 
 You need to two files from the Steinberg VST2.4 SDK to the folder VST_SDK, see VST_SDK/readme.txt
 
-- On OSX by default I build to the system VST2 folder /Library/Audio/Plug-Ins/VST/ - You will need to have write permissions to this folder. If you want to build to the user VST2 folder, you'll need to edit the common.xcconfig file and also modify the installer scripts
+- On OSX by default I build to the system VST2 folder /Library/Audio/Plug-Ins/VST/ - You will need to have write permissions to this folder. If you want to build to the user VST2 folder, you'll need to edit the common-mac.xcconfig file and also modify the installer scripts
 
 ### VST3
 
@@ -78,7 +78,7 @@ VST3_SDK\base\win\base.vcxproj
 
 - On Windows, make sure *C:\\Program Files\\Common Files\\VST3* exists, otherwise the copy files build stage will cause the build to fail
 
-- On OSX by default I build to the system VST3 folder /Library/Audio/Plug-Ins/VST3/. You will need to have *write permissions* to this folder. If you want to build to the user VST3 folder, you'll need to edit the common.xcconfig file and also modify the installer scripts
+- On OSX by default I build to the system VST3 folder /Library/Audio/Plug-Ins/VST3/. You will need to have *write permissions* to this folder. If you want to build to the user VST3 folder, you'll need to edit the common-mac.xcconfig file and also modify the installer scripts
 
 ### AAX
 

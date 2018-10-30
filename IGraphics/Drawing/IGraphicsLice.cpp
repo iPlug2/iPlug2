@@ -41,14 +41,13 @@ void IGraphicsLice::DrawResize()
 
 void IGraphicsLice::DrawSVG(ISVG& svg, const IRECT& bounds, const IBlend* pBlend)
 {
-  //TODO:
-//  LiceNanoSVGRender::RenderNanoSVG(mDrawBitmap, svg.mImage);
+  DrawText(DEFAULT_TEXT, "UNSUPPORTED", const_cast<IRECT&>(bounds), nullptr, false);
 }
 
 void IGraphicsLice::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend)
 {
-  DrawSVG(svg, mDrawRECT, pBlend);
-  //TODO:
+  IRECT r = IRECT(destCtrX - (width/2.), destCtrY - (height/2.), destCtrX + width, destCtrY + height);
+  DrawText(DEFAULT_TEXT, "UNSUPPORTED", r, nullptr, false);
 }
 
 void IGraphicsLice::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend)
@@ -549,9 +548,9 @@ void IGraphicsLice::EndFrame()
   HDC dc = BeginPaint(hWnd, &ps);
   
   if (GetScale() == 1.0)
- 	  BitBlt(dc, 0, 0, Width(), Height(), mDrawBitmap->getDC(), 0, 0, SRCCOPY);
+    BitBlt(dc, 0, 0, Width(), Height(), mDrawBitmap->getDC(), 0, 0, SRCCOPY);
   else
-	  StretchBlt(dc, 0, 0, WindowWidth(), WindowHeight(), mDrawBitmap->getDC(), 0, 0, Width(), Height(), SRCCOPY);
+    StretchBlt(dc, 0, 0, WindowWidth(), WindowHeight(), mDrawBitmap->getDC(), 0, 0, Width(), Height(), SRCCOPY);
   
   EndPaint(hWnd, &ps);
 #endif

@@ -26,12 +26,12 @@ def main():
   CFBundleVersion = config['FULL_VER_STR']
   CFBundlePackageType = "BNDL"
   CSResourcesFileMapped = True
-  LSMinimumSystemVersion = xcconfig['DEPLOYMENT_TARGET']
+  LSMinimumSystemVersion = xcconfig['MACOSX_DEPLOYMENT_TARGET']
 
   print "Copying resources to shared folder..."
 
   if config['PLUG_SHARED_RESOURCES']:
-    dst = os.path.expanduser("~") + "/Music/IPlugEffect/Resources"
+    dst = os.path.expanduser("~") + "/Music/" + config['BUNDLE_NAME'] + "/Resources"
     if os.path.exists(dst):
      shutil.rmtree(dst)
 
@@ -97,9 +97,9 @@ def main():
   elif config['PLUG_IS_MFX']:
     COMPONENT_TYPE = kAudioUnitType_MIDIProcessor
   elif config['PLUG_DOES_MIDI']:
-     COMPONENT_TYPE = kAudioUnitType_MusicEffect
+    COMPONENT_TYPE = kAudioUnitType_MusicEffect
   else:
-     COMPONENT_TYPE = kAudioUnitType_Effect
+    COMPONENT_TYPE = kAudioUnitType_Effect
 
   auv2['AudioUnit Version'] = config['PLUG_VERSION_HEX']
   auv2['AudioComponents'] = [{}]
@@ -133,7 +133,7 @@ def main():
   auv3['CFBundlePackageType'] = "XPC!"
   auv3['NSExtension'] = dict(
   NSExtensionAttributes = dict(
-#                               AudioComponentBundle = "com.AcmeInc.app.IPlugEffect.AUv3.framework",
+#                               AudioComponentBundle = "com.AcmeInc.app." + config['BUNDLE_NAME'] + ".AUv3.framework",
                                AudioComponents = [{}]),
 #                               NSExtensionServiceRoleType = "NSExtensionServiceRoleTypeEditor",
   NSExtensionPointIdentifier = NSEXTENSIONPOINTIDENTIFIER,
@@ -186,7 +186,7 @@ def main():
   macOSapp['CFBundleSignature'] = config['PLUG_UNIQUE_ID']
   macOSapp['CSResourcesFileMapped'] = CSResourcesFileMapped
   macOSapp['NSPrincipalClass'] = "SWELLApplication"
-  macOSapp['NSMainNibFile'] = "IPlugEffect-macOS-MainMenu"
+  macOSapp['NSMainNibFile'] = config['BUNDLE_NAME'] + "-macOS-MainMenu"
   macOSapp['LSApplicationCategoryType'] = "public.app-category.music"
   macOSapp['CFBundleIconFile'] = config['BUNDLE_NAME'] + ".icns"
 

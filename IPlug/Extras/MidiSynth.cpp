@@ -16,8 +16,9 @@
 
 #include "MidiSynth.h"
 
-MidiSynth::MidiSynth(EPolyMode polyMode, int blockSize)
+MidiSynth::MidiSynth(EPolyMode polyMode, int blockSize, int nUnisonVoices)
 : mGranularity(blockSize)
+, mUnisonVoices(nUnisonVoices)
 {
   //TODO: check this should stop any allocations
   mSustainedNotes.reserve(128);
@@ -37,7 +38,7 @@ MidiSynth::~MidiSynth()
 
 bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nInputs, int nOutputs, int nFrames)
 {
-  assert(NVoices());
+  assert(NVoices()); // you didn't add any voices to the synth!
 
   if (mVoicesAreActive | !mMidiQueue.Empty())
   {

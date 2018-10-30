@@ -87,10 +87,12 @@
         <button type="button" id="startWebAudioButton" onclick="main()" disabled>Start web audio!</button>
         <button type="button" onclick="toggleFullScreen()">Fullscreen</button>
         <select id="midiInSelect" disabled="true"><option value="default">Midi input</option></select>
+        <select id="midiOutSelect" disabled="true"><option value="default">Midi output</option></select>
         <progress value="0" max="100" id="progress"></progress>
         <div id="status">downloading (~15mb with hi-dpi bitmaps)...</div>
       </div>
     <div id="wam" hidden=1>
+      <input id="pluginInput" type="file" style="visibility:hidden"/>
       <canvas class="iplug" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
     </div>
     <script type='text/javascript'>
@@ -118,18 +120,32 @@
 
       var IPlugWAM_WAM;
 
-      function initMidi () {
-        let combo = document.querySelector("#midiInSelect");
+      function initMidiComboBox (isOutput, element) {
+        let combo = document.querySelector(element);
         combo.options.length = 0;
         navigator.requestMIDIAccess().then((midiIF) => {
-          for (let input of midiIF.inputs.values()) {
-            let option = new Option(input.name);
-            option.port = input;
-            combo.appendChild(option);
+          if(isOutput) {
+            for (let output of midiIF.outputs.values()) {
+              let option = new Option(output.name);
+              option.port = output;
+              combo.appendChild(option);
+            }
+
+            combo.onchange = e => {
+              IPlugWAM_WAM.midiOut = e.target.options[e.target.selectedIndex].port;
+            }
+          } else {
+            for (let input of midiIF.inputs.values()) {
+              let option = new Option(input.name);
+              option.port = input;
+              combo.appendChild(option);
+            }
+
+            combo.onchange = e => {
+              IPlugWAM_WAM.midiIn = e.target.options[e.target.selectedIndex].port;
+            }
           }
-          combo.onchange = e => {
-            IPlugWAM_WAM.midiIn = e.target.options[e.target.selectedIndex].port;
-          }
+
           if (combo.options.length > 0)
             combo.onchange({ target:combo });
         })
@@ -164,7 +180,8 @@
                 if(IPlugWAM_WAM != undefined) {
                   document.getElementById('wam').hidden = false;
                   document.getElementById('startWebAudioButton').setAttribute("disabled", "true");
-                  initMidi();
+                  initMidiComboBox(false, "#midiInSelect");
+                  initMidiComboBox(true, "#midiOutSelect");
                 }
               });
             }

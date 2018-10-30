@@ -31,7 +31,7 @@ cd $DIR/../src
 
 result=true
 
-METAL_VERSIONS=( "1.0" "1.1" "1.2" "2.0" )
+METAL_VERSIONS=( "1.0" "1.1" "1.2" "2.0" "2.1" )
 PREFIX="mnvg_bitcode"
 
 mkdir $PREFIX
@@ -42,11 +42,12 @@ execute_cmd() {
   VERSION=$3
 
   SUFFIX=""
-  CMD="xcrun -sdk $SDK metal nanovg_mtl_shaders.metal"
+  CMD="xcrun -sdk $SDK metal -c nanovg_mtl_shaders.metal"
   if [ "$VERSION" != "" ]; then
     echo " - Ver: $VERSION"
     CMD="$CMD -std=$TARGET-metal$VERSION"
     SUFFIX="_${VERSION//./_}"
+    echo ${CMD}
   fi
 
   #xcrun -sdk iphoneos metal nanovg_mtl_shaders.metal -std=ios-metal2.0 -o nanovg_mtl_iphoneos_2_0.air
@@ -89,7 +90,7 @@ for SDK in "iphoneos" "macosx" "appletvos"; do
       VERSIONS=( "${METAL_VERSIONS[@]}" )
     elif [ $SDK = "macosx" ]; then
       echo "* Compiling for macOS..."
-      TARGET="osx"
+      TARGET="macos"
       VERSIONS=( "${METAL_VERSIONS[@]:1}" )
     fi
 

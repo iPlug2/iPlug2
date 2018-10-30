@@ -88,7 +88,7 @@ public:
       //    if (!mVelByWheel)
       mLastVelocity = GetVelocity(y);
 
-      TriggerMidiMsgFromKeyPress(mLastTouchedKey, mLastVelocity * 127.f);
+      TriggerMidiMsgFromKeyPress(mLastTouchedKey, (int) (mLastVelocity * 127.f));
     }
     
     SetDirty(true);
@@ -134,7 +134,7 @@ public:
 //      if (!mVelByWheel)
         mLastVelocity = GetVelocity(y);
       
-      TriggerMidiMsgFromKeyPress(mLastTouchedKey, mLastVelocity * 127.f);
+      TriggerMidiMsgFromKeyPress(mLastTouchedKey, (int) (mLastVelocity * 127.f));
       
       TriggerMidiMsgFromKeyPress(prevKey, 0);
       SetKeyIsPressed(prevKey, false);
