@@ -337,6 +337,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\IGraphics\Controls\IControls.cpp" />
+    <ClCompile Include="..\..\..\IGraphics\Controls\IPopupMenuControl.cpp" />
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsAGG.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
