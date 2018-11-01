@@ -174,9 +174,14 @@ public:
     mPitchOffset = offset;
   }
   
-  inline Voice* GetVoice(int voiceIdx)
+  inline Voice* GetVoice(int voiceIdx) const
   {
     return mVS.Get(voiceIdx);
+  }
+  
+  inline int GetVoiceIndex(const Voice& voice) const
+  {
+    return mVS.Find(&voice);
   }
 
   int NVoices() const
