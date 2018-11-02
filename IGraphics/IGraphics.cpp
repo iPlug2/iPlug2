@@ -1205,8 +1205,8 @@ NSVGimage* LoadSVGFromWinResource(HINSTANCE hInst, const char* resid)
 ISVG IGraphics::LoadSVG(const char* name)
 {
   WDL_String path;
-  bool found = OSFindResource(name, "svg", path);
-  assert(found == true);
+  bool resourceFound = OSFindResource(name, "svg", path);
+  assert(resourceFound == true);
 
   SVGHolder* pHolder = s_SVGCache.Find(path.Get());
 
