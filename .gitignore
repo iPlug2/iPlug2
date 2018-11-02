@@ -9,6 +9,7 @@
 *.suo
 *.ncb
 *.vcproj.*
+*.vcxproj.user
 *.pkg
 *.dmg
 *.depend
