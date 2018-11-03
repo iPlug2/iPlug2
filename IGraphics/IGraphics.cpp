@@ -1114,8 +1114,15 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
     }
 
 #else
-    CreatePopupMenu(contextMenu, x, y);
-    pControl->OnContextSelection(contextMenu.GetChosenItemIdx());
+    if(mPopupControl) { // if we are not using platform popup menus, IPopupMenuControl will not block
+      CreatePopupMenu(contextMenu, x, y, pControl);
+      mPopupControl->SetMenuIsContextMenu(true);
+    }
+    else
+    {
+      CreatePopupMenu(contextMenu, x, y);
+      pControl->OnContextSelection(contextMenu.GetChosenItemIdx());
+    }
 #endif
   }
   return;

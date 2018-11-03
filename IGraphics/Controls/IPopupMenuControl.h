@@ -73,8 +73,12 @@ public:
   /** @return \true if the pop-up is fully expanded */
   bool GetExpanded() const { return mState == kExpanded; }
   
-  /**@return EPopupState indicating the state of the pop-up */
+  /** @return EPopupState indicating the state of the pop-up */
   EPopupState GetState() const { return mState; }
+  
+  /** This is called by the IGraphics class when a context menu is being created (a special popup that certain plug-in formats (e.g. VST3) may append to)  */
+  void SetMenuIsContextMenu(bool isContextMenu) { mIsContextMenu = isContextMenu; }
+  
 private:
   /** Get an IRECT represents the maximum dimensions of the longest text item in the menu */
   IRECT GetLargestCellRectForMenu(IPopupMenu& menu, float x, float y) const;
@@ -135,6 +139,7 @@ private:
   IRECT* mMouseCellBounds = nullptr;
   IRECT* mPrevMouseCellBounds = nullptr;
   IControl* mCaller = nullptr; // Pointer to the IControl that created this pop-up menu, for callback
+  bool mIsContextMenu = false;
   IPopupMenu* mMenu = nullptr; // Pointer to the main IPopupMenu, that this control is visualising. This control does not own the menu.
 
   int mMaxColumnItems = 0; // How long the list can get before adding a new column - 0 equals no limit
