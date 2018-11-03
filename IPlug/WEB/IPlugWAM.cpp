@@ -69,9 +69,23 @@ void IPlugWAM::onProcess(WAM::AudioBus* pAudio, void* pData)
   _AttachBuffers(ERoute::kOutput, 0, NChannelsConnected(ERoute::kOutput), pAudio->outputs, blockSize);
   _ProcessBuffers((float) 0.0f, blockSize);
   
+  //emulate IPlugAPIBase::OnTimer - should be called on the main thread - how to do that in audio worklet processor?
   if(mBlockCounter == 0)
   {
-    // TODO: IPlugAPIBase:OnIdle() should be called on the main thread - how to do that in audio worklet processor?
+    while(mParamChangeFromProcessor.ElementsAvailable())
+    {
+      IParamChange p;
+      mParamChangeFromProcessor.Pop(p);
+      SendParameterValueFromDelegate(p.paramIdx, p.value, p.normalized);
+    }
+    
+    while (mMidiMsgsFromProcessor.ElementsAvailable())
+    {
+      IMidiMsg msg;
+      mMidiMsgsFromProcessor.Pop(msg);
+      SendMidiMsgFromDelegate(msg);
+    }
+    
     OnIdle();
     
     mBlockCounter = 8; // 8 * 128 samples = 23ms @ 44100 sr
@@ -98,15 +112,26 @@ void IPlugWAM::onMessage(char* verb, char* res, double data)
   }
 }
 
-//void IPlugWAM::onMessage(char* verb, char* res, char* data)
-//{
-//  DBGMSG("IPlugWAM2:: onMessage %s %s %s\n", verb, res, data);
-//}
-//
-//void IPlugWAM::onMessage(char* verb, char* res, void* data, uint32_t size)
-//{
-//  DBGMSG("IPlugWAM3:: onMessage %s %s VOID\n", verb, res);
-//}
+void IPlugWAM::onMessage(char* verb, char* res, char* data)
+{
+}
+
+void IPlugWAM::onMessage(char* verb, char* res, void* pData, uint32_t size)
+{
+  if(strcmp(verb, "SAMFUI") == 0)
+  {
+    int pos = 0;
+    IByteStream stream(pData, size);
+    int messageTag;
+    int controlTag;
+    int dataSize;
+    pos = stream.Get(&messageTag, pos);
+    pos = stream.Get(&controlTag, pos);
+    pos = stream.Get(&dataSize, pos);
+    
+    OnMessage(messageTag, controlTag, dataSize, stream.GetData() + (sizeof(int) * 3));
+  }
+}
 
 void IPlugWAM::onMidi(byte status, byte data1, byte data2)
 {
@@ -161,5 +186,25 @@ void IPlugWAM::SendControlMsgFromDelegate(int controlTag, int messageTag, int da
   
   // TODO: in the future this will be done via shared array buffer
   postMessage("SCMFD", propStr.Get(), pData, (uint32_t) dataSize);
+}
+
+void IPlugWAM::SendParameterValueFromDelegate(int paramIdx, double value, bool normalized)
+{
+  WDL_String propStr;
+  WDL_String dataStr;
+  propStr.SetFormatted(16, "%i", paramIdx);
+  dataStr.SetFormatted(16, "%f", value);
+
+  // TODO: in the future this will be done via shared array buffer
+  postMessage("SPVFD", propStr.Get(), dataStr.Get());
+}
+
+void IPlugWAM::SendArbitraryMsgFromDelegate(int messageTag, int dataSize, const void* pData)
+{
+  WDL_String propStr;
+  propStr.SetFormatted(16, "%i", messageTag);
+  
+  // TODO: in the future this will be done via shared array buffer
+  postMessage("SAMFD", propStr.Get(), pData, (uint32_t) dataSize);
 }
 

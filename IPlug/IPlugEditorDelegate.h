@@ -132,7 +132,7 @@ public:
   /** TODO: SSMFD */
   virtual void SendSysexMsgFromDelegate(const ISysEx& msg) { OnSysexMsgUI(msg); }
   
-  /** This method is called by the class implementing the delegate interface, NOT THE PLUGIN API class in order to update the user interface with the new parameter values, typically after automation.
+  /** This method is called by the class implementing the delegate interface, not the plug-in API class in order to update the user interface with the new parameter values, typically after automation.
    * This method should only be called from the main thread. The similarly named IPlugAPIBase::_SendParameterValueFromAPI() should take care of queueing and deferring, if there is no main thread notification from the API
    * If you override this method you should call the base class implementation to make sure OnParamChangeUI gets triggered
    * In IGraphics plug-ins, this will update any IControls that have their mParamIdx set > -1

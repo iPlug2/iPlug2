@@ -27,8 +27,11 @@ class IPlugWAMController extends WAMController
       console.log("got WAM descriptor...");
     }
 
+    if(msg.verb == "SPVFD") {
+      Module.SPVFD(parseInt(msg.prop), parseFloat(msg.data));
+    }
     //Send Control Message From Delegate
-    if(msg.verb == "SCMFD") {
+    else if(msg.verb == "SCMFD") {
       var res = msg.prop.split(":");
       var data = new Uint8Array(msg.data);
       const buffer = Module._malloc(data.length);
@@ -37,7 +40,7 @@ class IPlugWAMController extends WAMController
       Module._free(buffer);
     }
     //Send Arbitrary Message From Delegate
-    if(msg.verb == "SAMFD") {
+    else if(msg.verb == "SAMFD") {
       var data = new Uint8Array(msg.data);
       const buffer = Module._malloc(data.length);
       Module.HEAPU8.set(data, buffer);
