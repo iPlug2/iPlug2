@@ -121,10 +121,10 @@ public:
   virtual void SendControlValueFromDelegate(int controlTag, double normalizedValue) {};
   
   /** TODO: SCMFD */
-  virtual void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize = 0, const void* pData = nullptr) {};
+  virtual void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize = 0, const void* pData = nullptr) { OnMessage(messageTag, controlTag, dataSize, pData); }
   
   /** TODO: SAMFD */
-  virtual void SendArbitraryMsgFromDelegate(int messageTag, int dataSize = 0, const void* pData = nullptr) {};
+  virtual void SendArbitraryMsgFromDelegate(int messageTag, int dataSize = 0, const void* pData = nullptr) { OnMessage(messageTag, kNoTag, dataSize, pData); }
   
   /** TODO: SMMFD */
   virtual void SendMidiMsgFromDelegate(const IMidiMsg& msg) { OnMidiMsgUI(msg); }
