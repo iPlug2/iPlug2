@@ -863,8 +863,6 @@ tresult PLUGIN_API IPlugVST3View::isPlatformTypeSupported(FIDString type)
 #elif defined OS_MAC
     if (strcmp (type, kPlatformTypeNSView) == 0)
       return kResultTrue;
-    else if (strcmp(type, kPlatformTypeHIView) == 0)
-      return kResultTrue;
 #endif
   }
 
