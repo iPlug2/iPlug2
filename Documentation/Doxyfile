@@ -174,9 +174,15 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          APIBitmap \
                          AGGBitmap \
                          LICEBitmap \
+                         WebBitmap \
                          Rasterizer \
                          DashOptions \
                          alpha_span_generator \
+                         RetainVal \
+                         Timer_impl \
+                         TimerInfoRec \
+                         SWELL_TimerFuncTarget \
+                         SWELL_DataHold
 
 EXAMPLE_PATH           =
 EXAMPLE_PATTERNS       = *
