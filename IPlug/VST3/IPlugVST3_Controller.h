@@ -79,8 +79,10 @@ public:
   void SendSysexMsgFromUI(const ISysEx& msg) override { /* TODO */ };
   void SendArbitraryMsgFromUI(int messageTag, int controlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) override;
 
+  Vst::IComponentHandler* GetComponentHandler() const { return componentHandler; }
+  IPlugVST3View* GetView() const { return mView; }
+
 private:
-  Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }
   IPlugVST3View* mView = nullptr;
   Steinberg::FUID mProcessorGUID;
 };

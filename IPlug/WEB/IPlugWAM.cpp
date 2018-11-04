@@ -112,7 +112,7 @@ void IPlugWAM::onMessage(char* verb, char* res, double data)
   }
 }
 
-void IPlugWAM::onMessage(char* verb, char* res, char* data)
+void IPlugWAM::onMessage(char* verb, char* res, char* str)
 {
 }
 
@@ -130,6 +130,14 @@ void IPlugWAM::onMessage(char* verb, char* res, void* pData, uint32_t size)
     pos = stream.Get(&dataSize, pos);
     
     OnMessage(messageTag, controlTag, dataSize, stream.GetData() + (sizeof(int) * 3));
+  }
+  else if(strcmp(verb, "SSMFUI") == 0)
+  {
+    //TODO
+  }
+  else
+  {
+    DBGMSG("onMessageA not handled\n");
   }
 }
 
