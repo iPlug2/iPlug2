@@ -79,6 +79,8 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   // Make sure the process context is predictably initialised in case it is used before process is called
 
   memset(&mProcessContext, 0, sizeof(ProcessContext));
+  
+  CreateTimer();
 }
 
 IPlugVST3::~IPlugVST3() {}
@@ -342,6 +344,8 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 
   if(DoesMIDI())
   {
+    IMidiMsg msg;
+
     //process events.. only midi note on and note off?
     IEventList* eventList = data.inputEvents;
     if (eventList)
@@ -352,7 +356,6 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
         Event event;
         if (eventList->getEvent(i, event) == kResultOk)
         {
-          IMidiMsg msg;
           switch (event.type)
           {
             case Event::kNoteOnEvent:
@@ -373,6 +376,11 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
           }
         }
       }
+    }
+    
+    while (mMidiMsgsFromEditor.Pop(msg))
+    {
+      ProcessMidiMsg(msg);
     }
   }
 
