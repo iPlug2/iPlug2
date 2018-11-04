@@ -478,7 +478,6 @@
 		4F7E6F2A20DEC3DE00A5F641 /* IPlugWAM-webcomponent.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "IPlugWAM-webcomponent.html"; sourceTree = "<group>"; };
 		4F7E6F2B20DEC3DE00A5F641 /* IPlugWAM-standalone.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "IPlugWAM-standalone.html"; sourceTree = "<group>"; };
 		4F7E6F2D20DEC3DE00A5F641 /* IPlugWAM-awp.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "IPlugWAM-awp.js"; sourceTree = "<group>"; };
-		4F7E6F2E20DEC3DE00A5F641 /* keys.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = keys.js; sourceTree = "<group>"; };
 		4F7E6F2F20DEC3DE00A5F641 /* IPlugWAM-awn.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "IPlugWAM-awn.js"; sourceTree = "<group>"; };
 		4F7E6F5020DEEAA300A5F641 /* IPlugWeb-remote.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "IPlugWeb-remote.html"; sourceTree = "<group>"; };
 		4F8157DD205D50EA00393585 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
@@ -625,6 +624,7 @@
 		4FB600331567CB0A0020189A /* IPlugEffect.aaxplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.aaxplugin; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FBAA593207918230054E717 /* IPlugDelegate_select.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugDelegate_select.h; path = ../../../IPlug/IPlugDelegate_select.h; sourceTree = "<group>"; };
 		4FBBD7F320B6AB9800A37DE2 /* config */ = {isa = PBXFileReference; lastKnownFileType = folder; name = config; path = ../config; sourceTree = "<group>"; };
+		4FBDC2A9218F9B9900675D07 /* IPlugEffect_DSP.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugEffect_DSP.h; path = ../IPlugEffect_DSP.h; sourceTree = "<group>"; };
 		4FC3EFC42086C0A600BD11FA /* IPlugEffectVST3Controller.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = IPlugEffectVST3Controller.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FC3EFDC2086CE5600BD11FA /* eventlist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = eventlist.cpp; sourceTree = "<group>"; };
 		4FC3EFDD2086CE5600BD11FA /* eventlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = eventlist.h; sourceTree = "<group>"; };
@@ -773,6 +773,7 @@
 				52FBBED30D0CF143001C8B8A /* config.h */,
 				4F3862EE2014BBEC0009F402 /* IPlugEffect.h */,
 				4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */,
+				4FBDC2A9218F9B9900675D07 /* IPlugEffect_DSP.h */,
 				089C167CFE841241C02AAC07 /* Resources */,
 				32C88E010371C26100C91783 /* Other Sources */,
 				089C1671FE841209C02AAC07 /* Frameworks */,
@@ -1156,7 +1157,6 @@
 			isa = PBXGroup;
 			children = (
 				4F7E6F2D20DEC3DE00A5F641 /* IPlugWAM-awp.js */,
-				4F7E6F2E20DEC3DE00A5F641 /* keys.js */,
 				4F7E6F2F20DEC3DE00A5F641 /* IPlugWAM-awn.js */,
 			);
 			path = scripts;
