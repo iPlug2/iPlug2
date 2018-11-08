@@ -16,6 +16,7 @@ then
 else
   git clone https://github.com/grame-cncm/faust.git $FAUST_REPO_DIR
 fi
+mkdir $FAUST_CMAKE_BUILD_DIR
 cd $FAUST_CMAKE_BUILD_DIR
 cmake -C $DEPS_DIR/iplug-backends.cmake -C $DEPS_DIR/iplug-targets-mac.cmake -DINCLUDE_STATIC=on -DINCLUDE_DYNAMIC=on -DINCLUDE_OSC=off -DINCLUDE_HTTP=off -DUNIVERSAL=off ../faust/build
 cmake -D CMAKE_INSTALL_PREFIX=$INSTALL_DIR ../faust/build
