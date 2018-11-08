@@ -90,9 +90,8 @@ void IPlugWeb::SendSysexMsgFromUI(const ISysEx& msg)
   }, (int) mSSMFUIBuf.GetBytes(), mSSMFUIBuf.Size());
 #else
   EM_ASM({
-    var jsbuff = Module.HEAPU8.subarray($2, $2 + $1);
-    window[Module.Pointer_stringify($0)].sendMessage('SSMFUI', $1, jsbuff);
-  }, mWAMCtrlrJSObjectName.Get(), msg.mSize, (int) msg.mData);
+    window[Module.Pointer_stringify($0)].sendMessage('SSMFUI', $1, Module.HEAPU8.slice($1, $1 + $2).buffer);
+  }, mWAMCtrlrJSObjectName.Get(), (int) msg.mData, msg.mSize);
 #endif
 }
 
@@ -114,8 +113,7 @@ void IPlugWeb::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSi
   }, (int) mSAMFUIBuf.GetBytes(), mSAMFUIBuf.Size());
 #else
   EM_ASM({
-    var jsbuff = Module.HEAPU8.subarray($1, $1 + $2);
-    window[Module.Pointer_stringify($0)].sendMessage('SAMFUI', "", jsbuff);
+    window[Module.Pointer_stringify($0)].sendMessage('SAMFUI', "", Module.HEAPU8.slice($1, $1 + $2).buffer);
   }, mWAMCtrlrJSObjectName.Get(), (int) mSAMFUIBuf.GetBytes() + kNumMsgHeaderBytes, mSAMFUIBuf.Size() - kNumMsgHeaderBytes); // Non websocket doesn't need "SAMFUI" bytes at beginning
 #endif
 }
