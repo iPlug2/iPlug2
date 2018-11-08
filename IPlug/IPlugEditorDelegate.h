@@ -28,12 +28,7 @@
  *  It is also the class that owns parameter objects (for historical reasons) - although it's not necessary to allocate them
  *
  *  In distributed plug-in architectures and remote editors, certain methods will be overridden in order to pipe messages to various places
- *
- *  It needn't be a "plug-in" that implements this interface, it can also be used for other things
- *  An example use case: you would like to pop up a custom preferences window with a few simple checkboxes.
- *  You should be able to do that with a new graphics context and something implementing this interface in order to send/receive values
- *  to/from your new UI.
- *
+*
  *  Note on method names:
  *  - "FromUI" in a method name, means that that method is called by something in the UI i.e. a control.
  *  - "FromDelegate" in a method name mean that method is called from the class that implements the IEditorDelegate interface,
