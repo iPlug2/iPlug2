@@ -27,11 +27,14 @@
 /** This pure virtual interface delegates communication in both directions between a UI editor and something else (which is usually a plug-in)
  *  It is also the class that owns parameter objects (for historical reasons) - although it's not necessary to allocate them
  *
- *  In distributed plug-in architectures and remote editors, certain methods will be overridden in order to pipe messages to various places
-*
+ *  This is the lowest level base class in iPlug 2 that facilitates distributing editor and DSP parts for plug-in formats that need that, but also allowing non-distributed plug-ins to use the same API.
+ *  In distributed plug-in architectures certain methods will be overridden in order to pipe messages to various places, using whatever mechanism that plug-in format requires.
+ *  In this case, there are actually two classes that implement the IEditorDelegate interface, but only one which is directly connected to the user interface (IGraphics etc.),
+ *  the other being connected to a class inheriting IPlugAPIBase that deals with processing audio, see for example IPlugVST3Processor
+ *
  *  Note on method names:
- *  - "FromUI" in a method name, means that that method is called by something in the UI i.e. a control.
- *  - "FromDelegate" in a method name mean that method is called from the class that implements the IEditorDelegate interface,
+ *  - "FromUI" in a method name, means that that method is called by something in the UI i.e. when the user interacts with a control.
+ *  - "FromDelegate" in a method name means that method is called from a class that implements the IEditorDelegate interface,
  *     which is usually your plug-in base class, but may not be in the case of an isolated editor class, or if you are using IGraphics without IPlug, and your IEditorDelegate is not a plug-in
  *
  *  NOTES:
