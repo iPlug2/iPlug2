@@ -180,15 +180,9 @@ bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nInputs, int
       voicesbusy |= busy;
 
       activeCount += (busy==true);
-#if DEBUG_VOICE_COUNT
-      if(GetVoice(v)->GetBusy()) printf("X");
-      else DBGMSG("_");
+      
+      mVoiceStatus[v] = busy;
     }
-    DBGMSG("\n");
-    DBGMSG("Num Voices busy %i\n", activeCount);
-#else
-    }
-#endif
 
     mVoicesAreActive = voicesbusy;
 

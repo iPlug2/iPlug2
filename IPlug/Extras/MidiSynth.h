@@ -22,6 +22,7 @@
  */
 
 #include <vector>
+#include <bitset>
 #include <stdint.h>
 
 #include "ptrlist.h"
@@ -31,6 +32,10 @@
 #include "IPlugLogger.h"
 
 #define DEBUG_VOICE_COUNT 0
+
+#ifndef MAX_VOICES
+  #define MAX_VOICES 32
+#endif
 
 /** A monophonic/polyphonic synthesiser base class which can be supplied with a custom voice.
  *  Supports different kinds of after touch, pitch bend, velocity and after touch curves, unison (currently monophonic mode only)
@@ -192,6 +197,16 @@ public:
   int NUnisonVoices() const
   {
     return mUnisonVoices;
+  }
+  
+  int NActiveVoices() const
+  {
+    return (int) mVoiceStatus.count();
+  }
+  
+  const char* GetVoiceStatusStr() const
+  {
+    return mVoiceStatus.to_string('_', 'X').c_str();
   }
   
   EPolyMode GetPolyMode() const
@@ -371,7 +386,7 @@ private:
   bool mSustainPedalDown = false;
   bool mVoicesAreActive = false;
   uint16_t mUnisonVoices = 1;
-
+  std::bitset<MAX_VOICES> mVoiceStatus;
   EPolyMode mPolyMode = kPolyModePoly; // mono note priority / polyphony
   EATMode mATMode = kATModeChannel;
   std::vector<KeyPressInfo> mHeldKeys; // The currently physically held keys on the keyboard
