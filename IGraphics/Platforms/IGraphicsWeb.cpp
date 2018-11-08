@@ -222,22 +222,16 @@ bool IGraphicsWeb::GetTextFromClipboard(WDL_String& str)
 
 int IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, int type)
 {
-  
   switch (type)
   {
-    case MB_OK:
-        val::global("window").call<val>("alert", std::string(str));
-      break;
+    case MB_OK: val::global("window").call<val>("alert", std::string(str)); return 0;
     case MB_YESNO:
-        val::global("window").call<val>("confirm", std::string(str));
-       break;
+    case MB_OKCANCEL:
+      return val::global("window").call<val>("confirm", std::string(str)).as<int>();
     // case MB_CANCEL:
     //   break;
-    default:
-      break;
+    default: return 0;
   }
-
-  return 0; // TODO: return value?
 }
 
 void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext)
