@@ -1691,6 +1691,16 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
     }
     else
     {
+      if(_this->mMidiMsgsFromEditor.ElementsAvailable())
+      {
+        IMidiMsg msg;
+        
+        while (_this->mMidiMsgsFromEditor.Pop(msg))
+        {
+          _this->ProcessMidiMsg(msg);
+        }
+      }
+      
       _this->PreProcess();
       _this->_ProcessBuffers((AudioSampleType) 0, nFrames);
     }
