@@ -47,6 +47,7 @@ static inline void RadialPoints(float angleDegrees, float cx, float cy, float rM
   }
 }
 
+/* IGraphicsStruct.h includes this file before defining IMouseMod, forward ref
 #ifdef AAX_API
 #include "AAX_Enums.h"
 
@@ -81,4 +82,4 @@ static uint32_t GetAAXModifiersFromIMouseMod(const IMouseMod& mod)
 //  if (aax_mods & AAX_eModifiers_SecondaryButton) pModOut->R = true;
 //}
 #endif
-
+*/
