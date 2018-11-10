@@ -59,9 +59,8 @@ private:
   IPlugAAX* mPlug = nullptr;
 };
 
-/**  AAX API base class for an IPlug plug-in, inherits from IPlugAPIBase 
-*   @ingroup APIClasses
-*/
+/**  AAX API base class for an IPlug plug-in
+*   @ingroup APIClasses */
 class IPlugAAX : public IPlugAPIBase
                , public IPlugProcessor<PLUG_SAMPLE_DST>
                , public AAX_CIPlugParameters

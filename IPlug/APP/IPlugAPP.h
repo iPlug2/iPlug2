@@ -34,9 +34,8 @@ struct IPlugInstanceInfo
 
 class IPlugAPPHost;
 
-/**  Standalone application base class for an IPlug plug-in, inherits from IPlugAPIBase
-*   @ingroup APIClasses
-*/
+/**  Standalone application base class for an IPlug plug-in
+*   @ingroup APIClasses */
 class IPlugAPP : public IPlugAPIBase
                , public IPlugProcessor<PLUG_SAMPLE_DST>
 {
