@@ -17,8 +17,6 @@
 
 #include "IPlugPlatform.h"
 #include "IGraphicsConstants.h"
-#include "IGraphicsUtilities.h"
-
 
 class IGraphics;
 class IControl;
@@ -393,6 +391,8 @@ struct IStrokeOptions
 };
 
 /** Used to store transformation matrices**/
+
+static double DegToRad(double deg);
 
 struct IMatrix
 {
