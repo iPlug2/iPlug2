@@ -2,7 +2,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>IPlugWAM WAM</title>
+    <title>NAME_PLACEHOLDER WAM</title>
     <style>
       body {
         font-family: arial;
@@ -77,7 +77,7 @@
  -->
     <script src="scripts/audioworklet.js"></script>
     <script async src="resources.js"></script>
-    <script async src="scripts/IPlugWAM.js"></script>
+    <script async src="scripts/NAME_PLACEHOLDER-web.js"></script>
 
   </head>
   <body>
@@ -89,7 +89,7 @@
         <select id="midiInSelect" disabled="true"><option value="default">Midi input</option></select>
         <select id="midiOutSelect" disabled="true"><option value="default">Midi output</option></select>
         <progress value="0" max="100" id="progress"></progress>
-        <div id="status">downloading (~15mb with hi-dpi bitmaps)...</div>
+        <div id="status">downloading ...</div>
       </div>
     <div id="wam" hidden=1>
       <input id="pluginInput" type="file" style="visibility:hidden"/>
@@ -118,7 +118,7 @@
         }
       }
 
-      var IPlugWAM_WAM;
+      var NAME_PLACEHOLDER_WAM;
 
       function initMidiComboBox (isOutput, element) {
         let combo = document.querySelector(element);
@@ -132,7 +132,7 @@
             }
 
             combo.onchange = e => {
-              IPlugWAM_WAM.midiOut = e.target.options[e.target.selectedIndex].port;
+              NAME_PLACEHOLDER_WAM.midiOut = e.target.options[e.target.selectedIndex].port;
             }
           } else {
             for (let input of midiIF.inputs.values()) {
@@ -142,7 +142,7 @@
             }
 
             combo.onchange = e => {
-              IPlugWAM_WAM.midiIn = e.target.options[e.target.selectedIndex].port;
+              NAME_PLACEHOLDER_WAM.midiIn = e.target.options[e.target.selectedIndex].port;
             }
           }
 
@@ -169,15 +169,15 @@
           script1.src = "scripts/wam-controller.js";
           script1.onload = () => {
             var script2 = document.createElement("script");
-            script2.src = "scripts/IPlugWAM-awn.js";
+            script2.src = "scripts/NAME_PLACEHOLDER-awn.js";
             script2.onload = () => {
 
               audioWorkletSupported(!AWPF.isAudioWorkletPolyfilled);
-              IPlugWAMController.importScripts(actx).then(() => {
-                IPlugWAM_WAM = new IPlugWAMController(actx);
-                IPlugWAM_WAM.connect(actx.destination);
+              NAME_PLACEHOLDERController.importScripts(actx).then(() => {
+                NAME_PLACEHOLDER_WAM = new NAME_PLACEHOLDERController(actx);
+                NAME_PLACEHOLDER_WAM.connect(actx.destination);
 
-                if(IPlugWAM_WAM != undefined) {
+                if(NAME_PLACEHOLDER_WAM != undefined) {
                   document.getElementById('wam').hidden = false;
                   document.getElementById('startWebAudioButton').setAttribute("disabled", "true");
                   initMidiComboBox(false, "#midiInSelect");
@@ -219,12 +219,7 @@
         },
         canvas: (function() {
           var canvas = document.getElementById('canvas');
-
-          // As a default initial behavior, pop up an alert when webgl context is lost. To make your
-          // application robust, you may want to override this behavior before shipping!
-          // See http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
           canvas.addEventListener("webglcontextlost", function(e) { alert('WebGL context lost. You will need to reload the page.'); e.preventDefault(); }, false);
-
           return canvas;
         })(),
         totalDependencies: 0,
@@ -235,7 +230,6 @@
       };
       Module.setStatus('Downloading...');
       window.onerror = function(event) {
-        // TODO: do not warn on ok events like simulating an infinite loop or exitStatus
         Module.setStatus('Exception thrown, see JavaScript console');
         Module.setStatus = function(text) {
           if (text) Module.printErr('[post-exception status] ' + text);

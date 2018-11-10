@@ -55,10 +55,6 @@ then
   wasmOut += \"AudioWorkletGlobalScope.WAM.IPlug = { ENVIRONMENT: 'WEB' }\\\n\";
   wasmOut += \"AudioWorkletGlobalScope.WAM.IPlug.wasmBinary = new Uint8Array([\" + wasmStr + \"]);\";
   fs.writeFileSync(\"IPlugEffect-WAM.wasm.js\", wasmOut);
-  // later we will possibly switch to base64
-  // as suggested by Stephane Letz / Faust
-  // let base64 = wasmData.toString(\"base64\");
-  // fs.writeFileSync(\"IPlugEffect-WAM.base64.js\", base64);
   " > encode-wasm.js
 
   node encode-wasm.js
@@ -68,15 +64,15 @@ then
   cp ../../../../Dependencies/IPlug/WAM_SDK/wamsdk/*.js .
   cp ../../../../Dependencies/IPlug/WAM_AWP/*.js .
   cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awn.js IPlugEffect-awn.js
-  sed -i.bak s/IPlugWAM/IPlugEffect/g IPlugEffect-awn.js
+  sed -i.bak s/NAME_PLACEHOLDER/IPlugEffect/g IPlugEffect-awn.js
   cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awp.js IPlugEffect-awp.js
-  sed -i.bak s/IPlugWAM/IPlugEffect/g IPlugEffect-awp.js
+  sed -i.bak s/NAME_PLACEHOLDER/IPlugEffect/g IPlugEffect-awp.js
   rm *.bak
   cd ..
 
   #copy in the template html - comment if you have customised the html
   cp ../../../IPlug/WEB/Template/IPlugWAM-standalone.html index.html
-  sed -i.bak s/IPlugWAM/IPlugEffect/g index.html
+  sed -i.bak s/NAME_PLACEHOLDER/IPlugEffect/g index.html
   rm *.bak
 
   cp ../../../IPlug/WEB/Template/favicon.ico favicon.ico
