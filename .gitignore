@@ -41,5 +41,4 @@ Documentation/html
 Documentation/doxygen_warnings.txt
 Examples/build_errors.log
 IPlug/AUv3
-.vscode/
 *Projects/*
