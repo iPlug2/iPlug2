@@ -169,7 +169,7 @@ AAX_Result IPlugAAX::EffectInit()
         pAAXParam = new AAX_CParameter<int>(pParamIDStr->Get(),
                                         AAX_CString(pParam->GetNameForHost()),
                                         (int)pParam->GetDefault(),
-                                        AAX_CLinearTaperDelegate<int>((int)pParam->GetMin(), (int)pParam->GetMax()),
+                                        AAX_CLinearTaperDelegate<int,1>((int)pParam->GetMin(), (int)pParam->GetMax()),
                                         AAX_CUnitDisplayDelegateDecorator<int>( AAX_CNumberDisplayDelegate<int>(), AAX_CString(pParam->GetLabelForHost())),
                                         pParam->GetCanAutomate());
         
@@ -196,7 +196,7 @@ AAX_Result IPlugAAX::EffectInit()
         pAAXParam = new AAX_CParameter<int>(pParamIDStr->Get(),
                                         AAX_CString(pParam->GetNameForHost()),
                                         (int)pParam->GetDefault(),
-                                        AAX_CLinearTaperDelegate<int>((int) pParam->GetMin(), (int) pParam->GetMax()),
+                                        AAX_CLinearTaperDelegate<int,1>((int) pParam->GetMin(), (int) pParam->GetMax()),
                                         AAX_CStringDisplayDelegate<int>(displayTexts),
                                         pParam->GetCanAutomate());
         
