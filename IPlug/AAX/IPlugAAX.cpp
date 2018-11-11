@@ -45,12 +45,12 @@ void AAX_CEffectGUI_IPLUG::CreateViewContainer()
   
   if (pWindow && mPlug->HasUI())
   {
+    mPlug->OpenWindow(pWindow);
+    
     IPlugAAXView_Interface* pViewInterface = (IPlugAAXView_Interface*) mPlug->GetAAXViewInterface();
     
     if(pViewInterface)
       pViewInterface->SetViewContainer(GetViewContainer());
-    
-    mPlug->OpenWindow(pWindow);
   }
 }
 
