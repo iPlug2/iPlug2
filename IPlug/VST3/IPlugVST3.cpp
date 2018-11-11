@@ -270,6 +270,7 @@ tresult PLUGIN_API IPlugVST3::setupProcessing(ProcessSetup& newSetup)
   _SetSampleRate(newSetup.sampleRate);
   _SetBypassed(false);
   IPlugProcessor::_SetBlockSize(newSetup.maxSamplesPerBlock); // TODO: should IPlugVST3 call SetBlockSizein construct unlike other APIs?
+  mMidiOutputQueue.Resize(newSetup.maxSamplesPerBlock);
   OnReset();
 
   processSetup = newSetup;
