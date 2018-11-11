@@ -366,7 +366,6 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
               mMidiMsgsFromProcessor.Push(msg);
               break;
             }
-
             case Event::kNoteOffEvent:
             {
               msg.MakeNoteOffMsg(event.noteOff.pitch, event.sampleOffset, event.noteOff.channel);
@@ -374,6 +373,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
               mMidiMsgsFromProcessor.Push(msg);
               break;
             }
+              
           }
         }
       }
@@ -521,6 +521,16 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
           toAdd.noteOff.pitch = msg.NoteNumber();
           toAdd.noteOff.velocity = (float) msg.Velocity() * (1.f / 127.f);
           toAdd.noteOff.noteId = -1; // TODO ?
+          toAdd.sampleOffset = msg.mOffset;
+          outputEvents->addEvent(toAdd);
+        }
+        else if (msg.StatusMsg() == IMidiMsg::kPolyAftertouch)
+        {
+          toAdd.type = Event::kPolyPressureEvent;
+          toAdd.polyPressure.channel = msg.Channel();
+          toAdd.polyPressure.pitch = msg.NoteNumber();
+          toAdd.polyPressure.pressure = (float) msg.PolyAfterTouch() * (1.f / 127.f);
+          toAdd.polyPressure.noteId = -1; // TODO ?
           toAdd.sampleOffset = msg.mOffset;
           outputEvents->addEvent(toAdd);
         }

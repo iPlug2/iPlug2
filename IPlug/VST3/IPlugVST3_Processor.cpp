@@ -459,9 +459,18 @@ tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
           toAdd.sampleOffset = msg.mOffset;
           outputEvents->addEvent(toAdd);
         }
+        else if (msg.StatusMsg() == IMidiMsg::kPolyAftertouch)
+        {
+          toAdd.type = Event::kPolyPressureEvent;
+          toAdd.polyPressure.channel = msg.Channel();
+          toAdd.polyPressure.pitch = msg.NoteNumber();
+          toAdd.polyPressure.pressure = (float) msg.PolyAfterTouch() * (1.f / 127.f);
+          toAdd.polyPressure.noteId = -1; // TODO ?
+          toAdd.sampleOffset = msg.mOffset;
+          outputEvents->addEvent(toAdd);
+        }
         
         mMidiOutputQueue.Remove();
-        // don't add any midi messages other than noteon/noteoff
       }
     }
     
