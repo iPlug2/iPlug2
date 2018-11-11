@@ -136,7 +136,7 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
     if(DoesMIDI())
     {
       addEventInput(STR16("MIDI Input"), 1);
-      //addEventOutput(STR16("MIDI Output"), 1);
+      addEventOutput(STR16("MIDI Output"), 1);
     }
 
     if (NPresets())
@@ -486,20 +486,51 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
       _ProcessBuffers(0.0, data.numSamples); // process buffers double precision
   }
 
-// Midi Out
-//  if (mDoesMidi) {
-//    IEventList eventList = data.outputEvents;
-//
-//    if (eventList)
-//    {
-//      Event event;
-//
-//      while (!mMidiOutputQueue.Empty()) {
-//        //TODO: parse events and add
-//        eventList.addEvent(event);
-//      }
-//    }
-//  }
+  // Midi Out
+  if (DoesMIDI())
+  {
+    IEventList* outputEvents = data.outputEvents;
+    
+    //MIDI
+    if (!mMidiOutputQueue.Empty() && outputEvents)
+    {
+      Event toAdd = {0};
+      IMidiMsg msg;
+      
+      while (!mMidiOutputQueue.Empty())
+      {
+        IMidiMsg& msg = mMidiOutputQueue.Peek();
+        
+        if (msg.StatusMsg() == IMidiMsg::kNoteOn)
+        {
+          toAdd.type = Event::kNoteOnEvent;
+          toAdd.noteOn.channel = msg.Channel();
+          toAdd.noteOn.pitch = msg.NoteNumber();
+          toAdd.noteOn.tuning = 0.;
+          toAdd.noteOn.velocity = (float) msg.Velocity() * (1.f / 127.f);
+          toAdd.noteOn.length = -1;
+          toAdd.noteOn.noteId = -1; // TODO ?
+          toAdd.sampleOffset = msg.mOffset;
+          outputEvents->addEvent(toAdd);
+        }
+        else if (msg.StatusMsg() == IMidiMsg::kNoteOff)
+        {
+          toAdd.type = Event::kNoteOffEvent;
+          toAdd.noteOff.channel = msg.Channel();
+          toAdd.noteOff.pitch = msg.NoteNumber();
+          toAdd.noteOff.velocity = (float) msg.Velocity() * (1.f / 127.f);
+          toAdd.noteOff.noteId = -1; // TODO ?
+          toAdd.sampleOffset = msg.mOffset;
+          outputEvents->addEvent(toAdd);
+        }
+        
+        mMidiOutputQueue.Remove();
+        // don't add any midi messages other than noteon/noteoff
+      }
+    }
+    
+    mMidiOutputQueue.Flush(data.numSamples);
+  }
 
   return kResultOk;
 }
@@ -840,6 +871,12 @@ void IPlugVST3::PreProcess()
   const bool offline = processSetup.processMode == Steinberg::Vst::kOffline;
   _SetTimeInfo(timeInfo);
   _SetRenderingOffline(offline);
+}
+
+bool IPlugVST3::SendMidiMsg(const IMidiMsg& msg)
+{
+  mMidiOutputQueue.Add(msg);
+  return true;
 }
 
 #pragma mark - IPlugVST3View
