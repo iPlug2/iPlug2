@@ -17,6 +17,11 @@
 #ifndef _IPLUGAPI_
 #define _IPLUGAPI_
 
+/**
+ * @file
+ * @copydoc IPlugVST3Controller
+ */
+
 #undef stricmp
 #undef strnicmp
 #include "public.sdk/source/vst/vsteditcontroller.h"
@@ -28,6 +33,8 @@ using namespace Vst;
 
 class IPlugVST3View;
 
+/**  VST3 Controller base class for a distributed IPlug VST3 plug-in
+ *   @ingroup APIClasses */
 class IPlugVST3Controller : public EditControllerEx1
                           , public IMidiMapping
                           , public IPlugAPIBase

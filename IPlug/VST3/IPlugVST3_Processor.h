@@ -26,9 +26,16 @@
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
+/**
+ * @file
+ * @copydoc IPlugVST3Processor
+ */
+
 using namespace Steinberg;
 using namespace Vst;
 
+/**  VST3 Processor base class for a distributed IPlug VST3 plug-in
+ *   @ingroup APIClasses */
 class IPlugVST3Processor : public AudioEffect
                          , public IPlugAPIBase
                          , public IPlugProcessor<PLUG_SAMPLE_DST>
