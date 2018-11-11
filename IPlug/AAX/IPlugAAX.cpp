@@ -328,6 +328,13 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
     _SetTimeInfo(timeInfo);
     //timeInfo.mLastBar ??
     
+    IMidiMsg msg;
+    
+    while (mMidiMsgsFromEditor.Pop(msg))
+    {
+      ProcessMidiMsg(msg);
+    }
+    
     _ProcessBuffers(0.0f, numSamples);
   }
 }
