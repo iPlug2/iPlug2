@@ -271,11 +271,6 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
     AAX_CMidiStream* pMidiBuffer = pMidiIn->GetNodeBuffer();
     AAX_CMidiPacket* pMidiPacket = pMidiBuffer->mBuffer;
     uint32_t packets_count = pMidiBuffer->mBufferSize;
-    
-    // Setup MIDI Out node pointers 
-//		AAX_IMIDINode* midiNodeOut = instance->mMIDINodeOutP;
-//		AAX_CMidiStream* midiBufferOut = midiNodeOut->GetNodeBuffer();
-//		AAX_CMidiPacket* midiBufferOutPtr = midiBufferOut->mBuffer;
         
     for (int i = 0; i<packets_count; i++, pMidiPacket++) 
     {
@@ -337,21 +332,56 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
     
     _ProcessBuffers(0.0f, numSamples);
   }
+  
+  // Midi Out
+  if (DoesMIDI())
+  {
+    AAX_IMIDINode* midiOut = pRenderInfo->mOutputNode;
+    
+    if(midiOut)
+    {
+      //MIDI
+      if (!mMidiOutputQueue.Empty())
+      {        
+        while (!mMidiOutputQueue.Empty())
+        {
+          IMidiMsg& msg = mMidiOutputQueue.Peek();
+          
+          AAX_CMidiPacket packet;
+          
+          packet.mIsImmediate = true; // TODO: how does this affect sample accuracy?
+          
+          packet.mTimestamp = (uint32_t) msg.mOffset;
+          packet.mLength = 3;
+          
+          packet.mData[0] = msg.mStatus;
+          packet.mData[1] = msg.mData1;
+          packet.mData[2] = msg.mData2;
+          
+          midiOut->PostMIDIPacket (&packet);
+          
+          mMidiOutputQueue.Remove();
+        }
+      }
+      
+      mMidiOutputQueue.Flush(numSamples);
+    }
+  }
 }
 
 AAX_Result IPlugAAX::GetChunkIDFromIndex( int32_t index, AAX_CTypeID* pChunkID) const
 {
   IPlugAAX* _this = const_cast<IPlugAAX*>(this);
 
-	if (index != 0)
-	{
-		*pChunkID = AAX_CTypeID(0);
-		return AAX_ERROR_INVALID_CHUNK_INDEX;
-	}
-	
-	*pChunkID = _this->GetUniqueID();
-  
-	return AAX_SUCCESS;	
+  if (index != 0)
+  {
+    *pChunkID = AAX_CTypeID(0);
+    return AAX_ERROR_INVALID_CHUNK_INDEX;
+  }
+
+  *pChunkID = _this->GetUniqueID();
+
+  return AAX_SUCCESS;
 }
 
 AAX_Result IPlugAAX::GetChunkSize(AAX_CTypeID chunkID, uint32_t* pSize) const
@@ -486,8 +516,8 @@ void IPlugAAX::SetLatency(int latency)
   IPlugProcessor::SetLatency(latency); // will update delay time
 }
 
-// TODO: SendMidiMsg()
 bool IPlugAAX::SendMidiMsg(const IMidiMsg& msg)
 {
-  return false;
+  mMidiOutputQueue.Add(msg);
+  return true;
 }

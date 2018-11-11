@@ -26,6 +26,7 @@
 #include "IPlugPlatform.h"
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
+#include "IPlugMidi.h"
 
 #include "IPlugAAX_Parameters.h"
 
@@ -105,6 +106,7 @@ private:
   AAX_CParameter<bool>* mBypassParameter = nullptr;
   AAX_ITransport* mTransport = nullptr;
   WDL_PtrList<WDL_String> mParamIDs;
+  IMidiQueue mMidiOutputQueue;
 };
 
 IPlugAAX* MakePlug();
