@@ -373,7 +373,13 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
               mMidiMsgsFromProcessor.Push(msg);
               break;
             }
-              
+            case Event::kPolyPressureEvent:
+            {
+              msg.MakePolyATMsg(event.polyPressure.pitch, event.polyPressure.pressure * 127., event.sampleOffset, event.polyPressure.channel);
+              ProcessMidiMsg(msg);
+              mMidiMsgsFromProcessor.Push(msg);
+              break;
+            }
           }
         }
       }
