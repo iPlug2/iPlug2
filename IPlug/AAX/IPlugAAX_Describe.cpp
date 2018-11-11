@@ -155,9 +155,13 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
     #endif
     setupInfo.mCanBypass = true;
     setupInfo.mNeedsInputMIDI = PLUG_DOES_MIDI;
-    setupInfo.mNeedsOutputMIDI = PLUG_DOES_MIDI;
     setupInfo.mInputMIDINodeName = PLUG_NAME" Midi";
     setupInfo.mInputMIDIChannelMask = 0x0001;
+    
+    setupInfo.mNeedsOutputMIDI = PLUG_DOES_MIDI;
+    setupInfo.mOutputMIDINodeName = PLUG_NAME" Midi";
+    setupInfo.mOutputMIDIChannelMask = 0x0001;
+    
     setupInfo.mNeedsTransport = true;
     setupInfo.mLatency = PLUG_LATENCY;
 
