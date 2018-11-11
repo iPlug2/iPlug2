@@ -915,10 +915,10 @@ struct IRECT
 
   void Scale(float scale)
   {
-    L = std::floor(0.5f + (L * scale));
-    T = std::floor(0.5f + (T * scale));
-    R = std::floor(0.5f + (R * scale));
-    B = std::floor(0.5f + (B * scale));
+    L *= scale;
+    T *= scale;
+    R *= scale;
+    B *= scale;
   }
   
   void ScaleAboutCentre(float scale)
@@ -991,14 +991,6 @@ struct IRECT
   IRECT GetShifted(float l, float t, float r, float b) const
   {
     return IRECT(L + l, T + t, R + r, B + b);
-  }
-  
-  void ScaleBounds(float scale)
-  {
-    L = std::floor(L * scale);
-    T = std::floor(T * scale);
-    R = std::ceil(R * scale);
-    B = std::ceil(B * scale);
   }
 
   IRECT GetCentredInside(IRECT sr) const
