@@ -163,6 +163,23 @@ struct IMidiMsg
     mData2 = (int) (value * 127.0);
     mOffset = offset;
   }
+  
+  void MakeChannelATMsg(int pressure, int offset, int channel)
+  {
+    Clear();
+    mStatus = channel | (kChannelAftertouch << 4);
+    mData1 = pressure;
+    mData2 = 0;
+    mOffset = offset;
+  }
+  
+  void MakePolyATMsg(int noteNumber, int pressure, int offset, int channel)
+  {
+    Clear();
+    mStatus = channel | (kPolyAftertouch << 4);
+    mData1 = noteNumber;
+    mData2 = pressure;
+    mOffset = offset;
   }
   
   /** @return [0, 15] for midi channels 1 ... 16 */
