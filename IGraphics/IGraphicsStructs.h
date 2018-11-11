@@ -245,7 +245,7 @@ struct IColor
 
   static IColor GetRandomColor(bool randomAlpha = false)
   {
-    int A = randomAlpha ? rand() & 0xFF : 255;
+    int A = randomAlpha ? std::rand() & 0xFF : 255;
     int R = std::rand() & 0xFF;
     int G = std::rand() & 0xFF;
     int B = std::rand() & 0xFF;
@@ -789,10 +789,10 @@ struct IRECT
   
   bool IsPixelAligned() const
   {
-    return !(L - floor(L) && T - floor(T) && R - floor(R) && B - floor(B));
+    return !(L - std::floor(L) && T - std::floor(T) && R - std::floor(R) && B - std::floor(B));
   }
   
-  // Pixel Aligns in an inclusive manner (moves all points outwards)
+  // Pixel aligns in an inclusive manner (moves all points outwards)
   inline void PixelAlign() 
   {
     L = std::floor(L);
