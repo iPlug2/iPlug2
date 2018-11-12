@@ -76,9 +76,10 @@
     <meta name="theme-color" content="#ffffff">
  -->
     <script src="scripts/audioworklet.js"></script>
-    <script async src="resources.js"></script>
+    <script async src="fonts.js"></script>
+    <script async src="imgs.js"></script>
+    <script async src="imgs@2x.js"></script>
     <script async src="scripts/NAME_PLACEHOLDER-web.js"></script>
-
   </head>
   <body>
     <div id="main">
@@ -93,7 +94,7 @@
       </div>
     <div id="wam" hidden=1>
       <input id="pluginInput" type="file" style="visibility:hidden"/>
-      <canvas class="iplug" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+      <canvas class="pluginArea" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
     </div>
     <script type='text/javascript'>
 
@@ -162,7 +163,7 @@
         }
       }
 
-      function main() {
+      function main() {        
         var actx = new AudioContext();
         AWPF.polyfill(actx).then( function () {
           var script1 = document.createElement("script");

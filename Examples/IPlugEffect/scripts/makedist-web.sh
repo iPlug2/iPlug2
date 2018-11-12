@@ -31,7 +31,22 @@ fi
 mkdir build-web/scripts
 
 echo BUNDLING RESOURCES -----------------------------
-python $EMSCRIPTEN/tools/file_packager.py ./build-web/resources.data --use-preload-plugins --preload ./resources/img@/ --preload ./resources/fonts@/ --js-output=./build-web/resources.js
+cd build-web
+python $EMSCRIPTEN/tools/file_packager.py fonts.data --preload ../resources/fonts/ --js-output=fonts.js
+echo "if(window.devicePixelRatio == 1) {\n" > imgs.js
+#--use-preload-cache --indexedDB-name="/IPlugEffect_data"
+python $EMSCRIPTEN/tools/file_packager.py imgs.data --use-preload-plugins --preload ../resources/img/ --exclude *@2x.png >> imgs.js
+echo "\n}" >> imgs.js
+# @ package @2x resources into separate .data file
+mkdir ./2x/
+cp ../resources/img/*@2x* ./2x
+echo "if(window.devicePixelRatio > 1) {\n" > imgs@2x.js
+#--use-preload-cache --indexedDB-name="/IPlugEffect_data"
+python $EMSCRIPTEN/tools/file_packager.py imgs@2x.data --use-preload-plugins --preload ./2x@/resources/img/ >> imgs@2x.js
+echo "\n}" >> imgs@2x.js
+rm -r ./2x
+
+cd ..
 echo -
 
 if [ "$websocket" -eq "0" ]
