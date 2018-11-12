@@ -183,26 +183,7 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
   
   AAX_ASSERT (err == AAX_SUCCESS);
   
-  char* mfrNameStr = AAX_PLUG_MFR_STR;
-  
-  while (mfrNameStr)
-  {
-    auto span = strcspn(mfrNameStr, "\n");
-    
-    if (span)
-    {
-      subStr.Set(mfrNameStr, (int) span);
-      pC->SetManufacturerName(subStr.Get());
-      mfrNameStr = strstr(mfrNameStr, "\n");
-      
-      if (mfrNameStr)
-        ++mfrNameStr;
-    }
-    else
-    {
-      break;
-    }
-  }
+  pC->SetManufacturerName(AAX_PLUG_MFR_STR);
   
   pC->SetPackageVersion(PLUG_VERSION_HEX);
   
