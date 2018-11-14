@@ -83,6 +83,9 @@ public:
   IPlugView* PLUGIN_API createView (const char* name) override;
   tresult PLUGIN_API setEditorState (IBStream* state) override;
   tresult PLUGIN_API getEditorState (IBStream* state) override;
+  tresult PLUGIN_API setState(IBStream* state) override;
+  tresult PLUGIN_API getState(IBStream* state) override;
+  tresult PLUGIN_API setComponentState(IBStream *state) override;
   tresult PLUGIN_API setParamNormalized (uint32 tag, double value) override;
   double PLUGIN_API getParamNormalized(uint32 tag) override;
   double PLUGIN_API plainParamToNormalized(uint32 tag, double plainValue) override;

@@ -646,6 +646,21 @@ tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
   return kResultOk;
 }
 
+tresult PLUGIN_API IPlugVST3::setComponentState(IBStream* state)
+{
+  return setEditorState(state);
+}
+
+tresult PLUGIN_API IPlugVST3::setState(IBStream* state)
+{
+  return setEditorState(state);
+}
+
+tresult PLUGIN_API IPlugVST3::getState(IBStream* state)
+{
+  return getEditorState(state);
+}
+
 ParamValue PLUGIN_API IPlugVST3::plainParamToNormalized(ParamID tag, ParamValue plainValue)
 {
   ENTER_PARAMS_MUTEX;
