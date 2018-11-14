@@ -169,16 +169,21 @@ bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String
   if (CStringHasContents(name))
   {
     WDL_String plusSlash;
-    plusSlash.SetFormatted(strlen(name) + 1, "/%s", name);
     
     bool foundResource = false;
     
-    if(strcmp(type, "png") == 0)
+    if(strcmp(type, "png") == 0) {
+      plusSlash.SetFormatted(strlen("/resources/img/") + strlen(name) + 1, "/resources/img/%s", name);
       foundResource = GetPreloadedImages().call<bool>("hasOwnProperty", std::string(plusSlash.Get()));
-    else if(strcmp(type, "ttf") == 0)
+    }
+    else if(strcmp(type, "ttf") == 0) {
+      plusSlash.SetFormatted(strlen("/resources/fonts/") + strlen(name) + 1, "/resources/fonts/%s", name);
       foundResource = true; // TODO: check ttf
-    else if(strcmp(type, "svg") == 0)
+    }
+    else if(strcmp(type, "svg") == 0) {
+      plusSlash.SetFormatted(strlen("/resources/img/") + strlen(name) + 1, "/resources/img/%s", name);
       foundResource = true; // TODO: check svg
+    }
     
     if(foundResource)
     {
