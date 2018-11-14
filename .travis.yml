@@ -31,7 +31,7 @@ deploy:
   provider: pages
   skip_cleanup: true
   local_dir: Documentation/html
-  github_token: $iPlug2-private_pat
+  github_token: $GITHUB_TOKEN
   on:
     branch: master
 
