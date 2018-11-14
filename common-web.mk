@@ -50,6 +50,7 @@ WEB_SRC = $(IGRAPHICS_SRC) \
 $(IPLUG_WEB_PATH)/IPlugWeb.cpp \
 $(IGRAPHICS_PATH)/IGraphicsEditorDelegate.cpp
 
+# CFLAGS for both WAM and WEB targets
 CFLAGS = $(INCLUDE_PATHS) \
 -std=c++11  \
 -Wno-bitwise-op-parentheses \
@@ -71,10 +72,8 @@ WAM_EXPORTS = "[\
 
 WEB_EXPORTS = "['_main', '_iplug_fsready', '_iplug_syncfs']"
 
-LDFLAGS = -O2 \
--s ASSERTIONS=0 \
--s ALLOW_MEMORY_GROWTH=1 \
---bind
+# LDFLAGS for both WAM and WEB targets
+LDFLAGS = -s ALLOW_MEMORY_GROWTH=1 --bind
 
 # We can't compile the WASM module synchronously on main thread (.wasm over 4k in size requires async compile on chrome) https://developers.google.com/web/updates/2018/04/loading-wasm
 # and you can't compile asynchronously in AudioWorklet scope
