@@ -508,20 +508,35 @@ tresult PLUGIN_API IPlugVST3Processor::canProcessSampleSize(int32 symbolicSample
 tresult PLUGIN_API IPlugVST3Processor::setState(IBStream* state)
 {
   TRACE;
+  
   IByteChunk chunk;
-  int chunkSize = 0;
-  state->read(&chunkSize, sizeof(int));
-  chunk.Resize(chunkSize);
-  state->read(chunk.GetBytes(), chunk.Size());
   
-  int readPos = 0;
-  IByteChunk::GetIPlugVerFromChunk(chunk, readPos);
-  int bypassState;
-  readPos = chunk.Get(&bypassState, readPos);
-  //TODO: do something with bypass state
-  UnserializeState(chunk, readPos);
+  const int bytesPerBlock = 128;
+  char buffer[bytesPerBlock];
   
-  return kResultTrue;
+  while(true)
+  {
+    Steinberg::int32 bytesRead = 0;
+    auto status = state->read (buffer, (Steinberg::int32) bytesPerBlock, &bytesRead);
+    
+    if (bytesRead <= 0 || (status != kResultTrue && GetHost() != kHostWaveLab))
+      break;
+    
+    chunk.PutBytes(buffer, bytesRead);
+  }
+  int pos = UnserializeState(chunk,0);
+  
+  int32 savedBypass = 0;
+  
+  state->seek(pos,IBStream::IStreamSeekMode::kIBSeekSet);
+  if (state->read (&savedBypass, sizeof (Steinberg::int32)) != kResultOk) {
+    return kResultFalse;
+  }
+  
+  _SetBypassed((bool) savedBypass);
+  
+  OnRestoreState();
+  return kResultOk;
 }
 
 tresult PLUGIN_API IPlugVST3Processor::getState(IBStream* state)

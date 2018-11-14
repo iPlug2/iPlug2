@@ -588,32 +588,37 @@ IPlugView* PLUGIN_API IPlugVST3::createView(const char* name)
 
 tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* state)
 {
+  
   TRACE;
-
+  
   IByteChunk chunk;
-  //InitChunkWithIPlugVer(&chunk); // TODO: IPlugVer should be in chunk!
-
-  SerializeState(chunk); // to get the size
-
-  if (chunk.Size() > 0)
+  
+  const int bytesPerBlock = 128;
+  char buffer[bytesPerBlock];
+  
+  while(true)
   {
-    state->read(chunk.GetBytes(), chunk.Size());
-    UnserializeState(chunk, 0);
-
-    int32 savedBypass = 0;
-
-    if (state->read (&savedBypass, sizeof (int32)) != kResultOk)
-    {
-      return kResultFalse;
-    }
-
-    _SetBypassed((bool) savedBypass);
-
-    OnRestoreState();
-    return kResultOk;
+    Steinberg::int32 bytesRead = 0;
+    auto status = state->read (buffer, (Steinberg::int32) bytesPerBlock, &bytesRead);
+    
+    if (bytesRead <= 0 || (status != kResultTrue && GetHost() != kHostWaveLab))
+      break;
+    
+    chunk.PutBytes(buffer, bytesRead);
   }
-
-  return kResultFalse;
+  int pos = UnserializeState(chunk,0);
+  
+  int32 savedBypass = 0;
+  
+  state->seek(pos,IBStream::IStreamSeekMode::kIBSeekSet);
+  if (state->read (&savedBypass, sizeof (Steinberg::int32)) != kResultOk) {
+    return kResultFalse;
+  }
+  
+  _SetBypassed((bool) savedBypass);
+  
+  OnRestoreState();
+  return kResultOk;
 }
 
 tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
