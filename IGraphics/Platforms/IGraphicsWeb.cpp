@@ -149,12 +149,8 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
 {
   OnViewInitialized(nullptr /* not used */);
 
-#if defined GRAPHICS_SCALING
   SetDisplayScale(val::global("window")["devicePixelRatio"].as<int>());
-#else
-  SetDisplayScale(1);
-#endif
-  
+
   GetDelegate()->LayoutUI(this);
   
   return nullptr;
@@ -326,6 +322,19 @@ bool IGraphicsWeb::OpenURL(const char* url, const char* msgWindowTitle, const ch
   val::global("window").call<val>("open", std::string(url), std::string("_blank"));
   
   return true;
+}
+
+void IGraphicsWeb::DrawResize()
+{
+  val canvas = GetCanvas();
+  
+  canvas["style"].set("width", val(Width() * GetScale()));
+  canvas["style"].set("height", val(Height() * GetScale()));
+  
+  canvas.set("width", Width() * GetScale() * GetDisplayScale());
+  canvas.set("height", Height() * GetScale() * GetDisplayScale());
+  
+  IGRAPHICS_DRAW_CLASS::DrawResize();
 }
 
 #if defined IGRAPHICS_CANVAS

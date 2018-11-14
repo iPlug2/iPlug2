@@ -251,19 +251,6 @@ void IGraphicsCanvas::SetClipRegion(const IRECT& r)
   }
 }
 
-void IGraphicsCanvas::DrawResize()
-{
-  val canvas = GetCanvas();
-
-  canvas["style"].set("width", val(Width() * GetScale()));
-  canvas["style"].set("height", val(Height() * GetScale()));
-
-  canvas.set("width", Width() * GetScale() * GetDisplayScale());
-  canvas.set("height", Height() * GetScale() * GetDisplayScale());
-  
-  IGraphicsWeb::OnMainLoopTimer();
-}
-
 APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
 {
   return new WebBitmap(GetPreloadedImages()[resourcePath.Get()], resourcePath.Get() + 1, scale);

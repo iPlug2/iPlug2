@@ -35,6 +35,8 @@ public:
   IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsWeb();
 
+  void DrawResize() override;
+
   const char* GetPlatformAPIStr() override { return "WEB"; }
 
   void SetPlatformContext(void* pContext) override {} // TODO:
