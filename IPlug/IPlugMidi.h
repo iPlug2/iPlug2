@@ -20,9 +20,7 @@
 #include <cstdio>
 #include <algorithm>
 
-#ifdef TRACER_BUILD
 #include "IPlugLogger.h"
-#endif
 
 /** Encapsulates a MIDI message and provides helper functions */
 struct IMidiMsg
@@ -145,7 +143,7 @@ struct IMidiMsg
   }
   
   /** @param value range [-1, 1], converts to [0, 16384) where 8192 = no pitch change. */
-  void MakePitchWheelMsg(double value, int channel = 0)
+  void MakePitchWheelMsg(double value, int channel = 0, int offset = 0)
   {
     Clear();
     mStatus = channel | (kPitchWheel << 4);
@@ -153,15 +151,35 @@ struct IMidiMsg
     i = std::min(std::max(i, 0), 16383);
     mData2 = i>>7;
     mData1 = i&0x7F;
+    mOffset = offset;
   }
   
   /** @param value range [0, 1] */
-  void MakeControlChangeMsg(EControlChangeMsg idx, double value, int channel = 0)
+  void MakeControlChangeMsg(EControlChangeMsg idx, double value, int channel = 0, int offset = 0)
   {
     Clear();
     mStatus = channel | (kControlChange << 4);
     mData1 = idx;
     mData2 = (int) (value * 127.0);
+    mOffset = offset;
+  }
+  
+  void MakeChannelATMsg(int pressure, int offset, int channel)
+  {
+    Clear();
+    mStatus = channel | (kChannelAftertouch << 4);
+    mData1 = pressure;
+    mData2 = 0;
+    mOffset = offset;
+  }
+  
+  void MakePolyATMsg(int noteNumber, int pressure, int offset, int channel)
+  {
+    Clear();
+    mStatus = channel | (kPolyAftertouch << 4);
+    mData1 = noteNumber;
+    mData2 = pressure;
+    mOffset = offset;
   }
   
   /** @return [0, 15] for midi channels 1 ... 16 */
@@ -267,10 +285,11 @@ struct IMidiMsg
     return -1.0;
   }
   
+  /** @return \c true = on */
   static bool ControlChangeOnOff(double msgValue)
   {
     return (msgValue >= 0.5);
-  }  // true = on.
+  }
   
   void Clear()
   {
@@ -278,7 +297,7 @@ struct IMidiMsg
     mStatus = mData1 = mData2 = 0;
   }
   
-  const char* StatusMsgStr(EStatusMsg msg)
+  const char* StatusMsgStr(EStatusMsg msg) const
   {
     switch (msg)
     {
@@ -296,9 +315,12 @@ struct IMidiMsg
   
   void LogMsg()
   {
-#ifdef TRACER_BUILD
     Trace(TRACELOC, "midi:(%s:%d:%d:%d)", StatusMsgStr(StatusMsg()), Channel(), mData1, mData2);
-#endif
+  }
+  
+  void PrintMsg() const
+  {
+    DBGMSG("midi: offset %i, (%s:%d:%d:%d)\n", mOffset, StatusMsgStr(StatusMsg()), Channel(), mData1, mData2);
   }
 };
 
@@ -344,10 +366,8 @@ struct ISysEx
   
   void LogMsg()
   {
-#ifdef TRACER_BUILD
     char str[96];
     Trace(TRACELOC, "sysex:(%d:%s)", mSize, SysExStr(str, sizeof(str), mData, mSize));
-#endif
   }
 
 };

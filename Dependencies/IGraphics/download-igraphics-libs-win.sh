@@ -1,20 +1,35 @@
 #!/usr/bin/env bash
 set -e
 
-IGRAPHICS_DIR="$PWD"
-BUILD_DIR="$PWD/../Build"
-DL_DIR="$BUILD_DIR/src"
-INSTALL_DIR="$BUILD_DIR/win"
+IGRAPHICS_DEPS_DIR="$(dirname "$0")"
+BUILD_DIR="$IGRAPHICS_DEPS_DIR/../Build"
+DL_DIR="$BUILD_DIR/tmp"
+SRC_DIR="$BUILD_DIR/src"
 LOG_PATH="$BUILD_DIR"
 LOG_NAME="build-win.log"
 
-CAIRO_VERSION=cairo-1.16.0
+# Basename part of tarballs to download
+CAIRO_VERSION=1.16.0
 FREETYPE_VERSION=freetype-2.9.1
 PKGCONFIG_VERSION=pkg-config-0.28
 PIXMAN_VERSION=pixman-0.34.0
 EXPAT_VERSION=expat-2.2.5
-PNG_VERSION=libpng-1.6.34
+PNG_VERSION=v1.6.35
 ZLIB_VERSION=zlib-1.2.11
+
+# URLs where tarballs of releases can be downloaded - no trailing slash
+#CAIRO tarball is compressed using xz which is not available on git-bash shell, so checkout tag via git
+CAIRO_URL=git://git.cairographics.org/git/cairo
+PNG_URL=https://github.com/glennrp/libpng/archive
+ZLIB_URL=https://www.zlib.net
+PIXMAN_URL=https://cairographics.org/releases
+FREETYPE_URL=https://download.savannah.gnu.org/releases/freetype
+
+echo "IGRAPHICS_DIR:" $IGRAPHICS_DEPS_DIR
+echo "BUILD_DIR:" $BUILD_DIR
+echo "DL_DIR:" $DL_DIR
+echo "LOG_PATH:" $LOG_PATH
+echo "LOG_NAME:" $LOG_NAME
 
 err_report() {
     echo
@@ -22,7 +37,7 @@ err_report() {
     echo "Error: something went wrong during the build process, printing $LOG_NAME "
     echo "*******************************************************************************"
     echo
-    cat $LOG_PATH/$LOG_NAME
+    cat "$LOG_PATH/$LOG_NAME"
 }
 
 trap err_report ERR
@@ -44,12 +59,10 @@ spin() {
 
 cd "${0%/*}"
 
-##echo "CFLAGS $CFLAGS"
-
 echo
 echo "###################################################################################"
 echo
-echo "     This script will download and build libraries required for IGraphics on windows,"
+echo "     This script will download libraries required for IGraphics on windows,"
 echo "     please relax and have a cup of tea, it'll take a while..."
 echo
 echo "###################################################################################"
@@ -65,121 +78,119 @@ then
   mkdir "$DL_DIR"
 fi
 
-if [ ! -d "$INSTALL_DIR" ]
+if [ ! -d "$SRC_DIR" ]
 then
-mkdir "$INSTALL_DIR"
+  mkdir "$SRC_DIR"
 fi
 
 cd "$DL_DIR"
 
 echo
 
-
-if [ -e $LOG_PATH/$LOG_NAME ]
+if [ -e "$LOG_PATH/$LOG_NAME" ]
 then
-    rm $LOG_PATH/$LOG_NAME
+    rm "$LOG_PATH/$LOG_NAME"
 else
-    touch $LOG_PATH/$LOG_NAME
+    touch "$LOG_PATH/$LOG_NAME"
 fi
 
 #######################################################################
 
 #zlib
-if [ -d "zlib" ]
+if [ -d "$SRC_DIR/zlib" ]
 then
   echo "Found zlib"
 else
-  echo "Installing zlib"
+  echo
+  echo "Downloading zlib"
   if [ -e $ZLIB_VERSION.tar.gz ]
   then
     echo "Tarball Present..."
   else
-    echo "Downloading zlib"
-    curl -L --progress-bar -O https://www.zlib.net/$ZLIB_VERSION.tar.gz
+    curl -L --progress-bar -O $ZLIB_URL/$ZLIB_VERSION.tar.gz
   fi
-  echo "Unpacking zlib..."
+  echo "Unpacking..."
   tar -xf $ZLIB_VERSION.tar.gz
-  mv $ZLIB_VERSION zlib
+  mv $ZLIB_VERSION "$SRC_DIR/zlib"
 fi
 
 #######################################################################
 
 #libpng
-if [ -d "libpng" ]
+if [ -d "$SRC_DIR/libpng" ]
  then
-   echo "Found libpng"
+  echo "Found libpng"
  else
+  echo
   echo "Downloading libpng..."
-  curl -L --progress-bar -O http://github.com/glennrp/libpng-releases/raw/master/$PNG_VERSION.tar.xz
-    echo "Unpacking..."
-  tar -xf $PNG_VERSION.tar.xz
-  mv $PNG_VERSION libpng
-# echo
-# echo "Installing libpng"
-  # git clone https://git.code.sf.net/p/libpng/code libpng
-  # cd libpng
-  # git checkout -b build libpng-1.6.9-signed
-  # rm -r .git
-  # cd ..
-  cp libpng/scripts/pnglibconf.h.prebuilt libpng/pnglibconf.h
+  if [ -e $PNG_VERSION.tar.gz ]
+  then
+    echo "Tarball Present..."
+  else
+    curl -L --progress-bar -O $PNG_URL/$PNG_VERSION.tar.gz
+  fi
+  echo "Unpacking..."
+  tar -xf $PNG_VERSION.tar.gz
+  mv libpng* "$SRC_DIR/libpng"
+  echo "copying pnglibconf.h"
+  cp "$SRC_DIR/libpng/scripts/pnglibconf.h.prebuilt" "$SRC_DIR/libpng/pnglibconf.h"
 fi
   
 #######################################################################
 
 #pixman
-if [ -d "pixman" ]
+if [ -d "$SRC_DIR/pixman" ]
  then
    echo "Found pixman"
  else
-  echo "Installing pixman"
+  echo
+  echo "Downloading pixman"
   if [ -e $PIXMAN_VERSION.tar.gz ]
   then
     echo "Tarball Present..."
   else
     echo "Downloading..."
-    curl -L --progress-bar -O https://cairographics.org/releases/$PIXMAN_VERSION.tar.gz
+    curl -L --progress-bar -O $PIXMAN_URL/$PIXMAN_VERSION.tar.gz
   fi
   echo "Unpacking..."
   tar -xf $PIXMAN_VERSION.tar.gz
-  
-  mv $PIXMAN_VERSION pixman
+  mv $PIXMAN_VERSION "$SRC_DIR/pixman"
 fi
 
 #######################################################################
 
 #freetype
-if [ -d "freetype" ]
+if [ -d "$SRC_DIR/freetype" ]
 then
   echo "Found freetype"
 else
   echo
-  echo "Installing freetype"
+  echo "Downloading freetype"
   if [ -e $FREETYPE_VERSION.tar.gz ]
   then
     echo "Tarball Present..."
   else
     echo "Downloading..."
-    curl --progress-bar -OL --disable-epsv https://download.savannah.gnu.org/releases/freetype/$FREETYPE_VERSION.tar.gz
+    curl --progress-bar -OL --disable-epsv $FREETYPE_URL/$FREETYPE_VERSION.tar.gz
   fi
   echo "Unpacking..."
   tar -xf $FREETYPE_VERSION.tar.gz
-  mv $FREETYPE_VERSION freetype
+  mv $FREETYPE_VERSION "$SRC_DIR/freetype"
 fi
 
 #######################################################################
 
 #cairo
-if [ -d "cairo" ]
+if [ -d "$SRC_DIR/cairo" ]
 then
   echo "Found cairo"
 else
-  echo "Installing cairo"
-  git clone git://git.cairographics.org/git/cairo cairo
-  cd cairo
-  git checkout -b build 1.16.0
+  echo "Downloading cairo"
+  git clone $CAIRO_URL "$SRC_DIR/cairo"
+  cd "$SRC_DIR/cairo"
+  git checkout -b build $CAIRO_VERSION
   rm -r -f .git
-  cd ..
+  cd "$IGRAPHICS_DEPS_DIR"
 fi
-
 
 #rm -r $DL_DIR

@@ -4,7 +4,7 @@
 
 /** IGraphics platform class for IOS
 *   @ingroup PlatformClasses */
-class IGraphicsIOS : public IGraphicsNanoVG
+class IGraphicsIOS final : public IGraphicsNanoVG
 {
 public:
   IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float scale);

@@ -1,4 +1,4 @@
-class IPlugWAM_AWP extends AudioWorkletGlobalScope.WAMProcessor
+class NAME_PLACEHOLDER_AWP extends AudioWorkletGlobalScope.WAMProcessor
 {
   constructor(options) {
     options = options || {}
@@ -7,4 +7,4 @@ class IPlugWAM_AWP extends AudioWorkletGlobalScope.WAMProcessor
   }
 }
 
-registerProcessor("IPlugWAM", IPlugWAM_AWP);
+registerProcessor("NAME_PLACEHOLDER", NAME_PLACEHOLDER_AWP);

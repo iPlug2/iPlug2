@@ -17,8 +17,6 @@
 
 #include "IPlugPlatform.h"
 #include "IGraphicsConstants.h"
-#include "IGraphicsUtilities.h"
-
 
 class IGraphics;
 class IControl;
@@ -245,7 +243,7 @@ struct IColor
 
   static IColor GetRandomColor(bool randomAlpha = false)
   {
-    int A = randomAlpha ? rand() & 0xFF : 255;
+    int A = randomAlpha ? std::rand() & 0xFF : 255;
     int R = std::rand() & 0xFF;
     int G = std::rand() & 0xFF;
     int B = std::rand() & 0xFF;
@@ -393,6 +391,8 @@ struct IStrokeOptions
 };
 
 /** Used to store transformation matrices**/
+
+static double DegToRad(double deg);
 
 struct IMatrix
 {
@@ -789,10 +789,10 @@ struct IRECT
   
   bool IsPixelAligned() const
   {
-    return !(L - floor(L) && T - floor(T) && R - floor(R) && B - floor(B));
+    return !(L - std::floor(L) && T - std::floor(T) && R - std::floor(R) && B - std::floor(B));
   }
   
-  // Pixel Aligns in an inclusive manner (moves all points outwards)
+  // Pixel aligns in an inclusive manner (moves all points outwards)
   inline void PixelAlign() 
   {
     L = std::floor(L);
@@ -1054,6 +1054,8 @@ struct IMouseMod
   bool L, R, S, C, A;
   IMouseMod(bool l = false, bool r = false, bool s = false, bool c = false, bool a = false)
     : L(l), R(r), S(s), C(c), A(a) {}
+  
+  void DBGPrint() { DBGMSG("L: %i, R: %i, S: %i, C: %i,: A: %i\n", L, R, S, C, A); }
 };
 
 struct IMouseInfo

@@ -130,7 +130,7 @@ static const int kNoTag = -1;
 
 #define MAX_BUS_CHANS 64 // wild cards in channel i/o strings will result in this many channels
 
-//#ifdef VST3_API
+//#if defined VST3_API || defined VST3C_API || defined VST3P_API
 //#undef stricmp
 //#undef strnicmp
 //#include "pluginterfaces/vst/vsttypes.h"

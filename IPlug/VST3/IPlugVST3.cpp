@@ -79,6 +79,8 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   // Make sure the process context is predictably initialised in case it is used before process is called
 
   memset(&mProcessContext, 0, sizeof(ProcessContext));
+  
+  CreateTimer();
 }
 
 IPlugVST3::~IPlugVST3() {}
@@ -134,7 +136,7 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
     if(DoesMIDI())
     {
       addEventInput(STR16("MIDI Input"), 1);
-      //addEventOutput(STR16("MIDI Output"), 1);
+      addEventOutput(STR16("MIDI Output"), 1);
     }
 
     if (NPresets())
@@ -268,6 +270,7 @@ tresult PLUGIN_API IPlugVST3::setupProcessing(ProcessSetup& newSetup)
   _SetSampleRate(newSetup.sampleRate);
   _SetBypassed(false);
   IPlugProcessor::_SetBlockSize(newSetup.maxSamplesPerBlock); // TODO: should IPlugVST3 call SetBlockSizein construct unlike other APIs?
+  mMidiOutputQueue.Resize(newSetup.maxSamplesPerBlock);
   OnReset();
 
   processSetup = newSetup;
@@ -342,6 +345,8 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 
   if(DoesMIDI())
   {
+    IMidiMsg msg;
+
     //process events.. only midi note on and note off?
     IEventList* eventList = data.inputEvents;
     if (eventList)
@@ -352,7 +357,6 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
         Event event;
         if (eventList->getEvent(i, event) == kResultOk)
         {
-          IMidiMsg msg;
           switch (event.type)
           {
             case Event::kNoteOnEvent:
@@ -362,7 +366,6 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
               mMidiMsgsFromProcessor.Push(msg);
               break;
             }
-
             case Event::kNoteOffEvent:
             {
               msg.MakeNoteOffMsg(event.noteOff.pitch, event.sampleOffset, event.noteOff.channel);
@@ -370,9 +373,21 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
               mMidiMsgsFromProcessor.Push(msg);
               break;
             }
+            case Event::kPolyPressureEvent:
+            {
+              msg.MakePolyATMsg(event.polyPressure.pitch, event.polyPressure.pressure * 127., event.sampleOffset, event.polyPressure.channel);
+              ProcessMidiMsg(msg);
+              mMidiMsgsFromProcessor.Push(msg);
+              break;
+            }
           }
         }
       }
+    }
+    
+    while (mMidiMsgsFromEditor.Pop(msg))
+    {
+      ProcessMidiMsg(msg);
     }
   }
 
@@ -478,20 +493,61 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
       _ProcessBuffers(0.0, data.numSamples); // process buffers double precision
   }
 
-// Midi Out
-//  if (mDoesMidi) {
-//    IEventList eventList = data.outputEvents;
-//
-//    if (eventList)
-//    {
-//      Event event;
-//
-//      while (!mMidiOutputQueue.Empty()) {
-//        //TODO: parse events and add
-//        eventList.addEvent(event);
-//      }
-//    }
-//  }
+  // Midi Out
+  if (DoesMIDI())
+  {
+    IEventList* outputEvents = data.outputEvents;
+    
+    //MIDI
+    if (!mMidiOutputQueue.Empty() && outputEvents)
+    {
+      Event toAdd = {0};
+      IMidiMsg msg;
+      
+      while (!mMidiOutputQueue.Empty())
+      {
+        IMidiMsg& msg = mMidiOutputQueue.Peek();
+        
+        if (msg.StatusMsg() == IMidiMsg::kNoteOn)
+        {
+          toAdd.type = Event::kNoteOnEvent;
+          toAdd.noteOn.channel = msg.Channel();
+          toAdd.noteOn.pitch = msg.NoteNumber();
+          toAdd.noteOn.tuning = 0.;
+          toAdd.noteOn.velocity = (float) msg.Velocity() * (1.f / 127.f);
+          toAdd.noteOn.length = -1;
+          toAdd.noteOn.noteId = -1; // TODO ?
+          toAdd.sampleOffset = msg.mOffset;
+          outputEvents->addEvent(toAdd);
+        }
+        else if (msg.StatusMsg() == IMidiMsg::kNoteOff)
+        {
+          toAdd.type = Event::kNoteOffEvent;
+          toAdd.noteOff.channel = msg.Channel();
+          toAdd.noteOff.pitch = msg.NoteNumber();
+          toAdd.noteOff.velocity = (float) msg.Velocity() * (1.f / 127.f);
+          toAdd.noteOff.noteId = -1; // TODO ?
+          toAdd.sampleOffset = msg.mOffset;
+          outputEvents->addEvent(toAdd);
+        }
+        else if (msg.StatusMsg() == IMidiMsg::kPolyAftertouch)
+        {
+          toAdd.type = Event::kPolyPressureEvent;
+          toAdd.polyPressure.channel = msg.Channel();
+          toAdd.polyPressure.pitch = msg.NoteNumber();
+          toAdd.polyPressure.pressure = (float) msg.PolyAfterTouch() * (1.f / 127.f);
+          toAdd.polyPressure.noteId = -1; // TODO ?
+          toAdd.sampleOffset = msg.mOffset;
+          outputEvents->addEvent(toAdd);
+        }
+        
+        mMidiOutputQueue.Remove();
+        // don't add any midi messages other than noteon/noteoff
+      }
+    }
+    
+    mMidiOutputQueue.Flush(data.numSamples);
+  }
 
   return kResultOk;
 }
@@ -532,32 +588,37 @@ IPlugView* PLUGIN_API IPlugVST3::createView(const char* name)
 
 tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* state)
 {
+  
   TRACE;
-
+  
   IByteChunk chunk;
-  //InitChunkWithIPlugVer(&chunk); // TODO: IPlugVer should be in chunk!
-
-  SerializeState(chunk); // to get the size
-
-  if (chunk.Size() > 0)
+  
+  const int bytesPerBlock = 128;
+  char buffer[bytesPerBlock];
+  
+  while(true)
   {
-    state->read(chunk.GetBytes(), chunk.Size());
-    UnserializeState(chunk, 0);
-
-    int32 savedBypass = 0;
-
-    if (state->read (&savedBypass, sizeof (int32)) != kResultOk)
-    {
-      return kResultFalse;
-    }
-
-    _SetBypassed((bool) savedBypass);
-
-    OnRestoreState();
-    return kResultOk;
+    Steinberg::int32 bytesRead = 0;
+    auto status = state->read (buffer, (Steinberg::int32) bytesPerBlock, &bytesRead);
+    
+    if (bytesRead <= 0 || (status != kResultTrue && GetHost() != kHostWaveLab))
+      break;
+    
+    chunk.PutBytes(buffer, bytesRead);
   }
-
-  return kResultFalse;
+  int pos = UnserializeState(chunk,0);
+  
+  int32 savedBypass = 0;
+  
+  state->seek(pos,IBStream::IStreamSeekMode::kIBSeekSet);
+  if (state->read (&savedBypass, sizeof (Steinberg::int32)) != kResultOk) {
+    return kResultFalse;
+  }
+  
+  _SetBypassed((bool) savedBypass);
+  
+  OnRestoreState();
+  return kResultOk;
 }
 
 tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
@@ -583,6 +644,21 @@ tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
   state->write(&toSaveBypass, sizeof (int32));
 
   return kResultOk;
+}
+
+tresult PLUGIN_API IPlugVST3::setComponentState(IBStream* state)
+{
+  return setEditorState(state);
+}
+
+tresult PLUGIN_API IPlugVST3::setState(IBStream* state)
+{
+  return setEditorState(state);
+}
+
+tresult PLUGIN_API IPlugVST3::getState(IBStream* state)
+{
+  return getEditorState(state);
 }
 
 ParamValue PLUGIN_API IPlugVST3::plainParamToNormalized(ParamID tag, ParamValue plainValue)
@@ -834,6 +910,12 @@ void IPlugVST3::PreProcess()
   _SetRenderingOffline(offline);
 }
 
+bool IPlugVST3::SendMidiMsg(const IMidiMsg& msg)
+{
+  mMidiOutputQueue.Add(msg);
+  return true;
+}
+
 #pragma mark - IPlugVST3View
 IPlugVST3View::IPlugVST3View(IPlugVST3* pPlug)
   : mPlug(pPlug)
@@ -862,8 +944,6 @@ tresult PLUGIN_API IPlugVST3View::isPlatformTypeSupported(FIDString type)
 
 #elif defined OS_MAC
     if (strcmp (type, kPlatformTypeNSView) == 0)
-      return kResultTrue;
-    else if (strcmp(type, kPlatformTypeHIView) == 0)
       return kResultTrue;
 #endif
   }

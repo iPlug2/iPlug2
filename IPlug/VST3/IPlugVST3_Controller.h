@@ -17,6 +17,11 @@
 #ifndef _IPLUGAPI_
 #define _IPLUGAPI_
 
+/**
+ * @file
+ * @copydoc IPlugVST3Controller
+ */
+
 #undef stricmp
 #undef strnicmp
 #include "public.sdk/source/vst/vsteditcontroller.h"
@@ -28,6 +33,8 @@ using namespace Vst;
 
 class IPlugVST3View;
 
+/**  VST3 Controller base class for a distributed IPlug VST3 plug-in
+ *   @ingroup APIClasses */
 class IPlugVST3Controller : public EditControllerEx1
                           , public IMidiMapping
                           , public IPlugAPIBase
@@ -79,8 +86,10 @@ public:
   void SendSysexMsgFromUI(const ISysEx& msg) override { /* TODO */ };
   void SendArbitraryMsgFromUI(int messageTag, int controlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) override;
 
+  Vst::IComponentHandler* GetComponentHandler() const { return componentHandler; }
+  IPlugVST3View* GetView() const { return mView; }
+
 private:
-  Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }
   IPlugVST3View* mView = nullptr;
   Steinberg::FUID mProcessorGUID;
 };

@@ -31,7 +31,22 @@ fi
 mkdir build-web/scripts
 
 echo BUNDLING RESOURCES -----------------------------
-python $EMSCRIPTEN/tools/file_packager.py ./build-web/resources.data --use-preload-plugins --preload ./resources/img@/ --preload ./resources/fonts@/ --js-output=./build-web/resources.js
+cd build-web
+python $EMSCRIPTEN/tools/file_packager.py fonts.data --preload ../resources/fonts/ --js-output=fonts.js
+echo "if(window.devicePixelRatio == 1) {\n" > imgs.js
+#--use-preload-cache --indexedDB-name="/IPlugEffect_data"
+python $EMSCRIPTEN/tools/file_packager.py imgs.data --use-preload-plugins --preload ../resources/img/ --exclude *@2x.png >> imgs.js
+echo "\n}" >> imgs.js
+# @ package @2x resources into separate .data file
+mkdir ./2x/
+cp ../resources/img/*@2x* ./2x
+echo "if(window.devicePixelRatio > 1) {\n" > imgs@2x.js
+#--use-preload-cache --indexedDB-name="/IPlugEffect_data"
+python $EMSCRIPTEN/tools/file_packager.py imgs@2x.data --use-preload-plugins --preload ./2x@/resources/img/ >> imgs@2x.js
+echo "\n}" >> imgs@2x.js
+rm -r ./2x
+
+cd ..
 echo -
 
 if [ "$websocket" -eq "0" ]
@@ -55,10 +70,6 @@ then
   wasmOut += \"AudioWorkletGlobalScope.WAM.IPlug = { ENVIRONMENT: 'WEB' }\\\n\";
   wasmOut += \"AudioWorkletGlobalScope.WAM.IPlug.wasmBinary = new Uint8Array([\" + wasmStr + \"]);\";
   fs.writeFileSync(\"IPlugEffect-WAM.wasm.js\", wasmOut);
-  // later we will possibly switch to base64
-  // as suggested by Stephane Letz / Faust
-  // let base64 = wasmData.toString(\"base64\");
-  // fs.writeFileSync(\"IPlugEffect-WAM.base64.js\", base64);
   " > encode-wasm.js
 
   node encode-wasm.js
@@ -68,15 +79,15 @@ then
   cp ../../../../Dependencies/IPlug/WAM_SDK/wamsdk/*.js .
   cp ../../../../Dependencies/IPlug/WAM_AWP/*.js .
   cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awn.js IPlugEffect-awn.js
-  sed -i.bak s/IPlugWAM/IPlugEffect/g IPlugEffect-awn.js
+  sed -i.bak s/NAME_PLACEHOLDER/IPlugEffect/g IPlugEffect-awn.js
   cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awp.js IPlugEffect-awp.js
-  sed -i.bak s/IPlugWAM/IPlugEffect/g IPlugEffect-awp.js
+  sed -i.bak s/NAME_PLACEHOLDER/IPlugEffect/g IPlugEffect-awp.js
   rm *.bak
   cd ..
 
   #copy in the template html - comment if you have customised the html
   cp ../../../IPlug/WEB/Template/IPlugWAM-standalone.html index.html
-  sed -i.bak s/IPlugWAM/IPlugEffect/g index.html
+  sed -i.bak s/NAME_PLACEHOLDER/IPlugEffect/g index.html
   rm *.bak
 
   cp ../../../IPlug/WEB/Template/favicon.ico favicon.ico

@@ -8,7 +8,7 @@
 #include <cstring>
 #include <cstdlib>
 
-#ifdef VST3_API
+#if defined VST3_API || defined VST3C_API
 #undef stricmp
 #undef strnicmp
 #include "pluginterfaces/vst/ivstcontextmenu.h"
@@ -26,7 +26,7 @@
  * Some controls respond to mouse actions, either by moving a bitmap, transforming a bitmap, or cycling through a set of bitmaps.
  * Other controls are readouts only. */
 class IControl
-#ifdef VST3_API
+#if defined VST3_API || defined VST3C_API
 : public Steinberg::Vst::IContextMenuTarget
 , public Steinberg::FObject
 #endif
@@ -383,7 +383,7 @@ public:
     return elapsed.count() / mAnimationDuration.count();
   }
   
-#ifdef VST3_API
+#if defined VST3_API || defined VST3C_API
   Steinberg::tresult PLUGIN_API executeMenuItem (Steinberg::int32 tag) override { OnContextSelection(tag); return Steinberg::kResultOk; }
 #endif
   
@@ -427,7 +427,7 @@ protected:
   IColor mPTHighlightColor = COLOR_RED;
   bool mPTisHighlighted = false;
 
-#ifdef VST3_API
+#if defined VST3_API || defined VST3C_API
   OBJ_METHODS(IControl, FObject)
   DEFINE_INTERFACES
   DEF_INTERFACE (IContextMenuTarget)

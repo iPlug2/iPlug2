@@ -27,16 +27,14 @@
 /** This pure virtual interface delegates communication in both directions between a UI editor and something else (which is usually a plug-in)
  *  It is also the class that owns parameter objects (for historical reasons) - although it's not necessary to allocate them
  *
- *  In distributed plug-in architectures and remote editors, certain methods will be overridden in order to pipe messages to various places
- *
- *  It needn't be a "plug-in" that implements this interface, it can also be used for other things
- *  An example use case: you would like to pop up a custom preferences window with a few simple checkboxes.
- *  You should be able to do that with a new graphics context and something implementing this interface in order to send/receive values
- *  to/from your new UI.
+ *  This is the lowest level base class in iPlug 2 that facilitates distributing editor and DSP parts for plug-in formats that need that, but also allowing non-distributed plug-ins to use the same API.
+ *  In distributed plug-in architectures certain methods will be overridden in order to pipe messages to various places, using whatever mechanism that plug-in format requires.
+ *  In this case, there are actually two classes that implement the IEditorDelegate interface, but only one which is directly connected to the user interface (IGraphics etc.),
+ *  the other being connected to a class inheriting IPlugAPIBase that deals with processing audio, see for example IPlugVST3Processor
  *
  *  Note on method names:
- *  - "FromUI" in a method name, means that that method is called by something in the UI i.e. a control.
- *  - "FromDelegate" in a method name mean that method is called from the class that implements the IEditorDelegate interface,
+ *  - "FromUI" in a method name, means that that method is called by something in the UI i.e. when the user interacts with a control.
+ *  - "FromDelegate" in a method name means that method is called from a class that implements the IEditorDelegate interface,
  *     which is usually your plug-in base class, but may not be in the case of an isolated editor class, or if you are using IGraphics without IPlug, and your IEditorDelegate is not a plug-in
  *
  *  NOTES:
@@ -58,8 +56,14 @@ public:
     mParams.Empty(true);
   }
   
+  /** Adds an IParam to the parameters ptr list
+   * Note: This is only used in special circumstances, since most plug-in formats don't support dynamic parameters
+   * @return Ptr to the newly created IParam object */
   IParam* AddParam() { return mParams.Add(new IParam()); }
   
+  /** Remove an IParam at a particular index
+   * Note: This is only used in special circumstances, since most plug-in formats don't support dynamic parameters
+   * @param idx The index of the parameter to remove */
   void RemoveParam(int idx) { return mParams.Delete(idx); }
   
   /** Get a pointer to one of the delegate's IParam objects
@@ -95,10 +99,12 @@ public:
    * @param paramIdx The index of the parameter that changed */
   virtual void OnParamChangeUI(int paramIdx, EParamSource source) {};
   
-  /** TODO: */
+  /** Handle incoming MIDI messages sent to the user interfa
+   * @param msg The MIDI message to process  */
   virtual void OnMidiMsgUI(const IMidiMsg& msg) {};
   
-  /** TODO: */
+  /** Handle incoming SysEx messages sent to the user interface
+   * @param msg The SysEx message to process */
   virtual void OnSysexMsgUI(const ISysEx& msg) {};
   
   /** This could be implemented in either DSP or EDITOR to receive a message from the other one */
@@ -109,30 +115,45 @@ public:
   virtual void OnRestoreState() {};
   
 #pragma mark - Methods for sending values TO the user interface
-  // The following methods are called from the plug-in/delegate class in order to update the user interface.
-  
-  /** TODO: SCVFD */
-  /** In IGraphics plug-ins, this method is used to update IControls in the user interface from the plug-in class, when the control is not linked
-   * to a parameter, for example a typical use case would be a meter control. It is called by the IPlug "user" a.k.a you - not by an API class.
+  /** SendControlValueFromDelegate (Abbreviation: SCVFD)
+   * In IGraphics plug-ins, this method is used to update IControls in the user interface from a class implementing IEditorDelegate, when the control is not linked
+   * to a parameter. A typical use case would be a meter control. It is called by the IPlug "user" a.k.a you - not by an API class.
    * In OnIdle() your plug-in would call this method to update the IControl's value. YOU SHOULD NOT CALL THIS ON THE AUDIO THREAD!
-   * If you are not using IGraphics,  you could use it in a similar way, as long as your control/meter has a unique tag
+   * If you are not using IGraphics, you could use it in a similar way, as long as your control/meter has a unique tag
    * @param controlTag A tag for the control
    * @param normalizedValue The normalised value to set the control to. This will modify IControl::mValue; */
   virtual void SendControlValueFromDelegate(int controlTag, double normalizedValue) {};
   
-  /** TODO: SCMFD */
-  virtual void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize = 0, const void* pData = nullptr) {};
+  /** SendControlMsgFromDelegate (Abbreviation: SCMFD)
+   * This method can be used to send opaque data from a class implementing IEditorDelegate to a specific control in the user interface.
+   * The message can be handled in the destination control via IControl::OnMsgFromDelegate
+   * @param controlTag A unique tag to identify the control that is the destination of the message
+   * @param messageTag A unique tag to identify the message
+   * @param dataSize The size in bytes of the data payload pointed to by pData. Note: if this is nonzero, pData must be valid.
+   * @param pData Ptr to the opaque data payload for the message */
+  virtual void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize = 0, const void* pData = nullptr) { OnMessage(messageTag, controlTag, dataSize, pData); }
   
-  /** TODO: SAMFD */
-  virtual void SendArbitraryMsgFromDelegate(int messageTag, int dataSize = 0, const void* pData = nullptr) {};
+  /** SendArbitraryMsgFromDelegate (Abbreviation: SAMFD)
+   * This method can be used to send opaque data from a class implementing IEditorDelegate to the IEditorDelegate connected to the user interface
+   * The message can be handled at the destination via IEditorDelegate::OnMessage()
+   * @param messageTag A unique tag to identify the message
+   * @param dataSize The size in bytes of the data payload pointed to by pData. Note: if this is nonzero, pData must be valid.
+   * @param pData Ptr to the opaque data payload for the message */
+  virtual void SendArbitraryMsgFromDelegate(int messageTag, int dataSize = 0, const void* pData = nullptr) { OnMessage(messageTag, kNoTag, dataSize, pData); }
   
-  /** TODO: SMMFD */
+  /** SendMidiMsgFromDelegate (Abbreviation: SMMFD)
+   * This method can be used to send regular MIDI data from the class implementing IEditorDelegate to the user interface
+   * The message can be handled at the destination via IEditorDelegate::OnMidiMsgUI()
+   * @param msg an IMidiMsg Containing the MIDI message to send to the user interface. */
   virtual void SendMidiMsgFromDelegate(const IMidiMsg& msg) { OnMidiMsgUI(msg); }
   
-  /** TODO: SSMFD */
+  /** SendSysexMsgFromDelegate (Abbreviation: SSMFD)
+   * This method can be used to send SysEx data from the class implementing IEditorDelegate to the user interface
+   * The message can be handled at the destination via IEditorDelegate::OnSysexMsgUI()
+   * @param msg an ISysEx Containing the SysEx data to send to the user interface. */
   virtual void SendSysexMsgFromDelegate(const ISysEx& msg) { OnSysexMsgUI(msg); }
   
-  /** This method is called by the class implementing the delegate interface, NOT THE PLUGIN API class in order to update the user interface with the new parameter values, typically after automation.
+  /** This method is called by the class implementing the delegate interface (not the plug-in API class) in order to update the user interface with the new parameter values, typically after automation.
    * This method should only be called from the main thread. The similarly named IPlugAPIBase::_SendParameterValueFromAPI() should take care of queueing and deferring, if there is no main thread notification from the API
    * If you override this method you should call the base class implementation to make sure OnParamChangeUI gets triggered
    * In IGraphics plug-ins, this will update any IControls that have their mParamIdx set > -1
@@ -153,7 +174,7 @@ public:
   /** SPVFUI Called by the UI during a parameter change gesture, in order to notify the host of the new value (via a call in the API class)
    * If you override this method you should call the base class implementation to make sure OnParamChangeUI gets triggered
    * @param paramIdx The index of the parameter that is changing value
-   * @param value The new normalised value of the parameter */
+   * @param normalizedValue The new normalised value of the parameter */
   virtual void SendParameterValueFromUI(int paramIdx, double normalizedValue)
   {
     assert(paramIdx < NParams());
@@ -173,16 +194,24 @@ public:
    * This method is implemented in various classes that inherit this interface to implement that behaviour */
   virtual void ResizeGraphicsFromUI(int viewWidth, int viewHeight, float scale) {};
   
-  /** When we want to send a MIDI message from the UI for example clicking on a key in a virtual keyboard, this method should be used.
-   * Eventually the MIDI message can be handled in IPlugProcessor::ProcessMidiMsg(), from where it can be used to trigger sound and or forwarded to the API's MIDI output. */
+  /** SendMidiMsgFromUI (Abbreviation: SMMFUI)
+   * This method should be used  when  sending a MIDI message from the UI. For example clicking on a key in a virtual keyboard.
+   * Eventually the MIDI message can be handled in IPlugProcessor::ProcessMidiMsg(), from where it can be used to trigger sound and or forwarded to the API's MIDI output.
+   * @param msg The MIDI message to send. */
   virtual void SendMidiMsgFromUI(const IMidiMsg& msg) {};
 
-  /** If a plug-in can send Sysex data (e.g. a sysex editor for a hardware device, this method can be used.
+  /** SendMidiMsgFromUI (Abbreviation: SSMFUI)
+   * If a plug-in can send Sysex data as a result of actions in the user interface, this method can be used.
    * Unlike SendMidiMsgFromUI, Sysex messages will not be received in IPlugProcessor::ProcessSysex()
-   * Since it is extremely unlikely that you would want to use Sysex to communicate between editor and processor \todo is this correct? */
+   * Since it is extremely unlikely that you would want to use Sysex to communicate between editor and processor \todo is this correct?
+   * @param msg The Sysex message to send. */
   virtual void SendSysexMsgFromUI(const ISysEx& msg) {};
   
-  /** TODO: SAMFUI */
+  /** SendArbitraryMsgFromUI (Abbreviation: SAMFUI)
+  * @param messageTag A unique tag to identify the message
+  * @param controlTag A unique tag to identify the control that sent the message, if desired
+  * @param dataSize The size in bytes of the data payload pointed to by pData. Note: if this is nonzero, pData must be valid.
+  * @param pData Ptr to the opaque data payload for the message */
   virtual void SendArbitraryMsgFromUI(int messageTag, int controlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) {};
 
 #pragma mark -
