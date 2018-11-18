@@ -353,6 +353,12 @@ protected:
   EAPI mAPI;
   /** macOS/iOS bundle ID */
   WDL_String mBundleID;
+  /** Saving VST3 format presets requires this see SaveProgramAsVSTPreset */
+  WDL_String mVST3ProductCategory;
+  /** Saving VST3 format presets requires this see SaveProgramAsVSTPreset */
+  WDL_String mVST3ProcessorUIDStr;
+  /** Saving VST3 format presets requires this see SaveProgramAsVSTPreset */
+  WDL_String mVST3ControllerUIDStr;
   
   /** \c true if the plug-in has a user interface. If false the host will provide a default interface */
   bool mHasUI = false;
