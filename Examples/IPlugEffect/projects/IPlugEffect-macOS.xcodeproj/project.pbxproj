@@ -1733,7 +1733,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 0940;
+				LastUpgradeCheck = 1010;
 				TargetAttributes = {
 					4F39075F2013EBA300DDA490 = {
 						CreatedOnToolsVersion = 9.2;
@@ -2303,6 +2303,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4FDA600620B586AC00C49ABA /* IPlugEffect-mac.xcconfig */;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -2327,7 +2328,6 @@
 				ENABLE_TESTABILITY = YES;
 				EXECUTABLE_EXTENSION = "";
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -2366,7 +2366,6 @@
 					"$(EXTRA_LNK_FLAGS)",
 					"$(ALL_FRAMEWORKS)",
 				);
-				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK_MAC)";
@@ -2382,6 +2381,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4FDA600620B586AC00C49ABA /* IPlugEffect-mac.xcconfig */;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -2444,7 +2444,6 @@
 					"$(EXTRA_LNK_FLAGS)",
 					"$(ALL_FRAMEWORKS)",
 				);
-				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK_MAC)";
@@ -2666,7 +2665,6 @@
 					"$(inherited)",
 				);
 				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I $CA_SDK/AudioUnits/AUPublic/AUBase";
-				PREBINDING = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.audiounit.${BINARY_NAME}";
 				REZ_SEARCH_PATHS = (
 					/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers,
@@ -2694,7 +2692,6 @@
 					"$(inherited)",
 				);
 				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I $CA_SDK/AudioUnits/AUPublic/AUBase";
-				PREBINDING = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.audiounit.${BINARY_NAME}";
 				REZ_SEARCH_PATHS = (
 					/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers,
@@ -2722,7 +2719,6 @@
 					"$(inherited)",
 				);
 				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I $CA_SDK/AudioUnits/AUPublic/AUBase";
-				PREBINDING = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.audiounit.${BINARY_NAME}";
 				REZ_SEARCH_PATHS = (
 					/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers,
@@ -2748,7 +2744,6 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				PRODUCT_NAME = "All macOS";
 				ZERO_LINK = NO;
 			};
@@ -2924,7 +2919,6 @@
 					"-Xlinker",
 					1500,
 				);
-				PREBINDING = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.aax.${BINARY_NAME}";
 				SDKROOT = "$(BASE_SDK)";
 				SKIP_INSTALL = NO;
@@ -3118,7 +3112,6 @@
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
 				);
-				PREBINDING = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.standalone.${BINARY_NAME}";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
@@ -3146,7 +3139,6 @@
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
 				);
-				PREBINDING = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.standalone.${BINARY_NAME}";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
@@ -3174,7 +3166,6 @@
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
 				);
-				PREBINDING = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.standalone.${BINARY_NAME}";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
@@ -3252,6 +3243,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 4FDA600620B586AC00C49ABA /* IPlugEffect-mac.xcconfig */;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -3312,7 +3304,6 @@
 					"$(EXTRA_LNK_FLAGS)",
 					"$(ALL_FRAMEWORKS)",
 				);
-				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_NAME = "$(BINARY_NAME)";
 				SDKROOT = "$(BASE_SDK_MAC)";

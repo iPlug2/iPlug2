@@ -800,7 +800,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0730;
-				LastUpgradeCheck = 0940;
+				LastUpgradeCheck = 1010;
 				TargetAttributes = {
 					91236D0C1B08F42B00734C5E = {
 						CreatedOnToolsVersion = 7.0;
