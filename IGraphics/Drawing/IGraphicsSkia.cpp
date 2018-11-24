@@ -62,34 +62,34 @@ IGraphicsSkia::IGraphicsSkia(IGEditorDelegate& dlg, int w, int h, int fps, float
 IGraphicsSkia::~IGraphicsSkia()
 {
 }
-
-IBitmap IGraphicsSkia::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal)
-{
-  const int targetScale = round(GetDisplayScale());
-  
-  APIBitmap* pAPIBitmap = mBitmapCache.Find(name, targetScale);
-  
-  // If the bitmap is not already cached at the targetScale
-  if (!pAPIBitmap)
-  {
-    WDL_String fullPath;
-    int sourceScale = 0;
-    bool resourceFound = SearchImageResource(name, "png", fullPath, targetScale, sourceScale);
-    assert(resourceFound);
-    
-    pAPIBitmap = LoadAPIBitmap(fullPath, sourceScale);
-    
-    mBitmapCache.Add(pAPIBitmap, name, sourceScale);
-
-    assert(pAPIBitmap);
-  }
-  
-  return IBitmap(pAPIBitmap, nStates, framesAreHorizontal, name);
-}
+//
+//IBitmap IGraphicsSkia::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal)
+//{
+//  const int targetScale = round(GetDisplayScale());
+//  
+//  APIBitmap* pAPIBitmap = mBitmapCache.Find(name, targetScale);
+//  
+//  // If the bitmap is not already cached at the targetScale
+//  if (!pAPIBitmap)
+//  {
+//    WDL_String fullPath;
+//    int sourceScale = 0;
+//    bool resourceFound = SearchImageResource(name, "png", fullPath, targetScale, sourceScale);
+//    assert(resourceFound);
+//    
+//    pAPIBitmap = LoadAPIBitmap(fullPath, sourceScale);
+//    
+//    mBitmapCache.Add(pAPIBitmap, name, sourceScale);
+//
+//    assert(pAPIBitmap);
+//  }
+//  
+//  return IBitmap(pAPIBitmap, nStates, framesAreHorizontal, name);
+//}
 
 APIBitmap* IGraphicsSkia::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
 {
-  return new SkiaBitmap(mVG, resourcePath.Get(), scale, GetPlatformInstance());
+  return new SkiaBitmap(resourcePath.Get(), scale);
 }
 
 void IGraphicsSkia::SetPlatformContext(void* pContext)
@@ -112,9 +112,9 @@ void IGraphicsSkia::DrawResize()
   mSurface = SkSurface::MakeRasterN32Premul(WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
 }
 
-//void IGraphicsSkia::BeginFrame()
-//{
-//}
+void IGraphicsSkia::BeginFrame()
+{
+}
 
 void IGraphicsSkia::EndFrame()
 {
@@ -142,7 +142,7 @@ void IGraphicsSkia::PathStroke(const IPattern& pattern, float thickness, const I
 {
   SkPaint p;
   p.setAntiAlias(true);
-  mSurface->drawPath(path, paint);
+  mSurface->getCanvas()->drawPath(mMainPath, p);
 }
 
 void IGraphicsSkia::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)

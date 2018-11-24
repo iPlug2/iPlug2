@@ -447,6 +447,8 @@
 		4F5369DA20C446430089212E /* SVF.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SVF.h; sourceTree = "<group>"; };
 		4F5369DB20C446430089212E /* Oscillator_table.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Oscillator_table.h; sourceTree = "<group>"; };
 		4F5369DC20C446430089212E /* Oversampler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Oversampler.h; sourceTree = "<group>"; };
+		4F5E0C6D21A99F390017DED0 /* IGraphicsSkia.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsSkia.cpp; sourceTree = "<group>"; };
+		4F5E0C6F21A99F390017DED0 /* IGraphicsSkia.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IGraphicsSkia.h; sourceTree = "<group>"; };
 		4F5F344020C0226200487201 /* IPlugPaths.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugPaths.mm; path = ../../../IPlug/IPlugPaths.mm; sourceTree = "<group>"; };
 		4F63695220A463090022C370 /* IControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControls.h; sourceTree = "<group>"; };
 		4F63695520A463090022C370 /* IVMeterControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVMeterControl.h; sourceTree = "<group>"; };
@@ -882,6 +884,8 @@
 				4F6369DC20A464BB0022C370 /* IGraphicsNanoVG_src.m */,
 				4F97BD8A213760E200541A17 /* IGraphicsCanvas.cpp */,
 				4F97BD89213760E200541A17 /* IGraphicsCanvas.h */,
+				4F5E0C6D21A99F390017DED0 /* IGraphicsSkia.cpp */,
+				4F5E0C6F21A99F390017DED0 /* IGraphicsSkia.h */,
 			);
 			name = Drawing;
 			path = ../../../IGraphics/Drawing;

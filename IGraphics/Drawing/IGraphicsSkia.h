@@ -38,22 +38,22 @@ public:
   void PathClear() override { mMainPath.reset(); }
   void PathClose() override { mMainPath.close(); }
 
-  void PathArc(float cx, float cy, float r, float aMin, float aMax) override { //TODO;}
+  void PathArc(float cx, float cy, float r, float aMin, float aMax) override { /*TODO;*/ }
 
   void PathMoveTo(float x, float y) override { mMainPath.moveTo(x, y); }
   void PathLineTo(float x, float y) override { mMainPath.lineTo(x, y); }
-  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override { //TODO; }
+  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override { /*TODO;*/ }
     
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
   
   IColor GetPoint(int x, int y) override;
-  void* GetDrawContext() override { return (void*) mSurface.getCanvas(); }
+  void* GetDrawContext() override { return (void*) mSurface->getCanvas(); }
 
   bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
   
-  IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHorizontal) override;
+//  IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHorizontal) override;
   IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, int targetScale) override { return bitmap; } // NO-OP
   void ReleaseBitmap(const IBitmap& bitmap) override { }; // NO-OP
   void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override { }; // NO-OP
