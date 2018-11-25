@@ -33,11 +33,12 @@ IVSwitchControl::IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, int paramI
 
 void IVSwitchControl::SetDirty(bool push)
 {
-  const IParam* pParam = GetParam();
-
   IControl::SetDirty(push);
 
-  pParam->GetDisplayForHost(mStr);
+  const IParam* pParam = GetParam();
+
+  if(pParam)
+    pParam->GetDisplayForHost(mStr);
 }
 
 void IVSwitchControl::Draw(IGraphics& g)
