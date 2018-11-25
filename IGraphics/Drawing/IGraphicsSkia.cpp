@@ -1,6 +1,8 @@
 #include <cmath>
 
 #include "IGraphicsSkia.h"
+#include "SkDashPathEffect.h"
+#include "SkGradientShader.h"
 
 #ifdef OS_MAC
 #include "SkCGUtils.h"
@@ -47,12 +49,26 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
   
   if(pattern.mType == kSolidPattern)
     paint.setColor(SkiaColor(pattern.GetStop(0).mColor, pBlend));
-//  else if (pattern.mType == kRadialPattern)
-//  {
-//  }
-//  else
-//  {
-//  }
+  else
+  {
+    //TODO: points?
+    SkPoint points[2] = {
+      SkPoint::Make(0.0f, 0.0f),
+      SkPoint::Make(256.0f, 256.0f)
+    };
+    
+    SkColor colors[8];
+    
+    assert(pattern.NStops() <= 8);
+    
+    for(int i = 0; i < pattern.NStops(); i++)
+      colors[i] = SkiaColor(pattern.GetStop(i).mColor);
+   
+    if(pattern.mType == kLinearPattern)
+       paint.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, pattern.NStops(), SkShader::kClamp_TileMode, 0, nullptr));
+    else
+      paint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(128.0f, 128.0f) /*TODO: points*/, 180.0f, colors, nullptr, pattern.NStops(), SkShader::kClamp_TileMode, 0, nullptr));
+  }
   
   return paint;
 }
@@ -118,7 +134,7 @@ void IGraphicsSkia::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int
 {
   SkPaint p;
   p.setFilterQuality(kHigh_SkFilterQuality);
-  mSurface->getCanvas()->drawImage(dynamic_cast<SkImage*>(bitmap.GetAPIBitmap()), 0, 0, &p);
+  mSurface->getCanvas()->drawImage(dynamic_cast<SkImage*>(bitmap.GetAPIBitmap()->GetBitmap()), dest.L, dest.T, &p);
 }
 
 IColor IGraphicsSkia::GetPoint(int x, int y)
@@ -137,9 +153,10 @@ bool IGraphicsSkia::MeasureText(const IText& text, const char* str, IRECT& bound
 
 void IGraphicsSkia::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
 {
+  float dashArray[8];
+
   SkPaint paint = SkiaPaint(pattern, pBlend);
   paint.setStyle(SkPaint::kStroke_Style);
-  mSurface->getCanvas()->drawPath(mMainPath, paint);
 
   switch (options.mCapOption)
   {
@@ -155,8 +172,18 @@ void IGraphicsSkia::PathStroke(const IPattern& pattern, float thickness, const I
     case kJoinBevel: paint.setStrokeJoin(SkPaint::kBevel_Join);   break;
   }
   
+  if(options.mDash.GetCount())
+  {
+    for (int i = 0; i < options.mDash.GetCount(); i++)
+      dashArray[i] = *(options.mDash.GetArray() + i);
+    
+    paint.setPathEffect(SkDashPathEffect::Make(dashArray, options.mDash.GetCount(), 0));
+  }
+  
   paint.setStrokeWidth(thickness);
   paint.setStrokeMiter(options.mMiterLimit);
+  
+  mSurface->getCanvas()->drawPath(mMainPath, paint);
   
   if (!options.mPreserve)
     mMainPath.reset();

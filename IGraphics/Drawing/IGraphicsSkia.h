@@ -46,7 +46,7 @@ public:
   void PathClear() override { mMainPath.reset(); }
   void PathClose() override { mMainPath.close(); }
 
-  void PathArc(float cx, float cy, float r, float aMin, float aMax) override { mMainPath.arcTo(SkRect::MakeLTRB(cx - r, cy - r, cx + r, cy + r), aMin - 90.f, (aMax - aMin), false); }
+  void PathArc(float cx, float cy, float r, float aMin, float aMax) override { mMainPath.arcTo(SkRect::MakeLTRB(cx - r, cy - r, cx + r, cy + r), aMin - 90.f, (aMax - aMin) - 0.01f /* TODO: ? */, false); }
 
   void PathMoveTo(float x, float y) override { mMainPath.moveTo(x, y); }
   void PathLineTo(float x, float y) override { mMainPath.lineTo(x, y); }
