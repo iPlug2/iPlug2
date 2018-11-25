@@ -46,11 +46,11 @@ public:
   void PathClear() override { mMainPath.reset(); }
   void PathClose() override { mMainPath.close(); }
 
-  void PathArc(float cx, float cy, float r, float aMin, float aMax) override { /*TODO;*/ }
+  void PathArc(float cx, float cy, float r, float aMin, float aMax) override { mMainPath.arcTo(SkRect::MakeLTRB(cx - r, cy - r, cx + r, cy + r), aMin - 90.f, (aMax - aMin), false); }
 
   void PathMoveTo(float x, float y) override { mMainPath.moveTo(x, y); }
   void PathLineTo(float x, float y) override { mMainPath.lineTo(x, y); }
-  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override { /*TODO;*/ }
+  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override { mMainPath.cubicTo({x1, y1}, {x2, y2}, {x3, y3}); }
     
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;

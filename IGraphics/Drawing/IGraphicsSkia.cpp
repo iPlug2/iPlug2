@@ -44,9 +44,10 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
 {
   SkPaint paint;
   paint.setAntiAlias(true);
-  paint.setColor(SkiaColor(pattern.GetStop(0).mColor, pBlend));
-
-//  if (pattern.mType == kRadialPattern)
+  
+  if(pattern.mType == kSolidPattern)
+    paint.setColor(SkiaColor(pattern.GetStop(0).mColor, pBlend));
+//  else if (pattern.mType == kRadialPattern)
 //  {
 //  }
 //  else
@@ -139,6 +140,26 @@ void IGraphicsSkia::PathStroke(const IPattern& pattern, float thickness, const I
   SkPaint paint = SkiaPaint(pattern, pBlend);
   paint.setStyle(SkPaint::kStroke_Style);
   mSurface->getCanvas()->drawPath(mMainPath, paint);
+
+  switch (options.mCapOption)
+  {
+    case kCapButt:   paint.setStrokeCap(SkPaint::kButt_Cap);     break;
+    case kCapRound:  paint.setStrokeCap(SkPaint::kRound_Cap);    break;
+    case kCapSquare: paint.setStrokeCap(SkPaint::kSquare_Cap);   break;
+  }
+
+  switch (options.mJoinOption)
+  {
+    case kJoinMiter: paint.setStrokeJoin(SkPaint::kMiter_Join);   break;
+    case kJoinRound: paint.setStrokeJoin(SkPaint::kRound_Join);   break;
+    case kJoinBevel: paint.setStrokeJoin(SkPaint::kBevel_Join);   break;
+  }
+  
+  paint.setStrokeWidth(thickness);
+  paint.setStrokeMiter(options.mMiterLimit);
+  
+  if (!options.mPreserve)
+    mMainPath.reset();
 }
 
 void IGraphicsSkia::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
@@ -150,8 +171,11 @@ void IGraphicsSkia::PathFill(const IPattern& pattern, const IFillOptions& option
     mMainPath.setFillType(SkPath::kWinding_FillType);
   else
     mMainPath.setFillType(SkPath::kEvenOdd_FillType);
-
+  
   mSurface->getCanvas()->drawPath(mMainPath, paint);
+  
+  if (!options.mPreserve)
+    mMainPath.reset();
 }
 
 void IGraphicsSkia::LoadFont(const char* name)
@@ -164,10 +188,14 @@ void IGraphicsSkia::DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, fl
 
 void IGraphicsSkia::PathTransformSetMatrix(const IMatrix& m)
 {
+  mSurface->getCanvas()->scale(GetScale(), GetScale());
+  //TODO:
 }
 
 void IGraphicsSkia::SetClipRegion(const IRECT& r)
 {
+  //TODO:
+
 //  SkRect skrect;
 //  skrect.set(r.L, r.T, r.R, r.B);
 //  mSurface->getCanvas()->clipRect(skrect);
