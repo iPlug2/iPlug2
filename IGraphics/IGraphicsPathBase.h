@@ -21,7 +21,7 @@ public:
     float height = (float) bitmap.H();
     
     PathTransformSave();
-    PathTransformTranslate((float) destCtrX, (float) destCtrY);
+    PathTransformTranslate(destCtrX, destCtrY);
     PathTransformRotate((float) angle);
     DrawBitmap(bitmap, IRECT(-width * 0.5f, - height * 0.5f, width * 0.5f, height * 0.5f), 0, 0, pBlend);
     PathTransformRestore();
