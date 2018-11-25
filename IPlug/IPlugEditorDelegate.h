@@ -99,7 +99,7 @@ public:
    * @param paramIdx The index of the parameter that changed */
   virtual void OnParamChangeUI(int paramIdx, EParamSource source) {};
   
-  /** Handle incoming MIDI messages sent to the user interfa
+  /** Handle incoming MIDI messages sent to the user interface
    * @param msg The MIDI message to process  */
   virtual void OnMidiMsgUI(const IMidiMsg& msg) {};
   

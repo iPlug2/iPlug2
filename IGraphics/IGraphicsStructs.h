@@ -22,6 +22,7 @@ class IGraphics;
 class IControl;
 struct IRECT;
 struct IMouseInfo;
+static double DegToRad(double deg);
 
 typedef std::function<void(IControl*)> IActionFunction;
 typedef std::function<void(IControl*)> IAnimationFunction;
@@ -36,7 +37,6 @@ typedef std::chrono::high_resolution_clock Time;
 typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimePoint;
 typedef std::chrono::duration<double, std::chrono::milliseconds::period> Milliseconds;
 
-class LICE_IFont; // TODO: move this
 /**
  * \defgroup IGraphicsStructs IGraphics::Structs
  * @{
@@ -48,7 +48,7 @@ class LICE_IFont; // TODO: move this
  */
 
 #ifdef IGRAPHICS_AGG
-#include "IGraphicsAGG_src.h"
+  #include "IGraphicsAGG_src.h"
   typedef agg::pixel_map* BitmapData;
 #elif defined IGRAPHICS_CAIRO
   #if defined OS_MAC || defined OS_LINUX
@@ -67,6 +67,7 @@ class LICE_IFont; // TODO: move this
 #elif defined IGRAPHICS_LICE
   #include "lice.h"
   typedef LICE_IBitmap* BitmapData;
+  class LICE_IFont;
 #elif defined IGRAPHICS_CANVAS
   typedef void* BitmapData;
 #else // NO_IGRAPHICS
@@ -394,9 +395,6 @@ struct IStrokeOptions
 };
 
 /** Used to store transformation matrices**/
-
-static double DegToRad(double deg);
-
 struct IMatrix
 {
   IMatrix()
@@ -455,10 +453,11 @@ struct IMatrix
   
   double mTransform[6];
 };
+
 struct IColorStop
 {
   IColorStop()
-  : mOffset(0.0)
+  : mOffset(0.f)
   {}
 
   IColorStop(IColor color, float offset)
@@ -497,7 +496,6 @@ struct IPattern
     mType = kLinearPattern;
 
     // Calculate the affine transform from one line segment to another!
-
     const float xd = x2 - x1;
     const float yd = y2 - y1;
     const float size = sqrtf(xd * xd + yd * yd);
@@ -592,8 +590,11 @@ struct IText
   IColor mTextEntryBGColor;
   IColor mTextEntryFGColor;
   int mOrientation = 0; // Degrees ccwise from normal.
-  mutable LICE_IFont* mCached = nullptr;
   mutable double mCachedScale = 1.0;
+
+#ifdef IGRAPHICS_LICE
+  mutable LICE_IFont* mCached = nullptr;
+#endif
 };
 
 const IText DEFAULT_TEXT = IText();

@@ -20,7 +20,6 @@
 		4F23CECE20B20C9300E8B70F /* nanovg_mtl.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F8028BB20A24DFD003A66EC /* nanovg_mtl.m */; };
 		4F3E0F6A20A0BCD900A9C2BE /* IPlugEffect-iOS.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6720A0BC5B00A9C2BE /* IPlugEffect-iOS.storyboard */; };
 		4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */; };
-		4F3E0FA320A0C74E00A9C2BE /* drumLoop.caf in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0FA220A0C74E00A9C2BE /* drumLoop.caf */; };
 		4F6369AC20A463AF0022C370 /* IGraphicsNanoVG.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63697C20A463AF0022C370 /* IGraphicsNanoVG.h */; };
 		4F6369B220A463AF0022C370 /* IGraphics_include_in_plug_hdr.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63698220A463AF0022C370 /* IGraphics_include_in_plug_hdr.h */; };
 		4F6369C120A463AF0022C370 /* IGraphicsPopupMenu.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699220A463AF0022C370 /* IGraphicsPopupMenu.h */; };
@@ -183,7 +182,6 @@
 		4F3E0F6520A0BC4000A9C2BE /* IPlugEffect-iOS-AUv3-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugEffect-iOS-AUv3-Info.plist"; path = "../resources/IPlugEffect-iOS-AUv3-Info.plist"; sourceTree = "<group>"; };
 		4F3E0F6720A0BC5B00A9C2BE /* IPlugEffect-iOS.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = "IPlugEffect-iOS.storyboard"; path = "../resources/IPlugEffect-iOS.storyboard"; sourceTree = "<group>"; };
 		4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ../resources/Images.xcassets; sourceTree = "<group>"; };
-		4F3E0FA220A0C74E00A9C2BE /* drumLoop.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = drumLoop.caf; sourceTree = "<group>"; };
 		4F63697620A463AF0022C370 /* IGraphicsLice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLice.h; sourceTree = "<group>"; };
 		4F63697720A463AF0022C370 /* IGraphicsAGG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsAGG.h; sourceTree = "<group>"; };
 		4F63697820A463AF0022C370 /* IGraphicsLice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsLice.cpp; sourceTree = "<group>"; };
@@ -488,7 +486,6 @@
 				4F3E0F6720A0BC5B00A9C2BE /* IPlugEffect-iOS.storyboard */,
 				4F3E0F6520A0BC4000A9C2BE /* IPlugEffect-iOS-AUv3-Info.plist */,
 				4F98C32920A73C9B00F120A9 /* IPlugEffect-iOS-Framework-Info.plist */,
-				4F3E0FA220A0C74E00A9C2BE /* drumLoop.caf */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -805,7 +802,7 @@
 					91236D0C1B08F42B00734C5E = {
 						CreatedOnToolsVersion = 7.0;
 						DevelopmentTeam = 686EDA2T8T;
-						LastSwiftMigration = 0930;
+						LastSwiftMigration = 1010;
 						SystemCapabilities = {
 							com.apple.InterAppAudio = {
 								enabled = 1;
@@ -814,13 +811,13 @@
 					};
 					91236D541B08F52D00734C5E = {
 						CreatedOnToolsVersion = 7.0;
-						LastSwiftMigration = 0800;
+						LastSwiftMigration = 1010;
 						ProvisioningStyle = Manual;
 					};
 					91236D761B08F59300734C5E = {
 						CreatedOnToolsVersion = 7.0;
 						DevelopmentTeam = 686EDA2T8T;
-						LastSwiftMigration = 0930;
+						LastSwiftMigration = 1010;
 					};
 				};
 			};
@@ -853,7 +850,6 @@
 				4FADA9C520C20367003075D3 /* img in Resources */,
 				4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */,
 				4FB2269720A0D3A800614769 /* IPlugEffect-iOS-launchScreen.storyboard in Resources */,
-				4F3E0FA320A0C74E00A9C2BE /* drumLoop.caf in Resources */,
 				4F3E0F6A20A0BCD900A9C2BE /* IPlugEffect-iOS.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1012,6 +1008,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "IPlugEffect-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -1058,6 +1055,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "IPlugEffect-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -1121,6 +1119,7 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -1182,6 +1181,7 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1235,6 +1235,7 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -1278,6 +1279,7 @@
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};

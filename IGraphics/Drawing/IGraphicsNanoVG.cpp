@@ -478,7 +478,7 @@ void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const
   nvgStroke(mVG);
   
   if (!options.mPreserve)
-      nvgBeginPath(mVG); // Clears the path state
+    nvgBeginPath(mVG); // Clears the path state
 }
 
 void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
@@ -493,7 +493,7 @@ void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& opti
   nvgFill(mVG);
   
   if (!options.mPreserve)
-      nvgBeginPath(mVG); // Clears the path state
+    nvgBeginPath(mVG); // Clears the path state
 }
 
 void IGraphicsNanoVG::LoadFont(const char* name)

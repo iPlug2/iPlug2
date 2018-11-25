@@ -1,0 +1,6 @@
+#include "TestArcControl.h"
+#include "TestDirBrowseControl.h"
+#include "TestGradientControl.h"
+#include "TestMultiPathControl.h"
+#include "TestPolyControl.h"
+#include "TestTextControl.h"
