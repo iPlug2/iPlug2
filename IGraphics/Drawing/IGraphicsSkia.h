@@ -6,7 +6,7 @@
 #include "SkSurface.h"
 #include "SkPath.h"
 #include "SkCanvas.h"
-#include "SkBitmap.h"
+#include "SkImage.h"
 
 class SkiaBitmap : public APIBitmap
 {

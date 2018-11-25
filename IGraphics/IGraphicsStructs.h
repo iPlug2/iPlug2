@@ -61,6 +61,9 @@ class LICE_IFont; // TODO: move this
   typedef cairo_surface_t* BitmapData;
 #elif defined IGRAPHICS_NANOVG
   typedef int BitmapData;
+#elif defined IGRAPHICS_SKIA
+  #include "SkImage.h"
+  typedef SkImage* BitmapData;
 #elif defined IGRAPHICS_LICE
   #include "lice.h"
   typedef LICE_IBitmap* BitmapData;

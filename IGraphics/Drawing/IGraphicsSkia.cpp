@@ -1,8 +1,10 @@
 #include <cmath>
 
 #include "IGraphicsSkia.h"
-#include "SkBitmap.h"
+
+#ifdef OS_MAC
 #include "SkCGUtils.h"
+#endif
 
 SkiaBitmap::SkiaBitmap(const char* path, double sourceScale)
 {
