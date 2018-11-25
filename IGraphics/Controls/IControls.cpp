@@ -162,61 +162,6 @@ void IVKnobControl::Draw(IGraphics& g)
 
 void IVSliderControl::Draw(IGraphics& g)
 {
-#ifdef IGRAPHICS_NANOVG
-  
-  NVGcontext* vg = (NVGcontext*) g.GetDrawContext();
-//
-  const int h = mTrack.H();
-  const int w = mTrack.W();
-  const int x = mTrack.L;
-  const int y = mTrack.T;
-  const float pos = mValue;
-//
-  NVGpaint bg, knob;
-  float cy = y+(int)(h*0.5f);
-  float kr = mHandleSize-2.f;
-
-  nvgSave(vg);
-  //  nvgClearState(vg);
-
-//   Slot
-  bg = nvgBoxGradient(vg, x,cy-2+1, w,4, 2,2, nvgRGBA(0,0,0,32), nvgRGBA(0,0,0,128));
-  nvgBeginPath(vg);
-  nvgRoundedRect(vg, x,cy-2, w,4, 2);
-  nvgFillPaint(vg, bg);
-  nvgFill(vg);
-  
-
-  // Knob Shadow
-  bg = nvgRadialGradient(vg, x+(int)(pos*w),cy+1, kr-3,kr+3, nvgRGBA(0,0,0,64), nvgRGBA(0,0,0,0));
-  nvgBeginPath(vg);
-  nvgRect(vg, x+(int)(pos*w)-kr-5,cy-kr-5,kr*2+5+5,kr*2+5+5+3);
-  nvgCircle(vg, x+(int)(pos*w),cy, kr);
-  nvgPathWinding(vg, NVG_HOLE);
-  nvgFillPaint(vg, bg);
-  nvgFill(vg);
-
-  // Knob
-  knob = nvgLinearGradient(vg, x,cy-kr,x,cy+kr, nvgRGBA(255,255,255,16), nvgRGBA(0,0,0,16));
-  nvgBeginPath(vg);
-  nvgCircle(vg, x+(int)(pos*w),cy, kr-1);
-  
-  if(GetMouseIsOver())
-    nvgFillColor(vg, nvgRGBA(200,200,200,255));
-  else
-    nvgFillColor(vg, nvgRGBA(255,255,255,255));
-
-  nvgFill(vg);
-  nvgFillPaint(vg, knob);
-  nvgFill(vg);
-
-  nvgBeginPath(vg);
-  nvgCircle(vg, x+(int)(pos*w),cy, kr-0.5f);
-  nvgStrokeColor(vg, nvgRGBA(0,0,0,92));
-  nvgStroke(vg);
-
-  nvgRestore(vg);
-#else
   g.FillRect(GetColor(kBG), mRECT);
 
   const float halfHandleSize = mHandleSize / 2.f;
@@ -227,18 +172,17 @@ void IVSliderControl::Draw(IGraphics& g)
   g.FillRect(GetColor(kSH), filledTrack);
   
   if(mDirection == kVertical)
-    g.FillCircle(GetColor(kX1), filledTrack.MW(), filledTrack.T , halfHandleSize);
+    g.FillCircle(GetColor(kFR), filledTrack.MW(), filledTrack.T , halfHandleSize);
   else
-    g.FillCircle(GetColor(kX1), filledTrack.R, filledTrack.MH(), halfHandleSize);
+    g.FillCircle(GetColor(kFR), filledTrack.R, filledTrack.MH(), halfHandleSize);
 
   if(GetMouseIsOver())
   {
     if(mDirection == kVertical)
       g.FillCircle(GetColor(kSH), filledTrack.MW(), filledTrack.T , halfHandleSize);
     else
-      g.FillCircle(GetColor(kX1), filledTrack.R, filledTrack.MH(), halfHandleSize);
+      g.FillCircle(GetColor(kSH), filledTrack.R, filledTrack.MH(), halfHandleSize);
   }
-#endif
 }
 
 void IVSliderControl::OnResize()
