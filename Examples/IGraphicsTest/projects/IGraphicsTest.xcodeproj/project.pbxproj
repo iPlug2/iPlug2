@@ -87,6 +87,14 @@
 		4FD16D4213B635AB001D0217 /* swell-wnd.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4113B635AB001D0217 /* swell-wnd.mm */; };
 		4FD16D4413B635B2001D0217 /* swell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4313B635B2001D0217 /* swell.cpp */; };
 		4FD16D4713B635C8001D0217 /* swellappmain.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4613B635C8001D0217 /* swellappmain.mm */; };
+		4FD8875621AAE67600C06B13 /* IPopupMenuControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD8875421AAE67600C06B13 /* IPopupMenuControl.cpp */; };
+		4FD8875721AAE67600C06B13 /* IPopupMenuControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD8875521AAE67600C06B13 /* IPopupMenuControl.h */; };
+		4FD8875F21AAEF7400C06B13 /* TestMultiPathControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD8875921AAEF7400C06B13 /* TestMultiPathControl.h */; };
+		4FD8876021AAEF7400C06B13 /* TestDirBrowseControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD8875A21AAEF7400C06B13 /* TestDirBrowseControl.h */; };
+		4FD8876121AAEF7400C06B13 /* TestTextControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD8875B21AAEF7400C06B13 /* TestTextControl.h */; };
+		4FD8876221AAEF7400C06B13 /* TestPolyControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD8875C21AAEF7400C06B13 /* TestPolyControl.h */; };
+		4FD8876321AAEF7400C06B13 /* TestArcControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD8875D21AAEF7400C06B13 /* TestArcControl.h */; };
+		4FD8876421AAEF7400C06B13 /* TestGradientControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD8875E21AAEF7400C06B13 /* TestGradientControl.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -186,6 +194,14 @@
 		4FD16D4513B635C8001D0217 /* swellappmain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = swellappmain.h; path = ../../../WDL/swell/swellappmain.h; sourceTree = SOURCE_ROOT; };
 		4FD16D4613B635C8001D0217 /* swellappmain.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = swellappmain.mm; path = ../../../WDL/swell/swellappmain.mm; sourceTree = SOURCE_ROOT; };
 		4FD290A8137C34D700CEBE7E /* IGraphicsTest.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = IGraphicsTest.icns; path = ../resources/IGraphicsTest.icns; sourceTree = "<group>"; };
+		4FD8875421AAE67600C06B13 /* IPopupMenuControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPopupMenuControl.cpp; sourceTree = "<group>"; };
+		4FD8875521AAE67600C06B13 /* IPopupMenuControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPopupMenuControl.h; sourceTree = "<group>"; };
+		4FD8875921AAEF7400C06B13 /* TestMultiPathControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestMultiPathControl.h; path = ../../../IGraphics/Controls/Test/TestMultiPathControl.h; sourceTree = "<group>"; };
+		4FD8875A21AAEF7400C06B13 /* TestDirBrowseControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestDirBrowseControl.h; path = ../../../IGraphics/Controls/Test/TestDirBrowseControl.h; sourceTree = "<group>"; };
+		4FD8875B21AAEF7400C06B13 /* TestTextControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestTextControl.h; path = ../../../IGraphics/Controls/Test/TestTextControl.h; sourceTree = "<group>"; };
+		4FD8875C21AAEF7400C06B13 /* TestPolyControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestPolyControl.h; path = ../../../IGraphics/Controls/Test/TestPolyControl.h; sourceTree = "<group>"; };
+		4FD8875D21AAEF7400C06B13 /* TestArcControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestArcControl.h; path = ../../../IGraphics/Controls/Test/TestArcControl.h; sourceTree = "<group>"; };
+		4FD8875E21AAEF7400C06B13 /* TestGradientControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestGradientControl.h; path = ../../../IGraphics/Controls/Test/TestGradientControl.h; sourceTree = "<group>"; };
 		4FDA1E0E2012CDB30027C868 /* IGraphicsTest.rc_mac_menu */ = {isa = PBXFileReference; lastKnownFileType = text; name = IGraphicsTest.rc_mac_menu; path = ../resources/IGraphicsTest.rc_mac_menu; sourceTree = "<group>"; };
 		4FDA1E0F2012CDB30027C868 /* IGraphicsTest.rc_mac_dlg */ = {isa = PBXFileReference; lastKnownFileType = text; name = IGraphicsTest.rc_mac_dlg; path = ../resources/IGraphicsTest.rc_mac_dlg; sourceTree = "<group>"; };
 		4FDA1E102012CDB30027C868 /* resource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = resource.h; path = ../resources/resource.h; sourceTree = "<group>"; };
@@ -194,7 +210,6 @@
 		4FF016F6134E14E2001447BA /* wdlstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlstring.h; path = ../../../WDL/wdlstring.h; sourceTree = SOURCE_ROOT; };
 		4FF01719134E153A001447BA /* heapbuf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = heapbuf.h; path = ../../../WDL/heapbuf.h; sourceTree = SOURCE_ROOT; };
 		4FF7B0D4156A825000E6CB12 /* common-mac.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = "common-mac.xcconfig"; path = "../../../common-mac.xcconfig"; sourceTree = SOURCE_ROOT; };
-		B80972F6206E5A5C0070ACB8 /* IGraphicsTest_controls.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IGraphicsTest_controls.h; path = ../IGraphicsTest_controls.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -211,7 +226,7 @@
 		089C166AFE841209C02AAC07 /* IPlugExample */ = {
 			isa = PBXGroup;
 			children = (
-				B80972F6206E5A5C0070ACB8 /* IGraphicsTest_controls.h */,
+				4FD8875821AAEF6700C06B13 /* TestControls */,
 				4F4B3C2E211A080000DB4AA8 /* config.h */,
 				4F6F5365202FDB9900FEE3A7 /* IGraphicsTest.h */,
 				4F3ECAB32038641000630EC5 /* IGraphicsTest.cpp */,
@@ -355,6 +370,8 @@
 		4F1E0A5120BA2538004FC7D5 /* Controls */ = {
 			isa = PBXGroup;
 			children = (
+				4FD8875421AAE67600C06B13 /* IPopupMenuControl.cpp */,
+				4FD8875521AAE67600C06B13 /* IPopupMenuControl.h */,
 				4F1E0A5220BA2538004FC7D5 /* IControls.h */,
 				4F1E0A5320BA2538004FC7D5 /* IVScopeControl.h */,
 				4F1E0A5420BA2538004FC7D5 /* IVMeterControl.h */,
@@ -411,6 +428,19 @@
 			name = SWELL;
 			sourceTree = "<group>";
 		};
+		4FD8875821AAEF6700C06B13 /* TestControls */ = {
+			isa = PBXGroup;
+			children = (
+				4FD8875D21AAEF7400C06B13 /* TestArcControl.h */,
+				4FD8875A21AAEF7400C06B13 /* TestDirBrowseControl.h */,
+				4FD8875E21AAEF7400C06B13 /* TestGradientControl.h */,
+				4FD8875921AAEF7400C06B13 /* TestMultiPathControl.h */,
+				4FD8875C21AAEF7400C06B13 /* TestPolyControl.h */,
+				4FD8875B21AAEF7400C06B13 /* TestTextControl.h */,
+			);
+			name = TestControls;
+			sourceTree = "<group>";
+		};
 		4FF01613134E0BCD001447BA /* WDL */ = {
 			isa = PBXGroup;
 			children = (
@@ -437,12 +467,16 @@
 				4F78DAB113B640470032E0F3 /* swell-menugen.h in Headers */,
 				4F188465211D93FC009E2432 /* nanovg_gl_utils.h in Headers */,
 				4F78DAB213B640470032E0F3 /* swell-dlggen.h in Headers */,
+				4FD8876221AAEF7400C06B13 /* TestPolyControl.h in Headers */,
+				4FD8875721AAE67600C06B13 /* IPopupMenuControl.h in Headers */,
 				4F1E0A9A20BA2605004FC7D5 /* IPlugPluginBase.h in Headers */,
 				4F1E0A8C20BA2538004FC7D5 /* IGraphicsLiveEdit.h in Headers */,
 				4F1E0A8B20BA2538004FC7D5 /* IGraphicsConstants.h in Headers */,
 				4F1E0A8E20BA2538004FC7D5 /* IGraphics_include_in_plug_src.h in Headers */,
+				4FD8876121AAEF7400C06B13 /* TestTextControl.h in Headers */,
 				4F1E0A8A20BA2538004FC7D5 /* IGraphicsStructs.h in Headers */,
 				4F78DAB313B640470032E0F3 /* swellappmain.h in Headers */,
+				4FD8876321AAEF7400C06B13 /* TestArcControl.h in Headers */,
 				4F1E0A8520BA2538004FC7D5 /* IVScopeControl.h in Headers */,
 				4F1E0A6720BA2538004FC7D5 /* IGraphicsNanoVG.h in Headers */,
 				4F78DA8A13B640050032E0F3 /* mutex.h in Headers */,
@@ -454,6 +488,7 @@
 				4F1E0A9120BA2538004FC7D5 /* IGraphics.h in Headers */,
 				4F1E0A6B20BA2538004FC7D5 /* IGraphicsAGG_src.h in Headers */,
 				4F1E0A8820BA2538004FC7D5 /* IVKeyboardControl.h in Headers */,
+				4FD8876421AAEF7400C06B13 /* TestGradientControl.h in Headers */,
 				4F1E0A7E20BA2538004FC7D5 /* IGraphicsPopupMenu.h in Headers */,
 				4F78DA8B13B640050032E0F3 /* ptrlist.h in Headers */,
 				4F78DA8C13B640050032E0F3 /* wdlstring.h in Headers */,
@@ -475,11 +510,13 @@
 				4F78DA8F13B640050032E0F3 /* swell.h in Headers */,
 				4F1E0A6320BA2538004FC7D5 /* IGraphicsLice_src.h in Headers */,
 				4F1E0A6120BA2538004FC7D5 /* IGraphicsAGG.h in Headers */,
+				4FD8875F21AAEF7400C06B13 /* TestMultiPathControl.h in Headers */,
 				4F78DA9013B640050032E0F3 /* swell-functions.h in Headers */,
 				4F1E0A7520BA2538004FC7D5 /* IGraphicsMac.h in Headers */,
 				4F6F5362202FD82800FEE3A7 /* IPlugParameter.h in Headers */,
 				4F78DA9113B640050032E0F3 /* swell-internal.h in Headers */,
 				4F78DA9213B640050032E0F3 /* swell-types.h in Headers */,
+				4FD8876021AAEF7400C06B13 /* TestDirBrowseControl.h in Headers */,
 				4F1E0A9520BA25A0004FC7D5 /* IPlugPaths.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -596,6 +633,7 @@
 				4F1E0A7620BA2538004FC7D5 /* IGraphicsMac.mm in Sources */,
 				4FD16D3A13B63582001D0217 /* swell-kb.mm in Sources */,
 				4FD16D3C13B6358C001D0217 /* swell-miscdlg.mm in Sources */,
+				4FD8875621AAE67600C06B13 /* IPopupMenuControl.cpp in Sources */,
 				4FD16D3E13B63595001D0217 /* swell-menu.mm in Sources */,
 				4FD16D4013B635A0001D0217 /* swell-misc.mm in Sources */,
 				4FD16D4213B635AB001D0217 /* swell-wnd.mm in Sources */,
