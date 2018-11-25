@@ -12,9 +12,8 @@ class SkiaBitmap : public APIBitmap
 {
 public:
   SkiaBitmap(const char* path, double sourceScale);
-  virtual ~SkiaBitmap();
 private:
-  SkBitmap mBitmap;
+  sk_sp<SkImage> mImage;
 };
 
 /** IGraphics draw class using Skia
@@ -53,7 +52,6 @@ public:
   bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
   
-//  IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHorizontal) override;
   IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, int targetScale) override { return bitmap; } // NO-OP
   void ReleaseBitmap(const IBitmap& bitmap) override { }; // NO-OP
   void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override { }; // NO-OP
