@@ -701,22 +701,19 @@ bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
 
 //TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT
 #ifdef IGRAPHICS_AGG
-#include "IGraphicsAGG.cpp"
-#include "agg_mac_pmap.mm"
-#include "agg_mac_font.mm"
+  #include "IGraphicsAGG.cpp"
+  #include "agg_mac_pmap.mm"
+  #include "agg_mac_font.mm"
 #elif defined IGRAPHICS_CAIRO
-#include "IGraphicsCairo.cpp"
+  #include "IGraphicsCairo.cpp"
 #elif defined IGRAPHICS_NANOVG
-#include "IGraphicsNanoVG.cpp"
-
-#ifdef IGRAPHICS_FREETYPE
-#define FONS_USE_FREETYPE
-#endif
-
+  #include "IGraphicsNanoVG.cpp"
+  #ifdef IGRAPHICS_FREETYPE
+    #define FONS_USE_FREETYPE
+  #endif
 #include "nanovg.c"
-//#include "nanovg_mtl.m"
 #else
-#include "IGraphicsLice.cpp"
+  #include "IGraphicsLice.cpp"
 #endif
 
 #endif// NO_IGRAPHICS

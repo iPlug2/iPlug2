@@ -357,11 +357,11 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     //TODO: can we really only get this context on the first draw call?
     if (!mGraphics->GetPlatformContext())
     {
-        CGContextRef pCGC = nullptr;
-        pCGC = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
-        NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort: pCGC flipped: YES];
-        pCGC = (CGContextRef) [gc graphicsPort];
-        mGraphics->SetPlatformContext(pCGC);
+      CGContextRef pCGC = nullptr;
+      pCGC = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
+      NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort: pCGC flipped: YES];
+      pCGC = (CGContextRef) [gc graphicsPort];
+      mGraphics->SetPlatformContext(pCGC);
     }
       
     if (mGraphics->GetPlatformContext())
@@ -602,10 +602,10 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   
   if (mGraphics)
   {
-    IGraphics* graphics = mGraphics;
+    IGraphics* pGraphics = mGraphics;
     mGraphics = nullptr;
-    graphics->SetPlatformContext(nullptr);
-    graphics->CloseWindow();
+    pGraphics->SetPlatformContext(nullptr);
+    pGraphics->CloseWindow();
   }
   [super removeFromSuperview];
 }
