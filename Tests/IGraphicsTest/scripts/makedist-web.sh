@@ -117,15 +117,15 @@ echo -
 #   cp ../../../IPlug/WEB/Template/favicon.ico favicon.ico
 #
 # else
-#   #copy in the template html for websocket - comment if you have customised the html
-#   cd build-web
-#   pwd
-#   cp ../../../IPlug/WEB/Template/IPlugWeb-remote.html index.html
-#   sed -i.bak s/IPlugWEB/IGraphicsTest/g index.html
-#   rm *.bak
+  #copy in the template html for websocket - comment if you have customised the html
+  cd build-web
+  pwd
+  cp ../../../IPlug/WEB/Template/IPlugWeb-remote.html index.html
+  sed -i.bak s/NAME_PLACEHOLDER/IGraphicsTest/g index.html
+  rm *.bak
 # fi
 
-# cd ../
+cd ../
 
 echo
 echo MAKING  - WEB WASM MODULE -----------------------------
