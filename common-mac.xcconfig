@@ -120,8 +120,11 @@ LIB_CIVET = $(BUILT_LIBS_LIB_PATH)/libcivetweb.a
 //LIB_GF = /usr/local/Cellar/graphite2/1.3.10/lib/libgraphite2.dylib
 LIB_SKIA = $(SKIA_PATH)/out/Static/libskia.a
 
-// you can optionally include this build setting, by adding it to EXTRA_LIB_PATHS, in order to get all varieties of IGraphics support
-IGRAPHICS_LNK_FLAGS = $(LIB_CAIRO) $(LIB_FT) $(LIB_PIXMAN) $(LIB_PNG) $(LIB_Z) $(LIB_SKIA)//$(LIB_HB) $(LIB_HB_ICU) $(LIB_GF)
+// you can optionally include this build setting, by adding it to EXTRA_LNK_FLAGS in your plug-ins xcconfig, in order to get all varieties of IGraphics support
+CAIRO_LNK_FLAGS = $(LIB_CAIRO) $(LIB_FT) $(LIB_PIXMAN) $(LIB_PNG) $(LIB_Z) //$(LIB_HB) $(LIB_HB_ICU) $(LIB_GF)
+SKIA_LNK_FLAGS = $(LIB_SKIA)
+LICE_LNK_FLAGS = $(LIB_PNG) $(LIB_Z)
+IGRAPHICS_LNK_FLAGS = $(SKIA_LNK_FLAGS) $(LICE_LNK_FLAGS) $(CAIRO_LNK_FLAGS)
 
 ALL_FRAMEWORKS = -framework Cocoa -framework Carbon -framework CoreFoundation -framework CoreData -framework Foundation -framework CoreServices -framework Metal -framework QuartzCore -framework WebKit
 APP_FRAMEWORKS = -framework AppKit -framework CoreMidi -framework CoreAudio

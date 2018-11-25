@@ -201,6 +201,8 @@
 		4FB1F58820E4AFEF004157C8 /* IGraphicsMac_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsMac_view.h; path = ../../../IGraphics/Platforms/IGraphicsMac_view.h; sourceTree = "<group>"; };
 		4FBAA593207918230054E717 /* IPlugDelegate_select.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugDelegate_select.h; path = ../../../IPlug/IPlugDelegate_select.h; sourceTree = "<group>"; };
 		4FBBD7F320B6AB9800A37DE2 /* config */ = {isa = PBXFileReference; lastKnownFileType = folder; name = config; path = ../config; sourceTree = "<group>"; };
+		4FBF59BC21AB1423003F81C6 /* IGraphicsSkia.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsSkia.cpp; sourceTree = "<group>"; };
+		4FBF59BD21AB1423003F81C6 /* IGraphicsSkia.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsSkia.h; sourceTree = "<group>"; };
 		4FC44B9920F151B90062F870 /* IWebsocketServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IWebsocketServer.h; sourceTree = "<group>"; };
 		4FC44B9A20F151B90062F870 /* IWebsocketEditorDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IWebsocketEditorDelegate.h; sourceTree = "<group>"; };
 		4FC44B9B20F151B90062F870 /* IWebsocketClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IWebsocketClient.h; sourceTree = "<group>"; };
@@ -369,6 +371,8 @@
 				4F6369DC20A464BB0022C370 /* IGraphicsNanoVG_src.m */,
 				4F97BD8A213760E200541A17 /* IGraphicsCanvas.cpp */,
 				4F97BD89213760E200541A17 /* IGraphicsCanvas.h */,
+				4FBF59BC21AB1423003F81C6 /* IGraphicsSkia.cpp */,
+				4FBF59BD21AB1423003F81C6 /* IGraphicsSkia.h */,
 			);
 			name = Drawing;
 			path = ../../../IGraphics/Drawing;
