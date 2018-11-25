@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:projects/IGraphicsTest.xcodeproj">
+      location = "group:projects/IGraphicsTest-iOS.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:projects/IGraphicsTest-macOS.xcodeproj">
    </FileRef>
 </Workspace>

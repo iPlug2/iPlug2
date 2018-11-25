@@ -1,27 +1,51 @@
+##LINUX ONLY FOR NOW
 
-ROOT = ../..
-WDL_PATH = $(ROOT)/WDL
-IPLUG_PATH = $(ROOT)/IPlug
-IGRAPHICS_PATH = $(IPLUG_PATH)/IGraphics
-TARGET = ./build-web/IGraphicsTest.html
+APP=IGraphicsTest
 
-IGRAPHICS_SRC = $(IGRAPHICS_PATH)/IControl.cpp \
-	$(IGRAPHICS_PATH)/IControls.cpp \
-	$(IGRAPHICS_PATH)/IGraphics.cpp \
-	$(IGRAPHICS_PATH)/IGraphicsWeb.cpp
+WDL_PATH = ../../WDL
+vpath %.cpp .. $(WDL_PATH)/swell
+vpath %.cpp .. $(WDL_PATH)/lice
+vpath %.cpp .. app_wrapper
 
-IPLUG_SRC = $(IPLUG_PATH)/IPlugParameter.cpp $(IGRAPHICS_PATH)/IGraphicsEditorDelegate.cpp
+### Objects and resources
+SWELL_OBJS = swell.o swell-ini.o swell-miscdlg-generic.o swell-wnd-generic.o \
+             swell-menu-generic.o swell-kb-generic.o swell-dlg-generic.o \
+             swell-gdi-generic.o swell-misc-generic.o swell-gdi-lice.o \
+             swell-generic-headless.o swell-generic-gdk.o \
+             swell-appstub-generic.o swell-modstub-generic.o
 
-THIS_SRC = main.cpp
+LICE_OBJS = lice.o lice_arc.o lice_colorspace.o lice_line.o lice_text.o \
+            lice_textnew.o lice_png.o
 
-SRC = $(IGRAPHICS_SRC) $(THIS_SRC) $(IPLUG_SRC)
+OBJS = app_main.o main_dialog.o $(SWELL_OBJS) $(LICE_OBJS)
+RESFILES = resources/IGraphicsTest.rc_mac_dlg resources/IGraphicsTest.rc_mac_menu
 
-EXPORTS = "['_main']"
+### Compiler/Linker Flags
+CFLAGS += -pipe -fvisibility=hidden -fno-math-errno -fPIC -DPIC -Wall -Wshadow -Wno-unused-function -Wno-multichar -Wno-unused-result -Werror -Wno-deprecated-declarations
+CFLAGS += -O0 -g -D_DEBUG
+LFLAGS = -lpthread -ldl -lX11 -lXi
+### GDK
+CFLAGS += -DSWELL_TARGET_GDK=2 $(shell pkg-config gdk-2.0 --cflags)
+LFLAGS += $(shell pkg-config gdk-2.0 --libs)
+### Freetype
+CFLAGS += -DSWELL_LICE_GDI -DSWELL_FREETYPE $(shell freetype-config --cflags)
+LFLAGS += $(shell freetype-config --libs)
 
-CFLAGS = -I./ -I$(IPLUG_PATH) -I$(WDL_PATH) -I$(IGRAPHICS_PATH) -std=c++11 -DIGRAPHICS_WEB -Wno-bitwise-op-parentheses
-LDFLAGS = -s EXPORTED_FUNCTIONS=$(EXPORTS) -O2 --emrun
-JSFLAGS = -s BINARYEN_ASYNC_COMPILATION=1 -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 --bind -s ASSERTIONS=0 --preload-file ./resources/img@/
-#JSFLAGS =
+CXXFLAGS = $(CFLAGS)
 
-$(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(JSFLAGS) -o $@ $(SRC)
+
+### Targets
+.PHONY: clean run
+default: $(APP)
+
+$(RESFILES): resources/IGraphicsTest.rc
+	php $(WDL_PATH)swell/mac_resgen.php $^
+
+$(APP): $(RESFILES) $(OBJS)
+	$(CXX) -o $@ $(CFLAGS) $(OBJS) $(LFLAGS)
+
+
+run: $(APP)
+	./$<
+clean:
+	-rm $(APP) $(OBJS) $(RESFILES)

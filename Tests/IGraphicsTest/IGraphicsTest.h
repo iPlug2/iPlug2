@@ -1,19 +1,12 @@
 #pragma once
 
-#include "IGraphics_include_in_plug_hdr.h"
-#include "IGraphicsEditorDelegate.h"
-#include "config.h"
+#include "IPlug_include_in_plug_hdr.h"
 
-class IGraphicsTest : public IGEditorDelegate
+class IGraphicsTest : public IPlug
 {
 public:
-  IGraphicsTest();
-  ~IGraphicsTest() {}
-
-  //IGEditorDelegate
-  void SendParameterValueFromUI(int paramIdx, double value) override { };
-  void BeginInformHostOfParamChangeFromUI(int paramIdx) override { };
-  void EndInformHostOfParamChangeFromUI(int paramIdx) override { }
+  IGraphicsTest(IPlugInstanceInfo instanceInfo);
+  
   IGraphics* CreateGraphics() override;
   void LayoutUI(IGraphics* pGraphics) override;
 };

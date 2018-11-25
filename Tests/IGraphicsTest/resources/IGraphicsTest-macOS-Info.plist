@@ -11,7 +11,7 @@
 	<key>CFBundleIconFile</key>
 	<string>IGraphicsTest.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.OliLarkin.app.IGraphicsTest</string>
+	<string>com.AcmeInc.app.IGraphicsTest</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -29,9 +29,9 @@
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.music</string>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.7.0</string>
+	<string>10.11.0</string>
 	<key>NSMainNibFile</key>
-	<string>MainMenu</string>
+	<string>IGraphicsTest-macOS-MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>SWELLApplication</string>
 </dict>

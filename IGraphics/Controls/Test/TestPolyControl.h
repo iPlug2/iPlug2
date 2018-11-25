@@ -5,7 +5,7 @@
 class TestPolyControl : public IKnobControlBase
 {
 public:
-  TestPolyControl(IGEditorDelegate& dlg, IRECT rect, int paramIdx)
+  TestPolyControl(IGEditorDelegate& dlg, IRECT rect, int paramIdx = kNoParameter)
   : IKnobControlBase(dlg, rect, paramIdx)
   {
   }

@@ -5,7 +5,7 @@
 class TestGradientControl : public IKnobControlBase
 {
 public:
-  TestGradientControl(IGEditorDelegate& dlg, IRECT rect, int paramIdx)
+  TestGradientControl(IGEditorDelegate& dlg, IRECT rect, int paramIdx = kNoParameter)
   : IKnobControlBase(dlg, rect, paramIdx)
   {
     RandomiseGradient();
