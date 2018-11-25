@@ -711,9 +711,13 @@ bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
   #ifdef IGRAPHICS_FREETYPE
     #define FONS_USE_FREETYPE
   #endif
-#include "nanovg.c"
-#else
+  #include "nanovg.c"
+#elif defined IGRAPHICS_SKIA
+  #include "IGraphicsSkia.cpp"
+#elif defined IGRAPHICS_LICE
   #include "IGraphicsLice.cpp"
+#else
+  #error Either NO_IGRAPHICS or one and only one choice of graphics library must be defined!
 #endif
 
 #endif// NO_IGRAPHICS
