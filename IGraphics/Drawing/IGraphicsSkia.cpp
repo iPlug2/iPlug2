@@ -24,7 +24,7 @@ inline SkColor SkiaColor(const IColor& color, const IBlend* pBlend = 0)
   return SkColorSetARGB(color.A, color.R, color.G, color.B);
 }
 
-inline SkRect ToSkiaRect(const IRECT& r)
+inline SkRect SkiaRect(const IRECT& r)
 {
   return SkRect::MakeLTRB(r.L, r.T, r.R, r.B);
 }
@@ -144,6 +144,14 @@ IColor IGraphicsSkia::GetPoint(int x, int y)
 
 bool IGraphicsSkia::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
+  SkPaint textPaint;
+  textPaint.setColor(SkiaColor(text.mFGColor));
+  textPaint.setTextSize((float) text.mSize);
+  textPaint.setAntiAlias(true);
+  
+//  textPaint.setTextAlign(SkPaint::kLeft_Align);
+
+  mSurface->getCanvas()->drawText(str, strlen(str), bounds.L, bounds.B, textPaint);
 }
 
 bool IGraphicsSkia::MeasureText(const IText& text, const char* str, IRECT& bounds)
@@ -203,10 +211,6 @@ void IGraphicsSkia::PathFill(const IPattern& pattern, const IFillOptions& option
   
   if (!options.mPreserve)
     mMainPath.reset();
-}
-
-void IGraphicsSkia::LoadFont(const char* name)
-{
 }
 
 void IGraphicsSkia::DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, float pad, const IBlend* pBlend)
