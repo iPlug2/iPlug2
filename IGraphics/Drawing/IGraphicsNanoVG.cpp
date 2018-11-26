@@ -391,6 +391,36 @@ void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, i
   nvgBeginPath(mVG); // Clears the bitmap rect from the path state
 }
 
+void IGraphicsNanoVG::PathClear()
+{
+  nvgBeginPath(mVG);
+}
+
+void IGraphicsNanoVG::PathClose()
+{
+  nvgClosePath(mVG);
+}
+
+void IGraphicsNanoVG::PathArc(float cx, float cy, float r, float aMin, float aMax)
+{
+  nvgArc(mVG, cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f), NVG_CW);
+}
+
+void IGraphicsNanoVG::PathMoveTo(float x, float y)
+{
+  nvgMoveTo(mVG, x, y);
+}
+
+void IGraphicsNanoVG::PathLineTo(float x, float y)
+{
+  nvgLineTo(mVG, x, y);
+}
+
+void IGraphicsNanoVG::PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
+{
+  nvgBezierTo(mVG, x1, y1, x2, y2, x3, y3);
+}
+
 IColor IGraphicsNanoVG::GetPoint(int x, int y)
 {
   return COLOR_BLACK; //TODO:
