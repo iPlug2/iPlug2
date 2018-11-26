@@ -11,8 +11,9 @@ iPlug 2 includes support for [the FAUST programming language](http://faust.grame
 The project relies on many amazing open source libraries by 3rd parties.
 
 Discuss iPlug 2 on the [WDL forum](http://forum.cockos.com/forumdisplay.php?f=32
-) or on the [iPlug user's slack channel](https://join.slack.com/t/iplug-users/shared_invite/enQtMzA1NzA1NzE0OTY1LWYyODdjNzkyYTk4MDRmYzZjZTI4ZGVkYTIxZTk0OWRiYWE2MTA0ZWVlODM1NjkzNDAyNDFhMDdjNGI4OTY2YTU)
+) or on the [iPlug user's slack channel.](https://join.slack.com/t/iplug-users/shared_invite/enQtMzA1NzA1NzE0OTY1LWYyODdjNzkyYTk4MDRmYzZjZTI4ZGVkYTIxZTk0OWRiYWE2MTA0ZWVlODM1NjkzNDAyNDFhMDdjNGI4OTY2YTU)
 
-<a href="https://www.patreon.com/bePatron?u=3140614" data-patreon-widget-type="become-patron-button">Become a Patron!</a><script async src="https://c6.patreon.com/becomePatronButton.bundle.js"></script>
+Please consider supportting the project financially [via patreon.]("https://www.patreon.com/bePatron?u=3140614")
+
 
 ![http://faust.grame.fr/news/2018/07/23/Results-Faust-Awards-2018.html](Documentation/faustaward2018.png)
