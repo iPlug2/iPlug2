@@ -30,12 +30,13 @@ public:
     int size = (std::rand() % 100) + 5;
     int style = (std::rand() % 3);
     int align = (std::rand() % 3);
+    int valign = (std::rand() % 3);
     int type = (std::rand() % 2);
     mStringIndex = (std::rand() % 6);
 
     const char* types[] = { "Roboto-Regular", "Montserrat-LightItalic" };
 
-    mText = IText(size, IColor::GetRandomColor(), types[type], (IText::EStyle) style, (IText::EAlign) align);
+    mText = IText(size, IColor::GetRandomColor(), types[type], (IText::EStyle) style, (IText::EAlign) align, (IText::EVAlign) valign);
   }
 
 private:
