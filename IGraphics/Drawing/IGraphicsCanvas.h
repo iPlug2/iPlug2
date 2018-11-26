@@ -70,6 +70,6 @@ private:
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
     
-  void SetWebSourcePattern(const IPattern& pattern, const IBlend* pBlend = nullptr);
-  void SetWebBlendMode(const IBlend* pBlend);
+  void SetCanvasSourcePattern(const IPattern& pattern, const IBlend* pBlend = nullptr);
+  void SetCanvasBlendMode(const IBlend* pBlend);
 };

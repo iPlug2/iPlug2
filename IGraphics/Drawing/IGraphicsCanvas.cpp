@@ -29,7 +29,7 @@ void IGraphicsCanvas::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX,
   val context = GetContext();
   RetainVal* pRV = (RetainVal*) bitmap.GetAPIBitmap()->GetBitmap();
   GetContext().call<void>("save");
-  SetWebBlendMode(pBlend);
+  SetCanvasBlendMode(pBlend);
   context.set("globalAlpha", BlendWeight(pBlend));
   
   const float ds = GetDisplayScale();
@@ -72,7 +72,7 @@ void IGraphicsCanvas::PathStroke(const IPattern& pattern, float thickness, const
   context.set("lineDashOffset", options.mDash.GetOffset());
   context.set("lineWidth", thickness);
   
-  SetWebSourcePattern(pattern, pBlend);
+  SetCanvasSourcePattern(pattern, pBlend);
 
   context.call<void>("stroke");
   
@@ -85,7 +85,7 @@ void IGraphicsCanvas::PathFill(const IPattern& pattern, const IFillOptions& opti
   val context = GetContext();
   std::string fillRule(options.mFillRule == kFillWinding ? "nonzero" : "evenodd");
   
-  SetWebSourcePattern(pattern, pBlend);
+  SetCanvasSourcePattern(pattern, pBlend);
 
   context.call<void>("fill", fillRule);
 
@@ -93,7 +93,7 @@ void IGraphicsCanvas::PathFill(const IPattern& pattern, const IFillOptions& opti
     PathClear();
 }
 
-void IGraphicsCanvas::SetWebSourcePattern(const IPattern& pattern, const IBlend* pBlend)
+void IGraphicsCanvas::SetCanvasSourcePattern(const IPattern& pattern, const IBlend* pBlend)
 {
   auto InvertTransform = [](float *xform, const float *xformIn)
   {
@@ -109,7 +109,7 @@ void IGraphicsCanvas::SetWebSourcePattern(const IPattern& pattern, const IBlend*
   
   val context = GetContext();
   
-  SetWebBlendMode(pBlend);
+  SetCanvasBlendMode(pBlend);
   
   switch (pattern.mType)
   {
@@ -154,12 +154,11 @@ void IGraphicsCanvas::SetWebSourcePattern(const IPattern& pattern, const IBlend*
   }
 }
 
-void IGraphicsCanvas::SetWebBlendMode(const IBlend* pBlend)
+void IGraphicsCanvas::SetCanvasBlendMode(const IBlend* pBlend)
 {
   if (!pBlend)
-  {
     GetContext().set("globalCompositeOperation", "source-over");
-  }
+  
   switch (pBlend->mMethod)
   {
     case kBlendClobber:     GetContext().set("globalCompositeOperation", "source-over");   break;
@@ -174,7 +173,6 @@ void IGraphicsCanvas::SetWebBlendMode(const IBlend* pBlend)
 bool IGraphicsCanvas::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
   // TODO: orientation
-  
   val context = GetContext();
   std::string textString(str);
   
@@ -218,7 +216,7 @@ bool IGraphicsCanvas::DrawText(const IText& text, const char* str, IRECT& bounds
     PathRect(bounds);
     context.call<void>("clip");
     PathClear();
-    SetWebSourcePattern(text.mFGColor, pBlend);
+    SetCanvasSourcePattern(text.mFGColor, pBlend);
     context.call<void>("fillText", textString, x, y);
     context.call<void>("restore");
   }

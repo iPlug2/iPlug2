@@ -32,17 +32,39 @@ mkdir build-web/scripts
 
 echo BUNDLING RESOURCES -----------------------------
 cd build-web
-python $EMSCRIPTEN/tools/file_packager.py fonts.data --preload ../resources/fonts/ --js-output=fonts.js
+
+if [ -f imgs.js ]
+then
+  rm imgs.js
+fi
+
+if [ -f imgs@2x.js ]
+then
+  rm imgs@2x.js
+fi
+
+if [ -f fonts.js ]
+then
+  rm fonts.js
+fi
+
+if [ -f presets.js ]
+then
+  rm presets.js
+fi
+
+python $EMSCRIPTEN/tools/file_packager.py fonts.data --preload ../resources/fonts/ --exclude .DS_store --js-output=fonts.js
+python $EMSCRIPTEN/tools/file_packager.py svgs.data --preload ../resources/img/ --exclude *.png .DS_store --js-output=svgs.js
+
 echo "if(window.devicePixelRatio == 1) {\n" > imgs.js
-#--use-preload-cache --indexedDB-name="/IPlugEffect_data"
-python $EMSCRIPTEN/tools/file_packager.py imgs.data --use-preload-plugins --preload ../resources/img/ --exclude *@2x.png >> imgs.js
+python $EMSCRIPTEN/tools/file_packager.py imgs.data --use-preload-plugins --preload ../resources/img/ --use-preload-cache --indexedDB-name="/IPlugEffect_pkg" --exclude *@2x.png .DS_store *.svg >> imgs.js
 echo "\n}" >> imgs.js
 # @ package @2x resources into separate .data file
 mkdir ./2x/
 cp ../resources/img/*@2x* ./2x
 echo "if(window.devicePixelRatio > 1) {\n" > imgs@2x.js
 #--use-preload-cache --indexedDB-name="/IPlugEffect_data"
-python $EMSCRIPTEN/tools/file_packager.py imgs@2x.data --use-preload-plugins --preload ./2x@/resources/img/ >> imgs@2x.js
+python $EMSCRIPTEN/tools/file_packager.py imgs@2x.data --use-preload-plugins --preload ./2x@/resources/img/ --use-preload-cache --indexedDB-name="/IPlugEffect_pkg" --exclude .DS_store >> imgs@2x.js
 echo "\n}" >> imgs@2x.js
 rm -r ./2x
 
@@ -61,20 +83,10 @@ then
   fi
 
   cd build-web/scripts
-  # thanks to Steven Yi / Csound
-  echo "
-  fs = require('fs');
-  let wasmData = fs.readFileSync(\"IPlugEffect-WAM.wasm\");
-  let wasmStr = wasmData.join(\",\");
-  let wasmOut = \"AudioWorkletGlobalScope.WAM = AudioWorkletGlobalScope.WAM || {}\\\n\";
-  wasmOut += \"AudioWorkletGlobalScope.WAM.IPlug = { ENVIRONMENT: 'WEB' }\\\n\";
-  wasmOut += \"AudioWorkletGlobalScope.WAM.IPlug.wasmBinary = new Uint8Array([\" + wasmStr + \"]);\";
-  fs.writeFileSync(\"IPlugEffect-WAM.wasm.js\", wasmOut);
-  " > encode-wasm.js
 
-  node encode-wasm.js
-  rm encode-wasm.js
-  rm IPlugEffect-WAM.wasm
+  echo "AudioWorkletGlobalScope.WAM = AudioWorkletGlobalScope.WAM || {}; AudioWorkletGlobalScope.WAM.IPlugEffect = { ENVIRONMENT: 'WEB' };" > IPlugEffect-wam.tmp.js;
+  cat IPlugEffect-wam.js >> IPlugEffect-wam.tmp.js
+  mv IPlugEffect-wam.tmp.js IPlugEffect-wam.js
 
   cp ../../../../Dependencies/IPlug/WAM_SDK/wamsdk/*.js .
   cp ../../../../Dependencies/IPlug/WAM_AWP/*.js .
@@ -114,16 +126,11 @@ then
   exit 1
 fi
 
-# TODO: why is this a problem on mac?
-if [ "$(uname)" == "Darwin" ]
-then
-  mv build-web/scripts/*.wasm build-web
-fi
-
 cd build-web
 
 echo payload:
-du -sch * --exclude=.git
+find . -maxdepth 2 -mindepth 1 -exec du -hs {} \;
+du -hc
 
 if [ "$websocket" -eq "1" ]
 then

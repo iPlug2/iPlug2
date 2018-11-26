@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
-#include "Oscillator.h"
+
 #include "IVMeterControl.h"
 #include "IVScopeControl.h"
 #include "IPlugEffect_DSP.h"

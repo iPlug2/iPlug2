@@ -152,7 +152,7 @@ inline NVGcompositeOperation NanoVGBlendMode(const IBlend* pBlend)
   }
 }
 
-NVGpaint NanoVGPaint(NVGcontext* context, const IPattern& pattern, const IBlend* pBlend)
+NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend* pBlend)
 {
   NVGcolor icol = NanoVGColor(pattern.GetStop(0).mColor, pBlend);
   NVGcolor ocol = NanoVGColor(pattern.GetStop(pattern.NStops() - 1).mColor, pBlend);
@@ -167,14 +167,14 @@ NVGpaint NanoVGPaint(NVGcontext* context, const IPattern& pattern, const IBlend*
   
   if (pattern.mType == kRadialPattern)
   {
-    return nvgRadialGradient(context, s[0], s[1], 0.0, inverse[0], icol, ocol);
+    return nvgRadialGradient(pContext, s[0], s[1], 0.0, inverse[0], icol, ocol);
   }
   else
   {
     float e[2];
     nvgTransformPoint(&e[0], &e[1], inverse, 1, 0);
     
-    return nvgLinearGradient(context, s[0], s[1], e[0], e[1], icol, ocol);
+    return nvgLinearGradient(pContext, s[0], s[1], e[0], e[1], icol, ocol);
   }
 }
 
