@@ -10,6 +10,13 @@ extern IGraphics* gGraphics;
 extern val GetPreloadedImages();
 extern val GetCanvas();
 
+static std::string CanvasColor(const IColor& color, float alpha = 1.0)
+{
+  WDL_String str;
+  str.SetFormatted(64, "rgba(%d, %d, %d, %lf)", color.R, color.G, color.B, alpha * color.A / 255.0);
+  return str.Get();
+}
+
 WebBitmap::WebBitmap(emscripten::val imageCanvas, const char* name, int scale)
 {
   SetBitmap(new RetainVal(imageCanvas), imageCanvas["width"].as<int>(), imageCanvas["height"].as<int>(), scale);
@@ -41,6 +48,41 @@ void IGraphicsCanvas::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX,
   
   context.call<void>("drawImage", pRV->mItem, srcX, srcY, sr.W(), sr.H(), floor(bounds.L), floor(bounds.T), floor(bounds.W()), floor(bounds.H()));
   GetContext().call<void>("restore");
+}
+
+void IGraphicsCanvas::DrawRotatedBitmap(IBitmap& bitmap, float destCentreX, float destCentreY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
+{
+  IGraphicsPathBase::DrawRotatedBitmap(bitmap, destCentreX, destCentreY, DegToRad(angle), yOffsetZeroDeg, pBlend);
+}
+
+void IGraphicsCanvas::PathClear()
+{
+  GetContext().call<void>("beginPath");
+}
+
+void IGraphicsCanvas::PathClose()
+{
+  GetContext().call<void>("closePath");
+}
+
+void IGraphicsCanvas::PathArc(float cx, float cy, float r, float aMin, float aMax)
+{
+  GetContext().call<void>("arc", cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f));
+}
+
+void IGraphicsCanvas::PathMoveTo(float x, float y)
+{
+  GetContext().call<void>("moveTo", x, y);
+}
+
+void IGraphicsCanvas::PathLineTo(float x, float y)
+{
+  GetContext().call<void>("lineTo", x, y);
+}
+
+void IGraphicsCanvas::PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
+{
+  GetContext().call<void>("bezierCurveTo", x1, y1, x2, y2, x3, y3);
 }
 
 void IGraphicsCanvas::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
@@ -116,7 +158,7 @@ void IGraphicsCanvas::SetCanvasSourcePattern(const IPattern& pattern, const IBle
     case kSolidPattern:
     {
       const IColor color = pattern.GetStop(0).mColor;
-      std::string colorString = ToCanvasColor(color, BlendWeight(pBlend));
+      std::string colorString = CanvasColor(color, BlendWeight(pBlend));
 
       context.set("fillStyle", colorString);
       context.set("strokeStyle", colorString);
@@ -144,7 +186,7 @@ void IGraphicsCanvas::SetCanvasSourcePattern(const IPattern& pattern, const IBle
       for (int i = 0; i < pattern.NStops(); i++)
       {
         const IColorStop& stop = pattern.GetStop(i);
-        gradient.call<void>("addColorStop", stop.mOffset, ToCanvasColor(stop.mColor));
+        gradient.call<void>("addColorStop", stop.mOffset, CanvasColor(stop.mColor));
       }
       
       context.set("fillStyle", gradient);
