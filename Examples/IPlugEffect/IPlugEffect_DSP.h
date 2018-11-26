@@ -26,15 +26,8 @@ private:
       mOsc.Reset();
     }
     
-    void Release() override
-    {
-      mGain = 0.;
-    }
-      
-    void Kill(bool hard) override
-    {
-      mGain = 0.;
-    }
+    void Release() override { mGain = 0.; }
+    void Kill(bool hard) override { mGain = 0.; }
     
     void ProcessSamples(sample** inputs, sample** outputs, int nInputs, int nOutputs, int startIdx, int nFrames, double pitchBend) override
     {
