@@ -169,7 +169,7 @@ NVGpaint NanoVGPaint(NVGcontext* context, const IPattern& pattern, const IBlend*
   {
     return nvgRadialGradient(context, s[0], s[1], 0.0, inverse[0], icol, ocol);
   }
-  else if (pattern.mType == kLinearPattern)
+  else
   {
     float e[2];
     nvgTransformPoint(&e[0], &e[1], inverse, 1, 0);
