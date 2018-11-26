@@ -125,13 +125,19 @@ public:
 
   void SetParameterValueNormalised(int paramIdx, double normalizedValue)
   {
-    assert(paramIdx < NParams());
-    mParams.Get(paramIdx)->SetNormalized(normalizedValue);
-    
-    if(mZones.GetSize() == NParams())
-      *(mZones.Get(paramIdx)) = mParams.Get(paramIdx)->Value();
+    if(paramIdx > kNoParameter && paramIdx >= NParams())
+    {
+      DBGMSG("IPlugFaust-%s:: No parameter %i\n", mName.Get(), paramIdx);
+    }
     else
-      DBGMSG("IPlugFaust-%s:: Missing zone for parameter %s\n", mName.Get(), mParams.Get(paramIdx)->GetNameForHost());
+    {
+      mParams.Get(paramIdx)->SetNormalized(normalizedValue);
+    
+      if(mZones.GetSize() == NParams())
+        *(mZones.Get(paramIdx)) = mParams.Get(paramIdx)->Value();
+      else
+        DBGMSG("IPlugFaust-%s:: Missing zone for parameter %s\n", mName.Get(), mParams.Get(paramIdx)->GetNameForHost());
+    }
   }
   
   void SetParameterValue(int paramIdx, double nonNormalizedValue)
