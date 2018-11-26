@@ -32,17 +32,37 @@ mkdir build-web/scripts
 
 echo BUNDLING RESOURCES -----------------------------
 cd build-web
-python $EMSCRIPTEN/tools/file_packager.py fonts.data --preload ../resources/fonts/ --js-output=fonts.js
+
+if [ -f imgs.js ]
+then
+  rm imgs.js
+fi
+
+if [ -f imgs@2x.js ]
+then
+  rm imgs@2x.js
+fi
+
+if [ -f fonts.js ]
+then
+  rm fonts.js
+fi
+
+if [ -f presets.js ]
+then
+  rm presets.js
+fi
+
+python $EMSCRIPTEN/tools/file_packager.py fonts.data --preload ../resources/fonts/ --exclude .DS_store --js-output=fonts.js
 echo "if(window.devicePixelRatio == 1) {\n" > imgs.js
-#--use-preload-cache --indexedDB-name="/IPlugEffect_data"
-python $EMSCRIPTEN/tools/file_packager.py imgs.data --use-preload-plugins --preload ../resources/img/ --exclude *@2x.png >> imgs.js
+python $EMSCRIPTEN/tools/file_packager.py imgs.data --use-preload-plugins --preload ../resources/img/ --use-preload-cache --indexedDB-name="/IPlugEffect_pkg" --exclude *@2x.png .DS_store >> imgs.js
 echo "\n}" >> imgs.js
 # @ package @2x resources into separate .data file
 mkdir ./2x/
 cp ../resources/img/*@2x* ./2x
 echo "if(window.devicePixelRatio > 1) {\n" > imgs@2x.js
 #--use-preload-cache --indexedDB-name="/IPlugEffect_data"
-python $EMSCRIPTEN/tools/file_packager.py imgs@2x.data --use-preload-plugins --preload ./2x@/resources/img/ >> imgs@2x.js
+python $EMSCRIPTEN/tools/file_packager.py imgs@2x.data --use-preload-plugins --preload ./2x@/resources/img/ --use-preload-cache --indexedDB-name="/IPlugEffect_pkg" --exclude .DS_store >> imgs@2x.js
 echo "\n}" >> imgs@2x.js
 rm -r ./2x
 
