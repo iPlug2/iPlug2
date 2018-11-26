@@ -1,4 +1,4 @@
-# iPlug 2 - Audio Plug-in Framework
+# iPlug 2 - C++ Audio Plug-in Framework
 
 [![Build Status](https://travis-ci.com/iPlug2/iPlug2-private.svg?token=JaxYSCbvzztBNGHczFA5&branch=master)](https://travis-ci.com/iPlug2/iPlug2-private)
 
