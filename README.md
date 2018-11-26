@@ -1,4 +1,6 @@
-# iPlug 2
+# iPlug 2 - Audio Plug-in Framework
+
+[![Build Status](https://travis-ci.com/iPlug2/iPlug2-private.svg?token=JaxYSCbvzztBNGHczFA5&branch=master)](https://travis-ci.com/iPlug2/iPlug2-private)
 
 iPlug 2 is a simple-to-use C++ framework for developing cross platform audio plug-ins/apps and targeting multiple plug-in APIs with the same minimalistic code. The original version of iPlug was developed by [John Schwartz aka schwa](https://www.cockos.com/team.php) and released in 2008 as part of Cockos' WDL library. iPlug 2 (2018) is a substantial reworking that brings multiple vector graphics backends (including GPU accelerated options and HiDPI/scaling), support for distributed plug-in formats and compiling to WebAssembly, amongst many other things.
 
