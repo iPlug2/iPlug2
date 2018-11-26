@@ -95,6 +95,26 @@ void IGraphicsSkia::SetPlatformContext(void* pContext)
   mPlatformContext = pContext;
   
   mSurface = SkSurface::MakeRasterN32Premul(WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
+  
+//  const GrGLInterface * interface = nullptr;
+//  auto grcontext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext)interface);
+//
+//  GrBackendTextureDesc desc;
+//  desc.fFlags = kRenderTarget_GrBackendTextureFlag;
+//  desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
+//  desc.fWidth = mScaleFactor * Width();
+//  desc.fHeight = mScaleFactor * Height();
+//  desc.fConfig = kRGBA_8888_GrPixelConfig;
+//  desc.fSampleCnt = 0;
+//  GrGLTextureInfo info;
+//  info.fTarget = GL_TEXTURE_RECTANGLE;
+//  info.fID = mSkiaGLTexture.GetName();
+//  desc.fTextureHandle = (GrBackendObject)&info;
+//
+//  mSurface = SkSurface::MakeFromBackendTexture( grcontext, desc, 0);
+//  mSkCanvas = mSurface->getCanvas();
+//  mSkCanvas->scale(mScaleFactor, mScaleFactor);
+//  mSkCanvas->clear(SkColorSetARGB(255, 0, 0, 0));
 }
 
 void IGraphicsSkia::OnViewInitialized(void* pContext)
