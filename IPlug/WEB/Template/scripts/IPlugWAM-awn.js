@@ -12,12 +12,11 @@ class NAME_PLACEHOLDERController extends WAMController
   static importScripts (actx) {
     var origin = location.origin + "/";
     return new Promise( (resolve) => {
-      actx.audioWorklet.addModule(origin + "scripts/NAME_PLACEHOLDER-wam.wasm.js").then(() => {
       actx.audioWorklet.addModule(origin + "scripts/NAME_PLACEHOLDER-wam.js").then(() => {
       actx.audioWorklet.addModule(origin + "scripts/wam-processor.js").then(() => {
       actx.audioWorklet.addModule(origin + "scripts/NAME_PLACEHOLDER-awp.js").then(() => {
         resolve();
-      }) }) }) });
+      }) }) });
     })
   }
 
