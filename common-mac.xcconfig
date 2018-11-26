@@ -68,8 +68,8 @@ PUGL_PATH = $(DEPS_PATH)/Extras/pugl
 //faust is linked as a dynamic library
 FAUST_LIB_PATHS = $(BUILT_LIBS_LIB_PATH)
 FAUST_INC_PATHS = $(BUILT_LIBS_INC_PATH) $(WDL_PATH)/win32_curses
-FAUST_DEFS = DEFAULT_FAUST_LIBRARY_PATH=$(BUILT_LIBS_LIB_PATH)/share/faust/
-//FAUST_LNK_FLAGS = $(BUILT_LIBS_LIB_PATH)/lib/libfaust.dylib
+FAUST_DEFS = FORCE_WIN32_CURSES FAUST_EXE=\"$(BUILT_LIBS_PATH)/bin/faust\" DEFAULT_FAUST_LIBRARY_PATH=\"$(BUILT_LIBS_PATH)/share/faust\"
+FAUST_LNK_FLAGS = $(BUILT_LIBS_LIB_PATH)/libfaust.dylib
 
 CIVETWEB_INC_PATHS = $(BUILT_LIBS_INC_PATH)
 CIVETWEB_LNK_FLAGS = $(BUILT_LIBS_LIB_PATH)/libcivetweb.a
@@ -137,6 +137,4 @@ AU_PATH = $(HOME)/Library/Audio/Plug-Ins/Components
 AAX_PATH = /Applications/Avid/ProTools_3PDev/Plug-Ins
 APP_PATH = $(HOME)/Applications
 REAPER_EXT_PATH = $(HOME)/Library/Application Support/REAPER/UserPlugins
-
-FAUST_DEFS = FORCE_WIN32_CURSES FAUST_EXE=\"$(BUILT_LIBS_PATH)/bin/faust\" DEFAULT_FAUST_LIBRARY_PATH=\"$(BUILT_LIBS_PATH)/share/faust\"
 
