@@ -99,10 +99,14 @@ void PLUG_CLASS_NAME::LayoutUI(IGraphics* pGraphics)
   pGraphics->AttachCornerResizer(kUIResizerScale);
   pGraphics->AttachPanelBackground(COLOR_GRAY);
 
-  const int nRows = 4;
-  const int nColumns = 4;
-  int cellIdx = 0;
   IRECT bounds = pGraphics->GetBounds();
+
+  int cellIdx = 0;
+  
+  auto nextCell = [&](){
+    return bounds.GetGridCell(cellIdx++, 4, 4).GetPadded(-5.);
+  };
+  
   pGraphics->LoadFont(ROBOTTO_FN);
   auto bitmap1 = pGraphics->LoadBitmap(PNGKNOB_FN, 60);
   auto bitmap2 = pGraphics->LoadBitmap(PNGKNOBROTATE_FN);
@@ -114,24 +118,23 @@ void PLUG_CLASS_NAME::LayoutUI(IGraphics* pGraphics)
 
   IColor color;
   #if 1
-  pGraphics->AttachControl(new IVMeterControl<2>(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.)), kControlTagMeter);
-  pGraphics->AttachControl(new IVScopeControl<>(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.)), kControlTagScope);
+  pGraphics->AttachControl(new IVMeterControl<2>(*this, nextCell()), kControlTagMeter);
+  pGraphics->AttachControl(new IVScopeControl<>(*this, nextCell()), kControlTagScope);
 
   #if 1
-  pGraphics->AttachControl(new IVSVGKnob(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.), svg1, kGain));
-  pGraphics->AttachControl(new IVSVGKnob(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.), svg2, kGain));
+  pGraphics->AttachControl(new IVSVGKnob(*this, nextCell(), svg1, kGain));
+  pGraphics->AttachControl(new IVSVGKnob(*this, nextCell(), svg2, kGain));
   #endif
   #endif
 
   #if 0
   for (auto i = 0; i < nRows * nColumns; i++) {
-    pGraphics->AttachControl(new IBKnobControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.), bitmap1, kGain));
+    pGraphics->AttachControl(new IBKnobControl(*this, nextCell(), bitmap1, kGain));
   }
   #endif
-  pGraphics->AttachControl(new IBKnobRotaterControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.), bitmap2, kGain));
+  pGraphics->AttachControl(new IBKnobRotaterControl(*this, nextCell(), bitmap2, kGain));
 
-
-  IVSliderControl* pSlider = new IVSliderControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.).GetMidHPadded(20.));
+  IVSliderControl* pSlider = new IVSliderControl(*this, nextCell().GetMidHPadded(20.));
 
   pSlider->SetActionFunction([pGraphics, pSlider, this](IControl* pCaller) {
   for (auto i = 0; i < pGraphics->NControls(); i++) {
@@ -144,8 +147,8 @@ void PLUG_CLASS_NAME::LayoutUI(IGraphics* pGraphics)
   
   pGraphics->AttachControl(pSlider);
 
-  pGraphics->AttachControl(new IVKnobControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetPadded(-5.), kGain));
-  pGraphics->AttachControl(new IVSwitchControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns).GetCentredInside(80.f), -1));
+  pGraphics->AttachControl(new IVKnobControl(*this, nextCell(), kGain));
+  pGraphics->AttachControl(new IVSwitchControl(*this, nextCell().GetCentredInside(80.f), -1));
 
 //  pGraphics->AttachControl(new IVButtonControl(*this, bounds.GetGridCell(cellIdx++, nRows, nColumns), [](IControl* pCaller)
 //                                               {
