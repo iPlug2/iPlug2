@@ -36,6 +36,7 @@
 
 class IControl;
 class IPopupMenuControl;
+class ITextEntryControl;
 class ICornerResizerBase;
 class IPerfDisplayControl;
 class IParam;
@@ -715,7 +716,11 @@ public:
    * @param pControl A control that inherits from IPopupMenuControl */
   void AttachPopupMenuControl(IText text = DEFAULT_TEXT);
   
+  /** Attach a control for displaying the FPS on top of the UI */
   void AttachPerformanceDisplay();
+  
+  /** Attach a control for text entry, to override platform text entry */
+  void AttachTextEntryControl();
   
   /** Attach an IControl to the graphics context and add it to the top of the control stack. The control is owned by the graphics context and will be deleted when the context is deleted.
    * @param pControl A pointer to an IControl to attach.
@@ -939,6 +944,7 @@ protected:
   float mCursorY = -1.f;
   ICornerResizerBase* mCornerResizer = nullptr;
   IPopupMenuControl* mPopupControl = nullptr;
+  ITextEntryControl* mTextEntryControl = nullptr;
   IPerfDisplayControl* mPerfDisplay = nullptr;
   IControl* mKeyCatcher = nullptr;
   IControl* mLiveEdit = nullptr;

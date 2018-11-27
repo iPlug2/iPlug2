@@ -23,6 +23,7 @@ typedef IPlugVST3Controller VST3_API_BASE;
 #include "IGraphicsLiveEdit.h"
 #include "IPerfDisplayControl.h"
 #include "IPopupMenuControl.h"
+#include "ITextEntryControl.h"
 
 struct SVGHolder
 {
@@ -191,6 +192,12 @@ void IGraphics::AttachPerformanceDisplay()
 {
   mPerfDisplay = new IPerfDisplayControl(mDelegate, GetBounds().GetPadded(-10).GetRECTFromTLHC(200, 50));
   mPerfDisplay->SetGraphics(this);
+}
+
+void IGraphics::AttachTextEntryControl()
+{
+  mTextEntryControl = new ITextEntryControl(mDelegate);
+  mTextEntryControl->SetGraphics(this);
 }
 
 IControl* IGraphics::GetControlWithTag(int controlTag)
