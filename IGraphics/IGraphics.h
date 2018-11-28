@@ -323,7 +323,7 @@ public:
    * or if measure == true, after calling the method this IRECT will be updated with the rectangular region the text will occupy
    * @param measure Pass true if you wish to measure the rectangular region this text will occupy, rather than draw
    * @return true on valid input data \todo check this */
-  virtual bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0, bool measure = false) = 0;
+  virtual bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0, bool measure = false, bool textEntry = false) = 0;
 
   /** Measure the rectangular region that some text will occupy
    * @param text An IText struct containing font and text properties and layout info

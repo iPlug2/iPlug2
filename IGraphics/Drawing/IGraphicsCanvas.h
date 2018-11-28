@@ -41,7 +41,7 @@ public:
   void PathArc(float cx, float cy, float r, float aMin, float aMax) override;
   void PathMoveTo(float x, float y) override;
   void PathLineTo(float x, float y) override;
-  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3);
+  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override;
 
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
@@ -49,7 +49,7 @@ public:
   IColor GetPoint(int x, int y) override { return COLOR_BLACK; } // TODO:
   void* GetDrawContext() override { return nullptr; }
 
-  bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
+  bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure, bool textEntry) override;
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
 
 protected:

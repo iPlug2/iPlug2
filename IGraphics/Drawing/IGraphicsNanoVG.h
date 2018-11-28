@@ -126,7 +126,7 @@ public:
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return (void*) mVG; }
 
-  bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
+  bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure, bool textEntry) override;
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
   
   IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHorizontal) override;

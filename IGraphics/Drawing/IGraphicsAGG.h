@@ -169,7 +169,7 @@ public:
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
     
-  bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0, bool measure = false) override;
+  bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0, bool measure = false, bool textEntry = false) override;
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
 
   IColor GetPoint(int x, int y) override;

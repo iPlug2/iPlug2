@@ -594,7 +594,7 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IREC
   }
 }
 
-bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destBounds, const IBlend* pBlend, bool measure)
+bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destBounds, const IBlend* pBlend, bool measure, bool textEntry)
 {
 //  if (!str || str[0] == '\0')
 //  {

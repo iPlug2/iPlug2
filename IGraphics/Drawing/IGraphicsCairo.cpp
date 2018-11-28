@@ -330,7 +330,7 @@ IColor IGraphicsCairo::GetPoint(int x, int y)
 #define FONT_SIZE 36
 #define MARGIN (FONT_SIZE * .5)
 
-bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure, bool textEntry)
 {
 #if defined IGRAPHICS_FREETYPE
 //  FT_Face ft_face;
@@ -409,7 +409,9 @@ bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& bounds,
 //  cairo_show_glyphs (mContext, cairo_glyphs, len);
 //  cairo_glyph_free (cairo_glyphs);
 #else // TOY text
-  cairo_set_source_rgba(mContext, text.mFGColor.R / 255.0, text.mFGColor.G / 255.0, text.mFGColor.B / 255.0, (BlendWeight(pBlend) * text.mFGColor.A) / 255.0);
+  IColor& fgColor;
+  textEntry ? fgColor = text.mTexteEntryFGColor : text.mFGColor;
+  cairo_set_source_rgba(mContext, fgColor.R / 255.0, fgColor.G / 255.0, fgColor.B / 255.0, (BlendWeight(pBlend) * fgColor.A) / 255.0);
   cairo_select_font_face(mContext, text.mFont, CAIRO_FONT_SLANT_NORMAL, text.mStyle == IText::kStyleBold ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL);
   cairo_set_font_size(mContext, text.mSize);
 //  cairo_font_options_t* font_options = cairo_font_options_create ();

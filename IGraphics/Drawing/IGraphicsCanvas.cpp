@@ -212,7 +212,7 @@ void IGraphicsCanvas::SetCanvasBlendMode(const IBlend* pBlend)
   }
 }
 
-bool IGraphicsCanvas::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+bool IGraphicsCanvas::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure, bool textEntry)
 {
   // TODO: orientation
   val context = GetContext();
@@ -258,7 +258,11 @@ bool IGraphicsCanvas::DrawText(const IText& text, const char* str, IRECT& bounds
     PathRect(bounds);
     context.call<void>("clip");
     PathClear();
-    SetCanvasSourcePattern(text.mFGColor, pBlend);
+    if(textEntry)
+      SetCanvasSourcePattern(text.mTextEntryFGColor, pBlend);
+    else
+      SetCanvasSourcePattern(text.mFGColor, pBlend);
+
     context.call<void>("fillText", textString, x, y);
     context.call<void>("restore");
   }
@@ -268,7 +272,7 @@ bool IGraphicsCanvas::DrawText(const IText& text, const char* str, IRECT& bounds
 
 bool IGraphicsCanvas::MeasureText(const IText& text, const char* str, IRECT& bounds)
 {
-  return DrawText(text, str, bounds, 0, true);
+  return DrawText(text, str, bounds, 0, true, false);
 }
 
 void IGraphicsCanvas::PathTransformSetMatrix(const IMatrix& m)
