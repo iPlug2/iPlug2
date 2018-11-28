@@ -10,21 +10,24 @@
 #include "IControl.h"
 
 /** A control for drawing a text entry in the graphics context */
-class ITextEntryControl final : public IControl
+class ITextEntryControl : public IControl
 {
 public:
-  ITextEntryControl(IGEditorDelegate& dlg, const IRECT& bounds);
+  ITextEntryControl(IGEditorDelegate& dlg);
   ~ITextEntryControl() {}
 
   //IControl
   void Draw(IGraphics& g) override;
+
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   bool OnKeyDown(float x, float y, int key) override;
 //  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
 //  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
 //  void OnMouseOut() override;
 //  void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
-//  void OnEndAnimation() override;
+  void OnEndAnimation() override;
+
+  void CreateTextEntry(const IRECT& bounds, const IText& text, const char* str);
   
   static int DeleteChars(ITextEntryControl* _this, size_t pos, size_t num);
   static int InsertChars(ITextEntryControl* _this, size_t pos, const char* text, size_t num);
@@ -32,6 +35,9 @@ public:
   static float GetCharWidth(ITextEntryControl* _this, int n, int i);
   static char GetChar(ITextEntryControl* _this, int pos);
   static int GetLength(ITextEntryControl* _this);
+  
+  bool EditInProgress() { return mEditing; }
+  void DismissEdit() { mEditing = false; SetTargetAndDrawRECTs(IRECT()); GetUI()->SetAllControlsDirty(); }
   
 private:
   template<typename Proc>
@@ -42,8 +48,10 @@ private:
   void CalcCursorSizes();
   float GetCharWidth (char c, char pc);
   
+  bool mDrawCursor = false;
+  
+  bool mEditing = false;
   bool mRecursiveKeyGuard = false;
-  bool mBlinkToggle = false;
   bool mCursorIsSet = false;
   bool mCursorSizesValid = false;
   bool mNotifyTextChange = false;
