@@ -558,6 +558,12 @@ bool IGraphics::IsDirty(IRECTList& rects)
     dirty = true;
   }
 
+  if (mTextEntryControl && mTextEntryControl->IsDirty())
+  {
+    rects.Add(mTextEntryControl->GetRECT());
+    dirty = true;
+  }
+  
   if (mPerfDisplay)
   {
     rects.Add(mPerfDisplay->GetRECT());
@@ -637,6 +643,7 @@ void IGraphics::Draw(const IRECT& bounds)
   DrawControl(mPopupControl, bounds, false);
   DrawControl(mCornerResizer, bounds, false);
   DrawControl(mPerfDisplay, bounds, false);
+  DrawControl(mTextEntryControl, bounds, false);
 
 #ifndef NDEBUG
   DrawControl(mLiveEdit, bounds, false);
@@ -718,6 +725,17 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
   {
     mPopupControl->OnMouseDown(x, y, mod);
     return;
+  }
+  
+  if(mTextEntryControl && mTextEntryControl->EditInProgress())
+  {
+    if(mTextEntryControl->GetRECT().Contains(x, y))
+    {
+      mTextEntryControl->OnMouseDown(x, y, mod);
+      return;
+    }
+    else
+      mTextEntryControl->DismissEdit();
   }
   
   if(mCornerResizer)
@@ -994,6 +1012,12 @@ bool IGraphics::OnKeyDown(float x, float y, int key)
 {
   Trace("IGraphics::OnKeyDown", __LINE__, "x:%0.2f, y:%0.2f, key:%i",
         x, y, key);
+  
+  if(mTextEntryControl)
+  {
+    if (mTextEntryControl->OnKeyDown(x, y, key))
+      return true;
+  }
 
   int c = GetMouseControlIdx(x, y);
   if (c > 0)
