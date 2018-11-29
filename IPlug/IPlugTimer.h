@@ -17,6 +17,11 @@
 
 #pragma once
 
+/**
+ * @file This file includes classes for implementing timers - in order to get a regular callback on the main thread
+ * The interface is partially based on the api of Steinberg's timer.cpp from the VST3_SDK for compatibility, rewritten using SWELL: base/source/timer.cpp, so thanks to them */
+
+
 #include <cstring>
 #include <stdint.h>
 #include <cstring>
@@ -57,10 +62,6 @@ typedef void (*TIMERPROC)(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
 UINT_PTR SetTimer(HWND hwnd, UINT_PTR timerid, UINT rate, TIMERPROC tProc);
 BOOL KillTimer(HWND hwnd, UINT_PTR timerid);
 #endif
-
-/**
- * @file This file includes classes for implementing timers - in order to get a regular callback on the message thread
- * The interface is partially based on the api of Steinberg's timer.cpp from the VST3_SDK, rewritten using SWELL: base/source/timer.cpp, so thanks to them */
 
 struct Timer
 {

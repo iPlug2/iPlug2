@@ -152,7 +152,7 @@ inline NVGcompositeOperation NanoVGBlendMode(const IBlend* pBlend)
   }
 }
 
-NVGpaint NanoVGPaint(NVGcontext* context, const IPattern& pattern, const IBlend* pBlend)
+NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend* pBlend)
 {
   NVGcolor icol = NanoVGColor(pattern.GetStop(0).mColor, pBlend);
   NVGcolor ocol = NanoVGColor(pattern.GetStop(pattern.NStops() - 1).mColor, pBlend);
@@ -167,14 +167,14 @@ NVGpaint NanoVGPaint(NVGcontext* context, const IPattern& pattern, const IBlend*
   
   if (pattern.mType == kRadialPattern)
   {
-    return nvgRadialGradient(context, s[0], s[1], 0.0, inverse[0], icol, ocol);
+    return nvgRadialGradient(pContext, s[0], s[1], 0.0, inverse[0], icol, ocol);
   }
   else
   {
     float e[2];
     nvgTransformPoint(&e[0], &e[1], inverse, 1, 0);
     
-    return nvgLinearGradient(context, s[0], s[1], e[0], e[1], icol, ocol);
+    return nvgLinearGradient(pContext, s[0], s[1], e[0], e[1], icol, ocol);
   }
 }
 
@@ -391,6 +391,36 @@ void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, i
   nvgBeginPath(mVG); // Clears the bitmap rect from the path state
 }
 
+void IGraphicsNanoVG::PathClear()
+{
+  nvgBeginPath(mVG);
+}
+
+void IGraphicsNanoVG::PathClose()
+{
+  nvgClosePath(mVG);
+}
+
+void IGraphicsNanoVG::PathArc(float cx, float cy, float r, float aMin, float aMax)
+{
+  nvgArc(mVG, cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f), NVG_CW);
+}
+
+void IGraphicsNanoVG::PathMoveTo(float x, float y)
+{
+  nvgMoveTo(mVG, x, y);
+}
+
+void IGraphicsNanoVG::PathLineTo(float x, float y)
+{
+  nvgLineTo(mVG, x, y);
+}
+
+void IGraphicsNanoVG::PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
+{
+  nvgBezierTo(mVG, x1, y1, x2, y2, x3, y3);
+}
+
 IColor IGraphicsNanoVG::GetPoint(int x, int y)
 {
   return COLOR_BLACK; //TODO:
@@ -478,7 +508,7 @@ void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const
   nvgStroke(mVG);
   
   if (!options.mPreserve)
-      nvgBeginPath(mVG); // Clears the path state
+    nvgBeginPath(mVG); // Clears the path state
 }
 
 void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
@@ -493,7 +523,7 @@ void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& opti
   nvgFill(mVG);
   
   if (!options.mPreserve)
-      nvgBeginPath(mVG); // Clears the path state
+    nvgBeginPath(mVG); // Clears the path state
 }
 
 void IGraphicsNanoVG::LoadFont(const char* name)
@@ -536,8 +566,8 @@ void IGraphicsNanoVG::DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, 
 void IGraphicsNanoVG::PathTransformSetMatrix(const IMatrix& m)
 {
   nvgResetTransform(mVG);
-  nvgTransform(mVG, m.mTransform[0], m.mTransform[1], m.mTransform[2], m.mTransform[3], m.mTransform[4], m.mTransform[5]);
   nvgScale(mVG, GetScale(), GetScale());
+  nvgTransform(mVG, m.mTransform[0], m.mTransform[1], m.mTransform[2], m.mTransform[3], m.mTransform[4], m.mTransform[5]);
 }
 
 void IGraphicsNanoVG::SetClipRegion(const IRECT& r)

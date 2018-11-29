@@ -26,6 +26,7 @@
 #include "IPlugPlatform.h"
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
+#include "IPlugMidi.h"
 
 #include "IPlugAAX_Parameters.h"
 
@@ -59,9 +60,8 @@ private:
   IPlugAAX* mPlug = nullptr;
 };
 
-/**  AAX API base class for an IPlug plug-in, inherits from IPlugAPIBase 
-*   @ingroup APIClasses
-*/
+/**  AAX API base class for an IPlug plug-in
+*   @ingroup APIClasses */
 class IPlugAAX : public IPlugAPIBase
                , public IPlugProcessor<PLUG_SAMPLE_DST>
                , public AAX_CIPlugParameters
@@ -106,6 +106,7 @@ private:
   AAX_CParameter<bool>* mBypassParameter = nullptr;
   AAX_ITransport* mTransport = nullptr;
   WDL_PtrList<WDL_String> mParamIDs;
+  IMidiQueue mMidiOutputQueue;
 };
 
 IPlugAAX* MakePlug();

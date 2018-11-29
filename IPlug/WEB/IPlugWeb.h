@@ -42,12 +42,10 @@ public:
 
 private:
   WDL_String mWAMCtrlrJSObjectName;
-  #if WEBSOCKET_CLIENT
   IByteChunk mSPVFUIBuf;
   IByteChunk mSMMFUIBuf;
   IByteChunk mSSMFUIBuf;
   IByteChunk mSAMFUIBuf;
-  #endif
 };
 
 IPlugWeb* MakePlug();

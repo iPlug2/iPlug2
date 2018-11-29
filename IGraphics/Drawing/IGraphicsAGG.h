@@ -188,7 +188,7 @@ private:
 
   void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& bounds, const char* str, FontManagerType& manager);
 
-  agg::trans_affine GetRasterTransform() { return agg::trans_affine() / (mTransform * agg::trans_affine_scaling(GetDisplayScale())); }
+  agg::trans_affine GetRasterTransform() { return agg::trans_affine() / mTransform; }
 
   template<typename PathType> void DoClip(PathType& path)
   {
@@ -199,8 +199,9 @@ private:
   
   void PathTransformSetMatrix(const IMatrix& m) override
   {
-    IMatrix t(m);
-    t.Scale(GetScale(), GetScale());
+    IMatrix t;
+    t.Scale(GetScale() * GetDisplayScale(), GetScale() * GetDisplayScale());
+    t.Transform(m);
     mTransform = agg::trans_affine(t.mTransform[0], t.mTransform[1], t.mTransform[2], t.mTransform[3], t.mTransform[4], t.mTransform[5]);
   }
   

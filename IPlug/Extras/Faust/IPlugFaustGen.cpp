@@ -74,13 +74,17 @@ void FaustGen::Factory::FreeDSPFactory()
   }
 }
 
-llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromBitCode()
+llvm_dsp_factory* FaustGen::Factory::CreateFactoryFromBitCode()
 {
   //return readDSPFactoryFromBitCodeStr(mBitCodeStr.Get(), getTarget(), mOptimizationLevel);
-
+  std::string err;
+  
   // Alternate model using machine code
-  return readDSPFactoryFromMachine(mBitCodeStr.Get(), GetLLVMArchStr());
-
+  llvm_dsp_factory* pFactory = readDSPFactoryFromMachine(mBitCodeStr.Get(), GetLLVMArchStr(), err);
+  
+  // TODO: Print error
+  return pFactory;
+  
   /*
   // Alternate model using LLVM IR
   return readDSPFactoryFromIR(mBitCodeStr.Get(), getTarget(), mOptimizationLevel);

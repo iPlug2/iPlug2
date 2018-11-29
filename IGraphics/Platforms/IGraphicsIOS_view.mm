@@ -100,7 +100,7 @@
   //  [self pTouchesEnded: pTouches withEvent: event];
 }
 
-- (CAMetalLayer *)metalLayer {
+- (CAMetalLayer*) metalLayer {
   return (CAMetalLayer *)self.layer;
 }
 
@@ -126,7 +126,7 @@
   }
 }
 
-- (void)redraw:(CADisplayLink *)displayLink
+- (void)redraw:(CADisplayLink*) displayLink
 {
   IRECTList rects;
   

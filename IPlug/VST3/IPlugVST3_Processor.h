@@ -26,9 +26,16 @@
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
+/**
+ * @file
+ * @copydoc IPlugVST3Processor
+ */
+
 using namespace Steinberg;
 using namespace Vst;
 
+/**  VST3 Processor base class for a distributed IPlug VST3 plug-in
+ *   @ingroup APIClasses */
 class IPlugVST3Processor : public AudioEffect
                          , public IPlugAPIBase
                          , public IPlugProcessor<PLUG_SAMPLE_DST>
@@ -61,7 +68,7 @@ public:
   void SendArbitraryMsgFromDelegate(int messageTag, int dataSize = 0, const void* pData = nullptr) override;
   
   //IPlugProcessor
-  bool SendMidiMsg(const IMidiMsg& msg) override { return false; } //TODO: SendMidiMsg
+  bool SendMidiMsg(const IMidiMsg& msg) override;
   
 private:
   void _TransmitMidiMsgFromProcessor(const IMidiMsg& msg) override;
@@ -76,6 +83,7 @@ private:
   
   ProcessContext mProcessContext;
   ParameterChanges mOutputParamChanges;
+  IMidiQueue mMidiOutputQueue;
 //  IPlugQueue<SysExChunk> mSysExMsgsFromController; // // a queue of SYSEX messages recieved from the controller
 //  IPlugQueue<SysExChunk> mSysExMsgsFromProcessorToController; // a queue of SYSEX messages to send to the controller
 };

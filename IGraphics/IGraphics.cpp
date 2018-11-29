@@ -4,9 +4,15 @@
 #define NANOSVG_IMPLEMENTATION
 #include "nanosvg.h"
 
-#ifdef VST3_API
-#include "IPlugVST3.h"
+#if defined VST3_API
 #include "pluginterfaces/base/ustring.h"
+#include "IPlugVST3.h"
+typedef IPlugVST3 VST3_API_BASE;
+#elif defined VST3C_API
+#include "pluginterfaces/base/ustring.h"
+#include "IPlugVST3_Controller.h"
+#include "IPlugVST3_view.h"
+typedef IPlugVST3Controller VST3_API_BASE;
 #endif
 
 #include "IPlugParameter.h"
@@ -1077,8 +1083,8 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
     if(!contextMenu.NItems())
       return;
 
-#ifdef VST3_API
-    IPlugVST3* pVST3 = dynamic_cast<IPlugVST3*>(&mDelegate);
+#if defined VST3_API || defined VST3C_API
+    VST3_API_BASE* pVST3 = dynamic_cast<VST3_API_BASE*>(&mDelegate);
 
     if (!pVST3->GetComponentHandler() || !pVST3->GetView())
       return;
@@ -1114,11 +1120,17 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
     }
 
 #else
-    CreatePopupMenu(contextMenu, x, y);
-    pControl->OnContextSelection(contextMenu.GetChosenItemIdx());
+    if(mPopupControl) { // if we are not using platform popup menus, IPopupMenuControl will not block
+      CreatePopupMenu(contextMenu, x, y, pControl);
+      mPopupControl->SetMenuIsContextMenu(true);
+    }
+    else
+    {
+      CreatePopupMenu(contextMenu, x, y);
+      pControl->OnContextSelection(contextMenu.GetChosenItemIdx());
+    }
 #endif
   }
-  return;
 }
 
 void IGraphics::OnGUIIdle()
@@ -1205,8 +1217,8 @@ NSVGimage* LoadSVGFromWinResource(HINSTANCE hInst, const char* resid)
 ISVG IGraphics::LoadSVG(const char* name)
 {
   WDL_String path;
-  bool found = OSFindResource(name, "svg", path);
-  assert(found == true);
+  bool resourceFound = OSFindResource(name, "svg", path);
+  assert(resourceFound == true);
 
   SVGHolder* pHolder = s_SVGCache.Find(path.Get());
 

@@ -114,15 +114,12 @@ public:
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
 
-  void PathClear() override { nvgBeginPath(mVG); }
-  void PathClose() override { nvgClosePath(mVG); }
-
-  void PathArc(float cx, float cy, float r, float aMin, float aMax) override { nvgArc(mVG, cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f), NVG_CW);}
-
-  void PathMoveTo(float x, float y) override { nvgMoveTo(mVG, x, y); }
-  void PathLineTo(float x, float y) override { nvgLineTo(mVG, x, y); }
-  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override { nvgBezierTo(mVG, x1, y1, x2, y2, x3, y3); }
-    
+  void PathClear() override;
+  void PathClose() override;
+  void PathArc(float cx, float cy, float r, float aMin, float aMax) override;
+  void PathMoveTo(float x, float y) override;
+  void PathLineTo(float x, float y) override;
+  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override;
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
   

@@ -10,6 +10,13 @@ extern IGraphics* gGraphics;
 extern val GetPreloadedImages();
 extern val GetCanvas();
 
+static std::string CanvasColor(const IColor& color, float alpha = 1.0)
+{
+  WDL_String str;
+  str.SetFormatted(64, "rgba(%d, %d, %d, %lf)", color.R, color.G, color.B, alpha * color.A / 255.0);
+  return str.Get();
+}
+
 WebBitmap::WebBitmap(emscripten::val imageCanvas, const char* name, int scale)
 {
   SetBitmap(new RetainVal(imageCanvas), imageCanvas["width"].as<int>(), imageCanvas["height"].as<int>(), scale);
@@ -29,7 +36,7 @@ void IGraphicsCanvas::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX,
   val context = GetContext();
   RetainVal* pRV = (RetainVal*) bitmap.GetAPIBitmap()->GetBitmap();
   GetContext().call<void>("save");
-  SetWebBlendMode(pBlend);
+  SetCanvasBlendMode(pBlend);
   context.set("globalAlpha", BlendWeight(pBlend));
   
   const float ds = GetDisplayScale();
@@ -41,6 +48,41 @@ void IGraphicsCanvas::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX,
   
   context.call<void>("drawImage", pRV->mItem, srcX, srcY, sr.W(), sr.H(), floor(bounds.L), floor(bounds.T), floor(bounds.W()), floor(bounds.H()));
   GetContext().call<void>("restore");
+}
+
+void IGraphicsCanvas::DrawRotatedBitmap(IBitmap& bitmap, float destCentreX, float destCentreY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
+{
+  IGraphicsPathBase::DrawRotatedBitmap(bitmap, destCentreX, destCentreY, DegToRad(angle), yOffsetZeroDeg, pBlend);
+}
+
+void IGraphicsCanvas::PathClear()
+{
+  GetContext().call<void>("beginPath");
+}
+
+void IGraphicsCanvas::PathClose()
+{
+  GetContext().call<void>("closePath");
+}
+
+void IGraphicsCanvas::PathArc(float cx, float cy, float r, float aMin, float aMax)
+{
+  GetContext().call<void>("arc", cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f));
+}
+
+void IGraphicsCanvas::PathMoveTo(float x, float y)
+{
+  GetContext().call<void>("moveTo", x, y);
+}
+
+void IGraphicsCanvas::PathLineTo(float x, float y)
+{
+  GetContext().call<void>("lineTo", x, y);
+}
+
+void IGraphicsCanvas::PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
+{
+  GetContext().call<void>("bezierCurveTo", x1, y1, x2, y2, x3, y3);
 }
 
 void IGraphicsCanvas::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
@@ -72,7 +114,7 @@ void IGraphicsCanvas::PathStroke(const IPattern& pattern, float thickness, const
   context.set("lineDashOffset", options.mDash.GetOffset());
   context.set("lineWidth", thickness);
   
-  SetWebSourcePattern(pattern, pBlend);
+  SetCanvasSourcePattern(pattern, pBlend);
 
   context.call<void>("stroke");
   
@@ -85,7 +127,7 @@ void IGraphicsCanvas::PathFill(const IPattern& pattern, const IFillOptions& opti
   val context = GetContext();
   std::string fillRule(options.mFillRule == kFillWinding ? "nonzero" : "evenodd");
   
-  SetWebSourcePattern(pattern, pBlend);
+  SetCanvasSourcePattern(pattern, pBlend);
 
   context.call<void>("fill", fillRule);
 
@@ -93,7 +135,7 @@ void IGraphicsCanvas::PathFill(const IPattern& pattern, const IFillOptions& opti
     PathClear();
 }
 
-void IGraphicsCanvas::SetWebSourcePattern(const IPattern& pattern, const IBlend* pBlend)
+void IGraphicsCanvas::SetCanvasSourcePattern(const IPattern& pattern, const IBlend* pBlend)
 {
   auto InvertTransform = [](float *xform, const float *xformIn)
   {
@@ -109,14 +151,14 @@ void IGraphicsCanvas::SetWebSourcePattern(const IPattern& pattern, const IBlend*
   
   val context = GetContext();
   
-  SetWebBlendMode(pBlend);
+  SetCanvasBlendMode(pBlend);
   
   switch (pattern.mType)
   {
     case kSolidPattern:
     {
       const IColor color = pattern.GetStop(0).mColor;
-      std::string colorString = ToCanvasColor(color, BlendWeight(pBlend));
+      std::string colorString = CanvasColor(color, BlendWeight(pBlend));
 
       context.set("fillStyle", colorString);
       context.set("strokeStyle", colorString);
@@ -144,7 +186,7 @@ void IGraphicsCanvas::SetWebSourcePattern(const IPattern& pattern, const IBlend*
       for (int i = 0; i < pattern.NStops(); i++)
       {
         const IColorStop& stop = pattern.GetStop(i);
-        gradient.call<void>("addColorStop", stop.mOffset, ToCanvasColor(stop.mColor));
+        gradient.call<void>("addColorStop", stop.mOffset, CanvasColor(stop.mColor));
       }
       
       context.set("fillStyle", gradient);
@@ -154,12 +196,11 @@ void IGraphicsCanvas::SetWebSourcePattern(const IPattern& pattern, const IBlend*
   }
 }
 
-void IGraphicsCanvas::SetWebBlendMode(const IBlend* pBlend)
+void IGraphicsCanvas::SetCanvasBlendMode(const IBlend* pBlend)
 {
   if (!pBlend)
-  {
     GetContext().set("globalCompositeOperation", "source-over");
-  }
+  
   switch (pBlend->mMethod)
   {
     case kBlendClobber:     GetContext().set("globalCompositeOperation", "source-over");   break;
@@ -174,7 +215,6 @@ void IGraphicsCanvas::SetWebBlendMode(const IBlend* pBlend)
 bool IGraphicsCanvas::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
   // TODO: orientation
-  
   val context = GetContext();
   std::string textString(str);
   
@@ -218,7 +258,7 @@ bool IGraphicsCanvas::DrawText(const IText& text, const char* str, IRECT& bounds
     PathRect(bounds);
     context.call<void>("clip");
     PathClear();
-    SetWebSourcePattern(text.mFGColor, pBlend);
+    SetCanvasSourcePattern(text.mFGColor, pBlend);
     context.call<void>("fillText", textString, x, y);
     context.call<void>("restore");
   }
@@ -249,19 +289,6 @@ void IGraphicsCanvas::SetClipRegion(const IRECT& r)
     context.call<void>("clip");
     context.call<void>("beginPath");
   }
-}
-
-void IGraphicsCanvas::DrawResize()
-{
-  val canvas = GetCanvas();
-
-  canvas["style"].set("width", val(Width() * GetScale()));
-  canvas["style"].set("height", val(Height() * GetScale()));
-
-  canvas.set("width", Width() * GetScale() * GetDisplayScale());
-  canvas.set("height", Height() * GetScale() * GetDisplayScale());
-  
-  IGraphicsWeb::OnMainLoopTimer();
 }
 
 APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const WDL_String& resourcePath, int scale)

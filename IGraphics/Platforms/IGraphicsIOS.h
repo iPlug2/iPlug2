@@ -1,10 +1,10 @@
 #pragma once
 
-#include "IGraphicsNanoVG.h"
+#include "IGraphics_select.h"
 
 /** IGraphics platform class for IOS
 *   @ingroup PlatformClasses */
-class IGraphicsIOS : public IGraphicsNanoVG
+class IGraphicsIOS final : public IGRAPHICS_DRAW_CLASS
 {
 public:
   IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float scale);

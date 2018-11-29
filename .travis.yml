@@ -4,12 +4,12 @@ sudo: false
 # Blacklist
 branches:
   only:
-    - iplugquake
+    - master
 
 # Environment variables
 env:
   global:
-    - GH_REPO_REF: https://github.com/olilarkin/wdl-ol.git
+    - GH_REPO_REF: https://github.com/iPlug2/iPlug2-private
     
 # Install dependencies
 addons:
@@ -31,9 +31,9 @@ deploy:
   provider: pages
   skip_cleanup: true
   local_dir: Documentation/html
-  github_token: $GITHUB_API_KEY
+  github_token: $GITHUB_TOKEN
   on:
-    branch: iplugquake
+    branch: master
 
 notifications:
     slack: iplug-users:KYWqbMwCVOSH3CiATEXg6stM

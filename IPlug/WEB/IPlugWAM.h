@@ -45,8 +45,8 @@ public:
   virtual void onMidi(byte status, byte data1, byte data2) override;
   virtual void onSysex(byte* pData, uint32_t size) override;
   virtual void onMessage(char* verb, char* res, double data) override;
-//  virtual void onMessage(char* verb, char* res, char* data) override;
-//  virtual void onMessage(char* verb, char* res, void* data, uint32_t size) override;
+  virtual void onMessage(char* verb, char* res, char* data) override;
+  virtual void onMessage(char* verb, char* res, void* data, uint32_t size) override;
   virtual void onParam(uint32_t idparam, double value) override;
 
   //IPlugProcessor
@@ -57,8 +57,8 @@ public:
   //IEditorDelegate - these are overwritten because we need to use WAM messaging system
   void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;
   void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) override;
-  void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override {} // NOOP in WAM processor?
-  void SendArbitraryMsgFromDelegate(int messageTag, int dataSize = 0, const void* pData = nullptr) override {};
+  void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
+  void SendArbitraryMsgFromDelegate(int messageTag, int dataSize = 0, const void* pData = nullptr) override;
   
 private:
   int mBlockCounter = 0;

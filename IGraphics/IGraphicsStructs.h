@@ -17,13 +17,12 @@
 
 #include "IPlugPlatform.h"
 #include "IGraphicsConstants.h"
-#include "IGraphicsUtilities.h"
-
 
 class IGraphics;
 class IControl;
 struct IRECT;
 struct IMouseInfo;
+static double DegToRad(double deg);
 
 typedef std::function<void(IControl*)> IActionFunction;
 typedef std::function<void(IControl*)> IAnimationFunction;
@@ -38,7 +37,6 @@ typedef std::chrono::high_resolution_clock Time;
 typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimePoint;
 typedef std::chrono::duration<double, std::chrono::milliseconds::period> Milliseconds;
 
-class LICE_IFont; // TODO: move this
 /**
  * \defgroup IGraphicsStructs IGraphics::Structs
  * @{
@@ -50,7 +48,7 @@ class LICE_IFont; // TODO: move this
  */
 
 #ifdef IGRAPHICS_AGG
-#include "IGraphicsAGG_src.h"
+  #include "IGraphicsAGG_src.h"
   typedef agg::pixel_map* BitmapData;
 #elif defined IGRAPHICS_CAIRO
   #if defined OS_MAC || defined OS_LINUX
@@ -66,6 +64,7 @@ class LICE_IFont; // TODO: move this
 #elif defined IGRAPHICS_LICE
   #include "lice.h"
   typedef LICE_IBitmap* BitmapData;
+  class LICE_IFont;
 #elif defined IGRAPHICS_CANVAS
   typedef void* BitmapData;
 #else // NO_IGRAPHICS
@@ -245,7 +244,7 @@ struct IColor
 
   static IColor GetRandomColor(bool randomAlpha = false)
   {
-    int A = randomAlpha ? rand() & 0xFF : 255;
+    int A = randomAlpha ? std::rand() & 0xFF : 255;
     int R = std::rand() & 0xFF;
     int G = std::rand() & 0xFF;
     int B = std::rand() & 0xFF;
@@ -393,7 +392,6 @@ struct IStrokeOptions
 };
 
 /** Used to store transformation matrices**/
-
 struct IMatrix
 {
   IMatrix()
@@ -452,10 +450,11 @@ struct IMatrix
   
   double mTransform[6];
 };
+
 struct IColorStop
 {
   IColorStop()
-  : mOffset(0.0)
+  : mOffset(0.f)
   {}
 
   IColorStop(IColor color, float offset)
@@ -494,7 +493,6 @@ struct IPattern
     mType = kLinearPattern;
 
     // Calculate the affine transform from one line segment to another!
-
     const float xd = x2 - x1;
     const float yd = y2 - y1;
     const float size = sqrtf(xd * xd + yd * yd);
@@ -589,8 +587,11 @@ struct IText
   IColor mTextEntryBGColor;
   IColor mTextEntryFGColor;
   int mOrientation = 0; // Degrees ccwise from normal.
-  mutable LICE_IFont* mCached = nullptr;
   mutable double mCachedScale = 1.0;
+
+#ifdef IGRAPHICS_LICE
+  mutable LICE_IFont* mCached = nullptr;
+#endif
 };
 
 const IText DEFAULT_TEXT = IText();
@@ -789,10 +790,10 @@ struct IRECT
   
   bool IsPixelAligned() const
   {
-    return !(L - floor(L) && T - floor(T) && R - floor(R) && B - floor(B));
+    return !(L - std::floor(L) && T - std::floor(T) && R - std::floor(R) && B - std::floor(B));
   }
   
-  // Pixel Aligns in an inclusive manner (moves all points outwards)
+  // Pixel aligns in an inclusive manner (moves all points outwards)
   inline void PixelAlign() 
   {
     L = std::floor(L);
@@ -1054,6 +1055,8 @@ struct IMouseMod
   bool L, R, S, C, A;
   IMouseMod(bool l = false, bool r = false, bool s = false, bool c = false, bool a = false)
     : L(l), R(r), S(s), C(c), A(a) {}
+  
+  void DBGPrint() { DBGMSG("L: %i, R: %i, S: %i, C: %i,: A: %i\n", L, R, S, C, A); }
 };
 
 struct IMouseInfo

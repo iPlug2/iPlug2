@@ -149,12 +149,8 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
 {
   OnViewInitialized(nullptr /* not used */);
 
-#if defined GRAPHICS_SCALING
   SetDisplayScale(val::global("window")["devicePixelRatio"].as<int>());
-#else
-  SetDisplayScale(1);
-#endif
-  
+
   GetDelegate()->LayoutUI(this);
   
   return nullptr;
@@ -173,16 +169,21 @@ bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String
   if (CStringHasContents(name))
   {
     WDL_String plusSlash;
-    plusSlash.SetFormatted(strlen(name) + 1, "/%s", name);
     
     bool foundResource = false;
     
-    if(strcmp(type, "png") == 0)
+    if(strcmp(type, "png") == 0) {
+      plusSlash.SetFormatted(strlen("/resources/img/") + strlen(name) + 1, "/resources/img/%s", name);
       foundResource = GetPreloadedImages().call<bool>("hasOwnProperty", std::string(plusSlash.Get()));
-    else if(strcmp(type, "ttf") == 0)
+    }
+    else if(strcmp(type, "ttf") == 0) {
+      plusSlash.SetFormatted(strlen("/resources/fonts/") + strlen(name) + 1, "/resources/fonts/%s", name);
       foundResource = true; // TODO: check ttf
-    else if(strcmp(type, "svg") == 0)
+    }
+    else if(strcmp(type, "svg") == 0) {
+      plusSlash.SetFormatted(strlen("/resources/img/") + strlen(name) + 1, "/resources/img/%s", name);
       foundResource = true; // TODO: check svg
+    }
     
     if(foundResource)
     {
@@ -222,22 +223,16 @@ bool IGraphicsWeb::GetTextFromClipboard(WDL_String& str)
 
 int IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, int type)
 {
-  
   switch (type)
   {
-    case MB_OK:
-        val::global("window").call<val>("alert", std::string(str));
-      break;
+    case MB_OK: val::global("window").call<val>("alert", std::string(str)); return 0;
     case MB_YESNO:
-        val::global("window").call<val>("confirm", std::string(str));
-       break;
+    case MB_OKCANCEL:
+      return val::global("window").call<val>("confirm", std::string(str)).as<int>();
     // case MB_CANCEL:
     //   break;
-    default:
-      break;
+    default: return 0;
   }
-
-  return 0; // TODO: return value?
 }
 
 void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext)
@@ -332,6 +327,19 @@ bool IGraphicsWeb::OpenURL(const char* url, const char* msgWindowTitle, const ch
   val::global("window").call<val>("open", std::string(url), std::string("_blank"));
   
   return true;
+}
+
+void IGraphicsWeb::DrawResize()
+{
+  val canvas = GetCanvas();
+  
+  canvas["style"].set("width", val(Width() * GetScale()));
+  canvas["style"].set("height", val(Height() * GetScale()));
+  
+  canvas.set("width", Width() * GetScale() * GetDisplayScale());
+  canvas.set("height", Height() * GetScale() * GetDisplayScale());
+  
+  IGRAPHICS_DRAW_CLASS::DrawResize();
 }
 
 #if defined IGRAPHICS_CANVAS

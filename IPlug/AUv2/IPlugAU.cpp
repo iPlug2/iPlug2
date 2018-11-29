@@ -1691,6 +1691,16 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
     }
     else
     {
+      if(_this->mMidiMsgsFromEditor.ElementsAvailable())
+      {
+        IMidiMsg msg;
+        
+        while (_this->mMidiMsgsFromEditor.Pop(msg))
+        {
+          _this->ProcessMidiMsg(msg);
+        }
+      }
+      
       _this->PreProcess();
       _this->_ProcessBuffers((AudioSampleType) 0, nFrames);
     }
@@ -1985,13 +1995,21 @@ bool IPlugAU::SendMidiMsg(const IMidiMsg& msg)
   packetList.packet[0].timeStamp = msg.mOffset;
   packetList.numPackets = 1;
   
-  mMidiCallback.midiOutputCallback(mMidiCallback.userData, &mLastRenderTimeStamp, 0, &packetList);
+  if(mMidiCallback.midiOutputCallback)
+  {
+    OSStatus status = mMidiCallback.midiOutputCallback(mMidiCallback.userData, &mLastRenderTimeStamp, 0, &packetList);
+    
+    if (status == noErr)
+      return true;
+  }
   
-  return true;
+  return false;
 }
 
 bool IPlugAU::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
 {
+  bool result = false;
+  
   if(mMidiCallback.midiOutputCallback == nullptr)
     return false;
   
@@ -2000,21 +2018,30 @@ bool IPlugAU::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
   MIDIPacket* pPkt = MIDIPacketListInit(pPktlist);
   
   IMidiMsg* pMsg = msgs.Get();
-  for (int i = 0; i < msgs.GetSize(); ++i, ++pMsg) {
+  for (int i = 0; i < msgs.GetSize(); ++i, ++pMsg)
+  {
     pPkt = MIDIPacketListAdd(pPktlist, listSize, pPkt, pMsg->mOffset /* TODO: is this correct? */, 1, &pMsg->mStatus);
     pPkt = MIDIPacketListAdd(pPktlist, listSize, pPkt, pMsg->mOffset /* TODO: is this correct? */, 1, &pMsg->mData1);
     pPkt = MIDIPacketListAdd(pPktlist, listSize, pPkt, pMsg->mOffset /* TODO: is this correct? */, 1, &pMsg->mData2);
   }
   
-  mMidiCallback.midiOutputCallback(mMidiCallback.userData, &mLastRenderTimeStamp, 0, pPktlist);
+  if(mMidiCallback.midiOutputCallback)
+  {
+    OSStatus status = mMidiCallback.midiOutputCallback(mMidiCallback.userData, &mLastRenderTimeStamp, 0, pPktlist);
+    
+    if (status == noErr)
+      result = true;
+  }
   
   free(pPktlist);
   
-  return true;
+  return result;
 }
 
 bool IPlugAU::SendSysEx(ISysEx& sysEx)
 {
+  bool result = false;
+
   if(mMidiCallback.midiOutputCallback == nullptr)
     return false;
   
@@ -2035,13 +2062,18 @@ bool IPlugAU::SendSysEx(ISysEx& sysEx)
   
   assert(pPkt != nullptr);
   
-  mMidiCallback.midiOutputCallback(mMidiCallback.userData, &mLastRenderTimeStamp, 0, pPktlist);
+  if(mMidiCallback.midiOutputCallback)
+  {
+    OSStatus status = mMidiCallback.midiOutputCallback(mMidiCallback.userData, &mLastRenderTimeStamp, 0, pPktlist);
+    
+    if (status == noErr)
+      result = true;
+  }
   
   free(pPktlist);
   
-  return true;
+  return result;
 }
-
 
 #pragma mark - IPlugAU Dispatch
 

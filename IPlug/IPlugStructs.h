@@ -189,7 +189,7 @@ private:
 };
 
 /** Manages a non-owned block of memory, for receiving arbitrary message byte streams */
-  class IByteStream : private IByteGetter
+class IByteStream : private IByteGetter
 {
 public:
   IByteStream(const void *pData, int dataSize) : mBytes(reinterpret_cast<const uint8_t *>(pData)), mSize(dataSize) {}
@@ -210,10 +210,8 @@ public:
     return IByteGetter::GetStr(mBytes, Size(), str, startPos);
   }
   
-  /**
-   * Returns the  size of the chunk
-   * @return  size (in bytes)
-   */
+  /** Returns the  size of the chunk
+   * @return  size (in bytes) */
   inline int Size() const
   {
     return mSize;
@@ -222,6 +220,11 @@ public:
   inline bool IsEqual(IByteStream& otherStream) const
   {
     return (otherStream.Size() == Size() && !memcmp(otherStream.mBytes, mBytes, Size()));
+  }
+  
+  inline const uint8_t* GetData()
+  {
+    return mBytes;
   }
   
 private:
