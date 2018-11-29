@@ -38,7 +38,7 @@ CXXFLAGS = $(CFLAGS)
 .PHONY: clean run
 default: $(APP)
 
-$(RESFILES): resources/IGraphicsTest.rc
+$(RESFILES): resources/main.rc
 	php $(WDL_PATH)swell/mac_resgen.php $^
 
 $(APP): $(RESFILES) $(OBJS)
