@@ -1398,3 +1398,14 @@ void IGraphics::StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emb
       pVB->Style(drawFrame, drawShadow, emboss, roundness, frameThickness, shadowOffset, spec);
   }
 }
+
+void IGraphics::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
+{
+  if (mTextEntryControl)
+  {
+    mTextEntryControl->CreateTextEntry(bounds, text, str);
+    return;
+  }
+  else
+    CreatePlatformTextEntry(control, text, bounds, str);
+}

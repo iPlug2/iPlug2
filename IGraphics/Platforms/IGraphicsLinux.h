@@ -33,7 +33,7 @@ public:
   bool PromptForColor(IColor& color, const char* str) override;
 
   IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, IRECT& bounds) override;
-  void CreateTextEntry(IControl* pControl, const IText& text, const IRECT& bounds, const char* str) override;
+  void CreatePlatformTextEntry(IControl* pControl, const IText& text, const IRECT& bounds, const char* str) override;
 
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
 

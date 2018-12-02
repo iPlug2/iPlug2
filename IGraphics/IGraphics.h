@@ -518,12 +518,12 @@ public:
    * @return \todo check */
   virtual int ShowMessageBox(const char* str, const char* caption, int type) = 0;
 
-  /** Create a platform text entry box
+  /** Create a text entry box
    * @param control The control that the text entry belongs to. If this control is linked to a parameter, the text entry will be configured with initial text matching the parameter value
    * @param text An IText struct to set the formatting of the text entry box
    * @param bounds The rectangular region in the graphics context that the text entry will occupy.
    * @param str A CString to specify the default text to display when the text entry box is opened (unless the control specified by the first argument is linked to a parameter) */
-  virtual void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") = 0;
+  void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "");
 
   /** Create a platform file prompt dialog to choose a file/directory path for opening/saving a file/directory. NOTE: this method will block the main thread
    * @param filename Non const WDL_String reference specifying the file name. Set this prior to calling the method for save dialogs, to provide a default file name. For load dialogs, on successful selection of a file this will get set to the file’s name.
@@ -926,6 +926,8 @@ public:
   virtual void LoadFont(const char* fileName) {};
     
 protected:
+  virtual void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") = 0;
+
   virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;
   //virtual void* CreateAPIBitmap(int w, int h) = 0;
   virtual APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) = 0;

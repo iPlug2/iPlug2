@@ -252,7 +252,7 @@ void IGraphicsWeb::PromptForDirectory(WDL_String& path)
   inputEl.call<void>("click");
 }
 
-void IGraphicsWeb::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
+void IGraphicsWeb::CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
 {
 //  val input = val::global("document").call<val>("createElement", std::string("input"));
 //  

@@ -231,7 +231,7 @@ IPopupMenu* IGraphicsIOS::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds,
   return pReturnMenu;
 }
 
-void IGraphicsIOS::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
+void IGraphicsIOS::CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
 {
 }
 
@@ -242,8 +242,10 @@ bool IGraphicsIOS::OpenURL(const char* url, const char* msgWindowTitle, const ch
 
 void* IGraphicsIOS::GetWindow()
 {
-  if (mView) return mView;
-  else return 0;
+  if (mView)
+    return mView;
+  else
+    return 0;
 }
 
 // static
