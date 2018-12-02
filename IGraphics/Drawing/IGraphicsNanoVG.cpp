@@ -277,7 +277,7 @@ void IGraphicsNanoVG::OnViewInitialized(void* pContext)
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-  gWindow = glfwCreateWindow(Width(), Height(), "NanoVG", NULL, NULL);
+  gWindow = glfwCreateWindow(WindowWidth(), WindowHeight(), "NanoVG", NULL, NULL);
 
   if (!gWindow)
   {
@@ -299,7 +299,6 @@ void IGraphicsNanoVG::OnViewInitialized(void* pContext)
   
   if (mVG == nullptr)
     DBGMSG("Could not init nanovg.\n");
-
 }
 
 void IGraphicsNanoVG::OnViewDestroyed()
@@ -336,11 +335,11 @@ void IGraphicsNanoVG::BeginFrame()
   IGraphics::BeginFrame(); // perf graph
 
 #ifdef OS_WIN
+  glViewport(0, 0, WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  glViewport(0, 0, Width()*GetDisplayScale(), Height()*GetDisplayScale());
 #elif defined OS_WEB
-  glViewport(0, 0, Width() * GetDisplayScale(), Height() * GetDisplayScale());
+  glViewport(0, 0, WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -352,7 +351,6 @@ void IGraphicsNanoVG::BeginFrame()
   
   nvgBindFramebuffer(mMainFrameBuffer); // begin main frame buffer update
   nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetDisplayScale());
-//  nvgScale(mVG, GetScale(), GetScale());
 }
 
 void IGraphicsNanoVG::EndFrame()
@@ -363,13 +361,13 @@ void IGraphicsNanoVG::EndFrame()
   nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetDisplayScale());
 
   NVGpaint img = nvgImagePattern(mVG, 0, 0, WindowWidth(), WindowHeight(), 0, mMainFrameBuffer->image, 1.0f);
-  nvgSave(mVG);
   
+  nvgSave(mVG);
+  nvgResetTransform(mVG);
   nvgBeginPath(mVG);
   nvgRect(mVG, 0, 0, WindowWidth(), WindowHeight());
   nvgFillPaint(mVG, img);
   nvgFill(mVG);
-  
   nvgRestore(mVG);
   
   nvgEndFrame(mVG);
