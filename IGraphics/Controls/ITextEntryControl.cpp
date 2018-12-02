@@ -251,15 +251,17 @@ ITextEntryControl::ITextEntryControl(IGEditorDelegate& dlg)
       }
       
     },
-    500);
+    1000);
   });
 }
 
 void ITextEntryControl::Draw(IGraphics& g)
 {
-//  if(mDrawCursor)
   g.FillRect(mText.mTextEntryBGColor, mRECT);
   g.DrawText(mText, mEditString.Get(), mRECT);
+  
+  if(mDrawCursor)
+    g.DrawVerticalLine(mText.mTextEntryFGColor, mRECT.GetVPadded(-2), 0.4);
 }
 
 template<typename Proc>
@@ -282,7 +284,7 @@ void ITextEntryControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   if (mod.L)
   {
     CallSTB ([&]() {
-      stb_textedit_click(this, &mEditState, x, y);
+      stb_textedit_click(this, &mEditState, x - mRECT.L, y - mRECT.T);
     });
     
     SetDirty(true);
