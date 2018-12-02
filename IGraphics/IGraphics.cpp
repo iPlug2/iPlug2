@@ -1409,3 +1409,13 @@ void IGraphics::CreateTextEntry(IControl& control, const IText& text, const IREC
   else
     CreatePlatformTextEntry(control, text, bounds, str);
 }
+
+IPopupMenu* IGraphics::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+{
+  ReleaseMouseCapture();
+
+  if(mPopupControl) // if we are not using platform pop-up menus
+    return mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
+  else
+    return CreatePlatformPopupMenu(menu, bounds, pCaller);
+}

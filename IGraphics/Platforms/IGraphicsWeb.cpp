@@ -298,28 +298,9 @@ void IGraphicsWeb::CreatePlatformTextEntry(IControl& control, const IText& text,
 //  input.call<void>("focus");
 }
 
-IPopupMenu* IGraphicsWeb::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+IPopupMenu* IGraphicsWeb::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
 {
-  ReleaseMouseCapture();
-  
-  if(mPopupControl)
-    return mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
-  else
-  {
-//    val sel = val::global("document").call<val>("createElement", std::string("select"));
-//    sel.set("id", "popup");
-//
-//    for (int i = 0; i < menu.NItems(); i++) {
-//      IPopupMenu::Item* pItem = menu.GetItem(i);
-//      val opt = val::global("document").call<val>("createElement", std::string("option"));
-//      opt.set("text", pItem->GetText());
-//      sel.call<void>("add", opt);
-//    }
-//
-//    GetCanvas().call<void>("appendChild", sel);
-    
-    return nullptr;
-  }
+  return nullptr;
 }
 
 bool IGraphicsWeb::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)

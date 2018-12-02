@@ -51,9 +51,6 @@ public:
   void UpdateTooltips() override {} // TODO:
   int ShowMessageBox(const char* str, const char* caption, int type) override;
   
-  IPopupMenu* CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
-  
-  void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
   void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext) override;
   void PromptForDirectory(WDL_String& path) override;
   bool PromptForColor(IColor& color, const char* str) override { return false; } // TODO:
@@ -65,5 +62,7 @@ public:
   double mPrevY = 0.;
   
 protected:
+  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
+  void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
 };

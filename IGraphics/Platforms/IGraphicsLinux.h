@@ -32,15 +32,14 @@ public:
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action,  const char* ext) override;
   bool PromptForColor(IColor& color, const char* str) override;
 
-  IPopupMenu* CreatePopupMenu(const IPopupMenu& menu, IRECT& bounds) override;
-  void CreatePlatformTextEntry(IControl* pControl, const IText& text, const IRECT& bounds, const char* str) override;
-
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
 
   static int GetUserOSVersion();
   bool GetTextFromClipboard(WDL_String& str) override;
 
 protected:
+  IPopupMenu* CreatePlatformPopupMenu(const IPopupMenu& menu, IRECT& bounds) override;
+  void CreatePlatformTextEntry(IControl* pControl, const IText& text, const IRECT& bounds, const char* str) override;
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
 }
 

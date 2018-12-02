@@ -202,32 +202,23 @@ bool IGraphicsIOS::PromptForColor(IColor& color, const char* str)
   return false;
 }
 
-IPopupMenu* IGraphicsIOS::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
 {
-  ReleaseMouseCapture();
-  
   IPopupMenu* pReturnMenu = nullptr;
   
-  if(mPopupControl) // if we are not using platform pop-up menus
+  if (mView)
   {
-    pReturnMenu = mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
-  }
-  else
-  {
-    if (mView)
-    {
-      CGRect areaRect = ToCGRect(this, bounds);
-      pReturnMenu = [(IGraphicsIOS_View*) mView createPopupMenu: menu: areaRect];
-    }
-    
-    //synchronous
-    if(pReturnMenu && pReturnMenu->GetFunction())
-      pReturnMenu->ExecFunction();
-    
-    if(pCaller)
-      pCaller->OnPopupMenuSelection(pReturnMenu); // should fire even if pReturnMenu == nullptr
+    CGRect areaRect = ToCGRect(this, bounds);
+    pReturnMenu = [(IGraphicsIOS_View*) mView createPopupMenu: menu: areaRect];
   }
   
+  //synchronous
+  if(pReturnMenu && pReturnMenu->GetFunction())
+    pReturnMenu->ExecFunction();
+  
+  if(pCaller)
+    pCaller->OnPopupMenuSelection(pReturnMenu); // should fire even if pReturnMenu == nullptr
+
   return pReturnMenu;
 }
 
