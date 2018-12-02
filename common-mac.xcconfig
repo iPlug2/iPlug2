@@ -94,10 +94,12 @@ NSVG_PATH = $(IGRAPHICS_DEPS_PATH)/NanoSVG/src
 NVG_PATH = $(IGRAPHICS_DEPS_PATH)/NanoVG/src
 NVGMTL_PATH = $(IGRAPHICS_DEPS_PATH)/MetalNanoVG/src
 AGG_PATH = $(IGRAPHICS_DEPS_PATH)/AGG
+STB_PATH = $(DEPS_PATH)/IGraphics/STB
+
 FT_PATH = $(BUILT_LIBS_INC_PATH)/freetype2
 //HB_PATH = /usr/local/Cellar/harfbuzz/1.8.7/include/harfbuzz
 // you can optionally include this build setting, by adding it to EXTRA_INC_PATHS in MyProject.xcconfig in order to get all varieties of IGraphics support
-IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(IGRAPHICS_PATH)/Controls $(IGRAPHICS_PATH)/Platforms $(IGRAPHICS_PATH)/Drawing $(LICE_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(AGG_PATH) $(BUILT_LIBS_INC_PATH) $(FT_PATH) //$(HB_PATH)
+IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(IGRAPHICS_PATH)/Controls $(IGRAPHICS_PATH)/Platforms $(IGRAPHICS_PATH)/Drawing $(LICE_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(AGG_PATH) $(BUILT_LIBS_INC_PATH) $(FT_PATH) $(STB_PATH)//$(HB_PATH)
 
 // *****  LINKER/LIBRARY INCLUDE PATHS AND LINKER FLAGS
 

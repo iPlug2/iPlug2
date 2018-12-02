@@ -13,6 +13,7 @@ IPLUG_EXTRAS_PATH = $(IPLUG_PATH)/Extras
 IPLUG_WEB_PATH = $(IPLUG_PATH)/WEB
 NANOVG_PATH = $(DEPS_PATH)/IGraphics/NanoVG/src
 NANOSVG_PATH = $(DEPS_PATH)/IGraphics/NanoSVG/src
+STB_PATH = $(DEPS_PATH)/IGraphics/STB
 
 IPLUG_SRC = $(IPLUG_PATH)/IPlugAPIBase.cpp \
 	$(IPLUG_PATH)/IPlugParameter.cpp \
@@ -36,7 +37,8 @@ INCLUDE_PATHS = -I$(PROJECT_ROOT) \
 -I$(CONTROLS_PATH) \
 -I$(PLATFORMS_PATH) \
 -I$(NANOVG_PATH) \
--I$(NANOSVG_PATH)
+-I$(NANOSVG_PATH) \
+-I$(STB_PATH)
 
 #every cpp file that is needed for both WASM modules
 SRC = $(IPLUG_SRC)
