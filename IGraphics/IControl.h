@@ -665,27 +665,35 @@ protected:
   float mMaxFlashCircleRadius = 50.f;
 };
 
-/** A basic control to fill a rectangle with a color */
+/** A basic control to fill a rectangle with a color or gradient */
 class IPanelControl : public IControl
 {
 public:
   IPanelControl(IGEditorDelegate& dlg, IRECT bounds, const IColor& color, bool drawFrame = false)
   : IControl(dlg, bounds, kNoParameter)
-  , mColor(color)
+  , mPattern(color)
+  , mDrawFrame(drawFrame)
+  {
+  }
+  
+  IPanelControl(IGEditorDelegate& dlg, IRECT bounds, const IPattern& pattern, bool drawFrame = false)
+  : IControl(dlg, bounds, kNoParameter)
+  , mPattern(pattern)
   , mDrawFrame(drawFrame)
   {
   }
 
   void Draw(IGraphics& g) override
   {
-    g.FillRect(mColor, mRECT);
+    g.PathRect(mRECT);
+    g.PathFill(mPattern);
     
     if(mDrawFrame)
       g.DrawRect(COLOR_LIGHT_GRAY, mRECT);
   }
   
 private:
-  IColor mColor;
+  IPattern mPattern;
   bool mDrawFrame;
 };
 
