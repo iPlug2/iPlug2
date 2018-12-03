@@ -409,8 +409,8 @@ bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& bounds,
 //  cairo_show_glyphs (mContext, cairo_glyphs, len);
 //  cairo_glyph_free (cairo_glyphs);
 #else // TOY text
-  IColor& fgColor;
-  textEntry ? fgColor = text.mTexteEntryFGColor : text.mFGColor;
+  IColor fgColor;
+  textEntry ? fgColor = text.mTextEntryFGColor : text.mFGColor;
   cairo_set_source_rgba(mContext, fgColor.R / 255.0, fgColor.G / 255.0, fgColor.B / 255.0, (BlendWeight(pBlend) * fgColor.A) / 255.0);
   cairo_select_font_face(mContext, text.mFont, CAIRO_FONT_SLANT_NORMAL, text.mStyle == IText::kStyleBold ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL);
   cairo_set_font_size(mContext, text.mSize);
@@ -455,7 +455,7 @@ bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& bounds,
 
 bool IGraphicsCairo::MeasureText(const IText& text, const char* str, IRECT& bounds)
 {
-  return DrawText(text, str, bounds, 0, true);
+  return DrawText(text, str, bounds, 0, true, false);
 }
 
 void IGraphicsCairo::SetPlatformContext(void* pContext)
