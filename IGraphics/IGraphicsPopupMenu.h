@@ -14,12 +14,12 @@
  * @ingroup IGraphicsStructs
  */
 
-// this (and the platform implementation in IGraphics*) is largely based on the VSTGUI COptionMenu
-
 /** A class for setting the contents of a pop up menu
- * NOTE: An IPopupMenu must not be declared as a temporary. In order for a receiving IControl or lambda function to be triggered when something is selected, the menu should persist across function calls.
- * Therefore it should almost always be a member variable
- * An IPopupMenu owns its sub items, including submenus */
+ * NOTE: An IPopupMenu must not be declared as a temporary. In order for a receiving IControl or lambda function
+ * to be triggered when something is selected, the menu should persist across function calls, therefore
+ * it should almost always be a member variable.
+ * An IPopupMenu owns its sub items, including submenus
+ * This (and the platform implementations) are largely based on the VSTGUI COptionMenu */
 class IPopupMenu
 {
 public:

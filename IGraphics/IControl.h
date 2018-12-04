@@ -685,8 +685,13 @@ public:
 
   void Draw(IGraphics& g) override
   {
-    g.PathRect(mRECT);
-    g.PathFill(mPattern);
+    if(g.HasPathSupport())
+    {
+      g.PathRect(mRECT);
+      g.PathFill(mPattern);
+    }
+    else
+      g.FillRect(mPattern.GetStop(0).mColor, mRECT);
     
     if(mDrawFrame)
       g.DrawRect(COLOR_LIGHT_GRAY, mRECT);
@@ -792,7 +797,7 @@ private:
 };
 
 
-/** A basic control to output text to the screen. */
+/** A basic control to display some text */
 class ITextControl : public IControl
 {
 public:
@@ -804,26 +809,24 @@ public:
     IControl::mText = text;
   }
 
-  ~ITextControl() {}
+  void Draw(IGraphics& g) override;
 
   virtual void SetStr(const char* str);
   virtual void ClearStr() { SetStr(""); }
-
-  void Draw(IGraphics& g) override;
-
+  
 protected:
   WDL_String mStr;
   IColor mBGColor;
 };
 
+/** A control to display the textual representation of a parameter */
 class ICaptionControl : public ITextControl
 {
 public:
   ICaptionControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, const IText& text = DEFAULT_TEXT, bool showParamLabel = true);
-  ~ICaptionControl() {}
   
-  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void Draw(IGraphics& g) override;
+  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
 
 protected:
   bool mShowParamLabel;
@@ -842,8 +845,6 @@ public:
     , mDirection(direction)
     , mGearing(gearing)
   {}
-
-  virtual ~IKnobControlBase() {}
 
   void SetGearing(double gearing) { mGearing = gearing; }
   virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
