@@ -792,7 +792,7 @@ private:
 };
 
 
-/** A basic control to output text to the screen. */
+/** A basic control to display some text */
 class ITextControl : public IControl
 {
 public:
@@ -816,6 +816,7 @@ protected:
   IColor mBGColor;
 };
 
+/** A control to display the textual representation of a parameter */
 class ICaptionControl : public ITextControl
 {
 public:
