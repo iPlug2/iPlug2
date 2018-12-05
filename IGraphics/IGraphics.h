@@ -458,7 +458,7 @@ public:
   virtual void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options = IStrokeOptions(), const IBlend* pBlend = 0) {}
   virtual void PathFill(const IPattern& pattern, const IFillOptions& options = IFillOptions(), const IBlend* pBlend = 0) {}
 
-  virtual void DrawBoxShadow(const IRECT& bounds, float cr = 5.f, float ydrop = 2.f, float pad = 10.f, const IBlend* pBlend = 0) {};
+  virtual void DrawBoxShadow(const IRECT& bounds, float cr = 0.f, float ydrop = 2.f, float pad = 10.f, const IBlend* pBlend = 0) {};
 
 private:
     

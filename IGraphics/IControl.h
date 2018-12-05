@@ -1105,7 +1105,6 @@ public:
     IControl::OnMouseOut();
   }
 
-  
 private:
   float mSize;
   IRECT mInitialGraphicsBounds;
