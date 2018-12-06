@@ -461,16 +461,36 @@ bool IGraphicsNanoVG::DrawText(const IText& text, const char* str, IRECT& bounds
   
   nvgTextAlign(mVG, align);
   
-  if(measure)
+  auto calcTextBounds = [&](IRECT& r)
   {
     float fbounds[4];
     nvgTextBounds(mVG, xpos, ypos, str, NULL, fbounds);
-    bounds.L = fbounds[0]; bounds.T = fbounds[1]; bounds.R = fbounds[2]; bounds.B = fbounds[3];
+    r.L = fbounds[0]; r.T = fbounds[1]; r.R = fbounds[2]; r.B = fbounds[3];
+  };
+  
+  if(measure)
+  {
+    calcTextBounds(bounds);
     return true;
   }
   else
-    nvgText(mVG, xpos, ypos, str, NULL);
+  {
+    if(text.mOrientation != 0)
+    {
+      IRECT tmp;
+      calcTextBounds(tmp);
 
+      nvgSave(mVG);
+      nvgTranslate(mVG, tmp.L, tmp.B);
+      nvgRotate(mVG, nvgDegToRad(text.mOrientation));
+      nvgTranslate(mVG, -tmp.L, -tmp.B);
+      nvgText(mVG, xpos, ypos, str, NULL);
+      nvgRestore(mVG);
+    }
+    else
+      nvgText(mVG, xpos, ypos, str, NULL);
+  }
+    
   return true;
 }
 

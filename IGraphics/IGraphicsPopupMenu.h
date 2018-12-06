@@ -107,7 +107,7 @@ public:
     mMenuItems.Empty(true);
   }
 
-  static int sortfunc(const Item **a, const Item **b)
+  static int Sortfunc(const Item **a, const Item **b)
   {
     return stricmp((*a)->GetText(),(*b)->GetText());
   }
@@ -117,7 +117,7 @@ public:
     if (index == -1)
       mMenuItems.Add(pItem); // add it to the end
     else if (index == -2)
-      mMenuItems.InsertSorted(pItem, sortfunc);
+      mMenuItems.InsertSorted(pItem, Sortfunc);
     else
       mMenuItems.Insert(index, pItem);
     
