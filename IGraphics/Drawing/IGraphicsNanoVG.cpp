@@ -190,9 +190,10 @@ IGraphicsNanoVG::~IGraphicsNanoVG()
 {
 }
 
-IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal)
+IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale)
 {
-  const int targetScale = round(GetDisplayScale());
+  if(targetScale == 0)
+    targetScale = round(GetDisplayScale());
   
   APIBitmap* pAPIBitmap = mBitmapCache.Find(name, targetScale);
   

@@ -879,7 +879,7 @@ public:
    * @param tablet, \c true means input is from a tablet */
   void SetTabletInput(bool tablet) { mTabletInput = tablet; }
   
-  EUIResizerMode GetUIResizerMode() const { return mGUISizeMode; }
+  EUIResizerMode GetResizerMode() const { return mGUISizeMode; }
   
 #pragma mark - Plug-in API Specific
 
@@ -911,8 +911,9 @@ public:
    * @param fileName CString file name
    * @param nStates The number of states/frames in a multi-frame stacked bitmap
    * @param framesAreHorizontal Set \c true if the frames in a bitmap are stacked horizontally
+   * @param targetScale Set \c to a number > 0 to explicity load e.g. an @2x.png
    * @return An IBitmap representing the image */
-  virtual IBitmap LoadBitmap(const char* fileName, int nStates = 1, bool framesAreHorizontal = false);
+  virtual IBitmap LoadBitmap(const char* fileName, int nStates = 1, bool framesAreHorizontal = false, int targetScale = 0);
 
   /** Load an SVG from disk
    * @param fileName A CString absolute path to the SVG on disk
