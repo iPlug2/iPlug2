@@ -330,9 +330,17 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     if (mGraphics)
       mGraphics->SetDisplayScale([pWindow backingScaleFactor]);
     
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(windowResized:) name:NSWindowDidEndLiveResizeNotification
-                                               object:pWindow];
+//    [[NSNotificationCenter defaultCenter] addObserver:self
+//                                             selector:@selector(windowResized:) name:NSWindowDidEndLiveResizeNotification
+//                                               object:pWindow];
+//
+//    [[NSNotificationCenter defaultCenter] addObserver:self
+//                                             selector:@selector(windowFullscreened:) name:NSWindowDidEnterFullScreenNotification
+//                                               object:pWindow];
+//
+//    [[NSNotificationCenter defaultCenter] addObserver:self
+//                                             selector:@selector(windowFullscreened:) name:NSWindowDidExitFullScreenNotification
+//                                               object:pWindow];
   }
 }
 
@@ -357,11 +365,11 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     //TODO: can we really only get this context on the first draw call?
     if (!mGraphics->GetPlatformContext())
     {
-        CGContextRef pCGC = nullptr;
-        pCGC = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
-        NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort: pCGC flipped: YES];
-        pCGC = (CGContextRef) [gc graphicsPort];
-        mGraphics->SetPlatformContext(pCGC);
+      CGContextRef pCGC = nullptr;
+      pCGC = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
+      NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort: pCGC flipped: YES];
+      pCGC = (CGContextRef) [gc graphicsPort];
+      mGraphics->SetPlatformContext(pCGC);
     }
       
     if (mGraphics->GetPlatformContext())
@@ -602,10 +610,10 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   
   if (mGraphics)
   {
-    IGraphics* graphics = mGraphics;
+    IGraphics* pGraphics = mGraphics;
     mGraphics = nullptr;
-    graphics->SetPlatformContext(nullptr);
-    graphics->CloseWindow();
+    pGraphics->SetPlatformContext(nullptr);
+    pGraphics->CloseWindow();
   }
   [super removeFromSuperview];
 }
@@ -805,25 +813,42 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   return YES;
 }
 
-- (void)windowResized:(NSNotification *)notification;
-{
-  if(!mGraphics) // TODO: Why does this happen with reaper?
-    return;
-  
+//- (void)windowResized:(NSNotification *)notification;
+//{
+//  if(!mGraphics) // TODO: Why does this happen with reaper?
+//    return;
+//
 //  NSSize windowSize = [[self window] frame].size;
 //  NSRect viewFrameInWindowCoords = [self convertRect: [self bounds] toView: nil];
 //
 //  float width = windowSize.width - viewFrameInWindowCoords.origin.x;
 //  float height = windowSize.height - viewFrameInWindowCoords.origin.y;
-
+//
 //  float scaleX = width / mGraphics->Width();
 //  float scaleY = height / mGraphics->Height();
-  
-  // Rescale
-  //mGraphics->Resize(mGraphics->Width(), mGraphics->Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
-  // Resize
-  //mGraphics->Resize(width, height, mGraphics->GetScale());
-}
+//
+//  if(mGraphics->GetUIResizerMode() == EUIResizerMode::kUIResizerScale)
+//    mGraphics->Resize(width, height, mGraphics->GetScale());
+//  else // EUIResizerMode::kUIResizerSize
+//    mGraphics->Resize(mGraphics->Width(), mGraphics->Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
+//}
+//
+//- (void)windowFullscreened:(NSNotification *)notification;
+//{
+//  NSSize windowSize = [[self window] frame].size;
+//  NSRect viewFrameInWindowCoords = [self convertRect: [self bounds] toView: nil];
+//
+//  float width = windowSize.width - viewFrameInWindowCoords.origin.x;
+//  float height = windowSize.height - viewFrameInWindowCoords.origin.y;
+//
+//  float scaleX = width / mGraphics->Width();
+//  float scaleY = height / mGraphics->Height();
+//
+//  if(mGraphics->GetUIResizerMode() == EUIResizerMode::kUIResizerScale)
+//    mGraphics->Resize(width, height, mGraphics->GetScale());
+//  else // EUIResizerMode::kUIResizerSize
+//    mGraphics->Resize(mGraphics->Width(), mGraphics->Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
+//}
 
 @end
 

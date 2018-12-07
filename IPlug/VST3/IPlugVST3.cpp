@@ -136,7 +136,7 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
     if(DoesMIDI())
     {
       addEventInput(STR16("MIDI Input"), 1);
-      //addEventOutput(STR16("MIDI Output"), 1);
+      addEventOutput(STR16("MIDI Output"), 1);
     }
 
     if (NPresets())
@@ -270,6 +270,7 @@ tresult PLUGIN_API IPlugVST3::setupProcessing(ProcessSetup& newSetup)
   _SetSampleRate(newSetup.sampleRate);
   _SetBypassed(false);
   IPlugProcessor::_SetBlockSize(newSetup.maxSamplesPerBlock); // TODO: should IPlugVST3 call SetBlockSizein construct unlike other APIs?
+  mMidiOutputQueue.Resize(newSetup.maxSamplesPerBlock);
   OnReset();
 
   processSetup = newSetup;
@@ -365,10 +366,16 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
               mMidiMsgsFromProcessor.Push(msg);
               break;
             }
-
             case Event::kNoteOffEvent:
             {
               msg.MakeNoteOffMsg(event.noteOff.pitch, event.sampleOffset, event.noteOff.channel);
+              ProcessMidiMsg(msg);
+              mMidiMsgsFromProcessor.Push(msg);
+              break;
+            }
+            case Event::kPolyPressureEvent:
+            {
+              msg.MakePolyATMsg(event.polyPressure.pitch, event.polyPressure.pressure * 127., event.sampleOffset, event.polyPressure.channel);
               ProcessMidiMsg(msg);
               mMidiMsgsFromProcessor.Push(msg);
               break;
@@ -486,20 +493,61 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
       _ProcessBuffers(0.0, data.numSamples); // process buffers double precision
   }
 
-// Midi Out
-//  if (mDoesMidi) {
-//    IEventList eventList = data.outputEvents;
-//
-//    if (eventList)
-//    {
-//      Event event;
-//
-//      while (!mMidiOutputQueue.Empty()) {
-//        //TODO: parse events and add
-//        eventList.addEvent(event);
-//      }
-//    }
-//  }
+  // Midi Out
+  if (DoesMIDI())
+  {
+    IEventList* outputEvents = data.outputEvents;
+    
+    //MIDI
+    if (!mMidiOutputQueue.Empty() && outputEvents)
+    {
+      Event toAdd = {0};
+      IMidiMsg msg;
+      
+      while (!mMidiOutputQueue.Empty())
+      {
+        IMidiMsg& msg = mMidiOutputQueue.Peek();
+        
+        if (msg.StatusMsg() == IMidiMsg::kNoteOn)
+        {
+          toAdd.type = Event::kNoteOnEvent;
+          toAdd.noteOn.channel = msg.Channel();
+          toAdd.noteOn.pitch = msg.NoteNumber();
+          toAdd.noteOn.tuning = 0.;
+          toAdd.noteOn.velocity = (float) msg.Velocity() * (1.f / 127.f);
+          toAdd.noteOn.length = -1;
+          toAdd.noteOn.noteId = -1; // TODO ?
+          toAdd.sampleOffset = msg.mOffset;
+          outputEvents->addEvent(toAdd);
+        }
+        else if (msg.StatusMsg() == IMidiMsg::kNoteOff)
+        {
+          toAdd.type = Event::kNoteOffEvent;
+          toAdd.noteOff.channel = msg.Channel();
+          toAdd.noteOff.pitch = msg.NoteNumber();
+          toAdd.noteOff.velocity = (float) msg.Velocity() * (1.f / 127.f);
+          toAdd.noteOff.noteId = -1; // TODO ?
+          toAdd.sampleOffset = msg.mOffset;
+          outputEvents->addEvent(toAdd);
+        }
+        else if (msg.StatusMsg() == IMidiMsg::kPolyAftertouch)
+        {
+          toAdd.type = Event::kPolyPressureEvent;
+          toAdd.polyPressure.channel = msg.Channel();
+          toAdd.polyPressure.pitch = msg.NoteNumber();
+          toAdd.polyPressure.pressure = (float) msg.PolyAfterTouch() * (1.f / 127.f);
+          toAdd.polyPressure.noteId = -1; // TODO ?
+          toAdd.sampleOffset = msg.mOffset;
+          outputEvents->addEvent(toAdd);
+        }
+        
+        mMidiOutputQueue.Remove();
+        // don't add any midi messages other than noteon/noteoff
+      }
+    }
+    
+    mMidiOutputQueue.Flush(data.numSamples);
+  }
 
   return kResultOk;
 }
@@ -540,32 +588,37 @@ IPlugView* PLUGIN_API IPlugVST3::createView(const char* name)
 
 tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* state)
 {
+  
   TRACE;
-
+  
   IByteChunk chunk;
-  //InitChunkWithIPlugVer(&chunk); // TODO: IPlugVer should be in chunk!
-
-  SerializeState(chunk); // to get the size
-
-  if (chunk.Size() > 0)
+  
+  const int bytesPerBlock = 128;
+  char buffer[bytesPerBlock];
+  
+  while(true)
   {
-    state->read(chunk.GetBytes(), chunk.Size());
-    UnserializeState(chunk, 0);
-
-    int32 savedBypass = 0;
-
-    if (state->read (&savedBypass, sizeof (int32)) != kResultOk)
-    {
-      return kResultFalse;
-    }
-
-    _SetBypassed((bool) savedBypass);
-
-    OnRestoreState();
-    return kResultOk;
+    Steinberg::int32 bytesRead = 0;
+    auto status = state->read (buffer, (Steinberg::int32) bytesPerBlock, &bytesRead);
+    
+    if (bytesRead <= 0 || (status != kResultTrue && GetHost() != kHostWaveLab))
+      break;
+    
+    chunk.PutBytes(buffer, bytesRead);
   }
-
-  return kResultFalse;
+  int pos = UnserializeState(chunk,0);
+  
+  int32 savedBypass = 0;
+  
+  state->seek(pos,IBStream::IStreamSeekMode::kIBSeekSet);
+  if (state->read (&savedBypass, sizeof (Steinberg::int32)) != kResultOk) {
+    return kResultFalse;
+  }
+  
+  _SetBypassed((bool) savedBypass);
+  
+  OnRestoreState();
+  return kResultOk;
 }
 
 tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
@@ -580,7 +633,7 @@ tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
 
   if (SerializeState(chunk))
   {
-    state->write(chunk.GetBytes(), chunk.Size());
+    state->write(chunk.GetData(), chunk.Size());
   }
   else
   {
@@ -591,6 +644,21 @@ tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
   state->write(&toSaveBypass, sizeof (int32));
 
   return kResultOk;
+}
+
+tresult PLUGIN_API IPlugVST3::setComponentState(IBStream* state)
+{
+  return setEditorState(state);
+}
+
+tresult PLUGIN_API IPlugVST3::setState(IBStream* state)
+{
+  return setEditorState(state);
+}
+
+tresult PLUGIN_API IPlugVST3::getState(IBStream* state)
+{
+  return getEditorState(state);
 }
 
 ParamValue PLUGIN_API IPlugVST3::plainParamToNormalized(ParamID tag, ParamValue plainValue)
@@ -840,6 +908,12 @@ void IPlugVST3::PreProcess()
   const bool offline = processSetup.processMode == Steinberg::Vst::kOffline;
   _SetTimeInfo(timeInfo);
   _SetRenderingOffline(offline);
+}
+
+bool IPlugVST3::SendMidiMsg(const IMidiMsg& msg)
+{
+  mMidiOutputQueue.Add(msg);
+  return true;
 }
 
 #pragma mark - IPlugVST3View

@@ -68,7 +68,7 @@ public:
   void SendArbitraryMsgFromDelegate(int messageTag, int dataSize = 0, const void* pData = nullptr) override;
   
   //IPlugProcessor
-  bool SendMidiMsg(const IMidiMsg& msg) override { return false; } //TODO: SendMidiMsg
+  bool SendMidiMsg(const IMidiMsg& msg) override;
   
 private:
   void _TransmitMidiMsgFromProcessor(const IMidiMsg& msg) override;
@@ -83,6 +83,7 @@ private:
   
   ProcessContext mProcessContext;
   ParameterChanges mOutputParamChanges;
+  IMidiQueue mMidiOutputQueue;
 //  IPlugQueue<SysExChunk> mSysExMsgsFromController; // // a queue of SYSEX messages recieved from the controller
 //  IPlugQueue<SysExChunk> mSysExMsgsFromProcessorToController; // a queue of SYSEX messages to send to the controller
 };

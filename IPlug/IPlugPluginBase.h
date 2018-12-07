@@ -241,8 +241,9 @@ public:
   bool SaveBankAsFXPs(const char* path) { return false; }
   
   //VST3 format
-  bool SaveProgramAsVSTPreset(const char* file) { return false; }
-  bool LoadProgramFromVSTPreset(const char* file) { return false; }
+  void MakeVSTPresetChunk(IByteChunk& chunk, IByteChunk& componentState, IByteChunk& controllerState);
+  bool SaveProgramAsVSTPreset(const char* file);
+  bool LoadProgramFromVSTPreset(const char* file);
   bool SaveBankAsVSTPresets(const char* path) { return false; }
   
   //AU format
@@ -352,6 +353,12 @@ protected:
   EAPI mAPI;
   /** macOS/iOS bundle ID */
   WDL_String mBundleID;
+  /** Saving VST3 format presets requires this see SaveProgramAsVSTPreset */
+  WDL_String mVST3ProductCategory;
+  /** Saving VST3 format presets requires this see SaveProgramAsVSTPreset */
+  WDL_String mVST3ProcessorUIDStr;
+  /** Saving VST3 format presets requires this see SaveProgramAsVSTPreset */
+  WDL_String mVST3ControllerUIDStr;
   
   /** \c true if the plug-in has a user interface. If false the host will provide a default interface */
   bool mHasUI = false;

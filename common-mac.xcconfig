@@ -40,7 +40,7 @@ APP_DEFS = APP_API __MACOSX_CORE__ IPLUG_EDITOR=1 IPLUG_DSP=1 // __UNIX_JACK__
 // ***** HEADER INCLUDE PATHS
 // Where the SDKs etc. are located in relation to the plug-in Xcode project (which is in the projects subfolder of an IPlug project)
 
-// the top level WDL-OL folder e.g. where this common-mac.xcconfig is
+// the top level iPlug2 folder e.g. where this common-mac.xcconfig is
 ROOT = $(SRCROOT)/../../..
 PROJECT_ROOT = $(SRCROOT)/..
 
@@ -68,8 +68,8 @@ PUGL_PATH = $(DEPS_PATH)/Extras/pugl
 //faust is linked as a dynamic library
 FAUST_LIB_PATHS = $(BUILT_LIBS_LIB_PATH)
 FAUST_INC_PATHS = $(BUILT_LIBS_INC_PATH) $(WDL_PATH)/win32_curses
-FAUST_DEFS = DEFAULT_FAUST_LIBRARY_PATH=$(BUILT_LIBS_LIB_PATH)/share/faust/
-//FAUST_LNK_FLAGS = $(BUILT_LIBS_LIB_PATH)/lib/libfaust.dylib
+FAUST_DEFS = FORCE_WIN32_CURSES FAUST_EXE=\"$(BUILT_LIBS_PATH)/bin/faust\" DEFAULT_FAUST_LIBRARY_PATH=\"$(BUILT_LIBS_PATH)/share/faust\"
+FAUST_LNK_FLAGS = $(BUILT_LIBS_LIB_PATH)/libfaust.dylib
 
 CIVETWEB_INC_PATHS = $(BUILT_LIBS_INC_PATH)
 CIVETWEB_LNK_FLAGS = $(BUILT_LIBS_LIB_PATH)/libcivetweb.a
@@ -127,16 +127,14 @@ AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework Cor
 // ***** BINARY OUTPUT LOCATIONS ------------------------------------------------------------------------------------------------------------------------
 
 // Where to build the plug-ins / app bundles ...
-// By default WDL-OL/IPlug builds to user plug-in folder
+// By default iPlug2 builds to user plug-in folder
 // You can also build to the system plug-in folder, but you will need to explicitly add write permissions to build stuff there
 // The AAX folder should be the location of the PT Dev build plug-ins folder, installer scripts will copy to the non-developer build
 
-VST2_PATH = ~/Library/Audio/Plug-Ins/VST
-VST3_PATH = ~/Library/Audio/Plug-Ins/VST3
-AU_PATH = ~/Library/Audio/Plug-Ins/Components
+VST2_PATH = $(HOME)/Library/Audio/Plug-Ins/VST
+VST3_PATH = $(HOME)/Library/Audio/Plug-Ins/VST3
+AU_PATH = $(HOME)/Library/Audio/Plug-Ins/Components
 AAX_PATH = /Applications/Avid/ProTools_3PDev/Plug-Ins
-APP_PATH = ~/Applications
-REAPER_EXT_PATH = ~/Library/Application Support/REAPER/UserPlugins
-
-FAUST_DEFS = FORCE_WIN32_CURSES FAUST_EXE=\"$(BUILT_LIBS_PATH)/bin/faust\" DEFAULT_FAUST_LIBRARY_PATH=\"$(BUILT_LIBS_PATH)/share/faust\"
+APP_PATH = $(HOME)/Applications
+REAPER_EXT_PATH = $(HOME)/Library/Application Support/REAPER/UserPlugins
 

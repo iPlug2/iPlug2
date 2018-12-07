@@ -48,20 +48,20 @@ class IPlugEffectAppViewController: UIViewController {
     let appExtensionBundle = Bundle(url: pluginURL)
     
     let storyboard = UIStoryboard(name: "IPlugEffect-iOS-MainInterface", bundle: appExtensionBundle)
-    mAudioUnitViewController = storyboard.instantiateInitialViewController() as! IPlugEffectViewController
+    mAudioUnitViewController = storyboard.instantiateInitialViewController() as? IPlugEffectViewController
 
     if let view = mAudioUnitViewController.view {
-      addChildViewController(mAudioUnitViewController)
+      addChild(mAudioUnitViewController)
       view.frame = auContainerView.bounds
 
       auContainerView.addSubview(view)
-      mAudioUnitViewController.didMove(toParentViewController: self)
+      mAudioUnitViewController.didMove(toParent: self)
     }
   }
 
   @IBAction func togglePlay(_ sender: AnyObject?) {
     let isPlaying = playEngine.togglePlay()
     let titleText = isPlaying ? "Stop" : "Play"
-    playButton.setTitle(titleText, for: UIControlState())
+    playButton.setTitle(titleText, for: UIControl.State())
   }
 }

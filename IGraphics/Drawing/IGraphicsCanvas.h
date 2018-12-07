@@ -15,13 +15,6 @@ public:
   WebBitmap(val imageCanvas, const char* name, int scale);
 };
 
-static std::string ToCanvasColor(const IColor& color, float alpha = 1.0)
-{
-  WDL_String str;
-  str.SetFormatted(64, "rgba(%d, %d, %d, %lf)", color.R, color.G, color.B, alpha * color.A / 255.0);
-  return str.Get();
-}
-
 static val GetContext()
 {
   val canvas = val::global("document").call<val>("getElementById", std::string("canvas"));
@@ -33,30 +26,28 @@ static val GetContext()
 class IGraphicsCanvas : public IGraphicsPathBase
 {
 public:
-  const char* GetDrawingAPIStr() override { return "Canvas"; }
+  const char* GetDrawingAPIStr() override { return "HTML5 Canvas"; }
 
   IGraphicsCanvas(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsCanvas();
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend) override;
-  void DrawRotatedBitmap(IBitmap& bitmap, float destCentreX, float destCentreY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override { IGraphicsPathBase::DrawRotatedBitmap(bitmap, destCentreX, destCentreY, DegToRad(angle), yOffsetZeroDeg, pBlend); }
-  
-  void DrawResize() override;
+  void DrawRotatedBitmap(IBitmap& bitmap, float destCentreX, float destCentreY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
 
-  void PathClear() override { GetContext().call<void>("beginPath"); }
-  void PathClose() override { GetContext().call<void>("closePath"); }
+  void DrawResize() override {};
 
-  void PathArc(float cx, float cy, float r, float aMin, float aMax) override { GetContext().call<void>("arc", cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f)); }
-
-  void PathMoveTo(float x, float y) override { GetContext().call<void>("moveTo", x, y); }
-  void PathLineTo(float x, float y) override { GetContext().call<void>("lineTo", x, y); }
-  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override { GetContext().call<void>("bezierCurveTo", x1, y1, x2, y2, x3, y3); }
+  void PathClear() override;
+  void PathClose() override;
+  void PathArc(float cx, float cy, float r, float aMin, float aMax) override;
+  void PathMoveTo(float x, float y) override;
+  void PathLineTo(float x, float y) override;
+  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override;
 
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
 
   IColor GetPoint(int x, int y) override { return COLOR_BLACK; } // TODO:
-  void* GetDrawContext() override { return nullptr; } // TODO:
+  void* GetDrawContext() override { return nullptr; }
 
   bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
@@ -70,6 +61,6 @@ private:
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
     
-  void SetWebSourcePattern(const IPattern& pattern, const IBlend* pBlend = nullptr);
-  void SetWebBlendMode(const IBlend* pBlend);
+  void SetCanvasSourcePattern(const IPattern& pattern, const IBlend* pBlend = nullptr);
+  void SetCanvasBlendMode(const IBlend* pBlend);
 };

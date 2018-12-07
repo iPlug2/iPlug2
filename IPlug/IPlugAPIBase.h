@@ -131,7 +131,7 @@ public:
   /** SetParameterValue is called from the UI in the middle of a parameter change gesture (possibly via delegate) in order to update a parameter's value.
    * It will update mParams[paramIdx], call InformHostOfParamChange and IPlugAPIBase::OnParamChange();
    * @param paramIdx The index of the parameter that changed
-   * @param normalizedValue The new (normalised) value*/
+   * @param normalizedValue The new (normalised) value */
   void SetParameterValue(int paramIdx, double normalizedValue);
   
   virtual void GetTrackColor(int& r, int& g, int& b) {};

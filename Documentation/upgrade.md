@@ -22,3 +22,4 @@ iPlug2 is a significant reworking of the original code. Whilst we have  thought 
 * bool IControl::Draw(IGraphics* pGraphics) -> void IControl::Draw(IGraphics& g)
 * Added IGraphics::DrawBitmapedText() (was in separate header)
 * BOUNDED() macro -> Clip()
+* IGraphics:DrawLine antiAlias argument replaced with lineWidth

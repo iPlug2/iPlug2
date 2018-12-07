@@ -123,6 +123,20 @@ IGraphicsCairo::~IGraphicsCairo()
     cairo_surface_destroy(mSurface);
 }
 
+void IGraphicsCairo::DrawResize()
+{
+  SetPlatformContext(nullptr);
+#ifdef OS_WIN
+  HWND window = static_cast<HWND>(GetWindow());
+  if (window)
+  {
+    HDC dc = GetDC(window);
+    SetPlatformContext(dc);
+    ReleaseDC(window, dc);
+  }
+#endif
+}
+
 APIBitmap* IGraphicsCairo::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
 {
   cairo_surface_t* pSurface = LoadPNGResource(GetPlatformInstance(), resourcePath);
@@ -164,6 +178,36 @@ void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, in
   cairo_set_operator(mContext, CairoBlendMode(pBlend));
   cairo_paint_with_alpha(mContext, BlendWeight(pBlend));
   cairo_restore(mContext);
+}
+
+void IGraphicsCairo::PathClear()
+{
+  cairo_new_path(mContext);
+}
+
+void IGraphicsCairo::PathClose()
+{
+  cairo_close_path(mContext);
+}
+
+void IGraphicsCairo::PathArc(float cx, float cy, float r, float aMin, float aMax)
+{
+  cairo_arc(mContext, cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f));
+}
+
+void IGraphicsCairo::PathMoveTo(float x, float y)
+{
+  cairo_move_to(mContext, x, y);
+}
+
+void IGraphicsCairo::PathLineTo(float x, float y)
+{
+  cairo_line_to(mContext, x, y);
+}
+
+void IGraphicsCairo::PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
+{
+  cairo_curve_to(mContext, x1, y1, x2, y2, x3, y3);
 }
 
 void IGraphicsCairo::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)

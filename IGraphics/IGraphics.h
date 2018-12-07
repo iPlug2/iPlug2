@@ -458,7 +458,7 @@ public:
   virtual void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options = IStrokeOptions(), const IBlend* pBlend = 0) {}
   virtual void PathFill(const IPattern& pattern, const IFillOptions& options = IFillOptions(), const IBlend* pBlend = 0) {}
 
-  virtual void DrawBoxShadow(const IRECT& bounds, float cr = 5.f, float ydrop = 2.f, float pad = 10.f, const IBlend* pBlend = 0) {};
+  virtual void DrawBoxShadow(const IRECT& bounds, float cr = 0.f, float ydrop = 2.f, float pad = 10.f, const IBlend* pBlend = 0) {};
 
 private:
     
@@ -567,11 +567,11 @@ public:
   virtual void* GetPlatformInstance() { return nullptr; }
 
   /** Set the platform draw context
-   Used with IGraphicsLice (possibly others) in order to set the CoreGraphics CGContextRef context on macOS and the GDI HDC draw context handle on Windows.
+   * Used in order to set the platform level draw context - CGContextRef context on macOS and the GDI HDC draw context handle on Windows.
    * @param pContext void pointer to CGContextRef or HDC */
   virtual void SetPlatformContext(void* pContext) { mPlatformContext = pContext; }
 
-  /** Get the platform draw context - an HDC or CGContextRef
+  /** Get the platform level draw context - an HDC or CGContextRef
    * @return void pointer to an HDC or CGContext */
   void* GetPlatformContext() { return mPlatformContext; }
   
@@ -878,6 +878,8 @@ public:
   /**  Set by the platform class if the mouse input is coming from a tablet/stylus
    * @param tablet, \c true means input is from a tablet */
   void SetTabletInput(bool tablet) { mTabletInput = tablet; }
+  
+  EUIResizerMode GetUIResizerMode() const { return mGUISizeMode; }
   
 #pragma mark - Plug-in API Specific
 

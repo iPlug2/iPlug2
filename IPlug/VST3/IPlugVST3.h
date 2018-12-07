@@ -63,7 +63,7 @@ public:
   //IPlugProcessor
   void ResizeGraphics(int viewWidth, int viewHeight, float scale) override;
   void SetLatency(int samples) override;
-  bool SendMidiMsg(const IMidiMsg& msg) override { return false; } //TODO: SendMidiMsg
+  bool SendMidiMsg(const IMidiMsg& msg) override;
   
   // AudioEffect
   tresult PLUGIN_API initialize(FUnknown* context) override;
@@ -83,6 +83,9 @@ public:
   IPlugView* PLUGIN_API createView (const char* name) override;
   tresult PLUGIN_API setEditorState (IBStream* state) override;
   tresult PLUGIN_API getEditorState (IBStream* state) override;
+  tresult PLUGIN_API setState(IBStream* state) override;
+  tresult PLUGIN_API getState(IBStream* state) override;
+  tresult PLUGIN_API setComponentState(IBStream *state) override;
   tresult PLUGIN_API setParamNormalized (uint32 tag, double value) override;
   double PLUGIN_API getParamNormalized(uint32 tag) override;
   double PLUGIN_API plainParamToNormalized(uint32 tag, double plainValue) override;
@@ -126,7 +129,7 @@ private:
   uint64_t getSpeakerArrForChans(int32 chans);
 
   bool mSidechainActive = false;
-//  IMidiQueue mMidiOutputQueue;
+  IMidiQueue mMidiOutputQueue;
   Vst::ProcessContext mProcessContext;
   std::vector <IPlugVST3View*> mViews;
   
