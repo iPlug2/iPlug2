@@ -879,6 +879,8 @@ public:
    * @param tablet, \c true means input is from a tablet */
   void SetTabletInput(bool tablet) { mTabletInput = tablet; }
   
+  EUIResizerMode GetUIResizerMode() const { return mGUISizeMode; }
+  
 #pragma mark - Plug-in API Specific
 
   /** [AAX only] This can be called by the ProTools API class (e.g. IPlugAAX) in order to ascertain the parameter linked to the control under the mouse.
