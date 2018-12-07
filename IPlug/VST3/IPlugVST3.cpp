@@ -633,7 +633,7 @@ tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
 
   if (SerializeState(chunk))
   {
-    state->write(chunk.GetBytes(), chunk.Size());
+    state->write(chunk.GetData(), chunk.Size());
   }
   else
   {

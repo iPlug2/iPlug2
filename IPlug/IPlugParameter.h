@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <cstring>
 #include <functional>
 
@@ -130,10 +131,10 @@ public:
 
   /** Sets the parameter value
    * @param value Value to be set. Will be stepped and clamped between \c mMin and \c mMax */
-  void Set(double value) { mValue = Constrain(value); }
+  void Set(double value) { mValue.store(Constrain(value)); }
   void SetNormalized(double normalizedValue) { Set(FromNormalized(normalizedValue)); }
-  void SetString(const char* str) { mValue = StringToValue(str); }
-  void SetToDefault() { mValue = mDefault; }
+  void SetString(const char* str) { mValue.store(StringToValue(str)); }
+  void SetToDefault() { mValue.store(mDefault); }
   void SetDefault(double value) { mDefault = value; SetToDefault(); }
 
   void SetDisplayText(double value, const char* str);
@@ -142,17 +143,17 @@ public:
   // These all return the readable value, not the VST (0,1).
   /** Gets a readable value of the parameter
    * @return Current value of the parameter */
-  double Value() const { return mValue; }
+  double Value() const { return mValue.load(); }
   /** Returns the parameter's value as a boolean
    * @return \c true if value >= 0.5, else otherwise */
-  bool Bool() const { return (mValue >= 0.5); }
+  bool Bool() const { return (mValue.load() >= 0.5); }
   /** Returns the parameter's value as an integer
    * @return Current value of the parameter */
-  int Int() const { return int(mValue); }
-  double DBToAmp() const { return ::DBToAmp(mValue); }
-  double GetNormalized() const { return ToNormalized(mValue); }
+  int Int() const { return static_cast<int>(mValue.load()); }
+  double DBToAmp() const { return ::DBToAmp(mValue.load()); }
+  double GetNormalized() const { return ToNormalized(mValue.load()); }
 
-  void GetDisplayForHost(WDL_String& display, bool withDisplayText = true) const { GetDisplayForHost(mValue, false, display, withDisplayText); }
+  void GetDisplayForHost(WDL_String& display, bool withDisplayText = true) const { GetDisplayForHost(mValue.load(), false, display, withDisplayText); }
   void GetDisplayForHost(double value, bool normalized, WDL_String& display, bool withDisplayText = true) const;
 
   const char* GetNameForHost() const;
@@ -196,7 +197,7 @@ private:
 
   EParamType mType = kTypeNone;
   EParamUnit mUnit = kUnitCustom;
-  double mValue = 0.0;
+  std::atomic<double> mValue{0.0};
   double mMin = 0.0;
   double mMax = 1.0;
   double mStep = 1.0;

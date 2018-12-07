@@ -56,7 +56,7 @@ inline void PutStrInDict(CFMutableDictionaryRef pDict, const char* key, const ch
 inline void PutDataInDict(CFMutableDictionaryRef pDict, const char* key, IByteChunk* pChunk)
 {
   CFStrLocal cfKey(key);
-  CFDataRef pData = CFDataCreate(0, pChunk->GetBytes(), pChunk->Size());
+  CFDataRef pData = CFDataCreate(0, pChunk->GetData(), pChunk->Size());
   CFDictionarySetValue(pDict, cfKey.mCFStr, pData);
   CFRelease(pData);
 }
@@ -95,7 +95,7 @@ inline bool GetDataFromDict(CFDictionaryRef pDict, const char* key, IByteChunk* 
   {
     CFIndex n = CFDataGetLength(pData);
     pChunk->Resize((int) n);
-    memcpy(pChunk->GetBytes(), CFDataGetBytePtr(pData), n);
+    memcpy(pChunk->GetData(), CFDataGetBytePtr(pData), n);
     return true;
   }
   return false;
