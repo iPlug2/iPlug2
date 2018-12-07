@@ -424,7 +424,7 @@ AAX_Result IPlugAAX::GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk* pChunk) con
     if (_this->SerializeState(chunk))
     {
       pChunk->fSize = chunk.Size();
-      memcpy(pChunk->fData, chunk.GetBytes(), chunk.Size());
+      memcpy(pChunk->fData, chunk.GetData(), chunk.Size());
       return AAX_SUCCESS;
     }
   }

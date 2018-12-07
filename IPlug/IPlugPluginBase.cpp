@@ -387,7 +387,7 @@ void IPluginBase::MakePresetFromBlob(const char* name, const char* blob, int siz
 {
   IByteChunk presetChunk;
   presetChunk.Resize(sizeOfChunk);
-  wdl_base64decode(blob, presetChunk.GetBytes(), sizeOfChunk);
+  wdl_base64decode(blob, presetChunk.GetData(), sizeOfChunk);
   
   MakePresetFromChunk(name, presetChunk);
 }
@@ -605,7 +605,7 @@ void IPluginBase::DumpAllPresetsBlob(const char* filename)
     
     chnk.Clear();
     chnk.PutChunk(&(pPreset->mChunk));
-    wdl_base64encode(chnk.GetBytes(), buf, chnk.Size());
+    wdl_base64encode(chnk.GetData(), buf, chnk.Size());
     
     fprintf(fp, "%s\", %i, %i);\n", buf, chnk.Size(), pPreset->mChunk.Size());
   }
@@ -621,7 +621,7 @@ void IPluginBase::DumpPresetBlob(const char* filename)
   char buf[MAX_BLOB_LENGTH];
   
   IByteChunk* pPresetChunk = &mPresets.Get(mCurrentPresetIdx)->mChunk;
-  uint8_t* byteStart = pPresetChunk->GetBytes();
+  uint8_t* byteStart = pPresetChunk->GetData();
   
   wdl_base64encode(byteStart, buf, pPresetChunk->Size());
   
@@ -644,7 +644,7 @@ void IPluginBase::DumpBankBlob(const char* filename)
     fprintf(fp, "MakePresetFromBlob(\"%s\", \"", pPreset->mName);
     
     IByteChunk* pPresetChunk = &pPreset->mChunk;
-    wdl_base64encode(pPresetChunk->GetBytes(), buf, pPresetChunk->Size());
+    wdl_base64encode(pPresetChunk->GetData(), buf, pPresetChunk->Size());
     
     fprintf(fp, "%s\", %i);\n", buf, pPresetChunk->Size());
   }
@@ -701,7 +701,7 @@ bool IPluginBase::SaveProgramAsFXP(const char* file)
       pgm.Put(&numParams);
       pgm.PutBytes(prgName, 28); // not PutStr (we want all 28 bytes)
       pgm.Put(&chunkSize);
-      pgm.PutBytes(state.GetBytes(), state.Size());
+      pgm.PutBytes(state.GetData(), state.Size());
     }
     else
     {
@@ -724,7 +724,7 @@ bool IPluginBase::SaveProgramAsFXP(const char* file)
       }
     }
     
-    fwrite(pgm.GetBytes(), pgm.Size(), 1, fp);
+    fwrite(pgm.GetData(), pgm.Size(), 1, fp);
     fclose(fp);
     
     return true;
@@ -776,7 +776,7 @@ bool IPluginBase::SaveBankAsFXB(const char* file)
       bnk.PutBytes(&future, 124);
       
       bnk.Put(&chunkSize);
-      bnk.PutBytes(state.GetBytes(), state.Size());
+      bnk.PutBytes(state.GetData(), state.Size());
     }
     else
     {
@@ -828,7 +828,7 @@ bool IPluginBase::SaveBankAsFXB(const char* file)
       }
     }
     
-    fwrite(bnk.GetBytes(), bnk.Size(), 1, fp);
+    fwrite(bnk.GetData(), bnk.Size(), 1, fp);
     fclose(fp);
     
     return true;
@@ -853,7 +853,7 @@ bool IPluginBase::LoadProgramFromFXP(const char* file)
       rewind(fp);
       
       pgm.Resize((int) fileSize);
-      fread(pgm.GetBytes(), fileSize, 1, fp);
+      fread(pgm.GetData(), fileSize, 1, fp);
       
       fclose(fp);
       
@@ -944,7 +944,7 @@ bool IPluginBase::LoadBankFromFXB(const char* file)
       rewind(fp);
       
       bnk.Resize((int) fileSize);
-      fread(bnk.GetBytes(), fileSize, 1, fp);
+      fread(bnk.GetData(), fileSize, 1, fp);
       
       fclose(fp);
       
@@ -1112,7 +1112,7 @@ bool IPluginBase::LoadProgramFromVSTPreset(const char* path)
     rewind(fp);
     
     pgm.Resize((int) fileSize);
-    fread(pgm.GetBytes(), fileSize, 1, fp);
+    fread(pgm.GetData(), fileSize, 1, fp);
     
     fclose(fp);
     
@@ -1275,7 +1275,7 @@ bool IPluginBase::SaveProgramAsVSTPreset(const char* path)
       
       MakeVSTPresetChunk(pgm, componentState, ctrlrState);
       
-      fwrite(pgm.GetBytes(), pgm.Size(), 1, fp);
+      fwrite(pgm.GetData(), pgm.Size(), 1, fp);
       fclose(fp);
       
       return true;

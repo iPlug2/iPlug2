@@ -552,7 +552,7 @@ tresult PLUGIN_API IPlugVST3Processor::getState(IBStream* state)
     int chunkSize = chunk.Size();
     void* data = (void*) &chunkSize;
     state->write(data, (int32) sizeof(int));
-    state->write(chunk.GetBytes(), chunkSize);
+    state->write(chunk.GetData(), chunkSize);
   }
   else
     return kResultFalse;

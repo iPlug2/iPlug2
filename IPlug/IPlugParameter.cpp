@@ -213,8 +213,8 @@ void IParam::Init(const IParam& p, const char* searchStr, const char* replaceStr
     
     if(pos)
     {
-      int insertionPos = (int) (str.Get() - pos);
-      str.DeleteSub(insertionPos, (int) strlen(searchStr));
+      int insertionPos = static_cast<int>(str.Get() - pos);
+      str.DeleteSub(insertionPos, static_cast<int>(strlen(searchStr)));
       str.Insert(replaceStr, insertionPos);
     }
   }
@@ -274,7 +274,7 @@ void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, b
 
   if (mDisplayPrecision == 0)
   {
-    str.SetFormatted(MAX_PARAM_DISPLAY_LEN, "%d", int(round(displayValue)));
+    str.SetFormatted(MAX_PARAM_DISPLAY_LEN, "%d", static_cast<int>(round(displayValue)));
   }
   else if ((mFlags & kFlagSignDisplay) && displayValue)
   {
@@ -295,7 +295,7 @@ const char* IParam::GetNameForHost() const
 
 const char* IParam::GetLabelForHost() const
 {
-  return (CStringHasContents(GetDisplayText((int) mValue))) ? "" : mLabel;
+  return (CStringHasContents(GetDisplayText(static_cast<int>(mValue.load())))) ? "" : mLabel;
 }
 
 const char* IParam::GetGroupForHost() const
