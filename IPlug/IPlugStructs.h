@@ -33,7 +33,7 @@ struct IParamChange
   bool normalized; // TODO: Remove this
 };
 
-/** A helper class for IBtyeChunk and IBtyeStream that avoids code duplication **/
+/** A helper class for IByteChunk and IByteStream that avoids code duplication **/
 struct IByteGetter
 {
   static inline int GetBytes(const uint8_t* pData, int dataSize, void* pBuf, int size, int startPos)
@@ -142,7 +142,7 @@ public:
   
   inline int PutChunk(IByteChunk* pRHS)
   {
-    return PutBytes(pRHS->GetBytes(), pRHS->Size());
+    return PutBytes(pRHS->GetData(), pRHS->Size());
   }
   
   /** Clears the chunk */
@@ -174,7 +174,7 @@ public:
     return n;
   }
   
-  inline uint8_t* GetBytes() // TODO: BAD NAME!
+  inline uint8_t* GetData()
   {
     return mBytes.Get();
   }
