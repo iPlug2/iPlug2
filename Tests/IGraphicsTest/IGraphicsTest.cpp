@@ -54,6 +54,10 @@ void IGraphicsTest::LayoutUI(IGraphics* pGraphics)
   pGraphics->AttachControl(new TestArcControl(*this, nextCell()));
   pGraphics->AttachControl(new TestMultiPathControl(*this, nextCell()));
   pGraphics->AttachControl(new TestTextControl(*this, nextCell()));
+  pGraphics->AttachControl(new TestAnimationControl(*this, nextCell()));
+  pGraphics->AttachControl(new TestDrawContextControl(*this, nextCell()));
+  pGraphics->AttachControl(new TestSizeControl(*this, bounds));
+
 
 #if 0
   pGraphics->AttachControl(new ITextControl(*this, nextCell(), "One!", {12, COLOR_WHITE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop}));

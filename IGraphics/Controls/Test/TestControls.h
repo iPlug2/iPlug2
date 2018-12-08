@@ -6,3 +6,4 @@
 #include "TestTextControl.h"
 #include "TestAnimationControl.h"
 #include "TestDrawContextControl.h"
+#include "TestSizeControl.h"
