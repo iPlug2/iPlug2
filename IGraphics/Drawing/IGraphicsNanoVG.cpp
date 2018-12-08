@@ -277,7 +277,7 @@ void IGraphicsNanoVG::OnViewInitialized(void* pContext)
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-  gWindow = glfwCreateWindow(Width(), Height(), "NanoVG", NULL, NULL);
+  gWindow = glfwCreateWindow(WindowWidth(), WindowHeight(), "NanoVG", NULL, NULL);
 
   if (!gWindow)
   {
@@ -299,7 +299,6 @@ void IGraphicsNanoVG::OnViewInitialized(void* pContext)
   
   if (mVG == nullptr)
     DBGMSG("Could not init nanovg.\n");
-
 }
 
 void IGraphicsNanoVG::OnViewDestroyed()
@@ -336,11 +335,11 @@ void IGraphicsNanoVG::BeginFrame()
   IGraphics::BeginFrame(); // perf graph
 
 #ifdef OS_WIN
+  glViewport(0, 0, WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  glViewport(0, 0, Width()*GetDisplayScale(), Height()*GetDisplayScale());
 #elif defined OS_WEB
-  glViewport(0, 0, Width() * GetDisplayScale(), Height() * GetDisplayScale());
+  glViewport(0, 0, WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -352,7 +351,6 @@ void IGraphicsNanoVG::BeginFrame()
   
   nvgBindFramebuffer(mMainFrameBuffer); // begin main frame buffer update
   nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetDisplayScale());
-//  nvgScale(mVG, GetScale(), GetScale());
 }
 
 void IGraphicsNanoVG::EndFrame()
@@ -363,13 +361,13 @@ void IGraphicsNanoVG::EndFrame()
   nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetDisplayScale());
 
   NVGpaint img = nvgImagePattern(mVG, 0, 0, WindowWidth(), WindowHeight(), 0, mMainFrameBuffer->image, 1.0f);
-  nvgSave(mVG);
   
+  nvgSave(mVG);
+  nvgResetTransform(mVG);
   nvgBeginPath(mVG);
   nvgRect(mVG, 0, 0, WindowWidth(), WindowHeight());
   nvgFillPaint(mVG, img);
   nvgFill(mVG);
-  
   nvgRestore(mVG);
   
   nvgEndFrame(mVG);
@@ -426,7 +424,7 @@ IColor IGraphicsNanoVG::GetPoint(int x, int y)
   return COLOR_BLACK; //TODO:
 }
 
-bool IGraphicsNanoVG::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+bool IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
   assert(nvgFindFont(mVG, text.mFont) != -1); // did you forget to LoadFont for this font name?
   
@@ -459,22 +457,37 @@ bool IGraphicsNanoVG::DrawText(const IText& text, const char* str, IRECT& bounds
   
   nvgTextAlign(mVG, align);
   
-  if(measure)
+  auto calcTextBounds = [&](IRECT& r)
   {
     float fbounds[4];
     nvgTextBounds(mVG, xpos, ypos, str, NULL, fbounds);
-    bounds.L = fbounds[0]; bounds.T = fbounds[1]; bounds.R = fbounds[2]; bounds.B = fbounds[3];
+    r.L = fbounds[0]; r.T = fbounds[1]; r.R = fbounds[2]; r.B = fbounds[3];
+  };
+  
+  if(measure)
+  {
+    calcTextBounds(bounds);
     return true;
   }
   else
-    nvgText(mVG, xpos, ypos, str, NULL);
+  {
+    if(text.mOrientation != 0)
+    {
+      IRECT tmp;
+      calcTextBounds(tmp);
 
+      nvgSave(mVG);
+      nvgTranslate(mVG, tmp.L, tmp.B);
+      nvgRotate(mVG, nvgDegToRad(text.mOrientation));
+      nvgTranslate(mVG, -tmp.L, -tmp.B);
+      nvgText(mVG, xpos, ypos, str, NULL);
+      nvgRestore(mVG);
+    }
+    else
+      nvgText(mVG, xpos, ypos, str, NULL);
+  }
+    
   return true;
-}
-
-bool IGraphicsNanoVG::MeasureText(const IText& text, const char* str, IRECT& bounds)
-{
-  return DrawText(text, str, bounds, 0, true);
 }
 
 void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)

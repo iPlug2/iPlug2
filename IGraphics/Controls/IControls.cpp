@@ -143,7 +143,7 @@ void IVKnobControl::Draw(IGraphics& g)
 
   g.DrawArc(GetColor(kFR), cx, cy, (mRECT.W()/2.f) - 5.f, mAngleMin, v, 0, 3.f);
   
-  if (mDrawShadows && !mEmboss)
+  if(mDrawShadows && !mEmboss)
     g.FillCircle(GetColor(kSH), cx + mShadowOffset, cy + mShadowOffset, radius);
   
   g.FillCircle(GetColor(kFG), cx, cy, radius);
@@ -157,33 +157,44 @@ void IVKnobControl::Draw(IGraphics& g)
   g.DrawRadialLine(GetColor(kFR), cx, cy, v, 0.7f * radius, 0.9f * radius, 0, mFrameThickness);
 }
 
-#ifdef IGRAPHICS_NANOVG
-#include "nanovg.h"
-#endif
-
 void IVSliderControl::Draw(IGraphics& g)
 {
   g.FillRect(GetColor(kBG), mRECT);
 
   const float halfHandleSize = mHandleSize / 2.f;
 
+  //track
   IRECT filledTrack = mTrack.FracRect(mDirection, (float) mValue);
 
-  g.FillRect(GetColor(kFG), mTrack);
-  g.FillRect(GetColor(kSH), filledTrack);
+  g.FillRect(GetColor(kFR), mTrack);
+  g.FillRect(GetColor(kFG), filledTrack);
+  
+  g.DrawRect(GetColor(kFR), mTrack);
+  
+  float cx, cy;
   
   if(mDirection == kVertical)
-    g.FillCircle(GetColor(kFR), filledTrack.MW(), filledTrack.T , halfHandleSize);
+  {
+    cx = filledTrack.MW();
+    cy = filledTrack.T;
+  }
   else
-    g.FillCircle(GetColor(kFR), filledTrack.R, filledTrack.MH(), halfHandleSize);
+  {
+    cx = filledTrack.R;
+    cy = filledTrack.MH();
+  }
+
+  //Handle
+  if(mDrawShadows && !mEmboss)
+    g.FillCircle(GetColor(kSH), cx + mShadowOffset, cy + mShadowOffset, halfHandleSize);
+  
+  g.FillCircle(GetColor(kFG), cx, cy, halfHandleSize);
 
   if(GetMouseIsOver())
-  {
-    if(mDirection == kVertical)
-      g.FillCircle(GetColor(kSH), filledTrack.MW(), filledTrack.T , halfHandleSize);
-    else
-      g.FillCircle(GetColor(kSH), filledTrack.R, filledTrack.MH(), halfHandleSize);
-  }
+    g.FillCircle(GetColor(kHL), cx, cy, halfHandleSize);
+  
+  g.DrawCircle(GetColor(kFR), cx, cy, halfHandleSize, 0, mFrameThickness);
+  g.DrawCircle(GetColor(kON), cx, cy, halfHandleSize * 0.7f, 0, mFrameThickness);
 }
 
 void IVSliderControl::OnResize()

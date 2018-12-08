@@ -258,7 +258,14 @@ struct IColor
     int max = R > G ? (R > B ? R : B) : (G > B ? G : B);
     return (min + max) / 2;
   };
-
+  
+  static void LinearInterpolateBetween(const IColor& start, const IColor& dest, IColor& result, float progress)
+  {
+    result.A = start.A + progress * (dest.A -  start.A);
+    result.R = start.R + progress * (dest.R -  start.R);
+    result.G = start.G + progress * (dest.G -  start.G);
+    result.B = start.B + progress * (dest.B -  start.B);
+  }
 };
 
 const IColor COLOR_TRANSPARENT(0, 0, 0, 0);
@@ -294,15 +301,15 @@ const IColor DEFAULT_TEXTENTRY_FGCOLOR = COLOR_BLACK;
 
 struct IVColorSpec
 {
-  IColor mBGColor = DEFAULT_BGCOLOR;
-  IColor mFGColor = DEFAULT_FGCOLOR;
-  IColor mPRColor = DEFAULT_PRCOLOR;
-  IColor mFRColor = DEFAULT_FRCOLOR;
-  IColor mHLColor = DEFAULT_HLCOLOR;
-  IColor mSHColor = DEFAULT_SHCOLOR;
-  IColor mX1Color = DEFAULT_X1COLOR;
-  IColor mX2Color = DEFAULT_X2COLOR;
-  IColor mX3Color = DEFAULT_X3COLOR;
+  IColor mBGColor = DEFAULT_BGCOLOR; // Background
+  IColor mFGColor = DEFAULT_FGCOLOR; // Foreground
+  IColor mPRColor = DEFAULT_PRCOLOR; // Pressed
+  IColor mFRColor = DEFAULT_FRCOLOR; // Frame
+  IColor mHLColor = DEFAULT_HLCOLOR; // Higlight
+  IColor mSHColor = DEFAULT_SHCOLOR; // Shadow
+  IColor mX1Color = DEFAULT_X1COLOR; // Extra 1
+  IColor mX2Color = DEFAULT_X2COLOR; // Extra 2
+  IColor mX3Color = DEFAULT_X3COLOR; // Extra 3
 
   void SetColors(const IColor BGColor = DEFAULT_BGCOLOR,
                  const IColor FGColor = DEFAULT_FGCOLOR,
@@ -475,20 +482,23 @@ struct IPattern
   WDL_TypedBuf<IColorStop> mStops;
   float mTransform[6];
 
-  IPattern(const IColor& color) : mExtend(kExtendRepeat)
+  IPattern(const IColor& color)
+  : mExtend(kExtendRepeat)
   {
     mType = kSolidPattern;
     mStops.Add(IColorStop(color, 0.0));
     SetTransform(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
   }
 
-  IPattern(EPatternType type) : mExtend(kExtendNone)
+  IPattern(EPatternType type)
+  : mExtend(kExtendNone)
   {
     mType = type;
     SetTransform(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
   }
 
-  IPattern(float x1, float y1, float x2, float y2) : mExtend(kExtendNone)
+  IPattern(float x1, float y1, float x2, float y2)
+  : mExtend(kExtendNone)
   {
     mType = kLinearPattern;
 
@@ -509,8 +519,18 @@ struct IPattern
 
     SetTransform(xx, yx, xy, yy, x0, y0);
   }
+  
+  IPattern(float x1, float y1, float x2, float y2, std::initializer_list<IColorStop> stops)
+  : IPattern(x1, y1, x2, y2)
+  {
+    for(auto& stop : stops)
+    {
+      AddStop(stop.mColor, stop.mOffset);
+    }
+  }
 
-  IPattern(float x1, float y1, float r) : mExtend(kExtendNone)
+  IPattern(float x1, float y1, float r)
+  : mExtend(kExtendNone)
   {
     mType = kRadialPattern;
 

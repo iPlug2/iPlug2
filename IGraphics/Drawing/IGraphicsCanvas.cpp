@@ -273,8 +273,11 @@ bool IGraphicsCanvas::MeasureText(const IText& text, const char* str, IRECT& bou
 
 void IGraphicsCanvas::PathTransformSetMatrix(const IMatrix& m)
 {
-  GetContext().call<void>("setTransform", m.mTransform[0], m.mTransform[1], m.mTransform[2], m.mTransform[3], m.mTransform[4], m.mTransform[5]);
-  GetContext().call<void>("scale", GetDisplayScale() * GetScale(), GetDisplayScale() * GetScale());
+  IMatrix t;
+  t.Scale(GetScale() * GetDisplayScale(), GetScale() * GetDisplayScale());
+  t.Transform(m);
+
+  GetContext().call<void>("setTransform", t.mTransform[0], t.mTransform[1], t.mTransform[2], t.mTransform[3], t.mTransform[4], t.mTransform[5]);
 }
 
 void IGraphicsCanvas::SetClipRegion(const IRECT& r)

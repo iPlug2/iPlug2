@@ -126,6 +126,8 @@ void IGraphics::Resize(int w, int h, float scale)
 
   SetAllControlsDirty();
   DrawResize();
+  
+  GetDelegate()->LayoutUI(this);
 }
 
 void IGraphics::SetControlValueFromStringAfterPrompt(IControl& control, const char* str)
@@ -378,6 +380,22 @@ void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds)
       CreateTextEntry(control, control.GetText(), bounds, currentText.Get());
     }
   }
+}
+
+bool IGraphics::DrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
+{
+  return DoDrawMeasureText(text, str, const_cast<IRECT&>(bounds), pBlend, false);
+}
+
+bool IGraphics::MeasureText(const IText& text, const char* str, IRECT& bounds)
+{
+  return DoDrawMeasureText(text, str, bounds, nullptr, true);
+}
+
+bool IGraphics::DrawText(const IText& text, const char* str, float x, float y, const IBlend* pBlend)
+{
+  IRECT bounds = { x, y, x, y };
+  return DrawText(text, str, bounds, pBlend);
 }
 
 void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int bmpState, const IBlend* pBlend)

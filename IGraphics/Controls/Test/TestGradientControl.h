@@ -44,7 +44,7 @@ public:
     else
       tmp = IPattern(mRECT.L, mRECT.MH(), mRECT.L + mRECT.W() * 0.5, mRECT.MH());
 
-      tmp.mExtend = (std::rand() & 0x10) ? ((std::rand() & 0x1000) ? kExtendNone : kExtendPad) : ((std::rand() & 0x1000) ? kExtendRepeat : kExtendReflect);
+    tmp.mExtend = (std::rand() & 0x10) ? ((std::rand() & 0x1000) ? kExtendNone : kExtendPad) : ((std::rand() & 0x1000) ? kExtendRepeat : kExtendReflect);
 
     tmp.AddStop(IColor::GetRandomColor(), 0.0);
     tmp.AddStop(IColor::GetRandomColor(), 0.1);

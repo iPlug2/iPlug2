@@ -11,10 +11,8 @@ class IPlugFaustExample : public IPlug
 public:
   IPlugFaustExample(IPlugInstanceInfo instanceInfo);
 
-#if IPLUG_DSP
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void OnReset() override;
   void OnParamChange(int paramIdx) override;
-  FAUST_BLOCK(Distortion, mDistortion, DSP_FILE, 1, 1);
-#endif
+  FAUST_BLOCK(Faust1, mFaustProcessor, DSP_FILE, 1, 1);
 };

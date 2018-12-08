@@ -100,7 +100,8 @@
   //  [self pTouchesEnded: pTouches withEvent: event];
 }
 
-- (CAMetalLayer*) metalLayer {
+- (CAMetalLayer*) metalLayer
+{
   return (CAMetalLayer *)self.layer;
 }
 
@@ -147,7 +148,8 @@
   return YES;
 }
 
-- (BOOL)canBecomeFirstResponder {
+- (BOOL)canBecomeFirstResponder
+{
   return YES;
 }
 

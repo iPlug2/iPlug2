@@ -234,6 +234,9 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 #define CBS_HASSTRINGS 0
 #define SWELL_DLG_SCALE_AUTOGEN 1
 #define SET_IDD_DIALOG_PREF_SCALE 1.5
+#if APP_RESIZABLE
+#define SWELL_DLG_FLAGS_AUTOGEN SWELL_DLG_WS_FLIPPED|SWELL_DLG_WS_RESIZABLE
+#endif
 #include "swell-dlggen.h"
 #include "resources/main.rc_mac_dlg"
 #include "swell-menugen.h"

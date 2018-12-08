@@ -111,8 +111,10 @@ void IControl::SetDirty(bool triggerAction)
 
 bool IControl::IsDirty()
 {
-  if(GetAnimationFunction())
+  if(GetAnimationFunction()) {
     mAnimationFunc(this);
+    return true;
+  }
   
   return mDirty;
 }

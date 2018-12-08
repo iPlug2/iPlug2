@@ -45,6 +45,7 @@
 #define APP_N_VECTOR_WAIT 0
 #define APP_MULT 1
 #define APP_COPY_AUV3 0
+#define APP_RESIZABLE 0
 
 #define ROBOTTO_FN "Roboto-Regular.ttf"
 #define MONTSERRAT_FN "Montserrat-LightItalic.ttf"
