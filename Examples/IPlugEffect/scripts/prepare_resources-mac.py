@@ -35,11 +35,13 @@ def main():
     if os.path.exists(dst):
      shutil.rmtree(dst)
 
-    shutil.copytree(projectpath + "/resources/img/", dst, ignore=shutil.ignore_patterns(*DONT_COPY))
+    if os.path.exists(projectpath + "/resources/img/"):
+     shutil.copytree(projectpath + "/resources/img/", dst, ignore=shutil.ignore_patterns(*DONT_COPY))
 
-    fonts = os.listdir(projectpath + "/resources/fonts/")
-    for font in fonts:
-      shutil.copy(projectpath + "/resources/fonts/" + font, dst)
+    if os.path.exists(projectpath + "/resources/fonts/"):
+      fonts = os.listdir(projectpath + "/resources/fonts/")
+      for font in fonts:
+        shutil.copy(projectpath + "/resources/fonts/" + font, dst)
 
   print "Processing Info.plist files..."
 
