@@ -80,7 +80,8 @@ LDFLAGS = -s ALLOW_MEMORY_GROWTH=1 --bind
 # The following settings mean the WASM is delivered as BASE64 and included in the MyPluginName-wam.js file.
 WAM_LDFLAGS = -s EXTRA_EXPORTED_RUNTIME_METHODS="['ccall', 'cwrap', 'setValue', 'Pointer_stringify']" \
 -s BINARYEN_ASYNC_COMPILATION=0 \
--s SINGLE_FILE=1
+-s SINGLE_FILE=1 \
+-s ENVIRONMENT=web
 
 WEB_LDFLAGS = -s EXPORTED_FUNCTIONS=$(WEB_EXPORTS) \
 -s EXTRA_EXPORTED_RUNTIME_METHODS="['Pointer_stringify']" \
