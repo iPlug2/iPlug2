@@ -315,21 +315,27 @@ public:
    * @param pBlend Optional blend method, see IBlend documentation */
   virtual void FillConvexPolygon(const IColor& color, float* x, float* y, int nPoints, const IBlend* pBlend = 0) = 0;
 
-  /** Draw some text to the graphics context (or measure some text)
+  /** Draw some text to the graphics context in a specific rectangle
    * @param text An IText struct containing font and text properties and layout info
    * @param str The text string to draw in the graphics context
-   * @param bounds Either should contain the rectangular region in the graphics where you would like to draw the text (when measure = false)
-   * or if measure == true, after calling the method this IRECT will be updated with the rectangular region the text will occupy
-   * @param measure Pass true if you wish to measure the rectangular region this text will occupy, rather than draw
-   * @return true on valid input data \todo check this */
-  virtual bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0, bool measure = false) = 0;
+   * @param bounds The rectangular region in the graphics where you would like to draw the text
+   * @return \todo */
+  bool DrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend = 0);
 
+  /** Draw some text to the graphics context at a point
+   * @param text An IText struct containing font and text properties and layout info
+   * @param str The text string to draw in the graphics context
+   * @param x The x position in the graphics where you would like to draw the text
+   * @param y The y position in the graphics where you would like to draw the text
+   * @return \todo */
+  bool DrawText(const IText& text, const char* str, float x, float y, const IBlend* pBlend = 0);
+  
   /** Measure the rectangular region that some text will occupy
    * @param text An IText struct containing font and text properties and layout info
    * @param str The text string to draw in the graphics context
    * @param bounds after calling the method this IRECT will be updated with the rectangular region the text will occupy
-   * @return true on valid input data \todo check this */
-  virtual bool MeasureText(const IText& text, const char* str, IRECT& bounds) = 0;
+   * @return \todo */
+  virtual bool MeasureText(const IText& text, const char* str, IRECT& bounds);
 
   /** Get the color of a point in the graphics context. On a 1:1 screen this corresponds to a pixel. \todo check this
    * @param x The X coordinate in the graphics context of the pixel
@@ -931,6 +937,7 @@ protected:
   bool SearchImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale);
   APIBitmap* SearchBitmapInCache(const char* name, int targetScale, int& sourceScale);
 
+  virtual bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = nullptr, bool measure = false) = 0;
 protected:
   IGEditorDelegate& mDelegate;
   WDL_PtrList<IControl> mControls;
@@ -946,7 +953,6 @@ protected:
   IControl* mLiveEdit = nullptr;
 
   IPopupMenu mPromptPopupMenu;
-
 private:
     
   void Draw(const IRECT& bounds);

@@ -88,8 +88,7 @@ public:
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return mDrawBitmap->getBits(); }
 
-  bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
-  bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
+  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
     
   inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
 

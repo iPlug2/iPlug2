@@ -424,7 +424,7 @@ IColor IGraphicsNanoVG::GetPoint(int x, int y)
   return COLOR_BLACK; //TODO:
 }
 
-bool IGraphicsNanoVG::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+bool IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
   assert(nvgFindFont(mVG, text.mFont) != -1); // did you forget to LoadFont for this font name?
   
@@ -488,11 +488,6 @@ bool IGraphicsNanoVG::DrawText(const IText& text, const char* str, IRECT& bounds
   }
     
   return true;
-}
-
-bool IGraphicsNanoVG::MeasureText(const IText& text, const char* str, IRECT& bounds)
-{
-  return DrawText(text, str, bounds, 0, true);
 }
 
 void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)

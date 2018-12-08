@@ -64,8 +64,7 @@ public:
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return (void*) mContext; }
 
-  bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
-  bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
+  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
 
   void EndFrame() override;
   void SetPlatformContext(void* pContext) override;
