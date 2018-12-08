@@ -31,7 +31,7 @@ public:
     
     cairo_save(cr);
     cairo_translate(cr, r1.MW(), r1.MH());
-    cairo_rotate(cr, DegToRad(30));
+    cairo_rotate(cr, DegToRad(30.f));
     cairo_translate(cr, -r1.MW(), -r1.MH());
     cairo_new_path(cr);
     cairo_set_source_rgba(cr, 1.f, 0.f, 0.f, 1.f);
