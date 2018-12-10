@@ -141,8 +141,10 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
     
     // Describe the algorithm and effect specifics using the CInstrumentParameters convenience layer.  (Native Only)
     AAX_SIPlugSetupInfo setupInfo;
-    if(PLUG_IS_INSTRUMENT) // For some reason in protools instruments need to have input buses. 
-      setupInfo.mInputStemFormat = (AAX_EStemFormat) GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kInput, 0 /* first bus */, pConfig);
+    if(PLUG_IS_INSTRUMENT && pConfig->GetTotalNChannels(kInput) == 0) {
+      // For some reason in protools instruments need to have input buses if not defined set input chan count the same as output
+      setupInfo.mInputStemFormat = (AAX_EStemFormat) GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kOutput, 0 /* first bus */, pConfig);
+    }
     else
       setupInfo.mInputStemFormat = (AAX_EStemFormat) GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kInput, 0 /* first bus */, pConfig);
 
