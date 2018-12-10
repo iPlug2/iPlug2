@@ -459,6 +459,11 @@ public:
   {
     mBlend.mWeight = (gray ? GRAYED_ALPHA : 1.0f);
   }
+  
+  void SetBlend(const IBlend& blend)
+  {
+    mBlend = blend;
+  }
 
 protected:
   IBitmap mBitmap;
@@ -789,6 +794,11 @@ public:
   virtual void Draw(IGraphics& g) override
   {
     g.DrawSVG(mSVG, mRECT);
+  }
+  
+  void SetSVG(const ISVG& svg)
+  {
+    mSVG = svg;
   }
   
 private:
