@@ -46,6 +46,7 @@
       allowLocationSimulation = "YES">
       <PathRunnable
          runnableDebuggingMode = "0"
+         BundleIdentifier = "com.rawmaterialsoftware.pluginhost"
          FilePath = "/Applications/Plugin Host.app">
       </PathRunnable>
       <MacroExpansion>
@@ -57,12 +58,6 @@
             ReferencedContainer = "container:IPlugInstrument-macOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
-      <CommandLineArguments>
-         <CommandLineArgument
-            argument = "$(SRCROOT)/../$(PRODUCT_NAME).RPP"
-            isEnabled = "YES">
-         </CommandLineArgument>
-      </CommandLineArguments>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>

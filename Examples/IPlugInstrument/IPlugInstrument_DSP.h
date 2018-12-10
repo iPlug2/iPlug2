@@ -39,7 +39,7 @@ private:
 			double gate = mInputs[kVoiceControlGate].endValue;
 			double pitch = mInputs[kVoiceControlPitch].endValue;
 			double pitchBend = mInputs[kVoiceControlPitchBend].endValue;
-						
+
 			// or write the entire control ramp to a buffer, like this, to get sample-accurate ramps:
 			mInputs[kVoiceControlTimbre].write(timbreBuffer, startIdx, nFrames);
 			
