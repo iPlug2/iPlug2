@@ -90,6 +90,8 @@ public:
   /** This is called by the IGraphics class when a context menu is being created (a special popup that certain plug-in formats (e.g. VST3) may append to)  */
   void SetMenuIsContextMenu(bool isContextMenu) { mIsContextMenu = isContextMenu; }
   
+  void SetExpandedBounds(const IRECT& bounds) { mSpecifiedExpandedBounds = bounds; }
+  
 private:
   /** Get an IRECT represents the maximum dimensions of the longest text item in the menu */
   IRECT GetLargestCellRectForMenu(IPopupMenu& menu, float x, float y) const;
