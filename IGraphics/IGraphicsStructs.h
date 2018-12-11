@@ -171,7 +171,6 @@ public:
   inline const WDL_String& GetResourceName() const { return mResourceName; }
 
 private:
-
   /** Pointer to the API specific bitmap */
   APIBitmap* mAPIBitmap;
   /** Bitmap width (in pixels) */
@@ -632,7 +631,7 @@ struct IRECT
   : L(l), R(r), T(t), B(b)
   {}
   
-  IRECT(float x, float y, IBitmap& bitmap)
+  IRECT(float x, float y, const IBitmap& bitmap)
   {
     L = x;
     T = y;

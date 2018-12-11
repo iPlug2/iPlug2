@@ -152,8 +152,13 @@ class IBButtonControl : public IButtonControlBase
                       , public IBitmapBase
 {
 public:
-  IBButtonControl(IGEditorDelegate& dlg, float x, float y, IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
+  IBButtonControl(IGEditorDelegate& dlg, float x, float y, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
   : IButtonControlBase(dlg, IRECT(x, y, bitmap), actionFunc)
+  , IBitmapBase(bitmap)
+  {}
+  
+  IBButtonControl(IGEditorDelegate& dlg, const IRECT& bounds, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
+  : IButtonControlBase(dlg, bounds, actionFunc)
   , IBitmapBase(bitmap)
   {}
   
@@ -178,8 +183,12 @@ public:
 class IBSwitchControl : public IBitmapControl
 {
 public:
-  IBSwitchControl(IGEditorDelegate& dlg, float x, float y, IBitmap& bitmap, int paramIdx = kNoParameter)
+  IBSwitchControl(IGEditorDelegate& dlg, float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter)
   : IBitmapControl(dlg, x, y, bitmap, paramIdx) {}
+  
+  IBSwitchControl(IGEditorDelegate& dlg, const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter)
+  : IBitmapControl(dlg, bounds, bitmap, paramIdx) {}
+  
   virtual ~IBSwitchControl() {}
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
@@ -197,13 +206,13 @@ class IBKnobControl : public IKnobControlBase
                     , public IBitmapBase
 {
 public:
-  IBKnobControl(IGEditorDelegate& dlg, float x, float y, IBitmap& bitmap, int paramIdx, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+  IBKnobControl(IGEditorDelegate& dlg, float x, float y, const IBitmap& bitmap, int paramIdx, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
   : IKnobControlBase(dlg, IRECT(x, y, bitmap), paramIdx, direction, gearing)
   , IBitmapBase(bitmap)
   {
   }
   
-  IBKnobControl(IGEditorDelegate& dlg, IRECT bounds, IBitmap& bitmap, int paramIdx, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+  IBKnobControl(IGEditorDelegate& dlg, IRECT bounds, const IBitmap& bitmap, int paramIdx, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
   : IKnobControlBase(dlg, bounds.GetCentredInside(bitmap), paramIdx, direction, gearing)
   , IBitmapBase(bitmap)
   {
@@ -232,12 +241,12 @@ public:
 class IBKnobRotaterControl : public IBKnobControl
 {
 public:
-  IBKnobRotaterControl(IGEditorDelegate& dlg, float x, float y, IBitmap& bitmap, int paramIdx)
+  IBKnobRotaterControl(IGEditorDelegate& dlg, float x, float y, const IBitmap& bitmap, int paramIdx)
   : IBKnobControl(dlg, IRECT(x, y, bitmap), bitmap, paramIdx)
   {
   }
   
-  IBKnobRotaterControl(IGEditorDelegate& dlg, IRECT bounds, IBitmap& bitmap, int paramIdx)
+  IBKnobRotaterControl(IGEditorDelegate& dlg, IRECT bounds, const IBitmap& bitmap, int paramIdx)
   : IBKnobControl(dlg, bounds.GetCentredInside(bitmap), bitmap, paramIdx)
   {
   }
@@ -255,11 +264,11 @@ class IBSliderControl : public ISliderControlBase
                       , public IBitmapBase
 {
 public:
-  IBSliderControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IBitmap& bitmap,
+  IBSliderControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, const IBitmap& bitmap,
                   EDirection dir = kVertical, bool onlyHandle = false);
   
   IBSliderControl(IGEditorDelegate& dlg, float x, float y, int len, int paramIdx,
-                  IBitmap& bitmap, EDirection direction = kVertical, bool onlyHandle = false);
+                  const IBitmap& bitmap, EDirection direction = kVertical, bool onlyHandle = false);
   
   virtual ~IBSliderControl() {}
 
@@ -282,7 +291,7 @@ class IBTextControl : public ITextControl
                     , public IBitmapBase
 {
 public:
-  IBTextControl(IGEditorDelegate& dlg, IRECT bounds, IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType blend = kBlendNone)
+  IBTextControl(IGEditorDelegate& dlg, IRECT bounds, const IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType blend = kBlendNone)
   : ITextControl(dlg, bounds, str, text)
   , IBitmapBase(bitmap, blend)
   , mCharWidth(charWidth)

@@ -222,7 +222,7 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   SetDirty();
 }
 
-IBSliderControl::IBSliderControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IBitmap& bitmap,
+IBSliderControl::IBSliderControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, const IBitmap& bitmap,
                                  EDirection dir, bool onlyHandle)
 : ISliderControlBase(dlg, bounds, paramIdx, dir, onlyHandle)
 , IBitmapBase(bitmap)
@@ -230,7 +230,7 @@ IBSliderControl::IBSliderControl(IGEditorDelegate& dlg, IRECT bounds, int paramI
   mTrack = bounds; // TODO: check
 }
 
-IBSliderControl::IBSliderControl(IGEditorDelegate& dlg, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection dir, bool onlyHandle)
+IBSliderControl::IBSliderControl(IGEditorDelegate& dlg, float x, float y, int len, int paramIdx, const IBitmap& bitmap, EDirection dir, bool onlyHandle)
 : ISliderControlBase(dlg, IRECT(x, y, x + bitmap.W(), y + len), paramIdx)
 , IBitmapBase(bitmap)
 {
