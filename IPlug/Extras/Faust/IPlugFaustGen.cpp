@@ -597,6 +597,8 @@ void FaustGen::OnTimer(Timer& timer)
 
     if(!Equal(newTime, oldTime))
     {
+      WDL_MutexLock lock(&mMutex);
+
       recompile = true;
       f.second->FreeDSPFactory();
       DBGMSG("FaustGen-%s: File change detected ----------------------------------\n", mName.Get());
@@ -634,6 +636,13 @@ void FaustGen::SetAutoRecompile(bool enable)
   }
   
   sAutoRecompile = enable;
+}
+
+void FaustGen::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
+{
+  WDL_MutexLock lock(&mMutex);
+  
+  IPlugFaust::ProcessBlock(inputs, outputs, nFrames);
 }
 
 #endif // #ifndef FAUST_COMPILED

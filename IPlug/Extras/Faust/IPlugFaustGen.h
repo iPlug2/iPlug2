@@ -224,6 +224,8 @@ public:
   
   void OnTimer(Timer& timer);
   
+  void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
+  
 private:
   Factory* mFactory = nullptr;
   static Timer* sTimer;
@@ -231,6 +233,8 @@ private:
   static bool sAutoRecompile;
   int mMaxNInputs = -1;
   int mMaxNOutputs = -1;
+  
+  WDL_Mutex mMutex;
 };
 
 #endif // #ifndef FAUST_COMPILED
