@@ -258,11 +258,7 @@ public:
 #endif
   
 #pragma mark - Parameter manipulation
-  
-  /** Initialise this delegate from another one
-   * @param delegate The delegate to clone */
-  void InitFromDelegate(IPluginBase& delegate);
-  
+    
   /** Initialise a range of parameters simultaneously. This mirrors the arguments available in IParam::InitDouble, for maximum flexibility
    * @param startIdx The index of the first parameter to initialise
    * @param endIdx The index of the last parameter to initialise

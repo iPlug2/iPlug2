@@ -154,16 +154,6 @@ int IPluginBase::UnserializeParams(const IByteChunk& chunk, int startPos)
   return pos;
 }
 
-void IPluginBase::InitFromDelegate(IPluginBase& delegate)
-{
-  for (auto p = 0; p < delegate.NParams(); p++)
-  {
-    IParam* pParam = delegate.GetParam(p);
-    GetParam(p)->Init(*pParam);
-    GetParam(p)->Set(pParam->Value());
-  }
-}
-
 void IPluginBase::InitParamRange(int startIdx, int endIdx, int countStart, const char* nameFmtStr, double defaultVal, double minVal, double maxVal, double step, const char *label, int flags, const char *group, IParam::Shape *shape, IParam::EParamUnit unit, IParam::DisplayFunc displayFunc)
 {
   WDL_String nameStr;
