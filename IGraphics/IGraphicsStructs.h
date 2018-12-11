@@ -116,7 +116,6 @@ private:
 class IBitmap
 {
 public:
-
   /** Creates a new IBitmap object
   * @param pData Pointer to the raw bitmap data
   * @param w Bitmap width (in pixels)
@@ -772,11 +771,16 @@ struct IRECT
       return SubRectHorizontal(numSlices, sliceIdx);
   }
   
-  inline IRECT GetRECTFromTLHC(float w, float h) { return IRECT(L, T, L+w, T+h); }
-  inline IRECT GetRECTFromBLHC(float w, float h) { return IRECT(L, B-h, L+w, B); }
-  inline IRECT GetRECTFromTRHC(float w, float h) { return IRECT(R-w, T, R, T+h); }
-  inline IRECT GetRECTFromBRHC(float w, float h) { return IRECT(R-w, B-h, R, B); }
+  inline IRECT GetFromTLHC(float w, float h) const { return IRECT(L, T, L+w, T+h); }
+  inline IRECT GetFromBLHC(float w, float h) const { return IRECT(L, B-h, L+w, B); }
+  inline IRECT GetFromTRHC(float w, float h) const { return IRECT(R-w, T, R, T+h); }
+  inline IRECT GetFromBRHC(float w, float h) const { return IRECT(R-w, B-h, R, B); }
 
+  inline IRECT GetReducedFromTop(float amount) const { return IRECT(L, T+amount, R, B); }
+  inline IRECT GetReducedFromBottom(float amount) const { return IRECT(L, T, R, B-amount); }
+  inline IRECT GetReducedFromLeft(float amount) const { return IRECT(L+amount, T, R, B); }
+  inline IRECT GetReducedFromRight(float amount) const { return IRECT(L, T, R-amount, B); }
+  
   inline IRECT GetGridCell(int row, int col, int nRows, int nColumns/*, EDirection = kHorizontal*/) const
   {
     assert(row * col <= nRows * nColumns); // not enough cells !
@@ -932,7 +936,7 @@ struct IRECT
       B = rhs.B - 1;
     }
   }
-
+  
   void Scale(float scale)
   {
     L = std::floor(0.5f + (L * scale));
@@ -1237,7 +1241,6 @@ template <class T>
 class StaticStorage
 {
 public:
-
   // djb2 hash function (hash * 33 + c) - see http://www.cse.yorku.ca/~oz/hash.html // TODO: can we use C++11 std::hash instead of this?
   uint32_t Hash(const char* str)
   {

@@ -1081,7 +1081,7 @@ class ICornerResizerBase : public IControl
 {
 public:
   ICornerResizerBase(IGEditorDelegate& dlg, IRECT graphicsBounds, float size)
-  : IControl(dlg, graphicsBounds.GetRECTFromBRHC(size, size).GetPadded(-1))
+  : IControl(dlg, graphicsBounds.GetFromBRHC(size, size).GetPadded(-1))
   , mInitialGraphicsBounds(graphicsBounds)
   , mSize(size)
   {
@@ -1106,7 +1106,7 @@ public:
   void OnRescale() override
   {
     float size = mSize * (1.f/GetUI()->GetScale());
-    IRECT r = GetUI()->GetBounds().GetRECTFromBRHC(size, size);
+    IRECT r = GetUI()->GetBounds().GetFromBRHC(size, size);
     SetTargetAndDrawRECTs(r);
   }
   
