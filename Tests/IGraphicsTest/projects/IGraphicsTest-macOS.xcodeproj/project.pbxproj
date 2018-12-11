@@ -101,24 +101,19 @@
 		4F1A5280205D913300CF2908 /* IPlugAPP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAPP.cpp; path = ../../../IPlug/APP/IPlugAPP.cpp; sourceTree = "<group>"; };
 		4F1B4AE32014D33600BC64D4 /* IGraphicsTest-macOS-MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = "IGraphicsTest-macOS-MainMenu.xib"; path = "../resources/IGraphicsTest-macOS-MainMenu.xib"; sourceTree = "<group>"; };
 		4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlendian.h; path = ../../../WDL/wdlendian.h; sourceTree = SOURCE_ROOT; };
-		4F23BA1313B647E50097A67E /* IGraphicsTest-AU-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IGraphicsTest-AU-Info.plist"; path = "../resources/IGraphicsTest-AU-Info.plist"; sourceTree = "<group>"; };
 		4F23BA1413B647E50097A67E /* IGraphicsTest-macOS-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IGraphicsTest-macOS-Info.plist"; path = "../resources/IGraphicsTest-macOS-Info.plist"; sourceTree = "<group>"; };
-		4F23BA1513B647E50097A67E /* IGraphicsTest-VST2-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IGraphicsTest-VST2-Info.plist"; path = "../resources/IGraphicsTest-VST2-Info.plist"; sourceTree = "<group>"; };
 		4F2EA977203A50E9008E4850 /* IPlugAPP_dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAPP_dialog.cpp; path = ../../../IPlug/APP/IPlugAPP_dialog.cpp; sourceTree = "<group>"; };
 		4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugPluginBase.cpp; path = ../../../IPlug/IPlugPluginBase.cpp; sourceTree = "<group>"; };
 		4F35DEAC207E5C5A00867D8F /* IPlugPluginBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugPluginBase.h; path = ../../../IPlug/IPlugPluginBase.h; sourceTree = "<group>"; };
 		4F3862ED2014BBEC0009F402 /* IGraphicsTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsTest.cpp; path = ../IGraphicsTest.cpp; sourceTree = "<group>"; };
 		4F3862EE2014BBEC0009F402 /* IGraphicsTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsTest.h; path = ../IGraphicsTest.h; sourceTree = "<group>"; };
 		4F3862FF2014BCC70009F402 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
-		4F3907872013ED2F00DDA490 /* IGraphicsTest-macOS-AUv3-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IGraphicsTest-macOS-AUv3-Info.plist"; path = "../resources/IGraphicsTest-macOS-AUv3-Info.plist"; sourceTree = "<group>"; };
 		4F39A96F2051E53600739CAB /* processor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = processor.cpp; path = ../../../Dependencies/IPlug/WAM_SDK/wamsdk/processor.cpp; sourceTree = "<group>"; };
 		4F39A9702051E53600739CAB /* processor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = processor.h; path = ../../../Dependencies/IPlug/WAM_SDK/wamsdk/processor.h; sourceTree = "<group>"; };
 		4F3D2B4520212D4E00842FF4 /* wdl_base64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wdl_base64.h; path = ../../../WDL/wdl_base64.h; sourceTree = "<group>"; };
-		4F3E693A1409747300C4D749 /* IGraphicsTest-VST3-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IGraphicsTest-VST3-Info.plist"; path = "../resources/IGraphicsTest-VST3-Info.plist"; sourceTree = "<group>"; };
 		4F3FB118202273A500622761 /* IGraphicsTest-macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "IGraphicsTest-macOS.entitlements"; sourceTree = "<group>"; };
 		4F4237201FC852FE0067D58C /* IPlugConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugConstants.h; path = ../../../IPlug/IPlugConstants.h; sourceTree = "<group>"; };
 		4F4237231FC863060067D58C /* IPlugUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugUtilities.h; path = ../../../IPlug/IPlugUtilities.h; sourceTree = "<group>"; };
-		4F4CC3811549B8A700A9EA21 /* IGraphicsTest-AAX-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IGraphicsTest-AAX-Info.plist"; path = "../resources/IGraphicsTest-AAX-Info.plist"; sourceTree = "<group>"; };
 		4F5369BC20C446430089212E /* Easing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Easing.h; sourceTree = "<group>"; };
 		4F5369BD20C446430089212E /* NChanDelay.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NChanDelay.h; sourceTree = "<group>"; };
 		4F5369BF20C446430089212E /* IPlugOSC_msg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugOSC_msg.h; sourceTree = "<group>"; };
@@ -297,11 +292,6 @@
 				4FDA1E0E2012CDB30027C868 /* main.rc_mac_menu */,
 				4FDA1E102012CDB30027C868 /* resource.h */,
 				4F23BA1413B647E50097A67E /* IGraphicsTest-macOS-Info.plist */,
-				4F3907872013ED2F00DDA490 /* IGraphicsTest-macOS-AUv3-Info.plist */,
-				4F23BA1513B647E50097A67E /* IGraphicsTest-VST2-Info.plist */,
-				4F3E693A1409747300C4D749 /* IGraphicsTest-VST3-Info.plist */,
-				4F23BA1313B647E50097A67E /* IGraphicsTest-AU-Info.plist */,
-				4F4CC3811549B8A700A9EA21 /* IGraphicsTest-AAX-Info.plist */,
 				4FD290A8137C34D700CEBE7E /* IGraphicsTest.icns */,
 			);
 			name = Resources;

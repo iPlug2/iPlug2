@@ -13,10 +13,10 @@
 #define BUNDLE_MFR "AcmeInc"
 #define BUNDLE_DOMAIN "com"
 
-#define PLUG_CHANNEL_IO "0-2"
+#define PLUG_CHANNEL_IO "2-2"
 
 #define PLUG_LATENCY 0
-#define PLUG_IS_INSTRUMENT 1
+#define PLUG_IS_INSTRUMENT 0
 #define PLUG_IS_MFX 0
 #define PLUG_DOES_MIDI 1
 #define PLUG_DOES_STATE_CHUNKS 0

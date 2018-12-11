@@ -23,10 +23,7 @@ public:
   void OnReset() override;
   void OnParamChange(int paramIdx) override;
   FAUST_BLOCK(Faust1, mFaustProcessor, DSP_FILE, 1, 1);
-  
-  IGraphics* CreateGraphics() override;
-  void LayoutUI(IGraphics* pGraphics) override;
-  
+    
   void OnIdle() override;
 private:
   IVScopeControl<1>::IVScopeBallistics mScopeBallistics { kControlTagScope };

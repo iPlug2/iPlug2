@@ -12,6 +12,27 @@ IPlugFaustExample::IPlugFaustExample(IPlugInstanceInfo instanceInfo)
   mFaustProcessor.Init();
   mFaustProcessor.CompileCPP();
   mFaustProcessor.SetAutoRecompile(true);
+  
+  mMakeGraphicsFunc = [&]() {
+    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, 60, 1.);
+  };
+  
+  mLayoutFunc = [&](IGraphics* pGraphics) {
+    if(pGraphics->NControls())
+      return;
+    
+    IRECT b = pGraphics->GetBounds();
+    
+    pGraphics->AttachCornerResizer(kUIResizerScale);
+    pGraphics->LoadFont(ROBOTTO_FN);
+    
+    pGraphics->AttachPanelBackground(COLOR_BLACK);
+    pGraphics->AttachControl(new IVScopeControl<>(*this, b.GetPadded(-20)), kControlTagScope);
+    pGraphics->AttachControl(new IVButtonControl(*this, b.GetRECTFromTRHC(150, 20), [](IControl* pCaller)
+                                                 {
+                                                   OpenFaustEditorWindow(DSP_FILE);
+                                                 }, "Edit FAUST File"));
+  };
 }
 
 void IPlugFaustExample::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
@@ -28,29 +49,6 @@ void IPlugFaustExample::OnReset()
 void IPlugFaustExample::OnParamChange(int paramIdx)
 {
   mFaustProcessor.SetParameterValueNormalised(paramIdx, GetParam(paramIdx)->Value());
-}
-
-IGraphics* IPlugFaustExample::CreateGraphics()
-{
-  return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, 60, 1.);
-}
-
-void IPlugFaustExample::LayoutUI(IGraphics* pGraphics)
-{
-  if(pGraphics->NControls())
-    return;
-  
-  IRECT b = pGraphics->GetBounds();
-  
-  pGraphics->AttachCornerResizer(kUIResizerScale);
-  pGraphics->LoadFont(ROBOTTO_FN);
-  
-  pGraphics->AttachPanelBackground(COLOR_BLACK);
-  pGraphics->AttachControl(new IVScopeControl<>(*this, b.GetPadded(-20)), kControlTagScope);
-  pGraphics->AttachControl(new IVButtonControl(*this, b.GetRECTFromTRHC(150, 20), [](IControl* pCaller)
-                                               {
-                                                 OpenFaustEditorWindow(DSP_FILE);
-                                               }, "Edit FAUST File"));
 }
 
 void IPlugFaustExample::OnIdle()

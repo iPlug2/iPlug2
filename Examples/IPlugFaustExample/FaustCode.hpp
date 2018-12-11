@@ -107,11 +107,8 @@ class Faust1 : public dsp {
 	
 	int fSamplingFreq;
 	float fConst0;
-	float fConst1;
-	FAUSTFLOAT fVslider0;
 	float fRec1[2];
-	float fConst2;
-	float fRec2[2];
+	FAUSTFLOAT fVslider0;
 	
  public:
 	
@@ -180,9 +177,7 @@ class Faust1 : public dsp {
 	
 	virtual void instanceConstants(int samplingFreq) {
 		fSamplingFreq = samplingFreq;
-		fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSamplingFreq)));
-		fConst1 = (1000.0f / fConst0);
-		fConst2 = (100.0f / fConst0);
+		fConst0 = (100.0f / std::min<float>(192000.0f, std::max<float>(1.0f, float(fSamplingFreq))));
 		
 	}
 	
@@ -194,10 +189,6 @@ class Faust1 : public dsp {
 	virtual void instanceClear() {
 		for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) {
 			fRec1[l1] = 0.0f;
-			
-		}
-		for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) {
-			fRec2[l2] = 0.0f;
 			
 		}
 		
@@ -232,14 +223,12 @@ class Faust1 : public dsp {
 		FAUSTFLOAT* output0 = outputs[0];
 		FAUSTFLOAT* output1 = outputs[1];
 		float fSlow0 = float(fVslider0);
-		float fSlow1 = (fConst1 * fSlow0);
 		for (int i = 0; (i < count); i = (i + 1)) {
-			fRec1[0] = (fSlow1 + (fRec1[1] - std::floor((fSlow1 + fRec1[1]))));
-			output0[i] = FAUSTFLOAT(ftbl0Faust1SIG0[int((65536.0f * fRec1[0]))]);
-			fRec2[0] = (fConst2 + (fRec2[1] - std::floor((fConst2 + fRec2[1]))));
-			output1[i] = FAUSTFLOAT((fSlow0 * ftbl0Faust1SIG0[int((65536.0f * fRec2[0]))]));
+			fRec1[0] = (fConst0 + (fRec1[1] - std::floor((fConst0 + fRec1[1]))));
+			float fTemp0 = ftbl0Faust1SIG0[int((65536.0f * fRec1[0]))];
+			output0[i] = FAUSTFLOAT(fTemp0);
+			output1[i] = FAUSTFLOAT((fSlow0 * fTemp0));
 			fRec1[1] = fRec1[0];
-			fRec2[1] = fRec2[0];
 			
 		}
 		
