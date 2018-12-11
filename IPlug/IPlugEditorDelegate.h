@@ -230,18 +230,13 @@ public:
   /** @return Any scaling applied to the UI  */
   float GetEditorScale() const { return mEditorScale; }
   
-  /** @return Get the editor layout index (if used) */
-  int GetEditorLayout() const { return mEditorLayoutIdx; }
-  
 protected:
-  /** The width of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance.  */
+  /** The width of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist.  */
   int mEditorWidth = 0;
-  /** The height of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance.*/
+  /** The height of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist*/
   int mEditorHeight = 0;
-  /** Any scaling of the plug-in editor. Can be updated by resizing, exists here for persistance.*/
+  /** Any scaling of the plug-in editor. Can be updated by resizing, exists here for persistance, even if UI doesn't exist*/
   float mEditorScale = 1.f;
-  /* An index representing one of several UI layouts for the editor, if needed, exists here for persistance */
-  int mEditorLayoutIdx = 0;
   /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plug-in class implementation constructor */
   WDL_PtrList<IParam> mParams;
 };
