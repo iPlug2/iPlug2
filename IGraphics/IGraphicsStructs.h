@@ -189,7 +189,7 @@ private:
 struct ISVG
 {
   NSVGimage* mImage = nullptr;
-
+  
   ISVG(NSVGimage* pImage)
   {
     mImage = pImage;
@@ -1007,6 +1007,16 @@ struct IRECT
   IRECT GetShifted(float x, float y = 0.f) const
   {
     return IRECT(L + x, T + y, R + x, B + y);
+  }
+  
+  IRECT GetHShifted(float x) const
+  {
+    return GetShifted(x);
+  }
+  
+  IRECT GetVShifted(float y) const
+  {
+    return GetShifted(0., y);
   }
   
   IRECT GetShifted(float l, float t, float r, float b) const
