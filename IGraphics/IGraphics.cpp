@@ -127,7 +127,8 @@ void IGraphics::Resize(int w, int h, float scale)
   SetAllControlsDirty();
   DrawResize();
   
-  GetDelegate()->LayoutUI(this);
+  if(mLayoutOnResize)
+    GetDelegate()->LayoutUI(this);
 }
 
 void IGraphics::SetControlValueFromStringAfterPrompt(IControl& control, const char* str)
@@ -171,15 +172,16 @@ void IGraphics::AttachKeyCatcher(IControl* pControl)
   mKeyCatcher->SetGraphics(this);
 }
 
-void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode)
+void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize)
 {
-  AttachCornerResizer(new ICornerResizerBase(mDelegate, GetBounds(), 20), sizeMode);
+  AttachCornerResizer(new ICornerResizerBase(mDelegate, GetBounds(), 20), sizeMode, layoutOnResize);
 }
 
-void IGraphics::AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode sizeMode)
+void IGraphics::AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode sizeMode, bool layoutOnResize)
 {
-  mGUISizeMode = sizeMode;
   mCornerResizer = pControl;
+  mGUISizeMode = sizeMode;
+  mLayoutOnResize = layoutOnResize;
   mCornerResizer->SetGraphics(this);
 }
 
