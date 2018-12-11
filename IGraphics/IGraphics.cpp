@@ -193,7 +193,7 @@ void IGraphics::AttachPopupMenuControl(const IText& text, const IRECT& bounds)
 
 void IGraphics::AttachPerformanceDisplay()
 {
-  mPerfDisplay = new IPerfDisplayControl(mDelegate, GetBounds().GetPadded(-10).GetRECTFromTLHC(200, 50));
+  mPerfDisplay = new IPerfDisplayControl(mDelegate, GetBounds().GetPadded(-10).GetFromTLHC(200, 50));
   mPerfDisplay->SetGraphics(this);
 }
 
