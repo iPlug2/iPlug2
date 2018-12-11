@@ -22,7 +22,8 @@ class IGraphics;
 class IControl;
 struct IRECT;
 struct IMouseInfo;
-static double DegToRad(double deg);
+template <typename T = double>
+inline T DegToRad(T degrees);
 
 typedef std::function<void(IControl*)> IActionFunction;
 typedef std::function<void(IControl*)> IAnimationFunction;
