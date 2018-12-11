@@ -4,8 +4,6 @@
 #include "IPlugFaustGen.h"
 #include "IVScopeControl.h"
 
-#define DSP_FILE "/Users/oli/Dev/MyPlugins/Examples/IPlugFaustExample/IPlugFaustExample.dsp"
-
 enum EControlTags
 {
   kControlTagScope = 0,
