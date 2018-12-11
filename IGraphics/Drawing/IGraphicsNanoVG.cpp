@@ -590,3 +590,49 @@ void IGraphicsNanoVG::SetClipRegion(const IRECT& r)
   else
     nvgResetScissor(mVG);
 }
+
+void IGraphicsNanoVG::DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness, float dashLen)
+{
+  //TODO:
+}
+
+void IGraphicsNanoVG::DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness, float dashLen)
+{
+  const int xsegs = bounds.W() / (dashLen * 2.f);
+  const int ysegs = bounds.H() / (dashLen * 2.f);
+
+  float x1 = bounds.L;
+  float y1 = bounds.T;
+  
+  float x2 = x1;
+  float y2 = y1;
+  
+  PathMoveTo(x1, y1);
+
+  for(int j = 0; j < 2; j++)
+  {
+    for (int i = 0; i < xsegs; i++)
+    {
+      x2 = x1 + dashLen;
+      PathLineTo(x2, y2);
+      x1 = x2 + dashLen;
+      PathMoveTo(x1, y1);
+    }
+    
+    x2 = x1;
+    
+    for (int i = 0; i < ysegs; i++)
+    {
+      y2 = y1 + dashLen;
+      PathLineTo(x2, y2);
+      y1 = y2 + dashLen;
+      PathMoveTo(x1, y1);
+    }
+    
+    y2 = y1;
+    
+    dashLen = -dashLen;
+  }
+  
+  PathStroke(color, thickness, IStrokeOptions(), pBlend);
+}

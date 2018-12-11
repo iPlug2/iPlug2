@@ -123,7 +123,7 @@ void IGraphicsLice::DrawLine(const IColor& color, float x1, float y1, float x2, 
   LICE_FLine(mDrawBitmap, x1 * ds, y1 * ds, x2 * ds, y2 * ds, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
-void IGraphicsLice::DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness)
+void IGraphicsLice::DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness, float dashLen)
 {
   const float ds = GetDisplayScale();
   const int dash = 2 * ds;
@@ -181,13 +181,13 @@ void IGraphicsLice::DrawCircle(const IColor& color, float cx, float cy, float r,
   LICE_Circle(mDrawBitmap, cx * ds, cy * ds, r * ds, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
-void IGraphicsLice::DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float)
+void IGraphicsLice::DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness, float dashLen)
 {
   //TODO: review floating point input support
   const float ds = GetDisplayScale();
   IRECT r = bounds;
   r.Scale(ds);
-  const int dash = 2 * ds;
+  const int dash = dashLen * ds;
   LICE_DashedLine(mDrawBitmap, r.L, r.T, r.R, r.T, dash, dash, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
   LICE_DashedLine(mDrawBitmap, r.L, r.B, r.R, r.B, dash, dash, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
   LICE_DashedLine(mDrawBitmap, r.L, r.T, r.L, r.B, dash, dash, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);

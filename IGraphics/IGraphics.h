@@ -145,7 +145,7 @@ public:
    * @param y2 The Y coordinate in the graphics context of the end of the line
    * @param pBlend Optional blend method, see IBlend documentation
    * @param thickness Optional line thickness */
-  virtual void DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  virtual void DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend = 0, float thickness = 1.f, float dashLen = 2.f) = 0;
   
   /** Draw a triangle to the graphics context
    * @param color The color to draw the shape with
@@ -237,7 +237,7 @@ public:
    * @param bounds The rectangular region to draw the shape in
    * @param pBlend Optional blend method, see IBlend documentation
    * @param thickness Optional line thickness */
-  virtual void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  virtual void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0, float thickness = 1.f, float dashLen = 2.f) = 0;
 
   /** Fill a triangle in the graphics context with a color
    * @param color The color to fill the shape with

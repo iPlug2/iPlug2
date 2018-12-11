@@ -103,13 +103,12 @@ public:
     PathStroke(color, thickness, IStrokeOptions(), pBlend);
   }
   
-  void DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness) override
+  void DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness, float dashLen) override
   {
     PathClear();
     
-    float dashLength = 2;
     IStrokeOptions options;
-    options.mDash.SetDash(&dashLength, 0.0, 1);
+    options.mDash.SetDash(&dashLen, 0.0, 1);
     PathMoveTo(x1, y1);
     PathLineTo(x2, y2);
     PathStroke(color, thickness, options, pBlend);
@@ -164,12 +163,11 @@ public:
     PathStroke(color, thickness, IStrokeOptions(), pBlend);
   }
   
-  void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness) override
+  void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness, float dashLen) override
   {
     PathClear();
-    float dashLength = 2;
     IStrokeOptions options;
-    options.mDash.SetDash(&dashLength, 0.0, 1);
+    options.mDash.SetDash(&dashLen, 0., 1);
     PathRect(bounds);
     PathStroke(color, thickness, options, pBlend);
   }
