@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-BASE_LOCATION="$(dirname "$0")/../Build"
+BASE_LOCATION="$PWD/../Build"
 BUILD_LOCATION="$BASE_LOCATION/src"
 INSTALL_LOCATION="$BASE_LOCATION/mac"
 INCLUDE_PATH="$INSTALL_LOCATION/include"
