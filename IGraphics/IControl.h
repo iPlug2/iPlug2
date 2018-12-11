@@ -374,6 +374,8 @@ public:
 
   IAnimationFunction GetAnimationFunction() { return mAnimationFunc; }
   
+  IAnimationFunction GetActionFunction() { return mActionFunc; }
+
   double GetAnimationProgress()
   {
     if(!mAnimationFunc)
