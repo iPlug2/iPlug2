@@ -531,11 +531,11 @@ public:
   virtual void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") = 0;
 
   /** Create a platform file prompt dialog to choose a file/directory path for opening/saving a file/directory. NOTE: this method will block the main thread
-   * @param filename Non const WDL_String reference specifying the file name. Set this prior to calling the method for save dialogs, to provide a default file name. For load dialogs, on successful selection of a file this will get set to the file’s name.
+   * @param fileName Non const WDL_String reference specifying the file name. Set this prior to calling the method for save dialogs, to provide a default file name. For load dialogs, on successful selection of a file this will get set to the file’s name.
    * @param path WDL_String reference where the path will be put on success or empty string on failure/user cancelled
    * @param action Determines whether this is an open dialog or a save dialog
    * @param extensions A comma separated CString list of file extensions to filter in the dialog (e.g. “.wav, .aif” \todo check */
-  virtual void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action = kFileOpen, const char* extensions = 0) = 0;
+  virtual void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action = kFileOpen, const char* extensions = 0) = 0;
 
   /** Create a platform file prompt dialog to choose a directory path for opening/saving a directory. NOTE: this method will block the main thread
    * @param dir Non const WDL_String reference specifying the directory path. Set this prior to calling the method for save dialogs, to provide a default path. For load dialogs, on successful selection of a directory this will get set to the full path. */
@@ -586,15 +586,15 @@ public:
    * @param y the y position to convert */
   virtual void ClientToScreen(float& x, float& y) {};
 
-  /** Find the full, absolute path of a resource based on it's filename (e.g. “background.png”) and type (e.g. “PNG”)
+  /** Find the full, absolute path of a resource based on it's file name (e.g. “background.png”) and type (e.g. “PNG”)
    * On macOS resources are usually included inside the bundle resources folder. In that case you provide a filename and this method will return the absolute path to the resource. In some cases you may want to provide an absolute path to a file in a shared resources folder here (for example if you want to reduce the disk footprint of multiple bundles, such as when you have multiple plug-in formats installed).
-   * On Windows resources are usually baked into the binary via the resource compiler. In this case the filename argument is the resource id. The .rc file must include these ids, otherwise you may hit a runtime assertion. It is also possible to pass in an absolute path in order to share resources between binaries.
+   * On Windows resources are usually baked into the binary via the resource compiler. In this case the fileName argument is the resource id. The .rc file must include these ids, otherwise you may hit a runtime assertion. It is also possible to pass in an absolute path in order to share resources between binaries.
    * Behind the scenes this method will make sure resources are loaded statically in memory.
-   * @param filename The resource filename including extension. If no resource is found the method will then check filename as if it is an absolute path.
+   * @param filename The resource filename including extension. If no resource is found the method will then check fileName as if it is an absolute path.
    * @param type \todo
    * @param result WDL_String which will contain the full path of the resource of success
    * @return \c true on success */
-  virtual bool OSFindResource(const char* filename, const char* type, WDL_String& result) = 0;
+  virtual bool OSFindResource(const char* fileName, const char* type, WDL_String& result) = 0;
 
 #pragma mark - IGraphics base implementation
   IGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.);
@@ -694,8 +694,8 @@ public:
   IGEditorDelegate* GetDelegate() { return &mDelegate; }
 
   /** Attach an IBitmapControl as the lowest IControl in the control stack to be the background for the graphics context
-   * @param filename CString filename resource id for the bitmap image \todo check this */
-  void AttachBackground(const char* filename);
+   * @param fileName CString fileName resource id for the bitmap image \todo check this */
+  void AttachBackground(const char* fileName);
 
   /** Attach an IPanelControl as the lowest IControl in the control stack to fill the background with a solid color
    * @param color The color to fill the panel with */
