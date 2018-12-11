@@ -139,7 +139,7 @@ void IGEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
 void IGEditorDelegate::AttachGraphics(IGraphics* pGraphics)
 {
   assert(mGraphics == nullptr); // protect against calling AttachGraphics() when mGraphics allready exists
-         
+
   mGraphics = pGraphics;
   mIGraphicsTransient = false;
 }

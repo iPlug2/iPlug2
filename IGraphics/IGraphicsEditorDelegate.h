@@ -36,14 +36,27 @@ public:
   void AttachGraphics(IGraphics* pGraphics);
   
   /** Only override this method if you want to create IGraphics on demand (when UI window opens)! Implementation should return result of MakeGraphics() */
-  virtual IGraphics* CreateGraphics() { return nullptr; }
+  virtual IGraphics* CreateGraphics()
+  {
+    if(mMakeGraphicsFunc)
+      return mMakeGraphicsFunc();
+    else
+      return nullptr;
+  }
   
   /** Only override this method if you want to create IGraphics on demand (when UI window opens), or layout controls differently for different UI sizes */
-  virtual void LayoutUI(IGraphics* pGraphics) {};
+  virtual void LayoutUI(IGraphics* pGraphics)
+  {
+    if(mLayoutFunc)
+      mLayoutFunc(pGraphics);
+  }
   
   /** Get a pointer to the IGraphics context */
   IGraphics* GetUI() { return mGraphics; };
   
+protected:
+  std::function<IGraphics*()> mMakeGraphicsFunc = nullptr;
+  std::function<void(IGraphics* pGraphics)> mLayoutFunc = nullptr;
 private:
   IGraphics* mGraphics = nullptr;
   bool mIGraphicsTransient = false; // If creating IGraphics on demand this will be true
