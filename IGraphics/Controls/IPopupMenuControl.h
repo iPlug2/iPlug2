@@ -90,7 +90,11 @@ public:
   /** This is called by the IGraphics class when a context menu is being created (a special popup that certain plug-in formats (e.g. VST3) may append to)  */
   void SetMenuIsContextMenu(bool isContextMenu) { mIsContextMenu = isContextMenu; }
   
+  /** Force the menu to open with a specific bounds - useful on small screens for making it modal.*/
   void SetExpandedBounds(const IRECT& bounds) { mSpecifiedExpandedBounds = bounds; }
+  
+  /** Set if the menu is shifted away from where the control is created with a callout arrow (for fat fingers on touchscreens) */
+  void SetCallout(bool callout) { mCallOut = callout; }
   
 private:
   /** Get an IRECT represents the maximum dimensions of the longest text item in the menu */

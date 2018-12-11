@@ -691,14 +691,16 @@ IPopupMenuControl::MenuPanel::MenuPanel(IPopupMenuControl& control, const IRECT&
     //FIXME: this shift is not quite working
   }
   
-  //    if (mSpecifiedExpandedBounds.W())
-  //    {
-  //      mTargetRECT = mSpecifiedExpandedBounds.GetPadded(mPadding); // pad the unioned cell rects)
-  //      mRECT = mSpecifiedExpandedBounds.GetPadded(mDropShadowSize + mPadding);
-  //    }
-  
-  mTargetRECT = span.GetPadded(control.PAD); // pad the unioned cell rects)
-  mRECT = span.GetPadded(control.mDropShadowSize + control.PAD);
+  if (control.mSpecifiedExpandedBounds.W())
+  {
+    mTargetRECT = control.mSpecifiedExpandedBounds.GetPadded(control.PAD); // pad the unioned cell rects)
+    mRECT = control.mSpecifiedExpandedBounds.GetPadded(control.mDropShadowSize + control.PAD);
+  }
+  else
+  {
+    mTargetRECT = span.GetPadded(control.PAD); // pad the unioned cell rects)
+    mRECT = span.GetPadded(control.mDropShadowSize + control.PAD);
+  }
 }
 
 IPopupMenuControl::MenuPanel::~MenuPanel()

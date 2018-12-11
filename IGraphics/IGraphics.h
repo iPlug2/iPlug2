@@ -719,7 +719,7 @@ public:
 
   /** Attach a control for pop-up menus, to override platform style menus
    * @param pControl A control that inherits from IPopupMenuControl */
-  void AttachPopupMenuControl(IText text = DEFAULT_TEXT);
+  void AttachPopupMenuControl(const IText& text = DEFAULT_TEXT, const IRECT& bounds = IRECT());
   
   void AttachPerformanceDisplay();
   
@@ -927,7 +927,9 @@ public:
 
   /** @param fileName The name of the font to load */
   virtual void LoadFont(const char* fileName) {};
-    
+  
+  IPopupMenuControl* GetPopupMenuControl() { return mPopupControl; }
+
 protected:
   virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;
   //virtual void* CreateAPIBitmap(int w, int h) = 0;
