@@ -231,7 +231,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 //
 //  mLLVMFactory = createDSPFactoryFromString("default", DEFAULT_SOURCE_CODE, N + 2, argv, getTarget(), error, 0);
 #else
-  mSourceCodeStr.SetFormatted(256, DEFAULT_SOURCE_CODE_FMT_STR, maxOutputs);
+  mSourceCodeStr.SetFormatted(256, maxInputs == 0 ? DEFAULT_SOURCE_CODE_FMT_STR_INSTRUMENT : DEFAULT_SOURCE_CODE_FMT_STR_FX, maxOutputs);
   mLLVMFactory = createDSPFactoryFromString("default", mSourceCodeStr.Get(), 0, 0, GetLLVMArchStr(), error, 0);
 #endif
 

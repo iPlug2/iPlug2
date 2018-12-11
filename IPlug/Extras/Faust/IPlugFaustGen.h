@@ -74,7 +74,9 @@ static inline Time TimeZero() { return (Time) 0; }
 #include <libgen.h>
 #endif
 
-#define DEFAULT_SOURCE_CODE_FMT_STR "import(\"stdfaust.lib\");\nprocess=par(i,%i,_);"
+#define DEFAULT_SOURCE_CODE_FMT_STR_FX "import(\"stdfaust.lib\");\nprocess=par(i,%i,_);"
+#define DEFAULT_SOURCE_CODE_FMT_STR_INSTRUMENT "import(\"stdfaust.lib\");\nprocess=par(i,%i,0);"
+
 #define FAUSTGEN_VERSION "1.19"
 #define LLVM_OPTIMIZATION -1  // means 'maximum'
 

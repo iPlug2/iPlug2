@@ -1,12 +1,15 @@
 #include "IPlugFaustExample.h"
 #include "IPlug_include_in_plug_src.h"
+#include "IPlugFaust_edit.h"
+#include "IControls.h"
 
 IPlugFaustExample::IPlugFaustExample(IPlugInstanceInfo instanceInfo)
-: IPLUG_CTOR(1, 1, instanceInfo)
+: IPLUG_CTOR(kNumParams, 1, instanceInfo)
 {
-  GetParam(0)->InitDouble("Gain", 100., 0., 100.0, 0.01, "%");
+  InitParamRange(0, kNumParams-1, 0, "Param %i", 0., 0., 1., 0.01, "", IParam::kFlagsNone);
   
-  mFaustProcessor.SetMaxChannelCount(0, 2);
+  mFaustProcessor.SetMaxChannelCount(MaxNChannels(kInput), MaxNChannels(kOutput));
+  mFaustProcessor.Init();
   mFaustProcessor.CompileCPP();
   mFaustProcessor.SetAutoRecompile(true);
 }
@@ -14,6 +17,7 @@ IPlugFaustExample::IPlugFaustExample(IPlugInstanceInfo instanceInfo)
 void IPlugFaustExample::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
   mFaustProcessor.ProcessBlock(inputs, outputs, nFrames);
+  mScopeBallistics.ProcessBlock(outputs, nFrames);
 }
 
 void IPlugFaustExample::OnReset()
@@ -23,9 +27,33 @@ void IPlugFaustExample::OnReset()
 
 void IPlugFaustExample::OnParamChange(int paramIdx)
 {
-  switch (paramIdx)
-  {
-    case 0: mFaustProcessor.SetParameterValueNormalised(paramIdx, GetParam(paramIdx)->Value() / 100.); break;
-    default: break;
-  }
+  mFaustProcessor.SetParameterValueNormalised(paramIdx, GetParam(paramIdx)->Value());
+}
+
+IGraphics* IPlugFaustExample::CreateGraphics()
+{
+  return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, 60, 1.);
+}
+
+void IPlugFaustExample::LayoutUI(IGraphics* pGraphics)
+{
+  if(pGraphics->NControls())
+    return;
+  
+  IRECT b = pGraphics->GetBounds();
+  
+  pGraphics->AttachCornerResizer(kUIResizerScale);
+  pGraphics->LoadFont(ROBOTTO_FN);
+  
+  pGraphics->AttachPanelBackground(COLOR_BLACK);
+  pGraphics->AttachControl(new IVScopeControl<>(*this, b.GetPadded(-20)), kControlTagScope);
+  pGraphics->AttachControl(new IVButtonControl(*this, b.GetRECTFromTRHC(150, 20), [](IControl* pCaller)
+                                               {
+                                                 OpenFaustEditorWindow(DSP_FILE);
+                                               }, "Edit FAUST File"));
+}
+
+void IPlugFaustExample::OnIdle()
+{
+  mScopeBallistics.TransmitData(*this);
 }
