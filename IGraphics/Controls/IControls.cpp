@@ -2,13 +2,13 @@
 
 #pragma mark - VECTOR CONTROLS
 
-IVButtonControl::IVButtonControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc, const char* str, const IVColorSpec& colorSpec)
+IVButtonControl::IVButtonControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc, const char* str, const IText& text, const IVColorSpec& colorSpec)
 : IButtonControlBase(dlg, bounds, actionFunc)
 , IVectorBase(colorSpec)
 {
   AttachIControl(this);
   mDblAsSingleClick = true;
-  mText.mSize = 20; //FIXME: text size
+  mText = text;
   mStr.Set(str);
 }
 
