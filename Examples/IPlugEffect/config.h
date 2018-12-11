@@ -47,8 +47,4 @@
 #define APP_COPY_AUV3 0
 #define APP_RESIZABLE 0
 
-#define PNGKNOB_FN "knob.png"
-#define PNGKNOBROTATE_FN "knob-rotate.png"
-#define SVGKNOB_FN "BefacoBigKnob.svg"
-#define TIGER_FN "23.svg"
 #define ROBOTTO_FN "Roboto-Regular.ttf"

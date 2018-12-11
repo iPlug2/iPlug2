@@ -37,9 +37,6 @@ DEBUG_OPTIMIZE = 0 //0,1,2,3,s
 //------------------------------
 // MISCELLANEOUS COMPILER OPTIONS
 
-//ARCHS = $(ARCHS_STANDARD_32_64_BIT)
-ARCHS = $(ARCHS_STANDARD_64_BIT)
-
 GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO
 
 // Uncomment to enable relaxed IEEE compliance
