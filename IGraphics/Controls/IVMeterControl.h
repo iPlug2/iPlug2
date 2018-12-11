@@ -20,7 +20,7 @@ public:
 
       float sum = 0.f;
       
-      for(auto i = 0; i < MAXNC; i++)
+      for(int i = 0; i < MAXNC; i++)
       {
         sum += vals[i];
       }

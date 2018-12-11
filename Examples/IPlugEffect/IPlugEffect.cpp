@@ -13,6 +13,7 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
   };
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
+    pGraphics->AttachCornerResizer(kUIResizerScale, false);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->LoadFont(ROBOTTO_FN);
     const IRECT b = pGraphics->GetBounds();
@@ -28,8 +29,8 @@ void IPlugEffect::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   const double gain = GetParam(kGain)->Value() / 100.;
   const int nChans = NOutChansConnected();
   
-  for (auto s = 0; s < nFrames; s++) {
-    for (auto c = 0; c < nChans; c++) {
+  for (int s = 0; s < nFrames; s++) {
+    for (int c = 0; c < nChans; c++) {
       outputs[c][s] = inputs[c][s] * gain;
     }
   }

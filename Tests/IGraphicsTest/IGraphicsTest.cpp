@@ -29,7 +29,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
       return;
     }
     
-    pGraphics->AttachCornerResizer(EUIResizerMode::kUIResizerSize);
+    pGraphics->AttachCornerResizer(EUIResizerMode::kUIResizerSize, true);
     pGraphics->HandleMouseOver(true);
     //  pGraphics->EnableLiveEdit(true);
     //pGraphics->HandleMouseOver(true);
@@ -64,15 +64,14 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
       //    g.DrawRoundRect(COLOR_BLUE, r, cornerSize, nullptr, width);
     }, 1000, false));
     
-    //  pGraphics->AttachControl(new TestGradientControl(*this, nextCell()));
-    //  pGraphics->AttachControl(new TestPolyControl(*this, nextCell()));
-    //  pGraphics->AttachControl(new TestArcControl(*this, nextCell()));
-    //  pGraphics->AttachControl(new TestMultiPathControl(*this, nextCell()));
-    //  pGraphics->AttachControl(new TestTextControl(*this, nextCell()));
-    //  pGraphics->AttachControl(new TestAnimationControl(*this, nextCell()));
-    //  pGraphics->AttachControl(new TestDrawContextControl(*this, nextCell()));
-    pGraphics->AttachControl(new TestSVGControl(*this, nextCell()));
-    
+    pGraphics->AttachControl(new TestGradientControl(*this, nextCell()));
+    pGraphics->AttachControl(new TestPolyControl(*this, nextCell()));
+    pGraphics->AttachControl(new TestArcControl(*this, nextCell()));
+    pGraphics->AttachControl(new TestMultiPathControl(*this, nextCell()));
+    pGraphics->AttachControl(new TestTextControl(*this, nextCell()));
+    pGraphics->AttachControl(new TestAnimationControl(*this, nextCell()));
+    pGraphics->AttachControl(new TestDrawContextControl(*this, nextCell()));
+//    pGraphics->AttachControl(new TestSVGControl(*this, nextCell()));
     pGraphics->AttachControl(new TestSizeControl(*this, bounds), kSizeControl);
     
     
