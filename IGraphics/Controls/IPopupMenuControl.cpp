@@ -234,11 +234,17 @@ void IPopupMenuControl::OnMouseWheel(float x, float y, const IMouseMod& mod, flo
 void IPopupMenuControl::DrawCalloutArrow(IGraphics& g, const IRECT& bounds, IBlend* pBlend)
 {
   switch (mCalloutArrowDir) {
+    case kNorth:
+      g.FillTriangle(COLOR_WHITE, bounds.MW(), bounds.T, bounds.L, bounds.B, bounds.R, bounds.B, pBlend);
+      break;
     case kEast:
       g.FillTriangle(COLOR_WHITE, bounds.L, bounds.MH(), bounds.R, bounds.T, bounds.R, bounds.B, pBlend);
       break;
-    case kNorth:
-      g.FillTriangle(COLOR_WHITE, bounds.MW(), bounds.T, bounds.L, bounds.B, bounds.R, bounds.B, pBlend);
+    case kSouth:
+      g.FillTriangle(COLOR_WHITE, bounds.MW(), bounds.B, bounds.L, bounds.T, bounds.R, bounds.T, pBlend);
+      break;
+    case kWest:
+      g.FillTriangle(COLOR_WHITE, bounds.R, bounds.MH(), bounds.L, bounds.T, bounds.L, bounds.B, pBlend);
       break;
     default:
       break;
@@ -612,8 +618,8 @@ IPopupMenuControl::MenuPanel::MenuPanel(IPopupMenuControl& control, const IRECT&
         
         if(menu.NItems() < mScrollMaxRows)
         {
-//          top = maxTop; // FIXME: menus that will go off the bottom, but have fewer rows than mScrollMaxRows, should not start at the top of the screen
-            top = (y + control.PAD + CellHeight()) - (menu.NItems() * CellHeight());
+          top = (y + control.PAD + CellHeight()) - (menu.NItems() * CellHeight());
+          
           for (auto r = 0; r < menu.NItems(); r++)
           {
             GetIncrements(menu.GetItem(r), toAddX, toAddY);
@@ -672,12 +678,28 @@ IPopupMenuControl::MenuPanel::MenuPanel(IPopupMenuControl& control, const IRECT&
   // check if it's gone off the right hand side
   if(span.R > maxR)
   {
-    const float shiftLeft = span.R-maxR;
-    
-    // shift all cell rects left
-    for(auto i = 0; i < mCellBounds.GetSize(); i++)
+    if(control.mCallOut)
     {
-      mCellBounds.Get(i)->Shift(-shiftLeft, 0, -shiftLeft, 0);
+      const float newRight = control.mOriginalBounds.L - control.CALLOUT_SPACE - control.PAD;
+      const float shiftLeft = span.R-newRight;
+
+      for(auto i = 0; i < mCellBounds.GetSize(); i++)
+      {
+        mCellBounds.Get(i)->Shift(-shiftLeft);
+      }
+      
+      control.mCalloutArrowDir = kWest;
+      control.mCalloutArrowBounds = IRECT(control.mOriginalBounds.L - control.CALLOUT_SPACE, control.mOriginalBounds.MH() - control.CALLOUT_SPACE, control.mOriginalBounds.L, control.mOriginalBounds.MH() + control.CALLOUT_SPACE);
+    }
+    else
+    {
+      const float shiftLeft = span.R-maxR;
+
+      // shift all cell rects left
+      for(auto i = 0; i < mCellBounds.GetSize(); i++)
+      {
+        mCellBounds.Get(i)->Shift(-shiftLeft, 0, -shiftLeft, 0);
+      }
     }
     
     // recalculate span
