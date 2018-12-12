@@ -260,10 +260,10 @@ struct IColor
   
   static void LinearInterpolateBetween(const IColor& start, const IColor& dest, IColor& result, float progress)
   {
-    result.A = start.A + progress * (dest.A -  start.A);
-    result.R = start.R + progress * (dest.R -  start.R);
-    result.G = start.G + progress * (dest.G -  start.G);
-    result.B = start.B + progress * (dest.B -  start.B);
+    result.A = start.A + static_cast<int>(progress * static_cast<float>(dest.A -  start.A));
+    result.R = start.R + static_cast<int>(progress * static_cast<float>(dest.R -  start.R));
+    result.G = start.G + static_cast<int>(progress * static_cast<float>(dest.G -  start.G));
+    result.B = start.B + static_cast<int>(progress * static_cast<float>(dest.B -  start.B));
   }
 };
 
