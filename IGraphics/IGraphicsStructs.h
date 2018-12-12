@@ -960,10 +960,10 @@ struct IRECT
   
   static void LinearInterpolateBetween(const IRECT& start, const IRECT& dest, IRECT& result, float progress)
   {
-    result.L = start.L + progress * (dest.L -  start.L);
-    result.T = start.T + progress * (dest.T -  start.T);
-    result.R = start.R + progress * (dest.R -  start.R);
-    result.B = start.B + progress * (dest.B -  start.B);
+    result.L = start.L + static_cast<int>(progress * static_cast<float>(dest.L -  start.L);
+    result.T = start.T + static_cast<int>(progress * static_cast<float>(dest.T -  start.T);
+    result.R = start.R + static_cast<int>(progress * static_cast<float>(dest.R -  start.R);
+    result.B = start.B + static_cast<int>(progress * static_cast<float>(dest.B -  start.B);
   }
 
   IRECT GetScaled(float scale) const
