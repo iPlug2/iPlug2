@@ -18,11 +18,6 @@ void IGEditorDelegate::OnUIOpen()
   GetUI()->Resize(GetEditorWidth(), GetEditorHeight(), GetEditorScale());
 }
 
-IGraphics* IGEditorDelegate::GetUI()
-{
-  return mGraphics;
-}
-
 void IGEditorDelegate::OnRestoreState()
 {
   if (mGraphics)
