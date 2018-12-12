@@ -166,6 +166,8 @@ IDI_ICON1               ICON                    "IPlugControls.ico"
 //
 #include "..\config.h"
 ROBOTTO_FN TTF ROBOTTO_FN
+PNGKNOB_FN PNG PNGKNOB_FN
+PNGKNOBROTATE_FN PNG PNGKNOBROTATE_FN
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 
