@@ -316,6 +316,9 @@ void IGraphics::SetAllControlsClean()
   {
    (*ppControl)->SetClean();
   }
+  
+  if(mCornerResizer)
+    mCornerResizer->SetClean();
 }
 
 void IGraphics::AssignParamNameToolTips()
@@ -574,6 +577,12 @@ bool IGraphics::IsDirty(IRECTList& rects)
   if (mPerfDisplay)
   {
     rects.Add(mPerfDisplay->GetRECT());
+    dirty = true;
+  }
+  
+  if(mCornerResizer && mCornerResizer->IsDirty())
+  {
+    rects.Add(mCornerResizer->GetRECT());
     dirty = true;
   }
   
@@ -870,17 +879,21 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
   else if(mCornerResizer)
   {
     static bool inCornerResizer = false;
+    
     if(mCornerResizer->GetRECT().Contains(x, y))
     {
       inCornerResizer = true;
       mCornerResizer->OnMouseOver(x, y, mod);
     }
-    else {
-      if(inCornerResizer) {
+    else
+    {
+      if(inCornerResizer)
+      {
         mCornerResizer->OnMouseOut();
         inCornerResizer = false;
       }
     }
+    return true;
   }
 
   if (mHandleMouseOver)
