@@ -63,6 +63,10 @@ bool IPlugAPPHost::Init ()
   ProbeMidiIO(); // find out what midi IO devs are available and put their names in the global variables gMidiInputDevs / gMidiOutputDevs
   SelectMIDIDevice(ERoute::kInput, mState.mMidiInDev.Get());
   SelectMIDIDevice(ERoute::kOutput, mState.mMidiOutDev.Get());
+  
+  mIPlug->OnParamReset(kReset);
+  mIPlug->OnActivate(true);
+  
   return true;
 }
 
