@@ -7,46 +7,33 @@
 
 // Thanks to Olli Wang for much of this macro magic  https://github.com/ollix/moui
 
-//#if !defined IGRAPHICS_GL && !defined IGRAPHICS_METAL
-//  #if defined OS_MAC || defined OS_IOS
-//    #define IGRAPHICS_METAL
-//  #elif defined OS_WIN
-//    #define IGRAPHICS_GL
-//    #define IGRAPHICS_GL2
-//  #elif defined OS_WIN
-//    #error NOT IMPLEMENTED
-//  #elif defined OS_WEB
-//    #define IGRAPHICS_GL
-//    #define IGRAPHICS_GLES2
-//  #endif
-//#endif
-
-#ifdef IGRAPHICS_GL
-  #if defined IGRAPHICS_GLES2
-    #if defined OS_IOS
-      #include <OpenGLES/ES2/gl.h>
-    #elif defined OS_WEB
-      #include <GLES2/gl2.h>
-    #endif
-  #elif defined IGRAPHICS_GLES3
-    #if defined OS_IOS
-      #include <OpenGLES/ES3/gl.h>
-    #elif defined OS_WEB
-      #include <GLES3/gl3.h>
-    #endif
-  #elif defined IGRAPHICS_GL2
-    #if defined OS_WIN
-      #define NANOVG_FBO_VALID 1
-      #include <glad/glad.h>
-    #else
-      #include <OpenGL/gl.h>
-    #endif
+#if defined IGRAPHICS_GLES2
+  #define IGRAPHICS_GL
+  #if defined OS_IOS
+    #include <OpenGLES/ES2/gl.h>
+  #elif defined OS_WEB
+    #include <GLES2/gl2.h>
   #endif
+#elif defined IGRAPHICS_GLES3
+  #define IGRAPHICS_GL
+  #if defined OS_IOS
+    #include <OpenGLES/ES3/gl.h>
+  #elif defined OS_WEB
+    #include <GLES3/gl3.h>
+  #endif
+#elif defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
+  #define IGRAPHICS_GL
+  #if defined OS_WIN
+    #include <glad/glad.h>
+  #else
+    #include <OpenGL/gl.h>
+  #endif
+  #define NANOVG_FBO_VALID 1
   #include "nanovg_gl_utils.h"
 #elif defined IGRAPHICS_METAL
   #include "nanovg_mtl.h"
 #else
-  #error you must define either IGRAPHICS_GL or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
+  #error you must define either IGRAPHICS_GL2, IGRAPHICS_GLES2 etc or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
 #endif
 
 #if defined IGRAPHICS_GL2
@@ -73,16 +60,13 @@
   #define nvgDeleteFramebuffer(fb) mnvgDeleteFramebuffer(fb)
 #endif
 
-#ifdef IGRAPHICS_GL
+#if defined IGRAPHICS_GL
   #define nvgBindFramebuffer(fb) nvgluBindFramebuffer(fb)
   #define nvgCreateFramebuffer(ctx, w, h, flags) nvgluCreateFramebuffer(ctx, w, h, flags)
   #define nvgDeleteFramebuffer(fb) nvgluDeleteFramebuffer(fb)
-#endif
-
-#if defined IGRAPHICS_GL
-typedef NVGLUframebuffer NVGframebuffer;
+  typedef NVGLUframebuffer NVGframebuffer;
 #elif defined IGRAPHICS_METAL
-typedef MNVGframebuffer NVGframebuffer;
+  typedef MNVGframebuffer NVGframebuffer;
 #endif
 
 class NanoVGBitmap : public APIBitmap

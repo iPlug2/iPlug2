@@ -4,14 +4,13 @@
 
 #if defined IGRAPHICS_GL
   #if defined OS_MAC
-//    #if defined IGRAPHICS_GL2
-//      #define NANOVG_GL2_IMPLEMENTATION
-//    #elif defined IGRAPHICS_GL3
-//      #define NANOVG_GL3_IMPLEMENTATION
-//    #else
-//      #error Define either IGRAPHICS_GL2 or IGRAPHICS_GL3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with OS_MAC
-//    #endif
-    #error NOT IMPLEMENTED
+    #if defined IGRAPHICS_GL2
+      #define NANOVG_GL2_IMPLEMENTATION
+    #elif defined IGRAPHICS_GL3
+      #define NANOVG_GL3_IMPLEMENTATION
+    #else
+      #error Define either IGRAPHICS_GL2 or IGRAPHICS_GL3 for IGRAPHICS_NANOVG with OS_MAC
+    #endif
   #elif defined OS_IOS
 //    #if defined IGRAPHICS_GLES2
 //      #include <OpenGLES/ES2/gl.h>
@@ -58,7 +57,7 @@
     #error NOT IMPLEMENTED
   #endif
 #else
-  #error you must define either IGRAPHICS_GL or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
+  #error you must define either IGRAPHICS_GL2, IGRAPHICS_GLES2 etc or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
 #endif
 
 #ifdef OS_WIN
