@@ -232,6 +232,11 @@ void IPluginBase::ForParamInGroup(const char* paramGroup, std::function<void (in
   }
 }
 
+void IPluginBase::DefaultParamValues()
+{
+  DefaultParamValues(0, NParams()-1);
+}
+
 void IPluginBase::DefaultParamValues(int startIdx, int endIdx)
 {
   ForParamInRange(startIdx, endIdx, [](int paramIdx, IParam& param) {
@@ -245,6 +250,12 @@ void IPluginBase::DefaultParamValues(const char* paramGroup)
                       param.SetToDefault();
                     });
 }
+
+void IPluginBase::RandomiseParamValues()
+{
+  RandomiseParamValues(0, NParams()-1);
+}
+
 
 void IPluginBase::RandomiseParamValues(int startIdx, int endIdx)
 {
@@ -266,6 +277,14 @@ void IPluginBase::RandomiseParamValues(const char *paramGroup)
   ForParamInGroup(paramGroup, [&gen, &dis](int paramIdx, IParam& param) {
                       param.SetNormalized(dis(gen));
                     });
+}
+
+void IPluginBase::PrintParamValues()
+{
+  ForParamInRange(0, NParams()-1, [](int paramIdx, IParam& param) {
+    param.PrintDetails();
+    DBGMSG("\n");
+  });
 }
 
 #ifndef NO_PRESETS

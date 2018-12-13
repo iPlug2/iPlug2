@@ -187,7 +187,7 @@ public:
   bool GetMeta() const { return mFlags & kFlagMeta; }
 
   void GetJSON(WDL_String& json, int idx) const;
-
+  void PrintDetails() const;
 private:
   struct DisplayText
   {

@@ -397,3 +397,8 @@ void IParam::GetJSON(WDL_String& json, int idx) const
   json.AppendFormatted(8192, "\"rate\":\"control\"");
   json.AppendFormatted(8192, "}");
 }
+
+void IParam::PrintDetails() const
+{
+  DBGMSG("%s %f", GetNameForHost(), Value());
+}
