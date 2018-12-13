@@ -884,6 +884,7 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
     {
       inCornerResizer = true;
       mCornerResizer->OnMouseOver(x, y, mod);
+      return true;
     }
     else
     {
@@ -891,9 +892,9 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
       {
         mCornerResizer->OnMouseOut();
         inCornerResizer = false;
+        return true;
       }
     }
-    return true;
   }
 
   if (mHandleMouseOver)
