@@ -9,6 +9,7 @@ public:
   : IKnobControlBase(dlg, rect, paramIdx)
   , mShape(0)
   {
+    Clamp(0.5, 1.);
   }
 
   void Draw(IGraphics& g) override
