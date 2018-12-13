@@ -18,15 +18,17 @@ IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
   };
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
-    IRECT b = pGraphics->GetBounds();
+    IRECT b = pGraphics->GetBounds().GetPadded(-20);
     
     pGraphics->AttachCornerResizer(kUIResizerScale);
     pGraphics->LoadFont(ROBOTTO_FN);
     
     pGraphics->AttachPanelBackground(COLOR_BLACK);
-    pGraphics->AttachControl(new IVScopeControl<>(*this, b.GetPadded(-20)), kControlTagScope);
-    pGraphics->AttachControl(new IVButtonControl(*this, b.GetRECTFromTRHC(150, 20), [](IControl* pCaller)
+    pGraphics->AttachControl(new IVScopeControl<>(*this, b.GetReducedFromTop(50)), kControlTagScope);
+    pGraphics->AttachControl(new IVButtonControl(*this, b.GetFromTRHC(150, 30), [](IControl* pCaller)
                                                  {
+                                                   FlashCircleClickActionFunc(pCaller);
+
                                                    OpenFaustEditorWindow(DSP_FILE);
                                                  }, "Edit FAUST File"));
   };

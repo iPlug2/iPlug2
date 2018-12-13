@@ -16,17 +16,13 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
   mLayoutFunc = [&](IGraphics* pGraphics) {
     if(pGraphics->NControls())
     {
-      IRECT bounds = pGraphics->GetBounds();
-      pGraphics->GetControl(0)->SetRECT(bounds);
-      
-      IRECT kbrect = bounds.SubRectVertical(3, 2).GetPadded(-5.);
-      pGraphics->GetControl(pGraphics->NControls()-1)->SetRECT(kbrect);
+      //Could handle new layout here
       return;
     }
     
 //    pGraphics->EnableLiveEdit(true);
     pGraphics->HandleMouseOver(true);
-    pGraphics->AttachCornerResizer(kUIResizerScale);
+    pGraphics->AttachCornerResizer(kUIResizerScale, true);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     
     IRECT b = pGraphics->GetBounds().GetPadded(-5);
@@ -57,7 +53,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     auto button1action = [](IControl* pCaller) {
       FlashCircleClickActionFunc(pCaller);
       
-      DBGMSG("%i\n", pCaller->GetUI()->ShowMessageBox("Str", "Caption", MB_YESNOCANCEL));
+      DBGMSG("%i\n", pCaller->GetUI()->ShowMessageBox("Str", "Caption", MB_YESNO));
     };
     
     auto button2action = [](IControl* pCaller) {

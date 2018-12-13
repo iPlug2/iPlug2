@@ -29,10 +29,9 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
       return;
     }
     
-    pGraphics->AttachCornerResizer(EUIResizerMode::kUIResizerSize, true);
+    pGraphics->AttachCornerResizer(EUIResizerMode::kUIResizerScale, true);
     pGraphics->HandleMouseOver(true);
     //  pGraphics->EnableLiveEdit(true);
-    //pGraphics->HandleMouseOver(true);
     //  pGraphics->ShowControlBounds(true);
     pGraphics->LoadFont(ROBOTTO_FN);
     pGraphics->LoadFont(MONTSERRAT_FN);
@@ -50,7 +49,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new ILambdaControl(*this, nextCell(), [](IControl* pCaller, IGraphics& g, IRECT& r, IMouseInfo&, double t) {
       
 //      static constexpr float width = 5.f;
-//      static constexpr float radius = 50.f;
+      static constexpr float radius = 50.f;
 //      static constexpr float cornerSize = 10.f;
       
       //    g.FillRect(COLOR_WHITE, r);
@@ -60,7 +59,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
       
       //    g.DrawRect(COLOR_WHITE, r, nullptr, width);
       //    g.DrawCircle(COLOR_WHITE, r.MW(), r.MH(), radius, nullptr, width);
-      //    g.DrawArc(COLOR_WHITE, r.MW(), r.MH(), radius, 0, 90);
+          g.DrawArc(COLOR_WHITE, r.MW(), r.MH(), radius, 0, 90);
       //    g.DrawRoundRect(COLOR_BLUE, r, cornerSize, nullptr, width);
     }, 1000, false));
     
@@ -75,7 +74,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new TestSizeControl(*this, bounds), kSizeControl);
     
     
-#if 0
+#if 1
     pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Hello World!", {24, COLOR_WHITE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop, 90}));
     pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Two!", {18, COLOR_GREEN, "Montserrat-LightItalic", IText::kStyleNormal, IText::kAlignCenter, IText::kVAlignMiddle, 45}));
     pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Three!", {24, COLOR_RED, "Roboto-Regular", IText::kStyleItalic, IText::kAlignFar, IText::kVAlignBottom}));
