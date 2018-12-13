@@ -944,7 +944,6 @@ void IGraphics::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMo
   if(mResizingInProcess)
   {
     OnResizeGesture(x, y);
-
     return;
   }
   
@@ -1153,7 +1152,8 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
     }
 
 #else
-    if(mPopupControl) { // if we are not using platform popup menus, IPopupMenuControl will not block
+    if(mPopupControl) // if we are not using platform popup menus, IPopupMenuControl will not block
+    {
       CreatePopupMenu(contextMenu, x, y, pControl);
       mPopupControl->SetMenuIsContextMenu(true);
     }

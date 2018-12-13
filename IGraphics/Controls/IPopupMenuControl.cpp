@@ -321,6 +321,9 @@ IPopupMenu* IPopupMenuControl::CreatePopupMenu(IPopupMenu& menu, const IRECT& bo
   mMenu = &menu;
   mCaller = pCaller;
   
+  if(mMaxBounds.W() == 0)
+    mMaxBounds = GetUI()->GetBounds();
+  
   if(GetState() == kCollapsed)
     Expand(bounds);
   
@@ -382,7 +385,7 @@ void IPopupMenuControl::CalculateMenuPanels(float x, float y)
       
         // There is no MenuPanel for this menu, make a new one
         if(pMenuPanelForThisMenu == nullptr) {
-          pMenuPanelForThisMenu = mMenuPanels.Add(new MenuPanel(*this, GetUI()->GetBounds(), *pSubMenu, pCellRect->R + PAD, pCellRect->T, mMenuPanels.Find(mActiveMenuPanel)));
+          pMenuPanelForThisMenu = mMenuPanels.Add(new MenuPanel(*this, *pSubMenu, pCellRect->R + PAD, pCellRect->T, mMenuPanels.Find(mActiveMenuPanel)));
         }
         
         for (auto mr = 0; mr < mMenuPanels.GetSize(); mr++)
@@ -457,7 +460,7 @@ void IPopupMenuControl::Expand(const IRECT& bounds)
     mCalloutArrowBounds = IRECT(bounds.R, bounds.MH() - CALLOUT_SPACE, x, bounds.MH() + CALLOUT_SPACE);
     mCalloutArrowDir = kEast;
     
-    if(y < PAD) // if we're going off the top of the screen
+    if(y < (mMaxBounds.T+PAD)) // if we're going off the top of the max bounds
     {
       IRECT maxCell = GetLargestCellRectForMenu(*mMenu, 0, 0);
       
@@ -468,7 +471,7 @@ void IPopupMenuControl::Expand(const IRECT& bounds)
     }
   }
   
-  mActiveMenuPanel = mAppearingMenuPanel = mMenuPanels.Add(new MenuPanel(*this, GetUI()->GetBounds(), *mMenu, x, y, -1));
+  mActiveMenuPanel = mAppearingMenuPanel = mMenuPanels.Add(new MenuPanel(*this, *mMenu, x, y, -1));
 
   SetTargetRECT(mActiveMenuPanel->mTargetRECT);
   SetRECT(mActiveMenuPanel->mRECT);
@@ -571,7 +574,7 @@ void IPopupMenuControl::OnEndAnimation()
   IControl::OnEndAnimation();
 }
 
-IPopupMenuControl::MenuPanel::MenuPanel(IPopupMenuControl& control, const IRECT& contextBounds, IPopupMenu& menu, float x, float y, int parentIdx)
+IPopupMenuControl::MenuPanel::MenuPanel(IPopupMenuControl& control, IPopupMenu& menu, float x, float y, int parentIdx)
 : mMenu(menu)
 , mParentIdx(parentIdx)
 {
@@ -603,12 +606,12 @@ IPopupMenuControl::MenuPanel::MenuPanel(IPopupMenuControl& control, const IRECT&
     if(control.mMaxColumnItems > 0 && i > 1)
       newColumn = !(i % control.mMaxColumnItems);
     
-    if((top + toAddY + control.PAD) > contextBounds.B || newColumn) // it's gonna go off the bottom
+    if((top + toAddY + control.PAD) > control.mMaxBounds.B || newColumn) // it's gonna go off the bottom
     {
       if(control.mScrollIfTooBig)
       {
-        const float maxTop = contextBounds.T + control.PAD + control.mDropShadowSize;
-        const float maxBottom = contextBounds.B - control.PAD;// - control.mDropShadowSize;
+        const float maxTop = control.mMaxBounds.T + control.PAD + control.mDropShadowSize;
+        const float maxBottom = control.mMaxBounds.B - control.PAD;// - control.mDropShadowSize;
         const float maxH = (maxBottom - maxTop);
         mScrollMaxRows = (maxH  / (CellHeight() + control.mCellGap)); // maximum cell rows (full height, not with separators)
         
@@ -673,7 +676,7 @@ IPopupMenuControl::MenuPanel::MenuPanel(IPopupMenuControl& control, const IRECT&
     }
   }
   
-  const float maxR = (contextBounds.R - control.PAD - control.mDropShadowSize);
+  const float maxR = (control.mMaxBounds.R - control.PAD - control.mDropShadowSize);
   
   // check if it's gone off the right hand side
   if(span.R > maxR)

@@ -96,6 +96,9 @@ public:
   /** Set if the menu is shifted away from where the control is created with a callout arrow (for fat fingers on touchscreens) */
   void SetCallout(bool callout) { mCallOut = callout; }
   
+  /** Set the bounds that the menu can potentially occupy, if not the full graphics context */
+  void SetMaxBounds(const IRECT& bounds) { mMaxBounds = bounds; }
+  
 private:
   /** Get an IRECT represents the maximum dimensions of the longest text item in the menu */
   IRECT GetLargestCellRectForMenu(IPopupMenu& menu, float x, float y) const;
@@ -112,7 +115,7 @@ private:
   class MenuPanel
   {
   public:
-    MenuPanel(IPopupMenuControl& owner, const IRECT& contextBounds, IPopupMenu& menu, float x, float y, int parentIdx);
+    MenuPanel(IPopupMenuControl& owner, IPopupMenu& menu, float x, float y, int parentIdx);
     ~MenuPanel();
     
     /** Get's the width of a cell */
@@ -177,6 +180,9 @@ private:
   IRECT mOriginalBounds; // The rectangular area where the menu was triggered
   EArrowDir mCalloutArrowDir = kEast;
   IRECT mCalloutArrowBounds;
+
+  IRECT mMaxBounds; // if view is only showing a part of the graphics context, we need to know because menus can't go there
+  
 protected:
   IRECT mSpecifiedCollapsedBounds;
   IRECT mSpecifiedExpandedBounds;
