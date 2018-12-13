@@ -85,7 +85,7 @@ private:
 class IGraphicsNanoVG : public IGraphicsPathBase
 {
 public:
-  const char* GetDrawingAPIStr() override { return "NANOVG"; }
+  const char* GetDrawingAPIStr() override;
 
   IGraphicsNanoVG(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsNanoVG();

@@ -189,6 +189,23 @@ IGraphicsNanoVG::~IGraphicsNanoVG()
 {
 }
 
+const char* IGraphicsNanoVG::GetDrawingAPIStr()
+{
+#if defined IGRAPHICS_METAL
+  return "NanoVG | Metal";
+#else
+  #if defined IGRAPHICS_GL2
+    return "NanoVG | OpenGL2";
+  #elif defined IGRAPHICS_GL3
+    return "NanoVG | OpenGL3";
+  #elif defined IGRAPHICS_GLES2
+    return "NanoVG | OpenGLES2";
+  #elif defined IGRAPHICS_GLES3
+    return "NanoVG | OpenGLES3";
+  #endif
+#endif
+}
+
 IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal)
 {
   const int targetScale = round(GetDisplayScale());
@@ -333,7 +350,7 @@ void IGraphicsNanoVG::BeginFrame()
 {
   IGraphics::BeginFrame(); // start perf graph timing
 
-#ifdef OS_WIN
+#if defined OS_WIN || defined OS_MAC
   glViewport(0, 0, WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
