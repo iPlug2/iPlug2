@@ -2,6 +2,11 @@
 
 #pragma mark - VECTOR CONTROLS
 
+const IColor IVKeyboardControl::DEFAULT_BK_COLOR = IColor(255, 70, 70, 70);
+const IColor IVKeyboardControl::DEFAULT_WK_COLOR = IColor(255, 240, 240, 240);
+const IColor IVKeyboardControl::DEFAULT_PK_COLOR = IColor(60, 0, 0, 0);
+const IColor IVKeyboardControl::DEFAULT_FR_COLOR = DEFAULT_BK_COLOR;
+
 IVButtonControl::IVButtonControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc, const char* str, const IText& text, const IVColorSpec& colorSpec)
 : IButtonControlBase(dlg, bounds, actionFunc)
 , IVectorBase(colorSpec)

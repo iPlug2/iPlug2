@@ -79,9 +79,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 
     pGraphics->AttachControl(new ITextControl(*this, b.GetGridCell(3, 4, 1), "Misc Controls", bigLabel));
     pGraphics->AttachControl(new IColorPickerControl(*this, b.GetGridCell(12, 4, 4).GetCentredInside(150.)));
-
-//    IRECT kbrect = bounds.SubRectVertical(3, 2).GetPadded(-5.);
-//    pGraphics->AttachControl(new IVKeyboardControl(*this, kbrect, 36, 72));
+    pGraphics->AttachControl(new IVKeyboardControl(*this, b.GetGridCell(13, 4, 4).Union(b.GetGridCell(14, 4, 4)), 36, 72));
   };
 #endif
 }

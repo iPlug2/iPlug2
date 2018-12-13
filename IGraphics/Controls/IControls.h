@@ -6,6 +6,10 @@
  */
 
 #include "IControl.h"
+#include "IColorPickerControl.h"
+#include "IVKeyboardControl.h"
+#include "IVMeterControl.h"
+#include "IVScopeControl.h"
 
 /**
  * \defgroup Controls IGraphics::IControls

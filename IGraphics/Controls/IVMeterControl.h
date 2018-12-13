@@ -2,6 +2,7 @@
 
 #include "IControl.h"
 #include "IPlugQueue.h"
+#include "IPlugStructs.h"
 
 template <int MAXNC = 1>
 class IVMeterControl : public IVTrackControlBase

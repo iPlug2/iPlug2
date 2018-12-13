@@ -2,7 +2,7 @@
 
 #include "IPlug_include_in_plug_hdr.h"
 #include "IPlugFaustGen.h"
-#include "IVScopeControl.h"
+#include "IControls.h"
 
 enum EControlTags
 {

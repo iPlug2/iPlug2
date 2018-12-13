@@ -1,7 +1,6 @@
 #include "IPlugFaustDSP.h"
 #include "IPlug_include_in_plug_src.h"
 #include "IPlugFaust_edit.h"
-#include "IControls.h"
 
 IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, 1, instanceInfo)
