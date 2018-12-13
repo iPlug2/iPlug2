@@ -332,7 +332,7 @@ void IGraphicsNanoVG::DrawResize()
 
 void IGraphicsNanoVG::BeginFrame()
 {
-  IGraphics::BeginFrame(); // perf graph
+  IGraphics::BeginFrame(); // start perf graph timing
 
 #ifdef OS_WIN
   glViewport(0, 0, WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
