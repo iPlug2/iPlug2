@@ -28,12 +28,15 @@
   #else
     #include <OpenGL/gl.h>
   #endif
-  #define NANOVG_FBO_VALID 1
-  #include "nanovg_gl_utils.h"
 #elif defined IGRAPHICS_METAL
   #include "nanovg_mtl.h"
 #else
   #error you must define either IGRAPHICS_GL2, IGRAPHICS_GLES2 etc or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
+#endif
+
+#ifdef IGRAPHICS_GL
+  #define NANOVG_FBO_VALID 1
+  #include "nanovg_gl_utils.h"
 #endif
 
 #if defined IGRAPHICS_GL2
