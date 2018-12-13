@@ -350,19 +350,18 @@ void IGraphicsNanoVG::BeginFrame()
 {
   IGraphics::BeginFrame(); // start perf graph timing
 
-#if defined OS_WIN || defined OS_MAC
+#ifdef IGRAPHICS_METAL
+  //  mnvgClearWithColor(mVG, nvgRGBAf(0, 0, 0, 0));
+#else
   glViewport(0, 0, WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-#elif defined OS_WEB
-  glViewport(0, 0, WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
+  #ifdef OS_WEB
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_CULL_FACE);
   glDisable(GL_DEPTH_TEST);
+  #endif
 #endif
   
   nvgBindFramebuffer(mMainFrameBuffer); // begin main frame buffer update
