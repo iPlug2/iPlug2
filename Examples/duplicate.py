@@ -151,7 +151,7 @@ def main():
   print("\nIPlug Project Duplicator v" + VERSION + " by Oli Larkin ------------------------------\n")
 
   if len(sys.argv) != 4:
-    print("Usage: duplicate.py inputprojectname outputprojectname [manufacturername]")
+    print("Usage: duplicate.py inputprojectname outputprojectname manufacturername")
     sys.exit(1)
   else:
     input=sys.argv[1]

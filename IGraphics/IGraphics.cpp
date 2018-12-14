@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 
 #include "IGraphics.h"
 
@@ -126,6 +136,9 @@ void IGraphics::Resize(int w, int h, float scale)
 
   SetAllControlsDirty();
   DrawResize();
+  
+  if(mLayoutOnResize)
+    GetDelegate()->LayoutUI(this);
 }
 
 void IGraphics::SetControlValueFromStringAfterPrompt(IControl& control, const char* str)
@@ -169,27 +182,28 @@ void IGraphics::AttachKeyCatcher(IControl* pControl)
   mKeyCatcher->SetGraphics(this);
 }
 
-void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode)
+void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize)
 {
-  AttachCornerResizer(new ICornerResizerBase(mDelegate, GetBounds(), 20), sizeMode);
+  AttachCornerResizer(new ICornerResizerBase(mDelegate, GetBounds(), 20), sizeMode, layoutOnResize);
 }
 
-void IGraphics::AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode sizeMode)
+void IGraphics::AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode sizeMode, bool layoutOnResize)
 {
-  mGUISizeMode = sizeMode;
   mCornerResizer = pControl;
+  mGUISizeMode = sizeMode;
+  mLayoutOnResize = layoutOnResize;
   mCornerResizer->SetGraphics(this);
 }
 
-void IGraphics::AttachPopupMenuControl(IText text)
+void IGraphics::AttachPopupMenuControl(const IText& text, const IRECT& bounds)
 {
-  mPopupControl = new IPopupMenuControl(mDelegate, kNoParameter, text);
+  mPopupControl = new IPopupMenuControl(mDelegate, kNoParameter, text, IRECT(), bounds);
   mPopupControl->SetGraphics(this);
 }
 
 void IGraphics::AttachPerformanceDisplay()
 {
-  mPerfDisplay = new IPerfDisplayControl(mDelegate, GetBounds().GetPadded(-10).GetRECTFromTLHC(200, 50));
+  mPerfDisplay = new IPerfDisplayControl(mDelegate, GetBounds().GetPadded(-10).GetFromTLHC(200, 50));
   mPerfDisplay->SetGraphics(this);
 }
 
@@ -312,6 +326,9 @@ void IGraphics::SetAllControlsClean()
   {
    (*ppControl)->SetClean();
   }
+  
+  if(mCornerResizer)
+    mCornerResizer->SetClean();
 }
 
 void IGraphics::AssignParamNameToolTips()
@@ -378,6 +395,22 @@ void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds)
       CreateTextEntry(control, control.GetText(), bounds, currentText.Get());
     }
   }
+}
+
+bool IGraphics::DrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
+{
+  return DoDrawMeasureText(text, str, const_cast<IRECT&>(bounds), pBlend, false);
+}
+
+bool IGraphics::MeasureText(const IText& text, const char* str, IRECT& bounds)
+{
+  return DoDrawMeasureText(text, str, bounds, nullptr, true);
+}
+
+bool IGraphics::DrawText(const IText& text, const char* str, float x, float y, const IBlend* pBlend)
+{
+  IRECT bounds = { x, y, x, y };
+  return DrawText(text, str, bounds, pBlend);
 }
 
 void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int bmpState, const IBlend* pBlend)
@@ -554,6 +587,12 @@ bool IGraphics::IsDirty(IRECTList& rects)
   if (mPerfDisplay)
   {
     rects.Add(mPerfDisplay->GetRECT());
+    dirty = true;
+  }
+  
+  if(mCornerResizer && mCornerResizer->IsDirty())
+  {
+    rects.Add(mCornerResizer->GetRECT());
     dirty = true;
   }
   
@@ -781,6 +820,20 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
   {
     mResizingInProcess = false;
     mCornerResizer->OnMouseUp(x, y, mod);
+    
+    // if scaling up we may want to load in high DPI bitmaps if scale > 1.
+    if(GetResizerMode() == EUIResizerMode::kUIResizerScale)
+    {
+      int i, n = mControls.GetSize();
+      IControl** ppControl = mControls.GetList();
+      for (i = 0; i < n; ++i, ++ppControl)
+      {
+        (*ppControl)->OnRescale();
+      }
+      
+      SetAllControlsDirty();
+    }
+    
     return;
   }
   
@@ -850,15 +903,20 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
   else if(mCornerResizer)
   {
     static bool inCornerResizer = false;
+    
     if(mCornerResizer->GetRECT().Contains(x, y))
     {
       inCornerResizer = true;
       mCornerResizer->OnMouseOver(x, y, mod);
+      return true;
     }
-    else {
-      if(inCornerResizer) {
+    else
+    {
+      if(inCornerResizer)
+      {
         mCornerResizer->OnMouseOut();
         inCornerResizer = false;
+        return true;
       }
     }
   }
@@ -911,7 +969,6 @@ void IGraphics::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMo
   if(mResizingInProcess)
   {
     OnResizeGesture(x, y);
-
     return;
   }
   
@@ -1120,7 +1177,8 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
     }
 
 #else
-    if(mPopupControl) { // if we are not using platform popup menus, IPopupMenuControl will not block
+    if(mPopupControl) // if we are not using platform popup menus, IPopupMenuControl will not block
+    {
       CreatePopupMenu(contextMenu, x, y, pControl);
       mPopupControl->SetMenuIsContextMenu(true);
     }
@@ -1163,7 +1221,7 @@ void IGraphics::OnResizeGesture(float x, float y)
 
 IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
 {
-  return LoadBitmap(src.GetResourceName().Get(), src.N(), src.GetFramesAreHorizontal());
+  return LoadBitmap(src.GetResourceName().Get(), src.N(), src.GetFramesAreHorizontal(), (GetDisplayScale() == 1. && GetScale() > 1.) ? 2 : 0);
 }
 
 void IGraphics::OnDrop(const char* str, float x, float y)
@@ -1238,9 +1296,10 @@ ISVG IGraphics::LoadSVG(const char* name)
   return ISVG(pHolder->mImage);
 }
 
-IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal)
+IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale)
 {
-  const int targetScale = round(GetDisplayScale());
+  if(targetScale == 0)
+    targetScale = round(GetDisplayScale());
 
   APIBitmap* pAPIBitmap = s_bitmapCache.Find(name, targetScale);
 
@@ -1346,7 +1405,6 @@ bool IGraphics::SearchImageResource(const char* name, const char* type, WDL_Stri
 APIBitmap* IGraphics::SearchBitmapInCache(const char* name, int targetScale, int& sourceScale)
 {
   // Search target scale, then descending
-
   for (sourceScale = targetScale; sourceScale > 0; SearchNextScale(sourceScale, targetScale))
   {
     APIBitmap* pBitmap = s_bitmapCache.Find(name, sourceScale);

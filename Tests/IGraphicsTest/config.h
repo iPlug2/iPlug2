@@ -2,7 +2,7 @@
 #define PLUG_MFR "AcmeInc"
 #define PLUG_VERSION_HEX 0x00010000
 #define PLUG_VERSION_STR "1.0.0"
-#define PLUG_UNIQUE_ID 'Ipef'
+#define PLUG_UNIQUE_ID 'Ipgt'
 #define PLUG_MFR_ID 'Acme'
 #define PLUG_URL_STR "www.olilarkin.co.uk"
 #define PLUG_EMAIL_STR "spam@me.com"
@@ -18,13 +18,14 @@
 #define PLUG_LATENCY 0
 #define PLUG_IS_INSTRUMENT 1
 #define PLUG_IS_MFX 0
-#define PLUG_DOES_MIDI 1
+#define PLUG_DOES_MIDI_IN 1
+#define PLUG_DOES_MIDI_OUT 0
 #define PLUG_DOES_STATE_CHUNKS 0
 #define PLUG_HAS_UI 1
 #define PLUG_WIDTH 600
 #define PLUG_HEIGHT 600
 #define PLUG_FPS 60
-#define PLUG_SHARED_RESOURCES 1
+#define PLUG_SHARED_RESOURCES 0
 
 #define AUV2_ENTRY IGraphicsTest_Entry
 #define AUV2_ENTRY_STR "IGraphicsTest_Entry"

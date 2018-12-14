@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #include "IPlugAAX.h"
 #include "config.h"
@@ -141,8 +135,10 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
     
     // Describe the algorithm and effect specifics using the CInstrumentParameters convenience layer.  (Native Only)
     AAX_SIPlugSetupInfo setupInfo;
-    if(PLUG_IS_INSTRUMENT) // For some reason in protools instruments need to have input buses. 
-      setupInfo.mInputStemFormat = (AAX_EStemFormat) GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kInput, 0 /* first bus */, pConfig);
+    if(PLUG_IS_INSTRUMENT && pConfig->GetTotalNChannels(kInput) == 0) {
+      // For some reason in protools instruments need to have input buses if not defined set input chan count the same as output
+      setupInfo.mInputStemFormat = (AAX_EStemFormat) GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kOutput, 0 /* first bus */, pConfig);
+    }
     else
       setupInfo.mInputStemFormat = (AAX_EStemFormat) GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kInput, 0 /* first bus */, pConfig);
 
@@ -154,11 +150,11 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
     setupInfo.mAudioSuiteID = aaxTypeIDsAudioSuite[configIdx];
     #endif
     setupInfo.mCanBypass = true;
-    setupInfo.mNeedsInputMIDI = PLUG_DOES_MIDI;
+    setupInfo.mNeedsInputMIDI = PLUG_DOES_MIDI_IN;
     setupInfo.mInputMIDINodeName = PLUG_NAME" Midi";
     setupInfo.mInputMIDIChannelMask = 0x0001;
     
-    setupInfo.mNeedsOutputMIDI = PLUG_DOES_MIDI;
+    setupInfo.mNeedsOutputMIDI = PLUG_DOES_MIDI_OUT;
     setupInfo.mOutputMIDINodeName = PLUG_NAME" Midi";
     setupInfo.mOutputMIDIChannelMask = 0x0001;
     

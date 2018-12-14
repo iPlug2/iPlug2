@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #ifndef NO_IGRAPHICS
 
 #ifdef IGRAPHICS_NANOVG
@@ -275,12 +285,37 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   r.size.height = (float) pGraphics->WindowHeight();
   self = [super initWithFrame:r];
   
-#if defined IGRAPHICS_NANOVG && defined IGRAPHICS_METAL
-  if (!self.wantsLayer) {
-    self.layer = [CAMetalLayer new];
-    self.layer.opaque = YES;
-    self.wantsLayer = YES;
-  }
+#if defined IGRAPHICS_NANOVG
+  #if defined IGRAPHICS_METAL
+    if (!self.wantsLayer) {
+      self.layer = [CAMetalLayer new];
+      self.layer.opaque = YES;
+      self.wantsLayer = YES;
+    }
+  #elif defined IGRAPHICS_GL
+    const NSOpenGLPixelFormatAttribute kAttributes[] =  {
+      NSOpenGLPFAAccelerated,
+      NSOpenGLPFANoRecovery,
+      NSOpenGLPFATripleBuffer,
+      NSOpenGLPFAAlphaSize, 8,
+      NSOpenGLPFAColorSize, 24,
+      NSOpenGLPFADepthSize, 0,
+      NSOpenGLPFAStencilSize, 8,
+      (NSOpenGLPixelFormatAttribute)0};
+    mPixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:kAttributes];
+    mContext = [[NSOpenGLContext alloc] initWithFormat:mPixelFormat
+                                          shareContext:nil];
+  
+    // Sets sync to VBL to eliminate tearing.
+    GLint vblSync = 1;
+    [mContext setValues:&vblSync forParameter:NSOpenGLCPSwapInterval];
+    // Allows for transparent background.
+//    GLint opaque = 0;
+//    [mContext setValues:&opaque forParameter:NSOpenGLCPSurfaceOpacity];
+//    [self setWantsBestResolutionOpenGLSurface:YES];
+    [mContext makeCurrentContext];
+  
+  #endif
 #endif
 
   [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
@@ -360,6 +395,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 // not called for opengl/metal
 - (void) drawRect: (NSRect) bounds
 {
+#ifndef IGRAPHICS_GL
   if (mGraphics)
   {
     //TODO: can we really only get this context on the first draw call?
@@ -385,21 +421,38 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
       mGraphics->Draw(drawRects);
     }
   }
+#endif
 }
 
 - (void) onTimer: (NSTimer*) pTimer
 {
+  [self render];
+}
+
+- (void) render
+{
+#ifdef IGRAPHICS_GL
+//  CGLLockContext([mContext CGLContextObj]);
+  [mContext setView:self];
+  [mContext makeCurrentContext];
+#endif
+  
   IRECTList rects;
   if (mGraphics->IsDirty(rects))
   {
     mGraphics->SetAllControlsClean();
 #if !defined IGRAPHICS_NANOVG
     for (int i = 0; i < rects.Size(); i++)
-      [self setNeedsDisplayInRect:ToNSRect(mGraphics, rects.Get(i))];
+    [self setNeedsDisplayInRect:ToNSRect(mGraphics, rects.Get(i))];
 #else
     mGraphics->Draw(rects); // for metal/opengl drawRect is not called
 #endif
   }
+  
+#ifdef IGRAPHICS_GL
+//  CGLLockContext([mContext CGLContextObj]);
+  [mContext flushBuffer];
+#endif
 }
 
 - (void) getMouseXY: (NSEvent*) pEvent x: (float*) pX y: (float*) pY
@@ -815,7 +868,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 //- (void)windowResized:(NSNotification *)notification;
 //{
-//  if(!mGraphics) // TODO: Why does this happen with reaper?
+//  if(!mGraphics)
 //    return;
 //
 //  NSSize windowSize = [[self window] frame].size;

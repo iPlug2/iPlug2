@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
 
@@ -187,7 +181,10 @@ public:
   bool IsInstrument() const { return mIsInstrument; }
 
   /** @return \c true if the plug-in was configured to receive midi at compile time */
-  bool DoesMIDI() const { return mDoesMIDI; }
+  bool DoesMIDIIn() const { return mDoesMIDIIn; }
+
+  /** @return \c true if the plug-in was configured to receive midi at compile time */
+  bool DoesMIDIOut() const { return mDoesMIDIOut; }
 
   /**  This allows you to label input/output channels in supporting VST2 hosts.
    * * For example a 4 channel plug-in that deals with FuMa BFormat first order ambisonic material, might label these channels
@@ -248,7 +245,9 @@ private:
   /** \c true if the plug-in is an instrument */
   bool mIsInstrument;
   /** \c true if the plug-in accepts MIDI input */
-  bool mDoesMIDI;
+  bool mDoesMIDIIn;
+  /** \c true if the plug-in produces MIDI output */
+  bool mDoesMIDIOut;
   /** Plug-in latency (in samples) */
   int mLatency;
   /** Current sample rate (in Hz) */

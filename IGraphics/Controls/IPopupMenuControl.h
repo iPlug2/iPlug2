@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 #include "IControl.h"
@@ -18,6 +28,14 @@ public:
     kFlickering, // on click
     kSubMenuAppearing, // when a submenu appears, only that menu is faded in
     kIdling,
+  };
+  
+  enum EArrowDir
+  {
+    kNorth,
+    kEast,
+    kSouth,
+    kWest
   };
   
   /** Create a new IPopupMenuControl
@@ -46,26 +64,29 @@ public:
   void CalculateMenuPanels(float x, float y);
   
   /** Override this method to change the background of the pop-up menu panel */
-  virtual void DrawPanelBackground(IGraphics& g, const IRECT& bounds, IBlend* blend);
+  virtual void DrawCalloutArrow(IGraphics& g, const IRECT& bounds, IBlend* pBlend);
+  /** Override this method to change the background of the pop-up menu panel */
+  virtual void DrawPanelBackground(IGraphics& g, const IRECT& bounds, IBlend* pBlend);
   /** Override this method to change the shadow of the pop-up menu panel */
-  virtual void DrawPanelShadow(IGraphics& g, const IRECT& bounds, IBlend* blend);
+  virtual void DrawPanelShadow(IGraphics& g, const IRECT& bounds, IBlend* pBlend);
   /** Override this method to change the way a cell's background is drawn */
-  virtual void DrawCellBackground(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item* pItem, bool sel, IBlend* blend);
+  virtual void DrawCellBackground(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item* pItem, bool sel, IBlend* pBlend);
   /** Override this method to change the way a cell's text is drawn */
-  virtual void DrawCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item* pItem, bool sel, IBlend* blend);
+  virtual void DrawCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item* pItem, bool sel, IBlend* pBlend);
   /** Override this method to change the way a checked cell's "tick" is drawn */
-  virtual void DrawTick(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item* pItem, bool sel, IBlend* blend);
+  virtual void DrawTick(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item* pItem, bool sel, IBlend* pBlend);
   /** Override this method to change the way a submenu cell's arrow is drawn */
-  virtual void DrawSubMenuArrow(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item* pItem, bool sel, IBlend* blend);
+  virtual void DrawSubMenuArrow(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item* pItem, bool sel, IBlend* pBlend);
   /** Override this method to change the way a scroll up cell's arrow is drawn */
-  virtual void DrawUpArrow(IGraphics& g, const IRECT& bounds, bool sel, IBlend* blend);
+  virtual void DrawUpArrow(IGraphics& g, const IRECT& bounds, bool sel, IBlend* pBlend);
   /** Override this method to change the way a scroll Down cell's arrow is drawn */
-  virtual void DrawDownArrow(IGraphics& g, const IRECT& bounds, bool sel, IBlend* blend);
+  virtual void DrawDownArrow(IGraphics& g, const IRECT& bounds, bool sel, IBlend* pBlend);
   /** Override this method to change the way a cell separator is drawn  */
-  virtual void DrawSeparator(IGraphics& g, const IRECT& bounds, IBlend* blend);
+  virtual void DrawSeparator(IGraphics& g, const IRECT& bounds, IBlend* pBlend);
   
   /** Call this to create a pop-up menu
    @param menu Reference to a menu from which to populate this user interface control. NOTE: this object should not be a temporary, otherwise when the menu returns asynchronously, it may not exist.
+   @param bounds \todo
    @param pCaller The IControl that called this method, and will receive the call back after menu selection
    @return the menu */
   IPopupMenu* CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller);
@@ -79,12 +100,21 @@ public:
   /** This is called by the IGraphics class when a context menu is being created (a special popup that certain plug-in formats (e.g. VST3) may append to)  */
   void SetMenuIsContextMenu(bool isContextMenu) { mIsContextMenu = isContextMenu; }
   
+  /** Force the menu to open with a specific bounds - useful on small screens for making it modal.*/
+  void SetExpandedBounds(const IRECT& bounds) { mSpecifiedExpandedBounds = bounds; }
+  
+  /** Set if the menu is shifted away from where the control is created with a callout arrow (for fat fingers on touchscreens) */
+  void SetCallout(bool callout) { mCallOut = callout; }
+  
+  /** Set the bounds that the menu can potentially occupy, if not the full graphics context */
+  void SetMaxBounds(const IRECT& bounds) { mMaxBounds = bounds; }
+  
 private:
   /** Get an IRECT represents the maximum dimensions of the longest text item in the menu */
   IRECT GetLargestCellRectForMenu(IPopupMenu& menu, float x, float y) const;
   
   /** This method is called to expand the modal pop-up menu. It calculates the dimensions and wrapping, to keep the cells within the graphics context. It handles the dirtying of the graphics context, and modification of graphics behaviours such as tooltips and mouse cursor */
-  void Expand(float x, float y);
+  void Expand(const IRECT& bounds);
   
   /** This method is called to collapse the modal pop-up menu and make it invisible. It handles the dirtying of the graphics context, and modification of graphics behaviours such as tooltips and mouse cursor */
   virtual void CollapseEverything();
@@ -95,7 +125,7 @@ private:
   class MenuPanel
   {
   public:
-    MenuPanel(IPopupMenuControl& owner, const IRECT& contextBounds, IPopupMenu& menu, float x, float y, int parentIdx);
+    MenuPanel(IPopupMenuControl& owner, IPopupMenu& menu, float x, float y, int parentIdx);
     ~MenuPanel();
     
     /** Get's the width of a cell */
@@ -144,17 +174,25 @@ private:
 
   int mMaxColumnItems = 0; // How long the list can get before adding a new column - 0 equals no limit
   bool mScrollIfTooBig = true; // If the menu is higher than the graphics context, should it scroll or should it start a new column
-  
+  bool mCallOut = false; // set true if popup should be outside of bounds (i.e. on a tablet touchscreen interface)
+
   float mCellGap = 2.f; // The gap between cells in pixels
   float mSeparatorSize = 2.; // The size in pixels of a separator. This could be width or height
-  const float TEXT_HPAD = 5.; // The amount of horizontal padding on either side of cell text in pixels
-  const float TICK_SIZE = 10.; // The size of the area on the left of the cell where a tick mark appears on checked items - actual
-  const float ARROW_SIZE = 8; // The width of the area on the right of the cell where an arrow appears for new submenus
-  const float mPadding = 5.; // How much white space between the background and the cells
   float mRoundness = 5.f; // The roundness of the corners of the menu panel backgrounds
   float mDropShadowSize = 10.f; // The size in pixels of the drop shadow
   float mOpacity = 0.95f; // The opacity of the menu panel backgrounds when fully faded in
+  
+  const float TEXT_HPAD = 5.; // The amount of horizontal padding on either side of cell text in pixels
+  const float TICK_SIZE = 10.; // The size of the area on the left of the cell where a tick mark appears on checked items - actual
+  const float ARROW_SIZE = 8; // The width of the area on the right of the cell where an arrow appears for new submenus
+  const float PAD = 5.; // How much white space between the background and the cells
+  const float CALLOUT_SPACE = 8; // The space between start bounds and callout
+  IRECT mOriginalBounds; // The rectangular area where the menu was triggered
+  EArrowDir mCalloutArrowDir = kEast;
+  IRECT mCalloutArrowBounds;
 
+  IRECT mMaxBounds; // if view is only showing a part of the graphics context, we need to know because menus can't go there
+  
 protected:
   IRECT mSpecifiedCollapsedBounds;
   IRECT mSpecifiedExpandedBounds;

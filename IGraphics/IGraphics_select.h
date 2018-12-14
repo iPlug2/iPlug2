@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #if !defined DOXYGEN_SHOULD_SKIP_THIS
   #if defined IGRAPHICS_LICE
     #include "IGraphicsLice.h"

@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #include <cmath>
 
 #include "png.h"
@@ -330,7 +340,7 @@ IColor IGraphicsCairo::GetPoint(int x, int y)
 #define FONT_SIZE 36
 #define MARGIN (FONT_SIZE * .5)
 
-bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
 #if defined IGRAPHICS_FREETYPE
 //  FT_Face ft_face;
@@ -449,11 +459,6 @@ bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& bounds,
   cairo_show_text(mContext, str);
 #endif
   return true;
-}
-
-bool IGraphicsCairo::MeasureText(const IText& text, const char* str, IRECT& bounds)
-{
-  return DrawText(text, str, bounds, 0, true);
 }
 
 void IGraphicsCairo::SetPlatformContext(void* pContext)
