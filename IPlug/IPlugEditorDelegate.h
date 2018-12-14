@@ -91,7 +91,7 @@ public:
   /** This is an OnParamChange that will only trigger on the UI thread at low priority, and therefore is appropriate for hiding or showing elements of the UI.
    * You should not update parameter objects using this method.
    * @param paramIdx The index of the parameter that changed */
-  virtual void OnParamChangeUI(int paramIdx, EParamSource source) {};
+  virtual void OnParamChangeUI(int paramIdx, EParamSource source = kUnknown) {};
   
   /** Handle incoming MIDI messages sent to the user interface
    * @param msg The MIDI message to process  */

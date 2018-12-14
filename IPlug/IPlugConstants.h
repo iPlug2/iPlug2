@@ -150,10 +150,11 @@ enum EParamSource
   kUI,
   kDelegate,
   kRecompile, // for FAUST JIT
-  kUnknown
+  kUnknown,
+  kNumParamSources
 };
 
-static const char* ParamSourceStrs[4] = { "Reset", "Automation", "Preset", "GUI" };
+static const char* ParamSourceStrs[kNumParamSources] = { "Reset", "Host", "Preset", "UI", "Editor Delegate", "Recompile", "Unknown"};
 
 /** @enum ERoute
  * Used to identify whether a bus/channel connection is an input or an output
