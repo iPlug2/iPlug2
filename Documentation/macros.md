@@ -12,7 +12,7 @@ IPlug uses preprocessor macros to select certain APIs and functionality at compi
 * WAM_API
 * USE_IDLE_CALLS: if this is enabled as a preprocessor macro IPlug::OnIdle() will be called in VST2 plug-ins
 * IPLUG1_COMPATIBILITY: if you're upgrading an existing product, you should define this so that compatibility is maintained with your existing state
-* NO_PARAMS_MUTEX: don't lock a mutex when accessing mParams
+* PARAMS_MUTEX: lock a mutex when accessing mParams
  
 ##IGraphics
 * GRAPHICS_SCALING: enables hi DPI graphics

@@ -50,14 +50,14 @@
 #include <cstring>
 #include <cstdlib>
 
-#ifdef NO_PARAMS_MUTEX
-#define ENTER_PARAMS_MUTEX
-#define LEAVE_PARAMS_MUTEX
-#define ENTER_PARAMS_MUTEX_STATIC
-#define LEAVE_PARAMS_MUTEX_STATIC
+#ifdef PARAMS_MUTEX
+  #define ENTER_PARAMS_MUTEX mParams_mutex.Enter(); Trace(TRACELOC, "%s", "ENTER_PARAMS_MUTEX")
+  #define LEAVE_PARAMS_MUTEX mParams_mutex.Leave(); Trace(TRACELOC, "%s", "LEAVE_PARAMS_MUTEX")
+  #define ENTER_PARAMS_MUTEX_STATIC _this->mParams_mutex.Enter(); Trace(TRACELOC, "%s", "ENTER_PARAMS_MUTEX")
+  #define LEAVE_PARAMS_MUTEX_STATIC _this->mParams_mutex.Leave(); Trace(TRACELOC, "%s", "LEAVE_PARAMS_MUTEX")
 #else
-#define ENTER_PARAMS_MUTEX mParams_mutex.Enter(); Trace(TRACELOC, "%s", "ENTER_PARAMS_MUTEX")
-#define LEAVE_PARAMS_MUTEX mParams_mutex.Leave(); Trace(TRACELOC, "%s", "LEAVE_PARAMS_MUTEX")
-#define ENTER_PARAMS_MUTEX_STATIC _this->mParams_mutex.Enter(); Trace(TRACELOC, "%s", "ENTER_PARAMS_MUTEX")
-#define LEAVE_PARAMS_MUTEX_STATIC _this->mParams_mutex.Leave(); Trace(TRACELOC, "%s", "LEAVE_PARAMS_MUTEX")
+  #define ENTER_PARAMS_MUTEX
+  #define LEAVE_PARAMS_MUTEX
+  #define ENTER_PARAMS_MUTEX_STATIC
+  #define LEAVE_PARAMS_MUTEX_STATIC
 #endif
