@@ -556,6 +556,16 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void)keyDown: (NSEvent *)pEvent
 {
+#ifdef IGRAPHICS_SWELL
+  int flag, code = SWELL_MacKeyToWindowsKey(pEvent, &flag);
+
+  bool handle = mGraphics->OnKeyDown(mPrevX, mPrevY, code);
+  
+  if (!handle)
+  {
+    [[self nextResponder] keyDown:pEvent];
+  }
+#else
   NSString *s = [pEvent charactersIgnoringModifiers];
 
   if ([s length] == 1)
@@ -582,12 +592,13 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
       // can't use getMouseXY because its a key event
       handle = mGraphics->OnKeyDown(mPrevX, mPrevY, key);
     }
-
+    
     if (!handle)
     {
       [[self nextResponder] keyDown:pEvent];
     }
   }
+#endif
 }
 
 - (void) scrollWheel: (NSEvent*) pEvent

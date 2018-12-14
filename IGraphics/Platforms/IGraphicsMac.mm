@@ -21,7 +21,9 @@
 #include "IPlugPluginBase.h"
 #include "IPlugPaths.h"
 
+#if IGRAPHICS_SWELL
 #include "swell.h"
+#endif
 
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
@@ -350,6 +352,9 @@ void IGraphicsMac::SetMousePosition(float x, float y)
 
 int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, int type)
 {
+#if IGRAPHICS_SWELL
+  return MessageBox((HWND) mView, str, caption, type);
+#else
   int result = 0;
 
   CFStringRef button1 = NULL;
@@ -405,6 +410,7 @@ int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, int type)
   }
 
   return result;
+#endif
 }
 
 void IGraphicsMac::ForceEndUserEdit()
