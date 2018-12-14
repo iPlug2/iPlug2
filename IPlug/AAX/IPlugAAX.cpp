@@ -265,7 +265,7 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
   Controller()->GetInputStemFormat(&inFormat);
   Controller()->GetOutputStemFormat(&outFormat);
   
-  if (DoesMIDI()) 
+  if (DoesMIDIIn()) 
   {
     AAX_IMIDINode* pMidiIn = pRenderInfo->mInputNode;
     AAX_CMidiStream* pMidiBuffer = pMidiIn->GetNodeBuffer();

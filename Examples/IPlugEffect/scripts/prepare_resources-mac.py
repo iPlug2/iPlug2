@@ -98,7 +98,7 @@ def main():
     COMPONENT_TYPE = kAudioUnitType_MusicDevice
   elif config['PLUG_IS_MFX']:
     COMPONENT_TYPE = kAudioUnitType_MIDIProcessor
-  elif config['PLUG_DOES_MIDI']:
+  elif config['PLUG_DOES_MIDI_IN']:
     COMPONENT_TYPE = kAudioUnitType_MusicEffect
   else:
     COMPONENT_TYPE = kAudioUnitType_Effect

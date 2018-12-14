@@ -234,7 +234,7 @@ class IPlugAUFactory
         case kAudioUnitScheduleParametersSelect:return (AudioComponentMethod)IPlugAU::AUMethodScheduleParameters;
         case kAudioUnitRenderSelect:  return (AudioComponentMethod)IPlugAU::AUMethodRender;
         case kAudioUnitResetSelect: return (AudioComponentMethod)IPlugAU::AUMethodReset;
-#if PLUG_DOES_MIDI
+#if PLUG_DOES_MIDI_IN
         case kMusicDeviceMIDIEventSelect:  return (AudioComponentMethod)IPlugAU::AUMethodMIDIEvent;
         case kMusicDeviceSysExSelect:  return (AudioComponentMethod)IPlugAU::AUMethodSysEx;
 #endif
@@ -440,7 +440,7 @@ DWORD GetTickCount()
 #define IPLUG_CTOR(nParams, nPresets, instanceInfo) \
   IPlug(instanceInfo, IPlugConfig(nParams, nPresets, PLUG_CHANNEL_IO,\
     PUBLIC_NAME, "", PLUG_MFR, PLUG_VERSION_HEX, PLUG_UNIQUE_ID, PLUG_MFR_ID, \
-    PLUG_LATENCY, PLUG_DOES_MIDI, PLUG_DOES_STATE_CHUNKS, PLUG_IS_INSTRUMENT, \
+    PLUG_LATENCY, PLUG_DOES_MIDI_IN, PLUG_DOES_MIDI_OUT, PLUG_DOES_STATE_CHUNKS, PLUG_IS_INSTRUMENT, \
     PLUG_HAS_UI, PLUG_WIDTH, PLUG_HEIGHT, BUNDLE_ID))
 
 #if !defined NO_IGRAPHICS && !defined VST3P_API

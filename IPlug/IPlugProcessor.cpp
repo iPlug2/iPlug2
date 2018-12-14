@@ -16,7 +16,8 @@ template<typename T>
 IPlugProcessor<T>::IPlugProcessor(IPlugConfig c, EAPI plugAPI)
   : mLatency(c.latency)
   , mIsInstrument(c.plugIsInstrument)
-  , mDoesMIDI(c.plugDoesMidi)
+  , mDoesMIDIIn(c.plugDoesMidiIn)
+  , mDoesMIDIOut(c.plugDoesMidiOut)
 {
   int totalNInBuses, totalNOutBuses;
   int totalNInChans, totalNOutChans;

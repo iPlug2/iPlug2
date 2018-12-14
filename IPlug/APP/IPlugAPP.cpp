@@ -55,7 +55,7 @@ void IPlugAPP::ResizeGraphics(int viewWidth, int viewHeight, float scale)
 
 bool IPlugAPP::SendMidiMsg(const IMidiMsg& msg)
 {
-  if (DoesMIDI() && mAppHost->mMidiOut)
+  if (DoesMIDIOut() && mAppHost->mMidiOut)
   {
     //TODO: midi out channel
 //    uint8_t status;
@@ -79,7 +79,7 @@ bool IPlugAPP::SendMidiMsg(const IMidiMsg& msg)
 
 bool IPlugAPP::SendSysEx(ISysEx& msg)
 {
-  if (DoesMIDI() && mAppHost->mMidiOut)
+  if (DoesMIDIOut() && mAppHost->mMidiOut)
   {
     //TODO: midi out channel
 

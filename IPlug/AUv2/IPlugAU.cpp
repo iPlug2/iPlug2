@@ -2399,7 +2399,7 @@ OSStatus IPlugAU::DoReset(IPlugAU* _this)
 //static
 OSStatus IPlugAU::DoMIDIEvent(IPlugAU* _this, UInt32 inStatus, UInt32 inData1, UInt32 inData2, UInt32 inOffsetSampleFrame)
 {
-  if(_this->DoesMIDI())
+  if(_this->DoesMIDIIn())
   {
     IMidiMsg msg;
     msg.mStatus = inStatus;
@@ -2417,7 +2417,7 @@ OSStatus IPlugAU::DoMIDIEvent(IPlugAU* _this, UInt32 inStatus, UInt32 inData1, U
 //static
 OSStatus IPlugAU::DoSysEx(IPlugAU* _this, const UInt8* inData, UInt32 inLength)
 {
-  if(_this->DoesMIDI())
+  if(_this->DoesMIDIIn())
   {
     ISysEx sysex;
     sysex.mData = inData;

@@ -245,7 +245,8 @@ struct IPlugConfig
   int uniqueID;
   int mfrID;
   int latency;
-  bool plugDoesMidi;
+  bool plugDoesMidiIn;
+  bool plugDoesMidiOut;
   bool plugDoesChunks;
   bool plugIsInstrument;
   bool plugHasUI;
@@ -263,7 +264,8 @@ struct IPlugConfig
               int uniqueID,
               int mfrID,
               int latency,
-              bool plugDoesMidi,
+              bool plugDoesMidiIn,
+              bool plugDoesMidiOut,
               bool plugDoesChunks,
               bool plugIsInstrument,
               bool plugHasUI,
@@ -281,7 +283,8 @@ struct IPlugConfig
   , uniqueID(uniqueID)
   , mfrID(mfrID)
   , latency(latency)
-  , plugDoesMidi(plugDoesMidi)
+  , plugDoesMidiIn(plugDoesMidiIn)
+  , plugDoesMidiOut(plugDoesMidiOut)
   , plugDoesChunks(plugDoesChunks)
   , plugIsInstrument(plugIsInstrument)
   , plugHasUI(plugHasUI)

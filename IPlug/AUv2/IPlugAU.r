@@ -95,7 +95,7 @@ resource 'thng' (RES_ID, RES_NAME) {
 kAudioUnitType_MusicDevice,
 #elif PLUG_IS_MFX
 'aumi',
-#elif PLUG_DOES_MIDI
+#elif PLUG_DOES_MIDI_IN
 kAudioUnitType_MusicEffect,
 #else
 kAudioUnitType_Effect,

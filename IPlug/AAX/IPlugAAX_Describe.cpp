@@ -156,11 +156,11 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
     setupInfo.mAudioSuiteID = aaxTypeIDsAudioSuite[configIdx];
     #endif
     setupInfo.mCanBypass = true;
-    setupInfo.mNeedsInputMIDI = PLUG_DOES_MIDI;
+    setupInfo.mNeedsInputMIDI = PLUG_DOES_MIDI_IN;
     setupInfo.mInputMIDINodeName = PLUG_NAME" Midi";
     setupInfo.mInputMIDIChannelMask = 0x0001;
     
-    setupInfo.mNeedsOutputMIDI = PLUG_DOES_MIDI;
+    setupInfo.mNeedsOutputMIDI = PLUG_DOES_MIDI_OUT;
     setupInfo.mOutputMIDINodeName = PLUG_NAME" Midi";
     setupInfo.mOutputMIDIChannelMask = 0x0001;
     

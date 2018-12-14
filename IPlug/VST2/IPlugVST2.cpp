@@ -626,12 +626,18 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         {
           return 1;
         }
-        if (_this->DoesMIDI())
+        if (_this->DoesMIDIIn())
+        {
+          if (!strcmp((char*) ptr, "receiveVstEvents") ||
+              !strcmp((char*) ptr, "receiveVstMidiEvent"))
+          {
+            return 1;
+          }
+        }
+        if (_this->DoesMIDIOut())
         {
           if (!strcmp((char*) ptr, "sendVstEvents") ||
-              !strcmp((char*) ptr, "sendVstMidiEvent") ||
-              !strcmp((char*) ptr, "receiveVstEvents") ||
-              !strcmp((char*) ptr, "receiveVstMidiEvent"))   // ||
+              !strcmp((char*) ptr, "sendVstMidiEvent"))
           {
             return 1;
           }
@@ -799,7 +805,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
 template <class SAMPLETYPE>
 void IPlugVST2::VSTPreProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt32 nFrames)
 {
-  if (DoesMIDI())
+  if (DoesMIDIIn())
     mHostCallback(&mAEffect, __audioMasterWantMidiDeprecated, 0, 0, 0, 0.0f);
 
   _AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), inputs, nFrames);
