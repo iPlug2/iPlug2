@@ -508,8 +508,8 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
 
   fileName.Set(""); // reset it
 
-  //if (CStringHasContents(ext))
-  pFileTypes = [[NSString stringWithUTF8String:ext] componentsSeparatedByString: @" "];
+  if (CStringHasContents(ext))
+    pFileTypes = [[NSString stringWithUTF8String:ext] componentsSeparatedByString: @" "];
 
   if (action == kFileSave)
   {
