@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 #include "IControl.h"
@@ -15,6 +25,23 @@ public:
   {
     int nchans = MAXNC;
     float vals[MAXNC][MAXBUF] = {};
+    
+    bool AboveThreshold()
+    {
+      static const float threshold = (float) DBToAmp(-90.);
+      
+      float sum = 0.f;
+      
+      for(auto c = 0; c < MAXNC; c++)
+      {
+        for(auto s = 0; s < MAXBUF; s++)
+        {
+          sum += vals[c][s];
+        }
+      }
+      
+      return std::abs(sum) > threshold;
+    }
   };
   
   class IVScopeBallistics
@@ -31,7 +58,11 @@ public:
       {
         if(mBufCount == MAXBUF)
         {
-          mQueue.Push(mBuf); // TODO: expensive?
+          if(mPrevAboveThreshold)
+            mQueue.Push(mBuf); // TODO: expensive?
+          
+          mPrevAboveThreshold = mBuf.AboveThreshold();
+          
           mBufCount = 0;
         }
         
@@ -61,6 +92,7 @@ public:
     int mControlTag;
     int mBufCount = 0;
     IPlugQueue<Data> mQueue { 1024 };
+    bool mPrevAboveThreshold = true;
   };
   
   IVScopeControl(IGEditorDelegate& dlg, IRECT bounds, const char* trackNames = 0, ...)
@@ -98,16 +130,15 @@ public:
 
   void OnMsgFromDelegate(int messageTag, int dataSize, const void* pData) override
   {
-    IByteChunk chnk;
-    chnk.PutBytes(pData, dataSize); // unnessecary copy
+    IByteStream stream(pData, dataSize);
     
-    int pos = chnk.Get(&mBuf.nchans, 0);
+    int pos = stream.Get(&mBuf.nchans, 0);
     
-    while(pos < chnk.Size())
+    while(pos < stream.Size())
     {
       for (auto ch = 0; ch < mBuf.nchans; ch++) {
         for (auto s = 0; s < MAXBUF; s++) {
-          pos = chnk.Get(&mBuf.vals[ch][s], pos);
+          pos = stream.Get(&mBuf.vals[ch][s], pos);
         }
       }
     }

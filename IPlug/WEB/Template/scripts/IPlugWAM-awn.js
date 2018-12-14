@@ -1,4 +1,4 @@
-class IPlugWAMController extends WAMController
+class NAME_PLACEHOLDERController extends WAMController
 {
   constructor (actx, options) {
     options = options || {};
@@ -6,18 +6,17 @@ class IPlugWAMController extends WAMController
     options.numberOfOutputs = 1;
     options.outputChannelCount = [2];
 
-    super(actx, "IPlugWAM", options);
+    super(actx, "NAME_PLACEHOLDER", options);
   }
 
   static importScripts (actx) {
     var origin = location.origin + "/";
     return new Promise( (resolve) => {
-      actx.audioWorklet.addModule(origin + "scripts/IPlugWAM-WAM.wasm.js").then(() => {
-      actx.audioWorklet.addModule(origin + "scripts/IPlugWAM-WAM.js").then(() => {
+      actx.audioWorklet.addModule(origin + "scripts/NAME_PLACEHOLDER-wam.js").then(() => {
       actx.audioWorklet.addModule(origin + "scripts/wam-processor.js").then(() => {
-      actx.audioWorklet.addModule(origin + "scripts/IPlugWAM-awp.js").then(() => {
+      actx.audioWorklet.addModule(origin + "scripts/NAME_PLACEHOLDER-awp.js").then(() => {
         resolve();
-      }) }) }) });
+      }) }) });
     })
   }
 
@@ -27,8 +26,11 @@ class IPlugWAMController extends WAMController
       console.log("got WAM descriptor...");
     }
 
+    if(msg.verb == "SPVFD") {
+      Module.SPVFD(parseInt(msg.prop), parseFloat(msg.data));
+    }
     //Send Control Message From Delegate
-    if(msg.verb == "SCMFD") {
+    else if(msg.verb == "SCMFD") {
       var res = msg.prop.split(":");
       var data = new Uint8Array(msg.data);
       const buffer = Module._malloc(data.length);
@@ -37,7 +39,7 @@ class IPlugWAMController extends WAMController
       Module._free(buffer);
     }
     //Send Arbitrary Message From Delegate
-    if(msg.verb == "SAMFD") {
+    else if(msg.verb == "SAMFD") {
       var data = new Uint8Array(msg.data);
       const buffer = Module._malloc(data.length);
       Module.HEAPU8.set(data, buffer);

@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 #include <cmath>
@@ -17,13 +27,13 @@
 
 #include "IPlugPlatform.h"
 #include "IGraphicsConstants.h"
-#include "IGraphicsUtilities.h"
-
 
 class IGraphics;
 class IControl;
 struct IRECT;
 struct IMouseInfo;
+template <typename T = double>
+inline T DegToRad(T degrees);
 
 typedef std::function<void(IControl*)> IActionFunction;
 typedef std::function<void(IControl*)> IAnimationFunction;
@@ -38,7 +48,6 @@ typedef std::chrono::high_resolution_clock Time;
 typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimePoint;
 typedef std::chrono::duration<double, std::chrono::milliseconds::period> Milliseconds;
 
-class LICE_IFont; // TODO: move this
 /**
  * \defgroup IGraphicsStructs IGraphics::Structs
  * @{
@@ -50,24 +59,27 @@ class LICE_IFont; // TODO: move this
  */
 
 #ifdef IGRAPHICS_AGG
-#include "IGraphicsAGG_src.h"
-typedef agg::pixel_map* BitmapData;
+  #include "IGraphicsAGG_src.h"
+  typedef agg::pixel_map* BitmapData;
 #elif defined IGRAPHICS_CAIRO
-#if defined OS_MAC || defined OS_LINUX
-#include "cairo/cairo.h"
-#elif defined OS_WIN
-#include "cairo/src/cairo.h"
-#else
-#error Cairo not supported on this platform
-#endif
-typedef cairo_surface_t* BitmapData;
+  #if defined OS_MAC || defined OS_LINUX
+    #include "cairo/cairo.h"
+  #elif defined OS_WIN
+    #include "cairo/src/cairo.h"
+  #else
+    #error NOT IMPLEMENTED
+  #endif
+  typedef cairo_surface_t* BitmapData;
 #elif defined IGRAPHICS_NANOVG
-typedef int BitmapData;
+  typedef int BitmapData;
 #elif defined IGRAPHICS_LICE
-#include "lice.h"
-typedef LICE_IBitmap* BitmapData;
-#elif defined EMSCRIPTEN
-typedef void* BitmapData;
+  #include "lice.h"
+  typedef LICE_IBitmap* BitmapData;
+  class LICE_IFont;
+#elif defined IGRAPHICS_CANVAS
+  typedef void* BitmapData;
+#else // NO_IGRAPHICS
+  typedef void* BitmapData;
 #endif
 
 class APIBitmap
@@ -115,7 +127,6 @@ private:
 class IBitmap
 {
 public:
-
   /** Creates a new IBitmap object
   * @param pData Pointer to the raw bitmap data
   * @param w Bitmap width (in pixels)
@@ -170,7 +181,6 @@ public:
   inline const WDL_String& GetResourceName() const { return mResourceName; }
 
 private:
-
   /** Pointer to the API specific bitmap */
   APIBitmap* mAPIBitmap;
   /** Bitmap width (in pixels) */
@@ -188,7 +198,7 @@ private:
 struct ISVG
 {
   NSVGimage* mImage = nullptr;
-
+  
   ISVG(NSVGimage* pImage)
   {
     mImage = pImage;
@@ -243,7 +253,7 @@ struct IColor
 
   static IColor GetRandomColor(bool randomAlpha = false)
   {
-    int A = randomAlpha ? rand() & 0xFF : 255;
+    int A = randomAlpha ? std::rand() & 0xFF : 255;
     int R = std::rand() & 0xFF;
     int G = std::rand() & 0xFF;
     int B = std::rand() & 0xFF;
@@ -257,7 +267,14 @@ struct IColor
     int max = R > G ? (R > B ? R : B) : (G > B ? G : B);
     return (min + max) / 2;
   };
-
+  
+  static void LinearInterpolateBetween(const IColor& start, const IColor& dest, IColor& result, float progress)
+  {
+    result.A = start.A + static_cast<int>(progress * static_cast<float>(dest.A -  start.A));
+    result.R = start.R + static_cast<int>(progress * static_cast<float>(dest.R -  start.R));
+    result.G = start.G + static_cast<int>(progress * static_cast<float>(dest.G -  start.G));
+    result.B = start.B + static_cast<int>(progress * static_cast<float>(dest.B -  start.B));
+  }
 };
 
 const IColor COLOR_TRANSPARENT(0, 0, 0, 0);
@@ -293,15 +310,15 @@ const IColor DEFAULT_TEXTENTRY_FGCOLOR = COLOR_BLACK;
 
 struct IVColorSpec
 {
-  IColor mBGColor = DEFAULT_BGCOLOR;
-  IColor mFGColor = DEFAULT_FGCOLOR;
-  IColor mPRColor = DEFAULT_PRCOLOR;
-  IColor mFRColor = DEFAULT_FRCOLOR;
-  IColor mHLColor = DEFAULT_HLCOLOR;
-  IColor mSHColor = DEFAULT_SHCOLOR;
-  IColor mX1Color = DEFAULT_X1COLOR;
-  IColor mX2Color = DEFAULT_X2COLOR;
-  IColor mX3Color = DEFAULT_X3COLOR;
+  IColor mBGColor = DEFAULT_BGCOLOR; // Background
+  IColor mFGColor = DEFAULT_FGCOLOR; // Foreground
+  IColor mPRColor = DEFAULT_PRCOLOR; // Pressed
+  IColor mFRColor = DEFAULT_FRCOLOR; // Frame
+  IColor mHLColor = DEFAULT_HLCOLOR; // Higlight
+  IColor mSHColor = DEFAULT_SHCOLOR; // Shadow
+  IColor mX1Color = DEFAULT_X1COLOR; // Extra 1
+  IColor mX2Color = DEFAULT_X2COLOR; // Extra 2
+  IColor mX3Color = DEFAULT_X3COLOR; // Extra 3
 
   void SetColors(const IColor BGColor = DEFAULT_BGCOLOR,
                  const IColor FGColor = DEFAULT_FGCOLOR,
@@ -391,7 +408,6 @@ struct IStrokeOptions
 };
 
 /** Used to store transformation matrices**/
-
 struct IMatrix
 {
   IMatrix()
@@ -403,60 +419,58 @@ struct IMatrix
     mTransform[4] = 0.0;
     mTransform[5] = 0.0;
   }
+    
+  IMatrix(float sx, float shx, float shy, float sy, float tx, float ty)
+  {
+    mTransform[0] = sx;
+    mTransform[1] = shx;
+    mTransform[2] = shy;
+    mTransform[3] = sy;
+    mTransform[4] = tx;
+    mTransform[5] = ty;
+  }
   
   void Translate(float x, float y)
   {
-    mTransform[4] += x;
-    mTransform[5] += y;
+    IMatrix multiplier(1.0, 0.0, 0.0, 1.0, x, y);
+    Transform(multiplier);
   }
   
   void Scale(float x, float y)
   {
-    mTransform[0] *= x;
-    mTransform[2] *= x;
-    mTransform[4] *= x;
-    mTransform[1] *= y;
-    mTransform[3] *= y;
-    mTransform[5] *= y;
+    IMatrix multiplier(x, 0.0, 0.0, y, 0.0, 0.0);
+    Transform(multiplier);
   }
   
   void Rotate(float a)
   {
     a = DegToRad(a);
-    const double ca = cos(a);
-    const double sa = sin(a);
-    const double sx = mTransform[0];
-    const double hx = mTransform[1];
-    const double hy = mTransform[2];
-    const double sy = mTransform[3];
-    const double tx = mTransform[4];
-    const double ty = mTransform[5];
-    mTransform[0] = sx * ca - hy * sa;
-    mTransform[1] = hx * ca - sy * sa;
-    mTransform[2] = sx * sa + hy * ca;
-    mTransform[3] = hx * sa + sy * ca;
-    mTransform[4] = tx * ca - ty * sa;
-    mTransform[5] = tx * sa + ty * ca;
+    const float c = std::cos(a);
+    const float s = std::sin(a);
+    
+    IMatrix multiplier(c, s, -s, c, 0.f, 0.f);
+    Transform(multiplier);
   }
   
   void Transform(const IMatrix& m)
   {
     IMatrix p = *this;
 
-    mTransform[0] = p.mTransform[0] * m.mTransform[0] + p.mTransform[2] * m.mTransform[1];
-    mTransform[1] = p.mTransform[1] * m.mTransform[0] + p.mTransform[3] * m.mTransform[1];
-    mTransform[2] = p.mTransform[0] * m.mTransform[2] + p.mTransform[2] * m.mTransform[3];
-    mTransform[3] = p.mTransform[1] * m.mTransform[2] + p.mTransform[3] * m.mTransform[3];
-    mTransform[4] = p.mTransform[4] * m.mTransform[0] + p.mTransform[5] * m.mTransform[1] + m.mTransform[4];
-    mTransform[5] = p.mTransform[4] * m.mTransform[2] + p.mTransform[5] * m.mTransform[3] + m.mTransform[5];
+    mTransform[0] = m.mTransform[0] * p.mTransform[0] + m.mTransform[1] * p.mTransform[2];
+    mTransform[1] = m.mTransform[0] * p.mTransform[1] + m.mTransform[1] * p.mTransform[3];
+    mTransform[2] = m.mTransform[2] * p.mTransform[0] + m.mTransform[3] * p.mTransform[2];
+    mTransform[3] = m.mTransform[2] * p.mTransform[1] + m.mTransform[3] * p.mTransform[3];
+    mTransform[4] = m.mTransform[4] * p.mTransform[0] + m.mTransform[5] * p.mTransform[2] + p.mTransform[4];
+    mTransform[5] = m.mTransform[4] * p.mTransform[1] + m.mTransform[5] * p.mTransform[3] + p.mTransform[5];
   }
   
-  float mTransform[6];
+  double mTransform[6];
 };
+
 struct IColorStop
 {
   IColorStop()
-  : mOffset(0.0)
+  : mOffset(0.f)
   {}
 
   IColorStop(IColor color, float offset)
@@ -477,25 +491,27 @@ struct IPattern
   WDL_TypedBuf<IColorStop> mStops;
   float mTransform[6];
 
-  IPattern(const IColor& color) : mExtend(kExtendRepeat)
+  IPattern(const IColor& color)
+  : mExtend(kExtendRepeat)
   {
     mType = kSolidPattern;
     mStops.Add(IColorStop(color, 0.0));
     SetTransform(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
   }
 
-  IPattern(EPatternType type) : mExtend(kExtendNone)
+  IPattern(EPatternType type)
+  : mExtend(kExtendNone)
   {
     mType = type;
     SetTransform(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
   }
 
-  IPattern(float x1, float y1, float x2, float y2) : mExtend(kExtendNone)
+  IPattern(float x1, float y1, float x2, float y2)
+  : mExtend(kExtendNone)
   {
     mType = kLinearPattern;
 
     // Calculate the affine transform from one line segment to another!
-
     const float xd = x2 - x1;
     const float yd = y2 - y1;
     const float size = sqrtf(xd * xd + yd * yd);
@@ -512,8 +528,18 @@ struct IPattern
 
     SetTransform(xx, yx, xy, yy, x0, y0);
   }
+  
+  IPattern(float x1, float y1, float x2, float y2, std::initializer_list<IColorStop> stops)
+  : IPattern(x1, y1, x2, y2)
+  {
+    for(auto& stop : stops)
+    {
+      AddStop(stop.mColor, stop.mOffset);
+    }
+  }
 
-  IPattern(float x1, float y1, float r) : mExtend(kExtendNone)
+  IPattern(float x1, float y1, float r)
+  : mExtend(kExtendNone)
   {
     mType = kRadialPattern;
 
@@ -590,8 +616,11 @@ struct IText
   IColor mTextEntryBGColor;
   IColor mTextEntryFGColor;
   int mOrientation = 0; // Degrees ccwise from normal.
-  mutable LICE_IFont* mCached = nullptr;
   mutable double mCachedScale = 1.0;
+
+#ifdef IGRAPHICS_LICE
+  mutable LICE_IFont* mCached = nullptr;
+#endif
 };
 
 const IText DEFAULT_TEXT = IText();
@@ -612,7 +641,7 @@ struct IRECT
   : L(l), R(r), T(t), B(b)
   {}
   
-  IRECT(float x, float y, IBitmap& bitmap)
+  IRECT(float x, float y, const IBitmap& bitmap)
   {
     L = x;
     T = y;
@@ -753,11 +782,16 @@ struct IRECT
       return SubRectHorizontal(numSlices, sliceIdx);
   }
   
-  inline IRECT GetRECTFromTLHC(float w, float h) { return IRECT(L, T, L+w, T+h); }
-  inline IRECT GetRECTFromBLHC(float w, float h) { return IRECT(L, B-h, L+w, B); }
-  inline IRECT GetRECTFromTRHC(float w, float h) { return IRECT(R-w, T, R, T+h); }
-  inline IRECT GetRECTFromBRHC(float w, float h) { return IRECT(R-w, B-h, R, B); }
+  inline IRECT GetFromTLHC(float w, float h) const { return IRECT(L, T, L+w, T+h); }
+  inline IRECT GetFromBLHC(float w, float h) const { return IRECT(L, B-h, L+w, B); }
+  inline IRECT GetFromTRHC(float w, float h) const { return IRECT(R-w, T, R, T+h); }
+  inline IRECT GetFromBRHC(float w, float h) const { return IRECT(R-w, B-h, R, B); }
 
+  inline IRECT GetReducedFromTop(float amount) const { return IRECT(L, T+amount, R, B); }
+  inline IRECT GetReducedFromBottom(float amount) const { return IRECT(L, T, R, B-amount); }
+  inline IRECT GetReducedFromLeft(float amount) const { return IRECT(L+amount, T, R, B); }
+  inline IRECT GetReducedFromRight(float amount) const { return IRECT(L, T, R-amount, B); }
+  
   inline IRECT GetGridCell(int row, int col, int nRows, int nColumns/*, EDirection = kHorizontal*/) const
   {
     assert(row * col <= nRows * nColumns); // not enough cells !
@@ -790,16 +824,16 @@ struct IRECT
   
   bool IsPixelAligned() const
   {
-    return !(L - floor(L) && T - floor(T) && R - floor(R) && B - floor(B));
+    return !(L - std::floor(L) && T - std::floor(T) && R - std::floor(R) && B - std::floor(B));
   }
   
-  // Pixel Aligns in an inclusive manner (moves all points outwards)
+  // Pixel aligns in an inclusive manner (moves all points outwards)
   inline void PixelAlign() 
   {
-    L = floor(L);
-    T = floor(T);
-    R = ceil(R);
-    B = ceil(B);
+    L = std::floor(L);
+    T = std::floor(T);
+    R = std::ceil(R);
+    B = std::ceil(B);
   }
   
   inline void Pad(float padding)
@@ -913,7 +947,7 @@ struct IRECT
       B = rhs.B - 1;
     }
   }
-
+  
   void Scale(float scale)
   {
     L = std::floor(0.5f + (L * scale));
@@ -989,6 +1023,16 @@ struct IRECT
     return IRECT(L + x, T + y, R + x, B + y);
   }
   
+  IRECT GetHShifted(float x) const
+  {
+    return GetShifted(x);
+  }
+  
+  IRECT GetVShifted(float y) const
+  {
+    return GetShifted(0., y);
+  }
+  
   IRECT GetShifted(float l, float t, float r, float b) const
   {
     return IRECT(L + l, T + t, R + r, B + b);
@@ -1055,6 +1099,8 @@ struct IMouseMod
   bool L, R, S, C, A;
   IMouseMod(bool l = false, bool r = false, bool s = false, bool c = false, bool a = false)
     : L(l), R(r), S(s), C(c), A(a) {}
+  
+  void DBGPrint() { DBGMSG("L: %i, R: %i, S: %i, C: %i,: A: %i\n", L, R, S, C, A); }
 };
 
 struct IMouseInfo
@@ -1064,11 +1110,9 @@ struct IMouseInfo
 };
 
 /** Used to manage a list of rectangular areas and optimize them for drawing to the screen. */
-
 class IRECTList
 {
 public:
-  
   int Size() const { return mRects.GetSize(); }
   
   void Add(const IRECT rect)
@@ -1093,26 +1137,25 @@ public:
   
   IRECT Bounds()
   {
-    IRECT rect = Get(0);
+    IRECT r = Get(0);
     for (auto i = 1; i < mRects.GetSize(); i++)
-      rect = rect.Union(Get(i));
-    return rect;
+      r = r.Union(Get(i));
+    return r;
   }
   
   void PixelAlign()
   {
-    for (int i = 0; i < Size(); i++)
+    for (auto i = 0; i < Size(); i++)
     {
-      IRECT rect = Get(i);
-      rect.PixelAlign();
-      Set(i, rect);
+      IRECT r = Get(i);
+      r.PixelAlign();
+      Set(i, r);
     }
   }
   
   void Optimize()
   {
     // Remove rects that are contained by other rects and intersections
-    
     for (int i = 0; i < Size(); i++)
     {
       for (int j = i + 1; j < Size(); j++)
@@ -1145,7 +1188,6 @@ public:
     }
     
     // Merge any rects that can be merged
-    
     for (int i = 0; i < Size(); i++)
     {
       for (int j = i + 1; j < Size(); j++)
@@ -1210,7 +1252,6 @@ template <class T>
 class StaticStorage
 {
 public:
-
   // djb2 hash function (hash * 33 + c) - see http://www.cse.yorku.ca/~oz/hash.html // TODO: can we use C++11 std::hash instead of this?
   uint32_t Hash(const char* str)
   {
@@ -1228,7 +1269,6 @@ public:
   struct DataKey
   {
     // N.B. - hashID is not guaranteed to be unique
-
     uint32_t hashID;
     WDL_String name;
     double scale;
@@ -1245,11 +1285,11 @@ public:
     int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
     {
-      DataKey* key = mDatas.Get(i);
+      DataKey* pKey = mDatas.Get(i);
 
       // Use the hash id for a quick search and then confirm with the scale and identifier to ensure uniqueness
-      if (key->hashID == hashID && scale == key->scale && !strcmp(str, key->name.Get()))
-        return key->data;
+      if (pKey->hashID == hashID && scale == pKey->scale && !strcmp(str, pKey->name.Get()))
+        return pKey->data;
     }
     return nullptr;
   }
@@ -1288,7 +1328,7 @@ public:
     int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
     {
-      // FIX - this doesn't work - why not?
+      // FIXME: - this doesn't work - why not?
       /*
       DataKey* key = mDatas.Get(i);
       T* data = key->data;

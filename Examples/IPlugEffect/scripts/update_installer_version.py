@@ -6,6 +6,10 @@ import plistlib, os, datetime, fileinput, glob, sys, string
 scriptpath = os.path.dirname(os.path.realpath(__file__))
 projectpath = os.path.abspath(os.path.join(scriptpath, os.pardir))
 
+sys.path.insert(0, projectpath + '/../../scripts/')
+
+from parse_config import parse_config
+
 def replacestrs(filename, s, r):
   files = glob.glob(filename)
   
@@ -23,47 +27,24 @@ def main():
   else:
     demo=int(sys.argv[1])
 
-  MajorStr = ""
-  MinorStr = "" 
-  BugfixStr = ""
-  BUNDLE_NAME = ""
-  
-  # extract values from config.h
-  for line in fileinput.input(projectpath + "/config.h", inplace=0):
-    if "#define PLUG_VERSION_HEX " in line:
-      PLUG_VERSION_STR = string.lstrip(line, "#define PLUG_VERSION_HEX ")
-      PLUG_VERSION = int(PLUG_VERSION_STR, 16)
-      MAJOR = PLUG_VERSION & 0xFFFF0000
-      MAJORSTR = str(MAJOR >> 16)
-      MINOR = PLUG_VERSION & 0x0000FF00
-      MINORSTR = str(MINOR >> 8)
-      BUGFIXSTR = str(PLUG_VERSION & 0x000000FF)
-      
-    if "#define BUNDLE_NAME " in line:
-      BUNDLE_NAME = string.lstrip(line, "#define BUNDLE_NAME ")
-  
-  FULLVERSIONSTR = MAJORSTR + "." + MINORSTR + "." + BUGFIXSTR
-  
-  #strip quotes and newlines
-  PLUG_VERSION_STR = PLUG_VERSION_STR[0:-1]
-  BUNDLE_NAME = BUNDLE_NAME[1:-2]
+  config = parse_config(projectpath)
 
 # MAC INSTALLER
 
   print "Updating Mac Installer version info..."
   
-  plistpath = projectpath + "/installer/" + BUNDLE_NAME + ".pkgproj"
+  plistpath = projectpath + "/installer/" + config['BUNDLE_NAME'] + ".pkgproj"
   installer = plistlib.readPlist(plistpath)
   
   # range  = number of items in the installer (VST 2, VST 3, app, audiounit, aax)
   for x in range(0,5):
-    installer['PACKAGES'][x]['PACKAGE_SETTINGS']['VERSION'] = FULLVERSIONSTR
+    installer['PACKAGES'][x]['PACKAGE_SETTINGS']['VERSION'] = config['FULL_VER_STR']
 
   if demo:
-    installer['PROJECT']['PROJECT_PRESENTATION']['TITLE']['LOCALIZATIONS'][0]['VALUE'] = BUNDLE_NAME + " Demo"
+    installer['PROJECT']['PROJECT_PRESENTATION']['TITLE']['LOCALIZATIONS'][0]['VALUE'] = config['BUNDLE_NAME'] + " Demo"
     installer['PROJECT']['PROJECT_PRESENTATION']['INTRODUCTION']['LOCALIZATIONS'][0]['VALUE']['PATH'] = "intro-demo.rtf"
   else:
-    installer['PROJECT']['PROJECT_PRESENTATION']['TITLE']['LOCALIZATIONS'][0]['VALUE'] = BUNDLE_NAME
+    installer['PROJECT']['PROJECT_PRESENTATION']['TITLE']['LOCALIZATIONS'][0]['VALUE'] = config['BUNDLE_NAME']
     installer['PROJECT']['PROJECT_PRESENTATION']['INTRODUCTION']['LOCALIZATIONS'][0]['VALUE']['PATH'] = "intro.rtf"
 
   plistlib.writePlist(installer, plistpath)
@@ -72,9 +53,9 @@ def main():
 # WIN INSTALLER
   print "Updating Windows Installer version info..."
   
-  for line in fileinput.input(projectpath + "/installer/" + BUNDLE_NAME + ".iss",inplace=1):
+  for line in fileinput.input(projectpath + "/installer/" + config['BUNDLE_NAME'] + ".iss",inplace=1):
     if "AppVersion" in line:
-      line="AppVersion=" + FULLVERSIONSTR + "\n"
+      line="AppVersion=" + config['FULL_VER_STR'] + "\n"
     if "OutputBaseFilename" in line:
       if demo:
         line="OutputBaseFilename=IPlugEffect Demo Installer\n"

@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #include "IPlugAAX.h"
 #include "IPlugAAX_view_interface.h"
@@ -45,12 +39,12 @@ void AAX_CEffectGUI_IPLUG::CreateViewContainer()
   
   if (pWindow && mPlug->HasUI())
   {
+    mPlug->OpenWindow(pWindow);
+    
     IPlugAAXView_Interface* pViewInterface = (IPlugAAXView_Interface*) mPlug->GetAAXViewInterface();
     
     if(pViewInterface)
       pViewInterface->SetViewContainer(GetViewContainer());
-    
-    mPlug->OpenWindow(pWindow);
   }
 }
 
@@ -169,8 +163,8 @@ AAX_Result IPlugAAX::EffectInit()
         pAAXParam = new AAX_CParameter<int>(pParamIDStr->Get(),
                                         AAX_CString(pParam->GetNameForHost()),
                                         (int)pParam->GetDefault(),
-                                        AAX_CLinearTaperDelegate<int>((int)pParam->GetMin(), (int)pParam->GetMax()),
-                                        AAX_CUnitDisplayDelegateDecorator<int>( AAX_CNumberDisplayDelegate<int>(), AAX_CString(pParam->GetLabelForHost())),
+                                        AAX_CLinearTaperDelegate<int,1>((int)pParam->GetMin(), (int)pParam->GetMax()),
+                                        AAX_CUnitDisplayDelegateDecorator<int>( AAX_CNumberDisplayDelegate<int,0>(), AAX_CString(pParam->GetLabelForHost())),
                                         pParam->GetCanAutomate());
         
         pAAXParam->SetNumberOfSteps(128);
@@ -196,7 +190,7 @@ AAX_Result IPlugAAX::EffectInit()
         pAAXParam = new AAX_CParameter<int>(pParamIDStr->Get(),
                                         AAX_CString(pParam->GetNameForHost()),
                                         (int)pParam->GetDefault(),
-                                        AAX_CLinearTaperDelegate<int>((int) pParam->GetMin(), (int) pParam->GetMax()),
+                                        AAX_CLinearTaperDelegate<int,1>((int) pParam->GetMin(), (int) pParam->GetMax()),
                                         AAX_CStringDisplayDelegate<int>(displayTexts),
                                         pParam->GetCanAutomate());
         
@@ -265,17 +259,12 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
   Controller()->GetInputStemFormat(&inFormat);
   Controller()->GetOutputStemFormat(&outFormat);
   
-  if (DoesMIDI()) 
+  if (DoesMIDIIn()) 
   {
     AAX_IMIDINode* pMidiIn = pRenderInfo->mInputNode;
     AAX_CMidiStream* pMidiBuffer = pMidiIn->GetNodeBuffer();
     AAX_CMidiPacket* pMidiPacket = pMidiBuffer->mBuffer;
     uint32_t packets_count = pMidiBuffer->mBufferSize;
-    
-    // Setup MIDI Out node pointers 
-//		AAX_IMIDINode* midiNodeOut = instance->mMIDINodeOutP;
-//		AAX_CMidiStream* midiBufferOut = midiNodeOut->GetNodeBuffer();
-//		AAX_CMidiPacket* midiBufferOutPtr = midiBufferOut->mBuffer;
         
     for (int i = 0; i<packets_count; i++, pMidiPacket++) 
     {
@@ -328,7 +317,49 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
     _SetTimeInfo(timeInfo);
     //timeInfo.mLastBar ??
     
+    IMidiMsg msg;
+    
+    while (mMidiMsgsFromEditor.Pop(msg))
+    {
+      ProcessMidiMsg(msg);
+    }
+    
     _ProcessBuffers(0.0f, numSamples);
+  }
+  
+  // Midi Out
+  if (DoesMIDI())
+  {
+    AAX_IMIDINode* midiOut = pRenderInfo->mOutputNode;
+    
+    if(midiOut)
+    {
+      //MIDI
+      if (!mMidiOutputQueue.Empty())
+      {        
+        while (!mMidiOutputQueue.Empty())
+        {
+          IMidiMsg& msg = mMidiOutputQueue.Peek();
+          
+          AAX_CMidiPacket packet;
+          
+          packet.mIsImmediate = true; // TODO: how does this affect sample accuracy?
+          
+          packet.mTimestamp = (uint32_t) msg.mOffset;
+          packet.mLength = 3;
+          
+          packet.mData[0] = msg.mStatus;
+          packet.mData[1] = msg.mData1;
+          packet.mData[2] = msg.mData2;
+          
+          midiOut->PostMIDIPacket (&packet);
+          
+          mMidiOutputQueue.Remove();
+        }
+      }
+      
+      mMidiOutputQueue.Flush(numSamples);
+    }
   }
 }
 
@@ -336,15 +367,15 @@ AAX_Result IPlugAAX::GetChunkIDFromIndex( int32_t index, AAX_CTypeID* pChunkID) 
 {
   IPlugAAX* _this = const_cast<IPlugAAX*>(this);
 
-	if (index != 0)
-	{
-		*pChunkID = AAX_CTypeID(0);
-		return AAX_ERROR_INVALID_CHUNK_INDEX;
-	}
-	
-	*pChunkID = _this->GetUniqueID();
-  
-	return AAX_SUCCESS;	
+  if (index != 0)
+  {
+    *pChunkID = AAX_CTypeID(0);
+    return AAX_ERROR_INVALID_CHUNK_INDEX;
+  }
+
+  *pChunkID = _this->GetUniqueID();
+
+  return AAX_SUCCESS;
 }
 
 AAX_Result IPlugAAX::GetChunkSize(AAX_CTypeID chunkID, uint32_t* pSize) const
@@ -387,7 +418,7 @@ AAX_Result IPlugAAX::GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk* pChunk) con
     if (_this->SerializeState(chunk))
     {
       pChunk->fSize = chunk.Size();
-      memcpy(pChunk->fData, chunk.GetBytes(), chunk.Size());
+      memcpy(pChunk->fData, chunk.GetData(), chunk.Size());
       return AAX_SUCCESS;
     }
   }
@@ -479,8 +510,8 @@ void IPlugAAX::SetLatency(int latency)
   IPlugProcessor::SetLatency(latency); // will update delay time
 }
 
-// TODO: SendMidiMsg()
 bool IPlugAAX::SendMidiMsg(const IMidiMsg& msg)
 {
-  return false;
+  mMidiOutputQueue.Add(msg);
+  return true;
 }

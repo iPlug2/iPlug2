@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #ifndef _IPLUGAPI_
 #define _IPLUGAPI_
@@ -43,10 +37,10 @@ public:
 
   virtual void onProcess(WAM::AudioBus* pAudio, void* pData) override;
   virtual void onMidi(byte status, byte data1, byte data2) override;
-  virtual void onSysex(byte* msg, uint32_t size) override;
+  virtual void onSysex(byte* pData, uint32_t size) override;
   virtual void onMessage(char* verb, char* res, double data) override;
-//  virtual void onMessage(char* verb, char* res, char* data) override;
-//  virtual void onMessage(char* verb, char* res, void* data, uint32_t size) override;
+  virtual void onMessage(char* verb, char* res, char* data) override;
+  virtual void onMessage(char* verb, char* res, void* data, uint32_t size) override;
   virtual void onParam(uint32_t idparam, double value) override;
 
   //IPlugProcessor
@@ -57,8 +51,8 @@ public:
   //IEditorDelegate - these are overwritten because we need to use WAM messaging system
   void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;
   void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) override;
-  void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override {} // NOOP in WAM processor?
-  void SendArbitraryMsgFromDelegate(int messageTag, int dataSize = 0, const void* pData = nullptr) override {};
+  void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
+  void SendArbitraryMsgFromDelegate(int messageTag, int dataSize = 0, const void* pData = nullptr) override;
   
 private:
   int mBlockCounter = 0;

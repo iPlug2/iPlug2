@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #include <cmath>
 
 #include "IGraphicsAGG.h"
@@ -157,7 +167,7 @@ void IGraphicsAGG::DrawResize()
   mRasterizer.SetOutput(mRenBuf);
   mRasterizer.ClearWhite();
     
-  mTransform = agg::trans_affine_scaling(GetScale(), GetScale());  
+  mTransform = agg::trans_affine_scaling(GetScale() * GetDisplayScale(), GetScale() * GetDisplayScale());
 }
 
 //IFontData IGraphicsAGG::LoadFont(const char* name, const int size)
@@ -211,7 +221,6 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   PixfmtType imgPixfSrc(src);
   
   agg::trans_affine dstMtx(mTransform);
-  dstMtx *= agg::trans_affine_scaling(scale);
   
   agg::trans_affine srcMtx;
   srcMtx /= dstMtx;
@@ -302,7 +311,6 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, f
 void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax)
 {
   agg::trans_affine xform = mTransform;
-  xform *= agg::trans_affine_scaling(GetDisplayScale());
   
   agg::arc arc(cx, cy, r, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f));
   arc.approximation_scale(xform.scale());
@@ -317,7 +325,6 @@ void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax)
 void IGraphicsAGG::PathMoveTo(float x, float y)
 {
   agg::trans_affine xform = mTransform;
-  xform *= agg::trans_affine_scaling(GetDisplayScale());
   
   double xd = x;
   double yd = y;
@@ -329,7 +336,6 @@ void IGraphicsAGG::PathMoveTo(float x, float y)
 void IGraphicsAGG::PathLineTo(float x, float y)
 {
   agg::trans_affine xform = mTransform;
-  xform *= agg::trans_affine_scaling(GetDisplayScale());
   
   double xd = x;
   double yd = y;
@@ -341,7 +347,6 @@ void IGraphicsAGG::PathLineTo(float x, float y)
 void IGraphicsAGG::PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
 {
   agg::trans_affine xform = mTransform;
-  xform *= agg::trans_affine_scaling(GetDisplayScale());
   
   double x1d = x1;
   double y1d = y1;
@@ -384,7 +389,6 @@ void StrokeOptions(StrokeType& strokes, double thickness, const IStrokeOptions& 
 void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
 {
   agg::trans_affine xform = mTransform;
-  xform *= agg::trans_affine_scaling(GetDisplayScale());
   
   if (options.mDash.GetCount())
   {
@@ -600,7 +604,7 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IREC
   }
 }
 
-bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destBounds, const IBlend* pBlend, bool measure)
+bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& destBounds, const IBlend* pBlend, bool measure)
 {
 //  if (!str || str[0] == '\0')
 //  {
@@ -742,82 +746,6 @@ bool IGraphicsAGG::DrawText(const IText& text, const char* str, IRECT& destBound
   return false;
 }
 
-bool IGraphicsAGG::MeasureText(const IText& text, const char* str, IRECT& bounds)
-{
-//  if (!str || str[0] == '\0')
-//  {
-//    destBounds.Clear();
-//    return true;
-//  }
-
-//  renderer_solid ren_solid(mRenBase);
-//  renderer_bin ren_bin(mRenBase);
-//
-//  agg::scanline_u8 sl;
-//  agg::rasterizer_scanline_aa<> ras;
-//
-//  agg::glyph_rendering gren = agg::glyph_ren_agg_gray8;
-//  //agg::glyph_rendering gren = agg::glyph_ren_outline;
-//  //agg::glyph_rendering gren = agg::glyph_ren_agg_mono;
-//  //agg::glyph_rendering gren = agg::glyph_ren_native_gray8;
-//  //agg::glyph_rendering gren = agg::glyph_ren_native_mono;
-//
-//  float weight = 0.0;
-//  bool hinting = false;
-//
-//  if (gren == agg::glyph_ren_agg_mono)
-//  {
-//    mFontEngine.gamma(agg::gamma_threshold(0.5));
-//  }
-//  else
-//  {
-//    mFontEngine.gamma(agg::gamma_power(1.0));
-//  }
-//
-//  if (gren == agg::glyph_ren_outline)
-//  {
-//    //for outline cache set gamma for the rasterizer
-//    ras.gamma(agg::gamma_power(1.0));
-//  }
-//
-//  mFontContour.width(-weight * (text.mSize * 0.05) * GetDisplayScale());
-//
-//  IFontData font = LoadFont(text.mFont, text.mSize);
-//  agg::font * pFontData = (agg::font *)font.mData;
-//
-//  if (mFontEngine.load_font("", 0, gren, pFontData->buf(), pFontData->size()))
-//  {
-//    mFontEngine.hinting(hinting);
-//    mFontEngine.height(text.mSize * GetDisplayScale());
-//    mFontEngine.width(text.mSize * GetDisplayScale());
-//    mFontEngine.flip_y(true);
-//
-//    WDL_TypedBuf<LineInfo> lines;
-//
-//    CalculateTextLines(&lines, destBounds, str, mFontManager);
-//
-//    LineInfo * pLines = lines.Get();
-//
-//    int max_width = 0;
-//    int height = 0;
-//
-//    for (int i=0; i<lines.GetSize(); ++i, ++pLines)
-//    {
-//      if (pLines->width > max_width)
-//      {
-//        max_width = pLines->width;
-//      }
-//      height += text.mSize * GetDisplayScale();
-//    }
-//
-//    destBounds.L = 0; destBounds.T = 0;
-//    destBounds.R = max_width; destBounds.B = height;
-//
-//    return true;
-//  }
-//
-  return false;
-}
 /*
 agg::pixel_map* IGraphicsAGG::load_image(const char* filename)
 {

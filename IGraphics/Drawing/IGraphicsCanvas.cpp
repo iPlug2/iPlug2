@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #include "IGraphicsCanvas.h"
 #include <string>
 #include <stdio.h>
@@ -8,6 +18,14 @@ using namespace emscripten;
 extern IGraphics* gGraphics;
 
 extern val GetPreloadedImages();
+extern val GetCanvas();
+
+static std::string CanvasColor(const IColor& color, float alpha = 1.0)
+{
+  WDL_String str;
+  str.SetFormatted(64, "rgba(%d, %d, %d, %lf)", color.R, color.G, color.B, alpha * color.A / 255.0);
+  return str.Get();
+}
 
 WebBitmap::WebBitmap(emscripten::val imageCanvas, const char* name, int scale)
 {
@@ -17,15 +35,6 @@ WebBitmap::WebBitmap(emscripten::val imageCanvas, const char* name, int scale)
 IGraphicsCanvas::IGraphicsCanvas(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphicsPathBase(dlg, w, h, fps, scale)
 {
-  SetDisplayScale(val::global("window")["devicePixelRatio"].as<int>());
-  
-  val canvas = GetCanvas();
-
-  canvas["style"].set("width", val(Width() * GetScale()));
-  canvas["style"].set("height", val(Height() * GetScale()));
-  
-  canvas.set("width", Width() * GetScale() * GetDisplayScale());
-  canvas.set("height", Height() * GetScale() * GetDisplayScale());
 }
 
 IGraphicsCanvas::~IGraphicsCanvas()
@@ -37,7 +46,7 @@ void IGraphicsCanvas::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX,
   val context = GetContext();
   RetainVal* pRV = (RetainVal*) bitmap.GetAPIBitmap()->GetBitmap();
   GetContext().call<void>("save");
-  SetWebBlendMode(pBlend);
+  SetCanvasBlendMode(pBlend);
   context.set("globalAlpha", BlendWeight(pBlend));
   
   const float ds = GetDisplayScale();
@@ -49,6 +58,41 @@ void IGraphicsCanvas::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX,
   
   context.call<void>("drawImage", pRV->mItem, srcX, srcY, sr.W(), sr.H(), floor(bounds.L), floor(bounds.T), floor(bounds.W()), floor(bounds.H()));
   GetContext().call<void>("restore");
+}
+
+void IGraphicsCanvas::DrawRotatedBitmap(IBitmap& bitmap, float destCentreX, float destCentreY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
+{
+  IGraphicsPathBase::DrawRotatedBitmap(bitmap, destCentreX, destCentreY, DegToRad(angle), yOffsetZeroDeg, pBlend);
+}
+
+void IGraphicsCanvas::PathClear()
+{
+  GetContext().call<void>("beginPath");
+}
+
+void IGraphicsCanvas::PathClose()
+{
+  GetContext().call<void>("closePath");
+}
+
+void IGraphicsCanvas::PathArc(float cx, float cy, float r, float aMin, float aMax)
+{
+  GetContext().call<void>("arc", cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f));
+}
+
+void IGraphicsCanvas::PathMoveTo(float x, float y)
+{
+  GetContext().call<void>("moveTo", x, y);
+}
+
+void IGraphicsCanvas::PathLineTo(float x, float y)
+{
+  GetContext().call<void>("lineTo", x, y);
+}
+
+void IGraphicsCanvas::PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
+{
+  GetContext().call<void>("bezierCurveTo", x1, y1, x2, y2, x3, y3);
 }
 
 void IGraphicsCanvas::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
@@ -80,7 +124,7 @@ void IGraphicsCanvas::PathStroke(const IPattern& pattern, float thickness, const
   context.set("lineDashOffset", options.mDash.GetOffset());
   context.set("lineWidth", thickness);
   
-  SetWebSourcePattern(pattern, pBlend);
+  SetCanvasSourcePattern(pattern, pBlend);
 
   context.call<void>("stroke");
   
@@ -93,7 +137,7 @@ void IGraphicsCanvas::PathFill(const IPattern& pattern, const IFillOptions& opti
   val context = GetContext();
   std::string fillRule(options.mFillRule == kFillWinding ? "nonzero" : "evenodd");
   
-  SetWebSourcePattern(pattern, pBlend);
+  SetCanvasSourcePattern(pattern, pBlend);
 
   context.call<void>("fill", fillRule);
 
@@ -101,7 +145,7 @@ void IGraphicsCanvas::PathFill(const IPattern& pattern, const IFillOptions& opti
     PathClear();
 }
 
-void IGraphicsCanvas::SetWebSourcePattern(const IPattern& pattern, const IBlend* pBlend)
+void IGraphicsCanvas::SetCanvasSourcePattern(const IPattern& pattern, const IBlend* pBlend)
 {
   auto InvertTransform = [](float *xform, const float *xformIn)
   {
@@ -117,14 +161,14 @@ void IGraphicsCanvas::SetWebSourcePattern(const IPattern& pattern, const IBlend*
   
   val context = GetContext();
   
-  SetWebBlendMode(pBlend);
+  SetCanvasBlendMode(pBlend);
   
   switch (pattern.mType)
   {
     case kSolidPattern:
     {
       const IColor color = pattern.GetStop(0).mColor;
-      std::string colorString = ToCanvasColor(color, BlendWeight(pBlend));
+      std::string colorString = CanvasColor(color, BlendWeight(pBlend));
 
       context.set("fillStyle", colorString);
       context.set("strokeStyle", colorString);
@@ -152,7 +196,7 @@ void IGraphicsCanvas::SetWebSourcePattern(const IPattern& pattern, const IBlend*
       for (int i = 0; i < pattern.NStops(); i++)
       {
         const IColorStop& stop = pattern.GetStop(i);
-        gradient.call<void>("addColorStop", stop.mOffset, ToCanvasColor(stop.mColor));
+        gradient.call<void>("addColorStop", stop.mOffset, CanvasColor(stop.mColor));
       }
       
       context.set("fillStyle", gradient);
@@ -162,12 +206,11 @@ void IGraphicsCanvas::SetWebSourcePattern(const IPattern& pattern, const IBlend*
   }
 }
 
-void IGraphicsCanvas::SetWebBlendMode(const IBlend* pBlend)
+void IGraphicsCanvas::SetCanvasBlendMode(const IBlend* pBlend)
 {
   if (!pBlend)
-  {
     GetContext().set("globalCompositeOperation", "source-over");
-  }
+  
   switch (pBlend->mMethod)
   {
     case kBlendClobber:     GetContext().set("globalCompositeOperation", "source-over");   break;
@@ -182,22 +225,23 @@ void IGraphicsCanvas::SetWebBlendMode(const IBlend* pBlend)
 bool IGraphicsCanvas::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
   // TODO: orientation
-  
   val context = GetContext();
   std::string textString(str);
   
   char fontString[FONT_LEN + 64];
   const char* styles[] = { "normal", "bold", "italic" };
-  double textHeight = text.mSize;
   context.set("textBaseline", std::string("top"));
   val font = context["font"];
-  sprintf(fontString, "%s %lfpx %s", styles[text.mStyle], textHeight, text.mFont);
+  sprintf(fontString, "%s %dpt %s", styles[text.mStyle], text.mSize, text.mFont);
   context.set("font", std::string(fontString));
-  double textWidth = GetContext().call<val>("measureText", textString)["width"].as<double>();
+  double textWidth = context.call<val>("measureText", textString)["width"].as<double>();
+  double textHeight = EM_ASM_DOUBLE({
+    return parseFloat(document.getElementById("canvas").getContext("2d").font);
+  });
   
   if (measure)
   {
-    bounds = IRECT(0, 0, textWidth, textHeight);
+    bounds = IRECT(0, 0, (float) textWidth, (float) textHeight * 1.3); // FIXME bodge for canvas text height!
     return true;
   }
   else
@@ -220,13 +264,13 @@ bool IGraphicsCanvas::DrawText(const IText& text, const char* str, IRECT& bounds
       default: break;
     }
 
-    GetContext().call<void>("save");
+    context.call<void>("save");
     PathRect(bounds);
-    GetContext().call<void>("clip");
+    context.call<void>("clip");
     PathClear();
-    SetWebSourcePattern(text.mFGColor, pBlend);
+    SetCanvasSourcePattern(text.mFGColor, pBlend);
     context.call<void>("fillText", textString, x, y);
-    GetContext().call<void>("restore");
+    context.call<void>("restore");
   }
   
   return true;
@@ -239,34 +283,25 @@ bool IGraphicsCanvas::MeasureText(const IText& text, const char* str, IRECT& bou
 
 void IGraphicsCanvas::PathTransformSetMatrix(const IMatrix& m)
 {
-  GetContext().call<void>("setTransform", m.mTransform[0], m.mTransform[1], m.mTransform[2], m.mTransform[3], m.mTransform[4], m.mTransform[5]);
-  GetContext().call<void>("scale", GetDisplayScale() * GetScale(), GetDisplayScale() * GetScale());
+  IMatrix t;
+  t.Scale(GetScale() * GetDisplayScale(), GetScale() * GetDisplayScale());
+  t.Transform(m);
+
+  GetContext().call<void>("setTransform", t.mTransform[0], t.mTransform[1], t.mTransform[2], t.mTransform[3], t.mTransform[4], t.mTransform[5]);
 }
 
 void IGraphicsCanvas::SetClipRegion(const IRECT& r)
 {
-  GetContext().call<void>("restore");
-  GetContext().call<void>("save");
+  val context = GetContext();
+  context.call<void>("restore");
+  context.call<void>("save");
   if (!r.Empty())
   {
-    GetContext().call<void>("beginPath");
-    GetContext().call<void>("rect", r.L, r.T, r.W(), r.H());
-    GetContext().call<void>("clip");
-    GetContext().call<void>("beginPath");
+    context.call<void>("beginPath");
+    context.call<void>("rect", r.L, r.T, r.W(), r.H());
+    context.call<void>("clip");
+    context.call<void>("beginPath");
   }
-}
-
-void IGraphicsCanvas::DrawResize()
-{
-  val canvas = GetCanvas();
-
-  canvas["style"].set("width", val(Width() * GetScale()));
-  canvas["style"].set("height", val(Height() * GetScale()));
-
-  canvas.set("width", Width() * GetScale() * GetDisplayScale());
-  canvas.set("height", Height() * GetScale() * GetDisplayScale());
-  
-  IGraphicsWeb::OnMainLoopTimer();
 }
 
 APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const WDL_String& resourcePath, int scale)

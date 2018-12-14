@@ -20,13 +20,13 @@ public:
   //IWebsocketServer
   //THESE MESSAGES ARE ALL CALLED ON SERVER THREADS - 1 PER WEBSOCKET CONNECTION
   void OnWebsocketReady(int idx) override;
-  bool OnWebsocketText(int idx, void* pData, size_t dataSize) override;
+  bool OnWebsocketText(int idx, const char* pStr, size_t dataSize) override;
   bool OnWebsocketData(int idx, void* pData, size_t dataSize) override;
 
   //IEditorDelegate
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
   void SendSysexMsgFromUI(const ISysEx& msg) override;
-  void SendArbitraryMsgFromUI(int messageTag, int dataSize, const void* pData) override;
+  void SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData) override;
 //  virtual void BeginInformHostOfParamChangeFromUI(int paramIdx) override;
   void SendParameterValueFromUI(int paramIdx, double normalizedValue) override;
 //  virtual void EndInformHostOfParamChangeFromUI(int paramIdx) override;

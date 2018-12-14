@@ -32,7 +32,7 @@ scriptpath = os.path.dirname(os.path.realpath(__file__))
 
 sys.path.insert(0, scriptpath + '/../scripts/')
 
-from parse_config import parse_config, parse_xcconfig, write_config
+from parse_config import parse_config, parse_xcconfig#, write_config
 
 VERSION = "0.93"
 
@@ -151,7 +151,7 @@ def main():
   print("\nIPlug Project Duplicator v" + VERSION + " by Oli Larkin ------------------------------\n")
 
   if len(sys.argv) != 4:
-    print("Usage: duplicate.py inputprojectname outputprojectname [manufacturername]")
+    print("Usage: duplicate.py inputprojectname outputprojectname manufacturername")
     sys.exit(1)
   else:
     input=sys.argv[1]

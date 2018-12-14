@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #ifndef _IPLUGAPI_
 #define _IPLUGAPI_
@@ -50,9 +44,8 @@ struct IPlugInstanceInfo
   WDL_String mCocoaViewFactoryClassName;
 };
 
-/**  AudioUnit v2 API base class for an IPlug plug-in, inherits from IPlugAPIBase
-*   @ingroup APIClasses
-*/
+/**  AudioUnit v2 API base class for an IPlug plug-in
+*   @ingroup APIClasses */
 class IPlugAU : public IPlugAPIBase
               , public IPlugProcessor<PLUG_SAMPLE_DST>
 {
@@ -191,7 +184,6 @@ private:
 private:
   bool mActive = false; // TODO: is this necessary? is it correct?
   double mLastRenderSampleTime = -1.0;
-  WDL_String mBundleID;
   WDL_String mCocoaViewFactoryClassName;
   AudioComponentInstance mCI = nullptr;
   HostCallbackInfo mHostCallbacks;

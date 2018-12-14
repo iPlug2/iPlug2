@@ -44,27 +44,27 @@ fi
 
 # work out the paths to the binaries
 
-VST2=`echo | grep VST2_PATH ../../common.xcconfig`
+VST2=`echo | grep VST2_PATH ../../common-mac.xcconfig`
 VST2=${VST2//\VST2_PATH = }/$PLUGIN_NAME.vst
 
-VST3=`echo | grep VST3_PATH ../../common.xcconfig`
+VST3=`echo | grep VST3_PATH ../../common-mac.xcconfig`
 VST3=${VST3//\VST3_PATH = }/$PLUGIN_NAME.vst3
 
-AU=`echo | grep AU_PATH ../../common.xcconfig`
+AU=`echo | grep AU_PATH ../../common-mac.xcconfig`
 AU=${AU//\AU_PATH = }/$PLUGIN_NAME.component
 
-APP=`echo | grep APP_PATH ../../common.xcconfig`
+APP=`echo | grep APP_PATH ../../common-mac.xcconfig`
 APP=${APP//\APP_PATH = }/$PLUGIN_NAME.app
 
 # Dev build folder
-AAX=`echo | grep AAX_PATH ../../common.xcconfig`
+AAX=`echo | grep AAX_PATH ../../common-mac.xcconfig`
 AAX=${AAX//\AAX_PATH = }/$PLUGIN_NAME.aaxplugin
 AAX_FINAL="/Library/Application Support/Avid/Audio/Plug-Ins/$PLUGIN_NAME.aaxplugin"
 
 PKG="installer/build-mac/$PLUGIN_NAME Installer.pkg"
 PKG_US="installer/build-mac/$PLUGIN_NAME Installer.unsigned.pkg"
 
-CERT_ID=`echo | grep CERTIFICATE_ID ../../common.xcconfig`
+CERT_ID=`echo | grep CERTIFICATE_ID ../../common-mac.xcconfig`
 CERT_ID=${CERT_ID//\CERTIFICATE_ID = }
 
 if [ $DEMO == 1 ]

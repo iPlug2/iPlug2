@@ -4,6 +4,7 @@ DEPS_PATH = $(ROOT)/Dependencies
 WAM_SDK_PATH = $(DEPS_PATH)/IPlug/WAM_SDK/wamsdk
 WDL_PATH = $(ROOT)/WDL
 IPLUG_PATH = $(ROOT)/IPlug
+SWELL_PATH = $(WDL_PATH)/swell
 IGRAPHICS_PATH = $(ROOT)/IGraphics
 CONTROLS_PATH = $(IGRAPHICS_PATH)/Controls
 PLATFORMS_PATH = $(IGRAPHICS_PATH)/Platforms
@@ -49,6 +50,7 @@ WEB_SRC = $(IGRAPHICS_SRC) \
 $(IPLUG_WEB_PATH)/IPlugWeb.cpp \
 $(IGRAPHICS_PATH)/IGraphicsEditorDelegate.cpp
 
+# CFLAGS for both WAM and WEB targets
 CFLAGS = $(INCLUDE_PATHS) \
 -std=c++11  \
 -Wno-bitwise-op-parentheses \
@@ -68,18 +70,22 @@ WAM_EXPORTS = "[\
   '_wam_onmessageN', '_wam_onmessageS', '_wam_onmessageA', '_wam_onpatch' \
   ]"
 
-WEB_EXPORTS = "['_main']"
+WEB_EXPORTS = "['_main', '_iplug_fsready', '_iplug_syncfs']"
 
-LDFLAGS = -O2 \
--s ASSERTIONS=0 \
--s ALLOW_MEMORY_GROWTH=1 \
---bind
+# LDFLAGS for both WAM and WEB targets
+LDFLAGS = -s ALLOW_MEMORY_GROWTH=1 --bind
 
+# We can't compile the WASM module synchronously on main thread (.wasm over 4k in size requires async compile on chrome) https://developers.google.com/web/updates/2018/04/loading-wasm
+# and you can't compile asynchronously in AudioWorklet scope
+# The following settings mean the WASM is delivered as BASE64 and included in the MyPluginName-wam.js file.
 WAM_LDFLAGS = -s EXTRA_EXPORTED_RUNTIME_METHODS="['ccall', 'cwrap', 'setValue', 'Pointer_stringify']" \
 -s BINARYEN_ASYNC_COMPILATION=0 \
--s ALLOW_MEMORY_GROWTH=1 \
--s EXPORT_NAME="'AudioWorkletGlobalScope.WAM.IPlug'"
+-s SINGLE_FILE=1 \
+#-s ENVIRONMENT=worker
 
 WEB_LDFLAGS = -s EXPORTED_FUNCTIONS=$(WEB_EXPORTS) \
+-s EXTRA_EXPORTED_RUNTIME_METHODS="['Pointer_stringify']" \
 -s BINARYEN_ASYNC_COMPILATION=1 \
--s FORCE_FILESYSTEM=1
+-s FORCE_FILESYSTEM=1 \
+-s ENVIRONMENT=web
+

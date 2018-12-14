@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
 #include "string.h"
@@ -41,7 +35,7 @@ extern void AppSupportPath(WDL_String& path, bool isSystem = false);
 extern void SandboxSafeAppSupportPath(WDL_String& path);
 
 /** @param path WDL_String reference where the path will be put on success or empty string on failure
- * @param mfrName CString to specify the manfucturer name, which will be the top level folder for .vstpreset files for this manufacturer's product
+ * @param mfrName CString to specify the manufacturer name, which will be the top level folder for .vstpreset files for this manufacturer's product
  * @param pluginName CString to specify the plug-in name, which will be the sub folder (beneath mfrName) in which the .vstpreset files are located
  * @param isSystem Set \c true if you want to obtain the system-wide path, otherwise the path will be in the user's home folder */
 extern void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem = true);

@@ -1,5 +1,16 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 #include "IGraphicsConstants.h"
+#include "IGraphicsStructs.h"
 
 // these are macros to shorten the instantiation of IControls
 // for a paramater ID MyParam, define constants named MyParam_X, MyParam_Y, MyParam_W, MyParam_H to specify the Control's IRect
@@ -9,14 +20,11 @@
 #define MakeIRectVOffset(a, yoffs) IRECT(a##_X, a##_Y + yoffs, a##_X + a##_W, a##_Y + a##_H + yoffs)
 #define MakeIRectHVOffset(a, xoffs, yoffs) IRECT(a##_X + xoffs, a##_Y + yoffs, a##_X + a##_W + xoffs, a##_Y + a##_H + yoffs)
 
-static inline double DegToRad(double degrees)
-{
-  return ::PI * (degrees / 180.0);
-}
 
-static inline float DegToRad(float degrees)
+template <typename T>
+inline T DegToRad(T degrees)
 {
-  return (float) ::PI * (degrees / 180.f);
+  return static_cast<T>(::PI) * (degrees / static_cast<T>(180.0));
 }
 
 static double GetTimestamp()

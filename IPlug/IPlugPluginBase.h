@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
 
@@ -23,20 +17,7 @@
 #include "IPlugStructs.h"
 #include "IPlugLogger.h"
 
-/** This is the main plugin base class provides a base interface for remote editors as well as the main plug-in,
- *  because we may have state/preset management in remote editors
- *  depending on the arrangement/separation we have chosen
- *  It needn't be a "plug-in" that implements this interface, it can also be used for other things
- *  An example use case: you would like to pop up a custom preferences window with a few simple checkboxes.
- *  You should be able to do that with a new graphics context and something implementing this interface in order to send/receive values
- *  to/from your new UI.
- *
- *  Note on method names: "FromUI" in a method name, means that that method is called by the UI class. Likewise "ToUI" means
- *  that the method is delivering something wait for it... to the UI.
- *  The words "FromDelegate" in a method name mean that method is called from the class that implements the IEditorDelegate interface,
- *  which is usually your plug-in base class. A parameter value is a floating point number linked to an integer parameter index.
- *  A parameter object is an instance of the IParam class as defined in IPlugParameter.h, owned by IPlugAPIBase.
- *  A parameter object is also referred to as a "param", in method names such as IPlugAPIBase::GetParam(int paramIdx) and IControl::GetParam(). */
+/** TODO: */
 class IPluginBase : public EDITOR_DELEGATE_CLASS
 {
 public:
@@ -132,8 +113,8 @@ public:
   /** Another version of the OnParamChange method without an EParamSource, for backwards compatibility / simplicity. */
   virtual void OnParamChange(int paramIdx) {}
   
-  /** Calls OnParamChange() for each parameter and finally OnReset().
-   * @param source Specifies the source of this parameter change */
+  /** Calls OnParamChange() for each parameter.
+   * @param source Specifies the source of the parameter changes */
   void OnParamReset(EParamSource source);
   
 #pragma mark - State Serialization
@@ -254,8 +235,9 @@ public:
   bool SaveBankAsFXPs(const char* path) { return false; }
   
   //VST3 format
-  bool SaveProgramAsVSTPreset(const char* file) { return false; }
-  bool LoadProgramFromVSTPreset(const char* file) { return false; }
+  void MakeVSTPresetChunk(IByteChunk& chunk, IByteChunk& componentState, IByteChunk& controllerState);
+  bool SaveProgramAsVSTPreset(const char* file);
+  bool LoadProgramFromVSTPreset(const char* file);
   bool SaveBankAsVSTPresets(const char* path) { return false; }
   
   //AU format
@@ -270,11 +252,7 @@ public:
 #endif
   
 #pragma mark - Parameter manipulation
-  
-  /** Initialise this delegate from another one
-   * @param delegate The delegate to clone */
-  void InitFromDelegate(IPluginBase& delegate);
-  
+    
   /** Initialise a range of parameters simultaneously. This mirrors the arguments available in IParam::InitDouble, for maximum flexibility
    * @param startIdx The index of the first parameter to initialise
    * @param endIdx The index of the last parameter to initialise
@@ -323,6 +301,9 @@ public:
    * @param outGroup The name of the group to copy to */
   void CopyParamValues(const char* inGroup, const char* outGroup);
   
+  /** Randomise all parameters */
+  void RandomiseParamValues();
+  
   /** Randomise parameter values within a range. NOTE for more flexibility in terms of RNG etc, use ForParamInRange()
    * @param startIdx The index of the first parameter to modify
    * @param endIdx The index of the last parameter to modify */
@@ -332,6 +313,9 @@ public:
    * @param paramGroup The name of the group to modify */
   void RandomiseParamValues(const char* paramGroup);
   
+  /** Set all parameters to their default values */
+  void DefaultParamValues();
+
   /** Default parameter values within a range.
    * @param startIdx The index of the first parameter to modify
    * @param endIdx The index of the last parameter to modify */
@@ -340,6 +324,9 @@ public:
   /** Default parameter values for a parameter group
    * @param paramGroup The name of the group to modify */
   void DefaultParamValues(const char* paramGroup);
+  
+  /** Default parameter values for a parameter group  */
+  void PrintParamValues();
 
 protected:
   int mCurrentPresetIdx = 0;
@@ -365,6 +352,12 @@ protected:
   EAPI mAPI;
   /** macOS/iOS bundle ID */
   WDL_String mBundleID;
+  /** Saving VST3 format presets requires this see SaveProgramAsVSTPreset */
+  WDL_String mVST3ProductCategory;
+  /** Saving VST3 format presets requires this see SaveProgramAsVSTPreset */
+  WDL_String mVST3ProcessorUIDStr;
+  /** Saving VST3 format presets requires this see SaveProgramAsVSTPreset */
+  WDL_String mVST3ControllerUIDStr;
   
   /** \c true if the plug-in has a user interface. If false the host will provide a default interface */
   bool mHasUI = false;
@@ -376,7 +369,7 @@ protected:
   WDL_PtrList<IPreset> mPresets;
 #endif
 
-#ifndef NO_PARAMS_MUTEX
+#ifdef PARAMS_MUTEX
   /** Lock when accessing mParams (including via GetParam) from the audio thread */
   WDL_Mutex mParams_mutex;
 #endif  

@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 /**
@@ -6,6 +16,10 @@
  */
 
 #include "IControl.h"
+#include "IColorPickerControl.h"
+#include "IVKeyboardControl.h"
+#include "IVMeterControl.h"
+#include "IVScopeControl.h"
 
 /**
  * \defgroup Controls IGraphics::IControls
@@ -14,19 +28,52 @@
 
 #pragma mark - Vector Controls
 
+/** A vector button/momentary switch control. */
+class IVButtonControl : public IButtonControlBase
+                      , public IVectorBase
+{
+public:
+  IVButtonControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc = FlashCircleClickActionFunc, const char* str = "", const IText& text = DEFAULT_TEXT, const IVColorSpec& colorSpec = DEFAULT_SPEC);
+  
+  void Draw(IGraphics& g) override;
+  
+protected:
+  WDL_String mStr;
+};
+
 /** A vector switch control. Click to cycle through states. */
 class IVSwitchControl : public ISwitchControlBase
                       , public IVectorBase
 {
 public:
-  IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = FlashCircleClickActionFunc, const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2, EDirection dir = kVertical);
+  IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = FlashCircleClickActionFunc,
+                  const char* label = "", const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2);
 
   void Draw(IGraphics& g) override;
+  
+  void SetDirty(bool push) override;
 
 protected:
   WDL_String mStr;
-  float mStep;
+};
+
+/** A vector switch control. Click to cycle through states. */
+class IVRadioButtonControl : public ISwitchControlBase
+                           , public IVectorBase
+{
+public:
+  IVRadioButtonControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = FlashCircleClickActionFunc,
+                       const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2, EDirection dir = kVertical);
+  
+  virtual ~IVRadioButtonControl() { mLabels.Empty(true); }
+  virtual void Draw(IGraphics& g) override;
+  virtual void OnResize() override;
+//  virtual bool IsHit(float x, float y) const override;
+
+protected:
   EDirection mDirection;
+  WDL_TypedBuf<IRECT> mButtons;
+  WDL_PtrList<WDL_String> mLabels;
 };
 
 /** A vector knob control drawn using graphics primitves */
@@ -64,11 +111,7 @@ public:
 
   void Draw(IGraphics& g) override
   {
-#ifdef IGRAPHICS_LICE
-    g.DrawText(mText, "UNSUPPORTED", mRECT);
-#else
     g.DrawRotatedSVG(mSVG, mRECT.MW(), mRECT.MH(), mRECT.W(), mRECT.H(), mStartAngle + mValue * (mEndAngle - mStartAngle));
-#endif
   }
 
   void SetSVG(ISVG& svg)
@@ -116,36 +159,60 @@ private:
   float mTrackSize;
 };
 
-class IVMomentarySwitch : public IVSwitchControl
+#pragma mark - Bitmap Controls
+
+/** A bitmap button/momentary switch control. */
+class IBButtonControl : public IButtonControlBase
+                      , public IBitmapBase
 {
 public:
-  IVMomentarySwitch(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc, const char* str = "")
-  : IVSwitchControl(dlg, bounds, kNoParameter, actionFunc)
+  IBButtonControl(IGEditorDelegate& dlg, float x, float y, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
+  : IButtonControlBase(dlg, IRECT(x, y, bitmap), actionFunc)
+  , IBitmapBase(bitmap)
+  {}
+  
+  IBButtonControl(IGEditorDelegate& dlg, const IRECT& bounds, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
+  : IButtonControlBase(dlg, bounds, actionFunc)
+  , IBitmapBase(bitmap)
+  {}
+  
+  void Draw(IGraphics& g) override
   {
-    mStr.Set(str);
+    g.DrawBitmap(mBitmap, mRECT, (int) mValue + 1, &mBlend);
   }
-
-  virtual ~IVMomentarySwitch() {};
-
-  void OnMouseUp(float x, float y, const IMouseMod& mod) override
+  
+  virtual void OnRescale() override
   {
-    mValue = 0.0;
-    SetDirty(false);
+    mBitmap = GetUI()->GetScaledBitmap(mBitmap);
+  }
+  
+  virtual void GrayOut(bool gray) override
+  {
+    IBitmapBase::GrayOut(gray);
+    IControl::GrayOut(gray);
   }
 };
-
-#pragma mark - Bitmap Controls
 
 /** A bitmap switch control. Click to cycle through states. */
 class IBSwitchControl : public IBitmapControl
 {
 public:
-  IBSwitchControl(IGEditorDelegate& dlg, float x, float y, IBitmap& bitmap, int paramIdx = kNoParameter)
+  IBSwitchControl(IGEditorDelegate& dlg, float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter)
   : IBitmapControl(dlg, x, y, bitmap, paramIdx) {}
+  
+  IBSwitchControl(IGEditorDelegate& dlg, const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter)
+  : IBitmapControl(dlg, bounds, bitmap, paramIdx) {}
+  
   virtual ~IBSwitchControl() {}
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {  OnMouseDown(x, y, mod); }
+  
+  virtual void GrayOut(bool gray) override
+  {
+    IBitmapBase::GrayOut(gray);
+    IControl::GrayOut(gray);
+  }
 };
 
 /** A bitmap knob/dial control */
@@ -153,13 +220,13 @@ class IBKnobControl : public IKnobControlBase
                     , public IBitmapBase
 {
 public:
-  IBKnobControl(IGEditorDelegate& dlg, float x, float y, IBitmap& bitmap, int paramIdx, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+  IBKnobControl(IGEditorDelegate& dlg, float x, float y, const IBitmap& bitmap, int paramIdx, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
   : IKnobControlBase(dlg, IRECT(x, y, bitmap), paramIdx, direction, gearing)
   , IBitmapBase(bitmap)
   {
   }
   
-  IBKnobControl(IGEditorDelegate& dlg, IRECT bounds, IBitmap& bitmap, int paramIdx, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+  IBKnobControl(IGEditorDelegate& dlg, IRECT bounds, const IBitmap& bitmap, int paramIdx, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
   : IKnobControlBase(dlg, bounds.GetCentredInside(bitmap), paramIdx, direction, gearing)
   , IBitmapBase(bitmap)
   {
@@ -188,12 +255,12 @@ public:
 class IBKnobRotaterControl : public IBKnobControl
 {
 public:
-  IBKnobRotaterControl(IGEditorDelegate& dlg, float x, float y, IBitmap& bitmap, int paramIdx)
+  IBKnobRotaterControl(IGEditorDelegate& dlg, float x, float y, const IBitmap& bitmap, int paramIdx)
   : IBKnobControl(dlg, IRECT(x, y, bitmap), bitmap, paramIdx)
   {
   }
   
-  IBKnobRotaterControl(IGEditorDelegate& dlg, IRECT bounds, IBitmap& bitmap, int paramIdx)
+  IBKnobRotaterControl(IGEditorDelegate& dlg, IRECT bounds, const IBitmap& bitmap, int paramIdx)
   : IBKnobControl(dlg, bounds.GetCentredInside(bitmap), bitmap, paramIdx)
   {
   }
@@ -211,11 +278,11 @@ class IBSliderControl : public ISliderControlBase
                       , public IBitmapBase
 {
 public:
-  IBSliderControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IBitmap& bitmap,
+  IBSliderControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, const IBitmap& bitmap,
                   EDirection dir = kVertical, bool onlyHandle = false);
   
   IBSliderControl(IGEditorDelegate& dlg, float x, float y, int len, int paramIdx,
-                  IBitmap& bitmap, EDirection direction = kVertical, bool onlyHandle = false);
+                  const IBitmap& bitmap, EDirection direction = kVertical, bool onlyHandle = false);
   
   virtual ~IBSliderControl() {}
 
@@ -238,7 +305,7 @@ class IBTextControl : public ITextControl
                     , public IBitmapBase
 {
 public:
-  IBTextControl(IGEditorDelegate& dlg, IRECT bounds, IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType blend = kBlendNone)
+  IBTextControl(IGEditorDelegate& dlg, IRECT bounds, const IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType blend = kBlendNone)
   : ITextControl(dlg, bounds, str, text)
   , IBitmapBase(bitmap, blend)
   , mCharWidth(charWidth)

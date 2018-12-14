@@ -17,7 +17,7 @@ void IWebsocketEditorDelegate::OnWebsocketReady(int connIdx)
 {
 }
 
-bool IWebsocketEditorDelegate::OnWebsocketText(int connIdx, void* pData, size_t dataSize)
+bool IWebsocketEditorDelegate::OnWebsocketText(int connIdx, const char* pStr, size_t dataSize)
 {
   return true; // return true to keep the connection open
 }
@@ -59,43 +59,44 @@ bool IWebsocketEditorDelegate::OnWebsocketData(int connIdx, void* pData, size_t 
 
 void IWebsocketEditorDelegate::SendMidiMsgFromUI(const IMidiMsg& msg)
 {
-  IByteChunk data; // TODO: this is dumb allocating/copying memory
+  IByteChunk data; // FIXME: don't copy
   data.PutStr("SMMFD");
   data.Put(&msg.mStatus);
   data.Put(&msg.mData1);
   data.Put(&msg.mData2);
 
   // Server side UI edit, send to clients
-  SendDataToConnection(-1, data.GetBytes(), data.Size());
+  SendDataToConnection(-1, data.GetData(), data.Size());
   
   IGEditorDelegate::SendMidiMsgFromUI(msg);
 }
 
 void IWebsocketEditorDelegate::SendSysexMsgFromUI(const ISysEx& msg)
 {
-  IByteChunk data; // TODO: this is dumb allocating/copying memory
+  IByteChunk data; // FIXME: don't copy
   data.PutStr("SSMFD");
   data.Put(&msg.mSize);
   data.PutBytes(&msg.mData, msg.mSize);
   
   // Server side UI edit, send to clients
-  SendDataToConnection(-1, data.GetBytes(), data.Size());
+  SendDataToConnection(-1, data.GetData(), data.Size());
   
   IGEditorDelegate::SendSysexMsgFromUI(msg);
 }
 
-void IWebsocketEditorDelegate::SendArbitraryMsgFromUI(int messageTag, int dataSize, const void* pData)
+void IWebsocketEditorDelegate::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData)
 {
-  IByteChunk data; // TODO: this is dumb allocating/copying memory
+  IByteChunk data; // FIXME: don't copy
   data.PutStr("SSMFD");
   data.Put(&messageTag);
+  data.Put(&controlTag);
   data.Put(&dataSize);
   data.PutBytes(pData, dataSize);
   
   // Server side UI edit, send to clients
-  SendDataToConnection(-1, data.GetBytes(), data.Size());
+  SendDataToConnection(-1, data.GetData(), data.Size());
   
-  IGEditorDelegate::SendArbitraryMsgFromUI(messageTag, dataSize, pData);
+  IGEditorDelegate::SendArbitraryMsgFromUI(messageTag, controlTag, dataSize, pData);
 }
 
 
@@ -106,13 +107,13 @@ void IWebsocketEditorDelegate::SendArbitraryMsgFromUI(int messageTag, int dataSi
 
 void IWebsocketEditorDelegate::SendParameterValueFromUI(int paramIdx, double normalizedValue)
 {
-  IByteChunk data; // TODO: this is dumb allocating/copying memory
+  IByteChunk data; // FIXME: don't copy
   data.PutStr("SPVFD");
   data.Put(&paramIdx);
   data.Put(&normalizedValue);
   
   // Server side UI edit, send to clients
-  SendDataToConnection(-1, data.GetBytes(), data.Size());
+  SendDataToConnection(-1, data.GetData(), data.Size());
 
   IGEditorDelegate::SendParameterValueFromUI(paramIdx, normalizedValue);
 }
@@ -124,64 +125,64 @@ void IWebsocketEditorDelegate::SendParameterValueFromUI(int paramIdx, double nor
 
 void IWebsocketEditorDelegate::SendControlValueFromDelegate(int controlTag, double normalizedValue)
 {
-  IByteChunk data; // TODO: this is dumb allocating/copying memory
+  IByteChunk data; // FIXME: don't copy
   data.PutStr("SCVFD");
   data.Put(&controlTag);
   data.Put(&normalizedValue);
   
-  SendDataToConnection(-1, data.GetBytes(), data.Size());
+  SendDataToConnection(-1, data.GetData(), data.Size());
   
   IGEditorDelegate::SendControlValueFromDelegate(controlTag, normalizedValue);
 }
 
 void IWebsocketEditorDelegate::SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData)
 {
-  IByteChunk data; // TODO: this is dumb allocating/copying memory
+  IByteChunk data; // FIXME: don't copy
   data.PutStr("SCMFD");
   data.Put(&controlTag);
   data.Put(&messageTag);
   data.Put(&dataSize);
   data.PutBytes(pData, dataSize);
   
-  SendDataToConnection(-1, data.GetBytes(), data.Size());
+  SendDataToConnection(-1, data.GetData(), data.Size());
   
   IGEditorDelegate::SendControlMsgFromDelegate(controlTag, messageTag, dataSize, pData);
 }
 
 void IWebsocketEditorDelegate::SendArbitraryMsgFromDelegate(int messageTag, int dataSize, const void* pData)
 {
-  IByteChunk data; // TODO: this is dumb allocating/copying memory
+  IByteChunk data; // FIXME: don't copy
   data.PutStr("SAMFD");
   data.Put(&messageTag);
   data.Put(&dataSize);
   data.PutBytes(pData, dataSize);
   
-  SendDataToConnection(-1, data.GetBytes(), data.Size());
+  SendDataToConnection(-1, data.GetData(), data.Size());
   
   IGEditorDelegate::SendArbitraryMsgFromDelegate(messageTag, dataSize, pData);
 }
 
 void IWebsocketEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
 {
-  IByteChunk data; // TODO: this is dumb allocating/copying memory
+  IByteChunk data; // FIXME: don't copy
   data.PutStr("SMMFD");
   data.Put(&msg.mStatus);
   data.Put(&msg.mData1);
   data.Put(&msg.mData2);
 
-  SendDataToConnection(-1, data.GetBytes(), data.Size());
+  SendDataToConnection(-1, data.GetData(), data.Size());
   
   IGEditorDelegate::SendMidiMsgFromDelegate(msg);
 }
 
 void IWebsocketEditorDelegate::SendSysexMsgFromDelegate(const ISysEx& msg)
 {
-  IByteChunk data; // TODO: this is dumb allocating/copying memory
+  IByteChunk data; // FIXME: don't copy
   data.PutStr("SSMFD");
   data.Put(&msg.mSize);
   data.PutBytes(msg.mData, msg.mSize);
   
-  SendDataToConnection(-1, data.GetBytes(), data.Size());
+  SendDataToConnection(-1, data.GetData(), data.Size());
   
   IGEditorDelegate::SendSysexMsgFromDelegate(msg);
 }
@@ -192,6 +193,17 @@ void IWebsocketEditorDelegate::ProcessWebsocketQueue()
   {
     IParamChange p;
     mParamChangeFromClients.Pop(p);
+    
+    //FIXME: how do params get updated?
+//    ENTER_PARAMS_MUTEX;
+//    if(p.normalized)
+//      GetParam(p.paramIdx)->SetNormalized(p.value);
+//    else
+//      GetParam(p.paramIdx)->Set(p.value);
+//
+//    OnParamChange(p.paramIdx, kHost);
+//    LEAVE_PARAMS_MUTEX;
+    
     SendParameterValueFromDelegate(p.paramIdx, p.value, p.normalized); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
   }
   

@@ -1,8 +1,23 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #ifndef NO_IGRAPHICS
 
 #import <Cocoa/Cocoa.h>
-#import <WebKit/WebKit.h>
+//#import <WebKit/WebKit.h>
+
 #include "IGraphicsMac.h"
+
+#if defined IGRAPHICS_GL
+#include <OpenGL/gl.h>
+#endif
 
 inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& bounds)
 {
@@ -67,11 +82,16 @@ NSString* ToNSString(const char* cStr);
 - (NSMenuItem*) menuItem;
 @end
 
-@interface IGRAPHICS_VIEW : NSView <NSTextFieldDelegate>
+@interface IGRAPHICS_VIEW : NSView <NSTextFieldDelegate/*, WKScriptMessageHandler*/>
 {
+#ifdef IGRAPHICS_GL
+  NSOpenGLContext* mContext;
+  NSOpenGLPixelFormat* mPixelFormat;
+#endif
+  
   NSTimer* mTimer;
   NSTextField* mTextFieldView;
-  WKWebView* mWebView;
+//  WKWebView* mWebView;
   IControl* mEdControl; // the control linked to the open text edit
   float mPrevX, mPrevY;
 @public
@@ -86,6 +106,7 @@ NSString* ToNSString(const char* cStr);
 - (void) viewDidChangeBackingProperties:(NSNotification *) notification;
 - (void) drawRect: (NSRect) bounds;
 - (void) onTimer: (NSTimer*) pTimer;
+- (void) render;
 - (void) killTimer;
 //mouse
 - (void) getMouseXY: (NSEvent*) pEvent x: (float*) pX y: (float*) pY;
@@ -106,7 +127,8 @@ NSString* ToNSString(const char* cStr);
 - (void) createTextEntry: (IControl&) control : (const IText&) text : (const char*) str : (NSRect) areaRect;
 - (void) endUserInput;
 //web view
-- (void) createWebView: (NSRect) areaRect : (const char*) url;
+//- (void) createWebView: (NSRect) areaRect : (const char*) url;
+//- (void) userContentController:didReceiveScriptMessage;
 //pop-up menu
 - (IPopupMenu*) createPopupMenu: (const IPopupMenu&) menu : (NSRect) bounds;
 //tooltip

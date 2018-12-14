@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #include "IPlugPlatform.h"
 #include "IPlugPaths.h"
@@ -79,26 +73,29 @@ void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginNa
 
 void SandboxSafeAppSupportPath(WDL_String& path)
 {
+  AppSupportPath(path);
 }
 
 #elif defined OS_WEB
 
 void AppSupportPath(WDL_String& path, bool isSystem)
 {
+  path.Set("Settings");
 }
 
 void SandboxSafeAppSupportPath(WDL_String& path)
 {
+  path.Set("Settings");
 }
 
 void DesktopPath(WDL_String& path)
 {
-
+  path.Set("");
 }
 
 void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem)
 {
-  path.Set("");
+  path.Set("Presets");
 }
 
 #endif

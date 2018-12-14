@@ -12,7 +12,7 @@ CLANG_CXX_LANGUAGE_STANDARD = c++11
 CLANG_CXX_LIBRARY = libc++
 
 // the minimum OS to support
-//DEPLOYMENT_TARGET = 10.7
+IPHONEOS_DEPLOYMENT_TARGET = 11.0
 
 SHARED_PRECOMPS_DIR = $(TARGET_BUILD_DIR)/PCH
 
@@ -32,17 +32,11 @@ AUv3_DEFS = AUv3_API IPLUG_EDITOR=1 IPLUG_DSP=1
 // ***** HEADER INCLUDE PATHS
 // Where the SDKs etc. are located in relation to the plug-in Xcode project (which is in the projects subfolder of an IPlug project)
 
-// the top level WDL-OL folder e.g. where this common.xcconfig is
+// the top level iPlug2 folder e.g. where this common.xcconfig is
 ROOT = $(SRCROOT)/../../..
 PROJECT_ROOT = $(SRCROOT)/..
 
-PKGMAN_PATH = /usr/local
-
 DEPS_PATH = $(ROOT)/Dependencies
-
-// if you want to use the homebrew or macports package managers, rather than building static libraries yourself (not advised) you can modify the STATICLIBS_PATH build setting to point to PKGMAN_PATH
-STATICLIBS_PATH = $(DEPS_PATH)/IGraphics/Libs/install
-STATICLIBS_INC_PATH = $(STATICLIBS_PATH)/include
 
 // IPlug dependencies
 WDL_PATH = $(ROOT)/WDL
@@ -69,14 +63,6 @@ NVGMTL_PATH = $(IGRAPHICS_DEPS_PATH)/MetalNanoVG/src
 IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(CONTROLS_PATH) $(PLATFORMS_PATH) $(DRAWING_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(FT_PATH)
 
 FAUST_INC_PATHS = /usr/local/include /usr/local/opt/include
-
-// *****  LINKER/LIBRARY INCLUDE PATHS AND LINKER FLAGS
-//STATICLIBS_LIB_PATH = $(STATICLIBS_PATH)/lib
-
-//IGRAPHICS_LIB_PATHS = $(STATICLIBS_LIB_PATH)
-
-// you can optionally include this build setting, by adding it to EXTRA_LIB_PATHS, in order to get all varieties of IGraphics support
-//IGRAPHICS_LNK_FLAGS
 
 AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework CoreAudioKit -framework Metal -framework QuartzCore -framework UIKit
 

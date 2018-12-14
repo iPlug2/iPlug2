@@ -1,7 +1,18 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 #include "IControl.h"
 #include "IPlugQueue.h"
+#include "IPlugStructs.h"
 
 template <int MAXNC = 1>
 class IVMeterControl : public IVTrackControlBase
@@ -13,6 +24,20 @@ public:
   {
     int nchans = MAXNC;
     float vals[MAXNC] = {};
+    
+    bool AboveThreshold()
+    {
+      static const float threshold = (float) DBToAmp(-90.);
+
+      float sum = 0.f;
+      
+      for(int i = 0; i < MAXNC; i++)
+      {
+        sum += vals[i];
+      }
+      
+      return std::abs(sum) > threshold;
+    }
   };
   
   class IVMeterBallistics
@@ -40,7 +65,10 @@ public:
         d.vals[c] /= (float) nFrames;
       }
 
-      mQueue.Push(d); // TODO: expensive?
+      if(mPrevAboveThreshold)
+        mQueue.Push(d); // TODO: expensive?
+      
+      mPrevAboveThreshold = d.AboveThreshold();
     }
     
     // this must be called on the main thread - typically in MyPlugin::OnIdle()
@@ -56,6 +84,7 @@ public:
     
   private:
     int mControlTag;
+    bool mPrevAboveThreshold = true;
     IPlugQueue<Data> mQueue { 1024 };
   };
   
@@ -70,17 +99,16 @@ public:
   
   void OnMsgFromDelegate(int messageTag, int dataSize, const void* pData) override
   {
-    IByteChunk chnk;
-    chnk.PutBytes(pData, dataSize); // unnessecary copy
+    IByteStream stream(pData, dataSize);
     
     int pos = 0;
     Data data;
-    pos = chnk.Get(&data.nchans, pos);
+    pos = stream.Get(&data.nchans, pos);
 
-    while(pos < chnk.Size())
+    while(pos < stream.Size())
     {
       for (auto i = 0; i < data.nchans; i++) {
-        pos = chnk.Get(&data.vals[i], pos);
+        pos = stream.Get(&data.vals[i], pos);
         float* pVal = GetTrackData(i);
         *pVal = Clip(data.vals[i], 0.f, 1.f);
       }

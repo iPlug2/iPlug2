@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 #include "IPlugPlatform.h"
@@ -46,12 +56,12 @@ const int DEFAULT_TEXT_SIZE = 14;
     const char* const DEFAULT_FONT = "Verdana";
     const int DEFAULT_TEXT_SIZE = 12;
   #elif defined OS_MAC
-    const char* const DEFAULT_FONT = "Monaco";
+    const char* const DEFAULT_FONT = "Verdana";
     const int DEFAULT_TEXT_SIZE = 10;
   #elif defined OS_LINUX
-    #error TODO
+    #error NOT IMPLEMENTED
   #elif defined OS_WEB
-    const char* const DEFAULT_FONT = "DejaVu Sans";
+    const char* const DEFAULT_FONT = "Verdana";
     const int DEFAULT_TEXT_SIZE = 10;
   #endif
 #endif

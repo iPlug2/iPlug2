@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #include <cmath>
 
 #include "IGraphicsLice.h"
@@ -41,14 +51,13 @@ void IGraphicsLice::DrawResize()
 
 void IGraphicsLice::DrawSVG(ISVG& svg, const IRECT& bounds, const IBlend* pBlend)
 {
-  //TODO:
-//  LiceNanoSVGRender::RenderNanoSVG(mDrawBitmap, svg.mImage);
+  DrawText(DEFAULT_TEXT, "UNSUPPORTED", bounds);
 }
 
 void IGraphicsLice::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend)
 {
-  DrawSVG(svg, mDrawRECT, pBlend);
-  //TODO:
+  IRECT r = IRECT(destCtrX - (width/2.), destCtrY - (height/2.), destCtrX + width, destCtrY + height);
+  DrawText(DEFAULT_TEXT, "UNSUPPORTED", r);
 }
 
 void IGraphicsLice::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend)
@@ -124,7 +133,7 @@ void IGraphicsLice::DrawLine(const IColor& color, float x1, float y1, float x2, 
   LICE_FLine(mDrawBitmap, x1 * ds, y1 * ds, x2 * ds, y2 * ds, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
-void IGraphicsLice::DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness)
+void IGraphicsLice::DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness, float dashLen)
 {
   const float ds = GetDisplayScale();
   const int dash = 2 * ds;
@@ -182,13 +191,13 @@ void IGraphicsLice::DrawCircle(const IColor& color, float cx, float cy, float r,
   LICE_Circle(mDrawBitmap, cx * ds, cy * ds, r * ds, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
-void IGraphicsLice::DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float)
+void IGraphicsLice::DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness, float dashLen)
 {
   //TODO: review floating point input support
   const float ds = GetDisplayScale();
   IRECT r = bounds;
   r.Scale(ds);
-  const int dash = 2 * ds;
+  const int dash = dashLen * ds;
   LICE_DashedLine(mDrawBitmap, r.L, r.T, r.R, r.T, dash, dash, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
   LICE_DashedLine(mDrawBitmap, r.L, r.B, r.R, r.B, dash, dash, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
   LICE_DashedLine(mDrawBitmap, r.L, r.T, r.L, r.B, dash, dash, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
@@ -303,7 +312,7 @@ IColor IGraphicsLice::GetPoint(int x, int y)
   return IColor(LICE_GETA(pix), LICE_GETR(pix), LICE_GETG(pix), LICE_GETB(pix));
 }
 
-bool IGraphicsLice::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+bool IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
   const float ds = GetDisplayScale();
   if (!str || str[0] == '\0')
@@ -438,11 +447,6 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text, double scale)
   return font;
 }
 
-bool IGraphicsLice::MeasureText(const IText& text, const char* str, IRECT& bounds)
-{
-  return DrawText(text, str, bounds, 0, true);
-}
-
 APIBitmap* IGraphicsLice::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
 {
   const char* path = resourcePath.Get();
@@ -549,9 +553,9 @@ void IGraphicsLice::EndFrame()
   HDC dc = BeginPaint(hWnd, &ps);
   
   if (GetScale() == 1.0)
- 	  BitBlt(dc, 0, 0, Width(), Height(), mDrawBitmap->getDC(), 0, 0, SRCCOPY);
+    BitBlt(dc, 0, 0, Width(), Height(), mDrawBitmap->getDC(), 0, 0, SRCCOPY);
   else
-	  StretchBlt(dc, 0, 0, WindowWidth(), WindowHeight(), mDrawBitmap->getDC(), 0, 0, Width(), Height(), SRCCOPY);
+    StretchBlt(dc, 0, 0, WindowWidth(), WindowHeight(), mDrawBitmap->getDC(), 0, 0, Width(), Height(), SRCCOPY);
   
   EndPaint(hWnd, &ps);
 #endif

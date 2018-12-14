@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
 
@@ -117,6 +111,8 @@ static const int MAX_PARAM_DISPLAY_PRECISION = 6;
 #define IDLE_TIMER_RATE 20 // this controls the frequency of data going from processor to editor (and OnIdle calls)
 #endif
 
+#define PARAM_TRANSFER_SIZE 512
+#define MIDI_TRANSFER_SIZE 32
 // All version ints are stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision.
 #define IPLUG_VERSION 0x010000
 #define IPLUG_VERSION_MAGIC 'pfft'
@@ -128,7 +124,7 @@ static const int kNoTag = -1;
 
 #define MAX_BUS_CHANS 64 // wild cards in channel i/o strings will result in this many channels
 
-//#ifdef VST3_API
+//#if defined VST3_API || defined VST3C_API || defined VST3P_API
 //#undef stricmp
 //#undef strnicmp
 //#include "pluginterfaces/vst/vsttypes.h"

@@ -1,47 +1,44 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #include "wdltypes.h"
 #include "wdlstring.h"
+
 #include "IPlugPlatform.h"
+#include "IPlugAPP_host.h"
+
 #include "config.h"
 #include "resource.h"
 
 #pragma mark - WINDOWS
-#if defined(OS_WIN)
+#if defined OS_WIN
 #include <windows.h>
 #include <commctrl.h>
 
 extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 HWND gHWND;
-HINSTANCE gHINSTANCE;
+extern HINSTANCE gHINSTANCE;
 UINT gScrollMessage;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nShowCmd)
 {
   try
   {
-    HANDLE hMutex = OpenMutex(MUTEX_ALL_ACCESS, 0, PLUG_CLASS_NAME); // PLUG_CLASS_NAME used because it won't have spaces in it
+    HANDLE hMutex = OpenMutex(MUTEX_ALL_ACCESS, 0, BUNDLE_NAME); // BUNDLE_NAME used because it won't have spaces in it
     
     if (!hMutex)
-      hMutex = CreateMutex(0, 0, PLUG_CLASS_NAME);
+      hMutex = CreateMutex(0, 0, BUNDLE_NAME);
     else
     {
-      HWND hWnd = FindWindow(0, PLUG_CLASS_NAME);
+      HWND hWnd = FindWindow(0, BUNDLE_NAME);
       SetForegroundWindow(hWnd);
       return 0; // should return 1?
     }
@@ -50,6 +47,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     
     InitCommonControls();
     gScrollMessage = RegisterWindowMessage("MSWHEEL_ROLLMSG");
+
+    IPlugAPPHost* pAppHost = IPlugAPPHost::Create();
+    pAppHost->Init();
+    pAppHost->TryToChangeAudio();
+
     CreateDialog(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_MAIN), GetDesktopWindow(), MainDlgProc);
     
     for(;;)
@@ -98,6 +100,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     // in case gHWND didnt get destroyed -- this corresponds to SWELLAPP_DESTROY roughly
     if (gHWND)
       DestroyWindow(gHWND);
+
+    delete pAppHost;
     
     ReleaseMutex(hMutex);
   }
@@ -113,11 +117,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 #include "swell.h"
 extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-extern HWND gHWND;
+HWND gHWND;
 extern HMENU SWELL_app_stocksysmenu;
 
 int main(int argc, char *argv[])
 {
+#if APP_COPY_AUV3
   //if invoked with an argument registerauv3 use plug-in kit to explicitly register auv3 app extension (doesn't happen from debugger)
   if(strcmp(argv[2], "registerauv3"))
   {
@@ -131,18 +136,26 @@ int main(int argc, char *argv[])
 //    if(IsSandboxed())
 //      NSLog(@"SANDBOXED\n");
   }
+#endif
   
   return NSApplicationMain(argc,  (const char **) argv);
 }
 
 INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 {
+  IPlugAPPHost* pAppHost = nullptr;
+  
   switch (msg)
   {
     case SWELLAPP_ONLOAD:
+      pAppHost = IPlugAPPHost::Create();
+      pAppHost->Init();
+      pAppHost->TryToChangeAudio();
       break;
     case SWELLAPP_LOADED:
     {
+      pAppHost = IPlugAPPHost::sInstance;
+
       HMENU menu = SWELL_GetCurrentMenu();
 
       if (menu)
@@ -215,6 +228,9 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 #define CBS_HASSTRINGS 0
 #define SWELL_DLG_SCALE_AUTOGEN 1
 #define SET_IDD_DIALOG_PREF_SCALE 1.5
+#if APP_RESIZABLE
+#define SWELL_DLG_FLAGS_AUTOGEN SWELL_DLG_WS_FLIPPED|SWELL_DLG_WS_RESIZABLE
+#endif
 #include "swell-dlggen.h"
 #include "resources/main.rc_mac_dlg"
 #include "swell-menugen.h"

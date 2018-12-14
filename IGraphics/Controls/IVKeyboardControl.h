@@ -1,3 +1,14 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
+#pragma once
 #include "IControl.h"
 #include "IPlugMidi.h"
 
@@ -53,9 +64,11 @@ public:
 
   IVKeyboardControl(IGEditorDelegate& dlg, IRECT bounds,
                     int minNote = 36, int maxNote = 84,
+                    bool roundedKeys = false,
                     IActionFunction actionFunc = nullptr)
   : IControl(dlg, bounds, kNoParameter, actionFunc)
   , IVectorBase(&DEFAULT_WK_COLOR, &DEFAULT_BK_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR)
+  , mRoundedKeys(roundedKeys)
   {
     AttachIControl(this);
 
@@ -86,7 +99,7 @@ public:
       //    if (!mVelByWheel)
       mLastVelocity = GetVelocity(y);
 
-      TriggerMidiMsgFromKeyPress(mLastTouchedKey, mLastVelocity * 127.f);
+      TriggerMidiMsgFromKeyPress(mLastTouchedKey, (int) (mLastVelocity * 127.f));
     }
     
     SetDirty(true);
@@ -132,7 +145,7 @@ public:
 //      if (!mVelByWheel)
         mLastVelocity = GetVelocity(y);
       
-      TriggerMidiMsgFromKeyPress(mLastTouchedKey, mLastVelocity * 127.f);
+      TriggerMidiMsgFromKeyPress(mLastTouchedKey, (int) (mLastVelocity * 127.f));
       
       TriggerMidiMsgFromKeyPress(prevKey, 0);
       SetKeyIsPressed(prevKey, false);
@@ -200,6 +213,14 @@ public:
     
     SetDirty(false);
   }
+  
+  void DrawKey(IGraphics& g, const IRECT& bounds, const IColor& color)
+  {
+    if(mRoundedKeys)
+      g.FillRoundRect(color, bounds, 0., 0., mCurve, mCurve);
+    else
+      g.FillRect(color, bounds);
+  }
 
   void Draw(IGraphics& g) override
   {
@@ -216,12 +237,13 @@ public:
         float kL = *GetKeyXPos(i);
         IRECT keyBounds = IRECT(kL, mRECT.T, kL + mWKWidth, mRECT.B);
         
-        g.FillRoundRect(GetColor(kWK), keyBounds, 0., 0., mCurve, mCurve);
+        DrawKey(g, keyBounds, GetColor(kWK));
         
         if (GetKeyIsPressed(i))
         {
           // draw played white key
-          g.FillRoundRect(GetColor(kPK), keyBounds, 0., 0., mCurve, mCurve);
+          DrawKey(g, keyBounds, GetColor(kPK));
+
           if (mDrawShadows)
           {
             IRECT shadowBounds = keyBounds;
@@ -259,9 +281,9 @@ public:
             shadowBounds.B = shadowBounds.T + 1.05f * shadowBounds.H();
           }
           shadowBounds.R = shadowBounds.L + w;
-          g.FillRoundRect(shadowColor, shadowBounds, 0., 0., mCurve, mCurve);
+          DrawKey(g, shadowBounds, shadowColor);
         }
-        g.FillRoundRect(GetColor(kBK), keyBounds, 0., 0., mCurve, mCurve);
+        DrawKey(g, keyBounds, GetColor(kBK));
 
         if (GetKeyIsPressed(i))
         {
@@ -664,6 +686,7 @@ private:
   }
 
 protected:
+  bool mRoundedKeys;
   bool mShowNoteAndVel = false;
   float mWKWidth = 0.f;
   float mBKWidthRatio = 0.6f;
@@ -679,8 +702,3 @@ protected:
   WDL_TypedBuf<bool> mPressedKeys;
   WDL_TypedBuf<float> mKeyXPos;
 };
-
-const IColor IVKeyboardControl::DEFAULT_BK_COLOR = IColor(255, 70, 70, 70);
-const IColor IVKeyboardControl::DEFAULT_WK_COLOR = IColor(255, 240, 240, 240);
-const IColor IVKeyboardControl::DEFAULT_PK_COLOR = IColor(60, 0, 0, 0);
-const IColor IVKeyboardControl::DEFAULT_FR_COLOR = DEFAULT_BK_COLOR;

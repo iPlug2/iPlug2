@@ -1,24 +1,16 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #include <cstdio>
 #include "IPlugVST2.h"
-#ifndef NO_PRESETS
 #include "IPlugPluginBase.h"
-#endif
 
 const int VST_VERSION = 2400;
 
@@ -380,7 +372,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     }
     case effEditOpen:
     {
-#if defined(_WIN32) || defined(__LP64__) // __LP64__ = cocoa macOS
+#if defined OS_WIN || defined ARCH_64BIT
       if (_this->OpenWindow(ptr))
       {
         _this->OnUIOpen();
@@ -432,7 +424,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
 
         if (savedOK && chunk.Size())
         {
-          *ppData = chunk.GetBytes();
+          *ppData = chunk.GetData();
           return chunk.Size();
         }
       }
@@ -445,7 +437,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         bool isBank = (!idx);
         IByteChunk& chunk = (isBank ? _this->mBankState : _this->mState);
         chunk.Resize((int) value);
-        memcpy(chunk.GetBytes(), ptr, value);
+        memcpy(chunk.GetData(), ptr, value);
         int pos = 0;
         int iplugVer = IByteChunk::GetIPlugVerFromChunk(chunk, pos);
         isBank &= (iplugVer >= 0x010000);
@@ -628,12 +620,18 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         {
           return 1;
         }
-        if (_this->DoesMIDI())
+        if (_this->DoesMIDIIn())
+        {
+          if (!strcmp((char*) ptr, "receiveVstEvents") ||
+              !strcmp((char*) ptr, "receiveVstMidiEvent"))
+          {
+            return 1;
+          }
+        }
+        if (_this->DoesMIDIOut())
         {
           if (!strcmp((char*) ptr, "sendVstEvents") ||
-              !strcmp((char*) ptr, "sendVstMidiEvent") ||
-              !strcmp((char*) ptr, "receiveVstEvents") ||
-              !strcmp((char*) ptr, "receiveVstMidiEvent"))   // ||
+              !strcmp((char*) ptr, "sendVstMidiEvent"))
           {
             return 1;
           }
@@ -801,7 +799,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
 template <class SAMPLETYPE>
 void IPlugVST2::VSTPreProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt32 nFrames)
 {
-  if (DoesMIDI())
+  if (DoesMIDIIn())
     mHostCallback(&mAEffect, __audioMasterWantMidiDeprecated, 0, 0, 0, 0.0f);
 
   _AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), inputs, nFrames);

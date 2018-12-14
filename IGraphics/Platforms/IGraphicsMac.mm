@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #ifndef NO_IGRAPHICS
 #include <Foundation/NSArchiver.h>
 
@@ -196,10 +206,12 @@ void* IGraphicsMac::OpenWindow(void* pParent)
   CloseWindow();
   mView = (IGRAPHICS_VIEW*) [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
   
-  IGRAPHICS_VIEW* view = (IGRAPHICS_VIEW*) mView;
+  IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
 
-  OnViewInitialized([view layer]);
+  OnViewInitialized([pView layer]);
   
+  SetDisplayScale([[NSScreen mainScreen] backingScaleFactor]);
+    
   GetDelegate()->LayoutUI(this);
 
   if (pParent) // Cocoa VST host.
@@ -411,7 +423,7 @@ void IGraphicsMac::UpdateTooltips()
 
   [(IGRAPHICS_VIEW*) mView removeAllToolTips];
 
-  if(mPopupControl && mPopupControl->GetExpanded())
+  if(mPopupControl && mPopupControl->GetState() > IPopupMenuControl::kCollapsed)
   {
     return;
   }
@@ -631,14 +643,14 @@ void IGraphicsMac::CreateTextEntry(IControl& control, const IText& text, const I
   }
 }
 
-void IGraphicsMac::CreateWebView(const IRECT& bounds, const char* url)
-{
-  if (mView)
-  {
-    NSRect areaRect = ToNSRect(this, bounds);
-    [(IGRAPHICS_VIEW*) mView createWebView:areaRect :url];
-  }
-}
+//void IGraphicsMac::CreateWebView(const IRECT& bounds, const char* url)
+//{
+//  if (mView)
+//  {
+//    NSRect areaRect = ToNSRect(this, bounds);
+//    [(IGRAPHICS_VIEW*) mView createWebView:areaRect :url];
+//  }
+//}
 
 void IGraphicsMac::SetMouseCursor(ECursor cursor)
 {
@@ -699,22 +711,19 @@ bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
 
 //TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT
 #ifdef IGRAPHICS_AGG
-#include "IGraphicsAGG.cpp"
-#include "agg_mac_pmap.mm"
-#include "agg_mac_font.mm"
+  #include "IGraphicsAGG.cpp"
+  #include "agg_mac_pmap.mm"
+  #include "agg_mac_font.mm"
 #elif defined IGRAPHICS_CAIRO
-#include "IGraphicsCairo.cpp"
+  #include "IGraphicsCairo.cpp"
 #elif defined IGRAPHICS_NANOVG
-#include "IGraphicsNanoVG.cpp"
-
-#ifdef IGRAPHICS_FREETYPE
-#define FONS_USE_FREETYPE
-#endif
-
+  #include "IGraphicsNanoVG.cpp"
+  #ifdef IGRAPHICS_FREETYPE
+    #define FONS_USE_FREETYPE
+  #endif
 #include "nanovg.c"
-//#include "nanovg_mtl.m"
 #else
-#include "IGraphicsLice.cpp"
+  #include "IGraphicsLice.cpp"
 #endif
 
 #endif// NO_IGRAPHICS

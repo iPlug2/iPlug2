@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #ifndef _IPLUGAPI_
 #define _IPLUGAPI_
@@ -27,27 +21,15 @@
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
-#include "RtMidi.h"
+struct IPlugInstanceInfo
+{
+  void* pAppHost;
+};
 
-#ifdef OS_WIN
-  struct IPlugInstanceInfo
-  {
-    RtMidiOut* mRTMidiOut;
-    uint16_t mMidiOutChan; // 0 = any, 1 = midi chan 1
-  };
+class IPlugAPPHost;
 
-#elif defined OS_MAC
-  struct IPlugInstanceInfo
-  {
-    WDL_String mBundleID;
-    RtMidiOut* mRTMidiOut;
-    uint16_t mMidiOutChan; // 0 = any, 1 = midi chan 1
-  };
-#endif
-
-/**  Standalone application base class for an IPlug plug-in, inherits from IPlugAPIBase
-*   @ingroup APIClasses
-*/
+/**  Standalone application base class for an IPlug plug-in
+*   @ingroup APIClasses */
 class IPlugAPP : public IPlugAPIBase
                , public IPlugProcessor<PLUG_SAMPLE_DST>
 {
@@ -64,12 +46,17 @@ public:
   //IPlugProcessor
   bool SendMidiMsg(const IMidiMsg& msg) override;
   bool SendSysEx(ISysEx& msg) override;
+  
+  //IPlugAPP
+  void AppProcess(double** inputs, double** outputs, int nFrames);
 
 private:
-  RtMidiOut* mMidiOut = nullptr;
-  uint16_t mMidiOutChan;
+  IPlugAPPHost* mAppHost = nullptr;
+  IPlugQueue<IMidiMsg> mMidiMsgsFromCallback {MIDI_TRANSFER_SIZE};
+  
+  friend class IPlugAPPHost;
 };
 
-IPlugAPP* MakePlug(void* pMidiOutput, uint16_t& midiOutChannel);
+IPlugAPP* MakePlug(void* pAPPHost);
 
 #endif

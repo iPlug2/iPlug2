@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+ 
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+ 
+ See LICENSE.txt for  more info.
+ 
+ ==============================================================================
+*/
+
 #include <algorithm>
 #include <CoreMIDI/CoreMIDI.h>
 
@@ -56,7 +66,7 @@ inline void PutStrInDict(CFMutableDictionaryRef pDict, const char* key, const ch
 inline void PutDataInDict(CFMutableDictionaryRef pDict, const char* key, IByteChunk* pChunk)
 {
   CFStrLocal cfKey(key);
-  CFDataRef pData = CFDataCreate(0, pChunk->GetBytes(), pChunk->Size());
+  CFDataRef pData = CFDataCreate(0, pChunk->GetData(), pChunk->Size());
   CFDictionarySetValue(pDict, cfKey.mCFStr, pData);
   CFRelease(pData);
 }
@@ -95,7 +105,7 @@ inline bool GetDataFromDict(CFDictionaryRef pDict, const char* key, IByteChunk* 
   {
     CFIndex n = CFDataGetLength(pData);
     pChunk->Resize((int) n);
-    memcpy(pChunk->GetBytes(), CFDataGetBytePtr(pData), n);
+    memcpy(pChunk->GetData(), CFDataGetBytePtr(pData), n);
     return true;
   }
   return false;
@@ -1691,6 +1701,16 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
     }
     else
     {
+      if(_this->mMidiMsgsFromEditor.ElementsAvailable())
+      {
+        IMidiMsg msg;
+        
+        while (_this->mMidiMsgsFromEditor.Pop(msg))
+        {
+          _this->ProcessMidiMsg(msg);
+        }
+      }
+      
       _this->PreProcess();
       _this->_ProcessBuffers((AudioSampleType) 0, nFrames);
     }
@@ -1758,7 +1778,6 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   memset(&mHostCallbacks, 0, sizeof(HostCallbackInfo));
   memset(&mMidiCallback, 0, sizeof(AUMIDIOutputCallbackStruct));
 
-  mBundleID.Set(instanceInfo.mBundleID.Get());
   mCocoaViewFactoryClassName.Set(instanceInfo.mCocoaViewFactoryClassName.Get());
 
   const int maxNIBuses = MaxNBuses(ERoute::kInput);
@@ -1974,6 +1993,9 @@ void IPlugAU::SetLatency(int samples)
 
 bool IPlugAU::SendMidiMsg(const IMidiMsg& msg)
 {
+  if(mMidiCallback.midiOutputCallback == nullptr)
+    return false;
+  
   MIDIPacketList packetList;
   
   packetList.packet[0].data[0] = msg.mStatus;
@@ -1983,33 +2005,56 @@ bool IPlugAU::SendMidiMsg(const IMidiMsg& msg)
   packetList.packet[0].timeStamp = msg.mOffset;
   packetList.numPackets = 1;
   
-  mMidiCallback.midiOutputCallback(mMidiCallback.userData, &mLastRenderTimeStamp, 0, &packetList);
+  if(mMidiCallback.midiOutputCallback)
+  {
+    OSStatus status = mMidiCallback.midiOutputCallback(mMidiCallback.userData, &mLastRenderTimeStamp, 0, &packetList);
+    
+    if (status == noErr)
+      return true;
+  }
   
-  return true;
+  return false;
 }
 
 bool IPlugAU::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
 {
+  bool result = false;
+  
+  if(mMidiCallback.midiOutputCallback == nullptr)
+    return false;
+  
   ByteCount listSize = msgs.GetSize() * 3;
   MIDIPacketList* pPktlist = (MIDIPacketList*) malloc(listSize);
   MIDIPacket* pPkt = MIDIPacketListInit(pPktlist);
   
   IMidiMsg* pMsg = msgs.Get();
-  for (int i = 0; i < msgs.GetSize(); ++i, ++pMsg) {
+  for (int i = 0; i < msgs.GetSize(); ++i, ++pMsg)
+  {
     pPkt = MIDIPacketListAdd(pPktlist, listSize, pPkt, pMsg->mOffset /* TODO: is this correct? */, 1, &pMsg->mStatus);
     pPkt = MIDIPacketListAdd(pPktlist, listSize, pPkt, pMsg->mOffset /* TODO: is this correct? */, 1, &pMsg->mData1);
     pPkt = MIDIPacketListAdd(pPktlist, listSize, pPkt, pMsg->mOffset /* TODO: is this correct? */, 1, &pMsg->mData2);
   }
   
-  mMidiCallback.midiOutputCallback(mMidiCallback.userData, &mLastRenderTimeStamp, 0, pPktlist);
+  if(mMidiCallback.midiOutputCallback)
+  {
+    OSStatus status = mMidiCallback.midiOutputCallback(mMidiCallback.userData, &mLastRenderTimeStamp, 0, pPktlist);
+    
+    if (status == noErr)
+      result = true;
+  }
   
   free(pPktlist);
   
-  return true;
+  return result;
 }
 
 bool IPlugAU::SendSysEx(ISysEx& sysEx)
 {
+  bool result = false;
+
+  if(mMidiCallback.midiOutputCallback == nullptr)
+    return false;
+  
   ByteCount listSize = sysEx.mSize;
   
   assert(listSize > 65536); // maximum packet list size
@@ -2027,13 +2072,18 @@ bool IPlugAU::SendSysEx(ISysEx& sysEx)
   
   assert(pPkt != nullptr);
   
-  mMidiCallback.midiOutputCallback(mMidiCallback.userData, &mLastRenderTimeStamp, 0, pPktlist);
+  if(mMidiCallback.midiOutputCallback)
+  {
+    OSStatus status = mMidiCallback.midiOutputCallback(mMidiCallback.userData, &mLastRenderTimeStamp, 0, pPktlist);
+    
+    if (status == noErr)
+      result = true;
+  }
   
   free(pPktlist);
   
-  return true;
+  return result;
 }
-
 
 #pragma mark - IPlugAU Dispatch
 
@@ -2359,7 +2409,7 @@ OSStatus IPlugAU::DoReset(IPlugAU* _this)
 //static
 OSStatus IPlugAU::DoMIDIEvent(IPlugAU* _this, UInt32 inStatus, UInt32 inData1, UInt32 inData2, UInt32 inOffsetSampleFrame)
 {
-  if(_this->DoesMIDI())
+  if(_this->DoesMIDIIn())
   {
     IMidiMsg msg;
     msg.mStatus = inStatus;
@@ -2377,7 +2427,7 @@ OSStatus IPlugAU::DoMIDIEvent(IPlugAU* _this, UInt32 inStatus, UInt32 inData1, U
 //static
 OSStatus IPlugAU::DoSysEx(IPlugAU* _this, const UInt8* inData, UInt32 inLength)
 {
-  if(_this->DoesMIDI())
+  if(_this->DoesMIDIIn())
   {
     ISysEx sysex;
     sysex.mData = inData;

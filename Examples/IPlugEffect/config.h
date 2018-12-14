@@ -13,12 +13,13 @@
 #define BUNDLE_MFR "AcmeInc"
 #define BUNDLE_DOMAIN "com"
 
-#define PLUG_CHANNEL_IO "0-2"
+#define PLUG_CHANNEL_IO "2-2"
 
 #define PLUG_LATENCY 0
-#define PLUG_IS_INSTRUMENT 1
+#define PLUG_IS_INSTRUMENT 0
 #define PLUG_IS_MFX 0
-#define PLUG_DOES_MIDI 1
+#define PLUG_DOES_MIDI_IN 1
+#define PLUG_DOES_MIDI_OUT 0
 #define PLUG_DOES_STATE_CHUNKS 0
 #define PLUG_HAS_UI 1
 #define PLUG_WIDTH 600
@@ -41,15 +42,10 @@
 
 #define VST3_SUBCATEGORY "Fx"
 
-#define APP_ENABLE_SYSEX 0
-#define APP_ENABLE_MIDICLOCK 0
-#define APP_ENABLE_ACTIVE_SENSING 0
 #define APP_NUM_CHANNELS 2
-#define APP_N_VECTOR_WAIT 50
-#define APP_MULT 0.25
+#define APP_N_VECTOR_WAIT 0
+#define APP_MULT 1
+#define APP_COPY_AUV3 0
+#define APP_RESIZABLE 0
 
-#define PNGKNOB_FN "knob.png"
-#define PNGKNOBROTATE_FN "knob-rotate.png"
-#define SVGKNOB_FN "BefacoBigKnob.svg"
-#define TIGER_FN "23.svg"
 #define ROBOTTO_FN "Roboto-Regular.ttf"

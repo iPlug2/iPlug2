@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 #include <cmath>
@@ -14,12 +24,12 @@
  * @ingroup IGraphicsStructs
  */
 
-// this (and the platform implementation in IGraphics*) is largely based on the VSTGUI COptionMenu
-
 /** A class for setting the contents of a pop up menu
- * NOTE: An IPopupMenu must not be declared as a temporary. In order for a receiving IControl or lambda function to be triggered when something is selected, the menu should persist across function calls.
- * Therefore it should almost always be a member variable
- * An IPopupMenu owns its sub items, including submenus */
+ * NOTE: An IPopupMenu must not be declared as a temporary. In order for a receiving IControl or lambda function
+ * to be triggered when something is selected, the menu should persist across function calls, therefore
+ * it should almost always be a member variable.
+ * An IPopupMenu owns its sub items, including submenus
+ * This (and the platform implementations) are largely based on the VSTGUI COptionMenu */
 class IPopupMenu
 {
 public:
@@ -68,17 +78,22 @@ public:
     bool GetIsSeparator() const { return (mFlags & kSeparator) != 0; }
     int GetTag() const { return mTag; }
     IPopupMenu* GetSubmenu() const { return mSubmenu; }
+    bool GetIsChoosable() const
+    {
+      if(GetIsTitle()) return false;
+      if(GetIsSeparator()) return false;
+      if(GetSubmenu() != nullptr) return false;
+      if(!GetEnabled()) return false;
+      
+      return true;
+    }
     
     void SetChecked(bool state)
     {
       if (state)
-      {
         mFlags |= kChecked;
-      }
       else
-      {
         mFlags &= ~kChecked;
-      }
     }
     
   protected:
@@ -102,16 +117,19 @@ public:
     mMenuItems.Empty(true);
   }
 
+  static int Sortfunc(const Item **a, const Item **b)
+  {
+    return stricmp((*a)->GetText(),(*b)->GetText());
+  }
+  
   Item* AddItem(Item* pItem, int index = -1)
   {
     if (index == -1)
-    {
       mMenuItems.Add(pItem); // add it to the end
-    }
+    else if (index == -2)
+      mMenuItems.InsertSorted(pItem, Sortfunc);
     else
-    {
       mMenuItems.Insert(index, pItem);
-    }
     
     return pItem;
   }
@@ -128,14 +146,14 @@ public:
     return AddItem(new Item(str, pSubmenu), index);
   }
   
-  Item* AddItem(const char* str, IPopupMenu* pSubmenu)
+  Item* AddItem(const char* str, IPopupMenu* pSubmenu, int index = -1)
   {
     assert(pSubmenu->GetFunction() == nullptr); // submenus should not have existing functions
     
     if(GetFunction())
       pSubmenu->SetFunction(GetFunction());
     
-    return AddItem(new Item(str, pSubmenu), -1);
+    return AddItem(new Item(str, pSubmenu), index);
   }
   
   Item* AddSeparator(int index = -1)

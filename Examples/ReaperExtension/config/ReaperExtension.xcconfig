@@ -1,4 +1,4 @@
-#include "../../../common.xcconfig"
+#include "../../../common-mac.xcconfig"
 
 //------------------------------
 // Global build settings

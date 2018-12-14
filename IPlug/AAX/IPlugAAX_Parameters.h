@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
 
@@ -39,7 +33,12 @@ struct AAX_SIPlugSetupInfo
   bool mNeedsInputMIDI;               // Does the IPlug use a local MIDI input node?
   const char* mInputMIDINodeName;     // Name of the MIDI input node, if used
   uint32_t mInputMIDIChannelMask;     // MIDI input node channel mask, if used
-	//int32_t mNumAdditionalInputMIDINodes;// Number of additional input MIDI Nodes.  These will all share the same channelMask and base MIDINodeName, but the names will be appended with numbers 2,3,4,... 
+	//int32_t mNumAdditionalInputMIDINodes;// Number of additional input MIDI Nodes.  These will all share the same channelMask and base MIDINodeName, but the names will be appended with numbers 2,3,4,...
+  
+  bool mNeedsOutputMIDI;
+  const char* mOutputMIDINodeName;
+  uint32_t mOutputMIDIChannelMask;
+  int32_t mNumAdditionalOutputMIDINodes;
   
   bool mNeedsTransport;               // Does the IPlug use the transport interface?
   const char* mTransportMIDINodeName; // Name of the MIDI transport node, if used
@@ -71,7 +70,12 @@ struct AAX_SIPlugSetupInfo
     mNeedsInputMIDI = false;
     mInputMIDINodeName = "InputMIDI";
     mInputMIDIChannelMask = 0xffff;
-    //mNumAdditionalInputMIDINodes = 0;
+    
+    mNeedsOutputMIDI = false;
+    mOutputMIDINodeName = "OutputMIDI";
+    mOutputMIDIChannelMask = 0xffff;
+    mNumAdditionalOutputMIDINodes = 0;
+    
     mNeedsTransport = false;
     mTransportMIDINodeName = "Transport";
     mNumMeters = 0;
@@ -112,7 +116,8 @@ struct AAX_SIPlugRenderInfo
   int32_t* mNumSamples;           // Number of samples in each buffer.  Bounded as per \ref AAE_EAudioBufferLengthNative.  The exact value can vary from buffer to buffer.
   AAX_CTimestamp* mClock;         // Pointer to the global running time clock.
 
-  AAX_IMIDINode* mInputNode;      // Buffered local MIDI input node. Used for incoming MIDI messages directed to the IPlug.
+  AAX_IMIDINode* mInputNode;      // Buffered local MIDI input node.
+  AAX_IMIDINode* mOutputNode;     // Buffered local MIDI output node.
   AAX_IMIDINode* mGlobalNode;     // Buffered global MIDI input node. Used for global events like beat updates in metronomes.
   AAX_IMIDINode* mTransportNode;  // Transport MIDI node.  Used for querying the state of the MIDI transport.
   //AAX_IMIDINode* mAdditionalInputMIDINodes[kMaxAdditionalMIDINodes];  // List of additional input MIDI nodes, if your plugin needs them.

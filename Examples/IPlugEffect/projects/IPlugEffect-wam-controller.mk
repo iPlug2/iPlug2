@@ -1,9 +1,10 @@
 include ./config/IPlugEffect-web.mk
 
-TARGET = ./build-web/scripts/IPlugEffect.js
+TARGET = ./build-web/scripts/IPlugEffect-web.js
 
 SRC += $(WEB_SRC)
 CFLAGS += $(WEB_CFLAGS)
+CFLAGS += $(EXTRA_CFLAGS)
 LDFLAGS += $(WEB_LDFLAGS) \
 -s EXPORTED_FUNCTIONS=$(WEB_EXPORTS)
 

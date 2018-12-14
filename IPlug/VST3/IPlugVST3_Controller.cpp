@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #include "IPlugVST3_Controller.h"
 
@@ -449,7 +443,7 @@ void IPlugVST3Controller::SendMidiMsgFromUI(const IMidiMsg& msg)
   sendMessage(message);
 }
 
-void IPlugVST3Controller::SendArbitraryMsgFromUI(int messageTag, int dataSize, const void* pData)
+void IPlugVST3Controller::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData)
 {
   OPtr<IMessage> message = allocateMessage();
   
@@ -465,6 +459,7 @@ void IPlugVST3Controller::SendArbitraryMsgFromUI(int messageTag, int dataSize, c
   
   message->setMessageID("SAMFUI");
   message->getAttributes()->setInt("MT", messageTag);
+  message->getAttributes()->setInt("CT", controlTag);
   message->getAttributes()->setBinary("D", pData, dataSize);
   sendMessage(message);
 }

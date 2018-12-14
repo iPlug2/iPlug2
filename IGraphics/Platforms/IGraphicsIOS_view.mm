@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #ifndef NO_IGRAPHICS
 
 #import "IGraphicsIOS_view.h"
@@ -34,13 +44,8 @@
   
   // If we've moved to a window by the time our frame is being set, we can take its scale as our own
   if (self.window)
-  {
     scale = self.window.screen.scale;
-  }
   
-  if(mGraphics)
-    mGraphics->SetDisplayScale(scale);
-
   CGSize drawableSize = self.bounds.size;
   
   // Since drawable size is in pixels, we need to multiply by the scale to move from points to pixels
@@ -105,7 +110,8 @@
   //  [self pTouchesEnded: pTouches withEvent: event];
 }
 
-- (CAMetalLayer *)metalLayer {
+- (CAMetalLayer*) metalLayer
+{
   return (CAMetalLayer *)self.layer;
 }
 
@@ -131,15 +137,13 @@
   }
 }
 
-- (void)redraw:(CADisplayLink *)displayLink
+- (void)redraw:(CADisplayLink*) displayLink
 {
-  //TODO: this is redrawing every IControl!
-  mGraphics->SetAllControlsDirty();
-  
   IRECTList rects;
   
   if (mGraphics->IsDirty(rects))
   {
+    mGraphics->SetAllControlsClean();
     mGraphics->Draw(rects);
   }
 }
@@ -154,7 +158,8 @@
   return YES;
 }
 
-- (BOOL)canBecomeFirstResponder {
+- (BOOL)canBecomeFirstResponder
+{
   return YES;
 }
 

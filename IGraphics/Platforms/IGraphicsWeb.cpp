@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #include <cstring>
 #include <cstdio>
 
@@ -62,7 +72,7 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
 {
   IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
   
-  IMouseMod modifiers(0, 0, pEvent->shiftKey, pEvent->ctrlKey, pEvent->altKey);
+  IMouseMod modifiers(pEvent->buttons == 1, pEvent->buttons == 2, pEvent->shiftKey, pEvent->ctrlKey, pEvent->altKey);
   
   double x = pEvent->targetX;
   double y = pEvent->targetY;
@@ -149,6 +159,8 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
 {
   OnViewInitialized(nullptr /* not used */);
 
+  SetDisplayScale(val::global("window")["devicePixelRatio"].as<int>());
+
   GetDelegate()->LayoutUI(this);
   
   return nullptr;
@@ -167,16 +179,21 @@ bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String
   if (CStringHasContents(name))
   {
     WDL_String plusSlash;
-    plusSlash.SetFormatted(strlen(name) + 1, "/%s", name);
     
     bool foundResource = false;
     
-    if(strcmp(type, "png") == 0)
+    if(strcmp(type, "png") == 0) {
+      plusSlash.SetFormatted(strlen("/resources/img/") + strlen(name) + 1, "/resources/img/%s", name);
       foundResource = GetPreloadedImages().call<bool>("hasOwnProperty", std::string(plusSlash.Get()));
-    else if(strcmp(type, "ttf") == 0)
+    }
+    else if(strcmp(type, "ttf") == 0) {
+      plusSlash.SetFormatted(strlen("/resources/fonts/") + strlen(name) + 1, "/resources/fonts/%s", name);
       foundResource = true; // TODO: check ttf
-    else if(strcmp(type, "svg") == 0)
+    }
+    else if(strcmp(type, "svg") == 0) {
+      plusSlash.SetFormatted(strlen("/resources/img/") + strlen(name) + 1, "/resources/img/%s", name);
       foundResource = true; // TODO: check svg
+    }
     
     if(foundResource)
     {
@@ -191,13 +208,12 @@ bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String
 void IGraphicsWeb::OnMainLoopTimer()
 {
   IRECTList rects;
-  
-#ifdef IGRAPHICS_NANOVG
-  gGraphics->SetAllControlsDirty();
-#endif
-  
+
   if (gGraphics->IsDirty(rects))
+  {
+    gGraphics->SetAllControlsClean();
     gGraphics->Draw(rects);
+  }
 }
 
 bool IGraphicsWeb::GetTextFromClipboard(WDL_String& str)
@@ -217,22 +233,79 @@ bool IGraphicsWeb::GetTextFromClipboard(WDL_String& str)
 
 int IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, int type)
 {
-  
   switch (type)
   {
-    case MB_OK:
-        val::global("window").call<val>("alert", std::string(str));
-      break;
+    case MB_OK: val::global("window").call<val>("alert", std::string(str)); return 0;
     case MB_YESNO:
-        val::global("window").call<val>("confirm", std::string(str));
-       break;
+    case MB_OKCANCEL:
+      return val::global("window").call<val>("confirm", std::string(str)).as<int>();
     // case MB_CANCEL:
     //   break;
-    default:
-      break;
+    default: return 0;
   }
+}
 
-  return 0; // TODO: return value?
+void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext)
+{
+  val inputEl = val::global("document").call<val>("getElementById", std::string("pluginInput"));
+  
+  inputEl.call<void>("setAttribute", std::string("accept"), std::string(ext));
+  inputEl.call<void>("click");
+}
+
+void IGraphicsWeb::PromptForDirectory(WDL_String& path)
+{
+  val inputEl = val::global("document").call<val>("getElementById", std::string("pluginInput"));
+  
+  inputEl.call<void>("setAttribute", std::string("directory"));
+  inputEl.call<void>("setAttribute", std::string("webkitdirectory"));
+  inputEl.call<void>("click");
+}
+
+void IGraphicsWeb::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
+{
+//  val input = val::global("document").call<val>("createElement", std::string("input"));
+//  
+//  val rect = GetCanvas().call<val>("getBoundingClientRect");
+//  
+//  WDL_String dimstr;
+//  
+//  input["style"].set("position", val("fixed"));
+//  dimstr.SetFormatted(32, "%fpx",  rect["left"].as<double>() + bounds.L);
+//  input["style"].set("left", std::string(dimstr.Get()));
+//  dimstr.SetFormatted(32, "%fpx",  rect["top"].as<double>() + bounds.T);
+//  input["style"].set("top", std::string(dimstr.Get()));
+//  dimstr.SetFormatted(32, "%fpx",  bounds.W());
+//  input["style"].set("width", std::string(dimstr.Get()));
+//  dimstr.SetFormatted(32, "%fpx",  bounds.H());
+//  input["style"].set("height", std::string(dimstr.Get()));
+//  
+//  if (control.ParamIdx() > kNoParameter)
+//  {
+//    const IParam* pParam = control.GetParam();
+//    
+//    switch ( pParam->Type() )
+//    {
+//      case IParam::kTypeEnum:
+//      case IParam::kTypeInt:
+//      case IParam::kTypeBool:
+//        input.set("type", val("number"));
+//        break;
+//      case IParam::kTypeDouble:
+//        input.set("type", val("number")); // TODO
+//        break;
+//      default:
+//        break;
+//    }
+//  }
+//  else
+//  {
+//    input.set("type", val("text"));
+//  }
+//
+//  val::global("document")["body"].call<void>("appendChild", input);
+//  
+//  input.call<void>("focus");
 }
 
 IPopupMenu* IGraphicsWeb::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
@@ -243,7 +316,18 @@ IPopupMenu* IGraphicsWeb::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds,
     return mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
   else
   {
-    //TODO: implement select box
+//    val sel = val::global("document").call<val>("createElement", std::string("select"));
+//    sel.set("id", "popup");
+//
+//    for (int i = 0; i < menu.NItems(); i++) {
+//      IPopupMenu::Item* pItem = menu.GetItem(i);
+//      val opt = val::global("document").call<val>("createElement", std::string("option"));
+//      opt.set("text", pItem->GetText());
+//      sel.call<void>("add", opt);
+//    }
+//
+//    GetCanvas().call<void>("appendChild", sel);
+    
     return nullptr;
   }
 }
@@ -253,6 +337,19 @@ bool IGraphicsWeb::OpenURL(const char* url, const char* msgWindowTitle, const ch
   val::global("window").call<val>("open", std::string(url), std::string("_blank"));
   
   return true;
+}
+
+void IGraphicsWeb::DrawResize()
+{
+  val canvas = GetCanvas();
+  
+  canvas["style"].set("width", val(Width() * GetScale()));
+  canvas["style"].set("height", val(Height() * GetScale()));
+  
+  canvas.set("width", Width() * GetScale() * GetDisplayScale());
+  canvas.set("height", Height() * GetScale() * GetDisplayScale());
+  
+  IGRAPHICS_DRAW_CLASS::DrawResize();
 }
 
 #if defined IGRAPHICS_CANVAS

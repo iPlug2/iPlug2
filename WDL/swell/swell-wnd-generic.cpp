@@ -2298,7 +2298,11 @@ static LRESULT OnEditKeyDown(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam,
           es->cursor_pos--;
           const char *buf = hwnd->m_title.Get();
           int bytepos = WDL_utf8_charpos_to_bytepos(buf,es->cursor_pos);
-          if (bytepos > 0 && buf[bytepos] == '\n' && buf[bytepos-1] == '\r') hwnd->m_title.DeleteSub(bytepos-1, 2);
+          if (bytepos > 0 && buf[bytepos] == '\n' && buf[bytepos-1] == '\r') 
+          {
+            hwnd->m_title.DeleteSub(bytepos-1, 2);
+            es->cursor_pos--;
+          }
           else hwnd->m_title.DeleteSub(bytepos, wdl_utf8_parsechar(hwnd->m_title.Get()+bytepos,NULL));
           return 7; 
         }
@@ -2626,6 +2630,8 @@ forceMouseMove:
     return 0;
     case WM_KEYDOWN:
       {
+        const int osel1 = es && es->sel1 >= 0 && es->sel2 > es->sel1 ? es->sel1 : -1;
+
         int f = OnEditKeyDown(hwnd,msg,wParam,lParam, 
             !!(hwnd->m_style&ES_WANTRETURN),
             !!(hwnd->m_style&ES_MULTILINE),
@@ -2639,6 +2645,10 @@ forceMouseMove:
           }
           if (f&2) 
           {
+            if ((hwnd->m_style & (ES_MULTILINE|ES_AUTOHSCROLL)) == ES_AUTOHSCROLL &&
+                osel1 >= 0 && es->cursor_pos > osel1 && es->sel1 < 0)
+              es->autoScrollToOffset(hwnd,osel1,false,false);
+
             es->autoScrollToOffset(hwnd,es->cursor_pos,
                (hwnd->m_style & ES_MULTILINE) != 0,
                (hwnd->m_style & (ES_MULTILINE|ES_AUTOHSCROLL)) == ES_MULTILINE
@@ -2800,6 +2810,9 @@ forceMouseMove:
         es->cursor_pos = WDL_utf8_get_charlen(hwnd->m_title.Get());
         es->sel1=es->sel2=-1;
         es->cache_linelen_w=es->cache_linelen_strlen=0;
+        if ((hwnd->m_style & (ES_MULTILINE|ES_AUTOHSCROLL))==ES_AUTOHSCROLL &&
+            GetFocus() != hwnd)
+          es->autoScrollToOffset(hwnd,0,false,false);
       }
       InvalidateRect(hwnd,NULL,FALSE);
       if (hwnd->m_id && hwnd->m_parent)
@@ -3114,7 +3127,10 @@ static LRESULT WINAPI labelWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
                 buf = NULL;
               }
             }
-            if (buf) DrawText(ps.hdc,buf,-1,&r,((hwnd->m_style & SS_CENTER) ? DT_CENTER:0)|DT_VCENTER);
+            if (buf) DrawText(ps.hdc,buf,-1,&r,
+                ((hwnd->m_style & SS_CENTER) ? DT_CENTER : 
+                 (hwnd->m_style & SS_RIGHT) ? DT_RIGHT : 0)|
+                DT_VCENTER);
           }
           EndPaint(hwnd,&ps);
         }
@@ -3552,6 +3568,8 @@ HWND SWELL_MakeLabel( int align, const char *label, int idx, int x, int y, int w
   RECT tr=MakeCoords(x,y,w,h,true);
   HWND hwnd = new HWND__(m_make_owner,idx,&tr,label, !(flags&SWELL_NOT_WS_VISIBLE),labelWindowProc);
   hwnd->m_classname = "static";
+  if (align > 0) flags |= SS_RIGHT;
+  else if (align == 0) flags |= SS_CENTER;
   hwnd->m_style = (flags & ~SWELL_NOT_WS_VISIBLE)|WS_CHILD;
   hwnd->m_wantfocus = false;
   hwnd->m_wndproc(hwnd,WM_CREATE,0,0);
@@ -4531,7 +4549,7 @@ forceMouseMove:
                 {
                   if (ncols > 0)
                   {
-                    ar.right = ar.left + cols[col].xwid - SWELL_UI_SCALE(3);
+                    ar.right = xpos + cols[col].xwid - SWELL_UI_SCALE(3);
                     xpos += cols[col].xwid;
                   }
                   else ar.right = cr.right;
@@ -4603,7 +4621,7 @@ forceMouseMove:
                       const int x1 = tr.left + 2;
                       int y2 = (tr.bottom+tr.top)/2 - tsz/2 - tsz/4;
                       int y1 = y2 + tsz;
-                      if (cols[col].sortindicator < 0)
+                      if (cols[col].sortindicator >= 0)
                       {
                         int tmp=y1; 
                         y1=y2;
@@ -6078,7 +6096,7 @@ int ListView_HitTest(HWND h, LVHITTESTINFO *pinf)
     const int ypos = y - lvs->GetColumnHeaderHeight(h);
     const int hit = ypos >= 0 ? ((ypos + lvs->m_scroll_y) / lvs->m_last_row_height) : -1;
     if (hit < 0) pinf->flags |= LVHT_ABOVE;
-    pinf->iItem=hit;
+    pinf->iItem=hit < 0 || hit >= lvs->GetNumItems() ? -1 : hit;
     if (pinf->iItem >= 0)
     {
       if (lvs->m_status_imagelist && x < lvs->m_last_row_height)
@@ -6286,6 +6304,31 @@ HWND ChildWindowFromPoint(HWND h, POINT p)
   return h;
 }
 
+static HWND recurseOwnedWindowHitTest(HWND h, POINT p, int maxdepth)
+{
+  RECT r;
+  GetWindowContentViewRect(h,&r);
+  if (!PtInRect(&r,p)) return NULL;
+
+  // check any owned windows first, as they are always above our window
+  if (h->m_owned_list && maxdepth > 0)
+  {
+    HWND owned = h->m_owned_list;
+    while (owned)
+    {
+      if (owned->m_visible)
+      {
+        HWND hit = recurseOwnedWindowHitTest(owned,p,maxdepth-1);
+        if (hit) return hit;
+      }
+      owned = owned->m_owned_next;
+    }
+  }
+  p.x -= r.left;
+  p.y -= r.top;
+  return ChildWindowFromPoint(h,p);
+}
+
 HWND WindowFromPoint(POINT p)
 {
   HWND h = SWELL_topwindows;
@@ -6293,14 +6336,8 @@ HWND WindowFromPoint(POINT p)
   {
     if (h->m_visible)
     {
-      RECT r;
-      GetWindowContentViewRect(h,&r);
-      if (PtInRect(&r,p))
-      {
-        p.x -= r.left;
-        p.y -= r.top;
-        return ChildWindowFromPoint(h,p);
-      }
+      HWND hit = recurseOwnedWindowHitTest(h,p,20);
+      if (hit) return hit;
     }
     h = h->m_next;
   }
@@ -6747,7 +6784,7 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                  dis ? g_swell_ctheme.menubar_text_disabled :
                    g_swell_ctheme.menubar_text);
 
-              DrawText(dc,inf->dwTypeData,-1,&cr,DT_BOTTOM|DT_LEFT);
+              DrawText(dc,inf->dwTypeData,-1,&cr,DT_VCENTER|DT_LEFT);
               xpos=cr.right+g_swell_ctheme.menubar_spacing_width;
             }
           }
@@ -7770,6 +7807,18 @@ int swell_fullscreenWindow(HWND hwnd, BOOL fs)
   return 0;
 }
 
+void SWELL_SetClassName(HWND hwnd, const char *p)
+{
+  if (hwnd)
+    hwnd->m_classname=p;
+}
+
+int GetClassName(HWND hwnd, char *buf, int bufsz)
+{
+  if (!hwnd || !hwnd->m_classname || !buf || bufsz<1) return 0;
+  lstrcpyn_safe(buf,hwnd->m_classname,bufsz);
+  return (int)strlen(buf);
+}
 
 #ifdef _DEBUG
 void VALIDATE_HWND_LIST(HWND listHead, HWND par)

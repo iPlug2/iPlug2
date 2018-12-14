@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 /**
@@ -8,7 +18,7 @@
 #include <cstring>
 #include <cstdlib>
 
-#ifdef VST3_API
+#if defined VST3_API || defined VST3C_API
 #undef stricmp
 #undef strnicmp
 #include "pluginterfaces/vst/ivstcontextmenu.h"
@@ -26,7 +36,7 @@
  * Some controls respond to mouse actions, either by moving a bitmap, transforming a bitmap, or cycling through a set of bitmaps.
  * Other controls are readouts only. */
 class IControl
-#ifdef VST3_API
+#if defined VST3_API || defined VST3C_API
 : public Steinberg::Vst::IContextMenuTarget
 , public Steinberg::FObject
 #endif
@@ -374,6 +384,8 @@ public:
 
   IAnimationFunction GetAnimationFunction() { return mAnimationFunc; }
   
+  IAnimationFunction GetActionFunction() { return mActionFunc; }
+
   double GetAnimationProgress()
   {
     if(!mAnimationFunc)
@@ -383,7 +395,7 @@ public:
     return elapsed.count() / mAnimationDuration.count();
   }
   
-#ifdef VST3_API
+#if defined VST3_API || defined VST3C_API
   Steinberg::tresult PLUGIN_API executeMenuItem (Steinberg::int32 tag) override { OnContextSelection(tag); return Steinberg::kResultOk; }
 #endif
   
@@ -404,7 +416,7 @@ protected:
   IText mText;
 
   int mTextEntryLength = DEFAULT_TEXT_ENTRY_LEN;
-  double mValue = 0.;
+  double mValue = 0.; // mValue is mapped to the normalized parameter value in controls where mParamIdx > -1
   double mDefaultValue = -1.; // it's important this is -1 to start with
   double mClampLo = 0.;
   double mClampHi = 1.;
@@ -427,7 +439,7 @@ protected:
   IColor mPTHighlightColor = COLOR_RED;
   bool mPTisHighlighted = false;
 
-#ifdef VST3_API
+#if defined VST3_API || defined VST3C_API
   OBJ_METHODS(IControl, FObject)
   DEFINE_INTERFACES
   DEF_INTERFACE (IContextMenuTarget)
@@ -447,7 +459,7 @@ private:
 class IBitmapBase
 {
 public:
-  IBitmapBase(IBitmap& bitmap, EBlendType blend = kBlendNone)
+  IBitmapBase(const IBitmap& bitmap, EBlendType blend = kBlendNone)
   : mBitmap(bitmap)
   , mBlend(blend)
   {
@@ -458,6 +470,11 @@ public:
   void GrayOut(bool gray)
   {
     mBlend.mWeight = (gray ? GRAYED_ALPHA : 1.0f);
+  }
+  
+  void SetBlend(const IBlend& blend)
+  {
+    mBlend = blend;
   }
 
 protected:
@@ -612,6 +629,46 @@ public:
     g.FillCircle(GetColor(kHL), mouseDownX, mouseDownY, mFlashCircleRadius);
   }
   
+  IRECT DrawVectorButton(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver)
+  {
+    g.FillRect(GetColor(kBG), bounds);
+    
+    IRECT handleBounds = GetAdjustedHandleBounds(bounds);
+    const float cornerRadius = mRoundness * (handleBounds.W() / 2.f);
+    
+    if (pressed)
+    {
+      g.FillRoundRect(GetColor(kPR), handleBounds, cornerRadius);
+      
+      //inner shadow
+      if (mDrawShadows && mEmboss)
+      {
+        g.PathRect(handleBounds.GetHSliced(mShadowOffset));
+        g.PathRect(handleBounds.GetVSliced(mShadowOffset));
+        g.PathFill(GetColor(kSH));
+      }
+    }
+    else
+    {
+      //outer shadow
+      if (mDrawShadows && !mEmboss)
+        g.FillRoundRect(GetColor(kSH), handleBounds.GetShifted(mShadowOffset, mShadowOffset), cornerRadius);
+      
+      g.FillRoundRect(GetColor(kFG), handleBounds, cornerRadius);
+    }
+    
+    if(mouseOver)
+      g.FillRoundRect(GetColor(kHL), handleBounds, cornerRadius);
+    
+    if(mControl->GetAnimationFunction())
+      DrawFlashCircle(g);
+    
+    if(mDrawFrame)
+      g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius, 0, mFrameThickness);
+    
+    return handleBounds;
+  }
+  
 protected:
   IControl* mControl = nullptr;
   WDL_TypedBuf<IColor> mColors;
@@ -625,27 +682,40 @@ protected:
   float mMaxFlashCircleRadius = 50.f;
 };
 
-/** A basic control to fill a rectangle with a color */
+/** A basic control to fill a rectangle with a color or gradient */
 class IPanelControl : public IControl
 {
 public:
   IPanelControl(IGEditorDelegate& dlg, IRECT bounds, const IColor& color, bool drawFrame = false)
   : IControl(dlg, bounds, kNoParameter)
-  , mColor(color)
+  , mPattern(color)
+  , mDrawFrame(drawFrame)
+  {
+  }
+  
+  IPanelControl(IGEditorDelegate& dlg, IRECT bounds, const IPattern& pattern, bool drawFrame = false)
+  : IControl(dlg, bounds, kNoParameter)
+  , mPattern(pattern)
   , mDrawFrame(drawFrame)
   {
   }
 
   void Draw(IGraphics& g) override
   {
-    g.FillRect(mColor, mRECT);
+    if(g.HasPathSupport())
+    {
+      g.PathRect(mRECT);
+      g.PathFill(mPattern);
+    }
+    else
+      g.FillRect(mPattern.GetStop(0).mColor, mRECT);
     
     if(mDrawFrame)
       g.DrawRect(COLOR_LIGHT_GRAY, mRECT);
   }
   
 private:
-  IColor mColor;
+  IPattern mPattern;
   bool mDrawFrame;
 };
 
@@ -702,8 +772,13 @@ public:
   /** Creates a bitmap control
    * @param paramIdx Parameter index (-1 or kNoParameter, if this should not be linked to a parameter)
    * @param bitmap Image to be drawn */
-  IBitmapControl(IGEditorDelegate& dlg, float x, float y, IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendNone)
+  IBitmapControl(IGEditorDelegate& dlg, float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendNone)
   : IControl(dlg, IRECT(x, y, bitmap), paramIdx)
+  , IBitmapBase(bitmap, blend)
+  {}
+  
+  IBitmapControl(IGEditorDelegate& dlg, const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendNone)
+  : IControl(dlg, bounds, paramIdx)
   , IBitmapBase(bitmap, blend)
   {}
   
@@ -738,13 +813,18 @@ public:
     g.DrawSVG(mSVG, mRECT);
   }
   
+  void SetSVG(const ISVG& svg)
+  {
+    mSVG = svg;
+  }
+  
 private:
   //TODO: cache the SVG to intermediate bitmap?
   ISVG mSVG;
 };
 
 
-/** A basic control to output text to the screen. */
+/** A basic control to display some text */
 class ITextControl : public IControl
 {
 public:
@@ -756,26 +836,24 @@ public:
     IControl::mText = text;
   }
 
-  ~ITextControl() {}
+  void Draw(IGraphics& g) override;
 
   virtual void SetStr(const char* str);
   virtual void ClearStr() { SetStr(""); }
-
-  void Draw(IGraphics& g) override;
-
+  
 protected:
   WDL_String mStr;
   IColor mBGColor;
 };
 
+/** A control to display the textual representation of a parameter */
 class ICaptionControl : public ITextControl
 {
 public:
   ICaptionControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, const IText& text = DEFAULT_TEXT, bool showParamLabel = true);
-  ~ICaptionControl() {}
   
-  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void Draw(IGraphics& g) override;
+  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
 
 protected:
   bool mShowParamLabel;
@@ -794,8 +872,6 @@ public:
     , mDirection(direction)
     , mGearing(gearing)
   {}
-
-  virtual ~IKnobControlBase() {}
 
   void SetGearing(double gearing) { mGearing = gearing; }
   virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
@@ -947,19 +1023,31 @@ protected:
   bool mDrawTrackFrame = true;
 };
 
-/** Parent for switch controls (including buttons a.k.a. momentary switches)
- */
+/** Parent for buttons a.k.a. momentary switches - cannot be linked to parameters.
+ * The default action function triggers the default click function, which returns mValue to 0. after DEFAULT_ANIMATION_DURATION */
+class IButtonControlBase : public IControl
+{
+public:
+  IButtonControlBase(IGEditorDelegate& dlg, IRECT bounds, IActionFunction aF);
+  
+  virtual ~IButtonControlBase() {}
+  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  virtual void OnEndAnimation() override;
+};
+
+/** Parent for switch controls */
 class ISwitchControlBase : public IControl
 {
 public:
-  ISwitchControlBase(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction aF = nullptr,
-    int numStates = 2);
+  ISwitchControlBase(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction aF = nullptr, int numStates = 2);
 
   virtual ~ISwitchControlBase() {}
 
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  virtual void OnMouseUp(float x, float y, const IMouseMod& mod) override;
 protected:
   int mNumStates;
+  bool mMouseDown = false;
 };
 
 /** An abstract IControl base class that you can inherit from in order to make a control that pops up a menu to browse files */
@@ -972,7 +1060,7 @@ public:
     mExtension.Set(extension);
   }
 
-  ~IDirBrowseControlBase();
+  virtual ~IDirBrowseControlBase();
 
   int NItems();
 
@@ -986,7 +1074,8 @@ public:
 
 private:
   void ScanDirectory(const char* path, IPopupMenu& menuToAddTo);
-
+  void CollectSortedItems(IPopupMenu* pMenu);
+  
 protected:
   int mSelectedIndex = -1;
   IPopupMenu* mSelectedMenu = nullptr;
@@ -994,6 +1083,7 @@ protected:
   WDL_PtrList<WDL_String> mPaths;
   WDL_PtrList<WDL_String> mPathLabels;
   WDL_PtrList<WDL_String> mFiles;
+  WDL_PtrList<IPopupMenu::Item> mItems; // ptr to item for each file
   WDL_String mExtension;
 };
 
@@ -1001,7 +1091,7 @@ class ICornerResizerBase : public IControl
 {
 public:
   ICornerResizerBase(IGEditorDelegate& dlg, IRECT graphicsBounds, float size)
-  : IControl(dlg, graphicsBounds.GetRECTFromBRHC(size, size).GetPadded(-1))
+  : IControl(dlg, graphicsBounds.GetFromBRHC(size, size).GetPadded(-1))
   , mInitialGraphicsBounds(graphicsBounds)
   , mSize(size)
   {
@@ -1009,10 +1099,10 @@ public:
   
   void Draw(IGraphics& g) override
   {
-    if(GetMouseIsOver() | GetUI()->mResizingInProcess)
-      g.FillTriangle(COLOR_LIGHT_GRAY, mRECT.L, mRECT.B, mRECT.R, mRECT.T, mRECT.R, mRECT.B);
+    if(GetMouseIsOver() || GetUI()->mResizingInProcess)
+      g.FillTriangle(COLOR_BLACK, mRECT.L, mRECT.B, mRECT.R, mRECT.T, mRECT.R, mRECT.B);
     else
-      g.FillTriangle(COLOR_GRAY, mRECT.L, mRECT.B, mRECT.R, mRECT.T, mRECT.R, mRECT.B);
+      g.FillTriangle(COLOR_TRANSLUCENT, mRECT.L, mRECT.B, mRECT.R, mRECT.T, mRECT.R, mRECT.B);
   }
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
@@ -1026,7 +1116,7 @@ public:
   void OnRescale() override
   {
     float size = mSize * (1.f/GetUI()->GetScale());
-    IRECT r = GetUI()->GetBounds().GetRECTFromBRHC(size, size);
+    IRECT r = GetUI()->GetBounds().GetFromBRHC(size, size);
     SetTargetAndDrawRECTs(r);
   }
   
@@ -1042,7 +1132,6 @@ public:
     IControl::OnMouseOut();
   }
 
-  
 private:
   float mSize;
   IRECT mInitialGraphicsBounds;

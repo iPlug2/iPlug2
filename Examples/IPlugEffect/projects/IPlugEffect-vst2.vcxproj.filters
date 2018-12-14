@@ -20,9 +20,6 @@
     <ClCompile Include="..\..\..\IGraphics\Platforms\IGraphicsWin.cpp">
       <Filter>IGraphics\Platform</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Controls\IControls.cpp">
-      <Filter>IGraphics\Controls</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugPluginBase.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
@@ -55,6 +52,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\Extras\MidiSynth.cpp">
       <Filter>IPlug\Extras</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Controls\IControls.cpp">
+      <Filter>IGraphics\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Controls\IPopupMenuControl.cpp">
+      <Filter>IGraphics\Controls</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -135,7 +138,7 @@
     <ClInclude Include="..\..\..\IGraphics\IGraphicsStructs.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsUtilites.h">
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsUtilities.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsAGG.h">
@@ -171,9 +174,6 @@
     <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsLinux.h">
       <Filter>IGraphics\Platform</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Controls\IControls.h">
-      <Filter>IGraphics\Controls</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugTimer.h">
       <Filter>IPlug</Filter>
     </ClInclude>
@@ -185,6 +185,27 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\Extras\MidiSynth.h">
       <Filter>IPlug\Extras</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\IControls.h">
+      <Filter>IGraphics\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\IPerfDisplayControl.h">
+      <Filter>IGraphics\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\IPopupMenuControl.h">
+      <Filter>IGraphics\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\IVKeyboardControl.h">
+      <Filter>IGraphics\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\IVMeterControl.h">
+      <Filter>IGraphics\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\IVMultiSliderControl.h">
+      <Filter>IGraphics\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\IVScopeControl.h">
+      <Filter>IGraphics\Controls</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -225,10 +246,10 @@
     <None Include="..\config\IPlugEffect-web.mk">
       <Filter>config</Filter>
     </None>
-    <None Include="..\config\IPlugEffect.props">
+    <None Include="..\config\IPlugEffect-win.props">
       <Filter>config</Filter>
     </None>
-    <None Include="..\config\IPlugEffect.xcconfig">
+    <None Include="..\config\IPlugEffect-mac.xcconfig">
       <Filter>config</Filter>
     </None>
     <None Include="..\config\IPlugEffect-ios.xcconfig">

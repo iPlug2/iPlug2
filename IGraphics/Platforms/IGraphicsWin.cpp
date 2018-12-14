@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 
 #include <Shlobj.h>
 #include <Shlwapi.h>
@@ -176,15 +186,12 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           return 0; // TODO: check this!
         }
 
-        IRECT dirtyR;
-
-#ifdef IGRAPHICS_NANOVG
-        dirtyR = pGraphics->GetBounds();
+        IRECTList rects;
+         
+        if (pGraphics->IsDirty(rects))
         {
-#else
-        if (pGraphics->IsDirty(dirtyR))
-        {
-#endif
+          pGraphics->SetAllControlsClean();
+          IRECT dirtyR = rects.Bounds();
           dirtyR.ScaleBounds(pGraphics->GetScale());
           RECT r = { (LONG) dirtyR.L, (LONG) dirtyR.T, (LONG) dirtyR.R, (LONG) dirtyR.B };
 
@@ -350,8 +357,10 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         BeginPaint(hWnd, &ps);
         #endif
         IRECT ir(r.left, r.top, r.right, r.bottom);
+        IRECTList rects;
         ir.ScaleBounds(1. / pGraphics->GetScale());
-        pGraphics->Draw(ir);
+        rects.Add(ir);
+        pGraphics->Draw(rects);
         #ifdef IGRAPHICS_NANOVG
         SwapBuffers((HDC)pGraphics->mPlatformContext);
         EndPaint(hWnd, &ps);
@@ -646,16 +655,15 @@ void* IGraphicsWin::OpenWindow(void* pParent)
   }
 
   sFPS = FPS();
-  mPlugWnd = CreateWindow(wndClassName, "IPlug", WS_CHILD | WS_VISIBLE,
-                          x, y, w, h, mParentWnd, 0, mHInstance, this);
+  mPlugWnd = CreateWindow(wndClassName, "IPlug", WS_CHILD | WS_VISIBLE, x, y, w, h, mParentWnd, 0, mHInstance, this);
 
   HDC dc = GetDC(mPlugWnd);
   SetPlatformContext(dc);
   ReleaseDC(mPlugWnd, dc);
 
-  SetDisplayScale(1);
-
   OnViewInitialized((void*) dc);
+  
+  SetDisplayScale(1); // CHECK!
 
   GetDelegate()->LayoutUI(this);
 
@@ -731,6 +739,7 @@ HWND IGraphicsWin::GetMainWnd()
         mMainWnd = parentWnd;
         parentWnd = GetParent(mMainWnd);
       }
+      
       GetWndClassName(mMainWnd, &mMainWndClassName);
     }
     else if (CStringHasContents(mMainWndClassName.Get()))
@@ -1034,19 +1043,19 @@ bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
 }
 
 //TODO: this method needs rewriting
-void IGraphicsWin::PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* extensions)
+void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* extensions)
 {
   if (!WindowIsOpen())
   {
-    filename.Set("");
+    fileName.Set("");
     return;
   }
     
   wchar_t fnCStr[_MAX_PATH];
   wchar_t dirCStr[_MAX_PATH];
     
-  if (filename.GetLength())
-    UTF8ToUTF16(fnCStr, filename.Get(), _MAX_PATH);
+  if (fileName.GetLength())
+    UTF8ToUTF16(fnCStr, fileName.Get(), _MAX_PATH);
   else
     fnCStr[0] = '\0';
     
@@ -1134,11 +1143,11 @@ void IGraphicsWin::PromptForFile(WDL_String& filename, WDL_String& path, EFileAc
       path.Append(directoryOutCStr);
     }
       
-    filename.Set(tempUTF8.Get());
+    fileName.Set(tempUTF8.Get());
   }
   else
   {
-    filename.Set("");
+    fileName.Set("");
   }
 }
 
@@ -1337,7 +1346,7 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
   return success;
 }
 
-BOOL IGraphicsWin::EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG param)
+BOOL IGraphicsWin::EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG_PTR param)
 {
   if (IS_INTRESOURCE(name)) return true; // integer resources not wanted
   else {

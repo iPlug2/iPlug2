@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
 
@@ -195,7 +189,6 @@ END_FACTORY
   IPlug* MakePlug(void* pMemory)
   {
     IPlugInstanceInfo instanceInfo;
-    instanceInfo.mBundleID.Set(BUNDLE_ID);
     instanceInfo.mCocoaViewFactoryClassName.Set(AUV2_VIEW_CLASS_STR);
 
     if(pMemory)
@@ -235,7 +228,7 @@ class IPlugAUFactory
         case kAudioUnitScheduleParametersSelect:return (AudioComponentMethod)IPlugAU::AUMethodScheduleParameters;
         case kAudioUnitRenderSelect:  return (AudioComponentMethod)IPlugAU::AUMethodRender;
         case kAudioUnitResetSelect: return (AudioComponentMethod)IPlugAU::AUMethodReset;
-#if PLUG_DOES_MIDI
+#if PLUG_DOES_MIDI_IN
         case kMusicDeviceMIDIEventSelect:  return (AudioComponentMethod)IPlugAU::AUMethodMIDIEvent;
         case kMusicDeviceSysExSelect:  return (AudioComponentMethod)IPlugAU::AUMethodSysEx;
 #endif
@@ -319,17 +312,11 @@ extern "C"
   }
 #pragma mark - APP
 #elif defined APP_API
-  IPlug* MakePlug(void* pMidiOutput, uint16_t& midiOutChan)
+  IPlug* MakePlug(void* pAppHost)
   {
     IPlugInstanceInfo instanceInfo;
-
-    instanceInfo.mRTMidiOut = (RtMidiOut*) pMidiOutput;
-    instanceInfo.mMidiOutChan = midiOutChan;
-
-    #if defined OS_MAC
-      instanceInfo.mBundleID.Set(BUNDLE_ID);
-    #endif
-
+    instanceInfo.pAppHost = pAppHost;
+    
     return new PLUG_CLASS_NAME(instanceInfo);
   }
 #pragma mark - WAM
@@ -361,13 +348,50 @@ extern "C"
   IPlugWeb* gPlug = nullptr;
   extern void StartMainLoopTimer();
 
+  extern "C"
+  {
+    EMSCRIPTEN_KEEPALIVE void iplug_syncfs()
+    {
+      EM_ASM({
+        if(Module.syncdone == 1) {
+          Module.syncdone = 0;
+          FS.syncfs(false, function (err) {
+            assert(!err);
+            console.log("Synced to IDBFS...");
+            Module.syncdone = 1;
+          });
+        }
+      });
+    }
+    
+    EMSCRIPTEN_KEEPALIVE void iplug_fsready()
+    {
+      gPlug = MakePlug();
+      gPlug->OpenWindow(nullptr);
+      gPlug->OnUIOpen();
+      iplug_syncfs(); // plug in may initialise settings in constructor, write to persistent data after init
+    }
+  }
+
   int main()
   {
-    gPlug = MakePlug();
-    gPlug->OpenWindow(nullptr);
-    gPlug->OnUIOpen();
+    //create persistent data file system and synchronise
+    EM_ASM(
+           var name = '/' + Pointer_stringify($0) + '_data';
+           FS.mkdir(name);
+           FS.mount(IDBFS, {}, name);
+
+           Module.syncdone = 0;
+           FS.syncfs(true, function (err) {
+            assert(!err);
+            console.log("Synced from IDBFS...");
+            Module.syncdone = 1;
+            ccall('iplug_fsready', 'v');
+          });
+        , PLUG_NAME);
     
     StartMainLoopTimer();
+
     // TODO: when do we delete!
     // delete gPlug;
     
@@ -410,7 +434,7 @@ DWORD GetTickCount()
 #define IPLUG_CTOR(nParams, nPresets, instanceInfo) \
   IPlug(instanceInfo, IPlugConfig(nParams, nPresets, PLUG_CHANNEL_IO,\
     PUBLIC_NAME, "", PLUG_MFR, PLUG_VERSION_HEX, PLUG_UNIQUE_ID, PLUG_MFR_ID, \
-    PLUG_LATENCY, PLUG_DOES_MIDI, PLUG_DOES_STATE_CHUNKS, PLUG_IS_INSTRUMENT, \
+    PLUG_LATENCY, PLUG_DOES_MIDI_IN, PLUG_DOES_MIDI_OUT, PLUG_DOES_STATE_CHUNKS, PLUG_IS_INSTRUMENT, \
     PLUG_HAS_UI, PLUG_WIDTH, PLUG_HEIGHT, BUNDLE_ID))
 
 #if !defined NO_IGRAPHICS && !defined VST3P_API

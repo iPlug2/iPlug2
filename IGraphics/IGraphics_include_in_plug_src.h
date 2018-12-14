@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #ifndef __IGRAPHICS_SRC_INC__
 #define __IGRAPHICS_SRC_INC__
 
@@ -43,7 +53,7 @@
 
   void StartMainLoopTimer()
   {
-    emscripten_set_main_loop(gGraphics->OnMainLoopTimer, gGraphics->FPS(), 1);
+    emscripten_set_main_loop(gGraphics->OnMainLoopTimer, 0 /*gGraphics->FPS()*/, 1);
   }
   #else
     #error "No OS defined!"

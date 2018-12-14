@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #include "IPlugAPP_host.h"
 
@@ -22,184 +16,194 @@
 
 #include "IPlugLogger.h"
 
+#ifndef MAX_PATH_LEN
+#define MAX_PATH_LEN 2048
+#endif
+
+#define STRBUFSZ 100
+
 IPlugAPPHost* IPlugAPPHost::sInstance = nullptr;
-HWND gHWND;
-HINSTANCE gHINST;
 UINT gSCROLLMSG;
-
-//static
-IPlugAPPHost* IPlugAPPHost::create ()
-{
-//  IPlugAPPHost* _this = new IPlugAPPHost ();
-//  
-//  if (_this->init () == false)
-//  {
-//    delete _this;
-//    return nullptr;
-//  }
-//  else 
-//  {
-//    sInstance = _this;
-//    return _this;
-//  }
-
-  return nullptr;
-}
 
 IPlugAPPHost::IPlugAPPHost()
 {
+  mIPlug = MakePlug(this);
 }
 
 IPlugAPPHost::~IPlugAPPHost()
 {
   mMidiIn->cancelCallback();
   
-  //shutdown timer
-
-  delete mState;
-  delete mTempState;
-  delete mActiveState;
   delete mMidiIn;
   delete mMidiOut;
   delete mDAC;
 }
 
-//bool IPlugAPPHost::init ()
-//{
-//  TryToChangeAudioDriverType(); // will init RTAudio with an API type based on gState->mAudioDriverType
-//  ProbeAudioIO(); // find out what audio IO devs are available and put their IDs in the global variables gAudioInputDevs / gAudioOutputDevs
-//  InitialiseMidi(); // creates RTMidiIn and RTMidiOut objects
-//  ProbeMidiIO(); // find out what midi IO devs are available and put their names in the global variables gMidiInputDevs / gMidiOutputDevs
-//  ChooseMidiInput(mState->mMidiInDev);
-//  ChooseMidiOutput(mState->mMidiOutDev);
-//  return true;
-//}
+//static
+IPlugAPPHost* IPlugAPPHost::Create()
+{
+  sInstance = new IPlugAPPHost();
+  return sInstance;
+}
 
-//bool IPlugAPPHost::InitialiseState()
-//{
-//  mState = new AppState();
-//  mTempState = new AppState();
-//  mActiveState = new AppState();
-//
-//#ifdef OS_WIN
-//  TCHAR strPath[MAX_PATH_LEN];
-//  SHGetFolderPathA( NULL, CSIDL_LOCAL_APPDATA, NULL, 0, strPath );
-//  mINIPath.Set(strPath, MAX_PATH_LEN);
-//#else
-//  mINIPath.SetFormatted(MAX_PATH_LEN, "%s/Library/Application Support/%s/", getenv("HOME"), BUNDLE_NAME);
-//#endif
-//
-//  struct stat st;
-//
-//  if(stat(mINIPath.Get(), &st) == 0) // if directory exists
-//  {
-//    mINIPath.Append("settings.ini"); // add file name to path
-//
-//    if(stat(mINIPath.Get(), &st) == 0) // if settings file exists read values into state
-//    {
-//      mState->mAudioDriverType = GetPrivateProfileInt("audio", "driver", 0, mINIPath.Get());
-//
-//      GetPrivateProfileString("audio", "indev", "Built-in Input", mState->mAudioInDev, 100, mINIPath.Get());
-//      GetPrivateProfileString("audio", "outdev", "Built-in Output", mState->mAudioOutDev, 100, mINIPath.Get());
-//
-//      //audio
-//      mState->mAudioInChanL = GetPrivateProfileInt("audio", "in1", 1, mINIPath.Get()); // 1 is first audio input
-//      mState->mAudioInChanR = GetPrivateProfileInt("audio", "in2", 2, mINIPath.Get());
-//      mState->mAudioOutChanL = GetPrivateProfileInt("audio", "out1", 1, mINIPath.Get()); // 1 is first audio output
-//      mState->mAudioOutChanR = GetPrivateProfileInt("audio", "out2", 2, mINIPath.Get());
-//      mState->mAudioInIsMono = GetPrivateProfileInt("audio", "monoinput", 0, mINIPath.Get());
-//
-//      GetPrivateProfileString("audio", "iovs", "512", mState->mAudioIOVS, 100, mINIPath.Get());
-//      GetPrivateProfileString("audio", "sigvs", "32", mState->mAudioSigVS, 100, mINIPath.Get());
-//      GetPrivateProfileString("audio", "sr", "44100", mState->mAudioSR, 100, mINIPath.Get());
-//
-//      //midi
-//      GetPrivateProfileString("midi", "indev", "no input", mState->mMidiInDev, 100, mINIPath.Get());
-//      GetPrivateProfileString("midi", "outdev", "no output", mState->mMidiOutDev, 100, mINIPath.Get());
-//
-//      mState->mMidiInChan = GetPrivateProfileInt("midi", "inchan", 0, mINIPath.Get()); // 0 is any
-//      mState->mMidiOutChan = GetPrivateProfileInt("midi", "outchan", 0, mINIPath.Get()); // 1 is first chan
-//
-//      UpdateINI(); // this will write over any invalid values in the file
-//    }
-//    else // settings file doesn't exist, so populate with default values
-//    {
-//      UpdateINI();
-//    }
-//  }
-//  else   // folder doesn't exist - make folder and make file
-//  {
-//#ifdef OS_WIN
-//    if (SHGetFolderPathA( NULL, CSIDL_LOCAL_APPDATA, NULL, 0, mINIPath.Get()) != S_OK)
-//    {
-//      DBGMSG("could not retrieve the user's application data directory!\n");
-//
-//      return false;
-//    }
-//#else
-//    mode_t process_mask = umask(0);
-//    int result_code = mkdir(mINIPath.Get(), S_IRWXU | S_IRWXG | S_IRWXO);
-//    umask(process_mask);
-//
-//    if(!result_code)
-//    {
-//      sprintf(mINIPath.Get(), "%s%s", mINIPath.Get(), "settings.ini"); // add file name to path
-//      UpdateINI(); // will write file if doesn't exist
-//    }
-//    else
-//    {
-//      return false;
-//    }
-//
-//#endif
-//  }
-//
-//  return true;
-//}
-//
-//void IPlugAPPHost::UpdateINI()
-//{
-//  char buf[100]; // temp buffer for writing integers to profile strings
-//  const char* ini = mINIPath.Get();
-//
-//  sprintf(buf, "%u", mState->mAudioDriverType);
-//  WritePrivateProfileString("audio", "driver", buf, ini);
-//
-//  WritePrivateProfileString("audio", "indev", mState->mAudioInDev, ini);
-//  WritePrivateProfileString("audio", "outdev", mState->mAudioOutDev, ini);
-//
-//  sprintf(buf, "%u", mState->mAudioInChanL);
+bool IPlugAPPHost::Init ()
+{
+  if (!InitState())
+    return false;
+  
+  TryToChangeAudioDriverType(); // will init RTAudio with an API type based on gState->mAudioDriverType
+  ProbeAudioIO(); // find out what audio IO devs are available and put their IDs in the global variables gAudioInputDevs / gAudioOutputDevs
+  InitMidi(); // creates RTMidiIn and RTMidiOut objects
+  ProbeMidiIO(); // find out what midi IO devs are available and put their names in the global variables gMidiInputDevs / gMidiOutputDevs
+  SelectMIDIDevice(ERoute::kInput, mState.mMidiInDev.Get());
+  SelectMIDIDevice(ERoute::kOutput, mState.mMidiOutDev.Get());
+  
+  mIPlug->OnParamReset(kReset);
+  mIPlug->OnActivate(true);
+  
+  return true;
+}
+
+bool IPlugAPPHost::OpenWindow(HWND pParent)
+{
+  if(mIPlug->OpenWindow(pParent) != nullptr)
+  {
+    mIPlug->OnUIOpen();
+    return true;
+  }
+  
+  return false;
+}
+
+bool IPlugAPPHost::InitState()
+{
+#if defined OS_WIN
+  TCHAR strPath[MAX_PATH_LEN];
+  SHGetFolderPathA( NULL, CSIDL_LOCAL_APPDATA, NULL, 0, strPath );
+  mINIPath.Set(strPath, MAX_PATH_LEN);
+#elif defined OS_MAC
+  mINIPath.SetFormatted(MAX_PATH_LEN, "%s/Library/Application Support/%s/", getenv("HOME"), BUNDLE_NAME);
+#else
+  #error NOT IMPLEMENTED
+#endif
+
+  struct stat st;
+
+  if(stat(mINIPath.Get(), &st) == 0) // if directory exists
+  {
+    mINIPath.Append("settings.ini"); // add file name to path
+
+    char buf[STRBUFSZ];
+    
+    if(stat(mINIPath.Get(), &st) == 0) // if settings file exists read values into state
+    {
+      DBGMSG("Reading ini file from %s\n", mINIPath.Get());
+      
+      mState.mAudioDriverType = GetPrivateProfileInt("audio", "driver", 0, mINIPath.Get());
+
+      GetPrivateProfileString("audio", "indev", "Built-in Input", buf, STRBUFSZ, mINIPath.Get()); mState.mAudioInDev.Set(buf);
+      GetPrivateProfileString("audio", "outdev", "Built-in Output", buf, STRBUFSZ, mINIPath.Get()); mState.mAudioOutDev.Set(buf);
+
+      //audio
+//      mState.mAudioInChanL = GetPrivateProfileInt("audio", "in1", 1, mINIPath.Get()); // 1 is first audio input
+//      mState.mAudioInChanR = GetPrivateProfileInt("audio", "in2", 2, mINIPath.Get());
+//      mState.mAudioOutChanL = GetPrivateProfileInt("audio", "out1", 1, mINIPath.Get()); // 1 is first audio output
+//      mState.mAudioOutChanR = GetPrivateProfileInt("audio", "out2", 2, mINIPath.Get());
+//      mState.mAudioInIsMono = GetPrivateProfileInt("audio", "monoinput", 0, mINIPath.Get());
+
+      mState.mBufferSize = GetPrivateProfileInt("audio", "buffer", 512, mINIPath.Get());
+      mState.mAudioSR = GetPrivateProfileInt("audio", "sr", 44100, mINIPath.Get());
+
+      //midi
+      GetPrivateProfileString("midi", "indev", "no input", buf, STRBUFSZ, mINIPath.Get()); mState.mMidiInDev.Set(buf);
+      GetPrivateProfileString("midi", "outdev", "no output", buf, STRBUFSZ, mINIPath.Get()); mState.mMidiOutDev.Set(buf);
+
+      mState.mMidiInChan = GetPrivateProfileInt("midi", "inchan", 0, mINIPath.Get()); // 0 is any
+      mState.mMidiOutChan = GetPrivateProfileInt("midi", "outchan", 0, mINIPath.Get()); // 1 is first chan
+
+      UpdateINI(); // this will write over any invalid values in the file
+    }
+    else // settings file doesn't exist, so populate with default values
+    {
+      UpdateINI();
+    }
+  }
+  else   // folder doesn't exist - make folder and make file
+  {
+#if defined OS_WIN
+    if (SHGetFolderPathA( NULL, CSIDL_LOCAL_APPDATA, NULL, 0, mINIPath.Get()) != S_OK)
+    {
+      DBGMSG("could not retrieve the user's application data directory!\n");
+
+      return false;
+    }
+#elif defined OS_MAC
+    mode_t process_mask = umask(0);
+    int result_code = mkdir(mINIPath.Get(), S_IRWXU | S_IRWXG | S_IRWXO);
+    umask(process_mask);
+
+    if(!result_code)
+    {
+      sprintf(mINIPath.Get(), "%s%s", mINIPath.Get(), "settings.ini"); // add file name to path
+      UpdateINI(); // will write file if doesn't exist
+    }
+    else
+    {
+      return false;
+    }
+#else
+  #error NOT IMPLEMENTED
+#endif
+  }
+
+  return true;
+}
+
+void IPlugAPPHost::UpdateINI()
+{
+  char buf[STRBUFSZ]; // temp buffer for writing integers to profile strings
+  const char* ini = mINIPath.Get();
+
+  sprintf(buf, "%u", mState.mAudioDriverType);
+  WritePrivateProfileString("audio", "driver", buf, ini);
+
+  WritePrivateProfileString("audio", "indev", mState.mAudioInDev.Get(), ini);
+  WritePrivateProfileString("audio", "outdev", mState.mAudioOutDev.Get(), ini);
+
+//  sprintf(buf, "%u", mState.mAudioInChanL);
 //  WritePrivateProfileString("audio", "in1", buf, ini);
-//  sprintf(buf, "%u", mState->mAudioInChanR);
+//  sprintf(buf, "%u", mState.mAudioInChanR);
 //  WritePrivateProfileString("audio", "in2", buf, ini);
-//  sprintf(buf, "%u", mState->mAudioOutChanL);
+//  sprintf(buf, "%u", mState.mAudioOutChanL);
 //  WritePrivateProfileString("audio", "out1", buf, ini);
-//  sprintf(buf, "%u", mState->mAudioOutChanR);
+//  sprintf(buf, "%u", mState.mAudioOutChanR);
 //  WritePrivateProfileString("audio", "out2", buf, ini);
-//  sprintf(buf, "%u", mState->mAudioInIsMono);
+//  sprintf(buf, "%u", mState.mAudioInIsMono);
 //  WritePrivateProfileString("audio", "monoinput", buf, ini);
-//
-//  WritePrivateProfileString("audio", "iovs", mState->mAudioIOVS, ini);
-//  WritePrivateProfileString("audio", "sigvs", mState->mAudioSigVS, ini);
-//
-//  WritePrivateProfileString("audio", "sr", mState->mAudioSR, ini);
-//
-//  WritePrivateProfileString("midi", "indev", mState->mMidiInDev, ini);
-//  WritePrivateProfileString("midi", "outdev", mState->mMidiOutDev, ini);
-//
-//  sprintf(buf, "%u", mState->mMidiInChan);
-//  WritePrivateProfileString("midi", "inchan", buf, ini);
-//  sprintf(buf, "%u", mState->mMidiOutChan);
-//  WritePrivateProfileString("midi", "outchan", buf, ini);
-//}
 
-std::string IPlugAPPHost::GetAudioDeviceName(int idx)
+  WDL_String str;
+  str.SetFormatted(32, "%i", mState.mBufferSize);
+  WritePrivateProfileString("audio", "buffer", str.Get(), ini);
+//  WritePrivateProfileString("audio", "sigvs", mState.mAudioSigVS, ini);
+
+  str.SetFormatted(32, "%i", mState.mAudioSR);
+  WritePrivateProfileString("audio", "sr", str.Get(), ini);
+
+  WritePrivateProfileString("midi", "indev", mState.mMidiInDev.Get(), ini);
+  WritePrivateProfileString("midi", "outdev", mState.mMidiOutDev.Get(), ini);
+
+  sprintf(buf, "%u", mState.mMidiInChan);
+  WritePrivateProfileString("midi", "inchan", buf, ini);
+  sprintf(buf, "%u", mState.mMidiOutChan);
+  WritePrivateProfileString("midi", "outchan", buf, ini);
+}
+
+std::string IPlugAPPHost::GetAudioDeviceName(int idx) const
 {
   return mAudioIDDevNames.at(idx);
 }
 
-// TODO: this can be replaced with something sensible
-int IPlugAPPHost::GetAudioDeviceIdx(const char* deviceNameToTest)
+int IPlugAPPHost::GetAudioDeviceIdx(const char* deviceNameToTest) const
 {
   for(int i = 0; i < mAudioIDDevNames.size(); i++)
   {
@@ -210,507 +214,512 @@ int IPlugAPPHost::GetAudioDeviceIdx(const char* deviceNameToTest)
   return -1;
 }
 
-// TODO: make it handle output
-uint32_t IPlugAPPHost::GetMIDIPortNumber(ERoute direction, const char* nameToTest)
+int IPlugAPPHost::GetMIDIPortNumber(ERoute direction, const char* nameToTest) const
 {
   int start = 1;
   
-  if(!strcmp(nameToTest, "off")) return 0;
-  
-#ifndef OS_WIN
-  start = 2;
-  if(!strcmp(nameToTest, "virtual input")) return 1;
-#endif
-  
-  for (int i = 0; i < mMidiIn->getPortCount(); i++)
+  if(direction == ERoute::kInput)
   {
-    if(!strcmp(nameToTest, mMidiIn->getPortName(i).c_str()))
-      return (i + start);
+    if(!strcmp(nameToTest, "off")) return 0;
+    
+  #ifdef OS_MAC
+    start = 2;
+    if(!strcmp(nameToTest, "virtual input")) return 1;
+  #endif
+    
+    for (int i = 0; i < mMidiIn->getPortCount(); i++)
+    {
+      if(!strcmp(nameToTest, mMidiIn->getPortName(i).c_str()))
+        return (i + start);
+    }
+  }
+  else
+  {
+    if(!strcmp(nameToTest, "off")) return 0;
+  
+  #ifdef OS_MAC
+    start = 2;
+    if(!strcmp(nameToTest, "virtual output")) return 1;
+  #endif
+  
+    for (int i = 0; i < mMidiOut->getPortCount(); i++)
+    {
+      if(!strcmp(nameToTest, mMidiOut->getPortName(i).c_str()))
+        return (i + start);
+    }
   }
   
   return -1;
 }
 
-//UINT IPlugAPPHost::GetMIDIOutPortNumber(const char* nameToTest)
-//{
-//  int start = 1;
-//  
-//  if(!strcmp(nameToTest, "off")) return 0;
-//  
-//#ifndef OS_WIN
-//  start = 2;
-//  if(!strcmp(nameToTest, "virtual output")) return 1;
-//#endif
-//  
-//  for (int i = 0; i < mMidiOut->getPortCount(); i++)
-//  {
-//    if(!strcmp(nameToTest, mMidiOut->getPortName(i).c_str()))
-//      return (i + start);
-//  }
-//  
-//  return -1;
-//}
+void IPlugAPPHost::ProbeAudioIO()
+{
+  std::cout << "\nRtAudio Version " << RtAudio::getVersion() << std::endl;
 
-// find out which devices have input channels & which have output channels, add their ids to the lists
-//void IPlugAPPHost::ProbeAudioIO()
-//{
-//  RtAudio::DeviceInfo info;
-//
-//  mAudioInputDevs.clear();
-//  mAudioOutputDevs.clear();
-//  mAudioIDDevNames.clear();
-//
-//  UINT nDevices = mDAC->getDeviceCount();
-//
-//  for (int i=0; i<nDevices; i++)
-//  {
-//    info = mDAC->getDeviceInfo(i);
-//    std::string deviceName = info.name;
-//
-//#ifndef OS_WIN
-//    size_t colonIdx = deviceName.rfind(": ");
-//
-//    if(colonIdx != std::string::npos && deviceName.length() >= 2)
-//      deviceName = deviceName.substr(colonIdx + 2, deviceName.length() - colonIdx - 2);
-//
-//#endif
-//
-//    mAudioIDDevNames.push_back(deviceName);
-//
-//    if ( info.probed == false )
-//      std::cout << deviceName << ": Probe Status = Unsuccessful\n";
-//    else if ( !strcmp("Generic Low Latency ASIO Driver", deviceName.c_str() ))
-//      std::cout << deviceName << ": Probe Status = Unsuccessful\n";
-//    else
-//    {
-//      if(info.inputChannels > 0)
-//        mAudioInputDevs.push_back(i);
-//
-//      if(info.outputChannels > 0)
-//        mAudioOutputDevs.push_back(i);
-//
-//      if (info.isDefaultInput)
-//        mDefaultInputDev = i;
-//
-//      if (info.isDefaultOutput)
-//        mDefaultOutputDev = i;
-//    }
-//  }
-//}
-//
-//void IPlugAPPHost::ProbeMidiIO()
-//{
-//  if ( !mMidiIn || !mMidiOut )
-//    return;
-//  else
-//  {
-//    int nInputPorts = mMidiIn->getPortCount();
-//
-//    mMidiInputDevNames.push_back("off");
-//
-//#ifndef OS_WIN
-//    mMidiInputDevNames.push_back("virtual input");
-//#endif
-//
-//    for (int i=0; i<nInputPorts; i++ )
-//    {
-//      mMidiInputDevNames.push_back(mMidiIn->getPortName(i));
-//    }
-//
-//    int nOutputPorts = mMidiOut->getPortCount();
-//
-//    mMidiOutputDevNames.push_back("off");
-//
-//#ifndef OS_WIN
-//    mMidiOutputDevNames.push_back("virtual output");
-//#endif
-//
-//    for (int i=0; i<nOutputPorts; i++ )
-//    {
-//      mMidiOutputDevNames.push_back(mMidiOut->getPortName(i));
-//      //This means the virtual output port wont be added as an input
-//    }
-//  }
-//}
-//
-//bool IPlugAPPHost::AudioSettingsInstanceateAreEqual(AppState* os, AppState* ns)
-//{
-//  if (os->mAudioDriverType != ns->mAudioDriverType) return false;
-//  if (strcmp(os->mAudioInDev, ns->mAudioInDev)) return false;
-//  if (strcmp(os->mAudioOutDev, ns->mAudioOutDev)) return false;
-//  if (strcmp(os->mAudioSR, ns->mAudioSR)) return false;
-//  if (strcmp(os->mAudioIOVS, ns->mAudioIOVS)) return false;
-//  if (strcmp(os->mAudioSigVS, ns->mAudioSigVS)) return false;
-//  if (os->mAudioInChanL != ns->mAudioInChanL) return false;
-//  if (os->mAudioInChanR != ns->mAudioInChanR) return false;
-//  if (os->mAudioOutChanL != ns->mAudioOutChanL) return false;
-//  if (os->mAudioOutChanR != ns->mAudioOutChanR) return false;
-//  if (os->mAudioInIsMono != ns->mAudioInIsMono) return false;
-//
-//  return true;
-//}
-//
-//bool IPlugAPPHost::MIDISettingsInstanceateAreEqual(AppState* os, AppState* ns)
-//{
-//  if (strcmp(os->mMidiInDev, ns->mMidiInDev)) return false;
-//  if (strcmp(os->mMidiOutDev, ns->mMidiOutDev)) return false;
-//  if (os->mMidiInChan != ns->mMidiInChan) return false;
-//  if (os->mMidiOutChan != ns->mMidiOutChan) return false;
-//
-//  return true;
-//}
-//
-//bool IPlugAPPHost::TryToChangeAudioDriverType()
-//{
-//  if (mDAC)
-//  {
-//    if (mDAC->isStreamOpen())
-//    {
-//      mDAC->closeStream();
-//    }
-//
-//    delete mDAC;
-//    mDAC = 0;
-//  }
-//
-//#ifdef OS_WIN
-//  if(mState->mAudioDriverType == DAC_ASIO)
-//    mDAC = new RtAudio(RtAudio::WINDOWS_ASIO);
-//  else
-//    mDAC = new RtAudio(RtAudio::WINDOWS_DS);
-//#else // OSX
-//  if(mState->mAudioDriverType == DAC_COREAUDIO)
-//    mDAC = new RtAudio(RtAudio::MACOSX_CORE);
-//  //else
-//  //mDAC = new RtAudio(RtAudio::UNIX_JACK);
-//#endif
-//
-//  if(mDAC)
-//    return true;
-//  else
-//    return false;
-//}
-//
-//bool IPlugAPPHost::TryToChangeAudio()
-//{
-//  int inputID = -1;
-//  int outputID = -1;
-//
-//#ifdef OS_WIN
-//  if(mState->mAudioDriverType == DAC_ASIO)
-//    inputID = GetAudioDeviceID(mState->mAudioOutDev);
-//  else
-//    inputID = GetAudioDeviceID(mState->mAudioInDev);
-//#else // OSX
-//  inputID = GetAudioDeviceID(mState->mAudioInDev);
-//#endif
-//
-//  outputID = GetAudioDeviceID(mState->mAudioOutDev);
-//
-//  bool failedToFindDevice = false;
-//  bool resetToDefault = false;
-//
-//  if (inputID == -1)
-//  {
-//    if (mDefaultInputDev > -1)
-//    {
-//      resetToDefault = true;
-//      inputID = mDefaultInputDev;
-//
-//      if (mAudioInputDevs.size())
-//        strcpy(mState->mAudioInDev, GetAudioDeviceName(inputID).c_str());
-//    }
-//    else
-//      failedToFindDevice = true;
-//  }
-//
-//  if (outputID == -1)
-//  {
-//    if (mDefaultOutputDev > -1)
-//    {
-//      resetToDefault = true;
-//
-//      outputID = mDefaultOutputDev;
-//
-//      if (mAudioOutputDevs.size())
-//        strcpy(mState->mAudioOutDev, GetAudioDeviceName(outputID).c_str());
-//    }
-//    else
-//      failedToFindDevice = true;
-//  }
-//
-//  if (resetToDefault)
-//  {
-//    DBGMSG("couldn't find previous audio device, reseting to default\n");
-//
-//    UpdateINI();
-//  }
-//
-//  if (failedToFindDevice)
-//    MessageBox(gHWND, "Please check your soundcard settings in Preferences", "Error", MB_OK);
-//
-//  int samplerate = atoi(mState->mAudioSR);
-//  int iovs = atoi(mState->mAudioIOVS);
-//
-//  if (inputID != -1 && outputID != -1)
-//  {
-//    return InitialiseAudio(inputID, outputID, samplerate, iovs, APP_NUM_CHANNELS, mState->mAudioInChanL - 1, mState->mAudioOutChanL - 1);
-//  }
-//
-//  return false;
-//}
-//
-//bool IPlugAPPHost::ChooseMidiInput(const char* pPortName)
-//{
-//  UINT port = GetMIDIInPortNumber(pPortName);
-//
-//  if(port == -1)
-//  {
-//    strcpy(mState->mMidiInDev, "off");
-//    UpdateINI();
-//    port = 0;
-//  }
-//
-//  //TODO: send all notes off?
-//
-//  if (mMidiIn)
-//  {
-//    mMidiIn->closePort();
-//
-//    if (port == 0)
-//    {
-//      return true;
-//    }
-//#ifdef OS_WIN
-//    else
-//    {
-//      mMidiIn->openPort(port-1);
-//      return true;
-//    }
-//#else // OSX
-//    else if(port == 1)
-//    {
-//      std::string virtualMidiInputName = "To ";
-//      virtualMidiInputName += BUNDLE_NAME;
-//      mMidiIn->openVirtualPort(virtualMidiInputName);
-//      return true;
-//    }
-//    else
-//    {
-//      mMidiIn->openPort(port-2);
-//      return true;
-//    }
-//#endif
-//  }
-//
-//  return false;
-//}
-//
-//bool IPlugAPPHost::ChooseMidiOutput(const char* portName)
-//{
-//  UINT port = GetMIDIOutPortNumber(portName);
-//
-//  if(port == -1)
-//  {
-//    strcpy(mState->mMidiOutDev, "off");
-//    UpdateINI();
-//    port = 0;
-//  }
-//
-//  if (mMidiOut)
-//  {
-//    //TODO: send all notes off?
-//    mMidiOut->closePort();
-//
-//    if (port == 0)
-//      return true;
-//#ifdef OS_WIN
-//    else
-//    {
-//      mMidiOut->openPort(port-1);
-//      return true;
-//    }
-//#elif defined (OS_MAC)
-//    else if(port == 1)
-//    {
-//      std::string virtualMidiOutputName = "From ";
-//      virtualMidiOutputName += BUNDLE_NAME;
-//      mMidiOut->openVirtualPort(virtualMidiOutputName);
-//      return true;
-//    }
-//    else
-//    {
-//      mMidiOut->openPort(port-2);
-//      return true;
-//    }
-//#elif defined (OS_LINUX)
-//
-//#endif
-//  }
-//
-//  return false;
-//}
+  RtAudio::DeviceInfo info;
 
-//bool IPlugAPPHost::InitialiseAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_t iovs, uint32_t chnls, uint32_t inChanL, uint32_t outChanL)
-//{
-//  if (mDAC->isStreamOpen())
-//  {
-//    if (mDAC->isStreamRunning())
-//    {
-//      try
-//      {
-//        mDAC->abortStream();
-//      }
-//      catch (RtAudioError& e)
-//      {
-//        e.printMessage();
-//      }
-//    }
-//
-//    mDAC->closeStream();
-//  }
-//
-//  RtAudio::StreamParameters iParams, oParams;
-//  iParams.deviceId = inId;
-//  iParams.nChannels = chnls;
-//  iParams.firstChannel = inChanL;
-//
-//  oParams.deviceId = outId;
-//  oParams.nChannels = chnls;
-//  oParams.firstChannel = outChanL;
-//
-////  mIOVS = iovs; // gIOVS may get changed by stream
-////  mSigVS = mState->mAudioSigVS; // This is done here so that it changes when the callback is stopped
-//
-//  //DBGMSG("\ntrying to start audio stream @ %i sr, %i iovs, %i sigvs\nindev = %i:%s\noutdev = %i:%s\n", sr, iovs, gSigVS, inId, GetAudioDeviceName(inId).c_str(), outId, GetAudioDeviceName(outId).c_str());
-//
-//  RtAudio::StreamOptions options;
-//  options.flags = RTAUDIO_NONINTERLEAVED;
-//  // options.streamName = BUNDLE_NAME; // JACK stream name, not used on other streams
-//
-//  mBufIndex = 0;
-//  mVecElapsed = 0;
-//  mFadeMult = 0.;
-//  mSampleRate = (double) sr;
-//
-//  try
-//  {
-//    mDAC->openStream(&oParams, &iParams, RTAUDIO_FLOAT64, sr, &mIOVS, &AudioCallback, NULL, &options /*, &ErrorCallback */);
-//    mDAC->startStream();
-//
-//    memcpy(mActiveState, mState, sizeof(AppState)); // copy state to active state
-//  }
-//  catch (RtAudioError& e)
-//  {
-//    e.printMessage();
-//    return false;
-//  }
-//
-//  return true;
-//}
+  mAudioInputDevs.clear();
+  mAudioOutputDevs.clear();
+  mAudioIDDevNames.clear();
 
-//bool IPlugAPPHost::InitialiseMidi()
-//{
-//  try
-//  {
-//    mMidiIn = new RtMidiIn();
-//  }
-//  catch ( RtMidiError &error )
-//  {
-//    delete mMidiIn;
-//    mMidiIn = 0;
-//    error.printMessage();
-//    return false;
-//  }
-//
-//  try
-//  {
-//    mMidiOut = new RtMidiOut();
-//  }
-//  catch ( RtMidiError &error )
-//  {
-//    delete mMidiOut;
-//    mMidiOut = 0;
-//    error.printMessage();
-//    return false;
-//  }
-//
-//  mMidiIn->setCallback( &MIDICallback );
-//  mMidiIn->ignoreTypes( !APP_ENABLE_SYSEX, !APP_ENABLE_MIDICLOCK, !APP_ENABLE_ACTIVE_SENSING );
-//
-//  return true;
-//}
-// static 
+  uint32_t nDevices = mDAC->getDeviceCount();
+
+  for (int i=0; i<nDevices; i++)
+  {
+    info = mDAC->getDeviceInfo(i);
+    std::string deviceName = info.name;
+    
+#ifdef OS_MAC
+    size_t colonIdx = deviceName.rfind(": ");
+
+    if(colonIdx != std::string::npos && deviceName.length() >= 2)
+      deviceName = deviceName.substr(colonIdx + 2, deviceName.length() - colonIdx - 2);
+
+#endif
+    
+    mAudioIDDevNames.push_back(deviceName);
+
+    if ( info.probed == false )
+      std::cout << deviceName << ": Probe Status = Unsuccessful\n";
+    else if ( !strcmp("Generic Low Latency ASIO Driver", deviceName.c_str() ))
+      std::cout << deviceName << ": Probe Status = Unsuccessful\n";
+    else
+    {
+      if(info.inputChannels > 0)
+        mAudioInputDevs.push_back(i);
+
+      if(info.outputChannels > 0)
+        mAudioOutputDevs.push_back(i);
+
+      if (info.isDefaultInput)
+        mDefaultInputDev = i;
+
+      if (info.isDefaultOutput)
+        mDefaultOutputDev = i;
+    }
+  }
+}
+
+void IPlugAPPHost::ProbeMidiIO()
+{
+  if ( !mMidiIn || !mMidiOut )
+    return;
+  else
+  {
+    int nInputPorts = mMidiIn->getPortCount();
+
+    mMidiInputDevNames.push_back("off");
+
+#ifdef OS_MAC
+    mMidiInputDevNames.push_back("virtual input");
+#endif
+
+    for (int i=0; i<nInputPorts; i++ )
+    {
+      mMidiInputDevNames.push_back(mMidiIn->getPortName(i));
+    }
+
+    int nOutputPorts = mMidiOut->getPortCount();
+
+    mMidiOutputDevNames.push_back("off");
+
+#ifdef OS_MAC
+    mMidiOutputDevNames.push_back("virtual output");
+#endif
+
+    for (int i=0; i<nOutputPorts; i++ )
+    {
+      mMidiOutputDevNames.push_back(mMidiOut->getPortName(i));
+      //This means the virtual output port wont be added as an input
+    }
+  }
+}
+
+bool IPlugAPPHost::AudioSettingsInStateAreEqual(AppState& os, AppState& ns)
+{
+  if (os.mAudioDriverType != ns.mAudioDriverType) return false;
+  if (strcmp(os.mAudioInDev.Get(), ns.mAudioInDev.Get())) return false;
+  if (strcmp(os.mAudioOutDev.Get(), ns.mAudioOutDev.Get())) return false;
+  if (os.mAudioSR != ns.mAudioSR) return false;
+  if (os.mBufferSize != ns.mBufferSize) return false;
+//  if (os.mAudioInChanL != ns.mAudioInChanL) return false;
+//  if (os.mAudioInChanR != ns.mAudioInChanR) return false;
+//  if (os.mAudioOutChanL != ns.mAudioOutChanL) return false;
+//  if (os.mAudioOutChanR != ns.mAudioOutChanR) return false;
+//  if (os.mAudioInIsMono != ns.mAudioInIsMono) return false;
+
+  return true;
+}
+
+bool IPlugAPPHost::MIDISettingsInStateAreEqual(AppState& os, AppState& ns)
+{
+  if (strcmp(os.mMidiInDev.Get(), ns.mMidiInDev.Get())) return false;
+  if (strcmp(os.mMidiOutDev.Get(), ns.mMidiOutDev.Get())) return false;
+  if (os.mMidiInChan != ns.mMidiInChan) return false;
+  if (os.mMidiOutChan != ns.mMidiOutChan) return false;
+
+  return true;
+}
+
+bool IPlugAPPHost::TryToChangeAudioDriverType()
+{
+  if (mDAC)
+  {
+    if (mDAC->isStreamOpen())
+    {
+      mDAC->closeStream();
+    }
+
+    delete mDAC;
+    mDAC = nullptr;
+  }
+
+#if defined OS_WIN
+  if(mState.mAudioDriverType == kDeviceASIO)
+    mDAC = new RtAudio(RtAudio::WINDOWS_ASIO);
+  else
+    mDAC = new RtAudio(RtAudio::WINDOWS_DS);
+#elif defined OS_MAC
+  if(mState.mAudioDriverType == kDeviceCoreAudio)
+    mDAC = new RtAudio(RtAudio::MACOSX_CORE);
+  //else
+  //mDAC = new RtAudio(RtAudio::UNIX_JACK);
+#else
+  #error NOT IMPLEMENTED
+#endif
+
+  if(mDAC)
+    return true;
+  else
+    return false;
+}
+
+bool IPlugAPPHost::TryToChangeAudio()
+{
+  int inputID = -1;
+  int outputID = -1;
+
+#if defined OS_WIN
+  if(mState.mAudioDriverType == kDeviceASIO)
+    inputID = GetAudioDeviceIdx(mState.mAudioOutDev.Get());
+  else
+    inputID = GetAudioDeviceIdx(mState.mAudioInDev.Get());
+#elif defined OS_MAC
+  inputID = GetAudioDeviceIdx(mState.mAudioInDev.Get());
+#else
+  #error NOT IMPLEMENTED
+#endif
+  outputID = GetAudioDeviceIdx(mState.mAudioOutDev.Get());
+
+  bool failedToFindDevice = false;
+  bool resetToDefault = false;
+
+  if (inputID == -1)
+  {
+    if (mDefaultInputDev > -1)
+    {
+      resetToDefault = true;
+      inputID = mDefaultInputDev;
+
+      if (mAudioInputDevs.size())
+        mState.mAudioInDev.Set(GetAudioDeviceName(inputID).c_str());
+    }
+    else
+      failedToFindDevice = true;
+  }
+
+  if (outputID == -1)
+  {
+    if (mDefaultOutputDev > -1)
+    {
+      resetToDefault = true;
+
+      outputID = mDefaultOutputDev;
+
+      if (mAudioOutputDevs.size())
+        mState.mAudioOutDev.Set(GetAudioDeviceName(outputID).c_str());
+    }
+    else
+      failedToFindDevice = true;
+  }
+
+  if (resetToDefault)
+  {
+    DBGMSG("couldn't find previous audio device, reseting to default\n");
+
+    UpdateINI();
+  }
+
+  if (failedToFindDevice)
+    MessageBox(gHWND, "Please check your soundcard settings in Preferences", "Error", MB_OK);
+
+  if (inputID != -1 && outputID != -1)
+  {
+    return InitAudio(inputID, outputID, mState.mAudioSR, mState.mBufferSize);
+  }
+
+  return false;
+}
+
+bool IPlugAPPHost::SelectMIDIDevice(ERoute direction, const char* pPortName)
+{
+  int port = GetMIDIPortNumber(direction, pPortName);
+
+  if(direction == ERoute::kInput)
+  {
+    if(port == -1)
+    {
+      mState.mMidiInDev.Set("off");
+      UpdateINI();
+      port = 0;
+    }
+
+    //TODO: send all notes off?
+
+    if (mMidiIn)
+    {
+      mMidiIn->closePort();
+
+      if (port == 0)
+      {
+        return true;
+      }
+  #if defined OS_WIN
+      else
+      {
+        mMidiIn->openPort(port-1);
+        return true;
+      }
+  #elif defined OS_MAC
+      else if(port == 1)
+      {
+        std::string virtualMidiInputName = "To ";
+        virtualMidiInputName += BUNDLE_NAME;
+        mMidiIn->openVirtualPort(virtualMidiInputName);
+        return true;
+      }
+      else
+      {
+        mMidiIn->openPort(port-2);
+        return true;
+      }
+  #else
+   #error NOT IMPLEMENTED
+  #endif
+    }
+  }
+  else
+  {
+    if(port == -1)
+    {
+      mState.mMidiOutDev.Set("off");
+      UpdateINI();
+      port = 0;
+    }
+    
+    if (mMidiOut)
+    {
+      //TODO: send all notes off?
+      mMidiOut->closePort();
+      
+      if (port == 0)
+        return true;
+#if defined OS_WIN
+      else
+      {
+        mMidiOut->openPort(port-1);
+        return true;
+      }
+#elif defined OS_MAC
+      else if(port == 1)
+      {
+        std::string virtualMidiOutputName = "From ";
+        virtualMidiOutputName += BUNDLE_NAME;
+        mMidiOut->openVirtualPort(virtualMidiOutputName);
+        return true;
+      }
+      else
+      {
+        mMidiOut->openPort(port-2);
+        return true;
+      }
+#else
+  #error NOT IMPLEMENTED
+#endif
+    }
+  }
+  
+  return false;
+}
+
+bool IPlugAPPHost::InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_t iovs)
+{
+  if (mDAC->isStreamOpen())
+  {
+    if (mDAC->isStreamRunning())
+    {
+      try
+      {
+        mDAC->abortStream();
+      }
+      catch (RtAudioError& e)
+      {
+        e.printMessage();
+      }
+    }
+
+    mDAC->closeStream();
+  }
+
+  RtAudio::StreamParameters iParams, oParams;
+  iParams.deviceId = inId;
+  iParams.nChannels = 2; // TODO: flexible channel count
+  iParams.firstChannel = 0; // TODO: flexible channel count
+
+  oParams.deviceId = outId;
+  oParams.nChannels = 2; // TODO: flexible channel count
+  oParams.firstChannel = 0; // TODO: flexible channel count
+
+//  mIOVS = iovs; // gIOVS may get changed by stream
+//  mSigVS = mState.mAudioSigVS; // This is done here so that it changes when the callback is stopped
+
+  DBGMSG("\ntrying to start audio stream @ %i sr, %i buffersize\nindev = %i:%s\noutdev = %i:%s\n", sr, mBufferSize, inId, GetAudioDeviceName(inId).c_str(), outId, GetAudioDeviceName(outId).c_str());
+
+  RtAudio::StreamOptions options;
+  options.flags = RTAUDIO_NONINTERLEAVED;
+  // options.streamName = BUNDLE_NAME; // JACK stream name, not used on other streams
+
+  mBufIndex = 0;
+  mSamplesElapsed = 0;
+  mFadeMult = 0.;
+  mSampleRate = (double) sr;
+
+  try
+  {
+    mDAC->openStream(&oParams, &iParams, RTAUDIO_FLOAT64, sr, &mBufferSize, &AudioCallback, NULL, &options /*, &ErrorCallback */);
+    mDAC->startStream();
+
+    mActiveState = mState;
+  }
+  catch (RtAudioError& e)
+  {
+    e.printMessage();
+    return false;
+  }
+
+  return true;
+}
+
+bool IPlugAPPHost::InitMidi()
+{
+  try
+  {
+    mMidiIn = new RtMidiIn();
+  }
+  catch ( RtMidiError &error )
+  {
+    delete mMidiIn;
+    mMidiIn = 0;
+    error.printMessage();
+    return false;
+  }
+
+  try
+  {
+    mMidiOut = new RtMidiOut();
+  }
+  catch ( RtMidiError &error )
+  {
+    delete mMidiOut;
+    mMidiOut = 0;
+    error.printMessage();
+    return false;
+  }
+
+  mMidiIn->setCallback(&MIDICallback, this);
+  mMidiIn->ignoreTypes(false, true, false );
+
+  return true;
+}
+
+// static
 int IPlugAPPHost::AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_t nFrames, double streamTime, RtAudioStreamStatus status, void* pUserData)
 {
-//  if ( status )
-//    std::cout << "Stream underflow detected!" << std::endl;
-//
-//  IPlugAPPHost* _this = sInstance;
-//
-//  AppState* mState = _this->mState;
-//
-//  double* inputBufferD = (double*)inputBuffer;
-//  double* outputBufferD = (double*)outputBuffer;
-//
-//  int inRightOffset = 0;
-//
-//  if(!mState->mAudioInIsMono)
-//    inRightOffset = nFrames;
-//
-//  if (_this->mVecElapsed > APP_N_VECTOR_WAIT) // wait APP_N_VECTOR_WAIT * iovs before processing audio, to avoid clicks
-//  {
-//    for (int i=0; i<nFrames; i++)
-//    {
-//      _this->mBufIndex %= _this->mSigVS;
-//
-//      if (_this->mBufIndex == 0)
-//      {
-//        double* inputs[2] = {inputBufferD + i, inputBufferD + inRightOffset + i};
-//        double* outputs[2] = {outputBufferD + i, outputBufferD + nFrames + i};
-//
-//        _this->setProcessingBuffers<double>(inputs, outputs);
-//
-//        Event midiEvent;
-//        while (_this->mMidiInputMessages.pop(midiEvent))
-//        {
-//          _this->inputEvents->addEvent (midiEvent);
-//        }
-//
-//        _this->doProcess(_this->mSigVS);
-//
-//        _this->mSamplesElapsed += _this->mSigVS;
-//      }
-//
-//      // fade in
-//      if (_this->mFadeMult < 1.)
-//      {
-//        _this->mFadeMult += (1. / nFrames);
-//      }
-//
-//      outputBufferD[i] *= _this->mFadeMult;
-//      outputBufferD[i + nFrames] *= _this->mFadeMult;
-//
-//      outputBufferD[i] *= APP_MULT;
-//      outputBufferD[i + nFrames] *= APP_MULT;
-//
-//      _this->mBufIndex++;
-//    }
-//  }
-//  else
-//  {
-//    memset(outputBuffer, 0, nFrames * APP_NUM_CHANNELS * sizeof(double));
-//  }
-//
-//  _this->mVecElapsed++;
-//
+  if ( status )
+    std::cout << "Stream underflow detected!" << std::endl;
+
+  IPlugAPPHost* _this = sInstance;
+
+//  AppState& mState = _this->mState;
+
+  double* pInputBufferD = (double*) pInputBuffer;
+  double* pOutputBufferD = (double*) pOutputBuffer;
+
+  int inRightOffset = 0;
+
+//  if(!mState.mAudioInIsMono)
+    inRightOffset = nFrames;
+
+  if (_this->mVecElapsed > APP_N_VECTOR_WAIT ) // wait APP_N_VECTOR_WAIT * iovs before processing audio, to avoid clicks
+  {
+    for (int i=0; i<nFrames; i++)
+    {
+      _this->mBufIndex %= _this->mBufferSize;
+
+      if (_this->mBufIndex == 0)
+      {
+        double* inputs[2] = {pInputBufferD + i, pInputBufferD + inRightOffset + i};
+        double* outputs[2] = {pOutputBufferD + i, pOutputBufferD + nFrames + i};
+
+        _this->mIPlug->AppProcess(inputs, outputs, nFrames);
+
+        _this->mSamplesElapsed += _this->mBufferSize;
+      }
+
+      // fade in
+      if (_this->mFadeMult < 1.)
+      {
+        _this->mFadeMult += (1. / nFrames);
+      }
+
+      pOutputBufferD[i] *= _this->mFadeMult;
+      pOutputBufferD[i + nFrames] *= _this->mFadeMult;
+
+      pOutputBufferD[i] *= APP_MULT;
+      pOutputBufferD[i + nFrames] *= APP_MULT;
+
+      _this->mBufIndex++;
+    }
+  }
+  else
+  {
+    memset(pOutputBufferD, 0, nFrames * APP_NUM_CHANNELS * sizeof(double));
+  }
+  
+  _this->mVecElapsed++;
+
   return 0;
 }
 
 // static
 void IPlugAPPHost::MIDICallback(double deltatime, std::vector<uint8_t>* pMsg, void* pUserData)
 {
-  IPlugAPPHost* _this = sInstance;
+  IPlugAPPHost* _this = (IPlugAPPHost*) pUserData;
+  
+  if (pMsg->size() == 0)
+    return;
+  
+  if (pMsg->size() > 3)
+  {
+    // TODO: Sysex
+    return;
+  }
+  else
+  {
+    IMidiMsg msg(0, pMsg->at(0), pMsg->at(1), pMsg->at(2));
+    
+    _this->mIPlug->mMidiMsgsFromCallback.Push(msg);
+  }
   
   //TODO:
 }

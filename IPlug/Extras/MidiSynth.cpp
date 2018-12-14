@@ -1,23 +1,18 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #include "MidiSynth.h"
 
-MidiSynth::MidiSynth(EPolyMode polyMode, int blockSize)
+MidiSynth::MidiSynth(EPolyMode polyMode, int blockSize, int nUnisonVoices)
 : mGranularity(blockSize)
+, mUnisonVoices(nUnisonVoices)
 {
   //TODO: check this should stop any allocations
   mSustainedNotes.reserve(128);
@@ -37,7 +32,7 @@ MidiSynth::~MidiSynth()
 
 bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nInputs, int nOutputs, int nFrames)
 {
-  assert(NVoices());
+  assert(NVoices()); // you didn't add any voices to the synth!
 
   if (mVoicesAreActive | !mMidiQueue.Empty())
   {
@@ -179,15 +174,9 @@ bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nInputs, int
       voicesbusy |= busy;
 
       activeCount += (busy==true);
-#if DEBUG_VOICE_COUNT
-      if(GetVoice(v)->GetBusy()) printf("X");
-      else DBGMSG("_");
+      
+      mVoiceStatus[v] = busy;
     }
-    DBGMSG("\n");
-    DBGMSG("Num Voices busy %i\n", activeCount);
-#else
-    }
-#endif
 
     mVoicesAreActive = voicesbusy;
 

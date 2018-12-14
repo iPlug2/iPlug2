@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #ifndef NO_IGRAPHICS
 #import <QuartzCore/QuartzCore.h>
 #import "IGraphicsIOS_view.h"
@@ -61,7 +71,7 @@ bool IGraphicsIOS::GetResourcePathFromBundle(const char* fileName, const char* s
   {
     NSString* pParent = [[[pBundle bundlePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent];
     NSString* pPath = nullptr;
-    if(strcmp(searchExt, "png") == 0)
+    if(strcmp(searchExt, "png") == 0 || strcmp(searchExt, "svg") == 0)
       pPath = [[[[pParent stringByAppendingString:@"/img/"] stringByAppendingString:pFile] stringByAppendingString: @"."] stringByAppendingString:pExt];
     else if(strcmp(searchExt, "ttf") == 0)
       pPath = [[[[pParent stringByAppendingString:@"/fonts/"] stringByAppendingString:pFile] stringByAppendingString: @"."] stringByAppendingString:pExt];
@@ -128,6 +138,8 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
   IGraphicsIOS_View* view = (IGraphicsIOS_View*) mView;
   
   OnViewInitialized([view layer]);
+  
+  SetDisplayScale([UIScreen mainScreen].scale);
   
   GetDelegate()->LayoutUI(this);
 
@@ -202,7 +214,31 @@ bool IGraphicsIOS::PromptForColor(IColor& color, const char* str)
 
 IPopupMenu* IGraphicsIOS::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
 {
-  return nullptr;
+  ReleaseMouseCapture();
+  
+  IPopupMenu* pReturnMenu = nullptr;
+  
+  if(mPopupControl) // if we are not using platform pop-up menus
+  {
+    pReturnMenu = mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
+  }
+  else
+  {
+    if (mView)
+    {
+      CGRect areaRect = ToCGRect(this, bounds);
+      pReturnMenu = [(IGraphicsIOS_View*) mView createPopupMenu: menu: areaRect];
+    }
+    
+    //synchronous
+    if(pReturnMenu && pReturnMenu->GetFunction())
+      pReturnMenu->ExecFunction();
+    
+    if(pCaller)
+      pCaller->OnPopupMenuSelection(pReturnMenu); // should fire even if pReturnMenu == nullptr
+  }
+  
+  return pReturnMenu;
 }
 
 void IGraphicsIOS::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)

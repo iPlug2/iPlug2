@@ -1,0 +1,33 @@
+*        -text
+*.c      text=auto
+*.cpp    text=auto
+*.cc     text=auto
+*.h      text=auto
+*.hpp    text=auto
+*.m      text=auto
+*.mm     text=auto
+
+*.eel    text=auto
+*.php    text=auto
+*.txt    text=auto
+*.py    text=auto
+
+*.bat    text eol=crlf
+*.cmd    text eol=crlf
+
+*.dsp               text eol=crlf
+*.dsw               text eol=crlf
+*.sln               text eol=crlf
+*.vcxproj           text eol=crlf
+*.vcxproj.filters   text eol=crlf
+*.vcxproj.user      text eol=crlf
+*.props             text eol=crlf
+
+*.command           text eol=lf
+*.sh                text eol=lf
+*.pbxproj           text eol=lf
+*.xcconfig          text eol=lf
+*.xcworkspacedata   text eol=lf
+*.plist             text eol=lf
+Makefile            text eol=lf
+.mk                 text eol=lf

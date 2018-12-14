@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
 
@@ -33,8 +27,42 @@ struct IParamChange
   bool normalized; // TODO: Remove this
 };
 
+/** A helper class for IByteChunk and IByteStream that avoids code duplication **/
+struct IByteGetter
+{
+  static inline int GetBytes(const uint8_t* pData, int dataSize, void* pBuf, int size, int startPos)
+  {
+    int endPos = startPos + size;
+    if (startPos >= 0 && endPos <= dataSize)
+    {
+      memcpy(pBuf, pData + startPos, size);
+      return endPos;
+    }
+    return -1;
+  }
+  
+  static inline int GetStr(const uint8_t* pData, int dataSize, WDL_String& str, int startPos)
+  {
+    int len;
+    int strStartPos = GetBytes(pData, dataSize, &len, sizeof(len), startPos);
+    if (strStartPos >= 0)
+    {
+      int strEndPos = strStartPos + len;
+      if (strEndPos <= dataSize)
+      {
+        if (len > 0)
+          str.Set((char*) (pData + strStartPos), len);
+        else
+          str.Set("");
+      }
+      return strEndPos;
+    }
+    return -1;
+  }
+};
+  
 /** Manages a block of memory, for plug-in settings store/recall */
-class IByteChunk
+class IByteChunk : private IByteGetter
 {
 public:
   IByteChunk() {}
@@ -81,13 +109,7 @@ public:
   
   inline int GetBytes(void* pBuf, int size, int startPos) const
   {
-    int endPos = startPos + size;
-    if (startPos >= 0 && endPos <= mBytes.GetSize())
-    {
-      memcpy(pBuf, mBytes.Get() + startPos, size);
-      return endPos;
-    }
-    return -1;
+    return IByteGetter::GetBytes(mBytes.Get(), Size(), pBuf, size, startPos);
   }
   
   template <class T> inline int Put(const T* pVal)
@@ -109,32 +131,15 @@ public:
   
   inline int GetStr(WDL_String& str, int startPos) const
   {
-    int len;
-    int strStartPos = Get(&len, startPos);
-    if (strStartPos >= 0)
-    {
-      int strEndPos = strStartPos + len;
-      if (strEndPos <= mBytes.GetSize())
-      {
-        if (len > 0)
-          str.Set((char*) (mBytes.Get() + strStartPos), len);
-        else
-          str.Set("");
-      }
-      return strEndPos;
-    }
-    return -1;
+    return IByteGetter::GetStr(mBytes.Get(), Size(), str, startPos);
   }
   
   inline int PutChunk(IByteChunk* pRHS)
   {
-    return PutBytes(pRHS->GetBytes(), pRHS->Size());
+    return PutBytes(pRHS->GetData(), pRHS->Size());
   }
   
-  /** @brief Clears the chunk
-   *
-   * This also sets the size to 0 bytes
-   */
+  /** Clears the chunk */
   inline void Clear()
   {
     mBytes.Resize(0);
@@ -144,7 +149,7 @@ public:
    * Returns the current size of the chunk
    * @return Current size (in bytes)
    */
-  inline int Size()
+  inline int Size() const
   {
     return mBytes.GetSize();
   }
@@ -163,18 +168,62 @@ public:
     return n;
   }
   
-  inline uint8_t* GetBytes() // TODO: BAD NAME!
+  inline uint8_t* GetData()
   {
     return mBytes.Get();
   }
   
-  inline bool IsEqual(IByteChunk& otherChunk)
+  inline bool IsEqual(IByteChunk& otherChunk) const
   {
-    return (otherChunk.Size() == Size() && !memcmp(otherChunk.GetBytes(), GetBytes(), Size()));
+    return (otherChunk.Size() == Size() && !memcmp(otherChunk.mBytes.Get(), mBytes.Get(), Size()));
   }
   
 private:
   WDL_TypedBuf<uint8_t> mBytes;
+};
+
+/** Manages a non-owned block of memory, for receiving arbitrary message byte streams */
+class IByteStream : private IByteGetter
+{
+public:
+  IByteStream(const void *pData, int dataSize) : mBytes(reinterpret_cast<const uint8_t *>(pData)), mSize(dataSize) {}
+  ~IByteStream() {}
+  
+  inline int GetBytes(void* pBuf, int size, int startPos) const
+  {
+    return IByteGetter::GetBytes(mBytes, Size(), pBuf, size, startPos);
+  }
+  
+  template <class T> inline int Get(T* pVal, int startPos) const
+  {
+    return GetBytes(pVal, sizeof(T), startPos);
+  }
+  
+  inline int GetStr(WDL_String& str, int startPos) const
+  {
+    return IByteGetter::GetStr(mBytes, Size(), str, startPos);
+  }
+  
+  /** Returns the  size of the chunk
+   * @return  size (in bytes) */
+  inline int Size() const
+  {
+    return mSize;
+  }
+  
+  inline bool IsEqual(IByteStream& otherStream) const
+  {
+    return (otherStream.Size() == Size() && !memcmp(otherStream.mBytes, mBytes, Size()));
+  }
+  
+  inline const uint8_t* GetData()
+  {
+    return mBytes;
+  }
+  
+private:
+  const uint8_t* mBytes;
+  int mSize;
 };
 
 /** Helper struct to set compile time options to an API class constructor  */
@@ -190,7 +239,8 @@ struct IPlugConfig
   int uniqueID;
   int mfrID;
   int latency;
-  bool plugDoesMidi;
+  bool plugDoesMidiIn;
+  bool plugDoesMidiOut;
   bool plugDoesChunks;
   bool plugIsInstrument;
   bool plugHasUI;
@@ -208,7 +258,8 @@ struct IPlugConfig
               int uniqueID,
               int mfrID,
               int latency,
-              bool plugDoesMidi,
+              bool plugDoesMidiIn,
+              bool plugDoesMidiOut,
               bool plugDoesChunks,
               bool plugIsInstrument,
               bool plugHasUI,
@@ -226,7 +277,8 @@ struct IPlugConfig
   , uniqueID(uniqueID)
   , mfrID(mfrID)
   , latency(latency)
-  , plugDoesMidi(plugDoesMidi)
+  , plugDoesMidiIn(plugDoesMidiIn)
+  , plugDoesMidiOut(plugDoesMidiOut)
   , plugDoesChunks(plugDoesChunks)
   , plugIsInstrument(plugIsInstrument)
   , plugHasUI(plugHasUI)
@@ -339,9 +391,6 @@ struct ITimeInfo
 
   bool mTransportIsRunning = false;
   bool mTransportLoopEnabled = false;
-
-  ITimeInfo()
-  {}
 };
 
 /** A struct used for specifying baked-in factory presets */

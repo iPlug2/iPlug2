@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #include "IPlugAAX_Parameters.h"
 
@@ -45,6 +39,7 @@ AAX_Result  AAX_CIPlugParameters::StaticDescribe(AAX_IEffectDescriptor * ioDescr
   // Register MIDI nodes. To avoid context corruption, register small blocks of private data in case node doesn't needed.
   AAX_CFieldIndex globalNodeID = AAX_FIELD_INDEX(AAX_SIPlugRenderInfo, mGlobalNode);
   AAX_CFieldIndex localInputNodeID = AAX_FIELD_INDEX(AAX_SIPlugRenderInfo, mInputNode);
+  AAX_CFieldIndex localOutputNodeID = AAX_FIELD_INDEX(AAX_SIPlugRenderInfo, mOutputNode);
   AAX_CFieldIndex transportNodeID = AAX_FIELD_INDEX(AAX_SIPlugRenderInfo, mTransportNode);
 
   if (setupInfo.mNeedsGlobalMIDI)
@@ -57,6 +52,11 @@ AAX_Result  AAX_CIPlugParameters::StaticDescribe(AAX_IEffectDescriptor * ioDescr
   else
     err |= compDesc->AddPrivateData( localInputNodeID, sizeof(float), AAX_ePrivateDataOptions_DefaultOptions ); 
 
+  if (setupInfo.mNeedsOutputMIDI)
+    err |= compDesc->AddMIDINode ( localOutputNodeID, AAX_eMIDINodeType_LocalOutput, setupInfo.mOutputMIDINodeName, setupInfo.mOutputMIDIChannelMask );
+  else
+    err |= compDesc->AddPrivateData( localOutputNodeID, sizeof(float), AAX_ePrivateDataOptions_DefaultOptions );
+  
   if (setupInfo.mNeedsTransport)
     err |= compDesc->AddMIDINode ( transportNodeID, AAX_eMIDINodeType_Transport, "Transport", 0xffff ); 
   else

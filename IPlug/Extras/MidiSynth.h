@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
 
@@ -22,6 +16,7 @@
  */
 
 #include <vector>
+#include <bitset>
 #include <stdint.h>
 
 #include "ptrlist.h"
@@ -31,6 +26,10 @@
 #include "IPlugLogger.h"
 
 #define DEBUG_VOICE_COUNT 0
+
+#ifndef MAX_VOICES
+  #define MAX_VOICES 32
+#endif
 
 /** A monophonic/polyphonic synthesiser base class which can be supplied with a custom voice.
  *  Supports different kinds of after touch, pitch bend, velocity and after touch curves, unison (currently monophonic mode only)
@@ -133,7 +132,7 @@ public:
 
 public:
 #pragma mark - Engine class
-  MidiSynth(EPolyMode polyMode = kPolyModePoly, int blockSize = 16);
+  MidiSynth(EPolyMode polyMode = kPolyModePoly, int blockSize = 16, int nUnisonVoices = 1);
   ~MidiSynth();
 
   void Reset()
@@ -144,7 +143,7 @@ public:
     HardKillAllVoices();
   }
 
-  void SetSampleRateAndBlockSize(double sampleRate, int blockSize);
+  virtual void SetSampleRateAndBlockSize(double sampleRate, int blockSize);
   
   /** If you are using this class in a non-traditional mode of polyphony (e.g.to stack loads of voices) you might want to manually SetVoicesActive()
    * usually this would happen when you trigger notes
@@ -154,12 +153,17 @@ public:
     mVoicesAreActive = active;
   }
   
-  void SetPolyMode(EPolyMode mode)
+  virtual void SetPolyMode(EPolyMode mode)
   {
     mPolyMode = mode; //TODO: implement click safe solution
   }
-
-  void SetATMode(EATMode mode)
+  
+  void SetUnisonVoices(int nVoices)
+  {
+    mUnisonVoices = (uint16_t) Clip(nVoices, 1, NVoices());
+  }
+  
+  virtual void SetATMode(EATMode mode)
   {
     mATMode = mode; //TODO: implement click safe solution
   }
@@ -169,14 +173,39 @@ public:
     mPitchOffset = offset;
   }
   
-  inline Voice* GetVoice(int voiceIdx)
+  inline Voice* GetVoice(int voiceIdx) const
   {
     return mVS.Get(voiceIdx);
+  }
+  
+  inline int GetVoiceIndex(const Voice& voice) const
+  {
+    return mVS.Find(&voice);
   }
 
   int NVoices() const
   {
     return mVS.GetSize();
+  }
+  
+  int NUnisonVoices() const
+  {
+    return mUnisonVoices;
+  }
+  
+  int NActiveVoices() const
+  {
+    return (int) mVoiceStatus.count();
+  }
+  
+  const char* GetVoiceStatusStr() const
+  {
+    return mVoiceStatus.to_string('_', 'X').c_str();
+  }
+  
+  EPolyMode GetPolyMode() const
+  {
+    return mPolyMode;
   }
 
   void AddVoice(Voice* pVoice)
@@ -198,7 +227,22 @@ public:
 
     mMidiQueue.Add(quantizedMsg);
   }
+  
+  double GetModWheel() const
+  {
+    return mModWheel;
+  }
+  
+  double GetPitchBend() const
+  {
+    return mPitchBend;
+  }
 
+  double GetSampleRate() const
+  {
+    return mSampleRate;
+  }
+  
   /** Processes a block of audio samples
    * @param inputs Pointer to input Arrays
    * @param outputs Pointer to output Arrays
@@ -206,7 +250,7 @@ public:
    * @param nOutputs input channels that contain valid data
    * @param nFrames The number of sample frames to process
    * @return \c true if the synth is silent */
-  bool ProcessBlock(sample** inputs, sample** outputs, int nInputs, int nOutputs, int nFrames);
+  virtual bool ProcessBlock(sample** inputs, sample** outputs, int nInputs, int nOutputs, int nFrames);
 
 protected:
   /** Override this method if you need to implement a tuning table for microtonal support
@@ -217,7 +261,7 @@ protected:
     return key + mPitchOffset;
   }
 
-private:
+protected:
   void NoteOnOffMono(const IMidiMsg& msg);
 
   void NoteOnOffPoly(const IMidiMsg& msg);
@@ -336,7 +380,7 @@ private:
   bool mSustainPedalDown = false;
   bool mVoicesAreActive = false;
   uint16_t mUnisonVoices = 1;
-
+  std::bitset<MAX_VOICES> mVoiceStatus;
   EPolyMode mPolyMode = kPolyModePoly; // mono note priority / polyphony
   EATMode mATMode = kATModeChannel;
   std::vector<KeyPressInfo> mHeldKeys; // The currently physically held keys on the keyboard

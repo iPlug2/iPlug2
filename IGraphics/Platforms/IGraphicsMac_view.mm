@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #ifndef NO_IGRAPHICS
 
 #ifdef IGRAPHICS_NANOVG
@@ -275,12 +285,37 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   r.size.height = (float) pGraphics->WindowHeight();
   self = [super initWithFrame:r];
   
-#ifdef IGRAPHICS_NANOVG
-  if (!self.wantsLayer) {
-    self.layer = [CAMetalLayer new];
-    self.layer.opaque = YES;
-    self.wantsLayer = YES;
-  }
+#if defined IGRAPHICS_NANOVG
+  #if defined IGRAPHICS_METAL
+    if (!self.wantsLayer) {
+      self.layer = [CAMetalLayer new];
+      self.layer.opaque = YES;
+      self.wantsLayer = YES;
+    }
+  #elif defined IGRAPHICS_GL
+    const NSOpenGLPixelFormatAttribute kAttributes[] =  {
+      NSOpenGLPFAAccelerated,
+      NSOpenGLPFANoRecovery,
+      NSOpenGLPFATripleBuffer,
+      NSOpenGLPFAAlphaSize, 8,
+      NSOpenGLPFAColorSize, 24,
+      NSOpenGLPFADepthSize, 0,
+      NSOpenGLPFAStencilSize, 8,
+      (NSOpenGLPixelFormatAttribute)0};
+    mPixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:kAttributes];
+    mContext = [[NSOpenGLContext alloc] initWithFormat:mPixelFormat
+                                          shareContext:nil];
+  
+    // Sets sync to VBL to eliminate tearing.
+    GLint vblSync = 1;
+    [mContext setValues:&vblSync forParameter:NSOpenGLCPSwapInterval];
+    // Allows for transparent background.
+//    GLint opaque = 0;
+//    [mContext setValues:&opaque forParameter:NSOpenGLCPSurfaceOpacity];
+//    [self setWantsBestResolutionOpenGLSurface:YES];
+    [mContext makeCurrentContext];
+  
+  #endif
 #endif
 
   [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
@@ -321,36 +356,56 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 - (void) viewDidMoveToWindow
 {
   NSWindow* pWindow = [self window];
+  
   if (pWindow)
   {
     [pWindow makeFirstResponder: self];
     [pWindow setAcceptsMouseMovedEvents: YES];
     
     if (mGraphics)
-    {
-      mGraphics->SetAllControlsDirty();
-    }
+      mGraphics->SetDisplayScale([pWindow backingScaleFactor]);
     
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(windowResized:) name:NSWindowDidEndLiveResizeNotification
-                                               object:pWindow];
+//    [[NSNotificationCenter defaultCenter] addObserver:self
+//                                             selector:@selector(windowResized:) name:NSWindowDidEndLiveResizeNotification
+//                                               object:pWindow];
+//
+//    [[NSNotificationCenter defaultCenter] addObserver:self
+//                                             selector:@selector(windowFullscreened:) name:NSWindowDidEnterFullScreenNotification
+//                                               object:pWindow];
+//
+//    [[NSNotificationCenter defaultCenter] addObserver:self
+//                                             selector:@selector(windowFullscreened:) name:NSWindowDidExitFullScreenNotification
+//                                               object:pWindow];
   }
+}
+
+- (void) viewDidChangeBackingProperties:(NSNotification *) notification
+{
+  NSWindow* pWindow = [self window];
+  
+  if (!pWindow)
+    return;
+  
+  CGFloat newScale = [pWindow backingScaleFactor];
+  
+  if (newScale != mGraphics->GetDisplayScale())
+    mGraphics->SetDisplayScale(newScale);
 }
 
 // not called for opengl/metal
 - (void) drawRect: (NSRect) bounds
 {
+#ifndef IGRAPHICS_GL
   if (mGraphics)
   {
     //TODO: can we really only get this context on the first draw call?
-
     if (!mGraphics->GetPlatformContext())
     {
-        CGContextRef pCGC = nullptr;
-        pCGC = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
-        NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort: pCGC flipped: YES];
-        pCGC = (CGContextRef) [gc graphicsPort];
-        mGraphics->SetPlatformContext(pCGC);
+      CGContextRef pCGC = nullptr;
+      pCGC = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
+      NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort: pCGC flipped: YES];
+      pCGC = (CGContextRef) [gc graphicsPort];
+      mGraphics->SetPlatformContext(pCGC);
     }
       
     if (mGraphics->GetPlatformContext())
@@ -366,29 +421,37 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
       mGraphics->Draw(drawRects);
     }
   }
+#endif
 }
 
 - (void) onTimer: (NSTimer*) pTimer
 {
-  IRECTList rects;
-#ifdef IGRAPHICS_NANOVG
-  //TODO: this is redrawing every IControl!
-  mGraphics->SetAllControlsDirty();
+  [self render];
+}
+
+- (void) render
+{
+#ifdef IGRAPHICS_GL
+//  CGLLockContext([mContext CGLContextObj]);
+  [mContext setView:self];
+  [mContext makeCurrentContext];
+#endif
   
+  IRECTList rects;
   if (mGraphics->IsDirty(rects))
   {
     mGraphics->SetAllControlsClean();
-    mGraphics->Draw(rects);
+#if !defined IGRAPHICS_NANOVG
     for (int i = 0; i < rects.Size(); i++)
-      [self setNeedsDisplayInRect:ToNSRect(mGraphics, rects.Get(i))];
-  }
+    [self setNeedsDisplayInRect:ToNSRect(mGraphics, rects.Get(i))];
 #else
-  if (/*pTimer == mTimer && mGraphics && */mGraphics->IsDirty(rects))
-  {
-    mGraphics->SetAllControlsClean();
-    for (int i = 0; i < rects.Size(); i++)
-      [self setNeedsDisplayInRect:ToNSRect(mGraphics, rects.Get(i))];
+    mGraphics->Draw(rects); // for metal/opengl drawRect is not called
+#endif
   }
+  
+#ifdef IGRAPHICS_GL
+//  CGLLockContext([mContext CGLContextObj]);
+  [mContext flushBuffer];
 #endif
 }
 
@@ -593,17 +656,17 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   if (mTextFieldView)
     [self endUserInput ];
   
-  if (mWebView) {
-    [mWebView removeFromSuperview ];
-    mWebView = nullptr;
-  }
+//  if (mWebView) {
+//    [mWebView removeFromSuperview ];
+//    mWebView = nullptr;
+//  }
   
   if (mGraphics)
   {
-    IGraphics* graphics = mGraphics;
+    IGraphics* pGraphics = mGraphics;
     mGraphics = nullptr;
-    graphics->SetPlatformContext(nullptr);
-    graphics->CloseWindow();
+    pGraphics->SetPlatformContext(nullptr);
+    pGraphics->CloseWindow();
   }
   [super removeFromSuperview];
 }
@@ -748,12 +811,17 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   mEdControl = nullptr;
 }
 
-- (void) createWebView: (NSRect) areaRect : (const char*) url
-{
-  mWebView = [[WKWebView alloc] initWithFrame: areaRect ];
-  [self addSubview: mWebView];
-  [mWebView loadRequest: [NSURLRequest requestWithURL: [NSURL URLWithString:[NSString stringWithUTF8String:url]]]];
-}
+//- (void) createWebView: (NSRect) areaRect : (const char*) url
+//{
+//  mWebView = [[WKWebView alloc] initWithFrame: areaRect ];
+//  [self addSubview: mWebView];
+//  [mWebView loadRequest: [NSURLRequest requestWithURL: [NSURL URLWithString:[NSString stringWithUTF8String:url]]]];
+//}
+//
+//-(void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message
+//{
+//  NSLog(@"%@",message.body);
+//}
 
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData
 {
@@ -767,21 +835,6 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 - (void) registerToolTip: (IRECT&) bounds
 {
   [self addToolTipRect: ToNSRect(mGraphics, bounds) owner: self userData: nil];
-}
-
-- (void) viewDidChangeBackingProperties:(NSNotification *) notification
-{
-  NSWindow* pWindow = [self window];
-
-  if (!pWindow)
-    return;
-
-  CGFloat newScale = [pWindow backingScaleFactor];
-
-  if (newScale != mGraphics->GetDisplayScale())
-  {
-    mGraphics->SetDisplayScale(newScale);
-  }
 }
 
 - (NSDragOperation)draggingEntered: (id <NSDraggingInfo>) sender
@@ -813,25 +866,42 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   return YES;
 }
 
-- (void)windowResized:(NSNotification *)notification;
-{
-  if(!mGraphics) // TODO: Why does this happen with reaper?
-    return;
-  
-  NSSize windowSize = [[self window] frame].size;
-  NSRect viewFrameInWindowCoords = [self convertRect: [self bounds] toView: nil];
-
-  float width = windowSize.width - viewFrameInWindowCoords.origin.x;
-  float height = windowSize.height - viewFrameInWindowCoords.origin.y;
-
-  float scaleX = width / mGraphics->Width();
-  float scaleY = height / mGraphics->Height();
-  
-  // Rescale
-  mGraphics->Resize(mGraphics->Width(), mGraphics->Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
-  // Resize
-  //mGraphics->Resize(width, height, mGraphics->GetScale());
-}
+//- (void)windowResized:(NSNotification *)notification;
+//{
+//  if(!mGraphics)
+//    return;
+//
+//  NSSize windowSize = [[self window] frame].size;
+//  NSRect viewFrameInWindowCoords = [self convertRect: [self bounds] toView: nil];
+//
+//  float width = windowSize.width - viewFrameInWindowCoords.origin.x;
+//  float height = windowSize.height - viewFrameInWindowCoords.origin.y;
+//
+//  float scaleX = width / mGraphics->Width();
+//  float scaleY = height / mGraphics->Height();
+//
+//  if(mGraphics->GetUIResizerMode() == EUIResizerMode::kUIResizerScale)
+//    mGraphics->Resize(width, height, mGraphics->GetScale());
+//  else // EUIResizerMode::kUIResizerSize
+//    mGraphics->Resize(mGraphics->Width(), mGraphics->Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
+//}
+//
+//- (void)windowFullscreened:(NSNotification *)notification;
+//{
+//  NSSize windowSize = [[self window] frame].size;
+//  NSRect viewFrameInWindowCoords = [self convertRect: [self bounds] toView: nil];
+//
+//  float width = windowSize.width - viewFrameInWindowCoords.origin.x;
+//  float height = windowSize.height - viewFrameInWindowCoords.origin.y;
+//
+//  float scaleX = width / mGraphics->Width();
+//  float scaleY = height / mGraphics->Height();
+//
+//  if(mGraphics->GetUIResizerMode() == EUIResizerMode::kUIResizerScale)
+//    mGraphics->Resize(width, height, mGraphics->GetScale());
+//  else // EUIResizerMode::kUIResizerSize
+//    mGraphics->Resize(mGraphics->Width(), mGraphics->Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
+//}
 
 @end
 

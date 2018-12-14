@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0920"
+   LastUpgradeVersion = "1010"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -46,7 +46,7 @@
       allowLocationSimulation = "YES">
       <PathRunnable
          runnableDebuggingMode = "0"
-         FilePath = "/Users/oli/Dev/MyPlugins/TestApps/auvaltool">
+         FilePath = "/Applications/Logic Pro X.app">
       </PathRunnable>
       <MacroExpansion>
          <BuildableReference

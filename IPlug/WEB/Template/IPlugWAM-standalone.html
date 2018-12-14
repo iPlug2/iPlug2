@@ -2,25 +2,35 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>IPlugWAM WAM</title>
+    <title>NAME_PLACEHOLDER WAM</title>
     <style>
       body {
         font-family: arial;
         margin: 0;
         padding: none;
         background: white;
-/*         background: white url("page_background.jpg") no-repeat fixed center; */
         background-size: cover;
+        text-align: center;
+        overflow: hidden;
+
+        /* disable selection */
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none;   /* Safari */
+        -khtml-user-select: none;    /* Konqueror HTML */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
       }
 
-      .control { margin:0 10px; }
-      label  { color:#bbb; font-size:12px; }
-      select { background:#222; color:#eee; height:20px; margin-top:10px; cursor:pointer; }
-
-      .iplug { margin-right: auto; margin-left: auto; margin-xright: auto; display: block; outline:0; }
-      div.iplug { text-align: center; }
-      /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
-      canvas.iplug { border: 0px none; background-color: black; display: block; box-shadow: 10px 10px 5px grey; }
+      #buttons {
+        display: inline-block;
+        /* vertical-align: top; */
+        margin-top: 50px;
+        margin-bottom: 10px;
+        margin-left: 20px;
+        font-weight: bold;
+        color: rgb(120, 120, 120);
+      }
 
       #status {
         display: inline-block;
@@ -30,6 +40,21 @@
         font-weight: bold;
         color: black;
       }
+
+      a, u { text-decoration: none; }
+      a:link { color: #222; }
+      a:visited { color: #222; }
+      a:hover { color: black; }
+      a:active { color: #222; }
+      label  { color:#bbb; font-size:12px; }
+      select { background:#222; color:#eee; height:20px; margin-top:10px; cursor:pointer; }
+      img { pointer-events: none; } /*stops dragging imgs */
+
+      .pluginArea { margin-right: auto; margin-left: auto; margin-right: auto; display: block; outline:0; }
+      div.pluginArea { text-align: center; }
+      /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+      canvas.pluginArea { border: 0px none; background-color: black; display: block; box-shadow: 10px 10px 5px rgba(0,0,0,0.3); }
+
     </style>
 <!--
     <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
@@ -51,44 +76,82 @@
     <meta name="theme-color" content="#ffffff">
  -->
     <script src="scripts/audioworklet.js"></script>
-    <script async src="resources.js"></script>
-    <script async src="scripts/IPlugWAM.js"></script>
+    <script async src="fonts.js"></script>
+    <script async src="svgs.js"></script>
+    <script async src="imgs.js"></script>
+    <script async src="imgs@2x.js"></script>
+    <script async src="scripts/NAME_PLACEHOLDER-web.js"></script>
   </head>
   <body>
-    <div id="content">
-<!--
-      <h4>IPlugWAM_WAM Web Audio Module</h4>
- -->
-      <button type="button" onclick="main()">Start web audio!</button>
+    <div id="main">
     </div>
-    <div class="iplug" id="status">Downloading...</div>
-    <div class="iplug">
-      <progress value="0" max="100" id="progress" hidden=1></progress>
-    </div>
-    <div id="wam" hidden=1>
-      <div class="control">
-        <label>MIDI in</label>
-        <select id="midiInSelect"></select>
+    <div id="buttons">
+        <button type="button" id="startWebAudioButton" onclick="main()" disabled>Start web audio!</button>
+        <button type="button" onclick="toggleFullScreen()">Fullscreen</button>
+        <select id="midiInSelect" disabled="true"><option value="default">Midi input</option></select>
+        <select id="midiOutSelect" disabled="true"><option value="default">Midi output</option></select>
+        <progress value="0" max="100" id="progress"></progress>
+        <div id="status">downloading ...</div>
       </div>
-      <canvas class="iplug" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+    <div id="wam" hidden=1>
+      <input id="pluginInput" type="file" style="visibility:hidden"/>
+      <canvas class="pluginArea" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
     </div>
     <script type='text/javascript'>
-      var IPlugWAM_WAM;
 
-      function initMidi () {
-        let combo = document.querySelector("#midiInSelect");
+      function toggleFullScreen() {
+        if ((document.fullScreenElement && document.fullScreenElement !== null) ||
+        (!document.mozFullScreen && !document.webkitIsFullScreen)) {
+          if (document.documentElement.requestFullScreen) {
+            document.documentElement.requestFullScreen();
+          } else if (document.documentElement.mozRequestFullScreen) {
+            document.documentElement.mozRequestFullScreen();
+          } else if (document.documentElement.webkitRequestFullScreen) {
+            document.documentElement.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+          }
+        } else {
+          if (document.cancelFullScreen) {
+            document.cancelFullScreen();
+          } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+          } else if (document.webkitCancelFullScreen) {
+            document.webkitCancelFullScreen();
+          }
+        }
+      }
+
+      var NAME_PLACEHOLDER_WAM;
+
+      function initMidiComboBox (isOutput, element) {
+        let combo = document.querySelector(element);
+        combo.options.length = 0;
         navigator.requestMIDIAccess().then((midiIF) => {
-          for (let input of midiIF.inputs.values()) {
-            let option = new Option(input.name);
-            option.port = input;
-            combo.appendChild(option);
+          if(isOutput) {
+            for (let output of midiIF.outputs.values()) {
+              let option = new Option(output.name);
+              option.port = output;
+              combo.appendChild(option);
+            }
+
+            combo.onchange = e => {
+              NAME_PLACEHOLDER_WAM.midiOut = e.target.options[e.target.selectedIndex].port;
+            }
+          } else {
+            for (let input of midiIF.inputs.values()) {
+              let option = new Option(input.name);
+              option.port = input;
+              combo.appendChild(option);
+            }
+
+            combo.onchange = e => {
+              NAME_PLACEHOLDER_WAM.midiIn = e.target.options[e.target.selectedIndex].port;
+            }
           }
-          combo.onchange = e => {
-            IPlugWAM_WAM.midiIn = e.target.options[e.target.selectedIndex].port;
-          }
+
           if (combo.options.length > 0)
             combo.onchange({ target:combo });
         })
+        combo.removeAttribute("disabled");
       }
 
       function audioWorkletSupported(supported)
@@ -101,25 +164,32 @@
         }
       }
 
-      function main() {
-        var controllerScripts = [
-          "scripts/wam-controller.js",
-          "scripts/IPlugWAM-awn.js"
-           ];
-
+      function main() {        
         var actx = new AudioContext();
-        AWPF.polyfill(actx, controllerScripts).then( function () {
-          audioWorkletSupported(!AWPF.isAudioWorkletPolyfilled);
-          IPlugWAMController.importScripts(actx).then(() => {
-            IPlugWAM_WAM = new IPlugWAMController(actx);
-            IPlugWAM_WAM.connect(actx.destination);
+        AWPF.polyfill(actx).then( function () {
+          var script1 = document.createElement("script");
+          script1.src = "scripts/wam-controller.js";
+          script1.onload = () => {
+            var script2 = document.createElement("script");
+            script2.src = "scripts/NAME_PLACEHOLDER-awn.js";
+            script2.onload = () => {
 
-            if(IPlugWAM_WAM != undefined) {
-              //initGUI();
-              document.getElementById('wam').hidden = false;
-              initMidi();
+              audioWorkletSupported(!AWPF.isAudioWorkletPolyfilled);
+              NAME_PLACEHOLDERController.importScripts(actx).then(() => {
+                NAME_PLACEHOLDER_WAM = new NAME_PLACEHOLDERController(actx);
+                NAME_PLACEHOLDER_WAM.connect(actx.destination);
+
+                if(NAME_PLACEHOLDER_WAM != undefined) {
+                  document.getElementById('wam').hidden = false;
+                  document.getElementById('startWebAudioButton').setAttribute("disabled", "true");
+                  initMidiComboBox(false, "#midiInSelect");
+                  initMidiComboBox(true, "#midiOutSelect");
+                }
+              });
             }
-          });
+            document.head.appendChild(script2);
+          }
+          document.head.appendChild(script1);
         });
       }
 
@@ -128,7 +198,9 @@
 
       var Module = {
         preRun: [],
-        postRun: [],
+        postRun: function() {
+          document.getElementById('startWebAudioButton').removeAttribute("disabled");
+        },
         setStatus: function(text) {
           if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
           if (text === Module.setStatus.text) return;
@@ -149,12 +221,7 @@
         },
         canvas: (function() {
           var canvas = document.getElementById('canvas');
-
-          // As a default initial behavior, pop up an alert when webgl context is lost. To make your
-          // application robust, you may want to override this behavior before shipping!
-          // See http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
           canvas.addEventListener("webglcontextlost", function(e) { alert('WebGL context lost. You will need to reload the page.'); e.preventDefault(); }, false);
-
           return canvas;
         })(),
         totalDependencies: 0,
@@ -165,7 +232,6 @@
       };
       Module.setStatus('Downloading...');
       window.onerror = function(event) {
-        // TODO: do not warn on ok events like simulating an infinite loop or exitStatus
         Module.setStatus('Exception thrown, see JavaScript console');
         Module.setStatus = function(text) {
           if (text) Module.printErr('[post-exception status] ' + text);
