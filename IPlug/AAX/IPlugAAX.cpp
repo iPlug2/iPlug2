@@ -328,7 +328,7 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
   }
   
   // Midi Out
-  if (DoesMIDI())
+  if (DoesMIDIOut())
   {
     AAX_IMIDINode* midiOut = pRenderInfo->mOutputNode;
     
