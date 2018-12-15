@@ -722,7 +722,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py\nphp ../../../WDL/swell/mac_resgen.php ../resources/main.rc";
+			shellScript = "python ../scripts/prepare_resources-mac.py\nphp ../../../WDL/swell/mac_resgen.php ../resources/main.rc\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */

@@ -74,8 +74,6 @@
 		4F9A830E213DE87600BE63A4 /* IVKeyboardControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8305213DE87600BE63A4 /* IVKeyboardControl.h */; };
 		4F9A830F213DE87600BE63A4 /* IVScopeControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8306213DE87600BE63A4 /* IVScopeControl.h */; };
 		4FA758462186222E00F1BCC3 /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FA758452186222E00F1BCC3 /* IPlugPaths.mm */; };
-		4FADA9C420C20367003075D3 /* fonts in Resources */ = {isa = PBXBuildFile; fileRef = 4FC82B4820BD524700722133 /* fonts */; };
-		4FADA9C520C20367003075D3 /* img in Resources */ = {isa = PBXBuildFile; fileRef = 4FC82B4720BD524700722133 /* img */; };
 		4FB2269720A0D3A800614769 /* IPlugControls-iOS-launchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* IPlugControls-iOS-launchScreen.storyboard */; };
 		4FE8F3B120BA273800BF938F /* IGraphicsEditorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FE8F3AF20BA273800BF938F /* IGraphicsEditorDelegate.cpp */; };
 		4FE8F3B220BA273800BF938F /* IGraphicsEditorDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE8F3B020BA273800BF938F /* IGraphicsEditorDelegate.h */; };
@@ -738,6 +736,7 @@
 			buildPhases = (
 				91236D091B08F42B00734C5E /* Sources */,
 				91236D0A1B08F42B00734C5E /* Frameworks */,
+				4F33163521C5396B00612805 /* Run Script - prepare_resources-ios.py */,
 				91236D0B1B08F42B00734C5E /* Resources */,
 				91236D6F1B08F52E00734C5E /* Embed Frameworks */,
 				91236D851B08F59300734C5E /* Embed App Extensions */,
@@ -846,8 +845,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FADA9C420C20367003075D3 /* fonts in Resources */,
-				4FADA9C520C20367003075D3 /* img in Resources */,
 				4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */,
 				4FB2269720A0D3A800614769 /* IPlugControls-iOS-launchScreen.storyboard in Resources */,
 				4F3E0F6A20A0BCD900A9C2BE /* IPlugControls-iOS.storyboard in Resources */,
@@ -884,8 +881,26 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-ios.py";
+			shellScript = "python ../scripts/prepare_resources-ios.py\n";
 			showEnvVarsInLog = 0;
+		};
+		4F33163521C5396B00612805 /* Run Script - prepare_resources-ios.py */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script - prepare_resources-ios.py";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "python ../scripts/prepare_resources-ios.py app\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
