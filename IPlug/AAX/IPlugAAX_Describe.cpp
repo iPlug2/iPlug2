@@ -119,8 +119,10 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
   //err |= effectDescriptor->AddResourceInfo ( AAX_eResourceType_PageTable, PLUG_NAME ".xml" );
   
   AAX_TYPE_ID_ARRAY(aaxTypeIDs,(AAX_TYPE_IDS));
+#ifdef AAX_TYPE_IDS_AUDIOSUITE
   AAX_TYPE_ID_ARRAY(aaxTypeIDsAudioSuite,(AAX_TYPE_IDS_AUDIOSUITE));
-
+#endif
+  
   WDL_PtrList<IOConfig> channelIO;
   int totalNInChans = 0, totalNOutChans = 0;
   int totalNInBuses = 0, totalNOutBuses = 0;
