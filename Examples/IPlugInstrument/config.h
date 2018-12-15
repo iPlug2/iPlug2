@@ -37,6 +37,7 @@
 #define AAX_PLUG_MFR_STR "Acme"
 #define AAX_PLUG_NAME_STR "IPlugInstrument\nIPIS"
 #define AAX_DOES_AUDIOSUITE 0
+#define AAX_PLUG_CATEGORY_STR "Synth"
 
 #define VST3_SUBCATEGORY "Instrument|Synth"
 
