@@ -55,6 +55,7 @@ private:
 
         // an MPE synth can use pressure here in addition to gain
         outputs[0][i] += (mOsc1.Process(osc1Freq) + mOsc2.Process(osc2Freq) * mOsc2Gain + noise) * gate * mGain;
+        outputs[1][i] = outputs[0][i];
       }
     }
 

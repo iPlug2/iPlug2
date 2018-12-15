@@ -185,6 +185,9 @@ public:
 
   /** @return \c true if the plug-in was configured to receive midi at compile time */
   bool DoesMIDIOut() const { return mDoesMIDIOut; }
+  
+  /** @return \c true if the plug-in was configured to support midi polyphonic expression at compile time */
+  bool DoesMPE() const { return mDoesMPE; }
 
   /**  This allows you to label input/output channels in supporting VST2 hosts.
    * * For example a 4 channel plug-in that deals with FuMa BFormat first order ambisonic material, might label these channels

@@ -637,8 +637,8 @@
 		91D3DA0B1B023C03008FFFBB = {
 			isa = PBXGroup;
 			children = (
-				4FFF108420A1036200D3092F /* config.h */,
 				4FFF108820A1036200D3092F /* IPlugEffect.h */,
+				4FFF108420A1036200D3092F /* config.h */,
 				4FFF108720A1036200D3092F /* IPlugEffect.cpp */,
 				4F10E7CF20B1CB5800F5B09B /* GenericUI.swift */,
 				4F20210120A1BF1E00F22200 /* IPlugEffectViewController.swift */,
