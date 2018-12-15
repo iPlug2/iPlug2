@@ -48,7 +48,6 @@
 		4F03A5D320A4621100EBDFFB /* IGraphicsStructs.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F03A56820A4621000EBDFFB /* IGraphicsStructs.h */; };
 		4F03A5D420A4621100EBDFFB /* IGraphicsUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F03A56920A4621100EBDFFB /* IGraphicsUtilities.h */; };
 		4F03A5D520A4621100EBDFFB /* IGraphicsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F03A56A20A4621100EBDFFB /* IGraphicsConstants.h */; };
-		4F062D0B20D590EB002F8ECE /* MidiSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F5369D820C446430089212E /* MidiSynth.cpp */; };
 		4F0848292015129A00F9E881 /* IPlugAAX_Parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F0848252015129300F9E881 /* IPlugAAX_Parameters.cpp */; };
 		4F10D3D9203A6719003EF82A /* RtMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F10D3D7203A6719003EF82A /* RtMidi.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
 		4F1A527B205D910000CF2908 /* IPlugVST2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1A527A205D910000CF2908 /* IPlugVST2.cpp */; };
@@ -69,9 +68,6 @@
 		4F3862F32014BBEC0009F402 /* IPlugFaustDSP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugFaustDSP.cpp */; };
 		4F3F9AEC21AC8CA500F2D7D6 /* IPlugFaustGen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F5369D320C446430089212E /* IPlugFaustGen.cpp */; };
 		4F3F9B0B21AC9C9F00F2D7D6 /* libfaust.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4F3F9B0221AC9C8600F2D7D6 /* libfaust.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		4F415D7920D8541C00246E12 /* MidiSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F5369D820C446430089212E /* MidiSynth.cpp */; };
-		4F415D7A20D8541E00246E12 /* MidiSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F5369D820C446430089212E /* MidiSynth.cpp */; };
-		4F415D7B20D8541F00246E12 /* MidiSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F5369D820C446430089212E /* MidiSynth.cpp */; };
 		4F472103209B294400A0A0A8 /* IPlugVST3_Controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFBB8F220863B0900DDD0E7 /* IPlugVST3_Controller.cpp */; };
 		4F503CBF21B6A19D00837B7C /* IPlugFaustGen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F5369D320C446430089212E /* IPlugFaustGen.cpp */; };
 		4F503CC121B6A19E00837B7C /* IPlugFaustGen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F5369D320C446430089212E /* IPlugFaustGen.cpp */; };
@@ -80,7 +76,6 @@
 		4F503CC421B6A1A500837B7C /* IPlugFaustGen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F5369D320C446430089212E /* IPlugFaustGen.cpp */; };
 		4F503CC521B6A1A800837B7C /* IPlugFaustGen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F5369D320C446430089212E /* IPlugFaustGen.cpp */; };
 		4F503CD121B6A21100837B7C /* libfaust.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4F3F9B0221AC9C8600F2D7D6 /* libfaust.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		4F5369DE20C4464B0089212E /* MidiSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F5369D820C446430089212E /* MidiSynth.cpp */; };
 		4F55E1CB21BFE5D600B34359 /* IPlugFaust_edit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F5369D620C446430089212E /* IPlugFaust_edit.cpp */; };
 		4F55E1CD21BFE5D700B34359 /* IPlugFaust_edit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F5369D620C446430089212E /* IPlugFaust_edit.cpp */; };
 		4F55E1CE21BFE5D700B34359 /* IPlugFaust_edit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F5369D620C446430089212E /* IPlugFaust_edit.cpp */; };
@@ -229,8 +224,6 @@
 		4F9A82FB213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F9A82F5213DE80300BE63A4 /* IPopupMenuControl.cpp */; };
 		4F9A82FC213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F9A82F5213DE80300BE63A4 /* IPopupMenuControl.cpp */; };
 		4F9A82FD213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F9A82F5213DE80300BE63A4 /* IPopupMenuControl.cpp */; };
-		4FA4727320D6600200473D4B /* MidiSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F5369D820C446430089212E /* MidiSynth.cpp */; };
-		4FA4727520D6600300473D4B /* MidiSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F5369D820C446430089212E /* MidiSynth.cpp */; };
 		4FAEBD30209DAF76002E6392 /* IPlugAUv3.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F1A5286205D915B00CF2908 /* IPlugAUv3.mm */; };
 		4FAEBD31209DAF76002E6392 /* IPlugAUAudioUnit.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F39077A2013EC0400DDA490 /* IPlugAUAudioUnit.mm */; };
 		4FAEBD32209DAF76002E6392 /* IPlugViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3907772013EC0400DDA490 /* IPlugViewController.mm */; };
@@ -579,7 +572,6 @@
 		4F5369CB20C446430089212E /* FPUDownsampler2x.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FPUDownsampler2x.h; sourceTree = "<group>"; };
 		4F5369CC20C446430089212E /* license.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = license.txt; sourceTree = "<group>"; };
 		4F5369CD20C446430089212E /* halfband.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = halfband.c; sourceTree = "<group>"; };
-		4F5369CE20C446430089212E /* MidiSynth.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MidiSynth.h; sourceTree = "<group>"; };
 		4F5369CF20C446430089212E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4F5369D120C446430089212E /* IPlugFaust.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugFaust.h; sourceTree = "<group>"; };
 		4F5369D320C446430089212E /* IPlugFaustGen.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaustGen.cpp; sourceTree = "<group>"; };
@@ -587,7 +579,6 @@
 		4F5369D520C446430089212E /* IPlugFaustGen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugFaustGen.h; sourceTree = "<group>"; };
 		4F5369D620C446430089212E /* IPlugFaust_edit.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaust_edit.cpp; sourceTree = "<group>"; };
 		4F5369D720C446430089212E /* IPlugFaust_edit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugFaust_edit.h; sourceTree = "<group>"; };
-		4F5369D820C446430089212E /* MidiSynth.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MidiSynth.cpp; sourceTree = "<group>"; };
 		4F5369D920C446430089212E /* ParamSmoothers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ParamSmoothers.h; sourceTree = "<group>"; };
 		4F5369DA20C446430089212E /* SVF.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SVF.h; sourceTree = "<group>"; };
 		4F5369DB20C446430089212E /* Oscillator_table.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Oscillator_table.h; sourceTree = "<group>"; };
@@ -1136,8 +1127,6 @@
 				4F5369C420C446430089212E /* HIIR */,
 				4F5369CF20C446430089212E /* README.md */,
 				4F5369D020C446430089212E /* Faust */,
-				4F5369CE20C446430089212E /* MidiSynth.h */,
-				4F5369D820C446430089212E /* MidiSynth.cpp */,
 				4F5369D920C446430089212E /* ParamSmoothers.h */,
 				4F5369DA20C446430089212E /* SVF.h */,
 				4F5369DB20C446430089212E /* Oscillator_table.h */,
@@ -2166,7 +2155,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FDAC0EB207D76C600299363 /* IPlugTimer.cpp in Sources */,
-				4F5369DE20C4464B0089212E /* MidiSynth.cpp in Sources */,
 				4F63696E20A463090022C370 /* IControls.cpp in Sources */,
 				4FD16D1213B634BF001D0217 /* swell-gdi.mm in Sources */,
 				4F55E1FC21BFE7CC00B34359 /* swell-miscdlg.mm in Sources */,
@@ -2213,7 +2201,6 @@
 				4F63697220A463090022C370 /* IControls.cpp in Sources */,
 				4F55E21A21BFE7D200B34359 /* swell-miscdlg.mm in Sources */,
 				4FAEBD34209DAF87002E6392 /* IPlugParameter.cpp in Sources */,
-				4FA4727320D6600200473D4B /* MidiSynth.cpp in Sources */,
 				4FAEBD3D209DAFF3002E6392 /* swell-misc.mm in Sources */,
 				4F9A82FC213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */,
 				4F8C10E520BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */,
@@ -2249,7 +2236,6 @@
 				4F55E20721BFE7CD00B34359 /* swell-kb.mm in Sources */,
 				4FD16D0E13B634BF001D0217 /* swell-gdi.mm in Sources */,
 				4F55E20821BFE7CD00B34359 /* swell-miscdlg.mm in Sources */,
-				4F062D0B20D590EB002F8ECE /* MidiSynth.cpp in Sources */,
 				4FD52131202A5B9B00A4D22A /* IPlugAU_view_factory.mm in Sources */,
 				4F8C10E320BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */,
 				4F9A82FA213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */,
@@ -2301,7 +2287,6 @@
 				4F81591E205D50EB00393585 /* macmain.cpp in Sources */,
 				4F815986205D50EB00393585 /* flock.cpp in Sources */,
 				4F55E1CE21BFE5D700B34359 /* IPlugFaust_edit.cpp in Sources */,
-				4F415D7A20D8541E00246E12 /* MidiSynth.cpp in Sources */,
 				4F5F344320C0226200487201 /* IPlugPaths.mm in Sources */,
 				4F81598F205D51F000393585 /* vstbypassprocessor.cpp in Sources */,
 				4F81598A205D50EB00393585 /* ustring.cpp in Sources */,
@@ -2360,7 +2345,6 @@
 				4F35DEB1207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4F5F344520C0226200487201 /* IPlugPaths.mm in Sources */,
 				4F1A5285205D914A00CF2908 /* IPlugAAX.cpp in Sources */,
-				4F415D7B20D8541F00246E12 /* MidiSynth.cpp in Sources */,
 				4F0848292015129A00F9E881 /* IPlugAAX_Parameters.cpp in Sources */,
 				4FB1F59420E4B014004157C8 /* IGraphicsMac_view.mm in Sources */,
 				4F3862F32014BBEC0009F402 /* IPlugFaustDSP.cpp in Sources */,
@@ -2436,7 +2420,6 @@
 				4F78D90B13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
 				4F35DEAD207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4F8C10E020BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */,
-				4FA4727520D6600300473D4B /* MidiSynth.cpp in Sources */,
 				4F78D91813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
 				4FDAC0EA207D76C600299363 /* IPlugTimer.cpp in Sources */,
 			);
@@ -2459,7 +2442,6 @@
 				4FFBB90F20863B0E00DDD0E7 /* IPlugParameter.cpp in Sources */,
 				4FFBB91020863B0E00DDD0E7 /* pluginview.cpp in Sources */,
 				4FFBB91120863B0E00DDD0E7 /* fstring.cpp in Sources */,
-				4F415D7920D8541C00246E12 /* MidiSynth.cpp in Sources */,
 				4FFBB91320863B0E00DDD0E7 /* vstpresetfile.cpp in Sources */,
 				4FFBB91520863B0E00DDD0E7 /* timer.cpp in Sources */,
 				4FFBB91720863B0E00DDD0E7 /* funknown.cpp in Sources */,

@@ -53,11 +53,9 @@
 		4F977D6220CC9DD800D19F46 /* Array.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D4120CC9DD800D19F46 /* Array.h */; };
 		4F977D6320CC9DD800D19F46 /* FPUStageProc.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D4220CC9DD800D19F46 /* FPUStageProc.h */; };
 		4F977D6520CC9DD800D19F46 /* FPUDownsampler2x.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D4420CC9DD800D19F46 /* FPUDownsampler2x.h */; };
-		4F977D6820CC9DD800D19F46 /* MidiSynth.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D4720CC9DD800D19F46 /* MidiSynth.h */; };
 		4F977D6A20CC9DD800D19F46 /* IPlugFaust.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D4A20CC9DD800D19F46 /* IPlugFaust.h */; };
 		4F977D6E20CC9DD800D19F46 /* IPlugFaustGen.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D4E20CC9DD800D19F46 /* IPlugFaustGen.h */; };
 		4F977D7020CC9DD800D19F46 /* IPlugFaust_edit.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D5020CC9DD800D19F46 /* IPlugFaust_edit.h */; };
-		4F977D7120CC9DD800D19F46 /* MidiSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F977D5120CC9DD800D19F46 /* MidiSynth.cpp */; };
 		4F977D7220CC9DD800D19F46 /* ParamSmoothers.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D5220CC9DD800D19F46 /* ParamSmoothers.h */; };
 		4F977D7320CC9DD800D19F46 /* SVF.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D5320CC9DD800D19F46 /* SVF.h */; };
 		4F977D7420CC9DD800D19F46 /* Oscillator_table.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D5420CC9DD800D19F46 /* Oscillator_table.h */; };
@@ -243,7 +241,6 @@
 		4F977D4420CC9DD800D19F46 /* FPUDownsampler2x.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPUDownsampler2x.h; sourceTree = "<group>"; };
 		4F977D4520CC9DD800D19F46 /* license.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = license.txt; sourceTree = "<group>"; };
 		4F977D4620CC9DD800D19F46 /* halfband.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = halfband.c; sourceTree = "<group>"; };
-		4F977D4720CC9DD800D19F46 /* MidiSynth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MidiSynth.h; sourceTree = "<group>"; };
 		4F977D4820CC9DD800D19F46 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4F977D4A20CC9DD800D19F46 /* IPlugFaust.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugFaust.h; sourceTree = "<group>"; };
 		4F977D4B20CC9DD800D19F46 /* IPlugFaust_notdone.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = IPlugFaust_notdone.txt; sourceTree = "<group>"; };
@@ -252,7 +249,6 @@
 		4F977D4E20CC9DD800D19F46 /* IPlugFaustGen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugFaustGen.h; sourceTree = "<group>"; };
 		4F977D4F20CC9DD800D19F46 /* IPlugFaust_edit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaust_edit.cpp; sourceTree = "<group>"; };
 		4F977D5020CC9DD800D19F46 /* IPlugFaust_edit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugFaust_edit.h; sourceTree = "<group>"; };
-		4F977D5120CC9DD800D19F46 /* MidiSynth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MidiSynth.cpp; sourceTree = "<group>"; };
 		4F977D5220CC9DD800D19F46 /* ParamSmoothers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParamSmoothers.h; sourceTree = "<group>"; };
 		4F977D5320CC9DD800D19F46 /* SVF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVF.h; sourceTree = "<group>"; };
 		4F977D5420CC9DD800D19F46 /* Oscillator_table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Oscillator_table.h; sourceTree = "<group>"; };
@@ -496,10 +492,8 @@
 				4F977D3720CC9DD800D19F46 /* OSC */,
 				4F977D3C20CC9DD800D19F46 /* Oscillator.h */,
 				4F977D3D20CC9DD800D19F46 /* HIIR */,
-				4F977D4720CC9DD800D19F46 /* MidiSynth.h */,
 				4F977D4820CC9DD800D19F46 /* README.md */,
 				4F977D4920CC9DD800D19F46 /* Faust */,
-				4F977D5120CC9DD800D19F46 /* MidiSynth.cpp */,
 				4F977D5220CC9DD800D19F46 /* ParamSmoothers.h */,
 				4F977D5320CC9DD800D19F46 /* SVF.h */,
 				4F977D5420CC9DD800D19F46 /* Oscillator_table.h */,
@@ -709,7 +703,6 @@
 				4F977D7420CC9DD800D19F46 /* Oscillator_table.h in Headers */,
 				4F6369D020A463AF0022C370 /* IGraphics_select.h in Headers */,
 				4F977D5920CC9DD800D19F46 /* NChanDelay.h in Headers */,
-				4F977D6820CC9DD800D19F46 /* MidiSynth.h in Headers */,
 				4F9A8307213DE87600BE63A4 /* IPopupMenuControl.h in Headers */,
 				4F977D7320CC9DD800D19F46 /* SVF.h in Headers */,
 				4F8028C720A24FA9003A66EC /* nanovg_gl_utils.h in Headers */,
@@ -935,7 +928,6 @@
 				4F23CECD20B20C7C00E8B70F /* IGraphicsIOS_view.mm in Sources */,
 				4F23CECE20B20C9300E8B70F /* nanovg_mtl.m in Sources */,
 				4FFF104320A0E55A00D3092F /* IPlugParameter.cpp in Sources */,
-				4F977D7120CC9DD800D19F46 /* MidiSynth.cpp in Sources */,
 				4FFF105B20A0E57100D3092F /* IPlugAUAudioUnit.mm in Sources */,
 				4F9A8309213DE87600BE63A4 /* IControls.cpp in Sources */,
 				4F23CECC20B20C7C00E8B70F /* IGraphicsIOS.mm in Sources */,
