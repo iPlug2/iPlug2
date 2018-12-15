@@ -94,14 +94,15 @@ def main():
   auv2['CFBundleSignature'] = config['PLUG_UNIQUE_ID']
   auv2['CSResourcesFileMapped'] = CSResourcesFileMapped
 
-  if config['PLUG_IS_INSTRUMENT']:
+  if config['PLUG_TYPE'] == 0:
+    if config['PLUG_DOES_MIDI_IN']:
+      COMPONENT_TYPE = kAudioUnitType_MusicEffect
+    else:
+      COMPONENT_TYPE = kAudioUnitType_Effect
+  elif config['PLUG_TYPE'] == 1:
     COMPONENT_TYPE = kAudioUnitType_MusicDevice
-  elif config['PLUG_IS_MFX']:
+  elif config['PLUG_TYPE'] == 2:
     COMPONENT_TYPE = kAudioUnitType_MIDIProcessor
-  elif config['PLUG_DOES_MIDI_IN']:
-    COMPONENT_TYPE = kAudioUnitType_MusicEffect
-  else:
-    COMPONENT_TYPE = kAudioUnitType_Effect
 
   auv2['AudioUnit Version'] = config['PLUG_VERSION_HEX']
   auv2['AudioComponents'] = [{}]
@@ -151,7 +152,7 @@ def main():
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['sandboxSafe'] = True
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['tags'] = [{}]
 
-  if config['PLUG_IS_INSTRUMENT']:
+  if config['PLUG_TYPE'] == 1:
     auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['tags'][0] = "Synth"
   else:
     auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['tags'][0] = "Effects"

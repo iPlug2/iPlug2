@@ -178,7 +178,7 @@ public:
   void LimitToStereoIO();//TODO: this should be updated
 
   /** @return \c true if the plug-in was configured as an instrument at compile time */
-  bool IsInstrument() const { return mIsInstrument; }
+  bool IsInstrument() const { return mPlugType == EIPlugPluginType::kInstrument; }
 
   /** @return \c true if the plug-in was configured to receive midi at compile time */
   bool DoesMIDIIn() const { return mDoesMIDIIn; }
@@ -242,8 +242,8 @@ public: //TODO: these will become protected once stand-alone app is rewritten
   const WDL_String& _GetChannelLabel(ERoute direction, int idx) { return mChannelData[direction].Get(idx)->mLabel; }
 
 private:
-  /** \c true if the plug-in is an instrument */
-  bool mIsInstrument;
+  /** See EIPlugPluginTypes */
+  EIPlugPluginType mPlugType;
   /** \c true if the plug-in accepts MIDI input */
   bool mDoesMIDIIn;
   /** \c true if the plug-in produces MIDI output */

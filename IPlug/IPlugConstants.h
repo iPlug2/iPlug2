@@ -33,6 +33,13 @@ typedef PLUG_SAMPLE_DST sample;
 #define MAX_PROCESS_TRACE_COUNT 100
 #define MAX_IDLE_TRACE_COUNT 15
 
+enum EIPlugPluginType
+{
+  kEffect = 0,
+  kInstrument = 1,
+  kMIDIEffect = 2
+};
+
 enum EIPlugKeyCodes
 {
   KEY_TAB,

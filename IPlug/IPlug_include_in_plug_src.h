@@ -75,7 +75,7 @@ static unsigned int GUID_DATA3 = PLUG_MFR_ID;
 static unsigned int GUID_DATA4 = PLUG_UNIQUE_ID;
 
 #ifndef EFFECT_TYPE_VST3
-  #if PLUG_IS_INST
+  #if PLUG_TYPE == 1
     #define EFFECT_TYPE_VST3 kInstrumentSynth
   #else
     #define EFFECT_TYPE_VST3 kFx
@@ -434,7 +434,7 @@ DWORD GetTickCount()
 #define IPLUG_CTOR(nParams, nPresets, instanceInfo) \
   IPlug(instanceInfo, IPlugConfig(nParams, nPresets, PLUG_CHANNEL_IO,\
     PUBLIC_NAME, "", PLUG_MFR, PLUG_VERSION_HEX, PLUG_UNIQUE_ID, PLUG_MFR_ID, \
-    PLUG_LATENCY, PLUG_DOES_MIDI_IN, PLUG_DOES_MIDI_OUT, PLUG_DOES_STATE_CHUNKS, PLUG_IS_INSTRUMENT, \
+    PLUG_LATENCY, PLUG_DOES_MIDI_IN, PLUG_DOES_MIDI_OUT, PLUG_DOES_STATE_CHUNKS, PLUG_TYPE, \
     PLUG_HAS_UI, PLUG_WIDTH, PLUG_HEIGHT, BUNDLE_ID))
 
 #if !defined NO_IGRAPHICS && !defined VST3P_API

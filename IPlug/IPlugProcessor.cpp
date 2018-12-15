@@ -15,7 +15,7 @@
 template<typename T>
 IPlugProcessor<T>::IPlugProcessor(IPlugConfig c, EAPI plugAPI)
   : mLatency(c.latency)
-  , mIsInstrument(c.plugIsInstrument)
+  , mPlugType((EIPlugPluginType) c.plugType)
   , mDoesMIDIIn(c.plugDoesMidiIn)
   , mDoesMIDIOut(c.plugDoesMidiOut)
 {

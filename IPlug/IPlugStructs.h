@@ -242,7 +242,7 @@ struct IPlugConfig
   bool plugDoesMidiIn;
   bool plugDoesMidiOut;
   bool plugDoesChunks;
-  bool plugIsInstrument;
+  int plugType;
   bool plugHasUI;
   int plugWidth;
   int plugHeight;
@@ -261,7 +261,7 @@ struct IPlugConfig
               bool plugDoesMidiIn,
               bool plugDoesMidiOut,
               bool plugDoesChunks,
-              bool plugIsInstrument,
+              int plugType,
               bool plugHasUI,
               int plugWidth,
               int plugHeight,
@@ -280,7 +280,7 @@ struct IPlugConfig
   , plugDoesMidiIn(plugDoesMidiIn)
   , plugDoesMidiOut(plugDoesMidiOut)
   , plugDoesChunks(plugDoesChunks)
-  , plugIsInstrument(plugIsInstrument)
+  , plugType(plugType)
   , plugHasUI(plugHasUI)
   , plugWidth(plugWidth)
   , plugHeight(plugHeight)

@@ -27,8 +27,7 @@ StringElements = {
 }
 
 IntElements = {
-"PLUG_IS_INSTRUMENT",
-"PLUG_IS_MFX",
+"PLUG_TYPE",
 "PLUG_DOES_MIDI_IN",
 "PLUG_DOES_MIDI_OUT",
 "PLUG_HAS_UI",

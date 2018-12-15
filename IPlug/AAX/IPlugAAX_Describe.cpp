@@ -101,7 +101,7 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
   }
   
   AAX_EPlugInCategory category = AAX_ePlugInCategory_None;
-  if (PLUG_IS_INSTRUMENT) category = AAX_ePlugInCategory_SWGenerators;
+  if (PLUG_TYPE = 1) category = AAX_ePlugInCategory_SWGenerators;
   else if(strcmp(AAX_PLUG_CATEGORY_STR, "None") == (0)) category = AAX_ePlugInCategory_None;
   else if(strcmp(AAX_PLUG_CATEGORY_STR, "EQ") == (0)) category = AAX_ePlugInCategory_EQ;
   else if(strcmp(AAX_PLUG_CATEGORY_STR, "Dynamics") == (0)) category = AAX_ePlugInCategory_Dynamics;
@@ -135,7 +135,7 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
     
     // Describe the algorithm and effect specifics using the CInstrumentParameters convenience layer.  (Native Only)
     AAX_SIPlugSetupInfo setupInfo;
-    if(PLUG_IS_INSTRUMENT && pConfig->GetTotalNChannels(kInput) == 0) {
+    if((PLUG_TYPE == 1) && pConfig->GetTotalNChannels(kInput) == 0) {
       // For some reason in protools instruments need to have input buses if not defined set input chan count the same as output
       setupInfo.mInputStemFormat = (AAX_EStemFormat) GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kOutput, 0 /* first bus */, pConfig);
     }
