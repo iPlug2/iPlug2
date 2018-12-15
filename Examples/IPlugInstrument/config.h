@@ -19,6 +19,7 @@
 #define PLUG_TYPE 1
 #define PLUG_DOES_MIDI_IN 1
 #define PLUG_DOES_MIDI_OUT 1
+#define PLUG_DOES_MPE 1
 #define PLUG_DOES_STATE_CHUNKS 0
 #define PLUG_HAS_UI 1
 #define PLUG_WIDTH 600

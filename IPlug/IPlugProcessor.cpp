@@ -18,6 +18,7 @@ IPlugProcessor<T>::IPlugProcessor(IPlugConfig c, EAPI plugAPI)
   , mPlugType((EIPlugPluginType) c.plugType)
   , mDoesMIDIIn(c.plugDoesMidiIn)
   , mDoesMIDIOut(c.plugDoesMidiOut)
+  , mDoesMPE(c.plugDoesMPE)
 {
   int totalNInBuses, totalNOutBuses;
   int totalNInChans, totalNOutChans;

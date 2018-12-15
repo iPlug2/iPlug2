@@ -248,6 +248,8 @@ private:
   bool mDoesMIDIIn;
   /** \c true if the plug-in produces MIDI output */
   bool mDoesMIDIOut;
+  /** \c true if the plug-in supports MIDI Polyphonic Expression */
+  bool mDoesMPE;
   /** Plug-in latency (in samples) */
   int mLatency;
   /** Current sample rate (in Hz) */
