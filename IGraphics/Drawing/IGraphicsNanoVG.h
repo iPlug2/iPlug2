@@ -113,7 +113,7 @@ public:
 
   void DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness, float dashLen) override;
   void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness, float dashLen) override;
-  
+
   void PathClear() override;
   void PathClose() override;
   void PathArc(float cx, float cy, float r, float aMin, float aMax) override;
