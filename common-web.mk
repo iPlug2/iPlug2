@@ -53,8 +53,7 @@ $(IGRAPHICS_PATH)/IGraphicsEditorDelegate.cpp
 # CFLAGS for both WAM and WEB targets
 CFLAGS = $(INCLUDE_PATHS) \
 -std=c++11  \
--Wno-bitwise-op-parentheses \
--DNO_PARAMS_MUTEX
+-Wno-bitwise-op-parentheses
 
 WAM_CFLAGS = -DWAM_API \
 -DIPLUG_DSP=1 \
