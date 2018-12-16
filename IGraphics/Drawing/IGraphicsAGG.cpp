@@ -172,44 +172,17 @@ IGraphicsAGG::~IGraphicsAGG()
 void IGraphicsAGG::DrawResize()
 {
   mPixelMap.create(WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
-  UpdateAGGBitmap();
+  UpdateLayer();
   mRasterizer.SetOutput(mRenBuf);
   mRasterizer.ClearWhite();
     
   mTransform = agg::trans_affine_scaling(GetScale() * GetDisplayScale(), GetScale() * GetDisplayScale());
 }
 
-void IGraphicsAGG::UpdateAGGBitmap()
+void IGraphicsAGG::UpdateLayer()
 {
   agg::pixel_map* pPixelMap = mLayers.empty() ? &mPixelMap : mLayers.top()->GetAPIBitmap()->GetBitmap();
   mRenBuf.attach(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
-}
-
-void IGraphicsAGG::StartLayer(const IRECT& r)
-{
-  mLayers.push(new ILayer(CreateAPIBitmap(r.W(), r.H()), r));
-  UpdateAGGBitmap();
-  PathTransformReset(true);
-  PathClipRegion(r);
-  PathClear();
-}
-
-std::unique_ptr<ILayer> IGraphicsAGG::EndLayer()
-{
-  ILayer* pLayer = nullptr;
-  
-  if (!mLayers.empty())
-  {
-    pLayer = mLayers.top();
-    mLayers.pop();
-  }
-  
-  UpdateAGGBitmap();
-  PathTransformReset(true);
-  PathClipRegion();
-  PathClear();
-  
-  return std::unique_ptr<ILayer>(pLayer);
 }
 
 //IFontData IGraphicsAGG::LoadFont(const char* name, const int size)

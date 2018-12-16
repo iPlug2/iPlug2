@@ -236,31 +236,6 @@ void IGraphicsCanvas::SetCanvasBlendMode(const IBlend* pBlend)
   }
 }
 
-void IGraphicsCanvas::StartLayer(const IRECT& r)
-{
-  mLayers.push(new ILayer(CreateAPIBitmap(r.W(), r.H()), r));
-  PathTransformReset(true);
-  PathClipRegion(r);
-  PathClear();
-}
-
-std::unique_ptr<ILayer> IGraphicsCanvas::EndLayer()
-{
-  ILayer *pLayer = nullptr;
-  
-  if (!mLayers.empty())
-  {
-    pLayer = mLayers.top();
-    mLayers.pop();
-  }
-  
-  PathTransformReset(true);
-  PathClipRegion();
-  PathClear();
-  
-  return std::unique_ptr<ILayer>(pLayer);
-}
-
 bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
   // TODO: orientation

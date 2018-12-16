@@ -375,40 +375,13 @@ bool IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT&
   return true;
 }
 
-void IGraphicsLice::UpdateDrawBitmap()
+void IGraphicsLice::UpdateLayer()
 {
   IRECT r = mLayers.empty() ? IRECT() : mLayers.top()->Bounds();
   mRenderBitmap = mLayers.empty() ? mDrawBitmap : mLayers.top()->GetAPIBitmap()->GetBitmap();
   mDrawRECT = mLayers.empty() ? mClipRECT : IRECT(0, 0, r.W(), r.H());
   mDrawOffsetX = mLayers.empty() ? 0 : r.L;
   mDrawOffsetY = mLayers.empty() ? 0 : r.T;
-}
-
-void IGraphicsLice::StartLayer(const IRECT& r)
-{
-  mLayers.push(new ILayer(CreateAPIBitmap(r.W(), r.H()), r));
-  UpdateDrawBitmap();
-  PathTransformReset(true);
-  PathClipRegion(r);
-  PathClear();
-}
-
-std::unique_ptr<ILayer> IGraphicsLice::EndLayer()
-{
-  ILayer* pLayer = nullptr;
-  
-  if (!mLayers.empty())
-  {
-    pLayer = mLayers.top();
-    mLayers.pop();
-  }
-
-  UpdateDrawBitmap();
-  PathTransformReset(true);
-  PathClipRegion();
-  PathClear();
-    
-  return std::unique_ptr<ILayer>(pLayer);
 }
 
 LICE_IFont* IGraphicsLice::CacheFont(const IText& text, double scale)

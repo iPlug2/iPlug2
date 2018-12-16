@@ -655,33 +655,6 @@ void IGraphicsNanoVG::UpdateLayer()
   }
 }
 
-void IGraphicsNanoVG::StartLayer(const IRECT& r)
-{
-  mLayers.push(new ILayer(CreateAPIBitmap(r.W(), r.H()), r));
-  UpdateLayer();
-  PathTransformReset(true);
-  PathClipRegion(r);
-  PathClear();
-}
-
-std::unique_ptr<ILayer> IGraphicsNanoVG::EndLayer()
-{
-  ILayer* pLayer = nullptr;
-  
-  if (!mLayers.empty())
-  {
-    pLayer = mLayers.top();
-    mLayers.pop();
-  }
-  
-  UpdateLayer();
-  PathTransformReset(true);
-  PathClipRegion();
-  PathClear();
-  
-  return std::unique_ptr<ILayer>(pLayer);
-}
-
 void IGraphicsNanoVG::PathTransformSetMatrix(const IMatrix& m)
 {
   double xTranslate = 0.0;

@@ -325,33 +325,6 @@ void IGraphicsCairo::SetCairoSourcePattern(const IPattern& pattern, const IBlend
   }
 }
 
-void IGraphicsCairo::StartLayer(const IRECT& r)
-{
-  mLayers.push(new ILayer(CreateAPIBitmap(r.W(), r.H()), r));
-  UpdateCairoContext();
-  PathTransformReset(true);
-  PathClipRegion(r);
-  PathClear();
-}
-
-std::unique_ptr<ILayer> IGraphicsCairo::EndLayer()
-{
-  ILayer* pLayer = nullptr;
-  
-  if (!mLayers.empty())
-  {
-    pLayer = mLayers.top();
-    mLayers.pop();
-  }
-  
-  UpdateCairoContext();
-  PathTransformReset(true);
-  PathClipRegion();
-  PathClear();
-  
-  return std::unique_ptr<ILayer>(pLayer);
-}
-
 IColor IGraphicsCairo::GetPoint(int x, int y)
 {
   // Convert suface to cairo image surface of one pixel (avoid copying the whole surface)

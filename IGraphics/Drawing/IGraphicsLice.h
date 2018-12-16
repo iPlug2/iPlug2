@@ -97,11 +97,7 @@ public:
     
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return mDrawBitmap->getBits(); }
-    
-  void StartLayer(const IRECT& r) override;
-  std::unique_ptr<ILayer> EndLayer() override;
-    
-  inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
+     inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
 
 protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
@@ -139,7 +135,7 @@ private:
     mClipRECT = mDrawRECT;
   }
   
-  void UpdateDrawBitmap();
+  void UpdateLayer() override;
     
   LICE_IFont* CacheFont(const IText& text, double scale);
 

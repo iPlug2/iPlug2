@@ -129,9 +129,6 @@ public:
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return (void*) mVG; }
     
-  void StartLayer(const IRECT& r) override;
-  std::unique_ptr<ILayer> EndLayer() override;
-    
   IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale) override;
   IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, int targetScale) override { return bitmap; } // NO-OP
   void ReleaseBitmap(const IBitmap& bitmap) override { }; // NO-OP
@@ -152,7 +149,7 @@ protected:
 private:
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
-  void UpdateLayer();
+  void UpdateLayer() override;
 
   StaticStorage<APIBitmap> mBitmapCache; //not actually static
   NVGcontext* mVG = nullptr;

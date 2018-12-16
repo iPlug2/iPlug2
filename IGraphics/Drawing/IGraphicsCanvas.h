@@ -55,9 +55,6 @@ public:
   IColor GetPoint(int x, int y) override { return COLOR_BLACK; } // TODO:
   void* GetDrawContext() override { return nullptr; }
 
-  void StartLayer(const IRECT& r) override;
-  std::unique_ptr<ILayer> EndLayer() override;
-    
 protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;

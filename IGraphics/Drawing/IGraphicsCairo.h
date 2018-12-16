@@ -75,9 +75,6 @@ public:
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return (void*) mContext; }
     
-  void StartLayer(const IRECT& r) override;
-  std::unique_ptr<ILayer> EndLayer() override;
-    
   void EndFrame() override;
   void SetPlatformContext(void* pContext) override;
   void DrawResize() override;
@@ -100,6 +97,8 @@ private:
   void UpdateCairoContext();
   void UpdateCairoMainSurface(cairo_surface_t* pSurface);
 
+  void UpdateLayer() override { UpdateCairoContext(); }
+    
   cairo_t* mContext;
   cairo_surface_t* mSurface;
   

@@ -447,18 +447,16 @@ public:
   
 #pragma mark - IGraphics drawing API layer support
 
-  virtual void StartLayer(const IRECT& r) = 0;
-  virtual std::unique_ptr<ILayer> EndLayer() = 0;
-  
-  void DrawLayer(const std::unique_ptr<ILayer>& layer)
-  {
-    PathTransformSave();
-    PathTransformReset();
-    IBitmap bitmap = layer->GetBitmap();
-    IRECT bounds = layer->Bounds();
-    DrawBitmap(bitmap, bounds, 0, 0);
-    PathTransformRestore();
-  }
+  typedef std::unique_ptr<ILayer> ILayerPtr;
+    
+  void StartLayer(const IRECT& r);
+  ILayerPtr EndLayer();
+  void DrawLayer(const ILayerPtr& layer);
+    
+private:
+  virtual void UpdateLayer() {}
+
+public:
   
 #pragma mark - IGraphics drawing API Path support
 

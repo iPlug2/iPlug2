@@ -1420,3 +1420,40 @@ void IGraphics::StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emb
       pVB->Style(drawFrame, drawShadow, emboss, roundness, frameThickness, shadowOffset, spec);
   }
 }
+
+void IGraphics::StartLayer(const IRECT& r)
+{
+  mLayers.push(new ILayer(CreateAPIBitmap(r.W(), r.H()), r));
+  UpdateLayer();
+  PathTransformReset(true);
+  PathClipRegion(r);
+  PathClear();
+}
+
+IGraphics::ILayerPtr IGraphics::EndLayer()
+{
+    ILayer* pLayer = nullptr;
+    
+    if (!mLayers.empty())
+    {
+        pLayer = mLayers.top();
+        mLayers.pop();
+    }
+    
+    UpdateLayer();
+    PathTransformReset(true);
+    PathClipRegion();
+    PathClear();
+    
+    return ILayerPtr(pLayer);
+}
+
+void IGraphics::DrawLayer(const ILayerPtr& layer)
+{
+    PathTransformSave();
+    PathTransformReset();
+    IBitmap bitmap = layer->GetBitmap();
+    IRECT bounds = layer->Bounds();
+    DrawBitmap(bitmap, bounds, 0, 0);
+    PathTransformRestore();
+}
