@@ -45,7 +45,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     };
     
     pGraphics->AttachPanelBackground(COLOR_GRAY);
-    
+     
     pGraphics->AttachControl(new ILambdaControl(*this, nextCell(), [](IControl* pCaller, IGraphics& g, IRECT& r, IMouseInfo&, double t) {
       
 //      static constexpr float width = 5.f;
@@ -73,14 +73,14 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
 //    pGraphics->AttachControl(new TestSVGControl(*this, nextCell()));
     pGraphics->AttachControl(new TestSizeControl(*this, bounds), kSizeControl);
     
-    
 #if 1
     pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Hello World!", {24, COLOR_WHITE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop, 90}));
     pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Two!", {18, COLOR_GREEN, "Montserrat-LightItalic", IText::kStyleNormal, IText::kAlignCenter, IText::kVAlignMiddle, 45}));
     pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Three!", {24, COLOR_RED, "Roboto-Regular", IText::kStyleItalic, IText::kAlignFar, IText::kVAlignBottom}));
     pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Four!", {40, COLOR_ORANGE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignCenter, IText::kVAlignBottom}));
 #endif
-    
+      
+    pGraphics->AttachControl(new TestLayerControl(*this, nextCell()));
   };
   
 #endif
