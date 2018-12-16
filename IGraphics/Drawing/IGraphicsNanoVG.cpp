@@ -119,6 +119,14 @@ NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double source
   SetBitmap(idx, w, h, sourceScale);
 }
 
+NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int idx, double sourceScale)
+{
+    int w = 0, h = 0;
+    mVG = pContext;
+    nvgImageSize(mVG, idx, &w, &h);
+    SetBitmap(idx, w, h, sourceScale);
+}
+
 NanoVGBitmap::~NanoVGBitmap()
 {
   nvgDeleteImage(mVG, GetBitmap());
@@ -605,9 +613,18 @@ void IGraphicsNanoVG::DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, 
 void IGraphicsNanoVG::StartLayer(const IRECT& r)
 {
   double scale = GetScale() * GetDisplayScale();
-  //agg::pixel_map* pFrameBuffer = CreatePixmap(r.W() * scale, r.H() * scale);
-  //mLayers.push(new ILayer(new NanoVGBitmap(pPixelMap, scale), r));
-  //mRenBuf.attach(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
+  NVGframebuffer* pFrameBuffer = nvgCreateFramebuffer(mVG, r.W() * scale, r.H() * scale, 0);
+  mFrameBuffers.push(pFrameBuffer);
+  mLayers.push(new ILayer(new NanoVGBitmap(mVG, pFrameBuffer->image, scale), r));
+    
+  //nvgEndFrame(mVG);
+  nvgBindFramebuffer(pFrameBuffer);
+  //nvgBeginFrame(mVG, r.W() * GetScale(), r.H() * GetScale(), GetDisplayScale());
+  nvgBeginPath(mVG);
+  nvgRect(mVG, 0, 0, r.W() * GetScale(), r.H() * GetScale());
+  nvgFillColor(mVG, NanoVGColor(COLOR_TRANSPARENT));
+  nvgFill(mVG);
+
   PathTransformReset(true);
   SetClipRegion(r);
 }
@@ -615,8 +632,10 @@ void IGraphicsNanoVG::StartLayer(const IRECT& r)
 std::unique_ptr<ILayer> IGraphicsNanoVG::EndLayer()
 {
   ILayer *pLayer = nullptr;
-  int frameBuffer = 0;
-  
+  NVGframebuffer* pFrameBuffer = mMainFrameBuffer;
+  int width = WindowWidth();
+  int height = WindowHeight();
+    
   if (!mLayers.empty())
   {
     pLayer = mLayers.top();
@@ -624,9 +643,16 @@ std::unique_ptr<ILayer> IGraphicsNanoVG::EndLayer()
   }
   
   if (!mLayers.empty())
-    frameBuffer = mLayers.top()->GetAPIBitmap()->GetBitmap();
+  {
+    width = mLayers.top()->Bounds().W() * GetScale();
+    height = mLayers.top()->Bounds().H() * GetScale();
+    pFrameBuffer = mFrameBuffers.top();
+  }
   
-  //mRenBuf.attach(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
+  //nvgEndFrame(mVG);
+  nvgBindFramebuffer(pFrameBuffer);
+  //nvgBeginFrame(mVG, width, height, GetDisplayScale());
+
   PathTransformReset(true);
   PathClipRegion();
   
