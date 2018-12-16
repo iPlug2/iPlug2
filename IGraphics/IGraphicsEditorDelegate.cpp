@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #include "IGraphicsEditorDelegate.h"
 #include "IGraphics.h"
 #include "IControl.h"
@@ -16,11 +26,6 @@ void IGEditorDelegate::OnUIOpen()
   IEditorDelegate::OnUIOpen();
   
   GetUI()->Resize(GetEditorWidth(), GetEditorHeight(), GetEditorScale());
-}
-
-IGraphics* IGEditorDelegate::GetUI()
-{
-  return mGraphics;
 }
 
 void IGEditorDelegate::OnRestoreState()
@@ -139,7 +144,7 @@ void IGEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
 void IGEditorDelegate::AttachGraphics(IGraphics* pGraphics)
 {
   assert(mGraphics == nullptr); // protect against calling AttachGraphics() when mGraphics allready exists
-         
+
   mGraphics = pGraphics;
   mIGraphicsTransient = false;
 }

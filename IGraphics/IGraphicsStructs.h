@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 #include <cmath>
@@ -22,7 +32,8 @@ class IGraphics;
 class IControl;
 struct IRECT;
 struct IMouseInfo;
-static double DegToRad(double deg);
+template <typename T = double>
+inline T DegToRad(T degrees);
 
 typedef std::function<void(IControl*)> IActionFunction;
 typedef std::function<void(IControl*)> IAnimationFunction;
@@ -116,7 +127,6 @@ private:
 class IBitmap
 {
 public:
-
   /** Creates a new IBitmap object
   * @param pData Pointer to the raw bitmap data
   * @param w Bitmap width (in pixels)
@@ -171,7 +181,6 @@ public:
   inline const WDL_String& GetResourceName() const { return mResourceName; }
 
 private:
-
   /** Pointer to the API specific bitmap */
   APIBitmap* mAPIBitmap;
   /** Bitmap width (in pixels) */
@@ -189,7 +198,7 @@ private:
 struct ISVG
 {
   NSVGimage* mImage = nullptr;
-
+  
   ISVG(NSVGimage* pImage)
   {
     mImage = pImage;
@@ -261,10 +270,10 @@ struct IColor
   
   static void LinearInterpolateBetween(const IColor& start, const IColor& dest, IColor& result, float progress)
   {
-    result.A = start.A + progress * (dest.A -  start.A);
-    result.R = start.R + progress * (dest.R -  start.R);
-    result.G = start.G + progress * (dest.G -  start.G);
-    result.B = start.B + progress * (dest.B -  start.B);
+    result.A = start.A + static_cast<int>(progress * static_cast<float>(dest.A -  start.A));
+    result.R = start.R + static_cast<int>(progress * static_cast<float>(dest.R -  start.R));
+    result.G = start.G + static_cast<int>(progress * static_cast<float>(dest.G -  start.G));
+    result.B = start.B + static_cast<int>(progress * static_cast<float>(dest.B -  start.B));
   }
 };
 
@@ -601,6 +610,20 @@ struct IText
     strcpy(mFont, (font ? font : DEFAULT_FONT));
   }
 
+  IText(int size, EVAlign valign)
+  : IText()
+  {
+    mSize = size;
+    mVAlign = valign;
+  }
+  
+  IText(int size, EAlign align)
+  : IText()
+  {
+    mSize = size;
+    mAlign = align;
+  }
+
   char mFont[FONT_LEN];
   int mSize;
   IColor mFGColor;
@@ -632,7 +655,7 @@ struct IRECT
   : L(l), R(r), T(t), B(b)
   {}
   
-  IRECT(float x, float y, IBitmap& bitmap)
+  IRECT(float x, float y, const IBitmap& bitmap)
   {
     L = x;
     T = y;
@@ -773,11 +796,21 @@ struct IRECT
       return SubRectHorizontal(numSlices, sliceIdx);
   }
   
-  inline IRECT GetRECTFromTLHC(float w, float h) { return IRECT(L, T, L+w, T+h); }
-  inline IRECT GetRECTFromBLHC(float w, float h) { return IRECT(L, B-h, L+w, B); }
-  inline IRECT GetRECTFromTRHC(float w, float h) { return IRECT(R-w, T, R, T+h); }
-  inline IRECT GetRECTFromBRHC(float w, float h) { return IRECT(R-w, B-h, R, B); }
+  inline IRECT GetFromTLHC(float w, float h) const { return IRECT(L, T, L+w, T+h); }
+  inline IRECT GetFromBLHC(float w, float h) const { return IRECT(L, B-h, L+w, B); }
+  inline IRECT GetFromTRHC(float w, float h) const { return IRECT(R-w, T, R, T+h); }
+  inline IRECT GetFromBRHC(float w, float h) const { return IRECT(R-w, B-h, R, B); }
 
+  inline IRECT GetFromTop(float amount) const { return IRECT(L, T, R, T+amount); }
+  inline IRECT GetFromBottom(float amount) const { return IRECT(L, B-amount, R, B); }
+  inline IRECT GetFromLeft(float amount) const { return IRECT(L, T, L+amount, B); }
+  inline IRECT GetFromRight(float amount) const { return IRECT(R-amount, T, R, B); }
+  
+  inline IRECT GetReducedFromTop(float amount) const { return IRECT(L, T+amount, R, B); }
+  inline IRECT GetReducedFromBottom(float amount) const { return IRECT(L, T, R, B-amount); }
+  inline IRECT GetReducedFromLeft(float amount) const { return IRECT(L+amount, T, R, B); }
+  inline IRECT GetReducedFromRight(float amount) const { return IRECT(L, T, R-amount, B); }
+  
   inline IRECT GetGridCell(int row, int col, int nRows, int nColumns/*, EDirection = kHorizontal*/) const
   {
     assert(row * col <= nRows * nColumns); // not enough cells !
@@ -933,7 +966,7 @@ struct IRECT
       B = rhs.B - 1;
     }
   }
-
+  
   void Scale(float scale)
   {
     L = std::floor(0.5f + (L * scale));
@@ -952,6 +985,16 @@ struct IRECT
     T = y - (hh * scale);
     R = x + (hw * scale);
     B = y + (hh * scale);
+  }
+  
+  IRECT GetScaledAboutCentre(float scale)
+  {
+    const float x = MW();
+    const float y = MH();
+    const float hw = W() / 2.f;
+    const float hh = H() / 2.f;
+    
+    return IRECT(x - (hw * scale), y - (hh * scale), x + (hw * scale), y + (hh * scale));
   }
   
   static void LinearInterpolateBetween(const IRECT& start, const IRECT& dest, IRECT& result, float progress)
@@ -1007,6 +1050,16 @@ struct IRECT
   IRECT GetShifted(float x, float y = 0.f) const
   {
     return IRECT(L + x, T + y, R + x, B + y);
+  }
+  
+  IRECT GetHShifted(float x) const
+  {
+    return GetShifted(x);
+  }
+  
+  IRECT GetVShifted(float y) const
+  {
+    return GetShifted(0., y);
   }
   
   IRECT GetShifted(float l, float t, float r, float b) const
@@ -1228,7 +1281,6 @@ template <class T>
 class StaticStorage
 {
 public:
-
   // djb2 hash function (hash * 33 + c) - see http://www.cse.yorku.ca/~oz/hash.html // TODO: can we use C++11 std::hash instead of this?
   uint32_t Hash(const char* str)
   {

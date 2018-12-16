@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 /**
@@ -374,6 +384,8 @@ public:
 
   IAnimationFunction GetAnimationFunction() { return mAnimationFunc; }
   
+  IAnimationFunction GetActionFunction() { return mActionFunc; }
+
   double GetAnimationProgress()
   {
     if(!mAnimationFunc)
@@ -447,7 +459,7 @@ private:
 class IBitmapBase
 {
 public:
-  IBitmapBase(IBitmap& bitmap, EBlendType blend = kBlendNone)
+  IBitmapBase(const IBitmap& bitmap, EBlendType blend = kBlendNone)
   : mBitmap(bitmap)
   , mBlend(blend)
   {
@@ -458,6 +470,11 @@ public:
   void GrayOut(bool gray)
   {
     mBlend.mWeight = (gray ? GRAYED_ALPHA : 1.0f);
+  }
+  
+  void SetBlend(const IBlend& blend)
+  {
+    mBlend = blend;
   }
 
 protected:
@@ -755,8 +772,13 @@ public:
   /** Creates a bitmap control
    * @param paramIdx Parameter index (-1 or kNoParameter, if this should not be linked to a parameter)
    * @param bitmap Image to be drawn */
-  IBitmapControl(IGEditorDelegate& dlg, float x, float y, IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendNone)
+  IBitmapControl(IGEditorDelegate& dlg, float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendNone)
   : IControl(dlg, IRECT(x, y, bitmap), paramIdx)
+  , IBitmapBase(bitmap, blend)
+  {}
+  
+  IBitmapControl(IGEditorDelegate& dlg, const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendNone)
+  : IControl(dlg, bounds, paramIdx)
   , IBitmapBase(bitmap, blend)
   {}
   
@@ -789,6 +811,11 @@ public:
   virtual void Draw(IGraphics& g) override
   {
     g.DrawSVG(mSVG, mRECT);
+  }
+  
+  void SetSVG(const ISVG& svg)
+  {
+    mSVG = svg;
   }
   
 private:
@@ -1064,7 +1091,7 @@ class ICornerResizerBase : public IControl
 {
 public:
   ICornerResizerBase(IGEditorDelegate& dlg, IRECT graphicsBounds, float size)
-  : IControl(dlg, graphicsBounds.GetRECTFromBRHC(size, size).GetPadded(-1))
+  : IControl(dlg, graphicsBounds.GetFromBRHC(size, size).GetPadded(-1))
   , mInitialGraphicsBounds(graphicsBounds)
   , mSize(size)
   {
@@ -1072,10 +1099,10 @@ public:
   
   void Draw(IGraphics& g) override
   {
-    if(GetMouseIsOver() | GetUI()->mResizingInProcess)
-      g.FillTriangle(COLOR_LIGHT_GRAY, mRECT.L, mRECT.B, mRECT.R, mRECT.T, mRECT.R, mRECT.B);
+    if(GetMouseIsOver() || GetUI()->mResizingInProcess)
+      g.FillTriangle(COLOR_BLACK, mRECT.L, mRECT.B, mRECT.R, mRECT.T, mRECT.R, mRECT.B);
     else
-      g.FillTriangle(COLOR_GRAY, mRECT.L, mRECT.B, mRECT.R, mRECT.T, mRECT.R, mRECT.B);
+      g.FillTriangle(COLOR_TRANSLUCENT, mRECT.L, mRECT.B, mRECT.R, mRECT.T, mRECT.R, mRECT.B);
   }
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
@@ -1089,7 +1116,7 @@ public:
   void OnRescale() override
   {
     float size = mSize * (1.f/GetUI()->GetScale());
-    IRECT r = GetUI()->GetBounds().GetRECTFromBRHC(size, size);
+    IRECT r = GetUI()->GetBounds().GetFromBRHC(size, size);
     SetTargetAndDrawRECTs(r);
   }
   

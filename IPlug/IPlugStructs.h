@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
 
@@ -245,9 +239,11 @@ struct IPlugConfig
   int uniqueID;
   int mfrID;
   int latency;
-  bool plugDoesMidi;
+  bool plugDoesMidiIn;
+  bool plugDoesMidiOut;
+  bool plugDoesMPE;
   bool plugDoesChunks;
-  bool plugIsInstrument;
+  int plugType;
   bool plugHasUI;
   int plugWidth;
   int plugHeight;
@@ -263,9 +259,11 @@ struct IPlugConfig
               int uniqueID,
               int mfrID,
               int latency,
-              bool plugDoesMidi,
+              bool plugDoesMidiIn,
+              bool plugDoesMidiOut,
+              bool plugDoesMPE,
               bool plugDoesChunks,
-              bool plugIsInstrument,
+              int plugType,
               bool plugHasUI,
               int plugWidth,
               int plugHeight,
@@ -281,9 +279,11 @@ struct IPlugConfig
   , uniqueID(uniqueID)
   , mfrID(mfrID)
   , latency(latency)
-  , plugDoesMidi(plugDoesMidi)
+  , plugDoesMidiIn(plugDoesMidiIn)
+  , plugDoesMidiOut(plugDoesMidiOut)
+  , plugDoesMPE(plugDoesMPE)
   , plugDoesChunks(plugDoesChunks)
-  , plugIsInstrument(plugIsInstrument)
+  , plugType(plugType)
   , plugHasUI(plugHasUI)
   , plugWidth(plugWidth)
   , plugHeight(plugHeight)

@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
 #include <cassert>
@@ -97,7 +91,7 @@ public:
   /** This is an OnParamChange that will only trigger on the UI thread at low priority, and therefore is appropriate for hiding or showing elements of the UI.
    * You should not update parameter objects using this method.
    * @param paramIdx The index of the parameter that changed */
-  virtual void OnParamChangeUI(int paramIdx, EParamSource source) {};
+  virtual void OnParamChangeUI(int paramIdx, EParamSource source = kUnknown) {};
   
   /** Handle incoming MIDI messages sent to the user interface
    * @param msg The MIDI message to process  */
@@ -230,18 +224,13 @@ public:
   /** @return Any scaling applied to the UI  */
   float GetEditorScale() const { return mEditorScale; }
   
-  /** @return Get the editor layout index (if used) */
-  int GetEditorLayout() const { return mEditorLayoutIdx; }
-  
 protected:
-  /** The width of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance.  */
+  /** The width of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist.  */
   int mEditorWidth = 0;
-  /** The height of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance.*/
+  /** The height of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist*/
   int mEditorHeight = 0;
-  /** Any scaling of the plug-in editor. Can be updated by resizing, exists here for persistance.*/
+  /** Any scaling of the plug-in editor. Can be updated by resizing, exists here for persistance, even if UI doesn't exist*/
   float mEditorScale = 1.f;
-  /* An index representing one of several UI layouts for the editor, if needed, exists here for persistance */
-  int mEditorLayoutIdx = 0;
   /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plug-in class implementation constructor */
   WDL_PtrList<IParam> mParams;
 };

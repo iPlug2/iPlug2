@@ -1,14 +1,29 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #include "IControls.h"
 
 #pragma mark - VECTOR CONTROLS
 
-IVButtonControl::IVButtonControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc, const char* str, const IVColorSpec& colorSpec)
+const IColor IVKeyboardControl::DEFAULT_BK_COLOR = IColor(255, 70, 70, 70);
+const IColor IVKeyboardControl::DEFAULT_WK_COLOR = IColor(255, 240, 240, 240);
+const IColor IVKeyboardControl::DEFAULT_PK_COLOR = IColor(60, 0, 0, 0);
+const IColor IVKeyboardControl::DEFAULT_FR_COLOR = DEFAULT_BK_COLOR;
+
+IVButtonControl::IVButtonControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc, const char* str, const IText& text, const IVColorSpec& colorSpec)
 : IButtonControlBase(dlg, bounds, actionFunc)
 , IVectorBase(colorSpec)
 {
   AttachIControl(this);
   mDblAsSingleClick = true;
-  mText.mSize = 20; //FIXME: text size
+  mText = text;
   mStr.Set(str);
 }
 
@@ -107,26 +122,44 @@ void IVRadioButtonControl::OnResize()
 }
 
 IVKnobControl::IVKnobControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx,
-                             const IVColorSpec& colorSpec,
-                             float aMin, float aMax,
+                             const char* label, bool displayParamValue,
+                             const IVColorSpec& colorSpec, const IText& labelText, const IText& valueText,
+                             float aMin, float aMax, float knobFrac,
                              EDirection direction, double gearing)
 : IKnobControlBase(dlg, bounds, paramIdx, direction, gearing)
 , IVectorBase(colorSpec)
 , mAngleMin(aMin)
 , mAngleMax(aMax)
+, mLabel(label)
+, mDisplayParamValue(displayParamValue)
+, mLabelText(labelText)
+, mKnobFrac(knobFrac)
 {
+  if(mDisplayParamValue)
+    DisablePrompt(false);
+  
+  mValueText = valueText;
   AttachIControl(this);
 }
 
 IVKnobControl::IVKnobControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunction,
-              const IVColorSpec& colorSpec,
-              float aMin, float aMax,
-              EDirection direction, double gearing)
+                             const char* label, bool displayParamValue,
+                             const IVColorSpec& colorSpec, const IText& labelText, const IText& valueText,
+                             float aMin, float aMax, float knobFrac,
+                             EDirection direction, double gearing)
 : IKnobControlBase(dlg, bounds, kNoParameter, direction, gearing)
 , IVectorBase(colorSpec)
 , mAngleMin(aMin)
 , mAngleMax(aMax)
+, mLabel(label)
+, mDisplayParamValue(displayParamValue)
+, mLabelText(labelText)
+, mKnobFrac(knobFrac)
 {
+  if(mDisplayParamValue)
+    DisablePrompt(false);
+  
+  mValueText = valueText;
   SetActionFunction(actionFunction);
   AttachIControl(this);
 }
@@ -134,14 +167,12 @@ IVKnobControl::IVKnobControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunctio
 void IVKnobControl::Draw(IGraphics& g)
 {
   g.FillRect(GetColor(kBG), mRECT);
-  IRECT handleBounds = GetAdjustedHandleBounds(mRECT);
-  handleBounds.ScaleAboutCentre(0.8f);
 
   const float v = mAngleMin + ((float)mValue * (mAngleMax - mAngleMin));
-  const float cx = handleBounds.MW(), cy = handleBounds.MH();
-  const float radius = (handleBounds.W()/2.f);
+  const float cx = mHandleBounds.MW(), cy = mHandleBounds.MH();
+  const float radius = (mHandleBounds.W()/2.f);
 
-  g.DrawArc(GetColor(kFR), cx, cy, (mRECT.W()/2.f) - 5.f, mAngleMin, v, 0, 3.f);
+  g.DrawArc(GetColor(kFR), cx, cy, radius + 5.f, mAngleMin, v, 0, 3.f);
   
   if(mDrawShadows && !mEmboss)
     g.FillCircle(GetColor(kSH), cx + mShadowOffset, cy + mShadowOffset, radius);
@@ -155,6 +186,90 @@ void IVKnobControl::Draw(IGraphics& g)
   
   g.DrawCircle(GetColor(kFR), cx, cy, radius, 0, mFrameThickness);
   g.DrawRadialLine(GetColor(kFR), cx, cy, v, 0.7f * radius, 0.9f * radius, 0, mFrameThickness);
+  
+  if(mLabelBounds.H())
+    g.DrawText(mLabelText, mLabel.Get(), mLabelBounds);
+  
+  if(mDisplayParamValue)
+  {
+    WDL_String str;
+    GetParam()->GetDisplayForHost(str);
+    
+    if (mShowParamLabel)
+    {
+      str.Append(" ");
+      str.Append(GetParam()->GetLabelForHost());
+    }
+    
+    g.DrawText(mValueText, str.Get(), mValueBounds);
+  }
+}
+
+void IVKnobControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  if(mDisplayParamValue && mValueBounds.Contains(x, y))
+  {
+    PromptUserInput(mValueBounds);
+  }
+  else
+    IKnobControlBase::OnMouseDown(x, y, mod);
+}
+
+void IVKnobControl::OnResize()
+{
+  IRECT clickableArea;
+  
+  if(mLabel.GetLength())
+  {
+    IRECT textRect;
+    GetUI()->MeasureText(mLabelText, mLabel.Get(), textRect);
+    
+    mLabelBounds = mRECT.GetFromTop(textRect.H());
+  }
+  else
+    mLabelBounds = IRECT();
+  
+  if(mLabelBounds.H())
+    clickableArea = mRECT.GetReducedFromTop(mLabelBounds.H());
+  else
+    clickableArea = mRECT;
+
+  if (mDisplayParamValue)
+  {
+    IRECT textRect;
+    WDL_String str;
+    GetParam()->GetDisplayForHost(str);
+    
+    GetUI()->MeasureText(mValueText, str.Get(), textRect);
+    
+    const float valueDisplayWidth = clickableArea.W() * mKnobFrac * 0.5f;
+    switch (mValueText.mVAlign)
+    {
+      case IText::kVAlignMiddle:
+        mHandleBounds = clickableArea;
+        mValueBounds = clickableArea.GetMidVPadded(textRect.H()/2.).GetMidHPadded(valueDisplayWidth);
+        break;
+      case IText::kVAlignBottom:
+      {
+        mValueBounds = clickableArea.GetFromBottom(textRect.H()).GetMidHPadded(valueDisplayWidth);
+        mHandleBounds = clickableArea.GetReducedFromBottom(textRect.H());
+        break;
+      }
+      case IText::kVAlignTop:
+        mValueBounds = clickableArea.GetFromTop(textRect.H()).GetMidHPadded(valueDisplayWidth);
+        mHandleBounds = clickableArea.GetReducedFromTop(textRect.H());
+        break;
+      default:
+        break;
+    }
+    
+    if(mValueBounds.W() < textRect.W())
+      mValueBounds = mValueBounds.GetMidHPadded(mTargetRECT.W()/2.);
+  }
+  
+  mHandleBounds = GetAdjustedHandleBounds(mTargetRECT).GetScaledAboutCentre(mKnobFrac);
+  
+  SetDirty(false);
 }
 
 void IVSliderControl::Draw(IGraphics& g)
@@ -222,7 +337,7 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   SetDirty();
 }
 
-IBSliderControl::IBSliderControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IBitmap& bitmap,
+IBSliderControl::IBSliderControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, const IBitmap& bitmap,
                                  EDirection dir, bool onlyHandle)
 : ISliderControlBase(dlg, bounds, paramIdx, dir, onlyHandle)
 , IBitmapBase(bitmap)
@@ -230,7 +345,7 @@ IBSliderControl::IBSliderControl(IGEditorDelegate& dlg, IRECT bounds, int paramI
   mTrack = bounds; // TODO: check
 }
 
-IBSliderControl::IBSliderControl(IGEditorDelegate& dlg, float x, float y, int len, int paramIdx, IBitmap& bitmap, EDirection dir, bool onlyHandle)
+IBSliderControl::IBSliderControl(IGEditorDelegate& dlg, float x, float y, int len, int paramIdx, const IBitmap& bitmap, EDirection dir, bool onlyHandle)
 : ISliderControlBase(dlg, IRECT(x, y, x + bitmap.W(), y + len), paramIdx)
 , IBitmapBase(bitmap)
 {

@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #include "IGraphicsCanvas.h"
 #include <string>
 #include <stdio.h>
@@ -212,7 +222,7 @@ void IGraphicsCanvas::SetCanvasBlendMode(const IBlend* pBlend)
   }
 }
 
-bool IGraphicsCanvas::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
   // TODO: orientation
   val context = GetContext();
@@ -222,7 +232,7 @@ bool IGraphicsCanvas::DrawText(const IText& text, const char* str, IRECT& bounds
   const char* styles[] = { "normal", "bold", "italic" };
   context.set("textBaseline", std::string("top"));
   val font = context["font"];
-  sprintf(fontString, "%s %dpt %s", styles[text.mStyle], text.mSize, text.mFont);
+  sprintf(fontString, "%s %dpx %s", styles[text.mStyle], text.mSize, text.mFont);
   context.set("font", std::string(fontString));
   double textWidth = context.call<val>("measureText", textString)["width"].as<double>();
   double textHeight = EM_ASM_DOUBLE({
@@ -231,7 +241,7 @@ bool IGraphicsCanvas::DrawText(const IText& text, const char* str, IRECT& bounds
   
   if (measure)
   {
-    bounds = IRECT(0, 0, (float) textWidth, (float) textHeight * 1.3); // FIXME bodge for canvas text height!
+    bounds = IRECT(0, 0, (float) textWidth, (float) textHeight);
     return true;
   }
   else
@@ -264,11 +274,6 @@ bool IGraphicsCanvas::DrawText(const IText& text, const char* str, IRECT& bounds
   }
   
   return true;
-}
-
-bool IGraphicsCanvas::MeasureText(const IText& text, const char* str, IRECT& bounds)
-{
-  return DrawText(text, str, bounds, 0, true);
 }
 
 void IGraphicsCanvas::PathTransformSetMatrix(const IMatrix& m)

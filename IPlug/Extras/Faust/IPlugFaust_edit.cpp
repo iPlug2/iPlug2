@@ -14,12 +14,17 @@
 #include "win32_utf8.h"
 #include "wdlcstring.h"
 
-#define IDC_CUSTOM1                     1011
+#define IDC_CURSES                     1011
 #define IDC_BUTTON1                     1012
-#define IDD_DIALOG_MAIN                 40001
+#define IDD_DIALOG_FAUST_EDIT           80001
 
 //TODO: these should be members
+#ifdef APP_API
+extern HWND gHWND;
+#else
 HWND gHWND;
+#endif
+WDL_String g_file;
 win32CursesCtx g_curses_context;
 FaustCursesEditor g_editor {&g_curses_context};
 
@@ -30,9 +35,12 @@ extern HWND curses_ControlCreator(HWND parent, const char *cname, int idx, const
 
 void OpenFaustEditorWindow(const char* file)
 {
-  if(!g_windowIsOpen) {
+  g_file.Set(file);
+  
+  if(!g_windowIsOpen)
+  {
     SWELL_RegisterCustomControlCreator(curses_ControlCreator);
-    HWND hwnd = CreateDialog(NULL, MAKEINTRESOURCE(IDD_DIALOG_MAIN), NULL, mainDlgProc);
+    HWND hwnd = CreateDialog(NULL, MAKEINTRESOURCE(IDD_DIALOG_FAUST_EDIT), NULL, mainDlgProc);
     ShowWindow(hwnd, SW_SHOW);
   }
   
@@ -46,13 +54,8 @@ WDL_DLGRET mainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_INITDIALOG:
     {
       gHWND = hwndDlg;
-      curses_setWindowContext(GetDlgItem(gHWND, IDC_CUSTOM1), &g_curses_context);
-//      
-//      if(g_windowIsOpen)
-//      {
-//      }
-
-      g_editor.init("/Users/oli/Dev/MyPlugins/Examples/IPlugFaustExample/IPlugFaustExample.dsp");
+      curses_setWindowContext(GetDlgItem(gHWND, IDC_CURSES), &g_curses_context);
+      g_editor.init(g_file.Get(), "iPlug 2 FAUST Editor");
       g_editor.draw();
       
       ShowWindow(gHWND, SW_SHOW);
@@ -60,7 +63,7 @@ WDL_DLGRET mainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
       
       RECT r;
       GetClientRect(hwndDlg,&r);
-      SetWindowPos(GetDlgItem(hwndDlg, IDC_CUSTOM1),NULL,0,0,r.right,r.bottom,SWP_NOZORDER|SWP_NOACTIVATE);
+      SetWindowPos(GetDlgItem(hwndDlg, IDC_CURSES),NULL,0,0,r.right,r.bottom,SWP_NOZORDER|SWP_NOACTIVATE);
       
       g_windowIsOpen = true;
       break;
@@ -76,14 +79,14 @@ WDL_DLGRET mainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_TIMER:
     {
       g_editor.RunEditor();
-      InvalidateRect(GetDlgItem(hwndDlg, IDC_CUSTOM1), NULL, FALSE);
+      InvalidateRect(GetDlgItem(hwndDlg, IDC_CURSES), NULL, FALSE);
       break;
     }
     case WM_SIZE:
     {
       RECT r;
       GetClientRect(hwndDlg,&r);
-      SetWindowPos(GetDlgItem(hwndDlg, IDC_CUSTOM1), NULL, 0, 0, r.right, r.bottom, SWP_NOZORDER|SWP_NOACTIVATE);
+      SetWindowPos(GetDlgItem(hwndDlg, IDC_CURSES), NULL, 0, 0, r.right, r.bottom, SWP_NOZORDER|SWP_NOACTIVATE);
       break;
     }
   }
@@ -104,17 +107,17 @@ WDL_DLGRET mainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 #define SWELL_DLG_FLAGS_AUTOGEN SWELL_DLG_WS_FLIPPED|SWELL_DLG_WS_NOAUTOSIZE
 #endif
 
-#ifndef SET_IDD_DIALOG_MAIN_SCALE
-#define SET_IDD_DIALOG_MAIN_SCALE SWELL_DLG_SCALE_AUTOGEN
+#ifndef SET_IDD_DIALOG_FAUST_EDIT_SCALE
+#define SET_IDD_DIALOG_FAUST_EDIT_SCALE SWELL_DLG_SCALE_AUTOGEN
 #endif
-#ifndef SET_IDD_DIALOG_MAIN_STYLE
-#define SET_IDD_DIALOG_MAIN_STYLE SWELL_DLG_FLAGS_AUTOGEN
+#ifndef SET_IDD_DIALOG_FAUST_EDIT_STYLE
+#define SET_IDD_DIALOG_FAUST_EDIT_STYLE SWELL_DLG_FLAGS_AUTOGEN
 #endif
-SWELL_DEFINE_DIALOG_RESOURCE_BEGIN(IDD_DIALOG_MAIN,SET_IDD_DIALOG_MAIN_STYLE,"Faust Editor",300,300,SET_IDD_DIALOG_MAIN_SCALE)
+SWELL_DEFINE_DIALOG_RESOURCE_BEGIN(IDD_DIALOG_FAUST_EDIT,SET_IDD_DIALOG_FAUST_EDIT_STYLE,"Faust Editor",300,300,SET_IDD_DIALOG_FAUST_EDIT_SCALE)
 BEGIN
-CONTROL         "Custom1",IDC_CUSTOM1,"WDLCursesWindow",WS_TABSTOP,0,32,299,268
+CONTROL         "Curses",IDC_CURSES,"WDLCursesWindow",WS_TABSTOP,0,32,299,268
 END
-SWELL_DEFINE_DIALOG_RESOURCE_END(IDD_DIALOG_MAIN)
+SWELL_DEFINE_DIALOG_RESOURCE_END(IDD_DIALOG_FAUST_EDIT)
 #undef BEGIN
 #undef END
 #endif
@@ -157,18 +160,6 @@ int FaustCursesEditor::namedTokenHighlight(const char *tokStart, int len, int st
 //    lstrcpyn_safe(buf,tokStart,wdl_min(sizeof(buf),len+1));
 //    char **r=m_added_funclist->GetPtr(buf);
 //    if (r) return *r ? SYNTAX_FUNC : SYNTAX_REGVAR;
-//  }
-//
-//  NSEEL_VMCTX vm = peek_want_VM_funcs() ? peek_get_VM() : NULL;
-//  int x;
-//  for(x=0;;x++)
-//  {
-//    functionType *f = nseel_getFunctionFromTableEx((compileContext*)vm,x);
-//    if (!f) break;
-//    if (f && !strnicmp(tokStart,f->name,len) && (int)strlen(f->name) == len)
-//    {
-//      return SYNTAX_FUNC;
-//    }
 //  }
   return A_NORMAL;
 }
@@ -443,7 +434,6 @@ int FaustCursesEditor::do_draw_line(const char *p, int *c_comment_state, int las
     return len-m_offs_x < COLS;
   }
 
-
   // syntax highlighting
   const char *endptr = p+strlen(p);
   const char *tok;
@@ -682,7 +672,7 @@ int FaustCursesEditor::GetCommentStateForLineStart(int line)
   return state;
 }
 
-static const char *nseel_skip_space_and_comments(const char *p, const char *endptr)
+static const char *faust_skip_space_and_comments(const char *p, const char *endptr)
 {
   for (;;)
   {
@@ -704,7 +694,7 @@ static const char *nseel_skip_space_and_comments(const char *p, const char *endp
   }
 }
 
-const char *nseel_simple_tokenizer(const char **ptr, const char *endptr, int *lenOut, int *state)
+const char *faust_simple_tokenizer(const char **ptr, const char *endptr, int *lenOut, int *state)
 {
   const char *p = *ptr;
   const char *rv = p;
@@ -714,13 +704,11 @@ const char *nseel_simple_tokenizer(const char **ptr, const char *endptr, int *le
   {
     if (*state == 1) goto in_comment;
     
-#ifndef NSEEL_EEL1_COMPAT_MODE
     if (*state == '\'' || *state == '\"')
     {
       delim = (char)*state;
       goto in_string;
     }
-#endif
     
     // skip any whitespace
     while (p < endptr && isspace(p[0])) p++;
@@ -728,7 +716,7 @@ const char *nseel_simple_tokenizer(const char **ptr, const char *endptr, int *le
   else
   {
     // state not passed, skip comments (do not return them as tokens)
-    p = nseel_skip_space_and_comments(p,endptr);
+    p = faust_skip_space_and_comments(p,endptr);
   }
   
   if (p >= endptr)
@@ -774,7 +762,6 @@ const char *nseel_simple_tokenizer(const char **ptr, const char *endptr, int *le
     p++;
     while (p < endptr && (isalnum(*p) || *p == '_' || *p == '.')) p++;
   }
-#ifndef NSEEL_EEL1_COMPAT_MODE
 //  else if (*p == '\'' || *p == '\"') // OL FAUST
   else if (*p == '\"')
   {
@@ -793,7 +780,6 @@ const char *nseel_simple_tokenizer(const char **ptr, const char *endptr, int *le
       }
     }
   }
-#endif
   else
   {
     p++;
@@ -805,7 +791,7 @@ const char *nseel_simple_tokenizer(const char **ptr, const char *endptr, int *le
 
 const char *FaustCursesEditor::sh_tokenize(const char **ptr, const char *endptr, int *lenOut, int *state)
 {
-  return nseel_simple_tokenizer(ptr, endptr, lenOut, state); //TODO: sh_tokenize
+  return faust_simple_tokenizer(ptr, endptr, lenOut, state); //TODO: sh_tokenize
 }
 
 
@@ -1164,307 +1150,26 @@ int FaustCursesEditor::peek_get_function_info(const char *name, char *sstr, size
     }
   }
 
-//  if (chkmask & 1)
-//  {
-//    peek_lock();
-//    NSEEL_VMCTX vm = peek_want_VM_funcs() ? peek_get_VM() : NULL;
-//    for (int x=0;;x++)
-//    {
-//      functionType *f = nseel_getFunctionFromTableEx((compileContext*)vm,x);
-//      if (!f) break;
-//      if (f && !stricmp(name,f->name))
-//      {
-//        snprintf(sstr,sstr_sz,"'%s' is a function that requires %d parameters", f->name,f->nParams&0xff);
-//        peek_unlock();
-//        return 1;
-//      }
-//    }
-//    peek_unlock();
-//  }
-
   return 0;
 }
+
 bool FaustCursesEditor::peek_get_variable_info(const char *name, char *sstr, size_t sstr_sz)
 {
   peek_lock();
-//  NSEEL_VMCTX vm = peek_get_VM();
-//  EEL_F *vptr=NSEEL_VM_getvar(vm,name);
-//  double v=0.0;
-//  if (vptr) v=*vptr;
-//  peek_unlock();
-//
-//  if (!vptr)  return false;
-//
-//  int good_len=-1;
-//  snprintf(sstr,sstr_sz,"%s=%.14f",name,v);
-//
-//  if (vm && v > -1.0 && v < NSEEL_RAM_ITEMSPERBLOCK*NSEEL_RAM_BLOCKS)
-//  {
-//    const unsigned int w = (unsigned int) (v+NSEEL_CLOSEFACTOR);
-//    EEL_F *dv = NSEEL_VM_getramptr_noalloc(vm,w,NULL);
-//    if (dv)
-//    {
-//      snprintf_append(sstr,sstr_sz," [0x%06x]=%.14f",w,*dv);
-//      good_len=-2;
-//    }
-//    else
-//    {
-//      good_len = strlen(sstr);
-//      snprintf_append(sstr,sstr_sz," [0x%06x]=<uninit>",w);
-//    }
-//  }
-
-//  char buf[512];
-//  buf[0]=0;
-//  if (peek_get_numbered_string_value(v,buf,sizeof(buf)))
-//  {
-//    if (good_len==-2)
-//      snprintf_append(sstr,sstr_sz," %.0f(str)=%s",v,buf);
-//    else
-//    {
-//      if (good_len>=0) sstr[good_len]=0; // remove [addr]=<uninit> if a string and no ram
-//      snprintf_append(sstr,sstr_sz," (str)=%s",buf);
-//    }
-//  }
+  //TODO
+  
   return true;
 }
 
 void FaustCursesEditor::doWatchInfo(int c)
 {
-    // determine the word we are on, check its value in the effect
-  char sstr[512], buf[512];
-  lstrcpyn_safe(sstr,"Use this on a valid symbol name", sizeof(sstr));
-  WDL_FastString *t=m_text.Get(m_curs_y);
-  char curChar=0;
-  if (t)
-  {
-    const char *p=t->Get();
-    const int bytex = WDL_utf8_charpos_to_bytepos(p,m_curs_x);
-    if (bytex >= 0 && bytex < t->GetLength()) curChar = p[bytex];
-    if (c != KEY_F1 && (m_selecting || 
-             curChar == '(' || 
-             curChar == '[' ||
-             curChar == ')' ||
-             curChar == ']'
-             ))
-    {
-      WDL_FastString code;
-      int miny,maxy,minx,maxx;
-      bool ok = false;
-      if (!m_selecting)
-      {
-        if (eel_sh_get_matching_pos_for_pos(&m_text,minx=m_curs_x,miny=m_curs_y,&maxx, &maxy,NULL,this))
-        {
-          if (maxy==miny)
-          {
-            if (maxx < minx)
-            {
-              int tmp = minx;
-              minx=maxx;
-              maxx=tmp;
-            }
-          }
-          else if (maxy < miny)
-          {
-            int tmp=maxy;
-            maxy=miny;
-            miny=tmp;
-            tmp = minx;
-            minx=maxx;
-            maxx=tmp;
-          }
-          ok = true;
-          minx++; // skip leading (
-        }
-      }
-      else
-      {
-        ok=true; 
-        getselectregion(minx,miny,maxx,maxy); 
-        WDL_FastString *s;
-        s = m_text.Get(miny);
-        if (s) minx = WDL_utf8_charpos_to_bytepos(s->Get(),minx);
-        s = m_text.Get(maxy);
-        if (s) maxx = WDL_utf8_charpos_to_bytepos(s->Get(),maxx);
-      }
-
-      if (ok)
-      {
-        int x;
-        for (x = miny; x <= maxy; x ++)
-        {
-          WDL_FastString *s=m_text.Get(x);
-          if (s) 
-          {
-            const char *str=s->Get();
-            int sx,ex;
-            if (x == miny) sx=wdl_max(minx,0);
-            else sx=0;
-            int tmp=s->GetLength();
-            if (sx > tmp) sx=tmp;
-      
-            if (x == maxy) ex=wdl_min(maxx,tmp);
-            else ex=tmp;
-      
-            if (code.GetLength()) code.Append("\r\n");
-            code.Append(ex-sx?str+sx:"",ex-sx);
-          }
-        }
-      }
-      if (code.Get()[0])
-      {
-//        if (m_selecting && (GetAsyncKeyState(VK_SHIFT)&0x8000))
-//        {
-//          peek_lock();
-//          NSEEL_CODEHANDLE ch;
-//          NSEEL_VMCTX vm = peek_get_VM();
-//
-//          if (vm && (ch = NSEEL_code_compile_ex(vm,code.Get(),1,0)))
-//          {
-//            codeHandleType *p = (codeHandleType*)ch;
-//            code.Ellipsize(3,20);
-//            const char *errstr = "failed writing to";
-//            if (p->code)
-//            {
-//              buf[0]=0;
-//              GetTempPath(sizeof(buf)-64,buf);
-//              lstrcatn(buf,"jsfx-out",sizeof(buf));
-//              FILE *fp = fopen(buf,"wb");
-//              if (fp)
-//              {
-//                errstr="wrote to";
-//                fwrite(p->code,1,p->code_size,fp);
-//                fclose(fp);
-//              }
-//            }
-//            snprintf(sstr,sizeof(sstr),"Expression '%s' compiled to %d bytes, %s temp/jsfx-out",code.Get(),p->code_size, errstr);
-//            NSEEL_code_free(ch);
-//          }
-//          else
-//          {
-//            code.Ellipsize(3,20);
-//            snprintf(sstr,sizeof(sstr),"Expression '%s' could not compile",code.Get());
-//          }
-//          peek_unlock();
-//        }
-//        else
-//        {
-//          WDL_FastString code2;
-//          code2.Set("__debug_watch_value = (((((");
-//          code2.Append(code.Get());
-//          code2.Append(")))));");
-//
-//          peek_lock();
-//
-//          NSEEL_VMCTX vm = peek_get_VM();
-//
-//          EEL_F *vptr=NULL;
-//          double v=0.0;
-//          const char *err="Invalid context";
-//          if (vm)
-//          {
-//            NSEEL_CODEHANDLE ch = NSEEL_code_compile_ex(vm,code2.Get(),1,0);
-//            if (!ch) err = "Error parsing";
-//            else
-//            {
-//              NSEEL_code_execute(ch);
-//              NSEEL_code_free(ch);
-//              vptr = NSEEL_VM_getvar(vm,"__debug_watch_value");
-//              if (vptr) v = *vptr;
-//            }
-//          }
-//
-//          peek_unlock();
-//
-//          {
-//            // remove whitespace from code for display
-//            int x;
-//            bool lb=true;
-//            for (x=0;x<code.GetLength();x++)
-//            {
-//              if (isspace(code.Get()[x]))
-//              {
-//                if (lb) code.DeleteSub(x--,1);
-//                lb=true;
-//              }
-//              else
-//              {
-//                lb=false;
-//              }
-//            }
-//            if (lb && code.GetLength()>0) code.SetLen(code.GetLength()-1);
-//          }
-//
-//          code.Ellipsize(3,20);
-//          if (vptr)
-//          {
-//            snprintf(sstr,sizeof(sstr),"Expression '%s' evaluates to %.14f",code.Get(),v);
-//          }
-//          else
-//          {
-//            snprintf(sstr,sizeof(sstr),"Error evaluating '%s': %s",code.Get(),err?err:"Unknown error");
-//          }
-//        }
-      }
-      // compile+execute code within () as debug_watch_value = ( code )
-      // show value (or err msg)
-    }
-    else if (curChar>0 && (isalnum(curChar) || curChar == '_' || curChar == '.' || curChar == '#')) 
-    {
-      const int bytex = WDL_utf8_charpos_to_bytepos(p,m_curs_x);
-      const char *lp=p+bytex;
-      const char *rp=lp + WDL_utf8_charpos_to_bytepos(lp,1);
-      while (lp >= p && *lp > 0 && (isalnum(*lp) || *lp == '_' || (*lp == '.' && (lp==p || lp[-1]!='.')))) lp--;
-      if (lp < p || *lp != '#') lp++;
-      while (*rp && *rp > 0 && (isalnum(*rp) || *rp == '_' || (*rp == '.' && rp[1] != '.'))) rp++;
-
-      if (*lp == '#' && rp > lp+1)
-      {
-        WDL_FastString n;
-        lp++;
-        n.Set(lp,(int)(rp-lp));
-        int idx;
-        if ((idx=peek_get_named_string_value(n.Get(),buf,sizeof(buf)))>=0) snprintf(sstr,sizeof(sstr),"#%s(%d)=%s",n.Get(),idx,buf);
-        else snprintf(sstr,sizeof(sstr),"#%s not found",n.Get());
-      }
-      else if (*lp > 0 && (isalpha(*lp) || *lp == '_') && rp > lp)
-      {
-        WDL_FastString n;
-        n.Set(lp,(int)(rp-lp));
-
-        if (c==KEY_F1)
-        {
-          on_help(n.Get(),0);
-          return;
-        }
-
-        int f = peek_get_function_info(n.Get(),sstr,sizeof(sstr),~0,-1);
-
-        if (!f) f = peek_get_variable_info(n.Get(),sstr,sizeof(sstr))?1:0;
-        if (!f) snprintf(sstr,sizeof(sstr),"'%s' NOT FOUND",n.Get());
-      }
-    }
-  }
-  if (c==KEY_F1)
-  {
-    on_help(NULL,(int)curChar);
-    return;
-  }
-
-  setCursor();
-  draw_message(sstr);
 }
-
 
 void FaustCursesEditor::draw_bottom_line()
 {
 #define BOLD(x) { attrset(COLOR_BOTTOMLINE|A_BOLD); addstr(x); attrset(COLOR_BOTTOMLINE&~A_BOLD); }
   addstr("ma"); BOLD("T"); addstr("ch");
   BOLD(" S"); addstr("ave");
-  if (peek_get_VM())
-  {
-    addstr(" pee"); BOLD("K");
-  }
   if (GetTabCount()>1)
   {
     addstr(" | tab: ");

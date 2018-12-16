@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 #include <windows.h>
@@ -32,7 +42,7 @@ public:
   void UpdateTooltips() override {}
 
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
-  void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext) override;
+  void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext) override;
   void PromptForDirectory(WDL_String& dir) override;
   bool PromptForColor(IColor& color, const char* str) override;
 
