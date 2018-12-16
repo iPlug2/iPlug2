@@ -241,7 +241,7 @@ bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
   
   if (measure)
   {
-    bounds = IRECT(0, 0, (float) textWidth, (float) textHeight); // FIXME bodge for canvas text height!
+    bounds = IRECT(0, 0, (float) textWidth, (float) textHeight);
     return true;
   }
   else
