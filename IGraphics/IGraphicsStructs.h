@@ -53,11 +53,6 @@ typedef std::chrono::duration<double, std::chrono::milliseconds::period> Millise
  * @{
  */
 
-/** APIBitmap is a wrapper around the different drawing backend bitmap representations.
- * In most cases it does own the bitmap data, the exception being with NanoVG, where the image is loaded onto the GPU as a texture,
- * but still needs to be freed
- */
-
 #ifdef IGRAPHICS_AGG
   #include "IGraphicsAGG_src.h"
   typedef agg::pixel_map* BitmapData;
@@ -81,6 +76,11 @@ typedef std::chrono::duration<double, std::chrono::milliseconds::period> Millise
 #else // NO_IGRAPHICS
   typedef void* BitmapData;
 #endif
+
+/** APIBitmap is a wrapper around the different drawing backend bitmap representations.
+ * In most cases it does own the bitmap data, the exception being with NanoVG, where the image is loaded onto the GPU as a texture,
+ * but still needs to be freed
+ */
 
 class APIBitmap
 {
