@@ -390,7 +390,8 @@ public:
 
   void PathClipRegion(const IRECT r = IRECT()) override
   {
-    IRECT clip = r.Intersect(mClipRECT);
+    IRECT drawArea = mLayers.empty() ? mClipRECT : mLayers.top()->Bounds();
+    IRECT clip = r.Intersect(drawArea);
     PathTransformSetMatrix(IMatrix());
     SetClipRegion(clip);
     PathTransformSetMatrix(mTransform);
@@ -527,9 +528,10 @@ private:
   
 private:
   
-  void ClipRegion(const IRECT& r) override
+  void PrepareRegion(const IRECT& r) override
   {
     PathTransformReset(true);
+    PathClear();
     SetClipRegion(r);
     mClipRECT = r;
   }

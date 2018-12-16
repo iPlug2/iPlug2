@@ -388,6 +388,9 @@ void IGraphicsLice::StartLayer(const IRECT& r)
 {
   mLayers.push(new ILayer(CreateAPIBitmap(r.W(), r.H()), r));
   UpdateDrawBitmap();
+  PathTransformReset(true);
+  PathClipRegion(r);
+  PathClear();
 }
 
 std::unique_ptr<ILayer> IGraphicsLice::EndLayer()
@@ -401,6 +404,9 @@ std::unique_ptr<ILayer> IGraphicsLice::EndLayer()
   }
 
   UpdateDrawBitmap();
+  PathTransformReset(true);
+  PathClipRegion();
+  PathClear();
     
   return std::unique_ptr<ILayer>(pLayer);
 }

@@ -332,7 +332,8 @@ void IGraphicsCairo::StartLayer(const IRECT& r)
   cairo_surface_set_device_offset(mLayers.top()->GetAPIBitmap()->GetBitmap(), -r.L * scale, -r.T * scale);
   UpdateCairoContext();
   PathTransformReset(true);
-  SetClipRegion(r);
+  PathClipRegion(r);
+  PathClear();
 }
 
 std::unique_ptr<ILayer> IGraphicsCairo::EndLayer()
@@ -349,6 +350,7 @@ std::unique_ptr<ILayer> IGraphicsCairo::EndLayer()
   UpdateCairoContext();
   PathTransformReset(true);
   PathClipRegion();
+  PathClear();
   
   return std::unique_ptr<ILayer>(pLayer);
 }

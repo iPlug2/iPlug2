@@ -507,9 +507,9 @@ public:
 
 private:
     
-  /** This is overridden in some IGraphics drawing classes to clip drawing to a rectangular region
-   * @param bounds The rectangular region to clip  */
-  inline virtual void ClipRegion(const IRECT& bounds) {};
+  /** This is used to prepare a particular area of the display for drawing, normally resulting in clipping of the region.
+   * @param bounds The rectangular region to prepare  */
+  virtual void PrepareRegion(const IRECT& bounds) = 0;
  
 public:
     

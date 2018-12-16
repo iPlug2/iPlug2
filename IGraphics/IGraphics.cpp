@@ -630,7 +630,7 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, bool always
     if (clipBounds.W() <= 0.0 || clipBounds.H() <= 0)
       return;
     
-    ClipRegion(clipBounds);
+    PrepareRegion(clipBounds);
     pControl->Draw(*this);
     
 #ifdef AAX_API
@@ -672,7 +672,7 @@ void IGraphics::Draw(const IRECT& bounds)
   // helper for debugging
   if (mShowAreaDrawn)
   {
-    ClipRegion(bounds);
+    PrepareRegion(bounds);
     static IColor c;
     c.Randomise(50);
     FillRect(c, bounds);

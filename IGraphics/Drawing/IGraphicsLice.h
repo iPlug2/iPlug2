@@ -132,7 +132,7 @@ private:
     return tr;
   }
     
-  void ClipRegion(const IRECT& r) override
+  void PrepareRegion(const IRECT& r) override
   {
     mDrawRECT = r;
     mDrawRECT.PixelAlign();

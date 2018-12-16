@@ -240,7 +240,8 @@ void IGraphicsCanvas::StartLayer(const IRECT& r)
 {
   mLayers.push(new ILayer(CreateAPIBitmap(r.W(), r.H()), r));
   PathTransformReset(true);
-  SetClipRegion(r);
+  PathClipRegion(r);
+  PathClear();
 }
 
 std::unique_ptr<ILayer> IGraphicsCanvas::EndLayer()
@@ -255,6 +256,7 @@ std::unique_ptr<ILayer> IGraphicsCanvas::EndLayer()
   
   PathTransformReset(true);
   PathClipRegion();
+  PathClear();
   
   return std::unique_ptr<ILayer>(pLayer);
 }

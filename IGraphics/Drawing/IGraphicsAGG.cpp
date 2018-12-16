@@ -191,11 +191,12 @@ void IGraphicsAGG::StartLayer(const IRECT& r)
   UpdateAGGBitmap();
   PathTransformReset(true);
   SetClipRegion(r);
+  PathClear();
 }
 
 std::unique_ptr<ILayer> IGraphicsAGG::EndLayer()
 {
-  ILayer *pLayer = nullptr;
+  ILayer* pLayer = nullptr;
   
   if (!mLayers.empty())
   {
@@ -206,6 +207,7 @@ std::unique_ptr<ILayer> IGraphicsAGG::EndLayer()
   UpdateAGGBitmap();
   PathTransformReset(true);
   PathClipRegion();
+  PathClear();
   
   return std::unique_ptr<ILayer>(pLayer);
 }

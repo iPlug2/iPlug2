@@ -643,7 +643,8 @@ void IGraphicsNanoVG::StartLayer(const IRECT& r)
   mLayers.push(new ILayer(CreateAPIBitmap(r.W(), r.H()), r));
   UpdateLayer();
   PathTransformReset(true);
-  SetClipRegion(r);
+  PathClipRegion(r);
+  PathClear();
 }
 
 std::unique_ptr<ILayer> IGraphicsNanoVG::EndLayer()
@@ -660,6 +661,7 @@ std::unique_ptr<ILayer> IGraphicsNanoVG::EndLayer()
   
   PathTransformReset(true);
   PathClipRegion();
+  PathClear();
   
   return std::unique_ptr<ILayer>(pLayer);
 }
