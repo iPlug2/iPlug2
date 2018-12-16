@@ -184,7 +184,7 @@ public:
   const char* GetDrawingAPIStr() override { return "AGG"; }
 
   void StartLayer(const IRECT& r) override;
-  ILayer *EndLayer() override;
+  std::unique_ptr<ILayer> EndLayer() override;
     
   void EndFrame() override;
     

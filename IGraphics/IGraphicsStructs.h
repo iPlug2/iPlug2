@@ -1286,21 +1286,16 @@ public:
   , mRECT(r)
   {}
   
-  ~ILayer()
-  {
-    delete mBitmap;
-  }
-  
   ILayer(const ILayer&) = delete;
   ILayer operator =(const ILayer&) = delete;
   
-  const APIBitmap* GetAPIBitmap() const { return mBitmap; }
-  IBitmap GetBitmap() const { return IBitmap(mBitmap, 1, false); }
+  const APIBitmap* GetAPIBitmap() const { return mBitmap.get(); }
+  IBitmap GetBitmap() const { return IBitmap(mBitmap.get(), 1, false); }
   const IRECT& Bounds() const { return mRECT; }
   
 private:
   
-  APIBitmap* mBitmap;
+  std::unique_ptr<APIBitmap> mBitmap;
   IRECT mRECT;
 };
 

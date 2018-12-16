@@ -35,6 +35,7 @@
 #include "IGraphicsEditorDelegate.h"
 
 #include <stack>
+#include <memory>
 
 #ifdef OS_MAC
 #ifdef FillRect
@@ -447,9 +448,9 @@ public:
 #pragma mark - IGraphics drawing API layer support
 
   virtual void StartLayer(const IRECT& r) = 0;
-  virtual ILayer *EndLayer() = 0;
+  virtual std::unique_ptr<ILayer> EndLayer() = 0;
   
-  void DrawLayer(ILayer *layer)
+  void DrawLayer(const std::unique_ptr<ILayer>& layer)
   {
     PathTransformSave();
     PathTransformReset();

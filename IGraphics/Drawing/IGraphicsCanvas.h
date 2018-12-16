@@ -54,10 +54,8 @@ public:
   IColor GetPoint(int x, int y) override { return COLOR_BLACK; } // TODO:
   void* GetDrawContext() override { return nullptr; }
 
-  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
-
   void StartLayer(const IRECT& r) override;
-  ILayer *EndLayer() override;
+  std::unique_ptr<ILayer> EndLayer() override;
     
 protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;

@@ -127,7 +127,7 @@ public:
   void* GetDrawContext() override { return (void*) mVG; }
     
   void StartLayer(const IRECT& r) override;
-  ILayer *EndLayer() override;
+  std::unique_ptr<ILayer> EndLayer() override;
     
   IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale) override;
   IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, int targetScale) override { return bitmap; } // NO-OP

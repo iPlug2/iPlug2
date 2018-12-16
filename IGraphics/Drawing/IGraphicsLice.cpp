@@ -386,7 +386,7 @@ void IGraphicsLice::StartLayer(const IRECT& r)
   mDrawOffsetY = r.T;
 }
 
-ILayer *IGraphicsLice::EndLayer()
+std::unique_ptr<ILayer> IGraphicsLice::EndLayer()
 {
   ILayer *pLayer = nullptr;
   LICE_IBitmap* pBitmap = mDrawBitmap;
@@ -405,7 +405,7 @@ ILayer *IGraphicsLice::EndLayer()
   mDrawOffsetX = 0;
   mDrawOffsetY = 0;
     
-  return pLayer;
+  return std::unique_ptr<ILayer>(pLayer);
 }
 
 LICE_IFont* IGraphicsLice::CacheFont(const IText& text, double scale)

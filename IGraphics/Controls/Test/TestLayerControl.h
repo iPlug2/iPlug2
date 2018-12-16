@@ -28,7 +28,6 @@ public:
       text.mVAlign = IText::kVAlignTop;
       text.mSize = 15;
       g.StartLayer(mRECT);
-      g.FillRect(COLOR_WHITE, mRECT);
       g.FillRoundRect(COLOR_LIGHT_GRAY, mRECT.GetPadded(-5.5f), mRECT.W() / 4.0);
       g.DrawText(text, "Cached Layer", mRECT.GetPadded(-10));
       mLayer = g.EndLayer();
@@ -43,13 +42,12 @@ public:
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    delete mLayer;
-    mLayer = nullptr;
+    mLayer.reset();
     mDrawBackground = !mDrawBackground;
     SetDirty(false);
   }
 
 private:
-  ILayer* mLayer = nullptr;
+  std::unique_ptr<ILayer> mLayer;
   bool mDrawBackground = true;
 };

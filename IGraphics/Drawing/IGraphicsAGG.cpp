@@ -189,7 +189,7 @@ void IGraphicsAGG::StartLayer(const IRECT& r)
   SetClipRegion(r);
 }
 
-ILayer *IGraphicsAGG::EndLayer()
+std::unique_ptr<ILayer> IGraphicsAGG::EndLayer()
 {
   ILayer *pLayer = nullptr;
   agg::pixel_map* pPixelMap = &mPixelMap;
@@ -207,7 +207,7 @@ ILayer *IGraphicsAGG::EndLayer()
   PathTransformReset(true);
   PathClipRegion();
   
-  return pLayer;
+  return std::unique_ptr<ILayer>(pLayer);
 }
 
 //IFontData IGraphicsAGG::LoadFont(const char* name, const int size)

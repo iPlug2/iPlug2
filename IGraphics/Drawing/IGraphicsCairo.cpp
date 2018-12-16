@@ -323,7 +323,7 @@ void IGraphicsCairo::StartLayer(const IRECT& r)
   cairo_push_group(mContext);    
 }
 
-ILayer *IGraphicsCairo::EndLayer()
+std::unique_ptr<ILayer> IGraphicsCairo::EndLayer()
 {
   cairo_surface_t* pSurface = nullptr;
   cairo_pattern_t* pPattern = cairo_pop_group(mContext);
@@ -336,7 +336,7 @@ ILayer *IGraphicsCairo::EndLayer()
     pSurface = cairo_surface_reference(pSurface);
     cairo_pattern_destroy(pPattern);
     cairo_surface_set_device_offset(pSurface, 0, 0);
-    return new ILayer(new CairoBitmap(pSurface,  1.0), area);
+    return std::unique_ptr<ILayer>(new ILayer(new CairoBitmap(pSurface,  1.0), area));
   }
 
   return nullptr;

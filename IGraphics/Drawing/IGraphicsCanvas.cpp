@@ -222,7 +222,6 @@ void IGraphicsCanvas::SetCanvasBlendMode(const IBlend* pBlend)
   }
 }
 
-bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 void IGraphicsCanvas::StartLayer(const IRECT& r)
 {
   double scale = GetScale() * GetDisplayScale();
@@ -234,7 +233,7 @@ void IGraphicsCanvas::StartLayer(const IRECT& r)
   SetClipRegion(r);
 }
 
-ILayer *IGraphicsCanvas::EndLayer()
+std::unique_ptr<ILayer> IGraphicsCanvas::EndLayer()
 {
   ILayer *pLayer = nullptr;
   
@@ -248,7 +247,7 @@ ILayer *IGraphicsCanvas::EndLayer()
   PathTransformReset(true);
   PathClipRegion();
   
-  return pLayer;
+  return std::unique_ptr<ILayer>(pLayer);
 }
 
 bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)

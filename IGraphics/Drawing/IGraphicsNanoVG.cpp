@@ -612,7 +612,7 @@ void IGraphicsNanoVG::StartLayer(const IRECT& r)
   SetClipRegion(r);
 }
 
-ILayer *IGraphicsNanoVG::EndLayer()
+std::unique_ptr<ILayer> IGraphicsNanoVG::EndLayer()
 {
   ILayer *pLayer = nullptr;
   int frameBuffer = 0;
@@ -630,7 +630,7 @@ ILayer *IGraphicsNanoVG::EndLayer()
   PathTransformReset(true);
   PathClipRegion();
   
-  return pLayer;
+  return std::unique_ptr<ILayer>(pLayer);
 }
 
 void IGraphicsNanoVG::PathTransformSetMatrix(const IMatrix& m)

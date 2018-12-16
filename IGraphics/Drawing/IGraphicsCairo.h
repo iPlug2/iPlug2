@@ -75,7 +75,7 @@ public:
   void* GetDrawContext() override { return (void*) mContext; }
     
   void StartLayer(const IRECT& r) override;
-  ILayer *EndLayer() override;
+  std::unique_ptr<ILayer> EndLayer() override;
     
   void EndFrame() override;
   void SetPlatformContext(void* pContext) override;
