@@ -646,8 +646,6 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, bool always
       DrawRect(CONTROL_BOUNDS_COLOR, pControl->GetRECT());
     }
 #endif
-    
-    ResetClipRegion();
   }
 }
 
@@ -680,7 +678,6 @@ void IGraphics::Draw(const IRECT& bounds)
     static IColor c;
     c.Randomise(50);
     FillRect(c, bounds);
-    ResetClipRegion();
   }
 #endif
 }
