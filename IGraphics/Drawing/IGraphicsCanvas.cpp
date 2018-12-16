@@ -222,7 +222,7 @@ void IGraphicsCanvas::SetCanvasBlendMode(const IBlend* pBlend)
   }
 }
 
-bool IGraphicsCanvas::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
   // TODO: orientation
   val context = GetContext();
@@ -241,7 +241,7 @@ bool IGraphicsCanvas::DrawText(const IText& text, const char* str, IRECT& bounds
   
   if (measure)
   {
-    bounds = IRECT(0, 0, (float) textWidth, (float) textHeight * 1.3); // FIXME bodge for canvas text height!
+    bounds = IRECT(0, 0, (float) textWidth, (float) textHeight); // FIXME bodge for canvas text height!
     return true;
   }
   else
@@ -274,11 +274,6 @@ bool IGraphicsCanvas::DrawText(const IText& text, const char* str, IRECT& bounds
   }
   
   return true;
-}
-
-bool IGraphicsCanvas::MeasureText(const IText& text, const char* str, IRECT& bounds)
-{
-  return DrawText(text, str, bounds, 0, true);
 }
 
 void IGraphicsCanvas::PathTransformSetMatrix(const IMatrix& m)
