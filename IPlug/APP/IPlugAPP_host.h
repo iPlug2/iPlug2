@@ -29,7 +29,7 @@
  */
 
 #include <cstdlib>
-#include <string>
+#include <cstring>
 #include <vector>
 #include <limits>
 
@@ -59,6 +59,8 @@
   #define DEFAULT_OUTPUT_DEV "Built-in Output"
 #elif defined(OS_LINUX)
   #include "swell.h"
+  #define DEFAULT_INPUT_DEV ""
+  #define DEFAULT_OUTPUT_DEV ""
 #endif
 
 const int kNumBufferSizeOptions = 11;

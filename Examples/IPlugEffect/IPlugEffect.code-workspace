@@ -6,7 +6,8 @@
 	],
 	"settings": {
 		"files.associations": {
-			"algorithm": "cpp"
+			"algorithm": "cpp",
+			"vector": "cpp"
 		}
 	}
 }

@@ -8,6 +8,8 @@
  ==============================================================================
 */
 
+#include <cstdlib>
+#include <cstring>
 #include "wdltypes.h"
 #include "wdlstring.h"
 

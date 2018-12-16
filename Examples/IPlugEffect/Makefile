@@ -1,11 +1,14 @@
-include ./../common-linux.mk
+include ./../../common-linux.mk
+
+ARCH := $(shell uname -m)
+UNAME_S := $(shell uname -s)
 
 APP=IPlugEffect
 
-WDL_PATH = ../../WDL
-vpath %.cpp .. $(WDL_PATH)/swell
-vpath %.cpp .. $(WDL_PATH)/lice
-vpath %.cpp .. app_wrapper
+vpath %.cpp .. $(SWELL_PATH)/swell
+vpath %.cpp .. $(LICE_PATH)/lice
+vpath %.cpp .. $(IPLUG_PATH)/APP
+vpath %.cpp .. $(PROJECT_ROOT)
 
 ### Objects and resources
 SWELL_OBJS = swell.o swell-ini.o swell-miscdlg-generic.o swell-wnd-generic.o \
@@ -17,11 +20,16 @@ SWELL_OBJS = swell.o swell-ini.o swell-miscdlg-generic.o swell-wnd-generic.o \
 LICE_OBJS = lice.o lice_arc.o lice_colorspace.o lice_line.o lice_text.o \
             lice_textnew.o lice_png.o
 
-OBJS = app_main.o main_dialog.o $(SWELL_OBJS) $(LICE_OBJS)
+APP_OBJS = IPlugAPP.o IPlugAPP_main.o IPlugAPP_dialog.o IPlugAPP_host.o
+
+PROJECT_OBJS = IPlugEffect.o
+
+OBJS = $(APP_OBJS) $(SWELL_OBJS) $(LICE_OBJS) $(PROJECT_OBJS)
 RESFILES = resources/main.rc_mac_dlg resources/main.rc_mac_menu
 
 ### Compiler/Linker Flags
-CFLAGS += -pipe -fvisibility=hidden -fno-math-errno -fPIC -DPIC -Wall -Wshadow -Wno-unused-function -Wno-multichar -Wno-unused-result -Werror -Wno-deprecated-declarations
+CFLAGS += $(INCLUDE_PATHS) -I$(RTAUDIO_PATH) -I$(RTMIDI_PATH) -I$(IGRAPHICS_PATH) -I$(PROJECT_ROOT)/resources
+CFLAGS += -pipe -fvisibility=hidden -fno-math-errno -fPIC -DPIC -Wall -Wshadow -Wno-unused-function -Wno-multichar -Wno-unused-result -Wno-deprecated-declarations -Wno-unknown-pragmas -Wno-reorder -Wno-shadow -Wno-sign-compare
 CFLAGS += -O0 -g -D_DEBUG
 LFLAGS = -lpthread -ldl -lX11 -lXi
 ### GDK
@@ -31,15 +39,14 @@ LFLAGS += $(shell pkg-config gdk-2.0 --libs)
 CFLAGS += -DSWELL_LICE_GDI -DSWELL_FREETYPE $(shell freetype-config --cflags)
 LFLAGS += $(shell freetype-config --libs)
 
-CXXFLAGS = $(CFLAGS)
-
+CXXFLAGS = $(CFLAGS) -std=c++11 -DNOMINMAX
 
 ### Targets
 .PHONY: clean run
 default: $(APP)
 
 $(RESFILES): resources/main.rc
-	php $(WDL_PATH)swell/mac_resgen.php $^
+	php $(SWELL_PATH)/mac_resgen.php $^
 
 $(APP): $(RESFILES) $(OBJS)
 	$(CXX) -o $@ $(CFLAGS) $(OBJS) $(LFLAGS)

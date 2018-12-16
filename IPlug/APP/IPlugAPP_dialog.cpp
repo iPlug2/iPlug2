@@ -289,7 +289,7 @@ void IPlugAPPHost::PopulatePreferencesDialog(HWND hwndDlg)
   PopulateMidiDialogs(hwndDlg);
 }
 #else
-  #error NOT IMPLEMENTED
+  #warning NOT IMPLEMENTED
 #endif
 
 WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -472,7 +472,7 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
             #elif defined OS_MAC
             system("open \"/Applications/Utilities/Audio MIDI Setup.app\"");
             #else
-              #error NOT IMPLEMENTED
+              #warning NOT IMPLEMENTED
             #endif
           break;
 
@@ -555,9 +555,9 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_DESTROY:
       gHWND = NULL;
 
-      #ifdef OS_WIN
+      #if defined OS_WIN
       PostQuitMessage(0);
-      #else
+      #elif defined OS_MAC
       SWELL_PostQuitMessage(hwndDlg);
       #endif
 

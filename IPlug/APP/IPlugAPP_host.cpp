@@ -84,7 +84,7 @@ bool IPlugAPPHost::InitState()
 #elif defined OS_MAC
   mINIPath.SetFormatted(MAX_PATH_LEN, "%s/Library/Application Support/%s/", getenv("HOME"), BUNDLE_NAME);
 #else
-  #error NOT IMPLEMENTED
+  #warning NOT IMPLEMENTED
 #endif
 
   struct stat st;
@@ -152,7 +152,7 @@ bool IPlugAPPHost::InitState()
       return false;
     }
 #else
-  #error NOT IMPLEMENTED
+  #warning NOT IMPLEMENTED
 #endif
   }
 
@@ -385,7 +385,7 @@ bool IPlugAPPHost::TryToChangeAudioDriverType()
   //else
   //mDAC = new RtAudio(RtAudio::UNIX_JACK);
 #else
-  #error NOT IMPLEMENTED
+  #warning NOT IMPLEMENTED
 #endif
 
   if(mDAC)
@@ -407,7 +407,7 @@ bool IPlugAPPHost::TryToChangeAudio()
 #elif defined OS_MAC
   inputID = GetAudioDeviceIdx(mState.mAudioInDev.Get());
 #else
-  #error NOT IMPLEMENTED
+  #warning NOT IMPLEMENTED
 #endif
   outputID = GetAudioDeviceIdx(mState.mAudioOutDev.Get());
 
@@ -504,7 +504,7 @@ bool IPlugAPPHost::SelectMIDIDevice(ERoute direction, const char* pPortName)
         return true;
       }
   #else
-   #error NOT IMPLEMENTED
+   #warning NOT IMPLEMENTED
   #endif
     }
   }
@@ -544,7 +544,7 @@ bool IPlugAPPHost::SelectMIDIDevice(ERoute direction, const char* pPortName)
         return true;
       }
 #else
-  #error NOT IMPLEMENTED
+  #warning NOT IMPLEMENTED
 #endif
     }
   }

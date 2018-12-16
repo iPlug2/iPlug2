@@ -43,7 +43,7 @@ public:
 
 #else
 
-#if defined OS_MAC
+#if defined OS_MAC || defined OS_LINUX
 #include "swell.h"
 #elif defined OS_IOS
 typedef bool BOOL;
