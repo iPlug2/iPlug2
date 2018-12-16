@@ -241,6 +241,7 @@ struct IPlugConfig
   int latency;
   bool plugDoesMidiIn;
   bool plugDoesMidiOut;
+  bool plugDoesMPE;
   bool plugDoesChunks;
   int plugType;
   bool plugHasUI;
@@ -260,6 +261,7 @@ struct IPlugConfig
               int latency,
               bool plugDoesMidiIn,
               bool plugDoesMidiOut,
+              bool plugDoesMPE,
               bool plugDoesChunks,
               int plugType,
               bool plugHasUI,
@@ -279,6 +281,7 @@ struct IPlugConfig
   , latency(latency)
   , plugDoesMidiIn(plugDoesMidiIn)
   , plugDoesMidiOut(plugDoesMidiOut)
+  , plugDoesMPE(plugDoesMPE)
   , plugDoesChunks(plugDoesChunks)
   , plugType(plugType)
   , plugHasUI(plugHasUI)

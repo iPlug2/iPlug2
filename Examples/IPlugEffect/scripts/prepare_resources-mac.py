@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# this script will create/update info plist files based on config.h and copy resources to the ~/Music/PLUG_NAME folder
+# this script will create/update info plist files based on config.h and copy resources to the ~/Music/PLUG_NAME folder or the bundle depending on PLUG_SHARED_RESOURCES
 
 kAudioUnitType_MusicDevice      = "aumu"
 kAudioUnitType_MusicEffect      = "aumf"
@@ -28,20 +28,29 @@ def main():
   CSResourcesFileMapped = True
   LSMinimumSystemVersion = xcconfig['DEPLOYMENT_TARGET']
 
-  print "Copying resources to shared folder..."
+  print "Copying resources ..."
 
   if config['PLUG_SHARED_RESOURCES']:
     dst = os.path.expanduser("~") + "/Music/" + config['BUNDLE_NAME'] + "/Resources"
-    if os.path.exists(dst):
-     shutil.rmtree(dst)
+  else:
+    dst = os.environ["TARGET_BUILD_DIR"] + os.environ["UNLOCALIZED_RESOURCES_FOLDER_PATH"]
 
-    if os.path.exists(projectpath + "/resources/img/"):
-     shutil.copytree(projectpath + "/resources/img/", dst, ignore=shutil.ignore_patterns(*DONT_COPY))
+  if os.path.exists(dst):
+    shutil.rmtree(dst)
 
-    if os.path.exists(projectpath + "/resources/fonts/"):
-      fonts = os.listdir(projectpath + "/resources/fonts/")
-      for font in fonts:
-        shutil.copy(projectpath + "/resources/fonts/" + font, dst)
+  os.makedirs(dst + "/", 0755 );
+
+  if os.path.exists(projectpath + "/resources/img/"):
+    imgs = os.listdir(projectpath + "/resources/img/")
+    for img in imgs:
+      print "copying " + img + " to " + dst
+      shutil.copy(projectpath + "/resources/img/" + img, dst)
+
+  if os.path.exists(projectpath + "/resources/fonts/"):
+    fonts = os.listdir(projectpath + "/resources/fonts/")
+    for font in fonts:
+      print "copying " + font + " to " + dst
+      shutil.copy(projectpath + "/resources/fonts/" + font, dst)
 
   print "Processing Info.plist files..."
 

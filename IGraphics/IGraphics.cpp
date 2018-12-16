@@ -122,8 +122,6 @@ void IGraphics::Resize(int w, int h, float scale)
   if (mCornerResizer)
     mCornerResizer->OnRescale();
   
-  // TODO: Use natural resolution bitmaps where possible?
-
   GetDelegate()->ResizeGraphicsFromUI((int) (w * scale), (int) (h * scale), scale);
   PlatformResize();
 

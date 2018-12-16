@@ -53,7 +53,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     auto button1action = [](IControl* pCaller) {
       FlashCircleClickActionFunc(pCaller);
       
-      DBGMSG("%i\n", pCaller->GetUI()->ShowMessageBox("Str", "Caption", MB_YESNO));
+//      DBGMSG("%i\n", pCaller->GetUI()->ShowMessageBox("Str", "Caption", MB_YESNO));
     };
     
     auto button2action = [](IControl* pCaller) {

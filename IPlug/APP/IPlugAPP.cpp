@@ -30,7 +30,7 @@ IPlugAPP::IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 
   _SetBlockSize(DEFAULT_BLOCK_SIZE);
   SetHost("standalone", c.vendorVersion);
-  
+    
   CreateTimer();
 }
 

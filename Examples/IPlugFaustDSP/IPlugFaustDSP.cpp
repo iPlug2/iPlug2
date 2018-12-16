@@ -24,12 +24,15 @@ IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
     
     pGraphics->AttachPanelBackground(COLOR_BLACK);
     pGraphics->AttachControl(new IVScopeControl<>(*this, b.GetReducedFromTop(50)), kControlTagScope);
+    
+#ifndef FAUST_COMPILED
     pGraphics->AttachControl(new IVButtonControl(*this, b.GetFromTRHC(150, 30), [](IControl* pCaller)
                                                  {
                                                    FlashCircleClickActionFunc(pCaller);
 
                                                    OpenFaustEditorWindow(DSP_FILE);
                                                  }, "Edit FAUST File"));
+#endif
   };
 }
 

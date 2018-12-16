@@ -222,6 +222,7 @@ void IGraphicsCanvas::SetCanvasBlendMode(const IBlend* pBlend)
   }
 }
 
+bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 void IGraphicsCanvas::StartLayer(const IRECT& r)
 {
   double scale = GetScale() * GetDisplayScale();
@@ -260,7 +261,7 @@ bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
   const char* styles[] = { "normal", "bold", "italic" };
   context.set("textBaseline", std::string("top"));
   val font = context["font"];
-  sprintf(fontString, "%s %dpt %s", styles[text.mStyle], text.mSize, text.mFont);
+  sprintf(fontString, "%s %dpx %s", styles[text.mStyle], text.mSize, text.mFont);
   context.set("font", std::string(fontString));
   double textWidth = context.call<val>("measureText", textString)["width"].as<double>();
   double textHeight = EM_ASM_DOUBLE({
@@ -269,7 +270,7 @@ bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
   
   if (measure)
   {
-    bounds = IRECT(0, 0, (float) textWidth, (float) textHeight * 1.3); // FIXME bodge for canvas text height!
+    bounds = IRECT(0, 0, (float) textWidth, (float) textHeight);
     return true;
   }
   else

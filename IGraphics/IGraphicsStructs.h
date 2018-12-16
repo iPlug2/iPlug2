@@ -610,6 +610,20 @@ struct IText
     strcpy(mFont, (font ? font : DEFAULT_FONT));
   }
 
+  IText(int size, EVAlign valign)
+  : IText()
+  {
+    mSize = size;
+    mVAlign = valign;
+  }
+  
+  IText(int size, EAlign align)
+  : IText()
+  {
+    mSize = size;
+    mAlign = align;
+  }
+
   char mFont[FONT_LEN];
   int mSize;
   IColor mFGColor;
@@ -787,6 +801,11 @@ struct IRECT
   inline IRECT GetFromTRHC(float w, float h) const { return IRECT(R-w, T, R, T+h); }
   inline IRECT GetFromBRHC(float w, float h) const { return IRECT(R-w, B-h, R, B); }
 
+  inline IRECT GetFromTop(float amount) const { return IRECT(L, T, R, T+amount); }
+  inline IRECT GetFromBottom(float amount) const { return IRECT(L, B-amount, R, B); }
+  inline IRECT GetFromLeft(float amount) const { return IRECT(L, T, L+amount, B); }
+  inline IRECT GetFromRight(float amount) const { return IRECT(R-amount, T, R, B); }
+  
   inline IRECT GetReducedFromTop(float amount) const { return IRECT(L, T+amount, R, B); }
   inline IRECT GetReducedFromBottom(float amount) const { return IRECT(L, T, R, B-amount); }
   inline IRECT GetReducedFromLeft(float amount) const { return IRECT(L+amount, T, R, B); }
@@ -966,6 +985,16 @@ struct IRECT
     T = y - (hh * scale);
     R = x + (hw * scale);
     B = y + (hh * scale);
+  }
+  
+  IRECT GetScaledAboutCentre(float scale)
+  {
+    const float x = MW();
+    const float y = MH();
+    const float hw = W() / 2.f;
+    const float hh = H() / 2.f;
+    
+    return IRECT(x - (hw * scale), y - (hh * scale), x + (hw * scale), y + (hh * scale));
   }
   
   static void LinearInterpolateBetween(const IRECT& start, const IRECT& dest, IRECT& result, float progress)

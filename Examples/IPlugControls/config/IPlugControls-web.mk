@@ -2,7 +2,7 @@ include ./../../common-web.mk
 
 SRC += IPlugControls.cpp
 
-WAM_SRC += $(IPLUG_EXTRAS_PATH)/MidiSynth.cpp
+# WAM_SRC += 
 
 # WAM_CFLAGS +=
 
