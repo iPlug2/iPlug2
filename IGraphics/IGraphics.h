@@ -474,6 +474,17 @@ public:
   virtual void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options = IStrokeOptions(), const IBlend* pBlend = 0) {}
   virtual void PathFill(const IPattern& pattern, const IFillOptions& options = IFillOptions(), const IBlend* pBlend = 0) {}
 
+  virtual void PathTransformSave() {}
+  virtual void PathTransformRestore() {}
+  virtual void PathTransformReset(bool clearStates = false) {}
+  virtual void PathTransformTranslate(float x, float y) {}
+  virtual void PathTransformScale(float scaleX, float scaleY) {}
+  virtual void PathTransformScale(float scale) {}
+  virtual void PathTransformRotate(float angle) {}
+  virtual void PathTransformMatrix(const IMatrix& matrix) {}
+
+  virtual void PathClipRegion(const IRECT r = IRECT()) {}
+  
   virtual void DrawBoxShadow(const IRECT& bounds, float cr = 0.f, float ydrop = 2.f, float pad = 10.f, const IBlend* pBlend = 0) {};
 
 private:
