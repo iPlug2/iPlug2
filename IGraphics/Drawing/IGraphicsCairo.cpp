@@ -78,6 +78,11 @@ CairoBitmap::CairoBitmap(cairo_surface_t* pSurface, int scale)
   
   SetBitmap(pSurface, width, height, scale);
 }
+
+CairoBitmap::CairoBitmap(cairo_surface_t* pSurface, int width, int height, int scale)
+{
+  SetBitmap(pSurface, width, height, scale);
+}
   
 CairoBitmap::~CairoBitmap()
 {
@@ -126,11 +131,9 @@ IGraphicsCairo::~IGraphicsCairo()
   }
 #endif
   
-  if (mContext)
-    cairo_destroy(mContext);
+  // N.B. calls through to delete context and surface
   
-  if (mSurface)
-    cairo_surface_destroy(mSurface);
+  UpdateCairoMainSurface(nullptr);
 }
 
 void IGraphicsCairo::DrawResize()
@@ -313,33 +316,40 @@ void IGraphicsCairo::SetCairoSourcePattern(const IPattern& pattern, const IBlend
   }
 }
 
-IRECT area;
-
 void IGraphicsCairo::StartLayer(const IRECT& r)
 {
+  double scale = GetScale() * GetDisplayScale();
+  int width = r.W() * scale;
+  int height = r.H() * scale;
+  cairo_surface_t* pSurface = cairo_surface_create_similar(mSurface, CAIRO_CONTENT_COLOR_ALPHA, width, height);
+  cairo_surface_set_device_scale(pSurface, scale, scale);
+  cairo_surface_set_device_offset(pSurface, -r.L * scale, -r.T * scale);
+  mLayers.push(new ILayer(new CairoBitmap(pSurface, width, height, scale), r));
+  UpdateCairoContext(pSurface);
   PathTransformReset(true);
   SetClipRegion(r);
-  area = r;
-  cairo_push_group(mContext);    
 }
 
 std::unique_ptr<ILayer> IGraphicsCairo::EndLayer()
 {
-  cairo_surface_t* pSurface = nullptr;
-  cairo_pattern_t* pPattern = cairo_pop_group(mContext);
-
+  ILayer *pLayer = nullptr;
+  cairo_surface_t* pSurface = mSurface;
+  
+  if (!mLayers.empty())
+  {
+    pLayer = mLayers.top();
+    mLayers.pop();
+    cairo_surface_set_device_offset(pLayer->GetAPIBitmap()->GetBitmap(), 0, 0);
+  }
+  
+  if (!mLayers.empty())
+    pSurface = mLayers.top()->GetAPIBitmap()->GetBitmap();
+  
+  UpdateCairoContext(pSurface);
   PathTransformReset(true);
   PathClipRegion();
-    
-  if (cairo_pattern_get_surface(pPattern, &pSurface) == CAIRO_STATUS_SUCCESS)
-  {
-    pSurface = cairo_surface_reference(pSurface);
-    cairo_pattern_destroy(pPattern);
-    cairo_surface_set_device_offset(pSurface, 0, 0);
-    return std::unique_ptr<ILayer>(new ILayer(new CairoBitmap(pSurface,  1.0), area));
-  }
-
-  return nullptr;
+  
+  return std::unique_ptr<ILayer>(pLayer);
 }
 
 IColor IGraphicsCairo::GetPoint(int x, int y)
@@ -490,32 +500,50 @@ bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
   return true;
 }
 
+void IGraphicsCairo::UpdateCairoContext(cairo_surface_t* pSurface)
+{
+  if (mContext)
+  {
+    cairo_destroy(mContext);
+    mContext = nullptr;
+  }
+  
+  if (pSurface)
+    mContext = cairo_create(pSurface);
+}
+
+void IGraphicsCairo::UpdateCairoMainSurface(cairo_surface_t* pSurface)
+{
+  if (mSurface)
+  {
+    cairo_surface_destroy(mSurface);
+    mSurface = nullptr;
+  }
+  
+  if (pSurface)
+    mSurface = pSurface;
+}
+
 void IGraphicsCairo::SetPlatformContext(void* pContext)
 {
   if (!pContext)
   {
-    if (mContext)
-      cairo_destroy(mContext);
-    if (mSurface)
-      cairo_surface_destroy(mSurface);
-      
-    mContext = nullptr;
-    mSurface = nullptr;
+    UpdateCairoMainSurface(nullptr);
   }
   else if(!mSurface)
   {
 #ifdef OS_MAC
     mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), WindowWidth(), WindowHeight());
-    mContext = cairo_create(mSurface);
     cairo_surface_set_device_scale(mSurface, GetScale(), GetScale());
 #elif defined OS_WIN
-    HDC dc = (HDC) pContext;
-    mSurface = cairo_win32_surface_create_with_ddb(dc, CAIRO_FORMAT_ARGB32, Width(), Height());
-    mContext = cairo_create(mSurface);
+    mSurface = cairo_win32_surface_create_with_ddb((HDC) pContext, CAIRO_FORMAT_ARGB32, Width(), Height());
     cairo_surface_set_device_scale(mSurface, GetDisplayScale(), GetDisplayScale());
 #else
   #error NOT IMPLEMENTED
 #endif
+    
+    UpdateCairoContext(mSurface);
+    
     //cairo_set_antialias(cr, CAIRO_ANTIALIAS_NONE);
     //cairo_set_antialias(mContext, CAIRO_ANTIALIAS_FAST);
     //cairo_set_antialias(cr, CAIRO_ANTIALIAS_GOOD);

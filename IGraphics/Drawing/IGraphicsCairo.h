@@ -46,6 +46,7 @@ class CairoBitmap : public APIBitmap
 {
 public:
   CairoBitmap(cairo_surface_t* pSurface, int scale);
+  CairoBitmap(cairo_surface_t* pSurface, int width, int height, int scale);
   virtual ~CairoBitmap();
 };
 
@@ -95,6 +96,9 @@ private:
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
   
+  void UpdateCairoContext(cairo_surface_t* pSurface);
+  void UpdateCairoMainSurface(cairo_surface_t* pSurface);
+
   cairo_t* mContext;
   cairo_surface_t* mSurface;
   
