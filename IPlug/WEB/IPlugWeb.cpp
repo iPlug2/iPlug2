@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #include "IPlugWeb.h"
 #include <emscripten.h>
@@ -29,10 +23,10 @@ const int kNumSAMFUIBytes = 18; // + data size
 IPlugWeb::IPlugWeb(IPlugInstanceInfo instanceInfo, IPlugConfig config)
 : IPlugAPIBase(config, kAPIWEB)
 {
-  mSPVFUIBuf.Resize(kNumSPVFUIBytes); memcpy(mSPVFUIBuf.GetBytes(), "SPVFUI", kNumMsgHeaderBytes);
-  mSMMFUIBuf.Resize(kNumSMMFUIBytes); memcpy(mSMMFUIBuf.GetBytes(), "SMMFUI", kNumMsgHeaderBytes);
-  mSSMFUIBuf.Resize(kNumSSMFUIBytes); memcpy(mSSMFUIBuf.GetBytes(), "SSMFUI", kNumMsgHeaderBytes);
-  mSAMFUIBuf.Resize(kNumSAMFUIBytes); memcpy(mSAMFUIBuf.GetBytes(), "SAMFUI", kNumMsgHeaderBytes);
+  mSPVFUIBuf.Resize(kNumSPVFUIBytes); memcpy(mSPVFUIBuf.GetData(), "SPVFUI", kNumMsgHeaderBytes);
+  mSMMFUIBuf.Resize(kNumSMMFUIBytes); memcpy(mSMMFUIBuf.GetData(), "SMMFUI", kNumMsgHeaderBytes);
+  mSSMFUIBuf.Resize(kNumSSMFUIBytes); memcpy(mSSMFUIBuf.GetData(), "SSMFUI", kNumMsgHeaderBytes);
+  mSAMFUIBuf.Resize(kNumSAMFUIBytes); memcpy(mSAMFUIBuf.GetData(), "SAMFUI", kNumMsgHeaderBytes);
   
   mWAMCtrlrJSObjectName.SetFormatted(32, "%s_WAM", GetPluginName());
 }
@@ -41,13 +35,13 @@ void IPlugWeb::SendParameterValueFromUI(int paramIdx, double value)
 {
 #if WEBSOCKET_CLIENT
   int pos = kNumMsgHeaderBytes;
-  *((int*)(mSPVFUIBuf.GetBytes() + pos)) = paramIdx; pos += sizeof(int);
-  *((double*)(mSPVFUIBuf.GetBytes() + pos)) = value; pos += sizeof(double);
+  *((int*)(mSPVFUIBuf.GetData() + pos)) = paramIdx; pos += sizeof(int);
+  *((double*)(mSPVFUIBuf.GetData() + pos)) = value; pos += sizeof(double);
   
   EM_ASM({
     var jsbuff = Module.HEAPU8.subarray($0, $0 + $1);
     ws.send(jsbuff);
-  }, (int) mSPVFUIBuf.GetBytes(), kNumSPVFUIBytes);
+  }, (int) mSPVFUIBuf.GetData(), kNumSPVFUIBytes);
   
 #else
   val::global(mWAMCtrlrJSObjectName.Get()).call<void>("setParam", paramIdx, value);
@@ -59,14 +53,14 @@ void IPlugWeb::SendMidiMsgFromUI(const IMidiMsg& msg)
 {
 #if WEBSOCKET_CLIENT
   int pos = kNumMsgHeaderBytes;
-  mSMMFUIBuf.GetBytes()[pos] = msg.mStatus; pos++;
-  mSMMFUIBuf.GetBytes()[pos] = msg.mData1; pos++;
-  mSMMFUIBuf.GetBytes()[pos] = msg.mData2; pos++;
+  mSMMFUIBuf.GetData()[pos] = msg.mStatus; pos++;
+  mSMMFUIBuf.GetData()[pos] = msg.mData1; pos++;
+  mSMMFUIBuf.GetData()[pos] = msg.mData2; pos++;
 
   EM_ASM({
     var jsbuff = Module.HEAPU8.subarray($0, $0 + $1);
     ws.send(jsbuff);
-  }, (int) mSMMFUIBuf.GetBytes(), kNumSMMFUIBytes);
+  }, (int) mSMMFUIBuf.GetData(), kNumSMMFUIBytes);
   
 #else
   WDL_String dataStr;
@@ -81,13 +75,13 @@ void IPlugWeb::SendSysexMsgFromUI(const ISysEx& msg)
   mSSMFUIBuf.Resize(kNumSSMFUIBytes + msg.mSize);
   int pos = kNumMsgHeaderBytes;
   
-  *((int*)(mSSMFUIBuf.GetBytes() + pos)) = msg.mSize; pos += sizeof(int);
-  memcpy(mSSMFUIBuf.GetBytes() + pos, msg.mData, msg.mSize);
+  *((int*)(mSSMFUIBuf.GetData() + pos)) = msg.mSize; pos += sizeof(int);
+  memcpy(mSSMFUIBuf.GetData() + pos, msg.mData, msg.mSize);
 
   EM_ASM({
     var jsbuff = Module.HEAPU8.subarray($0, $0 + $1);
     ws.send(jsbuff);
-  }, (int) mSSMFUIBuf.GetBytes(), mSSMFUIBuf.Size());
+  }, (int) mSSMFUIBuf.GetData(), mSSMFUIBuf.Size());
 #else
   EM_ASM({
     window[Module.Pointer_stringify($0)].sendMessage('SSMFUI', $1, Module.HEAPU8.slice($1, $1 + $2).buffer);
@@ -100,21 +94,21 @@ void IPlugWeb::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSi
   mSAMFUIBuf.Resize(kNumSAMFUIBytes + dataSize);
   int pos = kNumMsgHeaderBytes;
   
-  *((int*)(mSAMFUIBuf.GetBytes() + pos)) = messageTag; pos += sizeof(int);
-  *((int*)(mSAMFUIBuf.GetBytes() + pos)) = controlTag; pos += sizeof(int);
-  *((int*)(mSAMFUIBuf.GetBytes() + pos)) = dataSize; pos += sizeof(int);
+  *((int*)(mSAMFUIBuf.GetData() + pos)) = messageTag; pos += sizeof(int);
+  *((int*)(mSAMFUIBuf.GetData() + pos)) = controlTag; pos += sizeof(int);
+  *((int*)(mSAMFUIBuf.GetData() + pos)) = dataSize; pos += sizeof(int);
   
-  memcpy(mSAMFUIBuf.GetBytes() + pos, pData, dataSize);
+  memcpy(mSAMFUIBuf.GetData() + pos, pData, dataSize);
   
 #if WEBSOCKET_CLIENT
   EM_ASM({
     var jsbuff = Module.HEAPU8.subarray($0, $0 + $1);
     ws.send(jsbuff);
-  }, (int) mSAMFUIBuf.GetBytes(), mSAMFUIBuf.Size());
+  }, (int) mSAMFUIBuf.GetData(), mSAMFUIBuf.Size());
 #else
   EM_ASM({
     window[Module.Pointer_stringify($0)].sendMessage('SAMFUI', "", Module.HEAPU8.slice($1, $1 + $2).buffer);
-  }, mWAMCtrlrJSObjectName.Get(), (int) mSAMFUIBuf.GetBytes() + kNumMsgHeaderBytes, mSAMFUIBuf.Size() - kNumMsgHeaderBytes); // Non websocket doesn't need "SAMFUI" bytes at beginning
+  }, mWAMCtrlrJSObjectName.Get(), (int) mSAMFUIBuf.GetData() + kNumMsgHeaderBytes, mSAMFUIBuf.Size() - kNumMsgHeaderBytes); // Non websocket doesn't need "SAMFUI" bytes at beginning
 #endif
 }
 

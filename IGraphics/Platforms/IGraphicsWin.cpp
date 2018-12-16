@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 
 #include <Shlobj.h>
 #include <Shlwapi.h>
@@ -1033,19 +1043,19 @@ bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
 }
 
 //TODO: this method needs rewriting
-void IGraphicsWin::PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* extensions)
+void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* extensions)
 {
   if (!WindowIsOpen())
   {
-    filename.Set("");
+    fileName.Set("");
     return;
   }
     
   wchar_t fnCStr[_MAX_PATH];
   wchar_t dirCStr[_MAX_PATH];
     
-  if (filename.GetLength())
-    UTF8ToUTF16(fnCStr, filename.Get(), _MAX_PATH);
+  if (fileName.GetLength())
+    UTF8ToUTF16(fnCStr, fileName.Get(), _MAX_PATH);
   else
     fnCStr[0] = '\0';
     
@@ -1133,11 +1143,11 @@ void IGraphicsWin::PromptForFile(WDL_String& filename, WDL_String& path, EFileAc
       path.Append(directoryOutCStr);
     }
       
-    filename.Set(tempUTF8.Get());
+    fileName.Set(tempUTF8.Get());
   }
   else
   {
-    filename.Set("");
+    fileName.Set("");
   }
 }
 

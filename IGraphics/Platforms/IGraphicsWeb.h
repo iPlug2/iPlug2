@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 #include <emscripten.h>
@@ -54,7 +64,7 @@ public:
   IPopupMenu* CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   
   void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
-  void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext) override;
+  void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext) override;
   void PromptForDirectory(WDL_String& path) override;
   bool PromptForColor(IColor& color, const char* str) override { return false; } // TODO:
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;

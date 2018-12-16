@@ -13,18 +13,18 @@
 #define BUNDLE_MFR "AcmeInc"
 #define BUNDLE_DOMAIN "com"
 
-#define PLUG_CHANNEL_IO "0-2"
+#define PLUG_CHANNEL_IO "2-2"
 
 #define PLUG_LATENCY 0
-#define PLUG_IS_INSTRUMENT 1
-#define PLUG_IS_MFX 0
-#define PLUG_DOES_MIDI 1
+#define PLUG_TYPE 0
+#define PLUG_DOES_MIDI_IN 1
+#define PLUG_DOES_MIDI_OUT 0
 #define PLUG_DOES_STATE_CHUNKS 0
 #define PLUG_HAS_UI 1
 #define PLUG_WIDTH 600
 #define PLUG_HEIGHT 600
 #define PLUG_FPS 60
-#define PLUG_SHARED_RESOURCES 1
+#define PLUG_SHARED_RESOURCES 0
 
 #define AUV2_ENTRY IPlugEffect_Entry
 #define AUV2_ENTRY_STR "IPlugEffect_Entry"
@@ -34,7 +34,7 @@
 
 #define AAX_TYPE_IDS 'EFN1', 'EFN2'
 #define AAX_TYPE_IDS_AUDIOSUITE 'EFA1', 'EFA2'
-#define AAX_PLUG_MFR_STR "AcmeInc\nAcmeInc\nAcme"
+#define AAX_PLUG_MFR_STR "Acme"
 #define AAX_PLUG_NAME_STR "IPlugEffect\nIPEF"
 #define AAX_PLUG_CATEGORY_STR "Effect"
 #define AAX_DOES_AUDIOSUITE 1
@@ -45,9 +45,6 @@
 #define APP_N_VECTOR_WAIT 0
 #define APP_MULT 1
 #define APP_COPY_AUV3 0
+#define APP_RESIZABLE 0
 
-#define PNGKNOB_FN "knob.png"
-#define PNGKNOBROTATE_FN "knob-rotate.png"
-#define SVGKNOB_FN "BefacoBigKnob.svg"
-#define TIGER_FN "23.svg"
 #define ROBOTTO_FN "Roboto-Regular.ttf"

@@ -32,7 +32,7 @@ AUv3_DEFS = AUv3_API IPLUG_EDITOR=1 IPLUG_DSP=1
 // ***** HEADER INCLUDE PATHS
 // Where the SDKs etc. are located in relation to the plug-in Xcode project (which is in the projects subfolder of an IPlug project)
 
-// the top level WDL-OL folder e.g. where this common.xcconfig is
+// the top level iPlug2 folder e.g. where this common.xcconfig is
 ROOT = $(SRCROOT)/../../..
 PROJECT_ROOT = $(SRCROOT)/..
 

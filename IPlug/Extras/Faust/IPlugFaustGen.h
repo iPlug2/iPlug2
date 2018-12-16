@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
 
@@ -74,7 +68,9 @@ static inline Time TimeZero() { return (Time) 0; }
 #include <libgen.h>
 #endif
 
-#define DEFAULT_SOURCE_CODE_FMT_STR "import(\"stdfaust.lib\");\nprocess=par(i,%i,_);"
+#define DEFAULT_SOURCE_CODE_FMT_STR_FX "import(\"stdfaust.lib\");\nprocess=par(i,%i,_);"
+#define DEFAULT_SOURCE_CODE_FMT_STR_INSTRUMENT "import(\"stdfaust.lib\");\nprocess=par(i,%i,0);"
+
 #define FAUSTGEN_VERSION "1.19"
 #define LLVM_OPTIMIZATION -1  // means 'maximum'
 
@@ -224,6 +220,8 @@ public:
   
   void OnTimer(Timer& timer);
   
+  void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
+  
 private:
   Factory* mFactory = nullptr;
   static Timer* sTimer;
@@ -231,6 +229,8 @@ private:
   static bool sAutoRecompile;
   int mMaxNInputs = -1;
   int mMaxNOutputs = -1;
+  
+  WDL_Mutex mMutex;
 };
 
 #endif // #ifndef FAUST_COMPILED

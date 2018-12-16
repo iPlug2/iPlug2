@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #ifndef NO_IGRAPHICS
 #include <Foundation/NSArchiver.h>
 
@@ -11,7 +21,9 @@
 #include "IPlugPluginBase.h"
 #include "IPlugPaths.h"
 
+#if IGRAPHICS_SWELL
 #include "swell.h"
+#endif
 
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
@@ -340,6 +352,9 @@ void IGraphicsMac::SetMousePosition(float x, float y)
 
 int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, int type)
 {
+#if IGRAPHICS_SWELL
+  return MessageBox((HWND) mView, str, caption, type);
+#else
   int result = 0;
 
   CFStringRef button1 = NULL;
@@ -395,6 +410,7 @@ int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, int type)
   }
 
   return result;
+#endif
 }
 
 void IGraphicsMac::ForceEndUserEdit()
@@ -498,8 +514,8 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
 
   fileName.Set(""); // reset it
 
-  //if (CStringHasContents(ext))
-  pFileTypes = [[NSString stringWithUTF8String:ext] componentsSeparatedByString: @" "];
+  if (CStringHasContents(ext))
+    pFileTypes = [[NSString stringWithUTF8String:ext] componentsSeparatedByString: @" "];
 
   if (action == kFileSave)
   {

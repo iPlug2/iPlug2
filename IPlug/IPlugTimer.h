@@ -1,26 +1,19 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 
 #pragma once
 
-/**
- * @file This file includes classes for implementing timers - in order to get a regular callback on the main thread
- * The interface is partially based on the api of Steinberg's timer.cpp from the VST3_SDK for compatibility, rewritten using SWELL: base/source/timer.cpp, so thanks to them */
-
+/** @file This file includes classes for implementing timers - in order to get a regular callback on the main thread
+ * The interface is partially based on the api of Steinberg's timer.cpp from the VST3_SDK for compatibility,
+ * rewritten using SWELL: base/source/timer.cpp, so thanks to them */
 
 #include <cstring>
 #include <stdint.h>

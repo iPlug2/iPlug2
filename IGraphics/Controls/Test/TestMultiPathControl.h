@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 #include "IControl.h"
@@ -9,6 +19,7 @@ public:
   : IKnobControlBase(dlg, rect, paramIdx)
   , mShape(0)
   {
+    Clamp(0.5, 1.);
   }
 
   void Draw(IGraphics& g) override

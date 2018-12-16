@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #include "IPlugVST3_Processor.h"
 
@@ -124,12 +118,11 @@ tresult PLUGIN_API IPlugVST3Processor::initialize(FUnknown* context)
     //    }
     
     
-    if(DoesMIDI())
-    {
+    if(DoesMIDIIn())
       addEventInput(STR16("MIDI Input"), 1);
-      addEventOutput(STR16("MIDI Output"), 1);
-    }
     
+    if(DoesMIDIOut())
+      addEventOutput(STR16("MIDI Output"), 1);
   
     OnHostIdentified();
   }
@@ -266,7 +259,7 @@ tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
               {
                 ENTER_PARAMS_MUTEX;
                 GetParam(idx)->SetNormalized((double)value);
-                OnParamChange(idx, kHost);
+                OnParamChange(idx, kHost, offsetSamples);
                 LEAVE_PARAMS_MUTEX;
               }
             }
@@ -278,7 +271,7 @@ tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
     }
   }
   
-  if(DoesMIDI())
+  if(DoesMIDIIn())
   {
     IMidiMsg msg;
 
@@ -429,8 +422,7 @@ tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
       _ProcessBuffers(0.0, data.numSamples); // process buffers double precision
   }
   
-  // Midi Out
-  if (DoesMIDI())
+  if (DoesMIDIOut())
   {
     IEventList* outputEvents = data.outputEvents;
     
@@ -552,7 +544,7 @@ tresult PLUGIN_API IPlugVST3Processor::getState(IBStream* state)
     int chunkSize = chunk.Size();
     void* data = (void*) &chunkSize;
     state->write(data, (int32) sizeof(int));
-    state->write(chunk.GetBytes(), chunkSize);
+    state->write(chunk.GetData(), chunkSize);
   }
   else
     return kResultFalse;

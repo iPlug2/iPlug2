@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 #include <cmath>
@@ -14,12 +24,12 @@
  * @ingroup IGraphicsStructs
  */
 
-// this (and the platform implementation in IGraphics*) is largely based on the VSTGUI COptionMenu
-
 /** A class for setting the contents of a pop up menu
- * NOTE: An IPopupMenu must not be declared as a temporary. In order for a receiving IControl or lambda function to be triggered when something is selected, the menu should persist across function calls.
- * Therefore it should almost always be a member variable
- * An IPopupMenu owns its sub items, including submenus */
+ * NOTE: An IPopupMenu must not be declared as a temporary. In order for a receiving IControl or lambda function
+ * to be triggered when something is selected, the menu should persist across function calls, therefore
+ * it should almost always be a member variable.
+ * An IPopupMenu owns its sub items, including submenus
+ * This (and the platform implementations) are largely based on the VSTGUI COptionMenu */
 class IPopupMenu
 {
 public:
@@ -107,7 +117,7 @@ public:
     mMenuItems.Empty(true);
   }
 
-  static int sortfunc(const Item **a, const Item **b)
+  static int Sortfunc(const Item **a, const Item **b)
   {
     return stricmp((*a)->GetText(),(*b)->GetText());
   }
@@ -117,7 +127,7 @@ public:
     if (index == -1)
       mMenuItems.Add(pItem); // add it to the end
     else if (index == -2)
-      mMenuItems.InsertSorted(pItem, sortfunc);
+      mMenuItems.InsertSorted(pItem, Sortfunc);
     else
       mMenuItems.Insert(index, pItem);
     

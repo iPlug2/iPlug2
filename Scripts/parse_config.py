@@ -1,4 +1,4 @@
-import fileinput
+import fileinput, sys
 
 config = {}
 
@@ -27,9 +27,9 @@ StringElements = {
 }
 
 IntElements = {
-"PLUG_IS_INSTRUMENT",
-"PLUG_IS_MFX",
-"PLUG_DOES_MIDI",
+"PLUG_TYPE",
+"PLUG_DOES_MIDI_IN",
+"PLUG_DOES_MIDI_OUT",
 "PLUG_HAS_UI",
 "PLUG_SHARED_RESOURCES",
 "PLUG_WIDTH",
@@ -45,24 +45,35 @@ for stringElement in StringElements:
 for intElement in IntElements:
   config[intElement] = 0
 
+def extractInt(line, macro):
+  lineText = "#define " + macro + " "
+  if lineText in line:
+    config[macro] = int(line[len(lineText):])
+
+def extractStringElement(line, macro):
+  lineText = "#define " + macro + " "
+  if lineText in line:
+    if '\"' in line:
+      config[macro] = line[len(lineText):-1].strip('\"')
+    elif "\'" in line:
+      config[macro] = line[len(lineText):-1].strip('\'')
+    else:
+      config[macro] = line[len(lineText):-1]
+    return True
+  else:
+    return False
+
+def set_uniqueid(projectpath, id):
+  for line in fileinput.input(projectpath + "/config.h", inplace=1):
+    found = extractStringElement(line, "PLUG_UNIQUE_ID")
+    if(found):
+      sys.stdout.write(line.replace(config["PLUG_UNIQUE_ID"], id))
+    else:
+      sys.stdout.write(line)
+
+  fileinput.close()
+
 def parse_config(projectpath):
-
-  def extractInt(line, macro):
-   lineText = "#define " + macro + " "
-   if lineText in line:
-     config[macro] = int(line[len(lineText):])
-
-  def extractStringElement(line, macro):
-   lineText = "#define " + macro + " "
-   if lineText in line:
-     if '\"' in line:
-       config[macro] = line[len(lineText):-1].strip('\"')
-     elif "\'" in line:
-       config[macro] = line[len(lineText):-1].strip('\'')
-     else:
-       config[macro] = line[len(lineText):-1]
-
-
   # extract values from config.h
   for line in fileinput.input(projectpath + "/config.h", inplace=0):
     found = False
@@ -87,12 +98,12 @@ def parse_config(projectpath):
 
 def parse_xcconfig(configFile):
 
-  def extractInt(line, setting):
+  def extractXCInt(line, setting):
     lineText = setting + " = "
     if lineText in line:
       xcconfig[setting] = int(line[len(lineText):], 16)
 
-  def extractStringElement(line, setting):
+  def extractXCStringElement(line, setting):
     lineText = setting + " = "
     if lineText in line:
       xcconfig[setting] = line[len(lineText):-1].strip('\"')
@@ -104,7 +115,7 @@ def parse_xcconfig(configFile):
 
   for line in fileinput.input(configFile, inplace=0):
     if not "//" in line:
-      extractStringElement(line, 'BASE_SDK_MAC')
+      extractXCStringElement(line, 'BASE_SDK_MAC')
 
       if "MACOSX_DEPLOYMENT_TARGET = " in line:
         xcconfig['DEPLOYMENT_TARGET'] = line[len("MACOSX_DEPLOYMENT_TARGET = "):-1].strip('\"') + ".0"
