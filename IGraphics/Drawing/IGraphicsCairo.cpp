@@ -81,7 +81,7 @@ CairoBitmap::CairoBitmap(cairo_surface_t* pSurface, int scale)
   
 CairoBitmap::~CairoBitmap()
 {
-  cairo_surface_destroy((cairo_surface_t*) GetBitmap());
+  cairo_surface_destroy(GetBitmap());
 }
 
 #pragma mark -
@@ -158,7 +158,7 @@ APIBitmap* IGraphicsCairo::LoadAPIBitmap(const WDL_String& resourcePath, int sca
 
 APIBitmap* IGraphicsCairo::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 {
-  cairo_surface_t* pInSurface = (cairo_surface_t*) pBitmap->GetBitmap();
+  cairo_surface_t* pInSurface = pBitmap->GetBitmap();
   
   int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
   int destH = (pBitmap->GetHeight() / pBitmap->GetScale()) * scale;
@@ -183,8 +183,8 @@ void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, in
   cairo_save(mContext);
   cairo_rectangle(mContext, dest.L, dest.T, dest.W(), dest.H());
   cairo_clip(mContext);
-  cairo_surface_t* surface = (cairo_surface_t*) bitmap.GetAPIBitmap()->GetBitmap();
-  cairo_set_source_surface(mContext, surface, std::round(dest.L) - srcX, (int) std::round(dest.T) - srcY);
+  cairo_surface_t* surface = bitmap.GetAPIBitmap()->GetBitmap();
+  cairo_set_source_surface(mContext, surface, std::round(dest.L) - srcX, std::round(dest.T) - srcY);
   cairo_set_operator(mContext, CairoBlendMode(pBlend));
   cairo_paint_with_alpha(mContext, BlendWeight(pBlend));
   cairo_restore(mContext);

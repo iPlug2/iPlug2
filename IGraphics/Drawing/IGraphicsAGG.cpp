@@ -42,6 +42,15 @@ inline agg::cover_type AGGCover(const IBlend* pBlend = nullptr)
   return std::max(agg::cover_type(0), std::min(agg::cover_type(roundf(BlendWeight(pBlend) * 255.f)), agg::cover_type(255)));
 }
 
+agg::pixel_map* CreatePixmap(int w, int h)
+{
+  agg::pixel_map* pPixelMap = new IGraphicsAGG::PixelMapType();
+  
+  pPixelMap->create(w, h, 0);
+  
+  return pPixelMap;
+}
+ 
 // Rasterizing
 
 template <typename FuncType, typename ColorArrayType>
@@ -191,7 +200,7 @@ void IGraphicsAGG::DrawResize()
 //  return IFontData(font_buf);
 //}
 
-bool checkTransform(const agg::trans_affine& mtx)
+bool CheckTransform(const agg::trans_affine& mtx)
 {
   double mtx_copy[6];
   const double epsilon = agg::affine_epsilon;
@@ -216,7 +225,7 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   double scale = GetDisplayScale();
   IRECT bounds = dest.GetScaled(scale);
 
-  agg::pixel_map* pSource = (agg::pixel_map*) bitmap.GetAPIBitmap()->GetBitmap();
+  agg::pixel_map* pSource = bitmap.GetAPIBitmap()->GetBitmap();
   agg::rendering_buffer src(pSource->buf(), pSource->width(), pSource->height(), pSource->row_bytes());;
   PixfmtType imgPixfSrc(src);
   
@@ -230,7 +239,7 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   
   // TODO - fix clipping of bitmaps
 
-  if (bounds.IsPixelAligned() && checkTransform(srcMtx))
+  if (bounds.IsPixelAligned() && CheckTransform(srcMtx))
   {
     double tx, ty;
     
@@ -263,9 +272,9 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, f
   x *= GetDisplayScale();
   y *= GetDisplayScale();
 
-  agg::pixel_map* pm_base = (agg::pixel_map*) base.GetAPIBitmap()->GetBitmap();
-  agg::pixel_map* pm_mask = (agg::pixel_map*) mask.GetAPIBitmap()->GetBitmap();
-  agg::pixel_map* pm_top = (agg::pixel_map*) top.GetAPIBitmap()->GetBitmap();
+  agg::pixel_map* pm_base = base.GetAPIBitmap()->GetBitmap();
+  agg::pixel_map* pm_mask = mask.GetAPIBitmap()->GetBitmap();
+  agg::pixel_map* pm_top = top.GetAPIBitmap()->GetBitmap();
   
   agg::rendering_buffer rbuf_base(pm_base->buf(), pm_base->width(), pm_base->height(), pm_base->row_bytes());
   agg::rendering_buffer rbuf_mask(pm_mask->buf(), pm_mask->width(), pm_mask->height(), pm_mask->row_bytes());
@@ -448,30 +457,6 @@ IColor IGraphicsAGG::GetPoint(int x, int y)
   return color;
 }
 
-//IBitmap IGraphicsAGG::CreateIBitmap(const char* cacheName, int w, int h)
-//{
-//  agg::pixel_map* pPixelMap = (agg::pixel_map*) CreateAPIBitmap(w, h);
-//
-//  s_bitmapCache.Add(pPixelMap, cacheName, mScale);
-//  
-//  IBitmap bitmap(pPixelMap, pPixelMap->width(), pPixelMap->height());
-//  
-//  return bitmap;
-//}
-
-agg::pixel_map* IGraphicsAGG::CreateAPIBitmap(int w, int h)
-{
-#ifdef OS_MAC
-  agg::pixel_map_mac* pPixelMap = new agg::pixel_map_mac();
-#else
-  #error NOT IMPLEMENTED
-#endif
-  
-  pPixelMap->create(w, h, 0);
-
-  return pPixelMap;
-}
-
 APIBitmap* IGraphicsAGG::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
 {
   const char *path = resourcePath.Get();
@@ -509,8 +494,8 @@ APIBitmap* IGraphicsAGG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
   int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
   int destH = (pBitmap->GetHeight() / pBitmap->GetScale()) * scale;
     
-  agg::pixel_map* pSource = (agg::pixel_map*) pBitmap->GetBitmap();
-  agg::pixel_map* pCopy = (agg::pixel_map*) CreateAPIBitmap(destW, destH);
+  agg::pixel_map* pSource = pBitmap->GetBitmap();
+  agg::pixel_map* pCopy = CreatePixmap(destW, destH);
   agg::rendering_buffer src(pSource->buf(), pSource->width(), pSource->height(), pSource->row_bytes());;
   agg::rendering_buffer dest(pCopy->buf(), pCopy->width(), pCopy->height(), pCopy->row_bytes());
   PixfmtType imgPixfSrc(src);

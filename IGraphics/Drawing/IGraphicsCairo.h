@@ -73,18 +73,17 @@ public:
   
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return (void*) mContext; }
-
-  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
-
   void EndFrame() override;
   void SetPlatformContext(void* pContext) override;
   void DrawResize() override;
 
   void LoadFont(const char* fileName) override;
+    
 protected:
-
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
+
+  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
 
   void SetCairoSourcePattern(const IPattern& pattern, const IBlend* pBlend);
   

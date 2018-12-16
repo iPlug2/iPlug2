@@ -179,8 +179,6 @@ public:
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
     
-  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0, bool measure = false) override;
-
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return nullptr; } //TODO
   const char* GetDrawingAPIStr() override { return "AGG"; }
@@ -189,12 +187,13 @@ public:
     
  //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
 
-private:
-
+protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
-  agg::pixel_map* CreateAPIBitmap(int w, int h);
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int s) override;
+    
+  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0, bool measure = false) override;
 
+private:
   void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& bounds, const char* str, FontManagerType& manager);
 
   agg::trans_affine GetRasterTransform() { return agg::trans_affine() / mTransform; }
