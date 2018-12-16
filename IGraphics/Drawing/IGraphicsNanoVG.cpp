@@ -649,7 +649,7 @@ void IGraphicsNanoVG::StartLayer(const IRECT& r)
 
 std::unique_ptr<ILayer> IGraphicsNanoVG::EndLayer()
 {
-  ILayer *pLayer = nullptr;
+  ILayer* pLayer = nullptr;
   
   if (!mLayers.empty())
   {
@@ -658,7 +658,6 @@ std::unique_ptr<ILayer> IGraphicsNanoVG::EndLayer()
   }
   
   UpdateLayer();
-  
   PathTransformReset(true);
   PathClipRegion();
   PathClear();

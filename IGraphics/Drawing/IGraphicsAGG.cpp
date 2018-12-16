@@ -190,7 +190,7 @@ void IGraphicsAGG::StartLayer(const IRECT& r)
   mLayers.push(new ILayer(CreateAPIBitmap(r.W(), r.H()), r));
   UpdateAGGBitmap();
   PathTransformReset(true);
-  SetClipRegion(r);
+  PathClipRegion(r);
   PathClear();
 }
 

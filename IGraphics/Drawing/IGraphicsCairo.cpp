@@ -328,8 +328,6 @@ void IGraphicsCairo::SetCairoSourcePattern(const IPattern& pattern, const IBlend
 void IGraphicsCairo::StartLayer(const IRECT& r)
 {
   mLayers.push(new ILayer(CreateAPIBitmap(r.W(), r.H()), r));
-  const double scale = GetDisplayScale() * GetScale();
-  cairo_surface_set_device_offset(mLayers.top()->GetAPIBitmap()->GetBitmap(), -r.L * scale, -r.T * scale);
   UpdateCairoContext();
   PathTransformReset(true);
   PathClipRegion(r);
@@ -338,13 +336,12 @@ void IGraphicsCairo::StartLayer(const IRECT& r)
 
 std::unique_ptr<ILayer> IGraphicsCairo::EndLayer()
 {
-  ILayer *pLayer = nullptr;
+  ILayer* pLayer = nullptr;
   
   if (!mLayers.empty())
   {
     pLayer = mLayers.top();
     mLayers.pop();
-    cairo_surface_set_device_offset(pLayer->GetAPIBitmap()->GetBitmap(), 0, 0);
   }
   
   UpdateCairoContext();
@@ -615,8 +612,20 @@ void IGraphicsCairo::LoadFont(const char* name)
 
 void IGraphicsCairo::PathTransformSetMatrix(const IMatrix& m)
 {
+  double xTranslate = 0.0;
+  double yTranslate = 0.0;
+  
+  if (!mLayers.empty())
+  {
+    IRECT bounds = mLayers.top()->Bounds();
+ 
+    xTranslate = -bounds.L;
+    yTranslate = -bounds.T;
+  }
+  
   cairo_matrix_t matrix;
   cairo_matrix_init(&matrix, m.mTransform[0], m.mTransform[1], m.mTransform[2], m.mTransform[3], m.mTransform[4], m.mTransform[5]);
+  cairo_matrix_translate(&matrix, xTranslate, yTranslate);
   cairo_set_matrix(mContext, &matrix);
 }
 
