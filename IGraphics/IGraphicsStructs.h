@@ -1247,6 +1247,34 @@ private:
   WDL_TypedBuf<IRECT> mRects;
 };
 
+/** ILayer is IGraphics's layer abstraction that you use to store temporary APIBitmap to draw with a specific offset to the interface. ILayers take ownership of the underlying bitmaps */
+
+class ILayer
+{
+public:
+  ILayer(APIBitmap* bitmap, IRECT r)
+  : mBitmap(bitmap)
+  , mRECT(r)
+  {}
+  
+  ~ILayer()
+  {
+    delete mBitmap;
+  }
+  
+  ILayer(const ILayer&) = delete;
+  ILayer operator =(const ILayer&) = delete;
+  
+  const APIBitmap* GetAPIBitmap() const { return mBitmap; }
+  IBitmap GetBitmap() const { return IBitmap(mBitmap, 1, false); }
+  const IRECT& Bounds() const { return mRECT; }
+  
+private:
+  
+  APIBitmap* mBitmap;
+  IRECT mRECT;
+};
+
 // TODO: static storage needs thread safety mechanism
 template <class T>
 class StaticStorage
