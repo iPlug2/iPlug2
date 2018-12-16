@@ -510,6 +510,8 @@ void IGraphicsCairo::UpdateCairoContext(cairo_surface_t* pSurface)
   
   if (pSurface)
     mContext = cairo_create(pSurface);
+  
+  //cairo_set_antialias(mContext, CAIRO_ANTIALIAS_FAST);
 }
 
 void IGraphicsCairo::UpdateCairoMainSurface(cairo_surface_t* pSurface)
@@ -543,11 +545,7 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
 #endif
     
     UpdateCairoContext(mSurface);
-    
-    //cairo_set_antialias(cr, CAIRO_ANTIALIAS_NONE);
-    //cairo_set_antialias(mContext, CAIRO_ANTIALIAS_FAST);
-    //cairo_set_antialias(cr, CAIRO_ANTIALIAS_GOOD);
-    
+
     if (mContext)
     {
       cairo_set_source_rgba(mContext, 1.0, 1.0, 1.0, 1.0);
@@ -562,7 +560,6 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
 void IGraphicsCairo::EndFrame()
 {
 #ifdef OS_MAC
-  //cairo_surface_flush(mSurface);
 #elif defined OS_WIN
   PAINTSTRUCT ps;
   HWND hWnd = (HWND) GetWindow();
