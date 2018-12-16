@@ -612,7 +612,7 @@ void IGraphicsNanoVG::StartLayer(const IRECT& r)
   SetClipRegion(r);
 }
 
-ILayer *IGraphicsNanoVG::EndLayer()
+ILayer* IGraphicsNanoVG::EndLayer()
 {
   ILayer *pLayer = nullptr;
   int frameBuffer = 0;

@@ -189,7 +189,7 @@ void IGraphicsAGG::StartLayer(const IRECT& r)
   SetClipRegion(r);
 }
 
-ILayer *IGraphicsAGG::EndLayer()
+ILayer* IGraphicsAGG::EndLayer()
 {
   ILayer *pLayer = nullptr;
   agg::pixel_map* pPixelMap = &mPixelMap;

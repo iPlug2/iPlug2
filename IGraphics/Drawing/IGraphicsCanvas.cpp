@@ -234,7 +234,7 @@ void IGraphicsCanvas::StartLayer(const IRECT& r)
   SetClipRegion(r);
 }
 
-ILayer *IGraphicsCanvas::EndLayer()
+ILayer* IGraphicsCanvas::EndLayer()
 {
   ILayer *pLayer = nullptr;
   

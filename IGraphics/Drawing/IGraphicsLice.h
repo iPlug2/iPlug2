@@ -99,7 +99,7 @@ public:
   void* GetDrawContext() override { return mDrawBitmap->getBits(); }
     
   void StartLayer(const IRECT& r) override;
-  ILayer *EndLayer() override;
+  ILayer* EndLayer() override;
     
   inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
 

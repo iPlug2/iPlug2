@@ -386,9 +386,9 @@ void IGraphicsLice::StartLayer(const IRECT& r)
   mDrawOffsetY = r.T;
 }
 
-ILayer *IGraphicsLice::EndLayer()
+ILayer* IGraphicsLice::EndLayer()
 {
-  ILayer *pLayer = nullptr;
+  ILayer* pLayer = nullptr;
   LICE_IBitmap* pBitmap = mDrawBitmap;
   
   if (!mLayers.empty())

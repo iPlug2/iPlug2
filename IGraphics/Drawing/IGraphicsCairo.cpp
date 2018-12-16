@@ -323,7 +323,7 @@ void IGraphicsCairo::StartLayer(const IRECT& r)
   cairo_push_group(mContext);    
 }
 
-ILayer *IGraphicsCairo::EndLayer()
+ILayer* IGraphicsCairo::EndLayer()
 {
   cairo_surface_t* pSurface = nullptr;
   cairo_pattern_t* pPattern = cairo_pop_group(mContext);

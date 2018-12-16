@@ -447,7 +447,7 @@ public:
 #pragma mark - IGraphics drawing API layer support
 
   virtual void StartLayer(const IRECT& r) = 0;
-  virtual ILayer *EndLayer() = 0;
+  virtual ILayer* EndLayer() = 0;
   
   void DrawLayer(ILayer *layer)
   {
@@ -1032,6 +1032,6 @@ protected:
   friend class IGraphicsLiveEdit;
   friend class ICornerResizerBase;
   
-  std::stack<ILayer *> mLayers;
+  std::stack<ILayer*> mLayers;
 };
 

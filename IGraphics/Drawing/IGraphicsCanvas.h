@@ -57,7 +57,7 @@ public:
   bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
 
   void StartLayer(const IRECT& r) override;
-  ILayer *EndLayer() override;
+  ILayer* EndLayer() override;
     
 protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
