@@ -481,10 +481,7 @@ private:
   /** This is overridden in some IGraphics drawing classes to clip drawing to a rectangular region
    * @param bounds The rectangular region to clip  */
   inline virtual void ClipRegion(const IRECT& bounds) {};
-    
-  /** This is overridden in some IGraphics drawing classes so you can reset clipping after drawing a shape */
-  inline virtual void ResetClipRegion() {};
-
+ 
 public:
     
 #pragma mark - IGraphics platform implementation
@@ -943,7 +940,6 @@ public:
 
 protected:
   virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;
-  //virtual void* CreateAPIBitmap(int w, int h) = 0;
   virtual APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) = 0;
 
   inline void SearchNextScale(int& sourceScale, int targetScale);
