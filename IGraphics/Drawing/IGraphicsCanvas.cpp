@@ -238,8 +238,7 @@ void IGraphicsCanvas::SetCanvasBlendMode(const IBlend* pBlend)
 
 void IGraphicsCanvas::StartLayer(const IRECT& r)
 {
-  double scale = GetScale() * GetDisplayScale();
-  mLayers.push(new ILayer(new CanvasBitmap(r.W() * scale, r.H() * scale, GetDisplayScale()), r));
+  mLayers.push(new ILayer(CreateAPIBitmap(r.W(), r.H()), r));
   PathTransformReset(true);
   SetClipRegion(r);
 }
@@ -371,4 +370,10 @@ APIBitmap* IGraphicsCanvas::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 //  documentHead.call<val>("removeChild", canvasNode);
 
   return new CanvasBitmap(GetPreloadedImages()[""], "", scale);
+}
+
+APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height)
+{
+  const double scale = GetScale() * GetDisplayScale();
+  return new CanvasBitmap(width * scale, height * scale, scale);
 }

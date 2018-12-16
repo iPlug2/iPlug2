@@ -194,7 +194,8 @@ public:
 protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int s) override;
-    
+  APIBitmap* CreateAPIBitmap(int width, int height) override;
+
   bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0, bool measure = false) override;
 
 private:

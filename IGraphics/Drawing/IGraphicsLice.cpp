@@ -375,35 +375,32 @@ bool IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT&
   return true;
 }
 
+void IGraphicsLice::UpdateDrawBitmap()
+{
+  IRECT r = mLayers.empty() ? IRECT() : mLayers.top()->Bounds();
+  mRenderBitmap = mLayers.empty() ? mDrawBitmap : mLayers.top()->GetAPIBitmap()->GetBitmap();
+  mDrawRECT = mLayers.empty() ? mClipRECT : IRECT(0, 0, r.W(), r.H());
+  mDrawOffsetX = mLayers.empty() ? 0 : r.L;
+  mDrawOffsetY = mLayers.empty() ? 0 : r.T;
+}
+
 void IGraphicsLice::StartLayer(const IRECT& r)
 {
-  int scale = GetDisplayScale();
-  LICE_IBitmap* pBitmap = new LICE_MemBitmap(r.W() * scale, r.H() * scale);
-  mLayers.push(new ILayer(new LICEBitmap(pBitmap, scale), r));
-  mRenderBitmap = pBitmap;
-  mDrawRECT = IRECT(0, 0, r.W(), r.H());
-  mDrawOffsetX = r.L;
-  mDrawOffsetY = r.T;
+  mLayers.push(new ILayer(CreateAPIBitmap(r.W(), r.H()), r));
+  UpdateDrawBitmap();
 }
 
 std::unique_ptr<ILayer> IGraphicsLice::EndLayer()
 {
   ILayer* pLayer = nullptr;
-  LICE_IBitmap* pBitmap = mDrawBitmap;
   
   if (!mLayers.empty())
   {
     pLayer = mLayers.top();
     mLayers.pop();
   }
-  
-  if (!mLayers.empty())
-    pBitmap = mLayers.top()->GetAPIBitmap()->GetBitmap();
-  
-  mRenderBitmap = pBitmap;
-  mDrawRECT = mClipRECT;
-  mDrawOffsetX = 0;
-  mDrawOffsetY = 0;
+
+  UpdateDrawBitmap();
     
   return std::unique_ptr<ILayer>(pLayer);
 }
@@ -500,6 +497,13 @@ APIBitmap* IGraphicsLice::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
   LICE_ScaledBlit(pDest, pSrc, 0, 0, destW, destH, 0.0f, 0.0f, (float) pSrc->getWidth(), (float) pSrc->getHeight(), 1.0f, LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR);
   
   return new LICEBitmap(pDest, scale);
+}
+
+APIBitmap* IGraphicsLice::CreateAPIBitmap(int width, int height)
+{
+  float scale = GetDisplayScale();
+  LICE_IBitmap* pBitmap = new LICE_MemBitmap(width * scale, height * scale);
+  return new LICEBitmap(pBitmap, scale);
 }
 
 void IGraphicsLice::EndFrame()

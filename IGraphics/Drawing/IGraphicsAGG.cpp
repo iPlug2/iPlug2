@@ -187,8 +187,7 @@ void IGraphicsAGG::UpdateAGGBitmap()
 
 void IGraphicsAGG::StartLayer(const IRECT& r)
 {
-  double scale = GetScale() * GetDisplayScale();
-  mLayers.push(new ILayer(new AGGBitmap(CreatePixmap(r.W() * scale, r.H() * scale), scale), r));
+  mLayers.push(new ILayer(CreateAPIBitmap(r.W(), r.H()), r));
   UpdateAGGBitmap();
   PathTransformReset(true);
   SetClipRegion(r);
@@ -550,6 +549,12 @@ APIBitmap* IGraphicsAGG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
   agg::render_scanlines(rasterizer, scanline, renderer);
   
   return new AGGBitmap(pCopy, scale);
+}
+
+APIBitmap* IGraphicsAGG::CreateAPIBitmap(int width, int height)
+{
+  const double scale = GetScale() * GetDisplayScale();
+  return new AGGBitmap(CreatePixmap(width * scale, width * scale), scale);
 }
 
 void IGraphicsAGG::EndFrame()

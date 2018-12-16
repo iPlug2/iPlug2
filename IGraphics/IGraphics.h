@@ -970,7 +970,8 @@ public:
 protected:
   virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;
   virtual APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) = 0;
-
+  virtual APIBitmap* CreateAPIBitmap(int width, int height) = 0;
+    
   inline void SearchNextScale(int& sourceScale, int targetScale);
   bool SearchImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale);
   APIBitmap* SearchBitmapInCache(const char* name, int targetScale, int& sourceScale);

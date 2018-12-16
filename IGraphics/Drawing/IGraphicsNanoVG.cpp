@@ -256,6 +256,12 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const WDL_String& resourcePath, int sc
   return new NanoVGBitmap(mVG, resourcePath.Get(), scale, GetPlatformInstance());
 }
 
+APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height)
+{
+  const double scale = GetScale() * GetDisplayScale();
+  return new NanoVGBitmap(mVG, width * scale, height * scale, scale);
+}
+
 void IGraphicsNanoVG::SetPlatformContext(void* pContext)
 {
   mPlatformContext = pContext;
@@ -612,19 +618,30 @@ void IGraphicsNanoVG::DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, 
   nvgBeginPath(mVG); // Clear the paths
 }
 
+void IGraphicsNanoVG::UpdateLayer()
+{
+  if (mLayers.empty())
+  {
+    //nvgEndFrame(mVG);
+    nvgBindFramebuffer(mMainFrameBuffer);
+    //nvgBeginFrame(mVG,  WindowWidth(), WindowHeight(), GetDisplayScale());
+  }
+  else
+  {
+    //nvgEndFrame(mVG);
+    nvgBindFramebuffer(dynamic_cast<const NanoVGBitmap*>(mLayers.top()->GetAPIBitmap())->GetFBO());
+    //nvgBeginFrame(mVG, r.W() * GetScale(), r.H() * GetScale(), GetDisplayScale());
+    nvgBeginPath(mVG);
+    nvgRect(mVG, 0, 0, mLayers.top()->Bounds().W() * GetScale(), mLayers.top()->Bounds().H() * GetScale());
+    nvgFillColor(mVG, NanoVGColor(COLOR_TRANSPARENT));
+    nvgFill(mVG);
+  }
+}
+
 void IGraphicsNanoVG::StartLayer(const IRECT& r)
 {
-  double scale = GetScale() * GetDisplayScale();
-  mLayers.push(new ILayer(new NanoVGBitmap(mVG, r.W() * scale, r.H() * scale, scale), r));
-    
-  //nvgEndFrame(mVG);
-  nvgBindFramebuffer(dynamic_cast<const NanoVGBitmap*>(mLayers.top()->GetAPIBitmap())->GetFBO());
-  //nvgBeginFrame(mVG, r.W() * GetScale(), r.H() * GetScale(), GetDisplayScale());
-  nvgBeginPath(mVG);
-  nvgRect(mVG, 0, 0, r.W() * GetScale(), r.H() * GetScale());
-  nvgFillColor(mVG, NanoVGColor(COLOR_TRANSPARENT));
-  nvgFill(mVG);
-
+  mLayers.push(new ILayer(CreateAPIBitmap(r.W(), r.H()), r));
+  UpdateLayer();
   PathTransformReset(true);
   SetClipRegion(r);
 }
@@ -632,27 +649,15 @@ void IGraphicsNanoVG::StartLayer(const IRECT& r)
 std::unique_ptr<ILayer> IGraphicsNanoVG::EndLayer()
 {
   ILayer *pLayer = nullptr;
-  NVGframebuffer* pFrameBuffer = mMainFrameBuffer;
-  int width = WindowWidth();
-  int height = WindowHeight();
-    
+  
   if (!mLayers.empty())
   {
     pLayer = mLayers.top();
     mLayers.pop();
   }
   
-  if (!mLayers.empty())
-  {
-    width = mLayers.top()->Bounds().W() * GetScale();
-    height = mLayers.top()->Bounds().H() * GetScale();
-    pFrameBuffer = dynamic_cast<const NanoVGBitmap*>(mLayers.top()->GetAPIBitmap())->GetFBO();
-  }
+  UpdateLayer();
   
-  //nvgEndFrame(mVG);
-  nvgBindFramebuffer(pFrameBuffer);
-  //nvgBeginFrame(mVG, width, height, GetDisplayScale());
-
   PathTransformReset(true);
   PathClipRegion();
   

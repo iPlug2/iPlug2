@@ -184,6 +184,12 @@ APIBitmap* IGraphicsCairo::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
   return new CairoBitmap(pOutSurface, scale);
 }
 
+APIBitmap* IGraphicsCairo::CreateAPIBitmap(int width, int height)
+{
+  const double scale = GetScale() * GetDisplayScale();
+  return new CairoBitmap(mSurface, width * scale, height * scale, scale);
+}
+
 void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
   cairo_save(mContext);
@@ -321,8 +327,8 @@ void IGraphicsCairo::SetCairoSourcePattern(const IPattern& pattern, const IBlend
 
 void IGraphicsCairo::StartLayer(const IRECT& r)
 {
-  double scale = GetScale() * GetDisplayScale();
-  mLayers.push(new ILayer(new CairoBitmap(mSurface, r.W() * scale, r.H() * scale, scale), r));
+  mLayers.push(new ILayer(CreateAPIBitmap(r.W(), r.H()), r));
+  const double scale = GetDisplayScale() * GetScale();
   cairo_surface_set_device_offset(mLayers.top()->GetAPIBitmap()->GetBitmap(), -r.L * scale, -r.T * scale);
   UpdateCairoContext();
   PathTransformReset(true);
@@ -521,6 +527,8 @@ void IGraphicsCairo::UpdateCairoMainSurface(cairo_surface_t* pSurface)
   
   if (pSurface)
     mSurface = pSurface;
+  
+  UpdateCairoContext();
 }
 
 void IGraphicsCairo::SetPlatformContext(void* pContext)

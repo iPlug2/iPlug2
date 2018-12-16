@@ -145,13 +145,15 @@ public:
 protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override { return new APIBitmap(); } // NO-OP
+  APIBitmap* CreateAPIBitmap(int width, int height) override;
 
   bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
 
 private:
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
-  
+  void UpdateLayer();
+
   StaticStorage<APIBitmap> mBitmapCache; //not actually static
   NVGcontext* mVG = nullptr;
   NVGframebuffer* mMainFrameBuffer = nullptr;
