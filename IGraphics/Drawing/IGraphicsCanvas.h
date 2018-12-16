@@ -12,7 +12,6 @@
 
 #include <emscripten/val.h>
 #include <emscripten/bind.h>
-#include <stack>
 
 #include "IPlugPlatform.h"
 
@@ -24,6 +23,8 @@ class CanvasBitmap : public APIBitmap
 {
 public:
   CanvasBitmap(val imageCanvas, const char* name, int scale);
+  CanvasBitmap(int width, int height, double scale);
+  ~CanvasBitmap();
 };
 
 /** IGraphics draw class HTML5 canvas
@@ -67,7 +68,7 @@ private:
   
   val GetContext()
   {
-    val canvas = mCanvases.empty() ? val::global("document").call<val>("getElementById", std::string("canvas")) : mCanvases.top();
+    val canvas = mLayers.empty() ? val::global("document").call<val>("getElementById", std::string("canvas")) : *(mLayers.top()->GetAPIBitmap()->GetBitmap());
       
     return canvas.call<val>("getContext", std::string("2d"));
   }
@@ -80,6 +81,4 @@ private:
     
   void SetCanvasSourcePattern(const IPattern& pattern, const IBlend* pBlend = nullptr);
   void SetCanvasBlendMode(const IBlend* pBlend);
-
-  std::stack<val> mCanvases;
 };

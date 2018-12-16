@@ -72,7 +72,9 @@ typedef std::chrono::duration<double, std::chrono::milliseconds::period> Millise
   typedef LICE_IBitmap* BitmapData;
   class LICE_IFont;
 #elif defined IGRAPHICS_CANVAS
-  typedef void* BitmapData;
+  #include <emscripten.h>
+  #include <emscripten/val.h>
+typedef emscripten::val* BitmapData;
 #else // NO_IGRAPHICS
   typedef void* BitmapData;
 #endif
