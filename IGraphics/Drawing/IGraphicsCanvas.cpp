@@ -225,9 +225,10 @@ void IGraphicsCanvas::SetCanvasBlendMode(const IBlend* pBlend)
 void IGraphicsCanvas::StartLayer(const IRECT& r)
 {
   double scale = GetScale() * GetDisplayScale();
-  mCanvases.push(val::global("document").call<val>("createElement", std::string("canvas")));
-  mCanvases.top().set("width", r.W() * scale);
-  mCanvases.top().set("height", r.H() * scale);
+  val canvas = val::global("document").call<val>("createElement", std::string("canvas")));
+  canvas.set("width", r.W() * scale);
+  canvas.set("height", r.H() * scale);
+  mCanvases.push(canvas);
   mLayers.push(new ILayer(new CanvasBitmap(mCanvases.top(), "", GetDisplayScale()), r));
   PathTransformReset(true);
   SetClipRegion(r);
