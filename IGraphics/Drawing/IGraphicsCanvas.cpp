@@ -27,7 +27,7 @@ static std::string CanvasColor(const IColor& color, float alpha = 1.0)
   return str.Get();
 }
 
-WebBitmap::WebBitmap(emscripten::val imageCanvas, const char* name, int scale)
+CanvasBitmap::CanvasBitmap(emscripten::val imageCanvas, const char* name, int scale)
 {
   SetBitmap(new RetainVal(imageCanvas), imageCanvas["width"].as<int>(), imageCanvas["height"].as<int>(), scale);
 }
@@ -306,7 +306,7 @@ void IGraphicsCanvas::SetClipRegion(const IRECT& r)
 
 APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
 {
-  return new WebBitmap(GetPreloadedImages()[resourcePath.Get()], resourcePath.Get() + 1, scale);
+  return new CanvasBitmap(GetPreloadedImages()[resourcePath.Get()], resourcePath.Get() + 1, scale);
 }
 
 APIBitmap* IGraphicsCanvas::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
@@ -336,5 +336,5 @@ APIBitmap* IGraphicsCanvas::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 //  // Delete the canvas
 //  documentHead.call<val>("removeChild", canvasNode);
 
-  return new WebBitmap(GetPreloadedImages()[""], "", scale);
+  return new CanvasBitmap(GetPreloadedImages()[""], "", scale);
 }

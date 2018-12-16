@@ -19,10 +19,10 @@
 
 using namespace emscripten;
 
-class WebBitmap : public APIBitmap
+class CanvasBitmap : public APIBitmap
 {
 public:
-  WebBitmap(val imageCanvas, const char* name, int scale);
+  CanvasBitmap(val imageCanvas, const char* name, int scale);
 };
 
 static val GetContext()
