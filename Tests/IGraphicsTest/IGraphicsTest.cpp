@@ -91,8 +91,8 @@ void IGraphicsTest::OnHostSelectedViewConfiguration(int width, int height)
   DBGMSG("SELECTED: W %i, H%i\n", width, height);
 //  const float scale = (float) height / (float) PLUG_HEIGHT;
   
-  if(GetUI())
-    GetUI()->Resize(width, height, 1);
+//  if(GetUI())
+//    GetUI()->Resize(width, height, 1);
 }
 
 bool IGraphicsTest::OnHostRequestingSupportedViewConfiguration(int width, int height)
