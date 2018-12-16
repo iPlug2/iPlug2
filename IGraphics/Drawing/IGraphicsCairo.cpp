@@ -79,8 +79,11 @@ CairoBitmap::CairoBitmap(cairo_surface_t* pSurface, int scale)
   SetBitmap(pSurface, width, height, scale);
 }
 
-CairoBitmap::CairoBitmap(cairo_surface_t* pSurface, int width, int height, int scale)
+CairoBitmap::CairoBitmap(cairo_surface_t* pSurfaceType, int width, int height, double scale)
 {
+  cairo_surface_t* pSurface = cairo_surface_create_similar(pSurfaceType, CAIRO_CONTENT_COLOR_ALPHA, width, height);
+  cairo_surface_set_device_scale(pSurface, scale, scale);
+  
   SetBitmap(pSurface, width, height, scale);
 }
   
@@ -319,13 +322,9 @@ void IGraphicsCairo::SetCairoSourcePattern(const IPattern& pattern, const IBlend
 void IGraphicsCairo::StartLayer(const IRECT& r)
 {
   double scale = GetScale() * GetDisplayScale();
-  int width = r.W() * scale;
-  int height = r.H() * scale;
-  cairo_surface_t* pSurface = cairo_surface_create_similar(mSurface, CAIRO_CONTENT_COLOR_ALPHA, width, height);
-  cairo_surface_set_device_scale(pSurface, scale, scale);
-  cairo_surface_set_device_offset(pSurface, -r.L * scale, -r.T * scale);
-  mLayers.push(new ILayer(new CairoBitmap(pSurface, width, height, scale), r));
-  UpdateCairoContext(pSurface);
+  mLayers.push(new ILayer(new CairoBitmap(mSurface, r.W() * scale, r.H() * scale, scale), r));
+  cairo_surface_set_device_offset(mLayers.top()->GetAPIBitmap()->GetBitmap(), -r.L * scale, -r.T * scale);
+  UpdateCairoContext();
   PathTransformReset(true);
   SetClipRegion(r);
 }
@@ -333,7 +332,6 @@ void IGraphicsCairo::StartLayer(const IRECT& r)
 std::unique_ptr<ILayer> IGraphicsCairo::EndLayer()
 {
   ILayer *pLayer = nullptr;
-  cairo_surface_t* pSurface = mSurface;
   
   if (!mLayers.empty())
   {
@@ -342,10 +340,7 @@ std::unique_ptr<ILayer> IGraphicsCairo::EndLayer()
     cairo_surface_set_device_offset(pLayer->GetAPIBitmap()->GetBitmap(), 0, 0);
   }
   
-  if (!mLayers.empty())
-    pSurface = mLayers.top()->GetAPIBitmap()->GetBitmap();
-  
-  UpdateCairoContext(pSurface);
+  UpdateCairoContext();
   PathTransformReset(true);
   PathClipRegion();
   
@@ -500,7 +495,7 @@ bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
   return true;
 }
 
-void IGraphicsCairo::UpdateCairoContext(cairo_surface_t* pSurface)
+void IGraphicsCairo::UpdateCairoContext()
 {
   if (mContext)
   {
@@ -508,6 +503,8 @@ void IGraphicsCairo::UpdateCairoContext(cairo_surface_t* pSurface)
     mContext = nullptr;
   }
   
+  cairo_surface_t* pSurface = mLayers.empty() ? mSurface : mLayers.top()->GetAPIBitmap()->GetBitmap();
+
   if (pSurface)
     mContext = cairo_create(pSurface);
   
@@ -544,7 +541,7 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
   #error NOT IMPLEMENTED
 #endif
     
-    UpdateCairoContext(mSurface);
+    UpdateCairoContext();
 
     if (mContext)
     {

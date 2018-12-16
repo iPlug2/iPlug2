@@ -183,6 +183,7 @@ public:
   void* GetDrawContext() override { return nullptr; } //TODO
   const char* GetDrawingAPIStr() override { return "AGG"; }
 
+  void UpdateAGGBitmap();
   void StartLayer(const IRECT& r) override;
   std::unique_ptr<ILayer> EndLayer() override;
     

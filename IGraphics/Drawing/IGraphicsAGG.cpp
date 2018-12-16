@@ -172,19 +172,24 @@ IGraphicsAGG::~IGraphicsAGG()
 void IGraphicsAGG::DrawResize()
 {
   mPixelMap.create(WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
-  mRenBuf.attach(mPixelMap.buf(), mPixelMap.width(), mPixelMap.height(), mPixelMap.row_bytes());
+  UpdateAGGBitmap();
   mRasterizer.SetOutput(mRenBuf);
   mRasterizer.ClearWhite();
     
   mTransform = agg::trans_affine_scaling(GetScale() * GetDisplayScale(), GetScale() * GetDisplayScale());
 }
 
+void IGraphicsAGG::UpdateAGGBitmap()
+{
+  agg::pixel_map* pPixelMap = mLayers.empty() ? &mPixelMap : mLayers.top()->GetAPIBitmap()->GetBitmap();
+  mRenBuf.attach(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
+}
+
 void IGraphicsAGG::StartLayer(const IRECT& r)
 {
   double scale = GetScale() * GetDisplayScale();
-  agg::pixel_map* pPixelMap = CreatePixmap(r.W() * scale, r.H() * scale);
-  mLayers.push(new ILayer(new AGGBitmap(pPixelMap, scale), r));
-  mRenBuf.attach(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
+  mLayers.push(new ILayer(new AGGBitmap(CreatePixmap(r.W() * scale, r.H() * scale), scale), r));
+  UpdateAGGBitmap();
   PathTransformReset(true);
   SetClipRegion(r);
 }
@@ -192,7 +197,6 @@ void IGraphicsAGG::StartLayer(const IRECT& r)
 std::unique_ptr<ILayer> IGraphicsAGG::EndLayer()
 {
   ILayer *pLayer = nullptr;
-  agg::pixel_map* pPixelMap = &mPixelMap;
   
   if (!mLayers.empty())
   {
@@ -200,10 +204,7 @@ std::unique_ptr<ILayer> IGraphicsAGG::EndLayer()
     mLayers.pop();
   }
   
-  if (!mLayers.empty())
-    pPixelMap = mLayers.top()->GetAPIBitmap()->GetBitmap();
-  
-  mRenBuf.attach(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
+  UpdateAGGBitmap();
   PathTransformReset(true);
   PathClipRegion();
   
