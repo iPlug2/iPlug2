@@ -264,7 +264,9 @@
   #endif
 
   #if AAX_DOES_AUDIOSUITE
-    #error AAX_TYPE_IDS_AUDIOSUITE not defined - list of comma separated four char IDs, that correspond to the different possible channel layouts of your plug-in when running off-line in audio suite mode, e.g. 'EFA1', 'EFA2'
+    #ifndef AAX_TYPE_IDS_AUDIOSUITE
+      #error AAX_TYPE_IDS_AUDIOSUITE not defined - list of comma separated four char IDs, that correspond to the different possible channel layouts of your plug-in when running off-line in audio suite mode, e.g. 'EFA1', 'EFA2'
+    #endif
   #endif
 #endif
 
