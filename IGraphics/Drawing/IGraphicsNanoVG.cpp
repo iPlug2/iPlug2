@@ -123,6 +123,20 @@ NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, double s
 {
   mVG = pContext;
   mFBO = nvgCreateFramebuffer(pContext, width, height, 0);
+  
+  nvgEndFrame(mVG);
+  nvgBindFramebuffer(mFBO);
+  
+#ifdef IGRAPHICS_METAL
+  mnvgClearWithColor(mVG, nvgRGBAf(0, 0, 0, 0));
+#else
+  glViewport(0, 0, width, height);
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+#endif
+  nvgBeginFrame(mVG, width, height, 1.f);
+  nvgEndFrame(mVG);
+  
   SetBitmap(mFBO->image, width, height, sourceScale);
 }
 
@@ -622,19 +636,22 @@ void IGraphicsNanoVG::UpdateLayer()
 {
   if (mLayers.empty())
   {
-    //nvgEndFrame(mVG);
+    nvgEndFrame(mVG);
+#ifndef IGRAPHICS_METAL
+    glViewport(0, 0, WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
+#endif
     nvgBindFramebuffer(mMainFrameBuffer);
-    //nvgBeginFrame(mVG,  WindowWidth(), WindowHeight(), GetDisplayScale());
+    nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetDisplayScale());
   }
   else
   {
-    //nvgEndFrame(mVG);
+    nvgEndFrame(mVG);
+#ifndef IGRAPHICS_METAL
+    const double scale = GetScale() * GetDisplayScale();
+    glViewport(0, 0, mLayers.top()->Bounds().W() * scale, mLayers.top()->Bounds().H() * scale);
+#endif
     nvgBindFramebuffer(dynamic_cast<const NanoVGBitmap*>(mLayers.top()->GetAPIBitmap())->GetFBO());
-    //nvgBeginFrame(mVG, r.W() * GetScale(), r.H() * GetScale(), GetDisplayScale());
-    nvgBeginPath(mVG);
-    nvgRect(mVG, 0, 0, mLayers.top()->Bounds().W() * GetScale(), mLayers.top()->Bounds().H() * GetScale());
-    nvgFillColor(mVG, NanoVGColor(COLOR_TRANSPARENT));
-    nvgFill(mVG);
+    nvgBeginFrame(mVG, mLayers.top()->Bounds().W() * GetScale(), mLayers.top()->Bounds().H() * GetScale(), GetDisplayScale());
   }
 }
 
@@ -667,8 +684,20 @@ std::unique_ptr<ILayer> IGraphicsNanoVG::EndLayer()
 
 void IGraphicsNanoVG::PathTransformSetMatrix(const IMatrix& m)
 {
+  double xTranslate = 0.0;
+  double yTranslate = 0.0;
+  
+  if (!mLayers.empty())
+  {
+    IRECT bounds = mLayers.top()->Bounds();
+    
+    xTranslate = -bounds.L;
+    yTranslate = -bounds.T;
+  }
+  
   nvgResetTransform(mVG);
   nvgScale(mVG, GetScale(), GetScale());
+  nvgTranslate(mVG, xTranslate, yTranslate);
   nvgTransform(mVG, m.mTransform[0], m.mTransform[1], m.mTransform[2], m.mTransform[3], m.mTransform[4], m.mTransform[5]);
 }
 
