@@ -1033,6 +1033,6 @@ protected:
   friend class IGraphicsLiveEdit;
   friend class ICornerResizerBase;
   
-  std::stack<ILayer *> mLayers;
+  std::stack<ILayer*> mLayers;
 };
 

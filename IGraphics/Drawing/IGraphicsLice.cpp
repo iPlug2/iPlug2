@@ -388,7 +388,7 @@ void IGraphicsLice::StartLayer(const IRECT& r)
 
 std::unique_ptr<ILayer> IGraphicsLice::EndLayer()
 {
-  ILayer *pLayer = nullptr;
+  ILayer* pLayer = nullptr;
   LICE_IBitmap* pBitmap = mDrawBitmap;
   
   if (!mLayers.empty())
