@@ -119,17 +119,19 @@ NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double source
   SetBitmap(idx, w, h, sourceScale);
 }
 
-NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int idx, double sourceScale)
+NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, double sourceScale)
 {
-    int w = 0, h = 0;
-    mVG = pContext;
-    nvgImageSize(mVG, idx, &w, &h);
-    SetBitmap(idx, w, h, sourceScale);
+  mVG = pContext;
+  mFBO = nvgCreateFramebuffer(pContext, width, height, 0);
+  SetBitmap(mFBO->image, width, height, sourceScale);
 }
 
 NanoVGBitmap::~NanoVGBitmap()
 {
-  nvgDeleteImage(mVG, GetBitmap());
+  if(mFBO)
+    nvgDeleteFramebuffer(mFBO);
+  else
+    nvgDeleteImage(mVG, GetBitmap());
 }
 
 #pragma mark -
@@ -613,12 +615,10 @@ void IGraphicsNanoVG::DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, 
 void IGraphicsNanoVG::StartLayer(const IRECT& r)
 {
   double scale = GetScale() * GetDisplayScale();
-  NVGframebuffer* pFrameBuffer = nvgCreateFramebuffer(mVG, r.W() * scale, r.H() * scale, 0);
-  mFrameBuffers.push(pFrameBuffer);
-  mLayers.push(new ILayer(new NanoVGBitmap(mVG, pFrameBuffer->image, scale), r));
+  mLayers.push(new ILayer(new NanoVGBitmap(mVG, r.W() * scale, r.H() * scale, scale), r));
     
   //nvgEndFrame(mVG);
-  nvgBindFramebuffer(pFrameBuffer);
+  nvgBindFramebuffer(dynamic_cast<const NanoVGBitmap*>(mLayers.top()->GetAPIBitmap())->GetFBO());
   //nvgBeginFrame(mVG, r.W() * GetScale(), r.H() * GetScale(), GetDisplayScale());
   nvgBeginPath(mVG);
   nvgRect(mVG, 0, 0, r.W() * GetScale(), r.H() * GetScale());
@@ -646,7 +646,7 @@ std::unique_ptr<ILayer> IGraphicsNanoVG::EndLayer()
   {
     width = mLayers.top()->Bounds().W() * GetScale();
     height = mLayers.top()->Bounds().H() * GetScale();
-    pFrameBuffer = mFrameBuffers.top();
+    pFrameBuffer = dynamic_cast<const NanoVGBitmap*>(mLayers.top()->GetAPIBitmap())->GetFBO();
   }
   
   //nvgEndFrame(mVG);

@@ -14,7 +14,6 @@
 #include "IGraphicsPathBase.h"
 
 #include "nanovg.h"
-#include <stack>
 
 // Thanks to Olli Wang for much of this macro magic  https://github.com/ollix/moui
 
@@ -87,10 +86,12 @@ class NanoVGBitmap : public APIBitmap
 {
 public:
   NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, void* hInst = nullptr);
-  NanoVGBitmap(NVGcontext* pContext, int idx, double sourceScale);
+  NanoVGBitmap(NVGcontext* pContext, int width, int height, double sourceScale);
   virtual ~NanoVGBitmap();
+  NVGframebuffer* GetFBO() const { return mFBO; }
 private:
   NVGcontext* mVG;
+  NVGframebuffer* mFBO = nullptr;
 };
 
 /** IGraphics draw class using NanoVG  
@@ -155,7 +156,6 @@ private:
   NVGcontext* mVG = nullptr;
   NVGframebuffer* mMainFrameBuffer = nullptr;
     
-  std::stack<NVGframebuffer*> mFrameBuffers;
 #if defined OS_WIN
   HGLRC mHGLRC = nullptr;
 #endif
