@@ -102,6 +102,7 @@ public:
   void OnResize() override;
 protected:
   bool mDisplayParamValue;
+  bool mShowParamLabel = true;
   IRECT mHandleBounds;
   IRECT mLabelBounds;
   IRECT mValueBounds;

@@ -194,7 +194,13 @@ void IVKnobControl::Draw(IGraphics& g)
   {
     WDL_String str;
     GetParam()->GetDisplayForHost(str);
-    g.FillRect(COLOR_RED, mValueBounds);
+    
+    if (mShowParamLabel)
+    {
+      str.Append(" ");
+      str.Append(GetParam()->GetLabelForHost());
+    }
+    
     g.DrawText(mValueText, str.Get(), mValueBounds);
   }
 }
@@ -205,10 +211,14 @@ void IVKnobControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   {
     PromptUserInput(mValueBounds);
   }
+  else
+    IKnobControlBase::OnMouseDown(x, y, mod);
 }
 
 void IVKnobControl::OnResize()
 {
+  IRECT clickableArea;
+  
   if(mLabel.GetLength())
   {
     IRECT textRect;
@@ -220,9 +230,9 @@ void IVKnobControl::OnResize()
     mLabelBounds = IRECT();
   
   if(mLabelBounds.H())
-    mTargetRECT = mRECT.GetReducedFromTop(mLabelBounds.H());
+    clickableArea = mRECT.GetReducedFromTop(mLabelBounds.H());
   else
-    mTargetRECT = mRECT;
+    clickableArea = mRECT;
 
   if (mDisplayParamValue)
   {
@@ -232,21 +242,22 @@ void IVKnobControl::OnResize()
     
     GetUI()->MeasureText(mValueText, str.Get(), textRect);
     
-    const float valueDisplayWidth = mTargetRECT.W() * mKnobFrac * 0.5f;
+    const float valueDisplayWidth = clickableArea.W() * mKnobFrac * 0.5f;
     switch (mValueText.mVAlign)
     {
       case IText::kVAlignMiddle:
-        mValueBounds = mTargetRECT.GetMidVPadded(textRect.H()/2.).GetMidHPadded(valueDisplayWidth);
+        mHandleBounds = clickableArea;
+        mValueBounds = clickableArea.GetMidVPadded(textRect.H()/2.).GetMidHPadded(valueDisplayWidth);
         break;
       case IText::kVAlignBottom:
       {
-        mValueBounds = mTargetRECT.GetFromBottom(textRect.H()).GetMidHPadded(valueDisplayWidth);
-        mTargetRECT = mTargetRECT.GetReducedFromBottom(textRect.H());
+        mValueBounds = clickableArea.GetFromBottom(textRect.H()).GetMidHPadded(valueDisplayWidth);
+        mHandleBounds = clickableArea.GetReducedFromBottom(textRect.H());
         break;
       }
       case IText::kVAlignTop:
-        mValueBounds = mTargetRECT.GetFromTop(textRect.H()).GetMidHPadded(valueDisplayWidth);
-        mTargetRECT = mTargetRECT.GetReducedFromTop(textRect.H());
+        mValueBounds = clickableArea.GetFromTop(textRect.H()).GetMidHPadded(valueDisplayWidth);
+        mHandleBounds = clickableArea.GetReducedFromTop(textRect.H());
         break;
       default:
         break;
