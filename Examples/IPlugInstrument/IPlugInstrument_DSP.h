@@ -147,5 +147,6 @@ public:
     mSynth.AddMidiMsgToQueue(msg);
   }
 
+public:
   MidiSynth mSynth { VoiceAllocator::kPolyModePoly, MidiSynth::kDefaultBlockSize };
 };

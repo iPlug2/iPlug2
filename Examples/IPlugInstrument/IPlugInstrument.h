@@ -8,6 +8,7 @@ const int kNumPrograms = 1;
 enum EParams
 {
   kGain = 0,
+  kNoteGlideTime,
   kNumParams
 };
 
@@ -20,6 +21,7 @@ public:
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void ProcessMidiMsg(const IMidiMsg& msg) override;
   void OnReset() override;
+  void OnParamChange(int paramIdx) override;
 private:
   IPlugInstrumentDSP mDSP {16};
 #endif

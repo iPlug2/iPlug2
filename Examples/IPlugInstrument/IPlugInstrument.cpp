@@ -6,6 +6,7 @@ IPlugInstrument::IPlugInstrument(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
 {
   GetParam(kGain)->InitDouble("Gain", 100., 0., 100.0, 0.01, "%");
+  GetParam(kNoteGlideTime)->InitSeconds("Note Glide Time", 0.1, 2.);
 
 #if IPLUG_EDITOR // All UI methods and member variables should be within an IPLUG_EDITOR guard, should you want distributed UI
   mMakeGraphicsFunc = [&]() {
@@ -15,10 +16,14 @@ IPlugInstrument::IPlugInstrument(IPlugInstanceInfo instanceInfo)
   mLayoutFunc = [&](IGraphics* pGraphics) {
     pGraphics->AttachCornerResizer(kUIResizerScale, false);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
+//    pGraphics->EnableLiveEdit(true);
     pGraphics->LoadFont(ROBOTTO_FN);
     const IRECT b = pGraphics->GetBounds();
-    pGraphics->AttachControl(new IVKeyboardControl(*this, b.GetGridCell(4, 5, 1)));
-    pGraphics->AttachControl(new IVKnobControl(*this, b.GetCentredInside(100).GetVShifted(-100), kGain));
+    pGraphics->AttachControl(new IVKeyboardControl(*this, IRECT(10, 335, PLUG_WIDTH-10, PLUG_HEIGHT-10)));
+    pGraphics->AttachControl(new IVMultiSliderControl<8>(*this, b.GetGridCell(0, 2, 2).GetPadded(-30)));
+    const IRECT knobs = b.GetGridCell(1, 2, 2);
+    pGraphics->AttachControl(new IVKnobControl(*this, knobs.GetGridCell(0, 1, 3).GetCentredInside(100), kGain, "Gain", true));
+    pGraphics->AttachControl(new IVKnobControl(*this, knobs.GetGridCell(1, 1, 3).GetCentredInside(100), kNoteGlideTime, "Glide"));
   };
 #endif
 }
@@ -68,5 +73,18 @@ void IPlugInstrument::ProcessMidiMsg(const IMidiMsg& msg)
 handle:
   mDSP.ProcessMidiMsg(msg);
   SendMidiMsg(msg);
+}
+
+void IPlugInstrument::OnParamChange(int paramIdx)
+{
+  switch (paramIdx)
+  {
+    case kNoteGlideTime:
+      mDSP.mSynth.SetNoteGlideTime(GetParam(paramIdx)->Value());
+      break;
+      
+    default:
+      break;
+  }
 }
 #endif

@@ -79,6 +79,7 @@
 		4F9A830F213DE87600BE63A4 /* IVScopeControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8306213DE87600BE63A4 /* IVScopeControl.h */; };
 		4FA758462186222E00F1BCC3 /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FA758452186222E00F1BCC3 /* IPlugPaths.mm */; };
 		4FB2269720A0D3A800614769 /* IPlugInstrument-iOS-launchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* IPlugInstrument-iOS-launchScreen.storyboard */; };
+		4FB72D9421C5B73E00DF244D /* IPlugInstrument_DSP.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FB72D9321C5B73D00DF244D /* IPlugInstrument_DSP.h */; };
 		4FE8F3B120BA273800BF938F /* IGraphicsEditorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FE8F3AF20BA273800BF938F /* IGraphicsEditorDelegate.cpp */; };
 		4FE8F3B220BA273800BF938F /* IGraphicsEditorDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE8F3B020BA273800BF938F /* IGraphicsEditorDelegate.h */; };
 		4FFF104120A0E55A00D3092F /* IPlugConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF103020A0E55900D3092F /* IPlugConstants.h */; };
@@ -278,6 +279,7 @@
 		4FA758452186222E00F1BCC3 /* IPlugPaths.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugPaths.mm; path = ../../../IPlug/IPlugPaths.mm; sourceTree = "<group>"; };
 		4FB2269620A0D3A800614769 /* IPlugInstrument-iOS-launchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = "IPlugInstrument-iOS-launchScreen.storyboard"; path = "../resources/IPlugInstrument-iOS-launchScreen.storyboard"; sourceTree = "<group>"; };
 		4FB2269A20A0D3B900614769 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ../../../IPlug/AUv3/IOSApp/AppDelegate.swift; sourceTree = "<group>"; };
+		4FB72D9321C5B73D00DF244D /* IPlugInstrument_DSP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugInstrument_DSP.h; path = ../IPlugInstrument_DSP.h; sourceTree = "<group>"; };
 		4FBBD7F420B6ABE700A37DE2 /* config */ = {isa = PBXFileReference; lastKnownFileType = folder; name = config; path = ../config; sourceTree = "<group>"; };
 		4FC82B4720BD524700722133 /* img */ = {isa = PBXFileReference; lastKnownFileType = folder; name = img; path = ../resources/img; sourceTree = "<group>"; };
 		4FC82B4820BD524700722133 /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fonts; path = ../resources/fonts; sourceTree = "<group>"; };
@@ -646,6 +648,7 @@
 				4FFF108420A1036200D3092F /* config.h */,
 				4FFF108820A1036200D3092F /* IPlugInstrument.h */,
 				4FFF108720A1036200D3092F /* IPlugInstrument.cpp */,
+				4FB72D9321C5B73D00DF244D /* IPlugInstrument_DSP.h */,
 				4F10E7CF20B1CB5800F5B09B /* GenericUI.swift */,
 				4F20210120A1BF1E00F22200 /* IPlugInstrumentViewController.swift */,
 				4F8BF48D20A12D2E0081DF0A /* Resources */,
@@ -675,6 +678,7 @@
 				4F977D6220CC9DD800D19F46 /* Array.h in Headers */,
 				4FFF105C20A0E57100D3092F /* IPlugAUAudioUnit.h in Headers */,
 				4F048C9720B1E74F002052E7 /* IPlugInstrumentFramework.h in Headers */,
+				4FB72D9421C5B73E00DF244D /* IPlugInstrument_DSP.h in Headers */,
 				4F977D6020CC9DD800D19F46 /* FPUUpsampler2x.h in Headers */,
 				4F9A830C213DE87600BE63A4 /* IPerfDisplayControl.h in Headers */,
 				4F6E672E21C560BD005991A9 /* ControlRamp.h in Headers */,
