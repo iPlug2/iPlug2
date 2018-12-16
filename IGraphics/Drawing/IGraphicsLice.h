@@ -98,6 +98,9 @@ public:
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return mDrawBitmap->getBits(); }
     
+  void StartLayer(const IRECT& r) override;
+  ILayer *EndLayer() override;
+    
   inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
 
 protected:
@@ -109,19 +112,44 @@ protected:
   void EndFrame() override;
     
 private:
+    
+  float TransformX(float x)
+  {
+    return (x - mDrawOffsetX) * GetDisplayScale();
+  }
   
+  float TransformY(float y)
+  {
+    return (y - mDrawOffsetY) * GetDisplayScale();
+  }
+    
+  IRECT TransformRECT(const IRECT& r)
+  {
+    IRECT tr = r;
+    tr.Shift(-mDrawOffsetX, - mDrawOffsetY);
+    tr.Scale(GetDisplayScale());
+    return tr;
+  }
+    
   void ClipRegion(const IRECT& r) override
   {
     mDrawRECT = r;
     mDrawRECT.PixelAlign();
+    mClipRECT = mDrawRECT;
   }
   
   LICE_IFont* CacheFont(const IText& text, double scale);
 
   IRECT mDrawRECT;
+  IRECT mClipRECT;
     
+  int mDrawOffsetX = 0;
+  int mDrawOffsetY = 0;
+  
   LICE_SysBitmap* mDrawBitmap = nullptr;
   LICE_MemBitmap* mTmpBitmap = nullptr;
+  // N.B. mRenderBitmap is not owned through this pointer, and should not be deleted
+  LICE_IBitmap* mRenderBitmap = nullptr;
 #ifdef OS_MAC
   CGColorSpaceRef mColorSpace = nullptr;
 #endif

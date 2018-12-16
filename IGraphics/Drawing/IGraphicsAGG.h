@@ -183,6 +183,9 @@ public:
   void* GetDrawContext() override { return nullptr; } //TODO
   const char* GetDrawingAPIStr() override { return "AGG"; }
 
+  void StartLayer(const IRECT& r) override;
+  ILayer *EndLayer() override;
+    
   void EndFrame() override;
     
  //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
@@ -198,9 +201,14 @@ private:
 
   agg::trans_affine GetRasterTransform() { return agg::trans_affine() / mTransform; }
 
-  template<typename PathType> void DoClip(PathType& path)
+  double XTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().L; }
+  double YTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().T; }
+
+  template<typename PathType>
+  void DoClip(PathType& path)
   {
     IRECT clip = mClipRECT.Empty() ? GetBounds() : mClipRECT;
+    clip.Shift(XTranslate(), YTranslate());
     clip.Scale(GetDisplayScale() * GetScale());
     path.clip_box(clip.L, clip.T, clip.R, clip.B);
   }
@@ -209,6 +217,7 @@ private:
   {
     IMatrix t;
     t.Scale(GetScale() * GetDisplayScale(), GetScale() * GetDisplayScale());
+    t.Translate(XTranslate(), YTranslate());
     t.Transform(m);
     mTransform = agg::trans_affine(t.mTransform[0], t.mTransform[1], t.mTransform[2], t.mTransform[3], t.mTransform[4], t.mTransform[5]);
   }

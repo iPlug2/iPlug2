@@ -313,6 +313,35 @@ void IGraphicsCairo::SetCairoSourcePattern(const IPattern& pattern, const IBlend
   }
 }
 
+IRECT area;
+
+void IGraphicsCairo::StartLayer(const IRECT& r)
+{
+  PathTransformReset(true);
+  SetClipRegion(r);
+  area = r;
+  cairo_push_group(mContext);    
+}
+
+ILayer *IGraphicsCairo::EndLayer()
+{
+  cairo_surface_t* pSurface = nullptr;
+  cairo_pattern_t* pPattern = cairo_pop_group(mContext);
+
+  PathTransformReset(true);
+  PathClipRegion();
+    
+  if (cairo_pattern_get_surface(pPattern, &pSurface) == CAIRO_STATUS_SUCCESS)
+  {
+    pSurface = cairo_surface_reference(pSurface);
+    cairo_pattern_destroy(pPattern);
+    cairo_surface_set_device_offset(pSurface, 0, 0);
+    return new ILayer(new CairoBitmap(pSurface,  1.0), area);
+  }
+
+  return nullptr;
+}
+
 IColor IGraphicsCairo::GetPoint(int x, int y)
 {
   // Convert suface to cairo image surface of one pixel (avoid copying the whole surface)

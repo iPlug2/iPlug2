@@ -12,6 +12,7 @@
 
 #include <emscripten/val.h>
 #include <emscripten/bind.h>
+#include <stack>
 
 #include "IPlugPlatform.h"
 
@@ -24,12 +25,6 @@ class CanvasBitmap : public APIBitmap
 public:
   CanvasBitmap(val imageCanvas, const char* name, int scale);
 };
-
-static val GetContext()
-{
-  val canvas = val::global("document").call<val>("getElementById", std::string("canvas"));
-  return canvas.call<val>("getContext", std::string("2d"));
-}
 
 /** IGraphics draw class HTML5 canvas
 * @ingroup DrawClasses */
@@ -59,6 +54,9 @@ public:
   IColor GetPoint(int x, int y) override { return COLOR_BLACK; } // TODO:
   void* GetDrawContext() override { return nullptr; }
 
+  void StartLayer(const IRECT& r) override;
+  ILayer *EndLayer() override;
+    
 protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
@@ -67,9 +65,21 @@ protected:
 
 private:
   
+  val GetContext()
+  {
+    val canvas = mCanvases.empty() ? val::global("document").call<val>("getElementById", std::string("canvas")) : mCanvases.top();
+      
+    return canvas.call<val>("getContext", std::string("2d"));
+  }
+    
+  double XTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().L; }
+  double YTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().T; }
+
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
     
   void SetCanvasSourcePattern(const IPattern& pattern, const IBlend* pBlend = nullptr);
   void SetCanvasBlendMode(const IBlend* pBlend);
+
+  std::stack<val> mCanvases;
 };

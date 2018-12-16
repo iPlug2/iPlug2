@@ -179,6 +179,37 @@ void IGraphicsAGG::DrawResize()
   mTransform = agg::trans_affine_scaling(GetScale() * GetDisplayScale(), GetScale() * GetDisplayScale());
 }
 
+void IGraphicsAGG::StartLayer(const IRECT& r)
+{
+  double scale = GetScale() * GetDisplayScale();
+  agg::pixel_map* pPixelMap = CreatePixmap(r.W() * scale, r.H() * scale);
+  mLayers.push(new ILayer(new AGGBitmap(pPixelMap, scale), r));
+  mRenBuf.attach(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
+  PathTransformReset(true);
+  SetClipRegion(r);
+}
+
+ILayer *IGraphicsAGG::EndLayer()
+{
+  ILayer *pLayer = nullptr;
+  agg::pixel_map* pPixelMap = &mPixelMap;
+  
+  if (!mLayers.empty())
+  {
+    pLayer = mLayers.top();
+    mLayers.pop();
+  }
+  
+  if (!mLayers.empty())
+    pPixelMap = mLayers.top()->GetAPIBitmap()->GetBitmap();
+  
+  mRenBuf.attach(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
+  PathTransformReset(true);
+  PathClipRegion();
+  
+  return pLayer;
+}
+
 //IFontData IGraphicsAGG::LoadFont(const char* name, const int size)
 //{
 //  WDL_String cacheName(name);

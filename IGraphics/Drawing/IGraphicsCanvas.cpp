@@ -222,7 +222,35 @@ void IGraphicsCanvas::SetCanvasBlendMode(const IBlend* pBlend)
   }
 }
 
-bool IGraphicsCanvas::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+void IGraphicsCanvas::StartLayer(const IRECT& r)
+{
+  double scale = GetScale() * GetDisplayScale();
+  mCanvases.push(val::global("document").call<val>("createElement", std::string("canvas")));
+  mCanvases.top().set("width", r.W() * scale);
+  mCanvases.top().set("height", r.H() * scale);
+  mLayers.push(new ILayer(new CanvasBitmap(mCanvases.top(), "", GetDisplayScale()), r));
+  PathTransformReset(true);
+  SetClipRegion(r);
+}
+
+ILayer *IGraphicsCanvas::EndLayer()
+{
+  ILayer *pLayer = nullptr;
+  
+  if (!mLayers.empty())
+  {
+    pLayer = mLayers.top();
+    mLayers.pop();
+    mCanvases.pop();
+  }
+  
+  PathTransformReset(true);
+  PathClipRegion();
+  
+  return pLayer;
+}
+
+bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
   // TODO: orientation
   val context = GetContext();
@@ -276,15 +304,11 @@ bool IGraphicsCanvas::DrawText(const IText& text, const char* str, IRECT& bounds
   return true;
 }
 
-bool IGraphicsCanvas::MeasureText(const IText& text, const char* str, IRECT& bounds)
-{
-  return DrawText(text, str, bounds, 0, true);
-}
-
 void IGraphicsCanvas::PathTransformSetMatrix(const IMatrix& m)
 {
   IMatrix t;
   t.Scale(GetScale() * GetDisplayScale(), GetScale() * GetDisplayScale());
+  t.Translate(XTranslate(), YTranslate());
   t.Transform(m);
 
   GetContext().call<void>("setTransform", t.mTransform[0], t.mTransform[1], t.mTransform[2], t.mTransform[3], t.mTransform[4], t.mTransform[5]);

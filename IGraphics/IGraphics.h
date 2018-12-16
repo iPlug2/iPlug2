@@ -34,6 +34,8 @@
 #include "IGraphicsPopupMenu.h"
 #include "IGraphicsEditorDelegate.h"
 
+#include <stack>
+
 #ifdef OS_MAC
 #ifdef FillRect
 #undef FillRect
@@ -441,6 +443,21 @@ public:
   virtual void DrawGrid(const IColor& color, const IRECT& bounds, float gridSizeH, float gridSizeV, const IBlend* pBlend = 0, float thickness = 1.f);
 
   virtual void DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints = nullptr, const IBlend* pBlend = 0, float thickness = 1.f);
+  
+#pragma mark - IGraphics drawing API layer support
+
+  virtual void StartLayer(const IRECT& r) = 0;
+  virtual ILayer *EndLayer() = 0;
+  
+  void DrawLayer(ILayer *layer)
+  {
+    PathTransformSave();
+    PathTransformReset();
+    IBitmap bitmap = layer->GetBitmap();
+    IRECT bounds = layer->Bounds();
+    DrawBitmap(bitmap, bounds, 0, 0);
+    PathTransformRestore();
+  }
   
 #pragma mark - IGraphics drawing API Path support
 
@@ -1014,5 +1031,7 @@ private:
 protected:
   friend class IGraphicsLiveEdit;
   friend class ICornerResizerBase;
+  
+  std::stack<ILayer *> mLayers;
 };
 

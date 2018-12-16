@@ -602,6 +602,37 @@ void IGraphicsNanoVG::DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, 
   nvgBeginPath(mVG); // Clear the paths
 }
 
+void IGraphicsNanoVG::StartLayer(const IRECT& r)
+{
+  double scale = GetScale() * GetDisplayScale();
+  //agg::pixel_map* pFrameBuffer = CreatePixmap(r.W() * scale, r.H() * scale);
+  //mLayers.push(new ILayer(new NanoVGBitmap(pPixelMap, scale), r));
+  //mRenBuf.attach(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
+  PathTransformReset(true);
+  SetClipRegion(r);
+}
+
+ILayer *IGraphicsNanoVG::EndLayer()
+{
+  ILayer *pLayer = nullptr;
+  int frameBuffer = 0;
+  
+  if (!mLayers.empty())
+  {
+    pLayer = mLayers.top();
+    mLayers.pop();
+  }
+  
+  if (!mLayers.empty())
+    frameBuffer = mLayers.top()->GetAPIBitmap()->GetBitmap();
+  
+  //mRenBuf.attach(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
+  PathTransformReset(true);
+  PathClipRegion();
+  
+  return pLayer;
+}
+
 void IGraphicsNanoVG::PathTransformSetMatrix(const IMatrix& m)
 {
   nvgResetTransform(mVG);
