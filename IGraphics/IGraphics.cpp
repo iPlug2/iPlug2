@@ -1430,7 +1430,7 @@ void IGraphics::StartLayer(const IRECT& r)
   PathClear();
 }
 
-IGraphics::ILayerPtr IGraphics::EndLayer()
+ILayerPtr IGraphics::EndLayer()
 {
     ILayer* pLayer = nullptr;
     
@@ -1446,6 +1446,12 @@ IGraphics::ILayerPtr IGraphics::EndLayer()
     PathClear();
     
     return ILayerPtr(pLayer);
+}
+
+bool IGraphics::CheckLayer(const ILayerPtr& layer)
+{
+  const APIBitmap* bitmap = layer ? layer->GetAPIBitmap() : nullptr;
+  return bitmap && !layer->mInvalid && (bitmap->GetDrawScale() != GetScale()) && (bitmap->GetScale() != GetDisplayScale());
 }
 
 void IGraphics::DrawLayer(const ILayerPtr& layer)

@@ -1290,15 +1290,19 @@ private:
 
 class ILayer
 {
+  friend IGraphics;
+    
 public:
   ILayer(APIBitmap* bitmap, IRECT r)
   : mBitmap(bitmap)
   , mRECT(r)
+  , mInvalid(false)
   {}
   
   ILayer(const ILayer&) = delete;
   ILayer operator =(const ILayer&) = delete;
   
+  void Invalidate() { mInvalid = true; }
   const APIBitmap* GetAPIBitmap() const { return mBitmap.get(); }
   IBitmap GetBitmap() const { return IBitmap(mBitmap.get(), 1, false); }
   const IRECT& Bounds() const { return mRECT; }
@@ -1307,7 +1311,12 @@ private:
   
   std::unique_ptr<APIBitmap> mBitmap;
   IRECT mRECT;
+  bool mInvalid;
 };
+
+/** ILayerPtr is a manged pointer for transferring the ownership of layers */
+
+typedef std::unique_ptr<ILayer> ILayerPtr;
 
 // TODO: static storage needs thread safety mechanism
 template <class T>

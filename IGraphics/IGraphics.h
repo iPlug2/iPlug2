@@ -446,11 +446,10 @@ public:
   virtual void DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints = nullptr, const IBlend* pBlend = 0, float thickness = 1.f);
   
 #pragma mark - IGraphics drawing API layer support
-
-  typedef std::unique_ptr<ILayer> ILayerPtr;
     
   void StartLayer(const IRECT& r);
   ILayerPtr EndLayer();
+  bool CheckLayer(const ILayerPtr& layer);
   void DrawLayer(const ILayerPtr& layer);
     
 private:
