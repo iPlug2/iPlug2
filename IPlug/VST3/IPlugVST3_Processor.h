@@ -78,8 +78,7 @@ private:
   ProcessContext mProcessContext;
   ParameterChanges mOutputParamChanges;
   IMidiQueue mMidiOutputQueue;
-//  IPlugQueue<SysExChunk> mSysExMsgsFromController; // // a queue of SYSEX messages recieved from the controller
-//  IPlugQueue<SysExChunk> mSysExMsgsFromProcessorToController; // a queue of SYSEX messages to send to the controller
+  IPlugQueue<SysExData> mSysexDataToEditor {SYSEX_TRANSFER_SIZE}; // a queue of SYSEX messages to send to the controller
 };
 
 IPlugVST3Processor* MakeProcessor();
