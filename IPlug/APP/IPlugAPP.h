@@ -48,7 +48,7 @@ public:
   
   //IPlugProcessor
   bool SendMidiMsg(const IMidiMsg& msg) override;
-  bool SendSysEx(ISysEx& msg) override;
+  bool SendSysEx(const ISysEx& msg) override;
   
   //IPlugAPP
   void AppProcess(double** inputs, double** outputs, int nFrames);

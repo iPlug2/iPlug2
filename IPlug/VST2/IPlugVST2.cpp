@@ -176,7 +176,7 @@ bool IPlugVST2::SendMidiMsg(const IMidiMsg& msg)
   return SendVSTEvent((VstEvent&) midiEvent);
 }
 
-bool IPlugVST2::SendSysEx(ISysEx& msg)
+bool IPlugVST2::SendSysEx(const ISysEx& msg)
 {
   VstMidiSysexEvent sysexEvent;
   memset(&sysexEvent, 0, sizeof(VstMidiSysexEvent));

@@ -71,7 +71,7 @@ bool IPlugAPP::SendMidiMsg(const IMidiMsg& msg)
   return false;
 }
 
-bool IPlugAPP::SendSysEx(ISysEx& msg)
+bool IPlugAPP::SendSysEx(const ISysEx& msg)
 {
   if (DoesMIDIOut() && mAppHost->mMidiOut)
   {

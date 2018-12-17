@@ -2058,7 +2058,7 @@ bool IPlugAU::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
   return result;
 }
 
-bool IPlugAU::SendSysEx(ISysEx& sysEx)
+bool IPlugAU::SendSysEx(const ISysEx& sysEx)
 {
   bool result = false;
 

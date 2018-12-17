@@ -66,7 +66,7 @@ public:
 //IPlugProcessor
   bool SendMidiMsg(const IMidiMsg& msg) override;
   bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs) override;
-  bool SendSysEx(ISysEx& msg) override;
+  bool SendSysEx(const ISysEx& msg) override;
   void SetLatency(int samples) override;
 
 //IPlugAU
