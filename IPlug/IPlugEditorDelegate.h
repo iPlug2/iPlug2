@@ -68,6 +68,16 @@ public:
   /** @return Returns the number of parameters that belong to the plug-in. */
   int NParams() const { return mParams.GetSize(); }
   
+  /** Loops through all parameters, calling SendParameterValueFromDelegate() with the current value of the parameter
+   *  This is important when modifying groups of parameters, restoring state and opening the UI, in order to update it with the latest values*/
+  void SendCurrentParamValuesFromDelegate()
+  {
+    for (int i = 0; i < NParams(); ++i)
+    {
+      SendParameterValueFromDelegate(i, GetParam(i)->GetNormalized(), true);
+    }
+  }
+  
 #pragma mark - Methods you may want to override...
   
   /** Override this method when not using IGraphics in order to hook into the native parent view e.g. NSView, UIView, HWND */
@@ -76,14 +86,8 @@ public:
   /** Override this method when not using IGraphics if you need to free resources etc when the window closes */
   virtual void CloseWindow() {};
   
-  /** Override this method to do something before the UI is opened. Call base implementations. */
-  virtual void OnUIOpen()
-  {
-    for (auto i = 0; i < NParams(); ++i)
-    {
-      SendParameterValueFromDelegate(i, GetParam(i)->GetNormalized(), true);
-    }
-  };
+  /** Override this method to do something before the UI is opened. Call base implementations, to make sure. */
+  virtual void OnUIOpen() { SendCurrentParamValuesFromDelegate(); };
   
   /** Override this method to do something before the UI is closed. */
   virtual void OnUIClose() {};
@@ -105,8 +109,9 @@ public:
   virtual bool OnMessage(int messageTag, int controlTag, int dataSize, const void* pData) { return false; }
   
   /** This is called by API classes after restoring state and by IPluginBase::RestorePreset(). Typically used to update user interface, where multiple parameter values have changed.
-   * If you need to do something when state is restored you can override it */
-  virtual void OnRestoreState() {};
+   * If you need to do something when state is restored you can override it
+   * If you override this method you should call this parent, or implement the same functionality in order to get controls to update, when state is restored. */
+  virtual void OnRestoreState() { SendCurrentParamValuesFromDelegate(); };
   
 #pragma mark - Methods for sending values TO the user interface
   /** SendControlValueFromDelegate (Abbreviation: SCVFD)
