@@ -165,7 +165,7 @@ public:
   void DrawResize() override;
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
-  void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, float x, float y, double angle, const IBlend* pBlend) override;
+  //void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, float x, float y, double angle, const IBlend* pBlend) override;
 
   void PathClear() override { mPath.remove_all(); }
   void PathClose() override { mPath.close_polygon(); }

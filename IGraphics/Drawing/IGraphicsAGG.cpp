@@ -272,7 +272,7 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
     mRasterizer.Rasterize(renderer, AGGBlendMode(pBlend));
   }
 }
-
+/*
 void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, float x, float y, double angle, const IBlend* pBlend)
 {
   x *= GetDisplayScale();
@@ -321,7 +321,7 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, f
   
   mRasterizer.SetPath(tr);
   mRasterizer.Rasterize(renderer, AGGBlendMode(pBlend));
-}
+}*/
 
 void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax)
 {
