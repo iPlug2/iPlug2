@@ -70,6 +70,7 @@ public:
   void SetLatency(int samples) override;
 
 //IPlugAU
+  void OutputSysexFromEditor();
   void PreProcess();
   void ResizeScratchBuffers();
   static const char* AUInputTypeStr(int type);
