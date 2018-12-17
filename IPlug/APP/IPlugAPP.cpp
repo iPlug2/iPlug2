@@ -115,12 +115,7 @@ void IPlugAPP::AppProcess(double** inputs, double** outputs, int nFrames)
     ProcessMidiMsg(msg);
   }
 
-  // SendSysexMsgFromUI overridden
-//  while (mSysexDataFromEditor.Pop(mSysexBuf))
-//  {
-//    ISysEx smsg {mSysexBuf.mOffset, mSysexBuf.mData, mSysexBuf.mSize};
-//    ProcessSysEx(smsg);
-//  }
-  
+  //Do not handle Sysex messages here - SendSysexMsgFromUI overridden
+
   _ProcessBuffers(0.0, GetBlockSize());
 }

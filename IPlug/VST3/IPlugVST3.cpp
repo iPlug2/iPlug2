@@ -374,6 +374,13 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
               mMidiMsgsFromProcessor.Push(msg);
               break;
             }
+            case Event::kDataEvent:
+            {
+              ISysEx syx = ISysEx(event.sampleOffset, event.data.bytes, event.data.size);
+              ProcessSysEx(syx);
+              //mSysexMsgsFromProcessor.Push
+              break;
+            }
           }
         }
       }
@@ -487,25 +494,6 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
       _ProcessBuffers(0.0, data.numSamples); // process buffers double precision
   }
 
-// Midi Out
-//  if (mDoesMidi) {
-//    IEventList eventList = data.outputEvents;
-//
-//    if (eventList)
-//    {
-//      Event event;
-//
-  //  while (mSysexDataFromEditor.Pop(mSysexBuf))
-  //  {
-  //    ISysEx smsg {mSysexBuf.mOffset, mSysexBuf.mData, mSysexBuf.mSize};
-  //    ProcessSysEx(smsg);
-  //  }
-//      while (!mMidiOutputQueue.Empty()) {
-//        //TODO: parse events and add
-//        eventList.addEvent(event);
-//      }
-//    }
-//  }
   if (DoesMIDIOut())
   {
     IEventList* outputEvents = data.outputEvents;
@@ -559,6 +547,22 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
     }
     
     mMidiOutputQueue.Flush(data.numSamples);
+    
+    //Output SYSEX from the editor, which has bypassed the processors' ProcessSysEx()
+    if(mSysexDataFromEditor.ElementsAvailable())
+    {
+      Event toAdd = {0};
+      
+      while (mSysexDataFromEditor.Pop(mSysexBuf))
+      {
+        toAdd.type = Event::kDataEvent;
+        toAdd.sampleOffset = mSysexBuf.mOffset;
+        toAdd.data.type = DataEvent::kMidiSysEx;
+        toAdd.data.size = mSysexBuf.mSize;
+        toAdd.data.bytes = (uint8*) mSysexBuf.mData; // TODO!  this is a problem if more than one message in this block!
+        outputEvents->addEvent(toAdd);
+      }
+    }
   }
 
   return kResultOk;

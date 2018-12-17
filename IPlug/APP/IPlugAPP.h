@@ -44,7 +44,6 @@ public:
   void ResizeGraphics(int viewWidth, int viewHeight, float scale) override;
 
   //IEditorDelegate
-  // SendSysexMsgFromUI overridden here, to avoid unnecessarily queueing sysex data up
   void SendSysexMsgFromUI(const ISysEx& msg) override;
   
   //IPlugProcessor

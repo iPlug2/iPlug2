@@ -1725,6 +1725,16 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
       RenderCallback(pRN, &flags, pTimestamp, outputBusIdx, nFrames, pOutBufList);
     }
   }
+  
+  //Output SYSEX from the editor, which has ProcessSysEx()
+  if(mSysexDataFromEditor.ElementsAvailable())
+  {
+    while (mSysexDataFromEditor.Pop(mSysexBuf))
+    {
+      ISysEx smsg {mSysexBuf.mOffset, mSysexBuf.mData, mSysexBuf.mSize};
+      SendSysEx(smsg);
+    }
+  }
 
   return noErr;
 }

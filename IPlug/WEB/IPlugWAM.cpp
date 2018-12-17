@@ -79,7 +79,7 @@ void IPlugWAM::onProcess(WAM::AudioBus* pAudio, void* pData)
       mMidiMsgsFromProcessor.Pop(msg);
       SendMidiMsgFromDelegate(msg);
     }
-    
+        
     OnIdle();
     
     mBlockCounter = 8; // 8 * 128 samples = 23ms @ 44100 sr
