@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
 
@@ -54,6 +48,7 @@ struct SysExData
 };
 
 /** A helper class for IBtyeChunk and IBtyeStream that avoids code duplication **/
+/** A helper class for IByteChunk and IByteStream that avoids code duplication **/
 struct IByteGetter
 {
   static inline int GetBytes(const uint8_t* pData, int dataSize, void* pBuf, int size, int startPos)
@@ -162,7 +157,7 @@ public:
   
   inline int PutChunk(IByteChunk* pRHS)
   {
-    return PutBytes(pRHS->GetBytes(), pRHS->Size());
+    return PutBytes(pRHS->GetData(), pRHS->Size());
   }
   
   /** Clears the chunk */
@@ -194,7 +189,7 @@ public:
     return n;
   }
   
-  inline uint8_t* GetBytes() // TODO: BAD NAME!
+  inline uint8_t* GetData()
   {
     return mBytes.Get();
   }
@@ -209,7 +204,7 @@ private:
 };
 
 /** Manages a non-owned block of memory, for receiving arbitrary message byte streams */
-  class IByteStream : private IByteGetter
+class IByteStream : private IByteGetter
 {
 public:
   IByteStream(const void *pData, int dataSize) : mBytes(reinterpret_cast<const uint8_t *>(pData)), mSize(dataSize) {}
@@ -230,10 +225,8 @@ public:
     return IByteGetter::GetStr(mBytes, Size(), str, startPos);
   }
   
-  /**
-   * Returns the  size of the chunk
-   * @return  size (in bytes)
-   */
+  /** Returns the  size of the chunk
+   * @return  size (in bytes) */
   inline int Size() const
   {
     return mSize;
@@ -242,6 +235,11 @@ public:
   inline bool IsEqual(IByteStream& otherStream) const
   {
     return (otherStream.Size() == Size() && !memcmp(otherStream.mBytes, mBytes, Size()));
+  }
+  
+  inline const uint8_t* GetData()
+  {
+    return mBytes;
   }
   
 private:
@@ -262,9 +260,11 @@ struct IPlugConfig
   int uniqueID;
   int mfrID;
   int latency;
-  bool plugDoesMidi;
+  bool plugDoesMidiIn;
+  bool plugDoesMidiOut;
+  bool plugDoesMPE;
   bool plugDoesChunks;
-  bool plugIsInstrument;
+  int plugType;
   bool plugHasUI;
   int plugWidth;
   int plugHeight;
@@ -280,9 +280,11 @@ struct IPlugConfig
               int uniqueID,
               int mfrID,
               int latency,
-              bool plugDoesMidi,
+              bool plugDoesMidiIn,
+              bool plugDoesMidiOut,
+              bool plugDoesMPE,
               bool plugDoesChunks,
-              bool plugIsInstrument,
+              int plugType,
               bool plugHasUI,
               int plugWidth,
               int plugHeight,
@@ -298,9 +300,11 @@ struct IPlugConfig
   , uniqueID(uniqueID)
   , mfrID(mfrID)
   , latency(latency)
-  , plugDoesMidi(plugDoesMidi)
+  , plugDoesMidiIn(plugDoesMidiIn)
+  , plugDoesMidiOut(plugDoesMidiOut)
+  , plugDoesMPE(plugDoesMPE)
   , plugDoesChunks(plugDoesChunks)
-  , plugIsInstrument(plugIsInstrument)
+  , plugType(plugType)
   , plugHasUI(plugHasUI)
   , plugWidth(plugWidth)
   , plugHeight(plugHeight)

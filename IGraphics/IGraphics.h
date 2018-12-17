@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 /**
@@ -145,7 +155,7 @@ public:
    * @param y2 The Y coordinate in the graphics context of the end of the line
    * @param pBlend Optional blend method, see IBlend documentation
    * @param thickness Optional line thickness */
-  virtual void DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  virtual void DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend = 0, float thickness = 1.f, float dashLen = 2.f) = 0;
   
   /** Draw a triangle to the graphics context
    * @param color The color to draw the shape with
@@ -237,7 +247,7 @@ public:
    * @param bounds The rectangular region to draw the shape in
    * @param pBlend Optional blend method, see IBlend documentation
    * @param thickness Optional line thickness */
-  virtual void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  virtual void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0, float thickness = 1.f, float dashLen = 2.f) = 0;
 
   /** Fill a triangle in the graphics context with a color
    * @param color The color to fill the shape with
@@ -315,21 +325,27 @@ public:
    * @param pBlend Optional blend method, see IBlend documentation */
   virtual void FillConvexPolygon(const IColor& color, float* x, float* y, int nPoints, const IBlend* pBlend = 0) = 0;
 
-  /** Draw some text to the graphics context (or measure some text)
+  /** Draw some text to the graphics context in a specific rectangle
    * @param text An IText struct containing font and text properties and layout info
    * @param str The text string to draw in the graphics context
-   * @param bounds Either should contain the rectangular region in the graphics where you would like to draw the text (when measure = false)
-   * or if measure == true, after calling the method this IRECT will be updated with the rectangular region the text will occupy
-   * @param measure Pass true if you wish to measure the rectangular region this text will occupy, rather than draw
-   * @return true on valid input data \todo check this */
-  virtual bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0, bool measure = false) = 0;
+   * @param bounds The rectangular region in the graphics where you would like to draw the text
+   * @return \todo */
+  bool DrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend = 0);
 
+  /** Draw some text to the graphics context at a point
+   * @param text An IText struct containing font and text properties and layout info
+   * @param str The text string to draw in the graphics context
+   * @param x The x position in the graphics where you would like to draw the text
+   * @param y The y position in the graphics where you would like to draw the text
+   * @return \todo */
+  bool DrawText(const IText& text, const char* str, float x, float y, const IBlend* pBlend = 0);
+  
   /** Measure the rectangular region that some text will occupy
    * @param text An IText struct containing font and text properties and layout info
    * @param str The text string to draw in the graphics context
    * @param bounds after calling the method this IRECT will be updated with the rectangular region the text will occupy
-   * @return true on valid input data \todo check this */
-  virtual bool MeasureText(const IText& text, const char* str, IRECT& bounds) = 0;
+   * @return \todo */
+  virtual bool MeasureText(const IText& text, const char* str, IRECT& bounds);
 
   /** Get the color of a point in the graphics context. On a 1:1 screen this corresponds to a pixel. \todo check this
    * @param x The X coordinate in the graphics context of the pixel
@@ -458,7 +474,7 @@ public:
   virtual void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options = IStrokeOptions(), const IBlend* pBlend = 0) {}
   virtual void PathFill(const IPattern& pattern, const IFillOptions& options = IFillOptions(), const IBlend* pBlend = 0) {}
 
-  virtual void DrawBoxShadow(const IRECT& bounds, float cr = 5.f, float ydrop = 2.f, float pad = 10.f, const IBlend* pBlend = 0) {};
+  virtual void DrawBoxShadow(const IRECT& bounds, float cr = 0.f, float ydrop = 2.f, float pad = 10.f, const IBlend* pBlend = 0) {};
 
 private:
     
@@ -525,11 +541,11 @@ public:
   virtual void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") = 0;
 
   /** Create a platform file prompt dialog to choose a file/directory path for opening/saving a file/directory. NOTE: this method will block the main thread
-   * @param filename Non const WDL_String reference specifying the file name. Set this prior to calling the method for save dialogs, to provide a default file name. For load dialogs, on successful selection of a file this will get set to the file’s name.
+   * @param fileName Non const WDL_String reference specifying the file name. Set this prior to calling the method for save dialogs, to provide a default file name. For load dialogs, on successful selection of a file this will get set to the file’s name.
    * @param path WDL_String reference where the path will be put on success or empty string on failure/user cancelled
    * @param action Determines whether this is an open dialog or a save dialog
    * @param extensions A comma separated CString list of file extensions to filter in the dialog (e.g. “.wav, .aif” \todo check */
-  virtual void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action = kFileOpen, const char* extensions = 0) = 0;
+  virtual void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action = kFileOpen, const char* extensions = 0) = 0;
 
   /** Create a platform file prompt dialog to choose a directory path for opening/saving a directory. NOTE: this method will block the main thread
    * @param dir Non const WDL_String reference specifying the directory path. Set this prior to calling the method for save dialogs, to provide a default path. For load dialogs, on successful selection of a directory this will get set to the full path. */
@@ -567,11 +583,11 @@ public:
   virtual void* GetPlatformInstance() { return nullptr; }
 
   /** Set the platform draw context
-   Used with IGraphicsLice (possibly others) in order to set the CoreGraphics CGContextRef context on macOS and the GDI HDC draw context handle on Windows.
+   * Used in order to set the platform level draw context - CGContextRef context on macOS and the GDI HDC draw context handle on Windows.
    * @param pContext void pointer to CGContextRef or HDC */
   virtual void SetPlatformContext(void* pContext) { mPlatformContext = pContext; }
 
-  /** Get the platform draw context - an HDC or CGContextRef
+  /** Get the platform level draw context - an HDC or CGContextRef
    * @return void pointer to an HDC or CGContext */
   void* GetPlatformContext() { return mPlatformContext; }
   
@@ -580,15 +596,15 @@ public:
    * @param y the y position to convert */
   virtual void ClientToScreen(float& x, float& y) {};
 
-  /** Find the full, absolute path of a resource based on it's filename (e.g. “background.png”) and type (e.g. “PNG”)
+  /** Find the full, absolute path of a resource based on it's file name (e.g. “background.png”) and type (e.g. “PNG”)
    * On macOS resources are usually included inside the bundle resources folder. In that case you provide a filename and this method will return the absolute path to the resource. In some cases you may want to provide an absolute path to a file in a shared resources folder here (for example if you want to reduce the disk footprint of multiple bundles, such as when you have multiple plug-in formats installed).
-   * On Windows resources are usually baked into the binary via the resource compiler. In this case the filename argument is the resource id. The .rc file must include these ids, otherwise you may hit a runtime assertion. It is also possible to pass in an absolute path in order to share resources between binaries.
+   * On Windows resources are usually baked into the binary via the resource compiler. In this case the fileName argument is the resource id. The .rc file must include these ids, otherwise you may hit a runtime assertion. It is also possible to pass in an absolute path in order to share resources between binaries.
    * Behind the scenes this method will make sure resources are loaded statically in memory.
-   * @param filename The resource filename including extension. If no resource is found the method will then check filename as if it is an absolute path.
+   * @param filename The resource filename including extension. If no resource is found the method will then check fileName as if it is an absolute path.
    * @param type \todo
    * @param result WDL_String which will contain the full path of the resource of success
    * @return \c true on success */
-  virtual bool OSFindResource(const char* filename, const char* type, WDL_String& result) = 0;
+  virtual bool OSFindResource(const char* fileName, const char* type, WDL_String& result) = 0;
 
 #pragma mark - IGraphics base implementation
   IGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.);
@@ -688,8 +704,8 @@ public:
   IGEditorDelegate* GetDelegate() { return &mDelegate; }
 
   /** Attach an IBitmapControl as the lowest IControl in the control stack to be the background for the graphics context
-   * @param filename CString filename resource id for the bitmap image \todo check this */
-  void AttachBackground(const char* filename);
+   * @param fileName CString fileName resource id for the bitmap image \todo check this */
+  void AttachBackground(const char* fileName);
 
   /** Attach an IPanelControl as the lowest IControl in the control stack to fill the background with a solid color
    * @param color The color to fill the panel with */
@@ -704,16 +720,16 @@ public:
   
   /** Attach the default control to scale or increase the UI size by dragging the plug-in bottom right-hand corner
    * @param sizeMode Choose whether to scale or size the UI */
-  void AttachCornerResizer(EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale);
+  void AttachCornerResizer(EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale, bool layoutOnResize = false);
 
   /** Attach your own control to scale or increase the UI size by dragging the plug-in bottom right-hand corner
    * @param pControl control a control that inherits from ICornerResizerBase
    * @param sizeMode Choose whether to scale or size the UI */
-  void AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale);
+  void AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale, bool layoutOnResize = false);
 
   /** Attach a control for pop-up menus, to override platform style menus
    * @param pControl A control that inherits from IPopupMenuControl */
-  void AttachPopupMenuControl(IText text = DEFAULT_TEXT);
+  void AttachPopupMenuControl(const IText& text = DEFAULT_TEXT, const IRECT& bounds = IRECT());
   
   void AttachPerformanceDisplay();
   
@@ -879,6 +895,8 @@ public:
    * @param tablet, \c true means input is from a tablet */
   void SetTabletInput(bool tablet) { mTabletInput = tablet; }
   
+  EUIResizerMode GetResizerMode() const { return mGUISizeMode; }
+  
 #pragma mark - Plug-in API Specific
 
   /** [AAX only] This can be called by the ProTools API class (e.g. IPlugAAX) in order to ascertain the parameter linked to the control under the mouse.
@@ -909,8 +927,9 @@ public:
    * @param fileName CString file name
    * @param nStates The number of states/frames in a multi-frame stacked bitmap
    * @param framesAreHorizontal Set \c true if the frames in a bitmap are stacked horizontally
+   * @param targetScale Set \c to a number > 0 to explicity load e.g. an @2x.png
    * @return An IBitmap representing the image */
-  virtual IBitmap LoadBitmap(const char* fileName, int nStates = 1, bool framesAreHorizontal = false);
+  virtual IBitmap LoadBitmap(const char* fileName, int nStates = 1, bool framesAreHorizontal = false, int targetScale = 0);
 
   /** Load an SVG from disk
    * @param fileName A CString absolute path to the SVG on disk
@@ -919,7 +938,9 @@ public:
 
   /** @param fileName The name of the font to load */
   virtual void LoadFont(const char* fileName) {};
-    
+  
+  IPopupMenuControl* GetPopupMenuControl() { return mPopupControl; }
+
 protected:
   virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;
   //virtual void* CreateAPIBitmap(int w, int h) = 0;
@@ -929,6 +950,7 @@ protected:
   bool SearchImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale);
   APIBitmap* SearchBitmapInCache(const char* name, int targetScale, int& sourceScale);
 
+  virtual bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = nullptr, bool measure = false) = 0;
 protected:
   IGEditorDelegate& mDelegate;
   WDL_PtrList<IControl> mControls;
@@ -944,7 +966,6 @@ protected:
   IControl* mLiveEdit = nullptr;
 
   IPopupMenu mPromptPopupMenu;
-
 private:
     
   void Draw(const IRECT& bounds);
@@ -979,6 +1000,7 @@ private:
   bool mShowControlBounds = false;
   bool mShowAreaDrawn = false;
   bool mResizingInProcess = false;
+  bool mLayoutOnResize = false;
   EUIResizerMode mGUISizeMode = EUIResizerMode::kUIResizerScale;
   double mPrevTimestamp = 0.;
 

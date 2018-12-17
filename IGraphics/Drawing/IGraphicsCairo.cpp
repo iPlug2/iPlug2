@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #include <cmath>
 
 #include "png.h"
@@ -123,6 +133,20 @@ IGraphicsCairo::~IGraphicsCairo()
     cairo_surface_destroy(mSurface);
 }
 
+void IGraphicsCairo::DrawResize()
+{
+  SetPlatformContext(nullptr);
+#ifdef OS_WIN
+  HWND window = static_cast<HWND>(GetWindow());
+  if (window)
+  {
+    HDC dc = GetDC(window);
+    SetPlatformContext(dc);
+    ReleaseDC(window, dc);
+  }
+#endif
+}
+
 APIBitmap* IGraphicsCairo::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
 {
   cairo_surface_t* pSurface = LoadPNGResource(GetPlatformInstance(), resourcePath);
@@ -164,6 +188,36 @@ void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, in
   cairo_set_operator(mContext, CairoBlendMode(pBlend));
   cairo_paint_with_alpha(mContext, BlendWeight(pBlend));
   cairo_restore(mContext);
+}
+
+void IGraphicsCairo::PathClear()
+{
+  cairo_new_path(mContext);
+}
+
+void IGraphicsCairo::PathClose()
+{
+  cairo_close_path(mContext);
+}
+
+void IGraphicsCairo::PathArc(float cx, float cy, float r, float aMin, float aMax)
+{
+  cairo_arc(mContext, cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f));
+}
+
+void IGraphicsCairo::PathMoveTo(float x, float y)
+{
+  cairo_move_to(mContext, x, y);
+}
+
+void IGraphicsCairo::PathLineTo(float x, float y)
+{
+  cairo_line_to(mContext, x, y);
+}
+
+void IGraphicsCairo::PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
+{
+  cairo_curve_to(mContext, x1, y1, x2, y2, x3, y3);
 }
 
 void IGraphicsCairo::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
@@ -286,7 +340,7 @@ IColor IGraphicsCairo::GetPoint(int x, int y)
 #define FONT_SIZE 36
 #define MARGIN (FONT_SIZE * .5)
 
-bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
 #if defined IGRAPHICS_FREETYPE
 //  FT_Face ft_face;
@@ -405,11 +459,6 @@ bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& bounds,
   cairo_show_text(mContext, str);
 #endif
   return true;
-}
-
-bool IGraphicsCairo::MeasureText(const IText& text, const char* str, IRECT& bounds)
-{
-  return DrawText(text, str, bounds, 0, true);
 }
 
 void IGraphicsCairo::SetPlatformContext(void* pContext)

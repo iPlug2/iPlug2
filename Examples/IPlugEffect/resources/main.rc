@@ -165,10 +165,6 @@ IDI_ICON1               ICON                    "IPlugEffect.ico"
 // Generated from the TEXTINCLUDE 3 resource.
 //
 #include "..\config.h"
-PNGKNOB_FN PNG PNGKNOB_FN
-PNGKNOBROTATE_FN PNG PNGKNOBROTATE_FN
-SVGKNOB_FN SVG SVGKNOB_FN
-TIGER_FN SVG TIGER_FN
 ROBOTTO_FN TTF ROBOTTO_FN
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED

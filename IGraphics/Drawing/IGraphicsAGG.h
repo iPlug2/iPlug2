@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 /*
@@ -169,8 +179,7 @@ public:
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
     
-  bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0, bool measure = false) override;
-  bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
+  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0, bool measure = false) override;
 
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return nullptr; } //TODO
@@ -188,7 +197,7 @@ private:
 
   void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& bounds, const char* str, FontManagerType& manager);
 
-  agg::trans_affine GetRasterTransform() { return agg::trans_affine() / (mTransform * agg::trans_affine_scaling(GetDisplayScale())); }
+  agg::trans_affine GetRasterTransform() { return agg::trans_affine() / mTransform; }
 
   template<typename PathType> void DoClip(PathType& path)
   {
@@ -199,8 +208,9 @@ private:
   
   void PathTransformSetMatrix(const IMatrix& m) override
   {
-    IMatrix t(m);
-    t.Scale(GetScale(), GetScale());
+    IMatrix t;
+    t.Scale(GetScale() * GetDisplayScale(), GetScale() * GetDisplayScale());
+    t.Transform(m);
     mTransform = agg::trans_affine(t.mTransform[0], t.mTransform[1], t.mTransform[2], t.mTransform[3], t.mTransform[4], t.mTransform[5]);
   }
   

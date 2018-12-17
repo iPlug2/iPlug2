@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
  
 #include "config.h"   // This is your plugin's config.h.
 #include <AudioUnit/AudioUnit.r>
@@ -78,6 +72,18 @@
 #define RES_ID 1000
 #define RES_NAME PLUG_MFR ": " PLUG_PUBLIC_NAME
 
+#if PLUG_TYPE==0
+#if PLUG_DOES_MIDI_IN
+#define COMP_TYPE kAudioUnitType_MusicEffect
+#else
+#define COMP_TYPE kAudioUnitType_Effect
+#endif
+#elif PLUG_TYPE==1
+#define COMP_TYPE kAudioUnitType_MusicDevice
+#elif PLUG_TYPE==2
+#define COMP_TYPE 'aumi'
+#endif
+
 resource 'STR ' (RES_ID, purgeable) {
   RES_NAME
 };
@@ -91,15 +97,7 @@ resource 'dlle' (RES_ID) {
 };
 
 resource 'thng' (RES_ID, RES_NAME) {
-#if PLUG_IS_INSTRUMENT
-kAudioUnitType_MusicDevice,
-#elif PLUG_IS_MFX
-'aumi',
-#elif PLUG_DOES_MIDI
-kAudioUnitType_MusicEffect,
-#else
-kAudioUnitType_Effect,
-#endif
+  COMP_TYPE,
   PLUG_UNIQUE_ID,
   PLUG_MFR_ID,
   0, 0, 0, 0,               //  no 68K

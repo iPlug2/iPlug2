@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #ifndef _IPLUGAPI_
 #define _IPLUGAPI_
@@ -26,9 +20,16 @@
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
+/**
+ * @file
+ * @copydoc IPlugVST3Processor
+ */
+
 using namespace Steinberg;
 using namespace Vst;
 
+/**  VST3 Processor base class for a distributed IPlug VST3 plug-in
+ *   @ingroup APIClasses */
 class IPlugVST3Processor : public AudioEffect
                          , public IPlugAPIBase
                          , public IPlugProcessor<PLUG_SAMPLE_DST>
@@ -61,7 +62,7 @@ public:
   void SendArbitraryMsgFromDelegate(int messageTag, int dataSize = 0, const void* pData = nullptr) override;
   
   //IPlugProcessor
-  bool SendMidiMsg(const IMidiMsg& msg) override { return false; } //TODO: SendMidiMsg
+  bool SendMidiMsg(const IMidiMsg& msg) override;
   
 private:
   void _TransmitMidiMsgFromProcessor(const IMidiMsg& msg) override;
@@ -76,6 +77,7 @@ private:
   
   ProcessContext mProcessContext;
   ParameterChanges mOutputParamChanges;
+  IMidiQueue mMidiOutputQueue;
 //  IPlugQueue<SysExChunk> mSysExMsgsFromController; // // a queue of SYSEX messages recieved from the controller
 //  IPlugQueue<SysExChunk> mSysExMsgsFromProcessorToController; // a queue of SYSEX messages to send to the controller
 };

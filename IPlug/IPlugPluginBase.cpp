@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #include "IPlugPluginBase.h"
 #include "wdlendian.h"
@@ -154,16 +148,6 @@ int IPluginBase::UnserializeParams(const IByteChunk& chunk, int startPos)
   return pos;
 }
 
-void IPluginBase::InitFromDelegate(IPluginBase& delegate)
-{
-  for (auto p = 0; p < delegate.NParams(); p++)
-  {
-    IParam* pParam = delegate.GetParam(p);
-    GetParam(p)->Init(*pParam);
-    GetParam(p)->Set(pParam->Value());
-  }
-}
-
 void IPluginBase::InitParamRange(int startIdx, int endIdx, int countStart, const char* nameFmtStr, double defaultVal, double minVal, double maxVal, double step, const char *label, int flags, const char *group, IParam::Shape *shape, IParam::EParamUnit unit, IParam::DisplayFunc displayFunc)
 {
   WDL_String nameStr;
@@ -242,6 +226,11 @@ void IPluginBase::ForParamInGroup(const char* paramGroup, std::function<void (in
   }
 }
 
+void IPluginBase::DefaultParamValues()
+{
+  DefaultParamValues(0, NParams()-1);
+}
+
 void IPluginBase::DefaultParamValues(int startIdx, int endIdx)
 {
   ForParamInRange(startIdx, endIdx, [](int paramIdx, IParam& param) {
@@ -255,6 +244,12 @@ void IPluginBase::DefaultParamValues(const char* paramGroup)
                       param.SetToDefault();
                     });
 }
+
+void IPluginBase::RandomiseParamValues()
+{
+  RandomiseParamValues(0, NParams()-1);
+}
+
 
 void IPluginBase::RandomiseParamValues(int startIdx, int endIdx)
 {
@@ -276,6 +271,14 @@ void IPluginBase::RandomiseParamValues(const char *paramGroup)
   ForParamInGroup(paramGroup, [&gen, &dis](int paramIdx, IParam& param) {
                       param.SetNormalized(dis(gen));
                     });
+}
+
+void IPluginBase::PrintParamValues()
+{
+  ForParamInRange(0, NParams()-1, [](int paramIdx, IParam& param) {
+    param.PrintDetails();
+    DBGMSG("\n");
+  });
 }
 
 #ifndef NO_PRESETS
@@ -387,7 +390,7 @@ void IPluginBase::MakePresetFromBlob(const char* name, const char* blob, int siz
 {
   IByteChunk presetChunk;
   presetChunk.Resize(sizeOfChunk);
-  wdl_base64decode(blob, presetChunk.GetBytes(), sizeOfChunk);
+  wdl_base64decode(blob, presetChunk.GetData(), sizeOfChunk);
   
   MakePresetFromChunk(name, presetChunk);
 }
@@ -605,7 +608,7 @@ void IPluginBase::DumpAllPresetsBlob(const char* filename)
     
     chnk.Clear();
     chnk.PutChunk(&(pPreset->mChunk));
-    wdl_base64encode(chnk.GetBytes(), buf, chnk.Size());
+    wdl_base64encode(chnk.GetData(), buf, chnk.Size());
     
     fprintf(fp, "%s\", %i, %i);\n", buf, chnk.Size(), pPreset->mChunk.Size());
   }
@@ -621,7 +624,7 @@ void IPluginBase::DumpPresetBlob(const char* filename)
   char buf[MAX_BLOB_LENGTH];
   
   IByteChunk* pPresetChunk = &mPresets.Get(mCurrentPresetIdx)->mChunk;
-  uint8_t* byteStart = pPresetChunk->GetBytes();
+  uint8_t* byteStart = pPresetChunk->GetData();
   
   wdl_base64encode(byteStart, buf, pPresetChunk->Size());
   
@@ -644,7 +647,7 @@ void IPluginBase::DumpBankBlob(const char* filename)
     fprintf(fp, "MakePresetFromBlob(\"%s\", \"", pPreset->mName);
     
     IByteChunk* pPresetChunk = &pPreset->mChunk;
-    wdl_base64encode(pPresetChunk->GetBytes(), buf, pPresetChunk->Size());
+    wdl_base64encode(pPresetChunk->GetData(), buf, pPresetChunk->Size());
     
     fprintf(fp, "%s\", %i);\n", buf, pPresetChunk->Size());
   }
@@ -701,7 +704,7 @@ bool IPluginBase::SaveProgramAsFXP(const char* file)
       pgm.Put(&numParams);
       pgm.PutBytes(prgName, 28); // not PutStr (we want all 28 bytes)
       pgm.Put(&chunkSize);
-      pgm.PutBytes(state.GetBytes(), state.Size());
+      pgm.PutBytes(state.GetData(), state.Size());
     }
     else
     {
@@ -724,7 +727,7 @@ bool IPluginBase::SaveProgramAsFXP(const char* file)
       }
     }
     
-    fwrite(pgm.GetBytes(), pgm.Size(), 1, fp);
+    fwrite(pgm.GetData(), pgm.Size(), 1, fp);
     fclose(fp);
     
     return true;
@@ -776,7 +779,7 @@ bool IPluginBase::SaveBankAsFXB(const char* file)
       bnk.PutBytes(&future, 124);
       
       bnk.Put(&chunkSize);
-      bnk.PutBytes(state.GetBytes(), state.Size());
+      bnk.PutBytes(state.GetData(), state.Size());
     }
     else
     {
@@ -828,7 +831,7 @@ bool IPluginBase::SaveBankAsFXB(const char* file)
       }
     }
     
-    fwrite(bnk.GetBytes(), bnk.Size(), 1, fp);
+    fwrite(bnk.GetData(), bnk.Size(), 1, fp);
     fclose(fp);
     
     return true;
@@ -853,7 +856,7 @@ bool IPluginBase::LoadProgramFromFXP(const char* file)
       rewind(fp);
       
       pgm.Resize((int) fileSize);
-      fread(pgm.GetBytes(), fileSize, 1, fp);
+      fread(pgm.GetData(), fileSize, 1, fp);
       
       fclose(fp);
       
@@ -944,7 +947,7 @@ bool IPluginBase::LoadBankFromFXB(const char* file)
       rewind(fp);
       
       bnk.Resize((int) fileSize);
-      fread(bnk.GetBytes(), fileSize, 1, fp);
+      fread(bnk.GetData(), fileSize, 1, fp);
       
       fclose(fp);
       
@@ -1063,4 +1066,226 @@ bool IPluginBase::LoadBankFromFXB(const char* file)
   
   return false;
 }
+
+// These constants come from vstpreset.cpp, allowing saving of VST3 format presets without including the VST3 SDK
+typedef char ChunkID[4];
+
+enum ChunkType
+{
+  kHeader,
+  kComponentState,
+  kControllerState,
+  kProgramData,
+  kMetaInfo,
+  kChunkList,
+  kNumPresetChunks
+};
+
+static const ChunkID commonChunks[kNumPresetChunks] = {
+  {'V', 'S', 'T', '3'},  // kHeader
+  {'C', 'o', 'm', 'p'},  // kComponentState
+  {'C', 'o', 'n', 't'},  // kControllerState
+  {'P', 'r', 'o', 'g'},  // kProgramData
+  {'I', 'n', 'f', 'o'},  // kMetaInfo
+  {'L', 'i', 's', 't'}   // kChunkList
+};
+
+// Preset Header: header id + version + class id + list offset
+static const int32_t kFormatVersion = 1;
+static const int32_t kClassIDSize = 32; // ASCII-encoded FUID
+static const int32_t kHeaderSize = sizeof (ChunkID) + sizeof (int32_t) + kClassIDSize + sizeof (int64_t);
+static const int32_t kListOffsetPos = kHeaderSize - sizeof (int64_t);
+
+inline bool isEqualID (const ChunkID id1, const ChunkID id2)
+{
+  return memcmp (id1, id2, sizeof (ChunkID)) == 0;
+}
+
+bool IPluginBase::LoadProgramFromVSTPreset(const char* path)
+{
+  FILE* fp = fopen(path, "rb");
+  
+  if (fp)
+  {
+    IByteChunk pgm;
+    long fileSize;
+    
+    fseek(fp , 0 , SEEK_END);
+    fileSize = ftell(fp);
+    rewind(fp);
+    
+    pgm.Resize((int) fileSize);
+    fread(pgm.GetData(), fileSize, 1, fp);
+    
+    fclose(fp);
+    
+    int pos = 0;
+    
+    char classString[kClassIDSize + 1] = {0};
+//    FUID cID;
+    
+    //HEADER
+    ChunkID chunkID;
+    int32_t version = 0;
+    int64_t listOffset = 0;
+    
+    pos = pgm.Get(&chunkID, pos);
+    
+    if (!isEqualID(chunkID, commonChunks[kHeader]))
+      return false;
+    
+    pos = pgm.Get(&version, pos);
+    pos = pgm.GetBytes(&classString, kClassIDSize, pos);
+//    cID.fromString(classString);
+    
+//    if (cID != mProcFUID)
+//      return false;
+    
+    pos = pgm.Get(&listOffset, pos);
+    
+    //CHUNK LIST
+    pos = pgm.Get(&chunkID, (int) listOffset); // jump forward to chunklist start
+    
+    if (!isEqualID(chunkID, commonChunks[kChunkList]))
+      return false;
+    
+    int32_t entryCount = 0;
+    pos = pgm.Get(&entryCount, pos);
+    
+    if (entryCount < 2)
+      return false;
+    
+    pos = pgm.Get(&chunkID, pos);
+    
+    if (!isEqualID(chunkID, commonChunks[kComponentState]))
+      return false;
+    
+    int64_t offsetToComponentState = 0;
+    pos = pgm.Get(&offsetToComponentState, pos);
+    
+    int64_t componentStateSize = 0;
+    pos = pgm.Get(&componentStateSize, pos);
+    
+    pos = pgm.Get(&chunkID, pos);
+    
+    if (!isEqualID(chunkID, commonChunks[kControllerState]))
+      return false;
+    
+    int64_t offsetToCtrlrState = 0;
+    pos = pgm.Get(&offsetToCtrlrState, pos);
+    
+    int64_t ctrlrStateSize = 0;
+    pos = pgm.Get(&ctrlrStateSize, pos);
+    
+    //Forget about kMetaInfo chunk
+  
+    pos = (int) offsetToComponentState;
+    //DATA AREA
+    int componentChunkSizeIPlug;
+    pos = pgm.Get(&componentChunkSizeIPlug, pos);
+    IByteChunk::GetIPlugVerFromChunk(pgm, pos /* updates pos */ );
+    
+    pos += sizeof(int32_t); // FIXME: bypass
+    
+//    GetBypassStateFromChunk(&pgm, pos /* updates pos */);
+    pos = UnserializeState(pgm, pos);
+    
+    int ctrlrChunkSizeIPlug;
+    pos = pgm.Get(&ctrlrChunkSizeIPlug, pos);
+    IByteChunk::GetIPlugVerFromChunk(pgm, pos /* updates pos */);
+    pos = UnserializeVST3CtrlrState(pgm, pos);
+    
+//    DirtyParameters();
+//    RedrawParamControls();
+    OnRestoreState();
+    
+    return true;
+  }
+  
+  return false;
+}
+
+void IPluginBase::MakeVSTPresetChunk(IByteChunk& chunk, IByteChunk& componentState, IByteChunk& controllerState)
+{
+  WDL_String metaInfo("");
+  
+  metaInfo.Append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n", 1024);
+  metaInfo.Append("<MetaInfo>\n", 1024);
+  metaInfo.Append("\t<Attribute id=\"MediaType\" value=\"VstPreset\" type=\"string\" flags=\"writeProtected\"/>\n", 1024);
+  metaInfo.AppendFormatted(1024, "\t<Attribute id=\"plugname\" value=\"%s\" type=\"string\" flags=\"\"/>\n", mProductName.Get());
+  metaInfo.AppendFormatted(1024, "\t<Attribute id=\"plugtype\" value=\"%s\" type=\"string\" flags=\"\"/>\n", mVST3ProductCategory.Get());
+  metaInfo.Append("</MetaInfo>\n", 1024);
+  
+  //HEADER
+  chunk.Put(&commonChunks[kHeader]);
+  int32_t version = kFormatVersion;
+  chunk.Put(&version);
+  chunk.PutBytes(mVST3ProcessorUIDStr.Get(), kClassIDSize);
+  int64_t offsetToChunkList = componentState.Size() + controllerState.Size() + (2 * sizeof(int) /* 2 ints for sizes */) + strlen(metaInfo.Get()) + kHeaderSize;
+  chunk.Put(&offsetToChunkList);
+  
+  //DATA AREA
+  int componentSize = componentState.Size();
+  chunk.Put(&componentSize);
+  chunk.PutChunk(&componentState);
+  int ctrlrSize = controllerState.Size();
+  chunk.Put(&ctrlrSize);
+  chunk.PutChunk(&controllerState);
+  chunk.PutBytes(metaInfo.Get(), metaInfo.GetLength());
+  
+  //CHUNK LIST
+  chunk.Put(&commonChunks[kChunkList]);
+  int32_t entryCount = 3;
+  chunk.Put(&entryCount);
+  
+  chunk.Put(&commonChunks[kComponentState]);
+  int64_t offsetToComponentState = kHeaderSize;
+  chunk.Put(&offsetToComponentState);
+  int64_t componentStateSize = componentState.Size() + sizeof(int);
+  chunk.Put(&componentStateSize);
+  
+  chunk.Put(&commonChunks[kControllerState]);
+  int64_t offsetToCtrlrState = kHeaderSize + componentStateSize;
+  chunk.Put(&offsetToCtrlrState);
+  int64_t ctrlrStateSize = controllerState.Size() + sizeof(int);
+  chunk.Put(&ctrlrStateSize);
+  
+  chunk.Put(&commonChunks[kMetaInfo]);
+  int64_t offsetToMetaInfo = kHeaderSize + componentStateSize + ctrlrStateSize;
+  chunk.Put(&offsetToMetaInfo);
+  int64_t metaInfoSize = metaInfo.GetLength();
+  chunk.Put(&metaInfoSize);
+}
+
+bool IPluginBase::SaveProgramAsVSTPreset(const char* path)
+{
+  if (path)
+  {
+    FILE* fp = fopen(path, "wb");
+    
+    if (fp)
+    {
+      IByteChunk componentState;
+      IByteChunk::InitChunkWithIPlugVer(componentState);
+      //      AppendBypassStateToChunk(&componentState, false); //TODO:!!
+      SerializeState(componentState);
+      
+      IByteChunk ctrlrState;
+      IByteChunk::InitChunkWithIPlugVer(ctrlrState);
+      SerializeVST3CtrlrState(ctrlrState);
+      
+      IByteChunk pgm;
+      
+      MakeVSTPresetChunk(pgm, componentState, ctrlrState);
+      
+      fwrite(pgm.GetData(), pgm.Size(), 1, fp);
+      fclose(fp);
+      
+      return true;
+    }
+  }
+  
+  return false;
+}
+
 #endif

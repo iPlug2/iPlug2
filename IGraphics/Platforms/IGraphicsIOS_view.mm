@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #ifndef NO_IGRAPHICS
 
 #import "IGraphicsIOS_view.h"
@@ -100,7 +110,8 @@
   //  [self pTouchesEnded: pTouches withEvent: event];
 }
 
-- (CAMetalLayer *)metalLayer {
+- (CAMetalLayer*) metalLayer
+{
   return (CAMetalLayer *)self.layer;
 }
 
@@ -126,7 +137,7 @@
   }
 }
 
-- (void)redraw:(CADisplayLink *)displayLink
+- (void)redraw:(CADisplayLink*) displayLink
 {
   IRECTList rects;
   
@@ -147,7 +158,8 @@
   return YES;
 }
 
-- (BOOL)canBecomeFirstResponder {
+- (BOOL)canBecomeFirstResponder
+{
   return YES;
 }
 

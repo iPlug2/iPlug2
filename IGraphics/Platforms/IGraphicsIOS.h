@@ -1,10 +1,20 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
-#include "IGraphicsNanoVG.h"
+#include "IGraphics_select.h"
 
 /** IGraphics platform class for IOS
 *   @ingroup PlatformClasses */
-class IGraphicsIOS : public IGraphicsNanoVG
+class IGraphicsIOS final : public IGRAPHICS_DRAW_CLASS
 {
 public:
   IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
