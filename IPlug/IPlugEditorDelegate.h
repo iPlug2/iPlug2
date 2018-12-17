@@ -184,6 +184,10 @@ public:
    * @param paramIdx The index of the parameter that is changing value */
   virtual void EndInformHostOfParamChangeFromUI(int paramIdx) = 0;
   
+  /** When modifying a range of parameters in the editor, it can be necessary to broadcast that fact, for instance in a distributed plug-in.
+   *  You can use it if you restore a preset using a custom preset mechanism. */
+  virtual void DirtyParametersFromUI() {};
+  
   /** Sometimes when a plug-in wants to change its UI dimensions we need to call into the plug-in API class first when we click a button in our UI
    * This method is implemented in various classes that inherit this interface to implement that behaviour */
   virtual void ResizeGraphicsFromUI(int viewWidth, int viewHeight, float scale) {};
@@ -207,7 +211,6 @@ public:
   * @param dataSize The size in bytes of the data payload pointed to by pData. Note: if this is nonzero, pData must be valid.
   * @param pData Ptr to the opaque data payload for the message */
   virtual void SendArbitraryMsgFromUI(int messageTag, int controlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) {};
-
 #pragma mark -
   /** This method is needed, for remote editors to avoid a feedback loop */
   virtual void DeferMidiMsg(const IMidiMsg& msg) {};

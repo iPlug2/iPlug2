@@ -488,3 +488,11 @@ void IPlugVST3Controller::ResizeGraphics(int viewWidth, int viewHeight, float sc
   }
 }
 
+void IPlugVST3Controller::DirtyParametersFromUI()
+{
+  startGroupEdit();
+  
+  IPlugAPIBase::DirtyParametersFromUI();
+  
+  finishGroupEdit();
+}

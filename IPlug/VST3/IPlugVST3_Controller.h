@@ -74,7 +74,8 @@ public:
   void EndInformHostOfParamChange(int idx) override  { endEdit(idx); }
   void InformHostOfProgramChange() override  { /* TODO: */}
   void ResizeGraphics(int viewWidth, int viewHeight, float scale) override;
-
+  void DirtyParametersFromUI() override;
+  
   //IEditorDelegate
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
   void SendSysexMsgFromUI(const ISysEx& msg) override;

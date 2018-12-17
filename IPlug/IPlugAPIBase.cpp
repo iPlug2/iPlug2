@@ -112,7 +112,7 @@ void IPlugAPIBase::SetParameterValue(int idx, double normalizedValue)
   OnParamChange(idx, kUI);
 }
 
-void IPlugAPIBase::DirtyParameters()
+void IPlugAPIBase::DirtyParametersFromUI()
 {
   for (int p = 0; p < NParams(); p++)
   {

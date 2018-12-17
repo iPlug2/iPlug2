@@ -897,6 +897,15 @@ void IPlugVST3::ResizeGraphics(int viewWidth, int viewHeight, float scale)
   }
 }
 
+void IPlugVST3::DirtyParametersFromUI()
+{
+  startGroupEdit();
+  
+  IPlugAPIBase::DirtyParametersFromUI();
+  
+  finishGroupEdit();
+}
+
 void IPlugVST3::SetLatency(int latency)
 {
   IPlugProcessor::SetLatency(latency);

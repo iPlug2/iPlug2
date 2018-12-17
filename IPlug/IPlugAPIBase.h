@@ -106,9 +106,6 @@ public:
   /** Helper method, used to print some info to the console in debug builds. Can be overridden in other IPlugAPIBases, for specific functionality, such as printing UI details. */
   virtual void PrintDebugInfo() const;
 
-  /** This method will loop through all parameters, telling the host that they changed. You can use it if you restore a preset using a custom preset mechanism.*/
-  void DirtyParameters(); // TODO: This is a hack to tell the host to dirty the project state, when a preset is recalled, is it necessary?
-
   /** Call this method from a delegate, for example if you wish to store graphics dimensions in your plug-in state in order to notify the API of a graphics resize.
    * If calling from a UI interaction use ResizeGraphicsFromUI()
    * When this is overridden in subclasses the subclass should call this in order to update the member variables */
@@ -128,10 +125,13 @@ public:
    * @param normalizedValue The new (normalised) value */
   void SetParameterValue(int paramIdx, double normalizedValue);
   
+  /** Get the color of the track that the plug-in is inserted on */
   virtual void GetTrackColor(int& r, int& g, int& b) {};
 
+  /** Get the name of the track that the plug-in is inserted on */
   virtual void GetTrackName(WDL_String& str) {};
   
+  virtual void DirtyParametersFromUI() override;
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
 
   /** This is called from the plug-in API class in order to update UI controls linked to plug-in parameters, prior to calling OnParamChange()
