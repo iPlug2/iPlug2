@@ -7,8 +7,12 @@ const int kNumPrograms = 1;
 
 enum EParams
 {
-  kGain = 0,
-  kNoteGlideTime,
+  kParamGain = 0,
+  kParamNoteGlideTime,
+  kParamAttack,
+  kParamDecay,
+  kParamSustain,
+  kParamRelease,
   kNumParams
 };
 
