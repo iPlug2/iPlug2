@@ -50,6 +50,6 @@ public:
   }
 
 private:
-  std::unique_ptr<ILayer> mLayer;
+  LayerPtr mLayer;
   bool mDrawBackground = true;
 };
