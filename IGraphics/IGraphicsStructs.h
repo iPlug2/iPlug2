@@ -87,11 +87,12 @@ typedef emscripten::val* BitmapData;
 class APIBitmap
 {
 public:
-  APIBitmap(BitmapData pBitmap, int w, int h, int s)
+  APIBitmap(BitmapData pBitmap, int w, int h, int s, float ds)
   : mBitmap(pBitmap)
   , mWidth(w)
   , mHeight(h)
   , mScale(s)
+  , mDrawScale(ds)
   {}
 
   APIBitmap()
@@ -99,28 +100,32 @@ public:
   , mWidth(0)
   , mHeight(0)
   , mScale(0)
+  , mDrawScale(1.f)
   {}
 
   virtual ~APIBitmap() {}
 
-  void SetBitmap(BitmapData pBitmap, int w, int h, int s)
+  void SetBitmap(BitmapData pBitmap, int w, int h, int s, float ds)
   {
     mBitmap = pBitmap;
     mWidth = w;
     mHeight = h;
     mScale = s;
+    mDrawScale = ds;
   }
 
   BitmapData GetBitmap() const { return mBitmap; }
   int GetWidth() const { return mWidth; }
   int GetHeight() const { return mHeight; }
   int GetScale() const { return mScale; }
+  float GetDrawScale() const { return mDrawScale; }
 
 private:
   BitmapData mBitmap; // for most drawing APIs BitmapData is a pointer. For Nanovg it is an integer index
   int mWidth;
   int mHeight;
   int mScale;
+  float mDrawScale;
 };
 
 /** IBitmap is IGraphics's bitmap abstraction that you use to manage bitmap data, independant of draw class/platform.
@@ -173,6 +178,9 @@ public:
   /** * @return the scale of the bitmap */
   inline int GetScale() const { return mAPIBitmap->GetScale(); }
 
+  /** * @return the draw scale of the bitmap */
+  inline float GetDrawScale() const { return mAPIBitmap->GetDrawScale(); }
+    
   /** * @return a pointer to the referenced APIBitmap */
   inline APIBitmap* GetAPIBitmap() const { return mAPIBitmap; }
 

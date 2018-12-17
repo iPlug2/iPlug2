@@ -29,16 +29,16 @@ static std::string CanvasColor(const IColor& color, float alpha = 1.0)
 
 CanvasBitmap::CanvasBitmap(val imageCanvas, const char* name, int scale)
 {
-  SetBitmap(new val(imageCanvas), imageCanvas["width"].as<int>(), imageCanvas["height"].as<int>(), scale);
+  SetBitmap(new val(imageCanvas), imageCanvas["width"].as<int>(), imageCanvas["height"].as<int>(), scale, 1.f);
 }
 
-CanvasBitmap::CanvasBitmap(int width, int height, double scale)
+CanvasBitmap::CanvasBitmap(int width, int height, int scale, float drawScale)
 {
   val canvas = val::global("document").call<val>("createElement", std::string("canvas"));
   canvas.set("width", width);
   canvas.set("height", height);
 
-  SetBitmap(new val(canvas), width, height, scale);
+  SetBitmap(new val(canvas), width, height, scale, drawScale);
 }
 
 CanvasBitmap::~CanvasBitmap()
@@ -62,15 +62,12 @@ void IGraphicsCanvas::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX,
   GetContext().call<void>("save");
   SetCanvasBlendMode(pBlend);
   context.set("globalAlpha", BlendWeight(pBlend));
-  
-  const float ds = GetDisplayScale();
+    
+  const float bs = bitmap.GetScale();
   IRECT sr = bounds;
-  sr.Scale(ds);
-  
-  srcX *= ds;
-  srcY *= ds;
-  
-  context.call<void>("drawImage", img, srcX, srcY, sr.W(), sr.H(), floor(bounds.L), floor(bounds.T), floor(bounds.W()), floor(bounds.H()));
+  sr.Scale(bs * bitmap.GetDrawScale());
+
+  context.call<void>("drawImage", img, srcX * bs, srcY * bs, sr.W(), sr.H(), floor(bounds.L), floor(bounds.T), floor(bounds.W()), floor(bounds.H()));
   GetContext().call<void>("restore");
 }
 
@@ -352,5 +349,5 @@ APIBitmap* IGraphicsCanvas::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetScale() * GetDisplayScale();
-  return new CanvasBitmap(width * scale, height * scale, scale);
+  return new CanvasBitmap(width * scale, height * scale, GetDisplayScale(), GetScale());
 }

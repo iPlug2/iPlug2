@@ -116,10 +116,10 @@ NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double source
 #endif
   nvgImageSize(mVG, idx, &w, &h);
   
-  SetBitmap(idx, w, h, sourceScale);
+  SetBitmap(idx, w, h, sourceScale, 1.f);
 }
 
-NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, double sourceScale)
+NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, int scale, float drawScale)
 {
   mVG = pContext;
   mFBO = nvgCreateFramebuffer(pContext, width, height, 0);
@@ -137,7 +137,7 @@ NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, double s
   nvgBeginFrame(mVG, width, height, 1.f);
   nvgEndFrame(mVG);
   
-  SetBitmap(mFBO->image, width, height, sourceScale);
+  SetBitmap(mFBO->image, width, height, scale, drawScale);
 }
 
 NanoVGBitmap::~NanoVGBitmap()
@@ -273,7 +273,7 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const WDL_String& resourcePath, int sc
 APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetScale() * GetDisplayScale();
-  return new NanoVGBitmap(mVG, width * scale, height * scale, scale);
+  return new NanoVGBitmap(mVG, width * scale, height * scale, GetDisplayScale(), GetScale());
 }
 
 void IGraphicsNanoVG::SetPlatformContext(void* pContext)
@@ -437,6 +437,8 @@ void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, i
 {
   APIBitmap* pAPIBitmap = bitmap.GetAPIBitmap();
   
+  // FIX - draw bitmaps in a scale aware manner!
+    
   NVGpaint imgPaint = nvgImagePattern(mVG, std::round(dest.L) - srcX, std::round(dest.T) - srcY, bitmap.W(), bitmap.H(), 0.f, pAPIBitmap->GetBitmap(), BlendWeight(pBlend));
   nvgBeginPath(mVG); // Clears any existing path
   nvgRect(mVG, dest.L, dest.T, dest.W(), dest.H());

@@ -241,8 +241,8 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   srcMtx /= dstMtx;
   srcMtx *= agg::trans_affine_translation(-dest.L, -dest.T);
   srcMtx *= agg::trans_affine_translation(srcX, srcY);
-  srcMtx *= agg::trans_affine_scaling(bitmap.GetScale());
-  
+  srcMtx *= agg::trans_affine_scaling(bitmap.GetScale() * bitmap.GetDrawScale());
+      
   // TODO - fix clipping of bitmaps
 
   if (bounds.IsPixelAligned() && CheckTransform(srcMtx))
@@ -483,7 +483,7 @@ APIBitmap* IGraphicsAGG::LoadAPIBitmap(const WDL_String& resourcePath, int scale
     
     agg::pixel_map_mac* pPixelMap = new agg::pixel_map_mac();
     if (pPixelMap->load_img(path, ispng ? agg::pixel_map::format_png : agg::pixel_map::format_jpg))
-      return new AGGBitmap(pPixelMap, scale);
+      return new AGGBitmap(pPixelMap, scale, 1.f);
     else
       delete pPixelMap;
   }
@@ -523,13 +523,13 @@ APIBitmap* IGraphicsAGG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
   rasterizer.add_path(bounds);
   agg::render_scanlines(rasterizer, scanline, renderer);
   
-  return new AGGBitmap(pCopy, scale);
+  return new AGGBitmap(pCopy, scale, pBitmap->GetDrawScale());
 }
 
 APIBitmap* IGraphicsAGG::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetScale() * GetDisplayScale();
-  return new AGGBitmap(CreatePixmap(width * scale, width * scale), scale);
+  return new AGGBitmap(CreatePixmap(width * scale, width * scale), GetDisplayScale(), GetScale());
 }
 
 void IGraphicsAGG::EndFrame()

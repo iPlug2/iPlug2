@@ -54,7 +54,7 @@ inline int LiceBlendMode(const IBlend* pBlend)
 class LICEBitmap : public APIBitmap
 {
 public:
-  LICEBitmap(LICE_IBitmap* pBitmap, int scale) : APIBitmap (pBitmap, pBitmap->getWidth(), pBitmap->getHeight(), scale) {}
+  LICEBitmap(LICE_IBitmap* pBitmap, int scale) : APIBitmap (pBitmap, pBitmap->getWidth(), pBitmap->getHeight(), scale, 1.f) {}
   virtual ~LICEBitmap() { delete ((LICE_IBitmap*) GetBitmap()); }
 };
 

@@ -70,21 +70,21 @@ cairo_surface_t* LoadPNGResource(void* hInst, const WDL_String& path)
   #error NOT IMPLEMENTED
 #endif
 
-CairoBitmap::CairoBitmap(cairo_surface_t* pSurface, int scale)
+CairoBitmap::CairoBitmap(cairo_surface_t* pSurface, int scale, float drawScale)
 {
-  cairo_surface_set_device_scale(pSurface, scale, scale);
+  cairo_surface_set_device_scale(pSurface, scale * drawScale, scale * drawScale);
   int width = cairo_image_surface_get_width(pSurface);
   int height = cairo_image_surface_get_height(pSurface);
   
-  SetBitmap(pSurface, width, height, scale);
+  SetBitmap(pSurface, width, height, scale, drawScale);
 }
 
-CairoBitmap::CairoBitmap(cairo_surface_t* pSurfaceType, int width, int height, double scale)
+CairoBitmap::CairoBitmap(cairo_surface_t* pSurfaceType, int width, int height, int scale, float drawScale)
 {
-  cairo_surface_t* pSurface = cairo_surface_create_similar(pSurfaceType, CAIRO_CONTENT_COLOR_ALPHA, width, height);
-  cairo_surface_set_device_scale(pSurface, scale, scale);
+  cairo_surface_t* pSurface = cairo_surface_create_similar_image(pSurfaceType, CAIRO_FORMAT_ARGB32, width, height);
+  cairo_surface_set_device_scale(pSurface, scale * drawScale, scale * drawScale);
   
-  SetBitmap(pSurface, width, height, scale);
+  SetBitmap(pSurface, width, height, scale, drawScale);
 }
   
 CairoBitmap::~CairoBitmap()
@@ -159,7 +159,7 @@ APIBitmap* IGraphicsCairo::LoadAPIBitmap(const WDL_String& resourcePath, int sca
     
   assert(cairo_surface_status(pSurface) == CAIRO_STATUS_SUCCESS); // Protect against typos in resource.h and .rc files.
 
-  return new CairoBitmap(pSurface, scale);
+  return new CairoBitmap(pSurface, scale, 1.f);
 }
 
 APIBitmap* IGraphicsCairo::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
@@ -181,13 +181,13 @@ APIBitmap* IGraphicsCairo::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
   cairo_paint(pOutContext);
   cairo_destroy(pOutContext);
     
-  return new CairoBitmap(pOutSurface, scale);
+  return new CairoBitmap(pOutSurface, scale, pBitmap->GetDrawScale());
 }
 
 APIBitmap* IGraphicsCairo::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetScale() * GetDisplayScale();
-  return new CairoBitmap(mSurface, width * scale, height * scale, scale);
+  return new CairoBitmap(mSurface, width * scale, height * scale, GetDisplayScale(), GetScale());
 }
 
 void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)

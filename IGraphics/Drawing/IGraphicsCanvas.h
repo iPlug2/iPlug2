@@ -23,7 +23,7 @@ class CanvasBitmap : public APIBitmap
 {
 public:
   CanvasBitmap(val imageCanvas, const char* name, int scale);
-  CanvasBitmap(int width, int height, double scale);
+  CanvasBitmap(int width, int height, int scale, float drawScale);
   ~CanvasBitmap();
 };
 
