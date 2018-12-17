@@ -50,6 +50,6 @@ public:
   }
 
 private:
-  LayerPtr mLayer;
+  ILayerPtr mLayer;
   bool mDrawBackground = true;
 };
