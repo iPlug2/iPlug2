@@ -52,6 +52,7 @@ public:
   //IPlugVST
   audioMasterCallback& GetHostCallback() { return mHostCallback; }
   AEffect& GetAEffect() { return mAEffect; }
+  void OutputSysexFromEditor();
 
 private:
   /**
