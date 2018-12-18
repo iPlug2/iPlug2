@@ -520,7 +520,12 @@ void IPopupMenuControl::CollapseEverything()
     if(mIsContextMenu)
       mCaller->OnContextSelection(pClickedMenu->GetChosenItemIdx());
     else
-      mCaller->OnPopupMenuSelection(pClickedMenu); // TODO: In the synchronous pop-up menu handlers it's possible for mMenu to be null, that should also be possible here if nothing was selected
+    {
+      if(pClickedMenu->GetChosenItemIdx() == -1)
+        mCaller->OnPopupMenuSelection(nullptr);
+      else
+        mCaller->OnPopupMenuSelection(pClickedMenu);
+    }
     
     mIsContextMenu = false;
   }
