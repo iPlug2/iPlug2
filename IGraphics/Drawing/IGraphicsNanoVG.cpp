@@ -242,8 +242,8 @@ const char* IGraphicsNanoVG::GetDrawingAPIStr()
 
 IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale)
 {
-  if(targetScale == 0)
-    targetScale = round(GetDisplayScale());
+  if (targetScale == 0)
+    targetScale = GetScreenScale();
   
   APIBitmap* pAPIBitmap = mBitmapCache.Find(name, targetScale);
   
@@ -272,8 +272,8 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const WDL_String& resourcePath, int sc
 
 APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height)
 {
-  const double scale = GetScale() * GetDisplayScale();
-  return new NanoVGBitmap(mVG, width * scale, height * scale, GetDisplayScale(), GetScale());
+  const double scale = GetDrawScale() * GetScreenScale();
+  return new NanoVGBitmap(mVG, width * scale, height * scale, GetScreenScale(), GetDrawScale());
 }
 
 void IGraphicsNanoVG::SetPlatformContext(void* pContext)
@@ -381,7 +381,7 @@ void IGraphicsNanoVG::DrawResize()
   if (mMainFrameBuffer != nullptr)
     nvgDeleteFramebuffer(mMainFrameBuffer);
   
-  mMainFrameBuffer = nvgCreateFramebuffer(mVG, WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale(), 0);
+  mMainFrameBuffer = nvgCreateFramebuffer(mVG, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale(), 0);
   
   if (mMainFrameBuffer == nullptr)
     DBGMSG("Could not init FBO.\n");
@@ -394,7 +394,7 @@ void IGraphicsNanoVG::BeginFrame()
 #ifdef IGRAPHICS_METAL
   //  mnvgClearWithColor(mVG, nvgRGBAf(0, 0, 0, 0));
 #else
-  glViewport(0, 0, WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
+  glViewport(0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   #ifdef OS_WEB
@@ -406,7 +406,7 @@ void IGraphicsNanoVG::BeginFrame()
 #endif
   
   nvgBindFramebuffer(mMainFrameBuffer); // begin main frame buffer update
-  nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetDisplayScale());
+  nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
 }
 
 void IGraphicsNanoVG::EndFrame()
@@ -414,7 +414,7 @@ void IGraphicsNanoVG::EndFrame()
   nvgEndFrame(mVG); // end main frame buffer update
   nvgBindFramebuffer(nullptr);
   
-  nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetDisplayScale());
+  nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
 
   NVGpaint img = nvgImagePattern(mVG, 0, 0, WindowWidth(), WindowHeight(), 0, mMainFrameBuffer->image, 1.0f);
   
@@ -640,20 +640,20 @@ void IGraphicsNanoVG::UpdateLayer()
   {
     nvgEndFrame(mVG);
 #ifndef IGRAPHICS_METAL
-    glViewport(0, 0, WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
+    glViewport(0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
 #endif
     nvgBindFramebuffer(mMainFrameBuffer);
-    nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetDisplayScale());
+    nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
   }
   else
   {
     nvgEndFrame(mVG);
 #ifndef IGRAPHICS_METAL
-    const double scale = GetScale() * GetDisplayScale();
+    const double scale = GetDrawScale() * GetScreenScale();
     glViewport(0, 0, mLayers.top()->Bounds().W() * scale, mLayers.top()->Bounds().H() * scale);
 #endif
     nvgBindFramebuffer(dynamic_cast<const NanoVGBitmap*>(mLayers.top()->GetAPIBitmap())->GetFBO());
-    nvgBeginFrame(mVG, mLayers.top()->Bounds().W() * GetScale(), mLayers.top()->Bounds().H() * GetScale(), GetDisplayScale());
+    nvgBeginFrame(mVG, mLayers.top()->Bounds().W() * GetDrawScale(), mLayers.top()->Bounds().H() * GetDrawScale(), GetScreenScale());
   }
 }
 
@@ -671,7 +671,7 @@ void IGraphicsNanoVG::PathTransformSetMatrix(const IMatrix& m)
   }
   
   nvgResetTransform(mVG);
-  nvgScale(mVG, GetScale(), GetScale());
+  nvgScale(mVG, GetDrawScale(), GetDrawScale());
   nvgTranslate(mVG, xTranslate, yTranslate);
   nvgTransform(mVG, m.mTransform[0], m.mTransform[1], m.mTransform[2], m.mTransform[3], m.mTransform[4], m.mTransform[5]);
 }

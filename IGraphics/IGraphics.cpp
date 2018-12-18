@@ -59,7 +59,7 @@ IGraphics::IGraphics(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : mDelegate(dlg)
 , mWidth(w)
 , mHeight(h)
-, mScale(scale)
+, mDrawScale(scale)
 , mMinScale(scale / 2)
 , mMaxScale(scale * 2)
 , mMinWidth(w / 2)
@@ -89,9 +89,9 @@ IGraphics::~IGraphics()
   mControls.Empty(true);
 }
 
-void IGraphics::SetDisplayScale(int scale)
+void IGraphics::SetScreenScale(int scale)
 {
-  mDisplayScale = (float) scale;
+  mScreenScale = scale;
 
   int i, n = mControls.GetSize();
   IControl** ppControl = mControls.GetList();
@@ -110,12 +110,12 @@ void IGraphics::Resize(int w, int h, float scale)
   h = Clip(h, mMinHeight, mMaxHeight);
   scale = Clip(scale, mMinScale, mMaxScale);
   
-  if (w == Width() && h == Height() && scale == GetScale()) return;
+  if (w == Width() && h == Height() && scale == GetDrawScale()) return;
   
   DBGMSG("resize %i, resize %i, scale %f\n", w, h, scale);
   ReleaseMouseCapture();
 
-  mScale = scale;
+  mDrawScale = scale;
   mWidth = w;
   mHeight = h;
   
@@ -1203,20 +1203,20 @@ void IGraphics::OnResizeGesture(float x, float y)
 {
   if(mGUISizeMode == EUIResizerMode::kUIResizerScale)
   {
-    float scaleX = (x * GetScale()) / mMouseDownX;
-    float scaleY = (y * GetScale()) / mMouseDownY;
+    float scaleX = (x * GetDrawScale()) / mMouseDownX;
+    float scaleY = (y * GetDrawScale()) / mMouseDownY;
 
     Resize(Width(), Height(), std::min(scaleX, scaleY));
   }
   else
   {
-    Resize((int) x, (int) y, GetScale());
+    Resize((int) x, (int) y, GetDrawScale());
   }
 }
 
 IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
 {
-  return LoadBitmap(src.GetResourceName().Get(), src.N(), src.GetFramesAreHorizontal(), (GetDisplayScale() == 1. && GetScale() > 1.) ? 2 : 0);
+  return LoadBitmap(src.GetResourceName().Get(), src.N(), src.GetFramesAreHorizontal(), (GetScreenScale() == 1 && GetDrawScale() > 1.) ? 2 : 0);
 }
 
 void IGraphics::OnDrop(const char* str, float x, float y)
@@ -1293,8 +1293,8 @@ ISVG IGraphics::LoadSVG(const char* name)
 
 IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale)
 {
-  if(targetScale == 0)
-    targetScale = round(GetDisplayScale());
+  if (targetScale == 0)
+    targetScale = GetScreenScale();
 
   APIBitmap* pAPIBitmap = s_bitmapCache.Find(name, targetScale);
 
@@ -1451,7 +1451,7 @@ ILayerPtr IGraphics::EndLayer()
 bool IGraphics::CheckLayer(const ILayerPtr& layer)
 {
   const APIBitmap* bitmap = layer ? layer->GetAPIBitmap() : nullptr;
-  return bitmap && !layer->mInvalid && (bitmap->GetDrawScale() != GetScale()) && (bitmap->GetScale() != GetDisplayScale());
+  return bitmap && !layer->mInvalid && (bitmap->GetDDrawScale() != GetDrawScale()) && (bitmap->GetScale() != GetScreenScale());
 }
 
 void IGraphics::DrawLayer(const ILayerPtr& layer)

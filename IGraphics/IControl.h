@@ -1115,7 +1115,7 @@ public:
   
   void OnRescale() override
   {
-    float size = mSize * (1.f/GetUI()->GetScale());
+    float size = mSize * (1.f/GetUI()->GetDrawScale());
     IRECT r = GetUI()->GetBounds().GetFromBRHC(size, size);
     SetTargetAndDrawRECTs(r);
   }

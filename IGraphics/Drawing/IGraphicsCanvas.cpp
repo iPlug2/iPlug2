@@ -290,7 +290,7 @@ bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
 void IGraphicsCanvas::PathTransformSetMatrix(const IMatrix& m)
 {
   IMatrix t;
-  t.Scale(GetScale() * GetDisplayScale(), GetScale() * GetDisplayScale());
+  t.Scale(GetDrawScale() * GetScreenScale(), GetDrawScale() * GetScreenScale());
   t.Translate(XTranslate(), YTranslate());
   t.Transform(m);
 
@@ -348,6 +348,6 @@ APIBitmap* IGraphicsCanvas::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 
 APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height)
 {
-  const double scale = GetScale() * GetDisplayScale();
-  return new CanvasBitmap(width * scale, height * scale, GetDisplayScale(), GetScale());
+  const double scale = GetDrawScale() * GetScreenScale();
+  return new CanvasBitmap(width * scale, height * scale, GetScreenScale(), GetDrawScale());
 }

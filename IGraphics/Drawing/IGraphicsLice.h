@@ -112,19 +112,19 @@ private:
     
   float TransformX(float x)
   {
-    return (x - mDrawOffsetX) * GetDisplayScale();
+    return (x - mDrawOffsetX) * GetScreenScale();
   }
   
   float TransformY(float y)
   {
-    return (y - mDrawOffsetY) * GetDisplayScale();
+    return (y - mDrawOffsetY) * GetScreenScale();
   }
     
   IRECT TransformRECT(const IRECT& r)
   {
     IRECT tr = r;
     tr.Shift(-mDrawOffsetX, - mDrawOffsetY);
-    tr.Scale(GetDisplayScale());
+    tr.Scale(GetScreenScale());
     return tr;
   }
     

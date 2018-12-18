@@ -82,7 +82,7 @@ public:
 
   /** Called by the platform IGraphics class XXXXX /todo and when moving to a new screen with different DPI, implementations in draw class must call the base implementation
    * @param scale The scale of the display, typically 2 on a macOS retina screen */
-  void SetDisplayScale(int scale);
+  void SetScreenScale(int scale);
   
   /** Draw an SVG image to the graphics context
    * @param svg The SVG image to the graphics context
@@ -704,11 +704,11 @@ public:
 
   /** Gets the width of the graphics context including scaling (not display scaling!)
    * @return A whole number representing the width of the graphics context with scaling in pixels on a 1:1 screen */
-  int WindowWidth() const { return int((float) mWidth * mScale); }
+  int WindowWidth() const { return int((float) mWidth * mDrawScale); }
 
   /** Gets the height of the graphics context including scaling (not display scaling!)
    * @return A whole number representing the height of the graphics context with scaling in pixels on a 1:1 screen */
-  int WindowHeight() const { return int((float) mHeight * mScale); }
+  int WindowHeight() const { return int((float) mHeight * mDrawScale); }
 
   /** Gets the drawing frame rate
    * @return A whole number representing the desired frame rate at which the graphics context is redrawn. NOTE: the actual frame rate might be different */
@@ -716,11 +716,11 @@ public:
 
   /** Gets the graphics context scaling factor.
    * @return The scaling applied to the graphics context */
-  float GetScale() const { return mScale; }
+  float GetDrawScale() const { return mDrawScale; }
 
   /** Gets the display scaling factor
     * @return The scale factor of the display on which this graphics context is currently located */
-  float GetDisplayScale() const { return mDisplayScale; }
+  float GetScreenScale() const { return mScreenScale; }
 
   /** Gets a pointer to the delegate class that handles communication to and from this graphics context.
    * @return pointer to the delegate */
@@ -1002,9 +1002,8 @@ private:
   int mWidth;
   int mHeight;
   int mFPS;
-  float mDisplayScale = 1.f; // the scaling of the display that the UI is currently on e.g. 2 for retina
-  float mScale = 1.f; // scale deviation from  default width and height i.e stretching the UI by dragging bottom right hand corner
-  float mScaleReciprocal = 1.f; // 1.f / mScale
+  int mScreenScale = 1; // the scaling of the display that the UI is currently on e.g. 2 for retina
+  float mDrawScale = 1.f; // scale deviation from  default width and height i.e stretching the UI by dragging bottom right hand corner
   int mIdleTicks = 0;
   int mMouseCapture = -1;
   int mMouseOver = -1;

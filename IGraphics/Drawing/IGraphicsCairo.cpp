@@ -186,8 +186,8 @@ APIBitmap* IGraphicsCairo::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 
 APIBitmap* IGraphicsCairo::CreateAPIBitmap(int width, int height)
 {
-  const double scale = GetScale() * GetDisplayScale();
-  return new CairoBitmap(mSurface, width * scale, height * scale, GetDisplayScale(), GetScale());
+  const double scale = GetDrawScale() * GetScreenScale();
+  return new CairoBitmap(mSurface, width * scale, height * scale, GetScreenScale(), GetDrawScale());
 }
 
 void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
@@ -513,10 +513,10 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
   {
 #ifdef OS_MAC
     mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), WindowWidth(), WindowHeight());
-    cairo_surface_set_device_scale(mSurface, GetScale(), GetScale());
+    cairo_surface_set_device_scale(mSurface, GetDrawScale(), GetDrawScale());
 #elif defined OS_WIN
     mSurface = cairo_win32_surface_create_with_ddb((HDC) pContext, CAIRO_FORMAT_ARGB32, Width(), Height());
-    cairo_surface_set_device_scale(mSurface, GetDisplayScale(), GetDisplayScale());
+    cairo_surface_set_device_scale(mSurface, GetScreenScale(), GetScreenScale());
 #else
   #error NOT IMPLEMENTED
 #endif
@@ -543,7 +543,7 @@ void IGraphicsCairo::EndFrame()
   HDC dc = BeginPaint(hWnd, &ps);
   HDC cdc = cairo_win32_surface_get_dc(mSurface);
   
-  if (GetScale() == 1.f)
+  if (GetDrawScale() == 1.f)
     BitBlt(dc, 0, 0, Width(), Height(), cdc, 0, 0, SRCCOPY);
   else
     StretchBlt(dc, 0, 0, WindowWidth(), WindowHeight(), cdc, 0, 0, Width(), Height(), SRCCOPY);

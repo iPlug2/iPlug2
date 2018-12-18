@@ -171,12 +171,12 @@ IGraphicsAGG::~IGraphicsAGG()
 
 void IGraphicsAGG::DrawResize()
 {
-  mPixelMap.create(WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
+  mPixelMap.create(WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
   UpdateLayer();
   mRasterizer.SetOutput(mRenBuf);
   mRasterizer.ClearWhite();
     
-  mTransform = agg::trans_affine_scaling(GetScale() * GetDisplayScale(), GetScale() * GetDisplayScale());
+  mTransform = agg::trans_affine_scaling(GetDrawScale() * GetScreenScale(), GetDrawScale() * GetScreenScale());
 }
 
 void IGraphicsAGG::UpdateLayer()
@@ -228,7 +228,7 @@ bool CheckTransform(const agg::trans_affine& mtx)
 
 void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
-  double scale = GetDisplayScale();
+  const int scale = GetScreenScale();
   IRECT bounds = dest.GetScaled(scale);
 
   agg::pixel_map* pSource = bitmap.GetAPIBitmap()->GetBitmap();
@@ -275,8 +275,8 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
 /*
 void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, float x, float y, double angle, const IBlend* pBlend)
 {
-  x *= GetDisplayScale();
-  y *= GetDisplayScale();
+  x *= GetScreenScale();
+  y *= GetScreenScale();
 
   agg::pixel_map* pm_base = base.GetAPIBitmap()->GetBitmap();
   agg::pixel_map* pm_mask = mask.GetAPIBitmap()->GetBitmap();
@@ -297,8 +297,8 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, f
   ren_base.blend_from(img_mask, 0, 0, agg::cover_mask);
   ren_base.copy_from(img_top);
   
-  const double width = base.W() * GetDisplayScale();
-  const double height = base.H() * GetDisplayScale();
+  const int width = base.W() * GetScreenScale();
+  const int height = base.H() * GetScreenScale();
   
   agg::trans_affine srcMatrix;
   srcMatrix *= agg::trans_affine_translation(-(width / 2), -(height / 2));
@@ -528,8 +528,8 @@ APIBitmap* IGraphicsAGG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 
 APIBitmap* IGraphicsAGG::CreateAPIBitmap(int width, int height)
 {
-  const double scale = GetScale() * GetDisplayScale();
-  return new AGGBitmap(CreatePixmap(width * scale, width * scale), GetDisplayScale(), GetScale());
+  const double scale = GetDrawScale() * GetScreenScale();
+  return new AGGBitmap(CreatePixmap(width * scale, width * scale), GetScreenScale(), GetDrawScale());
 }
 
 void IGraphicsAGG::EndFrame()
@@ -538,7 +538,7 @@ void IGraphicsAGG::EndFrame()
   CGContextSaveGState((CGContext*) GetPlatformContext());
   CGContextTranslateCTM((CGContext*) GetPlatformContext(), 0.0, WindowHeight());
   CGContextScaleCTM((CGContext*) GetPlatformContext(), 1.0, -1.0);
-  mPixelMap.draw((CGContext*) GetPlatformContext(), GetDisplayScale());
+  mPixelMap.draw((CGContext*) GetPlatformContext(), GetScreenScale());
   CGContextRestoreGState((CGContext*) GetPlatformContext());
 #else
   #error NOT IMPLEMENTED
@@ -609,7 +609,7 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
 //  }
 //
 //  IRECT bounds = destBounds;
-//  bounds.Scale(GetDisplayScale());
+//  bounds.Scale(GetScreenScale());
 //
 //  RendererSolid renSolid(mRenBase);
 //  RendererBin renBin(mRenBase);
@@ -642,7 +642,7 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
 //    ras.gamma(agg::gamma_power(1.0));
 //  }
 //
-//  mFontContour.width(-weight * (text.mSize * 0.05) * GetDisplayScale());
+//  mFontContour.width(-weight * (text.mSize * 0.05) * GetScreenScale());
 //
 //  IFontData font = LoadFont(text.mFont, text.mSize);
 //  agg::font* pFontData = (agg::font *)font.mData;
@@ -650,12 +650,12 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
 //  if (pFontData != 0 && mFontEngine.load_font("", 0, gren, pFontData->buf(), pFontData->size()))
 //  {
 //    mFontEngine.hinting(hinting);
-//    mFontEngine.height(text.mSize * GetDisplayScale());
-//    mFontEngine.width(text.mSize * GetDisplayScale());
+//    mFontEngine.height(text.mSize * GetScreenScale());
+//    mFontEngine.width(text.mSize * GetScreenScale());
 //    mFontEngine.flip_y(true);
 //
 //    double x = bounds.L;
-//    double y = bounds.T + (text.mSize * GetDisplayScale());
+//    double y = bounds.T + (text.mSize * GetScreenScale());
 //
 //    WDL_TypedBuf<LineInfo> lines;
 //
@@ -737,7 +737,7 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
 //          y += pGlyph->advance_y;
 //        }
 //      }
-//      y += text.mSize * GetDisplayScale();
+//      y += text.mSize * GetScreenScale();
 //    }
 //  }
   return false;

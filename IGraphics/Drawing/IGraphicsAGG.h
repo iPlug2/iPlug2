@@ -209,14 +209,14 @@ private:
   {
     IRECT clip = mClipRECT.Empty() ? GetBounds() : mClipRECT;
     clip.Shift(XTranslate(), YTranslate());
-    clip.Scale(GetDisplayScale() * GetScale());
+    clip.Scale(GetScreenScale() * GetDrawScale());
     path.clip_box(clip.L, clip.T, clip.R, clip.B);
   }
   
   void PathTransformSetMatrix(const IMatrix& m) override
   {
     IMatrix t;
-    t.Scale(GetScale() * GetDisplayScale(), GetScale() * GetDisplayScale());
+    t.Scale(GetDrawScale() * GetScreenScale(), GetDrawScale() * GetScreenScale());
     t.Translate(XTranslate(), YTranslate());
     t.Transform(m);
     mTransform = agg::trans_affine(t.mTransform[0], t.mTransform[1], t.mTransform[2], t.mTransform[3], t.mTransform[4], t.mTransform[5]);
