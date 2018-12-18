@@ -283,7 +283,7 @@ void IGraphicsCairo::SetCairoSourcePattern(const IPattern& pattern, const IBlend
     {
       cairo_pattern_t *cairoPattern;
       cairo_matrix_t matrix;
-      const float *xform = pattern.mTransform;
+      const double* xform = pattern.mTransform.mMatrix; 
       
       if (pattern.mType == kLinearPattern)
         cairoPattern = cairo_pattern_create_linear(0.0, 0.0, 1.0, 0.0);
@@ -555,7 +555,7 @@ void IGraphicsCairo::LoadFont(const char* name)
 void IGraphicsCairo::PathTransformSetMatrix(const IMatrix& m)
 {
   cairo_matrix_t matrix;
-  cairo_matrix_init(&matrix, m.mTransform[0], m.mTransform[1], m.mTransform[2], m.mTransform[3], m.mTransform[4], m.mTransform[5]);
+  cairo_matrix_init(&matrix, m.mMatrix[0], m.mMatrix[1], m.mMatrix[2], m.mMatrix[3], m.mMatrix[4], m.mMatrix[5]);
   cairo_set_matrix(mContext, &matrix);
 }
 

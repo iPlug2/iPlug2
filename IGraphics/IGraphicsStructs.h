@@ -412,22 +412,22 @@ struct IMatrix
 {
   IMatrix()
   {
-    mTransform[0] = 1.0;
-    mTransform[1] = 0.0;
-    mTransform[2] = 0.0;
-    mTransform[3] = 1.0;
-    mTransform[4] = 0.0;
-    mTransform[5] = 0.0;
+    mMatrix[0] = 1.0;
+    mMatrix[1] = 0.0;
+    mMatrix[2] = 0.0;
+    mMatrix[3] = 1.0;
+    mMatrix[4] = 0.0;
+    mMatrix[5] = 0.0;
   }
     
   IMatrix(float sx, float shx, float shy, float sy, float tx, float ty)
   {
-    mTransform[0] = sx;
-    mTransform[1] = shx;
-    mTransform[2] = shy;
-    mTransform[3] = sy;
-    mTransform[4] = tx;
-    mTransform[5] = ty;
+    mMatrix[0] = sx;
+    mMatrix[1] = shx;
+    mMatrix[2] = shy;
+    mMatrix[3] = sy;
+    mMatrix[4] = tx;
+    mMatrix[5] = ty;
   }
   
   void Translate(float x, float y)
@@ -456,15 +456,15 @@ struct IMatrix
   {
     IMatrix p = *this;
 
-    mTransform[0] = m.mTransform[0] * p.mTransform[0] + m.mTransform[1] * p.mTransform[2];
-    mTransform[1] = m.mTransform[0] * p.mTransform[1] + m.mTransform[1] * p.mTransform[3];
-    mTransform[2] = m.mTransform[2] * p.mTransform[0] + m.mTransform[3] * p.mTransform[2];
-    mTransform[3] = m.mTransform[2] * p.mTransform[1] + m.mTransform[3] * p.mTransform[3];
-    mTransform[4] = m.mTransform[4] * p.mTransform[0] + m.mTransform[5] * p.mTransform[2] + p.mTransform[4];
-    mTransform[5] = m.mTransform[4] * p.mTransform[1] + m.mTransform[5] * p.mTransform[3] + p.mTransform[5];
+    mMatrix[0] = m.mMatrix[0] * p.mMatrix[0] + m.mMatrix[1] * p.mMatrix[2];
+    mMatrix[1] = m.mMatrix[0] * p.mMatrix[1] + m.mMatrix[1] * p.mMatrix[3];
+    mMatrix[2] = m.mMatrix[2] * p.mMatrix[0] + m.mMatrix[3] * p.mMatrix[2];
+    mMatrix[3] = m.mMatrix[2] * p.mMatrix[1] + m.mMatrix[3] * p.mMatrix[3];
+    mMatrix[4] = m.mMatrix[4] * p.mMatrix[0] + m.mMatrix[5] * p.mMatrix[2] + p.mMatrix[4];
+    mMatrix[5] = m.mMatrix[4] * p.mMatrix[1] + m.mMatrix[5] * p.mMatrix[3] + p.mMatrix[5];
   }
   
-  double mTransform[6];
+  double mMatrix[6];
 };
 
 struct IColorStop
@@ -488,26 +488,20 @@ struct IPattern
 {
   EPatternType mType;
   EPatternExtend mExtend;
-  WDL_TypedBuf<IColorStop> mStops;
-  float mTransform[6];
+  IColorStop mStops[16];
+  int mNStops;
+  IMatrix mTransform;
 
   IPattern(const IColor& color)
-  : mExtend(kExtendRepeat)
+  : mExtend(kExtendRepeat), mNStops(1)
   {
     mType = kSolidPattern;
-    mStops.Add(IColorStop(color, 0.0));
-    SetTransform(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
-  }
-
-  IPattern(EPatternType type)
-  : mExtend(kExtendNone)
-  {
-    mType = type;
-    SetTransform(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
+    mStops[0] = IColorStop(color, 0.0);
+    SetTransform(IMatrix());
   }
 
   IPattern(float x1, float y1, float x2, float y2)
-  : mExtend(kExtendNone)
+  : mExtend(kExtendNone), mNStops(0)
   {
     mType = kLinearPattern;
 
@@ -532,14 +526,14 @@ struct IPattern
   IPattern(float x1, float y1, float x2, float y2, std::initializer_list<IColorStop> stops)
   : IPattern(x1, y1, x2, y2)
   {
-    for(auto& stop : stops)
+    for (auto& stop : stops)
     {
       AddStop(stop.mColor, stop.mOffset);
     }
   }
 
   IPattern(float x1, float y1, float r)
-  : mExtend(kExtendNone)
+  : mExtend(kExtendNone), mNStops(0)
   {
     mType = kRadialPattern;
 
@@ -553,29 +547,30 @@ struct IPattern
 
   int NStops() const
   {
-    return mStops.GetSize();
+    return mNStops;
   }
 
   const IColorStop& GetStop(int idx) const
   {
-    return *(mStops.Get() + idx);
+    return mStops[idx];
   }
 
   void AddStop(IColor color, float offset)
   {
-    assert(mType != kSolidPattern);
-    assert(!NStops() || GetStop(NStops() - 1).mOffset < offset);
-    mStops.Add(IColorStop(color, offset));
+    assert(mType != kSolidPattern && mNStops < 16);
+    assert(!mNStops || GetStop(mNStops - 1).mOffset < offset);
+    if (mNStops < 16)
+      mStops[mNStops++] = IColorStop(color, offset);
   }
 
   void SetTransform(float xx, float yx, float xy, float yy, float x0, float y0)
   {
-    mTransform[0] = xx;
-    mTransform[1] = yx;
-    mTransform[2] = xy;
-    mTransform[3] = yy;
-    mTransform[4] = x0;
-    mTransform[5] = y0;
+    mTransform = IMatrix(xx, yx, xy, yy, x0, y0);
+  }
+    
+  void SetTransform(const IMatrix& transform)
+  {
+    mTransform = transform;
   }
 };
 

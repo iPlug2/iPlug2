@@ -211,7 +211,7 @@ private:
     IMatrix t;
     t.Scale(GetScale() * GetDisplayScale(), GetScale() * GetDisplayScale());
     t.Transform(m);
-    mTransform = agg::trans_affine(t.mTransform[0], t.mTransform[1], t.mTransform[2], t.mTransform[3], t.mTransform[4], t.mTransform[5]);
+    mTransform = agg::trans_affine(t.mMatrix[0], t.mMatrix[1], t.mMatrix[2], t.mMatrix[3], t.mMatrix[4], t.mMatrix[5]);
   }
   
   void SetClipRegion(const IRECT& r) override { mClipRECT = r; }

@@ -168,10 +168,11 @@ NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend
   
   // Invert transform
   
-  float inverse[6];
-  nvgTransformInverse(inverse, pattern.mTransform);
-  float s[2];
-  
+  float transform[6], inverse[6], s[2];
+    
+  for (int i = 0; i < 6; i++)
+      transform[i] = static_cast<float>(pattern.mTransform.mMatrix[i]);
+  nvgTransformInverse(inverse, transform);
   nvgTransformPoint(&s[0], &s[1], inverse, 0, 0);
   
   if (pattern.mType == kRadialPattern)
@@ -606,7 +607,7 @@ void IGraphicsNanoVG::PathTransformSetMatrix(const IMatrix& m)
 {
   nvgResetTransform(mVG);
   nvgScale(mVG, GetScale(), GetScale());
-  nvgTransform(mVG, m.mTransform[0], m.mTransform[1], m.mTransform[2], m.mTransform[3], m.mTransform[4], m.mTransform[5]);
+  nvgTransform(mVG, m.mMatrix[0], m.mMatrix[1], m.mMatrix[2], m.mMatrix[3], m.mMatrix[4], m.mMatrix[5]);
 }
 
 void IGraphicsNanoVG::SetClipRegion(const IRECT& r)

@@ -147,7 +147,7 @@ void IGraphicsCanvas::PathFill(const IPattern& pattern, const IFillOptions& opti
 
 void IGraphicsCanvas::SetCanvasSourcePattern(const IPattern& pattern, const IBlend* pBlend)
 {
-  auto InvertTransform = [](float *xform, const float *xformIn)
+  auto InvertTransform = [](double *xform, const double *xformIn)
   {
     double d = 1.0 / (xformIn[0] * xformIn[3] - xformIn[1] * xformIn[2]);
     
@@ -178,8 +178,8 @@ void IGraphicsCanvas::SetCanvasSourcePattern(const IPattern& pattern, const IBle
     case kLinearPattern:
     case kRadialPattern:
     {
-      float xform[6];
-      InvertTransform(xform, pattern.mTransform);
+      double xform[6];
+      InvertTransform(xform, pattern.mTransform.mMatrix);
       val gradient = (pattern.mType == kLinearPattern) ?
         context.call<val>("createLinearGradient", xform[4], xform[5], xform[0] + xform[4], xform[1] + xform[5]) :
         context.call<val>("createRadialGradient", xform[4], xform[5], 0.0, xform[4], xform[5], xform[0]);
@@ -282,7 +282,7 @@ void IGraphicsCanvas::PathTransformSetMatrix(const IMatrix& m)
   t.Scale(GetScale() * GetDisplayScale(), GetScale() * GetDisplayScale());
   t.Transform(m);
 
-  GetContext().call<void>("setTransform", t.mTransform[0], t.mTransform[1], t.mTransform[2], t.mTransform[3], t.mTransform[4], t.mTransform[5]);
+  GetContext().call<void>("setTransform", t.mMatrix[0], t.mMatrix[1], t.mMatrix[2], t.mMatrix[3], t.mMatrix[4], t.mMatrix[5]);
 }
 
 void IGraphicsCanvas::SetClipRegion(const IRECT& r)
