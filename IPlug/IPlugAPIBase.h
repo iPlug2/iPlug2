@@ -165,7 +165,7 @@ public:
   void DeferSysexMsg(const ISysEx& msg) override
   {
     SysExData data(msg.mOffset, msg.mSize, msg.mData); // copies data
-    mSysexDataFromEditor.Push(data);
+    mSysExDataFromEditor.Push(data);
   }
 
   void CreateTimer();
@@ -176,17 +176,20 @@ private:
    * @param normalizedValue The new normalised value of the parameter being changed */
   virtual void InformHostOfParamChange(int paramIdx, double normalizedValue) {};
   
-  //DISTRIBUTED ONLY
+  //DISTRIBUTED ONLY (Currently only VST3)
   virtual void _TransmitMidiMsgFromProcessor(const IMidiMsg& msg) {};
-  
+  virtual void _TransmitSysExDataFromProcessor(const SysExData& data) {};
+
   void OnTimer(Timer& t);
 
-public:
-  IPlugQueue<IParamChange> mParamChangeFromProcessor {PARAM_TRANSFER_SIZE};
-  IPlugQueue<IMidiMsg> mMidiMsgsFromEditor {MIDI_TRANSFER_SIZE}; // a queue of midi messages received from the editor, by clicking keyboard UI etc
-  IPlugQueue<IMidiMsg> mMidiMsgsFromProcessor {MIDI_TRANSFER_SIZE};
-  IPlugQueue<SysExData> mSysexDataFromEditor {SYSEX_TRANSFER_SIZE};
+protected:
   WDL_String mParamDisplayStr;
   Timer* mTimer = nullptr;
+  
+  IPlugQueue<IParamChange> mParamChangeFromProcessor {PARAM_TRANSFER_SIZE};
+  IPlugQueue<IMidiMsg> mMidiMsgsFromEditor {MIDI_TRANSFER_SIZE}; // a queue of midi messages generated in the editor by clicking keyboard UI etc
+  IPlugQueue<IMidiMsg> mMidiMsgsFromProcessor {MIDI_TRANSFER_SIZE}; // a queue of MIDI messages received (potentially on the high priority thread), by the processor to send to the editor
+  IPlugQueue<SysExData> mSysExDataFromEditor {SYSEX_TRANSFER_SIZE}; // a queue of SYSEX data to send to the processor
+  IPlugQueue<SysExData> mSysExDataFromProcessor {SYSEX_TRANSFER_SIZE}; // a queue of SYSEX data to send to the editor
   SysExData mSysexBuf;
 };

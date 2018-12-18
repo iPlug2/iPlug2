@@ -549,11 +549,11 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
     mMidiOutputQueue.Flush(data.numSamples);
     
     //Output SYSEX from the editor, which has bypassed the processors' ProcessSysEx()
-    if(mSysexDataFromEditor.ElementsAvailable())
+    if(mSysExDataFromEditor.ElementsAvailable())
     {
       Event toAdd = {0};
       
-      while (mSysexDataFromEditor.Pop(mSysexBuf))
+      while (mSysExDataFromEditor.Pop(mSysexBuf))
       {
         toAdd.type = Event::kDataEvent;
         toAdd.sampleOffset = mSysexBuf.mOffset;

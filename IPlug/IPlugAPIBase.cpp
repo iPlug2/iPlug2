@@ -147,6 +147,13 @@ void IPlugAPIBase::OnTimer(Timer& t)
       mMidiMsgsFromProcessor.Pop(msg);
       SendMidiMsgFromDelegate(msg);
     }
+    
+    while (mSysExDataFromProcessor.ElementsAvailable())
+    {
+      SysExData msg;
+      mSysExDataFromProcessor.Pop(msg);
+      SendSysexMsgFromDelegate({msg.mOffset, msg.mData, msg.mSize});
+    }
   #endif
     
     // Midi messages from the processor to the controller, are sent as IMessages and SendMidiMsgFromDelegate gets triggered on the other side's notify
@@ -156,6 +163,13 @@ void IPlugAPIBase::OnTimer(Timer& t)
       IMidiMsg msg;
       mMidiMsgsFromProcessor.Pop(msg);
       _TransmitMidiMsgFromProcessor(msg);
+    }
+    
+    while (mSysExDataFromProcessor.ElementsAvailable())
+    {
+      SysExData data;
+      mSysExDataFromProcessor.Pop(data);
+      _TransmitSysExDataFromProcessor(data);
     }
   #endif
   }

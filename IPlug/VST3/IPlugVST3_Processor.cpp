@@ -483,11 +483,11 @@ tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
     mMidiOutputQueue.Flush(data.numSamples);
     
     //Output SYSEX from the editor, which has bypassed the processors' ProcessSysEx()
-    if(mSysexDataFromEditor.ElementsAvailable())
+    if(mSysExDataFromEditor.ElementsAvailable())
     {
       Event toAdd = {0};
 
-      while (mSysexDataFromEditor.Pop(mSysexBuf))
+      while (mSysExDataFromEditor.Pop(mSysexBuf))
       {
         toAdd.type = Event::kDataEvent;
         toAdd.sampleOffset = mSysexBuf.mOffset;
@@ -707,3 +707,17 @@ void IPlugVST3Processor::_TransmitMidiMsgFromProcessor(const IMidiMsg& msg)
   message->getAttributes()->setBinary("D", (void*) &msg, sizeof(IMidiMsg));
   sendMessage(message);
 }
+
+void IPlugVST3Processor::_TransmitSysExDataFromProcessor(const SysExData& data)
+{
+  OPtr<IMessage> message = allocateMessage();
+  
+  if (!message)
+    return;
+  
+  message->setMessageID("SSMFD");
+  message->getAttributes()->setBinary("D", (void*) data.mData, data.mSize);
+  message->getAttributes()->setInt("O", data.mOffset);
+  sendMessage(message);
+}
+

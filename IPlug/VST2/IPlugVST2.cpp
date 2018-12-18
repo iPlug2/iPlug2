@@ -903,9 +903,9 @@ void VSTCALLBACK IPlugVST2::VSTSetParameter(AEffect *pEffect, VstInt32 idx, floa
 void IPlugVST2::OutputSysexFromEditor()
 {
   //Output SYSEX from the editor, which has bypassed ProcessSysEx()
-  if(mSysexDataFromEditor.ElementsAvailable())
+  if(mSysExDataFromEditor.ElementsAvailable())
   {
-    while (mSysexDataFromEditor.Pop(mSysexBuf))
+    while (mSysExDataFromEditor.Pop(mSysexBuf))
     {
       ISysEx smsg {mSysexBuf.mOffset, mSysexBuf.mData, mSysexBuf.mSize};
       SendSysEx(smsg);

@@ -427,6 +427,21 @@ tresult PLUGIN_API IPlugVST3Controller::notify(IMessage* message)
       }
     }
   }
+  else if (!strcmp (message->getMessageID(), "SSMFD"))
+  {
+    const void* data = nullptr;
+    uint32 size;
+    int64 offset;
+    
+    if (message->getAttributes()->getBinary("D", data, size) == kResultOk)
+    {
+      if (message->getAttributes()->getInt("O", offset) == kResultOk)
+      {
+        ISysEx msg {static_cast<int>(offset), static_cast<const uint8_t*>(data), static_cast<int>(size)};
+        SendSysexMsgFromDelegate(msg);
+      }
+    }
+  }
   
   return ComponentBase::notify(message);
 }

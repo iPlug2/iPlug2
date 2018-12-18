@@ -2090,9 +2090,9 @@ bool IPlugAU::SendSysEx(const ISysEx& sysEx)
 void IPlugAU::OutputSysexFromEditor()
 {
   //Output SYSEX from the editor, which has bypassed ProcessSysEx()
-  if(mSysexDataFromEditor.ElementsAvailable())
+  if(mSysExDataFromEditor.ElementsAvailable())
   {
-    while (mSysexDataFromEditor.Pop(mSysexBuf))
+    while (mSysExDataFromEditor.Pop(mSysexBuf))
     {
       ISysEx smsg {mSysexBuf.mOffset, mSysexBuf.mData, mSysexBuf.mSize};
       SendSysEx(smsg);

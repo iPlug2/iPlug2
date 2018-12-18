@@ -361,9 +361,9 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
       mMidiOutputQueue.Flush(numSamples);
       
       //Output SYSEX from the editor, which has bypassed ProcessSysEx()
-      if(mSysexDataFromEditor.ElementsAvailable())
+      if(mSysExDataFromEditor.ElementsAvailable())
       {
-        while (mSysexDataFromEditor.Pop(mSysexBuf))
+        while (mSysExDataFromEditor.Pop(mSysexBuf))
         {
           int numPackets = (int) ceil((float) mSysexBuf.mSize/4.); // each packet can store 4 bytes of data
           int bytesPos = 0;
