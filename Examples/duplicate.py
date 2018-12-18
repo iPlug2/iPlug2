@@ -35,6 +35,7 @@ sys.path.insert(0, scriptpath + '/../scripts/')
 from parse_config import parse_config, parse_xcconfig, set_uniqueid
 
 VERSION = "0.93"
+INPUT_MANUFACTURER = "AcmeInc"
 
 # binary files that we don't want to do find and replace inside
 FILTERED_FILE_EXTENSIONS = [".ico",".icns", ".pdf", ".png", ".zip", ".exe", ".wav", ".aif"]
@@ -135,6 +136,15 @@ def dirwalk(dir, searchproject, replaceproject, searchman, replaceman):
 
         print("Replacing manufacturer name strings in file " + filename)
         replacestrs(fullpath, searchman, replaceman)
+
+        if(extension == ".pbxproj" || extension == ".xcconfig"):
+          print("Replacing relative path strings in xcode files" + filename)
+          replacestrs(fullpath, "../../../", "../../MyPlugins/")
+
+        if(extension == ".vcxproj" || extension == ".props"):
+          print("Replacing relative path strings in visual studio files" + filename)
+          replacestrs(fullpath, "..\..\..\\", "..\\..\\MyPlugins\\")
+
       else:
         print("NOT replacing name strings in file " + filename)
 
@@ -150,13 +160,19 @@ def main():
   global VERSION
   print("\nIPlug Project Duplicator v" + VERSION + " by Oli Larkin ------------------------------\n")
 
-  if len(sys.argv) != 4:
+  if len(sys.argv) < 4:
     print("Usage: duplicate.py inputprojectname outputprojectname manufacturername")
     sys.exit(1)
   else:
     input=sys.argv[1]
     output=sys.argv[2]
     manufacturer=sys.argv[3]
+
+    outofsource = False
+
+    if len(sys.argv) == 5:
+      outofsource = True
+      print("Out of source build")
 
     if ' ' in input:
       print("error: input project name has spaces")
@@ -191,8 +207,8 @@ def main():
     copytree(input, output, ignore=ignore_patterns(*DONT_COPY))
     cpath = os.path.join(os.getcwd(), output)
 
-    #replace manufacturer name strings
-    for dir in dirwalk(cpath, input, output, "AcmeInc", manufacturer):
+    #replace project name and manufacturer name strings in files
+    for dir in dirwalk(cpath, input, output, INPUT_MANUFACTURER, manufacturer):
       pass
 
     print("\ncopying gitignore template into project folder\n")
