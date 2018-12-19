@@ -417,178 +417,6 @@ struct IStrokeOptions
   DashOptions mDash;
 };
 
-/** Used to store transformation matrices**/
-struct IMatrix
-{
-  IMatrix()
-  {
-    mTransform[0] = 1.0;
-    mTransform[1] = 0.0;
-    mTransform[2] = 0.0;
-    mTransform[3] = 1.0;
-    mTransform[4] = 0.0;
-    mTransform[5] = 0.0;
-  }
-    
-  IMatrix(float sx, float shx, float shy, float sy, float tx, float ty)
-  {
-    mTransform[0] = sx;
-    mTransform[1] = shx;
-    mTransform[2] = shy;
-    mTransform[3] = sy;
-    mTransform[4] = tx;
-    mTransform[5] = ty;
-  }
-  
-  void Translate(float x, float y)
-  {
-    IMatrix multiplier(1.0, 0.0, 0.0, 1.0, x, y);
-    Transform(multiplier);
-  }
-  
-  void Scale(float x, float y)
-  {
-    IMatrix multiplier(x, 0.0, 0.0, y, 0.0, 0.0);
-    Transform(multiplier);
-  }
-  
-  void Rotate(float a)
-  {
-    a = DegToRad(a);
-    const float c = std::cos(a);
-    const float s = std::sin(a);
-    
-    IMatrix multiplier(c, s, -s, c, 0.f, 0.f);
-    Transform(multiplier);
-  }
-  
-  void Transform(const IMatrix& m)
-  {
-    IMatrix p = *this;
-
-    mTransform[0] = m.mTransform[0] * p.mTransform[0] + m.mTransform[1] * p.mTransform[2];
-    mTransform[1] = m.mTransform[0] * p.mTransform[1] + m.mTransform[1] * p.mTransform[3];
-    mTransform[2] = m.mTransform[2] * p.mTransform[0] + m.mTransform[3] * p.mTransform[2];
-    mTransform[3] = m.mTransform[2] * p.mTransform[1] + m.mTransform[3] * p.mTransform[3];
-    mTransform[4] = m.mTransform[4] * p.mTransform[0] + m.mTransform[5] * p.mTransform[2] + p.mTransform[4];
-    mTransform[5] = m.mTransform[4] * p.mTransform[1] + m.mTransform[5] * p.mTransform[3] + p.mTransform[5];
-  }
-  
-  double mTransform[6];
-};
-
-struct IColorStop
-{
-  IColorStop()
-  : mOffset(0.f)
-  {}
-
-  IColorStop(IColor color, float offset)
-  : mColor(color)
-  , mOffset(offset)
-  {
-    assert(offset >= 0.0 && offset <= 1.0);
-  }
-
-  IColor mColor;
-  float mOffset;
-};
-
-struct IPattern
-{
-  EPatternType mType;
-  EPatternExtend mExtend;
-  WDL_TypedBuf<IColorStop> mStops;
-  float mTransform[6];
-
-  IPattern(const IColor& color)
-  : mExtend(kExtendRepeat)
-  {
-    mType = kSolidPattern;
-    mStops.Add(IColorStop(color, 0.0));
-    SetTransform(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
-  }
-
-  IPattern(EPatternType type)
-  : mExtend(kExtendNone)
-  {
-    mType = type;
-    SetTransform(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
-  }
-
-  IPattern(float x1, float y1, float x2, float y2)
-  : mExtend(kExtendNone)
-  {
-    mType = kLinearPattern;
-
-    // Calculate the affine transform from one line segment to another!
-    const float xd = x2 - x1;
-    const float yd = y2 - y1;
-    const float size = sqrtf(xd * xd + yd * yd);
-    const float angle = -(atan2(yd, xd));
-    const float sinV = sinf(angle) / size;
-    const float cosV = cosf(angle) / size;
-
-    const float xx = cosV;
-    const float xy = -sinV;
-    const float yx = sinV;
-    const float yy = cosV;
-    const float x0 = -(x1 * xx + y1 * xy);
-    const float y0 = -(x1 * yx + y1 * yy);
-
-    SetTransform(xx, yx, xy, yy, x0, y0);
-  }
-  
-  IPattern(float x1, float y1, float x2, float y2, std::initializer_list<IColorStop> stops)
-  : IPattern(x1, y1, x2, y2)
-  {
-    for(auto& stop : stops)
-    {
-      AddStop(stop.mColor, stop.mOffset);
-    }
-  }
-
-  IPattern(float x1, float y1, float r)
-  : mExtend(kExtendNone)
-  {
-    mType = kRadialPattern;
-
-    const float xx = 1.f / r;
-    const float yy = 1.f / r;
-    const float x0 = -(x1 * xx);
-    const float y0 = -(y1 * yy);
-
-    SetTransform(xx, 0, 0, yy, x0, y0);
-  }
-
-  int NStops() const
-  {
-    return mStops.GetSize();
-  }
-
-  const IColorStop& GetStop(int idx) const
-  {
-    return *(mStops.Get() + idx);
-  }
-
-  void AddStop(IColor color, float offset)
-  {
-    assert(mType != kSolidPattern);
-    assert(!NStops() || GetStop(NStops() - 1).mOffset < offset);
-    mStops.Add(IColorStop(color, offset));
-  }
-
-  void SetTransform(float xx, float yx, float xy, float yy, float x0, float y0)
-  {
-    mTransform[0] = xx;
-    mTransform[1] = yx;
-    mTransform[2] = xy;
-    mTransform[3] = yy;
-    mTransform[4] = x0;
-    mTransform[5] = y0;
-  }
-};
-
 /** Used to manage font and text/text entry style for a piece of text on the UI, independant of draw class/platform.*/
 struct IText
 {
@@ -1041,7 +869,7 @@ struct IRECT
     return IRECT(l, t, r, b);
   }
 
-  void Shift(float l, float t, float r, float b)
+  void Translate(float l, float t, float r, float b)
   {
     L += l;
     T += t;
@@ -1049,7 +877,7 @@ struct IRECT
     B += b;
   }
   
-  void Shift(float x, float y = 0.f)
+  void Translate(float x, float y = 0.f)
   {
     L += x;
     T += y;
@@ -1286,12 +1114,223 @@ private:
   WDL_TypedBuf<IRECT> mRects;
 };
 
+/** Used to store transformation matrices**/
+struct IMatrix
+{
+  IMatrix(double xx, double yx, double xy, double yy, double tx, double ty)
+  : mXX(xx), mYX(yx), mXY(xy), mYY(yy), mTX(tx), mTY(ty)
+  {}
+  
+  IMatrix() : IMatrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
+  {}
+  
+  IMatrix& Translate(float x, float y)
+  {
+    return Transform(IMatrix(1.0, 0.0, 0.0, 1.0, x, y));
+  }
+  
+  IMatrix& Scale(float x, float y)
+  {
+    return Transform(IMatrix(x, 0.0, 0.0, y, 0.0, 0.0));
+  }
+  
+  IMatrix& Rotate(float a)
+  {
+    const double rad = DegToRad(a);
+    const double c = std::cos(rad);
+    const double s = std::sin(rad);
+    
+    return Transform(IMatrix(c, s, -s, c, 0.0, 0.0));
+  }
+  
+  IMatrix& Skew(float x, float y)
+  {
+    return Transform(IMatrix(1.0, std::tan(DegToRad(y)), std::tan(DegToRad(x)), 1.0, 0.0, 0.0));
+  }
+  
+  void TransformPoint(double& x, double& y, double x0, double y0)
+  {
+    x = x0 * mXX + y0 * mXY + mTX;
+    y = x0 * mYX + y0 * mYY + mTY;
+  };
+  
+  void TransformPoint(double& x, double& y)
+  {
+    TransformPoint(x, y, x, y);
+  };
+  
+  IMatrix& Transform(const IRECT& before, const IRECT& after)
+  {
+    const double sx = after.W() / before.W();
+    const double sy = after.H() / before.H();
+    const double tx = after.L - before.L * sx;
+    const double ty = after.T - before.T * sy;
+    
+    return *this = IMatrix(sx, 0.0, 0.0, sy, tx, ty);
+  }
+  
+  IMatrix& Transform(const IMatrix& m)
+  {
+    IMatrix p = *this;
+    
+    mXX = m.mXX * p.mXX + m.mYX * p.mXY;
+    mYX = m.mXX * p.mYX + m.mYX * p.mYY;
+    mXY = m.mXY * p.mXX + m.mYY * p.mXY;
+    mYY = m.mXY * p.mYX + m.mYY * p.mYY;
+    mTX = m.mTX * p.mXX + m.mTY * p.mXY + p.mTX;
+    mTY = m.mTX * p.mYX + m.mTY * p.mYY + p.mTY;
+    
+    return *this;
+  }
+  
+  IMatrix& Invert()
+  {
+    IMatrix m = *this;
+    
+    double d = 1.0 / (m.mXX * m.mYY - m.mYX * m.mXY);
+    
+    mXX =  m.mYY * d;
+    mYX = -m.mXY * d;
+    mXY = -m.mYX * d;
+    mYY =  m.mXX * d;
+    mTX = (-m.mTX * m.mYY * d) - (m.mTY * -m.mXY * d);
+    mTY = (-m.mTX * m.mYX * d) - (m.mTY *  m.mXX * d);
+    
+    return *this;
+  }
+  
+  double mXX, mYX, mXY, mYY, mTX, mTY;
+};
+
+struct IColorStop
+{
+  IColorStop()
+  : mOffset(0.f)
+  {}
+  
+  IColorStop(IColor color, float offset)
+  : mColor(color)
+  , mOffset(offset)
+  {
+    assert(offset >= 0.0 && offset <= 1.0);
+  }
+  
+  IColor mColor;
+  float mOffset;
+};
+
+struct IPattern
+{
+  EPatternType mType;
+  EPatternExtend mExtend;
+  IColorStop mStops[16];
+  int mNStops;
+  IMatrix mTransform;
+  
+  IPattern(EPatternType type)
+  : mType(type), mExtend(kExtendPad), mNStops(0)
+  {}
+  
+  IPattern(const IColor& color)
+  : mType(kSolidPattern), mExtend(kExtendPad), mNStops(1)
+  {
+    mStops[0] = IColorStop(color, 0.0);
+  }
+  
+  static IPattern CreateLinearGradient(float x1, float y1, float x2, float y2)
+  {
+    IPattern pattern(kLinearPattern);
+    
+    // Calculate the affine transform from one line segment to another!
+    
+    const float xd = x2 - x1;
+    const float yd = y2 - y1;
+    const float size = sqrtf(xd * xd + yd * yd);
+    const float angle = -(atan2(yd, xd));
+    const float sinV = sinf(angle) / size;
+    const float cosV = cosf(angle) / size;
+    
+    const float xx = cosV;
+    const float yx = sinV;
+    const float xy = -sinV;
+    const float yy = cosV;
+    const float x0 = -(x1 * xx + y1 * xy);
+    const float y0 = -(x1 * yx + y1 * yy);
+    
+    pattern.SetTransform(xx, yx, xy, yy, x0, y0);
+    
+    return pattern;
+  }
+  
+  static IPattern CreateLinearGradient(float x1, float y1, float x2, float y2, std::initializer_list<IColorStop> stops)
+  {
+    IPattern pattern = CreateLinearGradient(x1, y1, x2, y2);
+    
+    for (auto& stop : stops)
+      pattern.AddStop(stop.mColor, stop.mOffset);
+    
+    return pattern;
+  }
+  
+  static IPattern CreateRadialGradient(float x1, float y1, float r)
+  {
+    IPattern pattern(kRadialPattern);
+    
+    const float xx = 1.f / r;
+    const float yy = 1.f / r;
+    const float x0 = -(x1 * xx);
+    const float y0 = -(y1 * yy);
+    
+    pattern.SetTransform(xx, 0, 0, yy, x0, y0);
+    
+    return pattern;
+  }
+  
+  static IPattern CreateRadialGradient(float x1, float y1, float r, std::initializer_list<IColorStop> stops)
+  {
+    IPattern pattern = CreateRadialGradient(x1, y1, r);
+    
+    for (auto& stop : stops)
+      pattern.AddStop(stop.mColor, stop.mOffset);
+    
+    return pattern;
+  }
+  
+  int NStops() const
+  {
+    return mNStops;
+  }
+  
+  const IColorStop& GetStop(int idx) const
+  {
+    return mStops[idx];
+  }
+  
+  void AddStop(IColor color, float offset)
+  {
+    assert(mType != kSolidPattern && mNStops < 16);
+    assert(!mNStops || GetStop(mNStops - 1).mOffset < offset);
+    if (mNStops < 16)
+      mStops[mNStops++] = IColorStop(color, offset);
+  }
+  
+  void SetTransform(float xx, float yx, float xy, float yy, float x0, float y0)
+  {
+    mTransform = IMatrix(xx, yx, xy, yy, x0, y0);
+  }
+  
+  void SetTransform(const IMatrix& transform)
+  {
+    mTransform = transform;
+  }
+};
+
 /** ILayer is IGraphics's layer abstraction that you use to store temporary APIBitmap to draw with a specific offset to the interface. ILayers take ownership of the underlying bitmaps */
 
 class ILayer
 {
   friend IGraphics;
-    
+  
 public:
   ILayer(APIBitmap* bitmap, IRECT r)
   : mBitmap(bitmap)

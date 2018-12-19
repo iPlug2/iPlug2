@@ -208,18 +208,17 @@ private:
   void DoClip(PathType& path)
   {
     IRECT clip = mClipRECT.Empty() ? GetBounds() : mClipRECT;
-    clip.Shift(XTranslate(), YTranslate());
+    clip.Translate(XTranslate(), YTranslate());
     clip.Scale(GetScreenScale() * GetDrawScale());
     path.clip_box(clip.L, clip.T, clip.R, clip.B);
   }
   
   void PathTransformSetMatrix(const IMatrix& m) override
   {
-    IMatrix t;
-    t.Scale(GetDrawScale() * GetScreenScale(), GetDrawScale() * GetScreenScale());
-    t.Translate(XTranslate(), YTranslate());
-    t.Transform(m);
-    mTransform = agg::trans_affine(t.mTransform[0], t.mTransform[1], t.mTransform[2], t.mTransform[3], t.mTransform[4], t.mTransform[5]);
+    const double scale = GetDrawScale() * GetScreenScale();
+    IMatrix t = IMatrix().Scale(scale, scale).Translate(XTranslate(), YTranslate()).Transform(m);
+      
+    mTransform = agg::trans_affine(t.mXX, t.mYX, t.mXY, t.mYY, t.mTX, t.mTY);
   }
   
   void SetClipRegion(const IRECT& r) override { mClipRECT = r; }

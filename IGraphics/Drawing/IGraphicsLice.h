@@ -123,7 +123,7 @@ private:
   IRECT TransformRECT(const IRECT& r)
   {
     IRECT tr = r;
-    tr.Shift(-mDrawOffsetX, - mDrawOffsetY);
+    tr.Translate(-mDrawOffsetX, - mDrawOffsetY);
     tr.Scale(GetScreenScale());
     return tr;
   }

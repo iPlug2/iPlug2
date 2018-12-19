@@ -703,7 +703,7 @@ IPopupMenuControl::MenuPanel::MenuPanel(IPopupMenuControl& control, IPopupMenu& 
 
       for(auto i = 0; i < mCellBounds.GetSize(); i++)
       {
-        mCellBounds.Get(i)->Shift(-shiftLeft);
+        mCellBounds.Get(i)->Translate(-shiftLeft);
       }
       
       control.mCalloutArrowDir = kWest;
@@ -716,7 +716,7 @@ IPopupMenuControl::MenuPanel::MenuPanel(IPopupMenuControl& control, IPopupMenu& 
       // shift all cell rects left
       for(auto i = 0; i < mCellBounds.GetSize(); i++)
       {
-        mCellBounds.Get(i)->Shift(-shiftLeft, 0, -shiftLeft, 0);
+        mCellBounds.Get(i)->Translate(-shiftLeft, 0, -shiftLeft, 0);
       }
     }
     

@@ -293,9 +293,9 @@ void IGraphicsCairo::SetCairoSourcePattern(const IPattern& pattern, const IBlend
     case kLinearPattern:
     case kRadialPattern:
     {
-      cairo_pattern_t *cairoPattern;
+      cairo_pattern_t* cairoPattern;
       cairo_matrix_t matrix;
-      const float *xform = pattern.mTransform;
+      const IMatrix& m = pattern.mTransform;
       
       if (pattern.mType == kLinearPattern)
         cairoPattern = cairo_pattern_create_linear(0.0, 0.0, 1.0, 0.0);
@@ -316,7 +316,7 @@ void IGraphicsCairo::SetCairoSourcePattern(const IPattern& pattern, const IBlend
         cairo_pattern_add_color_stop_rgba(cairoPattern, stop.mOffset, stop.mColor.R / 255.0, stop.mColor.G / 255.0, stop.mColor.B / 255.0, (BlendWeight(pBlend) * stop.mColor.A) / 255.0);
       }
       
-      cairo_matrix_init(&matrix, xform[0], xform[1], xform[2], xform[3], xform[4], xform[5]);
+      cairo_matrix_init(&matrix, m.mXX, m.mYX, m.mXY, m.mYY, m.mTX, m.mTY);
       cairo_pattern_set_matrix(cairoPattern, &matrix);
       cairo_set_source(mContext, cairoPattern);
       cairo_pattern_destroy(cairoPattern);
@@ -597,7 +597,7 @@ void IGraphicsCairo::PathTransformSetMatrix(const IMatrix& m)
   }
   
   cairo_matrix_t matrix;
-  cairo_matrix_init(&matrix, m.mTransform[0], m.mTransform[1], m.mTransform[2], m.mTransform[3], m.mTransform[4], m.mTransform[5]);
+  cairo_matrix_init(&matrix, m.mXX, m.mYX, m.mXY, m.mYY, m.mTX, m.mTY);
   cairo_matrix_translate(&matrix, xTranslate, yTranslate);
   cairo_set_matrix(mContext, &matrix);
 }

@@ -617,7 +617,7 @@ public:
       handleBounds.Pad(- 0.5f * mFrameThickness);
     
     if (mDrawShadows && !mEmboss)
-      handleBounds.Shift(0, 0, -mShadowOffset, -mShadowOffset);
+      handleBounds.Translate(0, 0, -mShadowOffset, -mShadowOffset);
     
     return handleBounds;
   }

@@ -303,7 +303,7 @@ bool IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT&
   }
   
   LICE_IFont* font = text.mCached;
-  bounds.Shift(-mDrawOffsetX, -mDrawOffsetY);
+  bounds.Translate(-mDrawOffsetX, -mDrawOffsetY);
     
   if (!font || text.mCachedScale != ds)
   {
