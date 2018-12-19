@@ -422,7 +422,7 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
     dashed.dash_start(options.mDash.GetOffset());
     
     for (int i = 0; i < dashMax; i += 2)
-        dashed.add_dash(dashArray[i % dashCount], dashArray[(i + 1) % dashCount]);
+      dashed.add_dash(dashArray[i % dashCount], dashArray[(i + 1) % dashCount]);
     
     StrokeOptions(strokes, thickness, options);
     agg::conv_clip_polygon<DashStrokeType> path(strokes);

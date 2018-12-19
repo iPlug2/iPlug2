@@ -84,7 +84,7 @@ public:
   /** Send a single MIDI System Exclusive (SysEx) message // TODO: info about what thread should this be called on or not called on!
    * @param msg The ISysEx to send
    * @return \c true if successful */
-  virtual bool SendSysEx(ISysEx& msg /* TODO: const? */) { return false; }
+  virtual bool SendSysEx(const ISysEx& msg) { return false; }
 
   /** @return Sample rate (in Hz) */
   double GetSampleRate() const { return mSampleRate; }

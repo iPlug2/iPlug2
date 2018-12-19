@@ -1725,6 +1725,8 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
       RenderCallback(pRN, &flags, pTimestamp, outputBusIdx, nFrames, pOutBufList);
     }
   }
+  
+  _this->OutputSysexFromEditor();
 
   return noErr;
 }
@@ -2048,7 +2050,7 @@ bool IPlugAU::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
   return result;
 }
 
-bool IPlugAU::SendSysEx(ISysEx& sysEx)
+bool IPlugAU::SendSysEx(const ISysEx& sysEx)
 {
   bool result = false;
 
@@ -2083,6 +2085,19 @@ bool IPlugAU::SendSysEx(ISysEx& sysEx)
   free(pPktlist);
   
   return result;
+}
+
+void IPlugAU::OutputSysexFromEditor()
+{
+  //Output SYSEX from the editor, which has bypassed ProcessSysEx()
+  if(mSysExDataFromEditor.ElementsAvailable())
+  {
+    while (mSysExDataFromEditor.Pop(mSysexBuf))
+    {
+      ISysEx smsg {mSysexBuf.mOffset, mSysexBuf.mData, mSysexBuf.mSize};
+      SendSysEx(smsg);
+    }
+  }
 }
 
 #pragma mark - IPlugAU Dispatch

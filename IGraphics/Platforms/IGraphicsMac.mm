@@ -182,7 +182,7 @@ bool IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String
     if(GetResourcePathFromUsersMusicFolder(name, type, result))
       return true;
 
-    // finally check name, which might be a full path - if the plug-in is trying to load a resource at runtime (e.g. skinablle UI)
+    // finally check name, which might be a full path - if the plug-in is trying to load a resource at runtime (e.g. skin-able UI)
     NSString* pPath = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
 
     if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
@@ -255,6 +255,7 @@ void IGraphicsMac::PlatformResize()
   {
     NSSize size = { static_cast<CGFloat>(WindowWidth()), static_cast<CGFloat>(WindowHeight()) };
 
+    DBGMSG("%f, %f\n", size.width, size.height);
     // Prevent animation during resize
     // N.B. - The bounds perform scaling on the window, and so use the nominal size
 

@@ -50,9 +50,6 @@
     <ClCompile Include="..\..\..\IGraphics\IGraphicsEditorDelegate.cpp">
       <Filter>IGraphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\Extras\MidiSynth.cpp">
-      <Filter>IPlug\Extras</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IGraphics\Controls\IControls.cpp">
       <Filter>IGraphics\Controls</Filter>
     </ClCompile>
@@ -183,9 +180,6 @@
     <ClInclude Include="..\..\..\IGraphics\IGraphicsEditorDelegate.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\Extras\MidiSynth.h">
-      <Filter>IPlug\Extras</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Controls\IControls.h">
       <Filter>IGraphics\Controls</Filter>
     </ClInclude>
@@ -232,9 +226,6 @@
     </Filter>
     <Filter Include="config">
       <UniqueIdentifier>{8c338368-7512-426b-af83-0f50719ca0bd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="IPlug\Extras">
-      <UniqueIdentifier>{7015d116-4796-4b71-94be-b6648a05ed1f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

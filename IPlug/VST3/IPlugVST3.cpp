@@ -374,6 +374,13 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
               mMidiMsgsFromProcessor.Push(msg);
               break;
             }
+            case Event::kDataEvent:
+            {
+              ISysEx syx = ISysEx(event.sampleOffset, event.data.bytes, event.data.size);
+              ProcessSysEx(syx);
+              //mSysexMsgsFromProcessor.Push
+              break;
+            }
           }
         }
       }
@@ -540,6 +547,22 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
     }
     
     mMidiOutputQueue.Flush(data.numSamples);
+    
+    //Output SYSEX from the editor, which has bypassed the processors' ProcessSysEx()
+    if(mSysExDataFromEditor.ElementsAvailable())
+    {
+      Event toAdd = {0};
+      
+      while (mSysExDataFromEditor.Pop(mSysexBuf))
+      {
+        toAdd.type = Event::kDataEvent;
+        toAdd.sampleOffset = mSysexBuf.mOffset;
+        toAdd.data.type = DataEvent::kMidiSysEx;
+        toAdd.data.size = mSysexBuf.mSize;
+        toAdd.data.bytes = (uint8*) mSysexBuf.mData; // TODO!  this is a problem if more than one message in this block!
+        outputEvents->addEvent(toAdd);
+      }
+    }
   }
 
   return kResultOk;
@@ -872,6 +895,15 @@ void IPlugVST3::ResizeGraphics(int viewWidth, int viewHeight, float scale)
     IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, scale);
     OnWindowResize();
   }
+}
+
+void IPlugVST3::DirtyParametersFromUI()
+{
+  startGroupEdit();
+  
+  IPlugAPIBase::DirtyParametersFromUI();
+  
+  finishGroupEdit();
 }
 
 void IPlugVST3::SetLatency(int latency)

@@ -118,8 +118,14 @@ static const int MAX_PARAM_DISPLAY_PRECISION = 6;
 #define IDLE_TIMER_RATE 20 // this controls the frequency of data going from processor to editor (and OnIdle calls)
 #endif
 
+#ifndef MAX_SYSEX_SIZE
+#define MAX_SYSEX_SIZE 512
+#endif
+
 #define PARAM_TRANSFER_SIZE 512
 #define MIDI_TRANSFER_SIZE 32
+#define SYSEX_TRANSFER_SIZE 4
+
 // All version ints are stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision.
 #define IPLUG_VERSION 0x010000
 #define IPLUG_VERSION_MAGIC 'pfft'

@@ -54,6 +54,9 @@ public:
   void InformHostOfProgramChange() override {}
   void InformHostOfParameterDetailsChange() override;
   
+  //IEditorDelegate
+  void DirtyParametersFromUI() override;
+  
   //IPlugProcessor
   void ResizeGraphics(int viewWidth, int viewHeight, float scale) override;
   void SetLatency(int samples) override;

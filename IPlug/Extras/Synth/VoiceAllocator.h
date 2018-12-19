@@ -18,6 +18,8 @@
 #include <array>
 #include <vector>
 #include <stdint.h>
+#include <functional>
+#include <bitset>
 //#include <iostream>
 
 #include "IPlugLogger.h"

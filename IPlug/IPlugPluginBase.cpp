@@ -105,7 +105,7 @@ void IPluginBase::OnParamChange(int paramIdx, EParamSource source, int sampleOff
 
 void IPluginBase::OnParamReset(EParamSource source)
 {
-  for (int i = 0; i < mParams.GetSize(); ++i)
+  for (int i = 0; i < NParams(); ++i)
   {
     OnParamChange(i, source);
   }
@@ -1195,8 +1195,7 @@ bool IPluginBase::LoadProgramFromVSTPreset(const char* path)
     IByteChunk::GetIPlugVerFromChunk(pgm, pos /* updates pos */);
     pos = UnserializeVST3CtrlrState(pgm, pos);
     
-//    DirtyParameters();
-//    RedrawParamControls();
+    DirtyParametersFromUI();
     OnRestoreState();
     
     return true;

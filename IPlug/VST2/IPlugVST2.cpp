@@ -176,7 +176,7 @@ bool IPlugVST2::SendMidiMsg(const IMidiMsg& msg)
   return SendVSTEvent((VstEvent&) midiEvent);
 }
 
-bool IPlugVST2::SendSysEx(ISysEx& msg)
+bool IPlugVST2::SendSysEx(const ISysEx& msg)
 {
   VstMidiSysexEvent sysexEvent;
   memset(&sysexEvent, 0, sizeof(VstMidiSysexEvent));
@@ -850,6 +850,7 @@ void VSTCALLBACK IPlugVST2::VSTProcess(AEffect* pEffect, float** inputs, float**
   IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
   _this->_ProcessBuffersAccumulating(nFrames);
+  _this->OutputSysexFromEditor();
 }
 
 void VSTCALLBACK IPlugVST2::VSTProcessReplacing(AEffect* pEffect, float** inputs, float** outputs, VstInt32 nFrames)
@@ -858,6 +859,7 @@ void VSTCALLBACK IPlugVST2::VSTProcessReplacing(AEffect* pEffect, float** inputs
   IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
   _this->_ProcessBuffers((float) 0.0f, nFrames);
+  _this->OutputSysexFromEditor();
 }
 
 void VSTCALLBACK IPlugVST2::VSTProcessDoubleReplacing(AEffect* pEffect, double** inputs, double** outputs, VstInt32 nFrames)
@@ -866,6 +868,7 @@ void VSTCALLBACK IPlugVST2::VSTProcessDoubleReplacing(AEffect* pEffect, double**
   IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
   _this->_ProcessBuffers((double) 0.0, nFrames);
+  _this->OutputSysexFromEditor();
 }
 
 float VSTCALLBACK IPlugVST2::VSTGetParameter(AEffect *pEffect, VstInt32 idx)
@@ -894,5 +897,18 @@ void VSTCALLBACK IPlugVST2::VSTSetParameter(AEffect *pEffect, VstInt32 idx, floa
     _this->_SendParameterValueFromAPI(idx, value, true);
     _this->OnParamChange(idx, kHost);
     LEAVE_PARAMS_MUTEX_STATIC;
+  }
+}
+
+void IPlugVST2::OutputSysexFromEditor()
+{
+  //Output SYSEX from the editor, which has bypassed ProcessSysEx()
+  if(mSysExDataFromEditor.ElementsAvailable())
+  {
+    while (mSysExDataFromEditor.Pop(mSysexBuf))
+    {
+      ISysEx smsg {mSysexBuf.mOffset, mSysexBuf.mData, mSysexBuf.mSize};
+      SendSysEx(smsg);
+    }
   }
 }

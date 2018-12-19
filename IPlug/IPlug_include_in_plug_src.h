@@ -128,6 +128,9 @@ IPlug* MakeController()
   WDL_MutexLock lock(&sMutex);
   IPlugVST3Controller::IPlugInstanceInfo instanceInfo;
   instanceInfo.mOtherGUID = FUID(PROC_GUID_DATA1, PROC_GUID_DATA2, GUID_DATA3, GUID_DATA4);
+  
+  //If you are trying to build a distributed VST3 plug-in and you hit an error here "no matching constructor...",
+  //you need to replace all instances of PLUG_CLASS_NAME in your plug-in class, with the macro PLUG_CLASS_NAME
   return new PLUG_CLASS_NAME(instanceInfo);
 }
 #elif defined VST3_API

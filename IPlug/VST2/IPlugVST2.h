@@ -47,11 +47,12 @@ public:
   //IPlugProcessor
   void SetLatency(int samples) override;
   bool SendMidiMsg(const IMidiMsg& msg) override;
-  bool SendSysEx(ISysEx& msg) override;
+  bool SendSysEx(const ISysEx& msg) override;
 
   //IPlugVST
   audioMasterCallback& GetHostCallback() { return mHostCallback; }
   AEffect& GetAEffect() { return mAEffect; }
+  void OutputSysexFromEditor();
 
 private:
   /**
