@@ -247,7 +247,7 @@ void IVKnobControl::OnResize()
     {
       case IText::kVAlignMiddle:
         mHandleBounds = clickableArea;
-        mValueBounds = clickableArea.GetMidVPadded(textRect.H()/2.).GetMidHPadded(valueDisplayWidth);
+        mValueBounds = clickableArea.GetMidVPadded(textRect.H()/2.f).GetMidHPadded(valueDisplayWidth);
         break;
       case IText::kVAlignBottom:
       {
@@ -264,7 +264,7 @@ void IVKnobControl::OnResize()
     }
     
     if(mValueBounds.W() < textRect.W())
-      mValueBounds = mValueBounds.GetMidHPadded(mTargetRECT.W()/2.);
+      mValueBounds = mValueBounds.GetMidHPadded(mTargetRECT.W()/2.f);
   }
   
   mHandleBounds = GetAdjustedHandleBounds(mTargetRECT).GetScaledAboutCentre(mKnobFrac);

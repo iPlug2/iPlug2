@@ -299,7 +299,7 @@ void IPopupMenuControl::DrawCellText(IGraphics& g, const IRECT& bounds, const IP
 void IPopupMenuControl::DrawTick(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item* pItem, bool sel, IBlend* pBlend)
 {
   IRECT tickRect = IRECT(bounds.L, bounds.T, bounds.L + TICK_SIZE, bounds.B).GetCentredInside(TICK_SIZE);
-  g.FillRoundRect(sel ? COLOR_WHITE : COLOR_BLACK, tickRect.GetCentredInside(TICK_SIZE/2.), 2, pBlend);
+  g.FillRoundRect(sel ? COLOR_WHITE : COLOR_BLACK, tickRect.GetCentredInside(TICK_SIZE/2.f), 2, pBlend);
 }
 
 void IPopupMenuControl::DrawSubMenuArrow(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item* pItem, bool sel, IBlend* pBlend)
@@ -474,7 +474,7 @@ void IPopupMenuControl::Expand(const IRECT& bounds)
     {
       IRECT maxCell = GetLargestCellRectForMenu(*mMenu, 0, 0);
       
-      x = bounds.MW() - (maxCell.W() / 2.);
+      x = bounds.MW() - (maxCell.W() / 2.f);
       y = bounds.B + CALLOUT_SPACE;
       mCalloutArrowBounds = IRECT(bounds.MW() - CALLOUT_SPACE, bounds.B, bounds.MW() + CALLOUT_SPACE, bounds.B + CALLOUT_SPACE);
       mCalloutArrowDir = kNorth;
@@ -628,7 +628,7 @@ IPopupMenuControl::MenuPanel::MenuPanel(IPopupMenuControl& control, IPopupMenu& 
         const float maxTop = control.mMaxBounds.T + control.PAD + control.mDropShadowSize;
         const float maxBottom = control.mMaxBounds.B - control.PAD;// - control.mDropShadowSize;
         const float maxH = (maxBottom - maxTop);
-        mScrollMaxRows = (maxH  / (CellHeight() + control.mCellGap)); // maximum cell rows (full height, not with separators)
+        mScrollMaxRows = static_cast<int>(maxH  / (CellHeight() + control.mCellGap)); // maximum cell rows (full height, not with separators)
         
         // clear everything added so far
         mCellBounds.Empty(true);
