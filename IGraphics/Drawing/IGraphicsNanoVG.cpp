@@ -163,26 +163,23 @@ inline NVGcompositeOperation NanoVGBlendMode(const IBlend* pBlend)
 
 NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend* pBlend)
 {
+  double s[2], e[2];
+  
   NVGcolor icol = NanoVGColor(pattern.GetStop(0).mColor, pBlend);
   NVGcolor ocol = NanoVGColor(pattern.GetStop(pattern.NStops() - 1).mColor, pBlend);
-  
-  // Invert transform
-  
-  float transform[6], inverse[6], s[2];
     
-  for (int i = 0; i < 6; i++)
-      transform[i] = static_cast<float>(pattern.mTransform.mMatrix[i]);
-  nvgTransformInverse(inverse, transform);
-  nvgTransformPoint(&s[0], &s[1], inverse, 0, 0);
-  
+  // Invert transform
+
+  IMatrix inverse = IMatrix(pattern.mTransform).Invert();
+  inverse.TransformPoint(s[0], s[1], 0.0, 0.0);
+
   if (pattern.mType == kRadialPattern)
   {
-    return nvgRadialGradient(pContext, s[0], s[1], 0.0, inverse[0], icol, ocol);
+    return nvgRadialGradient(pContext, s[0], s[1], 0.0, inverse.mXX, icol, ocol);
   }
   else
   {
-    float e[2];
-    nvgTransformPoint(&e[0], &e[1], inverse, 1, 0);
+    inverse.TransformPoint(e[0], e[1], 1.0, 0.0);
     
     return nvgLinearGradient(pContext, s[0], s[1], e[0], e[1], icol, ocol);
   }
@@ -607,7 +604,7 @@ void IGraphicsNanoVG::PathTransformSetMatrix(const IMatrix& m)
 {
   nvgResetTransform(mVG);
   nvgScale(mVG, GetScale(), GetScale());
-  nvgTransform(mVG, m.mMatrix[0], m.mMatrix[1], m.mMatrix[2], m.mMatrix[3], m.mMatrix[4], m.mMatrix[5]);
+  nvgTransform(mVG, m.mXX, m.mYX, m.mXY, m.mYY, m.mTX, m.mTY);
 }
 
 void IGraphicsNanoVG::SetClipRegion(const IRECT& r)

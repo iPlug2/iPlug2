@@ -208,10 +208,10 @@ private:
   
   void PathTransformSetMatrix(const IMatrix& m) override
   {
-    IMatrix t;
-    t.Scale(GetScale() * GetDisplayScale(), GetScale() * GetDisplayScale());
-    t.Transform(m);
-    mTransform = agg::trans_affine(t.mMatrix[0], t.mMatrix[1], t.mMatrix[2], t.mMatrix[3], t.mMatrix[4], t.mMatrix[5]);
+    const double scale = GetScale() * GetDisplayScale();
+    IMatrix t = IMatrix().Scale(scale, scale).Transform(m);
+      
+    mTransform = agg::trans_affine(t.mXX, t.mYX, t.mXY, t.mYY, t.mTX, t.mTY);
   }
   
   void SetClipRegion(const IRECT& r) override { mClipRECT = r; }

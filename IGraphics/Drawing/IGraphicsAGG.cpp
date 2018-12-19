@@ -107,9 +107,9 @@ void IGraphicsAGG::Rasterizer::RasterizePattern(agg::trans_affine transform, con
     {
       // Common gradient objects
       
-      const double* xform = pattern.mTransform.mMatrix;
+      const IMatrix& m = pattern.mTransform;
       
-      agg::trans_affine gradientMTX(xform[0], xform[1] , xform[2], xform[3], xform[4], xform[5]);
+      agg::trans_affine gradientMTX(m.mXX, m.mYX , m.mXY, m.mYY, m.mTX, m.mTY);
       ColorArrayType colorArray;
       
       // Scaling

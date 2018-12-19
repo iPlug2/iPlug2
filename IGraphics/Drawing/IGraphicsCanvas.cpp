@@ -147,18 +147,6 @@ void IGraphicsCanvas::PathFill(const IPattern& pattern, const IFillOptions& opti
 
 void IGraphicsCanvas::SetCanvasSourcePattern(const IPattern& pattern, const IBlend* pBlend)
 {
-  auto InvertTransform = [](double *xform, const double *xformIn)
-  {
-    double d = 1.0 / (xformIn[0] * xformIn[3] - xformIn[1] * xformIn[2]);
-    
-    xform[0] = xformIn[3] * d;
-    xform[1] = -xformIn[2] * d;
-    xform[2] = -xformIn[1] * d;
-    xform[3] =  xformIn[0] * d;
-    xform[4] = (-xformIn[4] * xformIn[3] * d) - (xformIn[5] * (-xformIn[2] * d));
-    xform[5] = (-xformIn[4] * (xformIn[1] * d)) - (xformIn[5] * (xformIn[0] * d));
-  };
-  
   val context = GetContext();
   
   SetCanvasBlendMode(pBlend);
@@ -178,11 +166,11 @@ void IGraphicsCanvas::SetCanvasSourcePattern(const IPattern& pattern, const IBle
     case kLinearPattern:
     case kRadialPattern:
     {
-      double xform[6];
-      InvertTransform(xform, pattern.mTransform.mMatrix);
+      IMatrix m = IMatrix(pattern.mTransform).Invert();
+      
       val gradient = (pattern.mType == kLinearPattern) ?
-        context.call<val>("createLinearGradient", xform[4], xform[5], xform[0] + xform[4], xform[1] + xform[5]) :
-        context.call<val>("createRadialGradient", xform[4], xform[5], 0.0, xform[4], xform[5], xform[0]);
+        context.call<val>("createLinearGradient", m.mTX, m.mTY, m.mXX + m.mTX, m.mXY + m.mTY) :
+        context.call<val>("createRadialGradient", m.mTX, m.mTY, 0.0, m.mTX, m.mTY, m.mXX);
       
       /*
       switch (pattern.mExtend)
@@ -278,11 +266,10 @@ bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
 
 void IGraphicsCanvas::PathTransformSetMatrix(const IMatrix& m)
 {
-  IMatrix t;
-  t.Scale(GetScale() * GetDisplayScale(), GetScale() * GetDisplayScale());
-  t.Transform(m);
+  const double scale = GetScale() * GetDisplayScale();
+  IMatrix t = IMatrix().Scale(scale, scale).Transform(m);
 
-  GetContext().call<void>("setTransform", t.mMatrix[0], t.mMatrix[1], t.mMatrix[2], t.mMatrix[3], t.mMatrix[4], t.mMatrix[5]);
+  GetContext().call<void>("setTransform", t.mXX, t.mYX, t.mYX, t.mYY, t.mTX, t.mTY);
 }
 
 void IGraphicsCanvas::SetClipRegion(const IRECT& r)
