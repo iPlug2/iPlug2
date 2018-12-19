@@ -324,30 +324,24 @@ void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax)
 
 void IGraphicsAGG::PathMoveTo(float x, float y)
 {
-  agg::trans_affine xform = mTransform;
-  
   double xd = x;
   double yd = y;
   
-  xform.transform(&xd, &yd);
+  mTransform.transform(&xd, &yd);
   mPath.move_to(xd, yd);
 }
 
 void IGraphicsAGG::PathLineTo(float x, float y)
 {
-  agg::trans_affine xform = mTransform;
-  
   double xd = x;
   double yd = y;
 
-  xform.transform(&xd, &yd);
+  mTransform.transform(&xd, &yd);
   mPath.line_to(xd, yd);
 }
 
 void IGraphicsAGG::PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
 {
-  agg::trans_affine xform = mTransform;
-  
   double x1d = x1;
   double y1d = y1;
   double x2d = x2;
@@ -355,9 +349,9 @@ void IGraphicsAGG::PathCurveTo(float x1, float y1, float x2, float y2, float x3,
   double x3d = x3;
   double y3d = y3;
   
-  xform.transform(&x1d, &y1d);
-  xform.transform(&x2d, &y2d);
-  xform.transform(&x3d, &y3d);
+  mTransform.transform(&x1d, &y1d);
+  mTransform.transform(&x2d, &y2d);
+  mTransform.transform(&x3d, &y3d);
 
   mPath.curve4(x1d, y1d, x2d, y2d, x3d, y3d);
 }
