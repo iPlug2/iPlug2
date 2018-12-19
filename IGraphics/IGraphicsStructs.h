@@ -859,7 +859,7 @@ struct IRECT
     return IRECT(l, t, r, b);
   }
 
-  void Shift(float l, float t, float r, float b)
+  void Translate(float l, float t, float r, float b)
   {
     L += l;
     T += t;
@@ -867,7 +867,7 @@ struct IRECT
     B += b;
   }
   
-  void Shift(float x, float y = 0.f)
+  void Translate(float x, float y = 0.f)
   {
     L += x;
     T += y;
