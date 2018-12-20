@@ -337,7 +337,7 @@
       <Filter>config</Filter>
     </None>
     <None Include="..\config\IPlugInstrument-win.props">
-      <Filter>IGraphics</Filter>
+      <Filter>config</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

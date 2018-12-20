@@ -538,6 +538,7 @@ void IGraphicsCairo::EndFrame()
 {
 #ifdef OS_MAC
 #elif defined OS_WIN
+  cairo_surface_flush(mSurface);
   PAINTSTRUCT ps;
   HWND hWnd = (HWND) GetWindow();
   HDC dc = BeginPaint(hWnd, &ps);
