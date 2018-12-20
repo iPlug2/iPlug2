@@ -206,22 +206,17 @@ void IGraphicsAGG::UpdateLayer()
 //  return IFontData(font_buf);
 //}
 
-bool CheckTransform(const agg::trans_affine& mtx)
+bool CheckTransform(double yx, double xy, const agg::trans_affine& mtx)
 {
-  double mtx_copy[6];
-  const double epsilon = agg::affine_epsilon;
-  mtx.store_to(mtx_copy);
-  
-  if (!agg::is_equal_eps(mtx_copy[4] - floor(mtx_copy[4]), 0.0, epsilon))
+  if (yx || xy)
     return false;
-  if (!agg::is_equal_eps(mtx_copy[5] - floor(mtx_copy[5]), 0.0, epsilon))
+  if (!agg::is_equal_eps(mtx.tx - floor(mtx.tx), 0.0, agg::affine_epsilon))
+    return false;
+  if (!agg::is_equal_eps(mtx.ty - floor(mtx.ty), 0.0, agg::affine_epsilon))
     return false;
 
-  agg::trans_affine mtx_without_translate;
-
-  mtx_copy[4] = 0.0;
-  mtx_copy[5] = 0.0;
-  mtx_without_translate.load_from(mtx_copy);
+  agg::trans_affine mtx_without_translate(mtx);
+  mtx_without_translate.tx = mtx_without_translate.ty = 0.0;
   
   return mtx_without_translate.is_identity();
 }
@@ -233,7 +228,6 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
 
   agg::pixel_map* pSource = bitmap.GetAPIBitmap()->GetBitmap();
   agg::rendering_buffer src(pSource->buf(), pSource->width(), pSource->height(), pSource->row_bytes());;
-  PixfmtType imgPixfSrc(src);
     
   agg::trans_affine srcMtx;
   srcMtx /= mTransform;
@@ -243,7 +237,7 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   // TODO - fix clipping of bitmaps
   // TODO - fix the test for one on one
     
-  if (bounds.IsPixelAligned() && CheckTransform(srcMtx))
+  if (bounds.IsPixelAligned() && CheckTransform(mTransform.shx, mTransform.shy, srcMtx))
   {
     double tx, ty;
     
@@ -260,7 +254,8 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   }
   else
   {
-    imgSourceType imgSrc(imgPixfSrc);
+    PixfmtType fmtType(src);
+    imgSourceType imgSrc(fmtType);
     InterpolatorType interpolator(srcMtx);
     SpanAllocatorType spanAllocator;
     SpanAlphaGeneratorType spanGenerator(imgSrc, interpolator, AGGCover(pBlend));
