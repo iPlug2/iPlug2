@@ -1940,11 +1940,11 @@ void IPlugAU::HostSpecificInit()
   OnHostIdentified(); // might get called again
 }
 
-void IPlugAU::ResizeGraphics(int viewWidth, int viewHeight, float scale)
+void IPlugAU::ResizeGraphics(int viewWidth, int viewHeight, const IByteChunk& data)
 {
   if (HasUI())
   {
-    IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, scale);
+    IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, data);
     OnWindowResize();
   }
 }

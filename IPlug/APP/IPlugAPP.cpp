@@ -34,7 +34,7 @@ IPlugAPP::IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   CreateTimer();
 }
 
-void IPlugAPP::ResizeGraphics(int viewWidth, int viewHeight, float scale)
+void IPlugAPP::ResizeGraphics(int viewWidth, int viewHeight, const IByteChunk& data)
 {
   #ifdef OS_MAC
   #define TITLEBAR_BODGE 22 //TODO: sort this out
@@ -43,7 +43,7 @@ void IPlugAPP::ResizeGraphics(int viewWidth, int viewHeight, float scale)
   SetWindowPos(gHWND, 0, r.left, r.bottom - viewHeight - TITLEBAR_BODGE, viewWidth, viewHeight + TITLEBAR_BODGE, 0);
   #endif
   
-  IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, scale);
+  IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, data);
   OnWindowResize();
 }
 

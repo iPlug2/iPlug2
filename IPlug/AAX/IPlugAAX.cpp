@@ -515,7 +515,7 @@ void IPlugAAX::EndInformHostOfParamChange(int idx)
   ReleaseParameter(mParamIDs.Get(idx)->Get());
 }
 
-void IPlugAAX::ResizeGraphics(int viewWidth, int viewHeight, float scale)
+void IPlugAAX::ResizeGraphics(int viewWidth, int viewHeight, const IByteChunk& data)
 {
   if (HasUI())
   {
@@ -527,7 +527,7 @@ void IPlugAAX::ResizeGraphics(int viewWidth, int viewHeight, float scale)
     if(pViewInterface)
       pViewInterface->GetViewContainer()->SetViewSize(oEffectViewSize);
 
-    IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, scale);
+    IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, data);
     OnWindowResize();
   }
 }

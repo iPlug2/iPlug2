@@ -109,7 +109,7 @@ public:
   /** Call this method from a delegate, for example if you wish to store graphics dimensions in your plug-in state in order to notify the API of a graphics resize.
    * If calling from a UI interaction use ResizeGraphicsFromUI()
    * When this is overridden in subclasses the subclass should call this in order to update the member variables */
-  virtual void ResizeGraphics(int width, int height, float scale) { mEditorWidth = width; mEditorHeight = height; mEditorScale = scale; }
+  virtual void ResizeGraphics(int width, int height, const IByteChunk& data) { mEditorWidth = width; mEditorHeight = height; mEditorData = data; }
 
   /** Implemented by the API class, called by the UI (or by a delegate) at the beginning of a parameter change gesture
    * @param paramIdx The parameter that is being changed */
@@ -154,7 +154,7 @@ public:
   void SendParameterValueFromUI(int paramIdx, double value) override { SetParameterValue(paramIdx, value); IPluginBase::SendParameterValueFromUI(paramIdx, value); }
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { BeginInformHostOfParamChange(paramIdx); }
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }
-  void ResizeGraphicsFromUI(int viewWidth, int viewHeight, float scale) override { ResizeGraphics(viewWidth, viewHeight, scale); }
+  void ResizeGraphicsFromUI(int viewWidth, int viewHeight, const IByteChunk& data) override { ResizeGraphics(viewWidth, viewHeight, data); }
   
   //These are handled in IPlugAPIBase for non DISTRIBUTED APIs
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;

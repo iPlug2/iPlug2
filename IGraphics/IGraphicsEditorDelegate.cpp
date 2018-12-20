@@ -25,7 +25,15 @@ void IGEditorDelegate::OnUIOpen()
 {
   IEditorDelegate::OnUIOpen();
   
-  GetUI()->Resize(GetEditorWidth(), GetEditorHeight(), GetEditorScale());
+  int width = GetEditorWidth();
+  int height = GetEditorHeight();
+  float scale = 1.f;
+    
+  int pos = GetEditorData().Get(&width, 0);
+  pos = GetEditorData().Get(&height, pos);
+  pos = GetEditorData().Get(&scale, pos);
+
+  GetUI()->Resize(width, height, scale);
 }
 
 void* IGEditorDelegate::OpenWindow(void* pParent)

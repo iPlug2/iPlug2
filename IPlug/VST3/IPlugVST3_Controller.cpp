@@ -492,13 +492,13 @@ void IPlugVST3Controller::SendArbitraryMsgFromUI(int messageTag, int controlTag,
   sendMessage(message);
 }
 
-void IPlugVST3Controller::ResizeGraphics(int viewWidth, int viewHeight, float scale)
+void IPlugVST3Controller::ResizeGraphics(int viewWidth, int viewHeight, const IByteChunk& data)
 {
   if(HasUI())
   {
     mView->resize(viewWidth, viewHeight);
     
-    IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, scale);
+    IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, data);
     OnWindowResize();
   }
 }

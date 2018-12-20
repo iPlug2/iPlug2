@@ -73,7 +73,7 @@ public:
   void InformHostOfParamChange(int idx, double normalizedValue) override  { performEdit(idx, normalizedValue); }
   void EndInformHostOfParamChange(int idx) override  { endEdit(idx); }
   void InformHostOfProgramChange() override  { /* TODO: */}
-  void ResizeGraphics(int viewWidth, int viewHeight, float scale) override;
+  void ResizeGraphics(int viewWidth, int viewHeight, const IByteChunk& data) override;
   void DirtyParametersFromUI() override;
   
   //IEditorDelegate

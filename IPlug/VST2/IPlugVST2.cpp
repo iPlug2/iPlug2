@@ -128,7 +128,7 @@ EHost IPlugVST2::GetHost()
   return host;
 }
 
-void IPlugVST2::ResizeGraphics(int viewWidth, int viewHeight, float scale)
+void IPlugVST2::ResizeGraphics(int viewWidth, int viewHeight, const IByteChunk& data)
 {
   if(HasUI())
   {
@@ -138,7 +138,7 @@ void IPlugVST2::ResizeGraphics(int viewWidth, int viewHeight, float scale)
     
     mHostCallback(&mAEffect, audioMasterSizeWindow, viewWidth, viewHeight, 0, 0.f);
     
-    IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, scale);
+    IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, data);
     OnWindowResize();
   }
 }
