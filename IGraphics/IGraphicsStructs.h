@@ -869,12 +869,17 @@ struct IRECT
     return IRECT(l, t, r, b);
   }
 
-  void Shift(float l, float t, float r, float b)
+  void Alter(float l, float t, float r, float b)
   {
     L += l;
     T += t;
     R += r;
     B += b;
+  }
+  
+  IRECT GetAltered(float l, float t, float r, float b) const
+  {
+    return IRECT(L + l, T + t, R + r, B + b);
   }
   
   void Translate(float x, float y)
@@ -892,17 +897,12 @@ struct IRECT
   
   IRECT GetHShifted(float x) const
   {
-    return GetShifted(x, 0.f);
+    return GetTranslated(x, 0.f);
   }
   
   IRECT GetVShifted(float y) const
   {
-    return GetShifted(0.f, y);
-  }
-  
-  IRECT GetShifted(float l, float t, float r, float b) const
-  {
-    return IRECT(L + l, T + t, R + r, B + b);
+    return GetTranslated(0.f, y);
   }
   
   void ScaleBounds(float scale)
