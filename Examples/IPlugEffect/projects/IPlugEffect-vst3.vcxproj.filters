@@ -207,10 +207,27 @@
     <Filter Include="IPlug\VST3">
       <UniqueIdentifier>{5674951e-0cfd-4a71-98fb-050914b34427}</UniqueIdentifier>
     </Filter>
+    <Filter Include="config">
+      <UniqueIdentifier>{e469d7f5-1c0b-48c6-bd61-2a7b99a2f542}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resources\main.rc">
       <Filter>resources</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\config\IPlugEffect-ios.xcconfig">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\config\IPlugEffect-web.mk">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\config\IPlugEffect-win.props">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\config\IPlugEffect-mac.xcconfig">
+      <Filter>config</Filter>
+    </None>
   </ItemGroup>
 </Project>

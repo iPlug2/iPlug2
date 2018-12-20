@@ -54,12 +54,12 @@ public:
   // Linear shape structs
   struct ShapeLinear : public Shape
   {
-      Shape* Clone() const override { return new ShapeLinear(); };
-      IParam::EDisplayType GetDisplayType() const override { return kDisplayLinear; }
-      double NormalizedToValue(double value, const IParam& param) const override;
-      double ValueToNormalized(double value, const IParam& param) const override;
-    
-      double mShape;
+    Shape* Clone() const override { return new ShapeLinear(); };
+    IParam::EDisplayType GetDisplayType() const override { return kDisplayLinear; }
+    double NormalizedToValue(double value, const IParam& param) const override;
+    double ValueToNormalized(double value, const IParam& param) const override;
+  
+    double mShape;
   };
   
   // Non-linear shape structs
