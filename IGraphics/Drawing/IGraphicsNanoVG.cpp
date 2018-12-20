@@ -435,9 +435,23 @@ void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, i
 {
   APIBitmap* pAPIBitmap = bitmap.GetAPIBitmap();
   
-  // FIX - draw bitmaps in a scale aware manner!
+  // First generate a scaled image paint
     
-  NVGpaint imgPaint = nvgImagePattern(mVG, std::round(dest.L) - srcX, std::round(dest.T) - srcY, bitmap.W(), bitmap.H(), 0.f, pAPIBitmap->GetBitmap(), BlendWeight(pBlend));
+  NVGpaint imgPaint;
+  double scale = GetScreenScale() / (pAPIBitmap->GetScale() * pAPIBitmap->GetDrawScale());
+
+  nvgTransformScale(imgPaint.xform, scale, scale);
+
+  imgPaint.xform[4] = std::round(dest.L) - srcX;
+  imgPaint.xform[5] = std::round(dest.T) - srcY;
+  imgPaint.extent[0] = bitmap.W();
+  imgPaint.extent[1] = bitmap.H();
+  imgPaint.image = pAPIBitmap->GetBitmap();
+  imgPaint.radius = imgPaint.feather = 0.f;
+  imgPaint.innerColor = imgPaint.outerColor = nvgRGBAf(1, 1, 1, BlendWeight(pBlend));
+    
+  // Now draw
+    
   nvgBeginPath(mVG); // Clears any existing path
   nvgRect(mVG, dest.L, dest.T, dest.W(), dest.H());
   nvgFillPaint(mVG, imgPaint);
