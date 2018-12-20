@@ -1143,7 +1143,7 @@ struct IMatrix
     return Transform(IMatrix(c, s, -s, c, 0.0, 0.0));
   }
   
-  IMatrix& Skew(float x, float y)
+  IMatrix& Skew(float xa, float ya)
   {
     return Transform(IMatrix(1.0, std::tan(DegToRad(y)), std::tan(DegToRad(x)), 1.0, 0.0, 0.0));
   }
