@@ -207,10 +207,27 @@
     <Filter Include="IPlug\VST3">
       <UniqueIdentifier>{5674951e-0cfd-4a71-98fb-050914b34427}</UniqueIdentifier>
     </Filter>
+    <Filter Include="config">
+      <UniqueIdentifier>{fb83d964-4d8c-411e-bc74-a788ec9b694a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resources\main.rc">
       <Filter>resources</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\config\IPlugFaustDSP-ios.xcconfig">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\config\IPlugFaustDSP-web.mk">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\config\IPlugFaustDSP-win.props">
+      <Filter>config</Filter>
+    </None>
+    <None Include="..\config\IPlugFaustDSP-mac.xcconfig">
+      <Filter>config</Filter>
+    </None>
   </ItemGroup>
 </Project>

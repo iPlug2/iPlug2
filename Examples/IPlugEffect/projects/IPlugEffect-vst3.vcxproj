@@ -344,6 +344,12 @@
   <ItemGroup>
     <ResourceCompile Include="..\resources\main.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\config\IPlugEffect-ios.xcconfig" />
+    <None Include="..\config\IPlugEffect-mac.xcconfig" />
+    <None Include="..\config\IPlugEffect-web.mk" />
+    <None Include="..\config\IPlugEffect-win.props" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
