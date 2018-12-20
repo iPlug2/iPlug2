@@ -41,7 +41,7 @@ public:
   void InformHostOfParamChange(int idx, double normalizedValue) override {};
   void EndInformHostOfParamChange(int idx) override {};
   void InformHostOfProgramChange() override {};
-  void ResizeGraphics(int viewWidth, int viewHeight, const IByteChunk& data) override;
+  void EditorStateChanged(int viewWidth, int viewHeight, const IByteChunk& data) override;
 
   //IEditorDelegate
   void SendSysexMsgFromUI(const ISysEx& msg) override;

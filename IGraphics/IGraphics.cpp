@@ -122,7 +122,7 @@ void IGraphics::Resize(int w, int h, float scale)
   if (mCornerResizer)
     mCornerResizer->OnRescale();
 
-  GetDelegate()->Resize();
+  GetDelegate()->EditorStateNotify();
   PlatformResize();
 
   int i, n = mControls.GetSize();

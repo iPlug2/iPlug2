@@ -60,7 +60,6 @@ public:
   void InformHostOfProgramChange() override;
   void InformHostOfParameterDetailsChange() override;
   EHost GetHost() override;
-  void ResizeGraphics(int viewWidth, int viewHeight, const IByteChunk& data) override;
   void HostSpecificInit() override;
 
 //IPlugProcessor

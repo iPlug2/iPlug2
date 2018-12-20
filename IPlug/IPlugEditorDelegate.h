@@ -194,9 +194,9 @@ public:
    *  You can use it if you restore a preset using a custom preset mechanism. */
   virtual void DirtyParametersFromUI() {};
   
-  /** Sometimes when a plug-in wants to change its UI dimensions we need to call into the plug-in API class first when we click a button in our UI
+  /** If the editor changes UI dimensions or other state we need to call into the plug-in API to store state or resize the window in the plugin
    * This method is implemented in various classes that inherit this interface to implement that behaviour */
-  virtual void ResizeGraphicsFromUI(int viewWidth, int viewHeight, const IByteChunk& data) {};
+  virtual void EditorStateChangedFromUI(int viewWidth, int viewHeight, const IByteChunk& data) {};
   
   /** SendMidiMsgFromUI (Abbreviation: SMMFUI)
    * This method should be used  when  sending a MIDI message from the UI. For example clicking on a key in a virtual keyboard.

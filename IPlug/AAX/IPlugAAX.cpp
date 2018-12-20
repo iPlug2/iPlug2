@@ -515,20 +515,20 @@ void IPlugAAX::EndInformHostOfParamChange(int idx)
   ReleaseParameter(mParamIDs.Get(idx)->Get());
 }
 
-void IPlugAAX::ResizeGraphics(int viewWidth, int viewHeight, const IByteChunk& data)
+void IPlugAAX::EditorStateChanged(int viewWidth, int viewHeight, const IByteChunk& data)
 {
   if (HasUI())
   {
+    IPlugAAXView_Interface* pViewInterface = (IPlugAAXView_Interface*) GetAAXViewInterface();
     AAX_Point oEffectViewSize;
+      
     oEffectViewSize.horz = (float) viewWidth;
     oEffectViewSize.vert = (float) viewHeight;
     
-    IPlugAAXView_Interface* pViewInterface = (IPlugAAXView_Interface*) GetAAXViewInterface();
-    if(pViewInterface)
+    if (pViewInterface && (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight()))
       pViewInterface->GetViewContainer()->SetViewSize(oEffectViewSize);
 
-    IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, data);
-    OnWindowResize();
+    IPlugAPIBase::EditorStateChanged(viewWidth, viewHeight, data);
   }
 }
 

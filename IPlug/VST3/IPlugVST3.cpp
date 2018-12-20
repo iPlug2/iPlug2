@@ -604,7 +604,6 @@ IPlugView* PLUGIN_API IPlugVST3::createView(const char* name)
 
 tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* state)
 {
-  
   TRACE;
   
   IByteChunk chunk;
@@ -888,12 +887,12 @@ void IPlugVST3::InformHostOfParameterDetailsChange()
   handler->restartComponent(kParamTitlesChanged);
 }
 
-void IPlugVST3::ResizeGraphics(int viewWidth, int viewHeight, const IByteChunk& data)
+void IPlugVST3::EditorStateChanged(int viewWidth, int viewHeight, const IByteChunk& data)
 {
-  if(HasUI()) {
+  if (HasUI() && (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight()))
+  {
     mViews.at(0)->resize(viewWidth, viewHeight);
-    IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, data);
-    OnWindowResize();
+    IPlugAPIBase::EditorStateChanged(viewWidth, viewHeight, data);
   }
 }
 
@@ -944,7 +943,6 @@ bool IPlugVST3::SendMidiMsg(const IMidiMsg& msg)
 #pragma mark - IPlugVST3View
 IPlugVST3View::IPlugVST3View(IPlugVST3* pPlug)
   : mPlug(pPlug)
-  , mExpectingNewSize(false)
 {
   if (mPlug)
     mPlug->addRef();
@@ -981,15 +979,7 @@ tresult PLUGIN_API IPlugVST3View::onSize(ViewRect* newSize)
   TRACE;
 
   if (newSize)
-  {
     rect = *newSize;
-
-    if (mExpectingNewSize)
-    {
-      mPlug->OnWindowResize();
-      mExpectingNewSize = false;
-    }
-  }
 
   return kResultTrue;
 }
@@ -1047,6 +1037,5 @@ void IPlugVST3View::resize(int w, int h)
   TRACE;
 
   ViewRect newSize = ViewRect(0, 0, w, h);
-  mExpectingNewSize = true;
   plugFrame->resizeView(this, &newSize);
 }

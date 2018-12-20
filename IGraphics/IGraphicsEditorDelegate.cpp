@@ -36,8 +36,11 @@ void IGEditorDelegate::OnUIOpen()
   int pos = data.Get(&width, 0);
   pos = data.Get(&height, pos);
   pos = data.Get(&scale, pos);
-
-  GetUI()->Resize(width, height, scale);
+    
+  if (pos > 0)
+    GetUI()->Resize(width, height, scale);
+    
+  pos = UnserializeEditorState(data, pos);
 }
 
 void* IGEditorDelegate::OpenWindow(void* pParent)
@@ -148,17 +151,19 @@ void IGEditorDelegate::AttachGraphics(IGraphics* pGraphics)
   mIGraphicsTransient = false;
 }
 
-void IGEditorDelegate::Resize()
+void IGEditorDelegate::EditorStateNotify()
 {
-  IByteChunk chunk;
+  IByteChunk data;
     
   int width = mGraphics->Width();
   int height = mGraphics->Height();
   float scale = mGraphics->GetDrawScale();
     
-  chunk.Put(&width);
-  chunk.Put(&height);
-  chunk.Put(&scale);
+  data.Put(&width);
+  data.Put(&height);
+  data.Put(&scale);
     
-  ResizeGraphicsFromUI(mGraphics->WindowWidth(), mGraphics->WindowHeight(), chunk);
+  SerializeEditorState(data);
+    
+  EditorStateChangedFromUI(mGraphics->WindowWidth(), mGraphics->WindowHeight(), data);
 }
