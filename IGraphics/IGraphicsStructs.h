@@ -869,7 +869,7 @@ struct IRECT
     return IRECT(l, t, r, b);
   }
 
-  void Translate(float l, float t, float r, float b)
+  void Shift(float l, float t, float r, float b)
   {
     L += l;
     T += t;
@@ -877,7 +877,7 @@ struct IRECT
     B += b;
   }
   
-  void Translate(float x, float y = 0.f)
+  void Translate(float x, float y)
   {
     L += x;
     T += y;
@@ -885,19 +885,19 @@ struct IRECT
     B += y;
   }
   
-  IRECT GetShifted(float x, float y = 0.f) const
+  IRECT GetTranslated(float x, float y) const
   {
     return IRECT(L + x, T + y, R + x, B + y);
   }
   
   IRECT GetHShifted(float x) const
   {
-    return GetShifted(x);
+    return GetShifted(x, 0.f);
   }
   
   IRECT GetVShifted(float y) const
   {
-    return GetShifted(0., y);
+    return GetShifted(0.f, y);
   }
   
   IRECT GetShifted(float l, float t, float r, float b) const
