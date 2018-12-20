@@ -62,6 +62,9 @@ public:
   /** Get a pointer to the IGraphics context */
   IGraphics* GetUI() { return mGraphics; };
   
+  /** Call on graphics resize */
+  void Resize();
+    
 protected:
   std::function<IGraphics*()> mMakeGraphicsFunc = nullptr;
   std::function<void(IGraphics* pGraphics)> mLayoutFunc = nullptr;

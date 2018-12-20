@@ -121,12 +121,8 @@ void IGraphics::Resize(int w, int h, float scale)
   
   if (mCornerResizer)
     mCornerResizer->OnRescale();
-  
-  IByteChunk chunk;
-  chunk.Put(&w);
-  chunk.Put(&h);
-  chunk.Put(&scale);
-  GetDelegate()->ResizeGraphicsFromUI(WindowWidth(), WindowHeight(), chunk);
+
+  GetDelegate()->Resize();
   PlatformResize();
 
   int i, n = mControls.GetSize();

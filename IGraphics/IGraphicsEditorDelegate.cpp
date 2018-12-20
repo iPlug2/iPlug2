@@ -29,9 +29,13 @@ void IGEditorDelegate::OnUIOpen()
   int height = GetEditorHeight();
   float scale = 1.f;
     
-  int pos = GetEditorData().Get(&width, 0);
-  pos = GetEditorData().Get(&height, pos);
-  pos = GetEditorData().Get(&scale, pos);
+  // Recall size data (if not present use the defaults above)
+    
+  const IByteChunk& data = GetEditorData();
+    
+  int pos = data.Get(&width, 0);
+  pos = data.Get(&height, pos);
+  pos = data.Get(&scale, pos);
 
   GetUI()->Resize(width, height, scale);
 }
@@ -142,4 +146,19 @@ void IGEditorDelegate::AttachGraphics(IGraphics* pGraphics)
 
   mGraphics = pGraphics;
   mIGraphicsTransient = false;
+}
+
+void IGEditorDelegate::Resize()
+{
+  IByteChunk chunk;
+    
+  int width = mGraphics->Width();
+  int height = mGraphics->Height();
+  float scale = mGraphics->GetDrawScale();
+    
+  chunk.Put(&width);
+  chunk.Put(&height);
+  chunk.Put(&scale);
+    
+  ResizeGraphicsFromUI(mGraphics->WindowWidth(), mGraphics->WindowHeight(), chunk);
 }
