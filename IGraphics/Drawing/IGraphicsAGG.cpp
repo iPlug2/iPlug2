@@ -234,28 +234,28 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   agg::pixel_map* pSource = bitmap.GetAPIBitmap()->GetBitmap();
   agg::rendering_buffer src(pSource->buf(), pSource->width(), pSource->height(), pSource->row_bytes());;
   PixfmtType imgPixfSrc(src);
-  
-  agg::trans_affine dstMtx(mTransform);
-  
+    
   agg::trans_affine srcMtx;
-  srcMtx /= dstMtx;
-  srcMtx *= agg::trans_affine_translation(-dest.L, -dest.T);
-  srcMtx *= agg::trans_affine_translation(srcX, srcY);
+  srcMtx /= mTransform;
+  srcMtx *= agg::trans_affine_translation(srcX - dest.L, srcY - dest.T);
   srcMtx *= agg::trans_affine_scaling(bitmap.GetScale() * bitmap.GetDrawScale());
       
   // TODO - fix clipping of bitmaps
-
+  // TODO - fix the test for one on one
+    
   if (bounds.IsPixelAligned() && CheckTransform(srcMtx))
   {
     double tx, ty;
     
-    dstMtx.translation(&tx, &ty);
-    
-    bounds.L += tx;
-    bounds.T += ty;
-    bounds.R += tx;
-    bounds.B += ty;
-    
+    mTransform.translation(&tx, &ty);
+      
+    bounds.L *= GetDrawScale();
+    bounds.R *= GetDrawScale();
+    bounds.T *= GetDrawScale();
+    bounds.B *= GetDrawScale();
+      
+    bounds.Translate(tx, ty);
+
     mRasterizer.BlendFrom(src, bounds, srcX * scale, srcY * scale, AGGBlendMode(pBlend), AGGCover(pBlend));
   }
   else
@@ -266,7 +266,7 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
     SpanAlphaGeneratorType spanGenerator(imgSrc, interpolator, AGGCover(pBlend));
     BitmapAlphaRenderType renderer(mRasterizer.GetBase(), spanAllocator, spanGenerator);
     agg::rounded_rect rect(dest.L, dest.T, dest.R, dest.B, 0);
-    agg::conv_transform<agg::rounded_rect> tr(rect, dstMtx);
+    agg::conv_transform<agg::rounded_rect> tr(rect, mTransform);
     
     mRasterizer.SetPath(tr);
     mRasterizer.Rasterize(renderer, AGGBlendMode(pBlend));
@@ -325,14 +325,13 @@ void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, f
 
 void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax)
 {
-  agg::trans_affine xform = mTransform;
-  
-  agg::arc arc(cx, cy, r, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f));
-  arc.approximation_scale(xform.scale());
   agg::path_storage transformedPath;
+    
+  agg::arc arc(cx, cy, r, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f));
+  arc.approximation_scale(mTransform.scale());
+    
   transformedPath.join_path(arc);
-  
-  transformedPath.transform(xform);
+  transformedPath.transform(mTransform);
   
   mPath.join_path(transformedPath);
 }
