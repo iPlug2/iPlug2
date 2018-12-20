@@ -869,7 +869,7 @@ struct IRECT
     return IRECT(l, t, r, b);
   }
 
-  void Translate(float l, float t, float r, float b)
+  void Alter(float l, float t, float r, float b)
   {
     L += l;
     T += t;
@@ -877,7 +877,12 @@ struct IRECT
     B += b;
   }
   
-  void Translate(float x, float y = 0.f)
+  IRECT GetAltered(float l, float t, float r, float b) const
+  {
+    return IRECT(L + l, T + t, R + r, B + b);
+  }
+  
+  void Translate(float x, float y)
   {
     L += x;
     T += y;
@@ -885,24 +890,19 @@ struct IRECT
     B += y;
   }
   
-  IRECT GetShifted(float x, float y = 0.f) const
+  IRECT GetTranslated(float x, float y) const
   {
     return IRECT(L + x, T + y, R + x, B + y);
   }
   
   IRECT GetHShifted(float x) const
   {
-    return GetShifted(x);
+    return GetTranslated(x, 0.f);
   }
   
   IRECT GetVShifted(float y) const
   {
-    return GetShifted(0., y);
-  }
-  
-  IRECT GetShifted(float l, float t, float r, float b) const
-  {
-    return IRECT(L + l, T + t, R + r, B + b);
+    return GetTranslated(0.f, y);
   }
   
   void ScaleBounds(float scale)
@@ -1143,9 +1143,9 @@ struct IMatrix
     return Transform(IMatrix(c, s, -s, c, 0.0, 0.0));
   }
   
-  IMatrix& Skew(float x, float y)
+  IMatrix& Skew(float xa, float ya)
   {
-    return Transform(IMatrix(1.0, std::tan(DegToRad(y)), std::tan(DegToRad(x)), 1.0, 0.0, 0.0));
+    return Transform(IMatrix(1.0, std::tan(DegToRad(ya)), std::tan(DegToRad(xa)), 1.0, 0.0, 0.0));
   }
   
   void TransformPoint(double& x, double& y, double x0, double y0)

@@ -381,6 +381,12 @@ public:
     mTransform.Rotate(angle);
     PathTransformSetMatrix(mTransform);
   }
+    
+  void PathTransformSkew(float xAngle, float yAngle) override
+  {
+    mTransform.Skew(xAngle, yAngle);
+    PathTransformSetMatrix(mTransform);
+  }
 
   void PathTransformMatrix(const IMatrix& matrix) override
   {

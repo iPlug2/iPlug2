@@ -496,6 +496,7 @@ public:
   virtual void PathTransformScale(float scaleX, float scaleY) {}
   virtual void PathTransformScale(float scale) {}
   virtual void PathTransformRotate(float angle) {}
+  virtual void PathTransformSkew(float xAngle, float yAngle) {}
   virtual void PathTransformMatrix(const IMatrix& matrix) {}
 
   virtual void PathClipRegion(const IRECT r = IRECT()) {}
