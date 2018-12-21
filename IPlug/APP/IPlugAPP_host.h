@@ -180,6 +180,7 @@ public:
 
   static WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+  IPlugAPP* GetPlug() { return mIPlug; }
 private:
   IPlugAPP* mIPlug = nullptr;
   RtAudio* mDAC = nullptr;

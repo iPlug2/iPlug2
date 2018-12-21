@@ -164,9 +164,10 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
         menu = SWELL_DuplicateMenu(menu);
         HMENU src = LoadMenu(NULL, MAKEINTRESOURCE(IDR_MENU1));
 
-        for (auto x = 0; x < GetMenuItemCount(src)-1; x++)
+        for (int x = 0; x < GetMenuItemCount(src)-1; x++)
         {
           HMENU sm = GetSubMenu(src,x);
+          
           if (sm)
           {
             char str[1024];
@@ -195,6 +196,22 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 
         DeleteMenu(menu, 1, MF_BYPOSITION); // delete file menu
       }
+#ifndef _DEBUG
+      if (menu)
+      {
+        HMENU sm = GetSubMenu(menu, 1);
+        DeleteMenu(sm, ID_LIVE_EDIT, MF_BYCOMMAND); // remove QUIT from our file menu, since it is in the system menu on OSX
+        DeleteMenu(sm, ID_SHOW_DRAWN, MF_BYCOMMAND); // remove PREFERENCES from the file menu, since it is in the system menu on OSX
+        
+        // remove any trailing separators
+        int a = GetMenuItemCount(sm);
+        
+        while (a > 0 && GetMenuItemID(sm, a-1) == 0)
+          DeleteMenu(sm, --a, MF_BYPOSITION);
+        
+        DeleteMenu(menu, 1, MF_BYPOSITION); // delete debug menu
+      }
+#endif
 
       // if we want to set any default modifiers for items in the menus, we can use:
       // SetMenuItemModifier(menu,commandID,MF_BYCOMMAND,'A',FCONTROL) etc.

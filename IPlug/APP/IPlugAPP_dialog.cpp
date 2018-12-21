@@ -16,6 +16,10 @@
 #include "asio.h"
 #endif
 
+#ifdef _DEBUG
+#include "IGraphics.h"
+#endif
+
 // check the input and output devices, find matching srs
 void IPlugAPPHost::PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* inputDevInfo, RtAudio::DeviceInfo* outputDevInfo)
 {
@@ -611,6 +615,26 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
           return 0;
         }
+#ifdef _DEBUG
+        case ID_LIVE_EDIT:
+        {
+          IGEditorDelegate* pPlug = dynamic_cast<IGEditorDelegate*>(pAppHost->GetPlug());
+        
+          if(pPlug)
+            pPlug->GetUI()->EnableLiveEdit(true);
+          
+          return 0;
+        }
+        case ID_SHOW_DRAWN:
+        {
+          IGEditorDelegate* pPlug = dynamic_cast<IGEditorDelegate*>(pAppHost->GetPlug());
+          
+          if(pPlug)
+            pPlug->GetUI()->ShowAreaDrawn(true);
+          
+          return 0;
+        }
+#endif
       }
       return 0;
   }
