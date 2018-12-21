@@ -223,19 +223,20 @@ bool CheckTransform(double yx, double xy, const agg::trans_affine& mtx)
 
 void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
-  const int scale = GetScreenScale();
-  IRECT bounds = dest.GetScaled(scale);
+  IRECT bounds = dest.GetScaled(GetScreenScale());
 
-  agg::pixel_map* pSource = bitmap.GetAPIBitmap()->GetBitmap();
+  APIBitmap* pAPIBitmap = bitmap.GetAPIBitmap();
+  agg::pixel_map* pSource = pAPIBitmap->GetBitmap();
   agg::rendering_buffer src(pSource->buf(), pSource->width(), pSource->height(), pSource->row_bytes());;
-    
+  const double scale = GetScreenScale() / (pAPIBitmap->GetScale() * pAPIBitmap->GetDrawScale());
+
   agg::trans_affine srcMtx;
   srcMtx /= mTransform;
-  srcMtx *= agg::trans_affine_translation(srcX - dest.L, srcY - dest.T);
+  srcMtx *= agg::trans_affine_translation((srcX * scale) - dest.L, (srcY * scale) - dest.T);
   srcMtx *= agg::trans_affine_scaling(bitmap.GetScale() * bitmap.GetDrawScale());
       
   // TODO - fix clipping of bitmaps
-  // TODO - fix the test for one on one
+  // TODO - fix the test for one on one and drawing code for this
     
   if (bounds.IsPixelAligned() && CheckTransform(mTransform.shx, mTransform.shy, srcMtx))
   {
@@ -243,11 +244,7 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
     
     mTransform.translation(&tx, &ty);
       
-    bounds.L *= GetDrawScale();
-    bounds.R *= GetDrawScale();
-    bounds.T *= GetDrawScale();
-    bounds.B *= GetDrawScale();
-      
+    bounds.Scale(GetDrawScale());
     bounds.Translate(tx, ty);
 
     mRasterizer.BlendFrom(src, bounds, srcX * scale, srcY * scale, AGGBlendMode(pBlend), AGGCover(pBlend));
