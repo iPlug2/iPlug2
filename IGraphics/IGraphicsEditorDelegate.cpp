@@ -28,19 +28,6 @@ void IGEditorDelegate::OnUIOpen()
   GetUI()->Resize(GetEditorWidth(), GetEditorHeight(), GetEditorScale());
 }
 
-void IGEditorDelegate::OnRestoreState()
-{
-  if (mGraphics)
-  {
-    int i, n = mParams.GetSize();
-    for (i = 0; i < n; ++i)
-    {
-      double v = mParams.Get(i)->Value();
-      SendParameterValueFromDelegate(i, v, false);
-    }
-  }
-}
-
 void* IGEditorDelegate::OpenWindow(void* pParent)
 {
   if(!mGraphics) {

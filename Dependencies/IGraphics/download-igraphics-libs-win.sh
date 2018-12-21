@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-IGRAPHICS_DEPS_DIR="$(dirname "$0")"
+IGRAPHICS_DEPS_DIR="$PWD"
 BUILD_DIR="$IGRAPHICS_DEPS_DIR/../Build"
 DL_DIR="$BUILD_DIR/tmp"
 SRC_DIR="$BUILD_DIR/src"

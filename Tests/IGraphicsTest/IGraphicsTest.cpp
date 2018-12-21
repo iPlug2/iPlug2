@@ -45,7 +45,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     };
     
     pGraphics->AttachPanelBackground(COLOR_GRAY);
-    
+     
     pGraphics->AttachControl(new ILambdaControl(*this, nextCell(), [](IControl* pCaller, IGraphics& g, IRECT& r, IMouseInfo&, double t) {
       
 //      static constexpr float width = 5.f;
@@ -72,15 +72,15 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new TestDrawContextControl(*this, nextCell()));
 //    pGraphics->AttachControl(new TestSVGControl(*this, nextCell()));
     pGraphics->AttachControl(new TestSizeControl(*this, bounds), kSizeControl);
-    
-    
+    pGraphics->AttachControl(new TestLayerControl(*this, nextCell()));
+
 #if 1
     pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Hello World!", {24, COLOR_WHITE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop, 90}));
-    pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Two!", {18, COLOR_GREEN, "Montserrat-LightItalic", IText::kStyleNormal, IText::kAlignCenter, IText::kVAlignMiddle, 45}));
-    pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Three!", {24, COLOR_RED, "Roboto-Regular", IText::kStyleItalic, IText::kAlignFar, IText::kVAlignBottom}));
+    pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Two!", {18, COLOR_GREEN, "Montserrat-LightItalic", IText::kStyleItalic, IText::kAlignCenter, IText::kVAlignMiddle, 45}));
+    pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Three!", {24, COLOR_RED, "Roboto-Regular", IText::kStyleNormal, IText::kAlignFar, IText::kVAlignBottom}));
     pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Four!", {40, COLOR_ORANGE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignCenter, IText::kVAlignBottom}));
 #endif
-    
+      
   };
   
 #endif
@@ -91,8 +91,8 @@ void IGraphicsTest::OnHostSelectedViewConfiguration(int width, int height)
   DBGMSG("SELECTED: W %i, H%i\n", width, height);
 //  const float scale = (float) height / (float) PLUG_HEIGHT;
   
-  if(GetUI())
-    GetUI()->Resize(width, height, 1);
+//  if(GetUI())
+//    GetUI()->Resize(width, height, 1);
 }
 
 bool IGraphicsTest::OnHostRequestingSupportedViewConfiguration(int width, int height)

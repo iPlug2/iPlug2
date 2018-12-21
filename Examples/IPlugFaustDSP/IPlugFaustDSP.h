@@ -4,6 +4,10 @@
 #include "IPlugFaustGen.h"
 #include "IControls.h"
 
+#ifndef DSP_FILE
+#define DSP_FILE ""
+#endif
+
 enum EControlTags
 {
   kControlTagScope = 0,

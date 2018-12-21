@@ -75,7 +75,7 @@ static unsigned int GUID_DATA3 = PLUG_MFR_ID;
 static unsigned int GUID_DATA4 = PLUG_UNIQUE_ID;
 
 #ifndef EFFECT_TYPE_VST3
-  #if PLUG_IS_INST
+  #if PLUG_TYPE == 1
     #define EFFECT_TYPE_VST3 kInstrumentSynth
   #else
     #define EFFECT_TYPE_VST3 kFx
@@ -128,6 +128,9 @@ IPlug* MakeController()
   WDL_MutexLock lock(&sMutex);
   IPlugVST3Controller::IPlugInstanceInfo instanceInfo;
   instanceInfo.mOtherGUID = FUID(PROC_GUID_DATA1, PROC_GUID_DATA2, GUID_DATA3, GUID_DATA4);
+  
+  //If you are trying to build a distributed VST3 plug-in and you hit an error here "no matching constructor...",
+  //you need to replace all instances of PLUG_CLASS_NAME in your plug-in class, with the macro PLUG_CLASS_NAME
   return new PLUG_CLASS_NAME(instanceInfo);
 }
 #elif defined VST3_API
@@ -434,7 +437,7 @@ DWORD GetTickCount()
 #define IPLUG_CTOR(nParams, nPresets, instanceInfo) \
   IPlug(instanceInfo, IPlugConfig(nParams, nPresets, PLUG_CHANNEL_IO,\
     PUBLIC_NAME, "", PLUG_MFR, PLUG_VERSION_HEX, PLUG_UNIQUE_ID, PLUG_MFR_ID, \
-    PLUG_LATENCY, PLUG_DOES_MIDI_IN, PLUG_DOES_MIDI_OUT, PLUG_DOES_STATE_CHUNKS, PLUG_IS_INSTRUMENT, \
+    PLUG_LATENCY, PLUG_DOES_MIDI_IN, PLUG_DOES_MIDI_OUT, PLUG_DOES_MPE, PLUG_DOES_STATE_CHUNKS, PLUG_TYPE, \
     PLUG_HAS_UI, PLUG_WIDTH, PLUG_HEIGHT, BUNDLE_ID))
 
 #if !defined NO_IGRAPHICS && !defined VST3P_API

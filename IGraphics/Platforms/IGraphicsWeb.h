@@ -21,12 +21,6 @@
 
 using namespace emscripten;
 
-struct RetainVal
-{
-  RetainVal(val item) : mItem(item) {}
-  val mItem;
-};
-
 static val GetCanvas()
 {
   return val::global("document").call<val>("getElementById", std::string("canvas"));

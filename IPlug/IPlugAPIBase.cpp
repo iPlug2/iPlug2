@@ -112,7 +112,7 @@ void IPlugAPIBase::SetParameterValue(int idx, double normalizedValue)
   OnParamChange(idx, kUI);
 }
 
-void IPlugAPIBase::DirtyParameters()
+void IPlugAPIBase::DirtyParametersFromUI()
 {
   for (int p = 0; p < NParams(); p++)
   {
@@ -147,6 +147,13 @@ void IPlugAPIBase::OnTimer(Timer& t)
       mMidiMsgsFromProcessor.Pop(msg);
       SendMidiMsgFromDelegate(msg);
     }
+    
+    while (mSysExDataFromProcessor.ElementsAvailable())
+    {
+      SysExData msg;
+      mSysExDataFromProcessor.Pop(msg);
+      SendSysexMsgFromDelegate({msg.mOffset, msg.mData, msg.mSize});
+    }
   #endif
     
     // Midi messages from the processor to the controller, are sent as IMessages and SendMidiMsgFromDelegate gets triggered on the other side's notify
@@ -156,6 +163,13 @@ void IPlugAPIBase::OnTimer(Timer& t)
       IMidiMsg msg;
       mMidiMsgsFromProcessor.Pop(msg);
       _TransmitMidiMsgFromProcessor(msg);
+    }
+    
+    while (mSysExDataFromProcessor.ElementsAvailable())
+    {
+      SysExData data;
+      mSysExDataFromProcessor.Pop(data);
+      _TransmitSysExDataFromProcessor(data);
     }
   #endif
   }
@@ -171,9 +185,8 @@ void IPlugAPIBase::SendMidiMsgFromUI(const IMidiMsg& msg)
 
 void IPlugAPIBase::SendSysexMsgFromUI(const ISysEx& msg)
 {
-  //TODO:
-  
-  EDITOR_DELEGATE_CLASS::SendSysexMsgFromUI(msg);
+  DeferSysexMsg(msg); // queue the message so that it will be handled by the processor
+  EDITOR_DELEGATE_CLASS::SendSysexMsgFromUI(msg); // for remote editors
 }
 
 void IPlugAPIBase::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData)

@@ -57,6 +57,7 @@ public:
   void OnEndAnimation() override
   {
     mStartRect = mEndRect;
+    IControl::OnEndAnimation();
   }
   
 private:

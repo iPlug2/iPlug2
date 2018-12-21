@@ -363,7 +363,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     [pWindow setAcceptsMouseMovedEvents: YES];
     
     if (mGraphics)
-      mGraphics->SetDisplayScale([pWindow backingScaleFactor]);
+      mGraphics->SetScreenScale([pWindow backingScaleFactor]);
     
 //    [[NSNotificationCenter defaultCenter] addObserver:self
 //                                             selector:@selector(windowResized:) name:NSWindowDidEndLiveResizeNotification
@@ -388,8 +388,8 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   
   CGFloat newScale = [pWindow backingScaleFactor];
   
-  if (newScale != mGraphics->GetDisplayScale())
-    mGraphics->SetDisplayScale(newScale);
+  if (newScale != mGraphics->GetScreenScale())
+    mGraphics->SetScreenScale(newScale);
 }
 
 // not called for opengl/metal
@@ -461,8 +461,8 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   {
     NSPoint pt = [self convertPoint:[pEvent locationInWindow] fromView:nil];
     // TODO - fix or remove these values!!
-    *pX = pt.x / mGraphics->GetScale();//- 2.f;
-    *pY = pt.y / mGraphics->GetScale();//- 3.f;
+    *pX = pt.x / mGraphics->GetDrawScale();//- 2.f;
+    *pY = pt.y / mGraphics->GetDrawScale();//- 3.f;
     mPrevX = *pX;
     mPrevY = *pY;
 
@@ -556,6 +556,16 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void)keyDown: (NSEvent *)pEvent
 {
+#ifdef IGRAPHICS_SWELL
+  int flag, code = SWELL_MacKeyToWindowsKey(pEvent, &flag);
+
+  bool handle = mGraphics->OnKeyDown(mPrevX, mPrevY, code);
+  
+  if (!handle)
+  {
+    [[self nextResponder] keyDown:pEvent];
+  }
+#else
   NSString *s = [pEvent charactersIgnoringModifiers];
 
   if ([s length] == 1)
@@ -582,12 +592,13 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
       // can't use getMouseXY because its a key event
       handle = mGraphics->OnKeyDown(mPrevX, mPrevY, key);
     }
-
+    
     if (!handle)
     {
       [[self nextResponder] keyDown:pEvent];
     }
   }
+#endif
 }
 
 - (void) scrollWheel: (NSEvent*) pEvent
@@ -881,7 +892,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 //  float scaleY = height / mGraphics->Height();
 //
 //  if(mGraphics->GetUIResizerMode() == EUIResizerMode::kUIResizerScale)
-//    mGraphics->Resize(width, height, mGraphics->GetScale());
+//    mGraphics->Resize(width, height, mGraphics->GetDrawScale());
 //  else // EUIResizerMode::kUIResizerSize
 //    mGraphics->Resize(mGraphics->Width(), mGraphics->Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
 //}
@@ -898,7 +909,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 //  float scaleY = height / mGraphics->Height();
 //
 //  if(mGraphics->GetUIResizerMode() == EUIResizerMode::kUIResizerScale)
-//    mGraphics->Resize(width, height, mGraphics->GetScale());
+//    mGraphics->Resize(width, height, mGraphics->GetDrawScale());
 //  else // EUIResizerMode::kUIResizerSize
 //    mGraphics->Resize(mGraphics->Width(), mGraphics->Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
 //}

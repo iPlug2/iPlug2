@@ -48,11 +48,18 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new IVKnobControl(*this, b.GetGridCell(4, 4, 4).GetCentredInside(100.), kGain));
     pGraphics->AttachControl(new IVSliderControl(*this, b.GetGridCell(5, 4, 4).GetGridCell(0, 1, 3)));
     pGraphics->AttachControl(new IVSliderControl(*this, b.GetGridCell(5, 4, 4).GetGridCell(3, 3, 2), kNoParameter, DEFAULT_SPEC, kHorizontal));
-    pGraphics->AttachControl(new IVSwitchControl(*this, b.GetGridCell(6, 4, 4).GetCentredInside(30.)));
+    pGraphics->AttachControl(new IVSwitchControl(*this, b.GetGridCell(6, 4, 4).GetCentredInside(30.)), 0);
     
     auto button1action = [](IControl* pCaller) {
       FlashCircleClickActionFunc(pCaller);
       
+      IVColorSpec spec;
+      spec.mBGColor = COLOR_RED;
+      
+      IGraphics* pGraphics = pCaller->GetUI();
+      
+      pGraphics->StyleAllVectorControls(true, true, false, 10., 20., 3., spec);
+
       DBGMSG("%i\n", pCaller->GetUI()->ShowMessageBox("Str", "Caption", MB_YESNO));
     };
     
@@ -79,7 +86,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 
     pGraphics->AttachControl(new ITextControl(*this, b.GetGridCell(3, 4, 1), "Misc Controls", bigLabel));
     pGraphics->AttachControl(new IColorPickerControl(*this, b.GetGridCell(12, 4, 4).GetCentredInside(150.)));
-    pGraphics->AttachControl(new IVKeyboardControl(*this, b.GetGridCell(13, 4, 4).Union(b.GetGridCell(14, 4, 4)), 36, 72));
+    pGraphics->AttachControl(new IVKeyboardControl(*this, b.GetGridCell(13, 4, 4).Union(b.GetGridCell(14, 4, 4)).GetPadded(-40), 36, 72));
   };
 #endif
 }
