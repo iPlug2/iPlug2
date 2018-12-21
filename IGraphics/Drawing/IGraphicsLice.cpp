@@ -553,9 +553,14 @@ void IGraphicsLice::EndFrame()
   HDC dc = BeginPaint(hWnd, &ps);
   
   if (GetDrawScale() == 1.0)
+  {
     BitBlt(dc, 0, 0, Width(), Height(), mDrawBitmap->getDC(), 0, 0, SRCCOPY);
+  }
   else
+  {
+    SetStretchBltMode(dc. HALFTONE);
     StretchBlt(dc, 0, 0, WindowWidth(), WindowHeight(), mDrawBitmap->getDC(), 0, 0, Width(), Height(), SRCCOPY);
+  }
   
   EndPaint(hWnd, &ps);
 #endif
