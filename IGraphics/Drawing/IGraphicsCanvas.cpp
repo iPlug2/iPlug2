@@ -180,8 +180,8 @@ void IGraphicsCanvas::SetCanvasSourcePattern(const IPattern& pattern, const IBle
       IMatrix m = IMatrix(pattern.mTransform).Invert();
       
       val gradient = (pattern.mType == kLinearPattern) ?
-        context.call<val>("createLinearGradient", m.mTX, m.mTY, m.mXX + m.mTX, m.mXY + m.mTY) :
-        context.call<val>("createRadialGradient", m.mTX, m.mTY, 0.0, m.mTX, m.mTY, m.mXX);
+      context.call<val>("createLinearGradient", m.mTX, m.mTY, m.mXX + m.mTX, m.mXY + m.mTY) :
+      context.call<val>("createRadialGradient", m.mTX, m.mTY, 0.0, m.mTX, m.mTY, m.mXX);
       
       /*
       switch (pattern.mExtend)
