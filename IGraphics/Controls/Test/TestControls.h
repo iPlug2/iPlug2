@@ -18,3 +18,4 @@
 #include "TestAnimationControl.h"
 #include "TestDrawContextControl.h"
 #include "TestSizeControl.h"
+#include "TestSVGControl.h"

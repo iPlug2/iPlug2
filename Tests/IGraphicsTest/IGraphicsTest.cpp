@@ -35,7 +35,8 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     //  pGraphics->ShowControlBounds(true);
     pGraphics->LoadFont(ROBOTTO_FN);
     pGraphics->LoadFont(MONTSERRAT_FN);
-    
+    ISVG tiger = pGraphics->LoadSVG(TIGER_FN);
+
     IRECT bounds = pGraphics->GetBounds();
     
     int cellIdx = 0;
@@ -57,6 +58,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
       //    g.FillArc(COLOR_WHITE, r.MW(), r.MH(), radius, 0, 90);
       //    g.FillRoundRect(COLOR_WHITE, r, cornerSize);
       
+      g.DrawDottedLine(COLOR_WHITE, r.L, r.T, r.R, r.MH());
       //    g.DrawRect(COLOR_WHITE, r, nullptr, width);
       //    g.DrawCircle(COLOR_WHITE, r.MW(), r.MH(), radius, nullptr, width);
           g.DrawArc(COLOR_WHITE, r.MW(), r.MH(), radius, 0, 90);
@@ -70,7 +72,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new TestTextControl(*this, nextCell()));
     pGraphics->AttachControl(new TestAnimationControl(*this, nextCell()));
     pGraphics->AttachControl(new TestDrawContextControl(*this, nextCell()));
-//    pGraphics->AttachControl(new TestSVGControl(*this, nextCell()));
+    pGraphics->AttachControl(new TestSVGControl(*this, nextCell(), tiger));
     pGraphics->AttachControl(new TestSizeControl(*this, bounds), kSizeControl);
     pGraphics->AttachControl(new TestLayerControl(*this, nextCell()));
 
