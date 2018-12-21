@@ -1246,7 +1246,7 @@ struct IPattern
     const double xd = x2 - x1;
     const double yd = y2 - y1;
     const double size = sqrt(xd * xd + yd * yd);
-    const double angle = -(atan(yd, xd));
+    const double angle = -atan2(yd, xd);
     const double sinV = sin(angle) / size;
     const double cosV = cos(angle) / size;
     
