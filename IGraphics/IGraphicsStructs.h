@@ -1190,11 +1190,11 @@ struct IMatrix
     double d = 1.0 / (m.mXX * m.mYY - m.mYX * m.mXY);
     
     mXX =  m.mYY * d;
-    mYX = -m.mXY * d;
-    mXY = -m.mYX * d;
+    mYX = -m.mYX * d;
+    mXY = -m.mXY * d;
     mYY =  m.mXX * d;
-    mTX = (-m.mTX * m.mYY * d) - (m.mTY * -m.mXY * d);
-    mTY = (-m.mTX * m.mYX * d) - (m.mTY *  m.mXX * d);
+    mTX = (-(m.mTX * mXX) - (m.mTY * mXY));
+    mTY = (-(m.mTX * mYX) - (m.mTY * mYY));
     
     return *this;
   }
