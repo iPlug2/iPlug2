@@ -558,7 +558,7 @@ void IGraphicsLice::EndFrame()
   }
   else
   {
-    SetStretchBltMode(dc. HALFTONE);
+    SetStretchBltMode(dc, HALFTONE);
     StretchBlt(dc, 0, 0, WindowWidth(), WindowHeight(), mDrawBitmap->getDC(), 0, 0, Width(), Height(), SRCCOPY);
   }
   
