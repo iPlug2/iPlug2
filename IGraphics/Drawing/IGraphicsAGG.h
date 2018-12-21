@@ -50,7 +50,7 @@ private:
 class AGGBitmap : public APIBitmap
 {
 public:
-  AGGBitmap(agg::pixel_map* pPixMap, int scale) : APIBitmap (pPixMap, pPixMap->width(), pPixMap->height(), scale) {}
+  AGGBitmap(agg::pixel_map* pPixMap, int scale, float drawScale) : APIBitmap (pPixMap, pPixMap->width(), pPixMap->height(), scale, drawScale) {}
   virtual ~AGGBitmap() { delete ((agg::pixel_map*) GetBitmap()); }
 };
 
@@ -165,7 +165,7 @@ public:
   void DrawResize() override;
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
-  void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, float x, float y, double angle, const IBlend* pBlend) override;
+  //void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, float x, float y, double angle, const IBlend* pBlend) override;
 
   void PathClear() override { mPath.remove_all(); }
   void PathClose() override { mPath.close_polygon(); }
@@ -179,37 +179,44 @@ public:
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
     
-  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0, bool measure = false) override;
-
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return nullptr; } //TODO
   const char* GetDrawingAPIStr() override { return "AGG"; }
 
+  void UpdateLayer() override;
+    
   void EndFrame() override;
     
  //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
 
-private:
-
+protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
-  agg::pixel_map* CreateAPIBitmap(int w, int h);
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int s) override;
+  APIBitmap* CreateAPIBitmap(int width, int height) override;
 
+  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0, bool measure = false) override;
+
+private:
   void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& bounds, const char* str, FontManagerType& manager);
 
   agg::trans_affine GetRasterTransform() { return agg::trans_affine() / mTransform; }
 
-  template<typename PathType> void DoClip(PathType& path)
+  double XTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().L; }
+  double YTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().T; }
+
+  template<typename PathType>
+  void DoClip(PathType& path)
   {
     IRECT clip = mClipRECT.Empty() ? GetBounds() : mClipRECT;
-    clip.Scale(GetDisplayScale() * GetScale());
+    clip.Translate(XTranslate(), YTranslate());
+    clip.Scale(GetScreenScale() * GetDrawScale());
     path.clip_box(clip.L, clip.T, clip.R, clip.B);
   }
   
   void PathTransformSetMatrix(const IMatrix& m) override
   {
-    const double scale = GetScale() * GetDisplayScale();
-    IMatrix t = IMatrix().Scale(scale, scale).Transform(m);
+    const double scale = GetDrawScale() * GetScreenScale();
+    IMatrix t = IMatrix().Scale(scale, scale).Translate(XTranslate(), YTranslate()).Transform(m);
       
     mTransform = agg::trans_affine(t.mXX, t.mYX, t.mXY, t.mYY, t.mTX, t.mTY);
   }

@@ -74,8 +74,8 @@ void GetKnownFolder(WDL_String &path, int identifier, int flags = 0)
 inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 {
   IMouseInfo info;
-  info.x = mCursorX = GET_X_LPARAM(lParam) / GetScale();
-  info.y = mCursorY = GET_Y_LPARAM(lParam) / GetScale();
+  info.x = mCursorX = GET_X_LPARAM(lParam) / GetDrawScale();
+  info.y = mCursorY = GET_Y_LPARAM(lParam) / GetDrawScale();
   info.ms = IMouseMod((wParam & MK_LBUTTON), (wParam & MK_RBUTTON), (wParam & MK_SHIFT), (wParam & MK_CONTROL),
 #ifdef AAX_API
     GetAsyncKeyState(VK_MENU) < 0
@@ -192,7 +192,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         {
           pGraphics->SetAllControlsClean();
           IRECT dirtyR = rects.Bounds();
-          dirtyR.ScaleBounds(pGraphics->GetScale());
+          dirtyR.ScaleBounds(pGraphics->GetDrawScale());
           RECT r = { (LONG) dirtyR.L, (LONG) dirtyR.T, (LONG) dirtyR.R, (LONG) dirtyR.B };
 
           InvalidateRect(hWnd, &r, FALSE);
@@ -200,7 +200,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           if (pGraphics->mParamEditWnd)
           {
             IRECT notDirtyR = pGraphics->mEdControl->GetRECT();
-            notDirtyR.ScaleBounds(pGraphics->GetScale());
+            notDirtyR.ScaleBounds(pGraphics->GetDrawScale());
             RECT r2 = { (LONG) notDirtyR.L, (LONG) notDirtyR.T, (LONG) notDirtyR.R, (LONG) notDirtyR.B };
             ValidateRect(hWnd, &r2); // make sure we dont redraw the edit box area
             UpdateWindow(hWnd);
@@ -358,7 +358,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         #endif
         IRECT ir(r.left, r.top, r.right, r.bottom);
         IRECTList rects;
-        ir.ScaleBounds(1. / pGraphics->GetScale());
+        ir.ScaleBounds(1. / pGraphics->GetDrawScale());
         rects.Add(ir);
         pGraphics->Draw(rects);
         #ifdef IGRAPHICS_NANOVG
@@ -663,7 +663,7 @@ void* IGraphicsWin::OpenWindow(void* pParent)
 
   OnViewInitialized((void*) dc);
   
-  SetDisplayScale(1); // CHECK!
+  SetScreenScale(1); // CHECK!
 
   GetDelegate()->LayoutUI(this);
 

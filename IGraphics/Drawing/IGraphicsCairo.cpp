@@ -70,18 +70,26 @@ cairo_surface_t* LoadPNGResource(void* hInst, const WDL_String& path)
   #error NOT IMPLEMENTED
 #endif
 
-CairoBitmap::CairoBitmap(cairo_surface_t* pSurface, int scale)
+CairoBitmap::CairoBitmap(cairo_surface_t* pSurface, int scale, float drawScale)
 {
-  cairo_surface_set_device_scale(pSurface, scale, scale);
+  cairo_surface_set_device_scale(pSurface, scale * drawScale, scale * drawScale);
   int width = cairo_image_surface_get_width(pSurface);
   int height = cairo_image_surface_get_height(pSurface);
   
-  SetBitmap(pSurface, width, height, scale);
+  SetBitmap(pSurface, width, height, scale, drawScale);
+}
+
+CairoBitmap::CairoBitmap(cairo_surface_t* pSurfaceType, int width, int height, int scale, float drawScale)
+{
+  cairo_surface_t* pSurface = cairo_surface_create_similar_image(pSurfaceType, CAIRO_FORMAT_ARGB32, width, height);
+  cairo_surface_set_device_scale(pSurface, scale * drawScale, scale * drawScale);
+  
+  SetBitmap(pSurface, width, height, scale, drawScale);
 }
   
 CairoBitmap::~CairoBitmap()
 {
-  cairo_surface_destroy((cairo_surface_t*) GetBitmap());
+  cairo_surface_destroy(GetBitmap());
 }
 
 #pragma mark -
@@ -126,11 +134,9 @@ IGraphicsCairo::~IGraphicsCairo()
   }
 #endif
   
-  if (mContext)
-    cairo_destroy(mContext);
+  // N.B. calls through to delete context and surface
   
-  if (mSurface)
-    cairo_surface_destroy(mSurface);
+  UpdateCairoMainSurface(nullptr);
 }
 
 void IGraphicsCairo::DrawResize()
@@ -153,12 +159,12 @@ APIBitmap* IGraphicsCairo::LoadAPIBitmap(const WDL_String& resourcePath, int sca
     
   assert(cairo_surface_status(pSurface) == CAIRO_STATUS_SUCCESS); // Protect against typos in resource.h and .rc files.
 
-  return new CairoBitmap(pSurface, scale);
+  return new CairoBitmap(pSurface, scale, 1.f);
 }
 
 APIBitmap* IGraphicsCairo::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 {
-  cairo_surface_t* pInSurface = (cairo_surface_t*) pBitmap->GetBitmap();
+  cairo_surface_t* pInSurface = pBitmap->GetBitmap();
   
   int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
   int destH = (pBitmap->GetHeight() / pBitmap->GetScale()) * scale;
@@ -175,7 +181,13 @@ APIBitmap* IGraphicsCairo::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
   cairo_paint(pOutContext);
   cairo_destroy(pOutContext);
     
-  return new CairoBitmap(pOutSurface, scale);
+  return new CairoBitmap(pOutSurface, scale, pBitmap->GetDrawScale());
+}
+
+APIBitmap* IGraphicsCairo::CreateAPIBitmap(int width, int height)
+{
+  const double scale = GetDrawScale() * GetScreenScale();
+  return new CairoBitmap(mSurface, width * scale, height * scale, GetScreenScale(), GetDrawScale());
 }
 
 void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
@@ -183,8 +195,8 @@ void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, in
   cairo_save(mContext);
   cairo_rectangle(mContext, dest.L, dest.T, dest.W(), dest.H());
   cairo_clip(mContext);
-  cairo_surface_t* surface = (cairo_surface_t*) bitmap.GetAPIBitmap()->GetBitmap();
-  cairo_set_source_surface(mContext, surface, std::round(dest.L) - srcX, (int) std::round(dest.T) - srcY);
+  cairo_surface_t* surface = bitmap.GetAPIBitmap()->GetBitmap();
+  cairo_set_source_surface(mContext, surface, std::round(dest.L) - srcX, std::round(dest.T) - srcY);
   cairo_set_operator(mContext, CairoBlendMode(pBlend));
   cairo_paint_with_alpha(mContext, BlendWeight(pBlend));
   cairo_restore(mContext);
@@ -461,36 +473,56 @@ bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
   return true;
 }
 
+void IGraphicsCairo::UpdateCairoContext()
+{
+  if (mContext)
+  {
+    cairo_destroy(mContext);
+    mContext = nullptr;
+  }
+  
+  cairo_surface_t* pSurface = mLayers.empty() ? mSurface : mLayers.top()->GetAPIBitmap()->GetBitmap();
+
+  if (pSurface)
+    mContext = cairo_create(pSurface);
+  
+  //cairo_set_antialias(mContext, CAIRO_ANTIALIAS_FAST);
+}
+
+void IGraphicsCairo::UpdateCairoMainSurface(cairo_surface_t* pSurface)
+{
+  if (mSurface)
+  {
+    cairo_surface_destroy(mSurface);
+    mSurface = nullptr;
+  }
+  
+  if (pSurface)
+    mSurface = pSurface;
+  
+  UpdateCairoContext();
+}
+
 void IGraphicsCairo::SetPlatformContext(void* pContext)
 {
   if (!pContext)
   {
-    if (mContext)
-      cairo_destroy(mContext);
-    if (mSurface)
-      cairo_surface_destroy(mSurface);
-      
-    mContext = nullptr;
-    mSurface = nullptr;
+    UpdateCairoMainSurface(nullptr);
   }
   else if(!mSurface)
   {
 #ifdef OS_MAC
     mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), WindowWidth(), WindowHeight());
-    mContext = cairo_create(mSurface);
-    cairo_surface_set_device_scale(mSurface, GetScale(), GetScale());
+    cairo_surface_set_device_scale(mSurface, GetDrawScale(), GetDrawScale());
 #elif defined OS_WIN
-    HDC dc = (HDC) pContext;
-    mSurface = cairo_win32_surface_create_with_ddb(dc, CAIRO_FORMAT_ARGB32, WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
-    mContext = cairo_create(mSurface);
-    cairo_surface_set_device_scale(mSurface, GetDisplayScale() * GetScale(), GetDisplayScale() * GetScale());
+    mSurface = cairo_win32_surface_create_with_ddb((HDC) pContext, CAIRO_FORMAT_ARGB32, Width(), Height());
+    cairo_surface_set_device_scale(mSurface, GetScreenScale() * GetDrawScale(), GetScreenScale() * GetDrawScale());
 #else
   #error NOT IMPLEMENTED
 #endif
-    //cairo_set_antialias(cr, CAIRO_ANTIALIAS_NONE);
-    //cairo_set_antialias(mContext, CAIRO_ANTIALIAS_FAST);
-    //cairo_set_antialias(cr, CAIRO_ANTIALIAS_GOOD);
     
+    UpdateCairoContext();
+
     if (mContext)
     {
       cairo_set_source_rgba(mContext, 1.0, 1.0, 1.0, 1.0);
@@ -505,7 +537,6 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
 void IGraphicsCairo::EndFrame()
 {
 #ifdef OS_MAC
-  //cairo_surface_flush(mSurface);
 #elif defined OS_WIN
   cairo_surface_flush(mSurface);
   PAINTSTRUCT ps;
@@ -550,8 +581,20 @@ void IGraphicsCairo::LoadFont(const char* name)
 
 void IGraphicsCairo::PathTransformSetMatrix(const IMatrix& m)
 {
+  double xTranslate = 0.0;
+  double yTranslate = 0.0;
+  
+  if (!mLayers.empty())
+  {
+    IRECT bounds = mLayers.top()->Bounds();
+ 
+    xTranslate = -bounds.L;
+    yTranslate = -bounds.T;
+  }
+  
   cairo_matrix_t matrix;
   cairo_matrix_init(&matrix, m.mXX, m.mYX, m.mXY, m.mYY, m.mTX, m.mTY);
+  cairo_matrix_translate(&matrix, xTranslate, yTranslate);
   cairo_set_matrix(mContext, &matrix);
 }
 

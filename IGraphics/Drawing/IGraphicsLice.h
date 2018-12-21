@@ -54,7 +54,7 @@ inline int LiceBlendMode(const IBlend* pBlend)
 class LICEBitmap : public APIBitmap
 {
 public:
-  LICEBitmap(LICE_IBitmap* pBitmap, int scale) : APIBitmap (pBitmap, pBitmap->getWidth(), pBitmap->getHeight(), scale) {}
+  LICEBitmap(LICE_IBitmap* pBitmap, int scale) : APIBitmap (pBitmap, pBitmap->getWidth(), pBitmap->getHeight(), scale, 1.f) {}
   virtual ~LICEBitmap() { delete ((LICE_IBitmap*) GetBitmap()); }
 };
 
@@ -97,32 +97,58 @@ public:
     
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return mDrawBitmap->getBits(); }
-
-  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
-    
-  inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
+     inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
 
 protected:
-    
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
+  APIBitmap* CreateAPIBitmap(int width, int height) override;
+
+  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
 
   void EndFrame() override;
     
 private:
+    
+  float TransformX(float x)
+  {
+    return (x - mDrawOffsetX) * GetScreenScale();
+  }
   
-  void ClipRegion(const IRECT& r) override
+  float TransformY(float y)
+  {
+    return (y - mDrawOffsetY) * GetScreenScale();
+  }
+    
+  IRECT TransformRECT(const IRECT& r)
+  {
+    IRECT tr = r;
+    tr.Translate(-mDrawOffsetX, - mDrawOffsetY);
+    tr.Scale(GetScreenScale());
+    return tr;
+  }
+    
+  void PrepareRegion(const IRECT& r) override
   {
     mDrawRECT = r;
     mDrawRECT.PixelAlign();
+    mClipRECT = mDrawRECT;
   }
   
+  void UpdateLayer() override;
+    
   LICE_IFont* CacheFont(const IText& text, double scale);
 
   IRECT mDrawRECT;
+  IRECT mClipRECT;
     
+  int mDrawOffsetX = 0;
+  int mDrawOffsetY = 0;
+  
   LICE_SysBitmap* mDrawBitmap = nullptr;
   LICE_MemBitmap* mTmpBitmap = nullptr;
+  // N.B. mRenderBitmap is not owned through this pointer, and should not be deleted
+  LICE_IBitmap* mRenderBitmap = nullptr;
 #ifdef OS_MAC
   CGColorSpaceRef mColorSpace = nullptr;
 #endif

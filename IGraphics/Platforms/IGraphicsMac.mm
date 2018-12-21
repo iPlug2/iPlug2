@@ -212,7 +212,7 @@ void* IGraphicsMac::OpenWindow(void* pParent)
 
   OnViewInitialized([pView layer]);
   
-  SetDisplayScale([[NSScreen mainScreen] backingScaleFactor]);
+  SetScreenScale([[NSScreen mainScreen] backingScaleFactor]);
     
   GetDelegate()->LayoutUI(this);
 
@@ -332,8 +332,8 @@ void IGraphicsMac::MoveMouseCursor(float x, float y)
   CGPoint point;
   NSPoint mouse = [NSEvent mouseLocation];
   double mouseY = CGDisplayPixelsHigh(CGMainDisplayID()) - mouse.y;
-  point.x = x / GetDisplayScale() + (mouse.x - mCursorX / GetDisplayScale());
-  point.y = y / GetDisplayScale() + (mouseY - mCursorY / GetDisplayScale());
+  point.x = x / GetScreenScale() + (mouse.x - mCursorX / GetScreenScale());
+  point.y = y / GetScreenScale() + (mouseY - mCursorY / GetScreenScale());
 
   if (!mTabletInput && CGDisplayMoveCursorToPoint(CGMainDisplayID(), point) == CGDisplayNoErr)
   {

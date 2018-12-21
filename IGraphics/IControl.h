@@ -617,7 +617,7 @@ public:
       handleBounds.Pad(- 0.5f * mFrameThickness);
     
     if (mDrawShadows && !mEmboss)
-      handleBounds.Translate(0, 0, -mShadowOffset, -mShadowOffset);
+      handleBounds.Alter(0, 0, -mShadowOffset, -mShadowOffset);
     
     return handleBounds;
   }
@@ -652,7 +652,7 @@ public:
     {
       //outer shadow
       if (mDrawShadows && !mEmboss)
-        g.FillRoundRect(GetColor(kSH), handleBounds.GetShifted(mShadowOffset, mShadowOffset), cornerRadius);
+        g.FillRoundRect(GetColor(kSH), handleBounds.GetTranslated(mShadowOffset, mShadowOffset), cornerRadius);
       
       g.FillRoundRect(GetColor(kFG), handleBounds, cornerRadius);
     }
@@ -1115,7 +1115,7 @@ public:
   
   void OnRescale() override
   {
-    float size = mSize * (1.f/GetUI()->GetScale());
+    float size = mSize * (1.f/GetUI()->GetDrawScale());
     IRECT r = GetUI()->GetBounds().GetFromBRHC(size, size);
     SetTargetAndDrawRECTs(r);
   }
