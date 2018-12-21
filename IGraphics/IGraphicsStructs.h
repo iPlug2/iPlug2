@@ -1243,19 +1243,19 @@ struct IPattern
     
     // Calculate the affine transform from one line segment to another!
     
-    const float xd = x2 - x1;
-    const float yd = y2 - y1;
-    const float size = sqrtf(xd * xd + yd * yd);
-    const float angle = -(atan2(yd, xd));
-    const float sinV = sinf(angle) / size;
-    const float cosV = cosf(angle) / size;
+    const double xd = x2 - x1;
+    const double yd = y2 - y1;
+    const double size = sqrt(xd * xd + yd * yd);
+    const double angle = -(atan(yd, xd));
+    const double sinV = sin(angle) / size;
+    const double cosV = cos(angle) / size;
     
-    const float xx = cosV;
-    const float yx = sinV;
-    const float xy = -sinV;
-    const float yy = cosV;
-    const float x0 = -(x1 * xx + y1 * xy);
-    const float y0 = -(x1 * yx + y1 * yy);
+    const double xx = cosV;
+    const double yx = sinV;
+    const double xy = -sinV;
+    const double yy = cosV;
+    const double x0 = -(x1 * xx + y1 * xy);
+    const double y0 = -(x1 * yx + y1 * yy);
     
     pattern.SetTransform(xx, yx, xy, yy, x0, y0);
     
@@ -1276,12 +1276,9 @@ struct IPattern
   {
     IPattern pattern(kRadialPattern);
     
-    const float xx = 1.f / r;
-    const float yy = 1.f / r;
-    const float x0 = -(x1 * xx);
-    const float y0 = -(y1 * yy);
-    
-    pattern.SetTransform(xx, 0, 0, yy, x0, y0);
+    const double s = 1.f / r;
+
+    pattern.SetTransform(s, 0, 0, s, -(x1 * s), -(y1 * s));
     
     return pattern;
   }
