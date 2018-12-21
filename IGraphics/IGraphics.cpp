@@ -1432,20 +1432,20 @@ void IGraphics::StartLayer(const IRECT& r)
 
 ILayerPtr IGraphics::EndLayer()
 {
-    ILayer* pLayer = nullptr;
-    
-    if (!mLayers.empty())
-    {
-        pLayer = mLayers.top();
-        mLayers.pop();
-    }
-    
-    UpdateLayer();
-    PathTransformReset(true);
-    PathClipRegion();
-    PathClear();
-    
-    return ILayerPtr(pLayer);
+  ILayer* pLayer = nullptr;
+  
+  if (!mLayers.empty())
+  {
+    pLayer = mLayers.top();
+    mLayers.pop();
+  }
+  
+  UpdateLayer();
+  PathTransformReset(true);
+  PathClipRegion();
+  PathClear();
+  
+  return ILayerPtr(pLayer);
 }
 
 bool IGraphics::CheckLayer(const ILayerPtr& layer)
@@ -1456,10 +1456,10 @@ bool IGraphics::CheckLayer(const ILayerPtr& layer)
 
 void IGraphics::DrawLayer(const ILayerPtr& layer)
 {
-    PathTransformSave();
-    PathTransformReset();
-    IBitmap bitmap = layer->GetBitmap();
-    IRECT bounds = layer->Bounds();
-    DrawBitmap(bitmap, bounds, 0, 0);
-    PathTransformRestore();
+  PathTransformSave();
+  PathTransformReset();
+  IBitmap bitmap = layer->GetBitmap();
+  IRECT bounds = layer->Bounds();
+  DrawBitmap(bitmap, bounds, 0, 0);
+  PathTransformRestore();
 }
