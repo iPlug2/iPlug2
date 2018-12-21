@@ -142,7 +142,7 @@ void IGraphicsAGG::Rasterizer::RasterizePattern(agg::trans_affine transform, con
       
       if (pattern.mType == kLinearPattern)
       {
-        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_x(), gradientMTX, colorArray, AGGBlendMode(pBlend));
+        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_y(), gradientMTX, colorArray, AGGBlendMode(pBlend));
       }
       else
       {

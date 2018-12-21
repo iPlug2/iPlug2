@@ -1245,19 +1245,15 @@ struct IPattern
     
     const double xd = x2 - x1;
     const double yd = y2 - y1;
-    const double size = sqrt(xd * xd + yd * yd);
-    const double angle = -atan2(yd, xd);
-    const double sinV = sin(angle) / size;
-    const double cosV = cos(angle) / size;
+    const double d = sqrt(xd * xd + yd * yd);
+    const double a = atan2(xd, yd);
+    const double s = sin(a) / d;
+    const double c = cos(a) / d;
+      
+    const double x0 = -(x1 * c - y1 * s);
+    const double y0 = -(x1 * s + y1 * c);
     
-    const double xx = cosV;
-    const double yx = sinV;
-    const double xy = -sinV;
-    const double yy = cosV;
-    const double x0 = -(x1 * xx + y1 * xy);
-    const double y0 = -(x1 * yx + y1 * yy);
-    
-    pattern.SetTransform(xx, yx, xy, yy, x0, y0);
+    pattern.SetTransform(c, s, -s, c, x0, y0);
     
     return pattern;
   }
