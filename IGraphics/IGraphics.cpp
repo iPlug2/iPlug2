@@ -1450,8 +1450,8 @@ ILayerPtr IGraphics::EndLayer()
 
 bool IGraphics::CheckLayer(const ILayerPtr& layer)
 {
-  const APIBitmap* bitmap = layer ? layer->GetAPIBitmap() : nullptr;
-  return bitmap && !layer->mInvalid && (bitmap->GetDrawScale() != GetDrawScale()) && (bitmap->GetScale() != GetScreenScale());
+  const APIBitmap* pBitmap = layer ? layer->GetAPIBitmap() : nullptr;
+  return pBitmap && !layer->mInvalid && pBitmap->GetDrawScale() == GetDrawScale() && pBitmap->GetScale() == GetScreenScale();
 }
 
 void IGraphics::DrawLayer(const ILayerPtr& layer)
