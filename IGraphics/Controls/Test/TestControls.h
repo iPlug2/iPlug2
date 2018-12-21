@@ -11,6 +11,7 @@
 #include "TestArcControl.h"
 #include "TestDirBrowseControl.h"
 #include "TestGradientControl.h"
+#include "TestLayerControl.h"
 #include "TestMultiPathControl.h"
 #include "TestPolyControl.h"
 #include "TestTextControl.h"

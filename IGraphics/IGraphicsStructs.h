@@ -53,11 +53,6 @@ typedef std::chrono::duration<double, std::chrono::milliseconds::period> Millise
  * @{
  */
 
-/** APIBitmap is a wrapper around the different drawing backend bitmap representations.
- * In most cases it does own the bitmap data, the exception being with NanoVG, where the image is loaded onto the GPU as a texture,
- * but still needs to be freed
- */
-
 #ifdef IGRAPHICS_AGG
   #include "IGraphicsAGG_src.h"
   typedef agg::pixel_map* BitmapData;
@@ -77,19 +72,27 @@ typedef std::chrono::duration<double, std::chrono::milliseconds::period> Millise
   typedef LICE_IBitmap* BitmapData;
   class LICE_IFont;
 #elif defined IGRAPHICS_CANVAS
-  typedef void* BitmapData;
+  #include <emscripten.h>
+  #include <emscripten/val.h>
+typedef emscripten::val* BitmapData;
 #else // NO_IGRAPHICS
   typedef void* BitmapData;
 #endif
 
+/** APIBitmap is a wrapper around the different drawing backend bitmap representations.
+ * In most cases it does own the bitmap data, the exception being with NanoVG, where the image is loaded onto the GPU as a texture,
+ * but still needs to be freed
+ */
+
 class APIBitmap
 {
 public:
-  APIBitmap(BitmapData pBitmap, int w, int h, int s)
+  APIBitmap(BitmapData pBitmap, int w, int h, int s, float ds)
   : mBitmap(pBitmap)
   , mWidth(w)
   , mHeight(h)
   , mScale(s)
+  , mDrawScale(ds)
   {}
 
   APIBitmap()
@@ -97,28 +100,32 @@ public:
   , mWidth(0)
   , mHeight(0)
   , mScale(0)
+  , mDrawScale(1.f)
   {}
 
   virtual ~APIBitmap() {}
 
-  void SetBitmap(BitmapData pBitmap, int w, int h, int s)
+  void SetBitmap(BitmapData pBitmap, int w, int h, int s, float ds)
   {
     mBitmap = pBitmap;
     mWidth = w;
     mHeight = h;
     mScale = s;
+    mDrawScale = ds;
   }
 
   BitmapData GetBitmap() const { return mBitmap; }
   int GetWidth() const { return mWidth; }
   int GetHeight() const { return mHeight; }
   int GetScale() const { return mScale; }
+  float GetDrawScale() const { return mDrawScale; }
 
 private:
   BitmapData mBitmap; // for most drawing APIs BitmapData is a pointer. For Nanovg it is an integer index
   int mWidth;
   int mHeight;
   int mScale;
+  float mDrawScale;
 };
 
 /** IBitmap is IGraphics's bitmap abstraction that you use to manage bitmap data, independant of draw class/platform.
@@ -171,6 +178,9 @@ public:
   /** * @return the scale of the bitmap */
   inline int GetScale() const { return mAPIBitmap->GetScale(); }
 
+  /** * @return the draw scale of the bitmap */
+  inline float GetDrawScale() const { return mAPIBitmap->GetDrawScale(); }
+    
   /** * @return a pointer to the referenced APIBitmap */
   inline APIBitmap* GetAPIBitmap() const { return mAPIBitmap; }
 
@@ -859,7 +869,7 @@ struct IRECT
     return IRECT(l, t, r, b);
   }
 
-  void Translate(float l, float t, float r, float b)
+  void Alter(float l, float t, float r, float b)
   {
     L += l;
     T += t;
@@ -867,7 +877,12 @@ struct IRECT
     B += b;
   }
   
-  void Translate(float x, float y = 0.f)
+  IRECT GetAltered(float l, float t, float r, float b) const
+  {
+    return IRECT(L + l, T + t, R + r, B + b);
+  }
+  
+  void Translate(float x, float y)
   {
     L += x;
     T += y;
@@ -875,24 +890,19 @@ struct IRECT
     B += y;
   }
   
-  IRECT GetShifted(float x, float y = 0.f) const
+  IRECT GetTranslated(float x, float y) const
   {
     return IRECT(L + x, T + y, R + x, B + y);
   }
   
   IRECT GetHShifted(float x) const
   {
-    return GetShifted(x);
+    return GetTranslated(x, 0.f);
   }
   
   IRECT GetVShifted(float y) const
   {
-    return GetShifted(0., y);
-  }
-  
-  IRECT GetShifted(float l, float t, float r, float b) const
-  {
-    return IRECT(L + l, T + t, R + r, B + b);
+    return GetTranslated(0.f, y);
   }
   
   void ScaleBounds(float scale)
@@ -1133,9 +1143,9 @@ struct IMatrix
     return Transform(IMatrix(c, s, -s, c, 0.0, 0.0));
   }
   
-  IMatrix& Skew(float x, float y)
+  IMatrix& Skew(float xa, float ya)
   {
-    return Transform(IMatrix(1.0, std::tan(DegToRad(y)), std::tan(DegToRad(x)), 1.0, 0.0, 0.0));
+    return Transform(IMatrix(1.0, std::tan(DegToRad(ya)), std::tan(DegToRad(xa)), 1.0, 0.0, 0.0));
   }
   
   void TransformPoint(double& x, double& y, double x0, double y0)
@@ -1314,6 +1324,38 @@ struct IPattern
     mTransform = transform;
   }
 };
+
+/** ILayer is IGraphics's layer abstraction that you use to store temporary APIBitmap to draw with a specific offset to the interface. ILayers take ownership of the underlying bitmaps */
+
+class ILayer
+{
+  friend IGraphics;
+  
+public:
+  ILayer(APIBitmap* bitmap, IRECT r)
+  : mBitmap(bitmap)
+  , mRECT(r)
+  , mInvalid(false)
+  {}
+  
+  ILayer(const ILayer&) = delete;
+  ILayer operator =(const ILayer&) = delete;
+  
+  void Invalidate() { mInvalid = true; }
+  const APIBitmap* GetAPIBitmap() const { return mBitmap.get(); }
+  IBitmap GetBitmap() const { return IBitmap(mBitmap.get(), 1, false); }
+  const IRECT& Bounds() const { return mRECT; }
+  
+private:
+  
+  std::unique_ptr<APIBitmap> mBitmap;
+  IRECT mRECT;
+  bool mInvalid;
+};
+
+/** ILayerPtr is a manged pointer for transferring the ownership of layers */
+
+typedef std::unique_ptr<ILayer> ILayerPtr;
 
 // TODO: static storage needs thread safety mechanism
 template <class T>

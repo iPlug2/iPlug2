@@ -331,15 +331,13 @@ public:
       PathLineTo(x[i], y[i]);
     PathClose();
   }
-  
-  // FIX - make these overrides of IGraphics
     
-  void PathTransformSave()
+  void PathTransformSave() override
   {
     mTransformStates.push(mTransform);
   }
   
-  void PathTransformRestore()
+  void PathTransformRestore() override
   {
     if (!mTransformStates.empty())
     {
@@ -349,7 +347,7 @@ public:
     }
   }
   
-  void PathTransformReset(bool clearStates = false)
+  void PathTransformReset(bool clearStates = false) override
   {
     if (clearStates)
     {
@@ -361,38 +359,45 @@ public:
     PathTransformSetMatrix(mTransform);
   }
   
-  void PathTransformTranslate(float x, float y)
+  void PathTransformTranslate(float x, float y) override
   {
     mTransform.Translate(x, y);
     PathTransformSetMatrix(mTransform);
   }
   
-  void PathTransformScale(float scaleX, float scaleY)
+  void PathTransformScale(float scaleX, float scaleY) override
   {
     mTransform.Scale(scaleX, scaleY);
     PathTransformSetMatrix(mTransform);
   }
   
-  void PathTransformScale(float scale)
+  void PathTransformScale(float scale) override
   {
     PathTransformScale(scale, scale);
   }
   
-  void PathTransformRotate(float angle)
+  void PathTransformRotate(float angle) override
   {
     mTransform.Rotate(angle);
     PathTransformSetMatrix(mTransform);
   }
+    
+  void PathTransformSkew(float xAngle, float yAngle) override
+  {
+    mTransform.Skew(xAngle, yAngle);
+    PathTransformSetMatrix(mTransform);
+  }
 
-  void PathTransformMatrix(const IMatrix& matrix)
+  void PathTransformMatrix(const IMatrix& matrix) override
   {
     mTransform.Transform(matrix);
     PathTransformSetMatrix(mTransform);
   }
 
-  void PathClipRegion(const IRECT r = IRECT())
+  void PathClipRegion(const IRECT r = IRECT()) override
   {
-    IRECT clip = r.Intersect(mClipRECT);
+    IRECT drawArea = mLayers.empty() ? mClipRECT : mLayers.top()->Bounds();
+    IRECT clip = r.Intersect(drawArea);
     PathTransformSetMatrix(IMatrix());
     SetClipRegion(clip);
     PathTransformSetMatrix(mTransform);
@@ -529,9 +534,10 @@ private:
   
 private:
   
-  void ClipRegion(const IRECT& r) override
+  void PrepareRegion(const IRECT& r) override
   {
     PathTransformReset(true);
+    PathClear();
     SetClipRegion(r);
     mClipRECT = r;
   }

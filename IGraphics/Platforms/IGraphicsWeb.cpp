@@ -45,8 +45,8 @@ EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent
   x -= rect["left"].as<double>();
   y -= rect["top"].as<double>();
 
-  x /= pGraphics->GetScale();
-  y /= pGraphics->GetScale();
+  x /= pGraphics->GetDrawScale();
+  y /= pGraphics->GetDrawScale();
   
   switch (eventType) {
     case EMSCRIPTEN_EVENT_MOUSEUP: pGraphics->OnMouseUp(x, y, modifiers);
@@ -77,8 +77,8 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
   double x = pEvent->targetX;
   double y = pEvent->targetY;
   
-  x /= pGraphics->GetScale();
-  y /= pGraphics->GetScale();
+  x /= pGraphics->GetDrawScale();
+  y /= pGraphics->GetDrawScale();
   
   switch (eventType) {
     case EMSCRIPTEN_EVENT_CLICK: break;
@@ -121,8 +121,8 @@ EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* pEvent, void* 
   double x = pEvent->mouse.targetX;
   double y = pEvent->mouse.targetY;
   
-  x /= pGraphics->GetScale();
-  y /= pGraphics->GetScale();
+  x /= pGraphics->GetDrawScale();
+  y /= pGraphics->GetDrawScale();
   
   switch (eventType) {
     case EMSCRIPTEN_EVENT_WHEEL: pGraphics->OnMouseWheel(x, y, modifiers, pEvent->deltaY);
@@ -159,7 +159,7 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
 {
   OnViewInitialized(nullptr /* not used */);
 
-  SetDisplayScale(val::global("window")["devicePixelRatio"].as<int>());
+  SetScreenScale(val::global("window")["devicePixelRatio"].as<int>());
 
   GetDelegate()->LayoutUI(this);
   
@@ -343,11 +343,11 @@ void IGraphicsWeb::DrawResize()
 {
   val canvas = GetCanvas();
   
-  canvas["style"].set("width", val(Width() * GetScale()));
-  canvas["style"].set("height", val(Height() * GetScale()));
+  canvas["style"].set("width", val(Width() * GetDrawScale()));
+  canvas["style"].set("height", val(Height() * GetDrawScale()));
   
-  canvas.set("width", Width() * GetScale() * GetDisplayScale());
-  canvas.set("height", Height() * GetScale() * GetDisplayScale());
+  canvas.set("width", Width() * GetDrawScale() * GetScreenScale());
+  canvas.set("height", Height() * GetDrawScale() * GetScreenScale());
   
   IGRAPHICS_DRAW_CLASS::DrawResize();
 }

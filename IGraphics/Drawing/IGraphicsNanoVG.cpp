@@ -116,12 +116,36 @@ NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double source
 #endif
   nvgImageSize(mVG, idx, &w, &h);
   
-  SetBitmap(idx, w, h, sourceScale);
+  SetBitmap(idx, w, h, sourceScale, 1.f);
+}
+
+NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, int scale, float drawScale)
+{
+  mVG = pContext;
+  mFBO = nvgCreateFramebuffer(pContext, width, height, 0);
+  
+  nvgEndFrame(mVG);
+  nvgBindFramebuffer(mFBO);
+  
+#ifdef IGRAPHICS_METAL
+  mnvgClearWithColor(mVG, nvgRGBAf(0, 0, 0, 0));
+#else
+  glViewport(0, 0, width, height);
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+#endif
+  nvgBeginFrame(mVG, width, height, 1.f);
+  nvgEndFrame(mVG);
+  
+  SetBitmap(mFBO->image, width, height, scale, drawScale);
 }
 
 NanoVGBitmap::~NanoVGBitmap()
 {
-  nvgDeleteImage(mVG, GetBitmap());
+  if(mFBO)
+    nvgDeleteFramebuffer(mFBO);
+  else
+    nvgDeleteImage(mVG, GetBitmap());
 }
 
 #pragma mark -
@@ -216,8 +240,8 @@ const char* IGraphicsNanoVG::GetDrawingAPIStr()
 
 IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale)
 {
-  if(targetScale == 0)
-    targetScale = round(GetDisplayScale());
+  if (targetScale == 0)
+    targetScale = GetScreenScale();
   
   APIBitmap* pAPIBitmap = mBitmapCache.Find(name, targetScale);
   
@@ -242,6 +266,12 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
 APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
 {
   return new NanoVGBitmap(mVG, resourcePath.Get(), scale, GetPlatformInstance());
+}
+
+APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height)
+{
+  const double scale = GetDrawScale() * GetScreenScale();
+  return new NanoVGBitmap(mVG, width * scale, height * scale, GetScreenScale(), GetDrawScale());
 }
 
 void IGraphicsNanoVG::SetPlatformContext(void* pContext)
@@ -349,7 +379,7 @@ void IGraphicsNanoVG::DrawResize()
   if (mMainFrameBuffer != nullptr)
     nvgDeleteFramebuffer(mMainFrameBuffer);
   
-  mMainFrameBuffer = nvgCreateFramebuffer(mVG, WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale(), 0);
+  mMainFrameBuffer = nvgCreateFramebuffer(mVG, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale(), 0);
   
   if (mMainFrameBuffer == nullptr)
     DBGMSG("Could not init FBO.\n");
@@ -362,7 +392,7 @@ void IGraphicsNanoVG::BeginFrame()
 #ifdef IGRAPHICS_METAL
   //  mnvgClearWithColor(mVG, nvgRGBAf(0, 0, 0, 0));
 #else
-  glViewport(0, 0, WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
+  glViewport(0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   #ifdef OS_WEB
@@ -374,7 +404,7 @@ void IGraphicsNanoVG::BeginFrame()
 #endif
   
   nvgBindFramebuffer(mMainFrameBuffer); // begin main frame buffer update
-  nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetDisplayScale());
+  nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
 }
 
 void IGraphicsNanoVG::EndFrame()
@@ -382,7 +412,7 @@ void IGraphicsNanoVG::EndFrame()
   nvgEndFrame(mVG); // end main frame buffer update
   nvgBindFramebuffer(nullptr);
   
-  nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetDisplayScale());
+  nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
 
   NVGpaint img = nvgImagePattern(mVG, 0, 0, WindowWidth(), WindowHeight(), 0, mMainFrameBuffer->image, 1.0f);
   
@@ -405,7 +435,23 @@ void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, i
 {
   APIBitmap* pAPIBitmap = bitmap.GetAPIBitmap();
   
-  NVGpaint imgPaint = nvgImagePattern(mVG, std::round(dest.L) - srcX, std::round(dest.T) - srcY, bitmap.W(), bitmap.H(), 0.f, pAPIBitmap->GetBitmap(), BlendWeight(pBlend));
+  // First generate a scaled image paint
+    
+  NVGpaint imgPaint;
+  double scale = GetScreenScale() / (pAPIBitmap->GetScale() * pAPIBitmap->GetDrawScale());
+
+  nvgTransformScale(imgPaint.xform, scale, scale);
+
+  imgPaint.xform[4] = std::round(dest.L) - srcX;
+  imgPaint.xform[5] = std::round(dest.T) - srcY;
+  imgPaint.extent[0] = bitmap.W();
+  imgPaint.extent[1] = bitmap.H();
+  imgPaint.image = pAPIBitmap->GetBitmap();
+  imgPaint.radius = imgPaint.feather = 0.f;
+  imgPaint.innerColor = imgPaint.outerColor = nvgRGBAf(1, 1, 1, BlendWeight(pBlend));
+    
+  // Now draw
+    
   nvgBeginPath(mVG); // Clears any existing path
   nvgRect(mVG, dest.L, dest.T, dest.W(), dest.H());
   nvgFillPaint(mVG, imgPaint);
@@ -600,10 +646,45 @@ void IGraphicsNanoVG::DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, 
   nvgBeginPath(mVG); // Clear the paths
 }
 
+void IGraphicsNanoVG::UpdateLayer()
+{
+  if (mLayers.empty())
+  {
+    nvgEndFrame(mVG);
+#ifndef IGRAPHICS_METAL
+    glViewport(0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
+#endif
+    nvgBindFramebuffer(mMainFrameBuffer);
+    nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
+  }
+  else
+  {
+    nvgEndFrame(mVG);
+#ifndef IGRAPHICS_METAL
+    const double scale = GetDrawScale() * GetScreenScale();
+    glViewport(0, 0, mLayers.top()->Bounds().W() * scale, mLayers.top()->Bounds().H() * scale);
+#endif
+    nvgBindFramebuffer(dynamic_cast<const NanoVGBitmap*>(mLayers.top()->GetAPIBitmap())->GetFBO());
+    nvgBeginFrame(mVG, mLayers.top()->Bounds().W() * GetDrawScale(), mLayers.top()->Bounds().H() * GetDrawScale(), GetScreenScale());
+  }
+}
+
 void IGraphicsNanoVG::PathTransformSetMatrix(const IMatrix& m)
 {
+  double xTranslate = 0.0;
+  double yTranslate = 0.0;
+  
+  if (!mLayers.empty())
+  {
+    IRECT bounds = mLayers.top()->Bounds();
+    
+    xTranslate = -bounds.L;
+    yTranslate = -bounds.T;
+  }
+  
   nvgResetTransform(mVG);
-  nvgScale(mVG, GetScale(), GetScale());
+  nvgScale(mVG, GetDrawScale(), GetDrawScale());
+  nvgTranslate(mVG, xTranslate, yTranslate);
   nvgTransform(mVG, m.mXX, m.mYX, m.mXY, m.mYY, m.mTX, m.mTY);
 }
 

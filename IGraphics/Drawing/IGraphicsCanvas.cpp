@@ -27,9 +27,23 @@ static std::string CanvasColor(const IColor& color, float alpha = 1.0)
   return str.Get();
 }
 
-WebBitmap::WebBitmap(emscripten::val imageCanvas, const char* name, int scale)
+CanvasBitmap::CanvasBitmap(val imageCanvas, const char* name, int scale)
 {
-  SetBitmap(new RetainVal(imageCanvas), imageCanvas["width"].as<int>(), imageCanvas["height"].as<int>(), scale);
+  SetBitmap(new val(imageCanvas), imageCanvas["width"].as<int>(), imageCanvas["height"].as<int>(), scale, 1.f);
+}
+
+CanvasBitmap::CanvasBitmap(int width, int height, int scale, float drawScale)
+{
+  val canvas = val::global("document").call<val>("createElement", std::string("canvas"));
+  canvas.set("width", width);
+  canvas.set("height", height);
+
+  SetBitmap(new val(canvas), width, height, scale, drawScale);
+}
+
+CanvasBitmap::~CanvasBitmap()
+{
+  delete GetBitmap();
 }
 
 IGraphicsCanvas::IGraphicsCanvas(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
@@ -44,19 +58,16 @@ IGraphicsCanvas::~IGraphicsCanvas()
 void IGraphicsCanvas::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend)
 {
   val context = GetContext();
-  RetainVal* pRV = (RetainVal*) bitmap.GetAPIBitmap()->GetBitmap();
+  val img = *bitmap.GetAPIBitmap()->GetBitmap();
   GetContext().call<void>("save");
   SetCanvasBlendMode(pBlend);
   context.set("globalAlpha", BlendWeight(pBlend));
-  
-  const float ds = GetDisplayScale();
+    
+  const float bs = bitmap.GetScale();
   IRECT sr = bounds;
-  sr.Scale(ds);
-  
-  srcX *= ds;
-  srcY *= ds;
-  
-  context.call<void>("drawImage", pRV->mItem, srcX, srcY, sr.W(), sr.H(), floor(bounds.L), floor(bounds.T), floor(bounds.W()), floor(bounds.H()));
+  sr.Scale(bs * bitmap.GetDrawScale());
+
+  context.call<void>("drawImage", img, srcX * bs, srcY * bs, sr.W(), sr.H(), floor(bounds.L), floor(bounds.T), floor(bounds.W()), floor(bounds.H()));
   GetContext().call<void>("restore");
 }
 
@@ -266,8 +277,8 @@ bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
 
 void IGraphicsCanvas::PathTransformSetMatrix(const IMatrix& m)
 {
-  const double scale = GetScale() * GetDisplayScale();
-  IMatrix t = IMatrix().Scale(scale, scale).Transform(m);
+  const double scale = GetDrawScale() * GetScreenScale();
+  IMatrix t = IMatrix().Scale(scale, scale).Translate(XTranslate(), YTranslate()).Transform(m);
 
   GetContext().call<void>("setTransform", t.mXX, t.mYX, t.mYX, t.mYY, t.mTX, t.mTY);
 }
@@ -288,7 +299,7 @@ void IGraphicsCanvas::SetClipRegion(const IRECT& r)
 
 APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
 {
-  return new WebBitmap(GetPreloadedImages()[resourcePath.Get()], resourcePath.Get() + 1, scale);
+  return new CanvasBitmap(GetPreloadedImages()[resourcePath.Get()], resourcePath.Get() + 1, scale);
 }
 
 APIBitmap* IGraphicsCanvas::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
@@ -296,20 +307,20 @@ APIBitmap* IGraphicsCanvas::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 //  int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
 //  int destH = (pBitmap->GetHeight() / pBitmap->GetScale()) * scale;
 //
-//  RetainVal* imgSrc = (RetainVal*)pBitmap->GetBitmap();
+//  val imgSrc = *pBitmap->GetBitmap();
 //
 //  // Make an offscreen canvas and resize
 //  val documentHead = val::global("document")["head"];
 //  val canvas = GetCanvas();
 //  documentHead.call<val>("appendChild", canvas);
 //  val canvasNode = documentHead["lastChild"];
-//  val context = canvas.call<emscripten::val>("getContext", std::string("2d"));
+//  val context = canvas.call<val>("getContext", std::string("2d"));
 //  context.set("width", destW);
 //  context.set("height", destH);
 //
 //  // Scale and draw
 //  context.call<void>("scale", scale / pBitmap->GetScale(), scale / pBitmap->GetScale());
-//  context.call<void>("drawImage", imgSrc->mItem, 0, 0);
+//  context.call<void>("drawImage", imgSrc, 0, 0);
 //
 //  // Copy to an image
 //  val img = val::global("Image").new_();
@@ -318,5 +329,11 @@ APIBitmap* IGraphicsCanvas::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 //  // Delete the canvas
 //  documentHead.call<val>("removeChild", canvasNode);
 
-  return new WebBitmap(GetPreloadedImages()[""], "", scale);
+  return new CanvasBitmap(GetPreloadedImages()[""], "", scale);
+}
+
+APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height)
+{
+  const double scale = GetDrawScale() * GetScreenScale();
+  return new CanvasBitmap(width * scale, height * scale, GetScreenScale(), GetDrawScale());
 }
