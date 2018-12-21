@@ -203,7 +203,7 @@ NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend
   }
   else
   {
-    inverse.TransformPoint(e[0], e[1], 1.0, 0.0);
+    inverse.TransformPoint(e[0], e[1], 0.0, 1.0);
     
     return nvgLinearGradient(pContext, s[0], s[1], e[0], e[1], icol, ocol);
   }

@@ -1182,11 +1182,11 @@ struct IMatrix
     double d = 1.0 / (m.mXX * m.mYY - m.mYX * m.mXY);
     
     mXX =  m.mYY * d;
-    mYX = -m.mXY * d;
-    mXY = -m.mYX * d;
+    mYX = -m.mYX * d;
+    mXY = -m.mXY * d;
     mYY =  m.mXX * d;
-    mTX = (-m.mTX * m.mYY * d) - (m.mTY * -m.mXY * d);
-    mTY = (-m.mTX * m.mYX * d) - (m.mTY *  m.mXX * d);
+    mTX = (-(m.mTX * mXX) - (m.mTY * mXY));
+    mTY = (-(m.mTX * mYX) - (m.mTY * mYY));
     
     return *this;
   }
@@ -1235,21 +1235,17 @@ struct IPattern
     
     // Calculate the affine transform from one line segment to another!
     
-    const float xd = x2 - x1;
-    const float yd = y2 - y1;
-    const float size = sqrtf(xd * xd + yd * yd);
-    const float angle = -(atan2(yd, xd));
-    const float sinV = sinf(angle) / size;
-    const float cosV = cosf(angle) / size;
+    const double xd = x2 - x1;
+    const double yd = y2 - y1;
+    const double d = sqrt(xd * xd + yd * yd);
+    const double a = atan2(xd, yd);
+    const double s = sin(a) / d;
+    const double c = cos(a) / d;
+      
+    const double x0 = -(x1 * c - y1 * s);
+    const double y0 = -(x1 * s + y1 * c);
     
-    const float xx = cosV;
-    const float yx = sinV;
-    const float xy = -sinV;
-    const float yy = cosV;
-    const float x0 = -(x1 * xx + y1 * xy);
-    const float y0 = -(x1 * yx + y1 * yy);
-    
-    pattern.SetTransform(xx, yx, xy, yy, x0, y0);
+    pattern.SetTransform(c, s, -s, c, x0, y0);
     
     return pattern;
   }
@@ -1268,12 +1264,9 @@ struct IPattern
   {
     IPattern pattern(kRadialPattern);
     
-    const float xx = 1.f / r;
-    const float yy = 1.f / r;
-    const float x0 = -(x1 * xx);
-    const float y0 = -(y1 * yy);
-    
-    pattern.SetTransform(xx, 0, 0, yy, x0, y0);
+    const double s = 1.f / r;
+
+    pattern.SetTransform(s, 0, 0, s, -(x1 * s), -(y1 * s));
     
     return pattern;
   }
