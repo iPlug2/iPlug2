@@ -112,7 +112,7 @@ public:
    * @param bitmap The bitmap image to draw to the graphics context
    * @param bounds The rectangular region to draw the image in
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend = 0) {};//= 0;
+  virtual void DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend = 0) = 0;
   
   /** Draw a bitmap (raster) image to the graphics context with rotation
    * @param bitmap The bitmap image to draw to the graphics context
@@ -630,6 +630,8 @@ public:
    * @return \c true on success */
   virtual bool OSFindResource(const char* fileName, const char* type, WDL_String& result) = 0;
 
+  /** Get the bundle ID on macOS and iOS, returns emtpy string on other OSs */
+  virtual const char* GetBundleID() { return ""; }
 #pragma mark - IGraphics base implementation
   IGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.);
   virtual ~IGraphics();

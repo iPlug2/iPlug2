@@ -571,5 +571,9 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
     
     menuToAddTo = parentDirMenu;
   }
+  
+  if(!mShowEmptySubmenus)
+    parentDirMenu.RemoveEmptySubmenus();
+
 #endif
 }
