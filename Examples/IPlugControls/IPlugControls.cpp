@@ -3,6 +3,46 @@
 #include "IControls.h"
 #include "IPlugPaths.h"
 
+class FileBrowser : public IDirBrowseControlBase
+{
+private:
+  WDL_String mLabel;
+public:
+  FileBrowser(IGEditorDelegate& dlg, IRECT bounds)
+  : IDirBrowseControlBase(dlg, bounds, ".png")
+  {
+    WDL_String path;
+    path.Set(__FILE__);
+    path.remove_filepart();
+    path.Append("/resources/img/");
+    AddPath(path.Get(), "");
+    
+    mLabel.Set("Click here to browse png files...");
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    g.DrawText(mText, mLabel.Get(), mRECT);
+  }
+  
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    SetUpMenu();
+    
+    GetUI()->CreatePopupMenu(mMainMenu, x, y, this);
+  }
+  
+  void OnPopupMenuSelection(IPopupMenu* pSelectedMenu) override
+  {
+    if(pSelectedMenu)
+    {
+      IPopupMenu::Item* pItem = pSelectedMenu->GetChosenItem();
+      mLabel.Set(mFiles.Get(pItem->GetTag()));
+      SetDirty(false);
+    }
+  }
+};
+
 IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
 {
@@ -41,8 +81,9 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new ITextControl(*this, b.GetGridCell(0, 4, 1), "Bitmap Controls", bigLabel));
     pGraphics->AttachControl(new IBKnobControl(*this, b.GetGridCell(0, 4, 4).GetPadded(-5.), bitmap1, kGain));
     pGraphics->AttachControl(new IBKnobRotaterControl(*this, b.GetGridCell(1, 4, 4).GetPadded(-5.), bitmap2, kGain));
-    pGraphics->AttachControl(new IBSwitchControl(*this, b.GetGridCell(2, 4, 4), bitmap1));
-    pGraphics->AttachControl(new IBButtonControl(*this, b.GetGridCell(3, 4, 4), bitmap1));
+//    pGraphics->AttachControl(new IBSwitchControl(*this, b.GetGridCell(2, 4, 4), bitmap1));
+//    pGraphics->AttachControl(new IBButtonControl(*this, b.GetGridCell(3, 4, 4), bitmap1));
+    pGraphics->AttachControl(new FileBrowser(*this, b.GetGridCell(2, 4, 4)));
 
     pGraphics->AttachControl(new ITextControl(*this, b.GetGridCell(1, 4, 1), "Vector Controls", bigLabel));
     pGraphics->AttachControl(new IVKnobControl(*this, b.GetGridCell(4, 4, 4).GetCentredInside(100.), kGain));
