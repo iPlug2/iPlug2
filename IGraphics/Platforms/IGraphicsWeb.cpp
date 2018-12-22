@@ -225,12 +225,6 @@ bool IGraphicsWeb::GetTextFromClipboard(WDL_String& str)
   return true; // TODO: return?
 }
 
-#define MB_OK 0
-#define MB_OKCANCEL 1
-#define MB_YESNOCANCEL 3
-#define MB_YESNO 4
-#define MB_RETRYCANCEL 5
-
 int IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, int type)
 {
   switch (type)
