@@ -723,7 +723,7 @@ public:
 
   /** Gets the display scaling factor
     * @return The scale factor of the display on which this graphics context is currently located */
-  float GetScreenScale() const { return mScreenScale; }
+  int GetScreenScale() const { return mScreenScale; }
 
   /** Gets a pointer to the delegate class that handles communication to and from this graphics context.
    * @return pointer to the delegate */

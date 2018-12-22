@@ -258,6 +258,7 @@ void IGraphicsWeb::PromptForDirectory(WDL_String& path)
 
 void IGraphicsWeb::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
 {
+    ShowMessageBox("Warning", "Text entry not yet implemented", MB_OK);
 //  val input = val::global("document").call<val>("createElement", std::string("input"));
 //  
 //  val rect = GetCanvas().call<val>("getBoundingClientRect");
@@ -310,6 +311,8 @@ IPopupMenu* IGraphicsWeb::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds,
     return mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
   else
   {
+    ShowMessageBox("Warning", "Pop up menu not yet implemented", MB_OK);
+
 //    val sel = val::global("document").call<val>("createElement", std::string("select"));
 //    sel.set("id", "popup");
 //

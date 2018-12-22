@@ -1263,7 +1263,9 @@ NSVGimage* LoadSVGFromWinResource(HINSTANCE hInst, const char* resid)
   const void* pResourceData = LockResource(res);
   if (!pResourceData) return NULL;
 
-  return nsvgParse((char*)pResourceData, "px", 72);
+  WDL_String svgStr {static_cast<const char*>(pResourceData) };
+
+  return nsvgParse(svgStr.Get(), "px", 72);
 }
 #endif
 
@@ -1423,7 +1425,10 @@ void IGraphics::StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emb
 
 void IGraphics::StartLayer(const IRECT& r)
 {
-  mLayers.push(new ILayer(CreateAPIBitmap(r.W(), r.H()), r));
+  const int w = static_cast<int>(std::round( r.W() ));
+  const int h = static_cast<int>(std::round( r.H() ));
+
+  mLayers.push(new ILayer(CreateAPIBitmap(w, h), r));
   UpdateLayer();
   PathTransformReset(true);
   PathClipRegion(r);
