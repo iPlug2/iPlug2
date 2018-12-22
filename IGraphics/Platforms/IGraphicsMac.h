@@ -64,9 +64,6 @@ public:
 
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
 
-  //IGraphicsMac
-  void SetMousePosition(float x, float y);
-
 private:
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
   bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath);

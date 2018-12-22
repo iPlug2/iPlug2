@@ -712,17 +712,6 @@ void IGraphics::SetStrictDrawing(bool strict)
   SetAllControlsDirty();
 }
 
-//void IGraphics::MoveMouseCursor(float x, float y)
-//{
-//  // Call this with the window-relative coords after doing platform specifc cursor move
-//
-//  if (mMouseCapture >= 0)
-//  {
-//    //mMouseX = x;
-//    //mMouseY = y;
-//  }
-//}
-
 void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   Trace("IGraphics::OnMouseDown", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
