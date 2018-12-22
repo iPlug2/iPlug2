@@ -515,8 +515,8 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
     mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), WindowWidth(), WindowHeight());
     cairo_surface_set_device_scale(mSurface, GetDrawScale(), GetDrawScale());
 #elif defined OS_WIN
-    mSurface = cairo_win32_surface_create_with_ddb((HDC) pContext, CAIRO_FORMAT_ARGB32, Width(), Height());
-    cairo_surface_set_device_scale(mSurface, GetScreenScale(), GetScreenScale());
+    mSurface = cairo_win32_surface_create_with_ddb((HDC) pContext, CAIRO_FORMAT_ARGB32, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
+    cairo_surface_set_device_scale(mSurface, GetScreenScale() * GetDrawScale(), GetScreenScale() * GetDrawScale());
 #else
   #error NOT IMPLEMENTED
 #endif
@@ -543,12 +543,7 @@ void IGraphicsCairo::EndFrame()
   HWND hWnd = (HWND) GetWindow();
   HDC dc = BeginPaint(hWnd, &ps);
   HDC cdc = cairo_win32_surface_get_dc(mSurface);
-  
-  if (GetDrawScale() == 1.f)
-    BitBlt(dc, 0, 0, Width(), Height(), cdc, 0, 0, SRCCOPY);
-  else
-    StretchBlt(dc, 0, 0, WindowWidth(), WindowHeight(), cdc, 0, 0, Width(), Height(), SRCCOPY);
-
+  BitBlt(dc, 0, 0, WindowWidth(), WindowHeight(), cdc, 0, 0, SRCCOPY);
   EndPaint(hWnd, &ps);
 #else
 #error NOT IMPLEMENTED
