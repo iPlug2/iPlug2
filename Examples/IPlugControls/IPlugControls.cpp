@@ -7,11 +7,13 @@ class FileBrowser : public IDirBrowseControlBase
 {
 private:
   WDL_String mLabel;
+  IBitmap mBitmap;
 public:
   FileBrowser(IGEditorDelegate& dlg, IRECT bounds)
   : IDirBrowseControlBase(dlg, bounds, ".png")
   {
     WDL_String path;
+//    DesktopPath(path);
     path.Set(__FILE__);
     path.remove_filepart();
     path.Append("/resources/img/");
@@ -22,6 +24,10 @@ public:
   
   void Draw(IGraphics& g) override
   {
+    if(mBitmap.GetAPIBitmap())
+      g.DrawFittedBitmap(mBitmap, mRECT);
+    
+    g.FillRect(COLOR_WHITE, mRECT.GetMidVPadded(mText.mSize));
     g.DrawText(mText, mLabel.Get(), mRECT);
   }
   
@@ -37,7 +43,10 @@ public:
     if(pSelectedMenu)
     {
       IPopupMenu::Item* pItem = pSelectedMenu->GetChosenItem();
-      mLabel.Set(mFiles.Get(pItem->GetTag()));
+      WDL_String* pStr = mFiles.Get(pItem->GetTag());
+      mLabel.Set(pStr);
+      mBitmap = GetUI()->LoadBitmap(pStr->Get());
+      SetTooltip(pStr->Get());
       SetDirty(false);
     }
   }
@@ -64,6 +73,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->HandleMouseOver(true);
     pGraphics->AttachCornerResizer(kUIResizerScale, true);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
+    pGraphics->EnableTooltips(true);
     
     IRECT b = pGraphics->GetBounds().GetPadded(-5);
     
@@ -97,9 +107,9 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
       IVColorSpec spec;
       spec.mBGColor = COLOR_RED;
       
-      IGraphics* pGraphics = pCaller->GetUI();
+//      IGraphics* pGraphics = pCaller->GetUI();
       
-      pGraphics->StyleAllVectorControls(true, true, false, 10., 20., 3., spec);
+//      OhpGraphics->StyleAllVectorControls(true, true, false, 10., 20., 3., spec);
 
       DBGMSG("%i\n", pCaller->GetUI()->ShowMessageBox("Str", "Caption", MB_YESNO));
     };
