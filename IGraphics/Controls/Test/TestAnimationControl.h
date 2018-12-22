@@ -44,6 +44,7 @@ public:
   void Draw(IGraphics& g) override
   {
     g.FillRect(mDrawnColor, mDrawnRect);
+    g.DrawText(mText, "Click to animate", mRECT);
   }
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
