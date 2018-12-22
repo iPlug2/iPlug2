@@ -482,7 +482,7 @@ APIBitmap* IGraphicsLice::CreateAPIBitmap(int width, int height)
 {
   const int scale = GetScreenScale();
   LICE_IBitmap* pBitmap = new LICE_MemBitmap(width * scale, height * scale);
-  memset(pBitmap->getBits(), 0, pBitmap->getRowSpan() * pBitmap->getHeight());
+  memset(pBitmap->getBits(), 0, pBitmap->getRowSpan() * pBitmap->getHeight() * sizeof(LICE_pixel));
   return new LICEBitmap(pBitmap, scale);
 }
 
