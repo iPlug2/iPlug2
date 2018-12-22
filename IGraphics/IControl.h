@@ -1076,7 +1076,8 @@ private:
   void CollectSortedItems(IPopupMenu* pMenu);
   
 protected:
-  bool mShowFileExtensions = false;
+  bool mShowEmptySubmenus = false;
+  bool mShowFileExtensions = true;
   int mSelectedIndex = -1;
   IPopupMenu* mSelectedMenu = nullptr;
   IPopupMenu mMainMenu;

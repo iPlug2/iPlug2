@@ -239,12 +239,6 @@ bool IGraphicsWeb::GetTextFromClipboard(WDL_String& str)
   return true; // TODO: return?
 }
 
-#define MB_OK 0
-#define MB_OKCANCEL 1
-#define MB_YESNOCANCEL 3
-#define MB_YESNO 4
-#define MB_RETRYCANCEL 5
-
 int IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, int type)
 {
   switch (type)
@@ -278,6 +272,7 @@ void IGraphicsWeb::PromptForDirectory(WDL_String& path)
 
 void IGraphicsWeb::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
 {
+    ShowMessageBox("Warning", "Text entry not yet implemented", MB_OK);
 //  val input = val::global("document").call<val>("createElement", std::string("input"));
 //  
 //  val rect = GetCanvas().call<val>("getBoundingClientRect");
@@ -330,6 +325,8 @@ IPopupMenu* IGraphicsWeb::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds,
     return mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
   else
   {
+    ShowMessageBox("Warning", "Pop up menu not yet implemented", MB_OK);
+
 //    val sel = val::global("document").call<val>("createElement", std::string("select"));
 //    sel.set("id", "popup");
 //

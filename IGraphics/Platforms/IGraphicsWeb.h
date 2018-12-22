@@ -19,6 +19,12 @@
 
 #include "IGraphics_select.h"
 
+#define MB_OK 0
+#define MB_OKCANCEL 1
+#define MB_YESNOCANCEL 3
+#define MB_YESNO 4
+#define MB_RETRYCANCEL 5
+
 using namespace emscripten;
 
 static val GetCanvas()

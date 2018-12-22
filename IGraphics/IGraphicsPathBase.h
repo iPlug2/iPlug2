@@ -403,6 +403,16 @@ public:
     PathTransformSetMatrix(mTransform);
   }
   
+  void DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend) override
+  {
+    PathTransformSave();
+    PathTransformTranslate(bounds.L, bounds.T);
+    IRECT newBounds(0, 0, bitmap.W(), bitmap.H());
+    PathTransformScale(bounds.W() / bitmap.W(), bounds.H() / bitmap.H());
+    DrawBitmap(bitmap, newBounds, 0, 0, pBlend);
+    PathTransformRestore();
+  }
+  
   void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override
   {
     float xScale = dest.W() / svg.W();

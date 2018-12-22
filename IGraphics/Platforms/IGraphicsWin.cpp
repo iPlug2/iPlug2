@@ -925,51 +925,57 @@ IPopupMenu* IGraphicsWin::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds,
 {
   ReleaseMouseCapture();
 
-  long offsetIdx = 0;
-  HMENU hMenu = CreateMenu(menu, &offsetIdx);
-  IPopupMenu* result = nullptr;
-
-  if(hMenu)
+  if (mPopupControl)
+    return mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
+  else
   {
-    POINT cPos;
 
-    cPos.x = bounds.L * GetDrawScale();
-    cPos.y = bounds.B * GetDrawScale();
+    long offsetIdx = 0;
+    HMENU hMenu = CreateMenu(menu, &offsetIdx);
+    IPopupMenu* result = nullptr;
 
-    ::ClientToScreen(mPlugWnd, &cPos);
-
-    if (TrackPopupMenu(hMenu, TPM_LEFTALIGN, cPos.x, cPos.y, 0, mPlugWnd, 0))
+    if (hMenu)
     {
-      MSG msg;
-      if (PeekMessage(&msg, mPlugWnd, WM_COMMAND, WM_COMMAND, PM_REMOVE))
+      POINT cPos;
+
+      cPos.x = bounds.L * GetDrawScale();
+      cPos.y = bounds.B * GetDrawScale();
+
+      ::ClientToScreen(mPlugWnd, &cPos);
+
+      if (TrackPopupMenu(hMenu, TPM_LEFTALIGN, cPos.x, cPos.y, 0, mPlugWnd, 0))
       {
-        if (HIWORD(msg.wParam) == 0)
+        MSG msg;
+        if (PeekMessage(&msg, mPlugWnd, WM_COMMAND, WM_COMMAND, PM_REMOVE))
         {
-          long res = LOWORD(msg.wParam);
-          if (res != -1)
+          if (HIWORD(msg.wParam) == 0)
           {
-            long idx = 0;
-            offsetIdx = 0;
-            IPopupMenu* resultMenu = GetItemMenu(res, idx, offsetIdx, menu);
-            if(resultMenu)
+            long res = LOWORD(msg.wParam);
+            if (res != -1)
             {
-              result = resultMenu;
-              result->SetChosenItemIdx(idx);
+              long idx = 0;
+              offsetIdx = 0;
+              IPopupMenu* resultMenu = GetItemMenu(res, idx, offsetIdx, menu);
+              if (resultMenu)
+              {
+                result = resultMenu;
+                result->SetChosenItemIdx(idx);
+              }
             }
           }
         }
       }
-    }
-    DestroyMenu(hMenu);
+      DestroyMenu(hMenu);
 
-    RECT r = { 0, 0, WindowWidth(), WindowHeight() };
-    InvalidateRect(mPlugWnd, &r, FALSE);
+      RECT r = { 0, 0, WindowWidth(), WindowHeight() };
+      InvalidateRect(mPlugWnd, &r, FALSE);
+    }
+
+    if (pCaller)
+      pCaller->OnPopupMenuSelection(result);
+
+    return result;
   }
-  
-  if (pCaller)
-    pCaller->OnPopupMenuSelection(result);
-  
-  return result;
 }
 
 void IGraphicsWin::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
