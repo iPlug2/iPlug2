@@ -121,6 +121,11 @@ void IGraphicsLice::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, 
   LICE_Blit(mRenderBitmap, mTmpBitmap, r.L, r.T, r.L - x, r.T - y, r.R - r.L, r.B - r.T, BlendWeight(pBlend), LiceBlendMode(pBlend));
 }
 
+void IGraphicsLice::DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend)
+{
+  DrawText(DEFAULT_TEXT, "Not implemented", bounds);
+}
+
 void IGraphicsLice::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend)
 {
   LICE_PutPixel(mRenderBitmap, int(TransformX(x) + 0.5f), int(TransformY(y) + 0.5f), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend));
