@@ -933,8 +933,8 @@ IPopupMenu* IGraphicsWin::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds,
   {
     POINT cPos;
 
-    cPos.x = bounds.L;
-    cPos.y = bounds.B;
+    cPos.x = bounds.L * GetDrawScale();
+    cPos.y = bounds.B * GetDrawScale();
 
     ::ClientToScreen(mPlugWnd, &cPos);
 
@@ -987,8 +987,10 @@ void IGraphicsWin::CreateTextEntry(IControl& control, const IText& text, const I
     default:                  editStyle = ES_CENTER; break;
   }
 
+  IRECT scaledBounds = bounds.GetScaled(GetDrawScale());
+
   mParamEditWnd = CreateWindow("EDIT", str, ES_AUTOHSCROLL /*only works for left aligned text*/ | WS_CHILD | WS_VISIBLE | ES_MULTILINE | editStyle,
-    bounds.L, bounds.T, bounds.W()+1, bounds.H()+1,
+    scaledBounds.L, scaledBounds.T, scaledBounds.W()+1, scaledBounds.H()+1,
     mPlugWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
 
   HFONT font = CreateFont(text.mSize, 0, 0, 0, text.mStyle == IText::kStyleBold ? FW_BOLD : 0, text.mStyle == IText::kStyleItalic ? TRUE : 0, 0, 0, 0, 0, 0, 0, 0, text.mFont);
