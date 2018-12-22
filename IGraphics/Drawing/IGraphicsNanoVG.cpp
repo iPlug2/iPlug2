@@ -435,6 +435,7 @@ void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, i
 {
   APIBitmap* pAPIBitmap = bitmap.GetAPIBitmap();
   
+  assert(pAPIBitmap);
   // First generate a scaled image paint
     
   NVGpaint imgPaint;
