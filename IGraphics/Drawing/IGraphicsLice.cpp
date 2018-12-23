@@ -476,7 +476,7 @@ APIBitmap* IGraphicsLice::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
   int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
   int destH = (pBitmap->GetHeight() / pBitmap->GetScale()) * scale;
   
-  LICE_IBitmap* pSrc = (LICE_IBitmap*) pBitmap;
+  LICE_IBitmap* pSrc = pBitmap->GetBitmap();
   LICE_MemBitmap* pDest = new LICE_MemBitmap(destW, destH);
   LICE_ScaledBlit(pDest, pSrc, 0, 0, destW, destH, 0.0f, 0.0f, (float) pSrc->getWidth(), (float) pSrc->getHeight(), 1.0f, LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR);
   
