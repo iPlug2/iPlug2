@@ -258,7 +258,12 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       {
         float dX, dY;
         IMouseInfo info = pGraphics->GetMouseInfoDeltas(dX, dY, lParam, wParam);
-        pGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
+        if (dX || dY)
+        {
+          pGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
+          if (pGraphics->MouseCursorIsLocked())
+            pGraphics->MoveMouseCursor(pGraphics->mHiddenCursorX, pGraphics->mHiddenCursorY);
+        }
       }
 
       return 0;
@@ -599,32 +604,64 @@ void IGraphicsWin::PlatformResize()
   }
 }
 
-//void IGraphicsWin::HideMouseCursor(bool hide)
-//{
-  //if(hide)
-  //{
-  //  if (mCursorHidden)
-  //  {
-  //    SetCursorPos(mHiddenMousePointX, mHiddenMousePointY);
-  //    ShowCursor(true);
-  //    mCursorHidden = false;
-  //  }
-  //}
-  //else
-  //{
-  //  if (!mCursorHidden)
-  //  {
-  //    POINT p;
-  //    GetCursorPos(&p);
-  //    
-  //    mHiddenMousePointX = p.x;
-  //    mHiddenMousePointY = p.y;
-  //    
-  //    ShowCursor(false);
-  //    mCursorHidden = true;
-  //  }
-  //}
-//}
+void IGraphicsWin::HideMouseCursor(bool hide, bool lock)
+{
+  if (mCursorHidden == hide)
+    return;
+  
+  if (hide)
+  {
+    mHiddenCursorX = mCursorX;
+    mHiddenCursorY = mCursorY;
+      
+    ShowCursor(false);
+    mCursorHidden = true;
+    mCursorLock = lock && !mTabletInput;
+  }
+  else
+  {
+    if (mCursorLock)
+      MoveMouseCursor(mHiddenCursorX, mHiddenCursorY);
+
+    ShowCursor(true);
+    mCursorHidden = false;
+    mCursorLock = false;
+  }
+}
+
+void IGraphicsWin::MoveMouseCursor(float x, float y)
+{
+  if (mTabletInput)
+    return;
+ 
+  float scale = GetDrawScale() * GetScreenScale();
+    
+  POINT p;
+  p.x = std::round(x * scale);
+  p.y = std::round(y * scale);
+  
+  ClientToScreen((HWND)GetWindow(), &p);
+  
+  if (SetCursorPos(p.x, p.y))
+  {
+    GetCursorPos(&p);
+    ScreenToClient((HWND)GetWindow(), &p);
+    
+    mCursorX = p.x / scale;
+    mCursorY = p.y / scale;
+      
+    if (mCursorHidden && !mCursorLock)
+    {
+      mHiddenCursorX = p.x / scale;
+      mHiddenCursorY = p.y / scale;
+    }
+  }
+}
+
+bool IGraphicsWin::MouseCursorIsLocked()
+{
+    return mCursorLock;
+}
 
 int IGraphicsWin::ShowMessageBox(const char* text, const char* caption, int type)
 {

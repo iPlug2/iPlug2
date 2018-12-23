@@ -31,7 +31,9 @@ public:
 
   void PlatformResize() override;
 
-//  void HideMouseCursor(bool hide) override
+  void HideMouseCursor(bool hide, bool lock) override;
+  void MoveMouseCursor(float x, float y) override;
+  bool MouseCursorIsLocked();
 
   int ShowMessageBox(const char* str, const char* caption, int type) override;
 
@@ -98,6 +100,9 @@ private:
   IControl* mEdControl = nullptr;
   EParamEditMsg mParamEditMsg = kNone;
   bool mShowingTooltip = false;
+  bool mCursorLock = false;
+  float mHiddenCursorX;
+  float mHiddenCursorY;
   int mTooltipIdx = -1;
 
   WDL_String mMainWndClassName;
