@@ -70,7 +70,7 @@ public:
   * @return \c true if serialization was successful*/
   virtual bool SerializeEditorState(IByteChunk& chunk) { TRACE; return true; }
     
-  /** Override this method to unserialize editor custom state data
+  /** Override this method to unserialize custom editor state data
   * @param chunk The incoming chunk containing the state data.
   * @param startPos The position in the chunk where the data starts
   * @return The new chunk position (endPos)*/
