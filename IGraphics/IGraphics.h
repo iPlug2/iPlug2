@@ -196,7 +196,7 @@ public:
    * @param cRBL The bottom left corner radius in pixels
    * @param pBlend Optional blend method, see IBlend documentation
    * @param thickness Optional line thickness */
-  virtual void DrawRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend = 0, float thickness = 1.f) {} ;
+  virtual void DrawRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
   
   /** Draw an arc to the graphics context
    * @param color The color to draw the shape with
@@ -284,7 +284,7 @@ public:
    * @param cRBR The bottom right corner radius in pixels
    * @param cRBL The bottom left corner radius in pixels
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void FillRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend = 0) {} ;
+  virtual void FillRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend = 0) = 0;
   
   /** Fill a circle in the graphics context with a color
    * @param color The color to fill the shape with
