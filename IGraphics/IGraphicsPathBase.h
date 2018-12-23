@@ -463,7 +463,7 @@ private:
         // Copy Stops        
         for (int i = 0; i < pGrad->nstops; i++)
         {
-          int color = pGrad->stops[i].color;
+          unsigned int color = pGrad->stops[i].color;
           pattern.AddStop(IColor(255, (color >> 0) & 0xFF, (color >> 8) & 0xFF, (color >> 16) & 0xFF), pGrad->stops[i].offset);
         }
         
