@@ -985,11 +985,13 @@ protected:
   bool mTabletInput = false;
   float mCursorX = -1.f;
   float mCursorY = -1.f;
+    
+  // Order ToolTip / PopUp or TextEntry / LiveEdit / Corner / PerfDisplay
   ICornerResizerBase* mCornerResizer = nullptr;
   IPopupMenuControl* mPopupControl = nullptr;
   IPerfDisplayControl* mPerfDisplay = nullptr;
-  IControl* mKeyCatcher = nullptr;
   IControl* mLiveEdit = nullptr;
+  IControl* mKeyCatcher = nullptr;
 
   IPopupMenu mPromptPopupMenu;
 private:
@@ -1005,6 +1007,9 @@ private:
   template<typename T, typename... Args>
   void ForAllControls(T op, Args... args);
   
+  template<typename T, typename... Args>
+  void ForMatchingControls(T method, int paramIdx, Args... args);
+    
   int mWidth;
   int mHeight;
   int mFPS;

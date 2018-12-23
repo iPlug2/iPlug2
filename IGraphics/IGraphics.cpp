@@ -209,32 +209,12 @@ IControl* IGraphics::GetControlWithTag(int controlTag)
 
 void IGraphics::HideControl(int paramIdx, bool hide)
 {
-  int i, n = mControls.GetSize();
-  IControl** ppControl = mControls.GetList();
-  for (i = 0; i < n; ++i, ++ppControl)
-  {
-    IControl* pControl = *ppControl;
-    if (pControl->ParamIdx() == paramIdx)
-    {
-      pControl->Hide(hide);
-    }
-    // Could be more than one, don't break until we check them all.
-  }
+  ForMatchingControls(&IControl::Hide, paramIdx, hide);
 }
 
 void IGraphics::GrayOutControl(int paramIdx, bool gray)
 {
-  int i, n = mControls.GetSize();
-  IControl** ppControl = mControls.GetList();
-  for (i = 0; i < n; ++i, ++ppControl)
-  {
-    IControl* pControl = *ppControl;
-    if (pControl->ParamIdx() == paramIdx)
-    {
-      pControl->GrayOut(gray);
-    }
-    // Could be more than one, don't break until we check them all.
-  }
+  ForMatchingControls(&IControl::GrayOut, paramIdx, gray);
 }
 
 void IGraphics::ClampControl(int paramIdx, double lo, double hi, bool normalized)
@@ -250,17 +230,7 @@ void IGraphics::ClampControl(int paramIdx, double lo, double hi, bool normalized
     }
   }
 
-  int i, n = mControls.GetSize();
-  IControl** ppControl = mControls.GetList();
-  for (i = 0; i < n; ++i, ++ppControl)
-  {
-    IControl* pControl = *ppControl;
-    if (pControl->ParamIdx() == paramIdx)
-    {
-      pControl->Clamp(lo, hi);
-    }
-    // Could be more than one, don't break until we check them all.
-  }
+  ForMatchingControls(&IControl::Clamp, paramIdx, lo, hi);
 }
 
 void IGraphics::ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func)
@@ -298,25 +268,38 @@ void IGraphics::ForAllControls(T method, Args... args)
   int i, n = mControls.GetSize();
   IControl** ppControl = mControls.GetList();
   for (i = 0; i < n; ++i, ++ppControl)
-  {
     ((*ppControl)->*method)(args...);
+  
+  if (mCornerResizer)
+    (mCornerResizer->*method)(args...);
+  
+  if (mPerfDisplay)
+    (mPerfDisplay->*method)(args...);
+  
+  if (mLiveEdit)
+    (mLiveEdit->*method)(args...);
+}
+
+template<typename T, typename... Args>
+void IGraphics::ForMatchingControls(T method, int paramIdx, Args... args)
+{
+  int i, n = mControls.GetSize();
+  IControl** ppControl = mControls.GetList();
+  for (i = 0; i < n; ++i, ++ppControl)
+  {
+    if ((*ppControl)->ParamIdx() == paramIdx)
+      ((*ppControl)->*method)(args...);
   }
 }
 
 void IGraphics::SetAllControlsDirty()
 {
   ForAllControls(&IControl::SetDirty, false);
-  
-  if(mCornerResizer)
-    mCornerResizer->SetDirty();
 }
 
 void IGraphics::SetAllControlsClean()
 {
   ForAllControls(&IControl::SetClean);
-  
-  if(mCornerResizer)
-    mCornerResizer->SetClean();
 }
 
 void IGraphics::AssignParamNameToolTips()
@@ -798,13 +781,7 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
     // if scaling up we may want to load in high DPI bitmaps if scale > 1.
     if(GetResizerMode() == EUIResizerMode::kUIResizerScale)
     {
-      int i, n = mControls.GetSize();
-      IControl** ppControl = mControls.GetList();
-      for (i = 0; i < n; ++i, ++ppControl)
-      {
-        (*ppControl)->OnRescale();
-      }
-      
+      ForAllControls(&IControl::OnRescale);
       SetAllControlsDirty();
     }
     
@@ -1079,19 +1056,9 @@ int IGraphics::GetLastClickedParamForPTAutomation()
   return idx;
 }
 
-void IGraphics::SetPTParameterHighlight(int param, bool isHighlighted, int color)
+void IGraphics::SetPTParameterHighlight(int paramIdx, bool isHighlighted, int color)
 {
-  int i, n = mControls.GetSize();
-  IControl** ppControl = mControls.GetList();
-  for (i = 0; i < n; ++i, ++ppControl)
-  {
-    IControl* pControl = *ppControl;
-
-    if (pControl->ParamIdx() == param)
-    {
-      pControl->SetPTParameterHighlight(isHighlighted, color);
-    }
-  }
+  ForMatchingControls(&IControl::SetPTParameterHighlight, paramIdx, isHighlighted, color);
 }
 
 void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float x, float y)
