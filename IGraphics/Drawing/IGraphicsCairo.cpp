@@ -102,9 +102,9 @@ inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
   }
   switch (pBlend->mMethod)
   {
-    case kBlendClobber: return CAIRO_OPERATOR_OVER;
-    case kBlendAdd: return CAIRO_OPERATOR_ADD;
-    case kBlendColorDodge: return CAIRO_OPERATOR_COLOR_DODGE;
+    case kBlendClobber:     return CAIRO_OPERATOR_OVER;
+    case kBlendAdd:         return CAIRO_OPERATOR_ADD;
+    case kBlendColorDodge:  return CAIRO_OPERATOR_COLOR_DODGE;
     case kBlendNone:
     default:
       return CAIRO_OPERATOR_OVER; // TODO: is this correct - same as clobber?
