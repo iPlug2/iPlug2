@@ -358,8 +358,13 @@ void IGraphicsNanoVG::OnViewDestroyed()
   if(mMainFrameBuffer != nullptr)
     nvgDeleteFramebuffer(mMainFrameBuffer);
   
+  mMainFrameBuffer = nullptr;
+  
   if(mVG)
     nvgDeleteContext(mVG);
+  
+  mVG = nullptr;
+  
 #if defined OS_WIN
   if (mHGLRC)
   {
