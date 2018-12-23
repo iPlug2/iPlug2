@@ -166,12 +166,26 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
   return nullptr;
 }
 
-void IGraphicsWeb::HideMouseCursor(bool hide, bool returnToStartPos)
+void IGraphicsWeb::HideMouseCursor(bool hide, bool lock)
 {
-  if(hide)
-    val::global("document")["body"]["style"].set("cursor", std::string("none"));
+  if (hide)
+  {
+    if (lock)
+      emscripten_request_pointerlock("canvas", EM_FALSE);
+    else
+      val::global("document")["body"]["style"].set("cursor", std::string("none"));
+    
+    mCursorLock = lock;
+  }
   else
-    val::global("document")["body"]["style"].set("cursor", std::string("auto"));
+  {
+    if (mCursorLock)
+      emscripten_exit_pointerlock();
+    else
+      val::global("document")["body"]["style"].set("cursor", std::string("auto"));
+      
+    mCursorLock = false;
+  }
 }
 
 bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String& result)
