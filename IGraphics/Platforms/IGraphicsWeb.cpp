@@ -239,7 +239,7 @@ bool IGraphicsWeb::GetTextFromClipboard(WDL_String& str)
   return true; // TODO: return?
 }
 
-int IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, EMessageBoxOption type)
+int IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, EMessageBoxType type)
 {
   switch (type)
   {

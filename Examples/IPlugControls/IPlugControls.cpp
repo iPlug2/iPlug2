@@ -117,14 +117,6 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     
     auto button1action = [](IControl* pCaller) {
       FlashCircleClickActionFunc(pCaller);
-      
-      IVColorSpec spec;
-      spec.mBGColor = COLOR_RED;
-      
-//      IGraphics* pGraphics = pCaller->GetUI();
-      
-//      OhpGraphics->StyleAllVectorControls(true, true, false, 10., 20., 3., spec);
-
       int result = pCaller->GetUI()->ShowMessageBox("Message", "Title in Bold", kMB_YESNO);
       WDL_String str;
       str.SetFormatted(32, "%s pressed", kMessageResultStrs[result]);

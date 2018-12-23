@@ -626,7 +626,7 @@ void IGraphicsWin::PlatformResize()
   //}
 //}
 
-int IGraphicsWin::ShowMessageBox(const char* text, const char* caption, EMessageBoxOption type)
+int IGraphicsWin::ShowMessageBox(const char* text, const char* caption, EMessageBoxType type)
 {
   return MessageBox(GetMainWnd(), text, caption, (int) type);
 }

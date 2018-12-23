@@ -53,7 +53,7 @@ public:
   bool WindowIsOpen() override { return GetWindow(); } // TODO: ??
   bool GetTextFromClipboard(WDL_String& str) override;
   void UpdateTooltips() override {} // TODO:
-  int ShowMessageBox(const char* str, const char* caption, EMessageBoxOption type) override;
+  int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) override;
   
   IPopupMenu* CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   

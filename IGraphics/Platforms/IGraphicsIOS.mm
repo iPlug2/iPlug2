@@ -177,7 +177,7 @@ void IGraphicsIOS::PlatformResize()
   }
 }
 
-int IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, EMessageBoxOption type)
+int IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, EMessageBoxType type)
 {
   //TODO
   return 0;

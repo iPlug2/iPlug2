@@ -553,9 +553,9 @@ public:
   /** Pop up a modal platform message box dialog. NOTE: this method will block the main thread
    * @param str The text message to display in the dialogue
    * @param caption The title of the message box window \todo check
-   * @param type EMessageBoxOption describing the button options available \see EMessageBoxOption
+   * @param type EMessageBoxType describing the button options available \see EMessageBoxType
    * @return \todo check */
-  virtual int ShowMessageBox(const char* str, const char* caption, EMessageBoxOption type) = 0;
+  virtual int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) = 0;
 
   /** Create a platform text entry box
    * @param control The control that the text entry belongs to. If this control is linked to a parameter, the text entry will be configured with initial text matching the parameter value

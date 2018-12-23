@@ -168,7 +168,7 @@ enum ECursor
 };
 
 // This enumeration must match win32 message box options
-enum EMessageBoxOption
+enum EMessageBoxType
 {
   kMB_OK = 0,
   kMB_OKCANCEL = 1,
@@ -178,7 +178,7 @@ enum EMessageBoxOption
 };
 
 // This enumeration must match win32 message box results
-enum EMessageResult
+enum EMessageBoxResult
 {
   kOK = 1,
   kCANCEL = 2,
