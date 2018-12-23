@@ -76,7 +76,4 @@ public:
   
 protected:
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
-    
-private:
-  bool mCursorLock;
 };

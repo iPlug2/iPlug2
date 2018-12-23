@@ -982,6 +982,7 @@ protected:
   WDL_PtrList<IControl> mControls;
   void* mPlatformContext = nullptr;
   bool mCursorHidden = false;
+  bool mCursorLock = false;
   bool mTabletInput = false;
   float mCursorX = -1.f;
   float mCursorY = -1.f;

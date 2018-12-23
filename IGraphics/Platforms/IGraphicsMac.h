@@ -76,7 +76,6 @@ private:
 
   void* mView = nullptr;
   CGPoint mCursorLockPosition;
-  bool mCursorLock = false;
   WDL_String mBundleID;
   friend int GetMouseOver(IGraphicsMac* pGraphics);
 };

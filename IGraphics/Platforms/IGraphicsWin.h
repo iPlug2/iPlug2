@@ -102,7 +102,6 @@ private:
   IControl* mEdControl = nullptr;
   EParamEditMsg mParamEditMsg = kNone;
   bool mShowingTooltip = false;
-  bool mCursorLock = false;
   float mHiddenCursorX;
   float mHiddenCursorY;
   int mTooltipIdx = -1;
