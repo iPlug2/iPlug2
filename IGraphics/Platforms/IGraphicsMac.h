@@ -13,6 +13,7 @@
 #ifndef NO_IGRAPHICS
 
 #include "IGraphics_select.h"
+#include <CoreGraphics/CGGeometry.h>
 
 /** IGraphics platform class for macOS
 *   @ingroup PlatformClasses */
@@ -31,12 +32,15 @@ public:
   bool WindowIsOpen() override;
   void PlatformResize() override;
   
-  void ClientToScreen(float& x, float& y) override;
+  void PointToScreen(float& x, float& y);
+  void ScreenToPoint(float& x, float& y);
 
-  void HideMouseCursor(bool hide, bool returnToStartPosition) override;
+  void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override;
   void SetMouseCursor(ECursor cursor) override;
-
+    
+  void DoCursorLock(float x, float y, float& prevX, float& prevY);
+    
   int ShowMessageBox(const char* str, const char* caption, int type) override;
   void ForceEndUserEdit() override;
 
@@ -68,7 +72,11 @@ private:
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
   bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath);
   bool GetResourcePathFromUsersMusicFolder(const char* fileName, const char* searchExt, WDL_String& fullPath);
+  void StoreCursorPosition();
+
   void* mView = nullptr;
+  CGPoint mCursorLockPosition;
+  bool mCursorLock = false;
   WDL_String mBundleID;
   friend int GetMouseOver(IGraphicsMac* pGraphics);
 };

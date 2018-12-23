@@ -266,82 +266,100 @@ void IGraphicsMac::PlatformResize()
   }  
 }
 
-void IGraphicsMac::ClientToScreen(float& x, float& y)
+void IGraphicsMac::PointToScreen(float& x, float& y)
+{
+  if (mView)
+  {
+    x *= GetDrawScale();
+    y *= GetDrawScale();
+    NSWindow* pWindow = [(IGRAPHICS_VIEW*) mView window];
+    NSPoint wndpt = [(IGRAPHICS_VIEW*) mView convertPoint:NSMakePoint(x, y) toView:nil];
+    NSPoint pt = [pWindow convertRectToScreen: NSMakeRect(wndpt.x, wndpt.y, 0.0, 0.0)].origin;
+      
+    x = pt.x;
+    y = CGDisplayPixelsHigh(CGMainDisplayID()) - pt.y;
+  }
+}
+
+void IGraphicsMac::ScreenToPoint(float& x, float& y)
 {
   if (mView)
   {
     NSWindow* pWindow = [(IGRAPHICS_VIEW*) mView window];
-    NSPoint wndpt = [(IGRAPHICS_VIEW*) mView convertPoint:NSMakePoint(x, y) toView:nil];
-    NSPoint po = [pWindow convertBaseToScreen:wndpt];
-    
-    x = po.x;
-    y = CGDisplayPixelsHigh(CGMainDisplayID()) - po.y;
+    NSPoint wndpt = [pWindow convertRectFromScreen: NSMakeRect(x, y, 0.0, 0.0)].origin;
+    NSPoint pt = [(IGRAPHICS_VIEW*) mView convertPoint:NSMakePoint(wndpt.x, wndpt.y) fromView:nil];
+
+    x = pt.x / GetDrawScale();
+    y = pt.y / GetDrawScale();
   }
 }
 
-void IGraphicsMac::HideMouseCursor(bool hide, bool returnToStartPosition)
+void IGraphicsMac::HideMouseCursor(bool hide, bool lock)
 {
-  if(hide)
+  if (mCursorHidden == hide)
+    return;
+  
+  mCursorHidden = hide;
+  
+  if (hide)
   {
-    if (!mCursorHidden)
-    {
-      CGDisplayHideCursor(CGMainDisplayID());
-
-      if (returnToStartPosition)
-      {
-        CGAssociateMouseAndMouseCursorPosition(false);
-
-        NSPoint mouse = [NSEvent mouseLocation];
-        mCursorX = mouse.x;
-        mCursorY = CGDisplayPixelsHigh(CGMainDisplayID()) - mouse.y; // flipped
-      }
-      else
-      {
-        mCursorX = -1.f;
-        mCursorY = -1.f;
-      }
-
-      mCursorHidden = true;
-    }
+    StoreCursorPosition();
+    CGDisplayHideCursor(CGMainDisplayID());
+    mCursorLock = lock;
+    DoCursorLock(mCursorX, mCursorY, mCursorX, mCursorY);
+    StoreCursorPosition();
   }
   else
   {
-    if (mCursorHidden)
-    {
-      CGAssociateMouseAndMouseCursorPosition(true);
-
-      if ((mCursorX + mCursorY) > 0.f)
-      {
-        CGPoint point;
-        point.x = mCursorX;
-        point.y = mCursorY;
-        CGDisplayMoveCursorToPoint(CGMainDisplayID(), point);
-        mCursorX = -1.f;
-        mCursorY = -1.f;
-      }
-
-      CGDisplayShowCursor(CGMainDisplayID());
-    }
-
-    mCursorHidden = false;
+    DoCursorLock(mCursorX, mCursorY, mCursorX, mCursorY);
+    CGDisplayShowCursor(CGMainDisplayID());
+    mCursorLock = false;
   }
 }
 
 void IGraphicsMac::MoveMouseCursor(float x, float y)
 {
-  CGPoint point;
-  NSPoint mouse = [NSEvent mouseLocation];
-  double mouseY = CGDisplayPixelsHigh(CGMainDisplayID()) - mouse.y;
-  point.x = x / GetScreenScale() + (mouse.x - mCursorX / GetScreenScale());
-  point.y = y / GetScreenScale() + (mouseY - mCursorY / GetScreenScale());
-
-  if (!mTabletInput && CGDisplayMoveCursorToPoint(CGMainDisplayID(), point) == CGDisplayNoErr)
-  {
-    mCursorX = x;
-    mCursorY = y;
-  }
-
+  if (mTabletInput)
+    return;
+    
+  PointToScreen(x, y);
+  
+  CGPoint point{x, y};
+  CGAssociateMouseAndMouseCursorPosition(false);
+  CGDisplayMoveCursorToPoint(CGMainDisplayID(), point);
   CGAssociateMouseAndMouseCursorPosition(true);
+  StoreCursorPosition();
+}
+
+void IGraphicsMac::DoCursorLock(float x, float y, float& prevX, float& prevY)
+{
+  if (mCursorHidden && mCursorLock && !mTabletInput)
+  {
+    CGAssociateMouseAndMouseCursorPosition(false);
+    CGDisplayMoveCursorToPoint(CGMainDisplayID(), mCursorLockPosition);
+    CGAssociateMouseAndMouseCursorPosition(true);
+    prevX = mCursorX;
+    prevY = mCursorY;
+  }
+  else
+  {
+    mCursorX = prevX = x;
+    mCursorY = prevY = y;
+  }
+}
+
+void IGraphicsMac::StoreCursorPosition()
+{
+  // Get position in screen coordinates
+  NSPoint mouse = [NSEvent mouseLocation];
+  mouse.x = std::round(mouse.x);
+  mouse.y = std::round(CGDisplayPixelsHigh(CGMainDisplayID()) - mouse.y);
+  mCursorLockPosition = CGPoint{mouse.x, mouse.y};
+  
+  // Convert to IGraphics co-ordinates
+  mCursorX = mouse.x;
+  mCursorY = CGDisplayPixelsHigh(CGMainDisplayID()) - mouse.y;
+  ScreenToPoint(mCursorX, mCursorY);
 }
 
 int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, int type)

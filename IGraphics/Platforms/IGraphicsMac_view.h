@@ -104,7 +104,7 @@ NSString* ToNSString(const char* cStr);
 - (void) onTimer: (NSTimer*) pTimer;
 - (void) killTimer;
 //mouse
-- (void) getMouseXY: (NSEvent*) pEvent x: (float*) pX y: (float*) pY;
+- (void) getMouseXY: (NSEvent*) pEvent x: (float&) pX y: (float&) pY;
 - (IMouseInfo) getMouseLeft: (NSEvent*) pEvent;
 - (IMouseInfo) getMouseRight: (NSEvent*) pEvent;
 - (void) mouseDown: (NSEvent*) pEvent;

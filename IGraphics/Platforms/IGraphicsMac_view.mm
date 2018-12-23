@@ -419,18 +419,15 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   }
 }
 
-- (void) getMouseXY: (NSEvent*) pEvent x: (float*) pX y: (float*) pY
+- (void) getMouseXY: (NSEvent*) pEvent x: (float&) pX y: (float&) pY
 {
   if (mGraphics)
   {
     NSPoint pt = [self convertPoint:[pEvent locationInWindow] fromView:nil];
-    // TODO - fix or remove these values!!
-    *pX = pt.x / mGraphics->GetDrawScale();//- 2.f;
-    *pY = pt.y / mGraphics->GetDrawScale();//- 3.f;
-    mPrevX = *pX;
-    mPrevY = *pY;
-
-    // Detect tablet input correctly
+    pX = pt.x / mGraphics->GetDrawScale();
+    pY = pt.y / mGraphics->GetDrawScale();
+   
+    mGraphics->DoCursorLock(pX, pY, mPrevX, mPrevY);
     mGraphics->SetTabletInput(pEvent.subtype == NSTabletPointEventSubtype);
   }
 }
@@ -438,7 +435,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 - (IMouseInfo) getMouseLeft: (NSEvent*) pEvent
 {
   IMouseInfo info;
-  [self getMouseXY:pEvent x:&info.x y:&info.y];
+  [self getMouseXY:pEvent x:info.x y:info.y];
   int mods = (int) [pEvent modifierFlags];
   info.ms = IMouseMod(true, (mods & NSCommandKeyMask), (mods & NSShiftKeyMask), (mods & NSControlKeyMask), (mods & NSAlternateKeyMask));
 
@@ -448,7 +445,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 - (IMouseInfo) getMouseRight: (NSEvent*) pEvent
 {
   IMouseInfo info;
-  [self getMouseXY:pEvent x:&info.x y:&info.y];
+  [self getMouseXY:pEvent x:info.x y:info.y];
   int mods = (int) [pEvent modifierFlags];
   info.ms = IMouseMod(false, true, (mods & NSShiftKeyMask), (mods & NSControlKeyMask), (mods & NSAlternateKeyMask));
 
@@ -480,11 +477,12 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void) mouseDragged: (NSEvent*) pEvent
 {
+  // Cache previous values before retrieving the new mouse position (which will update them)
+  float prevX = mPrevX;
+  float prevY = mPrevY;
   IMouseInfo info = [self getMouseLeft:pEvent];
-  float dX = [pEvent deltaX];
-  float dY = [pEvent deltaY];
   if (mGraphics && !mTextFieldView)
-    mGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
+    mGraphics->OnMouseDrag(info.x, info.y, info.x - prevX, info.y - prevY, info.ms);
 }
 
 - (void) rightMouseDown: (NSEvent*) pEvent
@@ -503,11 +501,13 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void) rightMouseDragged: (NSEvent*) pEvent
 {
+  // Cache previous values before retrieving the new mouse position (which will update them)
+  float prevX = mPrevX;
+  float prevY = mPrevY;
   IMouseInfo info = [self getMouseRight:pEvent];
-  float dX = [pEvent deltaX];
-  float dY = [pEvent deltaY];
+
   if (mGraphics && !mTextFieldView)
-    mGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
+    mGraphics->OnMouseDrag(info.x, info.y, info.x - prevX, info.y - prevY, info.ms);
 }
 
 - (void) mouseMoved: (NSEvent*) pEvent
