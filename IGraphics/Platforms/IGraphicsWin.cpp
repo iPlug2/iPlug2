@@ -658,7 +658,7 @@ void IGraphicsWin::MoveMouseCursor(float x, float y)
   p.x = std::round(x * scale);
   p.y = std::round(y * scale);
   
-  ClientToScreen((HWND)GetWindow(), &p);
+  ::ClientToScreen((HWND)GetWindow(), &p);
   
   if (SetCursorPos(p.x, p.y))
   {
@@ -984,7 +984,6 @@ IPopupMenu* IGraphicsWin::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds,
     return mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
   else
   {
-
     long offsetIdx = 0;
     HMENU hMenu = CreateMenu(menu, &offsetIdx);
     IPopupMenu* result = nullptr;
