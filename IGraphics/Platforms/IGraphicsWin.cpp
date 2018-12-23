@@ -678,7 +678,7 @@ void IGraphicsWin::MoveMouseCursor(float x, float y)
 
 bool IGraphicsWin::MouseCursorIsLocked()
 {
-    return mCursorLock;
+  return mCursorLock;
 }
 
 int IGraphicsWin::ShowMessageBox(const char* text, const char* caption, int type)
