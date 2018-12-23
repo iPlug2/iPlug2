@@ -433,17 +433,18 @@ void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, i
   APIBitmap* pAPIBitmap = bitmap.GetAPIBitmap();
   
   assert(pAPIBitmap);
+    
   // First generate a scaled image paint
     
   NVGpaint imgPaint;
-  double scale = GetScreenScale() / (pAPIBitmap->GetScale() * pAPIBitmap->GetDrawScale());
+  double scale = 1.0 / (pAPIBitmap->GetScale() * pAPIBitmap->GetDrawScale());
 
   nvgTransformScale(imgPaint.xform, scale, scale);
 
   imgPaint.xform[4] = std::round(dest.L) - srcX;
   imgPaint.xform[5] = std::round(dest.T) - srcY;
-  imgPaint.extent[0] = bitmap.W();
-  imgPaint.extent[1] = bitmap.H();
+  imgPaint.extent[0] = bitmap.W() * bitmap.GetScale();
+  imgPaint.extent[1] = bitmap.H() * bitmap.GetScale();
   imgPaint.image = pAPIBitmap->GetBitmap();
   imgPaint.radius = imgPaint.feather = 0.f;
   imgPaint.innerColor = imgPaint.outerColor = nvgRGBAf(1, 1, 1, BlendWeight(pBlend));
