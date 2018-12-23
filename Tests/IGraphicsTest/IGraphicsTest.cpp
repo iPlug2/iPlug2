@@ -45,7 +45,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     int cellIdx = 0;
     
     auto nextCell = [&](){
-      return bounds.GetGridCell(cellIdx++, 4, 6).GetPadded(-5.);
+      return bounds.GetPadded(-10).GetGridCell(cellIdx++, 4, 6).GetPadded(-5.);
     };
     
     pGraphics->AttachPanelBackground(COLOR_GRAY);
