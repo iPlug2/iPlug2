@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
 
@@ -60,12 +54,12 @@ public:
   // Linear shape structs
   struct ShapeLinear : public Shape
   {
-      Shape* Clone() const override { return new ShapeLinear(); };
-      IParam::EDisplayType GetDisplayType() const override { return kDisplayLinear; }
-      double NormalizedToValue(double value, const IParam& param) const override;
-      double ValueToNormalized(double value, const IParam& param) const override;
-    
-      double mShape;
+    Shape* Clone() const override { return new ShapeLinear(); };
+    IParam::EDisplayType GetDisplayType() const override { return kDisplayLinear; }
+    double NormalizedToValue(double value, const IParam& param) const override;
+    double ValueToNormalized(double value, const IParam& param) const override;
+  
+    double mShape;
   };
   
   // Non-linear shape structs
@@ -187,7 +181,7 @@ public:
   bool GetMeta() const { return mFlags & kFlagMeta; }
 
   void GetJSON(WDL_String& json, int idx) const;
-
+  void PrintDetails() const;
 private:
   struct DisplayText
   {

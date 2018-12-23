@@ -17,6 +17,24 @@ sys.path.insert(0, projectpath + '/../../scripts/')
 from parse_config import parse_config, parse_xcconfig
 
 def main():
+  if(len(sys.argv) == 2):
+     if(sys.argv[1] == "app"):
+       print "Copying resources ..."
+     
+       dst = os.environ["TARGET_BUILD_DIR"] + "/" + os.environ["UNLOCALIZED_RESOURCES_FOLDER_PATH"]
+          
+       if os.path.exists(projectpath + "/resources/img/"):
+         imgs = os.listdir(projectpath + "/resources/img/")
+         for img in imgs:
+           print "copying " + img + " to " + dst
+           shutil.copy(projectpath + "/resources/img/" + img, dst)
+     
+       if os.path.exists(projectpath + "/resources/fonts/"):
+         fonts = os.listdir(projectpath + "/resources/fonts/")
+         for font in fonts:
+           print "copying " + font + " to " + dst
+           shutil.copy(projectpath + "/resources/fonts/" + font, dst)
+
   config = parse_config(projectpath)
   xcconfig = parse_xcconfig(projectpath + '/../../common-ios.xcconfig')
 
@@ -30,14 +48,15 @@ def main():
 
 # AUDIOUNIT v3
 
-  if config['PLUG_IS_INSTRUMENT']:
+  if config['PLUG_TYPE'] == 0:
+    if config['PLUG_DOES_MIDI_IN']:
+      COMPONENT_TYPE = kAudioUnitType_MusicEffect
+    else:
+      COMPONENT_TYPE = kAudioUnitType_Effect
+  elif config['PLUG_TYPE'] == 1:
     COMPONENT_TYPE = kAudioUnitType_MusicDevice
-  elif config['PLUG_IS_MFX']:
+  elif config['PLUG_TYPE'] == 2:
     COMPONENT_TYPE = kAudioUnitType_MIDIProcessor
-  elif config['PLUG_DOES_MIDI']:
-    COMPONENT_TYPE = kAudioUnitType_MusicEffect
-  else:
-    COMPONENT_TYPE = kAudioUnitType_Effect
 
   NSEXTENSIONPOINTIDENTIFIER  = "com.apple.AudioUnit-UI"
 
@@ -65,7 +84,7 @@ def main():
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['sandboxSafe'] = True
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['tags'] = [{}]
 
-  if config['PLUG_IS_INSTRUMENT']:
+  if config['PLUG_TYPE'] == 1:
     auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['tags'][0] = "Synth"
   else:
     auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['tags'][0] = "Effects"

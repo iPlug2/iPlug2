@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 #include "IControl.h"
@@ -8,6 +18,7 @@ public:
   TestDrawContextControl(IGEditorDelegate& dlg, IRECT bounds)
   : IControl(dlg, bounds)
   {
+    SetTooltip("TestDrawContextControl");
   }
 
   void Draw(IGraphics& g) override
@@ -28,10 +39,10 @@ public:
 #elif defined IGRAPHICS_LICE
 #elif defined IGRAPHICS_CAIRO
     cairo_t* cr = (cairo_t*) g.GetDrawContext();
-    
+
     cairo_save(cr);
     cairo_translate(cr, r1.MW(), r1.MH());
-    cairo_rotate(cr, DegToRad(30));
+    cairo_rotate(cr, DegToRad(30.f));
     cairo_translate(cr, -r1.MW(), -r1.MH());
     cairo_new_path(cr);
     cairo_set_source_rgba(cr, 1.f, 0.f, 0.f, 1.f);

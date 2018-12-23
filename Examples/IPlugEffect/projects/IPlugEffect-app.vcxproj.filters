@@ -47,9 +47,6 @@
     <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\Extras\MidiSynth.cpp">
-      <Filter>IPlug\Extras</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP.cpp">
       <Filter>IPlug\APP</Filter>
     </ClCompile>
@@ -200,9 +197,6 @@
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_src.h">
       <Filter>IPlug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\Extras\MidiSynth.h">
-      <Filter>IPlug\Extras</Filter>
-    </ClInclude>
     <ClInclude Include="../config.h" />
     <ClInclude Include="..\..\..\IPlug\APP\IPlugAPP.h">
       <Filter>IPlug\APP</Filter>
@@ -293,9 +287,6 @@
     <Filter Include="IPlug">
       <UniqueIdentifier>{3bd7f71b-e8ed-4d62-8e22-06c09c5c15a1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="IPlug\Extras">
-      <UniqueIdentifier>{e08ee237-fc5e-4c2b-aa7f-3797cdf9bf34}</UniqueIdentifier>
-    </Filter>
     <Filter Include="IPlug\APP">
       <UniqueIdentifier>{13b3737b-7ecf-435c-8da0-08ccf8e2fb84}</UniqueIdentifier>
     </Filter>
@@ -322,7 +313,7 @@
       <Filter>config</Filter>
     </None>
     <None Include="..\config\IPlugEffect-win.props">
-      <Filter>IGraphics</Filter>
+      <Filter>config</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

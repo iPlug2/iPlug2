@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 #include "IPlugEditorDelegate.h"
@@ -24,9 +34,7 @@ public:
   virtual void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize = 0, const void* pData = nullptr) override;
   virtual void SendMidiMsgFromDelegate(const IMidiMsg& msg) override;
   void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
-  /** If you override this method you should call this parent, or implement the same functionality in order to get controls to update, when state is restored. */
-  virtual void OnRestoreState() override;
-  
+
   /** If you override this method you must call the parent! */
   virtual void OnUIOpen() override;
 
@@ -36,12 +44,27 @@ public:
   void AttachGraphics(IGraphics* pGraphics);
   
   /** Only override this method if you want to create IGraphics on demand (when UI window opens)! Implementation should return result of MakeGraphics() */
-  virtual IGraphics* CreateGraphics() { return nullptr; }
+  virtual IGraphics* CreateGraphics()
+  {
+    if(mMakeGraphicsFunc)
+      return mMakeGraphicsFunc();
+    else
+      return nullptr;
+  }
   
-  /** Only override this method if you want to create IGraphics on demand (when UI window opens)! */
-  virtual void LayoutUI(IGraphics* pGraphics) {};
+  /** Only override this method if you want to create IGraphics on demand (when UI window opens), or layout controls differently for different UI sizes */
+  virtual void LayoutUI(IGraphics* pGraphics)
+  {
+    if(mLayoutFunc)
+      mLayoutFunc(pGraphics);
+  }
   
-  IGraphics* GetUI();
+  /** Get a pointer to the IGraphics context */
+  IGraphics* GetUI() { return mGraphics; };
+  
+protected:
+  std::function<IGraphics*()> mMakeGraphicsFunc = nullptr;
+  std::function<void(IGraphics* pGraphics)> mLayoutFunc = nullptr;
 private:
   IGraphics* mGraphics = nullptr;
   bool mIGraphicsTransient = false; // If creating IGraphics on demand this will be true

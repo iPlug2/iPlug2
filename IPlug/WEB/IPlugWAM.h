@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #ifndef _IPLUGAPI_
 #define _IPLUGAPI_
@@ -52,7 +46,7 @@ public:
   //IPlugProcessor
   void SetLatency(int samples) override {};
   bool SendMidiMsg(const IMidiMsg& msg) override { return false; }
-  bool SendSysEx(ISysEx& msg) override { return false; }
+  bool SendSysEx(const ISysEx& msg) override { return false; }
   
   //IEditorDelegate - these are overwritten because we need to use WAM messaging system
   void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;

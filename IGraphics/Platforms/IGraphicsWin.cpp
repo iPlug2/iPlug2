@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 
 #include <Shlobj.h>
 #include <Shlwapi.h>
@@ -64,8 +74,8 @@ void GetKnownFolder(WDL_String &path, int identifier, int flags = 0)
 inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 {
   IMouseInfo info;
-  info.x = mCursorX = GET_X_LPARAM(lParam) / GetScale();
-  info.y = mCursorY = GET_Y_LPARAM(lParam) / GetScale();
+  info.x = mCursorX = GET_X_LPARAM(lParam) / GetDrawScale();
+  info.y = mCursorY = GET_Y_LPARAM(lParam) / GetDrawScale();
   info.ms = IMouseMod((wParam & MK_LBUTTON), (wParam & MK_RBUTTON), (wParam & MK_SHIFT), (wParam & MK_CONTROL),
 #ifdef AAX_API
     GetAsyncKeyState(VK_MENU) < 0
@@ -182,7 +192,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         {
           pGraphics->SetAllControlsClean();
           IRECT dirtyR = rects.Bounds();
-          dirtyR.ScaleBounds(pGraphics->GetScale());
+          dirtyR.ScaleBounds(pGraphics->GetDrawScale());
           RECT r = { (LONG) dirtyR.L, (LONG) dirtyR.T, (LONG) dirtyR.R, (LONG) dirtyR.B };
 
           InvalidateRect(hWnd, &r, FALSE);
@@ -190,7 +200,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           if (pGraphics->mParamEditWnd)
           {
             IRECT notDirtyR = pGraphics->mEdControl->GetRECT();
-            notDirtyR.ScaleBounds(pGraphics->GetScale());
+            notDirtyR.ScaleBounds(pGraphics->GetDrawScale());
             RECT r2 = { (LONG) notDirtyR.L, (LONG) notDirtyR.T, (LONG) notDirtyR.R, (LONG) notDirtyR.B };
             ValidateRect(hWnd, &r2); // make sure we dont redraw the edit box area
             UpdateWindow(hWnd);
@@ -348,7 +358,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         #endif
         IRECT ir(r.left, r.top, r.right, r.bottom);
         IRECTList rects;
-        ir.ScaleBounds(1. / pGraphics->GetScale());
+        ir.ScaleBounds(1. / pGraphics->GetDrawScale());
         rects.Add(ir);
         pGraphics->Draw(rects);
         #ifdef IGRAPHICS_NANOVG
@@ -653,7 +663,7 @@ void* IGraphicsWin::OpenWindow(void* pParent)
 
   OnViewInitialized((void*) dc);
   
-  SetDisplayScale(1); // CHECK!
+  SetScreenScale(1); // CHECK!
 
   GetDelegate()->LayoutUI(this);
 
@@ -919,45 +929,53 @@ IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
 
   if(hMenu)
   {
-    POINT cPos;
 
-    cPos.x = bounds.L;
-    cPos.y = bounds.B;
+    long offsetIdx = 0;
+    HMENU hMenu = CreateMenu(menu, &offsetIdx);
+    IPopupMenu* result = nullptr;
 
-    ::ClientToScreen(mPlugWnd, &cPos);
-
-    if (TrackPopupMenu(hMenu, TPM_LEFTALIGN, cPos.x, cPos.y, 0, mPlugWnd, 0))
+    if (hMenu)
     {
-      MSG msg;
-      if (PeekMessage(&msg, mPlugWnd, WM_COMMAND, WM_COMMAND, PM_REMOVE))
+      POINT cPos;
+
+      cPos.x = bounds.L * GetDrawScale();
+      cPos.y = bounds.B * GetDrawScale();
+
+      ::ClientToScreen(mPlugWnd, &cPos);
+
+      if (TrackPopupMenu(hMenu, TPM_LEFTALIGN, cPos.x, cPos.y, 0, mPlugWnd, 0))
       {
-        if (HIWORD(msg.wParam) == 0)
+        MSG msg;
+        if (PeekMessage(&msg, mPlugWnd, WM_COMMAND, WM_COMMAND, PM_REMOVE))
         {
-          long res = LOWORD(msg.wParam);
-          if (res != -1)
+          if (HIWORD(msg.wParam) == 0)
           {
-            long idx = 0;
-            offsetIdx = 0;
-            IPopupMenu* resultMenu = GetItemMenu(res, idx, offsetIdx, menu);
-            if(resultMenu)
+            long res = LOWORD(msg.wParam);
+            if (res != -1)
             {
-              result = resultMenu;
-              result->SetChosenItemIdx(idx);
+              long idx = 0;
+              offsetIdx = 0;
+              IPopupMenu* resultMenu = GetItemMenu(res, idx, offsetIdx, menu);
+              if (resultMenu)
+              {
+                result = resultMenu;
+                result->SetChosenItemIdx(idx);
+              }
             }
           }
         }
       }
-    }
-    DestroyMenu(hMenu);
+      DestroyMenu(hMenu);
 
-    RECT r = { 0, 0, WindowWidth(), WindowHeight() };
-    InvalidateRect(mPlugWnd, &r, FALSE);
+      RECT r = { 0, 0, WindowWidth(), WindowHeight() };
+      InvalidateRect(mPlugWnd, &r, FALSE);
+    }
+
+    if (pCaller)
+      pCaller->OnPopupMenuSelection(result);
+
+    return result;
   }
-  
-  if (pCaller)
-    pCaller->OnPopupMenuSelection(result);
-  
-  return result;
 }
 
 void IGraphicsWin::CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
@@ -975,8 +993,10 @@ void IGraphicsWin::CreatePlatformTextEntry(IControl& control, const IText& text,
     default:                  editStyle = ES_CENTER; break;
   }
 
+  IRECT scaledBounds = bounds.GetScaled(GetDrawScale());
+
   mParamEditWnd = CreateWindow("EDIT", str, ES_AUTOHSCROLL /*only works for left aligned text*/ | WS_CHILD | WS_VISIBLE | ES_MULTILINE | editStyle,
-    bounds.L, bounds.T, bounds.W()+1, bounds.H()+1,
+    scaledBounds.L, scaledBounds.T, scaledBounds.W()+1, scaledBounds.H()+1,
     mPlugWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
 
   HFONT font = CreateFont(text.mSize, 0, 0, 0, text.mStyle == IText::kStyleBold ? FW_BOLD : 0, text.mStyle == IText::kStyleItalic ? TRUE : 0, 0, 0, 0, 0, 0, 0, 0, text.mFont);
@@ -1031,19 +1051,19 @@ bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
 }
 
 //TODO: this method needs rewriting
-void IGraphicsWin::PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* extensions)
+void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* extensions)
 {
   if (!WindowIsOpen())
   {
-    filename.Set("");
+    fileName.Set("");
     return;
   }
     
   wchar_t fnCStr[_MAX_PATH];
   wchar_t dirCStr[_MAX_PATH];
     
-  if (filename.GetLength())
-    UTF8ToUTF16(fnCStr, filename.Get(), _MAX_PATH);
+  if (fileName.GetLength())
+    UTF8ToUTF16(fnCStr, fileName.Get(), _MAX_PATH);
   else
     fnCStr[0] = '\0';
     
@@ -1131,11 +1151,11 @@ void IGraphicsWin::PromptForFile(WDL_String& filename, WDL_String& path, EFileAc
       path.Append(directoryOutCStr);
     }
       
-    filename.Set(tempUTF8.Get());
+    fileName.Set(tempUTF8.Get());
   }
   else
   {
-    filename.Set("");
+    fileName.Set("");
   }
 }
 

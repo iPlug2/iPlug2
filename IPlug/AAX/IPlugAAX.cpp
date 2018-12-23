@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #include "IPlugAAX.h"
 #include "IPlugAAX_view_interface.h"
@@ -265,7 +259,7 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
   Controller()->GetInputStemFormat(&inFormat);
   Controller()->GetOutputStemFormat(&outFormat);
   
-  if (DoesMIDI()) 
+  if (DoesMIDIIn()) 
   {
     AAX_IMIDINode* pMidiIn = pRenderInfo->mInputNode;
     AAX_CMidiStream* pMidiBuffer = pMidiIn->GetNodeBuffer();
@@ -334,7 +328,7 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
   }
   
   // Midi Out
-  if (DoesMIDI())
+  if (DoesMIDIOut())
   {
     AAX_IMIDINode* midiOut = pRenderInfo->mOutputNode;
     
@@ -365,6 +359,35 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
       }
       
       mMidiOutputQueue.Flush(numSamples);
+      
+      //Output SYSEX from the editor, which has bypassed ProcessSysEx()
+      if(mSysExDataFromEditor.ElementsAvailable())
+      {
+        while (mSysExDataFromEditor.Pop(mSysexBuf))
+        {
+          int numPackets = (int) ceil((float) mSysexBuf.mSize/4.); // each packet can store 4 bytes of data
+          int bytesPos = 0;
+          
+          for (int p = 0; p < numPackets; p++)
+          {
+            AAX_CMidiPacket packet;
+            
+            packet.mTimestamp = (uint32_t) mSysexBuf.mOffset;
+            packet.mIsImmediate = true;
+            
+            int b = 0;
+            
+            while (b < 4 && bytesPos < mSysexBuf.mSize)
+            {
+              packet.mData[b++] = e.data.bytes[bytesPos++];
+            }
+            
+            packet.mLength = b;
+            
+            midiOut->PostMIDIPacket (&packet);
+          }
+        }
+      }
     }
   }
 }

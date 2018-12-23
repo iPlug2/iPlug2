@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #include "IPlugAPP.h"
 #include "IPlugAPP_host.h"
@@ -36,7 +30,7 @@ IPlugAPP::IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 
   _SetBlockSize(DEFAULT_BLOCK_SIZE);
   SetHost("standalone", c.vendorVersion);
-  
+    
   CreateTimer();
 }
 
@@ -55,7 +49,7 @@ void IPlugAPP::ResizeGraphics(int viewWidth, int viewHeight, float scale)
 
 bool IPlugAPP::SendMidiMsg(const IMidiMsg& msg)
 {
-  if (DoesMIDI() && mAppHost->mMidiOut)
+  if (DoesMIDIOut() && mAppHost->mMidiOut)
   {
     //TODO: midi out channel
 //    uint8_t status;
@@ -77,12 +71,11 @@ bool IPlugAPP::SendMidiMsg(const IMidiMsg& msg)
   return false;
 }
 
-bool IPlugAPP::SendSysEx(ISysEx& msg)
+bool IPlugAPP::SendSysEx(const ISysEx& msg)
 {
-  if (DoesMIDI() && mAppHost->mMidiOut)
+  if (DoesMIDIOut() && mAppHost->mMidiOut)
   {
     //TODO: midi out channel
-
     std::vector<uint8_t> message;
     
     for (int i = 0; i < msg.mSize; i++)
@@ -95,6 +88,11 @@ bool IPlugAPP::SendSysEx(ISysEx& msg)
   }
   
   return false;
+}
+
+void IPlugAPP::SendSysexMsgFromUI(const ISysEx& msg)
+{
+  SendSysEx(const_cast<ISysEx&>(msg));
 }
 
 void IPlugAPP::AppProcess(double** inputs, double** outputs, int nFrames)
@@ -116,6 +114,8 @@ void IPlugAPP::AppProcess(double** inputs, double** outputs, int nFrames)
   {
     ProcessMidiMsg(msg);
   }
-  
+
+  //Do not handle Sysex messages here - SendSysexMsgFromUI overridden
+
   _ProcessBuffers(0.0, GetBlockSize());
 }

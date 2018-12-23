@@ -7,6 +7,6 @@ class IGraphicsTest : public IPlug
 public:
   IGraphicsTest(IPlugInstanceInfo instanceInfo);
   
-  IGraphics* CreateGraphics() override;
-  void LayoutUI(IGraphics* pGraphics) override;
+  void OnHostSelectedViewConfiguration(int width, int height) override;
+  bool OnHostRequestingSupportedViewConfiguration(int width, int height) override;
 };

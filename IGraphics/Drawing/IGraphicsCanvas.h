@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 #include <emscripten/val.h>
@@ -9,17 +19,13 @@
 
 using namespace emscripten;
 
-class WebBitmap : public APIBitmap
+class CanvasBitmap : public APIBitmap
 {
 public:
-  WebBitmap(val imageCanvas, const char* name, int scale);
+  CanvasBitmap(val imageCanvas, const char* name, int scale);
+  CanvasBitmap(int width, int height, int scale, float drawScale);
+  ~CanvasBitmap();
 };
-
-static val GetContext()
-{
-  val canvas = val::global("document").call<val>("getElementById", std::string("canvas"));
-  return canvas.call<val>("getContext", std::string("2d"));
-}
 
 /** IGraphics draw class HTML5 canvas
 * @ingroup DrawClasses */
@@ -49,15 +55,25 @@ public:
   IColor GetPoint(int x, int y) override { return COLOR_BLACK; } // TODO:
   void* GetDrawContext() override { return nullptr; }
 
-  bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure, bool textEntry) override;
-  bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
-
 protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
+  APIBitmap* CreateAPIBitmap(int width, int height) override;
+
+  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
 
 private:
   
+  val GetContext()
+  {
+    val canvas = mLayers.empty() ? val::global("document").call<val>("getElementById", std::string("canvas")) : *(mLayers.top()->GetAPIBitmap()->GetBitmap());
+      
+    return canvas.call<val>("getContext", std::string("2d"));
+  }
+    
+  double XTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().L; }
+  double YTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().T; }
+
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
     

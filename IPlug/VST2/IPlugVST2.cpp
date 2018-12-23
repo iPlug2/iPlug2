@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #include <cstdio>
 #include "IPlugVST2.h"
@@ -60,7 +54,7 @@ IPlugVST2::IPlugVST2(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 
   if (c.plugDoesChunks) { mAEffect.flags |= effFlagsProgramChunks; }
   if (LegalIO(1, -1)) { mAEffect.flags |= __effFlagsCanMonoDeprecated; }
-  if (c.plugIsInstrument) { mAEffect.flags |= effFlagsIsSynth; }
+  if (c.plugType == EIPlugPluginType::kInstrument) { mAEffect.flags |= effFlagsIsSynth; }
 
   memset(&mEditRect, 0, sizeof(ERect));
   memset(&mInputSpkrArr, 0, sizeof(VstSpeakerArrangement));
@@ -182,7 +176,7 @@ bool IPlugVST2::SendMidiMsg(const IMidiMsg& msg)
   return SendVSTEvent((VstEvent&) midiEvent);
 }
 
-bool IPlugVST2::SendSysEx(ISysEx& msg)
+bool IPlugVST2::SendSysEx(const ISysEx& msg)
 {
   VstMidiSysexEvent sysexEvent;
   memset(&sysexEvent, 0, sizeof(VstMidiSysexEvent));
@@ -626,12 +620,18 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         {
           return 1;
         }
-        if (_this->DoesMIDI())
+        if (_this->DoesMIDIIn())
+        {
+          if (!strcmp((char*) ptr, "receiveVstEvents") ||
+              !strcmp((char*) ptr, "receiveVstMidiEvent"))
+          {
+            return 1;
+          }
+        }
+        if (_this->DoesMIDIOut())
         {
           if (!strcmp((char*) ptr, "sendVstEvents") ||
-              !strcmp((char*) ptr, "sendVstMidiEvent") ||
-              !strcmp((char*) ptr, "receiveVstEvents") ||
-              !strcmp((char*) ptr, "receiveVstMidiEvent"))   // ||
+              !strcmp((char*) ptr, "sendVstMidiEvent"))
           {
             return 1;
           }
@@ -799,7 +799,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
 template <class SAMPLETYPE>
 void IPlugVST2::VSTPreProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt32 nFrames)
 {
-  if (DoesMIDI())
+  if (DoesMIDIIn())
     mHostCallback(&mAEffect, __audioMasterWantMidiDeprecated, 0, 0, 0, 0.0f);
 
   _AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), inputs, nFrames);
@@ -850,6 +850,7 @@ void VSTCALLBACK IPlugVST2::VSTProcess(AEffect* pEffect, float** inputs, float**
   IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
   _this->_ProcessBuffersAccumulating(nFrames);
+  _this->OutputSysexFromEditor();
 }
 
 void VSTCALLBACK IPlugVST2::VSTProcessReplacing(AEffect* pEffect, float** inputs, float** outputs, VstInt32 nFrames)
@@ -858,6 +859,7 @@ void VSTCALLBACK IPlugVST2::VSTProcessReplacing(AEffect* pEffect, float** inputs
   IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
   _this->_ProcessBuffers((float) 0.0f, nFrames);
+  _this->OutputSysexFromEditor();
 }
 
 void VSTCALLBACK IPlugVST2::VSTProcessDoubleReplacing(AEffect* pEffect, double** inputs, double** outputs, VstInt32 nFrames)
@@ -866,6 +868,7 @@ void VSTCALLBACK IPlugVST2::VSTProcessDoubleReplacing(AEffect* pEffect, double**
   IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
   _this->_ProcessBuffers((double) 0.0, nFrames);
+  _this->OutputSysexFromEditor();
 }
 
 float VSTCALLBACK IPlugVST2::VSTGetParameter(AEffect *pEffect, VstInt32 idx)
@@ -894,5 +897,18 @@ void VSTCALLBACK IPlugVST2::VSTSetParameter(AEffect *pEffect, VstInt32 idx, floa
     _this->_SendParameterValueFromAPI(idx, value, true);
     _this->OnParamChange(idx, kHost);
     LEAVE_PARAMS_MUTEX_STATIC;
+  }
+}
+
+void IPlugVST2::OutputSysexFromEditor()
+{
+  //Output SYSEX from the editor, which has bypassed ProcessSysEx()
+  if(mSysExDataFromEditor.ElementsAvailable())
+  {
+    while (mSysExDataFromEditor.Pop(mSysexBuf))
+    {
+      ISysEx smsg {mSysexBuf.mOffset, mSysexBuf.mData, mSysexBuf.mSize};
+      SendSysEx(smsg);
+    }
   }
 }

@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #ifndef NO_IGRAPHICS
 
 #import "IGraphicsIOS_view.h"
@@ -50,8 +60,8 @@
   if (mGraphics)
   {
     // TODO - fix or remove these values!!
-    *pX = pt.x / mGraphics->GetScale();//- 2.f;
-    *pY = pt.y / mGraphics->GetScale();//- 3.f;
+    *pX = pt.x / mGraphics->GetDrawScale();//- 2.f;
+    *pY = pt.y / mGraphics->GetDrawScale();//- 3.f;
   }
 }
 

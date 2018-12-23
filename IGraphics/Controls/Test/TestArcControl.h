@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 #include "IControl.h"
@@ -10,6 +20,7 @@ public:
   , mAngle1(angle1)
   , mAngle2(angle2)
   {
+    SetTooltip("TestArcControl");
   }
 
   void Draw(IGraphics& g) override
@@ -35,13 +46,13 @@ public:
     g.FillTriangle(COLOR_WHITE, x1, y1, x2, y2, x3, y3);
     g.DrawTriangle(COLOR_BLACK, x1, y1, x2, y2, x3, y3);
   }
-  
+
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     GetUI()->HideMouseCursor();
     IKnobControlBase::OnMouseDown(x, y, mod);
   }
-  
+
   void OnMouseUp(float x, float y, const IMouseMod& mod) override
   {
     GetUI()->HideMouseCursor(false);

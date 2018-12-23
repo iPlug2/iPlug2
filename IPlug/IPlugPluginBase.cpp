@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #include "IPlugPluginBase.h"
 #include "wdlendian.h"
@@ -111,7 +105,7 @@ void IPluginBase::OnParamChange(int paramIdx, EParamSource source, int sampleOff
 
 void IPluginBase::OnParamReset(EParamSource source)
 {
-  for (int i = 0; i < mParams.GetSize(); ++i)
+  for (int i = 0; i < NParams(); ++i)
   {
     OnParamChange(i, source);
   }
@@ -152,16 +146,6 @@ int IPluginBase::UnserializeParams(const IByteChunk& chunk, int startPos)
 
   LEAVE_PARAMS_MUTEX;
   return pos;
-}
-
-void IPluginBase::InitFromDelegate(IPluginBase& delegate)
-{
-  for (auto p = 0; p < delegate.NParams(); p++)
-  {
-    IParam* pParam = delegate.GetParam(p);
-    GetParam(p)->Init(*pParam);
-    GetParam(p)->Set(pParam->Value());
-  }
 }
 
 void IPluginBase::InitParamRange(int startIdx, int endIdx, int countStart, const char* nameFmtStr, double defaultVal, double minVal, double maxVal, double step, const char *label, int flags, const char *group, IParam::Shape *shape, IParam::EParamUnit unit, IParam::DisplayFunc displayFunc)
@@ -242,6 +226,11 @@ void IPluginBase::ForParamInGroup(const char* paramGroup, std::function<void (in
   }
 }
 
+void IPluginBase::DefaultParamValues()
+{
+  DefaultParamValues(0, NParams()-1);
+}
+
 void IPluginBase::DefaultParamValues(int startIdx, int endIdx)
 {
   ForParamInRange(startIdx, endIdx, [](int paramIdx, IParam& param) {
@@ -255,6 +244,12 @@ void IPluginBase::DefaultParamValues(const char* paramGroup)
                       param.SetToDefault();
                     });
 }
+
+void IPluginBase::RandomiseParamValues()
+{
+  RandomiseParamValues(0, NParams()-1);
+}
+
 
 void IPluginBase::RandomiseParamValues(int startIdx, int endIdx)
 {
@@ -276,6 +271,14 @@ void IPluginBase::RandomiseParamValues(const char *paramGroup)
   ForParamInGroup(paramGroup, [&gen, &dis](int paramIdx, IParam& param) {
                       param.SetNormalized(dis(gen));
                     });
+}
+
+void IPluginBase::PrintParamValues()
+{
+  ForParamInRange(0, NParams()-1, [](int paramIdx, IParam& param) {
+    param.PrintDetails();
+    DBGMSG("\n");
+  });
 }
 
 #ifndef NO_PRESETS
@@ -1192,8 +1195,7 @@ bool IPluginBase::LoadProgramFromVSTPreset(const char* path)
     IByteChunk::GetIPlugVerFromChunk(pgm, pos /* updates pos */);
     pos = UnserializeVST3CtrlrState(pgm, pos);
     
-//    DirtyParameters();
-//    RedrawParamControls();
+    DirtyParametersFromUI();
     OnRestoreState();
     
     return true;

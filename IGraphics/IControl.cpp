@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #include <cmath>
 
 #include "IControl.h"
@@ -495,28 +505,28 @@ void IDirBrowseControlBase::SetUpMenu()
   CollectSortedItems(&mMainMenu);
 }
 
-void IDirBrowseControlBase::GetSelectedItemLabel(WDL_String& label)
-{
-  if (mSelectedMenu != nullptr) {
-    if(mSelectedIndex > -1)
-      label.Set(mSelectedMenu->GetItem(mSelectedIndex)->GetText());
-  }
-  else
-    label.Set("");
-}
-
-void IDirBrowseControlBase::GetSelectedItemPath(WDL_String& path)
-{
-  if (mSelectedMenu != nullptr) {
-    if(mSelectedIndex > -1) {
-      path.Set(mPaths.Get(0)->Get()); //TODO: what about multiple paths
-      path.AppendFormatted(1024, "/%s", mSelectedMenu->GetItem(mSelectedIndex)->GetText());
-      path.Append(mExtension.Get());
-    }
-  }
-  else
-    path.Set("");
-}
+//void IDirBrowseControlBase::GetSelectedItemLabel(WDL_String& label)
+//{
+//  if (mSelectedMenu != nullptr) {
+//    if(mSelectedIndex > -1)
+//      label.Set(mSelectedMenu->GetItem(mSelectedIndex)->GetText());
+//  }
+//  else
+//    label.Set("");
+//}
+//
+//void IDirBrowseControlBase::GetSelectedItemPath(WDL_String& path)
+//{
+//  if (mSelectedMenu != nullptr) {
+//    if(mSelectedIndex > -1) {
+//      path.Set(mPaths.Get(0)->Get()); //TODO: what about multiple paths
+//      path.AppendFormatted(1024, "/%s", mSelectedMenu->GetItem(mSelectedIndex)->GetText());
+//      path.Append(mExtension.Get());
+//    }
+//  }
+//  else
+//    path.Set("");
+//}
 
 void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAddTo)
 {
@@ -544,7 +554,11 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
           const char* a = strstr(f, mExtension.Get());
           if (a && a > f && strlen(a) == strlen(mExtension.Get()))
           {
-            WDL_String menuEntry = WDL_String(f, (int) (a - f));
+            WDL_String menuEntry {f};
+            
+            if(!mShowFileExtensions)
+              menuEntry.Set(f, (int) (a - f));
+            
             IPopupMenu::Item* pItem = new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize());
             parentDirMenu.AddItem(pItem, -2 /* sort alphabetically */);
             WDL_String* pFullPath = new WDL_String("");
@@ -554,8 +568,12 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
         }
       }
     } while (!d.Next());
-
+    
     menuToAddTo = parentDirMenu;
   }
+  
+  if(!mShowEmptySubmenus)
+    parentDirMenu.RemoveEmptySubmenus();
+
 #endif
 }

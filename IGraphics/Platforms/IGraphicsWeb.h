@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 #include <emscripten.h>
@@ -9,13 +19,13 @@
 
 #include "IGraphics_select.h"
 
-using namespace emscripten;
+#define MB_OK 0
+#define MB_OKCANCEL 1
+#define MB_YESNOCANCEL 3
+#define MB_YESNO 4
+#define MB_RETRYCANCEL 5
 
-struct RetainVal
-{
-  RetainVal(val item) : mItem(item) {}
-  val mItem;
-};
+using namespace emscripten;
 
 static val GetCanvas()
 {
@@ -41,7 +51,7 @@ public:
 
   void SetPlatformContext(void* pContext) override {} // TODO:
 
-  void HideMouseCursor(bool hide, bool returnToStartPos) override;
+  void HideMouseCursor(bool hide, bool lock) override;
   void ForceEndUserEdit() override {} // TODO:
   void* OpenWindow(void* pParent) override;
   void CloseWindow() override {} // TODO:
@@ -65,4 +75,7 @@ protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
+    
+private:
+  bool mCursorLock;
 };

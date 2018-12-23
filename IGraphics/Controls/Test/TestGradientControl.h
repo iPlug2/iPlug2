@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 #include "IControl.h"
@@ -8,6 +18,7 @@ public:
   TestGradientControl(IGEditorDelegate& dlg, IRECT rect, int paramIdx = kNoParameter)
   : IKnobControlBase(dlg, rect, paramIdx)
   {
+    SetTooltip("TestGradientControl");
     RandomiseGradient();
   }
 
@@ -26,7 +37,7 @@ public:
     else
       g.DrawText(mText, "UNSUPPORTED", mRECT);
   }
-  
+
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     RandomiseGradient();
@@ -40,9 +51,9 @@ public:
     IPattern tmp(kSolidPattern);
 
     if (std::rand() & 0x100)
-      tmp = IPattern(mRECT.MW(), mRECT.MH(), mRECT.MH());
+      tmp = IPattern::CreateRadialGradient(mRECT.MW(), mRECT.MH(), mRECT.MH());
     else
-      tmp = IPattern(mRECT.L, mRECT.MH(), mRECT.L + mRECT.W() * 0.5, mRECT.MH());
+      tmp = IPattern::CreateLinearGradient(mRECT.L, mRECT.MH(), mRECT.L + mRECT.W() * 0.5, mRECT.MH());
 
     tmp.mExtend = (std::rand() & 0x10) ? ((std::rand() & 0x1000) ? kExtendNone : kExtendPad) : ((std::rand() & 0x1000) ? kExtendRepeat : kExtendReflect);
 

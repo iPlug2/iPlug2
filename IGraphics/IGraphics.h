@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 /**
@@ -23,6 +33,9 @@
 #include "IGraphicsUtilities.h"
 #include "IGraphicsPopupMenu.h"
 #include "IGraphicsEditorDelegate.h"
+
+#include <stack>
+#include <memory>
 
 #ifdef OS_MAC
 #ifdef FillRect
@@ -70,7 +83,7 @@ public:
 
   /** Called by the platform IGraphics class XXXXX /todo and when moving to a new screen with different DPI, implementations in draw class must call the base implementation
    * @param scale The scale of the display, typically 2 on a macOS retina screen */
-  void SetDisplayScale(int scale);
+  void SetScreenScale(int scale);
   
   /** Draw an SVG image to the graphics context
    * @param svg The SVG image to the graphics context
@@ -100,7 +113,7 @@ public:
    * @param bitmap The bitmap image to draw to the graphics context
    * @param bounds The rectangular region to draw the image in
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend = 0) {};//= 0;
+  virtual void DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend = 0) = 0;
   
   /** Draw a bitmap (raster) image to the graphics context with rotation
    * @param bitmap The bitmap image to draw to the graphics context
@@ -146,7 +159,7 @@ public:
    * @param y2 The Y coordinate in the graphics context of the end of the line
    * @param pBlend Optional blend method, see IBlend documentation
    * @param thickness Optional line thickness */
-  virtual void DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  virtual void DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend = 0, float thickness = 1.f, float dashLen = 2.f) = 0;
   
   /** Draw a triangle to the graphics context
    * @param color The color to draw the shape with
@@ -238,7 +251,7 @@ public:
    * @param bounds The rectangular region to draw the shape in
    * @param pBlend Optional blend method, see IBlend documentation
    * @param thickness Optional line thickness */
-  virtual void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  virtual void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0, float thickness = 1.f, float dashLen = 2.f) = 0;
 
   /** Fill a triangle in the graphics context with a color
    * @param color The color to fill the shape with
@@ -316,21 +329,27 @@ public:
    * @param pBlend Optional blend method, see IBlend documentation */
   virtual void FillConvexPolygon(const IColor& color, float* x, float* y, int nPoints, const IBlend* pBlend = 0) = 0;
 
-  /** Draw some text to the graphics context (or measure some text)
+  /** Draw some text to the graphics context in a specific rectangle
    * @param text An IText struct containing font and text properties and layout info
    * @param str The text string to draw in the graphics context
-   * @param bounds Either should contain the rectangular region in the graphics where you would like to draw the text (when measure = false)
-   * or if measure == true, after calling the method this IRECT will be updated with the rectangular region the text will occupy
-   * @param measure Pass true if you wish to measure the rectangular region this text will occupy, rather than draw
-   * @return true on valid input data \todo check this */
-  virtual bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0, bool measure = false, bool textEntry = false) = 0;
+   * @param bounds The rectangular region in the graphics where you would like to draw the text
+   * @return \todo */
+  bool DrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend = 0);
 
+  /** Draw some text to the graphics context at a point
+   * @param text An IText struct containing font and text properties and layout info
+   * @param str The text string to draw in the graphics context
+   * @param x The x position in the graphics where you would like to draw the text
+   * @param y The y position in the graphics where you would like to draw the text
+   * @return \todo */
+  bool DrawText(const IText& text, const char* str, float x, float y, const IBlend* pBlend = 0);
+  
   /** Measure the rectangular region that some text will occupy
    * @param text An IText struct containing font and text properties and layout info
    * @param str The text string to draw in the graphics context
    * @param bounds after calling the method this IRECT will be updated with the rectangular region the text will occupy
-   * @return true on valid input data \todo check this */
-  virtual bool MeasureText(const IText& text, const char* str, IRECT& bounds) = 0;
+   * @return \todo */
+  virtual bool MeasureText(const IText& text, const char* str, IRECT& bounds);
 
   /** Get the color of a point in the graphics context. On a 1:1 screen this corresponds to a pixel. \todo check this
    * @param x The X coordinate in the graphics context of the pixel
@@ -427,6 +446,18 @@ public:
 
   virtual void DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints = nullptr, const IBlend* pBlend = 0, float thickness = 1.f);
   
+#pragma mark - IGraphics drawing API layer support
+    
+  void StartLayer(const IRECT& r);
+  ILayerPtr EndLayer();
+  bool CheckLayer(const ILayerPtr& layer);
+  void DrawLayer(const ILayerPtr& layer);
+    
+private:
+  virtual void UpdateLayer() {}
+
+public:
+  
 #pragma mark - IGraphics drawing API Path support
 
   virtual bool HasPathSupport() const { return false; }
@@ -459,22 +490,31 @@ public:
   virtual void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options = IStrokeOptions(), const IBlend* pBlend = 0) {}
   virtual void PathFill(const IPattern& pattern, const IFillOptions& options = IFillOptions(), const IBlend* pBlend = 0) {}
 
+  virtual void PathTransformSave() {}
+  virtual void PathTransformRestore() {}
+  virtual void PathTransformReset(bool clearStates = false) {}
+  virtual void PathTransformTranslate(float x, float y) {}
+  virtual void PathTransformScale(float scaleX, float scaleY) {}
+  virtual void PathTransformScale(float scale) {}
+  virtual void PathTransformRotate(float angle) {}
+  virtual void PathTransformSkew(float xAngle, float yAngle) {}
+  virtual void PathTransformMatrix(const IMatrix& matrix) {}
+
+  virtual void PathClipRegion(const IRECT r = IRECT()) {}
+  
   virtual void DrawBoxShadow(const IRECT& bounds, float cr = 0.f, float ydrop = 2.f, float pad = 10.f, const IBlend* pBlend = 0) {};
 
 private:
     
-  /** This is overridden in some IGraphics drawing classes to clip drawing to a rectangular region
-   * @param bounds The rectangular region to clip  */
-  inline virtual void ClipRegion(const IRECT& bounds) {};
-    
-  /** This is overridden in some IGraphics drawing classes so you can reset clipping after drawing a shape */
-  inline virtual void ResetClipRegion() {};
-
+  /** This is used to prepare a particular area of the display for drawing, normally resulting in clipping of the region.
+   * @param bounds The rectangular region to prepare  */
+  virtual void PrepareRegion(const IRECT& bounds) = 0;
+ 
 public:
     
 #pragma mark - IGraphics platform implementation
   /** Call to hide the mouse cursor */ 
-  virtual void HideMouseCursor(bool hide = true, bool returnToStartPosition = true) {};
+  virtual void HideMouseCursor(bool hide = true, bool lock = true) {};
 
   /** Force move the mouse cursor to a specific position in the graphics context
    * @param x New X position in pixels
@@ -526,11 +566,11 @@ public:
   void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "");
 
   /** Create a platform file prompt dialog to choose a file/directory path for opening/saving a file/directory. NOTE: this method will block the main thread
-   * @param filename Non const WDL_String reference specifying the file name. Set this prior to calling the method for save dialogs, to provide a default file name. For load dialogs, on successful selection of a file this will get set to the file’s name.
+   * @param fileName Non const WDL_String reference specifying the file name. Set this prior to calling the method for save dialogs, to provide a default file name. For load dialogs, on successful selection of a file this will get set to the file’s name.
    * @param path WDL_String reference where the path will be put on success or empty string on failure/user cancelled
    * @param action Determines whether this is an open dialog or a save dialog
    * @param extensions A comma separated CString list of file extensions to filter in the dialog (e.g. “.wav, .aif” \todo check */
-  virtual void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action = kFileOpen, const char* extensions = 0) = 0;
+  virtual void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action = kFileOpen, const char* extensions = 0) = 0;
 
   /** Create a platform file prompt dialog to choose a directory path for opening/saving a directory. NOTE: this method will block the main thread
    * @param dir Non const WDL_String reference specifying the directory path. Set this prior to calling the method for save dialogs, to provide a default path. For load dialogs, on successful selection of a directory this will get set to the full path. */
@@ -581,16 +621,18 @@ public:
    * @param y the y position to convert */
   virtual void ClientToScreen(float& x, float& y) {};
 
-  /** Find the full, absolute path of a resource based on it's filename (e.g. “background.png”) and type (e.g. “PNG”)
+  /** Find the full, absolute path of a resource based on it's file name (e.g. “background.png”) and type (e.g. “PNG”)
    * On macOS resources are usually included inside the bundle resources folder. In that case you provide a filename and this method will return the absolute path to the resource. In some cases you may want to provide an absolute path to a file in a shared resources folder here (for example if you want to reduce the disk footprint of multiple bundles, such as when you have multiple plug-in formats installed).
-   * On Windows resources are usually baked into the binary via the resource compiler. In this case the filename argument is the resource id. The .rc file must include these ids, otherwise you may hit a runtime assertion. It is also possible to pass in an absolute path in order to share resources between binaries.
+   * On Windows resources are usually baked into the binary via the resource compiler. In this case the fileName argument is the resource id. The .rc file must include these ids, otherwise you may hit a runtime assertion. It is also possible to pass in an absolute path in order to share resources between binaries.
    * Behind the scenes this method will make sure resources are loaded statically in memory.
-   * @param filename The resource filename including extension. If no resource is found the method will then check filename as if it is an absolute path.
+   * @param filename The resource filename including extension. If no resource is found the method will then check fileName as if it is an absolute path.
    * @param type \todo
    * @param result WDL_String which will contain the full path of the resource of success
    * @return \c true on success */
-  virtual bool OSFindResource(const char* filename, const char* type, WDL_String& result) = 0;
+  virtual bool OSFindResource(const char* fileName, const char* type, WDL_String& result) = 0;
 
+  /** Get the bundle ID on macOS and iOS, returns emtpy string on other OSs */
+  virtual const char* GetBundleID() { return ""; }
 #pragma mark - IGraphics base implementation
   IGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.);
   virtual ~IGraphics();
@@ -666,11 +708,11 @@ public:
 
   /** Gets the width of the graphics context including scaling (not display scaling!)
    * @return A whole number representing the width of the graphics context with scaling in pixels on a 1:1 screen */
-  int WindowWidth() const { return int((float) mWidth * mScale); }
+  int WindowWidth() const { return int((float) mWidth * mDrawScale); }
 
   /** Gets the height of the graphics context including scaling (not display scaling!)
    * @return A whole number representing the height of the graphics context with scaling in pixels on a 1:1 screen */
-  int WindowHeight() const { return int((float) mHeight * mScale); }
+  int WindowHeight() const { return int((float) mHeight * mDrawScale); }
 
   /** Gets the drawing frame rate
    * @return A whole number representing the desired frame rate at which the graphics context is redrawn. NOTE: the actual frame rate might be different */
@@ -678,19 +720,19 @@ public:
 
   /** Gets the graphics context scaling factor.
    * @return The scaling applied to the graphics context */
-  float GetScale() const { return mScale; }
+  float GetDrawScale() const { return mDrawScale; }
 
   /** Gets the display scaling factor
     * @return The scale factor of the display on which this graphics context is currently located */
-  float GetDisplayScale() const { return mDisplayScale; }
+  int GetScreenScale() const { return mScreenScale; }
 
   /** Gets a pointer to the delegate class that handles communication to and from this graphics context.
    * @return pointer to the delegate */
   IGEditorDelegate* GetDelegate() { return &mDelegate; }
 
   /** Attach an IBitmapControl as the lowest IControl in the control stack to be the background for the graphics context
-   * @param filename CString filename resource id for the bitmap image \todo check this */
-  void AttachBackground(const char* filename);
+   * @param fileName CString fileName resource id for the bitmap image \todo check this */
+  void AttachBackground(const char* fileName);
 
   /** Attach an IPanelControl as the lowest IControl in the control stack to fill the background with a solid color
    * @param color The color to fill the panel with */
@@ -705,16 +747,16 @@ public:
   
   /** Attach the default control to scale or increase the UI size by dragging the plug-in bottom right-hand corner
    * @param sizeMode Choose whether to scale or size the UI */
-  void AttachCornerResizer(EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale);
+  void AttachCornerResizer(EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale, bool layoutOnResize = false);
 
   /** Attach your own control to scale or increase the UI size by dragging the plug-in bottom right-hand corner
    * @param pControl control a control that inherits from ICornerResizerBase
    * @param sizeMode Choose whether to scale or size the UI */
-  void AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale);
+  void AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale, bool layoutOnResize = false);
 
   /** Attach a control for pop-up menus, to override platform style menus
    * @param pControl A control that inherits from IPopupMenuControl */
-  void AttachPopupMenuControl(IText text = DEFAULT_TEXT);
+  void AttachPopupMenuControl(const IText& text = DEFAULT_TEXT, const IRECT& bounds = IRECT());
   
   /** Attach a control for displaying the FPS on top of the UI */
   void AttachPerformanceDisplay();
@@ -884,7 +926,7 @@ public:
    * @param tablet, \c true means input is from a tablet */
   void SetTabletInput(bool tablet) { mTabletInput = tablet; }
   
-  EUIResizerMode GetUIResizerMode() const { return mGUISizeMode; }
+  EUIResizerMode GetResizerMode() const { return mGUISizeMode; }
   
 #pragma mark - Plug-in API Specific
 
@@ -916,8 +958,9 @@ public:
    * @param fileName CString file name
    * @param nStates The number of states/frames in a multi-frame stacked bitmap
    * @param framesAreHorizontal Set \c true if the frames in a bitmap are stacked horizontally
+   * @param targetScale Set \c to a number > 0 to explicity load e.g. an @2x.png
    * @return An IBitmap representing the image */
-  virtual IBitmap LoadBitmap(const char* fileName, int nStates = 1, bool framesAreHorizontal = false);
+  virtual IBitmap LoadBitmap(const char* fileName, int nStates = 1, bool framesAreHorizontal = false, int targetScale = 0);
 
   /** Load an SVG from disk
    * @param fileName A CString absolute path to the SVG on disk
@@ -926,19 +969,22 @@ public:
 
   /** @param fileName The name of the font to load */
   virtual void LoadFont(const char* fileName) {};
-    
+  
+  IPopupMenuControl* GetPopupMenuControl() { return mPopupControl; }
+
 protected:
   virtual void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") = 0;
   virtual IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller = nullptr) = 0;
 
   virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;
-  //virtual void* CreateAPIBitmap(int w, int h) = 0;
   virtual APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) = 0;
-
+  virtual APIBitmap* CreateAPIBitmap(int width, int height) = 0;
+    
   inline void SearchNextScale(int& sourceScale, int targetScale);
   bool SearchImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale);
   APIBitmap* SearchBitmapInCache(const char* name, int targetScale, int& sourceScale);
 
+  virtual bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = nullptr, bool measure = false) = 0;
 protected:
   IGEditorDelegate& mDelegate;
   WDL_PtrList<IControl> mControls;
@@ -955,7 +1001,6 @@ protected:
   IControl* mLiveEdit = nullptr;
 
   IPopupMenu mPromptPopupMenu;
-
 private:
     
   void Draw(const IRECT& bounds);
@@ -969,9 +1014,8 @@ private:
   int mWidth;
   int mHeight;
   int mFPS;
-  float mDisplayScale = 1.f; // the scaling of the display that the UI is currently on e.g. 2 for retina
-  float mScale = 1.f; // scale deviation from  default width and height i.e stretching the UI by dragging bottom right hand corner
-  float mScaleReciprocal = 1.f; // 1.f / mScale
+  int mScreenScale = 1; // the scaling of the display that the UI is currently on e.g. 2 for retina
+  float mDrawScale = 1.f; // scale deviation from  default width and height i.e stretching the UI by dragging bottom right hand corner
   int mIdleTicks = 0;
   int mMouseCapture = -1;
   int mMouseOver = -1;
@@ -990,11 +1034,14 @@ private:
   bool mShowControlBounds = false;
   bool mShowAreaDrawn = false;
   bool mResizingInProcess = false;
+  bool mLayoutOnResize = false;
   EUIResizerMode mGUISizeMode = EUIResizerMode::kUIResizerScale;
   double mPrevTimestamp = 0.;
 
 protected:
   friend class IGraphicsLiveEdit;
   friend class ICornerResizerBase;
+  
+  std::stack<ILayer*> mLayers;
 };
 

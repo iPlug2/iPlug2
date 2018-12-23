@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+ 
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+ 
+ See LICENSE.txt for  more info.
+ 
+ ==============================================================================
+*/
+
 #include <algorithm>
 #include <CoreMIDI/CoreMIDI.h>
 
@@ -1715,6 +1725,8 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
       RenderCallback(pRN, &flags, pTimestamp, outputBusIdx, nFrames, pOutBufList);
     }
   }
+  
+  _this->OutputSysexFromEditor();
 
   return noErr;
 }
@@ -2038,7 +2050,7 @@ bool IPlugAU::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
   return result;
 }
 
-bool IPlugAU::SendSysEx(ISysEx& sysEx)
+bool IPlugAU::SendSysEx(const ISysEx& sysEx)
 {
   bool result = false;
 
@@ -2073,6 +2085,19 @@ bool IPlugAU::SendSysEx(ISysEx& sysEx)
   free(pPktlist);
   
   return result;
+}
+
+void IPlugAU::OutputSysexFromEditor()
+{
+  //Output SYSEX from the editor, which has bypassed ProcessSysEx()
+  if(mSysExDataFromEditor.ElementsAvailable())
+  {
+    while (mSysExDataFromEditor.Pop(mSysexBuf))
+    {
+      ISysEx smsg {mSysexBuf.mOffset, mSysexBuf.mData, mSysexBuf.mSize};
+      SendSysEx(smsg);
+    }
+  }
 }
 
 #pragma mark - IPlugAU Dispatch
@@ -2399,7 +2424,7 @@ OSStatus IPlugAU::DoReset(IPlugAU* _this)
 //static
 OSStatus IPlugAU::DoMIDIEvent(IPlugAU* _this, UInt32 inStatus, UInt32 inData1, UInt32 inData2, UInt32 inOffsetSampleFrame)
 {
-  if(_this->DoesMIDI())
+  if(_this->DoesMIDIIn())
   {
     IMidiMsg msg;
     msg.mStatus = inStatus;
@@ -2417,7 +2442,7 @@ OSStatus IPlugAU::DoMIDIEvent(IPlugAU* _this, UInt32 inStatus, UInt32 inData1, U
 //static
 OSStatus IPlugAU::DoSysEx(IPlugAU* _this, const UInt8* inData, UInt32 inLength)
 {
-  if(_this->DoesMIDI())
+  if(_this->DoesMIDIIn())
   {
     ISysEx sysex;
     sysex.mData = inData;

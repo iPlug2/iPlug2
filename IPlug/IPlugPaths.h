@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
 #include "string.h"
@@ -25,7 +19,7 @@ extern void HostPath(WDL_String& path, const char* bundleID = 0);
 extern void PluginPath(WDL_String& path, const char* bundleID = 0);
 
 /** @param path WDL_String reference where the path will be put on success or empty string on failure */
-extern void BundleResourcePath(WDL_String& path, const char* bundleID = 0);
+extern void BundleResourcePath(WDL_String& path, const char* bundleID);
 
 /** @param path WDL_String reference where the path will be put on success or empty string on failure */
 extern void DesktopPath(WDL_String& path);

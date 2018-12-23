@@ -32,7 +32,7 @@ scriptpath = os.path.dirname(os.path.realpath(__file__))
 
 sys.path.insert(0, scriptpath + '/../scripts/')
 
-from parse_config import parse_config, parse_xcconfig#, write_config
+from parse_config import parse_config, parse_xcconfig, set_uniqueid
 
 VERSION = "0.93"
 
@@ -151,7 +151,7 @@ def main():
   print("\nIPlug Project Duplicator v" + VERSION + " by Oli Larkin ------------------------------\n")
 
   if len(sys.argv) != 4:
-    print("Usage: duplicate.py inputprojectname outputprojectname [manufacturername]")
+    print("Usage: duplicate.py inputprojectname outputprojectname manufacturername")
     sys.exit(1)
   else:
     input=sys.argv[1]
@@ -201,10 +201,9 @@ def main():
 
     config = parse_config(output)
 
-    config['PLUG_UID'] = randomFourChar()
-    config['PLUG_MFR_UID'] = 'Acme'
+    config["PLUG_UNIQUE_ID"] = randomFourChar()
 
-    # write_config(output, config)
+    set_uniqueid(output, config["PLUG_UNIQUE_ID"])
 
     pp = pprint.PrettyPrinter(indent=4)
     pp.pprint(config)

@@ -1,7 +1,18 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 #include "IControl.h"
 #include "IPlugQueue.h"
+#include "IPlugStructs.h"
 
 template <int MAXNC = 1>
 class IVMeterControl : public IVTrackControlBase
@@ -20,7 +31,7 @@ public:
 
       float sum = 0.f;
       
-      for(auto i = 0; i < MAXNC; i++)
+      for(int i = 0; i < MAXNC; i++)
       {
         sum += vals[i];
       }

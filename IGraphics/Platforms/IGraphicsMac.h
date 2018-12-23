@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 #ifndef NO_IGRAPHICS
@@ -45,7 +55,7 @@ public:
 
   void* GetWindow() override;
 
-  const char* GetBundleID()  { return mBundleID.Get(); }
+  const char* GetBundleID() override { return mBundleID.Get(); }
   static int GetUserOSVersion();
 
   bool GetTextFromClipboard(WDL_String& str) override;

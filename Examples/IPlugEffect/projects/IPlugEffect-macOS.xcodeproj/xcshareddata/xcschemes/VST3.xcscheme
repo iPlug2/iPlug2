@@ -46,7 +46,7 @@
       allowLocationSimulation = "YES">
       <PathRunnable
          runnableDebuggingMode = "0"
-         FilePath = "/Applications/Cubase 9.5.app">
+         FilePath = "/Applications/VST3PluginTestHost.app">
       </PathRunnable>
       <MacroExpansion>
          <BuildableReference

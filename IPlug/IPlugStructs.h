@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
 
@@ -33,6 +27,27 @@ struct IParamChange
   bool normalized; // TODO: Remove this
 };
 
+/** This structure is used when queueing Sysex messages. You may need to set MAX_SYSEX_SIZE to reflect the max sysex payload in bytes */
+struct SysExData
+{
+  SysExData(int offset = 0, int size = 0, const void* pData = 0)
+  : mOffset(offset)
+  , mSize(size)
+  {
+    assert(size < MAX_SYSEX_SIZE);
+    
+    if (pData)
+      memcpy(mData, pData, size);
+    else
+      memset(mData, 0, MAX_SYSEX_SIZE);
+  }
+  
+  int mOffset;
+  int mSize;
+  uint8_t mData[MAX_SYSEX_SIZE];
+};
+
+/** A helper class for IBtyeChunk and IBtyeStream that avoids code duplication **/
 /** A helper class for IByteChunk and IByteStream that avoids code duplication **/
 struct IByteGetter
 {
@@ -245,9 +260,11 @@ struct IPlugConfig
   int uniqueID;
   int mfrID;
   int latency;
-  bool plugDoesMidi;
+  bool plugDoesMidiIn;
+  bool plugDoesMidiOut;
+  bool plugDoesMPE;
   bool plugDoesChunks;
-  bool plugIsInstrument;
+  int plugType;
   bool plugHasUI;
   int plugWidth;
   int plugHeight;
@@ -263,9 +280,11 @@ struct IPlugConfig
               int uniqueID,
               int mfrID,
               int latency,
-              bool plugDoesMidi,
+              bool plugDoesMidiIn,
+              bool plugDoesMidiOut,
+              bool plugDoesMPE,
               bool plugDoesChunks,
-              bool plugIsInstrument,
+              int plugType,
               bool plugHasUI,
               int plugWidth,
               int plugHeight,
@@ -281,9 +300,11 @@ struct IPlugConfig
   , uniqueID(uniqueID)
   , mfrID(mfrID)
   , latency(latency)
-  , plugDoesMidi(plugDoesMidi)
+  , plugDoesMidiIn(plugDoesMidiIn)
+  , plugDoesMidiOut(plugDoesMidiOut)
+  , plugDoesMPE(plugDoesMPE)
   , plugDoesChunks(plugDoesChunks)
-  , plugIsInstrument(plugIsInstrument)
+  , plugType(plugType)
   , plugHasUI(plugHasUI)
   , plugWidth(plugWidth)
   , plugHeight(plugHeight)

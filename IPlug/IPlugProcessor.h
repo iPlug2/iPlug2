@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
 
@@ -90,7 +84,7 @@ public:
   /** Send a single MIDI System Exclusive (SysEx) message // TODO: info about what thread should this be called on or not called on!
    * @param msg The ISysEx to send
    * @return \c true if successful */
-  virtual bool SendSysEx(ISysEx& msg /* TODO: const? */) { return false; }
+  virtual bool SendSysEx(const ISysEx& msg) { return false; }
 
   /** @return Sample rate (in Hz) */
   double GetSampleRate() const { return mSampleRate; }
@@ -184,10 +178,16 @@ public:
   void LimitToStereoIO();//TODO: this should be updated
 
   /** @return \c true if the plug-in was configured as an instrument at compile time */
-  bool IsInstrument() const { return mIsInstrument; }
+  bool IsInstrument() const { return mPlugType == EIPlugPluginType::kInstrument; }
 
   /** @return \c true if the plug-in was configured to receive midi at compile time */
-  bool DoesMIDI() const { return mDoesMIDI; }
+  bool DoesMIDIIn() const { return mDoesMIDIIn; }
+
+  /** @return \c true if the plug-in was configured to receive midi at compile time */
+  bool DoesMIDIOut() const { return mDoesMIDIOut; }
+  
+  /** @return \c true if the plug-in was configured to support midi polyphonic expression at compile time */
+  bool DoesMPE() const { return mDoesMPE; }
 
   /**  This allows you to label input/output channels in supporting VST2 hosts.
    * * For example a 4 channel plug-in that deals with FuMa BFormat first order ambisonic material, might label these channels
@@ -245,10 +245,14 @@ public: //TODO: these will become protected once stand-alone app is rewritten
   const WDL_String& _GetChannelLabel(ERoute direction, int idx) { return mChannelData[direction].Get(idx)->mLabel; }
 
 private:
-  /** \c true if the plug-in is an instrument */
-  bool mIsInstrument;
+  /** See EIPlugPluginTypes */
+  EIPlugPluginType mPlugType;
   /** \c true if the plug-in accepts MIDI input */
-  bool mDoesMIDI;
+  bool mDoesMIDIIn;
+  /** \c true if the plug-in produces MIDI output */
+  bool mDoesMIDIOut;
+  /** \c true if the plug-in supports MIDI Polyphonic Expression */
+  bool mDoesMPE;
   /** Plug-in latency (in samples) */
   int mLatency;
   /** Current sample rate (in Hz) */

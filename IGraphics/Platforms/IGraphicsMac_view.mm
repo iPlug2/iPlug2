@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #ifndef NO_IGRAPHICS
 
 #ifdef IGRAPHICS_NANOVG
@@ -275,12 +285,16 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   r.size.height = (float) pGraphics->WindowHeight();
   self = [super initWithFrame:r];
   
-#if defined IGRAPHICS_NANOVG && defined IGRAPHICS_METAL
-  if (!self.wantsLayer) {
-    self.layer = [CAMetalLayer new];
-    self.layer.opaque = YES;
-    self.wantsLayer = YES;
-  }
+#if defined IGRAPHICS_NANOVG
+  #if defined IGRAPHICS_METAL
+    if (!self.wantsLayer) {
+      self.layer = [CAMetalLayer new];
+      self.layer.opaque = YES;
+      self.wantsLayer = YES;
+    }
+  #elif defined IGRAPHICS_GL
+  //TODO: IGRAPHICS_GL context setup
+  #endif
 #endif
 
   [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
@@ -305,7 +319,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (BOOL) isFlipped
 {
-    return YES;
+  return YES;
 }
 
 - (BOOL) acceptsFirstResponder
@@ -328,7 +342,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     [pWindow setAcceptsMouseMovedEvents: YES];
     
     if (mGraphics)
-      mGraphics->SetDisplayScale([pWindow backingScaleFactor]);
+      mGraphics->SetScreenScale([pWindow backingScaleFactor]);
     
 //    [[NSNotificationCenter defaultCenter] addObserver:self
 //                                             selector:@selector(windowResized:) name:NSWindowDidEndLiveResizeNotification
@@ -353,24 +367,25 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   
   CGFloat newScale = [pWindow backingScaleFactor];
   
-  if (newScale != mGraphics->GetDisplayScale())
-    mGraphics->SetDisplayScale(newScale);
+  if (newScale != mGraphics->GetScreenScale())
+    mGraphics->SetScreenScale(newScale);
 }
 
-// not called for opengl/metal
+- (CGContextRef) getCGContextRef
+{
+  CGContextRef pCGC = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
+  NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort: pCGC flipped: YES];
+  pCGC = (CGContextRef) [gc graphicsPort];
+  return pCGC;
+}
+
+// not called for METAL
 - (void) drawRect: (NSRect) bounds
 {
   if (mGraphics)
   {
-    //TODO: can we really only get this context on the first draw call?
     if (!mGraphics->GetPlatformContext())
-    {
-      CGContextRef pCGC = nullptr;
-      pCGC = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
-      NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort: pCGC flipped: YES];
-      pCGC = (CGContextRef) [gc graphicsPort];
-      mGraphics->SetPlatformContext(pCGC);
-    }
+      mGraphics->SetPlatformContext([self getCGContextRef]);
       
     if (mGraphics->GetPlatformContext())
     {
@@ -393,11 +408,13 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   if (mGraphics->IsDirty(rects))
   {
     mGraphics->SetAllControlsClean();
+    // for METAL layer-backed view drawRect is not called
 #if !defined IGRAPHICS_NANOVG
     for (int i = 0; i < rects.Size(); i++)
       [self setNeedsDisplayInRect:ToNSRect(mGraphics, rects.Get(i))];
 #else
-    mGraphics->Draw(rects); // for metal/opengl drawRect is not called
+    // so just draw on each frame, if something is dirty
+    mGraphics->Draw(rects);
 #endif
   }
 }
@@ -408,8 +425,8 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   {
     NSPoint pt = [self convertPoint:[pEvent locationInWindow] fromView:nil];
     // TODO - fix or remove these values!!
-    *pX = pt.x / mGraphics->GetScale();//- 2.f;
-    *pY = pt.y / mGraphics->GetScale();//- 3.f;
+    *pX = pt.x / mGraphics->GetDrawScale();//- 2.f;
+    *pY = pt.y / mGraphics->GetDrawScale();//- 3.f;
     mPrevX = *pX;
     mPrevY = *pY;
 
@@ -503,6 +520,16 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void)keyDown: (NSEvent *)pEvent
 {
+#ifdef IGRAPHICS_SWELL
+  int flag, code = SWELL_MacKeyToWindowsKey(pEvent, &flag);
+
+  bool handle = mGraphics->OnKeyDown(mPrevX, mPrevY, code);
+  
+  if (!handle)
+  {
+    [[self nextResponder] keyDown:pEvent];
+  }
+#else
   NSString *s = [pEvent charactersIgnoringModifiers];
 
   if ([s length] == 1)
@@ -529,12 +556,13 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
       // can't use getMouseXY because its a key event
       handle = mGraphics->OnKeyDown(mPrevX, mPrevY, key);
     }
-
+    
     if (!handle)
     {
       [[self nextResponder] keyDown:pEvent];
     }
   }
+#endif
 }
 
 - (void) scrollWheel: (NSEvent*) pEvent
@@ -815,7 +843,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 //- (void)windowResized:(NSNotification *)notification;
 //{
-//  if(!mGraphics) // TODO: Why does this happen with reaper?
+//  if(!mGraphics)
 //    return;
 //
 //  NSSize windowSize = [[self window] frame].size;
@@ -828,7 +856,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 //  float scaleY = height / mGraphics->Height();
 //
 //  if(mGraphics->GetUIResizerMode() == EUIResizerMode::kUIResizerScale)
-//    mGraphics->Resize(width, height, mGraphics->GetScale());
+//    mGraphics->Resize(width, height, mGraphics->GetDrawScale());
 //  else // EUIResizerMode::kUIResizerSize
 //    mGraphics->Resize(mGraphics->Width(), mGraphics->Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
 //}
@@ -845,7 +873,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 //  float scaleY = height / mGraphics->Height();
 //
 //  if(mGraphics->GetUIResizerMode() == EUIResizerMode::kUIResizerScale)
-//    mGraphics->Resize(width, height, mGraphics->GetScale());
+//    mGraphics->Resize(width, height, mGraphics->GetDrawScale());
 //  else // EUIResizerMode::kUIResizerSize
 //    mGraphics->Resize(mGraphics->Width(), mGraphics->Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
 //}

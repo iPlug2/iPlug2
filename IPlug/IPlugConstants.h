@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
 
@@ -38,6 +32,13 @@ typedef PLUG_SAMPLE_DST sample;
 #define LOGFILE "IPlugLog.txt"
 #define MAX_PROCESS_TRACE_COUNT 100
 #define MAX_IDLE_TRACE_COUNT 15
+
+enum EIPlugPluginType
+{
+  kEffect = 0,
+  kInstrument = 1,
+  kMIDIEffect = 2
+};
 
 enum EIPlugKeyCodes
 {
@@ -117,8 +118,14 @@ static const int MAX_PARAM_DISPLAY_PRECISION = 6;
 #define IDLE_TIMER_RATE 20 // this controls the frequency of data going from processor to editor (and OnIdle calls)
 #endif
 
+#ifndef MAX_SYSEX_SIZE
+#define MAX_SYSEX_SIZE 512
+#endif
+
 #define PARAM_TRANSFER_SIZE 512
 #define MIDI_TRANSFER_SIZE 32
+#define SYSEX_TRANSFER_SIZE 4
+
 // All version ints are stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision.
 #define IPLUG_VERSION 0x010000
 #define IPLUG_VERSION_MAGIC 'pfft'
@@ -156,10 +163,11 @@ enum EParamSource
   kUI,
   kDelegate,
   kRecompile, // for FAUST JIT
-  kUnknown
+  kUnknown,
+  kNumParamSources
 };
 
-static const char* ParamSourceStrs[4] = { "Reset", "Automation", "Preset", "GUI" };
+static const char* ParamSourceStrs[kNumParamSources] = { "Reset", "Host", "Preset", "UI", "Editor Delegate", "Recompile", "Unknown"};
 
 /** @enum ERoute
  * Used to identify whether a bus/channel connection is an input or an output
