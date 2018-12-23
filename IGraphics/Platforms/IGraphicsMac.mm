@@ -344,13 +344,6 @@ void IGraphicsMac::MoveMouseCursor(float x, float y)
   CGAssociateMouseAndMouseCursorPosition(true);
 }
 
-void IGraphicsMac::SetMousePosition(float x, float y)
-{
-  //TODO: FIX!
-//  mMouseX = x;
-//  mMouseY = y;
-}
-
 int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, int type)
 {
 #if IGRAPHICS_SWELL
