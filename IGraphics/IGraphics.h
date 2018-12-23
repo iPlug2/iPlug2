@@ -513,7 +513,7 @@ public:
     
 #pragma mark - IGraphics platform implementation
   /** Call to hide the mouse cursor */ 
-  virtual void HideMouseCursor(bool hide = true, bool lock = true) {};
+  virtual void HideMouseCursor(bool hide = true, bool lock = true) = 0;
 
   /** Force move the mouse cursor to a specific position in the graphics context
    * @param x New X position in pixels
