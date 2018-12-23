@@ -31,6 +31,8 @@ public:
 
   void PlatformResize() override;
 
+  void CheckTabletInput(UINT msg);
+    
   void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override;
   bool MouseCursorIsLocked();
