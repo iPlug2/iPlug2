@@ -21,7 +21,9 @@
 #include "IPlugPluginBase.h"
 #include "IPlugPaths.h"
 
+#if IGRAPHICS_SWELL
 #include "swell.h"
+#endif
 
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
@@ -180,7 +182,7 @@ bool IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String
     if(GetResourcePathFromUsersMusicFolder(name, type, result))
       return true;
 
-    // finally check name, which might be a full path - if the plug-in is trying to load a resource at runtime (e.g. skinablle UI)
+    // finally check name, which might be a full path - if the plug-in is trying to load a resource at runtime (e.g. skin-able UI)
     NSString* pPath = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
 
     if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
@@ -210,7 +212,7 @@ void* IGraphicsMac::OpenWindow(void* pParent)
 
   OnViewInitialized([pView layer]);
   
-  SetDisplayScale([[NSScreen mainScreen] backingScaleFactor]);
+  SetScreenScale([[NSScreen mainScreen] backingScaleFactor]);
     
   GetDelegate()->LayoutUI(this);
 
@@ -253,6 +255,7 @@ void IGraphicsMac::PlatformResize()
   {
     NSSize size = { static_cast<CGFloat>(WindowWidth()), static_cast<CGFloat>(WindowHeight()) };
 
+    DBGMSG("%f, %f\n", size.width, size.height);
     // Prevent animation during resize
     // N.B. - The bounds perform scaling on the window, and so use the nominal size
 
@@ -329,8 +332,8 @@ void IGraphicsMac::MoveMouseCursor(float x, float y)
   CGPoint point;
   NSPoint mouse = [NSEvent mouseLocation];
   double mouseY = CGDisplayPixelsHigh(CGMainDisplayID()) - mouse.y;
-  point.x = x / GetDisplayScale() + (mouse.x - mCursorX / GetDisplayScale());
-  point.y = y / GetDisplayScale() + (mouseY - mCursorY / GetDisplayScale());
+  point.x = x / GetScreenScale() + (mouse.x - mCursorX / GetScreenScale());
+  point.y = y / GetScreenScale() + (mouseY - mCursorY / GetScreenScale());
 
   if (!mTabletInput && CGDisplayMoveCursorToPoint(CGMainDisplayID(), point) == CGDisplayNoErr)
   {
@@ -341,15 +344,11 @@ void IGraphicsMac::MoveMouseCursor(float x, float y)
   CGAssociateMouseAndMouseCursorPosition(true);
 }
 
-void IGraphicsMac::SetMousePosition(float x, float y)
+int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, EMessageBoxType type)
 {
-  //TODO: FIX!
-//  mMouseX = x;
-//  mMouseY = y;
-}
-
-int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, int type)
-{
+#if IGRAPHICS_SWELL
+  return MessageBox((HWND) mView, str, caption, type);
+#else
   int result = 0;
 
   CFStringRef button1 = NULL;
@@ -361,20 +360,23 @@ int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, int type)
 
   switch (type)
   {
-    case MB_OK:
+    case EMessageBoxType::kMB_OK:
       button1 = CFSTR("OK");
       break;
-    case MB_OKCANCEL:
+    case EMessageBoxType::kMB_OKCANCEL:
       button1 = CFSTR("OK");
       button2 = CFSTR("Cancel");
       break;
-    case MB_YESNO:
+    case EMessageBoxType::kMB_YESNO:
       button1 = CFSTR("Yes");
       button2 = CFSTR("No");
       break;
-    case MB_YESNOCANCEL:
+    case EMessageBoxType::kMB_YESNOCANCEL:
       button1 = CFSTR("Yes");
       button2 = CFSTR("No");
+      button3 = CFSTR("Cancel");
+    case EMessageBoxType::kMB_RETRYCANCEL:
+      button2 = CFSTR("Retry");
       button3 = CFSTR("Cancel");
       break;
   }
@@ -388,23 +390,24 @@ int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, int type)
   switch (response)
   {
     case kCFUserNotificationDefaultResponse:
-      if(type == MB_OK || type == MB_OKCANCEL)
-        result = IDOK;
+      if(type == EMessageBoxType::kMB_OK || type == EMessageBoxType::kMB_OKCANCEL)
+        result = EMessageBoxResult::kOK;
       else
-        result = IDYES;
+        result = EMessageBoxResult::kYES;
       break;
     case kCFUserNotificationAlternateResponse:
-      if(type == MB_OKCANCEL)
-        result = IDCANCEL;
+      if(type == EMessageBoxType::kMB_OKCANCEL)
+        result = EMessageBoxResult::kCANCEL;
       else
-        result = IDNO;
+        result = EMessageBoxResult::kNO;
       break;
     case kCFUserNotificationOtherResponse:
-      result = IDCANCEL;
+      result = EMessageBoxResult::kCANCEL;
       break;
   }
 
   return result;
+#endif
 }
 
 void IGraphicsMac::ForceEndUserEdit()
@@ -508,8 +511,8 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
 
   fileName.Set(""); // reset it
 
-  //if (CStringHasContents(ext))
-  pFileTypes = [[NSString stringWithUTF8String:ext] componentsSeparatedByString: @" "];
+  if (CStringHasContents(ext))
+    pFileTypes = [[NSString stringWithUTF8String:ext] componentsSeparatedByString: @" "];
 
   if (action == kFileSave)
   {

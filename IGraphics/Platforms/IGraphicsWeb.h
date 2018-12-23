@@ -21,12 +21,6 @@
 
 using namespace emscripten;
 
-struct RetainVal
-{
-  RetainVal(val item) : mItem(item) {}
-  val mItem;
-};
-
 static val GetCanvas()
 {
   return val::global("document").call<val>("getElementById", std::string("canvas"));
@@ -51,7 +45,7 @@ public:
 
   void SetPlatformContext(void* pContext) override {} // TODO:
 
-  void HideMouseCursor(bool hide, bool returnToStartPos) override;
+  void HideMouseCursor(bool hide, bool lock) override;
   void ForceEndUserEdit() override {} // TODO:
   void* OpenWindow(void* pParent) override;
   void CloseWindow() override {} // TODO:
@@ -59,7 +53,7 @@ public:
   bool WindowIsOpen() override { return GetWindow(); } // TODO: ??
   bool GetTextFromClipboard(WDL_String& str) override;
   void UpdateTooltips() override {} // TODO:
-  int ShowMessageBox(const char* str, const char* caption, int type) override;
+  int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) override;
   
   IPopupMenu* CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   
@@ -76,4 +70,7 @@ public:
   
 protected:
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
+    
+private:
+  bool mCursorLock;
 };

@@ -70,12 +70,8 @@ bool IGraphicsIOS::GetResourcePathFromBundle(const char* fileName, const char* s
   if (isCorrectType && pBundle && pFile)
   {
     NSString* pParent = [[[pBundle bundlePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent];
-    NSString* pPath = nullptr;
-    if(strcmp(searchExt, "png") == 0 || strcmp(searchExt, "svg") == 0)
-      pPath = [[[[pParent stringByAppendingString:@"/img/"] stringByAppendingString:pFile] stringByAppendingString: @"."] stringByAppendingString:pExt];
-    else if(strcmp(searchExt, "ttf") == 0)
-      pPath = [[[[pParent stringByAppendingString:@"/fonts/"] stringByAppendingString:pFile] stringByAppendingString: @"."] stringByAppendingString:pExt];
-    
+    NSString* pPath = [[[[pParent stringByAppendingString:@"/"] stringByAppendingString:pFile] stringByAppendingString: @"."] stringByAppendingString:pExt];
+
     if (pPath)
     {
       fullPath.Set([pPath cString]);
@@ -139,7 +135,7 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
   
   OnViewInitialized([view layer]);
   
-  SetDisplayScale([UIScreen mainScreen].scale);
+  SetScreenScale([UIScreen mainScreen].scale);
   
   GetDelegate()->LayoutUI(this);
 
@@ -181,8 +177,9 @@ void IGraphicsIOS::PlatformResize()
   }
 }
 
-int IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, int type)
+int IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, EMessageBoxType type)
 {
+  //TODO
   return 0;
 }
 

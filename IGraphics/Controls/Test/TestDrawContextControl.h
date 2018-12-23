@@ -18,6 +18,7 @@ public:
   TestDrawContextControl(IGEditorDelegate& dlg, IRECT bounds)
   : IControl(dlg, bounds)
   {
+    SetTooltip("TestDrawContextControl");
   }
 
   void Draw(IGraphics& g) override
@@ -38,7 +39,7 @@ public:
 #elif defined IGRAPHICS_LICE
 #elif defined IGRAPHICS_CAIRO
     cairo_t* cr = (cairo_t*) g.GetDrawContext();
-    
+
     cairo_save(cr);
     cairo_translate(cr, r1.MW(), r1.MH());
     cairo_rotate(cr, DegToRad(30.f));

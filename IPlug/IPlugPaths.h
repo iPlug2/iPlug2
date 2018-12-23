@@ -19,7 +19,7 @@ extern void HostPath(WDL_String& path, const char* bundleID = 0);
 extern void PluginPath(WDL_String& path, const char* bundleID = 0);
 
 /** @param path WDL_String reference where the path will be put on success or empty string on failure */
-extern void BundleResourcePath(WDL_String& path, const char* bundleID = 0);
+extern void BundleResourcePath(WDL_String& path, const char* bundleID);
 
 /** @param path WDL_String reference where the path will be put on success or empty string on failure */
 extern void DesktopPath(WDL_String& path);

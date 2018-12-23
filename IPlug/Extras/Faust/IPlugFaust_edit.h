@@ -1,5 +1,8 @@
 #pragma once
 
+#include "IPlugPlatform.h"
+#if !defined OS_IOS && !defined OS_WEB
+
 #define STATE_BEFORE_CODE -1
 
 #include "swell.h"
@@ -76,3 +79,7 @@ public:
 #undef COLOR_BLUE
 #undef COLOR_RED
 #undef COLOR_CYAN
+
+#else
+void OpenFaustEditorWindow (const char*) {};
+#endif //!defined OS_IOS && !defined OS_WEB

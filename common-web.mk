@@ -10,6 +10,7 @@ CONTROLS_PATH = $(IGRAPHICS_PATH)/Controls
 PLATFORMS_PATH = $(IGRAPHICS_PATH)/Platforms
 DRAWING_PATH = $(IGRAPHICS_PATH)/Drawing
 IPLUG_EXTRAS_PATH = $(IPLUG_PATH)/Extras
+IPLUG_SYNTH_PATH = $(IPLUG_EXTRAS_PATH)/Synth
 IPLUG_WEB_PATH = $(IPLUG_PATH)/WEB
 NANOVG_PATH = $(DEPS_PATH)/IGraphics/NanoVG/src
 NANOSVG_PATH = $(DEPS_PATH)/IGraphics/NanoSVG/src
@@ -30,6 +31,7 @@ INCLUDE_PATHS = -I$(PROJECT_ROOT) \
 -I$(WDL_PATH) \
 -I$(IPLUG_PATH) \
 -I$(IPLUG_EXTRAS_PATH) \
+-I$(IPLUG_SYNTH_PATH) \
 -I$(IPLUG_WEB_PATH) \
 -I$(IGRAPHICS_PATH) \
 -I$(DRAWING_PATH) \
@@ -53,8 +55,7 @@ $(IGRAPHICS_PATH)/IGraphicsEditorDelegate.cpp
 # CFLAGS for both WAM and WEB targets
 CFLAGS = $(INCLUDE_PATHS) \
 -std=c++11  \
--Wno-bitwise-op-parentheses \
--DNO_PARAMS_MUTEX
+-Wno-bitwise-op-parentheses
 
 WAM_CFLAGS = -DWAM_API \
 -DIPLUG_DSP=1 \

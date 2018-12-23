@@ -344,6 +344,12 @@
   <ItemGroup>
     <ResourceCompile Include="..\resources\main.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\config\IPlugFaustDSP-ios.xcconfig" />
+    <None Include="..\config\IPlugFaustDSP-mac.xcconfig" />
+    <None Include="..\config\IPlugFaustDSP-web.mk" />
+    <None Include="..\config\IPlugFaustDSP-win.props" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

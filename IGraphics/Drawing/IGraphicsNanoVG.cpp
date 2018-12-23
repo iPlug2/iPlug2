@@ -116,12 +116,36 @@ NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double source
 #endif
   nvgImageSize(mVG, idx, &w, &h);
   
-  SetBitmap(idx, w, h, sourceScale);
+  SetBitmap(idx, w, h, sourceScale, 1.f);
+}
+
+NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, int scale, float drawScale)
+{
+  mVG = pContext;
+  mFBO = nvgCreateFramebuffer(pContext, width, height, 0);
+  
+  nvgEndFrame(mVG);
+  nvgBindFramebuffer(mFBO);
+  
+#ifdef IGRAPHICS_METAL
+  mnvgClearWithColor(mVG, nvgRGBAf(0, 0, 0, 0));
+#else
+  glViewport(0, 0, width, height);
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+#endif
+  nvgBeginFrame(mVG, width, height, 1.f);
+  nvgEndFrame(mVG);
+  
+  SetBitmap(mFBO->image, width, height, scale, drawScale);
 }
 
 NanoVGBitmap::~NanoVGBitmap()
 {
-  nvgDeleteImage(mVG, GetBitmap());
+  if(mFBO)
+    nvgDeleteFramebuffer(mFBO);
+  else
+    nvgDeleteImage(mVG, GetBitmap());
 }
 
 #pragma mark -
@@ -142,46 +166,41 @@ inline NVGcompositeOperation NanoVGBlendMode(const IBlend* pBlend)
 {
   if (!pBlend)
   {
-    return NVG_COPY;
+    return NVG_SOURCE_OVER;
   }
   
   switch (pBlend->mMethod)
   {
-    case kBlendClobber:
-    {
-      return NVG_SOURCE_OVER;
-    }
-    case kBlendAdd:
+    case kBlendClobber:     return NVG_SOURCE_OVER;
+    case kBlendAdd:         return NVG_LIGHTER;
     case kBlendColorDodge:
     case kBlendNone:
     default:
     {
-      return NVG_COPY;
+      return NVG_SOURCE_OVER;
     }
   }
 }
 
 NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend* pBlend)
 {
+  double s[2], e[2];
+  
   NVGcolor icol = NanoVGColor(pattern.GetStop(0).mColor, pBlend);
   NVGcolor ocol = NanoVGColor(pattern.GetStop(pattern.NStops() - 1).mColor, pBlend);
-  
+    
   // Invert transform
-  
-  float inverse[6];
-  nvgTransformInverse(inverse, pattern.mTransform);
-  float s[2];
-  
-  nvgTransformPoint(&s[0], &s[1], inverse, 0, 0);
-  
+
+  IMatrix inverse = IMatrix(pattern.mTransform).Invert();
+  inverse.TransformPoint(s[0], s[1], 0.0, 0.0);
+
   if (pattern.mType == kRadialPattern)
   {
-    return nvgRadialGradient(pContext, s[0], s[1], 0.0, inverse[0], icol, ocol);
+    return nvgRadialGradient(pContext, s[0], s[1], 0.0, inverse.mXX, icol, ocol);
   }
   else
   {
-    float e[2];
-    nvgTransformPoint(&e[0], &e[1], inverse, 1, 0);
+    inverse.TransformPoint(e[0], e[1], 0.0, 1.0);
     
     return nvgLinearGradient(pContext, s[0], s[1], e[0], e[1], icol, ocol);
   }
@@ -218,8 +237,8 @@ const char* IGraphicsNanoVG::GetDrawingAPIStr()
 
 IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale)
 {
-  if(targetScale == 0)
-    targetScale = round(GetDisplayScale());
+  if (targetScale == 0)
+    targetScale = GetScreenScale();
   
   APIBitmap* pAPIBitmap = mBitmapCache.Find(name, targetScale);
   
@@ -244,6 +263,12 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
 APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
 {
   return new NanoVGBitmap(mVG, resourcePath.Get(), scale, GetPlatformInstance());
+}
+
+APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height)
+{
+  const double scale = GetDrawScale() * GetScreenScale();
+  return new NanoVGBitmap(mVG, width * scale, height * scale, GetScreenScale(), GetDrawScale());
 }
 
 void IGraphicsNanoVG::SetPlatformContext(void* pContext)
@@ -351,7 +376,7 @@ void IGraphicsNanoVG::DrawResize()
   if (mMainFrameBuffer != nullptr)
     nvgDeleteFramebuffer(mMainFrameBuffer);
   
-  mMainFrameBuffer = nvgCreateFramebuffer(mVG, WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale(), 0);
+  mMainFrameBuffer = nvgCreateFramebuffer(mVG, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale(), 0);
   
   if (mMainFrameBuffer == nullptr)
     DBGMSG("Could not init FBO.\n");
@@ -364,7 +389,7 @@ void IGraphicsNanoVG::BeginFrame()
 #ifdef IGRAPHICS_METAL
   //  mnvgClearWithColor(mVG, nvgRGBAf(0, 0, 0, 0));
 #else
-  glViewport(0, 0, WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
+  glViewport(0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   #ifdef OS_WEB
@@ -376,7 +401,7 @@ void IGraphicsNanoVG::BeginFrame()
 #endif
   
   nvgBindFramebuffer(mMainFrameBuffer); // begin main frame buffer update
-  nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetDisplayScale());
+  nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
 }
 
 void IGraphicsNanoVG::EndFrame()
@@ -384,7 +409,7 @@ void IGraphicsNanoVG::EndFrame()
   nvgEndFrame(mVG); // end main frame buffer update
   nvgBindFramebuffer(nullptr);
   
-  nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetDisplayScale());
+  nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
 
   NVGpaint img = nvgImagePattern(mVG, 0, 0, WindowWidth(), WindowHeight(), 0, mMainFrameBuffer->image, 1.0f);
   
@@ -407,11 +432,31 @@ void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, i
 {
   APIBitmap* pAPIBitmap = bitmap.GetAPIBitmap();
   
-  NVGpaint imgPaint = nvgImagePattern(mVG, std::round(dest.L) - srcX, std::round(dest.T) - srcY, bitmap.W(), bitmap.H(), 0.f, pAPIBitmap->GetBitmap(), BlendWeight(pBlend));
+  assert(pAPIBitmap);
+    
+  // First generate a scaled image paint
+    
+  NVGpaint imgPaint;
+  double scale = 1.0 / (pAPIBitmap->GetScale() * pAPIBitmap->GetDrawScale());
+
+  nvgTransformScale(imgPaint.xform, scale, scale);
+
+  imgPaint.xform[4] = std::round(dest.L) - srcX;
+  imgPaint.xform[5] = std::round(dest.T) - srcY;
+  imgPaint.extent[0] = bitmap.W() * bitmap.GetScale();
+  imgPaint.extent[1] = bitmap.H() * bitmap.GetScale();
+  imgPaint.image = pAPIBitmap->GetBitmap();
+  imgPaint.radius = imgPaint.feather = 0.f;
+  imgPaint.innerColor = imgPaint.outerColor = nvgRGBAf(1, 1, 1, BlendWeight(pBlend));
+    
+  // Now draw
+    
   nvgBeginPath(mVG); // Clears any existing path
   nvgRect(mVG, dest.L, dest.T, dest.W(), dest.H());
   nvgFillPaint(mVG, imgPaint);
+  nvgGlobalCompositeOperation(mVG, NanoVGBlendMode(pBlend));
   nvgFill(mVG);
+  nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
   nvgBeginPath(mVG); // Clears the bitmap rect from the path state
 }
 
@@ -497,6 +542,8 @@ bool IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IREC
   }
   else
   {
+    nvgGlobalCompositeOperation(mVG, NanoVGBlendMode(pBlend));
+      
     if(text.mOrientation != 0)
     {
       IRECT tmp;
@@ -511,6 +558,8 @@ bool IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IREC
     }
     else
       nvgText(mVG, xpos, ypos, str, NULL);
+      
+    nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
   }
     
   return true;
@@ -544,8 +593,10 @@ void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const
     nvgStrokePaint(mVG, NanoVGPaint(mVG, pattern, pBlend));
   
   nvgPathWinding(mVG, NVG_CCW);
+  nvgGlobalCompositeOperation(mVG, NanoVGBlendMode(pBlend));
   nvgStroke(mVG);
-  
+  nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
+    
   if (!options.mPreserve)
     nvgBeginPath(mVG); // Clears the path state
 }
@@ -559,8 +610,10 @@ void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& opti
   else
     nvgFillPaint(mVG, NanoVGPaint(mVG, pattern, pBlend));
   
+  nvgGlobalCompositeOperation(mVG, NanoVGBlendMode(pBlend));
   nvgFill(mVG);
-  
+  nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
+
   if (!options.mPreserve)
     nvgBeginPath(mVG); // Clears the path state
 }
@@ -598,15 +651,52 @@ void IGraphicsNanoVG::DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, 
   nvgRoundedRect(mVG, inner.L, inner.T, inner.W(), inner.H(), cr);
   nvgPathWinding(mVG, NVG_HOLE);
   nvgFillPaint(mVG, shadowPaint);
+  nvgGlobalCompositeOperation(mVG, NanoVGBlendMode(pBlend));
   nvgFill(mVG);
+  nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
   nvgBeginPath(mVG); // Clear the paths
+}
+
+void IGraphicsNanoVG::UpdateLayer()
+{
+  if (mLayers.empty())
+  {
+    nvgEndFrame(mVG);
+#ifndef IGRAPHICS_METAL
+    glViewport(0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
+#endif
+    nvgBindFramebuffer(mMainFrameBuffer);
+    nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
+  }
+  else
+  {
+    nvgEndFrame(mVG);
+#ifndef IGRAPHICS_METAL
+    const double scale = GetDrawScale() * GetScreenScale();
+    glViewport(0, 0, mLayers.top()->Bounds().W() * scale, mLayers.top()->Bounds().H() * scale);
+#endif
+    nvgBindFramebuffer(dynamic_cast<const NanoVGBitmap*>(mLayers.top()->GetAPIBitmap())->GetFBO());
+    nvgBeginFrame(mVG, mLayers.top()->Bounds().W() * GetDrawScale(), mLayers.top()->Bounds().H() * GetDrawScale(), GetScreenScale());
+  }
 }
 
 void IGraphicsNanoVG::PathTransformSetMatrix(const IMatrix& m)
 {
+  double xTranslate = 0.0;
+  double yTranslate = 0.0;
+  
+  if (!mLayers.empty())
+  {
+    IRECT bounds = mLayers.top()->Bounds();
+    
+    xTranslate = -bounds.L;
+    yTranslate = -bounds.T;
+  }
+  
   nvgResetTransform(mVG);
-  nvgScale(mVG, GetScale(), GetScale());
-  nvgTransform(mVG, m.mTransform[0], m.mTransform[1], m.mTransform[2], m.mTransform[3], m.mTransform[4], m.mTransform[5]);
+  nvgScale(mVG, GetDrawScale(), GetDrawScale());
+  nvgTranslate(mVG, xTranslate, yTranslate);
+  nvgTransform(mVG, m.mXX, m.mYX, m.mXY, m.mYY, m.mTX, m.mTY);
 }
 
 void IGraphicsNanoVG::SetClipRegion(const IRECT& r)
@@ -619,7 +709,36 @@ void IGraphicsNanoVG::SetClipRegion(const IRECT& r)
 
 void IGraphicsNanoVG::DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness, float dashLen)
 {
-  //TODO:
+  const float xd = x1 - x2;
+  const float yd = y1 - y2;
+  const float len = std::sqrt(xd * xd + yd * yd);
+  
+  const float segs = std::round(len / dashLen);
+  const float incr = 1.f / segs;
+
+  float xs = x1;
+  float ys = y1;
+
+  PathMoveTo(xs, ys);
+
+  for (int i = 1; i < static_cast<int>(segs); i+=2)
+  {
+    float progress = incr * static_cast<float>(i);
+  
+    float xe = x1 + progress * (x2 - x1);
+    float ye = y1 + progress * (y2 - y1);
+    
+    PathLineTo(xe, ye);
+    
+    progress += incr;
+    
+    xs = x1 + progress * (x2 - x1);;
+    ys = y1 + progress * (y2 - y1);
+    
+    PathMoveTo(xs, ys);
+  }
+  
+  PathStroke(color, thickness, IStrokeOptions(), pBlend);
 }
 
 void IGraphicsNanoVG::DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness, float dashLen)

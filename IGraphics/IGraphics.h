@@ -34,6 +34,9 @@
 #include "IGraphicsPopupMenu.h"
 #include "IGraphicsEditorDelegate.h"
 
+#include <stack>
+#include <memory>
+
 #ifdef OS_MAC
 #ifdef FillRect
 #undef FillRect
@@ -79,7 +82,7 @@ public:
 
   /** Called by the platform IGraphics class XXXXX /todo and when moving to a new screen with different DPI, implementations in draw class must call the base implementation
    * @param scale The scale of the display, typically 2 on a macOS retina screen */
-  void SetDisplayScale(int scale);
+  void SetScreenScale(int scale);
   
   /** Draw an SVG image to the graphics context
    * @param svg The SVG image to the graphics context
@@ -109,7 +112,7 @@ public:
    * @param bitmap The bitmap image to draw to the graphics context
    * @param bounds The rectangular region to draw the image in
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend = 0) {};//= 0;
+  virtual void DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend = 0) = 0;
   
   /** Draw a bitmap (raster) image to the graphics context with rotation
    * @param bitmap The bitmap image to draw to the graphics context
@@ -442,6 +445,18 @@ public:
 
   virtual void DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints = nullptr, const IBlend* pBlend = 0, float thickness = 1.f);
   
+#pragma mark - IGraphics drawing API layer support
+    
+  void StartLayer(const IRECT& r);
+  ILayerPtr EndLayer();
+  bool CheckLayer(const ILayerPtr& layer);
+  void DrawLayer(const ILayerPtr& layer);
+    
+private:
+  virtual void UpdateLayer() {}
+
+public:
+  
 #pragma mark - IGraphics drawing API Path support
 
   virtual bool HasPathSupport() const { return false; }
@@ -474,22 +489,31 @@ public:
   virtual void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options = IStrokeOptions(), const IBlend* pBlend = 0) {}
   virtual void PathFill(const IPattern& pattern, const IFillOptions& options = IFillOptions(), const IBlend* pBlend = 0) {}
 
+  virtual void PathTransformSave() {}
+  virtual void PathTransformRestore() {}
+  virtual void PathTransformReset(bool clearStates = false) {}
+  virtual void PathTransformTranslate(float x, float y) {}
+  virtual void PathTransformScale(float scaleX, float scaleY) {}
+  virtual void PathTransformScale(float scale) {}
+  virtual void PathTransformRotate(float angle) {}
+  virtual void PathTransformSkew(float xAngle, float yAngle) {}
+  virtual void PathTransformMatrix(const IMatrix& matrix) {}
+
+  virtual void PathClipRegion(const IRECT r = IRECT()) {}
+  
   virtual void DrawBoxShadow(const IRECT& bounds, float cr = 0.f, float ydrop = 2.f, float pad = 10.f, const IBlend* pBlend = 0) {};
 
 private:
     
-  /** This is overridden in some IGraphics drawing classes to clip drawing to a rectangular region
-   * @param bounds The rectangular region to clip  */
-  inline virtual void ClipRegion(const IRECT& bounds) {};
-    
-  /** This is overridden in some IGraphics drawing classes so you can reset clipping after drawing a shape */
-  inline virtual void ResetClipRegion() {};
-
+  /** This is used to prepare a particular area of the display for drawing, normally resulting in clipping of the region.
+   * @param bounds The rectangular region to prepare  */
+  virtual void PrepareRegion(const IRECT& bounds) = 0;
+ 
 public:
     
 #pragma mark - IGraphics platform implementation
   /** Call to hide the mouse cursor */ 
-  virtual void HideMouseCursor(bool hide = true, bool returnToStartPosition = true) {};
+  virtual void HideMouseCursor(bool hide = true, bool lock = true) {};
 
   /** Force move the mouse cursor to a specific position in the graphics context
    * @param x New X position in pixels
@@ -529,9 +553,9 @@ public:
   /** Pop up a modal platform message box dialog. NOTE: this method will block the main thread
    * @param str The text message to display in the dialogue
    * @param caption The title of the message box window \todo check
-   * @param type An integer describing the button options available either MB_OK, MB_YESNO, MB_CANCEL \todo explain better
+   * @param type EMessageBoxType describing the button options available \see EMessageBoxType
    * @return \todo check */
-  virtual int ShowMessageBox(const char* str, const char* caption, int type) = 0;
+  virtual int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) = 0;
 
   /** Create a platform text entry box
    * @param control The control that the text entry belongs to. If this control is linked to a parameter, the text entry will be configured with initial text matching the parameter value
@@ -606,6 +630,8 @@ public:
    * @return \c true on success */
   virtual bool OSFindResource(const char* fileName, const char* type, WDL_String& result) = 0;
 
+  /** Get the bundle ID on macOS and iOS, returns emtpy string on other OSs */
+  virtual const char* GetBundleID() { return ""; }
 #pragma mark - IGraphics base implementation
   IGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.);
   virtual ~IGraphics();
@@ -681,11 +707,11 @@ public:
 
   /** Gets the width of the graphics context including scaling (not display scaling!)
    * @return A whole number representing the width of the graphics context with scaling in pixels on a 1:1 screen */
-  int WindowWidth() const { return int((float) mWidth * mScale); }
+  int WindowWidth() const { return int((float) mWidth * mDrawScale); }
 
   /** Gets the height of the graphics context including scaling (not display scaling!)
    * @return A whole number representing the height of the graphics context with scaling in pixels on a 1:1 screen */
-  int WindowHeight() const { return int((float) mHeight * mScale); }
+  int WindowHeight() const { return int((float) mHeight * mDrawScale); }
 
   /** Gets the drawing frame rate
    * @return A whole number representing the desired frame rate at which the graphics context is redrawn. NOTE: the actual frame rate might be different */
@@ -693,11 +719,11 @@ public:
 
   /** Gets the graphics context scaling factor.
    * @return The scaling applied to the graphics context */
-  float GetScale() const { return mScale; }
+  float GetDrawScale() const { return mDrawScale; }
 
   /** Gets the display scaling factor
     * @return The scale factor of the display on which this graphics context is currently located */
-  float GetDisplayScale() const { return mDisplayScale; }
+  int GetScreenScale() const { return mScreenScale; }
 
   /** Gets a pointer to the delegate class that handles communication to and from this graphics context.
    * @return pointer to the delegate */
@@ -943,9 +969,9 @@ public:
 
 protected:
   virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;
-  //virtual void* CreateAPIBitmap(int w, int h) = 0;
   virtual APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) = 0;
-
+  virtual APIBitmap* CreateAPIBitmap(int width, int height) = 0;
+    
   inline void SearchNextScale(int& sourceScale, int targetScale);
   bool SearchImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale);
   APIBitmap* SearchBitmapInCache(const char* name, int targetScale, int& sourceScale);
@@ -982,9 +1008,8 @@ private:
   int mWidth;
   int mHeight;
   int mFPS;
-  float mDisplayScale = 1.f; // the scaling of the display that the UI is currently on e.g. 2 for retina
-  float mScale = 1.f; // scale deviation from  default width and height i.e stretching the UI by dragging bottom right hand corner
-  float mScaleReciprocal = 1.f; // 1.f / mScale
+  int mScreenScale = 1; // the scaling of the display that the UI is currently on e.g. 2 for retina
+  float mDrawScale = 1.f; // scale deviation from  default width and height i.e stretching the UI by dragging bottom right hand corner
   int mIdleTicks = 0;
   int mMouseCapture = -1;
   int mMouseOver = -1;
@@ -1010,5 +1035,7 @@ private:
 protected:
   friend class IGraphicsLiveEdit;
   friend class ICornerResizerBase;
+  
+  std::stack<ILayer*> mLayers;
 };
 

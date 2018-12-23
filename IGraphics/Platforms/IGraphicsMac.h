@@ -36,8 +36,8 @@ public:
   void HideMouseCursor(bool hide, bool returnToStartPosition) override;
   void MoveMouseCursor(float x, float y) override;
   void SetMouseCursor(ECursor cursor) override;
-  
-  int ShowMessageBox(const char* str, const char* caption, int type) override;
+
+  int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) override;
   void ForceEndUserEdit() override;
 
   const char* GetPlatformAPIStr() override;
@@ -57,15 +57,12 @@ public:
 
   void* GetWindow() override;
 
-  const char* GetBundleID()  { return mBundleID.Get(); }
+  const char* GetBundleID() override { return mBundleID.Get(); }
   static int GetUserOSVersion();
 
   bool GetTextFromClipboard(WDL_String& str) override;
 
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
-
-  //IGraphicsMac
-  void SetMousePosition(float x, float y);
 
 private:
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;

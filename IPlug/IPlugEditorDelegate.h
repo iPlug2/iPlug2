@@ -68,6 +68,16 @@ public:
   /** @return Returns the number of parameters that belong to the plug-in. */
   int NParams() const { return mParams.GetSize(); }
   
+  /** Loops through all parameters, calling SendParameterValueFromDelegate() with the current value of the parameter
+   *  This is important when modifying groups of parameters, restoring state and opening the UI, in order to update it with the latest values*/
+  void SendCurrentParamValuesFromDelegate()
+  {
+    for (int i = 0; i < NParams(); ++i)
+    {
+      SendParameterValueFromDelegate(i, GetParam(i)->GetNormalized(), true);
+    }
+  }
+  
 #pragma mark - Methods you may want to override...
   
   /** Override this method when not using IGraphics in order to hook into the native parent view e.g. NSView, UIView, HWND */
@@ -76,14 +86,8 @@ public:
   /** Override this method when not using IGraphics if you need to free resources etc when the window closes */
   virtual void CloseWindow() {};
   
-  /** Override this method to do something before the UI is opened. Call base implementations. */
-  virtual void OnUIOpen()
-  {
-    for (auto i = 0; i < NParams(); ++i)
-    {
-      SendParameterValueFromDelegate(i, GetParam(i)->GetNormalized(), true);
-    }
-  };
+  /** Override this method to do something before the UI is opened. Call base implementations, to make sure. */
+  virtual void OnUIOpen() { SendCurrentParamValuesFromDelegate(); };
   
   /** Override this method to do something before the UI is closed. */
   virtual void OnUIClose() {};
@@ -91,7 +95,7 @@ public:
   /** This is an OnParamChange that will only trigger on the UI thread at low priority, and therefore is appropriate for hiding or showing elements of the UI.
    * You should not update parameter objects using this method.
    * @param paramIdx The index of the parameter that changed */
-  virtual void OnParamChangeUI(int paramIdx, EParamSource source) {};
+  virtual void OnParamChangeUI(int paramIdx, EParamSource source = kUnknown) {};
   
   /** Handle incoming MIDI messages sent to the user interface
    * @param msg The MIDI message to process  */
@@ -105,8 +109,9 @@ public:
   virtual bool OnMessage(int messageTag, int controlTag, int dataSize, const void* pData) { return false; }
   
   /** This is called by API classes after restoring state and by IPluginBase::RestorePreset(). Typically used to update user interface, where multiple parameter values have changed.
-   * If you need to do something when state is restored you can override it */
-  virtual void OnRestoreState() {};
+   * If you need to do something when state is restored you can override it
+   * If you override this method you should call this parent, or implement the same functionality in order to get controls to update, when state is restored. */
+  virtual void OnRestoreState() { SendCurrentParamValuesFromDelegate(); };
   
 #pragma mark - Methods for sending values TO the user interface
   /** SendControlValueFromDelegate (Abbreviation: SCVFD)
@@ -184,6 +189,10 @@ public:
    * @param paramIdx The index of the parameter that is changing value */
   virtual void EndInformHostOfParamChangeFromUI(int paramIdx) = 0;
   
+  /** When modifying a range of parameters in the editor, it can be necessary to broadcast that fact, for instance in a distributed plug-in.
+   *  You can use it if you restore a preset using a custom preset mechanism. */
+  virtual void DirtyParametersFromUI() {};
+  
   /** Sometimes when a plug-in wants to change its UI dimensions we need to call into the plug-in API class first when we click a button in our UI
    * This method is implemented in various classes that inherit this interface to implement that behaviour */
   virtual void ResizeGraphicsFromUI(int viewWidth, int viewHeight, float scale) {};
@@ -207,7 +216,6 @@ public:
   * @param dataSize The size in bytes of the data payload pointed to by pData. Note: if this is nonzero, pData must be valid.
   * @param pData Ptr to the opaque data payload for the message */
   virtual void SendArbitraryMsgFromUI(int messageTag, int controlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) {};
-
 #pragma mark -
   /** This method is needed, for remote editors to avoid a feedback loop */
   virtual void DeferMidiMsg(const IMidiMsg& msg) {};

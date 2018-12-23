@@ -45,8 +45,8 @@ EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent
   x -= rect["left"].as<double>();
   y -= rect["top"].as<double>();
 
-  x /= pGraphics->GetScale();
-  y /= pGraphics->GetScale();
+  x /= pGraphics->GetDrawScale();
+  y /= pGraphics->GetDrawScale();
   
   switch (eventType) {
     case EMSCRIPTEN_EVENT_MOUSEUP: pGraphics->OnMouseUp(x, y, modifiers);
@@ -77,8 +77,8 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
   double x = pEvent->targetX;
   double y = pEvent->targetY;
   
-  x /= pGraphics->GetScale();
-  y /= pGraphics->GetScale();
+  x /= pGraphics->GetDrawScale();
+  y /= pGraphics->GetDrawScale();
   
   switch (eventType) {
     case EMSCRIPTEN_EVENT_CLICK: break;
@@ -121,8 +121,8 @@ EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* pEvent, void* 
   double x = pEvent->mouse.targetX;
   double y = pEvent->mouse.targetY;
   
-  x /= pGraphics->GetScale();
-  y /= pGraphics->GetScale();
+  x /= pGraphics->GetDrawScale();
+  y /= pGraphics->GetDrawScale();
   
   switch (eventType) {
     case EMSCRIPTEN_EVENT_WHEEL: pGraphics->OnMouseWheel(x, y, modifiers, pEvent->deltaY);
@@ -159,19 +159,33 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
 {
   OnViewInitialized(nullptr /* not used */);
 
-  SetDisplayScale(val::global("window")["devicePixelRatio"].as<int>());
+  SetScreenScale(val::global("window")["devicePixelRatio"].as<int>());
 
   GetDelegate()->LayoutUI(this);
   
   return nullptr;
 }
 
-void IGraphicsWeb::HideMouseCursor(bool hide, bool returnToStartPos)
+void IGraphicsWeb::HideMouseCursor(bool hide, bool lock)
 {
-  if(hide)
-    val::global("document")["body"]["style"].set("cursor", std::string("none"));
+  if (hide)
+  {
+    if (lock)
+      emscripten_request_pointerlock("canvas", EM_FALSE);
+    else
+      val::global("document")["body"]["style"].set("cursor", std::string("none"));
+    
+    mCursorLock = lock;
+  }
   else
-    val::global("document")["body"]["style"].set("cursor", std::string("auto"));
+  {
+    if (mCursorLock)
+      emscripten_exit_pointerlock();
+    else
+      val::global("document")["body"]["style"].set("cursor", std::string("auto"));
+      
+    mCursorLock = false;
+  }
 }
 
 bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String& result)
@@ -225,19 +239,13 @@ bool IGraphicsWeb::GetTextFromClipboard(WDL_String& str)
   return true; // TODO: return?
 }
 
-#define MB_OK 0
-#define MB_OKCANCEL 1
-#define MB_YESNOCANCEL 3
-#define MB_YESNO 4
-#define MB_RETRYCANCEL 5
-
-int IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, int type)
+int IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, EMessageBoxType type)
 {
   switch (type)
   {
-    case MB_OK: val::global("window").call<val>("alert", std::string(str)); return 0;
-    case MB_YESNO:
-    case MB_OKCANCEL:
+    case kMB_OK: val::global("window").call<val>("alert", std::string(str)); return 0;
+    case kMB_YESNO:
+    case kMB_OKCANCEL:
       return val::global("window").call<val>("confirm", std::string(str)).as<int>();
     // case MB_CANCEL:
     //   break;
@@ -264,6 +272,7 @@ void IGraphicsWeb::PromptForDirectory(WDL_String& path)
 
 void IGraphicsWeb::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
 {
+    ShowMessageBox("Warning", "Text entry not yet implemented", kMB_OK);
 //  val input = val::global("document").call<val>("createElement", std::string("input"));
 //  
 //  val rect = GetCanvas().call<val>("getBoundingClientRect");
@@ -316,6 +325,8 @@ IPopupMenu* IGraphicsWeb::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds,
     return mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
   else
   {
+    ShowMessageBox("Warning", "Pop up menu not yet implemented", kMB_OK);
+
 //    val sel = val::global("document").call<val>("createElement", std::string("select"));
 //    sel.set("id", "popup");
 //
@@ -343,11 +354,11 @@ void IGraphicsWeb::DrawResize()
 {
   val canvas = GetCanvas();
   
-  canvas["style"].set("width", val(Width() * GetScale()));
-  canvas["style"].set("height", val(Height() * GetScale()));
+  canvas["style"].set("width", val(Width() * GetDrawScale()));
+  canvas["style"].set("height", val(Height() * GetDrawScale()));
   
-  canvas.set("width", Width() * GetScale() * GetDisplayScale());
-  canvas.set("height", Height() * GetScale() * GetDisplayScale());
+  canvas.set("width", Width() * GetDrawScale() * GetScreenScale());
+  canvas.set("height", Height() * GetDrawScale() * GetScreenScale());
   
   IGRAPHICS_DRAW_CLASS::DrawResize();
 }

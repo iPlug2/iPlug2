@@ -617,7 +617,7 @@ public:
       handleBounds.Pad(- 0.5f * mFrameThickness);
     
     if (mDrawShadows && !mEmboss)
-      handleBounds.Shift(0, 0, -mShadowOffset, -mShadowOffset);
+      handleBounds.Alter(0, 0, -mShadowOffset, -mShadowOffset);
     
     return handleBounds;
   }
@@ -652,7 +652,7 @@ public:
     {
       //outer shadow
       if (mDrawShadows && !mEmboss)
-        g.FillRoundRect(GetColor(kSH), handleBounds.GetShifted(mShadowOffset, mShadowOffset), cornerRadius);
+        g.FillRoundRect(GetColor(kSH), handleBounds.GetTranslated(mShadowOffset, mShadowOffset), cornerRadius);
       
       g.FillRoundRect(GetColor(kFG), handleBounds, cornerRadius);
     }
@@ -691,6 +691,7 @@ public:
   , mPattern(color)
   , mDrawFrame(drawFrame)
   {
+    mIgnoreMouse = true;
   }
   
   IPanelControl(IGEditorDelegate& dlg, IRECT bounds, const IPattern& pattern, bool drawFrame = false)
@@ -1068,15 +1069,16 @@ public:
 
   void SetUpMenu();
 
-  void GetSelectedItemLabel(WDL_String& label);
-
-  void GetSelectedItemPath(WDL_String& path);
+//  void GetSelectedItemLabel(WDL_String& label);
+//  void GetSelectedItemPath(WDL_String& path);
 
 private:
   void ScanDirectory(const char* path, IPopupMenu& menuToAddTo);
   void CollectSortedItems(IPopupMenu* pMenu);
   
 protected:
+  bool mShowEmptySubmenus = false;
+  bool mShowFileExtensions = true;
   int mSelectedIndex = -1;
   IPopupMenu* mSelectedMenu = nullptr;
   IPopupMenu mMainMenu;
@@ -1115,7 +1117,7 @@ public:
   
   void OnRescale() override
   {
-    float size = mSize * (1.f/GetUI()->GetScale());
+    float size = mSize * (1.f/GetUI()->GetDrawScale());
     IRECT r = GetUI()->GetBounds().GetFromBRHC(size, size);
     SetTargetAndDrawRECTs(r);
   }

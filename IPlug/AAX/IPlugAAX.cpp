@@ -328,7 +328,7 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
   }
   
   // Midi Out
-  if (DoesMIDI())
+  if (DoesMIDIOut())
   {
     AAX_IMIDINode* midiOut = pRenderInfo->mOutputNode;
     
@@ -359,6 +359,35 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
       }
       
       mMidiOutputQueue.Flush(numSamples);
+      
+      //Output SYSEX from the editor, which has bypassed ProcessSysEx()
+      if(mSysExDataFromEditor.ElementsAvailable())
+      {
+        while (mSysExDataFromEditor.Pop(mSysexBuf))
+        {
+          int numPackets = (int) ceil((float) mSysexBuf.mSize/4.); // each packet can store 4 bytes of data
+          int bytesPos = 0;
+          
+          for (int p = 0; p < numPackets; p++)
+          {
+            AAX_CMidiPacket packet;
+            
+            packet.mTimestamp = (uint32_t) mSysexBuf.mOffset;
+            packet.mIsImmediate = true;
+            
+            int b = 0;
+            
+            while (b < 4 && bytesPos < mSysexBuf.mSize)
+            {
+              packet.mData[b++] = e.data.bytes[bytesPos++];
+            }
+            
+            packet.mLength = b;
+            
+            midiOut->PostMIDIPacket (&packet);
+          }
+        }
+      }
     }
   }
 }
