@@ -971,6 +971,7 @@ public:
   virtual void LoadFont(const char* fileName) {};
   
   IPopupMenuControl* GetPopupMenuControl() { return mPopupControl; }
+  ITextEntryControl* GetTextEntryControl() { return mTextEntryControl; }
 
 protected:
   virtual void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") = 0;

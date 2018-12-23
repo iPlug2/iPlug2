@@ -70,6 +70,8 @@
   #error you must define either IGRAPHICS_GL2, IGRAPHICS_GLES2 etc or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
 #endif
 
+#include "ITextEntryControl.h"
+
 #ifdef OS_WIN
 int LoadImageFromWinResource(NVGcontext* pContext, HINSTANCE hInst, const char* resid)
 {
@@ -503,7 +505,7 @@ bool IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IREC
   nvgFontSize(mVG, text.mSize);
   nvgFontFace(mVG, text.mFont);
   
-  if(textEntry)
+  if(GetTextEntryControl() && GetTextEntryControl()->GetRECT() == bounds)
     nvgFillColor(mVG, NanoVGColor(text.mTextEntryFGColor, pBlend));
   else
     nvgFillColor(mVG, NanoVGColor(text.mFGColor, pBlend));
