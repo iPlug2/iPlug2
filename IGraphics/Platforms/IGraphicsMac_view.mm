@@ -640,7 +640,9 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     IGraphics* pGraphics = mGraphics;
     mGraphics = nullptr;
     pGraphics->SetPlatformContext(nullptr);
-    pGraphics->CloseWindow();
+    
+    //Close via delegate
+    pGraphics->GetDelegate()->CloseWindow();
   }
   [super removeFromSuperview];
 }
