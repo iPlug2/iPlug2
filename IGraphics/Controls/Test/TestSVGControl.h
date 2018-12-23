@@ -25,6 +25,7 @@ public:
 
   void Draw(IGraphics& g) override
   {
+#if 1
     g.FillRect(mMouseIsOver ? COLOR_TRANSLUCENT : COLOR_TRANSPARENT, mRECT);
 
     if (!g.CheckLayer(mLayer))
@@ -35,6 +36,9 @@ public:
     }
 
     g.DrawLayer(mLayer);
+#else
+    g.DrawSVG(mSVG, mRECT);
+#endif
   }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
