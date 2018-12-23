@@ -31,18 +31,21 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     
     pGraphics->AttachCornerResizer(EUIResizerMode::kUIResizerScale, true);
     pGraphics->HandleMouseOver(true);
+    pGraphics->EnableTooltips(true);
     //  pGraphics->EnableLiveEdit(true);
     //  pGraphics->ShowControlBounds(true);
+//    pGraphics->ShowAreaDrawn(true);
     pGraphics->LoadFont(ROBOTTO_FN);
     pGraphics->LoadFont(MONTSERRAT_FN);
     ISVG tiger = pGraphics->LoadSVG(TIGER_FN);
-
+    IBitmap smiley = pGraphics->LoadBitmap(SMILEY_FN);
+    
     IRECT bounds = pGraphics->GetBounds();
     
     int cellIdx = 0;
     
     auto nextCell = [&](){
-      return bounds.GetGridCell(cellIdx++, 4, 4).GetPadded(-5.);
+      return bounds.GetPadded(-10).GetGridCell(cellIdx++, 4, 6).GetPadded(-5.);
     };
     
     pGraphics->AttachPanelBackground(COLOR_GRAY);
@@ -57,11 +60,11 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
       //    g.FillCircle(COLOR_WHITE, r.MW(), r.MH(), radius);
       //    g.FillArc(COLOR_WHITE, r.MW(), r.MH(), radius, 0, 90);
       //    g.FillRoundRect(COLOR_WHITE, r, cornerSize);
-      
+
       g.DrawDottedLine(COLOR_WHITE, r.L, r.T, r.R, r.MH());
       //    g.DrawRect(COLOR_WHITE, r, nullptr, width);
       //    g.DrawCircle(COLOR_WHITE, r.MW(), r.MH(), radius, nullptr, width);
-          g.DrawArc(COLOR_WHITE, r.MW(), r.MH(), radius, 0, 90);
+      g.DrawArc(COLOR_WHITE, r.MW(), r.MH(), radius, 0, 90);
       //    g.DrawRoundRect(COLOR_BLUE, r, cornerSize, nullptr, width);
     }, 1000, false));
     
@@ -75,6 +78,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new TestSVGControl(*this, nextCell(), tiger));
     pGraphics->AttachControl(new TestSizeControl(*this, bounds), kSizeControl);
     pGraphics->AttachControl(new TestLayerControl(*this, nextCell()));
+    pGraphics->AttachControl(new TestBlendControl(*this, nextCell(), smiley));
 
 #if 1
     pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Hello World!", {24, COLOR_WHITE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop, 90}));

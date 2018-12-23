@@ -691,6 +691,7 @@ public:
   , mPattern(color)
   , mDrawFrame(drawFrame)
   {
+    mIgnoreMouse = true;
   }
   
   IPanelControl(IGEditorDelegate& dlg, IRECT bounds, const IPattern& pattern, bool drawFrame = false)

@@ -102,9 +102,9 @@ inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
   }
   switch (pBlend->mMethod)
   {
-    case kBlendClobber: return CAIRO_OPERATOR_OVER;
-    case kBlendAdd: return CAIRO_OPERATOR_ADD;
-    case kBlendColorDodge: return CAIRO_OPERATOR_COLOR_DODGE;
+    case kBlendClobber:     return CAIRO_OPERATOR_OVER;
+    case kBlendAdd:         return CAIRO_OPERATOR_ADD;
+    case kBlendColorDodge:  return CAIRO_OPERATOR_COLOR_DODGE;
     case kBlendNone:
     default:
       return CAIRO_OPERATOR_OVER; // TODO: is this correct - same as clobber?
@@ -592,10 +592,12 @@ void IGraphicsCairo::PathTransformSetMatrix(const IMatrix& m)
     yTranslate = -bounds.T;
   }
   
-  cairo_matrix_t matrix;
-  cairo_matrix_init(&matrix, m.mXX, m.mYX, m.mXY, m.mYY, m.mTX, m.mTY);
-  cairo_matrix_translate(&matrix, xTranslate, yTranslate);
-  cairo_set_matrix(mContext, &matrix);
+  cairo_matrix_t matrix1, matrix2;
+  cairo_matrix_init_translate(&matrix1, xTranslate, yTranslate);
+  cairo_matrix_init(&matrix2, m.mXX, m.mYX, m.mXY, m.mYY, m.mTX, m.mTY);
+  cairo_matrix_multiply(&matrix1, &matrix2, &matrix1);
+    
+  cairo_set_matrix(mContext, &matrix1);
 }
 
 void IGraphicsCairo::SetClipRegion(const IRECT& r) 

@@ -36,7 +36,7 @@ public:
   void HideMouseCursor(bool hide, bool returnToStartPosition) override;
   void MoveMouseCursor(float x, float y) override;
   void SetMouseCursor(ECursor cursor) override;
-  
+
   int ShowMessageBox(const char* str, const char* caption, int type) override;
   void ForceEndUserEdit() override;
 
@@ -57,7 +57,7 @@ public:
 
   void* GetWindow() override;
 
-  const char* GetBundleID()  { return mBundleID.Get(); }
+  const char* GetBundleID() override { return mBundleID.Get(); }
   static int GetUserOSVersion();
 
   bool GetTextFromClipboard(WDL_String& str) override;
