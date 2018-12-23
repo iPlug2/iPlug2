@@ -112,7 +112,7 @@ public:
    * @param bitmap The bitmap image to draw to the graphics context
    * @param bounds The rectangular region to draw the image in
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend = 0) {};//= 0;
+  virtual void DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend = 0) = 0;
   
   /** Draw a bitmap (raster) image to the graphics context with rotation
    * @param bitmap The bitmap image to draw to the graphics context
@@ -513,7 +513,7 @@ public:
     
 #pragma mark - IGraphics platform implementation
   /** Call to hide the mouse cursor */ 
-  virtual void HideMouseCursor(bool hide = true, bool returnToStartPosition = true) {};
+  virtual void HideMouseCursor(bool hide = true, bool lock = true) {};
 
   /** Force move the mouse cursor to a specific position in the graphics context
    * @param x New X position in pixels
@@ -553,9 +553,9 @@ public:
   /** Pop up a modal platform message box dialog. NOTE: this method will block the main thread
    * @param str The text message to display in the dialogue
    * @param caption The title of the message box window \todo check
-   * @param type An integer describing the button options available either MB_OK, MB_YESNO, MB_CANCEL \todo explain better
+   * @param type EMessageBoxType describing the button options available \see EMessageBoxType
    * @return \todo check */
-  virtual int ShowMessageBox(const char* str, const char* caption, int type) = 0;
+  virtual int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) = 0;
 
   /** Create a platform text entry box
    * @param control The control that the text entry belongs to. If this control is linked to a parameter, the text entry will be configured with initial text matching the parameter value
@@ -630,6 +630,8 @@ public:
    * @return \c true on success */
   virtual bool OSFindResource(const char* fileName, const char* type, WDL_String& result) = 0;
 
+  /** Get the bundle ID on macOS and iOS, returns emtpy string on other OSs */
+  virtual const char* GetBundleID() { return ""; }
 #pragma mark - IGraphics base implementation
   IGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.);
   virtual ~IGraphics();
@@ -721,7 +723,7 @@ public:
 
   /** Gets the display scaling factor
     * @return The scale factor of the display on which this graphics context is currently located */
-  float GetScreenScale() const { return mScreenScale; }
+  int GetScreenScale() const { return mScreenScale; }
 
   /** Gets a pointer to the delegate class that handles communication to and from this graphics context.
    * @return pointer to the delegate */

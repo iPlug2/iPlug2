@@ -712,17 +712,6 @@ void IGraphics::SetStrictDrawing(bool strict)
   SetAllControlsDirty();
 }
 
-//void IGraphics::MoveMouseCursor(float x, float y)
-//{
-//  // Call this with the window-relative coords after doing platform specifc cursor move
-//
-//  if (mMouseCapture >= 0)
-//  {
-//    //mMouseX = x;
-//    //mMouseY = y;
-//  }
-//}
-
 void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   Trace("IGraphics::OnMouseDown", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
@@ -1263,7 +1252,9 @@ NSVGimage* LoadSVGFromWinResource(HINSTANCE hInst, const char* resid)
   const void* pResourceData = LockResource(res);
   if (!pResourceData) return NULL;
 
-  return nsvgParse((char*)pResourceData, "px", 72);
+  WDL_String svgStr {static_cast<const char*>(pResourceData) };
+
+  return nsvgParse(svgStr.Get(), "px", 72);
 }
 #endif
 
@@ -1423,7 +1414,10 @@ void IGraphics::StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emb
 
 void IGraphics::StartLayer(const IRECT& r)
 {
-  mLayers.push(new ILayer(CreateAPIBitmap(r.W(), r.H()), r));
+  const int w = static_cast<int>(std::round( r.W() ));
+  const int h = static_cast<int>(std::round( r.H() ));
+
+  mLayers.push(new ILayer(CreateAPIBitmap(w, h), r));
   UpdateLayer();
   PathTransformReset(true);
   PathClipRegion(r);
@@ -1432,34 +1426,34 @@ void IGraphics::StartLayer(const IRECT& r)
 
 ILayerPtr IGraphics::EndLayer()
 {
-    ILayer* pLayer = nullptr;
-    
-    if (!mLayers.empty())
-    {
-        pLayer = mLayers.top();
-        mLayers.pop();
-    }
-    
-    UpdateLayer();
-    PathTransformReset(true);
-    PathClipRegion();
-    PathClear();
-    
-    return ILayerPtr(pLayer);
+  ILayer* pLayer = nullptr;
+  
+  if (!mLayers.empty())
+  {
+    pLayer = mLayers.top();
+    mLayers.pop();
+  }
+  
+  UpdateLayer();
+  PathTransformReset(true);
+  PathClipRegion();
+  PathClear();
+  
+  return ILayerPtr(pLayer);
 }
 
 bool IGraphics::CheckLayer(const ILayerPtr& layer)
 {
-  const APIBitmap* bitmap = layer ? layer->GetAPIBitmap() : nullptr;
-  return bitmap && !layer->mInvalid && (bitmap->GetDrawScale() != GetDrawScale()) && (bitmap->GetScale() != GetScreenScale());
+  const APIBitmap* pBitmap = layer ? layer->GetAPIBitmap() : nullptr;
+  return pBitmap && !layer->mInvalid && pBitmap->GetDrawScale() == GetDrawScale() && pBitmap->GetScale() == GetScreenScale();
 }
 
 void IGraphics::DrawLayer(const ILayerPtr& layer)
 {
-    PathTransformSave();
-    PathTransformReset();
-    IBitmap bitmap = layer->GetBitmap();
-    IRECT bounds = layer->Bounds();
-    DrawBitmap(bitmap, bounds, 0, 0);
-    PathTransformRestore();
+  PathTransformSave();
+  PathTransformReset();
+  IBitmap bitmap = layer->GetBitmap();
+  IRECT bounds = layer->Bounds();
+  DrawBitmap(bitmap, bounds, 0, 0);
+  PathTransformRestore();
 }

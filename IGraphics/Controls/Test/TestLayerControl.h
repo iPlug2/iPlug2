@@ -18,6 +18,7 @@ public:
   TestLayerControl(IGEditorDelegate& dlg, IRECT rect)
   : IKnobControlBase(dlg, rect, kNoParameter)
   {
+    SetTooltip("TestLayerControl");
   }
 
   void Draw(IGraphics& g) override

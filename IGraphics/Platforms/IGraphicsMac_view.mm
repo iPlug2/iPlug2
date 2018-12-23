@@ -293,28 +293,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
       self.wantsLayer = YES;
     }
   #elif defined IGRAPHICS_GL
-    const NSOpenGLPixelFormatAttribute kAttributes[] =  {
-      NSOpenGLPFAAccelerated,
-      NSOpenGLPFANoRecovery,
-      NSOpenGLPFATripleBuffer,
-      NSOpenGLPFAAlphaSize, 8,
-      NSOpenGLPFAColorSize, 24,
-      NSOpenGLPFADepthSize, 0,
-      NSOpenGLPFAStencilSize, 8,
-      (NSOpenGLPixelFormatAttribute)0};
-    mPixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:kAttributes];
-    mContext = [[NSOpenGLContext alloc] initWithFormat:mPixelFormat
-                                          shareContext:nil];
-  
-    // Sets sync to VBL to eliminate tearing.
-    GLint vblSync = 1;
-    [mContext setValues:&vblSync forParameter:NSOpenGLCPSwapInterval];
-    // Allows for transparent background.
-//    GLint opaque = 0;
-//    [mContext setValues:&opaque forParameter:NSOpenGLCPSurfaceOpacity];
-//    [self setWantsBestResolutionOpenGLSurface:YES];
-    [mContext makeCurrentContext];
-  
+  //TODO: IGRAPHICS_GL context setup
   #endif
 #endif
 
@@ -340,7 +319,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (BOOL) isFlipped
 {
-    return YES;
+  return YES;
 }
 
 - (BOOL) acceptsFirstResponder
@@ -392,21 +371,21 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     mGraphics->SetScreenScale(newScale);
 }
 
-// not called for opengl/metal
+- (CGContextRef) getCGContextRef
+{
+  CGContextRef pCGC = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
+  NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort: pCGC flipped: YES];
+  pCGC = (CGContextRef) [gc graphicsPort];
+  return pCGC;
+}
+
+// not called for METAL
 - (void) drawRect: (NSRect) bounds
 {
-#ifndef IGRAPHICS_GL
   if (mGraphics)
   {
-    //TODO: can we really only get this context on the first draw call?
     if (!mGraphics->GetPlatformContext())
-    {
-      CGContextRef pCGC = nullptr;
-      pCGC = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
-      NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort: pCGC flipped: YES];
-      pCGC = (CGContextRef) [gc graphicsPort];
-      mGraphics->SetPlatformContext(pCGC);
-    }
+      mGraphics->SetPlatformContext([self getCGContextRef]);
       
     if (mGraphics->GetPlatformContext())
     {
@@ -421,38 +400,23 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
       mGraphics->Draw(drawRects);
     }
   }
-#endif
 }
 
 - (void) onTimer: (NSTimer*) pTimer
 {
-  [self render];
-}
-
-- (void) render
-{
-#ifdef IGRAPHICS_GL
-//  CGLLockContext([mContext CGLContextObj]);
-  [mContext setView:self];
-  [mContext makeCurrentContext];
-#endif
-  
   IRECTList rects;
   if (mGraphics->IsDirty(rects))
   {
     mGraphics->SetAllControlsClean();
+    // for METAL layer-backed view drawRect is not called
 #if !defined IGRAPHICS_NANOVG
     for (int i = 0; i < rects.Size(); i++)
-    [self setNeedsDisplayInRect:ToNSRect(mGraphics, rects.Get(i))];
+      [self setNeedsDisplayInRect:ToNSRect(mGraphics, rects.Get(i))];
 #else
-    mGraphics->Draw(rects); // for metal/opengl drawRect is not called
+    // so just draw on each frame, if something is dirty
+    mGraphics->Draw(rects);
 #endif
   }
-  
-#ifdef IGRAPHICS_GL
-//  CGLLockContext([mContext CGLContextObj]);
-  [mContext flushBuffer];
-#endif
 }
 
 - (void) getMouseXY: (NSEvent*) pEvent x: (float*) pX y: (float*) pY
@@ -468,7 +432,6 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
     // Detect tablet input correctly
     mGraphics->SetTabletInput(pEvent.subtype == NSTabletPointEventSubtype);
-    mGraphics->SetMousePosition(*pX, *pY);
   }
 }
 

@@ -18,6 +18,7 @@ public:
   TestGradientControl(IGEditorDelegate& dlg, IRECT rect, int paramIdx = kNoParameter)
   : IKnobControlBase(dlg, rect, paramIdx)
   {
+    SetTooltip("TestGradientControl");
     RandomiseGradient();
   }
 
@@ -36,7 +37,7 @@ public:
     else
       g.DrawText(mText, "UNSUPPORTED", mRECT);
   }
-  
+
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     RandomiseGradient();

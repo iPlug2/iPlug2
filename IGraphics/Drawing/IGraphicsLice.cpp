@@ -121,6 +121,11 @@ void IGraphicsLice::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, 
   LICE_Blit(mRenderBitmap, mTmpBitmap, r.L, r.T, r.L - x, r.T - y, r.R - r.L, r.B - r.T, BlendWeight(pBlend), LiceBlendMode(pBlend));
 }
 
+void IGraphicsLice::DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend)
+{
+  DrawText(DEFAULT_TEXT, "Not implemented", bounds);
+}
+
 void IGraphicsLice::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend)
 {
   LICE_PutPixel(mRenderBitmap, int(TransformX(x) + 0.5f), int(TransformY(y) + 0.5f), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend));
@@ -482,7 +487,7 @@ APIBitmap* IGraphicsLice::CreateAPIBitmap(int width, int height)
 {
   const int scale = GetScreenScale();
   LICE_IBitmap* pBitmap = new LICE_MemBitmap(width * scale, height * scale);
-  memset(pBitmap->getBits(), 0, pBitmap->getRowSpan() * pBitmap->getHeight());
+  memset(pBitmap->getBits(), 0, pBitmap->getRowSpan() * pBitmap->getHeight() * sizeof(LICE_pixel));
   return new LICEBitmap(pBitmap, scale);
 }
 
@@ -553,9 +558,14 @@ void IGraphicsLice::EndFrame()
   HDC dc = BeginPaint(hWnd, &ps);
   
   if (GetDrawScale() == 1.0)
+  {
     BitBlt(dc, 0, 0, Width(), Height(), mDrawBitmap->getDC(), 0, 0, SRCCOPY);
+  }
   else
+  {
+    SetStretchBltMode(dc, HALFTONE);
     StretchBlt(dc, 0, 0, WindowWidth(), WindowHeight(), mDrawBitmap->getDC(), 0, 0, Width(), Height(), SRCCOPY);
+  }
   
   EndPaint(hWnd, &ps);
 #endif

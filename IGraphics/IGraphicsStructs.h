@@ -1247,13 +1247,18 @@ struct IPattern
     const double yd = y2 - y1;
     const double d = sqrt(xd * xd + yd * yd);
     const double a = atan2(xd, yd);
-    const double s = sin(a) / d;
-    const double c = cos(a) / d;
+    const double s = std::sin(a) / d;
+    const double c = std::cos(a) / d;
       
     const double x0 = -(x1 * c - y1 * s);
     const double y0 = -(x1 * s + y1 * c);
     
-    pattern.SetTransform(c, s, -s, c, x0, y0);
+    pattern.SetTransform(static_cast<float>(c),
+                         static_cast<float>(s),
+                         static_cast<float>(-s),
+                         static_cast<float>(c),
+                         static_cast<float>(x0),
+                         static_cast<float>(y0));
     
     return pattern;
   }
@@ -1272,7 +1277,7 @@ struct IPattern
   {
     IPattern pattern(kRadialPattern);
     
-    const double s = 1.f / r;
+    const float s = 1.f / r;
 
     pattern.SetTransform(s, 0, 0, s, -(x1 * s), -(y1 * s));
     
@@ -1325,8 +1330,8 @@ class ILayer
   friend IGraphics;
   
 public:
-  ILayer(APIBitmap* bitmap, IRECT r)
-  : mBitmap(bitmap)
+  ILayer(APIBitmap* pBitmap, IRECT r)
+  : mBitmap(pBitmap)
   , mRECT(r)
   , mInvalid(false)
   {}
@@ -1340,14 +1345,12 @@ public:
   const IRECT& Bounds() const { return mRECT; }
   
 private:
-  
   std::unique_ptr<APIBitmap> mBitmap;
   IRECT mRECT;
   bool mInvalid;
 };
 
 /** ILayerPtr is a manged pointer for transferring the ownership of layers */
-
 typedef std::unique_ptr<ILayer> ILayerPtr;
 
 // TODO: static storage needs thread safety mechanism
