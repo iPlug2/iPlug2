@@ -304,7 +304,7 @@ void IGraphicsMac::HideMouseCursor(bool hide, bool lock)
   if (hide)
   {
     StoreCursorPosition();
-    CGDisplayHideCursor(CGMainDisplayID());
+    CGDisplayHideCursor(kCGDirectMainDisplay);
     mCursorLock = lock;
     DoCursorLock(mCursorX, mCursorY, mCursorX, mCursorY);
     StoreCursorPosition();
@@ -312,7 +312,7 @@ void IGraphicsMac::HideMouseCursor(bool hide, bool lock)
   else
   {
     DoCursorLock(mCursorX, mCursorY, mCursorX, mCursorY);
-    CGDisplayShowCursor(CGMainDisplayID());
+    CGDisplayShowCursor(kCGDirectMainDisplay);
     mCursorLock = false;
   }
 }
@@ -356,7 +356,7 @@ void IGraphicsMac::StoreCursorPosition()
   mouse.y = std::round(CGDisplayPixelsHigh(CGMainDisplayID()) - mouse.y);
   mCursorLockPosition = CGPoint{mouse.x, mouse.y};
   
-  // Convert to IGraphics co-ordinates
+  // Convert to IGraphics coordinates
   mCursorX = mouse.x;
   mCursorY = CGDisplayPixelsHigh(CGMainDisplayID()) - mouse.y;
   ScreenToPoint(mCursorX, mCursorY);
