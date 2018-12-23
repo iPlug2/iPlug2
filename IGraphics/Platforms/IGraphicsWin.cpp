@@ -681,9 +681,9 @@ bool IGraphicsWin::MouseCursorIsLocked()
   return mCursorLock;
 }
 
-int IGraphicsWin::ShowMessageBox(const char* text, const char* caption, int type)
+int IGraphicsWin::ShowMessageBox(const char* text, const char* caption, EMessageBoxType type)
 {
-  return MessageBox(GetMainWnd(), text, caption, type);
+  return MessageBox(GetMainWnd(), text, caption, (int) type);
 }
 
 void* IGraphicsWin::OpenWindow(void* pParent)
