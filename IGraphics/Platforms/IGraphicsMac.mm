@@ -344,7 +344,7 @@ void IGraphicsMac::MoveMouseCursor(float x, float y)
   CGAssociateMouseAndMouseCursorPosition(true);
 }
 
-int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, int type)
+int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, EMessageBoxOption type)
 {
 #if IGRAPHICS_SWELL
   return MessageBox((HWND) mView, str, caption, type);

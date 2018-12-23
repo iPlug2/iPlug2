@@ -31,7 +31,7 @@ public:
   void HideMouseCursor() override;
   void ShowMouseCursor() override;
 
-  int ShowMessageBox(const char* str, const char* caption, int type) override;
+  int ShowMessageBox(const char* str, const char* caption, EMessageBoxOption type) override;
   void ForceEndUserEdit() override;
 
   const char* GetPlatformAPIStr() override;

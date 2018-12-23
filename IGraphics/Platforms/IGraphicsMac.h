@@ -37,7 +37,7 @@ public:
   void MoveMouseCursor(float x, float y) override;
   void SetMouseCursor(ECursor cursor) override;
 
-  int ShowMessageBox(const char* str, const char* caption, int type) override;
+  int ShowMessageBox(const char* str, const char* caption, EMessageBoxOption type) override;
   void ForceEndUserEdit() override;
 
   const char* GetPlatformAPIStr() override;
