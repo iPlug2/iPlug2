@@ -1040,12 +1040,7 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mo)
 int IGraphics::GetParamIdxForPTAutomation(float x, float y)
 {
   int ctrl = GetMouseControlIdx(x, y, false);
-  int idx = -1;
-
-  if(ctrl)
-    idx = mControls.Get(ctrl)->ParamIdx();
-
-  mLastClickedParam = idx;
+  int idx = mLastClickedParam = ctrl ? mControls.Get(ctrl)->ParamIdx() : -1;
   return idx;
 }
 
