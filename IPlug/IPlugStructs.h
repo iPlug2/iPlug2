@@ -48,7 +48,6 @@ struct SysExData
 };
 
 /** A helper class for IBtyeChunk and IBtyeStream that avoids code duplication **/
-/** A helper class for IByteChunk and IByteStream that avoids code duplication **/
 struct IByteGetter
 {
   static inline int GetBytes(const uint8_t* pData, int dataSize, void* pBuf, int size, int startPos)

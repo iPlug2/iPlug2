@@ -1034,10 +1034,7 @@ tresult PLUGIN_API IPlugVST3View::attached(void* parent, FIDString type)
 tresult PLUGIN_API IPlugVST3View::removed()
 {
   if (mPlug->HasUI())
-  {
-    mPlug->OnUIClose();
     mPlug->CloseWindow();
-  }
 
   return CPluginView::removed();
 }

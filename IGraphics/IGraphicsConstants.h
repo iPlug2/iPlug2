@@ -189,6 +189,6 @@ enum EMessageBoxResult
   kNO = 7
 };
 
-static constexpr char* kMessageResultStrs[8] = {"", "OK", "CANCEL", "ABORT", "RETRY", "IGNORE", "YES", "NO"};
+static const char* kMessageResultStrs[8] = {"", "OK", "CANCEL", "ABORT", "RETRY", "IGNORE", "YES", "NO"};
 
 

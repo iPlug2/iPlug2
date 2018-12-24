@@ -43,6 +43,8 @@ void* IGEditorDelegate::OpenWindow(void* pParent)
 
 void IGEditorDelegate::CloseWindow()
 {
+  IEditorDelegate::CloseWindow();
+  
   if(mGraphics)
     mGraphics->CloseWindow();
   

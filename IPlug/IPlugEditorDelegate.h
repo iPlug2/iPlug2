@@ -78,16 +78,15 @@ public:
     }
   }
   
+  /** If you are not using IGraphics, you can implement this method to attach to the native parent view e.g. NSView, UIView, HWND */
+  virtual void* OpenWindow(void* pParent) { OnUIOpen(); return nullptr; }
+  
+  /** If you are not using IGraphics you can if you need to free resources etc when the window closes. Call base implementation. */
+  virtual void CloseWindow() { OnUIClose(); }
+  
 #pragma mark - Methods you may want to override...
-  
-  /** Override this method when not using IGraphics in order to hook into the native parent view e.g. NSView, UIView, HWND */
-  virtual void* OpenWindow(void* pParent) { return nullptr; }
-  
-  /** Override this method when not using IGraphics if you need to free resources etc when the window closes */
-  virtual void CloseWindow() {};
-  
-  /** Override this method to do something before the UI is opened. Call base implementations, to make sure. */
-  virtual void OnUIOpen() { SendCurrentParamValuesFromDelegate(); };
+  /** Override this method to do something before the UI is opened. Call base implementation. */
+  virtual void OnUIOpen() { SendCurrentParamValuesFromDelegate(); }
   
   /** Override this method to do something before the UI is closed. */
   virtual void OnUIClose() {};
