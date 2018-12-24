@@ -277,7 +277,7 @@ void IGraphicsMac::PointToScreen(float& x, float& y)
     NSPoint pt = [pWindow convertRectToScreen: NSMakeRect(wndpt.x, wndpt.y, 0.0, 0.0)].origin;
       
     x = pt.x;
-    y = CGDisplayPixelsHigh(CGMainDisplayID()) - pt.y;
+    y = pt.y;
   }
 }
 
@@ -306,8 +306,6 @@ void IGraphicsMac::HideMouseCursor(bool hide, bool lock)
     StoreCursorPosition();
     CGDisplayHideCursor(kCGDirectMainDisplay);
     mCursorLock = lock;
-    DoCursorLock(mCursorX, mCursorY, mCursorX, mCursorY);
-    StoreCursorPosition();
   }
   else
   {
@@ -323,11 +321,7 @@ void IGraphicsMac::MoveMouseCursor(float x, float y)
     return;
     
   PointToScreen(x, y);
-  
-  CGPoint point{x, y};
-  CGAssociateMouseAndMouseCursorPosition(false);
-  CGDisplayMoveCursorToPoint(CGMainDisplayID(), point);
-  CGAssociateMouseAndMouseCursorPosition(true);
+  RepositionCursor(CGPoint{x, y});
   StoreCursorPosition();
 }
 
@@ -335,9 +329,7 @@ void IGraphicsMac::DoCursorLock(float x, float y, float& prevX, float& prevY)
 {
   if (mCursorHidden && mCursorLock && !mTabletInput)
   {
-    CGAssociateMouseAndMouseCursorPosition(false);
-    CGDisplayMoveCursorToPoint(CGMainDisplayID(), mCursorLockPosition);
-    CGAssociateMouseAndMouseCursorPosition(true);
+    RepositionCursor(mCursorLockPosition);
     prevX = mCursorX;
     prevY = mCursorY;
   }
@@ -348,17 +340,23 @@ void IGraphicsMac::DoCursorLock(float x, float y, float& prevX, float& prevY)
   }
 }
 
+void IGraphicsMac::RepositionCursor(CGPoint point)
+{
+  point = CGPoint{point.x, CGDisplayPixelsHigh(CGMainDisplayID()) - point.y};
+  CGAssociateMouseAndMouseCursorPosition(false);
+  CGDisplayMoveCursorToPoint(CGMainDisplayID(), point);
+  CGAssociateMouseAndMouseCursorPosition(true);
+}
+
 void IGraphicsMac::StoreCursorPosition()
 {
   // Get position in screen coordinates
   NSPoint mouse = [NSEvent mouseLocation];
-  mouse.x = std::round(mouse.x);
-  mouse.y = std::round(CGDisplayPixelsHigh(CGMainDisplayID()) - mouse.y);
+  mCursorX = mouse.x = std::round(mouse.x);
+  mCursorY = mouse.y = std::round(mouse.y);
   mCursorLockPosition = CGPoint{mouse.x, mouse.y};
   
   // Convert to IGraphics coordinates
-  mCursorX = mouse.x;
-  mCursorY = CGDisplayPixelsHigh(CGMainDisplayID()) - mouse.y;
   ScreenToPoint(mCursorX, mCursorY);
 }
 
