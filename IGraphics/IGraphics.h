@@ -80,10 +80,6 @@ public:
   /** Called by some drawing API classes to finally blit the draw bitmap onto the screen or perform other cleanup after drawing */
   virtual void EndFrame() {};
 
-  /** Called by the platform IGraphics class XXXXX /todo and when moving to a new screen with different DPI, implementations in draw class must call the base implementation
-   * @param scale The scale of the display, typically 2 on a macOS retina screen */
-  void SetScreenScale(int scale);
-  
   /** Draw an SVG image to the graphics context
    * @param svg The SVG image to the graphics context
    * @param bounds The rectangular region to draw the image in
@@ -636,6 +632,10 @@ public:
   IGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.);
   virtual ~IGraphics();
 
+  /** Called by the platform IGraphics class XXXXX /todo and when moving to a new screen with different DPI
+   * @param scale The scale of the display, typically 2 on a macOS retina screen */
+  void SetScreenScale(int scale);
+    
   /** Called repeatedly at frame rate by the platform class to check what the graphics context says is dirty
    * @param bounds The rectangular region which will be added to to mark what is dirty in the context
    * @return /c true if a control is dirty */
@@ -643,7 +643,7 @@ public:
 
   /** Called by the platform class when an area needs to be redrawn
    * @param rects A set of rectangular regions to draw */
-  virtual void Draw(IRECTList& rects);
+  void Draw(IRECTList& rects);
 
   /** This method is called after interacting with a control, so that any other controls linked to the same parameter index, will also be set dirty, and have their values updated.
    * @param pCaller The control that triggered the parameter change. */
