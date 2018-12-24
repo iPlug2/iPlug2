@@ -776,7 +776,7 @@ public:
   
   /** Get a pointer to the IControl that is currently captured i.e. during dragging
    * @return Pointer to currently captured control */
-  IControl* GetCapturedControl() { if(mMouseCapture > 0) { return GetControl(mMouseCapture); } else return nullptr; }
+  IControl* GetCapturedControl() { return mMouseCapture; }
   
   /** @return The number of controls that have been added to this graphics context */
   int NControls() const { return mControls.GetSize(); }
@@ -903,7 +903,7 @@ public:
   bool CanHandleMouseOver() const { return mHandleMouseOver; }
 
   /** @return An integer representing the control index in IGraphics::mControls which the mouse is over, or -1 if it is not */
-  inline int GetMouseOver() const { return mMouseOver; }
+  inline int GetMouseOver() const { return mMouseOverIdx; }
 
   /** Get the x, y position in the graphics context of the last mouse down message. Does not get cleared on mouse up etc.
    * @param x Where the X position will be stored
@@ -997,27 +997,35 @@ protected:
 private:
     
   void Draw(const IRECT& bounds);
-  void DrawControl(IControl* pControl, const IRECT& bounds, bool alwaysShow);
+  void DrawControl(IControl* pControl, const IRECT& bounds);
   int GetMouseControlIdx(float x, float y, bool mo = false);
+  IControl* GetMouseControl(float x, float y, bool capture, bool mo = false);
   void StartResizeGesture() { mResizingInProcess = true; };
   
   virtual void PlatformResize() {}
   virtual void DrawResize() {}
     
+  void FuncForAllControls(std::function<void(IControl& control)> func);
+    
   template<typename T, typename... Args>
   void ForAllControls(T op, Args... args);
   
+  void ForMatchingControls(std::function<void(IControl& control)> func);
+    
   template<typename T, typename... Args>
   void ForMatchingControls(T method, int paramIdx, Args... args);
     
+  void PopupHostContextMenuForParam(IControl* pControl, int paramIdx, float x, float y);
+
   int mWidth;
   int mHeight;
   int mFPS;
   int mScreenScale = 1; // the scaling of the display that the UI is currently on e.g. 2 for retina
   float mDrawScale = 1.f; // scale deviation from  default width and height i.e stretching the UI by dragging bottom right hand corner
   int mIdleTicks = 0;
-  int mMouseCapture = -1;
-  int mMouseOver = -1;
+  IControl* mMouseCapture = nullptr;
+  IControl* mMouseOver = nullptr;
+  int mMouseOverIdx = -1;
   float mMouseDownX = -1.f;
   float mMouseDownY = -1.f;
   float mMinScale;
