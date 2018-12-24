@@ -34,17 +34,19 @@ IPlugAPP::IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   CreateTimer();
 }
 
-void IPlugAPP::ResizeGraphics(int viewWidth, int viewHeight, float scale)
+void IPlugAPP::EditorStateChanged(int viewWidth, int viewHeight, const IByteChunk& data)
 {
-  #ifdef OS_MAC
-  #define TITLEBAR_BODGE 22 //TODO: sort this out
-  RECT r;
-  GetWindowRect(gHWND, &r);
-  SetWindowPos(gHWND, 0, r.left, r.bottom - viewHeight - TITLEBAR_BODGE, viewWidth, viewHeight + TITLEBAR_BODGE, 0);
-  #endif
+  if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
+  {
+    #ifdef OS_MAC
+    #define TITLEBAR_BODGE 22 //TODO: sort this out
+    RECT r;
+    GetWindowRect(gHWND, &r);
+    SetWindowPos(gHWND, 0, r.left, r.bottom - viewHeight - TITLEBAR_BODGE, viewWidth, viewHeight + TITLEBAR_BODGE, 0);
+    #endif
+  }
   
-  IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, scale);
-  OnWindowResize();
+  IPlugAPIBase::EditorStateChanged(viewWidth, viewHeight, data);
 }
 
 bool IPlugAPP::SendMidiMsg(const IMidiMsg& msg)
