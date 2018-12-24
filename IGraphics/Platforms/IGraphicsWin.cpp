@@ -106,7 +106,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   {
     LPCREATESTRUCT lpcs = (LPCREATESTRUCT) lParam;
     SetWindowLongPtr(hWnd, GWLP_USERDATA, (LPARAM) (lpcs->lpCreateParams));
-    int mSec = int(1000.0 / sFPS);
+    int mSec = static_cast<int>(std::round(1000.0 / (sFPS)));
     SetTimer(hWnd, IPLUG_TIMER_ID, mSec, NULL);
     SetFocus(hWnd); // gets scroll wheel working straight away
     DragAcceptFiles(hWnd, true);
@@ -1269,12 +1269,15 @@ void IGraphicsWin::SetTooltip(const char* tooltip)
 
 void IGraphicsWin::ShowTooltip()
 {
-  const char* tooltip = GetControl(mTooltipIdx)->GetTooltip();
-  if (tooltip)
+  if (mTooltipIdx > -1)
   {
-    assert(strlen(tooltip) < 80);
-    SetTooltip(tooltip);
-    mShowingTooltip = true;
+    const char* tooltip = GetControl(mTooltipIdx)->GetTooltip();
+    if (tooltip)
+    {
+      assert(strlen(tooltip) < 80);
+      SetTooltip(tooltip);
+      mShowingTooltip = true;
+    }
   }
 }
 
