@@ -50,3 +50,4 @@
 #define ROBOTTO_FN "Roboto-Regular.ttf"
 #define PNGKNOB_FN "knob.png"
 #define PNGKNOBROTATE_FN "knob-rotate.png"
+#define SVGKNOBROTATE_FN "vector-knob.svg"

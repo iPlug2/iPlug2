@@ -114,10 +114,10 @@ protected:
 };
 
 /** A vector knob control which rotates an SVG image */
-class IVSVGKnob : public IKnobControlBase
+class ISVGKnob : public IKnobControlBase
 {
 public:
-  IVSVGKnob(IGEditorDelegate& dlg, IRECT bounds, ISVG& svg, int paramIdx = kNoParameter)
+  ISVGKnob(IGEditorDelegate& dlg, IRECT bounds, const ISVG& svg, int paramIdx = kNoParameter)
     : IKnobControlBase(dlg, bounds, paramIdx)
     , mSVG(svg)
   {
