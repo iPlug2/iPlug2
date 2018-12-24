@@ -193,11 +193,9 @@ void IGraphics::AttachPerformanceDisplay()
 
 IControl* IGraphics::GetControlWithTag(int controlTag)
 {
-  int i, n = mControls.GetSize();
-  IControl** ppControl = mControls.GetList();
-  for (i = 0; i < n; ++i, ++ppControl)
+  for (auto c = 0; c < NControls(); c++)
   {
-    IControl* pControl = *ppControl;
+    IControl* pControl = GetControl(c);
     if (pControl->GetTag() == controlTag)
     {
       return pControl;
@@ -262,33 +260,36 @@ void IGraphics::ForControlInGroup(const char* group, std::function<void(IControl
   }
 }
 
-void IGraphics::FuncForAllControls(std::function<void(IControl& control)> func)
+void IGraphics::ForStandardControlsFunc(std::function<void(IControl& control)> func)
 {
-  int i, n = mControls.GetSize();
-  IControl** ppControl = mControls.GetList();
-  for (i = 0; i < n; ++i, ++ppControl)
-    func(**ppControl);
-  
-  if (mCornerResizer)
-    func(*mCornerResizer);
+  for (auto c = 0; c < NControls(); c++)
+    func(*GetControl(c));
+}
+
+void IGraphics::ForAllControlsFunc(std::function<void(IControl& control)> func)
+{
+  ForStandardControlsFunc(func);
   
   if (mPerfDisplay)
     func(*mPerfDisplay);
   
-  if (mPopupControl && mPopupControl->GetExpanded())
-    func(*mPopupControl);
+  if (mCornerResizer)
+    func(*mCornerResizer);
   
 #if !defined(NDEBUG)
   if (mLiveEdit)
     func(*mLiveEdit);
 #endif
+  
+  if (mPopupControl)
+    func(*mPopupControl);
 }
 
 template<typename T, typename... Args>
 void IGraphics::ForAllControls(T method, Args... args)
 {
   auto func = [method, args...](IControl& control) { (control.*method)(args...); };
-  FuncForAllControls(func);
+  ForAllControlsFunc(func);
 }
 
 template<typename T, typename... Args>
@@ -315,8 +316,8 @@ void IGraphics::AssignParamNameToolTips()
     if (control.ParamIdx() > -1)
       control.SetTooltip(control.GetParam()->GetNameForHost());
   };
-    
-  FuncForAllControls(func);
+  
+  ForStandardControlsFunc(func);
 }
 
 void IGraphics::UpdatePeers(IControl* pCaller) // TODO: this could be really slow
@@ -328,7 +329,7 @@ void IGraphics::UpdatePeers(IControl* pCaller) // TODO: this could be really slo
       control.SetValueFromDelegate(pCaller->GetValue());
   };
     
-  FuncForAllControls(func);
+  ForStandardControlsFunc(func);
 }
 
 void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds)
@@ -453,11 +454,11 @@ void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& bounds, IText& text, IB
       nLines = 1;
     }
 
-    for(int line=0; line<nLines; line++)
+    for (int line=0; line<nLines; line++)
     {
       float yOffset = basicYOffset + line * charHeight;
 
-      for(int linepos=0; linepos<nCharsThatFitIntoLine; linepos++)
+      for (int linepos=0; linepos<nCharsThatFitIntoLine; linepos++)
       {
         if (str[stridx] == '\0') return;
 
@@ -547,7 +548,7 @@ bool IGraphics::IsDirty(IRECTList& rects)
     }
   };
     
-  FuncForAllControls(func);
+  ForAllControlsFunc(func);
   
 #ifdef USE_IDLE_CALLS
   if (dirty)
@@ -606,7 +607,7 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds)
 void IGraphics::Draw(const IRECT& bounds)
 {
   auto func = [this, bounds](IControl& control) { DrawControl(&control, bounds); };
-  FuncForAllControls(func);
+  ForAllControlsFunc(func);
 
 #ifndef NDEBUG
   // Helper for debugging
@@ -819,29 +820,35 @@ bool IGraphics::OnKeyDown(float x, float y, int key)
     return mKeyCatcher ? mKeyCatcher->OnKeyDown(x, y, key) : false;
 }
 
+void IGraphics::OnDrop(const char* str, float x, float y)
+{
+  IControl* pControl = GetMouseControl(x, y, false);
+  if (pControl) pControl->OnDrop(str);
+}
+
 void IGraphics::ReleaseMouseCapture()
 {
   mMouseCapture = nullptr;
   HideMouseCursor(false);
 }
 
-int IGraphics::GetMouseControlIdx(float x, float y, bool mo)
+int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
 {
-  if (!mo || mHandleMouseOver)
+  if (!mouseOver || mHandleMouseOver)
   {
     // Search from front to back
-
-    for (int i = mControls.GetSize() - 1; i >= (mo ? 1 : 0); --i)
+    for (auto c = NControls() - 1; c >= (mouseOver ? 1 : 0); --c)
     {
-      IControl* pControl = GetControl(i);
+      IControl* pControl = GetControl(c);
 
       if (!pControl->IsHidden() && !pControl->GetIgnoreMouse())
       {
-        bool allow = !pControl->IsGrayed() || (mo ? pControl->GetMOWhenGrayed(): pControl->GetMEWhenGrayed());
-  
-        if (allow && pControl->IsHit(x, y))
+        if ((!pControl->IsGrayed() || (mouseOver ? pControl->GetMOWhenGrayed() : pControl->GetMEWhenGrayed())))
         {
-          return i;
+          if (pControl->IsHit(x, y))
+          {
+            return c;
+          }
         }
       }
     }
@@ -850,7 +857,7 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mo)
   return -1;
 }
 
-IControl* IGraphics::GetMouseControl(float x, float y, bool capture, bool mo)
+IControl* IGraphics::GetMouseControl(float x, float y, bool capture, bool mouseOver)
 {
   if (mMouseCapture)
     return mMouseCapture;
@@ -858,26 +865,30 @@ IControl* IGraphics::GetMouseControl(float x, float y, bool capture, bool mo)
   IControl* control = nullptr;
   int controlIdx = -1;
   
+  if (!control && mPopupControl && mPopupControl->GetExpanded())
+    control = mPopupControl;
+  
 #if !defined(NDEBUG)
   if (mLiveEdit)
     control = mLiveEdit;
-  else
 #endif
-  if (mPopupControl && mPopupControl->GetExpanded())
-    control = mPopupControl;
-  else if (mCornerResizer && mCornerResizer->GetRECT().Contains(x, y))
+  
+  if (!control && mCornerResizer && mCornerResizer->GetRECT().Contains(x, y))
     control = mCornerResizer;
-  else if (mPerfDisplay && mPerfDisplay->GetRECT().Contains(x, y))
+  
+  if (!control && mPerfDisplay && mPerfDisplay->GetRECT().Contains(x, y))
     control = mPerfDisplay;
-  else
+  
+  if (!control)
   {
-    controlIdx = GetMouseControlIdx(x, y, mo);
+    controlIdx = GetMouseControlIdx(x, y, mouseOver);
     control = (controlIdx >= 0) ? GetControl(controlIdx) : nullptr;
   }
   
   if (capture)
     mMouseCapture = control;
-  if (mo)
+
+  if (mouseOver)
     mMouseOverIdx = controlIdx;
   
   return control;
@@ -997,17 +1008,10 @@ IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
   return LoadBitmap(src.GetResourceName().Get(), src.N(), src.GetFramesAreHorizontal(), (GetScreenScale() == 1 && GetDrawScale() > 1.) ? 2 : 0);
 }
 
-void IGraphics::OnDrop(const char* str, float x, float y)
-{
-  IControl* pControl = GetMouseControl(x, y, false);
-  if (pControl) pControl->OnDrop(str);
-}
-
 void IGraphics::EnableTooltips(bool enable)
 {
   mEnableTooltips = enable;
-  if (enable)
-    mHandleMouseOver = true;
+  if (enable) mHandleMouseOver = true;
 }
 
 void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)

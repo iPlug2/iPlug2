@@ -814,6 +814,8 @@ public:
 
   /***/
   void SetAllControlsDirty();
+  
+  /***/
   void SetAllControlsClean();
   
   /** @param x The X coordinate in the graphics context at which the mouse event occurred
@@ -865,9 +867,10 @@ public:
    * @param y The Y coordinate in the graphics context where the drag and drop occurred */
   void OnDrop(const char* str, float x, float y);
 
-  /** */
+  /***/
   void OnGUIIdle();
   
+  /***/
   void OnResizeGesture(float x, float y);
 
   /** @param enable Set \c true if you want to handle mouse over messages. Note: this may increase the amount CPU usage if you redraw on mouse overs etc */
@@ -977,6 +980,7 @@ protected:
   APIBitmap* SearchBitmapInCache(const char* name, int targetScale, int& sourceScale);
 
   virtual bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = nullptr, bool measure = false) = 0;
+  
 protected:
   IGEditorDelegate& mDelegate;
   WDL_PtrList<IControl> mControls;
@@ -986,7 +990,8 @@ protected:
   float mCursorX = -1.f;
   float mCursorY = -1.f;
     
-  // Order ToolTip / PopUp or TextEntry / LiveEdit / Corner / PerfDisplay
+  // Order (front-to-back) ToolTip / PopUp / TextEntry / LiveEdit / Corner / PerfDisplay
+  
   ICornerResizerBase* mCornerResizer = nullptr;
   IPopupMenuControl* mPopupControl = nullptr;
   IPerfDisplayControl* mPerfDisplay = nullptr;
@@ -994,29 +999,30 @@ protected:
   IControl* mKeyCatcher = nullptr;
 
   IPopupMenu mPromptPopupMenu;
+
 private:
-    
-  void Draw(const IRECT& bounds);
-  void DrawControl(IControl* pControl, const IRECT& bounds);
-  int GetMouseControlIdx(float x, float y, bool mo = false);
-  IControl* GetMouseControl(float x, float y, bool capture, bool mo = false);
-  void StartResizeGesture() { mResizingInProcess = true; };
-  
   virtual void PlatformResize() {}
   virtual void DrawResize() {}
-    
-  void FuncForAllControls(std::function<void(IControl& control)> func);
+  
+  void Draw(const IRECT& bounds);
+  void DrawControl(IControl* pControl, const IRECT& bounds);
+  
+  int GetMouseControlIdx(float x, float y, bool mouseOver = false);
+  IControl* GetMouseControl(float x, float y, bool capture, bool mouseOver = false);
+  
+  void StartResizeGesture() { mResizingInProcess = true; };
+  
+  void PopupHostContextMenuForParam(IControl* pControl, int paramIdx, float x, float y);
+
+  void ForStandardControlsFunc(std::function<void(IControl& control)> func);
+  void ForAllControlsFunc(std::function<void(IControl& control)> func);
     
   template<typename T, typename... Args>
   void ForAllControls(T op, Args... args);
-  
-  void ForMatchingControls(std::function<void(IControl& control)> func);
     
   template<typename T, typename... Args>
   void ForMatchingControls(T method, int paramIdx, Args... args);
-    
-  void PopupHostContextMenuForParam(IControl* pControl, int paramIdx, float x, float y);
-
+  
   int mWidth;
   int mHeight;
   int mFPS;
