@@ -107,10 +107,7 @@ public:
   tresult PLUGIN_API removed() override
   {
     if (mController->HasUI())
-    {
-      mController->OnUIClose();
       mController->CloseWindow();
-    }
     
     return CPluginView::removed();
   }

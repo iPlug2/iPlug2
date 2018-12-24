@@ -641,7 +641,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     mGraphics = nullptr;
     pGraphics->SetPlatformContext(nullptr);
     
-    //Close via delegate
+    //For some APIs (AUv2) this is where we know about the window being closed, close via delegate
     pGraphics->GetDelegate()->CloseWindow();
   }
   [super removeFromSuperview];
