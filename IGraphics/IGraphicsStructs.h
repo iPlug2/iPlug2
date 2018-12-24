@@ -358,7 +358,7 @@ struct IBlend
    * \todo IBlend::weight needs documentation
    * @param weight
   */
-  IBlend(EBlendType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(weight) {}
+  IBlend(EBlendType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(Clip(weight, 0.f, 1.f)) {}
 };
 
 inline float BlendWeight(const IBlend* pBlend)
