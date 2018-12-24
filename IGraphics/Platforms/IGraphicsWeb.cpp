@@ -318,11 +318,11 @@ void IGraphicsWeb::CreateTextEntry(IControl& control, const IText& text, const I
 }
 
 IPopupMenu* IGraphicsWeb::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
-{
+{    
   ReleaseMouseCapture();
   
-  if(mPopupControl)
-    return mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
+  if (GetPopupMenuControl())
+    return GetPopupMenuControl()->CreatePopupMenu(menu, bounds, pCaller);
   else
   {
     ShowMessageBox("Warning", "Pop up menu not yet implemented", kMB_OK);

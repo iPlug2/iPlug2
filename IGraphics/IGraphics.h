@@ -981,24 +981,17 @@ protected:
 
   virtual bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = nullptr, bool measure = false) = 0;
   
-protected:
+  void ForStandardControlsFunc(std::function<void(IControl& control)> func);
+  
+  template<typename T, typename... Args>
+  void ForMatchingControls(T method, int paramIdx, Args... args);
+  
   IGEditorDelegate& mDelegate;
-  WDL_PtrList<IControl> mControls;
   void* mPlatformContext = nullptr;
   bool mCursorHidden = false;
   bool mTabletInput = false;
   float mCursorX = -1.f;
   float mCursorY = -1.f;
-    
-  // Order (front-to-back) ToolTip / PopUp / TextEntry / LiveEdit / Corner / PerfDisplay
-  
-  ICornerResizerBase* mCornerResizer = nullptr;
-  IPopupMenuControl* mPopupControl = nullptr;
-  IPerfDisplayControl* mPerfDisplay = nullptr;
-  IControl* mLiveEdit = nullptr;
-  IControl* mKeyCatcher = nullptr;
-
-  IPopupMenu mPromptPopupMenu;
 
 private:
   virtual void PlatformResize() {}
@@ -1014,14 +1007,22 @@ private:
   
   void PopupHostContextMenuForParam(IControl* pControl, int paramIdx, float x, float y);
 
-  void ForStandardControlsFunc(std::function<void(IControl& control)> func);
   void ForAllControlsFunc(std::function<void(IControl& control)> func);
     
   template<typename T, typename... Args>
   void ForAllControls(T op, Args... args);
-    
-  template<typename T, typename... Args>
-  void ForMatchingControls(T method, int paramIdx, Args... args);
+  
+  WDL_PtrList<IControl> mControls;
+
+  // Order (front-to-back) ToolTip / PopUp / TextEntry / LiveEdit / Corner / PerfDisplay
+  
+  ICornerResizerBase* mCornerResizer = nullptr;
+  IPopupMenuControl* mPopupControl = nullptr;
+  IPerfDisplayControl* mPerfDisplay = nullptr;
+  IControl* mLiveEdit = nullptr;
+  IControl* mKeyCatcher = nullptr;
+  
+  IPopupMenu mPromptPopupMenu;
   
   int mWidth;
   int mHeight;

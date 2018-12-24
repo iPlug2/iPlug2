@@ -925,8 +925,8 @@ IPopupMenu* IGraphicsWin::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds,
 {
   ReleaseMouseCapture();
 
-  if (mPopupControl)
-    return mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
+  if (GetPopupMenuControl())
+    return GetPopupMenuControl()->CreatePopupMenu(menu, bounds, pCaller);
   else
   {
 
