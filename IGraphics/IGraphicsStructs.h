@@ -692,7 +692,28 @@ struct IRECT
     R = std::ceil(R);
     B = std::ceil(B);
   }
-  
+    
+  inline void PixelAlign(double scale)
+  {
+    Scaled(scale);
+    PixelAlign();
+    Scale(1.0/scale);
+  }
+    
+  inline IRECT GetPixelAligned()
+  {
+    IRECT r = *this;
+    r.PixelAlign();
+    return r;
+  }
+    
+  inline IRECT GetPixelAligned(double scale)
+  {
+    IRECT r = *this;
+    r.PixelAlign(scale);
+    return r;
+  }
+    
   inline void Pad(float padding)
   {
     L -= padding;
