@@ -27,7 +27,7 @@ public:
   bool WindowIsOpen() override;
   void PlatformResize() override;
 
-  int ShowMessageBox(const char* str, const char* caption, int type) override;
+  int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) override;
   void ForceEndUserEdit() override;
 
   const char* GetPlatformAPIStr() override;

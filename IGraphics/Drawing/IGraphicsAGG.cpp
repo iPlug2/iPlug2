@@ -28,9 +28,9 @@ inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case kBlendClobber: return agg::comp_op_src_over;
-    case kBlendAdd: return agg::comp_op_plus;
-    case kBlendColorDodge: return agg::comp_op_color_dodge;
+    case kBlendClobber:         return agg::comp_op_src_over;
+    case kBlendAdd:             return agg::comp_op_plus;
+    case kBlendColorDodge:      return agg::comp_op_color_dodge;
     case kBlendNone:
     default:
       return agg::comp_op_src_over;

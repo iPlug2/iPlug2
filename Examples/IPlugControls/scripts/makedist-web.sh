@@ -71,47 +71,37 @@ rm -r ./2x
 cd ..
 echo -
 
-if [ "$websocket" -eq "0" ]
+
+echo MAKING  - WAM WASM MODULE -----------------------------
+emmake make --makefile projects/IPlugControls-wam-processor.mk
+
+if [ $? -ne "0" ]
 then
-  echo MAKING  - WAM WASM MODULE -----------------------------
-  emmake make --makefile projects/IPlugControls-wam-processor.mk
-
-  if [ $? -ne "0" ]
-  then
-    echo IPlugWAM WASM compilation failed
-    exit 1
-  fi
-
-  cd build-web/scripts
-
-  echo "AudioWorkletGlobalScope.WAM = AudioWorkletGlobalScope.WAM || {}; AudioWorkletGlobalScope.WAM.IPlugControls = { ENVIRONMENT: 'WEB' };" > IPlugControls-wam.tmp.js;
-  cat IPlugControls-wam.js >> IPlugControls-wam.tmp.js
-  mv IPlugControls-wam.tmp.js IPlugControls-wam.js
-
-  cp ../../../../Dependencies/IPlug/WAM_SDK/wamsdk/*.js .
-  cp ../../../../Dependencies/IPlug/WAM_AWP/*.js .
-  cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awn.js IPlugControls-awn.js
-  sed -i.bak s/NAME_PLACEHOLDER/IPlugControls/g IPlugControls-awn.js
-  cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awp.js IPlugControls-awp.js
-  sed -i.bak s/NAME_PLACEHOLDER/IPlugControls/g IPlugControls-awp.js
-  rm *.bak
-  cd ..
-
-  #copy in the template html - comment if you have customised the html
-  cp ../../../IPlug/WEB/Template/IPlugWAM-standalone.html index.html
-  sed -i.bak s/NAME_PLACEHOLDER/IPlugControls/g index.html
-  rm *.bak
-
-  cp ../../../IPlug/WEB/Template/favicon.ico favicon.ico
-
-else
-  #copy in the template html for websocket - comment if you have customised the html
-  cd build-web
-  pwd
-  cp ../../../IPlug/WEB/Template/IPlugWeb-remote.html index.html
-  sed -i.bak s/IPlugWEB/IPlugControls/g index.html
-  rm *.bak
+  echo IPlugWAM WASM compilation failed
+  exit 1
 fi
+
+cd build-web/scripts
+
+echo "AudioWorkletGlobalScope.WAM = AudioWorkletGlobalScope.WAM || {}; AudioWorkletGlobalScope.WAM.IPlugControls = { ENVIRONMENT: 'WEB' };" > IPlugControls-wam.tmp.js;
+cat IPlugControls-wam.js >> IPlugControls-wam.tmp.js
+mv IPlugControls-wam.tmp.js IPlugControls-wam.js
+
+cp ../../../../Dependencies/IPlug/WAM_SDK/wamsdk/*.js .
+cp ../../../../Dependencies/IPlug/WAM_AWP/*.js .
+cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awn.js IPlugControls-awn.js
+sed -i.bak s/NAME_PLACEHOLDER/IPlugControls/g IPlugControls-awn.js
+cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awp.js IPlugControls-awp.js
+sed -i.bak s/NAME_PLACEHOLDER/IPlugControls/g IPlugControls-awp.js
+rm *.bak
+cd ..
+
+#copy in the template html - comment if you have customised the html
+cp ../../../IPlug/WEB/Template/IPlugWAM-standalone.html index.html
+sed -i.bak s/NAME_PLACEHOLDER/IPlugControls/g index.html
+rm *.bak
+
+cp ../../../IPlug/WEB/Template/favicon.ico favicon.ico
 
 cd ../
 

@@ -121,6 +121,14 @@ void IGraphicsLice::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, 
   LICE_Blit(mRenderBitmap, mTmpBitmap, r.L, r.T, r.L - x, r.T - y, r.R - r.L, r.B - r.T, BlendWeight(pBlend), LiceBlendMode(pBlend));
 }
 
+void IGraphicsLice::DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend)
+{
+  // FIX - clipping
+  IRECT r = TransformRECT(bounds);
+  LICE_IBitmap* pSrc = bitmap.GetAPIBitmap()->GetBitmap();
+  LICE_ScaledBlit(mRenderBitmap, pSrc, r.L, r.T, r.W(), r.H(), 0.0f, 0.0f, (float) pSrc->getWidth(), (float) pSrc->getHeight(), 1.0f, LiceBlendMode(pBlend) | LICE_BLIT_FILTER_BILINEAR);
+}
+
 void IGraphicsLice::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend)
 {
   LICE_PutPixel(mRenderBitmap, int(TransformX(x) + 0.5f), int(TransformY(y) + 0.5f), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend));
@@ -471,7 +479,7 @@ APIBitmap* IGraphicsLice::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
   int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
   int destH = (pBitmap->GetHeight() / pBitmap->GetScale()) * scale;
   
-  LICE_IBitmap* pSrc = (LICE_IBitmap*) pBitmap;
+  LICE_IBitmap* pSrc = pBitmap->GetBitmap();
   LICE_MemBitmap* pDest = new LICE_MemBitmap(destW, destH);
   LICE_ScaledBlit(pDest, pSrc, 0, 0, destW, destH, 0.0f, 0.0f, (float) pSrc->getWidth(), (float) pSrc->getHeight(), 1.0f, LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR);
   
@@ -482,7 +490,7 @@ APIBitmap* IGraphicsLice::CreateAPIBitmap(int width, int height)
 {
   const int scale = GetScreenScale();
   LICE_IBitmap* pBitmap = new LICE_MemBitmap(width * scale, height * scale);
-  memset(pBitmap->getBits(), 0, pBitmap->getRowSpan() * pBitmap->getHeight());
+  memset(pBitmap->getBits(), 0, pBitmap->getRowSpan() * pBitmap->getHeight() * sizeof(LICE_pixel));
   return new LICEBitmap(pBitmap, scale);
 }
 
@@ -553,9 +561,14 @@ void IGraphicsLice::EndFrame()
   HDC dc = BeginPaint(hWnd, &ps);
   
   if (GetDrawScale() == 1.0)
+  {
     BitBlt(dc, 0, 0, Width(), Height(), mDrawBitmap->getDC(), 0, 0, SRCCOPY);
+  }
   else
+  {
+    SetStretchBltMode(dc, HALFTONE);
     StretchBlt(dc, 0, 0, WindowWidth(), WindowHeight(), mDrawBitmap->getDC(), 0, 0, Width(), Height(), SRCCOPY);
+  }
   
   EndPaint(hWnd, &ps);
 #endif

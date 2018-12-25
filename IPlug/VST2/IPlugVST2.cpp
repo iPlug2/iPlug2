@@ -128,18 +128,20 @@ EHost IPlugVST2::GetHost()
   return host;
 }
 
-void IPlugVST2::ResizeGraphics(int viewWidth, int viewHeight, float scale)
+void IPlugVST2::EditorStateChanged(int viewWidth, int viewHeight, const IByteChunk& data)
 {
-  if(HasUI())
+  if (HasUI())
   {
-    mEditRect.left = mEditRect.top = 0;
-    mEditRect.right = viewWidth;
-    mEditRect.bottom = viewHeight;
+    if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
+    {
+      mEditRect.left = mEditRect.top = 0;
+      mEditRect.right = viewWidth;
+      mEditRect.bottom = viewHeight;
     
-    mHostCallback(&mAEffect, audioMasterSizeWindow, viewWidth, viewHeight, 0, 0.f);
+      mHostCallback(&mAEffect, audioMasterSizeWindow, viewWidth, viewHeight, 0, 0.f);
+    }
     
-    IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, scale);
-    OnWindowResize();
+    IPlugAPIBase::EditorStateChanged(viewWidth, viewHeight, data);
   }
 }
 
@@ -392,7 +394,6 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     {
       if (_this->HasUI())
       {
-        _this->OnUIClose();
         _this->CloseWindow();
         return 1;
       }

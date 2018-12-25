@@ -691,6 +691,7 @@ public:
   , mPattern(color)
   , mDrawFrame(drawFrame)
   {
+    mIgnoreMouse = true;
   }
   
   IPanelControl(IGEditorDelegate& dlg, IRECT bounds, const IPattern& pattern, bool drawFrame = false)
@@ -1068,15 +1069,16 @@ public:
 
   void SetUpMenu();
 
-  void GetSelectedItemLabel(WDL_String& label);
-
-  void GetSelectedItemPath(WDL_String& path);
+//  void GetSelectedItemLabel(WDL_String& label);
+//  void GetSelectedItemPath(WDL_String& path);
 
 private:
   void ScanDirectory(const char* path, IPopupMenu& menuToAddTo);
   void CollectSortedItems(IPopupMenu* pMenu);
   
 protected:
+  bool mShowEmptySubmenus = false;
+  bool mShowFileExtensions = true;
   int mSelectedIndex = -1;
   IPopupMenu* mSelectedMenu = nullptr;
   IPopupMenu mMainMenu;

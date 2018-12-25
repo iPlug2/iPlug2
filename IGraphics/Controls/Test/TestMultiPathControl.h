@@ -19,13 +19,14 @@ public:
   : IKnobControlBase(dlg, rect, paramIdx)
   , mShape(0)
   {
+    SetTooltip("TestMultiPathControl");
     Clamp(0.5, 1.);
   }
 
   void Draw(IGraphics& g) override
   {
     g.DrawRoundRect(COLOR_BLACK, mRECT, 5.);
-    
+
     if (g.HasPathSupport())
     {
       double r = mValue * (mRECT.H() / 2.0);
@@ -63,7 +64,7 @@ public:
         g.PathLineTo(mRECT.MW(), mRECT.B);
         g.PathClose();
       }
-      
+
       IFillOptions fillOptions;
       fillOptions.mFillRule = mValue > 0.5 ? kFillEvenOdd : kFillWinding;
       fillOptions.mPreserve = true;
@@ -81,10 +82,10 @@ public:
   {
     if (++mShape > 3)
       mShape = 0;
-    
+
     SetDirty(false);
   }
-  
+
 private:
   int mShape;
 };

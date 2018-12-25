@@ -10,6 +10,12 @@ enum EParams
   kNumParams
 };
 
+enum EControlTags
+{
+  kCtrlTagDialogResult = 0,
+  kControlTags
+};
+
 class IPlugControls : public IPlug
 {
 public:

@@ -102,9 +102,9 @@ inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
   }
   switch (pBlend->mMethod)
   {
-    case kBlendClobber: return CAIRO_OPERATOR_OVER;
-    case kBlendAdd: return CAIRO_OPERATOR_ADD;
-    case kBlendColorDodge: return CAIRO_OPERATOR_COLOR_DODGE;
+    case kBlendClobber:     return CAIRO_OPERATOR_OVER;
+    case kBlendAdd:         return CAIRO_OPERATOR_ADD;
+    case kBlendColorDodge:  return CAIRO_OPERATOR_COLOR_DODGE;
     case kBlendNone:
     default:
       return CAIRO_OPERATOR_OVER; // TODO: is this correct - same as clobber?
@@ -517,8 +517,8 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
     mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), WindowWidth(), WindowHeight());
     cairo_surface_set_device_scale(mSurface, GetDrawScale(), GetDrawScale());
 #elif defined OS_WIN
-    mSurface = cairo_win32_surface_create_with_ddb((HDC) pContext, CAIRO_FORMAT_ARGB32, Width(), Height());
-    cairo_surface_set_device_scale(mSurface, GetScreenScale(), GetScreenScale());
+    mSurface = cairo_win32_surface_create_with_ddb((HDC) pContext, CAIRO_FORMAT_ARGB32, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
+    cairo_surface_set_device_scale(mSurface, GetScreenScale() * GetDrawScale(), GetScreenScale() * GetDrawScale());
 #else
   #error NOT IMPLEMENTED
 #endif
@@ -545,12 +545,7 @@ void IGraphicsCairo::EndFrame()
   HWND hWnd = (HWND) GetWindow();
   HDC dc = BeginPaint(hWnd, &ps);
   HDC cdc = cairo_win32_surface_get_dc(mSurface);
-  
-  if (GetDrawScale() == 1.f)
-    BitBlt(dc, 0, 0, Width(), Height(), cdc, 0, 0, SRCCOPY);
-  else
-    StretchBlt(dc, 0, 0, WindowWidth(), WindowHeight(), cdc, 0, 0, Width(), Height(), SRCCOPY);
-
+  BitBlt(dc, 0, 0, WindowWidth(), WindowHeight(), cdc, 0, 0, SRCCOPY);
   EndPaint(hWnd, &ps);
 #else
 #error NOT IMPLEMENTED
@@ -599,10 +594,12 @@ void IGraphicsCairo::PathTransformSetMatrix(const IMatrix& m)
     yTranslate = -bounds.T;
   }
   
-  cairo_matrix_t matrix;
-  cairo_matrix_init(&matrix, m.mXX, m.mYX, m.mXY, m.mYY, m.mTX, m.mTY);
-  cairo_matrix_translate(&matrix, xTranslate, yTranslate);
-  cairo_set_matrix(mContext, &matrix);
+  cairo_matrix_t matrix1, matrix2;
+  cairo_matrix_init_translate(&matrix1, xTranslate, yTranslate);
+  cairo_matrix_init(&matrix2, m.mXX, m.mYX, m.mXY, m.mYY, m.mTX, m.mTY);
+  cairo_matrix_multiply(&matrix1, &matrix2, &matrix1);
+    
+  cairo_set_matrix(mContext, &matrix1);
 }
 
 void IGraphicsCairo::SetClipRegion(const IRECT& r) 
