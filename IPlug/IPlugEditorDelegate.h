@@ -17,6 +17,7 @@
 
 #include "IPlugParameter.h"
 #include "IPlugMidi.h"
+#include "IPlugStructs.h"
 
 /** This pure virtual interface delegates communication in both directions between a UI editor and something else (which is usually a plug-in)
  *  It is also the class that owns parameter objects (for historical reasons) - although it's not necessary to allocate them
@@ -192,9 +193,9 @@ public:
    *  You can use it if you restore a preset using a custom preset mechanism. */
   virtual void DirtyParametersFromUI() {};
   
-  /** Sometimes when a plug-in wants to change its UI dimensions we need to call into the plug-in API class first when we click a button in our UI
+  /** If the editor changes UI dimensions or other state we need to call into the plug-in API to store state or resize the window in the plugin
    * This method is implemented in various classes that inherit this interface to implement that behaviour */
-  virtual void ResizeGraphicsFromUI(int viewWidth, int viewHeight, float scale) {};
+  virtual void EditorStateChangedFromUI(int viewWidth, int viewHeight, const IByteChunk& data) {};
   
   /** SendMidiMsgFromUI (Abbreviation: SMMFUI)
    * This method should be used  when  sending a MIDI message from the UI. For example clicking on a key in a virtual keyboard.
@@ -228,16 +229,16 @@ public:
   /** @return The height of the plug-in editor in pixels */
   int GetEditorHeight() const { return mEditorHeight; }
   
-  /** @return Any scaling applied to the UI  */
-  float GetEditorScale() const { return mEditorScale; }
+  /** @return An IByteChunk with any arbitrary data that the editor wishes to store  */
+  const IByteChunk& GetEditorData() const { return mEditorData; }
   
 protected:
-  /** The width of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist.  */
+  /** The width of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist. */
   int mEditorWidth = 0;
-  /** The height of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist*/
+  /** The height of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist */
   int mEditorHeight = 0;
-  /** Any scaling of the plug-in editor. Can be updated by resizing, exists here for persistance, even if UI doesn't exist*/
-  float mEditorScale = 1.f;
+  /** Any arbitrary data that the editor need to store (e.g. scale etc.) */
+  IByteChunk mEditorData;
   /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plug-in class implementation constructor */
   WDL_PtrList<IParam> mParams;
 };

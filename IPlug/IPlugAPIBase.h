@@ -51,9 +51,6 @@ public:
    * @return \c true in order to indicate that the states are equal. */
   virtual bool CompareState(const uint8_t* pIncomingState, int startPos);
 
-  /** Implement this to do something after the user interface is resized */
-  virtual void OnWindowResize() {}
-
   /* implement this and return true to trigger your custom about box, when someone clicks about in the menu of a standalone app or VST3 plugin */
   virtual void OnHostRequestingAboutBox() {} // TODO: implement this for VST 3
 
@@ -106,10 +103,10 @@ public:
   /** Helper method, used to print some info to the console in debug builds. Can be overridden in other IPlugAPIBases, for specific functionality, such as printing UI details. */
   virtual void PrintDebugInfo() const;
 
-  /** Call this method from a delegate, for example if you wish to store graphics dimensions in your plug-in state in order to notify the API of a graphics resize.
-   * If calling from a UI interaction use ResizeGraphicsFromUI()
+  /** Call this method from a delegate, for example if you wish to store graphics dimensions in your plug-in state in order to notify the API of a graphics resize or other layout change.
+   * If calling from a UI interaction use EditorStateChangedFromUI()
    * When this is overridden in subclasses the subclass should call this in order to update the member variables */
-  virtual void ResizeGraphics(int width, int height, float scale) { mEditorWidth = width; mEditorHeight = height; mEditorScale = scale; }
+  virtual void EditorStateChanged(int width, int height, const IByteChunk& data) { mEditorWidth = width; mEditorHeight = height; mEditorData = data; }
 
   /** Implemented by the API class, called by the UI (or by a delegate) at the beginning of a parameter change gesture
    * @param paramIdx The parameter that is being changed */
@@ -154,7 +151,7 @@ public:
   void SendParameterValueFromUI(int paramIdx, double value) override { SetParameterValue(paramIdx, value); IPluginBase::SendParameterValueFromUI(paramIdx, value); }
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { BeginInformHostOfParamChange(paramIdx); }
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }
-  void ResizeGraphicsFromUI(int viewWidth, int viewHeight, float scale) override { ResizeGraphics(viewWidth, viewHeight, scale); }
+  void EditorStateChangedFromUI(int viewWidth, int viewHeight, const IByteChunk& data) override { EditorStateChanged(viewWidth, viewHeight, data); }
   
   //These are handled in IPlugAPIBase for non DISTRIBUTED APIs
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
