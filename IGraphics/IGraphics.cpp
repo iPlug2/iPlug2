@@ -719,9 +719,9 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
     {
       mDelegate.BeginInformHostOfParamChangeFromUI(paramIdx);
     }
+    
+    pControl->OnMouseDown(x, y, mod);
   }
-  
-  pControl->OnMouseDown(x, y, mod);
 }
 
 void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
