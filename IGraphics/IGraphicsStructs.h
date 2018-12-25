@@ -695,7 +695,7 @@ struct IRECT
     
   inline void PixelAlign(double scale)
   {
-    Scaled(scale);
+    Scale(scale);
     PixelAlign();
     Scale(1.0/scale);
   }
@@ -1029,6 +1029,16 @@ public:
     {
       IRECT r = Get(i);
       r.PixelAlign();
+      Set(i, r);
+    }
+  }
+
+  void PixelAlign(double scale)
+  {
+    for (auto i = 0; i < Size(); i++)
+    {
+      IRECT r = Get(i);
+      r.PixelAlign(scale);
       Set(i, r);
     }
   }
