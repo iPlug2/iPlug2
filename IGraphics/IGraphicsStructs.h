@@ -693,7 +693,7 @@ struct IRECT
     B = std::ceil(B);
   }
     
-  inline void PixelAlign(double scale)
+  inline void PixelAlign(float scale)
   {
     Scale(scale);
     PixelAlign();
@@ -707,7 +707,7 @@ struct IRECT
     return r;
   }
     
-  inline IRECT GetPixelAligned(double scale) const
+  inline IRECT GetPixelAligned(float scale) const
   {
     IRECT r = *this;
     r.PixelAlign(scale);
@@ -1033,7 +1033,7 @@ public:
     }
   }
 
-  void PixelAlign(double scale)
+  void PixelAlign(float scale)
   {
     for (auto i = 0; i < Size(); i++)
     {
