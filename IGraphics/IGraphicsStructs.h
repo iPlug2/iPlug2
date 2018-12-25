@@ -700,14 +700,14 @@ struct IRECT
     Scale(1.0/scale);
   }
     
-  inline IRECT GetPixelAligned()
+  inline IRECT GetPixelAligned() const
   {
     IRECT r = *this;
     r.PixelAlign();
     return r;
   }
     
-  inline IRECT GetPixelAligned(double scale)
+  inline IRECT GetPixelAligned(double scale) const
   {
     IRECT r = *this;
     r.PixelAlign(scale);
