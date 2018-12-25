@@ -84,9 +84,15 @@ BEGIN
         MENUITEM "Preferences...",              ID_PREFERENCES
         MENUITEM "&Quit",                       ID_QUIT
     END
+    POPUP "&Debug"
+    BEGIN
+        MENUITEM "Live Edit Mode",              ID_LIVE_EDIT
+        MENUITEM "Show Drawn Controls",         ID_SHOW_DRAWN
+    END
     POPUP "&Help"
     BEGIN
         MENUITEM "&About",                      ID_ABOUT
+        MENUITEM "&Read Manual",                ID_HELP
     END
 END
 
