@@ -746,8 +746,11 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
     
   if (pControl != mMouseOver)
   {
-    if (mMouseOver) mMouseOver->OnMouseOut();
-    if (pControl) pControl->OnMouseOver(x, y, mod);
+    if (mMouseOver)
+      mMouseOver->OnMouseOut();
+    if (pControl)
+      pControl->OnMouseOver(x, y, mod);
+    mMouseOver = pControl;
   }
 
   return pControl;
