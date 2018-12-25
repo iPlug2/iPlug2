@@ -240,6 +240,7 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
     
   if (bounds.IsPixelAligned() && CheckTransform(mTransform.shx, mTransform.shy, srcMtx))
   {
+    double offsetScale = scale * GetScreenScale();
     double tx, ty;
     
     mTransform.translation(&tx, &ty);
@@ -247,7 +248,7 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
     bounds.Scale(GetDrawScale());
     bounds.Translate(tx, ty);
 
-    mRasterizer.BlendFrom(src, bounds, srcX * scale, srcY * scale, AGGBlendMode(pBlend), AGGCover(pBlend));
+    mRasterizer.BlendFrom(src, bounds, srcX * offsetScale, srcY * offsetScale, AGGBlendMode(pBlend), AGGCover(pBlend));
   }
   else
   {
