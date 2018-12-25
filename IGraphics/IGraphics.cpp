@@ -288,15 +288,13 @@ void IGraphics::ForAllControlsFunc(std::function<void(IControl& control)> func)
 template<typename T, typename... Args>
 void IGraphics::ForAllControls(T method, Args... args)
 {
-  auto func = [method, args...](IControl& control) { (control.*method)(args...); };
-  ForAllControlsFunc(func);
+  ForAllControlsFunc([method, args...](IControl& control) { (control.*method)(args...); });
 }
 
 template<typename T, typename... Args>
 void IGraphics::ForMatchingControls(T method, int paramIdx, Args... args)
 {
-  auto func = [method, args...](IControl& control) { (control.*method)(args...); };
-  ForControlWithParam(paramIdx, func);
+  ForControlWithParam(paramIdx, [method, args...](IControl& control) { (control.*method)(args...); });
 }
 
 void IGraphics::SetAllControlsDirty()
@@ -606,8 +604,7 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds)
 // Draw a region of the graphics (redrawing all contained items)
 void IGraphics::Draw(const IRECT& bounds)
 {
-  auto func = [this, bounds](IControl& control) { DrawControl(&control, bounds); };
-  ForAllControlsFunc(func);
+  ForAllControlsFunc([this, bounds](IControl& control) { DrawControl(&control, bounds); });
 
 #ifndef NDEBUG
   // Helper for debugging
