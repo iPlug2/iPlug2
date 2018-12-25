@@ -192,7 +192,7 @@ APIBitmap* IGraphicsCairo::CreateAPIBitmap(int width, int height)
 
 void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
-  const double scale = GetScreenScale() / (pAPIBitmap->GetScale() * pAPIBitmap->GetDrawScale());
+  const double scale = GetScreenScale() / (bitmap.GetScale() * bitmap.GetDrawScale());
 
   cairo_save(mContext);
   cairo_rectangle(mContext, dest.L, dest.T, dest.W(), dest.H());
