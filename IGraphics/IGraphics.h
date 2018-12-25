@@ -781,15 +781,8 @@ public:
   /** @return The number of controls that have been added to this graphics context */
   int NControls() const { return mControls.GetSize(); }
 
-  void RemoveControls(int fromIdx)
-  {
-    int idx = NControls()-1;
-    while (idx >= fromIdx) {
-      mControls.Delete(idx--);
-    }
-    
-    SetAllControlsDirty();
-  }
+  /***/
+  void RemoveControls(int fromIdx);
   
   /** @param paramIdx <#paramIdx>
    * @param hide <#hide> */

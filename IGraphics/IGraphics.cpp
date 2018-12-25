@@ -125,6 +125,28 @@ void IGraphics::Resize(int w, int h, float scale)
     GetDelegate()->LayoutUI(this);
 }
 
+void IGraphics::RemoveControls(int fromIdx)
+{
+  int idx = NControls()-1;
+  while (idx >= fromIdx)
+  {
+    IControl* pControl = GetControl(idx);
+    if (pControl == mMouseCapture)
+    {
+      mMouseCapture = nullptr;
+    }
+    if (pControl == mMouseOver)
+    {
+      mMouseOver = nullptr;
+      mMouseOverIdx = -1;
+    }
+    
+    mControls.Delete(idx--, true);
+  }
+  
+  SetAllControlsDirty();
+}
+
 void IGraphics::SetControlValueFromStringAfterPrompt(IControl& control, const char* str)
 {
   const IParam* pParam = control.GetParam();
