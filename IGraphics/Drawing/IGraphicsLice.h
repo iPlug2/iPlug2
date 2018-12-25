@@ -111,6 +111,8 @@ protected:
     
 private:
     
+  float GetBackingPixelScale() const override { return GetScreenScale(); };
+
   float TransformX(float x)
   {
     return (x - mDrawOffsetX) * GetScreenScale();

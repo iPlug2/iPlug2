@@ -987,11 +987,13 @@ protected:
   float mCursorY = -1.f;
 
 private:
+  virtual float GetBackingPixelScale() const = 0;
+    
   virtual void PlatformResize() {}
   virtual void DrawResize() {}
   
-  void Draw(const IRECT& bounds);
-  void DrawControl(IControl* pControl, const IRECT& bounds);
+  void Draw(const IRECT& bounds, float scale);
+  void DrawControl(IControl* pControl, const IRECT& bounds, float scale);
   
   int GetMouseControlIdx(float x, float y, bool mouseOver = false);
   IControl* GetMouseControl(float x, float y, bool capture, bool mouseOver = false);

@@ -597,11 +597,12 @@ void IGraphics::BeginFrame()
 }
 
 // Draw a control in a region if it needs to be drawn
-void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds)
+void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale)
 {
   if (pControl && (!pControl->IsHidden() || pControl == GetControl(0)))
   {
-    IRECT clipBounds = bounds.Intersect(pControl->GetRECT());
+    IRECT controlBounds = pControl->GetRECT().GetPixelAligned(scale);
+    IRECT clipBounds = bounds.Intersect(controlBounds);
 
     if (clipBounds.W() <= 0.0 || clipBounds.H() <= 0)
       return;
@@ -624,9 +625,9 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds)
 }
 
 // Draw a region of the graphics (redrawing all contained items)
-void IGraphics::Draw(const IRECT& bounds)
+void IGraphics::Draw(const IRECT& bounds, float scale)
 {
-  ForAllControlsFunc([this, bounds](IControl& control) { DrawControl(&control, bounds); });
+  ForAllControlsFunc([this, bounds, scale](IControl& control) { DrawControl(&control, bounds, scale); });
 
 #ifndef NDEBUG
   // Helper for debugging
@@ -646,21 +647,23 @@ void IGraphics::Draw(IRECTList& rects)
   if (!rects.Size())
     return;
   
+  float scale = GetBackingPixelScale();
+    
   BeginFrame();
     
   if (mStrict)
   {
     IRECT r = rects.Bounds();
-    r.PixelAlign();
-    Draw(r);
+    r.PixelAlign(scale);
+    Draw(r, scale);
   }
   else
   {
-    rects.PixelAlign();
+    rects.PixelAlign(scale);
     rects.Optimize();
     
     for (auto i = 0; i < rects.Size(); i++)
-      Draw(rects.Get(i));
+      Draw(rects.Get(i), scale);
   }
   
   EndFrame();

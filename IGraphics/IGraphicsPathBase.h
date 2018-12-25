@@ -544,6 +544,8 @@ private:
   
 private:
   
+  float GetBackingPixelScale() const override { return GetScreenScale() * GetDrawScale(); };
+
   void PrepareRegion(const IRECT& r) override
   {
     PathTransformReset(true);
