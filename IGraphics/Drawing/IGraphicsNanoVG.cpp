@@ -442,10 +442,11 @@ void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, i
   // First generate a scaled image paint
     
   NVGpaint imgPaint;
-  const double scale = 1.0 / (pAPIBitmap->GetScale() * pAPIBitmap->GetDrawScale());
+  double scale = 1.0 / (pAPIBitmap->GetScale() * pAPIBitmap->GetDrawScale());
 
   nvgTransformScale(imgPaint.xform, scale, scale);
 
+  scale *= GetScreenScale();
   imgPaint.xform[4] = dest.L - (srcX * scale);
   imgPaint.xform[5] = dest.T - (srcY * scale);
   imgPaint.extent[0] = bitmap.W() * bitmap.GetScale();
