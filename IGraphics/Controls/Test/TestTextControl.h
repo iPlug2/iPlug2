@@ -18,6 +18,7 @@ public:
   TestTextControl(IGEditorDelegate& dlg, IRECT bounds)
   : IControl(dlg, bounds)
   {
+    SetTooltip("TestTextControl");
     Randomise();
   }
 

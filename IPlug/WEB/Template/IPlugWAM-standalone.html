@@ -164,7 +164,7 @@
         }
       }
 
-      function main() {        
+      function main() {
         var actx = new AudioContext();
         AWPF.polyfill(actx).then( function () {
           var script1 = document.createElement("script");
@@ -200,6 +200,85 @@
         preRun: [],
         postRun: function() {
           document.getElementById('startWebAudioButton').removeAttribute("disabled");
+        },
+        onRuntimeInitialized: function setupWebSocket() {
+          ws = new WebSocket('ws://' + window.location.host + '/ws');
+          ws.binaryType = 'arraybuffer';
+
+          ws.onclose = function() {
+          };
+
+          ws.onmessage = function (e) {
+            var msg = e.data;
+
+            if(e.data.byteLength)
+            {
+                var buf = new Uint8Array(msg).buffer;
+                var dv = new DataView(buf);
+                var pos = 0;
+                var strlen = dv.getInt32(pos, true); pos += 4;
+                var prefix = new TextDecoder("utf-8").decode(new Uint8Array(buf, pos, strlen)); pos += strlen;
+
+                if(prefix == "SPVFD")
+                {
+                  var paramIdx = dv.getInt32(pos, true); pos += 4;
+                  var value = dv.getFloat64(pos, true); pos += 8;
+                  Module.SPVFD(paramIdx, value);
+                }
+                else if(prefix == "SCVDD")
+                {
+                  var controlTag = dv.getInt32(pos, true); pos += 4;
+                  var value = dv.getFloat64(pos, true); pos += 8;
+                  Module.SCVFD(controlTag, value);
+                }
+                else if(prefix == "SCMFD")
+                {
+                  var controlTag = dv.getInt32(pos, true); pos += 4;
+                  var msgTag = dv.getInt32(pos, true); pos += 4;
+                  var dataSize = dv.getInt32(pos, true); pos += 4;
+                  var data = new Uint8Array(buf, pos, dataSize);
+
+                  const esbuf = Module._malloc(data.length);
+                  Module.HEAPU8.set(data, esbuf);
+                  Module.SCMFD(controlTag, msgTag, data.length, esbuf);
+                  Module._free(esbuf);
+                }
+                else if(prefix == "SAMFD")
+                {
+                  var msgTag = dv.getInt32(pos, true); pos += 4;
+                  var dataSize = dv.getInt32(pos, true); pos += 4;
+                  var data = new Uint8Array(buf, pos, dataSize);
+
+                  const esbuf = Module._malloc(data.length);
+                  Module.HEAPU8.set(data, esbuf);
+                  Module.SAMFD(controlTag, msgTag, data.length, esbuf);
+                  Module._free(esbuf);
+                }
+                else if(prefix == "SMMFD")
+                {
+                  var status = dv.getUint8(pos, true); pos ++;
+                  var data1 = dv.getUint8(pos, true); pos ++;
+                  var data2 = dv.getUint8(pos, true); pos ++;
+                  Module.SMMFD(status, data1, data2);
+                }
+                else if(prefix == "SSMFD")
+                {
+                  var msgTag = dv.getInt32(pos, true); pos += 4;
+                  var dataSize = dv.getInt32(pos, true); pos += 4;
+                  var data = new Uint8Array(buf, pos, dataSize);
+
+                  const esbuf = Module._malloc(data.length);
+                  Module.HEAPU8.set(data, esbuf);
+                  Module.SSMFD(controlTag, msgTag, data.length, esbuf);
+                  Module._free(esbuf);
+                }
+            }
+          }
+
+          ws.onerror = function (error) {
+              alert('WebSocket error');
+              //ws.close();
+          }
         },
         setStatus: function(text) {
           if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };

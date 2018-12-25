@@ -204,7 +204,7 @@ VST3/IPlugVST3_Controller.h:80:  void SendSysexMsgFromUI(const ISysEx& msg) over
 WEB/IPlugWeb.h:31://  void BeginInformHostOfParamChangeFromUI(int paramIdx) override; // TODO: as soon as we actually have a WAM host these are needed
 WEB/IPlugWeb.h:32://  void EndInformHostOfParamChangeFromUI(int paramIdx) override; // TODO: as soon as we actually have a WAM host these are needed
 WEB/Template/IPlugWAM-webcomponent.html:1://TODO
-WEB/Template/IPlugWeb-remote.html:194:        // TODO: do not warn on ok events like simulating an infinite loop or exitStatus
+WEB/Template/IPlugWAM-standalone.html:194:        // TODO: do not warn on ok events like simulating an infinite loop or exitStatus
 WEB/IPlugWAM.cpp:50:  //TODO: correct place? - do we need a WAM reset message?
 WEB/IPlugWAM.cpp:60:  _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false); //TODO: go elsewhere - enable inputs
 WEB/IPlugWAM.cpp:61:  _SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true); //TODO: go elsewhere

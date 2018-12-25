@@ -33,7 +33,7 @@ public:
 
 //  void HideMouseCursor(bool hide) override
 
-  int ShowMessageBox(const char* str, const char* caption, int type) override;
+  int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) override;
 
   void* OpenWindow(void* pParent) override;
   void CloseWindow() override;

@@ -28,9 +28,9 @@ inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case kBlendClobber: return agg::comp_op_src_over;
-    case kBlendAdd: return agg::comp_op_plus;
-    case kBlendColorDodge: return agg::comp_op_color_dodge;
+    case kBlendClobber:         return agg::comp_op_src_over;
+    case kBlendAdd:             return agg::comp_op_plus;
+    case kBlendColorDodge:      return agg::comp_op_color_dodge;
     case kBlendNone:
     default:
       return agg::comp_op_src_over;
@@ -142,7 +142,7 @@ void IGraphicsAGG::Rasterizer::RasterizePattern(agg::trans_affine transform, con
       
       if (pattern.mType == kLinearPattern)
       {
-        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_x(), gradientMTX, colorArray, AGGBlendMode(pBlend));
+        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_y(), gradientMTX, colorArray, AGGBlendMode(pBlend));
       }
       else
       {

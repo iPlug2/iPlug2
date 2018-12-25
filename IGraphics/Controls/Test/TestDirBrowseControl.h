@@ -43,7 +43,7 @@ public:
 
     SetDirty();
   }
-  
+
   void SetPath(const char* path)
   {
     AddPath(path, "");

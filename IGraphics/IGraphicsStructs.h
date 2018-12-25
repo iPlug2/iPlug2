@@ -358,7 +358,7 @@ struct IBlend
    * \todo IBlend::weight needs documentation
    * @param weight
   */
-  IBlend(EBlendType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(weight) {}
+  IBlend(EBlendType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(Clip(weight, 0.f, 1.f)) {}
 };
 
 inline float BlendWeight(const IBlend* pBlend)
@@ -1190,11 +1190,11 @@ struct IMatrix
     double d = 1.0 / (m.mXX * m.mYY - m.mYX * m.mXY);
     
     mXX =  m.mYY * d;
-    mYX = -m.mXY * d;
-    mXY = -m.mYX * d;
+    mYX = -m.mYX * d;
+    mXY = -m.mXY * d;
     mYY =  m.mXX * d;
-    mTX = (-m.mTX * m.mYY * d) - (m.mTY * -m.mXY * d);
-    mTY = (-m.mTX * m.mYX * d) - (m.mTY *  m.mXX * d);
+    mTX = (-(m.mTX * mXX) - (m.mTY * mXY));
+    mTY = (-(m.mTX * mYX) - (m.mTY * mYY));
     
     return *this;
   }
@@ -1243,21 +1243,22 @@ struct IPattern
     
     // Calculate the affine transform from one line segment to another!
     
-    const float xd = x2 - x1;
-    const float yd = y2 - y1;
-    const float size = sqrtf(xd * xd + yd * yd);
-    const float angle = -(atan2(yd, xd));
-    const float sinV = sinf(angle) / size;
-    const float cosV = cosf(angle) / size;
+    const double xd = x2 - x1;
+    const double yd = y2 - y1;
+    const double d = sqrt(xd * xd + yd * yd);
+    const double a = atan2(xd, yd);
+    const double s = std::sin(a) / d;
+    const double c = std::cos(a) / d;
+      
+    const double x0 = -(x1 * c - y1 * s);
+    const double y0 = -(x1 * s + y1 * c);
     
-    const float xx = cosV;
-    const float yx = sinV;
-    const float xy = -sinV;
-    const float yy = cosV;
-    const float x0 = -(x1 * xx + y1 * xy);
-    const float y0 = -(x1 * yx + y1 * yy);
-    
-    pattern.SetTransform(xx, yx, xy, yy, x0, y0);
+    pattern.SetTransform(static_cast<float>(c),
+                         static_cast<float>(s),
+                         static_cast<float>(-s),
+                         static_cast<float>(c),
+                         static_cast<float>(x0),
+                         static_cast<float>(y0));
     
     return pattern;
   }
@@ -1276,12 +1277,9 @@ struct IPattern
   {
     IPattern pattern(kRadialPattern);
     
-    const float xx = 1.f / r;
-    const float yy = 1.f / r;
-    const float x0 = -(x1 * xx);
-    const float y0 = -(y1 * yy);
-    
-    pattern.SetTransform(xx, 0, 0, yy, x0, y0);
+    const float s = 1.f / r;
+
+    pattern.SetTransform(s, 0, 0, s, -(x1 * s), -(y1 * s));
     
     return pattern;
   }
@@ -1332,8 +1330,8 @@ class ILayer
   friend IGraphics;
   
 public:
-  ILayer(APIBitmap* bitmap, IRECT r)
-  : mBitmap(bitmap)
+  ILayer(APIBitmap* pBitmap, IRECT r)
+  : mBitmap(pBitmap)
   , mRECT(r)
   , mInvalid(false)
   {}
@@ -1347,14 +1345,12 @@ public:
   const IRECT& Bounds() const { return mRECT; }
   
 private:
-  
   std::unique_ptr<APIBitmap> mBitmap;
   IRECT mRECT;
   bool mInvalid;
 };
 
 /** ILayerPtr is a manged pointer for transferring the ownership of layers */
-
 typedef std::unique_ptr<ILayer> ILayerPtr;
 
 // TODO: static storage needs thread safety mechanism

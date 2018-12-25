@@ -106,7 +106,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   {
     LPCREATESTRUCT lpcs = (LPCREATESTRUCT) lParam;
     SetWindowLongPtr(hWnd, GWLP_USERDATA, (LPARAM) (lpcs->lpCreateParams));
-    int mSec = int(1000.0 / sFPS);
+    int mSec = static_cast<int>(std::round(1000.0 / (sFPS)));
     SetTimer(hWnd, IPLUG_TIMER_ID, mSec, NULL);
     SetFocus(hWnd); // gets scroll wheel working straight away
     DragAcceptFiles(hWnd, true);
@@ -626,9 +626,9 @@ void IGraphicsWin::PlatformResize()
   //}
 //}
 
-int IGraphicsWin::ShowMessageBox(const char* text, const char* caption, int type)
+int IGraphicsWin::ShowMessageBox(const char* text, const char* caption, EMessageBoxType type)
 {
-  return MessageBox(GetMainWnd(), text, caption, type);
+  return MessageBox(GetMainWnd(), text, caption, (int) type);
 }
 
 void* IGraphicsWin::OpenWindow(void* pParent)
@@ -925,51 +925,57 @@ IPopupMenu* IGraphicsWin::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds,
 {
   ReleaseMouseCapture();
 
-  long offsetIdx = 0;
-  HMENU hMenu = CreateMenu(menu, &offsetIdx);
-  IPopupMenu* result = nullptr;
-
-  if(hMenu)
+  if (mPopupControl)
+    return mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
+  else
   {
-    POINT cPos;
 
-    cPos.x = bounds.L;
-    cPos.y = bounds.B;
+    long offsetIdx = 0;
+    HMENU hMenu = CreateMenu(menu, &offsetIdx);
+    IPopupMenu* result = nullptr;
 
-    ::ClientToScreen(mPlugWnd, &cPos);
-
-    if (TrackPopupMenu(hMenu, TPM_LEFTALIGN, cPos.x, cPos.y, 0, mPlugWnd, 0))
+    if (hMenu)
     {
-      MSG msg;
-      if (PeekMessage(&msg, mPlugWnd, WM_COMMAND, WM_COMMAND, PM_REMOVE))
+      POINT cPos;
+
+      cPos.x = bounds.L * GetDrawScale();
+      cPos.y = bounds.B * GetDrawScale();
+
+      ::ClientToScreen(mPlugWnd, &cPos);
+
+      if (TrackPopupMenu(hMenu, TPM_LEFTALIGN, cPos.x, cPos.y, 0, mPlugWnd, 0))
       {
-        if (HIWORD(msg.wParam) == 0)
+        MSG msg;
+        if (PeekMessage(&msg, mPlugWnd, WM_COMMAND, WM_COMMAND, PM_REMOVE))
         {
-          long res = LOWORD(msg.wParam);
-          if (res != -1)
+          if (HIWORD(msg.wParam) == 0)
           {
-            long idx = 0;
-            offsetIdx = 0;
-            IPopupMenu* resultMenu = GetItemMenu(res, idx, offsetIdx, menu);
-            if(resultMenu)
+            long res = LOWORD(msg.wParam);
+            if (res != -1)
             {
-              result = resultMenu;
-              result->SetChosenItemIdx(idx);
+              long idx = 0;
+              offsetIdx = 0;
+              IPopupMenu* resultMenu = GetItemMenu(res, idx, offsetIdx, menu);
+              if (resultMenu)
+              {
+                result = resultMenu;
+                result->SetChosenItemIdx(idx);
+              }
             }
           }
         }
       }
-    }
-    DestroyMenu(hMenu);
+      DestroyMenu(hMenu);
 
-    RECT r = { 0, 0, WindowWidth(), WindowHeight() };
-    InvalidateRect(mPlugWnd, &r, FALSE);
+      RECT r = { 0, 0, WindowWidth(), WindowHeight() };
+      InvalidateRect(mPlugWnd, &r, FALSE);
+    }
+
+    if (pCaller)
+      pCaller->OnPopupMenuSelection(result);
+
+    return result;
   }
-  
-  if (pCaller)
-    pCaller->OnPopupMenuSelection(result);
-  
-  return result;
 }
 
 void IGraphicsWin::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
@@ -987,8 +993,10 @@ void IGraphicsWin::CreateTextEntry(IControl& control, const IText& text, const I
     default:                  editStyle = ES_CENTER; break;
   }
 
+  IRECT scaledBounds = bounds.GetScaled(GetDrawScale());
+
   mParamEditWnd = CreateWindow("EDIT", str, ES_AUTOHSCROLL /*only works for left aligned text*/ | WS_CHILD | WS_VISIBLE | ES_MULTILINE | editStyle,
-    bounds.L, bounds.T, bounds.W()+1, bounds.H()+1,
+    scaledBounds.L, scaledBounds.T, scaledBounds.W()+1, scaledBounds.H()+1,
     mPlugWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
 
   HFONT font = CreateFont(text.mSize, 0, 0, 0, text.mStyle == IText::kStyleBold ? FW_BOLD : 0, text.mStyle == IText::kStyleItalic ? TRUE : 0, 0, 0, 0, 0, 0, 0, 0, text.mFont);
@@ -1261,12 +1269,15 @@ void IGraphicsWin::SetTooltip(const char* tooltip)
 
 void IGraphicsWin::ShowTooltip()
 {
-  const char* tooltip = GetControl(mTooltipIdx)->GetTooltip();
-  if (tooltip)
+  if (mTooltipIdx > -1)
   {
-    assert(strlen(tooltip) < 80);
-    SetTooltip(tooltip);
-    mShowingTooltip = true;
+    const char* tooltip = GetControl(mTooltipIdx)->GetTooltip();
+    if (tooltip)
+    {
+      assert(strlen(tooltip) < 80);
+      SetTooltip(tooltip);
+      mShowingTooltip = true;
+    }
   }
 }
 

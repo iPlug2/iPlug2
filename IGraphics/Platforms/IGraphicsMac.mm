@@ -344,14 +344,7 @@ void IGraphicsMac::MoveMouseCursor(float x, float y)
   CGAssociateMouseAndMouseCursorPosition(true);
 }
 
-void IGraphicsMac::SetMousePosition(float x, float y)
-{
-  //TODO: FIX!
-//  mMouseX = x;
-//  mMouseY = y;
-}
-
-int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, int type)
+int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, EMessageBoxType type)
 {
 #if IGRAPHICS_SWELL
   return MessageBox((HWND) mView, str, caption, type);
@@ -367,20 +360,23 @@ int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, int type)
 
   switch (type)
   {
-    case MB_OK:
+    case EMessageBoxType::kMB_OK:
       button1 = CFSTR("OK");
       break;
-    case MB_OKCANCEL:
+    case EMessageBoxType::kMB_OKCANCEL:
       button1 = CFSTR("OK");
       button2 = CFSTR("Cancel");
       break;
-    case MB_YESNO:
+    case EMessageBoxType::kMB_YESNO:
       button1 = CFSTR("Yes");
       button2 = CFSTR("No");
       break;
-    case MB_YESNOCANCEL:
+    case EMessageBoxType::kMB_YESNOCANCEL:
       button1 = CFSTR("Yes");
       button2 = CFSTR("No");
+      button3 = CFSTR("Cancel");
+    case EMessageBoxType::kMB_RETRYCANCEL:
+      button2 = CFSTR("Retry");
       button3 = CFSTR("Cancel");
       break;
   }
@@ -394,19 +390,19 @@ int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, int type)
   switch (response)
   {
     case kCFUserNotificationDefaultResponse:
-      if(type == MB_OK || type == MB_OKCANCEL)
-        result = IDOK;
+      if(type == EMessageBoxType::kMB_OK || type == EMessageBoxType::kMB_OKCANCEL)
+        result = EMessageBoxResult::kOK;
       else
-        result = IDYES;
+        result = EMessageBoxResult::kYES;
       break;
     case kCFUserNotificationAlternateResponse:
-      if(type == MB_OKCANCEL)
-        result = IDCANCEL;
+      if(type == EMessageBoxType::kMB_OKCANCEL)
+        result = EMessageBoxResult::kCANCEL;
       else
-        result = IDNO;
+        result = EMessageBoxResult::kNO;
       break;
     case kCFUserNotificationOtherResponse:
-      result = IDCANCEL;
+      result = EMessageBoxResult::kCANCEL;
       break;
   }
 
