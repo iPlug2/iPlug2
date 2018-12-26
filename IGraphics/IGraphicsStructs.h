@@ -1373,7 +1373,7 @@ private:
   bool mInvalid;
 };
 
-/** ILayerPtr is a manged pointer for transferring the ownership of layers */
+/** ILayerPtr is a managed pointer for transferring the ownership of layers */
 typedef std::unique_ptr<ILayer> ILayerPtr;
 
 // TODO: static storage needs thread safety mechanism
