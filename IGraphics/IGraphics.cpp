@@ -1457,3 +1457,13 @@ void IGraphics::DrawLayer(const ILayerPtr& layer)
   DrawBitmap(bitmap, bounds, 0, 0);
   PathTransformRestore();
 }
+
+void IGraphics::DrawRotatedLayer(const ILayerPtr& layer, double angle)
+{
+  PathTransformSave();
+  PathTransformReset();
+  IBitmap bitmap = layer->GetBitmap();
+  IRECT bounds = layer->Bounds();
+  DrawRotatedBitmap(bitmap, bounds.MW(), bounds.MH(), angle);
+  PathTransformRestore();
+}
