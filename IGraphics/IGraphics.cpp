@@ -731,9 +731,7 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
   Trace("IGraphics::OnMouseUp", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
- 
-  // TODO - check if popup control has special rules for mouse ups
-  
+   
   if (mMouseCapture)
   {
     int paramIdx = mMouseCapture->ParamIdx();
