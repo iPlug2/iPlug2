@@ -834,6 +834,7 @@ public:
   , mStr(str)
   , mBGColor(BGColor)
   {
+    mIgnoreMouse = true;
     IControl::mText = text;
   }
 
