@@ -35,24 +35,28 @@ public:
     };
     
     IBlend bNone {kBlendNone, alpha};
-    g.FillEllipse(COLOR_RED, nextCell());
+    nextCell();
+    g.FillCircle(COLOR_RED, r.MW(), r.MH(), r.W() / 2.0);
     g.DrawFittedBitmap(mBitmap, r, &bNone);
     g.DrawText(mText, "None", r);
     
     IBlend bClobber {kBlendClobber, alpha};
-    g.FillEllipse(COLOR_RED, nextCell());
+    nextCell();
+    g.FillCircle(COLOR_RED, r.MW(), r.MH(), r.W() / 2.0);
     g.DrawFittedBitmap(mBitmap, r, &bClobber);
     g.DrawText(mText, "Clobber", r);
 
 #ifndef IGRAPHICS_CAIRO
     IBlend bColorDodge {kBlendColorDodge, alpha};
-    g.FillEllipse(COLOR_RED, nextCell());
+    nextCell();
+    g.FillCircle(COLOR_RED, r.MW(), r.MH(), r.W() / 2.0);
     g.DrawFittedBitmap(mBitmap, r, &bColorDodge);
     g.DrawText(mText, "Color Dodge", r);
 #endif
     
     IBlend bAdd {kBlendAdd, alpha};
-    g.FillEllipse(COLOR_RED, nextCell());
+    nextCell();
+    g.FillCircle(COLOR_RED, r.MW(), r.MH(), r.W() / 2.0);
     g.DrawFittedBitmap(mBitmap, r, &bAdd);
     g.DrawText(mText, "Add", r);
   }
