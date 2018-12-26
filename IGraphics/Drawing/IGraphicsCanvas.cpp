@@ -216,7 +216,7 @@ void IGraphicsCanvas::SetCanvasBlendMode(const IBlend* pBlend)
   {
     case kBlendClobber:     GetContext().set("globalCompositeOperation", "source-over");   break;
     case kBlendAdd:         GetContext().set("globalCompositeOperation", "lighter");       break;
-    case kBlendColorDodge:  GetContext().set("globalCompositeOperation", "source-over");   break;
+    case kBlendColorDodge:  GetContext().set("globalCompositeOperation", "color-dodge");   break;
     case kBlendNone:
     default:
       GetContext().set("globalCompositeOperation", "source-over");
