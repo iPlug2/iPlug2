@@ -135,6 +135,9 @@ void IGraphics::RemoveControls(int fromIdx)
 
 void IGraphics::RemoveAllControls()
 {
+  mMouseCapture = mMouseOver = nullptr;
+  mMouseOverIdx = -1;
+    
   if (mKeyCatcher)
     DELETE_NULL(mKeyCatcher);
   
