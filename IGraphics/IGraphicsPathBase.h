@@ -213,14 +213,24 @@ public:
   void FillRoundRect(const IColor& color, const IRECT& bounds, float cornerRadius, const IBlend* pBlend) override
   {
     PathClear();
-    PathRoundRect(bounds, cornerRadius);
+    
+    if(cornerRadius <= 0.)
+      PathRect(bounds);
+    else
+      PathRoundRect(bounds, cornerRadius);
+    
     PathFill(color, IFillOptions(), pBlend);
   }
   
   void FillRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend) override
   {
     PathClear();
-    PathRoundRect(bounds, cRTL, cRTR, cRBR, cRBL);
+    
+    if((cRTL + cRTR + cRBR + cRBL) <= 0.)
+      PathRect(bounds);
+    else
+      PathRoundRect(bounds, cRTL, cRTR, cRBR, cRBL);
+
     PathFill(color, IFillOptions(), pBlend);
   }
   
