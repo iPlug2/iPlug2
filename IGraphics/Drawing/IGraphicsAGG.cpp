@@ -452,7 +452,7 @@ IColor IGraphicsAGG::GetPoint(int x, int y)
 APIBitmap* IGraphicsAGG::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
 {
   const char *path = resourcePath.Get();
-#ifdef OS_MAC
+
   if (CStringHasContents(path))
   {
     const char* ext = path+strlen(path)-1;
@@ -467,16 +467,12 @@ APIBitmap* IGraphicsAGG::LoadAPIBitmap(const WDL_String& resourcePath, int scale
     if (!isjpg && !ispng) return 0;
 #endif
     
-    agg::pixel_map_mac* pPixelMap = new agg::pixel_map_mac();
+    PixelMapType* pPixelMap = new PixelMapType();
     if (pPixelMap->load_img(path, ispng ? agg::pixel_map::format_png : agg::pixel_map::format_jpg))
       return new AGGBitmap(pPixelMap, scale, 1.f);
     else
       delete pPixelMap;
   }
-  
-#else
-  #error NOT IMPLEMENTED
-#endif
   
   return new APIBitmap();
 }
@@ -527,7 +523,11 @@ void IGraphicsAGG::EndFrame()
   mPixelMap.draw((CGContext*) GetPlatformContext(), GetScreenScale());
   CGContextRestoreGState((CGContext*) GetPlatformContext());
 #else
-  #error NOT IMPLEMENTED
+  PAINTSTRUCT ps;
+  HWND hWnd = (HWND) GetWindow();
+  HDC dc = BeginPaint(hWnd, &ps);
+  mPixelMap.draw(dc, 1.0);
+  EndPaint(hWnd, &ps);
 #endif
 }
 

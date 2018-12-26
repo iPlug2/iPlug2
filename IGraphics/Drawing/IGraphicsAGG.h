@@ -69,10 +69,12 @@ public:
 
 #ifdef OS_WIN
   typedef agg::order_bgra PixelOrder;
-  //TODO: Map type
-#else
+  typedef agg::pixel_map_win32 PixelMapType;
+#elif defined OS_MAC
   typedef agg::order_argb PixelOrder;
   typedef agg::pixel_map_mac PixelMapType;
+#else
+#error NOT IMPLEMENTED
 #endif
   typedef agg::comp_op_adaptor_rgba<agg::rgba8, PixelOrder> BlenderType;
   typedef agg::comp_op_adaptor_rgba_pre<agg::rgba8, PixelOrder> BlenderTypePre;
