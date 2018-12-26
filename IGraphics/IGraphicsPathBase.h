@@ -213,24 +213,14 @@ public:
   void FillRoundRect(const IColor& color, const IRECT& bounds, float cornerRadius, const IBlend* pBlend) override
   {
     PathClear();
-    
-    if(cornerRadius <= 0.)
-      PathRect(bounds);
-    else
-      PathRoundRect(bounds, cornerRadius);
-    
+    PathRoundRect(bounds, cornerRadius);
     PathFill(color, IFillOptions(), pBlend);
   }
   
   void FillRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend) override
   {
     PathClear();
-    
-    if((cRTL + cRTR + cRBR + cRBL) <= 0.)
-      PathRect(bounds);
-    else
-      PathRoundRect(bounds, cRTL, cRTR, cRBR, cRBL);
-
+    PathRoundRect(bounds, cRTL, cRTR, cRBR, cRBL);
     PathFill(color, IFillOptions(), pBlend);
   }
   
@@ -303,7 +293,10 @@ public:
   
   void PathRoundRect(const IRECT& bounds, float cr) override
   {
-    PathRoundRect(bounds, cr, cr, cr, cr);
+    if(cr <= 0.f)
+      PathRect(bounds);
+    else
+      PathRoundRect(bounds, cr, cr, cr, cr);
   }
   
   virtual void PathEllipse(float x, float y, float r1, float r2, float angle = 0.0) override
