@@ -188,6 +188,31 @@ void IGraphicsWeb::HideMouseCursor(bool hide, bool lock)
   }
 }
 
+void IGraphicsWeb::SetMouseCursor(ECursor cursor)
+{
+  std::string cursorType("pointer");
+  
+  switch (cursor)
+  {
+    case ARROW:         cursorType = "default";       break;
+    case IBEAM:         cursorType = "text";          break;
+    case WAIT:          cursorType = "wait";          break;
+    case CROSS:         cursorType = "crosshair";     break;
+    case UPARROW:       cursorType = "n-resize";      break;
+    case SIZENWSE:      cursorType = "nwse-resize";   break;
+    case SIZENESW:      cursorType = "nesw-resize";   break;
+    case SIZEWE:        cursorType = "ew-resize";     break;
+    case SIZENS:        cursorType = "ns-resize";     break;
+    case SIZEALL:       cursorType = "move";          break;
+    case INO:           cursorType = "not-allowed";   break;
+    case HAND:          cursorType = "grab";          break;
+    case APPSTARTING:   cursorType = "progress";      break;
+    case HELP:          cursorType = "help";          break;
+  }
+  
+  val::global("document")["body"]["style"].set("cursor", cursorType);
+}
+
 bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
   if (CStringHasContents(name))
