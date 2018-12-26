@@ -112,6 +112,8 @@ public:
   {
   public:
 
+    Rasterizer(IGraphicsAGG& graphics) : mGraphics(graphics) {}
+      
     RenbaseType& GetBase() { return mRenBase; }
 
     agg::rgba8 GetPixel(int x, int y) { return mRenBase.pixel(x, y); }
@@ -132,6 +134,13 @@ public:
       RasterizePattern(transform, pattern, pBlend, rule);
     }
 
+    template <typename VertexSourceType, typename RendererType>
+    void Rasterize(VertexSourceType& path, RendererType& renderer, agg::comp_op_e op)
+    {
+      SetPath(path);
+      Rasterize(renderer, op);
+    }
+      
     template <typename RendererType>
     void Rasterize(RendererType& renderer, agg::comp_op_e op)
     {
@@ -139,7 +148,7 @@ public:
       mPixf.comp_op(op);
       agg::render_scanlines(mRasterizer, scanline, renderer);
     }
-    
+      
     void BlendFrom(agg::rendering_buffer& renBuf, const IRECT& bounds, int srcX, int srcY, agg::comp_op_e op, agg::cover_type cover)
     {
       mPixf.comp_op(op);
@@ -150,12 +159,20 @@ public:
     template <typename VertexSourceType>
     void SetPath(VertexSourceType& path)
     {
+      // Clip
+      agg::conv_clip_polygon<VertexSourceType> clippedPath(path);
+      IRECT clip = mGraphics.mClipRECT.Empty() ? mGraphics.GetBounds() : mGraphics.mClipRECT;
+      clip.Translate(mGraphics.XTranslate(), mGraphics.YTranslate());
+      clip.Scale(mGraphics.GetScreenScale() * mGraphics.GetDrawScale());
+      clippedPath.clip_box(clip.L, clip.T, clip.R, clip.B);
+      // Add path
       mRasterizer.reset();
-      mRasterizer.add_path(path);
+      mRasterizer.add_path(clippedPath);
     }
 
     void RasterizePattern(agg::trans_affine transform, const IPattern& pattern,const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding);
 
+    IGraphicsAGG& mGraphics;
     RenbaseType mRenBase;
     PixfmtType mPixf;
     RasterizerType mRasterizer;
@@ -205,15 +222,6 @@ private:
 
   double XTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().L; }
   double YTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().T; }
-
-  template<typename PathType>
-  void DoClip(PathType& path)
-  {
-    IRECT clip = mClipRECT.Empty() ? GetBounds() : mClipRECT;
-    clip.Translate(XTranslate(), YTranslate());
-    clip.Scale(GetScreenScale() * GetDrawScale());
-    path.clip_box(clip.L, clip.T, clip.R, clip.B);
-  }
   
   void PathTransformSetMatrix(const IMatrix& m) override
   {

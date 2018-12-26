@@ -157,6 +157,7 @@ void IGraphicsAGG::Rasterizer::RasterizePattern(agg::trans_affine transform, con
 
 IGraphicsAGG::IGraphicsAGG(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphicsPathBase(dlg, w, h, fps, scale)
+, mRasterizer(*this)
 , mFontEngine()
 , mFontManager(mFontEngine)
 , mFontCurves(mFontManager.path_adaptor())
@@ -260,9 +261,8 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
     BitmapAlphaRenderType renderer(mRasterizer.GetBase(), spanAllocator, spanGenerator);
     agg::rounded_rect rect(dest.L, dest.T, dest.R, dest.B, 0);
     agg::conv_transform<agg::rounded_rect> tr(rect, mTransform);
-    
-    mRasterizer.SetPath(tr);
-    mRasterizer.Rasterize(renderer, AGGBlendMode(pBlend));
+
+    mRasterizer.Rasterize(tr, renderer, AGGBlendMode(pBlend));
   }
 }
 /*
@@ -411,9 +411,7 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
       dashed.add_dash(dashArray[i % dashCount], dashArray[(i + 1) % dashCount]);
     
     StrokeOptions(strokes, thickness, options);
-    agg::conv_clip_polygon<DashStrokeType> path(strokes);
-    DoClip(path);
-    mRasterizer.Rasterize(path, GetRasterTransform(), pattern, pBlend);
+    mRasterizer.Rasterize(strokes, GetRasterTransform(), pattern, pBlend);
   }
   else
   {
@@ -422,9 +420,7 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
     //TransformedStrokePathType path(strokes, xform);
     
     StrokeOptions(strokes, thickness, options);
-    agg::conv_clip_polygon<StrokeType> path(strokes);
-    DoClip(path);
-    mRasterizer.Rasterize(path, GetRasterTransform(), pattern, pBlend);
+    mRasterizer.Rasterize(strokes, GetRasterTransform(), pattern, pBlend);
   }
   
   if (!options.mPreserve)
@@ -433,11 +429,7 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
 
 void IGraphicsAGG::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
 {
-  CurvedPathType curvedPath(mPath);
-  agg::conv_clip_polygon<CurvedPathType> path(curvedPath);
-  DoClip(path);
-  
-  mRasterizer.Rasterize(path, GetRasterTransform(), pattern, pBlend, options.mFillRule);
+  mRasterizer.Rasterize(mPath, GetRasterTransform(), pattern, pBlend, options.mFillRule);
   if (!options.mPreserve)
     mPath.remove_all();
 }
