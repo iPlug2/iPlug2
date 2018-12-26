@@ -209,20 +209,21 @@ void IGraphicsAGG::UpdateLayer()
 
 bool CheckTransform(const agg::trans_affine& mtx)
 {
-  if (!agg::is_equal_eps(mtx.tx - floor(mtx.tx), 0.0, agg::affine_epsilon))
+  if (!agg::is_equal_eps(mtx.tx - std::round(mtx.tx), 0.0, 1e-3))
     return false;
-  if (!agg::is_equal_eps(mtx.ty - floor(mtx.ty), 0.0, agg::affine_epsilon))
+  if (!agg::is_equal_eps(mtx.ty - std::round(mtx.ty), 0.0, 1e-3))
     return false;
 
   agg::trans_affine mtx_without_translate(mtx);
   mtx_without_translate.tx = mtx_without_translate.ty = 0.0;
   
-  return mtx_without_translate.is_identity();
+  return mtx_without_translate.is_identity(1e-3);
 }
 
 void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
-  IRECT bounds = dest.GetScaled(GetScreenScale());
+  IRECT bounds = mClipRECT.Empty() ? dest : mClipRECT.Intersect(dest);
+  bounds.Scale(GetScreenScale() * GetDrawScale());
 
   APIBitmap* pAPIBitmap = bitmap.GetAPIBitmap();
   agg::pixel_map* pSource = pAPIBitmap->GetBitmap();
@@ -234,17 +235,17 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   srcMtx *= agg::trans_affine_translation((srcX * scale) - dest.L, (srcY * scale) - dest.T);
   srcMtx *= agg::trans_affine_scaling(bitmap.GetScale() * bitmap.GetDrawScale());
       
-  // TODO - fix clipping of bitmaps
-  // TODO - fix the test for one on one and drawing code for this
+  // TODO - fix clipping of bitmaps in one-to-one mode
     
   if (bounds.IsPixelAligned() && CheckTransform(srcMtx))
   {
     double offsetScale = scale * GetScreenScale();
     
-    bounds.Scale(GetDrawScale());
     bounds.Translate(mTransform.tx, mTransform.ty);
-
-    mRasterizer.BlendFrom(src, bounds, srcX * offsetScale, srcY * offsetScale, AGGBlendMode(pBlend), AGGCover(pBlend));
+    srcX = std::round(srcX * offsetScale);
+    srcY = std::round(srcX * offsetScale);
+      
+    mRasterizer.BlendFrom(src, bounds, srcX, srcY, AGGBlendMode(pBlend), AGGCover(pBlend));
   }
   else
   {

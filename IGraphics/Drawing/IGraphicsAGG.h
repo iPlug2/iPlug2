@@ -152,8 +152,8 @@ public:
     void BlendFrom(agg::rendering_buffer& renBuf, const IRECT& bounds, int srcX, int srcY, agg::comp_op_e op, agg::cover_type cover)
     {
       mPixf.comp_op(op);
-      agg::rect_i r(srcX, srcY, srcX + bounds.W(), srcY + bounds.H());
-      mRenBase.blend_from(PixfmtType(renBuf), &r, bounds.L - srcX, bounds.T - srcY, cover);
+      agg::rect_i r(srcX, srcY, srcX + std::round(bounds.W()), srcY + std::round(bounds.H()));
+      mRenBase.blend_from(PixfmtType(renBuf), &r, std::round(bounds.L) - srcX, std::round(bounds.T) - srcY, cover);
     }
 
     template <typename VertexSourceType>
