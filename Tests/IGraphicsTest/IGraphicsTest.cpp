@@ -53,7 +53,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new ILambdaControl(*this, nextCell(), [](IControl* pCaller, IGraphics& g, IRECT& r, IMouseInfo&, double t) {
       
 //      static constexpr float width = 5.f;
-      static constexpr float radius = 50.f;
+      static constexpr float radius = 500.f;
 //      static constexpr float cornerSize = 10.f;
       
       //    g.FillRect(COLOR_WHITE, r);
@@ -61,11 +61,28 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
       //    g.FillArc(COLOR_WHITE, r.MW(), r.MH(), radius, 0, 90);
       //    g.FillRoundRect(COLOR_WHITE, r, cornerSize);
 
-      g.DrawDottedLine(COLOR_WHITE, r.L, r.T, r.R, r.MH());
+      //    g.DrawDottedLine(COLOR_WHITE, r.L, r.T, r.R, r.MH());
       //    g.DrawRect(COLOR_WHITE, r, nullptr, width);
       //    g.DrawCircle(COLOR_WHITE, r.MW(), r.MH(), radius, nullptr, width);
-      g.DrawArc(COLOR_WHITE, r.MW(), r.MH(), radius, 0, 90);
+      //    g.DrawArc(COLOR_WHITE, r.MW(), r.MH(), radius, 0, 90);
       //    g.DrawRoundRect(COLOR_BLUE, r, cornerSize, nullptr, width);
+      
+      for(int index = 0, limit = 40; index < limit; ++index)
+      {
+        float firstAngle = (index * 2 * PI) / limit;
+        float secondAngle = ((index + 1) * 2 * PI) / limit;
+        
+        g.PathTriangle(r.MW(), r.MH(),
+                       std::sin(firstAngle) * radius, std::cos(firstAngle) * radius,
+                       std::sin(secondAngle) * radius, std::cos(secondAngle) * radius);
+        
+        if(index % 2)
+          g.PathFill(COLOR_RED);
+        else
+          g.PathFill(COLOR_BLUE);
+      }
+      
+      
     }, 1000, false));
     
     pGraphics->AttachControl(new TestGradientControl(*this, nextCell()));
