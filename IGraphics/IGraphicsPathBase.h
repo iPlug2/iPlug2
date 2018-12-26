@@ -27,8 +27,8 @@ public:
   {
     //TODO: offset support
     
-    float width = (float) bitmap.W();
-    float height = (float) bitmap.H();
+    float width = bitmap.W() / bitmap.GetDrawScale();
+    float height = bitmap.H() / bitmap.GetDrawScale();
     
     PathTransformSave();
     PathTransformTranslate((float) destCtrX, (float) destCtrY);
@@ -397,7 +397,7 @@ public:
   void PathClipRegion(const IRECT r = IRECT()) override
   {
     IRECT drawArea = mLayers.empty() ? mClipRECT : mLayers.top()->Bounds();
-    IRECT clip = r.Intersect(drawArea);
+    IRECT clip = r.Empty() ? drawArea : r.Intersect(drawArea);
     PathTransformSetMatrix(IMatrix());
     SetClipRegion(clip);
     PathTransformSetMatrix(mTransform);
