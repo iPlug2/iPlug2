@@ -192,7 +192,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         {
           pGraphics->SetAllControlsClean();
           IRECT dirtyR = rects.Bounds();
-          dirtyR.ScaleBounds(pGraphics->GetDrawScale());
+          dirtyR.Scale(pGraphics->GetDrawScale());
           RECT r = { (LONG) dirtyR.L, (LONG) dirtyR.T, (LONG) dirtyR.R, (LONG) dirtyR.B };
 
           InvalidateRect(hWnd, &r, FALSE);
@@ -200,7 +200,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           if (pGraphics->mParamEditWnd)
           {
             IRECT notDirtyR = pGraphics->mEdControl->GetRECT();
-            notDirtyR.ScaleBounds(pGraphics->GetDrawScale());
+            notDirtyR.Scale(pGraphics->GetDrawScale());
             RECT r2 = { (LONG) notDirtyR.L, (LONG) notDirtyR.T, (LONG) notDirtyR.R, (LONG) notDirtyR.B };
             ValidateRect(hWnd, &r2); // make sure we dont redraw the edit box area
             UpdateWindow(hWnd);
@@ -358,7 +358,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         #endif
         IRECT ir(r.left, r.top, r.right, r.bottom);
         IRECTList rects;
-        ir.ScaleBounds(1. / pGraphics->GetDrawScale());
+        ir.Scale(1. / pGraphics->GetDrawScale());
         rects.Add(ir);
         pGraphics->Draw(rects);
         #ifdef IGRAPHICS_NANOVG

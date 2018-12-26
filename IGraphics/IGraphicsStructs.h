@@ -697,7 +697,7 @@ struct IRECT
   {
     Scale(scale);
     PixelAlign();
-    Scale(1.0/scale);
+    Scale(1.f/scale);
   }
     
   inline IRECT GetPixelAligned() const
