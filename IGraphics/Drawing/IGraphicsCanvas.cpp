@@ -67,7 +67,7 @@ void IGraphicsCanvas::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX,
   IRECT sr = bounds;
   sr.Scale(bs * bitmap.GetDrawScale());
 
-  context.call<void>("drawImage", img, srcX * bs, srcY * bs, sr.W(), sr.H(), floor(bounds.L), floor(bounds.T), floor(bounds.W()), floor(bounds.H()));
+  context.call<void>("drawImage", img, srcX * bs, srcY * bs, sr.W(), sr.H(), bounds.L, bounds.T, bounds.W(), bounds.H());
   GetContext().call<void>("restore");
 }
 
