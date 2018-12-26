@@ -337,5 +337,5 @@ APIBitmap* IGraphicsCanvas::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetDrawScale() * GetScreenScale();
-  return new CanvasBitmap(width * scale, height * scale, GetScreenScale(), GetDrawScale());
+  return new CanvasBitmap(std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
 }

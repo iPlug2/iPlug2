@@ -187,7 +187,7 @@ APIBitmap* IGraphicsCairo::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 APIBitmap* IGraphicsCairo::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetDrawScale() * GetScreenScale();
-  return new CairoBitmap(mSurface, width * scale, height * scale, GetScreenScale(), GetDrawScale());
+  return new CairoBitmap(mSurface, std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
 }
 
 void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)

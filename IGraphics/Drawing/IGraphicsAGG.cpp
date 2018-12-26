@@ -515,7 +515,7 @@ APIBitmap* IGraphicsAGG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 APIBitmap* IGraphicsAGG::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetDrawScale() * GetScreenScale();
-  return new AGGBitmap(CreatePixmap(width * scale, width * scale), GetScreenScale(), GetDrawScale());
+  return new AGGBitmap(CreatePixmap(std::round(width * scale), std::round(height * scale)), GetScreenScale(), GetDrawScale());
 }
 
 void IGraphicsAGG::EndFrame()

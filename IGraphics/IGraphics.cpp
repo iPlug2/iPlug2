@@ -1230,13 +1230,14 @@ void IGraphics::StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emb
 
 void IGraphics::StartLayer(const IRECT& r)
 {
-  const int w = static_cast<int>(std::round( r.W() ));
-  const int h = static_cast<int>(std::round( r.H() ));
+  IRECT alignedBounds = r.GetPixelAligned(GetBackingPixelScale());
+  const int w = static_cast<int>(std::round(alignedBounds.W()));
+  const int h = static_cast<int>(std::round(alignedBounds.H()));
 
-  mLayers.push(new ILayer(CreateAPIBitmap(w, h), r));
+  mLayers.push(new ILayer(CreateAPIBitmap(w, h), alignedBounds));
   UpdateLayer();
   PathTransformReset(true);
-  PathClipRegion(r);
+  PathClipRegion(alignedBounds);
   PathClear();
 }
 

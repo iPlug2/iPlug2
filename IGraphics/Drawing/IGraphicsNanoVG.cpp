@@ -268,7 +268,7 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const WDL_String& resourcePath, int sc
 APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetDrawScale() * GetScreenScale();
-  return new NanoVGBitmap(mVG, width * scale, height * scale, GetScreenScale(), GetDrawScale());
+  return new NanoVGBitmap(mVG, std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
 }
 
 void IGraphicsNanoVG::SetPlatformContext(void* pContext)
