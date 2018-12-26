@@ -27,8 +27,8 @@ public:
   {
     //TODO: offset support
     
-    float width = (float) bitmap.W();
-    float height = (float) bitmap.H();
+    float width = bitmap.W() / bitmap.GetDrawScale();
+    float height = bitmap.H() / bitmap.GetDrawScale();
     
     PathTransformSave();
     PathTransformTranslate((float) destCtrX, (float) destCtrY);
