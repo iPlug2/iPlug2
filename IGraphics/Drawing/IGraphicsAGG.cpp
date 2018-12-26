@@ -468,7 +468,13 @@ APIBitmap* IGraphicsAGG::LoadAPIBitmap(const WDL_String& resourcePath, int scale
 #endif
     
     PixelMapType* pPixelMap = new PixelMapType();
+#ifdef OS_MAC
     if (pPixelMap->load_img(path, ispng ? agg::pixel_map::format_png : agg::pixel_map::format_jpg))
+#elif defined OS_WIN
+    if (pPixelMap->load_img((HINSTANCE) GetPlatformInstance(), path, ispng ? agg::pixel_map::format_png : agg::pixel_map::format_jpg))
+#else
+#error NOT IMPLEMENTED!
+#endif
       return new AGGBitmap(pPixelMap, scale, 1.f);
     else
       delete pPixelMap;
