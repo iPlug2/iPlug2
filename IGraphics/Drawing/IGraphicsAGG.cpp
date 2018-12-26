@@ -207,10 +207,8 @@ void IGraphicsAGG::UpdateLayer()
 //  return IFontData(font_buf);
 //}
 
-bool CheckTransform(double yx, double xy, const agg::trans_affine& mtx)
+bool CheckTransform(const agg::trans_affine& mtx)
 {
-  if (yx || xy)
-    return false;
   if (!agg::is_equal_eps(mtx.tx - floor(mtx.tx), 0.0, agg::affine_epsilon))
     return false;
   if (!agg::is_equal_eps(mtx.ty - floor(mtx.ty), 0.0, agg::affine_epsilon))
@@ -239,15 +237,12 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   // TODO - fix clipping of bitmaps
   // TODO - fix the test for one on one and drawing code for this
     
-  if (bounds.IsPixelAligned() && CheckTransform(mTransform.shx, mTransform.shy, srcMtx))
+  if (bounds.IsPixelAligned() && CheckTransform(srcMtx))
   {
     double offsetScale = scale * GetScreenScale();
-    double tx, ty;
     
-    mTransform.translation(&tx, &ty);
-      
     bounds.Scale(GetDrawScale());
-    bounds.Translate(tx, ty);
+    bounds.Translate(mTransform.tx, mTransform.ty);
 
     mRasterizer.BlendFrom(src, bounds, srcX * offsetScale, srcY * offsetScale, AGGBlendMode(pBlend), AGGCover(pBlend));
   }
