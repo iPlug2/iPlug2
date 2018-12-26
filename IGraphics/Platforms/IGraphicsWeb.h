@@ -52,6 +52,7 @@ public:
   void SetPlatformContext(void* pContext) override {} // TODO:
 
   void HideMouseCursor(bool hide, bool lock) override;
+  void MoveMouseCursor(float x, float y) override { /* NOT SUPPORTABLE*/ }
   void SetMouseCursor(ECursor cursor) override;
 
   void ForceEndUserEdit() override {} // TODO:
