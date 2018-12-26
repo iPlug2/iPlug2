@@ -447,7 +447,7 @@ public:
   ILayerPtr EndLayer();
   bool CheckLayer(const ILayerPtr& layer);
   void DrawLayer(const ILayerPtr& layer);
-    
+  void DrawRotatedLayer(const ILayerPtr& layer, double angle);
 private:
   virtual void UpdateLayer() {}
 
