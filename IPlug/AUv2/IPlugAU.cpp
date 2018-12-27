@@ -463,7 +463,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       if (pData)
       {
         CFPropertyListRef* pList = (CFPropertyListRef*) pData;
-      *pWriteable = true;
+        *pWriteable = true;
         return GetState(pList);
       }
       return noErr;
