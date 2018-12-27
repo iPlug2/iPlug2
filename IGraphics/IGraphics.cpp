@@ -72,21 +72,7 @@ IGraphics::IGraphics(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 
 IGraphics::~IGraphics()
 {
-  if (mKeyCatcher)
-    DELETE_NULL(mKeyCatcher);
-
-  if (mPopupControl)
-    DELETE_NULL(mPopupControl);
-  
-  if (mCornerResizer)
-    DELETE_NULL(mCornerResizer);
-
-#if !defined(NDEBUG)
-  if (mLiveEdit)
-    DELETE_NULL(mLiveEdit);
-#endif
-
-  mControls.Empty(true);
+  RemoveAllControls();
 }
 
 void IGraphics::SetScreenScale(int scale)
@@ -145,6 +131,28 @@ void IGraphics::RemoveControls(int fromIdx)
   }
   
   SetAllControlsDirty();
+}
+
+void IGraphics::RemoveAllControls()
+{
+  mMouseCapture = mMouseOver = nullptr;
+  mMouseOverIdx = -1;
+    
+  if (mKeyCatcher)
+    DELETE_NULL(mKeyCatcher);
+  
+  if (mPopupControl)
+    DELETE_NULL(mPopupControl);
+  
+  if (mCornerResizer)
+    DELETE_NULL(mCornerResizer);
+  
+#if !defined(NDEBUG)
+  if (mLiveEdit)
+    DELETE_NULL(mLiveEdit);
+#endif
+  
+  mControls.Empty(true);
 }
 
 void IGraphics::SetControlValueFromStringAfterPrompt(IControl& control, const char* str)

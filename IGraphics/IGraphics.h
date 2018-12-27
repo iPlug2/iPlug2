@@ -781,8 +781,11 @@ public:
   /** @return The number of controls that have been added to this graphics context */
   int NControls() const { return mControls.GetSize(); }
 
-  /***/
+  /** Remove controls from the control list above a particular index, (frees memory).  */
   void RemoveControls(int fromIdx);
+  
+  /** Removes all regular IControls from the control list, as well as special controls (frees memory). */
+  void RemoveAllControls();
   
   /** @param paramIdx <#paramIdx>
    * @param hide <#hide> */
@@ -973,7 +976,9 @@ protected:
   APIBitmap* SearchBitmapInCache(const char* name, int targetScale, int& sourceScale);
 
   virtual bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = nullptr, bool measure = false) = 0;
-  
+    
+  virtual float GetBackingPixelScale() const = 0;
+
   void ForStandardControlsFunc(std::function<void(IControl& control)> func);
   
   template<typename T, typename... Args>
@@ -987,8 +992,6 @@ protected:
   float mCursorY = -1.f;
 
 private:
-  virtual float GetBackingPixelScale() const = 0;
-    
   virtual void PlatformResize() {}
   virtual void DrawResize() {}
   

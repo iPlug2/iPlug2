@@ -681,7 +681,18 @@ struct IRECT
   
   bool IsPixelAligned() const
   {
-    return !(L - std::floor(L) && T - std::floor(T) && R - std::floor(R) && B - std::floor(B));
+    // If all values are within 1/1000th of a pixel of an integer the IRECT is considered pixel aligned
+      
+    auto isInteger = [](float x){ return std::fabs(x - std::round(x)) <= static_cast<float>(1e-3); };
+      
+    return isInteger(L) && isInteger(T) && isInteger(R) && isInteger(B);
+  }
+   
+  bool IsPixelAligned(float scale) const
+  {
+    IRECT r = *this;
+    r.Scale(scale);
+    return r.IsPixelAligned();
   }
   
   // Pixel aligns in an inclusive manner (moves all points outwards)
@@ -695,9 +706,10 @@ struct IRECT
     
   inline void PixelAlign(float scale)
   {
+    // N.B. - double precision is *required* for accuracy of the reciprocal
     Scale(scale);
     PixelAlign();
-    Scale(1.0/scale);
+    Scale(static_cast<float>(1.0/static_cast<double>(scale)));
   }
     
   inline IRECT GetPixelAligned() const
@@ -1373,7 +1385,7 @@ private:
   bool mInvalid;
 };
 
-/** ILayerPtr is a manged pointer for transferring the ownership of layers */
+/** ILayerPtr is a managed pointer for transferring the ownership of layers */
 typedef std::unique_ptr<ILayer> ILayerPtr;
 
 // TODO: static storage needs thread safety mechanism

@@ -279,7 +279,7 @@ bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
 
 void IGraphicsCanvas::PathTransformSetMatrix(const IMatrix& m)
 {
-  const double scale = GetDrawScale() * GetScreenScale();
+  const double scale = GetBackingPixelScale();
   IMatrix t = IMatrix().Scale(scale, scale).Translate(XTranslate(), YTranslate()).Transform(m);
 
   GetContext().call<void>("setTransform", t.mXX, t.mYX, t.mYX, t.mYY, t.mTX, t.mTY);
@@ -336,6 +336,6 @@ APIBitmap* IGraphicsCanvas::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 
 APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height)
 {
-  const double scale = GetDrawScale() * GetScreenScale();
+  const double scale = GetBackingPixelScale();
   return new CanvasBitmap(std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
 }

@@ -282,13 +282,20 @@ public:
   
   void PathRoundRect(const IRECT& bounds, float ctl, float ctr, float cbl, float cbr) override
   {
-    const float y = bounds.B - bounds.H();
-    PathMoveTo(bounds.L, y + ctl);
-    PathArc(bounds.L + ctl, y + ctl, ctl, 270.f, 360.f);
-    PathArc(bounds.L + bounds.W() - ctr, y + ctr, ctr, 0.f, 90.f);
-    PathArc(bounds.L + bounds.W() - cbr, y + bounds.H() - cbr, cbr, 90.f, 180.f);
-    PathArc(bounds.L + cbl, y + bounds.H() - cbl, cbl, 180.f, 270.f);
-    PathClose();
+    if (ctl <= 0.f && ctr <= 0.f && cbl <= 0.f && cbr <= 0.f)
+    {
+      PathRect(bounds);
+    }
+    else
+    {
+      const float y = bounds.B - bounds.H();
+      PathMoveTo(bounds.L, y + ctl);
+      PathArc(bounds.L + ctl, y + ctl, ctl, 270.f, 360.f);
+      PathArc(bounds.L + bounds.W() - ctr, y + ctr, ctr, 0.f, 90.f);
+      PathArc(bounds.L + bounds.W() - cbr, y + bounds.H() - cbr, cbr, 90.f, 180.f);
+      PathArc(bounds.L + cbl, y + bounds.H() - cbl, cbl, 180.f, 270.f);
+      PathClose();
+    }
   }
   
   void PathRoundRect(const IRECT& bounds, float cr) override
@@ -542,9 +549,11 @@ private:
     }
   }
   
-private:
-  
+protected:
+    
   float GetBackingPixelScale() const override { return GetScreenScale() * GetDrawScale(); };
+
+private:
 
   void PrepareRegion(const IRECT& r) override
   {

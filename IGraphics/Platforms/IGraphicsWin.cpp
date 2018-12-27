@@ -192,7 +192,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         {
           pGraphics->SetAllControlsClean();
           IRECT dirtyR = rects.Bounds();
-          dirtyR.ScaleBounds(pGraphics->GetDrawScale());
+          dirtyR.Scale(pGraphics->GetDrawScale());
+          dirtyR.PixelAlign();
           RECT r = { (LONG) dirtyR.L, (LONG) dirtyR.T, (LONG) dirtyR.R, (LONG) dirtyR.B };
 
           InvalidateRect(hWnd, &r, FALSE);
@@ -200,7 +201,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           if (pGraphics->mParamEditWnd)
           {
             IRECT notDirtyR = pGraphics->mEdControl->GetRECT();
-            notDirtyR.ScaleBounds(pGraphics->GetDrawScale());
+            notDirtyR.Scale(pGraphics->GetDrawScale());
+            notDirtyR.PixelAlign();
             RECT r2 = { (LONG) notDirtyR.L, (LONG) notDirtyR.T, (LONG) notDirtyR.R, (LONG) notDirtyR.B };
             ValidateRect(hWnd, &r2); // make sure we dont redraw the edit box area
             UpdateWindow(hWnd);
@@ -358,7 +360,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         #endif
         IRECT ir(r.left, r.top, r.right, r.bottom);
         IRECTList rects;
-        ir.ScaleBounds(1. / pGraphics->GetDrawScale());
+        ir.Scale(1. / pGraphics->GetDrawScale());
+        ir.PixelAlign();
         rects.Add(ir);
         pGraphics->Draw(rects);
         #ifdef IGRAPHICS_NANOVG
@@ -1409,8 +1412,8 @@ bool IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String
 #ifndef NO_IGRAPHICS
 #if defined IGRAPHICS_AGG
   #include "IGraphicsAGG.cpp"
-  #include "agg_win_pmap.cpp"
-  #include "agg_win_font.cpp"
+  #include "agg_win32_pmap.cpp"
+  #include "agg_win32_font.cpp"
 #elif defined IGRAPHICS_CAIRO
   #include "IGraphicsCairo.cpp"
 #elif defined IGRAPHICS_LICE

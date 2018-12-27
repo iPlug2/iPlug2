@@ -76,8 +76,8 @@ public:
 #else
 #error NOT IMPLEMENTED
 #endif
+    
   typedef agg::comp_op_adaptor_rgba<agg::rgba8, PixelOrder> BlenderType;
-  typedef agg::comp_op_adaptor_rgba_pre<agg::rgba8, PixelOrder> BlenderTypePre;
   typedef agg::pixfmt_custom_blend_rgba<BlenderType, agg::rendering_buffer> PixfmtType;
   typedef agg::renderer_base <PixfmtType> RenbaseType;
   typedef agg::renderer_scanline_aa_solid<RenbaseType> RendererSolid;
@@ -88,30 +88,16 @@ public:
   typedef agg::image_accessor_clone<PixfmtType> imgSourceType;
   typedef agg::span_allocator<agg::rgba8> SpanAllocatorType;
   typedef agg::span_image_filter_rgba_bilinear<imgSourceType, InterpolatorType> SpanGeneratorType;
-  typedef alpha_span_generator<SpanGeneratorType> SpanAlphaGeneratorType;
   typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, SpanGeneratorType> BitmapRenderType;
   typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, alpha_span_generator<SpanGeneratorType> > BitmapAlphaRenderType;
-
   typedef agg::renderer_base<agg::pixfmt_gray8> maskRenBase;
-
-  // Path Types
-
-  typedef agg::path_storage PathType;
-  typedef agg::conv_curve<PathType> CurvedPathType;
-  typedef agg::conv_stroke<CurvedPathType> StrokeType;
-  typedef agg::conv_dash<CurvedPathType> DashType;
-  typedef agg::conv_stroke<DashType> DashStrokeType;
-  //typedef agg::conv_transform<PathType> TransformedPathType;
-  //typedef agg::conv_transform<StrokeType> TransformedStrokePathType;
-  //typedef agg::conv_transform<DashStrokeType> TransformedDashStrokePathType;
-  //typedef agg::conv_curve<TransformedPathType> CurvedTransformedPathType;
-  typedef agg::rasterizer_scanline_aa<> RasterizerType;
-  typedef agg::gradient_lut<agg::color_interpolator<agg::rgba8>, 512> ColorArrayType;
 
   class Rasterizer
   {
   public:
 
+    Rasterizer(IGraphicsAGG& graphics) : mGraphics(graphics) {}
+      
     RenbaseType& GetBase() { return mRenBase; }
 
     agg::rgba8 GetPixel(int x, int y) { return mRenBase.pixel(x, y); }
@@ -126,12 +112,19 @@ public:
     }
 
     template <typename VertexSourceType>
-    void Rasterize(VertexSourceType& path, agg::trans_affine transform, const IPattern& pattern,const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding)
+    void Rasterize(VertexSourceType& path, const IPattern& pattern,const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding)
     {
       SetPath(path);
-      RasterizePattern(transform, pattern, pBlend, rule);
+      RasterizePattern(pattern, pBlend, rule);
     }
 
+    template <typename VertexSourceType, typename RendererType>
+    void Rasterize(VertexSourceType& path, RendererType& renderer, agg::comp_op_e op)
+    {
+      SetPath(path);
+      Rasterize(renderer, op);
+    }
+      
     template <typename RendererType>
     void Rasterize(RendererType& renderer, agg::comp_op_e op)
     {
@@ -139,26 +132,34 @@ public:
       mPixf.comp_op(op);
       agg::render_scanlines(mRasterizer, scanline, renderer);
     }
-    
+      
     void BlendFrom(agg::rendering_buffer& renBuf, const IRECT& bounds, int srcX, int srcY, agg::comp_op_e op, agg::cover_type cover)
     {
       mPixf.comp_op(op);
-      agg::rect_i r(srcX, srcY, srcX + bounds.W(), srcY + bounds.H());
-      mRenBase.blend_from(PixfmtType(renBuf), &r, bounds.L - srcX, bounds.T - srcY, cover);
+      agg::rect_i r(srcX, srcY, srcX + std::round(bounds.W()), srcY + std::round(bounds.H()));
+      mRenBase.blend_from(PixfmtType(renBuf), &r, std::round(bounds.L) - srcX, std::round(bounds.T) - srcY, cover);
     }
 
     template <typename VertexSourceType>
     void SetPath(VertexSourceType& path)
     {
+      // Clip
+      agg::conv_clip_polygon<VertexSourceType> clippedPath(path);
+      IRECT clip = mGraphics.mClipRECT.Empty() ? mGraphics.GetBounds() : mGraphics.mClipRECT;
+      clip.Translate(mGraphics.XTranslate(), mGraphics.YTranslate());
+      clip.Scale(mGraphics.GetBackingPixelScale());
+      clippedPath.clip_box(clip.L, clip.T, clip.R, clip.B);
+      // Add path
       mRasterizer.reset();
-      mRasterizer.add_path(path);
+      mRasterizer.add_path(clippedPath);
     }
 
-    void RasterizePattern(agg::trans_affine transform, const IPattern& pattern,const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding);
+    void RasterizePattern(const IPattern& pattern,const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding);
 
+    IGraphicsAGG& mGraphics;
     RenbaseType mRenBase;
     PixfmtType mPixf;
-    RasterizerType mRasterizer;
+    agg::rasterizer_scanline_aa<> mRasterizer;
   };
 
   IGraphicsAGG(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
@@ -201,23 +202,12 @@ protected:
 private:
   void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& bounds, const char* str, FontManagerType& manager);
 
-  agg::trans_affine GetRasterTransform() { return agg::trans_affine() / mTransform; }
-
   double XTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().L; }
   double YTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().T; }
-
-  template<typename PathType>
-  void DoClip(PathType& path)
-  {
-    IRECT clip = mClipRECT.Empty() ? GetBounds() : mClipRECT;
-    clip.Translate(XTranslate(), YTranslate());
-    clip.Scale(GetScreenScale() * GetDrawScale());
-    path.clip_box(clip.L, clip.T, clip.R, clip.B);
-  }
   
   void PathTransformSetMatrix(const IMatrix& m) override
   {
-    const double scale = GetDrawScale() * GetScreenScale();
+    const double scale = GetBackingPixelScale();
     IMatrix t = IMatrix().Scale(scale, scale).Translate(XTranslate(), YTranslate()).Transform(m);
       
     mTransform = agg::trans_affine(t.mXX, t.mYX, t.mXY, t.mYY, t.mTX, t.mTY);
@@ -229,11 +219,11 @@ private:
   FontEngineType mFontEngine;
   FontManagerType mFontManager;
   agg::rendering_buffer mRenBuf;
-  PathType mPath;
-  Rasterizer mRasterizer;
+  agg::path_storage mPath;
   agg::trans_affine mTransform;
   PixelMapType mPixelMap;
-
+  Rasterizer mRasterizer;
+    
   //pipeline to process the vectors glyph paths(curves + contour)
   agg::conv_curve<FontManagerType::path_adaptor_type> mFontCurves;
   agg::conv_contour<agg::conv_curve<FontManagerType::path_adaptor_type> > mFontContour;
