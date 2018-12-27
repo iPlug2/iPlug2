@@ -710,7 +710,15 @@ void IPlugAPPHost::MIDICallback(double deltatime, std::vector<uint8_t>* pMsg, vo
   
   if (pMsg->size() > 3)
   {
-    // TODO: Sysex
+    if(pMsg->size() > MAX_SYSEX_SIZE)
+    {
+      DBGMSG("SysEx message exceeds MAX_SYSEX_SIZE\n");
+      return;
+    }
+    
+    SysExData data { 0, static_cast<int>(pMsg->size()), pMsg->data() };
+    
+    _this->mIPlug->mSysExMsgsFromCallback.Push(data);
     return;
   }
   else
@@ -719,8 +727,6 @@ void IPlugAPPHost::MIDICallback(double deltatime, std::vector<uint8_t>* pMsg, vo
     
     _this->mIPlug->mMidiMsgsFromCallback.Push(msg);
   }
-  
-  //TODO:
 }
 
 // static
