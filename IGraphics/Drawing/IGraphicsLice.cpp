@@ -123,7 +123,10 @@ void IGraphicsLice::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, 
 
 void IGraphicsLice::DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend)
 {
-  DrawText(DEFAULT_TEXT, "Not implemented", bounds);
+  // FIX - clipping
+  IRECT r = TransformRECT(bounds);
+  LICE_IBitmap* pSrc = bitmap.GetAPIBitmap()->GetBitmap();
+  LICE_ScaledBlit(mRenderBitmap, pSrc, r.L, r.T, r.W(), r.H(), 0.0f, 0.0f, (float) pSrc->getWidth(), (float) pSrc->getHeight(), 1.0f, LiceBlendMode(pBlend) | LICE_BLIT_FILTER_BILINEAR);
 }
 
 void IGraphicsLice::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend)
@@ -476,7 +479,7 @@ APIBitmap* IGraphicsLice::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
   int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
   int destH = (pBitmap->GetHeight() / pBitmap->GetScale()) * scale;
   
-  LICE_IBitmap* pSrc = (LICE_IBitmap*) pBitmap;
+  LICE_IBitmap* pSrc = pBitmap->GetBitmap();
   LICE_MemBitmap* pDest = new LICE_MemBitmap(destW, destH);
   LICE_ScaledBlit(pDest, pSrc, 0, 0, destW, destH, 0.0f, 0.0f, (float) pSrc->getWidth(), (float) pSrc->getHeight(), 1.0f, LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR);
   

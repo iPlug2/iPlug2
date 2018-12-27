@@ -80,10 +80,6 @@ public:
   /** Called by some drawing API classes to finally blit the draw bitmap onto the screen or perform other cleanup after drawing */
   virtual void EndFrame() {};
 
-  /** Called by the platform IGraphics class XXXXX /todo and when moving to a new screen with different DPI, implementations in draw class must call the base implementation
-   * @param scale The scale of the display, typically 2 on a macOS retina screen */
-  void SetScreenScale(int scale);
-  
   /** Draw an SVG image to the graphics context
    * @param svg The SVG image to the graphics context
    * @param bounds The rectangular region to draw the image in
@@ -451,7 +447,7 @@ public:
   ILayerPtr EndLayer();
   bool CheckLayer(const ILayerPtr& layer);
   void DrawLayer(const ILayerPtr& layer);
-    
+  void DrawRotatedLayer(const ILayerPtr& layer, double angle);
 private:
   virtual void UpdateLayer() {}
 
@@ -553,9 +549,9 @@ public:
   /** Pop up a modal platform message box dialog. NOTE: this method will block the main thread
    * @param str The text message to display in the dialogue
    * @param caption The title of the message box window \todo check
-   * @param type An integer describing the button options available either MB_OK, MB_YESNO, MB_CANCEL \todo explain better
+   * @param type EMessageBoxType describing the button options available \see EMessageBoxType
    * @return \todo check */
-  virtual int ShowMessageBox(const char* str, const char* caption, int type) = 0;
+  virtual int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) = 0;
 
   /** Create a platform text entry box
    * @param control The control that the text entry belongs to. If this control is linked to a parameter, the text entry will be configured with initial text matching the parameter value
@@ -636,6 +632,10 @@ public:
   IGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.);
   virtual ~IGraphics();
 
+  /** Called by the platform IGraphics class XXXXX /todo and when moving to a new screen with different DPI
+   * @param scale The scale of the display, typically 2 on a macOS retina screen */
+  void SetScreenScale(int scale);
+    
   /** Called repeatedly at frame rate by the platform class to check what the graphics context says is dirty
    * @param bounds The rectangular region which will be added to to mark what is dirty in the context
    * @return /c true if a control is dirty */
@@ -643,7 +643,7 @@ public:
 
   /** Called by the platform class when an area needs to be redrawn
    * @param rects A set of rectangular regions to draw */
-  virtual void Draw(IRECTList& rects);
+  void Draw(IRECTList& rects);
 
   /** This method is called after interacting with a control, so that any other controls linked to the same parameter index, will also be set dirty, and have their values updated.
    * @param pCaller The control that triggered the parameter change. */
@@ -776,20 +776,16 @@ public:
   
   /** Get a pointer to the IControl that is currently captured i.e. during dragging
    * @return Pointer to currently captured control */
-  IControl* GetCapturedControl() { if(mMouseCapture > 0) { return GetControl(mMouseCapture); } else return nullptr; }
+  IControl* GetCapturedControl() { return mMouseCapture; }
   
   /** @return The number of controls that have been added to this graphics context */
   int NControls() const { return mControls.GetSize(); }
 
-  void RemoveControls(int fromIdx)
-  {
-    int idx = NControls()-1;
-    while (idx >= fromIdx) {
-      mControls.Delete(idx--);
-    }
-    
-    SetAllControlsDirty();
-  }
+  /** Remove controls from the control list above a particular index, (frees memory).  */
+  void RemoveControls(int fromIdx);
+  
+  /** Removes all regular IControls from the control list, as well as special controls (frees memory). */
+  void RemoveAllControls();
   
   /** @param paramIdx <#paramIdx>
    * @param hide <#hide> */
@@ -814,6 +810,8 @@ public:
 
   /***/
   void SetAllControlsDirty();
+  
+  /***/
   void SetAllControlsClean();
   
   /** @param x The X coordinate in the graphics context at which the mouse event occurred
@@ -865,9 +863,10 @@ public:
    * @param y The Y coordinate in the graphics context where the drag and drop occurred */
   void OnDrop(const char* str, float x, float y);
 
-  /** */
+  /***/
   void OnGUIIdle();
   
+  /***/
   void OnResizeGesture(float x, float y);
 
   /** @param enable Set \c true if you want to handle mouse over messages. Note: this may increase the amount CPU usage if you redraw on mouse overs etc */
@@ -903,7 +902,7 @@ public:
   bool CanHandleMouseOver() const { return mHandleMouseOver; }
 
   /** @return An integer representing the control index in IGraphics::mControls which the mouse is over, or -1 if it is not */
-  inline int GetMouseOver() const { return mMouseOver; }
+  inline int GetMouseOver() const { return mMouseOverIdx; }
 
   /** Get the x, y position in the graphics context of the last mouse down message. Does not get cleared on mouse up etc.
    * @param x Where the X position will be stored
@@ -977,40 +976,62 @@ protected:
   APIBitmap* SearchBitmapInCache(const char* name, int targetScale, int& sourceScale);
 
   virtual bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = nullptr, bool measure = false) = 0;
-protected:
+    
+  virtual float GetBackingPixelScale() const = 0;
+
+  void ForStandardControlsFunc(std::function<void(IControl& control)> func);
+  
+  template<typename T, typename... Args>
+  void ForMatchingControls(T method, int paramIdx, Args... args);
+  
   IGEditorDelegate& mDelegate;
-  WDL_PtrList<IControl> mControls;
   void* mPlatformContext = nullptr;
   bool mCursorHidden = false;
   bool mCursorLock = false;
   bool mTabletInput = false;
   float mCursorX = -1.f;
   float mCursorY = -1.f;
+
+private:
+  virtual void PlatformResize() {}
+  virtual void DrawResize() {}
+  
+  void Draw(const IRECT& bounds, float scale);
+  void DrawControl(IControl* pControl, const IRECT& bounds, float scale);
+  
+  int GetMouseControlIdx(float x, float y, bool mouseOver = false);
+  IControl* GetMouseControl(float x, float y, bool capture, bool mouseOver = false);
+  
+  void StartResizeGesture() { mResizingInProcess = true; };
+  
+  void PopupHostContextMenuForParam(IControl* pControl, int paramIdx, float x, float y);
+
+  void ForAllControlsFunc(std::function<void(IControl& control)> func);
+    
+  template<typename T, typename... Args>
+  void ForAllControls(T op, Args... args);
+  
+  WDL_PtrList<IControl> mControls;
+
+  // Order (front-to-back) ToolTip / PopUp / TextEntry / LiveEdit / Corner / PerfDisplay
+  
   ICornerResizerBase* mCornerResizer = nullptr;
   IPopupMenuControl* mPopupControl = nullptr;
   IPerfDisplayControl* mPerfDisplay = nullptr;
-  IControl* mKeyCatcher = nullptr;
   IControl* mLiveEdit = nullptr;
-
-  IPopupMenu mPromptPopupMenu;
-private:
-    
-  void Draw(const IRECT& bounds);
-  void DrawControl(IControl* pControl, const IRECT& bounds, bool alwaysShow);
-  int GetMouseControlIdx(float x, float y, bool mo = false);
-  void StartResizeGesture() { mResizingInProcess = true; };
+  IControl* mKeyCatcher = nullptr;
   
-  virtual void PlatformResize() {}
-  virtual void DrawResize() {}
-    
+  IPopupMenu mPromptPopupMenu;
+  
   int mWidth;
   int mHeight;
   int mFPS;
   int mScreenScale = 1; // the scaling of the display that the UI is currently on e.g. 2 for retina
   float mDrawScale = 1.f; // scale deviation from  default width and height i.e stretching the UI by dragging bottom right hand corner
   int mIdleTicks = 0;
-  int mMouseCapture = -1;
-  int mMouseOver = -1;
+  IControl* mMouseCapture = nullptr;
+  IControl* mMouseOver = nullptr;
+  int mMouseOverIdx = -1;
   float mMouseDownX = -1.f;
   float mMouseDownY = -1.f;
   float mMinScale;

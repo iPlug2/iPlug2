@@ -19,12 +19,6 @@
 
 #include "IGraphics_select.h"
 
-#define MB_OK 0
-#define MB_OKCANCEL 1
-#define MB_YESNOCANCEL 3
-#define MB_YESNO 4
-#define MB_RETRYCANCEL 5
-
 using namespace emscripten;
 
 static val GetCanvas()
@@ -62,7 +56,7 @@ public:
   bool WindowIsOpen() override { return GetWindow(); } // TODO: ??
   bool GetTextFromClipboard(WDL_String& str) override;
   void UpdateTooltips() override {} // TODO:
-  int ShowMessageBox(const char* str, const char* caption, int type) override;
+  int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) override;
   
   IPopupMenu* CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   

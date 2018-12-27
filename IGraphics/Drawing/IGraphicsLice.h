@@ -117,6 +117,8 @@ protected:
 
   void EndFrame() override;
     
+  float GetBackingPixelScale() const override { return GetScreenScale(); };
+
 private:
     
   float TransformX(float x)

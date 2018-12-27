@@ -3,13 +3,19 @@
 
 #include "Test/TestControls.h"
 
+enum EParam
+{
+  kParamDummy = 0,
+  kNumParams
+};
+
 enum EControlTags
 {
   kSizeControl = 0,
 };
 
 IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
-: IPLUG_CTOR(1, 1, instanceInfo)
+: IPLUG_CTOR(kNumParams, 1, instanceInfo)
 {
   
 #if IPLUG_EDITOR
@@ -53,7 +59,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new ILambdaControl(*this, nextCell(), [](IControl* pCaller, IGraphics& g, IRECT& r, IMouseInfo&, double t) {
       
 //      static constexpr float width = 5.f;
-      static constexpr float radius = 50.f;
+      static float radius = r.W();
 //      static constexpr float cornerSize = 10.f;
       
       //    g.FillRect(COLOR_WHITE, r);
@@ -61,17 +67,38 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
       //    g.FillArc(COLOR_WHITE, r.MW(), r.MH(), radius, 0, 90);
       //    g.FillRoundRect(COLOR_WHITE, r, cornerSize);
 
-      g.DrawDottedLine(COLOR_WHITE, r.L, r.T, r.R, r.MH());
+      //    g.DrawDottedLine(COLOR_WHITE, r.L, r.T, r.R, r.MH());
       //    g.DrawRect(COLOR_WHITE, r, nullptr, width);
       //    g.DrawCircle(COLOR_WHITE, r.MW(), r.MH(), radius, nullptr, width);
-      g.DrawArc(COLOR_WHITE, r.MW(), r.MH(), radius, 0, 90);
+      //    g.DrawArc(COLOR_WHITE, r.MW(), r.MH(), radius, 0, 90);
       //    g.DrawRoundRect(COLOR_BLUE, r, cornerSize, nullptr, width);
+      
+      const float x = r.MW();
+      const float y = r.MH();
+      const float rotate = t * PI;
+      
+      for(int index = 0, limit = 40; index < limit; ++index)
+      {
+        float firstAngle = (index * 2 * PI) / limit;
+        float secondAngle = ((index + 1) * 2 * PI) / limit;
+        
+        g.PathTriangle(x, y,
+                       x + std::sin(firstAngle + rotate) * radius, y + std::cos(firstAngle + rotate) * radius,
+                       x + std::sin(secondAngle + rotate) * radius, y + std::cos(secondAngle + rotate) * radius);
+        
+        if(index % 2)
+          g.PathFill(COLOR_RED);
+        else
+          g.PathFill(COLOR_BLUE);
+      }
+      
+      
     }, 1000, false));
     
-    pGraphics->AttachControl(new TestGradientControl(*this, nextCell()));
-    pGraphics->AttachControl(new TestPolyControl(*this, nextCell()));
-    pGraphics->AttachControl(new TestArcControl(*this, nextCell()));
-    pGraphics->AttachControl(new TestMultiPathControl(*this, nextCell()));
+    pGraphics->AttachControl(new TestGradientControl(*this, nextCell(), kParamDummy));
+    pGraphics->AttachControl(new TestPolyControl(*this, nextCell(), kParamDummy));
+    pGraphics->AttachControl(new TestArcControl(*this, nextCell(), kParamDummy));
+    pGraphics->AttachControl(new TestMultiPathControl(*this, nextCell(), kParamDummy));
     pGraphics->AttachControl(new TestTextControl(*this, nextCell()));
     pGraphics->AttachControl(new TestAnimationControl(*this, nextCell()));
     pGraphics->AttachControl(new TestDrawContextControl(*this, nextCell()));
