@@ -31,7 +31,7 @@ typedef IPlugVST3Controller VST3_API_BASE;
 #include "IControl.h"
 #include "IControls.h"
 #include "IGraphicsLiveEdit.h"
-#include "IPerfDisplayControl.h"
+#include "IFPSDisplayControl.h"
 #include "IPopupMenuControl.h"
 
 struct SVGHolder
@@ -215,10 +215,18 @@ void IGraphics::AttachPopupMenuControl(const IText& text, const IRECT& bounds)
   mPopupControl->SetGraphics(this);
 }
 
-void IGraphics::AttachPerformanceDisplay()
+void IGraphics::ShowFPSDisplay(bool enable)
 {
-  mPerfDisplay = new IPerfDisplayControl(mDelegate, GetBounds().GetPadded(-10).GetFromTLHC(200, 50));
-  mPerfDisplay->SetGraphics(this);
+  if(enable)
+  {
+    if(!mPerfDisplay)
+      mPerfDisplay = new IFPSDisplayControl(mDelegate, GetBounds().GetPadded(-10).GetFromTLHC(200, 50));
+      mPerfDisplay->SetGraphics(this);
+  }
+  else
+    DELETE_NULL(mPerfDisplay);
+  
+  SetAllControlsDirty();
 }
 
 IControl* IGraphics::GetControlWithTag(int controlTag)

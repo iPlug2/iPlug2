@@ -50,7 +50,7 @@
 class IControl;
 class IPopupMenuControl;
 class ICornerResizerBase;
-class IPerfDisplayControl;
+class IFPSDisplayControl;
 class IParam;
 
 /**
@@ -757,8 +757,12 @@ public:
    * @param pControl A control that inherits from IPopupMenuControl */
   void AttachPopupMenuControl(const IText& text = DEFAULT_TEXT, const IRECT& bounds = IRECT());
   
-  void AttachPerformanceDisplay();
+  /** Shows a control to display the frame rate of drawing
+   * @param enable \c true to show */
+  void ShowFPSDisplay(bool enable);
   
+  /** @return \c true if performance display is shown */
+  bool ShowingFPSDisplay() { return mPerfDisplay != nullptr; }
   /** Attach an IControl to the graphics context and add it to the top of the control stack. The control is owned by the graphics context and will be deleted when the context is deleted.
    * @param pControl A pointer to an IControl to attach.
    * @param controlTag An integer tag that you can use to identify the control
@@ -1016,7 +1020,7 @@ private:
   
   ICornerResizerBase* mCornerResizer = nullptr;
   IPopupMenuControl* mPopupControl = nullptr;
-  IPerfDisplayControl* mPerfDisplay = nullptr;
+  IFPSDisplayControl* mPerfDisplay = nullptr;
   IControl* mLiveEdit = nullptr;
   IControl* mKeyCatcher = nullptr;
   
