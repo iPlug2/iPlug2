@@ -137,10 +137,7 @@ void IGraphics::RemoveAllControls()
 {
   mMouseCapture = mMouseOver = nullptr;
   mMouseOverIdx = -1;
-    
-  if (mKeyCatcher)
-    DELETE_NULL(mKeyCatcher);
-  
+
   if (mPopupControl)
     DELETE_NULL(mPopupControl);
   
@@ -188,12 +185,6 @@ int IGraphics::AttachControl(IControl* pControl, int controlTag, const char* gro
   pControl->SetGroup(group);
   mControls.Add(pControl);
   return mControls.GetSize() - 1;
-}
-
-void IGraphics::AttachKeyCatcher(IControl* pControl)
-{
-  mKeyCatcher = pControl;
-  mKeyCatcher->SetGraphics(this);
 }
 
 void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize)
@@ -856,7 +847,7 @@ bool IGraphics::OnKeyDown(float x, float y, int key)
   if (pControl && pControl != GetControl(0))
     return pControl->OnKeyDown(x, y, key);
   else
-    return mKeyCatcher ? mKeyCatcher->OnKeyDown(x, y, key) : false;
+    return mKeyHandlerFunc ? mKeyHandlerFunc(key) : false;
 }
 
 void IGraphics::OnDrop(const char* str, float x, float y)

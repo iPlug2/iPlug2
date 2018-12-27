@@ -736,13 +736,6 @@ public:
   /** Attach an IPanelControl as the lowest IControl in the control stack to fill the background with a solid color
    * @param color The color to fill the panel with */
   void AttachPanelBackground(const IColor& color);
-
-  /** Attach a designated “Key Catcher” IControl.
-   * The key catcher is a special IControl that is not part of the main control stack and is not drawn in the graphics context.
-   * If you need to handle key presses globally you can create a custom IControl and override OnKeyDown().
-   * Attach your control to the graphics context using this method. An igraphics context can only have a single key catcher control
-   * @param pControl control A control to receive keypresses */
-  void AttachKeyCatcher(IControl* pControl);
   
   /** Attach the default control to scale or increase the UI size by dragging the plug-in bottom right-hand corner
    * @param sizeMode Choose whether to scale or size the UI */
@@ -756,6 +749,8 @@ public:
   /** Attach a control for pop-up menus, to override platform style menus
    * @param pControl A control that inherits from IPopupMenuControl */
   void AttachPopupMenuControl(const IText& text = DEFAULT_TEXT, const IRECT& bounds = IRECT());
+  
+  void SetKeyHandlerFunc(std::function<bool(int)> keyHandlerFunc) { mKeyHandlerFunc = keyHandlerFunc; }
   
   /** Shows a control to display the frame rate of drawing
    * @param enable \c true to show */
@@ -1028,7 +1023,6 @@ private:
   IPopupMenuControl* mPopupControl = nullptr;
   IFPSDisplayControl* mPerfDisplay = nullptr;
   IControl* mLiveEdit = nullptr;
-  IControl* mKeyCatcher = nullptr;
   
   IPopupMenu mPromptPopupMenu;
   
@@ -1059,7 +1053,7 @@ private:
   bool mLayoutOnResize = false;
   EUIResizerMode mGUISizeMode = EUIResizerMode::kUIResizerScale;
   double mPrevTimestamp = 0.;
-
+  std::function<bool(int key)> mKeyHandlerFunc = nullptr;
 protected:
   friend class IGraphicsLiveEdit;
   friend class ICornerResizerBase;
