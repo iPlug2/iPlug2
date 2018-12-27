@@ -186,7 +186,7 @@ APIBitmap* IGraphicsCairo::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 
 APIBitmap* IGraphicsCairo::CreateAPIBitmap(int width, int height)
 {
-  const double scale = GetDrawScale() * GetScreenScale();
+  const double scale = GetBackingPixelScale();
   return new CairoBitmap(mSurface, std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
 }
 
@@ -518,7 +518,7 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
     cairo_surface_set_device_scale(mSurface, GetDrawScale(), GetDrawScale());
 #elif defined OS_WIN
     mSurface = cairo_win32_surface_create_with_ddb((HDC) pContext, CAIRO_FORMAT_ARGB32, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
-    cairo_surface_set_device_scale(mSurface, GetScreenScale() * GetDrawScale(), GetScreenScale() * GetDrawScale());
+    cairo_surface_set_device_scale(mSurface, GetBackingPixelScale(), GetBackingPixelScale());
 #else
   #error NOT IMPLEMENTED
 #endif

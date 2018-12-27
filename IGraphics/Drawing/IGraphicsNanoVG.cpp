@@ -267,7 +267,7 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const WDL_String& resourcePath, int sc
 
 APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height)
 {
-  const double scale = GetDrawScale() * GetScreenScale();
+  const double scale = GetBackingPixelScale();
   return new NanoVGBitmap(mVG, std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
 }
 
@@ -681,7 +681,7 @@ void IGraphicsNanoVG::UpdateLayer()
   {
     nvgEndFrame(mVG);
 #ifndef IGRAPHICS_METAL
-    const double scale = GetDrawScale() * GetScreenScale();
+    const double scale = GetBackingPixelScale();
     glViewport(0, 0, mLayers.top()->Bounds().W() * scale, mLayers.top()->Bounds().H() * scale);
 #endif
     nvgBindFramebuffer(dynamic_cast<const NanoVGBitmap*>(mLayers.top()->GetAPIBitmap())->GetFBO());

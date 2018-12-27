@@ -109,10 +109,10 @@ protected:
 
   void EndFrame() override;
     
-private:
-    
   float GetBackingPixelScale() const override { return GetScreenScale(); };
 
+private:
+    
   float TransformX(float x)
   {
     return (x - mDrawOffsetX) * GetScreenScale();

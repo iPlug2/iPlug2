@@ -209,7 +209,7 @@ private:
   
   void PathTransformSetMatrix(const IMatrix& m) override
   {
-    const double scale = GetDrawScale() * GetScreenScale();
+    const double scale = GetBackingPixelScale();
     IMatrix t = IMatrix().Scale(scale, scale).Translate(XTranslate(), YTranslate()).Transform(m);
       
     mTransform = agg::trans_affine(t.mXX, t.mYX, t.mXY, t.mYY, t.mTX, t.mTY);

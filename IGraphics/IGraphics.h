@@ -976,7 +976,9 @@ protected:
   APIBitmap* SearchBitmapInCache(const char* name, int targetScale, int& sourceScale);
 
   virtual bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = nullptr, bool measure = false) = 0;
-  
+    
+  virtual float GetBackingPixelScale() const = 0;
+
   void ForStandardControlsFunc(std::function<void(IControl& control)> func);
   
   template<typename T, typename... Args>
@@ -990,8 +992,6 @@ protected:
   float mCursorY = -1.f;
 
 private:
-  virtual float GetBackingPixelScale() const = 0;
-    
   virtual void PlatformResize() {}
   virtual void DrawResize() {}
   

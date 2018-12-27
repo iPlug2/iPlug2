@@ -177,7 +177,7 @@ void IGraphicsAGG::DrawResize()
   mRasterizer.SetOutput(mRenBuf);
   mRasterizer.ClearWhite();
     
-  mTransform = agg::trans_affine_scaling(GetDrawScale() * GetScreenScale(), GetDrawScale() * GetScreenScale());
+  mTransform = agg::trans_affine_scaling(GetBackingPixelScale(), GetBackingPixelScale());
 }
 
 void IGraphicsAGG::UpdateLayer()
@@ -223,7 +223,7 @@ bool CheckTransform(const agg::trans_affine& mtx)
 void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
   IRECT bounds = mClipRECT.Empty() ? dest : mClipRECT.Intersect(dest);
-  bounds.Scale(GetScreenScale() * GetDrawScale());
+  bounds.Scale(GetBackingPixelScale());
 
   APIBitmap* pAPIBitmap = bitmap.GetAPIBitmap();
   agg::pixel_map* pSource = pAPIBitmap->GetBitmap();
@@ -513,7 +513,7 @@ APIBitmap* IGraphicsAGG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 
 APIBitmap* IGraphicsAGG::CreateAPIBitmap(int width, int height)
 {
-  const double scale = GetDrawScale() * GetScreenScale();
+  const double scale = GetBackingPixelScale();
   return new AGGBitmap(CreatePixmap(std::round(width * scale), std::round(height * scale)), GetScreenScale(), GetDrawScale());
 }
 

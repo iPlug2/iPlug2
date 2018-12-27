@@ -542,9 +542,11 @@ private:
     }
   }
   
-private:
-  
+protected:
+    
   float GetBackingPixelScale() const override { return GetScreenScale() * GetDrawScale(); };
+
+private:
 
   void PrepareRegion(const IRECT& r) override
   {

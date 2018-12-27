@@ -357,8 +357,8 @@ void IGraphicsWeb::DrawResize()
   canvas["style"].set("width", val(Width() * GetDrawScale()));
   canvas["style"].set("height", val(Height() * GetDrawScale()));
   
-  canvas.set("width", Width() * GetDrawScale() * GetScreenScale());
-  canvas.set("height", Height() * GetDrawScale() * GetScreenScale());
+  canvas.set("width", Width() * GetBackingPixelScale());
+  canvas.set("height", Height() * GetBackingPixelScale());
   
   IGRAPHICS_DRAW_CLASS::DrawResize();
 }
