@@ -1046,7 +1046,7 @@ void IGraphics::EnableTooltips(bool enable)
 
 void IGraphics::EnableLiveEdit(bool enable/*, const char* file, int gridsize*/)
 {
-#if defined(DEBUG)
+#if defined(_DEBUG)
   if(enable)
   {
     mLiveEdit = new IGraphicsLiveEdit(mDelegate/*, file, gridsize*/);

@@ -14,6 +14,9 @@
 
 #ifdef OS_WIN
 #include "asio.h"
+#define GET_MENU() GetMenu(gHWND)
+#elif defined OS_MAC
+#define GET_MENU() SWELL_GetCurrentMenu()
 #endif
 
 #if defined _DEBUG && !defined NO_IGRAPHICS
@@ -634,7 +637,7 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             {
               bool enabled = pGraphics->LiveEditEnabled();
               pGraphics->EnableLiveEdit(!enabled);
-              CheckMenuItem(SWELL_GetCurrentMenu(), ID_LIVE_EDIT, MF_BYCOMMAND | enabled ? MF_UNCHECKED : MF_CHECKED);
+              CheckMenuItem(GET_MENU(), ID_LIVE_EDIT, MF_BYCOMMAND | enabled ? MF_UNCHECKED : MF_CHECKED);
             }
           }
           
@@ -652,7 +655,7 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             {
               bool enabled = pGraphics->ShowAreaDrawnEnabled();
               pGraphics->ShowAreaDrawn(!enabled);
-              CheckMenuItem(SWELL_GetCurrentMenu(), ID_SHOW_DRAWN, MF_BYCOMMAND | enabled ? MF_UNCHECKED : MF_CHECKED);
+              CheckMenuItem(GET_MENU(), ID_SHOW_DRAWN, MF_BYCOMMAND | enabled ? MF_UNCHECKED : MF_CHECKED);
             }
           }
           
@@ -670,7 +673,7 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             {
               bool enabled = pGraphics->ShowingFPSDisplay();
               pGraphics->ShowFPSDisplay(!enabled);
-              CheckMenuItem(SWELL_GetCurrentMenu(), ID_SHOW_FPS, MF_BYCOMMAND | enabled ? MF_UNCHECKED : MF_CHECKED);
+              CheckMenuItem(GET_MENU(), ID_SHOW_FPS, MF_BYCOMMAND | enabled ? MF_UNCHECKED : MF_CHECKED);
             }
           }
           
