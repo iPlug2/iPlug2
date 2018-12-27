@@ -29,6 +29,7 @@
 #define IDAPPLY                         40025
 #define ID_LIVE_EDIT                    40026
 #define ID_SHOW_DRAWN                   40027
+#define ID_SHOW_FPS                     40028
 
 // Next default values for new objects
 //

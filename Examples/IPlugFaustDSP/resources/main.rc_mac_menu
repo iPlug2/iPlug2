@@ -7,7 +7,8 @@ SWELL_DEFINE_MENU_RESOURCE_BEGIN(IDR_MENU1)
     POPUP "&Debug"
     BEGIN
         MENUITEM "Live Edit Mode",              ID_LIVE_EDIT
-        MENUITEM "Show Drawn Controls",         ID_SHOW_DRAWN
+        MENUITEM "Show Drawn Area",             ID_SHOW_DRAWN
+        MENUITEM "Show FPS",                    ID_SHOW_FPS
     END
     POPUP "&Help"
     BEGIN

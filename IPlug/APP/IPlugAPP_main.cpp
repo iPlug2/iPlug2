@@ -200,8 +200,9 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
       if (menu)
       {
         HMENU sm = GetSubMenu(menu, 1);
-        DeleteMenu(sm, ID_LIVE_EDIT, MF_BYCOMMAND); // remove QUIT from our file menu, since it is in the system menu on OSX
-        DeleteMenu(sm, ID_SHOW_DRAWN, MF_BYCOMMAND); // remove PREFERENCES from the file menu, since it is in the system menu on OSX
+        DeleteMenu(sm, ID_LIVE_EDIT, MF_BYCOMMAND);
+        DeleteMenu(sm, ID_SHOW_DRAWN, MF_BYCOMMAND);
+        DeleteMenu(sm, ID_SHOW_FPS, MF_BYCOMMAND);
 
         // remove any trailing separators
         int a = GetMenuItemCount(sm);
@@ -211,10 +212,11 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 
         DeleteMenu(menu, 1, MF_BYPOSITION); // delete debug menu
       }
+#else
+      SetMenuItemModifier(menu, ID_LIVE_EDIT, MF_BYCOMMAND, 'E', FCONTROL);
+      SetMenuItemModifier(menu, ID_SHOW_DRAWN, MF_BYCOMMAND, 'D', FCONTROL);
+      SetMenuItemModifier(menu, ID_SHOW_FPS, MF_BYCOMMAND, 'F', FCONTROL);
 #endif
-
-      // if we want to set any default modifiers for items in the menus, we can use:
-      // SetMenuItemModifier(menu,commandID,MF_BYCOMMAND,'A',FCONTROL) etc.
 
       HWND hwnd = CreateDialog(gHINST, MAKEINTRESOURCE(IDD_DIALOG_MAIN), NULL, MainDlgProc);
 

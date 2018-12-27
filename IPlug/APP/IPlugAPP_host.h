@@ -61,6 +61,8 @@
   #include "swell.h"
 #endif
 
+#define OFF_TEXT "off"
+
 const int kNumBufferSizeOptions = 11;
 const std::string kBufferSizeOptions[kNumBufferSizeOptions] = {"32", "64", "96", "128", "192", "256", "512", "1024", "2048", "4096", "8192" };
 const int kDeviceDS = 0; const int kDeviceCoreAudio = 0; const int kDeviceAlsa = 0;
@@ -77,21 +79,21 @@ class IPlugAPPHost
 public:
   struct AppState
   {
-    WDL_String mAudioInDev = WDL_String(DEFAULT_INPUT_DEV);
-    WDL_String mAudioOutDev = WDL_String(DEFAULT_OUTPUT_DEV);
-    WDL_String mMidiInDev = WDL_String("off");
-    WDL_String mMidiOutDev = WDL_String("off");
-    uint32_t mAudioDriverType = 0;
-    uint32_t mAudioSR = 44100;
-    uint32_t mBufferSize = 512;
-    uint32_t mMidiInChan = 0;
-    uint32_t mMidiOutChan = 0;
+    WDL_String mAudioInDev;
+    WDL_String mAudioOutDev;
+    WDL_String mMidiInDev;
+    WDL_String mMidiOutDev;
+    uint32_t mAudioDriverType;
+    uint32_t mAudioSR;
+    uint32_t mBufferSize;
+    uint32_t mMidiInChan;
+    uint32_t mMidiOutChan;
     
     AppState()
     : mAudioInDev(DEFAULT_INPUT_DEV)
     , mAudioOutDev(DEFAULT_OUTPUT_DEV)
-    , mMidiInDev("off")
-    , mMidiOutDev("off")
+    , mMidiInDev(OFF_TEXT)
+    , mMidiOutDev(OFF_TEXT)
     , mAudioDriverType(0) // DirectSound / CoreAudio by default
     , mBufferSize(512)
     , mAudioSR(44100)
@@ -210,7 +212,6 @@ private:
     
   WDL_String mINIPath;
   
-  //TODO: replace with std::map or WDL something
   std::vector<uint32_t> mAudioInputDevs;
   std::vector<uint32_t> mAudioOutputDevs;
   std::vector<std::string> mAudioIDDevNames;

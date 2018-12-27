@@ -220,7 +220,7 @@ int IPlugAPPHost::GetMIDIPortNumber(ERoute direction, const char* nameToTest) co
   
   if(direction == ERoute::kInput)
   {
-    if(!strcmp(nameToTest, "off")) return 0;
+    if(!strcmp(nameToTest, OFF_TEXT)) return 0;
     
   #ifdef OS_MAC
     start = 2;
@@ -235,7 +235,7 @@ int IPlugAPPHost::GetMIDIPortNumber(ERoute direction, const char* nameToTest) co
   }
   else
   {
-    if(!strcmp(nameToTest, "off")) return 0;
+    if(!strcmp(nameToTest, OFF_TEXT)) return 0;
   
   #ifdef OS_MAC
     start = 2;
@@ -308,7 +308,7 @@ void IPlugAPPHost::ProbeMidiIO()
   {
     int nInputPorts = mMidiIn->getPortCount();
 
-    mMidiInputDevNames.push_back("off");
+    mMidiInputDevNames.push_back(OFF_TEXT);
 
 #ifdef OS_MAC
     mMidiInputDevNames.push_back("virtual input");
@@ -321,7 +321,7 @@ void IPlugAPPHost::ProbeMidiIO()
 
     int nOutputPorts = mMidiOut->getPortCount();
 
-    mMidiOutputDevNames.push_back("off");
+    mMidiOutputDevNames.push_back(OFF_TEXT);
 
 #ifdef OS_MAC
     mMidiOutputDevNames.push_back("virtual output");
@@ -469,13 +469,12 @@ bool IPlugAPPHost::SelectMIDIDevice(ERoute direction, const char* pPortName)
   {
     if(port == -1)
     {
-      mState.mMidiInDev.Set("off");
+      mState.mMidiInDev.Set(OFF_TEXT);
       UpdateINI();
       port = 0;
     }
 
     //TODO: send all notes off?
-
     if (mMidiIn)
     {
       mMidiIn->closePort();
@@ -512,7 +511,7 @@ bool IPlugAPPHost::SelectMIDIDevice(ERoute direction, const char* pPortName)
   {
     if(port == -1)
     {
-      mState.mMidiOutDev.Set("off");
+      mState.mMidiOutDev.Set(OFF_TEXT);
       UpdateINI();
       port = 0;
     }

@@ -1053,12 +1053,12 @@ void IGraphics::EnableTooltips(bool enable)
   if (enable) mHandleMouseOver = true;
 }
 
-void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
+void IGraphics::EnableLiveEdit(bool enable/*, const char* file, int gridsize*/)
 {
 #if defined(DEBUG)
   if(enable)
   {
-    mLiveEdit = new IGraphicsLiveEdit(mDelegate, file, gridsize);
+    mLiveEdit = new IGraphicsLiveEdit(mDelegate/*, file, gridsize*/);
     mLiveEdit->SetGraphics(this);
   }
   else
@@ -1066,6 +1066,11 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
     if(mLiveEdit)
       DELETE_NULL(mLiveEdit);
   }
+  
+  mMouseOver = nullptr;
+  mMouseOverIdx = -1;
+
+  SetAllControlsDirty();
 #endif
 }
 

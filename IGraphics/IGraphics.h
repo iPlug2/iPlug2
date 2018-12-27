@@ -889,13 +889,19 @@ public:
   inline void ShowControlBounds(bool enable) { mShowControlBounds = enable; }
 
   /** @param enable Set \c true if you wish to show the rectangular region that is drawn on each frame, in order to debug redraw problems */
-  inline void ShowAreaDrawn(bool enable) { mShowAreaDrawn = enable; }
+  inline void ShowAreaDrawn(bool enable) { mShowAreaDrawn = enable; if(!enable) SetAllControlsDirty(); }
+  
+  /**@return \c true if showning the area drawn on each frame */
+  bool ShowAreaDrawnEnabled() const { return mShowAreaDrawn; }
 
   /** Live edit mode allows you to relocate controls at runtime in debug builds and save the locations to a predefined file (e.g. main plugin .cpp file) \todo we need a separate page for liveedit info
    * @param enable Set \c true if you wish to enable live editing mode
    * @param file The absolute path of the file which contains the layout info (correctly tagged) for live editing
    * @param gridsize The size of the layout grid in pixels */
-  void EnableLiveEdit(bool enable, const char* file = 0, int gridsize = 10);
+  void EnableLiveEdit(bool enable/*, const char* file = 0, int gridsize = 10*/);
+  
+  /**@return \c true if live edit mode is enabled */
+  bool LiveEditEnabled() const { return mLiveEdit != nullptr; }
 
   /** Returns an IRECT that represents the entire UI bounds
    * This is useful for programatically arranging UI elements by slicing up the IRECT using the various IRECT methods
@@ -913,12 +919,11 @@ public:
    * @param float&y Where the Y position will be stored */
   void GetMouseDownPoint(float& x, float&y) const { x = mMouseDownX; y = mMouseDownY; }
   
+  /** @return Get a persistant IPopupMenu (remember to clear it before use) */
   IPopupMenu& GetPromptMenu() { return mPromptPopupMenu; }
   
   /** @return \c true if tool tips are enabled */
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
-  
-  void StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec = DEFAULT_SPEC);
 
   /**  Set by the platform class if the mouse input is coming from a tablet/stylus
    * @param tablet, \c true means input is from a tablet */
@@ -926,6 +931,9 @@ public:
   
   EUIResizerMode GetResizerMode() const { return mGUISizeMode; }
   
+  IPopupMenuControl* GetPopupMenuControl() { return mPopupControl; }
+  
+  void StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec = DEFAULT_SPEC);
 #pragma mark - Plug-in API Specific
 
   /** [AAX only] This can be called by the ProTools API class (e.g. IPlugAAX) in order to ascertain the parameter linked to the control under the mouse.
@@ -968,8 +976,6 @@ public:
   /** @param fileName The name of the font to load */
   virtual void LoadFont(const char* fileName) {};
   
-  IPopupMenuControl* GetPopupMenuControl() { return mPopupControl; }
-
 protected:
   virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;
   virtual APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) = 0;
