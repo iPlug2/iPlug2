@@ -16,7 +16,7 @@
 #include "asio.h"
 #endif
 
-#ifdef _DEBUG
+#if defined _DEBUG && !defined NO_IGRAPHICS
 #include "IGraphics.h"
 #endif
 
@@ -621,7 +621,7 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
           return 0;
         }
-#ifdef _DEBUG
+#if defined _DEBUG && !defined NO_IGRAPHICS
         case ID_LIVE_EDIT:
         {
           IGEditorDelegate* pPlug = dynamic_cast<IGEditorDelegate*>(pAppHost->GetPlug());
