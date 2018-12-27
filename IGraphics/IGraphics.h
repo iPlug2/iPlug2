@@ -34,6 +34,7 @@
 #include "IGraphicsPopupMenu.h"
 #include "IGraphicsEditorDelegate.h"
 
+#include "heapbuf.h"
 #include <stack>
 #include <memory>
 
@@ -448,6 +449,12 @@ public:
   bool CheckLayer(const ILayerPtr& layer);
   void DrawLayer(const ILayerPtr& layer);
   void DrawRotatedLayer(const ILayerPtr& layer, double angle);
+    
+  /** Applies a dropshadow directly onto a layer
+  * @param layer - the layer to add the shadow to 
+  * @param shadow - the shadow to add */
+  void ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow);
+    
 private:
   virtual void UpdateLayer() {}
 
@@ -967,10 +974,18 @@ public:
   IPopupMenuControl* GetPopupMenuControl() { return mPopupControl; }
 
 protected:
+    
+  typedef WDL_TypedBuf<unsigned char> RawBitmapData;
+
   virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;
   virtual APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) = 0;
   virtual APIBitmap* CreateAPIBitmap(int width, int height) = 0;
     
+  virtual int AlphaChannel() const = 0;
+
+  virtual void GetAPIBitmapData(const APIBitmap* pBitmap, RawBitmapData& data) = 0;
+  virtual void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) = 0;
+
   inline void SearchNextScale(int& sourceScale, int targetScale);
   bool SearchImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale);
   APIBitmap* SearchBitmapInCache(const char* name, int targetScale, int& sourceScale);

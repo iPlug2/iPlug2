@@ -1380,6 +1380,9 @@ public:
   const IRECT& Bounds() const { return mRECT; }
   
 private:
+    
+  APIBitmap* AccessAPIBitmap() { return mBitmap.get(); }
+
   std::unique_ptr<APIBitmap> mBitmap;
   IRECT mRECT;
   bool mInvalid;
@@ -1387,6 +1390,26 @@ private:
 
 /** ILayerPtr is a managed pointer for transferring the ownership of layers */
 typedef std::unique_ptr<ILayer> ILayerPtr;
+
+/** Used to specify a gaussian drop-shadow. */
+struct IShadow
+{
+  IShadow(const IPattern& pattern, float blurSize, float xOffset, float yOffset, float opacity, bool drawForeground = true)
+  : mPattern(pattern)
+  , mBlurSize(blurSize)
+  , mXOffset(xOffset)
+  , mYOffset(yOffset)
+  , mOpacity(opacity)
+  , mDrawForeground(drawForeground)
+  {}
+    
+  IPattern mPattern;
+  float mBlurSize = 0.f;
+  float mXOffset = 0.f;
+  float mYOffset = 0.f;
+  float mOpacity = 1.f;
+  bool mDrawForeground;
+};
 
 // TODO: static storage needs thread safety mechanism
 template <class T>

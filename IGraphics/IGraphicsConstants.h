@@ -77,6 +77,7 @@ enum EBlendType
   kBlendClobber,  // Copy completely over whatever is already there.
   kBlendAdd,
   kBlendColorDodge,
+  kBlendUnder,
   // etc
 };
 

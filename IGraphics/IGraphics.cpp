@@ -1290,3 +1290,85 @@ void IGraphics::DrawRotatedLayer(const ILayerPtr& layer, double angle)
   DrawRotatedBitmap(bitmap, bounds.MW(), bounds.MH(), angle);
   PathTransformRestore();
 }
+
+void GaussianBlurSwap(unsigned char *out, unsigned char *in, unsigned char *kernel, int width, int height, int inStride, int outStride, int kernelSize, unsigned long norm)
+{
+  for (int i = 0; i < height; i++, in += inStride)
+  {
+    for (int j = 0; j < kernelSize - 1; j++)
+    {
+      unsigned long accum = in[j * 4] * kernel[0];
+      for (int k = 1; k < j + 1; k++)
+        accum += kernel[k] * in[(j - k) * 4];
+      for (int k = 1; k < kernelSize; k++)
+        accum += kernel[k] * in[(j + k) * 4];
+      out[j * outStride + (i * 4)] = std::min(static_cast<unsigned long>(255), accum / norm);
+    }
+    for (int j = kernelSize - 1; j < (width - kernelSize) + 1; j++)
+    {
+      unsigned long accum = in[j * 4] * kernel[0];
+      for (int k = 1; k < kernelSize; k++)
+        accum += kernel[k] * (in[(j - k) * 4] + in[(j + k) * 4]);
+      out[j * outStride + (i * 4)] = std::min(static_cast<unsigned long>(255), accum / norm);
+    }
+    for (int j = (width - kernelSize) + 1; j < width; j++)
+    {
+      unsigned long accum = in[j * 4] * kernel[0];
+      for (int k = 1; k < kernelSize; k++)
+        accum += kernel[k] * in[(j - k) * 4];
+      for (int k = 1; k < width - j; k++)
+        accum += kernel[k] * in[(j + k) * 4];
+      out[j * outStride + (i * 4)] = std::min(static_cast<unsigned long>(255), accum / norm);
+    }
+  }
+}
+
+void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
+{
+  RawBitmapData temp1;
+  RawBitmapData temp2;
+  RawBitmapData kernel;
+    
+  // Get bitmap in 32-bit form
+    
+  GetAPIBitmapData(layer->GetAPIBitmap(), temp1);
+    
+  if (!temp1.GetSize())
+      return;
+  temp2.Resize(temp1.GetSize());
+    
+  // Form kernel (reference blurSize from zero (which will be no blur))
+    
+  double scale = layer->GetAPIBitmap()->GetScale() * layer->GetAPIBitmap()->GetDrawScale();
+  double blurSize = std::max(1.0, (shadow.mBlurSize * scale) + 1.0);
+  double blurConst = 4.5 / (blurSize * blurSize);
+  int iSize = ceil(blurSize);
+  int width = layer->GetAPIBitmap()->GetWidth();
+  int height = layer->GetAPIBitmap()->GetHeight();
+  int stride1 = temp1.GetSize() / height;
+  int stride2 = temp1.GetSize() / width;
+
+  kernel.Resize(iSize);
+        
+  for (int i = 0; i < iSize; i++)
+    kernel.Get()[i] = std::round(255.f * std::expf(-(i * i) * blurConst));
+  
+  // Kernel normalisation
+  
+  int normFactor = kernel.Get()[0];
+    
+  for (int i = 1; i < iSize; i++)
+    normFactor += kernel.Get()[i] + kernel.Get()[i];
+  
+  // Do blur
+  
+  unsigned char* asRows = temp1.Get() + AlphaChannel();
+  unsigned char* asCols = temp2.Get() + AlphaChannel();
+  
+  GaussianBlurSwap(asCols, asRows, kernel.Get(), width, height, stride1, stride2, iSize, normFactor);
+  GaussianBlurSwap(asRows, asCols, kernel.Get(), height, width, stride2, stride1, iSize, normFactor);
+  
+  // Apply alphas to the pattern and recombine/replace the image
+    
+  ApplyShadowMask(layer, temp1, shadow);
+}

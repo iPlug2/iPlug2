@@ -16,9 +16,43 @@ static StaticStorage<agg::font> s_fontCache;
 
 // Utility
 
-inline const agg::rgba8 AGGColor(const IColor& color, const IBlend* pBlend = nullptr)
+class pixel_wrapper : public agg::pixel_map
 {
-  return agg::rgba8(color.R, color.G, color.B, (BlendWeight(pBlend) * color.A));
+public:
+  
+  pixel_wrapper(unsigned char* buf, unsigned w, unsigned h, unsigned bpp, int row_bytes)
+  : m_buf(buf)
+  , m_width(w)
+  , m_height(h)
+  , m_bpp(bpp)
+  , m_row_bytes(row_bytes)
+  {}
+  
+  unsigned char* buf() override { return m_buf; }
+  unsigned width() const override { return m_width; }
+  unsigned height() const override { return m_height; }
+  
+  int row_bytes() const override { return m_row_bytes; }
+  unsigned bpp() const override  { return m_bpp; }
+  
+private:
+  
+  // Do not use!
+  
+  void create(unsigned width, unsigned height, unsigned clear_val=255) override {};
+  void clear(unsigned clear_val=255) override {};
+  void destroy() override {};
+  
+  unsigned char* m_buf;
+  unsigned m_width;
+  unsigned m_height;
+  unsigned m_bpp;
+  int m_row_bytes;
+};
+
+inline const agg::rgba8 AGGColor(const IColor& color, float opacity)
+{
+  return agg::rgba8(color.R, color.G, color.B, (opacity * color.A));
 }
 
 inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
@@ -31,6 +65,7 @@ inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
     case kBlendClobber:         return agg::comp_op_src_over;
     case kBlendAdd:             return agg::comp_op_plus;
     case kBlendColorDodge:      return agg::comp_op_color_dodge;
+    case kBlendUnder:           return agg::comp_op_dst_over;
     case kBlendNone:
     default:
       return agg::comp_op_src_over;
@@ -92,7 +127,7 @@ void GradientRasterizeAdapt(IGraphicsAGG::Rasterizer& rasterizer, EPatternExtend
   }
 }
 
-void IGraphicsAGG::Rasterizer::RasterizePattern(const IPattern& pattern, const IBlend* pBlend, EFillRule rule)
+void IGraphicsAGG::Rasterizer::RasterizePattern(const IPattern& pattern, agg::comp_op_e mode, float opacity, EFillRule rule)
 {
   mRasterizer.filling_rule(rule == kFillWinding ? agg::fill_non_zero : agg::fill_even_odd );
   
@@ -103,11 +138,11 @@ void IGraphicsAGG::Rasterizer::RasterizePattern(const IPattern& pattern, const I
       RendererSolid renderer(mRenBase);
       
       const IColor &color = pattern.GetStop(0).mColor;
-      renderer.color(AGGColor(color, pBlend));
+      renderer.color(AGGColor(color, opacity));
       
       // Rasterize
       
-      Rasterize(renderer, AGGBlendMode(pBlend));
+      Rasterize(renderer, mode);
     }
       break;
       
@@ -133,7 +168,7 @@ void IGraphicsAGG::Rasterizer::RasterizePattern(const IPattern& pattern, const I
       {
         const IColorStop& stop = pattern.GetStop(i);
         float offset = stop.mOffset;
-        colorArray.add_color(offset, AGGColor(stop.mColor, pBlend));
+        colorArray.add_color(offset, AGGColor(stop.mColor, opacity));
       }
       
       colorArray.build_lut();
@@ -142,11 +177,11 @@ void IGraphicsAGG::Rasterizer::RasterizePattern(const IPattern& pattern, const I
       
       if (pattern.mType == kLinearPattern)
       {
-        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_y(), gradientMTX, colorArray, AGGBlendMode(pBlend));
+        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_y(), gradientMTX, colorArray, mode);
       }
       else
       {
-        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_radial_d(), gradientMTX, colorArray, AGGBlendMode(pBlend));
+        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_radial_d(), gradientMTX, colorArray, mode);
       }
     }
     break;
@@ -416,7 +451,7 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
       dashedPath.add_dash(dashArray[i % dashCount], dashArray[(i + 1) % dashCount]);
     
     StrokeOptions(strokedDashedPath, thickness, options);
-    mRasterizer.Rasterize(finalPath, pattern, pBlend);
+    mRasterizer.Rasterize(finalPath, pattern, AGGBlendMode(pBlend), BlendWeight(pBlend));
   }
   else
   {
@@ -424,7 +459,7 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
     S3Type finalPath(strokedPath, mTransform);
       
     StrokeOptions(strokedPath, thickness, options);
-    mRasterizer.Rasterize(finalPath, pattern, pBlend);
+    mRasterizer.Rasterize(finalPath, pattern, AGGBlendMode(pBlend), BlendWeight(pBlend));
   }
   
   if (!options.mPreserve)
@@ -434,7 +469,7 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
 void IGraphicsAGG::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
 {
   agg::conv_curve<agg::path_storage> curvedPath(mPath);
-  mRasterizer.Rasterize(curvedPath, pattern, pBlend, options.mFillRule);
+  mRasterizer.Rasterize(curvedPath, pattern, AGGBlendMode(pBlend), BlendWeight(pBlend), options.mFillRule);
   if (!options.mPreserve)
     mPath.remove_all();
 }
@@ -515,6 +550,56 @@ APIBitmap* IGraphicsAGG::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetBackingPixelScale();
   return new AGGBitmap(CreatePixmap(std::round(width * scale), std::round(height * scale)), GetScreenScale(), GetDrawScale());
+}
+
+void IGraphicsAGG::GetAPIBitmapData(const APIBitmap* pBitmap, RawBitmapData& data)
+{
+  int size = pBitmap->GetBitmap()->height() * pBitmap->GetBitmap()->row_bytes();
+    
+  data.Resize(size);
+    
+  if (data.GetSize() >= size)
+    memcpy(data.Get(), pBitmap->GetBitmap()->buf(), size);
+}
+
+void IGraphicsAGG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow)
+{
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
+  agg::pixel_map* pPixMap = pBitmap->GetBitmap();
+  int size = pPixMap->height() * pPixMap->row_bytes();
+    
+  if (mask.GetSize() >= size)
+  {
+    if (!shadow.mDrawForeground)
+    {
+      pBitmap->GetBitmap()->clear(0);
+    }
+    
+    IRECT bounds(layer->Bounds());
+    pixel_wrapper* shadowSource = new pixel_wrapper(mask.Get(), pPixMap->width(), pPixMap->height(), pPixMap->bpp(), pPixMap->row_bytes());
+    APIBitmap* shadowBitmap = new AGGBitmap(shadowSource, pBitmap->GetScale(), pBitmap->GetDrawScale());
+    IBitmap bitmap(shadowBitmap, 1, false);
+    ILayer shadowLayer(shadowBitmap, layer->Bounds());
+      
+    PathTransformSave();
+    mLayers.push(layer.get());
+    mLayers.push(&shadowLayer);
+    UpdateLayer();
+    PathTransformReset();
+    PathClipRegion(layer->Bounds());
+    PathRect(layer->Bounds());
+    mRasterizer.Rasterize(mPath, shadow.mPattern, agg::comp_op_src_in, 1.0);
+    mPath.remove_all();
+    mLayers.pop();
+    UpdateLayer();
+    PathTransformReset();
+    IBlend blend(kBlendUnder, shadow.mOpacity);
+    bounds.Translate(shadow.mXOffset, shadow.mYOffset);
+    DrawBitmap(bitmap, bounds, 0, 0, &blend);
+    mLayers.pop();
+    UpdateLayer();
+    PathTransformRestore();
+  }
 }
 
 void IGraphicsAGG::EndFrame()
