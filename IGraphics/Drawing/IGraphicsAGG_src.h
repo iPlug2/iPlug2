@@ -64,6 +64,9 @@
 #include "agg_mac_pmap.h"
 #include "agg_mac_font.h"
 #pragma clang diagnostic pop
+#elif defined OS_WIN
+#include "agg_win32_pmap.h"
+//#include "agg_win32_font.h"
 #endif
 
 #endif

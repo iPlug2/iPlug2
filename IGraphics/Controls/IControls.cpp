@@ -42,7 +42,6 @@ IVSwitchControl::IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, int paramI
 {
   AttachIControl(this);
   mDblAsSingleClick = true;
-  mText.mSize = 20; //FIXME: text size
   mStr.Set(str);
 }
 
