@@ -91,22 +91,8 @@ public:
   typedef alpha_span_generator<SpanGeneratorType> SpanAlphaGeneratorType;
   typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, SpanGeneratorType> BitmapRenderType;
   typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, alpha_span_generator<SpanGeneratorType> > BitmapAlphaRenderType;
-
-  typedef agg::renderer_base<agg::pixfmt_gray8> maskRenBase;
-
-  // Path Types
-
-  typedef agg::path_storage PathType;
-  typedef agg::conv_curve<PathType> CurvedPathType;
-  typedef agg::conv_stroke<CurvedPathType> StrokeType;
-  typedef agg::conv_dash<CurvedPathType> DashType;
-  typedef agg::conv_stroke<DashType> DashStrokeType;
-  //typedef agg::conv_transform<PathType> TransformedPathType;
-  //typedef agg::conv_transform<StrokeType> TransformedStrokePathType;
-  //typedef agg::conv_transform<DashStrokeType> TransformedDashStrokePathType;
-  //typedef agg::conv_curve<TransformedPathType> CurvedTransformedPathType;
-  typedef agg::rasterizer_scanline_aa<> RasterizerType;
   typedef agg::gradient_lut<agg::color_interpolator<agg::rgba8>, 512> ColorArrayType;
+  typedef agg::renderer_base<agg::pixfmt_gray8> maskRenBase;
 
   class Rasterizer
   {
@@ -128,10 +114,10 @@ public:
     }
 
     template <typename VertexSourceType>
-    void Rasterize(VertexSourceType& path, agg::trans_affine transform, const IPattern& pattern,const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding)
+    void Rasterize(VertexSourceType& path, const IPattern& pattern,const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding)
     {
       SetPath(path);
-      RasterizePattern(transform, pattern, pBlend, rule);
+      RasterizePattern(pattern, pBlend, rule);
     }
 
     template <typename VertexSourceType, typename RendererType>
@@ -170,12 +156,12 @@ public:
       mRasterizer.add_path(clippedPath);
     }
 
-    void RasterizePattern(agg::trans_affine transform, const IPattern& pattern,const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding);
+    void RasterizePattern(const IPattern& pattern,const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding);
 
     IGraphicsAGG& mGraphics;
     RenbaseType mRenBase;
     PixfmtType mPixf;
-    RasterizerType mRasterizer;
+    agg::rasterizer_scanline_aa<> mRasterizer;
   };
 
   IGraphicsAGG(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
@@ -218,8 +204,6 @@ protected:
 private:
   void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& bounds, const char* str, FontManagerType& manager);
 
-  agg::trans_affine GetRasterTransform() { return agg::trans_affine() / mTransform; }
-
   double XTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().L; }
   double YTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().T; }
   
@@ -237,11 +221,11 @@ private:
   FontEngineType mFontEngine;
   FontManagerType mFontManager;
   agg::rendering_buffer mRenBuf;
-  PathType mPath;
-  Rasterizer mRasterizer;
+  agg::path_storage mPath;
   agg::trans_affine mTransform;
   PixelMapType mPixelMap;
-
+  Rasterizer mRasterizer;
+    
   //pipeline to process the vectors glyph paths(curves + contour)
   agg::conv_curve<FontManagerType::path_adaptor_type> mFontCurves;
   agg::conv_contour<agg::conv_curve<FontManagerType::path_adaptor_type> > mFontContour;

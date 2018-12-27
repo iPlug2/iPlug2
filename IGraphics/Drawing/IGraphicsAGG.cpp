@@ -92,7 +92,7 @@ void GradientRasterizeAdapt(IGraphicsAGG::Rasterizer& rasterizer, EPatternExtend
   }
 }
 
-void IGraphicsAGG::Rasterizer::RasterizePattern(agg::trans_affine transform, const IPattern& pattern, const IBlend* pBlend, EFillRule rule)
+void IGraphicsAGG::Rasterizer::RasterizePattern(const IPattern& pattern, const IBlend* pBlend, EFillRule rule)
 {
   mRasterizer.filling_rule(rule == kFillWinding ? agg::fill_non_zero : agg::fill_even_odd );
   
@@ -123,7 +123,7 @@ void IGraphicsAGG::Rasterizer::RasterizePattern(agg::trans_affine transform, con
       
       // Scaling
       
-      gradientMTX = transform * gradientMTX * agg::trans_affine_scaling(512.0);
+      gradientMTX = (agg::trans_affine() / mGraphics.mTransform) * gradientMTX * agg::trans_affine_scaling(512.0);
       
       // Make gradient lut
       
@@ -385,38 +385,46 @@ void StrokeOptions(StrokeType& strokes, double thickness, const IStrokeOptions& 
 
 void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
 {
-  agg::trans_affine xform = mTransform;
-  
+  typedef agg::conv_curve<agg::path_storage>    CPType;
+  typedef agg::conv_transform<CPType>           S1Type;
+  typedef agg::conv_stroke<S1Type>              S2Type;
+  typedef agg::conv_transform<S2Type>           S3Type;
+  typedef agg::conv_dash<S1Type>                D2Type;
+  typedef agg::conv_stroke<D2Type>              D3Type;
+  typedef agg::conv_transform<D3Type>           D4Type;
+
+  agg::trans_affine tranform(mTransform);
+  CPType curvedPath(mPath);
+  S1Type basePath(curvedPath, tranform.invert());
+
   if (options.mDash.GetCount())
   {
-    CurvedPathType curvedPath(mPath);
-    DashType dashed(curvedPath);
-    DashStrokeType strokes(dashed);
-    //TransformedDashStrokePathType path(strokes, xform);
-
+    D2Type dashedPath(basePath);
+    D3Type strokedDashedPath(dashedPath);
+    D4Type finalPath(strokedDashedPath, mTransform);
+      
     // Set the dashes (N.B. - for odd counts the array is read twice)
 
     int dashCount = options.mDash.GetCount();
-    int dashMax = dashCount & 1 ? dashCount *2 : dashCount;
+    int dashMax = dashCount & 1 ? dashCount * 2 : dashCount;
     const float* dashArray = options.mDash.GetArray();
     
-    dashed.remove_all_dashes();
-    dashed.dash_start(options.mDash.GetOffset());
+    dashedPath.remove_all_dashes();
+    dashedPath.dash_start(options.mDash.GetOffset());
     
     for (int i = 0; i < dashMax; i += 2)
-      dashed.add_dash(dashArray[i % dashCount], dashArray[(i + 1) % dashCount]);
+      dashedPath.add_dash(dashArray[i % dashCount], dashArray[(i + 1) % dashCount]);
     
-    StrokeOptions(strokes, thickness, options);
-    mRasterizer.Rasterize(strokes, GetRasterTransform(), pattern, pBlend);
+    StrokeOptions(strokedDashedPath, thickness, options);
+    mRasterizer.Rasterize(finalPath, pattern, pBlend);
   }
   else
   {
-    CurvedPathType curvedPath(mPath);
-    StrokeType strokes(curvedPath);
-    //TransformedStrokePathType path(strokes, xform);
-    
-    StrokeOptions(strokes, thickness, options);
-    mRasterizer.Rasterize(strokes, GetRasterTransform(), pattern, pBlend);
+    S2Type strokedPath(basePath);
+    S3Type finalPath(strokedPath, mTransform);
+      
+    StrokeOptions(strokedPath, thickness, options);
+    mRasterizer.Rasterize(finalPath, pattern, pBlend);
   }
   
   if (!options.mPreserve)
@@ -425,7 +433,8 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
 
 void IGraphicsAGG::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
 {
-  mRasterizer.Rasterize(mPath, GetRasterTransform(), pattern, pBlend, options.mFillRule);
+  agg::conv_curve<agg::path_storage> curvedPath(mPath);
+  mRasterizer.Rasterize(curvedPath, pattern, pBlend, options.mFillRule);
   if (!options.mPreserve)
     mPath.remove_all();
 }
