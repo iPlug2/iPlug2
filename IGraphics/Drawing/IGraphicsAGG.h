@@ -76,8 +76,8 @@ public:
 #else
 #error NOT IMPLEMENTED
 #endif
+    
   typedef agg::comp_op_adaptor_rgba<agg::rgba8, PixelOrder> BlenderType;
-  typedef agg::comp_op_adaptor_rgba_pre<agg::rgba8, PixelOrder> BlenderTypePre;
   typedef agg::pixfmt_custom_blend_rgba<BlenderType, agg::rendering_buffer> PixfmtType;
   typedef agg::renderer_base <PixfmtType> RenbaseType;
   typedef agg::renderer_scanline_aa_solid<RenbaseType> RendererSolid;
@@ -88,10 +88,8 @@ public:
   typedef agg::image_accessor_clone<PixfmtType> imgSourceType;
   typedef agg::span_allocator<agg::rgba8> SpanAllocatorType;
   typedef agg::span_image_filter_rgba_bilinear<imgSourceType, InterpolatorType> SpanGeneratorType;
-  typedef alpha_span_generator<SpanGeneratorType> SpanAlphaGeneratorType;
   typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, SpanGeneratorType> BitmapRenderType;
   typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, alpha_span_generator<SpanGeneratorType> > BitmapAlphaRenderType;
-  typedef agg::gradient_lut<agg::color_interpolator<agg::rgba8>, 512> ColorArrayType;
   typedef agg::renderer_base<agg::pixfmt_gray8> maskRenBase;
 
   class Rasterizer
@@ -149,7 +147,7 @@ public:
       agg::conv_clip_polygon<VertexSourceType> clippedPath(path);
       IRECT clip = mGraphics.mClipRECT.Empty() ? mGraphics.GetBounds() : mGraphics.mClipRECT;
       clip.Translate(mGraphics.XTranslate(), mGraphics.YTranslate());
-      clip.Scale(mGraphics.GetScreenScale() * mGraphics.GetDrawScale());
+      clip.Scale(mGraphics.GetBackingPixelScale());
       clippedPath.clip_box(clip.L, clip.T, clip.R, clip.B);
       // Add path
       mRasterizer.reset();

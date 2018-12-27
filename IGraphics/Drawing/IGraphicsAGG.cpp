@@ -119,7 +119,7 @@ void IGraphicsAGG::Rasterizer::RasterizePattern(const IPattern& pattern, const I
       const IMatrix& m = pattern.mTransform;
       
       agg::trans_affine gradientMTX(m.mXX, m.mYX , m.mXY, m.mYY, m.mTX, m.mTY);
-      ColorArrayType colorArray;
+      agg::gradient_lut<agg::color_interpolator<agg::rgba8>, 512> colorArray;
       
       // Scaling
       
@@ -253,7 +253,7 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
     imgSourceType imgSrc(fmtType);
     InterpolatorType interpolator(srcMtx);
     SpanAllocatorType spanAllocator;
-    SpanAlphaGeneratorType spanGenerator(imgSrc, interpolator, AGGCover(pBlend));
+    alpha_span_generator<SpanGeneratorType> spanGenerator(imgSrc, interpolator, AGGCover(pBlend));
     BitmapAlphaRenderType renderer(mRasterizer.GetBase(), spanAllocator, spanGenerator);
     agg::rounded_rect rect(dest.L, dest.T, dest.R, dest.B, 0);
     agg::conv_transform<agg::rounded_rect> tr(rect, mTransform);
