@@ -53,7 +53,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     pAppHost->TryToChangeAudio();
 
     CreateDialog(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_MAIN), GetDesktopWindow(), MainDlgProc);
-    
+
+#ifndef _DEBUG
+    HMENU menu = GetMenu(gHWND);
+    RemoveMenu(menu, 1, MF_BYPOSITION);
+    DrawMenuBar(gHWND);
+#endif
+
     for(;;)
     {
       MSG msg= {0,};
