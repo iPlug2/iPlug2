@@ -267,8 +267,8 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const WDL_String& resourcePath, int sc
 
 APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height)
 {
-  const double scale = GetDrawScale() * GetScreenScale();
-  return new NanoVGBitmap(mVG, width * scale, height * scale, GetScreenScale(), GetDrawScale());
+  const double scale = GetBackingPixelScale();
+  return new NanoVGBitmap(mVG, std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
 }
 
 void IGraphicsNanoVG::SetPlatformContext(void* pContext)
@@ -355,6 +355,9 @@ void IGraphicsNanoVG::OnViewInitialized(void* pContext)
 
 void IGraphicsNanoVG::OnViewDestroyed()
 {
+  // need to remove all the controls to free framebuffers, before deleting context
+  RemoveAllControls();
+
   if(mMainFrameBuffer != nullptr)
     nvgDeleteFramebuffer(mMainFrameBuffer);
   
@@ -446,8 +449,9 @@ void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, i
 
   nvgTransformScale(imgPaint.xform, scale, scale);
 
-  imgPaint.xform[4] = std::round(dest.L) - srcX;
-  imgPaint.xform[5] = std::round(dest.T) - srcY;
+  scale *= GetScreenScale();
+  imgPaint.xform[4] = dest.L - (srcX * scale);
+  imgPaint.xform[5] = dest.T - (srcY * scale);
   imgPaint.extent[0] = bitmap.W() * bitmap.GetScale();
   imgPaint.extent[1] = bitmap.H() * bitmap.GetScale();
   imgPaint.image = pAPIBitmap->GetBitmap();
@@ -677,7 +681,7 @@ void IGraphicsNanoVG::UpdateLayer()
   {
     nvgEndFrame(mVG);
 #ifndef IGRAPHICS_METAL
-    const double scale = GetDrawScale() * GetScreenScale();
+    const double scale = GetBackingPixelScale();
     glViewport(0, 0, mLayers.top()->Bounds().W() * scale, mLayers.top()->Bounds().H() * scale);
 #endif
     nvgBindFramebuffer(dynamic_cast<const NanoVGBitmap*>(mLayers.top()->GetAPIBitmap())->GetFBO());

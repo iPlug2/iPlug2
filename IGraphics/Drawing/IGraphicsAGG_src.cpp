@@ -37,7 +37,9 @@
 #include "agg_vpgen_clip_polygon.cpp"
 #include "agg_vpgen_clip_polyline.cpp"
 #include "agg_vpgen_segmentator.cpp"
-// #include "agg_win312_pmap.cpp"
-// #include "agg_win32_font.cpp"
-// #include "agg_win32_pmap.cpp"
+#ifdef OS_WIN
+//#include "agg_win312_pmap.cpp"
+ #include "agg_win32_pmap.cpp"
+//#include "agg_win32_font.cpp"
+#endif
 #endif //IGRAPHICS_AGG

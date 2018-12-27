@@ -426,26 +426,24 @@ void IGraphicsMac::UpdateTooltips()
 
   [(IGRAPHICS_VIEW*) mView removeAllToolTips];
 
-  if(mPopupControl && mPopupControl->GetState() > IPopupMenuControl::kCollapsed)
+  if (GetPopupMenuControl() && GetPopupMenuControl()->GetState() > IPopupMenuControl::kCollapsed)
   {
     return;
   }
 
-  IControl** ppControl = mControls.GetList();
-
-  for (int i = 0, n = mControls.GetSize(); i < n; ++i, ++ppControl)
+  auto func = [this](IControl& control)
   {
-    IControl* pControl = *ppControl;
-    const char* tooltip = pControl->GetTooltip();
-    if (tooltip && !pControl->IsHidden())
+    if (control.GetTooltip() && !control.IsHidden())
     {
-      IRECT pR = pControl->GetTargetRECT();
-      if (!pControl->GetTargetRECT().Empty())
+      IRECT pR = control.GetTargetRECT();
+      if (!pR.Empty())
       {
         [(IGRAPHICS_VIEW*) mView registerToolTip: pR];
       }
     }
-  }
+  };
+
+  ForStandardControlsFunc(func);
 }
 
 const char* IGraphicsMac::GetPlatformAPIStr()
@@ -614,9 +612,9 @@ IPopupMenu* IGraphicsMac::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds,
 
   IPopupMenu* pReturnMenu = nullptr;
 
-  if(mPopupControl) // if we are not using platform pop-up menus
+  if (GetPopupMenuControl()) // if we are not using platform pop-up menus
   {
-    pReturnMenu = mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
+    pReturnMenu = GetPopupMenuControl()->CreatePopupMenu(menu, bounds, pCaller);
   }
   else
   {

@@ -681,7 +681,18 @@ struct IRECT
   
   bool IsPixelAligned() const
   {
-    return !(L - std::floor(L) && T - std::floor(T) && R - std::floor(R) && B - std::floor(B));
+    // If all values are within 1/1000th of a pixel of an integer the IRECT is considered pixel aligned
+      
+    auto isInteger = [](float x){ return std::fabs(x - std::round(x)) <= static_cast<float>(1e-3); };
+      
+    return isInteger(L) && isInteger(T) && isInteger(R) && isInteger(B);
+  }
+   
+  bool IsPixelAligned(float scale) const
+  {
+    IRECT r = *this;
+    r.Scale(scale);
+    return r.IsPixelAligned();
   }
   
   // Pixel aligns in an inclusive manner (moves all points outwards)
@@ -692,7 +703,29 @@ struct IRECT
     R = std::ceil(R);
     B = std::ceil(B);
   }
-  
+    
+  inline void PixelAlign(float scale)
+  {
+    // N.B. - double precision is *required* for accuracy of the reciprocal
+    Scale(scale);
+    PixelAlign();
+    Scale(static_cast<float>(1.0/static_cast<double>(scale)));
+  }
+    
+  inline IRECT GetPixelAligned() const
+  {
+    IRECT r = *this;
+    r.PixelAlign();
+    return r;
+  }
+    
+  inline IRECT GetPixelAligned(float scale) const
+  {
+    IRECT r = *this;
+    r.PixelAlign(scale);
+    return r;
+  }
+    
   inline void Pad(float padding)
   {
     L -= padding;
@@ -807,10 +840,10 @@ struct IRECT
   
   void Scale(float scale)
   {
-    L = std::floor(0.5f + (L * scale));
-    T = std::floor(0.5f + (T * scale));
-    R = std::floor(0.5f + (R * scale));
-    B = std::floor(0.5f + (B * scale));
+    L *= scale;
+    T *= scale;
+    R *= scale;
+    B *= scale;
   }
   
   void ScaleAboutCentre(float scale)
@@ -903,14 +936,6 @@ struct IRECT
   IRECT GetVShifted(float y) const
   {
     return GetTranslated(0.f, y);
-  }
-  
-  void ScaleBounds(float scale)
-  {
-    L = std::floor(L * scale);
-    T = std::floor(T * scale);
-    R = std::ceil(R * scale);
-    B = std::ceil(B * scale);
   }
 
   IRECT GetCentredInside(IRECT sr) const
@@ -1016,6 +1041,16 @@ public:
     {
       IRECT r = Get(i);
       r.PixelAlign();
+      Set(i, r);
+    }
+  }
+
+  void PixelAlign(float scale)
+  {
+    for (auto i = 0; i < Size(); i++)
+    {
+      IRECT r = Get(i);
+      r.PixelAlign(scale);
       Set(i, r);
     }
   }
@@ -1350,7 +1385,7 @@ private:
   bool mInvalid;
 };
 
-/** ILayerPtr is a manged pointer for transferring the ownership of layers */
+/** ILayerPtr is a managed pointer for transferring the ownership of layers */
 typedef std::unique_ptr<ILayer> ILayerPtr;
 
 // TODO: static storage needs thread safety mechanism
