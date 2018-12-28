@@ -121,6 +121,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new TestLayerControl(*this, nextCell()));
     pGraphics->AttachControl(new TestBlendControl(*this, nextCell(), smiley));
     pGraphics->AttachControl(new TestDropShadowControl(*this, nextCell(), tiger));
+    pGraphics->AttachControl(new TestCursorControl(*this, nextCell()));
 
 #if 1
     pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Hello World!", {24, COLOR_WHITE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop, 90}));

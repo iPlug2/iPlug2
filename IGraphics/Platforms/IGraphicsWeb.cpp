@@ -182,7 +182,7 @@ void IGraphicsWeb::HideMouseCursor(bool hide, bool lock)
     if (mCursorLock)
       emscripten_exit_pointerlock();
     else
-      val::global("document")["body"]["style"].set("cursor", std::string("auto"));
+      SetMouseCursor(mCursorType);
       
     mCursorLock = false;
   }
@@ -211,6 +211,7 @@ void IGraphicsWeb::SetMouseCursor(ECursor cursor)
   }
   
   val::global("document")["body"]["style"].set("cursor", cursorType);
+  mCursorType = cursor;
 }
 
 bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String& result)
