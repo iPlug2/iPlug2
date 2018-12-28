@@ -15,7 +15,7 @@
 
 #include "nanovg.h"
 
-// Thanks to Olli Wang for much of this macro magic  https://github.com/ollix/moui
+// Thanks to Olli Wang/MOUI for much of this macro magic  https://github.com/ollix/moui
 
 #if defined IGRAPHICS_GLES2
   #define IGRAPHICS_GL
@@ -81,6 +81,8 @@
 #elif defined IGRAPHICS_METAL
   typedef MNVGframebuffer NVGframebuffer;
 #endif
+
+void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData);
 
 class NanoVGBitmap : public APIBitmap
 {
