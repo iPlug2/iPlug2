@@ -28,7 +28,14 @@ public:
     if (!g.CheckLayer(mLayer))
     {
       g.StartLayer(mRECT);
-      g.DrawSVG(mSVG, mRECT);
+      if (g.HasPathSupport())
+      {
+        g.DrawSVG(mSVG, mRECT);
+      }
+      else
+      {
+        g.FillCircle(COLOR_BLUE, mRECT.MW(), mRECT.MH(), mRECT.W() / 3);
+      }
       mLayer = g.EndLayer();
       IPattern pattern = IPattern::CreateRadialGradient(mRECT.MW(), mRECT.MH(), mRECT.W() / 2.0);
       pattern.AddStop(COLOR_BLACK, 0.8);
