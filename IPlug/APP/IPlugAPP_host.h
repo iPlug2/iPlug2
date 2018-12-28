@@ -89,6 +89,11 @@ public:
     uint32_t mMidiInChan;
     uint32_t mMidiOutChan;
     
+    uint32_t mAudioInChanL;
+    uint32_t mAudioInChanR;
+    uint32_t mAudioOutChanL;
+    uint32_t mAudioOutChanR;
+    
     AppState()
     : mAudioInDev(DEFAULT_INPUT_DEV)
     , mAudioOutDev(DEFAULT_OUTPUT_DEV)
@@ -99,6 +104,11 @@ public:
     , mAudioSR(44100)
     , mMidiInChan(0)
     , mMidiOutChan(0)
+    
+    , mAudioInChanL(1)
+    , mAudioInChanR(2)
+    , mAudioOutChanL(1)
+    , mAudioOutChanR(2)
     {
     }
     
@@ -112,6 +122,11 @@ public:
     , mAudioSR(obj.mAudioSR)
     , mMidiInChan(obj.mMidiInChan)
     , mMidiOutChan(obj.mMidiOutChan)
+    
+    , mAudioInChanL(obj.mAudioInChanL)
+    , mAudioInChanR(obj.mAudioInChanR)
+    , mAudioOutChanL(obj.mAudioInChanL)
+    , mAudioOutChanR(obj.mAudioInChanR)
     {
     }
     
@@ -123,7 +138,14 @@ public:
                                                    (strcmp(rhs.mAudioInDev.Get(), mAudioInDev.Get()) == 0) &&
                                                    (strcmp(rhs.mAudioOutDev.Get(), mAudioOutDev.Get()) == 0) &&
                                                    (strcmp(rhs.mMidiInDev.Get(), mMidiInDev.Get()) == 0) &&
-                                                   (strcmp(rhs.mMidiOutDev.Get(), mMidiOutDev.Get()) == 0));
+                                                   (strcmp(rhs.mMidiOutDev.Get(), mMidiOutDev.Get()) == 0) &&
+                                                   
+                                                   rhs.mAudioInChanL == mAudioInChanL &&
+                                                   rhs.mAudioInChanR == mAudioInChanR &&
+                                                   rhs.mAudioOutChanL == mAudioOutChanL &&
+                                                   rhs.mAudioOutChanR == mAudioOutChanR
+                                                  
+                                                   );
     }
     bool operator!=(const AppState& rhs) { return !operator==(rhs); }
   };

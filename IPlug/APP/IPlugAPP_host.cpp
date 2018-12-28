@@ -342,10 +342,10 @@ bool IPlugAPPHost::AudioSettingsInStateAreEqual(AppState& os, AppState& ns)
   if (strcmp(os.mAudioOutDev.Get(), ns.mAudioOutDev.Get())) return false;
   if (os.mAudioSR != ns.mAudioSR) return false;
   if (os.mBufferSize != ns.mBufferSize) return false;
-//  if (os.mAudioInChanL != ns.mAudioInChanL) return false;
-//  if (os.mAudioInChanR != ns.mAudioInChanR) return false;
-//  if (os.mAudioOutChanL != ns.mAudioOutChanL) return false;
-//  if (os.mAudioOutChanR != ns.mAudioOutChanR) return false;
+  if (os.mAudioInChanL != ns.mAudioInChanL) return false;
+  if (os.mAudioInChanR != ns.mAudioInChanR) return false;
+  if (os.mAudioOutChanL != ns.mAudioOutChanL) return false;
+  if (os.mAudioOutChanR != ns.mAudioOutChanR) return false;
 //  if (os.mAudioInIsMono != ns.mAudioInIsMono) return false;
 
   return true;
@@ -552,7 +552,7 @@ bool IPlugAPPHost::SelectMIDIDevice(ERoute direction, const char* pPortName)
 }
 
 bool IPlugAPPHost::InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_t iovs)
-{
+{  
   if (mDAC->isStreamOpen())
   {
     if (mDAC->isStreamRunning())
@@ -579,8 +579,7 @@ bool IPlugAPPHost::InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_
   oParams.nChannels = 2; // TODO: flexible channel count
   oParams.firstChannel = 0; // TODO: flexible channel count
 
-//  mIOVS = iovs; // gIOVS may get changed by stream
-//  mSigVS = mState.mAudioSigVS; // This is done here so that it changes when the callback is stopped
+  mBufferSize = iovs; // mBufferSize may get changed by stream
 
   DBGMSG("\ntrying to start audio stream @ %i sr, %i buffersize\nindev = %i:%s\noutdev = %i:%s\n", sr, mBufferSize, inId, GetAudioDeviceName(inId).c_str(), outId, GetAudioDeviceName(outId).c_str());
 
@@ -592,6 +591,9 @@ bool IPlugAPPHost::InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_
   mSamplesElapsed = 0;
   mFadeMult = 0.;
   mSampleRate = (double) sr;
+  
+  mIPlug->_SetBlockSize(APP_SIGNAL_VECTOR_SIZE);
+  mIPlug->_SetSampleRate(mSampleRate);
 
   try
   {
@@ -649,10 +651,8 @@ int IPlugAPPHost::AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_
 
   IPlugAPPHost* _this = sInstance;
 
-//  AppState& mState = _this->mState;
-
-  double* pInputBufferD = (double*) pInputBuffer;
-  double* pOutputBufferD = (double*) pOutputBuffer;
+  double* pInputBufferD = static_cast<double*>(pInputBuffer);
+  double* pOutputBufferD = static_cast<double*>(pOutputBuffer);
 
   int inRightOffset = 0;
 
@@ -663,16 +663,16 @@ int IPlugAPPHost::AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_
   {
     for (int i=0; i<nFrames; i++)
     {
-      _this->mBufIndex %= _this->mBufferSize;
+      _this->mBufIndex %= APP_SIGNAL_VECTOR_SIZE;
 
       if (_this->mBufIndex == 0)
       {
         double* inputs[2] = {pInputBufferD + i, pInputBufferD + inRightOffset + i};
         double* outputs[2] = {pOutputBufferD + i, pOutputBufferD + nFrames + i};
 
-        _this->mIPlug->AppProcess(inputs, outputs, nFrames);
+        _this->mIPlug->AppProcess(inputs, outputs, APP_SIGNAL_VECTOR_SIZE);
 
-        _this->mSamplesElapsed += _this->mBufferSize;
+        _this->mSamplesElapsed += APP_SIGNAL_VECTOR_SIZE;
       }
 
       // fade in
