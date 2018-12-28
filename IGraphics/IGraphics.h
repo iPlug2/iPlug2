@@ -986,6 +986,9 @@ protected:
   virtual void GetAPIBitmapData(const APIBitmap* pBitmap, RawBitmapData& data) = 0;
   virtual void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) = 0;
 
+  void PushLayer(ILayer* layer, bool clearTransforms);
+  ILayer* PopLayer(bool clearTransforms);
+    
   inline void SearchNextScale(int& sourceScale, int targetScale);
   bool SearchImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale);
   APIBitmap* SearchBitmapInCache(const char* name, int targetScale, int& sourceScale);

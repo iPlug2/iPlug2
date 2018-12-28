@@ -1240,14 +1240,24 @@ void IGraphics::StartLayer(const IRECT& r)
   const int w = static_cast<int>(std::round(alignedBounds.W()));
   const int h = static_cast<int>(std::round(alignedBounds.H()));
 
-  mLayers.push(new ILayer(CreateAPIBitmap(w, h), alignedBounds));
-  UpdateLayer();
-  PathTransformReset(true);
-  PathClipRegion(alignedBounds);
-  PathClear();
+  PushLayer(new ILayer(CreateAPIBitmap(w, h), alignedBounds), true);
 }
 
 ILayerPtr IGraphics::EndLayer()
+{
+  return ILayerPtr(PopLayer(true));
+}
+
+void IGraphics::PushLayer(ILayer *layer, bool clearTransforms)
+{
+  mLayers.push(layer);
+  UpdateLayer();
+  PathTransformReset(clearTransforms);
+  PathClipRegion(layer->Bounds());
+  PathClear();
+}
+
+ILayer* IGraphics::PopLayer(bool clearTransforms)
 {
   ILayer* pLayer = nullptr;
   
@@ -1258,11 +1268,11 @@ ILayerPtr IGraphics::EndLayer()
   }
   
   UpdateLayer();
-  PathTransformReset(true);
+  PathTransformReset(clearTransforms);
   PathClipRegion();
   PathClear();
   
-  return ILayerPtr(pLayer);
+  return pLayer;
 }
 
 bool IGraphics::CheckLayer(const ILayerPtr& layer)

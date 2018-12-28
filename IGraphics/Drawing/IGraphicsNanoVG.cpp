@@ -294,11 +294,10 @@ void IGraphicsNanoVG::GetAPIBitmapData(const APIBitmap* pBitmap, RawBitmapData& 
   
   data.Resize(size);
   
-  // For now just create  data - need to copy it later
-  memset(data.Get(), 255, size);
-  /*
   if (data.GetSize() >= size)
-    memcpy(data.Get(), pBitmap->GetBitmap()->getBits(), size);*/
+  {
+    nvgReadPixels(mVG, pBitmap->GetBitmap(), 0, 0, pBitmap->GetWidth(), pBitmap->GetHeight(), data.Get());
+  }
 }
 
 void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow)
@@ -324,23 +323,17 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
     ILayer shadowLayer(shadowBitmap, layer->Bounds());
     
     PathTransformSave();
-    mLayers.push(layer.get());
-    mLayers.push(&shadowLayer);
-    UpdateLayer();
-    PathTransformReset();
-    PathClipRegion(layer->Bounds());
+    PushLayer(layer.get(), false);
+    PushLayer(&shadowLayer, false);
     DrawBitmap(maskBitmap, bounds, 0, 0, nullptr);
     IBlend blend1(kBlendSourceIn, 1.0);
     PathRect(layer->Bounds());
     PathFill(shadow.mPattern, IFillOptions(), &blend1);
-    mLayers.pop();
-    UpdateLayer();
-    PathTransformReset();
+    PopLayer(false);
     IBlend blend2(kBlendUnder, shadow.mOpacity);
     bounds.Translate(shadow.mXOffset, shadow.mYOffset);
     DrawBitmap(tempLayerBitmap, bounds, 0, 0, &blend2);
-    mLayers.pop();
-    UpdateLayer();
+    PopLayer(false);
     PathTransformRestore();
   }
 }
