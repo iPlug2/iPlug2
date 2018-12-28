@@ -11,6 +11,7 @@
 #include <cmath>
 
 #include "IGraphicsNanoVG.h"
+#include "ITextEntryControl.h"
 
 #if defined IGRAPHICS_GL
   #if defined OS_MAC
@@ -70,7 +71,14 @@
   #error you must define either IGRAPHICS_GL2, IGRAPHICS_GLES2 etc or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
 #endif
 
-#include "ITextEntryControl.h"
+void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData)
+{
+#if defined(IGRAPHICS_GL)
+  glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pData);
+#elif defined(IGRAPHICS_METAL)
+  mnvgReadPixels(pContext, image, x, y, width, height, pData);
+#endif
+}
 
 #ifdef OS_WIN
 int LoadImageFromWinResource(NVGcontext* pContext, HINSTANCE hInst, const char* resid)
@@ -142,6 +150,13 @@ NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, int scal
   SetBitmap(mFBO->image, width, height, scale, drawScale);
 }
 
+NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, int scale, float drawScale)
+{
+  int idx = nvgCreateImageRGBA(pContext, width, height, 0, pData);
+  mVG = pContext;
+  SetBitmap(idx, width, height, scale, drawScale);
+}
+
 NanoVGBitmap::~NanoVGBitmap()
 {
   if(mFBO)
@@ -168,21 +183,20 @@ inline NVGcompositeOperation NanoVGBlendMode(const IBlend* pBlend)
 {
   if (!pBlend)
   {
-    return NVG_COPY;
+    return NVG_SOURCE_OVER;
   }
   
   switch (pBlend->mMethod)
   {
-    case kBlendClobber:
-    {
-      return NVG_SOURCE_OVER;
-    }
-    case kBlendAdd:
+    case kBlendClobber:     return NVG_SOURCE_OVER;
+    case kBlendAdd:         return NVG_LIGHTER;
+    case kBlendUnder:       return NVG_DESTINATION_OVER;
+    case kBlendSourceIn:    return NVG_SOURCE_IN;
     case kBlendColorDodge:
     case kBlendNone:
     default:
     {
-      return NVG_COPY;
+      return NVG_SOURCE_OVER;
     }
   }
 }
@@ -272,8 +286,61 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const WDL_String& resourcePath, int sc
 
 APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height)
 {
-  const double scale = GetDrawScale() * GetScreenScale();
-  return new NanoVGBitmap(mVG, width * scale, height * scale, GetScreenScale(), GetDrawScale());
+  const double scale = GetBackingPixelScale();
+  return new NanoVGBitmap(mVG, std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
+}
+
+void IGraphicsNanoVG::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
+{
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
+  int size = pBitmap->GetWidth() * pBitmap->GetHeight() * 4;
+  
+  data.Resize(size);
+  
+  if (data.GetSize() >= size)
+  {
+    PushLayer(layer.get(), false);
+    nvgReadPixels(mVG, pBitmap->GetBitmap(), 0, 0, pBitmap->GetWidth(), pBitmap->GetHeight(), data.Get());
+    PopLayer(false);    
+  }
+}
+
+void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow)
+{
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
+  int width = pBitmap->GetWidth();
+  int height = pBitmap->GetHeight();
+  int size = width * height * 4;
+  
+  if (mask.GetSize() >= size)
+  {
+    if (!shadow.mDrawForeground)
+    {
+      //pBitmap->GetBitmap()->clear(0);
+    }
+    
+    IRECT bounds(layer->Bounds());
+    
+    NanoVGBitmap maskRawBitmap(mVG, width, height, mask.Get(), pBitmap->GetScale(), pBitmap->GetDrawScale());
+    APIBitmap* shadowBitmap = new NanoVGBitmap(mVG, width, height, pBitmap->GetScale(), pBitmap->GetDrawScale());
+    IBitmap tempLayerBitmap(shadowBitmap, 1, false);
+    IBitmap maskBitmap(&maskRawBitmap, 1, false);
+    ILayer shadowLayer(shadowBitmap, layer->Bounds());
+    
+    PathTransformSave();
+    PushLayer(layer.get(), false);
+    PushLayer(&shadowLayer, false);
+    DrawBitmap(maskBitmap, bounds, 0, 0, nullptr);
+    IBlend blend1(kBlendSourceIn, 1.0);
+    PathRect(layer->Bounds());
+    PathFill(shadow.mPattern, IFillOptions(), &blend1);
+    PopLayer(false);
+    IBlend blend2(kBlendUnder, shadow.mOpacity);
+    bounds.Translate(shadow.mXOffset, shadow.mYOffset);
+    DrawBitmap(tempLayerBitmap, bounds, 0, 0, &blend2);
+    PopLayer(false);
+    PathTransformRestore();
+  }
 }
 
 void IGraphicsNanoVG::SetPlatformContext(void* pContext)
@@ -360,11 +427,19 @@ void IGraphicsNanoVG::OnViewInitialized(void* pContext)
 
 void IGraphicsNanoVG::OnViewDestroyed()
 {
+  // need to remove all the controls to free framebuffers, before deleting context
+  RemoveAllControls();
+
   if(mMainFrameBuffer != nullptr)
     nvgDeleteFramebuffer(mMainFrameBuffer);
   
+  mMainFrameBuffer = nullptr;
+  
   if(mVG)
     nvgDeleteContext(mVG);
+  
+  mVG = nullptr;
+  
 #if defined OS_WIN
   if (mHGLRC)
   {
@@ -438,17 +513,19 @@ void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, i
   APIBitmap* pAPIBitmap = bitmap.GetAPIBitmap();
   
   assert(pAPIBitmap);
+    
   // First generate a scaled image paint
     
   NVGpaint imgPaint;
-  double scale = GetScreenScale() / (pAPIBitmap->GetScale() * pAPIBitmap->GetDrawScale());
+  double scale = 1.0 / (pAPIBitmap->GetScale() * pAPIBitmap->GetDrawScale());
 
   nvgTransformScale(imgPaint.xform, scale, scale);
 
-  imgPaint.xform[4] = std::round(dest.L) - srcX;
-  imgPaint.xform[5] = std::round(dest.T) - srcY;
-  imgPaint.extent[0] = bitmap.W();
-  imgPaint.extent[1] = bitmap.H();
+  scale *= GetScreenScale();
+  imgPaint.xform[4] = dest.L - (srcX * scale);
+  imgPaint.xform[5] = dest.T - (srcY * scale);
+  imgPaint.extent[0] = bitmap.W() * bitmap.GetScale();
+  imgPaint.extent[1] = bitmap.H() * bitmap.GetScale();
   imgPaint.image = pAPIBitmap->GetBitmap();
   imgPaint.radius = imgPaint.feather = 0.f;
   imgPaint.innerColor = imgPaint.outerColor = nvgRGBAf(1, 1, 1, BlendWeight(pBlend));
@@ -458,7 +535,9 @@ void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, i
   nvgBeginPath(mVG); // Clears any existing path
   nvgRect(mVG, dest.L, dest.T, dest.W(), dest.H());
   nvgFillPaint(mVG, imgPaint);
+  nvgGlobalCompositeOperation(mVG, NanoVGBlendMode(pBlend));
   nvgFill(mVG);
+  nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
   nvgBeginPath(mVG); // Clears the bitmap rect from the path state
 }
 
@@ -548,6 +627,8 @@ bool IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IREC
   }
   else
   {
+    nvgGlobalCompositeOperation(mVG, NanoVGBlendMode(pBlend));
+      
     if(text.mOrientation != 0)
     {
       IRECT tmp;
@@ -562,6 +643,8 @@ bool IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IREC
     }
     else
       nvgText(mVG, xpos, ypos, str, NULL);
+      
+    nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
   }
     
   return true;
@@ -587,16 +670,17 @@ void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const
   nvgMiterLimit(mVG, options.mMiterLimit);
   nvgStrokeWidth(mVG, thickness);
  
-  // TODO Dash
-
+  // NanoVG does not support dashed paths
   if (pattern.mType == kSolidPattern)
     nvgStrokeColor(mVG, NanoVGColor(pattern.GetStop(0).mColor, pBlend));
   else
     nvgStrokePaint(mVG, NanoVGPaint(mVG, pattern, pBlend));
   
   nvgPathWinding(mVG, NVG_CCW);
+  nvgGlobalCompositeOperation(mVG, NanoVGBlendMode(pBlend));
   nvgStroke(mVG);
-  
+  nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
+    
   if (!options.mPreserve)
     nvgBeginPath(mVG); // Clears the path state
 }
@@ -610,8 +694,10 @@ void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& opti
   else
     nvgFillPaint(mVG, NanoVGPaint(mVG, pattern, pBlend));
   
+  nvgGlobalCompositeOperation(mVG, NanoVGBlendMode(pBlend));
   nvgFill(mVG);
-  
+  nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
+
   if (!options.mPreserve)
     nvgBeginPath(mVG); // Clears the path state
 }
@@ -649,7 +735,9 @@ void IGraphicsNanoVG::DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, 
   nvgRoundedRect(mVG, inner.L, inner.T, inner.W(), inner.H(), cr);
   nvgPathWinding(mVG, NVG_HOLE);
   nvgFillPaint(mVG, shadowPaint);
+  nvgGlobalCompositeOperation(mVG, NanoVGBlendMode(pBlend));
   nvgFill(mVG);
+  nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
   nvgBeginPath(mVG); // Clear the paths
 }
 
@@ -668,7 +756,7 @@ void IGraphicsNanoVG::UpdateLayer()
   {
     nvgEndFrame(mVG);
 #ifndef IGRAPHICS_METAL
-    const double scale = GetDrawScale() * GetScreenScale();
+    const double scale = GetBackingPixelScale();
     glViewport(0, 0, mLayers.top()->Bounds().W() * scale, mLayers.top()->Bounds().H() * scale);
 #endif
     nvgBindFramebuffer(dynamic_cast<const NanoVGBitmap*>(mLayers.top()->GetAPIBitmap())->GetFBO());

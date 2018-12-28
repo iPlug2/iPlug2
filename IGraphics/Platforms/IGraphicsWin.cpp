@@ -99,6 +99,22 @@ inline IMouseInfo IGraphicsWin::GetMouseInfoDeltas(float& dX, float& dY, LPARAM 
   return info;
 }
 
+void IGraphicsWin::CheckTabletInput(UINT msg)
+{
+  if ((msg == WM_LBUTTONDOWN) || (msg == WM_RBUTTONDOWN) || (msg == WM_MBUTTONDOWN) || (msg == WM_MOUSEMOVE)
+      || (msg == WM_RBUTTONDBLCLK) || (msg == WM_LBUTTONDBLCLK) || (msg == WM_MBUTTONDBLCLK)
+      || (msg == WM_RBUTTONUP) || (msg == WM_LBUTTONUP) || (msg == WM_MBUTTONUP)
+      || (msg == WM_MOUSEHOVER) || (msg == WM_MOUSELEAVE))
+  {
+    const LONG_PTR c_SIGNATURE_MASK = 0xFFFFFF00;
+    const LONG_PTR c_MOUSEEVENTF_FROMTOUCH = 0xFF515700;
+    
+    LONG_PTR extraInfo = GetMessageExtraInfo();
+    SetTabletInput(((extraInfo & c_SIGNATURE_MASK) == c_MOUSEEVENTF_FROMTOUCH));
+    mCursorLock &= !mTabletInput;
+  }
+}
+
 // static
 LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -106,7 +122,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   {
     LPCREATESTRUCT lpcs = (LPCREATESTRUCT) lParam;
     SetWindowLongPtr(hWnd, GWLP_USERDATA, (LPARAM) (lpcs->lpCreateParams));
-    int mSec = int(1000.0 / sFPS);
+    int mSec = static_cast<int>(std::round(1000.0 / (sFPS)));
     SetTimer(hWnd, IPLUG_TIMER_ID, mSec, NULL);
     SetFocus(hWnd); // gets scroll wheel working straight away
     DragAcceptFiles(hWnd, true);
@@ -131,6 +147,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     return DefWindowProc(hWnd, msg, wParam, lParam);
   }
 
+  pGraphics->CheckTabletInput(msg);
+  
   switch (msg)
   {
 
@@ -192,7 +210,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         {
           pGraphics->SetAllControlsClean();
           IRECT dirtyR = rects.Bounds();
-          dirtyR.ScaleBounds(pGraphics->GetDrawScale());
+          dirtyR.Scale(pGraphics->GetDrawScale());
+          dirtyR.PixelAlign();
           RECT r = { (LONG) dirtyR.L, (LONG) dirtyR.T, (LONG) dirtyR.R, (LONG) dirtyR.B };
 
           InvalidateRect(hWnd, &r, FALSE);
@@ -200,7 +219,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           if (pGraphics->mParamEditWnd)
           {
             IRECT notDirtyR = pGraphics->mEdControl->GetRECT();
-            notDirtyR.ScaleBounds(pGraphics->GetDrawScale());
+            notDirtyR.Scale(pGraphics->GetDrawScale());
+            notDirtyR.PixelAlign();
             RECT r2 = { (LONG) notDirtyR.L, (LONG) notDirtyR.T, (LONG) notDirtyR.R, (LONG) notDirtyR.B };
             ValidateRect(hWnd, &r2); // make sure we dont redraw the edit box area
             UpdateWindow(hWnd);
@@ -258,7 +278,12 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       {
         float dX, dY;
         IMouseInfo info = pGraphics->GetMouseInfoDeltas(dX, dY, lParam, wParam);
-        pGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
+        if (dX || dY)
+        {
+          pGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
+          if (pGraphics->MouseCursorIsLocked())
+            pGraphics->MoveMouseCursor(pGraphics->mHiddenCursorX, pGraphics->mHiddenCursorY);
+        }
       }
 
       return 0;
@@ -358,7 +383,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         #endif
         IRECT ir(r.left, r.top, r.right, r.bottom);
         IRECTList rects;
-        ir.ScaleBounds(1. / pGraphics->GetDrawScale());
+        ir.Scale(1. / pGraphics->GetDrawScale());
+        ir.PixelAlign();
         rects.Add(ir);
         pGraphics->Draw(rects);
         #ifdef IGRAPHICS_NANOVG
@@ -599,36 +625,95 @@ void IGraphicsWin::PlatformResize()
   }
 }
 
-//void IGraphicsWin::HideMouseCursor(bool hide)
-//{
-  //if(hide)
-  //{
-  //  if (mCursorHidden)
-  //  {
-  //    SetCursorPos(mHiddenMousePointX, mHiddenMousePointY);
-  //    ShowCursor(true);
-  //    mCursorHidden = false;
-  //  }
-  //}
-  //else
-  //{
-  //  if (!mCursorHidden)
-  //  {
-  //    POINT p;
-  //    GetCursorPos(&p);
-  //    
-  //    mHiddenMousePointX = p.x;
-  //    mHiddenMousePointY = p.y;
-  //    
-  //    ShowCursor(false);
-  //    mCursorHidden = true;
-  //  }
-  //}
-//}
-
-int IGraphicsWin::ShowMessageBox(const char* text, const char* caption, int type)
+void IGraphicsWin::HideMouseCursor(bool hide, bool lock)
 {
-  return MessageBox(GetMainWnd(), text, caption, type);
+  if (mCursorHidden == hide)
+    return;
+  
+  if (hide)
+  {
+    mHiddenCursorX = mCursorX;
+    mHiddenCursorY = mCursorY;
+      
+    ShowCursor(false);
+    mCursorHidden = true;
+    mCursorLock = lock && !mTabletInput;
+  }
+  else
+  {
+    if (mCursorLock)
+      MoveMouseCursor(mHiddenCursorX, mHiddenCursorY);
+
+    ShowCursor(true);
+    mCursorHidden = false;
+    mCursorLock = false;
+  }
+}
+
+void IGraphicsWin::MoveMouseCursor(float x, float y)
+{
+  if (mTabletInput)
+    return;
+ 
+  float scale = GetDrawScale() * GetScreenScale();
+    
+  POINT p;
+  p.x = std::round(x * scale);
+  p.y = std::round(y * scale);
+  
+  ::ClientToScreen((HWND)GetWindow(), &p);
+  
+  if (SetCursorPos(p.x, p.y))
+  {
+    GetCursorPos(&p);
+    ScreenToClient((HWND)GetWindow(), &p);
+    
+    mCursorX = p.x / scale;
+    mCursorY = p.y / scale;
+      
+    if (mCursorHidden && !mCursorLock)
+    {
+      mHiddenCursorX = p.x / scale;
+      mHiddenCursorY = p.y / scale;
+    }
+  }
+}
+
+void IGraphicsWin::SetMouseCursor(ECursor cursor)
+{
+  HCURSOR cursorType;
+    
+  switch (cursor)
+  {
+    case ARROW:         cursorType = LoadCursor(NULL, IDC_ARROW);           break;
+    case IBEAM:         cursorType = LoadCursor(NULL, IDC_IBEAM);           break;
+    case WAIT:          cursorType = LoadCursor(NULL, IDC_WAIT);            break;
+    case CROSS:         cursorType = LoadCursor(NULL, IDC_CROSS);           break;
+    case UPARROW:       cursorType = LoadCursor(NULL, IDC_UPARROW);         break;
+    case SIZENWSE:      cursorType = LoadCursor(NULL, IDC_SIZENWSE);        break;
+    case SIZENESW:      cursorType = LoadCursor(NULL, IDC_SIZENESW);        break;
+    case SIZEWE:        cursorType = LoadCursor(NULL, IDC_SIZEWE);          break;
+    case SIZENS:        cursorType = LoadCursor(NULL, IDC_SIZENS);          break;
+    case SIZEALL:       cursorType = LoadCursor(NULL, IDC_SIZEALL);         break;
+    case INO:           cursorType = LoadCursor(NULL, IDC_NO);              break;
+    case HAND:          cursorType = LoadCursor(NULL, IDC_HAND);            break;
+    case APPSTARTING:   cursorType = LoadCursor(NULL, IDC_APPSTARTING);     break;
+    case HELP:          cursorType = LoadCursor(NULL, IDC_HELP);            break;
+    default:
+      cursorType = LoadCursor(NULL, IDC_ARROW);
+  }
+
+  SetCursor(cursorType);
+}
+
+bool IGraphicsWin::MouseCursorIsLocked()
+{
+  return mCursorLock;
+}
+
+int IGraphicsWin::ShowMessageBox(const char* text, const char* caption, EMessageBoxType type)
+{
+  return MessageBox(GetMainWnd(), text, caption, (int) type);
 }
 
 void* IGraphicsWin::OpenWindow(void* pParent)
@@ -929,7 +1014,6 @@ IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
 
   if(hMenu)
   {
-
     long offsetIdx = 0;
     HMENU hMenu = CreateMenu(menu, &offsetIdx);
     IPopupMenu* result = nullptr;
@@ -1269,12 +1353,15 @@ void IGraphicsWin::SetTooltip(const char* tooltip)
 
 void IGraphicsWin::ShowTooltip()
 {
-  const char* tooltip = GetControl(mTooltipIdx)->GetTooltip();
-  if (tooltip)
+  if (mTooltipIdx > -1)
   {
-    assert(strlen(tooltip) < 80);
-    SetTooltip(tooltip);
-    mShowingTooltip = true;
+    const char* tooltip = GetControl(mTooltipIdx)->GetTooltip();
+    if (tooltip)
+    {
+      assert(strlen(tooltip) < 80);
+      SetTooltip(tooltip);
+      mShowingTooltip = true;
+    }
   }
 }
 
@@ -1406,8 +1493,8 @@ bool IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String
 #ifndef NO_IGRAPHICS
 #if defined IGRAPHICS_AGG
   #include "IGraphicsAGG.cpp"
-  #include "agg_win_pmap.cpp"
-  #include "agg_win_font.cpp"
+  #include "agg_win32_pmap.cpp"
+  #include "agg_win32_font.cpp"
 #elif defined IGRAPHICS_CAIRO
   #include "IGraphicsCairo.cpp"
 #elif defined IGRAPHICS_LICE

@@ -114,10 +114,10 @@ protected:
 };
 
 /** A vector knob control which rotates an SVG image */
-class IVSVGKnob : public IKnobControlBase
+class ISVGKnob : public IKnobControlBase
 {
 public:
-  IVSVGKnob(IGEditorDelegate& dlg, IRECT bounds, ISVG& svg, int paramIdx = kNoParameter)
+  ISVGKnob(IGEditorDelegate& dlg, IRECT bounds, const ISVG& svg, int paramIdx = kNoParameter)
     : IKnobControlBase(dlg, bounds, paramIdx)
     , mSVG(svg)
   {
@@ -125,7 +125,14 @@ public:
 
   void Draw(IGraphics& g) override
   {
-    g.DrawRotatedSVG(mSVG, mRECT.MW(), mRECT.MH(), mRECT.W(), mRECT.H(), mStartAngle + mValue * (mEndAngle - mStartAngle));
+    if (!g.CheckLayer(mLayer))
+    {
+      g.StartLayer(mRECT);
+      g.DrawSVG(mSVG, mRECT);
+      mLayer = g.EndLayer();
+    }
+    
+    g.DrawRotatedLayer(mLayer, mStartAngle + mValue * (mEndAngle - mStartAngle));
   }
 
   void SetSVG(ISVG& svg)
@@ -135,6 +142,7 @@ public:
   }
 
 private:
+  ILayerPtr mLayer;
   ISVG mSVG;
   float mStartAngle = -135.f;
   float mEndAngle = 135.f;

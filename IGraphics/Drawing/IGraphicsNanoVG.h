@@ -15,7 +15,7 @@
 
 #include "nanovg.h"
 
-// Thanks to Olli Wang for much of this macro magic  https://github.com/ollix/moui
+// Thanks to Olli Wang/MOUI for much of this macro magic  https://github.com/ollix/moui
 
 #if defined IGRAPHICS_GLES2
   #define IGRAPHICS_GL
@@ -82,11 +82,14 @@
   typedef MNVGframebuffer NVGframebuffer;
 #endif
 
+void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData);
+
 class NanoVGBitmap : public APIBitmap
 {
 public:
   NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, void* hInst = nullptr);
   NanoVGBitmap(NVGcontext* pContext, int width, int height, int scale, float drawScale);
+  NanoVGBitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, int scale, float drawScale);
   virtual ~NanoVGBitmap();
   NVGframebuffer* GetFBO() const { return mFBO; }
 private:
@@ -143,6 +146,20 @@ protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override { return new APIBitmap(); } // NO-OP
   APIBitmap* CreateAPIBitmap(int width, int height) override;
+
+  int AlphaChannel() const override { return 3; }
+  
+  bool FlippedBitmap() const override
+  {
+#if defined(IGRAPHICS_GL)
+    return true;
+#else
+    return false;
+#endif
+  }
+
+  void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
+  void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
 
   bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
 

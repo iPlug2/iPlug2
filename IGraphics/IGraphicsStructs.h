@@ -240,7 +240,7 @@ struct IColor
   bool operator==(const IColor& rhs) { return (rhs.A == A && rhs.R == R && rhs.G == G && rhs.B == B); }
   bool operator!=(const IColor& rhs) { return !operator==(rhs); }
   bool Empty() const { return A == 0 && R == 0 && G == 0 && B == 0; }
-  void Clamp() { A = std::min(A, 255); R = std::min(R, 255); G = std::min(G, 255); B = std::min(B, 255); }
+  void Clamp() { A = Clip(A, 0, 255); R = Clip(R, 0, 255); Clip(G, 0, 255); B = Clip(B, 0, 255); }
   void Randomise(int alpha = 255) { A = alpha; R = std::rand() % 255; G = std::rand() % 255; B = std::rand() % 255; }
 
   void AddContrast(double c)
@@ -271,7 +271,7 @@ struct IColor
     return IColor(A, R, G, B);
   }
 
-  int GetLuminocity() const
+  int GetLuminosity() const
   {
     int min = R < G ? (R < B ? R : B) : (G < B ? G : B);
     int max = R > G ? (R > B ? R : B) : (G > B ? G : B);
@@ -358,7 +358,7 @@ struct IBlend
    * \todo IBlend::weight needs documentation
    * @param weight
   */
-  IBlend(EBlendType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(weight) {}
+  IBlend(EBlendType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(Clip(weight, 0.f, 1.f)) {}
 };
 
 inline float BlendWeight(const IBlend* pBlend)
@@ -681,7 +681,18 @@ struct IRECT
   
   bool IsPixelAligned() const
   {
-    return !(L - std::floor(L) && T - std::floor(T) && R - std::floor(R) && B - std::floor(B));
+    // If all values are within 1/1000th of a pixel of an integer the IRECT is considered pixel aligned
+      
+    auto isInteger = [](float x){ return std::fabs(x - std::round(x)) <= static_cast<float>(1e-3); };
+      
+    return isInteger(L) && isInteger(T) && isInteger(R) && isInteger(B);
+  }
+   
+  bool IsPixelAligned(float scale) const
+  {
+    IRECT r = *this;
+    r.Scale(scale);
+    return r.IsPixelAligned();
   }
   
   // Pixel aligns in an inclusive manner (moves all points outwards)
@@ -692,7 +703,29 @@ struct IRECT
     R = std::ceil(R);
     B = std::ceil(B);
   }
-  
+    
+  inline void PixelAlign(float scale)
+  {
+    // N.B. - double precision is *required* for accuracy of the reciprocal
+    Scale(scale);
+    PixelAlign();
+    Scale(static_cast<float>(1.0/static_cast<double>(scale)));
+  }
+    
+  inline IRECT GetPixelAligned() const
+  {
+    IRECT r = *this;
+    r.PixelAlign();
+    return r;
+  }
+    
+  inline IRECT GetPixelAligned(float scale) const
+  {
+    IRECT r = *this;
+    r.PixelAlign(scale);
+    return r;
+  }
+    
   inline void Pad(float padding)
   {
     L -= padding;
@@ -807,10 +840,10 @@ struct IRECT
   
   void Scale(float scale)
   {
-    L = std::floor(0.5f + (L * scale));
-    T = std::floor(0.5f + (T * scale));
-    R = std::floor(0.5f + (R * scale));
-    B = std::floor(0.5f + (B * scale));
+    L *= scale;
+    T *= scale;
+    R *= scale;
+    B *= scale;
   }
   
   void ScaleAboutCentre(float scale)
@@ -903,14 +936,6 @@ struct IRECT
   IRECT GetVShifted(float y) const
   {
     return GetTranslated(0.f, y);
-  }
-  
-  void ScaleBounds(float scale)
-  {
-    L = std::floor(L * scale);
-    T = std::floor(T * scale);
-    R = std::ceil(R * scale);
-    B = std::ceil(B * scale);
   }
 
   IRECT GetCentredInside(IRECT sr) const
@@ -1016,6 +1041,16 @@ public:
     {
       IRECT r = Get(i);
       r.PixelAlign();
+      Set(i, r);
+    }
+  }
+
+  void PixelAlign(float scale)
+  {
+    for (auto i = 0; i < Size(); i++)
+    {
+      IRECT r = Get(i);
+      r.PixelAlign(scale);
       Set(i, r);
     }
   }
@@ -1345,13 +1380,36 @@ public:
   const IRECT& Bounds() const { return mRECT; }
   
 private:
+    
+  APIBitmap* AccessAPIBitmap() { return mBitmap.get(); }
+
   std::unique_ptr<APIBitmap> mBitmap;
   IRECT mRECT;
   bool mInvalid;
 };
 
-/** ILayerPtr is a manged pointer for transferring the ownership of layers */
+/** ILayerPtr is a managed pointer for transferring the ownership of layers */
 typedef std::unique_ptr<ILayer> ILayerPtr;
+
+/** Used to specify a gaussian drop-shadow. */
+struct IShadow
+{
+  IShadow(const IPattern& pattern, float blurSize, float xOffset, float yOffset, float opacity, bool drawForeground = true)
+  : mPattern(pattern)
+  , mBlurSize(blurSize)
+  , mXOffset(xOffset)
+  , mYOffset(yOffset)
+  , mOpacity(opacity)
+  , mDrawForeground(drawForeground)
+  {}
+    
+  IPattern mPattern;
+  float mBlurSize = 0.f;
+  float mXOffset = 0.f;
+  float mYOffset = 0.f;
+  float mOpacity = 1.f;
+  bool mDrawForeground;
+};
 
 // TODO: static storage needs thread safety mechanism
 template <class T>

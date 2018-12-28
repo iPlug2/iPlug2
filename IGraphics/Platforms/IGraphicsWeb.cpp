@@ -188,6 +188,31 @@ void IGraphicsWeb::HideMouseCursor(bool hide, bool lock)
   }
 }
 
+void IGraphicsWeb::SetMouseCursor(ECursor cursor)
+{
+  std::string cursorType("pointer");
+  
+  switch (cursor)
+  {
+    case ARROW:         cursorType = "default";       break;
+    case IBEAM:         cursorType = "text";          break;
+    case WAIT:          cursorType = "wait";          break;
+    case CROSS:         cursorType = "crosshair";     break;
+    case UPARROW:       cursorType = "n-resize";      break;
+    case SIZENWSE:      cursorType = "nwse-resize";   break;
+    case SIZENESW:      cursorType = "nesw-resize";   break;
+    case SIZEWE:        cursorType = "ew-resize";     break;
+    case SIZENS:        cursorType = "ns-resize";     break;
+    case SIZEALL:       cursorType = "move";          break;
+    case INO:           cursorType = "not-allowed";   break;
+    case HAND:          cursorType = "grab";          break;
+    case APPSTARTING:   cursorType = "progress";      break;
+    case HELP:          cursorType = "help";          break;
+  }
+  
+  val::global("document")["body"]["style"].set("cursor", cursorType);
+}
+
 bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
   if (CStringHasContents(name))
@@ -239,13 +264,13 @@ bool IGraphicsWeb::GetTextFromClipboard(WDL_String& str)
   return true; // TODO: return?
 }
 
-int IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, int type)
+int IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, EMessageBoxType type)
 {
   switch (type)
   {
-    case MB_OK: val::global("window").call<val>("alert", std::string(str)); return 0;
-    case MB_YESNO:
-    case MB_OKCANCEL:
+    case kMB_OK: val::global("window").call<val>("alert", std::string(str)); return 0;
+    case kMB_YESNO:
+    case kMB_OKCANCEL:
       return val::global("window").call<val>("confirm", std::string(str)).as<int>();
     // case MB_CANCEL:
     //   break;
@@ -272,7 +297,7 @@ void IGraphicsWeb::PromptForDirectory(WDL_String& path)
 
 void IGraphicsWeb::CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
 {
-    ShowMessageBox("Warning", "Text entry not yet implemented", MB_OK);
+    ShowMessageBox("Warning", "Text entry not yet implemented", kMB_OK);
 //  val input = val::global("document").call<val>("createElement", std::string("input"));
 //  
 //  val rect = GetCanvas().call<val>("getBoundingClientRect");
@@ -336,8 +361,8 @@ void IGraphicsWeb::DrawResize()
   canvas["style"].set("width", val(Width() * GetDrawScale()));
   canvas["style"].set("height", val(Height() * GetDrawScale()));
   
-  canvas.set("width", Width() * GetDrawScale() * GetScreenScale());
-  canvas.set("height", Height() * GetDrawScale() * GetScreenScale());
+  canvas.set("width", Width() * GetBackingPixelScale());
+  canvas.set("height", Height() * GetBackingPixelScale());
   
   IGRAPHICS_DRAW_CLASS::DrawResize();
 }

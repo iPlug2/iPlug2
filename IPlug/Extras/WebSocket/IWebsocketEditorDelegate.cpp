@@ -3,8 +3,8 @@
 
 IWebsocketEditorDelegate::IWebsocketEditorDelegate(int nParams)
 : IGEditorDelegate(nParams)
-, mParamChangeFromClients(512) // TODO: constant
-, mMIDIFromClients(32)
+, mParamChangeFromClients(PARAM_TRANSFER_SIZE)
+, mMIDIFromClients(MIDI_TRANSFER_SIZE)
 {
   
 }
@@ -15,6 +15,7 @@ IWebsocketEditorDelegate::~IWebsocketEditorDelegate()
 
 void IWebsocketEditorDelegate::OnWebsocketReady(int connIdx)
 {
+  //TODO: need to send serialize state and send it to the client
 }
 
 bool IWebsocketEditorDelegate::OnWebsocketText(int connIdx, const char* pStr, size_t dataSize)

@@ -16,7 +16,7 @@
 class IGraphicsLiveEdit : public IControl
 {
 public:
-  IGraphicsLiveEdit(IGEditorDelegate& dlg, const char* pathToSourceFile, float gridSize)
+  IGraphicsLiveEdit(IGEditorDelegate& dlg, const char* pathToSourceFile = 0, float gridSize = 10)
   : IControl(dlg, IRECT())
   , mPathToSourceFile(pathToSourceFile)
   , mGridSize(gridSize)

@@ -25,7 +25,22 @@ void IGEditorDelegate::OnUIOpen()
 {
   IEditorDelegate::OnUIOpen();
   
-  GetUI()->Resize(GetEditorWidth(), GetEditorHeight(), GetEditorScale());
+  int width = GetEditorWidth();
+  int height = GetEditorHeight();
+  float scale = 1.f;
+    
+  // Recall size data (if not present use the defaults above)
+    
+  const IByteChunk& data = GetEditorData();
+    
+  int pos = data.Get(&width, 0);
+  pos = data.Get(&height, pos);
+  pos = data.Get(&scale, pos);
+    
+  if (pos > 0)
+    GetUI()->Resize(width, height, scale);
+    
+  pos = UnserializeEditorState(data, pos);
 }
 
 void* IGEditorDelegate::OpenWindow(void* pParent)
@@ -43,6 +58,8 @@ void* IGEditorDelegate::OpenWindow(void* pParent)
 
 void IGEditorDelegate::CloseWindow()
 {
+  IEditorDelegate::CloseWindow();
+  
   if(mGraphics)
     mGraphics->CloseWindow();
   
@@ -134,4 +151,21 @@ void IGEditorDelegate::AttachGraphics(IGraphics* pGraphics)
 
   mGraphics = pGraphics;
   mIGraphicsTransient = false;
+}
+
+void IGEditorDelegate::EditorStateNotify()
+{
+  IByteChunk data;
+    
+  int width = mGraphics->Width();
+  int height = mGraphics->Height();
+  float scale = mGraphics->GetDrawScale();
+    
+  data.Put(&width);
+  data.Put(&height);
+  data.Put(&scale);
+    
+  SerializeEditorState(data);
+    
+  EditorStateChangedFromUI(mGraphics->WindowWidth(), mGraphics->WindowHeight(), data);
 }
