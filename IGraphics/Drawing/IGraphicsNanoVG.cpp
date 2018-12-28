@@ -148,10 +148,10 @@ NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, int scal
   SetBitmap(mFBO->image, width, height, scale, drawScale);
 }
 
-NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, const unsigned char* data, int scale, float drawScale)
+NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, int scale, float drawScale)
 {
-  int idx = nvgCreateImageRGBA(pContext, width, height, 0, data);
-
+  int idx = nvgCreateImageRGBA(pContext, width, height, 0, pData);
+  mVG = pContext;
   SetBitmap(idx, width, height, scale, drawScale);
 }
 
@@ -294,8 +294,9 @@ void IGraphicsNanoVG::GetAPIBitmapData(const APIBitmap* pBitmap, RawBitmapData& 
   
   data.Resize(size);
   
+  nvgReadPixels(mVG, pBitmap->GetBitmap(), 0, 0, pBitmap->GetWidth(), pBitmap->GetHeight(), data.Get());
   // For now just create  data - need to copy it later
-  memset(data.Get(), 255, size);
+//  memset(data.Get(), 255, size);
   /*
   if (data.GetSize() >= size)
     memcpy(data.Get(), pBitmap->GetBitmap()->getBits(), size);*/
