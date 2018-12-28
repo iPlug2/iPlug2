@@ -96,7 +96,6 @@ void IPlugAPPHost::PopulateAudioOutputList(HWND hwndDlg, RtAudio::DeviceInfo* in
 
   int i;
 
-  //  for (int i=0; i<info.outputChannels; i++) {
   for (i=0; i<info->outputChannels -1; i++)
   {
     buf.SetFormatted(20, "%i", i+1);
@@ -117,7 +116,7 @@ void IPlugAPPHost::PopulateDriverSpecificControls(HWND hwndDlg)
 {
 #ifdef OS_WIN
   int driverType = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_DRIVER, CB_GETCURSEL, 0, 0);
-  if(driverType)   //ASIO
+  if(driverType == kDeviceASIO)
   {
     ComboBox_Enable(GetDlgItem(hwndDlg, IDC_COMBO_AUDIO_IN_DEV), FALSE);
     Button_Enable(GetDlgItem(hwndDlg, IDC_BUTTON_OS_DEV_SETTINGS), TRUE);
@@ -152,7 +151,7 @@ void IPlugAPPHost::PopulateDriverSpecificControls(HWND hwndDlg)
   }
 
 #ifdef OS_WIN
-  if(driverType)
+  if(driverType == kDeviceASIO)
     SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_DEV,CB_SETCURSEL, outdevidx, 0);
   else
 #endif
@@ -191,7 +190,7 @@ void IPlugAPPHost::PopulateAudioDialogs(HWND hwndDlg)
 //    SendDlgItemMessage(hwndDlg,IDC_CB_MONO_INPUT,BM_SETCHECK, BST_UNCHECKED,0);
 //  }
 
-//  Populate IOVS combobox
+//  Populate buffer size combobox
   for (int i = 0; i< kNumBufferSizeOptions; i++)
   {
     SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_BUF_SIZE,CB_ADDSTRING,0,(LPARAM)kBufferSizeOptions[i].c_str());
@@ -337,7 +336,6 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
         case IDC_COMBO_AUDIO_DRIVER:
           if (HIWORD(wParam) == CBN_SELCHANGE)
           {
-
             v = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_DRIVER, CB_GETCURSEL, 0, 0);
 
             if(v != mState.mAudioDriverType)
@@ -521,7 +519,7 @@ void ClientResize(HWND hWnd, int nWidth, int nHeight)
 }
 
 //static
-WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   IPlugAPPHost* pAppHost = IPlugAPPHost::sInstance;
 

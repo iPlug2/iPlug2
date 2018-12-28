@@ -33,10 +33,10 @@ IPlugAPPHost::IPlugAPPHost()
 IPlugAPPHost::~IPlugAPPHost()
 {
   mMidiIn->cancelCallback();
-  
-  delete mMidiIn;
-  delete mMidiOut;
-  delete mDAC;
+
+  DELETE_NULL(mMidiIn);
+  DELETE_NULL(mMidiOut);
+  DELETE_NULL(mDAC);
 }
 
 //static
@@ -80,7 +80,7 @@ bool IPlugAPPHost::InitState()
 #if defined OS_WIN
   TCHAR strPath[MAX_PATH_LEN];
   SHGetFolderPathA( NULL, CSIDL_LOCAL_APPDATA, NULL, 0, strPath );
-  mINIPath.Set(strPath, MAX_PATH_LEN);
+  mINIPath.SetFormatted(MAX_PATH_LEN, "%s\\%s\\", strPath, BUNDLE_NAME);
 #elif defined OS_MAC
   mINIPath.SetFormatted(MAX_PATH_LEN, "%s/Library/Application Support/%s/", getenv("HOME"), BUNDLE_NAME);
 #else
@@ -88,6 +88,8 @@ bool IPlugAPPHost::InitState()
 #endif
 
   struct stat st;
+
+  DBGMSG("%s\n", mINIPath.Get());
 
   if(stat(mINIPath.Get(), &st) == 0) // if directory exists
   {
@@ -105,11 +107,11 @@ bool IPlugAPPHost::InitState()
       GetPrivateProfileString("audio", "outdev", "Built-in Output", buf, STRBUFSZ, mINIPath.Get()); mState.mAudioOutDev.Set(buf);
 
       //audio
-//      mState.mAudioInChanL = GetPrivateProfileInt("audio", "in1", 1, mINIPath.Get()); // 1 is first audio input
-//      mState.mAudioInChanR = GetPrivateProfileInt("audio", "in2", 2, mINIPath.Get());
-//      mState.mAudioOutChanL = GetPrivateProfileInt("audio", "out1", 1, mINIPath.Get()); // 1 is first audio output
-//      mState.mAudioOutChanR = GetPrivateProfileInt("audio", "out2", 2, mINIPath.Get());
-//      mState.mAudioInIsMono = GetPrivateProfileInt("audio", "monoinput", 0, mINIPath.Get());
+      mState.mAudioInChanL = GetPrivateProfileInt("audio", "in1", 1, mINIPath.Get()); // 1 is first audio input
+      mState.mAudioInChanR = GetPrivateProfileInt("audio", "in2", 2, mINIPath.Get());
+      mState.mAudioOutChanL = GetPrivateProfileInt("audio", "out1", 1, mINIPath.Get()); // 1 is first audio output
+      mState.mAudioOutChanR = GetPrivateProfileInt("audio", "out2", 2, mINIPath.Get());
+      //mState.mAudioInIsMono = GetPrivateProfileInt("audio", "monoinput", 0, mINIPath.Get());
 
       mState.mBufferSize = GetPrivateProfileInt("audio", "buffer", 512, mINIPath.Get());
       mState.mAudioSR = GetPrivateProfileInt("audio", "sr", 44100, mINIPath.Get());
@@ -120,23 +122,18 @@ bool IPlugAPPHost::InitState()
 
       mState.mMidiInChan = GetPrivateProfileInt("midi", "inchan", 0, mINIPath.Get()); // 0 is any
       mState.mMidiOutChan = GetPrivateProfileInt("midi", "outchan", 0, mINIPath.Get()); // 1 is first chan
+    }
 
-      UpdateINI(); // this will write over any invalid values in the file
-    }
-    else // settings file doesn't exist, so populate with default values
-    {
-      UpdateINI();
-    }
+    // if settings file doesn't exist, populate with default values, otherwise overrwrite
+    UpdateINI();
   }
   else   // folder doesn't exist - make folder and make file
   {
 #if defined OS_WIN
-    if (SHGetFolderPathA( NULL, CSIDL_LOCAL_APPDATA, NULL, 0, mINIPath.Get()) != S_OK)
-    {
-      DBGMSG("could not retrieve the user's application data directory!\n");
-
-      return false;
-    }
+    // folder doesn't exist - make folder and make file
+    CreateDirectory(mINIPath.Get(), NULL);
+    mINIPath.Append("settings.ini");
+    UpdateINI(); // will write file if doesn't exist
 #elif defined OS_MAC
     mode_t process_mask = umask(0);
     int result_code = mkdir(mINIPath.Get(), S_IRWXU | S_IRWXG | S_IRWXO);
@@ -144,7 +141,7 @@ bool IPlugAPPHost::InitState()
 
     if(!result_code)
     {
-      sprintf(mINIPath.Get(), "%s%s", mINIPath.Get(), "settings.ini"); // add file name to path
+      mINIPath.Append("\\settings.ini");
       UpdateINI(); // will write file if doesn't exist
     }
     else
@@ -170,21 +167,20 @@ void IPlugAPPHost::UpdateINI()
   WritePrivateProfileString("audio", "indev", mState.mAudioInDev.Get(), ini);
   WritePrivateProfileString("audio", "outdev", mState.mAudioOutDev.Get(), ini);
 
-//  sprintf(buf, "%u", mState.mAudioInChanL);
-//  WritePrivateProfileString("audio", "in1", buf, ini);
-//  sprintf(buf, "%u", mState.mAudioInChanR);
-//  WritePrivateProfileString("audio", "in2", buf, ini);
-//  sprintf(buf, "%u", mState.mAudioOutChanL);
-//  WritePrivateProfileString("audio", "out1", buf, ini);
-//  sprintf(buf, "%u", mState.mAudioOutChanR);
-//  WritePrivateProfileString("audio", "out2", buf, ini);
-//  sprintf(buf, "%u", mState.mAudioInIsMono);
-//  WritePrivateProfileString("audio", "monoinput", buf, ini);
+  sprintf(buf, "%u", mState.mAudioInChanL);
+  WritePrivateProfileString("audio", "in1", buf, ini);
+  sprintf(buf, "%u", mState.mAudioInChanR);
+  WritePrivateProfileString("audio", "in2", buf, ini);
+  sprintf(buf, "%u", mState.mAudioOutChanL);
+  WritePrivateProfileString("audio", "out1", buf, ini);
+  sprintf(buf, "%u", mState.mAudioOutChanR);
+  WritePrivateProfileString("audio", "out2", buf, ini);
+  //sprintf(buf, "%u", mState.mAudioInIsMono);
+  //WritePrivateProfileString("audio", "monoinput", buf, ini);
 
   WDL_String str;
   str.SetFormatted(32, "%i", mState.mBufferSize);
   WritePrivateProfileString("audio", "buffer", str.Get(), ini);
-//  WritePrivateProfileString("audio", "sigvs", mState.mAudioSigVS, ini);
 
   str.SetFormatted(32, "%i", mState.mAudioSR);
   WritePrivateProfileString("audio", "sr", str.Get(), ini);
@@ -370,8 +366,7 @@ bool IPlugAPPHost::TryToChangeAudioDriverType()
       mDAC->closeStream();
     }
 
-    delete mDAC;
-    mDAC = nullptr;
+    DELETE_NULL(mDAC);
   }
 
 #if defined OS_WIN
@@ -619,8 +614,7 @@ bool IPlugAPPHost::InitMidi()
   }
   catch ( RtMidiError &error )
   {
-    delete mMidiIn;
-    mMidiIn = 0;
+    DELETE_NULL(mMidiIn);
     error.printMessage();
     return false;
   }
@@ -631,8 +625,7 @@ bool IPlugAPPHost::InitMidi()
   }
   catch ( RtMidiError &error )
   {
-    delete mMidiOut;
-    mMidiOut = 0;
+    DELETE_NULL(mMidiOut);
     error.printMessage();
     return false;
   }

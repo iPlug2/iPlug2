@@ -52,13 +52,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     pAppHost->Init();
     pAppHost->TryToChangeAudio();
 
-    CreateDialog(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_MAIN), GetDesktopWindow(), MainDlgProc);
+    HACCEL hAccel = LoadAccelerators(gHINSTANCE, MAKEINTRESOURCE(IDR_ACCELERATOR1));
+
+    CreateDialog(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_MAIN), GetDesktopWindow(), IPlugAPPHost::MainDlgProc);
 
 #ifndef _DEBUG
     HMENU menu = GetMenu(gHWND);
     RemoveMenu(menu, 1, MF_BYPOSITION);
     DrawMenuBar(gHWND);
 #endif
+
 
     for(;;)
     {
@@ -98,9 +101,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
       while (temphwnd = GetParent(temphwnd));
       
       if (hWndParent && IsDialogMessage(hWndParent,&msg)) continue;
-      
-      TranslateMessage(&msg);
-      DispatchMessage(&msg);
+
+      if (!TranslateAccelerator(gHWND, hAccel, &msg))
+      {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+      }
     }
     
     // in case gHWND didnt get destroyed -- this corresponds to SWELLAPP_DESTROY roughly
@@ -121,8 +127,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 #elif defined(OS_MAC)
 #import <Cocoa/Cocoa.h>
 #include "swell.h"
-extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
 HWND gHWND;
 extern HMENU SWELL_app_stocksysmenu;
 
