@@ -70,7 +70,8 @@
   #error you must define either IGRAPHICS_GL2, IGRAPHICS_GLES2 etc or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
 #endif
 
-void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData) {
+void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData)
+{
 #if defined(IGRAPHICS_GL)
   glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pData);
 #elif defined(IGRAPHICS_METAL)
@@ -288,15 +289,28 @@ APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height)
   return new NanoVGBitmap(mVG, std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
 }
 
-void IGraphicsNanoVG::GetAPIBitmapData(const APIBitmap* pBitmap, RawBitmapData& data)
+void IGraphicsNanoVG::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
 {
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
   int size = pBitmap->GetWidth() * pBitmap->GetHeight() * 4;
   
   data.Resize(size);
   
   if (data.GetSize() >= size)
   {
+    PushLayer(layer.get(), false);
     nvgReadPixels(mVG, pBitmap->GetBitmap(), 0, 0, pBitmap->GetWidth(), pBitmap->GetHeight(), data.Get());
+    PopLayer(false);
+    /*
+    for (auto i = 0; i < size; i++)
+    {
+      if (data.Get()[i])
+      {
+        DBGMSG("FOUND %d\n", i);
+        return;
+      }
+      data.Get()[i] = ((i / 100) % 2) * 255;
+    }*/
   }
 }
 

@@ -983,7 +983,7 @@ protected:
     
   virtual int AlphaChannel() const = 0;
 
-  virtual void GetAPIBitmapData(const APIBitmap* pBitmap, RawBitmapData& data) = 0;
+  virtual void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) = 0;
   virtual void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) = 0;
 
   void PushLayer(ILayer* layer, bool clearTransforms);

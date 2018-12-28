@@ -88,7 +88,7 @@ protected:
 
   int AlphaChannel() const override { return 3; }
     
-  void GetAPIBitmapData(const APIBitmap* pBitmap, RawBitmapData& data) override;
+  void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
   void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
     
   bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;

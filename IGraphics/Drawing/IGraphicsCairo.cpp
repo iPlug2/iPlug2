@@ -214,8 +214,9 @@ cairo_surface_t* IGraphicsCairo::CreateCairoDataSurface(const APIBitmap* pBitmap
   return pSurface;
 }
 
-void IGraphicsCairo::GetAPIBitmapData(const APIBitmap* pBitmap, RawBitmapData& data)
+void IGraphicsCairo::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
 {
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
   cairo_surface_t *pSurface = CreateCairoDataSurface(pBitmap, data, true);
   
   if (pSurface)

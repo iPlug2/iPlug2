@@ -553,8 +553,9 @@ APIBitmap* IGraphicsAGG::CreateAPIBitmap(int width, int height)
   return new AGGBitmap(CreatePixmap(std::round(width * scale), std::round(height * scale)), GetScreenScale(), GetDrawScale());
 }
 
-void IGraphicsAGG::GetAPIBitmapData(const APIBitmap* pBitmap, RawBitmapData& data)
+void IGraphicsAGG::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
 {
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
   int size = pBitmap->GetBitmap()->height() * pBitmap->GetBitmap()->row_bytes();
     
   data.Resize(size);

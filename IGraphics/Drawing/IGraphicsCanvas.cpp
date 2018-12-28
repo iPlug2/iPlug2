@@ -338,8 +338,9 @@ APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height)
   return new CanvasBitmap(std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
 }
 
-void IGraphicsCanvas::GetAPIBitmapData(const APIBitmap* pBitmap, RawBitmapData& data)
+void IGraphicsCanvas::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
 {
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
   int size = pBitmap->GetWidth() * pBitmap->GetHeight() * 4;
   val context = pBitmap->GetBitmap()->call<val>("getContext", std::string("2d"));
   val imageData = context.call<val>("getImageData", 0, 0, pBitmap->GetWidth(), pBitmap->GetHeight());
