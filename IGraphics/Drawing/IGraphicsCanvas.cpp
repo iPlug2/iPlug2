@@ -345,10 +345,16 @@ void IGraphicsCanvas::GetAPIBitmapData(const APIBitmap* pBitmap, RawBitmapData& 
   val imageData = context.call<val>("getImageData", 0, 0, pBitmap->GetWidth(), pBitmap->GetHeight());
   val pixelData = imageData["data"];
   data.Resize(size);
-  /*
+  
   // Copy pixels from context
+  
   if (data.GetSize() >= size)
-    memcpy(data.Get(), pBitmap->GetBitmap()->buf(), size);*/
+  {
+    unsigned char* out = data.Get();
+    
+    for (auto i = 0; i < size; i++)
+      out[i] = pixelData[i].as<unsigned char>();
+  }
 }
 
 void IGraphicsCanvas::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow)
@@ -375,14 +381,20 @@ void IGraphicsCanvas::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
     CanvasBitmap localBitmap(width, height, pBitmap->GetScale(), pBitmap->GetDrawScale());
     val localCanvas = *localBitmap.GetBitmap();
     val localContext = localCanvas.call<val>("getContext", std::string("2d"));
-
-    // Put pixels into localContext
+    val imageData = localContext.call<val>("createImageData", width, height);
+    val pixelData = imageData["data"];
+    unsigned char* in = mask.Get();
+    
+    for (auto i = 0; i < size; i++)
+      pixelData.set(i, in[i]);
+    
+    localContext.call<void>("putImageData", imageData, 0, 0);
     IBlend blend(kBlendNone, shadow.mOpacity);
     localContext.call<void>("rect", 0, 0, width, height);
     localContext.call<void>("scale", scale, scale);
     localContext.call<void>("translate", -layer->Bounds().L, -layer->Bounds().T);
     SetCanvasSourcePattern(localContext, shadow.mPattern, &blend);
-    //localContext.set("globalCompositeOperation", "source-in");
+    localContext.set("globalCompositeOperation", "source-in");
     localContext.call<void>("fill");
     
     layerContext.set("globalCompositeOperation", "destination-over");
