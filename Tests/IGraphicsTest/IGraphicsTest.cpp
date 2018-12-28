@@ -28,7 +28,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     if(pGraphics->NControls())
     {
       IRECT bounds = pGraphics->GetBounds();
-      pGraphics->GetControl(0)->SetRECT(bounds);
+      pGraphics->GetBackgroundControl()->SetRECT(bounds);
       pGraphics->GetControlWithTag(kSizeControl)->SetRECT(bounds);
       DBGMSG("SELECTED: W %i, H%i\n", pGraphics->Width(), pGraphics->Height());
       
@@ -43,7 +43,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     {
       switch (key) {
         case EIPlugKeyCodes::KEY_TAB:
-          dynamic_cast<IPanelControl*>(GetUI()->GetControl(0))->SetPattern(IColor::GetRandomColor());
+          dynamic_cast<IPanelControl*>(GetUI()->GetBackgroundControl())->SetPattern(IColor::GetRandomColor());
           break;
           
         default:
@@ -52,9 +52,6 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
       return true;
     });
     
-    //  pGraphics->EnableLiveEdit(true);
-    //  pGraphics->ShowControlBounds(true);
-//    pGraphics->ShowAreaDrawn(true);
     pGraphics->LoadFont(ROBOTTO_FN);
     pGraphics->LoadFont(MONTSERRAT_FN);
     ISVG tiger = pGraphics->LoadSVG(TIGER_FN);
