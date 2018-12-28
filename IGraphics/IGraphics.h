@@ -881,7 +881,7 @@ public:
   void AssignParamNameToolTips();
 
   /** @param enable Set \c true if you wish to draw the rectangular region of the graphics context occupied by each IControl in mControls  */
-  inline void ShowControlBounds(bool enable) { mShowControlBounds = enable; }
+  inline void ShowControlBounds(bool enable) { mShowControlBounds = enable; SetAllControlsDirty(); }
 
   /** @param enable Set \c true if you wish to show the rectangular region that is drawn on each frame, in order to debug redraw problems */
   inline void ShowAreaDrawn(bool enable) { mShowAreaDrawn = enable; if(!enable) SetAllControlsDirty(); }
@@ -889,6 +889,9 @@ public:
   /**@return \c true if showning the area drawn on each frame */
   bool ShowAreaDrawnEnabled() const { return mShowAreaDrawn; }
 
+  /**@return \c true if showning the control bounds */
+  bool ShowControlBoundsEnabled() const { return mShowControlBounds; }
+  
   /** Live edit mode allows you to relocate controls at runtime in debug builds and save the locations to a predefined file (e.g. main plugin .cpp file) \todo we need a separate page for liveedit info
    * @param enable Set \c true if you wish to enable live editing mode
    * @param file The absolute path of the file which contains the layout info (correctly tagged) for live editing

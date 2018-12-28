@@ -661,6 +661,24 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
           
           return 0;
         }
+        case ID_SHOW_BOUNDS:
+        {
+          IGEditorDelegate* pPlug = dynamic_cast<IGEditorDelegate*>(pAppHost->GetPlug());
+          
+          if(pPlug)
+          {
+            IGraphics* pGraphics = pPlug->GetUI();
+            
+            if(pGraphics)
+            {
+              bool enabled = pGraphics->ShowControlBoundsEnabled();
+              pGraphics->ShowControlBounds(!enabled);
+              CheckMenuItem(GET_MENU(), ID_SHOW_BOUNDS, MF_BYCOMMAND | enabled ? MF_UNCHECKED : MF_CHECKED);
+            }
+          }
+          
+          return 0;
+        }
         case ID_SHOW_FPS:
         {
           IGEditorDelegate* pPlug = dynamic_cast<IGEditorDelegate*>(pAppHost->GetPlug());
