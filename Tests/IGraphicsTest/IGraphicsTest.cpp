@@ -38,6 +38,20 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachCornerResizer(EUIResizerMode::kUIResizerScale, true);
     pGraphics->HandleMouseOver(true);
     pGraphics->EnableTooltips(true);
+    
+    pGraphics->SetKeyHandlerFunc([&](int key)
+    {
+      switch (key) {
+        case EIPlugKeyCodes::KEY_TAB:
+          dynamic_cast<IPanelControl*>(GetUI()->GetControl(0))->SetPattern(COLOR_RED);
+          break;
+          
+        default:
+          break;
+      }
+      return true;
+    });
+    
     //  pGraphics->EnableLiveEdit(true);
     //  pGraphics->ShowControlBounds(true);
 //    pGraphics->ShowAreaDrawn(true);
