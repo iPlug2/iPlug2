@@ -577,6 +577,9 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 {
   NSCursor* pCursor = nullptr;
   
+  bool helpCurrent = false;
+  bool helpRequested = false;
+    
   switch (cursor)
   {
     case ECursor::ARROW: pCursor = [NSCursor arrowCursor]; break;
@@ -625,10 +628,23 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     case ECursor::HELP:
       if ([NSCursor respondsToSelector:@selector(_helpCursor)])
         pCursor = [NSCursor performSelector:@selector(_helpCursor)];
+      helpRequested = true;
       break;
     default: pCursor = [NSCursor arrowCursor]; break;
   }
-  
+
+  if ([NSCursor respondsToSelector:@selector(helpCursorShown)])
+    helpCurrent = [NSCursor performSelector:@selector(helpCursorShown)];
+    
+  if (helpCurrent && !helpRequested)
+  {
+    // N.B. - suppress warnings for this call only
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-method-access"
+    [NSCursor _setHelpCursor : false];
+#pragma clang diagnostic pop
+  }
+    
   if (!pCursor)
     pCursor = [NSCursor arrowCursor];
 
