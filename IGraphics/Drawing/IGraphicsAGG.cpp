@@ -583,22 +583,16 @@ void IGraphicsAGG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const 
     ILayer shadowLayer(shadowBitmap, layer->Bounds());
       
     PathTransformSave();
-    mLayers.push(layer.get());
-    mLayers.push(&shadowLayer);
-    UpdateLayer();
-    PathTransformReset();
-    PathClipRegion(layer->Bounds());
+    PushLayer(layer.get(), false);
+    PushLayer(&shadowLayer, false);
     PathRect(layer->Bounds());
     IBlend blend1(kBlendSourceIn, 1.0);
     PathFill(shadow.mPattern, IFillOptions(), &blend1);
-    mLayers.pop();
-    UpdateLayer();
-    PathTransformReset();
+    PopLayer(false);
     IBlend blend2(kBlendUnder, shadow.mOpacity);
     bounds.Translate(shadow.mXOffset, shadow.mYOffset);
     DrawBitmap(bitmap, bounds, 0, 0, &blend2);
-    mLayers.pop();
-    UpdateLayer();
+    PopLayer(false);
     PathTransformRestore();
   }
 }
