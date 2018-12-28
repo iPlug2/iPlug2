@@ -281,6 +281,9 @@ bool ITextEntryControl::CallSTB(Proc proc)
 
 void ITextEntryControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
+  if(!mRECT.Contains(x, y))
+    DismissEdit();
+     
   if (mod.L)
   {
     CallSTB ([&]() {
