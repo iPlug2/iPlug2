@@ -1301,7 +1301,7 @@ void IGraphics::DrawRotatedLayer(const ILayerPtr& layer, double angle)
   PathTransformRestore();
 }
 
-void GaussianBlurSwap(unsigned char *out, unsigned char *in, unsigned char *kernel, int width, int height, int inStride, int outStride, int kernelSize, unsigned long norm)
+void GaussianBlurSwap(unsigned char *out, unsigned char *in, unsigned char *kernel, int width, int height, int outStride, int inStride, int kernelSize, unsigned long norm)
 {/*
   for (int i = 0; i < height; i++)
     for (int j = 0; j < width; j++)
@@ -1353,15 +1353,17 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
   temp2.Resize(temp1.GetSize());
     
   // Form kernel (reference blurSize from zero (which will be no blur))
-    
+  
+  bool flipped = FlippedBitmap();
   double scale = layer->GetAPIBitmap()->GetScale() * layer->GetAPIBitmap()->GetDrawScale();
   double blurSize = std::max(1.0, (shadow.mBlurSize * scale) + 1.0);
   double blurConst = 4.5 / (blurSize * blurSize);
   int iSize = ceil(blurSize);
   int width = layer->GetAPIBitmap()->GetWidth();
   int height = layer->GetAPIBitmap()->GetHeight();
-  int stride1 = temp1.GetSize() / height;
-  int stride2 = temp1.GetSize() / width;
+  int stride1 = temp1.GetSize() / width;
+  int stride2 = flipped ? -temp1.GetSize() / height : temp1.GetSize() / height;
+  int stride3 = flipped ? -stride2 : stride2;
 
   kernel.Resize(iSize);
         
@@ -1378,10 +1380,11 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
   // Do blur
   
   unsigned char* asRows = temp1.Get() + AlphaChannel();
+  unsigned char* inRows = flipped ? asRows + stride3 * (height - 1) : asRows;
   unsigned char* asCols = temp2.Get() + AlphaChannel();
   
-  GaussianBlurSwap(asCols, asRows, kernel.Get(), width, height, stride1, stride2, iSize, normFactor);
-  GaussianBlurSwap(asRows, asCols, kernel.Get(), height, width, stride2, stride1, iSize, normFactor);
+  GaussianBlurSwap(asCols, inRows, kernel.Get(), width, height, stride1, stride2, iSize, normFactor);
+  GaussianBlurSwap(asRows, asCols, kernel.Get(), height, width, stride3, stride1, iSize, normFactor);
   
   // Apply alphas to the pattern and recombine/replace the image
     

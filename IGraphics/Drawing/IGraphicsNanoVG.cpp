@@ -300,17 +300,7 @@ void IGraphicsNanoVG::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& 
   {
     PushLayer(layer.get(), false);
     nvgReadPixels(mVG, pBitmap->GetBitmap(), 0, 0, pBitmap->GetWidth(), pBitmap->GetHeight(), data.Get());
-    PopLayer(false);
-    /*
-    for (auto i = 0; i < size; i++)
-    {
-      if (data.Get()[i])
-      {
-        DBGMSG("FOUND %d\n", i);
-        return;
-      }
-      data.Get()[i] = ((i / 100) % 2) * 255;
-    }*/
+    PopLayer(false);    
   }
 }
 

@@ -148,6 +148,15 @@ protected:
   APIBitmap* CreateAPIBitmap(int width, int height) override;
 
   int AlphaChannel() const override { return 3; }
+  
+  bool FlippedBitmap() const override
+  {
+#if defined(IGRAPHICS_GL)
+    return true;
+#else
+    return false;
+#endif
+  }
 
   void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
   void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;

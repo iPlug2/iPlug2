@@ -982,6 +982,7 @@ protected:
   virtual APIBitmap* CreateAPIBitmap(int width, int height) = 0;
     
   virtual int AlphaChannel() const = 0;
+  virtual bool FlippedBitmap() const = 0;
 
   virtual void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) = 0;
   virtual void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) = 0;
