@@ -24,8 +24,9 @@ public:
   void Draw(IGraphics& g) override
   {
     const char* str = "Cursor";
+    int cursor = mCursor == 0 ? HELP : mCursor - 1;
       
-    switch ((mCursor - 1) % (HELP + 1))
+    switch (cursor)
     {
       case ARROW:         str = "arrow";            break;
       case IBEAM:         str = "ibeam";            break;
