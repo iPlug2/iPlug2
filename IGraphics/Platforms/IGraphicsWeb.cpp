@@ -194,20 +194,20 @@ void IGraphicsWeb::SetMouseCursor(ECursor cursor)
   
   switch (cursor)
   {
-    case ARROW:         cursorType = "default";       break;
-    case IBEAM:         cursorType = "text";          break;
-    case WAIT:          cursorType = "wait";          break;
-    case CROSS:         cursorType = "crosshair";     break;
-    case UPARROW:       cursorType = "n-resize";      break;
-    case SIZENWSE:      cursorType = "nwse-resize";   break;
-    case SIZENESW:      cursorType = "nesw-resize";   break;
-    case SIZEWE:        cursorType = "ew-resize";     break;
-    case SIZENS:        cursorType = "ns-resize";     break;
-    case SIZEALL:       cursorType = "move";          break;
-    case INO:           cursorType = "not-allowed";   break;
-    case HAND:          cursorType = "grab";          break;
-    case APPSTARTING:   cursorType = "progress";      break;
-    case HELP:          cursorType = "help";          break;
+    case ECursor::ARROW:            cursorType = "default";         break;
+    case ECursor::IBEAM:            cursorType = "text";            break;
+    case ECursor::WAIT:             cursorType = "wait";            break;
+    case ECursor::CROSS:            cursorType = "crosshair";       break;
+    case ECursor::UPARROW:          cursorType = "n-resize";        break;
+    case ECursor::SIZENWSE:         cursorType = "nwse-resize";     break;
+    case ECursor::SIZENESW:         cursorType = "nesw-resize";     break;
+    case ECursor::SIZEWE:           cursorType = "ew-resize";       break;
+    case ECursor::SIZENS:           cursorType = "ns-resize";       break;
+    case ECursor::SIZEALL:          cursorType = "move";            break;
+    case ECursor::INO:              cursorType = "not-allowed";     break;
+    case ECursor::HAND:             cursorType = "grab";            break;
+    case ECursor::APPSTARTING:      cursorType = "progress";        break;
+    case ECursor::HELP:             cursorType = "help";            break;
   }
   
   val::global("document")["body"]["style"].set("cursor", cursorType);
