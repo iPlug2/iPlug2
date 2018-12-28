@@ -162,8 +162,11 @@ void IPopupMenuControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 
 void IPopupMenuControl::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
 {
-  mMouseCellBounds = mActiveMenuPanel->HitTestCells(x, y);
-  SetDirty(false);
+  if(mActiveMenuPanel)
+  {
+    mMouseCellBounds = mActiveMenuPanel->HitTestCells(x, y);
+    SetDirty(false);
+  }
 }
 
 void IPopupMenuControl::OnMouseOver(float x, float y, const IMouseMod& mod)

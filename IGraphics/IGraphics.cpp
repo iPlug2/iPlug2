@@ -142,6 +142,9 @@ void IGraphics::RemoveAllControls()
   if (mPopupControl)
     DELETE_NULL(mPopupControl);
   
+  if (mTextEntryControl)
+    DELETE_NULL(mTextEntryControl);
+  
   if (mCornerResizer)
     DELETE_NULL(mCornerResizer);
   
@@ -216,6 +219,15 @@ void IGraphics::AttachPopupMenuControl(const IText& text, const IRECT& bounds)
   }
 }
 
+void IGraphics::AttachTextEntryControl()
+{
+  if(mTextEntryControl == nullptr)
+  {
+    mTextEntryControl = new ITextEntryControl(mDelegate);
+    mTextEntryControl->SetGraphics(this);
+  }
+}
+
 void IGraphics::ShowFPSDisplay(bool enable)
 {
   if(enable)
@@ -233,12 +245,6 @@ void IGraphics::ShowFPSDisplay(bool enable)
   }
 
   SetAllControlsDirty();
-}
-
-void IGraphics::AttachTextEntryControl()
-{
-  mTextEntryControl = new ITextEntryControl(mDelegate);
-  mTextEntryControl->SetGraphics(this);
 }
 
 IControl* IGraphics::GetControlWithTag(int controlTag)
@@ -330,6 +336,9 @@ void IGraphics::ForAllControlsFunc(std::function<void(IControl& control)> func)
   if (mLiveEdit)
     func(*mLiveEdit);
 #endif
+  
+  if (mTextEntryControl)
+    func(*mTextEntryControl);
   
   if (mPopupControl)
     func(*mPopupControl);
@@ -923,6 +932,9 @@ IControl* IGraphics::GetMouseControl(float x, float y, bool capture, bool mouseO
   
   if (!control && mPopupControl && mPopupControl->GetExpanded())
     control = mPopupControl;
+  
+  if (!control && mTextEntryControl && mTextEntryControl->EditInProgress())
+    control = mTextEntryControl;
   
 #if !defined(NDEBUG)
   if (mLiveEdit)
