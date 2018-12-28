@@ -89,7 +89,7 @@ class NanoVGBitmap : public APIBitmap
 public:
   NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, void* hInst = nullptr);
   NanoVGBitmap(NVGcontext* pContext, int width, int height, int scale, float drawScale);
-  NanoVGBitmap(NVGcontext* pContext, int width, int height, const unsigned char* data, int scale, float drawScale);
+  NanoVGBitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, int scale, float drawScale);
   virtual ~NanoVGBitmap();
   NVGframebuffer* GetFBO() const { return mFBO; }
 private:

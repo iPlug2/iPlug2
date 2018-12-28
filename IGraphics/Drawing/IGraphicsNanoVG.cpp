@@ -148,10 +148,10 @@ NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, int scal
   SetBitmap(mFBO->image, width, height, scale, drawScale);
 }
 
-NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, const unsigned char* data, int scale, float drawScale)
+NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, int scale, float drawScale)
 {
-  int idx = nvgCreateImageRGBA(pContext, width, height, 0, data);
-
+  int idx = nvgCreateImageRGBA(pContext, width, height, 0, pData);
+  mVG = pContext;
   SetBitmap(idx, width, height, scale, drawScale);
 }
 
