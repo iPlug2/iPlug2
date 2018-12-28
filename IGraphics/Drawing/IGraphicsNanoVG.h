@@ -87,6 +87,7 @@ class NanoVGBitmap : public APIBitmap
 public:
   NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, void* hInst = nullptr);
   NanoVGBitmap(NVGcontext* pContext, int width, int height, int scale, float drawScale);
+  NanoVGBitmap(NVGcontext* pContext, int width, int height, const unsigned char* data, int scale, float drawScale);
   virtual ~NanoVGBitmap();
   NVGframebuffer* GetFBO() const { return mFBO; }
 private:
@@ -143,6 +144,11 @@ protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override { return new APIBitmap(); } // NO-OP
   APIBitmap* CreateAPIBitmap(int width, int height) override;
+
+  int AlphaChannel() const override { return 3; }
+
+  void GetAPIBitmapData(const APIBitmap* pBitmap, RawBitmapData& data) override;
+  void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
 
   bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
 

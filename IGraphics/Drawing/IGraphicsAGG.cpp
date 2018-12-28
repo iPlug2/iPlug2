@@ -66,6 +66,7 @@ inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
     case kBlendAdd:             return agg::comp_op_plus;
     case kBlendColorDodge:      return agg::comp_op_color_dodge;
     case kBlendUnder:           return agg::comp_op_dst_over;
+    case kBlendSourceIn:        return agg::comp_op_src_in;
     case kBlendNone:
     default:
       return agg::comp_op_src_over;
@@ -588,14 +589,14 @@ void IGraphicsAGG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const 
     PathTransformReset();
     PathClipRegion(layer->Bounds());
     PathRect(layer->Bounds());
-    mRasterizer.Rasterize(mPath, shadow.mPattern, agg::comp_op_src_in, 1.0);
-    mPath.remove_all();
+    IBlend blend1(kBlendSourceIn, 1.0);
+    PathFill(shadow.mPattern, IFillOptions(), &blend1);
     mLayers.pop();
     UpdateLayer();
     PathTransformReset();
-    IBlend blend(kBlendUnder, shadow.mOpacity);
+    IBlend blend2(kBlendUnder, shadow.mOpacity);
     bounds.Translate(shadow.mXOffset, shadow.mYOffset);
-    DrawBitmap(bitmap, bounds, 0, 0, &blend);
+    DrawBitmap(bitmap, bounds, 0, 0, &blend2);
     mLayers.pop();
     UpdateLayer();
     PathTransformRestore();

@@ -140,6 +140,13 @@ NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, int scal
   SetBitmap(mFBO->image, width, height, scale, drawScale);
 }
 
+NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, const unsigned char* data, int scale, float drawScale)
+{
+  int idx = nvgCreateImageRGBA(pContext, width, height, 0, data);
+
+  SetBitmap(idx, width, height, scale, drawScale);
+}
+
 NanoVGBitmap::~NanoVGBitmap()
 {
   if(mFBO)
@@ -173,6 +180,8 @@ inline NVGcompositeOperation NanoVGBlendMode(const IBlend* pBlend)
   {
     case kBlendClobber:     return NVG_SOURCE_OVER;
     case kBlendAdd:         return NVG_LIGHTER;
+    case kBlendUnder:       return NVG_DESTINATION_OVER;
+    case kBlendSourceIn:    return NVG_SOURCE_IN;
     case kBlendColorDodge:
     case kBlendNone:
     default:
@@ -269,6 +278,63 @@ APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetBackingPixelScale();
   return new NanoVGBitmap(mVG, std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
+}
+
+void IGraphicsNanoVG::GetAPIBitmapData(const APIBitmap* pBitmap, RawBitmapData& data)
+{
+  int size = pBitmap->GetWidth() * pBitmap->GetHeight() * 4;
+  
+  data.Resize(size);
+  
+  // For now just create  data - need to copy it later
+  memset(data.Get(), 255, size);
+  /*
+  if (data.GetSize() >= size)
+    memcpy(data.Get(), pBitmap->GetBitmap()->getBits(), size);*/
+}
+
+void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow)
+{
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
+  int width = pBitmap->GetWidth();
+  int height = pBitmap->GetHeight();
+  int size = width * height * 4;
+  
+  if (mask.GetSize() >= size)
+  {
+    if (!shadow.mDrawForeground)
+    {
+      //pBitmap->GetBitmap()->clear(0);
+    }
+    
+    IRECT bounds(layer->Bounds());
+    
+    NanoVGBitmap maskRawBitmap(mVG, width, height, mask.Get(), pBitmap->GetScale(), pBitmap->GetDrawScale());
+    APIBitmap* shadowBitmap = new NanoVGBitmap(mVG, width, height, pBitmap->GetScale(), pBitmap->GetDrawScale());
+    IBitmap tempLayerBitmap(shadowBitmap, 1, false);
+    IBitmap maskBitmap(&maskRawBitmap, 1, false);
+    ILayer shadowLayer(shadowBitmap, layer->Bounds());
+    
+    PathTransformSave();
+    mLayers.push(layer.get());
+    mLayers.push(&shadowLayer);
+    UpdateLayer();
+    PathTransformReset();
+    PathClipRegion(layer->Bounds());
+    DrawBitmap(maskBitmap, bounds, 0, 0, nullptr);
+    IBlend blend1(kBlendSourceIn, 1.0);
+    PathRect(layer->Bounds());
+    PathFill(shadow.mPattern, IFillOptions(), &blend1);
+    mLayers.pop();
+    UpdateLayer();
+    PathTransformReset();
+    IBlend blend2(kBlendUnder, shadow.mOpacity);
+    bounds.Translate(shadow.mXOffset, shadow.mYOffset);
+    DrawBitmap(tempLayerBitmap, bounds, 0, 0, &blend2);
+    mLayers.pop();
+    UpdateLayer();
+    PathTransformRestore();
+  }
 }
 
 void IGraphicsNanoVG::SetPlatformContext(void* pContext)

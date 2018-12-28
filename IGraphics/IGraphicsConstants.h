@@ -78,6 +78,7 @@ enum EBlendType
   kBlendAdd,
   kBlendColorDodge,
   kBlendUnder,
+  kBlendSourceIn,
   // etc
 };
 
