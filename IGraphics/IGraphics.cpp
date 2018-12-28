@@ -856,12 +856,17 @@ bool IGraphics::OnKeyDown(float x, float y, int key)
   Trace("IGraphics::OnKeyDown", __LINE__, "x:%0.2f, y:%0.2f, key:%i",
         x, y, key);
 
+  bool handled = false;
+
   IControl* pControl = GetMouseControl(x, y, false);
-    
+  
   if (pControl && pControl != GetControl(0))
-    return pControl->OnKeyDown(x, y, key);
-  else
-    return mKeyHandlerFunc ? mKeyHandlerFunc(key) : false;
+    handled = pControl->OnKeyDown(x, y, key);
+
+  if(!handled)
+    handled = mKeyHandlerFunc ? mKeyHandlerFunc(key) : false;
+  
+  return handled;
 }
 
 void IGraphics::OnDrop(const char* str, float x, float y)

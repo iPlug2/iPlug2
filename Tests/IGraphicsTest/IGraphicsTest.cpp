@@ -43,7 +43,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     {
       switch (key) {
         case EIPlugKeyCodes::KEY_TAB:
-          dynamic_cast<IPanelControl*>(GetUI()->GetControl(0))->SetPattern(COLOR_RED);
+          dynamic_cast<IPanelControl*>(GetUI()->GetControl(0))->SetPattern(IColor::GetRandomColor());
           break;
           
         default:
