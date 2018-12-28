@@ -108,6 +108,7 @@ void IPluginBase::OnParamReset(EParamSource source)
   for (int i = 0; i < NParams(); ++i)
   {
     OnParamChange(i, source);
+    OnParamChangeUI(i, source);
   }
 }
 
@@ -1094,7 +1095,7 @@ static const ChunkID commonChunks[kNumPresetChunks] = {
 static const int32_t kFormatVersion = 1;
 static const int32_t kClassIDSize = 32; // ASCII-encoded FUID
 static const int32_t kHeaderSize = sizeof (ChunkID) + sizeof (int32_t) + kClassIDSize + sizeof (int64_t);
-static const int32_t kListOffsetPos = kHeaderSize - sizeof (int64_t);
+//static const int32_t kListOffsetPos = kHeaderSize - sizeof (int64_t);
 
 inline bool isEqualID (const ChunkID id1, const ChunkID id2)
 {

@@ -113,7 +113,7 @@ public:
   /** Another version of the OnParamChange method without an EParamSource, for backwards compatibility / simplicity. */
   virtual void OnParamChange(int paramIdx) {}
   
-  /** Calls OnParamChange() for each parameter.
+  /** Calls OnParamChange() and OnParamChangeUI() for each parameter.
    * @param source Specifies the source of the parameter changes */
   void OnParamReset(EParamSource source);
   

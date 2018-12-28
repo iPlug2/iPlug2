@@ -186,17 +186,19 @@ APIBitmap* IGraphicsCairo::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 
 APIBitmap* IGraphicsCairo::CreateAPIBitmap(int width, int height)
 {
-  const double scale = GetDrawScale() * GetScreenScale();
-  return new CairoBitmap(mSurface, width * scale, height * scale, GetScreenScale(), GetDrawScale());
+  const double scale = GetBackingPixelScale();
+  return new CairoBitmap(mSurface, std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
 }
 
 void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
+  const double scale = GetScreenScale() / (bitmap.GetScale() * bitmap.GetDrawScale());
+
   cairo_save(mContext);
   cairo_rectangle(mContext, dest.L, dest.T, dest.W(), dest.H());
   cairo_clip(mContext);
   cairo_surface_t* surface = bitmap.GetAPIBitmap()->GetBitmap();
-  cairo_set_source_surface(mContext, surface, std::round(dest.L) - srcX, std::round(dest.T) - srcY);
+  cairo_set_source_surface(mContext, surface, dest.L - (srcX * scale), dest.T - (srcY * scale));
   cairo_set_operator(mContext, CairoBlendMode(pBlend));
   cairo_paint_with_alpha(mContext, BlendWeight(pBlend));
   cairo_restore(mContext);
@@ -516,7 +518,7 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
     cairo_surface_set_device_scale(mSurface, GetDrawScale(), GetDrawScale());
 #elif defined OS_WIN
     mSurface = cairo_win32_surface_create_with_ddb((HDC) pContext, CAIRO_FORMAT_ARGB32, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
-    cairo_surface_set_device_scale(mSurface, GetScreenScale() * GetDrawScale(), GetScreenScale() * GetDrawScale());
+    cairo_surface_set_device_scale(mSurface, GetBackingPixelScale(), GetBackingPixelScale());
 #else
   #error NOT IMPLEMENTED
 #endif

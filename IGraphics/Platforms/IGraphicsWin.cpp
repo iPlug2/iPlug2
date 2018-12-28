@@ -122,7 +122,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   {
     LPCREATESTRUCT lpcs = (LPCREATESTRUCT) lParam;
     SetWindowLongPtr(hWnd, GWLP_USERDATA, (LPARAM) (lpcs->lpCreateParams));
-    int mSec = int(1000.0 / sFPS);
+    int mSec = static_cast<int>(std::round(1000.0 / (sFPS)));
     SetTimer(hWnd, IPLUG_TIMER_ID, mSec, NULL);
     SetFocus(hWnd); // gets scroll wheel working straight away
     DragAcceptFiles(hWnd, true);
@@ -210,7 +210,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         {
           pGraphics->SetAllControlsClean();
           IRECT dirtyR = rects.Bounds();
-          dirtyR.ScaleBounds(pGraphics->GetDrawScale());
+          dirtyR.Scale(pGraphics->GetDrawScale());
+          dirtyR.PixelAlign();
           RECT r = { (LONG) dirtyR.L, (LONG) dirtyR.T, (LONG) dirtyR.R, (LONG) dirtyR.B };
 
           InvalidateRect(hWnd, &r, FALSE);
@@ -218,7 +219,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           if (pGraphics->mParamEditWnd)
           {
             IRECT notDirtyR = pGraphics->mEdControl->GetRECT();
-            notDirtyR.ScaleBounds(pGraphics->GetDrawScale());
+            notDirtyR.Scale(pGraphics->GetDrawScale());
+            notDirtyR.PixelAlign();
             RECT r2 = { (LONG) notDirtyR.L, (LONG) notDirtyR.T, (LONG) notDirtyR.R, (LONG) notDirtyR.B };
             ValidateRect(hWnd, &r2); // make sure we dont redraw the edit box area
             UpdateWindow(hWnd);
@@ -381,7 +383,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         #endif
         IRECT ir(r.left, r.top, r.right, r.bottom);
         IRECTList rects;
-        ir.ScaleBounds(1. / pGraphics->GetDrawScale());
+        ir.Scale(1. / pGraphics->GetDrawScale());
+        ir.PixelAlign();
         rects.Add(ir);
         pGraphics->Draw(rects);
         #ifdef IGRAPHICS_NANOVG
@@ -980,8 +983,8 @@ IPopupMenu* IGraphicsWin::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds,
 {
   ReleaseMouseCapture();
 
-  if (mPopupControl)
-    return mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
+  if (GetPopupMenuControl())
+    return GetPopupMenuControl()->CreatePopupMenu(menu, bounds, pCaller);
   else
   {
     long offsetIdx = 0;
@@ -1323,12 +1326,15 @@ void IGraphicsWin::SetTooltip(const char* tooltip)
 
 void IGraphicsWin::ShowTooltip()
 {
-  const char* tooltip = GetControl(mTooltipIdx)->GetTooltip();
-  if (tooltip)
+  if (mTooltipIdx > -1)
   {
-    assert(strlen(tooltip) < 80);
-    SetTooltip(tooltip);
-    mShowingTooltip = true;
+    const char* tooltip = GetControl(mTooltipIdx)->GetTooltip();
+    if (tooltip)
+    {
+      assert(strlen(tooltip) < 80);
+      SetTooltip(tooltip);
+      mShowingTooltip = true;
+    }
   }
 }
 
@@ -1460,8 +1466,8 @@ bool IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String
 #ifndef NO_IGRAPHICS
 #if defined IGRAPHICS_AGG
   #include "IGraphicsAGG.cpp"
-  #include "agg_win_pmap.cpp"
-  #include "agg_win_font.cpp"
+  #include "agg_win32_pmap.cpp"
+  #include "agg_win32_font.cpp"
 #elif defined IGRAPHICS_CAIRO
   #include "IGraphicsCairo.cpp"
 #elif defined IGRAPHICS_LICE

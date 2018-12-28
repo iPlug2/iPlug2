@@ -215,9 +215,9 @@ IPopupMenu* IGraphicsIOS::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds,
   
   IPopupMenu* pReturnMenu = nullptr;
   
-  if(mPopupControl) // if we are not using platform pop-up menus
+  if (GetPopupMenuControl()) // if we are not using platform pop-up menus
   {
-    pReturnMenu = mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
+    pReturnMenu = GetPopupMenuControl()->CreatePopupMenu(menu, bounds, pCaller);
   }
   else
   {

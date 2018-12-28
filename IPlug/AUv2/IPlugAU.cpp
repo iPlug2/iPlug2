@@ -463,7 +463,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       if (pData)
       {
         CFPropertyListRef* pList = (CFPropertyListRef*) pData;
-      *pWriteable = true;
+        *pWriteable = true;
         return GetState(pList);
       }
       return noErr;
@@ -1938,15 +1938,6 @@ void IPlugAU::HostSpecificInit()
 {
   GetHost();
   OnHostIdentified(); // might get called again
-}
-
-void IPlugAU::ResizeGraphics(int viewWidth, int viewHeight, float scale)
-{
-  if (HasUI())
-  {
-    IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, scale);
-    OnWindowResize();
-  }
 }
 
 void IPlugAU::ResizeScratchBuffers()

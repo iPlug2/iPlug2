@@ -18,7 +18,6 @@ class IPlugVST3View : public CPluginView
 public:
   IPlugVST3View(IPlugVST3Controller* pController)
   : mController(pController)
-  , mExpectingNewSize(false)
   {
     if (mController)
       mController->addRef();
@@ -54,15 +53,7 @@ public:
     TRACE;
     
     if (pSize)
-    {
       rect = *pSize;
-      
-      if (mExpectingNewSize)
-      {
-        mController->OnWindowResize();
-        mExpectingNewSize = false;
-      }
-    }
     
     return kResultTrue;
   }
@@ -107,10 +98,7 @@ public:
   tresult PLUGIN_API removed() override
   {
     if (mController->HasUI())
-    {
-      mController->OnUIClose();
       mController->CloseWindow();
-    }
     
     return CPluginView::removed();
   }
@@ -120,10 +108,8 @@ public:
     TRACE;
     
     ViewRect newSize = ViewRect(0, 0, w, h);
-    mExpectingNewSize = true;
     plugFrame->resizeView(this, &newSize);
   }
   
   IPlugVST3Controller* mController;
-  bool mExpectingNewSize = false;
 };

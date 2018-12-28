@@ -19,6 +19,7 @@
 #define PLUG_TYPE 1
 #define PLUG_DOES_MIDI_IN 1
 #define PLUG_DOES_MIDI_OUT 0
+#define PLUG_DOES_MPE 0
 #define PLUG_DOES_STATE_CHUNKS 0
 #define PLUG_HAS_UI 1
 #define PLUG_WIDTH 900
@@ -46,6 +47,7 @@
 #define APP_MULT 1
 #define APP_COPY_AUV3 0
 #define APP_RESIZABLE 0
+#define APP_SIGNAL_VECTOR_SIZE 64
 
 #define ROBOTTO_FN "Roboto-Regular.ttf"
 #define MONTSERRAT_FN "Montserrat-LightItalic.ttf"

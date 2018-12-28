@@ -267,8 +267,8 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const WDL_String& resourcePath, int sc
 
 APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height)
 {
-  const double scale = GetDrawScale() * GetScreenScale();
-  return new NanoVGBitmap(mVG, width * scale, height * scale, GetScreenScale(), GetDrawScale());
+  const double scale = GetBackingPixelScale();
+  return new NanoVGBitmap(mVG, std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
 }
 
 void IGraphicsNanoVG::SetPlatformContext(void* pContext)
@@ -355,11 +355,19 @@ void IGraphicsNanoVG::OnViewInitialized(void* pContext)
 
 void IGraphicsNanoVG::OnViewDestroyed()
 {
+  // need to remove all the controls to free framebuffers, before deleting context
+  RemoveAllControls();
+
   if(mMainFrameBuffer != nullptr)
     nvgDeleteFramebuffer(mMainFrameBuffer);
   
+  mMainFrameBuffer = nullptr;
+  
   if(mVG)
     nvgDeleteContext(mVG);
+  
+  mVG = nullptr;
+  
 #if defined OS_WIN
   if (mHGLRC)
   {
@@ -433,17 +441,19 @@ void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, i
   APIBitmap* pAPIBitmap = bitmap.GetAPIBitmap();
   
   assert(pAPIBitmap);
+    
   // First generate a scaled image paint
     
   NVGpaint imgPaint;
-  double scale = GetScreenScale() / (pAPIBitmap->GetScale() * pAPIBitmap->GetDrawScale());
+  double scale = 1.0 / (pAPIBitmap->GetScale() * pAPIBitmap->GetDrawScale());
 
   nvgTransformScale(imgPaint.xform, scale, scale);
 
-  imgPaint.xform[4] = std::round(dest.L) - srcX;
-  imgPaint.xform[5] = std::round(dest.T) - srcY;
-  imgPaint.extent[0] = bitmap.W();
-  imgPaint.extent[1] = bitmap.H();
+  scale *= GetScreenScale();
+  imgPaint.xform[4] = dest.L - (srcX * scale);
+  imgPaint.xform[5] = dest.T - (srcY * scale);
+  imgPaint.extent[0] = bitmap.W() * bitmap.GetScale();
+  imgPaint.extent[1] = bitmap.H() * bitmap.GetScale();
   imgPaint.image = pAPIBitmap->GetBitmap();
   imgPaint.radius = imgPaint.feather = 0.f;
   imgPaint.innerColor = imgPaint.outerColor = nvgRGBAf(1, 1, 1, BlendWeight(pBlend));
@@ -584,8 +594,7 @@ void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const
   nvgMiterLimit(mVG, options.mMiterLimit);
   nvgStrokeWidth(mVG, thickness);
  
-  // TODO Dash
-
+  // NanoVG does not support dashed paths
   if (pattern.mType == kSolidPattern)
     nvgStrokeColor(mVG, NanoVGColor(pattern.GetStop(0).mColor, pBlend));
   else
@@ -671,7 +680,7 @@ void IGraphicsNanoVG::UpdateLayer()
   {
     nvgEndFrame(mVG);
 #ifndef IGRAPHICS_METAL
-    const double scale = GetDrawScale() * GetScreenScale();
+    const double scale = GetBackingPixelScale();
     glViewport(0, 0, mLayers.top()->Bounds().W() * scale, mLayers.top()->Bounds().H() * scale);
 #endif
     nvgBindFramebuffer(dynamic_cast<const NanoVGBitmap*>(mLayers.top()->GetAPIBitmap())->GetFBO());

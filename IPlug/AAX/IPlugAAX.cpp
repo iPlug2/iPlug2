@@ -379,10 +379,10 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
             
             while (b < 4 && bytesPos < mSysexBuf.mSize)
             {
-              packet.mData[b++] = e.data.bytes[bytesPos++];
+              packet.mData[b++] = mSysexBuf.mData[bytesPos++];
             }
             
-            packet.mLength = b;
+            packet.mLength = (uint32_t) b;
             
             midiOut->PostMIDIPacket (&packet);
           }
@@ -515,20 +515,20 @@ void IPlugAAX::EndInformHostOfParamChange(int idx)
   ReleaseParameter(mParamIDs.Get(idx)->Get());
 }
 
-void IPlugAAX::ResizeGraphics(int viewWidth, int viewHeight, float scale)
+void IPlugAAX::EditorStateChanged(int viewWidth, int viewHeight, const IByteChunk& data)
 {
   if (HasUI())
   {
+    IPlugAAXView_Interface* pViewInterface = (IPlugAAXView_Interface*) GetAAXViewInterface();
     AAX_Point oEffectViewSize;
+      
     oEffectViewSize.horz = (float) viewWidth;
     oEffectViewSize.vert = (float) viewHeight;
     
-    IPlugAAXView_Interface* pViewInterface = (IPlugAAXView_Interface*) GetAAXViewInterface();
-    if(pViewInterface)
+    if (pViewInterface && (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight()))
       pViewInterface->GetViewContainer()->SetViewSize(oEffectViewSize);
 
-    IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, scale);
-    OnWindowResize();
+    IPlugAPIBase::EditorStateChanged(viewWidth, viewHeight, data);
   }
 }
 

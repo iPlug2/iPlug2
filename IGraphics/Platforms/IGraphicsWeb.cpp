@@ -318,11 +318,11 @@ void IGraphicsWeb::CreateTextEntry(IControl& control, const IText& text, const I
 }
 
 IPopupMenu* IGraphicsWeb::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
-{
+{    
   ReleaseMouseCapture();
   
-  if(mPopupControl)
-    return mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
+  if (GetPopupMenuControl())
+    return GetPopupMenuControl()->CreatePopupMenu(menu, bounds, pCaller);
   else
   {
     ShowMessageBox("Warning", "Pop up menu not yet implemented", kMB_OK);
@@ -357,8 +357,8 @@ void IGraphicsWeb::DrawResize()
   canvas["style"].set("width", val(Width() * GetDrawScale()));
   canvas["style"].set("height", val(Height() * GetDrawScale()));
   
-  canvas.set("width", Width() * GetDrawScale() * GetScreenScale());
-  canvas.set("height", Height() * GetDrawScale() * GetScreenScale());
+  canvas.set("width", Width() * GetBackingPixelScale());
+  canvas.set("height", Height() * GetBackingPixelScale());
   
   IGRAPHICS_DRAW_CLASS::DrawResize();
 }

@@ -715,6 +715,12 @@ public:
       g.DrawRect(COLOR_LIGHT_GRAY, mRECT);
   }
   
+  void SetPattern(const IPattern& pattern)
+  {
+    mPattern = pattern;
+    SetDirty(false);
+  }
+  
 private:
   IPattern mPattern;
   bool mDrawFrame;
@@ -834,6 +840,7 @@ public:
   , mStr(str)
   , mBGColor(BGColor)
   {
+    mIgnoreMouse = true;
     IControl::mText = text;
   }
 

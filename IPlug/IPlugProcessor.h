@@ -179,6 +179,28 @@ public:
 
   /** @return \c true if the plug-in was configured as an instrument at compile time */
   bool IsInstrument() const { return mPlugType == EIPlugPluginType::kInstrument; }
+  
+  /**  */
+  int GetAUPluginType() const
+  {
+    if(mPlugType == EIPlugPluginType::kEffect)
+    {
+      if(DoesMIDIIn())
+        return 'aumf';
+      else
+        return 'aufx';
+    }
+    else if (mPlugType == EIPlugPluginType::kInstrument)
+    {
+      return 'aumu';
+    }
+    else if (mPlugType == EIPlugPluginType::kMIDIEffect)
+    {
+      return 'aumi';
+    }
+    else
+      return 'aufx';
+  }
 
   /** @return \c true if the plug-in was configured to receive midi at compile time */
   bool DoesMIDIIn() const { return mDoesMIDIIn; }
