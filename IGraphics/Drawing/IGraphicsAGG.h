@@ -112,10 +112,10 @@ public:
     }
 
     template <typename VertexSourceType>
-    void Rasterize(VertexSourceType& path, const IPattern& pattern,const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding)
+    void Rasterize(VertexSourceType& path, const IPattern& pattern, agg::comp_op_e mode, float opacity, EFillRule rule = kFillWinding)
     {
       SetPath(path);
-      RasterizePattern(pattern, pBlend, rule);
+      RasterizePattern(pattern, mode, opacity, rule);
     }
 
     template <typename VertexSourceType, typename RendererType>
@@ -154,7 +154,7 @@ public:
       mRasterizer.add_path(clippedPath);
     }
 
-    void RasterizePattern(const IPattern& pattern,const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding);
+    void RasterizePattern(const IPattern& pattern, agg::comp_op_e mode, float opacity, EFillRule rule = kFillWinding);
 
     IGraphicsAGG& mGraphics;
     RenbaseType mRenBase;
@@ -194,6 +194,12 @@ protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int s) override;
   APIBitmap* CreateAPIBitmap(int width, int height) override;
+
+  int AlphaChannel() const override { return 0; }
+  bool FlippedBitmap() const override { return false; }
+
+  void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
+  void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
 
   bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0, bool measure = false) override;
 

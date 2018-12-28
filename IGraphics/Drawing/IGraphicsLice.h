@@ -113,6 +113,12 @@ protected:
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
   APIBitmap* CreateAPIBitmap(int width, int height) override;
 
+  int AlphaChannel() const override { return LICE_PIXEL_A; }
+  bool FlippedBitmap() const override { return false; }
+
+  void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
+  void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
+
   bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
 
   void EndFrame() override;

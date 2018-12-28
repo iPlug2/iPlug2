@@ -86,9 +86,15 @@ protected:
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
   APIBitmap* CreateAPIBitmap(int width, int height) override;
 
+  int AlphaChannel() const override { return 3; }
+  bool FlippedBitmap() const override { return false; }
+
+  void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
+  void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
+    
   bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
 
-  void SetCairoSourcePattern(const IPattern& pattern, const IBlend* pBlend);
+  void SetCairoSourcePattern(cairo_t* context, const IPattern& pattern, const IBlend* pBlend);
   
 private:
   void PathTransformSetMatrix(const IMatrix& m) override;
@@ -98,6 +104,8 @@ private:
   void UpdateCairoMainSurface(cairo_surface_t* pSurface);
 
   void UpdateLayer() override { UpdateCairoContext(); }
+    
+  cairo_surface_t* CreateCairoDataSurface(const APIBitmap* pBitmap, RawBitmapData& data, bool resize);
     
   cairo_t* mContext;
   cairo_surface_t* mSurface;
