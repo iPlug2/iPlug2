@@ -189,34 +189,48 @@ int IGraphics::AttachControl(IControl* pControl, int controlTag, const char* gro
 
 void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize)
 {
-  AttachCornerResizer(new ICornerResizerBase(mDelegate, GetBounds(), 20), sizeMode, layoutOnResize);
+  if(mCornerResizer == nullptr)
+    AttachCornerResizer(new ICornerResizerBase(mDelegate, GetBounds(), 20), sizeMode, layoutOnResize);
 }
 
 void IGraphics::AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode sizeMode, bool layoutOnResize)
 {
-  mCornerResizer = pControl;
-  mGUISizeMode = sizeMode;
-  mLayoutOnResize = layoutOnResize;
-  mCornerResizer->SetGraphics(this);
+  assert(mCornerResizer == nullptr); // only want one corner resizer
+
+  if (mCornerResizer == nullptr)
+  {
+    mCornerResizer = pControl;
+    mGUISizeMode = sizeMode;
+    mLayoutOnResize = layoutOnResize;
+    mCornerResizer->SetGraphics(this);
+  }
 }
 
 void IGraphics::AttachPopupMenuControl(const IText& text, const IRECT& bounds)
 {
-  mPopupControl = new IPopupMenuControl(mDelegate, kNoParameter, text, IRECT(), bounds);
-  mPopupControl->SetGraphics(this);
+  if (mPopupControl == nullptr)
+  {
+    mPopupControl = new IPopupMenuControl(mDelegate, kNoParameter, text, IRECT(), bounds);
+    mPopupControl->SetGraphics(this);
+  }
 }
 
 void IGraphics::ShowFPSDisplay(bool enable)
 {
   if(enable)
   {
-    if(!mPerfDisplay)
+    if (mPerfDisplay == nullptr)
+    {
       mPerfDisplay = new IFPSDisplayControl(mDelegate, GetBounds().GetPadded(-10).GetFromTLHC(200, 50));
       mPerfDisplay->SetGraphics(this);
+    }
   }
   else
-    DELETE_NULL(mPerfDisplay);
-  
+  {
+    if(mPerfDisplay)
+      DELETE_NULL(mPerfDisplay);
+  }
+
   SetAllControlsDirty();
 }
 
@@ -1049,8 +1063,11 @@ void IGraphics::EnableLiveEdit(bool enable/*, const char* file, int gridsize*/)
 #if defined(_DEBUG)
   if(enable)
   {
-    mLiveEdit = new IGraphicsLiveEdit(mDelegate/*, file, gridsize*/);
-    mLiveEdit->SetGraphics(this);
+    if (mLiveEdit == nullptr)
+    {
+      mLiveEdit = new IGraphicsLiveEdit(mDelegate/*, file, gridsize*/);
+      mLiveEdit->SetGraphics(this);
+    }
   }
   else
   {
