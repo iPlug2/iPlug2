@@ -89,8 +89,6 @@ bool IPlugAPPHost::InitState()
 
   struct stat st;
 
-  DBGMSG("%s\n", mINIPath.Get());
-
   if(stat(mINIPath.Get(), &st) == 0) // if directory exists
   {
     mINIPath.Append("settings.ini"); // add file name to path

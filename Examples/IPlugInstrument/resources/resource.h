@@ -2,7 +2,7 @@
 // Microsoft Visual C++ generated include file.
 // Used by main.rc
 //
-#define IDR_ACCELERATOR1                105
+#define IDR_ACCELERATOR1                40000
 #define IDD_DIALOG_MAIN                 40001
 #define IDD_DIALOG_PREF                 40002
 #define IDI_ICON1                       40003
