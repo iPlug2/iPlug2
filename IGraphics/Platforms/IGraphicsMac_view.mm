@@ -582,11 +582,16 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     case ECursor::ARROW: pCursor = [NSCursor arrowCursor]; break;
     case ECursor::IBEAM: pCursor = [NSCursor IBeamCursor]; break;
     case ECursor::WAIT:
-      if ([NSCursor respondsToSelector:@selector(_waitCursor)])
-        pCursor = [NSCursor performSelector:@selector(_waitCursor)];
+      if ([NSCursor respondsToSelector:@selector(busyButClickableCursor)])
+        pCursor = [NSCursor performSelector:@selector(busyButClickableCursor)];
       break;
     case ECursor::CROSS: pCursor = [NSCursor crosshairCursor]; break;
-    case ECursor::UPARROW: pCursor = [NSCursor resizeUpCursor]; break;
+    case ECursor::UPARROW:
+      if ([NSCursor respondsToSelector:@selector(_windowResizeNorthCursor)])
+          pCursor = [NSCursor performSelector:@selector(_windowResizeNorthCursor)];
+      else
+          pCursor = [NSCursor resizeUpCursor];
+      break;
     case ECursor::SIZENWSE:
       if ([NSCursor respondsToSelector:@selector(_windowResizeNorthWestSouthEastCursor)])
         pCursor = [NSCursor performSelector:@selector(_windowResizeNorthWestSouthEastCursor)];
@@ -595,17 +600,28 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
       if ([NSCursor respondsToSelector:@selector(_windowResizeNorthEastSouthWestCursor)])
         pCursor = [NSCursor performSelector:@selector(_windowResizeNorthEastSouthWestCursor)];
       break;
-    case ECursor::SIZEWE: pCursor = [NSCursor resizeLeftRightCursor]; break;
+    case ECursor::SIZEWE:
+      if ([NSCursor respondsToSelector:@selector(_windowResizeEastWestCursor)])
+        pCursor = [NSCursor performSelector:@selector(_windowResizeEastWestCursor)];
+      else
+        pCursor = [NSCursor resizeLeftRightCursor];
+      break;
     case ECursor::SIZENS:
       if ([NSCursor respondsToSelector:@selector(_windowResizeNorthSouthCursor)])
         pCursor = [NSCursor performSelector:@selector(_windowResizeNorthSouthCursor)];
+      else
+        pCursor = [NSCursor resizeUpDownCursor];
       break;
     case ECursor::SIZEALL:
       if ([NSCursor respondsToSelector:@selector(_moveCursor)])
         pCursor = [NSCursor performSelector:@selector(_moveCursor)];
       break;
-    case ECursor::INO: pCursor = [NSCursor performSelector:@selector(operationNotAllowedCursor)]; break;
-    case ECursor::HAND: pCursor = [NSCursor pointingHandCursor]; break;
+    case ECursor::INO: pCursor = [NSCursor operationNotAllowedCursor]; break;
+    case ECursor::HAND: pCursor = [NSCursor openHandCursor]; break;
+    case ECursor::APPSTARTING:
+      if ([NSCursor respondsToSelector:@selector(busyButClickableCursor)])
+        pCursor = [NSCursor performSelector:@selector(busyButClickableCursor)];
+       break;
     case ECursor::HELP:
       if ([NSCursor respondsToSelector:@selector(_helpCursor)])
         pCursor = [NSCursor performSelector:@selector(_helpCursor)];
@@ -613,7 +629,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     default: pCursor = [NSCursor arrowCursor]; break;
   }
   
-  if(!pCursor)
+  if (!pCursor)
     pCursor = [NSCursor arrowCursor];
 
   [pCursor set];
