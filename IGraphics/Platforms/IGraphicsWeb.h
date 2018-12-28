@@ -70,6 +70,7 @@ public:
   static void OnMainLoopTimer();
   double mPrevX = 0.;
   double mPrevY = 0.;
+  ECursor mCursorType = ECursor::ARROW;
   
 protected:
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;

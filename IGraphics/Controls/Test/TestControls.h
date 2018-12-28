@@ -21,4 +21,5 @@
 #include "TestSVGControl.h"
 #include "TestBlendControl.h"
 #include "TestDropShadowControl.h"
+#include "TestCursorControl.h"
 
