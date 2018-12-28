@@ -1241,6 +1241,8 @@ void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   {
     fileName.Set("");
   }
+
+  ReleaseMouseCapture();
 }
 
 void IGraphicsWin::PromptForDirectory(WDL_String& dir)
@@ -1273,6 +1275,8 @@ void IGraphicsWin::PromptForDirectory(WDL_String& dir)
   {
     dir.Set("");
   }
+
+  ReleaseMouseCapture();
   
   ::OleUninitialize();
 }
