@@ -271,7 +271,7 @@ struct IColor
     return IColor(A, R, G, B);
   }
 
-  int GetLuminocity() const
+  int GetLuminosity() const
   {
     int min = R < G ? (R < B ? R : B) : (G < B ? G : B);
     int max = R > G ? (R > B ? R : B) : (G > B ? G : B);
