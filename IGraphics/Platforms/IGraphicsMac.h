@@ -72,11 +72,11 @@ private:
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
   bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath);
   bool GetResourcePathFromUsersMusicFolder(const char* fileName, const char* searchExt, WDL_String& fullPath);
+  void RepositionCursor(CGPoint point);
   void StoreCursorPosition();
 
   void* mView = nullptr;
   CGPoint mCursorLockPosition;
-  bool mCursorLock = false;
   WDL_String mBundleID;
   friend int GetMouseOver(IGraphicsMac* pGraphics);
 };

@@ -192,7 +192,7 @@ public:
    * @param cRBL The bottom left corner radius in pixels
    * @param pBlend Optional blend method, see IBlend documentation
    * @param thickness Optional line thickness */
-  virtual void DrawRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend = 0, float thickness = 1.f) {} ;
+  virtual void DrawRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
   
   /** Draw an arc to the graphics context
    * @param color The color to draw the shape with
@@ -219,7 +219,7 @@ public:
    * @param bounds The rectangular region to draw the shape in
    * @param pBlend Optional blend method, see IBlend documentation
    * @param thickness Optional line thickness */
-  virtual void DrawEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0, float thickness = 1.f) {};
+  virtual void DrawEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
   
   /** Draw an ellipse around a central point given two radii and an angle of orientation
    * @param color The color to draw the shape with
@@ -230,7 +230,7 @@ public:
    * @param angle The angle rotates the radii r1 and r2 clockwise in degrees to adjust the orientation
    * @param pBlend Optional blend method, see IBlend documentation
    * @param thickness Optional line thickness */
-  virtual void DrawEllipse(const IColor& color, float x, float y, float r1, float r2, float angle = 0.0, const IBlend* pBlend = 0, float thickness = 1.f) {};
+  virtual void DrawEllipse(const IColor& color, float x, float y, float r1, float r2, float angle = 0.0, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
 
   /** Draw a convex polygon to the graphics to the graphics context
    * @param color The color to draw the shape with
@@ -280,7 +280,7 @@ public:
    * @param cRBR The bottom right corner radius in pixels
    * @param cRBL The bottom left corner radius in pixels
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void FillRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend = 0) {} ;
+  virtual void FillRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend = 0) = 0;
   
   /** Fill a circle in the graphics context with a color
    * @param color The color to fill the shape with
@@ -294,7 +294,7 @@ public:
    * @param color The color to fill the shape with
    * @param bounds The rectangular region to fill the shape in
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void FillEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0) {};
+  virtual void FillEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0) = 0;
   
   /** Fill an ellipse in the graphics context
    * @param color The color to draw the shape with
@@ -304,7 +304,7 @@ public:
    * @param r2 The radius of the ellipse along the line found by rotating the y-axis by the angle
    * @param angle The angle rotates the radii r1 and r2 clockwise in degrees to adjust the orientation
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void FillEllipse(const IColor& color, float x, float y, float r1, float r2, float angle = 0.0, const IBlend* pBlend = 0) {};
+  virtual void FillEllipse(const IColor& color, float x, float y, float r1, float r2, float angle = 0.0, const IBlend* pBlend = 0) = 0;
   
   /** Fill an arc segment in the graphics context with a color
    * @param color The color to fill the shape with
@@ -509,16 +509,16 @@ public:
     
 #pragma mark - IGraphics platform implementation
   /** Call to hide the mouse cursor */ 
-  virtual void HideMouseCursor(bool hide = true, bool lock = true) {};
+  virtual void HideMouseCursor(bool hide = true, bool lock = true) = 0;
 
   /** Force move the mouse cursor to a specific position in the graphics context
    * @param x New X position in pixels
    * @param y New Y position in pixels */
-  virtual void MoveMouseCursor(float x, float y) {}
+  virtual void MoveMouseCursor(float x, float y) = 0;
   
   /** Sets the mouse cursor to one of ECursor
    * @param cursor The cursor type */
-  virtual void SetMouseCursor(ECursor cursor = ECursor::ARROW) {}
+  virtual void SetMouseCursor(ECursor cursor = ECursor::ARROW) = 0;
 
   /** Call to force end text entry (will cancel any half input text \todo check) */
   virtual void ForceEndUserEdit() = 0;
@@ -995,6 +995,7 @@ protected:
   IGEditorDelegate& mDelegate;
   void* mPlatformContext = nullptr;
   bool mCursorHidden = false;
+  bool mCursorLock = false;
   bool mTabletInput = false;
   float mCursorX = -1.f;
   float mCursorY = -1.f;

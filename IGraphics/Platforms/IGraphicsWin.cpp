@@ -679,6 +679,33 @@ void IGraphicsWin::MoveMouseCursor(float x, float y)
   }
 }
 
+void IGraphicsWin::SetMouseCursor(ECursor cursor)
+{
+  HCURSOR cursorType;
+    
+  switch (cursor)
+  {
+    case ARROW:         cursorType = LoadCursor(NULL, IDC_ARROW);           break;
+    case IBEAM:         cursorType = LoadCursor(NULL, IDC_IBEAM);           break;
+    case WAIT:          cursorType = LoadCursor(NULL, IDC_WAIT);            break;
+    case CROSS:         cursorType = LoadCursor(NULL, IDC_CROSS);           break;
+    case UPARROW:       cursorType = LoadCursor(NULL, IDC_UPARROW);         break;
+    case SIZENWSE:      cursorType = LoadCursor(NULL, IDC_SIZENWSE);        break;
+    case SIZENESW:      cursorType = LoadCursor(NULL, IDC_SIZENESW);        break;
+    case SIZEWE:        cursorType = LoadCursor(NULL, IDC_SIZEWE);          break;
+    case SIZENS:        cursorType = LoadCursor(NULL, IDC_SIZENS);          break;
+    case SIZEALL:       cursorType = LoadCursor(NULL, IDC_SIZEALL);         break;
+    case INO:           cursorType = LoadCursor(NULL, IDC_NO);              break;
+    case HAND:          cursorType = LoadCursor(NULL, IDC_HAND);            break;
+    case APPSTARTING:   cursorType = LoadCursor(NULL, IDC_APPSTARTING);     break;
+    case HELP:          cursorType = LoadCursor(NULL, IDC_HELP);            break;
+    default:
+      cursorType = LoadCursor(NULL, IDC_ARROW);
+  }
+
+  SetCursor(cursorType);
+}
+
 bool IGraphicsWin::MouseCursorIsLocked()
 {
   return mCursorLock;

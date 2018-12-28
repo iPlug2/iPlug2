@@ -46,6 +46,9 @@ public:
   void SetPlatformContext(void* pContext) override {} // TODO:
 
   void HideMouseCursor(bool hide, bool lock) override;
+  void MoveMouseCursor(float x, float y) override { /* NOT SUPPORTABLE*/ }
+  void SetMouseCursor(ECursor cursor) override;
+
   void ForceEndUserEdit() override {} // TODO:
   void* OpenWindow(void* pParent) override;
   void CloseWindow() override {} // TODO:
@@ -70,7 +73,4 @@ public:
   
 protected:
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
-    
-private:
-  bool mCursorLock;
 };
