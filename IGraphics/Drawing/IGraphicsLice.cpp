@@ -527,10 +527,10 @@ void IGraphicsLice::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const
     
     IColor color = shadow.mPattern.GetStop(0).mColor;
     color.Clamp();
-    int ia = (color.A * static_cast<int>(Clip(shadow.mOpacity, 0.f, 1.f) * 255.0)) / 256;
-    int ir = (color.R * ia) / 256;
-    int ig = (color.G * ia) / 256;
-    int ib = (color.B * ia) / 256;
+    unsigned int ia = (color.A * static_cast<int>(Clip(shadow.mOpacity, 0.f, 1.f) * 255.0));
+    unsigned int ir = (color.R * ia);
+    unsigned int ig = (color.G * ia);
+    unsigned int ib = (color.B * ia);
     
     if (!shadow.mDrawForeground)
     {
@@ -542,12 +542,12 @@ void IGraphicsLice::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const
 
         for (int j = 0 ; j < nCols; j++, chans += 4)
         {
-          int maskAlpha = in[j * 4 + LICE_PIXEL_A];
+          unsigned int maskAlpha = in[j * 4 + LICE_PIXEL_A];
         
-          int A = (maskAlpha * ia) / 256;
-          int R = (ir * A) / 256;
-          int G = (ig * A) / 256;
-          int B = (ib * A) / 256;
+          unsigned int A = (ia * maskAlpha) >> 16;
+          unsigned int R = (ir * maskAlpha) >> 16;
+          unsigned int G = (ig * maskAlpha) >> 16;
+          unsigned int B = (ib * maskAlpha) >> 16;
       
           _LICE_MakePixelNoClamp(chans, R, G, B, A);
         }
@@ -561,14 +561,13 @@ void IGraphicsLice::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const
         
         for (int j = 0 ; j < nCols; j++, chans += 4)
         {
-          int maskAlpha = in[j * 4 + LICE_PIXEL_A];
-          int destAlpha = chans[LICE_PIXEL_A];
-          int alphaCmp = 255 - destAlpha;
+          unsigned int maskAlpha = in[j * 4 + LICE_PIXEL_A];
+          unsigned int alphaCmp = 255 - chans[LICE_PIXEL_A];
           
-          int A = destAlpha + (alphaCmp * maskAlpha * ia) / 65536;
-          int R = chans[LICE_PIXEL_R] + (alphaCmp * (ir * A) / 65536);
-          int G = chans[LICE_PIXEL_G] + (alphaCmp * (ig * A) / 65536);
-          int B = chans[LICE_PIXEL_B] + (alphaCmp * (ib * A) / 65536);
+          unsigned int A = chans[LICE_PIXEL_A] + ((alphaCmp * ia * maskAlpha) >> 24);
+          unsigned int R = chans[LICE_PIXEL_R] + ((alphaCmp * ir * maskAlpha) >> 24);
+          unsigned int G = chans[LICE_PIXEL_G] + ((alphaCmp * ig * maskAlpha) >> 24);
+          unsigned int B = chans[LICE_PIXEL_B] + ((alphaCmp * ib * maskAlpha) >> 24);
           
           _LICE_MakePixelClamp(chans, R, G, B, A);
         }
