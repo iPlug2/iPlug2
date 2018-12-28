@@ -50,7 +50,7 @@
 class IControl;
 class IPopupMenuControl;
 class ICornerResizerBase;
-class IPerfDisplayControl;
+class IFPSDisplayControl;
 class IParam;
 
 /**
@@ -736,13 +736,6 @@ public:
   /** Attach an IPanelControl as the lowest IControl in the control stack to fill the background with a solid color
    * @param color The color to fill the panel with */
   void AttachPanelBackground(const IColor& color);
-
-  /** Attach a designated “Key Catcher” IControl.
-   * The key catcher is a special IControl that is not part of the main control stack and is not drawn in the graphics context.
-   * If you need to handle key presses globally you can create a custom IControl and override OnKeyDown().
-   * Attach your control to the graphics context using this method. An igraphics context can only have a single key catcher control
-   * @param pControl control A control to receive keypresses */
-  void AttachKeyCatcher(IControl* pControl);
   
   /** Attach the default control to scale or increase the UI size by dragging the plug-in bottom right-hand corner
    * @param sizeMode Choose whether to scale or size the UI */
@@ -757,8 +750,14 @@ public:
    * @param pControl A control that inherits from IPopupMenuControl */
   void AttachPopupMenuControl(const IText& text = DEFAULT_TEXT, const IRECT& bounds = IRECT());
   
-  void AttachPerformanceDisplay();
+  void SetKeyHandlerFunc(std::function<bool(int)> keyHandlerFunc) { mKeyHandlerFunc = keyHandlerFunc; }
   
+  /** Shows a control to display the frame rate of drawing
+   * @param enable \c true to show */
+  void ShowFPSDisplay(bool enable);
+  
+  /** @return \c true if performance display is shown */
+  bool ShowingFPSDisplay() { return mPerfDisplay != nullptr; }
   /** Attach an IControl to the graphics context and add it to the top of the control stack. The control is owned by the graphics context and will be deleted when the context is deleted.
    * @param pControl A pointer to an IControl to attach.
    * @param controlTag An integer tag that you can use to identify the control
@@ -882,16 +881,25 @@ public:
   void AssignParamNameToolTips();
 
   /** @param enable Set \c true if you wish to draw the rectangular region of the graphics context occupied by each IControl in mControls  */
-  inline void ShowControlBounds(bool enable) { mShowControlBounds = enable; }
+  inline void ShowControlBounds(bool enable) { mShowControlBounds = enable; SetAllControlsDirty(); }
 
   /** @param enable Set \c true if you wish to show the rectangular region that is drawn on each frame, in order to debug redraw problems */
-  inline void ShowAreaDrawn(bool enable) { mShowAreaDrawn = enable; }
+  inline void ShowAreaDrawn(bool enable) { mShowAreaDrawn = enable; if(!enable) SetAllControlsDirty(); }
+  
+  /**@return \c true if showning the area drawn on each frame */
+  bool ShowAreaDrawnEnabled() const { return mShowAreaDrawn; }
 
+  /**@return \c true if showning the control bounds */
+  bool ShowControlBoundsEnabled() const { return mShowControlBounds; }
+  
   /** Live edit mode allows you to relocate controls at runtime in debug builds and save the locations to a predefined file (e.g. main plugin .cpp file) \todo we need a separate page for liveedit info
    * @param enable Set \c true if you wish to enable live editing mode
    * @param file The absolute path of the file which contains the layout info (correctly tagged) for live editing
    * @param gridsize The size of the layout grid in pixels */
-  void EnableLiveEdit(bool enable, const char* file = 0, int gridsize = 10);
+  void EnableLiveEdit(bool enable/*, const char* file = 0, int gridsize = 10*/);
+  
+  /**@return \c true if live edit mode is enabled */
+  bool LiveEditEnabled() const { return mLiveEdit != nullptr; }
 
   /** Returns an IRECT that represents the entire UI bounds
    * This is useful for programatically arranging UI elements by slicing up the IRECT using the various IRECT methods
@@ -909,12 +917,11 @@ public:
    * @param float&y Where the Y position will be stored */
   void GetMouseDownPoint(float& x, float&y) const { x = mMouseDownX; y = mMouseDownY; }
   
+  /** @return Get a persistant IPopupMenu (remember to clear it before use) */
   IPopupMenu& GetPromptMenu() { return mPromptPopupMenu; }
   
   /** @return \c true if tool tips are enabled */
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
-  
-  void StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec = DEFAULT_SPEC);
 
   /**  Set by the platform class if the mouse input is coming from a tablet/stylus
    * @param tablet, \c true means input is from a tablet */
@@ -922,6 +929,9 @@ public:
   
   EUIResizerMode GetResizerMode() const { return mGUISizeMode; }
   
+  IPopupMenuControl* GetPopupMenuControl() { return mPopupControl; }
+  
+  void StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec = DEFAULT_SPEC);
 #pragma mark - Plug-in API Specific
 
   /** [AAX only] This can be called by the ProTools API class (e.g. IPlugAAX) in order to ascertain the parameter linked to the control under the mouse.
@@ -964,8 +974,6 @@ public:
   /** @param fileName The name of the font to load */
   virtual void LoadFont(const char* fileName) {};
   
-  IPopupMenuControl* GetPopupMenuControl() { return mPopupControl; }
-
 protected:
   virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;
   virtual APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) = 0;
@@ -1016,9 +1024,8 @@ private:
   
   ICornerResizerBase* mCornerResizer = nullptr;
   IPopupMenuControl* mPopupControl = nullptr;
-  IPerfDisplayControl* mPerfDisplay = nullptr;
+  IFPSDisplayControl* mPerfDisplay = nullptr;
   IControl* mLiveEdit = nullptr;
-  IControl* mKeyCatcher = nullptr;
   
   IPopupMenu mPromptPopupMenu;
   
@@ -1049,7 +1056,7 @@ private:
   bool mLayoutOnResize = false;
   EUIResizerMode mGUISizeMode = EUIResizerMode::kUIResizerScale;
   double mPrevTimestamp = 0.;
-
+  std::function<bool(int key)> mKeyHandlerFunc = nullptr;
 protected:
   friend class IGraphicsLiveEdit;
   friend class ICornerResizerBase;

@@ -104,17 +104,37 @@ void IPlugAPP::AppProcess(double** inputs, double** outputs, int nFrames)
   _AttachBuffers(ERoute::kInput, 0, NChannelsConnected(ERoute::kInput), inputs, GetBlockSize());
   _AttachBuffers(ERoute::kOutput, 0, NChannelsConnected(ERoute::kOutput), outputs, GetBlockSize());
   
-  IMidiMsg msg;
-  
-  while (mMidiMsgsFromCallback.Pop(msg))
+  if(mMidiMsgsFromCallback.ElementsAvailable())
   {
-    ProcessMidiMsg(msg);
-    mMidiMsgsFromProcessor.Push(msg); // queue incoming MIDI for UI
+    IMidiMsg msg;
+    
+    while (mMidiMsgsFromCallback.Pop(msg))
+    {
+      ProcessMidiMsg(msg);
+      mMidiMsgsFromProcessor.Push(msg); // queue incoming MIDI for UI
+    }
   }
   
-  while (mMidiMsgsFromEditor.Pop(msg))
+  if(mSysExMsgsFromCallback.ElementsAvailable())
   {
-    ProcessMidiMsg(msg);
+    SysExData data;
+    
+    while (mSysExMsgsFromCallback.Pop(data))
+    {
+      ISysEx msg { data.mOffset, data.mData, data.mSize };
+      ProcessSysEx(msg);
+      mSysExDataFromProcessor.Push(data); // queue incoming Sysex for UI
+    }
+  }
+  
+  if(mMidiMsgsFromEditor.ElementsAvailable())
+  {
+    IMidiMsg msg;
+
+    while (mMidiMsgsFromEditor.Pop(msg))
+    {
+      ProcessMidiMsg(msg);
+    }
   }
 
   //Do not handle Sysex messages here - SendSysexMsgFromUI overridden

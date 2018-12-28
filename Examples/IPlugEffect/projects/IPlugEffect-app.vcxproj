@@ -283,7 +283,7 @@
     <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\RtAudio.h" />
     <ClInclude Include="..\..\..\Dependencies\IPlug\RTMidi\RtMidi.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IControls.h" />
-    <ClInclude Include="..\..\..\IGraphics\Controls\IPerfDisplayControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\IFPSDisplayControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IPopupMenuControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IVKeyboardControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IVMeterControl.h" />

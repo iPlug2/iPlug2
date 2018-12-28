@@ -594,8 +594,7 @@ void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const
   nvgMiterLimit(mVG, options.mMiterLimit);
   nvgStrokeWidth(mVG, thickness);
  
-  // TODO Dash
-
+  // NanoVG does not support dashed paths
   if (pattern.mType == kSolidPattern)
     nvgStrokeColor(mVG, NanoVGColor(pattern.GetStop(0).mColor, pBlend));
   else

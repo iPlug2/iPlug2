@@ -31,7 +31,7 @@ typedef IPlugVST3Controller VST3_API_BASE;
 #include "IControl.h"
 #include "IControls.h"
 #include "IGraphicsLiveEdit.h"
-#include "IPerfDisplayControl.h"
+#include "IFPSDisplayControl.h"
 #include "IPopupMenuControl.h"
 
 struct SVGHolder
@@ -137,10 +137,7 @@ void IGraphics::RemoveAllControls()
 {
   mMouseCapture = mMouseOver = nullptr;
   mMouseOverIdx = -1;
-    
-  if (mKeyCatcher)
-    DELETE_NULL(mKeyCatcher);
-  
+
   if (mPopupControl)
     DELETE_NULL(mPopupControl);
   
@@ -190,12 +187,6 @@ int IGraphics::AttachControl(IControl* pControl, int controlTag, const char* gro
   return mControls.GetSize() - 1;
 }
 
-void IGraphics::AttachKeyCatcher(IControl* pControl)
-{
-  mKeyCatcher = pControl;
-  mKeyCatcher->SetGraphics(this);
-}
-
 void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize)
 {
   AttachCornerResizer(new ICornerResizerBase(mDelegate, GetBounds(), 20), sizeMode, layoutOnResize);
@@ -215,10 +206,18 @@ void IGraphics::AttachPopupMenuControl(const IText& text, const IRECT& bounds)
   mPopupControl->SetGraphics(this);
 }
 
-void IGraphics::AttachPerformanceDisplay()
+void IGraphics::ShowFPSDisplay(bool enable)
 {
-  mPerfDisplay = new IPerfDisplayControl(mDelegate, GetBounds().GetPadded(-10).GetFromTLHC(200, 50));
-  mPerfDisplay->SetGraphics(this);
+  if(enable)
+  {
+    if(!mPerfDisplay)
+      mPerfDisplay = new IFPSDisplayControl(mDelegate, GetBounds().GetPadded(-10).GetFromTLHC(200, 50));
+      mPerfDisplay->SetGraphics(this);
+  }
+  else
+    DELETE_NULL(mPerfDisplay);
+  
+  SetAllControlsDirty();
 }
 
 IControl* IGraphics::GetControlWithTag(int controlTag)
@@ -848,7 +847,7 @@ bool IGraphics::OnKeyDown(float x, float y, int key)
   if (pControl && pControl != GetControl(0))
     return pControl->OnKeyDown(x, y, key);
   else
-    return mKeyCatcher ? mKeyCatcher->OnKeyDown(x, y, key) : false;
+    return mKeyHandlerFunc ? mKeyHandlerFunc(key) : false;
 }
 
 void IGraphics::OnDrop(const char* str, float x, float y)
@@ -1045,12 +1044,12 @@ void IGraphics::EnableTooltips(bool enable)
   if (enable) mHandleMouseOver = true;
 }
 
-void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
+void IGraphics::EnableLiveEdit(bool enable/*, const char* file, int gridsize*/)
 {
-#if defined(DEBUG)
+#if defined(_DEBUG)
   if(enable)
   {
-    mLiveEdit = new IGraphicsLiveEdit(mDelegate, file, gridsize);
+    mLiveEdit = new IGraphicsLiveEdit(mDelegate/*, file, gridsize*/);
     mLiveEdit->SetGraphics(this);
   }
   else
@@ -1058,6 +1057,11 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
     if(mLiveEdit)
       DELETE_NULL(mLiveEdit);
   }
+  
+  mMouseOver = nullptr;
+  mMouseOverIdx = -1;
+
+  SetAllControlsDirty();
 #endif
 }
 

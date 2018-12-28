@@ -223,7 +223,7 @@ Controls/Test/TestDirBrowseControl.h:40:      mSelectedMenu = menu; // TODO: wha
 Controls/IVMultiSliderControl.h:31:  void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar = 1.) override //TODO: fixed for horizontal
 Controls/IVScopeControl.h:62:            mQueue.Push(mBuf); // TODO: expensive?
 Controls/IVMeterControl.h:69:        mQueue.Push(d); // TODO: expensive?
-Controls/IPerfDisplayControl.h:79:    // TODO: replace with IGraphics::DrawData, make it work with lice
+Controls/IFPSDisplayControl.h:79:    // TODO: replace with IGraphics::DrawData, make it work with lice
 Controls/IPopupMenuControl.cpp:523:      mCaller->OnPopupMenuSelection(pClickedMenu); // TODO: In the synchronous pop-up menu handlers it's possible for mMenu to be null, that should also be possible here if nothing was selected
 Controls/IControls.cpp:245:  mTrack = bounds; // TODO: check
 Drawing/IGraphicsAGG.h:72:  //TODO: Map type

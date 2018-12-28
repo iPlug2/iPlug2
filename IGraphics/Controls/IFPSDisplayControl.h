@@ -14,7 +14,7 @@
 
 // Performance display meter code, cribbed from NanoVG
 
-class IPerfDisplayControl : public IControl, public IVectorBase
+class IFPSDisplayControl : public IControl, public IVectorBase
 {
 private:
   static constexpr int MAXBUF = 100;
@@ -27,7 +27,7 @@ public:
     kNumStyles
   };
   
-  IPerfDisplayControl(IGEditorDelegate& dlg, IRECT bounds, EStyle style = EStyle::kFPS, const char* label = "Frame Time")
+  IFPSDisplayControl(IGEditorDelegate& dlg, IRECT bounds, EStyle style = EStyle::kFPS, const char* label = "Frame Time")
   : IControl(dlg, bounds)
   , mStyle(style)
   , mNameLabel(label)
