@@ -998,7 +998,7 @@ void IGraphics::PopupHostContextMenuForParam(IControl* pControl, int paramIdx, f
         else
           item.flags = 0;
 
-        pVST3ContextMenu->addItem(item, GetControl(controlIdx));
+        pVST3ContextMenu->addItem(item, pControl);
       }
 
       pVST3ContextMenu->popup((Steinberg::UCoord) x, (Steinberg::UCoord) y);
