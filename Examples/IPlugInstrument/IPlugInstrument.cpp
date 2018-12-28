@@ -27,14 +27,14 @@ IPlugInstrument::IPlugInstrument(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new IVKeyboardControl(*this, IRECT(10, 335, PLUG_WIDTH-10, PLUG_HEIGHT-10)));
     pGraphics->AttachControl(new IVMultiSliderControl<8>(*this, b.GetGridCell(0, 2, 2).GetPadded(-30)));
     const IRECT controls = b.GetGridCell(1, 2, 2);
-    pGraphics->AttachControl(new IVKnobControl(*this, controls.GetGridCell(0, 2, 6).GetCentredInside(100), kParamGain, "Gain", true));
-    pGraphics->AttachControl(new IVKnobControl(*this, controls.GetGridCell(1, 2, 6).GetCentredInside(100), kParamNoteGlideTime, "Glide"));
+    pGraphics->AttachControl(new IVKnobControl(*this, controls.GetGridCell(0, 2, 6).GetCentredInside(90), kParamGain, "Gain", true));
+    pGraphics->AttachControl(new IVKnobControl(*this, controls.GetGridCell(1, 2, 6).GetCentredInside(90), kParamNoteGlideTime, "Glide"));
     const IRECT sliders = controls.GetGridCell(2, 2, 6).Union(controls.GetGridCell(3, 2, 6));
-    pGraphics->AttachControl(new IVSliderControl(*this, sliders.GetGridCell(0, 1, 4).GetHPadded(10.), kParamAttack));
-    pGraphics->AttachControl(new IVSliderControl(*this, sliders.GetGridCell(1, 1, 4).GetHPadded(10.), kParamDecay));
-    pGraphics->AttachControl(new IVSliderControl(*this, sliders.GetGridCell(2, 1, 4).GetHPadded(10.), kParamSustain));
-    pGraphics->AttachControl(new IVSliderControl(*this, sliders.GetGridCell(3, 1, 4).GetHPadded(10.), kParamRelease));
-
+    pGraphics->AttachControl(new IVSliderControl(*this, sliders.GetGridCell(0, 1, 4).GetMidHPadded(10.), kParamAttack));
+    pGraphics->AttachControl(new IVSliderControl(*this, sliders.GetGridCell(1, 1, 4).GetMidHPadded(10.), kParamDecay));
+    pGraphics->AttachControl(new IVSliderControl(*this, sliders.GetGridCell(2, 1, 4).GetMidHPadded(10.), kParamSustain));
+    pGraphics->AttachControl(new IVSliderControl(*this, sliders.GetGridCell(3, 1, 4).GetMidHPadded(10.), kParamRelease));
+    pGraphics->AttachControl(new IVMeterControl<1>(*this, controls.GetFromRight(100).GetPadded(-30)), kCtrlTagMeter);
   };
 #endif
 }
@@ -52,6 +52,13 @@ void IPlugInstrument::ProcessBlock(sample** inputs, sample** outputs, int nFrame
       outputs[c][s] = outputs[c][s] * gain;
     }
   }
+
+  mMeterBallistics.ProcessBlock(outputs, nFrames);
+}
+
+void IPlugInstrument::OnIdle()
+{
+  mMeterBallistics.TransmitData(*this);
 }
 
 void IPlugInstrument::OnReset()
