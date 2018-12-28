@@ -11,6 +11,7 @@
 #include <cmath>
 
 #include "IGraphicsLice.h"
+#include "lice_combine.h"
 
 extern int GetSystemVersion();
 
@@ -492,6 +493,88 @@ APIBitmap* IGraphicsLice::CreateAPIBitmap(int width, int height)
   LICE_IBitmap* pBitmap = new LICE_MemBitmap(width * scale, height * scale);
   memset(pBitmap->getBits(), 0, pBitmap->getRowSpan() * pBitmap->getHeight() * sizeof(LICE_pixel));
   return new LICEBitmap(pBitmap, scale);
+}
+
+void IGraphicsLice::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
+{
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
+  int size = pBitmap->GetBitmap()->getHeight() * pBitmap->GetBitmap()->getRowSpan() * sizeof(LICE_pixel);
+  
+  data.Resize(size);
+  
+  if (data.GetSize() >= size)
+    memcpy(data.Get(), pBitmap->GetBitmap()->getBits(), size);
+}
+
+void IGraphicsLice::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow)
+{
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
+  LICE_IBitmap* pLayerBitmap = pBitmap->GetBitmap();
+
+  int stride = pLayerBitmap->getRowSpan() * sizeof(LICE_pixel);
+  int size = pLayerBitmap->getHeight() * stride;
+
+  if (mask.GetSize() >= size)
+  {
+    int x = std::round(shadow.mXOffset * GetScreenScale());
+    int y = std::round(shadow.mYOffset * GetScreenScale());
+    int nRows = pBitmap->GetWidth() - std::abs(y);
+    int nCols = pBitmap->GetHeight()  - std::abs(x);
+    LICE_pixel_chan* in = mask.Get() + (std::max(-x, 0) * 4) + (std::max(-y, 0) * stride);
+    LICE_pixel_chan* out = ((LICE_pixel_chan*) pLayerBitmap->getBits()) + (std::max(x, 0) * 4) + (std::max(y, 0) * stride);
+    
+    // Pre-multiply color components
+    
+    IColor color = shadow.mPattern.GetStop(0).mColor;
+    color.Clamp();
+    int ia = (color.A * static_cast<int>(Clip(shadow.mOpacity, 0.f, 1.f) * 255.0)) / 256;
+    int ir = (color.R * ia) / 256;
+    int ig = (color.G * ia) / 256;
+    int ib = (color.B * ia) / 256;
+    
+    if (!shadow.mDrawForeground)
+    {
+      LICE_Clear(pLayerBitmap, 0);
+    
+      for (int i = 0 ; i < nRows; i++, in += stride, out += stride)
+      {
+        LICE_pixel_chan* chans = out;
+
+        for (int j = 0 ; j < nCols; j++, chans += 4)
+        {
+          int maskAlpha = in[j * 4 + LICE_PIXEL_A];
+        
+          int A = (maskAlpha * ia) / 256;
+          int R = (ir * A) / 256;
+          int G = (ig * A) / 256;
+          int B = (ib * A) / 256;
+      
+          _LICE_MakePixelNoClamp(chans, R, G, B, A);
+        }
+      }
+    }
+    else
+    {
+      for (int i = 0 ; i < nRows; i++, in += stride, out += stride)
+      {
+        LICE_pixel_chan* chans = out;
+        
+        for (int j = 0 ; j < nCols; j++, chans += 4)
+        {
+          int maskAlpha = in[j * 4 + LICE_PIXEL_A];
+          int destAlpha = chans[LICE_PIXEL_A];
+          int alphaCmp = 255 - destAlpha;
+          
+          int A = destAlpha + (alphaCmp * maskAlpha * ia) / 65536;
+          int R = chans[LICE_PIXEL_R] + (alphaCmp * (ir * A) / 65536);
+          int G = chans[LICE_PIXEL_G] + (alphaCmp * (ig * A) / 65536);
+          int B = chans[LICE_PIXEL_B] + (alphaCmp * (ib * A) / 65536);
+          
+          _LICE_MakePixelClamp(chans, R, G, B, A);
+        }
+      }
+    }
+  }
 }
 
 void IGraphicsLice::EndFrame()
