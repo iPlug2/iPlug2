@@ -737,7 +737,7 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
     if (mod.R && paramIdx >= 0)
     {
       ReleaseMouseCapture();
-      PopupHostContextMenuForParam(mMouseCapture, paramIdx, x, y);
+      PopupHostContextMenuForParam(pControl, paramIdx, x, y);
       return;
     }
     #endif
