@@ -150,7 +150,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new ITextControl(*this, b.GetGridCell(9, nRows, nCols).GetGridCell(3, 4, 1), "Dialog result shown here...", DEFAULT_TEXT, COLOR_RED), kCtrlTagDialogResult);
 
     pGraphics->AttachControl(new ITextControl(*this, b.GetGridCell(2, nRows, 1), "Text Controls", bigLabel));
-    pGraphics->AttachControl(new ICaptionControl(*this, b.GetGridCell(10, nRows, nCols).GetMidVPadded(20.), kGain, IText(50)));
+    pGraphics->AttachControl(new ICaptionControl(*this, b.GetGridCell(10, nRows, nCols).GetMidVPadded(20.), kGain, IText(50), false));
 
     pGraphics->AttachControl(new ITextControl(*this, b.GetGridCell(3, nRows, 1), "Misc Controls", bigLabel));
     pGraphics->AttachControl(new FileBrowser(*this, b.GetGridCell(15, nRows, nCols).Union(b.GetGridCell(16, nRows, nCols)).GetPadded(-25)));
