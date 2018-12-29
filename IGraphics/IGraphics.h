@@ -446,6 +446,7 @@ public:
 #pragma mark - IGraphics drawing API layer support
     
   void StartLayer(const IRECT& r);
+  void ResumeLayer(ILayerPtr& layer);
   ILayerPtr EndLayer();
   bool CheckLayer(const ILayerPtr& layer);
   void DrawLayer(const ILayerPtr& layer);
