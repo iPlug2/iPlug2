@@ -370,6 +370,8 @@ const IBlend BLEND_75 = IBlend(kBlendNone, 0.75f);
 const IBlend BLEND_50 = IBlend(kBlendNone, 0.5f);
 const IBlend BLEND_25 = IBlend(kBlendNone, 0.25f);
 const IBlend BLEND_10 = IBlend(kBlendNone, 0.1f);
+const IBlend BLEND_05 = IBlend(kBlendNone, 0.05f);
+const IBlend BLEND_01 = IBlend(kBlendNone, 0.01f);
 
 // Path related structures for patterns and fill/stroke options
 
