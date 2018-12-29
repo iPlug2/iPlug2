@@ -28,7 +28,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     if(pGraphics->NControls())
     {
       IRECT bounds = pGraphics->GetBounds();
-      pGraphics->GetControl(0)->SetRECT(bounds);
+      pGraphics->GetBackgroundControl()->SetRECT(bounds);
       pGraphics->GetControlWithTag(kSizeControl)->SetRECT(bounds);
       DBGMSG("SELECTED: W %i, H%i\n", pGraphics->Width(), pGraphics->Height());
       
@@ -38,9 +38,20 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachCornerResizer(EUIResizerMode::kUIResizerScale, true);
     pGraphics->HandleMouseOver(true);
     pGraphics->EnableTooltips(true);
-    //  pGraphics->EnableLiveEdit(true);
-    //  pGraphics->ShowControlBounds(true);
-//    pGraphics->ShowAreaDrawn(true);
+    
+    pGraphics->SetKeyHandlerFunc([&](int key)
+    {
+      switch (key) {
+        case EIPlugKeyCodes::KEY_TAB:
+          dynamic_cast<IPanelControl*>(GetUI()->GetBackgroundControl())->SetPattern(IColor::GetRandomColor());
+          break;
+          
+        default:
+          break;
+      }
+      return true;
+    });
+    
     pGraphics->LoadFont(ROBOTTO_FN);
     pGraphics->LoadFont(MONTSERRAT_FN);
     ISVG tiger = pGraphics->LoadSVG(TIGER_FN);
@@ -106,6 +117,8 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new TestSizeControl(*this, bounds), kSizeControl);
     pGraphics->AttachControl(new TestLayerControl(*this, nextCell()));
     pGraphics->AttachControl(new TestBlendControl(*this, nextCell(), smiley));
+    pGraphics->AttachControl(new TestDropShadowControl(*this, nextCell(), tiger));
+    pGraphics->AttachControl(new TestCursorControl(*this, nextCell()));
 
 #if 1
     pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Hello World!", {24, COLOR_WHITE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop, 90}));

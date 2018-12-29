@@ -313,6 +313,7 @@ ICaptionControl::ICaptionControl(IGEditorDelegate& dlg, IRECT bounds, int paramI
   
   mDblAsSingleClick = true;
   mDisablePrompt = false;
+  mIgnoreMouse = false;
 }
 
 void ICaptionControl::OnMouseDown(float x, float y, const IMouseMod& mod)

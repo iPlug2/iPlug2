@@ -255,7 +255,7 @@
     <ClInclude Include="..\..\..\Dependencies\IPlug\VST2_SDK\aeffect.h" />
     <ClInclude Include="..\..\..\Dependencies\IPlug\VST2_SDK\aeffectx.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IControls.h" />
-    <ClInclude Include="..\..\..\IGraphics\Controls\IPerfDisplayControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\IFPSDisplayControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IPopupMenuControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IVKeyboardControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IVMeterControl.h" />

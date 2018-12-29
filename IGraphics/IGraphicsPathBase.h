@@ -414,7 +414,7 @@ public:
   {
     PathTransformSave();
     PathTransformTranslate(bounds.L, bounds.T);
-    IRECT newBounds(0, 0, bitmap.W(), bitmap.H());
+    IRECT newBounds(0., 0., bitmap.W(), bitmap.H());
     PathTransformScale(bounds.W() / bitmap.W(), bounds.H() / bitmap.H());
     DrawBitmap(bitmap, newBounds, 0, 0, pBlend);
     PathTransformRestore();

@@ -470,12 +470,12 @@ public:
 
     if (mBKAlpha < 240.f)
     {
-      const float lumWK = WKColor.GetLuminocity() * WKColor.A / 255.f;
+      const float lumWK = WKColor.GetLuminosity() * WKColor.A / 255.f;
       const float adjustment = PKColor.A / 255.f;
-      const float lumPK = PKColor.GetLuminocity() * adjustment;
+      const float lumPK = PKColor.GetLuminosity() * adjustment;
       const float lumRes = (1.f - adjustment) * lumWK + lumPK;
       const float lumDW = lumRes - lumWK;
-      const float lumBK = BKColor.GetLuminocity() * BKColor.A / 255.f;
+      const float lumBK = BKColor.GetLuminosity() * BKColor.A / 255.f;
 
       if ((lumDW < 0 && lumBK < lumWK) || (lumDW > 0 && lumBK > lumWK))
       {

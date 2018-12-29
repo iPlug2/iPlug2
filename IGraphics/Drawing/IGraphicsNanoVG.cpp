@@ -70,6 +70,15 @@
   #error you must define either IGRAPHICS_GL2, IGRAPHICS_GLES2 etc or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
 #endif
 
+void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData)
+{
+#if defined(IGRAPHICS_GL)
+  glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pData);
+#elif defined(IGRAPHICS_METAL)
+  mnvgReadPixels(pContext, image, x, y, width, height, pData);
+#endif
+}
+
 #ifdef OS_WIN
 int LoadImageFromWinResource(NVGcontext* pContext, HINSTANCE hInst, const char* resid)
 {
@@ -140,6 +149,13 @@ NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, int scal
   SetBitmap(mFBO->image, width, height, scale, drawScale);
 }
 
+NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, int scale, float drawScale)
+{
+  int idx = nvgCreateImageRGBA(pContext, width, height, 0, pData);
+  mVG = pContext;
+  SetBitmap(idx, width, height, scale, drawScale);
+}
+
 NanoVGBitmap::~NanoVGBitmap()
 {
   if(mFBO)
@@ -178,6 +194,8 @@ inline void NanoVGSetBlendMode(NVGcontext* context, const IBlend* pBlend)
     case kBlendAdd:
       nvgGlobalCompositeBlendFunc(context, NVG_ONE, NVG_ONE);
       break;
+    case kBlendUnder:       return NVG_DESTINATION_OVER;
+    case kBlendSourceIn:    return NVG_SOURCE_IN;
     case kBlendColorDodge:
     case kBlendNone:
     default:
@@ -274,6 +292,59 @@ APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetBackingPixelScale();
   return new NanoVGBitmap(mVG, std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
+}
+
+void IGraphicsNanoVG::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
+{
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
+  int size = pBitmap->GetWidth() * pBitmap->GetHeight() * 4;
+  
+  data.Resize(size);
+  
+  if (data.GetSize() >= size)
+  {
+    PushLayer(layer.get(), false);
+    nvgReadPixels(mVG, pBitmap->GetBitmap(), 0, 0, pBitmap->GetWidth(), pBitmap->GetHeight(), data.Get());
+    PopLayer(false);    
+  }
+}
+
+void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow)
+{
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
+  int width = pBitmap->GetWidth();
+  int height = pBitmap->GetHeight();
+  int size = width * height * 4;
+  
+  if (mask.GetSize() >= size)
+  {
+    if (!shadow.mDrawForeground)
+    {
+      //pBitmap->GetBitmap()->clear(0);
+    }
+    
+    IRECT bounds(layer->Bounds());
+    
+    NanoVGBitmap maskRawBitmap(mVG, width, height, mask.Get(), pBitmap->GetScale(), pBitmap->GetDrawScale());
+    APIBitmap* shadowBitmap = new NanoVGBitmap(mVG, width, height, pBitmap->GetScale(), pBitmap->GetDrawScale());
+    IBitmap tempLayerBitmap(shadowBitmap, 1, false);
+    IBitmap maskBitmap(&maskRawBitmap, 1, false);
+    ILayer shadowLayer(shadowBitmap, layer->Bounds());
+    
+    PathTransformSave();
+    PushLayer(layer.get(), false);
+    PushLayer(&shadowLayer, false);
+    DrawBitmap(maskBitmap, bounds, 0, 0, nullptr);
+    IBlend blend1(kBlendSourceIn, 1.0);
+    PathRect(layer->Bounds());
+    PathFill(shadow.mPattern, IFillOptions(), &blend1);
+    PopLayer(false);
+    IBlend blend2(kBlendUnder, shadow.mOpacity);
+    bounds.Translate(shadow.mXOffset, shadow.mYOffset);
+    DrawBitmap(tempLayerBitmap, bounds, 0, 0, &blend2);
+    PopLayer(false);
+    PathTransformRestore();
+  }
 }
 
 void IGraphicsNanoVG::SetPlatformContext(void* pContext)
@@ -599,8 +670,7 @@ void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const
   nvgMiterLimit(mVG, options.mMiterLimit);
   nvgStrokeWidth(mVG, thickness);
  
-  // TODO Dash
-
+  // NanoVG does not support dashed paths
   if (pattern.mType == kSolidPattern)
     nvgStrokeColor(mVG, NanoVGColor(pattern.GetStop(0).mColor, pBlend));
   else

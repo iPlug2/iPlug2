@@ -379,10 +379,10 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
             
             while (b < 4 && bytesPos < mSysexBuf.mSize)
             {
-              packet.mData[b++] = e.data.bytes[bytesPos++];
+              packet.mData[b++] = mSysexBuf.mData[bytesPos++];
             }
             
-            packet.mLength = b;
+            packet.mLength = (uint32_t) b;
             
             midiOut->PostMIDIPacket (&packet);
           }

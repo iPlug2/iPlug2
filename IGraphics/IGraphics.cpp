@@ -31,7 +31,7 @@ typedef IPlugVST3Controller VST3_API_BASE;
 #include "IControl.h"
 #include "IControls.h"
 #include "IGraphicsLiveEdit.h"
-#include "IPerfDisplayControl.h"
+#include "IFPSDisplayControl.h"
 #include "IPopupMenuControl.h"
 
 struct SVGHolder
@@ -137,10 +137,7 @@ void IGraphics::RemoveAllControls()
 {
   mMouseCapture = mMouseOver = nullptr;
   mMouseOverIdx = -1;
-    
-  if (mKeyCatcher)
-    DELETE_NULL(mKeyCatcher);
-  
+
   if (mPopupControl)
     DELETE_NULL(mPopupControl);
   
@@ -190,12 +187,6 @@ int IGraphics::AttachControl(IControl* pControl, int controlTag, const char* gro
   return mControls.GetSize() - 1;
 }
 
-void IGraphics::AttachKeyCatcher(IControl* pControl)
-{
-  mKeyCatcher = pControl;
-  mKeyCatcher->SetGraphics(this);
-}
-
 void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize)
 {
   AttachCornerResizer(new ICornerResizerBase(mDelegate, GetBounds(), 20), sizeMode, layoutOnResize);
@@ -203,22 +194,47 @@ void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize
 
 void IGraphics::AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode sizeMode, bool layoutOnResize)
 {
-  mCornerResizer = pControl;
-  mGUISizeMode = sizeMode;
-  mLayoutOnResize = layoutOnResize;
-  mCornerResizer->SetGraphics(this);
+  assert(mCornerResizer == nullptr); // only want one corner resizer
+
+  if (mCornerResizer == nullptr)
+  {
+    mCornerResizer = pControl;
+    mGUISizeMode = sizeMode;
+    mLayoutOnResize = layoutOnResize;
+    mCornerResizer->SetGraphics(this);
+  }
+  else
+  {
+    delete pControl;
+  }
 }
 
 void IGraphics::AttachPopupMenuControl(const IText& text, const IRECT& bounds)
 {
-  mPopupControl = new IPopupMenuControl(mDelegate, kNoParameter, text, IRECT(), bounds);
-  mPopupControl->SetGraphics(this);
+  if (mPopupControl == nullptr)
+  {
+    mPopupControl = new IPopupMenuControl(mDelegate, kNoParameter, text, IRECT(), bounds);
+    mPopupControl->SetGraphics(this);
+  }
 }
 
-void IGraphics::AttachPerformanceDisplay()
+void IGraphics::ShowFPSDisplay(bool enable)
 {
-  mPerfDisplay = new IPerfDisplayControl(mDelegate, GetBounds().GetPadded(-10).GetFromTLHC(200, 50));
-  mPerfDisplay->SetGraphics(this);
+  if(enable)
+  {
+    if (mPerfDisplay == nullptr)
+    {
+      mPerfDisplay = new IFPSDisplayControl(mDelegate, GetBounds().GetPadded(-10).GetFromTLHC(200, 50));
+      mPerfDisplay->SetGraphics(this);
+    }
+  }
+  else
+  {
+    if(mPerfDisplay)
+      DELETE_NULL(mPerfDisplay);
+  }
+
+  SetAllControlsDirty();
 }
 
 IControl* IGraphics::GetControlWithTag(int controlTag)
@@ -721,7 +737,7 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
     if (mod.R && paramIdx >= 0)
     {
       ReleaseMouseCapture();
-      PopupHostContextMenuForParam(mMouseCapture, paramIdx, x, y);
+      PopupHostContextMenuForParam(pControl, paramIdx, x, y);
       return;
     }
     #endif
@@ -843,12 +859,17 @@ bool IGraphics::OnKeyDown(float x, float y, int key)
   Trace("IGraphics::OnKeyDown", __LINE__, "x:%0.2f, y:%0.2f, key:%i",
         x, y, key);
 
+  bool handled = false;
+
   IControl* pControl = GetMouseControl(x, y, false);
-    
+  
   if (pControl && pControl != GetControl(0))
-    return pControl->OnKeyDown(x, y, key);
-  else
-    return mKeyCatcher ? mKeyCatcher->OnKeyDown(x, y, key) : false;
+    handled = pControl->OnKeyDown(x, y, key);
+
+  if(!handled)
+    handled = mKeyHandlerFunc ? mKeyHandlerFunc(key) : false;
+  
+  return handled;
 }
 
 void IGraphics::OnDrop(const char* str, float x, float y)
@@ -953,9 +974,6 @@ void IGraphics::PopupHostContextMenuForParam(IControl* pControl, int paramIdx, f
   {
     pControl->CreateContextMenu(contextMenu);
 
-    if(!contextMenu.NItems())
-      return;
-
 #if defined VST3_API || defined VST3C_API
     VST3_API_BASE* pVST3 = dynamic_cast<VST3_API_BASE*>(&mDelegate);
 
@@ -985,14 +1003,19 @@ void IGraphics::PopupHostContextMenuForParam(IControl* pControl, int paramIdx, f
         else
           item.flags = 0;
 
-        pVST3ContextMenu->addItem(item, GetControl(controlIdx));
+        pVST3ContextMenu->addItem(item, pControl);
       }
 
+      x *= GetDrawScale();
+      y *= GetDrawScale();
       pVST3ContextMenu->popup((Steinberg::UCoord) x, (Steinberg::UCoord) y);
       pVST3ContextMenu->release();
     }
 
 #else
+    if(!contextMenu.NItems())
+      return;
+
     if(mPopupControl) // if we are not using platform popup menus, IPopupMenuControl will not block
     {
       CreatePopupMenu(contextMenu, x, y, pControl);
@@ -1045,19 +1068,27 @@ void IGraphics::EnableTooltips(bool enable)
   if (enable) mHandleMouseOver = true;
 }
 
-void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
+void IGraphics::EnableLiveEdit(bool enable/*, const char* file, int gridsize*/)
 {
-#if defined(DEBUG)
+#if defined(_DEBUG)
   if(enable)
   {
-    mLiveEdit = new IGraphicsLiveEdit(mDelegate, file, gridsize);
-    mLiveEdit->SetGraphics(this);
+    if (mLiveEdit == nullptr)
+    {
+      mLiveEdit = new IGraphicsLiveEdit(mDelegate/*, file, gridsize*/);
+      mLiveEdit->SetGraphics(this);
+    }
   }
   else
   {
     if(mLiveEdit)
       DELETE_NULL(mLiveEdit);
   }
+  
+  mMouseOver = nullptr;
+  mMouseOverIdx = -1;
+
+  SetAllControlsDirty();
 #endif
 }
 
@@ -1240,14 +1271,37 @@ void IGraphics::StartLayer(const IRECT& r)
   const int w = static_cast<int>(std::round(alignedBounds.W()));
   const int h = static_cast<int>(std::round(alignedBounds.H()));
 
-  mLayers.push(new ILayer(CreateAPIBitmap(w, h), alignedBounds));
-  UpdateLayer();
-  PathTransformReset(true);
-  PathClipRegion(alignedBounds);
-  PathClear();
+  PushLayer(new ILayer(CreateAPIBitmap(w, h), alignedBounds), true);
+}
+
+void IGraphics::ResumeLayer(ILayerPtr& layer)
+{
+  ILayerPtr ownedLayer;
+    
+  ownedLayer.swap(layer);
+  ILayer* ownerlessLayer = ownedLayer.release();
+    
+  if (ownerlessLayer)
+  {
+    PushLayer(ownerlessLayer, true);
+  }
 }
 
 ILayerPtr IGraphics::EndLayer()
+{
+  return ILayerPtr(PopLayer(true));
+}
+
+void IGraphics::PushLayer(ILayer *layer, bool clearTransforms)
+{
+  mLayers.push(layer);
+  UpdateLayer();
+  PathTransformReset(clearTransforms);
+  PathClipRegion(layer->Bounds());
+  PathClear();
+}
+
+ILayer* IGraphics::PopLayer(bool clearTransforms)
 {
   ILayer* pLayer = nullptr;
   
@@ -1258,11 +1312,11 @@ ILayerPtr IGraphics::EndLayer()
   }
   
   UpdateLayer();
-  PathTransformReset(true);
+  PathTransformReset(clearTransforms);
   PathClipRegion();
   PathClear();
   
-  return ILayerPtr(pLayer);
+  return pLayer;
 }
 
 bool IGraphics::CheckLayer(const ILayerPtr& layer)
@@ -1289,4 +1343,89 @@ void IGraphics::DrawRotatedLayer(const ILayerPtr& layer, double angle)
   IRECT bounds = layer->Bounds();
   DrawRotatedBitmap(bitmap, bounds.MW(), bounds.MH(), angle);
   PathTransformRestore();
+}
+
+void GaussianBlurSwap(unsigned char *out, unsigned char *in, unsigned char *kernel, int width, int height, int outStride, int inStride, int kernelSize, unsigned long norm)
+{
+  for (int i = 0; i < height; i++, in += inStride)
+  {
+    for (int j = 0; j < kernelSize - 1; j++)
+    {
+      unsigned long accum = in[j * 4] * kernel[0];
+      for (int k = 1; k < j + 1; k++)
+        accum += kernel[k] * in[(j - k) * 4];
+      for (int k = 1; k < kernelSize; k++)
+        accum += kernel[k] * in[(j + k) * 4];
+      out[j * outStride + (i * 4)] = std::min(static_cast<unsigned long>(255), accum / norm);
+    }
+    for (int j = kernelSize - 1; j < (width - kernelSize) + 1; j++)
+    {
+      unsigned long accum = in[j * 4] * kernel[0];
+      for (int k = 1; k < kernelSize; k++)
+        accum += kernel[k] * (in[(j - k) * 4] + in[(j + k) * 4]);
+      out[j * outStride + (i * 4)] = std::min(static_cast<unsigned long>(255), accum / norm);
+    }
+    for (int j = (width - kernelSize) + 1; j < width; j++)
+    {
+      unsigned long accum = in[j * 4] * kernel[0];
+      for (int k = 1; k < kernelSize; k++)
+        accum += kernel[k] * in[(j - k) * 4];
+      for (int k = 1; k < width - j; k++)
+        accum += kernel[k] * in[(j + k) * 4];
+      out[j * outStride + (i * 4)] = std::min(static_cast<unsigned long>(255), accum / norm);
+    }
+  }
+}
+
+void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
+{
+  RawBitmapData temp1;
+  RawBitmapData temp2;
+  RawBitmapData kernel;
+    
+  // Get bitmap in 32-bit form
+    
+  GetLayerBitmapData(layer, temp1);
+    
+  if (!temp1.GetSize())
+      return;
+  temp2.Resize(temp1.GetSize());
+    
+  // Form kernel (reference blurSize from zero (which will be no blur))
+  
+  bool flipped = FlippedBitmap();
+  double scale = layer->GetAPIBitmap()->GetScale() * layer->GetAPIBitmap()->GetDrawScale();
+  double blurSize = std::max(1.0, (shadow.mBlurSize * scale) + 1.0);
+  double blurConst = 4.5 / (blurSize * blurSize);
+  int iSize = ceil(blurSize);
+  int width = layer->GetAPIBitmap()->GetWidth();
+  int height = layer->GetAPIBitmap()->GetHeight();
+  int stride1 = temp1.GetSize() / width;
+  int stride2 = flipped ? -temp1.GetSize() / height : temp1.GetSize() / height;
+  int stride3 = flipped ? -stride2 : stride2;
+
+  kernel.Resize(iSize);
+        
+  for (int i = 0; i < iSize; i++)
+    kernel.Get()[i] = std::round(255.f * std::expf(-(i * i) * blurConst));
+  
+  // Kernel normalisation
+  
+  int normFactor = kernel.Get()[0];
+    
+  for (int i = 1; i < iSize; i++)
+    normFactor += kernel.Get()[i] + kernel.Get()[i];
+  
+  // Do blur
+  
+  unsigned char* asRows = temp1.Get() + AlphaChannel();
+  unsigned char* inRows = flipped ? asRows + stride3 * (height - 1) : asRows;
+  unsigned char* asCols = temp2.Get() + AlphaChannel();
+  
+  GaussianBlurSwap(asCols, inRows, kernel.Get(), width, height, stride1, stride2, iSize, normFactor);
+  GaussianBlurSwap(asRows, asCols, kernel.Get(), height, width, stride3, stride1, iSize, normFactor);
+  
+  // Apply alphas to the pattern and recombine/replace the image
+    
+  ApplyShadowMask(layer, temp1, shadow);
 }

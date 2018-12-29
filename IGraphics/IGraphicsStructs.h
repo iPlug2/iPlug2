@@ -240,7 +240,7 @@ struct IColor
   bool operator==(const IColor& rhs) { return (rhs.A == A && rhs.R == R && rhs.G == G && rhs.B == B); }
   bool operator!=(const IColor& rhs) { return !operator==(rhs); }
   bool Empty() const { return A == 0 && R == 0 && G == 0 && B == 0; }
-  void Clamp() { A = std::min(A, 255); R = std::min(R, 255); G = std::min(G, 255); B = std::min(B, 255); }
+  void Clamp() { A = Clip(A, 0, 255); R = Clip(R, 0, 255); Clip(G, 0, 255); B = Clip(B, 0, 255); }
   void Randomise(int alpha = 255) { A = alpha; R = std::rand() % 255; G = std::rand() % 255; B = std::rand() % 255; }
 
   void AddContrast(double c)
@@ -271,7 +271,7 @@ struct IColor
     return IColor(A, R, G, B);
   }
 
-  int GetLuminocity() const
+  int GetLuminosity() const
   {
     int min = R < G ? (R < B ? R : B) : (G < B ? G : B);
     int max = R > G ? (R > B ? R : B) : (G > B ? G : B);
@@ -1380,6 +1380,9 @@ public:
   const IRECT& Bounds() const { return mRECT; }
   
 private:
+    
+  APIBitmap* AccessAPIBitmap() { return mBitmap.get(); }
+
   std::unique_ptr<APIBitmap> mBitmap;
   IRECT mRECT;
   bool mInvalid;
@@ -1387,6 +1390,26 @@ private:
 
 /** ILayerPtr is a managed pointer for transferring the ownership of layers */
 typedef std::unique_ptr<ILayer> ILayerPtr;
+
+/** Used to specify a gaussian drop-shadow. */
+struct IShadow
+{
+  IShadow(const IPattern& pattern, float blurSize, float xOffset, float yOffset, float opacity, bool drawForeground = true)
+  : mPattern(pattern)
+  , mBlurSize(blurSize)
+  , mXOffset(xOffset)
+  , mYOffset(yOffset)
+  , mOpacity(opacity)
+  , mDrawForeground(drawForeground)
+  {}
+    
+  IPattern mPattern;
+  float mBlurSize = 0.f;
+  float mXOffset = 0.f;
+  float mYOffset = 0.f;
+  float mOpacity = 1.f;
+  bool mDrawForeground;
+};
 
 // TODO: static storage needs thread safety mechanism
 template <class T>

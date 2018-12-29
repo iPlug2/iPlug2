@@ -56,7 +56,8 @@ public:
 private:
   IPlugAPPHost* mAppHost = nullptr;
   IPlugQueue<IMidiMsg> mMidiMsgsFromCallback {MIDI_TRANSFER_SIZE};
-  
+  IPlugQueue<SysExData> mSysExMsgsFromCallback {SYSEX_TRANSFER_SIZE};
+
   friend class IPlugAPPHost;
 };
 

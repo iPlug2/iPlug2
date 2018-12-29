@@ -16,9 +16,43 @@ static StaticStorage<agg::font> s_fontCache;
 
 // Utility
 
-inline const agg::rgba8 AGGColor(const IColor& color, const IBlend* pBlend = nullptr)
+class pixel_wrapper : public agg::pixel_map
 {
-  return agg::rgba8(color.R, color.G, color.B, (BlendWeight(pBlend) * color.A));
+public:
+  
+  pixel_wrapper(unsigned char* buf, unsigned w, unsigned h, unsigned bpp, int row_bytes)
+  : m_buf(buf)
+  , m_width(w)
+  , m_height(h)
+  , m_bpp(bpp)
+  , m_row_bytes(row_bytes)
+  {}
+  
+  unsigned char* buf() override { return m_buf; }
+  unsigned width() const override { return m_width; }
+  unsigned height() const override { return m_height; }
+  
+  int row_bytes() const override { return m_row_bytes; }
+  unsigned bpp() const override  { return m_bpp; }
+  
+private:
+  
+  // Do not use!
+  
+  void create(unsigned width, unsigned height, unsigned clear_val=255) override {};
+  void clear(unsigned clear_val=255) override {};
+  void destroy() override {};
+  
+  unsigned char* m_buf;
+  unsigned m_width;
+  unsigned m_height;
+  unsigned m_bpp;
+  int m_row_bytes;
+};
+
+inline const agg::rgba8 AGGColor(const IColor& color, float opacity)
+{
+  return agg::rgba8(color.R, color.G, color.B, (opacity * color.A));
 }
 
 inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
@@ -31,6 +65,8 @@ inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
     case kBlendClobber:         return agg::comp_op_src_over;
     case kBlendAdd:             return agg::comp_op_plus;
     case kBlendColorDodge:      return agg::comp_op_color_dodge;
+    case kBlendUnder:           return agg::comp_op_dst_over;
+    case kBlendSourceIn:        return agg::comp_op_src_in;
     case kBlendNone:
     default:
       return agg::comp_op_src_over;
@@ -92,7 +128,7 @@ void GradientRasterizeAdapt(IGraphicsAGG::Rasterizer& rasterizer, EPatternExtend
   }
 }
 
-void IGraphicsAGG::Rasterizer::RasterizePattern(const IPattern& pattern, const IBlend* pBlend, EFillRule rule)
+void IGraphicsAGG::Rasterizer::RasterizePattern(const IPattern& pattern, agg::comp_op_e mode, float opacity, EFillRule rule)
 {
   mRasterizer.filling_rule(rule == kFillWinding ? agg::fill_non_zero : agg::fill_even_odd );
   
@@ -103,11 +139,11 @@ void IGraphicsAGG::Rasterizer::RasterizePattern(const IPattern& pattern, const I
       RendererSolid renderer(mRenBase);
       
       const IColor &color = pattern.GetStop(0).mColor;
-      renderer.color(AGGColor(color, pBlend));
+      renderer.color(AGGColor(color, opacity));
       
       // Rasterize
       
-      Rasterize(renderer, AGGBlendMode(pBlend));
+      Rasterize(renderer, mode);
     }
       break;
       
@@ -133,7 +169,7 @@ void IGraphicsAGG::Rasterizer::RasterizePattern(const IPattern& pattern, const I
       {
         const IColorStop& stop = pattern.GetStop(i);
         float offset = stop.mOffset;
-        colorArray.add_color(offset, AGGColor(stop.mColor, pBlend));
+        colorArray.add_color(offset, AGGColor(stop.mColor, opacity));
       }
       
       colorArray.build_lut();
@@ -142,11 +178,11 @@ void IGraphicsAGG::Rasterizer::RasterizePattern(const IPattern& pattern, const I
       
       if (pattern.mType == kLinearPattern)
       {
-        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_y(), gradientMTX, colorArray, AGGBlendMode(pBlend));
+        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_y(), gradientMTX, colorArray, mode);
       }
       else
       {
-        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_radial_d(), gradientMTX, colorArray, AGGBlendMode(pBlend));
+        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_radial_d(), gradientMTX, colorArray, mode);
       }
     }
     break;
@@ -234,17 +270,15 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   srcMtx /= mTransform;
   srcMtx *= agg::trans_affine_translation((srcX * scale) - dest.L, (srcY * scale) - dest.T);
   srcMtx *= agg::trans_affine_scaling(bitmap.GetScale() * bitmap.GetDrawScale());
-      
-  // TODO - fix clipping of bitmaps in one-to-one mode
     
-  if (bounds.IsPixelAligned() && CheckTransform(srcMtx))
+  if (0)//bounds.IsPixelAligned() && CheckTransform(srcMtx))
   {
     double offsetScale = scale * GetScreenScale();
-    
+    IRECT destScaled = dest.GetScaled(GetBackingPixelScale());
+    srcX = std::round(srcX * offsetScale + std::max(0.f, bounds.L - destScaled.L));
+    srcY = std::round(srcY * offsetScale + std::max(0.f, bounds.T - destScaled.T));
     bounds.Translate(mTransform.tx, mTransform.ty);
-    srcX = std::round(srcX * offsetScale);
-    srcY = std::round(srcX * offsetScale);
-      
+
     mRasterizer.BlendFrom(src, bounds, srcX, srcY, AGGBlendMode(pBlend), AGGCover(pBlend));
   }
   else
@@ -261,56 +295,6 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
     mRasterizer.Rasterize(tr, renderer, AGGBlendMode(pBlend));
   }
 }
-/*
-void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, float x, float y, double angle, const IBlend* pBlend)
-{
-  x *= GetScreenScale();
-  y *= GetScreenScale();
-
-  agg::pixel_map* pm_base = base.GetAPIBitmap()->GetBitmap();
-  agg::pixel_map* pm_mask = mask.GetAPIBitmap()->GetBitmap();
-  agg::pixel_map* pm_top = top.GetAPIBitmap()->GetBitmap();
-  
-  agg::rendering_buffer rbuf_base(pm_base->buf(), pm_base->width(), pm_base->height(), pm_base->row_bytes());
-  agg::rendering_buffer rbuf_mask(pm_mask->buf(), pm_mask->width(), pm_mask->height(), pm_mask->row_bytes());
-  agg::rendering_buffer rbuf_top(pm_top->buf(), pm_top->width(), pm_top->height(), pm_top->row_bytes());
-
-  PixfmtType img_base(rbuf_base);
-  PixfmtType img_mask(rbuf_mask);
-  PixfmtType img_top(rbuf_top);
-
-  RenbaseType ren_base(img_base);
-  
-  ren_base.clear(agg::rgba8(255, 255, 255, 0));
-  
-  ren_base.blend_from(img_mask, 0, 0, agg::cover_mask);
-  ren_base.copy_from(img_top);
-  
-  const int width = base.W() * GetScreenScale();
-  const int height = base.H() * GetScreenScale();
-  
-  agg::trans_affine srcMatrix;
-  srcMatrix *= agg::trans_affine_translation(-(width / 2), -(height / 2));
-  srcMatrix *= agg::trans_affine_rotation(angle);
-  srcMatrix *= agg::trans_affine_translation(x + (width / 2), y + (height / 2));
-  
-  agg::trans_affine imgMtx = srcMatrix;
-  imgMtx.invert();
-  
-  InterpolatorType interpolator(imgMtx);
-  
-  imgSourceType imgSrc(img_base);
-  
-  SpanGeneratorType spanGenerator(imgSrc, interpolator);
-  SpanAllocatorType spanAllocator;
-  BitmapRenderType renderer(mRasterizer.GetBase(), spanAllocator, spanGenerator);
-  
-  agg::rounded_rect bounds(0, 0, width, height, 0);
-  agg::conv_transform<agg::rounded_rect> tr(bounds, srcMatrix);
-  
-  mRasterizer.SetPath(tr);
-  mRasterizer.Rasterize(renderer, AGGBlendMode(pBlend));
-}*/
 
 void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax)
 {
@@ -416,7 +400,7 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
       dashedPath.add_dash(dashArray[i % dashCount], dashArray[(i + 1) % dashCount]);
     
     StrokeOptions(strokedDashedPath, thickness, options);
-    mRasterizer.Rasterize(finalPath, pattern, pBlend);
+    mRasterizer.Rasterize(finalPath, pattern, AGGBlendMode(pBlend), BlendWeight(pBlend));
   }
   else
   {
@@ -424,7 +408,7 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
     S3Type finalPath(strokedPath, mTransform);
       
     StrokeOptions(strokedPath, thickness, options);
-    mRasterizer.Rasterize(finalPath, pattern, pBlend);
+    mRasterizer.Rasterize(finalPath, pattern, AGGBlendMode(pBlend), BlendWeight(pBlend));
   }
   
   if (!options.mPreserve)
@@ -434,7 +418,7 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
 void IGraphicsAGG::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
 {
   agg::conv_curve<agg::path_storage> curvedPath(mPath);
-  mRasterizer.Rasterize(curvedPath, pattern, pBlend, options.mFillRule);
+  mRasterizer.Rasterize(curvedPath, pattern, AGGBlendMode(pBlend), BlendWeight(pBlend), options.mFillRule);
   if (!options.mPreserve)
     mPath.remove_all();
 }
@@ -515,6 +499,51 @@ APIBitmap* IGraphicsAGG::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetBackingPixelScale();
   return new AGGBitmap(CreatePixmap(std::round(width * scale), std::round(height * scale)), GetScreenScale(), GetDrawScale());
+}
+
+void IGraphicsAGG::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
+{
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
+  int size = pBitmap->GetBitmap()->height() * pBitmap->GetBitmap()->row_bytes();
+    
+  data.Resize(size);
+    
+  if (data.GetSize() >= size)
+    memcpy(data.Get(), pBitmap->GetBitmap()->buf(), size);
+}
+
+void IGraphicsAGG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow)
+{
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
+  agg::pixel_map* pPixMap = pBitmap->GetBitmap();
+  int size = pPixMap->height() * pPixMap->row_bytes();
+    
+  if (mask.GetSize() >= size)
+  {
+    if (!shadow.mDrawForeground)
+    {
+      pBitmap->GetBitmap()->clear(0);
+    }
+    
+    IRECT bounds(layer->Bounds());
+    pixel_wrapper* shadowSource = new pixel_wrapper(mask.Get(), pPixMap->width(), pPixMap->height(), pPixMap->bpp(), pPixMap->row_bytes());
+    APIBitmap* shadowBitmap = new AGGBitmap(shadowSource, pBitmap->GetScale(), pBitmap->GetDrawScale());
+    IBitmap bitmap(shadowBitmap, 1, false);
+    ILayer shadowLayer(shadowBitmap, layer->Bounds());
+      
+    PathTransformSave();
+    PushLayer(layer.get(), false);
+    PushLayer(&shadowLayer, false);
+    PathRect(layer->Bounds());
+    IBlend blend1(kBlendSourceIn, 1.0);
+    PathFill(shadow.mPattern, IFillOptions(), &blend1);
+    PopLayer(false);
+    IBlend blend2(kBlendUnder, shadow.mOpacity);
+    bounds.Translate(shadow.mXOffset, shadow.mYOffset);
+    DrawBitmap(bitmap, bounds, 0, 0, &blend2);
+    PopLayer(false);
+    PathTransformRestore();
+  }
 }
 
 void IGraphicsAGG::EndFrame()
@@ -731,14 +760,5 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
 //  }
   return false;
 }
-
-/*
-agg::pixel_map* IGraphicsAGG::load_image(const char* filename)
-{
-  IBitmap bitmap = LoadBitmap(filename, 1, 1.0);
-  return (agg::pixel_map*) bitmap.mData;
-}
-
-*/
 
 #include "IGraphicsAGG_src.cpp"

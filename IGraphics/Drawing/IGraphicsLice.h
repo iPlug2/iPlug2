@@ -98,12 +98,26 @@ public:
     
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return mDrawBitmap->getBits(); }
-     inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
+  inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
 
+  // Not implemented
+  void DrawRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend, float thickness) override { /* TODO - mark unsupported */ }
+  void DrawEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness) override { /* TODO - mark unsupported */ }
+  void DrawEllipse(const IColor& color, float x, float y, float r1, float r2, float angle, const IBlend* pBlend, float thickness) override { /* TODO - mark unsupported */ }
+  void FillRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend) override { /* TODO - mark unsupported */ }
+  void FillEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend) override { /* TODO - mark unsupported */ }
+  void FillEllipse(const IColor& color, float x, float y, float r1, float r2, float angle, const IBlend* pBlend) override { /* TODO - mark unsupported */ }
+    
 protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
   APIBitmap* CreateAPIBitmap(int width, int height) override;
+
+  int AlphaChannel() const override { return LICE_PIXEL_A; }
+  bool FlippedBitmap() const override { return false; }
+
+  void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
+  void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
 
   bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
 

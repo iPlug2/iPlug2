@@ -52,10 +52,10 @@ public:
   virtual bool CompareState(const uint8_t* pIncomingState, int startPos);
 
   /* implement this and return true to trigger your custom about box, when someone clicks about in the menu of a standalone app or VST3 plugin */
-  virtual void OnHostRequestingAboutBox() {} // TODO: implement this for VST 3
+  virtual bool OnHostRequestingAboutBox() { return false; }
 
   /* implement this and return true to trigger your custom help info, when someone clicks help in the menu of a standalone app or VST3 plugin */
-  virtual void OnHostRequestingProductHelp() {} // TODO: implement this for VST 3
+  virtual bool OnHostRequestingProductHelp() { return false; }
   
   /** Implement this to do something specific when IPlug becomes aware of the particular host that is hosting the plug-in.
    * The method may get called multiple times. */

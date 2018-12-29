@@ -112,10 +112,10 @@ public:
     }
 
     template <typename VertexSourceType>
-    void Rasterize(VertexSourceType& path, const IPattern& pattern,const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding)
+    void Rasterize(VertexSourceType& path, const IPattern& pattern, agg::comp_op_e mode, float opacity, EFillRule rule = kFillWinding)
     {
       SetPath(path);
-      RasterizePattern(pattern, pBlend, rule);
+      RasterizePattern(pattern, mode, opacity, rule);
     }
 
     template <typename VertexSourceType, typename RendererType>
@@ -135,8 +135,9 @@ public:
       
     void BlendFrom(agg::rendering_buffer& renBuf, const IRECT& bounds, int srcX, int srcY, agg::comp_op_e op, agg::cover_type cover)
     {
+      // N.B. blend_from/rect_i is inclusive, hence -1 on each dimension here
       mPixf.comp_op(op);
-      agg::rect_i r(srcX, srcY, srcX + std::round(bounds.W()), srcY + std::round(bounds.H()));
+      agg::rect_i r(srcX, srcY, srcX + std::round(bounds.W()) - 1, srcY + std::round(bounds.H()) - 1);
       mRenBase.blend_from(PixfmtType(renBuf), &r, std::round(bounds.L) - srcX, std::round(bounds.T) - srcY, cover);
     }
 
@@ -154,7 +155,7 @@ public:
       mRasterizer.add_path(clippedPath);
     }
 
-    void RasterizePattern(const IPattern& pattern,const IBlend* pBlend = nullptr, EFillRule rule = kFillWinding);
+    void RasterizePattern(const IPattern& pattern, agg::comp_op_e mode, float opacity, EFillRule rule = kFillWinding);
 
     IGraphicsAGG& mGraphics;
     RenbaseType mRenBase;
@@ -190,12 +191,16 @@ public:
     
   void EndFrame() override;
     
- //  IBitmap CreateIBitmap(const char * cacheName, int w, int h) override;
-
 protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int s) override;
   APIBitmap* CreateAPIBitmap(int width, int height) override;
+
+  int AlphaChannel() const override { return 0; }
+  bool FlippedBitmap() const override { return false; }
+
+  void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
+  void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
 
   bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0, bool measure = false) override;
 

@@ -31,7 +31,11 @@ public:
 
   void PlatformResize() override;
 
-//  void HideMouseCursor(bool hide) override
+  void CheckTabletInput(UINT msg);
+    
+  void HideMouseCursor(bool hide, bool lock) override;
+  void MoveMouseCursor(float x, float y) override;
+  void SetMouseCursor(ECursor cursor) override;
 
   int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) override;
 
@@ -84,6 +88,7 @@ private:
 
   inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam);
   inline IMouseInfo IGraphicsWin::GetMouseInfoDeltas(float&dX, float& dY, LPARAM lParam, WPARAM wParam);
+  bool MouseCursorIsLocked();
 
   HINSTANCE mHInstance = nullptr;
   HWND mPlugWnd = nullptr;
@@ -98,6 +103,8 @@ private:
   IControl* mEdControl = nullptr;
   EParamEditMsg mParamEditMsg = kNone;
   bool mShowingTooltip = false;
+  float mHiddenCursorX;
+  float mHiddenCursorY;
   int mTooltipIdx = -1;
 
   WDL_String mMainWndClassName;

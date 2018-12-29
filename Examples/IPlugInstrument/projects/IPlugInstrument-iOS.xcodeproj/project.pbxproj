@@ -73,7 +73,7 @@
 		4F9A8309213DE87600BE63A4 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F9A8300213DE87600BE63A4 /* IControls.cpp */; };
 		4F9A830A213DE87600BE63A4 /* IPopupMenuControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F9A8301213DE87600BE63A4 /* IPopupMenuControl.cpp */; };
 		4F9A830B213DE87600BE63A4 /* IControls.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8302213DE87600BE63A4 /* IControls.h */; };
-		4F9A830C213DE87600BE63A4 /* IPerfDisplayControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8303213DE87600BE63A4 /* IPerfDisplayControl.h */; };
+		4F9A830C213DE87600BE63A4 /* IFPSDisplayControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8303213DE87600BE63A4 /* IFPSDisplayControl.h */; };
 		4F9A830D213DE87600BE63A4 /* IVMeterControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8304213DE87600BE63A4 /* IVMeterControl.h */; };
 		4F9A830E213DE87600BE63A4 /* IVKeyboardControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8305213DE87600BE63A4 /* IVKeyboardControl.h */; };
 		4F9A830F213DE87600BE63A4 /* IVScopeControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8306213DE87600BE63A4 /* IVScopeControl.h */; };
@@ -272,7 +272,7 @@
 		4F9A8300213DE87600BE63A4 /* IControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IControls.cpp; sourceTree = "<group>"; };
 		4F9A8301213DE87600BE63A4 /* IPopupMenuControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPopupMenuControl.cpp; sourceTree = "<group>"; };
 		4F9A8302213DE87600BE63A4 /* IControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControls.h; sourceTree = "<group>"; };
-		4F9A8303213DE87600BE63A4 /* IPerfDisplayControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPerfDisplayControl.h; sourceTree = "<group>"; };
+		4F9A8303213DE87600BE63A4 /* IFPSDisplayControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IFPSDisplayControl.h; sourceTree = "<group>"; };
 		4F9A8304213DE87600BE63A4 /* IVMeterControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVMeterControl.h; sourceTree = "<group>"; };
 		4F9A8305213DE87600BE63A4 /* IVKeyboardControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVKeyboardControl.h; sourceTree = "<group>"; };
 		4F9A8306213DE87600BE63A4 /* IVScopeControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVScopeControl.h; sourceTree = "<group>"; };
@@ -440,7 +440,7 @@
 			children = (
 				4F9A8300213DE87600BE63A4 /* IControls.cpp */,
 				4F9A8302213DE87600BE63A4 /* IControls.h */,
-				4F9A8303213DE87600BE63A4 /* IPerfDisplayControl.h */,
+				4F9A8303213DE87600BE63A4 /* IFPSDisplayControl.h */,
 				4F9A8301213DE87600BE63A4 /* IPopupMenuControl.cpp */,
 				4F9A82FE213DE87600BE63A4 /* IPopupMenuControl.h */,
 				4F9A8305213DE87600BE63A4 /* IVKeyboardControl.h */,
@@ -680,7 +680,7 @@
 				4F048C9720B1E74F002052E7 /* IPlugInstrumentFramework.h in Headers */,
 				4FB72D9421C5B73E00DF244D /* IPlugInstrument_DSP.h in Headers */,
 				4F977D6020CC9DD800D19F46 /* FPUUpsampler2x.h in Headers */,
-				4F9A830C213DE87600BE63A4 /* IPerfDisplayControl.h in Headers */,
+				4F9A830C213DE87600BE63A4 /* IFPSDisplayControl.h in Headers */,
 				4F6E672E21C560BD005991A9 /* ControlRamp.h in Headers */,
 				4FFF108920A1036200D3092F /* config.h in Headers */,
 				4F8028CC20A24FA9003A66EC /* fontstash.h in Headers */,

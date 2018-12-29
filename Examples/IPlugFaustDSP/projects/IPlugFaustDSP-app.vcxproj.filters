@@ -252,7 +252,7 @@
     <ClInclude Include="..\..\..\IGraphics\Controls\IControls.h">
       <Filter>IGraphics\Controls</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Controls\IPerfDisplayControl.h">
+    <ClInclude Include="..\..\..\IGraphics\Controls\IFPSDisplayControl.h">
       <Filter>IGraphics\Controls</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Controls\IPopupMenuControl.h">

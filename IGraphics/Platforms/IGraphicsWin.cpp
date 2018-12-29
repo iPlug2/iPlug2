@@ -99,6 +99,22 @@ inline IMouseInfo IGraphicsWin::GetMouseInfoDeltas(float& dX, float& dY, LPARAM 
   return info;
 }
 
+void IGraphicsWin::CheckTabletInput(UINT msg)
+{
+  if ((msg == WM_LBUTTONDOWN) || (msg == WM_RBUTTONDOWN) || (msg == WM_MBUTTONDOWN) || (msg == WM_MOUSEMOVE)
+      || (msg == WM_RBUTTONDBLCLK) || (msg == WM_LBUTTONDBLCLK) || (msg == WM_MBUTTONDBLCLK)
+      || (msg == WM_RBUTTONUP) || (msg == WM_LBUTTONUP) || (msg == WM_MBUTTONUP)
+      || (msg == WM_MOUSEHOVER) || (msg == WM_MOUSELEAVE))
+  {
+    const LONG_PTR c_SIGNATURE_MASK = 0xFFFFFF00;
+    const LONG_PTR c_MOUSEEVENTF_FROMTOUCH = 0xFF515700;
+    
+    LONG_PTR extraInfo = GetMessageExtraInfo();
+    SetTabletInput(((extraInfo & c_SIGNATURE_MASK) == c_MOUSEEVENTF_FROMTOUCH));
+    mCursorLock &= !mTabletInput;
+  }
+}
+
 // static
 LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -131,6 +147,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     return DefWindowProc(hWnd, msg, wParam, lParam);
   }
 
+  pGraphics->CheckTabletInput(msg);
+  
   switch (msg)
   {
 
@@ -260,7 +278,12 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       {
         float dX, dY;
         IMouseInfo info = pGraphics->GetMouseInfoDeltas(dX, dY, lParam, wParam);
-        pGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
+        if (dX || dY)
+        {
+          pGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
+          if (pGraphics->MouseCursorIsLocked())
+            pGraphics->MoveMouseCursor(pGraphics->mHiddenCursorX, pGraphics->mHiddenCursorY);
+        }
       }
 
       return 0;
@@ -602,32 +625,91 @@ void IGraphicsWin::PlatformResize()
   }
 }
 
-//void IGraphicsWin::HideMouseCursor(bool hide)
-//{
-  //if(hide)
-  //{
-  //  if (mCursorHidden)
-  //  {
-  //    SetCursorPos(mHiddenMousePointX, mHiddenMousePointY);
-  //    ShowCursor(true);
-  //    mCursorHidden = false;
-  //  }
-  //}
-  //else
-  //{
-  //  if (!mCursorHidden)
-  //  {
-  //    POINT p;
-  //    GetCursorPos(&p);
-  //    
-  //    mHiddenMousePointX = p.x;
-  //    mHiddenMousePointY = p.y;
-  //    
-  //    ShowCursor(false);
-  //    mCursorHidden = true;
-  //  }
-  //}
-//}
+void IGraphicsWin::HideMouseCursor(bool hide, bool lock)
+{
+  if (mCursorHidden == hide)
+    return;
+  
+  if (hide)
+  {
+    mHiddenCursorX = mCursorX;
+    mHiddenCursorY = mCursorY;
+      
+    ShowCursor(false);
+    mCursorHidden = true;
+    mCursorLock = lock && !mTabletInput;
+  }
+  else
+  {
+    if (mCursorLock)
+      MoveMouseCursor(mHiddenCursorX, mHiddenCursorY);
+
+    ShowCursor(true);
+    mCursorHidden = false;
+    mCursorLock = false;
+  }
+}
+
+void IGraphicsWin::MoveMouseCursor(float x, float y)
+{
+  if (mTabletInput)
+    return;
+ 
+  float scale = GetDrawScale() * GetScreenScale();
+    
+  POINT p;
+  p.x = std::round(x * scale);
+  p.y = std::round(y * scale);
+  
+  ::ClientToScreen((HWND)GetWindow(), &p);
+  
+  if (SetCursorPos(p.x, p.y))
+  {
+    GetCursorPos(&p);
+    ScreenToClient((HWND)GetWindow(), &p);
+    
+    mCursorX = p.x / scale;
+    mCursorY = p.y / scale;
+      
+    if (mCursorHidden && !mCursorLock)
+    {
+      mHiddenCursorX = p.x / scale;
+      mHiddenCursorY = p.y / scale;
+    }
+  }
+}
+
+void IGraphicsWin::SetMouseCursor(ECursor cursor)
+{
+  HCURSOR cursorType;
+    
+  switch (cursor)
+  {
+    case ECursor::ARROW:            cursorType = LoadCursor(NULL, IDC_ARROW);           break;
+    case ECursor::IBEAM:            cursorType = LoadCursor(NULL, IDC_IBEAM);           break;
+    case ECursor::WAIT:             cursorType = LoadCursor(NULL, IDC_WAIT);            break;
+    case ECursor::CROSS:            cursorType = LoadCursor(NULL, IDC_CROSS);           break;
+    case ECursor::UPARROW:          cursorType = LoadCursor(NULL, IDC_UPARROW);         break;
+    case ECursor::SIZENWSE:         cursorType = LoadCursor(NULL, IDC_SIZENWSE);        break;
+    case ECursor::SIZENESW:         cursorType = LoadCursor(NULL, IDC_SIZENESW);        break;
+    case ECursor::SIZEWE:           cursorType = LoadCursor(NULL, IDC_SIZEWE);          break;
+    case ECursor::SIZENS:           cursorType = LoadCursor(NULL, IDC_SIZENS);          break;
+    case ECursor::SIZEALL:          cursorType = LoadCursor(NULL, IDC_SIZEALL);         break;
+    case ECursor::INO:              cursorType = LoadCursor(NULL, IDC_NO);              break;
+    case ECursor::HAND:             cursorType = LoadCursor(NULL, IDC_HAND);            break;
+    case ECursor::APPSTARTING:      cursorType = LoadCursor(NULL, IDC_APPSTARTING);     break;
+    case ECursor::HELP:             cursorType = LoadCursor(NULL, IDC_HELP);            break;
+    default:
+      cursorType = LoadCursor(NULL, IDC_ARROW);
+  }
+
+  SetCursor(cursorType);
+}
+
+bool IGraphicsWin::MouseCursorIsLocked()
+{
+  return mCursorLock;
+}
 
 int IGraphicsWin::ShowMessageBox(const char* text, const char* caption, EMessageBoxType type)
 {
@@ -932,7 +1014,6 @@ IPopupMenu* IGraphicsWin::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds,
     return GetPopupMenuControl()->CreatePopupMenu(menu, bounds, pCaller);
   else
   {
-
     long offsetIdx = 0;
     HMENU hMenu = CreateMenu(menu, &offsetIdx);
     IPopupMenu* result = nullptr;
@@ -1160,6 +1241,8 @@ void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   {
     fileName.Set("");
   }
+
+  ReleaseMouseCapture();
 }
 
 void IGraphicsWin::PromptForDirectory(WDL_String& dir)
@@ -1192,6 +1275,8 @@ void IGraphicsWin::PromptForDirectory(WDL_String& dir)
   {
     dir.Set("");
   }
+
+  ReleaseMouseCapture();
   
   ::OleUninitialize();
 }
