@@ -869,10 +869,10 @@ void IGraphics::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
   if (pControl) pControl->OnMouseWheel(x, y, mod, d);
 }
 
-bool IGraphics::OnKeyDown(float x, float y, int key)
+bool IGraphics::OnKeyDown(float x, float y, const IKeyPress& key)
 {
   Trace("IGraphics::OnKeyDown", __LINE__, "x:%0.2f, y:%0.2f, key:%i",
-        x, y, key);
+        x, y, key.mAscii);
 
   bool handled = false;
 

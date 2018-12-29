@@ -100,8 +100,8 @@ public:
   /** Implement this method to respond to a key down event on this control. 
    * @param x The X coordinate of the mouse at the time of this key down event
    * @param y The Y coordinate of the mouse at the time of this key down event
-   * @param key The key that was pressed, see EIPlugKeycodes */
-  virtual bool OnKeyDown(float x, float y, int key) { return false; }
+   * @param key \todo */
+  virtual bool OnKeyDown(float x, float y, const IKeyPress& key) { return false; }
 
   /** Implement this method to respond to a mouseover event on this control. Implementations should call base class, if you wish to use mMouseIsOver.
    * @param x The X coordinate of the mouse event
@@ -865,7 +865,7 @@ public:
 
 protected:
   bool mShowParamLabel;
-  bool mIsListControl = false ;
+  bool mIsListControl = false;
 };
 
 #pragma mark - Base Controls

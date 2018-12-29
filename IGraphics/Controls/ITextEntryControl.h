@@ -20,7 +20,7 @@ public:
   void Draw(IGraphics& g) override;
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-  bool OnKeyDown(float x, float y, int key) override;
+  bool OnKeyDown(float x, float y, const IKeyPress& key) override;
 //  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
 //  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
 //  void OnMouseOut() override;

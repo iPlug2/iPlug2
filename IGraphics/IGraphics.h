@@ -758,7 +758,7 @@ public:
    * @param pControl A control that inherits from IPopupMenuControl */
   void AttachPopupMenuControl(const IText& text = DEFAULT_TEXT, const IRECT& bounds = IRECT());
   
-  void SetKeyHandlerFunc(std::function<bool(int)> keyHandlerFunc) { mKeyHandlerFunc = keyHandlerFunc; }
+  void SetKeyHandlerFunc(std::function<bool(const IKeyPress& key)> keyHandlerFunc) { mKeyHandlerFunc = keyHandlerFunc; }
   
   /** Shows a control to display the frame rate of drawing
    * @param enable \c true to show */
@@ -858,9 +858,9 @@ public:
 
   /** @param x The X coordinate in the graphics context of the mouse cursor at the time of the key press
    * @param y The Y coordinate in the graphics context of the mouse cursor at the time of the key press
-   * @param key An integer represent the key pressed, see EIPlugKeyCodes
+   * @param \todo
    * @return \c true if handled \todo check this */
-  bool OnKeyDown(float x, float y, int key);
+  bool OnKeyDown(float x, float y, const IKeyPress& key);
 
   /** @param x The X coordinate in the graphics context at which to draw
    * @param y The Y coordinate in the graphics context at which to draw
@@ -1088,7 +1088,7 @@ private:
   bool mLayoutOnResize = false;
   EUIResizerMode mGUISizeMode = EUIResizerMode::kUIResizerScale;
   double mPrevTimestamp = 0.;
-  std::function<bool(int key)> mKeyHandlerFunc = nullptr;
+  std::function<bool(const IKeyPress& key)> mKeyHandlerFunc = nullptr;
 protected:
   friend class IGraphicsLiveEdit;
   friend class ICornerResizerBase;

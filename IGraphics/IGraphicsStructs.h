@@ -1411,6 +1411,25 @@ struct IShadow
   bool mDrawForeground;
 };
 
+struct IKeyPress
+{
+  int mVK = 0;
+  int mAscii = 0;
+  int mFlag = 0;
+  
+  IKeyPress(int ascii, int vk, int flag)
+  : mVK(vk)
+  , mAscii(ascii)
+  , mFlag(flag)
+  {}
+  
+  bool HasCtrlCMD() const { return (mFlag & FCONTROL); }
+  bool HasAlt() const { return (mFlag & FALT); }
+  bool HasShift() const { return (mFlag & FSHIFT); }
+  bool HasVK() const { return (mFlag & FVIRTKEY); }
+
+};
+
 // TODO: static storage needs thread safety mechanism
 template <class T>
 class StaticStorage
