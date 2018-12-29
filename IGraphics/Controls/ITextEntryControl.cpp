@@ -99,7 +99,7 @@ void ITextEntryControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   if(!mRECT.Contains(x, y))
   {
-    DismissEdit();
+    CommitEdit();
     return;
   }
     
@@ -150,7 +150,8 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
     case VK_TAB: return false;
     case VK_DELETE: stbKey = VK_DELETE; break;
     case VK_BACK: stbKey = VK_BACK; break;
-    case VK_RETURN: stbKey = VK_RETURN; break;
+    case VK_RETURN: CommitEdit(); break;
+    case VK_ESCAPE: DismissEdit(); break;
     default:
     {
       if(key.VK >= '0' && key.VK <= '9')
@@ -308,6 +309,13 @@ void ITextEntryControl::CreateTextEntry(const IRECT& bounds, const IText& text, 
 }
 
 void ITextEntryControl::DismissEdit()
+{
+  mEditing = false;
+  SetTargetAndDrawRECTs(IRECT());
+  GetUI()->SetAllControlsDirty();
+}
+
+void ITextEntryControl::CommitEdit()
 {
   mEditing = false;
   SetTargetAndDrawRECTs(IRECT());

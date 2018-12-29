@@ -38,7 +38,8 @@ public:
   
   bool EditInProgress() { return mEditing; }
   void DismissEdit();
-  
+  void CommitEdit();
+
 private:
   template<typename Proc>
   bool CallSTB(Proc proc);
