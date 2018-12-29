@@ -333,7 +333,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         return 0;
       }
     }
-
+    case WM_GETDLGCODE:
+      return DLGC_WANTALLKEYS;
     case WM_KEYDOWN:
     {
       POINT p;
