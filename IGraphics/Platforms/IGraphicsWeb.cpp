@@ -10,6 +10,8 @@
 
 #include <cstring>
 #include <cstdio>
+#include <emscripten/key_codes.h>
+#include "swell-types.h"
 
 #include "IGraphicsWeb.h"
 #include "IControl.h"
@@ -19,200 +21,207 @@ using namespace emscripten;
 
 extern IGraphics* gGraphics;
 
-// from <emscripten/key_codes.h>
-#define VK_CANCEL              0x03
-#define VK_HELP                0x06
-#define VK_BACK                0x08
-#define VK_TAB                 0x09
-#define VK_CLEAR               0x0C
-#define VK_RETURN              0x0D
-#define VK_ENTER               0x0E
-#define VK_SHIFT               0x10
-#define VK_CONTROL             0x11
-#define VK_ALT                 0x12
-#define VK_PAUSE               0x13
-#define VK_CAPS_LOCK           0x14
-#define VK_KANA                0x15
-#define VK_HANGUL              0x15
-#define VK_EISU                0x16
-#define VK_JUNJA               0x17
-#define VK_FINAL               0x18
-#define VK_HANJA               0x19
-#define VK_KANJI               0x19
-#define VK_ESCAPE              0x1B
-#define VK_CONVERT             0x1C
-#define VK_NONCONVERT          0x1D
-#define VK_ACCEPT              0x1E
-#define VK_MODECHANGE          0x1F
-#define VK_SPACE               0x20
-#define VK_PAGE_UP             0x21
-#define VK_PAGE_DOWN           0x22
-#define VK_END                 0x23
-#define VK_HOME                0x24
-#define VK_LEFT                0x25
-#define VK_UP                  0x26
-#define VK_RIGHT               0x27
-#define VK_DOWN                0x28
-#define VK_SELECT              0x29
-#define VK_PRINT               0x2A
-#define VK_EXECUTE             0x2B
-#define VK_PRINTSCREEN         0x2C
-#define VK_INSERT              0x2D
-#define VK_DELETE              0x2E
-#define VK_0                   0x30
-#define VK_1                   0x31
-#define VK_2                   0x32
-#define VK_3                   0x33
-#define VK_4                   0x34
-#define VK_5                   0x35
-#define VK_6                   0x36
-#define VK_7                   0x37
-#define VK_8                   0x38
-#define VK_9                   0x39
-#define VK_COLON               0x3A
-#define VK_SEMICOLON           0x3B
-#define VK_LESS_THAN           0x3C
-#define VK_EQUALS              0x3D
-#define VK_GREATER_THAN        0x3E
-#define VK_QUESTION_MARK       0x3F
-#define VK_AT                  0x40
-#define VK_A                   0x41
-#define VK_B                   0x42
-#define VK_C                   0x43
-#define VK_D                   0x44
-#define VK_E                   0x45
-#define VK_F                   0x46
-#define VK_G                   0x47
-#define VK_H                   0x48
-#define VK_I                   0x49
-#define VK_J                   0x4A
-#define VK_K                   0x4B
-#define VK_L                   0x4C
-#define VK_M                   0x4D
-#define VK_N                   0x4E
-#define VK_O                   0x4F
-#define VK_P                   0x50
-#define VK_Q                   0x51
-#define VK_R                   0x52
-#define VK_S                   0x53
-#define VK_T                   0x54
-#define VK_U                   0x55
-#define VK_V                   0x56
-#define VK_W                   0x57
-#define VK_X                   0x58
-#define VK_Y                   0x59
-#define VK_Z                   0x5A
-#define VK_WIN                 0x5B
-#define VK_CONTEXT_MENU        0x5D
-#define VK_SLEEP               0x5F
-#define VK_NUMPAD0             0x60
-#define VK_NUMPAD1             0x61
-#define VK_NUMPAD2             0x62
-#define VK_NUMPAD3             0x63
-#define VK_NUMPAD4             0x64
-#define VK_NUMPAD5             0x65
-#define VK_NUMPAD6             0x66
-#define VK_NUMPAD7             0x67
-#define VK_NUMPAD8             0x68
-#define VK_NUMPAD9             0x69
-#define VK_MULTIPLY            0x6A
-#define VK_ADD                 0x6B
-#define VK_SEPARATOR           0x6C
-#define VK_SUBTRACT            0x6D
-#define VK_DECIMAL             0x6E
-#define VK_DIVIDE              0x6F
-#define VK_F1                  0x70
-#define VK_F2                  0x71
-#define VK_F3                  0x72
-#define VK_F4                  0x73
-#define VK_F5                  0x74
-#define VK_F6                  0x75
-#define VK_F7                  0x76
-#define VK_F8                  0x77
-#define VK_F9                  0x78
-#define VK_F10                 0x79
-#define VK_F11                 0x7A
-#define VK_F12                 0x7B
-#define VK_F13                 0x7C
-#define VK_F14                 0x7D
-#define VK_F15                 0x7E
-#define VK_F16                 0x7F
-#define VK_F17                 0x80
-#define VK_F18                 0x81
-#define VK_F19                 0x82
-#define VK_F20                 0x83
-#define VK_F21                 0x84
-#define VK_F22                 0x85
-#define VK_F23                 0x86
-#define VK_F24                 0x87
-#define VK_NUM_LOCK            0x90
-#define VK_SCROLL_LOCK         0x91
-#define VK_WIN_OEM_FJ_JISHO    0x92
-#define VK_WIN_OEM_FJ_MASSHOU  0x93
-#define VK_WIN_OEM_FJ_TOUROKU  0x94
-#define VK_WIN_OEM_FJ_LOYA     0x95
-#define VK_WIN_OEM_FJ_ROYA     0x96
-#define VK_CIRCUMFLEX          0xA0
-#define VK_EXCLAMATION         0xA1
-#define VK_DOUBLE_QUOTE        0xA3
-#define VK_HASH                0xA3
-#define VK_DOLLAR              0xA4
-#define VK_PERCENT             0xA5
-#define VK_AMPERSAND           0xA6
-#define VK_UNDERSCORE          0xA7
-#define VK_OPEN_PAREN          0xA8
-#define VK_CLOSE_PAREN         0xA9
-#define VK_ASTERISK            0xAA
-#define VK_PLUS                0xAB
-#define VK_PIPE                0xAC
-#define VK_HYPHEN_MINUS        0xAD
-#define VK_OPEN_CURLY_BRACKET  0xAE
-#define VK_CLOSE_CURLY_BRACKET 0xAF
-#define VK_TILDE               0xB0
-#define VK_VOLUME_MUTE         0xB5
-#define VK_VOLUME_DOWN         0xB6
-#define VK_VOLUME_UP           0xB7
-#define VK_COMMA               0xBC
-#define VK_PERIOD              0xBE
-#define VK_SLASH               0xBF
-#define VK_BACK_QUOTE          0xC0
-#define VK_OPEN_BRACKET        0xDB
-#define VK_BACK_SLASH          0xDC
-#define VK_CLOSE_BRACKET       0xDD
-#define VK_QUOTE               0xDE
-#define VK_META                0xE0
-#define VK_ALTGR               0xE1
-#define VK_WIN_ICO_HELP        0xE3
-#define VK_WIN_ICO_00          0xE4
-#define VK_WIN_ICO_CLEAR       0xE6
-#define VK_WIN_OEM_RESET       0xE9
-#define VK_WIN_OEM_JUMP        0xEA
-#define VK_WIN_OEM_PA1         0xEB
-#define VK_WIN_OEM_PA2         0xEC
-#define VK_WIN_OEM_PA3         0xED
-#define VK_WIN_OEM_WSCTRL      0xEE
-#define VK_WIN_OEM_CUSEL       0xEF
-#define VK_WIN_OEM_ATTN        0xF0
-#define VK_WIN_OEM_FINISH      0xF1
-#define VK_WIN_OEM_COPY        0xF2
-#define VK_WIN_OEM_AUTO        0xF3
-#define VK_WIN_OEM_ENLW        0xF4
-#define VK_WIN_OEM_BACKTAB     0xF5
-#define VK_ATTN                0xF6
-#define VK_CRSEL               0xF7
-#define VK_EXSEL               0xF8
-#define VK_EREOF               0xF9
-#define VK_PLAY                0xFA
-#define VK_ZOOM                0xFB
-#define VK_PA1                 0xFD
-#define VK_WIN_OEM_CLEAR       0xFE
+static int domVKToWinVK(int dom_vk_code)
+{
+  switch(dom_vk_code)
+  {
+//    case DOM_VK_CANCEL:               return 0;  // TODO
+    case DOM_VK_HELP:                 return VK_HELP;
+    case DOM_VK_BACK_SPACE:           return VK_BACK;
+    case DOM_VK_TAB:                  return VK_TAB;
+    case DOM_VK_CLEAR:                return VK_CLEAR;
+    case DOM_VK_RETURN:               return VK_RETURN;
+    case DOM_VK_ENTER:                return VK_RETURN;
+    case DOM_VK_SHIFT:                return VK_SHIFT;
+    case DOM_VK_CONTROL:              return VK_CONTROL;
+    case DOM_VK_ALT:                  return VK_MENU;
+    case DOM_VK_PAUSE:                return VK_PAUSE;
+    case DOM_VK_CAPS_LOCK:            return VK_CAPITAL;
+    case DOM_VK_ESCAPE:               return VK_ESCAPE;
+//    case DOM_VK_CONVERT:              return 0;  // TODO
+//    case DOM_VK_NONCONVERT:           return 0;  // TODO
+//    case DOM_VK_ACCEPT:               return 0;  // TODO
+//    case DOM_VK_MODECHANGE:           return 0;  // TODO
+    case DOM_VK_SPACE:                return VK_SPACE;
+    case DOM_VK_PAGE_UP:              return VK_PRIOR;
+    case DOM_VK_PAGE_DOWN:            return VK_NEXT;
+    case DOM_VK_END:                  return VK_END;
+    case DOM_VK_HOME:                 return VK_HOME;
+    case DOM_VK_LEFT:                 return VK_LEFT;
+    case DOM_VK_UP:                   return VK_UP;
+    case DOM_VK_RIGHT:                return VK_RIGHT;
+    case DOM_VK_DOWN:                 return VK_DOWN;
+//    case DOM_VK_SELECT:               return 0;  // TODO
+//    case DOM_VK_PRINT:                return 0;  // TODO
+//    case DOM_VK_EXECUTE:              return 0;  // TODO
+//    case DOM_VK_PRINTSCREEN:          return 0;  // TODO
+    case DOM_VK_INSERT:               return VK_INSERT;
+    case DOM_VK_DELETE:               return VK_DELETE;
+//    case DOM_VK_0:                    return 0;  // TODO
+//    case DOM_VK_1:                    return 0;  // TODO
+//    case DOM_VK_2:                    return 0;  // TODO
+//    case DOM_VK_3:                    return 0;  // TODO
+//    case DOM_VK_4:                    return 0;  // TODO
+//    case DOM_VK_5:                    return 0;  // TODO
+//    case DOM_VK_6:                    return 0;  // TODO
+//    case DOM_VK_7:                    return 0;  // TODO
+//    case DOM_VK_8:                    return 0;  // TODO
+//    case DOM_VK_9:                    return 0;  // TODO
+//    case DOM_VK_COLON:                return 0;  // TODO
+//    case DOM_VK_SEMICOLON:            return 0;  // TODO
+//    case DOM_VK_LESS_THAN:            return 0;  // TODO
+//    case DOM_VK_EQUALS:               return 0;  // TODO
+//    case DOM_VK_GREATER_THAN:         return 0;  // TODO
+//    case DOM_VK_QUESTION_MARK:        return 0;  // TODO
+//    case DOM_VK_AT:                   return 0;  // TODO
+//    case DOM_VK_A:                    return VK_A;
+//    case DOM_VK_B:                    return VK_B;
+//    case DOM_VK_C:                    return VK_C;
+//    case DOM_VK_D:                    return VK_D;
+//    case DOM_VK_E:                    return VK_E;
+//    case DOM_VK_F:                    return VK_F;
+//    case DOM_VK_G:                    return VK_G;
+//    case DOM_VK_H:                    return VK_H;
+//    case DOM_VK_I:                    return VK_I;
+//    case DOM_VK_J:                    return VK_J;
+//    case DOM_VK_K:                    return VK_K;
+//    case DOM_VK_L:                    return VK_L;
+//    case DOM_VK_M:                    return VK_M;
+//    case DOM_VK_N:                    return VK_N;
+//    case DOM_VK_O:                    return VK_O;
+//    case DOM_VK_P:                    return VK_P;
+//    case DOM_VK_Q:                    return VK_Q;
+//    case DOM_VK_R:                    return VK_R;
+//    case DOM_VK_S:                    return VK_S;
+//    case DOM_VK_T:                    return VK_T;
+//    case DOM_VK_U:                    return VK_U;
+//    case DOM_VK_V:                    return VK_V;
+//    case DOM_VK_W:                    return VK_W;
+//    case DOM_VK_X:                    return VK_X;
+//    case DOM_VK_Y:                    return VK_Y;
+//    case DOM_VK_Z:                    return VK_Z;
+//    case DOM_VK_WIN:                  return 0;  // TODO
+//    case DOM_VK_CONTEXT_MENU:         return 0;  // TODO
+//    case DOM_VK_SLEEP:                return 0;  // TODO
+    case DOM_VK_NUMPAD0:              return VK_NUMPAD0;
+    case DOM_VK_NUMPAD1:              return VK_NUMPAD1;
+    case DOM_VK_NUMPAD2:              return VK_NUMPAD2;
+    case DOM_VK_NUMPAD3:              return VK_NUMPAD3;
+    case DOM_VK_NUMPAD4:              return VK_NUMPAD4;
+    case DOM_VK_NUMPAD5:              return VK_NUMPAD5;
+    case DOM_VK_NUMPAD6:              return VK_NUMPAD6;
+    case DOM_VK_NUMPAD7:              return VK_NUMPAD7;
+    case DOM_VK_NUMPAD8:              return VK_NUMPAD8;
+    case DOM_VK_NUMPAD9:              return VK_NUMPAD9;
+    case DOM_VK_MULTIPLY:             return VK_MULTIPLY;
+    case DOM_VK_ADD:                  return VK_ADD;
+    case DOM_VK_SEPARATOR:            return VK_SEPARATOR;
+    case DOM_VK_SUBTRACT:             return VK_SUBTRACT;
+    case DOM_VK_DECIMAL:              return VK_DECIMAL;
+    case DOM_VK_DIVIDE:               return VK_DIVIDE;
+    case DOM_VK_F1:                   return VK_F1;
+    case DOM_VK_F2:                   return VK_F2;
+    case DOM_VK_F3:                   return VK_F3;
+    case DOM_VK_F4:                   return VK_F4;
+    case DOM_VK_F5:                   return VK_F5;
+    case DOM_VK_F6:                   return VK_F6;
+    case DOM_VK_F7:                   return VK_F7;
+    case DOM_VK_F8:                   return VK_F8;
+    case DOM_VK_F9:                   return VK_F9;
+    case DOM_VK_F10:                  return VK_F10;
+    case DOM_VK_F11:                  return VK_F11;
+    case DOM_VK_F12:                  return VK_F12;
+    case DOM_VK_F13:                  return VK_F13;
+    case DOM_VK_F14:                  return VK_F14;
+    case DOM_VK_F15:                  return VK_F15;
+    case DOM_VK_F16:                  return VK_F16;
+    case DOM_VK_F17:                  return VK_F17;
+    case DOM_VK_F18:                  return VK_F18;
+    case DOM_VK_F19:                  return VK_F19;
+    case DOM_VK_F20:                  return VK_F20;
+    case DOM_VK_F21:                  return VK_F21;
+    case DOM_VK_F22:                  return VK_F22;
+    case DOM_VK_F23:                  return VK_F23;
+    case DOM_VK_F24:                  return VK_F24;
+    case DOM_VK_NUM_LOCK:             return VK_NUMLOCK;
+    case DOM_VK_SCROLL_LOCK:          return VK_SCROLL;
+//    case DOM_VK_WIN_OEM_FJ_JISHO:     return 0;  // TODO
+//    case DOM_VK_WIN_OEM_FJ_MASSHOU:   return 0;  // TODO
+//    case DOM_VK_WIN_OEM_FJ_TOUROKU:   return 0;  // TODO
+//    case DOM_VK_WIN_OEM_FJ_LOYA:      return 0;  // TODO
+//    case DOM_VK_WIN_OEM_FJ_ROYA:      return 0;  // TODO
+//    case DOM_VK_CIRCUMFLEX:           return 0;  // TODO
+//    case DOM_VK_EXCLAMATION:          return 0;  // TODO
+//    case DOM_VK_HASH:                 return 0;  // TODO
+//    case DOM_VK_DOLLAR:               return 0;  // TODO
+//    case DOM_VK_PERCENT:              return 0;  // TODO
+//    case DOM_VK_AMPERSAND:            return 0;  // TODO
+//    case DOM_VK_UNDERSCORE:           return 0;  // TODO
+//    case DOM_VK_OPEN_PAREN:           return 0;  // TODO
+//    case DOM_VK_CLOSE_PAREN:          return 0;  // TODO
+//    case DOM_VK_ASTERISK:             return 0;  // TODO
+//    case DOM_VK_PLUS:                 return 0;  // TODO
+//    case DOM_VK_PIPE:                 return 0;  // TODO
+//    case DOM_VK_HYPHEN_MINUS:         return 0;  // TODO
+//    case DOM_VK_OPEN_CURLY_BRACKET:   return 0;  // TODO
+//    case DOM_VK_CLOSE_CURLY_BRACKET:  return 0;  // TODO
+//    case DOM_VK_TILDE:                return 0;  // TODO
+//    case DOM_VK_VOLUME_MUTE:          return 0;  // TODO
+//    case DOM_VK_VOLUME_DOWN:          return 0;  // TODO
+//    case DOM_VK_VOLUME_UP:            return 0;  // TODO
+//    case DOM_VK_COMMA:                return 0;  // TODO
+//    case DOM_VK_PERIOD:               return 0;  // TODO
+//    case DOM_VK_SLASH:                return 0;  // TODO
+//    case DOM_VK_BACK_QUOTE:           return 0;  // TODO
+//    case DOM_VK_OPEN_BRACKET:         return 0;  // TODO
+//    case DOM_VK_BACK_SLASH:           return 0;  // TODO
+//    case DOM_VK_CLOSE_BRACKET:        return 0;  // TODO
+//    case DOM_VK_QUOTE:                return 0;  // TODO
+//    case DOM_VK_META:                 return 0;  // TODO
+//    case DOM_VK_ALTGR:                return 0;  // TODO
+//    case DOM_VK_WIN_ICO_HELP:         return 0;  // TODO
+//    case DOM_VK_WIN_ICO_00:           return 0;  // TODO
+//    case DOM_VK_WIN_ICO_CLEAR:        return 0;  // TODO
+//    case DOM_VK_WIN_OEM_RESET:        return 0;  // TODO
+//    case DOM_VK_WIN_OEM_JUMP:         return 0;  // TODO
+//    case DOM_VK_WIN_OEM_PA1:          return 0;  // TODO
+//    case DOM_VK_WIN_OEM_PA2:          return 0;  // TODO
+//    case DOM_VK_WIN_OEM_PA3:          return 0;  // TODO
+//    case DOM_VK_WIN_OEM_WSCTRL:       return 0;  // TODO
+//    case DOM_VK_WIN_OEM_CUSEL:        return 0;  // TODO
+//    case DOM_VK_WIN_OEM_ATTN:         return 0;  // TODO
+//    case DOM_VK_WIN_OEM_FINISH:       return 0;  // TODO
+//    case DOM_VK_WIN_OEM_COPY:         return 0;  // TODO
+//    case DOM_VK_WIN_OEM_AUTO:         return 0;  // TODO
+//    case DOM_VK_WIN_OEM_ENLW:         return 0;  // TODO
+//    case DOM_VK_WIN_OEM_BACKTAB:      return 0;  // TODO
+//    case DOM_VK_ATTN:                 return 0;  // TODO
+//    case DOM_VK_CRSEL:                return 0;  // TODO
+//    case DOM_VK_EXSEL:                return 0;  // TODO
+//    case DOM_VK_EREOF:                return 0;  // TODO
+//    case DOM_VK_PLAY:                 return 0;  // TODO
+//    case DOM_VK_ZOOM:                 return 0;  // TODO
+//    case DOM_VK_PA1:                  return 0;  // TODO
+//    case DOM_VK_WIN_OEM_CLEAR:        return 0;  // TODO
+    default:                          return 0;
+  }
+}
 
 EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent* pEvent, void* pUserData)
 {
   IGraphicsWeb* pGraphicsWeb = (IGraphicsWeb*) pUserData;
-
-  switch (eventType) {
-    case EMSCRIPTEN_EVENT_KEYDOWN: pGraphicsWeb->OnKeyDown(pGraphicsWeb->mPrevX, pGraphicsWeb->mPrevY, atoi(pEvent->key)); break;
+  
+  switch (eventType)
+  {
+    case EMSCRIPTEN_EVENT_KEYDOWN:
+    {
+      IKeyPress keyPress {*pEvent->key, domVKToWinVK(pEvent->keyCode), static_cast<bool>(pEvent->shiftKey),
+                                                                       static_cast<bool>(pEvent->ctrlKey),
+                                                                       static_cast<bool>(pEvent->altKey)};
+      
+      pGraphicsWeb->OnKeyDown(pGraphicsWeb->mPrevX, pGraphicsWeb->mPrevY, keyPress);
+      break;
+    }
     default:
       break;
   }

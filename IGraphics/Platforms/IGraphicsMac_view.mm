@@ -529,11 +529,17 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   if ([s length] == 1)
     c = [s characterAtIndex:0];
   
-  IKeyPress keyPress {static_cast<int>(c), code, flag};
+  if(!static_cast<bool>(flag & FVIRTKEY))
+  {
+    code = 0;
+  }
+  
+  IKeyPress keyPress {static_cast<char>(c), code, static_cast<bool>(flag & FSHIFT),
+                                                  static_cast<bool>(flag & FCONTROL),
+                                                  static_cast<bool>(flag & FALT)};
   
   bool handle = mGraphics->OnKeyDown(mPrevX, mPrevY, keyPress);
   
-
   if (!handle)
   {
     [[self nextResponder] keyDown:pEvent];

@@ -1,6 +1,10 @@
 #include "ITextEntryControl.h"
 #include "IPlugPlatform.h"
 
+#ifndef OS_WIN
+  #include "swell-types.h"
+#endif
+
 #define VIRTUAL_KEY_BIT 0x80000000
 #define STB_TEXTEDIT_K_SHIFT 0x40000000
 #define STB_TEXTEDIT_K_CONTROL 0x20000000
@@ -111,9 +115,9 @@ void ITextEntryControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 
 bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
 {
-  if (key.HasCtrlCMD())
+  if (key.C)
   {
-    switch (key.mVK)
+    switch (key.VK)
     {
       case 'A':
       {
@@ -138,35 +142,34 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
     }
   }
   
-  STB_TEXTEDIT_KEYTYPE stbKey = key.mAscii;
+  STB_TEXTEDIT_KEYTYPE stbKey = key.Ascii;
   
-  if(key.HasVK())
+  switch (key.VK)
   {
-    switch (key.mVK)
+    case VK_SPACE: stbKey = VK_SPACE; break;
+    case VK_TAB: return false;
+    case VK_DELETE: stbKey = VK_DELETE; break;
+    case VK_BACK: stbKey = VK_BACK; break;
+    default:
     {
-      case VK_SPACE:
-      {
-        stbKey = VK_SPACE;
+      if(key.VK >= '0' && key.VK <= '9')
         break;
-      }
-      case VK_TAB:
-      {
-        return false;
-      }
-      default:
-      {
-        // TODO: need to shift correct bits for VK
-//        stbKey = (key.mVK) | VIRTUAL_KEY_BIT;
+      if(key.VK >= VK_NUMPAD0 && key.VK <= VK_NUMPAD9)
         break;
-      }
+      if(key.VK >= 'A' && key.VK <= 'Z')
+        break;
+      else
+      // TODO: need to shift correct bits for VK
+//        stbKey = (key.VK) | VIRTUAL_KEY_BIT;
+      break;
     }
   }
 
-  if (key.HasCtrlCMD())
+  if (key.C)
     stbKey |= STB_TEXTEDIT_K_CONTROL;
-  if (key.HasAlt())
+  if (key.A)
     stbKey |= STB_TEXTEDIT_K_ALT;
-  if (key.HasShift())
+  if (key.S)
     stbKey |= STB_TEXTEDIT_K_SHIFT;
   
   return CallSTB([&]() { stb_textedit_key(this, &mEditState, stbKey); }) ? true : false;
@@ -233,8 +236,7 @@ void ITextEntryControl::Layout(StbTexteditRow* row, ITextEntryControl* _this, in
     }
     case IText::kAlignCenter:
     {
-      row->x0 =
-      static_cast<float> ((_this->GetRECT().W() / 2.) - (textWidth / 2.));
+      row->x0 = static_cast<float> ((_this->GetRECT().W() / 2.) - (textWidth / 2.));
       row->x1 = row->x0 + textWidth;
       break;
     }

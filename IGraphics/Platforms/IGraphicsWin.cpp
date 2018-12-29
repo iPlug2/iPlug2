@@ -336,26 +336,15 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
     case WM_KEYDOWN:
     {
-      bool handle = true;
-      int key;
+      POINT p;
+      GetCursorPos(&p);
+      ScreenToClient(hWnd, &p);
+      
+      IKeyPress keyPress {static_cast<char>(c), wParam, static_cast<bool>(GetKeyState(VK_SHIFT)),
+                                                        static_cast<bool>(GetKeyState(VK_CONTROL)),
+                                                        static_cast<bool>(GetKeyState(VK_SHIFT))};
 
-      if (wParam == VK_SPACE) key = KEY_SPACE;
-      else if (wParam == VK_UP) key = KEY_UPARROW;
-      else if (wParam == VK_DOWN) key = KEY_DOWNARROW;
-      else if (wParam == VK_LEFT) key = KEY_LEFTARROW;
-      else if (wParam == VK_RIGHT) key = KEY_RIGHTARROW;
-      else if (wParam >= '0' && wParam <= '9') key = KEY_DIGIT_0+wParam-'0';
-      else if (wParam >= 'A' && wParam <= 'Z') key = KEY_ALPHA_A+wParam-'A';
-      else if (wParam >= 'a' && wParam <= 'z') key = KEY_ALPHA_A+wParam-'a';
-      else handle = false;
-
-      if (handle)
-      {
-        POINT p;
-        GetCursorPos(&p);
-        ScreenToClient(hWnd, &p);
-        handle = pGraphics->OnKeyDown(p.x, p.y, key);
-      }
+      bool handle = pGraphics->OnKeyDown(p.x, p.y, keyPress);
 
       if (!handle)
       {

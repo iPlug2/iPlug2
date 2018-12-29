@@ -30,6 +30,7 @@ IGRAPHICS_SRC = $(IGRAPHICS_PATH)/IGraphics.cpp \
 INCLUDE_PATHS = -I$(PROJECT_ROOT) \
 -I$(WAM_SDK_PATH) \
 -I$(WDL_PATH) \
+-I$(SWELL_PATH) \
 -I$(IPLUG_PATH) \
 -I$(IPLUG_EXTRAS_PATH) \
 -I$(IPLUG_SYNTH_PATH) \
@@ -57,7 +58,8 @@ $(IGRAPHICS_PATH)/IGraphicsEditorDelegate.cpp
 # CFLAGS for both WAM and WEB targets
 CFLAGS = $(INCLUDE_PATHS) \
 -std=c++11  \
--Wno-bitwise-op-parentheses
+-Wno-bitwise-op-parentheses \
+-DWDL_NO_DEFINE_MINMAX
 
 WAM_CFLAGS = -DWAM_API \
 -DIPLUG_DSP=1 \

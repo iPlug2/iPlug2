@@ -985,6 +985,19 @@ struct IRECT
   }
 };
 
+struct IKeyPress
+{
+  int VK; // Windows VK_XXX
+  char Ascii;
+  bool S, C, A; // SHIFT / CTRL(WIN) or CMD (MAC) / ALT
+  
+  IKeyPress(char ascii, int vk, bool s = false, bool c = false, bool a = false)
+  : VK(vk)
+  , Ascii(ascii)
+  , S(s), C(c), A(a)
+  {}
+};
+
 /** Used to manage mouse modifiers i.e. right click and shift/control/alt keys. */
 struct IMouseMod
 {
@@ -1409,25 +1422,6 @@ struct IShadow
   float mYOffset = 0.f;
   float mOpacity = 1.f;
   bool mDrawForeground;
-};
-
-struct IKeyPress
-{
-  int mVK = 0;
-  int mAscii = 0;
-  int mFlag = 0;
-  
-  IKeyPress(int ascii, int vk, int flag)
-  : mVK(vk)
-  , mAscii(ascii)
-  , mFlag(flag)
-  {}
-  
-  bool HasCtrlCMD() const { return (mFlag & FCONTROL); }
-  bool HasAlt() const { return (mFlag & FALT); }
-  bool HasShift() const { return (mFlag & FSHIFT); }
-  bool HasVK() const { return (mFlag & FVIRTKEY); }
-
 };
 
 // TODO: static storage needs thread safety mechanism
