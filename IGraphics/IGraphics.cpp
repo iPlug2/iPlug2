@@ -1274,6 +1274,19 @@ void IGraphics::StartLayer(const IRECT& r)
   PushLayer(new ILayer(CreateAPIBitmap(w, h), alignedBounds), true);
 }
 
+void IGraphics::ResumeLayer(ILayerPtr& layer)
+{
+  ILayerPtr ownedLayer;
+    
+  ownedLayer.swap(layer);
+  ILayer* ownerlessLayer = ownedLayer.release();
+    
+  if (ownerlessLayer)
+  {
+    PushLayer(ownerlessLayer, true);
+  }
+}
+
 ILayerPtr IGraphics::EndLayer()
 {
   return ILayerPtr(PopLayer(true));
