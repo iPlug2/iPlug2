@@ -270,17 +270,15 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   srcMtx /= mTransform;
   srcMtx *= agg::trans_affine_translation((srcX * scale) - dest.L, (srcY * scale) - dest.T);
   srcMtx *= agg::trans_affine_scaling(bitmap.GetScale() * bitmap.GetDrawScale());
-      
-  // TODO - fix clipping of bitmaps in one-to-one mode
     
-  if (bounds.IsPixelAligned() && CheckTransform(srcMtx))
+  if (0)//bounds.IsPixelAligned() && CheckTransform(srcMtx))
   {
     double offsetScale = scale * GetScreenScale();
-    
+    IRECT destScaled = dest.GetScaled(GetBackingPixelScale());
+    srcX = std::round(srcX * offsetScale + std::max(0.f, bounds.L - destScaled.L));
+    srcY = std::round(srcY * offsetScale + std::max(0.f, bounds.T - destScaled.T));
     bounds.Translate(mTransform.tx, mTransform.ty);
-    srcX = std::round(srcX * offsetScale);
-    srcY = std::round(srcY * offsetScale);
-      
+
     mRasterizer.BlendFrom(src, bounds, srcX, srcY, AGGBlendMode(pBlend), AGGCover(pBlend));
   }
   else
