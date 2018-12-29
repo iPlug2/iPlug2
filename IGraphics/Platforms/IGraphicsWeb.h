@@ -67,6 +67,7 @@ public:
   static void OnMainLoopTimer();
   double mPrevX = 0.;
   double mPrevY = 0.;
+  ECursor mCursorType = ECursor::ARROW;
   
 protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;

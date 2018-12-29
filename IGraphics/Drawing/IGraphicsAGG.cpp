@@ -270,17 +270,15 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   srcMtx /= mTransform;
   srcMtx *= agg::trans_affine_translation((srcX * scale) - dest.L, (srcY * scale) - dest.T);
   srcMtx *= agg::trans_affine_scaling(bitmap.GetScale() * bitmap.GetDrawScale());
-      
-  // TODO - fix clipping of bitmaps in one-to-one mode
     
-  if (bounds.IsPixelAligned() && CheckTransform(srcMtx))
+  if (0)//bounds.IsPixelAligned() && CheckTransform(srcMtx))
   {
     double offsetScale = scale * GetScreenScale();
-    
+    IRECT destScaled = dest.GetScaled(GetBackingPixelScale());
+    srcX = std::round(srcX * offsetScale + std::max(0.f, bounds.L - destScaled.L));
+    srcY = std::round(srcY * offsetScale + std::max(0.f, bounds.T - destScaled.T));
     bounds.Translate(mTransform.tx, mTransform.ty);
-    srcX = std::round(srcX * offsetScale);
-    srcY = std::round(srcX * offsetScale);
-      
+
     mRasterizer.BlendFrom(src, bounds, srcX, srcY, AGGBlendMode(pBlend), AGGCover(pBlend));
   }
   else
@@ -297,56 +295,6 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
     mRasterizer.Rasterize(tr, renderer, AGGBlendMode(pBlend));
   }
 }
-/*
-void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, float x, float y, double angle, const IBlend* pBlend)
-{
-  x *= GetScreenScale();
-  y *= GetScreenScale();
-
-  agg::pixel_map* pm_base = base.GetAPIBitmap()->GetBitmap();
-  agg::pixel_map* pm_mask = mask.GetAPIBitmap()->GetBitmap();
-  agg::pixel_map* pm_top = top.GetAPIBitmap()->GetBitmap();
-  
-  agg::rendering_buffer rbuf_base(pm_base->buf(), pm_base->width(), pm_base->height(), pm_base->row_bytes());
-  agg::rendering_buffer rbuf_mask(pm_mask->buf(), pm_mask->width(), pm_mask->height(), pm_mask->row_bytes());
-  agg::rendering_buffer rbuf_top(pm_top->buf(), pm_top->width(), pm_top->height(), pm_top->row_bytes());
-
-  PixfmtType img_base(rbuf_base);
-  PixfmtType img_mask(rbuf_mask);
-  PixfmtType img_top(rbuf_top);
-
-  RenbaseType ren_base(img_base);
-  
-  ren_base.clear(agg::rgba8(255, 255, 255, 0));
-  
-  ren_base.blend_from(img_mask, 0, 0, agg::cover_mask);
-  ren_base.copy_from(img_top);
-  
-  const int width = base.W() * GetScreenScale();
-  const int height = base.H() * GetScreenScale();
-  
-  agg::trans_affine srcMatrix;
-  srcMatrix *= agg::trans_affine_translation(-(width / 2), -(height / 2));
-  srcMatrix *= agg::trans_affine_rotation(angle);
-  srcMatrix *= agg::trans_affine_translation(x + (width / 2), y + (height / 2));
-  
-  agg::trans_affine imgMtx = srcMatrix;
-  imgMtx.invert();
-  
-  InterpolatorType interpolator(imgMtx);
-  
-  imgSourceType imgSrc(img_base);
-  
-  SpanGeneratorType spanGenerator(imgSrc, interpolator);
-  SpanAllocatorType spanAllocator;
-  BitmapRenderType renderer(mRasterizer.GetBase(), spanAllocator, spanGenerator);
-  
-  agg::rounded_rect bounds(0, 0, width, height, 0);
-  agg::conv_transform<agg::rounded_rect> tr(bounds, srcMatrix);
-  
-  mRasterizer.SetPath(tr);
-  mRasterizer.Rasterize(renderer, AGGBlendMode(pBlend));
-}*/
 
 void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax)
 {
@@ -812,14 +760,5 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
 //  }
   return false;
 }
-
-/*
-agg::pixel_map* IGraphicsAGG::load_image(const char* filename)
-{
-  IBitmap bitmap = LoadBitmap(filename, 1, 1.0);
-  return (agg::pixel_map*) bitmap.mData;
-}
-
-*/
 
 #include "IGraphicsAGG_src.cpp"

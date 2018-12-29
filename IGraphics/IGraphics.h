@@ -790,6 +790,9 @@ public:
   /** Get a pointer to the IControl that is currently captured i.e. during dragging
    * @return Pointer to currently captured control */
   IControl* GetCapturedControl() { return mMouseCapture; }
+
+  /* Get the first control in the control list, the background */
+  IControl* GetBackgroundControl() { return GetControl(0);  }
   
   /** @return The number of controls that have been added to this graphics context */
   int NControls() const { return mControls.GetSize(); }
