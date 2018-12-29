@@ -86,8 +86,6 @@ public:
   tresult PLUGIN_API setParamNormalized (uint32 tag, double value) override;
   double PLUGIN_API getParamNormalized(uint32 tag) override;
   double PLUGIN_API plainParamToNormalized(uint32 tag, double plainValue) override;
-  tresult PLUGIN_API getParamStringByValue (uint32 tag, double valueNormalized, Vst::String128 string) override;
-  tresult PLUGIN_API getParamValueByString (uint32 tag, Vst::TChar* string, double& valueNormalized) override;
 
   //IUnitInfo
   int32 PLUGIN_API getUnitCount() override;

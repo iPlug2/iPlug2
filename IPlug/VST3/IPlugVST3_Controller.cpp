@@ -297,42 +297,6 @@ ParamValue PLUGIN_API IPlugVST3Controller::getParamNormalized(ParamID tag)
   return 0.;
 }
 
-tresult PLUGIN_API IPlugVST3Controller::getParamStringByValue(ParamID tag, ParamValue valueNormalized, String128 string)
-{
-//  if (tag < kBypassParam)
-//  {
-//    IParam* pParam = GetParam(tag);
-//
-//    if (pParam)
-//    {
-//      char disp[MAX_PARAM_DISPLAY_LEN];
-//      pParam->GetDisplayForHost(valueNormalized, true, disp);
-//      Steinberg::UString(string, 128).fromAscii(disp);
-//      return kResultTrue;
-//    }
-//  }
-
-  return kResultFalse;
-}
-
-tresult PLUGIN_API IPlugVST3Controller::getParamValueByString (ParamID tag, TChar* string, ParamValue& valueNormalized)
-{
-//  if (tag < kBypassParam)
-//  {
-//    IParam* pParam = GetParam(tag);
-//
-//    if (pParam)
-//    {
-//      String str(string);
-//      valueNormalized = pParam->GetNormalizedFromString(str.text8());
-//      return kResultTrue;
-//    }
-//    return kResultFalse;
-//  }
-//  else
-    return EditController::getParamValueByString (tag, string, valueNormalized);
-}
-
 tresult PLUGIN_API IPlugVST3Controller::getMidiControllerAssignment (int32 busIndex, int16 midiChannel, CtrlNumber midiControllerNumber, ParamID& tag)
 {
 //  if (busIndex == 0)

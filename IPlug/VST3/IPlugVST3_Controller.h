@@ -53,9 +53,7 @@ public:
   ParamValue PLUGIN_API getParamNormalized(ParamID tag) override;
   ParamValue PLUGIN_API plainParamToNormalized(ParamID tag, ParamValue plainValue) override;
   ParamValue PLUGIN_API normalizedParamToPlain (ParamID tag, ParamValue valueNormalized) override;
-  tresult PLUGIN_API getParamStringByValue (ParamID tag, ParamValue valueNormalized, String128 string) override;
-  tresult PLUGIN_API getParamValueByString (ParamID tag, TChar* string, ParamValue& valueNormalized) override;
-
+  
   //ComponentBase
   tresult PLUGIN_API notify (IMessage* message) override;
 

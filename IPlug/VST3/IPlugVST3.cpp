@@ -724,27 +724,6 @@ tresult PLUGIN_API IPlugVST3::setParamNormalized(ParamID tag, ParamValue value)
   return result;
 }
 
-tresult PLUGIN_API IPlugVST3::getParamStringByValue(ParamID tag, ParamValue valueNormalized, String128 string)
-{
-  tresult result = kResultFalse;
-  ENTER_PARAMS_MUTEX;
-  IParam* pParam = GetParam(tag);
-  if (pParam)
-  {
-    pParam->GetDisplayForHost(valueNormalized, true, mParamDisplayStr);
-    Steinberg::UString(string, 128).fromAscii(mParamDisplayStr.Get());
-    result = kResultTrue;
-  }
-  LEAVE_PARAMS_MUTEX;
-
-  return result;
-}
-
-tresult PLUGIN_API IPlugVST3::getParamValueByString(ParamID tag, TChar* string, ParamValue& valueNormalized)
-{
-  return SingleComponentEffect::getParamValueByString(tag, string, valueNormalized);
-}
-
 void IPlugVST3::addDependentView(IPlugVST3View* view)
 {
   mViews.push_back(view);
