@@ -193,8 +193,7 @@ int IGraphics::AttachControl(IControl* pControl, int controlTag, const char* gro
 
 void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize)
 {
-  if(mCornerResizer == nullptr)
-    AttachCornerResizer(new ICornerResizerBase(mDelegate, GetBounds(), 20), sizeMode, layoutOnResize);
+  AttachCornerResizer(new ICornerResizerBase(mDelegate, GetBounds(), 20), sizeMode, layoutOnResize);
 }
 
 void IGraphics::AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode sizeMode, bool layoutOnResize)
@@ -207,6 +206,10 @@ void IGraphics::AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode
     mGUISizeMode = sizeMode;
     mLayoutOnResize = layoutOnResize;
     mCornerResizer->SetGraphics(this);
+  }
+  else
+  {
+    delete pControl;
   }
 }
 
@@ -750,7 +753,7 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
     if (mod.R && paramIdx >= 0)
     {
       ReleaseMouseCapture();
-      PopupHostContextMenuForParam(mMouseCapture, paramIdx, x, y);
+      PopupHostContextMenuForParam(pControl, paramIdx, x, y);
       return;
     }
     #endif
@@ -992,9 +995,6 @@ void IGraphics::PopupHostContextMenuForParam(IControl* pControl, int paramIdx, f
   {
     pControl->CreateContextMenu(contextMenu);
 
-    if(!contextMenu.NItems())
-      return;
-
 #if defined VST3_API || defined VST3C_API
     VST3_API_BASE* pVST3 = dynamic_cast<VST3_API_BASE*>(&mDelegate);
 
@@ -1027,11 +1027,16 @@ void IGraphics::PopupHostContextMenuForParam(IControl* pControl, int paramIdx, f
         pVST3ContextMenu->addItem(item, pControl);
       }
 
+      x *= GetDrawScale();
+      y *= GetDrawScale();
       pVST3ContextMenu->popup((Steinberg::UCoord) x, (Steinberg::UCoord) y);
       pVST3ContextMenu->release();
     }
 
 #else
+    if(!contextMenu.NItems())
+      return;
+
     if(mPopupControl) // if we are not using platform popup menus, IPopupMenuControl will not block
     {
       CreatePopupMenu(contextMenu, x, y, pControl);
@@ -1310,6 +1315,19 @@ void IGraphics::StartLayer(const IRECT& r)
   const int h = static_cast<int>(std::round(alignedBounds.H()));
 
   PushLayer(new ILayer(CreateAPIBitmap(w, h), alignedBounds), true);
+}
+
+void IGraphics::ResumeLayer(ILayerPtr& layer)
+{
+  ILayerPtr ownedLayer;
+    
+  ownedLayer.swap(layer);
+  ILayer* ownerlessLayer = ownedLayer.release();
+    
+  if (ownerlessLayer)
+  {
+    PushLayer(ownerlessLayer, true);
+  }
 }
 
 ILayerPtr IGraphics::EndLayer()
