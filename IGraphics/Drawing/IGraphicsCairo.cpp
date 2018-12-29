@@ -13,6 +13,7 @@
 #include "png.h"
 
 #include "IGraphicsCairo.h"
+#include "ITextEntryControl.h"
 
 #ifdef OS_MAC
 cairo_surface_t* LoadPNGResource(void*, const WDL_String& path)
@@ -503,7 +504,11 @@ bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
 //  cairo_glyph_free (cairo_glyphs);
 #else // TOY text
   IColor fgColor;
-  textEntry ? fgColor = text.mTextEntryFGColor : text.mFGColor;
+  if (GetTextEntryControl() && GetTextEntryControl()->GetRECT() == bounds)
+    fgColor = text.mTextEntryFGColor;
+  else
+    fgColor = text.mFGColor;
+
   cairo_set_source_rgba(mContext, fgColor.R / 255.0, fgColor.G / 255.0, fgColor.B / 255.0, (BlendWeight(pBlend) * fgColor.A) / 255.0);
   cairo_select_font_face(mContext, text.mFont, CAIRO_FONT_SLANT_NORMAL, text.mStyle == IText::kStyleBold ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL);
   cairo_set_font_size(mContext, text.mSize);

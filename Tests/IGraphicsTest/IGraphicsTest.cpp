@@ -39,10 +39,10 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->HandleMouseOver(true);
     pGraphics->EnableTooltips(true);
     
-    pGraphics->SetKeyHandlerFunc([&](int key)
+    pGraphics->SetKeyHandlerFunc([&](const IKeyPress& key)
     {
-      switch (key) {
-        case EIPlugKeyCodes::KEY_TAB:
+      switch (key.VK) {
+        case VK_TAB:
           dynamic_cast<IPanelControl*>(GetUI()->GetControl(0))->SetPattern(IColor::GetRandomColor());
           break;
           

@@ -11,6 +11,8 @@
 #include <cmath>
 
 #include "IGraphicsLice.h"
+#include "ITextEntryControl.h"
+
 #include "lice_combine.h"
 
 extern int GetSystemVersion();
@@ -322,7 +324,7 @@ bool IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT&
   
   LICE_pixel color;
   
-  if(textEntry)
+  if (GetTextEntryControl() && GetTextEntryControl()->GetRECT() == bounds)
     color = LiceColor(text.mTextEntryFGColor);
   else
     color = LiceColor(text.mFGColor);
