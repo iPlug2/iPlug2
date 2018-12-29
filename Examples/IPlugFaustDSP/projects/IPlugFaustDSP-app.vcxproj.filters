@@ -47,7 +47,7 @@
     <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\Extras\MidiSynth.cpp">
+    <ClCompile Include="..\..\..\IPlug\Extras\Synth\MidiSynth.cpp">
       <Filter>IPlug\Extras</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP.cpp">
