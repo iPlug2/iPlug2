@@ -189,8 +189,7 @@ int IGraphics::AttachControl(IControl* pControl, int controlTag, const char* gro
 
 void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize)
 {
-  if(mCornerResizer == nullptr)
-    AttachCornerResizer(new ICornerResizerBase(mDelegate, GetBounds(), 20), sizeMode, layoutOnResize);
+  AttachCornerResizer(new ICornerResizerBase(mDelegate, GetBounds(), 20), sizeMode, layoutOnResize);
 }
 
 void IGraphics::AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode sizeMode, bool layoutOnResize)
@@ -203,6 +202,10 @@ void IGraphics::AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode
     mGUISizeMode = sizeMode;
     mLayoutOnResize = layoutOnResize;
     mCornerResizer->SetGraphics(this);
+  }
+  else
+  {
+    delete pControl;
   }
 }
 
