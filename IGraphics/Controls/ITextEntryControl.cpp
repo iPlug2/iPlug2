@@ -150,6 +150,7 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
     case VK_TAB: return false;
     case VK_DELETE: stbKey = VK_DELETE; break;
     case VK_BACK: stbKey = VK_BACK; break;
+    case VK_RETURN: stbKey = VK_RETURN; break;
     default:
     {
       if(key.VK >= '0' && key.VK <= '9')
