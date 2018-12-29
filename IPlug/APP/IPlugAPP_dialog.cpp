@@ -548,8 +548,6 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
     case WM_CLOSE:
       DestroyWindow(hwndDlg);
       return 0;
-    case WM_GETDLGCODE:
-      return DLGC_WANTALLKEYS;
     case WM_COMMAND:
       switch (LOWORD(wParam))
       {
