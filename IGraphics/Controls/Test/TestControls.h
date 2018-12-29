@@ -22,4 +22,4 @@
 #include "TestBlendControl.h"
 #include "TestDropShadowControl.h"
 #include "TestCursorControl.h"
-
+#include "TestKeyboardControl.h"
