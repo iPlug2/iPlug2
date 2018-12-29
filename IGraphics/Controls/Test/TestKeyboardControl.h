@@ -99,7 +99,6 @@ public:
   {
     mX = rect.MW();
     mY = rect.MH();
-    mText = IText(20, COLOR_WHITE);
     mStr.Set("Press a key...");
     SetTooltip("TestKeyboardControl");
   }
@@ -107,7 +106,17 @@ public:
   void Draw(IGraphics& g) override
   {
     g.FillRect(COLOR_BLACK, mRECT);
-    g.DrawText(mText, mStr.Get(), mX, mY);
+    
+    if (!g.CheckLayer(mLayer))
+    {
+      g.StartLayer(mRECT);
+      
+      g.DrawText(IText((rand() % 50) + 10, COLOR_WHITE), mStr.Get(), mX, mY);
+
+      mLayer = g.EndLayer();
+    }
+    
+    g.DrawLayer(mLayer);
   }
 
   bool OnKeyDown(float x, float y, const IKeyPress& key) override
@@ -122,6 +131,7 @@ public:
     mX = x;
     mY = y;
     
+    mLayer->Invalidate();
     SetDirty(false);
     
     return true;
@@ -131,4 +141,5 @@ private:
   float mX = 0.;
   float mY = 0.;
   WDL_String mStr;
+  ILayerPtr mLayer;
 };
