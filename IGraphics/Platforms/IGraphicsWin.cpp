@@ -340,12 +340,23 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       POINT p;
       GetCursorPos(&p);
       ScreenToClient(hWnd, &p);
-      
-      IKeyPress keyPress {static_cast<char>(c), wParam, static_cast<bool>(GetKeyState(VK_SHIFT)),
-                                                        static_cast<bool>(GetKeyState(VK_CONTROL)),
-                                                        static_cast<bool>(GetKeyState(VK_SHIFT))};
 
-      bool handle = pGraphics->OnKeyDown(p.x, p.y, keyPress);
+      BYTE keyboardState[256];
+      GetKeyboardState(keyboardState);
+      const int keyboardScanCode = (lParam >> 16) & 0x00ff;
+      WORD ascii = 0;
+      const int len = ToAscii(wParam, keyboardScanCode, keyboardState, &ascii, 0);
+
+      bool handle = false;
+
+      if (len == 1)
+      {
+        IKeyPress keyPress{ static_cast<char>(ascii), static_cast<int>(wParam), static_cast<bool>(GetKeyState(VK_SHIFT) & 0x8000),
+                                                                                static_cast<bool>(GetKeyState(VK_CONTROL) & 0x8000),
+                                                                                static_cast<bool>(GetKeyState(VK_MENU) & 0x8000) };
+
+        handle = pGraphics->OnKeyDown(p.x, p.y, keyPress);
+      }
 
       if (!handle)
       {
@@ -1050,6 +1061,8 @@ IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
 
     return result;
   }
+
+  return nullptr;
 }
 
 void IGraphicsWin::CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
