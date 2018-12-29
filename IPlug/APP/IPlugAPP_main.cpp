@@ -248,8 +248,10 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
       if (gHWND)
         DestroyWindow(gHWND);
       break;
-    case SWELLAPP_PROCESSMESSAGE: // can hook keyboard input here
-      // parm1 = (MSG*), should we want it -- look in swell.h to see what the return values refer to
+    case SWELLAPP_PROCESSMESSAGE:
+      MSG* pMSG = (MSG*) parm1;
+      NSView* pContentView = (NSView*) pMSG->hwnd;
+      [pContentView keyDown: (NSEvent*) parm2];
       break;
   }
   return 0;
