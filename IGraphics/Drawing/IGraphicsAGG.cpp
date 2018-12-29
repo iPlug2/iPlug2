@@ -279,7 +279,7 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
     
     bounds.Translate(mTransform.tx, mTransform.ty);
     srcX = std::round(srcX * offsetScale);
-    srcY = std::round(srcX * offsetScale);
+    srcY = std::round(srcY * offsetScale);
       
     mRasterizer.BlendFrom(src, bounds, srcX, srcY, AGGBlendMode(pBlend), AGGCover(pBlend));
   }
