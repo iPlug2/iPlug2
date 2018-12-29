@@ -194,13 +194,17 @@ inline void NanoVGSetBlendMode(NVGcontext* context, const IBlend* pBlend)
     case kBlendAdd:
       nvgGlobalCompositeBlendFunc(context, NVG_ONE, NVG_ONE);
       break;
-    case kBlendUnder:       return NVG_DESTINATION_OVER;
-    case kBlendSourceIn:    return NVG_SOURCE_IN;
+    case kBlendUnder:
+      nvgGlobalCompositeOperation(context, NVG_DESTINATION_OVER);
+      break;
+    case kBlendSourceIn:
+      nvgGlobalCompositeOperation(context, NVG_SOURCE_IN);
+      break;
     case kBlendColorDodge:
     case kBlendNone:
     default:
     {
-      return nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
+      nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
     }
   }
 }
