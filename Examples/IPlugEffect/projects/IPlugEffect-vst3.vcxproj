@@ -270,6 +270,7 @@
   <ItemGroup>
     <ClInclude Include="../config.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IControls.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\ITextEntryControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IVDropDownListControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IVKeyboardControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IVMeterControl.h" />
@@ -322,6 +323,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\IGraphics\Controls\IControls.cpp" />
+    <ClCompile Include="..\..\..\IGraphics\Controls\ITextEntryControl.cpp" />
     <ClCompile Include="..\..\..\IGraphics\IControl.cpp" />
     <ClCompile Include="..\..\..\IGraphics\IGraphics.cpp" />
     <ClCompile Include="..\..\..\IGraphics\Platforms\IGraphicsWin.cpp" />

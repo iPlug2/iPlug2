@@ -414,6 +414,7 @@
     <ClCompile Include="..\..\..\AAX_SDK\Interfaces\AAX_Exports.cpp" />
     <ClCompile Include="..\..\..\IGraphics\Controls\IControls.cpp" />
     <ClCompile Include="..\..\..\IGraphics\Controls\IPopupMenuControl.cpp" />
+    <ClCompile Include="..\..\..\IGraphics\Controls\ITextEntryControl.cpp" />
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsAGG.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
@@ -514,6 +515,7 @@
     <ClInclude Include="..\..\..\IGraphics\Controls\IControls.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IFPSDisplayControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IPopupMenuControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\ITextEntryControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IVKeyboardControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IVMeterControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IVMultiSliderControl.h" />

@@ -35,6 +35,9 @@
     <ClCompile Include="..\..\..\IPlug\VST3\IPlugVST3.cpp">
       <Filter>IPlug\VST3</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Controls\ITextEntryControl.cpp">
+      <Filter>IGraphics\Controls</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../config.h" />
@@ -183,6 +186,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3.h">
       <Filter>IPlug\VST3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\ITextEntryControl.h">
+      <Filter>IGraphics\Controls</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
