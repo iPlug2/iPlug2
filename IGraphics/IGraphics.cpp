@@ -974,9 +974,6 @@ void IGraphics::PopupHostContextMenuForParam(IControl* pControl, int paramIdx, f
   {
     pControl->CreateContextMenu(contextMenu);
 
-    if(!contextMenu.NItems())
-      return;
-
 #if defined VST3_API || defined VST3C_API
     VST3_API_BASE* pVST3 = dynamic_cast<VST3_API_BASE*>(&mDelegate);
 
@@ -1016,6 +1013,9 @@ void IGraphics::PopupHostContextMenuForParam(IControl* pControl, int paramIdx, f
     }
 
 #else
+    if(!contextMenu.NItems())
+      return;
+
     if(mPopupControl) // if we are not using platform popup menus, IPopupMenuControl will not block
     {
       CreatePopupMenu(contextMenu, x, y, pControl);
