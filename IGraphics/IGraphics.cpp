@@ -1328,12 +1328,7 @@ void IGraphics::DrawRotatedLayer(const ILayerPtr& layer, double angle)
 }
 
 void GaussianBlurSwap(unsigned char *out, unsigned char *in, unsigned char *kernel, int width, int height, int outStride, int inStride, int kernelSize, unsigned long norm)
-{/*
-  for (int i = 0; i < height; i++)
-    for (int j = 0; j < width; j++)
-      out[j * outStride + (i * 4)] = 255;
-  return;*/
-  
+{
   for (int i = 0; i < height; i++, in += inStride)
   {
     for (int j = 0; j < kernelSize - 1; j++)
