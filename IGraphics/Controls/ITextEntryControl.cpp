@@ -77,7 +77,7 @@ void ITextEntryControl::Draw(IGraphics& g)
   //TODO: draw selection rect
   
   if(mDrawCursor)
-    g.DrawVerticalLine(mText.mTextEntryFGColor, mRECT.GetVPadded(-2), 0.4);
+    g.DrawVerticalLine(mText.mTextEntryFGColor, mRECT.GetVPadded(-2.f), 0.4);
 }
 
 template<typename Proc>
