@@ -37,7 +37,7 @@ public:
   static int GetLength(ITextEntryControl* _this);
   
   bool EditInProgress() { return mEditing; }
-  void DismissEdit() { mEditing = false; SetTargetAndDrawRECTs(IRECT()); GetUI()->SetAllControlsDirty(); }
+  void DismissEdit();
   
 private:
   template<typename Proc>

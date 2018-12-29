@@ -70,6 +70,8 @@ void ITextEntryControl::Draw(IGraphics& g)
   g.FillRect(mText.mTextEntryBGColor, mRECT);
   g.DrawText(mText, mEditString.Get(), mRECT);
   
+  //TODO: draw selection rect
+  
   if(mDrawCursor)
     g.DrawVerticalLine(mText.mTextEntryFGColor, mRECT.GetVPadded(-2), 0.4);
 }
@@ -115,25 +117,22 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
     {
       case 'A':
       {
-//        selectAll ();
+        //TODO: Select All
         return true;
       }
       case 'X':
       {
-//        if (doCut ())
-//          return true;
+        //TODO: Cut
         return false;
       }
       case 'C':
       {
-//        if (doCopy ())
-//          return true;
+        //TODO: Copy
         return false;
       }
       case 'V':
       {
-//        if (doPaste ())
-//          return true;
+        //TODO: Paste
         return false;
       }
     }
@@ -154,13 +153,9 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
       {
         return false;
       }
-      case VK_ESCAPE:
-      {
-        stbKey = VK_ESCAPE;
-        break;
-      }
       default:
       {
+        // TODO: need to shift correct bits for VK
 //        stbKey = (key.mVK) | VIRTUAL_KEY_BIT;
         break;
       }
@@ -177,10 +172,6 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
   return CallSTB([&]() { stb_textedit_key(this, &mEditState, stbKey); }) ? true : false;
 }
 
-//  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
-//  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
-//  void OnMouseOut() override;
-//  void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
 void ITextEntryControl::OnEndAnimation()
 {
   if(mEditing)
@@ -269,13 +260,17 @@ void ITextEntryControl::OnStateChanged()
 
 void ITextEntryControl::OnTextChange()
 {
+  //TODO:
 }
 
 void ITextEntryControl::FillCharWidthCache()
 {
+  //TODO:
 }
+
 void ITextEntryControl::CalcCursorSizes()
 {
+  //TODO:
 }
 
 float ITextEntryControl::GetCharWidth(char c, char pc)
@@ -307,4 +302,11 @@ void ITextEntryControl::CreateTextEntry(const IRECT& bounds, const IText& text, 
   mEditString.Set(str);
   SetDirty(false);
   mEditing = true;
+}
+
+void ITextEntryControl::DismissEdit()
+{
+  mEditing = false;
+  SetTargetAndDrawRECTs(IRECT());
+  GetUI()->SetAllControlsDirty();
 }
