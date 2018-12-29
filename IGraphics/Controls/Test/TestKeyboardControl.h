@@ -107,16 +107,36 @@ public:
   {
     g.FillRect(COLOR_BLACK, mRECT);
     
-    if (!g.CheckLayer(mLayer))
+    if (g.CheckLayer(mLayer))
+    {
+      g.ResumeLayer(mLayer);
+      
+      if(mNewText)
+      {
+        g.DrawText(IText((rand() % 50) + 10, COLOR_WHITE), mStr.Get(), mX, mY);
+        mNewText = false;
+      }
+      
+      if(GetAnimationFunction())
+      {
+        g.FillRect(COLOR_BLACK, mRECT, &BLEND_05);
+      }
+    }
+    else
     {
       g.StartLayer(mRECT);
-      
-      g.DrawText(IText((rand() % 50) + 10, COLOR_WHITE), mStr.Get(), mX, mY);
-
-      mLayer = g.EndLayer();
+      g.DrawText(IText(20, COLOR_WHITE), mStr.Get(), mX, mY);
     }
+      
+    mLayer = g.EndLayer();
     
     g.DrawLayer(mLayer);
+  }
+  
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    mLayer->Invalidate();
+    SetDirty(false);
   }
 
   bool OnKeyDown(float x, float y, const IKeyPress& key) override
@@ -124,20 +144,21 @@ public:
     mStr.Set(vk_to_string(key.VK));
     
     if(strcmp(mStr.Get(),"Unknown VK code")==0)
-    {
       mStr.Set(&key.Ascii);
-    }
-    
+
+    mNewText = true;
+    SetAnimation(DefaultAnimationFunc);
+    StartAnimation(5000.);
     mX = x;
     mY = y;
     
-    mLayer->Invalidate();
     SetDirty(false);
     
     return true;
   }
 
 private:
+  bool mNewText = false;
   float mX = 0.;
   float mY = 0.;
   WDL_String mStr;
