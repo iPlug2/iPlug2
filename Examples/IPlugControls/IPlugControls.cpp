@@ -16,7 +16,11 @@ public:
 //    DesktopPath(path);
     path.Set(__FILE__);
     path.remove_filepart();
+#ifdef OS_WIN
+    path.Append("\\resources\\img\\");
+#else
     path.Append("/resources/img/");
+#endif
     AddPath(path.Get(), "");
     
     mLabel.Set("Click here to browse png files...");
