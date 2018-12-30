@@ -652,6 +652,8 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         {
           return 1;
         }
+        
+        return _this->VSTCanDo((char *) ptr);
       }
       return 0;
     }
@@ -728,7 +730,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
           break;
         }
       }
-      return 0;
+      return _this->VSTVendorSpecific(idx, value, ptr, opt);
     }
     case effGetProgram:
     {
