@@ -9,7 +9,7 @@ iPlug 2 requires a compiler that supports C++11, and is tested with MS Visual St
 ### Where do I begin?
 See [Getting Started](md_quickstart.html) and check out the [Examples](md_examples.html)
 
-### How do I upgrade a WDL-OL/IPlug project?
+### How do I upgrade an old WDL-OL project?
 See [How to Upgrade](md_upgrade.html)
 
 ### Experienced developers

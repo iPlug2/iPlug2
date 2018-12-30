@@ -5,7 +5,7 @@
 #---------------------------------------------------------------------------
 
 DOXYFILE_ENCODING      = UTF-8
-PROJECT_NAME           = WDL-OL/IPlug
+PROJECT_NAME           = iPlug
 PROJECT_NUMBER         = "2.0"
 PROJECT_BRIEF          = "Cross-platform C++ Plug-in Framework"
 PROJECT_LOGO           =

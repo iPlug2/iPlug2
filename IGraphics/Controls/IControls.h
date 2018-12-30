@@ -23,7 +23,7 @@
 #include "IVMultiSliderControl.h"
 
 /**
- * \defgroup Controls IGraphics::IControls
+ * \addtogroup Controls
  * @{
  */
 
@@ -113,7 +113,7 @@ protected:
   IText& mValueText = mText;
 };
 
-/** A vector knob control which rotates an SVG image */
+/** A vector knob/dial control which rotates an SVG image */
 class ISVGKnob : public IKnobControlBase
 {
 public:
@@ -148,6 +148,7 @@ private:
   float mEndAngle = 135.f;
 };
 
+/** A vector slider control */
 class IVSliderControl : public ISliderControlBase
                       , public IVectorBase
 {
@@ -237,7 +238,7 @@ public:
   }
 };
 
-/** A bitmap knob/dial control */
+/** A bitmap knob/dial control that draws a frame from a stacked bitmap */
 class IBKnobControl : public IKnobControlBase
                     , public IBitmapBase
 {
@@ -274,6 +275,7 @@ public:
   }
 };
 
+/** A bitmap knob/dial control that rotates an image */
 class IBKnobRotaterControl : public IBKnobControl
 {
 public:
@@ -296,6 +298,7 @@ public:
   }
 };
 
+/** A bitmap slider/fader control */
 class IBSliderControl : public ISliderControlBase
                       , public IBitmapBase
 {
@@ -321,8 +324,7 @@ public:
   }
 };
 
-/** Display monospace bitmap font text */
-// TODO: fix Centre/Right aligned behaviour when string exceeds bounds or should wrap onto new line
+/** A control to display text using a monospace bitmap font */
 class IBTextControl : public ITextControl
                     , public IBitmapBase
 {

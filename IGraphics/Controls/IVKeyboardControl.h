@@ -44,6 +44,8 @@
  See the interface for details.
  */
 
+/** Vectorial keyboard control
+ *   @ingroup IControls */
 class IVKeyboardControl : public IControl
                         , public IVectorBase
 {

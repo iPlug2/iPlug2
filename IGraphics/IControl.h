@@ -12,7 +12,10 @@
 
 /**
  * @file
- * @copydoc IControl
+ * @brief This file contains the base IControl implementation, along with some base classes for specific types of control.
+ * \defgroup Controls IGraphics::IControls
+ * \defgroup TestControls IGraphics::IControls::TestControls
+ * \defgroup BaseControls IGraphics::IControls::BaseControls
  */
 
 #include <cstring>
@@ -32,9 +35,8 @@
 
 #include "IGraphics.h"
 
-/** The lowest level base class of an IGraphics control. A control is anything on the GUI, it could be a static bitmap, or something that moves or changes.  The control could manipulate bitmaps or do run-time vector drawing, or whatever.
- * Some controls respond to mouse actions, either by moving a bitmap, transforming a bitmap, or cycling through a set of bitmaps.
- * Other controls are readouts only. */
+/** The lowest level base class of an IGraphics control. A control is anything on the GUI 
+*  @ingroup BaseControls */
 class IControl
 #if defined VST3_API || defined VST3C_API
 : public Steinberg::Vst::IContextMenuTarget
@@ -454,8 +456,14 @@ private:
   Milliseconds mAnimationDuration;
 };
 
-#pragma mark - BASIC CONTROLS AND BASE CLASSES
+#pragma mark - Base Controls
 
+/**
+ * \addtogroup BaseControls
+ * @{
+ */
+
+/** A base interface, to be combined with IControl for bitmap-based controls "IBControls", managing an IBitmap and IBlend */
 class IBitmapBase
 {
 public:
@@ -482,7 +490,8 @@ protected:
   IBlend mBlend;
 };
 
-/** A An interface for IVControls, in order for them to share a common set of colors. If you need more flexibility for theming, you're on your own! */
+/** A base interface to be combined with IControl for vectorial controls "IVControls", in order for them to share a common set of colors. 
+ * If you need more flexibility for theming, you're on your own! */
 class IVectorBase
 {
 public:
@@ -682,6 +691,243 @@ protected:
   float mMaxFlashCircleRadius = 50.f;
 };
 
+/** A base class for knob/dial controls, to handle mouse action and ballistics. */
+class IKnobControlBase : public IControl
+{
+public:
+  IKnobControlBase(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
+    EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+    : IControl(dlg, bounds, paramIdx)
+    , mDirection(direction)
+    , mGearing(gearing)
+  {}
+
+  void SetGearing(double gearing) { mGearing = gearing; }
+  virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
+  virtual void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
+
+protected:
+  EDirection mDirection;
+  double mGearing;
+};
+
+/** A base class for slider/fader controls, to handle mouse action and ballistics. */
+class ISliderControlBase : public IControl
+{
+public:
+  ISliderControlBase(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
+                     EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 0.f)
+  : IControl(dlg, bounds, paramIdx)
+  , mDirection(dir)
+  , mOnlyHandle(onlyHandle)
+  {
+    handleSize == 0 ? mHandleSize = bounds.W() : mHandleSize = handleSize;
+  }
+  
+  ISliderControlBase(IGEditorDelegate& dlg, IRECT bounds, IActionFunction aF = nullptr,
+                     EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 0.f)
+  : IControl(dlg, bounds, aF)
+  , mDirection(dir)
+  , mOnlyHandle(onlyHandle)
+  {
+    handleSize == 0 ? mHandleSize = bounds.W() : mHandleSize = handleSize;
+  }
+  
+  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
+  virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
+  
+protected:
+  EDirection mDirection;
+  IRECT mTrack;
+  bool mOnlyHandle;
+  float mHandleSize;
+};
+
+/** A base class for mult-strip/track controls, such as multi-sliders, meters */
+class IVTrackControlBase : public IControl
+                         , public IVectorBase
+{
+public:
+  IVTrackControlBase(IGEditorDelegate& dlg, IRECT bounds, int maxNTracks = 1, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  : IControl(dlg, bounds)
+  , mMaxNTracks(maxNTracks)
+  , mMinTrackValue(minTrackValue)
+  , mMaxTrackValue(maxTrackValue)
+  {
+    for (int i=0; i<maxNTracks; i++)
+    {
+      mTrackData.Add(0.f);
+      mTrackBounds.Add(IRECT());
+    }
+    
+    AttachIControl(this);
+  }
+  
+  void MakeRects()
+  {
+    for (int ch = 0; ch < MaxNTracks(); ch++)
+    {
+      mTrackBounds.Get()[ch] = mRECT.GetPadded(-mOuterPadding).
+                                     SubRect(EDirection(!mDirection), MaxNTracks(), ch).
+                                     GetPadded(0, -mTrackPadding * (float) mDirection, -mTrackPadding * (float) !mDirection, -mTrackPadding);
+    }
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    g.FillRect(GetColor(kBG), mRECT);
+    
+    for (int ch = 0; ch < MaxNTracks(); ch++)
+    {
+      DrawTrack(g, mTrackBounds.Get()[ch], ch);
+    }
+    
+    if(mDrawFrame)
+      DrawFrame(g);
+  }
+  
+  int NTracks() { return mNTracks; }
+  int MaxNTracks() { return mMaxNTracks; }
+  void SetTrackData(int trackIdx, float val) { mTrackData.Get()[trackIdx] = Clip(val, mMinTrackValue, mMaxTrackValue); }
+  float* GetTrackData(int trackIdx) { return &mTrackData.Get()[trackIdx];  }
+  void SetAllTrackData(float val) { memset(mTrackData.Get(), (int) Clip(val, mMinTrackValue, mMaxTrackValue), mTrackData.GetSize() * sizeof(float) ); }
+private:
+  virtual void DrawFrame(IGraphics& g)
+  {
+    g.DrawRect(GetColor(kFR), mRECT, nullptr, mFrameThickness);
+  }
+  
+  virtual void DrawTrack(IGraphics& g, IRECT& r, int chIdx)
+  {
+    DrawTrackBG(g, r, chIdx);
+    DrawTrackHandle(g, r, chIdx);
+    
+    if(mDrawTrackFrame)
+      g.DrawRect(GetColor(kFR), r, nullptr, mFrameThickness);
+  }
+  
+  virtual void DrawTrackBG(IGraphics& g, IRECT& r, int chIdx)
+  {
+    g.FillRect(GetColor(kSH), r);
+  }
+  
+  virtual void DrawTrackHandle(IGraphics& g, IRECT& r, int chIdx)
+  {
+    IRECT fillRect = r.FracRect(mDirection, *GetTrackData(chIdx));
+    
+    g.FillRect(GetColor(kFG), fillRect); // TODO: shadows!
+    
+    IRECT peakRect;
+    
+    if(mDirection == kVertical)
+      peakRect = IRECT(fillRect.L, fillRect.T, fillRect.R, fillRect.T + mPeakSize);
+    else
+      peakRect = IRECT(fillRect.R - mPeakSize, fillRect.T, fillRect.R, fillRect.B);
+    
+    DrawPeak(g, peakRect, chIdx);
+  }
+  
+  virtual void DrawPeak(IGraphics& g, IRECT& r, int chIdx)
+  {
+    g.FillRect(GetColor(kHL), r);
+  }
+  
+  void OnResize() override
+  {
+    MakeRects();
+  }
+  
+protected:
+  
+  EDirection mDirection = EDirection::kVertical;
+  int mMaxNTracks;
+  WDL_TypedBuf<float> mTrackData; // real values of sliders/meters
+  WDL_TypedBuf<IRECT> mTrackBounds;
+
+  int mNTracks = 1;
+  
+  float mMinTrackValue;
+  float mMaxTrackValue;
+  float mOuterPadding = 10.;
+  float mTrackPadding = 2;
+  float mPeakSize = 5.;
+  bool mDrawTrackFrame = true;
+};
+
+/** A base class for buttons/momentary switches - cannot be linked to parameters.
+ * The default action function triggers the default click function, which returns mValue to 0. after DEFAULT_ANIMATION_DURATION */
+class IButtonControlBase : public IControl
+{
+public:
+  IButtonControlBase(IGEditorDelegate& dlg, IRECT bounds, IActionFunction aF);
+  
+  virtual ~IButtonControlBase() {}
+  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  virtual void OnEndAnimation() override;
+};
+
+/** A base class for switch controls */
+class ISwitchControlBase : public IControl
+{
+public:
+  ISwitchControlBase(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction aF = nullptr, int numStates = 2);
+
+  virtual ~ISwitchControlBase() {}
+
+  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  virtual void OnMouseUp(float x, float y, const IMouseMod& mod) override;
+protected:
+  int mNumStates;
+  bool mMouseDown = false;
+};
+
+/** An abstract IControl base class that you can inherit from in order to make a control that pops up a menu to browse files */
+class IDirBrowseControlBase : public IControl
+{
+public:
+  IDirBrowseControlBase(IGEditorDelegate& dlg, IRECT bounds, const char* extension /* e.g. ".txt"*/)
+  : IControl(dlg, bounds)
+  {
+    mExtension.Set(extension);
+  }
+
+  virtual ~IDirBrowseControlBase();
+
+  int NItems();
+
+  void AddPath(const char* path, const char* label);
+
+  void SetUpMenu();
+
+//  void GetSelectedItemLabel(WDL_String& label);
+//  void GetSelectedItemPath(WDL_String& path);
+
+private:
+  void ScanDirectory(const char* path, IPopupMenu& menuToAddTo);
+  void CollectSortedItems(IPopupMenu* pMenu);
+  
+protected:
+  bool mShowEmptySubmenus = false;
+  bool mShowFileExtensions = true;
+  int mSelectedIndex = -1;
+  IPopupMenu* mSelectedMenu = nullptr;
+  IPopupMenu mMainMenu;
+  WDL_PtrList<WDL_String> mPaths;
+  WDL_PtrList<WDL_String> mPathLabels;
+  WDL_PtrList<WDL_String> mFiles;
+  WDL_PtrList<IPopupMenu::Item> mItems; // ptr to item for each file
+  WDL_String mExtension;
+};
+
+/**@}*/
+
+#pragma mark - BASIC CONTROLS
+
+/**
+ * \addtogroup Controls
+ * @{
+ */
+
 /** A basic control to fill a rectangle with a color or gradient */
 class IPanelControl : public IControl
 {
@@ -726,6 +972,7 @@ private:
   bool mDrawFrame;
 };
 
+/** A control that can be specialised with a lamda function, for quick experiments without making a custom IControl */
 class ILambdaControl : public IControl
 {
 public:
@@ -804,20 +1051,33 @@ public:
   }
 };
 
-/** A basic control to draw an SVG image to the screen. */
+/** A basic control to draw an SVG image to the screen. Optionally, cache SVG to an ILayer. */
 class ISVGControl : public IControl
 {
 public:
-  ISVGControl(IGEditorDelegate& dlg, IRECT bounds, ISVG& svg)
+  ISVGControl(IGEditorDelegate& dlg, IRECT bounds, ISVG& svg, bool useLayer = false)
     : IControl(dlg, bounds)
     , mSVG(svg)
+    , mUseLayer(useLayer)
   {}
 
   virtual ~ISVGControl() {}
 
-  virtual void Draw(IGraphics& g) override
+  void Draw(IGraphics& g) override
   {
-    g.DrawSVG(mSVG, mRECT);
+    if(mUseLayer)
+    {
+      if (!g.CheckLayer(mLayer))
+      {
+        g.StartLayer(mRECT);
+        g.DrawSVG(mSVG, mRECT);
+        mLayer = g.EndLayer();
+      }
+
+      g.DrawLayer(mLayer);
+    }
+    else
+      g.DrawSVG(mSVG, mRECT);
   }
   
   void SetSVG(const ISVG& svg)
@@ -826,10 +1086,10 @@ public:
   }
   
 private:
-  //TODO: cache the SVG to intermediate bitmap?
+  bool mUseLayer;
+  ILayerPtr mLayer;
   ISVG mSVG;
 };
-
 
 /** A basic control to display some text */
 class ITextControl : public IControl
@@ -868,232 +1128,4 @@ protected:
   bool mIsListControl = false;
 };
 
-#pragma mark - Base Controls
-
-/** Parent for knobs, to handle mouse action and ballistics. */
-class IKnobControlBase : public IControl
-{
-public:
-  IKnobControlBase(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
-    EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
-    : IControl(dlg, bounds, paramIdx)
-    , mDirection(direction)
-    , mGearing(gearing)
-  {}
-
-  void SetGearing(double gearing) { mGearing = gearing; }
-  virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
-  virtual void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
-
-protected:
-  EDirection mDirection;
-  double mGearing;
-};
-
-class ISliderControlBase : public IControl
-{
-public:
-  ISliderControlBase(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
-                     EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 0.f)
-  : IControl(dlg, bounds, paramIdx)
-  , mDirection(dir)
-  , mOnlyHandle(onlyHandle)
-  {
-    handleSize == 0 ? mHandleSize = bounds.W() : mHandleSize = handleSize;
-  }
-  
-  ISliderControlBase(IGEditorDelegate& dlg, IRECT bounds, IActionFunction aF = nullptr,
-                     EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 0.f)
-  : IControl(dlg, bounds, aF)
-  , mDirection(dir)
-  , mOnlyHandle(onlyHandle)
-  {
-    handleSize == 0 ? mHandleSize = bounds.W() : mHandleSize = handleSize;
-  }
-  
-  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
-  virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
-  
-protected:
-  EDirection mDirection;
-  IRECT mTrack;
-  bool mOnlyHandle;
-  float mHandleSize;
-};
-
-class IVTrackControlBase : public IControl
-                         , public IVectorBase
-{
-public:
-  IVTrackControlBase(IGEditorDelegate& dlg, IRECT bounds, int maxNTracks = 1, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
-  : IControl(dlg, bounds)
-  , mMaxNTracks(maxNTracks)
-  , mMinTrackValue(minTrackValue)
-  , mMaxTrackValue(maxTrackValue)
-  {
-    for (auto i=0; i<maxNTracks; i++)
-    {
-      mTrackData.Add(0.f);
-      mTrackBounds.Add(IRECT());
-    }
-    
-    AttachIControl(this);
-  }
-  
-  void MakeRects()
-  {
-    for (auto ch = 0; ch < MaxNTracks(); ch++)
-    {
-      mTrackBounds.Get()[ch] = mRECT.GetPadded(-mOuterPadding).
-                                     SubRect(EDirection(!mDirection), MaxNTracks(), ch).
-                                     GetPadded(0, -mTrackPadding * (float) mDirection, -mTrackPadding * (float) !mDirection, -mTrackPadding);
-    }
-  }
-  
-  void Draw(IGraphics& g) override
-  {
-    g.FillRect(GetColor(kBG), mRECT);
-    
-    for (auto ch = 0; ch < MaxNTracks(); ch++)
-    {
-      DrawTrack(g, mTrackBounds.Get()[ch], ch);
-    }
-    
-    if(mDrawFrame)
-      DrawFrame(g);
-  }
-  
-  int NTracks() { return mNTracks; }
-  int MaxNTracks() { return mMaxNTracks; }
-  void SetTrackData(int trackIdx, float val) { mTrackData.Get()[trackIdx] = Clip(val, mMinTrackValue, mMaxTrackValue); }
-  float* GetTrackData(int trackIdx) { return &mTrackData.Get()[trackIdx];  }
-  void SetAllTrackData(float val) { memset(mTrackData.Get(), (int) Clip(val, mMinTrackValue, mMaxTrackValue), mTrackData.GetSize() * sizeof(float) ); }
-private:
-  virtual void DrawFrame(IGraphics& g)
-  {
-    g.DrawRect(GetColor(kFR), mRECT, nullptr, mFrameThickness);
-  }
-  
-  virtual void DrawTrack(IGraphics& g, IRECT& r, int chIdx)
-  {
-    DrawTrackBG(g, r, chIdx);
-    DrawTrackHandle(g, r, chIdx);
-    
-    if(mDrawTrackFrame)
-      g.DrawRect(GetColor(kFR), r, nullptr, mFrameThickness);
-  }
-  
-  virtual void DrawTrackBG(IGraphics& g, IRECT& r, int chIdx)
-  {
-    g.FillRect(GetColor(kSH), r);
-  }
-  
-  virtual void DrawTrackHandle(IGraphics& g, IRECT& r, int chIdx)
-  {
-    IRECT fillRect = r.FracRect(mDirection, *GetTrackData(chIdx));
-    
-    g.FillRect(GetColor(kFG), fillRect); // TODO: shadows!
-    
-    IRECT peakRect;
-    
-    if(mDirection == kVertical)
-      peakRect = IRECT(fillRect.L, fillRect.T, fillRect.R, fillRect.T + mPeakSize);
-    else
-      peakRect = IRECT(fillRect.R - mPeakSize, fillRect.T, fillRect.R, fillRect.B);
-    
-    DrawPeak(g, peakRect, chIdx);
-  }
-  
-  virtual void DrawPeak(IGraphics& g, IRECT& r, int chIdx)
-  {
-    g.FillRect(GetColor(kHL), r);
-  }
-  
-  void OnResize() override
-  {
-    MakeRects();
-  }
-  
-protected:
-  
-  EDirection mDirection = EDirection::kVertical;
-  int mMaxNTracks;
-  WDL_TypedBuf<float> mTrackData; // real values of sliders/meters
-  WDL_TypedBuf<IRECT> mTrackBounds;
-
-  int mNTracks = 1;
-  
-  float mMinTrackValue;
-  float mMaxTrackValue;
-  float mOuterPadding = 10.;
-  float mTrackPadding = 2;
-  float mPeakSize = 5.;
-  bool mDrawTrackFrame = true;
-};
-
-/** Parent for buttons a.k.a. momentary switches - cannot be linked to parameters.
- * The default action function triggers the default click function, which returns mValue to 0. after DEFAULT_ANIMATION_DURATION */
-class IButtonControlBase : public IControl
-{
-public:
-  IButtonControlBase(IGEditorDelegate& dlg, IRECT bounds, IActionFunction aF);
-  
-  virtual ~IButtonControlBase() {}
-  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-  virtual void OnEndAnimation() override;
-};
-
-/** Parent for switch controls */
-class ISwitchControlBase : public IControl
-{
-public:
-  ISwitchControlBase(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction aF = nullptr, int numStates = 2);
-
-  virtual ~ISwitchControlBase() {}
-
-  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-  virtual void OnMouseUp(float x, float y, const IMouseMod& mod) override;
-protected:
-  int mNumStates;
-  bool mMouseDown = false;
-};
-
-/** An abstract IControl base class that you can inherit from in order to make a control that pops up a menu to browse files */
-class IDirBrowseControlBase : public IControl
-{
-public:
-  IDirBrowseControlBase(IGEditorDelegate& dlg, IRECT bounds, const char* extension /* e.g. ".txt"*/)
-  : IControl(dlg, bounds)
-  {
-    mExtension.Set(extension);
-  }
-
-  virtual ~IDirBrowseControlBase();
-
-  int NItems();
-
-  void AddPath(const char* path, const char* label);
-
-  void SetUpMenu();
-
-//  void GetSelectedItemLabel(WDL_String& label);
-//  void GetSelectedItemPath(WDL_String& path);
-
-private:
-  void ScanDirectory(const char* path, IPopupMenu& menuToAddTo);
-  void CollectSortedItems(IPopupMenu* pMenu);
-  
-protected:
-  bool mShowEmptySubmenus = false;
-  bool mShowFileExtensions = true;
-  int mSelectedIndex = -1;
-  IPopupMenu* mSelectedMenu = nullptr;
-  IPopupMenu mMainMenu;
-  WDL_PtrList<WDL_String> mPaths;
-  WDL_PtrList<WDL_String> mPathLabels;
-  WDL_PtrList<WDL_String> mFiles;
-  WDL_PtrList<IPopupMenu::Item> mItems; // ptr to item for each file
-  WDL_String mExtension;
-};
-
-
+/**@}*/
