@@ -270,7 +270,8 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
 {
   if (targetScale == 0)
     targetScale = GetScreenScale();
-  
+
+  // NanoVG does not use the global static cache, since bitmaps are textures linked to a context
   APIBitmap* pAPIBitmap = mBitmapCache.Find(name, targetScale);
   
   // If the bitmap is not already cached at the targetScale
@@ -726,7 +727,7 @@ void IGraphicsNanoVG::LoadFont(const char* name)
   if (fullPath.GetLength())
   {
 #ifdef OS_WIN
-    fontID = LoadFontFromWinResource(mVG, (HINSTANCE) GetPlatformInstance(), fontNameWithoutExt.Get(), fullPath.Get());
+    fontID = LoadFontFromWinResource(mVG, (HINSTANCE) GetWinPlatformInstance(), fontNameWithoutExt.Get(), fullPath.Get());
 #else
     fontID = nvgCreateFont(mVG, fontNameWithoutExt.Get(), fullPath.Get());
 #endif

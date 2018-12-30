@@ -639,6 +639,10 @@ public:
    * @return \c true on success */
   virtual bool OSFindResource(const char* fileName, const char* type, WDL_String& result) = 0;
 
+  /** Load a resource from the binary. 
+  * @return const void pointer to the data if successul on windows. Returns nullptr if unsuccesful or on platforms other than windows */
+  virtual const void* LoadWinResource(const char* resid, const char* type) { return nullptr; }
+
   /** Get the bundle ID on macOS and iOS, returns emtpy string on other OSs */
   virtual const char* GetBundleID() { return ""; }
 #pragma mark - IGraphics base implementation
@@ -1002,7 +1006,6 @@ protected:
   virtual void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") = 0;
   virtual IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller = nullptr) = 0;
 
-    
   typedef WDL_TypedBuf<unsigned char> RawBitmapData;
 
   virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;
@@ -1018,9 +1021,14 @@ protected:
   void PushLayer(ILayer* layer, bool clearTransforms);
   ILayer* PopLayer(bool clearTransforms);
     
+  /** Utility used by SearchImageResource/SearchBitmapInCache */
   inline void SearchNextScale(int& sourceScale, int targetScale);
-  bool SearchImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale);
-  APIBitmap* SearchBitmapInCache(const char* name, int targetScale, int& sourceScale);
+
+  /** Search for a bitmap image resource matching the target scale */
+  bool SearchImageResource(const char* fileName, const char* type, WDL_String& result, int targetScale, int& sourceScale);
+
+  /** Search the static storage cache for a bitmap image resource matching the target scale */
+  APIBitmap* SearchBitmapInCache(const char* fileName, int targetScale, int& sourceScale);
 
   virtual bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = nullptr, bool measure = false) = 0;
     

@@ -1115,44 +1115,36 @@ void IGraphics::EnableLiveEdit(bool enable/*, const char* file, int gridsize*/)
 #endif
 }
 
-#ifdef OS_WIN
-NSVGimage* LoadSVGFromWinResource(HINSTANCE hInst, const char* resid)
+ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 {
-  HRSRC hResource = FindResource(hInst, resid, "SVG");
-  if (!hResource) return NULL;
-
-  DWORD imageSize = SizeofResource(hInst, hResource);
-  if (imageSize < 8) return NULL;
-
-  HGLOBAL res = LoadResource(hInst, hResource);
-  const void* pResourceData = LockResource(res);
-  if (!pResourceData) return NULL;
-
-  WDL_String svgStr {static_cast<const char*>(pResourceData) };
-
-  return nsvgParse(svgStr.Get(), "px", 72); //TODO: don't fix DPI
-}
-#endif
-
-ISVG IGraphics::LoadSVG(const char* name)
-{
-  WDL_String path;
-  bool resourceFound = OSFindResource(name, "svg", path);
-  assert(resourceFound == true);
-
-  SVGHolder* pHolder = s_SVGCache.Find(path.Get());
+  SVGHolder* pHolder = s_SVGCache.Find(fileName);
 
   if(!pHolder)
   {
+    WDL_String path;
+    bool resourceFound = OSFindResource(fileName, "svg", path);
+
     NSVGimage* pImage = nullptr;
 
-    // TODO: move resource loading code and improve error checking 
 #ifdef OS_WIN
-    pImage = LoadSVGFromWinResource((HINSTANCE) GetPlatformInstance(), path.Get());
+    const void* pResData = nullptr;
+    
+    if (resourceFound)
+    {
+      pResData = LoadWinResource(path.Get(), "svg");
+
+      if (pResData)
+      {
+        WDL_String svgStr{ static_cast<const char*>(pResData) };
+
+        pImage = nsvgParse(svgStr.Get(), units, dpi);
+      }
+    }
 
     if(pImage == nullptr)
+#else
+    pImage = nsvgParseFromFile(path.Get(), units, dpi);
 #endif
-    pImage = nsvgParseFromFile(path.Get(), "px", 72); //TODO: don't fix DPI
 
     assert(pImage != nullptr);
 

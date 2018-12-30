@@ -1496,6 +1496,27 @@ bool IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String
   return false;
 }
 
+const void* IGraphicsWin::LoadWinResource(const char* resid, const char* resType)
+{
+  HRSRC hResource = FindResource(mHInstance, resid, resType);
+  
+  if (!hResource)
+    return NULL;
+
+  DWORD size = SizeofResource(mHInstance, hResource);
+  if (size < 8)
+    return NULL;
+
+  HGLOBAL res = LoadResource(mHInstance, hResource);
+
+  const void* pResourceData = LockResource(res);
+
+  if (!pResourceData)
+    return NULL;
+  else
+    return pResourceData;
+}
+
 //TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT
 #ifndef NO_IGRAPHICS
 #if defined IGRAPHICS_AGG
