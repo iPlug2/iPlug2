@@ -18,8 +18,10 @@
 #include "IControl.h"
 
 /** A base control for a pop-up menu/drop-down list that stays within the bounds of the IGraphics context.
+ * This is mainly used as a special control that lives outside the main IGraphics control stack.
  * For replacing generic menus this can be added with IGraphics::AttachPopupMenu().
- * If used in the main IControl stack, you probably want it to be the very last control that is added, so that it gets drawn on top.  */
+ * If used in the main IControl stack, you probably want it to be the very last control that is added, so that it gets drawn on top.
+ * @ingroup SpecialControls */
 class IPopupMenuControl : public IControl
 {
 public:

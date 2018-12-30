@@ -14,6 +14,8 @@
 #include "IPlugQueue.h"
 #include "IPlugStructs.h"
 
+/** Vectorial multichannel capable meter control
+ * @ingroup IControls */
 template <int MAXNC = 1>
 class IVMeterControl : public IVTrackControlBase
 {

@@ -27,7 +27,10 @@
 #include "IControl.h"
 
 /** A Text entry widget drawn by IGraphics.
- * For replacing  platform text entry this can be added with IGraphics::AttachTextEntry(). */
+ * This is a special control that lives outside the main IGraphics control stack.
+ * It can be added with IGraphics::AttachTextEntry().
+ * It should not be used in the main control stack.
+ * @ingroup SpecialControls */
 class ITextEntryControl : public IControl
 {
 public:

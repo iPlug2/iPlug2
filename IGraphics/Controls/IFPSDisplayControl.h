@@ -12,9 +12,11 @@
 
 #include "IControl.h"
 
-// Performance display meter code, cribbed from NanoVG
-
-class IFPSDisplayControl : public IControl, public IVectorBase
+/** Performance display meter, based on code from NanoVG
+ *  This is a special control that lives outside the main IGraphics control stack.
+ * @ingroup SpecialControls */
+class IFPSDisplayControl : public IControl
+                         , public IVectorBase
 {
 private:
   static constexpr int MAXBUF = 100;

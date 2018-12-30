@@ -45,7 +45,7 @@
  */
 
 /** Vectorial keyboard control
- *   @ingroup IControls */
+ * @ingroup IControls */
 class IVKeyboardControl : public IControl
                         , public IVectorBase
 {

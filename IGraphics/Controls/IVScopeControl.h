@@ -14,6 +14,8 @@
 #include "IPlugStructs.h"
 #include "IPlugQueue.h"
 
+/** Vectorial multichannel capable oscilloscope control
+ * @ingroup IControls */
 template <int MAXNC = 1, int MAXBUF = 128>
 class IVScopeControl : public IControl
                      , public IVectorBase

@@ -79,11 +79,9 @@ typedef emscripten::val* BitmapData;
   typedef void* BitmapData;
 #endif
 
-/** APIBitmap is a wrapper around the different drawing backend bitmap representations.
+/** A wrapper around the different drawing backend bitmap representations.
  * In most cases it does own the bitmap data, the exception being with NanoVG, where the image is loaded onto the GPU as a texture,
- * but still needs to be freed
- */
-
+ * but still needs to be freed */
 class APIBitmap
 {
 public:
@@ -128,7 +126,7 @@ private:
   float mDrawScale;
 };
 
-/** IBitmap is IGraphics's bitmap abstraction that you use to manage bitmap data, independant of draw class/platform.
+/** IGraphics's user-facing bitmap abstraction that you use to manage bitmap data, independant of draw class/platform.
  * IBitmap doesn't actually own the image data @see APIBitmap
  * An IBitmap's width and height are always in relation to a 1:1 (low dpi) screen. Any scaling happens at the drawing stage. */
 class IBitmap
@@ -205,6 +203,7 @@ private:
   WDL_String mResourceName;
 };
 
+/** Used to manage SVG images used by the graphics context */
 struct ISVG
 {
   NSVGimage* mImage = nullptr;
@@ -232,7 +231,7 @@ struct ISVG
   }
 };
 
-/** Used to manage Color data, independant of draw class/platform.*/
+/** Used to manage Color data, independant of draw class/platform. */
 struct IColor
 {
   int A, R, G, B;
@@ -318,6 +317,7 @@ const IColor DEFAULT_TEXT_FGCOLOR = COLOR_BLACK;
 const IColor DEFAULT_TEXTENTRY_BGCOLOR = COLOR_WHITE;
 const IColor DEFAULT_TEXTENTRY_FGCOLOR = COLOR_BLACK;
 
+/** Contains a set of colours used to theme IVControls */
 struct IVColorSpec
 {
   IColor mBGColor = DEFAULT_BGCOLOR; // Background
@@ -355,10 +355,12 @@ struct IBlend
 
   /** Creates a new IBlend
    * @param type Blend type (defaults to none)
-   * \todo IBlend::weight needs documentation
-   * @param weight
+   * @param weight normalised alpha blending amount
   */
-  IBlend(EBlendType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(Clip(weight, 0.f, 1.f)) {}
+  IBlend(EBlendType type = kBlendNone, float weight = 1.0f)
+  : mMethod(type)
+  , mWeight(Clip(weight, 0.f, 1.f))
+  {}
 };
 
 inline float BlendWeight(const IBlend* pBlend)
@@ -373,8 +375,7 @@ const IBlend BLEND_10 = IBlend(kBlendNone, 0.1f);
 const IBlend BLEND_05 = IBlend(kBlendNone, 0.05f);
 const IBlend BLEND_01 = IBlend(kBlendNone, 0.01f);
 
-// Path related structures for patterns and fill/stroke options
-
+/** Used to manage fill behaviour for path based drawing backends */
 struct IFillOptions
 {
   IFillOptions()
@@ -386,8 +387,10 @@ struct IFillOptions
   bool mPreserve;
 };
 
+/** Used to manage stroke behaviour for path based drawing backends */
 struct IStrokeOptions
 {
+  /** Used to manage dashes for stroke */
   class DashOptions
   {
   public:
@@ -987,6 +990,7 @@ struct IRECT
   }
 };
 
+/** Used for key press info, such as ASCII representation, virtual key (mapped to win32 codes) and modifiers */
 struct IKeyPress
 {
   int VK; // Windows VK_XXX
@@ -1010,6 +1014,7 @@ struct IMouseMod
   void DBGPrint() { DBGMSG("L: %i, R: %i, S: %i, C: %i,: A: %i\n", L, R, S, C, A); }
 };
 
+/** Used to group mouse coordinates with mouse modifier information */
 struct IMouseInfo
 {
   float x, y;
@@ -1164,7 +1169,7 @@ private:
   WDL_TypedBuf<IRECT> mRects;
 };
 
-/** Used to store transformation matrices**/
+/** Used to store transformation matrices **/
 struct IMatrix
 {
   IMatrix(double xx, double yx, double xy, double yy, double tx, double ty)
@@ -1252,6 +1257,7 @@ struct IMatrix
   double mXX, mYX, mXY, mYY, mTX, mTY;
 };
 
+/** Used to represent a point/stop in a gradient **/
 struct IColorStop
 {
   IColorStop()
@@ -1269,6 +1275,7 @@ struct IColorStop
   float mOffset;
 };
 
+/** Used to store pattern information for gradients **/
 struct IPattern
 {
   EPatternType mType;
@@ -1373,8 +1380,10 @@ struct IPattern
   }
 };
 
-/** ILayer is IGraphics's layer abstraction that you use to store temporary APIBitmap to draw with a specific offset to the interface. ILayers take ownership of the underlying bitmaps */
-
+/** An abstraction that is used to store a temporary raster image/framebuffer.
+ * The layer is drawn with a specific offset to the graphics context.
+ * ILayers take ownership of the underlying bitmaps
+ * In GPU-based backends (NanoVG), this is a texture. */
 class ILayer
 {
   friend IGraphics;
@@ -1395,9 +1404,8 @@ public:
   const IRECT& Bounds() const { return mRECT; }
   
 private:
-    
   APIBitmap* AccessAPIBitmap() { return mBitmap.get(); }
-
+  
   std::unique_ptr<APIBitmap> mBitmap;
   IRECT mRECT;
   bool mInvalid;
@@ -1426,7 +1434,7 @@ struct IShadow
   bool mDrawForeground;
 };
 
-// TODO: static storage needs thread safety mechanism
+/** Used internally to store data statically, making sure memory is not wasted when there are multiple plug-in instances loaded */
 template <class T>
 class StaticStorage
 {

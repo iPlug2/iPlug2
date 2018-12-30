@@ -14,8 +14,9 @@
  * @file
  * @brief This file contains the base IControl implementation, along with some base classes for specific types of control.
  * \defgroup Controls IGraphics::IControls
- * \defgroup TestControls IGraphics::IControls::TestControls
  * \defgroup BaseControls IGraphics::IControls::BaseControls
+ * \defgroup SpecialControls IGraphics::IControls::SpecialControls
+ * \defgroup TestControls IGraphics::IControls::TestControls
  */
 
 #include <cstring>
