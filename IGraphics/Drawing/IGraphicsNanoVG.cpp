@@ -700,28 +700,39 @@ void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& opti
     nvgBeginPath(mVG); // Clears the path state
 }
 
-void IGraphicsNanoVG::LoadFont(const char* name)
+bool IGraphicsNanoVG::LoadFont(const char* fileName)
 {
-  WDL_String fontNameWithoutExt(name, (int) strlen(name));
+  // does not check for existing fonts
+  WDL_String fontNameWithoutExt(fileName, (int) strlen(fileName));
   fontNameWithoutExt.remove_fileext();
   WDL_String fullPath;
-  OSFindResource(name, "ttf", fullPath);
-  
-  int fontID = -1;
-  
-  if (fullPath.GetLength())
+  bool foundResource = OSFindResource(fileName, "ttf", fullPath);
+ 
+  if (foundResource)
   {
+    int fontID = -1;
+
 #ifdef OS_WIN
-    fontID = LoadFontFromWinResource(mVG, (HINSTANCE) GetWinPlatformInstance(), fontNameWithoutExt.Get(), fullPath.Get());
-#else
-    fontID = nvgCreateFont(mVG, fontNameWithoutExt.Get(), fullPath.Get());
+    int sizeInBytes = 0;
+    const void* pResData = LoadWinResource(fullPath.Get(), "ttf", sizeInBytes);
+
+    if(pResData && sizeInBytes)
+      fontID = nvgCreateFontMem(mVG, fontNameWithoutExt.Get(), (unsigned char*) pResData, sizeInBytes, 0 /* ?? */);
+
+    if(fontID == -1)
 #endif
+    fontID = nvgCreateFont(mVG, fontNameWithoutExt.Get(), fullPath.Get());
+
+    if (fontID == -1)
+    {
+      DBGMSG("Could not locate font %s\n", fileName);
+      return false;
+    }
+    else
+      return true;
   }
-  else {
-    DBGMSG("Could not locate font %s\n", name);
-  }
-  
-  assert (fontID != -1); // font not found!
+
+  return false;
 }
 
 void IGraphicsNanoVG::DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, float pad, const IBlend* pBlend)

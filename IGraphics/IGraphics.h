@@ -999,8 +999,9 @@ public:
    * @return An ISVG representing the image */
   virtual ISVG LoadSVG(const char* fileName, const char* units = "px", float dpi = 72.f);
 
-  /** @param fileName A CString absolute path or resource ID */
-  virtual void LoadFont(const char* fileName) {};
+  /** @param fileName A CString absolute path or resource ID
+   * @return \c true on success */
+  virtual bool LoadFont(const char* fileName) { return false; }
   
 protected:
   virtual void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") = 0;
