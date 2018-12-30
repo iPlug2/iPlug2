@@ -257,8 +257,6 @@ protected:
   void ProcessBuffers(PLUG_SAMPLE_DST type, int nFrames);
   void ProcessBuffersAccumulating(int nFrames); // only for VST2 deprecated method single precision
   void ZeroScratchBuffers();
-
-public: //TODO: these will become protected once stand-alone app is rewritten
   void SetSampleRate(double sampleRate) { mSampleRate = sampleRate; }
   void SetBlockSize(int blockSize);
   void SetBypassed(bool bypassed) { mBypassed = bypassed; }
