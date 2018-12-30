@@ -1496,10 +1496,12 @@ bool IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String
   return false;
 }
 
-const void* IGraphicsWin::LoadWinResource(const char* resid, const char* resType)
+const void* IGraphicsWin::LoadWinResource(const char* resid, const char* type, int& sizeInBytes)
 {
-  HRSRC hResource = FindResource(mHInstance, resid, resType);
-  
+  WDL_String typeUpper(type);
+
+  HRSRC hResource = FindResource(mHInstance, resid, _strupr(typeUpper.Get()));
+
   if (!hResource)
     return NULL;
 
@@ -1512,9 +1514,15 @@ const void* IGraphicsWin::LoadWinResource(const char* resid, const char* resType
   const void* pResourceData = LockResource(res);
 
   if (!pResourceData)
+  {
+    sizeInBytes = 0;
     return NULL;
+  }
   else
+  {
+    sizeInBytes = size;
     return pResourceData;
+  }
 }
 
 //TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT

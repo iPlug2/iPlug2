@@ -1131,7 +1131,8 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
     
     if (resourceFound)
     {
-      pResData = LoadWinResource(path.Get(), "svg");
+      int size = 0;
+      pResData = LoadWinResource(path.Get(), "svg", size);
 
       if (pResData)
       {

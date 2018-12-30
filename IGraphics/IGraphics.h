@@ -641,7 +641,7 @@ public:
 
   /** Load a resource from the binary. 
   * @return const void pointer to the data if successul on windows. Returns nullptr if unsuccesful or on platforms other than windows */
-  virtual const void* LoadWinResource(const char* resid, const char* type) { return nullptr; }
+  virtual const void* LoadWinResource(const char* resid, const char* type, int& sizeInBytes) { return nullptr; }
 
   /** Get the bundle ID on macOS and iOS, returns emtpy string on other OSs */
   virtual const char* GetBundleID() { return ""; }

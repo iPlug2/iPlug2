@@ -98,21 +98,6 @@ int LoadImageFromWinResource(NVGcontext* pContext, HINSTANCE hInst, const char* 
   return ret;
 }
 
-int LoadFontFromWinResource(NVGcontext* pContext, HINSTANCE hInst, const char* name, const char* resid)
-{
-  HRSRC hResource = FindResource(hInst, resid, "TTF");
-  if (!hResource) return NULL;
-
-  DWORD fontSize = SizeofResource(hInst, hResource);
-  if (fontSize < 8) return NULL;
-
-  HGLOBAL res = LoadResource(hInst, hResource);
-  const void* pResourceData = LockResource(res);
-  if (!pResourceData) return NULL;
-
-  int ret = nvgCreateFontMem(pContext, name, (unsigned char*)pResourceData, fontSize, 0 /* ?? */);
-  return ret;
-}
 #endif
 
 NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, void* hInst)
