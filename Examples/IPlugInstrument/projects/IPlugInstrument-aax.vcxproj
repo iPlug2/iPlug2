@@ -562,7 +562,6 @@
     <ClInclude Include="..\..\..\IPlug\NChanDelay.h" />
     <ClInclude Include="..\config.h" />
     <ClInclude Include="..\IPlugInstrument.h" />
-    <ClInclude Include="..\IPlugInstrument_controls.h" />
     <ClInclude Include="..\resources\resource.h" />
   </ItemGroup>
   <ItemGroup>
