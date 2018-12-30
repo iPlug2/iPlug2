@@ -10,6 +10,11 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc IPopupMenuControl
+ */
+
 #include "IControl.h"
 
 /** A base control for a pop-up menu/drop-down list that stays within the bounds of the IGraphics context.

@@ -1,4 +1,21 @@
+/*
+ ==============================================================================
+ 
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+ 
+ See LICENSE.txt for  more info.
+ 
+ ==============================================================================
+ */
+
 #pragma once
+
+/**
+ * @file
+ * @brief A Text entry widget drawn by IGraphics to optionally override platform text entries.
+ * This allows better matching of text rendering during text input and display, but has disadvantages in terms of accessibility.
+ * This code is largely based on VSTGUI's generictextedit, using stb_textedit
+ */
 
 #define STB_TEXTEDIT_CHARTYPE char
 #define STB_TEXTEDIT_POSITIONTYPE int
@@ -9,7 +26,8 @@
 
 #include "IControl.h"
 
-/** A control for drawing a text entry in the graphics context */
+/** A Text entry widget drawn by IGraphics.
+ * For replacing  platform text entry this can be added with IGraphics::AttachTextEntry(). */
 class ITextEntryControl : public IControl
 {
 public:
