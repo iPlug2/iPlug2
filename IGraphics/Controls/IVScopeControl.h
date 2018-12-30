@@ -29,6 +29,7 @@ class IVScopeControl : public IControl
 public:
   static constexpr int kUpdateMessage = 0;
 
+  /* Data packet */
   struct Data
   {
     int nchans = MAXNC;
@@ -52,6 +53,7 @@ public:
     }
   };
 
+  /** Used on the DSP side in order to queue sample values and transfer data to low priority thread. */
   class IVScopeBallistics
   {
   public:
