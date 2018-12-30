@@ -25,6 +25,8 @@ public:
 
   void Draw(IGraphics& g) override
   {
+    g.DrawDottedRect(COLOR_BLACK, mRECT);
+
     if (!g.CheckLayer(mLayer))
     {
       g.StartLayer(mRECT);

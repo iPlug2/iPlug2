@@ -23,6 +23,8 @@ public:
 
   void Draw(IGraphics& g) override
   {
+    g.DrawDottedRect(COLOR_BLACK, mRECT);
+
     IRECT r1 = mRECT.GetCentredInside(100);
 
 #if defined IGRAPHICS_NANOVG

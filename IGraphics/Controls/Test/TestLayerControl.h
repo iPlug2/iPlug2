@@ -23,6 +23,8 @@ public:
 
   void Draw(IGraphics& g) override
   {
+    g.DrawDottedRect(COLOR_BLACK, mRECT);
+
     if (mDrawBackground)
     {
       if (!g.CheckLayer(mLayer))

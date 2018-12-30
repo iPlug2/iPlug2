@@ -23,6 +23,8 @@ public:
 
   void Draw(IGraphics& g) override
   {
+    g.DrawDottedRect(COLOR_BLACK, mRECT);
+    
     const char* str = "Cursor";
     int cursor = mCursor == 0 ? HELP : mCursor - 1;
       
