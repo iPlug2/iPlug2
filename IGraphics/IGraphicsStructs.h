@@ -76,7 +76,7 @@ typedef std::chrono::duration<double, std::chrono::milliseconds::period> Millise
 #elif defined IGRAPHICS_CANVAS
   #include <emscripten.h>
   #include <emscripten/val.h>
-typedef emscripten::val* BitmapData;
+  typedef emscripten::val* BitmapData;
 #else // NO_IGRAPHICS
   typedef void* BitmapData;
 #endif
@@ -138,7 +138,7 @@ public:
   * @param pData Pointer to the raw bitmap data
   * @param w Bitmap width (in pixels)
   * @param h Bitmap height (in pixels)
-  * @param n Number of frames (for multibitmaps)
+  * @param n Number of frames (for multi frame bitmaps)
   * @param framesAreHorizontal \c true if the frames are positioned horizontally
   * @param name Resource name for the bitmap */
   IBitmap(APIBitmap* pAPIBitmap, int n, bool framesAreHorizontal, const char* name = "")
@@ -160,35 +160,38 @@ public:
   {
   }
 
-  /** @return overall bitmap width */
-  inline int W() const { return mW; }
+  /** @return overall bitmap width in pixels */
+  int W() const { return mW; }
 
-  /** @return overall bitmap height */
-  inline int H() const { return mH; }
+  /** @return overall bitmap height in pixels */
+  int H() const { return mH; }
 
-  /** @return Width of a single frame */
-  inline int FW() const { return (mFramesAreHorizontal ? mW / mN : mW); }
+  /** @return Width of a single frame in pixels */
+  int FW() const { return (mFramesAreHorizontal ? mW / mN : mW); }
   
-  /** @return Height of a single frame */
-  inline int FH() const { return (mFramesAreHorizontal ? mH : mH / mN); }
+  /** @return Height of a single frame in pixels */
+  int FH() const { return (mFramesAreHorizontal ? mH : mH / mN); }
   
-  /** * @return number of frames */
-  inline int N() const { return mN; }
+  /** @return number of frames */
+  int N() const { return mN; }
   
-  /** * @return the scale of the bitmap */
-  inline int GetScale() const { return mAPIBitmap->GetScale(); }
+  /** @return the scale of the bitmap */
+  int GetScale() const { return mAPIBitmap->GetScale(); }
 
-  /** * @return the draw scale of the bitmap */
-  inline float GetDrawScale() const { return mAPIBitmap->GetDrawScale(); }
+  /** @return the draw scale of the bitmap */
+  float GetDrawScale() const { return mAPIBitmap->GetDrawScale(); }
     
-  /** * @return a pointer to the referenced APIBitmap */
-  inline APIBitmap* GetAPIBitmap() const { return mAPIBitmap; }
+  /** @return a pointer to the referenced APIBitmap */
+  APIBitmap* GetAPIBitmap() const { return mAPIBitmap; }
 
-  /** * @return whether or not frames are stored horiztonally */
-  inline bool GetFramesAreHorizontal() const { return mFramesAreHorizontal; }
+  /** @return whether or not frames are stored horizontally */
+  bool GetFramesAreHorizontal() const { return mFramesAreHorizontal; }
   
-  /** * @return the resource name */
-  inline const WDL_String& GetResourceName() const { return mResourceName; }
+  /** @return the resource name */
+  const WDL_String& GetResourceName() const { return mResourceName; }
+  
+  /** @return \true if the bitmap has valid data */
+  inline bool IsValid() const { return mAPIBitmap != nullptr; }
 
 private:
   /** Pointer to the API specific bitmap */
@@ -207,9 +210,7 @@ private:
 
 /** Used to manage SVG images used by the graphics context */
 struct ISVG
-{
-  NSVGimage* mImage = nullptr;
-  
+{  
   ISVG(NSVGimage* pImage)
   {
     mImage = pImage;
@@ -231,9 +232,14 @@ struct ISVG
     else
       return 0;
   }
+  
+  /** @return \true if the SVG has valid data */
+  inline bool IsValid() const { return mImage != nullptr; }
+  
+  NSVGimage* mImage = nullptr;
 };
 
-/** Used to manage Color data, independant of draw class/platform. */
+/** Used to manage color data, independent of draw class/platform. */
 struct IColor
 {
   int A, R, G, B;
