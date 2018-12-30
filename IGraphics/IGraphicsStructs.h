@@ -12,7 +12,7 @@
 
 /**
  * @file Structs and small classes used throughout IGraphics code
- * \ingroup IGraphicsStructs
+ * \addtogroup IGraphicsStructs
  * @{
  */
 

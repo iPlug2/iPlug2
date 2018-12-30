@@ -15,7 +15,6 @@
  * @copydoc IGraphics
  * @defgroup IGraphicsStructs IGraphics::Structs
  * @defgroup DrawClasses IGraphics::DrawClasses
- * @defgroup APIBitmaps IGraphics::DrawClasses::APIBitmaps
  * @defgroup PlatformClasses IGraphics::PlatformClasses
  * @defgroup Controls IGraphics::IControls
  * @defgroup BaseControls IGraphics::IControls::BaseControls

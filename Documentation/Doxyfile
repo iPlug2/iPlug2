@@ -5,7 +5,7 @@
 #---------------------------------------------------------------------------
 
 DOXYFILE_ENCODING      = UTF-8
-PROJECT_NAME           = iPlug
+PROJECT_NAME           = iPlug 2
 PROJECT_NUMBER         = "2.0"
 PROJECT_BRIEF          = "C++ Audio Plug-in Framework"
 PROJECT_LOGO           =
@@ -225,7 +225,7 @@ IGNORE_PREFIX          =
 GENERATE_HTML          = YES
 HTML_OUTPUT            = html
 HTML_FILE_EXTENSION    = .html
-HTML_HEADER            =
+HTML_HEADER            = header.html
 HTML_FOOTER            =
 HTML_EXTRA_STYLESHEET  = style.css
 HTML_STYLESHEET        =
