@@ -8,11 +8,15 @@
  ==============================================================================
 */
 
+/**
+ * @file
+ * @brief IPlugAPIBase implementation
+ */
+
 #include <cmath>
 #include <cstdio>
 #include <ctime>
 #include <cassert>
-
 
 #include "wdlendian.h"
 

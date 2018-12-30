@@ -10,6 +10,11 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc IPluginBase
+ */
+
 #include <random>
 
 #include "IPlugDelegate_select.h"

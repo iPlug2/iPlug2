@@ -13,6 +13,14 @@
 /**
  * @file
  * @copydoc IGraphics
+ * @defgroup IGraphicsStructs IGraphics::Structs
+ * @defgroup DrawClasses IGraphics::DrawClasses
+ * @defgroup APIBitmaps IGraphics::DrawClasses::APIBitmaps
+ * @defgroup PlatformClasses IGraphics::PlatformClasses
+ * @defgroup Controls IGraphics::IControls
+ * @defgroup BaseControls IGraphics::IControls::BaseControls
+ * @defgroup SpecialControls IGraphics::IControls::SpecialControls
+ * @defgroup TestControls IGraphics::IControls::TestControls
  */
 
 #ifndef NO_IGRAPHICS
@@ -52,12 +60,6 @@ class ITextEntryControl;
 class ICornerResizerControl;
 class IFPSDisplayControl;
 class IParam;
-
-/**
- * \defgroup DrawClasses IGraphics::DrawClasses
- * \defgroup APIBitmaps IGraphics::DrawClasses::APIBitmaps
- * \defgroup PlatformClasses IGraphics::PlatformClasses
-*/
 
 /**  The lowest level base class of an IGraphics context */
 class IGraphics

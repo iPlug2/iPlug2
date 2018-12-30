@@ -12,6 +12,7 @@
 
 /**
  * @file
+ * @ingroup Controls
  * @brief A collection of IControls for common UI widgets, such as knobs, sliders, switches
  */
 

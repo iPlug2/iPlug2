@@ -12,6 +12,7 @@
 
 /**
  * @file
+ * @ingroup SpecialControls
  * @copydoc IPopupMenuControl
  */
 

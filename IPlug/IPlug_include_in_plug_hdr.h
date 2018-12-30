@@ -10,11 +10,11 @@
 
 #pragma once
 
-/** \file IPlug_include_in_plug_hdr.h
-    \brief IPlug header include
-
-    Include this file in the main header for your plugin
-    A preprocessor macro for a particular API such as VST2_API should be defined at project level
+/**
+ * @file IPlug_include_in_plug_hdr.h
+ * @brief IPlug header include
+ * Include this file in the main header for your plugin
+ * A preprocessor macro for a particular API such as VST2_API should be defined at project level
 */
 
 #include <cstdio>

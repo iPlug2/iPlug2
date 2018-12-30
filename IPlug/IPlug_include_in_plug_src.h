@@ -10,12 +10,12 @@
 
 #pragma once
 
-/** \file IPlug_include_in_plug_src.h
-    \brief IPlug source include
-
-    Include this file in the main source for your plugin, after #including the main header for your plugin.
-    A preprocessor macro for a particular API such as VST2_API should be defined at project level
-    Depending on the API macro defined, a different entry point and helper methods are activated
+/**
+ * @file IPlug_include_in_plug_src.h
+ * @brief IPlug source include
+ * Include this file in the main source for your plugin, after #including the main header for your plugin.
+ * A preprocessor macro for a particular API such as VST2_API should be defined at project level
+ * Depending on the API macro defined, a different entry point and helper methods are activated
 */
 
 #pragma mark - VST2

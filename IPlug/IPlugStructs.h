@@ -10,6 +10,12 @@
 
 #pragma once
 
+/**
+ * @file Structures in small classes used throughout the IPlug code base
+ * @defgroup IPlugStructs IPlug::Structs
+ * @{
+ */
+
 #include <algorithm>
 #include "wdlstring.h"
 #include "ptrlist.h"
@@ -430,3 +436,5 @@ struct IPreset
     sprintf(mName, "%s", UNUSED_PRESET_NAME);
   }
 };
+
+/**@}*/

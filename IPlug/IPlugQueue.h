@@ -10,6 +10,11 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc IPlugQueue
+ */
+
 #include <atomic>
 #include <cstddef>
 

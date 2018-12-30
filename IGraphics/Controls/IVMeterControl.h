@@ -12,6 +12,7 @@
 
 /**
  * @file
+ * @ingroup Controls
  * @copydoc IVMeterControl
  */
 

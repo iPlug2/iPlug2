@@ -7,7 +7,7 @@
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = iPlug
 PROJECT_NUMBER         = "2.0"
-PROJECT_BRIEF          = "Cross-platform C++ Plug-in Framework"
+PROJECT_BRIEF          = "C++ Audio Plug-in Framework"
 PROJECT_LOGO           =
 OUTPUT_DIRECTORY       =
 CREATE_SUBDIRS         = NO
@@ -163,17 +163,12 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          IGRAPHICS_MENU \
                          IGRAPHICS_MENU_RCVR \
                          IGRAPHICS_VIEW \
-                         NanoVGBitmap \
-                         CairoBitmap \
                          LineInfo \
                          StaticStorage \
                          CocoaAutoReleasePool \
                          AuxParam \
                          PNGStreamReader \
                          SVGHolder \
-                         APIBitmap \
-                         AGGBitmap \
-                         LICEBitmap \
                          WebBitmap \
                          Rasterizer \
                          DashOptions \
@@ -182,7 +177,8 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          Timer_impl \
                          TimerInfoRec \
                          SWELL_TimerFuncTarget \
-                         SWELL_DataHold
+                         SWELL_DataHold \
+                         pixel_wrapper
 
 EXAMPLE_PATH           =
 EXAMPLE_PATTERNS       = *

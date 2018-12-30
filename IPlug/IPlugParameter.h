@@ -10,6 +10,11 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc IParam
+ */
+
 #include <atomic>
 #include <cstring>
 #include <functional>

@@ -2,6 +2,8 @@
 
 ## Introduction
 
+This is the work in progress documentation for iPlug 2. 
+
 ### Requirements
 iPlug 2 requires a compiler that supports C++11, and is tested with MS Visual Studio 2017 and Xcode 10. It is developed to target Windows 7 or higher and macOS 10.7+. If you wish to compile for older operating systems it may be possible, but will require adjusting some settings.
 

@@ -10,6 +10,13 @@
 
 #pragma once
 
+/**
+ * @file Structs and small classes used throughout IGraphics code
+ * \ingroup IGraphicsStructs
+ * @{
+ */
+
+
 #include <cmath>
 #include <cassert>
 #include <functional>
@@ -48,11 +55,6 @@ typedef std::chrono::high_resolution_clock Time;
 typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimePoint;
 typedef std::chrono::duration<double, std::chrono::milliseconds::period> Milliseconds;
 
-/**
- * \defgroup IGraphicsStructs IGraphics::Structs
- * @{
- */
-
 #ifdef IGRAPHICS_AGG
   #include "IGraphicsAGG_src.h"
   typedef agg::pixel_map* BitmapData;
@@ -79,9 +81,9 @@ typedef emscripten::val* BitmapData;
   typedef void* BitmapData;
 #endif
 
-/** A wrapper around the different drawing backend bitmap representations.
+/** A bitmap abstraction around the different drawing backend bitmap representations.
  * In most cases it does own the bitmap data, the exception being with NanoVG, where the image is loaded onto the GPU as a texture,
- * but still needs to be freed */
+ * but still needs to be freed. Most of the time  end-users will deal with IBitmap rather than APIBitmap, which is used behind the scenes. */
 class APIBitmap
 {
 public:
@@ -126,7 +128,7 @@ private:
   float mDrawScale;
 };
 
-/** IGraphics's user-facing bitmap abstraction that you use to manage bitmap data, independant of draw class/platform.
+/** User-facing bitmap abstraction that you use to manage bitmap data, independant of draw class/platform.
  * IBitmap doesn't actually own the image data @see APIBitmap
  * An IBitmap's width and height are always in relation to a 1:1 (low dpi) screen. Any scaling happens at the drawing stage. */
 class IBitmap

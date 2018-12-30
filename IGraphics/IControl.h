@@ -13,10 +13,6 @@
 /**
  * @file
  * @brief This file contains the base IControl implementation, along with some base classes for specific types of control.
- * \defgroup Controls IGraphics::IControls
- * \defgroup BaseControls IGraphics::IControls::BaseControls
- * \defgroup SpecialControls IGraphics::IControls::SpecialControls
- * \defgroup TestControls IGraphics::IControls::TestControls
  */
 
 #include <cstring>
@@ -141,7 +137,7 @@ public:
    * @param str A CString with the inputted text */
   virtual void OnTextEntryCompletion(const char* str) {}
 
-  /** Implement this to respond to a menu selection from CreateContextMenu(); /see CreateContextMenu() */
+  /** Implement this to respond to a menu selection from CreateContextMenu(); @see CreateContextMenu() */
   virtual void OnContextSelection(int itemSelected) {}
 
   /** Draw the control to the graphics context. 
@@ -162,7 +158,7 @@ public:
   void PromptUserInput(const IRECT& bounds);
   
   /** Set an Action Function for this control. 
-   * actionfunc /see Action Functions */
+   * actionfunc @see Action Functions */
   inline void SetActionFunction(IActionFunction actionFunc) { mActionFunc = actionFunc; }
 
   /** Set a tooltip for the control
@@ -180,7 +176,7 @@ public:
    * @return const pointer to an IParam or nullptr if the control is not associated with a parameter */ 
   const IParam* GetParam();
   
-  /** Assign the control to a control group /see Control Groups
+  /** Assign the control to a control group @see Control Groups
    * @param groupName A CString indicating the control group that this control should belong to */
   void SetGroup(const char* groupName) { mGroup.Set(groupName); }
 
@@ -306,7 +302,7 @@ public:
   
   /** Called at each display refresh by the IGraphics draw loop to determine if the control is marked as dirty. 
    * This is not const, because it is typically  overridden and used to update something at the display refresh rate
-   * The default implementation exectutes a control's Animation Function, so if you override this you may want to call the base implementation, /see Animation Functions
+   * The default implementation exectutes a control's Animation Function, so if you override this you may want to call the base implementation, @see Animation Functions
    * @return \c true if the control is marked dirty. */
   virtual bool IsDirty();
 
@@ -322,11 +318,11 @@ public:
   /** This is an idle call from the GUI thread, only active if USE_IDLE_CALLS is defined. /todo check this */
   virtual void OnGUIIdle() {}
   
-  /** Set the control's tag. Controls can be given tags, in order to direct messages to them. /see Control Tags
+  /** Set the control's tag. Controls can be given tags, in order to direct messages to them. @see Control Tags
    * @param tag A unique integer to identify this control */
   void SetTag(int tag) { mTag = tag; }
   
-  /** Get the control's tag. /see Control Tags */
+  /** Get the control's tag. @see Control Tags */
   int GetTag() const { return mTag; }
   
   /** Specify whether this control wants to know about MIDI messages sent to the UI. See OnMIDIMsg() */

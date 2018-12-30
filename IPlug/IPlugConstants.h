@@ -12,7 +12,9 @@
 
 /**
  * @file
- * @brief Constant definitions, Types, magic numbers
+ * @brief IPlug Constant definitions, Types, magic numbers
+ * @defgroup IPlugConstants IPlug::Constants
+ * @{
  */
 
 #if !defined(SAMPLE_TYPE_FLOAT) && !defined(SAMPLE_TYPE_DOUBLE)
@@ -224,4 +226,5 @@ enum EHost
   // MiniHost
 };
 
+/**@}*/
 

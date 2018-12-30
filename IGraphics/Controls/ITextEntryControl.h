@@ -12,6 +12,7 @@
 
 /**
  * @file
+ * @ingroup SpecialControls
  * @brief A Text entry widget drawn by IGraphics to optionally override platform text entries.
  * This allows better matching of text rendering during text input and display, but has disadvantages in terms of accessibility.
  * This code is largely based on VSTGUI's generictextedit, using stb_textedit

@@ -8,6 +8,11 @@
  ==============================================================================
 */
 
+/**
+ * @file
+ * @brief Used for choosing a drawing backend
+ */
+
 #if !defined DOXYGEN_SHOULD_SKIP_THIS
   #if defined IGRAPHICS_LICE
     #include "IGraphicsLice.h"

@@ -8,6 +8,11 @@
  ==============================================================================
  */
 
+/**
+ * @file
+ * @brief ITextEntryControl implementation
+ * @ingroup SpecialControls
+*/
 
 #include "ITextEntryControl.h"
 #include "IPlugPlatform.h"
