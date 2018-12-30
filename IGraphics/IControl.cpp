@@ -472,8 +472,10 @@ int IDirBrowseControlBase::NItems()
   return mItems.GetSize();
 }
 
-void IDirBrowseControlBase::AddPath(const char * path, const char * label)
+void IDirBrowseControlBase::AddPath(const char* path, const char* label)
 {
+  assert(strlen(path));
+
   mPaths.Add(new WDL_String(path));
   mPathLabels.Add(new WDL_String(label));
 }
