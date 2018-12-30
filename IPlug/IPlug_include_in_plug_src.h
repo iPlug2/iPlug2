@@ -83,14 +83,12 @@ static unsigned int GUID_DATA4 = PLUG_UNIQUE_ID;
 #endif
 
 #if defined VST3P_API || defined VST3_API
-// called after library was loaded
 bool InitModule ()
 {
 #ifdef OS_WIN
   extern void* moduleHandle;
-  gHInstance = (HINSTANCE) moduleHandle;
+  gHINSTANCE = (HINSTANCE) moduleHandle;
 #endif
-  
   return true;
 }
 
