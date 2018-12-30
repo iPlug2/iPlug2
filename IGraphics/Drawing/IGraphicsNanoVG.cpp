@@ -250,14 +250,18 @@ const char* IGraphicsNanoVG::GetDrawingAPIStr()
 #if defined IGRAPHICS_METAL
   return "NanoVG | Metal";
 #else
-  #if defined IGRAPHICS_GL2
-    return "NanoVG | OpenGL2";
-  #elif defined IGRAPHICS_GL3
-    return "NanoVG | OpenGL3";
-  #elif defined IGRAPHICS_GLES2
-    return "NanoVG | OpenGLES2";
-  #elif defined IGRAPHICS_GLES3
-    return "NanoVG | OpenGLES3";
+  #if defined OS_WEB
+    return "NanoVG | WebGL";
+  #else
+    #if defined IGRAPHICS_GL2
+      return "NanoVG | OpenGL2";
+    #elif defined IGRAPHICS_GL3
+      return "NanoVG | OpenGL3";
+    #elif defined IGRAPHICS_GLES2
+      return "NanoVG | OpenGLES2";
+    #elif defined IGRAPHICS_GLES3
+      return "NanoVG | OpenGLES3";
+    #endif
   #endif
 #endif
 }
