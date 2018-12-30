@@ -1130,7 +1130,7 @@ NSVGimage* LoadSVGFromWinResource(HINSTANCE hInst, const char* resid)
 
   WDL_String svgStr {static_cast<const char*>(pResourceData) };
 
-  return nsvgParse(svgStr.Get(), "px", 72);
+  return nsvgParse(svgStr.Get(), "px", 72); //TODO: don't fix DPI
 }
 #endif
 
@@ -1144,11 +1144,16 @@ ISVG IGraphics::LoadSVG(const char* name)
 
   if(!pHolder)
   {
+    NSVGimage* pImage = nullptr;
+
+    // TODO: move resource loading code and improve error checking 
 #ifdef OS_WIN
-    NSVGimage* pImage = LoadSVGFromWinResource((HINSTANCE) GetPlatformInstance(), path.Get());
-#else
-    NSVGimage* pImage = nsvgParseFromFile(path.Get(), "px", 72);
+    pImage = LoadSVGFromWinResource((HINSTANCE) GetPlatformInstance(), path.Get());
+
+    if(pImage == nullptr)
 #endif
+    pImage = nsvgParseFromFile(path.Get(), "px", 72); //TODO: don't fix DPI
+
     assert(pImage != nullptr);
 
     pHolder = new SVGHolder(pImage);

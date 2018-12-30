@@ -119,11 +119,19 @@ NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double source
 {
   mVG = pContext;
   int w = 0, h = 0;
+
+  int idx = 0;
+
+  // TODO: move resource loading code and improve error checking 
 #ifdef OS_WIN
-  int idx = LoadImageFromWinResource(pContext, (HINSTANCE)hInst, path); // TODO: then try absolute path?
-#else
-  int idx = nvgCreateImage(mVG, path, 0);
+  idx = LoadImageFromWinResource(pContext, (HINSTANCE)hInst, path);
+
+  if (idx == 0)
 #endif
+  idx = nvgCreateImage(mVG, path, 0);
+
+  assert(idx > 0);
+
   nvgImageSize(mVG, idx, &w, &h);
   
   SetBitmap(idx, w, h, sourceScale, 1.f);
