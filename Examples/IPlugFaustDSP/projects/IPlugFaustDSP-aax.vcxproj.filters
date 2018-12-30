@@ -117,7 +117,6 @@
     <ClInclude Include="..\..\..\IPlug\IPlugPresets.h">
       <Filter>IPlug</Filter>
     </ClInclude>
-    <ClInclude Include="..\IPlugFaustDSP_controls.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugEditorDelegate.h">
       <Filter>IPlug</Filter>
     </ClInclude>
@@ -229,19 +228,19 @@
       <UniqueIdentifier>{7d636beb-b5d6-4b75-b2a5-27b00d8f37d2}</UniqueIdentifier>
     </Filter>
     <Filter Include="config">
-      <UniqueIdentifier>{5d54265d-0925-46c3-8d35-886448c58cd2}</UniqueIdentifier>
+      <UniqueIdentifier>{464e659e-834a-453a-9150-dbaf783f8307}</UniqueIdentifier>
     </Filter>
     <Filter Include="IGraphics">
-      <UniqueIdentifier>{bacd2ade-7068-44e0-930c-3e1931c1c8b2}</UniqueIdentifier>
+      <UniqueIdentifier>{68bdd895-46fe-4c63-a6b1-5f5eb18cccd3}</UniqueIdentifier>
     </Filter>
     <Filter Include="IGraphics\Drawing">
-      <UniqueIdentifier>{8fc3d308-9723-4991-9f31-7890b88aa77e}</UniqueIdentifier>
+      <UniqueIdentifier>{ca6c268f-0123-4612-a634-bc446f5c5128}</UniqueIdentifier>
     </Filter>
     <Filter Include="IGraphics\Platform">
-      <UniqueIdentifier>{368796f3-255a-4e90-8003-8c32474c8fb5}</UniqueIdentifier>
+      <UniqueIdentifier>{7c4030c7-b478-4da8-a5fe-4771406c07aa}</UniqueIdentifier>
     </Filter>
     <Filter Include="IGraphics\Controls">
-      <UniqueIdentifier>{7dc7eb48-ee49-40ad-9ea1-a4cb555b23d6}</UniqueIdentifier>
+      <UniqueIdentifier>{3c740de7-2371-4065-bf3d-5af9193c7b7d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

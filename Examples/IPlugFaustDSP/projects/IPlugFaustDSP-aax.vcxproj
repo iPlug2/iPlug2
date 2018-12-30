@@ -562,7 +562,6 @@
     <ClInclude Include="..\..\..\IPlug\NChanDelay.h" />
     <ClInclude Include="..\config.h" />
     <ClInclude Include="..\IPlugFaustDSP.h" />
-    <ClInclude Include="..\IPlugFaustDSP_controls.h" />
     <ClInclude Include="..\resources\resource.h" />
   </ItemGroup>
   <ItemGroup>
