@@ -47,3 +47,5 @@ TODO: explain
 | resources/IPlugEffect.ico                 | WIN icon for standalone                                                                                            |
 | update_version.py                         | python script to update the version numbers in info.plist andwin/macOS installer files to match that in resource.h |
 | validate_audiounit.command                | bash script to run macOS auval utility with plugin TYPE/MFR_ID/PLUGIN_ID as declared in resource.h                 |
+
+-->

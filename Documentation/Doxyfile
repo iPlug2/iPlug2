@@ -79,7 +79,7 @@ INLINE_INFO            = YES
 SORT_MEMBER_DOCS       = YES
 SORT_BRIEF_DOCS        = NO
 SORT_MEMBERS_CTORS_1ST = NO
-SORT_GROUP_NAMES       = NO
+SORT_GROUP_NAMES       = YES
 SORT_BY_SCOPE_NAME     = NO
 STRICT_PROTO_MATCHING  = NO
 GENERATE_TODOLIST      = YES
@@ -92,7 +92,7 @@ SHOW_USED_FILES        = YES
 SHOW_FILES             = YES
 SHOW_NAMESPACES        = YES
 FILE_VERSION_FILTER    =
-LAYOUT_FILE            =
+LAYOUT_FILE            = DoxygenLayout.xml
 CITE_BIB_FILES         =
 
 #---------------------------------------------------------------------------
@@ -178,7 +178,12 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          TimerInfoRec \
                          SWELL_TimerFuncTarget \
                          SWELL_DataHold \
-                         pixel_wrapper
+                         pixel_wrapper \
+                         AGGBitmap \
+                         CairoBitmap \
+                         CanvasBitmap \
+                         LICEBitmap \
+                         NanoVGBitmap    
 
 EXAMPLE_PATH           =
 EXAMPLE_PATTERNS       = *
