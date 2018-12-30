@@ -32,6 +32,7 @@ typedef IPlugVST3Controller VST3_API_BASE;
 #include "IControls.h"
 #include "IGraphicsLiveEdit.h"
 #include "IFPSDisplayControl.h"
+#include "ICornerResizerControl.h"
 #include "IPopupMenuControl.h"
 #include "ITextEntryControl.h"
 
