@@ -8,6 +8,12 @@
  ==============================================================================
 */
 
+/**
+ * @file
+ * @brief IControls implementation
+ * @ingroup Controls
+ */
+
 #include "IControls.h"
 
 #pragma mark - VECTOR CONTROLS

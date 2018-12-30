@@ -13,6 +13,14 @@
 /**
  * @file
  * @copydoc IGraphics
+ * @defgroup IGraphicsStructs IGraphics::Structs
+ * @defgroup DrawClasses IGraphics::DrawClasses
+ * @defgroup APIBitmaps IGraphics::DrawClasses::APIBitmaps
+ * @defgroup PlatformClasses IGraphics::PlatformClasses
+ * @defgroup Controls IGraphics::IControls
+ * @defgroup BaseControls IGraphics::IControls::BaseControls
+ * @defgroup SpecialControls IGraphics::IControls::SpecialControls
+ * @defgroup TestControls IGraphics::IControls::TestControls
  */
 
 #ifndef NO_IGRAPHICS
@@ -49,14 +57,9 @@
 class IControl;
 class IPopupMenuControl;
 class ITextEntryControl;
-class ICornerResizerBase;
+class ICornerResizerControl;
 class IFPSDisplayControl;
 class IParam;
-
-/**
- * \defgroup DrawClasses IGraphics::DrawClasses
- * \defgroup PlatformClasses IGraphics::PlatformClasses
-*/
 
 /**  The lowest level base class of an IGraphics context */
 class IGraphics
@@ -749,9 +752,9 @@ public:
   void AttachCornerResizer(EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale, bool layoutOnResize = false);
 
   /** Attach your own control to scale or increase the UI size by dragging the plug-in bottom right-hand corner
-   * @param pControl control a control that inherits from ICornerResizerBase
+   * @param pControl control a control that inherits from ICornerResizerControl
    * @param sizeMode Choose whether to scale or size the UI */
-  void AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale, bool layoutOnResize = false);
+  void AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale, bool layoutOnResize = false);
 
   /** Attach a control for pop-up menus, to override platform style menus
    * @param pControl A control that inherits from IPopupMenuControl */
@@ -1055,7 +1058,7 @@ private:
 
   // Order (front-to-back) ToolTip / PopUp / TextEntry / LiveEdit / Corner / PerfDisplay
   
-  ICornerResizerBase* mCornerResizer = nullptr;
+  ICornerResizerControl* mCornerResizer = nullptr;
   IPopupMenuControl* mPopupControl = nullptr;
   IFPSDisplayControl* mPerfDisplay = nullptr;
   ITextEntryControl* mTextEntryControl = nullptr;
@@ -1093,7 +1096,7 @@ private:
   std::function<bool(const IKeyPress& key)> mKeyHandlerFunc = nullptr;
 protected:
   friend class IGraphicsLiveEdit;
-  friend class ICornerResizerBase;
+  friend class ICornerResizerControl;
   
   std::stack<ILayer*> mLayers;
 };

@@ -8,6 +8,11 @@
  ==============================================================================
 */
 
+/**
+ * @file
+ * @brief IPluginBase implementation
+ */
+
 #include "IPlugPluginBase.h"
 #include "wdlendian.h"
 #include "wdl_base64.h"

@@ -10,9 +10,16 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc TestAnimationControl
+ */
+
 #include "IControl.h"
 #include "Easing.h"
 
+/** Control to test animation
+ *   @ingroup TestControls */
 class TestAnimationControl : public IControl
 {
 public:
@@ -45,6 +52,7 @@ public:
 
   void Draw(IGraphics& g) override
   {
+    g.DrawDottedRect(COLOR_BLACK, mRECT);
     g.FillRect(mDrawnColor, mDrawnRect);
     g.DrawText(mText, "Click to animate", mRECT);
   }

@@ -42,6 +42,8 @@
 
 #include "IGraphicsPathBase.h"
 
+/** A Cairo API bitmap
+ * @ingroup APIBitmaps */
 class CairoBitmap : public APIBitmap
 {
 public:
@@ -51,8 +53,7 @@ public:
 };
 
 /** IGraphics draw class using Cairo
-*   @ingroup DrawClasses
-*/
+*   @ingroup DrawClasses */
 class IGraphicsCairo : public IGraphicsPathBase
 {
 public:

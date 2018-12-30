@@ -8,8 +8,13 @@
  ==============================================================================
 */
 
-#include "IPopupMenuControl.h"
+/**
+ * @file
+ * @brief IPopupMenuControl implementation
+ * @ingroup SpecialControls
+ */
 
+#include "IPopupMenuControl.h"
 
 IPopupMenuControl::IPopupMenuControl(IGEditorDelegate& dlg, int paramIdx, IText text, IRECT collapsedBounds, IRECT expandedBounds)
 : IControl(dlg, collapsedBounds, paramIdx)

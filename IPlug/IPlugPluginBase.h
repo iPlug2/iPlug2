@@ -10,6 +10,11 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc IPluginBase
+ */
+
 #include <random>
 
 #include "IPlugDelegate_select.h"
@@ -17,7 +22,7 @@
 #include "IPlugStructs.h"
 #include "IPlugLogger.h"
 
-/** TODO: */
+/** Base class that contains plug-in info and state manipulation methods */
 class IPluginBase : public EDITOR_DELEGATE_CLASS
 {
 public:

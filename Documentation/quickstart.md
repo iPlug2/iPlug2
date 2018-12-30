@@ -16,35 +16,35 @@ This basically means that the resource has not been found. Perhaps it didn't get
 
 ### Here are some instructions about how to add an image:
 
-Let's assume our WDL-OL IPlug Project is called _MyNewPlugin_ and the image we want to add is called _cat.png_.
+Let's assume our IPlug 2 Project is called _MyNewPlugin_ and the image we want to add is called _cat.png_.
 
-The IPlug Project should exist at the same level as _WDL-OL/IPlugExamples/IPlugEffect_. Personally I put all my IPlug projects in a folder called _WDL-OL/Projects_ (which is ignored in the .gitignore file), so if I were to make a new project I would first use the [duplicate script](md_duplicate.html) to clone the IPlugEffect example and then I would move that folder to _WDL-OL/Projects/MyNewPlugin_.
+The IPlug Project should exist at the same level as _iPlug2/Examples/IPlugEffect_. Personally I put all my IPlug projects in a folder called _iPlug2/Projects_ (which is ignored in the .gitignore file), so if I were to make a new project I would first use the [duplicate script](md_duplicate.html) to clone the IPlugEffect example and then I would move that folder to _iPlug2/Projects/MyNewPlugin_.
 
 
 * Firstly, make sure your image is in PNG format. 
-  By default WDL-OL IPlug only works with PNG files.
+  By default iPlug2 IPlug only works with PNG files.
 
 * Copy the PNG file to the IPlug Project's image resource folder e.g.
 
-  _WDL-OL/Projects/MyNewPlugin/Resources/img/cat.png_
+  _iPlug2/Projects/MyNewPlugin/Resources/img/cat.png_
 
-* Now add a reference to the file location to _WDL-OL/Projects/MyNewPlugin/config.h_
+* Now add a reference to the file location to _iPlug2/Projects/MyNewPlugin/config.h_
 
 ```cpp
 // Image resource locations for this plug.  
-#define KNOB_FN "resources/img/knob.png"  
-#define CAT_FN "resources/img/cat.png" 
+#define KNOB_FN "knob.png"  
+#define CAT_FN "cat.png" 
 ```
 
 The following steps differ depending on which platform/IDE you are using:
 
 **Xcode**
 
-Open _WDL-OL/Projects/MyNewPlugin/MyNewPlugin.xcodeproj_ and drag cat.png into the folder _Resources/img/_   inside the Xcode project. Xcode will give you a dialog asking which targets you want to add the resource to.    Usually you would tick all of them except the one called "All" which is an Aggregate target for building all formats at once. You can now verify that your resource will be added to the plug-in/app bundle by checking the target's "Copy Bundle Resources" build-phase.
+Open _iPlug2/Projects/MyNewPlugin/MyNewPlugin.xcodeproj_ and drag cat.png into the folder _Resources/img/_   inside the Xcode project. Xcode will give you a dialog asking which targets you want to add the resource to.    Usually you would tick all of them except the one called "All" which is an Aggregate target for building all formats at once. You can now verify that your resource will be added to the plug-in/app bundle by checking the target's "Copy Bundle Resources" build-phase.
 
 **Visual Studio**
 
-Edit _WDL-OL/Projects/MyNewPlugin/MyNewPlugin.rc_
+Edit _iPlug2/Projects/MyNewPlugin/MyNewPlugin.rc_
 \todo Complete the guide for Visual Studio
 
 Now you have included the resource in your build, you can actually use it in the source code. In the plug-in's constructor, after creating the graphics context you can call:

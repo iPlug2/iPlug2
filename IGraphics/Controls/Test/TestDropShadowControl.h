@@ -10,9 +10,16 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc TestDropShadowControl
+ */
+
 #include "IControl.h"
 #include "nanosvg.h"
 
+/** Control to test layer drop shadows
+ *   @ingroup TestControls */
 class TestDropShadowControl : public IControl
 {
 public:
@@ -25,6 +32,8 @@ public:
 
   void Draw(IGraphics& g) override
   {
+    g.DrawDottedRect(COLOR_BLACK, mRECT);
+
     if (!g.CheckLayer(mLayer))
     {
       g.StartLayer(mRECT);

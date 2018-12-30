@@ -10,6 +10,13 @@
 
 #pragma once
 
+/**
+ * @file
+ * Utility functions and macros
+ * @defgroup IPlugUtilities IPlug::Utilities
+ * @{
+ */
+
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -31,11 +38,6 @@
 #pragma warning(disable:4800)		// if (pointer) ...
 #pragma warning(disable:4805)		// Compare bool and BOOL.
 #endif
-
-/**
- * @file
- * Utility functions and macros
- */
 
 #define FREE_NULL(p) {free(p);p=nullptr;}
 #define DELETE_NULL(p) {delete(p); p=nullptr;}
@@ -337,3 +339,5 @@ static void MidiNoteName(double midiPitch, WDL_String& noteName, bool cents = fa
     noteName.SetFormatted(32, "%s%i", noteNames[pitchClass], octave);
   }
 }
+
+/**@}*/
