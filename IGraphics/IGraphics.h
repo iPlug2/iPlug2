@@ -604,12 +604,12 @@ public:
    * @return \c true on success (if the path was valid) */
   virtual bool RevealPathInExplorerOrFinder(WDL_String& path, bool select = false) { return false; }
 
-  /** Used on Windows to set the HINSTANCE handle, which allows graphics APIs to load resources from the binary. \todo doesn’t this do something on Mac too?
+  /** Used on Windows to set the HINSTANCE module handle, which allows graphics APIs to load resources from the binary.
    * @param pInstance void pointer to the platform instance */
-  virtual void SetPlatformInstance(void* pInstance) {}
+  virtual void SetWinPlatformInstance(void* pInstance) {}
 
-  /** Get a void pointer that can be cast back to HINSTANCE \todo what about Mac? */
-  virtual void* GetPlatformInstance() { return nullptr; }
+  /** @return a void pointer that can be cast back to HINSTANCE to get the module handle on windows, returns nullptr on other platforms*/
+  virtual void* GetWinPlatformInstance() { return nullptr; }
 
   /** Set the platform draw context
    * Used in order to set the platform level draw context - CGContextRef context on macOS and the GDI HDC draw context handle on Windows.

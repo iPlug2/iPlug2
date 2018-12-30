@@ -27,7 +27,7 @@
   IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
   {
     IGraphicsWin* pGraphics = new IGraphicsWin(dlg, w, h, fps, scale);
-    pGraphics->SetPlatformInstance(gHINSTANCE);
+    pGraphics->SetWinPlatformInstance(gHINSTANCE);
     return pGraphics;
   }
   #elif defined OS_MAC

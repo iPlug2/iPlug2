@@ -289,7 +289,7 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
 
 APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
 {
-  return new NanoVGBitmap(mVG, resourcePath.Get(), scale, GetPlatformInstance());
+  return new NanoVGBitmap(mVG, resourcePath.Get(), scale, GetWinPlatformInstance());
 }
 
 APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height)
