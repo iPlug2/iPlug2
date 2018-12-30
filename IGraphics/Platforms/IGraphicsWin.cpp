@@ -714,6 +714,7 @@ bool IGraphicsWin::MouseCursorIsLocked()
 
 int IGraphicsWin::ShowMessageBox(const char* text, const char* caption, EMessageBoxType type)
 {
+  ReleaseMouseCapture();
   return MessageBox(GetMainWnd(), text, caption, (int) type);
 }
 
