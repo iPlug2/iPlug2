@@ -174,8 +174,8 @@ private:
   virtual void InformHostOfParamChange(int paramIdx, double normalizedValue) {};
   
   //DISTRIBUTED ONLY (Currently only VST3)
-  virtual void _TransmitMidiMsgFromProcessor(const IMidiMsg& msg) {};
-  virtual void _TransmitSysExDataFromProcessor(const SysExData& data) {};
+  virtual void TransmitMidiMsgFromProcessor(const IMidiMsg& msg) {};
+  virtual void TransmitSysExDataFromProcessor(const SysExData& data) {};
 
   void OnTimer(Timer& t);
 

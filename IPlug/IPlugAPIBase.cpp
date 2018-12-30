@@ -166,14 +166,14 @@ void IPlugAPIBase::OnTimer(Timer& t)
     {
       IMidiMsg msg;
       mMidiMsgsFromProcessor.Pop(msg);
-      _TransmitMidiMsgFromProcessor(msg);
+      TransmitMidiMsgFromProcessor(msg);
     }
     
     while (mSysExDataFromProcessor.ElementsAvailable())
     {
       SysExData data;
       mSysExDataFromProcessor.Pop(data);
-      _TransmitSysExDataFromProcessor(data);
+      TransmitSysExDataFromProcessor(data);
     }
   #endif
   }
