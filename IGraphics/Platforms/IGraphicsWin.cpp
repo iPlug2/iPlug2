@@ -1366,7 +1366,6 @@ void IGraphicsWin::ShowTooltip()
     const char* tooltip = GetControl(mTooltipIdx)->GetTooltip();
     if (tooltip)
     {
-      assert(strlen(tooltip) < 80);
       SetTooltip(tooltip);
       mShowingTooltip = true;
     }
