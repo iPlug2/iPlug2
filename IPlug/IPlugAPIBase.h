@@ -136,7 +136,7 @@ public:
    * @param paramIdx The index of the parameter that changed
    * @param value The new value
    * @param normalized /true if value is normalised */
-  virtual void _SendParameterValueFromAPI(int paramIdx, double value, bool normalized);
+  virtual void SendParameterValueFromAPI(int paramIdx, double value, bool normalized);
 
   /** Called to set the name of the current host, if known.
   * @param host The name of the plug-in host

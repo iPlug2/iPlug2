@@ -125,7 +125,7 @@ void IPlugAPIBase::DirtyParametersFromUI()
   }
 }
 
-void IPlugAPIBase::_SendParameterValueFromAPI(int paramIdx, double value, bool normalized)
+void IPlugAPIBase::SendParameterValueFromAPI(int paramIdx, double value, bool normalized)
 {
   //TODO: Can we assume that no host is stupid enough to try and set parameters on multiple threads at the same time?
   // If that is the case then we need a MPSPC queue not SPSC
