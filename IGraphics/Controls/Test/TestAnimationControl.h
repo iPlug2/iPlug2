@@ -10,6 +10,11 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc TestAnimationControl
+ */
+
 #include "IControl.h"
 #include "Easing.h"
 

@@ -10,6 +10,11 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc TestDirBrowseControl
+ */
+
 #include "IControl.h"
 
 /** Control to test IDirBrowseControlBase

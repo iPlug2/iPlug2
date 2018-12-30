@@ -55,6 +55,7 @@ class IParam;
 
 /**
  * \defgroup DrawClasses IGraphics::DrawClasses
+ * \defgroup APIBitmaps IGraphics::DrawClasses::APIBitmaps
  * \defgroup PlatformClasses IGraphics::PlatformClasses
 */
 

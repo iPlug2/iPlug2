@@ -35,9 +35,9 @@ class IVButtonControl : public IButtonControlBase
 {
 public:
   IVButtonControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc = FlashCircleClickActionFunc, const char* str = "", const IText& text = DEFAULT_TEXT, const IVColorSpec& colorSpec = DEFAULT_SPEC);
-  
+
   void Draw(IGraphics& g) override;
-  
+
 protected:
   WDL_String mStr;
 };
@@ -51,7 +51,7 @@ public:
                   const char* label = "", const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2);
 
   void Draw(IGraphics& g) override;
-  
+
   void SetDirty(bool push) override;
 
 protected:
@@ -65,7 +65,7 @@ class IVRadioButtonControl : public ISwitchControlBase
 public:
   IVRadioButtonControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = FlashCircleClickActionFunc,
                        const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2, EDirection dir = kVertical);
-  
+
   virtual ~IVRadioButtonControl() { mLabels.Empty(true); }
   virtual void Draw(IGraphics& g) override;
   virtual void OnResize() override;
@@ -87,13 +87,13 @@ public:
                 const IVColorSpec& colorSpec = DEFAULT_SPEC, const IText& labelText = IText(DEFAULT_TEXT_SIZE + 5, IText::kVAlignTop), const IText& valueText = IText(DEFAULT_TEXT_SIZE, IText::kVAlignBottom),
                 float aMin = -135.f, float aMax = 135.f, float knobFrac = 0.50f,
                 EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
-  
+
   IVKnobControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunction,
                 const char* label = "", bool displayParamValue = false,
                 const IVColorSpec& colorSpec = DEFAULT_SPEC, const IText& labelText = IText(DEFAULT_TEXT_SIZE + 5, IText::kVAlignTop), const IText& valueText = IText(DEFAULT_TEXT_SIZE, IText::kVAlignBottom),
                 float aMin = -135.f, float aMax = 135.f, float knobFrac = 0.50f,
                 EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
-  
+
   virtual ~IVKnobControl() {}
 
   void Draw(IGraphics& g) override;
@@ -131,7 +131,7 @@ public:
       g.DrawSVG(mSVG, mRECT);
       mLayer = g.EndLayer();
     }
-    
+
     g.DrawRotatedLayer(mLayer, mStartAngle + mValue * (mEndAngle - mStartAngle));
   }
 
@@ -162,7 +162,7 @@ public:
   {
     AttachIControl(this);
   }
-  
+
   IVSliderControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction aF,
                   const IVColorSpec& colorSpec = DEFAULT_SPEC,
                   EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f)
@@ -172,12 +172,12 @@ public:
   {
     AttachIControl(this);
   }
-  
+
   virtual ~IVSliderControl() {}
-  
+
   virtual void Draw(IGraphics& g) override;
   void OnResize() override;
-  
+
 private:
   float mTrackSize;
 };
@@ -193,22 +193,22 @@ public:
   : IButtonControlBase(dlg, IRECT(x, y, bitmap), actionFunc)
   , IBitmapBase(bitmap)
   {}
-  
+
   IBButtonControl(IGEditorDelegate& dlg, const IRECT& bounds, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
   : IButtonControlBase(dlg, bounds, actionFunc)
   , IBitmapBase(bitmap)
   {}
-  
+
   void Draw(IGraphics& g) override
   {
     g.DrawBitmap(mBitmap, mRECT, (int) mValue + 1, &mBlend);
   }
-  
+
   virtual void OnRescale() override
   {
     mBitmap = GetUI()->GetScaledBitmap(mBitmap);
   }
-  
+
   virtual void GrayOut(bool gray) override
   {
     IBitmapBase::GrayOut(gray);
@@ -222,15 +222,15 @@ class IBSwitchControl : public IBitmapControl
 public:
   IBSwitchControl(IGEditorDelegate& dlg, float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter)
   : IBitmapControl(dlg, x, y, bitmap, paramIdx) {}
-  
+
   IBSwitchControl(IGEditorDelegate& dlg, const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter)
   : IBitmapControl(dlg, bounds, bitmap, paramIdx) {}
-  
+
   virtual ~IBSwitchControl() {}
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {  OnMouseDown(x, y, mod); }
-  
+
   virtual void GrayOut(bool gray) override
   {
     IBitmapBase::GrayOut(gray);
@@ -248,26 +248,26 @@ public:
   , IBitmapBase(bitmap)
   {
   }
-  
+
   IBKnobControl(IGEditorDelegate& dlg, IRECT bounds, const IBitmap& bitmap, int paramIdx, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
   : IKnobControlBase(dlg, bounds.GetCentredInside(bitmap), paramIdx, direction, gearing)
   , IBitmapBase(bitmap)
   {
   }
-  
+
   virtual ~IBKnobControl() {}
-  
+
   virtual void Draw(IGraphics& g) override
   {
     int i = 1 + int(0.5 + mValue * (double) (mBitmap.N() - 1));
     g.DrawBitmap(mBitmap, mRECT, i, &mBlend);
   }
-  
+
   void OnRescale() override
   {
     mBitmap = GetUI()->GetScaledBitmap(mBitmap);
   }
-  
+
   virtual void GrayOut(bool gray) override
   {
     IBitmapBase::GrayOut(gray);
@@ -283,12 +283,12 @@ public:
   : IBKnobControl(dlg, IRECT(x, y, bitmap), bitmap, paramIdx)
   {
   }
-  
+
   IBKnobRotaterControl(IGEditorDelegate& dlg, IRECT bounds, const IBitmap& bitmap, int paramIdx)
   : IBKnobControl(dlg, bounds.GetCentredInside(bitmap), bitmap, paramIdx)
   {
   }
-  
+
   virtual ~IBKnobRotaterControl() {}
 
   void Draw(IGraphics& g) override
@@ -305,16 +305,16 @@ class IBSliderControl : public ISliderControlBase
 public:
   IBSliderControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, const IBitmap& bitmap,
                   EDirection dir = kVertical, bool onlyHandle = false);
-  
+
   IBSliderControl(IGEditorDelegate& dlg, float x, float y, int len, int paramIdx,
                   const IBitmap& bitmap, EDirection direction = kVertical, bool onlyHandle = false);
-  
+
   virtual ~IBSliderControl() {}
 
   virtual void Draw(IGraphics& g) override;
   virtual void OnRescale() override;
   virtual void OnResize() override;
-  
+
   IRECT GetHandleBounds(double value = -1.0) const;
 
   virtual void GrayOut(bool gray) override
@@ -340,20 +340,20 @@ public:
   {
     mStr.Set(str);
   }
-  
+
   virtual ~IBTextControl() {}
 
   void Draw(IGraphics& g) override
   {
     g.DrawBitmapedText(mBitmap, mRECT, mText, &mBlend, mStr.Get(), mVCentre, mMultiLine, mCharWidth, mCharHeight, mCharOffset);
   }
-  
+
   virtual void GrayOut(bool gray) override
   {
     IBitmapBase::GrayOut(gray);
     IControl::GrayOut(gray);
   }
-  
+
   void OnRescale() override
   {
     mBitmap = GetUI()->GetScaledBitmap(mBitmap);

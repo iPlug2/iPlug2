@@ -28,9 +28,8 @@ struct Timer;
 typedef std::function<void(Timer& t)> ITimerFunction;
 
 #if defined OS_WEB
-class Timer
+struct Timer
 {
-public:
   static Timer* Create(ITimerFunction func, uint32_t intervalMs)
   {
     return new Timer();
@@ -56,6 +55,7 @@ UINT_PTR SetTimer(HWND hwnd, UINT_PTR timerid, UINT rate, TIMERPROC tProc);
 BOOL KillTimer(HWND hwnd, UINT_PTR timerid);
 #endif
 
+/** Base class for timer */
 struct Timer
 {
   virtual ~Timer() {};

@@ -10,6 +10,11 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc TestSVGControl
+ */
+
 #include "IControl.h"
 #include "nanosvg.h"
 

@@ -10,6 +10,11 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc IFPSDisplayControl
+ */
+
 #include "IControl.h"
 
 /** Performance display meter, based on code from NanoVG
@@ -28,32 +33,32 @@ public:
     kPercentage,
     kNumStyles
   };
-  
+
   IFPSDisplayControl(IGEditorDelegate& dlg, IRECT bounds, EStyle style = EStyle::kFPS, const char* label = "Frame Time")
   : IControl(dlg, bounds)
   , mStyle(style)
   , mNameLabel(label)
   {
     AttachIControl(this);
-    
+
     SetColor(kBG, COLOR_WHITE);
-    
+
     mNameLabelText = IText(14, GetColor(kFR), DEFAULT_FONT, IText::kStyleNormal, IText::kAlignNear, IText::kVAlignBottom);
   }
-  
+
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     mStyle++;
-    
+
     if(mStyle == kNumStyles)
       mStyle = kFPS;
   }
-  
+
   bool IsDirty() override
   {
     return true;
   }
-  
+
   void Update(float frameTime)
   {
     mReadPos = (mReadPos+1) % MAXBUF;
@@ -65,23 +70,23 @@ public:
     float avg = 0.f;
     for (int i = 0; i < MAXBUF; i++)
       avg += mBuffer[i];
-    
+
     avg = avg / (float)MAXBUF;
-    
+
     g.FillRect(GetColor(kBG), mRECT);
     g.DrawRect(COLOR_BLACK, mRECT);
 
     IRECT padded = mRECT.GetPadded(-2);
-    
+
     float x = padded.L;
     float y = padded.T;
     float w = padded.W();
     float h = padded.H();
-    
+
     // TODO: replace with IGraphics::DrawData, make it work with lice
 
     g.PathMoveTo(x, y+h);
-    
+
     if (mStyle == kFPS)
     {
       for (int i = 0; i < MAXBUF; i++) {
@@ -115,15 +120,15 @@ public:
         g.PathLineTo(vx, vy);
       }
     }
-    
+
     g.PathLineTo(mRECT.R, mRECT.B);
     g.PathFill(GetColor(kFG));
-    
+
     g.DrawText(mAPILabelText, g.GetDrawingAPIStr(), padded);
 
     if (mNameLabel.GetLength())
       g.DrawText(mNameLabelText, mNameLabel.Get(), padded);
-    
+
     WDL_String str;
 
     if (mStyle == kFPS)

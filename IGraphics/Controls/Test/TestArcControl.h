@@ -10,6 +10,11 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc TestArcControl
+ */
+
 #include "IControl.h"
 
 /** Control to test drawing arcs

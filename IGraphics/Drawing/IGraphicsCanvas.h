@@ -19,6 +19,8 @@
 
 using namespace emscripten;
 
+/** An HTML5 canvas API bitmap
+ * @ingroup APIBitmaps */
 class CanvasBitmap : public APIBitmap
 {
 public:

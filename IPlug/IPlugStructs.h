@@ -322,6 +322,7 @@ struct IChannelData
   WDL_String mLabel = WDL_String("");
 };
 
+/** Used to manage information about a bus such as whether it's an input or output, channel count and if it has a label */
 struct IBusInfo
 {
   ERoute mDirection;

@@ -10,6 +10,11 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc TestCursorControl
+ */
+
 #include "IControl.h"
 
 /** Control to test changing the platform cursor
@@ -26,10 +31,10 @@ public:
   void Draw(IGraphics& g) override
   {
     g.DrawDottedRect(COLOR_BLACK, mRECT);
-    
+
     const char* str = "Cursor";
     int cursor = mCursor == 0 ? HELP : mCursor - 1;
-      
+
     switch (cursor)
     {
       case ARROW:         str = "arrow";            break;
@@ -47,7 +52,7 @@ public:
       case APPSTARTING:   str = "app starting";     break;
       case HELP:          str = "help";             break;
     }
-      
+
     g.DrawText(mText, str, mRECT);
   }
 

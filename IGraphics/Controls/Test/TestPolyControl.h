@@ -10,6 +10,11 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc TestPolyControl
+ */
+
 #include "IControl.h"
 
 /** Control to test drawing polygons

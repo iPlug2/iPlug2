@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
+
  This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
- 
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
  */
 
@@ -49,14 +49,14 @@ public:
   void OnEndAnimation() override;
 
   void CreateTextEntry(const IRECT& bounds, const IText& text, const char* str);
-  
+
   static int DeleteChars(ITextEntryControl* _this, size_t pos, size_t num);
   static int InsertChars(ITextEntryControl* _this, size_t pos, const char* text, size_t num);
   static void Layout(StbTexteditRow* row, ITextEntryControl* _this, int start_i);
   static float GetCharWidth(ITextEntryControl* _this, int n, int i);
   static char GetChar(ITextEntryControl* _this, int pos);
   static int GetLength(ITextEntryControl* _this);
-  
+
   bool EditInProgress() { return mEditing; }
   void DismissEdit();
   void CommitEdit();
@@ -69,9 +69,9 @@ private:
   void FillCharWidthCache();
   void CalcCursorSizes();
   float GetCharWidth (char c, char pc);
-  
+
   bool mDrawCursor = false;
-  
+
   bool mEditing = false;
   bool mRecursiveKeyGuard = false;
   bool mCursorIsSet = false;

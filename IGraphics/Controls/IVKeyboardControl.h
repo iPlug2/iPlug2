@@ -9,6 +9,12 @@
 */
 
 #pragma once
+
+/**
+ * @file
+ * @copydoc IVKeyboardControl
+ */
+
 #include "IControl.h"
 #include "IPlugMidi.h"
 
@@ -86,16 +92,16 @@ public:
     SetNoteRange(minNote, maxNote, keepWidth);
     SetWantsMidi(true);
   }
-  
+
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     int prevKey = mLastTouchedKey;
     mLastTouchedKey = GetKeyAtPoint(x, y);
-    
+
     SetKeyIsPressed(mLastTouchedKey, true);
 
     mMouseOverKey = mLastTouchedKey;
-    
+
     if(mLastTouchedKey != prevKey)
     {
       //    if (!mVelByWheel)
@@ -103,7 +109,7 @@ public:
 
       TriggerMidiMsgFromKeyPress(mLastTouchedKey, (int) (mLastVelocity * 127.f));
     }
-    
+
     SetDirty(true);
   }
 
@@ -137,24 +143,24 @@ public:
   {
     int prevKey = mLastTouchedKey;
     mLastTouchedKey = GetKeyAtPoint(x, y);
-    
+
     SetKeyIsPressed(mLastTouchedKey, true);
 
     mMouseOverKey = mLastTouchedKey;
-    
+
     if(mLastTouchedKey != prevKey)
     {
 //      if (!mVelByWheel)
         mLastVelocity = GetVelocity(y);
-      
+
       TriggerMidiMsgFromKeyPress(mLastTouchedKey, (int) (mLastVelocity * 127.f));
-      
+
       TriggerMidiMsgFromKeyPress(prevKey, 0);
       SetKeyIsPressed(prevKey, false);
     }
-    
+
     SetDirty(true);
-    
+
   }
 
 //  void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override
@@ -200,15 +206,15 @@ public:
     mTargetRECT = mRECT;
     SetDirty(false);
   }
-  
+
   void OnMidi(const IMidiMsg& msg) override
   {
     switch (msg.StatusMsg())
     {
-      case IMidiMsg::kNoteOn: 
+      case IMidiMsg::kNoteOn:
         SetNoteFromMidi(msg.NoteNumber(), (msg.Velocity() != 0));
         break;
-      case IMidiMsg::kNoteOff: 
+      case IMidiMsg::kNoteOff:
         SetNoteFromMidi(msg.NoteNumber(), false);
         break;
       case IMidiMsg::kControlChange:
@@ -217,10 +223,10 @@ public:
         break;
       default: break;
     }
-    
+
     SetDirty(false);
   }
-  
+
   void DrawKey(IGraphics& g, const IRECT& bounds, const IColor& color)
   {
     if(mRoundedKeys)
@@ -243,9 +249,9 @@ public:
       {
         float kL = *GetKeyXPos(i);
         IRECT keyBounds = IRECT(kL, mRECT.T, kL + mWKWidth, mRECT.B);
-        
+
         DrawKey(g, keyBounds, GetColor(kWK));
-        
+
         if (GetKeyIsPressed(i))
         {
           // draw played white key
@@ -299,7 +305,7 @@ public:
           cBP.A = (int) mBKAlpha;
           g.FillRect(cBP, keyBounds);
         }
-        
+
         if(mCurve == 0.)
         {
           // draw l, r and bottom if they don't overlay the mRECT borders
@@ -344,7 +350,7 @@ public:
 
     if(GetAnimationFunction())
       DrawFlashCircle(g);
-    
+
 #ifdef _DEBUG
     //g.DrawRect(COLOR_GREEN, mTargetRECT);
     //g.DrawRect(COLOR_BLUE, mRECT);
@@ -356,7 +362,7 @@ public:
     g.DrawText(txt, ti.Get(), tr);
 #endif
   }
-  
+
 #pragma mark -
 
   void SetNoteRange(int min, int max, bool keepWidth = true)
@@ -378,25 +384,25 @@ public:
 
     RecreateKeyBounds(keepWidth);
   }
-  
+
   void SetNoteFromMidi(int noteNum, bool played)
   {
     if (noteNum < mMinNote || noteNum > mMaxNote) return;
     SetKeyIsPressed(noteNum - mMinNote, played);
   }
-  
+
   void SetKeyIsPressed(int key, bool pressed)
   {
     mPressedKeys.Get()[key] = pressed;
     SetDirty(false);
   }
-  
+
   void ClearNotesFromMidi()
   {
     memset(mPressedKeys.Get(), 0, mPressedKeys.GetSize() * sizeof(bool));
     SetDirty(false);
   }
-  
+
   void SetBlackToWhiteRatios(float widthRatio, float heightRatio = 0.6)
   {
     widthRatio = Clip(widthRatio, 0.1f, 1.f);
@@ -406,7 +412,7 @@ public:
     float r = widthRatio / mBKWidthRatio;
     mBKWidthRatio = widthRatio;
     mBKHeightRatio = heightRatio;
-    
+
     for (int i = 0; i < NKeys(); ++i)
     {
       if (IsBlackKey(i))
@@ -418,10 +424,10 @@ public:
           *pKeyL = mRECT.L;
       }
     }
-    
+
     SetDirty(false);
   }
-  
+
   void SetHeight(float h, bool keepAspectRatio = false)
   {
     if (h <= 0.0) return;
@@ -434,7 +440,7 @@ public:
       SetWidth(mRECT.W() * r);
     SetDirty(false);
   }
-  
+
   void SetWidth(float w, bool keepAspectRatio = false)
   {
     if (w <= 0.0) return;
@@ -455,7 +461,7 @@ public:
 
     SetDirty(false);
   }
-  
+
   void SetShowNotesAndVelocity(bool show)
   {
     mShowNoteAndVel = show;
@@ -557,9 +563,9 @@ private:
       mWKWidth = mRECT.W();
       if (numWhites) mWKWidth /= (numWhites + mBKWidthRatio * (WKPadStart + WKPadEnd));
     }
-    
+
     float BKWidth = mWKWidth;
-    
+
     if (numWhites)
       BKWidth *= mBKWidthRatio;
 
@@ -592,7 +598,7 @@ private:
   {
     IRECT clipRect = mRECT.GetPadded(-2);
     clipRect.Constrain(x, y);
-    
+
     float BKBottom = mRECT.T + mRECT.H() * mBKHeightRatio;
     float BKWidth = GetBKWidth();
 
@@ -635,7 +641,7 @@ private:
   float GetVelocity(float yPos)
   {
     float velocity = 0.;
-    
+
     if (mLastTouchedKey > -1)
     {
       float h = mRECT.H();
@@ -644,13 +650,13 @@ private:
         h *= mBKHeightRatio;
 
       float fracPos = (yPos - mRECT.T) / (0.95f * h); // 0.95 is to get max velocity around the bottom
-      
+
       velocity = Clip(fracPos, 1.f / 127.f, 1.f);
     }
-    
+
     return velocity;
   }
-  
+
   void GetNoteNameStr(int midiNoteNum, bool addOctave, WDL_String& str)
   {
     int oct = midiNoteNum / 12;
@@ -677,18 +683,18 @@ private:
       w *= mBKWidthRatio;
     return w;
   }
-  
+
   void TriggerMidiMsgFromKeyPress(int key, int velocity)
   {
     IMidiMsg msg;
-    
+
     const int nn = GetMidiNoteNumberForKey(key);
-    
+
     if(velocity > 0)
       msg.MakeNoteOnMsg(nn, velocity, 0);
     else
       msg.MakeNoteOffMsg(nn, 0);
-    
+
     GetDelegate()->SendMidiMsgFromUI(msg);
   }
 

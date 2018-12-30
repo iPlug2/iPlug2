@@ -10,6 +10,11 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc IVScopeControl
+ */
+
 #include "IControl.h"
 #include "IPlugStructs.h"
 #include "IPlugQueue.h"
@@ -22,18 +27,18 @@ class IVScopeControl : public IControl
 {
 public:
   static constexpr int kUpdateMessage = 0;
-  
+
   struct Data
   {
     int nchans = MAXNC;
     float vals[MAXNC][MAXBUF] = {};
-    
+
     bool AboveThreshold()
     {
       static const float threshold = (float) DBToAmp(-90.);
-      
+
       float sum = 0.f;
-      
+
       for(auto c = 0; c < MAXNC; c++)
       {
         for(auto s = 0; s < MAXBUF; s++)
@@ -41,11 +46,11 @@ public:
           sum += vals[c][s];
         }
       }
-      
+
       return std::abs(sum) > threshold;
     }
   };
-  
+
   class IVScopeBallistics
   {
   public:
@@ -53,7 +58,7 @@ public:
     : mControlTag(controlTag)
     {
     }
-    
+
     void ProcessBlock(sample** inputs, int nFrames)
     {
       for (auto s = 0; s < nFrames; s++)
@@ -62,21 +67,21 @@ public:
         {
           if(mPrevAboveThreshold)
             mQueue.Push(mBuf); // TODO: expensive?
-          
+
           mPrevAboveThreshold = mBuf.AboveThreshold();
-          
+
           mBufCount = 0;
         }
-        
+
         for (auto c = 0; c < MAXNC; c++)
         {
           mBuf.vals[c][mBufCount] = (float) inputs[c][s];
         }
-        
+
         mBufCount++;
       }
     }
-    
+
     // this must be called on the main thread - typically in MyPlugin::OnIdle()
     void TransmitData(IEditorDelegate& dlg)
     {
@@ -88,7 +93,7 @@ public:
         dlg.SendControlMsgFromDelegate(mControlTag, kUpdateMessage, sizeof(Data), (void*) &d);
       }
     }
-    
+
   private:
     Data mBuf;
     int mControlTag;
@@ -96,29 +101,29 @@ public:
     IPlugQueue<Data> mQueue { 1024 };
     bool mPrevAboveThreshold = true;
   };
-  
+
   IVScopeControl(IGEditorDelegate& dlg, IRECT bounds, const char* trackNames = 0, ...)
   : IControl(dlg, bounds)
   {
     AttachIControl(this);
   }
-  
+
   virtual void Draw(IGraphics& g) override
   {
     g.FillRect(GetColor(kBG), mRECT);
-    
+
     IRECT r = mRECT.GetPadded(-mPadding);
-    
+
     const float maxY = (r.H() / 2.f); // y +/- centre
-    
+
     float xPerData = r.W() / (float) MAXBUF;
-    
+
     for (int c = 0; c < mBuf.nchans; c++)
     {
       float xHi = 0.f;
       float yHi = mBuf.vals[c][0] * maxY;
       yHi = Clip(yHi, -maxY, maxY);
-      
+
       for (int s = 1; s < MAXBUF; s++)
       {
         float xLo = xHi, yLo = yHi;
@@ -133,9 +138,9 @@ public:
   void OnMsgFromDelegate(int messageTag, int dataSize, const void* pData) override
   {
     IByteStream stream(pData, dataSize);
-    
+
     int pos = stream.Get(&mBuf.nchans, 0);
-    
+
     while(pos < stream.Size())
     {
       for (auto ch = 0; ch < mBuf.nchans; ch++) {
@@ -144,10 +149,10 @@ public:
         }
       }
     }
-    
+
     SetDirty(false);
   }
-  
+
 private:
   Data mBuf;
   float mPadding = 2.f;
