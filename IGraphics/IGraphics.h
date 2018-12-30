@@ -625,10 +625,14 @@ public:
    * @param y the y position to convert */
   virtual void ClientToScreen(float& x, float& y) {};
 
-  /** Find the full, absolute path of a resource based on it's file name (e.g. “background.png”) and type (e.g. “PNG”)
-   * On macOS resources are usually included inside the bundle resources folder. In that case you provide a filename and this method will return the absolute path to the resource. In some cases you may want to provide an absolute path to a file in a shared resources folder here (for example if you want to reduce the disk footprint of multiple bundles, such as when you have multiple plug-in formats installed).
-   * On Windows resources are usually baked into the binary via the resource compiler. In this case the fileName argument is the resource id. The .rc file must include these ids, otherwise you may hit a runtime assertion. It is also possible to pass in an absolute path in order to share resources between binaries.
-   * Behind the scenes this method will make sure resources are loaded statically in memory.
+  /** Find the absolute path of a resource based on it's file name (e.g. “background.png”) and type (e.g. “png”), or in the case of windows, 
+   * confirm the existence of a particular resource in the binary, or at an absoulte path.
+   * On macOS resources are usually included inside the bundle resources folder. In that case you provide a filename and this method will 
+   * return the absolute path to the resource. In some cases you may want to provide an absolute path to a file in a shared resources folder 
+   * here (for example if you want to reduce the disk footprint of multiple bundles, such as when you have multiple plug-in formats installed).
+   * On Windows resources are usually baked into the binary via the resource compiler. In this case the fileName argument is the resource id. 
+   * The .rc file must include these ids, otherwise you may hit a runtime assertion. It is also possible to pass in an absolute path in order 
+   * to share resources between binaries. Behind the scenes this method will make sure resources are loaded statically in memory.
    * @param filename The resource filename including extension. If no resource is found the method will then check fileName as if it is an absolute path.
    * @param type \todo
    * @param result WDL_String which will contain the full path of the resource of success
@@ -639,6 +643,7 @@ public:
   virtual const char* GetBundleID() { return ""; }
 #pragma mark - IGraphics base implementation
   IGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.);
+
   virtual ~IGraphics();
 
   /** Called by the platform IGraphics class XXXXX /todo and when moving to a new screen with different DPI
@@ -976,21 +981,21 @@ public:
    * @param y The Y coordinate in the graphics context at which to popup the context menu */
   void PopupHostContextMenuForParam(int controlIdx, int paramIdx, float x, float y);
 
-#pragma mark - Resource Loading
-  /** Load a bitmap image from disk
-   * @param fileName CString file name
+#pragma mark - Resource/File Loading
+  /** Load a bitmap image from disk or from windows resource
+   * @param fileName CString file name or resource ID
    * @param nStates The number of states/frames in a multi-frame stacked bitmap
    * @param framesAreHorizontal Set \c true if the frames in a bitmap are stacked horizontally
    * @param targetScale Set \c to a number > 0 to explicity load e.g. an @2x.png
    * @return An IBitmap representing the image */
   virtual IBitmap LoadBitmap(const char* fileName, int nStates = 1, bool framesAreHorizontal = false, int targetScale = 0);
 
-  /** Load an SVG from disk
-   * @param fileName A CString absolute path to the SVG on disk
+  /** Load an SVG from disk or from windows resource
+   * @param fileName A CString absolute path or resource ID
    * @return An ISVG representing the image */
-  virtual ISVG LoadSVG(const char* fileName);
+  virtual ISVG LoadSVG(const char* fileName, const char* units = "px", float dpi = 72.f);
 
-  /** @param fileName The name of the font to load */
+  /** @param fileName A CString absolute path or resource ID */
   virtual void LoadFont(const char* fileName) {};
   
 protected:
