@@ -13,6 +13,8 @@
 #include "IControl.h"
 #include "nanosvg.h"
 
+/** Control to test drawing SVGs
+ *   @ingroup TestControls */
 class TestSVGControl : public IControl
 {
 public:

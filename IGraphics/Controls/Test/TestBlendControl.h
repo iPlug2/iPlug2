@@ -12,6 +12,8 @@
 
 #include "IControl.h"
 
+/** Control to test blend methods
+ *   @ingroup TestControls */
 class TestBlendControl : public IKnobControlBase
                        , public IBitmapBase
 {

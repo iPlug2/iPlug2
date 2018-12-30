@@ -12,6 +12,8 @@
 
 #include "IControl.h"
 
+/** Control to test IGraphics layers
+ *   @ingroup TestControls */
 class TestLayerControl : public IKnobControlBase
 {
 public:

@@ -12,6 +12,8 @@
 
 #include "IControl.h"
 
+/** Control to test obtaining a drawing API (NanoVG, LICE, Cairo, AGG etc) context and using that API within an IControl
+ *   @ingroup TestControls */
 class TestDrawContextControl : public IControl
 {
 public:

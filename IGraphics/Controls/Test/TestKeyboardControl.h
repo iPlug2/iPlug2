@@ -91,6 +91,8 @@ const char* vk_to_string(int vk_code)
   }
 }
 
+/** Control to test keyboard input
+ *   @ingroup TestControls */
 class TestKeyboardControl : public IControl
 {
 public:

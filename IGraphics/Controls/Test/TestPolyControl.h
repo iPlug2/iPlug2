@@ -12,6 +12,8 @@
 
 #include "IControl.h"
 
+/** Control to test drawing polygons
+ *   @ingroup TestControls */
 class TestPolyControl : public IKnobControlBase
 {
 public:

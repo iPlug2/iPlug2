@@ -12,6 +12,8 @@
 
 #include "IControl.h"
 
+/** Control to display the size of a region
+ *   @ingroup TestControls */
 class TestSizeControl : public IControl
 {
 public:
@@ -39,7 +41,10 @@ public:
   {
     mWidthStr.SetFormatted(32, "%i px", (int) mRECT.W());
     mHeightStr.SetFormatted(32, "%i px", (int) mRECT.H());
-    mScaleStr.SetFormatted(50, "Window width %i, height %i, scale %0.2f", GetUI()->WindowWidth(), GetUI()->WindowHeight(), GetUI()->GetDrawScale());
+    mScaleStr.SetFormatted(50, "Window width %i, height %i, scale %0.2f, drawing API: %s", GetUI()->WindowWidth(), 
+                                                                                           GetUI()->WindowHeight(), 
+                                                                                           GetUI()->GetDrawScale()), 
+                                                                                           GetUI()->GetDrawingAPIStr();
   }
   
 private:

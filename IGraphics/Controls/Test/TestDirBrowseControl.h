@@ -12,6 +12,8 @@
 
 #include "IControl.h"
 
+/** Control to test IDirBrowseControlBase
+ *   @ingroup TestControls */
 class TestDirBrowseControl : public IDirBrowseControlBase
 {
 public:

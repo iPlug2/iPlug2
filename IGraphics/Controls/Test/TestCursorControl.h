@@ -12,6 +12,8 @@
 
 #include "IControl.h"
 
+/** Control to test changing the platform cursor
+ *   @ingroup TestControls */
 class TestCursorControl : public IControl
 {
 public:

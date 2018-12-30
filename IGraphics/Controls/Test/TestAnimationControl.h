@@ -13,6 +13,8 @@
 #include "IControl.h"
 #include "Easing.h"
 
+/** Control to test animation
+ *   @ingroup TestControls */
 class TestAnimationControl : public IControl
 {
 public:

@@ -8,6 +8,11 @@
  ==============================================================================
 */
 
+/**
+ * \defgroup TestControls IGraphics::TestControls
+ * @{
+ */
+
 #include "TestArcControl.h"
 #include "TestDirBrowseControl.h"
 #include "TestGradientControl.h"
@@ -23,3 +28,5 @@
 #include "TestDropShadowControl.h"
 #include "TestCursorControl.h"
 #include "TestKeyboardControl.h"
+
+/**@}*/

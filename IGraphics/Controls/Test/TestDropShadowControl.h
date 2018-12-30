@@ -13,6 +13,8 @@
 #include "IControl.h"
 #include "nanosvg.h"
 
+/** Control to test layer drop shadows
+ *   @ingroup TestControls */
 class TestDropShadowControl : public IControl
 {
 public:

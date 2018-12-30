@@ -12,6 +12,8 @@
 
 #include "IControl.h"
 
+/** Control to test drawing arcs
+ *   @ingroup TestControls */
 class TestArcControl : public IKnobControlBase
 {
 public:
