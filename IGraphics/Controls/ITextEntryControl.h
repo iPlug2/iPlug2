@@ -36,7 +36,7 @@ public:
   static char GetChar(ITextEntryControl* _this, int pos);
   static int GetLength(ITextEntryControl* _this);
   
-  bool EditInProgress() { return mEditing; }
+  bool EditInProgress() const { return mEditing; }
   void DismissEdit();
   void CommitEdit();
 
