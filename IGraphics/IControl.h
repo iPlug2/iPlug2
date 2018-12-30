@@ -1096,10 +1096,10 @@ protected:
   WDL_String mExtension;
 };
 
-class ICornerResizerBase : public IControl
+class ICornerResizerControl : public IControl
 {
 public:
-  ICornerResizerBase(IGEditorDelegate& dlg, IRECT graphicsBounds, float size)
+  ICornerResizerControl(IGEditorDelegate& dlg, IRECT graphicsBounds, float size)
   : IControl(dlg, graphicsBounds.GetFromBRHC(size, size).GetPadded(-1))
   , mInitialGraphicsBounds(graphicsBounds)
   , mSize(size)
