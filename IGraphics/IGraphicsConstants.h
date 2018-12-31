@@ -98,7 +98,7 @@ enum EResourceLocation
 {
   kNotFound = 0,
   kAbsolutePath,
-  kFoundInBinary
+  kWinBinary
 };
 
 enum EVColor

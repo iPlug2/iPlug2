@@ -437,7 +437,7 @@ APIBitmap* IGraphicsAGG::LoadAPIBitmap(const char* fileNameOrResID, int scale, E
   bool ispng = strstr(fileNameOrResID, "png") != nullptr;
 
 #if defined OS_WIN
-  if (location == EResourceLocation::kFoundInBinary && ispng)
+  if (location == EResourceLocation::kWinBinary && ispng)
   {
     if (pPixelMap->load_img((HINSTANCE)GetWinModuleHandle(), fileNameOrResID, agg::pixel_map::format_png))
       pResult = new AGGBitmap(pPixelMap, scale, 1.f);

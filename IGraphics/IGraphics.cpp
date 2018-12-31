@@ -1130,7 +1130,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
     NSVGimage* pImage = nullptr;
 
 #ifdef OS_WIN    
-    if (resourceFound == EResourceLocation::kFoundInBinary)
+    if (resourceFound == EResourceLocation::kWinBinary)
     {
       int size = 0;
       const void* pResData = LoadWinResource(path.Get(), "svg", size);

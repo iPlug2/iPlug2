@@ -462,7 +462,7 @@ APIBitmap* IGraphicsLice::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
   if (ispng)
   {
 #if defined OS_WIN
-    if (location == EResourceLocation::kFoundInBinary)
+    if (location == EResourceLocation::kWinBinary)
       return new LICEBitmap(LICE_LoadPNGFromResource((HINSTANCE) GetWinModuleHandle(), fileNameOrResID, 0), scale);
     else
 #endif
@@ -475,7 +475,7 @@ APIBitmap* IGraphicsLice::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
   if (isjpg)
   {
     #if defined OS_WIN
-    if (location == EResourceLocation::kFoundInBinary)
+    if (location == EResourceLocation::kWinBinary)
       return new LICEBitmap(LICE_LoadJPGFromResource((HINSTANCE)GetWinModuleHandle(), fileNameOrResID, 0), scale);
     else
     #endif

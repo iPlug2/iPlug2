@@ -1482,7 +1482,7 @@ EResourceLocation IGraphicsWin::OSFindResource(const char* name, const char* typ
     if (strstr(search.Get(), "found: ") != 0)
     {
       result.SetFormatted(MAX_PATH, "\"%s\"", search.Get() + 7, search.GetLength() - 7); // 7 = strlen("found: ")
-      return EResourceLocation::kFoundInBinary;
+      return EResourceLocation::kWinBinary;
     }
     else
     {

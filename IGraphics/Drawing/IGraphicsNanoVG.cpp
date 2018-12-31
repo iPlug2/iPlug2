@@ -711,7 +711,7 @@ bool IGraphicsNanoVG::LoadFont(const char* fileName)
     int fontID = -1;
 
 #ifdef OS_WIN
-    if(foundResource == EResourceLocation::kFoundInBinary)
+    if(foundResource == EResourceLocation::kWinBinary)
     {
       int sizeInBytes = 0;
       const void* pResData = LoadWinResource(fullPath.Get(), "ttf", sizeInBytes);
