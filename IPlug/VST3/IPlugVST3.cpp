@@ -262,6 +262,7 @@ tresult PLUGIN_API IPlugVST3::setupProcessing(ProcessSetup& newSetup)
   if ((newSetup.symbolicSampleSize != kSample32) && (newSetup.symbolicSampleSize != kSample64)) return kResultFalse;
 
   _SetSampleRate(newSetup.sampleRate);
+  //TODO - is this correct?
   _SetBypassed(false);
   IPlugProcessor::_SetBlockSize(newSetup.maxSamplesPerBlock); // TODO: should IPlugVST3 call SetBlockSizein construct unlike other APIs?
   mMidiOutputQueue.Resize(newSetup.maxSamplesPerBlock);
@@ -630,7 +631,11 @@ tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* state)
     return kResultFalse;
   }
   
-  _SetBypassed((bool) savedBypass);
+  if (!IsInstrument())
+  {
+    parameters.getParameter(kBypassParam)->setNormalized(savedBypass);
+    _SetBypassed((bool) savedBypass);
+  }
   
   OnRestoreState();
   return kResultOk;
@@ -674,54 +679,6 @@ tresult PLUGIN_API IPlugVST3::setState(IBStream* state)
 tresult PLUGIN_API IPlugVST3::getState(IBStream* state)
 {
   return getEditorState(state);
-}
-
-ParamValue PLUGIN_API IPlugVST3::plainParamToNormalized(ParamID tag, ParamValue plainValue)
-{
-  ENTER_PARAMS_MUTEX;
-  IParam* pParam = GetParam(tag);
-  if (pParam)
-    plainValue = pParam->ToNormalized(plainValue);
-  LEAVE_PARAMS_MUTEX;
-
-  return plainValue;
-}
-
-ParamValue PLUGIN_API IPlugVST3::getParamNormalized(ParamID tag)
-{
-  ParamValue returnVal = 0.;
-  if (tag == kBypassParam)
-    returnVal = (ParamValue) GetBypassed();
-//   else if (tag == kPresetParam)
-//   {
-//     return (ParamValue) ToNormalizedParam(mCurrentPresetIdx, 0, NPresets(), 1.);
-//   }
-  else
-  {
-    ENTER_PARAMS_MUTEX;
-    IParam* pParam = GetParam(tag);
-    if (pParam)
-      returnVal = pParam->GetNormalized();
-    LEAVE_PARAMS_MUTEX;
-  }
-
-  return returnVal;
-}
-
-tresult PLUGIN_API IPlugVST3::setParamNormalized(ParamID tag, ParamValue value)
-{
-  tresult result = kResultFalse;
-
-  ENTER_PARAMS_MUTEX;
-  IParam* pParam = GetParam(tag);
-  if (pParam)
-  {
-    pParam->SetNormalized(value);
-    result = kResultOk;
-  }
-  LEAVE_PARAMS_MUTEX;
-
-  return result;
 }
 
 void IPlugVST3::addDependentView(IPlugVST3View* view)
