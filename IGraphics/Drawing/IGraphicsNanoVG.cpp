@@ -727,6 +727,7 @@ bool IGraphicsNanoVG::LoadFont(const char* fileName)
       if(fontID == -1)
         return false;
     }
+    else
 #endif
     fontID = nvgCreateFont(mVG, fontNameWithoutExt.Get(), fullPath.Get());
 
