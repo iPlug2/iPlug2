@@ -51,6 +51,8 @@ inline int LiceBlendMode(const IBlend* pBlend)
   }
 }
 
+/** A LICE API bitmap
+ * @ingroup APIBitmaps */
 class LICEBitmap : public APIBitmap
 {
 public:
@@ -107,9 +109,10 @@ public:
   void FillRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend) override { /* TODO - mark unsupported */ }
   void FillEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend) override { /* TODO - mark unsupported */ }
   void FillEllipse(const IColor& color, float x, float y, float r1, float r2, float angle, const IBlend* pBlend) override { /* TODO - mark unsupported */ }
-    
+
+  bool BitmapExtSupported(const char* ext) override;
 protected:
-  APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
+  APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
   APIBitmap* CreateAPIBitmap(int width, int height) override;
 

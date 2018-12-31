@@ -42,6 +42,8 @@
 
 #include "IGraphicsPathBase.h"
 
+/** A Cairo API bitmap
+ * @ingroup APIBitmaps */
 class CairoBitmap : public APIBitmap
 {
 public:
@@ -51,8 +53,7 @@ public:
 };
 
 /** IGraphics draw class using Cairo
-*   @ingroup DrawClasses
-*/
+*   @ingroup DrawClasses */
 class IGraphicsCairo : public IGraphicsPathBase
 {
 public:
@@ -79,10 +80,12 @@ public:
   void SetPlatformContext(void* pContext) override;
   void DrawResize() override;
 
-  void LoadFont(const char* fileName) override;
-    
+  bool LoadFont(const char* fileName) override;
+  
+  bool BitmapExtSupported(const char* ext) override;
+
 protected:
-  APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
+  APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
   APIBitmap* CreateAPIBitmap(int width, int height) override;
 

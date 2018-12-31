@@ -430,38 +430,33 @@ IColor IGraphicsAGG::GetPoint(int x, int y)
   return color;
 }
 
-APIBitmap* IGraphicsAGG::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
+APIBitmap* IGraphicsAGG::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext)
 {
-  const char *path = resourcePath.Get();
+  APIBitmap* pResult = nullptr;
+  PixelMapType* pPixelMap = new PixelMapType();
+  bool ispng = strstr(fileNameOrResID, "png") != nullptr;
 
-  if (CStringHasContents(path))
+#if defined OS_WIN
+  if (location == EResourceLocation::kWinBinary && ispng)
   {
-    const char* ext = path+strlen(path)-1;
-    while (ext >= path && *ext != '.') --ext;
-    ++ext;
-    
-    bool ispng = !stricmp(ext, "png");
-#ifndef IPLUG_JPEG_SUPPORT
-    if (!ispng) return 0;
-#else
-    bool isjpg = !stricmp(ext, "jpg");
-    if (!isjpg && !ispng) return 0;
-#endif
-    
-    PixelMapType* pPixelMap = new PixelMapType();
-#ifdef OS_MAC
-    if (pPixelMap->load_img(path, ispng ? agg::pixel_map::format_png : agg::pixel_map::format_jpg))
-#elif defined OS_WIN
-    if (pPixelMap->load_img((HINSTANCE) GetPlatformInstance(), path, ispng ? agg::pixel_map::format_png : agg::pixel_map::format_jpg))
-#else
-#error NOT IMPLEMENTED!
-#endif
-      return new AGGBitmap(pPixelMap, scale, 1.f);
-    else
-      delete pPixelMap;
+    if (pPixelMap->load_img((HINSTANCE)GetWinModuleHandle(), fileNameOrResID, agg::pixel_map::format_png))
+      pResult = new AGGBitmap(pPixelMap, scale, 1.f);
   }
-  
-  return new APIBitmap();
+#endif
+
+  if (location == EResourceLocation::kAbsolutePath && ispng)
+  {
+    if (pPixelMap->load_img(fileNameOrResID, agg::pixel_map::format_png))
+      pResult = new AGGBitmap(pPixelMap, scale, 1.f);
+  }
+
+  if (!pResult)
+  {
+    delete pPixelMap;
+    return new APIBitmap();
+  }
+  else
+    return pResult;
 }
 
 APIBitmap* IGraphicsAGG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
@@ -499,6 +494,13 @@ APIBitmap* IGraphicsAGG::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetBackingPixelScale();
   return new AGGBitmap(CreatePixmap(std::round(width * scale), std::round(height * scale)), GetScreenScale(), GetDrawScale());
+}
+
+bool IGraphicsAGG::BitmapExtSupported(const char* ext)
+{
+  char extLower[32];
+  ToLower(extLower, ext);
+  return (strstr(extLower, "png") != nullptr) /*|| (strstr(extLower, "jpg") != nullptr) || (strstr(extLower, "jpeg") != nullptr)*/;
 }
 
 void IGraphicsAGG::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)

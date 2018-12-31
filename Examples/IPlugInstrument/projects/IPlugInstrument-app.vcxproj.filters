@@ -89,6 +89,9 @@
     <ClCompile Include="..\..\..\IPlug\Extras\Synth\VoiceAllocator.cpp">
       <Filter>IPlug\Extras\Synth</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Controls\ITextEntryControl.cpp">
+      <Filter>IGraphics\Controls</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\IPlugInstrument.h" />
@@ -281,6 +284,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\Extras\Synth\VoiceAllocator.h">
       <Filter>IPlug\Extras\Synth</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\ITextEntryControl.h">
+      <Filter>IGraphics\Controls</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

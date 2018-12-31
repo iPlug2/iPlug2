@@ -8,6 +8,11 @@
  ==============================================================================
 */
 
+/**
+ * @file
+ * @brief IPlugPaths implementation for Windows and Linux
+ */
+
 #include "IPlugPlatform.h"
 #include "IPlugPaths.h"
 

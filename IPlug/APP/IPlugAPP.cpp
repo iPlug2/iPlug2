@@ -25,16 +25,16 @@ IPlugAPP::IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   
   Trace(TRACELOC, "%s%s", c.pluginName, c.channelIOStr);
 
-  _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
-  _SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
+  SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
+  SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
 
-  _SetBlockSize(DEFAULT_BLOCK_SIZE);
+  SetBlockSize(DEFAULT_BLOCK_SIZE);
   SetHost("standalone", c.vendorVersion);
     
   CreateTimer();
 }
 
-void IPlugAPP::EditorStateChanged(int viewWidth, int viewHeight, const IByteChunk& data)
+void IPlugAPP::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
 {
   if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
   {
@@ -46,7 +46,7 @@ void IPlugAPP::EditorStateChanged(int viewWidth, int viewHeight, const IByteChun
     #endif
   }
   
-  IPlugAPIBase::EditorStateChanged(viewWidth, viewHeight, data);
+  IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
 }
 
 bool IPlugAPP::SendMidiMsg(const IMidiMsg& msg)
@@ -99,10 +99,10 @@ void IPlugAPP::SendSysexMsgFromUI(const ISysEx& msg)
 
 void IPlugAPP::AppProcess(double** inputs, double** outputs, int nFrames)
 {
-  _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false); //TODO: go elsewhere - enable inputs
-  _SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true); //TODO: go elsewhere
-  _AttachBuffers(ERoute::kInput, 0, NChannelsConnected(ERoute::kInput), inputs, GetBlockSize());
-  _AttachBuffers(ERoute::kOutput, 0, NChannelsConnected(ERoute::kOutput), outputs, GetBlockSize());
+  SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false); //TODO: go elsewhere - enable inputs
+  SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true); //TODO: go elsewhere
+  AttachBuffers(ERoute::kInput, 0, NChannelsConnected(ERoute::kInput), inputs, GetBlockSize());
+  AttachBuffers(ERoute::kOutput, 0, NChannelsConnected(ERoute::kOutput), outputs, GetBlockSize());
   
   if(mMidiMsgsFromCallback.ElementsAvailable())
   {
@@ -139,5 +139,5 @@ void IPlugAPP::AppProcess(double** inputs, double** outputs, int nFrames)
 
   //Do not handle Sysex messages here - SendSysexMsgFromUI overridden
 
-  _ProcessBuffers(0.0, GetBlockSize());
+  ProcessBuffers(0.0, GetBlockSize());
 }

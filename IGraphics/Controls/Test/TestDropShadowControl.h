@@ -10,9 +10,16 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc TestDropShadowControl
+ */
+
 #include "IControl.h"
 #include "nanosvg.h"
 
+/** Control to test layer drop shadows
+ *   @ingroup TestControls */
 class TestDropShadowControl : public IControl
 {
 public:
@@ -20,11 +27,13 @@ public:
   : IControl(dlg, bounds)
   , mSVG(svg)
   {
-    SetTooltip("TestDropShadowControl - Drag 'n drop here to load a new SVG.");
+    SetTooltip("TestDropShadowControl");
   }
 
   void Draw(IGraphics& g) override
   {
+    g.DrawDottedRect(COLOR_BLACK, mRECT);
+
     if (!g.CheckLayer(mLayer))
     {
       g.StartLayer(mRECT);

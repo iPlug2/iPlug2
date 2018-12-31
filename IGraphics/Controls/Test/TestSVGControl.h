@@ -10,9 +10,16 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc TestSVGControl
+ */
+
 #include "IControl.h"
 #include "nanosvg.h"
 
+/** Control to test drawing SVGs
+ *   @ingroup TestControls */
 class TestSVGControl : public IControl
 {
 public:
@@ -25,9 +32,10 @@ public:
 
   void Draw(IGraphics& g) override
   {
-#if 1
+    g.DrawDottedRect(COLOR_BLACK, mRECT);
     g.FillRect(mMouseIsOver ? COLOR_TRANSLUCENT : COLOR_TRANSPARENT, mRECT);
 
+#if 1
     if (!g.CheckLayer(mLayer))
     {
       g.StartLayer(mRECT);

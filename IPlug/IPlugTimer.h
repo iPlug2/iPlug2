@@ -11,7 +11,8 @@
 
 #pragma once
 
-/** @file This file includes classes for implementing timers - in order to get a regular callback on the main thread
+/** @file
+ * @brief This file includes classes for implementing timers - in order to get a regular callback on the main thread
  * The interface is partially based on the api of Steinberg's timer.cpp from the VST3_SDK for compatibility,
  * rewritten using SWELL: base/source/timer.cpp, so thanks to them */
 
@@ -28,9 +29,8 @@ struct Timer;
 typedef std::function<void(Timer& t)> ITimerFunction;
 
 #if defined OS_WEB
-class Timer
+struct Timer
 {
-public:
   static Timer* Create(ITimerFunction func, uint32_t intervalMs)
   {
     return new Timer();
@@ -40,22 +40,17 @@ public:
   {
   }
 };
-
 #else
 
-#if defined OS_MAC
-#include "swell.h"
-#elif defined OS_IOS
-typedef bool BOOL;
-typedef unsigned int UINT;
-typedef unsigned int DWORD;
-typedef void* HWND;
-typedef void (*TIMERPROC)(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
-#define CALLBACK
-UINT_PTR SetTimer(HWND hwnd, UINT_PTR timerid, UINT rate, TIMERPROC tProc);
-BOOL KillTimer(HWND hwnd, UINT_PTR timerid);
+#if !defined OS_WIN
+  #if defined OS_IOS
+    #include "swell-ios.h"
+  #else
+    #include "swell.h"
+  #endif
 #endif
 
+/** Base class for timer */
 struct Timer
 {
   virtual ~Timer() {};

@@ -11,6 +11,7 @@
 #include <cmath>
 
 #include "IGraphicsNanoVG.h"
+#include "ITextEntryControl.h"
 
 #if defined IGRAPHICS_GL
   #if defined OS_MAC
@@ -79,53 +80,15 @@ void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int
 #endif
 }
 
-#ifdef OS_WIN
-int LoadImageFromWinResource(NVGcontext* pContext, HINSTANCE hInst, const char* resid)
+NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID)
 {
-  HRSRC hResource = FindResource(hInst, resid, "PNG");
-  if (!hResource) return NULL;
+  assert(nvgImageID > 0);
 
-  DWORD imageSize = SizeofResource(hInst, hResource);
-  if (imageSize < 8) return NULL;
-
-  HGLOBAL res = LoadResource(hInst, hResource);
-  const void* pResourceData = LockResource(res);
-  if (!pResourceData) return NULL;
-
-  int ret = nvgCreateImageMem(pContext, 0 /*flags*/, (unsigned char*) pResourceData, imageSize);
-
-  return ret;
-}
-
-int LoadFontFromWinResource(NVGcontext* pContext, HINSTANCE hInst, const char* name, const char* resid)
-{
-  HRSRC hResource = FindResource(hInst, resid, "TTF");
-  if (!hResource) return NULL;
-
-  DWORD fontSize = SizeofResource(hInst, hResource);
-  if (fontSize < 8) return NULL;
-
-  HGLOBAL res = LoadResource(hInst, hResource);
-  const void* pResourceData = LockResource(res);
-  if (!pResourceData) return NULL;
-
-  int ret = nvgCreateFontMem(pContext, name, (unsigned char*)pResourceData, fontSize, 0 /* ?? */);
-  return ret;
-}
-#endif
-
-NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, void* hInst)
-{
   mVG = pContext;
   int w = 0, h = 0;
-#ifdef OS_WIN
-  int idx = LoadImageFromWinResource(pContext, (HINSTANCE)hInst, path); // TODO: then try absolute path?
-#else
-  int idx = nvgCreateImage(mVG, path, 0);
-#endif
-  nvgImageSize(mVG, idx, &w, &h);
+  nvgImageSize(mVG, nvgImageID, &w, &h);
   
-  SetBitmap(idx, w, h, sourceScale, 1.f);
+  SetBitmap(nvgImageID, w, h, sourceScale, 1.f);
 }
 
 NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, int scale, float drawScale)
@@ -178,24 +141,33 @@ inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0)
   return c;
 }
 
-inline NVGcompositeOperation NanoVGBlendMode(const IBlend* pBlend)
+inline void NanoVGSetBlendMode(NVGcontext* context, const IBlend* pBlend)
 {
   if (!pBlend)
   {
-    return NVG_SOURCE_OVER;
+    nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
+      return;
   }
   
   switch (pBlend->mMethod)
   {
-    case kBlendClobber:     return NVG_SOURCE_OVER;
-    case kBlendAdd:         return NVG_LIGHTER;
-    case kBlendUnder:       return NVG_DESTINATION_OVER;
-    case kBlendSourceIn:    return NVG_SOURCE_IN;
+    case kBlendClobber:
+      nvgGlobalCompositeBlendFunc(context, NVG_SRC_ALPHA, NVG_ONE_MINUS_SRC_ALPHA);
+      break;
+    case kBlendAdd:
+      nvgGlobalCompositeBlendFunc(context, NVG_ONE, NVG_ONE);
+      break;
+    case kBlendUnder:
+      nvgGlobalCompositeOperation(context, NVG_DESTINATION_OVER);
+      break;
+    case kBlendSourceIn:
+      nvgGlobalCompositeOperation(context, NVG_SOURCE_IN);
+      break;
     case kBlendColorDodge:
     case kBlendNone:
     default:
     {
-      return NVG_SOURCE_OVER;
+      nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
     }
   }
 }
@@ -208,7 +180,6 @@ NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend
   NVGcolor ocol = NanoVGColor(pattern.GetStop(pattern.NStops() - 1).mColor, pBlend);
     
   // Invert transform
-
   IMatrix inverse = IMatrix(pattern.mTransform).Invert();
   inverse.TransformPoint(s[0], s[1], 0.0, 0.0);
 
@@ -241,34 +212,54 @@ const char* IGraphicsNanoVG::GetDrawingAPIStr()
 #if defined IGRAPHICS_METAL
   return "NanoVG | Metal";
 #else
-  #if defined IGRAPHICS_GL2
-    return "NanoVG | OpenGL2";
-  #elif defined IGRAPHICS_GL3
-    return "NanoVG | OpenGL3";
-  #elif defined IGRAPHICS_GLES2
-    return "NanoVG | OpenGLES2";
-  #elif defined IGRAPHICS_GLES3
-    return "NanoVG | OpenGLES3";
+  #if defined OS_WEB
+    return "NanoVG | WebGL";
+  #else
+    #if defined IGRAPHICS_GL2
+      return "NanoVG | OpenGL2";
+    #elif defined IGRAPHICS_GL3
+      return "NanoVG | OpenGL3";
+    #elif defined IGRAPHICS_GLES2
+      return "NanoVG | OpenGLES2";
+    #elif defined IGRAPHICS_GLES3
+      return "NanoVG | OpenGLES3";
+    #endif
   #endif
 #endif
+}
+
+bool IGraphicsNanoVG::BitmapExtSupported(const char* ext)
+{
+  char extLower[32];
+  ToLower(extLower, ext);
+  return (strstr(extLower, "png") != nullptr) || (strstr(extLower, "jpg") != nullptr) || (strstr(extLower, "jpeg") != nullptr);
 }
 
 IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale)
 {
   if (targetScale == 0)
     targetScale = GetScreenScale();
-  
+
+  // NanoVG does not use the global static cache, since bitmaps are textures linked to a context
   APIBitmap* pAPIBitmap = mBitmapCache.Find(name, targetScale);
   
   // If the bitmap is not already cached at the targetScale
   if (!pAPIBitmap)
   {
-    WDL_String fullPath;
+    const char* ext = name + strlen(name) - 1;
+    while (ext >= name && *ext != '.') --ext;
+    ++ext;
+
+    WDL_String fullPathOrResourceID;
     int sourceScale = 0;
-    bool resourceFound = SearchImageResource(name, "png", fullPath, targetScale, sourceScale);
-    assert(resourceFound);
+    EResourceLocation resourceFound = SearchImageResource(name, ext, fullPathOrResourceID, targetScale, sourceScale);
+
+    bool bitmapTypeSupported = BitmapExtSupported(ext);
     
-    pAPIBitmap = LoadAPIBitmap(fullPath, sourceScale);
+    if(resourceFound == EResourceLocation::kNotFound || !bitmapTypeSupported)
+      return IBitmap(); // return invalid IBitmap
+
+    pAPIBitmap = LoadAPIBitmap(fullPathOrResourceID.Get(), sourceScale, resourceFound, ext);
     
     mBitmapCache.Add(pAPIBitmap, name, sourceScale);
 
@@ -278,9 +269,29 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
   return IBitmap(pAPIBitmap, nStates, framesAreHorizontal, name);
 }
 
-APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
+APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext)
 {
-  return new NanoVGBitmap(mVG, resourcePath.Get(), scale, GetPlatformInstance());
+  int idx = 0;
+
+#ifdef OS_WIN
+  if (location == EResourceLocation::kWinBinary)
+  {
+    const void* pResData = nullptr;
+
+    int size = 0;
+    pResData = LoadWinResource(fileNameOrResID, ext, size);
+
+    if (pResData)
+      idx = nvgCreateImageMem(mVG, 0 /*flags*/, (unsigned char*)pResData, size);
+  }
+  else
+#endif
+  if (location == EResourceLocation::kAbsolutePath)
+  {
+    idx = nvgCreateImage(mVG, fileNameOrResID, 0);
+  }
+
+  return new NanoVGBitmap(mVG, fileNameOrResID, scale, idx);
 }
 
 APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height)
@@ -534,7 +545,7 @@ void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, i
   nvgBeginPath(mVG); // Clears any existing path
   nvgRect(mVG, dest.L, dest.T, dest.W(), dest.H());
   nvgFillPaint(mVG, imgPaint);
-  nvgGlobalCompositeOperation(mVG, NanoVGBlendMode(pBlend));
+  NanoVGSetBlendMode(mVG, pBlend);
   nvgFill(mVG);
   nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
   nvgBeginPath(mVG); // Clears the bitmap rect from the path state
@@ -582,7 +593,11 @@ bool IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IREC
   nvgFontBlur(mVG, 0);
   nvgFontSize(mVG, text.mSize);
   nvgFontFace(mVG, text.mFont);
-  nvgFillColor(mVG, NanoVGColor(text.mFGColor, pBlend));
+  
+  if(GetTextEntryControl() && GetTextEntryControl()->GetRECT() == bounds)
+    nvgFillColor(mVG, NanoVGColor(text.mTextEntryFGColor, pBlend));
+  else
+    nvgFillColor(mVG, NanoVGColor(text.mFGColor, pBlend));
   
   float xpos = 0.;
   float ypos = 0.;
@@ -622,7 +637,7 @@ bool IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IREC
   }
   else
   {
-    nvgGlobalCompositeOperation(mVG, NanoVGBlendMode(pBlend));
+    NanoVGSetBlendMode(mVG, pBlend);
       
     if(text.mOrientation != 0)
     {
@@ -672,7 +687,7 @@ void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const
     nvgStrokePaint(mVG, NanoVGPaint(mVG, pattern, pBlend));
   
   nvgPathWinding(mVG, NVG_CCW);
-  nvgGlobalCompositeOperation(mVG, NanoVGBlendMode(pBlend));
+  NanoVGSetBlendMode(mVG, pBlend);
   nvgStroke(mVG);
   nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
     
@@ -689,7 +704,7 @@ void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& opti
   else
     nvgFillPaint(mVG, NanoVGPaint(mVG, pattern, pBlend));
   
-  nvgGlobalCompositeOperation(mVG, NanoVGBlendMode(pBlend));
+  NanoVGSetBlendMode(mVG, pBlend);
   nvgFill(mVG);
   nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
 
@@ -697,28 +712,44 @@ void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& opti
     nvgBeginPath(mVG); // Clears the path state
 }
 
-void IGraphicsNanoVG::LoadFont(const char* name)
+bool IGraphicsNanoVG::LoadFont(const char* fileName)
 {
-  WDL_String fontNameWithoutExt(name, (int) strlen(name));
+  // does not check for existing fonts
+  WDL_String fontNameWithoutExt(fileName, (int) strlen(fileName));
   fontNameWithoutExt.remove_fileext();
   WDL_String fullPath;
-  OSFindResource(name, "ttf", fullPath);
-  
-  int fontID = -1;
-  
-  if (fullPath.GetLength())
+  EResourceLocation foundResource = OSFindResource(fileName, "ttf", fullPath);
+ 
+  if (foundResource != EResourceLocation::kNotFound)
   {
+    int fontID = -1;
+
 #ifdef OS_WIN
-    fontID = LoadFontFromWinResource(mVG, (HINSTANCE) GetPlatformInstance(), fontNameWithoutExt.Get(), fullPath.Get());
-#else
-    fontID = nvgCreateFont(mVG, fontNameWithoutExt.Get(), fullPath.Get());
+    if(foundResource == EResourceLocation::kWinBinary)
+    {
+      int sizeInBytes = 0;
+      const void* pResData = LoadWinResource(fullPath.Get(), "ttf", sizeInBytes);
+
+      if(pResData && sizeInBytes)
+        fontID = nvgCreateFontMem(mVG, fontNameWithoutExt.Get(), (unsigned char*) pResData, sizeInBytes, 0 /* ?? */);
+
+      if(fontID == -1)
+        return false;
+    }
+    else
 #endif
+    fontID = nvgCreateFont(mVG, fontNameWithoutExt.Get(), fullPath.Get());
+
+    if (fontID == -1)
+    {
+      DBGMSG("Could not locate font %s\n", fileName);
+      return false;
+    }
+    else
+      return true;
   }
-  else {
-    DBGMSG("Could not locate font %s\n", name);
-  }
-  
-  assert (fontID != -1); // font not found!
+
+  return false;
 }
 
 void IGraphicsNanoVG::DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, float pad, const IBlend* pBlend)
@@ -730,7 +761,7 @@ void IGraphicsNanoVG::DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, 
   nvgRoundedRect(mVG, inner.L, inner.T, inner.W(), inner.H(), cr);
   nvgPathWinding(mVG, NVG_HOLE);
   nvgFillPaint(mVG, shadowPaint);
-  nvgGlobalCompositeOperation(mVG, NanoVGBlendMode(pBlend));
+  NanoVGSetBlendMode(mVG, pBlend);
   nvgFill(mVG);
   nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
   nvgBeginPath(mVG); // Clear the paths

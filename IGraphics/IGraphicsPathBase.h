@@ -9,6 +9,12 @@
 */
 
 #pragma once
+
+/**
+ * @file
+ * @copydoc IGraphicsPathBase
+ */
+
 #include <algorithm>
 #include <stack>
 
@@ -16,6 +22,7 @@
 
 #include "nanosvg.h"
 
+/** A base class to share implementations of IGraphics.h functionality across different path based graphics backends. */
 class IGraphicsPathBase : public IGraphics
 {
 public:

@@ -8,11 +8,15 @@
  ==============================================================================
 */
 
+/**
+ * @file
+ * @brief IPlugAPIBase implementation
+ */
+
 #include <cmath>
 #include <cstdio>
 #include <ctime>
 #include <cassert>
-
 
 #include "wdlendian.h"
 
@@ -121,7 +125,7 @@ void IPlugAPIBase::DirtyParametersFromUI()
   }
 }
 
-void IPlugAPIBase::_SendParameterValueFromAPI(int paramIdx, double value, bool normalized)
+void IPlugAPIBase::SendParameterValueFromAPI(int paramIdx, double value, bool normalized)
 {
   //TODO: Can we assume that no host is stupid enough to try and set parameters on multiple threads at the same time?
   // If that is the case then we need a MPSPC queue not SPSC
@@ -162,14 +166,14 @@ void IPlugAPIBase::OnTimer(Timer& t)
     {
       IMidiMsg msg;
       mMidiMsgsFromProcessor.Pop(msg);
-      _TransmitMidiMsgFromProcessor(msg);
+      TransmitMidiMsgFromProcessor(msg);
     }
     
     while (mSysExDataFromProcessor.ElementsAvailable())
     {
       SysExData data;
       mSysExDataFromProcessor.Pop(data);
-      _TransmitSysExDataFromProcessor(data);
+      TransmitSysExDataFromProcessor(data);
     }
   #endif
   }

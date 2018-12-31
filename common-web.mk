@@ -14,6 +14,7 @@ IPLUG_SYNTH_PATH = $(IPLUG_EXTRAS_PATH)/Synth
 IPLUG_WEB_PATH = $(IPLUG_PATH)/WEB
 NANOVG_PATH = $(DEPS_PATH)/IGraphics/NanoVG/src
 NANOSVG_PATH = $(DEPS_PATH)/IGraphics/NanoSVG/src
+STB_PATH = $(DEPS_PATH)/IGraphics/STB
 
 IPLUG_SRC = $(IPLUG_PATH)/IPlugAPIBase.cpp \
 	$(IPLUG_PATH)/IPlugParameter.cpp \
@@ -29,6 +30,7 @@ IGRAPHICS_SRC = $(IGRAPHICS_PATH)/IGraphics.cpp \
 INCLUDE_PATHS = -I$(PROJECT_ROOT) \
 -I$(WAM_SDK_PATH) \
 -I$(WDL_PATH) \
+-I$(SWELL_PATH) \
 -I$(IPLUG_PATH) \
 -I$(IPLUG_EXTRAS_PATH) \
 -I$(IPLUG_SYNTH_PATH) \
@@ -38,7 +40,8 @@ INCLUDE_PATHS = -I$(PROJECT_ROOT) \
 -I$(CONTROLS_PATH) \
 -I$(PLATFORMS_PATH) \
 -I$(NANOVG_PATH) \
--I$(NANOSVG_PATH)
+-I$(NANOSVG_PATH) \
+-I$(STB_PATH)
 
 #every cpp file that is needed for both WASM modules
 SRC = $(IPLUG_SRC)
@@ -55,7 +58,8 @@ $(IGRAPHICS_PATH)/IGraphicsEditorDelegate.cpp
 # CFLAGS for both WAM and WEB targets
 CFLAGS = $(INCLUDE_PATHS) \
 -std=c++11  \
--Wno-bitwise-op-parentheses
+-Wno-bitwise-op-parentheses \
+-DWDL_NO_DEFINE_MINMAX
 
 WAM_CFLAGS = -DWAM_API \
 -DIPLUG_DSP=1 \

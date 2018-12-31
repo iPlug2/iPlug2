@@ -1,14 +1,9 @@
-## Structure of WDL-OL/IPlug project
+## Structure of an iPlug2 project
 
 TODO: explain
 
 | FILE                                      |  WHAT IS IT?                                                                                                       |
-|-------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
-| app_wrapper/app_dialog.cpp                | Source code for standalone wrapper                                                                                 |
-| app_wrapper/app_main.cpp                  | Source code for standalone wrapper                                                                                 |
-| app_wrapper/app_main.h                    | Source code for standalone wrapper                                                                                 |
-| app_wrapper/app_resource.h                | Source code for standalone wrapper                                                                                 |
-| app_wrapper/main.m                        | Source code for standalone wrapper                                                                                 |
+|-------------------------------------------|--------------------------------------------------------------------------------------------------------------------|                                                                          |
 | installer/changelog.txt                   | "List of changes in this version of the plugin, packaged in installer"                                             |
 | installer/intro.rtf                       | intro text for macOS installer                                                                                     |
 | installer/IPlugEffect-installer-bg.png    | background png for macOS installer                                                                                 |
@@ -52,3 +47,5 @@ TODO: explain
 | resources/IPlugEffect.ico                 | WIN icon for standalone                                                                                            |
 | update_version.py                         | python script to update the version numbers in info.plist andwin/macOS installer files to match that in resource.h |
 | validate_audiounit.command                | bash script to run macOS auval utility with plugin TYPE/MFR_ID/PLUGIN_ID as declared in resource.h                 |
+
+-->

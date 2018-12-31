@@ -13,20 +13,18 @@
 #include "png.h"
 
 #include "IGraphicsCairo.h"
+#include "ITextEntryControl.h"
 
-#ifdef OS_MAC
-cairo_surface_t* LoadPNGResource(void*, const WDL_String& path)
-{
-  return cairo_image_surface_create_from_png(path.Get());
-}
-#elif defined OS_WIN
+#if defined OS_WIN
+
+//TODO: could replace some of this with IGraphics::LoadWinResource
 class PNGStreamReader
 {
 public:
-  PNGStreamReader(HMODULE hInst, const WDL_String &path)
+  PNGStreamReader(HINSTANCE hInst, const char* path)
   : mData(nullptr), mSize(0), mCount(0)
   {
-    HRSRC resInfo = FindResource(hInst, path.Get(), "PNG");
+    HRSRC resInfo = FindResource(hInst, path, "PNG");
     if (resInfo)
     {
       HGLOBAL res = LoadResource(hInst, resInfo);
@@ -60,14 +58,6 @@ private:
   size_t mCount;
   size_t mSize;
 };
-
-cairo_surface_t* LoadPNGResource(void* hInst, const WDL_String& path)
-{
-  PNGStreamReader reader((HMODULE) hInst, path);
-  return cairo_image_surface_create_from_png_stream(&PNGStreamReader::StaticRead, &reader);
-}
-#else
-  #error NOT IMPLEMENTED
 #endif
 
 CairoBitmap::CairoBitmap(cairo_surface_t* pSurface, int scale, float drawScale)
@@ -102,7 +92,7 @@ inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
   }
   switch (pBlend->mMethod)
   {
-    case kBlendClobber:     return CAIRO_OPERATOR_OVER;
+    case kBlendClobber:     return CAIRO_OPERATOR_SOURCE;
     case kBlendAdd:         return CAIRO_OPERATOR_ADD;
     case kBlendColorDodge:  return CAIRO_OPERATOR_COLOR_DODGE;
     case kBlendNone:
@@ -153,11 +143,22 @@ void IGraphicsCairo::DrawResize()
 #endif
 }
 
-APIBitmap* IGraphicsCairo::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
+APIBitmap* IGraphicsCairo::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext)
 {
-  cairo_surface_t* pSurface = LoadPNGResource(GetPlatformInstance(), resourcePath);
-    
-  assert(cairo_surface_status(pSurface) == CAIRO_STATUS_SUCCESS); // Protect against typos in resource.h and .rc files.
+  cairo_surface_t* pSurface = nullptr;
+
+#ifdef OS_WIN
+  if (location == EResourceLocation::kWinBinary)
+  {
+    PNGStreamReader reader((HINSTANCE) GetWinModuleHandle(), fileNameOrResID);
+    pSurface = cairo_image_surface_create_from_png_stream(&PNGStreamReader::StaticRead, &reader);
+  }
+  else
+#endif
+  if (location == EResourceLocation::kAbsolutePath)
+    pSurface = cairo_image_surface_create_from_png(fileNameOrResID);
+
+  assert(!pSurface || cairo_surface_status(pSurface) == CAIRO_STATUS_SUCCESS);
 
   return new CairoBitmap(pSurface, scale, 1.f);
 }
@@ -188,6 +189,13 @@ APIBitmap* IGraphicsCairo::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetBackingPixelScale();
   return new CairoBitmap(mSurface, std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
+}
+
+bool IGraphicsCairo::BitmapExtSupported(const char* ext)
+{
+  char extLower[32];
+  ToLower(extLower, ext);
+  return (strstr(extLower, "png") != nullptr) /*|| (strstr(extLower, "jpg") != nullptr) || (strstr(extLower, "jpeg") != nullptr)*/;
 }
 
 cairo_surface_t* IGraphicsCairo::CreateCairoDataSurface(const APIBitmap* pBitmap, RawBitmapData& data, bool resize)
@@ -502,7 +510,13 @@ bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
 //  cairo_show_glyphs (mContext, cairo_glyphs, len);
 //  cairo_glyph_free (cairo_glyphs);
 #else // TOY text
-  cairo_set_source_rgba(mContext, text.mFGColor.R / 255.0, text.mFGColor.G / 255.0, text.mFGColor.B / 255.0, (BlendWeight(pBlend) * text.mFGColor.A) / 255.0);
+  IColor fgColor;
+  if (GetTextEntryControl() && GetTextEntryControl()->GetRECT() == bounds)
+    fgColor = text.mTextEntryFGColor;
+  else
+    fgColor = text.mFGColor;
+
+  cairo_set_source_rgba(mContext, fgColor.R / 255.0, fgColor.G / 255.0, fgColor.B / 255.0, (BlendWeight(pBlend) * fgColor.A) / 255.0);
   cairo_select_font_face(mContext, text.mFont, CAIRO_FONT_SLANT_NORMAL, text.mStyle == IText::kStyleBold ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL);
   cairo_set_font_size(mContext, text.mSize);
 //  cairo_font_options_t* font_options = cairo_font_options_create ();
@@ -621,7 +635,7 @@ void IGraphicsCairo::EndFrame()
 #endif
 }
 
-void IGraphicsCairo::LoadFont(const char* name)
+bool IGraphicsCairo::LoadFont(const char* name)
 {
 #ifdef IGRAPHICS_FREETYPE
   if(!mFTLibrary)
@@ -646,8 +660,12 @@ void IGraphicsCairo::LoadFont(const char* name)
     //TODO: error check
     cairo_font_face_t* pCairoFace = cairo_ft_font_face_create_for_ft_face(ftFace, 0);
     mCairoFTFaces.Add(pCairoFace);
+
+    return true;
   }
 #endif
+
+  return false;
 }
 
 void IGraphicsCairo::PathTransformSetMatrix(const IMatrix& m)

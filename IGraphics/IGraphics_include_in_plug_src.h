@@ -11,6 +11,12 @@
 #ifndef __IGRAPHICS_SRC_INC__
 #define __IGRAPHICS_SRC_INC__
 
+/**
+ * @file IGraphics_include_in_plug_hdr.h
+ * @brief IGraphics source include
+ * Include this file in the main cpp file if using IGraphics outside a plugin context
+ */
+
 #include "IPlugPlatform.h"
 
 #ifndef NO_IGRAPHICS
@@ -21,7 +27,7 @@
   IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
   {
     IGraphicsWin* pGraphics = new IGraphicsWin(dlg, w, h, fps, scale);
-    pGraphics->SetPlatformInstance(gHINSTANCE);
+    pGraphics->SetWinModuleHandle(gHINSTANCE);
     return pGraphics;
   }
   #elif defined OS_MAC

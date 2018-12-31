@@ -10,6 +10,13 @@
 
 #pragma once
 
+/**
+ * @file Structs and small classes used throughout IGraphics code
+ * \addtogroup IGraphicsStructs
+ * @{
+ */
+
+
 #include <cmath>
 #include <cassert>
 #include <functional>
@@ -48,11 +55,6 @@ typedef std::chrono::high_resolution_clock Time;
 typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimePoint;
 typedef std::chrono::duration<double, std::chrono::milliseconds::period> Milliseconds;
 
-/**
- * \defgroup IGraphicsStructs IGraphics::Structs
- * @{
- */
-
 #ifdef IGRAPHICS_AGG
   #include "IGraphicsAGG_src.h"
   typedef agg::pixel_map* BitmapData;
@@ -74,16 +76,14 @@ typedef std::chrono::duration<double, std::chrono::milliseconds::period> Millise
 #elif defined IGRAPHICS_CANVAS
   #include <emscripten.h>
   #include <emscripten/val.h>
-typedef emscripten::val* BitmapData;
+  typedef emscripten::val* BitmapData;
 #else // NO_IGRAPHICS
   typedef void* BitmapData;
 #endif
 
-/** APIBitmap is a wrapper around the different drawing backend bitmap representations.
+/** A bitmap abstraction around the different drawing backend bitmap representations.
  * In most cases it does own the bitmap data, the exception being with NanoVG, where the image is loaded onto the GPU as a texture,
- * but still needs to be freed
- */
-
+ * but still needs to be freed. Most of the time  end-users will deal with IBitmap rather than APIBitmap, which is used behind the scenes. */
 class APIBitmap
 {
 public:
@@ -128,7 +128,7 @@ private:
   float mDrawScale;
 };
 
-/** IBitmap is IGraphics's bitmap abstraction that you use to manage bitmap data, independant of draw class/platform.
+/** User-facing bitmap abstraction that you use to manage bitmap data, independant of draw class/platform.
  * IBitmap doesn't actually own the image data @see APIBitmap
  * An IBitmap's width and height are always in relation to a 1:1 (low dpi) screen. Any scaling happens at the drawing stage. */
 class IBitmap
@@ -138,7 +138,7 @@ public:
   * @param pData Pointer to the raw bitmap data
   * @param w Bitmap width (in pixels)
   * @param h Bitmap height (in pixels)
-  * @param n Number of frames (for multibitmaps)
+  * @param n Number of frames (for multi frame bitmaps)
   * @param framesAreHorizontal \c true if the frames are positioned horizontally
   * @param name Resource name for the bitmap */
   IBitmap(APIBitmap* pAPIBitmap, int n, bool framesAreHorizontal, const char* name = "")
@@ -160,35 +160,38 @@ public:
   {
   }
 
-  /** @return overall bitmap width */
-  inline int W() const { return mW; }
+  /** @return overall bitmap width in pixels */
+  int W() const { return mW; }
 
-  /** @return overall bitmap height */
-  inline int H() const { return mH; }
+  /** @return overall bitmap height in pixels */
+  int H() const { return mH; }
 
-  /** @return Width of a single frame */
-  inline int FW() const { return (mFramesAreHorizontal ? mW / mN : mW); }
+  /** @return Width of a single frame in pixels */
+  int FW() const { return (mFramesAreHorizontal ? mW / mN : mW); }
   
-  /** @return Height of a single frame */
-  inline int FH() const { return (mFramesAreHorizontal ? mH : mH / mN); }
+  /** @return Height of a single frame in pixels */
+  int FH() const { return (mFramesAreHorizontal ? mH : mH / mN); }
   
-  /** * @return number of frames */
-  inline int N() const { return mN; }
+  /** @return number of frames */
+  int N() const { return mN; }
   
-  /** * @return the scale of the bitmap */
-  inline int GetScale() const { return mAPIBitmap->GetScale(); }
+  /** @return the scale of the bitmap */
+  int GetScale() const { return mAPIBitmap->GetScale(); }
 
-  /** * @return the draw scale of the bitmap */
-  inline float GetDrawScale() const { return mAPIBitmap->GetDrawScale(); }
+  /** @return the draw scale of the bitmap */
+  float GetDrawScale() const { return mAPIBitmap->GetDrawScale(); }
     
-  /** * @return a pointer to the referenced APIBitmap */
-  inline APIBitmap* GetAPIBitmap() const { return mAPIBitmap; }
+  /** @return a pointer to the referenced APIBitmap */
+  APIBitmap* GetAPIBitmap() const { return mAPIBitmap; }
 
-  /** * @return whether or not frames are stored horiztonally */
-  inline bool GetFramesAreHorizontal() const { return mFramesAreHorizontal; }
+  /** @return whether or not frames are stored horizontally */
+  bool GetFramesAreHorizontal() const { return mFramesAreHorizontal; }
   
-  /** * @return the resource name */
-  inline const WDL_String& GetResourceName() const { return mResourceName; }
+  /** @return the resource name */
+  const WDL_String& GetResourceName() const { return mResourceName; }
+  
+  /** @return \true if the bitmap has valid data */
+  inline bool IsValid() const { return mAPIBitmap != nullptr; }
 
 private:
   /** Pointer to the API specific bitmap */
@@ -205,14 +208,12 @@ private:
   WDL_String mResourceName;
 };
 
+/** Used to manage SVG images used by the graphics context */
 struct ISVG
-{
-  NSVGimage* mImage = nullptr;
-  
+{  
   ISVG(NSVGimage* pImage)
   {
     mImage = pImage;
-    assert(mImage != nullptr);
   }
 
   float W()
@@ -230,9 +231,14 @@ struct ISVG
     else
       return 0;
   }
+  
+  /** @return \true if the SVG has valid data */
+  inline bool IsValid() const { return mImage != nullptr; }
+  
+  NSVGimage* mImage = nullptr;
 };
 
-/** Used to manage Color data, independant of draw class/platform.*/
+/** Used to manage color data, independent of draw class/platform. */
 struct IColor
 {
   int A, R, G, B;
@@ -318,6 +324,7 @@ const IColor DEFAULT_TEXT_FGCOLOR = COLOR_BLACK;
 const IColor DEFAULT_TEXTENTRY_BGCOLOR = COLOR_WHITE;
 const IColor DEFAULT_TEXTENTRY_FGCOLOR = COLOR_BLACK;
 
+/** Contains a set of colours used to theme IVControls */
 struct IVColorSpec
 {
   IColor mBGColor = DEFAULT_BGCOLOR; // Background
@@ -355,10 +362,12 @@ struct IBlend
 
   /** Creates a new IBlend
    * @param type Blend type (defaults to none)
-   * \todo IBlend::weight needs documentation
-   * @param weight
+   * @param weight normalised alpha blending amount
   */
-  IBlend(EBlendType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(Clip(weight, 0.f, 1.f)) {}
+  IBlend(EBlendType type = kBlendNone, float weight = 1.0f)
+  : mMethod(type)
+  , mWeight(Clip(weight, 0.f, 1.f))
+  {}
 };
 
 inline float BlendWeight(const IBlend* pBlend)
@@ -370,9 +379,10 @@ const IBlend BLEND_75 = IBlend(kBlendNone, 0.75f);
 const IBlend BLEND_50 = IBlend(kBlendNone, 0.5f);
 const IBlend BLEND_25 = IBlend(kBlendNone, 0.25f);
 const IBlend BLEND_10 = IBlend(kBlendNone, 0.1f);
+const IBlend BLEND_05 = IBlend(kBlendNone, 0.05f);
+const IBlend BLEND_01 = IBlend(kBlendNone, 0.01f);
 
-// Path related structures for patterns and fill/stroke options
-
+/** Used to manage fill behaviour for path based drawing backends */
 struct IFillOptions
 {
   IFillOptions()
@@ -384,8 +394,10 @@ struct IFillOptions
   bool mPreserve;
 };
 
+/** Used to manage stroke behaviour for path based drawing backends */
 struct IStrokeOptions
 {
+  /** Used to manage dashes for stroke */
   class DashOptions
   {
   public:
@@ -985,6 +997,20 @@ struct IRECT
   }
 };
 
+/** Used for key press info, such as ASCII representation, virtual key (mapped to win32 codes) and modifiers */
+struct IKeyPress
+{
+  int VK; // Windows VK_XXX
+  char Ascii;
+  bool S, C, A; // SHIFT / CTRL(WIN) or CMD (MAC) / ALT
+  
+  IKeyPress(char ascii, int vk, bool s = false, bool c = false, bool a = false)
+  : VK(vk)
+  , Ascii(ascii)
+  , S(s), C(c), A(a)
+  {}
+};
+
 /** Used to manage mouse modifiers i.e. right click and shift/control/alt keys. */
 struct IMouseMod
 {
@@ -995,6 +1021,7 @@ struct IMouseMod
   void DBGPrint() { DBGMSG("L: %i, R: %i, S: %i, C: %i,: A: %i\n", L, R, S, C, A); }
 };
 
+/** Used to group mouse coordinates with mouse modifier information */
 struct IMouseInfo
 {
   float x, y;
@@ -1149,7 +1176,7 @@ private:
   WDL_TypedBuf<IRECT> mRects;
 };
 
-/** Used to store transformation matrices**/
+/** Used to store transformation matrices **/
 struct IMatrix
 {
   IMatrix(double xx, double yx, double xy, double yy, double tx, double ty)
@@ -1237,6 +1264,7 @@ struct IMatrix
   double mXX, mYX, mXY, mYY, mTX, mTY;
 };
 
+/** Used to represent a point/stop in a gradient **/
 struct IColorStop
 {
   IColorStop()
@@ -1254,6 +1282,7 @@ struct IColorStop
   float mOffset;
 };
 
+/** Used to store pattern information for gradients **/
 struct IPattern
 {
   EPatternType mType;
@@ -1358,8 +1387,10 @@ struct IPattern
   }
 };
 
-/** ILayer is IGraphics's layer abstraction that you use to store temporary APIBitmap to draw with a specific offset to the interface. ILayers take ownership of the underlying bitmaps */
-
+/** An abstraction that is used to store a temporary raster image/framebuffer.
+ * The layer is drawn with a specific offset to the graphics context.
+ * ILayers take ownership of the underlying bitmaps
+ * In GPU-based backends (NanoVG), this is a texture. */
 class ILayer
 {
   friend IGraphics;
@@ -1380,9 +1411,8 @@ public:
   const IRECT& Bounds() const { return mRECT; }
   
 private:
-    
   APIBitmap* AccessAPIBitmap() { return mBitmap.get(); }
-
+  
   std::unique_ptr<APIBitmap> mBitmap;
   IRECT mRECT;
   bool mInvalid;
@@ -1411,7 +1441,7 @@ struct IShadow
   bool mDrawForeground;
 };
 
-// TODO: static storage needs thread safety mechanism
+/** Used internally to store data statically, making sure memory is not wasted when there are multiple plug-in instances loaded */
 template <class T>
 class StaticStorage
 {
