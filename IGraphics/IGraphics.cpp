@@ -1143,9 +1143,9 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
     }
 
     if(pImage == nullptr)
-#else
-    pImage = nsvgParseFromFile(path.Get(), units, dpi);
 #endif
+    pImage = nsvgParseFromFile(path.Get(), units, dpi);
+
 
     assert(pImage != nullptr);
 
