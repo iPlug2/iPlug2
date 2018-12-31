@@ -40,20 +40,14 @@ struct Timer
   {
   }
 };
-
 #else
 
-#if defined OS_MAC
-#include "swell.h"
-#elif defined OS_IOS
-typedef bool BOOL;
-typedef unsigned int UINT;
-typedef unsigned int DWORD;
-typedef void* HWND;
-typedef void (*TIMERPROC)(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
-#define CALLBACK
-UINT_PTR SetTimer(HWND hwnd, UINT_PTR timerid, UINT rate, TIMERPROC tProc);
-BOOL KillTimer(HWND hwnd, UINT_PTR timerid);
+#if !defined OS_WIN
+  #if defined OS_IOS
+    #include "swell-ios.h"
+  #else
+    #include "swell.h"
+  #endif
 #endif
 
 /** Base class for timer */

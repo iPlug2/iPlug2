@@ -89,13 +89,6 @@ UINT_PTR SetTimer(HWND hwnd, UINT_PTR timerid, UINT rate, TIMERPROC tProc)
   
   if (hwnd && !timerid) return 0;
 
-//  if (hwnd && ![(id)hwnd respondsToSelector:@selector(SWELL_Timer:)])
-//  {
-//    if (![(id)hwnd isKindOfClass:[NSWindow class]]) return 0;
-//    hwnd=(HWND)[(id)hwnd contentView];
-//    if (![(id)hwnd respondsToSelector:@selector(SWELL_Timer:)]) return 0;
-//  }
-  
   WDL_MutexLock lock(&m_timermutex);
   TimerInfoRec *rec=NULL;
   if (hwnd||timerid)

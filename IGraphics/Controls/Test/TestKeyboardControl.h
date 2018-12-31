@@ -17,8 +17,12 @@
 
 #include "IControl.h"
 
-#ifndef OS_WIN
-#include "swell-types.h"
+#if !defined OS_WIN
+  #if defined OS_IOS
+    #include "swell-ios.h"
+  #else
+    #include "swell-types.h"
+  #endif
 #endif
 
 const char* vk_to_string(int vk_code)

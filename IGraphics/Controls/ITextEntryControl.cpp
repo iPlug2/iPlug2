@@ -17,8 +17,12 @@
 #include "ITextEntryControl.h"
 #include "IPlugPlatform.h"
 
-#ifndef OS_WIN
-  #include "swell-types.h"
+#if !defined OS_WIN
+  #if defined OS_IOS
+    #include "swell-ios.h"
+  #else
+    #include "swell.h"
+  #endif
 #endif
 
 #define VIRTUAL_KEY_BIT 0x80000000
