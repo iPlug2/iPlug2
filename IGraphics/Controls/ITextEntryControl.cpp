@@ -21,7 +21,7 @@
   #if defined OS_IOS
     #include "swell-ios.h"
   #else
-    #include "swell.h"
+    #include "swell-types.h"
   #endif
 #endif
 
