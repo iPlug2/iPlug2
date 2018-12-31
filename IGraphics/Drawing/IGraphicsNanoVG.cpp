@@ -219,6 +219,13 @@ const char* IGraphicsNanoVG::GetDrawingAPIStr()
 #endif
 }
 
+bool IGraphicsNanoVG::BitmapExtSupported(const char* ext)
+{
+  char extLower[32];
+  ToLower(extLower, ext);
+  return (strstr(extLower, "png") != nullptr) || (strstr(extLower, "jpg") != nullptr) || (strstr(extLower, "jpeg") != nullptr);
+}
+
 IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale)
 {
   if (targetScale == 0)
@@ -238,10 +245,12 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
     int sourceScale = 0;
     EResourceLocation resourceFound = SearchImageResource(name, ext, fullPathOrResourceID, targetScale, sourceScale);
 
-    if(resourceFound == EResourceLocation::kNotFound)
+    bool bitmapTypeSupported = BitmapExtSupported(ext);
+    
+    if(resourceFound == EResourceLocation::kNotFound || !bitmapTypeSupported)
       return IBitmap(); // return invalid IBitmap
 
-    pAPIBitmap = LoadAPIBitmap(fullPathOrResourceID.Get(), sourceScale, resourceFound);
+    pAPIBitmap = LoadAPIBitmap(fullPathOrResourceID.Get(), sourceScale, resourceFound, ext);
     
     mBitmapCache.Add(pAPIBitmap, name, sourceScale);
 
@@ -251,7 +260,7 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
   return IBitmap(pAPIBitmap, nStates, framesAreHorizontal, name);
 }
 
-APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location)
+APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext)
 {
   int idx = 0;
 
@@ -260,12 +269,8 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
   {
     const void* pResData = nullptr;
 
-    //const char* ext = path + strlen(path) - 1;
-    //while (ext >= path && *ext != '.') --ext;
-    //++ext;
-
     int size = 0;
-    pResData = LoadWinResource(fileNameOrResID, "png", size); //TODO: support JPG
+    pResData = LoadWinResource(fileNameOrResID, ext, size);
 
     if (pResData)
       idx = nvgCreateImageMem(mVG, 0 /*flags*/, (unsigned char*)pResData, size);

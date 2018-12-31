@@ -455,9 +455,32 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text, double scale)
   return font;
 }
 
-APIBitmap* IGraphicsLice::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location)
+bool IGraphicsLice::BitmapExtSupported(const char* ext)
 {
-  bool ispng = strstr(fileNameOrResID, "png") != nullptr;
+  char extLower[32];
+  ToLower(extLower, ext);
+  
+  bool ispng = strstr(extLower, "png") != nullptr;
+  
+  if (ispng)
+    return true;
+
+#ifdef LICE_JPEG_SUPPORT
+  bool isjpg = (strstr(extLower, "jpg") != nullptr) || (strstr(extLower, "jpeg") != nullptr);
+
+  if (isjpg)
+    return true;
+#endif
+
+  return false;
+}
+
+APIBitmap* IGraphicsLice::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext)
+{
+  char extLower[32];
+  ToLower(extLower, ext);
+  
+  bool ispng = (strcmp(extLower, "png") == 0);
 
   if (ispng)
   {
@@ -469,8 +492,8 @@ APIBitmap* IGraphicsLice::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
       return new LICEBitmap(LICE_LoadPNG(fileNameOrResID), scale);
   }
 
-#ifdef IPLUG_JPEG_SUPPORT
-  bool isjpg = (strstr(fileNameOrResID, "jpg") != nullptr) && (strstr(fileNameOrResID, "jpeg") != nullptr);
+#ifdef LICE_JPEG_SUPPORT
+  bool isjpg = (strcmp(extLower, "jpg") == 0) || (strcmp(extLower, "jpeg") == 0);
 
   if (isjpg)
   {

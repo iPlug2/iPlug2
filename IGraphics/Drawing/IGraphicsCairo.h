@@ -81,9 +81,11 @@ public:
   void DrawResize() override;
 
   bool LoadFont(const char* fileName) override;
-    
+  
+  bool BitmapExtSupported(const char* ext) override;
+
 protected:
-  APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location) override;
+  APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
   APIBitmap* CreateAPIBitmap(int width, int height) override;
 

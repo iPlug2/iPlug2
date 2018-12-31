@@ -421,15 +421,15 @@ EResourceLocation IGraphicsWeb::OSFindResource(const char* name, const char* typ
     
     //TODO: OSFindResource is not sufficient here
     
-    if(strcmp(type, "png") == 0) {
+    if(strcmp(type, "png") == 0) { //TODO: lowercase/uppercase png
       plusSlash.SetFormatted(strlen("/resources/img/") + strlen(name) + 1, "/resources/img/%s", name);
       foundResource = GetPreloadedImages().call<bool>("hasOwnProperty", std::string(plusSlash.Get()));
     }
-    else if(strcmp(type, "ttf") == 0) {
+    else if(strcmp(type, "ttf") == 0) { //TODO: lowercase/uppercase ttf
       plusSlash.SetFormatted(strlen("/resources/fonts/") + strlen(name) + 1, "/resources/fonts/%s", name);
       foundResource = true; // TODO: check ttf
     }
-    else if(strcmp(type, "svg") == 0) {
+    else if(strcmp(type, "svg") == 0) { //TODO: lowercase/uppercase svg
       plusSlash.SetFormatted(strlen("/resources/img/") + strlen(name) + 1, "/resources/img/%s", name);
       foundResource = true; // TODO: check svg
     }

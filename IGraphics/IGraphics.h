@@ -366,7 +366,10 @@ public:
   virtual void RetainBitmap(const IBitmap& bitmap, const char* cacheName);
   virtual void ReleaseBitmap(const IBitmap& bitmap);
   IBitmap GetScaledBitmap(IBitmap& src);
-
+  
+  /** Checks a file extension and reports whether this drawing API supports loading that extension */
+  virtual bool BitmapExtSupported(const char* ext) = 0;
+  
 #pragma mark - IGraphics base implementation - drawing helpers
 
   /** Draws a bitmap into the graphics context. NOTE: this helper method handles multi-frame bitmaps, indexable via frame
@@ -1011,7 +1014,7 @@ protected:
 
   typedef WDL_TypedBuf<unsigned char> RawBitmapData;
 
-  virtual APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location) = 0;
+  virtual APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) = 0;
   virtual APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) = 0;
   virtual APIBitmap* CreateAPIBitmap(int width, int height) = 0;
     

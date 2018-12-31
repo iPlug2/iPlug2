@@ -136,6 +136,7 @@ public:
   IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, int targetScale) override { return bitmap; } // NO-OP
   void ReleaseBitmap(const IBitmap& bitmap) override { }; // NO-OP
   void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override { }; // NO-OP
+  bool BitmapExtSupported(const char* ext) override;
 
   bool LoadFont(const char* fileName) override;
   
@@ -143,7 +144,7 @@ public:
   void SetPlatformContext(void* pContext) override;
 
 protected:
-  APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location) override;
+  APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override { return new APIBitmap(); } // NO-OP
   APIBitmap* CreateAPIBitmap(int width, int height) override;
 

@@ -1176,8 +1176,17 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
     WDL_String fullPath;
     int sourceScale = 0;
     bool fromDisk = false;
+    
+    const char* ext = name + strlen(name) - 1;
+    while (ext >= name && *ext != '.') --ext;
+    ++ext;
+    
+    bool bitmapTypeSupported = BitmapExtSupported(ext);
+    
+    if(!bitmapTypeSupported)
+      return IBitmap(); // return invalid IBitmap
 
-    EResourceLocation resourceLocation = SearchImageResource(name, "png", fullPath, targetScale, sourceScale);
+    EResourceLocation resourceLocation = SearchImageResource(name, ext, fullPath, targetScale, sourceScale);
 
     if (resourceLocation == EResourceLocation::kNotFound)
     {
@@ -1192,7 +1201,7 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
 
       if (!pAPIBitmap)
       {
-        pAPIBitmap = LoadAPIBitmap(fullPath.Get(), sourceScale, resourceLocation);
+        pAPIBitmap = LoadAPIBitmap(fullPath.Get(), sourceScale, resourceLocation, ext);
         fromDisk = true;
       }
     }
