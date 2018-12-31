@@ -40,7 +40,7 @@ void IGEditorDelegate::OnUIOpen()
   if (pos > 0)
     GetUI()->Resize(width, height, scale);
     
-  pos = UnserializeEditorState(data, pos);
+  pos = UnSerializeEditorProperties(data, pos);
 }
 
 void* IGEditorDelegate::OpenWindow(void* pParent)
@@ -153,7 +153,7 @@ void IGEditorDelegate::AttachGraphics(IGraphics* pGraphics)
   mIGraphicsTransient = false;
 }
 
-void IGEditorDelegate::EditorStateNotify()
+void IGEditorDelegate::EditorPropertiesModified()
 {
   IByteChunk data;
     
@@ -165,7 +165,7 @@ void IGEditorDelegate::EditorStateNotify()
   data.Put(&height);
   data.Put(&scale);
     
-  SerializeEditorState(data);
+  SerializeEditorProperties(data);
     
-  EditorStateChangedFromUI(mGraphics->WindowWidth(), mGraphics->WindowHeight(), data);
+  EditorPropertiesChangedFromUI(mGraphics->WindowWidth(), mGraphics->WindowHeight(), data);
 }

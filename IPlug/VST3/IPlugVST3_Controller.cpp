@@ -492,12 +492,12 @@ void IPlugVST3Controller::SendArbitraryMsgFromUI(int messageTag, int controlTag,
   sendMessage(message);
 }
 
-void IPlugVST3Controller::EditorStateChanged(int viewWidth, int viewHeight, const IByteChunk& data)
+void IPlugVST3Controller::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
 {
   if (HasUI() && (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight()))
   {
     mView->resize(viewWidth, viewHeight);
-    IPlugAPIBase::EditorStateChanged(viewWidth, viewHeight, data);
+    IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
   }
 }
 

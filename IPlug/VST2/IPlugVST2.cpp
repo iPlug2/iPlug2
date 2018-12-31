@@ -128,7 +128,7 @@ EHost IPlugVST2::GetHost()
   return host;
 }
 
-void IPlugVST2::EditorStateChanged(int viewWidth, int viewHeight, const IByteChunk& data)
+void IPlugVST2::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
 {
   if (HasUI())
   {
@@ -141,7 +141,7 @@ void IPlugVST2::EditorStateChanged(int viewWidth, int viewHeight, const IByteChu
       mHostCallback(&mAEffect, audioMasterSizeWindow, viewWidth, viewHeight, 0, 0.f);
     }
     
-    IPlugAPIBase::EditorStateChanged(viewWidth, viewHeight, data);
+    IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
   }
 }
 

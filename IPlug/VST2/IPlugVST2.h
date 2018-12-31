@@ -42,7 +42,7 @@ public:
   void InformHostOfProgramChange() override;
   EHost GetHost() override;
   void HostSpecificInit() override;
-  void EditorStateChanged(int viewWidth, int viewHeight, const IByteChunk& data) override;
+  void EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data) override;
 
   //IPlugProcessor
   void SetLatency(int samples) override;

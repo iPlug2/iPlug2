@@ -887,12 +887,12 @@ void IPlugVST3::InformHostOfParameterDetailsChange()
   handler->restartComponent(kParamTitlesChanged);
 }
 
-void IPlugVST3::EditorStateChanged(int viewWidth, int viewHeight, const IByteChunk& data)
+void IPlugVST3::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
 {
   if (HasUI() && (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight()))
   {
     mViews.at(0)->resize(viewWidth, viewHeight);
-    IPlugAPIBase::EditorStateChanged(viewWidth, viewHeight, data);
+    IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
   }
 }
 

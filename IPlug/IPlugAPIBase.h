@@ -104,9 +104,9 @@ public:
   virtual void PrintDebugInfo() const;
 
   /** Call this method from a delegate, for example if you wish to store graphics dimensions in your plug-in state in order to notify the API of a graphics resize or other layout change.
-   * If calling from a UI interaction use EditorStateChangedFromUI()
+   * If calling from a UI interaction use EditorPropertiesChangedFromUI()
    * When this is overridden in subclasses the subclass should call this in order to update the member variables */
-  virtual void EditorStateChanged(int width, int height, const IByteChunk& data) { mEditorWidth = width; mEditorHeight = height; mEditorData = data; }
+  virtual void EditorPropertiesChangedFromDelegate(int width, int height, const IByteChunk& data) { mEditorWidth = width; mEditorHeight = height; mEditorData = data; }
 
   /** Implemented by the API class, called by the UI (or by a delegate) at the beginning of a parameter change gesture
    * @param paramIdx The parameter that is being changed */
@@ -151,7 +151,7 @@ public:
   void SendParameterValueFromUI(int paramIdx, double value) override { SetParameterValue(paramIdx, value); IPluginBase::SendParameterValueFromUI(paramIdx, value); }
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { BeginInformHostOfParamChange(paramIdx); }
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }
-  void EditorStateChangedFromUI(int viewWidth, int viewHeight, const IByteChunk& data) override { EditorStateChanged(viewWidth, viewHeight, data); }
+  void EditorPropertiesChangedFromUI(int viewWidth, int viewHeight, const IByteChunk& data) override { EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data); }
   
   //These are handled in IPlugAPIBase for non DISTRIBUTED APIs
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;

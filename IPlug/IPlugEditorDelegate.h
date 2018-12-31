@@ -200,7 +200,7 @@ public:
   
   /** If the editor changes UI dimensions or other state we need to call into the plug-in API to store state or resize the window in the plugin
    * This method is implemented in various classes that inherit this interface to implement that behaviour */
-  virtual void EditorStateChangedFromUI(int viewWidth, int viewHeight, const IByteChunk& data) {};
+  virtual void EditorPropertiesChangedFromUI(int viewWidth, int viewHeight, const IByteChunk& data) {};
   
   /** SendMidiMsgFromUI (Abbreviation: SMMFUI)
    * This method should be used  when  sending a MIDI message from the UI. For example clicking on a key in a virtual keyboard.
