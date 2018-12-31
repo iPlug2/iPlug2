@@ -192,9 +192,11 @@ public:
   void UpdateLayer() override;
     
   void EndFrame() override;
-    
+  
+  bool BitmapExtSupported(const char* ext) override;
+
 protected:
-  APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
+  APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int s) override;
   APIBitmap* CreateAPIBitmap(int width, int height) override;
 

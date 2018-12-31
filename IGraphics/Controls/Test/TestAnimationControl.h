@@ -53,6 +53,7 @@ public:
   void Draw(IGraphics& g) override
   {
     g.DrawDottedRect(COLOR_BLACK, mRECT);
+    g.FillRect(mMouseIsOver ? COLOR_TRANSLUCENT : COLOR_TRANSPARENT, mRECT);
     g.FillRect(mDrawnColor, mDrawnRect);
     g.DrawText(mText, "Click to animate", mRECT);
   }

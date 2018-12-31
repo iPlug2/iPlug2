@@ -12,22 +12,20 @@
 
 /**
  * @file
- * @copydoc TestSVGControl
+ * @copydoc TestImageControl
  */
 
 #include "IControl.h"
-#include "nanosvg.h"
 
-/** Control to test drawing SVGs
+/** Control to test drawing bitmaps
  *   @ingroup TestControls */
-class TestSVGControl : public IControl
+class TestImageControl : public IControl
 {
 public:
-  TestSVGControl(IGEditorDelegate& dlg, IRECT bounds, const ISVG& svg)
+  TestImageControl(IGEditorDelegate& dlg, IRECT bounds)
   : IControl(dlg, bounds)
-  , mSVG(svg)
   {
-    SetTooltip("TestSVGControl - Click or Drag 'n drop here to load a new SVG.");
+    SetTooltip("TestImageControl - Click or Drag 'n drop here to load a new bitmap");
   }
 
   void Draw(IGraphics& g) override
@@ -35,18 +33,10 @@ public:
     g.DrawDottedRect(COLOR_BLACK, mRECT);
     g.FillRect(mMouseIsOver ? COLOR_TRANSLUCENT : COLOR_TRANSPARENT, mRECT);
 
-#if 1
-    if (!g.CheckLayer(mLayer))
-    {
-      g.StartLayer(mRECT);
-      g.DrawSVG(mSVG, mRECT);
-      mLayer = g.EndLayer();
-    }
-
-    g.DrawLayer(mLayer);
-#else
-    g.DrawSVG(mSVG, mRECT);
-#endif
+    if(mBitmap.IsValid())
+      g.DrawFittedBitmap(mBitmap, mRECT);
+    else
+      g.DrawText(DEFAULT_TEXT, "Invalid Bitmap", mRECT);
   }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
@@ -54,27 +44,23 @@ public:
     WDL_String file;
     WDL_String path;
 
-    GetUI()->PromptForFile(file, path, kFileOpen, "svg");
+    GetUI()->PromptForFile(file, path, kFileOpen, "");
 
     if(file.GetLength())
-      SetSVG(GetUI()->LoadSVG(file.Get()));
-
-    SetDirty(false);
+      SetBitmap(file.Get());
   }
 
   void OnDrop(const char* str) override
   {
-    SetSVG(GetUI()->LoadSVG(str));
+    SetBitmap(str);
+  }
+  
+  void SetBitmap(const char* str)
+  {
+    mBitmap = GetUI()->LoadBitmap(str);
     SetDirty(false);
   }
 
-  void SetSVG(const ISVG& svg)
-  {
-    mSVG = svg;
-    mLayer->Invalidate();
-  }
-
 private:
-  ILayerPtr mLayer;
-  ISVG mSVG;
+  IBitmap mBitmap;
 };

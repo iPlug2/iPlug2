@@ -1470,7 +1470,7 @@ BOOL IGraphicsWin::EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LON
   return true; // keep enumerating
 }
 
-bool IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String& result)
+EResourceLocation IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
   if (CStringHasContents(name))
   {
@@ -1482,18 +1482,48 @@ bool IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String
     if (strstr(search.Get(), "found: ") != 0)
     {
       result.SetFormatted(MAX_PATH, "\"%s\"", search.Get() + 7, search.GetLength() - 7); // 7 = strlen("found: ")
-      return true;
+      return EResourceLocation::kWinBinary;
     }
     else
     {
       if (PathFileExists(name))
       {
         result.Set(name);
-        return true;
+        return EResourceLocation::kAbsolutePath;
       }
     }
   }
-  return false;
+  return EResourceLocation::kNotFound;
+}
+
+const void* IGraphicsWin::LoadWinResource(const char* resid, const char* type, int& sizeInBytes)
+{
+  WDL_String typeUpper(type);
+
+  HRSRC hResource = FindResource(mHInstance, resid, _strupr(typeUpper.Get()));
+
+  if (!hResource)
+    return NULL;
+
+  DWORD size = SizeofResource(mHInstance, hResource);
+
+  if (size < 8)
+    return NULL;
+
+  HGLOBAL res = LoadResource(mHInstance, hResource);
+
+  const void* pResourceData = LockResource(res);
+
+  if (!pResourceData)
+  {
+    sizeInBytes = 0;
+    return NULL;
+  }
+  else
+  {
+    sizeInBytes = size;
+    return pResourceData;
+  }
 }
 
 //TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT

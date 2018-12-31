@@ -50,7 +50,7 @@ public:
 protected:
   IPopupMenu* CreatePlatformPopupMenu(const IPopupMenu& menu, IRECT& bounds) override;
   void CreatePlatformTextEntry(IControl* pControl, const IText& text, const IRECT& bounds, const char* str) override;
-  bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
+  EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result) override;
 }
 
 #endif // NO_IGRAPHICS

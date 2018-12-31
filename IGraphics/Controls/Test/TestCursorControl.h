@@ -31,6 +31,7 @@ public:
   void Draw(IGraphics& g) override
   {
     g.DrawDottedRect(COLOR_BLACK, mRECT);
+    g.FillRect(mMouseIsOver ? COLOR_TRANSLUCENT : COLOR_TRANSPARENT, mRECT);
 
     const char* str = "Cursor";
     int cursor = mCursor == 0 ? HELP : mCursor - 1;

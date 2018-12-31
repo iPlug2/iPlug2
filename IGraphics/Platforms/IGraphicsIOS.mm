@@ -115,14 +115,14 @@ bool IGraphicsIOS::GetResourcePathFromUsersMusicFolder(const char* fileName, con
   return false;
 }
 
-bool IGraphicsIOS::OSFindResource(const char* name, const char* type, WDL_String& result)
+EResourceLocation IGraphicsIOS::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
   if(CStringHasContents(name))
   {
     if(GetResourcePathFromBundle(name, type, result))
-      return true;
+      return EResourceLocation::kAbsolutePath;
   }
-  return false;
+  return EResourceLocation::kNotFound;
 }
 
 void* IGraphicsIOS::OpenWindow(void* pParent)

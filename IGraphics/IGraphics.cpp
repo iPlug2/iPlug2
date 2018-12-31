@@ -1082,7 +1082,8 @@ void IGraphics::OnResizeGesture(float x, float y)
 IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
 {
   //TODO: bug with # frames!
-  return LoadBitmap(src.GetResourceName().Get(), src.N(), src.GetFramesAreHorizontal(), (GetScreenScale() == 1 && GetDrawScale() > 1.) ? 2 : 0);
+//  return LoadBitmap(src.GetResourceName().Get(), src.N(), src.GetFramesAreHorizontal(), (GetScreenScale() == 1 && GetDrawScale() > 1.) ? 2 : 0 /* ??? */);
+  return LoadBitmap(src.GetResourceName().Get(), src.N(), src.GetFramesAreHorizontal(), GetScreenScale());
 }
 
 void IGraphics::EnableTooltips(bool enable)
@@ -1115,48 +1116,47 @@ void IGraphics::EnableLiveEdit(bool enable/*, const char* file, int gridsize*/)
 #endif
 }
 
-#ifdef OS_WIN
-NSVGimage* LoadSVGFromWinResource(HINSTANCE hInst, const char* resid)
+ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 {
-  HRSRC hResource = FindResource(hInst, resid, "SVG");
-  if (!hResource) return NULL;
-
-  DWORD imageSize = SizeofResource(hInst, hResource);
-  if (imageSize < 8) return NULL;
-
-  HGLOBAL res = LoadResource(hInst, hResource);
-  const void* pResourceData = LockResource(res);
-  if (!pResourceData) return NULL;
-
-  WDL_String svgStr {static_cast<const char*>(pResourceData) };
-
-  return nsvgParse(svgStr.Get(), "px", 72); //TODO: don't fix DPI
-}
-#endif
-
-ISVG IGraphics::LoadSVG(const char* name)
-{
-  WDL_String path;
-  bool resourceFound = OSFindResource(name, "svg", path);
-  assert(resourceFound == true);
-
-  SVGHolder* pHolder = s_SVGCache.Find(path.Get());
+  SVGHolder* pHolder = s_SVGCache.Find(fileName);
 
   if(!pHolder)
   {
+    WDL_String path;
+    EResourceLocation resourceFound = OSFindResource(fileName, "svg", path);
+
+    if (resourceFound == EResourceLocation::kNotFound)
+      return ISVG(nullptr); // return invalid SVG
+
     NSVGimage* pImage = nullptr;
 
-    // TODO: move resource loading code and improve error checking 
-#ifdef OS_WIN
-    pImage = LoadSVGFromWinResource((HINSTANCE) GetPlatformInstance(), path.Get());
+#ifdef OS_WIN    
+    if (resourceFound == EResourceLocation::kWinBinary)
+    {
+      int size = 0;
+      const void* pResData = LoadWinResource(path.Get(), "svg", size);
 
-    if(pImage == nullptr)
+      if (pResData)
+      {
+        WDL_String svgStr{ static_cast<const char*>(pResData) };
+
+        pImage = nsvgParse(svgStr.Get(), units, dpi);
+      }
+      else
+        return ISVG(nullptr); // return invalid SVG
+    }
 #endif
-    pImage = nsvgParseFromFile(path.Get(), "px", 72); //TODO: don't fix DPI
 
-    assert(pImage != nullptr);
+    if (resourceFound == EResourceLocation::kAbsolutePath)
+    {
+      pImage = nsvgParseFromFile(path.Get(), units, dpi);
+
+      if(!pImage)
+        return ISVG(nullptr); // return invalid SVG
+    }
 
     pHolder = new SVGHolder(pImage);
+    
     s_SVGCache.Add(pHolder, path.Get());
   }
 
@@ -1176,8 +1176,19 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
     WDL_String fullPath;
     int sourceScale = 0;
     bool fromDisk = false;
+    
+    const char* ext = name + strlen(name) - 1;
+    while (ext >= name && *ext != '.') --ext;
+    ++ext;
+    
+    bool bitmapTypeSupported = BitmapExtSupported(ext);
+    
+    if(!bitmapTypeSupported)
+      return IBitmap(); // return invalid IBitmap
 
-    if (!SearchImageResource(name, "png", fullPath, targetScale, sourceScale))
+    EResourceLocation resourceLocation = SearchImageResource(name, ext, fullPath, targetScale, sourceScale);
+
+    if (resourceLocation == EResourceLocation::kNotFound)
     {
       // If no resource exists then search the cache for a suitable match
       pAPIBitmap = SearchBitmapInCache(name, targetScale, sourceScale);
@@ -1190,7 +1201,7 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
 
       if (!pAPIBitmap)
       {
-        pAPIBitmap = LoadAPIBitmap(fullPath, sourceScale);
+        pAPIBitmap = LoadAPIBitmap(fullPath.Get(), sourceScale, resourceLocation, ext);
         fromDisk = true;
       }
     }
@@ -1248,7 +1259,7 @@ inline void IGraphics::SearchNextScale(int& sourceScale, int targetScale)
     sourceScale--;
 }
 
-bool IGraphics::SearchImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale)
+EResourceLocation IGraphics::SearchImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale)
 {
   // Search target scale, then descending
   for (sourceScale = targetScale ; sourceScale > 0; SearchNextScale(sourceScale, targetScale))
@@ -1261,12 +1272,14 @@ bool IGraphics::SearchImageResource(const char* name, const char* type, WDL_Stri
       WDL_String ext(fullName.get_fileext());
       fullName.SetFormatted((int) (strlen(name) + strlen("@2x")), "%s@%dx%s", baseName.Get(), sourceScale, ext.Get());
     }
-      
-    if (OSFindResource(fullName.Get(), type, result))
-      return true;
+
+    EResourceLocation found = OSFindResource(fullName.Get(), type, result);
+
+    if (found > EResourceLocation::kNotFound)
+      return found;
   }
 
-  return false;
+  return EResourceLocation::kNotFound;
 }
 
 APIBitmap* IGraphics::SearchBitmapInCache(const char* name, int targetScale, int& sourceScale)

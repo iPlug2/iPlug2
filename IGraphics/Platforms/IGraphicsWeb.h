@@ -72,5 +72,5 @@ public:
 protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
-  bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
+  EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result) override;
 };

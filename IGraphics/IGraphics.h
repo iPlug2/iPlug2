@@ -366,7 +366,10 @@ public:
   virtual void RetainBitmap(const IBitmap& bitmap, const char* cacheName);
   virtual void ReleaseBitmap(const IBitmap& bitmap);
   IBitmap GetScaledBitmap(IBitmap& src);
-
+  
+  /** Checks a file extension and reports whether this drawing API supports loading that extension */
+  virtual bool BitmapExtSupported(const char* ext) = 0;
+  
 #pragma mark - IGraphics base implementation - drawing helpers
 
   /** Draws a bitmap into the graphics context. NOTE: this helper method handles multi-frame bitmaps, indexable via frame
@@ -604,12 +607,12 @@ public:
    * @return \c true on success (if the path was valid) */
   virtual bool RevealPathInExplorerOrFinder(WDL_String& path, bool select = false) { return false; }
 
-  /** Used on Windows to set the HINSTANCE handle, which allows graphics APIs to load resources from the binary. \todo doesn’t this do something on Mac too?
-   * @param pInstance void pointer to the platform instance */
-  virtual void SetPlatformInstance(void* pInstance) {}
+  /** Used on Windows to set the HINSTANCE module handle, which allows graphics APIs to load resources from the binary.
+   * @param pHinstance void pointer to the platform instance */
+  virtual void SetWinModuleHandle(void* pHinstance) {}
 
-  /** Get a void pointer that can be cast back to HINSTANCE \todo what about Mac? */
-  virtual void* GetPlatformInstance() { return nullptr; }
+  /** @return a void pointer that can be cast back to HINSTANCE to get the module handle on windows, returns nullptr on other platforms */
+  virtual void* GetWinModuleHandle() { return nullptr; }
 
   /** Set the platform draw context
    * Used in order to set the platform level draw context - CGContextRef context on macOS and the GDI HDC draw context handle on Windows.
@@ -625,20 +628,31 @@ public:
    * @param y the y position to convert */
   virtual void ClientToScreen(float& x, float& y) {};
 
-  /** Find the full, absolute path of a resource based on it's file name (e.g. “background.png”) and type (e.g. “PNG”)
-   * On macOS resources are usually included inside the bundle resources folder. In that case you provide a filename and this method will return the absolute path to the resource. In some cases you may want to provide an absolute path to a file in a shared resources folder here (for example if you want to reduce the disk footprint of multiple bundles, such as when you have multiple plug-in formats installed).
-   * On Windows resources are usually baked into the binary via the resource compiler. In this case the fileName argument is the resource id. The .rc file must include these ids, otherwise you may hit a runtime assertion. It is also possible to pass in an absolute path in order to share resources between binaries.
-   * Behind the scenes this method will make sure resources are loaded statically in memory.
-   * @param filename The resource filename including extension. If no resource is found the method will then check fileName as if it is an absolute path.
-   * @param type \todo
-   * @param result WDL_String which will contain the full path of the resource of success
+  /** Find the absolute path of a resource based on it's file name (e.g. “background.png”) and type (e.g. “png”), or in the case of windows, 
+   * confirm the existence of a particular resource in the binary. If it fails to find the resource with the binary it will test the fileNameOrResID argument
+   * as an absolute path, to see if the file exists in that place.
+   * On macOS resources are usually included inside the bundle resources folder.
+   * On Windows resources are usually baked into the binary via the resource compiler. In this case the fileName argument is the resource id to look for. 
+   * The .rc file must include these ids, otherwise you may hit a runtime assertion when you come to load the file.
+   * In some cases you may want to provide an absolute path to a file in a shared resources folder
+   * here (for example if you want to reduce the disk footprint of multiple bundles, such as when you have multiple plug-in formats installed).
+   *
+   * @param fileNameOrResID The filename or resourceID including extension. If no resource is found this argument is tested as an absolute path.
+   * @param type The resource type (file extension) in lower or upper case, e.g. ttf or TTF for a truetype font 
+   * @param result WDL_String which will either contain the full path to the resource on disk, or the ful Windows resourceID on success
    * @return \c true on success */
-  virtual bool OSFindResource(const char* fileName, const char* type, WDL_String& result) = 0;
+  virtual EResourceLocation OSFindResource(const char* fileNameOrResID, const char* type, WDL_String& result) = 0;
+
+  /** Load a resource from the binary (windows only).
+   * @param type The resource type in lower or upper case, e.g. ttf or TTF for a truetype font
+   * @return const void pointer to the data if successfull on windows. Returns nullptr if unsuccessfull or on platforms other than windows */
+  virtual const void* LoadWinResource(const char* resID, const char* type, int& sizeInBytes) { return nullptr; }
 
   /** Get the bundle ID on macOS and iOS, returns emtpy string on other OSs */
   virtual const char* GetBundleID() { return ""; }
 #pragma mark - IGraphics base implementation
   IGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.);
+
   virtual ~IGraphics();
 
   /** Called by the platform IGraphics class XXXXX /todo and when moving to a new screen with different DPI
@@ -976,31 +990,31 @@ public:
    * @param y The Y coordinate in the graphics context at which to popup the context menu */
   void PopupHostContextMenuForParam(int controlIdx, int paramIdx, float x, float y);
 
-#pragma mark - Resource Loading
-  /** Load a bitmap image from disk
-   * @param fileName CString file name
+#pragma mark - Resource/File Loading
+  /** Load a bitmap image from disk or from windows resource
+   * @param fileNameOrResID CString file name or resource ID
    * @param nStates The number of states/frames in a multi-frame stacked bitmap
    * @param framesAreHorizontal Set \c true if the frames in a bitmap are stacked horizontally
    * @param targetScale Set \c to a number > 0 to explicity load e.g. an @2x.png
    * @return An IBitmap representing the image */
-  virtual IBitmap LoadBitmap(const char* fileName, int nStates = 1, bool framesAreHorizontal = false, int targetScale = 0);
+  virtual IBitmap LoadBitmap(const char* fileNameOrResID, int nStates = 1, bool framesAreHorizontal = false, int targetScale = 0);
 
-  /** Load an SVG from disk
-   * @param fileName A CString absolute path to the SVG on disk
+  /** Load an SVG from disk or from windows resource
+   * @param fileNameOrResID A CString absolute path or resource ID
    * @return An ISVG representing the image */
-  virtual ISVG LoadSVG(const char* fileName);
+  virtual ISVG LoadSVG(const char* fileNameOrResID, const char* units = "px", float dpi = 72.f);
 
-  /** @param fileName The name of the font to load */
-  virtual void LoadFont(const char* fileName) {};
+  /** @param fileNameOrResID A CString absolute path or resource ID
+   * @return \c true on success */
+  virtual bool LoadFont(const char* fileNameOrResID) { return false; }
   
 protected:
   virtual void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") = 0;
   virtual IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller = nullptr) = 0;
 
-    
   typedef WDL_TypedBuf<unsigned char> RawBitmapData;
 
-  virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;
+  virtual APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) = 0;
   virtual APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) = 0;
   virtual APIBitmap* CreateAPIBitmap(int width, int height) = 0;
     
@@ -1013,9 +1027,14 @@ protected:
   void PushLayer(ILayer* layer, bool clearTransforms);
   ILayer* PopLayer(bool clearTransforms);
     
+  /** Utility used by SearchImageResource/SearchBitmapInCache */
   inline void SearchNextScale(int& sourceScale, int targetScale);
-  bool SearchImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale);
-  APIBitmap* SearchBitmapInCache(const char* name, int targetScale, int& sourceScale);
+
+  /** Search for a bitmap image resource matching the target scale */
+  EResourceLocation SearchImageResource(const char* fileName, const char* type, WDL_String& result, int targetScale, int& sourceScale);
+
+  /** Search the static storage cache for a bitmap image resource matching the target scale */
+  APIBitmap* SearchBitmapInCache(const char* fileName, int targetScale, int& sourceScale);
 
   virtual bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = nullptr, bool measure = false) = 0;
     
