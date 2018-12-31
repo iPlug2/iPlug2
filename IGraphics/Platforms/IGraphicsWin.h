@@ -24,8 +24,8 @@ public:
   IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsWin();
 
-  void SetWinPlatformInstance(void* pInstance) override { mHInstance = (HINSTANCE) pInstance; }
-  void* GetWinPlatformInstance() override { return mHInstance; }
+  void SetWinModuleHandle(void* pInstance) override { mHInstance = (HINSTANCE) pInstance; }
+  void* GetWinModuleHandle() override { return mHInstance; }
 
   void ForceEndUserEdit() override;
 

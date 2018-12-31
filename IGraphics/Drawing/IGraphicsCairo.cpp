@@ -156,7 +156,7 @@ void IGraphicsCairo::DrawResize()
 
 APIBitmap* IGraphicsCairo::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
 {
-  cairo_surface_t* pSurface = LoadPNGResource(GetWinPlatformInstance(), resourcePath);
+  cairo_surface_t* pSurface = LoadPNGResource(GetWinModuleHandle(), resourcePath);
     
   assert(cairo_surface_status(pSurface) == CAIRO_STATUS_SUCCESS); // Protect against typos in resource.h and .rc files.
 

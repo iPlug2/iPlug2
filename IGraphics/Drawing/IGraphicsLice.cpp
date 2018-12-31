@@ -463,7 +463,7 @@ APIBitmap* IGraphicsLice::LoadAPIBitmap(const WDL_String& resourcePath, int scal
 #if defined OS_MAC
   if (ispng) return new LICEBitmap(LICE_LoadPNG(path), scale);
 #elif defined OS_WIN
-  if (ispng) return new LICEBitmap(LICE_LoadPNGFromResource((HINSTANCE) GetWinPlatformInstance(), path, 0), scale);
+  if (ispng) return new LICEBitmap(LICE_LoadPNGFromResource((HINSTANCE) GetWinModuleHandle(), path, 0), scale);
 #else
   #error NOT IMPLEMENTED
 #endif

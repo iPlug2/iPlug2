@@ -1506,6 +1506,7 @@ const void* IGraphicsWin::LoadWinResource(const char* resid, const char* type, i
     return NULL;
 
   DWORD size = SizeofResource(mHInstance, hResource);
+
   if (size < 8)
     return NULL;
 

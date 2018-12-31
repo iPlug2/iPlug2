@@ -605,11 +605,11 @@ public:
   virtual bool RevealPathInExplorerOrFinder(WDL_String& path, bool select = false) { return false; }
 
   /** Used on Windows to set the HINSTANCE module handle, which allows graphics APIs to load resources from the binary.
-   * @param pInstance void pointer to the platform instance */
-  virtual void SetWinPlatformInstance(void* pInstance) {}
+   * @param pHinstance void pointer to the platform instance */
+  virtual void SetWinModuleHandle(void* pHinstance) {}
 
-  /** @return a void pointer that can be cast back to HINSTANCE to get the module handle on windows, returns nullptr on other platforms*/
-  virtual void* GetWinPlatformInstance() { return nullptr; }
+  /** @return a void pointer that can be cast back to HINSTANCE to get the module handle on windows, returns nullptr on other platforms */
+  virtual void* GetWinModuleHandle() { return nullptr; }
 
   /** Set the platform draw context
    * Used in order to set the platform level draw context - CGContextRef context on macOS and the GDI HDC draw context handle on Windows.
