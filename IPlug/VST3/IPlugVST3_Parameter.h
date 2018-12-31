@@ -45,7 +45,7 @@ public:
   virtual bool fromString(const TChar* string, ParamValue& valueNormalized) const override
   {
     String str((TChar*)string);
-    valueNormalized = mIPlugParam->ToNormalized(atof(str.text8()));
+    valueNormalized = mIPlugParam->ToNormalized(mIPlugParam->StringToValue(str.text8()));
 
     return true;
   }
