@@ -102,7 +102,8 @@ public:
 
   virtual void ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   {
-    if (mDSP) {
+    if (mDSP)
+    {
       assert(mDSP->getSampleRate() != 0); // did you forget to call SetSampleRate?
       
       if(mOverSampler)

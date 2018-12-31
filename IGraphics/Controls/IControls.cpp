@@ -8,6 +8,12 @@
  ==============================================================================
 */
 
+/**
+ * @file
+ * @brief IControls implementation
+ * @ingroup Controls
+ */
+
 #include "IControls.h"
 
 #pragma mark - VECTOR CONTROLS
@@ -17,7 +23,8 @@ const IColor IVKeyboardControl::DEFAULT_WK_COLOR = IColor(255, 240, 240, 240);
 const IColor IVKeyboardControl::DEFAULT_PK_COLOR = IColor(60, 0, 0, 0);
 const IColor IVKeyboardControl::DEFAULT_FR_COLOR = DEFAULT_BK_COLOR;
 
-IVButtonControl::IVButtonControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc, const char* str, const IText& text, const IVColorSpec& colorSpec)
+IVButtonControl::IVButtonControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc,
+  const char* str, const IText& text, const IVColorSpec& colorSpec)
 : IButtonControlBase(dlg, bounds, actionFunc)
 , IVectorBase(colorSpec)
 {
@@ -42,7 +49,6 @@ IVSwitchControl::IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, int paramI
 {
   AttachIControl(this);
   mDblAsSingleClick = true;
-  mText.mSize = 20; //FIXME: text size
   mStr.Set(str);
 }
 
@@ -64,14 +70,14 @@ void IVSwitchControl::Draw(IGraphics& g)
     g.DrawText(mText, mStr.Get(), handleBounds);
 }
 
-IVRadioButtonControl::IVRadioButtonControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc, const IVColorSpec& colorSpec, int numStates, EDirection dir)
+IVRadioButtonControl::IVRadioButtonControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc,
+  const IVColorSpec& colorSpec, int numStates, EDirection dir)
 : ISwitchControlBase(dlg, bounds, paramIdx, actionFunc, numStates)
 , IVectorBase(colorSpec)
 , mDirection(dir)
 {
   AttachIControl(this);
   mDblAsSingleClick = true;
-  mText.mSize = 20; //FIXME: text size
   mText.mAlign = IText::kAlignNear;
   mText.mVAlign = IText::kVAlignMiddle;
   mDrawShadows = false;
@@ -93,9 +99,13 @@ void IVRadioButtonControl::Draw(IGraphics& g)
   {
     IRECT r = mButtons.Get()[i];
     DrawVectorButton(g, r.FracRectHorizontal(0.25f).GetCentredInside(10.f), i == hit , mMouseIsOver);
-    r = r.FracRectHorizontal(0.7f, true);
-    i == hit ? mText.mFGColor = COLOR_WHITE : mText.mFGColor = COLOR_BLACK;
-    g.DrawText(mText, mLabels.Get(i)->Get(), r);
+
+    if (mLabels.Get(i))
+    {
+      r = r.FracRectHorizontal(0.7f, true);
+      i == hit ? mText.mFGColor = COLOR_WHITE : mText.mFGColor = COLOR_BLACK;
+      g.DrawText(mText, mLabels.Get(i)->Get(), r);
+    }
   }
 }
 
@@ -247,7 +257,7 @@ void IVKnobControl::OnResize()
     {
       case IText::kVAlignMiddle:
         mHandleBounds = clickableArea;
-        mValueBounds = clickableArea.GetMidVPadded(textRect.H()/2.).GetMidHPadded(valueDisplayWidth);
+        mValueBounds = clickableArea.GetMidVPadded(textRect.H()/2.f).GetMidHPadded(valueDisplayWidth);
         break;
       case IText::kVAlignBottom:
       {
@@ -264,7 +274,7 @@ void IVKnobControl::OnResize()
     }
     
     if(mValueBounds.W() < textRect.W())
-      mValueBounds = mValueBounds.GetMidHPadded(mTargetRECT.W()/2.);
+      mValueBounds = mValueBounds.GetMidHPadded(mTargetRECT.W()/2.f);
   }
   
   mHandleBounds = GetAdjustedHandleBounds(mTargetRECT).GetScaledAboutCentre(mKnobFrac);

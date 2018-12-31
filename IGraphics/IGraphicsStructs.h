@@ -10,6 +10,13 @@
 
 #pragma once
 
+/**
+ * @file Structs and small classes used throughout IGraphics code
+ * \addtogroup IGraphicsStructs
+ * @{
+ */
+
+
 #include <cmath>
 #include <cassert>
 #include <functional>
@@ -48,16 +55,6 @@ typedef std::chrono::high_resolution_clock Time;
 typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimePoint;
 typedef std::chrono::duration<double, std::chrono::milliseconds::period> Milliseconds;
 
-/**
- * \defgroup IGraphicsStructs IGraphics::Structs
- * @{
- */
-
-/** APIBitmap is a wrapper around the different drawing backend bitmap representations.
- * In most cases it does own the bitmap data, the exception being with NanoVG, where the image is loaded onto the GPU as a texture,
- * but still needs to be freed
- */
-
 #ifdef IGRAPHICS_AGG
   #include "IGraphicsAGG_src.h"
   typedef agg::pixel_map* BitmapData;
@@ -77,19 +74,25 @@ typedef std::chrono::duration<double, std::chrono::milliseconds::period> Millise
   typedef LICE_IBitmap* BitmapData;
   class LICE_IFont;
 #elif defined IGRAPHICS_CANVAS
-  typedef void* BitmapData;
+  #include <emscripten.h>
+  #include <emscripten/val.h>
+  typedef emscripten::val* BitmapData;
 #else // NO_IGRAPHICS
   typedef void* BitmapData;
 #endif
 
+/** A bitmap abstraction around the different drawing backend bitmap representations.
+ * In most cases it does own the bitmap data, the exception being with NanoVG, where the image is loaded onto the GPU as a texture,
+ * but still needs to be freed. Most of the time  end-users will deal with IBitmap rather than APIBitmap, which is used behind the scenes. */
 class APIBitmap
 {
 public:
-  APIBitmap(BitmapData pBitmap, int w, int h, int s)
+  APIBitmap(BitmapData pBitmap, int w, int h, int s, float ds)
   : mBitmap(pBitmap)
   , mWidth(w)
   , mHeight(h)
   , mScale(s)
+  , mDrawScale(ds)
   {}
 
   APIBitmap()
@@ -97,31 +100,35 @@ public:
   , mWidth(0)
   , mHeight(0)
   , mScale(0)
+  , mDrawScale(1.f)
   {}
 
   virtual ~APIBitmap() {}
 
-  void SetBitmap(BitmapData pBitmap, int w, int h, int s)
+  void SetBitmap(BitmapData pBitmap, int w, int h, int s, float ds)
   {
     mBitmap = pBitmap;
     mWidth = w;
     mHeight = h;
     mScale = s;
+    mDrawScale = ds;
   }
 
   BitmapData GetBitmap() const { return mBitmap; }
   int GetWidth() const { return mWidth; }
   int GetHeight() const { return mHeight; }
   int GetScale() const { return mScale; }
+  float GetDrawScale() const { return mDrawScale; }
 
 private:
   BitmapData mBitmap; // for most drawing APIs BitmapData is a pointer. For Nanovg it is an integer index
   int mWidth;
   int mHeight;
   int mScale;
+  float mDrawScale;
 };
 
-/** IBitmap is IGraphics's bitmap abstraction that you use to manage bitmap data, independant of draw class/platform.
+/** User-facing bitmap abstraction that you use to manage bitmap data, independant of draw class/platform.
  * IBitmap doesn't actually own the image data @see APIBitmap
  * An IBitmap's width and height are always in relation to a 1:1 (low dpi) screen. Any scaling happens at the drawing stage. */
 class IBitmap
@@ -131,7 +138,7 @@ public:
   * @param pData Pointer to the raw bitmap data
   * @param w Bitmap width (in pixels)
   * @param h Bitmap height (in pixels)
-  * @param n Number of frames (for multibitmaps)
+  * @param n Number of frames (for multi frame bitmaps)
   * @param framesAreHorizontal \c true if the frames are positioned horizontally
   * @param name Resource name for the bitmap */
   IBitmap(APIBitmap* pAPIBitmap, int n, bool framesAreHorizontal, const char* name = "")
@@ -153,32 +160,38 @@ public:
   {
   }
 
-  /** @return overall bitmap width */
-  inline int W() const { return mW; }
+  /** @return overall bitmap width in pixels */
+  int W() const { return mW; }
 
-  /** @return overall bitmap height */
-  inline int H() const { return mH; }
+  /** @return overall bitmap height in pixels */
+  int H() const { return mH; }
 
-  /** @return Width of a single frame */
-  inline int FW() const { return (mFramesAreHorizontal ? mW / mN : mW); }
+  /** @return Width of a single frame in pixels */
+  int FW() const { return (mFramesAreHorizontal ? mW / mN : mW); }
   
-  /** @return Height of a single frame */
-  inline int FH() const { return (mFramesAreHorizontal ? mH : mH / mN); }
+  /** @return Height of a single frame in pixels */
+  int FH() const { return (mFramesAreHorizontal ? mH : mH / mN); }
   
-  /** * @return number of frames */
-  inline int N() const { return mN; }
+  /** @return number of frames */
+  int N() const { return mN; }
   
-  /** * @return the scale of the bitmap */
-  inline int GetScale() const { return mAPIBitmap->GetScale(); }
+  /** @return the scale of the bitmap */
+  int GetScale() const { return mAPIBitmap->GetScale(); }
 
-  /** * @return a pointer to the referenced APIBitmap */
-  inline APIBitmap* GetAPIBitmap() const { return mAPIBitmap; }
+  /** @return the draw scale of the bitmap */
+  float GetDrawScale() const { return mAPIBitmap->GetDrawScale(); }
+    
+  /** @return a pointer to the referenced APIBitmap */
+  APIBitmap* GetAPIBitmap() const { return mAPIBitmap; }
 
-  /** * @return whether or not frames are stored horiztonally */
-  inline bool GetFramesAreHorizontal() const { return mFramesAreHorizontal; }
+  /** @return whether or not frames are stored horizontally */
+  bool GetFramesAreHorizontal() const { return mFramesAreHorizontal; }
   
-  /** * @return the resource name */
-  inline const WDL_String& GetResourceName() const { return mResourceName; }
+  /** @return the resource name */
+  const WDL_String& GetResourceName() const { return mResourceName; }
+  
+  /** @return \true if the bitmap has valid data */
+  inline bool IsValid() const { return mAPIBitmap != nullptr; }
 
 private:
   /** Pointer to the API specific bitmap */
@@ -195,14 +208,12 @@ private:
   WDL_String mResourceName;
 };
 
+/** Used to manage SVG images used by the graphics context */
 struct ISVG
-{
-  NSVGimage* mImage = nullptr;
-  
+{  
   ISVG(NSVGimage* pImage)
   {
     mImage = pImage;
-    assert(mImage != nullptr);
   }
 
   float W()
@@ -220,9 +231,14 @@ struct ISVG
     else
       return 0;
   }
+  
+  /** @return \true if the SVG has valid data */
+  inline bool IsValid() const { return mImage != nullptr; }
+  
+  NSVGimage* mImage = nullptr;
 };
 
-/** Used to manage Color data, independant of draw class/platform.*/
+/** Used to manage color data, independent of draw class/platform. */
 struct IColor
 {
   int A, R, G, B;
@@ -230,7 +246,7 @@ struct IColor
   bool operator==(const IColor& rhs) { return (rhs.A == A && rhs.R == R && rhs.G == G && rhs.B == B); }
   bool operator!=(const IColor& rhs) { return !operator==(rhs); }
   bool Empty() const { return A == 0 && R == 0 && G == 0 && B == 0; }
-  void Clamp() { A = std::min(A, 255); R = std::min(R, 255); G = std::min(G, 255); B = std::min(B, 255); }
+  void Clamp() { A = Clip(A, 0, 255); R = Clip(R, 0, 255); Clip(G, 0, 255); B = Clip(B, 0, 255); }
   void Randomise(int alpha = 255) { A = alpha; R = std::rand() % 255; G = std::rand() % 255; B = std::rand() % 255; }
 
   void AddContrast(double c)
@@ -261,7 +277,7 @@ struct IColor
     return IColor(A, R, G, B);
   }
 
-  int GetLuminocity() const
+  int GetLuminosity() const
   {
     int min = R < G ? (R < B ? R : B) : (G < B ? G : B);
     int max = R > G ? (R > B ? R : B) : (G > B ? G : B);
@@ -308,6 +324,7 @@ const IColor DEFAULT_TEXT_FGCOLOR = COLOR_BLACK;
 const IColor DEFAULT_TEXTENTRY_BGCOLOR = COLOR_WHITE;
 const IColor DEFAULT_TEXTENTRY_FGCOLOR = COLOR_BLACK;
 
+/** Contains a set of colours used to theme IVControls */
 struct IVColorSpec
 {
   IColor mBGColor = DEFAULT_BGCOLOR; // Background
@@ -345,10 +362,12 @@ struct IBlend
 
   /** Creates a new IBlend
    * @param type Blend type (defaults to none)
-   * \todo IBlend::weight needs documentation
-   * @param weight
+   * @param weight normalised alpha blending amount
   */
-  IBlend(EBlendType type = kBlendNone, float weight = 1.0f) : mMethod(type), mWeight(weight) {}
+  IBlend(EBlendType type = kBlendNone, float weight = 1.0f)
+  : mMethod(type)
+  , mWeight(Clip(weight, 0.f, 1.f))
+  {}
 };
 
 inline float BlendWeight(const IBlend* pBlend)
@@ -360,9 +379,10 @@ const IBlend BLEND_75 = IBlend(kBlendNone, 0.75f);
 const IBlend BLEND_50 = IBlend(kBlendNone, 0.5f);
 const IBlend BLEND_25 = IBlend(kBlendNone, 0.25f);
 const IBlend BLEND_10 = IBlend(kBlendNone, 0.1f);
+const IBlend BLEND_05 = IBlend(kBlendNone, 0.05f);
+const IBlend BLEND_01 = IBlend(kBlendNone, 0.01f);
 
-// Path related structures for patterns and fill/stroke options
-
+/** Used to manage fill behaviour for path based drawing backends */
 struct IFillOptions
 {
   IFillOptions()
@@ -374,8 +394,10 @@ struct IFillOptions
   bool mPreserve;
 };
 
+/** Used to manage stroke behaviour for path based drawing backends */
 struct IStrokeOptions
 {
+  /** Used to manage dashes for stroke */
   class DashOptions
   {
   public:
@@ -405,178 +427,6 @@ struct IStrokeOptions
   ELineCap mCapOption = kCapButt;
   ELineJoin mJoinOption = kJoinMiter;
   DashOptions mDash;
-};
-
-/** Used to store transformation matrices**/
-struct IMatrix
-{
-  IMatrix()
-  {
-    mTransform[0] = 1.0;
-    mTransform[1] = 0.0;
-    mTransform[2] = 0.0;
-    mTransform[3] = 1.0;
-    mTransform[4] = 0.0;
-    mTransform[5] = 0.0;
-  }
-    
-  IMatrix(float sx, float shx, float shy, float sy, float tx, float ty)
-  {
-    mTransform[0] = sx;
-    mTransform[1] = shx;
-    mTransform[2] = shy;
-    mTransform[3] = sy;
-    mTransform[4] = tx;
-    mTransform[5] = ty;
-  }
-  
-  void Translate(float x, float y)
-  {
-    IMatrix multiplier(1.0, 0.0, 0.0, 1.0, x, y);
-    Transform(multiplier);
-  }
-  
-  void Scale(float x, float y)
-  {
-    IMatrix multiplier(x, 0.0, 0.0, y, 0.0, 0.0);
-    Transform(multiplier);
-  }
-  
-  void Rotate(float a)
-  {
-    a = DegToRad(a);
-    const float c = std::cos(a);
-    const float s = std::sin(a);
-    
-    IMatrix multiplier(c, s, -s, c, 0.f, 0.f);
-    Transform(multiplier);
-  }
-  
-  void Transform(const IMatrix& m)
-  {
-    IMatrix p = *this;
-
-    mTransform[0] = m.mTransform[0] * p.mTransform[0] + m.mTransform[1] * p.mTransform[2];
-    mTransform[1] = m.mTransform[0] * p.mTransform[1] + m.mTransform[1] * p.mTransform[3];
-    mTransform[2] = m.mTransform[2] * p.mTransform[0] + m.mTransform[3] * p.mTransform[2];
-    mTransform[3] = m.mTransform[2] * p.mTransform[1] + m.mTransform[3] * p.mTransform[3];
-    mTransform[4] = m.mTransform[4] * p.mTransform[0] + m.mTransform[5] * p.mTransform[2] + p.mTransform[4];
-    mTransform[5] = m.mTransform[4] * p.mTransform[1] + m.mTransform[5] * p.mTransform[3] + p.mTransform[5];
-  }
-  
-  double mTransform[6];
-};
-
-struct IColorStop
-{
-  IColorStop()
-  : mOffset(0.f)
-  {}
-
-  IColorStop(IColor color, float offset)
-  : mColor(color)
-  , mOffset(offset)
-  {
-    assert(offset >= 0.0 && offset <= 1.0);
-  }
-
-  IColor mColor;
-  float mOffset;
-};
-
-struct IPattern
-{
-  EPatternType mType;
-  EPatternExtend mExtend;
-  WDL_TypedBuf<IColorStop> mStops;
-  float mTransform[6];
-
-  IPattern(const IColor& color)
-  : mExtend(kExtendRepeat)
-  {
-    mType = kSolidPattern;
-    mStops.Add(IColorStop(color, 0.0));
-    SetTransform(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
-  }
-
-  IPattern(EPatternType type)
-  : mExtend(kExtendNone)
-  {
-    mType = type;
-    SetTransform(1.f, 0.f, 0.f, 1.f, 0.f, 0.f);
-  }
-
-  IPattern(float x1, float y1, float x2, float y2)
-  : mExtend(kExtendNone)
-  {
-    mType = kLinearPattern;
-
-    // Calculate the affine transform from one line segment to another!
-    const float xd = x2 - x1;
-    const float yd = y2 - y1;
-    const float size = sqrtf(xd * xd + yd * yd);
-    const float angle = -(atan2(yd, xd));
-    const float sinV = sinf(angle) / size;
-    const float cosV = cosf(angle) / size;
-
-    const float xx = cosV;
-    const float xy = -sinV;
-    const float yx = sinV;
-    const float yy = cosV;
-    const float x0 = -(x1 * xx + y1 * xy);
-    const float y0 = -(x1 * yx + y1 * yy);
-
-    SetTransform(xx, yx, xy, yy, x0, y0);
-  }
-  
-  IPattern(float x1, float y1, float x2, float y2, std::initializer_list<IColorStop> stops)
-  : IPattern(x1, y1, x2, y2)
-  {
-    for(auto& stop : stops)
-    {
-      AddStop(stop.mColor, stop.mOffset);
-    }
-  }
-
-  IPattern(float x1, float y1, float r)
-  : mExtend(kExtendNone)
-  {
-    mType = kRadialPattern;
-
-    const float xx = 1.f / r;
-    const float yy = 1.f / r;
-    const float x0 = -(x1 * xx);
-    const float y0 = -(y1 * yy);
-
-    SetTransform(xx, 0, 0, yy, x0, y0);
-  }
-
-  int NStops() const
-  {
-    return mStops.GetSize();
-  }
-
-  const IColorStop& GetStop(int idx) const
-  {
-    return *(mStops.Get() + idx);
-  }
-
-  void AddStop(IColor color, float offset)
-  {
-    assert(mType != kSolidPattern);
-    assert(!NStops() || GetStop(NStops() - 1).mOffset < offset);
-    mStops.Add(IColorStop(color, offset));
-  }
-
-  void SetTransform(float xx, float yx, float xy, float yy, float x0, float y0)
-  {
-    mTransform[0] = xx;
-    mTransform[1] = yx;
-    mTransform[2] = xy;
-    mTransform[3] = yy;
-    mTransform[4] = x0;
-    mTransform[5] = y0;
-  }
 };
 
 /** Used to manage font and text/text entry style for a piece of text on the UI, independant of draw class/platform.*/
@@ -843,7 +693,18 @@ struct IRECT
   
   bool IsPixelAligned() const
   {
-    return !(L - std::floor(L) && T - std::floor(T) && R - std::floor(R) && B - std::floor(B));
+    // If all values are within 1/1000th of a pixel of an integer the IRECT is considered pixel aligned
+      
+    auto isInteger = [](float x){ return std::fabs(x - std::round(x)) <= static_cast<float>(1e-3); };
+      
+    return isInteger(L) && isInteger(T) && isInteger(R) && isInteger(B);
+  }
+   
+  bool IsPixelAligned(float scale) const
+  {
+    IRECT r = *this;
+    r.Scale(scale);
+    return r.IsPixelAligned();
   }
   
   // Pixel aligns in an inclusive manner (moves all points outwards)
@@ -854,7 +715,29 @@ struct IRECT
     R = std::ceil(R);
     B = std::ceil(B);
   }
-  
+    
+  inline void PixelAlign(float scale)
+  {
+    // N.B. - double precision is *required* for accuracy of the reciprocal
+    Scale(scale);
+    PixelAlign();
+    Scale(static_cast<float>(1.0/static_cast<double>(scale)));
+  }
+    
+  inline IRECT GetPixelAligned() const
+  {
+    IRECT r = *this;
+    r.PixelAlign();
+    return r;
+  }
+    
+  inline IRECT GetPixelAligned(float scale) const
+  {
+    IRECT r = *this;
+    r.PixelAlign(scale);
+    return r;
+  }
+    
   inline void Pad(float padding)
   {
     L -= padding;
@@ -969,10 +852,10 @@ struct IRECT
   
   void Scale(float scale)
   {
-    L = std::floor(0.5f + (L * scale));
-    T = std::floor(0.5f + (T * scale));
-    R = std::floor(0.5f + (R * scale));
-    B = std::floor(0.5f + (B * scale));
+    L *= scale;
+    T *= scale;
+    R *= scale;
+    B *= scale;
   }
   
   void ScaleAboutCentre(float scale)
@@ -1031,7 +914,7 @@ struct IRECT
     return IRECT(l, t, r, b);
   }
 
-  void Shift(float l, float t, float r, float b)
+  void Alter(float l, float t, float r, float b)
   {
     L += l;
     T += t;
@@ -1039,7 +922,12 @@ struct IRECT
     B += b;
   }
   
-  void Shift(float x, float y = 0.f)
+  IRECT GetAltered(float l, float t, float r, float b) const
+  {
+    return IRECT(L + l, T + t, R + r, B + b);
+  }
+  
+  void Translate(float x, float y)
   {
     L += x;
     T += y;
@@ -1047,32 +935,19 @@ struct IRECT
     B += y;
   }
   
-  IRECT GetShifted(float x, float y = 0.f) const
+  IRECT GetTranslated(float x, float y) const
   {
     return IRECT(L + x, T + y, R + x, B + y);
   }
   
   IRECT GetHShifted(float x) const
   {
-    return GetShifted(x);
+    return GetTranslated(x, 0.f);
   }
   
   IRECT GetVShifted(float y) const
   {
-    return GetShifted(0., y);
-  }
-  
-  IRECT GetShifted(float l, float t, float r, float b) const
-  {
-    return IRECT(L + l, T + t, R + r, B + b);
-  }
-  
-  void ScaleBounds(float scale)
-  {
-    L = std::floor(L * scale);
-    T = std::floor(T * scale);
-    R = std::ceil(R * scale);
-    B = std::ceil(B * scale);
+    return GetTranslated(0.f, y);
   }
 
   IRECT GetCentredInside(IRECT sr) const
@@ -1122,6 +997,20 @@ struct IRECT
   }
 };
 
+/** Used for key press info, such as ASCII representation, virtual key (mapped to win32 codes) and modifiers */
+struct IKeyPress
+{
+  int VK; // Windows VK_XXX
+  char Ascii;
+  bool S, C, A; // SHIFT / CTRL(WIN) or CMD (MAC) / ALT
+  
+  IKeyPress(char ascii, int vk, bool s = false, bool c = false, bool a = false)
+  : VK(vk)
+  , Ascii(ascii)
+  , S(s), C(c), A(a)
+  {}
+};
+
 /** Used to manage mouse modifiers i.e. right click and shift/control/alt keys. */
 struct IMouseMod
 {
@@ -1132,6 +1021,7 @@ struct IMouseMod
   void DBGPrint() { DBGMSG("L: %i, R: %i, S: %i, C: %i,: A: %i\n", L, R, S, C, A); }
 };
 
+/** Used to group mouse coordinates with mouse modifier information */
 struct IMouseInfo
 {
   float x, y;
@@ -1178,6 +1068,16 @@ public:
     {
       IRECT r = Get(i);
       r.PixelAlign();
+      Set(i, r);
+    }
+  }
+
+  void PixelAlign(float scale)
+  {
+    for (auto i = 0; i < Size(); i++)
+    {
+      IRECT r = Get(i);
+      r.PixelAlign(scale);
       Set(i, r);
     }
   }
@@ -1276,7 +1176,272 @@ private:
   WDL_TypedBuf<IRECT> mRects;
 };
 
-// TODO: static storage needs thread safety mechanism
+/** Used to store transformation matrices **/
+struct IMatrix
+{
+  IMatrix(double xx, double yx, double xy, double yy, double tx, double ty)
+  : mXX(xx), mYX(yx), mXY(xy), mYY(yy), mTX(tx), mTY(ty)
+  {}
+  
+  IMatrix() : IMatrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
+  {}
+  
+  IMatrix& Translate(float x, float y)
+  {
+    return Transform(IMatrix(1.0, 0.0, 0.0, 1.0, x, y));
+  }
+  
+  IMatrix& Scale(float x, float y)
+  {
+    return Transform(IMatrix(x, 0.0, 0.0, y, 0.0, 0.0));
+  }
+  
+  IMatrix& Rotate(float a)
+  {
+    const double rad = DegToRad(a);
+    const double c = std::cos(rad);
+    const double s = std::sin(rad);
+    
+    return Transform(IMatrix(c, s, -s, c, 0.0, 0.0));
+  }
+  
+  IMatrix& Skew(float xa, float ya)
+  {
+    return Transform(IMatrix(1.0, std::tan(DegToRad(ya)), std::tan(DegToRad(xa)), 1.0, 0.0, 0.0));
+  }
+  
+  void TransformPoint(double& x, double& y, double x0, double y0)
+  {
+    x = x0 * mXX + y0 * mXY + mTX;
+    y = x0 * mYX + y0 * mYY + mTY;
+  };
+  
+  void TransformPoint(double& x, double& y)
+  {
+    TransformPoint(x, y, x, y);
+  };
+  
+  IMatrix& Transform(const IRECT& before, const IRECT& after)
+  {
+    const double sx = after.W() / before.W();
+    const double sy = after.H() / before.H();
+    const double tx = after.L - before.L * sx;
+    const double ty = after.T - before.T * sy;
+    
+    return *this = IMatrix(sx, 0.0, 0.0, sy, tx, ty);
+  }
+  
+  IMatrix& Transform(const IMatrix& m)
+  {
+    IMatrix p = *this;
+    
+    mXX = m.mXX * p.mXX + m.mYX * p.mXY;
+    mYX = m.mXX * p.mYX + m.mYX * p.mYY;
+    mXY = m.mXY * p.mXX + m.mYY * p.mXY;
+    mYY = m.mXY * p.mYX + m.mYY * p.mYY;
+    mTX = m.mTX * p.mXX + m.mTY * p.mXY + p.mTX;
+    mTY = m.mTX * p.mYX + m.mTY * p.mYY + p.mTY;
+    
+    return *this;
+  }
+  
+  IMatrix& Invert()
+  {
+    IMatrix m = *this;
+    
+    double d = 1.0 / (m.mXX * m.mYY - m.mYX * m.mXY);
+    
+    mXX =  m.mYY * d;
+    mYX = -m.mYX * d;
+    mXY = -m.mXY * d;
+    mYY =  m.mXX * d;
+    mTX = (-(m.mTX * mXX) - (m.mTY * mXY));
+    mTY = (-(m.mTX * mYX) - (m.mTY * mYY));
+    
+    return *this;
+  }
+  
+  double mXX, mYX, mXY, mYY, mTX, mTY;
+};
+
+/** Used to represent a point/stop in a gradient **/
+struct IColorStop
+{
+  IColorStop()
+  : mOffset(0.f)
+  {}
+  
+  IColorStop(IColor color, float offset)
+  : mColor(color)
+  , mOffset(offset)
+  {
+    assert(offset >= 0.0 && offset <= 1.0);
+  }
+  
+  IColor mColor;
+  float mOffset;
+};
+
+/** Used to store pattern information for gradients **/
+struct IPattern
+{
+  EPatternType mType;
+  EPatternExtend mExtend;
+  IColorStop mStops[16];
+  int mNStops;
+  IMatrix mTransform;
+  
+  IPattern(EPatternType type)
+  : mType(type), mExtend(kExtendPad), mNStops(0)
+  {}
+  
+  IPattern(const IColor& color)
+  : mType(kSolidPattern), mExtend(kExtendPad), mNStops(1)
+  {
+    mStops[0] = IColorStop(color, 0.0);
+  }
+  
+  static IPattern CreateLinearGradient(float x1, float y1, float x2, float y2)
+  {
+    IPattern pattern(kLinearPattern);
+    
+    // Calculate the affine transform from one line segment to another!
+    
+    const double xd = x2 - x1;
+    const double yd = y2 - y1;
+    const double d = sqrt(xd * xd + yd * yd);
+    const double a = atan2(xd, yd);
+    const double s = std::sin(a) / d;
+    const double c = std::cos(a) / d;
+      
+    const double x0 = -(x1 * c - y1 * s);
+    const double y0 = -(x1 * s + y1 * c);
+    
+    pattern.SetTransform(static_cast<float>(c),
+                         static_cast<float>(s),
+                         static_cast<float>(-s),
+                         static_cast<float>(c),
+                         static_cast<float>(x0),
+                         static_cast<float>(y0));
+    
+    return pattern;
+  }
+  
+  static IPattern CreateLinearGradient(float x1, float y1, float x2, float y2, std::initializer_list<IColorStop> stops)
+  {
+    IPattern pattern = CreateLinearGradient(x1, y1, x2, y2);
+    
+    for (auto& stop : stops)
+      pattern.AddStop(stop.mColor, stop.mOffset);
+    
+    return pattern;
+  }
+  
+  static IPattern CreateRadialGradient(float x1, float y1, float r)
+  {
+    IPattern pattern(kRadialPattern);
+    
+    const float s = 1.f / r;
+
+    pattern.SetTransform(s, 0, 0, s, -(x1 * s), -(y1 * s));
+    
+    return pattern;
+  }
+  
+  static IPattern CreateRadialGradient(float x1, float y1, float r, std::initializer_list<IColorStop> stops)
+  {
+    IPattern pattern = CreateRadialGradient(x1, y1, r);
+    
+    for (auto& stop : stops)
+      pattern.AddStop(stop.mColor, stop.mOffset);
+    
+    return pattern;
+  }
+  
+  int NStops() const
+  {
+    return mNStops;
+  }
+  
+  const IColorStop& GetStop(int idx) const
+  {
+    return mStops[idx];
+  }
+  
+  void AddStop(IColor color, float offset)
+  {
+    assert(mType != kSolidPattern && mNStops < 16);
+    assert(!mNStops || GetStop(mNStops - 1).mOffset < offset);
+    if (mNStops < 16)
+      mStops[mNStops++] = IColorStop(color, offset);
+  }
+  
+  void SetTransform(float xx, float yx, float xy, float yy, float x0, float y0)
+  {
+    mTransform = IMatrix(xx, yx, xy, yy, x0, y0);
+  }
+  
+  void SetTransform(const IMatrix& transform)
+  {
+    mTransform = transform;
+  }
+};
+
+/** An abstraction that is used to store a temporary raster image/framebuffer.
+ * The layer is drawn with a specific offset to the graphics context.
+ * ILayers take ownership of the underlying bitmaps
+ * In GPU-based backends (NanoVG), this is a texture. */
+class ILayer
+{
+  friend IGraphics;
+  
+public:
+  ILayer(APIBitmap* pBitmap, IRECT r)
+  : mBitmap(pBitmap)
+  , mRECT(r)
+  , mInvalid(false)
+  {}
+  
+  ILayer(const ILayer&) = delete;
+  ILayer operator =(const ILayer&) = delete;
+  
+  void Invalidate() { mInvalid = true; }
+  const APIBitmap* GetAPIBitmap() const { return mBitmap.get(); }
+  IBitmap GetBitmap() const { return IBitmap(mBitmap.get(), 1, false); }
+  const IRECT& Bounds() const { return mRECT; }
+  
+private:
+  APIBitmap* AccessAPIBitmap() { return mBitmap.get(); }
+  
+  std::unique_ptr<APIBitmap> mBitmap;
+  IRECT mRECT;
+  bool mInvalid;
+};
+
+/** ILayerPtr is a managed pointer for transferring the ownership of layers */
+typedef std::unique_ptr<ILayer> ILayerPtr;
+
+/** Used to specify a gaussian drop-shadow. */
+struct IShadow
+{
+  IShadow(const IPattern& pattern, float blurSize, float xOffset, float yOffset, float opacity, bool drawForeground = true)
+  : mPattern(pattern)
+  , mBlurSize(blurSize)
+  , mXOffset(xOffset)
+  , mYOffset(yOffset)
+  , mOpacity(opacity)
+  , mDrawForeground(drawForeground)
+  {}
+    
+  IPattern mPattern;
+  float mBlurSize = 0.f;
+  float mXOffset = 0.f;
+  float mYOffset = 0.f;
+  float mOpacity = 1.f;
+  bool mDrawForeground;
+};
+
+/** Used internally to store data statically, making sure memory is not wasted when there are multiple plug-in instances loaded */
 template <class T>
 class StaticStorage
 {

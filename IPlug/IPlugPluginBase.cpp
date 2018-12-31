@@ -8,6 +8,11 @@
  ==============================================================================
 */
 
+/**
+ * @file
+ * @brief IPluginBase implementation
+ */
+
 #include "IPlugPluginBase.h"
 #include "wdlendian.h"
 #include "wdl_base64.h"
@@ -105,9 +110,10 @@ void IPluginBase::OnParamChange(int paramIdx, EParamSource source, int sampleOff
 
 void IPluginBase::OnParamReset(EParamSource source)
 {
-  for (int i = 0; i < mParams.GetSize(); ++i)
+  for (int i = 0; i < NParams(); ++i)
   {
     OnParamChange(i, source);
+    OnParamChangeUI(i, source);
   }
 }
 
@@ -1094,7 +1100,7 @@ static const ChunkID commonChunks[kNumPresetChunks] = {
 static const int32_t kFormatVersion = 1;
 static const int32_t kClassIDSize = 32; // ASCII-encoded FUID
 static const int32_t kHeaderSize = sizeof (ChunkID) + sizeof (int32_t) + kClassIDSize + sizeof (int64_t);
-static const int32_t kListOffsetPos = kHeaderSize - sizeof (int64_t);
+//static const int32_t kListOffsetPos = kHeaderSize - sizeof (int64_t);
 
 inline bool isEqualID (const ChunkID id1, const ChunkID id2)
 {
@@ -1195,8 +1201,7 @@ bool IPluginBase::LoadProgramFromVSTPreset(const char* path)
     IByteChunk::GetIPlugVerFromChunk(pgm, pos /* updates pos */);
     pos = UnserializeVST3CtrlrState(pgm, pos);
     
-//    DirtyParameters();
-//    RedrawParamControls();
+    DirtyParametersFromUI();
     OnRestoreState();
     
     return true;

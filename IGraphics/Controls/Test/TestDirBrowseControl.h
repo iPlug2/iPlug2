@@ -10,8 +10,15 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc TestDirBrowseControl
+ */
+
 #include "IControl.h"
 
+/** Control to test IDirBrowseControlBase
+ *   @ingroup TestControls */
 class TestDirBrowseControl : public IDirBrowseControlBase
 {
 public:
@@ -43,7 +50,7 @@ public:
 
     SetDirty();
   }
-  
+
   void SetPath(const char* path)
   {
     AddPath(path, "");

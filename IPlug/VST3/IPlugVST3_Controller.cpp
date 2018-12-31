@@ -427,6 +427,21 @@ tresult PLUGIN_API IPlugVST3Controller::notify(IMessage* message)
       }
     }
   }
+  else if (!strcmp (message->getMessageID(), "SSMFD"))
+  {
+    const void* data = nullptr;
+    uint32 size;
+    int64 offset;
+    
+    if (message->getAttributes()->getBinary("D", data, size) == kResultOk)
+    {
+      if (message->getAttributes()->getInt("O", offset) == kResultOk)
+      {
+        ISysEx msg {static_cast<int>(offset), static_cast<const uint8_t*>(data), static_cast<int>(size)};
+        SendSysexMsgFromDelegate(msg);
+      }
+    }
+  }
   
   return ComponentBase::notify(message);
 }
@@ -440,6 +455,19 @@ void IPlugVST3Controller::SendMidiMsgFromUI(const IMidiMsg& msg)
   
   message->setMessageID("SMMFUI");
   message->getAttributes()->setBinary("D", (void*) &msg, sizeof(IMidiMsg));
+  sendMessage(message);
+}
+
+void IPlugVST3Controller::SendSysexMsgFromUI(const ISysEx& msg)
+{
+  OPtr<IMessage> message = allocateMessage();
+  
+  if (!message)
+    return;
+  
+  message->setMessageID ("SSMFUI");
+  message->getAttributes ()->setInt ("O", (int64) msg.mOffset);
+  message->getAttributes ()->setBinary ("D", msg.mData, msg.mSize);
   sendMessage(message);
 }
 
@@ -464,14 +492,20 @@ void IPlugVST3Controller::SendArbitraryMsgFromUI(int messageTag, int controlTag,
   sendMessage(message);
 }
 
-void IPlugVST3Controller::ResizeGraphics(int viewWidth, int viewHeight, float scale)
+void IPlugVST3Controller::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
 {
-  if(HasUI())
+  if (HasUI() && (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight()))
   {
     mView->resize(viewWidth, viewHeight);
-    
-    IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, scale);
-    OnWindowResize();
+    IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
   }
 }
 
+void IPlugVST3Controller::DirtyParametersFromUI()
+{
+  startGroupEdit();
+  
+  IPlugAPIBase::DirtyParametersFromUI();
+  
+  finishGroupEdit();
+}

@@ -43,6 +43,11 @@ then
   rm imgs@2x.js
 fi
 
+if [ -f svgs.js ]
+then
+  rm svgs.js
+fi
+
 if [ -f fonts.js ]
 then
   rm fonts.js
@@ -71,47 +76,37 @@ rm -r ./2x
 cd ..
 echo -
 
-if [ "$websocket" -eq "0" ]
+
+echo MAKING  - WAM WASM MODULE -----------------------------
+emmake make --makefile projects/IPlugEffect-wam-processor.mk
+
+if [ $? -ne "0" ]
 then
-  echo MAKING  - WAM WASM MODULE -----------------------------
-  emmake make --makefile projects/IPlugEffect-wam-processor.mk
-
-  if [ $? -ne "0" ]
-  then
-    echo IPlugWAM WASM compilation failed
-    exit 1
-  fi
-
-  cd build-web/scripts
-
-  echo "AudioWorkletGlobalScope.WAM = AudioWorkletGlobalScope.WAM || {}; AudioWorkletGlobalScope.WAM.IPlugEffect = { ENVIRONMENT: 'WEB' };" > IPlugEffect-wam.tmp.js;
-  cat IPlugEffect-wam.js >> IPlugEffect-wam.tmp.js
-  mv IPlugEffect-wam.tmp.js IPlugEffect-wam.js
-
-  cp ../../../../Dependencies/IPlug/WAM_SDK/wamsdk/*.js .
-  cp ../../../../Dependencies/IPlug/WAM_AWP/*.js .
-  cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awn.js IPlugEffect-awn.js
-  sed -i.bak s/NAME_PLACEHOLDER/IPlugEffect/g IPlugEffect-awn.js
-  cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awp.js IPlugEffect-awp.js
-  sed -i.bak s/NAME_PLACEHOLDER/IPlugEffect/g IPlugEffect-awp.js
-  rm *.bak
-  cd ..
-
-  #copy in the template html - comment if you have customised the html
-  cp ../../../IPlug/WEB/Template/IPlugWAM-standalone.html index.html
-  sed -i.bak s/NAME_PLACEHOLDER/IPlugEffect/g index.html
-  rm *.bak
-
-  cp ../../../IPlug/WEB/Template/favicon.ico favicon.ico
-
-else
-  #copy in the template html for websocket - comment if you have customised the html
-  cd build-web
-  pwd
-  cp ../../../IPlug/WEB/Template/IPlugWeb-remote.html index.html
-  sed -i.bak s/IPlugWEB/IPlugEffect/g index.html
-  rm *.bak
+  echo IPlugWAM WASM compilation failed
+  exit 1
 fi
+
+cd build-web/scripts
+
+echo "AudioWorkletGlobalScope.WAM = AudioWorkletGlobalScope.WAM || {}; AudioWorkletGlobalScope.WAM.IPlugEffect = { ENVIRONMENT: 'WEB' };" > IPlugEffect-wam.tmp.js;
+cat IPlugEffect-wam.js >> IPlugEffect-wam.tmp.js
+mv IPlugEffect-wam.tmp.js IPlugEffect-wam.js
+
+cp ../../../../Dependencies/IPlug/WAM_SDK/wamsdk/*.js .
+cp ../../../../Dependencies/IPlug/WAM_AWP/*.js .
+cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awn.js IPlugEffect-awn.js
+sed -i.bak s/NAME_PLACEHOLDER/IPlugEffect/g IPlugEffect-awn.js
+cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awp.js IPlugEffect-awp.js
+sed -i.bak s/NAME_PLACEHOLDER/IPlugEffect/g IPlugEffect-awp.js
+rm *.bak
+cd ..
+
+#copy in the template html - comment if you have customised the html
+cp ../../../IPlug/WEB/Template/IPlugWAM-standalone.html index.html
+sed -i.bak s/NAME_PLACEHOLDER/IPlugEffect/g index.html
+rm *.bak
+
+cp ../../../IPlug/WEB/Template/favicon.ico favicon.ico
 
 cd ../
 

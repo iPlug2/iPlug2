@@ -42,16 +42,18 @@
 
 #include "IGraphicsPathBase.h"
 
+/** A Cairo API bitmap
+ * @ingroup APIBitmaps */
 class CairoBitmap : public APIBitmap
 {
 public:
-  CairoBitmap(cairo_surface_t* pSurface, int scale);
+  CairoBitmap(cairo_surface_t* pSurface, int scale, float drawScale);
+  CairoBitmap(cairo_surface_t* pSurfaceType, int width, int height, int scale, float drawScale);
   virtual ~CairoBitmap();
 };
 
 /** IGraphics draw class using Cairo
-*   @ingroup DrawClasses
-*/
+*   @ingroup DrawClasses */
 class IGraphicsCairo : public IGraphicsPathBase
 {
 public:
@@ -73,25 +75,41 @@ public:
   
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return (void*) mContext; }
-
-  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
-
+    
   void EndFrame() override;
   void SetPlatformContext(void* pContext) override;
   void DrawResize() override;
 
-  void LoadFont(const char* fileName) override;
+  bool LoadFont(const char* fileName) override;
+  
+  bool BitmapExtSupported(const char* ext) override;
+
 protected:
-
-  APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
+  APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
+  APIBitmap* CreateAPIBitmap(int width, int height) override;
 
-  void SetCairoSourcePattern(const IPattern& pattern, const IBlend* pBlend);
+  int AlphaChannel() const override { return 3; }
+  bool FlippedBitmap() const override { return false; }
+
+  void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
+  void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
+    
+  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
+
+  void SetCairoSourcePattern(cairo_t* context, const IPattern& pattern, const IBlend* pBlend);
   
 private:
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
   
+  void UpdateCairoContext();
+  void UpdateCairoMainSurface(cairo_surface_t* pSurface);
+
+  void UpdateLayer() override { UpdateCairoContext(); }
+    
+  cairo_surface_t* CreateCairoDataSurface(const APIBitmap* pBitmap, RawBitmapData& data, bool resize);
+    
   cairo_t* mContext;
   cairo_surface_t* mSurface;
   

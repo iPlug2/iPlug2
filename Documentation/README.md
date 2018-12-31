@@ -1,5 +1,19 @@
 # Documentation
 
+This is the home of documentation for iPlug 2, which is a work in progress.
+
+If you're viewing this as a markdown file on github, you can see the doxygen version [here](https://iplug2.github.io/iPlug2-private/).
+
+In the future, this will include some tutorials and guides, but for now it's just the doxygen docs for the classes. Most classes and files have been entered, but many methods are not yet documented, or are documented with out of date information.
+
+In the meantime, you can read two academic papers that we wrote about the project, which are in the documentation folder, and you can watch the accompanying presentations on youtube:
+
+1 - International Faust Conference (IFC 2018) [PAPER](https://github.com/iPlug2/iPlug2-private/raw/master/Documentation/Papers/IFC2018.pdf) | [VIDEO](https://youtu.be/SLHGxBYeID4)
+
+2 - Web Audio Conference (WAC2018) [PAPER](https://github.com/iPlug2/iPlug2-private/raw/master/Documentation/Papers/WAC2018.pdf) | [VIDEO](https://youtu.be/DDrgW4Qyz8Y)
+
+
+<!--
 ## Introduction
 
 ### Requirements
@@ -9,18 +23,10 @@ iPlug 2 requires a compiler that supports C++11, and is tested with MS Visual St
 ### Where do I begin?
 See [Getting Started](md_quickstart.html) and check out the [Examples](md_examples.html)
 
-### How do I upgrade a WDL-OL/IPlug project?
+### How do I upgrade an old WDL-OL project?
 See [How to Upgrade](md_upgrade.html)
 
 ### Experienced developers
 See [Advanced Documentation](md_advanced.html) and if you would like to contribute to the project, check the [Code Style](md_codingstyle.html)
 
-## Credits
-Significant contributions over the years have come from [Theo Niessink](https://www.taletn.com), [Justin Frankel](www.askjf.com), [Julijan Nikolic](https://youlean.co/), [Alex Harker](http://www.alexanderjharker.co.uk/) and [Benjamin Klum](https://www.benjamin-klum.com/it/), amongst others. See individual source code files for any extra credits or license information.
-
-iPlug 2 uses RtAudio and RtMidi by [Gary Scavone](https://www.music.mcgill.ca/~gary/) to provide cross platform audio and MIDI I/O in standalone app builds.
-
-## License
-iPlug 2 shares the same liberal license as Cockos WDL (zlib). It can be used in a closed source product for free. A credit/thankyou in your product manual or website is appreciated, but not required.
-
-See [License](md_license.html)
+-->

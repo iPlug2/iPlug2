@@ -115,14 +115,14 @@ bool IGraphicsIOS::GetResourcePathFromUsersMusicFolder(const char* fileName, con
   return false;
 }
 
-bool IGraphicsIOS::OSFindResource(const char* name, const char* type, WDL_String& result)
+EResourceLocation IGraphicsIOS::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
   if(CStringHasContents(name))
   {
     if(GetResourcePathFromBundle(name, type, result))
-      return true;
+      return EResourceLocation::kAbsolutePath;
   }
-  return false;
+  return EResourceLocation::kNotFound;
 }
 
 void* IGraphicsIOS::OpenWindow(void* pParent)
@@ -135,7 +135,7 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
   
   OnViewInitialized([view layer]);
   
-  SetDisplayScale([UIScreen mainScreen].scale);
+  SetScreenScale([UIScreen mainScreen].scale);
   
   GetDelegate()->LayoutUI(this);
 
@@ -177,8 +177,9 @@ void IGraphicsIOS::PlatformResize()
   }
 }
 
-int IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, int type)
+int IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, EMessageBoxType type)
 {
+  //TODO
   return 0;
 }
 
@@ -208,36 +209,27 @@ bool IGraphicsIOS::PromptForColor(IColor& color, const char* str)
   return false;
 }
 
-IPopupMenu* IGraphicsIOS::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
 {
-  ReleaseMouseCapture();
-  
   IPopupMenu* pReturnMenu = nullptr;
   
-  if(mPopupControl) // if we are not using platform pop-up menus
+  if (mView)
   {
-    pReturnMenu = mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
-  }
-  else
-  {
-    if (mView)
-    {
-      CGRect areaRect = ToCGRect(this, bounds);
-      pReturnMenu = [(IGraphicsIOS_View*) mView createPopupMenu: menu: areaRect];
-    }
-    
-    //synchronous
-    if(pReturnMenu && pReturnMenu->GetFunction())
-      pReturnMenu->ExecFunction();
-    
-    if(pCaller)
-      pCaller->OnPopupMenuSelection(pReturnMenu); // should fire even if pReturnMenu == nullptr
+    CGRect areaRect = ToCGRect(this, bounds);
+    pReturnMenu = [(IGraphicsIOS_View*) mView createPopupMenu: menu: areaRect];
   }
   
+  //synchronous
+  if(pReturnMenu && pReturnMenu->GetFunction())
+    pReturnMenu->ExecFunction();
+  
+  if(pCaller)
+    pCaller->OnPopupMenuSelection(pReturnMenu); // should fire even if pReturnMenu == nullptr
+
   return pReturnMenu;
 }
 
-void IGraphicsIOS::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
+void IGraphicsIOS::CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
 {
 }
 
@@ -248,8 +240,10 @@ bool IGraphicsIOS::OpenURL(const char* url, const char* msgWindowTitle, const ch
 
 void* IGraphicsIOS::GetWindow()
 {
-  if (mView) return mView;
-  else return 0;
+  if (mView)
+    return mView;
+  else
+    return 0;
 }
 
 // static

@@ -9,6 +9,12 @@
 */
 
 #pragma once
+
+/**
+ * @file
+ * @copydoc IGraphicsPathBase
+ */
+
 #include <algorithm>
 #include <stack>
 
@@ -16,6 +22,7 @@
 
 #include "nanosvg.h"
 
+/** A base class to share implementations of IGraphics.h functionality across different path based graphics backends. */
 class IGraphicsPathBase : public IGraphics
 {
 public:
@@ -27,8 +34,8 @@ public:
   {
     //TODO: offset support
     
-    float width = (float) bitmap.W();
-    float height = (float) bitmap.H();
+    float width = bitmap.W() / bitmap.GetDrawScale();
+    float height = bitmap.H() / bitmap.GetDrawScale();
     
     PathTransformSave();
     PathTransformTranslate((float) destCtrX, (float) destCtrY);
@@ -282,13 +289,20 @@ public:
   
   void PathRoundRect(const IRECT& bounds, float ctl, float ctr, float cbl, float cbr) override
   {
-    const float y = bounds.B - bounds.H();
-    PathMoveTo(bounds.L, y + ctl);
-    PathArc(bounds.L + ctl, y + ctl, ctl, 270.f, 360.f);
-    PathArc(bounds.L + bounds.W() - ctr, y + ctr, ctr, 0.f, 90.f);
-    PathArc(bounds.L + bounds.W() - cbr, y + bounds.H() - cbr, cbr, 90.f, 180.f);
-    PathArc(bounds.L + cbl, y + bounds.H() - cbl, cbl, 180.f, 270.f);
-    PathClose();
+    if (ctl <= 0.f && ctr <= 0.f && cbl <= 0.f && cbr <= 0.f)
+    {
+      PathRect(bounds);
+    }
+    else
+    {
+      const float y = bounds.B - bounds.H();
+      PathMoveTo(bounds.L, y + ctl);
+      PathArc(bounds.L + ctl, y + ctl, ctl, 270.f, 360.f);
+      PathArc(bounds.L + bounds.W() - ctr, y + ctr, ctr, 0.f, 90.f);
+      PathArc(bounds.L + bounds.W() - cbr, y + bounds.H() - cbr, cbr, 90.f, 180.f);
+      PathArc(bounds.L + cbl, y + bounds.H() - cbl, cbl, 180.f, 270.f);
+      PathClose();
+    }
   }
   
   void PathRoundRect(const IRECT& bounds, float cr) override
@@ -331,15 +345,13 @@ public:
       PathLineTo(x[i], y[i]);
     PathClose();
   }
-  
-  // FIX - make these overrides of IGraphics
     
-  void PathTransformSave()
+  void PathTransformSave() override
   {
     mTransformStates.push(mTransform);
   }
   
-  void PathTransformRestore()
+  void PathTransformRestore() override
   {
     if (!mTransformStates.empty())
     {
@@ -349,7 +361,7 @@ public:
     }
   }
   
-  void PathTransformReset(bool clearStates = false)
+  void PathTransformReset(bool clearStates = false) override
   {
     if (clearStates)
     {
@@ -361,41 +373,58 @@ public:
     PathTransformSetMatrix(mTransform);
   }
   
-  void PathTransformTranslate(float x, float y)
+  void PathTransformTranslate(float x, float y) override
   {
     mTransform.Translate(x, y);
     PathTransformSetMatrix(mTransform);
   }
   
-  void PathTransformScale(float scaleX, float scaleY)
+  void PathTransformScale(float scaleX, float scaleY) override
   {
     mTransform.Scale(scaleX, scaleY);
     PathTransformSetMatrix(mTransform);
   }
   
-  void PathTransformScale(float scale)
+  void PathTransformScale(float scale) override
   {
     PathTransformScale(scale, scale);
   }
   
-  void PathTransformRotate(float angle)
+  void PathTransformRotate(float angle) override
   {
     mTransform.Rotate(angle);
     PathTransformSetMatrix(mTransform);
   }
+    
+  void PathTransformSkew(float xAngle, float yAngle) override
+  {
+    mTransform.Skew(xAngle, yAngle);
+    PathTransformSetMatrix(mTransform);
+  }
 
-  void PathTransformMatrix(const IMatrix& matrix)
+  void PathTransformMatrix(const IMatrix& matrix) override
   {
     mTransform.Transform(matrix);
     PathTransformSetMatrix(mTransform);
   }
 
-  void PathClipRegion(const IRECT r = IRECT())
+  void PathClipRegion(const IRECT r = IRECT()) override
   {
-    IRECT clip = r.Intersect(mClipRECT);
+    IRECT drawArea = mLayers.empty() ? mClipRECT : mLayers.top()->Bounds();
+    IRECT clip = r.Empty() ? drawArea : r.Intersect(drawArea);
     PathTransformSetMatrix(IMatrix());
     SetClipRegion(clip);
     PathTransformSetMatrix(mTransform);
+  }
+  
+  void DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend) override
+  {
+    PathTransformSave();
+    PathTransformTranslate(bounds.L, bounds.T);
+    IRECT newBounds(0., 0., bitmap.W(), bitmap.H());
+    PathTransformScale(bounds.W() / bitmap.W(), bounds.H() / bitmap.H());
+    DrawBitmap(bitmap, newBounds, 0, 0, pBlend);
+    PathTransformRestore();
   }
   
   void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override
@@ -448,7 +477,7 @@ private:
         // Copy Stops        
         for (int i = 0; i < pGrad->nstops; i++)
         {
-          int color = pGrad->stops[i].color;
+          unsigned int color = pGrad->stops[i].color;
           pattern.AddStop(IColor(255, (color >> 0) & 0xFF, (color >> 8) & 0xFF, (color >> 16) & 0xFF), pGrad->stops[i].offset);
         }
         
@@ -527,11 +556,16 @@ private:
     }
   }
   
+protected:
+    
+  float GetBackingPixelScale() const override { return GetScreenScale() * GetDrawScale(); };
+
 private:
-  
-  void ClipRegion(const IRECT& r) override
+
+  void PrepareRegion(const IRECT& r) override
   {
     PathTransformReset(true);
+    PathClear();
     SetClipRegion(r);
     mClipRECT = r;
   }

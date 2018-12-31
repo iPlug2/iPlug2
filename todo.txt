@@ -52,8 +52,8 @@ APP/IPlugAPP_dialog.cpp:586:          //TODO: open about box
 APP/IPlugAPP.cpp:40:  #define TITLEBAR_BODGE 22 //TODO: sort this out
 APP/IPlugAPP.cpp:54:    //TODO: midi out channel
 APP/IPlugAPP.cpp:78:    //TODO: midi out channel
-APP/IPlugAPP.cpp:96:  _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false); //TODO: go elsewhere - enable inputs
-APP/IPlugAPP.cpp:97:  _SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true); //TODO: go elsewhere
+APP/IPlugAPP.cpp:96:  SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false); //TODO: go elsewhere - enable inputs
+APP/IPlugAPP.cpp:97:  SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true); //TODO: go elsewhere
 APP/IPlugAPP_host.cpp:477:    //TODO: send all notes off?
 APP/IPlugAPP_host.cpp:522:      //TODO: send all notes off?
 APP/IPlugAPP_host.cpp:576:  iParams.nChannels = 2; // TODO: flexible channel count
@@ -179,14 +179,14 @@ VST2/IPlugVST2.cpp:205:        LimitToStereoIO(); //TODO:  is this still necessa
 VST2/IPlugVST2.cpp:740:        _this->ModifyCurrentPreset(); // TODO: test, something is funny about this http://forum.cockos.com/showpost.php?p=485113&postcount=22
 VST3/IPlugVST3_Processor.h:54:  uint32 PLUGIN_API getLatencySamples() override { return 0; } //TODO:
 VST3/IPlugVST3_Processor.cpp:146:  //TODO: setBusArrangements !!!
-VST3/IPlugVST3_Processor.cpp:201:  IPlugProcessor::_SetBlockSize(newSetup.maxSamplesPerBlock); // TODO: should IPlugVST3Processor call SetBlockSize in construct unlike other APIs?
+VST3/IPlugVST3_Processor.cpp:201:  IPlugProcessor::SetBlockSize(newSetup.maxSamplesPerBlock); // TODO: should IPlugVST3Processor call SetBlockSize in construct unlike other APIs?
 VST3/IPlugVST3_Processor.cpp:253:              //RestorePreset((int)round(FromNormalizedParam(value, 0, NPresets(), 1.))); // TODO
 VST3/IPlugVST3_Processor.cpp:255:              //TODO: pitch bend, modwheel etc
 VST3/IPlugVST3_Processor.cpp:447:          toAdd.noteOn.noteId = -1; // TODO ?
 VST3/IPlugVST3_Processor.cpp:457:          toAdd.noteOff.noteId = -1; // TODO ?
 VST3/IPlugVST3_Processor.cpp:467:          toAdd.polyPressure.noteId = -1; // TODO ?
 VST3/IPlugVST3.cpp:208:  //TODO: setBusArrangements !!!
-VST3/IPlugVST3.cpp:266:  IPlugProcessor::_SetBlockSize(newSetup.maxSamplesPerBlock); // TODO: should IPlugVST3 call SetBlockSizein construct unlike other APIs?
+VST3/IPlugVST3.cpp:266:  IPlugProcessor::SetBlockSize(newSetup.maxSamplesPerBlock); // TODO: should IPlugVST3 call SetBlockSizein construct unlike other APIs?
 VST3/IPlugVST3.cpp:318:              //RestorePreset((int)round(FromNormalizedParam(value, 0, NPresets(), 1.))); // TODO
 VST3/IPlugVST3.cpp:320:              //TODO: pitch bend, modwheel etc
 VST3/IPlugVST3.cpp:512:          toAdd.noteOn.noteId = -1; // TODO ?
@@ -204,10 +204,10 @@ VST3/IPlugVST3_Controller.h:80:  void SendSysexMsgFromUI(const ISysEx& msg) over
 WEB/IPlugWeb.h:31://  void BeginInformHostOfParamChangeFromUI(int paramIdx) override; // TODO: as soon as we actually have a WAM host these are needed
 WEB/IPlugWeb.h:32://  void EndInformHostOfParamChangeFromUI(int paramIdx) override; // TODO: as soon as we actually have a WAM host these are needed
 WEB/Template/IPlugWAM-webcomponent.html:1://TODO
-WEB/Template/IPlugWeb-remote.html:194:        // TODO: do not warn on ok events like simulating an infinite loop or exitStatus
+WEB/Template/IPlugWAM-standalone.html:194:        // TODO: do not warn on ok events like simulating an infinite loop or exitStatus
 WEB/IPlugWAM.cpp:50:  //TODO: correct place? - do we need a WAM reset message?
-WEB/IPlugWAM.cpp:60:  _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false); //TODO: go elsewhere - enable inputs
-WEB/IPlugWAM.cpp:61:  _SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true); //TODO: go elsewhere
+WEB/IPlugWAM.cpp:60:  SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false); //TODO: go elsewhere - enable inputs
+WEB/IPlugWAM.cpp:61:  SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true); //TODO: go elsewhere
 WEB/IPlugWAM.cpp:105:    ProcessMidiMsg(msg); // TODO: should queue to mMidiMsgsFromEditor?
 WEB/IPlugWAM.cpp:130:    //TODO
 WEB/IPlugWAM.cpp:148:  // TODO: in the future this will be done via shared array buffer
@@ -223,7 +223,7 @@ Controls/Test/TestDirBrowseControl.h:40:      mSelectedMenu = menu; // TODO: wha
 Controls/IVMultiSliderControl.h:31:  void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar = 1.) override //TODO: fixed for horizontal
 Controls/IVScopeControl.h:62:            mQueue.Push(mBuf); // TODO: expensive?
 Controls/IVMeterControl.h:69:        mQueue.Push(d); // TODO: expensive?
-Controls/IPerfDisplayControl.h:79:    // TODO: replace with IGraphics::DrawData, make it work with lice
+Controls/IFPSDisplayControl.h:79:    // TODO: replace with IGraphics::DrawData, make it work with lice
 Controls/IPopupMenuControl.cpp:523:      mCaller->OnPopupMenuSelection(pClickedMenu); // TODO: In the synchronous pop-up menu handlers it's possible for mMenu to be null, that should also be possible here if nothing was selected
 Controls/IControls.cpp:245:  mTrack = bounds; // TODO: check
 Drawing/IGraphicsAGG.h:72:  //TODO: Map type

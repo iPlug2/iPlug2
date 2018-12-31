@@ -463,7 +463,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       if (pData)
       {
         CFPropertyListRef* pList = (CFPropertyListRef*) pData;
-      *pWriteable = true;
+        *pWriteable = true;
         return GetState(pList);
       }
       return noErr;
@@ -809,7 +809,12 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       *pDataSize = sizeof(CFArrayRef);
       if (pData)
       {
+        #ifdef AU_NO_PRESETS
+        int i, n = 0;
+        #else
         int i, n = NPresets();
+        #endif
+        
         CFMutableArrayRef presetArray = CFArrayCreateMutable(kCFAllocatorDefault, n, &kCFAUPresetArrayCallBacks);
 
         if (presetArray == NULL)
@@ -1120,7 +1125,7 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     }
     case kAudioUnitProperty_SampleRate:                  // 2,
     {
-      _SetSampleRate(*((Float64*) pData));
+      SetSampleRate(*((Float64*) pData));
       OnReset();
       return noErr;
     }
@@ -1157,7 +1162,7 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         pBus->mNHostChannels = nHostChannels;
         if (pASBD->mSampleRate > 0.0)
         {
-          _SetSampleRate(pASBD->mSampleRate);
+          SetSampleRate(pASBD->mSampleRate);
         }
       }
       AssessInputConnections();
@@ -1168,7 +1173,7 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     NO_OP(kAudioUnitProperty_SupportedNumChannels);      // 13,
     case kAudioUnitProperty_MaximumFramesPerSlice:       // 14,
     {
-      _SetBlockSize(*((UInt32*) pData));
+      SetBlockSize(*((UInt32*) pData));
       ResizeScratchBuffers();
       OnReset();
       return noErr;
@@ -1181,7 +1186,7 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     case kAudioUnitProperty_BypassEffect:                // 21,
     {
       const bool bypassed = *((UInt32*) pData) != 0;
-      _SetBypassed(bypassed);
+      SetBypassed(bypassed);
       
       // TODO: should the following be called here?
       OnActivate(!bypassed);
@@ -1231,7 +1236,7 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     case kAudioUnitProperty_OfflineRender:                // 37,
     {
       const bool renderingOffline = (*((UInt32*) pData) != 0);
-      _SetRenderingOffline(renderingOffline);
+      SetRenderingOffline(renderingOffline);
       return noErr;
     }
     NO_OP(kAudioUnitProperty_ParameterStringFromValue);  // 33,
@@ -1331,7 +1336,7 @@ bool IPlugAU::CheckLegalIO()
 void IPlugAU::AssessInputConnections()
 {
   TRACE;
-  _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false);
+  SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false);
 
   int nIn = mInBuses.GetSize();
   for (int i = 0; i < nIn; ++i)
@@ -1375,8 +1380,8 @@ void IPlugAU::AssessInputConnections()
       }
       int nConnected = pInBus->mNHostChannels;
       int nUnconnected = std::max(pInBus->mNPlugChannels - nConnected, 0);
-      _SetChannelConnections(ERoute::kInput, startChannelIdx, nConnected, true);
-      _SetChannelConnections(ERoute::kInput, startChannelIdx + nConnected, nUnconnected, false);
+      SetChannelConnections(ERoute::kInput, startChannelIdx, nConnected, true);
+      SetChannelConnections(ERoute::kInput, startChannelIdx + nConnected, nUnconnected, false);
     }
 
     Trace(TRACELOC, "%d:%s:%d:%d:%d", i, AUInputTypeStr(pInBusConn->mInputType), startChannelIdx, pInBus->mNPlugChannels, pInBus->mNHostChannels);
@@ -1539,7 +1544,7 @@ OSStatus IPlugAU::SetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioU
   ENTER_PARAMS_MUTEX_STATIC;
   IParam* pParam = _this->GetParam(paramID);
   pParam->Set(value);
-  _this->_SendParameterValueFromAPI(paramID, value, false);
+  _this->SendParameterValueFromAPI(paramID, value, false);
   _this->OnParamChange(paramID, kHost);
   LEAVE_PARAMS_MUTEX_STATIC;
   return noErr;
@@ -1642,7 +1647,7 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
 
         for (int i = 0, chIdx = pInBus->mPlugChannelStartIdx; i < pInBus->mNHostChannels; ++i, ++chIdx)
         {
-          _this->_AttachBuffers(ERoute::kInput, chIdx, 1, (AudioSampleType**) &(pInBufList->mBuffers[i].mData), nFrames);
+          _this->AttachBuffers(ERoute::kInput, chIdx, 1, (AudioSampleType**) &(pInBufList->mBuffers[i].mData), nFrames);
         }
       }
     }
@@ -1657,8 +1662,8 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
     int startChannelIdx = pOutBus->mPlugChannelStartIdx;
     int nConnected = std::min<int>(pOutBus->mNHostChannels, pOutBufList->mNumberBuffers);
     int nUnconnected = std::max(pOutBus->mNPlugChannels - nConnected, 0);
-    _this->_SetChannelConnections(ERoute::kOutput, startChannelIdx, nConnected, true);
-    _this->_SetChannelConnections(ERoute::kOutput, startChannelIdx + nConnected, nUnconnected, false); // This will disconnect the right handle channel on a single stereo bus
+    _this->SetChannelConnections(ERoute::kOutput, startChannelIdx, nConnected, true);
+    _this->SetChannelConnections(ERoute::kOutput, startChannelIdx + nConnected, nUnconnected, false); // This will disconnect the right handle channel on a single stereo bus
     pOutBus->mConnected = true;
   }
 
@@ -1667,7 +1672,7 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
     if (!(pOutBufList->mBuffers[i].mData)) // Downstream unit didn't give us buffers.
       pOutBufList->mBuffers[i].mData = _this->mOutScratchBuf.Get() + chIdx * nFrames;
 
-    _this->_AttachBuffers(ERoute::kOutput, chIdx, 1, (AudioSampleType**) &(pOutBufList->mBuffers[i].mData), nFrames);
+    _this->AttachBuffers(ERoute::kOutput, chIdx, 1, (AudioSampleType**) &(pOutBufList->mBuffers[i].mData), nFrames);
   }
 
   int lastConnectedOutputBus = -1;
@@ -1692,12 +1697,12 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
     {
       int totalNumChans = _this->mOutBuses.GetSize() * 2; // stereo only for the time being
       int nConnected = busIdx1based * 2;
-      _this->_SetChannelConnections(ERoute::kOutput, nConnected, totalNumChans - nConnected, false); // this will disconnect the channels that are on the unconnected buses
+      _this->SetChannelConnections(ERoute::kOutput, nConnected, totalNumChans - nConnected, false); // this will disconnect the channels that are on the unconnected buses
     }
 
     if (_this->GetBypassed())
     {
-      _this->_PassThroughBuffers((AudioSampleType) 0, nFrames);
+      _this->PassThroughBuffers((AudioSampleType) 0, nFrames);
     }
     else
     {
@@ -1712,7 +1717,7 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
       }
       
       _this->PreProcess();
-      _this->_ProcessBuffers((AudioSampleType) 0, nFrames);
+      _this->ProcessBuffers((AudioSampleType) 0, nFrames);
     }
   }
 
@@ -1725,6 +1730,8 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
       RenderCallback(pRN, &flags, pTimestamp, outputBusIdx, nFrames, pOutBufList);
     }
   }
+  
+  _this->OutputSysexFromEditor();
 
   return noErr;
 }
@@ -1806,7 +1813,7 @@ IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 
   AssessInputConnections();
 
-  _SetBlockSize(DEFAULT_BLOCK_SIZE);
+  SetBlockSize(DEFAULT_BLOCK_SIZE);
   ResizeScratchBuffers();
   
   CreateTimer();
@@ -1938,15 +1945,6 @@ void IPlugAU::HostSpecificInit()
   OnHostIdentified(); // might get called again
 }
 
-void IPlugAU::ResizeGraphics(int viewWidth, int viewHeight, float scale)
-{
-  if (HasUI())
-  {
-    IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, scale);
-    OnWindowResize();
-  }
-}
-
 void IPlugAU::ResizeScratchBuffers()
 {
   TRACE;
@@ -2048,7 +2046,7 @@ bool IPlugAU::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
   return result;
 }
 
-bool IPlugAU::SendSysEx(ISysEx& sysEx)
+bool IPlugAU::SendSysEx(const ISysEx& sysEx)
 {
   bool result = false;
 
@@ -2083,6 +2081,19 @@ bool IPlugAU::SendSysEx(ISysEx& sysEx)
   free(pPktlist);
   
   return result;
+}
+
+void IPlugAU::OutputSysexFromEditor()
+{
+  //Output SYSEX from the editor, which has bypassed ProcessSysEx()
+  if(mSysExDataFromEditor.ElementsAvailable())
+  {
+    while (mSysExDataFromEditor.Pop(mSysexBuf))
+    {
+      ISysEx smsg {mSysexBuf.mOffset, mSysexBuf.mData, mSysexBuf.mSize};
+      SendSysEx(smsg);
+    }
+  }
 }
 
 #pragma mark - IPlugAU Dispatch

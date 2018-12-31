@@ -19,12 +19,13 @@
 #define PLUG_TYPE 0
 #define PLUG_DOES_MIDI_IN 1
 #define PLUG_DOES_MIDI_OUT 0
+#define PLUG_DOES_MPE 0
 #define PLUG_DOES_STATE_CHUNKS 0
 #define PLUG_HAS_UI 1
 #define PLUG_WIDTH 600
 #define PLUG_HEIGHT 600
 #define PLUG_FPS 60
-#define PLUG_SHARED_RESOURCES 1
+#define PLUG_SHARED_RESOURCES 0
 
 #define AUV2_ENTRY IPlugFaustDSP_Entry
 #define AUV2_ENTRY_STR "IPlugFaustDSP_Entry"
@@ -45,5 +46,6 @@
 #define APP_N_VECTOR_WAIT 0
 #define APP_MULT 1
 #define APP_COPY_AUV3 0
+#define APP_SIGNAL_VECTOR_SIZE 64
 
 #define ROBOTTO_FN "Roboto-Regular.ttf"

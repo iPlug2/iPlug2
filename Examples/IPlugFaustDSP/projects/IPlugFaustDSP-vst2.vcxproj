@@ -255,8 +255,9 @@
     <ClInclude Include="..\..\..\Dependencies\IPlug\VST2_SDK\aeffect.h" />
     <ClInclude Include="..\..\..\Dependencies\IPlug\VST2_SDK\aeffectx.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IControls.h" />
-    <ClInclude Include="..\..\..\IGraphics\Controls\IPerfDisplayControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\IFPSDisplayControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IPopupMenuControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\ITextEntryControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IVKeyboardControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IVMeterControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IVMultiSliderControl.h" />
@@ -284,7 +285,6 @@
     <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsMac_view.h" />
     <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsWeb.h" />
     <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsWin.h" />
-    <ClInclude Include="..\..\..\IPlug\Extras\MidiSynth.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugAPIBase.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugConstants.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugEditorDelegate.h" />
@@ -305,6 +305,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\IGraphics\Controls\IControls.cpp" />
     <ClCompile Include="..\..\..\IGraphics\Controls\IPopupMenuControl.cpp" />
+    <ClCompile Include="..\..\..\IGraphics\Controls\ITextEntryControl.cpp" />
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsAGG.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
@@ -357,7 +358,6 @@
     <ClCompile Include="..\..\..\IGraphics\IGraphics.cpp" />
     <ClCompile Include="..\..\..\IGraphics\IGraphicsEditorDelegate.cpp" />
     <ClCompile Include="..\..\..\IGraphics\Platforms\IGraphicsWin.cpp" />
-    <ClCompile Include="..\..\..\IPlug\Extras\MidiSynth.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugAPIBase.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugPluginBase.cpp" />

@@ -13,6 +13,20 @@
 #include "IControl.h"
 #include "IPlugParameter.h"
 
+// avoid some UNICODE issues with VST3 SDK and WDL dirscan
+#if defined VST3_API && defined OS_WIN
+  #ifdef FindFirstFile
+    #undef FindFirstFile
+    #undef FindNextFile
+    #undef WIN32_FIND_DATA
+    #undef PWIN32_FIND_DATA
+    #define FindFirstFile FindFirstFileA
+    #define FindNextFile FindNextFileA
+    #define WIN32_FIND_DATA WIN32_FIND_DATAA
+    #define LPWIN32_FIND_DATA LPWIN32_FIND_DATAA
+  #endif
+#endif
+
 #include "dirscan.h"
 
 void DefaultAnimationFunc(IControl* pCaller)
@@ -313,6 +327,7 @@ ICaptionControl::ICaptionControl(IGEditorDelegate& dlg, IRECT bounds, int paramI
   
   mDblAsSingleClick = true;
   mDisablePrompt = false;
+  mIgnoreMouse = false;
 }
 
 void ICaptionControl::OnMouseDown(float x, float y, const IMouseMod& mod)
@@ -457,8 +472,10 @@ int IDirBrowseControlBase::NItems()
   return mItems.GetSize();
 }
 
-void IDirBrowseControlBase::AddPath(const char * path, const char * label)
+void IDirBrowseControlBase::AddPath(const char* path, const char* label)
 {
+  assert(strlen(path));
+
   mPaths.Add(new WDL_String(path));
   mPathLabels.Add(new WDL_String(label));
 }
@@ -505,28 +522,28 @@ void IDirBrowseControlBase::SetUpMenu()
   CollectSortedItems(&mMainMenu);
 }
 
-void IDirBrowseControlBase::GetSelectedItemLabel(WDL_String& label)
-{
-  if (mSelectedMenu != nullptr) {
-    if(mSelectedIndex > -1)
-      label.Set(mSelectedMenu->GetItem(mSelectedIndex)->GetText());
-  }
-  else
-    label.Set("");
-}
-
-void IDirBrowseControlBase::GetSelectedItemPath(WDL_String& path)
-{
-  if (mSelectedMenu != nullptr) {
-    if(mSelectedIndex > -1) {
-      path.Set(mPaths.Get(0)->Get()); //TODO: what about multiple paths
-      path.AppendFormatted(1024, "/%s", mSelectedMenu->GetItem(mSelectedIndex)->GetText());
-      path.Append(mExtension.Get());
-    }
-  }
-  else
-    path.Set("");
-}
+//void IDirBrowseControlBase::GetSelectedItemLabel(WDL_String& label)
+//{
+//  if (mSelectedMenu != nullptr) {
+//    if(mSelectedIndex > -1)
+//      label.Set(mSelectedMenu->GetItem(mSelectedIndex)->GetText());
+//  }
+//  else
+//    label.Set("");
+//}
+//
+//void IDirBrowseControlBase::GetSelectedItemPath(WDL_String& path)
+//{
+//  if (mSelectedMenu != nullptr) {
+//    if(mSelectedIndex > -1) {
+//      path.Set(mPaths.Get(0)->Get()); //TODO: what about multiple paths
+//      path.AppendFormatted(1024, "/%s", mSelectedMenu->GetItem(mSelectedIndex)->GetText());
+//      path.Append(mExtension.Get());
+//    }
+//  }
+//  else
+//    path.Set("");
+//}
 
 void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAddTo)
 {
@@ -554,7 +571,11 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
           const char* a = strstr(f, mExtension.Get());
           if (a && a > f && strlen(a) == strlen(mExtension.Get()))
           {
-            WDL_String menuEntry = WDL_String(f, (int) (a - f));
+            WDL_String menuEntry {f};
+            
+            if(!mShowFileExtensions)
+              menuEntry.Set(f, (int) (a - f));
+            
             IPopupMenu::Item* pItem = new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize());
             parentDirMenu.AddItem(pItem, -2 /* sort alphabetically */);
             WDL_String* pFullPath = new WDL_String("");
@@ -564,8 +585,12 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
         }
       }
     } while (!d.Next());
-
+    
     menuToAddTo = parentDirMenu;
   }
+  
+  if(!mShowEmptySubmenus)
+    parentDirMenu.RemoveEmptySubmenus();
+
 #endif
 }

@@ -27,9 +27,23 @@ static std::string CanvasColor(const IColor& color, float alpha = 1.0)
   return str.Get();
 }
 
-WebBitmap::WebBitmap(emscripten::val imageCanvas, const char* name, int scale)
+CanvasBitmap::CanvasBitmap(val imageCanvas, const char* name, int scale)
 {
-  SetBitmap(new RetainVal(imageCanvas), imageCanvas["width"].as<int>(), imageCanvas["height"].as<int>(), scale);
+  SetBitmap(new val(imageCanvas), imageCanvas["width"].as<int>(), imageCanvas["height"].as<int>(), scale, 1.f);
+}
+
+CanvasBitmap::CanvasBitmap(int width, int height, int scale, float drawScale)
+{
+  val canvas = val::global("document").call<val>("createElement", std::string("canvas"));
+  canvas.set("width", width);
+  canvas.set("height", height);
+
+  SetBitmap(new val(canvas), width, height, scale, drawScale);
+}
+
+CanvasBitmap::~CanvasBitmap()
+{
+  delete GetBitmap();
 }
 
 IGraphicsCanvas::IGraphicsCanvas(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
@@ -44,19 +58,16 @@ IGraphicsCanvas::~IGraphicsCanvas()
 void IGraphicsCanvas::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend)
 {
   val context = GetContext();
-  RetainVal* pRV = (RetainVal*) bitmap.GetAPIBitmap()->GetBitmap();
+  val img = *bitmap.GetAPIBitmap()->GetBitmap();
   GetContext().call<void>("save");
   SetCanvasBlendMode(pBlend);
   context.set("globalAlpha", BlendWeight(pBlend));
-  
-  const float ds = GetDisplayScale();
+    
+  const float bs = bitmap.GetScale();
   IRECT sr = bounds;
-  sr.Scale(ds);
-  
-  srcX *= ds;
-  srcY *= ds;
-  
-  context.call<void>("drawImage", pRV->mItem, srcX, srcY, sr.W(), sr.H(), floor(bounds.L), floor(bounds.T), floor(bounds.W()), floor(bounds.H()));
+  sr.Scale(bs * bitmap.GetDrawScale());
+
+  context.call<void>("drawImage", img, srcX * bs, srcY * bs, sr.W(), sr.H(), bounds.L, bounds.T, bounds.W(), bounds.H());
   GetContext().call<void>("restore");
 }
 
@@ -124,7 +135,7 @@ void IGraphicsCanvas::PathStroke(const IPattern& pattern, float thickness, const
   context.set("lineDashOffset", options.mDash.GetOffset());
   context.set("lineWidth", thickness);
   
-  SetCanvasSourcePattern(pattern, pBlend);
+  SetCanvasSourcePattern(context, pattern, pBlend);
 
   context.call<void>("stroke");
   
@@ -137,7 +148,7 @@ void IGraphicsCanvas::PathFill(const IPattern& pattern, const IFillOptions& opti
   val context = GetContext();
   std::string fillRule(options.mFillRule == kFillWinding ? "nonzero" : "evenodd");
   
-  SetCanvasSourcePattern(pattern, pBlend);
+  SetCanvasSourcePattern(context, pattern, pBlend);
 
   context.call<void>("fill", fillRule);
 
@@ -145,22 +156,8 @@ void IGraphicsCanvas::PathFill(const IPattern& pattern, const IFillOptions& opti
     PathClear();
 }
 
-void IGraphicsCanvas::SetCanvasSourcePattern(const IPattern& pattern, const IBlend* pBlend)
+void IGraphicsCanvas::SetCanvasSourcePattern(val& context, const IPattern& pattern, const IBlend* pBlend)
 {
-  auto InvertTransform = [](float *xform, const float *xformIn)
-  {
-    double d = 1.0 / (xformIn[0] * xformIn[3] - xformIn[1] * xformIn[2]);
-    
-    xform[0] = xformIn[3] * d;
-    xform[1] = -xformIn[2] * d;
-    xform[2] = -xformIn[1] * d;
-    xform[3] =  xformIn[0] * d;
-    xform[4] = (-xformIn[4] * xformIn[3] * d) - (xformIn[5] * (-xformIn[2] * d));
-    xform[5] = (-xformIn[4] * (xformIn[1] * d)) - (xformIn[5] * (xformIn[0] * d));
-  };
-  
-  val context = GetContext();
-  
   SetCanvasBlendMode(pBlend);
   
   switch (pattern.mType)
@@ -178,12 +175,14 @@ void IGraphicsCanvas::SetCanvasSourcePattern(const IPattern& pattern, const IBle
     case kLinearPattern:
     case kRadialPattern:
     {
-      float xform[6];
-      InvertTransform(xform, pattern.mTransform);
+      double x, y;
+      IMatrix m = IMatrix(pattern.mTransform).Invert();
+      m.TransformPoint(x, y, 0.0, 1.0);
+        
       val gradient = (pattern.mType == kLinearPattern) ?
-        context.call<val>("createLinearGradient", xform[4], xform[5], xform[0] + xform[4], xform[1] + xform[5]) :
-        context.call<val>("createRadialGradient", xform[4], xform[5], 0.0, xform[4], xform[5], xform[0]);
-      
+        context.call<val>("createLinearGradient", m.mTX, m.mTY, x, y) :
+        context.call<val>("createRadialGradient", m.mTX, m.mTY, 0.0, m.mTX, m.mTY, m.mXX);
+        
       /*
       switch (pattern.mExtend)
       {
@@ -215,7 +214,7 @@ void IGraphicsCanvas::SetCanvasBlendMode(const IBlend* pBlend)
   {
     case kBlendClobber:     GetContext().set("globalCompositeOperation", "source-over");   break;
     case kBlendAdd:         GetContext().set("globalCompositeOperation", "lighter");       break;
-    case kBlendColorDodge:  GetContext().set("globalCompositeOperation", "source-over");   break;
+    case kBlendColorDodge:  GetContext().set("globalCompositeOperation", "color-dodge");   break;
     case kBlendNone:
     default:
       GetContext().set("globalCompositeOperation", "source-over");
@@ -268,7 +267,7 @@ bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
     PathRect(bounds);
     context.call<void>("clip");
     PathClear();
-    SetCanvasSourcePattern(text.mFGColor, pBlend);
+    SetCanvasSourcePattern(context, text.mFGColor, pBlend);
     context.call<void>("fillText", textString, x, y);
     context.call<void>("restore");
   }
@@ -278,11 +277,10 @@ bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
 
 void IGraphicsCanvas::PathTransformSetMatrix(const IMatrix& m)
 {
-  IMatrix t;
-  t.Scale(GetScale() * GetDisplayScale(), GetScale() * GetDisplayScale());
-  t.Transform(m);
+  const double scale = GetBackingPixelScale();
+  IMatrix t = IMatrix().Scale(scale, scale).Translate(XTranslate(), YTranslate()).Transform(m);
 
-  GetContext().call<void>("setTransform", t.mTransform[0], t.mTransform[1], t.mTransform[2], t.mTransform[3], t.mTransform[4], t.mTransform[5]);
+  GetContext().call<void>("setTransform", t.mXX, t.mYX, t.mYX, t.mYY, t.mTX, t.mTY);
 }
 
 void IGraphicsCanvas::SetClipRegion(const IRECT& r)
@@ -299,9 +297,16 @@ void IGraphicsCanvas::SetClipRegion(const IRECT& r)
   }
 }
 
-APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
+bool IGraphicsCanvas::BitmapExtSupported(const char* ext)
 {
-  return new WebBitmap(GetPreloadedImages()[resourcePath.Get()], resourcePath.Get() + 1, scale);
+  char extLower[32];
+  ToLower(extLower, ext);
+  return (strstr(extLower, "png") != nullptr) || (strstr(extLower, "jpg") != nullptr) || (strstr(extLower, "jpeg") != nullptr);
+}
+
+APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext)
+{
+  return new CanvasBitmap(GetPreloadedImages()[fileNameOrResID], fileNameOrResID + 1, scale);
 }
 
 APIBitmap* IGraphicsCanvas::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
@@ -309,20 +314,20 @@ APIBitmap* IGraphicsCanvas::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 //  int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
 //  int destH = (pBitmap->GetHeight() / pBitmap->GetScale()) * scale;
 //
-//  RetainVal* imgSrc = (RetainVal*)pBitmap->GetBitmap();
+//  val imgSrc = *pBitmap->GetBitmap();
 //
 //  // Make an offscreen canvas and resize
 //  val documentHead = val::global("document")["head"];
 //  val canvas = GetCanvas();
 //  documentHead.call<val>("appendChild", canvas);
 //  val canvasNode = documentHead["lastChild"];
-//  val context = canvas.call<emscripten::val>("getContext", std::string("2d"));
+//  val context = canvas.call<val>("getContext", std::string("2d"));
 //  context.set("width", destW);
 //  context.set("height", destH);
 //
 //  // Scale and draw
 //  context.call<void>("scale", scale / pBitmap->GetScale(), scale / pBitmap->GetScale());
-//  context.call<void>("drawImage", imgSrc->mItem, 0, 0);
+//  context.call<void>("drawImage", imgSrc, 0, 0);
 //
 //  // Copy to an image
 //  val img = val::global("Image").new_();
@@ -331,5 +336,76 @@ APIBitmap* IGraphicsCanvas::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 //  // Delete the canvas
 //  documentHead.call<val>("removeChild", canvasNode);
 
-  return new WebBitmap(GetPreloadedImages()[""], "", scale);
+  return new CanvasBitmap(GetPreloadedImages()[""], "", scale);
+}
+
+APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height)
+{
+  const double scale = GetBackingPixelScale();
+  return new CanvasBitmap(std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
+}
+
+void IGraphicsCanvas::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
+{
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
+  int size = pBitmap->GetWidth() * pBitmap->GetHeight() * 4;
+  val context = pBitmap->GetBitmap()->call<val>("getContext", std::string("2d"));
+  val imageData = context.call<val>("getImageData", 0, 0, pBitmap->GetWidth(), pBitmap->GetHeight());
+  val pixelData = imageData["data"];
+  data.Resize(size);
+  
+  // Copy pixels from context
+  
+  if (data.GetSize() >= size)
+  {
+    unsigned char* out = data.Get();
+    
+    for (auto i = 0; i < size; i++)
+      out[i] = pixelData[i].as<unsigned char>();
+  }
+}
+
+void IGraphicsCanvas::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow)
+{
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
+  int size = pBitmap->GetWidth() * pBitmap->GetHeight() * 4;
+  
+  if (mask.GetSize() >= size)
+  {
+    int width = pBitmap->GetWidth();
+    int height = pBitmap->GetHeight();
+    double scale = pBitmap->GetScale() * pBitmap->GetDrawScale();
+    double x = shadow.mXOffset * scale;
+    double y = shadow.mYOffset * scale;
+    val layerCanvas = *pBitmap->GetBitmap();
+    val layerContext = layerCanvas.call<val>("getContext", std::string("2d"));
+    layerContext.call<void>("setTransform");
+    
+    if (!shadow.mDrawForeground)
+    {
+      layerContext.call<void>("clearRect", 0, 0, width, height);
+    }
+    
+    CanvasBitmap localBitmap(width, height, pBitmap->GetScale(), pBitmap->GetDrawScale());
+    val localCanvas = *localBitmap.GetBitmap();
+    val localContext = localCanvas.call<val>("getContext", std::string("2d"));
+    val imageData = localContext.call<val>("createImageData", width, height);
+    val pixelData = imageData["data"];
+    unsigned char* in = mask.Get();
+    
+    for (auto i = 0; i < size; i++)
+      pixelData.set(i, in[i]);
+    
+    localContext.call<void>("putImageData", imageData, 0, 0);
+    IBlend blend(kBlendNone, shadow.mOpacity);
+    localContext.call<void>("rect", 0, 0, width, height);
+    localContext.call<void>("scale", scale, scale);
+    localContext.call<void>("translate", -layer->Bounds().L, -layer->Bounds().T);
+    SetCanvasSourcePattern(localContext, shadow.mPattern, &blend);
+    localContext.set("globalCompositeOperation", "source-in");
+    localContext.call<void>("fill");
+    
+    layerContext.set("globalCompositeOperation", "destination-over");
+    layerContext.call<void>("drawImage", localCanvas, 0, 0, width, height, x, y, width, height);
+  }
 }

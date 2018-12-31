@@ -9,6 +9,12 @@
 */
 
 #pragma once
+
+/**
+ * @file
+ * @copydoc IEditorDelegate
+ */
+
 #include <cassert>
 #include <cstring>
 #include <stdint.h>
@@ -17,6 +23,7 @@
 
 #include "IPlugParameter.h"
 #include "IPlugMidi.h"
+#include "IPlugStructs.h"
 
 /** This pure virtual interface delegates communication in both directions between a UI editor and something else (which is usually a plug-in)
  *  It is also the class that owns parameter objects (for historical reasons) - although it's not necessary to allocate them
@@ -35,7 +42,6 @@
  *  A parameter VALUE is a floating point number linked to an integer parameter index. TODO: Normalised ?
  *  A parameter OBJECT (IParam) is an instance of the IParam class as defined in IPlugParameter.h
  *  A parameter OBJECT is also referred to as a "param", in method names such as IEditorDelegate::GetParam(int paramIdx) and IControl::GetParam(). */
-
 class IEditorDelegate
 {
 public:
@@ -68,22 +74,25 @@ public:
   /** @return Returns the number of parameters that belong to the plug-in. */
   int NParams() const { return mParams.GetSize(); }
   
-#pragma mark - Methods you may want to override...
-  
-  /** Override this method when not using IGraphics in order to hook into the native parent view e.g. NSView, UIView, HWND */
-  virtual void* OpenWindow(void* pParent) { return nullptr; }
-  
-  /** Override this method when not using IGraphics if you need to free resources etc when the window closes */
-  virtual void CloseWindow() {};
-  
-  /** Override this method to do something before the UI is opened. Call base implementations. */
-  virtual void OnUIOpen()
+  /** Loops through all parameters, calling SendParameterValueFromDelegate() with the current value of the parameter
+   *  This is important when modifying groups of parameters, restoring state and opening the UI, in order to update it with the latest values*/
+  void SendCurrentParamValuesFromDelegate()
   {
-    for (auto i = 0; i < NParams(); ++i)
+    for (int i = 0; i < NParams(); ++i)
     {
       SendParameterValueFromDelegate(i, GetParam(i)->GetNormalized(), true);
     }
-  };
+  }
+  
+  /** If you are not using IGraphics, you can implement this method to attach to the native parent view e.g. NSView, UIView, HWND */
+  virtual void* OpenWindow(void* pParent) { OnUIOpen(); return nullptr; }
+  
+  /** If you are not using IGraphics you can if you need to free resources etc when the window closes. Call base implementation. */
+  virtual void CloseWindow() { OnUIClose(); }
+  
+#pragma mark - Methods you may want to override...
+  /** Override this method to do something before the UI is opened. Call base implementation. */
+  virtual void OnUIOpen() { SendCurrentParamValuesFromDelegate(); }
   
   /** Override this method to do something before the UI is closed. */
   virtual void OnUIClose() {};
@@ -105,8 +114,9 @@ public:
   virtual bool OnMessage(int messageTag, int controlTag, int dataSize, const void* pData) { return false; }
   
   /** This is called by API classes after restoring state and by IPluginBase::RestorePreset(). Typically used to update user interface, where multiple parameter values have changed.
-   * If you need to do something when state is restored you can override it */
-  virtual void OnRestoreState() {};
+   * If you need to do something when state is restored you can override it
+   * If you override this method you should call this parent, or implement the same functionality in order to get controls to update, when state is restored. */
+  virtual void OnRestoreState() { SendCurrentParamValuesFromDelegate(); };
   
 #pragma mark - Methods for sending values TO the user interface
   /** SendControlValueFromDelegate (Abbreviation: SCVFD)
@@ -148,7 +158,7 @@ public:
   virtual void SendSysexMsgFromDelegate(const ISysEx& msg) { OnSysexMsgUI(msg); }
   
   /** This method is called by the class implementing the delegate interface (not the plug-in API class) in order to update the user interface with the new parameter values, typically after automation.
-   * This method should only be called from the main thread. The similarly named IPlugAPIBase::_SendParameterValueFromAPI() should take care of queueing and deferring, if there is no main thread notification from the API
+   * This method should only be called from the main thread. The similarly named IPlugAPIBase::SendParameterValueFromAPI() should take care of queueing and deferring, if there is no main thread notification from the API
    * If you override this method you should call the base class implementation to make sure OnParamChangeUI gets triggered
    * In IGraphics plug-ins, this will update any IControls that have their mParamIdx set > -1
    * @param paramIdx The index of the parameter to be updated
@@ -184,9 +194,13 @@ public:
    * @param paramIdx The index of the parameter that is changing value */
   virtual void EndInformHostOfParamChangeFromUI(int paramIdx) = 0;
   
-  /** Sometimes when a plug-in wants to change its UI dimensions we need to call into the plug-in API class first when we click a button in our UI
+  /** When modifying a range of parameters in the editor, it can be necessary to broadcast that fact, for instance in a distributed plug-in.
+   *  You can use it if you restore a preset using a custom preset mechanism. */
+  virtual void DirtyParametersFromUI() {};
+  
+  /** If the editor changes UI dimensions or other state we need to call into the plug-in API to store state or resize the window in the plugin
    * This method is implemented in various classes that inherit this interface to implement that behaviour */
-  virtual void ResizeGraphicsFromUI(int viewWidth, int viewHeight, float scale) {};
+  virtual void EditorPropertiesChangedFromUI(int viewWidth, int viewHeight, const IByteChunk& data) {};
   
   /** SendMidiMsgFromUI (Abbreviation: SMMFUI)
    * This method should be used  when  sending a MIDI message from the UI. For example clicking on a key in a virtual keyboard.
@@ -207,7 +221,6 @@ public:
   * @param dataSize The size in bytes of the data payload pointed to by pData. Note: if this is nonzero, pData must be valid.
   * @param pData Ptr to the opaque data payload for the message */
   virtual void SendArbitraryMsgFromUI(int messageTag, int controlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) {};
-
 #pragma mark -
   /** This method is needed, for remote editors to avoid a feedback loop */
   virtual void DeferMidiMsg(const IMidiMsg& msg) {};
@@ -221,16 +234,16 @@ public:
   /** @return The height of the plug-in editor in pixels */
   int GetEditorHeight() const { return mEditorHeight; }
   
-  /** @return Any scaling applied to the UI  */
-  float GetEditorScale() const { return mEditorScale; }
+  /** @return An IByteChunk with any arbitrary data that the editor wishes to store  */
+  const IByteChunk& GetEditorData() const { return mEditorData; }
   
 protected:
-  /** The width of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist.  */
+  /** The width of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist. */
   int mEditorWidth = 0;
-  /** The height of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist*/
+  /** The height of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist */
   int mEditorHeight = 0;
-  /** Any scaling of the plug-in editor. Can be updated by resizing, exists here for persistance, even if UI doesn't exist*/
-  float mEditorScale = 1.f;
+  /** Any arbitrary data that the editor need to store (e.g. scale etc.) */
+  IByteChunk mEditorData;
   /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plug-in class implementation constructor */
   WDL_PtrList<IParam> mParams;
 };

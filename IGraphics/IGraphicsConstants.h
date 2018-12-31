@@ -77,6 +77,8 @@ enum EBlendType
   kBlendClobber,  // Copy completely over whatever is already there.
   kBlendAdd,
   kBlendColorDodge,
+  kBlendUnder,
+  kBlendSourceIn,
   // etc
 };
 
@@ -90,6 +92,13 @@ enum EDirection
 {
   kVertical = 0,
   kHorizontal = 1
+};
+
+enum EResourceLocation
+{
+  kNotFound = 0,
+  kAbsolutePath,
+  kWinBinary
 };
 
 enum EVColor
@@ -166,4 +175,29 @@ enum ECursor
   APPSTARTING,
   HELP
 };
+
+// This enumeration must match win32 message box options
+enum EMessageBoxType
+{
+  kMB_OK = 0,
+  kMB_OKCANCEL = 1,
+  kMB_YESNOCANCEL = 3,
+  kMB_YESNO = 4,
+  kMB_RETRYCANCEL = 5
+};
+
+// This enumeration must match win32 message box results
+enum EMessageBoxResult
+{
+  kOK = 1,
+  kCANCEL = 2,
+  kABORT = 3,
+  kRETRY = 4,
+  kIGNORE = 5,
+  kYES = 6,
+  kNO = 7
+};
+
+static const char* kMessageResultStrs[8] = {"", "OK", "CANCEL", "ABORT", "RETRY", "IGNORE", "YES", "NO"};
+
 

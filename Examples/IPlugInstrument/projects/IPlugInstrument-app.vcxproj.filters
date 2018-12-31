@@ -47,9 +47,6 @@
     <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\Extras\MidiSynth.cpp">
-      <Filter>IPlug\Extras</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP.cpp">
       <Filter>IPlug\APP</Filter>
     </ClCompile>
@@ -84,6 +81,15 @@
       <Filter>IGraphics\Controls</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IGraphics\Controls\IPopupMenuControl.cpp">
+      <Filter>IGraphics\Controls</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\Synth\MidiSynth.cpp">
+      <Filter>IPlug\Extras\Synth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\Synth\VoiceAllocator.cpp">
+      <Filter>IPlug\Extras\Synth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Controls\ITextEntryControl.cpp">
       <Filter>IGraphics\Controls</Filter>
     </ClCompile>
   </ItemGroup>
@@ -200,9 +206,6 @@
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_src.h">
       <Filter>IPlug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\Extras\MidiSynth.h">
-      <Filter>IPlug\Extras</Filter>
-    </ClInclude>
     <ClInclude Include="../config.h" />
     <ClInclude Include="..\..\..\IPlug\APP\IPlugAPP.h">
       <Filter>IPlug\APP</Filter>
@@ -252,7 +255,7 @@
     <ClInclude Include="..\..\..\IGraphics\Controls\IControls.h">
       <Filter>IGraphics\Controls</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Controls\IPerfDisplayControl.h">
+    <ClInclude Include="..\..\..\IGraphics\Controls\IFPSDisplayControl.h">
       <Filter>IGraphics\Controls</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Controls\IPopupMenuControl.h">
@@ -268,6 +271,21 @@
       <Filter>IGraphics\Controls</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Controls\IVScopeControl.h">
+      <Filter>IGraphics\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\Extras\Synth\ControlRamp.h">
+      <Filter>IPlug\Extras\Synth</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\Extras\Synth\MidiSynth.h">
+      <Filter>IPlug\Extras\Synth</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\Extras\Synth\SynthVoice.h">
+      <Filter>IPlug\Extras\Synth</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\Extras\Synth\VoiceAllocator.h">
+      <Filter>IPlug\Extras\Synth</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\ITextEntryControl.h">
       <Filter>IGraphics\Controls</Filter>
     </ClInclude>
   </ItemGroup>
@@ -305,6 +323,9 @@
     <Filter Include="IPlug\APP\RTAudioMidi\include">
       <UniqueIdentifier>{649c5de3-b4c2-4de9-8d57-3b1762646259}</UniqueIdentifier>
     </Filter>
+    <Filter Include="IPlug\Extras\Synth">
+      <UniqueIdentifier>{fc763cd3-cc76-4d31-9ba4-a4e7361e4adf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resources\main.rc">
@@ -322,7 +343,7 @@
       <Filter>config</Filter>
     </None>
     <None Include="..\config\IPlugInstrument-win.props">
-      <Filter>IGraphics</Filter>
+      <Filter>config</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

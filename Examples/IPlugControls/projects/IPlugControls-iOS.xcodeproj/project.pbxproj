@@ -67,12 +67,13 @@
 		4F9A8309213DE87600BE63A4 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F9A8300213DE87600BE63A4 /* IControls.cpp */; };
 		4F9A830A213DE87600BE63A4 /* IPopupMenuControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F9A8301213DE87600BE63A4 /* IPopupMenuControl.cpp */; };
 		4F9A830B213DE87600BE63A4 /* IControls.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8302213DE87600BE63A4 /* IControls.h */; };
-		4F9A830C213DE87600BE63A4 /* IPerfDisplayControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8303213DE87600BE63A4 /* IPerfDisplayControl.h */; };
+		4F9A830C213DE87600BE63A4 /* IFPSDisplayControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8303213DE87600BE63A4 /* IFPSDisplayControl.h */; };
 		4F9A830D213DE87600BE63A4 /* IVMeterControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8304213DE87600BE63A4 /* IVMeterControl.h */; };
 		4F9A830E213DE87600BE63A4 /* IVKeyboardControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8305213DE87600BE63A4 /* IVKeyboardControl.h */; };
 		4F9A830F213DE87600BE63A4 /* IVScopeControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8306213DE87600BE63A4 /* IVScopeControl.h */; };
 		4FA758462186222E00F1BCC3 /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FA758452186222E00F1BCC3 /* IPlugPaths.mm */; };
 		4FB2269720A0D3A800614769 /* IPlugControls-iOS-launchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* IPlugControls-iOS-launchScreen.storyboard */; };
+		4FCE29BA21D6ECCA004BCBA1 /* ITextEntryControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCE29B821D6ECC3004BCBA1 /* ITextEntryControl.cpp */; };
 		4FE8F3B120BA273800BF938F /* IGraphicsEditorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FE8F3AF20BA273800BF938F /* IGraphicsEditorDelegate.cpp */; };
 		4FE8F3B220BA273800BF938F /* IGraphicsEditorDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE8F3B020BA273800BF938F /* IGraphicsEditorDelegate.h */; };
 		4FFF104120A0E55A00D3092F /* IPlugConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF103020A0E55900D3092F /* IPlugConstants.h */; };
@@ -259,7 +260,7 @@
 		4F9A8300213DE87600BE63A4 /* IControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IControls.cpp; sourceTree = "<group>"; };
 		4F9A8301213DE87600BE63A4 /* IPopupMenuControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPopupMenuControl.cpp; sourceTree = "<group>"; };
 		4F9A8302213DE87600BE63A4 /* IControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControls.h; sourceTree = "<group>"; };
-		4F9A8303213DE87600BE63A4 /* IPerfDisplayControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPerfDisplayControl.h; sourceTree = "<group>"; };
+		4F9A8303213DE87600BE63A4 /* IFPSDisplayControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IFPSDisplayControl.h; sourceTree = "<group>"; };
 		4F9A8304213DE87600BE63A4 /* IVMeterControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVMeterControl.h; sourceTree = "<group>"; };
 		4F9A8305213DE87600BE63A4 /* IVKeyboardControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVKeyboardControl.h; sourceTree = "<group>"; };
 		4F9A8306213DE87600BE63A4 /* IVScopeControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVScopeControl.h; sourceTree = "<group>"; };
@@ -269,6 +270,8 @@
 		4FBBD7F420B6ABE700A37DE2 /* config */ = {isa = PBXFileReference; lastKnownFileType = folder; name = config; path = ../config; sourceTree = "<group>"; };
 		4FC82B4720BD524700722133 /* img */ = {isa = PBXFileReference; lastKnownFileType = folder; name = img; path = ../resources/img; sourceTree = "<group>"; };
 		4FC82B4820BD524700722133 /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fonts; path = ../resources/fonts; sourceTree = "<group>"; };
+		4FCE29B721D6ECC3004BCBA1 /* ITextEntryControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ITextEntryControl.h; sourceTree = "<group>"; };
+		4FCE29B821D6ECC3004BCBA1 /* ITextEntryControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ITextEntryControl.cpp; sourceTree = "<group>"; };
 		4FDA600520B5868D00C49ABA /* IPlugControls-ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "IPlugControls-ios.xcconfig"; path = "../config/IPlugControls-ios.xcconfig"; sourceTree = "<group>"; };
 		4FE8F3AF20BA273800BF938F /* IGraphicsEditorDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsEditorDelegate.cpp; sourceTree = "<group>"; };
 		4FE8F3B020BA273800BF938F /* IGraphicsEditorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsEditorDelegate.h; sourceTree = "<group>"; };
@@ -424,9 +427,11 @@
 		4F63699620A463AF0022C370 /* Controls */ = {
 			isa = PBXGroup;
 			children = (
+				4FCE29B821D6ECC3004BCBA1 /* ITextEntryControl.cpp */,
+				4FCE29B721D6ECC3004BCBA1 /* ITextEntryControl.h */,
 				4F9A8300213DE87600BE63A4 /* IControls.cpp */,
 				4F9A8302213DE87600BE63A4 /* IControls.h */,
-				4F9A8303213DE87600BE63A4 /* IPerfDisplayControl.h */,
+				4F9A8303213DE87600BE63A4 /* IFPSDisplayControl.h */,
 				4F9A8301213DE87600BE63A4 /* IPopupMenuControl.cpp */,
 				4F9A82FE213DE87600BE63A4 /* IPopupMenuControl.h */,
 				4F9A8305213DE87600BE63A4 /* IVKeyboardControl.h */,
@@ -650,7 +655,7 @@
 				4FFF105C20A0E57100D3092F /* IPlugAUAudioUnit.h in Headers */,
 				4F048C9720B1E74F002052E7 /* IPlugControlsFramework.h in Headers */,
 				4F977D6020CC9DD800D19F46 /* FPUUpsampler2x.h in Headers */,
-				4F9A830C213DE87600BE63A4 /* IPerfDisplayControl.h in Headers */,
+				4F9A830C213DE87600BE63A4 /* IFPSDisplayControl.h in Headers */,
 				4FFF108920A1036200D3092F /* config.h in Headers */,
 				4F8028CC20A24FA9003A66EC /* fontstash.h in Headers */,
 				4F9A830B213DE87600BE63A4 /* IControls.h in Headers */,
@@ -928,6 +933,7 @@
 				4F23CECD20B20C7C00E8B70F /* IGraphicsIOS_view.mm in Sources */,
 				4F23CECE20B20C9300E8B70F /* nanovg_mtl.m in Sources */,
 				4FFF104320A0E55A00D3092F /* IPlugParameter.cpp in Sources */,
+				4FCE29BA21D6ECCA004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4FFF105B20A0E57100D3092F /* IPlugAUAudioUnit.mm in Sources */,
 				4F9A8309213DE87600BE63A4 /* IControls.cpp in Sources */,
 				4F23CECC20B20C7C00E8B70F /* IGraphicsIOS.mm in Sources */,

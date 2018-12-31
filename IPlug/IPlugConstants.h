@@ -12,7 +12,9 @@
 
 /**
  * @file
- * @brief Constant definitions, Types, magic numbers
+ * @brief IPlug Constant definitions, Types, magic numbers
+ * @defgroup IPlugConstants IPlug::Constants
+ * @{
  */
 
 #if !defined(SAMPLE_TYPE_FLOAT) && !defined(SAMPLE_TYPE_DOUBLE)
@@ -38,21 +40,6 @@ enum EIPlugPluginType
   kEffect = 0,
   kInstrument = 1,
   kMIDIEffect = 2
-};
-
-enum EIPlugKeyCodes
-{
-  KEY_TAB,
-  KEY_SPACE,
-  KEY_UPARROW,
-  KEY_DOWNARROW,
-  KEY_LEFTARROW,
-  KEY_RIGHTARROW,
-  KEY_DIGIT_0,
-  KEY_DIGIT_9=KEY_DIGIT_0+9,
-  KEY_ALPHA_A,
-  KEY_ALPHA_Z=KEY_ALPHA_A+25,
-  KEY_NONE
 };
 
 enum EVST3ParamIDs
@@ -118,8 +105,14 @@ static const int MAX_PARAM_DISPLAY_PRECISION = 6;
 #define IDLE_TIMER_RATE 20 // this controls the frequency of data going from processor to editor (and OnIdle calls)
 #endif
 
+#ifndef MAX_SYSEX_SIZE
+#define MAX_SYSEX_SIZE 512
+#endif
+
 #define PARAM_TRANSFER_SIZE 512
 #define MIDI_TRANSFER_SIZE 32
+#define SYSEX_TRANSFER_SIZE 4
+
 // All version ints are stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision.
 #define IPLUG_VERSION 0x010000
 #define IPLUG_VERSION_MAGIC 'pfft'
@@ -233,4 +226,5 @@ enum EHost
   // MiniHost
 };
 
+/**@}*/
 

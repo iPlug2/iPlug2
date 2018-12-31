@@ -27,16 +27,15 @@ public:
   IGEditorDelegate(int nParams);
   ~IGEditorDelegate();
 
-// IEditorDelegate
-  void* OpenWindow(void* pHandle) override;
-  void CloseWindow() override;
+  //IEditorDelegate
+  void* OpenWindow(void* pHandle) final override;
+  void CloseWindow() final override;
+  //The rest should be final, but the WebSocketEditorDelegate needs to override them
   virtual void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;
   virtual void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize = 0, const void* pData = nullptr) override;
   virtual void SendMidiMsgFromDelegate(const IMidiMsg& msg) override;
-  void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
-  /** If you override this method you should call this parent, or implement the same functionality in order to get controls to update, when state is restored. */
-  virtual void OnRestoreState() override;
-  
+  virtual void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
+
   /** If you override this method you must call the parent! */
   virtual void OnUIOpen() override;
 
@@ -63,11 +62,26 @@ public:
   
   /** Get a pointer to the IGraphics context */
   IGraphics* GetUI() { return mGraphics; };
+
+  /** Called when the IGraphics context properties are changed */
+  void EditorPropertiesModified();
   
+  /** Override this method to serialize custom editor state data.
+  * @param chunk The output bytechunk where data can be serialized
+  * @return \c true if serialization was successful*/
+  virtual bool SerializeEditorProperties(IByteChunk& chunk) { TRACE; return true; }
+    
+  /** Override this method to unserialize custom editor state data
+  * @param chunk The incoming chunk containing the state data.
+  * @param startPos The position in the chunk where the data starts
+  * @return The new chunk position (endPos)*/
+  virtual int UnSerializeEditorProperties(const IByteChunk& chunk, int startPos) { TRACE; return startPos; }
+    
 protected:
   std::function<IGraphics*()> mMakeGraphicsFunc = nullptr;
   std::function<void(IGraphics* pGraphics)> mLayoutFunc = nullptr;
 private:
+
   IGraphics* mGraphics = nullptr;
   bool mIGraphicsTransient = false; // If creating IGraphics on demand this will be true
 };

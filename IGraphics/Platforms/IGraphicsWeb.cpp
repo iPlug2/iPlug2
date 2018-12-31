@@ -10,6 +10,8 @@
 
 #include <cstring>
 #include <cstdio>
+#include <emscripten/key_codes.h>
+#include "swell-types.h"
 
 #include "IGraphicsWeb.h"
 #include "IControl.h"
@@ -19,12 +21,207 @@ using namespace emscripten;
 
 extern IGraphics* gGraphics;
 
+static int domVKToWinVK(int dom_vk_code)
+{
+  switch(dom_vk_code)
+  {
+//    case DOM_VK_CANCEL:               return 0;  // TODO
+    case DOM_VK_HELP:                 return VK_HELP;
+    case DOM_VK_BACK_SPACE:           return VK_BACK;
+    case DOM_VK_TAB:                  return VK_TAB;
+    case DOM_VK_CLEAR:                return VK_CLEAR;
+    case DOM_VK_RETURN:               return VK_RETURN;
+    case DOM_VK_ENTER:                return VK_RETURN;
+    case DOM_VK_SHIFT:                return VK_SHIFT;
+    case DOM_VK_CONTROL:              return VK_CONTROL;
+    case DOM_VK_ALT:                  return VK_MENU;
+    case DOM_VK_PAUSE:                return VK_PAUSE;
+    case DOM_VK_CAPS_LOCK:            return VK_CAPITAL;
+    case DOM_VK_ESCAPE:               return VK_ESCAPE;
+//    case DOM_VK_CONVERT:              return 0;  // TODO
+//    case DOM_VK_NONCONVERT:           return 0;  // TODO
+//    case DOM_VK_ACCEPT:               return 0;  // TODO
+//    case DOM_VK_MODECHANGE:           return 0;  // TODO
+    case DOM_VK_SPACE:                return VK_SPACE;
+    case DOM_VK_PAGE_UP:              return VK_PRIOR;
+    case DOM_VK_PAGE_DOWN:            return VK_NEXT;
+    case DOM_VK_END:                  return VK_END;
+    case DOM_VK_HOME:                 return VK_HOME;
+    case DOM_VK_LEFT:                 return VK_LEFT;
+    case DOM_VK_UP:                   return VK_UP;
+    case DOM_VK_RIGHT:                return VK_RIGHT;
+    case DOM_VK_DOWN:                 return VK_DOWN;
+//    case DOM_VK_SELECT:               return 0;  // TODO
+//    case DOM_VK_PRINT:                return 0;  // TODO
+//    case DOM_VK_EXECUTE:              return 0;  // TODO
+//    case DOM_VK_PRINTSCREEN:          return 0;  // TODO
+    case DOM_VK_INSERT:               return VK_INSERT;
+    case DOM_VK_DELETE:               return VK_DELETE;
+//    case DOM_VK_0:                    return 0;  // TODO
+//    case DOM_VK_1:                    return 0;  // TODO
+//    case DOM_VK_2:                    return 0;  // TODO
+//    case DOM_VK_3:                    return 0;  // TODO
+//    case DOM_VK_4:                    return 0;  // TODO
+//    case DOM_VK_5:                    return 0;  // TODO
+//    case DOM_VK_6:                    return 0;  // TODO
+//    case DOM_VK_7:                    return 0;  // TODO
+//    case DOM_VK_8:                    return 0;  // TODO
+//    case DOM_VK_9:                    return 0;  // TODO
+//    case DOM_VK_COLON:                return 0;  // TODO
+//    case DOM_VK_SEMICOLON:            return 0;  // TODO
+//    case DOM_VK_LESS_THAN:            return 0;  // TODO
+//    case DOM_VK_EQUALS:               return 0;  // TODO
+//    case DOM_VK_GREATER_THAN:         return 0;  // TODO
+//    case DOM_VK_QUESTION_MARK:        return 0;  // TODO
+//    case DOM_VK_AT:                   return 0;  // TODO
+//    case DOM_VK_A:                    return VK_A;
+//    case DOM_VK_B:                    return VK_B;
+//    case DOM_VK_C:                    return VK_C;
+//    case DOM_VK_D:                    return VK_D;
+//    case DOM_VK_E:                    return VK_E;
+//    case DOM_VK_F:                    return VK_F;
+//    case DOM_VK_G:                    return VK_G;
+//    case DOM_VK_H:                    return VK_H;
+//    case DOM_VK_I:                    return VK_I;
+//    case DOM_VK_J:                    return VK_J;
+//    case DOM_VK_K:                    return VK_K;
+//    case DOM_VK_L:                    return VK_L;
+//    case DOM_VK_M:                    return VK_M;
+//    case DOM_VK_N:                    return VK_N;
+//    case DOM_VK_O:                    return VK_O;
+//    case DOM_VK_P:                    return VK_P;
+//    case DOM_VK_Q:                    return VK_Q;
+//    case DOM_VK_R:                    return VK_R;
+//    case DOM_VK_S:                    return VK_S;
+//    case DOM_VK_T:                    return VK_T;
+//    case DOM_VK_U:                    return VK_U;
+//    case DOM_VK_V:                    return VK_V;
+//    case DOM_VK_W:                    return VK_W;
+//    case DOM_VK_X:                    return VK_X;
+//    case DOM_VK_Y:                    return VK_Y;
+//    case DOM_VK_Z:                    return VK_Z;
+//    case DOM_VK_WIN:                  return 0;  // TODO
+//    case DOM_VK_CONTEXT_MENU:         return 0;  // TODO
+//    case DOM_VK_SLEEP:                return 0;  // TODO
+    case DOM_VK_NUMPAD0:              return VK_NUMPAD0;
+    case DOM_VK_NUMPAD1:              return VK_NUMPAD1;
+    case DOM_VK_NUMPAD2:              return VK_NUMPAD2;
+    case DOM_VK_NUMPAD3:              return VK_NUMPAD3;
+    case DOM_VK_NUMPAD4:              return VK_NUMPAD4;
+    case DOM_VK_NUMPAD5:              return VK_NUMPAD5;
+    case DOM_VK_NUMPAD6:              return VK_NUMPAD6;
+    case DOM_VK_NUMPAD7:              return VK_NUMPAD7;
+    case DOM_VK_NUMPAD8:              return VK_NUMPAD8;
+    case DOM_VK_NUMPAD9:              return VK_NUMPAD9;
+    case DOM_VK_MULTIPLY:             return VK_MULTIPLY;
+    case DOM_VK_ADD:                  return VK_ADD;
+    case DOM_VK_SEPARATOR:            return VK_SEPARATOR;
+    case DOM_VK_SUBTRACT:             return VK_SUBTRACT;
+    case DOM_VK_DECIMAL:              return VK_DECIMAL;
+    case DOM_VK_DIVIDE:               return VK_DIVIDE;
+    case DOM_VK_F1:                   return VK_F1;
+    case DOM_VK_F2:                   return VK_F2;
+    case DOM_VK_F3:                   return VK_F3;
+    case DOM_VK_F4:                   return VK_F4;
+    case DOM_VK_F5:                   return VK_F5;
+    case DOM_VK_F6:                   return VK_F6;
+    case DOM_VK_F7:                   return VK_F7;
+    case DOM_VK_F8:                   return VK_F8;
+    case DOM_VK_F9:                   return VK_F9;
+    case DOM_VK_F10:                  return VK_F10;
+    case DOM_VK_F11:                  return VK_F11;
+    case DOM_VK_F12:                  return VK_F12;
+    case DOM_VK_F13:                  return VK_F13;
+    case DOM_VK_F14:                  return VK_F14;
+    case DOM_VK_F15:                  return VK_F15;
+    case DOM_VK_F16:                  return VK_F16;
+    case DOM_VK_F17:                  return VK_F17;
+    case DOM_VK_F18:                  return VK_F18;
+    case DOM_VK_F19:                  return VK_F19;
+    case DOM_VK_F20:                  return VK_F20;
+    case DOM_VK_F21:                  return VK_F21;
+    case DOM_VK_F22:                  return VK_F22;
+    case DOM_VK_F23:                  return VK_F23;
+    case DOM_VK_F24:                  return VK_F24;
+    case DOM_VK_NUM_LOCK:             return VK_NUMLOCK;
+    case DOM_VK_SCROLL_LOCK:          return VK_SCROLL;
+//    case DOM_VK_WIN_OEM_FJ_JISHO:     return 0;  // TODO
+//    case DOM_VK_WIN_OEM_FJ_MASSHOU:   return 0;  // TODO
+//    case DOM_VK_WIN_OEM_FJ_TOUROKU:   return 0;  // TODO
+//    case DOM_VK_WIN_OEM_FJ_LOYA:      return 0;  // TODO
+//    case DOM_VK_WIN_OEM_FJ_ROYA:      return 0;  // TODO
+//    case DOM_VK_CIRCUMFLEX:           return 0;  // TODO
+//    case DOM_VK_EXCLAMATION:          return 0;  // TODO
+//    case DOM_VK_HASH:                 return 0;  // TODO
+//    case DOM_VK_DOLLAR:               return 0;  // TODO
+//    case DOM_VK_PERCENT:              return 0;  // TODO
+//    case DOM_VK_AMPERSAND:            return 0;  // TODO
+//    case DOM_VK_UNDERSCORE:           return 0;  // TODO
+//    case DOM_VK_OPEN_PAREN:           return 0;  // TODO
+//    case DOM_VK_CLOSE_PAREN:          return 0;  // TODO
+//    case DOM_VK_ASTERISK:             return 0;  // TODO
+//    case DOM_VK_PLUS:                 return 0;  // TODO
+//    case DOM_VK_PIPE:                 return 0;  // TODO
+//    case DOM_VK_HYPHEN_MINUS:         return 0;  // TODO
+//    case DOM_VK_OPEN_CURLY_BRACKET:   return 0;  // TODO
+//    case DOM_VK_CLOSE_CURLY_BRACKET:  return 0;  // TODO
+//    case DOM_VK_TILDE:                return 0;  // TODO
+//    case DOM_VK_VOLUME_MUTE:          return 0;  // TODO
+//    case DOM_VK_VOLUME_DOWN:          return 0;  // TODO
+//    case DOM_VK_VOLUME_UP:            return 0;  // TODO
+//    case DOM_VK_COMMA:                return 0;  // TODO
+//    case DOM_VK_PERIOD:               return 0;  // TODO
+//    case DOM_VK_SLASH:                return 0;  // TODO
+//    case DOM_VK_BACK_QUOTE:           return 0;  // TODO
+//    case DOM_VK_OPEN_BRACKET:         return 0;  // TODO
+//    case DOM_VK_BACK_SLASH:           return 0;  // TODO
+//    case DOM_VK_CLOSE_BRACKET:        return 0;  // TODO
+//    case DOM_VK_QUOTE:                return 0;  // TODO
+//    case DOM_VK_META:                 return 0;  // TODO
+//    case DOM_VK_ALTGR:                return 0;  // TODO
+//    case DOM_VK_WIN_ICO_HELP:         return 0;  // TODO
+//    case DOM_VK_WIN_ICO_00:           return 0;  // TODO
+//    case DOM_VK_WIN_ICO_CLEAR:        return 0;  // TODO
+//    case DOM_VK_WIN_OEM_RESET:        return 0;  // TODO
+//    case DOM_VK_WIN_OEM_JUMP:         return 0;  // TODO
+//    case DOM_VK_WIN_OEM_PA1:          return 0;  // TODO
+//    case DOM_VK_WIN_OEM_PA2:          return 0;  // TODO
+//    case DOM_VK_WIN_OEM_PA3:          return 0;  // TODO
+//    case DOM_VK_WIN_OEM_WSCTRL:       return 0;  // TODO
+//    case DOM_VK_WIN_OEM_CUSEL:        return 0;  // TODO
+//    case DOM_VK_WIN_OEM_ATTN:         return 0;  // TODO
+//    case DOM_VK_WIN_OEM_FINISH:       return 0;  // TODO
+//    case DOM_VK_WIN_OEM_COPY:         return 0;  // TODO
+//    case DOM_VK_WIN_OEM_AUTO:         return 0;  // TODO
+//    case DOM_VK_WIN_OEM_ENLW:         return 0;  // TODO
+//    case DOM_VK_WIN_OEM_BACKTAB:      return 0;  // TODO
+//    case DOM_VK_ATTN:                 return 0;  // TODO
+//    case DOM_VK_CRSEL:                return 0;  // TODO
+//    case DOM_VK_EXSEL:                return 0;  // TODO
+//    case DOM_VK_EREOF:                return 0;  // TODO
+//    case DOM_VK_PLAY:                 return 0;  // TODO
+//    case DOM_VK_ZOOM:                 return 0;  // TODO
+//    case DOM_VK_PA1:                  return 0;  // TODO
+//    case DOM_VK_WIN_OEM_CLEAR:        return 0;  // TODO
+    default:                          return 0;
+  }
+}
+
 EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent* pEvent, void* pUserData)
 {
   IGraphicsWeb* pGraphicsWeb = (IGraphicsWeb*) pUserData;
-
-  switch (eventType) {
-    case EMSCRIPTEN_EVENT_KEYDOWN: pGraphicsWeb->OnKeyDown(pGraphicsWeb->mPrevX, pGraphicsWeb->mPrevY, atoi(pEvent->key)); break;
+  
+  switch (eventType)
+  {
+    case EMSCRIPTEN_EVENT_KEYDOWN:
+    {
+      IKeyPress keyPress {*pEvent->key, domVKToWinVK(pEvent->keyCode), static_cast<bool>(pEvent->shiftKey),
+                                                                       static_cast<bool>(pEvent->ctrlKey),
+                                                                       static_cast<bool>(pEvent->altKey)};
+      
+      pGraphicsWeb->OnKeyDown(pGraphicsWeb->mPrevX, pGraphicsWeb->mPrevY, keyPress);
+      break;
+    }
     default:
       break;
   }
@@ -45,8 +242,8 @@ EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent
   x -= rect["left"].as<double>();
   y -= rect["top"].as<double>();
 
-  x /= pGraphics->GetScale();
-  y /= pGraphics->GetScale();
+  x /= pGraphics->GetDrawScale();
+  y /= pGraphics->GetDrawScale();
   
   switch (eventType) {
     case EMSCRIPTEN_EVENT_MOUSEUP: pGraphics->OnMouseUp(x, y, modifiers);
@@ -77,8 +274,8 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
   double x = pEvent->targetX;
   double y = pEvent->targetY;
   
-  x /= pGraphics->GetScale();
-  y /= pGraphics->GetScale();
+  x /= pGraphics->GetDrawScale();
+  y /= pGraphics->GetDrawScale();
   
   switch (eventType) {
     case EMSCRIPTEN_EVENT_CLICK: break;
@@ -121,8 +318,8 @@ EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* pEvent, void* 
   double x = pEvent->mouse.targetX;
   double y = pEvent->mouse.targetY;
   
-  x /= pGraphics->GetScale();
-  y /= pGraphics->GetScale();
+  x /= pGraphics->GetDrawScale();
+  y /= pGraphics->GetDrawScale();
   
   switch (eventType) {
     case EMSCRIPTEN_EVENT_WHEEL: pGraphics->OnMouseWheel(x, y, modifiers, pEvent->deltaY);
@@ -159,22 +356,62 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
 {
   OnViewInitialized(nullptr /* not used */);
 
-  SetDisplayScale(val::global("window")["devicePixelRatio"].as<int>());
+  SetScreenScale(val::global("window")["devicePixelRatio"].as<int>());
 
   GetDelegate()->LayoutUI(this);
   
   return nullptr;
 }
 
-void IGraphicsWeb::HideMouseCursor(bool hide, bool returnToStartPos)
+void IGraphicsWeb::HideMouseCursor(bool hide, bool lock)
 {
-  if(hide)
-    val::global("document")["body"]["style"].set("cursor", std::string("none"));
+  if (hide)
+  {
+    if (lock)
+      emscripten_request_pointerlock("canvas", EM_FALSE);
+    else
+      val::global("document")["body"]["style"].set("cursor", std::string("none"));
+    
+    mCursorLock = lock;
+  }
   else
-    val::global("document")["body"]["style"].set("cursor", std::string("auto"));
+  {
+    if (mCursorLock)
+      emscripten_exit_pointerlock();
+    else
+      SetMouseCursor(mCursorType);
+      
+    mCursorLock = false;
+  }
 }
 
-bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String& result)
+void IGraphicsWeb::SetMouseCursor(ECursor cursor)
+{
+  std::string cursorType("pointer");
+  
+  switch (cursor)
+  {
+    case ECursor::ARROW:            cursorType = "default";         break;
+    case ECursor::IBEAM:            cursorType = "text";            break;
+    case ECursor::WAIT:             cursorType = "wait";            break;
+    case ECursor::CROSS:            cursorType = "crosshair";       break;
+    case ECursor::UPARROW:          cursorType = "n-resize";        break;
+    case ECursor::SIZENWSE:         cursorType = "nwse-resize";     break;
+    case ECursor::SIZENESW:         cursorType = "nesw-resize";     break;
+    case ECursor::SIZEWE:           cursorType = "ew-resize";       break;
+    case ECursor::SIZENS:           cursorType = "ns-resize";       break;
+    case ECursor::SIZEALL:          cursorType = "move";            break;
+    case ECursor::INO:              cursorType = "not-allowed";     break;
+    case ECursor::HAND:             cursorType = "grab";            break;
+    case ECursor::APPSTARTING:      cursorType = "progress";        break;
+    case ECursor::HELP:             cursorType = "help";            break;
+  }
+  
+  val::global("document")["body"]["style"].set("cursor", cursorType);
+  mCursorType = cursor;
+}
+
+EResourceLocation IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
   if (CStringHasContents(name))
   {
@@ -182,15 +419,17 @@ bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String
     
     bool foundResource = false;
     
-    if(strcmp(type, "png") == 0) {
+    //TODO: OSFindResource is not sufficient here
+    
+    if(strcmp(type, "png") == 0) { //TODO: lowercase/uppercase png
       plusSlash.SetFormatted(strlen("/resources/img/") + strlen(name) + 1, "/resources/img/%s", name);
       foundResource = GetPreloadedImages().call<bool>("hasOwnProperty", std::string(plusSlash.Get()));
     }
-    else if(strcmp(type, "ttf") == 0) {
+    else if(strcmp(type, "ttf") == 0) { //TODO: lowercase/uppercase ttf
       plusSlash.SetFormatted(strlen("/resources/fonts/") + strlen(name) + 1, "/resources/fonts/%s", name);
       foundResource = true; // TODO: check ttf
     }
-    else if(strcmp(type, "svg") == 0) {
+    else if(strcmp(type, "svg") == 0) { //TODO: lowercase/uppercase svg
       plusSlash.SetFormatted(strlen("/resources/img/") + strlen(name) + 1, "/resources/img/%s", name);
       foundResource = true; // TODO: check svg
     }
@@ -198,10 +437,10 @@ bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String
     if(foundResource)
     {
       result.Set(plusSlash.Get());
-      return true;
+      return EResourceLocation::kAbsolutePath;
     }
   }
-  return false;
+  return EResourceLocation::kNotFound;
 }
 
 //static
@@ -225,19 +464,13 @@ bool IGraphicsWeb::GetTextFromClipboard(WDL_String& str)
   return true; // TODO: return?
 }
 
-#define MB_OK 0
-#define MB_OKCANCEL 1
-#define MB_YESNOCANCEL 3
-#define MB_YESNO 4
-#define MB_RETRYCANCEL 5
-
-int IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, int type)
+int IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, EMessageBoxType type)
 {
   switch (type)
   {
-    case MB_OK: val::global("window").call<val>("alert", std::string(str)); return 0;
-    case MB_YESNO:
-    case MB_OKCANCEL:
+    case kMB_OK: val::global("window").call<val>("alert", std::string(str)); return 0;
+    case kMB_YESNO:
+    case kMB_OKCANCEL:
       return val::global("window").call<val>("confirm", std::string(str)).as<int>();
     // case MB_CANCEL:
     //   break;
@@ -262,8 +495,9 @@ void IGraphicsWeb::PromptForDirectory(WDL_String& path)
   inputEl.call<void>("click");
 }
 
-void IGraphicsWeb::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
+void IGraphicsWeb::CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
 {
+    ShowMessageBox("Warning", "Text entry not yet implemented", kMB_OK);
 //  val input = val::global("document").call<val>("createElement", std::string("input"));
 //  
 //  val rect = GetCanvas().call<val>("getBoundingClientRect");
@@ -308,28 +542,9 @@ void IGraphicsWeb::CreateTextEntry(IControl& control, const IText& text, const I
 //  input.call<void>("focus");
 }
 
-IPopupMenu* IGraphicsWeb::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+IPopupMenu* IGraphicsWeb::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
 {
-  ReleaseMouseCapture();
-  
-  if(mPopupControl)
-    return mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
-  else
-  {
-//    val sel = val::global("document").call<val>("createElement", std::string("select"));
-//    sel.set("id", "popup");
-//
-//    for (int i = 0; i < menu.NItems(); i++) {
-//      IPopupMenu::Item* pItem = menu.GetItem(i);
-//      val opt = val::global("document").call<val>("createElement", std::string("option"));
-//      opt.set("text", pItem->GetText());
-//      sel.call<void>("add", opt);
-//    }
-//
-//    GetCanvas().call<void>("appendChild", sel);
-    
-    return nullptr;
-  }
+  return nullptr;
 }
 
 bool IGraphicsWeb::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
@@ -343,11 +558,11 @@ void IGraphicsWeb::DrawResize()
 {
   val canvas = GetCanvas();
   
-  canvas["style"].set("width", val(Width() * GetScale()));
-  canvas["style"].set("height", val(Height() * GetScale()));
+  canvas["style"].set("width", val(Width() * GetDrawScale()));
+  canvas["style"].set("height", val(Height() * GetDrawScale()));
   
-  canvas.set("width", Width() * GetScale() * GetDisplayScale());
-  canvas.set("height", Height() * GetScale() * GetDisplayScale());
+  canvas.set("width", Width() * GetBackingPixelScale());
+  canvas.set("height", Height() * GetBackingPixelScale());
   
   IGRAPHICS_DRAW_CLASS::DrawResize();
 }

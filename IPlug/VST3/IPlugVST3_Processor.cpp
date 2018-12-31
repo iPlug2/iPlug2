@@ -53,8 +53,8 @@ IPlugVST3Processor::IPlugVST3Processor(IPlugInstanceInfo instanceInfo, IPlugConf
 {
   setControllerClass(instanceInfo.mOtherGUID);
 
-  _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
-  _SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
+  SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
+  SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
   
   if (MaxNChannels(ERoute::kInput))
   {
@@ -140,8 +140,8 @@ tresult PLUGIN_API IPlugVST3Processor::setBusArrangements(SpeakerArrangement* pI
   TRACE;
   
   // disconnect all io pins, they will be reconnected in process
-  _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false);
-  _SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), false);
+  SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false);
+  SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), false);
   
   //TODO: setBusArrangements !!!
   //const int maxNInputChans = MaxNBuses(ERoute::kInput);
@@ -196,9 +196,9 @@ tresult PLUGIN_API IPlugVST3Processor::setupProcessing(ProcessSetup& newSetup)
   
   if ((newSetup.symbolicSampleSize != kSample32) && (newSetup.symbolicSampleSize != kSample64)) return kResultFalse;
   
-  _SetSampleRate(newSetup.sampleRate);
-  _SetBypassed(false);
-  IPlugProcessor::_SetBlockSize(newSetup.maxSamplesPerBlock); // TODO: should IPlugVST3Processor call SetBlockSize in construct unlike other APIs?
+  SetSampleRate(newSetup.sampleRate);
+  SetBypassed(false);
+  IPlugProcessor::SetBlockSize(newSetup.maxSamplesPerBlock); // TODO: should IPlugVST3Processor call SetBlockSize in construct unlike other APIs?
   mMidiOutputQueue.Resize(newSetup.maxSamplesPerBlock);
   OnReset();
   
@@ -245,7 +245,7 @@ tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
               const bool bypassed = (value > 0.5);
               
               if (bypassed != GetBypassed())
-                _SetBypassed(bypassed);
+                SetBypassed(bypassed);
               
               break;
             }
@@ -309,6 +309,13 @@ tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
               mMidiMsgsFromProcessor.Push(msg);
               break;
             }
+            case Event::kDataEvent:
+            {
+              ISysEx syx = ISysEx(event.sampleOffset, event.data.bytes, event.data.size);
+              ProcessSysEx(syx);
+              //mSysexMsgsFromProcessor.Push
+              break;
+            }
           }
         }
       }
@@ -331,44 +338,44 @@ tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
         if (getAudioInput(1)->isActive()) // Sidechain is active
         {
           mSidechainActive = true;
-          _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
+          SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
         }
         else
         {
           if (mSidechainActive)
           {
-            _ZeroScratchBuffers();
+            ZeroScratchBuffers();
             mSidechainActive = false;
           }
           
-          _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
-          _SetChannelConnections(ERoute::kInput, data.inputs[0].numChannels, MaxNChannels(ERoute::kInput) - NSidechainChannels(), false);
+          SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
+          SetChannelConnections(ERoute::kInput, data.inputs[0].numChannels, MaxNChannels(ERoute::kInput) - NSidechainChannels(), false);
         }
         
-        _AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput) - NSidechainChannels(), data.inputs[0].channelBuffers32, data.numSamples);
-        _AttachBuffers(ERoute::kInput, NSidechainChannels(), MaxNChannels(ERoute::kInput) - NSidechainChannels(), data.inputs[1].channelBuffers32, data.numSamples);
+        AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput) - NSidechainChannels(), data.inputs[0].channelBuffers32, data.numSamples);
+        AttachBuffers(ERoute::kInput, NSidechainChannels(), MaxNChannels(ERoute::kInput) - NSidechainChannels(), data.inputs[1].channelBuffers32, data.numSamples);
       }
       else
       {
-        _SetChannelConnections(ERoute::kInput, 0, data.inputs[0].numChannels, true);
-        _SetChannelConnections(ERoute::kInput, data.inputs[0].numChannels, MaxNChannels(ERoute::kInput) - data.inputs[0].numChannels, false);
-        _AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), data.inputs[0].channelBuffers32, data.numSamples);
+        SetChannelConnections(ERoute::kInput, 0, data.inputs[0].numChannels, true);
+        SetChannelConnections(ERoute::kInput, data.inputs[0].numChannels, MaxNChannels(ERoute::kInput) - data.inputs[0].numChannels, false);
+        AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), data.inputs[0].channelBuffers32, data.numSamples);
       }
     }
     
     for (int outBus = 0, chanOffset = 0; outBus < data.numOutputs; outBus++)
     {
       int busChannels = data.outputs[outBus].numChannels;
-      _SetChannelConnections(ERoute::kOutput, chanOffset, busChannels, (bool) getAudioOutput(outBus)->isActive());
-      _SetChannelConnections(ERoute::kOutput, chanOffset + busChannels, MaxNChannels(ERoute::kOutput) - (chanOffset + busChannels), false);
-      _AttachBuffers(ERoute::kOutput, chanOffset, busChannels, data.outputs[outBus].channelBuffers32, data.numSamples);
+      SetChannelConnections(ERoute::kOutput, chanOffset, busChannels, (bool) getAudioOutput(outBus)->isActive());
+      SetChannelConnections(ERoute::kOutput, chanOffset + busChannels, MaxNChannels(ERoute::kOutput) - (chanOffset + busChannels), false);
+      AttachBuffers(ERoute::kOutput, chanOffset, busChannels, data.outputs[outBus].channelBuffers32, data.numSamples);
       chanOffset += busChannels;
     }
     
     if (GetBypassed())
-      _PassThroughBuffers(0.0f, data.numSamples);
+      PassThroughBuffers(0.0f, data.numSamples);
     else
-      _ProcessBuffers(0.0f, data.numSamples); // process buffers single precision
+      ProcessBuffers(0.0f, data.numSamples); // process buffers single precision
   }
   
 #pragma mark process double precision
@@ -382,44 +389,44 @@ tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
         if (getAudioInput(1)->isActive()) // Sidechain is active
         {
           mSidechainActive = true;
-          _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
+          SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
         }
         else
         {
           if (mSidechainActive)
           {
-            _ZeroScratchBuffers();
+            ZeroScratchBuffers();
             mSidechainActive = false;
           }
           
-          _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
-          _SetChannelConnections(ERoute::kInput, data.inputs[0].numChannels, MaxNChannels(ERoute::kInput) - NSidechainChannels(), false);
+          SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
+          SetChannelConnections(ERoute::kInput, data.inputs[0].numChannels, MaxNChannels(ERoute::kInput) - NSidechainChannels(), false);
         }
         
-        _AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput) - NSidechainChannels(), data.inputs[0].channelBuffers64, data.numSamples);
-        _AttachBuffers(ERoute::kInput, NSidechainChannels(), MaxNChannels(ERoute::kInput) - NSidechainChannels(), data.inputs[1].channelBuffers64, data.numSamples);
+        AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput) - NSidechainChannels(), data.inputs[0].channelBuffers64, data.numSamples);
+        AttachBuffers(ERoute::kInput, NSidechainChannels(), MaxNChannels(ERoute::kInput) - NSidechainChannels(), data.inputs[1].channelBuffers64, data.numSamples);
       }
       else
       {
-        _SetChannelConnections(ERoute::kInput, 0, data.inputs[0].numChannels, true);
-        _SetChannelConnections(ERoute::kInput, data.inputs[0].numChannels, MaxNChannels(ERoute::kInput) - data.inputs[0].numChannels, false);
-        _AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), data.inputs[0].channelBuffers64, data.numSamples);
+        SetChannelConnections(ERoute::kInput, 0, data.inputs[0].numChannels, true);
+        SetChannelConnections(ERoute::kInput, data.inputs[0].numChannels, MaxNChannels(ERoute::kInput) - data.inputs[0].numChannels, false);
+        AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), data.inputs[0].channelBuffers64, data.numSamples);
       }
     }
     
     for (int outBus = 0, chanOffset = 0; outBus < data.numOutputs; outBus++)
     {
       int busChannels = data.outputs[outBus].numChannels;
-      _SetChannelConnections(ERoute::kOutput, chanOffset, busChannels, (bool) getAudioOutput(outBus)->isActive());
-      _SetChannelConnections(ERoute::kOutput, chanOffset + busChannels, MaxNChannels(ERoute::kOutput) - (chanOffset + busChannels), false);
-      _AttachBuffers(ERoute::kOutput, chanOffset, busChannels, data.outputs[outBus].channelBuffers64, data.numSamples);
+      SetChannelConnections(ERoute::kOutput, chanOffset, busChannels, (bool) getAudioOutput(outBus)->isActive());
+      SetChannelConnections(ERoute::kOutput, chanOffset + busChannels, MaxNChannels(ERoute::kOutput) - (chanOffset + busChannels), false);
+      AttachBuffers(ERoute::kOutput, chanOffset, busChannels, data.outputs[outBus].channelBuffers64, data.numSamples);
       chanOffset += busChannels;
     }
     
     if (GetBypassed())
-      _PassThroughBuffers(0.0, data.numSamples);
+      PassThroughBuffers(0.0, data.numSamples);
     else
-      _ProcessBuffers(0.0, data.numSamples); // process buffers double precision
+      ProcessBuffers(0.0, data.numSamples); // process buffers double precision
   }
   
   if (DoesMIDIOut())
@@ -474,6 +481,22 @@ tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
     }
     
     mMidiOutputQueue.Flush(data.numSamples);
+    
+    //Output SYSEX from the editor, which has bypassed the processors' ProcessSysEx()
+    if(mSysExDataFromEditor.ElementsAvailable())
+    {
+      Event toAdd = {0};
+
+      while (mSysExDataFromEditor.Pop(mSysexBuf))
+      {
+        toAdd.type = Event::kDataEvent;
+        toAdd.sampleOffset = mSysexBuf.mOffset;
+        toAdd.data.type = DataEvent::kMidiSysEx;
+        toAdd.data.size = mSysexBuf.mSize;
+        toAdd.data.bytes = (uint8*) mSysexBuf.mData; // TODO!  this is a problem if more than one message in this block!
+        outputEvents->addEvent(toAdd);
+      }
+    }
   }
   
   return kResultOk;
@@ -525,7 +548,7 @@ tresult PLUGIN_API IPlugVST3Processor::setState(IBStream* state)
     return kResultFalse;
   }
   
-  _SetBypassed((bool) savedBypass);
+  SetBypassed((bool) savedBypass);
   
   OnRestoreState();
   return kResultOk;
@@ -569,8 +592,8 @@ void IPlugVST3Processor::PrepareProcessContext()
   timeInfo.mTransportIsRunning = mProcessContext.state & ProcessContext::kPlaying;
   timeInfo.mTransportLoopEnabled = mProcessContext.state & ProcessContext::kCycleActive;
   const bool offline = processSetup.processMode == Steinberg::Vst::kOffline;
-  _SetTimeInfo(timeInfo);
-  _SetRenderingOffline(offline);
+  SetTimeInfo(timeInfo);
+  SetRenderingOffline(offline);
 }
 
 void IPlugVST3Processor::SendControlValueFromDelegate(int controlTag, double normalizedValue)
@@ -673,7 +696,7 @@ tresult PLUGIN_API IPlugVST3Processor::notify(IMessage* message)
   return AudioEffect::notify(message);
 }
 
-void IPlugVST3Processor::_TransmitMidiMsgFromProcessor(const IMidiMsg& msg)
+void IPlugVST3Processor::TransmitMidiMsgFromProcessor(const IMidiMsg& msg)
 {
   OPtr<IMessage> message = allocateMessage();
   
@@ -684,3 +707,17 @@ void IPlugVST3Processor::_TransmitMidiMsgFromProcessor(const IMidiMsg& msg)
   message->getAttributes()->setBinary("D", (void*) &msg, sizeof(IMidiMsg));
   sendMessage(message);
 }
+
+void IPlugVST3Processor::TransmitSysExDataFromProcessor(const SysExData& data)
+{
+  OPtr<IMessage> message = allocateMessage();
+  
+  if (!message)
+    return;
+  
+  message->setMessageID("SSMFD");
+  message->getAttributes()->setBinary("D", (void*) data.mData, data.mSize);
+  message->getAttributes()->setInt("O", data.mOffset);
+  sendMessage(message);
+}
+

@@ -170,17 +170,17 @@ bool IGraphicsMac::GetResourcePathFromUsersMusicFolder(const char* fileName, con
   return false;
 }
 
-bool IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String& result)
+EResourceLocation IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
   if(CStringHasContents(name))
   {
     // first check this bundle
     if(GetResourcePathFromBundle(name, type, result))
-      return true;
+      return EResourceLocation::kAbsolutePath;
 
     // then check ~/Music/PLUG_NAME, which is a shared folder that can be accessed from app sandbox
     if(GetResourcePathFromUsersMusicFolder(name, type, result))
-      return true;
+      return EResourceLocation::kAbsolutePath;
 
     // finally check name, which might be a full path - if the plug-in is trying to load a resource at runtime (e.g. skin-able UI)
     NSString* pPath = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
@@ -188,10 +188,10 @@ bool IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String
     if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
     {
       result.Set([pPath UTF8String]);
-      return true;
+      return EResourceLocation::kAbsolutePath;
     }
   }
-  return false;
+  return EResourceLocation::kNotFound;
 }
 
 bool IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds)
@@ -212,7 +212,7 @@ void* IGraphicsMac::OpenWindow(void* pParent)
 
   OnViewInitialized([pView layer]);
   
-  SetDisplayScale([[NSScreen mainScreen] backingScaleFactor]);
+  SetScreenScale([[NSScreen mainScreen] backingScaleFactor]);
     
   GetDelegate()->LayoutUI(this);
 
@@ -266,152 +266,103 @@ void IGraphicsMac::PlatformResize()
   }  
 }
 
-void IGraphicsMac::ClientToScreen(float& x, float& y)
+void IGraphicsMac::PointToScreen(float& x, float& y)
+{
+  if (mView)
+  {
+    x *= GetDrawScale();
+    y *= GetDrawScale();
+    NSWindow* pWindow = [(IGRAPHICS_VIEW*) mView window];
+    NSPoint wndpt = [(IGRAPHICS_VIEW*) mView convertPoint:NSMakePoint(x, y) toView:nil];
+    NSPoint pt = [pWindow convertRectToScreen: NSMakeRect(wndpt.x, wndpt.y, 0.0, 0.0)].origin;
+      
+    x = pt.x;
+    y = pt.y;
+  }
+}
+
+void IGraphicsMac::ScreenToPoint(float& x, float& y)
 {
   if (mView)
   {
     NSWindow* pWindow = [(IGRAPHICS_VIEW*) mView window];
-    NSPoint wndpt = [(IGRAPHICS_VIEW*) mView convertPoint:NSMakePoint(x, y) toView:nil];
-    NSPoint po = [pWindow convertBaseToScreen:wndpt];
-    
-    x = po.x;
-    y = CGDisplayPixelsHigh(CGMainDisplayID()) - po.y;
+    NSPoint wndpt = [pWindow convertRectFromScreen: NSMakeRect(x, y, 0.0, 0.0)].origin;
+    NSPoint pt = [(IGRAPHICS_VIEW*) mView convertPoint:NSMakePoint(wndpt.x, wndpt.y) fromView:nil];
+
+    x = pt.x / GetDrawScale();
+    y = pt.y / GetDrawScale();
   }
 }
 
-void IGraphicsMac::HideMouseCursor(bool hide, bool returnToStartPosition)
+void IGraphicsMac::HideMouseCursor(bool hide, bool lock)
 {
-  if(hide)
+  if (mCursorHidden == hide)
+    return;
+  
+  mCursorHidden = hide;
+  
+  if (hide)
   {
-    if (!mCursorHidden)
-    {
-      CGDisplayHideCursor(CGMainDisplayID());
-
-      if (returnToStartPosition)
-      {
-        CGAssociateMouseAndMouseCursorPosition(false);
-
-        NSPoint mouse = [NSEvent mouseLocation];
-        mCursorX = mouse.x;
-        mCursorY = CGDisplayPixelsHigh(CGMainDisplayID()) - mouse.y; // flipped
-      }
-      else
-      {
-        mCursorX = -1.f;
-        mCursorY = -1.f;
-      }
-
-      mCursorHidden = true;
-    }
+    StoreCursorPosition();
+    CGDisplayHideCursor(kCGDirectMainDisplay);
+    mCursorLock = lock;
   }
   else
   {
-    if (mCursorHidden)
-    {
-      CGAssociateMouseAndMouseCursorPosition(true);
-
-      if ((mCursorX + mCursorY) > 0.f)
-      {
-        CGPoint point;
-        point.x = mCursorX;
-        point.y = mCursorY;
-        CGDisplayMoveCursorToPoint(CGMainDisplayID(), point);
-        mCursorX = -1.f;
-        mCursorY = -1.f;
-      }
-
-      CGDisplayShowCursor(CGMainDisplayID());
-    }
-
-    mCursorHidden = false;
+    DoCursorLock(mCursorX, mCursorY, mCursorX, mCursorY);
+    CGDisplayShowCursor(kCGDirectMainDisplay);
+    mCursorLock = false;
   }
 }
 
 void IGraphicsMac::MoveMouseCursor(float x, float y)
 {
-  CGPoint point;
-  NSPoint mouse = [NSEvent mouseLocation];
-  double mouseY = CGDisplayPixelsHigh(CGMainDisplayID()) - mouse.y;
-  point.x = x / GetDisplayScale() + (mouse.x - mCursorX / GetDisplayScale());
-  point.y = y / GetDisplayScale() + (mouseY - mCursorY / GetDisplayScale());
+  if (mTabletInput)
+    return;
+    
+  PointToScreen(x, y);
+  RepositionCursor(CGPoint{x, y});
+  StoreCursorPosition();
+}
 
-  if (!mTabletInput && CGDisplayMoveCursorToPoint(CGMainDisplayID(), point) == CGDisplayNoErr)
+void IGraphicsMac::DoCursorLock(float x, float y, float& prevX, float& prevY)
+{
+  if (mCursorHidden && mCursorLock && !mTabletInput)
   {
-    mCursorX = x;
-    mCursorY = y;
+    RepositionCursor(mCursorLockPosition);
+    prevX = mCursorX;
+    prevY = mCursorY;
   }
+  else
+  {
+    mCursorX = prevX = x;
+    mCursorY = prevY = y;
+  }
+}
 
+void IGraphicsMac::RepositionCursor(CGPoint point)
+{
+  point = CGPoint{point.x, CGDisplayPixelsHigh(CGMainDisplayID()) - point.y};
+  CGAssociateMouseAndMouseCursorPosition(false);
+  CGDisplayMoveCursorToPoint(CGMainDisplayID(), point);
   CGAssociateMouseAndMouseCursorPosition(true);
 }
 
-void IGraphicsMac::SetMousePosition(float x, float y)
+void IGraphicsMac::StoreCursorPosition()
 {
-  //TODO: FIX!
-//  mMouseX = x;
-//  mMouseY = y;
+  // Get position in screen coordinates
+  NSPoint mouse = [NSEvent mouseLocation];
+  mCursorX = mouse.x = std::round(mouse.x);
+  mCursorY = mouse.y = std::round(mouse.y);
+  mCursorLockPosition = CGPoint{mouse.x, mouse.y};
+  
+  // Convert to IGraphics coordinates
+  ScreenToPoint(mCursorX, mCursorY);
 }
 
-int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, int type)
+int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, EMessageBoxType type)
 {
-#if IGRAPHICS_SWELL
-  return MessageBox((HWND) mView, str, caption, type);
-#else
-  int result = 0;
-
-  CFStringRef button1 = NULL;
-  CFStringRef button2 = NULL;
-  CFStringRef button3 = NULL;
-
-  CFStringRef alertMessage = CFStringCreateWithCStringNoCopy(NULL, str, 0, kCFAllocatorNull);
-  CFStringRef alertHeader = CFStringCreateWithCStringNoCopy(NULL, caption, 0, kCFAllocatorNull);
-
-  switch (type)
-  {
-    case MB_OK:
-      button1 = CFSTR("OK");
-      break;
-    case MB_OKCANCEL:
-      button1 = CFSTR("OK");
-      button2 = CFSTR("Cancel");
-      break;
-    case MB_YESNO:
-      button1 = CFSTR("Yes");
-      button2 = CFSTR("No");
-      break;
-    case MB_YESNOCANCEL:
-      button1 = CFSTR("Yes");
-      button2 = CFSTR("No");
-      button3 = CFSTR("Cancel");
-      break;
-  }
-
-  CFOptionFlags response = 0;
-  CFUserNotificationDisplayAlert(0, kCFUserNotificationNoteAlertLevel, NULL, NULL, NULL, alertHeader, alertMessage, button1, button2, button3, &response);
-
-  CFRelease(alertMessage);
-  CFRelease(alertHeader);
-
-  switch (response)
-  {
-    case kCFUserNotificationDefaultResponse:
-      if(type == MB_OK || type == MB_OKCANCEL)
-        result = IDOK;
-      else
-        result = IDYES;
-      break;
-    case kCFUserNotificationAlternateResponse:
-      if(type == MB_OKCANCEL)
-        result = IDCANCEL;
-      else
-        result = IDNO;
-      break;
-    case kCFUserNotificationOtherResponse:
-      result = IDCANCEL;
-      break;
-  }
-
-  return result;
-#endif
+  return MessageBox((HWND) mView, str, caption, (int) type);
 }
 
 void IGraphicsMac::ForceEndUserEdit()
@@ -430,26 +381,24 @@ void IGraphicsMac::UpdateTooltips()
 
   [(IGRAPHICS_VIEW*) mView removeAllToolTips];
 
-  if(mPopupControl && mPopupControl->GetState() > IPopupMenuControl::kCollapsed)
+  if (GetPopupMenuControl() && GetPopupMenuControl()->GetState() > IPopupMenuControl::kCollapsed)
   {
     return;
   }
 
-  IControl** ppControl = mControls.GetList();
-
-  for (int i = 0, n = mControls.GetSize(); i < n; ++i, ++ppControl)
+  auto func = [this](IControl& control)
   {
-    IControl* pControl = *ppControl;
-    const char* tooltip = pControl->GetTooltip();
-    if (tooltip && !pControl->IsHidden())
+    if (control.GetTooltip() && !control.IsHidden())
     {
-      IRECT pR = pControl->GetTargetRECT();
-      if (!pControl->GetTargetRECT().Empty())
+      IRECT pR = control.GetTargetRECT();
+      if (!pR.Empty())
       {
         [(IGRAPHICS_VIEW*) mView registerToolTip: pR];
       }
     }
-  }
+  };
+
+  ForStandardControlsFunc(func);
 }
 
 const char* IGraphicsMac::GetPlatformAPIStr()
@@ -612,36 +561,27 @@ bool IGraphicsMac::PromptForColor(IColor& color, const char* str)
   return false;
 }
 
-IPopupMenu* IGraphicsMac::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+IPopupMenu* IGraphicsMac::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
 {
-  ReleaseMouseCapture();
-
   IPopupMenu* pReturnMenu = nullptr;
 
-  if(mPopupControl) // if we are not using platform pop-up menus
+  if (mView)
   {
-    pReturnMenu = mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
+    NSRect areaRect = ToNSRect(this, bounds);
+    pReturnMenu = [(IGRAPHICS_VIEW*) mView createPopupMenu: menu: areaRect];
   }
-  else
-  {
-    if (mView)
-    {
-      NSRect areaRect = ToNSRect(this, bounds);
-      pReturnMenu = [(IGRAPHICS_VIEW*) mView createPopupMenu: menu: areaRect];
-    }
 
-    //synchronous
-    if(pReturnMenu && pReturnMenu->GetFunction())
-      pReturnMenu->ExecFunction();
+  //synchronous
+  if(pReturnMenu && pReturnMenu->GetFunction())
+    pReturnMenu->ExecFunction();
 
-    if(pCaller)
-      pCaller->OnPopupMenuSelection(pReturnMenu); // should fire even if pReturnMenu == nullptr
-  }
+  if(pCaller)
+    pCaller->OnPopupMenuSelection(pReturnMenu); // should fire even if pReturnMenu == nullptr
 
   return pReturnMenu;
 }
 
-void IGraphicsMac::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
+void IGraphicsMac::CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
 {
   if (mView)
   {

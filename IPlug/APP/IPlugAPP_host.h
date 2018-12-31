@@ -61,42 +61,56 @@
   #include "swell.h"
 #endif
 
+#define OFF_TEXT "off"
+
 const int kNumBufferSizeOptions = 11;
 const std::string kBufferSizeOptions[kNumBufferSizeOptions] = {"32", "64", "96", "128", "192", "256", "512", "1024", "2048", "4096", "8192" };
 const int kDeviceDS = 0; const int kDeviceCoreAudio = 0; const int kDeviceAlsa = 0;
-const int kDeviceASIO = 0; const int kDeviceJack = 1;
+const int kDeviceASIO = 1; const int kDeviceJack = 1;
 extern HWND gHWND;
 extern HINSTANCE gHINSTANCE;
 extern UINT gSCROLLMSG;
-extern WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 class IPlugAPP;
 
+/** A class that hosts an IPlug as a standalone app and provides Audio/Midi I/O */
 class IPlugAPPHost
 {
 public:
+  
+  /** Used to manage changes to app i/o */
   struct AppState
   {
-    WDL_String mAudioInDev = WDL_String(DEFAULT_INPUT_DEV);
-    WDL_String mAudioOutDev = WDL_String(DEFAULT_OUTPUT_DEV);
-    WDL_String mMidiInDev = WDL_String("off");
-    WDL_String mMidiOutDev = WDL_String("off");
-    uint32_t mAudioDriverType = 0;
-    uint32_t mAudioSR = 44100;
-    uint32_t mBufferSize = 512;
-    uint32_t mMidiInChan = 0;
-    uint32_t mMidiOutChan = 0;
+    WDL_String mAudioInDev;
+    WDL_String mAudioOutDev;
+    WDL_String mMidiInDev;
+    WDL_String mMidiOutDev;
+    uint32_t mAudioDriverType;
+    uint32_t mAudioSR;
+    uint32_t mBufferSize;
+    uint32_t mMidiInChan;
+    uint32_t mMidiOutChan;
+    
+    uint32_t mAudioInChanL;
+    uint32_t mAudioInChanR;
+    uint32_t mAudioOutChanL;
+    uint32_t mAudioOutChanR;
     
     AppState()
     : mAudioInDev(DEFAULT_INPUT_DEV)
     , mAudioOutDev(DEFAULT_OUTPUT_DEV)
-    , mMidiInDev("off")
-    , mMidiOutDev("off")
+    , mMidiInDev(OFF_TEXT)
+    , mMidiOutDev(OFF_TEXT)
     , mAudioDriverType(0) // DirectSound / CoreAudio by default
     , mBufferSize(512)
     , mAudioSR(44100)
     , mMidiInChan(0)
     , mMidiOutChan(0)
+    
+    , mAudioInChanL(1)
+    , mAudioInChanR(2)
+    , mAudioOutChanL(1)
+    , mAudioOutChanR(2)
     {
     }
     
@@ -110,6 +124,11 @@ public:
     , mAudioSR(obj.mAudioSR)
     , mMidiInChan(obj.mMidiInChan)
     , mMidiOutChan(obj.mMidiOutChan)
+    
+    , mAudioInChanL(obj.mAudioInChanL)
+    , mAudioInChanR(obj.mAudioInChanR)
+    , mAudioOutChanL(obj.mAudioInChanL)
+    , mAudioOutChanR(obj.mAudioInChanR)
     {
     }
     
@@ -121,7 +140,14 @@ public:
                                                    (strcmp(rhs.mAudioInDev.Get(), mAudioInDev.Get()) == 0) &&
                                                    (strcmp(rhs.mAudioOutDev.Get(), mAudioOutDev.Get()) == 0) &&
                                                    (strcmp(rhs.mMidiInDev.Get(), mMidiInDev.Get()) == 0) &&
-                                                   (strcmp(rhs.mMidiOutDev.Get(), mMidiOutDev.Get()) == 0));
+                                                   (strcmp(rhs.mMidiOutDev.Get(), mMidiOutDev.Get()) == 0) &&
+                                                   
+                                                   rhs.mAudioInChanL == mAudioInChanL &&
+                                                   rhs.mAudioInChanR == mAudioInChanR &&
+                                                   rhs.mAudioOutChanL == mAudioOutChanL &&
+                                                   rhs.mAudioOutChanR == mAudioOutChanR
+                                                  
+                                                   );
     }
     bool operator!=(const AppState& rhs) { return !operator==(rhs); }
   };
@@ -179,7 +205,9 @@ public:
   static void ErrorCallback(RtAudioError::Type type, const std::string& errorText);
 
   static WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+  static WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+  IPlugAPP* GetPlug() { return mIPlug; }
 private:
   IPlugAPP* mIPlug = nullptr;
   RtAudio* mDAC = nullptr;
@@ -209,7 +237,6 @@ private:
     
   WDL_String mINIPath;
   
-  //TODO: replace with std::map or WDL something
   std::vector<uint32_t> mAudioInputDevs;
   std::vector<uint32_t> mAudioOutputDevs;
   std::vector<std::string> mAudioIDDevNames;

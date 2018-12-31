@@ -7,7 +7,14 @@ const int kNumPrograms = 1;
 enum EParams
 {
   kGain = 0,
+  kMode,
   kNumParams
+};
+
+enum EControlTags
+{
+  kCtrlTagDialogResult = 0,
+  kControlTags
 };
 
 class IPlugControls : public IPlug

@@ -293,28 +293,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
       self.wantsLayer = YES;
     }
   #elif defined IGRAPHICS_GL
-    const NSOpenGLPixelFormatAttribute kAttributes[] =  {
-      NSOpenGLPFAAccelerated,
-      NSOpenGLPFANoRecovery,
-      NSOpenGLPFATripleBuffer,
-      NSOpenGLPFAAlphaSize, 8,
-      NSOpenGLPFAColorSize, 24,
-      NSOpenGLPFADepthSize, 0,
-      NSOpenGLPFAStencilSize, 8,
-      (NSOpenGLPixelFormatAttribute)0};
-    mPixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:kAttributes];
-    mContext = [[NSOpenGLContext alloc] initWithFormat:mPixelFormat
-                                          shareContext:nil];
-  
-    // Sets sync to VBL to eliminate tearing.
-    GLint vblSync = 1;
-    [mContext setValues:&vblSync forParameter:NSOpenGLCPSwapInterval];
-    // Allows for transparent background.
-//    GLint opaque = 0;
-//    [mContext setValues:&opaque forParameter:NSOpenGLCPSurfaceOpacity];
-//    [self setWantsBestResolutionOpenGLSurface:YES];
-    [mContext makeCurrentContext];
-  
+  //TODO: IGRAPHICS_GL context setup
   #endif
 #endif
 
@@ -340,7 +319,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (BOOL) isFlipped
 {
-    return YES;
+  return YES;
 }
 
 - (BOOL) acceptsFirstResponder
@@ -363,7 +342,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     [pWindow setAcceptsMouseMovedEvents: YES];
     
     if (mGraphics)
-      mGraphics->SetDisplayScale([pWindow backingScaleFactor]);
+      mGraphics->SetScreenScale([pWindow backingScaleFactor]);
     
 //    [[NSNotificationCenter defaultCenter] addObserver:self
 //                                             selector:@selector(windowResized:) name:NSWindowDidEndLiveResizeNotification
@@ -388,25 +367,25 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   
   CGFloat newScale = [pWindow backingScaleFactor];
   
-  if (newScale != mGraphics->GetDisplayScale())
-    mGraphics->SetDisplayScale(newScale);
+  if (newScale != mGraphics->GetScreenScale())
+    mGraphics->SetScreenScale(newScale);
 }
 
-// not called for opengl/metal
+- (CGContextRef) getCGContextRef
+{
+  CGContextRef pCGC = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
+  NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort: pCGC flipped: YES];
+  pCGC = (CGContextRef) [gc graphicsPort];
+  return pCGC;
+}
+
+// not called for METAL
 - (void) drawRect: (NSRect) bounds
 {
-#ifndef IGRAPHICS_GL
   if (mGraphics)
   {
-    //TODO: can we really only get this context on the first draw call?
     if (!mGraphics->GetPlatformContext())
-    {
-      CGContextRef pCGC = nullptr;
-      pCGC = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
-      NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort: pCGC flipped: YES];
-      pCGC = (CGContextRef) [gc graphicsPort];
-      mGraphics->SetPlatformContext(pCGC);
-    }
+      mGraphics->SetPlatformContext([self getCGContextRef]);
       
     if (mGraphics->GetPlatformContext())
     {
@@ -421,61 +400,42 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
       mGraphics->Draw(drawRects);
     }
   }
-#endif
 }
 
 - (void) onTimer: (NSTimer*) pTimer
 {
-  [self render];
-}
-
-- (void) render
-{
-#ifdef IGRAPHICS_GL
-//  CGLLockContext([mContext CGLContextObj]);
-  [mContext setView:self];
-  [mContext makeCurrentContext];
-#endif
-  
   IRECTList rects;
   if (mGraphics->IsDirty(rects))
   {
     mGraphics->SetAllControlsClean();
+    // for METAL layer-backed view drawRect is not called
 #if !defined IGRAPHICS_NANOVG
     for (int i = 0; i < rects.Size(); i++)
-    [self setNeedsDisplayInRect:ToNSRect(mGraphics, rects.Get(i))];
+      [self setNeedsDisplayInRect:ToNSRect(mGraphics, rects.Get(i))];
 #else
-    mGraphics->Draw(rects); // for metal/opengl drawRect is not called
+    // so just draw on each frame, if something is dirty
+    mGraphics->Draw(rects);
 #endif
   }
-  
-#ifdef IGRAPHICS_GL
-//  CGLLockContext([mContext CGLContextObj]);
-  [mContext flushBuffer];
-#endif
 }
 
-- (void) getMouseXY: (NSEvent*) pEvent x: (float*) pX y: (float*) pY
+- (void) getMouseXY: (NSEvent*) pEvent x: (float&) pX y: (float&) pY
 {
   if (mGraphics)
   {
     NSPoint pt = [self convertPoint:[pEvent locationInWindow] fromView:nil];
-    // TODO - fix or remove these values!!
-    *pX = pt.x / mGraphics->GetScale();//- 2.f;
-    *pY = pt.y / mGraphics->GetScale();//- 3.f;
-    mPrevX = *pX;
-    mPrevY = *pY;
-
-    // Detect tablet input correctly
+    pX = pt.x / mGraphics->GetDrawScale();
+    pY = pt.y / mGraphics->GetDrawScale();
+   
+    mGraphics->DoCursorLock(pX, pY, mPrevX, mPrevY);
     mGraphics->SetTabletInput(pEvent.subtype == NSTabletPointEventSubtype);
-    mGraphics->SetMousePosition(*pX, *pY);
   }
 }
 
 - (IMouseInfo) getMouseLeft: (NSEvent*) pEvent
 {
   IMouseInfo info;
-  [self getMouseXY:pEvent x:&info.x y:&info.y];
+  [self getMouseXY:pEvent x:info.x y:info.y];
   int mods = (int) [pEvent modifierFlags];
   info.ms = IMouseMod(true, (mods & NSCommandKeyMask), (mods & NSShiftKeyMask), (mods & NSControlKeyMask), (mods & NSAlternateKeyMask));
 
@@ -485,7 +445,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 - (IMouseInfo) getMouseRight: (NSEvent*) pEvent
 {
   IMouseInfo info;
-  [self getMouseXY:pEvent x:&info.x y:&info.y];
+  [self getMouseXY:pEvent x:info.x y:info.y];
   int mods = (int) [pEvent modifierFlags];
   info.ms = IMouseMod(false, true, (mods & NSShiftKeyMask), (mods & NSControlKeyMask), (mods & NSAlternateKeyMask));
 
@@ -517,11 +477,12 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void) mouseDragged: (NSEvent*) pEvent
 {
+  // Cache previous values before retrieving the new mouse position (which will update them)
+  float prevX = mPrevX;
+  float prevY = mPrevY;
   IMouseInfo info = [self getMouseLeft:pEvent];
-  float dX = [pEvent deltaX];
-  float dY = [pEvent deltaY];
   if (mGraphics && !mTextFieldView)
-    mGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
+    mGraphics->OnMouseDrag(info.x, info.y, info.x - prevX, info.y - prevY, info.ms);
 }
 
 - (void) rightMouseDown: (NSEvent*) pEvent
@@ -540,11 +501,13 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void) rightMouseDragged: (NSEvent*) pEvent
 {
+  // Cache previous values before retrieving the new mouse position (which will update them)
+  float prevX = mPrevX;
+  float prevY = mPrevY;
   IMouseInfo info = [self getMouseRight:pEvent];
-  float dX = [pEvent deltaX];
-  float dY = [pEvent deltaY];
+
   if (mGraphics && !mTextFieldView)
-    mGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
+    mGraphics->OnMouseDrag(info.x, info.y, info.x - prevX, info.y - prevY, info.ms);
 }
 
 - (void) mouseMoved: (NSEvent*) pEvent
@@ -556,49 +519,30 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void)keyDown: (NSEvent *)pEvent
 {
-#ifdef IGRAPHICS_SWELL
   int flag, code = SWELL_MacKeyToWindowsKey(pEvent, &flag);
 
-  bool handle = mGraphics->OnKeyDown(mPrevX, mPrevY, code);
+  NSString *s = [pEvent charactersIgnoringModifiers];
+
+  unichar c = 0;
+  
+  if ([s length] == 1)
+    c = [s characterAtIndex:0];
+  
+  if(!static_cast<bool>(flag & FVIRTKEY))
+  {
+    code = 0;
+  }
+  
+  IKeyPress keyPress {static_cast<char>(c), code, static_cast<bool>(flag & FSHIFT),
+                                                  static_cast<bool>(flag & FCONTROL),
+                                                  static_cast<bool>(flag & FALT)};
+  
+  bool handle = mGraphics->OnKeyDown(mPrevX, mPrevY, keyPress);
   
   if (!handle)
   {
     [[self nextResponder] keyDown:pEvent];
   }
-#else
-  NSString *s = [pEvent charactersIgnoringModifiers];
-
-  if ([s length] == 1)
-  {
-    unsigned short k = [pEvent keyCode];
-    unichar c = [s characterAtIndex:0];
-
-    bool handle = true;
-    int key = KEY_NONE;
-
-    if (k == 48) key = KEY_TAB;
-    else if (k == 49) key = KEY_SPACE;
-    else if (k == 126) key = KEY_UPARROW;
-    else if (k == 125) key = KEY_DOWNARROW;
-    else if (k == 123) key = KEY_LEFTARROW;
-    else if (k == 124) key = KEY_RIGHTARROW;
-    else if (c >= '0' && c <= '9') key = KEY_DIGIT_0+c-'0';
-    else if (c >= 'A' && c <= 'Z') key = KEY_ALPHA_A+c-'A';
-    else if (c >= 'a' && c <= 'z') key = KEY_ALPHA_A+c-'a';
-    else handle = false;
-
-    if (handle)
-    {
-      // can't use getMouseXY because its a key event
-      handle = mGraphics->OnKeyDown(mPrevX, mPrevY, key);
-    }
-    
-    if (!handle)
-    {
-      [[self nextResponder] keyDown:pEvent];
-    }
-  }
-#endif
 }
 
 - (void) scrollWheel: (NSEvent*) pEvent
@@ -614,16 +558,24 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 {
   NSCursor* pCursor = nullptr;
   
+  bool helpCurrent = false;
+  bool helpRequested = false;
+    
   switch (cursor)
   {
     case ECursor::ARROW: pCursor = [NSCursor arrowCursor]; break;
     case ECursor::IBEAM: pCursor = [NSCursor IBeamCursor]; break;
     case ECursor::WAIT:
-      if ([NSCursor respondsToSelector:@selector(_waitCursor)])
-        pCursor = [NSCursor performSelector:@selector(_waitCursor)];
+      if ([NSCursor respondsToSelector:@selector(busyButClickableCursor)])
+        pCursor = [NSCursor performSelector:@selector(busyButClickableCursor)];
       break;
     case ECursor::CROSS: pCursor = [NSCursor crosshairCursor]; break;
-    case ECursor::UPARROW: pCursor = [NSCursor resizeUpCursor]; break;
+    case ECursor::UPARROW:
+      if ([NSCursor respondsToSelector:@selector(_windowResizeNorthCursor)])
+          pCursor = [NSCursor performSelector:@selector(_windowResizeNorthCursor)];
+      else
+          pCursor = [NSCursor resizeUpCursor];
+      break;
     case ECursor::SIZENWSE:
       if ([NSCursor respondsToSelector:@selector(_windowResizeNorthWestSouthEastCursor)])
         pCursor = [NSCursor performSelector:@selector(_windowResizeNorthWestSouthEastCursor)];
@@ -632,25 +584,49 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
       if ([NSCursor respondsToSelector:@selector(_windowResizeNorthEastSouthWestCursor)])
         pCursor = [NSCursor performSelector:@selector(_windowResizeNorthEastSouthWestCursor)];
       break;
-    case ECursor::SIZEWE: pCursor = [NSCursor resizeLeftRightCursor]; break;
+    case ECursor::SIZEWE:
+      if ([NSCursor respondsToSelector:@selector(_windowResizeEastWestCursor)])
+        pCursor = [NSCursor performSelector:@selector(_windowResizeEastWestCursor)];
+      else
+        pCursor = [NSCursor resizeLeftRightCursor];
+      break;
     case ECursor::SIZENS:
       if ([NSCursor respondsToSelector:@selector(_windowResizeNorthSouthCursor)])
         pCursor = [NSCursor performSelector:@selector(_windowResizeNorthSouthCursor)];
+      else
+        pCursor = [NSCursor resizeUpDownCursor];
       break;
     case ECursor::SIZEALL:
       if ([NSCursor respondsToSelector:@selector(_moveCursor)])
         pCursor = [NSCursor performSelector:@selector(_moveCursor)];
       break;
-    case ECursor::INO: pCursor = [NSCursor performSelector:@selector(operationNotAllowedCursor)]; break;
-    case ECursor::HAND: pCursor = [NSCursor pointingHandCursor]; break;
+    case ECursor::INO: pCursor = [NSCursor operationNotAllowedCursor]; break;
+    case ECursor::HAND: pCursor = [NSCursor openHandCursor]; break;
+    case ECursor::APPSTARTING:
+      if ([NSCursor respondsToSelector:@selector(busyButClickableCursor)])
+        pCursor = [NSCursor performSelector:@selector(busyButClickableCursor)];
+       break;
     case ECursor::HELP:
       if ([NSCursor respondsToSelector:@selector(_helpCursor)])
         pCursor = [NSCursor performSelector:@selector(_helpCursor)];
+      helpRequested = true;
       break;
     default: pCursor = [NSCursor arrowCursor]; break;
   }
-  
-  if(!pCursor)
+
+  if ([NSCursor respondsToSelector:@selector(helpCursorShown)])
+    helpCurrent = [NSCursor performSelector:@selector(helpCursorShown)];
+    
+  if (helpCurrent && !helpRequested)
+  {
+    // N.B. - suppress warnings for this call only
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-method-access"
+    [NSCursor _setHelpCursor : false];
+#pragma clang diagnostic pop
+  }
+    
+  if (!pCursor)
     pCursor = [NSCursor arrowCursor];
 
   [pCursor set];
@@ -677,7 +653,9 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     IGraphics* pGraphics = mGraphics;
     mGraphics = nullptr;
     pGraphics->SetPlatformContext(nullptr);
-    pGraphics->CloseWindow();
+    
+    //For some APIs (AUv2) this is where we know about the window being closed, close via delegate
+    pGraphics->GetDelegate()->CloseWindow();
   }
   [super removeFromSuperview];
 }
@@ -892,7 +870,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 //  float scaleY = height / mGraphics->Height();
 //
 //  if(mGraphics->GetUIResizerMode() == EUIResizerMode::kUIResizerScale)
-//    mGraphics->Resize(width, height, mGraphics->GetScale());
+//    mGraphics->Resize(width, height, mGraphics->GetDrawScale());
 //  else // EUIResizerMode::kUIResizerSize
 //    mGraphics->Resize(mGraphics->Width(), mGraphics->Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
 //}
@@ -909,7 +887,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 //  float scaleY = height / mGraphics->Height();
 //
 //  if(mGraphics->GetUIResizerMode() == EUIResizerMode::kUIResizerScale)
-//    mGraphics->Resize(width, height, mGraphics->GetScale());
+//    mGraphics->Resize(width, height, mGraphics->GetDrawScale());
 //  else // EUIResizerMode::kUIResizerSize
 //    mGraphics->Resize(mGraphics->Width(), mGraphics->Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
 //}

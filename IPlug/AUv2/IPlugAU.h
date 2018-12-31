@@ -60,16 +60,16 @@ public:
   void InformHostOfProgramChange() override;
   void InformHostOfParameterDetailsChange() override;
   EHost GetHost() override;
-  void ResizeGraphics(int viewWidth, int viewHeight, float scale) override;
   void HostSpecificInit() override;
 
 //IPlugProcessor
   bool SendMidiMsg(const IMidiMsg& msg) override;
   bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs) override;
-  bool SendSysEx(ISysEx& msg) override;
+  bool SendSysEx(const ISysEx& msg) override;
   void SetLatency(int samples) override;
 
 //IPlugAU
+  void OutputSysexFromEditor();
   void PreProcess();
   void ResizeScratchBuffers();
   static const char* AUInputTypeStr(int type);

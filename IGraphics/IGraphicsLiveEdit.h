@@ -9,14 +9,25 @@
 */
 
 #pragma once
+
+/**
+ * @file
+ * @copydoc IGraphicsLiveEdit
+ */
+
 #ifndef NDEBUG
 
 #include "IControl.h"
 
+/** A control to enable live modification of control layout in an IGraphics context in debug builds
+ * This is based on the work of Youlean, who first included it in iPlug-Youlean
+ * The lives outside the main IGraphics control stack and it can be added with IGraphics::EnableLiveEdit().
+ * It should not be used in the main control stack.
+ * @ingroup SpecialControls */
 class IGraphicsLiveEdit : public IControl
 {
 public:
-  IGraphicsLiveEdit(IGEditorDelegate& dlg, const char* pathToSourceFile, float gridSize)
+  IGraphicsLiveEdit(IGEditorDelegate& dlg, const char* pathToSourceFile = 0, float gridSize = 10)
   : IControl(dlg, IRECT())
   , mPathToSourceFile(pathToSourceFile)
   , mGridSize(gridSize)

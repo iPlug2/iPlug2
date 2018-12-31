@@ -42,18 +42,22 @@ public:
   void InformHostOfProgramChange() override;
   EHost GetHost() override;
   void HostSpecificInit() override;
-  void ResizeGraphics(int viewWidth, int viewHeight, float scale) override;
+  void EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data) override;
 
   //IPlugProcessor
   void SetLatency(int samples) override;
   bool SendMidiMsg(const IMidiMsg& msg) override;
-  bool SendSysEx(ISysEx& msg) override;
+  bool SendSysEx(const ISysEx& msg) override;
 
   //IPlugVST
   audioMasterCallback& GetHostCallback() { return mHostCallback; }
   AEffect& GetAEffect() { return mAEffect; }
+  void OutputSysexFromEditor();
 
 private:
+  virtual VstIntPtr VSTVendorSpecific(VstInt32 idx, VstIntPtr value, void* ptr, float opt) { return 0; }
+  virtual VstIntPtr VSTCanDo(const char* hostString) { return 0; }
+    
   /**
    Called prior to every ProcessBlock call in order to update certain properties and connect buffers if necessary
 

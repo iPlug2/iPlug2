@@ -8,8 +8,13 @@
  ==============================================================================
 */
 
-#include "IPopupMenuControl.h"
+/**
+ * @file
+ * @brief IPopupMenuControl implementation
+ * @ingroup SpecialControls
+ */
 
+#include "IPopupMenuControl.h"
 
 IPopupMenuControl::IPopupMenuControl(IGEditorDelegate& dlg, int paramIdx, IText text, IRECT collapsedBounds, IRECT expandedBounds)
 : IControl(dlg, collapsedBounds, paramIdx)
@@ -162,8 +167,11 @@ void IPopupMenuControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 
 void IPopupMenuControl::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
 {
-  mMouseCellBounds = mActiveMenuPanel->HitTestCells(x, y);
-  SetDirty(false);
+  if(mActiveMenuPanel)
+  {
+    mMouseCellBounds = mActiveMenuPanel->HitTestCells(x, y);
+    SetDirty(false);
+  }
 }
 
 void IPopupMenuControl::OnMouseOver(float x, float y, const IMouseMod& mod)
@@ -299,7 +307,7 @@ void IPopupMenuControl::DrawCellText(IGraphics& g, const IRECT& bounds, const IP
 void IPopupMenuControl::DrawTick(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item* pItem, bool sel, IBlend* pBlend)
 {
   IRECT tickRect = IRECT(bounds.L, bounds.T, bounds.L + TICK_SIZE, bounds.B).GetCentredInside(TICK_SIZE);
-  g.FillRoundRect(sel ? COLOR_WHITE : COLOR_BLACK, tickRect.GetCentredInside(TICK_SIZE/2.), 2, pBlend);
+  g.FillRoundRect(sel ? COLOR_WHITE : COLOR_BLACK, tickRect.GetCentredInside(TICK_SIZE/2.f), 2, pBlend);
 }
 
 void IPopupMenuControl::DrawSubMenuArrow(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item* pItem, bool sel, IBlend* pBlend)
@@ -474,7 +482,7 @@ void IPopupMenuControl::Expand(const IRECT& bounds)
     {
       IRECT maxCell = GetLargestCellRectForMenu(*mMenu, 0, 0);
       
-      x = bounds.MW() - (maxCell.W() / 2.);
+      x = bounds.MW() - (maxCell.W() / 2.f);
       y = bounds.B + CALLOUT_SPACE;
       mCalloutArrowBounds = IRECT(bounds.MW() - CALLOUT_SPACE, bounds.B, bounds.MW() + CALLOUT_SPACE, bounds.B + CALLOUT_SPACE);
       mCalloutArrowDir = kNorth;
@@ -520,7 +528,12 @@ void IPopupMenuControl::CollapseEverything()
     if(mIsContextMenu)
       mCaller->OnContextSelection(pClickedMenu->GetChosenItemIdx());
     else
-      mCaller->OnPopupMenuSelection(pClickedMenu); // TODO: In the synchronous pop-up menu handlers it's possible for mMenu to be null, that should also be possible here if nothing was selected
+    {
+      if(pClickedMenu->GetChosenItemIdx() == -1)
+        mCaller->OnPopupMenuSelection(nullptr);
+      else
+        mCaller->OnPopupMenuSelection(pClickedMenu);
+    }
     
     mIsContextMenu = false;
   }
@@ -623,7 +636,7 @@ IPopupMenuControl::MenuPanel::MenuPanel(IPopupMenuControl& control, IPopupMenu& 
         const float maxTop = control.mMaxBounds.T + control.PAD + control.mDropShadowSize;
         const float maxBottom = control.mMaxBounds.B - control.PAD;// - control.mDropShadowSize;
         const float maxH = (maxBottom - maxTop);
-        mScrollMaxRows = (maxH  / (CellHeight() + control.mCellGap)); // maximum cell rows (full height, not with separators)
+        mScrollMaxRows = static_cast<int>(maxH  / (CellHeight() + control.mCellGap)); // maximum cell rows (full height, not with separators)
         
         // clear everything added so far
         mCellBounds.Empty(true);
@@ -698,7 +711,7 @@ IPopupMenuControl::MenuPanel::MenuPanel(IPopupMenuControl& control, IPopupMenu& 
 
       for(auto i = 0; i < mCellBounds.GetSize(); i++)
       {
-        mCellBounds.Get(i)->Shift(-shiftLeft);
+        mCellBounds.Get(i)->Translate(-shiftLeft, 0.f);
       }
       
       control.mCalloutArrowDir = kWest;
@@ -711,7 +724,7 @@ IPopupMenuControl::MenuPanel::MenuPanel(IPopupMenuControl& control, IPopupMenu& 
       // shift all cell rects left
       for(auto i = 0; i < mCellBounds.GetSize(); i++)
       {
-        mCellBounds.Get(i)->Shift(-shiftLeft, 0, -shiftLeft, 0);
+        mCellBounds.Get(i)->Translate(-shiftLeft, 0.f);
       }
     }
     

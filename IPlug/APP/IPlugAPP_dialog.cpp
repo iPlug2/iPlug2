@@ -14,6 +14,13 @@
 
 #ifdef OS_WIN
 #include "asio.h"
+#define GET_MENU() GetMenu(gHWND)
+#elif defined OS_MAC
+#define GET_MENU() SWELL_GetCurrentMenu()
+#endif
+
+#if defined _DEBUG && !defined NO_IGRAPHICS
+#include "IGraphics.h"
 #endif
 
 // check the input and output devices, find matching srs
@@ -73,8 +80,8 @@ void IPlugAPPHost::PopulateAudioInputList(HWND hwndDlg, RtAudio::DeviceInfo* inf
   buf.SetFormatted(20, "%i", i+1);
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_R,CB_ADDSTRING,0,(LPARAM)buf.Get());
 
-//  SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_L,CB_SETCURSEL, mState.mAudioInChanL - 1, 0);
-//  SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_R,CB_SETCURSEL, mState.mAudioInChanR - 1, 0);
+  SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_L,CB_SETCURSEL, mState.mAudioInChanL - 1, 0);
+  SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_R,CB_SETCURSEL, mState.mAudioInChanR - 1, 0);
 }
 
 void IPlugAPPHost::PopulateAudioOutputList(HWND hwndDlg, RtAudio::DeviceInfo* info)
@@ -89,7 +96,6 @@ void IPlugAPPHost::PopulateAudioOutputList(HWND hwndDlg, RtAudio::DeviceInfo* in
 
   int i;
 
-  //  for (int i=0; i<info.outputChannels; i++) {
   for (i=0; i<info->outputChannels -1; i++)
   {
     buf.SetFormatted(20, "%i", i+1);
@@ -101,8 +107,8 @@ void IPlugAPPHost::PopulateAudioOutputList(HWND hwndDlg, RtAudio::DeviceInfo* in
   buf.SetFormatted(20, "%i", i+1);
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_R,CB_ADDSTRING,0,(LPARAM)buf.Get());
 
-//  SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_L,CB_SETCURSEL, mState.mAudioOutChanL - 1, 0);
-//  SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_R,CB_SETCURSEL, mState.mAudioOutChanR - 1, 0);
+  SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_L,CB_SETCURSEL, mState.mAudioOutChanL - 1, 0);
+  SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_R,CB_SETCURSEL, mState.mAudioOutChanR - 1, 0);
 }
 
 // This has to get called after any change to audio driver/in dev/out dev
@@ -110,7 +116,7 @@ void IPlugAPPHost::PopulateDriverSpecificControls(HWND hwndDlg)
 {
 #ifdef OS_WIN
   int driverType = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_DRIVER, CB_GETCURSEL, 0, 0);
-  if(driverType)   //ASIO
+  if(driverType == kDeviceASIO)
   {
     ComboBox_Enable(GetDlgItem(hwndDlg, IDC_COMBO_AUDIO_IN_DEV), FALSE);
     Button_Enable(GetDlgItem(hwndDlg, IDC_BUTTON_OS_DEV_SETTINGS), TRUE);
@@ -145,7 +151,7 @@ void IPlugAPPHost::PopulateDriverSpecificControls(HWND hwndDlg)
   }
 
 #ifdef OS_WIN
-  if(driverType)
+  if(driverType == kDeviceASIO)
     SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_DEV,CB_SETCURSEL, outdevidx, 0);
   else
 #endif
@@ -184,26 +190,17 @@ void IPlugAPPHost::PopulateAudioDialogs(HWND hwndDlg)
 //    SendDlgItemMessage(hwndDlg,IDC_CB_MONO_INPUT,BM_SETCHECK, BST_UNCHECKED,0);
 //  }
 
-  //Populate IOVS combobox
-//  for (int i = 0; i< kNumBufferSizeOptions; i++)
-//  {
-//    SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_BUF_SIZE,CB_ADDSTRING,0,(LPARAM)kBufferSizeOptions[i].c_str());
-//  }
-//  
-//  WDL_String str;
-//  str.SetFormatted(32, "%i", mState.mBufferSize);
-//
-//  LRESULT iovsidx = SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_BUF_SIZE, CB_FINDSTRINGEXACT, -1, (LPARAM) str.Get());
-//  SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_BUF_SIZE, CB_SETCURSEL, iovsidx, 0);
-//
-//  //Populate SIGVS combobox
-//  for (int i = 0; i< kNumBufferSizeOptions; i++)
-//  {
-//    SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_SIGVS,CB_ADDSTRING,0,(LPARAM)kBufferSizeOptions[i].c_str());
-//  }
-//
-//  LRESULT sigvsidx = SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_SIGVS, CB_FINDSTRINGEXACT, -1, (LPARAM)mState.mBufferSize);
-//  SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_SIGVS, CB_SETCURSEL, sigvsidx, 0);
+//  Populate buffer size combobox
+  for (int i = 0; i< kNumBufferSizeOptions; i++)
+  {
+    SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_BUF_SIZE,CB_ADDSTRING,0,(LPARAM)kBufferSizeOptions[i].c_str());
+  }
+  
+  WDL_String str;
+  str.SetFormatted(32, "%i", mState.mBufferSize);
+
+  LRESULT iovsidx = SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_BUF_SIZE, CB_FINDSTRINGEXACT, -1, (LPARAM) str.Get());
+  SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_BUF_SIZE, CB_SETCURSEL, iovsidx, 0);
 }
 
 bool IPlugAPPHost::PopulateMidiDialogs(HWND hwndDlg)
@@ -339,7 +336,6 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
         case IDC_COMBO_AUDIO_DRIVER:
           if (HIWORD(wParam) == CBN_SELCHANGE)
           {
-
             v = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_DRIVER, CB_GETCURSEL, 0, 0);
 
             if(v != mState.mAudioDriverType)
@@ -356,8 +352,8 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
                 mState.mAudioOutDev.Set(_this->GetAudioDeviceName(_this->mAudioOutputDevs[0]).c_str());
 
               // Reset IO
-//              mState.mAudioOutChanL = 1;
-//              mState.mAudioOutChanR = 2;
+              mState.mAudioOutChanL = 1;
+              mState.mAudioOutChanR = 2;
 
               _this->PopulateAudioDialogs(hwndDlg);
             }
@@ -371,8 +367,8 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
             SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_IN_DEV, CB_GETLBTEXT, idx, (LPARAM) mState.mAudioInDev.Get());
 
             // Reset IO
-//            mState.mAudioInChanL = 1;
-//            mState.mAudioInChanR = 2;
+            mState.mAudioInChanL = 1;
+            mState.mAudioInChanR = 2;
 
             _this->PopulateDriverSpecificControls(hwndDlg);
           }
@@ -385,49 +381,49 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
             SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_OUT_DEV, CB_GETLBTEXT, idx, (LPARAM) mState.mAudioOutDev.Get());
 
             // Reset IO
-//            mState.mAudioOutChanL = 1;
-//            mState.mAudioOutChanR = 2;
+            mState.mAudioOutChanL = 1;
+            mState.mAudioOutChanR = 2;
 
             _this->PopulateDriverSpecificControls(hwndDlg);
           }
           break;
 
-//        case IDC_COMBO_AUDIO_IN_L:
-//          if (HIWORD(wParam) == CBN_SELCHANGE)
-//          {
-//            mState.mAudioInChanL = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_IN_L, CB_GETCURSEL, 0, 0) + 1;
-//
-//            //TEMP
-//            mState.mAudioInChanR = mState.mAudioInChanL + 1;
-//            SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_R,CB_SETCURSEL, mState.mAudioInChanR - 1, 0);
-//            //
-//          }
-//          break;
-//
-//        case IDC_COMBO_AUDIO_IN_R:
-//          if (HIWORD(wParam) == CBN_SELCHANGE)
-//            SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_R,CB_SETCURSEL, mState.mAudioInChanR - 1, 0);  // TEMP
-//                mState.mAudioInChanR = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_IN_R, CB_GETCURSEL, 0, 0);
-//          break;
-//
-//        case IDC_COMBO_AUDIO_OUT_L:
-//          if (HIWORD(wParam) == CBN_SELCHANGE)
-//          {
-//            mState.mAudioOutChanL = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_OUT_L, CB_GETCURSEL, 0, 0) + 1;
-//
-//            //TEMP
-//            mState.mAudioOutChanR = mState.mAudioOutChanL + 1;
-//            SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_R,CB_SETCURSEL, mState.mAudioOutChanR - 1, 0);
-//            //
-//          }
-//          break;
-//
-//        case IDC_COMBO_AUDIO_OUT_R:
-//          if (HIWORD(wParam) == CBN_SELCHANGE)
-//            SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_R,CB_SETCURSEL, mState.mAudioOutChanR - 1, 0);  // TEMP
-//                mState.mAudioOutChanR = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_OUT_R, CB_GETCURSEL, 0, 0);
-//          break;
-//
+        case IDC_COMBO_AUDIO_IN_L:
+          if (HIWORD(wParam) == CBN_SELCHANGE)
+          {
+            mState.mAudioInChanL = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_IN_L, CB_GETCURSEL, 0, 0) + 1;
+
+            //TEMP
+            mState.mAudioInChanR = mState.mAudioInChanL + 1;
+            SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_R,CB_SETCURSEL, mState.mAudioInChanR - 1, 0);
+            //
+          }
+          break;
+
+        case IDC_COMBO_AUDIO_IN_R:
+          if (HIWORD(wParam) == CBN_SELCHANGE)
+            SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_R,CB_SETCURSEL, mState.mAudioInChanR - 1, 0);  // TEMP
+                mState.mAudioInChanR = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_IN_R, CB_GETCURSEL, 0, 0);
+          break;
+
+        case IDC_COMBO_AUDIO_OUT_L:
+          if (HIWORD(wParam) == CBN_SELCHANGE)
+          {
+            mState.mAudioOutChanL = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_OUT_L, CB_GETCURSEL, 0, 0) + 1;
+
+            //TEMP
+            mState.mAudioOutChanR = mState.mAudioOutChanL + 1;
+            SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_R,CB_SETCURSEL, mState.mAudioOutChanR - 1, 0);
+            //
+          }
+          break;
+
+        case IDC_COMBO_AUDIO_OUT_R:
+          if (HIWORD(wParam) == CBN_SELCHANGE)
+            SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_R,CB_SETCURSEL, mState.mAudioOutChanR - 1, 0);  // TEMP
+                mState.mAudioOutChanR = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_OUT_R, CB_GETCURSEL, 0, 0);
+          break;
+
 //        case IDC_CB_MONO_INPUT:
 //          if (SendDlgItemMessage(hwndDlg,IDC_CB_MONO_INPUT, BM_GETCHECK, 0, 0) == BST_CHECKED)
 //            mState.mAudioInIsMono = 1;
@@ -435,27 +431,14 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
 //            mState.mAudioInIsMono = 0;
 //          break;
 
-//        case IDC_COMBO_AUDIO_BUF_SIZE: // follow through
-//        case IDC_COMBO_AUDIO_SIGVS:
-//          //TODO: FIX
-//          if (HIWORD(wParam) == CBN_SELCHANGE)
-//          {
-//            int iovsidx = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_BUF_SIZE, CB_GETCURSEL, 0, 0);
-//            int sigvsidx = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_SIGVS, CB_GETCURSEL, 0, 0);
-//
-//            if (atoi(kBufferSizeOptions[iovsidx].c_str()) < atoi(kBufferSizeOptions[sigvsidx].c_str())) // if iovs < sigvs
-//            {
-//              SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_BUF_SIZE, CB_GETLBTEXT, iovsidx, (LPARAM) mState.mBufferSize);
-//              strcpy(mState.mBufferSize, kBufferSizeOptions[0].c_str()); // set sigvs to minimum
-//              SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_SIGVS, CB_SETCURSEL, -1, 0);
-//            }
-//            else
-//            {
-//              SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_BUF_SIZE, CB_GETLBTEXT, iovsidx, (LPARAM) mState.mBufferSize);
-//              SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_SIGVS, CB_GETLBTEXT, sigvsidx, (LPARAM) mState.mBufferSize);
-//            }
-//          }
-//          break;
+        case IDC_COMBO_AUDIO_BUF_SIZE: // follow through
+          if (HIWORD(wParam) == CBN_SELCHANGE)
+          {
+            int iovsidx = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_BUF_SIZE, CB_GETCURSEL, 0, 0);
+            mState.mBufferSize = atoi(kBufferSizeOptions[iovsidx].c_str());
+            SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_BUF_SIZE, CB_GETLBTEXT, iovsidx, (LPARAM) kBufferSizeOptions[iovsidx].c_str());
+          }
+          break;
         case IDC_COMBO_AUDIO_SR:
           if (HIWORD(wParam) == CBN_SELCHANGE)
           {
@@ -536,7 +519,7 @@ void ClientResize(HWND hWnd, int nWidth, int nHeight)
 }
 
 //static
-WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   IPlugAPPHost* pAppHost = IPlugAPPHost::sInstance;
 
@@ -565,26 +548,20 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_CLOSE:
       DestroyWindow(hwndDlg);
       return 0;
-//    case WM_GETDLGCODE: {
-//        LPARAM lres;
-//        lres = CallWindowProc(/*TODO GET PROC */, hWnd, WM_GETDLGCODE, wParam, lParam);
-//        if (lParam && ((MSG*)lParam)->message == WM_KEYDOWN  &&  wParam == VK_LEFT) {
-//          lres |= DLGC_WANTMESSAGE;
-//        }
-//        return lres;
-//      }
     case WM_COMMAND:
       switch (LOWORD(wParam))
       {
         case ID_QUIT:
+        {
           DestroyWindow(hwndDlg);
           return 0;
+        }
         case ID_ABOUT:
         {
-          bool pluginOpensAboutBox = false;
-
-          //TODO: open about box
-
+          IPlugAPP* pPlug = pAppHost->GetPlug();
+          
+          bool pluginOpensAboutBox = pPlug->OnHostRequestingAboutBox();
+          
           if (pluginOpensAboutBox == false)
           {
             WDL_String info;
@@ -594,14 +571,18 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
           return 0;
         }
-//        case ID_HELP:
-//        {
-//          WDL_String info;
-//          info.Set("open help");
-//          MessageBox(hwndDlg, info.Get(), PLUG_NAME, MB_OK);
-//
-//          return 0;
-//        }
+        case ID_HELP:
+        {
+          IPlugAPP* pPlug = pAppHost->GetPlug();
+
+          bool pluginOpensHelp = pPlug->OnHostRequestingProductHelp();
+
+          if (pluginOpensHelp == false)
+          {
+            MessageBox(hwndDlg, "See the manual", PLUG_NAME, MB_OK);
+          }
+          return 0;
+        }
         case ID_PREFERENCES:
         {
           INT_PTR ret = DialogBox(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_PREF), hwndDlg, IPlugAPPHost::PreferencesDlgProc);
@@ -611,6 +592,80 @@ WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
           return 0;
         }
+#if defined _DEBUG && !defined NO_IGRAPHICS
+        case ID_LIVE_EDIT:
+        {
+          IGEditorDelegate* pPlug = dynamic_cast<IGEditorDelegate*>(pAppHost->GetPlug());
+        
+          if(pPlug)
+          {
+            IGraphics* pGraphics = pPlug->GetUI();
+            
+            if(pGraphics)
+            {
+              bool enabled = pGraphics->LiveEditEnabled();
+              pGraphics->EnableLiveEdit(!enabled);
+              CheckMenuItem(GET_MENU(), ID_LIVE_EDIT, MF_BYCOMMAND | enabled ? MF_UNCHECKED : MF_CHECKED);
+            }
+          }
+          
+          return 0;
+        }
+        case ID_SHOW_DRAWN:
+        {
+          IGEditorDelegate* pPlug = dynamic_cast<IGEditorDelegate*>(pAppHost->GetPlug());
+          
+          if(pPlug)
+          {
+            IGraphics* pGraphics = pPlug->GetUI();
+            
+            if(pGraphics)
+            {
+              bool enabled = pGraphics->ShowAreaDrawnEnabled();
+              pGraphics->ShowAreaDrawn(!enabled);
+              CheckMenuItem(GET_MENU(), ID_SHOW_DRAWN, MF_BYCOMMAND | enabled ? MF_UNCHECKED : MF_CHECKED);
+            }
+          }
+          
+          return 0;
+        }
+        case ID_SHOW_BOUNDS:
+        {
+          IGEditorDelegate* pPlug = dynamic_cast<IGEditorDelegate*>(pAppHost->GetPlug());
+          
+          if(pPlug)
+          {
+            IGraphics* pGraphics = pPlug->GetUI();
+            
+            if(pGraphics)
+            {
+              bool enabled = pGraphics->ShowControlBoundsEnabled();
+              pGraphics->ShowControlBounds(!enabled);
+              CheckMenuItem(GET_MENU(), ID_SHOW_BOUNDS, MF_BYCOMMAND | enabled ? MF_UNCHECKED : MF_CHECKED);
+            }
+          }
+          
+          return 0;
+        }
+        case ID_SHOW_FPS:
+        {
+          IGEditorDelegate* pPlug = dynamic_cast<IGEditorDelegate*>(pAppHost->GetPlug());
+          
+          if(pPlug)
+          {
+            IGraphics* pGraphics = pPlug->GetUI();
+            
+            if(pGraphics)
+            {
+              bool enabled = pGraphics->ShowingFPSDisplay();
+              pGraphics->ShowFPSDisplay(!enabled);
+              CheckMenuItem(GET_MENU(), ID_SHOW_FPS, MF_BYCOMMAND | enabled ? MF_UNCHECKED : MF_CHECKED);
+            }
+          }
+          
+          return 0;
+        }
+#endif
       }
       return 0;
   }

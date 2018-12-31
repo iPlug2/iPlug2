@@ -271,6 +271,14 @@
 		4FC3EFFE2086CE5700BD11FA /* processdata.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFEB2086CE5600BD11FA /* processdata.h */; };
 		4FC3F0002086CE5700BD11FA /* stringconvert.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFED2086CE5600BD11FA /* stringconvert.h */; };
 		4FC3F0012086CE5700BD11FA /* uid.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFEE2086CE5600BD11FA /* uid.h */; };
+		4FCE29EA21D6EDAF004BCBA1 /* ITextEntryControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FCE29E721D6EDAF004BCBA1 /* ITextEntryControl.h */; };
+		4FCE29EB21D6EDAF004BCBA1 /* ITextEntryControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCE29E921D6EDAF004BCBA1 /* ITextEntryControl.cpp */; };
+		4FCE29EC21D6EDAF004BCBA1 /* ITextEntryControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCE29E921D6EDAF004BCBA1 /* ITextEntryControl.cpp */; };
+		4FCE29ED21D6EDAF004BCBA1 /* ITextEntryControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCE29E921D6EDAF004BCBA1 /* ITextEntryControl.cpp */; };
+		4FCE29EE21D6EDAF004BCBA1 /* ITextEntryControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCE29E921D6EDAF004BCBA1 /* ITextEntryControl.cpp */; };
+		4FCE29EF21D6EDAF004BCBA1 /* ITextEntryControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCE29E921D6EDAF004BCBA1 /* ITextEntryControl.cpp */; };
+		4FCE29F021D6EDAF004BCBA1 /* ITextEntryControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCE29E921D6EDAF004BCBA1 /* ITextEntryControl.cpp */; };
+		4FCE29F121D6EDAF004BCBA1 /* ITextEntryControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCE29E921D6EDAF004BCBA1 /* ITextEntryControl.cpp */; };
 		4FD16CFC13B63468001D0217 /* swell-appstub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16CFB13B63468001D0217 /* swell-appstub.mm */; };
 		4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0413B634AA001D0217 /* swell-dlg.mm */; settings = {COMPILER_FLAGS = "-Wno-unreachable-code"; }; };
 		4FD16D0C13B634BF001D0217 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
@@ -613,11 +621,9 @@
 		4F78D90513B63BA50032E0F3 /* IPlugMidi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugMidi.h; path = ../../../IPlug/IPlugMidi.h; sourceTree = SOURCE_ROOT; };
 		4F78DB5F13B6462B0032E0F3 /* IPlugFaustDSP.component */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugFaustDSP.component; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F7E6F2920DEC3DE00A5F641 /* favicon.ico */ = {isa = PBXFileReference; lastKnownFileType = image.ico; path = favicon.ico; sourceTree = "<group>"; };
-		4F7E6F2A20DEC3DE00A5F641 /* IPlugWAM-webcomponent.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "IPlugWAM-webcomponent.html"; sourceTree = "<group>"; };
 		4F7E6F2B20DEC3DE00A5F641 /* IPlugWAM-standalone.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "IPlugWAM-standalone.html"; sourceTree = "<group>"; };
 		4F7E6F2D20DEC3DE00A5F641 /* IPlugWAM-awp.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "IPlugWAM-awp.js"; sourceTree = "<group>"; };
 		4F7E6F2F20DEC3DE00A5F641 /* IPlugWAM-awn.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "IPlugWAM-awn.js"; sourceTree = "<group>"; };
-		4F7E6F5020DEEAA300A5F641 /* IPlugWeb-remote.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "IPlugWeb-remote.html"; sourceTree = "<group>"; };
 		4F8157DD205D50EA00393585 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		4F8157E0205D50EA00393585 /* memorystream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = memorystream.cpp; sourceTree = "<group>"; };
 		4F8157E1205D50EA00393585 /* memorystream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = memorystream.h; sourceTree = "<group>"; };
@@ -740,7 +746,7 @@
 		4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugProcessor.cpp; path = ../../../IPlug/IPlugProcessor.cpp; sourceTree = "<group>"; };
 		4F97BD89213760E200541A17 /* IGraphicsCanvas.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IGraphicsCanvas.h; sourceTree = "<group>"; };
 		4F97BD8A213760E200541A17 /* IGraphicsCanvas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsCanvas.cpp; sourceTree = "<group>"; };
-		4F97BD8B2137629600541A17 /* IPerfDisplayControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPerfDisplayControl.h; sourceTree = "<group>"; };
+		4F97BD8B2137629600541A17 /* IFPSDisplayControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IFPSDisplayControl.h; sourceTree = "<group>"; };
 		4F9828E0140A9EB700F3FCC1 /* IPlugFaustDSP.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugFaustDSP.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F98C32C20A7678800F120A9 /* IPlugViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = IPlugViewController.xib; path = ../resources/IPlugViewController.xib; sourceTree = "<group>"; };
 		4F9A82F3213DE80200BE63A4 /* IPopupMenuControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPopupMenuControl.h; sourceTree = "<group>"; };
@@ -789,6 +795,8 @@
 		4FC44B9E20F16B200062F870 /* IWebsocketServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IWebsocketServer.cpp; sourceTree = "<group>"; };
 		4FC82B4520BD522B00722133 /* img */ = {isa = PBXFileReference; lastKnownFileType = folder; name = img; path = ../resources/img; sourceTree = "<group>"; };
 		4FC82B4620BD522B00722133 /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fonts; path = ../resources/fonts; sourceTree = "<group>"; };
+		4FCE29E721D6EDAF004BCBA1 /* ITextEntryControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ITextEntryControl.h; sourceTree = "<group>"; };
+		4FCE29E921D6EDAF004BCBA1 /* ITextEntryControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ITextEntryControl.cpp; sourceTree = "<group>"; };
 		4FD16A0913B63081001D0217 /* IPlugFaustDSP.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPlugFaustDSP.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD16CFB13B63468001D0217 /* swell-appstub.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-appstub.mm"; path = "../../../WDL/swell/swell-appstub.mm"; sourceTree = SOURCE_ROOT; };
 		4FD16D0213B63489001D0217 /* swell-menugen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "swell-menugen.h"; path = "../../../WDL/swell/swell-menugen.h"; sourceTree = SOURCE_ROOT; };
@@ -1190,6 +1198,8 @@
 		4F63695120A463090022C370 /* Controls */ = {
 			isa = PBXGroup;
 			children = (
+				4FCE29E921D6EDAF004BCBA1 /* ITextEntryControl.cpp */,
+				4FCE29E721D6EDAF004BCBA1 /* ITextEntryControl.h */,
 				4F503CC621B6A1E200837B7C /* IVMultiSliderControl.h */,
 				4F9A82F5213DE80300BE63A4 /* IPopupMenuControl.cpp */,
 				4F9A82F3213DE80200BE63A4 /* IPopupMenuControl.h */,
@@ -1198,7 +1208,7 @@
 				4F63695520A463090022C370 /* IVMeterControl.h */,
 				4FF83B5E20B6E901007A0E4B /* IVScopeControl.h */,
 				4F63695720A463090022C370 /* IVKeyboardControl.h */,
-				4F97BD8B2137629600541A17 /* IPerfDisplayControl.h */,
+				4F97BD8B2137629600541A17 /* IFPSDisplayControl.h */,
 			);
 			name = Controls;
 			path = ../../../IGraphics/Controls;
@@ -1293,9 +1303,7 @@
 			isa = PBXGroup;
 			children = (
 				4F7E6F2920DEC3DE00A5F641 /* favicon.ico */,
-				4F7E6F2A20DEC3DE00A5F641 /* IPlugWAM-webcomponent.html */,
 				4F7E6F2B20DEC3DE00A5F641 /* IPlugWAM-standalone.html */,
-				4F7E6F5020DEEAA300A5F641 /* IPlugWeb-remote.html */,
 				4F7E6F2C20DEC3DE00A5F641 /* scripts */,
 			);
 			name = Template;
@@ -1704,6 +1712,7 @@
 				4F03A5B620A4621100EBDFFB /* IGraphics_select.h in Headers */,
 				4F03A5AB20A4621100EBDFFB /* IGraphics_include_in_plug_hdr.h in Headers */,
 				4FC3EFF22086CE5700BD11FA /* hostclasses.h in Headers */,
+				4FCE29EA21D6EDAF004BCBA1 /* ITextEntryControl.h in Headers */,
 				4F03A5D420A4621100EBDFFB /* IGraphicsUtilities.h in Headers */,
 				4F03A5AA20A4621100EBDFFB /* IGraphicsLiveEdit.h in Headers */,
 				4F6369EA20A466470022C370 /* IControl.h in Headers */,
@@ -2177,6 +2186,7 @@
 				4F55E1FA21BFE7CC00B34359 /* swell-dlg.mm in Sources */,
 				4F78D9BB13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
 				4FB1F59020E4B010004157C8 /* IGraphicsMac_view.mm in Sources */,
+				4FCE29EC21D6EDAF004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4F35DEAE207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4F55E1FF21BFE7CC00B34359 /* swell.cpp in Sources */,
 				4F55E1F521BFE63900B34359 /* curses_editor.cpp in Sources */,
@@ -2199,6 +2209,7 @@
 				4F6369F020A466470022C370 /* IControl.cpp in Sources */,
 				4F55E21921BFE7D200B34359 /* swell-kb.mm in Sources */,
 				4F63697220A463090022C370 /* IControls.cpp in Sources */,
+				4FCE29F021D6EDAF004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4F55E21A21BFE7D200B34359 /* swell-miscdlg.mm in Sources */,
 				4FAEBD34209DAF87002E6392 /* IPlugParameter.cpp in Sources */,
 				4FAEBD3D209DAFF3002E6392 /* swell-misc.mm in Sources */,
@@ -2235,6 +2246,7 @@
 				4F63697020A463090022C370 /* IControls.cpp in Sources */,
 				4F55E20721BFE7CD00B34359 /* swell-kb.mm in Sources */,
 				4FD16D0E13B634BF001D0217 /* swell-gdi.mm in Sources */,
+				4FCE29EE21D6EDAF004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4F55E20821BFE7CD00B34359 /* swell-miscdlg.mm in Sources */,
 				4FD52131202A5B9B00A4D22A /* IPlugAU_view_factory.mm in Sources */,
 				4F8C10E320BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */,
@@ -2315,6 +2327,7 @@
 				4F1A527E205D911A00CF2908 /* IPlugVST3.cpp in Sources */,
 				4F815988205D50EB00393585 /* coreiids.cpp in Sources */,
 				4F815993205D51F000393585 /* vstnoteexpressiontypes.cpp in Sources */,
+				4FCE29ED21D6EDAF004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4F55E20321BFE7CC00B34359 /* swell-menu.mm in Sources */,
 				4F55E1E421BFE63900B34359 /* curses_win32.cpp in Sources */,
 			);
@@ -2324,6 +2337,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FCE29EF21D6EDAF004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4F55E21321BFE7CE00B34359 /* swell-kb.mm in Sources */,
 				4F9A82FB213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */,
 				4F55E21221BFE7CE00B34359 /* swell-dlg.mm in Sources */,
@@ -2372,6 +2386,7 @@
 				4FC3EFF92086CE5700BD11FA /* parameterchanges.cpp in Sources */,
 				4FC3EFCE2086C35D00BD11FA /* IPlugPluginBase.cpp in Sources */,
 				4F55E22221BFE7D200B34359 /* swell-wnd.mm in Sources */,
+				4FCE29F121D6EDAF004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4F63697320A463090022C370 /* IControls.cpp in Sources */,
 				4FB1F59620E4B017004157C8 /* IGraphicsMac_view.mm in Sources */,
 				4F9A82FD213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */,
@@ -2398,6 +2413,7 @@
 				4FD16D3A13B63582001D0217 /* swell-kb.mm in Sources */,
 				4F5F344120C0226200487201 /* IPlugPaths.mm in Sources */,
 				4FD16D3C13B6358C001D0217 /* swell-miscdlg.mm in Sources */,
+				4FCE29EB21D6EDAF004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4FD16D3E13B63595001D0217 /* swell-menu.mm in Sources */,
 				4FB1F59120E4B011004157C8 /* IGraphicsMac_view.mm in Sources */,
 				4FD16D4013B635A0001D0217 /* swell-misc.mm in Sources */,

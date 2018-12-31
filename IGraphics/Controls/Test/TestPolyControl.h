@@ -10,16 +10,24 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc TestPolyControl
+ */
+
 #include "IControl.h"
 
+/** Control to test drawing polygons
+ *   @ingroup TestControls */
 class TestPolyControl : public IKnobControlBase
 {
 public:
   TestPolyControl(IGEditorDelegate& dlg, IRECT rect, int paramIdx = kNoParameter)
   : IKnobControlBase(dlg, rect, paramIdx)
   {
+    SetTooltip("TestPolyControl");
   }
-  
+
   void Draw(IGraphics& g) override
   {
     float xarray[32];
@@ -28,16 +36,16 @@ public:
     float angle = (-0.75f * (float) PI) + (float) mValue * (1.5f * (float) PI);
     float incr = (2.f * (float) PI) / npoints;
     float cr = (float) mValue * (mRECT.W() / 2.f);
-    
+
     g.FillRoundRect(COLOR_WHITE, mRECT.GetPadded(-2.f), cr);
     g.DrawRoundRect(COLOR_BLACK, mRECT.GetPadded(-2.f), cr);
-    
+
     for (int i = 0; i < npoints; i++)
     {
       xarray[i] = mRECT.MW() + sinf(angle + (float) i * incr) * mRECT.W() * 0.45f;
       yarray[i] = mRECT.MH() + cosf(angle + (float) i * incr) * mRECT.W() * 0.45f;
     }
-    
+
     g.FillConvexPolygon(COLOR_ORANGE, xarray, yarray, npoints);
     g.DrawConvexPolygon(COLOR_BLACK, xarray, yarray, npoints);
   }
