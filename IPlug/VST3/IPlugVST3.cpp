@@ -261,10 +261,10 @@ tresult PLUGIN_API IPlugVST3::setupProcessing(ProcessSetup& newSetup)
 
   if ((newSetup.symbolicSampleSize != kSample32) && (newSetup.symbolicSampleSize != kSample64)) return kResultFalse;
 
-  _SetSampleRate(newSetup.sampleRate);
+  SetSampleRate(newSetup.sampleRate);
   //TODO - is this correct?
-  _SetBypassed(false);
-  IPlugProcessor::_SetBlockSize(newSetup.maxSamplesPerBlock); // TODO: should IPlugVST3 call SetBlockSizein construct unlike other APIs?
+  SetBypassed(false);
+  IPlugProcessor::SetBlockSize(newSetup.maxSamplesPerBlock); // TODO: should IPlugVST3 call SetBlockSizein construct unlike other APIs?
   mMidiOutputQueue.Resize(newSetup.maxSamplesPerBlock);
   OnReset();
 
@@ -620,7 +620,7 @@ tresult PLUGIN_API IPlugVST3::setState(IBStream* state)
   if (!IsInstrument())
   {
     parameters.getParameter(kBypassParam)->setNormalized(savedBypass);
-    _SetBypassed((bool) savedBypass);
+    SetBypassed((bool) savedBypass);
   }
   
   OnRestoreState();
