@@ -248,8 +248,21 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
       if (gHWND)
         DestroyWindow(gHWND);
       break;
-    case SWELLAPP_PROCESSMESSAGE: // can hook keyboard input here
-      // parm1 = (MSG*), should we want it -- look in swell.h to see what the return values refer to
+    case SWELLAPP_PROCESSMESSAGE:
+      MSG* pMSG = (MSG*) parm1;
+      NSView* pContentView = (NSView*) pMSG->hwnd;
+      NSEvent* pEvent = (NSEvent*) parm2;
+      int etype = [pEvent type];
+
+      if(etype == NSKeyDown)
+      {
+        int flag, code = SWELL_MacKeyToWindowsKey(pEvent, &flag);
+        
+        if (!(flag&~FVIRTKEY))
+          if(code == VK_RETURN || code == VK_ESCAPE)
+            [pContentView keyDown: pEvent];
+      }
+      
       break;
   }
   return 0;

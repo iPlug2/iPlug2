@@ -32,7 +32,9 @@ typedef IPlugVST3Controller VST3_API_BASE;
 #include "IControls.h"
 #include "IGraphicsLiveEdit.h"
 #include "IFPSDisplayControl.h"
+#include "ICornerResizerControl.h"
 #include "IPopupMenuControl.h"
+#include "ITextEntryControl.h"
 
 struct SVGHolder
 {
@@ -101,7 +103,7 @@ void IGraphics::Resize(int w, int h, float scale)
   if (mCornerResizer)
     mCornerResizer->OnRescale();
 
-  GetDelegate()->EditorStateNotify();
+  GetDelegate()->EditorPropertiesModified();
   PlatformResize();
   ForAllControls(&IControl::OnResize);
   SetAllControlsDirty();
@@ -140,6 +142,9 @@ void IGraphics::RemoveAllControls()
 
   if (mPopupControl)
     DELETE_NULL(mPopupControl);
+  
+  if (mTextEntryControl)
+    DELETE_NULL(mTextEntryControl);
   
   if (mCornerResizer)
     DELETE_NULL(mCornerResizer);
@@ -189,10 +194,10 @@ int IGraphics::AttachControl(IControl* pControl, int controlTag, const char* gro
 
 void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize)
 {
-  AttachCornerResizer(new ICornerResizerBase(mDelegate, GetBounds(), 20), sizeMode, layoutOnResize);
+  AttachCornerResizer(new ICornerResizerControl(mDelegate, GetBounds(), 20), sizeMode, layoutOnResize);
 }
 
-void IGraphics::AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode sizeMode, bool layoutOnResize)
+void IGraphics::AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerMode sizeMode, bool layoutOnResize)
 {
   assert(mCornerResizer == nullptr); // only want one corner resizer
 
@@ -215,6 +220,15 @@ void IGraphics::AttachPopupMenuControl(const IText& text, const IRECT& bounds)
   {
     mPopupControl = new IPopupMenuControl(mDelegate, kNoParameter, text, IRECT(), bounds);
     mPopupControl->SetGraphics(this);
+  }
+}
+
+void IGraphics::AttachTextEntryControl()
+{
+  if(mTextEntryControl == nullptr)
+  {
+    mTextEntryControl = new ITextEntryControl(mDelegate);
+    mTextEntryControl->SetGraphics(this);
   }
 }
 
@@ -326,6 +340,9 @@ void IGraphics::ForAllControlsFunc(std::function<void(IControl& control)> func)
   if (mLiveEdit)
     func(*mLiveEdit);
 #endif
+  
+  if (mTextEntryControl)
+    func(*mTextEntryControl);
   
   if (mPopupControl)
     func(*mPopupControl);
@@ -737,7 +754,7 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
     if (mod.R && paramIdx >= 0)
     {
       ReleaseMouseCapture();
-      PopupHostContextMenuForParam(mMouseCapture, paramIdx, x, y);
+      PopupHostContextMenuForParam(pControl, paramIdx, x, y);
       return;
     }
     #endif
@@ -792,10 +809,12 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
   {
     if (mMouseOver)
       mMouseOver->OnMouseOut();
-    if (pControl)
-      pControl->OnMouseOver(x, y, mod);
+
     mMouseOver = pControl;
   }
+
+  if (mMouseOver)
+    mMouseOver->OnMouseOver(x, y, mod);
 
   return pControl;
 }
@@ -854,10 +873,10 @@ void IGraphics::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
   if (pControl) pControl->OnMouseWheel(x, y, mod, d);
 }
 
-bool IGraphics::OnKeyDown(float x, float y, int key)
+bool IGraphics::OnKeyDown(float x, float y, const IKeyPress& key)
 {
   Trace("IGraphics::OnKeyDown", __LINE__, "x:%0.2f, y:%0.2f, key:%i",
-        x, y, key);
+        x, y, key.Ascii);
 
   bool handled = false;
 
@@ -920,6 +939,9 @@ IControl* IGraphics::GetMouseControl(float x, float y, bool capture, bool mouseO
   if (!control && mPopupControl && mPopupControl->GetExpanded())
     control = mPopupControl;
   
+  if (!control && mTextEntryControl && mTextEntryControl->EditInProgress())
+    control = mTextEntryControl;
+  
 #if !defined(NDEBUG)
   if (mLiveEdit)
     control = mLiveEdit;
@@ -974,9 +996,6 @@ void IGraphics::PopupHostContextMenuForParam(IControl* pControl, int paramIdx, f
   {
     pControl->CreateContextMenu(contextMenu);
 
-    if(!contextMenu.NItems())
-      return;
-
 #if defined VST3_API || defined VST3C_API
     VST3_API_BASE* pVST3 = dynamic_cast<VST3_API_BASE*>(&mDelegate);
 
@@ -1009,11 +1028,16 @@ void IGraphics::PopupHostContextMenuForParam(IControl* pControl, int paramIdx, f
         pVST3ContextMenu->addItem(item, pControl);
       }
 
+      x *= GetDrawScale();
+      y *= GetDrawScale();
       pVST3ContextMenu->popup((Steinberg::UCoord) x, (Steinberg::UCoord) y);
       pVST3ContextMenu->release();
     }
 
 #else
+    if(!contextMenu.NItems())
+      return;
+
     if(mPopupControl) // if we are not using platform popup menus, IPopupMenuControl will not block
     {
       CreatePopupMenu(contextMenu, x, y, pControl);
@@ -1057,7 +1081,9 @@ void IGraphics::OnResizeGesture(float x, float y)
 
 IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
 {
-  return LoadBitmap(src.GetResourceName().Get(), src.N(), src.GetFramesAreHorizontal(), (GetScreenScale() == 1 && GetDrawScale() > 1.) ? 2 : 0);
+  //TODO: bug with # frames!
+//  return LoadBitmap(src.GetResourceName().Get(), src.N(), src.GetFramesAreHorizontal(), (GetScreenScale() == 1 && GetDrawScale() > 1.) ? 2 : 0 /* ??? */);
+  return LoadBitmap(src.GetResourceName().Get(), src.N(), src.GetFramesAreHorizontal(), GetScreenScale());
 }
 
 void IGraphics::EnableTooltips(bool enable)
@@ -1090,43 +1116,47 @@ void IGraphics::EnableLiveEdit(bool enable/*, const char* file, int gridsize*/)
 #endif
 }
 
-#ifdef OS_WIN
-NSVGimage* LoadSVGFromWinResource(HINSTANCE hInst, const char* resid)
+ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 {
-  HRSRC hResource = FindResource(hInst, resid, "SVG");
-  if (!hResource) return NULL;
-
-  DWORD imageSize = SizeofResource(hInst, hResource);
-  if (imageSize < 8) return NULL;
-
-  HGLOBAL res = LoadResource(hInst, hResource);
-  const void* pResourceData = LockResource(res);
-  if (!pResourceData) return NULL;
-
-  WDL_String svgStr {static_cast<const char*>(pResourceData) };
-
-  return nsvgParse(svgStr.Get(), "px", 72);
-}
-#endif
-
-ISVG IGraphics::LoadSVG(const char* name)
-{
-  WDL_String path;
-  bool resourceFound = OSFindResource(name, "svg", path);
-  assert(resourceFound == true);
-
-  SVGHolder* pHolder = s_SVGCache.Find(path.Get());
+  SVGHolder* pHolder = s_SVGCache.Find(fileName);
 
   if(!pHolder)
   {
-#ifdef OS_WIN
-    NSVGimage* pImage = LoadSVGFromWinResource((HINSTANCE) GetPlatformInstance(), path.Get());
-#else
-    NSVGimage* pImage = nsvgParseFromFile(path.Get(), "px", 72);
+    WDL_String path;
+    EResourceLocation resourceFound = OSFindResource(fileName, "svg", path);
+
+    if (resourceFound == EResourceLocation::kNotFound)
+      return ISVG(nullptr); // return invalid SVG
+
+    NSVGimage* pImage = nullptr;
+
+#ifdef OS_WIN    
+    if (resourceFound == EResourceLocation::kWinBinary)
+    {
+      int size = 0;
+      const void* pResData = LoadWinResource(path.Get(), "svg", size);
+
+      if (pResData)
+      {
+        WDL_String svgStr{ static_cast<const char*>(pResData) };
+
+        pImage = nsvgParse(svgStr.Get(), units, dpi);
+      }
+      else
+        return ISVG(nullptr); // return invalid SVG
+    }
 #endif
-    assert(pImage != nullptr);
+
+    if (resourceFound == EResourceLocation::kAbsolutePath)
+    {
+      pImage = nsvgParseFromFile(path.Get(), units, dpi);
+
+      if(!pImage)
+        return ISVG(nullptr); // return invalid SVG
+    }
 
     pHolder = new SVGHolder(pImage);
+    
     s_SVGCache.Add(pHolder, path.Get());
   }
 
@@ -1146,8 +1176,19 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
     WDL_String fullPath;
     int sourceScale = 0;
     bool fromDisk = false;
+    
+    const char* ext = name + strlen(name) - 1;
+    while (ext >= name && *ext != '.') --ext;
+    ++ext;
+    
+    bool bitmapTypeSupported = BitmapExtSupported(ext);
+    
+    if(!bitmapTypeSupported)
+      return IBitmap(); // return invalid IBitmap
 
-    if (!SearchImageResource(name, "png", fullPath, targetScale, sourceScale))
+    EResourceLocation resourceLocation = SearchImageResource(name, ext, fullPath, targetScale, sourceScale);
+
+    if (resourceLocation == EResourceLocation::kNotFound)
     {
       // If no resource exists then search the cache for a suitable match
       pAPIBitmap = SearchBitmapInCache(name, targetScale, sourceScale);
@@ -1160,7 +1201,7 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
 
       if (!pAPIBitmap)
       {
-        pAPIBitmap = LoadAPIBitmap(fullPath, sourceScale);
+        pAPIBitmap = LoadAPIBitmap(fullPath.Get(), sourceScale, resourceLocation, ext);
         fromDisk = true;
       }
     }
@@ -1218,7 +1259,7 @@ inline void IGraphics::SearchNextScale(int& sourceScale, int targetScale)
     sourceScale--;
 }
 
-bool IGraphics::SearchImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale)
+EResourceLocation IGraphics::SearchImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale)
 {
   // Search target scale, then descending
   for (sourceScale = targetScale ; sourceScale > 0; SearchNextScale(sourceScale, targetScale))
@@ -1231,12 +1272,14 @@ bool IGraphics::SearchImageResource(const char* name, const char* type, WDL_Stri
       WDL_String ext(fullName.get_fileext());
       fullName.SetFormatted((int) (strlen(name) + strlen("@2x")), "%s@%dx%s", baseName.Get(), sourceScale, ext.Get());
     }
-      
-    if (OSFindResource(fullName.Get(), type, result))
-      return true;
+
+    EResourceLocation found = OSFindResource(fullName.Get(), type, result);
+
+    if (found > EResourceLocation::kNotFound)
+      return found;
   }
 
-  return false;
+  return EResourceLocation::kNotFound;
 }
 
 APIBitmap* IGraphics::SearchBitmapInCache(const char* name, int targetScale, int& sourceScale)
@@ -1263,6 +1306,27 @@ void IGraphics::StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emb
   }
 }
 
+void IGraphics::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
+{
+  if (mTextEntryControl)
+  {
+    mTextEntryControl->CreateTextEntry(bounds, text, str);
+    return;
+  }
+  else
+    CreatePlatformTextEntry(control, text, bounds, str);
+}
+
+IPopupMenu* IGraphics::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+{
+  ReleaseMouseCapture();
+
+  if(mPopupControl) // if we are not using platform pop-up menus
+    return mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
+  else
+    return CreatePlatformPopupMenu(menu, bounds, pCaller);
+}
+
 void IGraphics::StartLayer(const IRECT& r)
 {
   IRECT alignedBounds = r.GetPixelAligned(GetBackingPixelScale());
@@ -1270,6 +1334,19 @@ void IGraphics::StartLayer(const IRECT& r)
   const int h = static_cast<int>(std::round(alignedBounds.H()));
 
   PushLayer(new ILayer(CreateAPIBitmap(w, h), alignedBounds), true);
+}
+
+void IGraphics::ResumeLayer(ILayerPtr& layer)
+{
+  ILayerPtr ownedLayer;
+    
+  ownedLayer.swap(layer);
+  ILayer* ownerlessLayer = ownedLayer.release();
+    
+  if (ownerlessLayer)
+  {
+    PushLayer(ownerlessLayer, true);
+  }
 }
 
 ILayerPtr IGraphics::EndLayer()

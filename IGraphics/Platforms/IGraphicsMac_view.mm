@@ -519,49 +519,30 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void)keyDown: (NSEvent *)pEvent
 {
-#ifdef IGRAPHICS_SWELL
   int flag, code = SWELL_MacKeyToWindowsKey(pEvent, &flag);
 
-  bool handle = mGraphics->OnKeyDown(mPrevX, mPrevY, code);
+  NSString *s = [pEvent charactersIgnoringModifiers];
+
+  unichar c = 0;
+  
+  if ([s length] == 1)
+    c = [s characterAtIndex:0];
+  
+  if(!static_cast<bool>(flag & FVIRTKEY))
+  {
+    code = 0;
+  }
+  
+  IKeyPress keyPress {static_cast<char>(c), code, static_cast<bool>(flag & FSHIFT),
+                                                  static_cast<bool>(flag & FCONTROL),
+                                                  static_cast<bool>(flag & FALT)};
+  
+  bool handle = mGraphics->OnKeyDown(mPrevX, mPrevY, keyPress);
   
   if (!handle)
   {
     [[self nextResponder] keyDown:pEvent];
   }
-#else
-  NSString *s = [pEvent charactersIgnoringModifiers];
-
-  if ([s length] == 1)
-  {
-    unsigned short k = [pEvent keyCode];
-    unichar c = [s characterAtIndex:0];
-
-    bool handle = true;
-    int key = KEY_NONE;
-
-    if (k == 48) key = KEY_TAB;
-    else if (k == 49) key = KEY_SPACE;
-    else if (k == 126) key = KEY_UPARROW;
-    else if (k == 125) key = KEY_DOWNARROW;
-    else if (k == 123) key = KEY_LEFTARROW;
-    else if (k == 124) key = KEY_RIGHTARROW;
-    else if (c >= '0' && c <= '9') key = KEY_DIGIT_0+c-'0';
-    else if (c >= 'A' && c <= 'Z') key = KEY_ALPHA_A+c-'A';
-    else if (c >= 'a' && c <= 'z') key = KEY_ALPHA_A+c-'a';
-    else handle = false;
-
-    if (handle)
-    {
-      // can't use getMouseXY because its a key event
-      handle = mGraphics->OnKeyDown(mPrevX, mPrevY, key);
-    }
-    
-    if (!handle)
-    {
-      [[self nextResponder] keyDown:pEvent];
-    }
-  }
-#endif
 }
 
 - (void) scrollWheel: (NSEvent*) pEvent

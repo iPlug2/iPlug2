@@ -94,6 +94,13 @@ enum EDirection
   kHorizontal = 1
 };
 
+enum EResourceLocation
+{
+  kNotFound = 0,
+  kAbsolutePath,
+  kWinBinary
+};
+
 enum EVColor
 {
   kBG = 0,    // background color: All vector controls should fill their BG with this color, which is transparent by default

@@ -62,20 +62,20 @@ public:
   
   /** Get a pointer to the IGraphics context */
   IGraphics* GetUI() { return mGraphics; };
-  
-  /** Call when the editor state changes (e.g. resize) */
-  void EditorStateNotify();
 
+  /** Called when the IGraphics context properties are changed */
+  void EditorPropertiesModified();
+  
   /** Override this method to serialize custom editor state data.
   * @param chunk The output bytechunk where data can be serialized
   * @return \c true if serialization was successful*/
-  virtual bool SerializeEditorState(IByteChunk& chunk) { TRACE; return true; }
+  virtual bool SerializeEditorProperties(IByteChunk& chunk) { TRACE; return true; }
     
   /** Override this method to unserialize custom editor state data
   * @param chunk The incoming chunk containing the state data.
   * @param startPos The position in the chunk where the data starts
   * @return The new chunk position (endPos)*/
-  virtual int UnserializeEditorState(const IByteChunk& chunk, int startPos) { TRACE; return startPos; }
+  virtual int UnSerializeEditorProperties(const IByteChunk& chunk, int startPos) { TRACE; return startPos; }
     
 protected:
   std::function<IGraphics*()> mMakeGraphicsFunc = nullptr;

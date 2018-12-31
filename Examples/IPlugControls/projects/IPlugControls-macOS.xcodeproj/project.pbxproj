@@ -149,6 +149,14 @@
 		4F8C10E520BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8C10DE20BA2796006320CD /* IGraphicsEditorDelegate.cpp */; };
 		4F8C10E620BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8C10DE20BA2796006320CD /* IGraphicsEditorDelegate.cpp */; };
 		4F8C10E720BA2796006320CD /* IGraphicsEditorDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8C10DF20BA2796006320CD /* IGraphicsEditorDelegate.h */; };
+		4F8C95F721D6C53400F2118B /* ITextEntryControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8C95F421D6C53400F2118B /* ITextEntryControl.cpp */; };
+		4F8C95F821D6C53400F2118B /* ITextEntryControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8C95F421D6C53400F2118B /* ITextEntryControl.cpp */; };
+		4F8C95F921D6C53400F2118B /* ITextEntryControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8C95F421D6C53400F2118B /* ITextEntryControl.cpp */; };
+		4F8C95FA21D6C53400F2118B /* ITextEntryControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8C95F421D6C53400F2118B /* ITextEntryControl.cpp */; };
+		4F8C95FB21D6C53400F2118B /* ITextEntryControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8C95F421D6C53400F2118B /* ITextEntryControl.cpp */; };
+		4F8C95FC21D6C53400F2118B /* ITextEntryControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8C95F421D6C53400F2118B /* ITextEntryControl.cpp */; };
+		4F8C95FD21D6C53400F2118B /* ITextEntryControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8C95F421D6C53400F2118B /* ITextEntryControl.cpp */; };
+		4F8C95FE21D6C53400F2118B /* ITextEntryControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8C95F621D6C53400F2118B /* ITextEntryControl.h */; };
 		4F8D9707209EF5AC006E2A11 /* IPlugControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugControls.cpp */; };
 		4F9828B8140A9EB700F3FCC1 /* IPlugAPIBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugAPIBase.cpp */; };
 		4F9828C1140A9EB700F3FCC1 /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
@@ -628,6 +636,8 @@
 		4F815916205D50EB00393585 /* vsttypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vsttypes.h; sourceTree = "<group>"; };
 		4F8C10DE20BA2796006320CD /* IGraphicsEditorDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsEditorDelegate.cpp; path = ../../../IGraphics/IGraphicsEditorDelegate.cpp; sourceTree = "<group>"; };
 		4F8C10DF20BA2796006320CD /* IGraphicsEditorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsEditorDelegate.h; path = ../../../IGraphics/IGraphicsEditorDelegate.h; sourceTree = "<group>"; };
+		4F8C95F421D6C53400F2118B /* ITextEntryControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ITextEntryControl.cpp; sourceTree = "<group>"; };
+		4F8C95F621D6C53400F2118B /* ITextEntryControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ITextEntryControl.h; sourceTree = "<group>"; };
 		4F8F61A7202807B9003F2573 /* IPlugProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugProcessor.h; path = ../../../IPlug/IPlugProcessor.h; sourceTree = "<group>"; };
 		4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugProcessor.cpp; path = ../../../IPlug/IPlugProcessor.cpp; sourceTree = "<group>"; };
 		4F97BD89213760E200541A17 /* IGraphicsCanvas.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IGraphicsCanvas.h; sourceTree = "<group>"; };
@@ -1067,6 +1077,8 @@
 		4F63695120A463090022C370 /* Controls */ = {
 			isa = PBXGroup;
 			children = (
+				4F8C95F421D6C53400F2118B /* ITextEntryControl.cpp */,
+				4F8C95F621D6C53400F2118B /* ITextEntryControl.h */,
 				4F9A82F5213DE80300BE63A4 /* IPopupMenuControl.cpp */,
 				4F9A82F3213DE80200BE63A4 /* IPopupMenuControl.h */,
 				4F63695220A463090022C370 /* IControls.h */,
@@ -1561,6 +1573,7 @@
 				4F03A5B620A4621100EBDFFB /* IGraphics_select.h in Headers */,
 				4F03A5AB20A4621100EBDFFB /* IGraphics_include_in_plug_hdr.h in Headers */,
 				4FC3EFF22086CE5700BD11FA /* hostclasses.h in Headers */,
+				4F8C95FE21D6C53400F2118B /* ITextEntryControl.h in Headers */,
 				4F03A5D420A4621100EBDFFB /* IGraphicsUtilities.h in Headers */,
 				4F03A5AA20A4621100EBDFFB /* IGraphicsLiveEdit.h in Headers */,
 				4F6369EA20A466470022C370 /* IControl.h in Headers */,
@@ -2015,6 +2028,7 @@
 				4F6369EC20A466470022C370 /* IControl.cpp in Sources */,
 				4FB1F58A20E4B005004157C8 /* IGraphicsMac.mm in Sources */,
 				4F9A82F8213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */,
+				4F8C95F821D6C53400F2118B /* ITextEntryControl.cpp in Sources */,
 				4F1A527B205D910000CF2908 /* IPlugVST2.cpp in Sources */,
 				4F8C10E120BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */,
 				4FF0A80E21BE6F1F00B2C9D1 /* swell-kb.mm in Sources */,
@@ -2055,6 +2069,7 @@
 				4FF0A80121BE6F1A00B2C9D1 /* swell-dlg.mm in Sources */,
 				4FAEBD3F209DB12E002E6392 /* IPlugControls.cpp in Sources */,
 				4FAEBD36209DAF95002E6392 /* IPlugPluginBase.cpp in Sources */,
+				4F8C95FC21D6C53400F2118B /* ITextEntryControl.cpp in Sources */,
 				4FAEBD35209DAF87002E6392 /* IPlugTimer.cpp in Sources */,
 				4F5F344620C0226200487201 /* IPlugPaths.mm in Sources */,
 				4FAEBD32209DAF76002E6392 /* IPlugViewController.mm in Sources */,
@@ -2088,6 +2103,7 @@
 				4F78D94513B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
 				4FB1F59320E4B013004157C8 /* IGraphicsMac_view.mm in Sources */,
 				4FD52136202A5BD000A4D22A /* dfx-au-utilities.c in Sources */,
+				4F8C95FA21D6C53400F2118B /* ITextEntryControl.cpp in Sources */,
 				4F5F344420C0226200487201 /* IPlugPaths.mm in Sources */,
 				4F35DEB0207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4FF0A82621BE6F4300B2C9D1 /* swell-ini.cpp in Sources */,
@@ -2127,6 +2143,7 @@
 				4FF0A7EF21BE6DFD00B2C9D1 /* swell-kb.mm in Sources */,
 				4F815986205D50EB00393585 /* flock.cpp in Sources */,
 				4F5F344320C0226200487201 /* IPlugPaths.mm in Sources */,
+				4F8C95F921D6C53400F2118B /* ITextEntryControl.cpp in Sources */,
 				4F81598F205D51F000393585 /* vstbypassprocessor.cpp in Sources */,
 				4F81598A205D50EB00393585 /* ustring.cpp in Sources */,
 				4F815980205D50EB00393585 /* fobject.cpp in Sources */,
@@ -2185,6 +2202,7 @@
 				4F3862F32014BBEC0009F402 /* IPlugControls.cpp in Sources */,
 				4FB600231567CB0A0020189A /* IPlugParameter.cpp in Sources */,
 				4FB600261567CB0A0020189A /* AAX_Exports.cpp in Sources */,
+				4F8C95FB21D6C53400F2118B /* ITextEntryControl.cpp in Sources */,
 				4FF0A82821BE6F4300B2C9D1 /* swell-ini.cpp in Sources */,
 				4FB600281567CB0A0020189A /* IPlugAAX_Describe.cpp in Sources */,
 				4FB1F58D20E4B007004157C8 /* IGraphicsMac.mm in Sources */,
@@ -2205,6 +2223,7 @@
 				4FF0A82C21BE708400B2C9D1 /* swell-gdi.mm in Sources */,
 				4FC3EFCE2086C35D00BD11FA /* IPlugPluginBase.cpp in Sources */,
 				4F63697320A463090022C370 /* IControls.cpp in Sources */,
+				4F8C95FD21D6C53400F2118B /* ITextEntryControl.cpp in Sources */,
 				4FB1F59620E4B017004157C8 /* IGraphicsMac_view.mm in Sources */,
 				4F9A82FD213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */,
 				4F472103209B294400A0A0A8 /* IPlugVST3_Controller.cpp in Sources */,
@@ -2223,6 +2242,7 @@
 				4FD16D1613B634D2001D0217 /* swell-ini.cpp in Sources */,
 				4F5C5F6921BED05B00E024A7 /* swellappmain.mm in Sources */,
 				4FD16D3A13B63582001D0217 /* swell-kb.mm in Sources */,
+				4F8C95F721D6C53400F2118B /* ITextEntryControl.cpp in Sources */,
 				4F5F344120C0226200487201 /* IPlugPaths.mm in Sources */,
 				4FD16D3C13B6358C001D0217 /* swell-miscdlg.mm in Sources */,
 				4FD16D3E13B63595001D0217 /* swell-menu.mm in Sources */,

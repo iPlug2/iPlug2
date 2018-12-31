@@ -84,10 +84,12 @@
 
 void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData);
 
+/** An NanoVG API bitmap
+ * @ingroup APIBitmaps */
 class NanoVGBitmap : public APIBitmap
 {
 public:
-  NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, void* hInst = nullptr);
+  NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID);
   NanoVGBitmap(NVGcontext* pContext, int width, int height, int scale, float drawScale);
   NanoVGBitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, int scale, float drawScale);
   virtual ~NanoVGBitmap();
@@ -98,9 +100,7 @@ private:
 };
 
 /** IGraphics draw class using NanoVG  
-*   @ingroup DrawClasses
-*/
-
+*   @ingroup DrawClasses */
 class IGraphicsNanoVG : public IGraphicsPathBase
 {
 public:
@@ -136,14 +136,15 @@ public:
   IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, int targetScale) override { return bitmap; } // NO-OP
   void ReleaseBitmap(const IBitmap& bitmap) override { }; // NO-OP
   void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override { }; // NO-OP
+  bool BitmapExtSupported(const char* ext) override;
 
-  void LoadFont(const char* name) override;
+  bool LoadFont(const char* fileName) override;
   
   void DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, float pad, const IBlend* pBlend) override;
   void SetPlatformContext(void* pContext) override;
 
 protected:
-  APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
+  APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override { return new APIBitmap(); } // NO-OP
   APIBitmap* CreateAPIBitmap(int width, int height) override;
 

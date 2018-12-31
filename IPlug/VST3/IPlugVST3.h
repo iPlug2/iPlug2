@@ -58,7 +58,7 @@ public:
   void DirtyParametersFromUI() override;
   
   //IPlugProcessor
-  void EditorStateChanged(int viewWidth, int viewHeight, const IByteChunk& data) override;
+  void EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data) override;
   void SetLatency(int samples) override;
   bool SendMidiMsg(const IMidiMsg& msg) override;
   

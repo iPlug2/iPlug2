@@ -214,7 +214,7 @@ void IGraphicsCanvas::SetCanvasBlendMode(const IBlend* pBlend)
   {
     case kBlendClobber:     GetContext().set("globalCompositeOperation", "source-over");   break;
     case kBlendAdd:         GetContext().set("globalCompositeOperation", "lighter");       break;
-    case kBlendColorDodge:  GetContext().set("globalCompositeOperation", "source-over");   break;
+    case kBlendColorDodge:  GetContext().set("globalCompositeOperation", "color-dodge");   break;
     case kBlendNone:
     default:
       GetContext().set("globalCompositeOperation", "source-over");
@@ -297,9 +297,16 @@ void IGraphicsCanvas::SetClipRegion(const IRECT& r)
   }
 }
 
-APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
+bool IGraphicsCanvas::BitmapExtSupported(const char* ext)
 {
-  return new CanvasBitmap(GetPreloadedImages()[resourcePath.Get()], resourcePath.Get() + 1, scale);
+  char extLower[32];
+  ToLower(extLower, ext);
+  return (strstr(extLower, "png") != nullptr) || (strstr(extLower, "jpg") != nullptr) || (strstr(extLower, "jpeg") != nullptr);
+}
+
+APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext)
+{
+  return new CanvasBitmap(GetPreloadedImages()[fileNameOrResID], fileNameOrResID + 1, scale);
 }
 
 APIBitmap* IGraphicsCanvas::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)

@@ -10,6 +10,11 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc IParam
+ */
+
 #include <atomic>
 #include <cstring>
 #include <functional>
@@ -41,6 +46,7 @@ public:
 
 #pragma mark - Shape
 
+  /** Base struct for parameter shaping */
   struct Shape
   {
     virtual ~Shape() {}
@@ -51,7 +57,7 @@ public:
     virtual double ValueToNormalized(double value, const IParam& param) const = 0;
   };
 
-  // Linear shape structs
+  /** Linear parameter shaping */
   struct ShapeLinear : public Shape
   {
     Shape* Clone() const override { return new ShapeLinear(); };
@@ -62,7 +68,7 @@ public:
     double mShape;
   };
   
-  // Non-linear shape structs
+  /** PowCurve parameter shaping */
   struct ShapePowCurve : public Shape
   {
     ShapePowCurve(double shape);
@@ -74,6 +80,7 @@ public:
     double mShape;
   };
   
+  /** Exponential parameter shaping */
   struct ShapeExp : public Shape
   {
     void Init(const IParam& param) override;

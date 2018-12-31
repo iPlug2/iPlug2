@@ -10,8 +10,15 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc TestMultiPathControl
+ */
+
 #include "IControl.h"
 
+/** Control to test drawing paths in path-based drawing backends
+ *   @ingroup TestControls */
 class TestMultiPathControl : public IKnobControlBase
 {
 public:

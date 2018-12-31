@@ -73,9 +73,12 @@ extern UINT gSCROLLMSG;
 
 class IPlugAPP;
 
+/** A class that hosts an IPlug as a standalone app and provides Audio/Midi I/O */
 class IPlugAPPHost
 {
 public:
+  
+  /** Used to manage changes to app i/o */
   struct AppState
   {
     WDL_String mAudioInDev;

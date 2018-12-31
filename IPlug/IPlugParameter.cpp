@@ -8,6 +8,11 @@
  ==============================================================================
 */
 
+/**
+ * @file
+ * @brief IParam implementation
+ */
+
 #include <cstdio>
 #include <algorithm>
 

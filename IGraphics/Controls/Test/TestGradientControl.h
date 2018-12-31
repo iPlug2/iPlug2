@@ -10,8 +10,15 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc TestGradientControl
+ */
+
 #include "IControl.h"
 
+/** Control to test drawing gradients with path based drawing backends
+ *   @ingroup TestControls */
 class TestGradientControl : public IKnobControlBase
 {
 public:
