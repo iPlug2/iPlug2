@@ -80,7 +80,7 @@ public:
   void SetPlatformContext(void* pContext) override;
   void DrawResize() override;
 
-  void LoadFont(const char* fileName) override;
+  bool LoadFont(const char* fileName) override;
     
 protected:
   APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;

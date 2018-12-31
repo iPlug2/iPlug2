@@ -628,7 +628,7 @@ void IGraphicsCairo::EndFrame()
 #endif
 }
 
-void IGraphicsCairo::LoadFont(const char* name)
+bool IGraphicsCairo::LoadFont(const char* name)
 {
 #ifdef IGRAPHICS_FREETYPE
   if(!mFTLibrary)
@@ -653,8 +653,12 @@ void IGraphicsCairo::LoadFont(const char* name)
     //TODO: error check
     cairo_font_face_t* pCairoFace = cairo_ft_font_face_create_for_ft_face(ftFace, 0);
     mCairoFTFaces.Add(pCairoFace);
+
+    return true;
   }
 #endif
+
+  return false;
 }
 
 void IGraphicsCairo::PathTransformSetMatrix(const IMatrix& m)
