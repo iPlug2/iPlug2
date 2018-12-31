@@ -641,8 +641,8 @@ public:
   virtual EResourceLocation OSFindResource(const char* fileNameOrResID, const char* type, WDL_String& result) = 0;
 
   /** Load a resource from the binary (windows only).
-     * @param type The resource type in lower or upper case, e.g. ttf or TTF for a truetype font
-  * @return const void pointer to the data if successfull on windows. Returns nullptr if unsuccessfull or on platforms other than windows */
+   * @param type The resource type in lower or upper case, e.g. ttf or TTF for a truetype font
+   * @return const void pointer to the data if successfull on windows. Returns nullptr if unsuccessfull or on platforms other than windows */
   virtual const void* LoadWinResource(const char* resID, const char* type, int& sizeInBytes) { return nullptr; }
 
   /** Get the bundle ID on macOS and iOS, returns emtpy string on other OSs */
@@ -989,21 +989,21 @@ public:
 
 #pragma mark - Resource/File Loading
   /** Load a bitmap image from disk or from windows resource
-   * @param fileName CString file name or resource ID
+   * @param fileNameOrResID CString file name or resource ID
    * @param nStates The number of states/frames in a multi-frame stacked bitmap
    * @param framesAreHorizontal Set \c true if the frames in a bitmap are stacked horizontally
    * @param targetScale Set \c to a number > 0 to explicity load e.g. an @2x.png
    * @return An IBitmap representing the image */
-  virtual IBitmap LoadBitmap(const char* fileName, int nStates = 1, bool framesAreHorizontal = false, int targetScale = 0);
+  virtual IBitmap LoadBitmap(const char* fileNameOrResID, int nStates = 1, bool framesAreHorizontal = false, int targetScale = 0);
 
   /** Load an SVG from disk or from windows resource
-   * @param fileName A CString absolute path or resource ID
+   * @param fileNameOrResID A CString absolute path or resource ID
    * @return An ISVG representing the image */
-  virtual ISVG LoadSVG(const char* fileName, const char* units = "px", float dpi = 72.f);
+  virtual ISVG LoadSVG(const char* fileNameOrResID, const char* units = "px", float dpi = 72.f);
 
-  /** @param fileName A CString absolute path or resource ID
+  /** @param fileNameOrResID A CString absolute path or resource ID
    * @return \c true on success */
-  virtual bool LoadFont(const char* fileName) { return false; }
+  virtual bool LoadFont(const char* fileNameOrResID) { return false; }
   
 protected:
   virtual void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") = 0;
