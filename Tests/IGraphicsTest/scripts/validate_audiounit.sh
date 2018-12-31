@@ -20,8 +20,8 @@ PMID=${PMID//\'}
 PII=`echo | grep PLUG_IS_INST ../config.h`
 PII=${PII//\#define PLUG_IS_INST }
 
-PDM=`echo | grep PLUG_DOES_MIDI ../config.h`
-PDM=${PDM//\#define PLUG_DOES_MIDI }
+PDM=`echo | grep PLUG_DOES_MIDI_IN ../config.h`
+PDM=${PDM//\#define PLUG_DOES_MIDI_IN }
 
 TYPE=aufx
 

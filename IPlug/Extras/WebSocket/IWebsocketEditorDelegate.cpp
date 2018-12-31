@@ -3,8 +3,8 @@
 
 IWebsocketEditorDelegate::IWebsocketEditorDelegate(int nParams)
 : IGEditorDelegate(nParams)
-, mParamChangeFromClients(512) // TODO: constant
-, mMIDIFromClients(32)
+, mParamChangeFromClients(PARAM_TRANSFER_SIZE)
+, mMIDIFromClients(MIDI_TRANSFER_SIZE)
 {
   
 }
@@ -15,6 +15,7 @@ IWebsocketEditorDelegate::~IWebsocketEditorDelegate()
 
 void IWebsocketEditorDelegate::OnWebsocketReady(int connIdx)
 {
+  //TODO: need to send serialize state and send it to the client
 }
 
 bool IWebsocketEditorDelegate::OnWebsocketText(int connIdx, const char* pStr, size_t dataSize)
@@ -66,7 +67,7 @@ void IWebsocketEditorDelegate::SendMidiMsgFromUI(const IMidiMsg& msg)
   data.Put(&msg.mData2);
 
   // Server side UI edit, send to clients
-  SendDataToConnection(-1, data.GetBytes(), data.Size());
+  SendDataToConnection(-1, data.GetData(), data.Size());
   
   IGEditorDelegate::SendMidiMsgFromUI(msg);
 }
@@ -79,7 +80,7 @@ void IWebsocketEditorDelegate::SendSysexMsgFromUI(const ISysEx& msg)
   data.PutBytes(&msg.mData, msg.mSize);
   
   // Server side UI edit, send to clients
-  SendDataToConnection(-1, data.GetBytes(), data.Size());
+  SendDataToConnection(-1, data.GetData(), data.Size());
   
   IGEditorDelegate::SendSysexMsgFromUI(msg);
 }
@@ -94,7 +95,7 @@ void IWebsocketEditorDelegate::SendArbitraryMsgFromUI(int messageTag, int contro
   data.PutBytes(pData, dataSize);
   
   // Server side UI edit, send to clients
-  SendDataToConnection(-1, data.GetBytes(), data.Size());
+  SendDataToConnection(-1, data.GetData(), data.Size());
   
   IGEditorDelegate::SendArbitraryMsgFromUI(messageTag, controlTag, dataSize, pData);
 }
@@ -113,7 +114,7 @@ void IWebsocketEditorDelegate::SendParameterValueFromUI(int paramIdx, double nor
   data.Put(&normalizedValue);
   
   // Server side UI edit, send to clients
-  SendDataToConnection(-1, data.GetBytes(), data.Size());
+  SendDataToConnection(-1, data.GetData(), data.Size());
 
   IGEditorDelegate::SendParameterValueFromUI(paramIdx, normalizedValue);
 }
@@ -130,7 +131,7 @@ void IWebsocketEditorDelegate::SendControlValueFromDelegate(int controlTag, doub
   data.Put(&controlTag);
   data.Put(&normalizedValue);
   
-  SendDataToConnection(-1, data.GetBytes(), data.Size());
+  SendDataToConnection(-1, data.GetData(), data.Size());
   
   IGEditorDelegate::SendControlValueFromDelegate(controlTag, normalizedValue);
 }
@@ -144,7 +145,7 @@ void IWebsocketEditorDelegate::SendControlMsgFromDelegate(int controlTag, int me
   data.Put(&dataSize);
   data.PutBytes(pData, dataSize);
   
-  SendDataToConnection(-1, data.GetBytes(), data.Size());
+  SendDataToConnection(-1, data.GetData(), data.Size());
   
   IGEditorDelegate::SendControlMsgFromDelegate(controlTag, messageTag, dataSize, pData);
 }
@@ -157,7 +158,7 @@ void IWebsocketEditorDelegate::SendArbitraryMsgFromDelegate(int messageTag, int 
   data.Put(&dataSize);
   data.PutBytes(pData, dataSize);
   
-  SendDataToConnection(-1, data.GetBytes(), data.Size());
+  SendDataToConnection(-1, data.GetData(), data.Size());
   
   IGEditorDelegate::SendArbitraryMsgFromDelegate(messageTag, dataSize, pData);
 }
@@ -170,7 +171,7 @@ void IWebsocketEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
   data.Put(&msg.mData1);
   data.Put(&msg.mData2);
 
-  SendDataToConnection(-1, data.GetBytes(), data.Size());
+  SendDataToConnection(-1, data.GetData(), data.Size());
   
   IGEditorDelegate::SendMidiMsgFromDelegate(msg);
 }
@@ -182,7 +183,7 @@ void IWebsocketEditorDelegate::SendSysexMsgFromDelegate(const ISysEx& msg)
   data.Put(&msg.mSize);
   data.PutBytes(msg.mData, msg.mSize);
   
-  SendDataToConnection(-1, data.GetBytes(), data.Size());
+  SendDataToConnection(-1, data.GetData(), data.Size());
   
   IGEditorDelegate::SendSysexMsgFromDelegate(msg);
 }

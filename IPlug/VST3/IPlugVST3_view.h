@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
 using namespace Steinberg;
@@ -24,7 +18,6 @@ class IPlugVST3View : public CPluginView
 public:
   IPlugVST3View(IPlugVST3Controller* pController)
   : mController(pController)
-  , mExpectingNewSize(false)
   {
     if (mController)
       mController->addRef();
@@ -60,15 +53,7 @@ public:
     TRACE;
     
     if (pSize)
-    {
       rect = *pSize;
-      
-      if (mExpectingNewSize)
-      {
-        mController->OnWindowResize();
-        mExpectingNewSize = false;
-      }
-    }
     
     return kResultTrue;
   }
@@ -113,10 +98,7 @@ public:
   tresult PLUGIN_API removed() override
   {
     if (mController->HasUI())
-    {
-      mController->OnUIClose();
       mController->CloseWindow();
-    }
     
     return CPluginView::removed();
   }
@@ -126,10 +108,8 @@ public:
     TRACE;
     
     ViewRect newSize = ViewRect(0, 0, w, h);
-    mExpectingNewSize = true;
     plugFrame->resizeView(this, &newSize);
   }
   
   IPlugVST3Controller* mController;
-  bool mExpectingNewSize = false;
 };

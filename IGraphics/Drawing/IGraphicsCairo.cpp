@@ -1,22 +1,30 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #include <cmath>
 
 #include "png.h"
 
 #include "IGraphicsCairo.h"
+#include "ITextEntryControl.h"
 
-#ifdef OS_MAC
-cairo_surface_t* LoadPNGResource(void*, const WDL_String& path)
-{
-  return cairo_image_surface_create_from_png(path.Get());
-}
-#elif defined OS_WIN
+#if defined OS_WIN
+
+//TODO: could replace some of this with IGraphics::LoadWinResource
 class PNGStreamReader
 {
 public:
-  PNGStreamReader(HMODULE hInst, const WDL_String &path)
+  PNGStreamReader(HINSTANCE hInst, const char* path)
   : mData(nullptr), mSize(0), mCount(0)
   {
-    HRSRC resInfo = FindResource(hInst, path.Get(), "PNG");
+    HRSRC resInfo = FindResource(hInst, path, "PNG");
     if (resInfo)
     {
       HGLOBAL res = LoadResource(hInst, resInfo);
@@ -50,28 +58,28 @@ private:
   size_t mCount;
   size_t mSize;
 };
-
-cairo_surface_t* LoadPNGResource(void* hInst, const WDL_String& path)
-{
-  PNGStreamReader reader((HMODULE) hInst, path);
-  return cairo_image_surface_create_from_png_stream(&PNGStreamReader::StaticRead, &reader);
-}
-#else
-  #error NOT IMPLEMENTED
 #endif
 
-CairoBitmap::CairoBitmap(cairo_surface_t* pSurface, int scale)
+CairoBitmap::CairoBitmap(cairo_surface_t* pSurface, int scale, float drawScale)
 {
-  cairo_surface_set_device_scale(pSurface, scale, scale);
+  cairo_surface_set_device_scale(pSurface, scale * drawScale, scale * drawScale);
   int width = cairo_image_surface_get_width(pSurface);
   int height = cairo_image_surface_get_height(pSurface);
   
-  SetBitmap(pSurface, width, height, scale);
+  SetBitmap(pSurface, width, height, scale, drawScale);
+}
+
+CairoBitmap::CairoBitmap(cairo_surface_t* pSurfaceType, int width, int height, int scale, float drawScale)
+{
+  cairo_surface_t* pSurface = cairo_surface_create_similar_image(pSurfaceType, CAIRO_FORMAT_ARGB32, width, height);
+  cairo_surface_set_device_scale(pSurface, scale * drawScale, scale * drawScale);
+  
+  SetBitmap(pSurface, width, height, scale, drawScale);
 }
   
 CairoBitmap::~CairoBitmap()
 {
-  cairo_surface_destroy((cairo_surface_t*) GetBitmap());
+  cairo_surface_destroy(GetBitmap());
 }
 
 #pragma mark -
@@ -84,9 +92,9 @@ inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
   }
   switch (pBlend->mMethod)
   {
-    case kBlendClobber: return CAIRO_OPERATOR_OVER;
-    case kBlendAdd: return CAIRO_OPERATOR_ADD;
-    case kBlendColorDodge: return CAIRO_OPERATOR_COLOR_DODGE;
+    case kBlendClobber:     return CAIRO_OPERATOR_SOURCE;
+    case kBlendAdd:         return CAIRO_OPERATOR_ADD;
+    case kBlendColorDodge:  return CAIRO_OPERATOR_COLOR_DODGE;
     case kBlendNone:
     default:
       return CAIRO_OPERATOR_OVER; // TODO: is this correct - same as clobber?
@@ -116,25 +124,48 @@ IGraphicsCairo::~IGraphicsCairo()
   }
 #endif
   
-  if (mContext)
-    cairo_destroy(mContext);
+  // N.B. calls through to delete context and surface
   
-  if (mSurface)
-    cairo_surface_destroy(mSurface);
+  UpdateCairoMainSurface(nullptr);
 }
 
-APIBitmap* IGraphicsCairo::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
+void IGraphicsCairo::DrawResize()
 {
-  cairo_surface_t* pSurface = LoadPNGResource(GetPlatformInstance(), resourcePath);
-    
-  assert(cairo_surface_status(pSurface) == CAIRO_STATUS_SUCCESS); // Protect against typos in resource.h and .rc files.
+  SetPlatformContext(nullptr);
+#ifdef OS_WIN
+  HWND window = static_cast<HWND>(GetWindow());
+  if (window)
+  {
+    HDC dc = GetDC(window);
+    SetPlatformContext(dc);
+    ReleaseDC(window, dc);
+  }
+#endif
+}
 
-  return new CairoBitmap(pSurface, scale);
+APIBitmap* IGraphicsCairo::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext)
+{
+  cairo_surface_t* pSurface = nullptr;
+
+#ifdef OS_WIN
+  if (location == EResourceLocation::kWinBinary)
+  {
+    PNGStreamReader reader((HINSTANCE) GetWinModuleHandle(), fileNameOrResID);
+    pSurface = cairo_image_surface_create_from_png_stream(&PNGStreamReader::StaticRead, &reader);
+  }
+  else
+#endif
+  if (location == EResourceLocation::kAbsolutePath)
+    pSurface = cairo_image_surface_create_from_png(fileNameOrResID);
+
+  assert(!pSurface || cairo_surface_status(pSurface) == CAIRO_STATUS_SUCCESS);
+
+  return new CairoBitmap(pSurface, scale, 1.f);
 }
 
 APIBitmap* IGraphicsCairo::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 {
-  cairo_surface_t* pInSurface = (cairo_surface_t*) pBitmap->GetBitmap();
+  cairo_surface_t* pInSurface = pBitmap->GetBitmap();
   
   int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
   int destH = (pBitmap->GetHeight() / pBitmap->GetScale()) * scale;
@@ -151,19 +182,133 @@ APIBitmap* IGraphicsCairo::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
   cairo_paint(pOutContext);
   cairo_destroy(pOutContext);
     
-  return new CairoBitmap(pOutSurface, scale);
+  return new CairoBitmap(pOutSurface, scale, pBitmap->GetDrawScale());
+}
+
+APIBitmap* IGraphicsCairo::CreateAPIBitmap(int width, int height)
+{
+  const double scale = GetBackingPixelScale();
+  return new CairoBitmap(mSurface, std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
+}
+
+bool IGraphicsCairo::BitmapExtSupported(const char* ext)
+{
+  char extLower[32];
+  ToLower(extLower, ext);
+  return (strstr(extLower, "png") != nullptr) /*|| (strstr(extLower, "jpg") != nullptr) || (strstr(extLower, "jpeg") != nullptr)*/;
+}
+
+cairo_surface_t* IGraphicsCairo::CreateCairoDataSurface(const APIBitmap* pBitmap, RawBitmapData& data, bool resize)
+{
+  cairo_surface_t* pSurface = nullptr;
+  cairo_format_t format = CAIRO_FORMAT_ARGB32;
+  int stride = cairo_format_stride_for_width(format, pBitmap->GetWidth());
+  int size = stride * pBitmap->GetHeight();
+  double x, y;
+  
+  if (resize)
+  {
+    data.Resize(size);
+    memset(data.Get(), 0, size);
+  }
+  
+  if (data.GetSize() >= size)
+  {
+    pSurface = cairo_image_surface_create_for_data(data.Get(), format, pBitmap->GetWidth(), pBitmap->GetHeight(), stride);
+    cairo_surface_get_device_scale(pBitmap->GetBitmap(), &x, &y);
+    cairo_surface_set_device_scale(pSurface, x, y);
+  }
+  
+  return pSurface;
+}
+
+void IGraphicsCairo::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
+{
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
+  cairo_surface_t *pSurface = CreateCairoDataSurface(pBitmap, data, true);
+  
+  if (pSurface)
+  {
+    cairo_t* pContext = cairo_create(pSurface);
+    cairo_pattern_t *pPattern = cairo_pattern_create_for_surface(pBitmap->GetBitmap());
+    cairo_set_source(pContext, pPattern);
+    cairo_paint(pContext);
+    cairo_pattern_destroy(pPattern);
+    cairo_destroy(pContext);
+  }
+}
+
+void IGraphicsCairo::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow)
+{
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
+  cairo_surface_t *pSurface = CreateCairoDataSurface(pBitmap, mask, false);
+  
+  if (pSurface)
+  {
+    cairo_t* pContext = cairo_create(pBitmap->GetBitmap());
+
+    if (!shadow.mDrawForeground)
+    {
+      double scale = 1.0 / (pBitmap->GetScale() * pBitmap->GetDrawScale());
+      cairo_set_source_rgba(pContext, 1.0, 1.0, 1.0, 1.0);
+      cairo_set_operator(pContext, CAIRO_OPERATOR_CLEAR);
+      cairo_rectangle(pContext, 0.0, 0.0, scale * pBitmap->GetWidth(), scale * pBitmap->GetHeight());
+      cairo_fill(pContext);
+    }
+    
+    IBlend blend(kBlendNone, shadow.mOpacity);
+    cairo_translate(pContext, -layer->Bounds().L, -layer->Bounds().T);
+    SetCairoSourcePattern(pContext, shadow.mPattern, &blend);
+    cairo_identity_matrix(pContext);
+    cairo_set_operator(pContext, shadow.mDrawForeground ? CAIRO_OPERATOR_DEST_OVER : CAIRO_OPERATOR_SOURCE);
+    cairo_translate(pContext, shadow.mXOffset, shadow.mYOffset);
+    cairo_mask_surface(pContext, pSurface, 0.0, 0.0);
+    cairo_destroy(pContext);
+  }  
 }
 
 void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
+  const double scale = GetScreenScale() / (bitmap.GetScale() * bitmap.GetDrawScale());
+
   cairo_save(mContext);
   cairo_rectangle(mContext, dest.L, dest.T, dest.W(), dest.H());
   cairo_clip(mContext);
-  cairo_surface_t* surface = (cairo_surface_t*) bitmap.GetAPIBitmap()->GetBitmap();
-  cairo_set_source_surface(mContext, surface, std::round(dest.L) - srcX, (int) std::round(dest.T) - srcY);
+  cairo_surface_t* surface = bitmap.GetAPIBitmap()->GetBitmap();
+  cairo_set_source_surface(mContext, surface, dest.L - (srcX * scale), dest.T - (srcY * scale));
   cairo_set_operator(mContext, CairoBlendMode(pBlend));
   cairo_paint_with_alpha(mContext, BlendWeight(pBlend));
   cairo_restore(mContext);
+}
+
+void IGraphicsCairo::PathClear()
+{
+  cairo_new_path(mContext);
+}
+
+void IGraphicsCairo::PathClose()
+{
+  cairo_close_path(mContext);
+}
+
+void IGraphicsCairo::PathArc(float cx, float cy, float r, float aMin, float aMax)
+{
+  cairo_arc(mContext, cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f));
+}
+
+void IGraphicsCairo::PathMoveTo(float x, float y)
+{
+  cairo_move_to(mContext, x, y);
+}
+
+void IGraphicsCairo::PathLineTo(float x, float y)
+{
+  cairo_line_to(mContext, x, y);
+}
+
+void IGraphicsCairo::PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
+{
+  cairo_curve_to(mContext, x1, y1, x2, y2, x3, y3);
 }
 
 void IGraphicsCairo::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
@@ -194,7 +339,7 @@ void IGraphicsCairo::PathStroke(const IPattern& pattern, float thickness, const 
   cairo_set_dash(mContext, dashArray, options.mDash.GetCount(), options.mDash.GetOffset());
   cairo_set_line_width(mContext, thickness);
 
-  SetCairoSourcePattern(pattern, pBlend);
+  SetCairoSourcePattern(mContext, pattern, pBlend);
   if (options.mPreserve)
     cairo_stroke_preserve(mContext);
   else
@@ -204,35 +349,35 @@ void IGraphicsCairo::PathStroke(const IPattern& pattern, float thickness, const 
 void IGraphicsCairo::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) 
 {
   cairo_set_fill_rule(mContext, options.mFillRule == kFillEvenOdd ? CAIRO_FILL_RULE_EVEN_ODD : CAIRO_FILL_RULE_WINDING);
-  SetCairoSourcePattern(pattern, pBlend);
+  SetCairoSourcePattern(mContext, pattern, pBlend);
   if (options.mPreserve)
     cairo_fill_preserve(mContext);
   else
     cairo_fill(mContext);
 }
 
-void IGraphicsCairo::SetCairoSourcePattern(const IPattern& pattern, const IBlend* pBlend)
+void IGraphicsCairo::SetCairoSourcePattern(cairo_t* context, const IPattern& pattern, const IBlend* pBlend)
 {
-  cairo_set_operator(mContext, CairoBlendMode(pBlend));
+  cairo_set_operator(context, CairoBlendMode(pBlend));
   
   switch (pattern.mType)
   {
     case kSolidPattern:
     {
       const IColor &color = pattern.GetStop(0).mColor;
-      cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, (BlendWeight(pBlend) * color.A) / 255.0);
+      cairo_set_source_rgba(context, color.R / 255.0, color.G / 255.0, color.B / 255.0, (BlendWeight(pBlend) * color.A) / 255.0);
     }
     break;
       
     case kLinearPattern:
     case kRadialPattern:
     {
-      cairo_pattern_t *cairoPattern;
+      cairo_pattern_t* cairoPattern;
       cairo_matrix_t matrix;
-      const float *xform = pattern.mTransform;
+      const IMatrix& m = pattern.mTransform;
       
       if (pattern.mType == kLinearPattern)
-        cairoPattern = cairo_pattern_create_linear(0.0, 0.0, 1.0, 0.0);
+        cairoPattern = cairo_pattern_create_linear(0.0, 0.0, 0.0, 1.0);
       else
         cairoPattern = cairo_pattern_create_radial(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
       
@@ -250,9 +395,9 @@ void IGraphicsCairo::SetCairoSourcePattern(const IPattern& pattern, const IBlend
         cairo_pattern_add_color_stop_rgba(cairoPattern, stop.mOffset, stop.mColor.R / 255.0, stop.mColor.G / 255.0, stop.mColor.B / 255.0, (BlendWeight(pBlend) * stop.mColor.A) / 255.0);
       }
       
-      cairo_matrix_init(&matrix, xform[0], xform[1], xform[2], xform[3], xform[4], xform[5]);
+      cairo_matrix_init(&matrix, m.mXX, m.mYX, m.mXY, m.mYY, m.mTX, m.mTY);
       cairo_pattern_set_matrix(cairoPattern, &matrix);
-      cairo_set_source(mContext, cairoPattern);
+      cairo_set_source(context, cairoPattern);
       cairo_pattern_destroy(cairoPattern);
     }
     break;
@@ -286,7 +431,7 @@ IColor IGraphicsCairo::GetPoint(int x, int y)
 #define FONT_SIZE 36
 #define MARGIN (FONT_SIZE * .5)
 
-bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
 #if defined IGRAPHICS_FREETYPE
 //  FT_Face ft_face;
@@ -365,7 +510,13 @@ bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& bounds,
 //  cairo_show_glyphs (mContext, cairo_glyphs, len);
 //  cairo_glyph_free (cairo_glyphs);
 #else // TOY text
-  cairo_set_source_rgba(mContext, text.mFGColor.R / 255.0, text.mFGColor.G / 255.0, text.mFGColor.B / 255.0, (BlendWeight(pBlend) * text.mFGColor.A) / 255.0);
+  IColor fgColor;
+  if (GetTextEntryControl() && GetTextEntryControl()->GetRECT() == bounds)
+    fgColor = text.mTextEntryFGColor;
+  else
+    fgColor = text.mFGColor;
+
+  cairo_set_source_rgba(mContext, fgColor.R / 255.0, fgColor.G / 255.0, fgColor.B / 255.0, (BlendWeight(pBlend) * fgColor.A) / 255.0);
   cairo_select_font_face(mContext, text.mFont, CAIRO_FONT_SLANT_NORMAL, text.mStyle == IText::kStyleBold ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL);
   cairo_set_font_size(mContext, text.mSize);
 //  cairo_font_options_t* font_options = cairo_font_options_create ();
@@ -407,41 +558,56 @@ bool IGraphicsCairo::DrawText(const IText& text, const char* str, IRECT& bounds,
   return true;
 }
 
-bool IGraphicsCairo::MeasureText(const IText& text, const char* str, IRECT& bounds)
+void IGraphicsCairo::UpdateCairoContext()
 {
-  return DrawText(text, str, bounds, 0, true);
+  if (mContext)
+  {
+    cairo_destroy(mContext);
+    mContext = nullptr;
+  }
+  
+  cairo_surface_t* pSurface = mLayers.empty() ? mSurface : mLayers.top()->GetAPIBitmap()->GetBitmap();
+
+  if (pSurface)
+    mContext = cairo_create(pSurface);
+  
+  //cairo_set_antialias(mContext, CAIRO_ANTIALIAS_FAST);
+}
+
+void IGraphicsCairo::UpdateCairoMainSurface(cairo_surface_t* pSurface)
+{
+  if (mSurface)
+  {
+    cairo_surface_destroy(mSurface);
+    mSurface = nullptr;
+  }
+  
+  if (pSurface)
+    mSurface = pSurface;
+  
+  UpdateCairoContext();
 }
 
 void IGraphicsCairo::SetPlatformContext(void* pContext)
 {
   if (!pContext)
   {
-    if (mContext)
-      cairo_destroy(mContext);
-    if (mSurface)
-      cairo_surface_destroy(mSurface);
-      
-    mContext = nullptr;
-    mSurface = nullptr;
+    UpdateCairoMainSurface(nullptr);
   }
   else if(!mSurface)
   {
 #ifdef OS_MAC
     mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), WindowWidth(), WindowHeight());
-    mContext = cairo_create(mSurface);
-    cairo_surface_set_device_scale(mSurface, GetScale(), GetScale());
+    cairo_surface_set_device_scale(mSurface, GetDrawScale(), GetDrawScale());
 #elif defined OS_WIN
-    HDC dc = (HDC) pContext;
-    mSurface = cairo_win32_surface_create_with_ddb(dc, CAIRO_FORMAT_ARGB32, Width(), Height());
-    mContext = cairo_create(mSurface);
-    cairo_surface_set_device_scale(mSurface, GetDisplayScale(), GetDisplayScale());
+    mSurface = cairo_win32_surface_create_with_ddb((HDC) pContext, CAIRO_FORMAT_ARGB32, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
+    cairo_surface_set_device_scale(mSurface, GetBackingPixelScale(), GetBackingPixelScale());
 #else
   #error NOT IMPLEMENTED
 #endif
-    //cairo_set_antialias(cr, CAIRO_ANTIALIAS_NONE);
-    //cairo_set_antialias(mContext, CAIRO_ANTIALIAS_FAST);
-    //cairo_set_antialias(cr, CAIRO_ANTIALIAS_GOOD);
     
+    UpdateCairoContext();
+
     if (mContext)
     {
       cairo_set_source_rgba(mContext, 1.0, 1.0, 1.0, 1.0);
@@ -456,25 +622,20 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
 void IGraphicsCairo::EndFrame()
 {
 #ifdef OS_MAC
-  //cairo_surface_flush(mSurface);
 #elif defined OS_WIN
+  cairo_surface_flush(mSurface);
   PAINTSTRUCT ps;
   HWND hWnd = (HWND) GetWindow();
   HDC dc = BeginPaint(hWnd, &ps);
   HDC cdc = cairo_win32_surface_get_dc(mSurface);
-  
-  if (GetScale() == 1.f)
-    BitBlt(dc, 0, 0, Width(), Height(), cdc, 0, 0, SRCCOPY);
-  else
-    StretchBlt(dc, 0, 0, WindowWidth(), WindowHeight(), cdc, 0, 0, Width(), Height(), SRCCOPY);
-
+  BitBlt(dc, 0, 0, WindowWidth(), WindowHeight(), cdc, 0, 0, SRCCOPY);
   EndPaint(hWnd, &ps);
 #else
 #error NOT IMPLEMENTED
 #endif
 }
 
-void IGraphicsCairo::LoadFont(const char* name)
+bool IGraphicsCairo::LoadFont(const char* name)
 {
 #ifdef IGRAPHICS_FREETYPE
   if(!mFTLibrary)
@@ -499,15 +660,33 @@ void IGraphicsCairo::LoadFont(const char* name)
     //TODO: error check
     cairo_font_face_t* pCairoFace = cairo_ft_font_face_create_for_ft_face(ftFace, 0);
     mCairoFTFaces.Add(pCairoFace);
+
+    return true;
   }
 #endif
+
+  return false;
 }
 
 void IGraphicsCairo::PathTransformSetMatrix(const IMatrix& m)
 {
-  cairo_matrix_t matrix;
-  cairo_matrix_init(&matrix, m.mTransform[0], m.mTransform[1], m.mTransform[2], m.mTransform[3], m.mTransform[4], m.mTransform[5]);
-  cairo_set_matrix(mContext, &matrix);
+  double xTranslate = 0.0;
+  double yTranslate = 0.0;
+  
+  if (!mLayers.empty())
+  {
+    IRECT bounds = mLayers.top()->Bounds();
+ 
+    xTranslate = -bounds.L;
+    yTranslate = -bounds.T;
+  }
+  
+  cairo_matrix_t matrix1, matrix2;
+  cairo_matrix_init_translate(&matrix1, xTranslate, yTranslate);
+  cairo_matrix_init(&matrix2, m.mXX, m.mYX, m.mXY, m.mYY, m.mTX, m.mTY);
+  cairo_matrix_multiply(&matrix1, &matrix2, &matrix1);
+    
+  cairo_set_matrix(mContext, &matrix1);
 }
 
 void IGraphicsCairo::SetClipRegion(const IRECT& r) 

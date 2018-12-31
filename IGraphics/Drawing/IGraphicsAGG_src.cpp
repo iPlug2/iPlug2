@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #ifdef IGRAPHICS_AGG
 #include "agg_arc.cpp"
 #include "agg_arrowhead.cpp"
@@ -27,7 +37,9 @@
 #include "agg_vpgen_clip_polygon.cpp"
 #include "agg_vpgen_clip_polyline.cpp"
 #include "agg_vpgen_segmentator.cpp"
-// #include "agg_win312_pmap.cpp"
-// #include "agg_win32_font.cpp"
-// #include "agg_win32_pmap.cpp"
+#ifdef OS_WIN
+//#include "agg_win312_pmap.cpp"
+ #include "agg_win32_pmap.cpp"
+//#include "agg_win32_font.cpp"
+#endif
 #endif //IGRAPHICS_AGG

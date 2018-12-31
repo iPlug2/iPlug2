@@ -1,0 +1,24 @@
+iPlug 2 C++ Plug-in Framework. 
+
+Copyright (C) the iPlug 2 Developers. Portions copyright other contributors, see each source file for more information.
+
+Based on WDL-OL/iPlug by Oli Larkin (2011-2018), and the original iPlug v1 (2008) by John Schwartz / Cockos
+
+LICENSE:
+
+This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
+
+Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+1. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+1. This notice may not be removed or altered from any source distribution.
+
+iPlug 2 includes the following 3rd party libraries (see each license info):
+
+* Cockos WDL https://www.cockos.com/wdl
+* NanoVG https://github.com/memononen/nanovg
+* NanoSVG https://github.com/memononen/nanosvg  
+* MetalNanoVG https://github.com/ollix/MetalNanoVG
+* RTAudio https://www.music.mcgill.ca/~gary/rtaudio
+* RTMidi https://www.music.mcgill.ca/~gary/rtmidi

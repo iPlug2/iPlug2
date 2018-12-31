@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #ifndef FAUST_COMPILED
 
@@ -74,13 +68,17 @@ void FaustGen::Factory::FreeDSPFactory()
   }
 }
 
-llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromBitCode()
+llvm_dsp_factory* FaustGen::Factory::CreateFactoryFromBitCode()
 {
   //return readDSPFactoryFromBitCodeStr(mBitCodeStr.Get(), getTarget(), mOptimizationLevel);
-
+  std::string err;
+  
   // Alternate model using machine code
-  return readDSPFactoryFromMachine(mBitCodeStr.Get(), GetLLVMArchStr());
-
+  llvm_dsp_factory* pFactory = readDSPFactoryFromMachine(mBitCodeStr.Get(), GetLLVMArchStr(), err);
+  
+  // TODO: Print error
+  return pFactory;
+  
   /*
   // Alternate model using LLVM IR
   return readDSPFactoryFromIR(mBitCodeStr.Get(), getTarget(), mOptimizationLevel);
@@ -126,15 +124,21 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 
   if (pFactory)
   {
+    // Update all instances
+    for (auto inst : mInstances)
+    {
+      inst->SetErrored(false);
+    }
+    
     return pFactory;
   }
   else
   {
     // Update all instances
-//    for (auto inst : mInstances)
-//    {
-//      inst->hilight_on();
-//    }
+    for (auto inst : mInstances)
+    {
+      inst->SetErrored(true);
+    }
 
     //WHAT IS THIS?
 //    if (mInstances.begin() != mInstances.end())
@@ -227,7 +231,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 //
 //  mLLVMFactory = createDSPFactoryFromString("default", DEFAULT_SOURCE_CODE, N + 2, argv, getTarget(), error, 0);
 #else
-  mSourceCodeStr.SetFormatted(256, DEFAULT_SOURCE_CODE_FMT_STR, maxOutputs);
+  mSourceCodeStr.SetFormatted(256, maxInputs == 0 ? DEFAULT_SOURCE_CODE_FMT_STR_INSTRUMENT : DEFAULT_SOURCE_CODE_FMT_STR_FX, maxOutputs);
   mLLVMFactory = createDSPFactoryFromString("default", mSourceCodeStr.Get(), 0, 0, GetLLVMArchStr(), error, 0);
 #endif
 
@@ -593,6 +597,8 @@ void FaustGen::OnTimer(Timer& timer)
 
     if(!Equal(newTime, oldTime))
     {
+      WDL_MutexLock lock(&mMutex);
+
       recompile = true;
       f.second->FreeDSPFactory();
       DBGMSG("FaustGen-%s: File change detected ----------------------------------\n", mName.Get());
@@ -630,6 +636,15 @@ void FaustGen::SetAutoRecompile(bool enable)
   }
   
   sAutoRecompile = enable;
+}
+
+void FaustGen::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
+{
+  WDL_MutexLock lock(&mMutex);
+  if(!mErrored)
+    IPlugFaust::ProcessBlock(inputs, outputs, nFrames);
+  else
+    memset(outputs[0], 0, nFrames * mMaxNOutputs * sizeof(sample));
 }
 
 #endif // #ifndef FAUST_COMPILED

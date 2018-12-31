@@ -1,26 +1,26 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
-
-// This is based on MLQueue.h by Randy Jones, based on https://kjellkod.wordpress.com/2012/11/28/c-debt-paid-in-full-wait-free-lock-free-queue/
+*/
 
 #pragma once
+
+/**
+ * @file
+ * @copydoc IPlugQueue
+ */
 
 #include <atomic>
 #include <cstddef>
 
+/** A lock-free SPSC queue used to transfer data between threads
+ * based on MLQueue.h by Randy Jones
+ * based on https://kjellkod.wordpress.com/2012/11/28/c-debt-paid-in-full-wait-free-lock-free-queue/ */
 template<typename T>
 class IPlugQueue final
 {

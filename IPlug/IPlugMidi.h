@@ -1,20 +1,21 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
+
+/**
+ * @file
+ * @brief MIDI and sysex structs/utilites
+ * @ingroup IPlugStructs
+ */
+
 #include <cassert>
 #include <cstdint>
 #include <cstdio>
@@ -22,7 +23,8 @@
 
 #include "IPlugLogger.h"
 
-/** Encapsulates a MIDI message and provides helper functions */
+/** Encapsulates a MIDI message and provides helper functions
+ * @ingroup IPlugStructs */
 struct IMidiMsg
 {
   int mOffset;
@@ -324,7 +326,8 @@ struct IMidiMsg
   }
 };
 
-/** A struct for dealing with SysEx messages. Does not own the data. */
+/** A struct for dealing with SysEx messages. Does not own the data.
+  * @ingroup IPlugStructs */
 struct ISysEx
 {
   int mOffset, mSize;
@@ -450,7 +453,8 @@ void MyPlug::ProcessBlock(double** inputs, double** outputs, int nFrames)
   #define DEFAULT_BLOCK_SIZE 512
 #endif
 
-/** A class to help with queuing timestamped MIDI messages */
+/** A class to help with queuing timestamped MIDI messages
+  * @ingroup IPlugUtilities */
 class IMidiQueue
 {
 public:

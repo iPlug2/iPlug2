@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 #include <cmath>
@@ -11,15 +21,17 @@
 /**
  * @file
  * @copydoc IPopupMenu
- * @ingroup IGraphicsStructs
+ * @addtogroup IGraphicsStructs
+ * @{
  */
 
-// this (and the platform implementation in IGraphics*) is largely based on the VSTGUI COptionMenu
-
-/** A class for setting the contents of a pop up menu
- * NOTE: An IPopupMenu must not be declared as a temporary. In order for a receiving IControl or lambda function to be triggered when something is selected, the menu should persist across function calls.
- * Therefore it should almost always be a member variable
- * An IPopupMenu owns its sub items, including submenus */
+/** @brief A class for setting the contents of a pop up menu.
+ *
+ * An IPopupMenu must not be declared as a temporary. In order for a receiving IControl or lambda function
+ * to be triggered when something is selected, the menu should persist across function calls, therefore
+ * it should almost always be a member variable.
+ * An IPopupMenu owns its sub items, including submenus
+ * This (and the platform implementations) are largely based on the VSTGUI COptionMenu */
 class IPopupMenu
 {
 public:
@@ -107,7 +119,7 @@ public:
     mMenuItems.Empty(true);
   }
 
-  static int sortfunc(const Item **a, const Item **b)
+  static int Sortfunc(const Item **a, const Item **b)
   {
     return stricmp((*a)->GetText(),(*b)->GetText());
   }
@@ -117,7 +129,7 @@ public:
     if (index == -1)
       mMenuItems.Add(pItem); // add it to the end
     else if (index == -2)
-      mMenuItems.InsertSorted(pItem, sortfunc);
+      mMenuItems.InsertSorted(pItem, Sortfunc);
     else
       mMenuItems.Insert(index, pItem);
     
@@ -150,6 +162,30 @@ public:
   {
     Item* pItem = new Item ("", Item::kSeparator);
     return AddItem(pItem, index);
+  }
+  
+  void RemoveEmptySubmenus()
+  {
+    int n = mMenuItems.GetSize();
+    
+    WDL_PtrList<IPopupMenu::Item> toDelete;
+    
+    for (int i = 0; i < n; i++)
+    {
+      IPopupMenu::Item* pItem = GetItem(i);
+      
+      IPopupMenu* pSubmenu = pItem->GetSubmenu();
+      
+      if(pSubmenu && pSubmenu->NItems() == 0)
+      {
+        toDelete.Add(pItem);
+      }
+    }
+    
+    for (int i = 0; i < toDelete.GetSize(); i++)
+    {
+      mMenuItems.DeletePtr(toDelete.Get(i));
+    }
   }
 
   void SetChosenItemIdx(int index) { mChosenItemIdx = index; };
@@ -229,12 +265,10 @@ public:
   
   bool IsItemChecked(int index)
   {
-    Item* item = mMenuItems.Get(index);
+    Item* pItem = mMenuItems.Get(index);
     
-    if (item)
-    {
-      return item->GetChecked();
-    }
+    if (pItem)
+      return pItem->GetChecked();
     
     return false;
   }
@@ -261,3 +295,5 @@ private:
   WDL_PtrList<Item> mMenuItems;
   IPopupFunction mPopupFunc = nullptr;
 };
+
+/**@}*/

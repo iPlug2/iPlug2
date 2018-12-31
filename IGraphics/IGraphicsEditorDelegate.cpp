@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #include "IGraphicsEditorDelegate.h"
 #include "IGraphics.h"
 #include "IControl.h"
@@ -15,25 +25,22 @@ void IGEditorDelegate::OnUIOpen()
 {
   IEditorDelegate::OnUIOpen();
   
-  GetUI()->Resize(GetEditorWidth(), GetEditorHeight(), GetEditorScale());
-}
-
-IGraphics* IGEditorDelegate::GetUI()
-{
-  return mGraphics;
-}
-
-void IGEditorDelegate::OnRestoreState()
-{
-  if (mGraphics)
-  {
-    int i, n = mParams.GetSize();
-    for (i = 0; i < n; ++i)
-    {
-      double v = mParams.Get(i)->Value();
-      SendParameterValueFromDelegate(i, v, false);
-    }
-  }
+  int width = GetEditorWidth();
+  int height = GetEditorHeight();
+  float scale = 1.f;
+    
+  // Recall size data (if not present use the defaults above)
+    
+  const IByteChunk& data = GetEditorData();
+    
+  int pos = data.Get(&width, 0);
+  pos = data.Get(&height, pos);
+  pos = data.Get(&scale, pos);
+    
+  if (pos > 0)
+    GetUI()->Resize(width, height, scale);
+    
+  pos = UnSerializeEditorProperties(data, pos);
 }
 
 void* IGEditorDelegate::OpenWindow(void* pParent)
@@ -51,6 +58,8 @@ void* IGEditorDelegate::OpenWindow(void* pParent)
 
 void IGEditorDelegate::CloseWindow()
 {
+  IEditorDelegate::CloseWindow();
+  
   if(mGraphics)
     mGraphics->CloseWindow();
   
@@ -139,7 +148,24 @@ void IGEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
 void IGEditorDelegate::AttachGraphics(IGraphics* pGraphics)
 {
   assert(mGraphics == nullptr); // protect against calling AttachGraphics() when mGraphics allready exists
-         
+
   mGraphics = pGraphics;
   mIGraphicsTransient = false;
+}
+
+void IGEditorDelegate::EditorPropertiesModified()
+{
+  IByteChunk data;
+    
+  int width = mGraphics->Width();
+  int height = mGraphics->Height();
+  float scale = mGraphics->GetDrawScale();
+    
+  data.Put(&width);
+  data.Put(&height);
+  data.Put(&scale);
+    
+  SerializeEditorProperties(data);
+    
+  EditorPropertiesChangedFromUI(mGraphics->WindowWidth(), mGraphics->WindowHeight(), data);
 }

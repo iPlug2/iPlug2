@@ -1,20 +1,21 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
+
+/**
+ * @file
+ * Utility functions and macros
+ * @defgroup IPlugUtilities IPlug::Utilities
+ * @{
+ */
 
 #include <algorithm>
 #include <cmath>
@@ -37,11 +38,6 @@
 #pragma warning(disable:4800)		// if (pointer) ...
 #pragma warning(disable:4805)		// Compare bool and BOOL.
 #endif
-
-/**
- * @file
- * Utility functions and macros
- */
 
 #define FREE_NULL(p) {free(p);p=nullptr;}
 #define DELETE_NULL(p) {delete(p); p=nullptr;}
@@ -343,3 +339,5 @@ static void MidiNoteName(double midiPitch, WDL_String& noteName, bool cents = fa
     noteName.SetFormatted(32, "%s%i", noteNames[pitchClass], octave);
   }
 }
+
+/**@}*/

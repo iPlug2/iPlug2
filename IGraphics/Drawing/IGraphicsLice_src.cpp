@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #ifdef IGRAPHICS_LICE
 
 #include "lice.cpp"
@@ -17,7 +27,9 @@
 //#include "lice_palette.cpp"
 #include "lice_text.cpp"
 //#include "lice_gif.cpp"
-//#include "lice_jpg.cpp"
+#ifdef LICE_JPEG_SUPPORT
+#include "lice_jpg.cpp"
+#endif
 //#include "lice_pcx.cpp"
 #include "lice_textnew.cpp"
 //#include "lice_gif_write.cpp"

@@ -1,20 +1,20 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
+
+/**
+ * @file Structures in small classes used throughout the IPlug code base
+ * @defgroup IPlugStructs IPlug::Structs
+ * @{
+ */
 
 #include <algorithm>
 #include "wdlstring.h"
@@ -31,6 +31,26 @@ struct IParamChange
   int paramIdx;
   double value;
   bool normalized; // TODO: Remove this
+};
+
+/** This structure is used when queueing Sysex messages. You may need to set MAX_SYSEX_SIZE to reflect the max sysex payload in bytes */
+struct SysExData
+{
+  SysExData(int offset = 0, int size = 0, const void* pData = 0)
+  : mOffset(offset)
+  , mSize(size)
+  {
+    assert(size < MAX_SYSEX_SIZE);
+    
+    if (pData)
+      memcpy(mData, pData, size);
+    else
+      memset(mData, 0, MAX_SYSEX_SIZE);
+  }
+  
+  int mOffset;
+  int mSize;
+  uint8_t mData[MAX_SYSEX_SIZE];
 };
 
 /** A helper class for IBtyeChunk and IBtyeStream that avoids code duplication **/
@@ -142,7 +162,7 @@ public:
   
   inline int PutChunk(IByteChunk* pRHS)
   {
-    return PutBytes(pRHS->GetBytes(), pRHS->Size());
+    return PutBytes(pRHS->GetData(), pRHS->Size());
   }
   
   /** Clears the chunk */
@@ -174,7 +194,7 @@ public:
     return n;
   }
   
-  inline uint8_t* GetBytes() // TODO: BAD NAME!
+  inline uint8_t* GetData()
   {
     return mBytes.Get();
   }
@@ -245,9 +265,11 @@ struct IPlugConfig
   int uniqueID;
   int mfrID;
   int latency;
-  bool plugDoesMidi;
+  bool plugDoesMidiIn;
+  bool plugDoesMidiOut;
+  bool plugDoesMPE;
   bool plugDoesChunks;
-  bool plugIsInstrument;
+  int plugType;
   bool plugHasUI;
   int plugWidth;
   int plugHeight;
@@ -263,9 +285,11 @@ struct IPlugConfig
               int uniqueID,
               int mfrID,
               int latency,
-              bool plugDoesMidi,
+              bool plugDoesMidiIn,
+              bool plugDoesMidiOut,
+              bool plugDoesMPE,
               bool plugDoesChunks,
-              bool plugIsInstrument,
+              int plugType,
               bool plugHasUI,
               int plugWidth,
               int plugHeight,
@@ -281,9 +305,11 @@ struct IPlugConfig
   , uniqueID(uniqueID)
   , mfrID(mfrID)
   , latency(latency)
-  , plugDoesMidi(plugDoesMidi)
+  , plugDoesMidiIn(plugDoesMidiIn)
+  , plugDoesMidiOut(plugDoesMidiOut)
+  , plugDoesMPE(plugDoesMPE)
   , plugDoesChunks(plugDoesChunks)
-  , plugIsInstrument(plugIsInstrument)
+  , plugType(plugType)
   , plugHasUI(plugHasUI)
   , plugWidth(plugWidth)
   , plugHeight(plugHeight)
@@ -302,6 +328,7 @@ struct IChannelData
   WDL_String mLabel = WDL_String("");
 };
 
+/** Used to manage information about a bus such as whether it's an input or output, channel count and if it has a label */
 struct IBusInfo
 {
   ERoute mDirection;
@@ -409,3 +436,5 @@ struct IPreset
     sprintf(mName, "%s", UNUSED_PRESET_NAME);
   }
 };
+
+/**@}*/

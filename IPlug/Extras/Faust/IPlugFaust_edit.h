@@ -1,5 +1,8 @@
 #pragma once
 
+#include "IPlugPlatform.h"
+#if !defined OS_IOS && !defined OS_WEB
+
 #define STATE_BEFORE_CODE -1
 
 #include "swell.h"
@@ -44,8 +47,6 @@ public:
   virtual bool sh_draw_parentokenstack_update(const char *tok, int toklen);
   virtual const char *sh_tokenize(const char **ptr, const char *endptr, int *lenOut, int *state);
 
-  virtual bool peek_want_VM_funcs() { return false; } // implement if syntax highlighting should (and can safely) call peek_get_VM()
-  virtual void *peek_get_VM() { return NULL; } // returns NSEEL_VMCTX (if supported)
   virtual int peek_get_named_string_value(const char *name, char *sstr, size_t sstr_sz) { return -1; } // returns >=0 (index) if found
   virtual bool peek_get_numbered_string_value(double idx, char *sstr, size_t sstr_sz) { return false; }
   virtual bool peek_get_variable_info(const char *name, char *sstr, size_t sstr_sz);
@@ -72,3 +73,13 @@ public:
   const char *m_function_prefix; // defaults to "function "
   const char *m_comment_str; // defaults to "//"
 };
+
+#undef COLOR_WHITE
+#undef COLOR_BLACK
+#undef COLOR_BLUE
+#undef COLOR_RED
+#undef COLOR_CYAN
+
+#else
+void OpenFaustEditorWindow (const char*) {};
+#endif //!defined OS_IOS && !defined OS_WEB

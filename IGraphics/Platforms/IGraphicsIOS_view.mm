@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #ifndef NO_IGRAPHICS
 
 #import "IGraphicsIOS_view.h"
@@ -49,9 +59,8 @@
 {
   if (mGraphics)
   {
-    // TODO - fix or remove these values!!
-    *pX = pt.x / mGraphics->GetScale();//- 2.f;
-    *pY = pt.y / mGraphics->GetScale();//- 3.f;
+    *pX = pt.x / mGraphics->GetDrawScale();
+    *pY = pt.y / mGraphics->GetDrawScale();
   }
 }
 
@@ -100,7 +109,8 @@
   //  [self pTouchesEnded: pTouches withEvent: event];
 }
 
-- (CAMetalLayer*) metalLayer {
+- (CAMetalLayer*) metalLayer
+{
   return (CAMetalLayer *)self.layer;
 }
 
@@ -147,7 +157,8 @@
   return YES;
 }
 
-- (BOOL)canBecomeFirstResponder {
+- (BOOL)canBecomeFirstResponder
+{
   return YES;
 }
 

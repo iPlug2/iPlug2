@@ -10,9 +10,11 @@ CONTROLS_PATH = $(IGRAPHICS_PATH)/Controls
 PLATFORMS_PATH = $(IGRAPHICS_PATH)/Platforms
 DRAWING_PATH = $(IGRAPHICS_PATH)/Drawing
 IPLUG_EXTRAS_PATH = $(IPLUG_PATH)/Extras
+IPLUG_SYNTH_PATH = $(IPLUG_EXTRAS_PATH)/Synth
 IPLUG_WEB_PATH = $(IPLUG_PATH)/WEB
 NANOVG_PATH = $(DEPS_PATH)/IGraphics/NanoVG/src
 NANOSVG_PATH = $(DEPS_PATH)/IGraphics/NanoSVG/src
+STB_PATH = $(DEPS_PATH)/IGraphics/STB
 
 IPLUG_SRC = $(IPLUG_PATH)/IPlugAPIBase.cpp \
 	$(IPLUG_PATH)/IPlugParameter.cpp \
@@ -28,15 +30,18 @@ IGRAPHICS_SRC = $(IGRAPHICS_PATH)/IGraphics.cpp \
 INCLUDE_PATHS = -I$(PROJECT_ROOT) \
 -I$(WAM_SDK_PATH) \
 -I$(WDL_PATH) \
+-I$(SWELL_PATH) \
 -I$(IPLUG_PATH) \
 -I$(IPLUG_EXTRAS_PATH) \
+-I$(IPLUG_SYNTH_PATH) \
 -I$(IPLUG_WEB_PATH) \
 -I$(IGRAPHICS_PATH) \
 -I$(DRAWING_PATH) \
 -I$(CONTROLS_PATH) \
 -I$(PLATFORMS_PATH) \
 -I$(NANOVG_PATH) \
--I$(NANOSVG_PATH)
+-I$(NANOSVG_PATH) \
+-I$(STB_PATH)
 
 #every cpp file that is needed for both WASM modules
 SRC = $(IPLUG_SRC)
@@ -54,7 +59,7 @@ $(IGRAPHICS_PATH)/IGraphicsEditorDelegate.cpp
 CFLAGS = $(INCLUDE_PATHS) \
 -std=c++11  \
 -Wno-bitwise-op-parentheses \
--DNO_PARAMS_MUTEX
+-DWDL_NO_DEFINE_MINMAX
 
 WAM_CFLAGS = -DWAM_API \
 -DIPLUG_DSP=1 \
@@ -80,7 +85,8 @@ LDFLAGS = -s ALLOW_MEMORY_GROWTH=1 --bind
 # The following settings mean the WASM is delivered as BASE64 and included in the MyPluginName-wam.js file.
 WAM_LDFLAGS = -s EXTRA_EXPORTED_RUNTIME_METHODS="['ccall', 'cwrap', 'setValue', 'Pointer_stringify']" \
 -s BINARYEN_ASYNC_COMPILATION=0 \
--s SINGLE_FILE=1
+-s SINGLE_FILE=1 \
+#-s ENVIRONMENT=worker
 
 WEB_LDFLAGS = -s EXPORTED_FUNCTIONS=$(WEB_EXPORTS) \
 -s EXTRA_EXPORTED_RUNTIME_METHODS="['Pointer_stringify']" \

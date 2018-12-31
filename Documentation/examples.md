@@ -63,22 +63,11 @@ Rather than changing settings for individual targets/projects inside the Xcode P
 
 You need to two files from the Steinberg VST2.4 SDK to the folder VST_SDK, see VST_SDK/readme.txt
 
-- On OSX by default I build to the system VST2 folder /Library/Audio/Plug-Ins/VST/ - You will need to have write permissions to this folder. If you want to build to the user VST2 folder, you'll need to edit the common-mac.xcconfig file and also modify the installer scripts
-
 ### VST3
 
-Extract the Steinberg VST3.6.X SDK to the folder VST3_SDK but get ready to revert two of the files using git...
-
-- WDL-OL has customised Xcode and VS2017 projects for the VST3 base library. Make sure you didn't overwrite them when you extracted the VST3 SDK or if you did just revert the changes in git.
-
-```
-VST3_SDK\base\mac\base.Xcodeproj/*
-VST3_SDK\base\win\base.vcxproj
-```
+Extract the Steinberg VST3.X.X SDK to the folder VST3_SDK
 
 - On Windows, make sure *C:\\Program Files\\Common Files\\VST3* exists, otherwise the copy files build stage will cause the build to fail
-
-- On OSX by default I build to the system VST3 folder /Library/Audio/Plug-Ins/VST3/. You will need to have *write permissions* to this folder. If you want to build to the user VST3 folder, you'll need to edit the common-mac.xcconfig file and also modify the installer scripts
 
 ### AAX
 

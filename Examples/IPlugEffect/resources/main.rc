@@ -17,6 +17,7 @@
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENG)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
+#pragma code_page(1252)
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -60,7 +61,6 @@ BEGIN
     COMBOBOX        IDC_COMBO_MIDI_IN_CHAN,125,220,50,200,CBS_DROPDOWNLIST | CBS_HASSTRINGS
     LTEXT           "Output Channel",IDC_STATIC,125,240,50,8
     COMBOBOX        IDC_COMBO_MIDI_OUT_CHAN,125,250,50,200,CBS_DROPDOWNLIST | CBS_HASSTRINGS
-//    CONTROL         "Mono Input",IDC_CB_MONO_INPUT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,135,127,56,8
 END
 
 IDD_DIALOG_MAIN DIALOG 0, 0, 300, 300
@@ -81,12 +81,20 @@ IDR_MENU1 MENU
 BEGIN
     POPUP "&File"
     BEGIN
-        MENUITEM "Preferences...",              ID_PREFERENCES
+        MENUITEM "&Preferences...\tCtrl+,",     ID_PREFERENCES
         MENUITEM "&Quit",                       ID_QUIT
+    END
+    POPUP "&Debug"
+    BEGIN
+        MENUITEM "&Live Edit Mode\tCtrl+E",     ID_LIVE_EDIT
+        MENUITEM "&Show Control Bounds\tCtrl+B", ID_SHOW_BOUNDS
+        MENUITEM "&Show Drawn Area\tCtrl+D",    ID_SHOW_DRAWN
+        MENUITEM "&Show FPS\tCtrl+F",           ID_SHOW_FPS
     END
     POPUP "&Help"
     BEGIN
         MENUITEM "&About",                      ID_ABOUT
+        MENUITEM "&Read Manual",                ID_HELP
     END
 END
 
@@ -140,6 +148,8 @@ END
 
 3 TEXTINCLUDE 
 BEGIN
+    "#include ""..\\config.h""\r\n"
+    "ROBOTTO_FN TTF ROBOTTO_FN\0"
 END
 
 #endif    // APSTUDIO_INVOKED
@@ -165,10 +175,6 @@ IDI_ICON1               ICON                    "IPlugEffect.ico"
 // Generated from the TEXTINCLUDE 3 resource.
 //
 #include "..\config.h"
-PNGKNOB_FN PNG PNGKNOB_FN
-PNGKNOBROTATE_FN PNG PNGKNOBROTATE_FN
-SVGKNOB_FN SVG SVGKNOB_FN
-TIGER_FN SVG TIGER_FN
 ROBOTTO_FN TTF ROBOTTO_FN
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED

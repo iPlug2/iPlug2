@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 #include "IPlugEditorDelegate.h"
@@ -17,16 +27,15 @@ public:
   IGEditorDelegate(int nParams);
   ~IGEditorDelegate();
 
-// IEditorDelegate
-  void* OpenWindow(void* pHandle) override;
-  void CloseWindow() override;
+  //IEditorDelegate
+  void* OpenWindow(void* pHandle) final override;
+  void CloseWindow() final override;
+  //The rest should be final, but the WebSocketEditorDelegate needs to override them
   virtual void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;
   virtual void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize = 0, const void* pData = nullptr) override;
   virtual void SendMidiMsgFromDelegate(const IMidiMsg& msg) override;
-  void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
-  /** If you override this method you should call this parent, or implement the same functionality in order to get controls to update, when state is restored. */
-  virtual void OnRestoreState() override;
-  
+  virtual void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
+
   /** If you override this method you must call the parent! */
   virtual void OnUIOpen() override;
 
@@ -36,13 +45,43 @@ public:
   void AttachGraphics(IGraphics* pGraphics);
   
   /** Only override this method if you want to create IGraphics on demand (when UI window opens)! Implementation should return result of MakeGraphics() */
-  virtual IGraphics* CreateGraphics() { return nullptr; }
+  virtual IGraphics* CreateGraphics()
+  {
+    if(mMakeGraphicsFunc)
+      return mMakeGraphicsFunc();
+    else
+      return nullptr;
+  }
   
-  /** Only override this method if you want to create IGraphics on demand (when UI window opens)! */
-  virtual void LayoutUI(IGraphics* pGraphics) {};
+  /** Only override this method if you want to create IGraphics on demand (when UI window opens), or layout controls differently for different UI sizes */
+  virtual void LayoutUI(IGraphics* pGraphics)
+  {
+    if(mLayoutFunc)
+      mLayoutFunc(pGraphics);
+  }
   
-  IGraphics* GetUI();
+  /** Get a pointer to the IGraphics context */
+  IGraphics* GetUI() { return mGraphics; };
+
+  /** Called when the IGraphics context properties are changed */
+  void EditorPropertiesModified();
+  
+  /** Override this method to serialize custom editor state data.
+  * @param chunk The output bytechunk where data can be serialized
+  * @return \c true if serialization was successful*/
+  virtual bool SerializeEditorProperties(IByteChunk& chunk) { TRACE; return true; }
+    
+  /** Override this method to unserialize custom editor state data
+  * @param chunk The incoming chunk containing the state data.
+  * @param startPos The position in the chunk where the data starts
+  * @return The new chunk position (endPos)*/
+  virtual int UnSerializeEditorProperties(const IByteChunk& chunk, int startPos) { TRACE; return startPos; }
+    
+protected:
+  std::function<IGraphics*()> mMakeGraphicsFunc = nullptr;
+  std::function<void(IGraphics* pGraphics)> mLayoutFunc = nullptr;
 private:
+
   IGraphics* mGraphics = nullptr;
   bool mIGraphicsTransient = false; // If creating IGraphics on demand this will be true
 };

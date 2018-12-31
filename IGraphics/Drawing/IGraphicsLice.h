@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
 
 #include "IPlugPlatform.h"
@@ -41,10 +51,12 @@ inline int LiceBlendMode(const IBlend* pBlend)
   }
 }
 
+/** A LICE API bitmap
+ * @ingroup APIBitmaps */
 class LICEBitmap : public APIBitmap
 {
 public:
-  LICEBitmap(LICE_IBitmap* pBitmap, int scale) : APIBitmap (pBitmap, pBitmap->getWidth(), pBitmap->getHeight(), scale) {}
+  LICEBitmap(LICE_IBitmap* pBitmap, int scale) : APIBitmap (pBitmap, pBitmap->getWidth(), pBitmap->getHeight(), scale, 1.f) {}
   virtual ~LICEBitmap() { delete ((LICE_IBitmap*) GetBitmap()); }
 };
 
@@ -66,17 +78,18 @@ public:
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedBitmap(IBitmap& bitmap, float destCtrX, float destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
   void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, float x, float y, double angle, const IBlend* pBlend) override;
+  void DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend) override;
   
   void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override;
   void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness) override;
-  void DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness) override;
+  void DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness, float dashLen) override;
   void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend, float thickness) override;
   void DrawRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness) override;
   void DrawRoundRect(const IColor& color, const IRECT& bounds, float cr, const IBlend* pBlend, float thickness) override;
   void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend, float thickness) override;
   void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend, float thickness) override;
   void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend, float thickness) override;
-  void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness) override;
+  void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness, float dashLen) override;
 
   void FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override;
   void FillRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend) override;
@@ -87,33 +100,75 @@ public:
     
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return mDrawBitmap->getBits(); }
-
-  bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
-  bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
-    
   inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
 
+  // Not implemented
+  void DrawRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend, float thickness) override { /* TODO - mark unsupported */ }
+  void DrawEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness) override { /* TODO - mark unsupported */ }
+  void DrawEllipse(const IColor& color, float x, float y, float r1, float r2, float angle, const IBlend* pBlend, float thickness) override { /* TODO - mark unsupported */ }
+  void FillRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend) override { /* TODO - mark unsupported */ }
+  void FillEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend) override { /* TODO - mark unsupported */ }
+  void FillEllipse(const IColor& color, float x, float y, float r1, float r2, float angle, const IBlend* pBlend) override { /* TODO - mark unsupported */ }
+
+  bool BitmapExtSupported(const char* ext) override;
 protected:
-    
-  APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
+  APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
+  APIBitmap* CreateAPIBitmap(int width, int height) override;
+
+  int AlphaChannel() const override { return LICE_PIXEL_A; }
+  bool FlippedBitmap() const override { return false; }
+
+  void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
+  void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
+
+  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
 
   void EndFrame() override;
     
+  float GetBackingPixelScale() const override { return GetScreenScale(); };
+
 private:
+    
+  float TransformX(float x)
+  {
+    return (x - mDrawOffsetX) * GetScreenScale();
+  }
   
-  void ClipRegion(const IRECT& r) override
+  float TransformY(float y)
+  {
+    return (y - mDrawOffsetY) * GetScreenScale();
+  }
+    
+  IRECT TransformRECT(const IRECT& r)
+  {
+    IRECT tr = r;
+    tr.Translate(-mDrawOffsetX, - mDrawOffsetY);
+    tr.Scale(GetScreenScale());
+    return tr;
+  }
+    
+  void PrepareRegion(const IRECT& r) override
   {
     mDrawRECT = r;
     mDrawRECT.PixelAlign();
+    mClipRECT = mDrawRECT;
   }
   
+  void UpdateLayer() override;
+    
   LICE_IFont* CacheFont(const IText& text, double scale);
 
   IRECT mDrawRECT;
+  IRECT mClipRECT;
     
+  int mDrawOffsetX = 0;
+  int mDrawOffsetY = 0;
+  
   LICE_SysBitmap* mDrawBitmap = nullptr;
   LICE_MemBitmap* mTmpBitmap = nullptr;
+  // N.B. mRenderBitmap is not owned through this pointer, and should not be deleted
+  LICE_IBitmap* mRenderBitmap = nullptr;
 #ifdef OS_MAC
   CGColorSpaceRef mColorSpace = nullptr;
 #endif

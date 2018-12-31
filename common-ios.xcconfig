@@ -32,7 +32,7 @@ AUv3_DEFS = AUv3_API IPLUG_EDITOR=1 IPLUG_DSP=1
 // ***** HEADER INCLUDE PATHS
 // Where the SDKs etc. are located in relation to the plug-in Xcode project (which is in the projects subfolder of an IPlug project)
 
-// the top level WDL-OL folder e.g. where this common.xcconfig is
+// the top level iPlug2 folder e.g. where this common.xcconfig is
 ROOT = $(SRCROOT)/../../..
 PROJECT_ROOT = $(SRCROOT)/..
 
@@ -40,13 +40,13 @@ DEPS_PATH = $(ROOT)/Dependencies
 
 // IPlug dependencies
 WDL_PATH = $(ROOT)/WDL
-SWELL_PATH = $(WDL_PATH)/swell
 IPLUG_PATH = $(ROOT)/IPlug
+AUv3_PATH = $(IPLUG_PATH)/AUv3
 EXTRAS_PATH = $(IPLUG_PATH)/Extras
 EXTRAS_INC_PATHS = $(EXTRAS_PATH) $(EXTRAS_PATH)/Faust $(EXTRAS_PATH)/OSC $(EXTRAS_PATH)/HIIR $(EXTRAS_PATH)/WebSocket
 
 // this build setting is included at the xcode project level, since we need all these include paths
-IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(SWELL_PATH) $(IPLUG_PATH) $(EXTRAS_INC_PATHS)
+IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(IPLUG_PATH) $(EXTRAS_INC_PATHS) $(AUv3_PATH)
 
 IGRAPHICS_PATH = $(ROOT)/IGraphics
 CONTROLS_PATH = $(IGRAPHICS_PATH)/Controls
@@ -58,9 +58,9 @@ IGRAPHICS_DEPS_PATH = $(DEPS_PATH)/IGraphics
 NSVG_PATH = $(IGRAPHICS_DEPS_PATH)/NanoSVG/src
 NVG_PATH = $(IGRAPHICS_DEPS_PATH)/NanoVG/src
 NVGMTL_PATH = $(IGRAPHICS_DEPS_PATH)/MetalNanoVG/src
-
+STB_PATH = $(DEPS_PATH)/IGraphics/STB
 // you can optionally include this build setting, by adding it to EXTRA_INC_PATHS in MyProject.xcconfig in order to get all varieties of IGraphics support
-IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(CONTROLS_PATH) $(PLATFORMS_PATH) $(DRAWING_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(FT_PATH)
+IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(CONTROLS_PATH) $(PLATFORMS_PATH) $(DRAWING_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(FT_PATH) $(STB_PATH)
 
 FAUST_INC_PATHS = /usr/local/include /usr/local/opt/include
 

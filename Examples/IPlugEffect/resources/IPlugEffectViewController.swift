@@ -30,11 +30,22 @@ public class IPlugEffectViewController: AUViewController {
   }
   
   func connectViewWithAU() {
+    // To use the generic UI (swift), change the view in IPlugEffect-iOS-MainInterface.storyboard to custom class: GenericUI  module: IPlugEffectFramework
     if let view = self.view as? GenericUI {
       view.createGenericUI(audioUnit!)
     }
-    else {
-      audioUnit?.openWindow(self.view)
-    }
+  }
+  
+  override public func viewDidLayoutSubviews()
+  {
+    audioUnit?.resize(self.view.bounds)
+  }
+  
+  override public func viewWillAppear(_ animated: Bool) {
+    audioUnit?.openWindow(self.view)
+  }
+  
+  override public func viewWillDisappear(_ animated: Bool) {
+    audioUnit?.closeWindow()
   }
 }

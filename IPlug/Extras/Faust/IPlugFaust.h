@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
 
@@ -108,7 +102,8 @@ public:
 
   virtual void ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   {
-    if (mDSP) {
+    if (mDSP)
+    {
       assert(mDSP->getSampleRate() != 0); // did you forget to call SetSampleRate?
       
       if(mOverSampler)
@@ -125,13 +120,19 @@ public:
 
   void SetParameterValueNormalised(int paramIdx, double normalizedValue)
   {
-    assert(paramIdx < NParams());
-    mParams.Get(paramIdx)->SetNormalized(normalizedValue);
-    
-    if(mZones.GetSize() == NParams())
-      *(mZones.Get(paramIdx)) = mParams.Get(paramIdx)->Value();
+    if(paramIdx > kNoParameter && paramIdx >= NParams())
+    {
+      DBGMSG("IPlugFaust-%s:: No parameter %i\n", mName.Get(), paramIdx);
+    }
     else
-      DBGMSG("IPlugFaust-%s:: Missing zone for parameter %s\n", mName.Get(), mParams.Get(paramIdx)->GetNameForHost());
+    {
+      mParams.Get(paramIdx)->SetNormalized(normalizedValue);
+    
+      if(mZones.GetSize() == NParams())
+        *(mZones.Get(paramIdx)) = mParams.Get(paramIdx)->Value();
+      else
+        DBGMSG("IPlugFaust-%s:: Missing zone for parameter %s\n", mName.Get(), mParams.Get(paramIdx)->GetNameForHost());
+    }
   }
   
   void SetParameterValue(int paramIdx, double nonNormalizedValue)

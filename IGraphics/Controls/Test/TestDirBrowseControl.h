@@ -1,7 +1,24 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
+
+/**
+ * @file
+ * @copydoc TestDirBrowseControl
+ */
 
 #include "IControl.h"
 
+/** Control to test IDirBrowseControlBase
+ *   @ingroup TestControls */
 class TestDirBrowseControl : public IDirBrowseControlBase
 {
 public:
@@ -33,7 +50,7 @@ public:
 
     SetDirty();
   }
-  
+
   void SetPath(const char* path)
   {
     AddPath(path, "");

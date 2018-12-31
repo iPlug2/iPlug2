@@ -1,20 +1,19 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
+
+/**
+ * @file
+ * @copydoc IPluginBase
+ */
 
 #include <random>
 
@@ -23,7 +22,7 @@
 #include "IPlugStructs.h"
 #include "IPlugLogger.h"
 
-/** TODO: */
+/** Base class that contains plug-in info and state manipulation methods */
 class IPluginBase : public EDITOR_DELEGATE_CLASS
 {
 public:
@@ -119,8 +118,8 @@ public:
   /** Another version of the OnParamChange method without an EParamSource, for backwards compatibility / simplicity. */
   virtual void OnParamChange(int paramIdx) {}
   
-  /** Calls OnParamChange() for each parameter and finally OnReset().
-   * @param source Specifies the source of this parameter change */
+  /** Calls OnParamChange() and OnParamChangeUI() for each parameter.
+   * @param source Specifies the source of the parameter changes */
   void OnParamReset(EParamSource source);
   
 #pragma mark - State Serialization
@@ -258,11 +257,7 @@ public:
 #endif
   
 #pragma mark - Parameter manipulation
-  
-  /** Initialise this delegate from another one
-   * @param delegate The delegate to clone */
-  void InitFromDelegate(IPluginBase& delegate);
-  
+    
   /** Initialise a range of parameters simultaneously. This mirrors the arguments available in IParam::InitDouble, for maximum flexibility
    * @param startIdx The index of the first parameter to initialise
    * @param endIdx The index of the last parameter to initialise
@@ -311,6 +306,9 @@ public:
    * @param outGroup The name of the group to copy to */
   void CopyParamValues(const char* inGroup, const char* outGroup);
   
+  /** Randomise all parameters */
+  void RandomiseParamValues();
+  
   /** Randomise parameter values within a range. NOTE for more flexibility in terms of RNG etc, use ForParamInRange()
    * @param startIdx The index of the first parameter to modify
    * @param endIdx The index of the last parameter to modify */
@@ -320,6 +318,9 @@ public:
    * @param paramGroup The name of the group to modify */
   void RandomiseParamValues(const char* paramGroup);
   
+  /** Set all parameters to their default values */
+  void DefaultParamValues();
+
   /** Default parameter values within a range.
    * @param startIdx The index of the first parameter to modify
    * @param endIdx The index of the last parameter to modify */
@@ -328,6 +329,9 @@ public:
   /** Default parameter values for a parameter group
    * @param paramGroup The name of the group to modify */
   void DefaultParamValues(const char* paramGroup);
+  
+  /** Default parameter values for a parameter group  */
+  void PrintParamValues();
 
 protected:
   int mCurrentPresetIdx = 0;
@@ -370,7 +374,7 @@ protected:
   WDL_PtrList<IPreset> mPresets;
 #endif
 
-#ifndef NO_PARAMS_MUTEX
+#ifdef PARAMS_MUTEX
   /** Lock when accessing mParams (including via GetParam) from the audio thread */
   WDL_Mutex mParams_mutex;
 #endif  

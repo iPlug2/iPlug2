@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #ifdef IGRAPHICS_AGG
 #ifdef OS_MAC
 #pragma clang diagnostic push
@@ -54,6 +64,9 @@
 #include "agg_mac_pmap.h"
 #include "agg_mac_font.h"
 #pragma clang diagnostic pop
+#elif defined OS_WIN
+#include "agg_win32_pmap.h"
+//#include "agg_win32_font.h"
 #endif
 
 #endif

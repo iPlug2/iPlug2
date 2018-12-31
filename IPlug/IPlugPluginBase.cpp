@@ -1,17 +1,16 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
+*/
+
+/**
+ * @file
+ * @brief IPluginBase implementation
  */
 
 #include "IPlugPluginBase.h"
@@ -111,9 +110,10 @@ void IPluginBase::OnParamChange(int paramIdx, EParamSource source, int sampleOff
 
 void IPluginBase::OnParamReset(EParamSource source)
 {
-  for (int i = 0; i < mParams.GetSize(); ++i)
+  for (int i = 0; i < NParams(); ++i)
   {
     OnParamChange(i, source);
+    OnParamChangeUI(i, source);
   }
 }
 
@@ -152,16 +152,6 @@ int IPluginBase::UnserializeParams(const IByteChunk& chunk, int startPos)
 
   LEAVE_PARAMS_MUTEX;
   return pos;
-}
-
-void IPluginBase::InitFromDelegate(IPluginBase& delegate)
-{
-  for (auto p = 0; p < delegate.NParams(); p++)
-  {
-    IParam* pParam = delegate.GetParam(p);
-    GetParam(p)->Init(*pParam);
-    GetParam(p)->Set(pParam->Value());
-  }
 }
 
 void IPluginBase::InitParamRange(int startIdx, int endIdx, int countStart, const char* nameFmtStr, double defaultVal, double minVal, double maxVal, double step, const char *label, int flags, const char *group, IParam::Shape *shape, IParam::EParamUnit unit, IParam::DisplayFunc displayFunc)
@@ -242,6 +232,11 @@ void IPluginBase::ForParamInGroup(const char* paramGroup, std::function<void (in
   }
 }
 
+void IPluginBase::DefaultParamValues()
+{
+  DefaultParamValues(0, NParams()-1);
+}
+
 void IPluginBase::DefaultParamValues(int startIdx, int endIdx)
 {
   ForParamInRange(startIdx, endIdx, [](int paramIdx, IParam& param) {
@@ -255,6 +250,12 @@ void IPluginBase::DefaultParamValues(const char* paramGroup)
                       param.SetToDefault();
                     });
 }
+
+void IPluginBase::RandomiseParamValues()
+{
+  RandomiseParamValues(0, NParams()-1);
+}
+
 
 void IPluginBase::RandomiseParamValues(int startIdx, int endIdx)
 {
@@ -276,6 +277,14 @@ void IPluginBase::RandomiseParamValues(const char *paramGroup)
   ForParamInGroup(paramGroup, [&gen, &dis](int paramIdx, IParam& param) {
                       param.SetNormalized(dis(gen));
                     });
+}
+
+void IPluginBase::PrintParamValues()
+{
+  ForParamInRange(0, NParams()-1, [](int paramIdx, IParam& param) {
+    param.PrintDetails();
+    DBGMSG("\n");
+  });
 }
 
 #ifndef NO_PRESETS
@@ -387,7 +396,7 @@ void IPluginBase::MakePresetFromBlob(const char* name, const char* blob, int siz
 {
   IByteChunk presetChunk;
   presetChunk.Resize(sizeOfChunk);
-  wdl_base64decode(blob, presetChunk.GetBytes(), sizeOfChunk);
+  wdl_base64decode(blob, presetChunk.GetData(), sizeOfChunk);
   
   MakePresetFromChunk(name, presetChunk);
 }
@@ -605,7 +614,7 @@ void IPluginBase::DumpAllPresetsBlob(const char* filename)
     
     chnk.Clear();
     chnk.PutChunk(&(pPreset->mChunk));
-    wdl_base64encode(chnk.GetBytes(), buf, chnk.Size());
+    wdl_base64encode(chnk.GetData(), buf, chnk.Size());
     
     fprintf(fp, "%s\", %i, %i);\n", buf, chnk.Size(), pPreset->mChunk.Size());
   }
@@ -621,7 +630,7 @@ void IPluginBase::DumpPresetBlob(const char* filename)
   char buf[MAX_BLOB_LENGTH];
   
   IByteChunk* pPresetChunk = &mPresets.Get(mCurrentPresetIdx)->mChunk;
-  uint8_t* byteStart = pPresetChunk->GetBytes();
+  uint8_t* byteStart = pPresetChunk->GetData();
   
   wdl_base64encode(byteStart, buf, pPresetChunk->Size());
   
@@ -644,7 +653,7 @@ void IPluginBase::DumpBankBlob(const char* filename)
     fprintf(fp, "MakePresetFromBlob(\"%s\", \"", pPreset->mName);
     
     IByteChunk* pPresetChunk = &pPreset->mChunk;
-    wdl_base64encode(pPresetChunk->GetBytes(), buf, pPresetChunk->Size());
+    wdl_base64encode(pPresetChunk->GetData(), buf, pPresetChunk->Size());
     
     fprintf(fp, "%s\", %i);\n", buf, pPresetChunk->Size());
   }
@@ -701,7 +710,7 @@ bool IPluginBase::SaveProgramAsFXP(const char* file)
       pgm.Put(&numParams);
       pgm.PutBytes(prgName, 28); // not PutStr (we want all 28 bytes)
       pgm.Put(&chunkSize);
-      pgm.PutBytes(state.GetBytes(), state.Size());
+      pgm.PutBytes(state.GetData(), state.Size());
     }
     else
     {
@@ -724,7 +733,7 @@ bool IPluginBase::SaveProgramAsFXP(const char* file)
       }
     }
     
-    fwrite(pgm.GetBytes(), pgm.Size(), 1, fp);
+    fwrite(pgm.GetData(), pgm.Size(), 1, fp);
     fclose(fp);
     
     return true;
@@ -776,7 +785,7 @@ bool IPluginBase::SaveBankAsFXB(const char* file)
       bnk.PutBytes(&future, 124);
       
       bnk.Put(&chunkSize);
-      bnk.PutBytes(state.GetBytes(), state.Size());
+      bnk.PutBytes(state.GetData(), state.Size());
     }
     else
     {
@@ -828,7 +837,7 @@ bool IPluginBase::SaveBankAsFXB(const char* file)
       }
     }
     
-    fwrite(bnk.GetBytes(), bnk.Size(), 1, fp);
+    fwrite(bnk.GetData(), bnk.Size(), 1, fp);
     fclose(fp);
     
     return true;
@@ -853,7 +862,7 @@ bool IPluginBase::LoadProgramFromFXP(const char* file)
       rewind(fp);
       
       pgm.Resize((int) fileSize);
-      fread(pgm.GetBytes(), fileSize, 1, fp);
+      fread(pgm.GetData(), fileSize, 1, fp);
       
       fclose(fp);
       
@@ -944,7 +953,7 @@ bool IPluginBase::LoadBankFromFXB(const char* file)
       rewind(fp);
       
       bnk.Resize((int) fileSize);
-      fread(bnk.GetBytes(), fileSize, 1, fp);
+      fread(bnk.GetData(), fileSize, 1, fp);
       
       fclose(fp);
       
@@ -1091,7 +1100,7 @@ static const ChunkID commonChunks[kNumPresetChunks] = {
 static const int32_t kFormatVersion = 1;
 static const int32_t kClassIDSize = 32; // ASCII-encoded FUID
 static const int32_t kHeaderSize = sizeof (ChunkID) + sizeof (int32_t) + kClassIDSize + sizeof (int64_t);
-static const int32_t kListOffsetPos = kHeaderSize - sizeof (int64_t);
+//static const int32_t kListOffsetPos = kHeaderSize - sizeof (int64_t);
 
 inline bool isEqualID (const ChunkID id1, const ChunkID id2)
 {
@@ -1112,7 +1121,7 @@ bool IPluginBase::LoadProgramFromVSTPreset(const char* path)
     rewind(fp);
     
     pgm.Resize((int) fileSize);
-    fread(pgm.GetBytes(), fileSize, 1, fp);
+    fread(pgm.GetData(), fileSize, 1, fp);
     
     fclose(fp);
     
@@ -1192,8 +1201,7 @@ bool IPluginBase::LoadProgramFromVSTPreset(const char* path)
     IByteChunk::GetIPlugVerFromChunk(pgm, pos /* updates pos */);
     pos = UnserializeVST3CtrlrState(pgm, pos);
     
-//    DirtyParameters();
-//    RedrawParamControls();
+    DirtyParametersFromUI();
     OnRestoreState();
     
     return true;
@@ -1275,7 +1283,7 @@ bool IPluginBase::SaveProgramAsVSTPreset(const char* path)
       
       MakeVSTPresetChunk(pgm, componentState, ctrlrState);
       
-      fwrite(pgm.GetBytes(), pgm.Size(), 1, fp);
+      fwrite(pgm.GetData(), pgm.Size(), 1, fp);
       fclose(fp);
       
       return true;

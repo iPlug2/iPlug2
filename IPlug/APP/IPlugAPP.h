@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #ifndef _IPLUGAPI_
 #define _IPLUGAPI_
@@ -47,11 +41,14 @@ public:
   void InformHostOfParamChange(int idx, double normalizedValue) override {};
   void EndInformHostOfParamChange(int idx) override {};
   void InformHostOfProgramChange() override {};
-  void ResizeGraphics(int viewWidth, int viewHeight, float scale) override;
+  void EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data) override;
 
+  //IEditorDelegate
+  void SendSysexMsgFromUI(const ISysEx& msg) override;
+  
   //IPlugProcessor
   bool SendMidiMsg(const IMidiMsg& msg) override;
-  bool SendSysEx(ISysEx& msg) override;
+  bool SendSysEx(const ISysEx& msg) override;
   
   //IPlugAPP
   void AppProcess(double** inputs, double** outputs, int nFrames);
@@ -59,7 +56,8 @@ public:
 private:
   IPlugAPPHost* mAppHost = nullptr;
   IPlugQueue<IMidiMsg> mMidiMsgsFromCallback {MIDI_TRANSFER_SIZE};
-  
+  IPlugQueue<SysExData> mSysExMsgsFromCallback {SYSEX_TRANSFER_SIZE};
+
   friend class IPlugAPPHost;
 };
 

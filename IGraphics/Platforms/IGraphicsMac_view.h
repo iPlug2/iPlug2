@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #ifndef NO_IGRAPHICS
 
 #import <Cocoa/Cocoa.h>
@@ -5,9 +15,14 @@
 
 #include "IGraphicsMac.h"
 
+#if defined IGRAPHICS_GL
+#error IGRAPHICS_GL MACOS NOT IMPLEMENTED
+//#include <OpenGL/gl.h>
+#endif
+
 inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& bounds)
 {
-  float scale = pGraphics->GetScale();
+  float scale = pGraphics->GetDrawScale();
   float x = floor(bounds.L * scale);
   float y = floor(bounds.T * scale);
   float x2 = ceil(bounds.R * scale);
@@ -18,7 +33,7 @@ inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& bounds)
 
 inline IRECT ToIRECT(IGraphics* pGraphics, const NSRect* pR)
 {
-  float scale = 1.f/pGraphics->GetScale();
+  float scale = 1.f/pGraphics->GetDrawScale();
   float x = pR->origin.x, y = pR->origin.y, w = pR->size.width, h = pR->size.height;
   return IRECT(x * scale, y * scale, (x + w) * scale, (y + h) * scale);
 }
@@ -89,7 +104,7 @@ NSString* ToNSString(const char* cStr);
 - (void) onTimer: (NSTimer*) pTimer;
 - (void) killTimer;
 //mouse
-- (void) getMouseXY: (NSEvent*) pEvent x: (float*) pX y: (float*) pY;
+- (void) getMouseXY: (NSEvent*) pEvent x: (float&) pX y: (float&) pY;
 - (IMouseInfo) getMouseLeft: (NSEvent*) pEvent;
 - (IMouseInfo) getMouseRight: (NSEvent*) pEvent;
 - (void) mouseDown: (NSEvent*) pEvent;

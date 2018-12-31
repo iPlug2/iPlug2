@@ -7,7 +7,7 @@ IPlug uses preprocessor macros to select certain APIs and functionality at compi
 * VST_API | VST3_API | AU_API | AUV3_API | AAX_API | APP_API | WAM_API | WEB_API | VST3C_API | VST3P_API
 * USE_IDLE_CALLS: if this is enabled as a preprocessor macro IPlug::OnIdle() will be called in VST2 plug-ins
 * IPLUG1_COMPATIBILITY: if you're upgrading an existing product, you should define this so that compatibility is maintained with your existing state
-* NO_PARAMS_MUTEX: don't lock a mutex when accessing mParams
+* PARAMS_MUTEX: lock a mutex when accessing mParams
  
 ##IGraphics
 * NO_IGRAPHICS: define this to build your plug-in without IGraphics UI functionality. you can also use it to quickly test the plug-in without interface:

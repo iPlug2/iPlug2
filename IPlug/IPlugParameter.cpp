@@ -1,17 +1,16 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
+*/
+
+/**
+ * @file
+ * @brief IParam implementation
  */
 
 #include <cstdio>
@@ -213,8 +212,8 @@ void IParam::Init(const IParam& p, const char* searchStr, const char* replaceStr
     
     if(pos)
     {
-      int insertionPos = (int) (str.Get() - pos);
-      str.DeleteSub(insertionPos, (int) strlen(searchStr));
+      int insertionPos = static_cast<int>(str.Get() - pos);
+      str.DeleteSub(insertionPos, static_cast<int>(strlen(searchStr)));
       str.Insert(replaceStr, insertionPos);
     }
   }
@@ -274,7 +273,7 @@ void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, b
 
   if (mDisplayPrecision == 0)
   {
-    str.SetFormatted(MAX_PARAM_DISPLAY_LEN, "%d", int(round(displayValue)));
+    str.SetFormatted(MAX_PARAM_DISPLAY_LEN, "%d", static_cast<int>(round(displayValue)));
   }
   else if ((mFlags & kFlagSignDisplay) && displayValue)
   {
@@ -295,7 +294,7 @@ const char* IParam::GetNameForHost() const
 
 const char* IParam::GetLabelForHost() const
 {
-  return (CStringHasContents(GetDisplayText((int) mValue))) ? "" : mLabel;
+  return (CStringHasContents(GetDisplayText(static_cast<int>(mValue.load())))) ? "" : mLabel;
 }
 
 const char* IParam::GetGroupForHost() const
@@ -396,4 +395,9 @@ void IParam::GetJSON(WDL_String& json, int idx) const
   json.AppendFormatted(8192, "\"default\":%f, ", GetDefault());
   json.AppendFormatted(8192, "\"rate\":\"control\"");
   json.AppendFormatted(8192, "}");
+}
+
+void IParam::PrintDetails() const
+{
+  DBGMSG("%s %f", GetNameForHost(), Value());
 }

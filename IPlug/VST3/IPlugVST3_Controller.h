@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #ifndef _IPLUGAPI_
 #define _IPLUGAPI_
@@ -79,11 +73,12 @@ public:
   void InformHostOfParamChange(int idx, double normalizedValue) override  { performEdit(idx, normalizedValue); }
   void EndInformHostOfParamChange(int idx) override  { endEdit(idx); }
   void InformHostOfProgramChange() override  { /* TODO: */}
-  void ResizeGraphics(int viewWidth, int viewHeight, float scale) override;
-
+  void EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data) override;
+  void DirtyParametersFromUI() override;
+  
   //IEditorDelegate
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
-  void SendSysexMsgFromUI(const ISysEx& msg) override { /* TODO */ };
+  void SendSysexMsgFromUI(const ISysEx& msg) override;
   void SendArbitraryMsgFromUI(int messageTag, int controlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) override;
 
   Vst::IComponentHandler* GetComponentHandler() const { return componentHandler; }

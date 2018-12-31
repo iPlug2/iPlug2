@@ -1,27 +1,21 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
 
-/** \file IPlug_include_in_plug_src.h
-    \brief IPlug source include
-
-    Include this file in the main source for your plugin, after #including the main header for your plugin.
-    A preprocessor macro for a particular API such as VST2_API should be defined at project level
-    Depending on the API macro defined, a different entry point and helper methods are activated
+/**
+ * @file IPlug_include_in_plug_src.h
+ * @brief IPlug source include
+ * Include this file in the main source for your plugin, after #including the main header for your plugin.
+ * A preprocessor macro for a particular API such as VST2_API should be defined at project level
+ * Depending on the API macro defined, a different entry point and helper methods are activated
 */
 
 #pragma mark - VST2
@@ -81,7 +75,7 @@ static unsigned int GUID_DATA3 = PLUG_MFR_ID;
 static unsigned int GUID_DATA4 = PLUG_UNIQUE_ID;
 
 #ifndef EFFECT_TYPE_VST3
-  #if PLUG_IS_INST
+  #if PLUG_TYPE == 1
     #define EFFECT_TYPE_VST3 kInstrumentSynth
   #else
     #define EFFECT_TYPE_VST3 kFx
@@ -89,14 +83,12 @@ static unsigned int GUID_DATA4 = PLUG_UNIQUE_ID;
 #endif
 
 #if defined VST3P_API || defined VST3_API
-// called after library was loaded
 bool InitModule ()
 {
 #ifdef OS_WIN
   extern void* moduleHandle;
-  gHInstance = (HINSTANCE) moduleHandle;
+  gHINSTANCE = (HINSTANCE) moduleHandle;
 #endif
-  
   return true;
 }
 
@@ -134,6 +126,9 @@ IPlug* MakeController()
   WDL_MutexLock lock(&sMutex);
   IPlugVST3Controller::IPlugInstanceInfo instanceInfo;
   instanceInfo.mOtherGUID = FUID(PROC_GUID_DATA1, PROC_GUID_DATA2, GUID_DATA3, GUID_DATA4);
+  
+  //If you are trying to build a distributed VST3 plug-in and you hit an error here "no matching constructor...",
+  //you need to replace all instances of PLUG_CLASS_NAME in your plug-in class, with the macro PLUG_CLASS_NAME
   return new PLUG_CLASS_NAME(instanceInfo);
 }
 #elif defined VST3_API
@@ -234,7 +229,7 @@ class IPlugAUFactory
         case kAudioUnitScheduleParametersSelect:return (AudioComponentMethod)IPlugAU::AUMethodScheduleParameters;
         case kAudioUnitRenderSelect:  return (AudioComponentMethod)IPlugAU::AUMethodRender;
         case kAudioUnitResetSelect: return (AudioComponentMethod)IPlugAU::AUMethodReset;
-#if PLUG_DOES_MIDI
+#if PLUG_DOES_MIDI_IN
         case kMusicDeviceMIDIEventSelect:  return (AudioComponentMethod)IPlugAU::AUMethodMIDIEvent;
         case kMusicDeviceSysExSelect:  return (AudioComponentMethod)IPlugAU::AUMethodSysEx;
 #endif
@@ -440,7 +435,7 @@ DWORD GetTickCount()
 #define IPLUG_CTOR(nParams, nPresets, instanceInfo) \
   IPlug(instanceInfo, IPlugConfig(nParams, nPresets, PLUG_CHANNEL_IO,\
     PUBLIC_NAME, "", PLUG_MFR, PLUG_VERSION_HEX, PLUG_UNIQUE_ID, PLUG_MFR_ID, \
-    PLUG_LATENCY, PLUG_DOES_MIDI, PLUG_DOES_STATE_CHUNKS, PLUG_IS_INSTRUMENT, \
+    PLUG_LATENCY, PLUG_DOES_MIDI_IN, PLUG_DOES_MIDI_OUT, PLUG_DOES_MPE, PLUG_DOES_STATE_CHUNKS, PLUG_TYPE, \
     PLUG_HAS_UI, PLUG_WIDTH, PLUG_HEIGHT, BUNDLE_ID))
 
 #if !defined NO_IGRAPHICS && !defined VST3P_API

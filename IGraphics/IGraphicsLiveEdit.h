@@ -1,13 +1,34 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
+
+/**
+ * @file
+ * @copydoc IGraphicsLiveEdit
+ */
+
 #ifndef NDEBUG
 
 #include "IControl.h"
 
+/** A control to enable live modification of control layout in an IGraphics context in debug builds
+ * This is based on the work of Youlean, who first included it in iPlug-Youlean
+ * The lives outside the main IGraphics control stack and it can be added with IGraphics::EnableLiveEdit().
+ * It should not be used in the main control stack.
+ * @ingroup SpecialControls */
 class IGraphicsLiveEdit : public IControl
 {
 public:
-  IGraphicsLiveEdit(IGEditorDelegate& dlg, const char* pathToSourceFile, float gridSize)
-  : IControl(dlg, IRECT(0, 0, 1, 1))
+  IGraphicsLiveEdit(IGEditorDelegate& dlg, const char* pathToSourceFile = 0, float gridSize = 10)
+  : IControl(dlg, IRECT())
   , mPathToSourceFile(pathToSourceFile)
   , mGridSize(gridSize)
   {
@@ -146,9 +167,15 @@ public:
     }
   }
   
+  void OnResize() override
+  {
+    mRECT = GetUI()->GetBounds();
+    SetTargetRECT(mRECT);
+  }
+  
   bool IsDirty() override { return true; }
 
-  inline IRECT GetHandleRect(IRECT& r)
+  inline IRECT GetHandleRect(const IRECT& r)
   {
     return IRECT(r.R - RESIZE_HANDLE_SIZE, r.B - RESIZE_HANDLE_SIZE, r.R, r.B);
   }
@@ -162,8 +189,8 @@ public:
   }
 
 private:
-  bool mEditModeActive = false;
-  bool mLiveEditingEnabled = false;
+//  bool mEditModeActive = false;
+//  bool mLiveEditingEnabled = false;
   bool mMouseClickedOnResizeHandle = false;
   bool mMouseIsDragging = false;
   WDL_String mPathToSourceFile;
@@ -173,8 +200,8 @@ private:
   IColor mRectColor = COLOR_WHITE;
   static const int RESIZE_HANDLE_SIZE = 10;
 
-  IRECT mMouseDownRECT = IRECT(0, 0, 0, 0);
-  IRECT mMouseDownTargetRECT = IRECT(0, 0, 0, 0);
+  IRECT mMouseDownRECT;
+  IRECT mMouseDownTargetRECT;
 
   float mGridSize = 10;
   int mClickedOnControl = -1;

@@ -1,18 +1,12 @@
 /*
  ==============================================================================
  
- This file is part of the iPlug 2 library
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- Oli Larkin et al. 2018 - https://www.olilarkin.co.uk
- 
- iPlug 2 is an open source library subject to commercial or open-source
- licensing.
- 
- The code included in this file is provided under the terms of the WDL license
- - https://www.cockos.com/wdl/
+ See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #include "IPlugAAX.h"
 #include "IPlugAAX_view_interface.h"
@@ -103,8 +97,8 @@ IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 {
   Trace(TRACELOC, "%s%s", c.pluginName, c.channelIOStr);
 
-  _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
-  _SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
+  SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
+  SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
   
   if (MaxNChannels(ERoute::kInput)) 
   {
@@ -112,7 +106,7 @@ IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
     mLatencyDelay->SetDelayTime(c.latency);
   }
   
-  _SetBlockSize(DEFAULT_BLOCK_SIZE);
+  SetBlockSize(DEFAULT_BLOCK_SIZE);
   SetHost("ProTools", 0); // TODO:vendor version correct?
   
   CreateTimer();
@@ -214,7 +208,7 @@ AAX_Result IPlugAAX::EffectInit()
   
   AAX_CSampleRate sr;
   Controller()->GetSampleRate(&sr);
-  _SetSampleRate(sr);
+  SetSampleRate(sr);
   OnReset();
   
   return AAX_SUCCESS;
@@ -240,7 +234,7 @@ AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID paramID, double
   {
     ENTER_PARAMS_MUTEX;
     GetParam(paramIdx)->SetNormalized(iValue);
-    _SendParameterValueFromAPI(paramIdx, iValue, true);
+    SendParameterValueFromAPI(paramIdx, iValue, true);
     OnParamChange(paramIdx, kHost);
     LEAVE_PARAMS_MUTEX;
   }
@@ -265,7 +259,7 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
   Controller()->GetInputStemFormat(&inFormat);
   Controller()->GetOutputStemFormat(&outFormat);
   
-  if (DoesMIDI()) 
+  if (DoesMIDIIn()) 
   {
     AAX_IMIDINode* pMidiIn = pRenderInfo->mInputNode;
     AAX_CMidiStream* pMidiBuffer = pMidiIn->GetNodeBuffer();
@@ -287,16 +281,16 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
   int32_t numInChannels = AAX_STEM_FORMAT_CHANNEL_COUNT(inFormat);
   int32_t numOutChannels = AAX_STEM_FORMAT_CHANNEL_COUNT(outFormat);
 
-  _SetChannelConnections(ERoute::kInput, 0, numInChannels, true);
-  _SetChannelConnections(ERoute::kInput, numInChannels, MaxNChannels(ERoute::kInput) - numInChannels, false);
-  _AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), pRenderInfo->mAudioInputs, numSamples);
+  SetChannelConnections(ERoute::kInput, 0, numInChannels, true);
+  SetChannelConnections(ERoute::kInput, numInChannels, MaxNChannels(ERoute::kInput) - numInChannels, false);
+  AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), pRenderInfo->mAudioInputs, numSamples);
   
-  _SetChannelConnections(ERoute::kOutput, 0, numOutChannels, true);
-  _SetChannelConnections(ERoute::kOutput, numOutChannels, MaxNChannels(ERoute::kOutput) - numOutChannels, false);
-  _AttachBuffers(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), pRenderInfo->mAudioOutputs, numSamples);
+  SetChannelConnections(ERoute::kOutput, 0, numOutChannels, true);
+  SetChannelConnections(ERoute::kOutput, numOutChannels, MaxNChannels(ERoute::kOutput) - numOutChannels, false);
+  AttachBuffers(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), pRenderInfo->mAudioOutputs, numSamples);
   
   if (bypass) 
-    _PassThroughBuffers(0.0f, numSamples);
+    PassThroughBuffers(0.0f, numSamples);
   else 
   {
     int32_t num, denom;
@@ -320,7 +314,7 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
     timeInfo.mCycleStart = (double) cStart / 960000.0;
     timeInfo.mCycleEnd = (double) cEnd / 960000.0;
     
-    _SetTimeInfo(timeInfo);
+    SetTimeInfo(timeInfo);
     //timeInfo.mLastBar ??
     
     IMidiMsg msg;
@@ -330,11 +324,11 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
       ProcessMidiMsg(msg);
     }
     
-    _ProcessBuffers(0.0f, numSamples);
+    ProcessBuffers(0.0f, numSamples);
   }
   
   // Midi Out
-  if (DoesMIDI())
+  if (DoesMIDIOut())
   {
     AAX_IMIDINode* midiOut = pRenderInfo->mOutputNode;
     
@@ -365,6 +359,35 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
       }
       
       mMidiOutputQueue.Flush(numSamples);
+      
+      //Output SYSEX from the editor, which has bypassed ProcessSysEx()
+      if(mSysExDataFromEditor.ElementsAvailable())
+      {
+        while (mSysExDataFromEditor.Pop(mSysexBuf))
+        {
+          int numPackets = (int) ceil((float) mSysexBuf.mSize/4.); // each packet can store 4 bytes of data
+          int bytesPos = 0;
+          
+          for (int p = 0; p < numPackets; p++)
+          {
+            AAX_CMidiPacket packet;
+            
+            packet.mTimestamp = (uint32_t) mSysexBuf.mOffset;
+            packet.mIsImmediate = true;
+            
+            int b = 0;
+            
+            while (b < 4 && bytesPos < mSysexBuf.mSize)
+            {
+              packet.mData[b++] = mSysexBuf.mData[bytesPos++];
+            }
+            
+            packet.mLength = (uint32_t) b;
+            
+            midiOut->PostMIDIPacket (&packet);
+          }
+        }
+      }
     }
   }
 }
@@ -424,7 +447,7 @@ AAX_Result IPlugAAX::GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk* pChunk) con
     if (_this->SerializeState(chunk))
     {
       pChunk->fSize = chunk.Size();
-      memcpy(pChunk->fData, chunk.GetBytes(), chunk.Size());
+      memcpy(pChunk->fData, chunk.GetData(), chunk.Size());
       return AAX_SUCCESS;
     }
   }
@@ -492,20 +515,20 @@ void IPlugAAX::EndInformHostOfParamChange(int idx)
   ReleaseParameter(mParamIDs.Get(idx)->Get());
 }
 
-void IPlugAAX::ResizeGraphics(int viewWidth, int viewHeight, float scale)
+void IPlugAAX::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
 {
   if (HasUI())
   {
+    IPlugAAXView_Interface* pViewInterface = (IPlugAAXView_Interface*) GetAAXViewInterface();
     AAX_Point oEffectViewSize;
+      
     oEffectViewSize.horz = (float) viewWidth;
     oEffectViewSize.vert = (float) viewHeight;
     
-    IPlugAAXView_Interface* pViewInterface = (IPlugAAXView_Interface*) GetAAXViewInterface();
-    if(pViewInterface)
+    if (pViewInterface && (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight()))
       pViewInterface->GetViewContainer()->SetViewSize(oEffectViewSize);
 
-    IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, scale);
-    OnWindowResize();
+    IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
   }
 }
 
