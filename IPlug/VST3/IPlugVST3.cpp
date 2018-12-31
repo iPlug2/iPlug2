@@ -589,21 +589,7 @@ tresult PLUGIN_API IPlugVST3::canProcessSampleSize(int32 symbolicSampleSize)
   return retval;
 }
 
-#pragma mark IEditController overrides
-
-IPlugView* PLUGIN_API IPlugVST3::createView(const char* name)
-{
-  if (name && strcmp(name, "editor") == 0)
-  {
-    IPlugVST3View* view = new IPlugVST3View(this);
-    addDependentView(view);
-    return view;
-  }
-
-  return 0;
-}
-
-tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* state)
+tresult PLUGIN_API IPlugVST3::setState(IBStream* state)
 {
   TRACE;
   
@@ -641,16 +627,16 @@ tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* state)
   return kResultOk;
 }
 
-tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
+tresult PLUGIN_API IPlugVST3::getState(IBStream* state)
 {
   TRACE;
-
+  
   IByteChunk chunk;
-
-// TODO: IPlugVer should be in chunk!
-//  int pos;
-//  IByteChunk::GetIPlugVerFromChunk(chunk, pos)
-
+  
+  // TODO: IPlugVer should be in chunk!
+  //  int pos;
+  //  IByteChunk::GetIPlugVerFromChunk(chunk, pos)
+  
   if (SerializeState(chunk))
   {
     state->write(chunk.GetData(), chunk.Size());
@@ -659,26 +645,43 @@ tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
   {
     return kResultFalse;
   }
-
+  
   int32 toSaveBypass = GetBypassed() ? 1 : 0;
   state->write(&toSaveBypass, sizeof (int32));
+  
+  return kResultOk;
+}
 
+#pragma mark IEditController overrides
+
+IPlugView* PLUGIN_API IPlugVST3::createView(const char* name)
+{
+  if (name && strcmp(name, "editor") == 0)
+  {
+    IPlugVST3View* view = new IPlugVST3View(this);
+    addDependentView(view);
+    return view;
+  }
+  
+  return 0;
+}
+
+tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* state)
+{
+  // Nothing to do here
+  return kResultOk;
+}
+
+tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
+{
+  // Nothing to do here
   return kResultOk;
 }
 
 tresult PLUGIN_API IPlugVST3::setComponentState(IBStream* state)
 {
-  return setEditorState(state);
-}
-
-tresult PLUGIN_API IPlugVST3::setState(IBStream* state)
-{
-  return setEditorState(state);
-}
-
-tresult PLUGIN_API IPlugVST3::getState(IBStream* state)
-{
-  return getEditorState(state);
+  // We get the state through setState so do nothing here
+  return kResultOk;
 }
 
 void IPlugVST3::addDependentView(IPlugVST3View* view)
@@ -689,27 +692,6 @@ void IPlugVST3::addDependentView(IPlugVST3View* view)
 void IPlugVST3::removeDependentView(IPlugVST3View* view)
 {
   mViews.erase(std::remove(mViews.begin(), mViews.end(), view));
-}
-
-tresult IPlugVST3::beginEdit(ParamID tag)
-{
-  if (componentHandler)
-    return componentHandler->beginEdit(tag);
-  return kResultFalse;
-}
-
-tresult IPlugVST3::performEdit(ParamID tag, ParamValue valueNormalized)
-{
-  if (componentHandler)
-    return componentHandler->performEdit(tag, valueNormalized);
-  return kResultFalse;
-}
-
-tresult IPlugVST3::endEdit(ParamID tag)
-{
-  if (componentHandler)
-    return componentHandler->endEdit(tag);
-  return kResultFalse;
 }
 
 AudioBus* IPlugVST3::getAudioInput (int32 index)

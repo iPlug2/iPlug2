@@ -69,9 +69,8 @@ public:
   tresult PLUGIN_API setActive(TBool state) override;
   tresult PLUGIN_API setupProcessing(Vst::ProcessSetup& newSetup) override;
   tresult PLUGIN_API process(Vst::ProcessData& data) override;
-//  tresult PLUGIN_API setState(IBStream* state) override;
-//  tresult PLUGIN_API getState(IBStream* state) override;
-//  tresult PLUGIN_API setComponentState(IBStream *state) override;
+  tresult PLUGIN_API setState(IBStream* state) override;
+  tresult PLUGIN_API getState(IBStream* state) override;
   tresult PLUGIN_API canProcessSampleSize(int32 symbolicSampleSize) override;
   uint32 PLUGIN_API getLatencySamples () override { return GetLatency(); }
   uint32 PLUGIN_API getTailSamples() override { return GetTailSize(); }
@@ -80,8 +79,6 @@ public:
   IPlugView* PLUGIN_API createView (const char* name) override;
   tresult PLUGIN_API setEditorState (IBStream* state) override;
   tresult PLUGIN_API getEditorState (IBStream* state) override;
-  tresult PLUGIN_API setState(IBStream* state) override;
-  tresult PLUGIN_API getState(IBStream* state) override;
   tresult PLUGIN_API setComponentState(IBStream *state) override;
  
   //IUnitInfo
@@ -113,9 +110,6 @@ private:
 
   void addDependentView (IPlugVST3View* view);
   void removeDependentView (IPlugVST3View* view);
-  tresult beginEdit(uint32 tag) override;
-  tresult performEdit(uint32 tag, double valueNormalized) override;
-  tresult endEdit(uint32 tag) override;
   Vst::AudioBus* getAudioInput(int32 index);
   Vst::AudioBus* getAudioOutput(int32 index);
   uint64_t getSpeakerArrForChans(int32 chans);
