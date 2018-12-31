@@ -170,17 +170,17 @@ bool IGraphicsMac::GetResourcePathFromUsersMusicFolder(const char* fileName, con
   return false;
 }
 
-bool IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String& result)
+EResourceLocation IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
   if(CStringHasContents(name))
   {
     // first check this bundle
     if(GetResourcePathFromBundle(name, type, result))
-      return true;
+      return EResourceLocation::kAbsolutePath;
 
     // then check ~/Music/PLUG_NAME, which is a shared folder that can be accessed from app sandbox
     if(GetResourcePathFromUsersMusicFolder(name, type, result))
-      return true;
+      return EResourceLocation::kAbsolutePath;
 
     // finally check name, which might be a full path - if the plug-in is trying to load a resource at runtime (e.g. skin-able UI)
     NSString* pPath = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
@@ -188,10 +188,10 @@ bool IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String
     if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
     {
       result.Set([pPath UTF8String]);
-      return true;
+      return EResourceLocation::kAbsolutePath;
     }
   }
-  return false;
+  return EResourceLocation::kNotFound;
 }
 
 bool IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds)
