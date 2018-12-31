@@ -50,10 +50,6 @@ public:
   tresult PLUGIN_API getState (IBStream* state) override;
   
   tresult PLUGIN_API setParamNormalized (ParamID tag, ParamValue value) override;
-  ParamValue PLUGIN_API getParamNormalized(ParamID tag) override;
-  ParamValue PLUGIN_API plainParamToNormalized(ParamID tag, ParamValue plainValue) override;
-  ParamValue PLUGIN_API normalizedParamToPlain (ParamID tag, ParamValue valueNormalized) override;
-  
   //ComponentBase
   tresult PLUGIN_API notify (IMessage* message) override;
 

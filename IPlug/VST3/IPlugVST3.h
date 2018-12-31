@@ -83,10 +83,7 @@ public:
   tresult PLUGIN_API setState(IBStream* state) override;
   tresult PLUGIN_API getState(IBStream* state) override;
   tresult PLUGIN_API setComponentState(IBStream *state) override;
-  tresult PLUGIN_API setParamNormalized (uint32 tag, double value) override;
-  double PLUGIN_API getParamNormalized(uint32 tag) override;
-  double PLUGIN_API plainParamToNormalized(uint32 tag, double plainValue) override;
-
+ 
   //IUnitInfo
   int32 PLUGIN_API getUnitCount() override;
   tresult PLUGIN_API getUnitInfo(int32 unitIndex, Vst::UnitInfo& info) override;

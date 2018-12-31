@@ -102,8 +102,8 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
       parameters.addParameter(pVSTParam);
     }
 
-//    if (!IsInstrument())
-//      parameters.addParameter (STR16 ("Bypass"), 0, 1, 0, ParameterInfo::kCanAutomate|ParameterInfo::kIsBypass, kBypassParam, kRootUnitId);
+    if (!IsInstrument())
+      parameters.addParameter (STR16 ("Bypass"), 0, 1, 0, ParameterInfo::kCanAutomate|ParameterInfo::kIsBypass, kBypassParam, kRootUnitId);
 //
 //    if (NPresets() > 1)
 //      parameters.addParameter(STR16("Preset"), STR16(""), NPresets(), 0, ParameterInfo::kIsProgramChange|ParameterInfo::kIsList, kPresetParam, kRootUnitId);
@@ -216,25 +216,6 @@ tresult PLUGIN_API IPlugVST3Controller::getState(IBStream* state)
   return kResultFalse;
 }
 
-ParamValue PLUGIN_API IPlugVST3Controller::plainParamToNormalized(ParamID tag, ParamValue plainValue)
-{
-  IParam* pParam = GetParam(tag);
-
-  if (pParam)
-    return pParam->ToNormalized(plainValue);
-
-  return plainValue;
-}
-
-ParamValue PLUGIN_API IPlugVST3Controller::normalizedParamToPlain(ParamID tag, ParamValue valueNormalized)
-{
-  IParam* pParam = GetParam(tag);
-
-  if (pParam)
-    return pParam->FromNormalized(valueNormalized);
-
-  return 0.;
-}
 
 tresult PLUGIN_API IPlugVST3Controller::setParamNormalized(ParamID tag, ParamValue value)
 {
@@ -274,29 +255,6 @@ tresult PLUGIN_API IPlugVST3Controller::setParamNormalized(ParamID tag, ParamVal
 
   return EditControllerEx1::setParamNormalized(tag, value);
 }
-
-ParamValue PLUGIN_API IPlugVST3Controller::getParamNormalized(ParamID tag)
-{
-  if (tag >= kBypassParam)
-  {
-    switch (tag)
-    {
-//      case kBypassParam:  return (ParamValue) mIsBypassed;
-//    case kPresetParam:  return (ParamValue) ToNormalizedParam(mCurrentPresetIdx, 0, NPresets(), 1.);
-      default: break;
-    }
-  }
-  else
-  {
-    IParam* pParam = GetParam(tag);
-
-    if (pParam)
-      return pParam->GetNormalized();
-  }
-
-  return 0.;
-}
-
 tresult PLUGIN_API IPlugVST3Controller::getMidiControllerAssignment (int32 busIndex, int16 midiChannel, CtrlNumber midiControllerNumber, ParamID& tag)
 {
 //  if (busIndex == 0)
