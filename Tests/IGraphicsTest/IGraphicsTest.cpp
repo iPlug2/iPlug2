@@ -114,12 +114,13 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new TestAnimationControl(*this, nextCell()));
     pGraphics->AttachControl(new TestDrawContextControl(*this, nextCell()));
     pGraphics->AttachControl(new TestSVGControl(*this, nextCell(), tiger));
-    pGraphics->AttachControl(new TestSizeControl(*this, bounds), kCtrlTagSize);
+    pGraphics->AttachControl(new TestImageControl(*this, nextCell()));
     pGraphics->AttachControl(new TestLayerControl(*this, nextCell()));
     pGraphics->AttachControl(new TestBlendControl(*this, nextCell(), smiley));
     pGraphics->AttachControl(new TestDropShadowControl(*this, nextCell(), tiger));
     pGraphics->AttachControl(new TestCursorControl(*this, nextCell()));
     pGraphics->AttachControl(new TestKeyboardControl(*this, nextCell()));
+    pGraphics->AttachControl(new TestSizeControl(*this, bounds), kCtrlTagSize);
 
 #if 0
     pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Hello World!", {24, COLOR_WHITE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop, 90}));
