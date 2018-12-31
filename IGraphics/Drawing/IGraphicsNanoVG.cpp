@@ -80,46 +80,15 @@ void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int
 #endif
 }
 
-#ifdef OS_WIN
-int LoadImageFromWinResource(NVGcontext* pContext, HINSTANCE hInst, const char* resid)
+NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID)
 {
-  HRSRC hResource = FindResource(hInst, resid, "PNG");
-  if (!hResource) return NULL;
+  assert(nvgImageID > 0);
 
-  DWORD imageSize = SizeofResource(hInst, hResource);
-  if (imageSize < 8) return NULL;
-
-  HGLOBAL res = LoadResource(hInst, hResource);
-  const void* pResourceData = LockResource(res);
-  if (!pResourceData) return NULL;
-
-  int ret = nvgCreateImageMem(pContext, 0 /*flags*/, (unsigned char*) pResourceData, imageSize);
-
-  return ret;
-}
-
-#endif
-
-NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, void* hInst)
-{
   mVG = pContext;
   int w = 0, h = 0;
-
-  int idx = 0;
-
-  // TODO: move resource loading code and improve error checking 
-#ifdef OS_WIN
-  idx = LoadImageFromWinResource(pContext, (HINSTANCE)hInst, path);
-
-  if (idx == 0)
-#endif
-  idx = nvgCreateImage(mVG, path, 0);
-
-  assert(idx > 0);
-
-  nvgImageSize(mVG, idx, &w, &h);
+  nvgImageSize(mVG, nvgImageID, &w, &h);
   
-  SetBitmap(idx, w, h, sourceScale, 1.f);
+  SetBitmap(nvgImageID, w, h, sourceScale, 1.f);
 }
 
 NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, int scale, float drawScale)
@@ -202,7 +171,6 @@ NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend
   NVGcolor ocol = NanoVGColor(pattern.GetStop(pattern.NStops() - 1).mColor, pBlend);
     
   // Invert transform
-
   IMatrix inverse = IMatrix(pattern.mTransform).Invert();
   inverse.TransformPoint(s[0], s[1], 0.0, 0.0);
 
@@ -262,11 +230,17 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
   // If the bitmap is not already cached at the targetScale
   if (!pAPIBitmap)
   {
+    const char* ext = name + strlen(name) - 1;
+    while (ext >= name && *ext != '.') --ext;
+    ++ext;
+
     WDL_String fullPath;
     int sourceScale = 0;
-    bool resourceFound = SearchImageResource(name, "png", fullPath, targetScale, sourceScale);
-    assert(resourceFound);
-    
+    bool resourceFound = SearchImageResource(name, ext, fullPath, targetScale, sourceScale);
+
+    if(!resourceFound)
+      return IBitmap();
+
     pAPIBitmap = LoadAPIBitmap(fullPath, sourceScale);
     
     mBitmapCache.Add(pAPIBitmap, name, sourceScale);
@@ -279,7 +253,26 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
 
 APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
 {
-  return new NanoVGBitmap(mVG, resourcePath.Get(), scale, GetWinModuleHandle());
+  int idx = 0;
+
+#ifdef OS_WIN
+  const void* pResData = nullptr;
+
+  //const char* ext = resourcePath.Get() + strlen(resourcePath.Get()) - 1;
+  //while (ext >= resourcePath.Get() && *ext != '.') --ext;
+  //++ext;
+
+  int size = 0;
+  pResData = LoadWinResource(resourcePath.Get(), "png", size); //TODO: support JPG
+
+  if (pResData)
+    idx = nvgCreateImageMem(mVG, 0 /*flags*/, (unsigned char*) pResData, size);
+
+  if (idx == 0)
+#endif
+    idx = nvgCreateImage(mVG, resourcePath.Get(), 0);
+
+  return new NanoVGBitmap(mVG, resourcePath.Get(), scale, idx);
 }
 
 APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height)

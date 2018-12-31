@@ -89,7 +89,7 @@ void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int
 class NanoVGBitmap : public APIBitmap
 {
 public:
-  NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, void* hInst = nullptr);
+  NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID);
   NanoVGBitmap(NVGcontext* pContext, int width, int height, int scale, float drawScale);
   NanoVGBitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, int scale, float drawScale);
   virtual ~NanoVGBitmap();
