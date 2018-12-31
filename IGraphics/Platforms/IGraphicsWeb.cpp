@@ -411,13 +411,15 @@ void IGraphicsWeb::SetMouseCursor(ECursor cursor)
   mCursorType = cursor;
 }
 
-bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String& result)
+EResourceLocation IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String& result)
 {
   if (CStringHasContents(name))
   {
     WDL_String plusSlash;
     
     bool foundResource = false;
+    
+    //TODO: OSFindResource is not sufficient here
     
     if(strcmp(type, "png") == 0) {
       plusSlash.SetFormatted(strlen("/resources/img/") + strlen(name) + 1, "/resources/img/%s", name);
@@ -435,10 +437,10 @@ bool IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String
     if(foundResource)
     {
       result.Set(plusSlash.Get());
-      return true;
+      return EResourceLocation::kAbsolutePath;
     }
   }
-  return false;
+  return EResourceLocation::kNotFound;
 }
 
 //static
