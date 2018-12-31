@@ -432,24 +432,21 @@ IColor IGraphicsAGG::GetPoint(int x, int y)
 
 APIBitmap* IGraphicsAGG::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location)
 {
-  bool ispng = strstr(fileNameOrResID, "png") != nullptr;
-  bool isjpg = (strstr(fileNameOrResID, "jpg") != nullptr) && (strstr(fileNameOrResID, "jpeg") != nullptr);
-
-  PixelMapType* pPixelMap = new PixelMapType();
-
   APIBitmap* pResult = nullptr;
+  PixelMapType* pPixelMap = new PixelMapType();
+  bool ispng = strstr(fileNameOrResID, "png") != nullptr;
 
 #if defined OS_WIN
-  if (location == EResourceLocation::kFoundInBinary)
+  if (location == EResourceLocation::kFoundInBinary && ispng)
   {
-    if (pPixelMap->load_img((HINSTANCE)GetWinModuleHandle(), fileNameOrResID, ispng ? agg::pixel_map::format_png : agg::pixel_map::format_jpg))
+    if (pPixelMap->load_img((HINSTANCE)GetWinModuleHandle(), fileNameOrResID, agg::pixel_map::format_png))
       pResult = new AGGBitmap(pPixelMap, scale, 1.f);
   }
 #endif
 
-  if (location == EResourceLocation::kAbsolutePath)
+  if (location == EResourceLocation::kAbsolutePath && ispng)
   {
-    if (pPixelMap->load_img(fileNameOrResID, ispng ? agg::pixel_map::format_png : agg::pixel_map::format_jpg))
+    if (pPixelMap->load_img(fileNameOrResID, agg::pixel_map::format_png))
       pResult = new AGGBitmap(pPixelMap, scale, 1.f);
   }
 

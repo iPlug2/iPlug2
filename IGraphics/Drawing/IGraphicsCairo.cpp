@@ -158,7 +158,7 @@ APIBitmap* IGraphicsCairo::LoadAPIBitmap(const char* fileNameOrResID, int scale,
   if (location == EResourceLocation::kAbsolutePath)
     pSurface = cairo_image_surface_create_from_png(fileNameOrResID);
 
-  assert(cairo_surface_status(pSurface) == CAIRO_STATUS_SUCCESS);
+  assert(!pSurface || cairo_surface_status(pSurface) == CAIRO_STATUS_SUCCESS);
 
   return new CairoBitmap(pSurface, scale, 1.f);
 }
