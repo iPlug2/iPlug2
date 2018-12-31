@@ -27,7 +27,7 @@ public:
   : IControl(dlg, bounds)
   , mSVG(svg)
   {
-    SetTooltip("TestDropShadowControl - Drag 'n drop here to load a new SVG.");
+    SetTooltip("TestDropShadowControl");
   }
 
   void Draw(IGraphics& g) override
