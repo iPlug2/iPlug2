@@ -58,17 +58,25 @@ public:
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return (void*) mSurface->getCanvas(); }
 
-  bool DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
-  bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
-  
+  bool BitmapExtSupported(const char* ext) override;
+  int AlphaChannel() const override { return 0; } // TODO:
+  bool FlippedBitmap() const override { return false; }
+
   IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, int targetScale) override { return bitmap; } // NO-OP
   void ReleaseBitmap(const IBitmap& bitmap) override { }; // NO-OP
   void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override { }; // NO-OP
-  
+  APIBitmap* CreateAPIBitmap(int width, int height) override { return nullptr; }; // TODO:
+
   void DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, float pad, const IBlend* pBlend) override;
   void SetPlatformContext(void* pContext) override;
+  
+  void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override {}; // TODO:
+  void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override {}; // TODO:
+
 protected:
-  APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
+  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override { return false; } // TODO:
+
+  APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override { return new APIBitmap(); } // NO-OP
 private:
   void PathTransformSetMatrix(const IMatrix& m) override;

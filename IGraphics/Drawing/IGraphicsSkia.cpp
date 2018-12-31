@@ -13,7 +13,7 @@ SkiaBitmap::SkiaBitmap(const char* path, double sourceScale)
   auto data = SkData::MakeFromFileName(path);
   mImage = SkImage::MakeFromEncoded(data);
 
-  SetBitmap(mImage.get(), mImage->width(), mImage->height(), sourceScale);
+  SetBitmap(mImage.get(), mImage->width(), mImage->height(), sourceScale, 1.f);
 }
 
 #pragma mark -
@@ -85,16 +85,23 @@ IGraphicsSkia::~IGraphicsSkia()
 {
 }
 
-APIBitmap* IGraphicsSkia::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
+bool IGraphicsSkia::BitmapExtSupported(const char* ext)
 {
-  return new SkiaBitmap(resourcePath.Get(), scale);
+  char extLower[32];
+  ToLower(extLower, ext);
+  return (strstr(extLower, "png") != nullptr) /*|| (strstr(extLower, "jpg") != nullptr) || (strstr(extLower, "jpeg") != nullptr)*/;
+}
+
+APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext)
+{
+  return new SkiaBitmap(fileNameOrResID, scale);
 }
 
 void IGraphicsSkia::SetPlatformContext(void* pContext)
 {
   mPlatformContext = pContext;
   
-  mSurface = SkSurface::MakeRasterN32Premul(WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
+  mSurface = SkSurface::MakeRasterN32Premul(WindowWidth() * GetDrawScale(), WindowHeight() * GetDrawScale());
   
 //  const GrGLInterface * interface = nullptr;
 //  auto grcontext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext)interface);
@@ -129,7 +136,7 @@ void IGraphicsSkia::DrawResize()
 {
 //  if(mSurface != nullptr);
   
-//  mSurface = SkSurface::MakeRasterN32Premul(WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
+//  mSurface = SkSurface::MakeRasterN32Premul(WindowWidth() * GetDrawScale(), WindowHeight() * GetDrawScale());
 }
 
 void IGraphicsSkia::BeginFrame()
@@ -162,22 +169,22 @@ IColor IGraphicsSkia::GetPoint(int x, int y)
   return COLOR_BLACK; //TODO:
 }
 
-bool IGraphicsSkia::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
-{
-  SkPaint textPaint;
-  textPaint.setColor(SkiaColor(text.mFGColor));
-  textPaint.setTextSize((float) text.mSize);
-  textPaint.setAntiAlias(true);
-  
-//  textPaint.setTextAlign(SkPaint::kLeft_Align);
-
-  mSurface->getCanvas()->drawText(str, strlen(str), bounds.L, bounds.B, textPaint);
-}
-
-bool IGraphicsSkia::MeasureText(const IText& text, const char* str, IRECT& bounds)
-{
-  return DrawText(text, str, bounds, 0, true);
-}
+//bool IGraphicsSkia::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+//{
+//  SkPaint textPaint;
+//  textPaint.setColor(SkiaColor(text.mFGColor));
+//  textPaint.setTextSize((float) text.mSize);
+//  textPaint.setAntiAlias(true);
+//
+////  textPaint.setTextAlign(SkPaint::kLeft_Align);
+//
+//  mSurface->getCanvas()->drawText(str, strlen(str), bounds.L, bounds.B, textPaint);
+//}
+//
+//bool IGraphicsSkia::MeasureText(const IText& text, const char* str, IRECT& bounds)
+//{
+//  return DrawText(text, str, bounds, 0, true);
+//}
 
 void IGraphicsSkia::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
 {
@@ -239,7 +246,7 @@ void IGraphicsSkia::DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, fl
 
 void IGraphicsSkia::PathTransformSetMatrix(const IMatrix& m)
 {
-  mSurface->getCanvas()->scale(GetScale(), GetScale());
+  mSurface->getCanvas()->scale(GetDrawScale(), GetDrawScale());
   //TODO:
 }
 
