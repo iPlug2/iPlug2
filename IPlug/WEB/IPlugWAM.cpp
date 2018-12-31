@@ -16,16 +16,16 @@ IPlugWAM::IPlugWAM(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 {
   int nInputs = MaxNChannels(ERoute::kInput), nOutputs = MaxNChannels(ERoute::kOutput);
 
-  _SetChannelConnections(ERoute::kInput, 0, nInputs, true);
-  _SetChannelConnections(ERoute::kOutput, 0, nOutputs, true);
+  SetChannelConnections(ERoute::kInput, 0, nInputs, true);
+  SetChannelConnections(ERoute::kOutput, 0, nOutputs, true);
 }
 
 const char* IPlugWAM::init(uint32_t bufsize, uint32_t sr, void* pDesc)
 {
   DBGMSG("init\n");
 
-  _SetSampleRate(sr);
-  _SetBlockSize(bufsize);
+  SetSampleRate(sr);
+  SetBlockSize(bufsize);
 
   DBGMSG("%i %i\n", sr, bufsize);
 
@@ -57,11 +57,11 @@ void IPlugWAM::onProcess(WAM::AudioBus* pAudio, void* pData)
 {
   const int blockSize = GetBlockSize();
   
-  _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false); //TODO: go elsewhere - enable inputs
-  _SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true); //TODO: go elsewhere
-  _AttachBuffers(ERoute::kInput, 0, NChannelsConnected(ERoute::kInput), pAudio->inputs, blockSize);
-  _AttachBuffers(ERoute::kOutput, 0, NChannelsConnected(ERoute::kOutput), pAudio->outputs, blockSize);
-  _ProcessBuffers((float) 0.0f, blockSize);
+  SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false); //TODO: go elsewhere - enable inputs
+  SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true); //TODO: go elsewhere
+  AttachBuffers(ERoute::kInput, 0, NChannelsConnected(ERoute::kInput), pAudio->inputs, blockSize);
+  AttachBuffers(ERoute::kOutput, 0, NChannelsConnected(ERoute::kOutput), pAudio->outputs, blockSize);
+  ProcessBuffers((float) 0.0f, blockSize);
   
   //emulate IPlugAPIBase::OnTimer - should be called on the main thread - how to do that in audio worklet processor?
   if(mBlockCounter == 0)

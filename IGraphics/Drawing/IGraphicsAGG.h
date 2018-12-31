@@ -47,6 +47,8 @@ private:
   agg::cover_type alpha;
 };
 
+/** An AGG API bitmap
+ * @ingroup APIBitmaps */
 class AGGBitmap : public APIBitmap
 {
 public:

@@ -362,68 +362,7 @@ void IGraphicsMac::StoreCursorPosition()
 
 int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, EMessageBoxType type)
 {
-#if IGRAPHICS_SWELL
-  return MessageBox((HWND) mView, str, caption, type);
-#else
-  int result = 0;
-
-  CFStringRef button1 = NULL;
-  CFStringRef button2 = NULL;
-  CFStringRef button3 = NULL;
-
-  CFStringRef alertMessage = CFStringCreateWithCStringNoCopy(NULL, str, 0, kCFAllocatorNull);
-  CFStringRef alertHeader = CFStringCreateWithCStringNoCopy(NULL, caption, 0, kCFAllocatorNull);
-
-  switch (type)
-  {
-    case EMessageBoxType::kMB_OK:
-      button1 = CFSTR("OK");
-      break;
-    case EMessageBoxType::kMB_OKCANCEL:
-      button1 = CFSTR("OK");
-      button2 = CFSTR("Cancel");
-      break;
-    case EMessageBoxType::kMB_YESNO:
-      button1 = CFSTR("Yes");
-      button2 = CFSTR("No");
-      break;
-    case EMessageBoxType::kMB_YESNOCANCEL:
-      button1 = CFSTR("Yes");
-      button2 = CFSTR("No");
-      button3 = CFSTR("Cancel");
-    case EMessageBoxType::kMB_RETRYCANCEL:
-      button2 = CFSTR("Retry");
-      button3 = CFSTR("Cancel");
-      break;
-  }
-
-  CFOptionFlags response = 0;
-  CFUserNotificationDisplayAlert(0, kCFUserNotificationNoteAlertLevel, NULL, NULL, NULL, alertHeader, alertMessage, button1, button2, button3, &response);
-
-  CFRelease(alertMessage);
-  CFRelease(alertHeader);
-
-  switch (response)
-  {
-    case kCFUserNotificationDefaultResponse:
-      if(type == EMessageBoxType::kMB_OK || type == EMessageBoxType::kMB_OKCANCEL)
-        result = EMessageBoxResult::kOK;
-      else
-        result = EMessageBoxResult::kYES;
-      break;
-    case kCFUserNotificationAlternateResponse:
-      if(type == EMessageBoxType::kMB_OKCANCEL)
-        result = EMessageBoxResult::kCANCEL;
-      else
-        result = EMessageBoxResult::kNO;
-      break;
-    case kCFUserNotificationOtherResponse:
-      result = EMessageBoxResult::kCANCEL;
-      break;
-  }
-
-  return result;
-#endif
+  return MessageBox((HWND) mView, str, caption, (int) type);
 }
 
 void IGraphicsMac::ForceEndUserEdit()
@@ -622,36 +561,27 @@ bool IGraphicsMac::PromptForColor(IColor& color, const char* str)
   return false;
 }
 
-IPopupMenu* IGraphicsMac::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+IPopupMenu* IGraphicsMac::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
 {
-  ReleaseMouseCapture();
-
   IPopupMenu* pReturnMenu = nullptr;
 
-  if (GetPopupMenuControl()) // if we are not using platform pop-up menus
+  if (mView)
   {
-    pReturnMenu = GetPopupMenuControl()->CreatePopupMenu(menu, bounds, pCaller);
+    NSRect areaRect = ToNSRect(this, bounds);
+    pReturnMenu = [(IGRAPHICS_VIEW*) mView createPopupMenu: menu: areaRect];
   }
-  else
-  {
-    if (mView)
-    {
-      NSRect areaRect = ToNSRect(this, bounds);
-      pReturnMenu = [(IGRAPHICS_VIEW*) mView createPopupMenu: menu: areaRect];
-    }
 
-    //synchronous
-    if(pReturnMenu && pReturnMenu->GetFunction())
-      pReturnMenu->ExecFunction();
+  //synchronous
+  if(pReturnMenu && pReturnMenu->GetFunction())
+    pReturnMenu->ExecFunction();
 
-    if(pCaller)
-      pCaller->OnPopupMenuSelection(pReturnMenu); // should fire even if pReturnMenu == nullptr
-  }
+  if(pCaller)
+    pCaller->OnPopupMenuSelection(pReturnMenu); // should fire even if pReturnMenu == nullptr
 
   return pReturnMenu;
 }
 
-void IGraphicsMac::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
+void IGraphicsMac::CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
 {
   if (mView)
   {

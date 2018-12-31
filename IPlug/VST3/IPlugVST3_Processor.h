@@ -65,8 +65,8 @@ public:
   bool SendMidiMsg(const IMidiMsg& msg) override;
   
 private:
-  void _TransmitMidiMsgFromProcessor(const IMidiMsg& msg) override;
-  void _TransmitSysExDataFromProcessor(const SysExData& data) override;
+  void TransmitMidiMsgFromProcessor(const IMidiMsg& msg) override;
+  void TransmitSysExDataFromProcessor(const SysExData& data) override;
 
   bool mSidechainActive = false;
 

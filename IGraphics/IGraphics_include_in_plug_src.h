@@ -11,6 +11,12 @@
 #ifndef __IGRAPHICS_SRC_INC__
 #define __IGRAPHICS_SRC_INC__
 
+/**
+ * @file IGraphics_include_in_plug_hdr.h
+ * @brief IGraphics source include
+ * Include this file in the main cpp file if using IGraphics outside a plugin context
+ */
+
 #include "IPlugPlatform.h"
 
 #ifndef NO_IGRAPHICS

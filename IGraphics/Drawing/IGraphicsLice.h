@@ -51,6 +51,8 @@ inline int LiceBlendMode(const IBlend* pBlend)
   }
 }
 
+/** A LICE API bitmap
+ * @ingroup APIBitmaps */
 class LICEBitmap : public APIBitmap
 {
 public:

@@ -10,8 +10,15 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc TestTextControl
+ */
+
 #include "IControl.h"
 
+/** Control to test drawing text
+ *   @ingroup TestControls */
 class TestTextControl : public IControl
 {
 public:

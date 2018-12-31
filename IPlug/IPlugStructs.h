@@ -10,6 +10,12 @@
 
 #pragma once
 
+/**
+ * @file Structures in small classes used throughout the IPlug code base
+ * @defgroup IPlugStructs IPlug::Structs
+ * @{
+ */
+
 #include <algorithm>
 #include "wdlstring.h"
 #include "ptrlist.h"
@@ -322,6 +328,7 @@ struct IChannelData
   WDL_String mLabel = WDL_String("");
 };
 
+/** Used to manage information about a bus such as whether it's an input or output, channel count and if it has a label */
 struct IBusInfo
 {
   ERoute mDirection;
@@ -429,3 +436,5 @@ struct IPreset
     sprintf(mName, "%s", UNUSED_PRESET_NAME);
   }
 };
+
+/**@}*/

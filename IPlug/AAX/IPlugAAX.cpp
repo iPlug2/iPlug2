@@ -97,8 +97,8 @@ IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 {
   Trace(TRACELOC, "%s%s", c.pluginName, c.channelIOStr);
 
-  _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
-  _SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
+  SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
+  SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
   
   if (MaxNChannels(ERoute::kInput)) 
   {
@@ -106,7 +106,7 @@ IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
     mLatencyDelay->SetDelayTime(c.latency);
   }
   
-  _SetBlockSize(DEFAULT_BLOCK_SIZE);
+  SetBlockSize(DEFAULT_BLOCK_SIZE);
   SetHost("ProTools", 0); // TODO:vendor version correct?
   
   CreateTimer();
@@ -208,7 +208,7 @@ AAX_Result IPlugAAX::EffectInit()
   
   AAX_CSampleRate sr;
   Controller()->GetSampleRate(&sr);
-  _SetSampleRate(sr);
+  SetSampleRate(sr);
   OnReset();
   
   return AAX_SUCCESS;
@@ -234,7 +234,7 @@ AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID paramID, double
   {
     ENTER_PARAMS_MUTEX;
     GetParam(paramIdx)->SetNormalized(iValue);
-    _SendParameterValueFromAPI(paramIdx, iValue, true);
+    SendParameterValueFromAPI(paramIdx, iValue, true);
     OnParamChange(paramIdx, kHost);
     LEAVE_PARAMS_MUTEX;
   }
@@ -281,16 +281,16 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
   int32_t numInChannels = AAX_STEM_FORMAT_CHANNEL_COUNT(inFormat);
   int32_t numOutChannels = AAX_STEM_FORMAT_CHANNEL_COUNT(outFormat);
 
-  _SetChannelConnections(ERoute::kInput, 0, numInChannels, true);
-  _SetChannelConnections(ERoute::kInput, numInChannels, MaxNChannels(ERoute::kInput) - numInChannels, false);
-  _AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), pRenderInfo->mAudioInputs, numSamples);
+  SetChannelConnections(ERoute::kInput, 0, numInChannels, true);
+  SetChannelConnections(ERoute::kInput, numInChannels, MaxNChannels(ERoute::kInput) - numInChannels, false);
+  AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), pRenderInfo->mAudioInputs, numSamples);
   
-  _SetChannelConnections(ERoute::kOutput, 0, numOutChannels, true);
-  _SetChannelConnections(ERoute::kOutput, numOutChannels, MaxNChannels(ERoute::kOutput) - numOutChannels, false);
-  _AttachBuffers(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), pRenderInfo->mAudioOutputs, numSamples);
+  SetChannelConnections(ERoute::kOutput, 0, numOutChannels, true);
+  SetChannelConnections(ERoute::kOutput, numOutChannels, MaxNChannels(ERoute::kOutput) - numOutChannels, false);
+  AttachBuffers(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), pRenderInfo->mAudioOutputs, numSamples);
   
   if (bypass) 
-    _PassThroughBuffers(0.0f, numSamples);
+    PassThroughBuffers(0.0f, numSamples);
   else 
   {
     int32_t num, denom;
@@ -314,7 +314,7 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
     timeInfo.mCycleStart = (double) cStart / 960000.0;
     timeInfo.mCycleEnd = (double) cEnd / 960000.0;
     
-    _SetTimeInfo(timeInfo);
+    SetTimeInfo(timeInfo);
     //timeInfo.mLastBar ??
     
     IMidiMsg msg;
@@ -324,7 +324,7 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
       ProcessMidiMsg(msg);
     }
     
-    _ProcessBuffers(0.0f, numSamples);
+    ProcessBuffers(0.0f, numSamples);
   }
   
   // Midi Out

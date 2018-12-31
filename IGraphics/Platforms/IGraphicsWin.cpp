@@ -333,28 +333,29 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         return 0;
       }
     }
-
+    case WM_GETDLGCODE:
+      return DLGC_WANTALLKEYS;
     case WM_KEYDOWN:
     {
-      bool handle = true;
-      int key;
+      POINT p;
+      GetCursorPos(&p);
+      ScreenToClient(hWnd, &p);
 
-      if (wParam == VK_SPACE) key = KEY_SPACE;
-      else if (wParam == VK_UP) key = KEY_UPARROW;
-      else if (wParam == VK_DOWN) key = KEY_DOWNARROW;
-      else if (wParam == VK_LEFT) key = KEY_LEFTARROW;
-      else if (wParam == VK_RIGHT) key = KEY_RIGHTARROW;
-      else if (wParam >= '0' && wParam <= '9') key = KEY_DIGIT_0+wParam-'0';
-      else if (wParam >= 'A' && wParam <= 'Z') key = KEY_ALPHA_A+wParam-'A';
-      else if (wParam >= 'a' && wParam <= 'z') key = KEY_ALPHA_A+wParam-'a';
-      else handle = false;
+      BYTE keyboardState[256];
+      GetKeyboardState(keyboardState);
+      const int keyboardScanCode = (lParam >> 16) & 0x00ff;
+      WORD ascii = 0;
+      const int len = ToAscii(wParam, keyboardScanCode, keyboardState, &ascii, 0);
 
-      if (handle)
+      bool handle = false;
+
+      if (len == 1)
       {
-        POINT p;
-        GetCursorPos(&p);
-        ScreenToClient(hWnd, &p);
-        handle = pGraphics->OnKeyDown(p.x, p.y, key);
+        IKeyPress keyPress{ static_cast<char>(ascii), static_cast<int>(wParam), static_cast<bool>(GetKeyState(VK_SHIFT) & 0x8000),
+                                                                                static_cast<bool>(GetKeyState(VK_CONTROL) & 0x8000),
+                                                                                static_cast<bool>(GetKeyState(VK_MENU) & 0x8000) };
+
+        handle = pGraphics->OnKeyDown(p.x, p.y, keyPress);
       }
 
       if (!handle)
@@ -713,6 +714,7 @@ bool IGraphicsWin::MouseCursorIsLocked()
 
 int IGraphicsWin::ShowMessageBox(const char* text, const char* caption, EMessageBoxType type)
 {
+  ReleaseMouseCapture();
   return MessageBox(GetMainWnd(), text, caption, (int) type);
 }
 
@@ -1006,13 +1008,13 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* pOffsetIdx)
   return hMenu;
 }
 
-IPopupMenu* IGraphicsWin::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
 {
-  ReleaseMouseCapture();
+  long offsetIdx = 0;
+  HMENU hMenu = CreateMenu(menu, &offsetIdx);
+  IPopupMenu* result = nullptr;
 
-  if (GetPopupMenuControl())
-    return GetPopupMenuControl()->CreatePopupMenu(menu, bounds, pCaller);
-  else
+  if(hMenu)
   {
     long offsetIdx = 0;
     HMENU hMenu = CreateMenu(menu, &offsetIdx);
@@ -1060,9 +1062,11 @@ IPopupMenu* IGraphicsWin::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds,
 
     return result;
   }
+
+  return nullptr;
 }
 
-void IGraphicsWin::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
+void IGraphicsWin::CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
 {
   if (mParamEditWnd)
     return;
@@ -1362,7 +1366,6 @@ void IGraphicsWin::ShowTooltip()
     const char* tooltip = GetControl(mTooltipIdx)->GetTooltip();
     if (tooltip)
     {
-      assert(strlen(tooltip) < 80);
       SetTooltip(tooltip);
       mShowingTooltip = true;
     }

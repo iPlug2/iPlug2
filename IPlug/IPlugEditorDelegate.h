@@ -9,6 +9,12 @@
 */
 
 #pragma once
+
+/**
+ * @file
+ * @copydoc IEditorDelegate
+ */
+
 #include <cassert>
 #include <cstring>
 #include <stdint.h>
@@ -36,7 +42,6 @@
  *  A parameter VALUE is a floating point number linked to an integer parameter index. TODO: Normalised ?
  *  A parameter OBJECT (IParam) is an instance of the IParam class as defined in IPlugParameter.h
  *  A parameter OBJECT is also referred to as a "param", in method names such as IEditorDelegate::GetParam(int paramIdx) and IControl::GetParam(). */
-
 class IEditorDelegate
 {
 public:
@@ -153,7 +158,7 @@ public:
   virtual void SendSysexMsgFromDelegate(const ISysEx& msg) { OnSysexMsgUI(msg); }
   
   /** This method is called by the class implementing the delegate interface (not the plug-in API class) in order to update the user interface with the new parameter values, typically after automation.
-   * This method should only be called from the main thread. The similarly named IPlugAPIBase::_SendParameterValueFromAPI() should take care of queueing and deferring, if there is no main thread notification from the API
+   * This method should only be called from the main thread. The similarly named IPlugAPIBase::SendParameterValueFromAPI() should take care of queueing and deferring, if there is no main thread notification from the API
    * If you override this method you should call the base class implementation to make sure OnParamChangeUI gets triggered
    * In IGraphics plug-ins, this will update any IControls that have their mParamIdx set > -1
    * @param paramIdx The index of the parameter to be updated

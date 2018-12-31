@@ -32,7 +32,9 @@ typedef IPlugVST3Controller VST3_API_BASE;
 #include "IControls.h"
 #include "IGraphicsLiveEdit.h"
 #include "IFPSDisplayControl.h"
+#include "ICornerResizerControl.h"
 #include "IPopupMenuControl.h"
+#include "ITextEntryControl.h"
 
 struct SVGHolder
 {
@@ -141,6 +143,9 @@ void IGraphics::RemoveAllControls()
   if (mPopupControl)
     DELETE_NULL(mPopupControl);
   
+  if (mTextEntryControl)
+    DELETE_NULL(mTextEntryControl);
+  
   if (mCornerResizer)
     DELETE_NULL(mCornerResizer);
   
@@ -189,10 +194,10 @@ int IGraphics::AttachControl(IControl* pControl, int controlTag, const char* gro
 
 void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize)
 {
-  AttachCornerResizer(new ICornerResizerBase(mDelegate, GetBounds(), 20), sizeMode, layoutOnResize);
+  AttachCornerResizer(new ICornerResizerControl(mDelegate, GetBounds(), 20), sizeMode, layoutOnResize);
 }
 
-void IGraphics::AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode sizeMode, bool layoutOnResize)
+void IGraphics::AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerMode sizeMode, bool layoutOnResize)
 {
   assert(mCornerResizer == nullptr); // only want one corner resizer
 
@@ -215,6 +220,15 @@ void IGraphics::AttachPopupMenuControl(const IText& text, const IRECT& bounds)
   {
     mPopupControl = new IPopupMenuControl(mDelegate, kNoParameter, text, IRECT(), bounds);
     mPopupControl->SetGraphics(this);
+  }
+}
+
+void IGraphics::AttachTextEntryControl()
+{
+  if(mTextEntryControl == nullptr)
+  {
+    mTextEntryControl = new ITextEntryControl(mDelegate);
+    mTextEntryControl->SetGraphics(this);
   }
 }
 
@@ -326,6 +340,9 @@ void IGraphics::ForAllControlsFunc(std::function<void(IControl& control)> func)
   if (mLiveEdit)
     func(*mLiveEdit);
 #endif
+  
+  if (mTextEntryControl)
+    func(*mTextEntryControl);
   
   if (mPopupControl)
     func(*mPopupControl);
@@ -792,10 +809,12 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
   {
     if (mMouseOver)
       mMouseOver->OnMouseOut();
-    if (pControl)
-      pControl->OnMouseOver(x, y, mod);
+
     mMouseOver = pControl;
   }
+
+  if (mMouseOver)
+    mMouseOver->OnMouseOver(x, y, mod);
 
   return pControl;
 }
@@ -854,10 +873,10 @@ void IGraphics::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
   if (pControl) pControl->OnMouseWheel(x, y, mod, d);
 }
 
-bool IGraphics::OnKeyDown(float x, float y, int key)
+bool IGraphics::OnKeyDown(float x, float y, const IKeyPress& key)
 {
   Trace("IGraphics::OnKeyDown", __LINE__, "x:%0.2f, y:%0.2f, key:%i",
-        x, y, key);
+        x, y, key.Ascii);
 
   bool handled = false;
 
@@ -919,6 +938,9 @@ IControl* IGraphics::GetMouseControl(float x, float y, bool capture, bool mouseO
   
   if (!control && mPopupControl && mPopupControl->GetExpanded())
     control = mPopupControl;
+  
+  if (!control && mTextEntryControl && mTextEntryControl->EditInProgress())
+    control = mTextEntryControl;
   
 #if !defined(NDEBUG)
   if (mLiveEdit)
@@ -1059,6 +1081,7 @@ void IGraphics::OnResizeGesture(float x, float y)
 
 IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
 {
+  //TODO: bug with # frames!
   return LoadBitmap(src.GetResourceName().Get(), src.N(), src.GetFramesAreHorizontal(), (GetScreenScale() == 1 && GetDrawScale() > 1.) ? 2 : 0);
 }
 
@@ -1107,7 +1130,7 @@ NSVGimage* LoadSVGFromWinResource(HINSTANCE hInst, const char* resid)
 
   WDL_String svgStr {static_cast<const char*>(pResourceData) };
 
-  return nsvgParse(svgStr.Get(), "px", 72);
+  return nsvgParse(svgStr.Get(), "px", 72); //TODO: don't fix DPI
 }
 #endif
 
@@ -1121,11 +1144,16 @@ ISVG IGraphics::LoadSVG(const char* name)
 
   if(!pHolder)
   {
+    NSVGimage* pImage = nullptr;
+
+    // TODO: move resource loading code and improve error checking 
 #ifdef OS_WIN
-    NSVGimage* pImage = LoadSVGFromWinResource((HINSTANCE) GetPlatformInstance(), path.Get());
-#else
-    NSVGimage* pImage = nsvgParseFromFile(path.Get(), "px", 72);
+    pImage = LoadSVGFromWinResource((HINSTANCE) GetPlatformInstance(), path.Get());
+
+    if(pImage == nullptr)
 #endif
+    pImage = nsvgParseFromFile(path.Get(), "px", 72); //TODO: don't fix DPI
+
     assert(pImage != nullptr);
 
     pHolder = new SVGHolder(pImage);
@@ -1263,6 +1291,27 @@ void IGraphics::StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emb
     if (pVB)
       pVB->Style(drawFrame, drawShadow, emboss, roundness, frameThickness, shadowOffset, spec);
   }
+}
+
+void IGraphics::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
+{
+  if (mTextEntryControl)
+  {
+    mTextEntryControl->CreateTextEntry(bounds, text, str);
+    return;
+  }
+  else
+    CreatePlatformTextEntry(control, text, bounds, str);
+}
+
+IPopupMenu* IGraphics::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+{
+  ReleaseMouseCapture();
+
+  if(mPopupControl) // if we are not using platform pop-up menus
+    return mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
+  else
+    return CreatePlatformPopupMenu(menu, bounds, pCaller);
 }
 
 void IGraphics::StartLayer(const IRECT& r)

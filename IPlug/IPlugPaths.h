@@ -9,6 +9,12 @@
 */
 
 #pragma once
+
+/**
+ * @file
+ * @brief Common paths useful for plug-ins
+ */
+
 #include "string.h"
 #include "wdlstring.h"
 

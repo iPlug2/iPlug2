@@ -13,6 +13,20 @@
 #include "IControl.h"
 #include "IPlugParameter.h"
 
+// avoid some UNICODE issues with VST3 SDK and WDL dirscan
+#if defined VST3_API && defined OS_WIN
+  #ifdef FindFirstFile
+    #undef FindFirstFile
+    #undef FindNextFile
+    #undef WIN32_FIND_DATA
+    #undef PWIN32_FIND_DATA
+    #define FindFirstFile FindFirstFileA
+    #define FindNextFile FindNextFileA
+    #define WIN32_FIND_DATA WIN32_FIND_DATAA
+    #define LPWIN32_FIND_DATA LPWIN32_FIND_DATAA
+  #endif
+#endif
+
 #include "dirscan.h"
 
 void DefaultAnimationFunc(IControl* pCaller)
@@ -458,8 +472,10 @@ int IDirBrowseControlBase::NItems()
   return mItems.GetSize();
 }
 
-void IDirBrowseControlBase::AddPath(const char * path, const char * label)
+void IDirBrowseControlBase::AddPath(const char* path, const char* label)
 {
+  assert(strlen(path));
+
   mPaths.Add(new WDL_String(path));
   mPathLabels.Add(new WDL_String(label));
 }

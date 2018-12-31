@@ -12,7 +12,9 @@
 
 /**
  * @file
- * @brief Constant definitions, Types, magic numbers
+ * @brief IPlug Constant definitions, Types, magic numbers
+ * @defgroup IPlugConstants IPlug::Constants
+ * @{
  */
 
 #if !defined(SAMPLE_TYPE_FLOAT) && !defined(SAMPLE_TYPE_DOUBLE)
@@ -38,21 +40,6 @@ enum EIPlugPluginType
   kEffect = 0,
   kInstrument = 1,
   kMIDIEffect = 2
-};
-
-enum EIPlugKeyCodes
-{
-  KEY_TAB,
-  KEY_SPACE,
-  KEY_UPARROW,
-  KEY_DOWNARROW,
-  KEY_LEFTARROW,
-  KEY_RIGHTARROW,
-  KEY_DIGIT_0,
-  KEY_DIGIT_9=KEY_DIGIT_0+9,
-  KEY_ALPHA_A,
-  KEY_ALPHA_Z=KEY_ALPHA_A+25,
-  KEY_NONE
 };
 
 enum EVST3ParamIDs
@@ -239,4 +226,5 @@ enum EHost
   // MiniHost
 };
 
+/**@}*/
 

@@ -13,6 +13,13 @@
 /**
  * @file
  * @copydoc IGraphics
+ * @defgroup IGraphicsStructs IGraphics::Structs
+ * @defgroup DrawClasses IGraphics::DrawClasses
+ * @defgroup PlatformClasses IGraphics::PlatformClasses
+ * @defgroup Controls IGraphics::IControls
+ * @defgroup BaseControls IGraphics::IControls::BaseControls
+ * @defgroup SpecialControls IGraphics::IControls::SpecialControls
+ * @defgroup TestControls IGraphics::IControls::TestControls
  */
 
 #ifndef NO_IGRAPHICS
@@ -38,7 +45,6 @@
 #include <stack>
 #include <memory>
 
-#ifdef OS_MAC
 #ifdef FillRect
 #undef FillRect
 #endif
@@ -46,18 +52,13 @@
 #ifdef DrawText
 #undef DrawText
 #endif
-#endif
 
 class IControl;
 class IPopupMenuControl;
-class ICornerResizerBase;
+class ITextEntryControl;
+class ICornerResizerControl;
 class IFPSDisplayControl;
 class IParam;
-
-/**
- * \defgroup DrawClasses IGraphics::DrawClasses
- * \defgroup PlatformClasses IGraphics::PlatformClasses
-*/
 
 /**  The lowest level base class of an IGraphics context */
 class IGraphics
@@ -561,12 +562,12 @@ public:
    * @return \todo check */
   virtual int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) = 0;
 
-  /** Create a platform text entry box
+  /** Create a text entry box
    * @param control The control that the text entry belongs to. If this control is linked to a parameter, the text entry will be configured with initial text matching the parameter value
    * @param text An IText struct to set the formatting of the text entry box
    * @param bounds The rectangular region in the graphics context that the text entry will occupy.
    * @param str A CString to specify the default text to display when the text entry box is opened (unless the control specified by the first argument is linked to a parameter) */
-  virtual void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") = 0;
+  void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "");
 
   /** Create a platform file prompt dialog to choose a file/directory path for opening/saving a file/directory. NOTE: this method will block the main thread
    * @param fileName Non const WDL_String reference specifying the file name. Set this prior to calling the method for save dialogs, to provide a default file name. For load dialogs, on successful selection of a file this will get set to the file’s name.
@@ -667,14 +668,14 @@ public:
    * @param str The new value as a CString */
   void SetControlValueFromStringAfterPrompt(IControl& control, const char* str);
 
-  /** Shows a platform pop up/contextual menu in relation to a rectangular region of the graphics context
+  /** Shows a pop up/contextual menu in relation to a rectangular region of the graphics context
    * @param menu Reference to an IPopupMenu class populated with the items for the platform menu
    * @param bounds The platform menu will popup at the bottom left hand corner of this rectangular region
    * @param pCaller A pointed to the IControl creating this pop-up menu. If it exists IControl::OnPopupMenuSelection() will be called on successful selection
    * @return Pointer to an IPopupMenu that represents the menu that user finally clicked on (might not be the same as menu if they clicked a submenu) */
-  virtual IPopupMenu* CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller = nullptr) = 0;
+  IPopupMenu* CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller = nullptr);
 
-  /** Shows a platform pop up/contextual menu at point in the graphics context
+  /** Shows a pop up/contextual menu at point in the graphics context
    * @param x The X coordinate in the graphics context at which to pop up the menu
    * @param y The Y coordinate in the graphics context at which to pop up the menu
    * @param pCaller A pointer to the IControl creating this pop-up menu. If it exists IControl::OnPopupMenuSelection() will be called on successful selection
@@ -750,15 +751,15 @@ public:
   void AttachCornerResizer(EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale, bool layoutOnResize = false);
 
   /** Attach your own control to scale or increase the UI size by dragging the plug-in bottom right-hand corner
-   * @param pControl control a control that inherits from ICornerResizerBase
+   * @param pControl control a control that inherits from ICornerResizerControl
    * @param sizeMode Choose whether to scale or size the UI */
-  void AttachCornerResizer(ICornerResizerBase* pControl, EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale, bool layoutOnResize = false);
+  void AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale, bool layoutOnResize = false);
 
   /** Attach a control for pop-up menus, to override platform style menus
    * @param pControl A control that inherits from IPopupMenuControl */
   void AttachPopupMenuControl(const IText& text = DEFAULT_TEXT, const IRECT& bounds = IRECT());
   
-  void SetKeyHandlerFunc(std::function<bool(int)> keyHandlerFunc) { mKeyHandlerFunc = keyHandlerFunc; }
+  void SetKeyHandlerFunc(std::function<bool(const IKeyPress& key)> keyHandlerFunc) { mKeyHandlerFunc = keyHandlerFunc; }
   
   /** Shows a control to display the frame rate of drawing
    * @param enable \c true to show */
@@ -766,6 +767,12 @@ public:
   
   /** @return \c true if performance display is shown */
   bool ShowingFPSDisplay() { return mPerfDisplay != nullptr; }
+  /** Attach a control for displaying the FPS on top of the UI */
+  void AttachPerformanceDisplay();
+  
+  /** Attach a control for text entry, to override platform text entry */
+  void AttachTextEntryControl();
+  
   /** Attach an IControl to the graphics context and add it to the top of the control stack. The control is owned by the graphics context and will be deleted when the context is deleted.
    * @param pControl A pointer to an IControl to attach.
    * @param controlTag An integer tag that you can use to identify the control
@@ -855,9 +862,9 @@ public:
 
   /** @param x The X coordinate in the graphics context of the mouse cursor at the time of the key press
    * @param y The Y coordinate in the graphics context of the mouse cursor at the time of the key press
-   * @param key An integer represent the key pressed, see EIPlugKeyCodes
+   * @param \todo
    * @return \c true if handled \todo check this */
-  bool OnKeyDown(float x, float y, int key);
+  bool OnKeyDown(float x, float y, const IKeyPress& key);
 
   /** @param x The X coordinate in the graphics context at which to draw
    * @param y The Y coordinate in the graphics context at which to draw
@@ -941,6 +948,7 @@ public:
   EUIResizerMode GetResizerMode() const { return mGUISizeMode; }
   
   IPopupMenuControl* GetPopupMenuControl() { return mPopupControl; }
+  ITextEntryControl* GetTextEntryControl() { return mTextEntryControl; }
   
   void StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec = DEFAULT_SPEC);
 #pragma mark - Plug-in API Specific
@@ -986,6 +994,9 @@ public:
   virtual void LoadFont(const char* fileName) {};
   
 protected:
+  virtual void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") = 0;
+  virtual IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller = nullptr) = 0;
+
     
   typedef WDL_TypedBuf<unsigned char> RawBitmapData;
 
@@ -1046,9 +1057,10 @@ private:
 
   // Order (front-to-back) ToolTip / PopUp / TextEntry / LiveEdit / Corner / PerfDisplay
   
-  ICornerResizerBase* mCornerResizer = nullptr;
+  ICornerResizerControl* mCornerResizer = nullptr;
   IPopupMenuControl* mPopupControl = nullptr;
   IFPSDisplayControl* mPerfDisplay = nullptr;
+  ITextEntryControl* mTextEntryControl = nullptr;
   IControl* mLiveEdit = nullptr;
   
   IPopupMenu mPromptPopupMenu;
@@ -1080,10 +1092,10 @@ private:
   bool mLayoutOnResize = false;
   EUIResizerMode mGUISizeMode = EUIResizerMode::kUIResizerScale;
   double mPrevTimestamp = 0.;
-  std::function<bool(int key)> mKeyHandlerFunc = nullptr;
+  std::function<bool(const IKeyPress& key)> mKeyHandlerFunc = nullptr;
 protected:
   friend class IGraphicsLiveEdit;
-  friend class ICornerResizerBase;
+  friend class ICornerResizerControl;
   
   std::stack<ILayer*> mLayers;
 };

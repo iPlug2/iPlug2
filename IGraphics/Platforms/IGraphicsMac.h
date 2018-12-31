@@ -53,8 +53,6 @@ public:
   void PromptForDirectory(WDL_String& dir) override;
   bool PromptForColor(IColor& color, const char* str) override;
 
-  IPopupMenu* CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
-  void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
 //  void CreateWebView(const IRECT& bounds, const char* url) override;
   
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
@@ -68,6 +66,12 @@ public:
 
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
 
+  //IGraphicsMac
+  void SetMousePosition(float x, float y);
+
+protected:
+  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
+  void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
 private:
   bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
   bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath);

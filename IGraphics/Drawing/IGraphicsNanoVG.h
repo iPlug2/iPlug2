@@ -84,6 +84,8 @@
 
 void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData);
 
+/** An NanoVG API bitmap
+ * @ingroup APIBitmaps */
 class NanoVGBitmap : public APIBitmap
 {
 public:
@@ -98,9 +100,7 @@ private:
 };
 
 /** IGraphics draw class using NanoVG  
-*   @ingroup DrawClasses
-*/
-
+*   @ingroup DrawClasses */
 class IGraphicsNanoVG : public IGraphicsPathBase
 {
 public:
