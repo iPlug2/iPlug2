@@ -15,19 +15,16 @@
 #include "IGraphicsCairo.h"
 #include "ITextEntryControl.h"
 
-#ifdef OS_MAC
-cairo_surface_t* LoadPNGResource(void*, const WDL_String& path)
-{
-  return cairo_image_surface_create_from_png(path.Get());
-}
-#elif defined OS_WIN
+#if defined OS_WIN
+
+//TODO: could replace some of this with IGraphics::LoadWinResource
 class PNGStreamReader
 {
 public:
-  PNGStreamReader(HMODULE hInst, const WDL_String &path)
+  PNGStreamReader(HINSTANCE hInst, const char* path)
   : mData(nullptr), mSize(0), mCount(0)
   {
-    HRSRC resInfo = FindResource(hInst, path.Get(), "PNG");
+    HRSRC resInfo = FindResource(hInst, path, "PNG");
     if (resInfo)
     {
       HGLOBAL res = LoadResource(hInst, resInfo);
@@ -61,14 +58,6 @@ private:
   size_t mCount;
   size_t mSize;
 };
-
-cairo_surface_t* LoadPNGResource(void* hInst, const WDL_String& path)
-{
-  PNGStreamReader reader((HMODULE) hInst, path);
-  return cairo_image_surface_create_from_png_stream(&PNGStreamReader::StaticRead, &reader);
-}
-#else
-  #error NOT IMPLEMENTED
 #endif
 
 CairoBitmap::CairoBitmap(cairo_surface_t* pSurface, int scale, float drawScale)
@@ -154,11 +143,22 @@ void IGraphicsCairo::DrawResize()
 #endif
 }
 
-APIBitmap* IGraphicsCairo::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
+APIBitmap* IGraphicsCairo::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location)
 {
-  cairo_surface_t* pSurface = LoadPNGResource(GetWinModuleHandle(), resourcePath);
-    
-  assert(cairo_surface_status(pSurface) == CAIRO_STATUS_SUCCESS); // Protect against typos in resource.h and .rc files.
+  cairo_surface_t* pSurface = nullptr;
+
+#ifdef OS_WIN
+  if (location == EResourceLocation::kFoundInBinary)
+  {
+    PNGStreamReader reader((HINSTANCE) GetWinModuleHandle(), fileNameOrResID);
+    pSurface = cairo_image_surface_create_from_png_stream(&PNGStreamReader::StaticRead, &reader);
+  }
+  else
+#endif
+  if (location == EResourceLocation::kAbsolutePath)
+    pSurface = cairo_image_surface_create_from_png(fileNameOrResID);
+
+  assert(cairo_surface_status(pSurface) == CAIRO_STATUS_SUCCESS);
 
   return new CairoBitmap(pSurface, scale, 1.f);
 }

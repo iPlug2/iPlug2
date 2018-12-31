@@ -455,28 +455,32 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text, double scale)
   return font;
 }
 
-APIBitmap* IGraphicsLice::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
+APIBitmap* IGraphicsLice::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location)
 {
-  const char* path = resourcePath.Get();
-    
-  bool ispng = strstr(path, "png") != nullptr;
-#if defined OS_MAC
-  if (ispng) return new LICEBitmap(LICE_LoadPNG(path), scale);
-#elif defined OS_WIN
-  if (ispng) return new LICEBitmap(LICE_LoadPNGFromResource((HINSTANCE) GetWinModuleHandle(), path, 0), scale);
-#else
-  #error NOT IMPLEMENTED
+  bool ispng = strstr(fileNameOrResID, "png") != nullptr;
+
+  if (ispng)
+  {
+#if defined OS_WIN
+    if (location == EResourceLocation::kFoundInBinary)
+      return new LICEBitmap(LICE_LoadPNGFromResource((HINSTANCE) GetWinModuleHandle(), fileNameOrResID, 0), scale);
+    else
 #endif
+      return new LICEBitmap(LICE_LoadPNG(fileNameOrResID), scale);
+  }
 
 #ifdef IPLUG_JPEG_SUPPORT
-  bool isjpg = (strstr(path, "jpg") != nullptr) && (strstr(path, "jpeg") != nullptr);
-  #ifdef OS_MAC
-    if (isjpg) return new LICEBitmap(LICE_LoadJPG(path), scale);
-  #elif defined OS_WIN
-    if (isjpg) return new LICEBitmap(LICE_LoadJPGFromResource((HINSTANCE)GetPlatformInstance(), path, 0), scale);
-  #else
-    #error NOT IMPLEMENTED
-  #endif
+  bool isjpg = (strstr(fileNameOrResID, "jpg") != nullptr) && (strstr(fileNameOrResID, "jpeg") != nullptr);
+
+  if (isjpg)
+  {
+    #if defined OS_WIN
+    if (location == EResourceLocation::kFoundInBinary)
+      return new LICEBitmap(LICE_LoadJPGFromResource((HINSTANCE)GetWinModuleHandle(), fileNameOrResID, 0), scale);
+    else
+    #endif
+      return new LICEBitmap(LICE_LoadJPG(fileNameOrResID), scale);
+  }
 #endif
 
   return nullptr;

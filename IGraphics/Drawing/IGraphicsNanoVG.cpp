@@ -234,14 +234,14 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
     while (ext >= name && *ext != '.') --ext;
     ++ext;
 
-    WDL_String fullPath;
+    WDL_String fullPathOrResourceID;
     int sourceScale = 0;
-    bool resourceFound = SearchImageResource(name, ext, fullPath, targetScale, sourceScale);
+    EResourceLocation resourceFound = SearchImageResource(name, ext, fullPathOrResourceID, targetScale, sourceScale);
 
-    if(!resourceFound)
-      return IBitmap();
+    if(resourceFound == EResourceLocation::kNotFound)
+      return IBitmap(); // return invalid IBitmap
 
-    pAPIBitmap = LoadAPIBitmap(fullPath, sourceScale);
+    pAPIBitmap = LoadAPIBitmap(fullPathOrResourceID.Get(), sourceScale, resourceFound);
     
     mBitmapCache.Add(pAPIBitmap, name, sourceScale);
 
@@ -251,28 +251,28 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
   return IBitmap(pAPIBitmap, nStates, framesAreHorizontal, name);
 }
 
-APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
+APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location)
 {
   int idx = 0;
 
 #ifdef OS_WIN
   const void* pResData = nullptr;
 
-  //const char* ext = resourcePath.Get() + strlen(resourcePath.Get()) - 1;
-  //while (ext >= resourcePath.Get() && *ext != '.') --ext;
+  //const char* ext = path + strlen(path) - 1;
+  //while (ext >= path && *ext != '.') --ext;
   //++ext;
 
   int size = 0;
-  pResData = LoadWinResource(resourcePath.Get(), "png", size); //TODO: support JPG
+  pResData = LoadWinResource(fileNameOrResID, "png", size); //TODO: support JPG
 
   if (pResData)
     idx = nvgCreateImageMem(mVG, 0 /*flags*/, (unsigned char*) pResData, size);
 
   if (idx == 0)
 #endif
-    idx = nvgCreateImage(mVG, resourcePath.Get(), 0);
+    idx = nvgCreateImage(mVG, fileNameOrResID, 0);
 
-  return new NanoVGBitmap(mVG, resourcePath.Get(), scale, idx);
+  return new NanoVGBitmap(mVG, fileNameOrResID, scale, idx);
 }
 
 APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height)
@@ -699,20 +699,24 @@ bool IGraphicsNanoVG::LoadFont(const char* fileName)
   WDL_String fontNameWithoutExt(fileName, (int) strlen(fileName));
   fontNameWithoutExt.remove_fileext();
   WDL_String fullPath;
-  bool foundResource = OSFindResource(fileName, "ttf", fullPath);
+  EResourceLocation foundResource = OSFindResource(fileName, "ttf", fullPath);
  
-  if (foundResource)
+  if (foundResource != EResourceLocation::kNotFound)
   {
     int fontID = -1;
 
 #ifdef OS_WIN
-    int sizeInBytes = 0;
-    const void* pResData = LoadWinResource(fullPath.Get(), "ttf", sizeInBytes);
+    if(foundResource == EResourceLocation::kFoundInBinary)
+    {
+      int sizeInBytes = 0;
+      const void* pResData = LoadWinResource(fullPath.Get(), "ttf", sizeInBytes);
 
-    if(pResData && sizeInBytes)
-      fontID = nvgCreateFontMem(mVG, fontNameWithoutExt.Get(), (unsigned char*) pResData, sizeInBytes, 0 /* ?? */);
+      if(pResData && sizeInBytes)
+        fontID = nvgCreateFontMem(mVG, fontNameWithoutExt.Get(), (unsigned char*) pResData, sizeInBytes, 0 /* ?? */);
 
-    if(fontID == -1)
+      if(fontID == -1)
+        return false;
+    }
 #endif
     fontID = nvgCreateFont(mVG, fontNameWithoutExt.Get(), fullPath.Get());
 

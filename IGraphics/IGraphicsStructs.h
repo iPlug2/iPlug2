@@ -214,7 +214,6 @@ struct ISVG
   ISVG(NSVGimage* pImage)
   {
     mImage = pImage;
-    assert(mImage != nullptr);
   }
 
   float W()

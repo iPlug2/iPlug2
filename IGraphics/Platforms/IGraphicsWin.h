@@ -67,7 +67,7 @@ public:
 
   bool GetTextFromClipboard(WDL_String& str) override;
 
-  bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
+  EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result) override;
 
   const void* LoadWinResource(const char* resid, const char* resType, int& sizeInBytes) override;
 

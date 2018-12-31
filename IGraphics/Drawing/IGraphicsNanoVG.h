@@ -143,7 +143,7 @@ public:
   void SetPlatformContext(void* pContext) override;
 
 protected:
-  APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
+  APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override { return new APIBitmap(); } // NO-OP
   APIBitmap* CreateAPIBitmap(int width, int height) override;
 

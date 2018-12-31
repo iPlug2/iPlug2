@@ -430,38 +430,36 @@ IColor IGraphicsAGG::GetPoint(int x, int y)
   return color;
 }
 
-APIBitmap* IGraphicsAGG::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
+APIBitmap* IGraphicsAGG::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location)
 {
-  const char *path = resourcePath.Get();
+  bool ispng = strstr(fileNameOrResID, "png") != nullptr;
+  bool isjpg = (strstr(fileNameOrResID, "jpg") != nullptr) && (strstr(fileNameOrResID, "jpeg") != nullptr);
 
-  if (CStringHasContents(path))
+  PixelMapType* pPixelMap = new PixelMapType();
+
+  APIBitmap* pResult = nullptr;
+
+#if defined OS_WIN
+  if (location == EResourceLocation::kFoundInBinary)
   {
-    const char* ext = path+strlen(path)-1;
-    while (ext >= path && *ext != '.') --ext;
-    ++ext;
-    
-    bool ispng = !stricmp(ext, "png");
-#ifndef IPLUG_JPEG_SUPPORT
-    if (!ispng) return 0;
-#else
-    bool isjpg = !stricmp(ext, "jpg");
-    if (!isjpg && !ispng) return 0;
-#endif
-    
-    PixelMapType* pPixelMap = new PixelMapType();
-#ifdef OS_MAC
-    if (pPixelMap->load_img(path, ispng ? agg::pixel_map::format_png : agg::pixel_map::format_jpg))
-#elif defined OS_WIN
-    if (pPixelMap->load_img((HINSTANCE) GetWinModuleHandle(), path, ispng ? agg::pixel_map::format_png : agg::pixel_map::format_jpg))
-#else
-#error NOT IMPLEMENTED!
-#endif
-      return new AGGBitmap(pPixelMap, scale, 1.f);
-    else
-      delete pPixelMap;
+    if (pPixelMap->load_img((HINSTANCE)GetWinModuleHandle(), fileNameOrResID, ispng ? agg::pixel_map::format_png : agg::pixel_map::format_jpg))
+      pResult = new AGGBitmap(pPixelMap, scale, 1.f);
   }
-  
-  return new APIBitmap();
+#endif
+
+  if (location == EResourceLocation::kAbsolutePath)
+  {
+    if (pPixelMap->load_img(fileNameOrResID, ispng ? agg::pixel_map::format_png : agg::pixel_map::format_jpg))
+      pResult = new AGGBitmap(pPixelMap, scale, 1.f);
+  }
+
+  if (!pResult)
+  {
+    delete pPixelMap;
+    return new APIBitmap();
+  }
+  else
+    return pResult;
 }
 
 APIBitmap* IGraphicsAGG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)

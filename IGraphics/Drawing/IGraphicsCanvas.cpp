@@ -297,7 +297,7 @@ void IGraphicsCanvas::SetClipRegion(const IRECT& r)
   }
 }
 
-APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
+APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location)
 {
   return new CanvasBitmap(GetPreloadedImages()[resourcePath.Get()], resourcePath.Get() + 1, scale);
 }

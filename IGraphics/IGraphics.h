@@ -638,7 +638,7 @@ public:
    * @param type The resource type (file extension) in lower or upper case, e.g. ttf or TTF for a truetype font 
    * @param result WDL_String which will either contain the full path to the resource on disk, or the ful Windows resourceID on success
    * @return \c true on success */
-  virtual bool OSFindResource(const char* fileNameOrResID, const char* type, WDL_String& result) = 0;
+  virtual EResourceLocation OSFindResource(const char* fileNameOrResID, const char* type, WDL_String& result) = 0;
 
   /** Load a resource from the binary (windows only).
      * @param type The resource type in lower or upper case, e.g. ttf or TTF for a truetype font
@@ -1011,7 +1011,7 @@ protected:
 
   typedef WDL_TypedBuf<unsigned char> RawBitmapData;
 
-  virtual APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) = 0;
+  virtual APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location) = 0;
   virtual APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) = 0;
   virtual APIBitmap* CreateAPIBitmap(int width, int height) = 0;
     
@@ -1028,7 +1028,7 @@ protected:
   inline void SearchNextScale(int& sourceScale, int targetScale);
 
   /** Search for a bitmap image resource matching the target scale */
-  bool SearchImageResource(const char* fileName, const char* type, WDL_String& result, int targetScale, int& sourceScale);
+  EResourceLocation SearchImageResource(const char* fileName, const char* type, WDL_String& result, int targetScale, int& sourceScale);
 
   /** Search the static storage cache for a bitmap image resource matching the target scale */
   APIBitmap* SearchBitmapInCache(const char* fileName, int targetScale, int& sourceScale);
