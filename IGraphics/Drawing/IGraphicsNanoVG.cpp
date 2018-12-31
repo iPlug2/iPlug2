@@ -265,7 +265,7 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
   int idx = 0;
 
 #ifdef OS_WIN
-  if (location == EResourceLocation::kInBinary)
+  if (location == EResourceLocation::kWinBinary)
   {
     const void* pResData = nullptr;
 
