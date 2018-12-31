@@ -187,24 +187,33 @@ inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0)
   return c;
 }
 
-inline NVGcompositeOperation NanoVGBlendMode(const IBlend* pBlend)
+inline void NanoVGSetBlendMode(NVGcontext* context, const IBlend* pBlend)
 {
   if (!pBlend)
   {
-    return NVG_SOURCE_OVER;
+    nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
+      return;
   }
   
   switch (pBlend->mMethod)
   {
-    case kBlendClobber:     return NVG_SOURCE_OVER;
-    case kBlendAdd:         return NVG_LIGHTER;
-    case kBlendUnder:       return NVG_DESTINATION_OVER;
-    case kBlendSourceIn:    return NVG_SOURCE_IN;
+    case kBlendClobber:
+      nvgGlobalCompositeBlendFunc(context, NVG_SRC_ALPHA, NVG_ONE_MINUS_SRC_ALPHA);
+      break;
+    case kBlendAdd:
+      nvgGlobalCompositeBlendFunc(context, NVG_ONE, NVG_ONE);
+      break;
+    case kBlendUnder:
+      nvgGlobalCompositeOperation(context, NVG_DESTINATION_OVER);
+      break;
+    case kBlendSourceIn:
+      nvgGlobalCompositeOperation(context, NVG_SOURCE_IN);
+      break;
     case kBlendColorDodge:
     case kBlendNone:
     default:
     {
-      return NVG_SOURCE_OVER;
+      nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
     }
   }
 }
@@ -543,7 +552,7 @@ void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, i
   nvgBeginPath(mVG); // Clears any existing path
   nvgRect(mVG, dest.L, dest.T, dest.W(), dest.H());
   nvgFillPaint(mVG, imgPaint);
-  nvgGlobalCompositeOperation(mVG, NanoVGBlendMode(pBlend));
+  NanoVGSetBlendMode(mVG, pBlend);
   nvgFill(mVG);
   nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
   nvgBeginPath(mVG); // Clears the bitmap rect from the path state
@@ -635,7 +644,7 @@ bool IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IREC
   }
   else
   {
-    nvgGlobalCompositeOperation(mVG, NanoVGBlendMode(pBlend));
+    NanoVGSetBlendMode(mVG, pBlend);
       
     if(text.mOrientation != 0)
     {
@@ -685,7 +694,7 @@ void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const
     nvgStrokePaint(mVG, NanoVGPaint(mVG, pattern, pBlend));
   
   nvgPathWinding(mVG, NVG_CCW);
-  nvgGlobalCompositeOperation(mVG, NanoVGBlendMode(pBlend));
+  NanoVGSetBlendMode(mVG, pBlend);
   nvgStroke(mVG);
   nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
     
@@ -702,7 +711,7 @@ void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& opti
   else
     nvgFillPaint(mVG, NanoVGPaint(mVG, pattern, pBlend));
   
-  nvgGlobalCompositeOperation(mVG, NanoVGBlendMode(pBlend));
+  NanoVGSetBlendMode(mVG, pBlend);
   nvgFill(mVG);
   nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
 
@@ -743,7 +752,7 @@ void IGraphicsNanoVG::DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, 
   nvgRoundedRect(mVG, inner.L, inner.T, inner.W(), inner.H(), cr);
   nvgPathWinding(mVG, NVG_HOLE);
   nvgFillPaint(mVG, shadowPaint);
-  nvgGlobalCompositeOperation(mVG, NanoVGBlendMode(pBlend));
+  NanoVGSetBlendMode(mVG, pBlend);
   nvgFill(mVG);
   nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
   nvgBeginPath(mVG); // Clear the paths

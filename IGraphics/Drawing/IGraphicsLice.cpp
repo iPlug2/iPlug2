@@ -128,7 +128,7 @@ void IGraphicsLice::DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const
   // TODO - clipping
   IRECT r = TransformRECT(bounds);
   LICE_IBitmap* pSrc = bitmap.GetAPIBitmap()->GetBitmap();
-  LICE_ScaledBlit(mRenderBitmap, pSrc, r.L, r.T, r.W(), r.H(), 0.0f, 0.0f, (float) pSrc->getWidth(), (float) pSrc->getHeight(), 1.0f, LiceBlendMode(pBlend) | LICE_BLIT_FILTER_BILINEAR);
+  LICE_ScaledBlit(mRenderBitmap, pSrc, r.L, r.T, r.W(), r.H(), 0.0f, 0.0f, (float) pSrc->getWidth(), (float) pSrc->getHeight(), BlendWeight(pBlend), LiceBlendMode(pBlend) | LICE_BLIT_FILTER_BILINEAR);
 }
 
 void IGraphicsLice::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend)
