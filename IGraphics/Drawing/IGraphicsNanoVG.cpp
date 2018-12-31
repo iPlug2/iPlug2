@@ -256,21 +256,26 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
   int idx = 0;
 
 #ifdef OS_WIN
-  const void* pResData = nullptr;
+  if (location == EResourceLocation::kInBinary)
+  {
+    const void* pResData = nullptr;
 
-  //const char* ext = path + strlen(path) - 1;
-  //while (ext >= path && *ext != '.') --ext;
-  //++ext;
+    //const char* ext = path + strlen(path) - 1;
+    //while (ext >= path && *ext != '.') --ext;
+    //++ext;
 
-  int size = 0;
-  pResData = LoadWinResource(fileNameOrResID, "png", size); //TODO: support JPG
+    int size = 0;
+    pResData = LoadWinResource(fileNameOrResID, "png", size); //TODO: support JPG
 
-  if (pResData)
-    idx = nvgCreateImageMem(mVG, 0 /*flags*/, (unsigned char*) pResData, size);
-
-  if (idx == 0)
+    if (pResData)
+      idx = nvgCreateImageMem(mVG, 0 /*flags*/, (unsigned char*)pResData, size);
+  }
+  else
 #endif
+  if (location == EResourceLocation::kAbsolutePath)
+  {
     idx = nvgCreateImage(mVG, fileNameOrResID, 0);
+  }
 
   return new NanoVGBitmap(mVG, fileNameOrResID, scale, idx);
 }
