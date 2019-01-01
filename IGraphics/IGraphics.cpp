@@ -333,13 +333,13 @@ void IGraphics::ForAllControlsFunc(std::function<void(IControl& control)> func)
   if (mPerfDisplay)
     func(*mPerfDisplay);
   
-  if (mCornerResizer)
-    func(*mCornerResizer);
-  
 #if !defined(NDEBUG)
   if (mLiveEdit)
     func(*mLiveEdit);
 #endif
+  
+  if (mCornerResizer)
+    func(*mCornerResizer);
   
   if (mTextEntryControl)
     func(*mTextEntryControl);
@@ -912,16 +912,27 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
     {
       IControl* pControl = GetControl(c);
 
-      if (!pControl->IsHidden() && !pControl->GetIgnoreMouse())
+#if _DEBUG
+      if(mLiveEdit != nullptr)
       {
-        if ((!pControl->IsGrayed() || (mouseOver ? pControl->GetMOWhenGrayed() : pControl->GetMEWhenGrayed())))
+#endif
+        if (!pControl->IsHidden() && !pControl->GetIgnoreMouse())
         {
-          if (pControl->IsHit(x, y))
+          if ((!pControl->IsGrayed() || (mouseOver ? pControl->GetMOWhenGrayed() : pControl->GetMEWhenGrayed())))
           {
-            return c;
+            if (pControl->IsHit(x, y))
+            {
+              return c;
+            }
           }
         }
+#if _DEBUG
       }
+      else if (pControl->IsHit(x, y))
+      {
+        return c;
+      }
+#endif
     }
   }
   
