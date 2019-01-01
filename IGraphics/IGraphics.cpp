@@ -1099,7 +1099,7 @@ void IGraphics::EnableLiveEdit(bool enable/*, const char* file, int gridsize*/)
   {
     if (mLiveEdit == nullptr)
     {
-      mLiveEdit = new IGraphicsLiveEdit(mDelegate/*, file, gridsize*/);
+      mLiveEdit = new IGraphicsLiveEdit(mDelegate, mHandleMouseOver/*, file, gridsize*/);
       mLiveEdit->SetGraphics(this);
     }
   }
