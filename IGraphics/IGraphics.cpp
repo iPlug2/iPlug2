@@ -913,7 +913,7 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
       IControl* pControl = GetControl(c);
 
 #if _DEBUG
-      if(mLiveEdit != nullptr)
+      if(!mLiveEdit)
       {
 #endif
         if (!pControl->IsHidden() && !pControl->GetIgnoreMouse())
