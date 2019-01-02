@@ -277,6 +277,36 @@ struct IColor
     return IColor(A, R, G, B);
   }
 
+  // thanks nanovg
+  static IColor GetFromHSLA(float h, float s, float l, float a)
+  {
+    auto hue = [](float h, float m1, float m2)
+    {
+      if (h < 0) h += 1;
+      if (h > 1) h -= 1;
+      if (h < 1.0f / 6.0f)
+        return m1 + (m2 - m1) * h * 6.0f;
+      else if (h < 3.0f / 6.0f)
+        return m2;
+      else if (h < 4.0f / 6.0f)
+        return m1 + (m2 - m1) * (2.0f / 3.0f - h) * 6.0f;
+      return m1;
+    };
+
+    IColor col;
+    h = std::fmodf(h, 1.0f);
+    if (h < 0.0f) h += 1.0f;
+    s = Clip(s, 0.0f, 1.0f);
+    l = Clip(l, 0.0f, 1.0f);
+    float m2 = l <= 0.5f ? (l * (1 + s)) : (l + s - l * s);
+    float m1 = 2 * l - m2;
+    col.R = Clip(hue(h + 1.0f / 3.0f, m1, m2), 0.0f, 1.0f) * 255.f;
+    col.G = Clip(hue(h, m1, m2), 0.0f, 1.0f) * 255.f;
+    col.B = Clip(hue(h - 1.0f / 3.0f, m1, m2), 0.0f, 1.0f) * 255.f;
+    col.A = a * 255.f;
+    return col;
+  }
+
   int GetLuminosity() const
   {
     int min = R < G ? (R < B ? R : B) : (G < B ? G : B);
