@@ -54,7 +54,7 @@ then
 fi
 
 python $EMSCRIPTEN/tools/file_packager.py fonts.data --preload ../resources/fonts/ --exclude .DS_Store --js-output=fonts.js
-python $EMSCRIPTEN/tools/file_packager.py svgs.data --preload ../resources/img/ --exclude *.png .DS_Store --js-output=svgs.js
+python $EMSCRIPTEN/tools/file_packager.py svgs.data --preload ../resources/img/ --exclude *.png --exclude *DS_Store --js-output=svgs.js
 
 echo "if(window.devicePixelRatio == 1) {\n" > imgs.js
 python $EMSCRIPTEN/tools/file_packager.py imgs.data --use-preload-plugins --preload ../resources/img/ --use-preload-cache --indexedDB-name="/IPlugControls_pkg" --exclude *DS_Store --exclude  *@2x.png --exclude  *.svg >> imgs.js
