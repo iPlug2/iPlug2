@@ -362,7 +362,47 @@ void IGraphicsMac::StoreCursorPosition()
 
 int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, EMessageBoxType type)
 {
-  return MessageBox((HWND) mView, str, caption, (int) type);
+  NSInteger ret = 0;
+  
+  if (!str) str= "";
+  if (!caption) caption= "";
+  
+  NSString *msg = (NSString *) CFStringCreateWithCString(NULL,str,kCFStringEncodingUTF8);
+  NSString *cap = (NSString *) CFStringCreateWithCString(NULL,caption,kCFStringEncodingUTF8);
+ 
+  msg = msg ? msg : (NSString *) CFStringCreateWithCString(NULL, str, kCFStringEncodingASCII);
+  cap = cap ? cap : (NSString *) CFStringCreateWithCString(NULL, caption, kCFStringEncodingASCII);
+  
+  if (type == MB_OK)
+  {
+    NSRunAlertPanel(msg, @"%@", @"OK", @"", @"", cap);
+    ret = IDOK;
+  }
+  else if (type == MB_OKCANCEL)
+  {
+    ret = NSRunAlertPanel(msg, @"%@", @"OK", @"Cancel", @"", cap);
+    ret = ret ? IDOK : IDCANCEL;
+  }
+  else if (type == MB_YESNO)
+  {
+    ret = NSRunAlertPanel(msg, @"%@", @"Yes", @"No", @"", cap);
+    ret = ret ? IDYES : IDNO;
+  }
+  else if (type == MB_RETRYCANCEL)
+  {
+    ret = NSRunAlertPanel(msg, @"%@", @"Retry", @"Cancel", @"", cap);
+    ret = ret ? IDRETRY : IDCANCEL;
+  }
+  else if (type == MB_YESNOCANCEL)
+  {
+    ret = NSRunAlertPanel(msg, @"%@", @"Yes", @"Cancel", @"No", cap);
+    ret = (ret == 1) ? IDYES : (ret == -1) ? IDNO : IDCANCEL;
+  }
+  
+  [msg release];
+  [cap release];
+  
+  return static_cast<int>(ret);
 }
 
 void IGraphicsMac::ForceEndUserEdit()
