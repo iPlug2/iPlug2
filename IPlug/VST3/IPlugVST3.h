@@ -128,7 +128,7 @@ IPlugVST3* MakePlug();
 class IPlugVST3View : public CPluginView
 {
 public:
-  IPlugVST3View(IPlugVST3* pPlug);
+  IPlugVST3View(IPlugVST3& pPlug);
   ~IPlugVST3View();
 
   // CPluginView overides
@@ -142,7 +142,7 @@ public:
 
   void resize(int w, int h);
 
-  IPlugVST3* mPlug;
+  IPlugVST3& mPlug;
 };
 
 #endif

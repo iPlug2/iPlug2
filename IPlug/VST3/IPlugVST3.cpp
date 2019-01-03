@@ -658,9 +658,7 @@ IPlugView* PLUGIN_API IPlugVST3::createView(const char* name)
 {
   if (name && strcmp(name, "editor") == 0)
   {
-    IPlugVST3View* view = new IPlugVST3View(this);
-    addDependentView(view);
-    return view;
+    return new IPlugVST3View(*this);    
   }
   
   return 0;
@@ -859,25 +857,22 @@ bool IPlugVST3::SendMidiMsg(const IMidiMsg& msg)
 }
 
 #pragma mark - IPlugVST3View
-IPlugVST3View::IPlugVST3View(IPlugVST3* pPlug)
+IPlugVST3View::IPlugVST3View(IPlugVST3& pPlug)
   : mPlug(pPlug)
 {
-  if (mPlug)
-    mPlug->addRef();
+  mPlug.addDependentView(this);
+  mPlug.addRef();
 }
 
 IPlugVST3View::~IPlugVST3View()
 {
-  if (mPlug)
-  {
-    mPlug->removeDependentView(this);
-    mPlug->release();
-  }
+  mPlug.removeDependentView(this);
+  mPlug.release();
 }
 
 tresult PLUGIN_API IPlugVST3View::isPlatformTypeSupported(FIDString type)
 {
-  if(mPlug->HasUI()) // for no editor plugins
+  if(mPlug.HasUI()) // for no editor plugins
   {
 #ifdef OS_WIN
     if (strcmp(type, kPlatformTypeHWND) == 0)
@@ -906,9 +901,9 @@ tresult PLUGIN_API IPlugVST3View::getSize(ViewRect* size)
 {
   TRACE;
 
-  if (mPlug->HasUI())
+  if (mPlug.HasUI())
   {
-    *size = ViewRect(0, 0, mPlug->GetEditorWidth(), mPlug->GetEditorHeight());
+    *size = ViewRect(0, 0, mPlug.GetEditorWidth(), mPlug.GetEditorHeight());
 
     return kResultTrue;
   }
@@ -920,18 +915,18 @@ tresult PLUGIN_API IPlugVST3View::getSize(ViewRect* size)
 
 tresult PLUGIN_API IPlugVST3View::attached(void* parent, FIDString type)
 {
-  if (mPlug->HasUI())
+  if (mPlug.HasUI())
   {
     #ifdef OS_WIN
     if (strcmp(type, kPlatformTypeHWND) == 0)
       mPlug->OpenWindow(parent);
     #elif defined OS_MAC
     if (strcmp (type, kPlatformTypeNSView) == 0)
-      mPlug->OpenWindow(parent);
+      mPlug.OpenWindow(parent);
     else // Carbon
       return kResultFalse;
     #endif
-    mPlug->OnUIOpen();
+    mPlug.OnUIOpen();
 
     return kResultTrue;
   }
@@ -941,8 +936,8 @@ tresult PLUGIN_API IPlugVST3View::attached(void* parent, FIDString type)
 
 tresult PLUGIN_API IPlugVST3View::removed()
 {
-  if (mPlug->HasUI())
-    mPlug->CloseWindow();
+  if (mPlug.HasUI())
+    mPlug.CloseWindow();
 
   return CPluginView::removed();
 }
