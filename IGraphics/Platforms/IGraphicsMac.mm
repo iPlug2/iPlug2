@@ -373,30 +373,28 @@ int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, EMessageB
   msg = msg ? msg : (NSString *) CFStringCreateWithCString(NULL, str, kCFStringEncodingASCII);
   cap = cap ? cap : (NSString *) CFStringCreateWithCString(NULL, caption, kCFStringEncodingASCII);
   
-  if (type == MB_OK)
+  switch (type)
   {
-    NSRunAlertPanel(msg, @"%@", @"OK", @"", @"", cap);
-    ret = IDOK;
-  }
-  else if (type == MB_OKCANCEL)
-  {
-    ret = NSRunAlertPanel(msg, @"%@", @"OK", @"Cancel", @"", cap);
-    ret = ret ? IDOK : IDCANCEL;
-  }
-  else if (type == MB_YESNO)
-  {
-    ret = NSRunAlertPanel(msg, @"%@", @"Yes", @"No", @"", cap);
-    ret = ret ? IDYES : IDNO;
-  }
-  else if (type == MB_RETRYCANCEL)
-  {
-    ret = NSRunAlertPanel(msg, @"%@", @"Retry", @"Cancel", @"", cap);
-    ret = ret ? IDRETRY : IDCANCEL;
-  }
-  else if (type == MB_YESNOCANCEL)
-  {
-    ret = NSRunAlertPanel(msg, @"%@", @"Yes", @"Cancel", @"No", cap);
-    ret = (ret == 1) ? IDYES : (ret == -1) ? IDNO : IDCANCEL;
+    case kMB_OK:
+      NSRunAlertPanel(msg, @"%@", @"OK", @"", @"", cap);
+      ret = IDOK;
+      break;
+    case kMB_OKCANCEL:
+      ret = NSRunAlertPanel(msg, @"%@", @"OK", @"Cancel", @"", cap);
+      ret = ret ? IDOK : IDCANCEL;
+      break;
+    case kMB_YESNO:
+      ret = NSRunAlertPanel(msg, @"%@", @"Yes", @"No", @"", cap);
+      ret = ret ? IDYES : IDNO;
+      break;
+    case kMB_RETRYCANCEL:
+      ret = NSRunAlertPanel(msg, @"%@", @"Retry", @"Cancel", @"", cap);
+      ret = ret ? IDRETRY : IDCANCEL;
+      break;
+    case kMB_YESNOCANCEL:
+      ret = NSRunAlertPanel(msg, @"%@", @"Yes", @"Cancel", @"No", cap);
+      ret = (ret == 1) ? IDYES : (ret == -1) ? IDNO : IDCANCEL;
+      break;
   }
   
   [msg release];
