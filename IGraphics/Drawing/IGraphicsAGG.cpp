@@ -200,10 +200,15 @@ IGraphicsAGG::IGraphicsAGG(IGEditorDelegate& dlg, int w, int h, int fps, float s
 , mFontContour(mFontCurves)
 {
   DBGMSG("IGraphics AGG @ %i FPS\n", fps);
+    
+  StaticStorage<LICE_IFont>::Accessor storage(s_fontCache);
+  storage.Retain();
 }
 
 IGraphicsAGG::~IGraphicsAGG()
 {
+  StaticStorage<LICE_IFont>::Accessor storage(s_fontCache);
+  storage.Release();
 }
 
 void IGraphicsAGG::DrawResize()

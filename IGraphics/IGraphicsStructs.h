@@ -23,6 +23,8 @@
 #include <algorithm>
 #include <random>
 #include <chrono>
+#include <string>
+
 
 #include "wdlstring.h"
 #include "ptrlist.h"
@@ -1459,7 +1461,9 @@ public:
     void Add(T* pData, const char* str, double scale = 1.)    { return mStorage.Add(pData, str, scale); }
     void Remove(T* pData)                                     { return mStorage.Remove(pData); }
     void Clear()                                              { return mStorage.Clear(); }
-    
+    void Retain()                                             { return mStorage.Retain(); }
+    void Release()                                            { return mStorage.Release(); }
+      
   private:
     
     StaticStorage& mStorage;
@@ -1538,6 +1542,18 @@ private:
     mDatas.Empty(true);
   };
 
+  void Retain()
+  {
+    mCount++;
+  }
+    
+  void Release()
+  {
+    if (--mCount == 0)
+      Clear();
+  }
+    
+  int mCount;
   WDL_Mutex mMutex;
   WDL_PtrList<DataKey> mDatas;
 };

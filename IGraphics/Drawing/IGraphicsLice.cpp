@@ -25,6 +25,8 @@ IGraphicsLice::IGraphicsLice(IGEditorDelegate& dlg, int w, int h, int fps, float
 : IGraphics(dlg, w, h, fps, scale)
 {
   DBGMSG("IGraphics Lice @ %i FPS\n", fps);
+  StaticStorage<LICE_IFont>::Accessor storage(s_fontCache);
+  storage.Retain();
 }
 
 IGraphicsLice::~IGraphicsLice() 
@@ -39,6 +41,9 @@ IGraphicsLice::~IGraphicsLice()
   
   DELETE_NULL(mDrawBitmap);
   DELETE_NULL(mTmpBitmap);
+    
+  StaticStorage<LICE_IFont>::Accessor storage(s_fontCache);
+  storage.Release()
 }
 
 void IGraphicsLice::DrawResize()

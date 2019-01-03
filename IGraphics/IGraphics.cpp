@@ -70,11 +70,21 @@ IGraphics::IGraphics(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 , mMaxHeight(h * 2)
 {
   mFPS = (fps > 0 ? fps : DEFAULT_FPS);
+    
+  StaticStorage<APIBitmap>::Accessor bitmapStorage(s_bitmapCache);
+  bitmapStorage.Retain();
+  StaticStorage<SVGHolder>::Accessor svgStorage(s_SVGCache);
+  svgStorage.Retain();
 }
 
 IGraphics::~IGraphics()
 {
   RemoveAllControls();
+    
+  StaticStorage<APIBitmap>::Accessor bitmapStorage(s_bitmapCache);
+  bitmapStorage.Release();
+  StaticStorage<SVGHolder>::Accessor svgStorage(s_SVGCache);
+  svgStorage.Release();
 }
 
 void IGraphics::SetScreenScale(int scale)
