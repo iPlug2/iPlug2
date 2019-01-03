@@ -1548,11 +1548,11 @@ private:
     int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
     {
-      // TODO: - this doesn't work - why not?
-      /*
+      // TODO: - this doesn't work - why not? (AH - it seems fine - need to check this)
+      
       DataKey* key = mDatas.Get(i);
       T* data = key->data;
-      delete data;*/
+      delete data;
     }
     mDatas.Empty(true);
   };
