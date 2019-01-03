@@ -43,7 +43,7 @@ IGraphicsLice::~IGraphicsLice()
   DELETE_NULL(mTmpBitmap);
     
   StaticStorage<LICE_IFont>::Accessor storage(s_fontCache);
-  storage.Release()
+  storage.Release();
 }
 
 void IGraphicsLice::DrawResize()
