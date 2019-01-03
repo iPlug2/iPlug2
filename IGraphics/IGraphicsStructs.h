@@ -1446,6 +1446,41 @@ template <class T>
 class StaticStorage
 {
 public:
+  
+  // Accessor class that mantains threadsafety when using static storage via RAII
+  
+  class Accessor : private WDL_MutexLock
+  {
+  public:
+    
+    Accessor(StaticStorage& storage) : WDL_MutexLock(&storage.mMutex), mStorage(storage) {}
+    
+    T* Find(const char* str, double scale = 1.)               { return mStorage.Find(str, scale); }
+    void Add(T* pData, const char* str, double scale = 1.)    { return mStorage.Add(pData, str, scale); }
+    void Remove(T* pData)                                     { return mStorage.Remove(pData); }
+    void Clear()                                              { return mStorage.Clear(); }
+    
+  private:
+    
+    StaticStorage& mStorage;
+  };
+    
+  ~StaticStorage()
+  {
+    Clear();
+  }
+
+private:
+    
+  struct DataKey
+  {
+    // N.B. - hashID is not guaranteed to be unique
+    uint32_t hashID;
+    WDL_String name;
+    double scale;
+    T* data;
+  };
+    
   // djb2 hash function (hash * 33 + c) - see http://www.cse.yorku.ca/~oz/hash.html // TODO: can we use C++11 std::hash instead of this?
   uint32_t Hash(const char* str)
   {
@@ -1459,15 +1494,6 @@ public:
 
     return hash;
   }
-
-  struct DataKey
-  {
-    // N.B. - hashID is not guaranteed to be unique
-    uint32_t hashID;
-    WDL_String name;
-    double scale;
-    T* data;
-  };
 
   T* Find(const char* str, double scale = 1.)
   {
@@ -1522,7 +1548,7 @@ public:
     int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
     {
-      // FIXME: - this doesn't work - why not?
+      // TODO: - this doesn't work - why not?
       /*
       DataKey* key = mDatas.Get(i);
       T* data = key->data;
@@ -1531,12 +1557,7 @@ public:
     mDatas.Empty(true);
   };
 
-  ~StaticStorage()
-  {
-    Clear();
-  }
-
-private:
+  WDL_Mutex mMutex;
   WDL_PtrList<DataKey> mDatas;
 };
 

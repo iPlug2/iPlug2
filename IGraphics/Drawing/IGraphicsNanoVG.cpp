@@ -241,7 +241,8 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
     targetScale = GetScreenScale();
 
   // NanoVG does not use the global static cache, since bitmaps are textures linked to a context
-  APIBitmap* pAPIBitmap = mBitmapCache.Find(name, targetScale);
+  StaticStorage<APIBitmap>::Accessor storage(mBitmapCache);
+  APIBitmap* pAPIBitmap = storage.Find(name, targetScale);
   
   // If the bitmap is not already cached at the targetScale
   if (!pAPIBitmap)
@@ -261,7 +262,7 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
 
     pAPIBitmap = LoadAPIBitmap(fullPathOrResourceID.Get(), sourceScale, resourceFound, ext);
     
-    mBitmapCache.Add(pAPIBitmap, name, sourceScale);
+    storage.Add(pAPIBitmap, name, sourceScale);
 
     assert(pAPIBitmap);
   }
