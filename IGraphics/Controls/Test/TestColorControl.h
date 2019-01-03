@@ -53,11 +53,15 @@ public:
 
   void Draw(IGraphics& g) override
   {
+#ifndef IGRAPHICS_NANOVG
     if(g.HasPathSupport())
     {
       g.PathRect(mRECT);
       g.PathFill(mPattern);
     }
+#else
+    g.DrawText(mText, "UNSUPPORTED", mRECT);
+#endif
   }
 
 private:
