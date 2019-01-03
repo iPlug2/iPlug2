@@ -155,6 +155,9 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
         //TODO: Paste
         return false;
       }
+    
+      default:
+        break;
     }
   }
   
