@@ -21,10 +21,6 @@
 #include "IPlugPluginBase.h"
 #include "IPlugPaths.h"
 
-#if IGRAPHICS_SWELL
-#include "swell.h"
-#endif
-
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 int GetSystemVersion()
@@ -377,23 +373,23 @@ int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, EMessageB
   {
     case kMB_OK:
       NSRunAlertPanel(msg, @"%@", @"OK", @"", @"", cap);
-      ret = IDOK;
+      ret = kOK;
       break;
     case kMB_OKCANCEL:
       ret = NSRunAlertPanel(msg, @"%@", @"OK", @"Cancel", @"", cap);
-      ret = ret ? IDOK : IDCANCEL;
+      ret = ret ? kOK : kCANCEL;
       break;
     case kMB_YESNO:
       ret = NSRunAlertPanel(msg, @"%@", @"Yes", @"No", @"", cap);
-      ret = ret ? IDYES : IDNO;
+      ret = ret ? kYES : kNO;
       break;
     case kMB_RETRYCANCEL:
       ret = NSRunAlertPanel(msg, @"%@", @"Retry", @"Cancel", @"", cap);
-      ret = ret ? IDRETRY : IDCANCEL;
+      ret = ret ? kRETRY : kCANCEL;
       break;
     case kMB_YESNOCANCEL:
       ret = NSRunAlertPanel(msg, @"%@", @"Yes", @"Cancel", @"No", cap);
-      ret = (ret == 1) ? IDYES : (ret == -1) ? IDNO : IDCANCEL;
+      ret = (ret == 1) ? kYES : (ret == -1) ? kNO : kCANCEL;
       break;
   }
   
