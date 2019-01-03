@@ -1475,24 +1475,16 @@ private:
   struct DataKey
   {
     // N.B. - hashID is not guaranteed to be unique
-    uint32_t hashID;
+    size_t hashID;
     WDL_String name;
     double scale;
-    T* data;
+    std::unique_ptr<T> data;
   };
     
-  // djb2 hash function (hash * 33 + c) - see http://www.cse.yorku.ca/~oz/hash.html // TODO: can we use C++11 std::hash instead of this?
-  uint32_t Hash(const char* str)
+  size_t Hash(const char* str)
   {
-    uint32_t hash = 5381;
-    int c;
-
-    while ((c = *str++))
-    {
-      hash = ((hash << 5) + hash) + c;
-    }
-
-    return hash;
+    std::string string(str);
+    return std::hash<std::string>()(string);
   }
 
   T* Find(const char* str, double scale = 1.)
@@ -1500,7 +1492,7 @@ private:
     WDL_String cacheName(str);
     cacheName.AppendFormatted((int) strlen(str) + 6, "-%.1fx", scale);
     
-    uint32_t hashID = Hash(cacheName.Get());
+    size_t hashID = Hash(cacheName.Get());
     
     int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
@@ -1509,7 +1501,7 @@ private:
 
       // Use the hash id for a quick search and then confirm with the scale and identifier to ensure uniqueness
       if (pKey->hashID == hashID && scale == pKey->scale && !strcmp(str, pKey->name.Get()))
-        return pKey->data;
+        return pKey->data.get();
     }
     return nullptr;
   }
@@ -1522,7 +1514,7 @@ private:
     cacheName.AppendFormatted((int) strlen(str) + 6, "-%.1fx", scale);
     
     pKey->hashID = Hash(cacheName.Get());
-    pKey->data = pData;
+    pKey->data = std::unique_ptr<T>(pData);
     pKey->scale = scale;
     pKey->name.Set(str);
 
@@ -1531,13 +1523,11 @@ private:
 
   void Remove(T* pData)
   {
-    int i, n = mDatas.GetSize();
-    for (i = 0; i < n; ++i)
+    for (int i = 0; i < mDatas.GetSize(); ++i)
     {
-      if (mDatas.Get(i)->data == pData)
+      if (mDatas.Get(i)->data.get() == pData)
       {
         mDatas.Delete(i, true);
-        delete pData;
         break;
       }
     }
@@ -1545,15 +1535,6 @@ private:
 
   void Clear()
   {
-    int i, n = mDatas.GetSize();
-    for (i = 0; i < n; ++i)
-    {
-      // TODO: - this doesn't work - why not? (AH - it seems fine - need to check this)
-      
-      DataKey* key = mDatas.Get(i);
-      T* data = key->data;
-      delete data;
-    }
     mDatas.Empty(true);
   };
 
