@@ -20,7 +20,7 @@ using namespace emscripten;
 
 extern IGraphics* gGraphics;
 
-static EVirtualKey domVKToWinVK(int dom_vk_code)
+static int domVKToWinVK(int dom_vk_code)
 {
   switch(dom_vk_code)
   {

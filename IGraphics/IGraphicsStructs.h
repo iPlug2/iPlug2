@@ -1027,11 +1027,11 @@ struct IRECT
 /** Used for key press info, such as ASCII representation, virtual key (mapped to win32 codes) and modifiers */
 struct IKeyPress
 {
-  EVirtualKey VK;
+  int VK; // Windows VK_XXX
   char Ascii;
   bool S, C, A; // SHIFT / CTRL(WIN) or CMD (MAC) / ALT
   
-  IKeyPress(char ascii, EVirtualKey vk, bool s = false, bool c = false, bool a = false)
+  IKeyPress(char ascii, int vk, bool s = false, bool c = false, bool a = false)
   : VK(vk)
   , Ascii(ascii)
   , S(s), C(c), A(a)
