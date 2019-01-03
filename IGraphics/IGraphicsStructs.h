@@ -278,7 +278,7 @@ struct IColor
   }
 
   // thanks nanovg
-  static IColor GetFromHSLA(float h, float s, float l, float a)
+  static IColor GetFromHSLA(float h, float s, float l, float a = 1.)
   {
     auto hue = [](float h, float m1, float m2)
     {
