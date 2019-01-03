@@ -15,7 +15,9 @@ In the meantime, you can read two academic papers that we wrote about the projec
 
 Try iPlug 2 examples online here:
 
-**IGraphicsTest** : [WebGL](https://iplug2.github.io/webgl/IGraphicsTest/) | [HTML5 Canvas](https://iplug2.github.io/canvas/IGraphicsTest/)
+* **IGraphicsTest** : [WebGL](https://iplug2.github.io/webgl/IGraphicsTest/) | [HTML5 Canvas](https://iplug2.github.io/canvas/IGraphicsTest/)
+* **IPlugEffect** : [WebGL](https://iplug2.github.io/webgl/IPlugEffect/)
+* **IPlugInstrument (Work in progress)** : [WebGL](https://iplug2.github.io/webgl/IPlugInstrument/) | [HTML5 Canvas](https://iplug2.github.io/canvas/IPlugInstrument/)
 
 <!--
 ## Introduction
