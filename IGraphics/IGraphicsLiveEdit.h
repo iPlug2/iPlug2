@@ -27,15 +27,21 @@
 class IGraphicsLiveEdit : public IControl
 {
 public:
-  IGraphicsLiveEdit(IGEditorDelegate& dlg, const char* pathToSourceFile = 0, float gridSize = 10)
+  IGraphicsLiveEdit(IGEditorDelegate& dlg, bool mouseOversEnabled, const char* pathToSourceFile = 0, float gridSize = 10)
   : IControl(dlg, IRECT())
   , mPathToSourceFile(pathToSourceFile)
   , mGridSize(gridSize)
+  , mMouseOversEnabled(mouseOversEnabled)
   {
+    dlg.GetUI()->HandleMouseOver(true);
+
     mTargetRECT = mRECT;
   }
   
-  ~IGraphicsLiveEdit() {}
+  ~IGraphicsLiveEdit()
+  {
+    GetUI()->HandleMouseOver(mMouseOversEnabled);
+  }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
@@ -189,6 +195,7 @@ public:
   }
 
 private:
+  bool mMouseOversEnabled;
 //  bool mEditModeActive = false;
 //  bool mLiveEditingEnabled = false;
   bool mMouseClickedOnResizeHandle = false;

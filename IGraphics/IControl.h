@@ -973,12 +973,18 @@ private:
 class ILambdaControl : public IControl
 {
 public:
-  ILambdaControl(IGEditorDelegate& dlg, IRECT bounds, IDrawFunction drawFunc, int animationDuration = DEFAULT_ANIMATION_DURATION, bool loopAnimation = false, int paramIdx = kNoParameter)
+  ILambdaControl(IGEditorDelegate& dlg, IRECT bounds, IDrawFunction drawFunc, int animationDuration = DEFAULT_ANIMATION_DURATION,
+    bool loopAnimation = false, bool startImmediately = false, int paramIdx = kNoParameter)
   : IControl(dlg, bounds, paramIdx, DefaultClickActionFunc)
   , mDrawFunc(drawFunc)
   , mLoopAnimation(loopAnimation)
   , mAnimationDuration(animationDuration)
   {
+    if (startImmediately)
+    {
+      SetAnimation(DefaultAnimationFunc);
+      StartAnimation(mAnimationDuration);
+    }
   }
   
   void Draw(IGraphics& g) override

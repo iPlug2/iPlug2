@@ -587,6 +587,7 @@ bool IPlugAPPHost::InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_
   
   mIPlug->SetBlockSize(APP_SIGNAL_VECTOR_SIZE);
   mIPlug->SetSampleRate(mSampleRate);
+  mIPlug->OnReset();
 
   try
   {

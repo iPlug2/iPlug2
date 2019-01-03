@@ -106,7 +106,9 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
       
     }, 1000, false));
     
+    pGraphics->AttachControl(new TestSizeControl(*this, bounds), kCtrlTagSize);
     pGraphics->AttachControl(new TestGradientControl(*this, nextCell(), kParamDummy));
+    pGraphics->AttachControl(new TestColorControl(*this, nextCell()));
     pGraphics->AttachControl(new TestPolyControl(*this, nextCell(), kParamDummy));
     pGraphics->AttachControl(new TestArcControl(*this, nextCell(), kParamDummy));
     pGraphics->AttachControl(new TestMultiPathControl(*this, nextCell(), kParamDummy));
@@ -120,7 +122,6 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new TestDropShadowControl(*this, nextCell(), tiger));
     pGraphics->AttachControl(new TestCursorControl(*this, nextCell()));
     pGraphics->AttachControl(new TestKeyboardControl(*this, nextCell()));
-    pGraphics->AttachControl(new TestSizeControl(*this, bounds), kCtrlTagSize);
 
 #if 0
     pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Hello World!", {24, COLOR_WHITE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop, 90}));
