@@ -32,23 +32,23 @@ public:
   {
     int idx = 0;
     float nstops = 7.;
-    float stop = 0.;
+    float pos = 0.;
     auto nextStop = [&]() {
-      stop = (1.f/nstops) * idx++;
-      return stop;
+      pos = (1.f/nstops) * idx++;
+      return IColorStop{IColor::GetFromHSLA(pos, 1., 0.5), pos};
     };
     
     mPattern = IPattern::CreateLinearGradient(mRECT.L, mRECT.MH(), mRECT.R, mRECT.MH(),
     {
-      {IColor::GetFromHSLA(nextStop(), 1., 0.5), stop},
-      {IColor::GetFromHSLA(nextStop(), 1., 0.5), stop},
-      {IColor::GetFromHSLA(nextStop(), 1., 0.5), stop},
-      {IColor::GetFromHSLA(nextStop(), 1., 0.5), stop},
-      {IColor::GetFromHSLA(nextStop(), 1., 0.5), stop},
-      {IColor::GetFromHSLA(nextStop(), 1., 0.5), stop},
-      {IColor::GetFromHSLA(nextStop(), 1., 0.5), stop},
-      {IColor::GetFromHSLA(nextStop(), 1., 0.5), stop},
-    } );
+      nextStop(),
+      nextStop(),
+      nextStop(),
+      nextStop(),
+      nextStop(),
+      nextStop(),
+      nextStop(),
+      nextStop(),
+    });
   }
 
   void Draw(IGraphics& g) override
