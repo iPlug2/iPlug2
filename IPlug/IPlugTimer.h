@@ -46,7 +46,18 @@ struct Timer
   #if defined OS_IOS
     #include "swell-ios.h"
   #else
-    #include "swell.h"
+    typedef unsigned int DWORD;
+    typedef unsigned int UINT;
+    typedef struct HWND__ *HWND;
+
+    typedef void (*TIMERPROC)(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
+
+    extern UINT_PTR SetTimer(HWND hwnd, UINT_PTR timerid, UINT rate, TIMERPROC tProc);
+    extern signed char KillTimer(HWND hwnd, UINT_PTR timerid);
+
+    #ifndef CALLBACK
+    #define CALLBACK
+    #endif
   #endif
 #endif
 

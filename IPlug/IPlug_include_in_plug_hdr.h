@@ -97,7 +97,6 @@
   #if defined SWELL_NO_POSTMESSAGE && !defined VST3P_API
     #include <sys/time.h>
     #include <unistd.h>
-    #include "swell.h"
     void Sleep(int ms);
     DWORD GetTickCount();
   #endif
