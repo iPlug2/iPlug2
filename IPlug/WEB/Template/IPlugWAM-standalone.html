@@ -41,6 +41,8 @@
         color: black;
       }
 
+      #greyout { position: relative; text-align: center; color: black; }
+
       a, u { text-decoration: none; }
       a:link { color: #222; }
       a:visited { color: #222; }
@@ -91,9 +93,11 @@
         <select id="midiInSelect" disabled="true"><option value="default">Midi input</option></select>
         <select id="midiOutSelect" disabled="true"><option value="default">Midi output</option></select>
         <progress value="0" max="100" id="progress"></progress>
+      </div>
+      <div id="greyout">
         <div id="status">downloading ...</div>
       </div>
-    <div id="wam" hidden=1>
+      <div id="wam" hidden=1>
       <input id="pluginInput" type="file" style="visibility:hidden"/>
       <canvas class="pluginArea" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
     </div>
