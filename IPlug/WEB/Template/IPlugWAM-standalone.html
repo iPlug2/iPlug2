@@ -247,6 +247,15 @@
         }
       }
 
+      function connectToOutput(wam, actx) {
+        NAME_PLACEHOLDER_WAM.connect(actx.destination);
+
+        document.getElementById('wam').hidden = false;
+        document.getElementById('startWebAudioButton').setAttribute("disabled", "true");
+        initMidiComboBox(false, "#midiInSelect");
+        initMidiComboBox(true, "#midiOutSelect");
+      }
+
       function main() {
         var actx = new AudioContext();
         AWPF.polyfill(actx).then( function () {
@@ -260,13 +269,28 @@
               audioWorkletSupported(!AWPF.isAudioWorkletPolyfilled);
               NAME_PLACEHOLDERController.importScripts(actx).then(() => {
                 NAME_PLACEHOLDER_WAM = new NAME_PLACEHOLDERController(actx);
-                NAME_PLACEHOLDER_WAM.connect(actx.destination);
 
                 if(NAME_PLACEHOLDER_WAM != undefined) {
-                  document.getElementById('wam').hidden = false;
-                  document.getElementById('startWebAudioButton').setAttribute("disabled", "true");
-                  initMidiComboBox(false, "#midiInSelect");
-                  initMidiComboBox(true, "#midiOutSelect");
+
+                  //not yet working out of the box for effects
+                  if(/*NAME_PLACEHOLDER_WAM.numberOfInputs > 0*/ false)
+                  {
+                    var constraints = { audio: true, video:false }
+                    navigator.mediaDevices.getUserMedia(constraints)
+                    .then((stream) => {
+                      let audioSource = actx.createMediaStreamSource(stream);
+                      audioSource.connect(NAME_PLACEHOLDER_WAM);
+                      connectToOutput(NAME_PLACEHOLDER_WAM, actx);
+                    })
+                    .catch((err) => {
+                      console.log('Error initializing user media stream: ' + err);
+                    });
+                  }
+                  else
+                    connectToOutput(NAME_PLACEHOLDER_WAM, actx); // instrument
+                }
+                else {
+                  console.log('NAME_PLACEHOLDER_WAM is undefined');
                 }
               });
             }
