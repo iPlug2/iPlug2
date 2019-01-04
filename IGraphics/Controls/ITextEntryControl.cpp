@@ -17,10 +17,6 @@
 #include "ITextEntryControl.h"
 #include "IPlugPlatform.h"
 
-#if defined OS_IOS
-  #include "swell-ios.h"
-#endif
-
 #define VIRTUAL_KEY_BIT 0x80000000
 #define STB_TEXTEDIT_K_SHIFT 0x40000000
 #define STB_TEXTEDIT_K_CONTROL 0x20000000
