@@ -24,11 +24,8 @@
 
 #include "IPlugPlatform.h"
 
-struct Timer;
-
-typedef std::function<void(Timer& t)> ITimerFunction;
-
 #if defined OS_WEB
+/** Base class for timer */
 struct Timer
 {
   static Timer* Create(ITimerFunction func, uint32_t intervalMs)
@@ -41,32 +38,37 @@ struct Timer
   }
 };
 #else
-
-#if !defined OS_WIN
-  typedef signed char BOOL;
-  typedef unsigned int DWORD;
-  typedef unsigned int UINT;
-  typedef struct HWND__ *HWND;
-
-  typedef void (*TIMERPROC)(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
-
-  extern UINT_PTR SetTimer(HWND hwnd, UINT_PTR timerid, UINT rate, TIMERPROC tProc);
-  extern BOOL KillTimer(HWND hwnd, UINT_PTR timerid);
-
-  #ifndef CALLBACK
-  #define CALLBACK
-  #endif
-#endif
-
 /** Base class for timer */
 struct Timer
 {
-  virtual ~Timer() {};
-  static Timer* Create(ITimerFunction func, uint32_t intervalMs);
-  virtual void Stop() = 0;
-  UINT_PTR ID = 0;
-};
+  typedef std::function<void(Timer& t)> ITimerFunction;
 
+  static Timer* Create(ITimerFunction func, uint32_t intervalMs);
+  virtual ~Timer() {};
+  virtual void Stop() = 0;
+};
+#endif
+
+#if defined OS_MAC || defined OS_IOS
+
+#include <CoreFoundation/CoreFoundation.h>
+
+class Timer_impl : public Timer
+{
+public:
+  
+  Timer_impl(ITimerFunction func, uint32_t intervalMs);
+  ~Timer_impl();
+  
+  void Stop() override;
+  static void TimerProc(CFRunLoopTimerRef timer, void *info);
+  
+private:
+  CFRunLoopTimerRef mOSTimer;
+  ITimerFunction mTimerFunc;
+  uint32_t mIntervalMs;
+};
+#elif defined OS_WIN
 class Timer_impl : public Timer
 {
 public:
@@ -77,8 +79,8 @@ public:
   {
     ID = SetTimer(0, 0, intervalMs, TimerProc);
     
-    if(ID)
-     AddTimer(this);
+    if (ID)
+     sTimers.Add(this);
   }
   
   ~Timer_impl()
@@ -88,24 +90,12 @@ public:
   
   void Stop() override
   {
-    if (!ID)
-      return;
-    
-    KillTimer(0, ID);
-    RemoveTimer(this);
-    ID = 0;
-  }
-  
-  void AddTimer(Timer_impl* pTimer)
-  {
-    sTimers.Add(pTimer);
-//    DBGMSG("Add NTimers % i\n", sTimers.GetSize());
-  }
-  
-  void RemoveTimer(Timer_impl* pTimer)
-  {
-    sTimers.DeletePtr(pTimer);
-//    DBGMSG("Remove NTimers % i\n", sTimers.GetSize());
+    if (ID)
+    {
+      KillTimer(0, ID);
+      sTimers.DeletePtr(this);
+      ID = 0;
+    }
   }
   
   static void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
@@ -123,9 +113,12 @@ public:
   }
   
 private:
+  static WDL_Mutex sMutex;
   static WDL_PtrList<Timer_impl> sTimers;
+  UINT_PTR ID = 0;
   ITimerFunction mTimerFunc;
   uint32_t mIntervalMs;
 };
-
+#elif
+  #error NOT IMPLEMENTED
 #endif
