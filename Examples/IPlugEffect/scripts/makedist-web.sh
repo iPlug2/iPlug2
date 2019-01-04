@@ -59,18 +59,18 @@ then
 fi
 
 python $EMSCRIPTEN/tools/file_packager.py fonts.data --preload ../resources/fonts/ --exclude .DS_Store --js-output=fonts.js
-python $EMSCRIPTEN/tools/file_packager.py svgs.data --preload ../resources/img/ --exclude *.png .DS_Store --js-output=svgs.js
+python $EMSCRIPTEN/tools/file_packager.py svgs.data --preload ../resources/img/ --exclude *.png --exclude *DS_Store --js-output=svgs.js
 
-echo "if(window.devicePixelRatio == 1) {\n" > imgs.js
+# echo "if(window.devicePixelRatio == 1) {\n" > imgs.js
 python $EMSCRIPTEN/tools/file_packager.py imgs.data --use-preload-plugins --preload ../resources/img/ --use-preload-cache --indexedDB-name="/IPlugEffect_pkg" --exclude *DS_Store --exclude  *@2x.png --exclude  *.svg >> imgs.js
-echo "\n}" >> imgs.js
-# @ package @2x resources into separate .data file
+# echo "\n}" >> imgs.js
+# package @2x resources into separate .data file
 mkdir ./2x/
 cp ../resources/img/*@2x* ./2x
-echo "if(window.devicePixelRatio > 1) {\n" > imgs@2x.js
+# echo "if(window.devicePixelRatio > 1) {\n" > imgs@2x.js
 #--use-preload-cache --indexedDB-name="/IPlugEffect_data"
 python $EMSCRIPTEN/tools/file_packager.py imgs@2x.data --use-preload-plugins --preload ./2x@/resources/img/ --use-preload-cache --indexedDB-name="/IPlugEffect_pkg" --exclude *DS_Store >> imgs@2x.js
-echo "\n}" >> imgs@2x.js
+# echo "\n}" >> imgs@2x.js
 rm -r ./2x
 
 cd ..
