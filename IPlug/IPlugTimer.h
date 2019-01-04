@@ -21,6 +21,7 @@
 #include <cstring>
 #include <functional>
 #include "ptrlist.h"
+#include "mutex.h"
 
 #include "IPlugPlatform.h"
 
@@ -72,45 +73,10 @@ private:
 class Timer_impl : public Timer
 {
 public:
-  Timer_impl(ITimerFunction func, uint32_t intervalMs)
-  : mTimerFunc(func)
-  , mIntervalMs(intervalMs)
-
-  {
-    ID = SetTimer(0, 0, intervalMs, TimerProc);
-    
-    if (ID)
-     sTimers.Add(this);
-  }
-  
-  ~Timer_impl()
-  {
-    Stop();
-  }
-  
-  void Stop() override
-  {
-    if (ID)
-    {
-      KillTimer(0, ID);
-      sTimers.DeletePtr(this);
-      ID = 0;
-    }
-  }
-  
-  static void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
-  {
-    for (auto i = 0; i < sTimers.GetSize(); i++)
-    {
-      Timer_impl* pTimer = sTimers.Get(i);
-      
-      if (pTimer->ID == idEvent)
-      {
-        pTimer->mTimerFunc(*pTimer);
-        return;
-      }
-    }
-  }
+  Timer_impl(ITimerFunction func, uint32_t intervalMs);
+  ~Timer_impl();
+  void Stop() override;
+  static void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
   
 private:
   static WDL_Mutex sMutex;

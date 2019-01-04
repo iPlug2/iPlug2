@@ -60,11 +60,11 @@ void Timer_impl::TimerProc(CFRunLoopTimerRef timer, void *info)
   itimer->mTimerFunc(*itimer);
 }
 
-#elif defined OS_WINDOWS
+#elif defined OS_WIN
 
 Timer* Timer::Create(ITimerFunction func, uint32_t intervalMs)
 {
-    return new Timer_impl(func, intervalMs);
+  return new Timer_impl(func, intervalMs);
 }
 
 WDL_Mutex Timer_impl::sMutex;
@@ -79,7 +79,7 @@ Timer_impl::Timer_impl(ITimerFunction func, uint32_t intervalMs)
   
   if (ID)
   {
-    WDL_MutexLock(&sMutex);
+    WDL_MutexLock lock(&sMutex);
     sTimers.Add(this);
   }
 }
@@ -94,7 +94,7 @@ void Timer_impl::Stop()
   if (ID)
   {
     KillTimer(0, ID);
-    WDL_MutexLock(&sMutex);
+    WDL_MutexLock lock(&sMutex);
     sTimers.DeletePtr(this);
     ID = 0;
   }
@@ -102,7 +102,7 @@ void Timer_impl::Stop()
 
 void CALLBACK Timer_impl::TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
-  WDL_MutexLock(&sMutex);
+  WDL_MutexLock lock(&sMutex);
 
   for (auto i = 0; i < sTimers.GetSize(); i++)
   {
