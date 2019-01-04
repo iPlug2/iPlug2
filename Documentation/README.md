@@ -13,6 +13,12 @@ In the meantime, you can read two academic papers that we wrote about the projec
 2 - Web Audio Conference (WAC2018) [PAPER](https://github.com/iPlug2/iPlug2/raw/master/Documentation/Papers/WAC2018.pdf) | [VIDEO](https://youtu.be/DDrgW4Qyz8Y)
 
 
+Try iPlug 2 examples online here:
+
+* **IGraphicsTest** : [WebGL](https://iplug2.github.io/webgl/IGraphicsTest/) | [HTML5 Canvas](https://iplug2.github.io/canvas/IGraphicsTest/)
+* **IPlugEffect** : [WebGL](https://iplug2.github.io/webgl/IPlugEffect/)
+* **IPlugInstrument (Work in progress)** : [WebGL](https://iplug2.github.io/webgl/IPlugInstrument/) | [HTML5 Canvas](https://iplug2.github.io/canvas/IPlugInstrument/)
+
 <!--
 ## Introduction
 

@@ -75,7 +75,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 
 #if IPLUG_EDITOR // All UI methods and member variables should be within an IPLUG_EDITOR guard, should you want distributed UI
   mMakeGraphicsFunc = [&]() {
-    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, 60, 1.);
+    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, 1.);
   };
   
   mLayoutFunc = [&](IGraphics* pGraphics) {

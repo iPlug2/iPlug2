@@ -28,7 +28,7 @@ PATHS_X64 = [SAVIHOST_X64_PATH, LIVE_X64_PATH,  FL_X64_PATH,  CUBASE_X64_PATH,  
 ARGS = [SAVIHOST_ARGS, "", "", "", "", REAPER_ARGS, "", ""]
 
 from xml.dom import minidom as md
-doc  = md.parse('common-win.props')
+doc  = md.parse('..\common-win.props')
 
 print("HOST options:")
 print(" 1 - Savihost")
@@ -115,6 +115,8 @@ if ARGS[choice-1]:
 #elem = doc.getElementsByTagName('COPY_VST2')
 #elem[0].firstChild.nodeValue = (choice != 1) 
 
-xml_file = open('common-win.props', "w")
+xml_file = open('../common-win.props', "w")
 doc.writexml(xml_file, encoding="utf-8")
 xml_file.close()
+
+print("now restart visual studio...");

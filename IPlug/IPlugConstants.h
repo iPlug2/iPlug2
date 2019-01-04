@@ -165,7 +165,7 @@ enum ERoute
   kOutput = 1
 };
 
-static const char* RoutingDirStrs[2]  = { "input", "output" };
+static const char* RoutingDirStrs[2]  = { "Input", "Output" };
 
 enum EAPI
 {
