@@ -287,6 +287,21 @@ void IGraphicsLice::FillArc(const IColor& color, float cx, float cy, float r, fl
   float xarray[361];
   float yarray[361];
   
+  if (aMax < aMin)
+    std::swap(aMin, aMax);
+  
+  if (aMax >= aMin + 360.f)
+  {
+    FillCircle(color, cx, cy, r, pBlend);
+    return;
+  }
+  
+  if (aMax > aMin + 180.f)
+  {
+    FillArc(color, cx, cy, r, aMin + 180.f, aMax, pBlend);
+    aMax = aMin + 180.f;
+  }
+  
   aMin = DegToRad(aMin-90.f);
   aMax = DegToRad(aMax-90.f);
 
@@ -302,7 +317,6 @@ void IGraphicsLice::FillArc(const IColor& color, float cx, float cy, float r, fl
   yarray[arcpoints] = cy;
 
   FillConvexPolygon(color, xarray, yarray, arcpoints + 1, pBlend);
-  //TODO:
 }
 
 IColor IGraphicsLice::GetPoint(int x, int y)
