@@ -72,6 +72,7 @@ public:
 #ifdef OS_WIN
   typedef agg::order_bgra PixelOrder;
   typedef agg::pixel_map_win32 PixelMapType;
+  typedef agg::font_win32 FontType;
 #elif defined OS_MAC
   typedef agg::order_argb PixelOrder;
   typedef agg::pixel_map_mac PixelMapType;

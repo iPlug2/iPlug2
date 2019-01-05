@@ -66,7 +66,7 @@
 #pragma clang diagnostic pop
 #elif defined OS_WIN
 #include "agg_win32_pmap.h"
-//#include "agg_win32_font.h"
+#include "agg_win32_font.h"
 #endif
 
 #endif
