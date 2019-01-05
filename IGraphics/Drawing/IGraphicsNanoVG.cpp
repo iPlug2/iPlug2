@@ -854,9 +854,9 @@ void IGraphicsNanoVG::DrawDottedLine(const IColor& color, float x1, float y1, fl
 
 void IGraphicsNanoVG::DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness, float dashLen)
 {
-  const int xsegs = bounds.W() / (dashLen * 2.f);
-  const int ysegs = bounds.H() / (dashLen * 2.f);
-
+  const int xsegs = static_cast<int>(std::ceil(bounds.W() / (dashLen * 2.f)));
+  const int ysegs = static_cast<int>(std::ceil(bounds.H() / (dashLen * 2.f)));
+  
   float x1 = bounds.L;
   float y1 = bounds.T;
   
@@ -869,9 +869,9 @@ void IGraphicsNanoVG::DrawDottedRect(const IColor& color, const IRECT& bounds, c
   {
     for (int i = 0; i < xsegs; i++)
     {
-      x2 = x1 + dashLen;
+      x2 = Clip(x1 + dashLen, bounds.L, bounds.R);
       PathLineTo(x2, y2);
-      x1 = x2 + dashLen;
+      x1 = Clip(x2 + dashLen, bounds.L, bounds.R);
       PathMoveTo(x1, y1);
     }
     
@@ -879,9 +879,9 @@ void IGraphicsNanoVG::DrawDottedRect(const IColor& color, const IRECT& bounds, c
     
     for (int i = 0; i < ysegs; i++)
     {
-      y2 = y1 + dashLen;
+      y2 = Clip(y1 + dashLen, bounds.T, bounds.B);
       PathLineTo(x2, y2);
-      y1 = y2 + dashLen;
+      y1 = Clip(y2 + dashLen, bounds.T, bounds.B);
       PathMoveTo(x1, y1);
     }
     
