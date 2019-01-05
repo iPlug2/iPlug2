@@ -70,11 +70,21 @@ IGraphics::IGraphics(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 , mMaxHeight(h * 2)
 {
   mFPS = (fps > 0 ? fps : DEFAULT_FPS);
+    
+  StaticStorage<APIBitmap>::Accessor bitmapStorage(s_bitmapCache);
+  bitmapStorage.Retain();
+  StaticStorage<SVGHolder>::Accessor svgStorage(s_SVGCache);
+  svgStorage.Retain();
 }
 
 IGraphics::~IGraphics()
 {
   RemoveAllControls();
+    
+  StaticStorage<APIBitmap>::Accessor bitmapStorage(s_bitmapCache);
+  bitmapStorage.Release();
+  StaticStorage<SVGHolder>::Accessor svgStorage(s_SVGCache);
+  svgStorage.Release();
 }
 
 void IGraphics::SetScreenScale(int scale)
@@ -1129,7 +1139,8 @@ void IGraphics::EnableLiveEdit(bool enable/*, const char* file, int gridsize*/)
 
 ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 {
-  SVGHolder* pHolder = s_SVGCache.Find(fileName);
+  StaticStorage<SVGHolder>::Accessor storage(s_SVGCache);
+  SVGHolder* pHolder = storage.Find(fileName);
 
   if(!pHolder)
   {
@@ -1168,7 +1179,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 
     pHolder = new SVGHolder(pImage);
     
-    s_SVGCache.Add(pHolder, path.Get());
+    storage.Add(pHolder, path.Get());
   }
 
   return ISVG(pHolder->mImage);
@@ -1179,7 +1190,8 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
   if (targetScale == 0)
     targetScale = GetScreenScale();
 
-  APIBitmap* pAPIBitmap = s_bitmapCache.Find(name, targetScale);
+  StaticStorage<APIBitmap>::Accessor storage(s_bitmapCache);
+  APIBitmap* pAPIBitmap = storage.Find(name, targetScale);
 
   // If the bitmap is not already cached at the targetScale
   if (!pAPIBitmap)
@@ -1208,7 +1220,7 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
     {
       // Try again in cache for mismatched bitmaps, but load from disk if needed
       if (sourceScale != targetScale)
-        pAPIBitmap = s_bitmapCache.Find(name, sourceScale);
+        pAPIBitmap = storage.Find(name, sourceScale);
 
       if (!pAPIBitmap)
       {
@@ -1242,12 +1254,14 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
 
 void IGraphics::ReleaseBitmap(const IBitmap& bitmap)
 {
-  s_bitmapCache.Remove(bitmap.GetAPIBitmap());
+  StaticStorage<APIBitmap>::Accessor storage(s_bitmapCache);
+  storage.Remove(bitmap.GetAPIBitmap());
 }
 
 void IGraphics::RetainBitmap(const IBitmap& bitmap, const char* cacheName)
 {
-  s_bitmapCache.Add(bitmap.GetAPIBitmap(), cacheName, bitmap.GetScale());
+  StaticStorage<APIBitmap>::Accessor storage(s_bitmapCache);
+  storage.Add(bitmap.GetAPIBitmap(), cacheName, bitmap.GetScale());
 }
 
 IBitmap IGraphics::ScaleBitmap(const IBitmap& inBitmap, const char* name, int scale)
@@ -1295,10 +1309,12 @@ EResourceLocation IGraphics::SearchImageResource(const char* name, const char* t
 
 APIBitmap* IGraphics::SearchBitmapInCache(const char* name, int targetScale, int& sourceScale)
 {
+  StaticStorage<APIBitmap>::Accessor storage(s_bitmapCache);
+    
   // Search target scale, then descending
   for (sourceScale = targetScale; sourceScale > 0; SearchNextScale(sourceScale, targetScale))
   {
-    APIBitmap* pBitmap = s_bitmapCache.Find(name, sourceScale);
+    APIBitmap* pBitmap = storage.Find(name, sourceScale);
 
     if (pBitmap)
       return pBitmap;
