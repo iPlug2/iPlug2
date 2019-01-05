@@ -621,10 +621,10 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
   }
 
   float weight = 0.0;
-  bool kerning = false;
-  bool hinting = false;
+  const bool kerning = false;
+  const bool hinting = false;
 
-  mFontContour.width(-weight * (text.mSize * 0.05) * GetBackingPixelScale());
+  mFontContour.width(-weight * (text.mSize * 0.05));
 
   agg::font* pFontData = FindFont(text.mFont, text.mSize);
 
@@ -686,7 +686,6 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
           }
 
           mFontManager.init_embedded_adaptors(pGlyph, x, y);
-
           agg::rgba8 color(AGGColor(text.mFGColor, BlendWeight(pBlend)));
             
           if (fabs(weight) <= 0.01)
