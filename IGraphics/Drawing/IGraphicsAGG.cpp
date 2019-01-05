@@ -198,6 +198,8 @@ IGraphicsAGG::IGraphicsAGG(IGEditorDelegate& dlg, int w, int h, int fps, float s
 , mFontManager(mFontEngine)
 , mFontCurves(mFontManager.path_adaptor())
 , mFontContour(mFontCurves)
+, mFontCurvesTransformed(mFontCurves, mTransform)
+, mFontContourTransformed(mFontContour, mTransform)
 {
   DBGMSG("IGraphics AGG @ %i FPS\n", fps);
     
@@ -597,7 +599,7 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IREC
       pLine->mEndChar = linePos;
       pLine->mWidth = xCount;
     }
-    
+    /*
     if (bounds.W() > 0 && xCount >= bounds.W())
     {
       cstr = &str[pLine->mEndChar];
@@ -607,42 +609,20 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IREC
       info.mWidth = xCount = 0.0;
     
       pLine = pLines->Add(info);
-    }
+    }*/
   }
 }
 
-bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& dest, const IBlend* pBlend, bool measure)
+bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
   if (!str || str[0] == '\0')
   {
     return true;
   }
 
-  IRECT bounds = mClipRECT.Empty() ? dest : mClipRECT.Intersect(dest);
-  bounds.Translate(XTranslate(), YTranslate());
-  bounds.Scale(GetBackingPixelScale());
-
-  RendererSolid renSolid(mRasterizer.GetBase());
-  RendererBin renBin(mRasterizer.GetBase());
-
-  agg::glyph_rendering gren = agg::glyph_ren_agg_gray8;
-  //agg::glyph_rendering gren = agg::glyph_ren_outline;
-  //agg::glyph_rendering gren = agg::glyph_ren_agg_mono;
-  //agg::glyph_rendering gren = agg::glyph_ren_native_gray8;
-  //agg::glyph_rendering gren = agg::glyph_ren_native_mono;
-    
   float weight = 0.0;
   bool kerning = false;
   bool hinting = false;
-
-  if (gren == agg::glyph_ren_agg_mono)
-  {
-    mFontEngine.gamma(agg::gamma_threshold(0.5));
-  }
-  else
-  {
-    mFontEngine.gamma(agg::gamma_power(1.0));
-  }
 
   mFontContour.width(-weight * (text.mSize * 0.05) * GetBackingPixelScale());
 
@@ -653,11 +633,11 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
     
   assert(pFontData);
     
-  if (pFontData != 0 && mFontEngine.load_font("", 0, gren, pFontData->buf(), pFontData->size()))
+  if (pFontData != 0 && mFontEngine.load_font("", 0, agg::glyph_ren_outline, pFontData->buf(), pFontData->size()))
   {
     mFontEngine.hinting(hinting);
-    mFontEngine.height(text.mSize * GetBackingPixelScale());
-    mFontEngine.width(text.mSize * GetBackingPixelScale());
+    mFontEngine.height(text.mSize);
+    mFontEngine.width(text.mSize);
     mFontEngine.flip_y(true);
 
     WDL_TypedBuf<LineInfo> lines;
@@ -665,14 +645,14 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
     LineInfo * pLines = lines.Get();
       
     double x = bounds.L;
-    double y = bounds.T + (text.mSize * GetBackingPixelScale());
+    double y = bounds.T + (text.mSize);
       
     switch (text.mVAlign)
     {
       case IText::kVAlignTop:
         break;
       case IText::kVAlignMiddle:
-        y += ((bounds.H() - (lines.GetSize() * text.mSize * GetBackingPixelScale())) / 2.0);
+        y += ((bounds.H() - (lines.GetSize() * text.mSize)) / 2.0);
         break;
       case IText::kVAlignBottom:
         y = bounds.B;
@@ -707,51 +687,22 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
 
           mFontManager.init_embedded_adaptors(pGlyph, x, y);
 
-          switch (pGlyph->data_type)
-          {
-            case agg::glyph_data_mono:
-
-              renBin.color(AGGColor(text.mFGColor, BlendWeight(pBlend)));
-              mRasterizer.Rasterize(mFontManager.mono_adaptor(), renBin, mFontManager.mono_scanline(), AGGBlendMode(pBlend));
-              break;
-
-            case agg::glyph_data_gray8:
-
-              renSolid.color(AGGColor(text.mFGColor, BlendWeight(pBlend)));
-              mRasterizer.Rasterize(mFontManager.gray8_adaptor(), renSolid, mFontManager.gray8_scanline(), AGGBlendMode(pBlend));
-              break;
-
-            case agg::glyph_data_outline:
-            {
-              agg::scanline_u8 sl;
-              agg::rasterizer_scanline_aa<> ras;
+          agg::rgba8 color(AGGColor(text.mFGColor, BlendWeight(pBlend)));
             
-              ras.gamma(agg::gamma_power(1.0));
-              ras.reset();
-
-              if (fabs(weight) <= 0.01)
-              {
-                //for the sake of efficiency skip the contour converter if the weight is about zero.
-                ras.add_path(mFontCurves);
-              }
-              else
-              {
-                ras.add_path(mFontContour);
-              }
-
-              renSolid.color(AGGColor(text.mFGColor, BlendWeight(pBlend)));
-              mRasterizer.Rasterize(ras, renSolid, sl, AGGBlendMode(pBlend));
-              break;
-            }
-        
-            default: break;
+          if (fabs(weight) <= 0.01)
+          {
+            //for the sake of efficiency skip the contour converter if the weight is about zero.
+            mRasterizer.Rasterize(mFontCurvesTransformed, color, AGGBlendMode(pBlend));
           }
-
-          x += pGlyph->advance_x;
-          y += pGlyph->advance_y;
+          else
+          {
+            mRasterizer.Rasterize(mFontContourTransformed, color, AGGBlendMode(pBlend));
+          }
         }
+        x += pGlyph->advance_x;
+        y += pGlyph->advance_y;
       }
-      y += text.mSize * GetBackingPixelScale();
+      y += text.mSize;
     }
   }
   return false;

@@ -85,7 +85,6 @@ public:
   typedef agg::pixfmt_custom_blend_rgba<BlenderType, agg::rendering_buffer> PixfmtType;
   typedef agg::renderer_base <PixfmtType> RenbaseType;
   typedef agg::renderer_scanline_aa_solid<RenbaseType> RendererSolid;
-  typedef agg::renderer_scanline_bin_solid<RenbaseType> RendererBin;
   typedef agg::font_engine_freetype_int32 FontEngineType;
   typedef agg::font_cache_manager <FontEngineType> FontManagerType;
   typedef agg::span_interpolator_linear<> InterpolatorType;
@@ -137,11 +136,15 @@ public:
       agg::render_scanlines(mRasterizer, scanline, renderer);
     }
     
-    template <typename RasterizerType, typename RendererType, typename ScanLineType>
-    void Rasterize(RasterizerType& rasterizer, RendererType& renderer, ScanLineType& sl, agg::comp_op_e op)
+    template <typename VertexSourceType>
+    void Rasterize(VertexSourceType& path, agg::rgba8 color, agg::comp_op_e op)
     {
+      agg::scanline_u8 scanline;
+      RendererSolid renderer(mRenBase);
+      renderer.color(color);
       mPixf.comp_op(op);
-      agg::render_scanlines(rasterizer, sl, renderer);
+      SetPath(path);
+      agg::render_scanlines(mRasterizer, scanline, renderer);
     }
       
     void BlendFrom(agg::rendering_buffer& renBuf, const IRECT& bounds, int srcX, int srcY, agg::comp_op_e op, agg::cover_type cover)
@@ -156,14 +159,13 @@ public:
     void SetPath(VertexSourceType& path)
     {
       // Clip
-      agg::conv_clip_polygon<VertexSourceType> clippedPath(path);
       IRECT clip = mGraphics.mClipRECT.Empty() ? mGraphics.GetBounds() : mGraphics.mClipRECT;
       clip.Translate(mGraphics.XTranslate(), mGraphics.YTranslate());
       clip.Scale(mGraphics.GetBackingPixelScale());
-      clippedPath.clip_box(clip.L, clip.T, clip.R, clip.B);
+      mRasterizer.clip_box(clip.L, clip.T, clip.R, clip.B);
       // Add path
       mRasterizer.reset();
-      mRasterizer.add_path(clippedPath);
+      mRasterizer.add_path(path);
     }
 
     void RasterizePattern(const IPattern& pattern, agg::comp_op_e mode, float opacity, EFillRule rule = kFillWinding);
@@ -246,5 +248,7 @@ private:
     
   //pipeline to process the vectors glyph paths(curves + contour)
   agg::conv_curve<FontManagerType::path_adaptor_type> mFontCurves;
-  agg::conv_contour<agg::conv_curve<FontManagerType::path_adaptor_type> > mFontContour;
+  agg::conv_contour<agg::conv_curve<FontManagerType::path_adaptor_type>> mFontContour;
+  agg::conv_transform<agg::conv_curve<FontManagerType::path_adaptor_type>> mFontCurvesTransformed;
+  agg::conv_transform<agg::conv_contour<agg::conv_curve<FontManagerType::path_adaptor_type>>> mFontContourTransformed;
 };
