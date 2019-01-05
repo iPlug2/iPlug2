@@ -233,6 +233,9 @@ void IGraphicsLice::FillRoundRect(const IColor& color, const IRECT& bounds, floa
   float w = r.W();
   
   cr *= GetScreenScale();
+  cr = std::abs(cr);
+  cr = std::min(cr, r.W() / 2.f);
+  cr = std::min(cr, r.H() / 2.f);
   
   int mode = LiceBlendMode(pBlend);
   float weight = BlendWeight(pBlend);
