@@ -135,6 +135,13 @@ public:
       mPixf.comp_op(op);
       agg::render_scanlines(mRasterizer, scanline, renderer);
     }
+    
+    template <typename RasterizerType, typename RendererType, typename ScanLineType>
+    void Rasterize(RasterizerType& rasterizer, RendererType& renderer, ScanLineType& sl, agg::comp_op_e op)
+    {
+      mPixf.comp_op(op);
+      agg::render_scanlines(rasterizer, sl, renderer);
+    }
       
     void BlendFrom(agg::rendering_buffer& renBuf, const IRECT& bounds, int srcX, int srcY, agg::comp_op_e op, agg::cover_type cover)
     {
