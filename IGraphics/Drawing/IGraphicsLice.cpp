@@ -25,6 +25,8 @@ IGraphicsLice::IGraphicsLice(IGEditorDelegate& dlg, int w, int h, int fps, float
 : IGraphics(dlg, w, h, fps, scale)
 {
   DBGMSG("IGraphics Lice @ %i FPS\n", fps);
+  StaticStorage<LICE_IFont>::Accessor storage(s_fontCache);
+  storage.Retain();
 }
 
 IGraphicsLice::~IGraphicsLice() 
@@ -39,6 +41,9 @@ IGraphicsLice::~IGraphicsLice()
   
   DELETE_NULL(mDrawBitmap);
   DELETE_NULL(mTmpBitmap);
+    
+  StaticStorage<LICE_IFont>::Accessor storage(s_fontCache);
+  storage.Release();
 }
 
 void IGraphicsLice::DrawResize()
@@ -402,10 +407,11 @@ void IGraphicsLice::UpdateLayer()
 
 LICE_IFont* IGraphicsLice::CacheFont(const IText& text, double scale)
 {
+  StaticStorage<LICE_IFont>::Accessor storage(s_fontCache);
   WDL_String hashStr(text.mFont);
   hashStr.AppendFormatted(50, "-%d-%d-%d", text.mSize, text.mOrientation, text.mStyle);
     
-  LICE_CachedFont* font = (LICE_CachedFont*)s_fontCache.Find(hashStr.Get(), scale);
+  LICE_CachedFont* font = (LICE_CachedFont*) storage.Find(hashStr.Get(), scale);
   if (!font)
   {
     font = new LICE_CachedFont;
@@ -448,7 +454,7 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text, double scale)
       goto Resize;
     }
 #endif
-    s_fontCache.Add(font, hashStr.Get(), scale);
+    storage.Add(font, hashStr.Get(), scale);
   }
   text.mCached = font;
   text.mCachedScale = scale;
