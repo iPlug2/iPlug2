@@ -218,7 +218,6 @@ void IGraphicsAGG::DrawResize()
   mPixelMap.create(WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
   UpdateLayer();
   mRasterizer.SetOutput(mRenBuf);
-  mRasterizer.ClearWhite();
     
   mTransform = agg::trans_affine_scaling(GetBackingPixelScale(), GetBackingPixelScale());
 }
@@ -227,6 +226,45 @@ void IGraphicsAGG::UpdateLayer()
 {
   agg::pixel_map* pPixelMap = mLayers.empty() ? &mPixelMap : mLayers.top()->GetAPIBitmap()->GetBitmap();
   mRenBuf.attach(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
+}
+
+bool IGraphicsAGG::LoadFont(const char* fileName)
+{
+  // does not check for existing fonts
+  agg::font* font = nullptr;
+  WDL_String fontNameWithoutExt(fileName, (int) strlen(fileName));
+  fontNameWithoutExt.remove_fileext();
+  WDL_String fullPath;
+  EResourceLocation foundResource = OSFindResource(fileName, "ttf", fullPath);
+  
+  if (foundResource != EResourceLocation::kNotFound)
+  {
+#ifdef OS_WIN
+    if (foundResource == EResourceLocation::kWinBinary)
+    {
+      int sizeInBytes = 0;
+      const void* pResData = LoadWinResource(fullPath.Get(), "ttf", sizeInBytes);
+      
+      if(pResData && sizeInBytes)
+      {
+        // Load from resource...
+      }
+    }
+    else
+#endif
+      //font = new agg::font_engine_freetype_int32;
+      //fontID = nvgCreateFont(mVG, fontNameWithoutExt.Get(), fullPath.Get());
+    
+    if (!font)
+    {
+      DBGMSG("Could not locate font %s\n", fileName);
+      return false;
+    }
+    else
+      return true;
+  }
+  
+  return false;
 }
 
 agg::font* IGraphicsAGG::FindFont(const char* font, int size)

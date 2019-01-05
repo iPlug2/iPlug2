@@ -105,13 +105,11 @@ public:
 
     agg::rgba8 GetPixel(int x, int y) { return mRenBase.pixel(x, y); }
 
-    void ClearWhite() { mRenBase.clear(agg::rgba(1, 1, 1)); }
-
     void SetOutput(agg::rendering_buffer& renBuf)
     {
       mPixf = PixfmtType(renBuf);
       mRenBase = RenbaseType(mPixf);
-      mRenBase.clear(agg::rgba(0, 0, 0, 0));
+      mRenBase.clear(agg::rgba(1, 1, 1));
     }
 
     template <typename VertexSourceType>
@@ -204,6 +202,8 @@ public:
   void EndFrame() override;
   
   bool BitmapExtSupported(const char* ext) override;
+
+  bool LoadFont(const char* fileName) override;
 
 protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
