@@ -56,7 +56,10 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->LoadFont(MONTSERRAT_FN);
     ISVG tiger = pGraphics->LoadSVG(TIGER_FN);
     IBitmap smiley = pGraphics->LoadBitmap(SMILEY_FN);
-    
+    IBitmap base = pGraphics->LoadBitmap(BASE_FN);
+    IBitmap mask = pGraphics->LoadBitmap(MASK_FN);
+    IBitmap top = pGraphics->LoadBitmap(TOP_FN);
+
     IRECT bounds = pGraphics->GetBounds();
     
     int cellIdx = 0;
@@ -133,6 +136,9 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     path.Append("/resources/img/");
 #endif
     pGraphics->AttachControl(new TestDirBrowseControl(*this, nextCell(), "png", path.Get()));
+
+    IRECT r = nextCell();
+    pGraphics->AttachControl(new TestRotatingMaskControl(*this, r.L, r.T, base, mask, top));
 
 #if 0
     pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Hello World!", {24, COLOR_WHITE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop, 90}));
