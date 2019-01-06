@@ -509,8 +509,6 @@ public:
 
   virtual void PathClipRegion(const IRECT r = IRECT()) {}
   
-  virtual void DrawBoxShadow(const IRECT& bounds, float cr = 0.f, float ydrop = 2.f, float pad = 10.f, const IBlend* pBlend = 0) {};
-
 private:
     
   /** This is used to prepare a particular area of the display for drawing, normally resulting in clipping of the region.

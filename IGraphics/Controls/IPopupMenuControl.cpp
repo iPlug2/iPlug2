@@ -16,6 +16,10 @@
 
 #include "IPopupMenuControl.h"
 
+#ifdef IGRAPHICS_NANOVG
+#include "nanovg.h"
+#endif
+
 IPopupMenuControl::IPopupMenuControl(IGEditorDelegate& dlg, int paramIdx, IText text, IRECT collapsedBounds, IRECT expandedBounds)
 : IControl(dlg, collapsedBounds, paramIdx)
 , mSpecifiedCollapsedBounds(collapsedBounds)
@@ -82,8 +86,8 @@ void IPopupMenuControl::Draw(IGraphics& g)
     
     if(pMenuPanel->mShouldDraw)
     {
-      DrawPanelBackground(g, pMenuPanel->mTargetRECT, &pMenuPanel->mBlend); // mTargetRECT = inner area
       DrawPanelShadow(g, pMenuPanel->mRECT, &pMenuPanel->mBlend);
+      DrawPanelBackground(g, pMenuPanel->mTargetRECT, &pMenuPanel->mBlend); // mTargetRECT = inner area
       
       int nItems = pMenuPanel->mMenu.NItems();
       int nCells = pMenuPanel->mCellBounds.GetSize();
@@ -276,7 +280,37 @@ void IPopupMenuControl::DrawPanelBackground(IGraphics& g, const IRECT& bounds, I
 
 void IPopupMenuControl::DrawPanelShadow(IGraphics& g, const IRECT& bounds, IBlend* pBlend)
 {
-  g.DrawBoxShadow(bounds, mRoundness, 2., mDropShadowSize, pBlend);
+  const double yDrop = 2.0;
+  IRECT inner = bounds.GetPadded(-mDropShadowSize);
+    
+#ifdef IGRAPHICS_NANOVG
+  auto NanoVGColor = [](const IColor& color, const IBlend* pBlend = nullptr) {
+    NVGcolor c;
+    c.r = (float) color.R / 255.0f;
+    c.g = (float) color.G / 255.0f;
+    c.b = (float) color.B / 255.0f;
+    c.a = (BlendWeight(pBlend) * color.A) / 255.0f;
+    return c;
+  };
+      
+  NVGcontext* vg = (NVGcontext*) g.GetDrawContext();
+  NVGpaint shadowPaint = nvgBoxGradient(vg, inner.L, inner.T + yDrop, inner.W(), inner.H(), mRoundness * 2., 20, NanoVGColor(COLOR_BLACK_DROP_SHADOW, pBlend), NanoVGColor(COLOR_TRANSPARENT));
+  nvgBeginPath(vg);
+  nvgRect(vg, bounds.L, bounds.T, bounds.W(), bounds.H());
+  nvgFillPaint(vg, shadowPaint);
+  nvgGlobalCompositeOperation(vg, NVG_SOURCE_OVER);
+  nvgFill(vg);
+  nvgBeginPath(vg); // Clear the paths
+#else
+  if (!g.CheckLayer(mShadowLayer))
+  {
+    g.StartLayer(bounds);
+    g.FillRoundRect(COLOR_BLACK, inner, mRoundness);
+    mShadowLayer = g.EndLayer();
+    g.ApplyLayerDropShadow(mShadowLayer, IShadow(COLOR_BLACK_DROP_SHADOW, 20.0, 0.0, yDrop, 1.0, true));
+  }
+  g.DrawLayer(mShadowLayer, pBlend);
+#endif
 }
 
 void IPopupMenuControl::DrawCellBackground(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item* pItem, bool sel, IBlend* pBlend)
@@ -342,6 +376,11 @@ IPopupMenu* IPopupMenuControl::CreatePopupMenu(IPopupMenu& menu, const IRECT& bo
   if(mMaxBounds.W() == 0)
     mMaxBounds = GetUI()->GetBounds();
   
+#ifndef IGRAPHICS_NANOVG
+  if (mShadowLayer)
+    mShadowLayer->Invalidate();
+#endif
+    
   if(GetState() == kCollapsed)
     Expand(bounds);
   
@@ -578,6 +617,10 @@ void IPopupMenuControl::OnEndAnimation()
       mMenuPanels.Get(i)->mBlend.mWeight = 0.;
     }
     
+#ifndef IGRAPHICS_NANOVG
+    mShadowLayer.reset();
+#endif
+      
     mState = kIdling;
     mMouseCellBounds = nullptr;
     mOriginalBounds = IRECT();

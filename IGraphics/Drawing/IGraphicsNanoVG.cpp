@@ -753,21 +753,6 @@ bool IGraphicsNanoVG::LoadFont(const char* fileName)
   return false;
 }
 
-void IGraphicsNanoVG::DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, float pad, const IBlend* pBlend)
-{
-  IRECT inner = bounds.GetPadded(-pad);
-  NVGpaint shadowPaint = nvgBoxGradient(mVG, inner.L, inner.T + ydrop, inner.W(), inner.H(), cr * 2., 20, NanoVGColor(COLOR_BLACK_DROP_SHADOW, pBlend), NanoVGColor(COLOR_TRANSPARENT));
-  nvgBeginPath(mVG);
-  nvgRect(mVG, bounds.L, bounds.T, bounds.W(), bounds.H());
-  nvgRoundedRect(mVG, inner.L, inner.T, inner.W(), inner.H(), cr);
-  nvgPathWinding(mVG, NVG_HOLE);
-  nvgFillPaint(mVG, shadowPaint);
-  NanoVGSetBlendMode(mVG, pBlend);
-  nvgFill(mVG);
-  nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
-  nvgBeginPath(mVG); // Clear the paths
-}
-
 void IGraphicsNanoVG::UpdateLayer()
 {
   if (mLayers.empty())

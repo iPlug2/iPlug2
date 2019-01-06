@@ -140,7 +140,6 @@ public:
 
   bool LoadFont(const char* fileName) override;
   
-  void DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, float pad, const IBlend* pBlend) override;
   void SetPlatformContext(void* pContext) override;
 
 protected:

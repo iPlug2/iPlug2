@@ -180,6 +180,10 @@ private:
   bool mIsContextMenu = false;
   IPopupMenu* mMenu = nullptr; // Pointer to the main IPopupMenu, that this control is visualising. This control does not own the menu.
 
+#ifndef IGRAPHICS_NANOVG
+    ILayerPtr mShadowLayer;
+#endif
+    
   int mMaxColumnItems = 0; // How long the list can get before adding a new column - 0 equals no limit
   bool mScrollIfTooBig = true; // If the menu is higher than the graphics context, should it scroll or should it start a new column
   bool mCallOut = false; // set true if popup should be outside of bounds (i.e. on a tablet touchscreen interface)
