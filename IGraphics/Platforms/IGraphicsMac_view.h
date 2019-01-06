@@ -87,6 +87,7 @@ NSString* ToNSString(const char* cStr);
 {
   NSTimer* mTimer;
   NSTextField* mTextFieldView;
+  NSCursor* mMoveCursor;
 //  WKWebView* mWebView;
   IControl* mEdControl; // the control linked to the open text edit
   float mPrevX, mPrevY;
