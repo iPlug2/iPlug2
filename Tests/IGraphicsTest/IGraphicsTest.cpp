@@ -123,6 +123,17 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new TestCursorControl(*this, nextCell()));
     pGraphics->AttachControl(new TestKeyboardControl(*this, nextCell()));
 
+    WDL_String path;
+    //    DesktopPath(path);
+    path.Set(__FILE__);
+    path.remove_filepart();
+#ifdef OS_WIN
+    path.Append("\\resources\\img\\");
+#else
+    path.Append("/resources/img/");
+#endif
+    pGraphics->AttachControl(new TestDirBrowseControl(*this, nextCell(), "png", path.Get()));
+
 #if 0
     pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Hello World!", {24, COLOR_WHITE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop, 90}));
     pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Two!", {18, COLOR_GREEN, "Montserrat-LightItalic", IText::kStyleItalic, IText::kAlignCenter, IText::kVAlignMiddle, 45}));
