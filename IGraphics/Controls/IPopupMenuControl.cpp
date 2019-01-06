@@ -396,7 +396,7 @@ IRECT IPopupMenuControl::GetLargestCellRectForMenu(IPopupMenu& menu, float x, fl
     IPopupMenu::Item* pItem = menu.GetItem(i);
     IRECT textBounds;
     
-    IGraphics* pGraphics =  const_cast<IPopupMenuControl*>(this)->GetUI();
+    IGraphics* pGraphics = const_cast<IPopupMenuControl*>(this)->GetUI();
     
     pGraphics->MeasureText(mText, pItem->GetText(), textBounds);
     span = span.Union(textBounds);

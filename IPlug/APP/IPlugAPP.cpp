@@ -94,7 +94,7 @@ bool IPlugAPP::SendSysEx(const ISysEx& msg)
 
 void IPlugAPP::SendSysexMsgFromUI(const ISysEx& msg)
 {
-  SendSysEx(const_cast<ISysEx&>(msg));
+  SendSysEx(msg);
 }
 
 void IPlugAPP::AppProcess(double** inputs, double** outputs, int nFrames)

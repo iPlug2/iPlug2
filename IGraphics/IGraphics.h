@@ -1068,7 +1068,7 @@ private:
   void ForAllControlsFunc(std::function<void(IControl& control)> func);
     
   template<typename T, typename... Args>
-  void ForAllControls(T op, Args... args);
+  void ForAllControls(T method, Args... args);
   
   WDL_PtrList<IControl> mControls;
 

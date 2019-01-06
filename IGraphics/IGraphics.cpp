@@ -442,7 +442,8 @@ void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds)
 
 bool IGraphics::DrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
 {
-  return DoDrawMeasureText(text, str, const_cast<IRECT&>(bounds), pBlend, false);
+  IRECT r(bounds);
+  return DoDrawMeasureText(text, str, r, pBlend, false);
 }
 
 bool IGraphics::MeasureText(const IText& text, const char* str, IRECT& bounds)
