@@ -46,7 +46,7 @@ public:
   {
     mWidthStr.SetFormatted(32, "%i px", (int) mRECT.W());
     mHeightStr.SetFormatted(32, "%i px", (int) mRECT.H());
-    mScaleStr.SetFormatted(64, "Window width %i, height %i, scale %0.2f", GetUI()->WindowWidth(), GetUI()->WindowHeight(),  GetUI()->GetDrawScale());
+    mScaleStr.SetFormatted(64, "width %i, height %i, scale %0.2f", GetUI()->WindowWidth(), GetUI()->WindowHeight(),  GetUI()->GetDrawScale());
   }
 
 private:
