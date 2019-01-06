@@ -390,9 +390,9 @@ bool IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT&
   LICE_pixel color;
   
   if (GetTextEntryControl() && GetTextEntryControl()->GetRECT() == bounds)
-    color = LiceColor(text.mTextEntryFGColor);
+    color = LiceColor(text.mTextEntryFGColor, pBlend);
   else
-    color = LiceColor(text.mFGColor);
+    color = LiceColor(text.mFGColor, pBlend);
   
   font->SetTextColor(color);
   
