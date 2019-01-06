@@ -160,14 +160,12 @@ void IGraphicsLice::DrawTriangle(const IColor& color, float x1, float y1, float 
   DrawLine(color, x3, y3, x1, y1, pBlend, 1.0);
 }
 
-void IGraphicsLice::DrawRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float)
+void IGraphicsLice::DrawRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness)
 {
-  IRECT r = TransformRECT(bounds);
-    
-  LICE_FLine(mRenderBitmap, r.L, r.T, r.R, r.T, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
-  LICE_FLine(mRenderBitmap, r.R, r.T, r.R, r.B, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
-  LICE_FLine(mRenderBitmap, r.L, r.B, r.R, r.B, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
-  LICE_FLine(mRenderBitmap, r.L, r.T, r.L, r.B, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
+  DrawLine(color, bounds.L, bounds.T, bounds.R, bounds.T, pBlend, thickness);
+  DrawLine(color, bounds.L, bounds.B, bounds.R, bounds.B, pBlend, thickness);
+  DrawLine(color, bounds.L, bounds.T, bounds.L, bounds.B, pBlend, thickness);
+  DrawLine(color, bounds.R, bounds.T, bounds.R, bounds.B, pBlend, thickness);
 }
 
 void IGraphicsLice::DrawRoundRect(const IColor& color, const IRECT& bounds, float cr, const IBlend* pBlend, float)
@@ -198,14 +196,10 @@ void IGraphicsLice::DrawCircle(const IColor& color, float cx, float cy, float r,
 
 void IGraphicsLice::DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness, float dashLen)
 {
-  //TODO: review floating point input support
-  IRECT r = TransformRECT(bounds);
-  const int dash = dashLen * GetScreenScale();
-  
-  LICE_DashedLine(mRenderBitmap, r.L, r.T, r.R, r.T, dash, dash, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
-  LICE_DashedLine(mRenderBitmap, r.L, r.B, r.R, r.B, dash, dash, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
-  LICE_DashedLine(mRenderBitmap, r.L, r.T, r.L, r.B, dash, dash, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
-  LICE_DashedLine(mRenderBitmap, r.R, r.T, r.R, r.B, dash, dash, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
+  DrawDottedLine(color, bounds.L, bounds.T, bounds.R, bounds.T, pBlend, thickness, dashLen);
+  DrawDottedLine(color, bounds.L, bounds.B, bounds.R, bounds.B, pBlend, thickness, dashLen);
+  DrawDottedLine(color, bounds.L, bounds.T, bounds.L, bounds.B, pBlend, thickness, dashLen);
+  DrawDottedLine(color, bounds.R, bounds.T, bounds.R, bounds.B, pBlend, thickness, dashLen);
 }
 
 void IGraphicsLice::FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
