@@ -661,11 +661,11 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
     
     PrepareRegion(clipBounds);
     pControl->Draw(*this);
-    
 #ifdef AAX_API
     pControl->DrawPTHighlight(*this);
 #endif
-    
+    CompleteRegion(clipBounds);
+
 #ifndef NDEBUG
     // helper for debugging
     if (mShowControlBounds)
@@ -689,6 +689,7 @@ void IGraphics::Draw(const IRECT& bounds, float scale)
     static IColor c;
     c.Randomise(50);
     FillRect(c, bounds);
+    CompleteRegion(bounds);
   }
 #endif
 }

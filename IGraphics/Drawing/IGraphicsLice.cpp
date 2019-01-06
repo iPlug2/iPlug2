@@ -52,8 +52,6 @@ void IGraphicsLice::DrawResize()
     mDrawBitmap = new LICE_SysBitmap(Width() * GetScreenScale(), Height() * GetScreenScale());
   else
     mDrawBitmap->resize(Width() * GetScreenScale(), Height() * GetScreenScale());
-  
-  mRenderBitmap = mDrawBitmap;
 }
 
 void IGraphicsLice::DrawSVG(ISVG& svg, const IRECT& bounds, const IBlend* pBlend)
@@ -200,7 +198,7 @@ void IGraphicsLice::DrawConvexPolygon(const IColor& color, float* x, float* y, i
     OpacityLayer(&IGraphicsLice::DrawConvexPolygon, pBlend, color, x, y, npoints, nullptr, thickness);
     return;
   }
-    
+
   for (int i = 0; i < npoints - 1; i++)
     DrawLine(color, x[i], y[i], x[i+1], y[i+1], pBlend, 1.0);
   
@@ -228,7 +226,7 @@ void IGraphicsLice::DrawDottedRect(const IColor& color, const IRECT& bounds, con
     OpacityLayer(&IGraphicsLice::DrawDottedRect, pBlend, color, bounds, nullptr, thickness, dashLen);
     return;
   }
-    
+  
   DrawDottedLine(color, bounds.L, bounds.T, bounds.R, bounds.T, pBlend, thickness, dashLen);
   DrawDottedLine(color, bounds.L, bounds.B, bounds.R, bounds.B, pBlend, thickness, dashLen);
   DrawDottedLine(color, bounds.L, bounds.T, bounds.L, bounds.B, pBlend, thickness, dashLen);
@@ -263,7 +261,7 @@ void IGraphicsLice::FillRoundRect(const IColor& color, const IRECT& bounds, floa
   }
 
   IRECT r = TransformRECT(bounds);
-  
+
   float x1 = r.L;
   float y1 = r.T;
   float h = r.H();
@@ -471,19 +469,41 @@ void IGraphicsLice::OpacityLayer(T method, const IBlend* pBlend, const IColor& c
   IBlend blend = pBlend ? *pBlend : IBlend();
   blend.mWeight *= (color.A / 255.0);
   drawColor.A = 255;
-  StartLayer(mDrawRECT);
+  IRECT layerBounds = mLayers.empty() ? mClippingLayer->Bounds() : mLayers.top()->Bounds();
+  StartLayer(layerBounds);
   (this->*method)(drawColor, args...);
   ILayerPtr layer = EndLayer();
   DrawLayer(layer, &blend);
 }
 
+void IGraphicsLice::PrepareRegion(const IRECT& r)
+{
+  IRECT alignedBounds = r.GetPixelAligned(GetBackingPixelScale());
+  const int w = static_cast<int>(std::round(alignedBounds.W()));
+  const int h = static_cast<int>(std::round(alignedBounds.H()));
+    
+  mClippingLayer.reset(new ILayer(CreateAPIBitmap(w, h), alignedBounds));
+  UpdateLayer();
+}
+
+void IGraphicsLice::CompleteRegion(const IRECT& r)
+{
+  LICE_IBitmap* bitmap = mClippingLayer->GetAPIBitmap()->GetBitmap();
+  int x = mDrawOffsetX * GetScreenScale();
+  int y = mDrawOffsetY * GetScreenScale();
+  LICE_Blit(mDrawBitmap, bitmap, x, y, 0, 0, bitmap->getWidth(), bitmap->getHeight(), 1.f, LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA);
+  mClippingLayer.reset();
+  mRenderBitmap = nullptr;
+}
+
 void IGraphicsLice::UpdateLayer()
 {
-  IRECT r = mLayers.empty() ? IRECT() : mLayers.top()->Bounds();
-  mRenderBitmap = mLayers.empty() ? mDrawBitmap : mLayers.top()->GetAPIBitmap()->GetBitmap();
-  mDrawRECT = mLayers.empty() ? mClipRECT : IRECT(0, 0, r.W(), r.H());
-  mDrawOffsetX = mLayers.empty() ? 0 : r.L;
-  mDrawOffsetY = mLayers.empty() ? 0 : r.T;
+  ILayer* currentLayer = mLayers.empty() ? mClippingLayer.get() : mLayers.top();
+  IRECT r = currentLayer->Bounds();
+  mRenderBitmap = currentLayer->GetAPIBitmap()->GetBitmap();
+  mDrawRECT = IRECT(0, 0, r.W(), r.H());
+  mDrawOffsetX = r.L;
+  mDrawOffsetY = r.T;
 }
 
 LICE_IFont* IGraphicsLice::CacheFont(const IText& text, double scale)
@@ -729,10 +749,7 @@ void IGraphicsLice::EndFrame()
     if (!mColorSpace)
       mColorSpace = CGColorSpaceCreateDeviceRGB();
   }
-
-#ifdef IGRAPHICS_MAC_OLD_IMAGE_DRAWING
-  img = CGBitmapContextCreateImage(mDrawBitmap->getDC()->ctx); // ARGH .. access to incomplete strut
-#else
+    
   const unsigned char *p = (const unsigned char *) mDrawBitmap->getBits();
 
   int sw = mDrawBitmap->getRowSpan();
@@ -742,7 +759,6 @@ void IGraphicsLice::EndFrame()
   CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, p, 4 * sw * h, NULL);
   img = CGImageCreate(w, h, 8, 32, 4 * sw,(CGColorSpaceRef) mColorSpace, kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Host, provider, NULL, false, kCGRenderingIntentDefault);
   CGDataProviderRelease(provider);
-#endif
 
   if (img)
   {
