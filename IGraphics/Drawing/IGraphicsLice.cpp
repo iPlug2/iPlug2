@@ -379,7 +379,6 @@ bool IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT&
   }
   
   LICE_IFont* font = text.mCached;
-  bounds.Translate(-mDrawOffsetX, -mDrawOffsetY);
     
   if (!font || text.mCachedScale != ds)
   {
@@ -443,6 +442,7 @@ bool IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT&
   else
   {
     IRECT r = bounds;
+    r.Translate(-mDrawOffsetX, -mDrawOffsetY);
     r.Scale(ds);
     RECT R = { (LONG) r.L, (LONG) r.T, (LONG) r.R, (LONG) r.B };
 #if defined OS_MAC || defined OS_LINUX
