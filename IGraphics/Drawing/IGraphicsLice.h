@@ -130,6 +130,14 @@ protected:
 
 private:
     
+  bool OpacityCheck(const IColor& color, const IBlend* pBlend)
+  {
+    return (color.A == 255) && BlendWeight(pBlend) >= 1.f;
+  }
+    
+  template<typename T, typename... Args>
+  void OpacityLayer(T method, const IBlend* pBlend, const IColor& color, Args... args);
+    
   float TransformX(float x)
   {
     return (x - mDrawOffsetX) * GetScreenScale();

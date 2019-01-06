@@ -231,6 +231,13 @@ void IGraphicsLice::FillRoundRect(const IColor& color, const IRECT& bounds, floa
 {
   //TODO: review floating point input support
   
+  if (!OpacityCheck(color, pBlend))
+  {
+    void (IGraphicsLice::*method)(const IColor&, const IRECT&, float, const IBlend*) = &IGraphicsLice::FillRoundRect;
+    OpacityLayer(method, pBlend, color, bounds, cr, nullptr);
+    return;
+  }
+
   IRECT r = TransformRECT(bounds);
   
   float x1 = r.L;
@@ -252,9 +259,9 @@ void IGraphicsLice::FillRoundRect(const IColor& color, const IRECT& bounds, floa
   LICE_FillRect(mRenderBitmap, x1+w-cr, y1+cr, cr, h-2*cr, lcolor, weight, mode);
   
   LICE_FillCircle(mRenderBitmap, x1+cr, y1+cr, cr, lcolor, weight, mode, true);
-  LICE_FillCircle(mRenderBitmap, x1+w-cr-1, y1+h-cr-1, cr, lcolor, weight, mode, true);
-  LICE_FillCircle(mRenderBitmap, x1+w-cr-1, y1+cr, cr, lcolor, weight, mode, true);
-  LICE_FillCircle(mRenderBitmap, x1+cr, y1+h-cr-1, cr, lcolor, weight, mode, true);
+  LICE_FillCircle(mRenderBitmap, x1+w-cr, y1+h-cr, cr, lcolor, weight, mode, true);
+  LICE_FillCircle(mRenderBitmap, x1+w-cr, y1+cr, cr, lcolor, weight, mode, true);
+  LICE_FillCircle(mRenderBitmap, x1+cr, y1+h-cr, cr, lcolor, weight, mode, true);
 }
 
 void IGraphicsLice::FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend)
@@ -293,9 +300,6 @@ void IGraphicsLice::FillCircle(const IColor& color, float cx, float cy, float r,
 
 void IGraphicsLice::FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend)
 {
-  float xarray[361];
-  float yarray[361];
-  
   if (aMax < aMin)
     std::swap(aMin, aMax);
   
@@ -305,16 +309,25 @@ void IGraphicsLice::FillArc(const IColor& color, float cx, float cy, float r, fl
     return;
   }
   
+  float xarray[181];
+  float yarray[181];
+  
   if (aMax > aMin + 180.f)
   {
-    FillArc(color, cx, cy, r, aMin + 180.f, aMax, pBlend);
+    if (!OpacityCheck(color, pBlend))
+    {
+      OpacityLayer(&IGraphicsLice::FillArc, pBlend, color, cx, cy, r, aMin, aMax, nullptr);
+      return;
+    }
+    
+    FillArc(color, cx, cy, r, aMin + 178.f, aMax, pBlend);
     aMax = aMin + 180.f;
   }
   
   aMin = DegToRad(aMin-90.f);
   aMax = DegToRad(aMax-90.f);
 
-  int arcpoints = 360.0 * std::min(1., aMax - aMin / 2.f * PI);
+  int arcpoints = 180.0 * std::min(1., (aMax - aMin) / PI);
   double arcincrement = (aMax - aMin) / arcpoints;
   for(int i = 0; i < arcpoints; i++)
   {
@@ -420,6 +433,24 @@ bool IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT&
   }
   
   return true;
+}
+
+bool OpacityCheck(const IBlend* pBlend)
+{
+  return BlendWeight(pBlend) >= 1.f;
+}
+
+template<typename T, typename... Args>
+void IGraphicsLice::OpacityLayer(T method, const IBlend* pBlend, const IColor& color, Args... args)
+{
+  IColor drawColor(color);
+  IBlend blend = pBlend ? *pBlend : IBlend();
+  blend.mWeight *= (color.A / 255.0);
+  drawColor.A = 255;
+  StartLayer(mDrawRECT);
+  (this->*method)(drawColor, args...);
+  ILayerPtr layer = EndLayer();
+  DrawLayer(layer, &blend);
 }
 
 void IGraphicsLice::UpdateLayer()
