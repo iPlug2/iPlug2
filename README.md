@@ -17,7 +17,7 @@ Please consider supporting the project by helping out with bug fixes, features o
 
 **NOTE: THIS IS NOT YET PRODUCTION READY - zero commercial/free plug-ins are shipping with iPlug2* - there are many bugs still to fix and a few features to add!** 
 
-* The [Web Audio Module version of VirtualCZ](https://virtualcz.io/) which has been made using iPlug 2. 
+You may like to check out the [Web Audio Module version of VirtualCZ](https://virtualcz.io/) which has been made using iPlug 2. 
 
 
 
