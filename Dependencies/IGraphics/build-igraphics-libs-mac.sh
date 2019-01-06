@@ -10,13 +10,13 @@ BIN_PATH="$INSTALL_LOCATION/bin"
 LOG_PATH="$BASE_LOCATION"
 LOG_NAME="build-mac.log"
 
-CAIRO_VERSION=cairo-1.16.0
-FREETYPE_VERSION=freetype-2.9.1
-PKGCONFIG_VERSION=pkg-config-0.28
-PIXMAN_VERSION=pixman-0.34.0
-EXPAT_VERSION=expat-2.2.5
-PNG_VERSION=libpng-1.6.34
-ZLIB_VERSION=zlib-1.2.11
+CAIRO_VERSION=1.16.0
+FREETYPE_VERSION=2.9.1
+PKGCONFIG_VERSION=0.28
+PIXMAN_VERSION=0.34.0
+EXPAT_VERSION=2.2.5
+PNG_VERSION=1.6.34
+ZLIB_VERSION=1.2.11
 
 err_report() {
     echo
@@ -130,16 +130,16 @@ then
   echo "Found pkg-config"
 else
   echo "Installing pkg-config"
-  if [ -e $PKGCONFIG_VERSION.tar.gz ]
+  if [ -e pkg-config-$PKGCONFIG_VERSION.tar.gz ]
   then
     echo "Tarball Present..."
   else
     echo "Downloading..."
-    curl -L --progress-bar -O https://pkg-config.freedesktop.org/releases/$PKGCONFIG_VERSION.tar.gz
+    curl -L --progress-bar -O https://pkg-config.freedesktop.org/releases/pkg-config-$PKGCONFIG_VERSION.tar.gz
   fi
   echo "Unpacking..."
-  tar xfz $PKGCONFIG_VERSION.tar.gz
-  cd $PKGCONFIG_VERSION
+  tar xfz pkg-config-$PKGCONFIG_VERSION.tar.gz
+  cd pkg-config-$PKGCONFIG_VERSION
   echo -n "Configuring..."
   echo "---------------------------- Configure pkg-config ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
   ./configure CFLAGS="-Os -arch x86_64" LDFLAGS="-arch x86_64" --prefix "$INSTALL_LOCATION" --with-internal-glib >> $LOG_PATH/$LOG_NAME 2>&1 &
@@ -169,16 +169,16 @@ fi
 # else
 #   echo
 #   echo "Installing expat"
-#   if [ -e $EXPAT_VERSION.tar.bz2 ]
+#   if [ -e expat-$EXPAT_VERSION.tar.bz2 ]
 #   then
 #     echo "Tarball Present..."
 #   else
 #     echo "Downloading..."
-#     curl -L --progress-bar -O https://github.com/libexpat/libexpat/releases/download/R_2_2_5/$EXPAT_VERSION.tar.bz2
+#     curl -L --progress-bar -O https://github.com/libexpat/libexpat/releases/download/R_2_2_5/expat-$EXPAT_VERSION.tar.bz2
 #   fi
 #   echo "Unpacking..."
-#   tar -jxf "$EXPAT_VERSION.tar.bz2"
-#   cd $EXPAT_VERSION
+#   tar -jxf "expat-$EXPAT_VERSION.tar.bz2"
+#   cd expat-$EXPAT_VERSION
 #   echo -n "Configuring..."
 #   echo "---------------------------- Configure expat ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
 #   ./configure --disable-shared --enable-static --prefix "$INSTALL_LOCATION" >> $LOG_PATH/$LOG_NAME 2>&1 &
@@ -206,16 +206,16 @@ else
   COPTZL="-Wno-shift-negative-value"
   echo
   echo "Installing zlib"
-  if [ -e $ZLIB_VERSION.tar.gz ]
+  if [ -e zlib-$ZLIB_VERSION.tar.gz ]
   then
     echo "Tarball Present..."
   else
     echo "Downloading..."
-    curl -L --progress-bar -O https://www.zlib.net/$ZLIB_VERSION.tar.gz
+    curl -L --progress-bar -O https://www.zlib.net/zlib-$ZLIB_VERSION.tar.gz
   fi
   echo "Unpacking..."
-  tar -xf $ZLIB_VERSION.tar.gz
-  cd $ZLIB_VERSION
+  tar -xf zlib-$ZLIB_VERSION.tar.gz
+  cd zlib-$ZLIB_VERSION
   echo -n "Configuring..."
   echo "---------------------------- Configure zlib ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
   ./configure --static --archs="-arch i386 -arch x86_64" --prefix "$INSTALL_LOCATION" >> $LOG_PATH/$LOG_NAME 2>&1 &
@@ -243,16 +243,16 @@ then
 else
   echo
   echo "Installing libpng"
-  if [ -e $PNG_VERSION.tar.xz ]
+  if [ -e libpng-$PNG_VERSION.tar.xz ]
   then
     echo "Tarball Present..."
   else
     echo "Downloading..."
-    curl -L --progress-bar -O http://github.com/glennrp/libpng-releases/raw/master/$PNG_VERSION.tar.xz
+    curl -L --progress-bar -O http://github.com/glennrp/libpng-releases/raw/master/libpng-$PNG_VERSION.tar.xz
   fi
   echo "Unpacking..."
-  tar -xf $PNG_VERSION.tar.xz
-  cd $PNG_VERSION
+  tar -xf libpng-$PNG_VERSION.tar.xz
+  cd libpng-$PNG_VERSION
   echo -n "Configuring..."
   echo "---------------------------- Configure libpng ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
   ./configure --disable-dependency-tracking --enable-static --disable-shared --prefix "$INSTALL_LOCATION" >> $LOG_PATH/$LOG_NAME 2>&1 &
@@ -281,16 +281,16 @@ else
   COPTPX="-Wno-unknown-attributes -Wno-unused-command-line-argument -Wno-shift-negative-value -Wno-tautological-constant-out-of-range-compare"
   echo
   echo "Installing pixman"
-  if [ -e $PIXMAN_VERSION.tar.gz ]
+  if [ -e pixman-$PIXMAN_VERSION.tar.gz ]
   then
     echo "Tarball Present..."
   else
     echo "Downloading..."
-    curl -L --progress-bar -O https://cairographics.org/releases/$PIXMAN_VERSION.tar.gz
+    curl -L --progress-bar -O https://cairographics.org/releases/pixman-$PIXMAN_VERSION.tar.gz
   fi
   echo "Unpacking..."
-  tar -xf $PIXMAN_VERSION.tar.gz
-  cd $PIXMAN_VERSION
+  tar -xf pixman-$PIXMAN_VERSION.tar.gz
+  cd pixman-$PIXMAN_VERSION
   echo -n "Configuring..."
   echo "---------------------------- Configure pixman ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
   ./configure --enable-static --disable-dependency-tracking --disable-gtk --prefix "$INSTALL_LOCATION" PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" >> $LOG_PATH/$LOG_NAME 2>&1 &
@@ -322,16 +322,16 @@ then
 else
   echo
   echo "Installing freetype"
-  if [ -e $FREETYPE_VERSION.tar.gz ]
+  if [ -e freetype-$FREETYPE_VERSION.tar.gz ]
   then
     echo "Tarball Present..."
   else
     echo "Downloading..."
-    curl  --progress-bar -OL --disable-epsv https://download.savannah.gnu.org/releases/freetype/$FREETYPE_VERSION.tar.gz
+    curl  --progress-bar -OL --disable-epsv https://downloads.sourceforge.net/project/freetype/freetype2/$FREETYPE_VERSION/freetype-$FREETYPE_VERSION.tar.gz
   fi
   echo "Unpacking..."
-  tar -xf $FREETYPE_VERSION.tar.gz
-  cd $FREETYPE_VERSION
+  tar -xf freetype-$FREETYPE_VERSION.tar.gz
+  cd freetype-$FREETYPE_VERSION
   echo -n "Configuring..."
   echo "---------------------------- Configure freetype ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
   ./configure --prefix "$INSTALL_LOCATION" --disable-shared --enable-biarch-config --without-zlib --without-bzip2 PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" >> $LOG_PATH/$LOG_NAME 2>&1 &
@@ -402,16 +402,16 @@ else
   COPTCR="-Wno-logical-not-parentheses -Wno-parentheses-equality -Wno-enum-conversion -Wno-unused-command-line-argument -Wno-unused-function -Wno-unused-variable -Wno-unused-local-typedef -Wno-tautological-constant-out-of-range-compare -Wno-absolute-value -Wno-literal-conversion"
   echo
   echo "Installing cairo"
-  if [ -e $CAIRO_VERSION.tar.xz ]
+  if [ -e cairo-$CAIRO_VERSION.tar.xz ]
   then
     echo "Tarball Present..."
   else
     echo "Downloading..."
-    curl -L --progress-bar -O https://cairographics.org/releases/$CAIRO_VERSION.tar.xz
+    curl -L --progress-bar -O https://cairographics.org/releases/cairo-$CAIRO_VERSION.tar.xz
   fi
   echo "Unpacking..."
-  tar -xf $CAIRO_VERSION.tar.xz
-  cd $CAIRO_VERSION
+  tar -xf cairo-$CAIRO_VERSION.tar.xz
+  cd cairo-$CAIRO_VERSION
   echo -n "Configuring..."
   echo "---------------------------- Configure cairo ----------------------------" >> $LOG_PATH/$LOG_NAME 2>&1
   ./configure --disable-shared --enable-static --disable-dependency-tracking --disable-svg --disable-pdf --disable-ps --disable-fc --enable-quartz-image=yes --disable-interpreter --disable-trace CFLAGS="$CFLAGS $COPTCR" --prefix "$INSTALL_LOCATION" PKG_CONFIG="$BIN_PATH/pkg-config" PKG_CONFIG_LIBDIR="$LIB_PATH/pkgconfig" LDFLAGS="$LDFLAGS -framework CoreFoundation -framework CoreGraphics -framework CoreText" >> $LOG_PATH/$LOG_NAME 2>&1 &
