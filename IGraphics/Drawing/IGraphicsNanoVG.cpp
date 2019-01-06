@@ -438,9 +438,12 @@ void IGraphicsNanoVG::OnViewInitialized(void* pContext)
 
 void IGraphicsNanoVG::OnViewDestroyed()
 {
-  // need to remove all the controls to free framebuffers, before deleting context
+  // need to free framebuffers, before deleting context
   RemoveAllControls();
 
+  StaticStorage<APIBitmap>::Accessor storage(mBitmapCache);
+  storage.Clear();
+  
   if(mMainFrameBuffer != nullptr)
     nvgDeleteFramebuffer(mMainFrameBuffer);
   
