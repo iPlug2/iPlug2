@@ -4,7 +4,7 @@
 
 iPlug 2 is a simple-to-use C++ framework for developing cross platform audio plug-ins/apps and targeting multiple plug-in APIs with the same minimalistic code. It abstracts an audio plug-in (IPlug) and it's drawing engine/GUI toolkit (IGraphics). IGraphics contains a collection of common controls well suited for audio plug-in GUIs, either using bitmap or vector graphics. 
 
-The original version of iPlug was developed by [John Schwartz aka schwa](https://www.cockos.com/team.php) and released in 2008 as part of Cockos' WDL library. iPlug 2 (2018) is a substantial reworking that brings multiple vector graphics backends (including GPU accelerated options and HiDPI/scaling), support for distributed plug-in formats and compiling to WebAssembly via [emscripten](https://github.com/kripken/emscripten), amongst many other things.
+The original version of iPlug was developed by [John Schwartz aka schwa](https://www.cockos.com/team.php) and released in 2008 as part of Cockos' WDL library. iPlug 2 (2018) is a substantial reworking that brings multiple vector graphics backends (including GPU accelerated options and HiDPI/scaling), a better approach to concurrency, support for distributed plug-in formats and compiling to WebAssembly via [emscripten](https://github.com/kripken/emscripten), amongst many other things.
 
 iPlug 2 targets the VST2, VST3, AudioUnit and AAX (Native) and the [Web Audio Module](https://webaudiomodules.org) (WAM) plug-in APIs. It can also produce standalone win32/macOS apps with audio and MIDI I/O, as well as [Reaper extensions](https://www.reaper.fm/sdk/plugin/plugin.php).
 
@@ -15,7 +15,9 @@ You can discuss iPlug 2 on the [WDL forum](http://forum.cockos.com/forumdisplay.
 
 Please consider supporting the project by helping out with bug fixes, features or documentation. You can support the project financially [via patreon.](https://www.patreon.com/bePatron?u=3140614)
 
-**NOTE: THIS IS NOT YET PRODUCTION READY - zero commercial/free plug-ins are shipping with iPlug2 - there are many bugs still to fix and a few features to add!** 
+**NOTE: THIS IS NOT YET PRODUCTION READY - zero commercial/free plug-ins are shipping with iPlug 2 - there are many bugs still to fix and a few features to add!** 
+
+You may like to check out the [Web Audio Module version of VirtualCZ](https://virtualcz.io/) which has been made using iPlug 2. 
 
 
 
