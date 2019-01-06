@@ -308,6 +308,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void)dealloc
 {
+  [mMoveCursor release];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [super dealloc];
 }
@@ -554,6 +555,35 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     mGraphics->OnMouseWheel(info.x, info.y, info.ms, d);
 }
 
+static void MakeCursorFromData(NSCursor*& cursor, uint16* data, int hotspot_x, int hotspot_y)
+{
+  NSImage *img = [[NSImage alloc] init];
+  NSBitmapImageRep* bmp = [[NSBitmapImageRep alloc]
+                           initWithBitmapDataPlanes:0
+                           pixelsWide:16
+                           pixelsHigh:16
+                           bitsPerSample:8
+                           samplesPerPixel:2
+                           hasAlpha:YES
+                           isPlanar:NO
+                           colorSpaceName:NSCalibratedWhiteColorSpace
+                           bytesPerRow:(16*2)
+                           bitsPerPixel:16];
+  
+  unsigned char* p = bmp ? [bmp bitmapData] : nullptr;
+  
+  if (p && img)
+  {
+    memcpy(p, data, sizeof(uint16) * 16 * 16);
+    [img addRepresentation:bmp];
+    NSPoint hs = NSMakePoint(hotspot_x, hotspot_y);
+    cursor = [[NSCursor alloc] initWithImage:img hotSpot:hs];
+  }
+  
+  [bmp release];
+  [img release];
+}
+
 - (void) setMouseCursor: (ECursor) cursor
 {
   NSCursor* pCursor = nullptr;
@@ -597,9 +627,35 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
         pCursor = [NSCursor resizeUpDownCursor];
       break;
     case ECursor::SIZEALL:
-      if ([NSCursor respondsToSelector:@selector(_moveCursor)])
-        pCursor = [NSCursor performSelector:@selector(_moveCursor)];
+      {
+        const uint16 B = 0xFF03;
+        const uint16 W = 0xFFFF;
+        
+        static uint16 p[16 * 16] =
+        {
+          0, 0, 0, 0, 0, 0, 0, W, W, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, W, B, B, W, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, W, B, B, B, B, W, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, W, B, B, B, B, B, B, W, 0, 0, 0, 0,
+          0, 0, 0, W, W, W, W, B, B, W, W, W, W, 0, 0, 0,
+          0, 0, W, B, W, 0, W, B, B, W, 0, W, B, W, 0, 0,
+          0, W, B, B, W, W, W, B, B, W, W, W, B, B, W, 0,
+          W, B, B, B, B, B, B, B, B, B, B, B, B, B, B, W,
+          W, B, B, B, B, B, B, B, B, B, B, B, B, B, B, W,
+          0, W, B, B, W, W, W, B, B, W, W, W, B, B, W, 0,
+          0, 0, W, B, W, 0, W, B, B, W, 0, W, B, W, 0, 0,
+          0, 0, 0, W, W, W, W, B, B, W, W, W, W, 0, 0, 0,
+          0, 0, 0, 0, W, B, B, B, B, B, B, W, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, W, B, B, B, B, W, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, W, B, B, W, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, W, W, 0, 0, 0, 0, 0, 0, 0,
+        };
+        
+        if (!mMoveCursor)
+          MakeCursorFromData(mMoveCursor, p, 8, 8);
+        pCursor = mMoveCursor;
       break;
+      }
     case ECursor::INO: pCursor = [NSCursor operationNotAllowedCursor]; break;
     case ECursor::HAND: pCursor = [NSCursor openHandCursor]; break;
     case ECursor::APPSTARTING:
