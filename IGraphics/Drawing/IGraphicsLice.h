@@ -27,6 +27,12 @@
 #include "IGraphicsLice_src.h"
 #include "IGraphics.h"
 
+inline LICE_pixel LiceColor(const IColor& color, const IBlend* pBlend)
+{
+  int alpha = std::round(color.A * BlendWeight(pBlend));
+  return LICE_RGBA(color.R, color.G, color.B, alpha);
+}
+
 inline LICE_pixel LiceColor(const IColor& color)
 {
   return LICE_RGBA(color.R, color.G, color.B, color.A);
