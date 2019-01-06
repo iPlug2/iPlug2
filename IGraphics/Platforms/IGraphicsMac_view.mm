@@ -555,7 +555,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     mGraphics->OnMouseWheel(info.x, info.y, info.ms, d);
 }
 
-static NSCursor* MakeCursorFromData(uint16* data, int hotspot_x, int hotspot_y)
+static void MakeCursorFromData(NSCursor*& cursor, uint16* data, int hotspot_x, int hotspot_y)
 {
   NSImage *img = [[NSImage alloc] init];
   NSBitmapImageRep* bmp = [[NSBitmapImageRep alloc]
@@ -571,25 +571,17 @@ static NSCursor* MakeCursorFromData(uint16* data, int hotspot_x, int hotspot_y)
                            bitsPerPixel:16];
   
   unsigned char* p = bmp ? [bmp bitmapData] : nullptr;
-  NSCursor* c = nullptr;
   
   if (p && img)
   {
     memcpy(p, data, sizeof(uint16) * 16 * 16);
-    /*for (int i = 0; i < 16 * 16; ++i)
-    {
-      p[2 * i + 0] = (data[i] << 0x4) | (data[i] & 0x0F);
-      p[2 * i + 1] = (data[i] & 0xF0) | (data[i] >> 0x4);
-    }*/
-    
     [img addRepresentation:bmp];
     NSPoint hs = NSMakePoint(hotspot_x, hotspot_y);
-    c = [[NSCursor alloc] initWithImage:img hotSpot:hs];
+    cursor = [[NSCursor alloc] initWithImage:img hotSpot:hs];
   }
   
   [bmp release];
   [img release];
-  return c;
 }
 
 - (void) setMouseCursor: (ECursor) cursor
@@ -660,7 +652,7 @@ static NSCursor* MakeCursorFromData(uint16* data, int hotspot_x, int hotspot_y)
         };
         
         if (!mMoveCursor)
-          mMoveCursor = MakeCursorFromData(p, 8, 8);
+          MakeCursorFromData(mMoveCursor, p, 8, 8);
         pCursor = mMoveCursor;
       break;
       }
