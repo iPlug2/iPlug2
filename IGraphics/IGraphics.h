@@ -452,7 +452,7 @@ public:
   void ResumeLayer(ILayerPtr& layer);
   ILayerPtr EndLayer();
   bool CheckLayer(const ILayerPtr& layer);
-  void DrawLayer(const ILayerPtr& layer);
+  void DrawLayer(const ILayerPtr& layer, const IBlend* pBlend = nullptr);
   void DrawRotatedLayer(const ILayerPtr& layer, double angle);
     
   /** Applies a dropshadow directly onto a layer

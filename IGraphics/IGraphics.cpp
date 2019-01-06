@@ -1414,13 +1414,13 @@ bool IGraphics::CheckLayer(const ILayerPtr& layer)
   return pBitmap && !layer->mInvalid && pBitmap->GetDrawScale() == GetDrawScale() && pBitmap->GetScale() == GetScreenScale();
 }
 
-void IGraphics::DrawLayer(const ILayerPtr& layer)
+void IGraphics::DrawLayer(const ILayerPtr& layer, const IBlend* pBlend)
 {
   PathTransformSave();
   PathTransformReset();
   IBitmap bitmap = layer->GetBitmap();
   IRECT bounds = layer->Bounds();
-  DrawBitmap(bitmap, bounds, 0, 0);
+  DrawBitmap(bitmap, bounds, 0, 0, pBlend);
   PathTransformRestore();
 }
 
