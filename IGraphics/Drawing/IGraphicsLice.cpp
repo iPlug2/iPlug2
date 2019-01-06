@@ -157,8 +157,14 @@ void IGraphicsLice::DrawDottedLine(const IColor& color, float x1, float y1, floa
   LICE_DashedLine(mRenderBitmap, TransformX(x1), TransformY(y1), TransformX(x2), TransformY(y2), dash, dash, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
-void IGraphicsLice::DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend, float)
+void IGraphicsLice::DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend, float thickness)
 {
+  if (!OpacityCheck(color, pBlend))
+  {
+    OpacityLayer(&IGraphicsLice::DrawTriangle, pBlend, color, x1, x1, x2, y2, x3, y3, nullptr, thickness);
+    return;
+  }
+    
   DrawLine(color, x1, y1, x2, y2, pBlend, 1.0);
   DrawLine(color, x2, y2, x3, y3, pBlend, 1.0);
   DrawLine(color, x3, y3, x1, y1, pBlend, 1.0);
@@ -166,6 +172,12 @@ void IGraphicsLice::DrawTriangle(const IColor& color, float x1, float y1, float 
 
 void IGraphicsLice::DrawRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness)
 {
+  if (!OpacityCheck(color, pBlend))
+  {
+    OpacityLayer(&IGraphicsLice::DrawRect, pBlend, color, bounds, nullptr, thickness);
+    return;
+  }
+    
   DrawLine(color, bounds.L, bounds.T, bounds.R, bounds.T, pBlend, thickness);
   DrawLine(color, bounds.L, bounds.B, bounds.R, bounds.B, pBlend, thickness);
   DrawLine(color, bounds.L, bounds.T, bounds.L, bounds.B, pBlend, thickness);
@@ -181,8 +193,14 @@ void IGraphicsLice::DrawRoundRect(const IColor& color, const IRECT& bounds, floa
   LICE_RoundRect(mRenderBitmap, r.L, r.T, r.W(), r.H(), cr * GetScreenScale(), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
-void IGraphicsLice::DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend, float)
+void IGraphicsLice::DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend, float thickness)
 {
+  if (!OpacityCheck(color, pBlend))
+  {
+    OpacityLayer(&IGraphicsLice::DrawConvexPolygon, pBlend, color, x, y, npoints, nullptr, thickness);
+    return;
+  }
+    
   for (int i = 0; i < npoints - 1; i++)
     DrawLine(color, x[i], y[i], x[i+1], y[i+1], pBlend, 1.0);
   
@@ -205,6 +223,12 @@ void IGraphicsLice::DrawCircle(const IColor& color, float cx, float cy, float r,
 
 void IGraphicsLice::DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness, float dashLen)
 {
+  if (!OpacityCheck(color, pBlend))
+  {
+    OpacityLayer(&IGraphicsLice::DrawDottedRect, pBlend, color, bounds, nullptr, thickness, dashLen);
+    return;
+  }
+    
   DrawDottedLine(color, bounds.L, bounds.T, bounds.R, bounds.T, pBlend, thickness, dashLen);
   DrawDottedLine(color, bounds.L, bounds.B, bounds.R, bounds.B, pBlend, thickness, dashLen);
   DrawDottedLine(color, bounds.L, bounds.T, bounds.L, bounds.B, pBlend, thickness, dashLen);
