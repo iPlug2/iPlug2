@@ -15,7 +15,7 @@ You can discuss iPlug 2 on the [WDL forum](http://forum.cockos.com/forumdisplay.
 
 Please consider supporting the project by helping out with bug fixes, features or documentation. You can support the project financially [via patreon.](https://www.patreon.com/bePatron?u=3140614)
 
-**NOTE: THIS IS NOT YET PRODUCTION READY - zero commercial/free plug-ins are shipping with iPlug2* - there are many bugs still to fix and a few features to add!** 
+**NOTE: THIS IS NOT YET PRODUCTION READY - zero commercial/free plug-ins are shipping with iPlug 2 - there are many bugs still to fix and a few features to add!** 
 
 You may like to check out the [Web Audio Module version of VirtualCZ](https://virtualcz.io/) which has been made using iPlug 2. 
 
