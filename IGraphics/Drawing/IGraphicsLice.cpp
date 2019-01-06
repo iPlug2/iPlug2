@@ -639,8 +639,8 @@ void IGraphicsLice::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const
   {
     int x = std::round(shadow.mXOffset * GetScreenScale());
     int y = std::round(shadow.mYOffset * GetScreenScale());
-    int nRows = pBitmap->GetWidth() - std::abs(y);
-    int nCols = pBitmap->GetHeight()  - std::abs(x);
+    int nRows = pBitmap->GetHeight() - std::abs(y);
+    int nCols = pBitmap->GetWidth() - std::abs(x);
     LICE_pixel_chan* in = mask.Get() + (std::max(-x, 0) * 4) + (std::max(-y, 0) * stride);
     LICE_pixel_chan* out = ((LICE_pixel_chan*) pLayerBitmap->getBits()) + (std::max(x, 0) * 4) + (std::max(y, 0) * stride);
     
