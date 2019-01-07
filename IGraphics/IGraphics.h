@@ -1105,7 +1105,7 @@ private:
   int mMaxHeight;
   int mLastClickedParam = kNoParameter;
   bool mHandleMouseOver = false;
-  bool mStrict = true;
+  bool mStrict = false;
   bool mEnableTooltips = false;
   bool mShowControlBounds = false;
   bool mShowAreaDrawn = false;
