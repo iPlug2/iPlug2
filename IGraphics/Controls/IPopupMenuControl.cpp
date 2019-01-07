@@ -68,7 +68,7 @@ IPopupMenuControl::IPopupMenuControl(IGEditorDelegate& dlg, int paramIdx, IText 
   });
   
   mText = text;
-  mDirty = false;
+  mHide = true;
 }
 
 IPopupMenuControl::~IPopupMenuControl()
@@ -500,6 +500,7 @@ void IPopupMenuControl::CalculateMenuPanels(float x, float y)
 
 void IPopupMenuControl::Expand(const IRECT& bounds)
 {
+  Hide(false);
   mState = kExpanding;
   GetUI()->UpdateTooltips(); //will disable
   
@@ -580,6 +581,7 @@ void IPopupMenuControl::CollapseEverything()
   mActiveMenuPanel = nullptr;
 
   mState = kFlickering;
+  Hide(true);
   SetDirty(true); // triggers animation
 }
 
