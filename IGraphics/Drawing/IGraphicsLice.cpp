@@ -469,7 +469,8 @@ void IGraphicsLice::OpacityLayer(T method, const IBlend* pBlend, const IColor& c
   IBlend blend = pBlend ? *pBlend : IBlend();
   blend.mWeight *= (color.A / 255.0);
   drawColor.A = 255;
-  IRECT layerBounds = mLayers.empty() ? mClippingLayer->Bounds() : mLayers.top()->Bounds();
+  ILayer* currentLayer = mLayers.empty() ? mClippingLayer.get() : mLayers.top();
+  IRECT layerBounds = currentLayer ? currentLayer->Bounds() : GetBounds();
   StartLayer(layerBounds);
   (this->*method)(drawColor, args...);
   ILayerPtr layer = EndLayer();
@@ -478,32 +479,38 @@ void IGraphicsLice::OpacityLayer(T method, const IBlend* pBlend, const IColor& c
 
 void IGraphicsLice::PrepareRegion(const IRECT& r)
 {
-  IRECT alignedBounds = r.GetPixelAligned(GetBackingPixelScale());
-  const int w = static_cast<int>(std::round(alignedBounds.W()));
-  const int h = static_cast<int>(std::round(alignedBounds.H()));
+  if (!r.Contains(GetBounds()))
+  {
+    IRECT alignedBounds = r.GetPixelAligned(GetBackingPixelScale());
+    const int w = static_cast<int>(std::round(alignedBounds.W()));
+    const int h = static_cast<int>(std::round(alignedBounds.H()));
     
-  mClippingLayer.reset(new ILayer(CreateAPIBitmap(w, h), alignedBounds));
+    mClippingLayer.reset(new ILayer(CreateAPIBitmap(w, h), alignedBounds));
+  }
   UpdateLayer();
 }
 
 void IGraphicsLice::CompleteRegion(const IRECT& r)
 {
-  LICE_IBitmap* bitmap = mClippingLayer->GetAPIBitmap()->GetBitmap();
-  int x = mDrawOffsetX * GetScreenScale();
-  int y = mDrawOffsetY * GetScreenScale();
-  LICE_Blit(mDrawBitmap, bitmap, x, y, 0, 0, bitmap->getWidth(), bitmap->getHeight(), 1.f, LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA);
-  mClippingLayer.reset();
-  mRenderBitmap = nullptr;
+  if (mClippingLayer)
+  {
+    LICE_IBitmap* bitmap = mClippingLayer->GetAPIBitmap()->GetBitmap();
+    int x = mDrawOffsetX * GetScreenScale();
+    int y = mDrawOffsetY * GetScreenScale();
+    LICE_Blit(mDrawBitmap, bitmap, x, y, 0, 0, bitmap->getWidth(), bitmap->getHeight(), 1.f, LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA);
+    mClippingLayer.reset();
+  }
+  UpdateLayer();
 }
 
 void IGraphicsLice::UpdateLayer()
 {
   ILayer* currentLayer = mLayers.empty() ? mClippingLayer.get() : mLayers.top();
-  IRECT r = currentLayer->Bounds();
-  mRenderBitmap = currentLayer->GetAPIBitmap()->GetBitmap();
-  mDrawRECT = IRECT(0, 0, r.W(), r.H());
-  mDrawOffsetX = r.L;
-  mDrawOffsetY = r.T;
+  IRECT r = currentLayer ? currentLayer->Bounds() : IRECT();
+  mRenderBitmap = currentLayer ? currentLayer->GetAPIBitmap()->GetBitmap() : mDrawBitmap;
+  mDrawRECT = currentLayer ? IRECT(0, 0, r.W(), r.H()) : GetBounds();
+  mDrawOffsetX = currentLayer ? r.L : 0;
+  mDrawOffsetY = currentLayer ? r.T : 0;
 }
 
 LICE_IFont* IGraphicsLice::CacheFont(const IText& text, double scale)
