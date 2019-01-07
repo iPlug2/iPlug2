@@ -69,11 +69,12 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     };
     
     pGraphics->AttachPanelBackground(COLOR_GRAY);
-     
+    pGraphics->AttachControl(new TestSizeControl(*this, bounds), kCtrlTagSize);
+
     pGraphics->AttachControl(new ILambdaControl(*this, nextCell(), [](IControl* pCaller, IGraphics& g, IRECT& r, IMouseInfo&, double t) {
       
 //      static constexpr float width = 5.f;
-      static float radius = r.W();
+       const float radius = r.W();
 //      static constexpr float cornerSize = 10.f;
       
       //    g.FillRect(COLOR_WHITE, r);
@@ -109,7 +110,6 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
       
     }, 1000, false));
     
-    pGraphics->AttachControl(new TestSizeControl(*this, bounds), kCtrlTagSize);
     pGraphics->AttachControl(new TestGradientControl(*this, nextCell(), kParamDummy));
     pGraphics->AttachControl(new TestColorControl(*this, nextCell()));
     pGraphics->AttachControl(new TestPolyControl(*this, nextCell(), kParamDummy));
