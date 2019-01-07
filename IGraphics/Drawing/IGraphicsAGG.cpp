@@ -697,49 +697,62 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
         break;
     }
       
-    for (int i = 0; i < lines.GetSize(); ++i, ++pLines)
+    if (measure)
     {
-      switch (text.mAlign)
+      double width = 0.0;
+      
+      for (int i = 0; i < lines.GetSize(); ++i, ++pLines)
+        width = std::max(width, pLines->mWidth);
+      
+      bounds.B = bounds.T + lines.GetSize() * text.mSize;
+      bounds.R = bounds.L + width;
+    }
+    else
+    {
+      for (int i = 0; i < lines.GetSize(); ++i, ++pLines)
       {
-        case IText::kAlignNear:
-          x = bounds.L;
-          break;
-        case IText::kAlignCenter:
-          x = bounds.L + ((bounds.W() - pLines->mWidth) / 2.0);
-          break;
-        case IText::kAlignFar:
-          x = bounds.L + (bounds.W() - pLines->mWidth);
-          break;
-      }
-
-      for (size_t c = pLines->mStartChar; c < pLines->mEndChar; c++)
-      {
-        const agg::glyph_cache* pGlyph = mFontManager.glyph(str[c]);
-
-        if (pGlyph)
+        switch (text.mAlign)
         {
-          if (kerning)
-          {
-            mFontManager.add_kerning(&x, &y);
-          }
-
-          mFontManager.init_embedded_adaptors(pGlyph, x, y);
-          agg::rgba8 color(AGGColor(text.mFGColor, BlendWeight(pBlend)));
-            
-          if (fabs(weight) <= 0.01)
-          {
-            //for the sake of efficiency skip the contour converter if the weight is about zero.
-            mRasterizer.Rasterize(mFontCurvesTransformed, color, AGGBlendMode(pBlend));
-          }
-          else
-          {
-            mRasterizer.Rasterize(mFontContourTransformed, color, AGGBlendMode(pBlend));
-          }
+          case IText::kAlignNear:
+            x = bounds.L;
+            break;
+          case IText::kAlignCenter:
+            x = bounds.L + ((bounds.W() - pLines->mWidth) / 2.0);
+            break;
+          case IText::kAlignFar:
+            x = bounds.L + (bounds.W() - pLines->mWidth);
+            break;
         }
-        x += pGlyph->advance_x;
-        y += pGlyph->advance_y;
+        
+        for (size_t c = pLines->mStartChar; c < pLines->mEndChar; c++)
+        {
+          const agg::glyph_cache* pGlyph = mFontManager.glyph(str[c]);
+          
+          if (pGlyph)
+          {
+            if (kerning)
+            {
+              mFontManager.add_kerning(&x, &y);
+            }
+            
+            mFontManager.init_embedded_adaptors(pGlyph, x, y);
+            agg::rgba8 color(AGGColor(text.mFGColor, BlendWeight(pBlend)));
+            
+            if (fabs(weight) <= 0.01)
+            {
+              //for the sake of efficiency skip the contour converter if the weight is about zero.
+              mRasterizer.Rasterize(mFontCurvesTransformed, color, AGGBlendMode(pBlend));
+            }
+            else
+            {
+              mRasterizer.Rasterize(mFontContourTransformed, color, AGGBlendMode(pBlend));
+            }
+          }
+          x += pGlyph->advance_x;
+          y += pGlyph->advance_y;
+        }
+        y += text.mSize;
       }
-      y += text.mSize;
     }
   }
   return false;
