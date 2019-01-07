@@ -615,7 +615,9 @@ bool IGraphics::IsDirty(IRECTList& rects)
   {
     if (control.IsDirty())
     {
-      rects.Add(control.GetRECT());
+      // N.B padding outlines for single line outlines
+        
+      rects.Add(control.GetRECT().GetPadded(0.75));
       dirty = true;
     }
   };
@@ -653,7 +655,9 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
 {
   if (pControl && (!pControl->IsHidden() || pControl == GetControl(0)))
   {
-    IRECT controlBounds = pControl->GetRECT().GetPixelAligned(scale);
+    // N.B. Padding allows single line outlines on controls
+      
+    IRECT controlBounds = pControl->GetRECT().GetPadded(0.75).GetPixelAligned(scale);
     IRECT clipBounds = bounds.Intersect(controlBounds);
 
     if (clipBounds.W() <= 0.0 || clipBounds.H() <= 0)
@@ -664,7 +668,6 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
 #ifdef AAX_API
     pControl->DrawPTHighlight(*this);
 #endif
-    CompleteRegion(clipBounds);
 
 #ifndef NDEBUG
     // helper for debugging
@@ -673,6 +676,8 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
       DrawRect(CONTROL_BOUNDS_COLOR, pControl->GetRECT());
     }
 #endif
+    
+    CompleteRegion(clipBounds);
   }
 }
 
