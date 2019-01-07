@@ -56,7 +56,10 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->LoadFont(MONTSERRAT_FN);
     ISVG tiger = pGraphics->LoadSVG(TIGER_FN);
     IBitmap smiley = pGraphics->LoadBitmap(SMILEY_FN);
-    
+    IBitmap base = pGraphics->LoadBitmap(BASE_FN);
+    IBitmap mask = pGraphics->LoadBitmap(MASK_FN);
+    IBitmap top = pGraphics->LoadBitmap(TOP_FN);
+
     IRECT bounds = pGraphics->GetBounds();
     
     int cellIdx = 0;
@@ -66,11 +69,12 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     };
     
     pGraphics->AttachPanelBackground(COLOR_GRAY);
-     
+    pGraphics->AttachControl(new TestSizeControl(*this, bounds), kCtrlTagSize);
+
     pGraphics->AttachControl(new ILambdaControl(*this, nextCell(), [](IControl* pCaller, IGraphics& g, IRECT& r, IMouseInfo&, double t) {
       
 //      static constexpr float width = 5.f;
-      static float radius = r.W();
+       const float radius = r.W();
 //      static constexpr float cornerSize = 10.f;
       
       //    g.FillRect(COLOR_WHITE, r);
@@ -106,7 +110,6 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
       
     }, 1000, false));
     
-    pGraphics->AttachControl(new TestSizeControl(*this, bounds), kCtrlTagSize);
     pGraphics->AttachControl(new TestGradientControl(*this, nextCell(), kParamDummy));
     pGraphics->AttachControl(new TestColorControl(*this, nextCell()));
     pGraphics->AttachControl(new TestPolyControl(*this, nextCell(), kParamDummy));
@@ -133,6 +136,9 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     path.Append("/resources/img/");
 #endif
     pGraphics->AttachControl(new TestDirBrowseControl(*this, nextCell(), "png", path.Get()));
+
+    IRECT r = nextCell();
+    pGraphics->AttachControl(new TestRotatingMaskControl(*this, r.L, r.T, base, mask, top));
 
 #if 0
     pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Hello World!", {24, COLOR_WHITE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop, 90}));
