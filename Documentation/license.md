@@ -2,7 +2,7 @@
 
 WDL/OL shares the same liberal license as Cockos WDL. It can be used in a closed source product for free. A credit/thankyou in your product manual or website is appreciated, but not required.
 
--
+---
 
 Cockos WDL License
 
