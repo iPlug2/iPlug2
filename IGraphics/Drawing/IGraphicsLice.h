@@ -52,7 +52,7 @@ inline int LiceBlendMode(const IBlend* pBlend)
     case EBlendType::kBlendNone:
     default:
     {
-      return LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA;
+      return LICE_BLIT_MODE_ADD | LICE_BLIT_USE_ALPHA;
     }
   }
 }
