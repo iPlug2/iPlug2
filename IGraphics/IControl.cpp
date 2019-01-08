@@ -301,8 +301,8 @@ void ITextControl::SetStr(const char* str)
 {
   if (strcmp(mStr.Get(), str))
   {
-    SetDirty(false);
     mStr.Set(str);
+    SetDirty(false);
   }
 }
 
