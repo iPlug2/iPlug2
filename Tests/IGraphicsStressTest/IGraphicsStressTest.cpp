@@ -13,49 +13,48 @@ IGraphicsStressTest::IGraphicsStressTest(IPlugInstanceInfo instanceInfo)
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
     IRECT bounds = pGraphics->GetBounds();
-    pGraphics->SetSizeConstraints(0, 100000, 0, 100000);
 
     if(pGraphics->NControls()) {
-      pGraphics->GetBackgroundControl()->SetTargetAndDrawRECTs(bounds);
+        pGraphics->GetControl(0)->SetTargetAndDrawRECTs(bounds);
+        pGraphics->GetControl(1)->SetTargetAndDrawRECTs(bounds);
+        pGraphics->GetControlWithTag(kCtrlTagNumThings)->SetTargetAndDrawRECTs(bounds.GetGridCell(0, 2, 1));
+        pGraphics->GetControlWithTag(kCtrlTagTestNum)->SetTargetAndDrawRECTs(bounds.GetGridCell(1, 2, 1));
+      
       return;
     }
     
-    pGraphics->AttachCornerResizer(EUIResizerMode::kUIResizerScale, true);
-    pGraphics->HandleMouseOver(true);
-    pGraphics->EnableTooltips(true);
-    
+    pGraphics->SetSizeConstraints(100, 100000, 100, 100000);
+    pGraphics->AttachCornerResizer(EUIResizerMode::kUIResizerSize, true);
     pGraphics->SetKeyHandlerFunc([&](const IKeyPress& key)
     {
       switch (key.VK) {
-        case VK_UP: this->mNumberOfThings++; break;
-        case VK_DOWN: this->mNumberOfThings--; break;
-        case VK_TAB:
-        {
-          if(key.S) this->mKindOfThing--;
-          else this->mKindOfThing++;
-          break;
-        }
+        case VK_UP: mNumberOfThings++; break;
+        case VK_DOWN: mNumberOfThings--; break;
+        case VK_TAB: key.S ? mKindOfThing-- : mKindOfThing++; break;
         default: return false;
       }
+      
       WDL_String str;
       str.SetFormatted(64, "Number of things = %i", this->mNumberOfThings);
-      dynamic_cast<ITextControl*>(this->GetUI()->GetControlWithTag(kCtrlTagNumThings))->SetStr(str.Get());
-      str.SetFormatted(64, "Test = %i", this->mKindOfThing);
-      dynamic_cast<ITextControl*>(this->GetUI()->GetControlWithTag(kCtrlTagTestNum))->SetStr(str.Get());
+      dynamic_cast<ITextControl*>(GetUI()->GetControlWithTag(kCtrlTagNumThings))->SetStr(str.Get());
+      str.SetFormatted(64, "Test %i/%i", this->mKindOfThing, 32);
+      dynamic_cast<ITextControl*>(GetUI()->GetControlWithTag(kCtrlTagTestNum))->SetStr(str.Get());
 
-      
       this->GetUI()->SetAllControlsDirty();
       return true;
     });
     
     pGraphics->HandleMouseOver(false);
     pGraphics->LoadFont(ROBOTTO_FN);
-//    ISVG tiger = pGraphics->LoadSVG(TIGER_FN);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->AttachControl(new ILambdaControl(*this, bounds, [&](ILambdaControl* pCaller, IGraphics& g, IRECT& r)
     {
-      
       static IBitmap smiley = g.LoadBitmap(SMILEY_FN);
+      static ISVG tiger = g.LoadSVG(TIGER_FN);
+
+      if(mKindOfThing == 0)
+        g.DrawText(IText(40), "Press tab to go to next test, up/down to change the # of things", r);
+      
 //      if (!g.CheckLayer(pCaller->mLayer))
       {
 //        g.StartLayer(r);
@@ -71,19 +70,20 @@ IGraphicsStressTest::IGraphicsStressTest(IPlugInstanceInfo instanceInfo)
           float rrad1 = rand() % 360;
           float rrad2 = rand() % 360;
 
-          switch (this->mKindOfThing)
+          switch (mKindOfThing)
           {
-            case 0: g.DrawRect(rc, rr, &rb); break;
-            case 1: g.FillRect(rc, rr, &rb); break;
-            case 2: g.DrawRoundRect(rc, rr, roundness, &rb); break;
-            case 3: g.FillRoundRect(rc, rr, roundness, &rb); break;
-            case 4: g.DrawEllipse(rc, rr, &rb); break;
-            case 5: g.FillEllipse(rc, rr, &rb); break;
-            case 6: g.DrawArc(rc, rr.MW(), rr.MH(), rr.W() > rr.H() ? rr.H() : rr.W(), rrad1, rrad2, &rb,thickness); break;
-            case 7: g.FillArc(rc, rr.MW(), rr.MH(), rr.W() > rr.H() ? rr.H() : rr.W(), rrad1, rrad2, &rb); break;
-            case 8: g.DrawLine(rc, dir == 0 ? rr.L : rr.R, rr.B, dir == 0 ? rr.R : rr.L, rr.T, &rb,thickness); break;
-            case 9: g.DrawDottedLine(rc, dir == 0 ? rr.L : rr.R, rr.B, dir == 0 ? rr.R : rr.L, rr.T, &rb, thickness); break;
-            case 10: g.DrawFittedBitmap(smiley, rr, &rb); break;
+            case 1:  g.DrawRect(rc, rr, &rb); break;
+            case 2:  g.FillRect(rc, rr, &rb); break;
+            case 3:  g.DrawRoundRect(rc, rr, roundness, &rb); break;
+            case 4:  g.FillRoundRect(rc, rr, roundness, &rb); break;
+            case 5:  g.DrawEllipse(rc, rr, &rb); break;
+            case 6:  g.FillEllipse(rc, rr, &rb); break;
+            case 7:  g.DrawArc(rc, rr.MW(), rr.MH(), rr.W() > rr.H() ? rr.H() : rr.W(), rrad1, rrad2, &rb,thickness); break;
+            case 8:  g.FillArc(rc, rr.MW(), rr.MH(), rr.W() > rr.H() ? rr.H() : rr.W(), rrad1, rrad2, &rb); break;
+            case 9:  g.DrawLine(rc, dir == 0 ? rr.L : rr.R, rr.B, dir == 0 ? rr.R : rr.L, rr.T, &rb,thickness); break;
+            case 10: g.DrawDottedLine(rc, dir == 0 ? rr.L : rr.R, rr.B, dir == 0 ? rr.R : rr.L, rr.T, &rb, thickness); break;
+            case 11: g.DrawFittedBitmap(smiley, rr, &rb); break;
+            case 12: g.DrawSVG(tiger, rr); break;
             default:
               break;
           }
@@ -97,8 +97,8 @@ IGraphicsStressTest::IGraphicsStressTest(IPlugInstanceInfo instanceInfo)
 
     }, 10000, false, false));
     
-    pGraphics->AttachControl(new ITextControl(*this, bounds.GetGridCell(0, 2, 1), "Number of things = 16", IText(100)), kCtrlTagNumThings);
-    pGraphics->AttachControl(new ITextControl(*this, bounds.GetGridCell(1, 2, 1), "Test 0 of 32", IText(100)), kCtrlTagTestNum);
+    pGraphics->AttachControl(new ITextControl(*this, bounds.GetGridCell(0, 2, 1), "", IText(100)), kCtrlTagNumThings);
+    pGraphics->AttachControl(new ITextControl(*this, bounds.GetGridCell(1, 2, 1), "", IText(100)), kCtrlTagTestNum);
   };
   
 #endif
