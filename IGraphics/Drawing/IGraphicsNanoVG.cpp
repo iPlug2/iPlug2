@@ -64,6 +64,8 @@
 #elif defined IGRAPHICS_METAL
   #if defined OS_MAC || defined OS_IOS
     #include "nanovg_mtl.h"
+    //even though this is a .cpp we are in an objc(pp) compilation unit
+    #import <Metal/Metal.h>
   #else
     #error NOT IMPLEMENTED
   #endif
@@ -71,26 +73,20 @@
   #error you must define either IGRAPHICS_GL2, IGRAPHICS_GLES2 etc or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
 #endif
 
-#if defined OS_MAC && defined IGRAPHICS_METAL
-//even though this is a .cpp we are in an objc(pp) compilation unit
-#import <Metal/Metal.h>
-void syncFromGPU(NVGcontext* pContext, const APIBitmap* pBitmap)
-{
-  id<MTLCommandBuffer> commandBuffer = [static_cast<id<MTLCommandQueue>>(mnvgCommandQueue(pContext)) commandBuffer];
-  id<MTLBlitCommandEncoder> blitCommandEncoder = [commandBuffer blitCommandEncoder];
-  id<MTLTexture> texture = static_cast<id<MTLTexture>>(mnvgImageHandle(pContext, pBitmap->GetBitmap()));
-  [blitCommandEncoder synchronizeTexture:texture slice:0 level:0];
-  [blitCommandEncoder endEncoding];
-  [commandBuffer commit];
-  [commandBuffer waitUntilCompleted];
-}
-#endif
-
 void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData)
 {
 #if defined(IGRAPHICS_GL)
   glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pData);
 #elif defined(IGRAPHICS_METAL)
+#if defined OS_MAC
+  id<MTLCommandBuffer> commandBuffer = [static_cast<id<MTLCommandQueue>>(mnvgCommandQueue(pContext)) commandBuffer];
+  id<MTLBlitCommandEncoder> blitCommandEncoder = [commandBuffer blitCommandEncoder];
+  id<MTLTexture> texture = static_cast<id<MTLTexture>>(mnvgImageHandle(pContext, image));
+  [blitCommandEncoder synchronizeTexture:texture slice:0 level:0];
+  [blitCommandEncoder endEncoding];
+  [commandBuffer commit];
+  [commandBuffer waitUntilCompleted];
+#endif
   mnvgReadPixels(pContext, image, x, y, width, height, pData);
 #endif
 }
@@ -326,9 +322,6 @@ void IGraphicsNanoVG::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& 
   if (data.GetSize() >= size)
   {
     PushLayer(layer.get(), false);
-#if defined OS_MAC && defined IGRAPHICS_METAL
-    syncFromGPU(mVG, pBitmap);
-#endif
     nvgReadPixels(mVG, pBitmap->GetBitmap(), 0, 0, pBitmap->GetWidth(), pBitmap->GetHeight(), data.Get());
     PopLayer(false);    
   }
