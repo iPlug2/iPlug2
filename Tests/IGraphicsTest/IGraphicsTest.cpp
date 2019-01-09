@@ -71,11 +71,11 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->AttachControl(new TestSizeControl(*this, bounds), kCtrlTagSize);
 
-    pGraphics->AttachControl(new ILambdaControl(*this, nextCell(), [](IControl* pCaller, IGraphics& g, IRECT& r, IMouseInfo&, double t) {
+    pGraphics->AttachControl(new ILambdaControl(*this, nextCell(), [](ILambdaControl* pCaller, IGraphics& g, IRECT& r) {
       
-//      static constexpr float width = 5.f;
+//      const float width = 5.f;
        const float radius = r.W();
-//      static constexpr float cornerSize = 10.f;
+//      const float cornerSize = 10.f;
       
       //    g.FillRect(COLOR_WHITE, r);
       //    g.FillCircle(COLOR_WHITE, r.MW(), r.MH(), radius);
@@ -90,7 +90,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
       
       const float x = r.MW();
       const float y = r.MH();
-      const float rotate = t * PI;
+      const float rotate = pCaller->GetAnimationProgress() * PI;
       
       for(int index = 0, limit = 40; index < limit; ++index)
       {
