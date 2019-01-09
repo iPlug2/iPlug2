@@ -1,18 +1,7 @@
 #include "IGraphicsStressTest.h"
 #include "IPlug_include_in_plug_src.h"
 
-#include "Test/TestControls.h"
-
-enum EParam
-{
-  kParamDummy = 0,
-  kNumParams
-};
-
-enum EControlTags
-{
-  kCtrlTagLabel = 0
-};
+#include "IControl.h"
 
 IGraphicsStressTest::IGraphicsStressTest(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, 1, instanceInfo)
@@ -46,12 +35,15 @@ IGraphicsStressTest::IGraphicsStressTest(IPlugInstanceInfo instanceInfo)
           else this->mKindOfThing++;
           break;
         }
-        default:
-          break;
+        default: return false;
       }
       WDL_String str;
       str.SetFormatted(64, "Number of things = %i", this->mNumberOfThings);
-      dynamic_cast<ITextControl*>(this->GetUI()->GetControlWithTag(kCtrlTagLabel))->SetStr(str.Get());
+      dynamic_cast<ITextControl*>(this->GetUI()->GetControlWithTag(kCtrlTagNumThings))->SetStr(str.Get());
+      str.SetFormatted(64, "Test = %i", this->mKindOfThing);
+      dynamic_cast<ITextControl*>(this->GetUI()->GetControlWithTag(kCtrlTagTestNum))->SetStr(str.Get());
+
+      
       this->GetUI()->SetAllControlsDirty();
       return true;
     });
@@ -105,8 +97,8 @@ IGraphicsStressTest::IGraphicsStressTest(IPlugInstanceInfo instanceInfo)
 
     }, 10000, false, false));
     
-    pGraphics->AttachControl(new ITextControl(*this, bounds.GetGridCell(0, 2, 1), "Number of things = 16", IText(100)), kCtrlTagLabel);
-    pGraphics->AttachControl(new ITextControl(*this, bounds.GetGridCell(1, 2, 1), "Test 1 of 32", IText(100)));
+    pGraphics->AttachControl(new ITextControl(*this, bounds.GetGridCell(0, 2, 1), "Number of things = 16", IText(100)), kCtrlTagNumThings);
+    pGraphics->AttachControl(new ITextControl(*this, bounds.GetGridCell(1, 2, 1), "Test 0 of 32", IText(100)), kCtrlTagTestNum);
   };
   
 #endif
