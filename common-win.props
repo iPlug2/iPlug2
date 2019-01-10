@@ -56,7 +56,7 @@
     <PNG_DEFS />
     <ALL_DEFS>WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;$(PNG_DEFS)</ALL_DEFS>
     <AAX_LIBS>wininet.lib;odbc32.lib;odbccp32.lib;psapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comctl32.lib;</AAX_LIBS>
-    <APP_LIBS>dsound.lib;winmm.lib;</APP_LIBS>
+    <APP_LIBS>dsound.lib;</APP_LIBS>
     <VST2_32_COMMAND_ARGS />
     <VST2_64_COMMAND_ARGS>"$(SolutionDir)$(SolutionName).RPP"</VST2_64_COMMAND_ARGS>
     <VST3_64_COMMAND_ARGS />
@@ -74,7 +74,7 @@
       <AdditionalIncludeDirectories>$(WDL_PATH);$(IPLUG_PATH);$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(STATIC_LIBS_PATH);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Lib>
