@@ -39,6 +39,7 @@
 
 class IGraphics;
 class IControl;
+class ILambdaControl;
 struct IRECT;
 struct IMouseInfo;
 template <typename T = double>
@@ -46,7 +47,7 @@ inline T DegToRad(T degrees);
 
 typedef std::function<void(IControl*)> IActionFunction;
 typedef std::function<void(IControl*)> IAnimationFunction;
-typedef std::function<void(IControl*, IGraphics&, IRECT&, IMouseInfo&, double)> IDrawFunction;
+typedef std::function<void(ILambdaControl*, IGraphics&, IRECT&)> ILambdaDrawFunction;
 
 void DefaultClickActionFunc(IControl* pCaller);
 void DefaultAnimationFunc(IControl* pCaller);

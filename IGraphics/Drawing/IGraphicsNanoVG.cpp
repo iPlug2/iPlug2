@@ -64,6 +64,8 @@
 #elif defined IGRAPHICS_METAL
   #if defined OS_MAC || defined OS_IOS
     #include "nanovg_mtl.h"
+    //even though this is a .cpp we are in an objc(pp) compilation unit
+    #import <Metal/Metal.h>
   #else
     #error NOT IMPLEMENTED
   #endif
@@ -76,6 +78,15 @@ void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int
 #if defined(IGRAPHICS_GL)
   glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pData);
 #elif defined(IGRAPHICS_METAL)
+#if defined OS_MAC
+  id<MTLCommandBuffer> commandBuffer = [static_cast<id<MTLCommandQueue>>(mnvgCommandQueue(pContext)) commandBuffer];
+  id<MTLBlitCommandEncoder> blitCommandEncoder = [commandBuffer blitCommandEncoder];
+  id<MTLTexture> texture = static_cast<id<MTLTexture>>(mnvgImageHandle(pContext, image));
+  [blitCommandEncoder synchronizeTexture:texture slice:0 level:0];
+  [blitCommandEncoder endEncoding];
+  [commandBuffer commit];
+  [commandBuffer waitUntilCompleted];
+#endif
   mnvgReadPixels(pContext, image, x, y, width, height, pData);
 #endif
 }
@@ -424,11 +435,13 @@ void IGraphicsNanoVG::OnViewInitialized(void* pContext)
   glfwMakeContextCurrent(gWindow);
 #endif // OS_WEB
  
-  int flags = NVG_ANTIALIAS | NVG_STENCIL_STROKES /*| NVG_TRIPLE_BUFFER check!*/;
+  int flags = NVG_ANTIALIAS | NVG_STENCIL_STROKES;
   
 #if defined IGRAPHICS_METAL
+  flags |= NVG_TRIPLE_BUFFER; // Metal should be triple buffered
   mVG = nvgCreateContext(pContext, flags);
 #else
+  flags |= NVG_DOUBLE_BUFFER;
   mVG = nvgCreateContext(flags);
 #endif
   
