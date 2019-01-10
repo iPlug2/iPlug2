@@ -204,7 +204,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
             break;
           }
           pGraphics->mParamEditMsg = kNone;
-          pGraphics->mValidRECT = RECT();
+          pGraphics->mValidRECT = { 0,0,0,0 };
 
           return 0; // TODO: check this!
         }
@@ -224,7 +224,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
             IRECT notDirtyR = pGraphics->mEdControl->GetRECT();
             notDirtyR.Scale(pGraphics->GetDrawScale());
             notDirtyR.PixelAlign();
-            pGraphics->mInvalidRECT = RECT();
+            pGraphics->mInvalidRECT = { 0,0,0,0 };
             pGraphics->mValidRECT = { (LONG) notDirtyR.L, (LONG) notDirtyR.T, (LONG) notDirtyR.R, (LONG) notDirtyR.B };
             pGraphics->mParamEditMsg = kUpdate;
           }
