@@ -779,9 +779,7 @@ public:
   
   /** @return \c true if performance display is shown */
   bool ShowingFPSDisplay() { return mPerfDisplay != nullptr; }
-  /** Attach a control for displaying the FPS on top of the UI */
-  void AttachPerformanceDisplay();
-  
+
   /** Attach a control for text entry, to override platform text entry */
   void AttachTextEntryControl();
   
