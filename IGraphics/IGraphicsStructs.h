@@ -1115,6 +1115,41 @@ public:
     }
   }
   
+  static bool GetFracGrid(const IRECT& input, IRECTList& rects, const std::initializer_list<float>& rowFractions, const std::initializer_list<float>& colFractions)
+  {
+    IRECT rowsLeft = input;
+    float y = 0.;
+    float x = 0.;
+
+    if(std::accumulate(rowFractions.begin(), rowFractions.end(), 0.f) != 1.)
+      return false;
+    
+    if(std::accumulate(colFractions.begin(), colFractions.end(), 0.f) != 1.)
+      return false;
+
+    for (auto& rowFrac : rowFractions)
+    {
+      IRECT thisRow = input.FracRectVertical(rowFrac, true).GetTranslated(0, y);
+      
+      x = 0.;
+
+      for (auto& colFrac : colFractions)
+      {
+        IRECT thisCell = thisRow.FracRectHorizontal(colFrac).GetTranslated(x, 0);
+        
+        rects.Add(thisCell);
+        
+        x += thisCell.W();
+      }
+      
+      rowsLeft.Intersect(thisRow);
+      
+      y = rects.Bounds().H();
+    }
+    
+    return true;
+  }
+  
   void Optimize()
   {
     // Remove rects that are contained by other rects and intersections
