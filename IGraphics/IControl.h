@@ -1114,6 +1114,7 @@ public:
   void Draw(IGraphics& g) override;
 
   virtual void SetStr(const char* str);
+  virtual void SetStrFmt(int maxlen, const char* fmt, ...);
   virtual void ClearStr() { SetStr(""); }
   
 protected:
