@@ -26,15 +26,12 @@
 
 static int nWndClassReg = 0;
 static const char* wndClassName = "IPlugWndClass";
-static double sFPS = 0.0;
 
 #define PARAM_EDIT_ID 99
 #define IPLUG_TIMER_ID 2
 #define IPLUG_WIN_MAX_WIDE_PATH 4096
 
 // Unicode helpers
-
-
 void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
 {
   int requiredSize = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
@@ -118,20 +115,26 @@ void IGraphicsWin::CheckTabletInput(UINT msg)
 // static
 LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+
   if (msg == WM_CREATE)
   {
     LPCREATESTRUCT lpcs = (LPCREATESTRUCT) lParam;
     SetWindowLongPtr(hWnd, GWLP_USERDATA, (LPARAM) (lpcs->lpCreateParams));
-    int mSec = static_cast<int>(std::round(1000.0 / (sFPS)));
+    IGraphicsWin* pGraphics = (IGraphicsWin*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+    int mSec = static_cast<int>(std::round(1000.0 / pGraphics->FPS()));
+
+    pGraphics->mMMTimerHandle = timeSetEvent(mSec, 0, MMTimerCallback, reinterpret_cast<DWORD>(hWnd), TIME_PERIODIC);
     SetTimer(hWnd, IPLUG_TIMER_ID, mSec, NULL);
     SetFocus(hWnd); // gets scroll wheel working straight away
     DragAcceptFiles(hWnd, true);
     return 0;
   }
 
-  IGraphicsWin* pGraphics = (IGraphicsWin*) GetWindowLongPtr(hWnd, GWLP_USERDATA);
   char txt[MAX_WIN32_PARAM_LEN];
   double v;
+
+  IGraphicsWin* pGraphics = (IGraphicsWin*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+
 
   if (!pGraphics || hWnd != pGraphics->mPlugWnd)
   {
@@ -201,6 +204,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
             break;
           }
           pGraphics->mParamEditMsg = kNone;
+          pGraphics->mValidRECT = RECT();
+
           return 0; // TODO: check this!
         }
 
@@ -212,23 +217,16 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           IRECT dirtyR = rects.Bounds();
           dirtyR.Scale(pGraphics->GetDrawScale());
           dirtyR.PixelAlign();
-          RECT r = { (LONG) dirtyR.L, (LONG) dirtyR.T, (LONG) dirtyR.R, (LONG) dirtyR.B };
-
-          InvalidateRect(hWnd, &r, FALSE);
+          pGraphics->mInvalidRECT = { (LONG) dirtyR.L, (LONG) dirtyR.T, (LONG) dirtyR.R, (LONG) dirtyR.B };
 
           if (pGraphics->mParamEditWnd)
           {
             IRECT notDirtyR = pGraphics->mEdControl->GetRECT();
             notDirtyR.Scale(pGraphics->GetDrawScale());
             notDirtyR.PixelAlign();
-            RECT r2 = { (LONG) notDirtyR.L, (LONG) notDirtyR.T, (LONG) notDirtyR.R, (LONG) notDirtyR.B };
-            ValidateRect(hWnd, &r2); // make sure we dont redraw the edit box area
-            UpdateWindow(hWnd);
+            pGraphics->mInvalidRECT = RECT();
+            pGraphics->mValidRECT = { (LONG) notDirtyR.L, (LONG) notDirtyR.T, (LONG) notDirtyR.R, (LONG) notDirtyR.B };
             pGraphics->mParamEditMsg = kUpdate;
-          }
-          else
-          {
-            UpdateWindow(hWnd);
           }
         }
       }
@@ -741,7 +739,6 @@ void* IGraphicsWin::OpenWindow(void* pParent)
     RegisterClass(&wndClass);
   }
 
-  sFPS = FPS();
   mPlugWnd = CreateWindow(wndClassName, "IPlug", WS_CHILD | WS_VISIBLE, x, y, w, h, mParentWnd, 0, mHInstance, this);
 
   HDC dc = GetDC(mPlugWnd);
@@ -1524,6 +1521,17 @@ const void* IGraphicsWin::LoadWinResource(const char* resid, const char* type, i
     sizeInBytes = size;
     return pResourceData;
   }
+}
+
+void CALLBACK IGraphicsWin::MMTimerCallback(UINT uTimerID, UINT uMsg, DWORD_PTR param, DWORD_PTR dw1, DWORD_PTR dw2)
+{
+  HWND hWnd = (HWND)param;
+  IGraphicsWin* pGraphics = (IGraphicsWin*) GetWindowLongPtr(hWnd, GWLP_USERDATA);
+
+  if (pGraphics->mParamEditMsg == kNone)
+    InvalidateRect(hWnd, &pGraphics->mInvalidRECT, FALSE);
+  else
+    ValidateRect(hWnd, &pGraphics->mValidRECT); // make sure we dont redraw the edit box area
 }
 
 //TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT
