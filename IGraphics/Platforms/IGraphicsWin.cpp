@@ -123,7 +123,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     IGraphicsWin* pGraphics = (IGraphicsWin*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
     int mSec = static_cast<int>(std::round(1000.0 / pGraphics->FPS()));
 
-    pGraphics->mMMTimerHandle = timeSetEvent(mSec, 0, MMTimerCallback, reinterpret_cast<DWORD>(hWnd), TIME_PERIODIC);
+    pGraphics->mMMTimerHandle = timeSetEvent(mSec, 0, MMTimerCallback, reinterpret_cast<DWORD>(hWnd), TIME_PERIODIC | TIME_KILL_SYNCHRONOUS);
     SetTimer(hWnd, IPLUG_TIMER_ID, mSec, NULL);
     SetFocus(hWnd); // gets scroll wheel working straight away
     DragAcceptFiles(hWnd, true);
@@ -868,6 +868,8 @@ void IGraphicsWin::CloseWindow()
       mShowingTooltip = false;
       mTooltipIdx = -1;
     }
+
+    timeKillEvent(mMMTimerHandle);
 
     DestroyWindow(mPlugWnd);
     mPlugWnd = 0;
