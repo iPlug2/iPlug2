@@ -1395,7 +1395,7 @@ struct IPattern
     return pattern;
   }
   
-  static IPattern CreateLinearGradient(float x1, float y1, float x2, float y2, std::initializer_list<IColorStop> stops)
+  static IPattern CreateLinearGradient(float x1, float y1, float x2, float y2, const std::initializer_list<IColorStop>& stops)
   {
     IPattern pattern = CreateLinearGradient(x1, y1, x2, y2);
     
@@ -1416,7 +1416,7 @@ struct IPattern
     return pattern;
   }
   
-  static IPattern CreateRadialGradient(float x1, float y1, float r, std::initializer_list<IColorStop> stops)
+  static IPattern CreateRadialGradient(float x1, float y1, float r, const std::initializer_list<IColorStop>& stops)
   {
     IPattern pattern = CreateRadialGradient(x1, y1, r);
     
