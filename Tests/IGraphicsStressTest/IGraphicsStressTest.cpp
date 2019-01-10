@@ -33,9 +33,9 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
   pGraphics->SetKeyHandlerFunc([&](const IKeyPress& key)
   {
     switch (key.VK) {
-      case VK_UP: mNumberOfThings++; break;
-      case VK_DOWN: mNumberOfThings--; break;
-      case VK_TAB: key.S ? mKindOfThing-- : mKindOfThing++; break;
+      case kVK_UP: mNumberOfThings++; break;
+      case kVK_DOWN: mNumberOfThings--; break;
+      case kVK_TAB: key.S ? mKindOfThing-- : mKindOfThing++; break;
       default: return false;
     }
 

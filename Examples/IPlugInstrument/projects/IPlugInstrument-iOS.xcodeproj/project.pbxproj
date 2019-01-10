@@ -34,7 +34,6 @@
 		4F6369D620A463D80022C370 /* IGraphicsIOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699020A463AF0022C370 /* IGraphicsIOS.h */; };
 		4F6369E620A466320022C370 /* IControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6369E420A466320022C370 /* IControl.h */; };
 		4F6369E720A466320022C370 /* IControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F6369E520A466320022C370 /* IControl.cpp */; };
-		4F6C621420CD60DF002B117F /* IPlugTimer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6C621320CD60DF002B117F /* IPlugTimer.mm */; };
 		4F6C621520CD687E002B117F /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF103920A0E55900D3092F /* IPlugTimer.cpp */; };
 		4F6E672A21C560BD005991A9 /* VoiceAllocator.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6E672421C560BD005991A9 /* VoiceAllocator.h */; };
 		4F6E672B21C560BD005991A9 /* SynthVoice.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6E672521C560BD005991A9 /* SynthVoice.h */; };
@@ -226,7 +225,6 @@
 		4F6369D820A464060022C370 /* IGraphicsLinux.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsLinux.cpp; sourceTree = "<group>"; };
 		4F6369E420A466320022C370 /* IControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControl.h; sourceTree = "<group>"; };
 		4F6369E520A466320022C370 /* IControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IControl.cpp; sourceTree = "<group>"; };
-		4F6C621320CD60DF002B117F /* IPlugTimer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugTimer.mm; path = ../../../IPlug/IPlugTimer.mm; sourceTree = "<group>"; };
 		4F6E672421C560BD005991A9 /* VoiceAllocator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VoiceAllocator.h; sourceTree = "<group>"; };
 		4F6E672521C560BD005991A9 /* SynthVoice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SynthVoice.h; sourceTree = "<group>"; };
 		4F6E672621C560BD005991A9 /* VoiceAllocator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoiceAllocator.cpp; sourceTree = "<group>"; };
@@ -607,7 +605,6 @@
 				4FFF103120A0E55900D3092F /* IPlugQueue.h */,
 				4FFF103920A0E55900D3092F /* IPlugTimer.cpp */,
 				4FFF104020A0E55A00D3092F /* IPlugTimer.h */,
-				4F6C621320CD60DF002B117F /* IPlugTimer.mm */,
 				4FFF103320A0E55900D3092F /* IPlugPlatform.h */,
 				4FFF103020A0E55900D3092F /* IPlugConstants.h */,
 				4FFF103C20A0E55A00D3092F /* IPlugUtilities.h */,
@@ -960,7 +957,6 @@
 				4FA758462186222E00F1BCC3 /* IPlugPaths.mm in Sources */,
 				4F6369C320A463AF0022C370 /* IGraphics.cpp in Sources */,
 				4F23CECB20B20C6400E8B70F /* IGraphicsNanoVG.cpp in Sources */,
-				4F6C621420CD60DF002B117F /* IPlugTimer.mm in Sources */,
 				4F8028C920A24FA9003A66EC /* nanovg.c in Sources */,
 				4FFF106020A0E57100D3092F /* IPlugAUv3.mm in Sources */,
 				4F6369E720A466320022C370 /* IControl.cpp in Sources */,
