@@ -1369,12 +1369,11 @@ struct IPattern
     mStops[0] = IColorStop(color, 0.0);
   }
   
-  static IPattern CreateLinearGradient(float x1, float y1, float x2, float y2)
+  static IPattern CreateLinearGradient(float x1, float y1, float x2, float y2, const std::initializer_list<IColorStop>& stops = {})
   {
     IPattern pattern(kLinearPattern);
     
     // Calculate the affine transform from one line segment to another!
-    
     const double xd = x2 - x1;
     const double yd = y2 - y1;
     const double d = sqrt(xd * xd + yd * yd);
@@ -1392,33 +1391,39 @@ struct IPattern
                          static_cast<float>(x0),
                          static_cast<float>(y0));
     
-    return pattern;
-  }
-  
-  static IPattern CreateLinearGradient(float x1, float y1, float x2, float y2, const std::initializer_list<IColorStop>& stops)
-  {
-    IPattern pattern = CreateLinearGradient(x1, y1, x2, y2);
-    
     for (auto& stop : stops)
       pattern.AddStop(stop.mColor, stop.mOffset);
     
     return pattern;
   }
   
-  static IPattern CreateRadialGradient(float x1, float y1, float r)
+  static IPattern CreateLinearGradient(const IRECT& bounds, EDirection direction, const std::initializer_list<IColorStop>& stops = {})
+  {
+    float x1, y1, x2, y2;
+    
+    if(direction == kHorizontal)
+    {
+      y1 = bounds.MH(); y2 = y1;
+      x1 = bounds.L;
+      x2 = bounds.R;
+    }
+    else//(direction == kVertical)
+    {
+      x1 = bounds.MW(); x2 = x1;
+      y1 = bounds.T;
+      y2 = bounds.B;
+    }
+    
+    return CreateLinearGradient(x1, y1, x2, y2, stops);
+  }
+  
+  static IPattern CreateRadialGradient(float x1, float y1, float r, const std::initializer_list<IColorStop>& stops = {})
   {
     IPattern pattern(kRadialPattern);
     
     const float s = 1.f / r;
 
     pattern.SetTransform(s, 0, 0, s, -(x1 * s), -(y1 * s));
-    
-    return pattern;
-  }
-  
-  static IPattern CreateRadialGradient(float x1, float y1, float r, const std::initializer_list<IColorStop>& stops)
-  {
-    IPattern pattern = CreateRadialGradient(x1, y1, r);
     
     for (auto& stop : stops)
       pattern.AddStop(stop.mColor, stop.mOffset);
