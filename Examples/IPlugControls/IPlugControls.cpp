@@ -90,7 +90,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachCornerResizer(kUIResizerScale, true);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->EnableTooltips(true);
-    pGraphics->AttachTextEntryControl();
+//    pGraphics->AttachTextEntryControl();
     
     IRECT b = pGraphics->GetBounds().GetPadded(-5);
     
