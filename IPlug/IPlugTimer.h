@@ -29,6 +29,8 @@
 /** Base class for timer */
 struct Timer
 {
+  typedef std::function<void(Timer& t)> ITimerFunction;
+    
   static Timer* Create(ITimerFunction func, uint32_t intervalMs)
   {
     return new Timer();
@@ -85,6 +87,7 @@ private:
   ITimerFunction mTimerFunc;
   uint32_t mIntervalMs;
 };
+#elif defined OS_WEB
 #elif
   #error NOT IMPLEMENTED
 #endif
