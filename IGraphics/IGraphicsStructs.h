@@ -28,9 +28,6 @@
 
 #include "wdlstring.h"
 #include "ptrlist.h"
-#if defined OS_MAC || defined OS_LINUX
-#include "swell.h"
-#endif
 
 #include "nanosvg.h"
 

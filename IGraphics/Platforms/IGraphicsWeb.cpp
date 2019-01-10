@@ -11,7 +11,6 @@
 #include <cstring>
 #include <cstdio>
 #include <emscripten/key_codes.h>
-#include "swell-types.h"
 
 #include "IGraphicsWeb.h"
 #include "IControl.h"
@@ -26,37 +25,37 @@ static int domVKToWinVK(int dom_vk_code)
   switch(dom_vk_code)
   {
 //    case DOM_VK_CANCEL:               return 0;  // TODO
-    case DOM_VK_HELP:                 return VK_HELP;
-    case DOM_VK_BACK_SPACE:           return VK_BACK;
-    case DOM_VK_TAB:                  return VK_TAB;
-    case DOM_VK_CLEAR:                return VK_CLEAR;
-    case DOM_VK_RETURN:               return VK_RETURN;
-    case DOM_VK_ENTER:                return VK_RETURN;
-    case DOM_VK_SHIFT:                return VK_SHIFT;
-    case DOM_VK_CONTROL:              return VK_CONTROL;
-    case DOM_VK_ALT:                  return VK_MENU;
-    case DOM_VK_PAUSE:                return VK_PAUSE;
-    case DOM_VK_CAPS_LOCK:            return VK_CAPITAL;
-    case DOM_VK_ESCAPE:               return VK_ESCAPE;
+    case DOM_VK_HELP:                 return kVK_HELP;
+    case DOM_VK_BACK_SPACE:           return kVK_BACK;
+    case DOM_VK_TAB:                  return kVK_TAB;
+    case DOM_VK_CLEAR:                return kVK_CLEAR;
+    case DOM_VK_RETURN:               return kVK_RETURN;
+    case DOM_VK_ENTER:                return kVK_RETURN;
+    case DOM_VK_SHIFT:                return kVK_SHIFT;
+    case DOM_VK_CONTROL:              return kVK_CONTROL;
+    case DOM_VK_ALT:                  return kVK_MENU;
+    case DOM_VK_PAUSE:                return kVK_PAUSE;
+    case DOM_VK_CAPS_LOCK:            return kVK_CAPITAL;
+    case DOM_VK_ESCAPE:               return kVK_ESCAPE;
 //    case DOM_VK_CONVERT:              return 0;  // TODO
 //    case DOM_VK_NONCONVERT:           return 0;  // TODO
 //    case DOM_VK_ACCEPT:               return 0;  // TODO
 //    case DOM_VK_MODECHANGE:           return 0;  // TODO
-    case DOM_VK_SPACE:                return VK_SPACE;
-    case DOM_VK_PAGE_UP:              return VK_PRIOR;
-    case DOM_VK_PAGE_DOWN:            return VK_NEXT;
-    case DOM_VK_END:                  return VK_END;
-    case DOM_VK_HOME:                 return VK_HOME;
-    case DOM_VK_LEFT:                 return VK_LEFT;
-    case DOM_VK_UP:                   return VK_UP;
-    case DOM_VK_RIGHT:                return VK_RIGHT;
-    case DOM_VK_DOWN:                 return VK_DOWN;
+    case DOM_VK_SPACE:                return kVK_SPACE;
+    case DOM_VK_PAGE_UP:              return kVK_PRIOR;
+    case DOM_VK_PAGE_DOWN:            return kVK_NEXT;
+    case DOM_VK_END:                  return kVK_END;
+    case DOM_VK_HOME:                 return kVK_HOME;
+    case DOM_VK_LEFT:                 return kVK_LEFT;
+    case DOM_VK_UP:                   return kVK_UP;
+    case DOM_VK_RIGHT:                return kVK_RIGHT;
+    case DOM_VK_DOWN:                 return kVK_DOWN;
 //    case DOM_VK_SELECT:               return 0;  // TODO
 //    case DOM_VK_PRINT:                return 0;  // TODO
 //    case DOM_VK_EXECUTE:              return 0;  // TODO
 //    case DOM_VK_PRINTSCREEN:          return 0;  // TODO
-    case DOM_VK_INSERT:               return VK_INSERT;
-    case DOM_VK_DELETE:               return VK_DELETE;
+    case DOM_VK_INSERT:               return kVK_INSERT;
+    case DOM_VK_DELETE:               return kVK_DELETE;
 //    case DOM_VK_0:                    return 0;  // TODO
 //    case DOM_VK_1:                    return 0;  // TODO
 //    case DOM_VK_2:                    return 0;  // TODO
@@ -103,48 +102,48 @@ static int domVKToWinVK(int dom_vk_code)
 //    case DOM_VK_WIN:                  return 0;  // TODO
 //    case DOM_VK_CONTEXT_MENU:         return 0;  // TODO
 //    case DOM_VK_SLEEP:                return 0;  // TODO
-    case DOM_VK_NUMPAD0:              return VK_NUMPAD0;
-    case DOM_VK_NUMPAD1:              return VK_NUMPAD1;
-    case DOM_VK_NUMPAD2:              return VK_NUMPAD2;
-    case DOM_VK_NUMPAD3:              return VK_NUMPAD3;
-    case DOM_VK_NUMPAD4:              return VK_NUMPAD4;
-    case DOM_VK_NUMPAD5:              return VK_NUMPAD5;
-    case DOM_VK_NUMPAD6:              return VK_NUMPAD6;
-    case DOM_VK_NUMPAD7:              return VK_NUMPAD7;
-    case DOM_VK_NUMPAD8:              return VK_NUMPAD8;
-    case DOM_VK_NUMPAD9:              return VK_NUMPAD9;
-    case DOM_VK_MULTIPLY:             return VK_MULTIPLY;
-    case DOM_VK_ADD:                  return VK_ADD;
-    case DOM_VK_SEPARATOR:            return VK_SEPARATOR;
-    case DOM_VK_SUBTRACT:             return VK_SUBTRACT;
-    case DOM_VK_DECIMAL:              return VK_DECIMAL;
-    case DOM_VK_DIVIDE:               return VK_DIVIDE;
-    case DOM_VK_F1:                   return VK_F1;
-    case DOM_VK_F2:                   return VK_F2;
-    case DOM_VK_F3:                   return VK_F3;
-    case DOM_VK_F4:                   return VK_F4;
-    case DOM_VK_F5:                   return VK_F5;
-    case DOM_VK_F6:                   return VK_F6;
-    case DOM_VK_F7:                   return VK_F7;
-    case DOM_VK_F8:                   return VK_F8;
-    case DOM_VK_F9:                   return VK_F9;
-    case DOM_VK_F10:                  return VK_F10;
-    case DOM_VK_F11:                  return VK_F11;
-    case DOM_VK_F12:                  return VK_F12;
-    case DOM_VK_F13:                  return VK_F13;
-    case DOM_VK_F14:                  return VK_F14;
-    case DOM_VK_F15:                  return VK_F15;
-    case DOM_VK_F16:                  return VK_F16;
-    case DOM_VK_F17:                  return VK_F17;
-    case DOM_VK_F18:                  return VK_F18;
-    case DOM_VK_F19:                  return VK_F19;
-    case DOM_VK_F20:                  return VK_F20;
-    case DOM_VK_F21:                  return VK_F21;
-    case DOM_VK_F22:                  return VK_F22;
-    case DOM_VK_F23:                  return VK_F23;
-    case DOM_VK_F24:                  return VK_F24;
-    case DOM_VK_NUM_LOCK:             return VK_NUMLOCK;
-    case DOM_VK_SCROLL_LOCK:          return VK_SCROLL;
+    case DOM_VK_NUMPAD0:              return kVK_NUMPAD0;
+    case DOM_VK_NUMPAD1:              return kVK_NUMPAD1;
+    case DOM_VK_NUMPAD2:              return kVK_NUMPAD2;
+    case DOM_VK_NUMPAD3:              return kVK_NUMPAD3;
+    case DOM_VK_NUMPAD4:              return kVK_NUMPAD4;
+    case DOM_VK_NUMPAD5:              return kVK_NUMPAD5;
+    case DOM_VK_NUMPAD6:              return kVK_NUMPAD6;
+    case DOM_VK_NUMPAD7:              return kVK_NUMPAD7;
+    case DOM_VK_NUMPAD8:              return kVK_NUMPAD8;
+    case DOM_VK_NUMPAD9:              return kVK_NUMPAD9;
+    case DOM_VK_MULTIPLY:             return kVK_MULTIPLY;
+    case DOM_VK_ADD:                  return kVK_ADD;
+    case DOM_VK_SEPARATOR:            return kVK_SEPARATOR;
+    case DOM_VK_SUBTRACT:             return kVK_SUBTRACT;
+    case DOM_VK_DECIMAL:              return kVK_DECIMAL;
+    case DOM_VK_DIVIDE:               return kVK_DIVIDE;
+    case DOM_VK_F1:                   return kVK_F1;
+    case DOM_VK_F2:                   return kVK_F2;
+    case DOM_VK_F3:                   return kVK_F3;
+    case DOM_VK_F4:                   return kVK_F4;
+    case DOM_VK_F5:                   return kVK_F5;
+    case DOM_VK_F6:                   return kVK_F6;
+    case DOM_VK_F7:                   return kVK_F7;
+    case DOM_VK_F8:                   return kVK_F8;
+    case DOM_VK_F9:                   return kVK_F9;
+    case DOM_VK_F10:                  return kVK_F10;
+    case DOM_VK_F11:                  return kVK_F11;
+    case DOM_VK_F12:                  return kVK_F12;
+    case DOM_VK_F13:                  return kVK_F13;
+    case DOM_VK_F14:                  return kVK_F14;
+    case DOM_VK_F15:                  return kVK_F15;
+    case DOM_VK_F16:                  return kVK_F16;
+    case DOM_VK_F17:                  return kVK_F17;
+    case DOM_VK_F18:                  return kVK_F18;
+    case DOM_VK_F19:                  return kVK_F19;
+    case DOM_VK_F20:                  return kVK_F20;
+    case DOM_VK_F21:                  return kVK_F21;
+    case DOM_VK_F22:                  return kVK_F22;
+    case DOM_VK_F23:                  return kVK_F23;
+    case DOM_VK_F24:                  return kVK_F24;
+    case DOM_VK_NUM_LOCK:             return kVK_NUMLOCK;
+    case DOM_VK_SCROLL_LOCK:          return kVK_SCROLL;
 //    case DOM_VK_WIN_OEM_FJ_JISHO:     return 0;  // TODO
 //    case DOM_VK_WIN_OEM_FJ_MASSHOU:   return 0;  // TODO
 //    case DOM_VK_WIN_OEM_FJ_TOUROKU:   return 0;  // TODO
@@ -203,7 +202,7 @@ static int domVKToWinVK(int dom_vk_code)
 //    case DOM_VK_ZOOM:                 return 0;  // TODO
 //    case DOM_VK_PA1:                  return 0;  // TODO
 //    case DOM_VK_WIN_OEM_CLEAR:        return 0;  // TODO
-    default:                          return 0;
+    default:                          return kVK_NONE;
   }
 }
 
