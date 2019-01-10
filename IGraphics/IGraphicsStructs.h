@@ -931,7 +931,7 @@ struct IRECT
   void GetRandomPoint(float& x, float& y) const
   {
     std::random_device rd;
-    std::mt19937 gen(rd()); // TODO: most sensible RNG?
+    std::mt19937 gen(rd()); // TODO: most sensible RNG? - [AH this isn't the way to do this as the generator is only used once - you don't want to have one in struct - could be a static? - also the mersenne twister has quite a large state space (memory footprint)]
     std::uniform_real_distribution<float> dist(0., 1.);
     x = L + dist(gen) * W();
     y = T + dist(gen) * H();
