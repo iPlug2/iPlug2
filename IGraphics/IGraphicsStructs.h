@@ -23,6 +23,8 @@
 #include <algorithm>
 #include <random>
 #include <chrono>
+#include <string>
+
 
 #include "wdlstring.h"
 #include "ptrlist.h"
@@ -34,6 +36,7 @@
 
 class IGraphics;
 class IControl;
+class ILambdaControl;
 struct IRECT;
 struct IMouseInfo;
 template <typename T = double>
@@ -41,7 +44,7 @@ inline T DegToRad(T degrees);
 
 typedef std::function<void(IControl*)> IActionFunction;
 typedef std::function<void(IControl*)> IAnimationFunction;
-typedef std::function<void(IControl*, IGraphics&, IRECT&, IMouseInfo&, double)> IDrawFunction;
+typedef std::function<void(ILambdaControl*, IGraphics&, IRECT&)> ILambdaDrawFunction;
 
 void DefaultClickActionFunc(IControl* pCaller);
 void DefaultAnimationFunc(IControl* pCaller);
@@ -1473,35 +1476,55 @@ template <class T>
 class StaticStorage
 {
 public:
-  // djb2 hash function (hash * 33 + c) - see http://www.cse.yorku.ca/~oz/hash.html // TODO: can we use C++11 std::hash instead of this?
-  uint32_t Hash(const char* str)
+  
+  // Accessor class that mantains threadsafety when using static storage via RAII
+  
+  class Accessor : private WDL_MutexLock
   {
-    uint32_t hash = 5381;
-    int c;
-
-    while ((c = *str++))
-    {
-      hash = ((hash << 5) + hash) + c;
-    }
-
-    return hash;
+  public:
+    
+    Accessor(StaticStorage& storage) : WDL_MutexLock(&storage.mMutex), mStorage(storage) {}
+    
+    T* Find(const char* str, double scale = 1.)               { return mStorage.Find(str, scale); }
+    void Add(T* pData, const char* str, double scale = 1.)    { return mStorage.Add(pData, str, scale); }
+    void Remove(T* pData)                                     { return mStorage.Remove(pData); }
+    void Clear()                                              { return mStorage.Clear(); }
+    void Retain()                                             { return mStorage.Retain(); }
+    void Release()                                            { return mStorage.Release(); }
+      
+  private:
+    
+    StaticStorage& mStorage;
+  };
+    
+  ~StaticStorage()
+  {
+    Clear();
   }
 
+private:
+    
   struct DataKey
   {
     // N.B. - hashID is not guaranteed to be unique
-    uint32_t hashID;
+    size_t hashID;
     WDL_String name;
     double scale;
-    T* data;
+    std::unique_ptr<T> data;
   };
+    
+  size_t Hash(const char* str)
+  {
+    std::string string(str);
+    return std::hash<std::string>()(string);
+  }
 
   T* Find(const char* str, double scale = 1.)
   {
     WDL_String cacheName(str);
     cacheName.AppendFormatted((int) strlen(str) + 6, "-%.1fx", scale);
     
-    uint32_t hashID = Hash(cacheName.Get());
+    size_t hashID = Hash(cacheName.Get());
     
     int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
@@ -1510,7 +1533,7 @@ public:
 
       // Use the hash id for a quick search and then confirm with the scale and identifier to ensure uniqueness
       if (pKey->hashID == hashID && scale == pKey->scale && !strcmp(str, pKey->name.Get()))
-        return pKey->data;
+        return pKey->data.get();
     }
     return nullptr;
   }
@@ -1523,7 +1546,7 @@ public:
     cacheName.AppendFormatted((int) strlen(str) + 6, "-%.1fx", scale);
     
     pKey->hashID = Hash(cacheName.Get());
-    pKey->data = pData;
+    pKey->data = std::unique_ptr<T>(pData);
     pKey->scale = scale;
     pKey->name.Set(str);
 
@@ -1532,13 +1555,11 @@ public:
 
   void Remove(T* pData)
   {
-    int i, n = mDatas.GetSize();
-    for (i = 0; i < n; ++i)
+    for (int i = 0; i < mDatas.GetSize(); ++i)
     {
-      if (mDatas.Get(i)->data == pData)
+      if (mDatas.Get(i)->data.get() == pData)
       {
         mDatas.Delete(i, true);
-        delete pData;
         break;
       }
     }
@@ -1546,24 +1567,22 @@ public:
 
   void Clear()
   {
-    int i, n = mDatas.GetSize();
-    for (i = 0; i < n; ++i)
-    {
-      // FIXME: - this doesn't work - why not?
-      /*
-      DataKey* key = mDatas.Get(i);
-      T* data = key->data;
-      delete data;*/
-    }
     mDatas.Empty(true);
   };
 
-  ~StaticStorage()
+  void Retain()
   {
-    Clear();
+    mCount++;
   }
-
-private:
+    
+  void Release()
+  {
+    if (--mCount == 0)
+      Clear();
+  }
+    
+  int mCount;
+  WDL_Mutex mMutex;
   WDL_PtrList<DataKey> mDatas;
 };
 

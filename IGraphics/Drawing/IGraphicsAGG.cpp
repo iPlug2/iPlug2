@@ -12,7 +12,7 @@
 
 #include "IGraphicsAGG.h"
 
-static StaticStorage<agg::font> s_fontCache;
+static StaticStorage<IGraphicsAGG::FontType> s_fontCache;
 
 // Utility
 
@@ -111,7 +111,7 @@ void GradientRasterize(IGraphicsAGG::Rasterizer& rasterizer, const FuncType& gra
 template <typename FuncType, typename ColorArrayType>
 void GradientRasterizeAdapt(IGraphicsAGG::Rasterizer& rasterizer, EPatternExtend extend, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray, agg::comp_op_e op)
 {
-  // FIX extend none
+  // TODO extend none
   
   switch (extend)
   {
@@ -198,12 +198,19 @@ IGraphicsAGG::IGraphicsAGG(IGEditorDelegate& dlg, int w, int h, int fps, float s
 , mFontManager(mFontEngine)
 , mFontCurves(mFontManager.path_adaptor())
 , mFontContour(mFontCurves)
+, mFontCurvesTransformed(mFontCurves, mTransform)
+, mFontContourTransformed(mFontContour, mTransform)
 {
   DBGMSG("IGraphics AGG @ %i FPS\n", fps);
+    
+  StaticStorage<IGraphicsAGG::FontType>::Accessor storage(s_fontCache);
+  storage.Retain();
 }
 
 IGraphicsAGG::~IGraphicsAGG()
 {
+  StaticStorage<IGraphicsAGG::FontType>::Accessor storage(s_fontCache);
+  storage.Release();
 }
 
 void IGraphicsAGG::DrawResize()
@@ -211,7 +218,6 @@ void IGraphicsAGG::DrawResize()
   mPixelMap.create(WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
   UpdateLayer();
   mRasterizer.SetOutput(mRenBuf);
-  mRasterizer.ClearWhite();
     
   mTransform = agg::trans_affine_scaling(GetBackingPixelScale(), GetBackingPixelScale());
 }
@@ -222,26 +228,61 @@ void IGraphicsAGG::UpdateLayer()
   mRenBuf.attach(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
 }
 
-//IFontData IGraphicsAGG::LoadFont(const char* name, const int size)
-//{
-//  WDL_String cacheName(name);
-//  char buf [6] = {0};
-//  sprintf(buf, "-%dpt", size);
-//  cacheName.Append(buf);
-//
-//  agg::font* font_buf = s_fontCache.Find(cacheName.Get());
-//  if (!font_buf)
-//  {
-//    font_buf = (agg::font*) OSLoadFont(name, size);
-//#ifndef NDEBUG
-//    bool fontResourceFound = font_buf;
-//#endif
-//    assert(fontResourceFound); // Protect against typos in resource.h and .rc files.
-//
-//    s_fontCache.Add(font_buf, cacheName.Get());
-//  }
-//  return IFontData(font_buf);
-//}
+bool IGraphicsAGG::LoadFont(const char* fileName)
+{
+  // does not check for existing fonts
+  agg::font* font = nullptr;
+  WDL_String fontNameWithoutExt(fileName, (int) strlen(fileName));
+  fontNameWithoutExt.remove_fileext();
+  WDL_String fullPath;
+  EResourceLocation foundResource = OSFindResource(fileName, "ttf", fullPath);
+  
+  if (foundResource != EResourceLocation::kNotFound)
+  {
+#ifdef OS_WIN
+    if (foundResource == EResourceLocation::kWinBinary)
+    {
+      int sizeInBytes = 0;
+      const void* pResData = LoadWinResource(fullPath.Get(), "ttf", sizeInBytes);
+      
+      if(pResData && sizeInBytes)
+      {
+        // Load from resource...
+      }
+    }
+    else
+#endif
+      //font = new agg::font_engine_freetype_int32;
+      //fontID = nvgCreateFont(mVG, fontNameWithoutExt.Get(), fullPath.Get());
+    
+    if (!font)
+    {
+      DBGMSG("Could not locate font %s\n", fileName);
+      return false;
+    }
+    else
+      return true;
+  }
+  
+  return false;
+}
+
+agg::font* IGraphicsAGG::FindFont(const char* font, int size)
+{
+  StaticStorage<FontType>::Accessor storage(s_fontCache);
+  FontType* font_buf = storage.Find(font, size);
+    
+  if (!font_buf)
+  {
+    font_buf = new FontType;
+    if (!font_buf->load_font(font, size))
+      DELETE_NULL(font_buf);
+    if (font_buf)
+      storage.Add(font_buf, font, size);
+  }
+    
+  return font_buf;
+}
 
 bool CheckTransform(const agg::trans_affine& mtx)
 {
@@ -569,14 +610,12 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IREC
 {
   LineInfo info;
   info.mStartChar = 0;
-  info.mEndChar = (int) strlen(str);
+  info.mEndChar = 0;
   pLines->Add(info);
   
   LineInfo* pLine = pLines->Get();
   
-  size_t lineStart = 0;
-  size_t lineWidth = 0;
-  size_t linePos = 0;
+  int linePos = 0;
   double xCount = 0.0;
   
   const char* cstr = str;
@@ -595,171 +634,127 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IREC
     
     if (*cstr == ' ' || *cstr == 0)
     {
-      pLine->mStartChar = (int) lineStart;
-      pLine->mEndChar = (int)  linePos;
+      pLine->mEndChar = linePos;
       pLine->mWidth = xCount;
     }
-    
+    /*
     if (bounds.W() > 0 && xCount >= bounds.W())
     {
-      assert(pLine);
-      
       cstr = &str[pLine->mEndChar];
-      lineStart = pLine->mEndChar + 1;
-      linePos = pLine->mEndChar;
-      
+        
       LineInfo info;
-      pLines->Add(info);
-      pLine++;
-      
-      assert(pLines);
-      
-      xCount = 0;
-      lineWidth = 0;
-    }
+      info.mStartChar = info.mEndChar = linePos = pLine->mEndChar + 1;
+      info.mWidth = xCount = 0.0;
     
+      pLine = pLines->Add(info);
+    }*/
   }
 }
 
-bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& destBounds, const IBlend* pBlend, bool measure)
+bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
-//  if (!str || str[0] == '\0')
-//  {
-//    return true;
-//  }
-//
-//  IRECT bounds = destBounds;
-//  bounds.Scale(GetScreenScale());
-//
-//  RendererSolid renSolid(mRenBase);
-//  RendererBin renBin(mRenBase);
-//
-//  agg::scanline_u8 sl;
-//  agg::rasterizer_scanline_aa<> ras;
-//
-//  agg::glyph_rendering gren = agg::glyph_ren_agg_gray8;
-//  //agg::glyph_rendering gren = agg::glyph_ren_outline;
-//  //agg::glyph_rendering gren = agg::glyph_ren_agg_mono;
-//  //agg::glyph_rendering gren = agg::glyph_ren_native_gray8;
-//  //agg::glyph_rendering gren = agg::glyph_ren_native_mono;
-//
-//  float weight = 0.0;
-//  bool kerning = false;
-//  bool hinting = false;
-//
-//  if (gren == agg::glyph_ren_agg_mono)
-//  {
-//    mFontEngine.gamma(agg::gamma_threshold(0.5));
-//  }
-//  else
-//  {
-//    mFontEngine.gamma(agg::gamma_power(1.0));
-//  }
-//
-//  if (gren == agg::glyph_ren_outline)
-//  {
-//    //for outline cache set gamma for the rasterizer
-//    ras.gamma(agg::gamma_power(1.0));
-//  }
-//
-//  mFontContour.width(-weight * (text.mSize * 0.05) * GetScreenScale());
-//
-//  IFontData font = LoadFont(text.mFont, text.mSize);
-//  agg::font* pFontData = (agg::font *)font.mData;
-//
-//  if (pFontData != 0 && mFontEngine.load_font("", 0, gren, pFontData->buf(), pFontData->size()))
-//  {
-//    mFontEngine.hinting(hinting);
-//    mFontEngine.height(text.mSize * GetScreenScale());
-//    mFontEngine.width(text.mSize * GetScreenScale());
-//    mFontEngine.flip_y(true);
-//
-//    double x = bounds.L;
-//    double y = bounds.T + (text.mSize * GetScreenScale());
-//
-//    WDL_TypedBuf<LineInfo> lines;
-//
-//    CalculateTextLines(&lines, bounds, str, mFontManager);
-//
-//    LineInfo * pLines = lines.Get();
-//
-//    for (int i=0; i<lines.GetSize(); ++i, ++pLines)
-//    {
-//      switch (text.mAlign)
-//      {
-//        case IText::kAlignNear:
-//          x = bounds.L;
-//          break;
-//        case IText::kAlignCenter:
-//          x = bounds.L + ((bounds.W() - pLines->mWidth) / 2);
-//          break;
-//        case IText::kAlignFar:
-//          x = bounds.L + (bounds.W() - pLines->mWidth);
-//          break;
-//      }
-//
-//      for (size_t c=pLines->mStartChar; c<pLines->mEndChar; c++)
-//      {
-//        const agg::glyph_cache* pGlyph = mFontManager.glyph(str[c]);
-//
-//        if (pGlyph)
-//        {
-//          if (kerning)
-//          {
-//            mFontManager.add_kerning(&x, &y);
-//          }
-//
-//          mFontManager.init_embedded_adaptors(pGlyph, x, y);
-//
-//          switch (pGlyph->data_type)
-//          {
-//            case agg::glyph_data_mono:
-//
-//              renBin.color(IColorToAggColor(text.mColor));
-//              agg::render_scanlines(mFontManager.mono_adaptor(),
-//                                    mFontManager.mono_scanline(),
-//                                    renBin);
-//              break;
-//
-//            case agg::glyph_data_gray8:
-//
-//              renSolid.color(IColorToAggColor(text.mColor));
-//              agg::render_scanlines(mFontManager.gray8_adaptor(),
-//                                    mFontManager.gray8_scanline(),
-//                                    renSolid);
-//              break;
-//
-//            case agg::glyph_data_outline:
-//
-//              ras.reset();
-//
-//              if (fabs(weight) <= 0.01)
-//              {
-//                //for the sake of efficiency skip the
-//                //contour converter if the weight is about zero.
-//                ras.add_path(mFontCurves);
-//              }
-//              else
-//              {
-//                ras.add_path(mFontContour);
-//              }
-//
-//              renSolid.color(IColorToAggColor(text.mColor));
-//              agg::render_scanlines(ras, sl, renSolid);
-//
-//              break;
-//
-//            default: break;
-//          }
-//
-//          //increment pen position
-//          x += pGlyph->advance_x;
-//          y += pGlyph->advance_y;
-//        }
-//      }
-//      y += text.mSize * GetScreenScale();
-//    }
-//  }
+  if (!str || str[0] == '\0')
+  {
+    return true;
+  }
+
+  float weight = 0.0;
+  const bool kerning = false;
+  const bool hinting = false;
+
+  mFontContour.width(-weight * (text.mSize * 0.05));
+
+  agg::font* pFontData = FindFont(text.mFont, text.mSize);
+
+  if (!pFontData)
+    pFontData = FindFont("Arial", text.mSize);
+    
+  assert(pFontData);
+    
+  if (pFontData != 0 && mFontEngine.load_font("", 0, agg::glyph_ren_outline, pFontData->buf(), pFontData->size()))
+  {
+    mFontEngine.hinting(hinting);
+    mFontEngine.height(text.mSize);
+    mFontEngine.width(text.mSize);
+    mFontEngine.flip_y(true);
+
+    WDL_TypedBuf<LineInfo> lines;
+    CalculateTextLines(&lines, bounds, str, mFontManager);
+    LineInfo * pLines = lines.Get();
+      
+    double x = bounds.L;
+    double y = bounds.T + (text.mSize);
+      
+    switch (text.mVAlign)
+    {
+      case IText::kVAlignTop:
+        break;
+      case IText::kVAlignMiddle:
+        y += ((bounds.H() - (lines.GetSize() * text.mSize)) / 2.0);
+        break;
+      case IText::kVAlignBottom:
+        y = bounds.B;
+        break;
+    }
+      
+    if (measure)
+    {
+      double width = 0.0;
+      
+      for (int i = 0; i < lines.GetSize(); ++i, ++pLines)
+        width = std::max(width, pLines->mWidth);
+      
+      bounds.B = bounds.T + lines.GetSize() * text.mSize;
+      bounds.R = bounds.L + width;
+    }
+    else
+    {
+      for (int i = 0; i < lines.GetSize(); ++i, ++pLines)
+      {
+        switch (text.mAlign)
+        {
+          case IText::kAlignNear:
+            x = bounds.L;
+            break;
+          case IText::kAlignCenter:
+            x = bounds.L + ((bounds.W() - pLines->mWidth) / 2.0);
+            break;
+          case IText::kAlignFar:
+            x = bounds.L + (bounds.W() - pLines->mWidth);
+            break;
+        }
+        
+        for (size_t c = pLines->mStartChar; c < pLines->mEndChar; c++)
+        {
+          const agg::glyph_cache* pGlyph = mFontManager.glyph(str[c]);
+          
+          if (pGlyph)
+          {
+            if (kerning)
+            {
+              mFontManager.add_kerning(&x, &y);
+            }
+            
+            mFontManager.init_embedded_adaptors(pGlyph, x, y);
+            agg::rgba8 color(AGGColor(text.mFGColor, BlendWeight(pBlend)));
+            
+            if (fabs(weight) <= 0.01)
+            {
+              //for the sake of efficiency skip the contour converter if the weight is about zero.
+              mRasterizer.Rasterize(mFontCurvesTransformed, color, AGGBlendMode(pBlend));
+            }
+            else
+            {
+              mRasterizer.Rasterize(mFontContourTransformed, color, AGGBlendMode(pBlend));
+            }
+          }
+          x += pGlyph->advance_x;
+          y += pGlyph->advance_y;
+        }
+        y += text.mSize;
+      }
+    }
+  }
   return false;
 }
 

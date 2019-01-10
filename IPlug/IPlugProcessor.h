@@ -292,8 +292,8 @@ private:
   /* A list of IChannelData structures corresponding to every input/output channel */
   WDL_PtrList<IChannelData<>> mChannelData[2];
 protected: // these members are protected because they need to be access by the API classes, and don't want a setter/getter
-  /** Pointer to a multichannel delay line used to delay the bypassed signal when a plug-in with latency is bypassed. */
-  NChanDelayLine<T>* mLatencyDelay = nullptr;
+  /** A multichannel delay line used to delay the bypassed signal when a plug-in with latency is bypassed. */
+  std::unique_ptr<NChanDelayLine<T>> mLatencyDelay = nullptr;
   /** Contains detailed information about the transport state */
   ITimeInfo mTimeInfo;
 };

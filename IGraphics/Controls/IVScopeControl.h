@@ -22,7 +22,7 @@
 
 /** Vectorial multichannel capable oscilloscope control
  * @ingroup IControls */
-template <int MAXNC = 1, int MAXBUF = 128>
+template <int MAXNC = 1, int MAXBUF = 128, int QUEUE_SIZE = 1024>
 class IVScopeControl : public IControl
                      , public IVectorBase
 {
@@ -101,7 +101,7 @@ public:
     Data mBuf;
     int mControlTag;
     int mBufCount = 0;
-    IPlugQueue<Data> mQueue { 1024 };
+    IPlugQueue<Data> mQueue {QUEUE_SIZE};
     bool mPrevAboveThreshold = true;
   };
 

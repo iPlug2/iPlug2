@@ -71,9 +71,6 @@ IPlugProcessor<T>::~IPlugProcessor()
   mChannelData[ERoute::kInput].Empty(true);
   mChannelData[ERoute::kOutput].Empty(true);
   mIOConfigs.Empty(true);
-
-  if (mLatencyDelay)
-    DELETE_NULL(mLatencyDelay);
 }
 
 template<typename T>

@@ -64,6 +64,8 @@
 #elif defined IGRAPHICS_METAL
   #if defined OS_MAC || defined OS_IOS
     #include "nanovg_mtl.h"
+    //even though this is a .cpp we are in an objc(pp) compilation unit
+    #import <Metal/Metal.h>
   #else
     #error NOT IMPLEMENTED
   #endif
@@ -76,6 +78,15 @@ void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int
 #if defined(IGRAPHICS_GL)
   glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pData);
 #elif defined(IGRAPHICS_METAL)
+#if defined OS_MAC
+  id<MTLCommandBuffer> commandBuffer = [static_cast<id<MTLCommandQueue>>(mnvgCommandQueue(pContext)) commandBuffer];
+  id<MTLBlitCommandEncoder> blitCommandEncoder = [commandBuffer blitCommandEncoder];
+  id<MTLTexture> texture = static_cast<id<MTLTexture>>(mnvgImageHandle(pContext, image));
+  [blitCommandEncoder synchronizeTexture:texture slice:0 level:0];
+  [blitCommandEncoder endEncoding];
+  [commandBuffer commit];
+  [commandBuffer waitUntilCompleted];
+#endif
   mnvgReadPixels(pContext, image, x, y, width, height, pData);
 #endif
 }
@@ -241,7 +252,8 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
     targetScale = GetScreenScale();
 
   // NanoVG does not use the global static cache, since bitmaps are textures linked to a context
-  APIBitmap* pAPIBitmap = mBitmapCache.Find(name, targetScale);
+  StaticStorage<APIBitmap>::Accessor storage(mBitmapCache);
+  APIBitmap* pAPIBitmap = storage.Find(name, targetScale);
   
   // If the bitmap is not already cached at the targetScale
   if (!pAPIBitmap)
@@ -261,7 +273,7 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
 
     pAPIBitmap = LoadAPIBitmap(fullPathOrResourceID.Get(), sourceScale, resourceFound, ext);
     
-    mBitmapCache.Add(pAPIBitmap, name, sourceScale);
+    storage.Add(pAPIBitmap, name, sourceScale);
 
     assert(pAPIBitmap);
   }
@@ -423,11 +435,13 @@ void IGraphicsNanoVG::OnViewInitialized(void* pContext)
   glfwMakeContextCurrent(gWindow);
 #endif // OS_WEB
  
-  int flags = NVG_ANTIALIAS | NVG_STENCIL_STROKES /*| NVG_TRIPLE_BUFFER check!*/;
+  int flags = NVG_ANTIALIAS | NVG_STENCIL_STROKES;
   
 #if defined IGRAPHICS_METAL
+  flags |= NVG_TRIPLE_BUFFER; // Metal should be triple buffered
   mVG = nvgCreateContext(pContext, flags);
 #else
+  flags |= NVG_DOUBLE_BUFFER;
   mVG = nvgCreateContext(flags);
 #endif
   
@@ -437,9 +451,12 @@ void IGraphicsNanoVG::OnViewInitialized(void* pContext)
 
 void IGraphicsNanoVG::OnViewDestroyed()
 {
-  // need to remove all the controls to free framebuffers, before deleting context
+  // need to free framebuffers, before deleting context
   RemoveAllControls();
 
+  StaticStorage<APIBitmap>::Accessor storage(mBitmapCache);
+  storage.Clear();
+  
   if(mMainFrameBuffer != nullptr)
     nvgDeleteFramebuffer(mMainFrameBuffer);
   
@@ -752,21 +769,6 @@ bool IGraphicsNanoVG::LoadFont(const char* fileName)
   return false;
 }
 
-void IGraphicsNanoVG::DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, float pad, const IBlend* pBlend)
-{
-  IRECT inner = bounds.GetPadded(-pad);
-  NVGpaint shadowPaint = nvgBoxGradient(mVG, inner.L, inner.T + ydrop, inner.W(), inner.H(), cr * 2., 20, NanoVGColor(COLOR_BLACK_DROP_SHADOW, pBlend), NanoVGColor(COLOR_TRANSPARENT));
-  nvgBeginPath(mVG);
-  nvgRect(mVG, bounds.L, bounds.T, bounds.W(), bounds.H());
-  nvgRoundedRect(mVG, inner.L, inner.T, inner.W(), inner.H(), cr);
-  nvgPathWinding(mVG, NVG_HOLE);
-  nvgFillPaint(mVG, shadowPaint);
-  NanoVGSetBlendMode(mVG, pBlend);
-  nvgFill(mVG);
-  nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
-  nvgBeginPath(mVG); // Clear the paths
-}
-
 void IGraphicsNanoVG::UpdateLayer()
 {
   if (mLayers.empty())
@@ -853,9 +855,9 @@ void IGraphicsNanoVG::DrawDottedLine(const IColor& color, float x1, float y1, fl
 
 void IGraphicsNanoVG::DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness, float dashLen)
 {
-  const int xsegs = bounds.W() / (dashLen * 2.f);
-  const int ysegs = bounds.H() / (dashLen * 2.f);
-
+  const int xsegs = static_cast<int>(std::ceil(bounds.W() / (dashLen * 2.f)));
+  const int ysegs = static_cast<int>(std::ceil(bounds.H() / (dashLen * 2.f)));
+  
   float x1 = bounds.L;
   float y1 = bounds.T;
   
@@ -868,9 +870,9 @@ void IGraphicsNanoVG::DrawDottedRect(const IColor& color, const IRECT& bounds, c
   {
     for (int i = 0; i < xsegs; i++)
     {
-      x2 = x1 + dashLen;
+      x2 = Clip(x1 + dashLen, bounds.L, bounds.R);
       PathLineTo(x2, y2);
-      x1 = x2 + dashLen;
+      x1 = Clip(x2 + dashLen, bounds.L, bounds.R);
       PathMoveTo(x1, y1);
     }
     
@@ -878,9 +880,9 @@ void IGraphicsNanoVG::DrawDottedRect(const IColor& color, const IRECT& bounds, c
     
     for (int i = 0; i < ysegs; i++)
     {
-      y2 = y1 + dashLen;
+      y2 = Clip(y1 + dashLen, bounds.T, bounds.B);
       PathLineTo(x2, y2);
-      y1 = y2 + dashLen;
+      y1 = Clip(y2 + dashLen, bounds.T, bounds.B);
       PathMoveTo(x1, y1);
     }
     

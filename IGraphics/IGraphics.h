@@ -452,7 +452,7 @@ public:
   void ResumeLayer(ILayerPtr& layer);
   ILayerPtr EndLayer();
   bool CheckLayer(const ILayerPtr& layer);
-  void DrawLayer(const ILayerPtr& layer);
+  void DrawLayer(const ILayerPtr& layer, const IBlend* pBlend = nullptr);
   void DrawRotatedLayer(const ILayerPtr& layer, double angle);
     
   /** Applies a dropshadow directly onto a layer
@@ -509,8 +509,6 @@ public:
 
   virtual void PathClipRegion(const IRECT r = IRECT()) {}
   
-  virtual void DrawBoxShadow(const IRECT& bounds, float cr = 0.f, float ydrop = 2.f, float pad = 10.f, const IBlend* pBlend = 0) {};
-
 private:
     
   /** This is used to prepare a particular area of the display for drawing, normally resulting in clipping of the region.
@@ -1070,7 +1068,7 @@ private:
   void ForAllControlsFunc(std::function<void(IControl& control)> func);
     
   template<typename T, typename... Args>
-  void ForAllControls(T op, Args... args);
+  void ForAllControls(T method, Args... args);
   
   WDL_PtrList<IControl> mControls;
 

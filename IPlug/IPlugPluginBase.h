@@ -107,15 +107,15 @@ public:
   virtual void InformHostOfParameterDetailsChange() {};
   
 #pragma mark - Parameter Change
-  /** Override this method to do something when a parameter changes.
-   * THIS METHOD **CAN BE** CALLED BY THE HIGH PRIORITY AUDIO THREAD
+  /** Override this method to do something to your DSP when a parameter changes.
+   * WARNING: this method can in some cases be called on the realtime audio thread
    * @param paramIdx The index of the parameter that changed
    * @param source One of the EParamSource options to indicate where the parameter change came from.
-   * @param sampleOffset For sample accurate parameter changes - index into current block
-   */
+   * @param sampleOffset For sample accurate parameter changes - index into current block */
   virtual void OnParamChange(int paramIdx, EParamSource source, int sampleOffset = -1);
   
-  /** Another version of the OnParamChange method without an EParamSource, for backwards compatibility / simplicity. */
+  /** Another version of the OnParamChange method without an EParamSource, for backwards compatibility / simplicity.
+   * WARNING: this method can in some cases be called on the realtime audio thread */
   virtual void OnParamChange(int paramIdx) {}
   
   /** Calls OnParamChange() and OnParamChangeUI() for each parameter.
