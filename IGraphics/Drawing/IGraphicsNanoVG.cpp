@@ -441,7 +441,6 @@ void IGraphicsNanoVG::OnViewInitialized(void* pContext)
   flags |= NVG_TRIPLE_BUFFER; // Metal should be triple buffered
   mVG = nvgCreateContext(pContext, flags);
 #else
-  flags |= NVG_DOUBLE_BUFFER;
   mVG = nvgCreateContext(flags);
 #endif
   
