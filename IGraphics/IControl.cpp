@@ -101,6 +101,15 @@ void IControl::SetValueFromUserInput(double value)
   }
 }
 
+void IControl::SetValueToDefault()
+{
+  if (mParamIdx || mDefaultValue >= 0.0)
+  {
+    mValue = mParamIdx > kNoParameter ? GetParam()->GetDefault(true) : mDefaultValue;
+    SetDirty(true);
+  }
+}
+
 void IControl::SetDirty(bool triggerAction)
 {
   mValue = Clip(mValue, mClampLo, mClampHi);
@@ -158,10 +167,9 @@ void IControl::GrayOut(bool gray)
 void IControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   #ifdef PROTOOLS
-  if (mod.A && mDefaultValue >= 0.0)
+  if (mod.A)
   {
-    mValue = mDefaultValue;
-    SetDirty();
+    SetValueToDefault();
   }
   #endif
 
@@ -176,8 +184,7 @@ void IControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
   #else
   if (mDefaultValue >= 0.0)
   {
-    mValue = mDefaultValue;
-    SetDirty();
+    SetValueToDefault();
   }
   #endif
 }

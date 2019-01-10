@@ -194,6 +194,10 @@ public:
    * This method is called after a text entry or popup menu prompt triggered by PromptUserInput(), calling SetDirty(true), which will mean that the new value gets sent back to the delegate
    * @param value the normalised value after user input via text entry or pop-up menu */
   virtual void SetValueFromUserInput(double value);
+    
+  /** Set the control's value to the default value of the control, or the parameter.
+   * This method is should call through to SetDirty(true), which will mean that the new value gets sent back to the delegate |*/
+  virtual void SetValueToDefault();
   
   /** Get the control's value
    * @return Value of the control (normalized in the range 0-1) */
