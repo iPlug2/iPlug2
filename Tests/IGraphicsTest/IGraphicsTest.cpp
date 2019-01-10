@@ -42,7 +42,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->SetKeyHandlerFunc([&](const IKeyPress& key)
     {
       switch (key.VK) {
-        case VK_TAB:
+        case kVK_TAB:
           dynamic_cast<IPanelControl*>(GetUI()->GetBackgroundControl())->SetPattern(IColor::GetRandomColor());
           break;
           
