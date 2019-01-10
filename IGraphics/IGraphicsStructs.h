@@ -21,7 +21,7 @@
 #include <cassert>
 #include <functional>
 #include <algorithm>
-#include <random>
+#include <numeric>
 #include <chrono>
 #include <string>
 
@@ -930,11 +930,11 @@ struct IRECT
 
   void GetRandomPoint(float& x, float& y) const
   {
-    std::random_device rd;
-    std::mt19937 gen(rd()); // TODO: most sensible RNG? - [AH this isn't the way to do this as the generator is only used once - you don't want to have one in struct - could be a static? - also the mersenne twister has quite a large state space (memory footprint)]
-    std::uniform_real_distribution<float> dist(0., 1.);
-    x = L + dist(gen) * W();
-    y = T + dist(gen) * H();
+    const float r1 = static_cast<float>(std::rand()/(RAND_MAX+1.f));
+    const float r2 = static_cast<float>(std::rand()/(RAND_MAX+1.f));
+
+    x = L + r1 * W();
+    y = T + r2 * H();
   }
 
   IRECT GetRandomSubRect() const
