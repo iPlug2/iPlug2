@@ -467,7 +467,7 @@ void IGraphicsNanoVG::OnViewDestroyed()
 #if defined OS_WIN
   if (mHGLRC)
   {
-    wglMakeCurrent((HDC)mPlatformContext, nullptr);
+    wglMakeCurrent((HDC) mPlatformContext, nullptr);
     wglDeleteContext(mHGLRC);
   }
 #elif defined OS_WEB
@@ -493,6 +493,11 @@ void IGraphicsNanoVG::BeginFrame()
 #ifdef IGRAPHICS_METAL
   //  mnvgClearWithColor(mVG, nvgRGBAf(0, 0, 0, 0));
 #else
+#ifdef OS_WIN
+  mStartHDC = wglGetCurrentDC();
+  mStartHGLRC = wglGetCurrentContext();
+  wglMakeCurrent((HDC) GetPlatformContext(), mHGLRC);
+#endif
   glViewport(0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -527,7 +532,9 @@ void IGraphicsNanoVG::EndFrame()
   
   nvgEndFrame(mVG);
 
-#if defined OS_WEB
+#if defined OS_WIN
+  wglMakeCurrent(mStartHDC, mStartHGLRC);
+ #elif defined OS_WEB
   glEnable(GL_DEPTH_TEST);
 #endif
 }
