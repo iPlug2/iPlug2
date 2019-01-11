@@ -27,6 +27,12 @@
 #include "IGraphicsLice_src.h"
 #include "IGraphics.h"
 
+inline LICE_pixel LiceColor(const IColor& color, const IBlend* pBlend)
+{
+  int alpha = std::round(color.A * BlendWeight(pBlend));
+  return LICE_RGBA(color.R, color.G, color.B, alpha);
+}
+
 inline LICE_pixel LiceColor(const IColor& color)
 {
   return LICE_RGBA(color.R, color.G, color.B, color.A);
@@ -129,6 +135,14 @@ protected:
   float GetBackingPixelScale() const override { return GetScreenScale(); };
 
 private:
+    
+  bool OpacityCheck(const IColor& color, const IBlend* pBlend)
+  {
+    return (color.A == 255) && BlendWeight(pBlend) >= 1.f;
+  }
+    
+  template<typename T, typename... Args>
+  void OpacityLayer(T method, const IBlend* pBlend, const IColor& color, Args... args);
     
   float TransformX(float x)
   {

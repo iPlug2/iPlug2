@@ -8,7 +8,7 @@ import re
 # OR (manually) Put this line in your ~/.lldbinit file:
 #  command script import [path]
 # Where [path] is the full path to this file. For example:
-#  command script import /Users/me/juce-toys/juce_lldb_xcode.py
+#  command script import /Users/Iplug2/Scripts/iPlug_lldb_xcode.py
 
 def __lldb_init_module(debugger, dict):
 

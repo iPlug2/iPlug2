@@ -25,6 +25,8 @@
  * @ingroup SpecialControls */
 class IPopupMenuControl : public IControl
 {
+  class MenuPanel;
+    
 public:
   /** An enumerated list, that is used to determine the state of the menu, mainly for animations*/
   enum EPopupState
@@ -74,9 +76,9 @@ public:
   /** Override this method to change the background of the pop-up menu panel */
   virtual void DrawCalloutArrow(IGraphics& g, const IRECT& bounds, IBlend* pBlend);
   /** Override this method to change the background of the pop-up menu panel */
-  virtual void DrawPanelBackground(IGraphics& g, const IRECT& bounds, IBlend* pBlend);
+  virtual void DrawPanelBackground(IGraphics& g, MenuPanel* panel);
   /** Override this method to change the shadow of the pop-up menu panel */
-  virtual void DrawPanelShadow(IGraphics& g, const IRECT& bounds, IBlend* pBlend);
+  virtual void DrawPanelShadow(IGraphics& g, MenuPanel* panel);
   /** Override this method to change the way a cell's background is drawn */
   virtual void DrawCellBackground(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item* pItem, bool sel, IBlend* pBlend);
   /** Override this method to change the way a cell's text is drawn */
@@ -168,6 +170,10 @@ private:
     int mParentIdx = 0; // An index into the IPopupMenuControl::mMenuPanels lists, representing the parent menu panel
     bool mScroller = false;
     int mScrollItemOffset = 0;
+      
+#ifndef IGRAPHICS_NANOVG
+    ILayerPtr mShadowLayer;
+#endif
   };
 
   WDL_PtrList<MenuPanel> mMenuPanels; // An array of ptrs to MenuPanel objects for every panel, expands as sub menus are revealed, contents deleted when the menu is dismissed
@@ -179,7 +185,7 @@ private:
   IControl* mCaller = nullptr; // Pointer to the IControl that created this pop-up menu, for callback
   bool mIsContextMenu = false;
   IPopupMenu* mMenu = nullptr; // Pointer to the main IPopupMenu, that this control is visualising. This control does not own the menu.
-
+    
   int mMaxColumnItems = 0; // How long the list can get before adding a new column - 0 equals no limit
   bool mScrollIfTooBig = true; // If the menu is higher than the graphics context, should it scroll or should it start a new column
   bool mCallOut = false; // set true if popup should be outside of bounds (i.e. on a tablet touchscreen interface)

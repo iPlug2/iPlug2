@@ -256,27 +256,14 @@ void IPluginBase::RandomiseParamValues()
   RandomiseParamValues(0, NParams()-1);
 }
 
-
 void IPluginBase::RandomiseParamValues(int startIdx, int endIdx)
 {
-  std::random_device rd;
-  std::default_random_engine gen(rd());
-  std::uniform_real_distribution<> dis(0., 1.);
-  
-  ForParamInRange(startIdx, endIdx, [&gen, &dis](int paramIdx, IParam& param) {
-                      param.SetNormalized(dis(gen));
-                    });
+  ForParamInRange(startIdx, endIdx, [&](int paramIdx, IParam& param) { param.SetNormalized( static_cast<float>(std::rand()/(RAND_MAX+1.f)) ); });
 }
 
 void IPluginBase::RandomiseParamValues(const char *paramGroup)
 {
-  std::random_device rd;
-  std::default_random_engine gen(rd());
-  std::uniform_real_distribution<> dis(0., 1.);
-  
-  ForParamInGroup(paramGroup, [&gen, &dis](int paramIdx, IParam& param) {
-                      param.SetNormalized(dis(gen));
-                    });
+  ForParamInGroup(paramGroup, [&](int paramIdx, IParam& param) { param.SetNormalized( static_cast<float>(std::rand()/(RAND_MAX+1.f)) ); });
 }
 
 void IPluginBase::PrintParamValues()

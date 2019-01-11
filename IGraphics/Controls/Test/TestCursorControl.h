@@ -32,40 +32,53 @@ public:
   {
     g.DrawDottedRect(COLOR_BLACK, mRECT);
     g.FillRect(mMouseIsOver ? COLOR_TRANSLUCENT : COLOR_TRANSPARENT, mRECT);
-
-    const char* str = "Cursor";
-    int cursor = mCursor == 0 ? HELP : mCursor - 1;
-
-    switch (cursor)
-    {
-      case ARROW:         str = "arrow";            break;
-      case IBEAM:         str = "ibeam";            break;
-      case WAIT:          str = "wait";             break;
-      case CROSS:         str = "cross";            break;
-      case UPARROW:       str = "up arrow";         break;
-      case SIZENWSE:      str = "size NW-SE";       break;
-      case SIZENESW:      str = "size NE-SW";       break;
-      case SIZEWE:        str = "size WE";          break;
-      case SIZENS:        str = "size NS";          break;
-      case SIZEALL:       str = "size all";         break;
-      case INO:           str = "no";               break;
-      case HAND:          str = "hand";             break;
-      case APPSTARTING:   str = "app starting";     break;
-      case HELP:          str = "help";             break;
-    }
-
-    g.DrawText(mText, str, mRECT);
+    g.DrawText(mText, GetCursorStr(mCursor), mRECT);
   }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    GetUI()->SetMouseCursor((ECursor) mCursor++);
+    mCursor++;
+    
     if (mCursor > (int) ECursor::HELP)
-      mCursor = 0;
+      mCursor = -1;
+    
+    GetUI()->SetMouseCursor((ECursor) mCursor);
+    
     SetDirty(false);
   }
 
+  void OnMouseOut() override
+  {
+    mCursor = -1;
+    GetUI()->SetMouseCursor(ARROW);
+    
+    IControl::OnMouseOut();
+  }
+  
 private:
-
-int mCursor = 1;
+  const char* GetCursorStr(int cursor)
+  {
+    switch (cursor)
+    {
+      case -1:           return "Click to set cursor";
+      case ARROW:        return "arrow";
+      case IBEAM:        return "ibeam";
+      case WAIT:         return "wait";
+      case CROSS:        return "cross";
+      case UPARROW:      return "up arrow";
+      case SIZENWSE:     return "size NW-SE";
+      case SIZENESW:     return "size NE-SW";
+      case SIZEWE:       return "size WE";
+      case SIZENS:       return "size NS";
+      case SIZEALL:      return "size all";
+      case INO:          return "no";
+      case HAND:         return "hand";
+      case APPSTARTING:  return "app starting";
+      case HELP:         return "help";
+    }
+    
+    return "";
+  }
+  
+  int mCursor = -1;
 };

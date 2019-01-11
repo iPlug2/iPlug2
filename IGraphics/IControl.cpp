@@ -301,9 +301,18 @@ void ITextControl::SetStr(const char* str)
 {
   if (strcmp(mStr.Get(), str))
   {
-    SetDirty(false);
     mStr.Set(str);
+    SetDirty(false);
   }
+}
+
+void ITextControl::SetStrFmt(int maxlen, const char* fmt, ...)
+{
+  va_list arglist;
+  va_start(arglist, fmt);
+  mStr.SetAppendFormattedArgs(false, maxlen, fmt, arglist);
+  va_end(arglist);
+  SetDirty(false);
 }
 
 void ITextControl::Draw(IGraphics& g)

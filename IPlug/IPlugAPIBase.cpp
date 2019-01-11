@@ -18,8 +18,6 @@
 #include <ctime>
 #include <cassert>
 
-#include "wdlendian.h"
-
 #include "IPlugAPIBase.h"
 
 IPlugAPIBase::IPlugAPIBase(IPlugConfig c, EAPI plugAPI)

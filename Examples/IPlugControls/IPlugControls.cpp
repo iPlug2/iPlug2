@@ -75,7 +75,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 
 #if IPLUG_EDITOR // All UI methods and member variables should be within an IPLUG_EDITOR guard, should you want distributed UI
   mMakeGraphicsFunc = [&]() {
-    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, 60, 1.);
+    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, 1.);
   };
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
@@ -90,7 +90,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachCornerResizer(kUIResizerScale, true);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->EnableTooltips(true);
-    pGraphics->AttachTextEntryControl();
+//    pGraphics->AttachTextEntryControl();
     
     IRECT b = pGraphics->GetBounds().GetPadded(-5);
     
@@ -169,13 +169,13 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 #if IPLUG_DSP
 void IPlugControls::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
-  const double gain = GetParam(kGain)->Value() / 100.;
-  const int nChans = NOutChansConnected();
-  
-  for (int s = 0; s < nFrames; s++) {
-    for (int c = 0; c < nChans; c++) {
-      outputs[c][s] = inputs[c][s] * gain;
-    }
-  }
+//  const double gain = GetParam(kGain)->Value() / 100.;
+//  const int nChans = NOutChansConnected();
+//  
+//  for (int s = 0; s < nFrames; s++) {
+//    for (int c = 0; c < nChans; c++) {
+//      outputs[c][s] = inputs[c][s] * gain;
+//    }
+//  }
 }
 #endif

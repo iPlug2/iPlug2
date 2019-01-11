@@ -120,15 +120,16 @@ public:
   
 #pragma mark - Methods for sending values TO the user interface
   /** SendControlValueFromDelegate (Abbreviation: SCVFD)
-   * In IGraphics plug-ins, this method is used to update IControls in the user interface from a class implementing IEditorDelegate, when the control is not linked
-   * to a parameter. A typical use case would be a meter control. It is called by the IPlug "user" a.k.a you - not by an API class.
-   * In OnIdle() your plug-in would call this method to update the IControl's value. YOU SHOULD NOT CALL THIS ON THE AUDIO THREAD!
-   * If you are not using IGraphics, you could use it in a similar way, as long as your control/meter has a unique tag
+   * WARNING: should not be called on the realtime audio thread.
+   * In IGraphics plug-ins, this method is used to update controls in the user interface from a class implementing IEditorDelegate, when the control is not linked to a parameter.
+   * A typical use case would be a meter control.
+   * In OnIdle() your plug-in would call this method to update the IControl's value.
    * @param controlTag A tag for the control
    * @param normalizedValue The normalised value to set the control to. This will modify IControl::mValue; */
   virtual void SendControlValueFromDelegate(int controlTag, double normalizedValue) {};
   
   /** SendControlMsgFromDelegate (Abbreviation: SCMFD)
+   * WARNING: should not be called on the realtime audio thread.
    * This method can be used to send opaque data from a class implementing IEditorDelegate to a specific control in the user interface.
    * The message can be handled in the destination control via IControl::OnMsgFromDelegate
    * @param controlTag A unique tag to identify the control that is the destination of the message
@@ -138,6 +139,7 @@ public:
   virtual void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize = 0, const void* pData = nullptr) { OnMessage(messageTag, controlTag, dataSize, pData); }
   
   /** SendArbitraryMsgFromDelegate (Abbreviation: SAMFD)
+   * WARNING: should not be called on the realtime audio thread.
    * This method can be used to send opaque data from a class implementing IEditorDelegate to the IEditorDelegate connected to the user interface
    * The message can be handled at the destination via IEditorDelegate::OnMessage()
    * @param messageTag A unique tag to identify the message
@@ -146,19 +148,23 @@ public:
   virtual void SendArbitraryMsgFromDelegate(int messageTag, int dataSize = 0, const void* pData = nullptr) { OnMessage(messageTag, kNoTag, dataSize, pData); }
   
   /** SendMidiMsgFromDelegate (Abbreviation: SMMFD)
+   * WARNING: should not be called on the realtime audio thread.
    * This method can be used to send regular MIDI data from the class implementing IEditorDelegate to the user interface
    * The message can be handled at the destination via IEditorDelegate::OnMidiMsgUI()
    * @param msg an IMidiMsg Containing the MIDI message to send to the user interface. */
   virtual void SendMidiMsgFromDelegate(const IMidiMsg& msg) { OnMidiMsgUI(msg); }
   
   /** SendSysexMsgFromDelegate (Abbreviation: SSMFD)
+   * WARNING: should not be called on the realtime audio thread.
    * This method can be used to send SysEx data from the class implementing IEditorDelegate to the user interface
    * The message can be handled at the destination via IEditorDelegate::OnSysexMsgUI()
    * @param msg an ISysEx Containing the SysEx data to send to the user interface. */
   virtual void SendSysexMsgFromDelegate(const ISysEx& msg) { OnSysexMsgUI(msg); }
   
-  /** This method is called by the class implementing the delegate interface (not the plug-in API class) in order to update the user interface with the new parameter values, typically after automation.
-   * This method should only be called from the main thread. The similarly named IPlugAPIBase::SendParameterValueFromAPI() should take care of queueing and deferring, if there is no main thread notification from the API
+  /** SendParameterValueFromDelegate (Abbreviation: SPVFD)
+   * WARNING: should not be called on the realtime audio thread.
+   * This method is called by the class implementing the delegate interface (not the plug-in API class) in order to update the user interface with the new parameter values, typically after automation.
+   * The similarly named IPlugAPIBase::SendParameterValueFromAPI() should take care of queueing and deferring, if there is no main thread notification from the API
    * If you override this method you should call the base class implementation to make sure OnParamChangeUI gets triggered
    * In IGraphics plug-ins, this will update any IControls that have their mParamIdx set > -1
    * @param paramIdx The index of the parameter to be updated

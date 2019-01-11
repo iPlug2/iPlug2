@@ -157,9 +157,10 @@ void IGraphicsIOS::CloseWindow()
     
     if (view->mGraphics)
     {
-      [view removeFromSuperview];   // Releases.
+      [view removeFromSuperview];  
     }
-    
+    [view release];
+
     OnViewDestroyed();
   }
 }

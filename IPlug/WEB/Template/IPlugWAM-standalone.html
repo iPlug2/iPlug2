@@ -41,6 +41,8 @@
         color: black;
       }
 
+      #greyout { position: relative; text-align: center; color: black; }
+
       a, u { text-decoration: none; }
       a:link { color: #222; }
       a:visited { color: #222; }
@@ -54,6 +56,8 @@
       div.pluginArea { text-align: center; }
       /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
       canvas.pluginArea { border: 0px none; background-color: black; display: block; box-shadow: 10px 10px 5px rgba(0,0,0,0.3); }
+
+      * { -webkit-tap-highlight-color:rgba(0,0,0,0); }
 
     </style>
 <!--
@@ -91,13 +95,16 @@
         <select id="midiInSelect" disabled="true"><option value="default">Midi input</option></select>
         <select id="midiOutSelect" disabled="true"><option value="default">Midi output</option></select>
         <progress value="0" max="100" id="progress"></progress>
+      </div>
+      <div id="greyout">
         <div id="status">downloading ...</div>
       </div>
-    <div id="wam" hidden=1>
+      <div id="wam" hidden=1>
       <input id="pluginInput" type="file" style="visibility:hidden"/>
       <canvas class="pluginArea" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
     </div>
     <script type='text/javascript'>
+      var NAME_PLACEHOLDER_WAM; // the variable for the wam controller
 
       function toggleFullScreen() {
         if ((document.fullScreenElement && document.fullScreenElement !== null) ||
@@ -120,7 +127,86 @@
         }
       }
 
-      var NAME_PLACEHOLDER_WAM;
+      // only used for remote editor
+      function setupWebSocket() {
+        ws = new WebSocket('ws://' + window.location.host + '/ws');
+        ws.binaryType = 'arraybuffer';
+
+        ws.onclose = function() {
+        };
+
+        ws.onmessage = function (e) {
+          var msg = e.data;
+
+          if(e.data.byteLength)
+          {
+              var buf = new Uint8Array(msg).buffer;
+              var dv = new DataView(buf);
+              var pos = 0;
+              var strlen = dv.getInt32(pos, true); pos += 4;
+              var prefix = new TextDecoder("utf-8").decode(new Uint8Array(buf, pos, strlen)); pos += strlen;
+
+              if(prefix == "SPVFD")
+              {
+                var paramIdx = dv.getInt32(pos, true); pos += 4;
+                var value = dv.getFloat64(pos, true); pos += 8;
+                Module.SPVFD(paramIdx, value);
+              }
+              else if(prefix == "SCVDD")
+              {
+                var controlTag = dv.getInt32(pos, true); pos += 4;
+                var value = dv.getFloat64(pos, true); pos += 8;
+                Module.SCVFD(controlTag, value);
+              }
+              else if(prefix == "SCMFD")
+              {
+                var controlTag = dv.getInt32(pos, true); pos += 4;
+                var msgTag = dv.getInt32(pos, true); pos += 4;
+                var dataSize = dv.getInt32(pos, true); pos += 4;
+                var data = new Uint8Array(buf, pos, dataSize);
+
+                const esbuf = Module._malloc(data.length);
+                Module.HEAPU8.set(data, esbuf);
+                Module.SCMFD(controlTag, msgTag, data.length, esbuf);
+                Module._free(esbuf);
+              }
+              else if(prefix == "SAMFD")
+              {
+                var msgTag = dv.getInt32(pos, true); pos += 4;
+                var dataSize = dv.getInt32(pos, true); pos += 4;
+                var data = new Uint8Array(buf, pos, dataSize);
+
+                const esbuf = Module._malloc(data.length);
+                Module.HEAPU8.set(data, esbuf);
+                Module.SAMFD(controlTag, msgTag, data.length, esbuf);
+                Module._free(esbuf);
+              }
+              else if(prefix == "SMMFD")
+              {
+                var status = dv.getUint8(pos, true); pos ++;
+                var data1 = dv.getUint8(pos, true); pos ++;
+                var data2 = dv.getUint8(pos, true); pos ++;
+                Module.SMMFD(status, data1, data2);
+              }
+              else if(prefix == "SSMFD")
+              {
+                var msgTag = dv.getInt32(pos, true); pos += 4;
+                var dataSize = dv.getInt32(pos, true); pos += 4;
+                var data = new Uint8Array(buf, pos, dataSize);
+
+                const esbuf = Module._malloc(data.length);
+                Module.HEAPU8.set(data, esbuf);
+                Module.SSMFD(controlTag, msgTag, data.length, esbuf);
+                Module._free(esbuf);
+              }
+          }
+        }
+
+        ws.onerror = function (error) {
+            alert('WebSocket error');
+            //ws.close();
+        }
+      }
 
       function initMidiComboBox (isOutput, element) {
         let combo = document.querySelector(element);
@@ -154,14 +240,22 @@
         combo.removeAttribute("disabled");
       }
 
-      function audioWorkletSupported(supported)
-      {
+      function audioWorkletSupported(supported) {
         if(supported)
           console.log("AudioWorklet Supported");
         else {
           console.log("AudioWorklet NOT Supported");
           //document.getElementById("unsupported").style.display = "block";
         }
+      }
+
+      function connectToOutput(wam, actx) {
+        NAME_PLACEHOLDER_WAM.connect(actx.destination);
+
+        document.getElementById('wam').hidden = false;
+        document.getElementById('startWebAudioButton').setAttribute("disabled", "true");
+        initMidiComboBox(false, "#midiInSelect");
+        initMidiComboBox(true, "#midiOutSelect");
       }
 
       function main() {
@@ -177,13 +271,28 @@
               audioWorkletSupported(!AWPF.isAudioWorkletPolyfilled);
               NAME_PLACEHOLDERController.importScripts(actx).then(() => {
                 NAME_PLACEHOLDER_WAM = new NAME_PLACEHOLDERController(actx);
-                NAME_PLACEHOLDER_WAM.connect(actx.destination);
 
                 if(NAME_PLACEHOLDER_WAM != undefined) {
-                  document.getElementById('wam').hidden = false;
-                  document.getElementById('startWebAudioButton').setAttribute("disabled", "true");
-                  initMidiComboBox(false, "#midiInSelect");
-                  initMidiComboBox(true, "#midiOutSelect");
+
+                  //not yet working out of the box for effects
+                  if(/*NAME_PLACEHOLDER_WAM.numberOfInputs > 0*/ false)
+                  {
+                    var constraints = { audio: true, video:false }
+                    navigator.mediaDevices.getUserMedia(constraints)
+                    .then((stream) => {
+                      let audioSource = actx.createMediaStreamSource(stream);
+                      audioSource.connect(NAME_PLACEHOLDER_WAM);
+                      connectToOutput(NAME_PLACEHOLDER_WAM, actx);
+                    })
+                    .catch((err) => {
+                      console.log('Error initializing user media stream: ' + err);
+                    });
+                  }
+                  else
+                    connectToOutput(NAME_PLACEHOLDER_WAM, actx); // instrument
+                }
+                else {
+                  console.log('NAME_PLACEHOLDER_WAM is undefined');
                 }
               });
             }
@@ -201,85 +310,7 @@
         postRun: function() {
           document.getElementById('startWebAudioButton').removeAttribute("disabled");
         },
-        onRuntimeInitialized: function setupWebSocket() {
-          ws = new WebSocket('ws://' + window.location.host + '/ws');
-          ws.binaryType = 'arraybuffer';
-
-          ws.onclose = function() {
-          };
-
-          ws.onmessage = function (e) {
-            var msg = e.data;
-
-            if(e.data.byteLength)
-            {
-                var buf = new Uint8Array(msg).buffer;
-                var dv = new DataView(buf);
-                var pos = 0;
-                var strlen = dv.getInt32(pos, true); pos += 4;
-                var prefix = new TextDecoder("utf-8").decode(new Uint8Array(buf, pos, strlen)); pos += strlen;
-
-                if(prefix == "SPVFD")
-                {
-                  var paramIdx = dv.getInt32(pos, true); pos += 4;
-                  var value = dv.getFloat64(pos, true); pos += 8;
-                  Module.SPVFD(paramIdx, value);
-                }
-                else if(prefix == "SCVDD")
-                {
-                  var controlTag = dv.getInt32(pos, true); pos += 4;
-                  var value = dv.getFloat64(pos, true); pos += 8;
-                  Module.SCVFD(controlTag, value);
-                }
-                else if(prefix == "SCMFD")
-                {
-                  var controlTag = dv.getInt32(pos, true); pos += 4;
-                  var msgTag = dv.getInt32(pos, true); pos += 4;
-                  var dataSize = dv.getInt32(pos, true); pos += 4;
-                  var data = new Uint8Array(buf, pos, dataSize);
-
-                  const esbuf = Module._malloc(data.length);
-                  Module.HEAPU8.set(data, esbuf);
-                  Module.SCMFD(controlTag, msgTag, data.length, esbuf);
-                  Module._free(esbuf);
-                }
-                else if(prefix == "SAMFD")
-                {
-                  var msgTag = dv.getInt32(pos, true); pos += 4;
-                  var dataSize = dv.getInt32(pos, true); pos += 4;
-                  var data = new Uint8Array(buf, pos, dataSize);
-
-                  const esbuf = Module._malloc(data.length);
-                  Module.HEAPU8.set(data, esbuf);
-                  Module.SAMFD(controlTag, msgTag, data.length, esbuf);
-                  Module._free(esbuf);
-                }
-                else if(prefix == "SMMFD")
-                {
-                  var status = dv.getUint8(pos, true); pos ++;
-                  var data1 = dv.getUint8(pos, true); pos ++;
-                  var data2 = dv.getUint8(pos, true); pos ++;
-                  Module.SMMFD(status, data1, data2);
-                }
-                else if(prefix == "SSMFD")
-                {
-                  var msgTag = dv.getInt32(pos, true); pos += 4;
-                  var dataSize = dv.getInt32(pos, true); pos += 4;
-                  var data = new Uint8Array(buf, pos, dataSize);
-
-                  const esbuf = Module._malloc(data.length);
-                  Module.HEAPU8.set(data, esbuf);
-                  Module.SSMFD(controlTag, msgTag, data.length, esbuf);
-                  Module._free(esbuf);
-                }
-            }
-          }
-
-          ws.onerror = function (error) {
-              alert('WebSocket error');
-              //ws.close();
-          }
-        },
+        // onRuntimeInitialized: setupWebSocket(),
         setStatus: function(text) {
           if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
           if (text === Module.setStatus.text) return;
