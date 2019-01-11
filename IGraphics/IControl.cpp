@@ -313,6 +313,15 @@ void ITextControl::SetStr(const char* str)
   }
 }
 
+void ITextControl::SetStrFmt(int maxlen, const char* fmt, ...)
+{
+  va_list arglist;
+  va_start(arglist, fmt);
+  mStr.SetAppendFormattedArgs(false, maxlen, fmt, arglist);
+  va_end(arglist);
+  SetDirty(false);
+}
+
 void ITextControl::Draw(IGraphics& g)
 {
   g.FillRect(mBGColor, mRECT);

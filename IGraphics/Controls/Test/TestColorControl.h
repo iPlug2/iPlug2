@@ -30,25 +30,13 @@ public:
   
   void OnResize() override
   {
-    int idx = 0;
-    float nstops = 7.;
-    float pos = 0.;
-    auto nextStop = [&]() {
-      pos = (1.f/nstops) * idx++;
-      return IColorStop{IColor::GetFromHSLA(pos, 1., 0.5), pos};
-    };
+    mPattern = IPattern::CreateLinearGradient(mRECT.L, mRECT.MH(), mRECT.R, mRECT.MH());
+    const int nstops = 7;
     
-    mPattern = IPattern::CreateLinearGradient(mRECT.L, mRECT.MH(), mRECT.R, mRECT.MH(),
-    {
-      nextStop(),
-      nextStop(),
-      nextStop(),
-      nextStop(),
-      nextStop(),
-      nextStop(),
-      nextStop(),
-      nextStop(),
-    });
+    for (int i=0; i<nstops; i++) {
+      float pos = (1.f/(float) nstops) * i;
+      mPattern.AddStop(IColor::GetFromHSLA(pos, 1., 0.5), pos);
+    }
   }
 
   void Draw(IGraphics& g) override

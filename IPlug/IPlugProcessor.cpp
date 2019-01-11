@@ -19,9 +19,6 @@
 #include <ctime>
 #include <cassert>
 
-#include "wdlendian.h"
-#include "wdl_base64.h"
-
 //#include "IPlugProcessor.h"
 
 #ifdef OS_WIN
