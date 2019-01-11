@@ -119,7 +119,7 @@ void IPluginBase::OnParamReset(EParamSource source)
 
 #pragma mark -
 
-bool IPluginBase::SerializeParams(IByteChunk& chunk)
+bool IPluginBase::SerializeParams(IByteChunk& chunk) const
 {
   TRACE;
   bool savedOK = true;

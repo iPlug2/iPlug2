@@ -66,7 +66,7 @@ void IPlugAPIBase::CreateTimer()
   mTimer = Timer::Create(std::bind(&IPlugAPIBase::OnTimer, this, std::placeholders::_1), IDLE_TIMER_RATE);
 }
 
-bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos)
+bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos) const
 {
   bool isEqual = true;
   

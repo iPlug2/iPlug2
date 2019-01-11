@@ -127,7 +127,7 @@ public:
   /** Serializes the current double precision floating point, non-normalised values (IParam::mValue) of all parameters, into a binary byte chunk.
    * @param chunk The output chunk to serialize to. Will append data if the chunk has already been started.
    * @return \c true if the serialization was successful */
-  bool SerializeParams(IByteChunk& chunk);
+  bool SerializeParams(IByteChunk& chunk) const;
   
   /** Unserializes double precision floating point, non-normalised values from a byte chunk into mParams.
    * @param chunk The incoming chunk where parameter values are stored to unserialize
@@ -138,7 +138,7 @@ public:
   /** Override this method to serialize custom state data, if your plugin does state chunks.
    * @param chunk The output bytechunk where data can be serialized
    * @return \c true if serialization was successful*/
-  virtual bool SerializeState(IByteChunk& chunk) { TRACE; return SerializeParams(chunk); }
+  virtual bool SerializeState(IByteChunk& chunk) const { TRACE; return SerializeParams(chunk); }
   
   /** Override this method to unserialize custom state data, if your plugin does state chunks.
    * Implementations should call UnserializeParams() after custom data is unserialized

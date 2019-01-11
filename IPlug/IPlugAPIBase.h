@@ -49,7 +49,7 @@ public:
    * @param pIncomingState The incoming state data
    * @param startPos The position to start in the incoming data in bytes
    * @return \c true in order to indicate that the states are equal. */
-  virtual bool CompareState(const uint8_t* pIncomingState, int startPos);
+  virtual bool CompareState(const uint8_t* pIncomingState, int startPos) const;
 
   /* implement this and return true to trigger your custom about box, when someone clicks about in the menu of a standalone app or VST3 plugin */
   virtual bool OnHostRequestingAboutBox() { return false; }

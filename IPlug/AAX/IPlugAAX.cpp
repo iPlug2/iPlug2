@@ -415,7 +415,7 @@ AAX_Result IPlugAAX::GetChunkSize(AAX_CTypeID chunkID, uint32_t* pSize) const
     
     //IByteChunk::InitChunkWithIPlugVer(&IPlugChunk);
     
-    if (const_cast<IPlugAAX*>(this)->SerializeState(chunk))
+    if (SerializeState(chunk))
     {
       *pSize = chunk.Size();
     }
@@ -439,7 +439,7 @@ AAX_Result IPlugAAX::GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk* pChunk) con
     
     //IByteChunk::InitChunkWithIPlugVer(&IPlugChunk); // TODO: IPlugVer should be in chunk!
     
-    if (const_cast<IPlugAAX*>(this)->SerializeState(chunk))
+    if (SerializeState(chunk))
     {
       pChunk->fSize = chunk.Size();
       memcpy(pChunk->fData, chunk.GetData(), chunk.Size());
@@ -485,7 +485,7 @@ AAX_Result IPlugAAX::CompareActiveChunk(const AAX_SPlugInChunk* pChunk, AAX_CBoo
     return AAX_SUCCESS;
   }
 
-  *pIsEqual = const_cast<IPlugAAX*>(this)->CompareState((const unsigned char*) pChunk->fData, 0);
+  *pIsEqual = CompareState((const unsigned char*) pChunk->fData, 0);
     
   return AAX_SUCCESS;
 }  
