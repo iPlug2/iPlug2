@@ -196,7 +196,7 @@ public:
   virtual void SetValueFromUserInput(double value);
     
   /** Set the control's value to the default value of the control, or the parameter.
-   * This method is should call through to SetDirty(true), which will mean that the new value gets sent back to the delegate |*/
+   * This method should call through to SetDirty(true), which will mean that the new value gets sent back to the delegate */
   virtual void SetValueToDefault();
   
   /** Get the control's value
