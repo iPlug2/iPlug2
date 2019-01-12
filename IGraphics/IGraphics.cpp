@@ -186,7 +186,7 @@ void IGraphics::AttachBackground(const char* name)
   mControls.Insert(0, pBG);
 }
 
-void IGraphics::AttachPanelBackground(const IColor& color)
+void IGraphics::AttachPanelBackground(const IPattern& color)
 {
   IControl* pBG = new IPanelControl(mDelegate, GetBounds(), color);
   pBG->SetGraphics(this);
@@ -1133,6 +1133,8 @@ void IGraphics::EnableLiveEdit(bool enable/*, const char* file, int gridsize*/)
   
   mMouseOver = nullptr;
   mMouseOverIdx = -1;
+  
+  SetMouseCursor(ECursor::ARROW);
 
   SetAllControlsDirty();
 #endif

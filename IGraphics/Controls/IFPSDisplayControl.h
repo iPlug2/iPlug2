@@ -40,7 +40,7 @@ public:
   , mStyle(style)
   , mNameLabel(label)
   {
-    AttachIControl(this);
+    AttachIControl(this, label);
 
     SetColor(kBG, COLOR_WHITE);
 

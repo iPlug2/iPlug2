@@ -115,12 +115,8 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new ITextControl(*this, b.GetGridCell(1, nRows, 1), "Vector Controls", bigLabel));
     pGraphics->AttachControl(new IVKnobControl(*this, b.GetGridCell(5, nRows, nCols).GetCentredInside(100.), kGain));
     pGraphics->AttachControl(new IVSliderControl(*this, b.GetGridCell(6, nRows, nCols).GetGridCell(0, 1, 3)));
-    pGraphics->AttachControl(new IVSliderControl(*this, b.GetGridCell(6, nRows, nCols).GetGridCell(3, 3, 2), kNoParameter, DEFAULT_SPEC, kHorizontal));
-    pGraphics->AttachControl(new IVSwitchControl(*this, b.GetGridCell(7, nRows, nCols).GetCentredInside(50.), kMode, [](IControl* pCaller)
-    {
-      FlashCircleClickActionFunc(pCaller);
-      dynamic_cast<IVectorBase*>(pCaller)->SetRoundness(pCaller->GetValue());
-    }));
+    pGraphics->AttachControl(new IVSliderControl(*this, b.GetGridCell(6, nRows, nCols).GetGridCell(3, 3, 2), kNoParameter, "", DEFAULT_SPEC, kHorizontal));
+    pGraphics->AttachControl(new IVSwitchControl(*this, b.GetGridCell(7, nRows, nCols).GetCentredInside(50.), kMode, ""));
     
     //    pGraphics->AttachControl(new IVMeterControl<2>(*this, nextCell()), kControlTagMeter);
     //    pGraphics->AttachControl(new IVScopeControl<>(*this, nextCell()), kControlTagScope);

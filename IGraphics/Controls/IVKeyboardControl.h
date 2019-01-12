@@ -79,7 +79,7 @@ public:
   , IVectorBase(&DEFAULT_WK_COLOR, &DEFAULT_BK_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR)
   , mRoundedKeys(roundedKeys)
   {
-    AttachIControl(this);
+    AttachIControl(this, "");
 
     mText.mFGColor = GetColor(kFR);
     mDblAsSingleClick = true;

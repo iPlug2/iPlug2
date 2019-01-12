@@ -24,32 +24,61 @@ const IColor IVKeyboardControl::DEFAULT_PK_COLOR = IColor(60, 0, 0, 0);
 const IColor IVKeyboardControl::DEFAULT_FR_COLOR = DEFAULT_BK_COLOR;
 
 IVButtonControl::IVButtonControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc,
-  const char* str, const IText& text, const IVColorSpec& colorSpec)
+                                 const char* label,
+                                 const IText& text, const IVColorSpec& colorSpec)
 : IButtonControlBase(dlg, bounds, actionFunc)
 , IVectorBase(colorSpec)
 {
-  AttachIControl(this);
+  AttachIControl(this, label);
   mDblAsSingleClick = true;
   mText = text;
-  mStr.Set(str);
 }
 
 void IVButtonControl::Draw(IGraphics& g)
 {
-  IRECT handleBounds = DrawVectorButton(g, mRECT, (bool) mValue, mMouseIsOver);
-  
-  if(CStringHasContents(mStr.Get()))
-    g.DrawText(mText, mStr.Get(), handleBounds);
+  DrawBackGround(g, mRECT);
+  DrawWidget(g);
+  DrawTitle(g);
+  DrawValue(g);
 }
 
-IVSwitchControl::IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc
-  , const char* str, const IVColorSpec& colorSpec, int numStates)
-  : ISwitchControlBase(dlg, bounds, paramIdx, actionFunc, numStates)
+void IVButtonControl::DrawWidget(IGraphics& g)
+{
+  DrawVectorButton(g, mWidgetBounds, (bool) mValue, mMouseIsOver);
+}
+
+bool IVButtonControl::IsHit(float x, float y) const
+{
+  return mWidgetBounds.Contains(x, y);
+}
+
+IVSwitchControl::IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, const char* label, const IVColorSpec& colorSpec)
+  : ISwitchControlBase(dlg, bounds, paramIdx, FlashCircleClickActionFunc)
   , IVectorBase(colorSpec)
 {
-  AttachIControl(this);
+  AttachIControl(this, label);
   mDblAsSingleClick = true;
-  mStr.Set(str);
+}
+
+IVSwitchControl::IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc, const char* label, const IVColorSpec& colorSpec, int numStates)
+: ISwitchControlBase(dlg, bounds, kNoParameter, actionFunc, numStates)
+, IVectorBase(colorSpec)
+{
+  AttachIControl(this, label);
+  mDblAsSingleClick = true;
+}
+
+void IVSwitchControl::Draw(IGraphics& g)
+{
+  DrawBackGround(g, mRECT);
+  DrawWidget(g);
+  DrawTitle(g);
+  DrawValue(g);
+}
+
+void IVSwitchControl::DrawWidget(IGraphics& g)
+{
+  DrawVectorButton(g, mWidgetBounds, (bool) mValue, mMouseIsOver);
 }
 
 void IVSwitchControl::SetDirty(bool push)
@@ -59,15 +88,18 @@ void IVSwitchControl::SetDirty(bool push)
   const IParam* pParam = GetParam();
 
   if(pParam)
-    pParam->GetDisplayForHost(mStr);
+    pParam->GetDisplayForHost(mValueStr);
 }
 
-void IVSwitchControl::Draw(IGraphics& g)
+void IVSwitchControl::OnResize()
 {
-  IRECT handleBounds = DrawVectorButton(g, mRECT, mMouseDown, mMouseIsOver);
-  
-  if(CStringHasContents(mStr.Get()))
-    g.DrawText(mText, mStr.Get(), handleBounds);
+  SetTargetRECT(CalculateRects(mRECT, mTitleStr.Get(), "", true));
+  SetDirty(false);
+}
+
+bool IVSwitchControl::IsHit(float x, float y) const
+{
+  return mWidgetBounds.Contains(x, y);
 }
 
 IVRadioButtonControl::IVRadioButtonControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc,
@@ -76,7 +108,7 @@ IVRadioButtonControl::IVRadioButtonControl(IGEditorDelegate& dlg, IRECT bounds, 
 , IVectorBase(colorSpec)
 , mDirection(dir)
 {
-  AttachIControl(this);
+  AttachIControl(this, "");//TODO
   mDblAsSingleClick = true;
   mText.mAlign = IText::kAlignNear;
   mText.mVAlign = IText::kVAlignMiddle;
@@ -93,13 +125,18 @@ IVRadioButtonControl::IVRadioButtonControl(IGEditorDelegate& dlg, IRECT bounds, 
 
 void IVRadioButtonControl::Draw(IGraphics& g)
 {
+  DrawWidget(g);
+}
+
+void IVRadioButtonControl::DrawWidget(IGraphics& g)
+{
   int hit = int(0.5 + mValue * (double) (mNumStates - 1));
   
   for (int i = 0; i < mNumStates; i++)
   {
     IRECT r = mButtons.Get()[i];
     DrawVectorButton(g, r.FracRectHorizontal(0.25f).GetCentredInside(10.f), i == hit , mMouseIsOver);
-
+    
     if (mLabels.Get(i))
     {
       r = r.FracRectHorizontal(0.7f, true);
@@ -108,6 +145,7 @@ void IVRadioButtonControl::Draw(IGraphics& g)
     }
   }
 }
+
 
 //bool IVRadioButtonControl::IsHit(float x, float y) const
 //{
@@ -132,86 +170,73 @@ void IVRadioButtonControl::OnResize()
 }
 
 IVKnobControl::IVKnobControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx,
-                             const char* label, bool displayParamValue,
-                             const IVColorSpec& colorSpec, const IText& labelText, const IText& valueText,
-                             float aMin, float aMax, float knobFrac,
+                             const char* label,
+                             const IVColorSpec& colorSpec,
+                             float aMin, float aMax,
                              EDirection direction, double gearing)
 : IKnobControlBase(dlg, bounds, paramIdx, direction, gearing)
 , IVectorBase(colorSpec)
 , mAngleMin(aMin)
 , mAngleMax(aMax)
-, mLabel(label)
-, mDisplayParamValue(displayParamValue)
-, mLabelText(labelText)
-, mKnobFrac(knobFrac)
 {
-  if(mDisplayParamValue)
-    DisablePrompt(false);
+  //  if(mDisplayParamValue) // TODO: wrong
+//    DisablePrompt(false);
   
-  mValueText = valueText;
-  AttachIControl(this);
+  AttachIControl(this, label);
 }
 
 IVKnobControl::IVKnobControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunction,
-                             const char* label, bool displayParamValue,
-                             const IVColorSpec& colorSpec, const IText& labelText, const IText& valueText,
-                             float aMin, float aMax, float knobFrac,
+                             const char* label,
+                             const IVColorSpec& colorSpec,
+                             float aMin, float aMax,
                              EDirection direction, double gearing)
 : IKnobControlBase(dlg, bounds, kNoParameter, direction, gearing)
 , IVectorBase(colorSpec)
 , mAngleMin(aMin)
 , mAngleMax(aMax)
-, mLabel(label)
-, mDisplayParamValue(displayParamValue)
-, mLabelText(labelText)
-, mKnobFrac(knobFrac)
 {
-  if(mDisplayParamValue)
+  if(mDisplayParamValue) // todo: wrong
     DisablePrompt(false);
-  
-  mValueText = valueText;
+
   SetActionFunction(actionFunction);
-  AttachIControl(this);
+  AttachIControl(this, label);
 }
 
 void IVKnobControl::Draw(IGraphics& g)
 {
-  g.FillRect(GetColor(kBG), mRECT);
+  DrawBackGround(g, mRECT);
+  DrawWidget(g);
+  DrawTitle(g);
+  DrawValue(g);
+}
 
-  const float v = mAngleMin + ((float)mValue * (mAngleMax - mAngleMin));
-  const float cx = mHandleBounds.MW(), cy = mHandleBounds.MH();
-  const float radius = (mHandleBounds.W()/2.f);
-
-  g.DrawArc(GetColor(kFR), cx, cy, radius + 5.f, mAngleMin, v, 0, 3.f);
+void IVKnobControl::DrawWidget(IGraphics& g)
+{
+  const float radius = (mWidgetBounds.H()/2.f);
+  const float cx = mWidgetBounds.MW(), cy = mWidgetBounds.MH();
   
-  if(mDrawShadows && !mEmboss)
-    g.FillCircle(GetColor(kSH), cx + mShadowOffset, cy + mShadowOffset, radius);
-  
-  g.FillCircle(GetColor(kFG), cx, cy, radius);
-
-  g.DrawCircle(GetColor(kON), cx, cy, radius * 0.9f, 0, mFrameThickness);
-
-  if(mMouseIsOver)
-    g.FillCircle(GetColor(kHL), cx, cy, radius * 0.8f);
-  
-  g.DrawCircle(GetColor(kFR), cx, cy, radius, 0, mFrameThickness);
-  g.DrawRadialLine(GetColor(kFR), cx, cy, v, 0.7f * radius, 0.9f * radius, 0, mFrameThickness);
-  
-  if(mLabelBounds.H())
-    g.DrawText(mLabelText, mLabel.Get(), mLabelBounds);
-  
-  if(mDisplayParamValue)
+  if(!IsGrayed())
   {
-    WDL_String str;
-    GetParam()->GetDisplayForHost(str);
+    const float v = mAngleMin + ((float)mValue * (mAngleMax - mAngleMin));
     
-    if (mShowParamLabel)
-    {
-      str.Append(" ");
-      str.Append(GetParam()->GetLabelForHost());
-    }
+    g.DrawArc(GetColor(kFR), cx, cy, radius + 5.f, mAngleMin, v, 0, 3.f);
     
-    g.DrawText(mValueText, str.Get(), mValueBounds);
+    if(mDrawShadows && !mEmboss)
+      g.FillCircle(GetColor(kSH), cx + mShadowOffset, cy + mShadowOffset, radius);
+    
+    g.FillCircle(GetColor(kFG), cx, cy, radius);
+    
+    g.DrawCircle(GetColor(kON), cx, cy, radius * 0.9f, 0, mFrameThickness);
+    
+    if(mMouseIsOver)
+      g.FillCircle(GetColor(kHL), cx, cy, radius * 0.8f);
+    
+    g.DrawCircle(GetColor(kFR), cx, cy, radius, 0, mFrameThickness);
+    g.DrawRadialLine(GetColor(kFR), cx, cy, v, 0.7f * radius, 0.9f * radius, 0, mFrameThickness);
+  }
+  else
+  {
+    g.FillCircle(GetColor(kOFF), cx, cy, radius);
   }
 }
 
@@ -227,70 +252,52 @@ void IVKnobControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 
 void IVKnobControl::OnResize()
 {
-  IRECT clickableArea;
-  
-  if(mLabel.GetLength())
-  {
-    IRECT textRect;
-    GetUI()->MeasureText(mLabelText, mLabel.Get(), textRect);
-    
-    mLabelBounds = mRECT.GetFromTop(textRect.H());
-  }
-  else
-    mLabelBounds = IRECT();
-  
-  if(mLabelBounds.H())
-    clickableArea = mRECT.GetReducedFromTop(mLabelBounds.H());
-  else
-    clickableArea = mRECT;
-
-  if (mDisplayParamValue)
-  {
-    IRECT textRect;
-    WDL_String str;
-    GetParam()->GetDisplayForHost(str);
-    
-    GetUI()->MeasureText(mValueText, str.Get(), textRect);
-    
-    const float valueDisplayWidth = clickableArea.W() * mKnobFrac * 0.5f;
-    switch (mValueText.mVAlign)
-    {
-      case IText::kVAlignMiddle:
-        mHandleBounds = clickableArea;
-        mValueBounds = clickableArea.GetMidVPadded(textRect.H()/2.f).GetMidHPadded(valueDisplayWidth);
-        break;
-      case IText::kVAlignBottom:
-      {
-        mValueBounds = clickableArea.GetFromBottom(textRect.H()).GetMidHPadded(valueDisplayWidth);
-        mHandleBounds = clickableArea.GetReducedFromBottom(textRect.H());
-        break;
-      }
-      case IText::kVAlignTop:
-        mValueBounds = clickableArea.GetFromTop(textRect.H()).GetMidHPadded(valueDisplayWidth);
-        mHandleBounds = clickableArea.GetReducedFromTop(textRect.H());
-        break;
-      default:
-        break;
-    }
-    
-    if(mValueBounds.W() < textRect.W())
-      mValueBounds = mValueBounds.GetMidHPadded(mTargetRECT.W()/2.f);
-  }
-  
-  mHandleBounds = GetAdjustedHandleBounds(mTargetRECT).GetScaledAboutCentre(mKnobFrac);
-  
+  SetTargetRECT(CalculateRects(mRECT, mTitleStr.Get()));
   SetDirty(false);
+}
+
+bool IVKnobControl::IsHit(float x, float y) const
+{
+  return mWidgetBounds.Contains(x, y);
+}
+
+IVSliderControl::IVSliderControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx,
+                const char* label,
+                const IVColorSpec& colorSpec,
+                EDirection dir, bool onlyHandle, float handleSize, float trackSize)
+: ISliderControlBase(dlg, bounds, paramIdx, dir, onlyHandle, handleSize)
+, IVectorBase(colorSpec)
+, mTrackSize(trackSize)
+{
+  AttachIControl(this, label);
+}
+
+IVSliderControl::IVSliderControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction aF,
+                const char* label,
+                const IVColorSpec& colorSpec,
+                EDirection dir, bool onlyHandle, float handleSize, float trackSize)
+: ISliderControlBase(dlg, bounds, aF, dir, onlyHandle, handleSize)
+, IVectorBase(colorSpec)
+, mTrackSize(trackSize)
+{
+  AttachIControl(this, label);
 }
 
 void IVSliderControl::Draw(IGraphics& g)
 {
-  g.FillRect(GetColor(kBG), mRECT);
+  DrawBackGround(g, mRECT);
+  DrawWidget(g);
+  DrawTitle(g);
+  DrawValue(g);
+}
 
+void IVSliderControl::DrawWidget(IGraphics& g)
+{
   const float halfHandleSize = mHandleSize / 2.f;
 
   //track
   IRECT filledTrack = mTrack.FracRect(mDirection, (float) mValue);
-
+  
   g.FillRect(GetColor(kFR), mTrack);
   g.FillRect(GetColor(kFG), filledTrack);
   
@@ -308,13 +315,13 @@ void IVSliderControl::Draw(IGraphics& g)
     cx = filledTrack.R;
     cy = filledTrack.MH();
   }
-
+  
   //Handle
   if(mDrawShadows && !mEmboss)
     g.FillCircle(GetColor(kSH), cx + mShadowOffset, cy + mShadowOffset, halfHandleSize);
   
   g.FillCircle(GetColor(kFG), cx, cy, halfHandleSize);
-
+  
   if(GetMouseIsOver())
     g.FillCircle(GetColor(kHL), cx, cy, halfHandleSize);
   
@@ -324,10 +331,12 @@ void IVSliderControl::Draw(IGraphics& g)
 
 void IVSliderControl::OnResize()
 {
+  CalculateRects(mRECT, mTitleStr.Get());
+  
   if(mDirection == kVertical)
-    mTrack = mRECT.GetPadded(-mHandleSize).GetMidHPadded(mTrackSize);
+    mTrack = mWidgetBounds.GetPadded(-mHandleSize).GetMidHPadded(mTrackSize);
   else
-    mTrack = mRECT.GetPadded(-mHandleSize).GetMidVPadded(mTrackSize);
+    mTrack = mWidgetBounds.GetPadded(-mHandleSize).GetMidVPadded(mTrackSize);
 
   SetDirty(false);
 }

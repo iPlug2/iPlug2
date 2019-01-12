@@ -357,16 +357,8 @@ const IColor DEFAULT_TEXTENTRY_FGCOLOR = COLOR_BLACK;
 /** Contains a set of colours used to theme IVControls */
 struct IVColorSpec
 {
-  IColor mBGColor = DEFAULT_BGCOLOR; // Background
-  IColor mFGColor = DEFAULT_FGCOLOR; // Foreground
-  IColor mPRColor = DEFAULT_PRCOLOR; // Pressed
-  IColor mFRColor = DEFAULT_FRCOLOR; // Frame
-  IColor mHLColor = DEFAULT_HLCOLOR; // Higlight
-  IColor mSHColor = DEFAULT_SHCOLOR; // Shadow
-  IColor mX1Color = DEFAULT_X1COLOR; // Extra 1
-  IColor mX2Color = DEFAULT_X2COLOR; // Extra 2
-  IColor mX3Color = DEFAULT_X3COLOR; // Extra 3
-
+  IColor mColors[kNumDefaultVColors];
+  
   void SetColors(const IColor BGColor = DEFAULT_BGCOLOR,
                  const IColor FGColor = DEFAULT_FGCOLOR,
                  const IColor PRColor = DEFAULT_PRCOLOR,
@@ -377,6 +369,59 @@ struct IVColorSpec
                  const IColor X2Color = DEFAULT_X2COLOR,
                  const IColor X3Color = DEFAULT_X3COLOR)
   {
+  }
+  
+  const IColor& GetColor(EVColor color) const
+  {
+    return mColors[(int) color];
+  }
+  
+  static const IColor& GetDefaultColor(EVColor idx)
+  {
+    switch(idx)
+    {
+      case kBG: return DEFAULT_BGCOLOR; // Background
+      case kFG: return DEFAULT_FGCOLOR; // Foreground
+      case kPR: return DEFAULT_PRCOLOR; // Pressed
+      case kFR: return DEFAULT_FRCOLOR; // Frame
+      case kHL: return DEFAULT_HLCOLOR; // Higlight
+      case kSH: return DEFAULT_SHCOLOR; // Shadow
+      case kX1: return DEFAULT_X1COLOR; // Extra 1
+      case kX2: return DEFAULT_X2COLOR; // Extra 2
+      case kX3: return DEFAULT_X3COLOR; // Extra 3
+      default:
+        return COLOR_TRANSPARENT;
+    };
+  }
+  
+  IVColorSpec()
+  {
+    mColors[kBG] = DEFAULT_BGCOLOR; // Background
+    mColors[kFG] = DEFAULT_FGCOLOR; // Foreground
+    mColors[kPR] = DEFAULT_PRCOLOR; // Pressed
+    mColors[kFR] = DEFAULT_FRCOLOR; // Frame
+    mColors[kHL] = DEFAULT_HLCOLOR; // Higlight
+    mColors[kSH] = DEFAULT_SHCOLOR; // Shadow
+    mColors[kX1] = DEFAULT_X1COLOR; // Extra 1
+    mColors[kX2] = DEFAULT_X2COLOR; // Extra 2
+    mColors[kX3] = DEFAULT_X3COLOR; // Extra 3
+  }
+  
+  IVColorSpec(const std::initializer_list<IColor>& colors)
+  {
+    assert(colors.size() < kNumDefaultVColors);
+    
+    int i = 0;
+    
+    for(auto& c : colors)
+    {
+      mColors[i++] = c;
+    }
+    
+    for(;i < kNumDefaultVColors; i++)
+    {
+      mColors[i] = GetDefaultColor((EVColor) i);
+    }
   }
 
   void ResetColors() { SetColors(); }

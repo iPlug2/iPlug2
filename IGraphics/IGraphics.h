@@ -756,7 +756,7 @@ public:
 
   /** Attach an IPanelControl as the lowest IControl in the control stack to fill the background with a solid color
    * @param color The color to fill the panel with */
-  void AttachPanelBackground(const IColor& color);
+  void AttachPanelBackground(const IPattern& color);
   
   /** Attach the default control to scale or increase the UI size by dragging the plug-in bottom right-hand corner
    * @param sizeMode Choose whether to scale or size the UI */

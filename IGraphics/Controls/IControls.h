@@ -40,9 +40,8 @@ public:
     const char* str = "", const IText& text = DEFAULT_TEXT, const IVColorSpec& colorSpec = DEFAULT_SPEC);
 
   void Draw(IGraphics& g) override;
-
-protected:
-  WDL_String mStr;
+  virtual void DrawWidget(IGraphics& g) override;
+  bool IsHit(float x, float y) const override;
 };
 
 /** A vector switch control. Click to cycle through states. */
@@ -50,15 +49,17 @@ class IVSwitchControl : public ISwitchControlBase
                       , public IVectorBase
 {
 public:
-  IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = FlashCircleClickActionFunc,
+  IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx,
+                  const char* label = "", const IVColorSpec& colorSpec = DEFAULT_SPEC);
+
+  IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc = FlashCircleClickActionFunc,
                   const char* label = "", const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2);
-
+  
   void Draw(IGraphics& g) override;
-
+  virtual void DrawWidget(IGraphics& g) override;
+  bool IsHit(float x, float y) const override;
   void SetDirty(bool push) override;
-
-protected:
-  WDL_String mStr;
+  void OnResize() override;
 };
 
 /** A vector switch control. Click to cycle through states. */
@@ -70,8 +71,9 @@ public:
                        const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2, EDirection dir = kVertical);
 
   virtual ~IVRadioButtonControl() { mLabels.Empty(true); }
-  virtual void Draw(IGraphics& g) override;
-  virtual void OnResize() override;
+  void Draw(IGraphics& g) override;
+  virtual void DrawWidget(IGraphics& g) override;
+  void OnResize() override;
 //  virtual bool IsHit(float x, float y) const override;
 
 protected:
@@ -86,34 +88,29 @@ class IVKnobControl : public IKnobControlBase
 {
 public:
   IVKnobControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx,
-                const char* label = "", bool displayParamValue = false,
-                const IVColorSpec& colorSpec = DEFAULT_SPEC, const IText& labelText = IText(DEFAULT_TEXT_SIZE + 5, IText::kVAlignTop), const IText& valueText = IText(DEFAULT_TEXT_SIZE, IText::kVAlignBottom),
-                float aMin = -135.f, float aMax = 135.f, float knobFrac = 0.50f,
+                const char* label = "",
+                const IVColorSpec& colorSpec = DEFAULT_SPEC,
+                float aMin = -135.f, float aMax = 135.f,
                 EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
 
   IVKnobControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunction,
-                const char* label = "", bool displayParamValue = false,
-                const IVColorSpec& colorSpec = DEFAULT_SPEC, const IText& labelText = IText(DEFAULT_TEXT_SIZE + 5, IText::kVAlignTop), const IText& valueText = IText(DEFAULT_TEXT_SIZE, IText::kVAlignBottom),
-                float aMin = -135.f, float aMax = 135.f, float knobFrac = 0.50f,
+                const char* label = "",
+                const IVColorSpec& colorSpec = DEFAULT_SPEC,
+                float aMin = -135.f, float aMax = 135.f,
                 EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
 
   virtual ~IVKnobControl() {}
 
   void Draw(IGraphics& g) override;
+  virtual void DrawWidget(IGraphics& g) override;
+
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
 //  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {  OnMouseDown(x, y, mod); }
   void OnResize() override;
+  bool IsHit(float x, float y) const override;
 protected:
-  bool mDisplayParamValue;
-  bool mShowParamLabel = true;
-  IRECT mHandleBounds;
-  IRECT mLabelBounds;
-  IRECT mValueBounds;
   float mAngleMin, mAngleMax;
   float mKnobFrac;
-  WDL_String mLabel;
-  IText mLabelText;
-  IText& mValueText = mText;
 };
 
 /** A vector knob/dial control which rotates an SVG image */
@@ -157,28 +154,18 @@ class IVSliderControl : public ISliderControlBase
 {
 public:
   IVSliderControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
+                  const char* label = "",
                   const IVColorSpec& colorSpec = DEFAULT_SPEC,
-                  EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f)
-  : ISliderControlBase(dlg, bounds, paramIdx, dir, onlyHandle, handleSize)
-  , IVectorBase(colorSpec)
-  , mTrackSize(trackSize)
-  {
-    AttachIControl(this);
-  }
-
+                  EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
+  
   IVSliderControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction aF,
+                  const char* label = "",
                   const IVColorSpec& colorSpec = DEFAULT_SPEC,
-                  EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f)
-  : ISliderControlBase(dlg, bounds, aF, dir, onlyHandle, handleSize)
-  , IVectorBase(colorSpec)
-  , mTrackSize(trackSize)
-  {
-    AttachIControl(this);
-  }
+                  EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
 
   virtual ~IVSliderControl() {}
-
-  virtual void Draw(IGraphics& g) override;
+  void Draw(IGraphics& g) override;
+  virtual void DrawWidget(IGraphics& g) override;
   void OnResize() override;
 
 private:

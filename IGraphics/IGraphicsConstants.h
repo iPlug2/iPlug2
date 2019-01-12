@@ -112,6 +112,7 @@ enum EVColor
   kHL,        // highlight: mouse over or focus
   kSH,        // shadow
   kX1,        // extra1
+  kGR = kX1,   // greyed
   kX2,        // extra2
   kX3,        // extra3
   kNumDefaultVColors

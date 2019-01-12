@@ -511,18 +511,22 @@ public:
 
   IVectorBase(const IVColorSpec& spec)
   {
-    AddColors(&spec.mBGColor,
-              &spec.mFGColor,
-              &spec.mPRColor,
-              &spec.mFRColor,
-              &spec.mHLColor,
-              &spec.mSHColor,
-              &spec.mX1Color,
-              &spec.mX2Color,
-              &spec.mX3Color);
+    AddColors(&spec.GetColor(kBG),
+              &spec.GetColor(kFG),
+              &spec.GetColor(kPR),
+              &spec.GetColor(kFR),
+              &spec.GetColor(kHL),
+              &spec.GetColor(kSH),
+              &spec.GetColor(kX1),
+              &spec.GetColor(kX2),
+              &spec.GetColor(kX3));
   }
   
-  void AttachIControl(IControl* pControl) { mControl = pControl; }
+  void AttachIControl(IControl* pControl, const char* label)
+  {
+    mControl = pControl;
+    mTitleStr.Set(label);
+  }
   
   void AddColor(const IColor& color)
   {
@@ -583,18 +587,18 @@ public:
 
   void SetColors(const IVColorSpec& spec)
   {
-    SetColors(spec.mBGColor,
-              spec.mFGColor,
-              spec.mPRColor,
-              spec.mFRColor,
-              spec.mHLColor,
-              spec.mSHColor,
-              spec.mX1Color,
-              spec.mX2Color,
-              spec.mX3Color);
+    SetColors(spec.GetColor(kBG),
+              spec.GetColor(kFG),
+              spec.GetColor(kPR),
+              spec.GetColor(kFR),
+              spec.GetColor(kHL),
+              spec.GetColor(kSH),
+              spec.GetColor(kX1),
+              spec.GetColor(kX2),
+              spec.GetColor(kX3));
   }
 
-  IColor& GetColor(int colorIdx)
+  const IColor& GetColor(int colorIdx)
   {
     if(colorIdx < mColors.GetSize())
       return mColors.Get()[colorIdx];
@@ -639,6 +643,40 @@ public:
     g.FillCircle(GetColor(kHL), mouseDownX, mouseDownY, mFlashCircleRadius);
   }
   
+  virtual void DrawBackGround(IGraphics& g, const IRECT& rect)
+  {
+    g.FillRect(GetColor(kBG), rect);
+  }
+  
+  virtual void DrawWidget(IGraphics& g)
+  {
+    // no-op
+  }
+  
+  virtual void DrawTitle(IGraphics& g)
+  {
+    if(mTitleBounds.H())
+      g.DrawText(mTitleText, mTitleStr.Get(), mTitleBounds);
+  }
+  
+  virtual void DrawValue(IGraphics& g)
+  {
+    //TODO: wrong
+    if(mDisplayParamValue)
+    {
+//      WDL_String str;
+//      mControl->GetParam()->GetDisplayForHost(str);
+//      
+//      if (mShowParamLabel)
+//      {
+//        str.Append(" ");
+//        str.Append(mControl->GetParam()->GetLabelForHost());
+//      }
+//      
+      g.DrawText(mValueText, mValueStr.Get(), mValueBounds);
+    }
+  }
+  
   IRECT DrawVectorButton(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver)
   {
     g.FillRect(GetColor(kBG), bounds);
@@ -679,9 +717,78 @@ public:
     return handleBounds;
   }
   
+  IRECT CalculateRects(const IRECT& parent, const char* label, const char* value = "", bool valueInWidget = false)
+  {
+    IRECT clickableArea;
+    
+    if(CStringHasContents(label))
+    {
+      IRECT textRect;
+      mControl->GetUI()->MeasureText(mTitleText, label, textRect);
+
+      mTitleBounds = parent.GetFromTop(textRect.H());
+    }
+    else
+      mTitleBounds = IRECT();
+    
+    if(mTitleBounds.H())
+      clickableArea = parent.GetReducedFromTop(mTitleBounds.H());
+    else
+      clickableArea = parent;
+    
+    if (mDisplayParamValue)
+    {
+      IRECT textRect;
+      WDL_String str;
+      
+      const IParam* pParam = mControl->GetParam();
+      
+      if(pParam)
+        pParam->GetDisplayForHost(str);
+
+      mControl->GetUI()->MeasureText(mValueText, str.Get(), textRect);
+
+      const float valueDisplayWidth = clickableArea.W() * mHandleFrac * 0.5f;
+      
+      switch (mValueText.mVAlign)
+      {
+        case IText::kVAlignMiddle:
+          mWidgetBounds = clickableArea;
+          mValueBounds = clickableArea.GetMidVPadded(textRect.H()/2.f).GetMidHPadded(valueDisplayWidth);
+          break;
+        case IText::kVAlignBottom:
+        {
+          mValueBounds = clickableArea.GetFromBottom(textRect.H()).GetMidHPadded(valueDisplayWidth);
+          mWidgetBounds = clickableArea.GetReducedFromBottom(textRect.H());
+          break;
+        }
+        case IText::kVAlignTop:
+          mValueBounds = clickableArea.GetFromTop(textRect.H()).GetMidHPadded(valueDisplayWidth);
+          mWidgetBounds = clickableArea.GetReducedFromTop(textRect.H());
+          break;
+        default:
+          break;
+      }
+      
+      if(mValueBounds.W() < textRect.W())
+        mValueBounds = mValueBounds.GetMidHPadded(clickableArea.W()/2.f);
+    }
+    
+    mWidgetBounds = GetAdjustedHandleBounds(mControl->GetTargetRECT()).GetScaledAboutCentre(mHandleFrac);
+    
+    if(valueInWidget)
+    {
+      mValueText = IText(15, IText::kVAlignMiddle);
+      mValueBounds = mWidgetBounds;
+    }
+    
+    return clickableArea;
+  }
+  
 protected:
   IControl* mControl = nullptr;
   WDL_TypedBuf<IColor> mColors;
+  float mHandleFrac = 0.5f;
   float mRoundness = 0.f;
   float mShadowOffset = 3.f;
   float mFrameThickness = 2.f;
@@ -690,6 +797,15 @@ protected:
   bool mEmboss = false;
   float mFlashCircleRadius = 0.f;
   float mMaxFlashCircleRadius = 50.f;
+  bool mDisplayParamValue = true;
+  bool mShowParamLabel = true;
+  IRECT mWidgetBounds; // The knob/slider/button
+  IRECT mTitleBounds; // A piece of text above the control
+  IRECT mValueBounds; // Text below the contol, usually displaying the value of a parameter
+  IText mTitleText {DEFAULT_TEXT_SIZE + 5, IText::kVAlignTop};
+  IText mValueText {DEFAULT_TEXT_SIZE, IText::kVAlignBottom};
+  WDL_String mTitleStr;
+  WDL_String mValueStr;
 };
 
 /** A base class for knob/dial controls, to handle mouse action and ballistics. */
@@ -761,7 +877,7 @@ public:
       mTrackBounds.Add(IRECT());
     }
     
-    AttachIControl(this);
+    AttachIControl(this, ""/*TODO*/);
   }
   
   void MakeRects()
