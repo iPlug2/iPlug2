@@ -717,6 +717,8 @@ public:
   /** Enables strict drawing mode. \todo explain strict drawing
    * @param strict Set /true to enable strict drawing mode */
   void SetStrictDrawing(bool strict);
+  
+  void SetLayoutOnResize(bool layoutOnResize);
 
   /** Gets the width of the graphics context
    * @return A whole number representing the width of the graphics context in pixels on a 1:1 screen */

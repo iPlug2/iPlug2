@@ -546,6 +546,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 
       return 0;
     case WM_CLOSE:
+      pAppHost->CloseWindow();
       DestroyWindow(hwndDlg);
       return 0;
     case WM_COMMAND:

@@ -75,6 +75,11 @@ bool IPlugAPPHost::OpenWindow(HWND pParent)
   return false;
 }
 
+void IPlugAPPHost::CloseWindow()
+{
+  mIPlug->CloseWindow();
+}
+
 bool IPlugAPPHost::InitState()
 {
 #if defined OS_WIN

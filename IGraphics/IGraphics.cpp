@@ -123,6 +123,11 @@ void IGraphics::Resize(int w, int h, float scale)
     GetDelegate()->LayoutUI(this);
 }
 
+void IGraphics::SetLayoutOnResize(bool layoutOnResize)
+{
+  mLayoutOnResize = layoutOnResize;
+}
+
 void IGraphics::RemoveControls(int fromIdx)
 {
   int idx = NControls()-1;
