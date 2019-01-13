@@ -30,8 +30,11 @@ public:
   void ForceEndUserEdit() override;
 
   void PlatformResize() override;
+
+#ifdef IGRAPHICS_GL
   void DrawResize() override; // overriden here to deal with GL graphics context capture
- 
+#endif
+
   void CheckTabletInput(UINT msg);
     
   void HideMouseCursor(bool hide, bool lock) override;

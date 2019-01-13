@@ -631,12 +631,14 @@ void IGraphicsWin::PlatformResize()
   }
 }
 
+#ifdef IGRAPHICS_GL
 void IGraphicsWin::DrawResize()
 {
   ActivateGLContext();
   IGRAPHICS_DRAW_CLASS::DrawResize();
   DeactivateGLContext();
 }
+#endif
 
 void IGraphicsWin::HideMouseCursor(bool hide, bool lock)
 {
