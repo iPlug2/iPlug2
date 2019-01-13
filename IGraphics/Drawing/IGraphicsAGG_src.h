@@ -9,6 +9,9 @@
 */
 
 #ifdef IGRAPHICS_AGG
+
+#pragma comment(lib, "freetype.lib")
+
 #ifdef OS_MAC
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-register"
