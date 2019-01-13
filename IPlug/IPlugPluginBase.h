@@ -150,7 +150,7 @@ public:
   /** VST3 ONLY! - THIS IS ONLY INCLUDED FOR COMPATIBILITY - NOONE ELSE SHOULD NEED IT!
    * @param chunk The output bytechunk where data can be serialized.
    * @return \c true if serialization was successful */
-  virtual bool SerializeVST3CtrlrState(IByteChunk& chunk) { return true; }
+  virtual bool SerializeVST3CtrlrState(IByteChunk& chunk) const { return true; }
   
   /** VST3 ONLY! - THIS IS ONLY INCLUDED FOR COMPATIBILITY - NOONE ELSE SHOULD NEED IT!
    * @param chunk chunk The incoming chunk containing the state data.

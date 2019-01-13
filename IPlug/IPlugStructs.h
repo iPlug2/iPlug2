@@ -160,7 +160,7 @@ public:
     return IByteGetter::GetStr(mBytes.Get(), Size(), str, startPos);
   }
   
-  inline int PutChunk(IByteChunk* pRHS)
+  inline int PutChunk(const IByteChunk* pRHS)
   {
     return PutBytes(pRHS->GetData(), pRHS->Size());
   }
@@ -195,6 +195,11 @@ public:
   }
   
   inline uint8_t* GetData()
+  {
+    return mBytes.Get();
+  }
+    
+  inline const uint8_t* GetData() const
   {
     return mBytes.Get();
   }
