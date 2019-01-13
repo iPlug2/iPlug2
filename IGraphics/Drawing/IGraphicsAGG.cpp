@@ -478,18 +478,18 @@ APIBitmap* IGraphicsAGG::LoadAPIBitmap(const char* fileNameOrResID, int scale, E
   bool ispng = strstr(fileNameOrResID, "png") != nullptr;
 
 #if defined OS_WIN
-  if (location == EResourceLocation::kWinBinary && ispng)
+  if (location != EResourceLocation::kNotFound && ispng)
   {
     if (pPixelMap->load_img((HINSTANCE)GetWinModuleHandle(), fileNameOrResID, agg::pixel_map::format_png))
       pResult = new AGGBitmap(pPixelMap, scale, 1.f);
   }
-#endif
-
+#else
   if (location == EResourceLocation::kAbsolutePath && ispng)
   {
     if (pPixelMap->load_img(fileNameOrResID, agg::pixel_map::format_png))
       pResult = new AGGBitmap(pPixelMap, scale, 1.f);
   }
+#endif
 
   if (!pResult)
   {
@@ -601,7 +601,7 @@ void IGraphicsAGG::EndFrame()
   PAINTSTRUCT ps;
   HWND hWnd = (HWND) GetWindow();
   HDC dc = BeginPaint(hWnd, &ps);
-  mPixelMap.draw(dc, 1.0);
+  mPixelMap.draw(dc, 0, 0, 1.0);
   EndPaint(hWnd, &ps);
 #endif
 }

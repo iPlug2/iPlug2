@@ -1531,8 +1531,6 @@ const void* IGraphicsWin::LoadWinResource(const char* resid, const char* type, i
 #ifndef NO_IGRAPHICS
 #if defined IGRAPHICS_AGG
   #include "IGraphicsAGG.cpp"
-  #include "agg_win32_pmap.cpp"
-  #include "agg_win32_font.cpp"
 #elif defined IGRAPHICS_CAIRO
   #include "IGraphicsCairo.cpp"
 #elif defined IGRAPHICS_LICE
