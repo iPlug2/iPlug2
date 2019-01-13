@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2006
+VisualStudioVersion = 15.0.28010.2016
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReaperExtension", "Z:\oli\Dev\MyPlugins\Examples\ReaperExtension\projects\ReaperExtension.vcxproj", "{1A3BED56-CF76-47A1-BCA3-54B14697C1D3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReaperExtension", "projects\ReaperExtension.vcxproj", "{1A3BED56-CF76-47A1-BCA3-54B14697C1D3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +26,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {39C95EA8-A7C1-4EB9-93C3-452C5E54C752}
+		SolutionGuid = {C617B0F9-17D9-4733-9A50-B47429F81049}
 	EndGlobalSection
 EndGlobal

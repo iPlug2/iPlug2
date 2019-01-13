@@ -336,7 +336,12 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
   {
     if (!shadow.mDrawForeground)
     {
-      //pBitmap->GetBitmap()->clear(0);
+      PushLayer(layer.get(), false);
+      nvgGlobalCompositeBlendFunc(mVG, NVG_ZERO, NVG_ZERO);
+      PathRect(layer->Bounds());
+      nvgFillColor(mVG, NanoVGColor(COLOR_TRANSPARENT));
+      nvgFill(mVG);
+      PopLayer(false);
     }
     
     IRECT bounds(layer->Bounds());
@@ -353,6 +358,7 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
     DrawBitmap(maskBitmap, bounds, 0, 0, nullptr);
     IBlend blend1(kBlendSourceIn, 1.0);
     PathRect(layer->Bounds());
+    PathTransformTranslate(-shadow.mXOffset, -shadow.mYOffset);
     PathFill(shadow.mPattern, IFillOptions(), &blend1);
     PopLayer(false);
     IBlend blend2(kBlendUnder, shadow.mOpacity);

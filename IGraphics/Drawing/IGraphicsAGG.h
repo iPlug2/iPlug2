@@ -210,7 +210,7 @@ protected:
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int s) override;
   APIBitmap* CreateAPIBitmap(int width, int height) override;
 
-  int AlphaChannel() const override { return 0; }
+  int AlphaChannel() const override { return PixelOrder().A; }
   bool FlippedBitmap() const override { return false; }
 
   void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;

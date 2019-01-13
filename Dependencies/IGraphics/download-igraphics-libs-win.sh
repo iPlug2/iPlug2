@@ -34,7 +34,7 @@ echo "LOG_NAME:" $LOG_NAME
 err_report() {
     echo
     echo "*******************************************************************************"
-    echo "Error: something went wrong during the build process, printing $LOG_NAME "
+    echo "Error: something went wrong during the download process, printing $LOG_NAME "
     echo "*******************************************************************************"
     echo
     cat "$LOG_PATH/$LOG_NAME"

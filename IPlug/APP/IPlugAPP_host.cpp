@@ -32,8 +32,16 @@ IPlugAPPHost::IPlugAPPHost()
 
 IPlugAPPHost::~IPlugAPPHost()
 {
-  mMidiIn->cancelCallback();
+  if(mMidiIn)
+    mMidiIn->cancelCallback();
 
+  if(mMidiOut)
+    mMidiOut->closePort();
+  
+  if(mDAC)
+    mDAC->abortStream();
+  
+  DELETE_NULL(mIPlug);
   DELETE_NULL(mMidiIn);
   DELETE_NULL(mMidiOut);
   DELETE_NULL(mDAC);
@@ -73,6 +81,11 @@ bool IPlugAPPHost::OpenWindow(HWND pParent)
   }
   
   return false;
+}
+
+void IPlugAPPHost::CloseWindow()
+{
+  mIPlug->CloseWindow();
 }
 
 bool IPlugAPPHost::InitState()

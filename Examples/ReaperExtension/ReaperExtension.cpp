@@ -132,14 +132,14 @@ extern "C"
       MENUITEMINFO mi={sizeof(MENUITEMINFO),};
       mi.fMask = MIIM_TYPE | MIIM_ID;
       mi.fType = MFT_STRING;
-      mi.dwTypeData = "EXAMPLE: Action 1";
+      mi.dwTypeData = LPSTR("EXAMPLE: Action 1");
       mi.wID = g_registered_command01;
       InsertMenuItem(hMenu, 6, TRUE, &mi);
       
       mi={sizeof(MENUITEMINFO),};
       mi.fMask = MIIM_TYPE | MIIM_ID;
       mi.fType = MFT_STRING;
-      mi.dwTypeData = "EXAMPLE: Action 2";
+      mi.dwTypeData = LPSTR("EXAMPLE: Action 2");
       mi.wID = g_registered_command02;
       InsertMenuItem(hMenu, 7, TRUE, &mi);
 

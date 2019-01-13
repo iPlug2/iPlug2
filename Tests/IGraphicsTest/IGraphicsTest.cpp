@@ -125,6 +125,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new TestDropShadowControl(*this, nextCell(), tiger));
     pGraphics->AttachControl(new TestCursorControl(*this, nextCell()));
     pGraphics->AttachControl(new TestKeyboardControl(*this, nextCell()));
+    pGraphics->AttachControl(new TestShadowGradientControl(*this, nextCell()));
 
     WDL_String path;
     //    DesktopPath(path);
