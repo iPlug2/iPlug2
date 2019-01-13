@@ -170,11 +170,5 @@ private:
 
   StaticStorage<APIBitmap> mBitmapCache; //not actually static (doesn't require retaining or releasing)
   NVGcontext* mVG = nullptr;
-  NVGframebuffer* mMainFrameBuffer = nullptr;
-    
-#if defined OS_WIN
-  HGLRC mHGLRC = nullptr;
-  HGLRC mStartHGLRC = nullptr;
-  HDC mStartHDC = nullptr;
-#endif
+  NVGframebuffer* mMainFrameBuffer = nullptr;    
 };

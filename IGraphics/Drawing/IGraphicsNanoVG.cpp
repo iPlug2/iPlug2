@@ -372,49 +372,11 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
 void IGraphicsNanoVG::SetPlatformContext(void* pContext)
 {
   mPlatformContext = pContext;
-#ifdef OS_WIN
-  if(pContext)
-    OnViewInitialized(pContext);
-#endif
 }
 
 void IGraphicsNanoVG::OnViewInitialized(void* pContext)
 {
-#if defined OS_WIN
-  if (pContext)
-  {
-    PIXELFORMATDESCRIPTOR pfd =
-    {
-      sizeof(PIXELFORMATDESCRIPTOR),
-      1,
-      PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER, //Flags
-      PFD_TYPE_RGBA, // The kind of framebuffer. RGBA or palette.
-      32, // Colordepth of the framebuffer.
-      0, 0, 0, 0, 0, 0,
-      0,
-      0,
-      0,
-      0, 0, 0, 0,
-      24, // Number of bits for the depthbuffer
-      8, // Number of bits for the stencilbuffer
-      0, // Number of Aux buffers in the framebuffer.
-      PFD_MAIN_PLANE,
-      0,
-      0, 0, 0
-    };
-    
-    HDC dc = (HDC) pContext;
-    
-    int fmt = ChoosePixelFormat(dc, &pfd);
-    SetPixelFormat(dc, fmt, &pfd);
-    
-    mHGLRC = wglCreateContext(dc);
-    wglMakeCurrent(dc, mHGLRC);
-    if (!gladLoadGL())
-      throw std::runtime_error{"Error initializing glad"};
-    glGetError();
-  }
-#elif defined OS_WEB
+#if defined OS_WEB
   if (!glfwInit())
   {
     DBGMSG("Failed to init GLFW.");
@@ -470,23 +432,13 @@ void IGraphicsNanoVG::OnViewDestroyed()
   
   mVG = nullptr;
   
-#if defined OS_WIN
-  if (mHGLRC)
-  {
-    wglMakeCurrent((HDC) mPlatformContext, nullptr);
-    wglDeleteContext(mHGLRC);
-  }
-#elif defined OS_WEB
+#if defined OS_WEB
   glfwTerminate();
 #endif
 }
 
 void IGraphicsNanoVG::DrawResize()
 {
-  mStartHDC = wglGetCurrentDC();
-  mStartHGLRC = wglGetCurrentContext();
-  wglMakeCurrent((HDC)GetPlatformContext(), mHGLRC);
-
   if (mMainFrameBuffer != nullptr)
     nvgDeleteFramebuffer(mMainFrameBuffer);
   
@@ -494,8 +446,6 @@ void IGraphicsNanoVG::DrawResize()
   
   if (mMainFrameBuffer == nullptr)
     DBGMSG("Could not init FBO.\n");
-
-  wglMakeCurrent(mStartHDC, mStartHGLRC);
 }
 
 void IGraphicsNanoVG::BeginFrame()
@@ -505,11 +455,6 @@ void IGraphicsNanoVG::BeginFrame()
 #ifdef IGRAPHICS_METAL
   //  mnvgClearWithColor(mVG, nvgRGBAf(0, 0, 0, 0));
 #else
-#ifdef OS_WIN
-  mStartHDC = wglGetCurrentDC();
-  mStartHGLRC = wglGetCurrentContext();
-  wglMakeCurrent((HDC) GetPlatformContext(), mHGLRC);
-#endif
   glViewport(0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -544,9 +489,7 @@ void IGraphicsNanoVG::EndFrame()
   
   nvgEndFrame(mVG);
 
-#if defined OS_WIN
-  wglMakeCurrent(mStartHDC, mStartHGLRC);
- #elif defined OS_WEB
+#if defined OS_WEB
   glEnable(GL_DEPTH_TEST);
 #endif
 }
