@@ -41,7 +41,10 @@ IGraphicsLice::~IGraphicsLice()
   
   DELETE_NULL(mDrawBitmap);
   DELETE_NULL(mTmpBitmap);
-    
+#ifdef OS_WIN
+  DELETE_NULL(mScaleBitmap);
+#endif
+
   StaticStorage<LICE_IFont>::Accessor storage(s_fontCache);
   storage.Release();
 }
@@ -52,7 +55,21 @@ void IGraphicsLice::DrawResize()
     mDrawBitmap = new LICE_SysBitmap(Width() * GetScreenScale(), Height() * GetScreenScale());
   else
     mDrawBitmap->resize(Width() * GetScreenScale(), Height() * GetScreenScale());
-  
+
+#ifdef OS_WIN
+  if (GetDrawScale() == 1.0)
+  {
+    DELETE_NULL(mScaleBitmap);
+  }
+  else
+  {
+    if (!mScaleBitmap)
+      mScaleBitmap = new LICE_SysBitmap(WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
+    else
+      mScaleBitmap->resize(WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
+  }
+#endif
+
   mRenderBitmap = mDrawBitmap;
 }
 
@@ -769,8 +786,9 @@ void IGraphicsLice::EndFrame()
   }
   else
   {
-    SetStretchBltMode(dc, HALFTONE);
-    StretchBlt(dc, 0, 0, WindowWidth(), WindowHeight(), mDrawBitmap->getDC(), 0, 0, Width(), Height(), SRCCOPY);
+    LICE_ScaledBlit(mScaleBitmap, mDrawBitmap, 0, 0, WindowWidth(), WindowHeight(), 0, 0, Width(), Height(), 1.0, LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR
+    );
+    BitBlt(dc, 0, 0, WindowWidth(), WindowHeight(), mScaleBitmap->getDC(), 0, 0, SRCCOPY);
   }
   
   EndPaint(hWnd, &ps);
