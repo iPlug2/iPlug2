@@ -238,7 +238,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     case WM_RBUTTONDOWN:
     case WM_LBUTTONDOWN:
     case WM_MBUTTONDOWN:
-  {
+    {
       pGraphics->HideTooltip();
       if (pGraphics->mParamEditWnd)
       {
