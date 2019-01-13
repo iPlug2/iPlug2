@@ -209,12 +209,16 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         if (pGraphics->IsDirty(rects))
         {
           pGraphics->SetAllControlsClean();
-          IRECT dirtyR = rects.Bounds();
-          dirtyR.Scale(pGraphics->GetDrawScale());
-          dirtyR.PixelAlign();
-          RECT r = { (LONG) dirtyR.L, (LONG) dirtyR.T, (LONG) dirtyR.R, (LONG) dirtyR.B };
 
-          InvalidateRect(hWnd, &r, FALSE);
+          for (int i = 0; i < rects.Size(); i++)
+          {
+            IRECT dirtyR = rects.Get(i);
+            dirtyR.Scale(pGraphics->GetDrawScale());
+            dirtyR.PixelAlign();
+            RECT r = { (LONG)dirtyR.L, (LONG)dirtyR.T, (LONG)dirtyR.R, (LONG)dirtyR.B };
+
+            InvalidateRect(hWnd, &r, FALSE);
+          }
 
           if (pGraphics->mParamEditWnd)
           {
@@ -376,24 +380,49 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     }
     case WM_PAINT:
     {
-      RECT r;
-      if (GetUpdateRect(hWnd, &r, FALSE))
+      auto addDrawRect = [pGraphics](IRECTList& rects, RECT r) {
+        IRECT ir(r.left, r.top, r.right, r.bottom);
+        ir.Scale(1.f / pGraphics->GetDrawScale());
+        ir.PixelAlign();
+        rects.Add(ir);
+      };
+
+      HRGN region = CreateRectRgn(0, 0, 0, 0);;
+      int regionType = GetUpdateRgn(hWnd, region, FALSE);
+
+      if ((regionType == COMPLEXREGION) || (regionType = SIMPLEREGION))
       {
         #ifdef IGRAPHICS_NANOVG
         PAINTSTRUCT ps;
         BeginPaint(hWnd, &ps);
         #endif
-        IRECT ir(r.left, r.top, r.right, r.bottom);
+
         IRECTList rects;
-        ir.Scale(1. / pGraphics->GetDrawScale());
-        ir.PixelAlign();
-        rects.Add(ir);
+        const int bufferSize = sizeof(RECT) * 64;
+        unsigned char stackBuffer[sizeof(RGNDATA) + bufferSize];
+        RGNDATA* regionData = (RGNDATA *) stackBuffer;
+
+        if (regionType == COMPLEXREGION && GetRegionData(region, bufferSize, regionData))
+        {
+          for (int i = 0; i < regionData->rdh.nCount; i++)
+            addDrawRect(rects, *(((RECT*) regionData->Buffer) + i));
+        }
+        else
+        {
+          RECT r;
+          GetRgnBox(region, &r);
+          addDrawRect(rects, r);
+        }
+
         pGraphics->Draw(rects);
+
         #ifdef IGRAPHICS_NANOVG
         SwapBuffers((HDC)pGraphics->mPlatformContext);
         EndPaint(hWnd, &ps);
         #endif
       }
+
+      DeleteObject(region);
       return 0;
     }
 
