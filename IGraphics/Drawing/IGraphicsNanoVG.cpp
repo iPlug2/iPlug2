@@ -483,6 +483,10 @@ void IGraphicsNanoVG::OnViewDestroyed()
 
 void IGraphicsNanoVG::DrawResize()
 {
+  mStartHDC = wglGetCurrentDC();
+  mStartHGLRC = wglGetCurrentContext();
+  wglMakeCurrent((HDC)GetPlatformContext(), mHGLRC);
+
   if (mMainFrameBuffer != nullptr)
     nvgDeleteFramebuffer(mMainFrameBuffer);
   
@@ -490,6 +494,8 @@ void IGraphicsNanoVG::DrawResize()
   
   if (mMainFrameBuffer == nullptr)
     DBGMSG("Could not init FBO.\n");
+
+  wglMakeCurrent(mStartHDC, mStartHGLRC);
 }
 
 void IGraphicsNanoVG::BeginFrame()
