@@ -327,9 +327,10 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       {
         IMouseInfo info = pGraphics->GetMouseInfo(lParam, wParam);
         float d = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
+        float scale = pGraphics->GetDrawScale();
         RECT r;
         GetWindowRect(hWnd, &r);
-        pGraphics->OnMouseWheel(info.x - r.left, info.y - r.top, info.ms, d);
+        pGraphics->OnMouseWheel(info.x - (r.left / scale), info.y - (r.top / scale), info.ms, d);
         return 0;
       }
     }
