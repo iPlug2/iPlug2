@@ -42,6 +42,7 @@
     <VST2_64_PATH>$(CommonProgramW6432)\VST2</VST2_64_PATH>
     <AAX_32_PATH>$(CommonProgramFiles)\Avid\Audio\Plug-Ins</AAX_32_PATH>
     <AAX_64_PATH>$(CommonProgramW6432)\Avid\Audio\Plug-Ins</AAX_64_PATH>
+    <REAPER_EXT_PATH>$(APPDATA)\REAPER\UserPlugins</REAPER_EXT_PATH>
     <APP_DEFS>APP_API;__WINDOWS_DS__;__WINDOWS_MM__;__WINDOWS_ASIO__;IPLUG_EDITOR=1;IPLUG_DSP=1</APP_DEFS>
     <VST2_DEFS>VST2_API;VST_FORCE_DEPRECATED;IPLUG_EDITOR=1;IPLUG_DSP=1</VST2_DEFS>
     <VST3_DEFS>VST3_API;IPLUG_EDITOR=1;IPLUG_DSP=1</VST3_DEFS>
@@ -62,6 +63,7 @@
     <VST3_64_COMMAND_ARGS />
     <VST3_32_COMMAND_ARGS />
     <COPY_VST2>1</COPY_VST2>
+    <REAPER_SDK>$(IPLUG_DEPS_PATH)/Reaper</REAPER_SDK>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
@@ -202,6 +204,9 @@
     <BuildMacro Include="AAX_64_PATH">
       <Value>$(AAX_64_PATH)</Value>
     </BuildMacro>
+    <BuildMacro Include="REAPER_EXT_PATH">
+      <Value>$(REAPER_EXT_PATH)</Value>
+    </BuildMacro>
     <BuildMacro Include="APP_DEFS">
       <Value>$(APP_DEFS)</Value>
     </BuildMacro>
@@ -261,6 +266,9 @@
     </BuildMacro>
     <BuildMacro Include="COPY_VST2">
       <Value>$(COPY_VST2)</Value>
+    </BuildMacro>
+    <BuildMacro Include="REAPER_SDK">
+      <Value>$(REAPER_SDK)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

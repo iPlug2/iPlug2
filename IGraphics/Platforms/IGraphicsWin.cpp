@@ -236,7 +236,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     case WM_RBUTTONDOWN:
     case WM_LBUTTONDOWN:
     case WM_MBUTTONDOWN:
-  {
+    {
       pGraphics->HideTooltip();
       if (pGraphics->mParamEditWnd)
       {
@@ -325,9 +325,10 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       {
         IMouseInfo info = pGraphics->GetMouseInfo(lParam, wParam);
         float d = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
+        float scale = pGraphics->GetDrawScale();
         RECT r;
         GetWindowRect(hWnd, &r);
-        pGraphics->OnMouseWheel(info.x - r.left, info.y - r.top, info.ms, d);
+        pGraphics->OnMouseWheel(info.x - (r.left / scale), info.y - (r.top / scale), info.ms, d);
         return 0;
       }
     }
@@ -735,7 +736,7 @@ void* IGraphicsWin::OpenWindow(void* pParent)
 
   if (nWndClassReg++ == 0)
   {
-    WNDCLASS wndClass = { CS_DBLCLKS | CS_OWNDC, WndProc, 0, 0, mHInstance, 0, LoadCursor(NULL, IDC_ARROW), 0, 0, wndClassName };
+    WNDCLASS wndClass = { CS_DBLCLKS | CS_OWNDC, WndProc, 0, 0, mHInstance, 0, 0, 0, 0, wndClassName };
     RegisterClass(&wndClass);
   }
 
@@ -881,7 +882,7 @@ void IGraphicsWin::CloseWindow()
   }
 }
 
-IPopupMenu* IGraphicsWin::GetItemMenu(long idx, long& idxInMenu, long& offsetIdx, const IPopupMenu& baseMenu)
+IPopupMenu* IGraphicsWin::GetItemMenu(long idx, long& idxInMenu, long& offsetIdx, IPopupMenu& baseMenu)
 {
   long oldIDx = offsetIdx;
   offsetIdx += baseMenu.NItems();
@@ -889,14 +890,14 @@ IPopupMenu* IGraphicsWin::GetItemMenu(long idx, long& idxInMenu, long& offsetIdx
   if (idx < offsetIdx)
   {
     idxInMenu = idx - oldIDx;
-    return &const_cast<IPopupMenu&>(baseMenu);
+    return &baseMenu;
   }
 
   IPopupMenu* pMenu = nullptr;
 
   for(int i = 0; i< baseMenu.NItems(); i++)
   {
-    IPopupMenu::Item* pMenuItem = const_cast<IPopupMenu&>(baseMenu).GetItem(i);
+    IPopupMenu::Item* pMenuItem = baseMenu.GetItem(i);
     if(pMenuItem->GetSubmenu())
     {
       pMenu = GetItemMenu(idx, idxInMenu, offsetIdx, *pMenuItem->GetSubmenu());
@@ -921,9 +922,9 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* pOffsetIdx)
   *pOffsetIdx += nItems;
   long inc = 0;
 
-  for(int i = 0; i< nItems; i++)
+  for(int i = 0; i < nItems; i++)
   {
-    IPopupMenu::Item* pMenuItem = const_cast<IPopupMenu&>(menu).GetItem(i);
+    IPopupMenu::Item* pMenuItem = menu.GetItem(i);
 
     if (pMenuItem->GetIsSeparator())
     {
@@ -1540,8 +1541,6 @@ void CALLBACK IGraphicsWin::MMTimerCallback(UINT uTimerID, UINT uMsg, DWORD_PTR 
 #ifndef NO_IGRAPHICS
 #if defined IGRAPHICS_AGG
   #include "IGraphicsAGG.cpp"
-  #include "agg_win32_pmap.cpp"
-  #include "agg_win32_font.cpp"
 #elif defined IGRAPHICS_CAIRO
   #include "IGraphicsCairo.cpp"
 #elif defined IGRAPHICS_LICE

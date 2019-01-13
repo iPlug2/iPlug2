@@ -50,7 +50,7 @@ public:
   void PromptForDirectory(WDL_String& dir) override;
   bool PromptForColor(IColor& color, const char* str) override;
 
-  IPopupMenu* GetItemMenu(long idx, long& idxInMenu, long& offsetIdx, const IPopupMenu& baseMenu);
+  IPopupMenu* GetItemMenu(long idx, long& idxInMenu, long& offsetIdx, IPopupMenu& baseMenu);
   HMENU CreateMenu(IPopupMenu& menu, long* pOffsetIdx);
 
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure);
