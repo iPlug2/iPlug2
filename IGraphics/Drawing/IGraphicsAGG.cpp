@@ -579,6 +579,7 @@ void IGraphicsAGG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const 
     PushLayer(&shadowLayer, false);
     PathRect(layer->Bounds());
     IBlend blend1(kBlendSourceIn, 1.0);
+    PathTransformTranslate(-shadow.mXOffset, -shadow.mYOffset);
     PathFill(shadow.mPattern, IFillOptions(), &blend1);
     PopLayer(false);
     IBlend blend2(kBlendUnder, shadow.mOpacity);

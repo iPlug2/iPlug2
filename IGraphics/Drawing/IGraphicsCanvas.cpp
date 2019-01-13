@@ -400,7 +400,7 @@ void IGraphicsCanvas::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
     IBlend blend(kBlendNone, shadow.mOpacity);
     localContext.call<void>("rect", 0, 0, width, height);
     localContext.call<void>("scale", scale, scale);
-    localContext.call<void>("translate", -layer->Bounds().L, -layer->Bounds().T);
+    localContext.call<void>("translate", -(layer->Bounds().L + shadow.mXOffset), -(layer->Bounds().T + shadow.mYOffset));
     SetCanvasSourcePattern(localContext, shadow.mPattern, &blend);
     localContext.set("globalCompositeOperation", "source-in");
     localContext.call<void>("fill");
