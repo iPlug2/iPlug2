@@ -340,10 +340,11 @@ public:
    * @return The class implementing the IEditorDelegate interface that handles communication to/from from this IGraphics instance.*/
   IEditorDelegate* GetDelegate() { return mDelegate; }
   
-  /** Used internally to set the mGraphics variable */
-  void SetGraphics(IGraphics* pGraphics)
+  /** Used internally to set the mDelegate (and mGraphics) variables */
+  void SetDelegate(IGEditorDelegate& dlg)
   {
-    mGraphics = pGraphics;
+    mDelegate = &dlg;
+    mGraphics = dlg.GetUI();
     OnResize();
     OnRescale();
   }
