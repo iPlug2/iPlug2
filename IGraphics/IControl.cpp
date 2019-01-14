@@ -333,12 +333,6 @@ ICaptionControl::ICaptionControl(IRECT bounds, int paramIdx, const IText& text, 
 , mShowParamLabel(showParamLabel)
 {
   mParamIdx = paramIdx;
-  
-  if(GetParam()->Type() == IParam::kTypeEnum)
-  {
-    mIsListControl = true;
-  }
-  
   mDblAsSingleClick = true;
   mDisablePrompt = false;
   mIgnoreMouse = false;
@@ -369,9 +363,16 @@ void ICaptionControl::Draw(IGraphics& g)
 
   ITextControl::Draw(g);
   
-  if(mIsListControl) {
-    IRECT triRect = mRECT.FracRectHorizontal(0.2f, true).GetCentredInside(IRECT(0, 0, 8, 5));
-    g.FillTriangle(COLOR_DARK_GRAY, triRect.L, triRect.T, triRect.R, triRect.T, triRect.MW(), triRect.B, GetMouseIsOver() ? 0 : &BLEND_50);
+  if(mTri.W()) {
+    g.FillTriangle(COLOR_DARK_GRAY, mTri.L, mTri.T, mTri.R, mTri.T, mTri.MW(), mTri.B, GetMouseIsOver() ? 0 : &BLEND_50);
+  }
+}
+
+void ICaptionControl::OnResize()
+{
+  if(GetParam()->Type() == IParam::kTypeEnum)
+  {
+    mTri = mRECT.FracRectHorizontal(0.2f, true).GetCentredInside(IRECT(0, 0, 8, 5)); //TODO: This seems rubbish
   }
 }
 
@@ -395,12 +396,16 @@ void IButtonControlBase::OnEndAnimation()
 ISwitchControlBase::ISwitchControlBase(IRECT bounds, int paramIdx, IActionFunction actionFunc,
   int numStates)
   : IControl(bounds, paramIdx, actionFunc)
+  , mNumStates(numStates)
 {
-  if (paramIdx > kNoParameter)
+  assert(mNumStates > 1);
+}
+
+void ISwitchControlBase::OnInit()
+{
+  if (mParamIdx > kNoParameter)
     mNumStates = (int) GetParam()->GetRange() + 1;
-  else
-    mNumStates = numStates;
-  
+ 
   assert(mNumStates > 1);
 }
 

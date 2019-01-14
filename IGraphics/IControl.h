@@ -120,6 +120,9 @@ public:
   /** Called when IControl is constructed or resized using SetRect(). NOTE: if you call SetDirty() in this method, you should call SetDirty(false) to avoid triggering parameter changes */
   virtual void OnResize() {}
   
+  /** Called after the control has been attached, and its delegate and graphics member variable set */
+  virtual void OnInit() {}
+  
   /** Implement to receive messages sent to the control, see IEditorDelegate:SendControlMsgFromDelegate() */
   virtual void OnMsgFromDelegate(int messageTag, int dataSize, const void* pData) {};
   
@@ -875,7 +878,7 @@ public:
   ISwitchControlBase(IRECT bounds, int paramIdx = kNoParameter, IActionFunction aF = nullptr, int numStates = 2);
 
   virtual ~ISwitchControlBase() {}
-
+  virtual void OnInit() override;
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   virtual void OnMouseUp(float x, float y, const IMouseMod& mod) override;
 protected:
@@ -1132,13 +1135,12 @@ class ICaptionControl : public ITextControl
 {
 public:
   ICaptionControl(IRECT bounds, int paramIdx, const IText& text = DEFAULT_TEXT, bool showParamLabel = true);
-  
   void Draw(IGraphics& g) override;
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-
+  void OnResize() override;
 protected:
   bool mShowParamLabel;
-  bool mIsListControl = false;
+  IRECT mTri;
 };
 
 /**@}*/
