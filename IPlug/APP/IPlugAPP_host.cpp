@@ -39,7 +39,10 @@ IPlugAPPHost::~IPlugAPPHost()
     mMidiOut->closePort();
   
   if(mDAC)
-    mDAC->abortStream();
+  {
+    if(mDAC->isStreamOpen())
+      mDAC->abortStream();
+  }
   
   DELETE_NULL(mIPlug);
   DELETE_NULL(mMidiIn);
