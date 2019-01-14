@@ -153,42 +153,42 @@ public:
     }
   }
 
-  void ProcessBlock(T** inputs, T** outputs, int nFrames, int nChans, BlockProcessFunc func)
-  {
-    assert(nChans <= mNChannels);
-    
-    if (mRate == 2)
-    {
-      // for each channel upsample block
-      for(auto c = 0; c < nChans; c++)
-      {
-        mUpsampler2x.process_block(mUp2BufferPtrs.Get(c), inputs[c], nFrames);
-      }
-      
-      func(mUp2BufferPtrs.GetList(), mDown2BufferPtrs.GetList(), nFrames);
-
-      // TODO: move pointers in a better way! TODO: this doesn't actually work
-      WDL_PtrList<T> nextInputPtrs;
-      WDL_PtrList<T> nextOutputPtrs;
-
-      for(auto c = 0; c < nChans; c++)
-      {
-        nextInputPtrs.Add(mUp2BufferPtrs.Get(c) + nFrames);
-        nextOutputPtrs.Add(mDown2BufferPtrs.Get(c) + nFrames);
-      }
-
-      func(nextInputPtrs.GetList(), nextOutputPtrs.GetList(), nFrames);
-
-      for(auto c = 0; c < nChans; c++)
-      {
-        mDownsampler2x.process_block(outputs[c], mDown2BufferPtrs.Get(c), nFrames);
-      }
-    }
-    else
-    {
-      func(inputs, outputs, nFrames);
-    }
-  }
+//  void ProcessBlock(T** inputs, T** outputs, int nFrames, int nChans, BlockProcessFunc func)
+//  {
+//    assert(nChans <= mNChannels);
+//
+//    if (mRate == 2)
+//    {
+//      // for each channel upsample block
+//      for(auto c = 0; c < nChans; c++)
+//      {
+//        mUpsampler2x.process_block(mUp2BufferPtrs.Get(c), inputs[c], nFrames);
+//      }
+//
+//      func(mUp2BufferPtrs.GetList(), mDown2BufferPtrs.GetList(), nFrames);
+//
+//      // TODO: move pointers in a better way! TODO: this doesn't actually work
+//      WDL_PtrList<T> nextInputPtrs;
+//      WDL_PtrList<T> nextOutputPtrs;
+//
+//      for(auto c = 0; c < nChans; c++)
+//      {
+//        nextInputPtrs.Add(mUp2BufferPtrs.Get(c) + nFrames);
+//        nextOutputPtrs.Add(mDown2BufferPtrs.Get(c) + nFrames);
+//      }
+//
+//      func(nextInputPtrs.GetList(), nextOutputPtrs.GetList(), nFrames);
+//
+//      for(auto c = 0; c < nChans; c++)
+//      {
+//        mDownsampler2x.process_block(outputs[c], mDown2BufferPtrs.Get(c), nFrames);
+//      }
+//    }
+//    else
+//    {
+//      func(inputs, outputs, nFrames);
+//    }
+//  }
   
   /** Over sample an input sample with a per-sample function (up sample input -> process with function -> down sample)
    * @param input The audio sample to input
