@@ -165,7 +165,7 @@ bool IWebsocketServer::handleData(CivetServer* pServer, struct mg_connection* pC
   
   if(*firstByte == 129) // TODO: check that
   {
-    return OnWebsocketText(mConnections.Find(pConn), const_cast<char*>(pData), dataSize);
+    return OnWebsocketText(mConnections.Find(pConn), pData, dataSize);
   }
   else if(*firstByte == 130) // TODO: check that
   {
