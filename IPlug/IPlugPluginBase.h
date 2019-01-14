@@ -84,12 +84,12 @@ public:
   /** @return \c true if the plug-in is meant to have a UI, as defined in config.h */
   bool HasUI() const { return mHasUI; }
   
-  const char* GetBundleID() { return mBundleID.Get(); }
+  const char* GetBundleID() const { return mBundleID.Get(); }
     
 #pragma mark - Parameters
   
   /** @return The number of unique parameter groups identified */
-  int NParamGroups() { return mParamGroups.GetSize(); }
+  int NParamGroups() const { return mParamGroups.GetSize(); }
   
   /** Called to add a parameter group name, when a unique group name is discovered
    * @param name CString for the unique group name
@@ -99,7 +99,7 @@ public:
   /** Get the parameter group name as a particular index
    * @param idx The index to return
    * @return CString for the unique group name */
-  const char* GetParamGroupName(int idx) { return mParamGroups.Get(idx); }
+  const char* GetParamGroupName(int idx) const { return mParamGroups.Get(idx); }
   
   /** Implemented by the API class, call this if you update parameter labels and hopefully the host should update it's displays (not applicable to all APIs) */
   virtual void InformHostOfParameterDetailsChange() {};
@@ -172,7 +172,7 @@ public:
 #ifdef NO_PRESETS
   /** Gets the number of factory presets. NOTE: some hosts don't like 0 presets, so even if you don't support factory presets, this method should return 1
    * @return The number of factory presets */
-  virtual int NPresets() { return 1; }
+  virtual int NPresets() const { return 1; }
   
   /** This method should update the current preset with current values
    * NOTE: This is only relevant for VST2 plug-ins, which is the only format to have the notion of banks?
@@ -192,16 +192,16 @@ public:
   /** Get the name a preset
    * @param idx The index of the preset whose name to get
    * @return CString preset name */
-  virtual const char* GetPresetName(int idx) { return "-"; }
+  virtual const char* GetPresetName(int idx) const { return "-"; }
   
 #else
   #pragma mark - Preset Manipulation - OPs - These methods are not included if you define NO_PRESETS
   
   void ModifyCurrentPreset(const char* name = 0);
-  int NPresets() { return mPresets.GetSize(); }
+  int NPresets() const { return mPresets.GetSize(); }
   bool RestorePreset(int idx);
   bool RestorePreset(const char* name);
-  const char* GetPresetName(int idx);
+  const char* GetPresetName(int idx) const;
   
   // You can't use these three methods with chunks-based plugins, because there is no way to set the custom data
   void MakeDefaultPreset(const char* name = 0, int nPresets = 1);
