@@ -58,7 +58,7 @@ void DefaultClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(DefaultAn
 void FlashCircleClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(FlashCircleAnimationFunc, DEFAULT_ANIMATION_DURATION); }
 
 IControl::IControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc)
-: mDelegate(dlg)
+: mDelegate(&dlg)
 , mRECT(bounds)
 , mTargetRECT(bounds)
 , mParamIdx(paramIdx)
@@ -67,7 +67,7 @@ IControl::IControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFun
 }
 
 IControl::IControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc)
-: mDelegate(dlg)
+: mDelegate(&dlg)
 , mRECT(bounds)
 , mTargetRECT(bounds)
 , mParamIdx(kNoParameter)
@@ -119,7 +119,7 @@ void IControl::SetDirty(bool triggerAction)
   {
     if(mParamIdx > kNoParameter)
     {
-      mDelegate.SendParameterValueFromUI(mParamIdx, mValue);
+      GetDelegate()->SendParameterValueFromUI(mParamIdx, mValue);
       GetUI()->UpdatePeers(this);
       
       const IParam* pParam = GetParam();
@@ -263,7 +263,7 @@ void IControl::DrawPTHighlight(IGraphics& g)
 const IParam* IControl::GetParam()
 {
   if(mParamIdx >= 0)
-    return mDelegate.GetParam(mParamIdx);
+    return GetDelegate()->GetParam(mParamIdx);
   else
     return nullptr;
 }
