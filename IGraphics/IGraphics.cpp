@@ -186,14 +186,14 @@ void IGraphics::SetControlValueFromStringAfterPrompt(IControl& control, const ch
 void IGraphics::AttachBackground(const char* name)
 {
   IBitmap bg = LoadBitmap(name, 1, false);
-  IControl* pBG = new IBitmapControl(mDelegate, 0, 0, bg, kNoParameter, kBlendClobber);
+  IControl* pBG = new IBitmapControl(0, 0, bg, kNoParameter, kBlendClobber);
   pBG->SetGraphics(this);
   mControls.Insert(0, pBG);
 }
 
 void IGraphics::AttachPanelBackground(const IColor& color)
 {
-  IControl* pBG = new IPanelControl(mDelegate, GetBounds(), color);
+  IControl* pBG = new IPanelControl(GetBounds(), color);
   pBG->SetGraphics(this);
   mControls.Insert(0, pBG);
 }
@@ -209,7 +209,7 @@ int IGraphics::AttachControl(IControl* pControl, int controlTag, const char* gro
 
 void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize)
 {
-  AttachCornerResizer(new ICornerResizerControl(mDelegate, GetBounds(), 20), sizeMode, layoutOnResize);
+  AttachCornerResizer(new ICornerResizerControl(GetBounds(), 20), sizeMode, layoutOnResize);
 }
 
 void IGraphics::AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerMode sizeMode, bool layoutOnResize)
@@ -233,7 +233,7 @@ void IGraphics::AttachPopupMenuControl(const IText& text, const IRECT& bounds)
 {
   if (mPopupControl == nullptr)
   {
-    mPopupControl = new IPopupMenuControl(mDelegate, kNoParameter, text, IRECT(), bounds);
+    mPopupControl = new IPopupMenuControl(kNoParameter, text, IRECT(), bounds);
     mPopupControl->SetGraphics(this);
   }
 }
@@ -242,7 +242,7 @@ void IGraphics::AttachTextEntryControl()
 {
   if(mTextEntryControl == nullptr)
   {
-    mTextEntryControl = new ITextEntryControl(mDelegate);
+    mTextEntryControl = new ITextEntryControl();
     mTextEntryControl->SetGraphics(this);
   }
 }
@@ -253,7 +253,7 @@ void IGraphics::ShowFPSDisplay(bool enable)
   {
     if (mPerfDisplay == nullptr)
     {
-      mPerfDisplay = new IFPSDisplayControl(mDelegate, GetBounds().GetPadded(-10).GetFromTLHC(200, 50));
+      mPerfDisplay = new IFPSDisplayControl(GetBounds().GetPadded(-10).GetFromTLHC(200, 50));
       mPerfDisplay->SetGraphics(this);
     }
   }
@@ -1126,7 +1126,7 @@ void IGraphics::EnableLiveEdit(bool enable/*, const char* file, int gridsize*/)
   {
     if (mLiveEdit == nullptr)
     {
-      mLiveEdit = new IGraphicsLiveEdit(mDelegate, mHandleMouseOver/*, file, gridsize*/);
+      mLiveEdit = new IGraphicsLiveEdit(mHandleMouseOver/*, file, gridsize*/);
       mLiveEdit->SetGraphics(this);
     }
   }

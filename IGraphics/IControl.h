@@ -49,7 +49,7 @@ public:
    * @param bounds The rectangular area that the control occupies
    * @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a plugin parameter
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
-  IControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
+  IControl(IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
   
   /** Constructor (no paramIdx)
    * @param dlg The class implementing the IEditorDelegate interface that will handle parameter changes.
@@ -58,7 +58,7 @@ public:
    * to handle dummy "parameter" changes.
    * @param bounds The rectangular area that the control occupies
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
-  IControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc);
+  IControl(IRECT bounds, IActionFunction actionFunc);
 
   /** Destructor. Clean up any resources that your control owns. */
   virtual ~IControl() {}
@@ -696,9 +696,9 @@ protected:
 class IKnobControlBase : public IControl
 {
 public:
-  IKnobControlBase(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
+  IKnobControlBase(IRECT bounds, int paramIdx = kNoParameter,
     EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
-    : IControl(dlg, bounds, paramIdx)
+    : IControl(bounds, paramIdx)
     , mDirection(direction)
     , mGearing(gearing)
   {}
@@ -716,18 +716,18 @@ protected:
 class ISliderControlBase : public IControl
 {
 public:
-  ISliderControlBase(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
+  ISliderControlBase(IRECT bounds, int paramIdx = kNoParameter,
                      EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 0.f)
-  : IControl(dlg, bounds, paramIdx)
+  : IControl(bounds, paramIdx)
   , mDirection(dir)
   , mOnlyHandle(onlyHandle)
   {
     handleSize == 0 ? mHandleSize = bounds.W() : mHandleSize = handleSize;
   }
   
-  ISliderControlBase(IGEditorDelegate& dlg, IRECT bounds, IActionFunction aF = nullptr,
+  ISliderControlBase(IRECT bounds, IActionFunction aF = nullptr,
                      EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 0.f)
-  : IControl(dlg, bounds, aF)
+  : IControl(bounds, aF)
   , mDirection(dir)
   , mOnlyHandle(onlyHandle)
   {
@@ -749,8 +749,8 @@ class IVTrackControlBase : public IControl
                          , public IVectorBase
 {
 public:
-  IVTrackControlBase(IGEditorDelegate& dlg, IRECT bounds, int maxNTracks = 1, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
-  : IControl(dlg, bounds)
+  IVTrackControlBase(IRECT bounds, int maxNTracks = 1, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  : IControl(bounds)
   , mMaxNTracks(maxNTracks)
   , mMinTrackValue(minTrackValue)
   , mMaxTrackValue(maxTrackValue)
@@ -860,7 +860,7 @@ protected:
 class IButtonControlBase : public IControl
 {
 public:
-  IButtonControlBase(IGEditorDelegate& dlg, IRECT bounds, IActionFunction aF);
+  IButtonControlBase(IRECT bounds, IActionFunction aF);
   
   virtual ~IButtonControlBase() {}
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
@@ -871,7 +871,7 @@ public:
 class ISwitchControlBase : public IControl
 {
 public:
-  ISwitchControlBase(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction aF = nullptr, int numStates = 2);
+  ISwitchControlBase(IRECT bounds, int paramIdx = kNoParameter, IActionFunction aF = nullptr, int numStates = 2);
 
   virtual ~ISwitchControlBase() {}
 
@@ -886,8 +886,8 @@ protected:
 class IDirBrowseControlBase : public IControl
 {
 public:
-  IDirBrowseControlBase(IGEditorDelegate& dlg, IRECT bounds, const char* extension /* e.g. ".txt"*/)
-  : IControl(dlg, bounds)
+  IDirBrowseControlBase(IRECT bounds, const char* extension /* e.g. ".txt"*/)
+  : IControl(bounds)
   {
     mExtension.Set(extension);
   }
@@ -933,16 +933,16 @@ protected:
 class IPanelControl : public IControl
 {
 public:
-  IPanelControl(IGEditorDelegate& dlg, IRECT bounds, const IColor& color, bool drawFrame = false)
-  : IControl(dlg, bounds, kNoParameter)
+  IPanelControl(IRECT bounds, const IColor& color, bool drawFrame = false)
+  : IControl(bounds, kNoParameter)
   , mPattern(color)
   , mDrawFrame(drawFrame)
   {
     mIgnoreMouse = true;
   }
   
-  IPanelControl(IGEditorDelegate& dlg, IRECT bounds, const IPattern& pattern, bool drawFrame = false)
-  : IControl(dlg, bounds, kNoParameter)
+  IPanelControl(IRECT bounds, const IPattern& pattern, bool drawFrame = false)
+  : IControl(bounds, kNoParameter)
   , mPattern(pattern)
   , mDrawFrame(drawFrame)
   {
@@ -977,9 +977,9 @@ private:
 class ILambdaControl : public IControl
 {
 public:
-  ILambdaControl(IGEditorDelegate& dlg, IRECT bounds, ILambdaDrawFunction drawFunc, int animationDuration = DEFAULT_ANIMATION_DURATION,
+  ILambdaControl(IRECT bounds, ILambdaDrawFunction drawFunc, int animationDuration = DEFAULT_ANIMATION_DURATION,
     bool loopAnimation = false, bool startImmediately = false, int paramIdx = kNoParameter)
-  : IControl(dlg, bounds, paramIdx, DefaultClickActionFunc)
+  : IControl(bounds, paramIdx, DefaultClickActionFunc)
   , mDrawFunc(drawFunc)
   , mLoopAnimation(loopAnimation)
   , mAnimationDuration(animationDuration)
@@ -1037,13 +1037,13 @@ public:
   /** Creates a bitmap control
    * @param paramIdx Parameter index (-1 or kNoParameter, if this should not be linked to a parameter)
    * @param bitmap Image to be drawn */
-  IBitmapControl(IGEditorDelegate& dlg, float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendNone)
-  : IControl(dlg, IRECT(x, y, bitmap), paramIdx)
+  IBitmapControl(float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendNone)
+  : IControl(IRECT(x, y, bitmap), paramIdx)
   , IBitmapBase(bitmap, blend)
   {}
   
-  IBitmapControl(IGEditorDelegate& dlg, const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendNone)
-  : IControl(dlg, bounds, paramIdx)
+  IBitmapControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendNone)
+  : IControl(bounds, paramIdx)
   , IBitmapBase(bitmap, blend)
   {}
   
@@ -1066,8 +1066,8 @@ public:
 class ISVGControl : public IControl
 {
 public:
-  ISVGControl(IGEditorDelegate& dlg, IRECT bounds, ISVG& svg, bool useLayer = false)
-    : IControl(dlg, bounds)
+  ISVGControl(IRECT bounds, ISVG& svg, bool useLayer = false)
+    : IControl(bounds)
     , mSVG(svg)
     , mUseLayer(useLayer)
   {}
@@ -1106,8 +1106,8 @@ private:
 class ITextControl : public IControl
 {
 public:
-  ITextControl(IGEditorDelegate& dlg, IRECT bounds, const char* str = "", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR)
-  : IControl(dlg, bounds)
+  ITextControl(IRECT bounds, const char* str = "", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR)
+  : IControl(bounds)
   , mStr(str)
   , mBGColor(BGColor)
   {
@@ -1130,7 +1130,7 @@ protected:
 class ICaptionControl : public ITextControl
 {
 public:
-  ICaptionControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, const IText& text = DEFAULT_TEXT, bool showParamLabel = true);
+  ICaptionControl(IRECT bounds, int paramIdx, const IText& text = DEFAULT_TEXT, bool showParamLabel = true);
   
   void Draw(IGraphics& g) override;
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
