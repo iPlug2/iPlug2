@@ -64,8 +64,7 @@ int IPluginBase::GetHostVersion(bool decimal)
 
 void IPluginBase::GetHostVersionStr(WDL_String& str)
 {
-  GetHost();
-  GetVersionStr(mHostVersion, str);
+  GetVersionStr(GetHostVersion(false), str);
 }
 
 const char* IPluginBase::GetAPIStr() const
