@@ -172,7 +172,7 @@ public:
 #ifdef NO_PRESETS
   /** Gets the number of factory presets. NOTE: some hosts don't like 0 presets, so even if you don't support factory presets, this method should return 1
    * @return The number of factory presets */
-  virtual int NPresets() { return 1; }
+  virtual int NPresets() const { return 1; }
   
   /** This method should update the current preset with current values
    * NOTE: This is only relevant for VST2 plug-ins, which is the only format to have the notion of banks?
@@ -192,16 +192,16 @@ public:
   /** Get the name a preset
    * @param idx The index of the preset whose name to get
    * @return CString preset name */
-  virtual const char* GetPresetName(int idx) { return "-"; }
+  virtual const char* GetPresetName(int idx) const { return "-"; }
   
 #else
   #pragma mark - Preset Manipulation - OPs - These methods are not included if you define NO_PRESETS
   
   void ModifyCurrentPreset(const char* name = 0);
-  int NPresets() { return mPresets.GetSize(); }
+  int NPresets() const { return mPresets.GetSize(); }
   bool RestorePreset(int idx);
   bool RestorePreset(const char* name);
-  const char* GetPresetName(int idx);
+  const char* GetPresetName(int idx) const;
   
   // You can't use these three methods with chunks-based plugins, because there is no way to set the custom data
   void MakeDefaultPreset(const char* name = 0, int nPresets = 1);

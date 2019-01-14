@@ -473,7 +473,7 @@ bool IPluginBase::RestorePreset(const char* name)
   return false;
 }
 
-const char* IPluginBase::GetPresetName(int idx)
+const char* IPluginBase::GetPresetName(int idx) const
 {
   if (idx >= 0 && idx < mPresets.GetSize())
   {
