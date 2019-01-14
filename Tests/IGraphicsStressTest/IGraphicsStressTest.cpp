@@ -41,7 +41,7 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
 
     dynamic_cast<ITextControl*>(GetUI()->GetControlWithTag(kCtrlTagNumThings))->SetStrFmt(64, "Number of things = %i", mNumberOfThings);
     dynamic_cast<ITextControl*>(GetUI()->GetControlWithTag(kCtrlTagTestNum))->SetStrFmt(64, "Test %i/%i", mKindOfThing, 32);
-    this->GetUI()->SetAllControlsDirty();
+    GetUI()->SetAllControlsDirty();
     return true;
   });
   
