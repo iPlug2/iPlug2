@@ -17,8 +17,8 @@ IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->LoadFont(ROBOTTO_FN);
     const IRECT b = pGraphics->GetBounds();
-    pGraphics->AttachControl(new ITextControl(*this, b, "Hello iPlug 2!", IText(50)));
-    pGraphics->AttachControl(new IVKnobControl(*this, b.GetCentredInside(100).GetVShifted(-100), kGain));
+    pGraphics->AttachControl(new ITextControl(b, "Hello iPlug 2!", IText(50)));
+    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(100).GetVShifted(-100), kGain));
   };
 #endif
 }

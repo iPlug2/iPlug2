@@ -48,7 +48,7 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
   pGraphics->HandleMouseOver(false);
   pGraphics->LoadFont(ROBOTTO_FN);
   pGraphics->AttachPanelBackground(COLOR_GRAY);
-  pGraphics->AttachControl(new ILambdaControl(*this, bounds, [&](ILambdaControl* pCaller, IGraphics& g, IRECT& r)
+  pGraphics->AttachControl(new ILambdaControl(bounds, [&](ILambdaControl* pCaller, IGraphics& g, IRECT& r)
   {
     static IBitmap smiley = g.LoadBitmap(SMILEY_FN);
     static ISVG tiger = g.LoadSVG(TIGER_FN);
@@ -98,6 +98,6 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
     
   }, 10000, false, false));
   
-  pGraphics->AttachControl(new ITextControl(*this, bounds.GetGridCell(0, 2, 1), "", IText(100)), kCtrlTagNumThings);
-  pGraphics->AttachControl(new ITextControl(*this, bounds.GetGridCell(1, 2, 1), "", IText(100)), kCtrlTagTestNum);
+  pGraphics->AttachControl(new ITextControl(bounds.GetGridCell(0, 2, 1), "", IText(100)), kCtrlTagNumThings);
+  pGraphics->AttachControl(new ITextControl(bounds.GetGridCell(1, 2, 1), "", IText(100)), kCtrlTagTestNum);
 }
