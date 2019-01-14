@@ -9,6 +9,7 @@
 */
 
 #ifdef IGRAPHICS_AGG
+
 #ifdef OS_MAC
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-register"
@@ -65,6 +66,9 @@
 #include "agg_mac_font.h"
 #pragma clang diagnostic pop
 #elif defined OS_WIN
+#pragma comment(lib, "libpng.lib")
+#pragma comment(lib, "zlib.lib")
+#pragma comment(lib, "freetype.lib")
 #include "agg_win32_pmap.h"
 #include "agg_win32_font.h"
 #endif
