@@ -22,8 +22,8 @@
 class TestArcControl : public IKnobControlBase
 {
 public:
-  TestArcControl(IGEditorDelegate& dlg, IRECT rect, int paramIdx = kNoParameter, float angle1 = -135.f, float angle2 = 135.f)
-  : IKnobControlBase(dlg, rect, paramIdx)
+  TestArcControl(IRECT rect, int paramIdx = kNoParameter, float angle1 = -135.f, float angle2 = 135.f)
+  : IKnobControlBase(rect, paramIdx)
   , mAngle1(angle1)
   , mAngle2(angle2)
   {

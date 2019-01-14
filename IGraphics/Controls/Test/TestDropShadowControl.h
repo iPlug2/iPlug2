@@ -23,8 +23,8 @@
 class TestDropShadowControl : public IControl
 {
 public:
-  TestDropShadowControl(IGEditorDelegate& dlg, IRECT bounds, const ISVG& svg)
-  : IControl(dlg, bounds)
+  TestDropShadowControl(IRECT bounds, const ISVG& svg)
+  : IControl(bounds)
   , mSVG(svg)
   {
     SetTooltip("TestDropShadowControl");
