@@ -74,7 +74,6 @@ public:
   /** Get a const pointer to one of the delegate's IParam objects (for const methods)
    * @param paramIdx The index of the parameter object to be got
    * @return A pointer to the IParam object at paramIdx or nullptr if paramIdx is invalid */
-    
   const IParam* GetParam(int paramIdx) const { return mParams.Get(paramIdx); }
 
   /** @return Returns the number of parameters that belong to the plug-in. */

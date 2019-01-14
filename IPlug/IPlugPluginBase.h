@@ -220,36 +220,36 @@ public:
   // VST2 API only
   virtual void OnPresetsModified() {}
   void EnsureDefaultPreset();
-  bool SerializePresets(IByteChunk& chunk);
+  bool SerializePresets(IByteChunk& chunk) const;
   int UnserializePresets(IByteChunk& chunk, int startPos); // Returns the new chunk position (endPos).
   // /VST2 API only
   
   // Dump the current state as source code for a call to MakePresetFromNamedParams / MakePresetFromBlob
-  void DumpPresetSrcCode(const char* file, const char* paramEnumNames[]);
-  void DumpPresetBlob(const char* file);
-  void DumpAllPresetsBlob(const char* filename);
-  void DumpBankBlob(const char* file);
+  void DumpPresetSrcCode(const char* file, const char* paramEnumNames[]) const;
+  void DumpPresetBlob(const char* file) const;
+  void DumpAllPresetsBlob(const char* filename) const;
+  void DumpBankBlob(const char* file) const;
   
   //VST2 Presets
-  bool SaveProgramAsFXP(const char* file);
-  bool SaveBankAsFXB(const char* file);
+  bool SaveProgramAsFXP(const char* file) const;
+  bool SaveBankAsFXB(const char* file) const;
   bool LoadProgramFromFXP(const char* file);
   bool LoadBankFromFXB(const char* file);
-  bool SaveBankAsFXPs(const char* path) { return false; }
+  bool SaveBankAsFXPs(const char* path) const { return false; }
   
   //VST3 format
-  void MakeVSTPresetChunk(IByteChunk& chunk, IByteChunk& componentState, IByteChunk& controllerState);
-  bool SaveProgramAsVSTPreset(const char* file);
+  void MakeVSTPresetChunk(IByteChunk& chunk, IByteChunk& componentState, IByteChunk& controllerState) const;
+  bool SaveProgramAsVSTPreset(const char* file) const;
   bool LoadProgramFromVSTPreset(const char* file);
   bool SaveBankAsVSTPresets(const char* path) { return false; }
   
   //AU format
-  bool SaveProgramAsAUPreset(const char* name, const char* file) { return false; }
+  bool SaveProgramAsAUPreset(const char* name, const char* file) const { return false; }
   bool LoadProgramFromAUPreset(const char* file) { return false; }
   bool SaveBankAsAUPresets(const char* path) { return false; }
   
   //ProTools format
-  bool SaveProgramAsProToolsPreset(const char* presetName, const char* file, unsigned long pluginID) { return false; }
+  bool SaveProgramAsProToolsPreset(const char* presetName, const char* file, unsigned long pluginID) const { return false; }
   bool LoadProgramFromProToolsPreset(const char* file) { return false; }
   bool SaveBankAsProToolsPresets(const char* bath, unsigned long pluginID) { return false; }
 #endif
