@@ -84,12 +84,12 @@ public:
   /** @return \c true if the plug-in is meant to have a UI, as defined in config.h */
   bool HasUI() const { return mHasUI; }
   
-  const char* GetBundleID() { return mBundleID.Get(); }
+  const char* GetBundleID() const { return mBundleID.Get(); }
     
 #pragma mark - Parameters
   
   /** @return The number of unique parameter groups identified */
-  int NParamGroups() { return mParamGroups.GetSize(); }
+  int NParamGroups() const { return mParamGroups.GetSize(); }
   
   /** Called to add a parameter group name, when a unique group name is discovered
    * @param name CString for the unique group name
@@ -99,7 +99,7 @@ public:
   /** Get the parameter group name as a particular index
    * @param idx The index to return
    * @return CString for the unique group name */
-  const char* GetParamGroupName(int idx) { return mParamGroups.Get(idx); }
+  const char* GetParamGroupName(int idx) const { return mParamGroups.Get(idx); }
   
   /** Implemented by the API class, call this if you update parameter labels and hopefully the host should update it's displays (not applicable to all APIs) */
   virtual void InformHostOfParameterDetailsChange() {};
