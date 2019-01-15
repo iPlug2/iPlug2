@@ -52,9 +52,8 @@ void IPluginBase::GetPluginVersionStr(WDL_String& str) const
 #endif
 }
 
-int IPluginBase::GetHostVersion(bool decimal)
+int IPluginBase::GetHostVersion(bool decimal) const
 {
-  GetHost();
   if (decimal)
   {
     return GetDecimalVersion(mHostVersion);
@@ -62,9 +61,8 @@ int IPluginBase::GetHostVersion(bool decimal)
   return mHostVersion;
 }
 
-void IPluginBase::GetHostVersionStr(WDL_String& str)
+void IPluginBase::GetHostVersionStr(WDL_String& str) const
 {
-  GetHost();
   GetVersionStr(mHostVersion, str);
 }
 
@@ -119,7 +117,7 @@ void IPluginBase::OnParamReset(EParamSource source)
 
 #pragma mark -
 
-bool IPluginBase::SerializeParams(IByteChunk& chunk)
+bool IPluginBase::SerializeParams(IByteChunk& chunk) const
 {
   TRACE;
   bool savedOK = true;
@@ -473,7 +471,7 @@ bool IPluginBase::RestorePreset(const char* name)
   return false;
 }
 
-const char* IPluginBase::GetPresetName(int idx)
+const char* IPluginBase::GetPresetName(int idx) const
 {
   if (idx >= 0 && idx < mPresets.GetSize())
   {
@@ -500,7 +498,7 @@ void IPluginBase::ModifyCurrentPreset(const char* name)
   }
 }
 
-bool IPluginBase::SerializePresets(IByteChunk& chunk)
+bool IPluginBase::SerializePresets(IByteChunk& chunk) const
 {
   TRACE;
   bool savedOK = true;
@@ -549,7 +547,7 @@ int IPluginBase::UnserializePresets(IByteChunk& chunk, int startPos)
   return pos;
 }
 
-void IPluginBase::DumpPresetSrcCode(const char* filename, const char* paramEnumNames[])
+void IPluginBase::DumpPresetSrcCode(const char* filename, const char* paramEnumNames[]) const
 {
   // static bool sDumped = false;
   bool sDumped = false;
@@ -562,7 +560,7 @@ void IPluginBase::DumpPresetSrcCode(const char* filename, const char* paramEnumN
     fprintf(fp, "  MakePresetFromNamedParams(\"name\", %d", n);
     for (i = 0; i < n; ++i)
     {
-      IParam* pParam = GetParam(i);
+      const IParam* pParam = GetParam(i);
       char paramVal[32];
       switch (pParam->Type())
       {
@@ -587,7 +585,7 @@ void IPluginBase::DumpPresetSrcCode(const char* filename, const char* paramEnumN
   }
 }
 
-void IPluginBase::DumpAllPresetsBlob(const char* filename)
+void IPluginBase::DumpAllPresetsBlob(const char* filename) const
 {
   FILE* fp = fopen(filename, "w");
   
@@ -609,7 +607,7 @@ void IPluginBase::DumpAllPresetsBlob(const char* filename)
   fclose(fp);
 }
 
-void IPluginBase::DumpPresetBlob(const char* filename)
+void IPluginBase::DumpPresetBlob(const char* filename) const
 {
   FILE* fp = fopen(filename, "w");
   fprintf(fp, "MakePresetFromBlob(\"name\", \"");
@@ -625,7 +623,7 @@ void IPluginBase::DumpPresetBlob(const char* filename)
   fclose(fp);
 }
 
-void IPluginBase::DumpBankBlob(const char* filename)
+void IPluginBase::DumpBankBlob(const char* filename) const
 {
   FILE* fp = fopen(filename, "w");
   
@@ -655,7 +653,7 @@ const int kFXBVersionNum = 2;
 // so when we use it here, since vst fxp/fxb files are big endian, we need to swap the endianess
 // regardless of the endianness of the host, and on big endian hosts it will get swapped back to
 // big endian
-bool IPluginBase::SaveProgramAsFXP(const char* file)
+bool IPluginBase::SaveProgramAsFXP(const char* file) const
 {
   if (CStringHasContents(file))
   {
@@ -728,7 +726,7 @@ bool IPluginBase::SaveProgramAsFXP(const char* file)
   return false;
 }
 
-bool IPluginBase::SaveBankAsFXB(const char* file)
+bool IPluginBase::SaveBankAsFXB(const char* file) const
 {
   if (CStringHasContents(file))
   {
@@ -1197,7 +1195,7 @@ bool IPluginBase::LoadProgramFromVSTPreset(const char* path)
   return false;
 }
 
-void IPluginBase::MakeVSTPresetChunk(IByteChunk& chunk, IByteChunk& componentState, IByteChunk& controllerState)
+void IPluginBase::MakeVSTPresetChunk(IByteChunk& chunk, IByteChunk& componentState, IByteChunk& controllerState) const
 {
   WDL_String metaInfo("");
   
@@ -1249,7 +1247,7 @@ void IPluginBase::MakeVSTPresetChunk(IByteChunk& chunk, IByteChunk& componentSta
   chunk.Put(&metaInfoSize);
 }
 
-bool IPluginBase::SaveProgramAsVSTPreset(const char* path)
+bool IPluginBase::SaveProgramAsVSTPreset(const char* path) const
 {
   if (path)
   {

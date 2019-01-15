@@ -211,7 +211,7 @@ class IPlugAUFactory
       ((PLUG_CLASS_NAME*) pMemory)->~PLUG_CLASS_NAME();
     }
 
-    static AudioComponentMethod Lookup (SInt16 selector)
+    static AudioComponentMethod Lookup(SInt16 selector)
     {
       switch (selector) {
         case kAudioUnitInitializeSelect:  return (AudioComponentMethod)IPlugAU::AUMethodInitialize;
@@ -248,7 +248,6 @@ class IPlugAUFactory
       IPlugAU* plug = (IPlugAU*) &acpi->mInstanceStorage;
 
       plug->mCI = compInstance;
-      plug->HostSpecificInit();
       plug->PruneUninitializedPresets();
 
       return noErr;
@@ -368,6 +367,7 @@ extern "C"
     EMSCRIPTEN_KEEPALIVE void iplug_fsready()
     {
       gPlug = MakePlug();
+      gPlug->SetHost("www", 0);
       gPlug->OpenWindow(nullptr);
       gPlug->OnUIOpen();
       iplug_syncfs(); // plug in may initialise settings in constructor, write to persistent data after init
