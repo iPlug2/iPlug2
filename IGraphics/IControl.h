@@ -42,20 +42,18 @@ class IControl
 {
 public:
   /** Constructor
-   * @param dlg The class implementing the IEditorDelegate interface that will handle parameter changes.
-   * In a plug-in, this would typically be your main plug-in class
-   * If you're doing something using IGraphics on its own (e.g. drawing into an extra window), you need to implement the IEditorDelegate interface somewhere
-   * to handle dummy "parameter" changes.
+   * @brief Creates an IControl
+   * NOTE: An IControl does not know about the delegate or graphics context to which it belongs in the constructor
+   * If you need to do something once those things are know, see IControl::OnInit()
    * @param bounds The rectangular area that the control occupies
    * @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a plugin parameter
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
   IControl(IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
   
   /** Constructor (no paramIdx)
-   * @param dlg The class implementing the IEditorDelegate interface that will handle parameter changes.
-   * In a plug-in, this would typically be your main plug-in class
-   * If you're doing something using IGraphics on its own (e.g. drawing into an extra window), you need to implement the IEditorDelegate interface somewhere
-   * to handle dummy "parameter" changes.
+   * @brief Creates an IControl which is not linked to a parameter
+   * NOTE: An IControl does not know about the delegate or graphics context to which it belongs in the constructor
+   * If you need to do something once those things are know, see IControl::OnInit()
    * @param bounds The rectangular area that the control occupies
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
   IControl(IRECT bounds, IActionFunction actionFunc);

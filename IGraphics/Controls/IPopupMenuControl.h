@@ -49,7 +49,6 @@ public:
   };
 
   /** Create a new IPopupMenuControl
-  * @param dlg The editor delegate that this control is attached to
   * @param paramIdx Whether this control should be linked to a parameter
   * @param text An IText specifying properties of the menu text
   * @param collapsedBounds If this control, when collapsed should occupy an area of the graphics context, specify this, otherwise the collapsed area is empty
