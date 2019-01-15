@@ -31,6 +31,12 @@ struct ParamTuple
   int idx;
   double value;
   bool normalized; // TODO: Remove this
+  
+  ParamTuple(int idx = kNoParameter, double value = 0., bool normalized = false)
+  : idx(idx)
+  , value(value)
+  , normalized(normalized)
+  {}
 };
 
 /** This structure is used when queueing Sysex messages. You may need to set MAX_SYSEX_SIZE to reflect the max sysex payload in bytes */

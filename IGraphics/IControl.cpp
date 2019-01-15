@@ -65,6 +65,21 @@ IControl::IControl(IRECT bounds, int paramIdx, IActionFunction actionFunc)
   mVals.at(0).idx = paramIdx;
 }
 
+IControl::IControl(IRECT bounds, const std::initializer_list<int>& params, IActionFunction actionFunc)
+: mRECT(bounds)
+, mTargetRECT(bounds)
+, mActionFunc(actionFunc)
+{
+//  mVals.reserve(params.size());
+//
+//  for (auto& paramIdx : params) {
+//    mVals.emplace_back(ParamTuple(paramIdx, 0., false /*delete*/));
+//  }
+  for (auto& paramIdx : params) {
+    mVals.push_back({paramIdx, 0., false /*delete*/});
+  }
+}
+
 IControl::IControl(IRECT bounds, IActionFunction actionFunc)
 : mRECT(bounds)
 , mTargetRECT(bounds)

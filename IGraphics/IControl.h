@@ -51,6 +51,8 @@ public:
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
   IControl(IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
   
+  IControl(IRECT bounds, const std::initializer_list<int>& params, IActionFunction actionFunc = nullptr);
+  
   /** Constructor (no paramIdx)
    * @brief Creates an IControl which is not linked to a parameter
    * NOTE: An IControl does not know about the delegate or graphics context to which it belongs in the constructor
