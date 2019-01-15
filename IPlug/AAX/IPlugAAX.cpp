@@ -107,7 +107,6 @@ IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   }
   
   SetBlockSize(DEFAULT_BLOCK_SIZE);
-  SetHost("ProTools", 0); // TODO:vendor version correct?
   
   CreateTimer();
 }
@@ -121,6 +120,8 @@ AAX_Result IPlugAAX::EffectInit()
 { 
   TRACE;
 
+  SetHost("ProTools", 0); // TODO:vendor version correct?
+    
   AAX_CString bypassID = NULL;
   this->GetMasterBypassParameter( &bypassID );
   mBypassParameter = new AAX_CParameter<bool>(bypassID.CString(), 

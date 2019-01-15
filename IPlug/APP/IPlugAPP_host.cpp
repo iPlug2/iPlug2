@@ -57,8 +57,10 @@ IPlugAPPHost* IPlugAPPHost::Create()
   return sInstance;
 }
 
-bool IPlugAPPHost::Init ()
+bool IPlugAPPHost::Init()
 {
+  mIPlug->SetHost("standalone", mIPlug->GetPluginVersion(false));
+    
   if (!InitState())
     return false;
   

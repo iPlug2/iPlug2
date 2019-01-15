@@ -138,14 +138,14 @@ public:
    * @param normalized /true if value is normalised */
   virtual void SendParameterValueFromAPI(int paramIdx, double value, bool normalized);
 
-  /** Called to set the name of the current host, if known.
+  /** Called to set the name of the current host, if known (calls on to HostSpecificInit() and OnHostIdentified()).
   * @param host The name of the plug-in host
   * @param version The version of the plug-in host where version in hex = 0xVVVVRRMM */
   void SetHost(const char* host, int version);
 
-  /** This method is called by some API classes, in order to do specific initialisation for particular problematic hosts.
+  /** This method is implemented in some API classes, in order to do specific initialisation for particular problematic hosts.
    * This is not the same as OnHostIdentified(), which you may implement in your plug-in class to do your own specific initialisation after a host has been identified */
-  virtual void HostSpecificInit() {}; //TODO: sort this method out, it's called differently from different APIs
+  virtual void HostSpecificInit() {}
 
   //IEditorDelegate
   void SendParameterValueFromUI(int paramIdx, double value) override { SetParameterValue(paramIdx, value); IPluginBase::SendParameterValueFromUI(paramIdx, value); }

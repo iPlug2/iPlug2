@@ -24,7 +24,6 @@ class IPlugWeb : public IPlugAPIBase
 {
 public:
   IPlugWeb(IPlugInstanceInfo instanceInfo, IPlugConfig config);
-  EHost GetHost() override { return EHost::kHostWWW; }
 
   //IEditorDelegate  
   void SendParameterValueFromUI(int paramIdx, double value) override;

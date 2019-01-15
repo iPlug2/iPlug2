@@ -55,17 +55,17 @@ public:
   /** @return The plug-in manufacturer's unique four character ID as an integer */
   int GetMfrID() const { return mMfrID; }
   
-  /** @return The host if it has been identified, see EHost enum for a list of possible hosts, implemented in the API class for VST2 and AUv2 */
-  virtual EHost GetHost() { return mHost; }
+  /** @return The host if it has been identified, see EHost enum for a list of possible hosts */
+   EHost GetHost() const { return mHost; }
   
   /** Get the host version number as an integer
    * @param decimal \c true indicates decimal format = VVVVRRMM, otherwise hexadecimal 0xVVVVRRMM.
    * @return The host version number as an integer. */
-  int GetHostVersion(bool decimal); //
+  int GetHostVersion(bool decimal) const;
   
   /** Get the host version number as a string
    * @param str string into which to write the host version */
-  void GetHostVersionStr(WDL_String& str);
+  void GetHostVersionStr(WDL_String& str) const;
   
   /** @return The The plug-in API, see EAPI enum for a list of possible APIs */
   EAPI GetAPI() const { return mAPI; }
