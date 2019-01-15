@@ -107,7 +107,6 @@ IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   }
   
   SetBlockSize(DEFAULT_BLOCK_SIZE);
-  SetHost("ProTools", 0); // TODO:vendor version correct?
   
   CreateTimer();
 }
@@ -121,6 +120,8 @@ AAX_Result IPlugAAX::EffectInit()
 { 
   TRACE;
 
+  SetHost("ProTools", 0); // TODO:vendor version correct?
+    
   AAX_CString bypassID = NULL;
   this->GetMasterBypassParameter( &bypassID );
   mBypassParameter = new AAX_CParameter<bool>(bypassID.CString(), 
@@ -394,15 +395,13 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
 
 AAX_Result IPlugAAX::GetChunkIDFromIndex( int32_t index, AAX_CTypeID* pChunkID) const
 {
-  IPlugAAX* _this = const_cast<IPlugAAX*>(this);
-
   if (index != 0)
   {
     *pChunkID = AAX_CTypeID(0);
     return AAX_ERROR_INVALID_CHUNK_INDEX;
   }
 
-  *pChunkID = _this->GetUniqueID();
+  *pChunkID = GetUniqueID();
 
   return AAX_SUCCESS;
 }
@@ -410,16 +409,14 @@ AAX_Result IPlugAAX::GetChunkIDFromIndex( int32_t index, AAX_CTypeID* pChunkID) 
 AAX_Result IPlugAAX::GetChunkSize(AAX_CTypeID chunkID, uint32_t* pSize) const
 {
   TRACE;
-  
-  IPlugAAX* _this = const_cast<IPlugAAX*>(this);
-  
-  if (chunkID == _this->GetUniqueID()) 
+    
+  if (chunkID == GetUniqueID())
   {
     IByteChunk chunk;
     
-    //_this->InitChunkWithIPlugVer(&IPlugChunk);
+    //IByteChunk::InitChunkWithIPlugVer(&IPlugChunk);
     
-    if (_this->SerializeState(chunk))
+    if (SerializeState(chunk))
     {
       *pSize = chunk.Size();
     }
@@ -436,15 +433,14 @@ AAX_Result IPlugAAX::GetChunkSize(AAX_CTypeID chunkID, uint32_t* pSize) const
 AAX_Result IPlugAAX::GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk* pChunk) const
 {
   TRACE;
-  IPlugAAX* _this = const_cast<IPlugAAX*>(this);
 
-  if (chunkID == _this->GetUniqueID()) 
+  if (chunkID == GetUniqueID())
   {
     IByteChunk chunk;
     
-    //_this->InitChunkWithIPlugVer(&IPlugChunk); // TODO: IPlugVer should be in chunk!
+    //IByteChunk::InitChunkWithIPlugVer(&IPlugChunk); // TODO: IPlugVer should be in chunk!
     
-    if (_this->SerializeState(chunk))
+    if (SerializeState(chunk))
     {
       pChunk->fSize = chunk.Size();
       memcpy(pChunk->fData, chunk.GetData(), chunk.Size());
@@ -484,15 +480,13 @@ AAX_Result IPlugAAX::CompareActiveChunk(const AAX_SPlugInChunk* pChunk, AAX_CBoo
 {
   TRACE;
 
-  IPlugAAX* _this = const_cast<IPlugAAX*>(this);
+  if (pChunk->fChunkID != GetUniqueID())
+  {
+    *pIsEqual = true;
+    return AAX_SUCCESS;
+  }
 
-	if (pChunk->fChunkID != _this->GetUniqueID())
-	{
-		*pIsEqual = true;
-		return AAX_SUCCESS; 
-	}
-  
-	*pIsEqual = _this->CompareState((const unsigned char*) pChunk->fData, 0);
+  *pIsEqual = CompareState((const unsigned char*) pChunk->fData, 0);
     
   return AAX_SUCCESS;
 }  

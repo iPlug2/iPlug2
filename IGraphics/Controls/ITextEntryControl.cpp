@@ -17,36 +17,28 @@
 #include "ITextEntryControl.h"
 #include "IPlugPlatform.h"
 
-#if !defined OS_WIN
-  #if defined OS_IOS
-    #include "swell-ios.h"
-  #else
-    #include "swell-types.h"
-  #endif
-#endif
-
 #define VIRTUAL_KEY_BIT 0x80000000
 #define STB_TEXTEDIT_K_SHIFT 0x40000000
 #define STB_TEXTEDIT_K_CONTROL 0x20000000
 #define STB_TEXTEDIT_K_ALT 0x10000000
 // key-bindings
-#define STB_TEXTEDIT_K_LEFT (VIRTUAL_KEY_BIT | VK_LEFT)
-#define STB_TEXTEDIT_K_RIGHT (VIRTUAL_KEY_BIT | VK_RIGHT)
-#define STB_TEXTEDIT_K_UP (VIRTUAL_KEY_BIT | VK_UP)
-#define STB_TEXTEDIT_K_DOWN (VIRTUAL_KEY_BIT | VK_DOWN)
-#define STB_TEXTEDIT_K_LINESTART (VIRTUAL_KEY_BIT | VK_HOME)
-#define STB_TEXTEDIT_K_LINEEND (VIRTUAL_KEY_BIT | VK_END)
+#define STB_TEXTEDIT_K_LEFT (VIRTUAL_KEY_BIT | kVK_LEFT)
+#define STB_TEXTEDIT_K_RIGHT (VIRTUAL_KEY_BIT | kVK_RIGHT)
+#define STB_TEXTEDIT_K_UP (VIRTUAL_KEY_BIT | kVK_UP)
+#define STB_TEXTEDIT_K_DOWN (VIRTUAL_KEY_BIT | kVK_DOWN)
+#define STB_TEXTEDIT_K_LINESTART (VIRTUAL_KEY_BIT | kVK_HOME)
+#define STB_TEXTEDIT_K_LINEEND (VIRTUAL_KEY_BIT | kVK_END)
 #define STB_TEXTEDIT_K_WORDLEFT (STB_TEXTEDIT_K_LEFT | STB_TEXTEDIT_K_CONTROL)
 #define STB_TEXTEDIT_K_WORDRIGHT (STB_TEXTEDIT_K_RIGHT | STB_TEXTEDIT_K_CONTROL)
 #define STB_TEXTEDIT_K_TEXTSTART (STB_TEXTEDIT_K_LINESTART | STB_TEXTEDIT_K_CONTROL)
 #define STB_TEXTEDIT_K_TEXTEND (STB_TEXTEDIT_K_LINEEND | STB_TEXTEDIT_K_CONTROL)
-#define STB_TEXTEDIT_K_DELETE (VIRTUAL_KEY_BIT | VK_DELETE)
-#define STB_TEXTEDIT_K_BACKSPACE (VIRTUAL_KEY_BIT | VK_BACK)
+#define STB_TEXTEDIT_K_DELETE (VIRTUAL_KEY_BIT | kVK_DELETE)
+#define STB_TEXTEDIT_K_BACKSPACE (VIRTUAL_KEY_BIT | kVK_BACK)
 #define STB_TEXTEDIT_K_UNDO (STB_TEXTEDIT_K_CONTROL | 'z')
 #define STB_TEXTEDIT_K_REDO (STB_TEXTEDIT_K_CONTROL | STB_TEXTEDIT_K_SHIFT | 'z')
-#define STB_TEXTEDIT_K_INSERT (VIRTUAL_KEY_BIT | VK_INSERT)
-#define STB_TEXTEDIT_K_PGUP (VIRTUAL_KEY_BIT | VK_PAGEUP)
-#define STB_TEXTEDIT_K_PGDOWN (VIRTUAL_KEY_BIT | VK_PAGEDOWN)
+#define STB_TEXTEDIT_K_INSERT (VIRTUAL_KEY_BIT | kVK_INSERT)
+#define STB_TEXTEDIT_K_PGUP (VIRTUAL_KEY_BIT | kVK_PAGEUP)
+#define STB_TEXTEDIT_K_PGDOWN (VIRTUAL_KEY_BIT | kVK_PAGEDOWN)
 // functions
 #define STB_TEXTEDIT_STRINGLEN(tc) ITextEntryControl::GetLength (tc)
 #define STB_TEXTEDIT_LAYOUTROW ITextEntryControl::Layout
@@ -62,8 +54,8 @@
 #define STB_TEXTEDIT_IMPLEMENTATION
 #include "stb_textedit.h"
 
-ITextEntryControl::ITextEntryControl(IGEditorDelegate& dlg)
-: IControl(dlg, IRECT())
+ITextEntryControl::ITextEntryControl()
+: IControl(IRECT())
 {
   stb_textedit_initialize_state(&mEditState, true);
   
@@ -159,6 +151,9 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
         //TODO: Paste
         return false;
       }
+    
+      default:
+        break;
     }
   }
   
@@ -166,17 +161,17 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
   
   switch (key.VK)
   {
-    case VK_SPACE: stbKey = VK_SPACE; break;
-    case VK_TAB: return false;
-    case VK_DELETE: stbKey = VK_DELETE; break;
-    case VK_BACK: stbKey = VK_BACK; break;
-    case VK_RETURN: CommitEdit(); break;
-    case VK_ESCAPE: DismissEdit(); break;
+    case kVK_SPACE: stbKey = kVK_SPACE; break;
+    case kVK_TAB: return false;
+    case kVK_DELETE: stbKey = kVK_DELETE; break;
+    case kVK_BACK: stbKey = kVK_BACK; break;
+    case kVK_RETURN: CommitEdit(); break;
+    case kVK_ESCAPE: DismissEdit(); break;
     default:
     {
       if(key.VK >= '0' && key.VK <= '9')
         break;
-      if(key.VK >= VK_NUMPAD0 && key.VK <= VK_NUMPAD9)
+      if(key.VK >= kVK_NUMPAD0 && key.VK <= kVK_NUMPAD9)
         break;
       if(key.VK >= 'A' && key.VK <= 'Z')
         break;

@@ -151,7 +151,6 @@ BEGIN
     "#include ""..\\config.h""\r\n"
     "TIGER_FN SVG TIGER_FN\r\n"
     "ROBOTTO_FN TTF ROBOTTO_FN\r\n"
-    "MONTSERRAT_FN TTF MONTSERRAT_FN\r\n"
     "SMILEY_FN PNG SMILEY_FN\r\n"
     "\0"
 END
@@ -181,7 +180,6 @@ IDI_ICON1               ICON                    "IGraphicsStressTest.ico"
 #include "..\config.h"
 TIGER_FN SVG TIGER_FN
 ROBOTTO_FN TTF ROBOTTO_FN
-MONTSERRAT_FN TTF MONTSERRAT_FN
 SMILEY_FN PNG SMILEY_FN
 
 /////////////////////////////////////////////////////////////////////////////

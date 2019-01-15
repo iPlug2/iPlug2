@@ -62,12 +62,10 @@
   #include "nanovg_gl.h"
   #include "nanovg_gl_utils.h"
 #elif defined IGRAPHICS_METAL
-  #if defined OS_MAC || defined OS_IOS
-    #include "nanovg_mtl.h"
+  #include "nanovg_mtl.h"
+  #if defined OS_MAC
     //even though this is a .cpp we are in an objc(pp) compilation unit
     #import <Metal/Metal.h>
-  #else
-    #error NOT IMPLEMENTED
   #endif
 #else
   #error you must define either IGRAPHICS_GL2, IGRAPHICS_GLES2 etc or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
@@ -338,7 +336,12 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
   {
     if (!shadow.mDrawForeground)
     {
-      //pBitmap->GetBitmap()->clear(0);
+      PushLayer(layer.get(), false);
+      nvgGlobalCompositeBlendFunc(mVG, NVG_ZERO, NVG_ZERO);
+      PathRect(layer->Bounds());
+      nvgFillColor(mVG, NanoVGColor(COLOR_TRANSPARENT));
+      nvgFill(mVG);
+      PopLayer(false);
     }
     
     IRECT bounds(layer->Bounds());
@@ -355,6 +358,7 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
     DrawBitmap(maskBitmap, bounds, 0, 0, nullptr);
     IBlend blend1(kBlendSourceIn, 1.0);
     PathRect(layer->Bounds());
+    PathTransformTranslate(-shadow.mXOffset, -shadow.mYOffset);
     PathFill(shadow.mPattern, IFillOptions(), &blend1);
     PopLayer(false);
     IBlend blend2(kBlendUnder, shadow.mOpacity);
@@ -441,7 +445,6 @@ void IGraphicsNanoVG::OnViewInitialized(void* pContext)
   flags |= NVG_TRIPLE_BUFFER; // Metal should be triple buffered
   mVG = nvgCreateContext(pContext, flags);
 #else
-  flags |= NVG_DOUBLE_BUFFER;
   mVG = nvgCreateContext(flags);
 #endif
   

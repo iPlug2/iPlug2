@@ -176,6 +176,9 @@ private:
   
   LICE_SysBitmap* mDrawBitmap = nullptr;
   LICE_MemBitmap* mTmpBitmap = nullptr;
+#ifdef OS_WIN
+  LICE_SysBitmap* mScaleBitmap = nullptr;
+#endif
   // N.B. mRenderBitmap is not owned through this pointer, and should not be deleted
   LICE_IBitmap* mRenderBitmap = nullptr;
     

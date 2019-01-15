@@ -21,16 +21,13 @@
 #include <cassert>
 #include <functional>
 #include <algorithm>
-#include <random>
+#include <numeric>
 #include <chrono>
 #include <string>
 
 
 #include "wdlstring.h"
 #include "ptrlist.h"
-#if defined OS_MAC || defined OS_LINUX
-#include "swell.h"
-#endif
 
 #include "nanosvg.h"
 
@@ -303,10 +300,10 @@ struct IColor
     l = Clip(l, 0.0f, 1.0f);
     float m2 = l <= 0.5f ? (l * (1 + s)) : (l + s - l * s);
     float m1 = 2 * l - m2;
-    col.R = Clip(hue(h + 1.0f / 3.0f, m1, m2), 0.0f, 1.0f) * 255.f;
-    col.G = Clip(hue(h, m1, m2), 0.0f, 1.0f) * 255.f;
-    col.B = Clip(hue(h - 1.0f / 3.0f, m1, m2), 0.0f, 1.0f) * 255.f;
-    col.A = a * 255.f;
+    col.R = static_cast<int>(Clip(hue(h + 1.0f / 3.0f, m1, m2), 0.0f, 1.0f) * 255.f);
+    col.G = static_cast<int>(Clip(hue(h, m1, m2), 0.0f, 1.0f) * 255.f);
+    col.B = static_cast<int>(Clip(hue(h - 1.0f / 3.0f, m1, m2), 0.0f, 1.0f) * 255.f);
+    col.A = static_cast<int>(a * 255.f);
     return col;
   }
 
@@ -930,11 +927,11 @@ struct IRECT
 
   void GetRandomPoint(float& x, float& y) const
   {
-    std::random_device rd;
-    std::mt19937 gen(rd()); // TODO: most sensible RNG?
-    std::uniform_real_distribution<float> dist(0., 1.);
-    x = L + dist(gen) * W();
-    y = T + dist(gen) * H();
+    const float r1 = static_cast<float>(std::rand()/(RAND_MAX+1.f));
+    const float r2 = static_cast<float>(std::rand()/(RAND_MAX+1.f));
+
+    x = L + r1 * W();
+    y = T + r2 * H();
   }
 
   IRECT GetRandomSubRect() const
@@ -1113,6 +1110,41 @@ public:
       r.PixelAlign(scale);
       Set(i, r);
     }
+  }
+  
+  static bool GetFracGrid(const IRECT& input, IRECTList& rects, const std::initializer_list<float>& rowFractions, const std::initializer_list<float>& colFractions)
+  {
+    IRECT rowsLeft = input;
+    float y = 0.;
+    float x = 0.;
+
+    if(std::accumulate(rowFractions.begin(), rowFractions.end(), 0.f) != 1.)
+      return false;
+    
+    if(std::accumulate(colFractions.begin(), colFractions.end(), 0.f) != 1.)
+      return false;
+
+    for (auto& rowFrac : rowFractions)
+    {
+      IRECT thisRow = input.FracRectVertical(rowFrac, true).GetTranslated(0, y);
+      
+      x = 0.;
+
+      for (auto& colFrac : colFractions)
+      {
+        IRECT thisCell = thisRow.FracRectHorizontal(colFrac).GetTranslated(x, 0);
+        
+        rects.Add(thisCell);
+        
+        x += thisCell.W();
+      }
+      
+      rowsLeft.Intersect(thisRow);
+      
+      y = rects.Bounds().H();
+    }
+    
+    return true;
   }
   
   void Optimize()
@@ -1334,12 +1366,11 @@ struct IPattern
     mStops[0] = IColorStop(color, 0.0);
   }
   
-  static IPattern CreateLinearGradient(float x1, float y1, float x2, float y2)
+  static IPattern CreateLinearGradient(float x1, float y1, float x2, float y2, const std::initializer_list<IColorStop>& stops = {})
   {
     IPattern pattern(kLinearPattern);
     
     // Calculate the affine transform from one line segment to another!
-    
     const double xd = x2 - x1;
     const double yd = y2 - y1;
     const double d = sqrt(xd * xd + yd * yd);
@@ -1357,33 +1388,39 @@ struct IPattern
                          static_cast<float>(x0),
                          static_cast<float>(y0));
     
-    return pattern;
-  }
-  
-  static IPattern CreateLinearGradient(float x1, float y1, float x2, float y2, std::initializer_list<IColorStop> stops)
-  {
-    IPattern pattern = CreateLinearGradient(x1, y1, x2, y2);
-    
     for (auto& stop : stops)
       pattern.AddStop(stop.mColor, stop.mOffset);
     
     return pattern;
   }
   
-  static IPattern CreateRadialGradient(float x1, float y1, float r)
+  static IPattern CreateLinearGradient(const IRECT& bounds, EDirection direction, const std::initializer_list<IColorStop>& stops = {})
+  {
+    float x1, y1, x2, y2;
+    
+    if(direction == kHorizontal)
+    {
+      y1 = bounds.MH(); y2 = y1;
+      x1 = bounds.L;
+      x2 = bounds.R;
+    }
+    else//(direction == kVertical)
+    {
+      x1 = bounds.MW(); x2 = x1;
+      y1 = bounds.T;
+      y2 = bounds.B;
+    }
+    
+    return CreateLinearGradient(x1, y1, x2, y2, stops);
+  }
+  
+  static IPattern CreateRadialGradient(float x1, float y1, float r, const std::initializer_list<IColorStop>& stops = {})
   {
     IPattern pattern(kRadialPattern);
     
     const float s = 1.f / r;
 
     pattern.SetTransform(s, 0, 0, s, -(x1 * s), -(y1 * s));
-    
-    return pattern;
-  }
-  
-  static IPattern CreateRadialGradient(float x1, float y1, float r, std::initializer_list<IColorStop> stops)
-  {
-    IPattern pattern = CreateRadialGradient(x1, y1, r);
     
     for (auto& stop : stops)
       pattern.AddStop(stop.mColor, stop.mOffset);

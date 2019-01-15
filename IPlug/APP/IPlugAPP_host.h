@@ -167,6 +167,7 @@ public:
   ~IPlugAPPHost();
   
   bool OpenWindow(HWND pParent);
+  void CloseWindow();
 
   bool Init();
   bool InitState();
