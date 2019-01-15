@@ -377,7 +377,7 @@ void IGraphics::ForMatchingControls(T method, int paramIdx, Args... args)
 
 void IGraphics::SetAllControlsDirty()
 {
-  ForAllControls(&IControl::SetDirty, false);
+  ForAllControls(&IControl::SetDirty, false, -1);
 }
 
 void IGraphics::SetAllControlsClean()

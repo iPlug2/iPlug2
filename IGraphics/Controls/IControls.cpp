@@ -52,7 +52,7 @@ IVSwitchControl::IVSwitchControl(IRECT bounds, int paramIdx, IActionFunction act
   mStr.Set(str);
 }
 
-void IVSwitchControl::SetDirty(bool push)
+void IVSwitchControl::SetDirty(bool push, int valIdx)
 {
   IControl::SetDirty(push);
 

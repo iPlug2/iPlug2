@@ -310,7 +310,7 @@ public:
    * @param triggerAction If this is true and the control is linked to a parameter (i.e. mParamidx > kNoParameter) 
    * notify the class implementing the IEditorDelegate interface that the parameter changed. If this control has an ActionFunction, that can also be triggered.
    * NOTE: it is easy to forget that this method always sets the control dirty, the argument is about whether a consective action should be performed */
-  virtual void SetDirty(bool triggerAction = true);
+  virtual void SetDirty(bool triggerAction = true, int valIdx = -1);
 
   /* Set the control clean, i.e. Called by IGraphics draw loop after control has been drawn */
   virtual void SetClean() { mDirty = false; }

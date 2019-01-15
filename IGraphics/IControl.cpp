@@ -128,13 +128,21 @@ void IControl::SetValueToDefault()
   }
 }
 
-void IControl::SetDirty(bool triggerAction)
+void IControl::SetDirty(bool triggerAction, int valIdx)
 {
   const int nVals = NVals();
+  
+  if(nVals == 1)
+    valIdx = 0;
 
-  for (int v = 0; v < nVals; v++)
+  if(valIdx > -1)
+    SetValue(Clip(GetValue(valIdx), mClampLo, mClampHi), valIdx);
+  else
   {
-    SetValue(Clip(GetValue(v), mClampLo, mClampHi), v);
+    for (int v = 0; v < nVals; v++)
+    {
+      SetValue(Clip(GetValue(v), mClampLo, mClampHi), v);
+    }
   }
   
   mDirty = true;
@@ -143,12 +151,21 @@ void IControl::SetDirty(bool triggerAction)
   {
     if(ParamIdx() > kNoParameter)
     {
-      for (int v = 0; v < nVals; v++) //TODO: we need to know which params are dirty
+      if(valIdx > -1)
       {
-        GetDelegate()->SendParameterValueFromUI(ParamIdx(v), GetValue(v)); //TODO: take tuple
-//        GetUI()->UpdatePeers(this);
+        GetDelegate()->SendParameterValueFromUI(ParamIdx(valIdx), GetValue(valIdx)); //TODO: take tuple
       }
-      
+      else
+      {
+        for (int v = 0; v < nVals; v++)
+        {
+          GetDelegate()->SendParameterValueFromUI(ParamIdx(v), GetValue(v)); //TODO: take tuple
+        }
+      }
+    
+    // GetUI()->UpdatePeers(this);
+
+    
 //      const IParam* pParam = GetParam();
 
 //      if (mValDisplayControl)
