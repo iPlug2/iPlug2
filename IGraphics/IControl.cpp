@@ -75,6 +75,7 @@ IControl::IControl(IRECT bounds, const std::initializer_list<int>& params, IActi
 //  for (auto& paramIdx : params) {
 //    mVals.emplace_back(ParamTuple(paramIdx, 0., false /*delete*/));
 //  }
+  mVals.clear();
   for (auto& paramIdx : params) {
     mVals.push_back({paramIdx, 0., false /*delete*/});
   }

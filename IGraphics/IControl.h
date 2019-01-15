@@ -420,8 +420,11 @@ protected:
   int mTag = kNoTag;
   IRECT mRECT;
   IRECT mTargetRECT;
-
+  
   std::vector<ParamTuple> mVals { {kNoParameter, 0., false /*delete*/} };
+  
+  double& mValue = mVals[0].value;
+  int& mParamIdx = mVals[0].idx;
   
   /** Controls can be grouped for hiding and showing panels */
   WDL_String mGroup;
