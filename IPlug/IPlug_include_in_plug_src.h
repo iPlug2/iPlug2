@@ -402,21 +402,6 @@ extern "C"
   #error "No API defined!"
 #endif
 
-#if defined OS_MAC || defined OS_IOS
-#if defined SWELL_NO_POSTMESSAGE && !defined VST3P_API
-void Sleep(int ms)
-{
-  usleep(ms?ms*1000:100);
-}
-
-DWORD GetTickCount()
-{
-  struct timeval tm={0,};
-  gettimeofday(&tm,NULL);
-  return (DWORD) (tm.tv_sec*1000 + tm.tv_usec/1000);
-}
-#endif
-#endif
 /*
 #if defined _DEBUG
   #define PUBLIC_NAME APPEND_TIMESTAMP(PLUG_NAME " DEBUG")
