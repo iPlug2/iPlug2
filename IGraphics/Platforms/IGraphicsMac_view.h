@@ -126,7 +126,7 @@ NSString* ToNSString(const char* cStr);
 //- (void) createWebView: (NSRect) areaRect : (const char*) url;
 //- (void) userContentController:didReceiveScriptMessage;
 //pop-up menu
-- (IPopupMenu*) createPopupMenu: (const IPopupMenu&) menu : (NSRect) bounds;
+- (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (NSRect) bounds;
 //tooltip
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData;
 - (void) registerToolTip: (IRECT&) bounds;

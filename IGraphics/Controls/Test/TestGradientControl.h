@@ -22,8 +22,8 @@
 class TestGradientControl : public IKnobControlBase
 {
 public:
-  TestGradientControl(IGEditorDelegate& dlg, IRECT rect, int paramIdx = kNoParameter)
-  : IKnobControlBase(dlg, rect, paramIdx)
+  TestGradientControl(IRECT rect, int paramIdx = kNoParameter)
+  : IKnobControlBase(rect, paramIdx)
   {
     SetTooltip("TestGradientControl");
     RandomiseGradient();

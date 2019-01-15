@@ -837,10 +837,10 @@ static void MakeCursorFromData(NSCursor*& cursor, uint16* data, int hotspot_x, i
   [self setNeedsDisplay: YES];
 }
 
-- (IPopupMenu*) createPopupMenu: (const IPopupMenu&) menu : (NSRect) bounds;
+- (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (NSRect) bounds;
 {
   IGRAPHICS_MENU_RCVR* pDummyView = [[[IGRAPHICS_MENU_RCVR alloc] initWithFrame:bounds] autorelease];
-  NSMenu* pNSMenu = [[[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReciever:&const_cast<IPopupMenu&>(menu) :pDummyView] autorelease];
+  NSMenu* pNSMenu = [[[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReciever:&menu : pDummyView] autorelease];
   NSPoint wp = {bounds.origin.x, bounds.origin.y - 4};
 
   [pNSMenu popUpMenuPositioningItem:nil atLocation:wp inView:self];
@@ -874,18 +874,14 @@ static void MakeCursorFromData(NSCursor*& cursor, uint16* data, int hotspot_x, i
     [mTextFieldView setDrawsBackground: TRUE];
   }
 
-  //TODO: this is wrong
+  //TODO: address font types for platform text entries
 #ifdef IGRAPHICS_NANOVG
   NSString* font = [NSString stringWithUTF8String: "Arial"];
 #else
   NSString* font = [NSString stringWithUTF8String: text.mFont];
 #endif
 
-#ifdef IGRAPHICS_LICE
   [mTextFieldView setFont: [NSFont fontWithName:font size: text.mSize * 0.75f]];
-#else
-  [mTextFieldView setFont: [NSFont fontWithName:font size: text.mSize]];
-#endif
   
   switch (text.mAlign)
   {

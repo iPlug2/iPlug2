@@ -55,7 +55,7 @@ private:
   
   void handleClose(CivetServer* pServer, const struct mg_connection* pConn) override;
   
-  WDL_PtrList<const struct mg_connection> mConnections;
+  WDL_PtrList<mg_connection> mConnections;
   static CivetServer* sServer;
   static int sInstances;
 

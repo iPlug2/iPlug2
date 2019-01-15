@@ -112,8 +112,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     // in case gHWND didnt get destroyed -- this corresponds to SWELLAPP_DESTROY roughly
     if (gHWND)
       DestroyWindow(gHWND);
-
-    delete pAppHost;
     
     ReleaseMutex(hMutex);
   }

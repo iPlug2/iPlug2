@@ -58,7 +58,7 @@ static StaticStorage<APIBitmap> s_bitmapCache;
 static StaticStorage<SVGHolder> s_SVGCache;
 
 IGraphics::IGraphics(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
-: mDelegate(dlg)
+: mDelegate(&dlg)
 , mWidth(w)
 , mHeight(h)
 , mDrawScale(scale)
@@ -123,6 +123,11 @@ void IGraphics::Resize(int w, int h, float scale)
     GetDelegate()->LayoutUI(this);
 }
 
+void IGraphics::SetLayoutOnResize(bool layoutOnResize)
+{
+  mLayoutOnResize = layoutOnResize;
+}
+
 void IGraphics::RemoveControls(int fromIdx)
 {
   int idx = NControls()-1;
@@ -181,21 +186,21 @@ void IGraphics::SetControlValueFromStringAfterPrompt(IControl& control, const ch
 void IGraphics::AttachBackground(const char* name)
 {
   IBitmap bg = LoadBitmap(name, 1, false);
-  IControl* pBG = new IBitmapControl(mDelegate, 0, 0, bg, kNoParameter, kBlendClobber);
-  pBG->SetGraphics(this);
+  IControl* pBG = new IBitmapControl(0, 0, bg, kNoParameter, kBlendClobber);
+  pBG->SetDelegate(*GetDelegate());
   mControls.Insert(0, pBG);
 }
 
 void IGraphics::AttachPanelBackground(const IColor& color)
 {
-  IControl* pBG = new IPanelControl(mDelegate, GetBounds(), color);
-  pBG->SetGraphics(this);
+  IControl* pBG = new IPanelControl(GetBounds(), color);
+  pBG->SetDelegate(*GetDelegate());
   mControls.Insert(0, pBG);
 }
 
 int IGraphics::AttachControl(IControl* pControl, int controlTag, const char* group)
 {
-  pControl->SetGraphics(this);
+  pControl->SetDelegate(*GetDelegate());
   pControl->SetTag(controlTag);
   pControl->SetGroup(group);
   mControls.Add(pControl);
@@ -204,7 +209,7 @@ int IGraphics::AttachControl(IControl* pControl, int controlTag, const char* gro
 
 void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize)
 {
-  AttachCornerResizer(new ICornerResizerControl(mDelegate, GetBounds(), 20), sizeMode, layoutOnResize);
+  AttachCornerResizer(new ICornerResizerControl(GetBounds(), 20), sizeMode, layoutOnResize);
 }
 
 void IGraphics::AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerMode sizeMode, bool layoutOnResize)
@@ -216,7 +221,7 @@ void IGraphics::AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerM
     mCornerResizer = pControl;
     mGUISizeMode = sizeMode;
     mLayoutOnResize = layoutOnResize;
-    mCornerResizer->SetGraphics(this);
+    mCornerResizer->SetDelegate(*GetDelegate());
   }
   else
   {
@@ -228,8 +233,8 @@ void IGraphics::AttachPopupMenuControl(const IText& text, const IRECT& bounds)
 {
   if (mPopupControl == nullptr)
   {
-    mPopupControl = new IPopupMenuControl(mDelegate, kNoParameter, text, IRECT(), bounds);
-    mPopupControl->SetGraphics(this);
+    mPopupControl = new IPopupMenuControl(kNoParameter, text, IRECT(), bounds);
+    mPopupControl->SetDelegate(*GetDelegate());
   }
 }
 
@@ -237,8 +242,8 @@ void IGraphics::AttachTextEntryControl()
 {
   if(mTextEntryControl == nullptr)
   {
-    mTextEntryControl = new ITextEntryControl(mDelegate);
-    mTextEntryControl->SetGraphics(this);
+    mTextEntryControl = new ITextEntryControl();
+    mTextEntryControl->SetDelegate(*GetDelegate());
   }
 }
 
@@ -248,8 +253,8 @@ void IGraphics::ShowFPSDisplay(bool enable)
   {
     if (mPerfDisplay == nullptr)
     {
-      mPerfDisplay = new IFPSDisplayControl(mDelegate, GetBounds().GetPadded(-10).GetFromTLHC(200, 50));
-      mPerfDisplay->SetGraphics(this);
+      mPerfDisplay = new IFPSDisplayControl(GetBounds().GetPadded(-10).GetFromTLHC(200, 50));
+      mPerfDisplay->SetDelegate(*GetDelegate());
     }
   }
   else
@@ -289,7 +294,7 @@ void IGraphics::ClampControl(int paramIdx, double lo, double hi, bool normalized
 {
   if (!normalized)
   {
-    const IParam* pParam = mDelegate.GetParam(paramIdx);
+    const IParam* pParam = GetDelegate()->GetParam(paramIdx);
 
     if (pParam)
     {
@@ -772,7 +777,7 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 
     if (paramIdx >= 0)
     {
-      mDelegate.BeginInformHostOfParamChangeFromUI(paramIdx);
+      GetDelegate()->BeginInformHostOfParamChangeFromUI(paramIdx);
     }
     
     pControl->OnMouseDown(x, y, mod);
@@ -790,7 +795,7 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
     mMouseCapture->OnMouseUp(x, y, mod);
     if (paramIdx >= 0)
     {
-      mDelegate.EndInformHostOfParamChangeFromUI(paramIdx);
+      GetDelegate()->EndInformHostOfParamChangeFromUI(paramIdx);
     }
     ReleaseMouseCapture();
   }
@@ -1019,7 +1024,7 @@ void IGraphics::PopupHostContextMenuForParam(IControl* pControl, int paramIdx, f
     pControl->CreateContextMenu(contextMenu);
 
 #if defined VST3_API || defined VST3C_API
-    VST3_API_BASE* pVST3 = dynamic_cast<VST3_API_BASE*>(&mDelegate);
+    VST3_API_BASE* pVST3 = dynamic_cast<VST3_API_BASE*>(GetDelegate());
 
     if (!pVST3->GetComponentHandler() || !pVST3->GetView())
       return;
@@ -1121,8 +1126,8 @@ void IGraphics::EnableLiveEdit(bool enable/*, const char* file, int gridsize*/)
   {
     if (mLiveEdit == nullptr)
     {
-      mLiveEdit = new IGraphicsLiveEdit(mDelegate, mHandleMouseOver/*, file, gridsize*/);
-      mLiveEdit->SetGraphics(this);
+      mLiveEdit = new IGraphicsLiveEdit(mHandleMouseOver/*, file, gridsize*/);
+      mLiveEdit->SetDelegate(*GetDelegate());
     }
   }
   else
