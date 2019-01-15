@@ -135,7 +135,7 @@ public:
       mLayer = g.EndLayer();
     }
 
-    g.DrawRotatedLayer(mLayer, mStartAngle + mValue * (mEndAngle - mStartAngle));
+    g.DrawRotatedLayer(mLayer, mStartAngle + GetValue() * (mEndAngle - mStartAngle));
   }
 
   void SetSVG(ISVG& svg)
@@ -204,7 +204,7 @@ public:
 
   void Draw(IGraphics& g) override
   {
-    g.DrawBitmap(mBitmap, mRECT, (int) mValue + 1, &mBlend);
+    g.DrawBitmap(mBitmap, mRECT, (int) GetValue() + 1, &mBlend);
   }
 
   virtual void OnRescale() override
@@ -262,7 +262,7 @@ public:
 
   virtual void Draw(IGraphics& g) override
   {
-    int i = 1 + int(0.5 + mValue * (double) (mBitmap.N() - 1));
+    int i = 1 + int(0.5 + GetValue() * (double) (mBitmap.N() - 1));
     g.DrawBitmap(mBitmap, mRECT, i, &mBlend);
   }
 
@@ -296,7 +296,7 @@ public:
 
   void Draw(IGraphics& g) override
   {
-    double angle = -130.0 + mValue * 260.0;
+    double angle = -130.0 + GetValue() * 260.0;
     g.DrawRotatedBitmap(mBitmap, mRECT.MW(), mRECT.MH(), angle);
   }
 };

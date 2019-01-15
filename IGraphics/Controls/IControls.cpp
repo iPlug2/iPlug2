@@ -36,7 +36,7 @@ IVButtonControl::IVButtonControl(IRECT bounds, IActionFunction actionFunc,
 
 void IVButtonControl::Draw(IGraphics& g)
 {
-  IRECT handleBounds = DrawVectorButton(g, mRECT, (bool) mValue, mMouseIsOver);
+  IRECT handleBounds = DrawVectorButton(g, mRECT, (bool) GetValue(), mMouseIsOver);
   
   if(CStringHasContents(mStr.Get()))
     g.DrawText(mText, mStr.Get(), handleBounds);
@@ -93,7 +93,7 @@ IVRadioButtonControl::IVRadioButtonControl(IRECT bounds, int paramIdx, IActionFu
 
 void IVRadioButtonControl::Draw(IGraphics& g)
 {
-  int hit = int(0.5 + mValue * (double) (mNumStates - 1));
+  int hit = int(0.5 + GetValue() * (double) (mNumStates - 1));
   
   for (int i = 0; i < mNumStates; i++)
   {
@@ -178,7 +178,7 @@ void IVKnobControl::Draw(IGraphics& g)
 {
   g.FillRect(GetColor(kBG), mRECT);
 
-  const float v = mAngleMin + ((float)mValue * (mAngleMax - mAngleMin));
+  const float v = mAngleMin + ((float) GetValue() * (mAngleMax - mAngleMin));
   const float cx = mHandleBounds.MW(), cy = mHandleBounds.MH();
   const float radius = (mHandleBounds.W()/2.f);
 
@@ -289,7 +289,7 @@ void IVSliderControl::Draw(IGraphics& g)
   const float halfHandleSize = mHandleSize / 2.f;
 
   //track
-  IRECT filledTrack = mTrack.FracRect(mDirection, (float) mValue);
+  IRECT filledTrack = mTrack.FracRect(mDirection, (float) GetValue());
 
   g.FillRect(GetColor(kFR), mTrack);
   g.FillRect(GetColor(kFG), filledTrack);
@@ -337,12 +337,12 @@ void IVSliderControl::OnResize()
 void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   if (mBitmap.N() > 1)
-    mValue += 1.0 / (double)(mBitmap.N() - 1);
+    SetValue(GetValue() + 1.0 / (double)(mBitmap.N() - 1));
   else
-    mValue += 1.0;
+    SetValue(GetValue() + 1.0);
 
-  if (mValue > 1.001)
-    mValue = 0.0;
+  if (GetValue() > 1.001)
+    SetValue(0.);
 
   SetDirty();
 }
@@ -390,7 +390,7 @@ void IBSliderControl::OnResize()
 IRECT IBSliderControl::GetHandleBounds(double value) const
 {
   if (value < 0.0)
-    value = mValue;
+    value = GetValue();
   
   IRECT r(mRECT.L, mRECT.T, mRECT.L + mBitmap.W(), mRECT.T + mBitmap.H());
 

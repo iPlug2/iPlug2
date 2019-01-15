@@ -60,64 +60,65 @@ void FlashCircleClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(Flash
 IControl::IControl(IRECT bounds, int paramIdx, IActionFunction actionFunc)
 : mRECT(bounds)
 , mTargetRECT(bounds)
-, mParamIdx(paramIdx)
 , mActionFunc(actionFunc)
 {
+  mVals.Add({paramIdx, 0., true /* delete */});
 }
 
 IControl::IControl(IRECT bounds, IActionFunction actionFunc)
 : mRECT(bounds)
 , mTargetRECT(bounds)
-, mParamIdx(kNoParameter)
 , mActionFunc(actionFunc)
 {
+  mVals.Add({kNoParameter, 0., true /* delete */});
 }
 
 void IControl::SetValueFromDelegate(double value)
 {
   if (mDefaultValue < 0.0)
   {
-    mDefaultValue = mValue = value;
+    mDefaultValue = value;
+    SetValue(value);
   }
 
   //don't update this control from delegate, if this control is being captured (i.e. if host is automating the control, mouse is more important
   IControl* capturedControl = GetUI()->GetCapturedControl();
   
-  if (mValue != value && capturedControl != this)
+  if (GetValue() != value && capturedControl != this)
   {
-    mValue = value;
+    SetValue(value);
     SetDirty(false);
   }
 }
 
 void IControl::SetValueFromUserInput(double value)
 {
-  if (mValue != value)
+  if (GetValue() != value)
   {
-    mValue = value;
+    SetValue(value);
     SetDirty();
   }
 }
 
 void IControl::SetValueToDefault()
 {
-  if (mParamIdx || mDefaultValue >= 0.0)
+  if (ParamIdx() || mDefaultValue >= 0.0)
   {
-    mValue = mParamIdx > kNoParameter ? GetParam()->GetDefault(true) : mDefaultValue;
+    SetValue(ParamIdx() > kNoParameter ? GetParam()->GetDefault(true) : mDefaultValue);
     SetDirty(true);
   }
 }
 
 void IControl::SetDirty(bool triggerAction)
 {
-  mValue = Clip(mValue, mClampLo, mClampHi);
+  SetValue(Clip(GetValue(), mClampLo, mClampHi));
   mDirty = true;
   
   if (triggerAction)
   {
-    if(mParamIdx > kNoParameter)
+    if(ParamIdx() > kNoParameter)
     {
-      GetDelegate()->SendParameterValueFromUI(mParamIdx, mValue);
+      GetDelegate()->SendParameterValueFromUI(ParamIdx(), GetValue());
       GetUI()->UpdatePeers(this);
       
       const IParam* pParam = GetParam();
@@ -189,7 +190,7 @@ void IControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 
 void IControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu)
 {
-  if (pSelectedMenu != nullptr && mParamIdx >= 0 && !mDisablePrompt)
+  if (pSelectedMenu != nullptr && ParamIdx() >= 0 && !mDisablePrompt)
   {
     SetValueFromUserInput(GetParam()->ToNormalized( (double) pSelectedMenu->GetChosenItemIdx() ));
   }
@@ -197,7 +198,7 @@ void IControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu)
 
 void IControl::PromptUserInput()
 {
-  if (mParamIdx >= 0 && !mDisablePrompt)
+  if (ParamIdx() >= kNoParameter && !mDisablePrompt)
   {
     if (GetParam()->NDisplayTexts()) // popup menu
     {
@@ -220,7 +221,7 @@ void IControl::PromptUserInput()
 
 void IControl::PromptUserInput(const IRECT& bounds)
 {
-  if (mParamIdx >= 0 && !mDisablePrompt)
+  if (ParamIdx() >= kNoParameter && !mDisablePrompt)
   {
     GetUI()->PromptUserInput(*this, bounds);
   }
@@ -258,10 +259,10 @@ void IControl::DrawPTHighlight(IGraphics& g)
   }
 }
 
-const IParam* IControl::GetParam()
+const IParam* IControl::GetParam(int idx)
 {
-  if(mParamIdx >= 0)
-    return GetDelegate()->GetParam(mParamIdx);
+  if(idx > kNoParameter)
+    return GetDelegate()->GetParam(idx);
   else
     return nullptr;
 }
@@ -280,8 +281,7 @@ void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds
     //mValue = (double) (x - (mRECT.R - (mRECT.W()*lengthMult)) - mHandleHeadroom / 2) / (double) ((mLen*lengthMult) - mHandleHeadroom);
     val = (x-bounds.L) / bounds.W();
 
-  mValue = round( val / 0.001 ) * 0.001;
-
+  SetValue(std::round( val / 0.001 ) * 0.001);
   SetDirty(true); // will send parameter value to delegate
 }
 
@@ -290,7 +290,7 @@ void IBitmapControl::Draw(IGraphics& g)
   int i = 1;
   if (mBitmap.N() > 1)
   {
-    i = 1 + int(0.5 + mValue * (double) (mBitmap.N() - 1));
+    i = 1 + int(0.5 + GetValue() * (double) (mBitmap.N() - 1));
     i = Clip(i, 1, mBitmap.N());
   }
 
@@ -332,7 +332,7 @@ ICaptionControl::ICaptionControl(IRECT bounds, int paramIdx, const IText& text, 
 : ITextControl(bounds, "", text)
 , mShowParamLabel(showParamLabel)
 {
-  mParamIdx = paramIdx;
+  mVals.Get()[0] = {paramIdx, 0., false};
   mDblAsSingleClick = true;
   mDisablePrompt = false;
   mIgnoreMouse = false;
@@ -383,13 +383,13 @@ IButtonControlBase::IButtonControlBase(IRECT bounds, IActionFunction actionFunc)
 
 void IButtonControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
-  mValue = 1.;
+  SetValue(1.);
   SetDirty(true);
 }
 
 void IButtonControlBase::OnEndAnimation()
 {
-  mValue = 0.;
+  SetValue(0.);
   IControl::OnEndAnimation();
 }
 
@@ -403,7 +403,7 @@ ISwitchControlBase::ISwitchControlBase(IRECT bounds, int paramIdx, IActionFuncti
 
 void ISwitchControlBase::OnInit()
 {
-  if (mParamIdx > kNoParameter)
+  if (ParamIdx() > kNoParameter)
     mNumStates = (int) GetParam()->GetRange() + 1;
  
   assert(mNumStates > 1);
@@ -412,13 +412,15 @@ void ISwitchControlBase::OnInit()
 void ISwitchControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
 {  
   if (mNumStates == 2)
-    mValue = !mValue;
+    SetValue(!GetValue());
   else
   {
     const double step = 1. / (double(mNumStates) - 1.);
-    mValue += step;
-    if(mValue > 1.)
-      mValue = 0.;
+    double val = GetValue();
+    val += step;
+    if(val > 1.)
+      val = 0.;
+    SetValue(val);
   }
   
   mMouseDown = true;
@@ -447,11 +449,11 @@ void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const I
 
   if (mDirection == kVertical)
   {
-    mValue += (double)dY / (double)(mRECT.T - mRECT.B) / gearing;
+    SetValue(GetValue() + (double)dY / (double)(mRECT.T - mRECT.B) / gearing);
   }
   else
   {
-    mValue += (double)dX / (double)(mRECT.R - mRECT.L) / gearing;
+    SetValue(GetValue() + (double)dX / (double)(mRECT.R - mRECT.L) / gearing);
   }
 
   SetDirty();
@@ -461,19 +463,12 @@ void IKnobControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, floa
 {
 #ifdef PROTOOLS
   if (mod.C)
-  {
-    mValue += 0.001 * d;
-  }
+    SetValue(GetValue() + 0.001 * d);
 #else
   if (mod.C || mod.S)
-  {
-    mValue += 0.001 * d;
-  }
+    SetValue(GetValue() + 0.001 * d);
 #endif
-  else
-  {
-    mValue += 0.01 * d;
-  }
+  SetValue(GetValue() + 0.01 * d);
 
   SetDirty();
 }

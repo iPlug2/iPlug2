@@ -171,11 +171,17 @@ public:
 
   /** Get the index of the parameter that this control is meant to display
    * @return Parameter index, or kNoParameter if there is no parameter linked with this control */
-  int ParamIdx() const { return mParamIdx; }
+  int ParamIdx(int idx = 0) const
+  {
+    if(idx && idx < mVals.GetSize())
+      return mVals.Get()[idx].idx;
+    else
+      return kNoParameter;
+  }
   
   /** Get a const pointer to the IParam object (owned by the editor delegate class), associated with this control
    * @return const pointer to an IParam or nullptr if the control is not associated with a parameter */ 
-  const IParam* GetParam();
+  const IParam* GetParam(int idx = 0);
   
   /** Assign the control to a control group @see Control Groups
    * @param groupName A CString indicating the control group that this control should belong to */
@@ -200,9 +206,13 @@ public:
    * This method should call through to SetDirty(true), which will mean that the new value gets sent back to the delegate */
   virtual void SetValueToDefault();
   
+  virtual void SetValue(double value, int idx = 0) { mVals.Get()[idx].value = value; }
+  
+  int NParams() { return mVals.GetSize(); }
+  
   /** Get the control's value
    * @return Value of the control (normalized in the range 0-1) */
-  double GetValue() const { return mValue; }
+  double GetValue(int idx = 0) const { return mVals.Get()[idx].value; }
 
   /** Get the Text object for the control
    * @return const IText& The control's mText object, typically used to determine font/layout/size etc of the main text in a control. */
@@ -412,15 +422,13 @@ protected:
   IRECT mTargetRECT;
 
   /** Parameter index or -1 (kNoParameter) */
-  int mParamIdx = kNoParameter;
-  
+  WDL_TypedBuf<ParamTuple> mVals;
   /** Controls can be grouped for hiding and showing panels */
   WDL_String mGroup;
   
   IText mText;
 
   int mTextEntryLength = DEFAULT_TEXT_ENTRY_LEN;
-  double mValue = 0.; // mValue is mapped to the normalized parameter value in controls where mParamIdx > -1
   double mDefaultValue = -1.; // it's important this is -1 to start with
   double mClampLo = 0.;
   double mClampHi = 1.;
