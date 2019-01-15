@@ -744,10 +744,12 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 
   if (pControl)
   {
+    int nVals = pControl->NVals();
     int paramIdx = pControl->ParamIdx();
 
     #ifdef AAX_API
-    if (mAAXViewContainer && paramIdx >= 0)
+    // TODO: only dealing with 1st param
+    if (mAAXViewContainer && paramIdx > kNoParameter)
     {
       uint32_t mods = GetAAXModifiersFromIMouseMod(mod);
       #ifdef OS_WIN
@@ -767,7 +769,8 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
     #endif
 
     #ifndef IGRAPHICS_NO_CONTEXT_MENU
-    if (mod.R && paramIdx >= 0)
+    // TODO: only dealing with 1st param
+    if (mod.R && paramIdx > kNoParameter)
     {
       ReleaseMouseCapture();
       PopupHostContextMenuForParam(pControl, paramIdx, x, y);
@@ -775,9 +778,11 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
     }
     #endif
 
-    if (paramIdx >= 0)
+    if (paramIdx > kNoParameter)
     {
-      GetDelegate()->BeginInformHostOfParamChangeFromUI(paramIdx);
+      for (int v=0; v<nVals; v++) {
+        GetDelegate()->BeginInformHostOfParamChangeFromUI(pControl->ParamIdx(v));
+      }
     }
     
     pControl->OnMouseDown(x, y, mod);
@@ -795,7 +800,11 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
     mMouseCapture->OnMouseUp(x, y, mod);
     if (paramIdx >= 0)
     {
-      GetDelegate()->EndInformHostOfParamChangeFromUI(paramIdx);
+      int nVals = mMouseCapture->NVals();
+
+      for (int v=0; v<nVals; v++) {
+        GetDelegate()->EndInformHostOfParamChangeFromUI(mMouseCapture->ParamIdx(v));
+      }
     }
     ReleaseMouseCapture();
   }
@@ -886,7 +895,8 @@ bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 void IGraphics::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
 {
   IControl* pControl = GetMouseControl(x, y, false);
-  if (pControl) pControl->OnMouseWheel(x, y, mod, d);
+  if (pControl)
+    pControl->OnMouseWheel(x, y, mod, d);
 }
 
 bool IGraphics::OnKeyDown(float x, float y, const IKeyPress& key)

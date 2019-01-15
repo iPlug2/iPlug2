@@ -174,14 +174,16 @@ public:
 
   /** Get the index of the parameter that this control is meant to display
    * @return Parameter index, or kNoParameter if there is no parameter linked with this control */
-  int ParamIdx(int idx = 0) const
+  int ParamIdx(int valIdx = 0) const
   {
-    return mVals.at(idx).idx;
+    return mVals.at(valIdx).idx;
   }
+  
+  int NVals() const { return (int) mVals.size(); }
   
   /** Get a const pointer to the IParam object (owned by the editor delegate class), associated with this control
    * @return const pointer to an IParam or nullptr if the control is not associated with a parameter */ 
-  const IParam* GetParam(int idx = 0);
+  const IParam* GetParam(int valIdx = 0);
   
   /** Assign the control to a control group @see Control Groups
    * @param groupName A CString indicating the control group that this control should belong to */
@@ -195,7 +197,7 @@ public:
    * This method is called from the class implementing the IEditorDelegate interface in order to update a control's mValue member and set it to be marked
    * dirty for redraw. 
    * @param value Normalised incoming value */
-  virtual void SetValueFromDelegate(double value);
+  virtual void SetValueFromDelegate(double value, int valIdx = 0);
   
   /** Set the control's value after user input.
    * This method is called after a text entry or popup menu prompt triggered by PromptUserInput(), calling SetDirty(true), which will mean that the new value gets sent back to the delegate
@@ -206,13 +208,11 @@ public:
    * This method should call through to SetDirty(true), which will mean that the new value gets sent back to the delegate */
   virtual void SetValueToDefault();
   
-  virtual void SetValue(double value, int idx = 0) { mVals.at(idx).value = value; }
-  
-  int NParams() { return (int) mVals.size(); }
+  virtual void SetValue(double value, int valIdx = 0) { mVals.at(valIdx).value = value; }
   
   /** Get the control's value
    * @return Value of the control (normalized in the range 0-1) */
-  double GetValue(int idx = 0) const { return mVals.at(idx).value; }
+  double GetValue(int valIdx = 0) const { return mVals.at(valIdx).value; }
 
   /** Get the Text object for the control
    * @return const IText& The control's mText object, typically used to determine font/layout/size etc of the main text in a control. */

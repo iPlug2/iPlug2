@@ -88,21 +88,25 @@ IControl::IControl(IRECT bounds, IActionFunction actionFunc)
 {
 }
 
-void IControl::SetValueFromDelegate(double value)
+void IControl::SetValueFromDelegate(double value, int idx)
 {
+  //TODO: shit
   if (mDefaultValue < 0.0)
   {
     mDefaultValue = value;
-    SetValue(value);
+    SetValue(value, idx);
   }
 
   //don't update this control from delegate, if this control is being captured (i.e. if host is automating the control, mouse is more important
   IControl* capturedControl = GetUI()->GetCapturedControl();
   
-  if (GetValue() != value && capturedControl != this)
+  if (capturedControl != this)
   {
-    SetValue(value);
-    SetDirty(false);
+    if(GetValue(idx) != value)
+    {
+      SetValue(value, idx);
+      SetDirty(false);
+    }
   }
 }
 
@@ -117,7 +121,7 @@ void IControl::SetValueFromUserInput(double value)
 
 void IControl::SetValueToDefault()
 {
-  if (ParamIdx() || mDefaultValue >= 0.0)
+  if (ParamIdx() > kNoParameter || mDefaultValue >= 0.0)
   {
     SetValue(ParamIdx() > kNoParameter ? GetParam()->GetDefault(true) : mDefaultValue);
     SetDirty(true);
@@ -126,29 +130,38 @@ void IControl::SetValueToDefault()
 
 void IControl::SetDirty(bool triggerAction)
 {
-  SetValue(Clip(GetValue(), mClampLo, mClampHi));
+  const int nVals = NVals();
+
+  for (int v = 0; v < nVals; v++)
+  {
+    SetValue(Clip(GetValue(v), mClampLo, mClampHi), v);
+  }
+  
   mDirty = true;
   
   if (triggerAction)
   {
     if(ParamIdx() > kNoParameter)
     {
-      GetDelegate()->SendParameterValueFromUI(ParamIdx(), GetValue());
-      GetUI()->UpdatePeers(this);
+      for (int v = 0; v < nVals; v++) //TODO: we need to know which params are dirty
+      {
+        GetDelegate()->SendParameterValueFromUI(ParamIdx(v), GetValue(v)); //TODO: take tuple
+//        GetUI()->UpdatePeers(this);
+      }
       
-      const IParam* pParam = GetParam();
+//      const IParam* pParam = GetParam();
 
-      if (mValDisplayControl)
-      {
-        WDL_String display;
-        pParam->GetDisplayForHost(display);
-        ((ITextControl*)mValDisplayControl)->SetStr(display.Get());
-      }
-
-      if (mNameDisplayControl)
-      {
-        ((ITextControl*)mNameDisplayControl)->SetStr(pParam->GetNameForHost());
-      }
+//      if (mValDisplayControl)
+//      {
+//        WDL_String display;
+//        pParam->GetDisplayForHost(display);
+//        ((ITextControl*)mValDisplayControl)->SetStr(display.Get());
+//      }
+//
+//      if (mNameDisplayControl)
+//      {
+//        ((ITextControl*)mNameDisplayControl)->SetStr(pParam->GetNameForHost());
+//      }
     }
     
     if (mActionFunc != nullptr)
@@ -205,7 +218,7 @@ void IControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 
 void IControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu)
 {
-  if (pSelectedMenu != nullptr && ParamIdx() >= 0 && !mDisablePrompt)
+  if (pSelectedMenu != nullptr && ParamIdx() > kNoParameter && !mDisablePrompt) // TODO: only dealing with single param
   {
     SetValueFromUserInput(GetParam()->ToNormalized( (double) pSelectedMenu->GetChosenItemIdx() ));
   }
@@ -213,7 +226,7 @@ void IControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu)
 
 void IControl::PromptUserInput()
 {
-  if (ParamIdx() >= kNoParameter && !mDisablePrompt)
+  if (ParamIdx() > kNoParameter && !mDisablePrompt) // TODO: only dealing with single param
   {
     if (GetParam()->NDisplayTexts()) // popup menu
     {
@@ -236,7 +249,7 @@ void IControl::PromptUserInput()
 
 void IControl::PromptUserInput(const IRECT& bounds)
 {
-  if (ParamIdx() >= kNoParameter && !mDisablePrompt)
+  if (ParamIdx() > kNoParameter && !mDisablePrompt) // TODO: only dealing with single param
   {
     GetUI()->PromptUserInput(*this, bounds);
   }
