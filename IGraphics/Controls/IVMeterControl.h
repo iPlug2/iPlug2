@@ -98,8 +98,8 @@ public:
     IPlugQueue<Data> mQueue {QUEUE_SIZE};
   };
 
-  IVMeterControl(IGEditorDelegate& dlg, IRECT bounds, const char* trackNames = 0, ...)
-  : IVTrackControlBase(dlg, bounds, MAXNC, 0, 1., trackNames)
+  IVMeterControl(IRECT bounds, const char* trackNames = 0, ...)
+  : IVTrackControlBase(bounds, MAXNC, 0, 1., trackNames)
   {
   }
 

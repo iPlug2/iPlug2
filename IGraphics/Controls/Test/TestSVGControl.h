@@ -23,8 +23,8 @@
 class TestSVGControl : public IControl
 {
 public:
-  TestSVGControl(IGEditorDelegate& dlg, IRECT bounds, const ISVG& svg)
-  : IControl(dlg, bounds)
+  TestSVGControl(IRECT bounds, const ISVG& svg)
+  : IControl(bounds)
   , mSVG(svg)
   {
     SetTooltip("TestSVGControl - Click or Drag 'n drop here to load a new SVG.");

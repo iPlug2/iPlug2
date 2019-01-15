@@ -35,7 +35,7 @@
 class ITextEntryControl : public IControl
 {
 public:
-  ITextEntryControl(IGEditorDelegate& dlg);
+  ITextEntryControl();
   ~ITextEntryControl() {}
 
   //IControl

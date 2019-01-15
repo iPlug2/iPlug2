@@ -54,8 +54,8 @@
 #define STB_TEXTEDIT_IMPLEMENTATION
 #include "stb_textedit.h"
 
-ITextEntryControl::ITextEntryControl(IGEditorDelegate& dlg)
-: IControl(dlg, IRECT())
+ITextEntryControl::ITextEntryControl()
+: IControl(IRECT())
 {
   stb_textedit_initialize_state(&mEditState, true);
   

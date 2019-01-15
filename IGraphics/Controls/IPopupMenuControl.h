@@ -49,12 +49,11 @@ public:
   };
 
   /** Create a new IPopupMenuControl
-  * @param dlg The editor delegate that this control is attached to
   * @param paramIdx Whether this control should be linked to a parameter
   * @param text An IText specifying properties of the menu text
   * @param collapsedBounds If this control, when collapsed should occupy an area of the graphics context, specify this, otherwise the collapsed area is empty
   * @param expandedBounds If you want to explicitly specify the size of the expanded pop-up, you can specify an area here */
-  IPopupMenuControl(IGEditorDelegate& dlg, int paramIdx = kNoParameter, IText text = IText(16), IRECT collapsedBounds = IRECT(), IRECT expandedBounds = IRECT());
+  IPopupMenuControl(int paramIdx = kNoParameter, IText text = IText(16), IRECT collapsedBounds = IRECT(), IRECT expandedBounds = IRECT());
   virtual ~IPopupMenuControl();
 
   //IControl

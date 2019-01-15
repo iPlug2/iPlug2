@@ -22,8 +22,8 @@
 class TestPolyControl : public IKnobControlBase
 {
 public:
-  TestPolyControl(IGEditorDelegate& dlg, IRECT rect, int paramIdx = kNoParameter)
-  : IKnobControlBase(dlg, rect, paramIdx)
+  TestPolyControl(IRECT rect, int paramIdx = kNoParameter)
+  : IKnobControlBase(rect, paramIdx)
   {
     SetTooltip("TestPolyControl");
   }

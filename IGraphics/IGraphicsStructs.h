@@ -300,10 +300,10 @@ struct IColor
     l = Clip(l, 0.0f, 1.0f);
     float m2 = l <= 0.5f ? (l * (1 + s)) : (l + s - l * s);
     float m1 = 2 * l - m2;
-    col.R = Clip(hue(h + 1.0f / 3.0f, m1, m2), 0.0f, 1.0f) * 255.f;
-    col.G = Clip(hue(h, m1, m2), 0.0f, 1.0f) * 255.f;
-    col.B = Clip(hue(h - 1.0f / 3.0f, m1, m2), 0.0f, 1.0f) * 255.f;
-    col.A = a * 255.f;
+    col.R = static_cast<int>(Clip(hue(h + 1.0f / 3.0f, m1, m2), 0.0f, 1.0f) * 255.f);
+    col.G = static_cast<int>(Clip(hue(h, m1, m2), 0.0f, 1.0f) * 255.f);
+    col.B = static_cast<int>(Clip(hue(h - 1.0f / 3.0f, m1, m2), 0.0f, 1.0f) * 255.f);
+    col.A = static_cast<int>(a * 255.f);
     return col;
   }
 

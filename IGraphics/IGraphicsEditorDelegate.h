@@ -69,7 +69,7 @@ public:
   /** Override this method to serialize custom editor state data.
   * @param chunk The output bytechunk where data can be serialized
   * @return \c true if serialization was successful*/
-  virtual bool SerializeEditorProperties(IByteChunk& chunk) { TRACE; return true; }
+  virtual bool SerializeEditorProperties(IByteChunk& chunk) const { TRACE; return true; }
     
   /** Override this method to unserialize custom editor state data
   * @param chunk The incoming chunk containing the state data.

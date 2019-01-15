@@ -23,10 +23,10 @@ IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
     pGraphics->LoadFont(ROBOTTO_FN);
     
     pGraphics->AttachPanelBackground(COLOR_BLACK);
-    pGraphics->AttachControl(new IVScopeControl<>(*this, b.GetReducedFromTop(50)), kControlTagScope);
+    pGraphics->AttachControl(new IVScopeControl<>(b.GetReducedFromTop(50)), kControlTagScope);
     
 #ifndef FAUST_COMPILED
-    pGraphics->AttachControl(new IVButtonControl(*this, b.GetFromTRHC(150, 30), [](IControl* pCaller)
+    pGraphics->AttachControl(new IVButtonControl(b.GetFromTRHC(150, 30), [](IControl* pCaller)
                                                  {
                                                    FlashCircleClickActionFunc(pCaller);
 

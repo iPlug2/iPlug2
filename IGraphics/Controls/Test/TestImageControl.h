@@ -22,8 +22,8 @@
 class TestImageControl : public IControl
 {
 public:
-  TestImageControl(IGEditorDelegate& dlg, IRECT bounds)
-  : IControl(dlg, bounds)
+  TestImageControl(IRECT bounds)
+  : IControl(bounds)
   {
     SetTooltip("TestImageControl - Click or Drag 'n drop here to load a new bitmap");
   }
