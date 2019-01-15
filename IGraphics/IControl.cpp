@@ -62,7 +62,7 @@ IControl::IControl(IRECT bounds, int paramIdx, IActionFunction actionFunc)
 , mTargetRECT(bounds)
 , mActionFunc(actionFunc)
 {
-  mVals.Add({paramIdx, 0., true /* delete */});
+  mVals.at(0).idx = paramIdx;
 }
 
 IControl::IControl(IRECT bounds, IActionFunction actionFunc)
@@ -70,7 +70,6 @@ IControl::IControl(IRECT bounds, IActionFunction actionFunc)
 , mTargetRECT(bounds)
 , mActionFunc(actionFunc)
 {
-  mVals.Add({kNoParameter, 0., true /* delete */});
 }
 
 void IControl::SetValueFromDelegate(double value)
@@ -332,7 +331,7 @@ ICaptionControl::ICaptionControl(IRECT bounds, int paramIdx, const IText& text, 
 : ITextControl(bounds, "", text)
 , mShowParamLabel(showParamLabel)
 {
-  mVals.Get()[0] = {paramIdx, 0., false};
+  mVals.at(0).idx = paramIdx;
   mDblAsSingleClick = true;
   mDisablePrompt = false;
   mIgnoreMouse = false;

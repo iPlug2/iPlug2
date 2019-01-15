@@ -17,6 +17,7 @@
 
 #include <cstring>
 #include <cstdlib>
+#include <vector>
 
 #if defined VST3_API || defined VST3C_API
 #undef stricmp
@@ -173,10 +174,7 @@ public:
    * @return Parameter index, or kNoParameter if there is no parameter linked with this control */
   int ParamIdx(int idx = 0) const
   {
-    if(idx && idx < mVals.GetSize())
-      return mVals.Get()[idx].idx;
-    else
-      return kNoParameter;
+    return mVals.at(idx).idx;
   }
   
   /** Get a const pointer to the IParam object (owned by the editor delegate class), associated with this control
@@ -206,13 +204,13 @@ public:
    * This method should call through to SetDirty(true), which will mean that the new value gets sent back to the delegate */
   virtual void SetValueToDefault();
   
-  virtual void SetValue(double value, int idx = 0) { mVals.Get()[idx].value = value; }
+  virtual void SetValue(double value, int idx = 0) { mVals.at(idx).value = value; }
   
-  int NParams() { return mVals.GetSize(); }
+  int NParams() { return (int) mVals.size(); }
   
   /** Get the control's value
    * @return Value of the control (normalized in the range 0-1) */
-  double GetValue(int idx = 0) const { return mVals.Get()[idx].value; }
+  double GetValue(int idx = 0) const { return mVals.at(idx).value; }
 
   /** Get the Text object for the control
    * @return const IText& The control's mText object, typically used to determine font/layout/size etc of the main text in a control. */
@@ -421,8 +419,8 @@ protected:
   IRECT mRECT;
   IRECT mTargetRECT;
 
-  /** Parameter index or -1 (kNoParameter) */
-  WDL_TypedBuf<ParamTuple> mVals;
+  std::vector<ParamTuple> mVals { {kNoParameter, 0., false /*delete*/} };
+  
   /** Controls can be grouped for hiding and showing panels */
   WDL_String mGroup;
   
