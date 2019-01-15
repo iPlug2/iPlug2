@@ -132,7 +132,7 @@ void IPlugAPIBase::SendParameterValueFromAPI(int paramIdx, double value, bool no
 {
   //TODO: Can we assume that no host is stupid enough to try and set parameters on multiple threads at the same time?
   // If that is the case then we need a MPSPC queue not SPSC
-  mParamChangeFromProcessor.Push(IParamChange { paramIdx, value, normalized } );
+  mParamChangeFromProcessor.Push(ParamTuple { paramIdx, value, normalized } );
 }
 
 void IPlugAPIBase::OnTimer(Timer& t)
@@ -143,9 +143,9 @@ void IPlugAPIBase::OnTimer(Timer& t)
   #if !defined VST3C_API && !defined VST3P_API
     while(mParamChangeFromProcessor.ElementsAvailable())
     {
-      IParamChange p;
+      ParamTuple p;
       mParamChangeFromProcessor.Pop(p);
-      SendParameterValueFromDelegate(p.paramIdx, p.value, p.normalized); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
+      SendParameterValueFromDelegate(p.idx, p.value, p.normalized); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
     }
     
     while (mMidiMsgsFromProcessor.ElementsAvailable())

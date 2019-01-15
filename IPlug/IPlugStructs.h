@@ -26,9 +26,9 @@
 #include "IPlugUtilities.h"
 
 /** In certain cases we need to queue parameter changes for transferral between threads */
-struct IParamChange
+struct ParamTuple
 {
-  int paramIdx;
+  int idx;
   double value;
   bool normalized; // TODO: Remove this
 };

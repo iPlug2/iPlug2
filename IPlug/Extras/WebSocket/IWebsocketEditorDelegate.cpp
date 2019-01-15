@@ -34,7 +34,7 @@ bool IWebsocketEditorDelegate::OnWebsocketData(int connIdx, void* pData, size_t 
     int paramIdx = * ((int*)(pByteData + pos)); pos+= 4;
     double value = * ((double*)(pByteData + pos)); pos += 8;
     
-    mParamChangeFromClients.Push(IParamChange { paramIdx, value, true } );
+    mParamChangeFromClients.Push(ParamTuple { paramIdx, value, true } );
   }
   else if (memcmp(pData, "SMMFUI" , 6) == 0) // send midi message from user interface
   {
@@ -192,7 +192,7 @@ void IWebsocketEditorDelegate::ProcessWebsocketQueue()
 {
   while(mParamChangeFromClients.ElementsAvailable())
   {
-    IParamChange p;
+    ParamTuple p;
     mParamChangeFromClients.Pop(p);
     
     //FIXME: how do params get updated?
