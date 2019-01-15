@@ -23,8 +23,8 @@ class TestBlendControl : public IKnobControlBase
                        , public IBitmapBase
 {
 public:
-  TestBlendControl(IGEditorDelegate& dlg, IRECT bounds, const IBitmap& bitmap)
-  : IKnobControlBase(dlg, bounds)
+  TestBlendControl(IRECT bounds, const IBitmap& bitmap)
+  : IKnobControlBase(bounds)
   , IBitmapBase(bitmap)
   {
     SetTooltip("TestBlendControl");

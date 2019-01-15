@@ -22,8 +22,8 @@
 class TestDrawContextControl : public IControl
 {
 public:
-  TestDrawContextControl(IGEditorDelegate& dlg, IRECT bounds)
-  : IControl(dlg, bounds)
+  TestDrawContextControl(IRECT bounds)
+  : IControl(bounds)
   {
     SetTooltip("TestDrawContextControl");
   }

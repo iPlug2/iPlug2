@@ -22,8 +22,8 @@
 class TestColorControl : public IControl
 {
 public:
-  TestColorControl(IGEditorDelegate& dlg, IRECT rect)
-  :  IControl(dlg, rect)
+  TestColorControl(IRECT rect)
+  : IControl(rect)
   {
     SetTooltip("TestColorControl");
   }

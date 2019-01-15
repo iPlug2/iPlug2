@@ -22,8 +22,8 @@
 class TestDirBrowseControl : public IDirBrowseControlBase
 {
 public:
-  TestDirBrowseControl(IGEditorDelegate& dlg, IRECT rect, const char* extension, const char* path)
-  : IDirBrowseControlBase(dlg, rect, extension)
+  TestDirBrowseControl(IRECT rect, const char* extension, const char* path)
+  : IDirBrowseControlBase(rect, extension)
   {
     mLabel.SetFormatted(32, "Select a %s file", extension);
     SetPath(path);
