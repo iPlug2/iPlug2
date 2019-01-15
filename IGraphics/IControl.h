@@ -348,6 +348,7 @@ public:
   {
     mDelegate = &dlg;
     mGraphics = dlg.GetUI();
+    OnInit();
     OnResize();
     OnRescale();
   }
