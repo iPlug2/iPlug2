@@ -17,85 +17,77 @@
 
 #include "IControl.h"
 
-#if !defined OS_WIN
-  #if defined OS_IOS
-    #include "swell-ios.h"
-  #else
-    #include "swell-types.h"
-  #endif
-#endif
-
 const char* vk_to_string(int vk_code)
 {
   switch(vk_code)
   {
-    case VK_HELP:                 return "VK_HELP";
-    case VK_BACK:                 return "VK_BACK";
-    case VK_TAB:                  return "VK_TAB";
-    case VK_CLEAR:                return "VK_CLEAR";
-    case VK_RETURN:               return "VK_RETURN";
-    case VK_SHIFT:                return "VK_SHIFT";
-    case VK_CONTROL:              return "VK_CONTROL";
-    case VK_MENU:                 return "VK_MENU";
-    case VK_PAUSE:                return "VK_PAUSE";
-    case VK_CAPITAL:              return "VK_CAPITAL";
-    case VK_ESCAPE:               return "VK_ESCAPE";
-    case VK_SPACE:                return "VK_SPACE";
-    case VK_PRIOR:                return "VK_PAGE_UP";
-    case VK_NEXT:                 return "VK_PAGE_DOWN";
-    case VK_END:                  return "VK_END";
-    case VK_HOME:                 return "VK_HOME";
-    case VK_LEFT:                 return "VK_LEFT";
-    case VK_UP:                   return "VK_UP";
-    case VK_RIGHT:                return "VK_RIGHT";
-    case VK_DOWN:                 return "VK_DOWN";
-    case VK_SELECT:               return "VK_SELECT";
-    case VK_PRINT:                return "VK_PRINT";
-    case VK_INSERT:               return "VK_INSERT";
-    case VK_DELETE:               return "VK_DELETE";
-    case VK_NUMPAD0:              return "VK_NUMPAD0";
-    case VK_NUMPAD1:              return "VK_NUMPAD1";
-    case VK_NUMPAD2:              return "VK_NUMPAD2";
-    case VK_NUMPAD3:              return "VK_NUMPAD3";
-    case VK_NUMPAD4:              return "VK_NUMPAD4";
-    case VK_NUMPAD5:              return "VK_NUMPAD5";
-    case VK_NUMPAD6:              return "VK_NUMPAD6";
-    case VK_NUMPAD7:              return "VK_NUMPAD7";
-    case VK_NUMPAD8:              return "VK_NUMPAD8";
-    case VK_NUMPAD9:              return "VK_NUMPAD9";
-    case VK_MULTIPLY:             return "VK_MULTIPLY";
-    case VK_ADD:                  return "VK_ADD";
-    case VK_SEPARATOR:            return "VK_SEPARATOR";
-    case VK_SUBTRACT:             return "VK_SUBTRACT";
-    case VK_DECIMAL:              return "VK_DECIMAL";
-    case VK_DIVIDE:               return "VK_DIVIDE";
-    case VK_F1:                   return "VK_F1";
-    case VK_F2:                   return "VK_F2";
-    case VK_F3:                   return "VK_F3";
-    case VK_F4:                   return "VK_F4";
-    case VK_F5:                   return "VK_F5";
-    case VK_F6:                   return "VK_F6";
-    case VK_F7:                   return "VK_F7";
-    case VK_F8:                   return "VK_F8";
-    case VK_F9:                   return "VK_F9";
-    case VK_F10:                  return "VK_F10";
-    case VK_F11:                  return "VK_F11";
-    case VK_F12:                  return "VK_F12";
-    case VK_F13:                  return "VK_F13";
-    case VK_F14:                  return "VK_F14";
-    case VK_F15:                  return "VK_F15";
-    case VK_F16:                  return "VK_F16";
-    case VK_F17:                  return "VK_F17";
-    case VK_F18:                  return "VK_F18";
-    case VK_F19:                  return "VK_F19";
-    case VK_F20:                  return "VK_F20";
-    case VK_F21:                  return "VK_F21";
-    case VK_F22:                  return "VK_F22";
-    case VK_F23:                  return "VK_F23";
-    case VK_F24:                  return "VK_F24";
-    case VK_NUMLOCK:              return "VK_NUMLOCK";
-    case VK_SCROLL:               return "VK_SCROLL";
-    case VK_RETURN|0x8000:        return "ENTER";
+    case kVK_HELP:                 return "VK_HELP";
+    case kVK_BACK:                 return "VK_BACK";
+    case kVK_TAB:                  return "VK_TAB";
+    case kVK_CLEAR:                return "VK_CLEAR";
+    case kVK_RETURN:               return "VK_RETURN";
+    case kVK_SHIFT:                return "VK_SHIFT";
+    case kVK_CONTROL:              return "VK_CONTROL";
+    case kVK_MENU:                 return "VK_MENU";
+    case kVK_PAUSE:                return "VK_PAUSE";
+    case kVK_CAPITAL:              return "VK_CAPITAL";
+    case kVK_ESCAPE:               return "VK_ESCAPE";
+    case kVK_SPACE:                return "VK_SPACE";
+    case kVK_PRIOR:                return "VK_PAGE_UP";
+    case kVK_NEXT:                 return "VK_PAGE_DOWN";
+    case kVK_END:                  return "VK_END";
+    case kVK_HOME:                 return "VK_HOME";
+    case kVK_LEFT:                 return "VK_LEFT";
+    case kVK_UP:                   return "VK_UP";
+    case kVK_RIGHT:                return "VK_RIGHT";
+    case kVK_DOWN:                 return "VK_DOWN";
+    case kVK_SELECT:               return "VK_SELECT";
+    case kVK_PRINT:                return "VK_PRINT";
+    case kVK_INSERT:               return "VK_INSERT";
+    case kVK_DELETE:               return "VK_DELETE";
+    case kVK_NUMPAD0:              return "VK_NUMPAD0";
+    case kVK_NUMPAD1:              return "VK_NUMPAD1";
+    case kVK_NUMPAD2:              return "VK_NUMPAD2";
+    case kVK_NUMPAD3:              return "VK_NUMPAD3";
+    case kVK_NUMPAD4:              return "VK_NUMPAD4";
+    case kVK_NUMPAD5:              return "VK_NUMPAD5";
+    case kVK_NUMPAD6:              return "VK_NUMPAD6";
+    case kVK_NUMPAD7:              return "VK_NUMPAD7";
+    case kVK_NUMPAD8:              return "VK_NUMPAD8";
+    case kVK_NUMPAD9:              return "VK_NUMPAD9";
+    case kVK_MULTIPLY:             return "VK_MULTIPLY";
+    case kVK_ADD:                  return "VK_ADD";
+    case kVK_SEPARATOR:            return "VK_SEPARATOR";
+    case kVK_SUBTRACT:             return "VK_SUBTRACT";
+    case kVK_DECIMAL:              return "VK_DECIMAL";
+    case kVK_DIVIDE:               return "VK_DIVIDE";
+    case kVK_F1:                   return "VK_F1";
+    case kVK_F2:                   return "VK_F2";
+    case kVK_F3:                   return "VK_F3";
+    case kVK_F4:                   return "VK_F4";
+    case kVK_F5:                   return "VK_F5";
+    case kVK_F6:                   return "VK_F6";
+    case kVK_F7:                   return "VK_F7";
+    case kVK_F8:                   return "VK_F8";
+    case kVK_F9:                   return "VK_F9";
+    case kVK_F10:                  return "VK_F10";
+    case kVK_F11:                  return "VK_F11";
+    case kVK_F12:                  return "VK_F12";
+    case kVK_F13:                  return "VK_F13";
+    case kVK_F14:                  return "VK_F14";
+    case kVK_F15:                  return "VK_F15";
+    case kVK_F16:                  return "VK_F16";
+    case kVK_F17:                  return "VK_F17";
+    case kVK_F18:                  return "VK_F18";
+    case kVK_F19:                  return "VK_F19";
+    case kVK_F20:                  return "VK_F20";
+    case kVK_F21:                  return "VK_F21";
+    case kVK_F22:                  return "VK_F22";
+    case kVK_F23:                  return "VK_F23";
+    case kVK_F24:                  return "VK_F24";
+    case kVK_NUMLOCK:              return "VK_NUMLOCK";
+    case kVK_SCROLL:               return "VK_SCROLL";
+    case kVK_RETURN|0x8000:        return "ENTER";
     default:                      return "Unknown VK code";
   }
 }
@@ -105,8 +97,8 @@ const char* vk_to_string(int vk_code)
 class TestKeyboardControl : public IControl
 {
 public:
-  TestKeyboardControl(IGEditorDelegate& dlg, IRECT rect)
-  : IControl(dlg, rect)
+  TestKeyboardControl(IRECT rect)
+  : IControl(rect)
   {
     mX = rect.MW();
     mY = rect.MH();

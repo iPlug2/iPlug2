@@ -211,7 +211,7 @@ class IPlugAUFactory
       ((PLUG_CLASS_NAME*) pMemory)->~PLUG_CLASS_NAME();
     }
 
-    static AudioComponentMethod Lookup (SInt16 selector)
+    static AudioComponentMethod Lookup(SInt16 selector)
     {
       switch (selector) {
         case kAudioUnitInitializeSelect:  return (AudioComponentMethod)IPlugAU::AUMethodInitialize;
@@ -248,7 +248,6 @@ class IPlugAUFactory
       IPlugAU* plug = (IPlugAU*) &acpi->mInstanceStorage;
 
       plug->mCI = compInstance;
-      plug->HostSpecificInit();
       plug->PruneUninitializedPresets();
 
       return noErr;
@@ -368,6 +367,7 @@ extern "C"
     EMSCRIPTEN_KEEPALIVE void iplug_fsready()
     {
       gPlug = MakePlug();
+      gPlug->SetHost("www", 0);
       gPlug->OpenWindow(nullptr);
       gPlug->OnUIOpen();
       iplug_syncfs(); // plug in may initialise settings in constructor, write to persistent data after init
@@ -402,21 +402,6 @@ extern "C"
   #error "No API defined!"
 #endif
 
-#if defined OS_MAC || defined OS_IOS
-#if defined SWELL_NO_POSTMESSAGE && !defined VST3P_API
-void Sleep(int ms)
-{
-  usleep(ms?ms*1000:100);
-}
-
-DWORD GetTickCount()
-{
-  struct timeval tm={0,};
-  gettimeofday(&tm,NULL);
-  return (DWORD) (tm.tv_sec*1000 + tm.tv_usec/1000);
-}
-#endif
-#endif
 /*
 #if defined _DEBUG
   #define PUBLIC_NAME APPEND_TIMESTAMP(PLUG_NAME " DEBUG")

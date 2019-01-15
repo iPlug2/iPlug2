@@ -22,8 +22,8 @@
 class TestMultiPathControl : public IKnobControlBase
 {
 public:
-  TestMultiPathControl(IGEditorDelegate& dlg, IRECT rect, int paramIdx = kNoParameter)
-  : IKnobControlBase(dlg, rect, paramIdx)
+  TestMultiPathControl(IRECT rect, int paramIdx = kNoParameter)
+  : IKnobControlBase(rect, paramIdx)
   , mShape(0)
   {
     SetTooltip("TestMultiPathControl");

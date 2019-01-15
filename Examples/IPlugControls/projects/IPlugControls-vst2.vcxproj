@@ -166,7 +166,6 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>$(x64_LIB_PATHS);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent />
     <ResourceCompile>
@@ -208,7 +207,6 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>$(x64_LIB_PATHS);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent />
   </ItemDefinitionGroup>
@@ -246,8 +244,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>$(x64_LIB_PATHS);$(WDL_PATH)\lice\$(SolutionDir)build-win\$(Platform)\Release\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Link>
+        </Link>
     <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -379,7 +376,9 @@
   <ItemGroup>
     <None Include="..\config\IPlugControls-ios.xcconfig" />
     <None Include="..\config\IPlugControls-web.mk" />
-    <None Include="..\config\IPlugControls-win.props" />
+    <None Include="..\config\IPlugControls-win.props">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="..\config\IPlugControls-mac.xcconfig" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,0 +1,1151 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 47;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		4F78DAF113B643600032E0F3 /* All */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 4F78DAFD13B643940032E0F3 /* Build configuration list for PBXAggregateTarget "All" */;
+			buildPhases = (
+			);
+			dependencies = (
+				4F78DAF613B6436B0032E0F3 /* PBXTargetDependency */,
+			);
+			name = All;
+			productName = "AllOSX_32&64_intel";
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		4F03A5AC20A4621100EBDFFB /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F03A55820A4621000EBDFFB /* IGraphics.cpp */; };
+		4F10D3D9203A6719003EF82A /* RtMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F10D3D7203A6719003EF82A /* RtMidi.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
+		4F1A5282205D913300CF2908 /* IPlugAPP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1A5280205D913300CF2908 /* IPlugAPP.cpp */; };
+		4F1B4AE42014D33600BC64D4 /* IGraphicsStressTest-macOS-MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F1B4AE32014D33600BC64D4 /* IGraphicsStressTest-macOS-MainMenu.xib */; };
+		4F2EA978203A50EA008E4850 /* IPlugAPP_dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F2EA977203A50E9008E4850 /* IPlugAPP_dialog.cpp */; };
+		4F35DEAD207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */; };
+		4F3862EF2014BBEC0009F402 /* IGraphicsStressTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IGraphicsStressTest.cpp */; };
+		4F5F344120C0226200487201 /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5F344020C0226200487201 /* IPlugPaths.mm */; };
+		4F63696D20A463090022C370 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F63695920A463090022C370 /* IControls.cpp */; };
+		4F6369DD20A464BB0022C370 /* IGraphicsNanoVG_src.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6369DC20A464BB0022C370 /* IGraphicsNanoVG_src.m */; };
+		4F6369EB20A466470022C370 /* IControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F6369E920A466470022C370 /* IControl.cpp */; };
+		4F690C9B203A345100A4A13E /* IPlugAPP_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F690C9A203A345100A4A13E /* IPlugAPP_main.cpp */; };
+		4F690CA3203A45C700A4A13E /* IPlugAPP_host.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F690CA2203A45C700A4A13E /* IPlugAPP_host.cpp */; };
+		4F78D88613B6382B0032E0F3 /* IGraphicsStressTest.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4FD290A8137C34D700CEBE7E /* IGraphicsStressTest.icns */; };
+		4F78D90B13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugAPIBase.cpp */; };
+		4F78D91813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
+		4F8C10E020BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8C10DE20BA2796006320CD /* IGraphicsEditorDelegate.cpp */; };
+		4F9A82F7213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F9A82F5213DE80300BE63A4 /* IPopupMenuControl.cpp */; };
+		4FAFFE5821495A4800A6E72D /* RtAudio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F10D3D3203A6711003EF82A /* RtAudio.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
+		4FB1F58920E4B004004157C8 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FB1F58120E4AFEE004157C8 /* IGraphicsMac.mm */; };
+		4FB1F59120E4B011004157C8 /* IGraphicsMac_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FB1F58620E4AFEF004157C8 /* IGraphicsMac_view.mm */; };
+		4FCE29BD21D6ECEA004BCBA1 /* ITextEntryControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCE29BC21D6ECEA004BCBA1 /* ITextEntryControl.cpp */; };
+		4FD16CFC13B63468001D0217 /* swell-appstub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16CFB13B63468001D0217 /* swell-appstub.mm */; };
+		4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0413B634AA001D0217 /* swell-dlg.mm */; settings = {COMPILER_FLAGS = "-Wno-unreachable-code"; }; };
+		4FD16D0C13B634BF001D0217 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
+		4FD16D1613B634D2001D0217 /* swell-ini.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D1513B634D2001D0217 /* swell-ini.cpp */; };
+		4FD16D3A13B63582001D0217 /* swell-kb.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3913B63582001D0217 /* swell-kb.mm */; };
+		4FD16D3C13B6358C001D0217 /* swell-miscdlg.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3B13B6358C001D0217 /* swell-miscdlg.mm */; };
+		4FD16D3E13B63595001D0217 /* swell-menu.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3D13B63595001D0217 /* swell-menu.mm */; };
+		4FD16D4013B635A0001D0217 /* swell-misc.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3F13B635A0001D0217 /* swell-misc.mm */; };
+		4FD16D4213B635AB001D0217 /* swell-wnd.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4113B635AB001D0217 /* swell-wnd.mm */; settings = {COMPILER_FLAGS = "-Wno-unreachable-code"; }; };
+		4FD16D4413B635B2001D0217 /* swell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4313B635B2001D0217 /* swell.cpp */; };
+		4FD16D4713B635C8001D0217 /* swellappmain.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4613B635C8001D0217 /* swellappmain.mm */; settings = {COMPILER_FLAGS = "-Wno-incompatible-pointer-types -Wno-shorten-64-to-32"; }; };
+		4FDAC0EA207D76C600299363 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		4F78DAF513B6436B0032E0F3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4FD16A0813B63081001D0217;
+			remoteInfo = "OSXAPP_32&64_intel";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		4F03A54A20A4621000EBDFFB /* IGraphicsLice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLice.h; sourceTree = "<group>"; };
+		4F03A54B20A4621000EBDFFB /* IGraphicsAGG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsAGG.h; sourceTree = "<group>"; };
+		4F03A54C20A4621000EBDFFB /* IGraphicsLice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsLice.cpp; sourceTree = "<group>"; };
+		4F03A54D20A4621000EBDFFB /* IGraphicsLice_src.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLice_src.h; sourceTree = "<group>"; };
+		4F03A54E20A4621000EBDFFB /* IGraphicsCairo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsCairo.h; sourceTree = "<group>"; };
+		4F03A54F20A4621000EBDFFB /* IGraphicsAGG_src.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsAGG_src.cpp; sourceTree = "<group>"; };
+		4F03A55020A4621000EBDFFB /* IGraphicsNanoVG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsNanoVG.h; sourceTree = "<group>"; };
+		4F03A55120A4621000EBDFFB /* IGraphicsCairo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsCairo.cpp; sourceTree = "<group>"; };
+		4F03A55220A4621000EBDFFB /* IGraphicsAGG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsAGG.cpp; sourceTree = "<group>"; };
+		4F03A55320A4621000EBDFFB /* IGraphicsAGG_src.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsAGG_src.h; sourceTree = "<group>"; };
+		4F03A55420A4621000EBDFFB /* IGraphicsNanoVG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsNanoVG.cpp; sourceTree = "<group>"; };
+		4F03A55520A4621000EBDFFB /* IGraphicsLice_src.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsLice_src.cpp; sourceTree = "<group>"; };
+		4F03A55620A4621000EBDFFB /* IGraphicsLiveEdit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsLiveEdit.h; path = ../../../IGraphics/IGraphicsLiveEdit.h; sourceTree = "<group>"; };
+		4F03A55720A4621000EBDFFB /* IGraphics_include_in_plug_hdr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphics_include_in_plug_hdr.h; path = ../../../IGraphics/IGraphics_include_in_plug_hdr.h; sourceTree = "<group>"; };
+		4F03A55820A4621000EBDFFB /* IGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphics.cpp; path = ../../../IGraphics/IGraphics.cpp; sourceTree = "<group>"; };
+		4F03A55920A4621000EBDFFB /* IGraphics_include_in_plug_src.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphics_include_in_plug_src.h; path = ../../../IGraphics/IGraphics_include_in_plug_src.h; sourceTree = "<group>"; };
+		4F03A55B20A4621000EBDFFB /* IGraphicsPathBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsPathBase.h; path = ../../../IGraphics/IGraphicsPathBase.h; sourceTree = "<group>"; };
+		4F03A55C20A4621000EBDFFB /* IGraphics_select.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphics_select.h; path = ../../../IGraphics/IGraphics_select.h; sourceTree = "<group>"; };
+		4F03A55D20A4621000EBDFFB /* IGraphics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphics.h; path = ../../../IGraphics/IGraphics.h; sourceTree = "<group>"; };
+		4F03A56720A4621000EBDFFB /* IGraphicsPopupMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsPopupMenu.h; path = ../../../IGraphics/IGraphicsPopupMenu.h; sourceTree = "<group>"; };
+		4F03A56820A4621000EBDFFB /* IGraphicsStructs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsStructs.h; path = ../../../IGraphics/IGraphicsStructs.h; sourceTree = "<group>"; };
+		4F03A56920A4621100EBDFFB /* IGraphicsUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsUtilities.h; path = ../../../IGraphics/IGraphicsUtilities.h; sourceTree = "<group>"; };
+		4F03A56A20A4621100EBDFFB /* IGraphicsConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsConstants.h; path = ../../../IGraphics/IGraphicsConstants.h; sourceTree = "<group>"; };
+		4F05C5A82082424400DD1621 /* IPlugWAM.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugWAM.h; path = ../../../IPlug/WEB/IPlugWAM.h; sourceTree = "<group>"; };
+		4F05C5A92082424400DD1621 /* IPlugWAM.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugWAM.cpp; path = ../../../IPlug/WEB/IPlugWAM.cpp; sourceTree = "<group>"; };
+		4F10D3D2203A6710003EF82A /* RtAudio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtAudio.h; path = ../../../Dependencies/IPlug/RTAudio/RtAudio.h; sourceTree = "<group>"; };
+		4F10D3D3203A6711003EF82A /* RtAudio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtAudio.cpp; path = ../../../Dependencies/IPlug/RTAudio/RtAudio.cpp; sourceTree = "<group>"; };
+		4F10D3D6203A6719003EF82A /* RtMidi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtMidi.h; path = ../../../Dependencies/IPlug/RTMidi/RtMidi.h; sourceTree = "<group>"; };
+		4F10D3D7203A6719003EF82A /* RtMidi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtMidi.cpp; path = ../../../Dependencies/IPlug/RTMidi/RtMidi.cpp; sourceTree = "<group>"; };
+		4F1A527F205D913200CF2908 /* IPlugAPP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAPP.h; path = ../../../IPlug/APP/IPlugAPP.h; sourceTree = "<group>"; };
+		4F1A5280205D913300CF2908 /* IPlugAPP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAPP.cpp; path = ../../../IPlug/APP/IPlugAPP.cpp; sourceTree = "<group>"; };
+		4F1B4AE32014D33600BC64D4 /* IGraphicsStressTest-macOS-MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = "IGraphicsStressTest-macOS-MainMenu.xib"; path = "../resources/IGraphicsStressTest-macOS-MainMenu.xib"; sourceTree = "<group>"; };
+		4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlendian.h; path = ../../../WDL/wdlendian.h; sourceTree = SOURCE_ROOT; };
+		4F23BA1413B647E50097A67E /* IGraphicsStressTest-macOS-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IGraphicsStressTest-macOS-Info.plist"; path = "../resources/IGraphicsStressTest-macOS-Info.plist"; sourceTree = "<group>"; };
+		4F2EA977203A50E9008E4850 /* IPlugAPP_dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAPP_dialog.cpp; path = ../../../IPlug/APP/IPlugAPP_dialog.cpp; sourceTree = "<group>"; };
+		4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugPluginBase.cpp; path = ../../../IPlug/IPlugPluginBase.cpp; sourceTree = "<group>"; };
+		4F35DEAC207E5C5A00867D8F /* IPlugPluginBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugPluginBase.h; path = ../../../IPlug/IPlugPluginBase.h; sourceTree = "<group>"; };
+		4F3862ED2014BBEC0009F402 /* IGraphicsStressTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsStressTest.cpp; path = ../IGraphicsStressTest.cpp; sourceTree = "<group>"; };
+		4F3862EE2014BBEC0009F402 /* IGraphicsStressTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsStressTest.h; path = ../IGraphicsStressTest.h; sourceTree = "<group>"; };
+		4F3862FF2014BCC70009F402 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
+		4F39A96F2051E53600739CAB /* processor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = processor.cpp; path = ../../../Dependencies/IPlug/WAM_SDK/wamsdk/processor.cpp; sourceTree = "<group>"; };
+		4F39A9702051E53600739CAB /* processor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = processor.h; path = ../../../Dependencies/IPlug/WAM_SDK/wamsdk/processor.h; sourceTree = "<group>"; };
+		4F3D2B4520212D4E00842FF4 /* wdl_base64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wdl_base64.h; path = ../../../WDL/wdl_base64.h; sourceTree = "<group>"; };
+		4F3FB118202273A500622761 /* IGraphicsStressTest-macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "IGraphicsStressTest-macOS.entitlements"; sourceTree = "<group>"; };
+		4F4237201FC852FE0067D58C /* IPlugConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugConstants.h; path = ../../../IPlug/IPlugConstants.h; sourceTree = "<group>"; };
+		4F4237231FC863060067D58C /* IPlugUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugUtilities.h; path = ../../../IPlug/IPlugUtilities.h; sourceTree = "<group>"; };
+		4F5369BC20C446430089212E /* Easing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Easing.h; sourceTree = "<group>"; };
+		4F5369BD20C446430089212E /* NChanDelay.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NChanDelay.h; sourceTree = "<group>"; };
+		4F5369BF20C446430089212E /* IPlugOSC_msg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugOSC_msg.h; sourceTree = "<group>"; };
+		4F5369C020C446430089212E /* IPlugOSC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugOSC.h; sourceTree = "<group>"; };
+		4F5369C120C446430089212E /* IPlugOSC_msg.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugOSC_msg.cpp; sourceTree = "<group>"; };
+		4F5369C320C446430089212E /* Oscillator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Oscillator.h; sourceTree = "<group>"; };
+		4F5369C520C446430089212E /* PolyphaseIIR2Designer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PolyphaseIIR2Designer.h; sourceTree = "<group>"; };
+		4F5369C620C446430089212E /* FPUUpsampler2x.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FPUUpsampler2x.h; sourceTree = "<group>"; };
+		4F5369C720C446430089212E /* PolyphaseIIR2Designer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PolyphaseIIR2Designer.cpp; sourceTree = "<group>"; };
+		4F5369C820C446430089212E /* Array.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Array.h; sourceTree = "<group>"; };
+		4F5369C920C446430089212E /* FPUStageProc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FPUStageProc.h; sourceTree = "<group>"; };
+		4F5369CA20C446430089212E /* readme.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = readme.txt; sourceTree = "<group>"; };
+		4F5369CB20C446430089212E /* FPUDownsampler2x.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FPUDownsampler2x.h; sourceTree = "<group>"; };
+		4F5369CC20C446430089212E /* license.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = license.txt; sourceTree = "<group>"; };
+		4F5369CD20C446430089212E /* halfband.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = halfband.c; sourceTree = "<group>"; };
+		4F5369CF20C446430089212E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		4F5369D120C446430089212E /* IPlugFaust.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugFaust.h; sourceTree = "<group>"; };
+		4F5369D320C446430089212E /* IPlugFaustGen.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaustGen.cpp; sourceTree = "<group>"; };
+		4F5369D420C446430089212E /* IPlugFaust_arch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaust_arch.cpp; sourceTree = "<group>"; };
+		4F5369D520C446430089212E /* IPlugFaustGen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugFaustGen.h; sourceTree = "<group>"; };
+		4F5369D620C446430089212E /* IPlugFaust_edit.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaust_edit.cpp; sourceTree = "<group>"; };
+		4F5369D720C446430089212E /* IPlugFaust_edit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugFaust_edit.h; sourceTree = "<group>"; };
+		4F5369D920C446430089212E /* ParamSmoothers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ParamSmoothers.h; sourceTree = "<group>"; };
+		4F5369DA20C446430089212E /* SVF.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SVF.h; sourceTree = "<group>"; };
+		4F5369DB20C446430089212E /* Oscillator_table.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Oscillator_table.h; sourceTree = "<group>"; };
+		4F5369DC20C446430089212E /* Oversampler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Oversampler.h; sourceTree = "<group>"; };
+		4F5F344020C0226200487201 /* IPlugPaths.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugPaths.mm; path = ../../../IPlug/IPlugPaths.mm; sourceTree = "<group>"; };
+		4F63695220A463090022C370 /* IControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControls.h; sourceTree = "<group>"; };
+		4F63695520A463090022C370 /* IVMeterControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVMeterControl.h; sourceTree = "<group>"; };
+		4F63695720A463090022C370 /* IVKeyboardControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVKeyboardControl.h; sourceTree = "<group>"; };
+		4F63695920A463090022C370 /* IControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IControls.cpp; sourceTree = "<group>"; };
+		4F6369DC20A464BB0022C370 /* IGraphicsNanoVG_src.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IGraphicsNanoVG_src.m; sourceTree = "<group>"; };
+		4F6369E820A466470022C370 /* IControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IControl.h; path = ../../../IGraphics/IControl.h; sourceTree = "<group>"; };
+		4F6369E920A466470022C370 /* IControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IControl.cpp; path = ../../../IGraphics/IControl.cpp; sourceTree = "<group>"; };
+		4F690C9A203A345100A4A13E /* IPlugAPP_main.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; name = IPlugAPP_main.cpp; path = ../../../IPlug/APP/IPlugAPP_main.cpp; sourceTree = "<group>"; };
+		4F690CA0203A398900A4A13E /* IPlugAPP_host.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAPP_host.h; path = ../../../IPlug/APP/IPlugAPP_host.h; sourceTree = "<group>"; };
+		4F690CA2203A45C700A4A13E /* IPlugAPP_host.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAPP_host.cpp; path = ../../../IPlug/APP/IPlugAPP_host.cpp; sourceTree = "<group>"; };
+		4F6D9DEB2016B7F7009E1E3E /* IPlugPlatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugPlatform.h; path = ../../../IPlug/IPlugPlatform.h; sourceTree = "<group>"; };
+		4F78D8BD13B63A4E0032E0F3 /* wdltypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdltypes.h; path = ../../../WDL/wdltypes.h; sourceTree = SOURCE_ROOT; };
+		4F78D8E613B63BA40032E0F3 /* IPlug_include_in_plug_hdr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlug_include_in_plug_hdr.h; path = ../../../IPlug/IPlug_include_in_plug_hdr.h; sourceTree = SOURCE_ROOT; };
+		4F78D8E813B63BA40032E0F3 /* IPlug_include_in_plug_src.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlug_include_in_plug_src.h; path = ../../../IPlug/IPlug_include_in_plug_src.h; sourceTree = SOURCE_ROOT; };
+		4F78D8EC13B63BA40032E0F3 /* IPlugAPIBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugAPIBase.h; path = ../../../IPlug/IPlugAPIBase.h; sourceTree = SOURCE_ROOT; };
+		4F78D8ED13B63BA40032E0F3 /* IPlugAPIBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAPIBase.cpp; path = ../../../IPlug/IPlugAPIBase.cpp; sourceTree = SOURCE_ROOT; };
+		4F78D8FA13B63BA50032E0F3 /* IPlugLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugLogger.h; path = ../../../IPlug/IPlugLogger.h; sourceTree = SOURCE_ROOT; };
+		4F78D8FE13B63BA50032E0F3 /* IPlugStructs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugStructs.h; path = ../../../IPlug/IPlugStructs.h; sourceTree = SOURCE_ROOT; };
+		4F78D90313B63BA50032E0F3 /* IPlugParameter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugParameter.h; path = ../../../IPlug/IPlugParameter.h; sourceTree = SOURCE_ROOT; };
+		4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugParameter.cpp; path = ../../../IPlug/IPlugParameter.cpp; sourceTree = SOURCE_ROOT; };
+		4F78D90513B63BA50032E0F3 /* IPlugMidi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugMidi.h; path = ../../../IPlug/IPlugMidi.h; sourceTree = SOURCE_ROOT; };
+		4F7E6F2920DEC3DE00A5F641 /* favicon.ico */ = {isa = PBXFileReference; lastKnownFileType = image.ico; path = favicon.ico; sourceTree = "<group>"; };
+		4F7E6F2B20DEC3DE00A5F641 /* IPlugWAM-standalone.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "IPlugWAM-standalone.html"; sourceTree = "<group>"; };
+		4F7E6F2D20DEC3DE00A5F641 /* IPlugWAM-awp.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "IPlugWAM-awp.js"; sourceTree = "<group>"; };
+		4F7E6F2F20DEC3DE00A5F641 /* IPlugWAM-awn.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "IPlugWAM-awn.js"; sourceTree = "<group>"; };
+		4F8C10DE20BA2796006320CD /* IGraphicsEditorDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsEditorDelegate.cpp; path = ../../../IGraphics/IGraphicsEditorDelegate.cpp; sourceTree = "<group>"; };
+		4F8C10DF20BA2796006320CD /* IGraphicsEditorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsEditorDelegate.h; path = ../../../IGraphics/IGraphicsEditorDelegate.h; sourceTree = "<group>"; };
+		4F8F61A7202807B9003F2573 /* IPlugProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugProcessor.h; path = ../../../IPlug/IPlugProcessor.h; sourceTree = "<group>"; };
+		4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugProcessor.cpp; path = ../../../IPlug/IPlugProcessor.cpp; sourceTree = "<group>"; };
+		4F97BD89213760E200541A17 /* IGraphicsCanvas.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IGraphicsCanvas.h; sourceTree = "<group>"; };
+		4F97BD8A213760E200541A17 /* IGraphicsCanvas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsCanvas.cpp; sourceTree = "<group>"; };
+		4F97BD8B2137629600541A17 /* IFPSDisplayControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IFPSDisplayControl.h; sourceTree = "<group>"; };
+		4F98C32C20A7678800F120A9 /* IPlugViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = IPlugViewController.xib; path = ../resources/IPlugViewController.xib; sourceTree = "<group>"; };
+		4F9A82F3213DE80200BE63A4 /* IPopupMenuControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPopupMenuControl.h; sourceTree = "<group>"; };
+		4F9A82F5213DE80300BE63A4 /* IPopupMenuControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPopupMenuControl.cpp; sourceTree = "<group>"; };
+		4FB1F57B20E4AFEE004157C8 /* IGraphicsIOS_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsIOS_view.mm; path = ../../../IGraphics/Platforms/IGraphicsIOS_view.mm; sourceTree = "<group>"; };
+		4FB1F57C20E4AFEE004157C8 /* IGraphicsWeb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsWeb.cpp; path = ../../../IGraphics/Platforms/IGraphicsWeb.cpp; sourceTree = "<group>"; };
+		4FB1F57D20E4AFEE004157C8 /* IGraphicsLinux.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsLinux.cpp; path = ../../../IGraphics/Platforms/IGraphicsLinux.cpp; sourceTree = "<group>"; };
+		4FB1F57E20E4AFEE004157C8 /* IGraphicsWeb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsWeb.h; path = ../../../IGraphics/Platforms/IGraphicsWeb.h; sourceTree = "<group>"; };
+		4FB1F57F20E4AFEE004157C8 /* IGraphicsIOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsIOS.h; path = ../../../IGraphics/Platforms/IGraphicsIOS.h; sourceTree = "<group>"; };
+		4FB1F58020E4AFEE004157C8 /* IGraphicsIOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsIOS.mm; path = ../../../IGraphics/Platforms/IGraphicsIOS.mm; sourceTree = "<group>"; };
+		4FB1F58120E4AFEE004157C8 /* IGraphicsMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsMac.mm; path = ../../../IGraphics/Platforms/IGraphicsMac.mm; sourceTree = "<group>"; };
+		4FB1F58220E4AFEE004157C8 /* IGraphicsWin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsWin.cpp; path = ../../../IGraphics/Platforms/IGraphicsWin.cpp; sourceTree = "<group>"; };
+		4FB1F58320E4AFEF004157C8 /* IGraphicsLinux.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsLinux.h; path = ../../../IGraphics/Platforms/IGraphicsLinux.h; sourceTree = "<group>"; };
+		4FB1F58420E4AFEF004157C8 /* IGraphicsIOS_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsIOS_view.h; path = ../../../IGraphics/Platforms/IGraphicsIOS_view.h; sourceTree = "<group>"; };
+		4FB1F58520E4AFEF004157C8 /* IGraphicsWin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsWin.h; path = ../../../IGraphics/Platforms/IGraphicsWin.h; sourceTree = "<group>"; };
+		4FB1F58620E4AFEF004157C8 /* IGraphicsMac_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsMac_view.mm; path = ../../../IGraphics/Platforms/IGraphicsMac_view.mm; sourceTree = "<group>"; };
+		4FB1F58720E4AFEF004157C8 /* IGraphicsMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsMac.h; path = ../../../IGraphics/Platforms/IGraphicsMac.h; sourceTree = "<group>"; };
+		4FB1F58820E4AFEF004157C8 /* IGraphicsMac_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsMac_view.h; path = ../../../IGraphics/Platforms/IGraphicsMac_view.h; sourceTree = "<group>"; };
+		4FBAA593207918230054E717 /* IPlugDelegate_select.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugDelegate_select.h; path = ../../../IPlug/IPlugDelegate_select.h; sourceTree = "<group>"; };
+		4FBBD7F320B6AB9800A37DE2 /* config */ = {isa = PBXFileReference; lastKnownFileType = folder; name = config; path = ../config; sourceTree = "<group>"; };
+		4FC44B9920F151B90062F870 /* IWebsocketServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IWebsocketServer.h; sourceTree = "<group>"; };
+		4FC44B9A20F151B90062F870 /* IWebsocketEditorDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IWebsocketEditorDelegate.h; sourceTree = "<group>"; };
+		4FC44B9B20F151B90062F870 /* IWebsocketClient.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IWebsocketClient.h; sourceTree = "<group>"; };
+		4FC44B9C20F151B90062F870 /* IWebsocketEditorDelegate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IWebsocketEditorDelegate.cpp; sourceTree = "<group>"; };
+		4FC44B9E20F16B200062F870 /* IWebsocketServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IWebsocketServer.cpp; sourceTree = "<group>"; };
+		4FC82B4520BD522B00722133 /* img */ = {isa = PBXFileReference; lastKnownFileType = folder; name = img; path = ../resources/img; sourceTree = "<group>"; };
+		4FC82B4620BD522B00722133 /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fonts; path = ../resources/fonts; sourceTree = "<group>"; };
+		4FCE29BB21D6ECE9004BCBA1 /* ITextEntryControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ITextEntryControl.h; sourceTree = "<group>"; };
+		4FCE29BC21D6ECEA004BCBA1 /* ITextEntryControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ITextEntryControl.cpp; sourceTree = "<group>"; };
+		4FD16A0913B63081001D0217 /* IGraphicsStressTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IGraphicsStressTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FD16CFB13B63468001D0217 /* swell-appstub.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-appstub.mm"; path = "../../../WDL/swell/swell-appstub.mm"; sourceTree = SOURCE_ROOT; };
+		4FD16D0213B63489001D0217 /* swell-menugen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "swell-menugen.h"; path = "../../../WDL/swell/swell-menugen.h"; sourceTree = SOURCE_ROOT; };
+		4FD16D0313B63494001D0217 /* swell-dlggen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "swell-dlggen.h"; path = "../../../WDL/swell/swell-dlggen.h"; sourceTree = SOURCE_ROOT; };
+		4FD16D0413B634AA001D0217 /* swell-dlg.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-dlg.mm"; path = "../../../WDL/swell/swell-dlg.mm"; sourceTree = SOURCE_ROOT; };
+		4FD16D0B13B634BF001D0217 /* swell-gdi.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-gdi.mm"; path = "../../../WDL/swell/swell-gdi.mm"; sourceTree = SOURCE_ROOT; };
+		4FD16D1513B634D2001D0217 /* swell-ini.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "swell-ini.cpp"; path = "../../../WDL/swell/swell-ini.cpp"; sourceTree = SOURCE_ROOT; };
+		4FD16D1713B634E5001D0217 /* swell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = swell.h; path = ../../../WDL/swell/swell.h; sourceTree = SOURCE_ROOT; };
+		4FD16D2213B6351C001D0217 /* swell-functions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "swell-functions.h"; path = "../../../WDL/swell/swell-functions.h"; sourceTree = SOURCE_ROOT; };
+		4FD16D2B13B6353C001D0217 /* swell-internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "swell-internal.h"; path = "../../../WDL/swell/swell-internal.h"; sourceTree = SOURCE_ROOT; };
+		4FD16D3013B6355A001D0217 /* swell-types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "swell-types.h"; path = "../../../WDL/swell/swell-types.h"; sourceTree = SOURCE_ROOT; };
+		4FD16D3913B63582001D0217 /* swell-kb.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-kb.mm"; path = "../../../WDL/swell/swell-kb.mm"; sourceTree = SOURCE_ROOT; };
+		4FD16D3B13B6358C001D0217 /* swell-miscdlg.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-miscdlg.mm"; path = "../../../WDL/swell/swell-miscdlg.mm"; sourceTree = SOURCE_ROOT; };
+		4FD16D3D13B63595001D0217 /* swell-menu.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-menu.mm"; path = "../../../WDL/swell/swell-menu.mm"; sourceTree = SOURCE_ROOT; };
+		4FD16D3F13B635A0001D0217 /* swell-misc.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-misc.mm"; path = "../../../WDL/swell/swell-misc.mm"; sourceTree = SOURCE_ROOT; };
+		4FD16D4113B635AB001D0217 /* swell-wnd.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-wnd.mm"; path = "../../../WDL/swell/swell-wnd.mm"; sourceTree = SOURCE_ROOT; };
+		4FD16D4313B635B2001D0217 /* swell.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = swell.cpp; path = ../../../WDL/swell/swell.cpp; sourceTree = SOURCE_ROOT; };
+		4FD16D4513B635C8001D0217 /* swellappmain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = swellappmain.h; path = ../../../WDL/swell/swellappmain.h; sourceTree = SOURCE_ROOT; };
+		4FD16D4613B635C8001D0217 /* swellappmain.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = swellappmain.mm; path = ../../../WDL/swell/swellappmain.mm; sourceTree = SOURCE_ROOT; };
+		4FD290A8137C34D700CEBE7E /* IGraphicsStressTest.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = IGraphicsStressTest.icns; path = ../resources/IGraphicsStressTest.icns; sourceTree = "<group>"; };
+		4FD7C3A1203372AD009DBA2C /* IPlugEditorDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugEditorDelegate.h; path = ../../../IPlug/IPlugEditorDelegate.h; sourceTree = "<group>"; };
+		4FDA1E0E2012CDB30027C868 /* main.rc_mac_menu */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc_mac_menu; path = ../resources/main.rc_mac_menu; sourceTree = "<group>"; };
+		4FDA1E0F2012CDB30027C868 /* main.rc_mac_dlg */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc_mac_dlg; path = ../resources/main.rc_mac_dlg; sourceTree = "<group>"; };
+		4FDA1E102012CDB30027C868 /* resource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = resource.h; path = ../resources/resource.h; sourceTree = "<group>"; };
+		4FDA600620B586AC00C49ABA /* IGraphicsStressTest-mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "IGraphicsStressTest-mac.xcconfig"; path = "../config/IGraphicsStressTest-mac.xcconfig"; sourceTree = "<group>"; };
+		4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugTimer.cpp; path = ../../../IPlug/IPlugTimer.cpp; sourceTree = "<group>"; };
+		4FDAC0E8207D76C600299363 /* IPlugQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugQueue.h; path = ../../../IPlug/IPlugQueue.h; sourceTree = "<group>"; };
+		4FDAC0E9207D76C600299363 /* IPlugTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugTimer.h; path = ../../../IPlug/IPlugTimer.h; sourceTree = "<group>"; };
+		4FEFB7ED208496C800515434 /* IPlugWeb.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugWeb.cpp; path = ../../../IPlug/WEB/IPlugWeb.cpp; sourceTree = "<group>"; };
+		4FEFB7EE208496C800515434 /* IPlugWeb.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugWeb.h; path = ../../../IPlug/WEB/IPlugWeb.h; sourceTree = "<group>"; };
+		4FF016F4134E14E2001447BA /* mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mutex.h; path = ../../../WDL/mutex.h; sourceTree = SOURCE_ROOT; };
+		4FF016F5134E14E2001447BA /* ptrlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ptrlist.h; path = ../../../WDL/ptrlist.h; sourceTree = SOURCE_ROOT; };
+		4FF016F6134E14E2001447BA /* wdlstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlstring.h; path = ../../../WDL/wdlstring.h; sourceTree = SOURCE_ROOT; };
+		4FF01719134E153A001447BA /* heapbuf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = heapbuf.h; path = ../../../WDL/heapbuf.h; sourceTree = SOURCE_ROOT; };
+		4FF3204F20B2BFAB00269268 /* IPlugPaths.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugPaths.h; path = ../../../IPlug/IPlugPaths.h; sourceTree = "<group>"; };
+		4FF7B0D4156A825000E6CB12 /* common-mac.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = "common-mac.xcconfig"; path = "../../../common-mac.xcconfig"; sourceTree = SOURCE_ROOT; };
+		4FF83B5E20B6E901007A0E4B /* IVScopeControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IVScopeControl.h; sourceTree = "<group>"; };
+		4FFF72B8214BB71400839091 /* main.rc */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc; path = ../resources/main.rc; sourceTree = "<group>"; };
+		52FBBED30D0CF143001C8B8A /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../config.h; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4FD16A0713B63081001D0217 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		089C166AFE841209C02AAC07 /* IPlugExample */ = {
+			isa = PBXGroup;
+			children = (
+				52FBBED30D0CF143001C8B8A /* config.h */,
+				4F3862EE2014BBEC0009F402 /* IGraphicsStressTest.h */,
+				4F3862ED2014BBEC0009F402 /* IGraphicsStressTest.cpp */,
+				089C167CFE841241C02AAC07 /* Resources */,
+				32C88E010371C26100C91783 /* Other Sources */,
+				089C1671FE841209C02AAC07 /* Frameworks */,
+				19C28FB8FE9D52D311CA2CBB /* Products */,
+			);
+			name = IPlugExample;
+			sourceTree = "<group>";
+		};
+		089C1671FE841209C02AAC07 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4F03A54820A461FD00EBDFFB /* IGraphics */,
+				4F78D8D013B63B390032E0F3 /* IPlug */,
+				4FF01613134E0BCD001447BA /* WDL */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		089C167CFE841241C02AAC07 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				4FC82B4620BD522B00722133 /* fonts */,
+				4FC82B4520BD522B00722133 /* img */,
+				4F1B4AE32014D33600BC64D4 /* IGraphicsStressTest-macOS-MainMenu.xib */,
+				4F3FB118202273A500622761 /* IGraphicsStressTest-macOS.entitlements */,
+				4F98C32C20A7678800F120A9 /* IPlugViewController.xib */,
+				4FFF72B8214BB71400839091 /* main.rc */,
+				4FDA1E0F2012CDB30027C868 /* main.rc_mac_dlg */,
+				4FDA1E0E2012CDB30027C868 /* main.rc_mac_menu */,
+				4FDA1E102012CDB30027C868 /* resource.h */,
+				4F23BA1413B647E50097A67E /* IGraphicsStressTest-macOS-Info.plist */,
+				4FD290A8137C34D700CEBE7E /* IGraphicsStressTest.icns */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		19C28FB8FE9D52D311CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4FD16A0913B63081001D0217 /* IGraphicsStressTest.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		32C88E010371C26100C91783 /* Other Sources */ = {
+			isa = PBXGroup;
+			children = (
+				4FBBD7F320B6AB9800A37DE2 /* config */,
+				4F3862FF2014BCC70009F402 /* scripts */,
+				4FF7B0D4156A825000E6CB12 /* common-mac.xcconfig */,
+				4FDA600620B586AC00C49ABA /* IGraphicsStressTest-mac.xcconfig */,
+			);
+			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		4F03A54820A461FD00EBDFFB /* IGraphics */ = {
+			isa = PBXGroup;
+			children = (
+				4FB1F57A20E4AFDA004157C8 /* Platforms */,
+				4F63695120A463090022C370 /* Controls */,
+				4F03A54920A4621000EBDFFB /* Drawing */,
+				4F03A55720A4621000EBDFFB /* IGraphics_include_in_plug_hdr.h */,
+				4F03A55920A4621000EBDFFB /* IGraphics_include_in_plug_src.h */,
+				4F03A55C20A4621000EBDFFB /* IGraphics_select.h */,
+				4F03A55820A4621000EBDFFB /* IGraphics.cpp */,
+				4F03A55D20A4621000EBDFFB /* IGraphics.h */,
+				4F03A56A20A4621100EBDFFB /* IGraphicsConstants.h */,
+				4F03A55620A4621000EBDFFB /* IGraphicsLiveEdit.h */,
+				4F03A55B20A4621000EBDFFB /* IGraphicsPathBase.h */,
+				4F03A56720A4621000EBDFFB /* IGraphicsPopupMenu.h */,
+				4F03A56820A4621000EBDFFB /* IGraphicsStructs.h */,
+				4F03A56920A4621100EBDFFB /* IGraphicsUtilities.h */,
+				4F8C10DE20BA2796006320CD /* IGraphicsEditorDelegate.cpp */,
+				4F8C10DF20BA2796006320CD /* IGraphicsEditorDelegate.h */,
+				4F6369E920A466470022C370 /* IControl.cpp */,
+				4F6369E820A466470022C370 /* IControl.h */,
+			);
+			name = IGraphics;
+			sourceTree = "<group>";
+		};
+		4F03A54920A4621000EBDFFB /* Drawing */ = {
+			isa = PBXGroup;
+			children = (
+				4F03A54A20A4621000EBDFFB /* IGraphicsLice.h */,
+				4F03A54C20A4621000EBDFFB /* IGraphicsLice.cpp */,
+				4F03A54D20A4621000EBDFFB /* IGraphicsLice_src.h */,
+				4F03A55520A4621000EBDFFB /* IGraphicsLice_src.cpp */,
+				4F03A54E20A4621000EBDFFB /* IGraphicsCairo.h */,
+				4F03A55120A4621000EBDFFB /* IGraphicsCairo.cpp */,
+				4F03A54B20A4621000EBDFFB /* IGraphicsAGG.h */,
+				4F03A55220A4621000EBDFFB /* IGraphicsAGG.cpp */,
+				4F03A55320A4621000EBDFFB /* IGraphicsAGG_src.h */,
+				4F03A54F20A4621000EBDFFB /* IGraphicsAGG_src.cpp */,
+				4F03A55020A4621000EBDFFB /* IGraphicsNanoVG.h */,
+				4F03A55420A4621000EBDFFB /* IGraphicsNanoVG.cpp */,
+				4F6369DC20A464BB0022C370 /* IGraphicsNanoVG_src.m */,
+				4F97BD8A213760E200541A17 /* IGraphicsCanvas.cpp */,
+				4F97BD89213760E200541A17 /* IGraphicsCanvas.h */,
+			);
+			name = Drawing;
+			path = ../../../IGraphics/Drawing;
+			sourceTree = "<group>";
+		};
+		4F05C5A72082422300DD1621 /* WAM_SDK */ = {
+			isa = PBXGroup;
+			children = (
+				4F39A96F2051E53600739CAB /* processor.cpp */,
+				4F39A9702051E53600739CAB /* processor.h */,
+			);
+			name = WAM_SDK;
+			sourceTree = "<group>";
+		};
+		4F10D3D1203A6700003EF82A /* RTAudioMidi */ = {
+			isa = PBXGroup;
+			children = (
+				4F10D3D7203A6719003EF82A /* RtMidi.cpp */,
+				4F10D3D6203A6719003EF82A /* RtMidi.h */,
+				4F10D3D3203A6711003EF82A /* RtAudio.cpp */,
+				4F10D3D2203A6710003EF82A /* RtAudio.h */,
+			);
+			name = RTAudioMidi;
+			sourceTree = "<group>";
+		};
+		4F39A96B2051E4F500739CAB /* WEB */ = {
+			isa = PBXGroup;
+			children = (
+				4F7E6F2820DEC3DE00A5F641 /* Template */,
+				4F05C5A72082422300DD1621 /* WAM_SDK */,
+				4F05C5A92082424400DD1621 /* IPlugWAM.cpp */,
+				4F05C5A82082424400DD1621 /* IPlugWAM.h */,
+				4FEFB7ED208496C800515434 /* IPlugWeb.cpp */,
+				4FEFB7EE208496C800515434 /* IPlugWeb.h */,
+			);
+			name = WEB;
+			sourceTree = "<group>";
+		};
+		4F5369B820C446430089212E /* Extras */ = {
+			isa = PBXGroup;
+			children = (
+				4FC44B9820F151B90062F870 /* WebSocket */,
+				4F5369BC20C446430089212E /* Easing.h */,
+				4F5369BD20C446430089212E /* NChanDelay.h */,
+				4F5369BE20C446430089212E /* OSC */,
+				4F5369C320C446430089212E /* Oscillator.h */,
+				4F5369C420C446430089212E /* HIIR */,
+				4F5369CF20C446430089212E /* README.md */,
+				4F5369D020C446430089212E /* Faust */,
+				4F5369D920C446430089212E /* ParamSmoothers.h */,
+				4F5369DA20C446430089212E /* SVF.h */,
+				4F5369DB20C446430089212E /* Oscillator_table.h */,
+				4F5369DC20C446430089212E /* Oversampler.h */,
+			);
+			name = Extras;
+			path = ../../../IPlug/Extras;
+			sourceTree = "<group>";
+		};
+		4F5369BE20C446430089212E /* OSC */ = {
+			isa = PBXGroup;
+			children = (
+				4F5369BF20C446430089212E /* IPlugOSC_msg.h */,
+				4F5369C020C446430089212E /* IPlugOSC.h */,
+				4F5369C120C446430089212E /* IPlugOSC_msg.cpp */,
+			);
+			path = OSC;
+			sourceTree = "<group>";
+		};
+		4F5369C420C446430089212E /* HIIR */ = {
+			isa = PBXGroup;
+			children = (
+				4F5369C520C446430089212E /* PolyphaseIIR2Designer.h */,
+				4F5369C620C446430089212E /* FPUUpsampler2x.h */,
+				4F5369C720C446430089212E /* PolyphaseIIR2Designer.cpp */,
+				4F5369C820C446430089212E /* Array.h */,
+				4F5369C920C446430089212E /* FPUStageProc.h */,
+				4F5369CA20C446430089212E /* readme.txt */,
+				4F5369CB20C446430089212E /* FPUDownsampler2x.h */,
+				4F5369CC20C446430089212E /* license.txt */,
+				4F5369CD20C446430089212E /* halfband.c */,
+			);
+			path = HIIR;
+			sourceTree = "<group>";
+		};
+		4F5369D020C446430089212E /* Faust */ = {
+			isa = PBXGroup;
+			children = (
+				4F5369D120C446430089212E /* IPlugFaust.h */,
+				4F5369D320C446430089212E /* IPlugFaustGen.cpp */,
+				4F5369D420C446430089212E /* IPlugFaust_arch.cpp */,
+				4F5369D520C446430089212E /* IPlugFaustGen.h */,
+				4F5369D620C446430089212E /* IPlugFaust_edit.cpp */,
+				4F5369D720C446430089212E /* IPlugFaust_edit.h */,
+			);
+			path = Faust;
+			sourceTree = "<group>";
+		};
+		4F63695120A463090022C370 /* Controls */ = {
+			isa = PBXGroup;
+			children = (
+				4FCE29BC21D6ECEA004BCBA1 /* ITextEntryControl.cpp */,
+				4FCE29BB21D6ECE9004BCBA1 /* ITextEntryControl.h */,
+				4F9A82F5213DE80300BE63A4 /* IPopupMenuControl.cpp */,
+				4F9A82F3213DE80200BE63A4 /* IPopupMenuControl.h */,
+				4F63695220A463090022C370 /* IControls.h */,
+				4F63695920A463090022C370 /* IControls.cpp */,
+				4F63695520A463090022C370 /* IVMeterControl.h */,
+				4FF83B5E20B6E901007A0E4B /* IVScopeControl.h */,
+				4F63695720A463090022C370 /* IVKeyboardControl.h */,
+				4F97BD8B2137629600541A17 /* IFPSDisplayControl.h */,
+			);
+			name = Controls;
+			path = ../../../IGraphics/Controls;
+			sourceTree = "<group>";
+		};
+		4F78D8D013B63B390032E0F3 /* IPlug */ = {
+			isa = PBXGroup;
+			children = (
+				4F5369B820C446430089212E /* Extras */,
+				4F39A96B2051E4F500739CAB /* WEB */,
+				4F78D9FA13B63CA10032E0F3 /* APP */,
+				4F78D8E613B63BA40032E0F3 /* IPlug_include_in_plug_hdr.h */,
+				4F78D8E813B63BA40032E0F3 /* IPlug_include_in_plug_src.h */,
+				4FBAA593207918230054E717 /* IPlugDelegate_select.h */,
+				4FD7C3A1203372AD009DBA2C /* IPlugEditorDelegate.h */,
+				4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */,
+				4F35DEAC207E5C5A00867D8F /* IPlugPluginBase.h */,
+				4F78D8EC13B63BA40032E0F3 /* IPlugAPIBase.h */,
+				4F78D8ED13B63BA40032E0F3 /* IPlugAPIBase.cpp */,
+				4F8F61A7202807B9003F2573 /* IPlugProcessor.h */,
+				4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */,
+				4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */,
+				4F78D90313B63BA50032E0F3 /* IPlugParameter.h */,
+				4FDAC0E8207D76C600299363 /* IPlugQueue.h */,
+				4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */,
+				4FDAC0E9207D76C600299363 /* IPlugTimer.h */,
+				4F6D9DEB2016B7F7009E1E3E /* IPlugPlatform.h */,
+				4F4237201FC852FE0067D58C /* IPlugConstants.h */,
+				4F4237231FC863060067D58C /* IPlugUtilities.h */,
+				4F78D8FE13B63BA50032E0F3 /* IPlugStructs.h */,
+				4F78D90513B63BA50032E0F3 /* IPlugMidi.h */,
+				4F78D8FA13B63BA50032E0F3 /* IPlugLogger.h */,
+				4FF3204F20B2BFAB00269268 /* IPlugPaths.h */,
+				4F5F344020C0226200487201 /* IPlugPaths.mm */,
+			);
+			name = IPlug;
+			sourceTree = "<group>";
+		};
+		4F78D9FA13B63CA10032E0F3 /* APP */ = {
+			isa = PBXGroup;
+			children = (
+				4F10D3D1203A6700003EF82A /* RTAudioMidi */,
+				4F1A5280205D913300CF2908 /* IPlugAPP.cpp */,
+				4F1A527F205D913200CF2908 /* IPlugAPP.h */,
+				4F690C9A203A345100A4A13E /* IPlugAPP_main.cpp */,
+				4F690CA0203A398900A4A13E /* IPlugAPP_host.h */,
+				4F690CA2203A45C700A4A13E /* IPlugAPP_host.cpp */,
+				4F2EA977203A50E9008E4850 /* IPlugAPP_dialog.cpp */,
+			);
+			name = APP;
+			sourceTree = "<group>";
+		};
+		4F7E6F2820DEC3DE00A5F641 /* Template */ = {
+			isa = PBXGroup;
+			children = (
+				4F7E6F2920DEC3DE00A5F641 /* favicon.ico */,
+				4F7E6F2B20DEC3DE00A5F641 /* IPlugWAM-standalone.html */,
+				4F7E6F2C20DEC3DE00A5F641 /* scripts */,
+			);
+			name = Template;
+			path = ../../../IPlug/WEB/Template;
+			sourceTree = "<group>";
+		};
+		4F7E6F2C20DEC3DE00A5F641 /* scripts */ = {
+			isa = PBXGroup;
+			children = (
+				4F7E6F2D20DEC3DE00A5F641 /* IPlugWAM-awp.js */,
+				4F7E6F2F20DEC3DE00A5F641 /* IPlugWAM-awn.js */,
+			);
+			path = scripts;
+			sourceTree = "<group>";
+		};
+		4FB1F57A20E4AFDA004157C8 /* Platforms */ = {
+			isa = PBXGroup;
+			children = (
+				4FB1F58420E4AFEF004157C8 /* IGraphicsIOS_view.h */,
+				4FB1F57B20E4AFEE004157C8 /* IGraphicsIOS_view.mm */,
+				4FB1F57F20E4AFEE004157C8 /* IGraphicsIOS.h */,
+				4FB1F58020E4AFEE004157C8 /* IGraphicsIOS.mm */,
+				4FB1F57D20E4AFEE004157C8 /* IGraphicsLinux.cpp */,
+				4FB1F58320E4AFEF004157C8 /* IGraphicsLinux.h */,
+				4FB1F58820E4AFEF004157C8 /* IGraphicsMac_view.h */,
+				4FB1F58620E4AFEF004157C8 /* IGraphicsMac_view.mm */,
+				4FB1F58720E4AFEF004157C8 /* IGraphicsMac.h */,
+				4FB1F58120E4AFEE004157C8 /* IGraphicsMac.mm */,
+				4FB1F57C20E4AFEE004157C8 /* IGraphicsWeb.cpp */,
+				4FB1F57E20E4AFEE004157C8 /* IGraphicsWeb.h */,
+				4FB1F58220E4AFEE004157C8 /* IGraphicsWin.cpp */,
+				4FB1F58520E4AFEF004157C8 /* IGraphicsWin.h */,
+			);
+			name = Platforms;
+			sourceTree = "<group>";
+		};
+		4FC44B9820F151B90062F870 /* WebSocket */ = {
+			isa = PBXGroup;
+			children = (
+				4FC44B9920F151B90062F870 /* IWebsocketServer.h */,
+				4FC44B9E20F16B200062F870 /* IWebsocketServer.cpp */,
+				4FC44B9A20F151B90062F870 /* IWebsocketEditorDelegate.h */,
+				4FC44B9C20F151B90062F870 /* IWebsocketEditorDelegate.cpp */,
+				4FC44B9B20F151B90062F870 /* IWebsocketClient.h */,
+			);
+			path = WebSocket;
+			sourceTree = "<group>";
+		};
+		4FD16CF713B6343B001D0217 /* SWELL */ = {
+			isa = PBXGroup;
+			children = (
+				4FD16D3513B63566001D0217 /* Used by App */,
+				4FD16D1C13B634FB001D0217 /* Used by App & Plugins */,
+			);
+			name = SWELL;
+			sourceTree = "<group>";
+		};
+		4FD16D1C13B634FB001D0217 /* Used by App & Plugins */ = {
+			isa = PBXGroup;
+			children = (
+				4FD16D3F13B635A0001D0217 /* swell-misc.mm */,
+				4FD16D2B13B6353C001D0217 /* swell-internal.h */,
+				4FD16D3013B6355A001D0217 /* swell-types.h */,
+				4FD16D2213B6351C001D0217 /* swell-functions.h */,
+				4FD16D0B13B634BF001D0217 /* swell-gdi.mm */,
+				4FD16D1713B634E5001D0217 /* swell.h */,
+			);
+			name = "Used by App & Plugins";
+			sourceTree = "<group>";
+		};
+		4FD16D3513B63566001D0217 /* Used by App */ = {
+			isa = PBXGroup;
+			children = (
+				4FD16D0213B63489001D0217 /* swell-menugen.h */,
+				4FD16D0313B63494001D0217 /* swell-dlggen.h */,
+				4FD16D4513B635C8001D0217 /* swellappmain.h */,
+				4FD16D4613B635C8001D0217 /* swellappmain.mm */,
+				4FD16CFB13B63468001D0217 /* swell-appstub.mm */,
+				4FD16D0413B634AA001D0217 /* swell-dlg.mm */,
+				4FD16D1513B634D2001D0217 /* swell-ini.cpp */,
+				4FD16D3913B63582001D0217 /* swell-kb.mm */,
+				4FD16D3B13B6358C001D0217 /* swell-miscdlg.mm */,
+				4FD16D3D13B63595001D0217 /* swell-menu.mm */,
+				4FD16D4113B635AB001D0217 /* swell-wnd.mm */,
+				4FD16D4313B635B2001D0217 /* swell.cpp */,
+			);
+			name = "Used by App";
+			sourceTree = "<group>";
+		};
+		4FF01613134E0BCD001447BA /* WDL */ = {
+			isa = PBXGroup;
+			children = (
+				4FD16CF713B6343B001D0217 /* SWELL */,
+				4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */,
+				4FF01719134E153A001447BA /* heapbuf.h */,
+				4FF016F4134E14E2001447BA /* mutex.h */,
+				4FF016F5134E14E2001447BA /* ptrlist.h */,
+				4FF016F6134E14E2001447BA /* wdlstring.h */,
+				4F78D8BD13B63A4E0032E0F3 /* wdltypes.h */,
+				4F3D2B4520212D4E00842FF4 /* wdl_base64.h */,
+			);
+			name = WDL;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4FD16A0813B63081001D0217 /* APP */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4FD16A0F13B63082001D0217 /* Build configuration list for PBXNativeTarget "APP" */;
+			buildPhases = (
+				4FBCC1B21FD5AE8500EFE550 /* Run Script - prepare_resources-mac.py */,
+				4FD16A0513B63081001D0217 /* Resources */,
+				4FD16A0613B63081001D0217 /* Sources */,
+				4FD16A0713B63081001D0217 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = APP;
+			productName = "OSXAPP_32&64_intel";
+			productReference = 4FD16A0913B63081001D0217 /* IGraphicsStressTest.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		089C1669FE841209C02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1010;
+				TargetAttributes = {
+					4FD16A0813B63081001D0217 = {
+						DevelopmentTeam = 686EDA2T8T;
+						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.Mac = {
+								enabled = 0;
+							};
+							com.apple.Sandbox = {
+								enabled = 1;
+							};
+						};
+					};
+				};
+			};
+			buildConfigurationList = 1DEB913E08733D840010E9CD /* Build configuration list for PBXProject "IGraphicsStressTest-macOS" */;
+			compatibilityVersion = "Xcode 6.3";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+				Base,
+			);
+			mainGroup = 089C166AFE841209C02AAC07 /* IPlugExample */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4F78DAF113B643600032E0F3 /* All */,
+				4FD16A0813B63081001D0217 /* APP */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		4FD16A0513B63081001D0217 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F78D88613B6382B0032E0F3 /* IGraphicsStressTest.icns in Resources */,
+				4F1B4AE42014D33600BC64D4 /* IGraphicsStressTest-macOS-MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		4FBCC1B21FD5AE8500EFE550 /* Run Script - prepare_resources-mac.py */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script - prepare_resources-mac.py";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "python ../scripts/prepare_resources-mac.py\nphp ../../../WDL/swell/mac_resgen.php ../resources/main.rc\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4FD16A0613B63081001D0217 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F10D3D9203A6719003EF82A /* RtMidi.cpp in Sources */,
+				4FD16CFC13B63468001D0217 /* swell-appstub.mm in Sources */,
+				4F6369DD20A464BB0022C370 /* IGraphicsNanoVG_src.m in Sources */,
+				4F6369EB20A466470022C370 /* IControl.cpp in Sources */,
+				4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */,
+				4FD16D0C13B634BF001D0217 /* swell-gdi.mm in Sources */,
+				4FD16D1613B634D2001D0217 /* swell-ini.cpp in Sources */,
+				4FCE29BD21D6ECEA004BCBA1 /* ITextEntryControl.cpp in Sources */,
+				4FD16D3A13B63582001D0217 /* swell-kb.mm in Sources */,
+				4F5F344120C0226200487201 /* IPlugPaths.mm in Sources */,
+				4FD16D3C13B6358C001D0217 /* swell-miscdlg.mm in Sources */,
+				4FD16D3E13B63595001D0217 /* swell-menu.mm in Sources */,
+				4FB1F59120E4B011004157C8 /* IGraphicsMac_view.mm in Sources */,
+				4FD16D4013B635A0001D0217 /* swell-misc.mm in Sources */,
+				4FD16D4213B635AB001D0217 /* swell-wnd.mm in Sources */,
+				4FD16D4413B635B2001D0217 /* swell.cpp in Sources */,
+				4F690CA3203A45C700A4A13E /* IPlugAPP_host.cpp in Sources */,
+				4F1A5282205D913300CF2908 /* IPlugAPP.cpp in Sources */,
+				4FD16D4713B635C8001D0217 /* swellappmain.mm in Sources */,
+				4F03A5AC20A4621100EBDFFB /* IGraphics.cpp in Sources */,
+				4F2EA978203A50EA008E4850 /* IPlugAPP_dialog.cpp in Sources */,
+				4FAFFE5821495A4800A6E72D /* RtAudio.cpp in Sources */,
+				4F690C9B203A345100A4A13E /* IPlugAPP_main.cpp in Sources */,
+				4F63696D20A463090022C370 /* IControls.cpp in Sources */,
+				4FB1F58920E4B004004157C8 /* IGraphicsMac.mm in Sources */,
+				4F3862EF2014BBEC0009F402 /* IGraphicsStressTest.cpp in Sources */,
+				4F9A82F7213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */,
+				4F78D90B13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
+				4F35DEAD207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
+				4F8C10E020BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */,
+				4F78D91813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
+				4FDAC0EA207D76C600299363 /* IPlugTimer.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4F78DAF613B6436B0032E0F3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4FD16A0813B63081001D0217 /* APP */;
+			targetProxy = 4F78DAF513B6436B0032E0F3 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB913F08733D840010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4FDA600620B586AC00C49ABA /* IGraphicsStressTest-mac.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
+				COPY_PHASE_STRIP = NO;
+				DEPLOYMENT_LOCATION = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				EXECUTABLE_EXTENSION = "";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(DEBUG_DEFS)",
+					"$(EXTRA_DEBUG_DEFS)",
+					"$(ALL_DEFS)",
+					"$(EXTRA_ALL_DEFS)",
+				);
+				GCC_VERSION = "$(COMPILER)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = NO;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = NO;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_PKGINFO_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(EXTRA_INC_PATHS)",
+					"$(IPLUG_INC_PATHS)",
+				);
+				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
+				INFOPLIST_PREPROCESS = NO;
+				INSTALL_GROUP = admin;
+				INSTALL_OWNER = root;
+				INSTALL_PATH = /;
+				LIBRARY_SEARCH_PATHS = "$(EXTRA_LIB_PATHS)";
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"$(GCC_CFLAGS)",
+				);
+				OTHER_LDFLAGS = (
+					"$(EXTRA_LNK_FLAGS)",
+					"$(ALL_FRAMEWORKS)",
+				);
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
+				PRODUCT_NAME = "$(BINARY_NAME)";
+				SDKROOT = "$(BASE_SDK_MAC)";
+				SKIP_INSTALL = NO;
+				STRIP_INSTALLED_PRODUCT = NO;
+				SYMROOT = "../build-mac";
+				VALID_ARCHS = "i386 x86_64";
+				WRAPPER_EXTENSION = "";
+			};
+			name = Debug;
+		};
+		1DEB914008733D840010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4FDA600620B586AC00C49ABA /* IGraphicsStressTest-mac.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEPLOYMENT_LOCATION = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				EXECUTABLE_EXTENSION = "";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = "$(RELEASE_OPTIMIZE)";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(RELEASE_DEFS)",
+					"$(EXTRA_RELEASE_DEFS)",
+					"$(ALL_DEFS)",
+					"$(EXTRA_ALL_DEFS)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_VERSION = "$(COMPILER)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = NO;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = NO;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_PKGINFO_FILE = YES;
+				GENERATE_PROFILING_CODE = "$(PROFILE)";
+				HEADER_SEARCH_PATHS = (
+					"$(EXTRA_INC_PATHS)",
+					"$(IPLUG_INC_PATHS)",
+				);
+				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
+				INFOPLIST_PREPROCESS = NO;
+				INSTALL_GROUP = admin;
+				INSTALL_OWNER = root;
+				INSTALL_PATH = /;
+				LIBRARY_SEARCH_PATHS = "$(EXTRA_LIB_PATHS)";
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"$(GCC_CFLAGS)",
+				);
+				OTHER_LDFLAGS = (
+					"$(EXTRA_LNK_FLAGS)",
+					"$(ALL_FRAMEWORKS)",
+				);
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
+				PRODUCT_NAME = "$(BINARY_NAME)";
+				SDKROOT = "$(BASE_SDK_MAC)";
+				SKIP_INSTALL = NO;
+				SYMROOT = "../build-mac";
+				VALID_ARCHS = "i386 x86_64";
+				WRAPPER_EXTENSION = "";
+			};
+			name = Release;
+		};
+		4F78DAF213B643610032E0F3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
+				PRODUCT_NAME = "All macOS";
+			};
+			name = Debug;
+		};
+		4F78DAF313B643610032E0F3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				PRODUCT_NAME = "All macOS";
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		4F78DAF413B643610032E0F3 /* Tracer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "All macOS";
+			};
+			name = Tracer;
+		};
+		4FD16A0C13B63082001D0217 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "IGraphicsStressTest-macOS.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 686EDA2T8T;
+				DSTROOT = "$(APP_PATH)";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_APP_DEFS)",
+					"$(APP_DEFS)",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = "../resources/IGraphicsStressTest-macOS-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				OTHER_LDFLAGS = (
+					"$(APP_FRAMEWORKS)",
+					"$(inherited)",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.standalone.${BINARY_NAME}";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = NO;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		4FD16A0D13B63082001D0217 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "IGraphicsStressTest-macOS.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 686EDA2T8T;
+				DSTROOT = "$(APP_PATH)";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_APP_DEFS)",
+					"$(APP_DEFS)",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = "../resources/IGraphicsStressTest-macOS-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				OTHER_LDFLAGS = (
+					"$(APP_FRAMEWORKS)",
+					"$(inherited)",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.standalone.${BINARY_NAME}";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = NO;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		4FD16A0E13B63082001D0217 /* Tracer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "IGraphicsStressTest-macOS.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 686EDA2T8T;
+				DSTROOT = "$(APP_PATH)";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(EXTRA_APP_DEFS)",
+					"$(APP_DEFS)",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = "../resources/IGraphicsStressTest-macOS-Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				OTHER_LDFLAGS = (
+					"$(APP_FRAMEWORKS)",
+					"$(inherited)",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.standalone.${BINARY_NAME}";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = NO;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Tracer;
+		};
+		528359A90D7F0C3A00577159 /* Tracer */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4FDA600620B586AC00C49ABA /* IGraphicsStressTest-mac.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
+				DEPLOYMENT_LOCATION = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				EXECUTABLE_EXTENSION = "";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(TRACER_DEFS)",
+					"$(EXTRA_TRACER_DEFS)",
+					"$(ALL_DEFS)",
+					"$(EXTRA_ALL_DEFS)",
+				);
+				GCC_VERSION = "$(COMPILER)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = NO;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = NO;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_PKGINFO_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(EXTRA_INC_PATHS)",
+					"$(IPLUG_INC_PATHS)",
+				);
+				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
+				INFOPLIST_PREPROCESS = NO;
+				INSTALL_GROUP = admin;
+				INSTALL_OWNER = root;
+				INSTALL_PATH = /;
+				LIBRARY_SEARCH_PATHS = "$(EXTRA_LIB_PATHS)";
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"$(GCC_CFLAGS)",
+				);
+				OTHER_LDFLAGS = (
+					"$(EXTRA_LNK_FLAGS)",
+					"$(ALL_FRAMEWORKS)",
+				);
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
+				PRODUCT_NAME = "$(BINARY_NAME)";
+				SDKROOT = "$(BASE_SDK_MAC)";
+				SKIP_INSTALL = NO;
+				SYMROOT = "../build-mac";
+				VALID_ARCHS = "i386 x86_64";
+				WRAPPER_EXTENSION = "";
+			};
+			name = Tracer;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB913E08733D840010E9CD /* Build configuration list for PBXProject "IGraphicsStressTest-macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB913F08733D840010E9CD /* Debug */,
+				1DEB914008733D840010E9CD /* Release */,
+				528359A90D7F0C3A00577159 /* Tracer */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4F78DAFD13B643940032E0F3 /* Build configuration list for PBXAggregateTarget "All" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4F78DAF213B643610032E0F3 /* Debug */,
+				4F78DAF313B643610032E0F3 /* Release */,
+				4F78DAF413B643610032E0F3 /* Tracer */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4FD16A0F13B63082001D0217 /* Build configuration list for PBXNativeTarget "APP" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4FD16A0C13B63082001D0217 /* Debug */,
+				4FD16A0D13B63082001D0217 /* Release */,
+				4FD16A0E13B63082001D0217 /* Tracer */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 089C1669FE841209C02AAC07 /* Project object */;
+}

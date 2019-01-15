@@ -12,6 +12,7 @@
 
 #include <cstring>
 #include <cstdint>
+#include <memory>
 
 #include "ptrlist.h"
 
@@ -116,14 +117,14 @@ public:
 
   /** @param numerator The upper part of the current time signature e.g "6" in the time signature 6/8
    *  @param denominator The lower part of the current time signature e.g "8" in the time signature 6/8 */
-  void GetTimeSig(int& numerator, int& denominator) { numerator = mTimeInfo.mNumerator; denominator = mTimeInfo.mDenominator; }
+  void GetTimeSig(int& numerator, int& denominator) const { numerator = mTimeInfo.mNumerator; denominator = mTimeInfo.mDenominator; }
 
 #pragma mark -
   /** @return The number of channel I/O configs derived from the channel io string*/
   int NIOConfigs() const { return mIOConfigs.GetSize(); }
 
   /** @return Pointer to an IOConfig at idx. Can return nullptr if idx is invalid */
-  IOConfig* GetIOConfig(int idx) { return mIOConfigs.Get(idx); }
+  IOConfig* GetIOConfig(int idx) const { return mIOConfigs.Get(idx); }
 
   /** Used to determine the maximum number of input or output buses based on what was specified in the channel I/O config string
    * @param direction Return input or output bus count
@@ -156,11 +157,11 @@ public:
 
   /** Convenience method to find out how many input channels are connected
    * @return The number of channels connected for input. WARNING: this assumes consecutive channel connections */
-  inline int NInChansConnected() { return NChannelsConnected(ERoute::kInput); }
+  inline int NInChansConnected() const { return NChannelsConnected(ERoute::kInput); }
 
   /** Convenience method to find out how many output channels are connected
    * @return The number of channels connected for output. WARNING: this assumes consecutive channel connections */
-  inline int NOutChansConnected() { return NChannelsConnected(ERoute::kOutput); }
+  inline int NOutChansConnected() const { return NChannelsConnected(ERoute::kOutput); }
 
   /** Check if a certain configuration of input channels and output channels is allowed based on the channel I/O configs
    * @param NInputChans Number of inputs to test, if set to -1 = check NOutputChans only

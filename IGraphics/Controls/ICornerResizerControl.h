@@ -23,8 +23,8 @@
 class ICornerResizerControl : public IControl
 {
 public:
-  ICornerResizerControl(IGEditorDelegate& dlg, IRECT graphicsBounds, float size)
-  : IControl(dlg, graphicsBounds.GetFromBRHC(size, size).GetPadded(-1))
+  ICornerResizerControl(IRECT graphicsBounds, float size)
+  : IControl(graphicsBounds.GetFromBRHC(size, size).GetPadded(-1))
   , mInitialGraphicsBounds(graphicsBounds)
   , mSize(size)
   {

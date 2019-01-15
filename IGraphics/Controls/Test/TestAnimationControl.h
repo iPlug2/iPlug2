@@ -23,8 +23,8 @@
 class TestAnimationControl : public IControl
 {
 public:
-  TestAnimationControl(IGEditorDelegate& dlg, IRECT bounds)
-  : IControl(dlg, bounds, kNoParameter)
+  TestAnimationControl(IRECT bounds)
+  : IControl(bounds, kNoParameter)
   {
     SetTooltip("TestAnimationControl");
 
