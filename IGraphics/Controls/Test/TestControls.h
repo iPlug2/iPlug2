@@ -16,6 +16,7 @@
 #include "TestArcControl.h"
 #include "TestDirBrowseControl.h"
 #include "TestGradientControl.h"
+#include "TestColorControl.h"
 #include "TestLayerControl.h"
 #include "TestMultiPathControl.h"
 #include "TestPolyControl.h"
@@ -29,3 +30,5 @@
 #include "TestDropShadowControl.h"
 #include "TestCursorControl.h"
 #include "TestKeyboardControl.h"
+#include "TestRotatingMaskControl.h"
+#include "TestShadowGradientControl.h"

@@ -140,7 +140,6 @@ public:
 
   bool LoadFont(const char* fileName) override;
   
-  void DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, float pad, const IBlend* pBlend) override;
   void SetPlatformContext(void* pContext) override;
 
 protected:
@@ -169,7 +168,7 @@ private:
   void SetClipRegion(const IRECT& r) override;
   void UpdateLayer() override;
 
-  StaticStorage<APIBitmap> mBitmapCache; //not actually static
+  StaticStorage<APIBitmap> mBitmapCache; //not actually static (doesn't require retaining or releasing)
   NVGcontext* mVG = nullptr;
   NVGframebuffer* mMainFrameBuffer = nullptr;
     

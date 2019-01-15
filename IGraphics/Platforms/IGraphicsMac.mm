@@ -21,10 +21,6 @@
 #include "IPlugPluginBase.h"
 #include "IPlugPaths.h"
 
-#if IGRAPHICS_SWELL
-#include "swell.h"
-#endif
-
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 int GetSystemVersion()
@@ -237,9 +233,10 @@ void IGraphicsMac::CloseWindow()
 
     if (view->mGraphics)
     {
-      [view removeFromSuperview];   // Releases.
+      [view removeFromSuperview];
     }
-    
+    [view release];
+      
     OnViewDestroyed();
   }
 }
@@ -362,7 +359,45 @@ void IGraphicsMac::StoreCursorPosition()
 
 int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, EMessageBoxType type)
 {
-  return MessageBox((HWND) mView, str, caption, (int) type);
+  NSInteger ret = 0;
+  
+  if (!str) str= "";
+  if (!caption) caption= "";
+  
+  NSString *msg = (NSString *) CFStringCreateWithCString(NULL,str,kCFStringEncodingUTF8);
+  NSString *cap = (NSString *) CFStringCreateWithCString(NULL,caption,kCFStringEncodingUTF8);
+ 
+  msg = msg ? msg : (NSString *) CFStringCreateWithCString(NULL, str, kCFStringEncodingASCII);
+  cap = cap ? cap : (NSString *) CFStringCreateWithCString(NULL, caption, kCFStringEncodingASCII);
+  
+  switch (type)
+  {
+    case kMB_OK:
+      NSRunAlertPanel(msg, @"%@", @"OK", @"", @"", cap);
+      ret = kOK;
+      break;
+    case kMB_OKCANCEL:
+      ret = NSRunAlertPanel(msg, @"%@", @"OK", @"Cancel", @"", cap);
+      ret = ret ? kOK : kCANCEL;
+      break;
+    case kMB_YESNO:
+      ret = NSRunAlertPanel(msg, @"%@", @"Yes", @"No", @"", cap);
+      ret = ret ? kYES : kNO;
+      break;
+    case kMB_RETRYCANCEL:
+      ret = NSRunAlertPanel(msg, @"%@", @"Retry", @"Cancel", @"", cap);
+      ret = ret ? kRETRY : kCANCEL;
+      break;
+    case kMB_YESNOCANCEL:
+      ret = NSRunAlertPanel(msg, @"%@", @"Yes", @"Cancel", @"No", cap);
+      ret = (ret == 1) ? kYES : (ret == -1) ? kNO : kCANCEL;
+      break;
+  }
+  
+  [msg release];
+  [cap release];
+  
+  return static_cast<int>(ret);
 }
 
 void IGraphicsMac::ForceEndUserEdit()

@@ -19,9 +19,6 @@
 #include <ctime>
 #include <cassert>
 
-#include "wdlendian.h"
-#include "wdl_base64.h"
-
 //#include "IPlugProcessor.h"
 
 #ifdef OS_WIN
@@ -74,9 +71,6 @@ IPlugProcessor<T>::~IPlugProcessor()
   mChannelData[ERoute::kInput].Empty(true);
   mChannelData[ERoute::kOutput].Empty(true);
   mIOConfigs.Empty(true);
-
-  if (mLatencyDelay)
-    DELETE_NULL(mLatencyDelay);
 }
 
 template<typename T>

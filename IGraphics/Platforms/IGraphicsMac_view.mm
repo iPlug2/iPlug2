@@ -19,6 +19,113 @@
 #include "IPlugParameter.h"
 #include "IPlugLogger.h"
 
+static int MacKeyCodeToVK(int code)
+{
+  switch (code)
+  {
+    case 51: return kVK_BACK;
+    case 65: return kVK_DECIMAL;
+    case 67: return kVK_MULTIPLY;
+    case 69: return kVK_ADD;
+    case 71: return kVK_NUMLOCK;
+    case 75: return kVK_DIVIDE;
+    case 76: return kVK_RETURN | 0x8000;
+    case 78: return kVK_SUBTRACT;
+    case 81: return kVK_SEPARATOR;
+    case 82: return kVK_NUMPAD0;
+    case 83: return kVK_NUMPAD1;
+    case 84: return kVK_NUMPAD2;
+    case 85: return kVK_NUMPAD3;
+    case 86: return kVK_NUMPAD4;
+    case 87: return kVK_NUMPAD5;
+    case 88: return kVK_NUMPAD6;
+    case 89: return kVK_NUMPAD7;
+    case 91: return kVK_NUMPAD8;
+    case 92: return kVK_NUMPAD9;
+    case 96: return kVK_F5;
+    case 97: return kVK_F6;
+    case 98: return kVK_F7;
+    case 99: return kVK_F3;
+    case 100: return kVK_F8;
+    case 101: return kVK_F9;
+    case 109: return kVK_F10;
+    case 103: return kVK_F11;
+    case 111: return kVK_F12;
+    case 114: return kVK_INSERT;
+    case 115: return kVK_HOME;
+    case 117: return kVK_DELETE;
+    case 116: return kVK_PRIOR;
+    case 118: return kVK_F4;
+    case 119: return kVK_END;
+    case 120: return kVK_F2;
+    case 121: return kVK_NEXT;
+    case 122: return kVK_F1;
+    case 123: return kVK_LEFT;
+    case 124: return kVK_RIGHT;
+    case 125: return kVK_DOWN;
+    case 126: return kVK_UP;
+    case 0x69: return kVK_F13;
+    case 0x6B: return kVK_F14;
+    case 0x71: return kVK_F15;
+    case 0x6A: return kVK_F16;
+  }
+  return kVK_NONE;
+}
+
+static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
+{
+  int code = kVK_NONE;
+  
+  const NSInteger mod = [pEvent modifierFlags];
+  
+  if (mod & NSShiftKeyMask) flag |= kFSHIFT;
+  if (mod & NSCommandKeyMask) flag |= kFCONTROL; // todo: this should be command once we figure it out
+  if (mod & NSAlternateKeyMask) flag |= kFALT;
+  
+  int rawcode = [pEvent keyCode];
+  
+  code = MacKeyCodeToVK(rawcode);
+  if (code == kVK_NONE)
+  {
+    NSString *str = NULL;
+    
+    if (!str || ![str length]) str = [pEvent charactersIgnoringModifiers];
+    
+    if (!str || ![str length])
+    {
+      if (!code)
+      {
+        code = 1024 + rawcode; // raw code
+        flag |= kFVIRTKEY;
+      }
+    }
+    else
+    {
+      code = [str characterAtIndex:0];
+      if (code >= NSF1FunctionKey && code <= NSF24FunctionKey)
+      {
+        flag |= kFVIRTKEY;
+        code += kVK_F1 - NSF1FunctionKey;
+      }
+      else
+      {
+        if (code >= 'a' && code <= 'z') code += 'A'-'a';
+        if (code == 25 && (flag & FSHIFT)) code = kVK_TAB;
+        if (isalnum(code) || code==' ' || code == '\r' || code == '\n' || code ==27 || code == kVK_TAB) flag |= kFVIRTKEY;
+      }
+    }
+  }
+  else
+  {
+    flag |= kFVIRTKEY;
+    if (code == 8) code = '\b';
+  }
+  
+  if (!(flag & kFVIRTKEY)) flag &= ~kFSHIFT;
+  
+  return code;
+}
+
 @implementation IGRAPHICS_MENU_RCVR
 
 - (NSMenuItem*)menuItem
@@ -308,6 +415,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void)dealloc
 {
+  [mMoveCursor release];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [super dealloc];
 }
@@ -519,8 +627,8 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void)keyDown: (NSEvent *)pEvent
 {
-  int flag, code = SWELL_MacKeyToWindowsKey(pEvent, &flag);
-
+  int flag = 0;
+  int code = MacKeyEventToVK(pEvent, flag);
   NSString *s = [pEvent charactersIgnoringModifiers];
 
   unichar c = 0;
@@ -528,14 +636,14 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   if ([s length] == 1)
     c = [s characterAtIndex:0];
   
-  if(!static_cast<bool>(flag & FVIRTKEY))
+  if(!static_cast<bool>(flag & kFVIRTKEY))
   {
-    code = 0;
+    code = kVK_NONE;
   }
   
-  IKeyPress keyPress {static_cast<char>(c), code, static_cast<bool>(flag & FSHIFT),
-                                                  static_cast<bool>(flag & FCONTROL),
-                                                  static_cast<bool>(flag & FALT)};
+  IKeyPress keyPress {static_cast<char>(c), code, static_cast<bool>(flag & kFSHIFT),
+                                                  static_cast<bool>(flag & kFCONTROL),
+                                                  static_cast<bool>(flag & kFALT)};
   
   bool handle = mGraphics->OnKeyDown(mPrevX, mPrevY, keyPress);
   
@@ -552,6 +660,35 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   float d = [pEvent deltaY];
   if (mGraphics)
     mGraphics->OnMouseWheel(info.x, info.y, info.ms, d);
+}
+
+static void MakeCursorFromData(NSCursor*& cursor, uint16* data, int hotspot_x, int hotspot_y)
+{
+  NSImage *img = [[NSImage alloc] init];
+  NSBitmapImageRep* bmp = [[NSBitmapImageRep alloc]
+                           initWithBitmapDataPlanes:0
+                           pixelsWide:16
+                           pixelsHigh:16
+                           bitsPerSample:8
+                           samplesPerPixel:2
+                           hasAlpha:YES
+                           isPlanar:NO
+                           colorSpaceName:NSCalibratedWhiteColorSpace
+                           bytesPerRow:(16*2)
+                           bitsPerPixel:16];
+  
+  unsigned char* p = bmp ? [bmp bitmapData] : nullptr;
+  
+  if (p && img)
+  {
+    memcpy(p, data, sizeof(uint16) * 16 * 16);
+    [img addRepresentation:bmp];
+    NSPoint hs = NSMakePoint(hotspot_x, hotspot_y);
+    cursor = [[NSCursor alloc] initWithImage:img hotSpot:hs];
+  }
+  
+  [bmp release];
+  [img release];
 }
 
 - (void) setMouseCursor: (ECursor) cursor
@@ -597,9 +734,35 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
         pCursor = [NSCursor resizeUpDownCursor];
       break;
     case ECursor::SIZEALL:
-      if ([NSCursor respondsToSelector:@selector(_moveCursor)])
-        pCursor = [NSCursor performSelector:@selector(_moveCursor)];
+      {
+        const uint16 B = 0xFF03;
+        const uint16 W = 0xFFFF;
+        
+        static uint16 p[16 * 16] =
+        {
+          0, 0, 0, 0, 0, 0, 0, W, W, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, W, B, B, W, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, W, B, B, B, B, W, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, W, B, B, B, B, B, B, W, 0, 0, 0, 0,
+          0, 0, 0, W, W, W, W, B, B, W, W, W, W, 0, 0, 0,
+          0, 0, W, B, W, 0, W, B, B, W, 0, W, B, W, 0, 0,
+          0, W, B, B, W, W, W, B, B, W, W, W, B, B, W, 0,
+          W, B, B, B, B, B, B, B, B, B, B, B, B, B, B, W,
+          W, B, B, B, B, B, B, B, B, B, B, B, B, B, B, W,
+          0, W, B, B, W, W, W, B, B, W, W, W, B, B, W, 0,
+          0, 0, W, B, W, 0, W, B, B, W, 0, W, B, W, 0, 0,
+          0, 0, 0, W, W, W, W, B, B, W, W, W, W, 0, 0, 0,
+          0, 0, 0, 0, W, B, B, B, B, B, B, W, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, W, B, B, B, B, W, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, W, B, B, W, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, W, W, 0, 0, 0, 0, 0, 0, 0,
+        };
+        
+        if (!mMoveCursor)
+          MakeCursorFromData(mMoveCursor, p, 8, 8);
+        pCursor = mMoveCursor;
       break;
+      }
     case ECursor::INO: pCursor = [NSCursor operationNotAllowedCursor]; break;
     case ECursor::HAND: pCursor = [NSCursor openHandCursor]; break;
     case ECursor::APPSTARTING:
@@ -674,10 +837,10 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   [self setNeedsDisplay: YES];
 }
 
-- (IPopupMenu*) createPopupMenu: (const IPopupMenu&) menu : (NSRect) bounds;
+- (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (NSRect) bounds;
 {
   IGRAPHICS_MENU_RCVR* pDummyView = [[[IGRAPHICS_MENU_RCVR alloc] initWithFrame:bounds] autorelease];
-  NSMenu* pNSMenu = [[[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReciever:&const_cast<IPopupMenu&>(menu) :pDummyView] autorelease];
+  NSMenu* pNSMenu = [[[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReciever:&menu : pDummyView] autorelease];
   NSPoint wp = {bounds.origin.x, bounds.origin.y - 4};
 
   [pNSMenu popUpMenuPositioningItem:nil atLocation:wp inView:self];
@@ -711,18 +874,14 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     [mTextFieldView setDrawsBackground: TRUE];
   }
 
-  //TODO: this is wrong
+  //TODO: address font types for platform text entries
 #ifdef IGRAPHICS_NANOVG
   NSString* font = [NSString stringWithUTF8String: "Arial"];
 #else
   NSString* font = [NSString stringWithUTF8String: text.mFont];
 #endif
 
-#ifdef IGRAPHICS_LICE
   [mTextFieldView setFont: [NSFont fontWithName:font size: text.mSize * 0.75f]];
-#else
-  [mTextFieldView setFont: [NSFont fontWithName:font size: text.mSize]];
-#endif
   
   switch (text.mAlign)
   {

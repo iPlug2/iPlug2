@@ -25,8 +25,8 @@
 class IColorPickerControl : public IControl
 {
 public:
-  IColorPickerControl(IGEditorDelegate& dlg, IRECT bounds)
-  : IControl(dlg, bounds)
+  IColorPickerControl(IRECT bounds)
+  : IControl(bounds)
   {
   }
 

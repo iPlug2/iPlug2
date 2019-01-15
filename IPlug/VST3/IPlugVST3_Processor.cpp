@@ -58,7 +58,7 @@ IPlugVST3Processor::IPlugVST3Processor(IPlugInstanceInfo instanceInfo, IPlugConf
   
   if (MaxNChannels(ERoute::kInput))
   {
-    mLatencyDelay = new NChanDelayLine<PLUG_SAMPLE_DST>(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput));
+    mLatencyDelay = std::unique_ptr<NChanDelayLine<PLUG_SAMPLE_DST>>(new NChanDelayLine<PLUG_SAMPLE_DST>(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput)));
     mLatencyDelay->SetDelayTime(GetLatency());
   }
   
@@ -122,9 +122,7 @@ tresult PLUGIN_API IPlugVST3Processor::initialize(FUnknown* context)
       addEventInput(STR16("MIDI Input"), 1);
     
     if(DoesMIDIOut())
-      addEventOutput(STR16("MIDI Output"), 1);
-  
-    OnHostIdentified();
+      addEventOutput(STR16("MIDI Output"), 1);  
   }
   
   return result;

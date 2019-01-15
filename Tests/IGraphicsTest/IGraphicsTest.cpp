@@ -20,7 +20,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
   
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
-    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, 60, 1.);
+    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, 1.);
   };
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
@@ -42,7 +42,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->SetKeyHandlerFunc([&](const IKeyPress& key)
     {
       switch (key.VK) {
-        case VK_TAB:
+        case kVK_TAB:
           dynamic_cast<IPanelControl*>(GetUI()->GetBackgroundControl())->SetPattern(IColor::GetRandomColor());
           break;
           
@@ -56,7 +56,10 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->LoadFont(MONTSERRAT_FN);
     ISVG tiger = pGraphics->LoadSVG(TIGER_FN);
     IBitmap smiley = pGraphics->LoadBitmap(SMILEY_FN);
-    
+    IBitmap base = pGraphics->LoadBitmap(BASE_FN);
+    IBitmap mask = pGraphics->LoadBitmap(MASK_FN);
+    IBitmap top = pGraphics->LoadBitmap(TOP_FN);
+
     IRECT bounds = pGraphics->GetBounds();
     
     int cellIdx = 0;
@@ -66,12 +69,13 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     };
     
     pGraphics->AttachPanelBackground(COLOR_GRAY);
-     
-    pGraphics->AttachControl(new ILambdaControl(*this, nextCell(), [](IControl* pCaller, IGraphics& g, IRECT& r, IMouseInfo&, double t) {
+    pGraphics->AttachControl(new TestSizeControl(bounds), kCtrlTagSize);
+
+    pGraphics->AttachControl(new ILambdaControl(nextCell(), [](ILambdaControl* pCaller, IGraphics& g, IRECT& r) {
       
-//      static constexpr float width = 5.f;
-      static float radius = r.W();
-//      static constexpr float cornerSize = 10.f;
+//      const float width = 5.f;
+       const float radius = r.W();
+//      const float cornerSize = 10.f;
       
       //    g.FillRect(COLOR_WHITE, r);
       //    g.FillCircle(COLOR_WHITE, r.MW(), r.MH(), radius);
@@ -86,7 +90,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
       
       const float x = r.MW();
       const float y = r.MH();
-      const float rotate = t * PI;
+      const float rotate = pCaller->GetAnimationProgress() * PI;
       
       for(int index = 0, limit = 40; index < limit; ++index)
       {
@@ -106,27 +110,42 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
       
     }, 1000, false));
     
-    pGraphics->AttachControl(new TestGradientControl(*this, nextCell(), kParamDummy));
-    pGraphics->AttachControl(new TestPolyControl(*this, nextCell(), kParamDummy));
-    pGraphics->AttachControl(new TestArcControl(*this, nextCell(), kParamDummy));
-    pGraphics->AttachControl(new TestMultiPathControl(*this, nextCell(), kParamDummy));
-    pGraphics->AttachControl(new TestTextControl(*this, nextCell()));
-    pGraphics->AttachControl(new TestAnimationControl(*this, nextCell()));
-    pGraphics->AttachControl(new TestDrawContextControl(*this, nextCell()));
-    pGraphics->AttachControl(new TestSVGControl(*this, nextCell(), tiger));
-    pGraphics->AttachControl(new TestImageControl(*this, nextCell()));
-    pGraphics->AttachControl(new TestLayerControl(*this, nextCell()));
-    pGraphics->AttachControl(new TestBlendControl(*this, nextCell(), smiley));
-    pGraphics->AttachControl(new TestDropShadowControl(*this, nextCell(), tiger));
-    pGraphics->AttachControl(new TestCursorControl(*this, nextCell()));
-    pGraphics->AttachControl(new TestKeyboardControl(*this, nextCell()));
-    pGraphics->AttachControl(new TestSizeControl(*this, bounds), kCtrlTagSize);
+    pGraphics->AttachControl(new TestGradientControl(nextCell(), kParamDummy));
+    pGraphics->AttachControl(new TestColorControl(nextCell()));
+    pGraphics->AttachControl(new TestPolyControl(nextCell(), kParamDummy));
+    pGraphics->AttachControl(new TestArcControl(nextCell(), kParamDummy));
+    pGraphics->AttachControl(new TestMultiPathControl(nextCell(), kParamDummy));
+    pGraphics->AttachControl(new TestTextControl(nextCell()));
+    pGraphics->AttachControl(new TestAnimationControl(nextCell()));
+    pGraphics->AttachControl(new TestDrawContextControl(nextCell()));
+    pGraphics->AttachControl(new TestSVGControl(nextCell(), tiger));
+    pGraphics->AttachControl(new TestImageControl(nextCell()));
+    pGraphics->AttachControl(new TestLayerControl(nextCell()));
+    pGraphics->AttachControl(new TestBlendControl(nextCell(), smiley));
+    pGraphics->AttachControl(new TestDropShadowControl(nextCell(), tiger));
+    pGraphics->AttachControl(new TestCursorControl(nextCell()));
+    pGraphics->AttachControl(new TestKeyboardControl(nextCell()));
+    pGraphics->AttachControl(new TestShadowGradientControl(nextCell()));
+
+    WDL_String path;
+    //    DesktopPath(path);
+    path.Set(__FILE__);
+    path.remove_filepart();
+#ifdef OS_WIN
+    path.Append("\\resources\\img\\");
+#else
+    path.Append("/resources/img/");
+#endif
+    pGraphics->AttachControl(new TestDirBrowseControl(nextCell(), "png", path.Get()));
+
+    IRECT r = nextCell();
+    pGraphics->AttachControl(new TestRotatingMaskControl(r.L, r.T, base, mask, top));
 
 #if 0
-    pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Hello World!", {24, COLOR_WHITE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop, 90}));
-    pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Two!", {18, COLOR_GREEN, "Montserrat-LightItalic", IText::kStyleItalic, IText::kAlignCenter, IText::kVAlignMiddle, 45}));
-    pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Three!", {24, COLOR_RED, "Roboto-Regular", IText::kStyleNormal, IText::kAlignFar, IText::kVAlignBottom}));
-    pGraphics->AttachControl(new ITextControl(*this, nextCell(), "Four!", {40, COLOR_ORANGE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignCenter, IText::kVAlignBottom}));
+    pGraphics->AttachControl(new ITextControl(nextCell(), "Hello World!", {24, COLOR_WHITE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop, 90}));
+    pGraphics->AttachControl(new ITextControl(nextCell(), "Two!", {18, COLOR_GREEN, "Montserrat-LightItalic", IText::kStyleItalic, IText::kAlignCenter, IText::kVAlignMiddle, 45}));
+    pGraphics->AttachControl(new ITextControl(nextCell(), "Three!", {24, COLOR_RED, "Roboto-Regular", IText::kStyleNormal, IText::kAlignFar, IText::kVAlignBottom}));
+    pGraphics->AttachControl(new ITextControl(nextCell(), "Four!", {40, COLOR_ORANGE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignCenter, IText::kVAlignBottom}));
 #endif
   };
   

@@ -22,8 +22,8 @@
 class TestLayerControl : public IKnobControlBase
 {
 public:
-  TestLayerControl(IGEditorDelegate& dlg, IRECT rect)
-  : IKnobControlBase(dlg, rect, kNoParameter)
+  TestLayerControl(IRECT rect)
+  : IKnobControlBase(rect, kNoParameter)
   {
     SetTooltip("TestLayerControl");
   }

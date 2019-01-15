@@ -66,7 +66,7 @@ IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 
   if (MaxNChannels(ERoute::kInput))
   {
-    mLatencyDelay = new NChanDelayLine<PLUG_SAMPLE_DST>(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput));
+    mLatencyDelay = std::unique_ptr<NChanDelayLine<PLUG_SAMPLE_DST>>(new NChanDelayLine<PLUG_SAMPLE_DST>(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput)));
     mLatencyDelay->SetDelayTime(GetLatency());
   }
 
@@ -111,7 +111,7 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
       {
         uint64_t busType = GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kInput, busIdx, pConfig);
 
-        int flags = 0; //busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
+        int flags = 0; busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
         Steinberg::UString(tmpStringBuf, 128).fromAscii(pConfig->GetBusInfo(ERoute::kInput, busIdx)->mLabel.Get(), 128);
         addAudioInput(tmpStringBuf, busType, (BusTypes) busIdx > 0, flags);
       }
@@ -120,7 +120,7 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
       {
         uint64_t busType = GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kOutput, busIdx, pConfig);
 
-        int flags = 0; //busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
+        int flags = 0; busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
         Steinberg::UString(tmpStringBuf, 128).fromAscii(pConfig->GetBusInfo(ERoute::kOutput, busIdx)->mLabel.Get(), 128);
         addAudioOutput(tmpStringBuf, busType, (BusTypes) busIdx > 0, flags);
       }
@@ -183,7 +183,6 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
     }
   }
 
-  OnHostIdentified();
   RestorePreset(0);
 
   return result;

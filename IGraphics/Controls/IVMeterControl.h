@@ -22,7 +22,7 @@
 
 /** Vectorial multichannel capable meter control
  * @ingroup IControls */
-template <int MAXNC = 1>
+template <int MAXNC = 1, int QUEUE_SIZE = 1024>
 class IVMeterControl : public IVTrackControlBase
 {
 public:
@@ -95,11 +95,11 @@ public:
   private:
     int mControlTag;
     bool mPrevAboveThreshold = true;
-    IPlugQueue<Data> mQueue { 1024 };
+    IPlugQueue<Data> mQueue {QUEUE_SIZE};
   };
 
-  IVMeterControl(IGEditorDelegate& dlg, IRECT bounds, const char* trackNames = 0, ...)
-  : IVTrackControlBase(dlg, bounds, MAXNC, 0, 1., trackNames)
+  IVMeterControl(IRECT bounds, const char* trackNames = 0, ...)
+  : IVTrackControlBase(bounds, MAXNC, 0, 1., trackNames)
   {
   }
 

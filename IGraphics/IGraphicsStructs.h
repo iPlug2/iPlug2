@@ -21,14 +21,13 @@
 #include <cassert>
 #include <functional>
 #include <algorithm>
-#include <random>
+#include <numeric>
 #include <chrono>
+#include <string>
+
 
 #include "wdlstring.h"
 #include "ptrlist.h"
-#if defined OS_MAC || defined OS_LINUX
-#include "swell.h"
-#endif
 
 #include "nanosvg.h"
 
@@ -37,6 +36,7 @@
 
 class IGraphics;
 class IControl;
+class ILambdaControl;
 struct IRECT;
 struct IMouseInfo;
 template <typename T = double>
@@ -44,7 +44,7 @@ inline T DegToRad(T degrees);
 
 typedef std::function<void(IControl*)> IActionFunction;
 typedef std::function<void(IControl*)> IAnimationFunction;
-typedef std::function<void(IControl*, IGraphics&, IRECT&, IMouseInfo&, double)> IDrawFunction;
+typedef std::function<void(ILambdaControl*, IGraphics&, IRECT&)> ILambdaDrawFunction;
 
 void DefaultClickActionFunc(IControl* pCaller);
 void DefaultAnimationFunc(IControl* pCaller);
@@ -278,6 +278,36 @@ struct IColor
     int B = std::rand() & 0xFF;
 
     return IColor(A, R, G, B);
+  }
+
+  // thanks nanovg
+  static IColor GetFromHSLA(float h, float s, float l, float a = 1.)
+  {
+    auto hue = [](float h, float m1, float m2)
+    {
+      if (h < 0) h += 1;
+      if (h > 1) h -= 1;
+      if (h < 1.0f / 6.0f)
+        return m1 + (m2 - m1) * h * 6.0f;
+      else if (h < 3.0f / 6.0f)
+        return m2;
+      else if (h < 4.0f / 6.0f)
+        return m1 + (m2 - m1) * (2.0f / 3.0f - h) * 6.0f;
+      return m1;
+    };
+
+    IColor col;
+    h = std::fmodf(h, 1.0f);
+    if (h < 0.0f) h += 1.0f;
+    s = Clip(s, 0.0f, 1.0f);
+    l = Clip(l, 0.0f, 1.0f);
+    float m2 = l <= 0.5f ? (l * (1 + s)) : (l + s - l * s);
+    float m1 = 2 * l - m2;
+    col.R = static_cast<int>(Clip(hue(h + 1.0f / 3.0f, m1, m2), 0.0f, 1.0f) * 255.f);
+    col.G = static_cast<int>(Clip(hue(h, m1, m2), 0.0f, 1.0f) * 255.f);
+    col.B = static_cast<int>(Clip(hue(h - 1.0f / 3.0f, m1, m2), 0.0f, 1.0f) * 255.f);
+    col.A = static_cast<int>(a * 255.f);
+    return col;
   }
 
   int GetLuminosity() const
@@ -900,11 +930,11 @@ struct IRECT
 
   void GetRandomPoint(float& x, float& y) const
   {
-    std::random_device rd;
-    std::mt19937 gen(rd()); // TODO: most sensible RNG?
-    std::uniform_real_distribution<float> dist(0., 1.);
-    x = L + dist(gen) * W();
-    y = T + dist(gen) * H();
+    const float r1 = static_cast<float>(std::rand()/(RAND_MAX+1.f));
+    const float r2 = static_cast<float>(std::rand()/(RAND_MAX+1.f));
+
+    x = L + r1 * W();
+    y = T + r2 * H();
   }
 
   IRECT GetRandomSubRect() const
@@ -1083,6 +1113,41 @@ public:
       r.PixelAlign(scale);
       Set(i, r);
     }
+  }
+  
+  static bool GetFracGrid(const IRECT& input, IRECTList& rects, const std::initializer_list<float>& rowFractions, const std::initializer_list<float>& colFractions)
+  {
+    IRECT rowsLeft = input;
+    float y = 0.;
+    float x = 0.;
+
+    if(std::accumulate(rowFractions.begin(), rowFractions.end(), 0.f) != 1.)
+      return false;
+    
+    if(std::accumulate(colFractions.begin(), colFractions.end(), 0.f) != 1.)
+      return false;
+
+    for (auto& rowFrac : rowFractions)
+    {
+      IRECT thisRow = input.FracRectVertical(rowFrac, true).GetTranslated(0, y);
+      
+      x = 0.;
+
+      for (auto& colFrac : colFractions)
+      {
+        IRECT thisCell = thisRow.FracRectHorizontal(colFrac).GetTranslated(x, 0);
+        
+        rects.Add(thisCell);
+        
+        x += thisCell.W();
+      }
+      
+      rowsLeft.Intersect(thisRow);
+      
+      y = rects.Bounds().H();
+    }
+    
+    return true;
   }
   
   void Optimize()
@@ -1304,12 +1369,11 @@ struct IPattern
     mStops[0] = IColorStop(color, 0.0);
   }
   
-  static IPattern CreateLinearGradient(float x1, float y1, float x2, float y2)
+  static IPattern CreateLinearGradient(float x1, float y1, float x2, float y2, const std::initializer_list<IColorStop>& stops = {})
   {
     IPattern pattern(kLinearPattern);
     
     // Calculate the affine transform from one line segment to another!
-    
     const double xd = x2 - x1;
     const double yd = y2 - y1;
     const double d = sqrt(xd * xd + yd * yd);
@@ -1327,33 +1391,39 @@ struct IPattern
                          static_cast<float>(x0),
                          static_cast<float>(y0));
     
-    return pattern;
-  }
-  
-  static IPattern CreateLinearGradient(float x1, float y1, float x2, float y2, std::initializer_list<IColorStop> stops)
-  {
-    IPattern pattern = CreateLinearGradient(x1, y1, x2, y2);
-    
     for (auto& stop : stops)
       pattern.AddStop(stop.mColor, stop.mOffset);
     
     return pattern;
   }
   
-  static IPattern CreateRadialGradient(float x1, float y1, float r)
+  static IPattern CreateLinearGradient(const IRECT& bounds, EDirection direction, const std::initializer_list<IColorStop>& stops = {})
+  {
+    float x1, y1, x2, y2;
+    
+    if(direction == kHorizontal)
+    {
+      y1 = bounds.MH(); y2 = y1;
+      x1 = bounds.L;
+      x2 = bounds.R;
+    }
+    else//(direction == kVertical)
+    {
+      x1 = bounds.MW(); x2 = x1;
+      y1 = bounds.T;
+      y2 = bounds.B;
+    }
+    
+    return CreateLinearGradient(x1, y1, x2, y2, stops);
+  }
+  
+  static IPattern CreateRadialGradient(float x1, float y1, float r, const std::initializer_list<IColorStop>& stops = {})
   {
     IPattern pattern(kRadialPattern);
     
     const float s = 1.f / r;
 
     pattern.SetTransform(s, 0, 0, s, -(x1 * s), -(y1 * s));
-    
-    return pattern;
-  }
-  
-  static IPattern CreateRadialGradient(float x1, float y1, float r, std::initializer_list<IColorStop> stops)
-  {
-    IPattern pattern = CreateRadialGradient(x1, y1, r);
     
     for (auto& stop : stops)
       pattern.AddStop(stop.mColor, stop.mOffset);
@@ -1449,35 +1519,55 @@ template <class T>
 class StaticStorage
 {
 public:
-  // djb2 hash function (hash * 33 + c) - see http://www.cse.yorku.ca/~oz/hash.html // TODO: can we use C++11 std::hash instead of this?
-  uint32_t Hash(const char* str)
+  
+  // Accessor class that mantains threadsafety when using static storage via RAII
+  
+  class Accessor : private WDL_MutexLock
   {
-    uint32_t hash = 5381;
-    int c;
-
-    while ((c = *str++))
-    {
-      hash = ((hash << 5) + hash) + c;
-    }
-
-    return hash;
+  public:
+    
+    Accessor(StaticStorage& storage) : WDL_MutexLock(&storage.mMutex), mStorage(storage) {}
+    
+    T* Find(const char* str, double scale = 1.)               { return mStorage.Find(str, scale); }
+    void Add(T* pData, const char* str, double scale = 1.)    { return mStorage.Add(pData, str, scale); }
+    void Remove(T* pData)                                     { return mStorage.Remove(pData); }
+    void Clear()                                              { return mStorage.Clear(); }
+    void Retain()                                             { return mStorage.Retain(); }
+    void Release()                                            { return mStorage.Release(); }
+      
+  private:
+    
+    StaticStorage& mStorage;
+  };
+    
+  ~StaticStorage()
+  {
+    Clear();
   }
 
+private:
+    
   struct DataKey
   {
     // N.B. - hashID is not guaranteed to be unique
-    uint32_t hashID;
+    size_t hashID;
     WDL_String name;
     double scale;
-    T* data;
+    std::unique_ptr<T> data;
   };
+    
+  size_t Hash(const char* str)
+  {
+    std::string string(str);
+    return std::hash<std::string>()(string);
+  }
 
   T* Find(const char* str, double scale = 1.)
   {
     WDL_String cacheName(str);
     cacheName.AppendFormatted((int) strlen(str) + 6, "-%.1fx", scale);
     
-    uint32_t hashID = Hash(cacheName.Get());
+    size_t hashID = Hash(cacheName.Get());
     
     int i, n = mDatas.GetSize();
     for (i = 0; i < n; ++i)
@@ -1486,7 +1576,7 @@ public:
 
       // Use the hash id for a quick search and then confirm with the scale and identifier to ensure uniqueness
       if (pKey->hashID == hashID && scale == pKey->scale && !strcmp(str, pKey->name.Get()))
-        return pKey->data;
+        return pKey->data.get();
     }
     return nullptr;
   }
@@ -1499,7 +1589,7 @@ public:
     cacheName.AppendFormatted((int) strlen(str) + 6, "-%.1fx", scale);
     
     pKey->hashID = Hash(cacheName.Get());
-    pKey->data = pData;
+    pKey->data = std::unique_ptr<T>(pData);
     pKey->scale = scale;
     pKey->name.Set(str);
 
@@ -1508,13 +1598,11 @@ public:
 
   void Remove(T* pData)
   {
-    int i, n = mDatas.GetSize();
-    for (i = 0; i < n; ++i)
+    for (int i = 0; i < mDatas.GetSize(); ++i)
     {
-      if (mDatas.Get(i)->data == pData)
+      if (mDatas.Get(i)->data.get() == pData)
       {
         mDatas.Delete(i, true);
-        delete pData;
         break;
       }
     }
@@ -1522,24 +1610,22 @@ public:
 
   void Clear()
   {
-    int i, n = mDatas.GetSize();
-    for (i = 0; i < n; ++i)
-    {
-      // FIXME: - this doesn't work - why not?
-      /*
-      DataKey* key = mDatas.Get(i);
-      T* data = key->data;
-      delete data;*/
-    }
     mDatas.Empty(true);
   };
 
-  ~StaticStorage()
+  void Retain()
   {
-    Clear();
+    mCount++;
   }
-
-private:
+    
+  void Release()
+  {
+    if (--mCount == 0)
+      Clear();
+  }
+    
+  int mCount;
+  WDL_Mutex mMutex;
   WDL_PtrList<DataKey> mDatas;
 };
 

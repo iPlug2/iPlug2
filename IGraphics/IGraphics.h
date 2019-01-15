@@ -452,7 +452,7 @@ public:
   void ResumeLayer(ILayerPtr& layer);
   ILayerPtr EndLayer();
   bool CheckLayer(const ILayerPtr& layer);
-  void DrawLayer(const ILayerPtr& layer);
+  void DrawLayer(const ILayerPtr& layer, const IBlend* pBlend = nullptr);
   void DrawRotatedLayer(const ILayerPtr& layer, double angle);
     
   /** Applies a dropshadow directly onto a layer
@@ -509,8 +509,6 @@ public:
 
   virtual void PathClipRegion(const IRECT r = IRECT()) {}
   
-  virtual void DrawBoxShadow(const IRECT& bounds, float cr = 0.f, float ydrop = 2.f, float pad = 10.f, const IBlend* pBlend = 0) {};
-
 private:
     
   /** This is used to prepare a particular area of the display for drawing, normally resulting in clipping of the region.
@@ -719,6 +717,8 @@ public:
   /** Enables strict drawing mode. \todo explain strict drawing
    * @param strict Set /true to enable strict drawing mode */
   void SetStrictDrawing(bool strict);
+  
+  void SetLayoutOnResize(bool layoutOnResize);
 
   /** Gets the width of the graphics context
    * @return A whole number representing the width of the graphics context in pixels on a 1:1 screen */
@@ -750,7 +750,7 @@ public:
 
   /** Gets a pointer to the delegate class that handles communication to and from this graphics context.
    * @return pointer to the delegate */
-  IGEditorDelegate* GetDelegate() { return &mDelegate; }
+  IGEditorDelegate* GetDelegate() { return mDelegate; }
 
   /** Attach an IBitmapControl as the lowest IControl in the control stack to be the background for the graphics context
    * @param fileName CString fileName resource id for the bitmap image \todo check this */
@@ -781,9 +781,7 @@ public:
   
   /** @return \c true if performance display is shown */
   bool ShowingFPSDisplay() { return mPerfDisplay != nullptr; }
-  /** Attach a control for displaying the FPS on top of the UI */
-  void AttachPerformanceDisplay();
-  
+
   /** Attach a control for text entry, to override platform text entry */
   void AttachTextEntryControl();
   
@@ -1045,7 +1043,7 @@ protected:
   template<typename T, typename... Args>
   void ForMatchingControls(T method, int paramIdx, Args... args);
   
-  IGEditorDelegate& mDelegate;
+  IGEditorDelegate* mDelegate = nullptr;
   void* mPlatformContext = nullptr;
   bool mCursorHidden = false;
   bool mCursorLock = false;
@@ -1070,7 +1068,7 @@ private:
   void ForAllControlsFunc(std::function<void(IControl& control)> func);
     
   template<typename T, typename... Args>
-  void ForAllControls(T op, Args... args);
+  void ForAllControls(T method, Args... args);
   
   WDL_PtrList<IControl> mControls;
 

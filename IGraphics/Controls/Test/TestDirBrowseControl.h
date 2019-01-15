@@ -22,33 +22,70 @@
 class TestDirBrowseControl : public IDirBrowseControlBase
 {
 public:
-  TestDirBrowseControl(IGEditorDelegate& dlg, IRECT rect, IActionFunction actionFunc, const IText& text,
-           const char* extension)
-  : IDirBrowseControlBase(dlg, rect, extension)
+  TestDirBrowseControl(IRECT rect, const char* extension, const char* path)
+  : IDirBrowseControlBase(rect, extension)
   {
-    mText = text;
-    mLabel.SetFormatted(32, "%s \n%s File", "Select a", extension);
+    mLabel.SetFormatted(32, "Select a %s file", extension);
+    SetPath(path);
+    SetTooltip("TestDirBrowseControl");
   }
-
+  
+  void OnResize() override
+  {
+    but = mRECT.GetCentredInside(mRECT.W()-10., 20);
+    arrow = but.GetFromRight(20.).GetPadded(-5.);
+    useplat = mRECT.GetFromBottom(30).GetPadded(-5);
+    useplatbut = useplat.GetFromRight(20.).GetPadded(-5.);
+  }
+  
   void Draw(IGraphics& g) override
   {
-    g.FillRect(COLOR_BLUE, mRECT);
-    g.DrawText(mText, mLabel.Get(), mRECT);
+    g.DrawDottedRect(COLOR_BLACK, mRECT);
+    g.FillRect(mMouseIsOver ? COLOR_TRANSLUCENT : COLOR_TRANSPARENT, mRECT);
+    g.FillRect(COLOR_WHITE, but);
+    g.DrawText(mText, mLabel.Get(), but);
+    g.FillTriangle(COLOR_GRAY, arrow.L, arrow.T, arrow.R, arrow.T, arrow.MW(), arrow.B);
+    
+    g.DrawText(IText(DEFAULT_TEXT_SIZE, IText::kAlignNear), "Use platform menu", useplat);
+    
+    g.DrawRect(COLOR_BLACK, useplatbut);
+
+    if(mUsePlatform)
+      g.FillRect(COLOR_BLACK, useplatbut.GetPadded(-2));
+  }
+  
+  void OnPopupMenuSelection(IPopupMenu* pMenu)override
+  {
+    if(pMenu)
+    {
+      IPopupMenu::Item* pItem = pMenu->GetChosenItem();
+      
+      if(pItem)
+      {
+        mSelectedIndex = pItem->GetTag();
+        mSelectedMenu = pMenu; // TODO: what if this is a submenu do we end up with pointer to an invalid object?
+        mLabel.Set(pItem->GetText());
+      }
+    }
+    
+    SetDirty(false);
   }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    IPopupMenu* menu = GetUI()->CreatePopupMenu(mMainMenu, mRECT);
-
-    if(menu)
+    if(but.Contains(x, y))
     {
-      IPopupMenu::Item* item = menu->GetItem(menu->GetChosenItemIdx());
-      mSelectedIndex = item->GetTag();
-      mSelectedMenu = menu; // TODO: what if this is a submenu do we end up with pointer to an invalid object?
-      mLabel.Set(item->GetText());
+      GetUI()->CreatePopupMenu(mMainMenu, x, y, this);
     }
-
-    SetDirty();
+    else if(useplatbut.Contains(x, y))
+    {
+      mUsePlatform = !mUsePlatform;
+      
+      if(!mUsePlatform)
+        GetUI()->AttachPopupMenuControl();
+    }
+    
+    SetDirty(false);
   }
 
   void SetPath(const char* path)
@@ -59,4 +96,9 @@ public:
 
 private:
   WDL_String mLabel;
+  bool mUsePlatform = true;
+  IRECT but;
+  IRECT arrow;
+  IRECT useplat;
+  IRECT useplatbut;
 };

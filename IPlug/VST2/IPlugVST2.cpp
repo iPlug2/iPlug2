@@ -101,33 +101,6 @@ void IPlugVST2::InformHostOfProgramChange()
   mHostCallback(&mAEffect, audioMasterUpdateDisplay, 0, 0, 0, 0.0f);
 }
 
-EHost IPlugVST2::GetHost()
-{
-  EHost host = IPlugAPIBase::GetHost();
-
-  if (host == kHostUninit)
-  {
-    char productStr[256];
-    productStr[0] = '\0';
-    int version = 0;
-    mHostCallback(&mAEffect, audioMasterGetProductString, 0, 0, productStr, 0.0f);
-
-    if (CStringHasContents(productStr))
-    {
-      int decVer = (int) mHostCallback(&mAEffect, audioMasterGetVendorVersion, 0, 0, 0, 0.0f);
-      int ver = decVer / 10000;
-      int rmaj = (decVer - 10000 * ver) / 100;
-      int rmin = (decVer - 10000 * ver - 100 * rmaj);
-      version = (ver << 16) + (rmaj << 8) + rmin;
-    }
-
-    SetHost(productStr, version);
-    host = IPlugAPIBase::GetHost();
-  }
-
-  return host;
-}
-
 void IPlugVST2::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
 {
   if (HasUI())
@@ -194,29 +167,22 @@ bool IPlugVST2::SendSysEx(const ISysEx& msg)
 
 void IPlugVST2::HostSpecificInit()
 {
-  if (!mHostSpecificInitDone)
+  switch (GetHost())
   {
-    mHostSpecificInitDone = true;
-    EHost host = GetHost();
-    switch (host)
-    {
-      case kHostAudition:
-      case kHostOrion:
-      case kHostForte:
-      case kHostSAWStudio:
-        LimitToStereoIO(); //TODO:  is this still necessary?
-        break;
-      default:
-        break;
-    }
-
-    // This won't always solve a picky host problem -- for example Forte
-    // looks at mAEffect IO count before identifying itself.
-    mAEffect.numInputs = mInputSpkrArr.numChannels = MaxNChannels(ERoute::kInput);
-    mAEffect.numOutputs = mOutputSpkrArr.numChannels = MaxNChannels(ERoute::kOutput);
-
-    OnHostIdentified();
+    case kHostAudition:
+    case kHostOrion:
+    case kHostForte:
+    case kHostSAWStudio:
+      LimitToStereoIO(); //TODO:  is this still necessary?
+      break;
+    default:
+      break;
   }
+
+  // This won't always solve a picky host problem -- for example Forte
+  // looks at mAEffect IO count before identifying itself.
+  mAEffect.numInputs = mInputSpkrArr.numChannels = MaxNChannels(ERoute::kInput);
+  mAEffect.numOutputs = mOutputSpkrArr.numChannels = MaxNChannels(ERoute::kOutput);
 }
 
 VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode, VstInt32 idx, VstIntPtr value, void *ptr, float opt)
@@ -245,7 +211,21 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
   {
     case effOpen:
     {
-      _this->HostSpecificInit();
+      char productStr[256];
+      productStr[0] = '\0';
+      int version = 0;
+      _this->mHostCallback(&_this->mAEffect, audioMasterGetProductString, 0, 0, productStr, 0.0f);
+        
+      if (CStringHasContents(productStr))
+      {
+        int decVer = (int) _this->mHostCallback(&_this->mAEffect, audioMasterGetVendorVersion, 0, 0, 0, 0.0f);
+        int ver = decVer / 10000;
+        int rmaj = (decVer - 10000 * ver) / 100;
+        int rmin = (decVer - 10000 * ver - 100 * rmaj);
+        version = (ver << 16) + (rmaj << 8) + rmin;
+      }
+        
+      _this->SetHost(productStr, version);
       _this->OnParamReset(kReset);
       return 0;
     }

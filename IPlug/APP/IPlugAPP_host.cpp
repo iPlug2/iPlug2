@@ -32,8 +32,19 @@ IPlugAPPHost::IPlugAPPHost()
 
 IPlugAPPHost::~IPlugAPPHost()
 {
-  mMidiIn->cancelCallback();
+  if(mMidiIn)
+    mMidiIn->cancelCallback();
 
+  if(mMidiOut)
+    mMidiOut->closePort();
+  
+  if(mDAC)
+  {
+    if(mDAC->isStreamOpen())
+      mDAC->abortStream();
+  }
+  
+  DELETE_NULL(mIPlug);
   DELETE_NULL(mMidiIn);
   DELETE_NULL(mMidiOut);
   DELETE_NULL(mDAC);
@@ -46,8 +57,10 @@ IPlugAPPHost* IPlugAPPHost::Create()
   return sInstance;
 }
 
-bool IPlugAPPHost::Init ()
+bool IPlugAPPHost::Init()
 {
+  mIPlug->SetHost("standalone", mIPlug->GetPluginVersion(false));
+    
   if (!InitState())
     return false;
   
@@ -73,6 +86,11 @@ bool IPlugAPPHost::OpenWindow(HWND pParent)
   }
   
   return false;
+}
+
+void IPlugAPPHost::CloseWindow()
+{
+  mIPlug->CloseWindow();
 }
 
 bool IPlugAPPHost::InitState()
@@ -587,6 +605,7 @@ bool IPlugAPPHost::InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_
   
   mIPlug->SetBlockSize(APP_SIGNAL_VECTOR_SIZE);
   mIPlug->SetSampleRate(mSampleRate);
+  mIPlug->OnReset();
 
   try
   {
