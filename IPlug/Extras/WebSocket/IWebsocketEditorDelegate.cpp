@@ -198,14 +198,14 @@ void IWebsocketEditorDelegate::ProcessWebsocketQueue()
     //FIXME: how do params get updated?
 //    ENTER_PARAMS_MUTEX;
 //    if(p.normalized)
-//      GetParam(p.paramIdx)->SetNormalized(p.value);
+//      GetParam(p.idx)->SetNormalized(p.value);
 //    else
-//      GetParam(p.paramIdx)->Set(p.value);
+//      GetParam(p.idx)->Set(p.value);
 //
-//    OnParamChange(p.paramIdx, kHost);
+//    OnParamChange(p.idx, kHost);
 //    LEAVE_PARAMS_MUTEX;
     
-    SendParameterValueFromDelegate(p.paramIdx, p.value, p.normalized); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
+    SendParameterValueFromDelegate(p.idx, p.value, p.normalized); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
   }
   
   while (mMIDIFromClients.ElementsAvailable()) {
