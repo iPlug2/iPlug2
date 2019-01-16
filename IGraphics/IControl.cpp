@@ -226,10 +226,7 @@ void IControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
   #ifdef PROTOOLS
   PromptUserInput();
   #else
-  if (mDefaultValue >= 0.0)
-  {
-    SetValueToDefault();
-  }
+  SetValueToDefault();
   #endif
 }
 
