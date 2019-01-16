@@ -195,7 +195,7 @@ public:
   
   int NVals() const { return (int) mVals.size(); }
 
-  virtual int GetParamIdxForPos(float x, float y) const { return mParamIdx; }
+  virtual int GetParamIdxForPos(float x, float y) const { return GetParamIdx(); }
   
   /** Get a const pointer to the IParam object (owned by the editor delegate class), associated with this control
    * @return const pointer to an IParam or nullptr if the control is not associated with a parameter */ 
@@ -210,8 +210,7 @@ public:
   const char* GetGroup() const { return mGroup.Get(); }
   
   /** Set the control's value from the delegate
-   * This method is called from the class implementing the IEditorDelegate interface in order to update a control's mValue member and set it to be marked
-   * dirty for redraw. 
+   * This method is called from the class implementing the IEditorDelegate interface in order to update a control's value members and set it to be marked dirty for redraw.
    * @param value Normalised incoming value */
   virtual void SetValueFromDelegate(double value, int valIdx = 0);
   
@@ -323,9 +322,9 @@ public:
   void SetNameDisplayControl(IControl* pNameDisplayControl) { mNameDisplayControl = pNameDisplayControl; }
 
   /** Mark the control as dirty, i.e. it should be redrawn on the next display refresh
-   * @param triggerAction If this is true and the control is linked to a parameter (i.e. mParamidx > kNoParameter) 
+   * @param triggerAction If this is true and the control is linked to a parameter
    * notify the class implementing the IEditorDelegate interface that the parameter changed. If this control has an ActionFunction, that can also be triggered.
-   * NOTE: it is easy to forget that this method always sets the control dirty, the argument is about whether a consective action should be performed */
+   * NOTE: it is easy to forget that this method always sets the control dirty, the argument is about whether a consecutive action should be performed */
   virtual void SetDirty(bool triggerAction = true, int valIdx = -1);
 
   /* Set the control clean, i.e. Called by IGraphics draw loop after control has been drawn */
