@@ -668,7 +668,7 @@ public:
 
   /** This method is called after interacting with a control, so that any other controls linked to the same parameter index, will also be set dirty, and have their values updated.
    * @param pCaller The control that triggered the parameter change. */
-  void UpdatePeers(IControl* pCaller);
+  void UpdatePeers(IControl* pCaller, int callerValIdx);
 
   /** Prompt for user input either using a text entry or pop up menu
    * @param control Reference to the control which the prompt relates to

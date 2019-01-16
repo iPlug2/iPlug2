@@ -154,17 +154,17 @@ void IControl::SetDirty(bool triggerAction, int valIdx)
       if(valIdx > -1)
       {
         GetDelegate()->SendParameterValueFromUI(ParamIdx(valIdx), GetValue(valIdx)); //TODO: take tuple
+        GetUI()->UpdatePeers(this, valIdx);
       }
       else
       {
         for (int v = 0; v < nVals; v++)
         {
           GetDelegate()->SendParameterValueFromUI(ParamIdx(v), GetValue(v)); //TODO: take tuple
+          GetUI()->UpdatePeers(this, v);
         }
       }
     
-    // GetUI()->UpdatePeers(this);
-
     
 //      const IParam* pParam = GetParam();
 

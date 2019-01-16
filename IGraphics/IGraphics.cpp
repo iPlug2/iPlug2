@@ -396,13 +396,17 @@ void IGraphics::AssignParamNameToolTips()
   ForStandardControlsFunc(func);
 }
 
-void IGraphics::UpdatePeers(IControl* pCaller) // TODO: this could be really slow
+void IGraphics::UpdatePeers(IControl* pCaller, int callerValIdx) // TODO: this could be really slow
 {
-  auto func = [pCaller](IControl& control)
+  auto func = [pCaller, callerValIdx](IControl& control)
   {
+    int valIdx = 0;
+
     // Not actually called from the delegate, but we don't want to push the updates back to the delegate
-    if (control.ParamIdx() == pCaller->ParamIdx() && (&control != pCaller))
-      control.SetValueFromDelegate(pCaller->GetValue());
+    if (control.IsLinkedToParam(pCaller->ParamIdx(callerValIdx), valIdx) && (&control != pCaller))
+    {
+      control.SetValueFromDelegate(pCaller->GetValue(callerValIdx), valIdx);
+    }
   };
     
   ForStandardControlsFunc(func);

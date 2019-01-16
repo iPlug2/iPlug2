@@ -179,6 +179,20 @@ public:
     return mVals.at(valIdx).idx;
   }
   
+  bool IsLinkedToParam(int paramIdx, int& valIdx) const
+  {
+    for(int v=0;v<NVals();v++)
+    {
+      if(mVals.at(v).idx == paramIdx)
+      {
+        valIdx = v;
+        return true;
+      }
+    }
+    
+    return false;
+  }
+  
   int NVals() const { return (int) mVals.size(); }
   
   /** Get a const pointer to the IParam object (owned by the editor delegate class), associated with this control
