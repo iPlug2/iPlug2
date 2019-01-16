@@ -35,6 +35,15 @@ public:
     SetColor(kFG, COLOR_BLACK);
   }
 
+  IVMultiSliderControl(IRECT bounds, int loParamIdx, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+    : IVTrackControlBase(bounds, loParamIdx, MAXNC, minTrackValue, maxTrackValue, trackNames)
+  {
+    mOuterPadding = 0.f;
+    mDrawTrackFrame = false;
+    mTrackPadding = 1.f;
+    SetColor(kFG, COLOR_BLACK);
+  }
+
   void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar = 1.) override //TODO: fixed for horizontal
   {
     bounds.Constrain(x, y);
@@ -56,9 +65,8 @@ public:
 
     if (sliderTest > -1)
     {
-      float* trackValue = GetTrackData(sliderTest);
-      *trackValue = mMinTrackValue + (1.f - Clip(yValue, 0.f, 1.f)) * (mMaxTrackValue - mMinTrackValue);
-      OnNewValue(sliderTest, *trackValue);
+      SetValue(mMinTrackValue + (1.f - Clip(yValue, 0.f, 1.f)) * (mMaxTrackValue - mMinTrackValue), sliderTest);
+      OnNewValue(sliderTest, GetValue(sliderTest));
 
       mSliderHit = sliderTest;
 
@@ -81,10 +89,9 @@ public:
 
           for (auto i = lowBounds; i < highBounds; i++)
           {
-            trackValue = GetTrackData(i);
             float frac = (float)(i - lowBounds) / float(highBounds-lowBounds);
-            *trackValue = LERP(*GetTrackData(lowBounds), *GetTrackData(highBounds), frac);
-            OnNewValue(i, *trackValue);
+            SetValue(LERP(GetValue(lowBounds), GetValue(highBounds), frac), i);
+            OnNewValue(i, GetValue(i));
           }
         }
       }

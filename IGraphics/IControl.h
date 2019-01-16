@@ -783,12 +783,31 @@ public:
   , mMinTrackValue(minTrackValue)
   , mMaxTrackValue(maxTrackValue)
   {
+    mVals.resize(maxNTracks);
+
     for (int i=0; i<maxNTracks; i++)
     {
-      mTrackData.Add(0.f);
+      mVals.at(i) = { kNoParameter, 0., false };
       mTrackBounds.Add(IRECT());
     }
     
+    AttachIControl(this);
+  }
+
+  IVTrackControlBase(IRECT bounds, int lowParamidx, int maxNTracks = 1, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+    : IControl(bounds)
+    , mMaxNTracks(maxNTracks)
+    , mMinTrackValue(minTrackValue)
+    , mMaxTrackValue(maxTrackValue)
+  {
+    mVals.resize(maxNTracks);
+
+    for (int i = 0; i < maxNTracks; i++)
+    {
+      mVals.at(i) = { lowParamidx+i, 0., false };
+      mTrackBounds.Add(IRECT());
+    }
+
     AttachIControl(this);
   }
   
@@ -815,11 +834,8 @@ public:
       DrawFrame(g);
   }
   
-  int NTracks() { return mNTracks; }
-  int MaxNTracks() { return mMaxNTracks; }
-  void SetTrackData(int trackIdx, float val) { mTrackData.Get()[trackIdx] = Clip(val, mMinTrackValue, mMaxTrackValue); }
-  float* GetTrackData(int trackIdx) { return &mTrackData.Get()[trackIdx];  }
-  void SetAllTrackData(float val) { memset(mTrackData.Get(), (int) Clip(val, mMinTrackValue, mMaxTrackValue), mTrackData.GetSize() * sizeof(float) ); }
+  int MaxNTracks() const { return mMaxNTracks; }
+  //void SetAllTrackData(float val) { memset(mTrackData.Get(), (int) Clip(val, mMinTrackValue, mMaxTrackValue), mTrackData.GetSize() * sizeof(float) ); }
 private:
   virtual void DrawFrame(IGraphics& g)
   {
@@ -842,7 +858,7 @@ private:
   
   virtual void DrawTrackHandle(IGraphics& g, IRECT& r, int chIdx)
   {
-    IRECT fillRect = r.FracRect(mDirection, *GetTrackData(chIdx));
+    IRECT fillRect = r.FracRect(mDirection, GetValue(chIdx));
     
     g.FillRect(GetColor(kFG), fillRect); // TODO: shadows!
     
@@ -870,11 +886,7 @@ protected:
   
   EDirection mDirection = EDirection::kVertical;
   int mMaxNTracks;
-  WDL_TypedBuf<float> mTrackData; // real values of sliders/meters
   WDL_TypedBuf<IRECT> mTrackBounds;
-
-  int mNTracks = 1;
-  
   float mMinTrackValue;
   float mMaxTrackValue;
   float mOuterPadding = 10.;

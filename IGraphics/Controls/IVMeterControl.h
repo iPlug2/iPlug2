@@ -119,8 +119,7 @@ public:
     {
       for (auto i = 0; i < data.nchans; i++) {
         pos = stream.Get(&data.vals[i], pos);
-        float* pVal = GetTrackData(i);
-        *pVal = Clip(data.vals[i], 0.f, 1.f);
+        SetValue(Clip(data.vals[i], 0.f, 1.f), i);
       }
     }
 
