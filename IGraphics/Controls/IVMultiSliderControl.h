@@ -44,6 +44,19 @@ public:
     SetColor(kFG, COLOR_BLACK);
   }
 
+  virtual int GetParamIdxForPos(float x, float y) const override // TODO fixed for horizontal
+  {
+    for (auto i = 0; i < MaxNTracks(); i++)
+    {
+      if (mTrackBounds.Get()[i].Contains(x, mTrackBounds.Get()[i].MH()))
+      {
+        return ParamIdx(i);
+      }
+    }
+
+    return kNoParameter;
+  }
+
   void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar = 1.) override //TODO: fixed for horizontal
   {
     bounds.Constrain(x, y);

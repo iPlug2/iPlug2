@@ -194,6 +194,8 @@ public:
   }
   
   int NVals() const { return (int) mVals.size(); }
+
+  virtual int GetParamIdxForPos(float x, float y) const { return mParamIdx; }
   
   /** Get a const pointer to the IParam object (owned by the editor delegate class), associated with this control
    * @return const pointer to an IParam or nullptr if the control is not associated with a parameter */ 
