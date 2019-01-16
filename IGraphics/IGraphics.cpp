@@ -749,7 +749,7 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
   if (pControl)
   {
     int nVals = pControl->NVals();
-    int firstParamIdx = pControl->GetParamIdx();
+    int firstParamIdx = pControl->GetParamIdx(); // usually a control only has one
 
     #ifdef AAX_API
     if (mAAXViewContainer && firstParamIdx > kNoParameter)
