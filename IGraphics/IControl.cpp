@@ -304,10 +304,12 @@ void IControl::DrawPTHighlight(IGraphics& g)
   }
 }
 
-const IParam* IControl::GetParam(int idx)
+const IParam* IControl::GetParam(int valIdx)
 {
-  if(idx > kNoParameter)
-    return GetDelegate()->GetParam(idx);
+  int paramIdx = ParamIdx(valIdx);
+  
+  if(paramIdx > kNoParameter)
+    return GetDelegate()->GetParam(paramIdx);
   else
     return nullptr;
 }
