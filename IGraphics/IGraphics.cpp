@@ -389,7 +389,7 @@ void IGraphics::AssignParamNameToolTips()
 {
   auto func = [](IControl& control)
   {
-    if (control.GetParamIdx() > -1)
+    if (control.GetParamIdx() > kNoParameter)
       control.SetTooltip(control.GetParam()->GetNameForHost());
   };
   
@@ -804,7 +804,7 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
   {
     int paramIdx = mMouseCapture->GetParamIdx();
     mMouseCapture->OnMouseUp(x, y, mod);
-    if (paramIdx >= 0)
+    if (paramIdx > kNoParameter)
     {
       int nVals = mMouseCapture->NVals();
 

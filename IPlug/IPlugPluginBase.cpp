@@ -348,7 +348,7 @@ void IPluginBase::MakePresetFromNamedParams(const char* name, int nParamsNamed, 
       int paramIdx = (int) va_arg(vp, int);
       // This assert will fire if any of the passed-in param values do not match
       // the type that the param was initialized with (int for bool, int, enum; double for double).
-      assert(paramIdx >= 0 && paramIdx < n);
+      assert(paramIdx > kNoParameter && paramIdx < n);
       GET_PARAM_FROM_VARARG(GetParam(paramIdx)->Type(), vp, *(vals.Get() + paramIdx));
     }
     va_end(vp);
