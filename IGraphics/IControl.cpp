@@ -506,14 +506,12 @@ void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const I
 void IKnobControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
 {
 #ifdef PROTOOLS
-  if (mod.C)
-    SetValue(GetValue() + 0.001 * d);
+  double gearing = mod.C ? 0.001 : 0.01;
 #else
-  if (mod.C || mod.S)
-    SetValue(GetValue() + 0.001 * d);
+  double gearing = (mod.C || mod.S) ? 0.001 : 0.01;
 #endif
-  SetValue(GetValue() + 0.01 * d);
 
+  SetValue(GetValue() + gearing * d);
   SetDirty();
 }
 
