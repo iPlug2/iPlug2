@@ -513,7 +513,7 @@ void IGraphicsWeb::CreatePlatformTextEntry(IControl& control, const IText& text,
 //  dimstr.SetFormatted(32, "%fpx",  bounds.H());
 //  input["style"].set("height", std::string(dimstr.Get()));
 //  
-//  if (control.ParamIdx() > kNoParameter)
+//  if (control.GetParamIdx() > kNoParameter)
 //  {
 //    const IParam* pParam = control.GetParam();
 //    

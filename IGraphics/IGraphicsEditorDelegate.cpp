@@ -120,7 +120,7 @@ void IGEditorDelegate::SendParameterValueFromDelegate(int paramIdx, double value
       
       for(int v = 0; v < nVals; v++)
       {
-        if (pControl->ParamIdx(v) == paramIdx)
+        if (pControl->GetParamIdx(v) == paramIdx)
         {
           pControl->SetValueFromDelegate(value, v);
           // Could be more than one, don't break until we check them all.

@@ -312,7 +312,7 @@ void IGraphics::ForControlWithParam(int paramIdx, std::function<void(IControl& c
   {
     IControl* pControl = GetControl(c);
 
-    if (pControl->ParamIdx() == paramIdx)
+    if (pControl->GetParamIdx() == paramIdx)
     {
       func(*pControl);
       // Could be more than one, don't break until we check them all.
@@ -389,7 +389,7 @@ void IGraphics::AssignParamNameToolTips()
 {
   auto func = [](IControl& control)
   {
-    if (control.ParamIdx() > -1)
+    if (control.GetParamIdx() > -1)
       control.SetTooltip(control.GetParam()->GetNameForHost());
   };
   
@@ -403,7 +403,7 @@ void IGraphics::UpdatePeers(IControl* pCaller, int callerValIdx) // TODO: this c
     int valIdx = 0;
 
     // Not actually called from the delegate, but we don't want to push the updates back to the delegate
-    if (control.IsLinkedToParam(pCaller->ParamIdx(callerValIdx), valIdx) && (&control != pCaller))
+    if (control.IsLinkedToParam(pCaller->GetParamIdx(callerValIdx), valIdx) && (&control != pCaller))
     {
       control.SetValueFromDelegate(pCaller->GetValue(callerValIdx), valIdx);
     }
@@ -749,7 +749,7 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
   if (pControl)
   {
     int nVals = pControl->NVals();
-    int firstParamIdx = pControl->ParamIdx();
+    int firstParamIdx = pControl->GetParamIdx();
 
     #ifdef AAX_API
     if (mAAXViewContainer && firstParamIdx > kNoParameter)
@@ -787,7 +787,7 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
     if (firstParamIdx > kNoParameter)
     {
       for (int v=0; v<nVals; v++) {
-        GetDelegate()->BeginInformHostOfParamChangeFromUI(pControl->ParamIdx(v));
+        GetDelegate()->BeginInformHostOfParamChangeFromUI(pControl->GetParamIdx(v));
       }
     }
     
@@ -802,14 +802,14 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
    
   if (mMouseCapture)
   {
-    int paramIdx = mMouseCapture->ParamIdx();
+    int paramIdx = mMouseCapture->GetParamIdx();
     mMouseCapture->OnMouseUp(x, y, mod);
     if (paramIdx >= 0)
     {
       int nVals = mMouseCapture->NVals();
 
       for (int v=0; v<nVals; v++) {
-        GetDelegate()->EndInformHostOfParamChangeFromUI(mMouseCapture->ParamIdx(v));
+        GetDelegate()->EndInformHostOfParamChangeFromUI(mMouseCapture->GetParamIdx(v));
       }
     }
     ReleaseMouseCapture();
@@ -1014,7 +1014,7 @@ IControl* IGraphics::GetMouseControl(float x, float y, bool capture, bool mouseO
 int IGraphics::GetParamIdxForPTAutomation(float x, float y)
 {
   IControl* pControl = GetMouseControl(x, y, false);
-  int idx = mLastClickedParam = pControl ? pControl->ParamIdx() : -1;
+  int idx = mLastClickedParam = pControl ? pControl->GetParamIdx() : -1;
   return idx;
 }
 

@@ -174,7 +174,7 @@ public:
 
   /** Get the index of the parameter that this control is meant to display
    * @return Parameter index, or kNoParameter if there is no parameter linked with this control */
-  int ParamIdx(int valIdx = 0) const
+  int GetParamIdx(int valIdx = 0) const
   {
     return mVals.at(valIdx).idx;
   }

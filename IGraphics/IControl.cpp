@@ -121,9 +121,9 @@ void IControl::SetValueFromUserInput(double value)
 
 void IControl::SetValueToDefault()
 {
-  if (ParamIdx() > kNoParameter || mDefaultValue >= 0.0)
+  if (GetParamIdx() > kNoParameter || mDefaultValue >= 0.0)
   {
-    SetValue(ParamIdx() > kNoParameter ? GetParam()->GetDefault(true) : mDefaultValue);
+    SetValue(GetParamIdx() > kNoParameter ? GetParam()->GetDefault(true) : mDefaultValue);
     SetDirty(true);
   }
 }
@@ -149,18 +149,18 @@ void IControl::SetDirty(bool triggerAction, int valIdx)
   
   if (triggerAction)
   {
-    if(ParamIdx() > kNoParameter)
+    if(GetParamIdx() > kNoParameter)
     {
       if(valIdx > -1)
       {
-        GetDelegate()->SendParameterValueFromUI(ParamIdx(valIdx), GetValue(valIdx)); //TODO: take tuple
+        GetDelegate()->SendParameterValueFromUI(GetParamIdx(valIdx), GetValue(valIdx)); //TODO: take tuple
         GetUI()->UpdatePeers(this, valIdx);
       }
       else
       {
         for (int v = 0; v < nVals; v++)
         {
-          GetDelegate()->SendParameterValueFromUI(ParamIdx(v), GetValue(v)); //TODO: take tuple
+          GetDelegate()->SendParameterValueFromUI(GetParamIdx(v), GetValue(v)); //TODO: take tuple
           GetUI()->UpdatePeers(this, v);
         }
       }
@@ -235,7 +235,7 @@ void IControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 
 void IControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu)
 {
-  if (pSelectedMenu != nullptr && ParamIdx() > kNoParameter && !mDisablePrompt) // TODO: only dealing with single param
+  if (pSelectedMenu != nullptr && GetParamIdx() > kNoParameter && !mDisablePrompt) // TODO: only dealing with single param
   {
     SetValueFromUserInput(GetParam()->ToNormalized( (double) pSelectedMenu->GetChosenItemIdx() ));
   }
@@ -243,7 +243,7 @@ void IControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu)
 
 void IControl::PromptUserInput()
 {
-  if (ParamIdx() > kNoParameter && !mDisablePrompt) // TODO: only dealing with single param
+  if (GetParamIdx() > kNoParameter && !mDisablePrompt) // TODO: only dealing with single param
   {
     if (GetParam()->NDisplayTexts()) // popup menu
     {
@@ -266,7 +266,7 @@ void IControl::PromptUserInput()
 
 void IControl::PromptUserInput(const IRECT& bounds)
 {
-  if (ParamIdx() > kNoParameter && !mDisablePrompt) // TODO: only dealing with single param
+  if (GetParamIdx() > kNoParameter && !mDisablePrompt) // TODO: only dealing with single param
   {
     GetUI()->PromptUserInput(*this, bounds);
   }
@@ -306,7 +306,7 @@ void IControl::DrawPTHighlight(IGraphics& g)
 
 const IParam* IControl::GetParam(int valIdx)
 {
-  int paramIdx = ParamIdx(valIdx);
+  int paramIdx = GetParamIdx(valIdx);
   
   if(paramIdx > kNoParameter)
     return GetDelegate()->GetParam(paramIdx);
@@ -450,7 +450,7 @@ ISwitchControlBase::ISwitchControlBase(IRECT bounds, int paramIdx, IActionFuncti
 
 void ISwitchControlBase::OnInit()
 {
-  if (ParamIdx() > kNoParameter)
+  if (GetParamIdx() > kNoParameter)
     mNumStates = (int) GetParam()->GetRange() + 1;
  
   assert(mNumStates > 1);

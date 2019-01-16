@@ -50,7 +50,7 @@ public:
     {
       if (mTrackBounds.Get()[i].Contains(x, mTrackBounds.Get()[i].MH()))
       {
-        return ParamIdx(i);
+        return GetParamIdx(i);
       }
     }
 
