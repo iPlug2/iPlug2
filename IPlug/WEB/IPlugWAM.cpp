@@ -98,7 +98,7 @@ void IPlugWAM::onMessage(char* verb, char* res, double data)
     while (pChar != nullptr)
     {
       data[i++] = atoi(pChar);
-      pChar = strtok (nullptr, ":");
+      pChar = strtok(nullptr, ":");
     }
     
     IMidiMsg msg = {0, data[0], data[1], data[2]};

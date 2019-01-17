@@ -118,9 +118,11 @@ void IControl::SetValueFromUserInput(double value)
 
 void IControl::SetValueToDefault()
 {
-  if (GetParamIdx() > kNoParameter || mDefaultValue >= 0.0)
+  bool hasParam = mParamIdx > kNoParameter;
+    
+  if (hasParam || mDefaultValue >= 0.0)
   {
-    SetValue(GetParamIdx() > kNoParameter ? GetParam()->GetDefault(true) : mDefaultValue);
+    mValue = hasParam ? GetParam()->GetDefault(true) : mDefaultValue;
     SetDirty(true);
   }
 }

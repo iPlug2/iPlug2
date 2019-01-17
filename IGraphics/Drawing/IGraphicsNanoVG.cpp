@@ -160,24 +160,49 @@ inline void NanoVGSetBlendMode(NVGcontext* context, const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case kBlendClobber:
-      nvgGlobalCompositeBlendFunc(context, NVG_SRC_ALPHA, NVG_ONE_MINUS_SRC_ALPHA);
+    case kBlendNone:
+      nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
       break;
+    case kBlendClobber:
+      nvgGlobalCompositeOperation(context, NVG_COPY);
+      break;
+          
     case kBlendAdd:
       nvgGlobalCompositeBlendFunc(context, NVG_ONE, NVG_ONE);
       break;
-    case kBlendUnder:
-      nvgGlobalCompositeOperation(context, NVG_DESTINATION_OVER);
+  
+    case kBlendSourceOver:
+      nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
       break;
     case kBlendSourceIn:
       nvgGlobalCompositeOperation(context, NVG_SOURCE_IN);
       break;
-    case kBlendColorDodge:
-    case kBlendNone:
+    case kBlendSourceOut:
+      nvgGlobalCompositeOperation(context, NVG_SOURCE_OUT);
+      break;
+    case kBlendSourceAtop:
+      nvgGlobalCompositeOperation(context, NVG_ATOP);
+      break;
+          
+    case kBlendDestOver:
+      nvgGlobalCompositeOperation(context, NVG_DESTINATION_OVER);
+      break;
+    case kBlendDestIn:
+      nvgGlobalCompositeOperation(context, NVG_DESTINATION_IN);
+      break;
+    case kBlendDestOut:
+      nvgGlobalCompositeOperation(context, NVG_DESTINATION_OUT);
+      break;
+    case kBlendDestAtop:
+      nvgGlobalCompositeOperation(context, NVG_DESTINATION_ATOP);
+      break;
+          
+    case kBlendXOR:
+      nvgGlobalCompositeOperation(context, NVG_XOR);
+      break;
+          
     default:
-    {
       nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
-    }
   }
 }
 
@@ -361,7 +386,7 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
     PathTransformTranslate(-shadow.mXOffset, -shadow.mYOffset);
     PathFill(shadow.mPattern, IFillOptions(), &blend1);
     PopLayer(false);
-    IBlend blend2(kBlendUnder, shadow.mOpacity);
+    IBlend blend2(kBlendDestOver, shadow.mOpacity);
     bounds.Translate(shadow.mXOffset, shadow.mYOffset);
     DrawBitmap(tempLayerBitmap, bounds, 0, 0, &blend2);
     PopLayer(false);
