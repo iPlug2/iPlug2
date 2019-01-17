@@ -117,17 +117,15 @@ void IControl::SetValueToDefault(int valIdx)
   const int nVals = NVals();
   valIdx = (nVals == 1) ? 0 : valIdx;
 
-  if(valIdx > kNoValIdx)
+  for (int v = 0; v < nVals; v++)
   {
-    SetValue(GetParam(valIdx)->GetDefault(true), valIdx);
-    SetDirty(true, valIdx);
+    const IParam* pParam = GetParam(v);
+
+    if(pParam)
+      SetValue(pParam->GetDefault(true), v);
   }
-  else
-  {
-    for (int v = 0; v < nVals; v++)
-      SetValue(GetParam(v)->GetDefault(true), v);
-    SetDirty(true);
-  }
+
+  SetDirty(true);
 }
 
 void IControl::SetDirty(bool triggerAction, int valIdx)
