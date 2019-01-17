@@ -146,22 +146,23 @@ void IControl::SetDirty(bool triggerAction, int valIdx)
   
   if (triggerAction)
   {
-    if(GetParamIdx() > kNoParameter)
+    auto paramUpdate = [this](int v){
+      if (GetParamIdx(v) > -1)
+      {
+        GetDelegate()->SendParameterValueFromUI(GetParamIdx(v), GetValue(v)); //TODO: take tuple
+        GetUI()->UpdatePeers(this, v);
+      }
+    };
+      
+    if(valIdx > -1)
     {
-      if(valIdx > -1)
-      {
-        GetDelegate()->SendParameterValueFromUI(GetParamIdx(valIdx), GetValue(valIdx)); //TODO: take tuple
-        GetUI()->UpdatePeers(this, valIdx);
-      }
-      else
-      {
-        for (int v = 0; v < nVals; v++)
-        {
-          GetDelegate()->SendParameterValueFromUI(GetParamIdx(v), GetValue(v)); //TODO: take tuple
-          GetUI()->UpdatePeers(this, v);
-        }
-      }
-    
+      paramUpdate(valIdx);
+    }
+    else
+    {
+      for (int v = 0; v < nVals; v++)
+          paramUpdate(v);
+    }
     
 //      const IParam* pParam = GetParam();
 
@@ -176,8 +177,7 @@ void IControl::SetDirty(bool triggerAction, int valIdx)
 //      {
 //        ((ITextControl*)mNameDisplayControl)->SetStr(pParam->GetNameForHost());
 //      }
-    }
-    
+      
     if (mActionFunc != nullptr)
       mActionFunc(this);
   }
