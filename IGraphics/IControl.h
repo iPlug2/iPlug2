@@ -438,6 +438,21 @@ public:
   
 #pragma mark - IControl Member variables
 protected:
+    
+  typedef void ValFunc(int v);
+  template<typename T, typename... Args>
+  void ForValIdx(int valIdx, T func, Args... args)
+  {
+    if (valIdx > kNoValIdx)
+      func(valIdx, args...);
+    else
+    {
+      const int nVals = NVals();
+      for (int v = 0; v < nVals; v++)
+        func(v, args...);
+    }
+  }
+    
   int mTag = kNoTag;
   IRECT mRECT;
   IRECT mTargetRECT;

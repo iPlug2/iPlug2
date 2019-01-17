@@ -114,40 +114,32 @@ void IControl::SetValueFromUserInput(double value)
 
 void IControl::SetValueToDefault(int valIdx)
 {
-  const int nVals = NVals();
-  valIdx = (nVals == 1) ? 0 : valIdx;
+  valIdx = (NVals() == 1) ? 0 : valIdx;
 
-  for (int v = 0; v < nVals; v++)
+  auto paramDefault = [this](int v)
   {
     const IParam* pParam = GetParam(v);
-
-    if(pParam)
-      SetValue(pParam->GetDefault(true), v);
-  }
-
-  SetDirty(true);
+    if (pParam)
+        SetValue(pParam->GetDefault(true), v);
+  };
+    
+  ForValIdx(valIdx, paramDefault);
+  SetDirty(true, valIdx);
 }
 
 void IControl::SetDirty(bool triggerAction, int valIdx)
 {
-  const int nVals = NVals();
-  valIdx = (nVals == 1) ? 0 : valIdx;
+  valIdx = (NVals() == 1) ? 0 : valIdx;
 
-  if(valIdx > kNoValIdx)
-    SetValue(Clip(GetValue(valIdx), mClampLo, mClampHi), valIdx);
-  else
-  {
-    for (int v = 0; v < nVals; v++)
-    {
-      SetValue(Clip(GetValue(v), mClampLo, mClampHi), v);
-    }
-  }
-  
+  auto setValue = [this](int v) { SetValue(Clip(GetValue(v), mClampLo, mClampHi), v); };
+    
+  ForValIdx(valIdx, setValue);
   mDirty = true;
   
   if (triggerAction)
   {
-    auto paramUpdate = [this](int v){
+    auto paramUpdate = [this](int v)
+    {
       if (GetParamIdx(v) > kNoParameter)
       {
         GetDelegate()->SendParameterValueFromUI(GetParamIdx(v), GetValue(v)); //TODO: take tuple
@@ -155,15 +147,7 @@ void IControl::SetDirty(bool triggerAction, int valIdx)
       }
     };
       
-    if(valIdx > kNoValIdx)
-    {
-      paramUpdate(valIdx);
-    }
-    else
-    {
-      for (int v = 0; v < nVals; v++)
-        paramUpdate(v);
-    }
+    ForValIdx(valIdx, paramUpdate);
     
 //      const IParam* pParam = GetParam();
 
