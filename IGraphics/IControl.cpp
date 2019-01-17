@@ -92,15 +92,12 @@ void IControl::SetValueFromDelegate(double value, int idx)
 {
   //TODO: shit
   if (mDefaultValue < 0.0)
-  {
     mDefaultValue = value;
-    SetValue(value, idx);
-  }
 
-  //don't update this control from delegate, if this control is being captured (i.e. if host is automating the control, mouse is more important
-  IControl* capturedControl = GetUI()->GetCapturedControl();
+  // Don't update the control from delegate if it is being captured
+  // (i.e. if host is automating the control then the mouse is more important)
   
-  if (capturedControl != this)
+  if (this != GetUI()->GetCapturedControl())
   {
     if(GetValue(idx) != value)
     {
@@ -149,22 +146,23 @@ void IControl::SetDirty(bool triggerAction, int valIdx)
   
   if (triggerAction)
   {
-    if(GetParamIdx() > kNoParameter)
+    auto paramUpdate = [this](int v){
+      if (GetParamIdx(v) > -1)
+      {
+        GetDelegate()->SendParameterValueFromUI(GetParamIdx(v), GetValue(v)); //TODO: take tuple
+        GetUI()->UpdatePeers(this, v);
+      }
+    };
+      
+    if(valIdx > -1)
     {
-      if(valIdx > -1)
-      {
-        GetDelegate()->SendParameterValueFromUI(GetParamIdx(valIdx), GetValue(valIdx)); //TODO: take tuple
-        GetUI()->UpdatePeers(this, valIdx);
-      }
-      else
-      {
-        for (int v = 0; v < nVals; v++)
-        {
-          GetDelegate()->SendParameterValueFromUI(GetParamIdx(v), GetValue(v)); //TODO: take tuple
-          GetUI()->UpdatePeers(this, v);
-        }
-      }
-    
+      paramUpdate(valIdx);
+    }
+    else
+    {
+      for (int v = 0; v < nVals; v++)
+          paramUpdate(v);
+    }
     
 //      const IParam* pParam = GetParam();
 
@@ -179,8 +177,7 @@ void IControl::SetDirty(bool triggerAction, int valIdx)
 //      {
 //        ((ITextControl*)mNameDisplayControl)->SetStr(pParam->GetNameForHost());
 //      }
-    }
-    
+      
     if (mActionFunc != nullptr)
       mActionFunc(this);
   }
@@ -226,10 +223,7 @@ void IControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
   #ifdef PROTOOLS
   PromptUserInput();
   #else
-  if (mDefaultValue >= 0.0)
-  {
-    SetValueToDefault();
-  }
+  SetValueToDefault();
   #endif
 }
 
@@ -480,43 +474,36 @@ void ISwitchControlBase::OnMouseUp(float x, float y, const IMouseMod& mod)
   SetDirty(false);
 }
 
-void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
+bool IKnobControlBase::IsFineControl(const IMouseMod& mod, bool wheel) const
 {
-  double gearing = mGearing;
-
 #ifdef PROTOOLS
 #ifdef OS_WIN
-  if (mod.C) gearing *= 10.0;
+  return mod.C;
 #else
-  if (mod.R) gearing *= 10.0;
+  return wheel ? mod.C : mod.R;
 #endif
 #else
-  if (mod.C || mod.S) gearing *= 10.0;
+  return (mod.C || mod.S);
 #endif
+}
+
+void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
+{
+  double gearing = IsFineControl(mod, false) ? mGearing * 10.0 : mGearing;
 
   if (mDirection == kVertical)
-  {
     SetValue(GetValue() + (double)dY / (double)(mRECT.T - mRECT.B) / gearing);
-  }
   else
-  {
     SetValue(GetValue() + (double)dX / (double)(mRECT.R - mRECT.L) / gearing);
-  }
 
   SetDirty();
 }
 
 void IKnobControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
 {
-#ifdef PROTOOLS
-  if (mod.C)
-    SetValue(GetValue() + 0.001 * d);
-#else
-  if (mod.C || mod.S)
-    SetValue(GetValue() + 0.001 * d);
-#endif
-  SetValue(GetValue() + 0.01 * d);
+  double gearing = IsFineControl(mod, true) ? 0.001 : 0.01;
 
+  SetValue(GetValue() + gearing * d);
   SetDirty();
 }
 
