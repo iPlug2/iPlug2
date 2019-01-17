@@ -403,10 +403,10 @@ void IGraphics::UpdatePeers(IControl* pCaller, int callerValIdx) // TODO: this c
     
   auto func = [pCaller, paramIdx, value](IControl& control)
   {
-    int valIdx = 0;
+    int valIdx = control.LinkedToParam(paramIdx);
 
     // Not actually called from the delegate, but we don't want to push the updates back to the delegate
-    if ((valIdx = control.LinkedToParam(paramIdx) > kNoValIdx) && (&control != pCaller))
+    if ((valIdx > kNoValIdx) && (&control != pCaller))
     {
       control.SetValueFromDelegate(value, valIdx);
     }
