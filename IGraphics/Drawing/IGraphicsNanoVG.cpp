@@ -164,11 +164,12 @@ inline void NanoVGSetBlendMode(NVGcontext* context, const IBlend* pBlend)
       nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
       break;
     case kBlendClobber:
-      nvgGlobalCompositeOperation(context, NVG_COPY);
+      nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
+      //nvgGlobalCompositeOperation(context, NVG_COPY);
       break;
           
     case kBlendAdd:
-      nvgGlobalCompositeBlendFunc(context, NVG_ONE, NVG_ONE);
+      nvgGlobalCompositeBlendFunc(context, NVG_SRC_ALPHA, NVG_DST_ALPHA);
       break;
   
     case kBlendSourceOver:
