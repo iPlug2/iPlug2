@@ -784,11 +784,10 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
     }
     #endif
 
-    if (paramIdx > kNoParameter)
+    for (int v = 0; v < nVals; v++)
     {
-      for (int v=0; v<nVals; v++) {
+      if (pControl->GetParamIdx(v) > kNoParameter)
         GetDelegate()->BeginInformHostOfParamChangeFromUI(pControl->GetParamIdx(v));
-      }
     }
     
     pControl->OnMouseDown(x, y, mod);
@@ -802,15 +801,13 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
    
   if (mMouseCapture)
   {
-    int paramIdx = mMouseCapture->GetParamIdx();
+    int nVals = mMouseCapture->NVals();
     mMouseCapture->OnMouseUp(x, y, mod);
-    if (paramIdx > kNoParameter)
+    
+    for (int v = 0; v < nVals; v++)
     {
-      int nVals = mMouseCapture->NVals();
-
-      for (int v=0; v<nVals; v++) {
+      if (mMouseCapture->GetParamIdx(v) > kNoParameter)
         GetDelegate()->EndInformHostOfParamChangeFromUI(mMouseCapture->GetParamIdx(v));
-      }
     }
     ReleaseMouseCapture();
   }
