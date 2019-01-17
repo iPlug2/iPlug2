@@ -90,10 +90,6 @@ IControl::IControl(IRECT bounds, IActionFunction actionFunc)
 
 void IControl::SetValueFromDelegate(double value, int idx)
 {
-  //TODO: shit
-  if (mDefaultValue < 0.0)
-    mDefaultValue = value;
-
   // Don't update the control from delegate if it is being captured
   // (i.e. if host is automating the control then the mouse is more important)
   
@@ -116,13 +112,20 @@ void IControl::SetValueFromUserInput(double value)
   }
 }
 
-void IControl::SetValueToDefault()
+void IControl::SetValueToDefault(int valIdx)
 {
-  bool hasParam = mParamIdx > kNoParameter;
-    
-  if (hasParam || mDefaultValue >= 0.0)
+  const int nVals = NVals();
+  valIdx = (nVals == 1) ? 0 : valIdx;
+
+  if(valIdx > kNoValIdx)
   {
-    mValue = hasParam ? GetParam()->GetDefault(true) : mDefaultValue;
+    SetValue(GetParam(valIdx)->GetDefault(true), valIdx);
+    SetDirty(true, valIdx);
+  }
+  else
+  {
+    for (int v = 0; v < nVals; v++)
+      SetValue(GetParam(v)->GetDefault(true), v);
     SetDirty(true);
   }
 }
@@ -130,11 +133,9 @@ void IControl::SetValueToDefault()
 void IControl::SetDirty(bool triggerAction, int valIdx)
 {
   const int nVals = NVals();
-  
-  if(nVals == 1)
-    valIdx = 0;
+  valIdx = (nVals == 1) ? 0 : valIdx;
 
-  if(valIdx > -1)
+  if(valIdx > kNoValIdx)
     SetValue(Clip(GetValue(valIdx), mClampLo, mClampHi), valIdx);
   else
   {
@@ -156,14 +157,14 @@ void IControl::SetDirty(bool triggerAction, int valIdx)
       }
     };
       
-    if(valIdx > -1)
+    if(valIdx > kNoValIdx)
     {
       paramUpdate(valIdx);
     }
     else
     {
       for (int v = 0; v < nVals; v++)
-          paramUpdate(v);
+        paramUpdate(v);
     }
     
 //      const IParam* pParam = GetParam();
@@ -212,7 +213,7 @@ void IControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   #ifdef PROTOOLS
   if (mod.A)
   {
-    SetValueToDefault();
+    SetValueToDefault(GetValIdxForPos(x, y));
   }
   #endif
 
@@ -225,7 +226,7 @@ void IControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
   #ifdef PROTOOLS
   PromptUserInput();
   #else
-  SetValueToDefault();
+  SetValueToDefault(GetValIdxForPos(x, y));
   #endif
 }
 

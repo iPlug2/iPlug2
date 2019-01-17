@@ -312,7 +312,7 @@ void IGraphics::ForControlWithParam(int paramIdx, std::function<void(IControl& c
   {
     IControl* pControl = GetControl(c);
 
-    if (pControl->LinkedToParam(paramIdx) >= 0)
+    if (pControl->LinkedToParam(paramIdx) > kNoValIdx)
     {
       func(*pControl);
       // Could be more than one, don't break until we check them all.
@@ -406,7 +406,7 @@ void IGraphics::UpdatePeers(IControl* pCaller, int callerValIdx) // TODO: this c
     int valIdx = 0;
 
     // Not actually called from the delegate, but we don't want to push the updates back to the delegate
-    if ((valIdx = control.LinkedToParam(paramIdx) >= 0) && (&control != pCaller))
+    if ((valIdx = control.LinkedToParam(paramIdx) > kNoValIdx) && (&control != pCaller))
     {
       control.SetValueFromDelegate(value, valIdx);
     }
@@ -752,13 +752,12 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
   if (pControl)
   {
     int nVals = pControl->NVals();
-    int firstParamIdx = pControl->GetParamIdx(); // usually a control only has one
+    int valIdx = pControl->GetValIdxForPos(x, y);
+    int paramIdx = pControl->GetParamIdx((valIdx > kNoValIdx) ? valIdx : 0);
 
     #ifdef AAX_API
-    if (mAAXViewContainer && firstParamIdx > kNoParameter)
+    if (mAAXViewContainer && paramIdx > kNoParameter)
     {
-      int paramIdx = nVals == 1 ? firstParamIdx : pControl->GetParamIdxForPos(x, y);
-
       uint32_t mods = GetAAXModifiersFromIMouseMod(mod);
       #ifdef OS_WIN
       // required to get start/windows and alt keys
@@ -777,21 +776,18 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
     #endif
 
     #ifndef IGRAPHICS_NO_CONTEXT_MENU
-    if (mod.R && firstParamIdx > kNoParameter)
+    if (mod.R && paramIdx > kNoParameter)
     {
-      int paramIdx = nVals == 1 ? firstParamIdx : pControl->GetParamIdxForPos(x, y);
-
       ReleaseMouseCapture();
       PopupHostContextMenuForParam(pControl, paramIdx, x, y);
       return;
     }
     #endif
 
-    if (firstParamIdx > kNoParameter)
+    for (int v = 0; v < nVals; v++)
     {
-      for (int v=0; v<nVals; v++) {
+      if (pControl->GetParamIdx(v) > kNoParameter)
         GetDelegate()->BeginInformHostOfParamChangeFromUI(pControl->GetParamIdx(v));
-      }
     }
     
     pControl->OnMouseDown(x, y, mod);
@@ -805,15 +801,13 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
    
   if (mMouseCapture)
   {
-    int paramIdx = mMouseCapture->GetParamIdx();
+    int nVals = mMouseCapture->NVals();
     mMouseCapture->OnMouseUp(x, y, mod);
-    if (paramIdx > kNoParameter)
+    
+    for (int v = 0; v < nVals; v++)
     {
-      int nVals = mMouseCapture->NVals();
-
-      for (int v=0; v<nVals; v++) {
+      if (mMouseCapture->GetParamIdx(v) > kNoParameter)
         GetDelegate()->EndInformHostOfParamChangeFromUI(mMouseCapture->GetParamIdx(v));
-      }
     }
     ReleaseMouseCapture();
   }

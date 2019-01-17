@@ -55,7 +55,7 @@ public:
 
   void Draw(IGraphics& g) override;
 
-  void SetDirty(bool push, int valIdx = -1) override;
+  void SetDirty(bool push, int valIdx = kNoValIdx) override;
 
 protected:
   WDL_String mStr;
