@@ -1,0 +1,15 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'macOS-10.13'
+
+steps:
+- task: Xcode@5
+  inputs:
+    actions: 'build'
+    scheme: 'APP'
+    sdk: 'macOS'
+    configuration: 'Release'
+    xcWorkspacePath: '**/**/*.xcworkspace'
+    xcodeVersion: 'default' # Options: 8, 9, 10, default, specifyPath
