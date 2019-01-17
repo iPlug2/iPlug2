@@ -752,13 +752,12 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
   if (pControl)
   {
     int nVals = pControl->NVals();
-    int firstParamIdx = pControl->GetParamIdx(); // usually a control only has one
+    int valIdx = pControl->GetValIdxForPos(x, y);
+    int paramIdx = pControl->GetParamIdx((valIdx > kNoValIdx) ? valIdx : 0);
 
     #ifdef AAX_API
-    if (mAAXViewContainer && firstParamIdx > kNoParameter)
+    if (mAAXViewContainer && paramIdx > kNoParameter)
     {
-      int paramIdx = nVals == 1 ? firstParamIdx : pControl->GetParamIdxForPos(x, y);
-
       uint32_t mods = GetAAXModifiersFromIMouseMod(mod);
       #ifdef OS_WIN
       // required to get start/windows and alt keys
@@ -777,17 +776,15 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
     #endif
 
     #ifndef IGRAPHICS_NO_CONTEXT_MENU
-    if (mod.R && firstParamIdx > kNoParameter)
+    if (mod.R && paramIdx > kNoParameter)
     {
-      int paramIdx = nVals == 1 ? firstParamIdx : pControl->GetParamIdxForPos(x, y);
-
       ReleaseMouseCapture();
       PopupHostContextMenuForParam(pControl, paramIdx, x, y);
       return;
     }
     #endif
 
-    if (firstParamIdx > kNoParameter)
+    if (paramIdx > kNoParameter)
     {
       for (int v=0; v<nVals; v++) {
         GetDelegate()->BeginInformHostOfParamChangeFromUI(pControl->GetParamIdx(v));

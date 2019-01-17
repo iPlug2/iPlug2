@@ -201,7 +201,7 @@ public:
   /** @return The number of values for this control */
   int NVals() const { return (int) mVals.size(); }
 
-  virtual int GetParamIdxForPos(float x, float y) const { return GetParamIdx(); }
+  virtual int GetValIdxForPos(float x, float y) const { return kNoValIdx; }
   
   /** Get a const pointer to the IParam object (owned by the editor delegate class), associated with this control
    * @return const pointer to an IParam or nullptr if the control is not associated with a parameter */ 
@@ -227,7 +227,7 @@ public:
     
   /** Set the control's value to the default value of the control, or the parameter.
    * This method should call through to SetDirty(true), which will mean that the new value gets sent back to the delegate */
-  virtual void SetValueToDefault();
+  virtual void SetValueToDefault(int valIdx = kNoValIdx);
   
   virtual void SetValue(double value, int valIdx = 0) { mVals.at(valIdx).value = value; }
   

@@ -112,11 +112,20 @@ void IControl::SetValueFromUserInput(double value)
   }
 }
 
-void IControl::SetValueToDefault()
+void IControl::SetValueToDefault(int valIdx)
 {
-  if (GetParamIdx() > kNoParameter)
+  const int nVals = NVals();
+  valIdx = (nVals == 1) ? 0 : valIdx;
+
+  if(valIdx > kNoValIdx)
   {
-    SetValue(GetParam()->GetDefault(true));
+    SetValue(GetParam(valIdx)->GetDefault(true), valIdx);
+    SetDirty(true, valIdx);
+  }
+  else
+  {
+    for (int v = 0; v < nVals; v++)
+      SetValue(GetParam(v)->GetDefault(true), v);
     SetDirty(true);
   }
 }
@@ -124,9 +133,7 @@ void IControl::SetValueToDefault()
 void IControl::SetDirty(bool triggerAction, int valIdx)
 {
   const int nVals = NVals();
-  
-  if(nVals == 1)
-    valIdx = 0;
+  valIdx = (nVals == 1) ? 0 : valIdx;
 
   if(valIdx > kNoValIdx)
     SetValue(Clip(GetValue(valIdx), mClampLo, mClampHi), valIdx);
@@ -206,7 +213,7 @@ void IControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   #ifdef PROTOOLS
   if (mod.A)
   {
-    SetValueToDefault();
+    SetValueToDefault(GetValIdxForPos(x, y));
   }
   #endif
 
@@ -219,7 +226,7 @@ void IControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
   #ifdef PROTOOLS
   PromptUserInput();
   #else
-  SetValueToDefault();
+  SetValueToDefault(GetValIdxForPos(x, y));
   #endif
 }
 
