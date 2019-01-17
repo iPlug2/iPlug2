@@ -57,7 +57,7 @@ public:
     return kNoValIdx;
   }
 
-  void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar = 1.) override //TODO: fixed for horizontal
+  void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, int valIdx = -1 /* TODO:: not used*/, float scalar = 1.) override //TODO: fixed for horizontal
   {
     bounds.Constrain(x, y);
 
@@ -115,7 +115,7 @@ public:
       mSliderHit = -1;
     }
 
-    SetDirty();
+    SetDirty(true); // will send all param vals parameter value to delegate
   }
 
   //  void OnResize() override;
