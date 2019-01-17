@@ -164,7 +164,7 @@ void IControl::SetDirty(bool triggerAction, int valIdx)
     else
     {
       for (int v = 0; v < nVals; v++)
-          paramUpdate(v);
+        paramUpdate(v);
     }
     
 //      const IParam* pParam = GetParam();
