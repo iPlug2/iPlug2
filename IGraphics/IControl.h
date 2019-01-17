@@ -733,7 +733,7 @@ public:
   {}
 
   void SetGearing(double gearing) { mGearing = gearing; }
-  bool IsFineControl(const IMouseMod& mod) const;
+  bool IsFineControl(const IMouseMod& mod, bool wheel) const;
   virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
   virtual void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
 

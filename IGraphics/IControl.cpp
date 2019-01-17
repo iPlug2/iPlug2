@@ -474,13 +474,13 @@ void ISwitchControlBase::OnMouseUp(float x, float y, const IMouseMod& mod)
   SetDirty(false);
 }
 
-bool IKnobControlBase::IsFineControl(const IMouseMod& mod) const
+bool IKnobControlBase::IsFineControl(const IMouseMod& mod, bool wheel) const
 {
 #ifdef PROTOOLS
 #ifdef OS_WIN
   return mod.C;
 #else
-  return mod.R;
+  return wheel ? mod.C : mod.R;
 #endif
 #else
   return (mod.C || mod.S);
@@ -489,7 +489,7 @@ bool IKnobControlBase::IsFineControl(const IMouseMod& mod) const
 
 void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
 {
-  double gearing = IsFineControl(mod) ? mGearing * 10.0 : mGearing;
+  double gearing = IsFineControl(mod, false) ? mGearing * 10.0 : mGearing;
 
   if (mDirection == kVertical)
     SetValue(GetValue() + (double)dY / (double)(mRECT.T - mRECT.B) / gearing);
@@ -501,7 +501,7 @@ void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const I
 
 void IKnobControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
 {
-  double gearing = IsFineControl(mod) ? 0.001 : 0.01;
+  double gearing = IsFineControl(mod, true) ? 0.001 : 0.01;
 
   SetValue(GetValue() + gearing * d);
   SetDirty();
