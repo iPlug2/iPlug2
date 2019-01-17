@@ -212,23 +212,18 @@ void IGraphicsCanvas::SetCanvasBlendMode(const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case kBlendNone:        GetContext().set("globalCompositeOperation", "source-over");        break;
-    case kBlendClobber:     GetContext().set("globalCompositeOperation", "copy");               break;
-          
+    case kBlendDefault:     GetContext().set("globalCompositeOperation", "source-over");        break;
+    case kBlendCopy:        GetContext().set("globalCompositeOperation", "copy");               break;
+    case kBlendAdd:         GetContext().set("globalCompositeOperation", "lighter");            break;
+    case kBlendXOR:         GetContext().set("globalCompositeOperation", "xor");                break;
     case kBlendSourceOver:  GetContext().set("globalCompositeOperation", "source-over");        break;
     case kBlendSourceIn:    GetContext().set("globalCompositeOperation", "source-in");          break;
     case kBlendSourceOut:   GetContext().set("globalCompositeOperation", "source-out");         break;
     case kBlendSourceAtop:  GetContext().set("globalCompositeOperation", "source-atop");        break;
-
     case kBlendDestOver:    GetContext().set("globalCompositeOperation", "destination-over");   break;
     case kBlendDestIn:      GetContext().set("globalCompositeOperation", "destination-in");     break;
     case kBlendDestOut:     GetContext().set("globalCompositeOperation", "destination-out");    break;
     case kBlendDestAtop:    GetContext().set("globalCompositeOperation", "destination-atop");   break;
-      
-    case kBlendXOR:         GetContext().set("globalCompositeOperation", "xor");                break;
-
-    case kBlendAdd:         GetContext().set("globalCompositeOperation", "lighter");            break;
-    case kBlendColorDodge:  GetContext().set("globalCompositeOperation", "color-dodge");        break;
   }
 }
 
@@ -408,7 +403,7 @@ void IGraphicsCanvas::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
       pixelData.set(i, in[i]);
     
     localContext.call<void>("putImageData", imageData, 0, 0);
-    IBlend blend(kBlendNone, shadow.mOpacity);
+    IBlend blend(kBlendDefault, shadow.mOpacity);
     localContext.call<void>("rect", 0, 0, width, height);
     localContext.call<void>("scale", scale, scale);
     localContext.call<void>("translate", -(layer->Bounds().L + shadow.mXOffset), -(layer->Bounds().T + shadow.mYOffset));

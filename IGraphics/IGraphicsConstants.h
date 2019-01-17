@@ -73,26 +73,18 @@ const int FONT_LEN = 32;
  */
 enum EBlendType
 {
-  kBlendNone,     // Copy over whatever is already there, but look at src alpha.
-  kBlendClobber,  // Copy completely over whatever is already there.
-    
+  kBlendDefault,
+  kBlendCopy,      
+  kBlendAdd,
+  kBlendXOR,
   kBlendSourceOver,
   kBlendSourceIn,
   kBlendSourceOut,
   kBlendSourceAtop,
-    
   kBlendDestOver,
   kBlendDestIn,
   kBlendDestOut,
   kBlendDestAtop,
-    
-  kBlendXOR,
-  
-  // Need review
-    
-  kBlendAdd,
-  kBlendColorDodge,
-  // etc
 };
 
 enum EFileAction
