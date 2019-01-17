@@ -332,6 +332,73 @@ void IVSliderControl::OnResize()
   SetDirty(false);
 }
 
+IVRangeSliderControl::IVRangeSliderControl(IRECT bounds, int paramIdxLo, int paramIdxHi)
+  :IVSliderControl(bounds)
+{
+  mVals.resize(2);
+  mVals.at(0) = { paramIdxLo, 0., false };
+  mVals.at(1) = { paramIdxHi, 0., false };
+  mTrackSize = bounds.W();
+}
+
+void IVRangeSliderControl::Draw(IGraphics & g)
+{
+  g.FillRect(GetColor(kBG), mRECT);
+
+  //const float halfHandleSize = mHandleSize / 2.f;
+
+  //track
+  const float minVal = (float) std::min(GetValue(0), GetValue(1));
+  const float maxVal = (float) std::max(GetValue(0), GetValue(1));
+
+  IRECT filledTrack = { mTrack.L, mTrack.B - (maxVal * mTrack.H()), mTrack.R, mTrack.B - (minVal * mTrack.H()) };
+
+  g.FillRect(GetColor(kFR), mTrack);
+  g.FillRect(GetColor(kFG), filledTrack);
+  g.DrawRect(GetColor(kFR), mTrack);
+
+  float cx[2];
+  float cy[2];
+
+  if (mDirection == kVertical)
+  {
+    cx[0] = cx[1] = filledTrack.MW();
+    cy[0] = filledTrack.T;
+    cy[1] = filledTrack.B;
+  }
+  else
+  {
+    cx[0] = filledTrack.L;
+    cx[1] = filledTrack.R;
+    cy[0] = cy[1] = filledTrack.MH();
+  }
+
+  ////Handles
+  //for (int i = 0; i < 2; i++)
+  //{
+  //  if (mDrawShadows && !mEmboss)
+  //    g.FillCircle(GetColor(kSH), cx[i] + mShadowOffset, cy[i] + mShadowOffset, halfHandleSize);
+
+  //  g.FillCircle(GetColor(kFG), cx[i], cy[i], halfHandleSize);
+
+  //  if (GetMouseIsOver())
+  //    g.FillCircle(GetColor(kHL), cx[i], cy[i], halfHandleSize);
+
+  //  g.DrawCircle(GetColor(kFR), cx[i], cy[i], halfHandleSize, 0, mFrameThickness);
+  //  g.DrawCircle(GetColor(kON), cx[i], cy[i], halfHandleSize * 0.7f, 0, mFrameThickness);
+  //}
+}
+
+void IVRangeSliderControl::OnMouseDown(float x, float y, const IMouseMod & mod)
+{
+  SnapToMouse(x, y, mDirection, mTrack);
+}
+
+void IVRangeSliderControl::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod & mod)
+{
+  SnapToMouse(x, y, mDirection, mTrack);
+}
+
 #pragma mark - BITMAP CONTROLS
 
 void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
@@ -408,4 +475,3 @@ IRECT IBSliderControl::GetHandleBounds(double value) const
   }
   return r;
 }
-

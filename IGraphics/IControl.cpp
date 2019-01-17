@@ -309,7 +309,7 @@ const IParam* IControl::GetParam(int valIdx)
     return nullptr;
 }
 
-void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar /* TODO: scalar! */)
+void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, int valIdx, float scalar /* TODO: scalar! */)
 {
   bounds.Constrain(x, y);
 
@@ -323,8 +323,8 @@ void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds
     //mValue = (double) (x - (mRECT.R - (mRECT.W()*lengthMult)) - mHandleHeadroom / 2) / (double) ((mLen*lengthMult) - mHandleHeadroom);
     val = (x-bounds.L) / bounds.W();
 
-  SetValue(std::round( val / 0.001 ) * 0.001);
-  SetDirty(true); // will send parameter value to delegate
+  SetValue(std::round( val / 0.001 ) * 0.001, valIdx);
+  SetDirty(true, valIdx); // will send parameter value to delegate
 }
 
 void IBitmapControl::Draw(IGraphics& g)
@@ -642,4 +642,20 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
     parentDirMenu.RemoveEmptySubmenus();
 
 #endif
+}
+
+ISliderControlBase::ISliderControlBase(IRECT bounds, int paramIdx, EDirection dir, bool onlyHandle, float handleSize)
+: IControl(bounds, paramIdx)
+, mDirection(dir)
+, mOnlyHandle(onlyHandle)
+{
+  handleSize == 0 ? mHandleSize = bounds.W() : mHandleSize = handleSize;
+}
+
+ ISliderControlBase::ISliderControlBase(IRECT bounds, IActionFunction aF, EDirection dir, bool onlyHandle, float handleSize)
+: IControl(bounds, aF)
+, mDirection(dir)
+, mOnlyHandle(onlyHandle)
+{
+  handleSize == 0 ? mHandleSize = bounds.W() : mHandleSize = handleSize;
 }

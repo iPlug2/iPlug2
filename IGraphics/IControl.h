@@ -395,7 +395,7 @@ public:
    * @param direction The direction of the control's travel- horizontal or vertical fader
    * @param bounds The area in which the track of e.g. a slider should be snapped
    * @param scalar A scalar to speedup/slowdown mousing along the track */
-  virtual void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar = 1.);
+  virtual void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, int valIdx = -1, float scalar = 1.);
 
   virtual void OnEndAnimation() // if you override this you must call the base implementation, to free mAnimationFunc
   {
@@ -750,23 +750,8 @@ protected:
 class ISliderControlBase : public IControl
 {
 public:
-  ISliderControlBase(IRECT bounds, int paramIdx = kNoParameter,
-                     EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 0.f)
-  : IControl(bounds, paramIdx)
-  , mDirection(dir)
-  , mOnlyHandle(onlyHandle)
-  {
-    handleSize == 0 ? mHandleSize = bounds.W() : mHandleSize = handleSize;
-  }
-  
-  ISliderControlBase(IRECT bounds, IActionFunction aF = nullptr,
-                     EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 0.f)
-  : IControl(bounds, aF)
-  , mDirection(dir)
-  , mOnlyHandle(onlyHandle)
-  {
-    handleSize == 0 ? mHandleSize = bounds.W() : mHandleSize = handleSize;
-  }
+  ISliderControlBase(IRECT bounds, int paramIdx = kNoParameter,  EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 0.f);
+  ISliderControlBase(IRECT bounds, IActionFunction aF = nullptr, EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 0.f);
   
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
   virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
