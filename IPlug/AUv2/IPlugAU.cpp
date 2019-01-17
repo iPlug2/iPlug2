@@ -36,11 +36,14 @@ struct CFStrLocal
 struct CStrLocal
 {
   char* mCStr;
-  CStrLocal(CFStringRef cfStr)
+    CStrLocal(CFStringRef cfStr) : mCStr(nullptr)
   {
-    long n = CFStringGetLength(cfStr) + 1;
-    mCStr = (char*) malloc(n);
-    CFStringGetCString(cfStr, mCStr, n, kCFStringEncodingUTF8);
+    if (cfStr)
+    {
+      long n = CFStringGetLength(cfStr) + 1;
+      mCStr = (char*) malloc(n);
+      CFStringGetCString(cfStr, mCStr, n, kCFStringEncodingUTF8);
+    }
   }
   ~CStrLocal()
   {
@@ -2202,11 +2205,11 @@ OSStatus IPlugAU::DoInitialize(IPlugAU* _this)
       CStrLocal versionStr((CFStringRef) CFBundleGetValueForInfoDictionaryKey(mainBundle, kCFBundleVersionKey));
       
       char *pStr;
-      long ver = strtol(versionStr.mCStr, &pStr, 10);
-      long verRevMaj = *pStr ? strtol(pStr + 1, &pStr, 10) : 0;
-      long verRevMin = *pStr ? strtol(pStr + 1, &pStr, 10) : 0;
+      long ver = versionStr.mCStr ? strtol(versionStr.mCStr, &pStr, 10) : 0;
+      long verRevMaj = versionStr.mCStr && *pStr ? strtol(pStr + 1, &pStr, 10) : 0;
+      long verRevMin = versionStr.mCStr && *pStr ? strtol(pStr + 1, &pStr, 10) : 0;
 
-      version = ((ver & 0xFFFF) << 16) | ((verRevMaj &  0xFF) << 8) | (verRevMin & 0xFF);
+      version = (int) (((ver & 0xFFFF) << 16) | ((verRevMaj &  0xFF) << 8) | (verRevMin & 0xFF));
     }
 
     _this->SetHost(id ? CStrLocal(id).mCStr : "", version);
