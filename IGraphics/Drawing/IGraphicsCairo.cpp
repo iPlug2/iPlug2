@@ -92,12 +92,23 @@ inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
   }
   switch (pBlend->mMethod)
   {
+    case kBlendNone:        return CAIRO_OPERATOR_OVER;
     case kBlendClobber:     return CAIRO_OPERATOR_SOURCE;
+          
+    case kBlendSourceOver:  return CAIRO_OPERATOR_OVER;
+    case kBlendSourceIn:    return CAIRO_OPERATOR_IN;
+    case kBlendSourceOut:   return CAIRO_OPERATOR_OUT;
+    case kBlendSourceAtop:  return CAIRO_OPERATOR_ATOP;
+          
+    case kBlendDestOver:    return CAIRO_OPERATOR_DEST_OVER;
+    case kBlendDestIn:      return CAIRO_OPERATOR_DEST_IN;
+    case kBlendDestOut:     return CAIRO_OPERATOR_DEST_OUT;
+    case kBlendDestAtop:    return CAIRO_OPERATOR_DEST_ATOP;
+          
+    case kBlendXOR:         return CAIRO_OPERATOR_XOR;
+        
     case kBlendAdd:         return CAIRO_OPERATOR_ADD;
     case kBlendColorDodge:  return CAIRO_OPERATOR_COLOR_DODGE;
-    case kBlendNone:
-    default:
-      return CAIRO_OPERATOR_OVER; // TODO: is this correct - same as clobber?
   }
 }
 
