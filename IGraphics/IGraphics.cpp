@@ -312,7 +312,7 @@ void IGraphics::ForControlWithParam(int paramIdx, std::function<void(IControl& c
   {
     IControl* pControl = GetControl(c);
 
-    if (pControl->GetParamIdx() == paramIdx)
+    if (pControl->LinkedToParam(paramIdx) >= 0)
     {
       func(*pControl);
       // Could be more than one, don't break until we check them all.
@@ -398,14 +398,17 @@ void IGraphics::AssignParamNameToolTips()
 
 void IGraphics::UpdatePeers(IControl* pCaller, int callerValIdx) // TODO: this could be really slow
 {
-  auto func = [pCaller, callerValIdx](IControl& control)
+  double value = pCaller->GetValue(callerValIdx);
+  int paramIdx = pCaller->GetParamIdx(callerValIdx);
+    
+  auto func = [pCaller, paramIdx, value](IControl& control)
   {
     int valIdx = 0;
 
     // Not actually called from the delegate, but we don't want to push the updates back to the delegate
-    if (control.IsLinkedToParam(pCaller->GetParamIdx(callerValIdx), valIdx) && (&control != pCaller))
+    if ((valIdx = control.LinkedToParam(paramIdx) >= 0) && (&control != pCaller))
     {
-      control.SetValueFromDelegate(pCaller->GetValue(callerValIdx), valIdx);
+      control.SetValueFromDelegate(value, valIdx);
     }
   };
     
