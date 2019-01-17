@@ -92,15 +92,12 @@ void IControl::SetValueFromDelegate(double value, int idx)
 {
   //TODO: shit
   if (mDefaultValue < 0.0)
-  {
     mDefaultValue = value;
-    SetValue(value, idx);
-  }
 
-  //don't update this control from delegate, if this control is being captured (i.e. if host is automating the control, mouse is more important
-  IControl* capturedControl = GetUI()->GetCapturedControl();
+  // Don't update the control from delegate if it is being captured
+  // (i.e. if host is automating the control then the mouse is more important)
   
-  if (capturedControl != this)
+  if (this != GetUI()->GetCapturedControl())
   {
     if(GetValue(idx) != value)
     {
