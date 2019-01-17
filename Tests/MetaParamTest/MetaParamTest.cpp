@@ -1,6 +1,10 @@
 #include "MetaParamTest.h"
 #include "IPlug_include_in_plug_src.h"
 
+#if IPLUG_EDITOR
+#include "IControls.h"
+#endif
+
 MetaParamTest::MetaParamTest(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
 {
@@ -23,8 +27,8 @@ MetaParamTest::MetaParamTest(IPlugInstanceInfo instanceInfo)
     pGraphics->LoadFont(ROBOTTO_FN);
     pGraphics->ShowFPSDisplay(true);
     const IRECT b = pGraphics->GetBounds();
-    pGraphics->AttachControl(new IXYPad(b.GetGridCell(0, 2, 2), {kParamLeftX, kParamLeftY}), kCtrlLeftXYPad, "mux");
-    pGraphics->AttachControl(new IXYPad(b.GetGridCell(1, 2, 2), {kParamRightX, kParamRightY}), kCtrlRightXYPad, "mux");
+    pGraphics->AttachControl(new IVXYPadControl(b.GetGridCell(0, 2, 2), {kParamLeftX, kParamLeftY}), kCtrlLeftXYPad, "mux");
+    pGraphics->AttachControl(new IVXYPadControl(b.GetGridCell(1, 2, 2), {kParamRightX, kParamRightY}), kCtrlRightXYPad, "mux");
     pGraphics->AttachControl(new IVKnobControl(b.GetGridCell(2, 2, 2).FracRectHorizontal(0.5), kParamLeftX), kCtrlLeftXKnob, "mux");
     pGraphics->AttachControl(new IVKnobControl(b.GetGridCell(2, 2, 2).FracRectHorizontal(0.5, true), kParamLeftY), kCtrlLeftYKnob, "mux");
     pGraphics->AttachControl(new IVKnobControl(b.GetGridCell(3, 2, 2).FracRectHorizontal(0.5), kParamRightX), kCtrlRightXKnob, "mux");

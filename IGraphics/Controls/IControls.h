@@ -185,6 +185,49 @@ private:
   float mTrackSize;
 };
 
+class IVXYPadControl : public IControl
+                     , public IVectorBase
+{
+public:
+  IVXYPadControl(IRECT bounds, const std::initializer_list<int>& params,
+                 const IVColorSpec& colorSpec = DEFAULT_SPEC,
+                 float handleRadius = 10.f)
+  : IControl(bounds, params)
+  , IVectorBase(colorSpec)
+  , mHandleRadius(handleRadius)
+  {
+    AttachIControl(this);
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    float xpos = GetValue(0) * mRECT.W();
+    float ypos = GetValue(1) * mRECT.H();
+    
+    g.DrawVerticalLine(GetColor(kFG), mRECT, 0.5);
+    g.DrawHorizontalLine(GetColor(kFG), mRECT, 0.5);
+    g.FillCircle(GetMouseIsOver() ? GetColor(kHL) : GetColor(kPR), mRECT.L + xpos, mRECT.B - ypos, mHandleRadius);
+  }
+  
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    OnMouseDrag(x, y, 0., 0., mod);
+  }
+  
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
+  {
+    mRECT.Constrain(x, y);
+    float xn = (x - mRECT.L) / mRECT.W();
+    float yn = 1.f-((y - mRECT.T) / mRECT.H());
+    SetValue(xn, 0);
+    SetValue(yn, 1);
+    SetDirty(true);
+  }
+  
+private:
+  float mHandleRadius;
+};
+
 #pragma mark - Bitmap Controls
 
 /** A bitmap button/momentary switch control. */
