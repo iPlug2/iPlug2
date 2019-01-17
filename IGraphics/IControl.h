@@ -453,14 +453,12 @@ protected:
   IText mText;
 
   int mTextEntryLength = DEFAULT_TEXT_ENTRY_LEN;
-  double mDefaultValue = -1.; // it's important this is -1 to start with
   double mClampLo = 0.;
   double mClampHi = 1.;
   bool mDirty = true;
   bool mHide = false;
   bool mGrayed = false;
   bool mDisablePrompt = true;
-  bool mClamped = false;
   bool mDblAsSingleClick = false;
   bool mMOWhenGrayed = false;
   bool mMEWhenGrayed = false;

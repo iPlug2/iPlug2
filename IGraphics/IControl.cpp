@@ -90,10 +90,6 @@ IControl::IControl(IRECT bounds, IActionFunction actionFunc)
 
 void IControl::SetValueFromDelegate(double value, int idx)
 {
-  //TODO: shit
-  if (mDefaultValue < 0.0)
-    mDefaultValue = value;
-
   // Don't update the control from delegate if it is being captured
   // (i.e. if host is automating the control then the mouse is more important)
   
@@ -118,9 +114,9 @@ void IControl::SetValueFromUserInput(double value)
 
 void IControl::SetValueToDefault()
 {
-  if (GetParamIdx() > kNoParameter || mDefaultValue >= 0.0)
+  if (GetParamIdx() > kNoParameter)
   {
-    SetValue(GetParamIdx() > kNoParameter ? GetParam()->GetDefault(true) : mDefaultValue);
+    SetValue(GetParam()->GetDefault(true));
     SetDirty(true);
   }
 }
