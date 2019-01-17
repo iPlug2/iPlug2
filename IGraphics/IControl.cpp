@@ -147,7 +147,7 @@ void IControl::SetDirty(bool triggerAction, int valIdx)
   if (triggerAction)
   {
     auto paramUpdate = [this](int v){
-      if (GetParamIdx(v) > -1)
+      if (GetParamIdx(v) > kNoParameter)
       {
         GetDelegate()->SendParameterValueFromUI(GetParamIdx(v), GetValue(v)); //TODO: take tuple
         GetUI()->UpdatePeers(this, v);

@@ -172,14 +172,20 @@ public:
   /** @return Currently set tooltip text */
   inline const char* GetTooltip() const { return mTooltip.Get(); }
 
-  /** Get the index of the parameter that this control is meant to display
-   * @return Parameter index, or kNoParameter if there is no parameter linked with this control */
+  /** Get the index of a parameter that the control is linked to
+   * Normaly controls are either linked to a single parameter or no parameter but some may be linked to multiple parameters
+   * @param valIdx An index to choose which of the controls linked parameters to retrieve. NOTE: since controls usually have only 1 parameter you can omit this argument and use the default index of 0
+   * @return Parameter index, or kNoParameter if there is no parameter linked with this control at valIdx */
   int GetParamIdx(int valIdx = 0) const
   {
     return mVals.at(valIdx).idx;
   }
-  
-  int LinkedToParam(int paramIdx) const
+ 
+  /** Check if the control is linked to a particular parameter
+   * @param paramIdx The paramIdx to test
+   * @return \c the valIdx if linked, or -1 if not */
+
+ int LinkedToParam(int paramIdx) const
   {
     for (int v = 0; v <NVals(); v++)
     {
@@ -192,6 +198,7 @@ public:
     return -1;
   }
   
+  /** @return The number of values for this control */
   int NVals() const { return (int) mVals.size(); }
 
   virtual int GetParamIdxForPos(float x, float y) const { return GetParamIdx(); }
