@@ -9,7 +9,7 @@ steps:
   inputs:
     actions: 'build'
     scheme: 'APP'
-    sdk: 'macOS'
+    sdk: 'latest'
     configuration: 'Release'
     xcWorkspacePath: '**/**/*.xcworkspace'
     xcodeVersion: 'default' # Options: 8, 9, 10, default, specifyPath
