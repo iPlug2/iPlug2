@@ -312,7 +312,7 @@ void IGraphics::ForControlWithParam(int paramIdx, std::function<void(IControl& c
   {
     IControl* pControl = GetControl(c);
 
-    if (pControl->LinkedToParam(paramIdx) >= 0)
+    if (pControl->LinkedToParam(paramIdx) > kNoValIdx)
     {
       func(*pControl);
       // Could be more than one, don't break until we check them all.
@@ -406,7 +406,7 @@ void IGraphics::UpdatePeers(IControl* pCaller, int callerValIdx) // TODO: this c
     int valIdx = 0;
 
     // Not actually called from the delegate, but we don't want to push the updates back to the delegate
-    if ((valIdx = control.LinkedToParam(paramIdx) >= 0) && (&control != pCaller))
+    if ((valIdx = control.LinkedToParam(paramIdx) > kNoValIdx) && (&control != pCaller))
     {
       control.SetValueFromDelegate(value, valIdx);
     }

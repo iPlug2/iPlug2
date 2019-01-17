@@ -132,7 +132,7 @@ void IControl::SetDirty(bool triggerAction, int valIdx)
   if(nVals == 1)
     valIdx = 0;
 
-  if(valIdx > -1)
+  if(valIdx > kNoValIdx)
     SetValue(Clip(GetValue(valIdx), mClampLo, mClampHi), valIdx);
   else
   {
@@ -154,7 +154,7 @@ void IControl::SetDirty(bool triggerAction, int valIdx)
       }
     };
       
-    if(valIdx > -1)
+    if(valIdx > kNoValIdx)
     {
       paramUpdate(valIdx);
     }

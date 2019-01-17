@@ -183,7 +183,7 @@ public:
  
   /** Check if the control is linked to a particular parameter
    * @param paramIdx The paramIdx to test
-   * @return \c the valIdx if linked, or -1 if not */
+   * @return \c the valIdx if linked, or kNoValIdx if not */
 
  int LinkedToParam(int paramIdx) const
   {
@@ -195,7 +195,7 @@ public:
       }
     }
     
-    return -1;
+    return kNoValIdx;
   }
   
   /** @return The number of values for this control */
@@ -331,7 +331,7 @@ public:
    * @param triggerAction If this is true and the control is linked to a parameter
    * notify the class implementing the IEditorDelegate interface that the parameter changed. If this control has an ActionFunction, that can also be triggered.
    * NOTE: it is easy to forget that this method always sets the control dirty, the argument is about whether a consecutive action should be performed */
-  virtual void SetDirty(bool triggerAction = true, int valIdx = -1);
+  virtual void SetDirty(bool triggerAction = true, int valIdx = kNoValIdx);
 
   /* Set the control clean, i.e. Called by IGraphics draw loop after control has been drawn */
   virtual void SetClean() { mDirty = false; }
