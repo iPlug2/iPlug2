@@ -178,18 +178,19 @@ public:
    * @return Parameter index, or kNoParameter if there is no parameter linked with this control at valIdx */
   int GetParamIdx(int valIdx = 0) const
   {
-    return mVals.at(valIdx).idx;
+    return mVals[valIdx].idx;
   }
  
   /** Check if the control is linked to a particular parameter
    * @param paramIdx The paramIdx to test
-   * @return \c the valIdx if linked, or kNoValIdx if not */
-
- int LinkedToParam(int paramIdx) const
+   * @return the valIdx if linked, or kNoValIdx if not */
+  int LinkedToParam(int paramIdx) const
   {
-    for (int v = 0; v <NVals(); v++)
+    const int nVals = NVals();
+    
+    for (int v = 0; v < nVals; v++)
     {
-      if(mVals.at(v).idx == paramIdx)
+      if(mVals[v].idx == paramIdx)
       {
         return v;
       }
@@ -235,15 +236,15 @@ public:
    * This method will call through to SetDirty(true, valIdx), which will mean that the new value gets sent back to the delegate */
   virtual void SetValueToDefault(int valIdx = kNoValIdx);
   
-  virtual void SetValue(double value, int valIdx = 0) { mVals.at(valIdx).value = value; }
   /** Set one of the control's values.
    * @param value The normalized 0-1 value
    * @param valIdx The index of the value to set, which should be between 0 and NVals() */
+  virtual void SetValue(double value, int valIdx = 0);
   
   /** Get the control's value
-  double GetValue(int valIdx = 0) const { return mVals.at(valIdx).value; }
    * @return Value of the control, normalized in the range 0-1
    * @param valIdx The index of the value to set, which should be between 0 and NVals() */
+  double GetValue(int valIdx = 0) const;
 
   /** Get the Text object for the control
    * @return const IText& The control's mText object, typically used to determine font/layout/size etc of the main text in a control. */

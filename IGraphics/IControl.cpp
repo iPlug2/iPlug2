@@ -120,11 +120,23 @@ void IControl::SetValueToDefault(int valIdx)
   {
     const IParam* pParam = GetParam(v);
     if (pParam)
-        SetValue(pParam->GetDefault(true), v);
+      SetValue(pParam->GetDefault(true), v);
   };
     
   ForValIdx(valIdx, paramDefault);
   SetDirty(true, valIdx);
+}
+
+void IControl::SetValue(double value, int valIdx)
+{
+  assert(valIdx > kNoValIdx && valIdx < NVals());
+  mVals[valIdx].value = value;
+}
+
+double IControl::GetValue(int valIdx) const
+{
+  assert(valIdx > kNoValIdx && valIdx < NVals());
+  return mVals[valIdx].value;
 }
 
 void IControl::SetDirty(bool triggerAction, int valIdx)
@@ -132,8 +144,8 @@ void IControl::SetDirty(bool triggerAction, int valIdx)
   valIdx = (NVals() == 1) ? 0 : valIdx;
 
   auto setValue = [this](int v) { SetValue(Clip(GetValue(v), mClampLo, mClampHi), v); };
-    
   ForValIdx(valIdx, setValue);
+  
   mDirty = true;
   
   if (triggerAction)
