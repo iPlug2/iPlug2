@@ -214,20 +214,20 @@ class IPlugAUFactory
     static AudioComponentMethod Lookup(SInt16 selector)
     {
       switch (selector) {
-        case kAudioUnitInitializeSelect:  return (AudioComponentMethod)IPlugAU::AUMethodInitialize;
-        case kAudioUnitUninitializeSelect:  return (AudioComponentMethod)IPlugAU::AUMethodUninitialize;
-        case kAudioUnitGetPropertyInfoSelect:	return (AudioComponentMethod)IPlugAU::AUMethodGetPropertyInfo;
+        case kAudioUnitInitializeSelect: return (AudioComponentMethod)IPlugAU::AUMethodInitialize;
+        case kAudioUnitUninitializeSelect: return (AudioComponentMethod)IPlugAU::AUMethodUninitialize;
+        case kAudioUnitGetPropertyInfoSelect: return (AudioComponentMethod)IPlugAU::AUMethodGetPropertyInfo;
         case kAudioUnitGetPropertySelect: return (AudioComponentMethod)IPlugAU::AUMethodGetProperty;
         case kAudioUnitSetPropertySelect: return (AudioComponentMethod)IPlugAU::AUMethodSetProperty;
         case kAudioUnitAddPropertyListenerSelect:return (AudioComponentMethod)IPlugAU::AUMethodAddPropertyListener;
         case kAudioUnitRemovePropertyListenerSelect:  return (AudioComponentMethod)IPlugAU::AUMethodRemovePropertyListener;
         case kAudioUnitRemovePropertyListenerWithUserDataSelect:  return (AudioComponentMethod)IPlugAU::AUMethodRemovePropertyListenerWithUserData;
-        case kAudioUnitAddRenderNotifySelect:	return (AudioComponentMethod)IPlugAU::AUMethodAddRenderNotify;
+        case kAudioUnitAddRenderNotifySelect: return (AudioComponentMethod)IPlugAU::AUMethodAddRenderNotify;
         case kAudioUnitRemoveRenderNotifySelect:return (AudioComponentMethod)IPlugAU::AUMethodRemoveRenderNotify;
-        case kAudioUnitGetParameterSelect:  return (AudioComponentMethod)IPlugAU::AUMethodGetParameter;
-        case kAudioUnitSetParameterSelect:  return (AudioComponentMethod)IPlugAU::AUMethodSetParameter;
+        case kAudioUnitGetParameterSelect: return (AudioComponentMethod)IPlugAU::AUMethodGetParameter;
+        case kAudioUnitSetParameterSelect: return (AudioComponentMethod)IPlugAU::AUMethodSetParameter;
         case kAudioUnitScheduleParametersSelect:return (AudioComponentMethod)IPlugAU::AUMethodScheduleParameters;
-        case kAudioUnitRenderSelect:  return (AudioComponentMethod)IPlugAU::AUMethodRender;
+        case kAudioUnitRenderSelect: return (AudioComponentMethod)IPlugAU::AUMethodRender;
         case kAudioUnitResetSelect: return (AudioComponentMethod)IPlugAU::AUMethodReset;
 #if PLUG_DOES_MIDI_IN
         case kMusicDeviceMIDIEventSelect:  return (AudioComponentMethod)IPlugAU::AUMethodMIDIEvent;

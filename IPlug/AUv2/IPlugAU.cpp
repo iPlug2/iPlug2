@@ -36,11 +36,14 @@ struct CFStrLocal
 struct CStrLocal
 {
   char* mCStr;
-  CStrLocal(CFStringRef cfStr)
+    CStrLocal(CFStringRef cfStr) : mCStr(nullptr)
   {
-    long n = CFStringGetLength(cfStr) + 1;
-    mCStr = (char*) malloc(n);
-    CFStringGetCString(cfStr, mCStr, n, kCFStringEncodingUTF8);
+    if (cfStr)
+    {
+      long n = CFStringGetLength(cfStr) + 1;
+      mCStr = (char*) malloc(n);
+      CFStringGetCString(cfStr, mCStr, n, kCFStringEncodingUTF8);
+    }
   }
   ~CStrLocal()
   {
@@ -1250,10 +1253,10 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       {
         AUHostIdentifier* pHostID = (AUHostIdentifier*) pData;
         CStrLocal hostStr(pHostID->hostName);
-        int hostVer = (pHostID->hostVersion.majorRev << 16)
+        int version = (pHostID->hostVersion.majorRev << 16)
                     + ((pHostID->hostVersion.minorAndBugRev & 0xF0) << 4)
                     + ((pHostID->hostVersion.minorAndBugRev & 0x0F));
-        SetHost(hostStr.mCStr, hostVer);
+        SetHost(hostStr.mCStr, version);
       }
       return noErr;
     }
@@ -2193,17 +2196,23 @@ OSStatus IPlugAU::DoInitialize(IPlugAU* _this)
   if (_this->GetHost() == kHostUninit)
   {
     CFBundleRef mainBundle = CFBundleGetMainBundle();
-    CFStringRef id;
-        
-    if (mainBundle && (id = CFBundleGetIdentifier(mainBundle)))
+    CFStringRef id = nullptr;
+    int version = 0;
+      
+    if (mainBundle)
     {
-      //CFStringRef versStr = (CFStringRef) CFBundleGetValueForInfoDictionaryKey(mainBundle, kCFBundleVersionKey);
-      _this->SetHost(CStrLocal(id).mCStr, 0);
+      id = CFBundleGetIdentifier(mainBundle);
+      CStrLocal versionStr((CFStringRef) CFBundleGetValueForInfoDictionaryKey(mainBundle, kCFBundleVersionKey));
+      
+      char *pStr;
+      long ver = versionStr.mCStr ? strtol(versionStr.mCStr, &pStr, 10) : 0;
+      long verRevMaj = versionStr.mCStr && *pStr ? strtol(pStr + 1, &pStr, 10) : 0;
+      long verRevMin = versionStr.mCStr && *pStr ? strtol(pStr + 1, &pStr, 10) : 0;
+
+      version = (int) (((ver & 0xFFFF) << 16) | ((verRevMaj &  0xFF) << 8) | (verRevMin & 0xFF));
     }
-    else
-    {
-      _this->SetHost("", 0);
-    }
+
+    _this->SetHost(id ? CStrLocal(id).mCStr : "", version);
   }
     
   if (!(_this->CheckLegalIO()))
