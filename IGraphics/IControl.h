@@ -201,6 +201,10 @@ public:
   /** @return The number of values for this control */
   int NVals() const { return (int) mVals.size(); }
 
+  /** Check to see which of the control's values relates to this x and y coordinate
+   * @param x x coordinate to check
+   * @param y x coordinate to check
+   * @return An integer specifiying which value matches the x, y coordinates. If the return is kNoValIdx,  */
   virtual int GetValIdxForPos(float x, float y) const { return kNoValIdx; }
   
   /** Get a const pointer to the IParam object (owned by the editor delegate class), associated with this control
@@ -217,7 +221,8 @@ public:
   
   /** Set the control's value from the delegate
    * This method is called from the class implementing the IEditorDelegate interface in order to update a control's value members and set it to be marked dirty for redraw.
-   * @param value Normalised incoming value */
+   * @param value Normalised incoming value
+   * @param valIdx The index of the value to set, which should be between 0 and NVals() */
   virtual void SetValueFromDelegate(double value, int valIdx = 0);
   
   /** Set the control's value after user input.
@@ -225,15 +230,20 @@ public:
    * @param value the normalised value after user input via text entry or pop-up menu */
   virtual void SetValueFromUserInput(double value);
     
-  /** Set the control's value to the default value of the control, or the parameter.
-   * This method should call through to SetDirty(true), which will mean that the new value gets sent back to the delegate */
+  /** Set one or all of the control's values to the default value of the associated parameter.
+   * @param valIdx either an integer > -1 (kNoValIdx) in order to set an individual value to the default value of the associated parameter, or kNoValIdx to default all values
+   * This method will call through to SetDirty(true, valIdx), which will mean that the new value gets sent back to the delegate */
   virtual void SetValueToDefault(int valIdx = kNoValIdx);
   
   virtual void SetValue(double value, int valIdx = 0) { mVals.at(valIdx).value = value; }
+  /** Set one of the control's values.
+   * @param value The normalized 0-1 value
+   * @param valIdx The index of the value to set, which should be between 0 and NVals() */
   
   /** Get the control's value
-   * @return Value of the control (normalized in the range 0-1) */
   double GetValue(int valIdx = 0) const { return mVals.at(valIdx).value; }
+   * @return Value of the control, normalized in the range 0-1
+   * @param valIdx The index of the value to set, which should be between 0 and NVals() */
 
   /** Get the Text object for the control
    * @return const IText& The control's mText object, typically used to determine font/layout/size etc of the main text in a control. */
@@ -430,8 +440,11 @@ public:
   
 #pragma mark - IControl Member variables
 protected:
-    
-  typedef void ValFunc(int v);
+  
+  /** A helper template function to call a method for an individual value, or for all values
+   * @param valIdx If this is > kNoValIdx execute the function for an individual value. If equal to kNoValIdx call the function for all values
+   * @param func A function that takes a single integer argument, the valIdx \todo
+   * @param args Arguments to the function */
   template<typename T, typename... Args>
   void ForValIdx(int valIdx, T func, Args... args)
   {
