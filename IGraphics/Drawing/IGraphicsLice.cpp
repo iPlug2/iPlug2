@@ -145,6 +145,7 @@ void IGraphicsLice::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, fl
 
 void IGraphicsLice::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend)
 {
+  bool preMultiplied = static_cast<LICEBitmap*>(bitmap.GetAPIBitmap())->IsPreMultiplied();
   const int ds = GetScreenScale();
   
   IRECT sr = TransformRECT(bounds);
@@ -154,7 +155,10 @@ void IGraphicsLice::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, i
   srcX = (srcX * ds) + r.L - sr.L;
   srcY = (srcY * ds) + r.T - sr.T;
   
-  LICE_Blit(mRenderBitmap, bitmap.GetAPIBitmap()->GetBitmap(), r.L, r.T, srcX, srcY, r.W(), r.H(), BlendWeight(pBlend), LiceBlendMode(pBlend));
+  if (preMultiplied)
+    PreMulBlit(mRenderBitmap, bitmap.GetAPIBitmap()->GetBitmap(), r.L, r.T, srcX, srcY, r.W(), r.H(), BlendWeight(pBlend), LiceBlendMode(pBlend));
+  else
+    LICE_Blit(mRenderBitmap, bitmap.GetAPIBitmap()->GetBitmap(), r.L, r.T, srcX, srcY, r.W(), r.H(), BlendWeight(pBlend), LiceBlendMode(pBlend));
 }
 
 void IGraphicsLice::DrawRotatedBitmap(IBitmap& bitmap, float destCtrX, float destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
@@ -675,10 +679,10 @@ APIBitmap* IGraphicsLice::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
   {
 #if defined OS_WIN
     if (location == EResourceLocation::kWinBinary)
-      return new LICEBitmap(LICE_LoadPNGFromResource((HINSTANCE) GetWinModuleHandle(), fileNameOrResID, 0), scale);
+      return new LICEBitmap(LICE_LoadPNGFromResource((HINSTANCE) GetWinModuleHandle(), fileNameOrResID, 0), scale, false);
     else
 #endif
-      return new LICEBitmap(LICE_LoadPNG(fileNameOrResID), scale);
+      return new LICEBitmap(LICE_LoadPNG(fileNameOrResID), scale, false);
   }
 
 #ifdef LICE_JPEG_SUPPORT
@@ -688,10 +692,10 @@ APIBitmap* IGraphicsLice::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
   {
     #if defined OS_WIN
     if (location == EResourceLocation::kWinBinary)
-      return new LICEBitmap(LICE_LoadJPGFromResource((HINSTANCE)GetWinModuleHandle(), fileNameOrResID, 0), scale);
+      return new LICEBitmap(LICE_LoadJPGFromResource((HINSTANCE)GetWinModuleHandle(), fileNameOrResID, 0), scale, false);
     else
     #endif
-      return new LICEBitmap(LICE_LoadJPG(fileNameOrResID), scale);
+      return new LICEBitmap(LICE_LoadJPG(fileNameOrResID), scale, false);
   }
 #endif
 
@@ -707,7 +711,7 @@ APIBitmap* IGraphicsLice::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
   LICE_MemBitmap* pDest = new LICE_MemBitmap(destW, destH);
   LICE_ScaledBlit(pDest, pSrc, 0, 0, destW, destH, 0.0f, 0.0f, (float) pSrc->getWidth(), (float) pSrc->getHeight(), 1.0f, LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR);
   
-  return new LICEBitmap(pDest, scale);
+  return new LICEBitmap(pDest, scale, false);
 }
 
 APIBitmap* IGraphicsLice::CreateAPIBitmap(int width, int height)
@@ -715,7 +719,7 @@ APIBitmap* IGraphicsLice::CreateAPIBitmap(int width, int height)
   const int scale = GetScreenScale();
   LICE_IBitmap* pBitmap = new LICE_MemBitmap(width * scale, height * scale);
   memset(pBitmap->getBits(), 0, pBitmap->getRowSpan() * pBitmap->getHeight() * sizeof(LICE_pixel));
-  return new LICEBitmap(pBitmap, scale);
+  return new LICEBitmap(pBitmap, scale, true);
 }
 
 void IGraphicsLice::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)

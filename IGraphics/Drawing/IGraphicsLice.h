@@ -62,8 +62,13 @@ inline int LiceBlendMode(const IBlend* pBlend)
 class LICEBitmap : public APIBitmap
 {
 public:
-  LICEBitmap(LICE_IBitmap* pBitmap, int scale) : APIBitmap (pBitmap, pBitmap->getWidth(), pBitmap->getHeight(), scale, 1.f) {}
+  LICEBitmap(LICE_IBitmap* pBitmap, int scale, bool preMultiplied) : APIBitmap (pBitmap, pBitmap->getWidth(), pBitmap->getHeight(), scale, 1.f), mPremultiplied(preMultiplied) {}
   virtual ~LICEBitmap() { delete ((LICE_IBitmap*) GetBitmap()); }
+  
+  bool IsPreMultiplied() { return mPremultiplied; }
+    
+private:
+  bool mPremultiplied;
 };
 
 /** IGraphics draw class using Cockos' LICE  
