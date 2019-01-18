@@ -19,7 +19,7 @@ extern int GetSystemVersion();
 
 static StaticStorage<LICE_IFont> s_fontCache;
 
-// Utilities for pre-multiplied bits (LICE assumes sources are not pre-multiplied)
+// Utilities for pre-multiplied blits (LICE assumes sources are not pre-multiplied)
 
 inline void PreMulCompositeSourceOver(LICE_pixel_chan* out, LICE_pixel_chan* in)
 {
@@ -37,10 +37,10 @@ inline void PreMulCompositeAdd(LICE_pixel_chan* out, LICE_pixel_chan* in)
 {
   unsigned int alpha = in[LICE_PIXEL_A];
   
-  unsigned int A = out[LICE_PIXEL_A] + (in[LICE_PIXEL_A] / alpha);
-  unsigned int R = out[LICE_PIXEL_R] + (in[LICE_PIXEL_R] / alpha);
-  unsigned int G = out[LICE_PIXEL_G] + (in[LICE_PIXEL_G] / alpha);
-  unsigned int B = out[LICE_PIXEL_B] + (in[LICE_PIXEL_B] / alpha);
+  unsigned int A = out[LICE_PIXEL_A] + (255 * in[LICE_PIXEL_A] / alpha);
+  unsigned int R = out[LICE_PIXEL_R] + (255 * in[LICE_PIXEL_R] / alpha);
+  unsigned int G = out[LICE_PIXEL_G] + (255 * in[LICE_PIXEL_G] / alpha);
+  unsigned int B = out[LICE_PIXEL_B] + (255 * in[LICE_PIXEL_B] / alpha);
   
   _LICE_MakePixelClamp(out, R, G, B, A);
 }
