@@ -149,20 +149,6 @@ void IControl::SetDirty(bool triggerAction, int valIdx)
       
     ForValIdx(valIdx, paramUpdate);
     
-//      const IParam* pParam = GetParam();
-
-//      if (mValDisplayControl)
-//      {
-//        WDL_String display;
-//        pParam->GetDisplayForHost(display);
-//        ((ITextControl*)mValDisplayControl)->SetStr(display.Get());
-//      }
-//
-//      if (mNameDisplayControl)
-//      {
-//        ((ITextControl*)mNameDisplayControl)->SetStr(pParam->GetNameForHost());
-//      }
-      
     if (mActionFunc != nullptr)
       mActionFunc(this);
   }

@@ -319,14 +319,6 @@ public:
    * @return \c Return true if the control was hit. */
   virtual bool IsHit(float x, float y) const { return mTargetRECT.Contains(x, y); }
 
-  /** Set a control which should display the value of the parameter that this control is linked to when this control is modified with the mouse  
-  * @param pValDisplayControl A pointer to an IControl which should display values. */
-  void SetValDisplayControl(IControl* pValDisplayControl) { mValDisplayControl = pValDisplayControl; }
-  
-  /** Set a control which should display the name of the parameter that this control is linked to when this control is modified with the mouse  
-  * @param pValDisplayControl A pointer to an IControl which should display parameter names. */
-  void SetNameDisplayControl(IControl* pNameDisplayControl) { mNameDisplayControl = pNameDisplayControl; }
-
   /** Mark the control as dirty, i.e. it should be redrawn on the next display refresh
    * @param triggerAction If this is true and the control is linked to a parameter
    * notify the class implementing the IEditorDelegate interface that the parameter changed. If this control has an ActionFunction, that can also be triggered.
@@ -481,8 +473,6 @@ protected:
   bool mWantsMidi = false;
   /** if mGraphics::mHandleMouseOver = true, this will be true when the mouse is over control. If you need finer grained control of mouseovers, you can override OnMouseOver() and OnMouseOut() */
   bool mMouseIsOver = false;
-  IControl* mValDisplayControl = nullptr;
-  IControl* mNameDisplayControl = nullptr;
   WDL_String mTooltip;
 
   IColor mPTHighlightColor = COLOR_RED;
