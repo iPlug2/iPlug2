@@ -87,19 +87,15 @@ void IGraphicsLice::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, fl
 void IGraphicsLice::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend)
 {
   const int ds = GetScreenScale();
+  
   IRECT sr = TransformRECT(bounds);
-  
-  IRECT sdr = mDrawRECT;
-  sdr.Scale(ds);
-
-  srcX *= ds;
-  srcY *= ds;
-  
-  LICE_IBitmap* pLB = bitmap.GetAPIBitmap()->GetBitmap();
+  IRECT sdr = mDrawRECT.GetScaled(ds);
   IRECT r = sr.Intersect(sdr);
-  srcX += r.L - sr.L;
-  srcY += r.T - sr.T;
-  LICE_Blit(mRenderBitmap, pLB, r.L, r.T, srcX, srcY, r.W(), r.H(), BlendWeight(pBlend), LiceBlendMode(pBlend));
+  
+  srcX = (srcX * ds) + r.L - sr.L;
+  srcY = (srcY * ds) + r.T - sr.T;
+  
+  LICE_Blit(mRenderBitmap, bitmap.GetAPIBitmap()->GetBitmap(), r.L, r.T, srcX, srcY, r.W(), r.H(), BlendWeight(pBlend), LiceBlendMode(pBlend));
 }
 
 void IGraphicsLice::DrawRotatedBitmap(IBitmap& bitmap, float destCtrX, float destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
@@ -678,7 +674,7 @@ void IGraphicsLice::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const
   const APIBitmap* pBitmap = layer->GetAPIBitmap();
   LICE_IBitmap* pLayerBitmap = pBitmap->GetBitmap();
 
-  int stride = pLayerBitmap->getRowSpan() * sizeof(LICE_pixel);
+  int stride = pLayerBitmap->getRowSpan() * 4;
   int size = pLayerBitmap->getHeight() * stride;
 
   if (mask.GetSize() >= size)
@@ -703,11 +699,11 @@ void IGraphicsLice::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const
     {
       LICE_Clear(pLayerBitmap, 0);
     
-      for (int i = 0 ; i < nRows; i++, in += stride, out += stride)
+      for (int i = 0; i < nRows; i++, in += stride, out += stride)
       {
         LICE_pixel_chan* chans = out;
 
-        for (int j = 0 ; j < nCols; j++, chans += 4)
+        for (int j = 0; j < nCols; j++, chans += 4)
         {
           unsigned int maskAlpha = in[j * 4 + LICE_PIXEL_A];
         
@@ -722,11 +718,11 @@ void IGraphicsLice::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const
     }
     else
     {
-      for (int i = 0 ; i < nRows; i++, in += stride, out += stride)
+      for (int i = 0; i < nRows; i++, in += stride, out += stride)
       {
         LICE_pixel_chan* chans = out;
         
-        for (int j = 0 ; j < nCols; j++, chans += 4)
+        for (int j = 0; j < nCols; j++, chans += 4)
         {
           unsigned int maskAlpha = in[j * 4 + LICE_PIXEL_A];
           unsigned int alphaCmp = 255 - chans[LICE_PIXEL_A];
