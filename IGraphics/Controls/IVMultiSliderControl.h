@@ -46,11 +46,11 @@ public:
 
   virtual int GetValIdxForPos(float x, float y) const override // TODO fixed for horizontal
   {
-    for (auto i = 0; i < MaxNTracks(); i++)
+    for (auto v = 0; v < MaxNTracks(); v++)
     {
-      if (mTrackBounds.Get()[i].Contains(x, mTrackBounds.Get()[i].MH()))
+      if (mTrackBounds.Get()[v].Contains(x, mTrackBounds.Get()[v].MH()))
       {
-        return i;
+        return v;
       }
     }
 
