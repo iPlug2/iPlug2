@@ -70,11 +70,6 @@ IControl::IControl(IRECT bounds, const std::initializer_list<int>& params, IActi
 , mTargetRECT(bounds)
 , mActionFunc(actionFunc)
 {
-//  mVals.reserve(params.size());
-//
-//  for (auto& paramIdx : params) {
-//    mVals.emplace_back(ParamTuple(paramIdx, 0., false /*delete*/));
-//  }
   mVals.clear();
   for (auto& paramIdx : params) {
     mVals.push_back({paramIdx, 0., false /*delete*/});
@@ -86,6 +81,55 @@ IControl::IControl(IRECT bounds, IActionFunction actionFunc)
 , mTargetRECT(bounds)
 , mActionFunc(actionFunc)
 {
+}
+
+int IControl::GetParamIdx(int valIdx) const
+{
+  assert(valIdx > kNoValIdx && valIdx < NVals());
+  return mVals[valIdx].idx;
+}
+
+void IControl::SetParamIdx(int paramIdx, int valIdx)
+{
+  assert(valIdx > kNoValIdx && valIdx < NVals());
+  mVals.at(valIdx).idx = paramIdx;
+}
+
+const IParam* IControl::GetParam(int valIdx)
+{
+  int paramIdx = GetParamIdx(valIdx);
+  
+  if(paramIdx > kNoParameter)
+    return GetDelegate()->GetParam(paramIdx);
+  else
+    return nullptr;
+}
+
+int IControl::LinkedToParam(int paramIdx) const
+{
+  const int nVals = NVals();
+  
+  for (int v = 0; v < nVals; v++)
+  {
+    if(mVals[v].idx == paramIdx)
+    {
+      return v;
+    }
+  }
+  
+  return kNoValIdx;
+}
+
+void IControl::SetValue(double value, int valIdx)
+{
+  assert(valIdx > kNoValIdx && valIdx < NVals());
+  mVals[valIdx].value = value;
+}
+
+double IControl::GetValue(int valIdx) const
+{
+  assert(valIdx > kNoValIdx && valIdx < NVals());
+  return mVals[valIdx].value;
 }
 
 void IControl::SetValueFromDelegate(double value, int valIdx)
@@ -125,18 +169,6 @@ void IControl::SetValueToDefault(int valIdx)
     
   ForValIdx(valIdx, paramDefault);
   SetDirty(true, valIdx);
-}
-
-void IControl::SetValue(double value, int valIdx)
-{
-  assert(valIdx > kNoValIdx && valIdx < NVals());
-  mVals[valIdx].value = value;
-}
-
-double IControl::GetValue(int valIdx) const
-{
-  assert(valIdx > kNoValIdx && valIdx < NVals());
-  return mVals[valIdx].value;
 }
 
 void IControl::SetDirty(bool triggerAction, int valIdx)
@@ -279,16 +311,6 @@ void IControl::DrawPTHighlight(IGraphics& g)
   {
     g.FillCircle(mPTHighlightColor, mRECT.R-5, mRECT.T+5, 2);
   }
-}
-
-const IParam* IControl::GetParam(int valIdx)
-{
-  int paramIdx = GetParamIdx(valIdx);
-  
-  if(paramIdx > kNoParameter)
-    return GetDelegate()->GetParam(paramIdx);
-  else
-    return nullptr;
 }
 
 void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, int valIdx, float scalar /* TODO: scalar! */)

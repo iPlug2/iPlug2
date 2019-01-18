@@ -176,35 +176,17 @@ public:
    * Normaly controls are either linked to a single parameter or no parameter but some may be linked to multiple parameters
    * @param valIdx An index to choose which of the controls linked parameters to retrieve. NOTE: since controls usually have only 1 parameter you can omit this argument and use the default index of 0
    * @return Parameter index, or kNoParameter if there is no parameter linked with this control at valIdx */
-  int GetParamIdx(int valIdx = 0) const
-  {
-    assert(valIdx > kNoValIdx && valIdx < NVals());
-    return mVals[valIdx].idx;
-  }
+  int GetParamIdx(int valIdx = 0) const;
   
-  void SetParamIdx(int paramIdx, int valIdx = 0)
-  {
-    assert(valIdx > kNoValIdx && valIdx < NVals());
-    mVals.at(valIdx).idx = paramIdx;
-  }
+  /** Set the index of a parameter that the control is linked to
+   * @param paramIdx Parameter index, or kNoParameter if there is no parameter linked with this control at valIdx
+   * @param valIdx An index to choose which of the controls vals to set */
+  void SetParamIdx(int paramIdx, int valIdx = 0);
  
   /** Check if the control is linked to a particular parameter
    * @param paramIdx The paramIdx to test
    * @return the valIdx if linked, or kNoValIdx if not */
-  int LinkedToParam(int paramIdx) const
-  {
-    const int nVals = NVals();
-    
-    for (int v = 0; v < nVals; v++)
-    {
-      if(mVals[v].idx == paramIdx)
-      {
-        return v;
-      }
-    }
-    
-    return kNoValIdx;
-  }
+  int LinkedToParam(int paramIdx) const;
   
   /** @return The number of values for this control */
   int NVals() const { return (int) mVals.size(); }
@@ -218,14 +200,6 @@ public:
   /** Get a const pointer to the IParam object (owned by the editor delegate class), associated with this control
    * @return const pointer to an IParam or nullptr if the control is not associated with a parameter */ 
   const IParam* GetParam(int valIdx = 0);
-  
-  /** Assign the control to a control group @see Control Groups
-   * @param groupName A CString indicating the control group that this control should belong to */
-  void SetGroup(const char* groupName) { mGroup.Set(groupName); }
-
-  /** Get the group that the control belongs to, if any
-   * @return A CString indicating the control group that this control belongs to (may be empty) */
-  const char* GetGroup() const { return mGroup.Get(); }
   
   /** Set the control's value from the delegate
    * This method is called from the class implementing the IEditorDelegate interface in order to update a control's value members and set it to be marked dirty for redraw.
@@ -252,6 +226,14 @@ public:
    * @return Value of the control, normalized in the range 0-1
    * @param valIdx The index of the value to set, which should be between 0 and NVals() */
   double GetValue(int valIdx = 0) const;
+  
+  /** Assign the control to a control group @see Control Groups
+   * @param groupName A CString indicating the control group that this control should belong to */
+  void SetGroup(const char* groupName) { mGroup.Set(groupName); }
+  
+  /** Get the group that the control belongs to, if any
+   * @return A CString indicating the control group that this control belongs to (may be empty) */
+  const char* GetGroup() const { return mGroup.Get(); }
 
   /** Get the Text object for the control
    * @return const IText& The control's mText object, typically used to determine font/layout/size etc of the main text in a control. */
