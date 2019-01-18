@@ -88,16 +88,16 @@ IControl::IControl(IRECT bounds, IActionFunction actionFunc)
 {
 }
 
-void IControl::SetValueFromDelegate(double value, int idx)
+void IControl::SetValueFromDelegate(double value, int valIdx)
 {
   // Don't update the control from delegate if it is being captured
   // (i.e. if host is automating the control then the mouse is more important)
   
   if (this != GetUI()->GetCapturedControl())
   {
-    if(GetValue(idx) != value)
+    if(GetValue(valIdx) != value)
     {
-      SetValue(value, idx);
+      SetValue(value, valIdx);
       SetDirty(false);
     }
   }
