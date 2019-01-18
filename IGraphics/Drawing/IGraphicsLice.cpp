@@ -149,8 +149,7 @@ void IGraphicsLice::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, i
   const int ds = GetScreenScale();
   
   IRECT sr = TransformRECT(bounds);
-  IRECT sdr = mDrawRECT.GetScaled(ds);
-  IRECT r = sr.Intersect(sdr);
+  IRECT r = sr.Intersect(mDrawRECT.GetScaled(ds));
   
   srcX = (srcX * ds) + r.L - sr.L;
   srcY = (srcY * ds) + r.T - sr.T;
@@ -333,10 +332,8 @@ void IGraphicsLice::FillTriangle(const IColor& color, float x1, float y1, float 
 
 void IGraphicsLice::FillRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend)
 {
-  //TODO: review floating point input support
-  NeedsClipping();
-
-  IRECT r = TransformRECT(bounds);
+  //TODO: review floating point input support and edges
+  IRECT r = TransformRECT(bounds).Intersect(mDrawRECT.GetScaled(GetScreenScale()));
 
   LICE_FillRect(mRenderBitmap, r.L, r.T, r.W(), r.H(), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend));
 }
@@ -595,6 +592,7 @@ void IGraphicsLice::NeedsClipping()
 void IGraphicsLice::PrepareRegion(const IRECT& r)
 {
   mClipRECT = r;
+  UpdateLayer();
 }
 
 void IGraphicsLice::CompleteRegion(const IRECT& r)
@@ -616,7 +614,7 @@ void IGraphicsLice::UpdateLayer()
   ILayer* currentLayer = mLayers.empty() ? mClippingLayer.get() : mLayers.top();
   IRECT r = currentLayer ? currentLayer->Bounds() : IRECT();
   mRenderBitmap = currentLayer ? currentLayer->GetAPIBitmap()->GetBitmap() : mDrawBitmap;
-  mDrawRECT = currentLayer ? mClipRECT : GetBounds();
+  mDrawRECT = currentLayer ? IRECT(0, 0, r.W(), r.H()) : mClipRECT;
   mDrawOffsetX = currentLayer ? r.L : 0;
   mDrawOffsetY = currentLayer ? r.T : 0;
 }
