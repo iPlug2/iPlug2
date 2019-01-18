@@ -206,6 +206,7 @@ void IGraphicsLice::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, 
 
 void IGraphicsLice::DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend)
 {
+  NeedsClipping();
   // TODO - clipping
   IRECT r = TransformRECT(bounds);
   LICE_IBitmap* pSrc = bitmap.GetAPIBitmap()->GetBitmap();
@@ -214,6 +215,8 @@ void IGraphicsLice::DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const
 
 void IGraphicsLice::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend)
 {
+  NeedsClipping();
+  
   LICE_PutPixel(mRenderBitmap, int(TransformX(x) + 0.5f), int(TransformY(y) + 0.5f), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend));
 }
 
@@ -221,6 +224,7 @@ void IGraphicsLice::DrawLine(const IColor& color, float x1, float y1, float x2, 
 {
   //TODO: review floating point input support
 
+  NeedsClipping();
   LICE_FLine(mRenderBitmap, TransformX(x1), TransformY(y1), TransformX(x2), TransformY(y2), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
@@ -228,6 +232,7 @@ void IGraphicsLice::DrawDottedLine(const IColor& color, float x1, float y1, floa
 {
   //TODO: review floating point input support
 
+  NeedsClipping();
   const int dash = 2 * GetScreenScale();
   
   LICE_DashedLine(mRenderBitmap, TransformX(x1), TransformY(y1), TransformX(x2), TransformY(y2), dash, dash, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
@@ -263,7 +268,8 @@ void IGraphicsLice::DrawRect(const IColor& color, const IRECT& bounds, const IBl
 void IGraphicsLice::DrawRoundRect(const IColor& color, const IRECT& bounds, float cr, const IBlend* pBlend, float)
 {
   //TODO: review floating point input support
-  
+  NeedsClipping();
+
   IRECT r = TransformRECT(bounds);
 
   LICE_RoundRect(mRenderBitmap, r.L, r.T, r.W(), r.H(), cr * GetScreenScale(), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
@@ -271,6 +277,8 @@ void IGraphicsLice::DrawRoundRect(const IColor& color, const IRECT& bounds, floa
 
 void IGraphicsLice::DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend, float thickness)
 {
+  NeedsClipping();
+
   if (!OpacityCheck(color, pBlend))
   {
     OpacityLayer(&IGraphicsLice::DrawConvexPolygon, pBlend, color, x, y, npoints, nullptr, thickness);
@@ -285,6 +293,8 @@ void IGraphicsLice::DrawConvexPolygon(const IColor& color, float* x, float* y, i
 
 void IGraphicsLice::DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend, float thickness)
 {
+  NeedsClipping();
+
   //TODO: review floating point input support
 
   LICE_Arc(mRenderBitmap, TransformX(cx), TransformY(cy), r * GetScreenScale(), DegToRad(aMin), DegToRad(aMax), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
@@ -292,6 +302,8 @@ void IGraphicsLice::DrawArc(const IColor& color, float cx, float cy, float r, fl
 
 void IGraphicsLice::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend, float)
 {
+  NeedsClipping();
+
   //TODO: review floating point input support
 
   LICE_Circle(mRenderBitmap, TransformX(cx), TransformY(cy), r * GetScreenScale(), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
@@ -314,14 +326,16 @@ void IGraphicsLice::DrawDottedRect(const IColor& color, const IRECT& bounds, con
 void IGraphicsLice::FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
 {
   //TODO: review floating point input support
-  
+  NeedsClipping();
+
   LICE_FillTriangle(mRenderBitmap, TransformX(x1), TransformY(y1), TransformX(x2), TransformY(y2), TransformX(x3), TransformY(y3), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend));
 }
 
 void IGraphicsLice::FillRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend)
 {
   //TODO: review floating point input support
-  
+  NeedsClipping();
+
   IRECT r = TransformRECT(bounds);
 
   LICE_FillRect(mRenderBitmap, r.L, r.T, r.W(), r.H(), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend));
@@ -329,6 +343,8 @@ void IGraphicsLice::FillRect(const IColor& color, const IRECT& bounds, const IBl
 
 void IGraphicsLice::FillRoundRect(const IColor& color, const IRECT& bounds, float cr, const IBlend* pBlend)
 {
+  NeedsClipping();
+
   //TODO: review floating point input support
   
   if (!OpacityCheck(color, pBlend))
@@ -366,6 +382,8 @@ void IGraphicsLice::FillRoundRect(const IColor& color, const IRECT& bounds, floa
 
 void IGraphicsLice::FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend)
 {
+  NeedsClipping();
+
   //TODO: review floating point input support
   
   int xarray[512];
@@ -393,6 +411,8 @@ void IGraphicsLice::FillConvexPolygon(const IColor& color, float* x, float* y, i
 
 void IGraphicsLice::FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
 {
+  NeedsClipping();
+
   //TODO: review floating point input support
 
   LICE_FillCircle(mRenderBitmap, TransformX(cx), TransformY(cy), r * GetScreenScale(), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
@@ -400,6 +420,8 @@ void IGraphicsLice::FillCircle(const IColor& color, float cx, float cy, float r,
 
 void IGraphicsLice::FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend)
 {
+  NeedsClipping();
+
   if (aMax < aMin)
     std::swap(aMin, aMax);
   
@@ -519,6 +541,8 @@ bool IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT&
   }
   else
   {
+    NeedsClipping();
+
     IRECT r = bounds;
     r.Translate(-mDrawOffsetX, -mDrawOffsetY);
     r.Scale(ds);
@@ -555,17 +579,22 @@ void IGraphicsLice::OpacityLayer(T method, const IBlend* pBlend, const IColor& c
   DrawLayer(layer, &blend);
 }
 
-void IGraphicsLice::PrepareRegion(const IRECT& r)
+void IGraphicsLice::NeedsClipping()
 {
-  if (!r.Contains(GetBounds()))
+  if (!mClippingLayer && !mClipRECT.Contains(GetBounds()))
   {
-    IRECT alignedBounds = r.GetPixelAligned(GetBackingPixelScale());
+    IRECT alignedBounds = mClipRECT.GetPixelAligned(GetBackingPixelScale());
     const int w = static_cast<int>(std::round(alignedBounds.W()));
     const int h = static_cast<int>(std::round(alignedBounds.H()));
     
     mClippingLayer.reset(new ILayer(CreateAPIBitmap(w, h), alignedBounds));
+    UpdateLayer();
   }
-  UpdateLayer();
+}
+
+void IGraphicsLice::PrepareRegion(const IRECT& r)
+{
+  mClipRECT = r;
 }
 
 void IGraphicsLice::CompleteRegion(const IRECT& r)
@@ -587,7 +616,7 @@ void IGraphicsLice::UpdateLayer()
   ILayer* currentLayer = mLayers.empty() ? mClippingLayer.get() : mLayers.top();
   IRECT r = currentLayer ? currentLayer->Bounds() : IRECT();
   mRenderBitmap = currentLayer ? currentLayer->GetAPIBitmap()->GetBitmap() : mDrawBitmap;
-  mDrawRECT = currentLayer ? IRECT(0, 0, r.W(), r.H()) : GetBounds();
+  mDrawRECT = currentLayer ? mClipRECT : GetBounds();
   mDrawOffsetX = currentLayer ? r.L : 0;
   mDrawOffsetY = currentLayer ? r.T : 0;
 }

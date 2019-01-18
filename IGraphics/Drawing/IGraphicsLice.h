@@ -167,6 +167,7 @@ private:
     return tr;
   }
     
+  void NeedsClipping();
   void PrepareRegion(const IRECT& r) override;
   void CompleteRegion(const IRECT& r) override;
     
@@ -175,6 +176,7 @@ private:
   LICE_IFont* CacheFont(const IText& text, double scale);
 
   IRECT mDrawRECT;
+  IRECT mClipRECT;
     
   int mDrawOffsetX = 0;
   int mDrawOffsetY = 0;
