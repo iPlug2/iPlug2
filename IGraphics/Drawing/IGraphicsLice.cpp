@@ -19,6 +19,42 @@ extern int GetSystemVersion();
 
 static StaticStorage<LICE_IFont> s_fontCache;
 
+// Utilities for pre-multiplied bits (LICE assumes sources are not pre-multiplied)
+
+inline void CompositeSourceOver(LICE_pixel_chan* out, LICE_pixel_chan* in)
+{
+  unsigned int alphaCmp = 255 - in[LICE_PIXEL_A];
+  
+  unsigned int A = in[LICE_PIXEL_A] + ((out[LICE_PIXEL_A] * alphaCmp) >> 8);
+  unsigned int R = in[LICE_PIXEL_R] + ((out[LICE_PIXEL_R] * alphaCmp) >> 8);
+  unsigned int G = in[LICE_PIXEL_G] + ((out[LICE_PIXEL_G] * alphaCmp) >> 8);
+  unsigned int B = in[LICE_PIXEL_B] + ((out[LICE_PIXEL_B] * alphaCmp) >> 8);
+  
+  _LICE_MakePixelClamp(out, R, G, B, A);
+}
+
+void PreMulBlit(LICE_IBitmap *dest, LICE_IBitmap *src, int dstx, int dsty, int srcx, int srcy, int srcw, int srch, float alpha, int mode)
+{
+  srcx = dstx < 0 ? srcx - dstx : srcx;
+  srcy = dsty < 0 ? srcy - dsty : srcy;
+  dstx = std::max(dstx, 0);
+  dsty = std::max(dsty, 0);
+  srcw = std::min(srcw, dest->getWidth() - dstx);
+  srch = std::min(srch, dest->getHeight() - dsty);
+  
+  int inStride = src->getRowSpan() * 4;
+  int outStride = dest->getRowSpan() * 4;
+  
+  LICE_pixel_chan* in = ((LICE_pixel_chan*) src->getBits()) + (srcy * inStride) + (srcx * 4);
+  LICE_pixel_chan* out = ((LICE_pixel_chan*) dest->getBits()) + (dsty * outStride) + (dstx * 4);
+  
+  for (int i = 0; i < srch; i++, in += inStride, out += outStride)
+  {
+    for (int j = 0; j < srcw; j++)
+      CompositeSourceOver(out + j * 4, in + j * 4);
+  }
+}
+
 #pragma mark -
 
 IGraphicsLice::IGraphicsLice(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
@@ -512,7 +548,7 @@ void IGraphicsLice::CompleteRegion(const IRECT& r)
     LICE_IBitmap* bitmap = mClippingLayer->GetAPIBitmap()->GetBitmap();
     int x = mDrawOffsetX * GetScreenScale();
     int y = mDrawOffsetY * GetScreenScale();
-    LICE_Blit(mDrawBitmap, bitmap, x, y, 0, 0, bitmap->getWidth(), bitmap->getHeight(), 1.f, LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA);
+    PreMulBlit(mDrawBitmap, bitmap, x, y, 0, 0, bitmap->getWidth(), bitmap->getHeight(), 1.f, LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA);
     mClippingLayer.reset();
   }
   UpdateLayer();
