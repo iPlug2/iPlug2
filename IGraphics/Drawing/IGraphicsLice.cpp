@@ -223,15 +223,18 @@ void IGraphicsLice::DrawLine(const IColor& color, float x1, float y1, float x2, 
 {
   //TODO: review floating point input support
 
-  NeedsClipping();
+  if (!(mClipRECT.Contains(x1, y1) && mClipRECT.Contains(x2, y2)))
+    NeedsClipping();
+  
   LICE_FLine(mRenderBitmap, TransformX(x1), TransformY(y1), TransformX(x2), TransformY(y2), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
 void IGraphicsLice::DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness, float dashLen)
 {
   //TODO: review floating point input support
-
-  NeedsClipping();
+  if (!(mClipRECT.Contains(x1, y1) && mClipRECT.Contains(x2, y2)))
+    NeedsClipping();
+      
   const int dash = 2 * GetScreenScale();
   
   LICE_DashedLine(mRenderBitmap, TransformX(x1), TransformY(y1), TransformX(x2), TransformY(y2), dash, dash, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
@@ -267,7 +270,8 @@ void IGraphicsLice::DrawRect(const IColor& color, const IRECT& bounds, const IBl
 void IGraphicsLice::DrawRoundRect(const IColor& color, const IRECT& bounds, float cr, const IBlend* pBlend, float)
 {
   //TODO: review floating point input support
-  NeedsClipping();
+  if (!mClipRECT.Contains(bounds))
+    NeedsClipping();
 
   IRECT r = TransformRECT(bounds);
 
@@ -325,7 +329,8 @@ void IGraphicsLice::DrawDottedRect(const IColor& color, const IRECT& bounds, con
 void IGraphicsLice::FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
 {
   //TODO: review floating point input support
-  NeedsClipping();
+  if (!(mClipRECT.Contains(x1, y1) && mClipRECT.Contains(x2, y2) && mClipRECT.Contains(x3, y3)))
+    NeedsClipping();
 
   LICE_FillTriangle(mRenderBitmap, TransformX(x1), TransformY(y1), TransformX(x2), TransformY(y2), TransformX(x3), TransformY(y3), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend));
 }
@@ -340,7 +345,8 @@ void IGraphicsLice::FillRect(const IColor& color, const IRECT& bounds, const IBl
 
 void IGraphicsLice::FillRoundRect(const IColor& color, const IRECT& bounds, float cr, const IBlend* pBlend)
 {
-  NeedsClipping();
+  if (!mClipRECT.Contains(bounds))
+    NeedsClipping();
 
   //TODO: review floating point input support
   
