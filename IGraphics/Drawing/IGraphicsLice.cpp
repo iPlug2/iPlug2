@@ -21,7 +21,7 @@ static StaticStorage<LICE_IFont> s_fontCache;
 
 // Utilities for pre-multiplied bits (LICE assumes sources are not pre-multiplied)
 
-inline void CompositeSourceOver(LICE_pixel_chan* out, LICE_pixel_chan* in)
+inline void PreMulCompositeSourceOver(LICE_pixel_chan* out, LICE_pixel_chan* in)
 {
   unsigned int alphaCmp = 255 - in[LICE_PIXEL_A];
   
@@ -29,6 +29,18 @@ inline void CompositeSourceOver(LICE_pixel_chan* out, LICE_pixel_chan* in)
   unsigned int R = in[LICE_PIXEL_R] + ((out[LICE_PIXEL_R] * alphaCmp) >> 8);
   unsigned int G = in[LICE_PIXEL_G] + ((out[LICE_PIXEL_G] * alphaCmp) >> 8);
   unsigned int B = in[LICE_PIXEL_B] + ((out[LICE_PIXEL_B] * alphaCmp) >> 8);
+  
+  _LICE_MakePixelClamp(out, R, G, B, A);
+}
+
+inline void PreMulCompositeAdd(LICE_pixel_chan* out, LICE_pixel_chan* in)
+{
+  unsigned int alpha = in[LICE_PIXEL_A];
+  
+  unsigned int A = out[LICE_PIXEL_A] + (in[LICE_PIXEL_A] / alpha);
+  unsigned int R = out[LICE_PIXEL_R] + (in[LICE_PIXEL_R] / alpha);
+  unsigned int G = out[LICE_PIXEL_G] + (in[LICE_PIXEL_G] / alpha);
+  unsigned int B = out[LICE_PIXEL_B] + (in[LICE_PIXEL_B] / alpha);
   
   _LICE_MakePixelClamp(out, R, G, B, A);
 }
@@ -48,10 +60,21 @@ void PreMulBlit(LICE_IBitmap *dest, LICE_IBitmap *src, int dstx, int dsty, int s
   LICE_pixel_chan* in = ((LICE_pixel_chan*) src->getBits()) + (srcy * inStride) + (srcx * 4);
   LICE_pixel_chan* out = ((LICE_pixel_chan*) dest->getBits()) + (dsty * outStride) + (dstx * 4);
   
-  for (int i = 0; i < srch; i++, in += inStride, out += outStride)
+  if ((mode & LICE_BLIT_MODE_MASK) == LICE_BLIT_MODE_ADD)
   {
-    for (int j = 0; j < srcw; j++)
-      CompositeSourceOver(out + j * 4, in + j * 4);
+    for (int i = 0; i < srch; i++, in += inStride, out += outStride)
+    {
+      for (int j = 0; j < srcw; j++)
+        PreMulCompositeAdd(out + j * 4, in + j * 4);
+    }
+  }
+  else
+  {
+    for (int i = 0; i < srch; i++, in += inStride, out += outStride)
+    {
+      for (int j = 0; j < srcw; j++)
+        PreMulCompositeSourceOver(out + j * 4, in + j * 4);
+    }
   }
 }
 
@@ -545,10 +568,11 @@ void IGraphicsLice::CompleteRegion(const IRECT& r)
 {
   if (mClippingLayer)
   {
+    const int mode = LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA;
     LICE_IBitmap* bitmap = mClippingLayer->GetAPIBitmap()->GetBitmap();
     int x = mDrawOffsetX * GetScreenScale();
     int y = mDrawOffsetY * GetScreenScale();
-    PreMulBlit(mDrawBitmap, bitmap, x, y, 0, 0, bitmap->getWidth(), bitmap->getHeight(), 1.f, LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA);
+    PreMulBlit(mDrawBitmap, bitmap, x, y, 0, 0, bitmap->getWidth(), bitmap->getHeight(), 1.f, mode);
     mClippingLayer.reset();
   }
   UpdateLayer();
