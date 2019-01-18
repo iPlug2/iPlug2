@@ -178,7 +178,14 @@ public:
    * @return Parameter index, or kNoParameter if there is no parameter linked with this control at valIdx */
   int GetParamIdx(int valIdx = 0) const
   {
+    assert(valIdx > kNoValIdx && valIdx < NVals());
     return mVals[valIdx].idx;
+  }
+  
+  void SetParamIdx(int paramIdx, int valIdx = 0)
+  {
+    assert(valIdx > kNoValIdx && valIdx < NVals());
+    mVals.at(valIdx).idx = paramIdx;
   }
  
   /** Check if the control is linked to a particular parameter
@@ -463,10 +470,8 @@ protected:
   IRECT mRECT;
   IRECT mTargetRECT;
   
-  std::vector<ParamTuple> mVals { {kNoParameter, 0., false /*delete*/} };
-  
-  double& mValue = mVals[0].value;
-  int& mParamIdx = mVals[0].idx;
+//  double& mValue = mVals[0].value;
+//  int& mParamIdx = mVals[0].idx;
   
   /** Controls can be grouped for hiding and showing panels */
   WDL_String mGroup;
@@ -491,6 +496,12 @@ protected:
 
   IColor mPTHighlightColor = COLOR_RED;
   bool mPTisHighlighted = false;
+  
+  void SetNVals(int nVals)
+  {
+    assert(nVals > 0);
+    mVals.resize(nVals);
+  }
 
 #if defined VST3_API || defined VST3C_API
   OBJ_METHODS(IControl, FObject)
@@ -507,6 +518,7 @@ private:
   IAnimationFunction mAnimationFunc = nullptr;
   TimePoint mAnimationStartTime;
   Milliseconds mAnimationDuration;
+  std::vector<ParamTuple> mVals { {kNoParameter, 0., false /*delete*/} };
 };
 
 #pragma mark - Base Controls
@@ -793,11 +805,11 @@ public:
   , mMinTrackValue(minTrackValue)
   , mMaxTrackValue(maxTrackValue)
   {
-    mVals.resize(maxNTracks);
+    SetNVals(maxNTracks);
 
     for (int i=0; i<maxNTracks; i++)
     {
-      mVals.at(i) = { kNoParameter, 0., false };
+      SetParamIdx(i, kNoParameter);
       mTrackBounds.Add(IRECT());
     }
     
@@ -810,11 +822,11 @@ public:
     , mMinTrackValue(minTrackValue)
     , mMaxTrackValue(maxTrackValue)
   {
-    mVals.resize(maxNTracks);
+    SetNVals(maxNTracks);
 
     for (int i = 0; i < maxNTracks; i++)
     {
-      mVals.at(i) = { lowParamidx+i, 0., false };
+      SetParamIdx(i, lowParamidx+i);
       mTrackBounds.Add(IRECT());
     }
 

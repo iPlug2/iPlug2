@@ -335,9 +335,10 @@ void IVSliderControl::OnResize()
 IVRangeSliderControl::IVRangeSliderControl(IRECT bounds, int paramIdxLo, int paramIdxHi)
   :IVSliderControl(bounds)
 {
-  mVals.resize(2);
-  mVals.at(0) = { paramIdxLo, 0., false };
-  mVals.at(1) = { paramIdxHi, 0., false };
+  SetNVals(2);
+  SetParamIdx(paramIdxLo, 0);
+  SetParamIdx(paramIdxHi, 1);
+
   mTrackSize = bounds.W();
 }
 

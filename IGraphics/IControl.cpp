@@ -62,7 +62,7 @@ IControl::IControl(IRECT bounds, int paramIdx, IActionFunction actionFunc)
 , mTargetRECT(bounds)
 , mActionFunc(actionFunc)
 {
-  mVals.at(0).idx = paramIdx;
+  mVals[0].idx = paramIdx;
 }
 
 IControl::IControl(IRECT bounds, const std::initializer_list<int>& params, IActionFunction actionFunc)
@@ -356,7 +356,7 @@ ICaptionControl::ICaptionControl(IRECT bounds, int paramIdx, const IText& text, 
 : ITextControl(bounds, "", text)
 , mShowParamLabel(showParamLabel)
 {
-  mVals.at(0).idx = paramIdx;
+  SetParamIdx(paramIdx);
   mDblAsSingleClick = true;
   mDisablePrompt = false;
   mIgnoreMouse = false;
