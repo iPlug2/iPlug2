@@ -578,7 +578,7 @@ void IGraphicsLice::OpacityLayer(T method, const IBlend* pBlend, const IColor& c
 
 void IGraphicsLice::NeedsClipping()
 {
-  if (!mClippingLayer && !mClipRECT.Contains(GetBounds()))
+  if (!mClippingLayer && mLayers.empty() && !mClipRECT.Contains(GetBounds()))
   {
     IRECT alignedBounds = mClipRECT.GetPixelAligned(GetBackingPixelScale());
     const int w = static_cast<int>(std::round(alignedBounds.W()));
