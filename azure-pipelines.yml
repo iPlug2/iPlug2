@@ -32,8 +32,8 @@ jobs:
       mkdir ./Dependencies/tmp
       mkdir ./Dependencies/tmp/llvm
       tar -xf llvm7.tar.xz -C ./Dependencies/tmp/llvm
-      echo $(PATH)
-      export PATH="/Dependencies/tmp/llvm/bin:$PATH"
+      ls ./Dependencies/tmp/llvm
+      export PATH="$(Agent.BuildDirectory)/Dependencies/tmp/llvm/bin:$PATH"
       echo $(PATH)
       cd ./Dependencies/Extras/faust/
       ./build-faust-mac.sh
