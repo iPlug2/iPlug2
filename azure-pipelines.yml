@@ -33,7 +33,7 @@ jobs:
       tar -xf llvm7.tar.xz -C ./Dependencies/tmp
       ls -la ./Dependencies/tmp/clang+llvm-7.0.0-x86_64-apple-darwin
       echo "$(Agent.BuildDirectory)/Dependencies/tmp/clang+llvm-7.0.0-x86_64-apple-darwin/bin"
-      export PATH="$(Agent.BuildDirectory)/Dependencies/tmp/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH"
+      export PATH="$HOME/Dependencies/tmp/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH"
       echo $(PATH)
       cd ./Dependencies/Extras/faust/
       # ./build-faust-mac.sh
