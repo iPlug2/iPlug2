@@ -63,7 +63,7 @@ jobs:
 
   - task: CopyFiles@2
     inputs:
-      contents: ./Dependencies/Build
+      contents: Dependencies/Build/**
       targetFolder: $(Build.ArtifactStagingDirectory)
 
   - task: PublishBuildArtifacts@1
