@@ -120,7 +120,8 @@ AAX_Result IPlugAAX::EffectInit()
 { 
   TRACE;
 
-  SetHost("ProTools", 0); // TODO:vendor version correct?
+  if (GetHost() == kHostUninit)
+    SetHost("ProTools", 0); // TODO:vendor version correct?
     
   AAX_CString bypassID = NULL;
   this->GetMasterBypassParameter( &bypassID );
