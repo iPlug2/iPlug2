@@ -48,8 +48,10 @@ jobs:
 
   - task: CopyFiles@2
     inputs:
-      contents: Dependencies/Build/mac**
+      contents: Dependencies/Build/mac/**
       targetFolder: $(Build.ArtifactStagingDirectory)
+    condition: variables.isMac
+    displayName: Copy macOS Dependencies Artifacts
 
   - task: PublishBuildArtifacts@1
     inputs:
