@@ -57,18 +57,16 @@ void FlashCircleAnimationFunc(IControl* pCaller)
 void DefaultClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(DefaultAnimationFunc, DEFAULT_ANIMATION_DURATION); };
 void FlashCircleClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(FlashCircleAnimationFunc, DEFAULT_ANIMATION_DURATION); }
 
-IControl::IControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc)
-: mDelegate(dlg)
-, mRECT(bounds)
+IControl::IControl(IRECT bounds, int paramIdx, IActionFunction actionFunc)
+: mRECT(bounds)
 , mTargetRECT(bounds)
 , mParamIdx(paramIdx)
 , mActionFunc(actionFunc)
 {
 }
 
-IControl::IControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc)
-: mDelegate(dlg)
-, mRECT(bounds)
+IControl::IControl(IRECT bounds, IActionFunction actionFunc)
+: mRECT(bounds)
 , mTargetRECT(bounds)
 , mParamIdx(kNoParameter)
 , mActionFunc(actionFunc)
@@ -103,9 +101,11 @@ void IControl::SetValueFromUserInput(double value)
 
 void IControl::SetValueToDefault()
 {
-  if (mParamIdx || mDefaultValue >= 0.0)
+  bool hasParam = mParamIdx > kNoParameter;
+    
+  if (hasParam || mDefaultValue >= 0.0)
   {
-    mValue = mParamIdx > kNoParameter ? GetParam()->GetDefault(true) : mDefaultValue;
+    mValue = hasParam ? GetParam()->GetDefault(true) : mDefaultValue;
     SetDirty(true);
   }
 }
@@ -119,7 +119,7 @@ void IControl::SetDirty(bool triggerAction)
   {
     if(mParamIdx > kNoParameter)
     {
-      mDelegate.SendParameterValueFromUI(mParamIdx, mValue);
+      GetDelegate()->SendParameterValueFromUI(mParamIdx, mValue);
       GetUI()->UpdatePeers(this);
       
       const IParam* pParam = GetParam();
@@ -263,7 +263,7 @@ void IControl::DrawPTHighlight(IGraphics& g)
 const IParam* IControl::GetParam()
 {
   if(mParamIdx >= 0)
-    return mDelegate.GetParam(mParamIdx);
+    return GetDelegate()->GetParam(mParamIdx);
   else
     return nullptr;
 }
@@ -330,17 +330,11 @@ void ITextControl::Draw(IGraphics& g)
     g.DrawText(mText, mStr.Get(), mRECT);
 }
 
-ICaptionControl::ICaptionControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, const IText& text, bool showParamLabel)
-: ITextControl(dlg, bounds, "", text)
+ICaptionControl::ICaptionControl(IRECT bounds, int paramIdx, const IText& text, bool showParamLabel)
+: ITextControl(bounds, "", text)
 , mShowParamLabel(showParamLabel)
 {
   mParamIdx = paramIdx;
-  
-  if(GetParam()->Type() == IParam::kTypeEnum)
-  {
-    mIsListControl = true;
-  }
-  
   mDblAsSingleClick = true;
   mDisablePrompt = false;
   mIgnoreMouse = false;
@@ -371,14 +365,21 @@ void ICaptionControl::Draw(IGraphics& g)
 
   ITextControl::Draw(g);
   
-  if(mIsListControl) {
-    IRECT triRect = mRECT.FracRectHorizontal(0.2f, true).GetCentredInside(IRECT(0, 0, 8, 5));
-    g.FillTriangle(COLOR_DARK_GRAY, triRect.L, triRect.T, triRect.R, triRect.T, triRect.MW(), triRect.B, GetMouseIsOver() ? 0 : &BLEND_50);
+  if(mTri.W()) {
+    g.FillTriangle(COLOR_DARK_GRAY, mTri.L, mTri.T, mTri.R, mTri.T, mTri.MW(), mTri.B, GetMouseIsOver() ? 0 : &BLEND_50);
   }
 }
 
-IButtonControlBase::IButtonControlBase(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc)
-: IControl(dlg, bounds, kNoParameter, actionFunc)
+void ICaptionControl::OnResize()
+{
+  if(GetParam()->Type() == IParam::kTypeEnum)
+  {
+    mTri = mRECT.FracRectHorizontal(0.2f, true).GetCentredInside(IRECT(0, 0, 8, 5)); //TODO: This seems rubbish
+  }
+}
+
+IButtonControlBase::IButtonControlBase(IRECT bounds, IActionFunction actionFunc)
+: IControl(bounds, kNoParameter, actionFunc)
 {
 }
 
@@ -394,15 +395,19 @@ void IButtonControlBase::OnEndAnimation()
   IControl::OnEndAnimation();
 }
 
-ISwitchControlBase::ISwitchControlBase(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc,
+ISwitchControlBase::ISwitchControlBase(IRECT bounds, int paramIdx, IActionFunction actionFunc,
   int numStates)
-  : IControl(dlg, bounds, paramIdx, actionFunc)
+  : IControl(bounds, paramIdx, actionFunc)
+  , mNumStates(numStates)
 {
-  if (paramIdx > kNoParameter)
+  assert(mNumStates > 1);
+}
+
+void ISwitchControlBase::OnInit()
+{
+  if (mParamIdx > kNoParameter)
     mNumStates = (int) GetParam()->GetRange() + 1;
-  else
-    mNumStates = numStates;
-  
+ 
   assert(mNumStates > 1);
 }
 

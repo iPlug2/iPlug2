@@ -874,18 +874,14 @@ static void MakeCursorFromData(NSCursor*& cursor, uint16* data, int hotspot_x, i
     [mTextFieldView setDrawsBackground: TRUE];
   }
 
-  //TODO: this is wrong
+  //TODO: address font types for platform text entries
 #ifdef IGRAPHICS_NANOVG
   NSString* font = [NSString stringWithUTF8String: "Arial"];
 #else
   NSString* font = [NSString stringWithUTF8String: text.mFont];
 #endif
 
-#ifdef IGRAPHICS_LICE
   [mTextFieldView setFont: [NSFont fontWithName:font size: text.mSize * 0.75f]];
-#else
-  [mTextFieldView setFont: [NSFont fontWithName:font size: text.mSize]];
-#endif
   
   switch (text.mAlign)
   {

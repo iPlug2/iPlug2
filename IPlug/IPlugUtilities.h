@@ -204,6 +204,7 @@ static EHost LookUpHost(const char* inHost)
   if (strstr(host, "wavelab elements")) return kHostWaveLabElements;
   if (strstr(host, "bitwig studio")) return kHostBitwig;
   if (strstr(host, "twistedwave")) return kHostTwistedWave;
+  if (strstr(host, "www")) return kHostWWW;
 
   return kHostUnknown;
 }

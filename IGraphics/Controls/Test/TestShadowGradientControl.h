@@ -23,7 +23,8 @@ class TestShadowGradientControl : public IControl
 {
 public:
     
-  TestShadowGradientControl(IGEditorDelegate& delegate, IRECT rect) : IControl(delegate, rect)
+  TestShadowGradientControl(IRECT rect)
+  : IControl(rect)
   {
   }
     

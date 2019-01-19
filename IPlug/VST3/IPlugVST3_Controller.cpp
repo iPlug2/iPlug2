@@ -178,7 +178,6 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
       app->getName(tmpStringBuf);
       Steinberg::UString(tmpStringBuf, 128).toAscii(hostNameCString, 128);
       SetHost(hostNameCString, 0); // Can't get version in VST3
-      OnHostIdentified();
     }
 
     return kResultTrue;

@@ -22,8 +22,8 @@
 class TestTextControl : public IControl
 {
 public:
-  TestTextControl(IGEditorDelegate& dlg, IRECT bounds)
-  : IControl(dlg, bounds)
+  TestTextControl(IRECT bounds)
+  : IControl(bounds)
   {
     SetTooltip("TestTextControl");
     Randomise();

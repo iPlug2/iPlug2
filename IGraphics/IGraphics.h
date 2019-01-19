@@ -750,7 +750,7 @@ public:
 
   /** Gets a pointer to the delegate class that handles communication to and from this graphics context.
    * @return pointer to the delegate */
-  IGEditorDelegate* GetDelegate() { return &mDelegate; }
+  IGEditorDelegate* GetDelegate() { return mDelegate; }
 
   /** Attach an IBitmapControl as the lowest IControl in the control stack to be the background for the graphics context
    * @param fileName CString fileName resource id for the bitmap image \todo check this */
@@ -1043,7 +1043,7 @@ protected:
   template<typename T, typename... Args>
   void ForMatchingControls(T method, int paramIdx, Args... args);
   
-  IGEditorDelegate& mDelegate;
+  IGEditorDelegate* mDelegate = nullptr;
   void* mPlatformContext = nullptr;
   bool mCursorHidden = false;
   bool mCursorLock = false;

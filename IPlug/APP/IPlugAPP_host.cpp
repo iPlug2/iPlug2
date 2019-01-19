@@ -39,7 +39,10 @@ IPlugAPPHost::~IPlugAPPHost()
     mMidiOut->closePort();
   
   if(mDAC)
-    mDAC->abortStream();
+  {
+    if(mDAC->isStreamOpen())
+      mDAC->abortStream();
+  }
   
   DELETE_NULL(mIPlug);
   DELETE_NULL(mMidiIn);
@@ -54,8 +57,10 @@ IPlugAPPHost* IPlugAPPHost::Create()
   return sInstance;
 }
 
-bool IPlugAPPHost::Init ()
+bool IPlugAPPHost::Init()
 {
+  mIPlug->SetHost("standalone", mIPlug->GetPluginVersion(false));
+    
   if (!InitState())
     return false;
   
