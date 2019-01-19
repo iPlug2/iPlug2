@@ -36,7 +36,7 @@ jobs:
     displayName: Build macOS Extras Dependencies - LLVM
 
   - bash: |
-      ls -la ./Dependencies/Build/tmp/clang+llvm-7.0.0-x86_64-apple-darwin/bin
+      ls -la ./Dependencies/Build/tmp/clang+llvm-7.0.0-x86_64-apple-darwin/
       ./Dependencies/Build/tmp/clang+llvm-7.0.0-x86_64-apple-darwin/bin/llvm-config
       # cd ./Dependencies/Extras/faust/
       # ./build-faust-mac.sh
