@@ -63,7 +63,7 @@ jobs:
 
   - task: CopyFiles@2
     inputs:
-      contents: ./Dependencies/Build/iplug2_deps_macOS.tar.gz
+      contents: ./Dependencies/Build/mac/
       targetFolder: $(Build.ArtifactStagingDirectory)
 
   - task: PublishBuildArtifacts@1
