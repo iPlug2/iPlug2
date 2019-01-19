@@ -24,8 +24,8 @@ public:
 
   void Draw(IGraphics& g) override
   {
-    double angle = -120 + mValue * (240);
-      g.DrawRotatedMask(mBase, mMask, mTop, mRECT.L, mRECT.T, angle);
+    double angle = -120. + GetValue() * 240.;
+    g.DrawRotatedMask(mBase, mMask, mTop, mRECT.L, mRECT.T, angle);
   }
 
 private:
