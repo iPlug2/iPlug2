@@ -392,9 +392,10 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
       if ((regionType == COMPLEXREGION) || (regionType = SIMPLEREGION))
       {
-        #ifdef IGRAPHICS_NANOVG
+        #ifdef IGRAPHICS_GL
+        pGraphics->ActivateGLContext();
         PAINTSTRUCT ps;
-        BeginPaint(hWnd, &ps);
+        BeginPaint(hWnd, &ps); // TODO: BeginPaint/EndPaint and GetDC/ReleaseDC ? issues closing reaper without this
         #endif
 
         IRECTList rects;
@@ -416,8 +417,9 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
         pGraphics->Draw(rects);
 
-        #ifdef IGRAPHICS_NANOVG
-        SwapBuffers((HDC)pGraphics->mPlatformContext);
+        #ifdef IGRAPHICS_GL
+        SwapBuffers((HDC) pGraphics->mPlatformContext);
+        pGraphics->DeactivateGLContext();
         EndPaint(hWnd, &ps);
         #endif
       }
@@ -656,6 +658,15 @@ void IGraphicsWin::PlatformResize()
   }
 }
 
+#ifdef IGRAPHICS_GL
+void IGraphicsWin::DrawResize()
+{
+  ActivateGLContext();
+  IGRAPHICS_DRAW_CLASS::DrawResize();
+  DeactivateGLContext();
+}
+#endif
+
 void IGraphicsWin::HideMouseCursor(bool hide, bool lock)
 {
   if (mCursorHidden == hide)
@@ -742,6 +753,67 @@ bool IGraphicsWin::MouseCursorIsLocked()
   return mCursorLock;
 }
 
+#ifdef IGRAPHICS_GL
+void IGraphicsWin::CreateGLContext()
+{
+
+  PIXELFORMATDESCRIPTOR pfd =
+  {
+    sizeof(PIXELFORMATDESCRIPTOR),
+    1,
+    PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER, //Flags
+    PFD_TYPE_RGBA, // The kind of framebuffer. RGBA or palette.
+    32, // Colordepth of the framebuffer.
+    0, 0, 0, 0, 0, 0,
+    0,
+    0,
+    0,
+    0, 0, 0, 0,
+    24, // Number of bits for the depthbuffer
+    8, // Number of bits for the stencilbuffer
+    0, // Number of Aux buffers in the framebuffer.
+    PFD_MAIN_PLANE,
+    0,
+    0, 0, 0
+  };
+
+  HDC dc = GetDC(mPlugWnd);
+  int fmt = ChoosePixelFormat(dc, &pfd);
+  SetPixelFormat(dc, fmt, &pfd);
+
+  mHGLRC = wglCreateContext(dc);
+  wglMakeCurrent(dc, mHGLRC);
+
+  //TODO: do we want this?
+  if (!gladLoadGL())
+    throw std::runtime_error{ "Error initializing glad" };
+
+  glGetError();
+
+  ReleaseDC(mPlugWnd, dc);
+}
+
+void IGraphicsWin::DestroyGLContext()
+{
+  wglMakeCurrent(NULL, NULL);
+  wglDeleteContext(mHGLRC);
+}
+
+void IGraphicsWin::ActivateGLContext()
+{
+  mStartHDC = wglGetCurrentDC();
+  mStartHGLRC = wglGetCurrentContext();
+  HDC dc = GetDC(mPlugWnd);
+  wglMakeCurrent(dc, mHGLRC);
+}
+
+void IGraphicsWin::DeactivateGLContext()
+{
+  ReleaseDC(mPlugWnd, (HDC) mPlatformContext);
+  wglMakeCurrent(mStartHDC, mStartHGLRC); // return current ctxt to start
+}
+#endif
+
 int IGraphicsWin::ShowMessageBox(const char* text, const char* caption, EMessageBoxType type)
 {
   ReleaseMouseCapture();
@@ -778,8 +850,12 @@ void* IGraphicsWin::OpenWindow(void* pParent)
   SetPlatformContext(dc);
   ReleaseDC(mPlugWnd, dc);
 
+#ifdef IGRAPHICS_GL
+  CreateGLContext();
+#endif
+
   OnViewInitialized((void*) dc);
-  
+
   SetScreenScale(1); // CHECK!
 
   GetDelegate()->LayoutUI(this);
@@ -891,6 +967,10 @@ void IGraphicsWin::CloseWindow()
   if (mPlugWnd)
   {
     OnViewDestroyed();
+
+#ifdef IGRAPHICS_GL
+    DestroyGLContext();
+#endif
 
     SetPlatformContext(nullptr);
 
