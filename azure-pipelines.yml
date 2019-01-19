@@ -26,14 +26,16 @@ jobs:
   #   condition: variables.isMac
   #   displayName: Build macOS IGraphics Dependencies
 
-  - script:
+  - bash: |
       export LLVM7_MAC=http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
       curl -L $LLVM7_MAC --output llvm7.tar.xz
       mkdir ./Dependencies/tmp
       tar -xf llvm7.tar.xz -C ./Dependencies/tmp
       ls -la ./Dependencies/tmp/clang+llvm-7.0.0-x86_64-apple-darwin
-      echo "setting path to $HOME/Dependencies/tmp/clang+llvm-7.0.0-x86_64-apple-darwin/bin"
+      echo "$HOME/Dependencies/tmp/clang+llvm-7.0.0-x86_64-apple-darwin/bin"
       export PATH=$HOME/Dependencies/tmp/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
+      echo "##vso[task.setvariable variable=PATH]$PATH"
+    condition: variables.isMac
     displayName: Build macOS Extras Dependencies - LLVM
 
   - bash: |
