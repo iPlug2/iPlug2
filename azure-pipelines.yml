@@ -29,18 +29,17 @@ jobs:
   - bash: |
       wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
       mkdir ./Dependencies/tmp
-      tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C ./Dependencies/tmp
-      ls -la ./Dependencies/tmp/clang+llvm-7.0.0-x86_64-apple-darwin/bin
+      tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C ./Dependencies/Build/tmp
+      ls -la ./DependenciesBuild/tmp/clang+llvm-7.0.0-x86_64-apple-darwin/bin
       echo $PATH
-      export PATH=$HOME/Dependencies/tmp/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
+      export PATH=$HOME/Dependencies/Build/tmp/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
       echo "##vso[task.setvariable variable=PATH]$PATH"
     condition: variables.isMac
     displayName: Build macOS Extras Dependencies - LLVM
 
   - bash: |
-      uname -a
       echo $PATH
-      llvm-config
+      ./Dependencies/Build/tmp/clang+llvm-7.0.0-x86_64-apple-darwin/bin/llvm-config
       # cd ./Dependencies/Extras/faust/
       # ./build-faust-mac.sh
     condition: variables.isMac
