@@ -19,11 +19,9 @@ jobs:
     vmImage: $(imageName)
     
   steps:
-    - checkout: self
-    fetchDepth: 1
-    # submodules: recursive # can't do submodules here b'cuz depth=1 fails with Github
+  - checkout: self
 
-    - bash: |
+  - bash: |
       ./Dependencies/IGraphics/build-igraphics-libs-mac.sh
     condition: variables.isMac
     displayName: Build macOS IGraphics Dependencies
