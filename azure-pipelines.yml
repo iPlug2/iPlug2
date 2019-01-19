@@ -30,13 +30,13 @@ jobs:
       export LLVM7_MAC=http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
       curl -L $LLVM7_MAC --output llvm7.tar.xz
       mkdir ./Dependencies/tmp
-      mkdir ./Dependencies/tmp/llvm
-      tar -xf llvm7.tar.xz -C ./Dependencies/tmp/llvm
-      ls ./Dependencies/tmp/llvm
-      export PATH="$(Agent.BuildDirectory)/Dependencies/tmp/llvm/bin:$PATH"
+      tar -xf llvm7.tar.xz -C ./Dependencies/tmp
+      ls -la ./Dependencies/tmp
+      echo "$(Agent.BuildDirectory)/Dependencies/tmp/clang+llvm-7.0.0-x86_64-apple-darwin/bin"
+      export PATH="$(Agent.BuildDirectory)/Dependencies/tmp/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH"
       echo $(PATH)
       cd ./Dependencies/Extras/faust/
-      ./build-faust-mac.sh
+      # ./build-faust-mac.sh
     condition: variables.isMac
     displayName: Build macOS Extras Dependencies - FAUST
 
