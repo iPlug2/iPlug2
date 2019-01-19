@@ -34,13 +34,13 @@ jobs:
       tar -xf llvm7.tar.xz -C ./Dependencies/tmp/llvm
       export PATH="./Dependencies/tmp/llvm/bin:$PATH"
       cd ./Dependencies/Extras/faust/
-      ./Dependencies/Extras/faust/build-faust-mac.sh
+      ./build-faust-mac.sh
     condition: variables.isMac
     displayName: Build macOS Extras Dependencies - FAUST
 
   - bash: |
       cd ./Dependencies/Extras/civetweb/
-      ./Dependencies/Extras/civetweb/build-civetweb-mac.sh
+      ./build-civetweb-mac.sh
     condition: variables.isMac
     displayName: Build macOS Extras Dependencies - CIVETWEB
 
