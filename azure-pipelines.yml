@@ -34,16 +34,17 @@ jobs:
       echo $PATH
       export PATH=$HOME/Dependencies/tmp/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
       echo "##vso[task.setvariable variable=PATH]$PATH"
-      llvm-config
     condition: variables.isMac
     displayName: Build macOS Extras Dependencies - LLVM
 
-  # - bash: |
-  #     echo $PATH
-  #     cd ./Dependencies/Extras/faust/
-  #     ./build-faust-mac.sh
-  #   condition: variables.isMac
-  #   displayName: Build macOS Extras Dependencies - FAUST
+  - bash: |
+      uname -a
+      echo $PATH
+      llvm-config
+      # cd ./Dependencies/Extras/faust/
+      # ./build-faust-mac.sh
+    condition: variables.isMac
+    displayName: Build macOS Extras Dependencies - FAUST
 
   # - bash: |
   #     cd ./Dependencies/Extras/civetweb/
