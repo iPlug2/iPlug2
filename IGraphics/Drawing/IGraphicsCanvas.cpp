@@ -212,12 +212,23 @@ void IGraphicsCanvas::SetCanvasBlendMode(const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case kBlendClobber:     GetContext().set("globalCompositeOperation", "source-over");   break;
-    case kBlendAdd:         GetContext().set("globalCompositeOperation", "lighter");       break;
-    case kBlendColorDodge:  GetContext().set("globalCompositeOperation", "color-dodge");   break;
-    case kBlendNone:
-    default:
-      GetContext().set("globalCompositeOperation", "source-over");
+    case kBlendNone:        GetContext().set("globalCompositeOperation", "source-over");        break;
+    case kBlendClobber:     GetContext().set("globalCompositeOperation", "copy");               break;
+          
+    case kBlendSourceOver:  GetContext().set("globalCompositeOperation", "source-over");        break;
+    case kBlendSourceIn:    GetContext().set("globalCompositeOperation", "source-in");          break;
+    case kBlendSourceOut:   GetContext().set("globalCompositeOperation", "source-out");         break;
+    case kBlendSourceAtop:  GetContext().set("globalCompositeOperation", "source-atop");        break;
+
+    case kBlendDestOver:    GetContext().set("globalCompositeOperation", "destination-over");   break;
+    case kBlendDestIn:      GetContext().set("globalCompositeOperation", "destination-in");     break;
+    case kBlendDestOut:     GetContext().set("globalCompositeOperation", "destination-out");    break;
+    case kBlendDestAtop:    GetContext().set("globalCompositeOperation", "destination-atop");   break;
+      
+    case kBlendXOR:         GetContext().set("globalCompositeOperation", "xor");                break;
+
+    case kBlendAdd:         GetContext().set("globalCompositeOperation", "lighter");            break;
+    case kBlendColorDodge:  GetContext().set("globalCompositeOperation", "color-dodge");        break;
   }
 }
 
