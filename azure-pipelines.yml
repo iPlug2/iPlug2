@@ -52,6 +52,7 @@ jobs:
       echo "hello world" >> ./Dependencies/Build/mac/test.txt
       cd ./Dependencies/Build
       tar -cvzf iplug2_deps_macOS.tar.gz mac
+      cat ./Dependencies/Build/mac/test.txt
     condition: variables.isMac
     displayName: Dummy Artifacts
 
