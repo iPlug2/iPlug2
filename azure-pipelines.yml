@@ -37,6 +37,7 @@ jobs:
     displayName: Build macOS Extras Dependencies - LLVM
 
   - bash: |
+      echo $HOME
       echo $PATH
       file ./Dependencies/Build/tmp/clang+llvm-7.0.0-x86_64-apple-darwin/bin/llvm-config
       llvm-config
