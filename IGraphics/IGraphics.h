@@ -45,12 +45,14 @@
 #include <stack>
 #include <memory>
 
-#ifdef FillRect
-#undef FillRect
-#endif
+#if !defined OS_WIN && !defined IGRAPHICS_LICE
+  #ifdef FillRect
+  #undef FillRect
+  #endif
 
-#ifdef DrawText
-#undef DrawText
+  #ifdef DrawText
+  #undef DrawText
+  #endif
 #endif
 
 class IControl;
