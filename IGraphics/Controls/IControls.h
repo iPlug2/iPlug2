@@ -70,9 +70,9 @@ public:
                        const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2, EDirection dir = kVertical);
 
   virtual ~IVRadioButtonControl() { mLabels.Empty(true); }
-  virtual void Draw(IGraphics& g) override;
-  virtual void OnResize() override;
-//  virtual bool IsHit(float x, float y) const override;
+  void Draw(IGraphics& g) override;
+  void OnResize() override;
+//bool IsHit(float x, float y) const override;
 
 protected:
   EDirection mDirection;
@@ -178,7 +178,7 @@ public:
 
   virtual ~IVSliderControl() {}
 
-  virtual void Draw(IGraphics& g) override;
+  void Draw(IGraphics& g) override;
   void OnResize() override;
 
 protected:
@@ -190,9 +190,9 @@ class IVRangeSliderControl : public IVSliderControl
 public:
   IVRangeSliderControl(IRECT bounds, int paramIdxLo, int paramIdxHi);
 
-  virtual void Draw(IGraphics& g) override;
-  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-  virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
+  void Draw(IGraphics& g) override;
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
 
 protected:
   float mMouseDownVal = 0.f;
@@ -264,12 +264,12 @@ public:
     g.DrawBitmap(mBitmap, mRECT, (int) GetValue() + 1, &mBlend);
   }
 
-  virtual void OnRescale() override
+  void OnRescale() override
   {
     mBitmap = GetUI()->GetScaledBitmap(mBitmap);
   }
 
-  virtual void GrayOut(bool gray) override
+  void GrayOut(bool gray) override
   {
     IBitmapBase::GrayOut(gray);
     IControl::GrayOut(gray);
@@ -291,7 +291,7 @@ public:
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {  OnMouseDown(x, y, mod); }
 
-  virtual void GrayOut(bool gray) override
+  void GrayOut(bool gray) override
   {
     IBitmapBase::GrayOut(gray);
     IControl::GrayOut(gray);
@@ -317,7 +317,7 @@ public:
 
   virtual ~IBKnobControl() {}
 
-  virtual void Draw(IGraphics& g) override
+  void Draw(IGraphics& g) override
   {
     int i = 1 + int(0.5 + GetValue() * (double) (mBitmap.N() - 1));
     g.DrawBitmap(mBitmap, mRECT, i, &mBlend);
@@ -328,7 +328,7 @@ public:
     mBitmap = GetUI()->GetScaledBitmap(mBitmap);
   }
 
-  virtual void GrayOut(bool gray) override
+  void GrayOut(bool gray) override
   {
     IBitmapBase::GrayOut(gray);
     IControl::GrayOut(gray);
@@ -371,13 +371,13 @@ public:
 
   virtual ~IBSliderControl() {}
 
-  virtual void Draw(IGraphics& g) override;
-  virtual void OnRescale() override;
-  virtual void OnResize() override;
+  void Draw(IGraphics& g) override;
+  void OnRescale() override;
+  void OnResize() override;
 
   IRECT GetHandleBounds(double value = -1.0) const;
 
-  virtual void GrayOut(bool gray) override
+  void GrayOut(bool gray) override
   {
     IBitmapBase::GrayOut(gray);
     IControl::GrayOut(gray);
@@ -408,7 +408,7 @@ public:
     g.DrawBitmapedText(mBitmap, mRECT, mText, &mBlend, mStr.Get(), mVCentre, mMultiLine, mCharWidth, mCharHeight, mCharOffset);
   }
 
-  virtual void GrayOut(bool gray) override
+  void GrayOut(bool gray) override
   {
     IBitmapBase::GrayOut(gray);
     IControl::GrayOut(gray);

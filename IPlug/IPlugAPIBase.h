@@ -128,7 +128,7 @@ public:
   /** Get the name of the track that the plug-in is inserted on */
   virtual void GetTrackName(WDL_String& str) {};
   
-  virtual void DirtyParametersFromUI() override;
+  void DirtyParametersFromUI() override;
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
 
   /** This is called from the plug-in API class in order to update UI controls linked to plug-in parameters, prior to calling OnParamChange()

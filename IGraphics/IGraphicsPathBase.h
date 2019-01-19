@@ -310,7 +310,7 @@ public:
     PathRoundRect(bounds, cr, cr, cr, cr);
   }
   
-  virtual void PathEllipse(float x, float y, float r1, float r2, float angle = 0.0) override
+  void PathEllipse(float x, float y, float r1, float r2, float angle = 0.0) override
   {
     PathTransformSave();
     

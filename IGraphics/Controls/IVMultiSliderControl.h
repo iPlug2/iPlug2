@@ -44,7 +44,7 @@ public:
     SetColor(kFG, COLOR_BLACK);
   }
 
-  virtual int GetValIdxForPos(float x, float y) const override // TODO fixed for horizontal
+  int GetValIdxForPos(float x, float y) const override // TODO fixed for horizontal
   {
     for (auto v = 0; v < MaxNTracks(); v++)
     {
@@ -121,7 +121,7 @@ public:
   //  void OnResize() override;
   //  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
 
-  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     IRECT innerBounds = mRECT.GetPadded(-mOuterPadding);
 
@@ -131,7 +131,7 @@ public:
     SnapToMouse(x, y, mDirection, innerBounds);
   }
 
-  virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
   {
     IRECT innerBounds = mRECT.GetPadded(-mOuterPadding);
 
