@@ -1,48 +1,38 @@
 trigger:
 - master
 
-pool:
-  vmImage: 'macOS-10.13'
+jobs:
+- job: Build
+  strategy:
+    matrix:
+      mac:
+        imageName: 'macos-10.13'
+        isMac: true
+#      windows:
+#        imageName: 'vs2017-win2016'
+#        isWindows: true
+#      linux:
+#      imageName: 'ubuntu-16.04'
+#        isLinux: true
 
-steps:
-- task: Xcode@5
-  inputs:
-    actions: 'build'
-    scheme: 'APP'
-    sdk: 'macosx10.13'
-    configuration: 'Release'
-    xcWorkspacePath: 'Tests/IGraphicsTest/IGraphicsTest.xcworkspace'
-    xcodeVersion: "9"
-- task: Xcode@5
-  inputs:
-    actions: 'build'
-    scheme: 'APP'
-    sdk: 'macosx10.13'
-    configuration: 'Release'
-    xcWorkspacePath: 'Tests/IGraphicsStressTest/IGraphicsStressTest.xcworkspace'
-    xcodeVersion: "9"
-- task: Xcode@5
-  inputs:
-    actions: 'build'
-    scheme: 'APP'
-    sdk: 'macosx10.13'
-    configuration: 'Release'
-    xcWorkspacePath: 'Examples/IPlugControls/IPlugControls.xcworkspace'
-    xcodeVersion: "9"
-- task: Xcode@5
-  inputs:
-    actions: 'build'
-    scheme: 'APP'
-    sdk: 'macosx10.13'
-    configuration: 'Release'
-    xcWorkspacePath: 'Examples/IPlugEffect/IPlugEffect.xcworkspace'
-    xcodeVersion: "9"
-- task: Xcode@5
-  inputs:
-    actions: 'build'
-    scheme: 'APP'
-    sdk: 'macosx10.13'
-    configuration: 'Release'
-    xcWorkspacePath: 'Examples/IPlugInstrument/IPlugInstrument.xcworkspace'
-    xcodeVersion: "9"
+  pool:
+    vmImage: $(imageName)
+    
+  steps:
+    - checkout: self
+    fetchDepth: 1
+    # submodules: recursive # can't do submodules here b'cuz depth=1 fails with Github
 
+    - bash: |
+      ./Dependencies/IGraphics/build-igraphics-libs-mac.sh
+    condition: variables.isMac
+    displayName: Build macOS IGraphics Dependencies
+  
+#  - task: Xcode@5
+#    inputs:
+#      actions: 'build'
+#      scheme: 'APP'
+#      sdk: 'macosx10.13'
+#      configuration: 'Release'
+#      xcWorkspacePath: 'Tests/IGraphicsTest/IGraphicsTest.xcworkspace'
+#      xcodeVersion: "9"
