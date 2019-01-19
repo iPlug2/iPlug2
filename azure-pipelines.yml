@@ -21,15 +21,20 @@ jobs:
   steps:
   - checkout: self
 
-  - bash: |
-      ./Dependencies/IGraphics/build-igraphics-libs-mac.sh
-    condition: variables.isMac
-    displayName: Build macOS IGraphics Dependencies
+  # - bash: |
+  #     ./Dependencies/IGraphics/build-igraphics-libs-mac.sh
+  #   condition: variables.isMac
+  #   displayName: Build macOS IGraphics Dependencies
 
   - bash: |
-      ./Dependencies/Extras/build-faust-mac.sh
+      ./Dependencies/Extras/faust/build-faust-mac.sh
     condition: variables.isMac
     displayName: Build macOS Extras Dependencies - FAUST
+
+  - bash: |
+      ./Dependencies/Extras/civetweb/build-civetweb-mac.sh
+    condition: variables.isMac
+    displayName: Build macOS Extras Dependencies - CIVETWEB
 
   - bash: |
       cd ./Dependencies/
