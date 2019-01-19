@@ -98,8 +98,8 @@ public:
     IPlugQueue<Data> mQueue {QUEUE_SIZE};
   };
 
-  IVMeterControl(IRECT bounds, const char* trackNames = 0, ...)
-  : IVTrackControlBase(bounds, MAXNC, 0, 1., trackNames)
+  IVMeterControl(IRECT bounds, EDirection dir = kHorizontal, const char* trackNames = 0, ...)
+  : IVTrackControlBase(bounds, MAXNC, dir, 0, 1., trackNames)
   {
   }
 

@@ -26,8 +26,8 @@ class IVMultiSliderControl : public IVTrackControlBase
 {
 public:
 
-  IVMultiSliderControl(IRECT bounds, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
-  : IVTrackControlBase(bounds, MAXNC, minTrackValue, maxTrackValue, trackNames)
+  IVMultiSliderControl(IRECT bounds, EDirection dir = kVertical, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  : IVTrackControlBase(bounds, MAXNC, dir, minTrackValue, maxTrackValue, trackNames)
   {
     mOuterPadding = 0.f;
     mDrawTrackFrame = false;
@@ -35,8 +35,8 @@ public:
     SetColor(kFG, COLOR_BLACK);
   }
 
-  IVMultiSliderControl(IRECT bounds, int loParamIdx, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
-    : IVTrackControlBase(bounds, loParamIdx, MAXNC, minTrackValue, maxTrackValue, trackNames)
+  IVMultiSliderControl(IRECT bounds, int loParamIdx, EDirection dir = kVertical, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+    : IVTrackControlBase(bounds, loParamIdx, MAXNC, dir, minTrackValue, maxTrackValue, trackNames)
   {
     mOuterPadding = 0.f;
     mDrawTrackFrame = false;
@@ -44,11 +44,13 @@ public:
     SetColor(kFG, COLOR_BLACK);
   }
 
-  int GetValIdxForPos(float x, float y) const override // TODO fixed for horizontal
+  int GetValIdxForPos(float x, float y) const override
   {
-    for (auto v = 0; v < MaxNTracks(); v++)
+    int nVals = NVals();
+    
+    for (auto v = 0; v < nVals; v++)
     {
-      if (mTrackBounds.Get()[v].Contains(x, mTrackBounds.Get()[v].MH()))
+      if (mTrackBounds.Get()[v].Contains(x, y))
       {
         return v;
       }
@@ -57,28 +59,46 @@ public:
     return kNoValIdx;
   }
 
-  void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, int valIdx = -1 /* TODO:: not used*/, float scalar = 1.) override //TODO: fixed for horizontal
+  void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, int valIdx = -1 /* TODO:: not used*/, float scalar = 1.) override
   {
     bounds.Constrain(x, y);
+    int nVals = NVals();
 
-    float yValue = (y-bounds.T) / bounds.H();
-
-    yValue = std::round( yValue / mGrain ) * mGrain;
-
+    float value = 0.;
     int sliderTest = -1;
 
-    for(auto i = 0; i < MaxNTracks(); i++)
+    if(direction == kVertical)
     {
-      if(mTrackBounds.Get()[i].Contains(x, mTrackBounds.Get()[i].MH()))
+      value = 1. - (y-bounds.T) / bounds.H();
+      
+      for(auto i = 0; i < nVals; i++)
       {
-        sliderTest = i;
-        break;
+        if(mTrackBounds.Get()[i].Contains(x, mTrackBounds.Get()[i].MH()))
+        {
+          sliderTest = i;
+          break;
+        }
       }
     }
-
+    else
+    {
+      value = (x-bounds.L) / bounds.W();
+      
+      for(auto i = 0; i < nVals; i++)
+      {
+        if(mTrackBounds.Get()[i].Contains(mTrackBounds.Get()[i].MW(), y))
+        {
+          sliderTest = i;
+          break;
+        }
+      }
+    }
+    
+    value = std::round( value / mGrain ) * mGrain;
+    
     if (sliderTest > -1)
     {
-      SetValue(mMinTrackValue + (1.f - Clip(yValue, 0.f, 1.f)) * (mMaxTrackValue - mMinTrackValue), sliderTest);
+      SetValue(mMinTrackValue + Clip(value, 0.f, 1.f) * (mMaxTrackValue - mMinTrackValue), sliderTest);
       OnNewValue(sliderTest, GetValue(sliderTest));
 
       mSliderHit = sliderTest;

@@ -201,7 +201,7 @@ public:
   /** Check to see which of the control's values relates to this x and y coordinate
    * @param x x coordinate to check
    * @param y x coordinate to check
-   * @return An integer specifiying which value matches the x, y coordinates. If the return is kNoValIdx,  */
+   * @return An integer specifiying which value matches the x, y coordinates, or kNoValIdx if the position is not linked to a value. */
   virtual int GetValIdxForPos(float x, float y) const { return kNoValIdx; }
   
   /** Get a const pointer to the IParam object (owned by the editor delegate class), associated with this control
@@ -788,34 +788,34 @@ class IVTrackControlBase : public IControl
                          , public IVectorBase
 {
 public:
-  IVTrackControlBase(IRECT bounds, int maxNTracks = 1, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  IVTrackControlBase(IRECT bounds, int maxNTracks = 1, EDirection dir = kHorizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
   : IControl(bounds)
-  , mMaxNTracks(maxNTracks)
   , mMinTrackValue(minTrackValue)
   , mMaxTrackValue(maxTrackValue)
+  , mDirection(dir)
   {
     SetNVals(maxNTracks);
 
     for (int i=0; i<maxNTracks; i++)
     {
-      SetParamIdx(i, kNoParameter);
+      SetParamIdx(kNoParameter, i);
       mTrackBounds.Add(IRECT());
     }
     
     AttachIControl(this);
   }
 
-  IVTrackControlBase(IRECT bounds, int lowParamidx, int maxNTracks = 1, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  IVTrackControlBase(IRECT bounds, int lowParamidx, int maxNTracks = 1, EDirection dir = kHorizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
     : IControl(bounds)
-    , mMaxNTracks(maxNTracks)
     , mMinTrackValue(minTrackValue)
     , mMaxTrackValue(maxTrackValue)
+    , mDirection(dir)
   {
     SetNVals(maxNTracks);
 
     for (int i = 0; i < maxNTracks; i++)
     {
-      SetParamIdx(i, lowParamidx+i);
+      SetParamIdx(lowParamidx+i, i);
       mTrackBounds.Add(IRECT());
     }
 
@@ -824,19 +824,22 @@ public:
   
   void MakeRects()
   {
-    for (int ch = 0; ch < MaxNTracks(); ch++)
+    int nVals = NVals();
+    for (int ch = 0; ch < nVals; ch++)
     {
       mTrackBounds.Get()[ch] = mRECT.GetPadded(-mOuterPadding).
-                                     SubRect(EDirection(!mDirection), MaxNTracks(), ch).
+                                     SubRect(EDirection(!mDirection), nVals, ch).
                                      GetPadded(0, -mTrackPadding * (float) mDirection, -mTrackPadding * (float) !mDirection, -mTrackPadding);
     }
   }
   
   void Draw(IGraphics& g) override
   {
+    int nVals = NVals();
+
     g.FillRect(GetColor(kBG), mRECT);
     
-    for (int ch = 0; ch < MaxNTracks(); ch++)
+    for (int ch = 0; ch < nVals; ch++)
     {
       DrawTrack(g, mTrackBounds.Get()[ch], ch);
     }
@@ -845,7 +848,6 @@ public:
       DrawFrame(g);
   }
   
-  int MaxNTracks() const { return mMaxNTracks; }
   //void SetAllTrackData(float val) { memset(mTrackData.Get(), (int) Clip(val, mMinTrackValue, mMaxTrackValue), mTrackData.GetSize() * sizeof(float) ); }
 private:
   virtual void DrawFrame(IGraphics& g)
@@ -896,7 +898,6 @@ private:
 protected:
   
   EDirection mDirection = EDirection::kVertical;
-  int mMaxNTracks;
   WDL_TypedBuf<IRECT> mTrackBounds;
   float mMinTrackValue;
   float mMaxTrackValue;

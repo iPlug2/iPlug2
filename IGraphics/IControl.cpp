@@ -327,8 +327,13 @@ void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds
     //mValue = (double) (x - (mRECT.R - (mRECT.W()*lengthMult)) - mHandleHeadroom / 2) / (double) ((mLen*lengthMult) - mHandleHeadroom);
     val = (x-bounds.L) / bounds.W();
 
-  SetValue(std::round( val / 0.001 ) * 0.001, valIdx);
-  SetDirty(true, valIdx); // will send parameter value to delegate
+  auto valFunc = [&](int v)
+  {
+    SetValue(std::round(val / 0.001 ) * 0.001, v);
+  };
+  
+  ForValIdx(valIdx, valFunc);
+  SetDirty(true, valIdx);
 }
 
 void IBitmapControl::Draw(IGraphics& g)
