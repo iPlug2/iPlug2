@@ -61,17 +61,17 @@ jobs:
     condition: variables.isMac
     displayName: Package macOS Dependencies Artifacts
 
-- task: CopyFiles@2
-  inputs:
-    contents: ./Dependencies/Build/iplug2_deps_macOS.tar.gz
-    targetFolder: $(Build.ArtifactStagingDirectory)
+  - task: CopyFiles@2
+    inputs:
+      contents: ./Dependencies/Build/iplug2_deps_macOS.tar.gz
+      targetFolder: $(Build.ArtifactStagingDirectory)
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    artifactName: 'IPLUG2_DEPS_MACOS'
-    pathtoPublish: $(Build.ArtifactStagingDirectory)
-  condition: variables.isMac
-  displayName: Publish macOS Dependencies Artifacts
+  - task: PublishBuildArtifacts@1
+    inputs:
+      artifactName: 'IPLUG2_DEPS_MACOS'
+      pathtoPublish: $(Build.ArtifactStagingDirectory)
+    condition: variables.isMac
+    displayName: Publish macOS Dependencies Artifacts
     
   
 #  - task: Xcode@5
