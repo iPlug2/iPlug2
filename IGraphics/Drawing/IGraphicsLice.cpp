@@ -23,7 +23,7 @@ static StaticStorage<LICE_IFont> s_fontCache;
 
 inline void PreMulCompositeSourceOver(LICE_pixel_chan* out, LICE_pixel_chan* in)
 {
-  unsigned int alphaCmp = 255 - in[LICE_PIXEL_A];
+  unsigned int alphaCmp = 256 - in[LICE_PIXEL_A];
   
   unsigned int A = in[LICE_PIXEL_A] + ((out[LICE_PIXEL_A] * alphaCmp) >> 8);
   unsigned int R = in[LICE_PIXEL_R] + ((out[LICE_PIXEL_R] * alphaCmp) >> 8);
