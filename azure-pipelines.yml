@@ -21,24 +21,24 @@ jobs:
   steps:
   - checkout: self
 
-  # - bash: |
-  #     ./Dependencies/IGraphics/build-igraphics-libs-mac.sh
-  #   condition: variables.isMac
-  #   displayName: Build macOS IGraphics Dependencies
+  - bash: |
+      ./Dependencies/IGraphics/build-igraphics-libs-mac.sh
+    condition: variables.isMac
+    displayName: Build macOS IGraphics Dependencies
 
-  # - bash: |
-  #     wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
-  #     tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
-  #     export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
-  #     echo "##vso[task.setvariable variable=PATH]$PATH"
-  #   condition: variables.isMac
-  #   displayName: Build macOS Extras Dependencies - LLVM
+  - bash: |
+      wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
+      tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
+      export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
+      echo "##vso[task.setvariable variable=PATH]$PATH"
+    condition: variables.isMac
+    displayName: Build macOS Extras Dependencies - LLVM
 
-  # - bash: |
-  #     cd ./Dependencies/Extras/faust/
-  #     ./build-faust-mac.sh
-  #   condition: variables.isMac
-  #   displayName: Build macOS Extras Dependencies - FAUST
+  - bash: |
+      cd ./Dependencies/Extras/faust/
+      ./build-faust-mac.sh
+    condition: variables.isMac
+    displayName: Build macOS Extras Dependencies - FAUST
 
   # - bash: |
   #     cd ./Dependencies/Extras/civetweb/
@@ -46,29 +46,14 @@ jobs:
   #   condition: variables.isMac
   #   displayName: Build macOS Extras Dependencies - CIVETWEB
 
-  - bash: |
-      mkdir ./Dependencies/Build
-      mkdir ./Dependencies/Build/mac
-      echo "hello world" >> ./Dependencies/Build/mac/test.txt
-      cat ./Dependencies/Build/mac/test.txt
-    condition: variables.isMac
-    displayName: Dummy Artifacts
-
-  - bash: |
-      cd ./Dependencies/Build
-      tar -cvzf iplug2_deps_macOS.tar.gz mac
-      file iplug2_deps_macOS.tar.gz
-    condition: variables.isMac
-    displayName: Package macOS Dependencies Artifacts
-
   - task: CopyFiles@2
     inputs:
-      contents: Dependencies/Build/**
+      contents: Dependencies/Build/mac**
       targetFolder: $(Build.ArtifactStagingDirectory)
 
   - task: PublishBuildArtifacts@1
     inputs:
-      artifactName: 'IPLUG2_DEPS_MACOS'
+      artifactName: 'iPlug2_deps_macOS'
       pathtoPublish: $(Build.ArtifactStagingDirectory)
     condition: variables.isMac
     displayName: Publish macOS Dependencies Artifacts
