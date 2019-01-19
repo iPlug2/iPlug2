@@ -18,6 +18,14 @@ EXPAT_VERSION=expat-2.2.5
 PNG_VERSION=libpng-1.6.34
 ZLIB_VERSION=zlib-1.2.11
 
+[[ -e "$PWD/build-igraphics-libs-mac.sh" ]] ||
+{
+  echo "*******************************************************************************"
+  echo "Error: Please cd into the folder containing this script before running it.";
+  echo "*******************************************************************************"
+  exit 1;
+}
+
 err_report() {
     echo
     echo "*******************************************************************************"
