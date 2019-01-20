@@ -22,23 +22,35 @@ jobs:
   - checkout: self
 
   - bash: |
-      cd ./Dependencies/IGraphics/
-      ./build-igraphics-libs-mac.sh
+      # cd ./Dependencies/IGraphics/
+      # ./build-igraphics-libs-mac.sh
 
-      cd ../../
-      wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
-      tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
-      export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
-      echo "##vso[task.setvariable variable=PATH]$PATH"
-      cd ./Dependencies/Extras/faust/
-      ./build-faust-mac.sh
+      # cd ../../
+      # wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
+      # tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
+      # export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
+      # echo "##vso[task.setvariable variable=PATH]$PATH"
+
+      # cd ./Dependencies/Extras/faust/
+      # ./build-faust-mac.sh
+
+      #test
+      mkdir -p ./Dependencies/Build/mac
+      echo "Hello iPlug" > ./Dependencies/Build/mac/hello.txt
 
     condition: variables.isMac
     displayName: Build macOS Dependencies
 
+  - task: ArchiveFiles@2
+    inputs:
+      rootFolderOrFile: Dependencies/Build/mac
+      archiveFile: iplug2_deps_mac.zip
+    condition: variables.isMac
+    displayName: Archive macOS Dependencies
+
   - task: CopyFiles@2
     inputs:
-      contents: Dependencies/Build/mac/**
+      contents: Dependencies/Build/iplug2_deps_mac.zip
       targetFolder: $(Build.ArtifactStagingDirectory)
     condition: variables.isMac
     displayName: Copy macOS IGraphics Dependencies Artifacts
@@ -68,12 +80,24 @@ jobs:
 
   - task: PublishBuildArtifacts@1
     inputs:
-      artifactName: 'iPlug2_deps_macOS'
+      artifactName: 'IPLUG2_DEPS_MACOS'
       pathtoPublish: $(Build.ArtifactStagingDirectory)
     condition: variables.isMac
     displayName: Publish macOS Dependencies Artifacts
     
-  
+- task: GithubRelease@0
+  inputs:
+    gitHubConnection: iPlug2
+    repositoryName: iPlug2
+    action: 'create'
+    target: '$(build.sourceVersion)'
+    tagSource: 'auto'
+    title: iPlug2 optional dependencies (macOS)
+    #assets: '$(build.artifactStagingDirectory)/*' # Optional
+    #assetUploadMode: 'delete' # Optional. Options: delete, replace
+    isDraft: true
+    isPreRelease: true
+
 #  - task: Xcode@5
 #    inputs:
 #      actions: 'build'
