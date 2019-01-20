@@ -56,7 +56,7 @@ jobs:
     displayName: Publish Windows $(buildPlatform) $(buildConfiguration) Dependencies Artifacts
 
 - job: PUBLISH_WIN_DEPS
-  dependsOn: WIN_DEPS
+  dependsOn: BUILD_WIN_DEPS
   steps:
     - task: DownloadPipelineArtifact@0
       inputs:
