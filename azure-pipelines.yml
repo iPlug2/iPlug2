@@ -1,9 +1,19 @@
 trigger:
-- master
+- none
 
 jobs:
+- job: DOWNLOAD_DEPS
+  steps:
+  - checkout: self
+
+  # download windows dependencies
+  - bash: |
+      cd ./Dependencies/IGraphics/
+      ./download-igraphics-libs-win.sh
+    displayName: Download Windows Dependencies
 
 - job: WIN_DEPS
+  dependsOn: DOWNLOAD_DEPS
   strategy:
     matrix:
       # x86_RELEASE:
@@ -15,21 +25,13 @@ jobs:
       # x86_DEBUG:
       #   buildPlatform: 'Win32'
       #   buildConfiguration: 'Debug'
-      # x64_DEBUG:
-      #   buildPlatform: 'x64'
-      #   buildConfiguration: 'Debug'
+      x64_DEBUG:
+        buildPlatform: 'x64'
+        buildConfiguration: 'Debug'
 
   pool:
     vmImage: 'vs2017-win2016'
   steps:
-  - checkout: self
-
-  # download windows dependencies
-  - bash: |
-      cd ./Dependencies/IGraphics/
-      ./download-igraphics-libs-win.sh
-    displayName: Download Windows Dependencies
-
   # build x64 windows dependencies
   - task: VSBuild@1
     inputs:
