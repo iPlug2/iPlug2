@@ -12,8 +12,14 @@ jobs:
       ./download-igraphics-libs-win.sh
     displayName: Download Windows Dependencies
 
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'DEPS_SRC_WIN'
+      targetPath: 'Dependencies/Build/src'
+    displayName: Publish Windows Dependencies Artifacts
+
 - job: WIN_DEPS
-  dependsOn: DOWNLOAD_DEPS
+  dependsOn: DOWNLOAD_DEPS 
   strategy:
     matrix:
       # x86_RELEASE:
@@ -32,7 +38,14 @@ jobs:
   pool:
     vmImage: 'vs2017-win2016'
   steps:
-  # build x64 windows dependencies
+  - checkout: self
+
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'DEPS_SRC_WIN' 
+      targetPath: 'Dependencies/Build/src'
+
+  # build windows dependencies
   - task: VSBuild@1
     inputs:
       solution: 'Dependencies/IGraphics/IGraphicsLibraries.sln' 
@@ -40,32 +53,31 @@ jobs:
       configuration: '$(buildConfiguration)'
     displayName: Build Windows Dependencies
 
-  - task: DeleteFiles@1
-    inputs:
-      contents: 'Dependencies/Build/tmp'
-
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: 'IPLUG2_DEPS_WIN'
+      artifactName: 'DEPS_BUILD_WIN_$(buildPlatform)_$(buildConfiguration)'
       targetPath: 'Dependencies/Build/'
-    displayName: Publish Windows Dependencies Artifacts
-  
-  # - task: ArchiveFiles@2
-  #   inputs:
-  #     rootFolderOrFile: Dependencies/Build/
-  #     archiveFile: iplug2_deps_win.zip
-  #   displayName: Archive Windows Dependencies
+    displayName: Publish Windows $(buildPlatform) $(buildConfiguration) Dependencies Artifacts
 
-  # - task: CopyFiles@2
-  #   inputs:
-  #     contents: iplug2_deps_win.zip
-  #     targetFolder: $(Build.ArtifactStagingDirectory)
-  #   displayName: Copy Windows Dependencies Artifacts
+- job: PUBLISH_WIN_DEPS
+  dependsOn: WIN_DEPS
+  steps:
+    - task: DownloadPipelineArtifact@0
+      inputs:
+        artifactName: 'DEPS_BUILD_WIN_x64_Release' 
+        targetPath: 'Dependencies/Build/'
 
-  # - task: PublishBuildArtifacts@1
-  #   inputs:
-  #     artifactName: 'IPLUG2_DEPS_WIN'
-  #     pathtoPublish: $(Build.ArtifactStagingDirectory)
-  #   displayName: Publish Windows Dependencies Artifacts
+    - task: DownloadPipelineArtifact@0
+      inputs:
+        artifactName: 'DEPS_BUILD_WIN_x64_Debug' 
+        targetPath: 'Dependencies/Build/'
 
+    - task: DeleteFiles@1
+      inputs:
+        contents: 'Dependencies/Build/tmp'
 
+    - task: PublishPipelineArtifact@0
+      inputs:
+        artifactName: 'IPLUG2_DEPS_WIN'
+        targetPath: 'Dependencies/Build/'
+      displayName: Publish Windows Dependencies Artifacts
