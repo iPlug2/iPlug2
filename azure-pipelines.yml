@@ -3,7 +3,7 @@ trigger:
 
 jobs:
 
-- job: Windows Dependencies
+- job: WindowsDependencies
   pool:
     vmImage: 'vs2017-win2016'
   steps:
@@ -28,12 +28,12 @@ jobs:
       archiveFile: iplug2_deps_win.zip
     displayName: Archive Windows Dependencies
 
-- job: macOS Dependencies
+- job: macOSDependencies
   pool:
     vmImage: 'macos-10.13'
   steps:
     - checkout: self
-    
+
     #download and build macOS dependencies
     - bash:
         # cd ./Dependencies/IGraphics/
