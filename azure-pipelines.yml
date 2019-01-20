@@ -4,10 +4,8 @@ trigger:
 jobs:
 
 - job: Windows Dependencies
-
   pool:
     vmImage: 'vs2017-win2016'
-
   steps:
   - checkout: self
 
@@ -31,85 +29,86 @@ jobs:
     displayName: Archive Windows Dependencies
 
 - job: macOS Dependencies
-
   pool:
     vmImage: 'macos-10.13'
+  steps:
+    - checkout: self
+    
+    #download and build macOS dependencies
+    - bash:
+        # cd ./Dependencies/IGraphics/
+        # ./build-igraphics-libs-mac.sh
 
-#download and build macOS dependencies
-- bash:
-    # cd ./Dependencies/IGraphics/
-    # ./build-igraphics-libs-mac.sh
+        # cd ../../
+        # wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
+        # tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
+        # export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
+        # echo "##vso[task.setvariable variable=PATH]$PATH"
 
-    # cd ../../
-    # wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
-    # tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
-    # export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
-    # echo "##vso[task.setvariable variable=PATH]$PATH"
+        # cd ./Dependencies/Extras/faust/
+        # ./build-faust-mac.sh
 
-    # cd ./Dependencies/Extras/faust/
-    # ./build-faust-mac.sh
+        # cd ./Dependencies/Extras/civetweb/
+        # ./build-civetweb-mac.sh
 
-    # cd ./Dependencies/Extras/civetweb/
-    # ./build-civetweb-mac.sh
+        # test
+        mkdir -p ./Dependencies/Build/mac
+        echo "Hello iPlug" > ./Dependencies/Build/mac/hello.txt
+      displayName: Download and build macOS Dependencies
 
-    # test
-    mkdir -p ./Dependencies/Build/mac
-    echo "Hello iPlug" > ./Dependencies/Build/mac/hello.txt
-  displayName: Download and build macOS Dependencies
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: Dependencies/Build/mac
+        archiveFile: iplug2_deps_mac.zip
+      displayName: Archive macOS Dependencies
 
-- task: ArchiveFiles@2
-  inputs:
-    rootFolderOrFile: Dependencies/Build/mac
-    archiveFile: iplug2_deps_mac.zip
-  displayName: Archive macOS Dependencies
+    - task: CopyFiles@2
+      inputs:
+        contents: iplug2_deps_mac.zip
+        targetFolder: $(Build.ArtifactStagingDirectory)
+      condition: variables.isMac
+      displayName: Copy macOS Dependencies Artifacts
 
-- task: CopyFiles@2
-  inputs:
-    contents: iplug2_deps_mac.zip
-    targetFolder: $(Build.ArtifactStagingDirectory)
-  condition: variables.isMac
-  displayName: Copy macOS Dependencies Artifacts
+    - task: PublishBuildArtifacts@1
+      inputs:
+        artifactName: 'IPLUG2_DEPS_MACOS'
+        pathtoPublish: $(Build.ArtifactStagingDirectory)
+      condition: variables.isMac
+      displayName: Publish macOS Dependencies Artifacts
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    artifactName: 'IPLUG2_DEPS_MACOS'
-    pathtoPublish: $(Build.ArtifactStagingDirectory)
-  condition: variables.isMac
-  displayName: Publish macOS Dependencies Artifacts
+      # - task: GithubRelease@0
+      #   inputs:
+      #     gitHubConnection: olilarkin
+      #     repositoryName: iPlug2/iPlug2
+      #     action: 'create'
+      #     target: '$(build.sourceVersion)'
+      #     tagSource: 'manual'
+      #     tag: 'setup'
+      #     title: iPlug2 optional dependencies
+      #     assets: '$(build.artifactStagingDirectory)/*'
+      #     assetUploadMode: 'delete'
+      #     isDraft: true
+      #     isPreRelease: true
+      #     addChangeLog: false
 
-  # - task: GithubRelease@0
-  #   inputs:
-  #     gitHubConnection: olilarkin
-  #     repositoryName: iPlug2/iPlug2
-  #     action: 'create'
-  #     target: '$(build.sourceVersion)'
-  #     tagSource: 'manual'
-  #     tag: 'setup'
-  #     title: iPlug2 optional dependencies
-  #     assets: '$(build.artifactStagingDirectory)/*'
-  #     assetUploadMode: 'delete'
-  #     isDraft: true
-  #     isPreRelease: true
-  #     addChangeLog: false
+    #  - task: Xcode@5
+    #    inputs:
+    #      actions: 'build'
+    #      scheme: 'APP'
+    #      sdk: 'macosx10.13'
+    #      configuration: 'Release'
+    #      xcWorkspacePath: 'Tests/IGraphicsTest/IGraphicsTest.xcworkspace'
+    #      xcodeVersion: "9"
 
-#  - task: Xcode@5
-#    inputs:
-#      actions: 'build'
-#      scheme: 'APP'
-#      sdk: 'macosx10.13'
-#      configuration: 'Release'
-#      xcWorkspacePath: 'Tests/IGraphicsTest/IGraphicsTest.xcworkspace'
-#      xcodeVersion: "9"
-
-# - job: Build
-#   strategy:
-#     matrix:
-#       mac:
-#         imageName: 'macos-10.13'
-#         isMac: true
-#       windows:
-#        imageName: 'vs2017-win2016'
-#        isWindows: true
-#      linux:
-#      imageName: 'ubuntu-16.04'
-#        isLinux: true
+    # - job: Build
+    #   strategy:
+    #     matrix:
+    #       mac:
+    #         imageName: 'macos-10.13'
+    #         isMac: true
+    #       windows:
+    #        imageName: 'vs2017-win2016'
+    #        isWindows: true
+    #      linux:
+    #      imageName: 'ubuntu-16.04'
+    #        isLinux: true
