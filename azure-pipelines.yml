@@ -1,5 +1,5 @@
 trigger:
-- master
+#- master
 
 jobs:
 - job: Build
