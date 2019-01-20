@@ -22,7 +22,8 @@ jobs:
   - checkout: self
 
   - bash: |
-      ./Dependencies/IGraphics/build-igraphics-libs-mac.sh
+      cd ./Dependencies/IGraphics/
+      ./build-igraphics-libs-mac.sh
     condition: variables.isMac
     displayName: Build macOS IGraphics Dependencies
 
