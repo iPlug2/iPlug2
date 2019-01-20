@@ -31,7 +31,7 @@ jobs:
 
   - task: BatchScript@1
     inputs:
-      filename: /Dependencies/IGraphics/build-libs-win.bat
+      filename: Dependencies/IGraphics/build-libs-win.bat
     condition: variables.isWindows
     displayName: Build Windows Dependencies
 
