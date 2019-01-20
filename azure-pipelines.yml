@@ -85,18 +85,18 @@ jobs:
     condition: variables.isMac
     displayName: Publish macOS Dependencies Artifacts
     
-- task: GithubRelease@0
-  inputs:
-    gitHubConnection: iPlug2
-    repositoryName: iPlug2
-    action: 'create'
-    target: '$(build.sourceVersion)'
-    tagSource: 'auto'
-    title: iPlug2 optional dependencies (macOS)
-    #assets: '$(build.artifactStagingDirectory)/*' # Optional
-    #assetUploadMode: 'delete' # Optional. Options: delete, replace
-    isDraft: true
-    isPreRelease: true
+  - task: GithubRelease@0
+    inputs:
+      gitHubConnection: iPlug2
+      repositoryName: iPlug2
+      action: 'create'
+      target: '$(build.sourceVersion)'
+      tagSource: 'auto'
+      title: iPlug2 optional dependencies (macOS)
+      #assets: '$(build.artifactStagingDirectory)/*' # Optional
+      #assetUploadMode: 'delete' # Optional. Options: delete, replace
+      isDraft: true
+      isPreRelease: true
 
 #  - task: Xcode@5
 #    inputs:
