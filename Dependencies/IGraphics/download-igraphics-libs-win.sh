@@ -31,6 +31,14 @@ echo "DL_DIR:" $DL_DIR
 echo "LOG_PATH:" $LOG_PATH
 echo "LOG_NAME:" $LOG_NAME
 
+[[ -e "$PWD/download-igraphics-libs-win.sh" ]] ||
+{
+  echo "*******************************************************************************"
+  echo "Error: Please cd into the folder containing this script before running it.";
+  echo "*******************************************************************************"
+  exit 1;
+}
+
 err_report() {
     echo
     echo "*******************************************************************************"

@@ -81,15 +81,12 @@ static inline Time TimeZero() { return (Time) 0; }
   #define FAUST_EXE "/usr/local/bin/faust"
 #endif
 
-
-using namespace std;
-
 class FaustGen : public IPlugFaust
 {
   class Factory
   {
 #ifdef OS_MAC
-    static string GetLLVMArchStr()
+    static std::string GetLLVMArchStr()
     {
       int tmp;
       return (sizeof(&tmp) == 8) ? "" : "i386-apple-darwin10.6.0";
@@ -168,7 +165,7 @@ class FaustGen : public IPlugFaust
   private:
     int mInstanceIdx;
     WDL_Mutex mDSPMutex;
-    set<FaustGen*> mInstances;
+    std::set<FaustGen*> mInstances;
 
     llvm_dsp_factory* mLLVMFactory = nullptr;
     //  midi_handler mMidiHandler;
@@ -177,15 +174,15 @@ class FaustGen : public IPlugFaust
     WDL_String mDrawPath;
     WDL_String mName;
 
-    vector<string> mLibraryPaths;
-    vector<string> mOptions;
-    vector<string> mCompileOptions;
+    std::vector<std::string> mLibraryPaths;
+    std::vector<std::string> mOptions;
+    std::vector<std::string> mCompileOptions;
 
     int mNInputs = 0;
     int mNOutputs = 0;
     int mOptimizationLevel = LLVM_OPTIMIZATION;
     static int sFactoryCounter;
-    static map<string, Factory*> sFactoryMap;
+    static std::map<std::string, Factory*> sFactoryMap;
     WDL_String mInputDSPFile;
     StatTime mPreviousTime;
   };

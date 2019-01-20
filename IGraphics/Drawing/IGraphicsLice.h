@@ -46,9 +46,9 @@ inline int LiceBlendMode(const IBlend* pBlend)
   }
   switch (pBlend->mMethod)
   {
-    case EBlendType::kBlendClobber: return LICE_BLIT_MODE_COPY;
-    case EBlendType::kBlendAdd: return LICE_BLIT_MODE_ADD | LICE_BLIT_USE_ALPHA;
-    case EBlendType::kBlendColorDodge: return LICE_BLIT_MODE_DODGE | LICE_BLIT_USE_ALPHA;
+    case EBlendType::kBlendClobber:     return LICE_BLIT_MODE_COPY;
+    case EBlendType::kBlendAdd:         return LICE_BLIT_MODE_ADD | LICE_BLIT_USE_ALPHA;
+    case EBlendType::kBlendColorDodge:  return LICE_BLIT_MODE_DODGE | LICE_BLIT_USE_ALPHA;
     case EBlendType::kBlendNone:
     default:
     {
@@ -62,8 +62,13 @@ inline int LiceBlendMode(const IBlend* pBlend)
 class LICEBitmap : public APIBitmap
 {
 public:
-  LICEBitmap(LICE_IBitmap* pBitmap, int scale) : APIBitmap (pBitmap, pBitmap->getWidth(), pBitmap->getHeight(), scale, 1.f) {}
+  LICEBitmap(LICE_IBitmap* pBitmap, int scale, bool preMultiplied) : APIBitmap (pBitmap, pBitmap->getWidth(), pBitmap->getHeight(), scale, 1.f), mPremultiplied(preMultiplied) {}
   virtual ~LICEBitmap() { delete ((LICE_IBitmap*) GetBitmap()); }
+  
+  bool IsPreMultiplied() { return mPremultiplied; }
+    
+private:
+  bool mPremultiplied;
 };
 
 /** IGraphics draw class using Cockos' LICE  
@@ -157,18 +162,15 @@ private:
   IRECT TransformRECT(const IRECT& r)
   {
     IRECT tr = r;
-    tr.Translate(-mDrawOffsetX, - mDrawOffsetY);
+    tr.Translate(-mDrawOffsetX, -mDrawOffsetY);
     tr.Scale(GetScreenScale());
     return tr;
   }
     
-  void PrepareRegion(const IRECT& r) override
-  {
-    mDrawRECT = r;
-    mDrawRECT.PixelAlign();
-    mClipRECT = mDrawRECT;
-  }
-  
+  void NeedsClipping();
+  void PrepareRegion(const IRECT& r) override;
+  void CompleteRegion(const IRECT& r) override;
+    
   void UpdateLayer() override;
     
   LICE_IFont* CacheFont(const IText& text, double scale);
@@ -186,6 +188,9 @@ private:
 #endif
   // N.B. mRenderBitmap is not owned through this pointer, and should not be deleted
   LICE_IBitmap* mRenderBitmap = nullptr;
+    
+  ILayerPtr mClippingLayer;
+    
 #ifdef OS_MAC
   CGColorSpaceRef mColorSpace = nullptr;
 #endif

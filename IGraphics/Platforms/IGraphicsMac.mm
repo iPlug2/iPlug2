@@ -253,8 +253,6 @@ void IGraphicsMac::PlatformResize()
     NSSize size = { static_cast<CGFloat>(WindowWidth()), static_cast<CGFloat>(WindowHeight()) };
 
     DBGMSG("%f, %f\n", size.width, size.height);
-    // Prevent animation during resize
-    // N.B. - The bounds perform scaling on the window, and so use the nominal size
 
     [NSAnimationContext beginGrouping]; // Prevent animated resizing
     [[NSAnimationContext currentContext] setDuration:0.0];

@@ -1,6 +1,8 @@
 # iPlug 2 - C++ Audio Plug-in Framework
 
-[![Build Status](https://travis-ci.org/iPlug2/iPlug2.svg?branch=master)](https://travis-ci.org/iPlug2/iPlug2)
+[![Build Status](https://dev.azure.com/iplug2/iplug2/_apis/build/status/iPlug2?branchName=master)](https://dev.azure.com/iplug2/iplug2/_build/latest?definitionId=2?branchName=master)
+
+<!--[![Build Status](https://travis-ci.org/iPlug2/iPlug2.svg?branch=master)](https://travis-ci.org/iPlug2/iPlug2) -->
 
 iPlug 2 is a simple-to-use C++ framework for developing cross platform audio plug-ins/apps and targeting multiple plug-in APIs with the same minimalistic code. It abstracts an audio plug-in (IPlug) and it's drawing engine/GUI toolkit (IGraphics). IGraphics contains a collection of common controls well suited for audio plug-in GUIs, either using bitmap or vector graphics. 
 

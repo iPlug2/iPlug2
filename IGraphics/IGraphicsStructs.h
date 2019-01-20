@@ -25,13 +25,15 @@
 #include <chrono>
 #include <string>
 
-
+#include "mutex.h"
 #include "wdlstring.h"
 #include "ptrlist.h"
 
 #include "nanosvg.h"
 
 #include "IPlugPlatform.h"
+#include "IPlugUtilities.h"
+#include "IPlugLogger.h"
 #include "IGraphicsConstants.h"
 
 class IGraphics;

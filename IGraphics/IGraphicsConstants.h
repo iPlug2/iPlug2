@@ -75,10 +75,23 @@ enum EBlendType
 {
   kBlendNone,     // Copy over whatever is already there, but look at src alpha.
   kBlendClobber,  // Copy completely over whatever is already there.
+    
+  kBlendSourceOver,
+  kBlendSourceIn,
+  kBlendSourceOut,
+  kBlendSourceAtop,
+    
+  kBlendDestOver,
+  kBlendDestIn,
+  kBlendDestOut,
+  kBlendDestAtop,
+    
+  kBlendXOR,
+  
+  // Need review
+    
   kBlendAdd,
   kBlendColorDodge,
-  kBlendUnder,
-  kBlendSourceIn,
   // etc
 };
 

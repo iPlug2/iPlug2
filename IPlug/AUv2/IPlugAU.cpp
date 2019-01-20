@@ -36,11 +36,14 @@ struct CFStrLocal
 struct CStrLocal
 {
   char* mCStr;
-  CStrLocal(CFStringRef cfStr)
+    CStrLocal(CFStringRef cfStr) : mCStr(nullptr)
   {
-    long n = CFStringGetLength(cfStr) + 1;
-    mCStr = (char*) malloc(n);
-    CFStringGetCString(cfStr, mCStr, n, kCFStringEncodingUTF8);
+    if (cfStr)
+    {
+      long n = CFStringGetLength(cfStr) + 1;
+      mCStr = (char*) malloc(n);
+      CFStringGetCString(cfStr, mCStr, n, kCFStringEncodingUTF8);
+    }
   }
   ~CStrLocal()
   {
@@ -729,11 +732,12 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     {
       ASSERT_SCOPE(kAudioUnitScope_Global);
       ASSERT_ELEMENT(NParams());
-      ENTER_PARAMS_MUTEX;;
+      ENTER_PARAMS_MUTEX;
       IParam* pParam = GetParam(element);
       int n = pParam->NDisplayTexts();
       if (!n)
       {
+        LEAVE_PARAMS_MUTEX;
         *pDataSize = 0;
         return kAudioUnitErr_InvalidProperty;
       }
@@ -749,7 +753,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         }
         *((CFArrayRef*) pData) = nameArray;
       }
-      LEAVE_PARAMS_MUTEX;;
+      LEAVE_PARAMS_MUTEX;
       return noErr;
     }
     case kAudioUnitProperty_GetUIComponentList:          // 18,
@@ -934,8 +938,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         AudioUnitParameterIDName* pIDName = (AudioUnitParameterIDName*) pData;
         char cStr[MAX_PARAM_NAME_LEN];
         ENTER_PARAMS_MUTEX;
-        IParam* pParam = GetParam(pIDName->inID);
-        strcpy(cStr, pParam->GetNameForHost());
+        strcpy(cStr, GetParam(pIDName->inID)->GetNameForHost());
         LEAVE_PARAMS_MUTEX;
         if (pIDName->inDesiredLength != kAudioUnitParameterName_Full)
         {
@@ -983,8 +986,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       {
         AudioUnitParameterStringFromValue* pSFV = (AudioUnitParameterStringFromValue*) pData;
         ENTER_PARAMS_MUTEX;
-        IParam* pParam = GetParam(pSFV->inParamID);
-        pParam->GetDisplayForHost(*(pSFV->inValue), false, mParamDisplayStr);
+        GetParam(pSFV->inParamID)->GetDisplayForHost(*(pSFV->inValue), false, mParamDisplayStr);
         LEAVE_PARAMS_MUTEX;
         pSFV->outString = MakeCFString((const char*) mParamDisplayStr.Get());
       }
@@ -1000,8 +1002,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         {
           CStrLocal cStr(pVFS->inString);
           ENTER_PARAMS_MUTEX;
-          IParam* pParam = GetParam(pVFS->inParamID);
-          const double v = pParam->StringToValue(cStr.mCStr);
+          const double v = GetParam(pVFS->inParamID)->StringToValue(cStr.mCStr);
           LEAVE_PARAMS_MUTEX;
           pVFS->outValue = (AudioUnitParameterValue) v;
         }
@@ -1250,10 +1251,10 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       {
         AUHostIdentifier* pHostID = (AUHostIdentifier*) pData;
         CStrLocal hostStr(pHostID->hostName);
-        int hostVer = (pHostID->hostVersion.majorRev << 16)
+        int version = (pHostID->hostVersion.majorRev << 16)
                     + ((pHostID->hostVersion.minorAndBugRev & 0xF0) << 4)
                     + ((pHostID->hostVersion.minorAndBugRev & 0x0F));
-        SetHost(hostStr.mCStr, hostVer);
+        SetHost(hostStr.mCStr, version);
       }
       return noErr;
     }
@@ -1543,8 +1544,7 @@ OSStatus IPlugAU::SetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioU
   ASSERT_SCOPE(kAudioUnitScope_Global);
   IPlugAU* _this = (IPlugAU*) pPlug;
   ENTER_PARAMS_MUTEX_STATIC;
-  IParam* pParam = _this->GetParam(paramID);
-  pParam->Set(value);
+  _this->GetParam(paramID)->Set(value);
   _this->SendParameterValueFromAPI(paramID, value, false);
   _this->OnParamChange(paramID, kHost);
   LEAVE_PARAMS_MUTEX_STATIC;
@@ -2193,17 +2193,23 @@ OSStatus IPlugAU::DoInitialize(IPlugAU* _this)
   if (_this->GetHost() == kHostUninit)
   {
     CFBundleRef mainBundle = CFBundleGetMainBundle();
-    CFStringRef id;
-        
-    if (mainBundle && (id = CFBundleGetIdentifier(mainBundle)))
+    CFStringRef id = nullptr;
+    int version = 0;
+      
+    if (mainBundle)
     {
-      //CFStringRef versStr = (CFStringRef) CFBundleGetValueForInfoDictionaryKey(mainBundle, kCFBundleVersionKey);
-      _this->SetHost(CStrLocal(id).mCStr, 0);
+      id = CFBundleGetIdentifier(mainBundle);
+      CStrLocal versionStr((CFStringRef) CFBundleGetValueForInfoDictionaryKey(mainBundle, kCFBundleVersionKey));
+      
+      char *pStr;
+      long ver = versionStr.mCStr ? strtol(versionStr.mCStr, &pStr, 10) : 0;
+      long verRevMaj = versionStr.mCStr && *pStr ? strtol(pStr + 1, &pStr, 10) : 0;
+      long verRevMin = versionStr.mCStr && *pStr ? strtol(pStr + 1, &pStr, 10) : 0;
+
+      version = (int) (((ver & 0xFFFF) << 16) | ((verRevMaj &  0xFF) << 8) | (verRevMin & 0xFF));
     }
-    else
-    {
-      _this->SetHost("", 0);
-    }
+
+    _this->SetHost(id ? CStrLocal(id).mCStr : "", version);
   }
     
   if (!(_this->CheckLegalIO()))

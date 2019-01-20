@@ -173,7 +173,7 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
     char hostNameCString[128];
     FUnknownPtr<IHostApplication>app(context);
 
-    if (app)
+    if ((GetHost() == kHostUninit) && app)
     {
       app->getName(tmpStringBuf);
       Steinberg::UString(tmpStringBuf, 128).toAscii(hostNameCString, 128);

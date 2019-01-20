@@ -62,14 +62,23 @@ inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case kBlendClobber:         return agg::comp_op_src_over;
+    case kBlendNone:            return agg::comp_op_src_over;
+    case kBlendClobber:         return agg::comp_op_src;
+          
+    case kBlendSourceOver:      return agg::comp_op_src_over;
+    case kBlendSourceIn:        return agg::comp_op_src_in;
+    case kBlendSourceOut:       return agg::comp_op_src_out;
+    case kBlendSourceAtop:      return agg::comp_op_src_atop;
+          
+    case kBlendDestOver:        return agg::comp_op_dst_over;
+    case kBlendDestIn:          return agg::comp_op_dst_in;
+    case kBlendDestOut:         return agg::comp_op_dst_out;
+    case kBlendDestAtop:        return agg::comp_op_dst_atop;
+   
+    case kBlendXOR:             return agg::comp_op_xor;
+
     case kBlendAdd:             return agg::comp_op_plus;
     case kBlendColorDodge:      return agg::comp_op_color_dodge;
-    case kBlendUnder:           return agg::comp_op_dst_over;
-    case kBlendSourceIn:        return agg::comp_op_src_in;
-    case kBlendNone:
-    default:
-      return agg::comp_op_src_over;
   }
 }
 
@@ -312,7 +321,7 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   srcMtx *= agg::trans_affine_translation((srcX * scale) - dest.L, (srcY * scale) - dest.T);
   srcMtx *= agg::trans_affine_scaling(bitmap.GetScale() * bitmap.GetDrawScale());
     
-  if (0)//bounds.IsPixelAligned() && CheckTransform(srcMtx))
+  if (bounds.IsPixelAligned() && CheckTransform(srcMtx))
   {
     double offsetScale = scale * GetScreenScale();
     IRECT destScaled = dest.GetScaled(GetBackingPixelScale());
@@ -582,7 +591,7 @@ void IGraphicsAGG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const 
     PathTransformTranslate(-shadow.mXOffset, -shadow.mYOffset);
     PathFill(shadow.mPattern, IFillOptions(), &blend1);
     PopLayer(false);
-    IBlend blend2(kBlendUnder, shadow.mOpacity);
+    IBlend blend2(kBlendDestOver, shadow.mOpacity);
     bounds.Translate(shadow.mXOffset, shadow.mYOffset);
     DrawBitmap(bitmap, bounds, 0, 0, &blend2);
     PopLayer(false);
