@@ -29,11 +29,13 @@ jobs:
     condition: variables.isWindows
     displayName: Download Windows Dependencies
 
-  - task: BatchScript@1
+  # build x64 windows dependencies
+  - task: MSBuild@1
     inputs:
-      filename: Dependencies/IGraphics/build-libs-win.bat
-    condition: variables.isWindows
-    displayName: Build Windows Dependencies
+      solution: '/Dependencies/IGraphics/IGraphicsLibraries.sln' 
+      msbuildArchitecture: 'x64'
+      condition: variables.isWindows
+      displayName: Build Windows x64 Dependencies
 
   - task: ArchiveFiles@2
     inputs:
@@ -56,12 +58,12 @@ jobs:
       # cd ./Dependencies/Extras/faust/
       # ./build-faust-mac.sh
 
-      cd ./Dependencies/Extras/civetweb/
-      ./build-civetweb-mac.sh
+      # cd ./Dependencies/Extras/civetweb/
+      # ./build-civetweb-mac.sh
 
-#      test
-#      mkdir -p ./Dependencies/Build/mac
-#      echo "Hello iPlug" > ./Dependencies/Build/mac/hello.txt
+      # test
+      mkdir -p ./Dependencies/Build/mac
+      echo "Hello iPlug" > ./Dependencies/Build/mac/hello.txt
 
     condition: variables.isMac
     displayName: Download and build macOS Dependencies
