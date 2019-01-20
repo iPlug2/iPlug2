@@ -87,7 +87,7 @@ jobs:
     
   - task: GithubRelease@0
     inputs:
-      gitHubConnection: iPlug2
+      gitHubConnection: olilarkin
       repositoryName: iPlug2
       action: 'create'
       target: '$(build.sourceVersion)'
