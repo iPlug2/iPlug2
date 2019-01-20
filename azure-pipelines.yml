@@ -4,20 +4,20 @@ trigger:
 jobs:
 
 - job: WIN_DEPS
-  # strategy:
-  #   matrix:
-  #     x86r:
-  #       buildPlatform: 'x86'
-  #       configuration: 'release'
-  #     x64r:
-  #       buildPlatform: 'x64'
-  #       configuration: 'release'
-  #     x86d:
-  #       buildPlatform: 'x86'
-  #       configuration: 'debug'
-  #     x64d:
-  #       buildPlatform: 'x64'
-  #       configuration: 'debug'
+  strategy:
+    matrix:
+      x86r:
+        buildPlatform: 'x86'
+        buildConfiguration: 'Release'
+      x64r:
+        buildPlatform: 'x64'
+        buildConfiguration: 'Release'
+      x86d:
+        buildPlatform: 'x86'
+        buildConfiguration: 'Debug'
+      x64d:
+        buildPlatform: 'x64'
+        buildConfiguration: 'Debug'
 
   pool:
     vmImage: 'vs2017-win2016'
@@ -36,7 +36,7 @@ jobs:
       solution: 'Dependencies/IGraphics/IGraphicsLibraries.sln' 
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'
-    displayName: Build Windows x64 Dependencies
+    displayName: Build Windows Dependencies
 
   - task: ArchiveFiles@2
     inputs:
