@@ -76,7 +76,8 @@ jobs:
 
         cd ./Dependencies/Extras/faust/
         ./build-faust-mac.sh
-
+        
+        pwd
         cd ./Dependencies/Extras/civetweb/
         ./build-civetweb-mac.sh
 
