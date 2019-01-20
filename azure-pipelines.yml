@@ -6,18 +6,18 @@ jobs:
 - job: WIN_DEPS
   strategy:
     matrix:
-      x86r:
-        buildPlatform: 'Win32'
-        buildConfiguration: 'Release'
-      x64r:
+      # x86_RELEASE:
+      #   buildPlatform: 'Win32'
+      #   buildConfiguration: 'Release'
+      x64_RELEASE:
         buildPlatform: 'x64'
         buildConfiguration: 'Release'
-      x86d:
-        buildPlatform: 'Win32'
-        buildConfiguration: 'Debug'
-      x64d:
-        buildPlatform: 'x64'
-        buildConfiguration: 'Debug'
+      # x86_DEBUG:
+      #   buildPlatform: 'Win32'
+      #   buildConfiguration: 'Debug'
+      # x64_DEBUG:
+      #   buildPlatform: 'x64'
+      #   buildConfiguration: 'Debug'
 
   pool:
     vmImage: 'vs2017-win2016'
@@ -38,105 +38,32 @@ jobs:
       configuration: '$(buildConfiguration)'
     displayName: Build Windows Dependencies
 
-  - task: ArchiveFiles@2
+  - task: DeleteFiles@1
     inputs:
-      rootFolderOrFile: Dependencies/Build/
-      archiveFile: iplug2_deps_win.zip
-    displayName: Archive Windows Dependencies
+      contents: 'Dependencies/Build/tmp'
 
-  - task: CopyFiles@2
-    inputs:
-      contents: iplug2_deps_win.zip
-      targetFolder: $(Build.ArtifactStagingDirectory)
-    displayName: Copy Windows Dependencies Artifacts
-
-  - task: PublishBuildArtifacts@1
+  - task: PublishPipelineArtifact@0
     inputs:
       artifactName: 'IPLUG2_DEPS_WIN'
-      pathtoPublish: $(Build.ArtifactStagingDirectory)
-    displayName: Publish macOS Dependencies Artifacts
+      targetPath: 'Dependencies/Build/'
+    displayName: Publish Windows Dependencies Artifacts
+  
+  # - task: ArchiveFiles@2
+  #   inputs:
+  #     rootFolderOrFile: Dependencies/Build/
+  #     archiveFile: iplug2_deps_win.zip
+  #   displayName: Archive Windows Dependencies
+
+  # - task: CopyFiles@2
+  #   inputs:
+  #     contents: iplug2_deps_win.zip
+  #     targetFolder: $(Build.ArtifactStagingDirectory)
+  #   displayName: Copy Windows Dependencies Artifacts
+
+  # - task: PublishBuildArtifacts@1
+  #   inputs:
+  #     artifactName: 'IPLUG2_DEPS_WIN'
+  #     pathtoPublish: $(Build.ArtifactStagingDirectory)
+  #   displayName: Publish Windows Dependencies Artifacts
 
 
-- job: MAC_DEPS
-  pool:
-    vmImage: 'macos-10.13'
-  steps:
-    - checkout: self
-
-    #download and build macOS dependencies
-    - bash:
-        cd ./Dependencies/IGraphics/
-        ./build-igraphics-libs-mac.sh
-
-        cd ../../
-        wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
-        tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
-        export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
-        echo "##vso[task.setvariable variable=PATH]$PATH"
-
-        cd ./Dependencies/Extras/faust/
-        ./build-faust-mac.sh
-        
-        pwd
-        cd ./Dependencies/Extras/civetweb/
-        ./build-civetweb-mac.sh
-
-        # test
-        # mkdir -p ./Dependencies/Build/mac
-        # echo "Hello iPlug" > ./Dependencies/Build/mac/hello.txt
-      displayName: Download and build macOS Dependencies
-
-    - task: ArchiveFiles@2
-      inputs:
-        rootFolderOrFile: Dependencies/Build/mac
-        archiveFile: iplug2_deps_mac.zip
-      displayName: Archive macOS Dependencies
-
-    - task: CopyFiles@2
-      inputs:
-        contents: iplug2_deps_mac.zip
-        targetFolder: $(Build.ArtifactStagingDirectory)
-      displayName: Copy macOS Dependencies Artifacts
-
-    - task: PublishBuildArtifacts@1
-      inputs:
-        artifactName: 'IPLUG2_DEPS_MACOS'
-        pathtoPublish: $(Build.ArtifactStagingDirectory)
-      displayName: Publish macOS Dependencies Artifacts
-
-      # - task: GithubRelease@0
-      #   inputs:
-      #     gitHubConnection: olilarkin
-      #     repositoryName: iPlug2/iPlug2
-      #     action: 'create'
-      #     target: '$(build.sourceVersion)'
-      #     tagSource: 'manual'
-      #     tag: 'setup'
-      #     title: iPlug2 optional dependencies
-      #     assets: '$(build.artifactStagingDirectory)/*'
-      #     assetUploadMode: 'delete'
-      #     isDraft: true
-      #     isPreRelease: true
-      #     addChangeLog: false
-
-    #  - task: Xcode@5
-    #    inputs:
-    #      actions: 'build'
-    #      scheme: 'APP'
-    #      sdk: 'macosx10.13'
-    #      configuration: 'Release'
-    #      xcWorkspacePath: 'Tests/IGraphicsTest/IGraphicsTest.xcworkspace'
-    #      xcodeVersion: "9"
-
-    # - job: Build
-    #   strategy:
-    #     matrix:
-    #       mac:
-    #         imageName: 'macos-10.13'
-    #         isMac: true
-    #       windows:
-    #        imageName: 'vs2017-win2016'
-    #        isWindows: true
-    #      linux:
-    #      imageName: 'ubuntu-16.04'
-    #        isLinux: true
