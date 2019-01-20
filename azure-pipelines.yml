@@ -4,20 +4,20 @@ trigger:
 jobs:
 
 - job: WIN_DEPS
-  strategy:
-    matrix:
-      x86r:
-        buildPlatform: 'x86'
-        configuration: 'release'
-      x64r:
-        buildPlatform: 'x64'
-        configuration: 'release'
-      x86d:
-        buildPlatform: 'x86'
-        configuration: 'debug'
-      x64d:
-        buildPlatform: 'x64'
-        configuration: 'debug'
+  # strategy:
+  #   matrix:
+  #     x86r:
+  #       buildPlatform: 'x86'
+  #       configuration: 'release'
+  #     x64r:
+  #       buildPlatform: 'x64'
+  #       configuration: 'release'
+  #     x86d:
+  #       buildPlatform: 'x86'
+  #       configuration: 'debug'
+  #     x64d:
+  #       buildPlatform: 'x64'
+  #       configuration: 'debug'
 
   pool:
     vmImage: 'vs2017-win2016'
