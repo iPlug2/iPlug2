@@ -14,23 +14,22 @@ jobs:
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: 'DEPS_SRC_WIN'
-      targetPath: 'Dependencies/Build/src'
-    displayName: Publish Windows Dependencies Artifacts
+      artifactName: 'SRC_WIN'
+    displayName: Publish Source
 
-- job: WIN_DEPS
+- job: BUILD_WIN_DEPS
   dependsOn: DOWNLOAD_DEPS 
   strategy:
     matrix:
-      # x86_RELEASE:
-      #   buildPlatform: 'Win32'
-      #   buildConfiguration: 'Release'
+      x86_RELEASE:
+        buildPlatform: 'Win32'
+        buildConfiguration: 'Release'
       x64_RELEASE:
         buildPlatform: 'x64'
         buildConfiguration: 'Release'
-      # x86_DEBUG:
-      #   buildPlatform: 'Win32'
-      #   buildConfiguration: 'Debug'
+      x86_DEBUG:
+        buildPlatform: 'Win32'
+        buildConfiguration: 'Debug'
       x64_DEBUG:
         buildPlatform: 'x64'
         buildConfiguration: 'Debug'
@@ -38,12 +37,9 @@ jobs:
   pool:
     vmImage: 'vs2017-win2016'
   steps:
-  - checkout: self
-
   - task: DownloadPipelineArtifact@0
     inputs:
-      artifactName: 'DEPS_SRC_WIN' 
-      targetPath: 'Dependencies/Build/src'
+      artifactName: 'SRC_WIN' 
 
   # build windows dependencies
   - task: VSBuild@1
@@ -62,6 +58,16 @@ jobs:
 - job: PUBLISH_WIN_DEPS
   dependsOn: WIN_DEPS
   steps:
+    - task: DownloadPipelineArtifact@0
+      inputs:
+        artifactName: 'DEPS_BUILD_WIN_Win32_Release' 
+        targetPath: 'Dependencies/Build/'
+
+    - task: DownloadPipelineArtifact@0
+      inputs:
+        artifactName: 'DEPS_BUILD_WIN_Win32_Debug' 
+        targetPath: 'Dependencies/Build/'
+
     - task: DownloadPipelineArtifact@0
       inputs:
         artifactName: 'DEPS_BUILD_WIN_x64_Release' 
