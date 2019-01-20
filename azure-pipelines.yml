@@ -30,7 +30,7 @@ jobs:
     displayName: Download Windows Dependencies
 
   - task: BatchScript@1
-    inputs: |
+    inputs:
       filename: /Dependencies/IGraphics/build-libs-win.bat
     condition: variables.isWindows
     displayName: Build Windows Dependencies
