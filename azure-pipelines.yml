@@ -50,10 +50,10 @@ jobs:
 
   - task: CopyFiles@2
     inputs:
-      contents: Dependencies/Build/iplug2_deps_mac.zip
+      contents: iplug2_deps_mac.zip
       targetFolder: $(Build.ArtifactStagingDirectory)
     condition: variables.isMac
-    displayName: Copy macOS IGraphics Dependencies Artifacts
+    displayName: Copy macOS Dependencies Artifacts
 
   # - bash: |
   #     wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
@@ -92,6 +92,7 @@ jobs:
       action: 'create'
       target: '$(build.sourceVersion)'
       tagSource: 'auto'
+      tag: 'setup_ci'
       title: iPlug2 optional dependencies (macOS)
       #assets: '$(build.artifactStagingDirectory)/*' # Optional
       #assetUploadMode: 'delete' # Optional. Options: delete, replace
