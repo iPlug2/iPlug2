@@ -65,24 +65,24 @@ jobs:
 
     #download and build macOS dependencies
     - bash:
-        # cd ./Dependencies/IGraphics/
-        # ./build-igraphics-libs-mac.sh
+        cd ./Dependencies/IGraphics/
+        ./build-igraphics-libs-mac.sh
 
-        # cd ../../
-        # wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
-        # tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
-        # export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
-        # echo "##vso[task.setvariable variable=PATH]$PATH"
+        cd ../../
+        wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
+        tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
+        export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
+        echo "##vso[task.setvariable variable=PATH]$PATH"
 
-        # cd ./Dependencies/Extras/faust/
-        # ./build-faust-mac.sh
+        cd ./Dependencies/Extras/faust/
+        ./build-faust-mac.sh
 
-        # cd ./Dependencies/Extras/civetweb/
-        # ./build-civetweb-mac.sh
+        cd ./Dependencies/Extras/civetweb/
+        ./build-civetweb-mac.sh
 
         # test
-        mkdir -p ./Dependencies/Build/mac
-        echo "Hello iPlug" > ./Dependencies/Build/mac/hello.txt
+        # mkdir -p ./Dependencies/Build/mac
+        # echo "Hello iPlug" > ./Dependencies/Build/mac/hello.txt
       displayName: Download and build macOS Dependencies
 
     - task: ArchiveFiles@2
