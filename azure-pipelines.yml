@@ -1,5 +1,5 @@
 trigger:
-- azure
+- master
 
 jobs:
 - job: Build
