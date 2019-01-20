@@ -4,6 +4,7 @@ trigger:
 jobs:
 
 - job: WIN_DEPS
+  strategy:
   matrix:
     x86r:
       buildPlatform: 'x86'
