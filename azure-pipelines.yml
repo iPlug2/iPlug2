@@ -88,14 +88,14 @@ jobs:
   - task: GithubRelease@0
     inputs:
       gitHubConnection: olilarkin
-      repositoryName: iPlug2
+      repositoryName: iPlug2/iPlug2
       action: 'create'
-      target: '7bd2dca316ac1b8eccc554f3e43a9db2748d49e3'
-      tagSource: 'auto'
+      target: '$(build.sourceVersion)'
+      tagSource: 'manual'
       tag: 'setup_ci'
       title: iPlug2 optional dependencies (macOS)
-      #assets: '$(build.artifactStagingDirectory)/*' # Optional
-      #assetUploadMode: 'delete' # Optional. Options: delete, replace
+      assets: '$(build.artifactStagingDirectory)/*'
+      assetUploadMode: 'delete'
       isDraft: true
       isPreRelease: true
 
