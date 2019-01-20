@@ -30,12 +30,12 @@ jobs:
     displayName: Download Windows Dependencies
 
   # build x64 windows dependencies
-  - task: MSBuild@1
+  - task: VSBuild@1
     inputs:
-      solution: '/Dependencies/IGraphics/IGraphicsLibraries.sln' 
-      msbuildArchitecture: 'x64'
-      condition: variables.isWindows
-      displayName: Build Windows x64 Dependencies
+      solution: 'Dependencies/IGraphics/IGraphicsLibraries.sln' 
+      Platform: 'x64'
+    condition: variables.isWindows
+    displayName: Build Windows x64 Dependencies
 
   - task: ArchiveFiles@2
     inputs:
