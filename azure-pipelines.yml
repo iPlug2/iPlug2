@@ -1,5 +1,5 @@
 trigger:
-- none
+- master
 
 jobs:
 
@@ -9,9 +9,9 @@ jobs:
       mac:
         imageName: 'macos-10.13'
         isMac: true
-#      windows:
-#        imageName: 'vs2017-win2016'
-#        isWindows: true
+      windows:
+       imageName: 'vs2017-win2016'
+       isWindows: true
 #      linux:
 #      imageName: 'ubuntu-16.04'
 #        isLinux: true
@@ -22,29 +22,49 @@ jobs:
   steps:
   - checkout: self
 
+  # download windows dependencies
   - bash: |
       cd ./Dependencies/IGraphics/
-      ./build-igraphics-libs-mac.sh
+      ./download-igraphics-libs-win.sh
+    condition: variables.isWindows
+    displayName: Download Windows Dependencies
 
-      cd ../../
-      wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
-      tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
-      export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
-      echo "##vso[task.setvariable variable=PATH]$PATH"
+  - task: BatchScript@1
+    inputs: |
+      filename: /Dependencies/IGraphics/build-libs-win.bat
+    condition: variables.isWindows
+    displayName: Build Windows Dependencies
 
-      cd ./Dependencies/Extras/faust/
-      ./build-faust-mac.sh
+  - task: ArchiveFiles@2
+    inputs:
+      rootFolderOrFile: Dependencies/Build/
+      archiveFile: iplug2_deps_win.zip
+    condition: variables.isWindows
+    displayName: Archive Windows Dependencies
 
-#     cd ./Dependencies/Extras/civetweb/
-#     ./build-civetweb-mac.sh
+  # download and build macOS dependencies
+  - bash: |
+      # cd ./Dependencies/IGraphics/
+      # ./build-igraphics-libs-mac.sh
 
+      # cd ../../
+      # wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
+      # tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
+      # export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
+      # echo "##vso[task.setvariable variable=PATH]$PATH"
+
+      # cd ./Dependencies/Extras/faust/
+      # ./build-faust-mac.sh
+
+      cd ./Dependencies/Extras/civetweb/
+      ./build-civetweb-mac.sh
 
 #      test
 #      mkdir -p ./Dependencies/Build/mac
 #      echo "Hello iPlug" > ./Dependencies/Build/mac/hello.txt
 
     condition: variables.isMac
-    displayName: Build macOS Dependencies
+    displayName: Download and build macOS Dependencies
 
   - task: ArchiveFiles@2
     inputs:
@@ -67,20 +87,20 @@ jobs:
     condition: variables.isMac
     displayName: Publish macOS Dependencies Artifacts
 
-  - task: GithubRelease@0
-    inputs:
-      gitHubConnection: olilarkin
-      repositoryName: iPlug2/iPlug2
-      action: 'create'
-      target: '$(build.sourceVersion)'
-      tagSource: 'manual'
-      tag: 'setup'
-      title: iPlug2 optional dependencies
-      assets: '$(build.artifactStagingDirectory)/*'
-      assetUploadMode: 'delete'
-      isDraft: true
-      isPreRelease: true
-      addChangeLog: false
+  # - task: GithubRelease@0
+  #   inputs:
+  #     gitHubConnection: olilarkin
+  #     repositoryName: iPlug2/iPlug2
+  #     action: 'create'
+  #     target: '$(build.sourceVersion)'
+  #     tagSource: 'manual'
+  #     tag: 'setup'
+  #     title: iPlug2 optional dependencies
+  #     assets: '$(build.artifactStagingDirectory)/*'
+  #     assetUploadMode: 'delete'
+  #     isDraft: true
+  #     isPreRelease: true
+  #     addChangeLog: false
 
 #  - task: Xcode@5
 #    inputs:
