@@ -21,6 +21,10 @@ iPlug2/Dependencies/Build/mac/lib
 iPlug2/Dependencies/Build/mac/share
 ```
 
+IGraphics static libraries (Cairo, libpng etc) are built as universal binaries (containing i386 and x64 architectures) and are built with MACOSX_DEPLOYMENT_TARGET=10.7
+
+FAUST dependencies are built as x64 only with MACOSX_DEPLOYMENT_TARGET=10.11
+
 ## Windows
 
 *Coming soon*
