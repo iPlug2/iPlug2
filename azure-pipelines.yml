@@ -7,13 +7,13 @@ jobs:
   strategy:
     matrix:
       x86r:
-        buildPlatform: 'x86'
+        buildPlatform: 'Win32'
         buildConfiguration: 'Release'
       x64r:
         buildPlatform: 'x64'
         buildConfiguration: 'Release'
       x86d:
-        buildPlatform: 'x86'
+        buildPlatform: 'Win32'
         buildConfiguration: 'Debug'
       x64d:
         buildPlatform: 'x64'
@@ -43,6 +43,19 @@ jobs:
       rootFolderOrFile: Dependencies/Build/
       archiveFile: iplug2_deps_win.zip
     displayName: Archive Windows Dependencies
+
+  - task: CopyFiles@2
+    inputs:
+      contents: iplug2_deps_win.zip
+      targetFolder: $(Build.ArtifactStagingDirectory)
+    displayName: Copy Windows Dependencies Artifacts
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      artifactName: 'IPLUG2_DEPS_WIN'
+      pathtoPublish: $(Build.ArtifactStagingDirectory)
+    displayName: Publish macOS Dependencies Artifacts
+
 
 - job: MAC_DEPS
   pool:
@@ -82,14 +95,12 @@ jobs:
       inputs:
         contents: iplug2_deps_mac.zip
         targetFolder: $(Build.ArtifactStagingDirectory)
-      condition: variables.isMac
       displayName: Copy macOS Dependencies Artifacts
 
     - task: PublishBuildArtifacts@1
       inputs:
         artifactName: 'IPLUG2_DEPS_MACOS'
         pathtoPublish: $(Build.ArtifactStagingDirectory)
-      condition: variables.isMac
       displayName: Publish macOS Dependencies Artifacts
 
       # - task: GithubRelease@0
