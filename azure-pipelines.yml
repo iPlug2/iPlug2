@@ -3,21 +3,12 @@ trigger:
 
 jobs:
 
-- job: Build
+- job: Windows Dependencies
   strategy:
     matrix:
-      mac:
-        imageName: 'macos-10.13'
-        isMac: true
-      windows:
-       imageName: 'vs2017-win2016'
-       isWindows: true
-#      linux:
-#      imageName: 'ubuntu-16.04'
-#        isLinux: true
 
   pool:
-    vmImage: $(imageName)
+    vmImage: 'vs2017-win2016'
 
   steps:
   - checkout: self
@@ -26,7 +17,6 @@ jobs:
   - bash: |
       cd ./Dependencies/IGraphics/
       ./download-igraphics-libs-win.sh
-    condition: variables.isWindows
     displayName: Download Windows Dependencies
 
   # build x64 windows dependencies
@@ -34,60 +24,60 @@ jobs:
     inputs:
       solution: 'Dependencies/IGraphics/IGraphicsLibraries.sln' 
       Platform: 'x64'
-    condition: variables.isWindows
     displayName: Build Windows x64 Dependencies
 
   - task: ArchiveFiles@2
     inputs:
       rootFolderOrFile: Dependencies/Build/
       archiveFile: iplug2_deps_win.zip
-    condition: variables.isWindows
     displayName: Archive Windows Dependencies
 
-  # download and build macOS dependencies
-  - bash: |
-      # cd ./Dependencies/IGraphics/
-      # ./build-igraphics-libs-mac.sh
+- job: macOS Dependencies
 
-      # cd ../../
-      # wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
-      # tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
-      # export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
-      # echo "##vso[task.setvariable variable=PATH]$PATH"
+  pool:
+    vmImage: 'macos-10.13'
 
-      # cd ./Dependencies/Extras/faust/
-      # ./build-faust-mac.sh
+#download and build macOS dependencies
+- bash:
+    # cd ./Dependencies/IGraphics/
+    # ./build-igraphics-libs-mac.sh
 
-      # cd ./Dependencies/Extras/civetweb/
-      # ./build-civetweb-mac.sh
+    # cd ../../
+    # wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
+    # tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
+    # export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
+    # echo "##vso[task.setvariable variable=PATH]$PATH"
 
-      # test
-      mkdir -p ./Dependencies/Build/mac
-      echo "Hello iPlug" > ./Dependencies/Build/mac/hello.txt
+    # cd ./Dependencies/Extras/faust/
+    # ./build-faust-mac.sh
 
-    condition: variables.isMac
-    displayName: Download and build macOS Dependencies
+    # cd ./Dependencies/Extras/civetweb/
+    # ./build-civetweb-mac.sh
 
-  - task: ArchiveFiles@2
-    inputs:
-      rootFolderOrFile: Dependencies/Build/mac
-      archiveFile: iplug2_deps_mac.zip
-    condition: variables.isMac
-    displayName: Archive macOS Dependencies
+    # test
+    mkdir -p ./Dependencies/Build/mac
+    echo "Hello iPlug" > ./Dependencies/Build/mac/hello.txt
+  displayName: Download and build macOS Dependencies
 
-  - task: CopyFiles@2
-    inputs:
-      contents: iplug2_deps_mac.zip
-      targetFolder: $(Build.ArtifactStagingDirectory)
-    condition: variables.isMac
-    displayName: Copy macOS Dependencies Artifacts
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: Dependencies/Build/mac
+    archiveFile: iplug2_deps_mac.zip
+  displayName: Archive macOS Dependencies
 
-  - task: PublishBuildArtifacts@1
-    inputs:
-      artifactName: 'IPLUG2_DEPS_MACOS'
-      pathtoPublish: $(Build.ArtifactStagingDirectory)
-    condition: variables.isMac
-    displayName: Publish macOS Dependencies Artifacts
+- task: CopyFiles@2
+  inputs:
+    contents: iplug2_deps_mac.zip
+    targetFolder: $(Build.ArtifactStagingDirectory)
+  condition: variables.isMac
+  displayName: Copy macOS Dependencies Artifacts
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    artifactName: 'IPLUG2_DEPS_MACOS'
+    pathtoPublish: $(Build.ArtifactStagingDirectory)
+  condition: variables.isMac
+  displayName: Publish macOS Dependencies Artifacts
 
   # - task: GithubRelease@0
   #   inputs:
@@ -112,3 +102,16 @@ jobs:
 #      configuration: 'Release'
 #      xcWorkspacePath: 'Tests/IGraphicsTest/IGraphicsTest.xcworkspace'
 #      xcodeVersion: "9"
+
+# - job: Build
+#   strategy:
+#     matrix:
+#       mac:
+#         imageName: 'macos-10.13'
+#         isMac: true
+#       windows:
+#        imageName: 'vs2017-win2016'
+#        isWindows: true
+#      linux:
+#      imageName: 'ubuntu-16.04'
+#        isLinux: true
