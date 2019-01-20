@@ -8,7 +8,7 @@ The subfolder "Build" should contain these built libraries with sub-folders for 
 
 ## macOS
 
-Pre-built macOS dependencies can be downloaded here [iplug2_deps_mac.zip](https://github.com/iPlug2/iPlug2/releases/download/setup/iplug2_deps_mac.zip)
+Pre-built macOS dependencies can be downloaded here: [iplug2_deps_mac.zip](https://github.com/iPlug2/iPlug2/releases/download/setup/iplug2_deps_mac.zip)
 
 and should be extracted so it looks like this...
 
