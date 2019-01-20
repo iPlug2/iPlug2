@@ -90,7 +90,7 @@ jobs:
       gitHubConnection: olilarkin
       repositoryName: iPlug2
       action: 'create'
-      target: '$(build.sourceVersion)'
+      target: '7bd2dca316ac1b8eccc554f3e43a9db2748d49e3'
       tagSource: 'auto'
       tag: 'setup_ci'
       title: iPlug2 optional dependencies (macOS)
