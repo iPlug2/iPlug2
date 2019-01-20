@@ -321,7 +321,7 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   srcMtx *= agg::trans_affine_translation((srcX * scale) - dest.L, (srcY * scale) - dest.T);
   srcMtx *= agg::trans_affine_scaling(bitmap.GetScale() * bitmap.GetDrawScale());
     
-  if (0)//bounds.IsPixelAligned() && CheckTransform(srcMtx))
+  if (bounds.IsPixelAligned() && CheckTransform(srcMtx))
   {
     double offsetScale = scale * GetScreenScale();
     IRECT destScaled = dest.GetScaled(GetBackingPixelScale());
