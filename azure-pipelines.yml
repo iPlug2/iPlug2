@@ -25,7 +25,7 @@ jobs:
   - task: ExtractFiles@1
     inputs:
       archiveFilePatterns: '$(Agent.TempDirectory)/IPLUG2_DEPS_*.zip' 
-      destinationFolder: 'Dependencies/Build'
+      destinationFolder: '$(Agent.TempDirectory)'
       cleanDestinationFolder: false 
     condition: eq(variables.buildLibs, false)
 
