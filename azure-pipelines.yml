@@ -269,12 +269,15 @@ jobs:
 
   - task: Xcode@5
     inputs:
-      scheme: 'APP'
       sdk: 'macosx10.13'
       xcWorkspacePath: 'Examples/IPlugEffect/projects/IPlugEffect-macOS.xcodeproj'
-      args: '-xcconfig Examples/IPlugEffect/config/IPlugEffect-mac.xcconfig IGRAPHICS_MODE=IGRAPHICS_CAIRO'
+      args: '-target All -xcconfig Examples/IPlugEffect/config/IPlugEffect-mac.xcconfig IGRAPHICS_MODE=IGRAPHICS_CAIRO'
       configuration: 'Release'
       xcodeVersion: '9'
+      exportPath: '$(agent.buildDirectory)/CAIRO/'
 
-  - bash: |
-      ls -la
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'IPLUG_EFFECT_CAIRO'
+      targetPath: '$(agent.buildDirectory)/CAIRO/'
+    displayName: Publish IPlugEffect
