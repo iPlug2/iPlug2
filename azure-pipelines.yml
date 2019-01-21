@@ -6,15 +6,45 @@ jobs:
   steps:
   - checkout: self
 
-  # download windows dependencies
   - bash: |
       cd ./Dependencies/IGraphics/
       ./download-igraphics-libs-win.sh
-    displayName: Download Windows Dependencies
+    displayName: Download IGraphics Dependencies
+
+  - bash: |
+      cd ./Dependencies/IPlug
+      rm -r VST2_SDK
+      git clone git@github.com:olilarkin/VST2_SDK.git
+    displayName: Download VST2 SDK
+
+  - bash: |
+      cd ./Dependencies/IPlug
+      rm -r AAX_SDK
+      git clone git@github.com:olilarkin/AAX_SDK.git
+    displayName: Download AAX SDK
+
+  - bash: |
+      cd ./Dependencies/IPlug
+      rm -r VST3_SDK
+      git clone --recursive https://github.com/steinbergmedia/vst3sdk.git
+    displayName: Download VST3 SDK
+
+  - bash: |
+      cd ./Dependencies/IPlug
+      rm -r WAM_SDK
+      git clone https://github.com/webaudiomodules/api.git WAM_SDK
+      mv WAM_SDK/wamsdk/* ../
+    displayName: Download WAM SDK
+
+  - bash: |
+      cd ./Dependencies/IPlug
+      rm -r WAM_AWP
+      git clone https://github.com/jariseon/audioworklet-polyfill WAM_AWP
+    displayName: Download WAM AWP
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: 'SRC_WIN'
+      artifactName: 'SRC'
     displayName: Publish Source
 
 - job: BUILD_WIN_DEPS
@@ -39,7 +69,7 @@ jobs:
   steps:
   - task: DownloadPipelineArtifact@0
     inputs:
-      artifactName: 'SRC_WIN' 
+      artifactName: 'SRC' 
 
   # build windows dependencies
   - task: VSBuild@1
@@ -62,28 +92,51 @@ jobs:
       inputs:
         artifactName: 'DEPS_BUILD_WIN_Win32_Release' 
         targetPath: 'Dependencies/Build/'
+      displayName: Download Win32_Release Artifact
 
     - task: DownloadPipelineArtifact@0
       inputs:
         artifactName: 'DEPS_BUILD_WIN_Win32_Debug' 
         targetPath: 'Dependencies/Build/'
+      displayName: Download Win32_Debug Artifact
 
     - task: DownloadPipelineArtifact@0
       inputs:
         artifactName: 'DEPS_BUILD_WIN_x64_Release' 
         targetPath: 'Dependencies/Build/'
+      displayName: Download x64_Release Artifact
 
     - task: DownloadPipelineArtifact@0
       inputs:
         artifactName: 'DEPS_BUILD_WIN_x64_Debug' 
         targetPath: 'Dependencies/Build/'
+      displayName: Download x64_Debug Artifact
 
     - task: DeleteFiles@1
       inputs:
         contents: 'Dependencies/Build/tmp'
+
+    - task: DeleteFiles@1
+      inputs:
+        contents: 'Dependencies/Build/*.log'
 
     - task: PublishPipelineArtifact@0
       inputs:
         artifactName: 'IPLUG2_DEPS_WIN'
         targetPath: 'Dependencies/Build/'
       displayName: Publish Windows Dependencies Artifacts
+
+    # - task: GithubRelease@0
+    #   inputs:
+    #     gitHubConnection: olilarkin
+    #     repositoryName: iPlug2/iPlug2
+    #     action: 'create'
+    #     target: '$(build.sourceVersion)'
+    #     tagSource: 'manual'
+    #     tag: 'setup'
+    #     title: iPlug2 optional dependencies
+    #     assets: '$(build.artifactStagingDirectory)/*'
+    #     assetUploadMode: 'delete'
+    #     isDraft: true
+    #     isPreRelease: true
+    #     addChangeLog: false
