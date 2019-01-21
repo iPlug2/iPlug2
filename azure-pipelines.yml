@@ -58,6 +58,14 @@ jobs:
       git clone https://github.com/jariseon/audioworklet-polyfill WAM_AWP
     displayName: Download WAM AWP
 
+  - task: DeleteFiles@1
+    inputs:
+      contents: '.git'
+
+  - task: DeleteFiles@1
+    inputs:
+      contents: 'Dependencies/Build/**/*.png'
+
   - task: ArchiveFiles@2
     inputs:
       rootFolderOrFile: $(Build.SourcesDirectory)
@@ -193,7 +201,10 @@ jobs:
 
       cd ./Dependencies/Extras/faust/
       ./build-faust-mac.sh
-      
+
+      pwd      
+      ls -la
+
       cd ./Dependencies/Extras/civetweb/
       ./build-civetweb-mac.sh
 
