@@ -1,5 +1,5 @@
 variables:
-  buildLibs: True 
+  buildLibs: true 
 
 trigger:
 - none
@@ -13,7 +13,7 @@ jobs:
       cd ./Dependencies/IGraphics
       ./download-igraphics-libs-win.sh
     displayName: Download IGraphics Dependencies SRC
-    condition: eq(variables.buildLibs, True)
+    condition: eq(variables.buildLibs, true)
 
   - bash: |
       cd ./Dependencies
@@ -21,7 +21,7 @@ jobs:
       cd Build
       wget https://github.com/iPlug2/iPlug2/releases/download/setup/iplug2_deps_mac.zip
     displayName: Download IGraphics Dependencies BUILT
-    condition: eq(variables.buildLibs, False)
+    condition: eq(variables.buildLibs, false)
 
   - task: DownloadSecureFile@1
     inputs:
@@ -62,6 +62,7 @@ jobs:
     inputs:
       rootFolderOrFile: $(Build.SourcesDirectory)
       archiveFile: '$(Build.ArtifactStagingDirectory)/SRC.zip'
+      includeRootFolder: false
 
   - task: PublishPipelineArtifact@0
     inputs:
@@ -71,7 +72,7 @@ jobs:
 
 - job: BUILD_WIN_DEPS
   dependsOn: DOWNLOAD_DEPS 
-  condition: eq(variables.buildLibs, True)
+  condition: eq(variables.buildLibs, true)
 
   strategy:
     matrix:
@@ -118,7 +119,7 @@ jobs:
     displayName: Publish Windows $(buildPlatform) $(buildConfiguration) Dependencies Artifacts
 
 - job: PUBLISH_WIN_DEPS
-  condition: eq(variables.buildLibs, True)
+  condition: eq(variables.buildLibs, true)
   dependsOn: BUILD_WIN_DEPS
   steps:
   - checkout: none
@@ -163,7 +164,7 @@ jobs:
 
 - job: BUILD_MAC_DEPS
   dependsOn: DOWNLOAD_DEPS 
-  condition: eq(variables.buildLibs, True)
+  condition: eq(variables.buildLibs, true)
 
   pool:
     vmImage: 'macos-10.13'
