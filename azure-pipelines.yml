@@ -272,10 +272,9 @@ jobs:
       scheme: 'APP'
       sdk: 'macosx10.13'
       xcWorkspacePath: 'Examples/IPlugEffect/projects/IPlugEffect-macOS.xcodeproj'
-      args: '-xcconfig Examples/IPlugEffect/config/IPlugEffect-mac.xcconfig'
+      args: '-xcconfig Examples/IPlugEffect/config/IPlugEffect-mac.xcconfig IGRAPHICS_MODE=IGRAPHICS_CAIRO'
       configuration: 'Release'
       xcodeVersion: '9'
 
   - bash: |
-      cd Examples/IPlugEffect/build-mac/
       ls -la
