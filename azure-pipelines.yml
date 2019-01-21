@@ -60,6 +60,7 @@ jobs:
 
   - task: ArchiveFiles@2
     inputs:
+      rootFolderOrFile: $(Build.SourcesDirectory)
       archiveFile: SRC.zip
 
   - task: PublishPipelineArtifact@0
