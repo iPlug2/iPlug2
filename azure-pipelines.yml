@@ -66,6 +66,10 @@ jobs:
     inputs:
       contents: 'Dependencies/Build/**/*.png'
 
+  - task: DeleteFiles@1
+    inputs:
+      contents: 'Dependencies/Build/tmp'
+
   - task: ArchiveFiles@2
     inputs:
       rootFolderOrFile: $(Build.SourcesDirectory)
@@ -158,10 +162,6 @@ jobs:
 
   - task: DeleteFiles@1
     inputs:
-      contents: 'Dependencies/Build/tmp'
-
-  - task: DeleteFiles@1
-    inputs:
       contents: 'Dependencies/Build/*.log'
 
   - task: PublishPipelineArtifact@0
@@ -190,7 +190,8 @@ jobs:
       destinationFolder: $(Build.SourcesDirectory)
 
   - bash:
-      cd $BUILD_SOURCESDIRECTORY/Dependencies/IGraphics/
+      ls -la
+      cd $BUILD_SOURCESDIRECTORY/Dependencies/IGraphics
       ./build-igraphics-libs-mac.sh
 
       cd $BUILD_SOURCESDIRECTORY
@@ -199,17 +200,12 @@ jobs:
       export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
       echo "##vso[task.setvariable variable=PATH]$PATH"
 
-      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/faust/
+      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/faust
       $(HOME)/build-faust-mac.sh
 
-      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/civetweb/
+      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/civetweb
       ./build-civetweb-mac.sh
-
     displayName: Build macOS Dependencies
-
-  - task: DeleteFiles@1
-    inputs:
-      contents: 'Dependencies/Build/tmp'
 
   - task: DeleteFiles@1
     inputs:
