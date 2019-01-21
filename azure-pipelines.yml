@@ -1,5 +1,5 @@
 variables:
-  buildLibs: False 
+  buildLibs: True 
 
 trigger:
 - none
@@ -10,13 +10,13 @@ jobs:
   - checkout: self
 
   - bash: |
-      cd ./Dependencies/IGraphics/
+      cd ./Dependencies/IGraphics
       ./download-igraphics-libs-win.sh
     displayName: Download IGraphics Dependencies SRC
     condition: eq(variables.buildLibs, True)
 
   - bash: |
-      cd ./Dependencies/IGraphics/
+      cd ./Dependencies
       mkdir Build
       cd Build
       wget https://github.com/iPlug2/iPlug2/releases/download/setup/iplug2_deps_mac.zip
@@ -148,6 +148,53 @@ jobs:
       artifactName: 'IPLUG2_DEPS_WIN'
       targetPath: 'Dependencies/Build/'
     displayName: Publish Windows Dependencies Artifacts
+
+- job: BUILD_MAC_DEPS
+  dependsOn: DOWNLOAD_DEPS 
+  condition: eq(variables.buildLibs, True)
+
+  pool:
+    vmImage: 'macos-10.13'
+  steps:
+  - checkout: none
+
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'SRC' 
+
+  - bash:
+      cd ./Dependencies/IGraphics/
+      ./build-igraphics-libs-mac.sh
+
+      cd ../../
+      wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
+      tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
+      export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
+      echo "##vso[task.setvariable variable=PATH]$PATH"
+
+      cd ./Dependencies/Extras/faust/
+      ./build-faust-mac.sh
+      
+      cd ./Dependencies/Extras/civetweb/
+      ./build-civetweb-mac.sh
+
+    displayName: Build macOS Dependencies
+
+  - task: DeleteFiles@1
+    inputs:
+      contents: 'Dependencies/Build/tmp'
+
+  - task: DeleteFiles@1
+    inputs:
+      contents: 'Dependencies/Build/*.log'
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'IPLUG2_DEPS_MAC'
+      targetPath: 'Dependencies/Build/'
+    displayName: Publish Mac Dependencies Artifacts
+
+  # build windows dependencies
 
     # - task: GithubRelease@0
     #   inputs:
