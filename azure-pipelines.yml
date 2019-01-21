@@ -65,7 +65,7 @@ jobs:
 
   - task: PublishPipelineArtifact@0
     inputs:
-      targetPath: '$(Build.ArtifactStagingDirectory)/SRC.zip'
+      targetPath: '$(Build.ArtifactStagingDirectory)'
       artifactName: 'SRC'
     displayName: Publish Source
 
