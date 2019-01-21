@@ -26,7 +26,7 @@ jobs:
   - bash: |
       cd ./Dependencies/IPlug
       rm -r VST3_SDK
-      git clone --recursive https://github.com/steinbergmedia/vst3sdk.git
+      git clone --recursive https://github.com/steinbergmedia/vst3sdk.git VST3_SDK
     displayName: Download VST3 SDK
 
   - bash: |
