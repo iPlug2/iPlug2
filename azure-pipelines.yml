@@ -249,7 +249,7 @@ jobs:
     displayName: Publish Mac Dependencies Artifacts
 
 - job: BUILD_MAC_EXAMPLES
-  dependsOn: BUILD_MAC_DEPS 
+  dependsOn: DOWNLOAD_DEPS 
 
   pool:
     vmImage: 'macos-10.13'
@@ -274,3 +274,7 @@ jobs:
       xcWorkspacePath: 'Examples/IPlugEffect/IPlugEffect.xcworkspace'
       configuration: 'Release'
       xcodeVersion: '9'
+
+  - bash: |
+      cd Examples/IPlugEffect/build-mac/
+      ls -la
