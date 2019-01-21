@@ -58,8 +58,13 @@ jobs:
       git clone https://github.com/jariseon/audioworklet-polyfill WAM_AWP
     displayName: Download WAM AWP
 
+  - task: ArchiveFiles@2
+    inputs:
+      archiveFile: SRC.zip
+
   - task: PublishPipelineArtifact@0
     inputs:
+      targetPath: 'SRC.zip'
       artifactName: 'SRC'
     displayName: Publish Source
 
@@ -89,7 +94,11 @@ jobs:
 
   - task: DownloadPipelineArtifact@0
     inputs:
-      artifactName: 'SRC' 
+      artifactName: 'SRC'
+
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: 'SRC.zip' 
 
   # build windows dependencies
   - task: VSBuild@1
@@ -160,7 +169,11 @@ jobs:
 
   - task: DownloadPipelineArtifact@0
     inputs:
-      artifactName: 'SRC' 
+      artifactName: 'SRC'
+
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: 'SRC.zip'
 
   - bash:
       cd ./Dependencies/IGraphics/
