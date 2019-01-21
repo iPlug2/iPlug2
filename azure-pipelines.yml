@@ -65,7 +65,7 @@ jobs:
 
 - job: BUILD_WIN_DEPS
   dependsOn: DOWNLOAD_DEPS 
-  condition: '$(buildLibs)'
+  condition: variables.buildLibs
 
   strategy:
     matrix:
