@@ -6,21 +6,21 @@ jobs:
   steps:
   - checkout: self
 
-  - bash: |
-      cd ./Dependencies/IGraphics/
-      ./download-igraphics-libs-win.sh
-    displayName: Download IGraphics Dependencies
+  # - bash: |
+  #     cd ./Dependencies/IGraphics/
+  #     ./download-igraphics-libs-win.sh
+  #   displayName: Download IGraphics Dependencies
 
   - bash: |
       cd ./Dependencies/IPlug
       rm -r VST2_SDK
-      git clone git@github.com:olilarkin/VST2_SDK.git
+      git clone https://github.com/olilarkin/VST2_SDK.git
     displayName: Download VST2 SDK
 
   - bash: |
       cd ./Dependencies/IPlug
       rm -r AAX_SDK
-      git clone git@github.com:olilarkin/AAX_SDK.git
+      git clone https://github.com/olilarkin/AAX_SDK.git
     displayName: Download AAX SDK
 
   - bash: |
