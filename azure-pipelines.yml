@@ -22,20 +22,6 @@ jobs:
     displayName: Download IGraphics Dependencies BUILT
     condition: eq(variables.buildLibs, false)
 
-  - task: ExtractFiles@1
-    inputs:
-      archiveFilePatterns: '$(Agent.TempDirectory)/IPLUG2_DEPS_*.zip' 
-      destinationFolder: '$(Agent.TempDirectory)'
-      cleanDestinationFolder: false 
-    condition: eq(variables.buildLibs, false)
-
-  - bash: |
-      mkdir ./Dependencies/Build
-      mv $AGENT_TEMPDIRECTORY/IPLUG2_DEPS_MAC/* ./Dependencies/Build
-      mv $AGENT_TEMPDIRECTORY/IPLUG2_DEPS_WIN/* ./Dependencies/Build
-    displayName: Download IGraphics Dependencies BUILT
-    condition: eq(variables.buildLibs, false)
-
   - task: DownloadSecureFile@1
     inputs:
       secureFile: "VST2_SDK.zip" 
@@ -46,12 +32,6 @@ jobs:
       secureFile: "AAX_SDK.zip" 
     displayName: Download AAX SDK
 
-  - task: ExtractFiles@1
-    inputs:
-      archiveFilePatterns: '$(Agent.TempDirectory)/*.zip' 
-      destinationFolder: 'Dependencies/IPlug'
-      cleanDestinationFolder: false 
-
   - task: DownloadSecureFile@1
     inputs:
       secureFile: "AGG.zip" 
@@ -59,9 +39,24 @@ jobs:
 
   - task: ExtractFiles@1
     inputs:
-      archiveFilePatterns: '$(Agent.TempDirectory)/AGG.zip' 
-      destinationFolder: 'Dependencies/IGraphics'
+      archiveFilePatterns: '$(Agent.TempDirectory)/*.zip' 
+      destinationFolder: '$(Agent.TempDirectory)'
       cleanDestinationFolder: false 
+    condition: eq(variables.buildLibs, false)
+
+  - bash: |
+      mkdir ./Dependencies/Build
+      mv $AGENT_TEMPDIRECTORY/IPLUG2_DEPS_MAC/* ./Dependencies/Build
+      mv $AGENT_TEMPDIRECTORY/IPLUG2_DEPS_WIN/* ./Dependencies/Build
+    displayName: Move IGraphics Dependencies BUILT
+    condition: eq(variables.buildLibs, false)
+
+  - bash: |
+      mv $AGENT_TEMPDIRECTORY/AAX_SDK/* ./Dependencies/IPlug/AAX_SDK
+      mv $AGENT_TEMPDIRECTORY/VST2_SDK/* ./Dependencies/IPlug/VST2_SDK
+      mv $AGENT_TEMPDIRECTORY/AGG/* ./Dependencies/IGraphics/AGG
+      rm $AGENT_TEMPDIRECTORY/*.zip
+    displayName: Move Secure File Dependencies
 
   - bash: |
       cd ./Dependencies/IPlug
