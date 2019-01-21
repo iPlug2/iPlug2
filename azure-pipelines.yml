@@ -274,10 +274,17 @@ jobs:
       args: '-target All -xcconfig Examples/IPlugEffect/config/IPlugEffect-mac.xcconfig IGRAPHICS_MODE=IGRAPHICS_CAIRO'
       configuration: 'Release'
       xcodeVersion: '9'
-      exportPath: '$(agent.buildDirectory)'
+
+  - task: DeleteFiles@1
+    inputs:
+      contents: 'Examples/IPlugEffect/build-mac/*.build'
+
+  - task: DeleteFiles@1
+    inputs:
+      contents: 'Examples/IPlugEffect/build-mac/PCH'
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: 'IPLUG_EFFECT_CAIRO'
-      targetPath: '$(agent.buildDirectory)'
+      artifactName: 'IPLUG_EFFECT'
+      targetPath: 'Examples/IPlugEffect/build-mac'
     displayName: Publish IPlugEffect
