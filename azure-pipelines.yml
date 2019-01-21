@@ -189,7 +189,7 @@ jobs:
       cleanDestinationFolder: false 
       destinationFolder: $(Build.SourcesDirectory)
 
-  - bash:
+  - bash: |
       ls -la
       cd $BUILD_SOURCESDIRECTORY/Dependencies/IGraphics
       ./build-igraphics-libs-mac.sh
