@@ -16,9 +16,7 @@ jobs:
     condition: eq(variables.buildLibs, true)
 
   - bash: |
-      cd ./Dependencies
-      mkdir Build
-      cd Build
+      cd $AGENT_TEMPDIRECTORY
       wget https://github.com/iPlug2/iPlug2/releases/download/setup/IPLUG2_DEPS_MAC.zip
       wget https://github.com/iPlug2/iPlug2/releases/download/setup/IPLUG2_DEPS_WIN.zip
     displayName: Download IGraphics Dependencies BUILT
@@ -26,9 +24,16 @@ jobs:
 
   - task: ExtractFiles@1
     inputs:
-      archiveFilePatterns: 'Dependencies/Build/*.zip' 
+      archiveFilePatterns: 'Dependencies/Build/IPLUG2_DEPS_*.zip' 
       destinationFolder: 'Dependencies/Build'
       cleanDestinationFolder: false 
+    condition: eq(variables.buildLibs, false)
+
+  - bash: |
+      mkdir ./Dependencies/Build
+      mv $AGENT_TEMPDIRECTORY/IPLUG2_DEPS_MAC/* ./Dependencies/Build
+      mv $AGENT_TEMPDIRECTORY/IPLUG2_DEPS_WIN/* ./Dependencies/Build
+    displayName: Download IGraphics Dependencies BUILT
     condition: eq(variables.buildLibs, false)
 
   - task: DownloadSecureFile@1
