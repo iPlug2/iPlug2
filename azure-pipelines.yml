@@ -11,17 +11,21 @@ jobs:
   #     ./download-igraphics-libs-win.sh
   #   displayName: Download IGraphics Dependencies
 
-  - bash: |
-      cd ./Dependencies/IPlug
-      rm -r VST2_SDK
-      git clone https://github.com/olilarkin/VST2_SDK.git
+  - task: DownloadSecureFile@1
+    inputs:
+      secureFile: "VST2_SDK.zip" 
     displayName: Download VST2 SDK
 
-  - bash: |
-      cd ./Dependencies/IPlug
-      rm -r AAX_SDK
-      git clone https://github.com/olilarkin/AAX_SDK.git
+  - task: DownloadSecureFile@1
+    inputs:
+      secureFile: "AAX_SDK.zip" 
     displayName: Download AAX SDK
+
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: '$(Agent.TempDirectory)/*.zip' 
+      destinationFolder: 'Dependencies/IPlug'
+      cleanDestinationFolder: false 
 
   - bash: |
       cd ./Dependencies/IPlug
