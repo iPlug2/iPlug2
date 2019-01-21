@@ -250,6 +250,20 @@ jobs:
 
 - job: BUILD_MAC_EXAMPLES
   dependsOn: DOWNLOAD_DEPS 
+  strategy:
+    matrix:
+      NANOVG:
+        graphicsBackend: 'NANOVG'
+        graphicsStr: 'IGRAPHICS_NANOVG IGRAPHICS_METAL'
+      CAIRO:
+        graphicsBackend: 'CAIRO'
+        graphicsStr: 'IGRAPHICS_CAIRO'
+      LICE:
+        graphicsBackend: 'LICE'
+        graphicsStr: 'IGRAPHICS_LICE'
+      AGG:
+        graphicsBackend: 'AGG'
+        graphicsStr: 'IGRAPHICS_AGG'
 
   pool:
     vmImage: 'macos-10.13'
@@ -271,7 +285,7 @@ jobs:
     inputs:
       sdk: 'macosx10.13'
       xcWorkspacePath: 'Examples/IPlugEffect/projects/IPlugEffect-macOS.xcodeproj'
-      args: '-target All -xcconfig Examples/IPlugEffect/config/IPlugEffect-mac.xcconfig IGRAPHICS_MODE=IGRAPHICS_CAIRO'
+      args: '-target All -xcconfig Examples/IPlugEffect/config/IPlugEffect-mac.xcconfig IGRAPHICS_MODE=$(graphicsStr)'
       configuration: 'Release'
       xcodeVersion: '9'
 
@@ -285,6 +299,28 @@ jobs:
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: 'IPLUG_EFFECT'
+      artifactName: 'IPLUG_EFFECT_$(graphicsBackend)'
       targetPath: 'Examples/IPlugEffect/build-mac'
     displayName: Publish IPlugEffect
+
+  - task: Xcode@5
+    inputs:
+      sdk: 'macosx10.13'
+      xcWorkspacePath: 'Examples/IPlugInstrument/projects/IPlugInstrument-macOS.xcodeproj'
+      args: '-target All -xcconfig Examples/IPlugInstrument/config/IPlugInstrument-mac.xcconfig IGRAPHICS_MODE=$(graphicsStr)'
+      configuration: 'Release'
+      xcodeVersion: '9'
+
+  - task: DeleteFiles@1
+    inputs:
+      contents: 'Examples/IPlugInstrument/build-mac/*.build'
+
+  - task: DeleteFiles@1
+    inputs:
+      contents: 'Examples/IPlugInstrument/build-mac/PCH'
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'IPLUG_INSTRUMENT_$(graphicsBackend)'
+      targetPath: 'Examples/IPlugInstrument/build-mac'
+    displayName: Publish IPlugInstrument
