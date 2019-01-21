@@ -61,11 +61,11 @@ jobs:
   - task: ArchiveFiles@2
     inputs:
       rootFolderOrFile: $(Build.SourcesDirectory)
-      archiveFile: '$(Build.ArtifactStagingDirectory)SRC.zip'
+      archiveFile: '$(Build.ArtifactStagingDirectory)/SRC.zip'
 
   - task: PublishPipelineArtifact@0
     inputs:
-      targetPath: '$(Build.ArtifactStagingDirectory)SRC.zip'
+      targetPath: '$(Build.ArtifactStagingDirectory)/SRC.zip'
       artifactName: 'SRC'
     displayName: Publish Source
 
