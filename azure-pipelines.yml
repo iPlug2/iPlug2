@@ -101,7 +101,7 @@ jobs:
     inputs:
       archiveFilePatterns: 'SRC.zip' 
       cleanDestinationFolder: false 
-
+      destinationFolder: $(Build.SourcesDirectory)
 
   # build windows dependencies
   - task: VSBuild@1
@@ -178,6 +178,7 @@ jobs:
     inputs:
       archiveFilePatterns: 'SRC.zip'
       cleanDestinationFolder: false 
+      destinationFolder: $(Build.SourcesDirectory)
 
   - bash:
       cd ./Dependencies/IGraphics/
