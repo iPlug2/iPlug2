@@ -106,6 +106,7 @@ jobs:
     displayName: Publish Windows $(buildPlatform) $(buildConfiguration) Dependencies Artifacts
 
 - job: PUBLISH_WIN_DEPS
+  condition: eq(variables.buildLibs, True)
   dependsOn: BUILD_WIN_DEPS
   steps:
   - checkout: none
