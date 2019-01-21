@@ -20,8 +20,8 @@ jobs:
       mkdir Build
       cd Build
       wget https://github.com/iPlug2/iPlug2/releases/download/setup/iplug2_deps_mac.zip
-    displayName: Download IGraphics Dependencies Build
-    condition: not(variables.buildLibs)
+    displayName: Download IGraphics Dependencies BUILT
+    condition: eq(variables.buildLibs, False)
 
   - task: DownloadSecureFile@1
     inputs:
@@ -65,7 +65,7 @@ jobs:
 
 - job: BUILD_WIN_DEPS
   dependsOn: DOWNLOAD_DEPS 
-  condition: variables.buildLibs
+  condition: eq(variables.buildLibs, True)
 
   strategy:
     matrix:
