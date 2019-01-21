@@ -39,6 +39,17 @@ jobs:
       destinationFolder: 'Dependencies/IPlug'
       cleanDestinationFolder: false 
 
+  - task: DownloadSecureFile@1
+    inputs:
+      secureFile: "AGG.zip" 
+    displayName: Download AGG
+
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: '$(Agent.TempDirectory)/AGG.zip' 
+      destinationFolder: 'Dependencies/IGraphics'
+      cleanDestinationFolder: false 
+
   - bash: |
       cd ./Dependencies/IPlug
       rm -r VST3_SDK
@@ -164,6 +175,10 @@ jobs:
     inputs:
       contents: 'Dependencies/Build/*.log'
 
+  - task: DeleteFiles@1
+    inputs:
+      contents: 'Dependencies/Build/tmp'
+      
   - task: PublishPipelineArtifact@0
     inputs:
       artifactName: 'IPLUG2_DEPS_WIN'
@@ -214,6 +229,10 @@ jobs:
   - task: DeleteFiles@1
     inputs:
       contents: 'Dependencies/Build/tmp'
+  
+  - task: DeleteFiles@1
+    inputs:
+      contents: 'Dependencies/Build/src'
 
   - task: PublishPipelineArtifact@0
     inputs:
