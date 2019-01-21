@@ -13,7 +13,7 @@ jobs:
       cd ./Dependencies/IGraphics/
       ./download-igraphics-libs-win.sh
     displayName: Download IGraphics Dependencies SRC
-    condition: '$(buildLibs)'
+    condition: variables.buildLibs
 
   - bash: |
       cd ./Dependencies/IGraphics/
@@ -21,7 +21,7 @@ jobs:
       cd Build
       wget https://github.com/iPlug2/iPlug2/releases/download/setup/iplug2_deps_mac.zip
     displayName: Download IGraphics Dependencies Build
-    condition: not('$(buildLibs)')
+    condition: not(variables.buildLibs)
 
   - task: DownloadSecureFile@1
     inputs:
