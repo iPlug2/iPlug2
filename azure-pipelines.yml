@@ -248,19 +248,29 @@ jobs:
       targetPath: 'Dependencies/Build/'
     displayName: Publish Mac Dependencies Artifacts
 
-  # build windows dependencies
+- job: BUILD_MAC_EXAMPLES
+  dependsOn: BUILD_MAC_DEPS 
 
-    # - task: GithubRelease@0
-    #   inputs:
-    #     gitHubConnection: olilarkin
-    #     repositoryName: iPlug2/iPlug2
-    #     action: 'create'
-    #     target: '$(build.sourceVersion)'
-    #     tagSource: 'manual'
-    #     tag: 'setup'
-    #     title: iPlug2 optional dependencies
-    #     assets: '$(build.artifactStagingDirectory)/*'
-    #     assetUploadMode: 'delete'
-    #     isDraft: true
-    #     isPreRelease: true
-    #     addChangeLog: false
+  pool:
+    vmImage: 'macos-10.13'
+
+  steps:
+  - checkout: none
+
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'SRC'
+
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: 'SRC.zip'
+      cleanDestinationFolder: false 
+      destinationFolder: $(Build.SourcesDirectory)
+
+  - task: Xcode@5
+    inputs:
+      scheme: 'APP'
+      sdk: 'macosx10.14'
+      xcWorkspacePath: 'Examples/IPlugEffect/IPlugEffect.xcworkspace'
+      configuration: 'Release'
+      xcodeVersion: '9'
