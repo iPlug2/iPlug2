@@ -254,7 +254,7 @@ jobs:
     matrix:
       NANOVG:
         graphicsBackend: 'NANOVG'
-        graphicsStr: 'IGRAPHICS_NANOVG IGRAPHICS_METAL'
+        graphicsStr: '"IGRAPHICS_NANOVG IGRAPHICS_METAL"'
       CAIRO:
         graphicsBackend: 'CAIRO'
         graphicsStr: 'IGRAPHICS_CAIRO'
@@ -281,11 +281,16 @@ jobs:
       cleanDestinationFolder: false 
       destinationFolder: $(Build.SourcesDirectory)
 
+  - bash: |
+      cd ./Examples/IPlugEffect/config
+      sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/$(GRAPHICSSTR)' IPlugEffect-mac.xcconfig  
+    displayName: Set Graphics String
+
   - task: Xcode@5
     inputs:
       sdk: 'macosx10.13'
       xcWorkspacePath: 'Examples/IPlugEffect/projects/IPlugEffect-macOS.xcodeproj'
-      args: '-target All -xcconfig Examples/IPlugEffect/config/IPlugEffect-mac.xcconfig IGRAPHICS_MODE=$(graphicsStr)'
+      args: '-target All -xcconfig Examples/IPlugEffect/config/IPlugEffect-mac.xcconfig'
       configuration: 'Release'
       xcodeVersion: '9'
 
@@ -302,6 +307,11 @@ jobs:
       artifactName: 'IPLUG_EFFECT_$(graphicsBackend)'
       targetPath: 'Examples/IPlugEffect/build-mac'
     displayName: Publish IPlugEffect
+
+  - bash: |
+      cd ./Examples/IPlugInstrument/config
+      sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/$(GRAPHICSSTR)' IPlugInstrument-mac.xcconfig  
+    displayName: Set Graphics String
 
   - task: Xcode@5
     inputs:
