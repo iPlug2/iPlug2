@@ -6,7 +6,7 @@ BUILD_DIR="$IGRAPHICS_DEPS_DIR/../Build"
 DL_DIR="$BUILD_DIR/tmp"
 SRC_DIR="$BUILD_DIR/src"
 LOG_PATH="$BUILD_DIR"
-LOG_NAME="build-win.log"
+LOG_NAME="download.log"
 
 # Basename part of tarballs to download
 CAIRO_VERSION=1.16.0
@@ -143,7 +143,7 @@ if [ -d "$SRC_DIR/libpng" ]
   echo "copying pnglibconf.h"
   cp "$SRC_DIR/libpng/scripts/pnglibconf.h.prebuilt" "$SRC_DIR/libpng/pnglibconf.h"
 fi
-  
+
 #######################################################################
 
 #pixman
