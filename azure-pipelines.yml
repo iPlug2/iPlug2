@@ -1,3 +1,6 @@
+variables:
+  buildLibs: False 
+
 trigger:
 - none
 
@@ -9,7 +12,16 @@ jobs:
   - bash: |
       cd ./Dependencies/IGraphics/
       ./download-igraphics-libs-win.sh
-    displayName: Download IGraphics Dependencies
+    displayName: Download IGraphics Dependencies SRC
+    condition: '$(buildLibs)'
+
+  - bash: |
+      cd ./Dependencies/IGraphics/
+      mkdir Build
+      cd Build
+      wget https://github.com/iPlug2/iPlug2/releases/download/setup/iplug2_deps_mac.zip
+    displayName: Download IGraphics Dependencies Build
+    condition: not('$(buildLibs)')
 
   - task: DownloadSecureFile@1
     inputs:
@@ -37,7 +49,7 @@ jobs:
       cd ./Dependencies/IPlug
       rm -r WAM_SDK
       git clone https://github.com/webaudiomodules/api.git WAM_SDK
-      mv WAM_SDK/wamsdk/* ../
+      mv WAM_SDK/wamsdk/* WAM_SDK
     displayName: Download WAM SDK
 
   - bash: |
@@ -53,7 +65,8 @@ jobs:
 
 - job: BUILD_WIN_DEPS
   dependsOn: DOWNLOAD_DEPS 
-  
+  condition: '$(buildLibs)'
+
   strategy:
     matrix:
       x86_RELEASE:
