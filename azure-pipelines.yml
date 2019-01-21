@@ -6,10 +6,10 @@ jobs:
   steps:
   - checkout: self
 
-  # - bash: |
-  #     cd ./Dependencies/IGraphics/
-  #     ./download-igraphics-libs-win.sh
-  #   displayName: Download IGraphics Dependencies
+  - bash: |
+      cd ./Dependencies/IGraphics/
+      ./download-igraphics-libs-win.sh
+    displayName: Download IGraphics Dependencies
 
   - task: DownloadSecureFile@1
     inputs:
@@ -53,6 +53,7 @@ jobs:
 
 - job: BUILD_WIN_DEPS
   dependsOn: DOWNLOAD_DEPS 
+  
   strategy:
     matrix:
       x86_RELEASE:
@@ -71,6 +72,8 @@ jobs:
   pool:
     vmImage: 'vs2017-win2016'
   steps:
+  - checkout: none
+
   - task: DownloadPipelineArtifact@0
     inputs:
       artifactName: 'SRC' 
@@ -92,43 +95,45 @@ jobs:
 - job: PUBLISH_WIN_DEPS
   dependsOn: BUILD_WIN_DEPS
   steps:
-    - task: DownloadPipelineArtifact@0
-      inputs:
-        artifactName: 'DEPS_BUILD_WIN_Win32_Release' 
-        targetPath: 'Dependencies/Build/'
-      displayName: Download Win32_Release Artifact
+  - checkout: none
 
-    - task: DownloadPipelineArtifact@0
-      inputs:
-        artifactName: 'DEPS_BUILD_WIN_Win32_Debug' 
-        targetPath: 'Dependencies/Build/'
-      displayName: Download Win32_Debug Artifact
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'DEPS_BUILD_WIN_Win32_Release' 
+      targetPath: 'Dependencies/Build/'
+    displayName: Download Win32_Release Artifact
 
-    - task: DownloadPipelineArtifact@0
-      inputs:
-        artifactName: 'DEPS_BUILD_WIN_x64_Release' 
-        targetPath: 'Dependencies/Build/'
-      displayName: Download x64_Release Artifact
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'DEPS_BUILD_WIN_Win32_Debug' 
+      targetPath: 'Dependencies/Build/'
+    displayName: Download Win32_Debug Artifact
 
-    - task: DownloadPipelineArtifact@0
-      inputs:
-        artifactName: 'DEPS_BUILD_WIN_x64_Debug' 
-        targetPath: 'Dependencies/Build/'
-      displayName: Download x64_Debug Artifact
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'DEPS_BUILD_WIN_x64_Release' 
+      targetPath: 'Dependencies/Build/'
+    displayName: Download x64_Release Artifact
 
-    - task: DeleteFiles@1
-      inputs:
-        contents: 'Dependencies/Build/tmp'
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'DEPS_BUILD_WIN_x64_Debug' 
+      targetPath: 'Dependencies/Build/'
+    displayName: Download x64_Debug Artifact
 
-    - task: DeleteFiles@1
-      inputs:
-        contents: 'Dependencies/Build/*.log'
+  - task: DeleteFiles@1
+    inputs:
+      contents: 'Dependencies/Build/tmp'
 
-    - task: PublishPipelineArtifact@0
-      inputs:
-        artifactName: 'IPLUG2_DEPS_WIN'
-        targetPath: 'Dependencies/Build/'
-      displayName: Publish Windows Dependencies Artifacts
+  - task: DeleteFiles@1
+    inputs:
+      contents: 'Dependencies/Build/*.log'
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'IPLUG2_DEPS_WIN'
+      targetPath: 'Dependencies/Build/'
+    displayName: Publish Windows Dependencies Artifacts
 
     # - task: GithubRelease@0
     #   inputs:
