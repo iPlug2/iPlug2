@@ -270,7 +270,7 @@ jobs:
   - task: Xcode@5
     inputs:
       scheme: 'APP'
-      sdk: 'macosx10.14'
+      sdk: 'macosx10.13'
       xcWorkspacePath: 'Examples/IPlugEffect/IPlugEffect.xcworkspace'
       configuration: 'Release'
       xcodeVersion: '9'
