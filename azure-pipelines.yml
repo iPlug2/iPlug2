@@ -271,8 +271,8 @@ jobs:
     inputs:
       scheme: 'APP'
       sdk: 'macosx10.13'
-      xcWorkspacePath: 'Examples/IPlugEffect/projects/IPlugEffect.xcproject'
-      arguments: '-xcconfig Examples/IPlugEffect/config/IPlugEffect-mac.xcconfig'
+      xcWorkspacePath: 'Examples/IPlugEffect/projects/IPlugEffect-macOS.xcodeproj'
+      args: '-xcconfig Examples/IPlugEffect/config/IPlugEffect-mac.xcconfig'
       configuration: 'Release'
       xcodeVersion: '9'
 
