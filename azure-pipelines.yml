@@ -13,7 +13,7 @@ jobs:
       cd ./Dependencies/IGraphics/
       ./download-igraphics-libs-win.sh
     displayName: Download IGraphics Dependencies SRC
-    condition: variables.buildLibs
+    condition: eq(variables.buildLibs, True)
 
   - bash: |
       cd ./Dependencies/IGraphics/
