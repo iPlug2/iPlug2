@@ -1,7 +1,7 @@
 variables:
   buildLibs: false
   buildWeb: true
-  buildMac: false
+  buildMac: true
   buildWin: true
   configuration: 'Release'
   target: 'All'
@@ -253,16 +253,12 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-        graphicsStr: 'IGRAPHICS_NANOVG IGRAPHICS_METAL'
       CAIRO:
         graphics: 'CAIRO'
-        graphicsStr: 'IGRAPHICS_CAIRO'
       LICE:
         graphics: 'LICE'
-        graphicsStr: 'IGRAPHICS_LICE'
       AGG:
         graphics: 'AGG'
-        graphicsStr: 'IGRAPHICS_AGG'
 
   pool:
     vmImage: 'macos-10.13'
@@ -328,9 +324,8 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      # CANVAS:
-      #   graphics: 'CANVAS'
-      #   graphicsStr: 'IGRAPHICS_CANVAS'
+      CANVAS:
+        graphics: 'CANVAS'
 
   pool:
     vmImage: 'ubuntu-16.04'
@@ -343,6 +338,7 @@ jobs:
       cd emsdk
       ./emsdk install latest
       ./emsdk activate latest
+    displayName: Install emscripten
 
   - template: Scripts/azure-src.yml
 
