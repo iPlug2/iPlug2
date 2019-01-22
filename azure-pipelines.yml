@@ -1,7 +1,7 @@
 variables:
   buildLibs: false
   buildWeb: true
-  buildMac: true
+  buildMac: false
   buildWin: true
   configuration: 'Release'
   target: 'All'
