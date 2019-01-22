@@ -5,9 +5,9 @@ parameters:
   graphicsStr: 'IGRAPHICS_NANOVG IGRAPHICS_METAL'
   path: ''
   target: 'All'
-steps:
-  - checkout: none
+  configuration: 'Release'
 
+steps:
   - bash: |
       cd ./${{ parameters.path }}/${{ parameters.name }}/config
       sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/${{ parameters.graphicsStr }}/' ${{ parameters.name }}-mac.xcconfig
@@ -19,7 +19,7 @@ steps:
       sdk: 'macosx10.13'
       xcWorkspacePath: '${{ parameters.path }}/${{ parameters.name }}/projects/${{ parameters.name }}-macOS.xcodeproj'
       args: '-target ${{ parameters.target }} -xcconfig ${{ parameters.path }}/${{ parameters.name }}/config/${{ parameters.name }}-mac.xcconfig'
-      configuration: 'Release'
+      configuration: '${{ parameters.configuration }}'
       xcodeVersion: '9'
 
   - bash: |
