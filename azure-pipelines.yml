@@ -254,7 +254,7 @@ jobs:
     matrix:
       NANOVG:
         graphicsBackend: 'NANOVG'
-        graphicsStr: '"IGRAPHICS_NANOVG IGRAPHICS_METAL"'
+        graphicsStr: 'IGRAPHICS_NANOVG IGRAPHICS_METAL'
       CAIRO:
         graphicsBackend: 'CAIRO'
         graphicsStr: 'IGRAPHICS_CAIRO'
@@ -283,7 +283,8 @@ jobs:
 
   - bash: |
       cd ./Examples/IPlugEffect/config
-      sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/$(GRAPHICSSTR)/' IPlugEffect-mac.xcconfig  
+      sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/$(GRAPHICSSTR)/' IPlugEffect-mac.xcconfig
+      sed -i.bu 's///EXTRA_LNK_FLAGS/EXTRA_LNK_FLAGS/' IPlugEffect-mac.xcconfig  
     displayName: Set Graphics String
 
   - task: Xcode@5
@@ -310,7 +311,8 @@ jobs:
 
   - bash: |
       cd ./Examples/IPlugInstrument/config
-      sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/$(GRAPHICSSTR)/' IPlugInstrument-mac.xcconfig  
+      sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/$(GRAPHICSSTR)/' IPlugInstrument-mac.xcconfig
+      sed -i.bu 's///EXTRA_LNK_FLAGS/EXTRA_LNK_FLAGS/' IPlugInstrument-mac.xcconfig  
     displayName: Set Graphics String
 
   - task: Xcode@5
