@@ -1,9 +1,6 @@
 parameters:
   name: ''
-  graphics: 'NANOVG'
   path: ''
-  target: 'All'
-  configuration: 'Release'
 
 steps:
   - bash: |
@@ -31,9 +28,10 @@ steps:
     inputs:
       sdk: 'macosx10.13'
       xcWorkspacePath: '${{ parameters.path }}/${{ parameters.name }}/projects/${{ parameters.name }}-macOS.xcodeproj'
-      args: '-target ${{ parameters.target }} -xcconfig ${{ parameters.path }}/${{ parameters.name }}/config/${{ parameters.name }}-mac.xcconfig'
-      configuration: '${{ parameters.configuration }}'
+      args: '-target ${{ variables['Build.graphics'] }} -xcconfig ${{ parameters.path }}/${{ parameters.name }}/config/${{ parameters.name }}-mac.xcconfig'
+      configuration: '${{ variables['Build.configuration'] }}'
       xcodeVersion: '9'
+    displayName: Build Xcode project
 
   - bash: |
       rm -r ${{ parameters.path }}/${{ parameters.name }}/build-mac/*.build
@@ -42,6 +40,6 @@ steps:
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: 'MAC_${{ parameters.name }}_${{ parameters.graphics }}'
+      artifactName: 'MAC_${{ parameters.name }}_${{ variables['Build.graphics'] }}'
       targetPath: '${{ parameters.path }}/${{ parameters.name }}/build-mac'
     displayName: Publish ${{ parameters.name }}
