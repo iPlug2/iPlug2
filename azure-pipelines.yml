@@ -241,7 +241,7 @@ jobs:
       targetPath: 'Dependencies/Build/'
     displayName: Publish Mac Dependencies Artifacts
 
-- job: BUILD_MAC_EXAMPLES
+- job: BUILD_MAC_PROJECTS
   condition: eq(variables.buildLibs, false)
   dependsOn: DOWNLOAD_DEPS 
   strategy:
@@ -271,42 +271,42 @@ jobs:
       path: 'Examples'
       target: 'All'
 
-  # steps:
-  # - checkout: none
+  - template: Scripts/azure-project-mac.yml
+    parameters:
+      name: IPlugInstrument
+      graphics: $(graphics)
+      graphicsStr: $(graphicsStr)
+      path: 'Examples'
+      target: 'All'
 
-  # - task: DownloadPipelineArtifact@0
-  #   inputs:
-  #     artifactName: 'SRC'
+  - template: Scripts/azure-project-mac.yml
+    parameters:
+      name: IPlugControls
+      graphics: $(graphics)
+      graphicsStr: $(graphicsStr)
+      path: 'Examples'
+      target: 'All'
 
-  # - task: ExtractFiles@1
-  #   inputs:
-  #     archiveFilePatterns: 'SRC.zip'
-  #     cleanDestinationFolder: false 
-  #     destinationFolder: $(Build.SourcesDirectory)
+  - template: Scripts/azure-project-mac.yml
+    parameters:
+      name: IPlugFaustDSP
+      graphics: $(graphics)
+      graphicsStr: $(graphicsStr)
+      path: 'Examples'
+      target: 'All'
+  
+  - template: Scripts/azure-project-mac.yml
+    parameters:
+      name: IGraphicsStressTest
+      graphics: $(graphics)
+      graphicsStr: $(graphicsStr)
+      path: 'Tests'
+      target: 'All'
 
-  # - bash: |
-  #     ls -la ./Dependencies/Build/mac/lib
-  #     cd ./Examples/IPlugEffect/config
-  #     sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/$(GRAPHICSSTR)/' IPlugEffect-mac.xcconfig
-  #     sed -i.bu 's/\/\/EXTRA_LNK_FLAGS/EXTRA_LNK_FLAGS/' IPlugEffect-mac.xcconfig  
-  #   displayName: Set Graphics String
-
-  # - task: Xcode@5
-  #   inputs:
-  #     sdk: 'macosx10.13'
-  #     xcWorkspacePath: 'Examples/IPlugEffect/projects/IPlugEffect-macOS.xcodeproj'
-  #     args: '-target All -xcconfig Examples/IPlugEffect/config/IPlugEffect-mac.xcconfig'
-  #     configuration: 'Release'
-  #     xcodeVersion: '9'
-
-  # - bash: |
-  #     rm -r Examples/IPlugEffect/build-mac/*.build
-  #     rm -r Examples/IPlugEffect/build-mac/PCH
-  #   displayName: Delete unwanted files
-
-  # - task: PublishPipelineArtifact@0
-  #   inputs:
-  #     artifactName: 'IPLUG_EFFECT_$(graphics)'
-  #     targetPath: 'Examples/IPlugEffect/build-mac'
-  #   displayName: Publish IPlugEffect
-
+  - template: Scripts/azure-project-mac.yml
+    parameters:
+      name: IGraphicsTest
+      graphics: $(graphics)
+      graphicsStr: $(graphicsStr)
+      path: 'Tests'
+      target: 'All'
