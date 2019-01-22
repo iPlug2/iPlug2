@@ -448,9 +448,14 @@ else
   fi
   echo "Unpacking..."
   tar -xf $CAIRO_VERSION.tar.xz
+  cd $(CAIRO_VERSION)
+  ls -la
+  cd ..
   mv $CAIRO_VERSION "$SRC_DIR/cairo"
 
   cd "$SRC_DIR/cairo"
+  ls -la
+  cd ..
   echo "Patching for macOS 10.13 compiliation..."
   sed -i.bu 's/if test "x$cairo_cc_stderr" != "x"; then/if 0; then/' configure
 
