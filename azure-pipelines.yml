@@ -217,9 +217,9 @@ jobs:
       destinationFolder: $(Build.SourcesDirectory)
 
   - bash: |
-      cd ./Dependencies/IGraphics
       #tmp force cairo rebuild
       rm -r $BUILD_SOURCESDIRECTORY/Dependencies/Build/src/cairo
+      cd ./Dependencies/IGraphics
       ./build-igraphics-libs-mac.sh
 
       cd $BUILD_SOURCESDIRECTORY
