@@ -29,6 +29,6 @@ steps:
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: '${{ parameters.name }}_${{ parameters.graphics }}'
+      artifactName: 'MAC_${{ parameters.name }}_${{ parameters.graphics }}'
       targetPath: '${{ parameters.path }}/${{ parameters.name }}/build-mac'
     displayName: Publish ${{ parameters.name }}

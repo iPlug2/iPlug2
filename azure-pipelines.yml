@@ -354,6 +354,7 @@ jobs:
       cd emsdk
       ./emsdk install latest
       ./emsdk activate latest
+      source ./emsdk_env.sh
 
   - task: DownloadPipelineArtifact@0
     inputs:

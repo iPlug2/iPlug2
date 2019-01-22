@@ -19,6 +19,6 @@ steps:
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: '${{ parameters.name }}_${{ parameters.graphics }}'
+      artifactName: 'WEB_${{ parameters.name }}_${{ parameters.graphics }}'
       targetPath: '${{ parameters.path }}/${{ parameters.name }}/build-web'
     displayName: Publish ${{ parameters.name }}
