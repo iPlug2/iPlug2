@@ -5,11 +5,11 @@ cd "$(dirname "$0")"
 cd ..
 
 websocket=0
-if [ "$1" == "websocket" ]
+if [ "$1" = "websocket" ]
 then
   emrunmode=2
   websocket=1
-elif [ "$1" == "off" ]
+elif [ "$1" = "off" ]
 then
   emrunmode=0
 else
