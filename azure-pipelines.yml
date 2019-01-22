@@ -1,7 +1,7 @@
 variables:
   buildDEPS: false
   buildWeb: true
-  buildMac: true
+  buildMac: false
   buildWin: true
   # buildInstallers: false #if true, the mac/win projects will build installers, rather than packaging individual binaries
   configuration: 'Release'
@@ -328,50 +328,54 @@ jobs:
 
   - template: Scripts/azure-src.yml
 
-  - template: Scripts/azure-project-web.yml
+  - template: Scripts/azure-projectlist.yml
     parameters:
-      name: IPlugEffect
-      graphics: $(graphics)
-      path: 'Examples'
-      target: $(target)
-      configuration: $(configuration)
+      platform: web
 
-  - template: Scripts/azure-project-web.yml
-    parameters:
-      name: IPlugInstrument
-      graphics: $(graphics)
-      path: 'Examples'
-      target: $(target)
-      configuration: $(configuration)
+  # - template: Scripts/azure-project-web.yml
+  #   parameters:
+  #     name: IPlugEffect
+  #     graphics: $(graphics)
+  #     path: 'Examples'
+  #     target: $(target)
+  #     configuration: $(configuration)
 
-  - template: Scripts/azure-project-web.yml
-    parameters:
-      name: IPlugControls
-      graphics: $(graphics)
-      path: 'Examples'
-      target: $(target)
-      configuration: $(configuration)
+  # - template: Scripts/azure-project-web.yml
+  #   parameters:
+  #     name: IPlugInstrument
+  #     graphics: $(graphics)
+  #     path: 'Examples'
+  #     target: $(target)
+  #     configuration: $(configuration)
 
-  - template: Scripts/azure-project-web.yml
-    parameters:
-      name: IPlugFaustDSP
-      graphics: $(graphics)
-      path: 'Examples'
-      target: $(target)
-      configuration: $(configuration)
+  # - template: Scripts/azure-project-web.yml
+  #   parameters:
+  #     name: IPlugControls
+  #     graphics: $(graphics)
+  #     path: 'Examples'
+  #     target: $(target)
+  #     configuration: $(configuration)
 
-  - template: Scripts/azure-project-web.yml
-    parameters:
-      name: IGraphicsStressTest
-      graphics: $(graphics)
-      path: 'Tests'
-      target: $(target)
-      configuration: $(configuration)
+  # - template: Scripts/azure-project-web.yml
+  #   parameters:
+  #     name: IPlugFaustDSP
+  #     graphics: $(graphics)
+  #     path: 'Examples'
+  #     target: $(target)
+  #     configuration: $(configuration)
 
-  - template: Scripts/azure-project-web.yml
-    parameters:
-      name: IGraphicsTest
-      graphics: $(graphics)
-      path: 'Tests'
-      target: $(target)
-      configuration: $(configuration)
+  # - template: Scripts/azure-project-web.yml
+  #   parameters:
+  #     name: IGraphicsStressTest
+  #     graphics: $(graphics)
+  #     path: 'Tests'
+  #     target: $(target)
+  #     configuration: $(configuration)
+
+  # - template: Scripts/azure-project-web.yml
+  #   parameters:
+  #     name: IGraphicsTest
+  #     graphics: $(graphics)
+  #     path: 'Tests'
+  #     target: $(target)
+  #     configuration: $(configuration)

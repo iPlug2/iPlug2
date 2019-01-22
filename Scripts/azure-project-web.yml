@@ -1,8 +1,6 @@
 parameters:
   name: ''
-  graphics: 'NANOVG'
   path: ''
-  configuration: 'Release'
 
 steps:
   - bash: |
@@ -22,6 +20,6 @@ steps:
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: 'WEB_${{ parameters.name }}_${{ parameters.graphics }}'
+      artifactName: 'WEB_${{ parameters.name }}_${{ variables['Build.graphics'] }}'
       targetPath: '${{ parameters.path }}/${{ parameters.name }}/build-web'
     displayName: Publish ${{ parameters.name }}
