@@ -281,6 +281,7 @@ jobs:
       path: 'Examples'
       target: 'All'
 
+  - script: echo "test"
   # - template: Scripts/azure-project-mac.yml
   #   parameters:
   #     name: IPlugInstrument
