@@ -13,6 +13,9 @@ steps:
     displayName: Set graphics string
 
   - bash: |
+      cd emsdk
+      source ./emsdk_env.sh
+      cd ..
       cd ./${{ parameters.path }}/${{ parameters.name }}/scripts
       ./makedist-web.sh
     displayName: Compile WAM
