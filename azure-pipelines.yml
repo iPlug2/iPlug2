@@ -330,7 +330,7 @@ jobs:
 
   - template: Scripts/azure-projectlist.yml
     parameters:
-      platform: Scripts/azure-project-web.yml
+      platform: azure-project-web.yml
 
   # - template: Scripts/azure-project-web.yml
   #   parameters:
