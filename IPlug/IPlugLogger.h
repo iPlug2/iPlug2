@@ -65,6 +65,11 @@
 #ifdef NDEBUG
 #define DBGMSG(...)
 #else
+  #ifdef OutputDebugString
+    #undef OutputDebugString
+    #define OutputDebugString OutputDebugStringA
+  #endif
+
   static void DBGMSG(const char *format, ...)
   {
     char buf[4096], *p = buf;

@@ -2,6 +2,7 @@
 
 #include "MidiSynth.h"
 #include "Oscillator.h"
+#include "ADSREnvelope.h"
 
 class IPlugInstrumentDSP
 {
@@ -12,6 +13,7 @@ private:
   public:
     IPlugInstrumentVoice()
     : mOsc1(0.75)
+    , mADSR1("gain")
     {
       DBGMSG("new Voice: %i control inputs.\n", static_cast<int>(mInputs.size()));
     }
@@ -22,14 +24,22 @@ private:
 
     bool GetBusy() const override
     {
-      return mInputs[kVoiceControlGate].IsNonzero();
-
-      // TODO add gain envelope within synth, decaying out longer than the gate, and checking to see if it's done
+      return mADSR1.GetBusy();;
     }
 
     void Trigger(double level, bool isRetrigger) override
     {
       mOsc1.Reset();
+      
+      if(isRetrigger)
+        mADSR1.Retrigger(level);
+      else
+        mADSR1.Start(level);
+    }
+    
+    void Release() override
+    {
+      mADSR1.Release();
     }
 
     void ProcessSamplesAccumulating(sample** inputs, sample** outputs, int nInputs, int nOutputs, int startIdx, int nFrames) override
@@ -54,7 +64,7 @@ private:
         float noise = mTimbreBuffer[i] * Rand();
 
         // an MPE synth can use pressure here in addition to gain
-        outputs[0][i] += (mOsc1.Process(osc1Freq) + mOsc2.Process(osc2Freq) * mOsc2Gain + noise) * gate * mGain;
+        outputs[0][i] += (mOsc1.Process(osc1Freq) + mOsc2.Process(osc2Freq) * mOsc2Gain + noise) * mADSR1.Process(1.) * mGain;
         outputs[1][i] = outputs[0][i];
       }
     }
@@ -90,6 +100,7 @@ private:
   private:
     FastSinOscillator<sample> mOsc1;
     FastSinOscillator<sample> mOsc2;
+    ADSREnvelope<sample> mADSR1;
 
     float mOsc2Gain = 0.;
 

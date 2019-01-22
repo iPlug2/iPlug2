@@ -35,10 +35,8 @@ def main():
   else:
     dst = os.environ["TARGET_BUILD_DIR"] + os.environ["UNLOCALIZED_RESOURCES_FOLDER_PATH"]
 
-  if os.path.exists(dst):
-    shutil.rmtree(dst)
-
-  os.makedirs(dst + "/", 0755 );
+  if os.path.exists(dst) == False:
+    os.makedirs(dst + "/", 0755 )
 
   if os.path.exists(projectpath + "/resources/img/"):
     imgs = os.listdir(projectpath + "/resources/img/")

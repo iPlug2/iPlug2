@@ -65,7 +65,8 @@ public:
   bool SendMidiMsg(const IMidiMsg& msg) override;
   
 private:
-  void _TransmitMidiMsgFromProcessor(const IMidiMsg& msg) override;
+  void TransmitMidiMsgFromProcessor(const IMidiMsg& msg) override;
+  void TransmitSysExDataFromProcessor(const SysExData& data) override;
 
   bool mSidechainActive = false;
 
@@ -78,8 +79,6 @@ private:
   ProcessContext mProcessContext;
   ParameterChanges mOutputParamChanges;
   IMidiQueue mMidiOutputQueue;
-//  IPlugQueue<SysExChunk> mSysExMsgsFromController; // // a queue of SYSEX messages recieved from the controller
-//  IPlugQueue<SysExChunk> mSysExMsgsFromProcessorToController; // a queue of SYSEX messages to send to the controller
 };
 
 IPlugVST3Processor* MakeProcessor();

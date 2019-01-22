@@ -27,7 +27,9 @@
 //#include "lice_palette.cpp"
 #include "lice_text.cpp"
 //#include "lice_gif.cpp"
-//#include "lice_jpg.cpp"
+#ifdef LICE_JPEG_SUPPORT
+#include "lice_jpg.cpp"
+#endif
 //#include "lice_pcx.cpp"
 #include "lice_textnew.cpp"
 //#include "lice_gif_write.cpp"

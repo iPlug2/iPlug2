@@ -27,6 +27,12 @@
 #include "IGraphicsLice_src.h"
 #include "IGraphics.h"
 
+inline LICE_pixel LiceColor(const IColor& color, const IBlend* pBlend)
+{
+  int alpha = std::round(color.A * BlendWeight(pBlend));
+  return LICE_RGBA(color.R, color.G, color.B, alpha);
+}
+
 inline LICE_pixel LiceColor(const IColor& color)
 {
   return LICE_RGBA(color.R, color.G, color.B, color.A);
@@ -40,9 +46,9 @@ inline int LiceBlendMode(const IBlend* pBlend)
   }
   switch (pBlend->mMethod)
   {
-    case EBlendType::kBlendClobber: return LICE_BLIT_MODE_COPY;
-    case EBlendType::kBlendAdd: return LICE_BLIT_MODE_ADD | LICE_BLIT_USE_ALPHA;
-    case EBlendType::kBlendColorDodge: return LICE_BLIT_MODE_DODGE | LICE_BLIT_USE_ALPHA;
+    case EBlendType::kBlendClobber:     return LICE_BLIT_MODE_COPY;
+    case EBlendType::kBlendAdd:         return LICE_BLIT_MODE_ADD | LICE_BLIT_USE_ALPHA;
+    case EBlendType::kBlendColorDodge:  return LICE_BLIT_MODE_DODGE | LICE_BLIT_USE_ALPHA;
     case EBlendType::kBlendNone:
     default:
     {
@@ -51,11 +57,18 @@ inline int LiceBlendMode(const IBlend* pBlend)
   }
 }
 
+/** A LICE API bitmap
+ * @ingroup APIBitmaps */
 class LICEBitmap : public APIBitmap
 {
 public:
-  LICEBitmap(LICE_IBitmap* pBitmap, int scale) : APIBitmap (pBitmap, pBitmap->getWidth(), pBitmap->getHeight(), scale) {}
+  LICEBitmap(LICE_IBitmap* pBitmap, int scale, bool preMultiplied) : APIBitmap (pBitmap, pBitmap->getWidth(), pBitmap->getHeight(), scale, 1.f), mPremultiplied(preMultiplied) {}
   virtual ~LICEBitmap() { delete ((LICE_IBitmap*) GetBitmap()); }
+  
+  bool IsPreMultiplied() { return mPremultiplied; }
+    
+private:
+  bool mPremultiplied;
 };
 
 /** IGraphics draw class using Cockos' LICE  
@@ -76,6 +89,7 @@ public:
   void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedBitmap(IBitmap& bitmap, float destCtrX, float destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
   void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, float x, float y, double angle, const IBlend* pBlend) override;
+  void DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend) override;
   
   void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override;
   void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness) override;
@@ -97,32 +111,86 @@ public:
     
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return mDrawBitmap->getBits(); }
-
-  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
-    
   inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
 
+  // Not implemented
+  void DrawRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend, float thickness) override { /* TODO - mark unsupported */ }
+  void DrawEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness) override { /* TODO - mark unsupported */ }
+  void DrawEllipse(const IColor& color, float x, float y, float r1, float r2, float angle, const IBlend* pBlend, float thickness) override { /* TODO - mark unsupported */ }
+  void FillRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend) override { /* TODO - mark unsupported */ }
+  void FillEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend) override { /* TODO - mark unsupported */ }
+  void FillEllipse(const IColor& color, float x, float y, float r1, float r2, float angle, const IBlend* pBlend) override { /* TODO - mark unsupported */ }
+
+  bool BitmapExtSupported(const char* ext) override;
 protected:
-    
-  APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
+  APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
+  APIBitmap* CreateAPIBitmap(int width, int height) override;
+
+  int AlphaChannel() const override { return LICE_PIXEL_A; }
+  bool FlippedBitmap() const override { return false; }
+
+  void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
+  void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
+
+  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
 
   void EndFrame() override;
     
+  float GetBackingPixelScale() const override { return GetScreenScale(); };
+
 private:
-  
-  void ClipRegion(const IRECT& r) override
+    
+  bool OpacityCheck(const IColor& color, const IBlend* pBlend)
   {
-    mDrawRECT = r;
-    mDrawRECT.PixelAlign();
+    return (color.A == 255) && BlendWeight(pBlend) >= 1.f;
+  }
+    
+  template<typename T, typename... Args>
+  void OpacityLayer(T method, const IBlend* pBlend, const IColor& color, Args... args);
+    
+  float TransformX(float x)
+  {
+    return (x - mDrawOffsetX) * GetScreenScale();
   }
   
+  float TransformY(float y)
+  {
+    return (y - mDrawOffsetY) * GetScreenScale();
+  }
+    
+  IRECT TransformRECT(const IRECT& r)
+  {
+    IRECT tr = r;
+    tr.Translate(-mDrawOffsetX, -mDrawOffsetY);
+    tr.Scale(GetScreenScale());
+    return tr;
+  }
+    
+  void NeedsClipping();
+  void PrepareRegion(const IRECT& r) override;
+  void CompleteRegion(const IRECT& r) override;
+    
+  void UpdateLayer() override;
+    
   LICE_IFont* CacheFont(const IText& text, double scale);
 
   IRECT mDrawRECT;
+  IRECT mClipRECT;
     
+  int mDrawOffsetX = 0;
+  int mDrawOffsetY = 0;
+  
   LICE_SysBitmap* mDrawBitmap = nullptr;
   LICE_MemBitmap* mTmpBitmap = nullptr;
+#ifdef OS_WIN
+  LICE_SysBitmap* mScaleBitmap = nullptr;
+#endif
+  // N.B. mRenderBitmap is not owned through this pointer, and should not be deleted
+  LICE_IBitmap* mRenderBitmap = nullptr;
+    
+  ILayerPtr mClippingLayer;
+    
 #ifdef OS_MAC
   CGColorSpaceRef mColorSpace = nullptr;
 #endif

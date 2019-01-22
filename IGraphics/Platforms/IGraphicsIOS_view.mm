@@ -59,9 +59,8 @@
 {
   if (mGraphics)
   {
-    // TODO - fix or remove these values!!
-    *pX = pt.x / mGraphics->GetScale();//- 2.f;
-    *pY = pt.y / mGraphics->GetScale();//- 3.f;
+    *pX = pt.x / mGraphics->GetDrawScale();
+    *pY = pt.y / mGraphics->GetDrawScale();
   }
 }
 

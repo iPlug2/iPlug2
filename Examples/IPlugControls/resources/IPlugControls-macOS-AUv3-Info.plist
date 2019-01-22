@@ -41,10 +41,10 @@
 					<string>Ipct</string>
 					<key>tags</key>
 					<array>
-						<string>Effects</string>
+						<string>Synth</string>
 					</array>
 					<key>type</key>
-					<string>aufx</string>
+					<string>aumu</string>
 					<key>version</key>
 					<integer>65536</integer>
 				</dict>

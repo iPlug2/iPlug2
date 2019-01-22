@@ -22,6 +22,7 @@ cmake -C $DEPS_DIR/iplug-backends.cmake -C $DEPS_DIR/iplug-targets-mac.cmake -DI
 cmake -D CMAKE_INSTALL_PREFIX=$INSTALL_DIR ../faust/build
 cmake --build $FAUST_CMAKE_BUILD_DIR --config Release -- -j 6
 make install
+rm $INSTALL_DIR/lib/ios-libsndfile.a
 rm $INSTALL_DIR/lib/libfaust.dylib
 rm $INSTALL_DIR/lib/libfaust.2.dylib
 mv $INSTALL_DIR/lib/*.dylib $INSTALL_DIR/lib/libfaust.dylib

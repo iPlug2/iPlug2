@@ -11,7 +11,8 @@
 
 #pragma once
 
-/** @file This file includes classes for implementing timers - in order to get a regular callback on the main thread
+/** @file
+ * @brief This file includes classes for implementing timers - in order to get a regular callback on the main thread
  * The interface is partially based on the api of Steinberg's timer.cpp from the VST3_SDK for compatibility,
  * rewritten using SWELL: base/source/timer.cpp, so thanks to them */
 
@@ -20,17 +21,16 @@
 #include <cstring>
 #include <functional>
 #include "ptrlist.h"
+#include "mutex.h"
 
 #include "IPlugPlatform.h"
 
-struct Timer;
-
-typedef std::function<void(Timer& t)> ITimerFunction;
-
 #if defined OS_WEB
-class Timer
+/** Base class for timer */
+struct Timer
 {
-public:
+  typedef std::function<void(Timer& t)> ITimerFunction;
+    
   static Timer* Create(ITimerFunction func, uint32_t intervalMs)
   {
     return new Timer();
@@ -40,89 +40,54 @@ public:
   {
   }
 };
-
 #else
-
-#if defined OS_MAC
-#include "swell.h"
-#elif defined OS_IOS
-typedef bool BOOL;
-typedef unsigned int UINT;
-typedef unsigned int DWORD;
-typedef void* HWND;
-typedef void (*TIMERPROC)(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
-#define CALLBACK
-UINT_PTR SetTimer(HWND hwnd, UINT_PTR timerid, UINT rate, TIMERPROC tProc);
-BOOL KillTimer(HWND hwnd, UINT_PTR timerid);
-#endif
-
+/** Base class for timer */
 struct Timer
 {
-  virtual ~Timer() {};
+  typedef std::function<void(Timer& t)> ITimerFunction;
+
   static Timer* Create(ITimerFunction func, uint32_t intervalMs);
+  virtual ~Timer() {};
   virtual void Stop() = 0;
-  UINT_PTR ID = 0;
 };
+#endif
+
+#if defined OS_MAC || defined OS_IOS
+
+#include <CoreFoundation/CoreFoundation.h>
 
 class Timer_impl : public Timer
 {
 public:
-  Timer_impl(ITimerFunction func, uint32_t intervalMs)
-  : mTimerFunc(func)
-  , mIntervalMs(intervalMs)
-
-  {
-    ID = SetTimer(0, 0, intervalMs, TimerProc);
-    
-    if(ID)
-     AddTimer(this);
-  }
   
-  ~Timer_impl()
-  {
-    Stop();
-  }
+  Timer_impl(ITimerFunction func, uint32_t intervalMs);
+  ~Timer_impl();
   
-  void Stop() override
-  {
-    if (!ID)
-      return;
-    
-    KillTimer(0, ID);
-    RemoveTimer(this);
-    ID = 0;
-  }
-  
-  void AddTimer(Timer_impl* pTimer)
-  {
-    sTimers.Add(pTimer);
-//    DBGMSG("Add NTimers % i\n", sTimers.GetSize());
-  }
-  
-  void RemoveTimer(Timer_impl* pTimer)
-  {
-    sTimers.DeletePtr(pTimer);
-//    DBGMSG("Remove NTimers % i\n", sTimers.GetSize());
-  }
-  
-  static void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
-  {
-    for (auto i = 0; i < sTimers.GetSize(); i++)
-    {
-      Timer_impl* pTimer = sTimers.Get(i);
-      
-      if (pTimer->ID == idEvent)
-      {
-        pTimer->mTimerFunc(*pTimer);
-        return;
-      }
-    }
-  }
+  void Stop() override;
+  static void TimerProc(CFRunLoopTimerRef timer, void *info);
   
 private:
-  static WDL_PtrList<Timer_impl> sTimers;
+  CFRunLoopTimerRef mOSTimer;
   ITimerFunction mTimerFunc;
   uint32_t mIntervalMs;
 };
-
+#elif defined OS_WIN
+class Timer_impl : public Timer
+{
+public:
+  Timer_impl(ITimerFunction func, uint32_t intervalMs);
+  ~Timer_impl();
+  void Stop() override;
+  static void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
+  
+private:
+  static WDL_Mutex sMutex;
+  static WDL_PtrList<Timer_impl> sTimers;
+  UINT_PTR ID = 0;
+  ITimerFunction mTimerFunc;
+  uint32_t mIntervalMs;
+};
+#elif defined OS_WEB
+#elif
+  #error NOT IMPLEMENTED
 #endif

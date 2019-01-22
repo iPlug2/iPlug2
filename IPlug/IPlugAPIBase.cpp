@@ -8,13 +8,15 @@
  ==============================================================================
 */
 
+/**
+ * @file
+ * @brief IPlugAPIBase implementation
+ */
+
 #include <cmath>
 #include <cstdio>
 #include <ctime>
 #include <cassert>
-
-
-#include "wdlendian.h"
 
 #include "IPlugAPIBase.h"
 
@@ -64,7 +66,7 @@ void IPlugAPIBase::CreateTimer()
   mTimer = Timer::Create(std::bind(&IPlugAPIBase::OnTimer, this, std::placeholders::_1), IDLE_TIMER_RATE);
 }
 
-bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos)
+bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos) const
 {
   bool isEqual = true;
   
@@ -96,12 +98,17 @@ void IPlugAPIBase::PrintDebugInfo() const
 
 void IPlugAPIBase::SetHost(const char* host, int version)
 {
+  assert(mHost == kHostUninit);
+    
   mHost = LookUpHost(host);
   mHostVersion = version;
   
   WDL_String vStr;
   GetVersionStr(version, vStr);
   Trace(TRACELOC, "host_%sknown:%s:%s", (mHost == kHostUnknown ? "un" : ""), host, vStr.Get());
+    
+  HostSpecificInit();
+  OnHostIdentified();
 }
 
 void IPlugAPIBase::SetParameterValue(int idx, double normalizedValue)
@@ -112,7 +119,7 @@ void IPlugAPIBase::SetParameterValue(int idx, double normalizedValue)
   OnParamChange(idx, kUI);
 }
 
-void IPlugAPIBase::DirtyParameters()
+void IPlugAPIBase::DirtyParametersFromUI()
 {
   for (int p = 0; p < NParams(); p++)
   {
@@ -121,7 +128,7 @@ void IPlugAPIBase::DirtyParameters()
   }
 }
 
-void IPlugAPIBase::_SendParameterValueFromAPI(int paramIdx, double value, bool normalized)
+void IPlugAPIBase::SendParameterValueFromAPI(int paramIdx, double value, bool normalized)
 {
   //TODO: Can we assume that no host is stupid enough to try and set parameters on multiple threads at the same time?
   // If that is the case then we need a MPSPC queue not SPSC
@@ -147,6 +154,13 @@ void IPlugAPIBase::OnTimer(Timer& t)
       mMidiMsgsFromProcessor.Pop(msg);
       SendMidiMsgFromDelegate(msg);
     }
+    
+    while (mSysExDataFromProcessor.ElementsAvailable())
+    {
+      SysExData msg;
+      mSysExDataFromProcessor.Pop(msg);
+      SendSysexMsgFromDelegate({msg.mOffset, msg.mData, msg.mSize});
+    }
   #endif
     
     // Midi messages from the processor to the controller, are sent as IMessages and SendMidiMsgFromDelegate gets triggered on the other side's notify
@@ -155,7 +169,14 @@ void IPlugAPIBase::OnTimer(Timer& t)
     {
       IMidiMsg msg;
       mMidiMsgsFromProcessor.Pop(msg);
-      _TransmitMidiMsgFromProcessor(msg);
+      TransmitMidiMsgFromProcessor(msg);
+    }
+    
+    while (mSysExDataFromProcessor.ElementsAvailable())
+    {
+      SysExData data;
+      mSysExDataFromProcessor.Pop(data);
+      TransmitSysExDataFromProcessor(data);
     }
   #endif
   }
@@ -171,9 +192,8 @@ void IPlugAPIBase::SendMidiMsgFromUI(const IMidiMsg& msg)
 
 void IPlugAPIBase::SendSysexMsgFromUI(const ISysEx& msg)
 {
-  //TODO:
-  
-  EDITOR_DELEGATE_CLASS::SendSysexMsgFromUI(msg);
+  DeferSysexMsg(msg); // queue the message so that it will be handled by the processor
+  EDITOR_DELEGATE_CLASS::SendSysexMsgFromUI(msg); // for remote editors
 }
 
 void IPlugAPIBase::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData)

@@ -102,16 +102,17 @@ public:
 
   virtual void ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   {
-    if (mDSP) {
+    if (mDSP)
+    {
       assert(mDSP->getSampleRate() != 0); // did you forget to call SetSampleRate?
       
-      if(mOverSampler)
-        mOverSampler->ProcessBlock(inputs, outputs, nFrames, 1 /* DOESN'T YET WORK WITH MC */,
-                                   [&](sample** inputs, sample** outputs, int nFrames)
-                                   {
-                                     mDSP->compute(nFrames, inputs, outputs);
-                                   });
-      else
+//      if(mOverSampler)
+//        mOverSampler->ProcessBlock(inputs, outputs, nFrames, 1 /* DOESN'T YET WORK WITH MC */,
+//                                   [&](sample** inputs, sample** outputs, int nFrames)
+//                                   {
+//                                     mDSP->compute(nFrames, inputs, outputs);
+//                                   });
+//      else
         mDSP->compute(nFrames, inputs, outputs);
     }
 //    else silence?

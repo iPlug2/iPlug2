@@ -9,7 +9,7 @@ branches:
 # Environment variables
 env:
   global:
-    - GH_REPO_REF: https://github.com/iPlug2/iPlug2-private
+    - GH_REPO_REF: https://github.com/iPlug2/iPlug2
     
 # Install dependencies
 addons:

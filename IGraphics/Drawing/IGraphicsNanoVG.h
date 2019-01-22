@@ -14,8 +14,10 @@
 #include "IGraphicsPathBase.h"
 
 #include "nanovg.h"
+#include "mutex.h"
+#include <stack>
 
-// Thanks to Olli Wang for much of this macro magic  https://github.com/ollix/moui
+// Thanks to Olli Wang/MOUI for much of this macro magic  https://github.com/ollix/moui
 
 #if defined IGRAPHICS_GLES2
   #define IGRAPHICS_GL
@@ -82,19 +84,30 @@
   typedef MNVGframebuffer NVGframebuffer;
 #endif
 
+void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData);
+
+// Forward declaration
+
+class IGraphicsNanoVG;
+
+/** An NanoVG API bitmap
+ * @ingroup APIBitmaps */
 class NanoVGBitmap : public APIBitmap
 {
 public:
-  NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, void* hInst = nullptr);
+  NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID);
+  NanoVGBitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, int scale, float drawScale);
+  NanoVGBitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, int scale, float drawScale);
   virtual ~NanoVGBitmap();
+  NVGframebuffer* GetFBO() const { return mFBO; }
 private:
+  IGraphicsNanoVG *mGraphics = nullptr;
   NVGcontext* mVG;
+  NVGframebuffer* mFBO = nullptr;
 };
 
 /** IGraphics draw class using NanoVG  
-*   @ingroup DrawClasses
-*/
-
+*   @ingroup DrawClasses */
 class IGraphicsNanoVG : public IGraphicsPathBase
 {
 public:
@@ -125,32 +138,53 @@ public:
   
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return (void*) mVG; }
-
-  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
-  
+    
   IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale) override;
   IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, int targetScale) override { return bitmap; } // NO-OP
   void ReleaseBitmap(const IBitmap& bitmap) override { }; // NO-OP
   void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override { }; // NO-OP
+  bool BitmapExtSupported(const char* ext) override;
 
-  void LoadFont(const char* name) override;
+  bool LoadFont(const char* fileName) override;
   
-  void DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, float pad, const IBlend* pBlend) override;
   void SetPlatformContext(void* pContext) override;
-protected:
 
-  APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
+  void DeleteFBO(NVGframebuffer* pBuffer);
+    
+protected:
+  APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override { return new APIBitmap(); } // NO-OP
+  APIBitmap* CreateAPIBitmap(int width, int height) override;
+
+  int AlphaChannel() const override { return 3; }
+  
+  bool FlippedBitmap() const override
+  {
+#if defined(IGRAPHICS_GL)
+    return true;
+#else
+    return false;
+#endif
+  }
+
+  void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
+  void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
+
+  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
 
 private:
-  
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
+  void UpdateLayer() override;
+  void ClearFBOStack();
+    
+  // A stack of FBOs that requires freeing at the end of the frame
   
-  StaticStorage<APIBitmap> mBitmapCache; //not actually static
+  bool mInDraw = false;
+  WDL_Mutex mFBOMutex;
+  std::stack<NVGframebuffer*> mFBOStack;
+    
+  StaticStorage<APIBitmap> mBitmapCache; //not actually static (doesn't require retaining or releasing)
   NVGcontext* mVG = nullptr;
-  NVGframebuffer* mMainFrameBuffer = nullptr;
-#if defined OS_WIN
-  HGLRC mHGLRC = nullptr;
-#endif
+  NVGframebuffer* mMainFrameBuffer = nullptr;    
 };

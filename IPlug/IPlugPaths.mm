@@ -8,6 +8,11 @@
  ==============================================================================
 */
 
+/**
+ * @file
+ * @brief IPlugPaths implementation for macOS and iOS
+ */
+
 #include "IPlugPlatform.h"
 #include "IPlugPaths.h"
 #include "IPlugConstants.h"

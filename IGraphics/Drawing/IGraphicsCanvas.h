@@ -19,17 +19,15 @@
 
 using namespace emscripten;
 
-class WebBitmap : public APIBitmap
+/** An HTML5 canvas API bitmap
+ * @ingroup APIBitmaps */
+class CanvasBitmap : public APIBitmap
 {
 public:
-  WebBitmap(val imageCanvas, const char* name, int scale);
+  CanvasBitmap(val imageCanvas, const char* name, int scale);
+  CanvasBitmap(int width, int height, int scale, float drawScale);
+  ~CanvasBitmap();
 };
-
-static val GetContext()
-{
-  val canvas = val::global("document").call<val>("getElementById", std::string("canvas"));
-  return canvas.call<val>("getContext", std::string("2d"));
-}
 
 /** IGraphics draw class HTML5 canvas
 * @ingroup DrawClasses */
@@ -59,17 +57,35 @@ public:
   IColor GetPoint(int x, int y) override { return COLOR_BLACK; } // TODO:
   void* GetDrawContext() override { return nullptr; }
 
-  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
-
+  bool BitmapExtSupported(const char* ext) override;
 protected:
-  APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
+  APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
+  APIBitmap* CreateAPIBitmap(int width, int height) override;
+
+  int AlphaChannel() const override { return 3; }
+  bool FlippedBitmap() const override { return false; }
+
+  void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
+  void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
+
+  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
 
 private:
   
+  val GetContext()
+  {
+    val canvas = mLayers.empty() ? val::global("document").call<val>("getElementById", std::string("canvas")) : *(mLayers.top()->GetAPIBitmap()->GetBitmap());
+      
+    return canvas.call<val>("getContext", std::string("2d"));
+  }
+    
+  double XTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().L; }
+  double YTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().T; }
+
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
     
-  void SetCanvasSourcePattern(const IPattern& pattern, const IBlend* pBlend = nullptr);
+  void SetCanvasSourcePattern(val& context, const IPattern& pattern, const IBlend* pBlend = nullptr);
   void SetCanvasBlendMode(const IBlend* pBlend);
 };

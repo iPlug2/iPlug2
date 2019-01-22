@@ -16,7 +16,9 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 iPlug 2 includes the following 3rd party libraries (see each license info):
 
+* Cockos WDL https://www.cockos.com/wdl
 * NanoVG https://github.com/memononen/nanovg
 * NanoSVG https://github.com/memononen/nanosvg  
 * MetalNanoVG https://github.com/ollix/MetalNanoVG
-* Cockos WDL https://www.cockos.com/wdl
+* RTAudio https://www.music.mcgill.ca/~gary/rtaudio
+* RTMidi https://www.music.mcgill.ca/~gary/rtmidi

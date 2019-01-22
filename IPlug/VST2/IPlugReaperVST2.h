@@ -19,6 +19,7 @@
 
 bool (*DoFxLastTweakParmCtxMenu2)(void* pFXDSP, void* pHWND, int xpos, int ypos, const char* headerStr);
 
+/** Reaper specific VST2.4 API base class for an IPlug plug-in. */
 class IPlugReaperVST2 : public IPlugVST2
 {
 public:

@@ -41,11 +41,14 @@ public:
   void InformHostOfParamChange(int idx, double normalizedValue) override {};
   void EndInformHostOfParamChange(int idx) override {};
   void InformHostOfProgramChange() override {};
-  void ResizeGraphics(int viewWidth, int viewHeight, float scale) override;
+  void EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data) override;
 
+  //IEditorDelegate
+  void SendSysexMsgFromUI(const ISysEx& msg) override;
+  
   //IPlugProcessor
   bool SendMidiMsg(const IMidiMsg& msg) override;
-  bool SendSysEx(ISysEx& msg) override;
+  bool SendSysEx(const ISysEx& msg) override;
   
   //IPlugAPP
   void AppProcess(double** inputs, double** outputs, int nFrames);
@@ -53,7 +56,8 @@ public:
 private:
   IPlugAPPHost* mAppHost = nullptr;
   IPlugQueue<IMidiMsg> mMidiMsgsFromCallback {MIDI_TRANSFER_SIZE};
-  
+  IPlugQueue<SysExData> mSysExMsgsFromCallback {SYSEX_TRANSFER_SIZE};
+
   friend class IPlugAPPHost;
 };
 

@@ -8,6 +8,11 @@
  ==============================================================================
 */
 
+/**
+ * @file
+ * @brief Used for choosing an editor delegate @see IEditorDelegate
+ */
+
 //#if defined PUGL_EDITOR_DELEGATE
 //  #include "PUGLEditorDelegate.h"
 //  typedef PUGLEditorDelegate EDITOR_DELEGATE_CLASS;

@@ -46,7 +46,7 @@ public:
   //IPlugProcessor
   void SetLatency(int samples) override {};
   bool SendMidiMsg(const IMidiMsg& msg) override { return false; }
-  bool SendSysEx(ISysEx& msg) override { return false; }
+  bool SendSysEx(const ISysEx& msg) override { return false; }
   
   //IEditorDelegate - these are overwritten because we need to use WAM messaging system
   void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;

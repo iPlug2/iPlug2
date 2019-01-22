@@ -54,8 +54,11 @@ public:
   void InformHostOfProgramChange() override {}
   void InformHostOfParameterDetailsChange() override;
   
+  //IEditorDelegate
+  void DirtyParametersFromUI() override;
+  
   //IPlugProcessor
-  void ResizeGraphics(int viewWidth, int viewHeight, float scale) override;
+  void EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data) override;
   void SetLatency(int samples) override;
   bool SendMidiMsg(const IMidiMsg& msg) override;
   
@@ -151,7 +154,6 @@ public:
   void resize(int w, int h);
 
   IPlugVST3* mPlug;
-  bool mExpectingNewSize;
 };
 
 #endif

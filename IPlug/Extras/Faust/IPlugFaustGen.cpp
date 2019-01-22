@@ -26,7 +26,7 @@
 int FaustGen::sFaustGenCounter = 0;
 int FaustGen::Factory::sFactoryCounter = 0;
 bool FaustGen::sAutoRecompile = false;
-map<string, FaustGen::Factory *> FaustGen::Factory::sFactoryMap;
+std::map<std::string, FaustGen::Factory *> FaustGen::Factory::sFactoryMap;
 std::list<GUI*> GUI::fGuiList;
 Timer* FaustGen::sTimer = nullptr;
 
@@ -94,7 +94,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
   PrintCompileOptions();
 
   // Prepare compile options
-  string error;
+  std::string error;
   const char* argv[64];
 
   const int N = (int) mCompileOptions.size();
@@ -124,15 +124,21 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 
   if (pFactory)
   {
+    // Update all instances
+    for (auto inst : mInstances)
+    {
+      inst->SetErrored(false);
+    }
+    
     return pFactory;
   }
   else
   {
     // Update all instances
-//    for (auto inst : mInstances)
-//    {
-//      inst->hilight_on();
-//    }
+    for (auto inst : mInstances)
+    {
+      inst->SetErrored(true);
+    }
 
     //WHAT IS THIS?
 //    if (mInstances.begin() != mInstances.end())
@@ -635,8 +641,10 @@ void FaustGen::SetAutoRecompile(bool enable)
 void FaustGen::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
   WDL_MutexLock lock(&mMutex);
-  
-  IPlugFaust::ProcessBlock(inputs, outputs, nFrames);
+  if(!mErrored)
+    IPlugFaust::ProcessBlock(inputs, outputs, nFrames);
+  else
+    memset(outputs[0], 0, nFrames * mMaxNOutputs * sizeof(sample));
 }
 
 #endif // #ifndef FAUST_COMPILED

@@ -49,3 +49,5 @@ You create and attach a graphics object in your plug-ins constructor, using Make
 // (a control may be asked to draw multiple parts of itself, if it intersects with something dirty.)
 
 There is no Z order testing - so if you bring up an "about box" or panel on top of controls that are being set dirty, those controls will still redraw. This is obviously important if the control on top has an alpha channel (see-through parts), but wasteful if not. In practice this is not a problem for the majority of plug-in apis, but if it causes problems in your plug-in, the solution is to explicitly hide controls that are not on screen. 
+
+-->

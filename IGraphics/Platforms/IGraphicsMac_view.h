@@ -16,12 +16,13 @@
 #include "IGraphicsMac.h"
 
 #if defined IGRAPHICS_GL
-#include <OpenGL/gl.h>
+#error IGRAPHICS_GL MACOS NOT IMPLEMENTED
+//#include <OpenGL/gl.h>
 #endif
 
 inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& bounds)
 {
-  float scale = pGraphics->GetScale();
+  float scale = pGraphics->GetDrawScale();
   float x = floor(bounds.L * scale);
   float y = floor(bounds.T * scale);
   float x2 = ceil(bounds.R * scale);
@@ -32,7 +33,7 @@ inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& bounds)
 
 inline IRECT ToIRECT(IGraphics* pGraphics, const NSRect* pR)
 {
-  float scale = 1.f/pGraphics->GetScale();
+  float scale = 1.f/pGraphics->GetDrawScale();
   float x = pR->origin.x, y = pR->origin.y, w = pR->size.width, h = pR->size.height;
   return IRECT(x * scale, y * scale, (x + w) * scale, (y + h) * scale);
 }
@@ -84,13 +85,9 @@ NSString* ToNSString(const char* cStr);
 
 @interface IGRAPHICS_VIEW : NSView <NSTextFieldDelegate/*, WKScriptMessageHandler*/>
 {
-#ifdef IGRAPHICS_GL
-  NSOpenGLContext* mContext;
-  NSOpenGLPixelFormat* mPixelFormat;
-#endif
-  
   NSTimer* mTimer;
   NSTextField* mTextFieldView;
+  NSCursor* mMoveCursor;
 //  WKWebView* mWebView;
   IControl* mEdControl; // the control linked to the open text edit
   float mPrevX, mPrevY;
@@ -106,10 +103,9 @@ NSString* ToNSString(const char* cStr);
 - (void) viewDidChangeBackingProperties:(NSNotification *) notification;
 - (void) drawRect: (NSRect) bounds;
 - (void) onTimer: (NSTimer*) pTimer;
-- (void) render;
 - (void) killTimer;
 //mouse
-- (void) getMouseXY: (NSEvent*) pEvent x: (float*) pX y: (float*) pY;
+- (void) getMouseXY: (NSEvent*) pEvent x: (float&) pX y: (float&) pY;
 - (IMouseInfo) getMouseLeft: (NSEvent*) pEvent;
 - (IMouseInfo) getMouseRight: (NSEvent*) pEvent;
 - (void) mouseDown: (NSEvent*) pEvent;
@@ -130,7 +126,7 @@ NSString* ToNSString(const char* cStr);
 //- (void) createWebView: (NSRect) areaRect : (const char*) url;
 //- (void) userContentController:didReceiveScriptMessage;
 //pop-up menu
-- (IPopupMenu*) createPopupMenu: (const IPopupMenu&) menu : (NSRect) bounds;
+- (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (NSRect) bounds;
 //tooltip
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData;
 - (void) registerToolTip: (IRECT&) bounds;

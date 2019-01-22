@@ -5,9 +5,9 @@
 #---------------------------------------------------------------------------
 
 DOXYFILE_ENCODING      = UTF-8
-PROJECT_NAME           = WDL-OL/IPlug
+PROJECT_NAME           = iPlug 2
 PROJECT_NUMBER         = "2.0"
-PROJECT_BRIEF          = "Cross-platform C++ Plug-in Framework"
+PROJECT_BRIEF          = "C++ Audio Plug-in Framework"
 PROJECT_LOGO           =
 OUTPUT_DIRECTORY       =
 CREATE_SUBDIRS         = NO
@@ -79,7 +79,7 @@ INLINE_INFO            = YES
 SORT_MEMBER_DOCS       = YES
 SORT_BRIEF_DOCS        = NO
 SORT_MEMBERS_CTORS_1ST = NO
-SORT_GROUP_NAMES       = NO
+SORT_GROUP_NAMES       = YES
 SORT_BY_SCOPE_NAME     = NO
 STRICT_PROTO_MATCHING  = NO
 GENERATE_TODOLIST      = YES
@@ -92,7 +92,7 @@ SHOW_USED_FILES        = YES
 SHOW_FILES             = YES
 SHOW_NAMESPACES        = YES
 FILE_VERSION_FILTER    =
-LAYOUT_FILE            =
+LAYOUT_FILE            = DoxygenLayout.xml
 CITE_BIB_FILES         =
 
 #---------------------------------------------------------------------------
@@ -163,17 +163,12 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          IGRAPHICS_MENU \
                          IGRAPHICS_MENU_RCVR \
                          IGRAPHICS_VIEW \
-                         NanoVGBitmap \
-                         CairoBitmap \
                          LineInfo \
                          StaticStorage \
                          CocoaAutoReleasePool \
                          AuxParam \
                          PNGStreamReader \
                          SVGHolder \
-                         APIBitmap \
-                         AGGBitmap \
-                         LICEBitmap \
                          WebBitmap \
                          Rasterizer \
                          DashOptions \
@@ -182,7 +177,13 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          Timer_impl \
                          TimerInfoRec \
                          SWELL_TimerFuncTarget \
-                         SWELL_DataHold
+                         SWELL_DataHold \
+                         pixel_wrapper \
+                         AGGBitmap \
+                         CairoBitmap \
+                         CanvasBitmap \
+                         LICEBitmap \
+                         NanoVGBitmap    
 
 EXAMPLE_PATH           =
 EXAMPLE_PATTERNS       = *
@@ -224,7 +225,7 @@ IGNORE_PREFIX          =
 GENERATE_HTML          = YES
 HTML_OUTPUT            = html
 HTML_FILE_EXTENSION    = .html
-HTML_HEADER            =
+HTML_HEADER            = header.html
 HTML_FOOTER            =
 HTML_EXTRA_STYLESHEET  = style.css
 HTML_STYLESHEET        =
