@@ -9,7 +9,7 @@ steps:
       sed -i.bu 's/-DIGRAPHICS_NANOVG -DIGRAPHICS_GLES2/-DIGRAPHICS_CANVAS/' ${{ parameters.name }}-web.mk
       sed -i.bu 's/WEB_LDFLAGS += $(NANOVG_LDFLAGS)/\/\/WEB_LDFLAGS += $(NANOVG_LDFLAGS)/' ${{ parameters.name }}-web.mk
     displayName: Set graphics string CANVAS
-    condition: eq(${{parameters.graphics}}, 'CANVAS')
+    condition: eq(${{ parameters.graphics }}, 'CANVAS')
 
   - bash: |
       cd emsdk
