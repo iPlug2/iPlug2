@@ -1,5 +1,8 @@
 variables:
   buildLibs: false
+  buildWeb: true
+  buildMac: false
+  buildWin: true
   configuration: 'Release'
   target: 'All'
 
@@ -103,7 +106,7 @@ jobs:
 
 - job: BUILD_WIN_DEPS
   dependsOn: DOWNLOAD_DEPS 
-  condition: eq(variables.buildLibs, true)
+  condition: and(eq(variables.buildLibs, true), eq(variables.buildWin, true))
 
   strategy:
     matrix:
@@ -150,7 +153,7 @@ jobs:
     displayName: Publish Windows $(buildPlatform) $(buildConfiguration) Dependencies Artifacts
 
 - job: PUBLISH_WIN_DEPS
-  condition: eq(variables.buildLibs, true)
+  condition: and(eq(variables.buildLibs, true), eq(variables.buildWin, true))
   dependsOn: BUILD_WIN_DEPS
   steps:
   - checkout: none
@@ -195,7 +198,7 @@ jobs:
 
 - job: BUILD_MAC_DEPS
   dependsOn: DOWNLOAD_DEPS 
-  condition: eq(variables.buildLibs, true)
+  condition: and(eq(variables.buildLibs, true), eq(variables.buildMac, true))
 
   pool:
     vmImage: 'macos-10.13'
@@ -244,7 +247,8 @@ jobs:
     displayName: Publish Mac Dependencies Artifacts
 
 - job: BUILD_MAC_PROJECTS
-  condition: eq(variables.buildLibs, false)
+  condition: and(eq(variables.buildLibs, false), eq(variables.buildMac, true))
+
   dependsOn: DOWNLOAD_DEPS 
   strategy:
     matrix:
@@ -332,7 +336,8 @@ jobs:
       configuration: $(configuration)
 
 - job: BUILD_WEB_PROJECTS
-  condition: eq(variables.buildLibs, false)
+  condition: and(eq(variables.buildLibs, false), eq(variables.buildWeb, true))
+
   dependsOn: DOWNLOAD_DEPS 
   strategy:
     matrix:
