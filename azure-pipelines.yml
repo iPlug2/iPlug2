@@ -277,7 +277,6 @@ jobs:
       cleanDestinationFolder: false
       destinationFolder: $(Build.SourcesDirectory)
 
-  #error with two template steps
   - template: Scripts/azure-project-mac.yml
     parameters:
       name: IPlugEffect
