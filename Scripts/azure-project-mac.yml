@@ -1,35 +1,36 @@
 parameters:
   name: ''
   path: ''
-
+  graphics: ''
+  
 steps:
   - bash: |
       cd ./${{ parameters.path }}/${{ parameters.name }}/config
       sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/IGRAPHICS_LICE/' ${{ parameters.name }}-mac.xcconfig
       sed -i.bu 's/\/\/$(IGRAPHICS_LNK_FLAGS)/$(IGRAPHICS_LNK_FLAGS)/' ${{ parameters.name }}-mac.xcconfig
     displayName: Set graphics string LICE
-    condition: ${{ eq(${{variables['Build.graphics']}}, 'LICE') }}
+    condition: eq(graphics, 'LICE')
 
   - bash: |
       cd ./${{ parameters.path }}/${{ parameters.name }}/config
       sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/IGRAPHICS_CAIRO/' ${{ parameters.name }}-mac.xcconfig
       sed -i.bu 's/\/\/$(IGRAPHICS_LNK_FLAGS)/$(IGRAPHICS_LNK_FLAGS)/' ${{ parameters.name }}-mac.xcconfig
     displayName: Set graphics string CAIRO
-    condition: ${{ eq(${{variables['Build.graphics']}}, 'CAIRO') }}
+    condition: eq(graphics, 'CAIRO')
 
   - bash: |
       cd ./${{ parameters.path }}/${{ parameters.name }}/config
       sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/IGRAPHICS_AGG/' ${{ parameters.name }}-mac.xcconfig
       sed -i.bu 's/\/\/$(IGRAPHICS_LNK_FLAGS)/$(IGRAPHICS_LNK_FLAGS)/' ${{ parameters.name }}-mac.xcconfig
     displayName: Set graphics string AGG
-    condition: ${{ eq(${{variables['Build.graphics']}}, 'AGG') }}
+    condition: eq(graphics, 'AGG')
 
   - task: Xcode@5
     inputs:
       sdk: 'macosx10.13'
       xcWorkspacePath: '${{ parameters.path }}/${{ parameters.name }}/projects/${{ parameters.name }}-macOS.xcodeproj'
-      args: '-target ${{ ${{variables['Build.graphics']}} }} -xcconfig ${{ parameters.path }}/${{ parameters.name }}/config/${{ parameters.name }}-mac.xcconfig'
-      configuration: '${{ variables['Build.configuration'] }}'
+      args: '-target graphics -xcconfig ${{ parameters.path }}/${{ parameters.name }}/config/${{ parameters.name }}-mac.xcconfig'
+      configuration: '${{ parameters.configuration }}'
       xcodeVersion: '9'
     displayName: Build Xcode project
 
@@ -40,6 +41,6 @@ steps:
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: 'MAC_${{ parameters.name }}_${{ ${{variables['Build.graphics']}} }}'
+      artifactName: 'MAC_${{ parameters.name }}_${{ graphics }}'
       targetPath: '${{ parameters.path }}/${{ parameters.name }}/build-mac'
     displayName: Publish ${{ parameters.name }}

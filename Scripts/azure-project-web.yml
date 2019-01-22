@@ -1,14 +1,15 @@
 parameters:
   name: ''
   path: ''
-  
+  graphics: ''
+
 steps:
   - bash: |
       cd ./${{ parameters.path }}/${{ parameters.name }}/config
       sed -i.bu 's/-DIGRAPHICS_NANOVG -DIGRAPHICS_GLES2/-DIGRAPHICS_CANVAS/' ${{ parameters.name }}-web.mk
       sed -i.bu 's/WEB_LDFLAGS += $(NANOVG_LDFLAGS)/\/\/WEB_LDFLAGS += $(NANOVG_LDFLAGS)/' ${{ parameters.name }}-web.mk
     displayName: Set graphics string CANVAS
-    condition: ${{ eq(variables['Build.graphics'], 'CANVAS') }}
+    condition: eq(graphics, 'CANVAS')
 
   - bash: |
       cd emsdk
@@ -20,6 +21,6 @@ steps:
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: 'WEB_${{ parameters.name }}_${{ variables['Build.graphics'] }}'
+      artifactName: 'WEB_${{ parameters.name }}_${{ graphics }}'
       targetPath: '${{ parameters.path }}/${{ parameters.name }}/build-web'
     displayName: Publish ${{ parameters.name }}
