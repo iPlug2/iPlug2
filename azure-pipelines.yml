@@ -63,6 +63,9 @@ jobs:
       cd ./Dependencies/IPlug
       rm -r VST3_SDK
       git clone --recursive https://github.com/steinbergmedia/vst3sdk.git VST3_SDK
+      rm -r VST3_SDK/vstgui
+      rm -r VST3_SDK/doc
+      rm -r VST3_SDK/cmake
     displayName: Download VST3 SDK
 
   - bash: |
@@ -216,7 +219,7 @@ jobs:
   - bash: |
       cd ./Dependencies/IGraphics
       #tmp force cairo rebuild
-      rm -r ./Build/src/cairo
+      rm -r $BUILD_SOURCESDIRECTORY/Dependencies/Build/src/cairo
       ./build-igraphics-libs-mac.sh
 
       cd $BUILD_SOURCESDIRECTORY
@@ -225,10 +228,10 @@ jobs:
       export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
       echo "##vso[task.setvariable variable=PATH]$PATH"
 
-      cd ./Dependencies/Extras/faust
+      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/faust
       ./build-faust-mac.sh
 
-      cd ./Dependencies/Extras/civetweb
+      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/civetweb
       ./build-civetweb-mac.sh
     displayName: Build macOS Dependencies
 
