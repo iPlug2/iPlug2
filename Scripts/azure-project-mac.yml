@@ -1,35 +1,36 @@
 parameters:
   name: ''
   path: ''
-  graphics: ''
-  
+  graphics: 'NANOVG'
+  target: 'Release'
+
 steps:
   - bash: |
       cd ./${{ parameters.path }}/${{ parameters.name }}/config
       sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/IGRAPHICS_LICE/' ${{ parameters.name }}-mac.xcconfig
       sed -i.bu 's/\/\/$(IGRAPHICS_LNK_FLAGS)/$(IGRAPHICS_LNK_FLAGS)/' ${{ parameters.name }}-mac.xcconfig
     displayName: Set graphics string LICE
-    condition: eq(graphics, 'LICE')
+    condition: eq(${{parameters.graphics}}, 'LICE')
 
   - bash: |
       cd ./${{ parameters.path }}/${{ parameters.name }}/config
       sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/IGRAPHICS_CAIRO/' ${{ parameters.name }}-mac.xcconfig
       sed -i.bu 's/\/\/$(IGRAPHICS_LNK_FLAGS)/$(IGRAPHICS_LNK_FLAGS)/' ${{ parameters.name }}-mac.xcconfig
     displayName: Set graphics string CAIRO
-    condition: eq(graphics, 'CAIRO')
+    condition: eq(${{parameters.graphics}}, 'CAIRO')
 
   - bash: |
       cd ./${{ parameters.path }}/${{ parameters.name }}/config
       sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/IGRAPHICS_AGG/' ${{ parameters.name }}-mac.xcconfig
       sed -i.bu 's/\/\/$(IGRAPHICS_LNK_FLAGS)/$(IGRAPHICS_LNK_FLAGS)/' ${{ parameters.name }}-mac.xcconfig
     displayName: Set graphics string AGG
-    condition: eq(graphics, 'AGG')
+    condition: eq(${{parameters.graphics}}, 'AGG')
 
   - task: Xcode@5
     inputs:
       sdk: 'macosx10.13'
       xcWorkspacePath: '${{ parameters.path }}/${{ parameters.name }}/projects/${{ parameters.name }}-macOS.xcodeproj'
-      args: '-target graphics -xcconfig ${{ parameters.path }}/${{ parameters.name }}/config/${{ parameters.name }}-mac.xcconfig'
+      args: '-target parameters.target -xcconfig ${{ parameters.path }}/${{ parameters.name }}/config/${{ parameters.name }}-mac.xcconfig'
       configuration: '${{ parameters.configuration }}'
       xcodeVersion: '9'
     displayName: Build Xcode project
@@ -41,6 +42,6 @@ steps:
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: 'MAC_${{ parameters.name }}_${{ graphics }}'
+      artifactName: 'MAC_${{ parameters.name }}_${{ ${{parameters.graphics}} }}'
       targetPath: '${{ parameters.path }}/${{ parameters.name }}/build-mac'
     displayName: Publish ${{ parameters.name }}
