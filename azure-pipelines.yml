@@ -265,6 +265,8 @@ jobs:
     vmImage: 'macos-10.13'
 
   steps:
+  - checkout: none
+
   - task: DownloadPipelineArtifact@0
     inputs:
       artifactName: 'SRC'
