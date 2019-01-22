@@ -2,32 +2,32 @@ parameters:
   platform: ''
   
 steps:
-  - template: Scripts/azure-project-${{parameters.platform}}
+  - template: azure-project-${{parameters.platform}}
     parameters:
       name: IPlugEffect
       path: 'Examples'
 
-  - template: Scripts/azure-project-${{parameters.platform}}
+  - template: azure-project-${{parameters.platform}}
     parameters:
       name: IPlugInstrument
       path: 'Examples'
 
-  - template: Scripts/azure-project-${{parameters.platform}}
+  - template: azure-project-${{parameters.platform}}
     parameters:
       name: IPlugControls
       path: 'Examples'
 
-  - template: Scripts/azure-project-${{parameters.platform}}
+  - template: azure-project-${{parameters.platform}}
     parameters:
       name: IPlugFaustDSP
       path: 'Examples'
 
-  - template: Scripts/azure-project-${{parameters.platform}}
+  - template: azure-project-${{parameters.platform}}
     parameters:
       name: IGraphicsStressTest
       path: 'Tests'
 
-  - template: Scripts/azure-project-${{parameters.platform}}
+  - template: azure-project-${{parameters.platform}}
     parameters:
       name: IGraphicsTest
       path: 'Tests'
