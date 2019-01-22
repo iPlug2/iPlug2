@@ -2,7 +2,7 @@ parameters:
   name: ''
   path: ''
   graphics: 'NANOVG'
-  target: 'Release'
+  target: 'All'
 
 steps:
   - bash: |
@@ -42,6 +42,6 @@ steps:
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: format('MAC_{0}_{1}', ${{ parameters.name }}, ${{ parameters.graphics }})
+      artifactName: 'MAC_${{ parameters.name }}_${{ parameters.graphics }}'
       targetPath: '${{ parameters.path }}/${{ parameters.name }}/build-mac'
     displayName: Publish ${{ parameters.name }}

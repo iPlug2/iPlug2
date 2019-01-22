@@ -2,7 +2,8 @@ parameters:
   name: ''
   path: ''
   graphics: ''
-
+  target: ''
+  
 steps:
   - bash: |
       cd ./${{ parameters.path }}/${{ parameters.name }}/config
@@ -21,6 +22,6 @@ steps:
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: format('WEB_{0}_{1}', ${{ parameters.name }}, ${{ parameters.graphics }})
+      artifactName: 'WEB_${{ parameters.name }}_${{ parameters.graphics }}'
       targetPath: '${{ parameters.path }}/${{ parameters.name }}/build-web'
     displayName: Publish ${{ parameters.name }}

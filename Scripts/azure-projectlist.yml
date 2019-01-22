@@ -1,6 +1,7 @@
 parameters:
   platform: ''
   graphics: 'NANOVG'
+  target: 'All'
 
 steps:
   - template: ${{parameters.platform}}
@@ -8,12 +9,13 @@ steps:
       name: IPlugEffect
       path: 'Examples'
       graphics: ${{parameters.graphics}}
+      target: ${{parameters.target}}
 
   - template: ${{parameters.platform}}
     parameters:
       name: IPlugInstrument
       path: 'Examples'
-      graphics: ${{parameters.graphics}}
+      graphics: ${{parameters.graphics}}       
 
   - template: ${{parameters.platform}}
     parameters:
