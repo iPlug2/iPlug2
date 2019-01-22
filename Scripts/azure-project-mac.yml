@@ -1,8 +1,6 @@
 parameters:
   name: ''
   graphics: 'NANOVG'
-  #todo: problems if the project doesn't use nanovg by default
-  graphicsStr: 'IGRAPHICS_NANOVG IGRAPHICS_METAL'
   path: ''
   target: 'All'
   configuration: 'Release'
@@ -10,9 +8,24 @@ parameters:
 steps:
   - bash: |
       cd ./${{ parameters.path }}/${{ parameters.name }}/config
-      sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/${{ parameters.graphicsStr }}/' ${{ parameters.name }}-mac.xcconfig
+      sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/IGRAPHICS_LICE/' ${{ parameters.name }}-mac.xcconfig
       sed -i.bu 's/\/\/$(IGRAPHICS_LNK_FLAGS)/$(IGRAPHICS_LNK_FLAGS)/' ${{ parameters.name }}-mac.xcconfig
-    displayName: Set graphics string
+    displayName: Set graphics string LICE
+    condition: eq({{ parameters.graphics }}, 'LICE')
+
+  - bash: |
+    cd ./${{ parameters.path }}/${{ parameters.name }}/config
+    sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/IGRAPHICS_CAIRO/' ${{ parameters.name }}-mac.xcconfig
+    sed -i.bu 's/\/\/$(IGRAPHICS_LNK_FLAGS)/$(IGRAPHICS_LNK_FLAGS)/' ${{ parameters.name }}-mac.xcconfig
+  displayName: Set graphics string CAIRO
+  condition: eq({{ parameters.graphics }}, 'CAIRO')
+
+  - bash: |
+    cd ./${{ parameters.path }}/${{ parameters.name }}/config
+    sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/IGRAPHICS_AGG/' ${{ parameters.name }}-mac.xcconfig
+    sed -i.bu 's/\/\/$(IGRAPHICS_LNK_FLAGS)/$(IGRAPHICS_LNK_FLAGS)/' ${{ parameters.name }}-mac.xcconfig
+  displayName: Set graphics string AGG
+  condition: eq({{ parameters.graphics }}, 'AGG')
 
   - task: Xcode@5
     inputs:

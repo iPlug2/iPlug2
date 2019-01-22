@@ -1,16 +1,16 @@
 parameters:
   name: ''
   graphics: 'NANOVG'
-  #todo: problems if the project doesn't use nanovg by default
-  graphicsStr: 'IGRAPHICS_NANOVG'
   path: ''
   configuration: 'Release'
 
 steps:
   - bash: |
-      # cd ./${{ parameters.path }}/${{ parameters.name }}/config
-      # sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/${{ parameters.graphicsStr }}/' ${{ parameters.name }}-web.mk
-    displayName: Set graphics string
+      cd ./${{ parameters.path }}/${{ parameters.name }}/config
+      sed -i.bu 's/-DIGRAPHICS_NANOVG -DIGRAPHICS_GLES2/-DIGRAPHICS_CANVAS/' ${{ parameters.name }}-web.mk
+      sed -i.bu 's/WEB_LDFLAGS += $(NANOVG_LDFLAGS)/\/\/WEB_LDFLAGS += $(NANOVG_LDFLAGS)/' ${{ parameters.name }}-web.mk
+    displayName: Set graphics string CANVAS
+    condition: eq({{ parameters.graphics }}, 'CANVAS')
 
   - bash: |
       cd emsdk

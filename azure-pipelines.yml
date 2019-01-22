@@ -285,7 +285,6 @@ jobs:
     parameters:
       name: IPlugEffect
       graphics: $(graphics)
-      graphicsStr: $(graphicsStr)
       path: 'Examples'
       target: $(target)
       configuration: $(configuration)
@@ -294,7 +293,6 @@ jobs:
     parameters:
       name: IPlugInstrument
       graphics: $(graphics)
-      graphicsStr: $(graphicsStr)
       path: 'Examples'
       target: $(target)
       configuration: $(configuration)
@@ -303,7 +301,6 @@ jobs:
     parameters:
       name: IPlugControls
       graphics: $(graphics)
-      graphicsStr: $(graphicsStr)
       path: 'Examples'
       target: $(target)
       configuration: $(configuration)
@@ -312,7 +309,6 @@ jobs:
     parameters:
       name: IPlugFaustDSP
       graphics: $(graphics)
-      graphicsStr: $(graphicsStr)
       path: 'Examples'
       target: $(target)
       configuration: $(configuration)
@@ -321,7 +317,6 @@ jobs:
     parameters:
       name: IGraphicsStressTest
       graphics: $(graphics)
-      graphicsStr: $(graphicsStr)
       path: 'Tests'
       target: $(target)
       configuration: $(configuration)
@@ -330,7 +325,6 @@ jobs:
     parameters:
       name: IGraphicsTest
       graphics: $(graphics)
-      graphicsStr: $(graphicsStr)
       path: 'Tests'
       target: $(target)
       configuration: $(configuration)
@@ -343,7 +337,6 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-        graphicsStr: 'IGRAPHICS_NANOVG'
       # CANVAS:
       #   graphics: 'CANVAS'
       #   graphicsStr: 'IGRAPHICS_CANVAS'
@@ -374,7 +367,6 @@ jobs:
     parameters:
       name: IPlugEffect
       graphics: $(graphics)
-      graphicsStr: $(graphicsStr)
       path: 'Examples'
       target: $(target)
       configuration: $(configuration)
@@ -383,7 +375,6 @@ jobs:
     parameters:
       name: IPlugInstrument
       graphics: $(graphics)
-      graphicsStr: $(graphicsStr)
       path: 'Examples'
       target: $(target)
       configuration: $(configuration)
@@ -392,7 +383,6 @@ jobs:
     parameters:
       name: IPlugControls
       graphics: $(graphics)
-      graphicsStr: $(graphicsStr)
       path: 'Examples'
       target: $(target)
       configuration: $(configuration)
@@ -401,7 +391,6 @@ jobs:
     parameters:
       name: IPlugFaustDSP
       graphics: $(graphics)
-      graphicsStr: $(graphicsStr)
       path: 'Examples'
       target: $(target)
       configuration: $(configuration)
@@ -410,7 +399,6 @@ jobs:
     parameters:
       name: IGraphicsStressTest
       graphics: $(graphics)
-      graphicsStr: $(graphicsStr)
       path: 'Tests'
       target: $(target)
       configuration: $(configuration)
@@ -419,7 +407,6 @@ jobs:
     parameters:
       name: IGraphicsTest
       graphics: $(graphics)
-      graphicsStr: $(graphicsStr)
       path: 'Tests'
       target: $(target)
       configuration: $(configuration)
