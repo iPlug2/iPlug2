@@ -17,8 +17,10 @@ enum EControlTags
 class IGraphicsStressTest : public IPlug
 {
 public:
+#if IPLUG_EDITOR
   IGraphicsStressTest(IPlugInstanceInfo instanceInfo);
   void LayoutUI(IGraphics* pGraphics) override;
+#endif
 public:
   int mNumberOfThings = 16;
   int mKindOfThing = 0;
