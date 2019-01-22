@@ -5,6 +5,8 @@ parameters:
   target: ''
   
 steps:
+  - bash: echo ${{ parameters.graphics }},
+
   - bash: |
       cd ./${{ parameters.path }}/${{ parameters.name }}/config
       sed -i.bu 's/-DIGRAPHICS_NANOVG -DIGRAPHICS_GLES2/-DIGRAPHICS_CANVAS/' ${{ parameters.name }}-web.mk
