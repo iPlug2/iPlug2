@@ -448,6 +448,7 @@ else
   fi
   echo "Unpacking..."
   tar -xf $CAIRO_VERSION.tar.xz
+  ls -la
   mv $CAIRO_VERSION "$SRC_DIR/cairo"
 
   cd "$SRC_DIR/cairo"
