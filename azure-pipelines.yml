@@ -270,15 +270,7 @@ jobs:
   steps:
   - checkout: none
 
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'SRC'
-
-  - task: ExtractFiles@1
-    inputs:
-      archiveFilePatterns: 'SRC.zip'
-      cleanDestinationFolder: false
-      destinationFolder: $(Build.SourcesDirectory)
+  - template: Scripts/azure-src.yml
 
   - template: Scripts/azure-project-mac.yml
     parameters:
@@ -352,15 +344,7 @@ jobs:
       ./emsdk install latest
       ./emsdk activate latest
 
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'SRC'
-
-  - task: ExtractFiles@1
-    inputs:
-      archiveFilePatterns: 'SRC.zip'
-      cleanDestinationFolder: false
-      destinationFolder: $(Build.SourcesDirectory)
+  - template: Scripts/azure-src.yml
 
   - template: Scripts/azure-project-web.yml
     parameters:
