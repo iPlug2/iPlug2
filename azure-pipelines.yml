@@ -272,13 +272,13 @@ jobs:
       archiveFilePatterns: 'SRC.zip'
       destinationFolder: $(Build.SourcesDirectory)
 
-  - template: Scripts/azure-project-mac.yml
-    parameters:
-      name: IPlugEffect
-      graphics: $(graphics)
-      graphicsStr: $(graphicsStr)
-      path: 'Examples'
-      target: 'All'
+  # - template: Scripts/azure-project-mac.yml
+  #   parameters:
+  #     name: IPlugEffect
+  #     graphics: $(graphics)
+  #     graphicsStr: $(graphicsStr)
+  #     path: 'Examples'
+  #     target: 'All'
 
   # - template: Scripts/azure-project-mac.yml
   #   parameters:
@@ -312,10 +312,10 @@ jobs:
   #     path: 'Tests'
   #     target: 'All'
 
-  # - template: Scripts/azure-project-mac.yml
-  #   parameters:
-  #     name: IGraphicsTest
-  #     graphics: $(graphics)
-  #     graphicsStr: $(graphicsStr)
-  #     path: 'Tests'
-  #     target: 'All'
+  - template: Scripts/azure-project-mac.yml
+    parameters:
+      name: IGraphicsTest
+      graphics: $(graphics)
+      graphicsStr: $(graphicsStr)
+      path: 'Tests'
+      target: 'All'
