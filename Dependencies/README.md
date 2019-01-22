@@ -8,7 +8,7 @@ The subfolder "Build" should contain these built libraries with sub-folders for 
 
 ## macOS
 
-Pre-built macOS dependencies can be downloaded here: [iplug2_deps_mac.zip](https://github.com/iPlug2/iPlug2/releases/download/setup/iplug2_deps_mac.zip)
+Pre-built macOS dependencies can be downloaded here: [IPLUG2_DEPS_MAC.zip](https://github.com/iPlug2/iPlug2/releases/download/setup/IPLUG2_DEPS_MAC.zip)
 
 and should be extracted so it looks like this...
 
@@ -26,5 +26,5 @@ FAUST dependencies are built as x64 only with MACOSX_DEPLOYMENT_TARGET=10.11
 
 ## Windows
 
-*Coming soon*
+Pre-built Windows dependencies can be downloaded here: [IPLUG2_DEPS_WIN.zip](https://github.com/iPlug2/iPlug2/releases/download/setup/IPLUG2_DEPS_WIN.zip)
 
