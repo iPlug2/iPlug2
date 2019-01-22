@@ -214,8 +214,9 @@ jobs:
       destinationFolder: $(Build.SourcesDirectory)
 
   - bash: |
-      ls -la
-      cd $BUILD_SOURCESDIRECTORY/Dependencies/IGraphics
+      cd ./Dependencies/IGraphics
+      #tmp force cairo rebuild
+      rm -r ./Build/src/cairo
       ./build-igraphics-libs-mac.sh
 
       cd $BUILD_SOURCESDIRECTORY
@@ -224,10 +225,10 @@ jobs:
       export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
       echo "##vso[task.setvariable variable=PATH]$PATH"
 
-      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/faust
+      cd ./Dependencies/Extras/faust
       ./build-faust-mac.sh
 
-      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/civetweb
+      cd ./Dependencies/Extras/civetweb
       ./build-civetweb-mac.sh
     displayName: Build macOS Dependencies
 
@@ -249,91 +250,92 @@ jobs:
       targetPath: 'Dependencies/Build/'
     displayName: Publish Mac Dependencies Artifacts
 
-- job: BUILD_MAC_EXAMPLES
-  dependsOn: DOWNLOAD_DEPS 
-  strategy:
-    matrix:
-      NANOVG:
-        graphicsBackend: 'NANOVG'
-        graphicsStr: 'IGRAPHICS_NANOVG IGRAPHICS_METAL'
-      CAIRO:
-        graphicsBackend: 'CAIRO'
-        graphicsStr: 'IGRAPHICS_CAIRO'
-      LICE:
-        graphicsBackend: 'LICE'
-        graphicsStr: 'IGRAPHICS_LICE'
-      AGG:
-        graphicsBackend: 'AGG'
-        graphicsStr: 'IGRAPHICS_AGG'
+# - job: BUILD_MAC_EXAMPLES
+#   dependsOn: DOWNLOAD_DEPS 
+#   strategy:
+#     matrix:
+#       NANOVG:
+#         graphicsBackend: 'NANOVG'
+#         graphicsStr: 'IGRAPHICS_NANOVG IGRAPHICS_METAL'
+#       CAIRO:
+#         graphicsBackend: 'CAIRO'
+#         graphicsStr: 'IGRAPHICS_CAIRO'
+#       LICE:
+#         graphicsBackend: 'LICE'
+#         graphicsStr: 'IGRAPHICS_LICE'
+#       AGG:
+#         graphicsBackend: 'AGG'
+#         graphicsStr: 'IGRAPHICS_AGG'
 
-  pool:
-    vmImage: 'macos-10.13'
+#   pool:
+#     vmImage: 'macos-10.13'
 
-  steps:
-  - checkout: none
+#   steps:
+#   - checkout: none
 
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'SRC'
+#   - task: DownloadPipelineArtifact@0
+#     inputs:
+#       artifactName: 'SRC'
 
-  - task: ExtractFiles@1
-    inputs:
-      archiveFilePatterns: 'SRC.zip'
-      cleanDestinationFolder: false 
-      destinationFolder: $(Build.SourcesDirectory)
+#   - task: ExtractFiles@1
+#     inputs:
+#       archiveFilePatterns: 'SRC.zip'
+#       cleanDestinationFolder: false 
+#       destinationFolder: $(Build.SourcesDirectory)
 
-  - bash: |
-      cd ./Examples/IPlugEffect/config
-      sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/$(GRAPHICSSTR)/' IPlugEffect-mac.xcconfig
-      sed -i.bu 's/\/\/EXTRA_LNK_FLAGS/EXTRA_LNK_FLAGS/' IPlugEffect-mac.xcconfig  
-    displayName: Set Graphics String
+#   - bash: |
+#       ls -la ./Dependencies/Build/mac/lib
+#       cd ./Examples/IPlugEffect/config
+#       sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/$(GRAPHICSSTR)/' IPlugEffect-mac.xcconfig
+#       sed -i.bu 's/\/\/EXTRA_LNK_FLAGS/EXTRA_LNK_FLAGS/' IPlugEffect-mac.xcconfig  
+#     displayName: Set Graphics String
 
-  - task: Xcode@5
-    inputs:
-      sdk: 'macosx10.13'
-      xcWorkspacePath: 'Examples/IPlugEffect/projects/IPlugEffect-macOS.xcodeproj'
-      args: '-target All -xcconfig Examples/IPlugEffect/config/IPlugEffect-mac.xcconfig'
-      configuration: 'Release'
-      xcodeVersion: '9'
+#   - task: Xcode@5
+#     inputs:
+#       sdk: 'macosx10.13'
+#       xcWorkspacePath: 'Examples/IPlugEffect/projects/IPlugEffect-macOS.xcodeproj'
+#       args: '-target All -xcconfig Examples/IPlugEffect/config/IPlugEffect-mac.xcconfig'
+#       configuration: 'Release'
+#       xcodeVersion: '9'
 
-  - task: DeleteFiles@1
-    inputs:
-      contents: 'Examples/IPlugEffect/build-mac/*.build'
+#   - task: DeleteFiles@1
+#     inputs:
+#       contents: 'Examples/IPlugEffect/build-mac/*.build'
 
-  - task: DeleteFiles@1
-    inputs:
-      contents: 'Examples/IPlugEffect/build-mac/PCH'
+#   - task: DeleteFiles@1
+#     inputs:
+#       contents: 'Examples/IPlugEffect/build-mac/PCH'
 
-  - task: PublishPipelineArtifact@0
-    inputs:
-      artifactName: 'IPLUG_EFFECT_$(graphicsBackend)'
-      targetPath: 'Examples/IPlugEffect/build-mac'
-    displayName: Publish IPlugEffect
+#   - task: PublishPipelineArtifact@0
+#     inputs:
+#       artifactName: 'IPLUG_EFFECT_$(graphicsBackend)'
+#       targetPath: 'Examples/IPlugEffect/build-mac'
+#     displayName: Publish IPlugEffect
 
-  - bash: |
-      cd ./Examples/IPlugInstrument/config
-      sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/$(GRAPHICSSTR)/' IPlugInstrument-mac.xcconfig
-      sed -i.bu 's/\/\/EXTRA_LNK_FLAGS/EXTRA_LNK_FLAGS/' IPlugInstrument-mac.xcconfig  
-    displayName: Set Graphics String
+  # - bash: |
+  #     cd ./Examples/IPlugInstrument/config
+  #     sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/$(GRAPHICSSTR)/' IPlugInstrument-mac.xcconfig
+  #     sed -i.bu 's/\/\/EXTRA_LNK_FLAGS/EXTRA_LNK_FLAGS/' IPlugInstrument-mac.xcconfig  
+  #   displayName: Set Graphics String
 
-  - task: Xcode@5
-    inputs:
-      sdk: 'macosx10.13'
-      xcWorkspacePath: 'Examples/IPlugInstrument/projects/IPlugInstrument-macOS.xcodeproj'
-      args: '-target All -xcconfig Examples/IPlugInstrument/config/IPlugInstrument-mac.xcconfig IGRAPHICS_MODE=$(graphicsStr)'
-      configuration: 'Release'
-      xcodeVersion: '9'
+  # - task: Xcode@5
+  #   inputs:
+  #     sdk: 'macosx10.13'
+  #     xcWorkspacePath: 'Examples/IPlugInstrument/projects/IPlugInstrument-macOS.xcodeproj'
+  #     args: '-target All -xcconfig Examples/IPlugInstrument/config/IPlugInstrument-mac.xcconfig IGRAPHICS_MODE=$(graphicsStr)'
+  #     configuration: 'Release'
+  #     xcodeVersion: '9'
 
-  - task: DeleteFiles@1
-    inputs:
-      contents: 'Examples/IPlugInstrument/build-mac/*.build'
+  # - task: DeleteFiles@1
+  #   inputs:
+  #     contents: 'Examples/IPlugInstrument/build-mac/*.build'
 
-  - task: DeleteFiles@1
-    inputs:
-      contents: 'Examples/IPlugInstrument/build-mac/PCH'
+  # - task: DeleteFiles@1
+  #   inputs:
+  #     contents: 'Examples/IPlugInstrument/build-mac/PCH'
 
-  - task: PublishPipelineArtifact@0
-    inputs:
-      artifactName: 'IPLUG_INSTRUMENT_$(graphicsBackend)'
-      targetPath: 'Examples/IPlugInstrument/build-mac'
-    displayName: Publish IPlugInstrument
+  # - task: PublishPipelineArtifact@0
+  #   inputs:
+  #     artifactName: 'IPLUG_INSTRUMENT_$(graphicsBackend)'
+  #     targetPath: 'Examples/IPlugInstrument/build-mac'
+  #   displayName: Publish IPlugInstrument
