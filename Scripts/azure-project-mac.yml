@@ -1,0 +1,44 @@
+parameters:
+  name: ''
+  graphics: 'NANOVG'
+  #todo: problems if the project doesn't use nanovg by default
+  graphicsStr: 'IGRAPHICS_NANOVG IGRAPHICS_METAL'
+  path: ''
+  target: 'All'
+steps:
+  - checkout: none
+
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'SRC'
+
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: 'SRC.zip'
+      cleanDestinationFolder: false
+      destinationFolder: $(Build.SourcesDirectory)
+
+  - bash: |
+      cd ./${{ parameters.path }}/${{ parameters.name }}/config
+      sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/${{ parameters.graphicsStr }}/' ${{ parameters.name }}-mac.xcconfig
+      sed -i.bu 's/\/\/EXTRA_LNK_FLAGS/EXTRA_LNK_FLAGS/' ${{ parameters.name }}-mac.xcconfig
+    displayName: Set graphics string
+
+  - task: Xcode@5
+    inputs:
+      sdk: 'macosx10.13'
+      xcWorkspacePath: '${{ parameters.path }}/${{ parameters.name }}/projects/${{ parameters.name }}-macOS.xcodeproj'
+      args: '-target ${{ parameters.target }} -xcconfig ${{ parameters.path }}/${{ parameters.name }}/config/${{ parameters.name }}-mac.xcconfig'
+      configuration: 'Release'
+      xcodeVersion: '9'
+
+  - bash: |
+      rm -r ${{ parameters.path }}/${{ parameters.name }}/build-mac/*.build
+      rm -r ${{ parameters.path }}/${{ parameters.name }}/build-mac/PCH
+    displayName: Delete unwanted files
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: '${{ parameters.name }}_${{ parameters.graphics }}'
+      targetPath: '${{ parameters.path }}/${{ parameters.name }}/build-mac'
+    displayName: Publish ${{ parameters.name }}

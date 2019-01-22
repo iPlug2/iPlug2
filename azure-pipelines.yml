@@ -247,84 +247,66 @@ jobs:
   strategy:
     matrix:
       NANOVG:
-        graphicsBackend: 'NANOVG'
+        graphics: 'NANOVG'
         graphicsStr: 'IGRAPHICS_NANOVG IGRAPHICS_METAL'
       CAIRO:
-        graphicsBackend: 'CAIRO'
+        graphics: 'CAIRO'
         graphicsStr: 'IGRAPHICS_CAIRO'
       LICE:
-        graphicsBackend: 'LICE'
+        graphics: 'LICE'
         graphicsStr: 'IGRAPHICS_LICE'
       AGG:
-        graphicsBackend: 'AGG'
+        graphics: 'AGG'
         graphicsStr: 'IGRAPHICS_AGG'
 
   pool:
     vmImage: 'macos-10.13'
 
   steps:
-  - checkout: none
+  - template: Scripts/azure-project-mac.yml
+    parameters:
+      name: IPlugEffect
+      graphics: $(graphics)
+      graphicsStr: $(graphicsStr)
+      path: 'Examples'
+      target: 'All'
 
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'SRC'
+  # steps:
+  # - checkout: none
 
-  - task: ExtractFiles@1
-    inputs:
-      archiveFilePatterns: 'SRC.zip'
-      cleanDestinationFolder: false 
-      destinationFolder: $(Build.SourcesDirectory)
+  # - task: DownloadPipelineArtifact@0
+  #   inputs:
+  #     artifactName: 'SRC'
 
-  - bash: |
-      ls -la ./Dependencies/Build/mac/lib
-      cd ./Examples/IPlugEffect/config
-      sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/$(GRAPHICSSTR)/' IPlugEffect-mac.xcconfig
-      sed -i.bu 's/\/\/EXTRA_LNK_FLAGS/EXTRA_LNK_FLAGS/' IPlugEffect-mac.xcconfig  
-    displayName: Set Graphics String
-
-  - task: Xcode@5
-    inputs:
-      sdk: 'macosx10.13'
-      xcWorkspacePath: 'Examples/IPlugEffect/projects/IPlugEffect-macOS.xcodeproj'
-      args: '-target All -xcconfig Examples/IPlugEffect/config/IPlugEffect-mac.xcconfig'
-      configuration: 'Release'
-      xcodeVersion: '9'
-
-  - bash: |
-      rm -r Examples/IPlugEffect/build-mac/*.build
-      rm -r Examples/IPlugEffect/build-mac/PCH
-    displayName: Delete unwanted files
-
-  - task: PublishPipelineArtifact@0
-    inputs:
-      artifactName: 'IPLUG_EFFECT_$(graphicsBackend)'
-      targetPath: 'Examples/IPlugEffect/build-mac'
-    displayName: Publish IPlugEffect
+  # - task: ExtractFiles@1
+  #   inputs:
+  #     archiveFilePatterns: 'SRC.zip'
+  #     cleanDestinationFolder: false 
+  #     destinationFolder: $(Build.SourcesDirectory)
 
   # - bash: |
-  #     cd ./Examples/IPlugInstrument/config
-  #     sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/$(GRAPHICSSTR)/' IPlugInstrument-mac.xcconfig
-  #     sed -i.bu 's/\/\/EXTRA_LNK_FLAGS/EXTRA_LNK_FLAGS/' IPlugInstrument-mac.xcconfig  
+  #     ls -la ./Dependencies/Build/mac/lib
+  #     cd ./Examples/IPlugEffect/config
+  #     sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/$(GRAPHICSSTR)/' IPlugEffect-mac.xcconfig
+  #     sed -i.bu 's/\/\/EXTRA_LNK_FLAGS/EXTRA_LNK_FLAGS/' IPlugEffect-mac.xcconfig  
   #   displayName: Set Graphics String
 
   # - task: Xcode@5
   #   inputs:
   #     sdk: 'macosx10.13'
-  #     xcWorkspacePath: 'Examples/IPlugInstrument/projects/IPlugInstrument-macOS.xcodeproj'
-  #     args: '-target All -xcconfig Examples/IPlugInstrument/config/IPlugInstrument-mac.xcconfig IGRAPHICS_MODE=$(graphicsStr)'
+  #     xcWorkspacePath: 'Examples/IPlugEffect/projects/IPlugEffect-macOS.xcodeproj'
+  #     args: '-target All -xcconfig Examples/IPlugEffect/config/IPlugEffect-mac.xcconfig'
   #     configuration: 'Release'
   #     xcodeVersion: '9'
 
-  # - task: DeleteFiles@1
-  #   inputs:
-  #     contents: 'Examples/IPlugInstrument/build-mac/*.build'
-
-  # - task: DeleteFiles@1
-  #   inputs:
-  #     contents: 'Examples/IPlugInstrument/build-mac/PCH'
+  # - bash: |
+  #     rm -r Examples/IPlugEffect/build-mac/*.build
+  #     rm -r Examples/IPlugEffect/build-mac/PCH
+  #   displayName: Delete unwanted files
 
   # - task: PublishPipelineArtifact@0
   #   inputs:
-  #     artifactName: 'IPLUG_INSTRUMENT_$(graphicsBackend)'
-  #     targetPath: 'Examples/IPlugInstrument/build-mac'
-  #   displayName: Publish IPlugInstrument
+  #     artifactName: 'IPLUG_EFFECT_$(graphics)'
+  #     targetPath: 'Examples/IPlugEffect/build-mac'
+  #   displayName: Publish IPlugEffect
+
