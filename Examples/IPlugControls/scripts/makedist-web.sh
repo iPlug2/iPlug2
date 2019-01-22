@@ -4,11 +4,16 @@ cd "$(dirname "$0")"
 
 cd ..
 
+websocket=0
 if [ "$1" == "websocket" ]
 then
+  emrunmode=2
   websocket=1
+elif [ "$1" == "off" ]
+then
+  emrunmode=0
 else
-  websocket=0
+  emrunmode=1
 fi
 
 if [ -d build-web/.git ]
@@ -122,10 +127,13 @@ echo payload:
 find . -maxdepth 2 -mindepth 1 -exec du -hs {} \;
 du -hc
 
-if [ "$websocket" -eq "1" ]
+if [ "$emrunmode" -eq "2" ]
 then
   emrun --browser chrome --no_server --port=8001 index.html
-else
+elif [ "$emrunmode" -eq "1" ]
+then
   emrun --browser chrome --no_emrun_detect index.html
 # emrun --browser firefox index.html
+else
+  echo "Not running emrun"
 fi

@@ -17,7 +17,7 @@ steps:
       source ./emsdk_env.sh
       cd ..
       cd ./${{ parameters.path }}/${{ parameters.name }}/scripts
-      ./makedist-web.sh
+      ./makedist-web.sh off
     displayName: Compile WAM
 
   - task: PublishPipelineArtifact@0
