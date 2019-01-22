@@ -13,10 +13,8 @@ steps:
     displayName: Set graphics string
 
   - bash: |
-      cd ./${{ parameters.path }}/${{ parameters.name }}/
-      mkdir build-mac
-      cd build-mac
-      echo > "hello wam.txt"
+      cd ./${{ parameters.path }}/${{ parameters.name }}/scripts
+      ./makedist-web.sh
     displayName: Compile WAM
 
   - task: PublishPipelineArtifact@0
