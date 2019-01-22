@@ -8,16 +8,6 @@ parameters:
 steps:
   - checkout: none
 
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'SRC'
-
-  - task: ExtractFiles@1
-    inputs:
-      archiveFilePatterns: 'SRC.zip'
-      cleanDestinationFolder: false
-      destinationFolder: $(Build.SourcesDirectory)
-
   - bash: |
       cd ./${{ parameters.path }}/${{ parameters.name }}/config
       sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/${{ parameters.graphicsStr }}/' ${{ parameters.name }}-mac.xcconfig
