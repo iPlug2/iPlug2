@@ -1,5 +1,5 @@
 variables:
-  buildLibs: false 
+  buildLibs: true 
 
 trigger:
 - none
@@ -54,6 +54,7 @@ jobs:
   - bash: |
       mv $AGENT_TEMPDIRECTORY/AAX_SDK/* ./Dependencies/IPlug/AAX_SDK
       mv $AGENT_TEMPDIRECTORY/VST2_SDK/* ./Dependencies/IPlug/VST2_SDK
+      mkdir ./Dependencies/IGraphics/AGG
       mv $AGENT_TEMPDIRECTORY/AGG/* ./Dependencies/IGraphics/AGG
       rm $AGENT_TEMPDIRECTORY/*.zip
     displayName: Move Secure File Dependencies
