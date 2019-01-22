@@ -330,3 +330,91 @@ jobs:
       path: 'Tests'
       target: $(target)
       configuration: $(configuration)
+
+- job: BUILD_WEB_PROJECTS
+  condition: eq(variables.buildLibs, false)
+  dependsOn: DOWNLOAD_DEPS 
+  strategy:
+    matrix:
+      NANOVG:
+        graphics: 'NANOVG'
+        graphicsStr: 'IGRAPHICS_NANOVG'
+      CANVAS:
+        graphics: 'CANVAS'
+        graphicsStr: 'IGRAPHICS_CANVAS'
+
+  pool:
+    vmImage: 'ubuntu-16.04'
+
+  steps:
+  - checkout: none
+
+  - bash: |
+      git clone https://github.com/emscripten-core/emsdk.git
+      cd emsdk
+      ./emsdk install latest
+      ./emsdk activate latest
+
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'SRC'
+
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: 'SRC.zip'
+      cleanDestinationFolder: false
+      destinationFolder: $(Build.SourcesDirectory)
+
+  - template: Scripts/azure-project-web.yml
+    parameters:
+      name: IPlugEffect
+      graphics: $(graphics)
+      graphicsStr: $(graphicsStr)
+      path: 'Examples'
+      target: $(target)
+      configuration: $(configuration)
+
+  - template: Scripts/azure-project-web.yml
+    parameters:
+      name: IPlugInstrument
+      graphics: $(graphics)
+      graphicsStr: $(graphicsStr)
+      path: 'Examples'
+      target: $(target)
+      configuration: $(configuration)
+
+  - template: Scripts/azure-project-web.yml
+    parameters:
+      name: IPlugControls
+      graphics: $(graphics)
+      graphicsStr: $(graphicsStr)
+      path: 'Examples'
+      target: $(target)
+      configuration: $(configuration)
+
+  - template: Scripts/azure-project-web.yml
+    parameters:
+      name: IPlugFaustDSP
+      graphics: $(graphics)
+      graphicsStr: $(graphicsStr)
+      path: 'Examples'
+      target: $(target)
+      configuration: $(configuration)
+
+  - template: Scripts/azure-project-web.yml
+    parameters:
+      name: IGraphicsStressTest
+      graphics: $(graphics)
+      graphicsStr: $(graphicsStr)
+      path: 'Tests'
+      target: $(target)
+      configuration: $(configuration)
+
+  - template: Scripts/azure-project-web.yml
+    parameters:
+      name: IGraphicsTest
+      graphics: $(graphics)
+      graphicsStr: $(graphicsStr)
+      path: 'Tests'
+      target: $(target)
+      configuration: $(configuration)
