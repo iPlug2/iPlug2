@@ -273,15 +273,14 @@ jobs:
       cleanDestinationFolder: false
       destinationFolder: $(Build.SourcesDirectory)
 
-  - template: Scripts/azure-project-mac.yml
-    parameters:
-      name: IPlugEffect
-      graphics: $(graphics)
-      graphicsStr: $(graphicsStr)
-      path: 'Examples'
-      target: 'All'
+  # - template: Scripts/azure-project-mac.yml
+  #   parameters:
+  #     name: IPlugEffect
+  #     graphics: $(graphics)
+  #     graphicsStr: $(graphicsStr)
+  #     path: 'Examples'
+  #     target: 'All'
 
-  - script: echo "test"
   # - template: Scripts/azure-project-mac.yml
   #   parameters:
   #     name: IPlugInstrument
@@ -321,3 +320,4 @@ jobs:
       graphicsStr: $(graphicsStr)
       path: 'Tests'
       target: 'All'
+      configuration: 'Debug'
