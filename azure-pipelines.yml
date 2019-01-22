@@ -83,7 +83,8 @@ jobs:
 
   - bash: |
       rm -r .git
-      rm -r Dependencies/Build/**/*.png
+      cd ./Dependencies/Build/
+      find . -type f -iname \*.png -delete
     displayName: Delete unwanted files
 
   - task: ArchiveFiles@2
@@ -228,17 +229,11 @@ jobs:
       ./build-civetweb-mac.sh
     displayName: Build macOS Dependencies
 
-  - task: DeleteFiles@1
-    inputs:
-      contents: 'Dependencies/Build/*.log'
-      
-  - task: DeleteFiles@1
-    inputs:
-      contents: 'Dependencies/Build/tmp'
-  
-  - task: DeleteFiles@1
-    inputs:
-      contents: 'Dependencies/Build/src'
+  - bash: |
+      rm ./Dependencies/Build/*.log
+      rm -r ./Dependencies/Build/tmp
+      rm -r ./Dependencies/Build/src
+    displayName: Delete unwanted files
 
   - task: PublishPipelineArtifact@0
     inputs:
@@ -295,13 +290,10 @@ jobs:
       configuration: 'Release'
       xcodeVersion: '9'
 
-  - task: DeleteFiles@1
-    inputs:
-      contents: 'Examples/IPlugEffect/build-mac/*.build'
-
-  - task: DeleteFiles@1
-    inputs:
-      contents: 'Examples/IPlugEffect/build-mac/PCH'
+  - bash: |
+      rm -r Examples/IPlugEffect/build-mac/*.build
+      rm -r Examples/IPlugEffect/build-mac/PCH
+    displayName: Delete unwanted files
 
   - task: PublishPipelineArtifact@0
     inputs:
