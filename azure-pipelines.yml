@@ -288,34 +288,34 @@ jobs:
       path: 'Examples'
       target: 'All'
 
-  - template: Scripts/azure-project-mac.yml
-    parameters:
-      name: IPlugControls
-      graphics: $(graphics)
-      graphicsStr: $(graphicsStr)
-      path: 'Examples'
-      target: 'All'
+  # - template: Scripts/azure-project-mac.yml
+  #   parameters:
+  #     name: IPlugControls
+  #     graphics: $(graphics)
+  #     graphicsStr: $(graphicsStr)
+  #     path: 'Examples'
+  #     target: 'All'
 
-  - template: Scripts/azure-project-mac.yml
-    parameters:
-      name: IPlugFaustDSP
-      graphics: $(graphics)
-      graphicsStr: $(graphicsStr)
-      path: 'Examples'
-      target: 'All'
+  # - template: Scripts/azure-project-mac.yml
+  #   parameters:
+  #     name: IPlugFaustDSP
+  #     graphics: $(graphics)
+  #     graphicsStr: $(graphicsStr)
+  #     path: 'Examples'
+  #     target: 'All'
   
-  - template: Scripts/azure-project-mac.yml
-    parameters:
-      name: IGraphicsStressTest
-      graphics: $(graphics)
-      graphicsStr: $(graphicsStr)
-      path: 'Tests'
-      target: 'All'
+  # - template: Scripts/azure-project-mac.yml
+  #   parameters:
+  #     name: IGraphicsStressTest
+  #     graphics: $(graphics)
+  #     graphicsStr: $(graphicsStr)
+  #     path: 'Tests'
+  #     target: 'All'
 
-  - template: Scripts/azure-project-mac.yml
-    parameters:
-      name: IGraphicsTest
-      graphics: $(graphics)
-      graphicsStr: $(graphicsStr)
-      path: 'Tests'
-      target: 'All'
+  # - template: Scripts/azure-project-mac.yml
+  #   parameters:
+  #     name: IGraphicsTest
+  #     graphics: $(graphics)
+  #     graphicsStr: $(graphicsStr)
+  #     path: 'Tests'
+  #     target: 'All'
