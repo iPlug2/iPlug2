@@ -30,7 +30,7 @@ steps:
     inputs:
       sdk: 'macosx10.13'
       xcWorkspacePath: '${{ parameters.path }}/${{ parameters.name }}/projects/${{ parameters.name }}-macOS.xcodeproj'
-      args: '-target parameters.target -xcconfig ${{ parameters.path }}/${{ parameters.name }}/config/${{ parameters.name }}-mac.xcconfig'
+      args: '-target ${{ parameters.target }} -xcconfig ${{ parameters.path }}/${{ parameters.name }}/config/${{ parameters.name }}-mac.xcconfig'
       configuration: '${{ parameters.configuration }}'
       xcodeVersion: '9'
     displayName: Build Xcode project
