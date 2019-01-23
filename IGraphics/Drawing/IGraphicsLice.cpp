@@ -929,6 +929,8 @@ void IGraphicsLice::EndFrame()
   #define LineTo SWELL_LineTo
   #define SetPixel SWELL_SetPixel
   #define Polygon(a,b,c) SWELL_Polygon(a,b,c)
+#elif defined OS_WIN
+  #define DrawText DrawTextA
 #endif
 
 #include "IGraphicsLice_src.cpp"
