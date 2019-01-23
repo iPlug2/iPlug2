@@ -119,6 +119,9 @@
     <ClCompile Include="..\..\..\Dependencies\IPlug\VST3_SDK\public.sdk\source\main\pluginfactoryvst3.cpp">
       <Filter>IPlug\VST3\VST3_SDK\public.sdk\main</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugPaths.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../config.h" />
@@ -344,6 +347,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\Dependencies\IPlug\VST3_SDK\pluginterfaces\base\funknown.h">
       <Filter>IPlug\VST3\VST3_SDK\plugininterfaces\base</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPaths.h">
+      <Filter>IPlug</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
