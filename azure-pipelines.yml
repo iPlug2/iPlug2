@@ -1,5 +1,6 @@
 variables:
   buildDEPS: false
+  downloadDEPS: false
   buildWeb: true
   buildMac: true
   buildWin: true
@@ -14,6 +15,8 @@ jobs:
 
 # this job checks out the repository and optionally downloads pre-built dependencies, depending on buildDEPS
 - job: DOWNLOAD_DEPS
+  condition: eq(variables.downloadDEPS, true)
+
   steps:
   - checkout: self
 
@@ -252,7 +255,7 @@ jobs:
   steps:
   - checkout: none
 
-  - template: Scripts/azure-src.yml
+  # - template: Scripts/azure-src.yml
 
   - template: Scripts/azure-projectlist.yml
     parameters:
@@ -276,14 +279,14 @@ jobs:
   steps:
   - checkout: none
 
-  - bash: |
-      git clone https://github.com/emscripten-core/emsdk.git
-      cd emsdk
-      ./emsdk install latest
-      ./emsdk activate latest
-    displayName: Install emscripten
+  # - bash: |
+  #     git clone https://github.com/emscripten-core/emsdk.git
+  #     cd emsdk
+  #     ./emsdk install latest
+  #     ./emsdk activate latest
+  #   displayName: Install emscripten
 
-  - template: Scripts/azure-src.yml
+  # - template: Scripts/azure-src.yml
 
   - template: Scripts/azure-projectlist.yml
     parameters:
