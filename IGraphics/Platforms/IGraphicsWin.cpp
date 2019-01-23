@@ -1085,7 +1085,6 @@ IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
 {
   long offsetIdx = 0;
   HMENU hMenu = CreateMenu(menu, &offsetIdx);
-  IPopupMenu* result = nullptr;
 
   if(hMenu)
   {
