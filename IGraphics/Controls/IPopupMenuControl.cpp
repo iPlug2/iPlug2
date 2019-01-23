@@ -281,7 +281,7 @@ void IPopupMenuControl::DrawPanelBackground(IGraphics& g, MenuPanel* panel)
 
 void IPopupMenuControl::DrawPanelShadow(IGraphics& g, MenuPanel* panel)
 {
-  const double yDrop = 2.0;
+  const float yDrop = 2.0;
   IRECT inner = panel->mRECT.GetPadded(-mDropShadowSize);
     
 #ifdef IGRAPHICS_NANOVG
@@ -295,7 +295,7 @@ void IPopupMenuControl::DrawPanelShadow(IGraphics& g, MenuPanel* panel)
   };
       
   NVGcontext* vg = (NVGcontext*) g.GetDrawContext();
-  NVGpaint shadowPaint = nvgBoxGradient(vg, inner.L, inner.T + yDrop, inner.W(), inner.H(), mRoundness * 2., 20, NanoVGColor(COLOR_BLACK_DROP_SHADOW, &panel->mBlend), NanoVGColor(COLOR_TRANSPARENT));
+  NVGpaint shadowPaint = nvgBoxGradient(vg, inner.L, inner.T + yDrop, inner.W(), inner.H(), mRoundness * 2.f, 20.f, NanoVGColor(COLOR_BLACK_DROP_SHADOW, &panel->mBlend), NanoVGColor(COLOR_TRANSPARENT));
   nvgBeginPath(vg);
   nvgRect(vg, panel->mRECT.L, panel->mRECT.T, panel->mRECT.W(), panel->mRECT.H());
   nvgFillPaint(vg, shadowPaint);
