@@ -260,9 +260,6 @@
     <Filter Include="IPlug\AAX">
       <UniqueIdentifier>{1fc481f5-85f5-43e6-924f-2be0689a4710}</UniqueIdentifier>
     </Filter>
-    <Filter Include="IPlug\AAX\Libs">
-      <UniqueIdentifier>{7d636beb-b5d6-4b75-b2a5-27b00d8f37d2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="config">
       <UniqueIdentifier>{464e659e-834a-453a-9150-dbaf783f8307}</UniqueIdentifier>
     </Filter>
@@ -284,14 +281,6 @@
     <Filter Include="IPlug\Extras\Synth">
       <UniqueIdentifier>{d16c1839-657e-4631-b0a1-187ffc2c316b}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="..\..\..\Dependencies\IPlug\AAX_SDK\Libs\Release\AAXLibrary_x64.lib">
-      <Filter>IPlug\AAX\Libs</Filter>
-    </Library>
-    <Library Include="..\..\..\Dependencies\IPlug\AAX_SDK\Libs\Debug\AAXLibrary_x64_D.lib">
-      <Filter>IPlug\AAX\Libs</Filter>
-    </Library>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resources\main.rc">

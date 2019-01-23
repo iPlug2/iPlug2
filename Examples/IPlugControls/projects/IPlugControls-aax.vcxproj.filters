@@ -242,9 +242,6 @@
     <Filter Include="IPlug\AAX">
       <UniqueIdentifier>{1fc481f5-85f5-43e6-924f-2be0689a4710}</UniqueIdentifier>
     </Filter>
-    <Filter Include="IPlug\AAX\Libs">
-      <UniqueIdentifier>{7d636beb-b5d6-4b75-b2a5-27b00d8f37d2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="config">
       <UniqueIdentifier>{6ef0ec5f-a87e-4c85-9564-09d47893f5f0}</UniqueIdentifier>
     </Filter>
@@ -260,14 +257,6 @@
     <Filter Include="IGraphics\Controls">
       <UniqueIdentifier>{22ffe574-78a5-4304-b214-371c2b35171d}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="..\..\..\Dependencies\IPlug\AAX_SDK\Libs\Release\AAXLibrary_x64.lib">
-      <Filter>IPlug\AAX\Libs</Filter>
-    </Library>
-    <Library Include="..\..\..\Dependencies\IPlug\AAX_SDK\Libs\Debug\AAXLibrary_x64_D.lib">
-      <Filter>IPlug\AAX\Libs</Filter>
-    </Library>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resources\main.rc">
