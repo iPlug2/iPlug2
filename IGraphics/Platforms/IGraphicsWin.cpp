@@ -17,6 +17,7 @@
 #include "IGraphicsWin.h"
 #include "IControl.h"
 #include "IPopupMenuControl.h"
+#include "IPlugPaths.h"
 
 #include <wininet.h>
 
@@ -32,44 +33,6 @@ static double sFPS = 0.0;
 #define IPLUG_TIMER_ID 2
 #define IPLUG_WIN_MAX_WIDE_PATH 4096
 
-// Unicode helpers
-
-
-void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
-{
-  int requiredSize = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
-
-  if (requiredSize > 0 && requiredSize <= maxLen)
-  {
-    MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, utf16Str, requiredSize);
-    return;
-  }
-
-  utf16Str[0] = 0;
-}
-
-void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* utf16Str)
-{
-  int requiredSize = WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, NULL, 0, NULL, NULL);
-
-  if (requiredSize > 0 && utf8Str.SetLen(requiredSize))
-  {
-    WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, utf8Str.Get(), requiredSize, NULL, NULL);
-    return;
-  }
-
-  utf8Str.Set("");
-}
-
-// Helper for getting a known folder in UTF8
-
-void GetKnownFolder(WDL_String &path, int identifier, int flags = 0)
-{
-  wchar_t wideBuffer[1024];
-
-  SHGetFolderPathW(NULL, identifier, NULL, flags, wideBuffer);
-  UTF16ToUTF8(path, wideBuffer);
-}
 
 inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 {
@@ -1248,7 +1211,6 @@ bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
   return success;
 }
 
-//TODO: this method needs rewriting
 void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* extensions)
 {
   if (!WindowIsOpen())
