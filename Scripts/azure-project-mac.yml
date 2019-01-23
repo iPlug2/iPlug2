@@ -42,7 +42,7 @@ steps:
   #   displayName: Delete unwanted files
 
   - bash: |
-      mkdir ${{ parameters.path }}/${{ parameters.name }}/build-mac/
+      mkdir -p ${{ parameters.path }}/${{ parameters.name }}/build-mac/
       echo "hello world" > ${{ parameters.path }}/${{ parameters.name }}/build-mac/test.txt
 
     displayName: TEST PAYLOAD

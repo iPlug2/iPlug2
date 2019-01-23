@@ -22,7 +22,7 @@ steps:
   #   displayName: Compile ${{ parameters.name }} WAM
 
   - bash: |
-      mkdir ${{ parameters.path }}/${{ parameters.name }}/build-web/
+      mkdir -p ${{ parameters.path }}/${{ parameters.name }}/build-web/
       echo "hello world" > ${{ parameters.path }}/${{ parameters.name }}/build-web/test.txt
 
     displayName: TEST PAYLOAD
