@@ -5,8 +5,6 @@ parameters:
   target: 'All'
 
 steps:
-  - bash: echo ${{ parameters.graphics }},
-
   - bash: |
       cd ./${{ parameters.path }}/${{ parameters.name }}/config
       sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/IGRAPHICS_LICE/' ${{ parameters.name }}-mac.xcconfig
