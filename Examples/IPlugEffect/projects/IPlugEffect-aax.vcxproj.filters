@@ -8,7 +8,7 @@
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IPlugAAX.cpp">
+    <ClCompile Include="..\..\..\IPlug\AAX\IPlugAAX.cpp">
       <Filter>IPlug\AAX</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\AAX\IPlugAAX_Describe.cpp">
@@ -17,7 +17,7 @@
     <ClCompile Include="..\..\..\IPlug\AAX\IPlugAAX_Parameters.cpp">
       <Filter>IPlug\AAX</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\AAX_SDK\Interfaces\AAX_Exports.cpp">
+    <ClCompile Include="..\..\..\Dependencies\IPlug\AAX_SDK\Interfaces\AAX_Exports.cpp">
       <Filter>IPlug\AAX</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp">
@@ -101,7 +101,7 @@
     <ClInclude Include="..\..\..\IPlug\NChanDelay.h">
       <Filter>IPlug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugAAX.h">
+    <ClInclude Include="..\..\..\IPlug\AAX\IPlugAAX.h">
       <Filter>IPlug\AAX</Filter>
     </ClInclude>
     <ClInclude Include="..\config.h" />
@@ -244,10 +244,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\..\..\AAX_SDK\Libs\Release\AAXLibrary_x64.lib">
+    <Library Include="..\..\..\Dependencies\IPlug\AAX_SDK\Libs\Release\AAXLibrary_x64.lib">
       <Filter>IPlug\AAX\Libs</Filter>
     </Library>
-    <Library Include="..\..\..\AAX_SDK\Libs\Debug\AAXLibrary_x64_D.lib">
+    <Library Include="..\..\..\Dependencies\IPlug\AAX_SDK\Libs\Debug\AAXLibrary_x64_D.lib">
       <Filter>IPlug\AAX\Libs</Filter>
     </Library>
   </ItemGroup>
