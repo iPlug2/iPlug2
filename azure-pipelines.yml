@@ -1,48 +1,294 @@
+variables:
+  buildDEPS: false
+  downloadDEPS: false
+  buildWeb: true
+  buildMac: true
+  buildWin: true
+  # buildInstallers: false #if true, the mac/win projects will build installers, rather than packaging individual binaries
+  configuration: 'Release'
+  target: 'All'
+
 trigger:
-- master
+- none
 
-pool:
-  vmImage: 'macOS-10.13'
+jobs:
 
-steps:
-- task: Xcode@5
-  inputs:
-    actions: 'build'
-    scheme: 'APP'
-    sdk: 'macosx10.13'
-    configuration: 'Release'
-    xcWorkspacePath: 'Tests/IGraphicsTest/IGraphicsTest.xcworkspace'
-    xcodeVersion: "9"
-- task: Xcode@5
-  inputs:
-    actions: 'build'
-    scheme: 'APP'
-    sdk: 'macosx10.13'
-    configuration: 'Release'
-    xcWorkspacePath: 'Tests/IGraphicsStressTest/IGraphicsStressTest.xcworkspace'
-    xcodeVersion: "9"
-- task: Xcode@5
-  inputs:
-    actions: 'build'
-    scheme: 'APP'
-    sdk: 'macosx10.13'
-    configuration: 'Release'
-    xcWorkspacePath: 'Examples/IPlugControls/IPlugControls.xcworkspace'
-    xcodeVersion: "9"
-- task: Xcode@5
-  inputs:
-    actions: 'build'
-    scheme: 'APP'
-    sdk: 'macosx10.13'
-    configuration: 'Release'
-    xcWorkspacePath: 'Examples/IPlugEffect/IPlugEffect.xcworkspace'
-    xcodeVersion: "9"
-- task: Xcode@5
-  inputs:
-    actions: 'build'
-    scheme: 'APP'
-    sdk: 'macosx10.13'
-    configuration: 'Release'
-    xcWorkspacePath: 'Examples/IPlugInstrument/IPlugInstrument.xcworkspace'
-    xcodeVersion: "9"
+# this job checks out the repository and optionally downloads pre-built dependencies, depending on buildDEPS
+- job: DOWNLOAD_DEPS
+  condition: eq(variables.downloadDEPS, true)
 
+  steps:
+  - checkout: self
+
+  - bash: |
+      cd ./Dependencies/IGraphics
+      ./download-igraphics-libs.sh
+    displayName: Download IGraphics Dependencies SRC
+    condition: eq(variables.buildDEPS, true)
+
+  - bash: |
+      cd $AGENT_TEMPDIRECTORY
+      wget https://github.com/iPlug2/iPlug2/releases/download/setup/IPLUG2_DEPS_MAC.zip
+      wget https://github.com/iPlug2/iPlug2/releases/download/setup/IPLUG2_DEPS_WIN.zip
+    displayName: Download IGraphics Dependencies BUILT
+    condition: eq(variables.buildDEPS, false)
+
+  - task: DownloadSecureFile@1
+    inputs:
+      secureFile: "VST2_SDK.zip"
+    displayName: Download VST2 SDK
+
+  - task: DownloadSecureFile@1
+    inputs:
+      secureFile: "AAX_SDK.zip"
+    displayName: Download AAX SDK
+
+  - task: DownloadSecureFile@1
+    inputs:
+      secureFile: "AGG.zip"
+    displayName: Download AGG
+
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: '$(Agent.TempDirectory)/*.zip'
+      destinationFolder: '$(Agent.TempDirectory)'
+      cleanDestinationFolder: false
+    condition: eq(variables.buildDEPS, false)
+
+  - bash: |
+      mkdir ./Dependencies/Build
+      mv $AGENT_TEMPDIRECTORY/IPLUG2_DEPS_MAC/* ./Dependencies/Build
+      mv $AGENT_TEMPDIRECTORY/IPLUG2_DEPS_WIN/* ./Dependencies/Build
+    displayName: Move IGraphics Dependencies BUILT
+    condition: eq(variables.buildDEPS, false)
+
+  - bash: |
+      mv $AGENT_TEMPDIRECTORY/AAX_SDK/* ./Dependencies/IPlug/AAX_SDK
+      mv $AGENT_TEMPDIRECTORY/VST2_SDK/* ./Dependencies/IPlug/VST2_SDK
+      mkdir ./Dependencies/IGraphics/AGG
+      mv $AGENT_TEMPDIRECTORY/AGG/* ./Dependencies/IGraphics/AGG
+      rm $AGENT_TEMPDIRECTORY/*.zip
+    displayName: Move Secure File Dependencies
+
+  - bash: |
+      cd ./Dependencies/IPlug
+      rm -r VST3_SDK
+      git clone --recursive https://github.com/steinbergmedia/vst3sdk.git VST3_SDK
+      rm -r VST3_SDK/vstgui
+      rm -r VST3_SDK/doc
+      rm -r VST3_SDK/cmake
+    displayName: Download VST3 SDK
+
+  - bash: |
+      cd ./Dependencies/IPlug
+      rm -r WAM_SDK
+      git clone https://github.com/webaudiomodules/api.git WAM_SDK
+    displayName: Download WAM SDK
+
+  - bash: |
+      cd ./Dependencies/IPlug
+      rm -r WAM_AWP
+      git clone https://github.com/jariseon/audioworklet-polyfill WAM_AWP
+    displayName: Download WAM AWP
+
+  - bash: |
+      rm -r .git
+      cd ./Dependencies/Build/
+      find . -type f -iname \*.png -delete
+    displayName: Delete unwanted files
+
+  - task: ArchiveFiles@2
+    inputs:
+      rootFolderOrFile: $(Build.SourcesDirectory)
+      archiveFile: '$(Build.ArtifactStagingDirectory)/SRC.zip'
+      includeRootFolder: false
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      targetPath: '$(Build.ArtifactStagingDirectory)'
+      artifactName: 'SRC'
+    displayName: Publish Source
+
+- job: BUILD_WIN_DEPS
+  dependsOn: DOWNLOAD_DEPS
+  condition: and(eq(variables.buildDEPS, true), eq(variables.buildWin, true))
+
+  strategy:
+    matrix:
+      x86_RELEASE:
+        buildPlatform: 'Win32'
+        buildConfiguration: 'Release'
+      x64_RELEASE:
+        buildPlatform: 'x64'
+        buildConfiguration: 'Release'
+      x86_DEBUG:
+        buildPlatform: 'Win32'
+        buildConfiguration: 'Debug'
+      x64_DEBUG:
+        buildPlatform: 'x64'
+        buildConfiguration: 'Debug'
+
+  pool:
+    vmImage: 'vs2017-win2016'
+  steps:
+  - checkout: none
+
+  - template: Scripts/azure-src.yml
+
+  - task: VSBuild@1
+    inputs:
+      solution: 'Dependencies/IGraphics/IGraphicsLibraries.sln'
+      platform: '$(buildPlatform)'
+      configuration: '$(buildConfiguration)'
+    displayName: Build Windows Dependencies
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'DEPS_BUILD_WIN_$(buildPlatform)_$(buildConfiguration)'
+      targetPath: 'Dependencies/Build/'
+    displayName: Publish Windows $(buildPlatform) $(buildConfiguration) Dependencies Artifacts
+
+- job: PUBLISH_WIN_DEPS
+  condition: and(eq(variables.buildDEPS, true), eq(variables.buildWin, true))
+  dependsOn: BUILD_WIN_DEPS
+  steps:
+  - checkout: none
+
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'DEPS_BUILD_WIN_Win32_Release'
+      targetPath: 'Dependencies/Build/'
+    displayName: Download Win32_Release Artifact
+
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'DEPS_BUILD_WIN_Win32_Debug'
+      targetPath: 'Dependencies/Build/'
+    displayName: Download Win32_Debug Artifact
+
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'DEPS_BUILD_WIN_x64_Release'
+      targetPath: 'Dependencies/Build/'
+    displayName: Download x64_Release Artifact
+
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'DEPS_BUILD_WIN_x64_Debug'
+      targetPath: 'Dependencies/Build/'
+    displayName: Download x64_Debug Artifact
+
+  - task: DeleteFiles@1
+    inputs:
+      contents: 'Dependencies/Build/*.log'
+
+  - task: DeleteFiles@1
+    inputs:
+      contents: 'Dependencies/Build/tmp'
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'IPLUG2_DEPS_WIN'
+      targetPath: 'Dependencies/Build/'
+    displayName: Publish Windows Dependencies Artifacts
+
+- job: BUILD_MAC_DEPS
+  dependsOn: DOWNLOAD_DEPS
+  condition: and(eq(variables.buildDEPS, true), eq(variables.buildMac, true))
+
+  pool:
+    vmImage: 'macos-10.13'
+  steps:
+  - checkout: none
+
+  - template: Scripts/azure-src.yml
+
+  - bash: |
+      #tmp force cairo rebuild
+      rm -r ./Dependencies/Build/src/cairo
+      cd ./Dependencies/IGraphics
+      ./build-igraphics-libs-mac.sh
+
+      cd $BUILD_SOURCESDIRECTORY
+      wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
+      tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
+      export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
+      echo "##vso[task.setvariable variable=PATH]$PATH"
+
+      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/faust
+      ./build-faust-mac.sh
+
+      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/civetweb
+      ./build-civetweb-mac.sh
+    displayName: Build macOS Dependencies
+
+  - bash: |
+      rm ./Dependencies/Build/*.log
+      rm -r ./Dependencies/Build/tmp
+      rm -r ./Dependencies/Build/src
+    displayName: Delete unwanted files
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'IPLUG2_DEPS_MAC'
+      targetPath: 'Dependencies/Build/'
+    displayName: Publish Mac Dependencies Artifacts
+
+- job: BUILD_MAC_PROJECTS
+  condition: and(eq(variables.buildDEPS, false), eq(variables.buildMac, true))
+
+  dependsOn: DOWNLOAD_DEPS
+  strategy:
+    matrix:
+      NANOVG:
+        graphics: 'NANOVG'
+      CAIRO:
+        graphics: 'CAIRO'
+      LICE:
+        graphics: 'LICE'
+      AGG:
+        graphics: 'AGG'
+
+  pool:
+    vmImage: 'macos-10.13'
+
+  steps:
+  - checkout: none
+
+  # - template: Scripts/azure-src.yml
+
+  - template: Scripts/azure-projectlist.yml
+    parameters:
+      platform: azure-project-mac.yml
+      graphics: variables.graphics
+
+- job: BUILD_WEB_PROJECTS
+  condition: and(eq(variables.buildDEPS, false), eq(variables.buildWeb, true))
+
+  dependsOn: DOWNLOAD_DEPS
+  strategy:
+    matrix:
+      NANOVG:
+        graphics: 'NANOVG'
+      CANVAS:
+        graphics: 'CANVAS'
+
+  pool:
+    vmImage: 'ubuntu-16.04'
+
+  steps:
+  - checkout: none
+
+  # - bash: |
+  #     git clone https://github.com/emscripten-core/emsdk.git
+  #     cd emsdk
+  #     ./emsdk install latest
+  #     ./emsdk activate latest
+  #   displayName: Install emscripten
+
+  # - template: Scripts/azure-src.yml
+
+  - template: Scripts/azure-projectlist.yml
+    parameters:
+      platform: azure-project-web.yml
+      graphics: variables.graphics

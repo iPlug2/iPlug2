@@ -1,17 +1,23 @@
 #include "IPlugFaustDSP.h"
 #include "IPlug_include_in_plug_src.h"
+
+#if IPLUG_EDITOR
 #include "IPlugFaust_edit.h"
+#endif
 
 IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, 1, instanceInfo)
 {
   InitParamRange(0, kNumParams-1, 0, "Param %i", 0., 0., 1., 0.01, "", IParam::kFlagsNone);
   
+#if IPLUG_DSP
   mFaustProcessor.SetMaxChannelCount(MaxNChannels(kInput), MaxNChannels(kOutput));
   mFaustProcessor.Init();
   mFaustProcessor.CompileCPP();
   mFaustProcessor.SetAutoRecompile(true);
+#endif
   
+#if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
     return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, 1.);
   };
@@ -34,7 +40,10 @@ IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
                                                  }, "Edit FAUST File"));
 #endif
   };
+#endif
 }
+
+#if IPLUG_DSP
 
 void IPlugFaustDSP::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
@@ -56,3 +65,4 @@ void IPlugFaustDSP::OnIdle()
 {
   mScopeBallistics.TransmitData(*this);
 }
+#endif
