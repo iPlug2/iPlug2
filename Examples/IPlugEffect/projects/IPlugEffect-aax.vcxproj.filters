@@ -2,12 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="..\IPlugEffect.cpp" />
-    <ClCompile Include="..\..\..\IPlug\IPlugAPIBase.cpp">
-      <Filter>IPlug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp">
-      <Filter>IPlug</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IPlug\AAX\IPlugAAX.cpp">
       <Filter>IPlug\AAX</Filter>
     </ClCompile>
@@ -19,9 +13,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\Dependencies\IPlug\AAX_SDK\Interfaces\AAX_Exports.cpp">
       <Filter>IPlug\AAX</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp">
-      <Filter>IPlug</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IGraphics\IControl.cpp">
       <Filter>IGraphics</Filter>
@@ -62,44 +53,29 @@
     <ClCompile Include="..\..\..\IGraphics\Controls\ITextEntryControl.cpp">
       <Filter>IGraphics\Controls</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugAPIBase.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugPaths.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugPluginBase.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\IPlugEffect.h" />
     <ClInclude Include="..\resources\resource.h">
       <Filter>resources</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugAPIBase.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugConstants.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugLogger.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugMidi.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugParameter.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugStructs.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugUtilities.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_hdr.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_src.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\NChanDelay.h">
-      <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\AAX\IPlugAAX.h">
       <Filter>IPlug\AAX</Filter>
@@ -110,15 +86,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\AAX\IPlugAAX_Parameters.h">
       <Filter>IPlug\AAX</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugProcessor.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugPresets.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugEditorDelegate.h">
-      <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\IControl.h">
       <Filter>IGraphics</Filter>
@@ -212,6 +179,57 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Controls\ITextEntryControl.h">
       <Filter>IGraphics\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_hdr.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_src.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugAPIBase.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugConstants.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugDelegate_select.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugEditorDelegate.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugLogger.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugMidi.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugParameter.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPaths.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPluginBase.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugProcessor.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugQueue.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugStructs.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugTimer.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugUtilities.h">
+      <Filter>IPlug</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
