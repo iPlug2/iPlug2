@@ -10,7 +10,7 @@ steps:
       path: 'Examples'
       graphics: ${{parameters.graphics}}
       target: ${{parameters.target}}
-      artifactName: 'IPlugEffect_${{parameters.graphics}}'
+      artifactName: 'IPlugEffect_${{variables.graphics}}'
 
   - template: ${{parameters.platform}}
     parameters:
@@ -18,7 +18,7 @@ steps:
       path: 'Examples'
       graphics: ${{parameters.graphics}}       
       target: ${{parameters.target}}
-      artifactName: 'IPlugInstrument_${{parameters.graphics}}'
+      artifactName: 'IPlugInstrument_${{variables.graphics}}'
 
   - template: ${{parameters.platform}}
     parameters:
@@ -26,7 +26,7 @@ steps:
       path: 'Examples'
       graphics: ${{parameters.graphics}}
       target: ${{parameters.target}}
-      artifactName: 'IPlugControls_${{parameters.graphics}}'
+      artifactName: 'IPlugControls_${{variables.graphics}}'
 
   - template: ${{parameters.platform}}
     parameters:
@@ -34,7 +34,7 @@ steps:
       path: 'Examples'
       graphics: ${{parameters.graphics}}
       target: ${{parameters.target}}
-      artifactName: 'IPlugFaustDSP_${{parameters.graphics}}'
+      artifactName: 'IPlugFaustDSP_${{variables.graphics}}'
 
   - template: ${{parameters.platform}}
     parameters:
@@ -42,7 +42,7 @@ steps:
       path: 'Tests'
       graphics: ${{parameters.graphics}}
       target: ${{parameters.target}}
-      artifactName: 'IGraphicsStressTest_${{parameters.graphics}}'
+      artifactName: 'IGraphicsStressTest_${{variables.graphics}}'
 
   - template: ${{parameters.platform}}
     parameters:
@@ -50,4 +50,4 @@ steps:
       path: 'Tests'
       graphics: ${{parameters.graphics}}
       target: ${{parameters.target}}
-      artifactName: 'IGraphicsTest_${{parameters.graphics}}'
+      artifactName: 'IGraphicsTest_${{variables.graphics}}'
