@@ -22,17 +22,12 @@ echo AAX_ICON %AAX_ICON%
 echo AAX_BUNDLE %AAX_BUNDLE%
 echo END PREBUILD SCRIPT VARIABLES -----------------------------------------------------
 
-REM - create bundle on whichever arch gets compiled first!
-REM if %PLATFORM% == "x64" (
-  REM if exist "%ProgramFiles(x86)%" (
-    if %FORMAT% == ".vst3" (
-      DEL /Q /F /S %VST_BUNDLE%
-      CALL ..\..\..\Scripts\CreateBundle.bat "%OUT_DIR%" %VST_ICON% %FORMAT%
-    ) else (
-      if %FORMAT% == ".aaxplugin" (
-        DEL /Q /F /S %AAX_BUNDLE%
-        CALL ..\..\..\Scripts\CreateBundle.bat "%OUT_DIR%" %AAX_ICON% %FORMAT%
-      )
-    )
-  REM )
-REM )
+if %FORMAT% == ".vst3" (
+ REM DEL /Q /F /S %VST_BUNDLE%
+  CALL ..\..\..\Scripts\CreateBundle.bat %VST_BUNDLE% %VST_ICON% %FORMAT%
+)
+
+if %FORMAT% == ".aaxplugin" (
+ REM DEL /Q /F /S %AAX_BUNDLE%
+  CALL ..\..\..\Scripts\CreateBundle.bat %AAX_BUNDLE% %AAX_ICON% %FORMAT%
+)
