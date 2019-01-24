@@ -134,7 +134,7 @@ NSString* ToNSString(const char* cStr);
 - (NSDragOperation) draggingEntered: (id <NSDraggingInfo>) sender;
 - (BOOL) performDragOperation: (id<NSDraggingInfo>) sender;
 //
-- (void) setMouseCursor: (ECursor) cursor;
+- (void) setMouseCursor: (ECursor) cursorType;
 @end
 
 #endif //NO_IGRAPHICS

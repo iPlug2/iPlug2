@@ -37,7 +37,7 @@ public:
 
   void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override;
-  ECursor SetMouseCursor(ECursor cursor) override;
+  ECursor SetMouseCursor(ECursor cursorType) override;
     
   void DoCursorLock(float x, float y, float& prevX, float& prevY);
     
@@ -80,6 +80,7 @@ private:
   void StoreCursorPosition();
 
   void* mView = nullptr;
+  ECursor mCursorType = ARROW;
   CGPoint mCursorLockPosition;
   WDL_String mBundleID;
   friend int GetMouseOver(IGraphicsMac* pGraphics);

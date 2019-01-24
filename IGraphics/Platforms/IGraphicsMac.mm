@@ -632,12 +632,17 @@ void IGraphicsMac::CreatePlatformTextEntry(IControl& control, const IText& text,
 //  }
 //}
 
-void IGraphicsMac::SetMouseCursor(ECursor cursor)
+ECursor IGraphicsMac::SetMouseCursor(ECursor cursorType)
 {
+  ECursor oldCursorType = mCursorType;
+  
   if (mView)
   {
-    [(IGRAPHICS_VIEW*) mView setMouseCursor: cursor];
+    [(IGRAPHICS_VIEW*) mView setMouseCursor: cursorType];
+    mCursorType = cursorType;
   }
+  
+  return oldCursorType;
 }
 
 bool IGraphicsMac::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)

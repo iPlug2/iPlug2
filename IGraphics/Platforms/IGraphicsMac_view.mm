@@ -691,14 +691,14 @@ static void MakeCursorFromData(NSCursor*& cursor, uint16* data, int hotspot_x, i
   [img release];
 }
 
-- (void) setMouseCursor: (ECursor) cursor
+- (void) setMouseCursor: (ECursor) cursorType
 {
   NSCursor* pCursor = nullptr;
   
   bool helpCurrent = false;
   bool helpRequested = false;
     
-  switch (cursor)
+  switch (cursorType)
   {
     case ECursor::ARROW: pCursor = [NSCursor arrowCursor]; break;
     case ECursor::IBEAM: pCursor = [NSCursor IBeamCursor]; break;

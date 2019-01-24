@@ -384,30 +384,33 @@ void IGraphicsWeb::HideMouseCursor(bool hide, bool lock)
   }
 }
 
-void IGraphicsWeb::SetMouseCursor(ECursor cursor)
+ECursor IGraphicsWeb::SetMouseCursor(ECursor cursorType)
 {
-  std::string cursorType("pointer");
+  ECursor oldCursorType = mCursorType;
+  std::string cursor("pointer");
   
-  switch (cursor)
+  switch (cursorType)
   {
-    case ECursor::ARROW:            cursorType = "default";         break;
-    case ECursor::IBEAM:            cursorType = "text";            break;
-    case ECursor::WAIT:             cursorType = "wait";            break;
-    case ECursor::CROSS:            cursorType = "crosshair";       break;
-    case ECursor::UPARROW:          cursorType = "n-resize";        break;
-    case ECursor::SIZENWSE:         cursorType = "nwse-resize";     break;
-    case ECursor::SIZENESW:         cursorType = "nesw-resize";     break;
-    case ECursor::SIZEWE:           cursorType = "ew-resize";       break;
-    case ECursor::SIZENS:           cursorType = "ns-resize";       break;
-    case ECursor::SIZEALL:          cursorType = "move";            break;
-    case ECursor::INO:              cursorType = "not-allowed";     break;
-    case ECursor::HAND:             cursorType = "grab";            break;
-    case ECursor::APPSTARTING:      cursorType = "progress";        break;
-    case ECursor::HELP:             cursorType = "help";            break;
+    case ECursor::ARROW:            cursor = "default";         break;
+    case ECursor::IBEAM:            cursor = "text";            break;
+    case ECursor::WAIT:             cursor = "wait";            break;
+    case ECursor::CROSS:            cursor = "crosshair";       break;
+    case ECursor::UPARROW:          cursor = "n-resize";        break;
+    case ECursor::SIZENWSE:         cursor = "nwse-resize";     break;
+    case ECursor::SIZENESW:         cursor = "nesw-resize";     break;
+    case ECursor::SIZEWE:           cursor = "ew-resize";       break;
+    case ECursor::SIZENS:           cursor = "ns-resize";       break;
+    case ECursor::SIZEALL:          cursor = "move";            break;
+    case ECursor::INO:              cursor = "not-allowed";     break;
+    case ECursor::HAND:             cursor = "grab";            break;
+    case ECursor::APPSTARTING:      cursor = "progress";        break;
+    case ECursor::HELP:             cursor = "help";            break;
   }
   
-  val::global("document")["body"]["style"].set("cursor", cursorType);
-  mCursorType = cursor;
+  val::global("document")["body"]["style"].set("cursor", cursor);
+  mCursorType = cursorType;
+    
+  return oldCursorType;
 }
 
 EResourceLocation IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String& result)
