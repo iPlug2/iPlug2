@@ -101,20 +101,11 @@ agg::pixel_map* CreatePixmap(int w, int h)
 template <typename FuncType, typename ColorArrayType>
 void GradientRasterize(IGraphicsAGG::Rasterizer& rasterizer, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray, agg::comp_op_e op)
 {
-  IGraphicsAGG::SpanAllocatorType spanAllocator;
-  IGraphicsAGG::InterpolatorType spanInterpolator(xform);
-  
-  // Gradient types
-  
   typedef agg::span_gradient<agg::rgba8, IGraphicsAGG::InterpolatorType, FuncType, ColorArrayType> SpanGradientType;
-  typedef agg::renderer_scanline_aa<IGraphicsAGG::RenbaseType, IGraphicsAGG::SpanAllocatorType, SpanGradientType> RendererGradientType;
   
-  // Gradient objects
-  
+  IGraphicsAGG::InterpolatorType spanInterpolator(xform);
   SpanGradientType spanGradient(spanInterpolator, gradientFunc, colorArray, 0, 512);
-  RendererGradientType renderer(rasterizer.GetBase(), spanAllocator, spanGradient);
-  
-  rasterizer.Rasterize(renderer, op);
+  rasterizer.Rasterize(spanGradient, op);
 }
 
 template <typename FuncType, typename ColorArrayType>
@@ -137,7 +128,7 @@ void GradientRasterizeAdapt(IGraphicsAGG::Rasterizer& rasterizer, EPatternExtend
   }
 }
 
-void IGraphicsAGG::Rasterizer::RasterizePattern(const IPattern& pattern, agg::comp_op_e mode, float opacity, EFillRule rule)
+void IGraphicsAGG::Rasterizer::Rasterize(const IPattern& pattern, agg::comp_op_e op, float opacity, EFillRule rule)
 {
   mRasterizer.filling_rule(rule == kFillWinding ? agg::fill_non_zero : agg::fill_even_odd );
   
@@ -145,14 +136,9 @@ void IGraphicsAGG::Rasterizer::RasterizePattern(const IPattern& pattern, agg::co
   {
     case kSolidPattern:
     {
-      RendererSolid renderer(mRenBase);
-      
-      const IColor &color = pattern.GetStop(0).mColor;
-      renderer.color(AGGColor(color, opacity));
-      
       // Rasterize
       
-      Rasterize(renderer, mode);
+      Rasterize(AGGColor(pattern.GetStop(0).mColor, opacity), op);
     }
       break;
       
@@ -187,11 +173,11 @@ void IGraphicsAGG::Rasterizer::RasterizePattern(const IPattern& pattern, agg::co
       
       if (pattern.mType == kLinearPattern)
       {
-        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_y(), gradientMTX, colorArray, mode);
+        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_y(), gradientMTX, colorArray, op);
       }
       else
       {
-        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_radial_d(), gradientMTX, colorArray, mode);
+        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_radial_d(), gradientMTX, colorArray, op);
       }
     }
     break;
@@ -334,28 +320,18 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
   }
   else
   {
-    SpanAllocatorType spanAllocator;
-    InterpolatorType interpolator(srcMtx);
     agg::rounded_rect rect(dest.L, dest.T, dest.R, dest.B, 0);
     agg::conv_transform<agg::rounded_rect> tr(rect, mTransform);
       
     if (preMultiplied)
     {
-      PixfmtPreType fmtType(src);
-      imgSourcePreType imgSrc(fmtType);
-      alpha_span_generator<SpanGeneratorPreType> spanGenerator(imgSrc, interpolator, AGGCover(pBlend));
-      BitmapAlphaRenderPreType renderer(mRasterizer.GetBasePre(), spanAllocator, spanGenerator);
-        
-      mRasterizer.Rasterize(tr, renderer, AGGBlendMode(pBlend));
+      PixfmtPreType fmtSrc(src);
+      mRasterizer.Rasterize(fmtSrc, tr, srcMtx, AGGBlendMode(pBlend), AGGCover(pBlend));
     }
     else
     {
-      PixfmtType fmtType(src);
-      imgSourceType imgSrc(fmtType);
-      alpha_span_generator<SpanGeneratorType> spanGenerator(imgSrc, interpolator, AGGCover(pBlend));
-      BitmapAlphaRenderType renderer(mRasterizer.GetBase(), spanAllocator, spanGenerator);
-        
-      mRasterizer.Rasterize(tr, renderer, AGGBlendMode(pBlend));
+      PixfmtType fmtSrc(src);
+      mRasterizer.Rasterize(fmtSrc, tr, srcMtx, AGGBlendMode(pBlend), AGGCover(pBlend));
     }
   }
 }
