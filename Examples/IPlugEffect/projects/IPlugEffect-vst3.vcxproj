@@ -103,10 +103,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)build-win\vst3\$(Platform)\bin\</OutDir>
+    <OutDir>$(SolutionDir)build-win\vst3\bin\$(BINARY_NAME).vst3\Contents\x86-win\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)build-win\vst3\$(Platform)\bin\</OutDir>
+    <OutDir>$(SolutionDir)build-win\vst3\bin\$(BINARY_NAME).vst3\Contents\x86_64-win\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IntDir>$(SolutionDir)build-win\vst3\$(Platform)\$(Configuration)\</IntDir>
@@ -120,10 +120,10 @@
     <TargetExt>.vst3</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)build-win\vst3\$(Platform)\bin\</OutDir>
+    <OutDir>$(SolutionDir)build-win\vst3\bin\$(BINARY_NAME).vst3\Contents\x86-win\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)build-win\vst3\$(Platform)\bin\</OutDir>
+    <OutDir>$(SolutionDir)build-win\vst3\bin\$(BINARY_NAME).vst3\Contents\x86_64-win\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IntDir>$(SolutionDir)build-win\vst3\$(Platform)\$(Configuration)\</IntDir>
@@ -134,10 +134,10 @@
     <TargetExt>.vst3</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">
-    <OutDir>$(SolutionDir)build-win\vst3\$(Platform)\bin\</OutDir>
+    <OutDir>$(SolutionDir)build-win\vst3\bin\$(BINARY_NAME).vst3\Contents\x86-win\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">
-    <OutDir>$(SolutionDir)build-win\vst3\$(Platform)\bin\</OutDir>
+    <OutDir>$(SolutionDir)build-win\vst3\bin\$(BINARY_NAME).vst3\Contents\x86_64-win\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">
     <IntDir>$(SolutionDir)build-win\vst3\$(Platform)\$(Configuration)\</IntDir>
