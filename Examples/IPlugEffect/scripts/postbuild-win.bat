@@ -1,5 +1,5 @@
 @echo off
-REM - CALL "$(SolutionDir)\scripts\postbuild.bat" "$(TargetExt)" "$(BINARY_NAME)" "$(Platform)" "$(COPY_VST2)" "$(TargetPath)" "$(VST2_32_PATH)" "$(VST2_64_PATH)" "$(VST3_32_PATH)" "$(VST3_64_PATH)" "$(AAX_32_PATH)" "$(AAX_64_PATH)"
+REM - CALL "$(SolutionDir)\scripts\postbuild.bat" "$(TargetExt)" "$(BINARY_NAME)" "$(Platform)" "$(COPY_VST2)" "$(TargetPath)" "$(VST2_32_PATH)" "$(VST2_64_PATH)" "$(VST3_32_PATH)" "$(VST3_64_PATH)" "$(VST_BUNDLE)" "$(AAX_32_PATH)" "$(AAX_64_PATH)" "$(AAX_BUNDLE)"
 set FORMAT=%1
 set NAME=%2
 set PLATFORM=%3
@@ -12,6 +12,8 @@ set VST3_64_PATH=%9
 shift
 shift 
 shift
+shift
+set VST_BUNDLE=%6
 set AAX_32_PATH=%7
 set AAX_64_PATH=%8
 set AAX_BUNDLE=%9
@@ -37,10 +39,11 @@ if %PLATFORM% == "Win32" (
       echo not copying 32bit VST2 binary
     )
   )
-  if %FORMAT% == ".vst3" (
-    echo copying 32bit binary to 32bit VST3 Plugins folder ... 
-    copy /y %BUILT_BINARY% %VST3_32_PATH%
-  )
+  REM if %FORMAT% == ".vst3" (
+    REM echo copying 32bit binary to 32bit VST3 Plugins folder ... 
+    REM echo %VST_BUNDLE% %VST3_32_PATH%
+    REM xcopy /E /H /Y %VST_BUNDLE%\* %VST3_32_PATH%\%NAME%.vst3\
+  REM )
 REM -  if %FORMAT% == ".aaxplugin" (
 REM -    echo copying 32bit binary to 32bit AAX Plugins folder ... 
 REM -    echo %AAX_BUNDLE% %AAX_32_PATH%
@@ -60,12 +63,13 @@ if %PLATFORM% == "x64" (
     )
     if %FORMAT% == ".vst3" (
       echo copying 64bit binary to 64bit VST3 Plugins folder ... 
-      copy /y %BUILT_BINARY% %VST3_64_PATH%
+      echo %VST_BUNDLE% %VST3_64_PATH%
+      xcopy /E /H /Y %VST_BUNDLE%\* %VST3_64_PATH%\%NAME%.vst3\
     )
     if %FORMAT% == ".aaxplugin" (
       echo copying 64bit binary to 64bit AAX Plugins folder ... 
-    echo %AAX_BUNDLE% %AAX_64_PATH%
-    xcopy /E /H /Y %AAX_BUNDLE%\* %AAX_64_PATH%\%NAME%.aaxplugin\
+      echo %AAX_BUNDLE% %AAX_64_PATH%
+      xcopy /E /H /Y %AAX_BUNDLE%\* %AAX_64_PATH%\%NAME%.aaxplugin\
     )
   ) else (
     echo not copying 64bit, since machine is 32bit
