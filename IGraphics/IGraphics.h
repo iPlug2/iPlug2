@@ -514,7 +514,11 @@ private:
   /** This is used to prepare a particular area of the display for drawing, normally resulting in clipping of the region.
    * @param bounds The rectangular region to prepare  */
   virtual void PrepareRegion(const IRECT& bounds) = 0;
- 
+
+  /** This is used to indicate that a particular area of the display has been drawn (for instance to transfer a temporary backing) Always called after a matching call to PrepareRegion.
+  * @param bounds The rectangular region that is complete  */
+  virtual void CompleteRegion(const IRECT& bounds) {}
+
 public:
     
 #pragma mark - IGraphics platform implementation
@@ -1101,7 +1105,7 @@ private:
   int mMaxHeight;
   int mLastClickedParam = kNoParameter;
   bool mHandleMouseOver = false;
-  bool mStrict = true;
+  bool mStrict = false;
   bool mEnableTooltips = false;
   bool mShowControlBounds = false;
   bool mShowAreaDrawn = false;

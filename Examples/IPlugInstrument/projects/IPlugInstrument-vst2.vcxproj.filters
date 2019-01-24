@@ -65,6 +65,9 @@
     <ClCompile Include="..\..\..\IPlug\Extras\Synth\VoiceAllocator.cpp">
       <Filter>IPlug\Extras\Synth</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugPaths.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../config.h" />
@@ -224,6 +227,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\Extras\Synth\VoiceAllocator.h">
       <Filter>IPlug\Extras\Synth</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPaths.h">
+      <Filter>IPlug</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

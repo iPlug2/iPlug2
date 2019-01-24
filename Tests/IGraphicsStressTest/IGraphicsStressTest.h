@@ -18,8 +18,10 @@ class IGraphicsStressTest : public IPlug
 {
 public:
   IGraphicsStressTest(IPlugInstanceInfo instanceInfo);
+#if IPLUG_EDITOR
   void LayoutUI(IGraphics* pGraphics) override;
 public:
   int mNumberOfThings = 16;
   int mKindOfThing = 0;
+#endif
 };

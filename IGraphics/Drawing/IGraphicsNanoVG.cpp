@@ -100,8 +100,9 @@ NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double source
   SetBitmap(nvgImageID, w, h, sourceScale, 1.f);
 }
 
-NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, int scale, float drawScale)
+NanoVGBitmap::NanoVGBitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, int scale, float drawScale)
 {
+  mGraphics = pGraphics;
   mVG = pContext;
   mFBO = nvgCreateFramebuffer(pContext, width, height, 0);
   
@@ -131,7 +132,7 @@ NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, const ui
 NanoVGBitmap::~NanoVGBitmap()
 {
   if(mFBO)
-    nvgDeleteFramebuffer(mFBO);
+    mGraphics->DeleteFBO(mFBO);
   else
     nvgDeleteImage(mVG, GetBitmap());
 }
@@ -208,6 +209,7 @@ IGraphicsNanoVG::IGraphicsNanoVG(IGEditorDelegate& dlg, int w, int h, int fps, f
 
 IGraphicsNanoVG::~IGraphicsNanoVG() 
 {
+  ClearFBOStack();
 }
 
 const char* IGraphicsNanoVG::GetDrawingAPIStr()
@@ -301,7 +303,7 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
 APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetBackingPixelScale();
-  return new NanoVGBitmap(mVG, std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
+  return new NanoVGBitmap(this, mVG, std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
 }
 
 void IGraphicsNanoVG::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
@@ -341,7 +343,7 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
     IRECT bounds(layer->Bounds());
     
     NanoVGBitmap maskRawBitmap(mVG, width, height, mask.Get(), pBitmap->GetScale(), pBitmap->GetDrawScale());
-    APIBitmap* shadowBitmap = new NanoVGBitmap(mVG, width, height, pBitmap->GetScale(), pBitmap->GetDrawScale());
+    APIBitmap* shadowBitmap = new NanoVGBitmap(this, mVG, width, height, pBitmap->GetScale(), pBitmap->GetDrawScale());
     IBitmap tempLayerBitmap(shadowBitmap, 1, false);
     IBitmap maskBitmap(&maskRawBitmap, 1, false);
     ILayer shadowLayer(shadowBitmap, layer->Bounds());
@@ -366,49 +368,11 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
 void IGraphicsNanoVG::SetPlatformContext(void* pContext)
 {
   mPlatformContext = pContext;
-#ifdef OS_WIN
-  if(pContext)
-    OnViewInitialized(pContext);
-#endif
 }
 
 void IGraphicsNanoVG::OnViewInitialized(void* pContext)
 {
-#if defined OS_WIN
-  if (pContext)
-  {
-    PIXELFORMATDESCRIPTOR pfd =
-    {
-      sizeof(PIXELFORMATDESCRIPTOR),
-      1,
-      PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER, //Flags
-      PFD_TYPE_RGBA, // The kind of framebuffer. RGBA or palette.
-      32, // Colordepth of the framebuffer.
-      0, 0, 0, 0, 0, 0,
-      0,
-      0,
-      0,
-      0, 0, 0, 0,
-      24, // Number of bits for the depthbuffer
-      8, // Number of bits for the stencilbuffer
-      0, // Number of Aux buffers in the framebuffer.
-      PFD_MAIN_PLANE,
-      0,
-      0, 0, 0
-    };
-    
-    HDC dc = (HDC) pContext;
-    
-    int fmt = ChoosePixelFormat(dc, &pfd);
-    SetPixelFormat(dc, fmt, &pfd);
-    
-    mHGLRC = wglCreateContext(dc);
-    wglMakeCurrent(dc, mHGLRC);
-    if (!gladLoadGL())
-      throw std::runtime_error{"Error initializing glad"};
-    glGetError();
-  }
-#elif defined OS_WEB
+#if defined OS_WEB
   if (!glfwInit())
   {
     DBGMSG("Failed to init GLFW.");
@@ -464,13 +428,7 @@ void IGraphicsNanoVG::OnViewDestroyed()
   
   mVG = nullptr;
   
-#if defined OS_WIN
-  if (mHGLRC)
-  {
-    wglMakeCurrent((HDC)mPlatformContext, nullptr);
-    wglDeleteContext(mHGLRC);
-  }
-#elif defined OS_WEB
+#if defined OS_WEB
   glfwTerminate();
 #endif
 }
@@ -488,6 +446,7 @@ void IGraphicsNanoVG::DrawResize()
 
 void IGraphicsNanoVG::BeginFrame()
 {
+  mInDraw = true;
   IGraphics::BeginFrame(); // start perf graph timing
 
 #ifdef IGRAPHICS_METAL
@@ -526,7 +485,9 @@ void IGraphicsNanoVG::EndFrame()
   nvgRestore(mVG);
   
   nvgEndFrame(mVG);
-
+  mInDraw = false;
+  ClearFBOStack();
+    
 #if defined OS_WEB
   glEnable(GL_DEPTH_TEST);
 #endif
@@ -889,4 +850,25 @@ void IGraphicsNanoVG::DrawDottedRect(const IColor& color, const IRECT& bounds, c
   }
   
   PathStroke(color, thickness, IStrokeOptions(), pBlend);
+}
+
+void IGraphicsNanoVG::DeleteFBO(NVGframebuffer* pBuffer)
+{
+  if (!mInDraw)
+    nvgDeleteFramebuffer(pBuffer);
+  else
+  {
+    WDL_MutexLock lock(&mFBOMutex);
+    mFBOStack.push(pBuffer);
+  }
+}
+
+void IGraphicsNanoVG::ClearFBOStack()
+{
+  WDL_MutexLock lock(&mFBOMutex);
+  while (!mFBOStack.empty())
+  {
+    nvgDeleteFramebuffer(mFBOStack.top());
+    mFBOStack.pop();
+  }
 }
