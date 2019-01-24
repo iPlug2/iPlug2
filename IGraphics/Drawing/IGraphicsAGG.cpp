@@ -308,10 +308,11 @@ bool CheckTransform(const agg::trans_affine& mtx)
 
 void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
+  bool preMultiplied = static_cast<AGGBitmap*>(bitmap.GetAPIBitmap())->IsPreMultiplied();
   IRECT bounds = mClipRECT.Empty() ? dest : mClipRECT.Intersect(dest);
   bounds.Scale(GetBackingPixelScale());
 
-  APIBitmap* pAPIBitmap = bitmap.GetAPIBitmap();
+  APIBitmap* pAPIBitmap = dynamic_cast<AGGBitmap*>(bitmap.GetAPIBitmap());
   agg::pixel_map* pSource = pAPIBitmap->GetBitmap();
   agg::rendering_buffer src(pSource->buf(), pSource->width(), pSource->height(), pSource->row_bytes());;
   const double scale = GetScreenScale() / (pAPIBitmap->GetScale() * pAPIBitmap->GetDrawScale());
@@ -329,20 +330,33 @@ void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int 
     srcY = std::round(srcY * offsetScale + std::max(0.f, bounds.T - destScaled.T));
     bounds.Translate(mTransform.tx, mTransform.ty);
 
-    mRasterizer.BlendFrom(src, bounds, srcX, srcY, AGGBlendMode(pBlend), AGGCover(pBlend));
+    mRasterizer.BlendFrom(src, bounds, srcX, srcY, AGGBlendMode(pBlend), AGGCover(pBlend), preMultiplied);
   }
   else
   {
-    PixfmtType fmtType(src);
-    imgSourceType imgSrc(fmtType);
-    InterpolatorType interpolator(srcMtx);
     SpanAllocatorType spanAllocator;
-    alpha_span_generator<SpanGeneratorType> spanGenerator(imgSrc, interpolator, AGGCover(pBlend));
-    BitmapAlphaRenderType renderer(mRasterizer.GetBase(), spanAllocator, spanGenerator);
+    InterpolatorType interpolator(srcMtx);
     agg::rounded_rect rect(dest.L, dest.T, dest.R, dest.B, 0);
     agg::conv_transform<agg::rounded_rect> tr(rect, mTransform);
-
-    mRasterizer.Rasterize(tr, renderer, AGGBlendMode(pBlend));
+      
+    if (preMultiplied)
+    {
+      PixfmtPreType fmtType(src);
+      imgSourcePreType imgSrc(fmtType);
+      alpha_span_generator<SpanGeneratorPreType> spanGenerator(imgSrc, interpolator, AGGCover(pBlend));
+      BitmapAlphaRenderPreType renderer(mRasterizer.GetBasePre(), spanAllocator, spanGenerator);
+        
+      mRasterizer.Rasterize(tr, renderer, AGGBlendMode(pBlend));
+    }
+    else
+    {
+      PixfmtType fmtType(src);
+      imgSourceType imgSrc(fmtType);
+      alpha_span_generator<SpanGeneratorType> spanGenerator(imgSrc, interpolator, AGGCover(pBlend));
+      BitmapAlphaRenderType renderer(mRasterizer.GetBase(), spanAllocator, spanGenerator);
+        
+      mRasterizer.Rasterize(tr, renderer, AGGBlendMode(pBlend));
+    }
   }
 }
 
@@ -490,13 +504,13 @@ APIBitmap* IGraphicsAGG::LoadAPIBitmap(const char* fileNameOrResID, int scale, E
   if (location != EResourceLocation::kNotFound && ispng)
   {
     if (pPixelMap->load_img((HINSTANCE)GetWinModuleHandle(), fileNameOrResID, agg::pixel_map::format_png))
-      pResult = new AGGBitmap(pPixelMap, scale, 1.f);
+      pResult = new AGGBitmap(pPixelMap, scale, 1.f, false);
   }
 #else
   if (location == EResourceLocation::kAbsolutePath && ispng)
   {
     if (pPixelMap->load_img(fileNameOrResID, agg::pixel_map::format_png))
-      pResult = new AGGBitmap(pPixelMap, scale, 1.f);
+      pResult = new AGGBitmap(pPixelMap, scale, 1.f, false);
   }
 #endif
 
@@ -537,13 +551,13 @@ APIBitmap* IGraphicsAGG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
   rasterizer.add_path(bounds);
   agg::render_scanlines(rasterizer, scanline, renderer);
   
-  return new AGGBitmap(pCopy, scale, pBitmap->GetDrawScale());
+  return new AGGBitmap(pCopy, scale, pBitmap->GetDrawScale(), false);
 }
 
 APIBitmap* IGraphicsAGG::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetBackingPixelScale();
-  return new AGGBitmap(CreatePixmap(std::round(width * scale), std::round(height * scale)), GetScreenScale(), GetDrawScale());
+  return new AGGBitmap(CreatePixmap(std::round(width * scale), std::round(height * scale)), GetScreenScale(), GetDrawScale(), true);
 }
 
 bool IGraphicsAGG::BitmapExtSupported(const char* ext)
@@ -579,7 +593,7 @@ void IGraphicsAGG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const 
     
     IRECT bounds(layer->Bounds());
     pixel_wrapper* shadowSource = new pixel_wrapper(mask.Get(), pPixMap->width(), pPixMap->height(), pPixMap->bpp(), pPixMap->row_bytes());
-    APIBitmap* shadowBitmap = new AGGBitmap(shadowSource, pBitmap->GetScale(), pBitmap->GetDrawScale());
+    APIBitmap* shadowBitmap = new AGGBitmap(shadowSource, pBitmap->GetScale(), pBitmap->GetDrawScale(), true);
     IBitmap bitmap(shadowBitmap, 1, false);
     ILayer shadowLayer(shadowBitmap, layer->Bounds());
       
