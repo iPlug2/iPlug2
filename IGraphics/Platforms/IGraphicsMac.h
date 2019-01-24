@@ -37,7 +37,7 @@ public:
 
   void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override;
-  void SetMouseCursor(ECursor cursor) override;
+  ECursor SetMouseCursor(ECursor cursor) override;
     
   void DoCursorLock(float x, float y, float& prevX, float& prevY);
     

@@ -55,17 +55,22 @@ public:
 
   void OnMouseOver(float x, float y, const IMouseMod& mod) override
   {
-    GetUI()->SetMouseCursor(ECursor::SIZENWSE);
+    if (!mMouseOver)
+      mPrevCursor = GetUI()->SetMouseCursor(ECursor::SIZENWSE);
+    mMouseOver = true;
     IControl::OnMouseOver(x, y, mod);
   }
 
   void OnMouseOut() override
   {
-    GetUI()->SetMouseCursor(ECursor::ARROW);
+    GetUI()->SetMouseCursor(mPrevCursor);
+    mMouseOver = false;
     IControl::OnMouseOut();
   }
 
 private:
   float mSize;
+  bool mMouseOver = false;
+  ECursor mPrevCursor = ARROW;
   IRECT mInitialGraphicsBounds;
 };

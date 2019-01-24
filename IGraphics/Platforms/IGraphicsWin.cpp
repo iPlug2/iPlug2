@@ -114,7 +114,6 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   
   switch (msg)
   {
-
     case WM_TIMER:
     {
       if (wParam == IPLUG_TIMER_ID)
@@ -218,7 +217,11 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       pGraphics->OnMouseDown(info.x, info.y, info.ms);
       return 0;
     }
-
+    case WM_SETCURSOR:
+    {
+      pGraphics->SetMouseCursor(pGraphics->mCursor);
+      return 0;
+    }
     case WM_MOUSEMOVE:
     {
       if (!(wParam & (MK_LBUTTON | MK_RBUTTON)))
@@ -684,10 +687,12 @@ void IGraphicsWin::MoveMouseCursor(float x, float y)
   }
 }
 
-void IGraphicsWin::SetMouseCursor(ECursor cursor)
+ECursor IGraphicsWin::SetMouseCursor(ECursor cursor)
 {
   HCURSOR cursorType;
-    
+  ECursor oldCursor = mCursor;
+  mCursor = cursor;
+
   switch (cursor)
   {
     case ECursor::ARROW:            cursorType = LoadCursor(NULL, IDC_ARROW);           break;
@@ -709,6 +714,7 @@ void IGraphicsWin::SetMouseCursor(ECursor cursor)
   }
 
   SetCursor(cursorType);
+  return oldCursor;
 }
 
 bool IGraphicsWin::MouseCursorIsLocked()

@@ -531,8 +531,10 @@ public:
   virtual void MoveMouseCursor(float x, float y) = 0;
   
   /** Sets the mouse cursor to one of ECursor
-   * @param cursor The cursor type */
-  virtual void SetMouseCursor(ECursor cursor = ECursor::ARROW) = 0;
+   * @param cursor The cursor type
+   * @return the previous cursor type so it can be restored later */
+
+  virtual ECursor SetMouseCursor(ECursor cursor = ECursor::ARROW) = 0;
 
   /** Call to force end text entry (will cancel any half input text \todo check) */
   virtual void ForceEndUserEdit() = 0;
