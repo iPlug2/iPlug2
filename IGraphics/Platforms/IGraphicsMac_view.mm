@@ -416,6 +416,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 - (void)dealloc
 {
   [mMoveCursor release];
+  [mTrackingArea release];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [super dealloc];
 }
@@ -558,6 +559,33 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   info.ms = IMouseMod(false, true, (mods & NSShiftKeyMask), (mods & NSControlKeyMask), (mods & NSAlternateKeyMask));
 
   return info;
+}
+
+- (void) updateTrackingAreas
+{
+  // This is needed to get mouseEntered and mouseExited
+    
+  [super updateTrackingAreas];
+    
+  if (mTrackingArea != nil) {
+      [self removeTrackingArea:mTrackingArea];
+    [mTrackingArea release];
+  }
+    
+  int opts = (NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways);
+  mTrackingArea = [ [NSTrackingArea alloc] initWithRect:[self bounds] options:opts owner:self userInfo:nil];
+  [self addTrackingArea:mTrackingArea];
+}
+
+- (void) mouseEntered: (NSEvent *)event
+{
+  mGraphics->SetMouseCursorForView();
+}
+
+- (void) mouseExited: (NSEvent *)event
+{
+  mGraphics->OnMouseOut();
+  [self setMouseCursor:ARROW];
 }
 
 - (void) mouseDown: (NSEvent*) pEvent

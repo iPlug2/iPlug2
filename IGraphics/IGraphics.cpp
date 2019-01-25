@@ -841,7 +841,6 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
   return pControl;
 }
 
-//TODO: THIS DOESN'T GET CALLED ON MAC
 void IGraphics::OnMouseOut()
 {
   Trace("IGraphics::OnMouseOut", __LINE__, "");

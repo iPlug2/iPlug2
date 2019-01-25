@@ -63,7 +63,8 @@ public:
 
   void OnMouseOut() override
   {
-    GetUI()->SetMouseCursor(mPrevCursorType);
+    if (mMouseOver)
+      GetUI()->SetMouseCursor(mPrevCursorType);
     mMouseOver = false;
     IControl::OnMouseOut();
   }
