@@ -530,9 +530,16 @@ public:
    * @param y New Y position in pixels */
   virtual void MoveMouseCursor(float x, float y) = 0;
   
-  /** Sets the mouse cursor to one of ECursor
-   * @param cursor The cursor type */
-  virtual void SetMouseCursor(ECursor cursor = ECursor::ARROW) = 0;
+  /** Sets the mouse cursor to one of ECursor (implementations should return the result of the base implementation)
+   * @param cursor The cursor type
+   * @return the previous cursor type so it can be restored later */
+
+  virtual ECursor SetMouseCursor(ECursor cursorType = ECursor::ARROW)
+  {
+    ECursor oldCursorType = mCursorType;
+    mCursorType = cursorType;
+    return oldCursorType;
+  }
 
   /** Call to force end text entry (will cancel any half input text \todo check) */
   virtual void ForceEndUserEdit() = 0;
@@ -888,8 +895,11 @@ public:
    * @return \c true if handled \todo check this */
   bool OnMouseOver(float x, float y, const IMouseMod& mod);
 
-  /** TODO: not called on mac*/
+  /***/
   void OnMouseOut();
+  
+  /***/
+  void OnSetCursor() { SetMouseCursor(mCursorType); }
 
   /** @param str A CString with the absolute path of the dropped item
    * @param x The X coordinate in the graphics context where the drag and drop occurred
@@ -1086,6 +1096,7 @@ private:
   
   IPopupMenu mPromptPopupMenu;
   
+  ECursor mCursorType = ARROW;
   int mWidth;
   int mHeight;
   int mFPS;
