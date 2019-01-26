@@ -845,6 +845,9 @@ void IGraphics::OnMouseOut()
 {
   Trace("IGraphics::OnMouseOut", __LINE__, "");
 
+  // Store the old cursor type so this gets restored when the mouse enters again
+    
+  mCursorType = SetMouseCursor(ARROW);
   ForAllControls(&IControl::OnMouseOut);
   mMouseOver = nullptr;
   mMouseOverIdx = -1;

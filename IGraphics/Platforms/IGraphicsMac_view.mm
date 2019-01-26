@@ -579,13 +579,12 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void) mouseEntered: (NSEvent *)event
 {
-  mGraphics->SetMouseCursorForView();
+  mGraphics->OnSetCursor();
 }
 
 - (void) mouseExited: (NSEvent *)event
 {
   mGraphics->OnMouseOut();
-  [self setMouseCursor:ARROW];
 }
 
 - (void) mouseDown: (NSEvent*) pEvent

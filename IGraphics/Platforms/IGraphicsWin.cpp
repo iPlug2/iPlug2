@@ -219,7 +219,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     }
     case WM_SETCURSOR:
     {
-      pGraphics->SetMouseCursor(pGraphics->mCursorType);
+      pGraphics->OnSetCursor();
       return 0;
     }
     case WM_MOUSEMOVE:
@@ -690,8 +690,6 @@ void IGraphicsWin::MoveMouseCursor(float x, float y)
 ECursor IGraphicsWin::SetMouseCursor(ECursor cursorType)
 {
   HCURSOR cursor;
-  ECursor oldCursorType = mCursorType;
-  mCursorType = cursorType;
 
   switch (cursorType)
   {
@@ -714,7 +712,7 @@ ECursor IGraphicsWin::SetMouseCursor(ECursor cursorType)
   }
 
   SetCursor(cursor);
-  return oldCursorType;
+  return IGraphics::SetMouseCursor(cursorType);
 }
 
 bool IGraphicsWin::MouseCursorIsLocked()

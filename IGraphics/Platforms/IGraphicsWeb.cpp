@@ -288,6 +288,7 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
         pGraphics->OnMouseDrag(x, y, pEvent->movementX, pEvent->movementY, modifiers);
       break;
     case EMSCRIPTEN_EVENT_MOUSEENTER:
+      pGraphics->OnSetCursor();
       pGraphics->OnMouseOver(x, y, modifiers);
       emscripten_set_mousemove_callback("#window", pGraphics, 1, nullptr);
       break;
@@ -296,7 +297,6 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
         emscripten_set_mousemove_callback("#window", pGraphics, 1, outside_mouse_callback);
         emscripten_set_mouseup_callback("#window", pGraphics, 1, outside_mouse_callback);
       }
-
       pGraphics->OnMouseOut(); break;
     default:
       break;
@@ -378,7 +378,7 @@ void IGraphicsWeb::HideMouseCursor(bool hide, bool lock)
     if (mCursorLock)
       emscripten_exit_pointerlock();
     else
-      SetMouseCursor(mCursorType);
+      OnSetCursor();
       
     mCursorLock = false;
   }
@@ -386,7 +386,6 @@ void IGraphicsWeb::HideMouseCursor(bool hide, bool lock)
 
 ECursor IGraphicsWeb::SetMouseCursor(ECursor cursorType)
 {
-  ECursor oldCursorType = mCursorType;
   std::string cursor("pointer");
   
   switch (cursorType)
@@ -408,9 +407,7 @@ ECursor IGraphicsWeb::SetMouseCursor(ECursor cursorType)
   }
   
   val::global("document")["body"]["style"].set("cursor", cursor);
-  mCursorType = cursorType;
-    
-  return oldCursorType;
+  return IGraphics::SetMouseCursor(cursorType);
 }
 
 EResourceLocation IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String& result)

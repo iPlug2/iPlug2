@@ -112,7 +112,6 @@ private:
 #endif
 
   HINSTANCE mHInstance = nullptr;
-  ECursor mCursorType = ARROW;
   HWND mPlugWnd = nullptr;
   HWND mParamEditWnd = nullptr;
   HWND mTooltipWnd = nullptr;
