@@ -47,6 +47,12 @@ void IVButtonControl::DrawWidget(IGraphics& g)
   DrawVectorButton(g, mWidgetBounds, (bool) mValue, mMouseIsOver);
 }
 
+void IVButtonControl::OnResize()
+{
+  SetTargetRECT(CalculateRects(mRECT, mTitleStr.Get(), "", true));
+  SetDirty(false);
+}
+
 bool IVButtonControl::IsHit(float x, float y) const
 {
   return mWidgetBounds.Contains(x, y);

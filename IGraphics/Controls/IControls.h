@@ -42,6 +42,7 @@ public:
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
   bool IsHit(float x, float y) const override;
+  void OnResize() override;
 };
 
 /** A vector switch control. Click to cycle through states. */
