@@ -119,6 +119,9 @@
     <ClCompile Include="..\..\..\IGraphics\Controls\IPopupMenuControl.cpp">
       <Filter>IGraphics\Controls</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugPaths.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\IPlugControls.h" />
@@ -346,6 +349,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Controls\IPopupMenuControl.h">
       <Filter>IGraphics\Controls</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPaths.h">
+      <Filter>IPlug</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

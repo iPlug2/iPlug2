@@ -12,7 +12,7 @@ set AAX_BUNDLE=%7
 if %PLATFORM% == "Win32" (
   if %FORMAT% == ".aaxplugin" (
    REM -DEL /Q /F /S %AAX_BUNDLE%
-   REM -CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat %OUT_DIR% %ICON_SOURCE%
+   REM -CALL ..\..\..\Dependencies\IPlug\AAX_SDK\Utilities\CreatePackage.bat "%OUT_DIR%" %ICON_SOURCE%
   )
 )
 
@@ -20,7 +20,7 @@ if %PLATFORM% == "x64" (
   if exist "%ProgramFiles(x86)%" (
     if %FORMAT% == ".aaxplugin" (
       DEL /Q /F /S %AAX_BUNDLE%
-      CALL ..\..\AAX_SDK\Utilities\CreatePackage.bat %OUT_DIR% %ICON_SOURCE%
+      CALL ..\..\..\Dependencies\IPlug\AAX_SDK\Utilities\CreatePackage.bat "%OUT_DIR%" %ICON_SOURCE%
     )
   )
 )

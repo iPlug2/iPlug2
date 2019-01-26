@@ -171,7 +171,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>$(APP_LIBS);%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
-      
     </Link>
     <ResourceCompile />
     <ResourceCompile>
@@ -217,7 +216,6 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>$(APP_LIBS);%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
-      
     </Link>
     <ResourceCompile>
       <PreprocessorDefinitions>SA_API</PreprocessorDefinitions>
@@ -261,7 +259,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>$(APP_LIBS);%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
-        </Link>
+    </Link>
     <ResourceCompile>
       <PreprocessorDefinitions>SA_API</PreprocessorDefinitions>
     </ResourceCompile>
@@ -320,6 +318,7 @@
     <ClInclude Include="..\..\..\IPlug\IPlugLogger.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugMidi.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugParameter.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugPaths.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugProcessor.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugStructs.h" />
@@ -398,6 +397,7 @@
     <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP_main.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugAPIBase.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp" />
+    <ClCompile Include="..\..\..\IPlug\IPlugPaths.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugPluginBase.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>

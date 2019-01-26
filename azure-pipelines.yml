@@ -1,8 +1,10 @@
 variables:
-  buildLibs: false
+  buildDEPS: false
+  downloadDEPS: false
   buildWeb: true
-  buildMac: false
+  buildMac: true
   buildWin: true
+  # buildInstallers: false #if true, the mac/win projects will build installers, rather than packaging individual binaries
   configuration: 'Release'
   target: 'All'
 
@@ -10,7 +12,11 @@ trigger:
 - none
 
 jobs:
+
+# this job checks out the repository and optionally downloads pre-built dependencies, depending on buildDEPS
 - job: DOWNLOAD_DEPS
+  condition: eq(variables.downloadDEPS, true)
+
   steps:
   - checkout: self
 
@@ -18,43 +24,43 @@ jobs:
       cd ./Dependencies/IGraphics
       ./download-igraphics-libs.sh
     displayName: Download IGraphics Dependencies SRC
-    condition: eq(variables.buildLibs, true)
+    condition: eq(variables.buildDEPS, true)
 
   - bash: |
       cd $AGENT_TEMPDIRECTORY
       wget https://github.com/iPlug2/iPlug2/releases/download/setup/IPLUG2_DEPS_MAC.zip
       wget https://github.com/iPlug2/iPlug2/releases/download/setup/IPLUG2_DEPS_WIN.zip
     displayName: Download IGraphics Dependencies BUILT
-    condition: eq(variables.buildLibs, false)
+    condition: eq(variables.buildDEPS, false)
 
   - task: DownloadSecureFile@1
     inputs:
-      secureFile: "VST2_SDK.zip" 
+      secureFile: "VST2_SDK.zip"
     displayName: Download VST2 SDK
 
   - task: DownloadSecureFile@1
     inputs:
-      secureFile: "AAX_SDK.zip" 
+      secureFile: "AAX_SDK.zip"
     displayName: Download AAX SDK
 
   - task: DownloadSecureFile@1
     inputs:
-      secureFile: "AGG.zip" 
+      secureFile: "AGG.zip"
     displayName: Download AGG
 
   - task: ExtractFiles@1
     inputs:
-      archiveFilePatterns: '$(Agent.TempDirectory)/*.zip' 
+      archiveFilePatterns: '$(Agent.TempDirectory)/*.zip'
       destinationFolder: '$(Agent.TempDirectory)'
-      cleanDestinationFolder: false 
-    condition: eq(variables.buildLibs, false)
+      cleanDestinationFolder: false
+    condition: eq(variables.buildDEPS, false)
 
   - bash: |
       mkdir ./Dependencies/Build
       mv $AGENT_TEMPDIRECTORY/IPLUG2_DEPS_MAC/* ./Dependencies/Build
       mv $AGENT_TEMPDIRECTORY/IPLUG2_DEPS_WIN/* ./Dependencies/Build
     displayName: Move IGraphics Dependencies BUILT
-    condition: eq(variables.buildLibs, false)
+    condition: eq(variables.buildDEPS, false)
 
   - bash: |
       mv $AGENT_TEMPDIRECTORY/AAX_SDK/* ./Dependencies/IPlug/AAX_SDK
@@ -104,8 +110,8 @@ jobs:
     displayName: Publish Source
 
 - job: BUILD_WIN_DEPS
-  dependsOn: DOWNLOAD_DEPS 
-  condition: and(eq(variables.buildLibs, true), eq(variables.buildWin, true))
+  dependsOn: DOWNLOAD_DEPS
+  condition: and(eq(variables.buildDEPS, true), eq(variables.buildWin, true))
 
   strategy:
     matrix:
@@ -127,20 +133,11 @@ jobs:
   steps:
   - checkout: none
 
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'SRC'
+  - template: Scripts/azure-src.yml
 
-  - task: ExtractFiles@1
-    inputs:
-      archiveFilePatterns: 'SRC.zip' 
-      cleanDestinationFolder: false 
-      destinationFolder: $(Build.SourcesDirectory)
-
-  # build windows dependencies
   - task: VSBuild@1
     inputs:
-      solution: 'Dependencies/IGraphics/IGraphicsLibraries.sln' 
+      solution: 'Dependencies/IGraphics/IGraphicsLibraries.sln'
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'
     displayName: Build Windows Dependencies
@@ -152,32 +149,32 @@ jobs:
     displayName: Publish Windows $(buildPlatform) $(buildConfiguration) Dependencies Artifacts
 
 - job: PUBLISH_WIN_DEPS
-  condition: and(eq(variables.buildLibs, true), eq(variables.buildWin, true))
+  condition: and(eq(variables.buildDEPS, true), eq(variables.buildWin, true))
   dependsOn: BUILD_WIN_DEPS
   steps:
   - checkout: none
 
   - task: DownloadPipelineArtifact@0
     inputs:
-      artifactName: 'DEPS_BUILD_WIN_Win32_Release' 
+      artifactName: 'DEPS_BUILD_WIN_Win32_Release'
       targetPath: 'Dependencies/Build/'
     displayName: Download Win32_Release Artifact
 
   - task: DownloadPipelineArtifact@0
     inputs:
-      artifactName: 'DEPS_BUILD_WIN_Win32_Debug' 
+      artifactName: 'DEPS_BUILD_WIN_Win32_Debug'
       targetPath: 'Dependencies/Build/'
     displayName: Download Win32_Debug Artifact
 
   - task: DownloadPipelineArtifact@0
     inputs:
-      artifactName: 'DEPS_BUILD_WIN_x64_Release' 
+      artifactName: 'DEPS_BUILD_WIN_x64_Release'
       targetPath: 'Dependencies/Build/'
     displayName: Download x64_Release Artifact
 
   - task: DownloadPipelineArtifact@0
     inputs:
-      artifactName: 'DEPS_BUILD_WIN_x64_Debug' 
+      artifactName: 'DEPS_BUILD_WIN_x64_Debug'
       targetPath: 'Dependencies/Build/'
     displayName: Download x64_Debug Artifact
 
@@ -188,7 +185,7 @@ jobs:
   - task: DeleteFiles@1
     inputs:
       contents: 'Dependencies/Build/tmp'
-      
+
   - task: PublishPipelineArtifact@0
     inputs:
       artifactName: 'IPLUG2_DEPS_WIN'
@@ -196,23 +193,15 @@ jobs:
     displayName: Publish Windows Dependencies Artifacts
 
 - job: BUILD_MAC_DEPS
-  dependsOn: DOWNLOAD_DEPS 
-  condition: and(eq(variables.buildLibs, true), eq(variables.buildMac, true))
+  dependsOn: DOWNLOAD_DEPS
+  condition: and(eq(variables.buildDEPS, true), eq(variables.buildMac, true))
 
   pool:
     vmImage: 'macos-10.13'
   steps:
   - checkout: none
 
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'SRC'
-
-  - task: ExtractFiles@1
-    inputs:
-      archiveFilePatterns: 'SRC.zip'
-      cleanDestinationFolder: false 
-      destinationFolder: $(Build.SourcesDirectory)
+  - template: Scripts/azure-src.yml
 
   - bash: |
       #tmp force cairo rebuild
@@ -246,23 +235,19 @@ jobs:
     displayName: Publish Mac Dependencies Artifacts
 
 - job: BUILD_MAC_PROJECTS
-  condition: and(eq(variables.buildLibs, false), eq(variables.buildMac, true))
+  condition: and(eq(variables.buildDEPS, false), eq(variables.buildMac, true))
 
-  dependsOn: DOWNLOAD_DEPS 
+  dependsOn: DOWNLOAD_DEPS
   strategy:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-        graphicsStr: 'IGRAPHICS_NANOVG IGRAPHICS_METAL'
       CAIRO:
         graphics: 'CAIRO'
-        graphicsStr: 'IGRAPHICS_CAIRO'
       LICE:
         graphics: 'LICE'
-        graphicsStr: 'IGRAPHICS_LICE'
       AGG:
         graphics: 'AGG'
-        graphicsStr: 'IGRAPHICS_AGG'
 
   pool:
     vmImage: 'macos-10.13'
@@ -270,75 +255,23 @@ jobs:
   steps:
   - checkout: none
 
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'SRC'
+  # - template: Scripts/azure-src.yml
 
-  - task: ExtractFiles@1
-    inputs:
-      archiveFilePatterns: 'SRC.zip'
-      cleanDestinationFolder: false
-      destinationFolder: $(Build.SourcesDirectory)
-
-  - template: Scripts/azure-project-mac.yml
+  - template: Scripts/azure-projectlist.yml
     parameters:
-      name: IPlugEffect
-      graphics: $(graphics)
-      path: 'Examples'
-      target: $(target)
-      configuration: $(configuration)
-
-  - template: Scripts/azure-project-mac.yml
-    parameters:
-      name: IPlugInstrument
-      graphics: $(graphics)
-      path: 'Examples'
-      target: $(target)
-      configuration: $(configuration)
-
-  - template: Scripts/azure-project-mac.yml
-    parameters:
-      name: IPlugControls
-      graphics: $(graphics)
-      path: 'Examples'
-      target: $(target)
-      configuration: $(configuration)
-
-  - template: Scripts/azure-project-mac.yml
-    parameters:
-      name: IPlugFaustDSP
-      graphics: $(graphics)
-      path: 'Examples'
-      target: $(target)
-      configuration: $(configuration)
-
-  - template: Scripts/azure-project-mac.yml
-    parameters:
-      name: IGraphicsStressTest
-      graphics: $(graphics)
-      path: 'Tests'
-      target: $(target)
-      configuration: $(configuration)
-
-  - template: Scripts/azure-project-mac.yml
-    parameters:
-      name: IGraphicsTest
-      graphics: $(graphics)
-      path: 'Tests'
-      target: $(target)
-      configuration: $(configuration)
+      platform: azure-project-mac.yml
+      graphics: variables.graphics
 
 - job: BUILD_WEB_PROJECTS
-  condition: and(eq(variables.buildLibs, false), eq(variables.buildWeb, true))
+  condition: and(eq(variables.buildDEPS, false), eq(variables.buildWeb, true))
 
-  dependsOn: DOWNLOAD_DEPS 
+  dependsOn: DOWNLOAD_DEPS
   strategy:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      # CANVAS:
-      #   graphics: 'CANVAS'
-      #   graphicsStr: 'IGRAPHICS_CANVAS'
+      CANVAS:
+        graphics: 'CANVAS'
 
   pool:
     vmImage: 'ubuntu-16.04'
@@ -346,66 +279,16 @@ jobs:
   steps:
   - checkout: none
 
-  - bash: |
-      git clone https://github.com/emscripten-core/emsdk.git
-      cd emsdk
-      ./emsdk install latest
-      ./emsdk activate latest
+  # - bash: |
+  #     git clone https://github.com/emscripten-core/emsdk.git
+  #     cd emsdk
+  #     ./emsdk install latest
+  #     ./emsdk activate latest
+  #   displayName: Install emscripten
 
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'SRC'
+  # - template: Scripts/azure-src.yml
 
-  - task: ExtractFiles@1
-    inputs:
-      archiveFilePatterns: 'SRC.zip'
-      cleanDestinationFolder: false
-      destinationFolder: $(Build.SourcesDirectory)
-
-  - template: Scripts/azure-project-web.yml
+  - template: Scripts/azure-projectlist.yml
     parameters:
-      name: IPlugEffect
-      graphics: $(graphics)
-      path: 'Examples'
-      target: $(target)
-      configuration: $(configuration)
-
-  - template: Scripts/azure-project-web.yml
-    parameters:
-      name: IPlugInstrument
-      graphics: $(graphics)
-      path: 'Examples'
-      target: $(target)
-      configuration: $(configuration)
-
-  - template: Scripts/azure-project-web.yml
-    parameters:
-      name: IPlugControls
-      graphics: $(graphics)
-      path: 'Examples'
-      target: $(target)
-      configuration: $(configuration)
-
-  - template: Scripts/azure-project-web.yml
-    parameters:
-      name: IPlugFaustDSP
-      graphics: $(graphics)
-      path: 'Examples'
-      target: $(target)
-      configuration: $(configuration)
-
-  - template: Scripts/azure-project-web.yml
-    parameters:
-      name: IGraphicsStressTest
-      graphics: $(graphics)
-      path: 'Tests'
-      target: $(target)
-      configuration: $(configuration)
-
-  - template: Scripts/azure-project-web.yml
-    parameters:
-      name: IGraphicsTest
-      graphics: $(graphics)
-      path: 'Tests'
-      target: $(target)
-      configuration: $(configuration)
+      platform: azure-project-web.yml
+      graphics: variables.graphics

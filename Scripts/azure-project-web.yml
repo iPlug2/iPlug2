@@ -1,27 +1,34 @@
 parameters:
   name: ''
-  graphics: 'NANOVG'
   path: ''
-  configuration: 'Release'
+  graphics: 'NANOVG'
+  target: ''
+  artifactName: ''
 
 steps:
-  - bash: |
-      cd ./${{ parameters.path }}/${{ parameters.name }}/config
-      sed -i.bu 's/-DIGRAPHICS_NANOVG -DIGRAPHICS_GLES2/-DIGRAPHICS_CANVAS/' ${{ parameters.name }}-web.mk
-      sed -i.bu 's/WEB_LDFLAGS += $(NANOVG_LDFLAGS)/\/\/WEB_LDFLAGS += $(NANOVG_LDFLAGS)/' ${{ parameters.name }}-web.mk
-    displayName: Set graphics string CANVAS
-    condition: ${{ eq(variables['Build.graphics'], 'CANVAS') }}
+  # - bash: |
+  #     cd ./${{ parameters.path }}/${{ parameters.name }}/config
+  #     sed -i.bu 's/-DIGRAPHICS_NANOVG -DIGRAPHICS_GLES2/-DIGRAPHICS_CANVAS/' ${{ parameters.name }}-web.mk
+  #     sed -i.bu 's/WEB_LDFLAGS += $(NANOVG_LDFLAGS)/\/\/WEB_LDFLAGS += $(NANOVG_LDFLAGS)/' ${{ parameters.name }}-web.mk
+  #   displayName: Set graphics string CANVAS
+  #   condition: eq(${{ parameters.graphics }}, 'CANVAS')
+
+  # - bash: |
+  #     cd emsdk
+  #     source ./emsdk_env.sh
+  #     cd ..
+  #     cd ./${{ parameters.path }}/${{ parameters.name }}/scripts
+  #     ./makedist-web.sh off
+  #   displayName: Compile ${{ parameters.name }} WAM
 
   - bash: |
-      cd emsdk
-      source ./emsdk_env.sh
-      cd ..
-      cd ./${{ parameters.path }}/${{ parameters.name }}/scripts
-      ./makedist-web.sh off
-    displayName: Compile WAM
+      mkdir -p ${{ parameters.path }}/${{ parameters.name }}/build-web/
+      echo "hello world" > ${{ parameters.path }}/${{ parameters.name }}/build-web/test.txt
+
+    displayName: TEST PAYLOAD
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: 'WEB_${{ parameters.name }}_${{ parameters.graphics }}'
+      artifactName: 'WEB_${{ parameters.artifactName }}'
       targetPath: '${{ parameters.path }}/${{ parameters.name }}/build-web'
     displayName: Publish ${{ parameters.name }}

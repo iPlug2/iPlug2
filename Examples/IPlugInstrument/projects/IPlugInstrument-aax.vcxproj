@@ -152,7 +152,6 @@
       <ForcedIncludeFiles>%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(AAX_LIBS)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(BINARY_NAME).aaxplugin</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -205,7 +204,6 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>$(AAX_LIBS)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(BINARY_NAME).aaxplugin</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -253,7 +251,6 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>$(AAX_LIBS)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(BINARY_NAME).aaxplugin</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -294,7 +291,6 @@
       <ForcedIncludeFiles>%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(AAX_LIBS)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(BINARY_NAME).aaxplugin</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -348,7 +344,6 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>$(AAX_LIBS)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(BINARY_NAME).aaxplugin</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -397,7 +392,6 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>$(AAX_LIBS)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(BINARY_NAME).aaxplugin</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -411,7 +405,7 @@
     <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\AAX_SDK\Interfaces\AAX_Exports.cpp" />
+    <ClCompile Include="..\..\..\Dependencies\IPlug\AAX_SDK\Interfaces\AAX_Exports.cpp" />
     <ClCompile Include="..\..\..\IGraphics\Controls\IControls.cpp" />
     <ClCompile Include="..\..\..\IGraphics\Controls\IPopupMenuControl.cpp" />
     <ClCompile Include="..\..\..\IGraphics\Controls\ITextEntryControl.cpp" />
@@ -469,9 +463,13 @@
     <ClCompile Include="..\..\..\IGraphics\Platforms\IGraphicsWin.cpp" />
     <ClCompile Include="..\..\..\IPlug\AAX\IPlugAAX_Parameters.cpp" />
     <ClCompile Include="..\..\..\IPlug\AAX\IPlugAAX_Describe.cpp" />
-    <ClCompile Include="..\..\..\IPlug\IPlugAAX.cpp" />
+    <ClCompile Include="..\..\..\IPlug\AAX\IPlugAAX.cpp" />
+    <ClCompile Include="..\..\..\IPlug\Extras\Synth\MidiSynth.cpp" />
+    <ClCompile Include="..\..\..\IPlug\Extras\Synth\VoiceAllocator.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugAPIBase.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp" />
+    <ClCompile Include="..\..\..\IPlug\IPlugPaths.cpp" />
+    <ClCompile Include="..\..\..\IPlug\IPlugPluginBase.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
@@ -480,6 +478,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp" />
     <ClCompile Include="..\IPlugInstrument.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -545,39 +544,31 @@
     <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsWin.h" />
     <ClInclude Include="..\..\..\IPlug\AAX\IPlugAAX_Parameters.h" />
     <ClInclude Include="..\..\..\IPlug\AAX\IPlugAAX_TaperDelegate.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugAAX.h" />
+    <ClInclude Include="..\..\..\IPlug\AAX\IPlugAAX.h" />
+    <ClInclude Include="..\..\..\IPlug\Extras\Synth\ControlRamp.h" />
+    <ClInclude Include="..\..\..\IPlug\Extras\Synth\MidiSynth.h" />
+    <ClInclude Include="..\..\..\IPlug\Extras\Synth\SynthVoice.h" />
+    <ClInclude Include="..\..\..\IPlug\Extras\Synth\VoiceAllocator.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugAPIBase.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugConstants.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugDelegate_select.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugEditorDelegate.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugLogger.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugMidi.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugParameter.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugPresets.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugPaths.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugPluginBase.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugProcessor.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugQueue.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugStructs.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugTimer.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugUtilities.h" />
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_hdr.h" />
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_src.h" />
-    <ClInclude Include="..\..\..\IPlug\NChanDelay.h" />
     <ClInclude Include="..\config.h" />
     <ClInclude Include="..\IPlugInstrument.h" />
     <ClInclude Include="..\resources\resource.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="..\..\..\AAX_SDK\Libs\Debug\AAXLibrary_x64_D.lib">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
-    </Library>
-    <Library Include="..\..\..\AAX_SDK\Libs\Release\AAXLibrary_x64.lib">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </Library>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resources\main.rc" />
