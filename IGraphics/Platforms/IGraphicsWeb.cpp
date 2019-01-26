@@ -244,7 +244,8 @@ EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent
   x /= pGraphics->GetDrawScale();
   y /= pGraphics->GetDrawScale();
   
-  switch (eventType) {
+  switch (eventType)
+  {
     case EMSCRIPTEN_EVENT_MOUSEUP: pGraphics->OnMouseUp(x, y, modifiers);
       pGraphics->OnMouseUp(x, y, modifiers); break;
       emscripten_set_mousemove_callback("#window", pGraphics, 1, nullptr);
@@ -276,7 +277,8 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
   x /= pGraphics->GetDrawScale();
   y /= pGraphics->GetDrawScale();
   
-  switch (eventType) {
+  switch (eventType)
+  {
     case EMSCRIPTEN_EVENT_CLICK: break;
     case EMSCRIPTEN_EVENT_MOUSEDOWN: pGraphics->OnMouseDown(x, y, modifiers); break;
     case EMSCRIPTEN_EVENT_MOUSEUP: pGraphics->OnMouseUp(x, y, modifiers); break;
@@ -293,7 +295,8 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
       emscripten_set_mousemove_callback("#window", pGraphics, 1, nullptr);
       break;
     case EMSCRIPTEN_EVENT_MOUSELEAVE:
-      if(pEvent->buttons != 0) {
+      if(pEvent->buttons != 0)
+      {
         emscripten_set_mousemove_callback("#window", pGraphics, 1, outside_mouse_callback);
         emscripten_set_mouseup_callback("#window", pGraphics, 1, outside_mouse_callback);
       }
