@@ -404,7 +404,7 @@ ECursor IGraphicsWeb::SetMouseCursor(ECursor cursorType)
     case ECursor::SIZENS:           cursor = "ns-resize";       break;
     case ECursor::SIZEALL:          cursor = "move";            break;
     case ECursor::INO:              cursor = "not-allowed";     break;
-    case ECursor::HAND:             cursor = "grab";            break;
+    case ECursor::HAND:             cursor = "pointer";         break;
     case ECursor::APPSTARTING:      cursor = "progress";        break;
     case ECursor::HELP:             cursor = "help";            break;
   }
