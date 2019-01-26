@@ -35,7 +35,8 @@ inline LICE_pixel LiceColor(const IColor& color, const IBlend* pBlend)
 
 inline LICE_pixel LiceColor(const IColor& color)
 {
-  return LICE_RGBA(color.R, color.G, color.B, color.A);
+  auto preMul = [](int color, int A) {return (color * (A + 1)) >> 8; };
+  return LICE_RGBA(preMul(color.R, color.A), preMul(color.G, color.A), preMul(color.B, color.A), color.A);
 }
 
 inline int LiceBlendMode(const IBlend* pBlend)
