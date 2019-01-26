@@ -92,18 +92,18 @@ inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
   }
   switch (pBlend->mMethod)
   {
-    case kBlendDefault:     return CAIRO_OPERATOR_OVER;
-    case kBlendCopy:        return CAIRO_OPERATOR_SOURCE;
-    case kBlendAdd:         return CAIRO_OPERATOR_ADD;
-    case kBlendXOR:         return CAIRO_OPERATOR_XOR;
-    case kBlendSourceOver:  return CAIRO_OPERATOR_OVER;
-    case kBlendSourceIn:    return CAIRO_OPERATOR_IN;
-    case kBlendSourceOut:   return CAIRO_OPERATOR_OUT;
-    case kBlendSourceAtop:  return CAIRO_OPERATOR_ATOP;
-    case kBlendDestOver:    return CAIRO_OPERATOR_DEST_OVER;
-    case kBlendDestIn:      return CAIRO_OPERATOR_DEST_IN;
-    case kBlendDestOut:     return CAIRO_OPERATOR_DEST_OUT;
-    case kBlendDestAtop:    return CAIRO_OPERATOR_DEST_ATOP;
+    case kBlendDefault:         // fall through
+    case kBlendClobber:         // fall through
+    case kBlendSourceOver:      return CAIRO_OPERATOR_OVER;
+    case kBlendSourceIn:        return CAIRO_OPERATOR_IN;
+    case kBlendSourceOut:       return CAIRO_OPERATOR_OUT;
+    case kBlendSourceAtop:      return CAIRO_OPERATOR_ATOP;
+    case kBlendDestOver:        return CAIRO_OPERATOR_DEST_OVER;
+    case kBlendDestIn:          return CAIRO_OPERATOR_DEST_IN;
+    case kBlendDestOut:         return CAIRO_OPERATOR_DEST_OUT;
+    case kBlendDestAtop:        return CAIRO_OPERATOR_DEST_ATOP;
+    case kBlendAdd:             return CAIRO_OPERATOR_ADD;
+    case kBlendXOR:             return CAIRO_OPERATOR_XOR;
   }
 }
 

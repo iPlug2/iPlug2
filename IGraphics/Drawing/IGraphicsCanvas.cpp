@@ -212,18 +212,18 @@ void IGraphicsCanvas::SetCanvasBlendMode(const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case kBlendDefault:     GetContext().set("globalCompositeOperation", "source-over");        break;
-    case kBlendCopy:        GetContext().set("globalCompositeOperation", "copy");               break;
-    case kBlendAdd:         GetContext().set("globalCompositeOperation", "lighter");            break;
-    case kBlendXOR:         GetContext().set("globalCompositeOperation", "xor");                break;
-    case kBlendSourceOver:  GetContext().set("globalCompositeOperation", "source-over");        break;
-    case kBlendSourceIn:    GetContext().set("globalCompositeOperation", "source-in");          break;
-    case kBlendSourceOut:   GetContext().set("globalCompositeOperation", "source-out");         break;
-    case kBlendSourceAtop:  GetContext().set("globalCompositeOperation", "source-atop");        break;
-    case kBlendDestOver:    GetContext().set("globalCompositeOperation", "destination-over");   break;
-    case kBlendDestIn:      GetContext().set("globalCompositeOperation", "destination-in");     break;
-    case kBlendDestOut:     GetContext().set("globalCompositeOperation", "destination-out");    break;
-    case kBlendDestAtop:    GetContext().set("globalCompositeOperation", "destination-atop");   break;
+    case kBlendDefault:       // fall through
+    case kBlendClobber:       // fall through
+    case kBlendSourceOver:    GetContext().set("globalCompositeOperation", "source-over");        break;
+    case kBlendSourceIn:      GetContext().set("globalCompositeOperation", "source-in");          break;
+    case kBlendSourceOut:     GetContext().set("globalCompositeOperation", "source-out");         break;
+    case kBlendSourceAtop:    GetContext().set("globalCompositeOperation", "source-atop");        break;
+    case kBlendDestOver:      GetContext().set("globalCompositeOperation", "destination-over");   break;
+    case kBlendDestIn:        GetContext().set("globalCompositeOperation", "destination-in");     break;
+    case kBlendDestOut:       GetContext().set("globalCompositeOperation", "destination-out");    break;
+    case kBlendDestAtop:      GetContext().set("globalCompositeOperation", "destination-atop");   break;
+    case kBlendAdd:           GetContext().set("globalCompositeOperation", "lighter");            break;
+    case kBlendXOR:           GetContext().set("globalCompositeOperation", "xor");                break;
   }
 }
 

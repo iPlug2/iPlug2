@@ -62,10 +62,8 @@ inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case kBlendDefault:         return agg::comp_op_src_over;
-    case kBlendCopy:            return agg::comp_op_src;
-    case kBlendAdd:             return agg::comp_op_plus;
-    case kBlendXOR:             return agg::comp_op_xor;
+    case kBlendDefault:         // fall through
+    case kBlendClobber:         // fall through
     case kBlendSourceOver:      return agg::comp_op_src_over;
     case kBlendSourceIn:        return agg::comp_op_src_in;
     case kBlendSourceOut:       return agg::comp_op_src_out;
@@ -74,6 +72,8 @@ inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
     case kBlendDestIn:          return agg::comp_op_dst_in;
     case kBlendDestOut:         return agg::comp_op_dst_out;
     case kBlendDestAtop:        return agg::comp_op_dst_atop;
+    case kBlendAdd:             return agg::comp_op_plus;
+    case kBlendXOR:             return agg::comp_op_xor;
   }
 }
 

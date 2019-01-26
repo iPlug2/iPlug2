@@ -74,9 +74,7 @@ const int FONT_LEN = 32;
 enum EBlendType
 {
   kBlendDefault,
-  kBlendCopy,      
-  kBlendAdd,
-  kBlendXOR,
+  kBlendClobber,
   kBlendSourceOver,
   kBlendSourceIn,
   kBlendSourceOut,
@@ -85,6 +83,8 @@ enum EBlendType
   kBlendDestIn,
   kBlendDestOut,
   kBlendDestAtop,
+  kBlendAdd,
+  kBlendXOR,
 };
 
 enum EFileAction

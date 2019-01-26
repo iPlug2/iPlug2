@@ -41,15 +41,15 @@ public:
 
     auto drawBlendPic = [this](IGraphics& g, IRECT r, EBlendType blend, const char* name, float alpha)
     {
-      IBlend bNone {blend, alpha};
+      IBlend blendMode { blend, alpha };
       g.FillCircle(IColor(128, 255, 0, 0), r.MW(), r.MH(), r.W() / 2.0);
-      g.DrawFittedBitmap(mBitmap, r, &bNone);
+      g.DrawFittedBitmap(mBitmap, r, &blendMode);
       g.DrawText(mText, name, r);
     };
 
     g.StartLayer(mRECT);
     drawBlendPic(g, nextCell(), kBlendDefault, "Default", alpha);
-    drawBlendPic(g, nextCell(), kBlendCopy, "Copy", alpha);
+    drawBlendPic(g, nextCell(), kBlendClobber, "Clobber", alpha);
     drawBlendPic(g, nextCell(), kBlendAdd, "Add", alpha);
     drawBlendPic(g, nextCell(), kBlendXOR, "XOR", alpha);
     drawBlendPic(g, nextCell(), kBlendSourceOver, "Src Over", alpha);
