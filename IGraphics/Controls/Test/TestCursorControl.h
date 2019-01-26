@@ -42,7 +42,7 @@ public:
     if (mCursor > (int) ECursor::HELP)
       mCursor = -1;
     
-    GetUI()->SetMouseCursor((ECursor) mCursor);
+    GetUI()->SetMouseCursor((ECursor) std::max(0, mCursor));
     
     SetDirty(false);
   }

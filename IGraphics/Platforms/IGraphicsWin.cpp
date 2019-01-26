@@ -114,7 +114,6 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   
   switch (msg)
   {
-
     case WM_TIMER:
     {
       if (wParam == IPLUG_TIMER_ID)
@@ -218,7 +217,11 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       pGraphics->OnMouseDown(info.x, info.y, info.ms);
       return 0;
     }
-
+    case WM_SETCURSOR:
+    {
+      pGraphics->OnSetCursor();
+      return 0;
+    }
     case WM_MOUSEMOVE:
     {
       if (!(wParam & (MK_LBUTTON | MK_RBUTTON)))
@@ -684,31 +687,32 @@ void IGraphicsWin::MoveMouseCursor(float x, float y)
   }
 }
 
-void IGraphicsWin::SetMouseCursor(ECursor cursor)
+ECursor IGraphicsWin::SetMouseCursor(ECursor cursorType)
 {
-  HCURSOR cursorType;
-    
-  switch (cursor)
+  HCURSOR cursor;
+
+  switch (cursorType)
   {
-    case ECursor::ARROW:            cursorType = LoadCursor(NULL, IDC_ARROW);           break;
-    case ECursor::IBEAM:            cursorType = LoadCursor(NULL, IDC_IBEAM);           break;
-    case ECursor::WAIT:             cursorType = LoadCursor(NULL, IDC_WAIT);            break;
-    case ECursor::CROSS:            cursorType = LoadCursor(NULL, IDC_CROSS);           break;
-    case ECursor::UPARROW:          cursorType = LoadCursor(NULL, IDC_UPARROW);         break;
-    case ECursor::SIZENWSE:         cursorType = LoadCursor(NULL, IDC_SIZENWSE);        break;
-    case ECursor::SIZENESW:         cursorType = LoadCursor(NULL, IDC_SIZENESW);        break;
-    case ECursor::SIZEWE:           cursorType = LoadCursor(NULL, IDC_SIZEWE);          break;
-    case ECursor::SIZENS:           cursorType = LoadCursor(NULL, IDC_SIZENS);          break;
-    case ECursor::SIZEALL:          cursorType = LoadCursor(NULL, IDC_SIZEALL);         break;
-    case ECursor::INO:              cursorType = LoadCursor(NULL, IDC_NO);              break;
-    case ECursor::HAND:             cursorType = LoadCursor(NULL, IDC_HAND);            break;
-    case ECursor::APPSTARTING:      cursorType = LoadCursor(NULL, IDC_APPSTARTING);     break;
-    case ECursor::HELP:             cursorType = LoadCursor(NULL, IDC_HELP);            break;
+    case ECursor::ARROW:            cursor = LoadCursor(NULL, IDC_ARROW);           break;
+    case ECursor::IBEAM:            cursor = LoadCursor(NULL, IDC_IBEAM);           break;
+    case ECursor::WAIT:             cursor = LoadCursor(NULL, IDC_WAIT);            break;
+    case ECursor::CROSS:            cursor = LoadCursor(NULL, IDC_CROSS);           break;
+    case ECursor::UPARROW:          cursor = LoadCursor(NULL, IDC_UPARROW);         break;
+    case ECursor::SIZENWSE:         cursor = LoadCursor(NULL, IDC_SIZENWSE);        break;
+    case ECursor::SIZENESW:         cursor = LoadCursor(NULL, IDC_SIZENESW);        break;
+    case ECursor::SIZEWE:           cursor = LoadCursor(NULL, IDC_SIZEWE);          break;
+    case ECursor::SIZENS:           cursor = LoadCursor(NULL, IDC_SIZENS);          break;
+    case ECursor::SIZEALL:          cursor = LoadCursor(NULL, IDC_SIZEALL);         break;
+    case ECursor::INO:              cursor = LoadCursor(NULL, IDC_NO);              break;
+    case ECursor::HAND:             cursor = LoadCursor(NULL, IDC_HAND);            break;
+    case ECursor::APPSTARTING:      cursor = LoadCursor(NULL, IDC_APPSTARTING);     break;
+    case ECursor::HELP:             cursor = LoadCursor(NULL, IDC_HELP);            break;
     default:
-      cursorType = LoadCursor(NULL, IDC_ARROW);
+      cursor = LoadCursor(NULL, IDC_ARROW);
   }
 
-  SetCursor(cursorType);
+  SetCursor(cursor);
+  return IGraphics::SetMouseCursor(cursorType);
 }
 
 bool IGraphicsWin::MouseCursorIsLocked()

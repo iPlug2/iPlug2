@@ -85,6 +85,7 @@ NSString* ToNSString(const char* cStr);
 
 @interface IGRAPHICS_VIEW : NSView <NSTextFieldDelegate/*, WKScriptMessageHandler*/>
 {
+  NSTrackingArea* mTrackingArea;
   NSTimer* mTimer;
   NSTextField* mTextFieldView;
   NSCursor* mMoveCursor;
@@ -108,6 +109,9 @@ NSString* ToNSString(const char* cStr);
 - (void) getMouseXY: (NSEvent*) pEvent x: (float&) pX y: (float&) pY;
 - (IMouseInfo) getMouseLeft: (NSEvent*) pEvent;
 - (IMouseInfo) getMouseRight: (NSEvent*) pEvent;
+- (void) updateTrackingAreas;
+- (void) mouseEntered:(NSEvent *)event;
+- (void) mouseExited:(NSEvent *)event;
 - (void) mouseDown: (NSEvent*) pEvent;
 - (void) mouseUp: (NSEvent*) pEvent;
 - (void) mouseDragged: (NSEvent*) pEvent;
@@ -134,7 +138,7 @@ NSString* ToNSString(const char* cStr);
 - (NSDragOperation) draggingEntered: (id <NSDraggingInfo>) sender;
 - (BOOL) performDragOperation: (id<NSDraggingInfo>) sender;
 //
-- (void) setMouseCursor: (ECursor) cursor;
+- (void) setMouseCursor: (ECursor) cursorType;
 @end
 
 #endif //NO_IGRAPHICS

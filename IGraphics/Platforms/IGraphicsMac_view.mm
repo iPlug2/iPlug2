@@ -416,6 +416,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 - (void)dealloc
 {
   [mMoveCursor release];
+  [mTrackingArea release];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [super dealloc];
 }
@@ -560,6 +561,32 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   return info;
 }
 
+- (void) updateTrackingAreas
+{
+  // This is needed to get mouseEntered and mouseExited
+    
+  [super updateTrackingAreas];
+    
+  if (mTrackingArea != nil) {
+      [self removeTrackingArea:mTrackingArea];
+    [mTrackingArea release];
+  }
+    
+  int opts = (NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways);
+  mTrackingArea = [ [NSTrackingArea alloc] initWithRect:[self bounds] options:opts owner:self userInfo:nil];
+  [self addTrackingArea:mTrackingArea];
+}
+
+- (void) mouseEntered: (NSEvent *)event
+{
+  mGraphics->OnSetCursor();
+}
+
+- (void) mouseExited: (NSEvent *)event
+{
+  mGraphics->OnMouseOut();
+}
+
 - (void) mouseDown: (NSEvent*) pEvent
 {
   IMouseInfo info = [self getMouseLeft:pEvent];
@@ -691,14 +718,14 @@ static void MakeCursorFromData(NSCursor*& cursor, uint16* data, int hotspot_x, i
   [img release];
 }
 
-- (void) setMouseCursor: (ECursor) cursor
+- (void) setMouseCursor: (ECursor) cursorType
 {
   NSCursor* pCursor = nullptr;
   
   bool helpCurrent = false;
   bool helpRequested = false;
     
-  switch (cursor)
+  switch (cursorType)
   {
     case ECursor::ARROW: pCursor = [NSCursor arrowCursor]; break;
     case ECursor::IBEAM: pCursor = [NSCursor IBeamCursor]; break;
@@ -764,7 +791,7 @@ static void MakeCursorFromData(NSCursor*& cursor, uint16* data, int hotspot_x, i
       break;
       }
     case ECursor::INO: pCursor = [NSCursor operationNotAllowedCursor]; break;
-    case ECursor::HAND: pCursor = [NSCursor openHandCursor]; break;
+    case ECursor::HAND: pCursor = [NSCursor pointingHandCursor]; break;
     case ECursor::APPSTARTING:
       if ([NSCursor respondsToSelector:@selector(busyButClickableCursor)])
         pCursor = [NSCursor performSelector:@selector(busyButClickableCursor)];

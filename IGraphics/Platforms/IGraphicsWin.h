@@ -39,7 +39,7 @@ public:
     
   void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override;
-  void SetMouseCursor(ECursor cursor) override;
+  ECursor SetMouseCursor(ECursor cursorType) override;
 
   int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) override;
 
