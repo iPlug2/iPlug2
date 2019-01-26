@@ -791,7 +791,7 @@ static void MakeCursorFromData(NSCursor*& cursor, uint16* data, int hotspot_x, i
       break;
       }
     case ECursor::INO: pCursor = [NSCursor operationNotAllowedCursor]; break;
-    case ECursor::HAND: pCursor = [NSCursor openHandCursor]; break;
+    case ECursor::HAND: pCursor = [NSCursor pointingHandCursor]; break;
     case ECursor::APPSTARTING:
       if ([NSCursor respondsToSelector:@selector(busyButClickableCursor)])
         pCursor = [NSCursor performSelector:@selector(busyButClickableCursor)];
