@@ -15,7 +15,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(REAPER_SDK);$(EXTRA_INC_PATHS);$(IPLUG_INC_PATHS);$(IGRAPHICS_INC_PATHS);$(GLAD_GL2_PATH);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(REAPER_SDK);$(EXTRA_INC_PATHS);$(IPLUG_INC_PATHS);$(IGRAPHICS_INC_PATHS);$(GLAD_GL2_PATHS);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>$(EXTRA_ALL_DEFS);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
