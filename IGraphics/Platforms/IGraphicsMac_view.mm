@@ -691,36 +691,62 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 {
-  NSImage* fileImage = [[NSImage alloc] initByReferencingFile: [NSString stringWithFormat:@"/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/HIServices.framework/Versions/A/Resources/cursors/%s/cursor.pdf", name]];
-  NSDictionary* info = [NSDictionary dictionaryWithContentsOfURL:[NSURL URLWithString:[NSString stringWithFormat:@"file:/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/HIServices.framework/Versions/A/Resources/cursors/%s/info.plist", name]]];
-  NSImage *cursorImage = [[NSImage alloc] initWithSize:[fileImage size]];
+  // get paths and intialise images etc.
+  const char* basePath = "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/HIServices.framework/Versions/A/Resources/cursors/";
   
-  NSArray<NSNumber*>* col = info[@"shadowcolor"];
-  NSShadow* shadow = [[NSShadow alloc] init];
-  [shadow setShadowOffset:NSMakeSize([info[@"shadowoffsetx"] doubleValue], [info[@"shadowoffsety"] doubleValue])];
-  [shadow setShadowBlurRadius: [info[@"blur"] doubleValue]];
-  [shadow setShadowColor: [NSColor colorWithSRGBRed:[col[0] doubleValue] green:[col[1] doubleValue] blue:[col[2] doubleValue] alpha:[col[3] doubleValue]]];
+  NSString* imagePath = [NSString stringWithFormat:@"%s%s/cursor.pdf", basePath, name];
+  NSString* infoPath = [NSString stringWithFormat:@"file:%s%s/info.plist", basePath, name];
+  NSImage* fileImage = [[NSImage alloc] initByReferencingFile: imagePath];
+  NSImage *cursorImage = [[NSImage alloc] initWithSize:[fileImage size]];
+  NSDictionary* info = [NSDictionary dictionaryWithContentsOfURL:[NSURL URLWithString:infoPath]];
+  
+  // get info from dictionary
   double hotX = [info[@"hotx-scaled"] doubleValue];
   double hotY = [info[@"hoty-scaled"] doubleValue];
+  double blur = [info[@"blur"] doubleValue];
+  double offsetX = [info[@"shadowoffsetx"] doubleValue];
+  double offsetY = [info[@"shadowoffsety"] doubleValue];
+  double red = [info[@"shadowcolor"][0] doubleValue];
+  double green = [info[@"shadowcolor"][1] doubleValue];
+  double blue = [info[@"shadowcolor"][2] doubleValue];
+  double alpha = [info[@"shadowcolor"][3] doubleValue];
+  CGColorRef shadowColor = CGColorCreateGenericRGB(red, green, blue, alpha);
   
   for (int scale = 1; scale <= 4; scale++)
   {
-    // TODO - apply dropshadow
-    
+    // scale
     NSAffineTransform* xform = [NSAffineTransform transform];
     [xform scaleBy:scale];
     id hints = @{ NSImageHintCTM: xform };
     CGImageRef rasterCGImage = [fileImage CGImageForProposedRect:NULL context:nil hints:hints];
-    NSBitmapImageRep *rep = [[NSBitmapImageRep alloc] initWithCGImage:rasterCGImage];
+    
+    // apply shadow
+    size_t width = CGImageGetWidth(rasterCGImage);
+    size_t height = CGImageGetHeight(rasterCGImage);
+    CGSize offset = CGSize { offsetX * scale, offsetY * scale };
+    CGContextRef shadowContext = CGBitmapContextCreate(NULL, width, height, CGImageGetBitsPerComponent(rasterCGImage), 0, CGImageGetColorSpace(rasterCGImage), CGImageGetBitmapInfo(rasterCGImage));
+    CGContextSetShadowWithColor(shadowContext, offset, blur * scale, shadowColor);
+    CGContextDrawImage(shadowContext, CGRectMake(0, 0, width, height), rasterCGImage);
+    CGImageRef shadowCGImage = CGBitmapContextCreateImage(shadowContext);
+    
+    // add to cursor inmge
+    NSBitmapImageRep *rep = [[NSBitmapImageRep alloc] initWithCGImage:shadowCGImage];
     [rep setSize:[fileImage size]];
     [cursorImage addRepresentation:rep];
+    
+    // release
     [rep release];
+    CGContextRelease(shadowContext);
+    CGImageRelease(shadowCGImage);
   }
   
+  // create cursor
   cursor = [[NSCursor alloc] initWithImage:cursorImage hotSpot:NSMakePoint(hotX, hotY)];
+  
+  // release
   [cursorImage release];
   [fileImage release];
-  [shadow release];
+  CGColorRelease(shadowColor);
 }
 
 - (void) setMouseCursor: (ECursor) cursorType
