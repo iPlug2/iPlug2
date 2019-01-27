@@ -689,33 +689,64 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     mGraphics->OnMouseWheel(info.x, info.y, info.ms, d);
 }
 
-static void MakeCursorFromData(NSCursor*& cursor, uint16* data, int hotspot_x, int hotspot_y)
+static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 {
-  NSImage *img = [[NSImage alloc] init];
-  NSBitmapImageRep* bmp = [[NSBitmapImageRep alloc]
-                           initWithBitmapDataPlanes:0
-                           pixelsWide:16
-                           pixelsHigh:16
-                           bitsPerSample:8
-                           samplesPerPixel:2
-                           hasAlpha:YES
-                           isPlanar:NO
-                           colorSpaceName:NSCalibratedWhiteColorSpace
-                           bytesPerRow:(16*2)
-                           bitsPerPixel:16];
+  // get paths and intialise images etc.
+  const char* basePath = "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/HIServices.framework/Versions/A/Resources/cursors/";
   
-  unsigned char* p = bmp ? [bmp bitmapData] : nullptr;
+  NSString* imagePath = [NSString stringWithFormat:@"%s%s/cursor.pdf", basePath, name];
+  NSString* infoPath = [NSString stringWithFormat:@"file:%s%s/info.plist", basePath, name];
+  NSImage* fileImage = [[NSImage alloc] initByReferencingFile: imagePath];
+  NSImage *cursorImage = [[NSImage alloc] initWithSize:[fileImage size]];
+  NSDictionary* info = [NSDictionary dictionaryWithContentsOfURL:[NSURL URLWithString:infoPath]];
   
-  if (p && img)
+  // get info from dictionary
+  double hotX = [info[@"hotx-scaled"] doubleValue];
+  double hotY = [info[@"hoty-scaled"] doubleValue];
+  double blur = [info[@"blur"] doubleValue];
+  double offsetX = [info[@"shadowoffsetx"] doubleValue];
+  double offsetY = [info[@"shadowoffsety"] doubleValue];
+  double red = [info[@"shadowcolor"][0] doubleValue];
+  double green = [info[@"shadowcolor"][1] doubleValue];
+  double blue = [info[@"shadowcolor"][2] doubleValue];
+  double alpha = [info[@"shadowcolor"][3] doubleValue];
+  CGColorRef shadowColor = CGColorCreateGenericRGB(red, green, blue, alpha);
+  
+  for (int scale = 1; scale <= 4; scale++)
   {
-    memcpy(p, data, sizeof(uint16) * 16 * 16);
-    [img addRepresentation:bmp];
-    NSPoint hs = NSMakePoint(hotspot_x, hotspot_y);
-    cursor = [[NSCursor alloc] initWithImage:img hotSpot:hs];
+    // scale
+    NSAffineTransform* xform = [NSAffineTransform transform];
+    [xform scaleBy:scale];
+    id hints = @{ NSImageHintCTM: xform };
+    CGImageRef rasterCGImage = [fileImage CGImageForProposedRect:NULL context:nil hints:hints];
+    
+    // apply shadow
+    size_t width = CGImageGetWidth(rasterCGImage);
+    size_t height = CGImageGetHeight(rasterCGImage);
+    CGSize offset = CGSize { offsetX * scale, offsetY * scale };
+    CGContextRef shadowContext = CGBitmapContextCreate(NULL, width, height, CGImageGetBitsPerComponent(rasterCGImage), 0, CGImageGetColorSpace(rasterCGImage), CGImageGetBitmapInfo(rasterCGImage));
+    CGContextSetShadowWithColor(shadowContext, offset, blur * scale, shadowColor);
+    CGContextDrawImage(shadowContext, CGRectMake(0, 0, width, height), rasterCGImage);
+    CGImageRef shadowCGImage = CGBitmapContextCreateImage(shadowContext);
+    
+    // add to cursor inmge
+    NSBitmapImageRep *rep = [[NSBitmapImageRep alloc] initWithCGImage:shadowCGImage];
+    [rep setSize:[fileImage size]];
+    [cursorImage addRepresentation:rep];
+    
+    // release
+    [rep release];
+    CGContextRelease(shadowContext);
+    CGImageRelease(shadowCGImage);
   }
   
-  [bmp release];
-  [img release];
+  // create cursor
+  cursor = [[NSCursor alloc] initWithImage:cursorImage hotSpot:NSMakePoint(hotX, hotY)];
+  
+  // release
+  [cursorImage release];
+  [fileImage release];
+  CGColorRelease(shadowColor);
 }
 
 - (void) setMouseCursor: (ECursor) cursorType
@@ -761,35 +792,12 @@ static void MakeCursorFromData(NSCursor*& cursor, uint16* data, int hotspot_x, i
         pCursor = [NSCursor resizeUpDownCursor];
       break;
     case ECursor::SIZEALL:
-      {
-        const uint16 B = 0xFF03;
-        const uint16 W = 0xFFFF;
-        
-        static uint16 p[16 * 16] =
-        {
-          0, 0, 0, 0, 0, 0, 0, W, W, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, W, B, B, W, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, W, B, B, B, B, W, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, W, B, B, B, B, B, B, W, 0, 0, 0, 0,
-          0, 0, 0, W, W, W, W, B, B, W, W, W, W, 0, 0, 0,
-          0, 0, W, B, W, 0, W, B, B, W, 0, W, B, W, 0, 0,
-          0, W, B, B, W, W, W, B, B, W, W, W, B, B, W, 0,
-          W, B, B, B, B, B, B, B, B, B, B, B, B, B, B, W,
-          W, B, B, B, B, B, B, B, B, B, B, B, B, B, B, W,
-          0, W, B, B, W, W, W, B, B, W, W, W, B, B, W, 0,
-          0, 0, W, B, W, 0, W, B, B, W, 0, W, B, W, 0, 0,
-          0, 0, 0, W, W, W, W, B, B, W, W, W, W, 0, 0, 0,
-          0, 0, 0, 0, W, B, B, B, B, B, B, W, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, W, B, B, B, B, W, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, W, B, B, W, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, W, W, 0, 0, 0, 0, 0, 0, 0,
-        };
-        
-        if (!mMoveCursor)
-          MakeCursorFromData(mMoveCursor, p, 8, 8);
-        pCursor = mMoveCursor;
+    {
+      if (!mMoveCursor)
+        MakeCursorFromName(mMoveCursor, "move");
+      pCursor = mMoveCursor;
       break;
-      }
+    }
     case ECursor::INO: pCursor = [NSCursor operationNotAllowedCursor]; break;
     case ECursor::HAND: pCursor = [NSCursor pointingHandCursor]; break;
     case ECursor::APPSTARTING:
