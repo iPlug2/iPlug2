@@ -78,7 +78,7 @@ private:
   
   ProcessContext mProcessContext;
   ParameterChanges mOutputParamChanges;
-  IMidiQueue mMidiOutputQueue;
+  IPlugQueue<IMidiMsg> mMidiOutputQueue;
 };
 
 IPlugVST3Processor* MakeProcessor();

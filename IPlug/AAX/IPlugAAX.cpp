@@ -95,6 +95,7 @@ AAX_Result AAX_CEffectGUI_IPLUG::SetControlHighlightInfo(AAX_CParamID paramID, A
 IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPlugAPIBase(c, kAPIAAX)
 , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAAX)
+, mMidiOutputQueue(DEFAULT_BLOCK_SIZE)
 {
   Trace(TRACELOC, "%s%s", c.pluginName, c.channelIOStr);
 
@@ -338,11 +339,13 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
     if(midiOut)
     {
       //MIDI
-      if (!mMidiOutputQueue.Empty())
+      if (mMidiOutputQueue.ElementsAvailable())
       {        
-        while (!mMidiOutputQueue.Empty())
+        while (mMidiOutputQueue.ElementsAvailable())
         {
-          IMidiMsg& msg = mMidiOutputQueue.Peek();
+          IMidiMsg msg;
+            
+          mMidiOutputQueue.Pop(msg);
           
           AAX_CMidiPacket packet;
           
@@ -356,13 +359,9 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
           packet.mData[2] = msg.mData2;
           
           midiOut->PostMIDIPacket (&packet);
-          
-          mMidiOutputQueue.Remove();
         }
       }
-      
-      mMidiOutputQueue.Flush(numSamples);
-      
+        
       //Output SYSEX from the editor, which has bypassed ProcessSysEx()
       if(mSysExDataFromEditor.ElementsAvailable())
       {
@@ -537,6 +536,6 @@ void IPlugAAX::SetLatency(int latency)
 
 bool IPlugAAX::SendMidiMsg(const IMidiMsg& msg)
 {
-  mMidiOutputQueue.Add(msg);
+  mMidiOutputQueue.Push(msg);
   return true;
 }

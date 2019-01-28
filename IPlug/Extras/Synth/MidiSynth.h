@@ -114,7 +114,7 @@ public:
 
   void AddMidiMsgToQueue(const IMidiMsg& msg)
   {
-    mMidiQueue.Add(msg);
+    mMidiQueue.Push(msg);
   }
 
   /** Processes a block of audio samples
@@ -169,7 +169,7 @@ private:
 
   VoiceAllocator mVoiceAllocator;
   uint16_t mUnisonVoices{1};
-  IMidiQueue mMidiQueue;
+  IPlugQueue<IMidiMsg> mMidiQueue;
   float mVelocityLUT[128];
   float mAfterTouchLUT[128];
   ChannelState mChannelStates[16]{};

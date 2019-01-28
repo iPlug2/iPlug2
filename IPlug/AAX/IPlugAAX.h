@@ -116,7 +116,7 @@ private:
   AAX_CParameter<bool>* mBypassParameter = nullptr;
   AAX_ITransport* mTransport = nullptr;
   WDL_PtrList<WDL_String> mParamIDs;
-  IMidiQueue mMidiOutputQueue;
+  IPlugQueue<IMidiMsg> mMidiOutputQueue;
 };
 
 IPlugAAX* MakePlug();

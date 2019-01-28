@@ -11,7 +11,7 @@
 #include "MidiSynth.h"
 
 MidiSynth::MidiSynth(VoiceAllocator::EPolyMode mode, int blockSize)
-: mBlockSize(blockSize)
+: mBlockSize(blockSize), mMidiQueue(256)
 {
   SetPolyMode(mode);
   const int kPitchBendDefault = 7;
@@ -398,7 +398,7 @@ bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nInputs, int
 {
   assert(NVoices());
 
-  if (mVoicesAreActive | !mMidiQueue.Empty())
+  if (mVoicesAreActive | mMidiQueue.ElementsAvailable())
   {
     int blockSize = mBlockSize;
     int samplesRemaining = nFrames;
@@ -409,9 +409,11 @@ bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nInputs, int
       if(samplesRemaining < blockSize)
         blockSize = samplesRemaining;
 
-      while (!mMidiQueue.Empty())
+      while (mMidiQueue.ElementsAvailable())
       {
-        IMidiMsg msg = mMidiQueue.Peek();
+        IMidiMsg msg;
+          
+        mMidiQueue.Pop(msg);
 
         // we assume the messages are in chronological order. If we find one later than the current block we are done.
         if (msg.mOffset > startIndex + blockSize) break;
@@ -427,7 +429,6 @@ bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nInputs, int
           msg.mOffset -= startIndex;
           mVoiceAllocator.AddEvent(MidiMessageToEvent(msg));
         }
-        mMidiQueue.Remove();
       }
 
       mVoiceAllocator.ProcessEvents(blockSize, mSampleTime);
@@ -458,8 +459,6 @@ bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nInputs, int
 #endif
 
     mVoicesAreActive = voicesbusy;
-
-    mMidiQueue.Flush(nFrames);
   }
   else // empty block
   {

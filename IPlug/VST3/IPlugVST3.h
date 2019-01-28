@@ -126,7 +126,7 @@ private:
   uint64_t getSpeakerArrForChans(int32 chans);
 
   bool mSidechainActive = false;
-  IMidiQueue mMidiOutputQueue;
+  IPlugQueue<IMidiMsg> mMidiOutputQueue;
   Vst::ProcessContext mProcessContext;
   std::vector <IPlugVST3View*> mViews;
   

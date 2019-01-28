@@ -50,6 +50,7 @@ extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoutingDir dir, 
 IPlugVST3Processor::IPlugVST3Processor(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPlugAPIBase(c, kAPIVST3)
 , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST3)
+, mMidiOutputQueue(DEFAULT_BLOCK_SIZE)
 {
   setControllerClass(instanceInfo.mOtherGUID);
 
@@ -432,14 +433,16 @@ tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
     IEventList* outputEvents = data.outputEvents;
     
     //MIDI
-    if (!mMidiOutputQueue.Empty() && outputEvents)
+      if (mMidiOutputQueue.ElementsAvailable() && outputEvents)
     {
       Event toAdd = {0};
       IMidiMsg msg;
       
-      while (!mMidiOutputQueue.Empty())
+      while (mMidiOutputQueue.ElementsAvailable())
       {
-        IMidiMsg& msg = mMidiOutputQueue.Peek();
+        IMidiMsg msg;
+          
+        mMidiOutputQueue.Pop(msg);
         
         if (msg.StatusMsg() == IMidiMsg::kNoteOn)
         {
@@ -473,13 +476,9 @@ tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
           toAdd.sampleOffset = msg.mOffset;
           outputEvents->addEvent(toAdd);
         }
-        
-        mMidiOutputQueue.Remove();
       }
     }
-    
-    mMidiOutputQueue.Flush(data.numSamples);
-    
+      
     //Output SYSEX from the editor, which has bypassed the processors' ProcessSysEx()
     if(mSysExDataFromEditor.ElementsAvailable())
     {
@@ -645,7 +644,7 @@ void IPlugVST3Processor::SendArbitraryMsgFromDelegate(int messageTag, int dataSi
 
 bool IPlugVST3Processor::SendMidiMsg(const IMidiMsg& msg)
 {
-  mMidiOutputQueue.Add(msg);
+  mMidiOutputQueue.Push(msg);
   return true;
 }
 
