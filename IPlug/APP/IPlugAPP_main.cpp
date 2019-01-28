@@ -246,22 +246,25 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
       if (gHWND)
         DestroyWindow(gHWND);
       break;
-//    case SWELLAPP_PROCESSMESSAGE:
-//      MSG* pMSG = (MSG*) parm1;
-//      NSView* pContentView = (NSView*) pMSG->hwnd;
-//      NSEvent* pEvent = (NSEvent*) parm2;
-//      int etype = [pEvent type];
-//      
-//      if(etype == NSKeyDown )
-//      {
-//        int flag, code = SWELL_MacKeyToWindowsKey(pEvent, &flag);
-//        
-//        if (!(flag&~FVIRTKEY))
-//          if(code == VK_RETURN || code == VK_ESCAPE)
-//            [pContentView keyDown: pEvent];
-//      }
-//      
-//      break;
+    case SWELLAPP_PROCESSMESSAGE:
+      MSG* pMSG = (MSG*) parm1;
+      NSView* pContentView = (NSView*) pMSG->hwnd;
+      NSEvent* pEvent = (NSEvent*) parm2;
+      int etype = [pEvent type];
+          
+      bool textField = [pContentView isKindOfClass:[NSText class]];
+          
+      if (!textField && etype == NSKeyDown)
+      {
+        int flag, code = SWELL_MacKeyToWindowsKey(pEvent, &flag);
+        
+        if (!(flag&~FVIRTKEY) && (code == VK_RETURN || code == VK_ESCAPE))
+        {
+          [pContentView keyDown: pEvent];
+          return 1;
+        }
+      }
+      break;
   }
   return 0;
 }
