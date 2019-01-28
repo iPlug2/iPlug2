@@ -52,7 +52,7 @@ public:
   virtual void ProcessBlock(T** inputs, T** outputs, int nFrames);
 
   /** Override this method to handle incoming MIDI messages. The method is called prior to ProcessBlock().
-   * You can use IMidiQueue in combination with this method in order to queue the message and process at the appropriate time in ProcessBlock()
+   * You can use IPlugQueue<IMidiMsg> in combination with this method in order to queue the message and process at the appropriate time in ProcessBlock()
    * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file I/O which could cause audio dropouts
    * @param msg The incoming midi message (includes a timestamp to indicate the offset in the forthcoming block of audio to be processed in ProcessBlock()) */
   virtual void ProcessMidiMsg(const IMidiMsg& msg);
