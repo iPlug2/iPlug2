@@ -291,7 +291,7 @@ void IGraphicsCanvas::PathTransformSetMatrix(const IMatrix& m)
   const double scale = GetBackingPixelScale();
   IMatrix t = IMatrix().Scale(scale, scale).Translate(XTranslate(), YTranslate()).Transform(m);
 
-  GetContext().call<void>("setTransform", t.mXX, t.mYX, t.mYX, t.mYY, t.mTX, t.mTY);
+  GetContext().call<void>("setTransform", t.mXX, t.mYX, t.mXY, t.mYY, t.mTX, t.mTY);
 }
 
 void IGraphicsCanvas::SetClipRegion(const IRECT& r)
