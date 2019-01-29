@@ -16,6 +16,13 @@ else
   emrunmode=1
 fi
 
+origin="/"
+
+if [ "$#" -eq 2 ]
+then
+  origin=${2}
+fi
+
 if [ -d build-web/.git ]
 then
   # trash only the scripts folder
@@ -66,20 +73,21 @@ fi
 python $EMSCRIPTEN/tools/file_packager.py fonts.data --preload ../resources/fonts/ --exclude .DS_Store --js-output=fonts.js
 python $EMSCRIPTEN/tools/file_packager.py svgs.data --preload ../resources/img/ --exclude *.png --exclude *DS_Store --js-output=svgs.js
 
-#echo "if(window.devicePixelRatio == 1) {\n" > imgs.js
+# echo "if(window.devicePixelRatio == 1) {\n" > imgs.js
 python $EMSCRIPTEN/tools/file_packager.py imgs.data --use-preload-plugins --preload ../resources/img/ --use-preload-cache --indexedDB-name="/IGraphicsStressTest_pkg" --exclude *DS_Store --exclude  *@2x.png --exclude  *.svg >> imgs.js
-#echo "\n}" >> imgs.js
-# @ package @2x resources into separate .data file
+# echo "\n}" >> imgs.js
+# package @2x resources into separate .data file
 mkdir ./2x/
 cp ../resources/img/*@2x* ./2x
-#echo "if(window.devicePixelRatio > 1) {\n" > imgs@2x.js
+# echo "if(window.devicePixelRatio > 1) {\n" > imgs@2x.js
 #--use-preload-cache --indexedDB-name="/IGraphicsStressTest_data"
 python $EMSCRIPTEN/tools/file_packager.py imgs@2x.data --use-preload-plugins --preload ./2x@/resources/img/ --use-preload-cache --indexedDB-name="/IGraphicsStressTest_pkg" --exclude *DS_Store >> imgs@2x.js
-#echo "\n}" >> imgs@2x.js
+# echo "\n}" >> imgs@2x.js
 rm -r ./2x
 
 cd ..
 echo -
+
 
 echo MAKING  - WAM WASM MODULE -----------------------------
 emmake make --makefile projects/IGraphicsStressTest-wam-processor.mk
@@ -102,7 +110,9 @@ cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awn.js IGraphicsStressTest-aw
 sed -i.bak s/NAME_PLACEHOLDER/IGraphicsStressTest/g IGraphicsStressTest-awn.js
 cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awp.js IGraphicsStressTest-awp.js
 sed -i.bak s/NAME_PLACEHOLDER/IGraphicsStressTest/g IGraphicsStressTest-awp.js
+sed -i.bak s,ORIGIN_PLACEHOLDER,$origin,g IGraphicsStressTest-awn.js
 rm *.bak
+
 cd ..
 
 #copy in the template html - comment if you have customised the html

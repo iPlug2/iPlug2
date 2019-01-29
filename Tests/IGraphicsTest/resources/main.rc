@@ -171,6 +171,60 @@ END
 // remains consistent on all systems.
 IDI_ICON1               ICON                    "IGraphicsTest.ico"
 
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_ACCELERATOR1 ACCELERATORS
+BEGIN
+    VK_OEM_COMMA,   ID_PREFERENCES,         VIRTKEY, CONTROL, NOINVERT
+    "B",            ID_SHOW_BOUNDS,         VIRTKEY, CONTROL, NOINVERT
+    "D",            ID_SHOW_DRAWN,          VIRTKEY, CONTROL, NOINVERT
+    "F",            ID_SHOW_FPS,            VIRTKEY, CONTROL, NOINVERT
+    "E",            ID_LIVE_EDIT,           VIRTKEY, CONTROL, NOINVERT
+END
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION 0,0,1,0
+PRODUCTVERSION 0,0,1,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040004e4"
+        BEGIN
+            VALUE "FileVersion", "0.0.1"
+            VALUE "ProductVersion", "0.0.1"
+            VALUE "FileDescription", "IGraphicsTest"
+            VALUE "InternalName", "IGraphicsTest"
+            VALUE "ProductName", "IGraphicsTest"
+            VALUE "CompanyName", "AcmeInc"
+            VALUE "LegalCopyright", "Copyright 2019 Acme Inc"
+            VALUE "LegalTrademarks", "VST is a trademark of Steinberg Media Technologies GmbH, Audio Unit is a trademark of Apple, Inc."
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x400, 1252
+    END
+END
+
 #endif    // English (United Kingdom) resources
 /////////////////////////////////////////////////////////////////////////////
 
