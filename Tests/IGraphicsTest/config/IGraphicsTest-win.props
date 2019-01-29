@@ -9,6 +9,9 @@
     <EXTRA_DEBUG_DEFS />
     <EXTRA_RELEASE_DEFS />
     <EXTRA_TRACER_DEFS />
+    <PDB_FILE>$(SolutionDir)build-win\pdbs\$(TargetName)_$(Platform).pdb</PDB_FILE>
+    <BUILD_DIR>$(SolutionDir)build-win</BUILD_DIR>
+    <CREATE_BUNDLE_SCRIPT>$(SolutionDir)..\..\Scripts\create_bundle.bat</CREATE_BUNDLE_SCRIPT>
   </PropertyGroup>
   <PropertyGroup>
     <TargetName>$(BINARY_NAME)</TargetName>
@@ -20,12 +23,13 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>wininet.lib;comctl32.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ProgramDatabaseFile>$(PDB_FILE)</ProgramDatabaseFile>
     </Link>
     <PostBuildEvent>
-      <Command></Command>
+      <Command>CALL "$(SolutionDir)scripts\postbuild-win.bat" "$(TargetExt)" "$(BINARY_NAME)" "$(Platform)" "$(COPY_VST2)" "$(TargetPath)" "$(VST2_32_PATH)" "$(VST2_64_PATH)" "$(VST3_32_PATH)" "$(VST3_64_PATH)" "$(AAX_32_PATH)" "$(AAX_64_PATH)" "$(BUILD_DIR)" "$(VST_ICON)" "$(AAX_ICON)" "$(CREATE_BUNDLE_SCRIPT)"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command></Command>
+      <Command>CALL "$(SolutionDir)scripts\prebuild-win.bat" "$(TargetExt)" "$(BINARY_NAME)" "$(Platform)" "$(TargetPath)" "$(OutDir)"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -44,6 +48,15 @@
     </BuildMacro>
     <BuildMacro Include="EXTRA_TRACER_DEFS">
       <Value>$(EXTRA_TRACER_DEFS)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PDB_FILE">
+      <Value>$(PDB_FILE)</Value>
+    </BuildMacro>
+    <BuildMacro Include="BUILD_DIR">
+      <Value>$(BUILD_DIR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="CREATE_BUNDLE_SCRIPT">
+      <Value>$(CREATE_BUNDLE_SCRIPT)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
