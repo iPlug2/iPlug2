@@ -62,7 +62,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     DrawMenuBar(gHWND);
 #endif
 
-
     for(;;)
     {
       MSG msg= {0,};
@@ -71,7 +70,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
       if (!vvv)
         break;
       
-      if (vvv<0)
+      if (vvv < 0)
       {
         Sleep(10);
         continue;
@@ -83,7 +82,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
         continue;
       }
       
-      if (gHWND && IsDialogMessage(gHWND, &msg)) continue;
+      if (gHWND && (TranslateAccelerator(gHWND, hAccel, &msg) || IsDialogMessage(gHWND, &msg))
+        continue;
       
       // default processing for other dialogs
       HWND hWndParent = NULL;
@@ -93,20 +93,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
       {
         if (GetClassLong(temphwnd, GCW_ATOM) == (INT)32770)
         {
-          hWndParent=temphwnd;
-          if (!(GetWindowLong(temphwnd, GWL_STYLE) &WS_CHILD))
+          hWndParent = temphwnd;
+          if (!(GetWindowLong(temphwnd, GWL_STYLE) & WS_CHILD))
             break; // not a child, exit
         }
       }
       while (temphwnd = GetParent(temphwnd));
       
-      if (hWndParent && IsDialogMessage(hWndParent,&msg)) continue;
+      if (hWndParent && IsDialogMessage(hWndParent,&msg))
+        continue;
 
-      if (!TranslateAccelerator(gHWND, hAccel, &msg))
-      {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-      }
+      TranslateMessage(&msg);
+      DispatchMessage(&msg);
     }
     
     // in case gHWND didnt get destroyed -- this corresponds to SWELLAPP_DESTROY roughly
