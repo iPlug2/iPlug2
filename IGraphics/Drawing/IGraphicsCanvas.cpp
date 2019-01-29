@@ -71,11 +71,6 @@ void IGraphicsCanvas::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX,
   GetContext().call<void>("restore");
 }
 
-void IGraphicsCanvas::DrawRotatedBitmap(IBitmap& bitmap, float destCentreX, float destCentreY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
-{
-  IGraphicsPathBase::DrawRotatedBitmap(bitmap, destCentreX, destCentreY, DegToRad(angle), yOffsetZeroDeg, pBlend);
-}
-
 void IGraphicsCanvas::PathClear()
 {
   GetContext().call<void>("beginPath");

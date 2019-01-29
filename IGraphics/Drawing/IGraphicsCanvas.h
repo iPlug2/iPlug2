@@ -40,7 +40,6 @@ public:
   ~IGraphicsCanvas();
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend) override;
-  void DrawRotatedBitmap(IBitmap& bitmap, float destCentreX, float destCentreY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
 
   void DrawResize() override {};
 
