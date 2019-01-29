@@ -48,6 +48,7 @@ GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO
 // Flags to pass to compiler for all builds
 GCC_CFLAGS = -Wno-write-strings -mfpmath=sse -msse -msse2 -msse3 -mavx
 
+// Uncomment to enable relaxed IEEE compliance
 //GCC_FAST_MATH = YES
 
 // uncomment this to enable codesigning - necessary for AUv3 delivery
