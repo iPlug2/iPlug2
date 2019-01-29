@@ -229,6 +229,22 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
 
 @end
 
+@implementation IGRAPHICS_TEXTFIELD
+
+- (bool) becomeFirstResponder;
+{
+    bool success = [super becomeFirstResponder];
+    if (success)
+    {
+        NSTextView *textField = (NSTextView*) [self currentEditor];
+        if( [textField respondsToSelector: @selector(setInsertionPointColor:)] )
+            [textField setInsertionPointColor: [self textColor]];
+    }
+    return success;
+}
+
+@end
+
 NSString* ToNSString(const char* cStr)
 {
   return [NSString stringWithCString:cStr encoding:NSUTF8StringEncoding];
@@ -899,7 +915,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   if (mTextFieldView)
     return;
 
-  mTextFieldView = [[NSTextField alloc] initWithFrame: areaRect];
+  mTextFieldView = [[IGRAPHICS_TEXTFIELD alloc] initWithFrame: areaRect];
   
   if (text.mVAlign == IText::kVAlignMiddle)
   {

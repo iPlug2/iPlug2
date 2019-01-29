@@ -40,7 +40,7 @@ inline IRECT ToIRECT(IGraphics* pGraphics, const NSRect* pR)
 
 inline NSColor* ToNSColor(const IColor& c)
 {
-  return [NSColor colorWithCalibratedRed:(double) c.R / 255.0 green:(double) c.G / 255.0 blue:(double) c.B / 255.0 alpha:(double) c.A / 255.0];
+  return [NSColor colorWithDeviceRed:(double) c.R / 255.0 green:(double) c.G / 255.0 blue:(double) c.B / 255.0 alpha:(double) c.A / 255.0];
 }
 
 NSString* ToNSString(const char* cStr);
@@ -83,11 +83,17 @@ NSString* ToNSString(const char* cStr);
 - (NSMenuItem*) menuItem;
 @end
 
+@interface IGRAPHICS_TEXTFIELD : NSTextField
+{
+}
+- (bool) becomeFirstResponder;
+@end
+
 @interface IGRAPHICS_VIEW : NSView <NSTextFieldDelegate/*, WKScriptMessageHandler*/>
 {
   NSTrackingArea* mTrackingArea;
   NSTimer* mTimer;
-  NSTextField* mTextFieldView;
+  IGRAPHICS_TEXTFIELD* mTextFieldView;
   NSCursor* mMoveCursor;
 //  WKWebView* mWebView;
   IControl* mEdControl; // the control linked to the open text edit
