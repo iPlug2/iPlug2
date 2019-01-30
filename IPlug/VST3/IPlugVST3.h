@@ -42,7 +42,8 @@ using namespace Steinberg;
 /**  VST3 base class for a non-distributed IPlug VST3 plug-in
 *   @ingroup APIClasses */
 class IPlugVST3 : public IPlugAPIBase
-                , public IPlugVST3_ProcessorBase
+                , public IPlugVST3ProcessorBase
+                , public IPlugVST3ControllerBase
                 , public Vst::SingleComponentEffect
 {
 public:

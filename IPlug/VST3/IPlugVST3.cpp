@@ -26,7 +26,7 @@ using namespace Vst;
 
 IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPlugAPIBase(c, kAPIVST3)
-, IPlugVST3_ProcessorBase(c)
+, IPlugVST3ProcessorBase(c)
 {
   CreateTimer();
 }
@@ -39,57 +39,19 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
 {
   TRACE;
 
-  tresult result = SingleComponentEffect::initialize(context);
-
-  IPlugVST3GetHost(this, context);
-
-  if (result == kResultOk)
+  if (SingleComponentEffect::initialize(context) == kResultOk)
   {
-    Initialize(this);
+    IPlugVST3ProcessorBase::Initialize(this);
+    IPlugVST3ControllerBase::Initialize(this, parameters);
 
-    if (NPresets())
-    {
-      parameters.addParameter(new IPlugVST3PresetParameter(NPresets()));
-    }
-
-    if(!IsInstrument())
-    {
-      parameters.addParameter(new IPlugVST3BypassParameter());
-    }
-
-    for (int i = 0; i < NParams(); i++)
-    {
-      IParam *p = GetParam(i);
-
-      UnitID unitID = kRootUnitId;
-
-      const char* paramGroupName = p->GetGroupForHost();
-
-      if (CStringHasContents(paramGroupName))
-      {
-        for(int j = 0; j < NParamGroups(); j++)
-        {
-          if(strcmp(paramGroupName, GetParamGroupName(j)) == 0)
-          {
-            unitID = j+1;
-          }
-        }
-
-        if (unitID == kRootUnitId) // new unit, nothing found, so add it
-        {
-          unitID = AddParamGroup(paramGroupName);
-        }
-      }
-
-      Parameter* pVST3Parameter = new IPlugVST3Parameter(p, i, unitID);
-      parameters.addParameter(pVST3Parameter);
-    }
+    IPlugVST3GetHost(this, context);
+    OnHostIdentified();
+    OnParamReset(kReset);
+    
+    return kResultOk;
   }
 
-  OnHostIdentified();
-  OnParamReset(kReset);
-
-  return result;
+  return kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3::terminate()
@@ -153,7 +115,6 @@ tresult PLUGIN_API IPlugVST3::getState(IBStream* state)
   TRACE;
   
   return IPlugVST3State::GetState(this, state) ? kResultOk :kResultFalse;
-  
 }
 
 #pragma mark IEditController overrides

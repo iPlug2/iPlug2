@@ -23,6 +23,7 @@
 #include "IPlugAPIBase.h"
 
 #include "IPlugVST3_View.h"
+#include "IPlugVST3_Common.h"
 
 using namespace Steinberg;
 using namespace Vst;
@@ -32,6 +33,7 @@ using namespace Vst;
 class IPlugVST3Controller : public EditControllerEx1
                           , public IMidiMapping
                           , public IPlugAPIBase
+                          , public IPlugVST3ControllerBase
 {
 public:
   typedef IPlugVST3View<IPlugVST3Controller> ViewType;

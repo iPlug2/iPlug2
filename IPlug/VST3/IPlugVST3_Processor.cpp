@@ -28,11 +28,11 @@ tresult PLUGIN_API IPlugVST3Processor::initialize(FUnknown* context)
 {
   TRACE;
   
-  IPlugVST3GetHost(this, context);
-    
   if (AudioEffect::initialize(context) == kResultOk)
   {
     Initialize(this);
+    IPlugVST3GetHost(this, context);
+    OnHostIdentified();
     return kResultOk;
   }
   

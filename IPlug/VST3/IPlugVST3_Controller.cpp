@@ -35,10 +35,10 @@ IPlugVST3Controller::~IPlugVST3Controller()
 
 tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
 {
-  tresult result = EditControllerEx1::initialize (context);
-
-  if (result == kResultTrue)
+  if (EditControllerEx1::initialize(context) == kResultTrue)
   {
+    Initialize(this, parameters);
+    /*
     UnitInfo uinfo;
     uinfo.id = kRootUnitId;
     uinfo.parentUnitId = kNoParentUnitId;
@@ -170,8 +170,10 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
 
       addProgramList (list);
     }
+     */
 
     IPlugVST3GetHost(this, context);
+    OnHostIdentified();
 
     return kResultTrue;
   }
@@ -197,13 +199,13 @@ tresult PLUGIN_API IPlugVST3Controller::setComponentState(IBStream* state)
 
 tresult PLUGIN_API IPlugVST3Controller::setState(IBStream* state)
 {
-  // Currently nothing to do
+  // Currently nothing to do here
   return kResultOk;
 }
 
 tresult PLUGIN_API IPlugVST3Controller::getState(IBStream* state)
 {
-// Currently nothing to do
+// Currently nothing to do here
   return kResultOk;
 }
 
@@ -256,10 +258,10 @@ tresult PLUGIN_API IPlugVST3Controller::getMidiControllerAssignment (int32 busIn
   return kResultFalse;
 }
 
-tresult PLUGIN_API IPlugVST3Controller::queryInterface (const char* iid, void** obj)
+tresult PLUGIN_API IPlugVST3Controller::queryInterface(const char* iid, void** obj)
 {
-  QUERY_INTERFACE (iid, obj, IMidiMapping::iid, IMidiMapping)
-  return EditControllerEx1::queryInterface (iid, obj);
+  QUERY_INTERFACE(iid, obj, IMidiMapping::iid, IMidiMapping)
+  return EditControllerEx1::queryInterface(iid, obj);
 }
 
 tresult PLUGIN_API IPlugVST3Controller::getProgramName(ProgramListID listId, int32 programIndex, String128 name /*out*/)
@@ -287,18 +289,18 @@ tresult PLUGIN_API IPlugVST3Controller::getProgramName(ProgramListID listId, int
 
 void IPlugVST3Controller::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
 {
-    if (HasUI() && (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight()))
-    {
-        mView->resize(viewWidth, viewHeight);
-        IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
-    }
+  if (HasUI() && (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight()))
+  {
+    mView->resize(viewWidth, viewHeight);
+    IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
+  }
 }
 
 void IPlugVST3Controller::DirtyParametersFromUI()
 {
-    startGroupEdit();
-    IPlugAPIBase::DirtyParametersFromUI();
-    finishGroupEdit();
+  startGroupEdit();
+  IPlugAPIBase::DirtyParametersFromUI();
+  finishGroupEdit();
 }
 
 #pragma mark Message with Processor

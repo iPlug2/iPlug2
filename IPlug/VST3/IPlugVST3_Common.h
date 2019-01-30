@@ -58,10 +58,10 @@ static uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int b
 extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoutingDir dir, int busIdx, IOConfig* pConfig);
 #endif //CUSTOM_BUSTYPE_FUNC
 
-class IPlugVST3_ProcessorBase : public IPlugProcessor<PLUG_SAMPLE_DST>
+class IPlugVST3ProcessorBase : public IPlugProcessor<PLUG_SAMPLE_DST>
 {
 public:
-  IPlugVST3_ProcessorBase(IPlugConfig c) : IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST3)
+  IPlugVST3ProcessorBase(IPlugConfig c) : IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST3)
   {
     SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
     SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
@@ -501,6 +501,54 @@ private:
   ProcessContext mProcessContext;
   IMidiQueue mMidiOutputQueue;
   bool mSidechainActive = false;
+};
+
+
+class IPlugVST3ControllerBase
+{
+public:
+  
+  template <class T>
+  void Initialize(T* plug, ParameterContainer& parameters)
+  {
+    if (plug->NPresets())
+    {
+      parameters.addParameter(new IPlugVST3PresetParameter(plug->NPresets()));
+    }
+    
+    if(!plug->IsInstrument())
+    {
+      parameters.addParameter(new IPlugVST3BypassParameter());
+    }
+    
+    for (int i = 0; i < plug->NParams(); i++)
+    {
+      IParam *p = plug->GetParam(i);
+      
+      UnitID unitID = kRootUnitId;
+      
+      const char* paramGroupName = p->GetGroupForHost();
+      
+      if (CStringHasContents(paramGroupName))
+      {
+        for (int j = 0; j < plug->NParamGroups(); j++)
+        {
+          if (strcmp(paramGroupName, plug->GetParamGroupName(j)) == 0)
+          {
+            unitID = j + 1;
+          }
+        }
+        
+        if (unitID == kRootUnitId) // new unit, nothing found, so add it
+        {
+          unitID = plug->AddParamGroup(paramGroupName);
+        }
+      }
+      
+      Parameter* pVST3Parameter = new IPlugVST3Parameter(p, i, unitID);
+      parameters.addParameter(pVST3Parameter);
+    }
+  }
 };
 
 // State
