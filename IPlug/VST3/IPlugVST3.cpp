@@ -22,7 +22,7 @@ using namespace Vst;
 
 #include "IPlugVST3_Parameter.h"
 
-#pragma mark - IPlugVST3 Constructor
+#pragma mark - IPlugVST3 Constructor/Destructor
 
 IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPlugAPIBase(c, kAPIVST3)
@@ -41,16 +41,7 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
 
   tresult result = SingleComponentEffect::initialize(context);
 
-  String128 tmpStringBuf;
-  char hostNameCString[128];
-  FUnknownPtr<IHostApplication>app(context);
-
-  if ((GetHost() == kHostUninit) && app)
-  {
-    app->getName(tmpStringBuf);
-    Steinberg::UString(tmpStringBuf, 128).toAscii(hostNameCString, 128);
-    SetHost(hostNameCString, 0); // Can't get version in VST3
-  }
+  IPlugVST3GetHost(this, context);
 
   if (result == kResultOk)
   {
@@ -131,13 +122,7 @@ tresult PLUGIN_API IPlugVST3::setupProcessing(ProcessSetup& newSetup)
 {
   TRACE;
 
-  if (SetupProcessing(newSetup))
-  {
-    processSetup = newSetup;
-    return kResultOk;
-  }
-      
-  return kResultFalse;
+  return SetupProcessing(newSetup, processSetup) ? kResultOk : kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
@@ -185,13 +170,13 @@ IPlugView* PLUGIN_API IPlugVST3::createView(const char* name)
 
 tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* state)
 {
-  // Nothing to do here
+  // Currently nothing to do here
   return kResultOk;
 }
 
 tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
 {
-  // Nothing to do here
+  // Currently nothing to do here
   return kResultOk;
 }
 

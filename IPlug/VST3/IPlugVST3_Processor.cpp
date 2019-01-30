@@ -10,10 +10,7 @@
 
 #include "IPlugVST3_Processor.h"
 
-#include "pluginterfaces/base/ustring.h"
-#include "pluginterfaces/base/ibstream.h"
-#include "pluginterfaces/vst/ivstparameterchanges.h"
-#include "pluginterfaces/vst/ivstevents.h"
+#pragma mark - IPlugVST3Processor Constructor/Destructor
 
 IPlugVST3Processor::IPlugVST3Processor(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPlugAPIBase(c, kAPIVST3)
@@ -31,31 +28,21 @@ tresult PLUGIN_API IPlugVST3Processor::initialize(FUnknown* context)
 {
   TRACE;
   
-  tresult result = AudioEffect::initialize(context);
-  
-  String128 tmpStringBuf;
-  char hostNameCString[128];
-  FUnknownPtr<IHostApplication>app(context);
-  
-  if ((GetHost() == kHostUninit) && app)
+  IPlugVST3GetHost(this, context);
+    
+  if (AudioEffect::initialize(context) == kResultOk)
   {
-    app->getName(tmpStringBuf);
-    Steinberg::UString(tmpStringBuf, 128).toAscii(hostNameCString, 128);
-    SetHost(hostNameCString, 0); // Can't get version in VST3
+    Initialize(this);
+    return kResultOk;
   }
   
-  if (result == kResultOk)
-  {
-    Initialize(this); 
-  }
-  
-  return result;
+  return kResultFalse;
 }
 
-//tresult PLUGIN_API IPlugVST3Processor::terminate()
-//{
-//  return AudioEffect::terminate();
-//}
+tresult PLUGIN_API IPlugVST3Processor::terminate()
+{
+  return AudioEffect::terminate();
+}
 
 tresult PLUGIN_API IPlugVST3Processor::setBusArrangements(SpeakerArrangement* pInputBusArrangements, int32 numInBuses, SpeakerArrangement* pOutputBusArrangements, int32 numOutBuses)
 {
@@ -76,13 +63,7 @@ tresult PLUGIN_API IPlugVST3Processor::setupProcessing(ProcessSetup& newSetup)
 {
   TRACE;
   
-  if (SetupProcessing(newSetup))
-  {
-    processSetup = newSetup;
-    return kResultOk;
-  }
-    
-  return kResultFalse;
+  return SetupProcessing(newSetup, processSetup) ? kResultOk : kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
@@ -112,6 +93,8 @@ tresult PLUGIN_API IPlugVST3Processor::getState(IBStream* state)
     
   return IPlugVST3State::GetState(this, state) ? kResultOk :kResultFalse;
 }
+
+#pragma mark IEditorDelegate overrides
 
 void IPlugVST3Processor::SendControlValueFromDelegate(int controlTag, double normalizedValue)
 {
@@ -149,7 +132,7 @@ void IPlugVST3Processor::SendArbitraryMsgFromDelegate(int messageTag, int dataSi
   if (!message)
     return;
   
-  if(dataSize == 0) // allow sending messages with no data
+  if (dataSize == 0) // allow sending messages with no data
   {
     dataSize = 1;
     uint8_t dummy = 0;
@@ -161,6 +144,8 @@ void IPlugVST3Processor::SendArbitraryMsgFromDelegate(int messageTag, int dataSi
   message->getAttributes()->setBinary("D", pData, dataSize);
   sendMessage(message);
 }
+
+#pragma mark IConnectionPoint override
 
 tresult PLUGIN_API IPlugVST3Processor::notify(IMessage* message)
 {
@@ -207,6 +192,8 @@ tresult PLUGIN_API IPlugVST3Processor::notify(IMessage* message)
   return AudioEffect::notify(message);
 }
 
+#pragma mark Messaging overrides
+
 void IPlugVST3Processor::TransmitMidiMsgFromProcessor(const IMidiMsg& msg)
 {
   OPtr<IMessage> message = allocateMessage();
@@ -231,3 +218,4 @@ void IPlugVST3Processor::TransmitSysExDataFromProcessor(const SysExData& data)
   message->getAttributes()->setInt("O", data.mOffset);
   sendMessage(message);
 }
+

@@ -47,7 +47,7 @@ public:
 
   // AudioEffect overrides:
   tresult PLUGIN_API initialize(FUnknown* context) override;
-//  tresult PLUGIN_API terminate() override;
+  tresult PLUGIN_API terminate() override;
   tresult PLUGIN_API setBusArrangements(SpeakerArrangement* inputs, int32 numIns, SpeakerArrangement* outputs, int32 numOuts) override;
   tresult PLUGIN_API setActive(TBool state) override;
   tresult PLUGIN_API setupProcessing(ProcessSetup& newSetup) override;
@@ -62,9 +62,6 @@ public:
   void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) override;
   void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override {} // NOOP in VST3 processor -> param change gets there via IPlugVST3Controller::setParamNormalized
   void SendArbitraryMsgFromDelegate(int messageTag, int dataSize = 0, const void* pData = nullptr) override;
-  
-  // IPlugProcessor
-  bool SendMidiMsg(const IMidiMsg& msg) override;
   
 private:
   void TransmitMidiMsgFromProcessor(const IMidiMsg& msg) override;

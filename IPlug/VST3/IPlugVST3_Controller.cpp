@@ -171,16 +171,7 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
       addProgramList (list);
     }
 
-    String128 tmpStringBuf;
-    char hostNameCString[128];
-    FUnknownPtr<IHostApplication>app(context);
-
-    if ((GetHost() == kHostUninit) && app)
-    {
-      app->getName(tmpStringBuf);
-      Steinberg::UString(tmpStringBuf, 128).toAscii(hostNameCString, 128);
-      SetHost(hostNameCString, 0); // Can't get version in VST3
-    }
+    IPlugVST3GetHost(this, context);
 
     return kResultTrue;
   }
@@ -293,6 +284,24 @@ tresult PLUGIN_API IPlugVST3Controller::getProgramName(ProgramListID listId, int
 //    notifyProgramListChange(kPresetParam, mCurrentPresetIdx);
 //  }
 //}
+
+void IPlugVST3Controller::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
+{
+    if (HasUI() && (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight()))
+    {
+        mView->resize(viewWidth, viewHeight);
+        IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
+    }
+}
+
+void IPlugVST3Controller::DirtyParametersFromUI()
+{
+    startGroupEdit();
+    IPlugAPIBase::DirtyParametersFromUI();
+    finishGroupEdit();
+}
+
+#pragma mark Message with Processor
 
 tresult PLUGIN_API IPlugVST3Controller::notify(IMessage* message)
 {
@@ -413,18 +422,3 @@ void IPlugVST3Controller::SendArbitraryMsgFromUI(int messageTag, int controlTag,
   sendMessage(message);
 }
 
-void IPlugVST3Controller::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
-{
-  if (HasUI() && (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight()))
-  {
-    mView->resize(viewWidth, viewHeight);
-    IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
-  }
-}
-
-void IPlugVST3Controller::DirtyParametersFromUI()
-{
-  startGroupEdit();
-  IPlugAPIBase::DirtyParametersFromUI();
-  finishGroupEdit();
-}

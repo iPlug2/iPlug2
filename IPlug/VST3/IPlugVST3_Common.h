@@ -292,13 +292,14 @@ public:
         IPlugProcessor::AttachBuffers(direction, idx, n, pBus.channelBuffers64, nFrames);
   }
   
-  bool SetupProcessing(const ProcessSetup& setup)
+  bool SetupProcessing(const ProcessSetup& setup, ProcessSetup& storedSetup)
   {
     if ((setup.symbolicSampleSize != kSample32) && (setup.symbolicSampleSize != kSample64))
       return false;
     
+    storedSetup = setup;
+    
     SetSampleRate(setup.sampleRate);
-    //SetBypassed(false);   // TODO - why???
     IPlugProcessor::SetBlockSize(setup.maxSamplesPerBlock); // TODO: should IPlugVST3Processor call SetBlockSize in construct unlike other APIs?
     mMidiOutputQueue.Resize(setup.maxSamplesPerBlock);
     OnReset();
@@ -572,3 +573,20 @@ struct IPlugVST3State
     return kResultOk;
   }
 };
+
+// Host
+
+template <class T>
+static void IPlugVST3GetHost(T* plug, FUnknown* context)
+{
+  String128 tmpStringBuf;
+  char hostNameCString[128];
+  FUnknownPtr<IHostApplication>app(context);
+  
+  if ((plug->GetHost() == kHostUninit) && app)
+  {
+    app->getName(tmpStringBuf);
+    Steinberg::UString(tmpStringBuf, 128).toAscii(hostNameCString, 128);
+    plug->SetHost(hostNameCString, 0); // Can't get version in VST3
+  }
+}
