@@ -5,7 +5,10 @@
 
 #define STATE_BEFORE_CODE -1
 
+#ifndef OS_WIN
 #include "swell.h"
+#endif
+
 #include "curses.h"
 #include "curses_editor.h"
 #include "assocarray.h"

@@ -78,16 +78,18 @@ public:
   {
     if (mController->HasUI())
     {
+      void* pView = nullptr;
 #ifdef OS_WIN
       if (strcmp(type, kPlatformTypeHWND) == 0)
-        mController->OpenWindow(pParent);
+        pView = mController->OpenWindow(pParent);
 #elif defined OS_MAC
       if (strcmp (type, kPlatformTypeNSView) == 0)
-        mController->OpenWindow(pParent);
+        pView = mController->OpenWindow(pParent);
       else // Carbon
         return kResultFalse;
 #endif
-      mController->OnUIOpen();
+      if (pView)
+        mController->OnUIOpen();
       
       return kResultTrue;
     }

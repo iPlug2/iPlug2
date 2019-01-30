@@ -14,6 +14,8 @@
 #include "IGraphicsPathBase.h"
 
 #include "nanovg.h"
+#include "mutex.h"
+#include <stack>
 
 // Thanks to Olli Wang/MOUI for much of this macro magic  https://github.com/ollix/moui
 
@@ -84,17 +86,22 @@
 
 void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData);
 
+// Forward declaration
+
+class IGraphicsNanoVG;
+
 /** An NanoVG API bitmap
  * @ingroup APIBitmaps */
 class NanoVGBitmap : public APIBitmap
 {
 public:
   NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID);
-  NanoVGBitmap(NVGcontext* pContext, int width, int height, int scale, float drawScale);
+  NanoVGBitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, int scale, float drawScale);
   NanoVGBitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, int scale, float drawScale);
   virtual ~NanoVGBitmap();
   NVGframebuffer* GetFBO() const { return mFBO; }
 private:
+  IGraphicsNanoVG *mGraphics = nullptr;
   NVGcontext* mVG;
   NVGframebuffer* mFBO = nullptr;
 };
@@ -142,6 +149,8 @@ public:
   
   void SetPlatformContext(void* pContext) override;
 
+  void DeleteFBO(NVGframebuffer* pBuffer);
+    
 protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override { return new APIBitmap(); } // NO-OP
@@ -167,12 +176,15 @@ private:
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
   void UpdateLayer() override;
-
+  void ClearFBOStack();
+    
+  // A stack of FBOs that requires freeing at the end of the frame
+  
+  bool mInDraw = false;
+  WDL_Mutex mFBOMutex;
+  std::stack<NVGframebuffer*> mFBOStack;
+    
   StaticStorage<APIBitmap> mBitmapCache; //not actually static (doesn't require retaining or releasing)
   NVGcontext* mVG = nullptr;
-  NVGframebuffer* mMainFrameBuffer = nullptr;
-    
-#if defined OS_WIN
-  HGLRC mHGLRC = nullptr;
-#endif
+  NVGframebuffer* mMainFrameBuffer = nullptr;    
 };
