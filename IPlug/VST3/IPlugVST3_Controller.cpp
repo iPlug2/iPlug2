@@ -49,9 +49,9 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
     else
       uinfo.programListId = kNoProgramListId;
 
-    UString name (uinfo.name, 128);
+    UString name(uinfo.name, 128);
     name.fromAscii("Root");
-    addUnit (new Unit (uinfo));
+    addUnit(new Unit(uinfo));
 
     int32 flags = 0;
     UnitID unitID = kRootUnitId;
@@ -87,7 +87,7 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
           uinfo.parentUnitId = kRootUnitId;
           uinfo.programListId = kNoProgramListId;
           name.fromAscii(paramGroupName);
-          addUnit (new Unit (uinfo));
+          addUnit(new Unit(uinfo));
         }
       }
 
@@ -118,7 +118,7 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
 //      uinfo.parentUnitId = kRootUnitId;
 //      uinfo.programListId = kNoProgramListId;
 //      name.fromAscii("MIDI Controllers");
-//      addUnit (new Unit (uinfo));
+//      addUnit(new Unit(uinfo));
 //
 //      ParamID midiParamIdx = kMIDICCParamStartIdx;
 //      UnitID midiControllersID = unitID;
@@ -134,7 +134,7 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
 //        uinfo.parentUnitId = midiControllersID;
 //        uinfo.programListId = kNoProgramListId;
 //        name.fromAscii(buf);
-//        addUnit (new Unit (uinfo));
+//        addUnit(new Unit(uinfo));
 //
 //        for (int i = 0; i < 128; i++)
 //        {
@@ -142,18 +142,18 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
 //          parameters.addParameter(name, STR16(""), 0, 0, 0, midiParamIdx++, unitID);
 //        }
 //
-//        parameters.addParameter (STR16("Channel Aftertouch"), STR16(""), 0, 0, 0, midiParamIdx++, unitID);
-//        parameters.addParameter (STR16("Pitch Bend"), STR16(""), 0, 0.5, 0, midiParamIdx++, unitID);
+//        parameters.addParameter(STR16("Channel Aftertouch"), STR16(""), 0, 0, 0, midiParamIdx++, unitID);
+//        parameters.addParameter(STR16("Pitch Bend"), STR16(""), 0, 0.5, 0, midiParamIdx++, unitID);
 //      }
 //    }
 
     if (NPresets())
     {
-      ProgramListWithPitchNames* list = new ProgramListWithPitchNames (String ("Factory Presets"), kPresetParam, kRootUnitId);
+      ProgramListWithPitchNames* list = new ProgramListWithPitchNames(String("Factory Presets"), kPresetParam, kRootUnitId);
 
       for (int i = 0; i< NPresets(); i++)
       {
-        list->addProgram(String (GetPresetName(i)));
+        list->addProgram(String(GetPresetName(i)));
       }
 
 //      char noteName[128];
@@ -169,7 +169,7 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
 //        }
 //      }
 
-      addProgramList (list);
+      addProgramList(list);
     }
      */
 
@@ -249,7 +249,7 @@ tresult PLUGIN_API IPlugVST3Controller::setParamNormalized(ParamID tag, ParamVal
   return EditControllerEx1::setParamNormalized(tag, value);
 }
 
-tresult PLUGIN_API IPlugVST3Controller::getMidiControllerAssignment (int32 busIndex, int16 midiChannel, CtrlNumber midiControllerNumber, ParamID& tag)
+tresult PLUGIN_API IPlugVST3Controller::getMidiControllerAssignment(int32 busIndex, int16 midiChannel, CtrlNumber midiControllerNumber, ParamID& tag)
 {
 //  if (busIndex == 0)
 //  {
@@ -311,7 +311,7 @@ tresult PLUGIN_API IPlugVST3Controller::notify(IMessage* message)
   if (!message)
     return kInvalidArgument;
   
-  if (!strcmp (message->getMessageID(), "SCVFD"))
+  if (!strcmp(message->getMessageID(), "SCVFD"))
   {
     Steinberg::int64 controlTag = kNoTag;
     double normalizedValue = 0.;
@@ -325,7 +325,7 @@ tresult PLUGIN_API IPlugVST3Controller::notify(IMessage* message)
     SendControlValueFromDelegate((int) controlTag, normalizedValue);
 
   }
-  else if (!strcmp (message->getMessageID(), "SCMFD"))
+  else if (!strcmp(message->getMessageID(), "SCMFD"))
   {
     const void* data;
     Steinberg::int64 controlTag = kNoTag;
@@ -345,7 +345,7 @@ tresult PLUGIN_API IPlugVST3Controller::notify(IMessage* message)
       return kResultOk;
     }
   }
-  else if (!strcmp (message->getMessageID(), "SMMFD"))
+  else if (!strcmp(message->getMessageID(), "SMMFD"))
   {
     const void* data = nullptr;
     uint32 size;
@@ -360,7 +360,7 @@ tresult PLUGIN_API IPlugVST3Controller::notify(IMessage* message)
       }
     }
   }
-  else if (!strcmp (message->getMessageID(), "SSMFD"))
+  else if (!strcmp(message->getMessageID(), "SSMFD"))
   {
     const void* data = nullptr;
     uint32 size;
@@ -398,9 +398,9 @@ void IPlugVST3Controller::SendSysexMsgFromUI(const ISysEx& msg)
   if (!message)
     return;
   
-  message->setMessageID ("SSMFUI");
-  message->getAttributes ()->setInt ("O", (int64) msg.mOffset);
-  message->getAttributes ()->setBinary ("D", msg.mData, msg.mSize);
+  message->setMessageID("SSMFUI");
+  message->getAttributes()->setInt("O", (int64) msg.mOffset);
+  message->getAttributes()->setBinary("D", msg.mData, msg.mSize);
   sendMessage(message);
 }
 

@@ -74,15 +74,15 @@ public:
   tresult PLUGIN_API setupProcessing(Vst::ProcessSetup& newSetup) override;
   tresult PLUGIN_API process(Vst::ProcessData& data) override;
   tresult PLUGIN_API canProcessSampleSize(int32 symbolicSampleSize) override;
-  uint32 PLUGIN_API getLatencySamples () override { return GetLatency(); }
+  uint32 PLUGIN_API getLatencySamples() override { return GetLatency(); }
   uint32 PLUGIN_API getTailSamples() override { return GetTailSize(); } //TODO - infinite tail
   tresult PLUGIN_API setState(IBStream* state) override;
   tresult PLUGIN_API getState(IBStream* state) override;
     
   // IEditController
-  IPlugView* PLUGIN_API createView (const char* name) override;
-  tresult PLUGIN_API setEditorState (IBStream* state) override;
-  tresult PLUGIN_API getEditorState (IBStream* state) override;
+  IPlugView* PLUGIN_API createView(const char* name) override;
+  tresult PLUGIN_API setEditorState(IBStream* state) override;
+  tresult PLUGIN_API getEditorState(IBStream* state) override;
   tresult PLUGIN_API setComponentState(IBStream *state) override;
  
   // IUnitInfo
@@ -92,13 +92,13 @@ public:
   tresult PLUGIN_API getProgramListInfo(int32 listIndex, Vst::ProgramListInfo& info) override;
   tresult PLUGIN_API getProgramName(int32 listId, int32 programIndex, Vst::String128 name) override;
 
-  tresult PLUGIN_API getProgramInfo(int32 listId, int32 programIndex, Vst::CString attributeId, Vst::String128 attributeValue) override {return kNotImplemented;}
-  tresult PLUGIN_API hasProgramPitchNames(int32 listId, int32 programIndex) override {return kNotImplemented;}
-  tresult PLUGIN_API getProgramPitchName(int32 listId, int32 programIndex, int16 midiPitch, Vst::String128 name) override {return kNotImplemented;}
-  int32 PLUGIN_API getSelectedUnit () override {return Vst::kRootUnitId;}
-  tresult PLUGIN_API selectUnit(int32 unitId) override {return kNotImplemented;}
-  tresult PLUGIN_API getUnitByBus(Vst::MediaType type, Vst::BusDirection dir, int32 busIndex, int32 channel, int32& unitId) override {return kNotImplemented;}
-  tresult PLUGIN_API setUnitProgramData(int32 listOrUnitId, int32 programIndex, IBStream* data) override {return kNotImplemented;}
+  tresult PLUGIN_API getProgramInfo(int32 listId, int32 programIndex, Vst::CString attributeId, Vst::String128 attributeValue) override { return kNotImplemented; }
+  tresult PLUGIN_API hasProgramPitchNames(int32 listId, int32 programIndex) override { return kNotImplemented; }
+  tresult PLUGIN_API getProgramPitchName(int32 listId, int32 programIndex, int16 midiPitch, Vst::String128 name) override { return kNotImplemented; }
+  int32 PLUGIN_API getSelectedUnit() override { return Vst::kRootUnitId; }
+  tresult PLUGIN_API selectUnit(int32 unitId) override { return kNotImplemented; }
+  tresult PLUGIN_API getUnitByBus(Vst::MediaType type, Vst::BusDirection dir, int32 busIndex, int32 channel, int32& unitId) override { return kNotImplemented; }
+  tresult PLUGIN_API setUnitProgramData(int32 listOrUnitId, int32 programIndex, IBStream* data) override { return kNotImplemented; }
   
   Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }
   ViewType* GetView() { return mViews.at(0); }

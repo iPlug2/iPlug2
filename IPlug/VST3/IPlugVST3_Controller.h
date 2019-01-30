@@ -47,24 +47,24 @@ public:
   virtual ~IPlugVST3Controller();
 
   // IEditController
-  tresult PLUGIN_API initialize (FUnknown* context) override;
-  IPlugView* PLUGIN_API createView (FIDString name) override;
-  tresult PLUGIN_API setComponentState (IBStream* state) override; // receives the processor's state
-  tresult PLUGIN_API setState (IBStream* state) override;
-  tresult PLUGIN_API getState (IBStream* state) override;
+  tresult PLUGIN_API initialize(FUnknown* context) override;
+  IPlugView* PLUGIN_API createView(FIDString name) override;
+  tresult PLUGIN_API setComponentState(IBStream* state) override; // receives the processor's state
+  tresult PLUGIN_API setState(IBStream* state) override;
+  tresult PLUGIN_API getState(IBStream* state) override;
   
-  tresult PLUGIN_API setParamNormalized (ParamID tag, ParamValue value) override;
+  tresult PLUGIN_API setParamNormalized(ParamID tag, ParamValue value) override;
   //ComponentBase
-  tresult PLUGIN_API notify (IMessage* message) override;
+  tresult PLUGIN_API notify(IMessage* message) override;
 
   //IMidiMapping
   tresult PLUGIN_API getMidiControllerAssignment(int32 busIndex, int16 channel, CtrlNumber midiControllerNumber, ParamID& tag) override;
 
   //IEditControllerEx
-	tresult PLUGIN_API getProgramName (ProgramListID listId, int32 programIndex, String128 name /*out*/) override;
+  tresult PLUGIN_API getProgramName(ProgramListID listId, int32 programIndex, String128 name /*out*/) override;
   
-  DELEGATE_REFCOUNT (EditControllerEx1)
-  tresult PLUGIN_API queryInterface (const char* iid, void** obj) override;
+  DELEGATE_REFCOUNT(EditControllerEx1)
+  tresult PLUGIN_API queryInterface(const char* iid, void** obj) override;
   
   //IPlugAPIBase
   void BeginInformHostOfParamChange(int idx) override { beginEdit(idx); }

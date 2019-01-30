@@ -155,7 +155,7 @@ tresult PLUGIN_API IPlugVST3Processor::notify(IMessage* message)
   const void* data = nullptr;
   uint32 size;
   
-  if (!strcmp (message->getMessageID(), "SMMFUI")) // midi message from UI
+  if (!strcmp(message->getMessageID(), "SMMFUI")) // midi message from UI
   {
     if (message->getAttributes()->getBinary("D", data, size) == kResultOk)
     {
@@ -170,7 +170,7 @@ tresult PLUGIN_API IPlugVST3Processor::notify(IMessage* message)
       return kResultFalse;
     }
   }
-  else if (!strcmp (message->getMessageID(), "SAMFUI")) // message from UI
+  else if (!strcmp(message->getMessageID(), "SAMFUI")) // message from UI
   {
     int64 messageTag;
     int64 controlTag;
