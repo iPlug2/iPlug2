@@ -16,6 +16,7 @@
 #include "pluginterfaces/vst/ivstevents.h"
 
 #include "IPlugVST3.h"
+#include "IPlugVST3_Common.h"
 
 using namespace Steinberg;
 using namespace Vst;
@@ -340,57 +341,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 
   if(DoesMIDIIn())
   {
-    IMidiMsg msg;
-
-    //process events.. only midi note on and note off?
-    IEventList* eventList = data.inputEvents;
-    if (eventList)
-    {
-      int32 numEvent = eventList->getEventCount();
-      for (int32 i=0; i<numEvent; i++)
-      {
-        Event event;
-        if (eventList->getEvent(i, event) == kResultOk)
-        {
-          switch (event.type)
-          {
-            case Event::kNoteOnEvent:
-            {
-              msg.MakeNoteOnMsg(event.noteOn.pitch, event.noteOn.velocity * 127, event.sampleOffset, event.noteOn.channel);
-              ProcessMidiMsg(msg);
-              mMidiMsgsFromProcessor.Push(msg);
-              break;
-            }
-            case Event::kNoteOffEvent:
-            {
-              msg.MakeNoteOffMsg(event.noteOff.pitch, event.sampleOffset, event.noteOff.channel);
-              ProcessMidiMsg(msg);
-              mMidiMsgsFromProcessor.Push(msg);
-              break;
-            }
-            case Event::kPolyPressureEvent:
-            {
-              msg.MakePolyATMsg(event.polyPressure.pitch, event.polyPressure.pressure * 127., event.sampleOffset, event.polyPressure.channel);
-              ProcessMidiMsg(msg);
-              mMidiMsgsFromProcessor.Push(msg);
-              break;
-            }
-            case Event::kDataEvent:
-            {
-              ISysEx syx = ISysEx(event.sampleOffset, event.data.bytes, event.data.size);
-              ProcessSysEx(syx);
-              //mSysexMsgsFromProcessor.Push
-              break;
-            }
-          }
-        }
-      }
-    }
-    
-    while (mMidiMsgsFromEditor.Pop(msg))
-    {
-      ProcessMidiMsg(msg);
-    }
+    DoMIDIn(*this, data.inputEvents, mMidiMsgsFromEditor, mMidiMsgsFromProcessor);
   }
 
 #pragma mark process single precision
@@ -497,73 +448,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 
   if (DoesMIDIOut())
   {
-    IEventList* outputEvents = data.outputEvents;
-    
-    //MIDI
-    if (!mMidiOutputQueue.Empty() && outputEvents)
-    {
-      Event toAdd = {0};
-      IMidiMsg msg;
-      
-      while (!mMidiOutputQueue.Empty())
-      {
-        IMidiMsg& msg = mMidiOutputQueue.Peek();
-        
-        if (msg.StatusMsg() == IMidiMsg::kNoteOn)
-        {
-          toAdd.type = Event::kNoteOnEvent;
-          toAdd.noteOn.channel = msg.Channel();
-          toAdd.noteOn.pitch = msg.NoteNumber();
-          toAdd.noteOn.tuning = 0.;
-          toAdd.noteOn.velocity = (float) msg.Velocity() * (1.f / 127.f);
-          toAdd.noteOn.length = -1;
-          toAdd.noteOn.noteId = -1; // TODO ?
-          toAdd.sampleOffset = msg.mOffset;
-          outputEvents->addEvent(toAdd);
-        }
-        else if (msg.StatusMsg() == IMidiMsg::kNoteOff)
-        {
-          toAdd.type = Event::kNoteOffEvent;
-          toAdd.noteOff.channel = msg.Channel();
-          toAdd.noteOff.pitch = msg.NoteNumber();
-          toAdd.noteOff.velocity = (float) msg.Velocity() * (1.f / 127.f);
-          toAdd.noteOff.noteId = -1; // TODO ?
-          toAdd.sampleOffset = msg.mOffset;
-          outputEvents->addEvent(toAdd);
-        }
-        else if (msg.StatusMsg() == IMidiMsg::kPolyAftertouch)
-        {
-          toAdd.type = Event::kPolyPressureEvent;
-          toAdd.polyPressure.channel = msg.Channel();
-          toAdd.polyPressure.pitch = msg.NoteNumber();
-          toAdd.polyPressure.pressure = (float) msg.PolyAfterTouch() * (1.f / 127.f);
-          toAdd.polyPressure.noteId = -1; // TODO ?
-          toAdd.sampleOffset = msg.mOffset;
-          outputEvents->addEvent(toAdd);
-        }
-        
-        mMidiOutputQueue.Remove();
-        // don't add any midi messages other than noteon/noteoff
-      }
-    }
-    
-    mMidiOutputQueue.Flush(data.numSamples);
-    
-    //Output SYSEX from the editor, which has bypassed the processors' ProcessSysEx()
-    if(mSysExDataFromEditor.ElementsAvailable())
-    {
-      Event toAdd = {0};
-      
-      while (mSysExDataFromEditor.Pop(mSysexBuf))
-      {
-        toAdd.type = Event::kDataEvent;
-        toAdd.sampleOffset = mSysexBuf.mOffset;
-        toAdd.data.type = DataEvent::kMidiSysEx;
-        toAdd.data.size = mSysexBuf.mSize;
-        toAdd.data.bytes = (uint8*) mSysexBuf.mData; // TODO!  this is a problem if more than one message in this block!
-        outputEvents->addEvent(toAdd);
-      }
-    }
+    DoMIDIOut(mMidiOutputQueue, mSysExDataFromEditor, mSysexBuf, data.outputEvents, data.numSamples);
   }
 
   return kResultOk;
@@ -845,4 +730,3 @@ bool IPlugVST3::SendMidiMsg(const IMidiMsg& msg)
   mMidiOutputQueue.Add(msg);
   return true;
 }
-
