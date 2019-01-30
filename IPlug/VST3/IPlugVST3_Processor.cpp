@@ -502,20 +502,12 @@ tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
 
 tresult PLUGIN_API IPlugVST3Processor::canProcessSampleSize(int32 symbolicSampleSize)
 {
-  tresult retval = kResultFalse;
-  
   switch (symbolicSampleSize)
   {
-    case kSample32:
-    case kSample64:
-      retval = kResultTrue;
-      break;
-    default:
-      retval = kResultFalse;
-      break;
+    case kSample32:   // fall through
+    case kSample64:   return kResultTrue;
+    default:          return kResultFalse;
   }
-  
-  return retval;
 }
 
 tresult PLUGIN_API IPlugVST3Processor::setState(IBStream* state)

@@ -573,20 +573,12 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 
 tresult PLUGIN_API IPlugVST3::canProcessSampleSize(int32 symbolicSampleSize)
 {
-  tresult retval = kResultFalse;
-
   switch (symbolicSampleSize)
   {
-    case kSample32:
-    case kSample64:
-      retval = kResultTrue;
-      break;
-    default:
-      retval = kResultFalse;
-      break;
+    case kSample32:   // fall through
+    case kSample64:   return kResultTrue;
+    default:          return kResultFalse;
   }
-
-  return retval;
 }
 
 tresult PLUGIN_API IPlugVST3::setState(IBStream* state)
@@ -815,9 +807,7 @@ void IPlugVST3::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeigh
 void IPlugVST3::DirtyParametersFromUI()
 {
   startGroupEdit();
-  
   IPlugAPIBase::DirtyParametersFromUI();
-  
   finishGroupEdit();
 }
 

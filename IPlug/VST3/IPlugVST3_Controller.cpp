@@ -425,8 +425,6 @@ void IPlugVST3Controller::EditorPropertiesChangedFromDelegate(int viewWidth, int
 void IPlugVST3Controller::DirtyParametersFromUI()
 {
   startGroupEdit();
-  
   IPlugAPIBase::DirtyParametersFromUI();
-  
   finishGroupEdit();
 }
