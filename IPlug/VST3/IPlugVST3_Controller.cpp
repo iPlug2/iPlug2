@@ -293,7 +293,7 @@ void IPlugVST3Controller::EditorPropertiesChangedFromDelegate(int viewWidth, int
 {
   if (HasUI())
   {
-    if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight()))
+    if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
       mView->resize(viewWidth, viewHeight);
  
     IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
