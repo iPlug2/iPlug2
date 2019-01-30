@@ -72,11 +72,7 @@ private:
 
   // IConnectionPoint
   tresult PLUGIN_API notify(IMessage* message) override;
-
-  /** Called prior to rendering a block of audio in order to update processing context data such as transport info */
-  void PrepareProcessContext();
   
-  ProcessContext mProcessContext;
   ParameterChanges mOutputParamChanges;
   IMidiQueue mMidiOutputQueue;
 };

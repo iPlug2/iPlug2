@@ -62,9 +62,6 @@ IPlugVST3Processor::IPlugVST3Processor(IPlugInstanceInfo instanceInfo, IPlugConf
     mLatencyDelay->SetDelayTime(GetLatency());
   }
   
-  // Make sure the process context is predictably initialised in case it is used before process is called
-  memset(&mProcessContext, 0, sizeof(ProcessContext));
-  
   CreateTimer();
 }
 
@@ -192,27 +189,20 @@ tresult PLUGIN_API IPlugVST3Processor::setupProcessing(ProcessSetup& newSetup)
 {
   TRACE;
   
-  if ((newSetup.symbolicSampleSize != kSample32) && (newSetup.symbolicSampleSize != kSample64)) return kResultFalse;
-  
-  SetSampleRate(newSetup.sampleRate);
-  SetBypassed(false);
-  IPlugProcessor::SetBlockSize(newSetup.maxSamplesPerBlock); // TODO: should IPlugVST3Processor call SetBlockSize in construct unlike other APIs?
-  mMidiOutputQueue.Resize(newSetup.maxSamplesPerBlock);
-  OnReset();
-  
-  processSetup = newSetup;
-  
-  return kResultOk;
+  if (SetupProcessing(newSetup))
+  {
+    processSetup = newSetup;
+    return kResultOk;
+  }
+    
+  return kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
 {
   TRACE;
   
-  if (data.processContext)
-    memcpy(&mProcessContext, data.processContext, sizeof(ProcessContext));
-  
-  PrepareProcessContext();
+  PrepareProcessContext(data, processSetup);
   
   //process parameters
   IParameterChanges* paramChanges = data.inputParameterChanges;
@@ -349,27 +339,6 @@ tresult PLUGIN_API IPlugVST3Processor::getState(IBStream* state)
   return kResultTrue;
 }
 
-
-void IPlugVST3Processor::PrepareProcessContext()
-{
-  ITimeInfo timeInfo;
-  
-  if(mProcessContext.state & ProcessContext::kProjectTimeMusicValid)
-    timeInfo.mSamplePos = (double) mProcessContext.projectTimeSamples;
-  timeInfo.mPPQPos = mProcessContext.projectTimeMusic;
-  timeInfo.mTempo = mProcessContext.tempo;
-  timeInfo.mLastBar = mProcessContext.barPositionMusic;
-  timeInfo.mCycleStart = mProcessContext.cycleStartMusic;
-  timeInfo.mCycleEnd = mProcessContext.cycleEndMusic;
-  timeInfo.mNumerator = mProcessContext.timeSigNumerator;
-  timeInfo.mDenominator = mProcessContext.timeSigDenominator;
-  timeInfo.mTransportIsRunning = mProcessContext.state & ProcessContext::kPlaying;
-  timeInfo.mTransportLoopEnabled = mProcessContext.state & ProcessContext::kCycleActive;
-  const bool offline = processSetup.processMode == Steinberg::Vst::kOffline;
-  SetTimeInfo(timeInfo);
-  SetRenderingOffline(offline);
-}
-
 void IPlugVST3Processor::SendControlValueFromDelegate(int controlTag, double normalizedValue)
 {
   OPtr<IMessage> message = allocateMessage();
@@ -417,12 +386,6 @@ void IPlugVST3Processor::SendArbitraryMsgFromDelegate(int messageTag, int dataSi
   message->getAttributes()->setInt("MT", messageTag);
   message->getAttributes()->setBinary("D", pData, dataSize);
   sendMessage(message);
-}
-
-bool IPlugVST3Processor::SendMidiMsg(const IMidiMsg& msg)
-{
-  mMidiOutputQueue.Add(msg);
-  return true;
 }
 
 tresult PLUGIN_API IPlugVST3Processor::notify(IMessage* message)

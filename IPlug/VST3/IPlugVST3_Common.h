@@ -11,7 +11,10 @@ class IPlugVST3_ProcessorBase : public IPlugProcessor<PLUG_SAMPLE_DST>
 {
 public:
   IPlugVST3_ProcessorBase(IPlugConfig c) : IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST3)
-  {}
+  {
+    // Make sure the process context is predictably initialised in case it is used before process is called
+    memset(&mProcessContext, 0, sizeof(ProcessContext));
+  }
   
   void DoMIDIn(IEventList* eventList, IPlugQueue<IMidiMsg>& editorQueue, IPlugQueue<IMidiMsg>& processorQueue)
   {
@@ -146,12 +149,49 @@ public:
         IPlugProcessor::AttachBuffers(direction, idx, n, pBus.channelBuffers64, nFrames);
   }
   
+  bool SetupProcessing(ProcessSetup& processSetup)
+  {
+    if ((processSetup.symbolicSampleSize != kSample32) && (processSetup.symbolicSampleSize != kSample64))
+      return false;
+    
+    SetSampleRate(processSetup.sampleRate);
+    SetBypassed(false);   // TODO - why???
+    IPlugProcessor::SetBlockSize(processSetup.maxSamplesPerBlock); // TODO: should IPlugVST3Processor call SetBlockSize in construct unlike other APIs?
+    mMidiOutputQueue.Resize(processSetup.maxSamplesPerBlock);
+    OnReset();
+    
+    return true;
+  }
+  
   bool IsBusActive(const BusList& list, int32 idx)
   {
     bool exists = false;
     if (idx < static_cast<int32> (list.size()))
       exists = static_cast<bool>(list.at(idx));
     return exists;
+  }
+  
+  void PrepareProcessContext(ProcessData& data, ProcessSetup& processSetup)
+  {
+    ITimeInfo timeInfo;
+    
+    if (data.processContext)
+      memcpy(&mProcessContext, data.processContext, sizeof(ProcessContext));
+    
+    if (mProcessContext.state & ProcessContext::kProjectTimeMusicValid)
+      timeInfo.mSamplePos = (double) mProcessContext.projectTimeSamples;
+    timeInfo.mPPQPos = mProcessContext.projectTimeMusic;
+    timeInfo.mTempo = mProcessContext.tempo;
+    timeInfo.mLastBar = mProcessContext.barPositionMusic;
+    timeInfo.mCycleStart = mProcessContext.cycleStartMusic;
+    timeInfo.mCycleEnd = mProcessContext.cycleEndMusic;
+    timeInfo.mNumerator = mProcessContext.timeSigNumerator;
+    timeInfo.mDenominator = mProcessContext.timeSigDenominator;
+    timeInfo.mTransportIsRunning = mProcessContext.state & ProcessContext::kPlaying;
+    timeInfo.mTransportLoopEnabled = mProcessContext.state & ProcessContext::kCycleActive;
+    const bool offline = processSetup.processMode == Steinberg::Vst::kOffline;
+    SetTimeInfo(timeInfo);
+    SetRenderingOffline(offline);
   }
   
   void ProcessAudio(ProcessData& data, const BusList& ins, const BusList& outs, ProcessSetup& processSetup)
@@ -218,6 +258,15 @@ public:
     }
   }
   
+  bool SendMidiMsg(const IMidiMsg& msg) override
+  {
+    mMidiOutputQueue.Add(msg);
+    return true;
+  }
+
 private:
+  
+  ProcessContext mProcessContext;
+  IMidiQueue mMidiOutputQueue;
   bool mSidechainActive = false;
 };

@@ -63,7 +63,6 @@ public:
   // IPlugProcessor
   void EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data) override;
   void SetLatency(int samples) override;
-  bool SendMidiMsg(const IMidiMsg& msg) override;
   
   // AudioEffect
   tresult PLUGIN_API initialize(FUnknown* context) override;
@@ -103,9 +102,6 @@ public:
   ViewType* GetView() { return mViews.at(0); }
   
 private:
-  /** Called prior to rendering a block of audio in order to update processing context data such as transport info */
-  void PreProcess();
-    
   OBJ_METHODS(IPlugVST3, SingleComponentEffect)
   DEFINE_INTERFACES
   END_DEFINE_INTERFACES(SingleComponentEffect)
@@ -115,8 +111,6 @@ private:
   void removeDependentView (ViewType* view);
   uint64_t getSpeakerArrForChans(int32 chans);
 
-  IMidiQueue mMidiOutputQueue;
-  Vst::ProcessContext mProcessContext;
   std::vector <ViewType*> mViews;
   
   friend class IPlugVST3View<IPlugVST3>;
