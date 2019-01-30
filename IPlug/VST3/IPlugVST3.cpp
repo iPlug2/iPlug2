@@ -253,10 +253,13 @@ void IPlugVST3::InformHostOfParameterDetailsChange()
 
 void IPlugVST3::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
 {
-  if (HasUI() && (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight()))
-    mViews.at(0)->resize(viewWidth, viewHeight);
+  if (HasUI())
+  {
+    if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
+      mViews.at(0)->resize(viewWidth, viewHeight);
 
-  IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
+    IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
+  }
 }
 
 void IPlugVST3::DirtyParametersFromUI()
