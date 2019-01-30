@@ -29,10 +29,10 @@
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
+#include "IPlugVST3_View.h"
+
 /** Used to pass various instance info to the API class, where needed */
 struct IPlugInstanceInfo {};
-
-class IPlugVST3View;
 
 using namespace Steinberg;
 

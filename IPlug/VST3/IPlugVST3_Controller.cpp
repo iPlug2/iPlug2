@@ -16,7 +16,6 @@
 //#include "public.sdk/source/vst/vstpresetfile.cpp"
 
 #include "IPlugVST3_Parameter.h"
-#include "IPlugVST3_view.h"
 
 using namespace Steinberg;
 using namespace Steinberg::Vst;
@@ -190,7 +189,7 @@ IPlugView* PLUGIN_API IPlugVST3Controller::createView(const char* name)
 {
   if (name && strcmp(name, "editor") == 0)
   {
-    mView = new IPlugVST3View(this);
+    mView = new ViewType(*this);
     return mView;
   }
   

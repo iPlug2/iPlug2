@@ -22,10 +22,10 @@
 
 #include "IPlugAPIBase.h"
 
+#include "IPlugVST3_View.h"
+
 using namespace Steinberg;
 using namespace Vst;
-
-class IPlugVST3View;
 
 /**  VST3 Controller base class for a distributed IPlug VST3 plug-in
  *   @ingroup APIClasses */
@@ -34,6 +34,8 @@ class IPlugVST3Controller : public EditControllerEx1
                           , public IPlugAPIBase
 {
 public:
+  typedef IPlugVST3View<IPlugVST3Controller> ViewType;
+    
   struct IPlugInstanceInfo
   {
     Steinberg::FUID mOtherGUID;
@@ -76,10 +78,10 @@ public:
   void SendArbitraryMsgFromUI(int messageTag, int controlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) override;
 
   Vst::IComponentHandler* GetComponentHandler() const { return componentHandler; }
-  IPlugVST3View* GetView() const { return mView; }
+  ViewType* GetView() const { return mView; }
 
 private:
-  IPlugVST3View* mView = nullptr;
+  ViewType* mView = nullptr;
   Steinberg::FUID mProcessorGUID;
 };
 

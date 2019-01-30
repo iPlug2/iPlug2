@@ -650,7 +650,7 @@ IPlugView* PLUGIN_API IPlugVST3::createView(const char* name)
 {
   if (name && strcmp(name, "editor") == 0)
   {
-    return new IPlugVST3View(*this);    
+    return new ViewType(*this);
   }
   
   return 0;
@@ -674,12 +674,12 @@ tresult PLUGIN_API IPlugVST3::setComponentState(IBStream* state)
   return kResultOk;
 }
 
-void IPlugVST3::addDependentView(IPlugVST3View* view)
+void IPlugVST3::addDependentView(ViewType* view)
 {
   mViews.push_back(view);
 }
 
-void IPlugVST3::removeDependentView(IPlugVST3View* view)
+void IPlugVST3::removeDependentView(ViewType* view)
 {
   mViews.erase(std::remove(mViews.begin(), mViews.end(), view));
 }
@@ -846,99 +846,3 @@ bool IPlugVST3::SendMidiMsg(const IMidiMsg& msg)
   return true;
 }
 
-#pragma mark - IPlugVST3View
-IPlugVST3View::IPlugVST3View(IPlugVST3& pPlug)
-  : mPlug(pPlug)
-{
-  mPlug.addDependentView(this);
-  mPlug.addRef();
-}
-
-IPlugVST3View::~IPlugVST3View()
-{
-  mPlug.removeDependentView(this);
-  mPlug.release();
-}
-
-tresult PLUGIN_API IPlugVST3View::isPlatformTypeSupported(FIDString type)
-{
-  if(mPlug.HasUI()) // for no editor plugins
-  {
-#ifdef OS_WIN
-    if (strcmp(type, kPlatformTypeHWND) == 0)
-      return kResultTrue;
-
-#elif defined OS_MAC
-    if (strcmp (type, kPlatformTypeNSView) == 0)
-      return kResultTrue;
-#endif
-  }
-
-  return kResultFalse;
-}
-
-tresult PLUGIN_API IPlugVST3View::onSize(ViewRect* newSize)
-{
-  TRACE;
-
-  if (newSize)
-    rect = *newSize;
-
-  return kResultTrue;
-}
-
-tresult PLUGIN_API IPlugVST3View::getSize(ViewRect* size)
-{
-  TRACE;
-
-  if (mPlug.HasUI())
-  {
-    *size = ViewRect(0, 0, mPlug.GetEditorWidth(), mPlug.GetEditorHeight());
-
-    return kResultTrue;
-  }
-  else
-  {
-    return kResultFalse;
-  }
-}
-
-tresult PLUGIN_API IPlugVST3View::attached(void* parent, FIDString type)
-{
-  if (mPlug.HasUI())
-  {
-    void* pView = nullptr;
-    #ifdef OS_WIN
-    if (strcmp(type, kPlatformTypeHWND) == 0)
-      pView = mPlug.OpenWindow(parent);
-    #elif defined OS_MAC
-    if (strcmp (type, kPlatformTypeNSView) == 0)
-      pView = mPlug.OpenWindow(parent);
-    else // Carbon
-      return kResultFalse;
-    #endif
-
-    if (pView)
-      mPlug.OnUIOpen();
-
-    return kResultTrue;
-  }
-
-  return kResultFalse;
-}
-
-tresult PLUGIN_API IPlugVST3View::removed()
-{
-  if (mPlug.HasUI())
-    mPlug.CloseWindow();
-
-  return CPluginView::removed();
-}
-
-void IPlugVST3View::resize(int w, int h)
-{
-  TRACE;
-
-  ViewRect newSize = ViewRect(0, 0, w, h);
-  plugFrame->resizeView(this, &newSize);
-}
