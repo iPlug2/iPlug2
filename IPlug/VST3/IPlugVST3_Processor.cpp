@@ -218,4 +218,3 @@ void IPlugVST3Processor::TransmitSysExDataFromProcessor(const SysExData& data)
   message->getAttributes()->setInt("O", data.mOffset);
   sendMessage(message);
 }
-

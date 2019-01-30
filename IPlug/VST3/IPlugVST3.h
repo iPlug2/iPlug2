@@ -102,20 +102,19 @@ public:
   
   Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }
   ViewType* GetView() { return mViews.at(0); }
-  
-private:
+   
+  // Interface
+    
   OBJ_METHODS(IPlugVST3, SingleComponentEffect)
   DEFINE_INTERFACES
   END_DEFINE_INTERFACES(SingleComponentEffect)
   REFCOUNT_METHODS(SingleComponentEffect)
-
-  void addDependentView (ViewType* view);
-  void removeDependentView (ViewType* view);
-  uint64_t getSpeakerArrForChans(int32 chans);
+    
+private:
+  void addDependentView(ViewType* view);
+  void removeDependentView(ViewType* view);
 
   std::vector <ViewType*> mViews;
-  
-  friend class IPlugVST3View<IPlugVST3>;
 };
 
 IPlugVST3* MakePlug();

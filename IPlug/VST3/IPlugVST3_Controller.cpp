@@ -427,4 +427,3 @@ void IPlugVST3Controller::SendArbitraryMsgFromUI(int messageTag, int controlTag,
   message->getAttributes()->setBinary("D", pData, dataSize);
   sendMessage(message);
 }
-

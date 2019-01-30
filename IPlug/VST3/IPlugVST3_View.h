@@ -20,11 +20,13 @@ public:
   IPlugVST3View(T& owner)
   : mOwner(owner)
   {
+    //mPlug.addDependentView(this);
     mOwner.addRef();
   }
   
   ~IPlugVST3View()
   {
+    //mPlug.removeDependentView(this);
     mOwner.release();
   }
   
@@ -112,21 +114,3 @@ public:
   
   T& mOwner;
 };
-
-/*
- #pragma mark - IPlugVST3View
- IPlugVST3View::IPlugVST3View(IPlugVST3& pPlug)
- : mPlug(pPlug)
- {
- mPlug.addDependentView(this);
- mPlug.addRef();
- }
- 
- IPlugVST3View::~IPlugVST3View()
- {
- mPlug.removeDependentView(this);
- mPlug.release();
- }
- }
-*/
-

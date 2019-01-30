@@ -13,7 +13,6 @@
 #include "public.sdk/source/vst/vstparameters.h"
 #include "base/source/fstring.h"
 
-#include "IPlugVST3_Common.h"
 #include "IPlugParameter.h"
 
 using namespace Steinberg;
@@ -86,7 +85,7 @@ public:
     : Parameter(STR16("Preset"), kPresetParam, STR16(""), 0, nPresets, ParameterInfo::kIsProgramChange)
     {}
     
-    OBJ_METHODS(IPlugVST3Parameter, Parameter)
+    OBJ_METHODS(IPlugVST3PresetParameter, Parameter)
 };
 
 
@@ -102,5 +101,5 @@ public:
     appendString(STR16("on"));
   }
   
-  OBJ_METHODS(IPlugVST3Parameter, Parameter)
+  OBJ_METHODS(IPlugVST3BypassParameter, StringListParameter)
 };
