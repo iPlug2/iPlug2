@@ -29,6 +29,7 @@
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
+#include "IPlugVST3_Common.h"
 #include "IPlugVST3_View.h"
 
 /** Used to pass various instance info to the API class, where needed */
@@ -40,7 +41,7 @@ using namespace Steinberg;
 /**  VST3 base class for a non-distributed IPlug VST3 plug-in
 *   @ingroup APIClasses */
 class IPlugVST3 : public IPlugAPIBase
-                , public IPlugProcessor<PLUG_SAMPLE_DST>
+                , public IPlugVST3_ProcessorBase
                 , public Vst::SingleComponentEffect
 {
 public:
@@ -104,9 +105,6 @@ public:
 private:
   /** Called prior to rendering a block of audio in order to update processing context data such as transport info */
   void PreProcess();
-
-  // Allows connection of either single or double prcession IO
-  void AttachBuffers(ERoute direction, int idx, int n, AudioBusBuffers& pBus, int nFrames, int32 sampleSize);
     
   OBJ_METHODS(IPlugVST3, SingleComponentEffect)
   DEFINE_INTERFACES
@@ -115,11 +113,8 @@ private:
 
   void addDependentView (ViewType* view);
   void removeDependentView (ViewType* view);
-  Vst::AudioBus* getAudioInput(int32 index);
-  Vst::AudioBus* getAudioOutput(int32 index);
   uint64_t getSpeakerArrForChans(int32 chans);
 
-  bool mSidechainActive = false;
   IMidiQueue mMidiOutputQueue;
   Vst::ProcessContext mProcessContext;
   std::vector <ViewType*> mViews;

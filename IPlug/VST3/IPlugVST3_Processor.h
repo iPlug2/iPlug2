@@ -20,6 +20,8 @@
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
+#include "IPlugVST3_Common.h"
+
 /**
  * @file
  * @copydoc IPlugVST3Processor
@@ -32,7 +34,7 @@ using namespace Vst;
  *   @ingroup APIClasses */
 class IPlugVST3Processor : public AudioEffect
                          , public IPlugAPIBase
-                         , public IPlugProcessor<PLUG_SAMPLE_DST>
+                         , public IPlugVST3_ProcessorBase
 {
 public:
   struct IPlugInstanceInfo
@@ -67,11 +69,6 @@ public:
 private:
   void TransmitMidiMsgFromProcessor(const IMidiMsg& msg) override;
   void TransmitSysExDataFromProcessor(const SysExData& data) override;
-
-  // Allows connection of either single or double prcession IO
-  void AttachBuffers(ERoute direction, int idx, int n, AudioBusBuffers& pBus, int nFrames, int32 sampleSize);
-    
-  bool mSidechainActive = false;
 
   // IConnectionPoint
   tresult PLUGIN_API notify(IMessage* message) override;

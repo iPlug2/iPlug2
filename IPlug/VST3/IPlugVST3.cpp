@@ -16,7 +16,6 @@
 #include "pluginterfaces/vst/ivstevents.h"
 
 #include "IPlugVST3.h"
-#include "IPlugVST3_Common.h"
 
 using namespace Steinberg;
 using namespace Vst;
@@ -60,7 +59,7 @@ extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoutingDir dir, 
 
 IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPlugAPIBase(c, kAPIVST3)
-, IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST3)
+, IPlugVST3_ProcessorBase(c)
 {
   SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
   SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
@@ -274,31 +273,23 @@ tresult PLUGIN_API IPlugVST3::setupProcessing(ProcessSetup& newSetup)
   return kResultOk;
 }
 
-void IPlugVST3::AttachBuffers(ERoute direction, int idx, int n, AudioBusBuffers& pBus, int nFrames, int32 sampleSize)
-{
-  if (sampleSize == kSample32)
-    IPlugProcessor::AttachBuffers(direction, idx, n, pBus.channelBuffers32, nFrames);
-  else if (sampleSize == kSample64)
-    IPlugProcessor::AttachBuffers(direction, idx, n, pBus.channelBuffers64, nFrames);
-}
-
 tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 {
   TRACE;
 
-  if(data.processContext)
+  if (data.processContext)
     memcpy(&mProcessContext, data.processContext, sizeof(ProcessContext));
 
   PreProcess();
 
-  //process parameters
+  // process parameters
   IParameterChanges* paramChanges = data.inputParameterChanges;
   if (paramChanges)
   {
     int32 numParamsChanged = paramChanges->getParameterCount();
 
-    //it is possible to get a finer resolution of control here by retrieving more values (points) from the queue
-    //for now we just grab the last one
+    // it is possible to get a finer resolution of control here by retrieving more values (points) from the queue
+    // for now we just grab the last one
 
     for (int32 i = 0; i < numParamsChanged; i++)
     {
@@ -349,69 +340,10 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 
   if (DoesMIDIIn())
   {
-    DoMIDIn(*this, data.inputEvents, mMidiMsgsFromEditor, mMidiMsgsFromProcessor);
+    DoMIDIn(data.inputEvents, mMidiMsgsFromEditor, mMidiMsgsFromProcessor);
   }
   
-  int32 sampleSize = processSetup.symbolicSampleSize;
-
-  if (sampleSize == kSample32 || sampleSize == kSample64)
-  {
-    if (data.numInputs)
-    {
-      if (HasSidechainInput())
-      {
-        if (getAudioInput(1)->isActive()) // Sidechain is active
-        {
-          mSidechainActive = true;
-          SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
-        }
-        else
-        {
-          if (mSidechainActive)
-          {
-            ZeroScratchBuffers();
-            mSidechainActive = false;
-          }
-
-          SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
-          SetChannelConnections(ERoute::kInput, data.inputs[0].numChannels, MaxNChannels(ERoute::kInput) - NSidechainChannels(), false);
-        }
-
-        AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput) - NSidechainChannels(), data.inputs[0], data.numSamples, sampleSize);
-        AttachBuffers(ERoute::kInput, NSidechainChannels(), MaxNChannels(ERoute::kInput) - NSidechainChannels(), data.inputs[1], data.numSamples, sampleSize);
-      }
-      else
-      {
-        SetChannelConnections(ERoute::kInput, 0, data.inputs[0].numChannels, true);
-        SetChannelConnections(ERoute::kInput, data.inputs[0].numChannels, MaxNChannels(ERoute::kInput) - data.inputs[0].numChannels, false);
-        AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), data.inputs[0], data.numSamples, sampleSize);
-      }
-    }
-
-    for (int outBus = 0, chanOffset = 0; outBus < data.numOutputs; outBus++)
-    {
-      int busChannels = data.outputs[outBus].numChannels;
-      SetChannelConnections(ERoute::kOutput, chanOffset, busChannels, (bool) getAudioOutput(outBus)->isActive());
-      SetChannelConnections(ERoute::kOutput, chanOffset + busChannels, MaxNChannels(ERoute::kOutput) - (chanOffset + busChannels), false);
-      AttachBuffers(ERoute::kOutput, chanOffset, busChannels, data.outputs[outBus], data.numSamples, sampleSize);
-      chanOffset += busChannels;
-    }
-
-    if (GetBypassed())
-    {
-      if (sampleSize == kSample32)
-        PassThroughBuffers(0.f, data.numSamples); // single precision
-      else
-        PassThroughBuffers(0.0, data.numSamples); // double precision
-    }
-    else
-    {
-      if (sampleSize == kSample32)
-        ProcessBuffers(0.f, data.numSamples); // single precision
-      else
-        ProcessBuffers(0.0, data.numSamples); // double precision
-    }
-  }
+  ProcessAudio(data, audioInputs, audioOutputs, processSetup);
 
   if (DoesMIDIOut())
   {
@@ -534,18 +466,6 @@ void IPlugVST3::addDependentView(ViewType* view)
 void IPlugVST3::removeDependentView(ViewType* view)
 {
   mViews.erase(std::remove(mViews.begin(), mViews.end(), view));
-}
-
-AudioBus* IPlugVST3::getAudioInput (int32 index)
-{
-  AudioBus* bus = FCast<AudioBus>(audioInputs.at(index));
-  return bus;
-}
-
-AudioBus* IPlugVST3::getAudioOutput (int32 index)
-{
-  AudioBus* bus = FCast<AudioBus>(audioOutputs.at(index));
-  return bus;
 }
 
 #pragma mark IUnitInfo overrides
