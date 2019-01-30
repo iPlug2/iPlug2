@@ -44,6 +44,8 @@ class IPlugVST3 : public IPlugAPIBase
                 , public Vst::SingleComponentEffect
 {
 public:
+  typedef IPlugVST3View<IPlugVST3> ViewType;
+    
   IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig config);
   ~IPlugVST3();
 
@@ -97,7 +99,7 @@ public:
   tresult PLUGIN_API setUnitProgramData(int32 listOrUnitId, int32 programIndex, IBStream* data) override {return kNotImplemented;}
   
   Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }
-  IPlugVST3View* GetView() { return mViews.at(0); }
+  ViewType* GetView() { return mViews.at(0); }
   
 private:
   /** Called prior to rendering a block of audio in order to update processing context data such as transport info */
@@ -108,8 +110,8 @@ private:
   END_DEFINE_INTERFACES(SingleComponentEffect)
   REFCOUNT_METHODS(SingleComponentEffect)
 
-  void addDependentView (IPlugVST3View* view);
-  void removeDependentView (IPlugVST3View* view);
+  void addDependentView (ViewType* view);
+  void removeDependentView (ViewType* view);
   Vst::AudioBus* getAudioInput(int32 index);
   Vst::AudioBus* getAudioOutput(int32 index);
   uint64_t getSpeakerArrForChans(int32 chans);
@@ -117,32 +119,10 @@ private:
   bool mSidechainActive = false;
   IMidiQueue mMidiOutputQueue;
   Vst::ProcessContext mProcessContext;
-  std::vector <IPlugVST3View*> mViews;
+  std::vector <ViewType*> mViews;
   
-  friend class IPlugVST3View;
+  friend class IPlugVST3View<IPlugVST3>;
 };
 
 IPlugVST3* MakePlug();
-
-/** IPlug VST3 View  */
-class IPlugVST3View : public CPluginView
-{
-public:
-  IPlugVST3View(IPlugVST3& pPlug);
-  ~IPlugVST3View();
-
-  // CPluginView overides
-  tresult PLUGIN_API attached(void* parent, FIDString type) override;
-  tresult PLUGIN_API removed() override;
-
-  // IPlugView overides
-  tresult PLUGIN_API onSize(ViewRect* newSize) override;
-  tresult PLUGIN_API getSize(ViewRect* size) override;
-  tresult PLUGIN_API isPlatformTypeSupported(FIDString type) override;
-
-  void resize(int w, int h);
-
-  IPlugVST3& mPlug;
-};
-
 #endif
