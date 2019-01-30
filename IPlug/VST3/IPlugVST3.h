@@ -21,6 +21,7 @@
 
 #undef stricmp
 #undef strnicmp
+
 #include "public.sdk/source/vst/vstsinglecomponenteffect.h"
 #include "pluginterfaces/vst/ivstprocesscontext.h"
 #include "pluginterfaces/vst/vsttypes.h"

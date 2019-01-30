@@ -102,9 +102,12 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
     }
 
     if (!IsInstrument())
-      parameters.addParameter (STR16 ("Bypass"), 0, 1, 0, ParameterInfo::kCanAutomate|ParameterInfo::kIsBypass, kBypassParam, kRootUnitId);
+      parameters.addParameter(new IPlugVST3BypassParameter());
+      
 //
 //    if (NPresets() > 1)
+//     parameters.addParameter(new IPlugVST3PresetParameter(NPresets()));
+
 //      parameters.addParameter(STR16("Preset"), STR16(""), NPresets(), 0, ParameterInfo::kIsProgramChange|ParameterInfo::kIsList, kPresetParam, kRootUnitId);
 //
 //    if (DoesMIDIIn())
@@ -149,7 +152,7 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
 
       for (int i = 0; i< NPresets(); i++)
       {
-        list->addProgram (String (GetPresetName(i)));
+        list->addProgram(String (GetPresetName(i)));
       }
 
 //      char noteName[128];
@@ -198,22 +201,20 @@ IPlugView* PLUGIN_API IPlugVST3Controller::createView(const char* name)
 
 tresult PLUGIN_API IPlugVST3Controller::setComponentState(IBStream* state)
 {
-  // TODO
-  return kResultFalse;
+  return IPlugVST3State::SetState(this, state)  ? kResultOk :kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3Controller::setState(IBStream* state)
 {
-  // TODO
-  return kResultFalse;
+  // Currently nothing to do
+  return kResultOk;
 }
 
 tresult PLUGIN_API IPlugVST3Controller::getState(IBStream* state)
 {
-  // TODO
-  return kResultFalse;
+// Currently nothing to do
+  return kResultOk;
 }
-
 
 tresult PLUGIN_API IPlugVST3Controller::setParamNormalized(ParamID tag, ParamValue value)
 {

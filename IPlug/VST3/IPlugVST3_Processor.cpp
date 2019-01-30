@@ -15,53 +15,11 @@
 #include "pluginterfaces/vst/ivstparameterchanges.h"
 #include "pluginterfaces/vst/ivstevents.h"
 
-#ifndef CUSTOM_BUSTYPE_FUNC
-static uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig)
-{
-  assert(pConfig != nullptr);
-  assert(busIdx >= 0 && busIdx < pConfig->NBuses(dir));
-  
-  int numChans = pConfig->GetBusInfo(dir, busIdx)->mNChans;
-  
-  switch (numChans)
-  {
-    case 0: return SpeakerArr::kEmpty;
-    case 1: return SpeakerArr::kMono;
-    case 2: return SpeakerArr::kStereo;
-    case 3: return SpeakerArr::k30Cine; // CHECK - not the same as protools
-    case 4: return SpeakerArr::kAmbi1stOrderACN;
-    case 5: return SpeakerArr::k50;
-    case 6: return SpeakerArr::k51;
-    case 7: return SpeakerArr::k70Cine;
-    case 8: return SpeakerArr::k71CineSideFill; // CHECK - not the same as protools
-    case 9: return SpeakerArr::kAmbi2cdOrderACN;
-    case 10:return SpeakerArr::k71_2; // aka k91Atmos
-    case 16:return SpeakerArr::kAmbi3rdOrderACN;
-    default:
-      DBGMSG("do not yet know what to do here\n");
-      assert(0);
-      return SpeakerArr::kEmpty;
-  }
-}
-#else
-extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoutingDir dir, int busIdx, IOConfig* pConfig);
-#endif //CUSTOM_BUSTYPE_FUNC
-
 IPlugVST3Processor::IPlugVST3Processor(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPlugAPIBase(c, kAPIVST3)
 , IPlugVST3_ProcessorBase(c)
 {
   setControllerClass(instanceInfo.mOtherGUID);
-
-  SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
-  SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
-  
-  if (MaxNChannels(ERoute::kInput))
-  {
-    mLatencyDelay = std::unique_ptr<NChanDelayLine<PLUG_SAMPLE_DST>>(new NChanDelayLine<PLUG_SAMPLE_DST>(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput)));
-    mLatencyDelay->SetDelayTime(GetLatency());
-  }
-  
   CreateTimer();
 }
 
@@ -88,32 +46,7 @@ tresult PLUGIN_API IPlugVST3Processor::initialize(FUnknown* context)
   
   if (result == kResultOk)
   {
-    //    for(auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
-    //    {
-    int configIdx = NIOConfigs()-1;
-    
-    IOConfig* pConfig = GetIOConfig(configIdx);
-    
-    assert(pConfig);
-    for(auto busIdx = 0; busIdx < pConfig->NBuses(ERoute::kInput); busIdx++)
-    {
-      uint64_t busType = GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kInput, busIdx, pConfig);
-      
-      int flags = 0; //busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
-      Steinberg::UString(tmpStringBuf, 128).fromAscii(pConfig->GetBusInfo(ERoute::kInput, busIdx)->mLabel.Get(), 128);
-      addAudioInput(tmpStringBuf, busType, (BusTypes) busIdx > 0, flags);
-    }
-    
-    for(auto busIdx = 0; busIdx < pConfig->NBuses(ERoute::kOutput); busIdx++)
-    {
-      uint64_t busType = GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kOutput, busIdx, pConfig);
-      
-      int flags = 0; //busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
-      Steinberg::UString(tmpStringBuf, 128).fromAscii(pConfig->GetBusInfo(ERoute::kOutput, busIdx)->mLabel.Get(), 128);
-      addAudioOutput(tmpStringBuf, busType, (BusTypes) busIdx > 0, flags);
-    }
-    //    }
-    
+    Initialize(this);
     
     if(DoesMIDIIn())
       addEventInput(STR16("MIDI Input"), 1);
@@ -134,47 +67,7 @@ tresult PLUGIN_API IPlugVST3Processor::setBusArrangements(SpeakerArrangement* pI
 {
   TRACE;
   
-  // disconnect all io pins, they will be reconnected in process
-  SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false);
-  SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), false);
-  
-  //TODO: setBusArrangements !!!
-  //const int maxNInputChans = MaxNBuses(ERoute::kInput);
-  //const int NInputChannelCountOnBuses[maxNInputChans];
-  //memset(NInputChannelCountOnBuses, 0, MaxNBuses(ERoute::kInput) * sizeof(int));
-  
-  //const int maxNOutputChans = MaxNBuses(ERoute::kOutput);
-  //const int NOutputChannelCountOnBuses[maxNOutputChans];
-  //memset(NOutputChannelCountOnBuses, 0, MaxNBuses(ERoute::kOutput) * sizeof(int));
-  //
-  //  for(auto busIdx = 0; busIdx < numIns; busIdx++)
-  //  {
-  //    AudioBus* pBus = FCast<AudioBus>(audioInputs.at(busIdx));
-  //    const int NInputsRequired = SpeakerArr::getChannelCount(inputs[busIdx]);
-  //    // if existing input bus has a different number of channels to the input bus being connected
-  //    if (pBus && SpeakerArr::getChannelCount(pBus->getArrangement()) != NInputsRequired)
-  //    {
-  //      int flags = 0;
-  //      busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
-  //      audioInputs.erase(std::remove(audioInputs.begin(), audioInputs.end(), pBus));
-  //      addAudioInput(USTRING("Input"), (SpeakerArrangement) GetAPIBusTypeForChannelIOConfig(-1, -1, NInputsRequired), (BusTypes) busIdx > 0, flags);
-  //
-  //    }
-  //  }
-  //
-  //  for(auto busIdx = 0; busIdx < numOuts; busIdx++)
-  //  {
-  //    AudioBus* pBus = FCast<AudioBus>(audioOutputs.at(busIdx));
-  //    const int NOutputsRequired = SpeakerArr::getChannelCount(outputs[busIdx]);
-  //    // if existing input bus has a different number of channels to the input bus being connected
-  //    if (pBus && SpeakerArr::getChannelCount(pBus->getArrangement()) != NOutputsRequired)
-  //    {
-  //      int flags = 0;
-  //      busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
-  //      audioOutputs.erase(std::remove(audioOutputs.begin(), audioOutputs.end(), pBus));
-  //      addAudioOutput(USTRING("Output"), (SpeakerArrangement) GetAPIBusTypeForChannelIOConfig(-1, -1, NOutputsRequired), (BusTypes) busIdx > 0, flags);
-  //    }
-  //  }
+  SetBusArrangments(pInputBusArrangements, numInBuses, pOutputBusArrangements, numOutBuses);
   
   return kResultTrue;
 }
@@ -202,141 +95,28 @@ tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
 {
   TRACE;
   
-  PrepareProcessContext(data, processSetup);
-  
-  //process parameters
-  IParameterChanges* paramChanges = data.inputParameterChanges;
-  if (paramChanges)
-  {
-    int32 numParamsChanged = paramChanges->getParameterCount();
-    
-    //it is possible to get a finer resolution of control here by retrieving more values (points) from the queue
-    //for now we just grab the last one
-    
-    for (int32 i = 0; i < numParamsChanged; i++)
-    {
-      IParamValueQueue* paramQueue = paramChanges->getParameterData(i);
-      if (paramQueue)
-      {
-        int32 numPoints = paramQueue->getPointCount();
-        int32 offsetSamples;
-        double value;
-        
-        if (paramQueue->getPoint(numPoints - 1,  offsetSamples, value) == kResultTrue)
-        {
-          int idx = paramQueue->getParameterId();
-          
-          switch (idx)
-          {
-            case kBypassParam:
-            {
-              const bool bypassed = (value > 0.5);
-              
-              if (bypassed != GetBypassed())
-                SetBypassed(bypassed);
-              
-              break;
-            }
-            case kPresetParam:
-              //RestorePreset((int)round(FromNormalizedParam(value, 0, NPresets(), 1.))); // TODO
-              break;
-              //TODO: pitch bend, modwheel etc
-            default:
-            {
-              if (idx >= 0 && idx < NParams())
-              {
-                ENTER_PARAMS_MUTEX;
-                GetParam(idx)->SetNormalized((double)value);
-                OnParamChange(idx, kHost, offsetSamples);
-                LEAVE_PARAMS_MUTEX;
-              }
-            }
-              break;
-          }
-          
-        }
-      }
-    }
-  }
-  
-  if (DoesMIDIIn())
-  {
-    DoMIDIn(data.inputEvents, mMidiMsgsFromEditor, mMidiMsgsFromProcessor);
-  }
-  
-  ProcessAudio(data, audioInputs, audioOutputs, processSetup);
-
-  if (DoesMIDIOut())
-  {
-    DoMIDIOut(mMidiOutputQueue, mSysExDataFromEditor, mSysexBuf, data.outputEvents, data.numSamples);
-  }
+  Process(this, data, processSetup, audioInputs, audioOutputs, mMidiMsgsFromEditor, mMidiMsgsFromProcessor, mSysExDataFromEditor, mSysexBuf);
     
   return kResultOk;
 }
 
 tresult PLUGIN_API IPlugVST3Processor::canProcessSampleSize(int32 symbolicSampleSize)
 {
-  switch (symbolicSampleSize)
-  {
-    case kSample32:   // fall through
-    case kSample64:   return kResultTrue;
-    default:          return kResultFalse;
-  }
+  return CanProcessSampleSize(symbolicSampleSize) ? kResultTrue : kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3Processor::setState(IBStream* state)
 {
   TRACE;
   
-  IByteChunk chunk;
-  
-  const int bytesPerBlock = 128;
-  char buffer[bytesPerBlock];
-  
-  while(true)
-  {
-    Steinberg::int32 bytesRead = 0;
-    auto status = state->read (buffer, (Steinberg::int32) bytesPerBlock, &bytesRead);
-    
-    if (bytesRead <= 0 || (status != kResultTrue && GetHost() != kHostWaveLab))
-      break;
-    
-    chunk.PutBytes(buffer, bytesRead);
-  }
-  int pos = UnserializeState(chunk,0);
-  
-  int32 savedBypass = 0;
-  
-  state->seek(pos,IBStream::IStreamSeekMode::kIBSeekSet);
-  if (state->read (&savedBypass, sizeof (Steinberg::int32)) != kResultOk) {
-    return kResultFalse;
-  }
-  
-  SetBypassed((bool) savedBypass);
-  
-  OnRestoreState();
-  return kResultOk;
+  return IPlugVST3State::SetState(this, state)  ? kResultOk :kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3Processor::getState(IBStream* state)
 {
   TRACE;
-  IByteChunk chunk;
-  IByteChunk::InitChunkWithIPlugVer(chunk);
-  int bypassState = GetBypassed();
-  chunk.Put(&bypassState);
-
-  if (SerializeState(chunk))
-  {
-    int chunkSize = chunk.Size();
-    void* data = (void*) &chunkSize;
-    state->write(data, (int32) sizeof(int));
-    state->write(chunk.GetData(), chunkSize);
-  }
-  else
-    return kResultFalse;
-  
-  return kResultTrue;
+    
+  return IPlugVST3State::GetState(this, state) ? kResultOk :kResultFalse;
 }
 
 void IPlugVST3Processor::SendControlValueFromDelegate(int controlTag, double normalizedValue)
@@ -457,4 +237,3 @@ void IPlugVST3Processor::TransmitSysExDataFromProcessor(const SysExData& data)
   message->getAttributes()->setInt("O", data.mOffset);
   sendMessage(message);
 }
-
