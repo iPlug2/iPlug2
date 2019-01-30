@@ -54,19 +54,19 @@ public:
   tresult PLUGIN_API getState(IBStream* state) override;
   
   tresult PLUGIN_API setParamNormalized(ParamID tag, ParamValue value) override;
-  //ComponentBase
+  // ComponentBase
   tresult PLUGIN_API notify(IMessage* message) override;
 
-  //IMidiMapping
+  // IMidiMapping
   tresult PLUGIN_API getMidiControllerAssignment(int32 busIndex, int16 channel, CtrlNumber midiControllerNumber, ParamID& tag) override;
 
-  //IEditControllerEx
+  // IEditControllerEx
   tresult PLUGIN_API getProgramName(ProgramListID listId, int32 programIndex, String128 name /*out*/) override;
   
   DELEGATE_REFCOUNT(EditControllerEx1)
   tresult PLUGIN_API queryInterface(const char* iid, void** obj) override;
   
-  //IPlugAPIBase
+  // IPlugAPIBase
   void BeginInformHostOfParamChange(int idx) override { beginEdit(idx); }
   void InformHostOfParamChange(int idx, double normalizedValue) override  { performEdit(idx, normalizedValue); }
   void EndInformHostOfParamChange(int idx) override  { endEdit(idx); }
@@ -74,7 +74,7 @@ public:
   void EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data) override;
   void DirtyParametersFromUI() override;
   
-  //IEditorDelegate
+  // IEditorDelegate
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
   void SendSysexMsgFromUI(const ISysEx& msg) override;
   void SendArbitraryMsgFromUI(int messageTag, int controlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) override;
