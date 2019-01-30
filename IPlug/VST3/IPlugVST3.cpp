@@ -56,12 +56,6 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
   {
     Initialize(this);
 
-    if(DoesMIDIIn())
-      addEventInput(STR16("MIDI Input"), 1);
-    
-    if(DoesMIDIOut())
-      addEventOutput(STR16("MIDI Output"), 1);
-
     if (NPresets())
     {
       parameters.addParameter(new IPlugVST3PresetParameter(NPresets()));
@@ -72,7 +66,7 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
       parameters.addParameter(new IPlugVST3BypassParameter());
     }
 
-    for (int i=0; i<NParams(); i++)
+    for (int i = 0; i < NParams(); i++)
     {
       IParam *p = GetParam(i);
 

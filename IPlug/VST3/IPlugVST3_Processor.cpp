@@ -46,13 +46,7 @@ tresult PLUGIN_API IPlugVST3Processor::initialize(FUnknown* context)
   
   if (result == kResultOk)
   {
-    Initialize(this);
-    
-    if(DoesMIDIIn())
-      addEventInput(STR16("MIDI Input"), 1);
-    
-    if(DoesMIDIOut())
-      addEventOutput(STR16("MIDI Output"), 1);  
+    Initialize(this); 
   }
   
   return result;

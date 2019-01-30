@@ -77,7 +77,7 @@ public:
   }
   
   template <class T>
-  void Initialize(T* effect)
+  void Initialize(T* plug)
   {
     String128 tmpStringBuf;
     
@@ -94,7 +94,7 @@ public:
       
       int flags = 0; //busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
       UString(tmpStringBuf, 128).fromAscii(pConfig->GetBusInfo(ERoute::kInput, busIdx)->mLabel.Get(), 128);
-      effect->addAudioInput(tmpStringBuf, busType, (BusTypes) busIdx > 0, flags);
+      plug->addAudioInput(tmpStringBuf, busType, (BusTypes) busIdx > 0, flags);
     }
     
     for(auto busIdx = 0; busIdx < pConfig->NBuses(ERoute::kOutput); busIdx++)
@@ -103,9 +103,15 @@ public:
       
       int flags = 0; //busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
       UString(tmpStringBuf, 128).fromAscii(pConfig->GetBusInfo(ERoute::kOutput, busIdx)->mLabel.Get(), 128);
-      effect->addAudioOutput(tmpStringBuf, busType, (BusTypes) busIdx > 0, flags);
+      plug->addAudioOutput(tmpStringBuf, busType, (BusTypes) busIdx > 0, flags);
     }
 //  }
+    
+    if (DoesMIDIIn())
+      plug->addEventInput(STR16("MIDI Input"), 1);
+    
+    if (DoesMIDIOut())
+      plug->addEventOutput(STR16("MIDI Output"), 1);
   }
   
   void SetBusArrangments(SpeakerArrangement* pInputBusArrangements, int32 numInBuses, SpeakerArrangement* pOutputBusArrangements, int32 numOutBuses)
