@@ -49,17 +49,17 @@ public:
   IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig config);
   ~IPlugVST3();
 
-  //IPlugAPIBase
+  // IPlugAPIBase
   void BeginInformHostOfParamChange(int idx) override;
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;
   void InformHostOfProgramChange() override {}
   void InformHostOfParameterDetailsChange() override;
   
-  //IEditorDelegate
+  // IEditorDelegate
   void DirtyParametersFromUI() override;
   
-  //IPlugProcessor
+  // IPlugProcessor
   void EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data) override;
   void SetLatency(int samples) override;
   bool SendMidiMsg(const IMidiMsg& msg) override;
@@ -83,7 +83,7 @@ public:
   tresult PLUGIN_API getEditorState (IBStream* state) override;
   tresult PLUGIN_API setComponentState(IBStream *state) override;
  
-  //IUnitInfo
+  // IUnitInfo
   int32 PLUGIN_API getUnitCount() override;
   tresult PLUGIN_API getUnitInfo(int32 unitIndex, Vst::UnitInfo& info) override;
   int32 PLUGIN_API getProgramListCount() override;
@@ -105,6 +105,9 @@ private:
   /** Called prior to rendering a block of audio in order to update processing context data such as transport info */
   void PreProcess();
 
+  // Allows connection of either single or double prcession IO
+  void AttachBuffers(ERoute direction, int idx, int n, AudioBusBuffers& pBus, int nFrames, int32 sampleSize);
+    
   OBJ_METHODS(IPlugVST3, SingleComponentEffect)
   DEFINE_INTERFACES
   END_DEFINE_INTERFACES(SingleComponentEffect)

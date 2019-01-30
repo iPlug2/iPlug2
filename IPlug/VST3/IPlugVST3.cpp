@@ -274,6 +274,14 @@ tresult PLUGIN_API IPlugVST3::setupProcessing(ProcessSetup& newSetup)
   return kResultOk;
 }
 
+void IPlugVST3Processor::AttachBuffers(ERoute direction, int idx, int n, AudioBusBuffers& pBus, int nFrames, int32 sampleSize)
+{
+  if (sampleSize == kSample32)
+    IPlugProcessor::AttachBuffers(direction, idx, n, pBus.channelBuffers32, nFrames);
+  else if (sampleSize == kSample64)
+    IPlugProcessor::AttachBuffers(direction, idx, n, pBus.channelBuffers64, nFrames);
+}
+
 tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 {
   TRACE;
@@ -339,14 +347,14 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
     }
   }
 
-  if(DoesMIDIIn())
+  if (DoesMIDIIn())
   {
     DoMIDIn(*this, data.inputEvents, mMidiMsgsFromEditor, mMidiMsgsFromProcessor);
   }
+  
+  int32 sampleSize = processSetup.symbolicSampleSize;
 
-#pragma mark process single precision
-
-  if (processSetup.symbolicSampleSize == kSample32)
+  if (sampleSize == kSample32 || sampleSize == kSample64)
   {
     if (data.numInputs)
     {
@@ -369,14 +377,14 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
           SetChannelConnections(ERoute::kInput, data.inputs[0].numChannels, MaxNChannels(ERoute::kInput) - NSidechainChannels(), false);
         }
 
-        AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput) - NSidechainChannels(), data.inputs[0].channelBuffers32, data.numSamples);
-        AttachBuffers(ERoute::kInput, NSidechainChannels(), MaxNChannels(ERoute::kInput) - NSidechainChannels(), data.inputs[1].channelBuffers32, data.numSamples);
+        AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput) - NSidechainChannels(), data.inputs[0].channelBuffers32, data.numSamples, sampleSize);
+        AttachBuffers(ERoute::kInput, NSidechainChannels(), MaxNChannels(ERoute::kInput) - NSidechainChannels(), data.inputs[1].channelBuffers32, data.numSamples, sampleSize);
       }
       else
       {
         SetChannelConnections(ERoute::kInput, 0, data.inputs[0].numChannels, true);
         SetChannelConnections(ERoute::kInput, data.inputs[0].numChannels, MaxNChannels(ERoute::kInput) - data.inputs[0].numChannels, false);
-        AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), data.inputs[0].channelBuffers32, data.numSamples);
+        AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), data.inputs[0].channelBuffers32, data.numSamples, sampleSize);
       }
     }
 
@@ -385,65 +393,24 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
       int busChannels = data.outputs[outBus].numChannels;
       SetChannelConnections(ERoute::kOutput, chanOffset, busChannels, (bool) getAudioOutput(outBus)->isActive());
       SetChannelConnections(ERoute::kOutput, chanOffset + busChannels, MaxNChannels(ERoute::kOutput) - (chanOffset + busChannels), false);
-      AttachBuffers(ERoute::kOutput, chanOffset, busChannels, data.outputs[outBus].channelBuffers32, data.numSamples);
+      AttachBuffers(ERoute::kOutput, chanOffset, busChannels, data.outputs[outBus].channelBuffers32, data.numSamples, sampleSize);
       chanOffset += busChannels;
     }
 
     if (GetBypassed())
-      PassThroughBuffers(0.0f, data.numSamples);
-    else
-      ProcessBuffers(0.0f, data.numSamples); // process buffers single precision
-  }
-
-#pragma mark process double precision
-
-  else if (processSetup.symbolicSampleSize == kSample64)
-  {
-    if (data.numInputs)
     {
-      if (HasSidechainInput())
-      {
-        if (getAudioInput(1)->isActive()) // Sidechain is active
-        {
-          mSidechainActive = true;
-          SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
-        }
-        else
-        {
-          if (mSidechainActive)
-          {
-            ZeroScratchBuffers();
-            mSidechainActive = false;
-          }
-
-          SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
-          SetChannelConnections(ERoute::kInput, data.inputs[0].numChannels, MaxNChannels(ERoute::kInput) - NSidechainChannels(), false);
-        }
-
-        AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput) - NSidechainChannels(), data.inputs[0].channelBuffers64, data.numSamples);
-        AttachBuffers(ERoute::kInput, NSidechainChannels(), MaxNChannels(ERoute::kInput) - NSidechainChannels(), data.inputs[1].channelBuffers64, data.numSamples);
-      }
+      if (sampleSize == kSample32)
+        PassThroughBuffers(0.f, data.numSamples); // single precision
       else
-      {
-        SetChannelConnections(ERoute::kInput, 0, data.inputs[0].numChannels, true);
-        SetChannelConnections(ERoute::kInput, data.inputs[0].numChannels, MaxNChannels(ERoute::kInput) - data.inputs[0].numChannels, false);
-        AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), data.inputs[0].channelBuffers64, data.numSamples);
-      }
+        PassThroughBuffers(0.0, data.numSamples); // double precision
     }
-
-    for (int outBus = 0, chanOffset = 0; outBus < data.numOutputs; outBus++)
-    {
-      int busChannels = data.outputs[outBus].numChannels;
-      SetChannelConnections(ERoute::kOutput, chanOffset, busChannels, (bool) getAudioOutput(outBus)->isActive());
-      SetChannelConnections(ERoute::kOutput, chanOffset + busChannels, MaxNChannels(ERoute::kOutput) - (chanOffset + busChannels), false);
-      AttachBuffers(ERoute::kOutput, chanOffset, busChannels, data.outputs[outBus].channelBuffers64, data.numSamples);
-      chanOffset += busChannels;
-    }
-
-    if (GetBypassed())
-      PassThroughBuffers(0.0, data.numSamples);
     else
-      ProcessBuffers(0.0, data.numSamples); // process buffers double precision
+    {
+      if (sampleSize == kSample32)
+        ProcessBuffers(0.f, data.numSamples); // single precision
+      else
+        ProcessBuffers(0.0, data.numSamples); // double precision
+    }
   }
 
   if (DoesMIDIOut())

@@ -55,22 +55,25 @@ public:
   tresult PLUGIN_API setState(IBStream* state) override;
   tresult PLUGIN_API getState(IBStream* state) override;
   
-  //IEditorDelegate - these methods are overridden because we need to hook into VST3 messaging system
+  // IEditorDelegate - these methods are overridden because we need to hook into VST3 messaging system
   void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;
   void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) override;
   void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override {} // NOOP in VST3 processor -> param change gets there via IPlugVST3Controller::setParamNormalized
   void SendArbitraryMsgFromDelegate(int messageTag, int dataSize = 0, const void* pData = nullptr) override;
   
-  //IPlugProcessor
+  // IPlugProcessor
   bool SendMidiMsg(const IMidiMsg& msg) override;
   
 private:
   void TransmitMidiMsgFromProcessor(const IMidiMsg& msg) override;
   void TransmitSysExDataFromProcessor(const SysExData& data) override;
 
+  // Allows connection of either single or double prcession IO
+  void AttachBuffers(ERoute direction, int idx, int n, AudioBusBuffers& pBus, int nFrames, int32 sampleSize);
+    
   bool mSidechainActive = false;
 
-  //IConnectionPoint
+  // IConnectionPoint
   tresult PLUGIN_API notify(IMessage* message) override;
 
   /** Called prior to rendering a block of audio in order to update processing context data such as transport info */
