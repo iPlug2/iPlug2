@@ -26,7 +26,7 @@ using namespace Vst;
 
 IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPlugAPIBase(c, kAPIVST3)
-, IPlugVST3ProcessorBase(c)
+, IPlugVST3ProcessorBase(c, *this)
 {
   CreateTimer();
 }
@@ -89,7 +89,7 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 {
   TRACE;
 
-  Process(this, data, processSetup, audioInputs, audioOutputs, mMidiMsgsFromEditor, mMidiMsgsFromProcessor, mSysExDataFromEditor, mSysexBuf);
+  Process(data, processSetup, audioInputs, audioOutputs, mMidiMsgsFromEditor, mMidiMsgsFromProcessor, mSysExDataFromEditor, mSysexBuf);
   return kResultOk;
 }
 

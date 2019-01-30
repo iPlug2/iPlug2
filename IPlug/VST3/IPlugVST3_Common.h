@@ -18,9 +18,9 @@
 #include "pluginterfaces/vst/vstspeaker.h"
 #include "pluginterfaces/base/ibstream.h"
 
-#include "IPlugStructs.h"
-#include "IPlugQueue.h"
+#include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
+
 #include "IPlugVST3_Parameter.h"
 
 using namespace Steinberg;
@@ -61,7 +61,9 @@ extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoutingDir dir, 
 class IPlugVST3ProcessorBase : public IPlugProcessor<PLUG_SAMPLE_DST>
 {
 public:
-  IPlugVST3ProcessorBase(IPlugConfig c) : IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST3)
+  IPlugVST3ProcessorBase(IPlugConfig c, IPlugAPIBase& plug)
+  : IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST3)
+  , mPlug(plug)
   {
     SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
     SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
@@ -338,8 +340,7 @@ public:
     SetRenderingOffline(offline);
   }
   
-  template <class T>
-  void ProcessParameterChanges(T* plug, ProcessData& data)
+  void ProcessParameterChanges(ProcessData& data)
   {
     IParameterChanges* paramChanges = data.inputParameterChanges;
     
@@ -380,12 +381,12 @@ public:
                 //TODO: pitch bend, modwheel etc
               default:
               {
-                if (idx >= 0 && idx < plug->NParams())
+                if (idx >= 0 && idx < mPlug.NParams())
                 {
                   ENTER_PARAMS_MUTEX;
-                  plug->GetParam(idx)->SetNormalized((double)value);
-                  plug->SendParameterValueFromAPI(idx, (double) value, true);
-                  plug->OnParamChange(idx, kHost, offsetSamples);
+                  mPlug.GetParam(idx)->SetNormalized((double)value);
+                  mPlug.SendParameterValueFromAPI(idx, (double) value, true);
+                  mPlug.OnParamChange(idx, kHost, offsetSamples);
                   LEAVE_PARAMS_MUTEX;
                 }
               }
@@ -461,11 +462,10 @@ public:
     }
   }
   
-  template <class T>
-  void Process(T* plug, ProcessData& data, ProcessSetup& setup, const BusList& ins, const BusList& outs, IPlugQueue<IMidiMsg>& fromEditor, IPlugQueue<IMidiMsg>& fromProcessor, IPlugQueue<SysExData>& sysExFromEditor, SysExData& sysExBuf)
+  void Process(ProcessData& data, ProcessSetup& setup, const BusList& ins, const BusList& outs, IPlugQueue<IMidiMsg>& fromEditor, IPlugQueue<IMidiMsg>& fromProcessor, IPlugQueue<SysExData>& sysExFromEditor, SysExData& sysExBuf)
   {
     PrepareProcessContext(data, setup);
-    ProcessParameterChanges(plug, data);
+    ProcessParameterChanges(data);
     
     if (DoesMIDIIn())
     {
@@ -497,7 +497,7 @@ public:
   }
   
 private:
-    
+  IPlugAPIBase& mPlug;
   ProcessContext mProcessContext;
   IMidiQueue mMidiOutputQueue;
   bool mSidechainActive = false;
@@ -508,8 +508,7 @@ class IPlugVST3ControllerBase
 {
 public:
   
-  template <class T>
-  void Initialize(T* plug, ParameterContainer& parameters, bool plugIsInstrument)
+  void Initialize(IPlugAPIBase* plug, ParameterContainer& parameters, bool plugIsInstrument)
   {
     if (plug->NPresets())
       parameters.addParameter(new IPlugVST3PresetParameter(plug->NPresets()));
@@ -564,8 +563,7 @@ struct IPlugVST3State
       /*
        int chunkSize = chunk.Size();
        void* data = (void*) &chunkSize;
-       state->write(data, (int32) sizeof(int));
-       state->write(chunk.GetData(), chunkSize);*/
+       state->write(data, (int32) sizeof(int));*/
       state->write(chunk.GetData(), chunk.Size());
     }
     else
@@ -619,8 +617,7 @@ struct IPlugVST3State
 
 // Host
 
-template <class T>
-static void IPlugVST3GetHost(T* plug, FUnknown* context)
+static void IPlugVST3GetHost(IPlugAPIBase* plug, FUnknown* context)
 {
   String128 tmpStringBuf;
   char hostNameCString[128];
