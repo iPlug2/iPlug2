@@ -31,6 +31,7 @@
 #include "IPlugProcessor.h"
 
 #include "IPlugVST3_Common.h"
+#include "IPlugVST3_ProcessorBase.h"
 #include "IPlugVST3_View.h"
 
 /** Used to pass various instance info to the API class, where needed */

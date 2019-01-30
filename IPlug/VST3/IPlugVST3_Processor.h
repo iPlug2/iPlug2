@@ -18,8 +18,8 @@
 #include "pluginterfaces/vst/ivstprocesscontext.h"
 
 #include "IPlugAPIBase.h"
-#include "IPlugProcessor.h"
 
+#include "IPlugVST3_ProcessorBase.h"
 #include "IPlugVST3_Common.h"
 
 /**
