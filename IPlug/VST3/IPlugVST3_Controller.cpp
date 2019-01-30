@@ -22,6 +22,7 @@ using namespace Steinberg::Vst;
 
 IPlugVST3Controller::IPlugVST3Controller(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPlugAPIBase(c, kAPIVST3)
+, mPlugIsInstrument(c.plugType == kInstrument)
 , mProcessorGUID(instanceInfo.mOtherGUID)
 {
 }
@@ -37,7 +38,7 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
 {
   if (EditControllerEx1::initialize(context) == kResultTrue)
   {
-    Initialize(this, parameters);
+    Initialize(this, parameters, mPlugIsInstrument);
     /*
     UnitInfo uinfo;
     uinfo.id = kRootUnitId;

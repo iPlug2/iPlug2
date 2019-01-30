@@ -84,6 +84,7 @@ public:
 
 private:
   ViewType* mView = nullptr;
+  bool mPlugIsInstrument;
   Steinberg::FUID mProcessorGUID;
 };
 

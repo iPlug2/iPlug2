@@ -509,17 +509,13 @@ class IPlugVST3ControllerBase
 public:
   
   template <class T>
-  void Initialize(T* plug, ParameterContainer& parameters)
+  void Initialize(T* plug, ParameterContainer& parameters, bool plugIsInstrument)
   {
     if (plug->NPresets())
-    {
       parameters.addParameter(new IPlugVST3PresetParameter(plug->NPresets()));
-    }
     
-    if(!plug->IsInstrument())
-    {
+    if (plugIsInstrument)
       parameters.addParameter(new IPlugVST3BypassParameter());
-    }
     
     for (int i = 0; i < plug->NParams(); i++)
     {
@@ -612,10 +608,9 @@ struct IPlugVST3State
       return kResultFalse;
     }
     
-    if (!plug->IsInstrument())
-    {
-      plug->getParameterObject(kBypassParam)->setNormalized(savedBypass);
-    }
+    Parameter* bypassParameter = plug->getParameterObject(kBypassParam);
+    if (bypassParameter)
+      bypassParameter->setNormalized(savedBypass);
     
     plug->OnRestoreState();
     return kResultOk;
