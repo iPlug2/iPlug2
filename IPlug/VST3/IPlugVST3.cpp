@@ -42,7 +42,7 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
   if (SingleComponentEffect::initialize(context) == kResultOk)
   {
     IPlugVST3ProcessorBase::Initialize(this);
-    IPlugVST3ControllerBase::Initialize(this, parameters);
+    IPlugVST3ControllerBase::Initialize(this, parameters, IsInstrument());
 
     IPlugVST3GetHost(this, context);
     OnHostIdentified();
@@ -67,7 +67,6 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* pInputBusAr
   TRACE;
 
   SetBusArrangments(pInputBusArrangements, numInBuses, pOutputBusArrangements, numOutBuses);
-  
   return kResultTrue;
 }
 
@@ -76,7 +75,6 @@ tresult PLUGIN_API IPlugVST3::setActive(TBool state)
   TRACE;
 
   OnActivate((bool) state);
-
   return SingleComponentEffect::setActive(state);
 }
 
@@ -92,11 +90,8 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
   TRACE;
 
   Process(this, data, processSetup, audioInputs, audioOutputs, mMidiMsgsFromEditor, mMidiMsgsFromProcessor, mSysExDataFromEditor, mSysexBuf);
-
   return kResultOk;
 }
-
-//TODO: VST3 State needs work
 
 tresult PLUGIN_API IPlugVST3::canProcessSampleSize(int32 symbolicSampleSize)
 {
@@ -107,7 +102,7 @@ tresult PLUGIN_API IPlugVST3::setState(IBStream* state)
 {
   TRACE;
   
-  return IPlugVST3State::SetState(this, state)  ? kResultOk :kResultFalse;
+  return IPlugVST3State::SetState(this, state) ? kResultOk :kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3::getState(IBStream* state)
@@ -259,10 +254,9 @@ void IPlugVST3::InformHostOfParameterDetailsChange()
 void IPlugVST3::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
 {
   if (HasUI() && (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight()))
-  {
     mViews.at(0)->resize(viewWidth, viewHeight);
-    IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
-  }
+
+  IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
 }
 
 void IPlugVST3::DirtyParametersFromUI()

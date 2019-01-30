@@ -34,7 +34,7 @@ using namespace Vst;
  *   @ingroup APIClasses */
 class IPlugVST3Processor : public AudioEffect
                          , public IPlugAPIBase
-                         , public IPlugVST3_ProcessorBase
+                         , public IPlugVST3ProcessorBase
 {
 public:
   struct IPlugInstanceInfo
@@ -53,7 +53,8 @@ public:
   tresult PLUGIN_API setupProcessing(ProcessSetup& newSetup) override;
   tresult PLUGIN_API process(ProcessData& data) override;
   tresult PLUGIN_API canProcessSampleSize(int32 symbolicSampleSize) override;
-  uint32 PLUGIN_API getLatencySamples() override { return 0; } //TODO:
+  uint32 PLUGIN_API getLatencySamples() override { return GetLatency(); }
+  uint32 PLUGIN_API getTailSamples() override { return GetTailSize(); } //TODO - infinite tail
   tresult PLUGIN_API setState(IBStream* state) override;
   tresult PLUGIN_API getState(IBStream* state) override;
   

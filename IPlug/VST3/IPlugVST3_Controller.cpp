@@ -195,7 +195,7 @@ IPlugView* PLUGIN_API IPlugVST3Controller::createView(const char* name)
 
 tresult PLUGIN_API IPlugVST3Controller::setComponentState(IBStream* state)
 {
-  return IPlugVST3State::SetState(this, state)  ? kResultOk :kResultFalse;
+  return IPlugVST3State::SetState(this, state) ? kResultOk :kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3Controller::setState(IBStream* state)
@@ -248,6 +248,7 @@ tresult PLUGIN_API IPlugVST3Controller::setParamNormalized(ParamID tag, ParamVal
 
   return EditControllerEx1::setParamNormalized(tag, value);
 }
+
 tresult PLUGIN_API IPlugVST3Controller::getMidiControllerAssignment (int32 busIndex, int16 midiChannel, CtrlNumber midiControllerNumber, ParamID& tag)
 {
 //  if (busIndex == 0)
@@ -291,10 +292,9 @@ tresult PLUGIN_API IPlugVST3Controller::getProgramName(ProgramListID listId, int
 void IPlugVST3Controller::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
 {
   if (HasUI() && (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight()))
-  {
     mView->resize(viewWidth, viewHeight);
-    IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
-  }
+ 
+  IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
 }
 
 void IPlugVST3Controller::DirtyParametersFromUI()

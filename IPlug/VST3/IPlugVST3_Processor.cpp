@@ -14,7 +14,7 @@
 
 IPlugVST3Processor::IPlugVST3Processor(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPlugAPIBase(c, kAPIVST3)
-, IPlugVST3_ProcessorBase(c)
+, IPlugVST3ProcessorBase(c)
 {
   setControllerClass(instanceInfo.mOtherGUID);
   CreateTimer();
@@ -49,12 +49,13 @@ tresult PLUGIN_API IPlugVST3Processor::setBusArrangements(SpeakerArrangement* pI
   TRACE;
   
   SetBusArrangments(pInputBusArrangements, numInBuses, pOutputBusArrangements, numOutBuses);
-  
   return kResultTrue;
 }
 
 tresult PLUGIN_API IPlugVST3Processor::setActive(TBool state)
 {
+  TRACE;
+  
   OnActivate((bool) state);
   return AudioEffect::setActive(state);
 }
@@ -71,7 +72,6 @@ tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
   TRACE;
   
   Process(this, data, processSetup, audioInputs, audioOutputs, mMidiMsgsFromEditor, mMidiMsgsFromProcessor, mSysExDataFromEditor, mSysexBuf);
-    
   return kResultOk;
 }
 
@@ -84,7 +84,7 @@ tresult PLUGIN_API IPlugVST3Processor::setState(IBStream* state)
 {
   TRACE;
   
-  return IPlugVST3State::SetState(this, state)  ? kResultOk :kResultFalse;
+  return IPlugVST3State::SetState(this, state) ? kResultOk :kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3Processor::getState(IBStream* state)
