@@ -13,7 +13,7 @@ using namespace Steinberg;
 using namespace Vst;
 
 /** IPlug VST3 View  */
-template<class T>
+template <class T>
 class IPlugVST3View : public CPluginView
 {
 public:
