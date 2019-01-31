@@ -72,8 +72,8 @@ public:
   }
   
   // MIDI Processing
-  void DoMidiIn(Vst::IEventList* eventList, IPlugQueue<IMidiMsg>& editorQueue, IPlugQueue<IMidiMsg>& processorQueue);
-  void DoMidiOut(IPlugQueue<SysExData>& sysExQueue, SysExData& sysExBuf, Vst::IEventList* outputEvents, int32 numSamples);
+  void ProcessMidiIn(Vst::IEventList* eventList, IPlugQueue<IMidiMsg>& editorQueue, IPlugQueue<IMidiMsg>& processorQueue);
+  void ProcessMidiOut(IPlugQueue<SysExData>& sysExQueue, SysExData& sysExBuf, Vst::IEventList* outputEvents, int32 numSamples);
   
   // Audio Processing Setup
   void SetBusArrangments(Vst::SpeakerArrangement* pInputBusArrangements, int32 numInBuses, Vst::SpeakerArrangement* pOutputBusArrangements, int32 numOutBuses);
@@ -84,7 +84,7 @@ public:
   // Audio Processing
   void PrepareProcessContext(Vst::ProcessData& data, Vst::ProcessSetup& setup);
   void ProcessParameterChanges(Vst::ProcessData& data);
-  void ProcessAudio(Vst::ProcessData& data, const Vst::BusList& ins, const Vst::BusList& outs, Vst::ProcessSetup& setup);
+  void ProcessAudio(Vst::ProcessData& data, Vst::ProcessSetup& setup, const Vst::BusList& ins, const Vst::BusList& outs);
   void Process(Vst::ProcessData& data, Vst::ProcessSetup& setup, const Vst::BusList& ins, const Vst::BusList& outs, IPlugQueue<IMidiMsg>& fromEditor, IPlugQueue<IMidiMsg>& fromProcessor, IPlugQueue<SysExData>& sysExFromEditor, SysExData& sysExBuf);
   
   // IPlugProcessor overrides

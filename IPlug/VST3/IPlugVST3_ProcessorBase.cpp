@@ -63,7 +63,7 @@ IPlugVST3ProcessorBase::IPlugVST3ProcessorBase(IPlugConfig c, IPlugAPIBase& plug
   memset(&mProcessContext, 0, sizeof(ProcessContext));
 }
 
-void IPlugVST3ProcessorBase::DoMidiIn(IEventList* eventList, IPlugQueue<IMidiMsg>& editorQueue, IPlugQueue<IMidiMsg>& processorQueue)
+void IPlugVST3ProcessorBase::ProcessMidiIn(IEventList* eventList, IPlugQueue<IMidiMsg>& editorQueue, IPlugQueue<IMidiMsg>& processorQueue)
 {
   IMidiMsg msg;
   
@@ -119,7 +119,7 @@ void IPlugVST3ProcessorBase::DoMidiIn(IEventList* eventList, IPlugQueue<IMidiMsg
   }
 }
 
-void IPlugVST3ProcessorBase::DoMidiOut(IPlugQueue<SysExData>& sysExQueue, SysExData& sysExBuf, IEventList* outputEvents, int32 numSamples)
+void IPlugVST3ProcessorBase::ProcessMidiOut(IPlugQueue<SysExData>& sysExQueue, SysExData& sysExBuf, IEventList* outputEvents, int32 numSamples)
 {
   // MIDI
   if (!mMidiOutputQueue.Empty() && outputEvents)
@@ -355,7 +355,7 @@ void IPlugVST3ProcessorBase::ProcessParameterChanges(ProcessData& data)
   }
 }
 
-void IPlugVST3ProcessorBase::ProcessAudio(ProcessData& data, const BusList& ins, const BusList& outs, ProcessSetup& setup)
+void IPlugVST3ProcessorBase::ProcessAudio(ProcessData& data, ProcessSetup& setup, const BusList& ins, const BusList& outs)
 {
   int32 sampleSize = setup.symbolicSampleSize;
   
@@ -426,14 +426,14 @@ void IPlugVST3ProcessorBase::Process(ProcessData& data, ProcessSetup& setup, con
   
   if (DoesMIDIIn())
   {
-    DoMidiIn(data.inputEvents, fromEditor, fromProcessor);
+    ProcessMidiIn(data.inputEvents, fromEditor, fromProcessor);
   }
   
-  ProcessAudio(data, ins, outs, setup);
+  ProcessAudio(data, setup, ins, outs);
   
   if (DoesMIDIOut())
   {
-    DoMidiOut(sysExFromEditor, sysExBuf, data.outputEvents, data.numSamples);
+    ProcessMidiOut(sysExFromEditor, sysExBuf, data.outputEvents, data.numSamples);
   }
 }
 
