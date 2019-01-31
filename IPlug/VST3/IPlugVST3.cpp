@@ -27,6 +27,7 @@ using namespace Vst;
 IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPlugAPIBase(c, kAPIVST3)
 , IPlugVST3ProcessorBase(c, *this)
+, mView(nullptr)
 {
   CreateTimer();
 }
@@ -58,7 +59,6 @@ tresult PLUGIN_API IPlugVST3::terminate()
 {
   TRACE;
 
-  mViews.empty();
   return SingleComponentEffect::terminate();
 }
 
@@ -118,7 +118,8 @@ IPlugView* PLUGIN_API IPlugVST3::createView(const char* name)
 {
   if (name && strcmp(name, "editor") == 0)
   {
-    return new ViewType(*this);
+    mView = new ViewType(*this);
+    return mView;
   }
   
   return 0;
@@ -140,16 +141,6 @@ tresult PLUGIN_API IPlugVST3::setComponentState(IBStream* state)
 {
   // We get the state through setState so do nothing here
   return kResultOk;
-}
-
-void IPlugVST3::addDependentView(ViewType* view)
-{
-  mViews.push_back(view);
-}
-
-void IPlugVST3::removeDependentView(ViewType* view)
-{
-  mViews.erase(std::remove(mViews.begin(), mViews.end(), view));
 }
 
 #pragma mark IUnitInfo overrides
@@ -256,7 +247,7 @@ void IPlugVST3::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeigh
   if (HasUI())
   {
     if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
-      mViews.at(0)->resize(viewWidth, viewHeight);
+      mView->resize(viewWidth, viewHeight);
 
     IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
   }

@@ -20,19 +20,17 @@ public:
   IPlugVST3View(T& owner)
   : mOwner(owner)
   {
-    //mPlug.addDependentView(this);
     mOwner.addRef();
   }
   
   ~IPlugVST3View()
   {
-    //mPlug.removeDependentView(this);
     mOwner.release();
   }
   
   tresult PLUGIN_API isPlatformTypeSupported(FIDString type) override
   {
-    if(mOwner.HasUI()) // for no editor plugins
+    if (mOwner.HasUI()) // for no editor plugins
     {
 #ifdef OS_WIN
       if (strcmp(type, kPlatformTypeHWND) == 0)

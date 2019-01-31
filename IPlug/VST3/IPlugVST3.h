@@ -102,7 +102,7 @@ public:
   tresult PLUGIN_API setUnitProgramData(int32 listOrUnitId, int32 programIndex, IBStream* data) override { return kNotImplemented; }
   
   Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }
-  ViewType* GetView() { return mViews.at(0); }
+  ViewType* GetView() { return mView; }
    
   // Interface
     
@@ -112,10 +112,7 @@ public:
   REFCOUNT_METHODS(SingleComponentEffect)
     
 private:
-  void addDependentView(ViewType* view);
-  void removeDependentView(ViewType* view);
-
-  std::vector <ViewType*> mViews;
+  ViewType* mView;
 };
 
 IPlugVST3* MakePlug();

@@ -39,140 +39,7 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
   if (EditControllerEx1::initialize(context) == kResultTrue)
   {
     Initialize(this, parameters, mPlugIsInstrument);
-    /*
-    UnitInfo uinfo;
-    uinfo.id = kRootUnitId;
-    uinfo.parentUnitId = kNoParentUnitId;
-
-    if (NPresets() > 1)
-      uinfo.programListId = kPresetParam;
-    else
-      uinfo.programListId = kNoProgramListId;
-
-    UString name(uinfo.name, 128);
-    name.fromAscii("Root");
-    addUnit(new Unit(uinfo));
-
-    int32 flags = 0;
-    UnitID unitID = kRootUnitId;
-
-    for (int i = 0; i < NParams(); i++)
-    {
-      IParam* pParam = GetParam(i);
-
-      pParam->SetToDefault();
-
-      flags = 0;
-      unitID = kRootUnitId;
-
-      const char* paramGroupName = pParam->GetGroupForHost();
-
-      if (CStringHasContents(paramGroupName))
-      {
-        for(int j = 0; j < mParamGroups.GetSize(); j++)
-        {
-          if(strcmp(paramGroupName, mParamGroups.Get(j)) == 0)
-          {
-            unitID = j+1;
-          }
-        }
-
-        if (unitID == kRootUnitId) // new unit, nothing found, so add it
-        {
-          mParamGroups.Add(paramGroupName);
-          unitID = mParamGroups.GetSize();
-
-          // Add the unit
-          uinfo.id = unitID;
-          uinfo.parentUnitId = kRootUnitId;
-          uinfo.programListId = kNoProgramListId;
-          name.fromAscii(paramGroupName);
-          addUnit(new Unit(uinfo));
-        }
-      }
-
-      if (pParam->GetCanAutomate())
-        flags |= ParameterInfo::kCanAutomate;
-
-//      if (pParam->IsReadOnly())
-//        flags |= ParameterInfo::kIsReadOnly;
-
-      Parameter* pVSTParam = new IPlugVST3Parameter(pParam, flags, unitID);
-      pVSTParam->setNormalized(pParam->GetDefault(true));
-      parameters.addParameter(pVSTParam);
-    }
-
-    if (!IsInstrument())
-      parameters.addParameter(new IPlugVST3BypassParameter());
-      
-//
-//    if (NPresets() > 1)
-//     parameters.addParameter(new IPlugVST3PresetParameter(NPresets()));
-
-//      parameters.addParameter(STR16("Preset"), STR16(""), NPresets(), 0, ParameterInfo::kIsProgramChange|ParameterInfo::kIsList, kPresetParam, kRootUnitId);
-//
-//    if (DoesMIDIIn())
-//    {
-//      mParamGroups.Add("MIDI Controllers");
-//      uinfo.id = unitID = mParamGroups.GetSize();
-//      uinfo.parentUnitId = kRootUnitId;
-//      uinfo.programListId = kNoProgramListId;
-//      name.fromAscii("MIDI Controllers");
-//      addUnit(new Unit(uinfo));
-//
-//      ParamID midiParamIdx = kMIDICCParamStartIdx;
-//      UnitID midiControllersID = unitID;
-//
-//      char buf[32];
-
-//      for (int chan = 0; chan < NUM_CC_CHANS_TO_ADD; chan++)
-//      {
-//        sprintf(buf, "Ch %i", chan+1);
-//
-//        mParamGroups.Add(buf);
-//        uinfo.id = unitID = mParamGroups.GetSize();
-//        uinfo.parentUnitId = midiControllersID;
-//        uinfo.programListId = kNoProgramListId;
-//        name.fromAscii(buf);
-//        addUnit(new Unit(uinfo));
-//
-//        for (int i = 0; i < 128; i++)
-//        {
-//          name.fromAscii(ControlStr(i));
-//          parameters.addParameter(name, STR16(""), 0, 0, 0, midiParamIdx++, unitID);
-//        }
-//
-//        parameters.addParameter(STR16("Channel Aftertouch"), STR16(""), 0, 0, 0, midiParamIdx++, unitID);
-//        parameters.addParameter(STR16("Pitch Bend"), STR16(""), 0, 0.5, 0, midiParamIdx++, unitID);
-//      }
-//    }
-
-    if (NPresets())
-    {
-      ProgramListWithPitchNames* list = new ProgramListWithPitchNames(String("Factory Presets"), kPresetParam, kRootUnitId);
-
-      for (int i = 0; i< NPresets(); i++)
-      {
-        list->addProgram(String(GetPresetName(i)));
-      }
-
-//      char noteName[128];
-
-      // TODO: GetMidiNote ? !
-
-//      for (int i = 0; i< 128; i++)
-//      {
-//        if (MidiNoteName(i, noteName))
-//        {
-//          name.fromAscii(noteName);
-//          list->setPitchName(0, i, name); // TODO: this will only set it for the first preset!
-//        }
-//      }
-
-      addProgramList(list);
-    }
-     */
-
+    
     IPlugVST3GetHost(this, context);
     OnHostIdentified();
 
@@ -414,7 +281,7 @@ void IPlugVST3Controller::SendArbitraryMsgFromUI(int messageTag, int controlTag,
   if (!message)
     return;
   
-  if(dataSize == 0) // allow sending messages with no data
+  if (dataSize == 0) // allow sending messages with no data
   {
     dataSize = 1;
     uint8_t dummy = 0;
