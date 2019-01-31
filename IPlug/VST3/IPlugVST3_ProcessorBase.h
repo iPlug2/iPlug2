@@ -38,14 +38,14 @@ public:
   {
     Vst::String128 tmpStringBuf;
     
-    //  for(auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
-    //  {
+//  for(auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
+//  {
     int configIdx = NIOConfigs() - 1;
     
     IOConfig* pConfig = GetIOConfig(configIdx);
     
     assert(pConfig);
-    for(auto busIdx = 0; busIdx < pConfig->NBuses(ERoute::kInput); busIdx++)
+    for (auto busIdx = 0; busIdx < pConfig->NBuses(ERoute::kInput); busIdx++)
     {
       uint64_t busType = GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kInput, busIdx, pConfig);
       
@@ -54,7 +54,7 @@ public:
       plug->addAudioInput(tmpStringBuf, busType, (Vst::BusTypes) busIdx > 0, flags);
     }
     
-    for(auto busIdx = 0; busIdx < pConfig->NBuses(ERoute::kOutput); busIdx++)
+    for (auto busIdx = 0; busIdx < pConfig->NBuses(ERoute::kOutput); busIdx++)
     {
       uint64_t busType = GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kOutput, busIdx, pConfig);
       
@@ -62,7 +62,7 @@ public:
       UString(tmpStringBuf, 128).fromAscii(pConfig->GetBusInfo(ERoute::kOutput, busIdx)->mLabel.Get(), 128);
       plug->addAudioOutput(tmpStringBuf, busType, (Vst::BusTypes) busIdx > 0, flags);
     }
-    //  }
+//  }
     
     if (DoesMIDIIn())
       plug->addEventInput(STR16("MIDI Input"), 1);
