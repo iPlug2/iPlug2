@@ -243,19 +243,19 @@
       <UniqueIdentifier>{1fc481f5-85f5-43e6-924f-2be0689a4710}</UniqueIdentifier>
     </Filter>
     <Filter Include="config">
-      <UniqueIdentifier>{6ef0ec5f-a87e-4c85-9564-09d47893f5f0}</UniqueIdentifier>
+      <UniqueIdentifier>{464e659e-834a-453a-9150-dbaf783f8307}</UniqueIdentifier>
     </Filter>
     <Filter Include="IGraphics">
-      <UniqueIdentifier>{1d04a0cb-c348-4b33-9955-76f57a35cf18}</UniqueIdentifier>
+      <UniqueIdentifier>{68bdd895-46fe-4c63-a6b1-5f5eb18cccd3}</UniqueIdentifier>
     </Filter>
     <Filter Include="IGraphics\Drawing">
-      <UniqueIdentifier>{e4240ad2-8830-4ee8-9d95-b3b899141026}</UniqueIdentifier>
+      <UniqueIdentifier>{ca6c268f-0123-4612-a634-bc446f5c5128}</UniqueIdentifier>
     </Filter>
     <Filter Include="IGraphics\Platform">
-      <UniqueIdentifier>{340c32b5-4289-4b47-b2ad-0d28a11af08f}</UniqueIdentifier>
+      <UniqueIdentifier>{7c4030c7-b478-4da8-a5fe-4771406c07aa}</UniqueIdentifier>
     </Filter>
     <Filter Include="IGraphics\Controls">
-      <UniqueIdentifier>{22ffe574-78a5-4304-b214-371c2b35171d}</UniqueIdentifier>
+      <UniqueIdentifier>{3c740de7-2371-4065-bf3d-5af9193c7b7d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

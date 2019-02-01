@@ -40,7 +40,7 @@ inline IRECT ToIRECT(IGraphics* pGraphics, const NSRect* pR)
 
 inline NSColor* ToNSColor(const IColor& c)
 {
-  return [NSColor colorWithCalibratedRed:(double) c.R / 255.0 green:(double) c.G / 255.0 blue:(double) c.B / 255.0 alpha:(double) c.A / 255.0];
+  return [NSColor colorWithDeviceRed:(double) c.R / 255.0 green:(double) c.G / 255.0 blue:(double) c.B / 255.0 alpha:(double) c.A / 255.0];
 }
 
 NSString* ToNSString(const char* cStr);
@@ -83,10 +83,17 @@ NSString* ToNSString(const char* cStr);
 - (NSMenuItem*) menuItem;
 @end
 
+@interface IGRAPHICS_TEXTFIELD : NSTextField
+{
+}
+- (bool) becomeFirstResponder;
+@end
+
 @interface IGRAPHICS_VIEW : NSView <NSTextFieldDelegate/*, WKScriptMessageHandler*/>
 {
+  NSTrackingArea* mTrackingArea;
   NSTimer* mTimer;
-  NSTextField* mTextFieldView;
+  IGRAPHICS_TEXTFIELD* mTextFieldView;
   NSCursor* mMoveCursor;
 //  WKWebView* mWebView;
   IControl* mEdControl; // the control linked to the open text edit
@@ -108,6 +115,9 @@ NSString* ToNSString(const char* cStr);
 - (void) getMouseXY: (NSEvent*) pEvent x: (float&) pX y: (float&) pY;
 - (IMouseInfo) getMouseLeft: (NSEvent*) pEvent;
 - (IMouseInfo) getMouseRight: (NSEvent*) pEvent;
+- (void) updateTrackingAreas;
+- (void) mouseEntered:(NSEvent *)event;
+- (void) mouseExited:(NSEvent *)event;
 - (void) mouseDown: (NSEvent*) pEvent;
 - (void) mouseUp: (NSEvent*) pEvent;
 - (void) mouseDragged: (NSEvent*) pEvent;
@@ -134,7 +144,7 @@ NSString* ToNSString(const char* cStr);
 - (NSDragOperation) draggingEntered: (id <NSDraggingInfo>) sender;
 - (BOOL) performDragOperation: (id<NSDraggingInfo>) sender;
 //
-- (void) setMouseCursor: (ECursor) cursor;
+- (void) setMouseCursor: (ECursor) cursorType;
 @end
 
 #endif //NO_IGRAPHICS

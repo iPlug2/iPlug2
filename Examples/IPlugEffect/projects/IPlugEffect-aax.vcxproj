@@ -88,22 +88,22 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)build-win\aax\bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)build-win\aax\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)build-win\aax\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)build-win\aax\$(Platform)\$(Configuration)\int\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)build-win\aax\bin\$(Platform)\$(Configuration)\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">$(SolutionDir)build-win\aax\bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)build-win\aax\$(Platform)\$(Configuration)\</IntDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">$(SolutionDir)build-win\aax\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)build-win\aax\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">$(SolutionDir)build-win\aax\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)build-win\aax\$(Platform)\$(Configuration)\int\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">$(SolutionDir)build-win\aax\$(Platform)\$(Configuration)\int\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)build-win\aax\bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)build-win\aax\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)build-win\aax\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)build-win\aax\$(Platform)\$(Configuration)\int\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)build-win\aax\bin\$(Platform)\$(Configuration)\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">$(SolutionDir)build-win\aax\bin\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)build-win\aax\$(Platform)\$(Configuration)\</IntDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">$(SolutionDir)build-win\aax\$(Platform)\$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)build-win\aax\$(Platform)\$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">$(SolutionDir)build-win\aax\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)build-win\aax\$(Platform)\$(Configuration)\int\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">$(SolutionDir)build-win\aax\$(Platform)\$(Configuration)\int\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">false</LinkIncremental>
   </PropertyGroup>
@@ -153,7 +153,6 @@
       <AdditionalDependencies>$(AAX_LIBS);%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(BINARY_NAME).aaxplugin</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
       <AssemblyDebug>
       </AssemblyDebug>
       <SubSystem>Windows</SubSystem>
@@ -198,7 +197,6 @@
       <AdditionalDependencies>$(AAX_LIBS);%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(BINARY_NAME).aaxplugin</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
     </Link>
@@ -241,7 +239,6 @@
       <AdditionalDependencies>$(AAX_LIBS);%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(BINARY_NAME).aaxplugin</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
     </Link>
@@ -279,7 +276,6 @@
       <AdditionalDependencies>$(AAX_LIBS);%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(BINARY_NAME).aaxplugin</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
       <AssemblyDebug>
       </AssemblyDebug>
       <SubSystem>Windows</SubSystem>
@@ -327,7 +323,6 @@
       <AdditionalDependencies>$(AAX_LIBS);%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(BINARY_NAME).aaxplugin</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
@@ -373,7 +368,6 @@
       <AdditionalDependencies>$(AAX_LIBS);%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(BINARY_NAME).aaxplugin</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>

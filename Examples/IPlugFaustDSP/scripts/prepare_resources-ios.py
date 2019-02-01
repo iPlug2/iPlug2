@@ -34,7 +34,7 @@ def main():
          for font in fonts:
            print "copying " + font + " to " + dst
            shutil.copy(projectpath + "/resources/fonts/" + font, dst)
-  
+           
   config = parse_config(projectpath)
   xcconfig = parse_xcconfig(projectpath + '/../../common-ios.xcconfig')
 

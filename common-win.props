@@ -21,13 +21,14 @@
     <CAIRO_PATH>$(IGRAPHICS_DEPS_PATH)\Cairo;$(DEPS_PATH)\Build\src</CAIRO_PATH>
     <FREETYPE_PATH>$(DEPS_PATH)\Build\src\freetype\include</FREETYPE_PATH>
     <AGG_PATH>$(IGRAPHICS_DEPS_PATH)\AGG</AGG_PATH>
-    <GLEW_PATH>$(IGRAPHICS_DEPS_PATH)\glew\include</GLEW_PATH>
-    <GLAD_PATH>$(IGRAPHICS_DEPS_PATH)\glad\</GLAD_PATH>
+    <GLAD_GL2_PATHS>$(IGRAPHICS_DEPS_PATH)\glad_GL2\include;$(IGRAPHICS_DEPS_PATH)\glad_GL2\src</GLAD_GL2_PATHS>
+    <GLAD_GL3_PATHS>$(IGRAPHICS_DEPS_PATH)\glad_GL3\include;$(IGRAPHICS_DEPS_PATH)\glad_GL3\src</GLAD_GL3_PATHS>
     <PNG_PATH>$(WDL_PATH)\libpng</PNG_PATH>
     <ZLIB_PATH>$(WDL_PATH)\zlib</ZLIB_PATH>
     <STB_PATH>$(IGRAPHICS_DEPS_PATH)\STB</STB_PATH>
+    <FAUST_INC_PATHS>$(DEPS_PATH)\Build\mac\include;$(WDL_PATH)\win32_curses</FAUST_INC_PATHS>
     <STATIC_LIBS_PATH>$(DEPS_PATH)\Build\win\$(Platform)\$(Configuration)</STATIC_LIBS_PATH>
-    <IGRAPHICS_INC_PATHS>$(IGRAPHICS_PATH);$(LICE_PATH);$(NANOSVG_PATH);$(NANOVG_PATH);$(AGG_PATH);$(CAIRO_PATH);$(CONTROLS_PATH);$(PLATFORMS_PATH);$(DRAWING_PATH);$(GLEW_PATH);$(GLAD_PATH)\include; $(GLAD_PATH)\src\;$(PNG_PATH);$(ZLIB_PATH);$(FREETYPE_PATH);$(STB_PATH)</IGRAPHICS_INC_PATHS>
+    <IGRAPHICS_INC_PATHS>$(IGRAPHICS_PATH);$(LICE_PATH);$(NANOSVG_PATH);$(NANOVG_PATH);$(AGG_PATH);$(CAIRO_PATH);$(CONTROLS_PATH);$(PLATFORMS_PATH);$(DRAWING_PATH);$(PNG_PATH);$(ZLIB_PATH);$(FREETYPE_PATH);$(STB_PATH)</IGRAPHICS_INC_PATHS>
     <VST2_SDK>$(IPLUG_DEPS_PATH)\VST2_SDK</VST2_SDK>
     <VST3_SDK>$(IPLUG_DEPS_PATH)\VST3_SDK</VST3_SDK>
     <ASIO_SDK>$(IPLUG_DEPS_PATH)\RTAudio\include</ASIO_SDK>
@@ -146,8 +147,11 @@
     <BuildMacro Include="GLEW_PATH">
       <Value>$(GLEW_PATH)</Value>
     </BuildMacro>
-    <BuildMacro Include="GLAD_PATH">
-      <Value>$(GLAD_PATH)</Value>
+    <BuildMacro Include="GLAD_GL2_PATHS">
+      <Value>$(GLAD_GL2_PATHS)</Value>
+    </BuildMacro>
+    <BuildMacro Include="GLAD_GL3_PATHS">
+      <Value>$(GLAD_GL3_PATHS)</Value>
     </BuildMacro>
     <BuildMacro Include="PNG_PATH">
       <Value>$(PNG_PATH)</Value>
@@ -157,6 +161,9 @@
     </BuildMacro>
     <BuildMacro Include="STB_PATH">
       <Value>$(STB_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="FAUST_INC_PATHS">
+      <Value>$(FAUST_INC_PATHS)</Value>
     </BuildMacro>
     <BuildMacro Include="STATIC_LIBS_PATH">
       <Value>$(STATIC_LIBS_PATH)</Value>
