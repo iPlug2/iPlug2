@@ -914,21 +914,23 @@ void IGraphicsLice::EndFrame()
 }
 
 #ifdef OS_MAC
-#ifdef FillRect
-#undef FillRect
-#endif
-#ifdef DrawText
-#undef DrawText
-#endif
-#ifdef Polygon
-#undef Polygon
-#endif
+  #ifdef FillRect
+    #undef FillRect
+  #endif
+  #ifdef DrawText
+    #undef DrawText
+  #endif
+  #ifdef Polygon
+    #undef Polygon
+  #endif
 
-#define DrawText SWELL_DrawText
-#define FillRect SWELL_FillRect
-#define LineTo SWELL_LineTo
-#define SetPixel SWELL_SetPixel
-#define Polygon(a,b,c) SWELL_Polygon(a,b,c)
+  #define DrawText SWELL_DrawText
+  #define FillRect SWELL_FillRect
+  #define LineTo SWELL_LineTo
+  #define SetPixel SWELL_SetPixel
+  #define Polygon(a,b,c) SWELL_Polygon(a,b,c)
+#elif defined OS_WIN
+  #define DrawText DrawTextA
 #endif
 
 #include "IGraphicsLice_src.cpp"

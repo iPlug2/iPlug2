@@ -632,12 +632,12 @@ void IGraphicsMac::CreatePlatformTextEntry(IControl& control, const IText& text,
 //  }
 //}
 
-void IGraphicsMac::SetMouseCursor(ECursor cursor)
+ECursor IGraphicsMac::SetMouseCursor(ECursor cursorType)
 {
   if (mView)
-  {
-    [(IGRAPHICS_VIEW*) mView setMouseCursor: cursor];
-  }
+    [(IGRAPHICS_VIEW*) mView setMouseCursor: cursorType];
+    
+  return IGraphics::SetMouseCursor(cursorType);
 }
 
 bool IGraphicsMac::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
@@ -692,16 +692,10 @@ bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
 //TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT
 #ifdef IGRAPHICS_AGG
   #include "IGraphicsAGG.cpp"
-  #include "agg_mac_pmap.mm"
-  #include "agg_mac_font.mm"
 #elif defined IGRAPHICS_CAIRO
   #include "IGraphicsCairo.cpp"
 #elif defined IGRAPHICS_NANOVG
   #include "IGraphicsNanoVG.cpp"
-  #ifdef IGRAPHICS_FREETYPE
-    #define FONS_USE_FREETYPE
-  #endif
-#include "nanovg.c"
 #else
   #include "IGraphicsLice.cpp"
 #endif

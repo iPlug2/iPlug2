@@ -6,7 +6,7 @@ BUILD_DIR="$IGRAPHICS_DEPS_DIR/../Build"
 DL_DIR="$BUILD_DIR/tmp"
 SRC_DIR="$BUILD_DIR/src"
 LOG_PATH="$BUILD_DIR"
-LOG_NAME="build-win.log"
+LOG_NAME="download.log"
 
 # Basename part of tarballs to download
 CAIRO_VERSION=1.16.0
@@ -25,13 +25,13 @@ ZLIB_URL=https://www.zlib.net
 PIXMAN_URL=https://cairographics.org/releases
 FREETYPE_URL=https://download.savannah.gnu.org/releases/freetype
 
-echo "IGRAPHICS_DIR:" $IGRAPHICS_DEPS_DIR
+echo "IGRAPHICS_DEPS_DIR:" $IGRAPHICS_DEPS_DIR
 echo "BUILD_DIR:" $BUILD_DIR
 echo "DL_DIR:" $DL_DIR
 echo "LOG_PATH:" $LOG_PATH
 echo "LOG_NAME:" $LOG_NAME
 
-[[ -e "$PWD/download-igraphics-libs-win.sh" ]] ||
+[[ -e "$PWD/download-igraphics-libs.sh" ]] ||
 {
   echo "*******************************************************************************"
   echo "Error: Please cd into the folder containing this script before running it.";
@@ -143,7 +143,7 @@ if [ -d "$SRC_DIR/libpng" ]
   echo "copying pnglibconf.h"
   cp "$SRC_DIR/libpng/scripts/pnglibconf.h.prebuilt" "$SRC_DIR/libpng/pnglibconf.h"
 fi
-  
+
 #######################################################################
 
 #pixman

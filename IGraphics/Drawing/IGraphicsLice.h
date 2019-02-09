@@ -137,7 +137,7 @@ protected:
 
   void EndFrame() override;
     
-  float GetBackingPixelScale() const override { return GetScreenScale(); };
+  float GetBackingPixelScale() const override { return (float) GetScreenScale(); };
 
 private:
     

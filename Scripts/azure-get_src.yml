@@ -1,0 +1,15 @@
+#Download and unzip and delete the SRC pipeline artifact
+steps:
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'SRC'
+
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: 'SRC.zip'
+      cleanDestinationFolder: false
+      destinationFolder: $(Build.SourcesDirectory)
+  
+  - task: DeleteFiles@1
+    inputs:
+      sourceFolder: 'SRC.zip'

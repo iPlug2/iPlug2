@@ -83,7 +83,7 @@ static unsigned int GUID_DATA4 = PLUG_UNIQUE_ID;
 #endif
 
 #if defined VST3P_API || defined VST3_API
-bool InitModule ()
+bool InitModule()
 {
 #ifdef OS_WIN
   extern void* moduleHandle;
@@ -93,7 +93,7 @@ bool InitModule ()
 }
 
 // called after library is unloaded
-bool DeinitModule ()
+bool DeinitModule()
 {
   return true;
 }

@@ -1065,6 +1065,7 @@ public:
   , mPattern(pattern)
   , mDrawFrame(drawFrame)
   {
+    mIgnoreMouse = true;
   }
 
   void Draw(IGraphics& g) override

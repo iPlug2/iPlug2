@@ -10,14 +10,13 @@ BINARY_NAME = IGraphicsTest
 // HEADER AND LIBRARY SEARCH PATHS
 EXTRA_INC_PATHS = $(IGRAPHICS_INC_PATHS)
 EXTRA_LIB_PATHS = $(IGRAPHICS_LIB_PATHS)
-//EXTRA_LNK_FLAGS = $(IGRAPHICS_LNK_FLAGS) //$(LIB_CIVET)
+EXTRA_LNK_FLAGS = //$(IGRAPHICS_LNK_FLAGS)
 
 // EXTRA_APP_DEFS =
 // EXTRA_PLUGIN_DEFS =
 
 //------------------------------
 // PREPROCESSOR MACROS
-
 EXTRA_ALL_DEFS = OBJC_PREFIX=vIGraphicsTest SWELL_APP_PREFIX=Swell_vIGraphicsTest IGRAPHICS_NANOVG IGRAPHICS_METAL
 //EXTRA_DEBUG_DEFS =
 //EXTRA_RELEASE_DEFS =
@@ -48,6 +47,7 @@ GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO
 // Flags to pass to compiler for all builds
 GCC_CFLAGS = -Wno-write-strings -mfpmath=sse -msse -msse2 -msse3 -mavx
 
+// Uncomment to enable relaxed IEEE compliance
 //GCC_FAST_MATH = YES
 
 // uncomment this to enable codesigning - necessary for AUv3 delivery

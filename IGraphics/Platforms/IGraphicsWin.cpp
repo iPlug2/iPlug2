@@ -17,6 +17,7 @@
 #include "IGraphicsWin.h"
 #include "IControl.h"
 #include "IPopupMenuControl.h"
+#include "IPlugPaths.h"
 
 #include <wininet.h>
 
@@ -32,44 +33,6 @@ static double sFPS = 0.0;
 #define IPLUG_TIMER_ID 2
 #define IPLUG_WIN_MAX_WIDE_PATH 4096
 
-// Unicode helpers
-
-
-void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
-{
-  int requiredSize = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
-
-  if (requiredSize > 0 && requiredSize <= maxLen)
-  {
-    MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, utf16Str, requiredSize);
-    return;
-  }
-
-  utf16Str[0] = 0;
-}
-
-void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* utf16Str)
-{
-  int requiredSize = WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, NULL, 0, NULL, NULL);
-
-  if (requiredSize > 0 && utf8Str.SetLen(requiredSize))
-  {
-    WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, utf8Str.Get(), requiredSize, NULL, NULL);
-    return;
-  }
-
-  utf8Str.Set("");
-}
-
-// Helper for getting a known folder in UTF8
-
-void GetKnownFolder(WDL_String &path, int identifier, int flags = 0)
-{
-  wchar_t wideBuffer[1024];
-
-  SHGetFolderPathW(NULL, identifier, NULL, flags, wideBuffer);
-  UTF16ToUTF8(path, wideBuffer);
-}
 
 inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 {
@@ -151,7 +114,6 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   
   switch (msg)
   {
-
     case WM_TIMER:
     {
       if (wParam == IPLUG_TIMER_ID)
@@ -255,7 +217,11 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       pGraphics->OnMouseDown(info.x, info.y, info.ms);
       return 0;
     }
-
+    case WM_SETCURSOR:
+    {
+      pGraphics->OnSetCursor();
+      return 0;
+    }
     case WM_MOUSEMOVE:
     {
       if (!(wParam & (MK_LBUTTON | MK_RBUTTON)))
@@ -721,31 +687,32 @@ void IGraphicsWin::MoveMouseCursor(float x, float y)
   }
 }
 
-void IGraphicsWin::SetMouseCursor(ECursor cursor)
+ECursor IGraphicsWin::SetMouseCursor(ECursor cursorType)
 {
-  HCURSOR cursorType;
-    
-  switch (cursor)
+  HCURSOR cursor;
+
+  switch (cursorType)
   {
-    case ECursor::ARROW:            cursorType = LoadCursor(NULL, IDC_ARROW);           break;
-    case ECursor::IBEAM:            cursorType = LoadCursor(NULL, IDC_IBEAM);           break;
-    case ECursor::WAIT:             cursorType = LoadCursor(NULL, IDC_WAIT);            break;
-    case ECursor::CROSS:            cursorType = LoadCursor(NULL, IDC_CROSS);           break;
-    case ECursor::UPARROW:          cursorType = LoadCursor(NULL, IDC_UPARROW);         break;
-    case ECursor::SIZENWSE:         cursorType = LoadCursor(NULL, IDC_SIZENWSE);        break;
-    case ECursor::SIZENESW:         cursorType = LoadCursor(NULL, IDC_SIZENESW);        break;
-    case ECursor::SIZEWE:           cursorType = LoadCursor(NULL, IDC_SIZEWE);          break;
-    case ECursor::SIZENS:           cursorType = LoadCursor(NULL, IDC_SIZENS);          break;
-    case ECursor::SIZEALL:          cursorType = LoadCursor(NULL, IDC_SIZEALL);         break;
-    case ECursor::INO:              cursorType = LoadCursor(NULL, IDC_NO);              break;
-    case ECursor::HAND:             cursorType = LoadCursor(NULL, IDC_HAND);            break;
-    case ECursor::APPSTARTING:      cursorType = LoadCursor(NULL, IDC_APPSTARTING);     break;
-    case ECursor::HELP:             cursorType = LoadCursor(NULL, IDC_HELP);            break;
+    case ECursor::ARROW:            cursor = LoadCursor(NULL, IDC_ARROW);           break;
+    case ECursor::IBEAM:            cursor = LoadCursor(NULL, IDC_IBEAM);           break;
+    case ECursor::WAIT:             cursor = LoadCursor(NULL, IDC_WAIT);            break;
+    case ECursor::CROSS:            cursor = LoadCursor(NULL, IDC_CROSS);           break;
+    case ECursor::UPARROW:          cursor = LoadCursor(NULL, IDC_UPARROW);         break;
+    case ECursor::SIZENWSE:         cursor = LoadCursor(NULL, IDC_SIZENWSE);        break;
+    case ECursor::SIZENESW:         cursor = LoadCursor(NULL, IDC_SIZENESW);        break;
+    case ECursor::SIZEWE:           cursor = LoadCursor(NULL, IDC_SIZEWE);          break;
+    case ECursor::SIZENS:           cursor = LoadCursor(NULL, IDC_SIZENS);          break;
+    case ECursor::SIZEALL:          cursor = LoadCursor(NULL, IDC_SIZEALL);         break;
+    case ECursor::INO:              cursor = LoadCursor(NULL, IDC_NO);              break;
+    case ECursor::HAND:             cursor = LoadCursor(NULL, IDC_HAND);            break;
+    case ECursor::APPSTARTING:      cursor = LoadCursor(NULL, IDC_APPSTARTING);     break;
+    case ECursor::HELP:             cursor = LoadCursor(NULL, IDC_HELP);            break;
     default:
-      cursorType = LoadCursor(NULL, IDC_ARROW);
+      cursor = LoadCursor(NULL, IDC_ARROW);
   }
 
-  SetCursor(cursorType);
+  SetCursor(cursor);
+  return IGraphics::SetMouseCursor(cursorType);
 }
 
 bool IGraphicsWin::MouseCursorIsLocked()
@@ -1122,7 +1089,6 @@ IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
 {
   long offsetIdx = 0;
   HMENU hMenu = CreateMenu(menu, &offsetIdx);
-  IPopupMenu* result = nullptr;
 
   if(hMenu)
   {
@@ -1248,7 +1214,6 @@ bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
   return success;
 }
 
-//TODO: this method needs rewriting
 void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* extensions)
 {
   if (!WindowIsOpen())
