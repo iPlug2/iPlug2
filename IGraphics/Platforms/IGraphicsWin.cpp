@@ -353,7 +353,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         rects.Add(ir);
       };
 
-      HRGN region = CreateRectRgn(0, 0, 0, 0);;
+      HRGN region = CreateRectRgn(0, 0, 0, 0);
       int regionType = GetUpdateRgn(hWnd, region, FALSE);
 
       if ((regionType == COMPLEXREGION) || (regionType = SIMPLEREGION))

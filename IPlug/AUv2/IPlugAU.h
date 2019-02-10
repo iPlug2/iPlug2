@@ -89,7 +89,7 @@ private:
     bool mConnected;
     int mNHostChannels;
     int mNPlugChannels;
-    int mPlugChannelStartIdx;;
+    int mPlugChannelStartIdx;
   };
   
   struct BufferList

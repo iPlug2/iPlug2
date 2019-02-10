@@ -834,7 +834,7 @@ void IGraphicsNanoVG::DrawDottedLine(const IColor& color, float x1, float y1, fl
     
     progress += incr;
     
-    xs = x1 + progress * (x2 - x1);;
+    xs = x1 + progress * (x2 - x1);
     ys = y1 + progress * (y2 - y1);
     
     PathMoveTo(xs, ys);
