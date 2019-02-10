@@ -454,7 +454,7 @@ struct IStrokeOptions
     int mCount = 0;
   };
 
-  float mMiterLimit = 1.;
+  float mMiterLimit = 10.f;
   bool mPreserve = false;
   ELineCap mCapOption = kCapButt;
   ELineJoin mJoinOption = kJoinMiter;
