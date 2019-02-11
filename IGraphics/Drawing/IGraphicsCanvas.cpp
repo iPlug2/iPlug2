@@ -71,11 +71,6 @@ void IGraphicsCanvas::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX,
   GetContext().call<void>("restore");
 }
 
-void IGraphicsCanvas::DrawRotatedBitmap(IBitmap& bitmap, float destCentreX, float destCentreY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
-{
-  IGraphicsPathBase::DrawRotatedBitmap(bitmap, destCentreX, destCentreY, DegToRad(angle), yOffsetZeroDeg, pBlend);
-}
-
 void IGraphicsCanvas::PathClear()
 {
   GetContext().call<void>("beginPath");
@@ -212,12 +207,23 @@ void IGraphicsCanvas::SetCanvasBlendMode(const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case kBlendClobber:     GetContext().set("globalCompositeOperation", "source-over");   break;
-    case kBlendAdd:         GetContext().set("globalCompositeOperation", "lighter");       break;
-    case kBlendColorDodge:  GetContext().set("globalCompositeOperation", "color-dodge");   break;
-    case kBlendNone:
-    default:
-      GetContext().set("globalCompositeOperation", "source-over");
+    case kBlendNone:        GetContext().set("globalCompositeOperation", "source-over");        break;
+    case kBlendClobber:     GetContext().set("globalCompositeOperation", "copy");               break;
+          
+    case kBlendSourceOver:  GetContext().set("globalCompositeOperation", "source-over");        break;
+    case kBlendSourceIn:    GetContext().set("globalCompositeOperation", "source-in");          break;
+    case kBlendSourceOut:   GetContext().set("globalCompositeOperation", "source-out");         break;
+    case kBlendSourceAtop:  GetContext().set("globalCompositeOperation", "source-atop");        break;
+
+    case kBlendDestOver:    GetContext().set("globalCompositeOperation", "destination-over");   break;
+    case kBlendDestIn:      GetContext().set("globalCompositeOperation", "destination-in");     break;
+    case kBlendDestOut:     GetContext().set("globalCompositeOperation", "destination-out");    break;
+    case kBlendDestAtop:    GetContext().set("globalCompositeOperation", "destination-atop");   break;
+      
+    case kBlendXOR:         GetContext().set("globalCompositeOperation", "xor");                break;
+
+    case kBlendAdd:         GetContext().set("globalCompositeOperation", "lighter");            break;
+    case kBlendColorDodge:  GetContext().set("globalCompositeOperation", "color-dodge");        break;
   }
 }
 
@@ -280,7 +286,7 @@ void IGraphicsCanvas::PathTransformSetMatrix(const IMatrix& m)
   const double scale = GetBackingPixelScale();
   IMatrix t = IMatrix().Scale(scale, scale).Translate(XTranslate(), YTranslate()).Transform(m);
 
-  GetContext().call<void>("setTransform", t.mXX, t.mYX, t.mYX, t.mYY, t.mTX, t.mTY);
+  GetContext().call<void>("setTransform", t.mXX, t.mYX, t.mXY, t.mYY, t.mTX, t.mTY);
 }
 
 void IGraphicsCanvas::SetClipRegion(const IRECT& r)

@@ -30,6 +30,7 @@ public class IPlugFaustDSPViewController: AUViewController {
   }
   
   func connectViewWithAU() {
+    // To use the generic UI (swift), change the view in IPlugFaustDSP-iOS-MainInterface.storyboard to custom class: GenericUI  module: IPlugFaustDSPFramework
     if let view = self.view as? GenericUI {
       view.createGenericUI(audioUnit!)
     }

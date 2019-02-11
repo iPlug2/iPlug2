@@ -47,7 +47,7 @@ public:
 
   void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override { /* NOT SUPPORTABLE*/ }
-  void SetMouseCursor(ECursor cursor) override;
+  ECursor SetMouseCursor(ECursor cursorType) override;
 
   void ForceEndUserEdit() override {} // TODO:
   void* OpenWindow(void* pParent) override;
@@ -67,7 +67,6 @@ public:
   static void OnMainLoopTimer();
   double mPrevX = 0.;
   double mPrevY = 0.;
-  ECursor mCursorType = ECursor::ARROW;
   
 protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
