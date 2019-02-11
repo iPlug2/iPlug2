@@ -262,10 +262,13 @@ void IControl::DrawPTHighlight(IGraphics& g)
 
 const IParam* IControl::GetParam()
 {
-  if(mParamIdx >= 0)
-    return GetDelegate()->GetParam(mParamIdx);
-  else
-    return nullptr;
+  if (mParamIdx >= 0)
+  {
+    auto d = GetDelegate();
+    if (d != nullptr)
+      return d->GetParam(mParamIdx);
+  }
+  return nullptr;
 }
 
 void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar /* TODO: scalar! */)

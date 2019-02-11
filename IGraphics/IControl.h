@@ -776,6 +776,12 @@ public:
                                      GetPadded(0, -mTrackPadding * (float) mDirection, -mTrackPadding * (float) !mDirection, -mTrackPadding);
     }
   }
+
+  void SetOuterPadding(float padding)
+  {
+    mOuterPadding = padding;
+    MakeRects();
+  }
   
   void Draw(IGraphics& g) override
   {
@@ -795,6 +801,7 @@ public:
   void SetTrackData(int trackIdx, float val) { mTrackData.Get()[trackIdx] = Clip(val, mMinTrackValue, mMaxTrackValue); }
   float* GetTrackData(int trackIdx) { return &mTrackData.Get()[trackIdx];  }
   void SetAllTrackData(float val) { memset(mTrackData.Get(), (int) Clip(val, mMinTrackValue, mMaxTrackValue), mTrackData.GetSize() * sizeof(float) ); }
+  void SetDrawTrackFrame(bool value) { mDrawTrackFrame = value; }
 private:
   virtual void DrawFrame(IGraphics& g)
   {

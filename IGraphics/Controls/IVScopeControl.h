@@ -136,6 +136,9 @@ public:
         g.DrawLine(GetColor(kFG), r.L + xLo, r.MH() - yLo, r.L + xHi, r.MH() - yHi);
       }
     }
+
+    if (mDrawFrame)
+      g.DrawRect(GetColor(kFR), mRECT, nullptr, mFrameThickness);
   }
 
   void OnMsgFromDelegate(int messageTag, int dataSize, const void* pData) override

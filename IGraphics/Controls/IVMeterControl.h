@@ -62,17 +62,14 @@ public:
     {
       Data d;
 
-      for (auto s = 0; s < nFrames; s++)
-      {
-        for (auto c = 0; c < MAXNC; c++)
-        {
-          d.vals[c] += std::fabs((float) inputs[c][s]);
-        }
-      }
-
       for (auto c = 0; c < MAXNC; c++)
       {
-        d.vals[c] /= (float) nFrames;
+        for (auto s = 0; s < nFrames; s++)
+        {
+          float sm = (float)fabs(inputs[c][s]);
+          if (sm > d.vals[c])
+            d.vals[c] = sm;
+        }
       }
 
       if(mPrevAboveThreshold)

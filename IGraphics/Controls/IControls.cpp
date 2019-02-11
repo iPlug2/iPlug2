@@ -196,10 +196,13 @@ void IVKnobControl::Draw(IGraphics& g)
   
   g.DrawCircle(GetColor(kFR), cx, cy, radius, 0, mFrameThickness);
   g.DrawRadialLine(GetColor(kFR), cx, cy, v, 0.7f * radius, 0.9f * radius, 0, mFrameThickness);
-  
+
   if(mLabelBounds.H())
+  {
+    mLabelText.mFGColor = GetColor(kFG);
     g.DrawText(mLabelText, mLabel.Get(), mLabelBounds);
-  
+  }
+
   if(mDisplayParamValue)
   {
     WDL_String str;
@@ -210,7 +213,8 @@ void IVKnobControl::Draw(IGraphics& g)
       str.Append(" ");
       str.Append(GetParam()->GetLabelForHost());
     }
-    
+
+    mValueText.mFGColor = GetColor(kFG);
     g.DrawText(mValueText, str.Get(), mValueBounds);
   }
 }
