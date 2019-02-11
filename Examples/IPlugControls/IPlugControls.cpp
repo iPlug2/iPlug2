@@ -171,6 +171,10 @@ void IPlugControls::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
   const double gain = GetParam(kGain)->Value() / 100.;
   const int nChans = NOutChansConnected();
+
+  if (inputs == nullptr) {
+    return;
+  }
   
   for (int s = 0; s < nFrames; s++) {
     for (int c = 0; c < nChans; c++) {
