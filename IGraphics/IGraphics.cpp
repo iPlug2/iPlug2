@@ -1136,6 +1136,7 @@ void IGraphics::EnableLiveEdit(bool enable/*, const char* file, int gridsize*/)
     {
       mLiveEdit = new IGraphicsLiveEdit(mHandleMouseOver/*, file, gridsize*/);
       mLiveEdit->SetDelegate(*GetDelegate());
+      mHandleMouseOver = true;
     }
   }
   else
