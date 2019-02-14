@@ -132,6 +132,13 @@ void SandboxSafeAppSupportPath(WDL_String& path)
   AppSupportPath(path);
 }
 
+void INIPath(WDL_String& path, const char * pluginName)
+{
+  GetKnownFolder(path, CSIDL_LOCAL_APPDATA);
+
+  path.AppendFormatted(MAX_WIN32_PATH_LEN, "\\%s", pluginName);
+}
+
 #elif defined OS_WEB
 
 void AppSupportPath(WDL_String& path, bool isSystem)
