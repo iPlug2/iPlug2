@@ -79,7 +79,7 @@ static void GetModulePath(HMODULE hModule, WDL_String& path)
   }
 }
 
-void HostPath(WDL_String& path)
+void HostPath(WDL_String& path, const char* bundleID)
 {
   GetModulePath(0, path);
 }
