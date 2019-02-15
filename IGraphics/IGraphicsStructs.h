@@ -780,8 +780,8 @@ struct IRECT
   
   inline void Pad(float padL, float padT, float padR, float padB)
   {
-    L += padL;
-    T += padT;
+    L -= padL;
+    T -= padT;
     R += padR;
     B += padB;
   }
@@ -819,7 +819,7 @@ struct IRECT
 
   inline IRECT GetPadded(float padL, float padT, float padR, float padB) const
   {
-    return IRECT(L+padL, T+padT, R+padR, B+padB);
+    return IRECT(L-padL, T-padT, R+padR, B+padB);
   }
 
   inline IRECT GetHPadded(float padding) const
