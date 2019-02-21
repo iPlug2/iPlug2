@@ -133,7 +133,8 @@ enum EVColor
 enum EFillRule
 {
   kFillWinding,
-  kFillEvenOdd
+  kFillEvenOdd,
+	kFillPreserveExisting
 };
 
 enum ELineCap

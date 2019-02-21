@@ -493,7 +493,7 @@ public:
   virtual void PathMoveTo(float x, float y) {}
   virtual void PathLineTo(float x, float y) {}
   virtual void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) {}
-
+	virtual void PathSetWinding(bool clockwise) {}
   virtual void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options = IStrokeOptions(), const IBlend* pBlend = 0) {}
   virtual void PathFill(const IPattern& pattern, const IFillOptions& options = IFillOptions(), const IBlend* pBlend = 0) {}
 

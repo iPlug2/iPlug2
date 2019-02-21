@@ -521,6 +521,16 @@ struct IText
 
 const IText DEFAULT_TEXT = IText();
 
+struct Vec2
+{
+	float x, y;
+	Vec2() = default;
+	Vec2(float x, float y) : x(x), y(y) {}
+	
+	Vec2 operator-(const Vec2 b) { return Vec2{x-b.x, y-b.y}; }
+	Vec2 operator+(const Vec2 b) { return Vec2{x+b.x, y+b.y}; }
+};
+
 /** Used to manage a rectangular area, independant of draw class/platform.
  * An IRECT is always specified in 1:1 pixels, any scaling for high DPI happens in the drawing class.
  * In IGraphics 0,0 is top left. */
