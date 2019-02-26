@@ -738,7 +738,7 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
             mFontManager.init_embedded_adaptors(pGlyph, x, y);
             agg::rgba8 color(AGGColor(text.mFGColor, BlendWeight(pBlend)));
             
-            if (fabs(weight) <= 0.01)
+            if (std::fabs(weight) <= 0.01)
             {
               //for the sake of efficiency skip the contour converter if the weight is about zero.
               mRasterizer.Rasterize(mFontCurvesTransformed, color, AGGBlendMode(pBlend));
