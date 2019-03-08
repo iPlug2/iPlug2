@@ -27,10 +27,15 @@ class IPlugQueue final
 public:
   IPlugQueue(int size)
   {
-    mData.Resize(size + 1);
+    Resize(size);
   }
 
   ~IPlugQueue(){}
+
+  void Resize(int size)
+  {
+    mData.Resize(size + 1);
+  }
 
   bool Push(const T& item)
   {
@@ -62,7 +67,7 @@ public:
     return (mWriteIndex.load(std::memory_order_acquire) - mReadIndex.load(std::memory_order_relaxed))%mData.GetSize();
   }
 
-  // useful for reading elements while a criteria is met. Can be used like
+  // useful for reading elements while a criterion is met. Can be used like
   // while IPlugQueue.ElementsAvailable() && q.peek().mTime < 100 { elem = q.pop() ... }
   const T& Peek()
   {

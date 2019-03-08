@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# this script will create/update info plist files based on config.h and copy resources to the ~/Music/PLUG_NAME folder
+# this script will create/update info plist files based on config.h and copy resources to the ~/Music/PLUG_NAME folder or the bundle depending on PLUG_SHARED_RESOURCES
 
 kAudioUnitType_MusicDevice      = "aumu"
 kAudioUnitType_MusicEffect      = "aumf"

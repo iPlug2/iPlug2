@@ -40,7 +40,6 @@ public:
   
   void HideMouseCursor(bool hide, bool lock) override {}; // NOOP
   void MoveMouseCursor(float x, float y) override {}; // NOOP
-  void SetMouseCursor(ECursor cursor) override {}; // NOOP
   
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
   

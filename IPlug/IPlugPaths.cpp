@@ -89,6 +89,19 @@ void PluginPath(WDL_String& path, void* pExtra)
   GetModulePath((HMODULE) pExtra, path);
 }
 
+void BundleResourcePath(WDL_String& path, void* pExtra)
+{
+#ifdef VST3_API
+  GetModulePath((HMODULE)pExtra, path);
+#ifdef ARCH_64BIT
+  path.SetLen(path.GetLength() - strlen("x86_64-win/"));
+#else
+  path.SetLen(path.GetLength() - strlen("x86-win/"));
+#endif
+  path.Append("Resources\\");
+#endif
+}
+
 void DesktopPath(WDL_String& path)
 {
   GetKnownFolder(path, CSIDL_DESKTOP);

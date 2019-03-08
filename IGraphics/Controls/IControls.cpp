@@ -362,12 +362,12 @@ IBSliderControl::IBSliderControl(float x, float y, int len, int paramIdx, const 
   if (dir == kVertical)
   {
     mRECT = mTargetRECT = IRECT(x, y, x + bitmap.W(), y + len);
-    mTrack = mRECT.GetPadded(0, (float) bitmap.H(), 0, 0);
+    mTrack = mRECT.GetPadded(0, -(float) bitmap.H(), 0, 0);
   }
   else
   {
     mRECT = mTargetRECT = IRECT(x, y, x + len, y + bitmap.H());
-    mTrack = mRECT.GetPadded(0, 0, (float) bitmap.W(), 0);
+    mTrack = mRECT.GetPadded(0, 0, -(float) bitmap.W(), 0);
   }
 }
 

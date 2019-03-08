@@ -37,7 +37,7 @@ public:
 
   void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override;
-  void SetMouseCursor(ECursor cursor) override;
+  ECursor SetMouseCursor(ECursor cursorType) override;
     
   void DoCursorLock(float x, float y, float& prevX, float& prevY);
     
@@ -65,9 +65,6 @@ public:
   bool GetTextFromClipboard(WDL_String& str) override;
 
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
-
-  //IGraphicsMac
-  void SetMousePosition(float x, float y);
 
 protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;

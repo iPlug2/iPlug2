@@ -1,5 +1,6 @@
 parameters:
   platform: ''
+  platformStr: ''
   graphics: 'NANOVG'
   target: 'All'
 
@@ -10,7 +11,8 @@ steps:
       path: 'Examples'
       graphics: ${{parameters.graphics}}
       target: ${{parameters.target}}
-      artifactName: 'IPlugEffect_${{variables.graphics}}'
+      artifactName: IPlugEffect_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
   - template: ${{parameters.platform}}
     parameters:
@@ -18,7 +20,8 @@ steps:
       path: 'Examples'
       graphics: ${{parameters.graphics}}       
       target: ${{parameters.target}}
-      artifactName: 'IPlugInstrument_${{variables.graphics}}'
+      artifactName: IPlugInstrument_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
   - template: ${{parameters.platform}}
     parameters:
@@ -26,7 +29,8 @@ steps:
       path: 'Examples'
       graphics: ${{parameters.graphics}}
       target: ${{parameters.target}}
-      artifactName: 'IPlugControls_${{variables.graphics}}'
+      artifactName: IPlugControls_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
   - template: ${{parameters.platform}}
     parameters:
@@ -34,7 +38,8 @@ steps:
       path: 'Examples'
       graphics: ${{parameters.graphics}}
       target: ${{parameters.target}}
-      artifactName: 'IPlugFaustDSP_${{variables.graphics}}'
+      artifactName: IPlugFaustDSP_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
 
   - template: ${{parameters.platform}}
     parameters:
@@ -42,7 +47,9 @@ steps:
       path: 'Tests'
       graphics: ${{parameters.graphics}}
       target: ${{parameters.target}}
-      artifactName: 'IGraphicsStressTest_${{variables.graphics}}'
+      artifactName: IGraphicsStressTest_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
+      justApp: true
 
   - template: ${{parameters.platform}}
     parameters:
@@ -50,4 +57,6 @@ steps:
       path: 'Tests'
       graphics: ${{parameters.graphics}}
       target: ${{parameters.target}}
-      artifactName: 'IGraphicsTest_${{variables.graphics}}'
+      artifactName: IGraphicsTest_${{parameters.graphics}}
+      platformStr: ${{parameters.platformStr}}
+      justApp: true

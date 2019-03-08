@@ -454,7 +454,7 @@ struct IStrokeOptions
     int mCount = 0;
   };
 
-  float mMiterLimit = 1.;
+  float mMiterLimit = 10.f;
   bool mPreserve = false;
   ELineCap mCapOption = kCapButt;
   ELineJoin mJoinOption = kJoinMiter;
@@ -780,8 +780,8 @@ struct IRECT
   
   inline void Pad(float padL, float padT, float padR, float padB)
   {
-    L += padL;
-    T += padT;
+    L -= padL;
+    T -= padT;
     R += padR;
     B += padB;
   }
@@ -819,7 +819,7 @@ struct IRECT
 
   inline IRECT GetPadded(float padL, float padT, float padR, float padB) const
   {
-    return IRECT(L+padL, T+padT, R+padR, B+padB);
+    return IRECT(L-padL, T-padT, R+padR, B+padB);
   }
 
   inline IRECT GetHPadded(float padding) const
@@ -1496,6 +1496,8 @@ typedef std::unique_ptr<ILayer> ILayerPtr;
 /** Used to specify a gaussian drop-shadow. */
 struct IShadow
 {
+  IShadow(){}
+    
   IShadow(const IPattern& pattern, float blurSize, float xOffset, float yOffset, float opacity, bool drawForeground = true)
   : mPattern(pattern)
   , mBlurSize(blurSize)
@@ -1505,12 +1507,12 @@ struct IShadow
   , mDrawForeground(drawForeground)
   {}
     
-  IPattern mPattern;
+  IPattern mPattern = COLOR_BLACK;
   float mBlurSize = 0.f;
   float mXOffset = 0.f;
   float mYOffset = 0.f;
   float mOpacity = 1.f;
-  bool mDrawForeground;
+  bool mDrawForeground = true;
 };
 
 /** Used internally to store data statically, making sure memory is not wasted when there are multiple plug-in instances loaded */

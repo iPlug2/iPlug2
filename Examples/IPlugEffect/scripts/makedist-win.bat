@@ -9,13 +9,13 @@ REM - AAX codesigning requires wraptool tool added to %PATH% env variable and aa
 if %1 == 1 (echo Making IPlugEffect Windows DEMO VERSION distribution ...) else (echo Making IPlugEffect Windows FULL VERSION distribution ...)
 
 echo "touching source"
-cd ..\source\
+cd ..\
 copy /b *.cpp+,,
 
 echo ------------------------------------------------------------------
 echo Updating version numbers ...
-cd..
-call python scripts\prepare_resources.py %1
+
+call python scripts\prepare_resources-win.py %1
 call python scripts\update_installer_version.py %1
 
 echo ------------------------------------------------------------------
@@ -23,16 +23,19 @@ echo Building ...
 
 if exist "%ProgramFiles(x86)%" (goto 64-Bit) else (goto 32-Bit)
 
+if not defined DevEnvDir (
 :32-Bit
 echo 32-Bit O/S detected
-call "%ProgramFiles%\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x86_x64 8.1
+call "%ProgramFiles%\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x86_x64
 goto END
 
 :64-Bit
 echo 64-Bit Host O/S detected
-call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x86_x64 8.1
+call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x86_x64
 goto END
 :END
+)
+
 
 REM - set preprocessor macros like this, for instance to enable demo build:
 if %1 == 1 (
@@ -95,5 +98,3 @@ echo ------------------------------------------------------------------
 echo Printing log file to console...
 
 type build-win.log
-
-pause
