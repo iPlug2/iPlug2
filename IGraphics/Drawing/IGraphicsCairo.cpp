@@ -199,7 +199,7 @@ APIBitmap* IGraphicsCairo::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 APIBitmap* IGraphicsCairo::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetBackingPixelScale();
-  return new CairoBitmap(mSurface, std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
+  return new CairoBitmap(mSurface, std::ceil(width * scale), std::ceil(height * scale), GetScreenScale(), GetDrawScale());
 }
 
 bool IGraphicsCairo::BitmapExtSupported(const char* ext)

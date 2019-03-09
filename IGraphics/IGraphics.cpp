@@ -1371,8 +1371,8 @@ IPopupMenu* IGraphics::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IC
 void IGraphics::StartLayer(const IRECT& r)
 {
   IRECT alignedBounds = r.GetPixelAligned(GetBackingPixelScale());
-  const int w = static_cast<int>(std::round(alignedBounds.W()));
-  const int h = static_cast<int>(std::round(alignedBounds.H()));
+  const int w = static_cast<int>(std::ceil(alignedBounds.W()));
+  const int h = static_cast<int>(std::ceil(alignedBounds.H()));
 
   PushLayer(new ILayer(CreateAPIBitmap(w, h), alignedBounds), true);
 }
