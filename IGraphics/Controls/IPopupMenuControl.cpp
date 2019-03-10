@@ -399,7 +399,7 @@ IRECT IPopupMenuControl::GetLargestCellRectForMenu(IPopupMenu& menu, float x, fl
   }
   
   span.HPad(TEXT_HPAD); // add some padding because we don't want to be flush to the edges
-  span.Pad(-TICK_SIZE, 0, ARROW_SIZE, 0);
+  span.Pad(TICK_SIZE, 0, ARROW_SIZE, 0);
   
   return IRECT(x, y, x + span.W(), y + span.H());
 }
