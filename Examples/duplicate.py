@@ -135,6 +135,9 @@ def dirwalk(dir, searchproject, replaceproject, searchman, replaceman):
 
         print("Replacing manufacturer name strings in file " + filename)
         replacestrs(fullpath, searchman, replaceman)
+
+        print("Replacing lower case manufacturer name strings in file " + filename)
+        replacestrs(fullpath, searchman.lower(), replaceman.lower())
       else:
         print("NOT replacing name strings in file " + filename)
 
