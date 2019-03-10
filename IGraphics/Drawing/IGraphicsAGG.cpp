@@ -533,7 +533,7 @@ APIBitmap* IGraphicsAGG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 APIBitmap* IGraphicsAGG::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetBackingPixelScale();
-  return new AGGBitmap(CreatePixmap(std::round(width * scale), std::round(height * scale)), GetScreenScale(), GetDrawScale(), true);
+  return new AGGBitmap(CreatePixmap(std::ceil(width * scale), std::ceil(height * scale)), GetScreenScale(), GetDrawScale(), true);
 }
 
 bool IGraphicsAGG::BitmapExtSupported(const char* ext)

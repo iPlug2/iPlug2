@@ -790,6 +790,37 @@ struct IRECT
     return r;
   }
     
+  // Pixel aligns to nearest pixels
+  inline void PixelSnap()
+  {
+    L = std::round(L);
+    T = std::round(T);
+    R = std::round(R);
+    B = std::round(B);
+  }
+  
+  inline void PixelSnap(float scale)
+  {
+    // N.B. - double precision is *required* for accuracy of the reciprocal
+    Scale(scale);
+    PixelSnap();
+    Scale(static_cast<float>(1.0/static_cast<double>(scale)));
+  }
+  
+  inline IRECT GetPixelSnapped() const
+  {
+    IRECT r = *this;
+    r.PixelSnap();
+    return r;
+  }
+  
+  inline IRECT GetPixelSnapped(float scale) const
+  {
+    IRECT r = *this;
+    r.PixelSnap(scale);
+    return r;
+  }
+  
   inline void Pad(float padding)
   {
     L -= padding;

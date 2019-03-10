@@ -759,6 +759,11 @@ public:
     * @return The scale factor of the display on which this graphics context is currently located */
   int GetScreenScale() const { return mScreenScale; }
 
+  /** Gets the nearest backing pixel aligned rect to the input IRECT
+    * @param r The IRECT to snap
+    * @return The IRECT nearest to the input IRECT that is aligned exactly to backing pixels */
+  IRECT GetPixelSnapped(IRECT &r) const { return r.GetPixelSnapped(GetBackingPixelScale()); }
+    
   /** Gets a pointer to the delegate class that handles communication to and from this graphics context.
    * @return pointer to the delegate */
   IGEditorDelegate* GetDelegate() { return mDelegate; }
