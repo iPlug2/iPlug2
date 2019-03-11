@@ -720,8 +720,8 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   double hotX = [info[@"hotx-scaled"] doubleValue];
   double hotY = [info[@"hoty-scaled"] doubleValue];
   double blur = [info[@"blur"] doubleValue];
-  CGFloat offsetX = [info[@"shadowoffsetx"] doubleValue];
-  CGFloat offsetY = [info[@"shadowoffsety"] doubleValue];
+  double offsetX = [info[@"shadowoffsetx"] doubleValue];
+  double offsetY = [info[@"shadowoffsety"] doubleValue];
   double red = [info[@"shadowcolor"][0] doubleValue];
   double green = [info[@"shadowcolor"][1] doubleValue];
   double blue = [info[@"shadowcolor"][2] doubleValue];
