@@ -21,6 +21,9 @@ variables:
   publish_user: olilarkin
 
 trigger:
+- none
+
+pr:
 - master
 
 jobs:
