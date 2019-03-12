@@ -2,7 +2,6 @@ parameters:
   name: ''
   platformStr: ''
   graphics: ''
-  justApp: false
 
 steps:
 - ${{ if eq(parameters.platformStr, 'WEB') }}:
@@ -18,49 +17,46 @@ steps:
 
   - bash: |
       git pull # in case another client pushed allready
-      git config user.email olilarkin@googlemail.com
-      git config user.name olilarkin
+      git config user.email $PUBLISH_EMAIL
+      git config user.name $PUBLISH_USER
       git add *
       git commit -m "publish via pipeline"
       git push origin master
     displayName: Publish ${{parameters.platformStr}}_${{parameters.name}}_${{parameters.graphics}} to github pages
     
 - ${{ if or(eq(parameters.platformStr, 'MAC'), eq(parameters.platformStr, 'WIN')) }}:
-  - template: azure-project-upload-release.yml
-    parameters:
+  - template: project-upload-release.yml
+    parameters: 
       name: '${{parameters.name}}'
       platformStr: '${{parameters.platformStr}}'
       graphics: '${{parameters.graphics}}'
       pluginType: 'APP'
 
-  - ${{ if not(parameters.justApp) }}:
-    - template: azure-project-upload-release.yml
-      parameters:
-        name: '${{parameters.name}}'
-        platformStr: '${{parameters.platformStr}}'
-        graphics: '${{parameters.graphics}}'
-        pluginType: 'VST2'
+  - template: project-upload-release.yml
+    parameters:
+      name: '${{parameters.name}}'
+      platformStr: '${{parameters.platformStr}}'
+      graphics: '${{parameters.graphics}}'
+      pluginType: 'VST2'
 
-  - ${{ if not(parameters.justApp) }}:
-    - template: azure-project-upload-release.yml
-      parameters:
-        name: '${{parameters.name}}'
-        platformStr: '${{parameters.platformStr}}'
-        graphics: '${{parameters.graphics}}'
-        pluginType: 'VST3'
+  - template: project-upload-release.yml
+    parameters:
+      name: '${{parameters.name}}'
+      platformStr: '${{parameters.platformStr}}'
+      graphics: '${{parameters.graphics}}'
+      pluginType: 'VST3'
 
-  - ${{ if not(parameters.justApp) }}:
-    - template: azure-project-upload-release.yml
-      parameters:
-        name: '${{parameters.name}}'
-        platformStr: '${{parameters.platformStr}}'
-        graphics: '${{parameters.graphics}}'
-        pluginType: 'AAX'
+  - template: project-upload-release.yml
+    parameters:
+      name: '${{parameters.name}}'
+      platformStr: '${{parameters.platformStr}}'
+      graphics: '${{parameters.graphics}}'
+      pluginType: 'AAX'
 
-  - ${{ if and(eq(parameters.platformStr, 'MAC'), not(parameters.justApp)) }}:
-    - template: azure-project-upload-release.yml
+  - ${{ if eq(parameters.platformStr, 'MAC') }}:
+    - template: project-upload-release.yml
       parameters:
         name: '${{parameters.name}}'
         platformStr: '${{parameters.platformStr}}'
         graphics: '${{parameters.graphics}}'
-        pluginType: 'AUv2'
+        pluginType: 'AU'

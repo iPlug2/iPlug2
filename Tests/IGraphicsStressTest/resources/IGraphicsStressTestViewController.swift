@@ -30,9 +30,10 @@ public class IGraphicsStressTestViewController: AUViewController {
   }
   
   func connectViewWithAU() {
-//    if let view = self.view as? GenericUI {
-//      view.createGenericUI(audioUnit!)
-//    }
+    // To use the generic UI (swift), change the view in IGraphicsStressTest-iOS-MainInterface.storyboard to custom class: GenericUI  module: IGraphicsStressTestFramework
+    if let view = self.view as? GenericUI {
+      view.createGenericUI(audioUnit!)
+    }
   }
   
   override public func viewDidLayoutSubviews()
