@@ -12,42 +12,42 @@ steps:
     artifactName: IPlugEffect_${{parameters.graphics}}
     platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: IPlugInstrument
-    path: 'Examples'
-    graphics: ${{parameters.graphics}}       
-    artifactName: IPlugInstrument_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+# - template: ${{parameters.platform}}
+#   parameters:
+#     name: IPlugInstrument
+#     path: 'Examples'
+#     graphics: ${{parameters.graphics}}       
+#     artifactName: IPlugInstrument_${{parameters.graphics}}
+#     platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: IPlugControls
-    path: 'Examples'
-    graphics: ${{parameters.graphics}}
-    artifactName: IPlugControls_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+# - template: ${{parameters.platform}}
+#   parameters:
+#     name: IPlugControls
+#     path: 'Examples'
+#     graphics: ${{parameters.graphics}}
+#     artifactName: IPlugControls_${{parameters.graphics}}
+#     platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: IPlugFaustDSP
-    path: 'Examples'
-    graphics: ${{parameters.graphics}}
-    artifactName: IPlugFaustDSP_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+# - template: ${{parameters.platform}}
+#   parameters:
+#     name: IPlugFaustDSP
+#     path: 'Examples'
+#     graphics: ${{parameters.graphics}}
+#     artifactName: IPlugFaustDSP_${{parameters.graphics}}
+#     platformStr: ${{parameters.platformStr}}
       
-- template: ${{parameters.platform}}
-  parameters:
-    name: IGraphicsStressTest
-    path: 'Tests'
-    graphics: ${{parameters.graphics}}
-    artifactName: IGraphicsStressTest_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+# - template: ${{parameters.platform}}
+#   parameters:
+#     name: IGraphicsStressTest
+#     path: 'Tests'
+#     graphics: ${{parameters.graphics}}
+#     artifactName: IGraphicsStressTest_${{parameters.graphics}}
+#     platformStr: ${{parameters.platformStr}}
 
-- template: ${{parameters.platform}}
-  parameters:
-    name: IGraphicsTest
-    path: 'Tests'
-    graphics: ${{parameters.graphics}}
-    artifactName: IGraphicsTest_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
+# - template: ${{parameters.platform}}
+#   parameters:
+#     name: IGraphicsTest
+#     path: 'Tests'
+#     graphics: ${{parameters.graphics}}
+#     artifactName: IGraphicsTest_${{parameters.graphics}}
+#     platformStr: ${{parameters.platformStr}}
