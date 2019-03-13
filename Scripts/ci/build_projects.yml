@@ -31,7 +31,7 @@ jobs:
   condition: and(eq(variables.build_deps, false), eq(variables.build_win, true))
   dependsOn: 
     - GET_SRC_TREE
-    - BUILD_WIN_AAX_LIBS
+#     - BUILD_WIN_AAX_LIBS
 
   strategy:
     matrix:
