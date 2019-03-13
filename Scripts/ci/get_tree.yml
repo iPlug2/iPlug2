@@ -25,7 +25,7 @@ jobs:
     condition: eq(variables.build_deps, false)
 
   # comment out this step if you don't have access to the secure files (VST2, AAX SDKs)
-  - template: get_secure_files.yml
+#   - template: get_secure_files.yml
 
   - bash: |
       mkdir ./Dependencies/Build
