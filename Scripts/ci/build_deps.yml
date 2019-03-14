@@ -1,4 +1,5 @@
 jobs:
+# comment out this job if you don't have access to the secure files (VST2, AAX SDKs)
 - template: build_aax_libs.yml
 
 - job: BUILD_WIN_DEPS
@@ -26,7 +27,7 @@ jobs:
   steps:
   - checkout: none
 
-  - template: get_src.yml
+  - template: get_src_artifact.yml
 
   - task: VSBuild@1
     inputs:
@@ -94,7 +95,7 @@ jobs:
   steps:
   - checkout: none
 
-  - template: get_src.yml
+  - template: get_src_artifact.yml
 
   - bash: |
       #tmp force cairo rebuild

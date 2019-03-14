@@ -32,7 +32,7 @@ jobs:
 # Also installs various secure dependencies such as the VST2 and AAX SDKs. This will require editing if you have not set those secure files in Azure pipelines.
 # If build_deps == false, downloads optional pre-built dependencies IPLUG2_DEPS_MAC and IPLUG2_DEPS_WIN, unzips them in the src tree
 # Creates an artifact 'SRC' containing a populated iPlug 2 folder heirarchy
-- template: Scripts/ci/get_tree.yml
+- template: Scripts/ci/get_src_tree.yml
 
 # build_deps.yml
 # If build_deps == true, use the scripts in iPlug2/Dependencies to build the optional dependencies

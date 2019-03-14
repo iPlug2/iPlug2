@@ -20,7 +20,7 @@ jobs:
   steps:
   - checkout: none
 
-  - template: get_src.yml
+  - template: get_src_artifact.yml
 
   - template: projects.yml
     parameters:
@@ -50,7 +50,7 @@ jobs:
   steps:
   - checkout: none
 
-  - template: get_src.yml
+  - template: get_src_artifact.yml
 
   - task: DownloadPipelineArtifact@0
     inputs:
@@ -87,7 +87,7 @@ jobs:
       ./emsdk activate latest
     displayName: Install emscripten
 
-  - template: get_src.yml
+  - template: get_src_artifact.yml
 
   - template: projects.yml
     parameters:
