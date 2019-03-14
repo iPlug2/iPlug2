@@ -1,6 +1,6 @@
 jobs:
 # comment out this job if you don't have access to the secure files (VST2, AAX SDKs)
-- template: build_aax_libs.yml
+# - template: build_aax_libs.yml
 
 - job: BUILD_WIN_DEPS
   dependsOn: GET_SRC_TREE

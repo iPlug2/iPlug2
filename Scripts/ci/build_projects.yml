@@ -7,10 +7,10 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      CAIRO:
-        graphics: 'CAIRO'
-      LICE:
-        graphics: 'LICE'
+      # CAIRO:
+      #   graphics: 'CAIRO'
+      # LICE:
+      #   graphics: 'LICE'
       # AGG:
       #   graphics: 'AGG'
 
@@ -31,16 +31,17 @@ jobs:
   condition: and(eq(variables.build_deps, false), eq(variables.build_win, true))
   dependsOn: 
     - GET_SRC_TREE
-    - BUILD_WIN_AAX_LIBS
+    #comment this is not building with secure files
+    # - BUILD_WIN_AAX_LIBS
 
   strategy:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      CAIRO:
-        graphics: 'CAIRO'
-      LICE:
-        graphics: 'LICE'
+      # CAIRO:
+      #   graphics: 'CAIRO'
+      # LICE:
+      #   graphics: 'LICE'
       # AGG:
       #   graphics: 'AGG'
 
@@ -71,8 +72,8 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      CANVAS:
-        graphics: 'CANVAS'
+      # CANVAS:
+      #   graphics: 'CANVAS'
 
   pool:
     vmImage: 'ubuntu-16.04'

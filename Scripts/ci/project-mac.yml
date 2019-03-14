@@ -7,10 +7,10 @@ parameters:
   srcBranch: 'master'
 
 steps:
-  - task: InstallAppleCertificate@2
-    inputs:
-      certSecureFile: macos_certificate.p12
-      certPwd: $(CERT_PWD)
+  # - task: InstallAppleCertificate@2
+  #   inputs:
+  #     certSecureFile: macos_certificate.p12
+  #     certPwd: $(CERT_PWD)
 
   - bash: |
       echo srcRepo parameter = ${{ parameters.srcRepo }}
@@ -63,7 +63,6 @@ steps:
       args: '-target VST2 -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
       xcodeVersion: '9'
-#      scheme: 'VST2'
     condition: eq(variables.build_vst2, True)
     displayName: Build Xcode project VST2 Scheme
 
@@ -74,7 +73,6 @@ steps:
       args: '-target VST3 -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
       xcodeVersion: '9'
-#      scheme: 'VST3'
     condition: eq(variables.build_vst3, True)
     displayName: Build Xcode project VST3 Scheme
 
@@ -85,7 +83,6 @@ steps:
       args: '-target AAX -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: '${{parameters.configuration}}'
       xcodeVersion: '9'
-#      scheme: 'AAX'
     condition: eq(variables.build_aax, True)
     displayName: Build Xcode project AAX Scheme
 
@@ -96,7 +93,6 @@ steps:
       args: '-target AU -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
       xcodeVersion: '9'
-#      scheme: 'AU'
     condition: eq(variables.build_auv2, True)
     displayName: Build Xcode project AUv2 Scheme
 
@@ -107,7 +103,6 @@ steps:
       args: '-target APP -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
       xcodeVersion: '9'
-#      scheme: 'APP'
       signingOption: 'manual'
       signingIdentity: $(APPLE_CERTIFICATE_SIGNING_IDENTITY)
 
