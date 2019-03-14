@@ -7,6 +7,11 @@ parameters:
   srcBranch: 'master'
 
 steps:
+  - task: InstallAppleCertificate@2
+    inputs:
+      certSecureFile: macos_certificate.p12
+      certPwd: $(CERT_PWD)
+
   - bash: |
       echo srcRepo parameter = ${{ parameters.srcRepo }}
       if [ ${{ parameters.srcRepo }} != none ]
@@ -103,6 +108,9 @@ steps:
       configuration: 'Release'
       xcodeVersion: '9'
 #      scheme: 'APP'
+      signingOption: 'manual'
+      signingIdentity: $(APPLE_CERTIFICATE_SIGNING_IDENTITY)
+
     condition: eq(variables.build_app, True)
     displayName: Build Xcode project App Scheme
 
