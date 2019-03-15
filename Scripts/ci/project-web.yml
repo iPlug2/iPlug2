@@ -6,8 +6,7 @@ parameters:
   artifactName: ''
   srcRepo: 'none' # the git repository to clone into path/name for building
   srcBranch: 'master' # the branch to clone for building
-  justApp: false
-
+  
   #WEB AUDIO MODULE publishing via git
   publishRepo: 'none' # the git repository to publish the WAM to
   publishBranch: gh-pages # the branch to publish the WAM to
@@ -33,14 +32,14 @@ steps:
     displayName: (Optionally) clone ${{ parameters.name }} repo
   
   - bash: |
-      graphics=${{ parameters.graphics }}
+      graphics=${{parameters.graphics}}
       if [ $graphics = "CANVAS" ]
       then
         cd ./${{ parameters.path }}/${{ parameters.name }}/config
         sed -i.bu 's/-DIGRAPHICS_NANOVG -DIGRAPHICS_GLES2/-DIGRAPHICS_CANVAS/' ${{ parameters.name }}-web.mk
         sed -i.bu 's/WEB_LDFLAGS += $(NANOVG_LDFLAGS)/\/\/WEB_LDFLAGS += $(NANOVG_LDFLAGS)/' ${{ parameters.name }}-web.mk
       fi
-    displayName: Set graphics string to ${{ parameters.graphics }}
+    displayName: Set graphics string to ${{parameters.graphics}}
 
   - bash: |
       cd emsdk
@@ -53,12 +52,12 @@ steps:
 
   # - bash: |
   #     mkdir -p ${{ parameters.path }}/${{ parameters.name }}/build-web/
-  #     echo "hello ${{ parameters.graphics }}" > ${{ parameters.path }}/${{ parameters.name }}/build-web/${{ parameters.graphics }}.txt
+  #     echo "hello ${{parameters.graphics}}" > ${{ parameters.path }}/${{ parameters.name }}/build-web/${{parameters.graphics}}.txt
   #   displayName: TEST PAYLOAD
 
   - task: PublishPipelineArtifact@0
     inputs:
-      artifactName: 'WEB_${{ parameters.artifactName }}'
+      artifactName: 'WEB_${{parameters.artifactName}}'
       targetPath: '${{ parameters.path }}/${{ parameters.name }}/build-web'
     displayName: Publish ${{ parameters.name }} WAM
 

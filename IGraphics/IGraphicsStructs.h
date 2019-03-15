@@ -701,25 +701,45 @@ struct IRECT
     return vrect.SubRectHorizontal(nColumns, col);
   }
   
-  inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns/*, EDirection = kHorizontal*/) const
+  inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns, EDirection dir = kHorizontal) const
   {
     assert(cellIndex <= nRows * nColumns); // not enough cells !
 
     int cell = 0;
-    for(int row = 0; row<nRows; row++)
+    
+    if(dir == kHorizontal)
     {
-      for(int col = 0; col<nColumns; col++)
+      for(int row = 0; row < nRows; row++)
       {
-        if(cell == cellIndex)
+        for(int col = 0; col < nColumns; col++)
         {
-          const IRECT vrect = SubRectVertical(nRows, row);
-          return vrect.SubRectHorizontal(nColumns, col);
-        }
+          if(cell == cellIndex)
+          {
+            const IRECT vrect = SubRectVertical(nRows, row);
+            return vrect.SubRectHorizontal(nColumns, col);
+          }
 
-        cell++;
+          cell++;
+        }
       }
     }
-
+    else
+    {
+      for(int col = 0; col < nColumns; col++)
+      {
+        for(int row = 0; row < nRows; row++)
+        {
+          if(cell == cellIndex)
+          {
+            const IRECT hrect = SubRectHorizontal(nColumns, col);
+            return hrect.SubRectVertical(nRows, row);
+          }
+          
+          cell++;
+        }
+      }
+    }
+    
     return *this;
   }
   

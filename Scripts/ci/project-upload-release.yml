@@ -10,26 +10,39 @@
     displayName: Clean temporary directory
 
   - task: DownloadPipelineArtifact@0
+    continueOnError: true
     inputs:
       artifactName: '${{parameters.platformStr}}_${{parameters.pluginType}}_${{parameters.name}}_${{parameters.graphics}}'
-      targetPath: '$(Build.BinariesDirectory)/${{parameters.pluginType}}'
+      targetPath: '$(Build.BinariesDirectory)'
     displayName: Download ${{parameters.platformStr}}_${{parameters.pluginType}}_${{parameters.name}}_${{parameters.graphics}}
 
-  - bash: |
-      ls -lR $BUILD_BINARIESDIRECTORY/${{parameters.pluginType}}/
-    displayName: Print permissions
-
-  #todo: This resets all permissions rendering macOS app bundles non-executable
-  - task: ArchiveFiles@2
+  - task: ExtractFiles@1
     inputs:
-      rootFolderOrFile: '$(Build.BinariesDirectory)/${{parameters.pluginType}}'
-      archiveFile: '$(Build.ArtifactStagingDirectory)/${{parameters.platformStr}}_${{parameters.pluginType}}_${{parameters.name}}_${{parameters.graphics}}.zip' 
+      archiveFilePatterns: '$(Build.BinariesDirectory)/*.zip'
+      destinationFolder: '$(Build.BinariesDirectory)'
+      cleanDestinationFolder: false
+    displayName: Extract zip file if it exists
+
+  - bash: |
+      if [ -f $BUILD_BINARIESDIRECTORY/*.zip ]
+      then
+        rm $BUILD_BINARIESDIRECTORY/*.zip
+      fi
+    displayName: Delete zip file if it exists
+
+  - task: ArchiveFiles@2
+    continueOnError: true
+    inputs:
+      rootFolderOrFile: '$(Build.BinariesDirectory)'
+      archiveFile: '$(Build.ArtifactStagingDirectory)/${{parameters.platformStr}}_${{parameters.pluginType}}_${{parameters.name}}_${{parameters.graphics}}.zip'
+      includeRootFolder: false
     displayName: Archive ${{parameters.platformStr}}_${{parameters.pluginType}}_${{parameters.name}}_${{parameters.graphics}}
 
   - task: GithubRelease@0
+    continueOnError: true
     inputs:
-      gitHubConnection: olilarkin
-      repositoryName: 'iPlug2/iPlug2.github.io'
+      gitHubConnection: $(publish_user)
+      repositoryName: $(publish_site)
       action: 'edit' 
       target: 'master'
       tag: 'latest'
