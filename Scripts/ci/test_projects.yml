@@ -21,25 +21,29 @@ jobs:
   steps:
   - checkout: none
 
+  - template: projects.yml
+    parameters:
+      platform: test_project-mac.yml
+      graphics: $(graphics)
 
-- job: TEST_WIN_PROJECTS
-  condition: and(eq(variables.test_projects, true), eq(variables.build_win, true))
-  dependsOn: 
-    - BUILD_WIN_PROJECTS
+# - job: TEST_WIN_PROJECTS
+#   condition: and(eq(variables.test_projects, true), eq(variables.build_win, true))
+#   dependsOn: 
+#     - BUILD_WIN_PROJECTS
 
-  strategy:
-    matrix:
-      NANOVG:
-        graphics: 'NANOVG'
-      # CAIRO:
-      #   graphics: 'CAIRO'
-      # LICE:
-      #   graphics: 'LICE'
-      # AGG:
-      #   graphics: 'AGG'
+#   strategy:
+#     matrix:
+#       NANOVG:
+#         graphics: 'NANOVG'
+#       # CAIRO:
+#       #   graphics: 'CAIRO'
+#       # LICE:
+#       #   graphics: 'LICE'
+#       # AGG:
+#       #   graphics: 'AGG'
 
-  pool:
-    vmImage: 'vs2017-win2016'
+#   pool:
+#     vmImage: 'vs2017-win2016'
 
-  steps:
-  - checkout: none
+#   steps:
+#   - checkout: none
