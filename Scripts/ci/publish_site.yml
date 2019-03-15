@@ -30,13 +30,13 @@ jobs:
 
   - template: projects.yml
     parameters:
-      platform: project-upload.yml
+      platform: publish_project.yml
       graphics: $(graphics)
       platformStr: 'MAC'
 
   - template: projects.yml
     parameters:
-      platform: project-upload.yml
+      platform: publish_project.yml
       graphics: $(graphics)
       platformStr: 'WIN'
 
@@ -64,12 +64,12 @@ jobs:
 
   - template: projects.yml
     parameters:
-      platform: project-upload.yml
+      platform: publish_project.yml
       graphics: 'NANOVG'
       platformStr: 'WEB'
 
   - template: projects.yml
     parameters:
-      platform: project-upload.yml
+      platform: publish_project.yml
       graphics: 'CANVAS'
       platformStr: 'WEB'

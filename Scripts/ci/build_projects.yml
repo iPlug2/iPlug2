@@ -24,7 +24,7 @@ jobs:
 
   - template: projects.yml
     parameters:
-      platform: project-mac.yml
+      platform: build_project-mac.yml
       graphics: $(graphics)
 
 - job: BUILD_WIN_PROJECTS
@@ -61,7 +61,7 @@ jobs:
 
   - template: projects.yml
     parameters:
-      platform: project-win.yml
+      platform: build_project-win.yml
       graphics: $(graphics)
 
 - job: BUILD_WEB_PROJECTS
@@ -92,5 +92,5 @@ jobs:
 
   - template: projects.yml
     parameters:
-      platform: project-web.yml
+      platform: build_project-web.yml
       graphics: $(graphics)
