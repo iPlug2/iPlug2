@@ -348,7 +348,7 @@ APIBitmap* IGraphicsCanvas::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetBackingPixelScale();
-  return new CanvasBitmap(std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
+  return new CanvasBitmap(std::ceil(width * scale), std::ceil(height * scale), GetScreenScale(), GetDrawScale());
 }
 
 void IGraphicsCanvas::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)

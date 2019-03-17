@@ -1,0 +1,49 @@
+jobs:
+- job: TEST_MAC_PROJECTS
+  condition: and(eq(variables.test_projects, true), eq(variables.build_mac, true))
+  dependsOn: 
+    - BUILD_MAC_PROJECTS
+
+  strategy:
+    matrix:
+      NANOVG:
+        graphics: 'NANOVG'
+      # CAIRO:
+      #   graphics: 'CAIRO'
+      # LICE:
+      #   graphics: 'LICE'
+      # AGG:
+      #   graphics: 'AGG'
+
+  pool:
+    vmImage: 'macos-10.13'
+
+  steps:
+  - checkout: none
+
+  - template: projects.yml
+    parameters:
+      platform: test_project-mac.yml
+      graphics: $(graphics)
+
+# - job: TEST_WIN_PROJECTS
+#   condition: and(eq(variables.test_projects, true), eq(variables.build_win, true))
+#   dependsOn: 
+#     - BUILD_WIN_PROJECTS
+
+#   strategy:
+#     matrix:
+#       NANOVG:
+#         graphics: 'NANOVG'
+#       # CAIRO:
+#       #   graphics: 'CAIRO'
+#       # LICE:
+#       #   graphics: 'LICE'
+#       # AGG:
+#       #   graphics: 'AGG'
+
+#   pool:
+#     vmImage: 'vs2017-win2016'
+
+#   steps:
+#   - checkout: none

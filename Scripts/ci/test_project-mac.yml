@@ -1,0 +1,50 @@
+parameters:
+  name: ''
+  graphics: 'NANOVG'
+
+steps:
+  - task: DownloadPipelineArtifact@0
+    continueOnError: true
+    inputs:
+      artifactName: 'MAC_VST2_${{parameters.name}}_${{parameters.graphics}}'
+      targetPath: $(Build.BinariesDirectory)
+    displayName: Download MAC_VST2_${{parameters.name}}_${{parameters.graphics}}
+    condition: eq(variables.build_vst2, True)
+
+  - task: DownloadPipelineArtifact@0
+    continueOnError: true
+    inputs:
+      artifactName: 'MAC_VST3_${{parameters.name}}_${{parameters.graphics}}'
+      targetPath: $(Build.BinariesDirectory)
+    displayName: Download MAC_VST3_${{parameters.name}}_${{parameters.graphics}}
+    condition: eq(variables.build_vst3, True)
+  
+  # - task: DownloadPipelineArtifact@0
+  #   continueOnError: true
+  #   inputs:
+  #     artifactName: 'MAC_AAX_${{parameters.name}}_${{parameters.graphics}}'
+  #     targetPath: $(Build.BinariesDirectory)
+  #   displayName: Download MAC_AAX_${{parameters.name}}_${{parameters.graphics}}
+  #   condition: eq(variables.build_aax, True)
+
+  - task: DownloadPipelineArtifact@0
+    continueOnError: true
+    inputs:
+      artifactName: 'MAC_AU_${{parameters.name}}_${{parameters.graphics}}'
+      targetPath: $(Build.BinariesDirectory)
+    displayName: Download MAC_AU_${{parameters.name}}_${{parameters.graphics}}
+    condition: eq(variables.build_auv2, True)
+
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: '$(Build.BinariesDirectory)/*.zip'
+      destinationFolder: $(Build.SourcesDirectory)
+      cleanDestinationFolder: false
+    displayName: Extract zip file if it exists
+
+  - bash: |
+      curl -L "https://github.com/Tracktion/pluginval/releases/download/latest_release/pluginval_macOS.zip" -o pluginval.zip
+      unzip pluginval
+      ls -la
+      # pluginval.app/Contents/MacOS/pluginval --validate-in-process --output-dir "./bin" --validate "<path_to_plugin>" || exit 1
+    displayName: Install PluginVal

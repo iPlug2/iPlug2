@@ -335,7 +335,7 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
 APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetBackingPixelScale();
-  return new NanoVGBitmap(this, mVG, std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
+  return new NanoVGBitmap(this, mVG, std::ceil(width * scale), std::ceil(height * scale), GetScreenScale(), GetDrawScale());
 }
 
 void IGraphicsNanoVG::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
@@ -834,7 +834,7 @@ void IGraphicsNanoVG::DrawDottedLine(const IColor& color, float x1, float y1, fl
     
     progress += incr;
     
-    xs = x1 + progress * (x2 - x1);;
+    xs = x1 + progress * (x2 - x1);
     ys = y1 + progress * (y2 - y1);
     
     PathMoveTo(xs, ys);
