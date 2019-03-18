@@ -42,6 +42,7 @@ FaustGen::Factory::Factory(const char* name, const char* libraryPath, const char
   
   if(inputDSP)
     LoadFile(inputDSP);
+//  mDrawPath.Set(mLibraryPaths[1].c_str());
 }
 
 FaustGen::Factory::~Factory()
@@ -74,7 +75,7 @@ llvm_dsp_factory* FaustGen::Factory::CreateFactoryFromBitCode()
   std::string err;
   
   // Alternate model using machine code
-  llvm_dsp_factory* pFactory = readDSPFactoryFromMachine(mBitCodeStr.Get(), GetLLVMArchStr(), err);
+  llvm_dsp_factory* pFactory = readDSPFactoryFromMachine(mBitCodeStr.Get(), "", err);
   
   // TODO: Print error
   return pFactory;
@@ -109,14 +110,14 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
   // Generate SVG file // this shouldn't get called if we not making SVGs
 //  if (!generateAuxFilesFromString(name.Get(), mSourceCodeStr.Get(), N, argv, error))
 //  {
-//    DBGMSG("FaustGen-%s: Generate SVG error : %s\n", error.c_str());
+//    DBGMSG("FaustGen-%s: Generate SVG error : %s\n", mName.Get(), error.c_str());
 //  }
 
 #ifdef OS_WIN
-  argv[N] = "-l";
-  argv[N + 1] = "llvm_math.ll";
-  argv[N + 2] = 0; // NULL terminated argv
-  llvm_dsp_factory* pFactory = createDSPFactoryFromString(name.Get(), mSourceCodeStr.Get(), N + 2, argv, getTarget(), error, mOptimizationLevel);
+//argv[N] = "-l";
+//argv[N + 1] = "llvm_math.ll";
+//argv[N + 2] = 0; // NULL terminated argv
+  llvm_dsp_factory* pFactory = createDSPFactoryFromString(name.Get(), mSourceCodeStr.Get(), N, argv, "", error, mOptimizationLevel);
 #else
   argv[N] = 0; // NULL terminated argv
   llvm_dsp_factory* pFactory = createDSPFactoryFromString(name.Get(), mSourceCodeStr.Get(), N, argv, GetLLVMArchStr(), error, mOptimizationLevel);
@@ -378,29 +379,30 @@ bool FaustGen::Factory::LoadFile(const char* file)
   // Delete the existing Faust module
   //FreeDSPFactory();
   WDL_String fileStr(file);
+  int len = (int)strlen(file);
+  wchar_t* wtemp = new wchar_t[len + 1];
+  MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, file, -1, wtemp, len + 1);
+  std::wstring w_file = wtemp;
+  delete[] wtemp;
 
   mBitCodeStr.Set("");
 
   FILE* fp = fopen(file, "r");
-  WDL_String data;
 
   if (fp)
   {
-    long fileSize;
-    
     fseek(fp , 0 , SEEK_END);
-    fileSize = ftell(fp);
+    long fileSize = ftell(fp);
     rewind(fp);
-    data.SetLen((int) fileSize);
-    fread(data.Get(), fileSize, 1, fp);
-    
+    char* data = new char[fileSize]();
+    fread(data, fileSize, 1, fp);
     fclose(fp);
+    mSourceCodeStr.Set(data);
+    delete[] data;
     
     StatType buf;
-    GetStat(fileStr.Get(), &buf);
+    GetStat(w_file, &buf);
     mPreviousTime = GetModifiedTime(buf);
-    
-    mSourceCodeStr.Set(data.Get());
     
     // Add path of file to library path
     fileStr.remove_filepart(true);
@@ -590,8 +592,14 @@ void FaustGen::OnTimer(Timer& timer)
   for (auto f : Factory::sFactoryMap)
   {
     pInputFile = &f.second->mInputDSPFile;
+    const char* mInfile = pInputFile->Get();
+    int len = (int)strlen(mInfile);
+    wchar_t* wtemp = new wchar_t[len + 1];
+    MultiByteToWideChar(CP_UTF8, MB_PRECOMPOSED, mInfile, -1, wtemp, len + 1);
+    std::wstring w_inputfile = wtemp;
+    delete[] wtemp;
     StatType buf;
-    GetStat(pInputFile->Get(), &buf);
+    GetStat(w_inputfile, &buf);
     StatTime oldTime = f.second->mPreviousTime;
     StatTime newTime = GetModifiedTime(buf);
 

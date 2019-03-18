@@ -48,12 +48,12 @@ static inline StatTime TimeZero()
 }
 #else //OS_WIN
 typedef struct _stat64i32 StatType;
-typedef time_t Time;
+typedef time_t StatTime;
 
 static inline int GetStat(std::wstring& path, StatType* pStatbuf) { return _wstat(path.c_str(), pStatbuf); }
-static inline Time GetModifiedTime(StatType &s) { return s.st_mtime; }
-static inline bool Equal(Time a, Time b) { return a == b; }
-static inline Time TimeZero() { return (Time) 0; }
+static inline StatTime GetModifiedTime(StatType &s) { return s.st_mtime; }
+static inline bool Equal(StatTime a, StatTime b) { return a == b; }
+static inline StatTime TimeZero() { return (StatTime) 0; }
 #endif
 
 #define FAUSTFLOAT sample
