@@ -54,6 +54,7 @@ BUILT_LIBS_INC_PATH = $(BUILT_LIBS_PATH)/include
 BUILT_LIBS_LIB_PATH = $(BUILT_LIBS_PATH)/lib
 
 // IPlug dependencies
+SCRIPTS_PATH = $(ROOT)/Scripts
 WDL_PATH = $(ROOT)/WDL
 SWELL_PATH = $(WDL_PATH)/swell
 IPLUG_PATH = $(ROOT)/IPlug

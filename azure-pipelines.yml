@@ -8,6 +8,7 @@ variables:
   build_auv2: true # build AUv2 format plugins
   build_aax: false # build AAX format plugins ( must have AAX_SDK secure file in azure pipeline )
   build_vst2: false # build VST2 format plugins ( must have VST2_SDK secure file in azure pipeline )
+  test_projects: true # test plug-ins with pluginval, auval, vstvalidator
 
   configuration: 'Release' # the configuration to build, e.g. 'Debug', 'Release', 'Tracer'
 
@@ -21,7 +22,7 @@ variables:
   publish_user: olilarkin
 
 trigger:
-- none
+- master
 
 pr:
 - master
@@ -45,8 +46,12 @@ jobs:
 # Creates artifacts for projects/platforms/graphics backends
 - template: Scripts/ci/build_projects.yml
 
+# test_projects.yml
+# Tests each of the projects listed in projects.yml, for multiple platforms
+- template: Scripts/ci/test_projects.yml
+
 # publish_site.yml
-# if publish_pages == true, publishes the WAMs hosted on https://iplug2.github.io/ 
+# if publish_pages == true, publishes the WAMs hosted on https://iplug2.github.io/
 # if publish_downloads == true, publises the binaries for the examples hosted on the releases page of the iPlug2 website github https://github.com/iPlug2/iPlug2.github.io/releases
 # this Job will produce non-fatal errors when artefacts are not found
 - template: Scripts/ci/publish_site.yml

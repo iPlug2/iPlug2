@@ -16,7 +16,7 @@ steps:
   parameters:
     name: IPlugInstrument
     path: 'Examples'
-    graphics: ${{parameters.graphics}}       
+    graphics: ${{parameters.graphics}}
     artifactName: IPlugInstrument_${{parameters.graphics}}
     platformStr: ${{parameters.platformStr}}
 
@@ -35,7 +35,7 @@ steps:
     graphics: ${{parameters.graphics}}
     artifactName: IPlugFaustDSP_${{parameters.graphics}}
     platformStr: ${{parameters.platformStr}}
-      
+
 - template: ${{parameters.platform}}
   parameters:
     name: IGraphicsStressTest
