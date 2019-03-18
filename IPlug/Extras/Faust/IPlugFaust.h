@@ -27,7 +27,8 @@
   #if defined OS_MAC || defined OS_LINUX
   #define DEFAULT_FAUST_LIBRARY_PATH "/usr/local/share/faust/"
   #else
-  #define DEFAULT_FAUST_LIBRARY_PATH "" //TODO
+  //#define DEFAULT_FAUST_LIBRARY_PATH "" //TODO
+  #define DEFAULT_FAUST_LIBRARY_PATH "C:/SDKs/iPlug2/Dependencies/Build/win/faust/share/faust/" //Original above
   #endif
 #endif
 

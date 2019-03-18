@@ -78,7 +78,11 @@ static inline StatTime TimeZero() { return (StatTime) 0; }
 #define FAUST_RECOMPILE_INTERVAL 5000 //ms
 
 #ifndef FAUST_EXE
-  #define FAUST_EXE "/usr/local/bin/faust"
+#ifndef OS_WIN//Added this
+#define FAUST_EXE "/usr/local/bin/faust"
+#else//Added this
+#define FAUST_EXE "faust"//Added this ...possibly change to "C:/SDKs/iPlug2/Dependencies/Build/win/faust/bin/faust" in case faust isn't set as an env path var
+#endif//Added this
 #endif
 
 class FaustGen : public IPlugFaust
