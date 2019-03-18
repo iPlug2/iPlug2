@@ -701,25 +701,45 @@ struct IRECT
     return vrect.SubRectHorizontal(nColumns, col);
   }
   
-  inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns/*, EDirection = kHorizontal*/) const
+  inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns, EDirection dir = kHorizontal) const
   {
     assert(cellIndex <= nRows * nColumns); // not enough cells !
 
     int cell = 0;
-    for(int row = 0; row<nRows; row++)
+    
+    if(dir == kHorizontal)
     {
-      for(int col = 0; col<nColumns; col++)
+      for(int row = 0; row < nRows; row++)
       {
-        if(cell == cellIndex)
+        for(int col = 0; col < nColumns; col++)
         {
-          const IRECT vrect = SubRectVertical(nRows, row);
-          return vrect.SubRectHorizontal(nColumns, col);
-        }
+          if(cell == cellIndex)
+          {
+            const IRECT vrect = SubRectVertical(nRows, row);
+            return vrect.SubRectHorizontal(nColumns, col);
+          }
 
-        cell++;
+          cell++;
+        }
       }
     }
-
+    else
+    {
+      for(int col = 0; col < nColumns; col++)
+      {
+        for(int row = 0; row < nRows; row++)
+        {
+          if(cell == cellIndex)
+          {
+            const IRECT hrect = SubRectHorizontal(nColumns, col);
+            return hrect.SubRectVertical(nRows, row);
+          }
+          
+          cell++;
+        }
+      }
+    }
+    
     return *this;
   }
   
@@ -770,6 +790,37 @@ struct IRECT
     return r;
   }
     
+  // Pixel aligns to nearest pixels
+  inline void PixelSnap()
+  {
+    L = std::round(L);
+    T = std::round(T);
+    R = std::round(R);
+    B = std::round(B);
+  }
+  
+  inline void PixelSnap(float scale)
+  {
+    // N.B. - double precision is *required* for accuracy of the reciprocal
+    Scale(scale);
+    PixelSnap();
+    Scale(static_cast<float>(1.0/static_cast<double>(scale)));
+  }
+  
+  inline IRECT GetPixelSnapped() const
+  {
+    IRECT r = *this;
+    r.PixelSnap();
+    return r;
+  }
+  
+  inline IRECT GetPixelSnapped(float scale) const
+  {
+    IRECT r = *this;
+    r.PixelSnap(scale);
+    return r;
+  }
+  
   inline void Pad(float padding)
   {
     L -= padding;
@@ -780,8 +831,8 @@ struct IRECT
   
   inline void Pad(float padL, float padT, float padR, float padB)
   {
-    L += padL;
-    T += padT;
+    L -= padL;
+    T -= padT;
     R += padR;
     B += padB;
   }
@@ -819,7 +870,7 @@ struct IRECT
 
   inline IRECT GetPadded(float padL, float padT, float padR, float padB) const
   {
-    return IRECT(L+padL, T+padT, R+padR, B+padB);
+    return IRECT(L-padL, T-padT, R+padR, B+padB);
   }
 
   inline IRECT GetHPadded(float padding) const

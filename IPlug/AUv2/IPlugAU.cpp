@@ -1663,6 +1663,8 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
     int startChannelIdx = pOutBus->mPlugChannelStartIdx;
     int nConnected = std::min<int>(pOutBus->mNHostChannels, pOutBufList->mNumberBuffers);
     int nUnconnected = std::max(pOutBus->mNPlugChannels - nConnected, 0);
+    
+    assert(nConnected > -1);
     _this->SetChannelConnections(ERoute::kOutput, startChannelIdx, nConnected, true);
     _this->SetChannelConnections(ERoute::kOutput, startChannelIdx + nConnected, nUnconnected, false); // This will disconnect the right handle channel on a single stereo bus
     pOutBus->mConnected = true;

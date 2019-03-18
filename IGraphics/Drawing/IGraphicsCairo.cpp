@@ -120,11 +120,6 @@ IGraphicsCairo::IGraphicsCairo(IGEditorDelegate& dlg, int w, int h, int fps, flo
 , mContext(nullptr)
 {
   DBGMSG("IGraphics Cairo @ %i FPS\n", fps);
-    
-  // Create a temporary context in case there is a need to measure text before the real context is created
-    
-  mSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, w, h);
-  mContext = cairo_create(mSurface);
 }
 
 IGraphicsCairo::~IGraphicsCairo() 
@@ -204,7 +199,7 @@ APIBitmap* IGraphicsCairo::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 APIBitmap* IGraphicsCairo::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetBackingPixelScale();
-  return new CairoBitmap(mSurface, std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
+  return new CairoBitmap(mSurface, std::ceil(width * scale), std::ceil(height * scale), GetScreenScale(), GetDrawScale());
 }
 
 bool IGraphicsCairo::BitmapExtSupported(const char* ext)
@@ -449,6 +444,17 @@ IColor IGraphicsCairo::GetPoint(int x, int y)
 
 bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
+  if (measure && !mSurface && !mContext)
+  {
+    // TODO - make this nicer
+      
+    // Create a temporary context in case there is a need to measure text before the real context is created
+      
+    cairo_surface_t* pSurface = cairo_recording_surface_create(CAIRO_CONTENT_COLOR_ALPHA, nullptr);
+    mContext = cairo_create(pSurface);
+    cairo_surface_destroy(pSurface);
+  }
+    
 #if defined IGRAPHICS_FREETYPE
 //  FT_Face ft_face;
 //
@@ -564,6 +570,8 @@ bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
   if (measure)
   {
     bounds = IRECT(0, 0, textExtents.width, fontExtents.height);
+    if (!mSurface)
+      UpdateCairoContext();
     return true;
   }
 
