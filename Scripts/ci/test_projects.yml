@@ -22,7 +22,7 @@ jobs:
   - checkout: none
 
   - bash: |
-      curl -L "https://github.com/Tracktion/pluginval/releases/download/latest_release/pluginval_macOS.zip" -o pluginval.zip
+      curl -L "https://github.com/Tracktion/pluginval/releases/download/v0.2.1/pluginval_macOS.zip" -o pluginval.zip
       unzip pluginval
     displayName: Install PluginVal
 
@@ -64,7 +64,7 @@ jobs:
   - checkout: none
 
   - powershell: |
-      powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest https://github.com/Tracktion/pluginval/releases/download/latest_release/pluginval_Windows.zip -OutFile pluginval.zip"
+      powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest https://github.com/Tracktion/pluginval/releases/download/v0.2.1/pluginval_Windows.zip -OutFile pluginval.zip"
       powershell -Command "Expand-Archive pluginval.zip -DestinationPath ."
     displayName: Install PluginVal
 
