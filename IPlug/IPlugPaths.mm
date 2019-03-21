@@ -86,6 +86,12 @@ void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginNa
   path.SetFormatted(MAX_MACOS_PATH_LEN, "%s/Audio/Presets/%s/%s/", [pApplicationSupportDirectory UTF8String], mfrName, pluginName);
 }
 
+void INIPath(WDL_String& path, const char* pluginName)
+{
+  AppSupportPath(path, false);
+  path.AppendFormatted(MAX_MACOS_PATH_LEN, "/%s", pluginName);
+}
+
 void AppSupportPath(WDL_String& path, bool isSystem)
 {
   NSArray *pPaths;
@@ -122,6 +128,11 @@ void DesktopPath(WDL_String& path)
 }
 
 void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem)
+{
+  path.Set("");
+}
+
+void INIPath(WDL_String& path, const char* pluginName)
 {
   path.Set("");
 }
