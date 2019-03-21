@@ -20,12 +20,18 @@ IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
     IRECT b = pGraphics->GetBounds().GetPadded(-20);
-    
+
+    IRECT knobs = b.GetFromTop(100.);
+    IRECT viz = b.GetReducedFromTop(100);
     pGraphics->AttachCornerResizer(kUIResizerScale);
     pGraphics->LoadFont(ROBOTTO_FN);
+
+    for (int i = 0; i < kNumParams; i++) {
+      pGraphics->AttachControl(new IVKnobControl(knobs.GetGridCell(i, 1, kNumParams), i));
+    }
     
-    pGraphics->AttachPanelBackground(COLOR_BLACK);
-    pGraphics->AttachControl(new IVScopeControl<>(b.GetReducedFromTop(50)), kControlTagScope);
+    pGraphics->AttachPanelBackground(COLOR_GRAY);
+    pGraphics->AttachControl(new IVScopeControl<>(viz), kControlTagScope);
   };
 #endif
 }

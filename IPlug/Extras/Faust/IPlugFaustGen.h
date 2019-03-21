@@ -85,9 +85,17 @@ static inline StatTime TimeZero() { return (StatTime) 0; }
 
 #ifndef FAUST_EXE
   #if defined OS_MAC || defined OS_LINUX
-  #define FAUST_EXE "/usr/local/bin/faust"
+    #define FAUST_EXE "/usr/local/bin/faust"
   #else
     #define FAUST_EXE "C:\\Program Files\\Faust\\bin\\faust.exe"
+  #endif
+#endif
+
+#ifndef FAUST_DLL_PATH
+  #if defined OS_MAC || defined OS_LINUX
+    #define FAUST_DLL_PATH "/usr/local/lib/"
+  #else
+    #define FAUST_DLL_PATH "C:\\Program Files\\Faust\\lib"
   #endif
 #endif
 
