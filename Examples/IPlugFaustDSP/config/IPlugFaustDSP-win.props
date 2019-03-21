@@ -5,9 +5,9 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros">
     <BINARY_NAME>IPlugFaustDSP</BINARY_NAME>
-    <EXTRA_ALL_DEFS>IGRAPHICS_NANOVG;IGRAPHICS_GL2;FAUST_COMPILED</EXTRA_ALL_DEFS>
+    <EXTRA_ALL_DEFS>IGRAPHICS_NANOVG;IGRAPHICS_GL2;DSP_FILE="C:\\Users\\Oliver Larkin\\Dev\\iPlug2\\Examples\\IPlugFaustDSP\\IPlugFaustDSP.dsp"</EXTRA_ALL_DEFS>
     <EXTRA_DEBUG_DEFS />
-    <EXTRA_RELEASE_DEFS />
+    <EXTRA_RELEASE_DEFS>FAUST_COMPILED</EXTRA_RELEASE_DEFS>
     <EXTRA_TRACER_DEFS />
     <PDB_FILE>$(SolutionDir)build-win\pdbs\$(TargetName)_$(Platform).pdb</PDB_FILE>
     <BUILD_DIR>$(SolutionDir)build-win</BUILD_DIR>
@@ -22,7 +22,7 @@
       <PreprocessorDefinitions>$(EXTRA_ALL_DEFS);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>wininet.lib;comctl32.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>faust.lib;wininet.lib;comctl32.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ProgramDatabaseFile>$(PDB_FILE)</ProgramDatabaseFile>
     </Link>
     <PostBuildEvent>
