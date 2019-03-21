@@ -305,6 +305,8 @@
     <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsWin.h" />
     <ClInclude Include="..\..\..\IPlug\APP\IPlugAPP.h" />
     <ClInclude Include="..\..\..\IPlug\APP\IPlugAPP_host.h" />
+    <ClInclude Include="..\..\..\IPlug\Extras\Faust\IPlugFaust.h" />
+    <ClInclude Include="..\..\..\IPlug\Extras\Faust\IPlugFaustGen.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugAPIBase.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugConstants.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugEditorDelegate.h" />
@@ -388,6 +390,15 @@
     <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP_dialog.cpp" />
     <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP_host.cpp" />
     <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP_main.cpp" />
+    <ClCompile Include="..\..\..\IPlug\Extras\Faust\IPlugFaustGen.cpp" />
+    <ClCompile Include="..\..\..\IPlug\Extras\Faust\IPlugFaust_arch.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugAPIBase.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugPaths.cpp" />

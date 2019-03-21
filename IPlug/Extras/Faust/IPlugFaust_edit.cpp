@@ -39,7 +39,9 @@ void OpenFaustEditorWindow(const char* file)
   
   if(!g_windowIsOpen)
   {
+#ifndef OS_WIN
     SWELL_RegisterCustomControlCreator(curses_ControlCreator);
+#endif
     HWND hwnd = CreateDialog(NULL, MAKEINTRESOURCE(IDD_DIALOG_FAUST_EDIT), NULL, mainDlgProc);
     ShowWindow(hwnd, SW_SHOW);
   }

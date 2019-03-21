@@ -1,10 +1,6 @@
 #include "IPlugFaustDSP.h"
 #include "IPlug_include_in_plug_src.h"
 
-#if IPLUG_EDITOR
-#include "IPlugFaust_edit.h"
-#endif
-
 IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, 1, instanceInfo)
 {
@@ -30,15 +26,6 @@ IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
     
     pGraphics->AttachPanelBackground(COLOR_BLACK);
     pGraphics->AttachControl(new IVScopeControl<>(b.GetReducedFromTop(50)), kControlTagScope);
-    
-#ifndef FAUST_COMPILED
-    pGraphics->AttachControl(new IVButtonControl(b.GetFromTRHC(150, 30), [](IControl* pCaller)
-                                                 {
-                                                   FlashCircleClickActionFunc(pCaller);
-
-                                                   OpenFaustEditorWindow(DSP_FILE);
-                                                 }, "Edit FAUST File"));
-#endif
   };
 #endif
 }
