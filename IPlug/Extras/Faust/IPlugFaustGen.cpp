@@ -435,8 +435,10 @@ FaustGen::FaustGen(const char* name, const char* inputDSPFile, int nVoices, int 
 {
   sFaustGenCounter++;
 
+#ifdef OS_WIN
   SetDllDirectoryA(FAUST_DLL_PATH);
-
+#endif
+  
   //if a factory doesn't already exist for this name, create one otherwise set mFactory to the existing one
   if (FaustGen::Factory::sFactoryMap.find(name) != FaustGen::Factory::sFactoryMap.end())
   {
