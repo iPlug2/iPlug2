@@ -27,15 +27,16 @@
 #include "IGraphicsLice_src.h"
 #include "IGraphics.h"
 
-inline LICE_pixel LiceColor(const IColor& color, const IBlend* pBlend)
-{
-  int alpha = std::round(color.A * BlendWeight(pBlend));
-  return LICE_RGBA(color.R, color.G, color.B, alpha);
-}
-
 inline LICE_pixel LiceColor(const IColor& color)
 {
-  return LICE_RGBA(color.R, color.G, color.B, color.A);
+  auto preMul = [](int color, int A) {return (color * (A + 1)) >> 8; };
+  return LICE_RGBA(preMul(color.R, color.A), preMul(color.G, color.A), preMul(color.B, color.A), color.A);
+}
+
+inline LICE_pixel LiceColor(const IColor& color, const IBlend* pBlend)
+{
+    int alpha = std::round(color.A * BlendWeight(pBlend));
+    return LICE_RGBA(color.R, color.G, color.B, alpha);
 }
 
 inline int LiceBlendMode(const IBlend* pBlend)
@@ -48,8 +49,7 @@ inline int LiceBlendMode(const IBlend* pBlend)
   {
     case EBlendType::kBlendClobber:     return LICE_BLIT_MODE_COPY;
     case EBlendType::kBlendAdd:         return LICE_BLIT_MODE_ADD | LICE_BLIT_USE_ALPHA;
-    case EBlendType::kBlendColorDodge:  return LICE_BLIT_MODE_DODGE | LICE_BLIT_USE_ALPHA;
-    case EBlendType::kBlendNone:
+    case EBlendType::kBlendDefault:
     default:
     {
       return LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA;

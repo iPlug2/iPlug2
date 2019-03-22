@@ -31,19 +31,19 @@ jobs:
   condition: and(eq(variables.build_deps, false), eq(variables.build_win, true))
   dependsOn: 
     - GET_SRC_TREE
-    #comment this is not building with secure files
+    # comment this dependency if not building with AAX_SDK.zip secure file
     # - BUILD_WIN_AAX_LIBS
 
   strategy:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      # CAIRO:
-      #   graphics: 'CAIRO'
-      # LICE:
-      #   graphics: 'LICE'
-      # AGG:
-      #   graphics: 'AGG'
+      CAIRO:
+        graphics: 'CAIRO'
+      LICE:
+        graphics: 'LICE'
+      AGG:
+        graphics: 'AGG'
 
   pool:
     vmImage: 'vs2017-win2016'
@@ -72,8 +72,8 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      # CANVAS:
-      #   graphics: 'CANVAS'
+      CANVAS:
+        graphics: 'CANVAS'
 
   pool:
     vmImage: 'ubuntu-16.04'

@@ -1,5 +1,5 @@
 jobs:
-# comment out this job if you don't have access to the secure files (VST2, AAX SDKs)
+# comment out this job if you don't have access to the AAX_SDK.zip secure file set up
 # - template: build_aax_libs.yml
 
 - job: BUILD_WIN_DEPS

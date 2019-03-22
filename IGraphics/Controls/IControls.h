@@ -332,7 +332,7 @@ class IBTextControl : public ITextControl
                     , public IBitmapBase
 {
 public:
-  IBTextControl(IRECT bounds, const IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType blend = kBlendNone)
+  IBTextControl(IRECT bounds, const IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType blend = kBlendDefault)
   : ITextControl(bounds, str, text)
   , IBitmapBase(bitmap, blend)
   , mCharWidth(charWidth)
