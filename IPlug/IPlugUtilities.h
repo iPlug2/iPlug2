@@ -102,7 +102,7 @@ static inline double DBToAmp(double dB)
  */
 static inline double AmpToDB(double amp)
 {
-  return AMP_DB * log(fabs(amp));
+  return AMP_DB * log(std::fabs(amp));
 }
 
 static inline void GetVersionParts(int version, int& ver, int& maj, int& min)

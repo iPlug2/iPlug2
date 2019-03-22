@@ -46,9 +46,10 @@ public:
       {
         if (c < mNOutChans)
         {
+          T input = inputs[c][s];
           const int offset = c * mDTSamples;
           outputs[c][s] = buffer[offset + readAddress];
-          buffer[offset + mWriteAddress] = inputs[c][s];
+          buffer[offset + mWriteAddress] = input;
         }
       }
 

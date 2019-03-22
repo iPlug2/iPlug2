@@ -73,11 +73,6 @@ void IGraphicsCanvas::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX,
   GetContext().call<void>("restore");
 }
 
-void IGraphicsCanvas::DrawRotatedBitmap(IBitmap& bitmap, float destCentreX, float destCentreY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
-{
-  IGraphicsPathBase::DrawRotatedBitmap(bitmap, destCentreX, destCentreY, DegToRad(angle), yOffsetZeroDeg, pBlend);
-}
-
 void IGraphicsCanvas::PathClear()
 {
   GetContext().call<void>("beginPath");
@@ -279,7 +274,7 @@ void IGraphicsCanvas::PathTransformSetMatrix(const IMatrix& m)
   const double scale = GetBackingPixelScale();
   IMatrix t = IMatrix().Scale(scale, scale).Translate(XTranslate(), YTranslate()).Transform(m);
 
-  GetContext().call<void>("setTransform", t.mXX, t.mYX, t.mYX, t.mYY, t.mTX, t.mTY);
+  GetContext().call<void>("setTransform", t.mXX, t.mYX, t.mXY, t.mYY, t.mTX, t.mTY);
 }
 
 void IGraphicsCanvas::SetClipRegion(const IRECT& r)
@@ -341,7 +336,7 @@ APIBitmap* IGraphicsCanvas::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetBackingPixelScale();
-  return new CanvasBitmap(std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
+  return new CanvasBitmap(std::ceil(width * scale), std::ceil(height * scale), GetScreenScale(), GetDrawScale());
 }
 
 void IGraphicsCanvas::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)

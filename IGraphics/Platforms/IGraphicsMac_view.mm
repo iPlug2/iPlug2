@@ -229,6 +229,22 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
 
 @end
 
+@implementation IGRAPHICS_TEXTFIELD
+
+- (bool) becomeFirstResponder;
+{
+    bool success = [super becomeFirstResponder];
+    if (success)
+    {
+        NSTextView *textField = (NSTextView*) [self currentEditor];
+        if( [textField respondsToSelector: @selector(setInsertionPointColor:)] )
+            [textField setInsertionPointColor: [self textColor]];
+    }
+    return success;
+}
+
+@end
+
 NSString* ToNSString(const char* cStr)
 {
   return [NSString stringWithCString:cStr encoding:NSUTF8StringEncoding];
@@ -723,7 +739,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
     // apply shadow
     size_t width = CGImageGetWidth(rasterCGImage);
     size_t height = CGImageGetHeight(rasterCGImage);
-    CGSize offset = CGSize { offsetX * scale, offsetY * scale };
+    CGSize offset = CGSize { static_cast<CGFloat>(offsetX * scale), static_cast<CGFloat>(offsetY * scale) };
     CGContextRef shadowContext = CGBitmapContextCreate(NULL, width, height, CGImageGetBitsPerComponent(rasterCGImage), 0, CGImageGetColorSpace(rasterCGImage), CGImageGetBitmapInfo(rasterCGImage));
     CGContextSetShadowWithColor(shadowContext, offset, blur * scale, shadowColor);
     CGContextDrawImage(shadowContext, CGRectMake(0, 0, width, height), rasterCGImage);
@@ -899,7 +915,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   if (mTextFieldView)
     return;
 
-  mTextFieldView = [[NSTextField alloc] initWithFrame: areaRect];
+  mTextFieldView = [[IGRAPHICS_TEXTFIELD alloc] initWithFrame: areaRect];
   
   if (text.mVAlign == IText::kVAlignMiddle)
   {

@@ -1,0 +1,95 @@
+jobs:
+- job: TEST_MAC_PROJECTS
+  condition: and(eq(variables.test_projects, true), eq(variables.build_mac, true))
+  dependsOn: 
+    - BUILD_MAC_PROJECTS
+
+  strategy:
+    matrix:
+      NANOVG:
+        graphics: 'NANOVG'
+      # CAIRO:
+      #   graphics: 'CAIRO'
+      # LICE:
+      #   graphics: 'LICE'
+      # AGG:
+      #   graphics: 'AGG'
+
+  pool:
+    vmImage: 'macos-10.13'
+
+  steps:
+  - checkout: none
+
+  - bash: |
+      curl -L "https://github.com/Tracktion/pluginval/releases/download/latest_release/pluginval_macOS.zip" -o pluginval.zip
+      unzip pluginval
+    displayName: Install PluginVal
+
+  - bash: |
+      git clone --recursive https://github.com/steinbergmedia/vst3sdk.git VST3_SDK
+      mkdir VST3_BUILD
+      cd VST3_BUILD
+      cmake ../VST3_SDK -DCMAKE_BUILD_TYPE=Release
+      make validator
+      mv bin/Release/validator $BUILD_SOURCESDIRECTORY
+    displayName: Download VST3 SDK, build validator
+    condition: eq(variables.build_vst3, True)
+
+  - template: projects.yml
+    parameters:
+      platform: test_project-mac.yml
+      graphics: $(graphics)
+
+- job: TEST_WIN_PROJECTS
+  condition: and(eq(variables.test_projects, true), eq(variables.build_win, true))
+  dependsOn: 
+    - BUILD_WIN_PROJECTS
+
+  strategy:
+    matrix:
+      NANOVG:
+        graphics: 'NANOVG'
+      # CAIRO:
+      #   graphics: 'CAIRO'
+      # LICE:
+      #   graphics: 'LICE'
+      # AGG:
+      #   graphics: 'AGG'
+
+  pool:
+    vmImage: 'vs2017-win2016'
+
+  steps:
+  - checkout: none
+
+  - powershell: |
+      powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest https://github.com/Tracktion/pluginval/releases/download/latest_release/pluginval_Windows.zip -OutFile pluginval.zip"
+      powershell -Command "Expand-Archive pluginval.zip -DestinationPath ."
+    displayName: Install PluginVal
+
+  - powershell: |
+      git clone --recursive https://github.com/steinbergmedia/vst3sdk.git VST3_SDK
+      mkdir VST3_BUILD
+      cd VST3_BUILD
+      cmake.exe -G"Visual Studio 15 2017 Win64" -DCMAKE_BUILD_TYPE=Release ../VST3_SDK
+    displayName: Download VST3 SDK, run Cmake
+    condition: eq(variables.build_vst3, True)
+
+  - task: MSBuild@1
+    inputs:
+      solution: 'VST3_BUILD/vstsdk.sln'
+      msbuildArchitecture: 'x64'
+      configuration: Release
+      msbuildArguments: /t:HostingExamples\validator
+    condition: eq(variables.build_vst3, True)
+
+  - bash: |
+      mv VST3_BUILD/bin/Release/validator.exe $BUILD_SOURCESDIRECTORY
+    displayName: Move validator.exe
+    condition: eq(variables.build_vst3, True)
+
+  - template: projects.yml
+    parameters:
+      platform: test_project-win.yml
+      graphics: $(graphics)

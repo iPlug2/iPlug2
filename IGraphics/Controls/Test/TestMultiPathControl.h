@@ -46,10 +46,10 @@ public:
       {
         float pad1 = (mRECT.W() / 2.0) * (1.0 - mValue);
         float pad2 = (mRECT.H() / 2.0) * (1.0 - mValue);
-        IRECT size1 = mRECT.GetPadded(pad1, pad2, -pad1, -pad2);
+        IRECT size1 = mRECT.GetPadded(-pad1, -pad2, -pad1, -pad2);
         pad1 = (size1.W() / 2.0) * (1.0 - mValue);
         pad2 = (size1.H() / 2.0) * (1.0 - mValue);
-        IRECT size2 = size1.GetPadded(pad1, pad2, -pad1, -pad2);
+        IRECT size2 = size1.GetPadded(-pad1, -pad2, -pad1, -pad2);
         g.PathRect(size1);
         g.PathRect(size2);
       }
@@ -57,10 +57,10 @@ public:
       {
         float pad1 = (mRECT.W() / 2.0) * (1.0 - mValue);
         float pad2 = (mRECT.H() / 2.0) * (1.0 - mValue);
-        IRECT size1 = mRECT.GetPadded(pad1, pad2, -pad1, -pad2);
+        IRECT size1 = mRECT.GetPadded(-pad1, -pad2, -pad1, -pad2);
         pad1 = (size1.W() / 2.0) * (1.0 - mValue);
         pad2 = (size1.H() / 2.0) * (1.0 - mValue);
-        IRECT size2 = size1.GetPadded(pad1, pad2, -pad1, -pad2);
+        IRECT size2 = size1.GetPadded(-pad1, -pad2, -pad1, -pad2);
         g.PathRoundRect(size1, size1.H() * 0.125);
         g.PathRoundRect(size2, size2.H() * 0.125);
       }
