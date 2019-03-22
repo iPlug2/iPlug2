@@ -6,8 +6,8 @@ variables:
   build_app: true # build standalone app
   build_vst3: true # build VST3 format plugins
   build_auv2: true # build AUv2 format plugins
-  build_aax: true # build AAX format plugins ( must have AAX_SDK secure file in azure pipeline )
-  build_vst2: true # build VST2 format plugins ( must have VST2_SDK secure file in azure pipeline )
+  build_aax: false # build AAX format plugins ( must have AAX_SDK secure file in azure pipeline )
+  build_vst2: false # build VST2 format plugins ( must have VST2_SDK secure file in azure pipeline )
   test_projects: true # test plug-ins with pluginval, auval, vstvalidator
 
   configuration: 'Release' # the configuration to build, e.g. 'Debug', 'Release', 'Tracer'

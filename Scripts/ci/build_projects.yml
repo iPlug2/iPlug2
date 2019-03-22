@@ -31,7 +31,7 @@ jobs:
   condition: and(eq(variables.build_deps, false), eq(variables.build_win, true))
   dependsOn: 
     - GET_SRC_TREE
-    #comment this is not building with secure files
+    # comment this dependency if not building with AAX_SDK.zip secure file
     # - BUILD_WIN_AAX_LIBS
 
   strategy:
