@@ -47,8 +47,7 @@ jobs:
     and
     (
       in(dependencies.BUILD_WEB_PROJECTS.result, 'Succeeded'),
-      eq(variables.publish_pages, true),
-      not(variables['Build.Reason'], 'PullRequest')
+      eq(variables.publish_pages, true)
     )
 
   pool:
