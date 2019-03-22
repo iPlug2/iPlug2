@@ -50,7 +50,7 @@ jobs:
       cd ./Dependencies/IPlug
       rm -r WAM_SDK
       # git clone https://github.com/webaudiomodules/api.git WAM_SDK
-      git clone --single-branch --branch pointer_stringify https://github.com/olilarkin/api.git
+      git clone --single-branch --branch pointer_stringify https://github.com/olilarkin/api.git WAM_SDK
       rm -r WAM_SDK/.git
     displayName: Download WAM SDK
     condition: eq(variables.build_web, true)
