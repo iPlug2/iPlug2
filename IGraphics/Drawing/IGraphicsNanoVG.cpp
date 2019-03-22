@@ -161,50 +161,18 @@ inline void NanoVGSetBlendMode(NVGcontext* context, const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case kBlendNone:
-      nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
-      break;
-    case kBlendClobber:
-      nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
-      //nvgGlobalCompositeOperation(context, NVG_COPY);
-      break;
-          
-    case kBlendAdd:
-      nvgGlobalCompositeBlendFunc(context, NVG_SRC_ALPHA, NVG_DST_ALPHA);
-      break;
-  
-    case kBlendSourceOver:
-      nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
-      break;
-    case kBlendSourceIn:
-      nvgGlobalCompositeOperation(context, NVG_SOURCE_IN);
-      break;
-    case kBlendSourceOut:
-      nvgGlobalCompositeOperation(context, NVG_SOURCE_OUT);
-      break;
-    case kBlendSourceAtop:
-      nvgGlobalCompositeOperation(context, NVG_ATOP);
-      break;
-          
-    case kBlendDestOver:
-      nvgGlobalCompositeOperation(context, NVG_DESTINATION_OVER);
-      break;
-    case kBlendDestIn:
-      nvgGlobalCompositeOperation(context, NVG_DESTINATION_IN);
-      break;
-    case kBlendDestOut:
-      nvgGlobalCompositeOperation(context, NVG_DESTINATION_OUT);
-      break;
-    case kBlendDestAtop:
-      nvgGlobalCompositeOperation(context, NVG_DESTINATION_ATOP);
-      break;
-          
-    case kBlendXOR:
-      nvgGlobalCompositeOperation(context, NVG_XOR);
-      break;
-          
-    default:
-      nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
+    case kBlendDefault:       // fall through
+    case kBlendClobber:       // fall through
+    case kBlendSourceOver:    nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);                break;
+    case kBlendSourceIn:      nvgGlobalCompositeOperation(context, NVG_SOURCE_IN);                  break;
+    case kBlendSourceOut:     nvgGlobalCompositeOperation(context, NVG_SOURCE_OUT);                 break;
+    case kBlendSourceAtop:    nvgGlobalCompositeOperation(context, NVG_ATOP);                       break;
+    case kBlendDestOver:      nvgGlobalCompositeOperation(context, NVG_DESTINATION_OVER);           break;
+    case kBlendDestIn:        nvgGlobalCompositeOperation(context, NVG_DESTINATION_IN);             break;
+    case kBlendDestOut:       nvgGlobalCompositeOperation(context, NVG_DESTINATION_OUT);            break;
+    case kBlendDestAtop:      nvgGlobalCompositeOperation(context, NVG_DESTINATION_ATOP);           break;
+    case kBlendAdd:           nvgGlobalCompositeBlendFunc(context, NVG_SRC_ALPHA, NVG_DST_ALPHA);   break;
+    case kBlendXOR:           nvgGlobalCompositeOperation(context, NVG_XOR);                        break;
   }
 }
 

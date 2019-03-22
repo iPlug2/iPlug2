@@ -160,7 +160,6 @@ public:
     
     void Rasterize(PixfmtType& src, agg::trans_affine& srcMtx, agg::comp_op_e op, agg::cover_type cover)
     {
-      mPixf.comp_op(op);
       RenderBitmap(src, mRenBase, srcMtx, op, cover);
     }
     
@@ -173,7 +172,6 @@ public:
     
     void Rasterize(PixfmtPreType& src, agg::trans_affine& srcMtx, agg::comp_op_e op, agg::cover_type cover)
     {
-      mPixfPre.comp_op(op);
       RenderBitmap(src, mRenBasePre, srcMtx, op, cover);
     }
     
@@ -229,6 +227,7 @@ public:
     {
       agg::scanline_p8 scanline;
       mPixf.comp_op(op);
+      mPixfPre.comp_op(op);
       agg::render_scanlines(mRasterizer, scanline, renderer);
     }
     
