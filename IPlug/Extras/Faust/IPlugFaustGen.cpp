@@ -594,9 +594,9 @@ void FaustGen::OnTimer(Timer& timer)
     DBGMSG("FaustGen-%s: Statically compiling all FAUST blocks\n", mName.Get());
     CompileCPP();
 
-    WDL_String objFile;
-    objFile.Set(pInputFile);
-    objFile.remove_fileext();
+    //WDL_String objFile;
+    //objFile.Set(pInputFile);
+    //objFile.remove_fileext();
 
 //#ifdef OS_WIN
 //    objFile.Append(".obj");
