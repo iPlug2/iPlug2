@@ -136,6 +136,7 @@ steps:
       cd ${{parameters.path}}/${{parameters.name}}/build-mac/
       if [ -d ${{parameters.name}}.vst3 ]; then
         zip -r ${{parameters.name}}_VST3.zip ${{parameters.name}}.vst3*
+        rm -r ${{parameters.name}}.vst3
         mv ${{parameters.name}}_VST3.zip $outputDir
       fi
     displayName: Organize VST3 artifact
