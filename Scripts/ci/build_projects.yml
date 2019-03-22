@@ -7,12 +7,12 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      # CAIRO:
-      #   graphics: 'CAIRO'
-      # LICE:
-      #   graphics: 'LICE'
-      # AGG:
-      #   graphics: 'AGG'
+      CAIRO:
+        graphics: 'CAIRO'
+      LICE:
+        graphics: 'LICE'
+      AGG:
+        graphics: 'AGG'
 
   pool:
     vmImage: 'macos-10.13'
@@ -38,12 +38,12 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      # CAIRO:
-      #   graphics: 'CAIRO'
-      # LICE:
-      #   graphics: 'LICE'
-      # AGG:
-      #   graphics: 'AGG'
+      CAIRO:
+        graphics: 'CAIRO'
+      LICE:
+        graphics: 'LICE'
+      AGG:
+        graphics: 'AGG'
 
   pool:
     vmImage: 'vs2017-win2016'
@@ -72,8 +72,8 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      # CANVAS:
-      #   graphics: 'CANVAS'
+      CANVAS:
+        graphics: 'CANVAS'
 
   pool:
     vmImage: 'ubuntu-16.04'
