@@ -85,6 +85,7 @@ enum EBlendType
   kBlendDestAtop,
   kBlendAdd,
   kBlendXOR,
+  kBlendNone = kBlendDefault
 };
 
 enum EFileAction
