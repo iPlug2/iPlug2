@@ -8,8 +8,8 @@ jobs:
     (
       in(dependencies.BUILD_MAC_PROJECTS.result, 'Succeeded'),
       in(dependencies.BUILD_WIN_PROJECTS.result, 'Succeeded'),
-      eq(variables.publish_downloads, true),
-      not(variables['Build.Reason'], 'PullRequest')
+      eq(variables.publish_downloads, true)
+      # not(variables['Build.Reason'], 'PullRequest')
     )
 
   strategy:
