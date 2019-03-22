@@ -124,9 +124,6 @@ Extras/Faust/IPlugFaustGen.cpp:79:  // TODO: Print error
 Extras/Faust/IPlugFaustGen.cpp:431:  //TODO
 Extras/Faust/IPlugFaustGen.cpp:511:    //TODO: do something when I/O is wrong
 Extras/Faust/IPlugFaustGen.cpp:609:    // TODO: should check for successfull JIT
-Extras/Faust/IPlugFaust_edit.cpp:21://TODO: these should be members
-Extras/Faust/IPlugFaust_edit.cpp:794:  return faust_simple_tokenizer(ptr, endptr, lenOut, state); //TODO: sh_tokenize
-Extras/Faust/IPlugFaust_edit.cpp:1159:  //TODO
 Extras/MidiSynth.cpp:17:  //TODO: check this should stop any allocations
 Extras/MidiSynth.cpp:52:      //TODO: here there should be a mechanism for updating "click safe" variables
 Extras/Oversampler.h:103:    //TODO: methinks perhaps a for loop?

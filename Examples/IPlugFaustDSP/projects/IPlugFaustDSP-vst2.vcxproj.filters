@@ -62,6 +62,12 @@
     <ClCompile Include="..\..\..\IPlug\IPlugPaths.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\Faust\IPlugFaustGen.cpp">
+      <Filter>IPlug\Extras</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\Faust\IPlugFaust_arch.cpp">
+      <Filter>IPlug\Extras</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../config.h" />
@@ -213,6 +219,12 @@
     <ClInclude Include="..\..\..\IPlug\IPlugPaths.h">
       <Filter>IPlug</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\Extras\Faust\IPlugFaust.h">
+      <Filter>IPlug\Extras</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\Extras\Faust\IPlugFaustGen.h">
+      <Filter>IPlug\Extras</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="IPlug">
@@ -238,6 +250,9 @@
     </Filter>
     <Filter Include="config">
       <UniqueIdentifier>{8c338368-7512-426b-af83-0f50719ca0bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\Extras">
+      <UniqueIdentifier>{c13b9756-a845-4747-ace4-dbd1413d2805}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

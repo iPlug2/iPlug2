@@ -1,6 +1,6 @@
 jobs:
 - job: PUBLISH_DOCUMENTATION
-  condition: and(eq(variables.publish_docs, true), not(variables['Build.Reason'], 'PullRequest'))
+  condition: eq(variables.publish_docs, true)
   
   pool:
     vmImage: 'ubuntu-16.04'
