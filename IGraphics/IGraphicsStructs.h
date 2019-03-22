@@ -396,7 +396,7 @@ struct IBlend
    * @param type Blend type (defaults to none)
    * @param weight normalised alpha blending amount
   */
-  IBlend(EBlendType type = kBlendNone, float weight = 1.0f)
+  IBlend(EBlendType type = kBlendDefault, float weight = 1.0f)
   : mMethod(type)
   , mWeight(Clip(weight, 0.f, 1.f))
   {}
@@ -407,12 +407,12 @@ inline float BlendWeight(const IBlend* pBlend)
   return (pBlend ? pBlend->mWeight : 1.0f);
 }
 
-const IBlend BLEND_75 = IBlend(kBlendNone, 0.75f);
-const IBlend BLEND_50 = IBlend(kBlendNone, 0.5f);
-const IBlend BLEND_25 = IBlend(kBlendNone, 0.25f);
-const IBlend BLEND_10 = IBlend(kBlendNone, 0.1f);
-const IBlend BLEND_05 = IBlend(kBlendNone, 0.05f);
-const IBlend BLEND_01 = IBlend(kBlendNone, 0.01f);
+const IBlend BLEND_75 = IBlend(kBlendDefault, 0.75f);
+const IBlend BLEND_50 = IBlend(kBlendDefault, 0.5f);
+const IBlend BLEND_25 = IBlend(kBlendDefault, 0.25f);
+const IBlend BLEND_10 = IBlend(kBlendDefault, 0.1f);
+const IBlend BLEND_05 = IBlend(kBlendDefault, 0.05f);
+const IBlend BLEND_01 = IBlend(kBlendDefault, 0.01f);
 
 /** Used to manage fill behaviour for path based drawing backends */
 struct IFillOptions

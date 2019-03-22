@@ -471,7 +471,7 @@ private:
 class IBitmapBase
 {
 public:
-  IBitmapBase(const IBitmap& bitmap, EBlendType blend = kBlendNone)
+  IBitmapBase(const IBitmap& bitmap, EBlendType blend = kBlendDefault)
   : mBitmap(bitmap)
   , mBlend(blend)
   {
@@ -1041,12 +1041,12 @@ public:
   /** Creates a bitmap control
    * @param paramIdx Parameter index (-1 or kNoParameter, if this should not be linked to a parameter)
    * @param bitmap Image to be drawn */
-  IBitmapControl(float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendNone)
+  IBitmapControl(float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendDefault)
   : IControl(IRECT(x, y, bitmap), paramIdx)
   , IBitmapBase(bitmap, blend)
   {}
   
-  IBitmapControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendNone)
+  IBitmapControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendDefault)
   : IControl(bounds, paramIdx)
   , IBitmapBase(bitmap, blend)
   {}
