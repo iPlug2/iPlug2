@@ -1202,7 +1202,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale)
 {
   if (targetScale == 0)
-    targetScale = GetScreenScale();
+    targetScale = std::max(GetScreenScale(), 1);
 
   StaticStorage<APIBitmap>::Accessor storage(sBitmapCache);
   APIBitmap* pAPIBitmap = storage.Find(name, targetScale);
