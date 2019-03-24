@@ -358,7 +358,9 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
 {
   OnViewInitialized(nullptr /* not used */);
 
-  SetScreenScale(val::global("window")["devicePixelRatio"].as<int>());
+  double scale = std::max(1.0, val::global("window")["devicePixelRatio"].as<double>());
+    
+  SetScreenScale(static_cast<int>(scale));
 
   GetDelegate()->LayoutUI(this);
   
