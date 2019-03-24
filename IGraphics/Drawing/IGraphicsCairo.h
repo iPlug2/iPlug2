@@ -81,7 +81,8 @@ public:
   void DrawResize() override;
 
   bool LoadFont(const char* fileName) override;
-  
+  bool LoadFont(const char* fontName, IText::EStyle style) override;
+
   bool BitmapExtSupported(const char* ext) override;
 
 protected:

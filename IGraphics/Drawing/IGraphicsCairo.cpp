@@ -590,55 +590,6 @@ void IGraphicsCairo::EndFrame()
 #endif
 }
 
-cairo_font_face_t* IGraphicsCairo::FindFont(const IText& text)
-{
-  StaticStorage<CairoFont>::Accessor storage(sFontCache);
-  CairoFont* pFont = storage.Find(text.mFont, 0);
-  
-  if (pFont)
-    return pFont->mFont;
-  
-  WDL_String fontWithStyle;
-  text.GetFontWithStyle(fontWithStyle);
-  
-  if ((pFont = storage.Find(fontWithStyle.Get())))
-    return pFont->mFont;
-    
-#ifdef OS_MAC
-  /*
-  CFStringRef fontName = CFStringCreateWithCString(kCFAllocatorDefault, text.mFont, kCFStringEncodingUTF8);
-  CGFontRef pCGFont = CGFontCreateWithFontName(fontName);
-  CFRelease(fontName);*/
-    
-  CFStringRef fontStr = CFStringCreateWithCStringNoCopy(kCFAllocatorDefault, text.mFont, 0, kCFAllocatorNull);
-  CFStringRef styleStr = CFStringCreateWithCStringNoCopy(kCFAllocatorDefault, text.GetStyleString(), 0, kCFAllocatorNull);
-    
-  CFStringRef keys[] = { kCTFontNameAttribute, kCTFontStyleNameAttribute };
-  CFTypeRef values[] = { fontStr, styleStr };
-    
-  CFDictionaryRef dictionary = CFDictionaryCreate(kCFAllocatorDefault, (const void**)&keys, (const void**)&values, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-  CTFontDescriptorRef fontDescriptor = CTFontDescriptorCreateWithAttributes(dictionary);
-  CTFontRef font = CTFontCreateWithFontDescriptor(fontDescriptor, 0.0, nullptr);
-     
-  CGFontRef pCGFont = CTFontCopyGraphicsFont(font, nullptr);
-  CFRelease(font);
-  CFRelease(fontDescriptor);
-  CFRelease(dictionary);
-  CFRelease(fontStr);
-  CFRelease(styleStr);
-
-  if (pCGFont)
-  {
-    cairo_font_face_t* pCairoFont = cairo_quartz_font_face_create_for_cgfont(pCGFont);
-    storage.Add(new CairoFont(pCairoFont), fontWithStyle.Get());
-    CGFontRelease(pCGFont);
-    return pCairoFont;
-  }
-#endif
-    
-  return nullptr;
-}
-
 bool IGraphicsCairo::LoadFont(const char* name)
 {
   StaticStorage<CairoFont>::Accessor storage(sFontCache);
@@ -671,6 +622,71 @@ bool IGraphicsCairo::LoadFont(const char* name)
   }
 
   return false;
+}
+
+bool IGraphicsCairo::LoadFont(const char* fontName, IText::EStyle style)
+{
+  StaticStorage<CairoFont>::Accessor storage(sFontCache);
+  IText text(0, DEFAULT_TEXT_FGCOLOR, fontName, style);
+  
+  WDL_String fontWithStyle;
+  text.GetFontWithStyle(fontWithStyle);
+  
+  if (storage.Find(fontWithStyle.Get()))
+    return true;
+  
+#ifdef OS_MAC
+  /*
+   CFStringRef fontName = CFStringCreateWithCString(kCFAllocatorDefault, text.mFont, kCFStringEncodingUTF8);
+   CGFontRef pCGFont = CGFontCreateWithFontName(fontName);
+   CFRelease(fontName);*/
+  
+  CFStringRef fontStr = CFStringCreateWithCStringNoCopy(kCFAllocatorDefault, text.mFont, 0, kCFAllocatorNull);
+  CFStringRef styleStr = CFStringCreateWithCStringNoCopy(kCFAllocatorDefault, text.GetStyleString(), 0, kCFAllocatorNull);
+  
+  CFStringRef keys[] = { kCTFontNameAttribute, kCTFontStyleNameAttribute };
+  CFTypeRef values[] = { fontStr, styleStr };
+  
+  CFDictionaryRef dictionary = CFDictionaryCreate(kCFAllocatorDefault, (const void**)&keys, (const void**)&values, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+  CTFontDescriptorRef fontDescriptor = CTFontDescriptorCreateWithAttributes(dictionary);
+  CTFontRef font = CTFontCreateWithFontDescriptor(fontDescriptor, 0.0, nullptr);
+  
+  CGFontRef pCGFont = CTFontCopyGraphicsFont(font, nullptr);
+  CFRelease(font);
+  CFRelease(fontDescriptor);
+  CFRelease(dictionary);
+  CFRelease(fontStr);
+  CFRelease(styleStr);
+  
+  if (pCGFont)
+  {
+    cairo_font_face_t* pCairoFont = cairo_quartz_font_face_create_for_cgfont(pCGFont);
+    storage.Add(new CairoFont(pCairoFont), fontWithStyle.Get());
+    CGFontRelease(pCGFont);
+    return true;
+  }
+#endif
+  
+  return false;
+}
+
+cairo_font_face_t* IGraphicsCairo::FindFont(const IText& text)
+{
+  StaticStorage<CairoFont>::Accessor storage(sFontCache);
+  CairoFont* pFont = storage.Find(text.mFont, 0);
+  
+  if (pFont)
+    return pFont->mFont;
+  
+  WDL_String fontWithStyle;
+  text.GetFontWithStyle(fontWithStyle);
+  
+  if ((pFont = storage.Find(fontWithStyle.Get())))
+    return pFont->mFont;
+  
+  assert(0 && "No font found - did you forget to load it?");
+
+  return nullptr;
 }
 
 void IGraphicsCairo::PathTransformSetMatrix(const IMatrix& m)

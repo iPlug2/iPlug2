@@ -268,6 +268,26 @@ bool IGraphicsAGG::LoadFont(const char* fileName)
   return false;
 }
 
+bool IGraphicsAGG::LoadFont(const char* fontName, IText::EStyle style)
+{
+  StaticStorage<FontType>::Accessor storage(sFontCache);
+  IText text(0, DEFAULT_TEXT_FGCOLOR, fontName, style);
+
+  WDL_String fontWithStyle;
+  text.GetFontWithStyle(fontWithStyle);
+    
+  if (storage.Find(fontWithStyle.Get(), 0))
+    return true;
+  
+  FontType* pFont = new FontType;
+  if (!pFont->load_font(text.mFont, text.GetStyleString(), 0))
+    DELETE_NULL(pFont);
+  if (pFont)
+    storage.Add(pFont, fontWithStyle.Get(), 0);
+    
+  return pFont;
+}
+
 agg::font* IGraphicsAGG::FindFont(const IText& text)
 {
   StaticStorage<FontType>::Accessor storage(sFontCache);
@@ -278,17 +298,13 @@ agg::font* IGraphicsAGG::FindFont(const IText& text)
       
   WDL_String fontWithStyle;
   text.GetFontWithStyle(fontWithStyle);
-    
-  if (!(pFont = storage.Find(fontWithStyle.Get(), text.mSize)))
-  {
-    pFont = new FontType;
-    if (!pFont->load_font(text.mFont, text.GetStyleString(), text.mSize))
-      DELETE_NULL(pFont);
-    if (pFont)
-      storage.Add(pFont, fontWithStyle.Get(), text.mSize);
-  }
-    
-  return pFont;
+  
+  if ((pFont = storage.Find(fontWithStyle.Get(), 0)))
+    return pFont;
+  
+  assert(0 && "No font found - did you forget to load it?");
+  
+  return nullptr;
 }
 
 bool CheckTransform(const agg::trans_affine& mtx)
