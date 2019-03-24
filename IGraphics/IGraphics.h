@@ -1024,6 +1024,11 @@ public:
   /** @param fileNameOrResID A CString absolute path or resource ID
    * @return \c true on success */
   virtual bool LoadFont(const char* fileNameOrResID) { return false; }
+    
+  /** @param fontName A CString font name
+   * @param style A font style
+   * @return \c true on success */
+  virtual bool LoadFont(const char* fontName, IText::EStyle style) { return false; }
   
 protected:
   virtual void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") = 0;
