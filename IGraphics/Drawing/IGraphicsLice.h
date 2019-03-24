@@ -14,12 +14,12 @@
 
 #ifdef OS_MAC
   #include <CoreGraphics/CoreGraphics.h>
-  #include "swell.h"
+  #include <IPlugSWELL.h>
 #elif defined OS_WIN
   #pragma comment(lib, "libpng.lib")
   #pragma comment(lib, "zlib.lib")
 #elif defined OS_LINUX
-  #include "swell.h"
+  #include <IPlugSWELL.h>
 #else
   #error NOT IMPLEMENTED
 #endif
