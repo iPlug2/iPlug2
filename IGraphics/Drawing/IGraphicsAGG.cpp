@@ -12,7 +12,7 @@
 
 #include "IGraphicsAGG.h"
 
-static StaticStorage<IGraphicsAGG::FontType> s_fontCache;
+static StaticStorage<IGraphicsAGG::FontType> sFontCache;
 
 // Utility
 
@@ -198,13 +198,13 @@ IGraphicsAGG::IGraphicsAGG(IGEditorDelegate& dlg, int w, int h, int fps, float s
 {
   DBGMSG("IGraphics AGG @ %i FPS\n", fps);
     
-  StaticStorage<IGraphicsAGG::FontType>::Accessor storage(s_fontCache);
+  StaticStorage<IGraphicsAGG::FontType>::Accessor storage(sFontCache);
   storage.Retain();
 }
 
 IGraphicsAGG::~IGraphicsAGG()
 {
-  StaticStorage<IGraphicsAGG::FontType>::Accessor storage(s_fontCache);
+  StaticStorage<IGraphicsAGG::FontType>::Accessor storage(sFontCache);
   storage.Release();
 }
 
@@ -225,13 +225,16 @@ void IGraphicsAGG::UpdateLayer()
 
 bool IGraphicsAGG::LoadFont(const char* fileName)
 {
-  // does not check for existing fonts
-  agg::font* font = nullptr;
+  StaticStorage<FontType>::Accessor storage(sFontCache);
+
   WDL_String fontNameWithoutExt(fileName, (int) strlen(fileName));
   fontNameWithoutExt.remove_fileext();
   WDL_String fullPath;
   EResourceLocation foundResource = OSFindResource(fileName, "ttf", fullPath);
   
+  if (storage.Find(fontNameWithoutExt.Get()))
+    return true;
+    
   if (foundResource != EResourceLocation::kNotFound)
   {
 #ifdef OS_WIN
@@ -240,43 +243,52 @@ bool IGraphicsAGG::LoadFont(const char* fileName)
       int sizeInBytes = 0;
       const void* pResData = LoadWinResource(fullPath.Get(), "ttf", sizeInBytes);
       
-      if(pResData && sizeInBytes)
+      if (pResData && sizeInBytes)
       {
         // Load from resource...
       }
     }
     else
 #endif
-      //font = new agg::font_engine_freetype_int32;
-      //fontID = nvgCreateFont(mVG, fontNameWithoutExt.Get(), fullPath.Get());
     
-    if (!font)
+    FontType* pFont = new FontType();
+    if (pFont->load_font(fullPath.Get()))
     {
+      storage.Add(pFont, fontNameWithoutExt.Get(), 0);
+      return true;
+    }
+    else
+    {
+      DELETE_NULL(pFont);
       DBGMSG("Could not locate font %s\n", fileName);
       return false;
     }
-    else
-      return true;
   }
   
   return false;
 }
 
-agg::font* IGraphicsAGG::FindFont(const char* font, int size)
+agg::font* IGraphicsAGG::FindFont(const IText& text)
 {
-  StaticStorage<FontType>::Accessor storage(s_fontCache);
-  FontType* font_buf = storage.Find(font, size);
+  StaticStorage<FontType>::Accessor storage(sFontCache);
+  FontType* pFont = storage.Find(text.mFont, 0);
+  
+  if (pFont)
+    return pFont;
+      
+  WDL_String fontWithStyle;
+  text.GetFontWithStyle(fontWithStyle);
     
-  if (!font_buf)
+  if (!(pFont = storage.Find(fontWithStyle.Get(), text.mSize)))
   {
-    font_buf = new FontType;
-    if (!font_buf->load_font(font, size))
-      DELETE_NULL(font_buf);
-    if (font_buf)
-      storage.Add(font_buf, font, size);
+    pFont = new FontType;
+    if (!pFont->load_font(text.mFont, text.GetStyleString(), text.mSize))
+      DELETE_NULL(pFont);
+    if (pFont)
+      storage.Add(pFont, fontWithStyle.Get(), text.mSize);
   }
     
-  return font_buf;
+  return pFont;
 }
 
 bool CheckTransform(const agg::trans_affine& mtx)
@@ -664,11 +676,7 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
 
   mFontContour.width(-weight * (text.mSize * 0.05));
 
-  agg::font* pFontData = FindFont(text.mFont, text.mSize);
-
-  if (!pFontData)
-    pFontData = FindFont("Arial", text.mSize);
-    
+  agg::font* pFontData = FindFont(text);    
   assert(pFontData);
     
   if (pFontData != 0 && mFontEngine.load_font("", 0, agg::glyph_ren_outline, pFontData->buf(), pFontData->size()))

@@ -506,15 +506,32 @@ struct IText
     mAlign = align;
   }
 
+  const char* GetStyleString() const
+  {
+    switch(mStyle)
+    {
+        case kStyleNormal:      return "regular";
+        case kStyleBold:        return "bold";
+        case kStyleItalic:      return "italic";
+    }
+  }
+    
+  void GetFontWithStyle(WDL_String& str) const
+  {
+    str = WDL_String(mFont);
+    str.Append("-");
+    str.Append(GetStyleString());
+  }
+    
   char mFont[FONT_LEN];
   int mSize;
   IColor mFGColor;
   IColor mTextEntryBGColor;
   IColor mTextEntryFGColor;
   int mOrientation = 0; // Degrees ccwise from normal.
-  mutable double mCachedScale = 1.0;
 
 #ifdef IGRAPHICS_LICE
+  mutable double mCachedScale = 1.0;
   mutable LICE_IFont* mCached = nullptr;
 #endif
 };

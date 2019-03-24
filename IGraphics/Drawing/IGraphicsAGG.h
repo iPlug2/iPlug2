@@ -99,7 +99,7 @@ public:
   typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, SpanGeneratorType> BitmapRenderType;
   // Font types
   typedef agg::font_engine_freetype_int32 FontEngineType;
-  typedef agg::font_cache_manager <FontEngineType> FontManagerType;
+  typedef agg::font_cache_manager<FontEngineType> FontManagerType;
 
   class Rasterizer
   {
@@ -303,7 +303,7 @@ protected:
 
 private:
   
-  agg::font* FindFont(const char* font, int size);
+  agg::font* FindFont(const IText& text);
 
   void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& bounds, const char* str, FontManagerType& manager);
 

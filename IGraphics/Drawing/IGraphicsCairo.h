@@ -100,6 +100,9 @@ protected:
   void SetCairoSourcePattern(cairo_t* context, const IPattern& pattern, const IBlend* pBlend);
   
 private:
+    
+  cairo_font_face_t* FindFont(const IText& text);
+
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
   
@@ -112,10 +115,4 @@ private:
     
   cairo_t* mContext;
   cairo_surface_t* mSurface;
-  
-#if defined IGRAPHICS_FREETYPE
-  FT_Library mFTLibrary = nullptr;
-  WDL_PtrList<FT_FaceRec_> mFTFaces;
-  WDL_PtrList<cairo_font_face_t> mCairoFTFaces;
-#endif
 };

@@ -17,7 +17,7 @@
 
 extern int GetSystemVersion();
 
-static StaticStorage<LICE_IFont> s_fontCache;
+static StaticStorage<LICE_IFont> sFontCache;
 
 // Utilities for pre-multiplied blits (LICE assumes sources are not pre-multiplied)
 
@@ -84,7 +84,7 @@ IGraphicsLice::IGraphicsLice(IGEditorDelegate& dlg, int w, int h, int fps, float
 : IGraphics(dlg, w, h, fps, scale)
 {
   DBGMSG("IGraphics Lice @ %i FPS\n", fps);
-  StaticStorage<LICE_IFont>::Accessor storage(s_fontCache);
+  StaticStorage<LICE_IFont>::Accessor storage(sFontCache);
   storage.Retain();
 }
 
@@ -104,7 +104,7 @@ IGraphicsLice::~IGraphicsLice()
   DELETE_NULL(mScaleBitmap);
 #endif
 
-  StaticStorage<LICE_IFont>::Accessor storage(s_fontCache);
+  StaticStorage<LICE_IFont>::Accessor storage(sFontCache);
   storage.Release();
 }
 
@@ -627,7 +627,7 @@ void IGraphicsLice::UpdateLayer()
 
 LICE_IFont* IGraphicsLice::CacheFont(const IText& text, double scale)
 {
-  StaticStorage<LICE_IFont>::Accessor storage(s_fontCache);
+  StaticStorage<LICE_IFont>::Accessor storage(sFontCache);
   WDL_String hashStr(text.mFont);
   hashStr.AppendFormatted(50, "-%d-%d-%d", text.mSize, text.mOrientation, text.mStyle);
     

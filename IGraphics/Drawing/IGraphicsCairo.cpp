@@ -15,6 +15,19 @@
 #include "IGraphicsCairo.h"
 #include "ITextEntryControl.h"
 
+struct CairoFont
+{
+  CairoFont(cairo_font_face_t* font) : mFont(font) {}
+  ~CairoFont()
+  {
+    cairo_font_face_destroy(mFont);
+  }
+  
+  cairo_font_face_t* mFont;
+};
+
+static StaticStorage<CairoFont> sFontCache;
+
 #if defined OS_WIN
 
 //TODO: could replace some of this with IGraphics::LoadWinResource
@@ -120,20 +133,15 @@ IGraphicsCairo::IGraphicsCairo(IGEditorDelegate& dlg, int w, int h, int fps, flo
 , mContext(nullptr)
 {
   DBGMSG("IGraphics Cairo @ %i FPS\n", fps);
+  
+  StaticStorage<CairoFont>::Accessor storage(sFontCache);
+  storage.Retain();
 }
 
 IGraphicsCairo::~IGraphicsCairo() 
 {
-#if defined IGRAPHICS_FREETYPE
-  if (mFTLibrary != nullptr)
-  {
-    for (auto i = 0; i < mCairoFTFaces.GetSize(); i++) {
-      cairo_font_face_destroy(mCairoFTFaces.Get(i));
-    }
-    
-    FT_Done_FreeType(mFTLibrary); // will do FT_Done_Face
-  }
-#endif
+  StaticStorage<CairoFont>::Accessor storage(sFontCache);
+  storage.Release();
   
   // N.B. calls through to delete context and surface
   
@@ -439,11 +447,12 @@ IColor IGraphicsCairo::GetPoint(int x, int y)
   return IColor(A, R, G, B);
 }
 
-#define FONT_SIZE 36
-#define MARGIN (FONT_SIZE * .5)
-
 bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
+  double x = 0., y = 0.;
+  cairo_text_extents_t textExtents;
+  cairo_font_extents_t fontExtents;
+
   if (measure && !mSurface && !mContext)
   {
     // TODO - make this nicer
@@ -454,131 +463,53 @@ bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
     mContext = cairo_create(pSurface);
     cairo_surface_destroy(pSurface);
   }
-    
-#if defined IGRAPHICS_FREETYPE
-//  FT_Face ft_face;
-//
-//  FT_New_Face(mFTLibrary, "/Users/oli/Applications/IGraphicsTest.app/Contents/Resources/ProFontWindows.ttf", 0, &ft_face);
-//
-//  FT_Set_Char_Size(ft_face, FONT_SIZE * 64, FONT_SIZE * 64, 0, 0 );
-//
-//  /* Create hb-ft font. */
-//  hb_font_t *hb_font;
-//  hb_font = hb_ft_font_create (ft_face, NULL);
-//
-//  /* Create hb-buffer and populate. */
-//  hb_buffer_t *hb_buffer;
-//  hb_buffer = hb_buffer_create ();
-//  hb_buffer_add_utf8 (hb_buffer, str, -1, 0, -1);
-//  hb_buffer_guess_segment_properties (hb_buffer);
-//
-//  /* Shape it! */
-//  hb_shape (hb_font, hb_buffer, NULL, 0);
-//
-//  /* Get glyph information and positions out of the buffer. */
-//  unsigned int len = hb_buffer_get_length (hb_buffer);
-//  hb_glyph_info_t *info = hb_buffer_get_glyph_infos (hb_buffer, NULL);
-//  hb_glyph_position_t *pos = hb_buffer_get_glyph_positions (hb_buffer, NULL);
-//
-//  /* Draw, using cairo. */
-//  double width = 2 * MARGIN;
-//  double height = 2 * MARGIN;
-//  for (unsigned int i = 0; i < len; i++)
-//  {
-//    width  += pos[i].x_advance / 64.;
-//    height -= pos[i].y_advance / 64.;
-//  }
-//  if (HB_DIRECTION_IS_HORIZONTAL (hb_buffer_get_direction(hb_buffer)))
-//    height += FONT_SIZE;
-//  else
-//    width  += FONT_SIZE;
-//
-//  cairo_set_source_rgba (mContext, 1., 1., 1., 1.);
-//  cairo_paint (mContext);
-//  cairo_set_source_rgba (mContext, 0., 0., 0., 1.);
-//  cairo_translate (mContext, MARGIN, MARGIN);
-//
-//  /* Set up cairo font face. */
-//  cairo_font_face_t *cairo_face;
-//  cairo_face = cairo_ft_font_face_create_for_ft_face (ft_face, 0);
-//  cairo_set_font_face (mContext, cairo_face);
-//  cairo_set_font_size (mContext, FONT_SIZE);
-//
-//  /* Set up baseline. */
-//  if (HB_DIRECTION_IS_HORIZONTAL (hb_buffer_get_direction(hb_buffer)))
-//  {
-//    cairo_font_extents_t font_extents;
-//    cairo_font_extents (mContext, &font_extents);
-//    double baseline = (FONT_SIZE - font_extents.height) * .5 + font_extents.ascent;
-//    cairo_translate (mContext, 0, baseline);
-//  }
-//  else
-//  {
-//    cairo_translate (mContext, FONT_SIZE * .5, 0);
-//  }
-//
-//  cairo_glyph_t *cairo_glyphs = cairo_glyph_allocate (len);
-//  double current_x = 0;
-//  double current_y = 0;
-//
-//  for (unsigned int i = 0; i < len; i++)
-//  {
-//    cairo_glyphs[i].index = info[i].codepoint;
-//    cairo_glyphs[i].x = current_x + pos[i].x_offset / 64.;
-//    cairo_glyphs[i].y = -(current_y + pos[i].y_offset / 64.);
-//    current_x += pos[i].x_advance / 64.;
-//    current_y += pos[i].y_advance / 64.;
-//  }
-//  cairo_show_glyphs (mContext, cairo_glyphs, len);
-//  cairo_glyph_free (cairo_glyphs);
-#else // TOY text
-  IColor fgColor;
-  if (GetTextEntryControl() && GetTextEntryControl()->GetRECT() == bounds)
-    fgColor = text.mTextEntryFGColor;
-  else
-    fgColor = text.mFGColor;
-
-  cairo_select_font_face(mContext, text.mFont, CAIRO_FONT_SLANT_NORMAL, text.mStyle == IText::kStyleBold ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL);
-  cairo_set_font_size(mContext, text.mSize);
-//  cairo_font_options_t* font_options = cairo_font_options_create ();
-//  cairo_font_options_set_antialias (font_options, CAIRO_ANTIALIAS_BEST);
-//  cairo_set_font_options (mContext, font_options);
-  cairo_text_extents_t textExtents;
-  cairo_font_extents_t fontExtents;
-  cairo_font_extents(mContext, &fontExtents);
-  cairo_text_extents(mContext, str, &textExtents);
-//  cairo_font_options_destroy(font_options);
   
-  double x = 0., y = 0.;
+  // Get the correct font face
+  
+  cairo_set_font_face(mContext, FindFont(text));
+  cairo_set_font_size(mContext, text.mSize);
+  cairo_font_extents(mContext, &fontExtents);
+  cairo_scaled_font_t* pFont = cairo_get_scaled_font(mContext);
+  cairo_glyph_t *pGlyphs = nullptr;
+  int numGlyphs = 0;
+  cairo_scaled_font_text_to_glyphs(pFont, 0, 0, str, -1, &pGlyphs, &numGlyphs, nullptr, nullptr, nullptr);
+  cairo_glyph_extents(mContext, pGlyphs, numGlyphs, &textExtents);
+  
+  if (measure)
+  {
+    bounds = IRECT(0, 0, textExtents.width, textExtents.height);
+    if (!mSurface)
+        UpdateCairoContext();
+    cairo_glyph_free(pGlyphs);
+    return true;
+  }
 
   switch (text.mAlign)
   {
-    case IText::EAlign::kAlignNear: x = bounds.L; break;
-    case IText::EAlign::kAlignFar: x = bounds.R - textExtents.width - textExtents.x_bearing; break;
-    case IText::EAlign::kAlignCenter: x = bounds.L + ((bounds.W() - textExtents.width - textExtents.x_bearing) / 2.0); break;
+    case IText::EAlign::kAlignNear:     x = bounds.L;                                                                       break;
+    case IText::EAlign::kAlignFar:      x = bounds.R - textExtents.width - textExtents.x_bearing;                           break;
+    case IText::EAlign::kAlignCenter:   x = bounds.L + ((bounds.W() - textExtents.width - textExtents.x_bearing) / 2.0);    break;
     default: break;
   }
   
   switch (text.mVAlign)
   {
-    case IText::EVAlign::kVAlignTop: y = bounds.T + fontExtents.ascent; break;
-    case IText::EVAlign::kVAlignMiddle: y = bounds.MH() + (fontExtents.ascent/2.); break;
-    case IText::EVAlign::kVAlignBottom: y = bounds.B - fontExtents.descent; break;
+    case IText::EVAlign::kVAlignTop:      y = bounds.T + fontExtents.ascent;          break;
+    case IText::EVAlign::kVAlignMiddle:   y = bounds.MH() + (fontExtents.ascent/2.);  break;
+    case IText::EVAlign::kVAlignBottom:   y = bounds.B - fontExtents.descent;         break;
     default: break;
   }
   
-  if (measure)
-  {
-    bounds = IRECT(0, 0, textExtents.width, fontExtents.height);
-    if (!mSurface)
-      UpdateCairoContext();
-    return true;
-  }
+  bool textEntry = GetTextEntryControl() && GetTextEntryControl()->GetRECT() == bounds;
+  IColor color = textEntry ? text.mTextEntryFGColor : text.mFGColor;
 
-  cairo_set_source_rgba(mContext, fgColor.R / 255.0, fgColor.G / 255.0, fgColor.B / 255.0, (BlendWeight(pBlend) * fgColor.A) / 255.0);
-  cairo_move_to(mContext, x, y);
-  cairo_show_text(mContext, str);
-#endif
+  cairo_save(mContext);
+  cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, (BlendWeight(pBlend) * color.A) / 255.0);
+  cairo_translate(mContext, x, y);
+  cairo_show_glyphs(mContext, pGlyphs, numGlyphs);
+  cairo_restore(mContext);
+  cairo_glyph_free(pGlyphs);
+
   return true;
 }
 
@@ -659,35 +590,85 @@ void IGraphicsCairo::EndFrame()
 #endif
 }
 
+cairo_font_face_t* IGraphicsCairo::FindFont(const IText& text)
+{
+  StaticStorage<CairoFont>::Accessor storage(sFontCache);
+  CairoFont* pFont = storage.Find(text.mFont, 0);
+  
+  if (pFont)
+    return pFont->mFont;
+  
+  WDL_String fontWithStyle;
+  text.GetFontWithStyle(fontWithStyle);
+  
+  if ((pFont = storage.Find(fontWithStyle.Get())))
+    return pFont->mFont;
+    
+#ifdef OS_MAC
+  /*
+  CFStringRef fontName = CFStringCreateWithCString(kCFAllocatorDefault, text.mFont, kCFStringEncodingUTF8);
+  CGFontRef pCGFont = CGFontCreateWithFontName(fontName);
+  CFRelease(fontName);*/
+    
+  CFStringRef fontStr = CFStringCreateWithCStringNoCopy(kCFAllocatorDefault, text.mFont, 0, kCFAllocatorNull);
+  CFStringRef styleStr = CFStringCreateWithCStringNoCopy(kCFAllocatorDefault, text.GetStyleString(), 0, kCFAllocatorNull);
+    
+  CFStringRef keys[] = { kCTFontNameAttribute, kCTFontStyleNameAttribute };
+  CFTypeRef values[] = { fontStr, styleStr };
+    
+  CFDictionaryRef dictionary = CFDictionaryCreate(kCFAllocatorDefault, (const void**)&keys, (const void**)&values, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+  CTFontDescriptorRef fontDescriptor = CTFontDescriptorCreateWithAttributes(dictionary);
+  CTFontRef font = CTFontCreateWithFontDescriptor(fontDescriptor, 0.0, nullptr);
+     
+  CGFontRef pCGFont = CTFontCopyGraphicsFont(font, nullptr);
+  CFRelease(font);
+  CFRelease(fontDescriptor);
+  CFRelease(dictionary);
+  CFRelease(fontStr);
+  CFRelease(styleStr);
+
+  if (pCGFont)
+  {
+    cairo_font_face_t* pCairoFont = cairo_quartz_font_face_create_for_cgfont(pCGFont);
+    storage.Add(new CairoFont(pCairoFont), fontWithStyle.Get());
+    CGFontRelease(pCGFont);
+    return pCairoFont;
+  }
+#endif
+    
+  return nullptr;
+}
+
 bool IGraphicsCairo::LoadFont(const char* name)
 {
-#ifdef IGRAPHICS_FREETYPE
-  if(!mFTLibrary)
-    FT_Init_FreeType(&mFTLibrary);
+  StaticStorage<CairoFont>::Accessor storage(sFontCache);
 
   WDL_String fontNameWithoutExt(name, (int) strlen(name));
   fontNameWithoutExt.remove_fileext();
   WDL_String fullPath;
   OSFindResource(name, "ttf", fullPath);
-
-  FT_Face ftFace;
-  FT_Error ftError;
   
+  if (storage.Find(fontNameWithoutExt.Get()))
+    return true;
+    
   if (fullPath.GetLength())
   {
-    ftError = FT_New_Face(mFTLibrary, fullPath.Get(), 0 /* TODO: some font files can contain multiple faces, but we don't do this*/, &ftFace);
-    //TODO: error check
+#ifdef OS_MAC
+    CFStringRef path = CFStringCreateWithCString(kCFAllocatorDefault, fullPath.Get(), kCFStringEncodingUTF8);
+    CFURLRef url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, path, kCFURLPOSIXPathStyle, false);
+    CGDataProviderRef dataProvider = CGDataProviderCreateWithURL(url);
+    CGFontRef font = CGFontCreateWithDataProvider(dataProvider);
+    
+    storage.Add(new CairoFont(cairo_quartz_font_face_create_for_cgfont(font)), fontNameWithoutExt.Get());
 
-    mFTFaces.Add(ftFace);
-
-    ftError = FT_Set_Char_Size(ftFace, FONT_SIZE * 64, FONT_SIZE * 64, 0, 0 ); // 72 DPI
-    //TODO: error check
-    cairo_font_face_t* pCairoFace = cairo_ft_font_face_create_for_ft_face(ftFace, 0);
-    mCairoFTFaces.Add(pCairoFace);
+    CGFontRelease(font);
+    CFRelease(dataProvider);
+    CFRelease(url);
+    CFRelease(path);
 
     return true;
-  }
 #endif
+  }
 
   return false;
 }
