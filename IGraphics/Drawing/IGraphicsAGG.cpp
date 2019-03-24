@@ -273,8 +273,7 @@ bool IGraphicsAGG::LoadFont(const char* fontName, IText::EStyle style)
   StaticStorage<FontType>::Accessor storage(sFontCache);
   IText text(0, DEFAULT_TEXT_FGCOLOR, fontName, style);
 
-  WDL_String fontWithStyle;
-  text.GetFontWithStyle(fontWithStyle);
+  WDL_String fontWithStyle = text.GetFontWithStyle();
     
   if (storage.Find(fontWithStyle.Get(), 0))
     return true;
@@ -296,10 +295,7 @@ agg::font* IGraphicsAGG::FindFont(const IText& text)
   if (pFont)
     return pFont;
       
-  WDL_String fontWithStyle;
-  text.GetFontWithStyle(fontWithStyle);
-  
-  if ((pFont = storage.Find(fontWithStyle.Get(), 0)))
+  if ((pFont = storage.Find(text.GetFontWithStyle().Get(), 0)))
     return pFont;
   
   assert(0 && "No font found - did you forget to load it?");

@@ -516,11 +516,13 @@ struct IText
     }
   }
     
-  void GetFontWithStyle(WDL_String& str) const
+  WDL_String GetFontWithStyle() const
   {
-    str = WDL_String(mFont);
+    WDL_String str = WDL_String(mFont);
     str.Append("-");
     str.Append(GetStyleString());
+      
+    return str;
   }
     
   char mFont[FONT_LEN];

@@ -629,8 +629,7 @@ bool IGraphicsCairo::LoadFont(const char* fontName, IText::EStyle style)
   StaticStorage<CairoFont>::Accessor storage(sFontCache);
   IText text(0, DEFAULT_TEXT_FGCOLOR, fontName, style);
   
-  WDL_String fontWithStyle;
-  text.GetFontWithStyle(fontWithStyle);
+  WDL_String fontWithStyle = text.GetFontWithStyle();
   
   if (storage.Find(fontWithStyle.Get()))
     return true;
@@ -678,10 +677,7 @@ cairo_font_face_t* IGraphicsCairo::FindFont(const IText& text)
   if (pFont)
     return pFont->mFont;
   
-  WDL_String fontWithStyle;
-  text.GetFontWithStyle(fontWithStyle);
-  
-  if ((pFont = storage.Find(fontWithStyle.Get())))
+  if ((pFont = storage.Find(text.GetFontWithStyle().Get())))
     return pFont->mFont;
   
   assert(0 && "No font found - did you forget to load it?");
