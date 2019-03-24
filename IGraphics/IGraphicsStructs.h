@@ -510,9 +510,9 @@ struct IText
   {
     switch(mStyle)
     {
-      case kStyleNormal:      return "regular";
-      case kStyleBold:        return "bold";
-      case kStyleItalic:      return "italic";
+      case kStyleNormal:      return "Regular";
+      case kStyleBold:        return "Bold";
+      case kStyleItalic:      return "Italic";
     }
   }
     
