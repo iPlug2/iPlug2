@@ -146,7 +146,8 @@ public:
   bool BitmapExtSupported(const char* ext) override;
 
   bool LoadFont(const char* fileName) override;
-  
+  bool LoadFont(const char* fontName, IText::EStyle style) override;
+
   void SetPlatformContext(void* pContext) override;
 
   void DeleteFBO(NVGframebuffer* pBuffer);

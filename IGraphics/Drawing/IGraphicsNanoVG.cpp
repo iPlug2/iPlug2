@@ -595,11 +595,15 @@ IColor IGraphicsNanoVG::GetPoint(int x, int y)
 
 bool IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
-  assert(nvgFindFont(mVG, text.mFont) != -1); // did you forget to LoadFont for this font name?
+  WDL_String fontWithStyle = text.GetFontWithStyle();
+  
+  bool fontIsResource = nvgFindFont(mVG, text.mFont) != -1;
+  
+  assert(fontIsResource || nvgFindFont(mVG, fontWithStyle.Get()) != -1); // did you forget to LoadFont for this font?
   
   nvgFontBlur(mVG, 0);
   nvgFontSize(mVG, text.mSize);
-  nvgFontFace(mVG, text.mFont);
+  nvgFontFace(mVG, fontIsResource ? text.mFont : fontWithStyle.Get());
   
   if(GetTextEntryControl() && GetTextEntryControl()->GetRECT() == bounds)
     nvgFillColor(mVG, NanoVGColor(text.mTextEntryFGColor, pBlend));
@@ -756,6 +760,33 @@ bool IGraphicsNanoVG::LoadFont(const char* fileName)
       return true;
   }
 
+  return false;
+}
+
+bool IGraphicsNanoVG::LoadFont(const char* fontName, IText::EStyle style)
+{
+  IText text(0, DEFAULT_TEXT_FGCOLOR, fontName, style);
+  
+  WDL_String fontWithStyle = text.GetFontWithStyle();
+  
+  if (nvgFindFont(mVG, fontWithStyle.Get()) != -1)
+    return true;
+  
+#ifdef OS_MAC
+  WDL_String fullPath("/Library/Fonts/");
+  fullPath.Append(fontName);
+  
+  if (style != IText::kStyleNormal)
+  {
+    fullPath.Append(" ");
+    fullPath.Append(text.GetStyleString());
+  }
+  fullPath.Append(".ttf");
+  
+  if (nvgCreateFont(mVG, fontWithStyle.Get(), fullPath.Get()) != -1)
+    return true;
+#endif
+  
   return false;
 }
 
