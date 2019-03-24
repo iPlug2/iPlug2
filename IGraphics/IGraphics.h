@@ -45,6 +45,14 @@
 #include <stack>
 #include <memory>
 
+#ifdef FillRect
+#undef FillRect
+#endif
+
+#ifdef DrawText
+#undef DrawText
+#endif
+
 class IControl;
 class IPopupMenuControl;
 class ITextEntryControl;
