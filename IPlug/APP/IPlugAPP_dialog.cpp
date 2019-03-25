@@ -503,7 +503,12 @@ void ClientResize(HWND hWnd, int nWidth, int nHeight)
   POINT ptDiff;
   int screenwidth, screenheight;
   int x, y;
-  
+
+  double scale = static_cast<double>(GetDpiForWindow(hWnd) / USER_DEFAULT_SCREEN_DPI);
+
+  nWidth *= scale;
+  nHeight *= scale;
+
   screenwidth  = GetSystemMetrics(SM_CXSCREEN);
   screenheight = GetSystemMetrics(SM_CYSCREEN);
   x = (screenwidth / 2) - (nWidth/2);
