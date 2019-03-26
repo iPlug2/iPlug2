@@ -603,12 +603,16 @@ bool IGraphicsCairo::LoadFont(const char* name)
     return true;
 
   WDL_String fullPath;
-  if (OSFindResource(name, "ttf", fullPath) == kNotFound)
+  const EResourceLocation location = OSFindResource(name, "ttf", fullPath);
+
+#ifdef OS_WIN
+  // use the name as provided if the font is not in Resources or a full path to the file on disk.
+  // this allows us to load fonts already installed on the system.
+  if (location == kNotFound)
   {
-    // use the name as provided if the font is not in Resources or a full path to the file on disk.
-    // this allows us to load fonts already installed on the system.
     fullPath.Set(name, (int)strlen(name));
-  } 
+  }
+#endif
     
   if (fullPath.GetLength())
   {
