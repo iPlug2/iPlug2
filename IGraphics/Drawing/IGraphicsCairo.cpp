@@ -647,7 +647,7 @@ void IGraphicsCairo::EndFrame()
   HWND hWnd = (HWND) GetWindow();
   HDC dc = BeginPaint(hWnd, &ps);
   HDC cdc = cairo_win32_surface_get_dc(mSurface);
-  BitBlt(dc, 0, 0, WindowWidth(), WindowHeight(), cdc, 0, 0, SRCCOPY);
+  BitBlt(dc, 0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale(), cdc, 0, 0, SRCCOPY);
   EndPaint(hWnd, &ps);
 #else
 #error NOT IMPLEMENTED
