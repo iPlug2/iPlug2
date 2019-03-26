@@ -596,11 +596,19 @@ bool IGraphicsCairo::LoadFont(const char* name)
 
   WDL_String fontNameWithoutExt(name, (int) strlen(name));
   fontNameWithoutExt.remove_fileext();
-  WDL_String fullPath;
-  OSFindResource(name, "ttf", fullPath);
-  
-  if (storage.Find(fontNameWithoutExt.Get()))
+  // strip out just the name of the font, in case the name provided is a full path
+  const char* fontName = fontNameWithoutExt.get_filepart();
+
+  if (storage.Find(fontName))
     return true;
+
+  WDL_String fullPath;
+  if (OSFindResource(name, "ttf", fullPath) == kNotFound)
+  {
+    // use the name as provided if the font is not in Resources or a full path to the file on disk.
+    // this allows us to load fonts already installed on the system.
+    fullPath.Set(name, (int)strlen(name));
+  } 
     
   if (fullPath.GetLength())
   {
@@ -610,7 +618,7 @@ bool IGraphicsCairo::LoadFont(const char* name)
     CGDataProviderRef dataProvider = CGDataProviderCreateWithURL(url);
     CGFontRef font = CGFontCreateWithDataProvider(dataProvider);
     
-    storage.Add(new CairoFont(cairo_quartz_font_face_create_for_cgfont(font)), fontNameWithoutExt.Get());
+    storage.Add(new CairoFont(cairo_quartz_font_face_create_for_cgfont(font)), fontName);
 
     CGFontRelease(font);
     CFRelease(dataProvider);
@@ -618,6 +626,15 @@ bool IGraphicsCairo::LoadFont(const char* name)
     CFRelease(path);
 
     return true;
+#elif defined(OS_WIN)
+    const char * fontPath = fullPath.Get();
+    HFONT font = CreateFont(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, fontPath);
+    if (font != NULL)
+    {
+      storage.Add(new CairoFont(cairo_win32_font_face_create_for_hfont(font)), fontName);
+      DeleteObject(font);
+      return true;
+    }    
 #endif
   }
 
@@ -627,7 +644,11 @@ bool IGraphicsCairo::LoadFont(const char* name)
 bool IGraphicsCairo::LoadFont(const char* fontName, IText::EStyle style)
 {
   StaticStorage<CairoFont>::Accessor storage(sFontCache);
-  IText text(0, DEFAULT_TEXT_FGCOLOR, fontName, style);
+
+  WDL_String fontNameWithoutExt(fontName, (int)strlen(fontName));
+  fontNameWithoutExt.remove_fileext();
+  // fontName could be a full path, so we need to extract only the file name here
+  IText text(0, DEFAULT_TEXT_FGCOLOR, fontNameWithoutExt.get_filepart(), style);
   
   WDL_String fontWithStyle = text.GetFontWithStyle();
   
@@ -664,6 +685,24 @@ bool IGraphicsCairo::LoadFont(const char* fontName, IText::EStyle style)
     CGFontRelease(pCGFont);
     return true;
   }
+#elif defined(OS_WIN)
+  WDL_String fullPath;
+  // search Resources and on disk, if not found use the name as provided since it could be a system font (eg Verdana, Segoe UI, etc).
+  if (OSFindResource(fontName, "ttf", fullPath) == kNotFound)
+  {
+    fullPath.Set(fontName, (int)strlen(fontName));
+  }
+
+  int weight = text.mStyle == IText::kStyleBold ? FW_BOLD : 0;
+  DWORD italic = text.mStyle == IText::kStyleItalic ? TRUE : 0;
+  HFONT font = CreateFont(0, 0, 0, 0, weight, italic, 0, 0, 0, 0, 0, 0, 0, fullPath.Get());
+  if (font != NULL)
+  {
+    const char * styleName = fontWithStyle.Get();
+    storage.Add(new CairoFont(cairo_win32_font_face_create_for_hfont(font)), styleName);
+    DeleteObject(font);
+    return true;
+  }
 #endif
   
   return false;
@@ -672,12 +711,12 @@ bool IGraphicsCairo::LoadFont(const char* fontName, IText::EStyle style)
 cairo_font_face_t* IGraphicsCairo::FindFont(const IText& text)
 {
   StaticStorage<CairoFont>::Accessor storage(sFontCache);
-  CairoFont* pFont = storage.Find(text.mFont, 0);
+  CairoFont* pFont = storage.Find(text.GetFontWithStyle().Get());
   
   if (pFont)
     return pFont->mFont;
   
-  if ((pFont = storage.Find(text.GetFontWithStyle().Get())))
+  if (pFont = storage.Find(text.mFont))
     return pFont->mFont;
   
   assert(0 && "No font found - did you forget to load it?");
