@@ -31,9 +31,10 @@ IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
     }
     
     pGraphics->AttachPanelBackground(COLOR_GRAY);
-    pGraphics->AttachControl(new IVScopeControl<>(viz), kControlTagScope);
-    dynamic_cast<IVScopeControl<>*>(pGraphics->GetControlWithTag(kControlTagScope))->SetColor(kBG, COLOR_BLACK);
-    dynamic_cast<IVScopeControl<>*>(pGraphics->GetControlWithTag(kControlTagScope))->SetColor(kFG, COLOR_GREEN);
+    IVScopeControl<>* pScopeCtrl = new IVScopeControl<>(viz);
+    pGraphics->AttachControl(pScopeCtrl, kControlTagScope);
+    pScopeCtrl->SetColor(kBG, COLOR_BLACK);
+    pScopeCtrl->SetColor(kFG, COLOR_GREEN);
   };
 #endif
 }
