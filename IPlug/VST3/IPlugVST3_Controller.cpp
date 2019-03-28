@@ -59,18 +59,18 @@ IPlugView* PLUGIN_API IPlugVST3Controller::createView(const char* name)
   return nullptr;
 }
 
-tresult PLUGIN_API IPlugVST3Controller::setComponentState(IBStream* state)
+tresult PLUGIN_API IPlugVST3Controller::setComponentState(IBStream* pState)
 {
-  return IPlugVST3State::SetState(this, state) ? kResultOk :kResultFalse;
+  return IPlugVST3State::SetState(this, pState) ? kResultOk :kResultFalse;
 }
 
-tresult PLUGIN_API IPlugVST3Controller::setState(IBStream* state)
+tresult PLUGIN_API IPlugVST3Controller::setState(IBStream* pState)
 {
   // Currently nothing to do here
   return kResultOk;
 }
 
-tresult PLUGIN_API IPlugVST3Controller::getState(IBStream* state)
+tresult PLUGIN_API IPlugVST3Controller::getState(IBStream* pState)
 {
 // Currently nothing to do here
   return kResultOk;

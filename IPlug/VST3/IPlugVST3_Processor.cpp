@@ -80,18 +80,18 @@ tresult PLUGIN_API IPlugVST3Processor::canProcessSampleSize(int32 symbolicSample
   return CanProcessSampleSize(symbolicSampleSize) ? kResultTrue : kResultFalse;
 }
 
-tresult PLUGIN_API IPlugVST3Processor::setState(IBStream* state)
+tresult PLUGIN_API IPlugVST3Processor::setState(IBStream* pState)
 {
   TRACE;
   
-  return IPlugVST3State::SetState(this, state) ? kResultOk :kResultFalse;
+  return IPlugVST3State::SetState(this, pState) ? kResultOk :kResultFalse;
 }
 
-tresult PLUGIN_API IPlugVST3Processor::getState(IBStream* state)
+tresult PLUGIN_API IPlugVST3Processor::getState(IBStream* pState)
 {
   TRACE;
     
-  return IPlugVST3State::GetState(this, state) ? kResultOk :kResultFalse;
+  return IPlugVST3State::GetState(this, pState) ? kResultOk :kResultFalse;
 }
 
 #pragma mark IEditorDelegate overrides

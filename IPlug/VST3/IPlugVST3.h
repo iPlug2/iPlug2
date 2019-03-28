@@ -77,13 +77,13 @@ public:
   tresult PLUGIN_API canProcessSampleSize(int32 symbolicSampleSize) override;
   uint32 PLUGIN_API getLatencySamples() override { return GetLatency(); }
   uint32 PLUGIN_API getTailSamples() override { return GetTailSize(); } //TODO - infinite tail
-  tresult PLUGIN_API setState(IBStream* state) override;
-  tresult PLUGIN_API getState(IBStream* state) override;
+  tresult PLUGIN_API setState(IBStream* pState) override;
+  tresult PLUGIN_API getState(IBStream* pState) override;
     
   // IEditController
   IPlugView* PLUGIN_API createView(const char* name) override;
-  tresult PLUGIN_API setEditorState(IBStream* state) override;
-  tresult PLUGIN_API getEditorState(IBStream* state) override;
+  tresult PLUGIN_API setEditorState(IBStream* pState) override;
+  tresult PLUGIN_API getEditorState(IBStream* pState) override;
   tresult PLUGIN_API setComponentState(IBStream *state) override;
  
   // IUnitInfo

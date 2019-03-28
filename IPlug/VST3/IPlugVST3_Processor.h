@@ -55,8 +55,8 @@ public:
   tresult PLUGIN_API canProcessSampleSize(int32 symbolicSampleSize) override;
   uint32 PLUGIN_API getLatencySamples() override { return GetLatency(); }
   uint32 PLUGIN_API getTailSamples() override { return GetTailSize(); } //TODO - infinite tail
-  tresult PLUGIN_API setState(IBStream* state) override;
-  tresult PLUGIN_API getState(IBStream* state) override;
+  tresult PLUGIN_API setState(IBStream* pState) override;
+  tresult PLUGIN_API getState(IBStream* pState) override;
   
   // IEditorDelegate - these methods are overridden because we need to hook into VST3 messaging system
   void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;

@@ -98,18 +98,18 @@ tresult PLUGIN_API IPlugVST3::canProcessSampleSize(int32 symbolicSampleSize)
   return CanProcessSampleSize(symbolicSampleSize) ? kResultTrue : kResultFalse;
 }
 
-tresult PLUGIN_API IPlugVST3::setState(IBStream* state)
+tresult PLUGIN_API IPlugVST3::setState(IBStream* pState)
 {
   TRACE;
   
-  return IPlugVST3State::SetState(this, state) ? kResultOk :kResultFalse;
+  return IPlugVST3State::SetState(this, pState) ? kResultOk :kResultFalse;
 }
 
-tresult PLUGIN_API IPlugVST3::getState(IBStream* state)
+tresult PLUGIN_API IPlugVST3::getState(IBStream* pState)
 {
   TRACE;
   
-  return IPlugVST3State::GetState(this, state) ? kResultOk :kResultFalse;
+  return IPlugVST3State::GetState(this, pState) ? kResultOk :kResultFalse;
 }
 
 #pragma mark IEditController overrides
@@ -125,19 +125,19 @@ IPlugView* PLUGIN_API IPlugVST3::createView(const char* name)
   return 0;
 }
 
-tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* state)
+tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* pState)
 {
   // Currently nothing to do here
   return kResultOk;
 }
 
-tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* state)
+tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* pState)
 {
   // Currently nothing to do here
   return kResultOk;
 }
 
-tresult PLUGIN_API IPlugVST3::setComponentState(IBStream* state)
+tresult PLUGIN_API IPlugVST3::setComponentState(IBStream* pState)
 {
   // We get the state through setState so do nothing here
   return kResultOk;

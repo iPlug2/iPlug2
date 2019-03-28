@@ -49,9 +49,9 @@ public:
   // IEditController
   tresult PLUGIN_API initialize(FUnknown* context) override;
   IPlugView* PLUGIN_API createView(FIDString name) override;
-  tresult PLUGIN_API setComponentState(IBStream* state) override; // receives the processor's state
-  tresult PLUGIN_API setState(IBStream* state) override;
-  tresult PLUGIN_API getState(IBStream* state) override;
+  tresult PLUGIN_API setComponentState(IBStream* pState) override; // receives the processor's state
+  tresult PLUGIN_API setState(IBStream* pState) override;
+  tresult PLUGIN_API getState(IBStream* pState) override;
   
   tresult PLUGIN_API setParamNormalized(ParamID tag, ParamValue value) override;
   // ComponentBase

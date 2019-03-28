@@ -24,17 +24,17 @@ class IPlugVST3ControllerBase
 {
 public:
   
-  void Initialize(IPlugAPIBase* plug, ParameterContainer& parameters, bool plugIsInstrument)
+  void Initialize(IPlugAPIBase* pPlug, ParameterContainer& parameters, bool plugIsInstrument)
   {
-    if (plug->NPresets())
-      parameters.addParameter(new IPlugVST3PresetParameter(plug->NPresets()));
+    if (pPlug->NPresets())
+      parameters.addParameter(new IPlugVST3PresetParameter(pPlug->NPresets()));
     
     if (plugIsInstrument)
       parameters.addParameter(new IPlugVST3BypassParameter());
     
-    for (int i = 0; i < plug->NParams(); i++)
+    for (int i = 0; i < pPlug->NParams(); i++)
     {
-      IParam *p = plug->GetParam(i);
+      IParam *p = pPlug->GetParam(i);
       
       UnitID unitID = kRootUnitId;
       
@@ -42,9 +42,9 @@ public:
       
       if (CStringHasContents(paramGroupName))
       {
-        for (int j = 0; j < plug->NParamGroups(); j++)
+        for (int j = 0; j < pPlug->NParamGroups(); j++)
         {
-          if (strcmp(paramGroupName, plug->GetParamGroupName(j)) == 0)
+          if (strcmp(paramGroupName, pPlug->GetParamGroupName(j)) == 0)
           {
             unitID = j + 1;
           }
@@ -52,7 +52,7 @@ public:
         
         if (unitID == kRootUnitId) // new unit, nothing found, so add it
         {
-          unitID = plug->AddParamGroup(paramGroupName);
+          unitID = pPlug->AddParamGroup(paramGroupName);
         }
       }
       
@@ -197,38 +197,37 @@ public:
 };
 
 // State
-
 struct IPlugVST3State
 {
   template <class T>
-  static bool GetState(T* plug, IBStream* state)
+  static bool GetState(T* pPlug, IBStream* pState)
   {
     IByteChunk chunk;
     
     // TODO: IPlugVer should be in chunk!
     //  IByteChunk::GetIPlugVerFromChunk(chunk)
     
-    if (plug->SerializeState(chunk))
+    if (pPlug->SerializeState(chunk))
     {
       /*
        int chunkSize = chunk.Size();
        void* data = (void*) &chunkSize;
        state->write(data, (int32) sizeof(int));*/
-      state->write(chunk.GetData(), chunk.Size());
+      pState->write(chunk.GetData(), chunk.Size());
     }
     else
     {
       return false;
     }
     
-    int32 toSaveBypass = plug->GetBypassed() ? 1 : 0;
-    state->write(&toSaveBypass, sizeof (int32));
+    int32 toSaveBypass = pPlug->GetBypassed() ? 1 : 0;
+    pState->write(&toSaveBypass, sizeof (int32));
     
     return true;
   };
   
   template <class T>
-  static bool SetState(T* plug, IBStream* state)
+  static bool SetState(T* pPlug, IBStream* pState)
   {
     TRACE;
     
@@ -240,43 +239,42 @@ struct IPlugVST3State
     while(true)
     {
       Steinberg::int32 bytesRead = 0;
-      auto status = state->read(buffer, (Steinberg::int32) bytesPerBlock, &bytesRead);
+      auto status = pState->read(buffer, (Steinberg::int32) bytesPerBlock, &bytesRead);
       
-      if (bytesRead <= 0 || (status != kResultTrue && plug->GetHost() != kHostWaveLab))
+      if (bytesRead <= 0 || (status != kResultTrue && pPlug->GetHost() != kHostWaveLab))
         break;
       
       chunk.PutBytes(buffer, bytesRead);
     }
-    int pos = plug->UnserializeState(chunk,0);
+    int pos = pPlug->UnserializeState(chunk,0);
     
     int32 savedBypass = 0;
     
-    state->seek(pos,IBStream::IStreamSeekMode::kIBSeekSet);
-    if (state->read (&savedBypass, sizeof (Steinberg::int32)) != kResultOk) {
+    pState->seek(pos,IBStream::IStreamSeekMode::kIBSeekSet);
+    if (pState->read (&savedBypass, sizeof (Steinberg::int32)) != kResultOk) {
       return kResultFalse;
     }
     
-    Parameter* bypassParameter = plug->getParameterObject(kBypassParam);
+    Parameter* bypassParameter = pPlug->getParameterObject(kBypassParam);
     if (bypassParameter)
       bypassParameter->setNormalized(savedBypass);
     
-    plug->OnRestoreState();
+    pPlug->OnRestoreState();
     return kResultOk;
   }
 };
 
 // Host
-
-static void IPlugVST3GetHost(IPlugAPIBase* plug, FUnknown* context)
+static void IPlugVST3GetHost(IPlugAPIBase* pPlug, FUnknown* context)
 {
   String128 tmpStringBuf;
   char hostNameCString[128];
-  FUnknownPtr<IHostApplication>app(context);
+  FUnknownPtr<IHostApplication>pApp(context);
   
-  if ((plug->GetHost() == kHostUninit) && app)
+  if ((pPlug->GetHost() == kHostUninit) && pApp)
   {
-    app->getName(tmpStringBuf);
+    pApp->getName(tmpStringBuf);
     Steinberg::UString(tmpStringBuf, 128).toAscii(hostNameCString, 128);
-    plug->SetHost(hostNameCString, 0); // Can't get version in VST3
+    pPlug->SetHost(hostNameCString, 0); // Can't get version in VST3
   }
 }
