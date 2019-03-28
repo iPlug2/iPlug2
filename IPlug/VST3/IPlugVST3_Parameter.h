@@ -77,6 +77,8 @@ protected:
   IParam* mIPlugParam = nullptr;
 };
 
+// Preset Parameter
+
 class IPlugVST3PresetParameter : public Parameter
 {
 public:
@@ -86,6 +88,9 @@ public:
     
     OBJ_METHODS(IPlugVST3PresetParameter, Parameter)
 };
+
+
+// Bypass parameter
 
 class IPlugVST3BypassParameter : public StringListParameter
 {
