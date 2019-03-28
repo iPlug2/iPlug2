@@ -32,11 +32,6 @@
 #include "IPlugAAX_view_interface.h"
 #endif
 
-#if defined VST3_API || defined VST3C_API
-#include "pluginterfaces/gui/iplugviewcontentscalesupport.h"
-#include "base/source/fobject.h"
-#endif
-
 #include "IPlugConstants.h"
 #include "IPlugLogger.h"
 
@@ -58,10 +53,6 @@
 #undef DrawText
 #endif
 
-#ifdef LoadBitmap
-#undef LoadBitmap
-#endif
-
 class IControl;
 class IPopupMenuControl;
 class ITextEntryControl;
@@ -73,9 +64,6 @@ class IParam;
 class IGraphics
 #ifdef AAX_API
 : public IPlugAAXView_Interface
-#elif defined VST3_API || defined VST3C_API
-: public Steinberg::IPlugViewContentScaleSupport
-, public Steinberg::FObject
 #endif
 {
 
@@ -1147,18 +1135,5 @@ protected:
   friend class ICornerResizerControl;
   
   std::stack<ILayer*> mLayers;
-
-#if defined VST3_API || defined VST3C_API
-  Steinberg::tresult PLUGIN_API setContentScaleFactor(ScaleFactor factor) override
-  {
-    return Steinberg::kResultOk;
-  }
-
-  OBJ_METHODS(IGraphics, Steinberg::FObject)
-  DEFINE_INTERFACES
-  DEF_INTERFACE(Steinberg::IPlugViewContentScaleSupport)
-  END_DEFINE_INTERFACES(Steinberg::FObject)
-  REFCOUNT_METHODS(Steinberg::FObject)
-#endif
 };
 
