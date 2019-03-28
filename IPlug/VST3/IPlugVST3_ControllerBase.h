@@ -26,7 +26,7 @@ public:
     if (pPlug->NPresets())
       parameters.addParameter(new IPlugVST3PresetParameter(pPlug->NPresets()));
     
-    if (plugIsInstrument)
+    if (!plugIsInstrument)
       parameters.addParameter(mBypassParameter = new IPlugVST3BypassParameter());
     
     for (int i = 0; i < pPlug->NParams(); i++)
