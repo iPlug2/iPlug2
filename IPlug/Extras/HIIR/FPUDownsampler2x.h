@@ -18,7 +18,7 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 
 */
 
-#include "Array.h"
+#include <array>
 #include "FPUStageProc.h"
 
 namespace hiir
@@ -114,9 +114,9 @@ public:
   void clear_buffers();
 
 private:
-  Array <T, NBR_COEFS> _coef;
-  Array <T, NBR_COEFS> _x;
-  Array <T, NBR_COEFS> _y;
+  std::array<T, NBR_COEFS> _coef;
+  std::array<T, NBR_COEFS> _x;
+  std::array<T, NBR_COEFS> _y;
 
 private:
   bool operator == (const Downsampler2xFPU &other);
