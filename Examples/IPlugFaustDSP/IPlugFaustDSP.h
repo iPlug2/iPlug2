@@ -18,7 +18,7 @@ enum EControlTags
   kNumControlTags
 };
 
-const int kNumParams = 8;
+const int kNumParams = 4;
 
 class IPlugFaustDSP : public IPlug
 {

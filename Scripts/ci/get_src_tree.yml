@@ -1,0 +1,82 @@
+jobs:
+- job: GET_SRC_TREE
+
+  steps:
+  - checkout: self
+
+  - bash: |
+      cd ./Dependencies/IGraphics
+      ./download-igraphics-libs.sh
+    displayName: Download IGraphics Dependencies SRC
+    condition: eq(variables.build_deps, true)
+
+  - bash: |
+      cd $AGENT_TEMPDIRECTORY
+      wget https://github.com/iPlug2/iPlug2/releases/download/setup/IPLUG2_DEPS_MAC.zip
+      wget https://github.com/iPlug2/iPlug2/releases/download/setup/IPLUG2_DEPS_WIN.zip
+    displayName: Download IGraphics Dependencies BUILT
+    condition: eq(variables.build_deps, false)
+
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: '$(Agent.TempDirectory)/IPLUG2_DEPS_*.zip'
+      destinationFolder: '$(Agent.TempDirectory)'
+      cleanDestinationFolder: false
+    condition: eq(variables.build_deps, false)
+
+  # comment out this step if you don't have access to the secure files (VST2_SDK.zip, AAX_SDK.zip)
+  # - template: get_secure_files.yml
+
+  - bash: |
+      mkdir ./Dependencies/Build
+      mv $AGENT_TEMPDIRECTORY/IPLUG2_DEPS_MAC/* ./Dependencies/Build
+      mv $AGENT_TEMPDIRECTORY/IPLUG2_DEPS_WIN/* ./Dependencies/Build
+    displayName: Move IGraphics Dependencies BUILT
+    condition: and(or(variables.build_mac, variables.build_win), eq(variables.build_deps, false))
+
+  - bash: |
+      cd ./Dependencies/IPlug
+      rm -r VST3_SDK
+      git clone --recursive https://github.com/steinbergmedia/vst3sdk.git VST3_SDK
+      rm -r VST3_SDK/vstgui4
+      rm -r VST3_SDK/doc
+      rm -r VST3_SDK/cmake
+      rm -r VST3_SDK/public.sdk/samples
+      rm -r VST3_SDK/.git
+    displayName: Download VST3 SDK
+    condition: or(variables.build_mac, variables.build_win)
+
+  - bash: |
+      cd ./Dependencies/IPlug
+      rm -r WAM_SDK
+      # git clone https://github.com/webaudiomodules/api.git WAM_SDK
+      git clone --single-branch --branch pointer_stringify https://github.com/olilarkin/api.git WAM_SDK
+      rm -r WAM_SDK/.git
+    displayName: Download WAM SDK
+    condition: eq(variables.build_web, true)
+
+  - bash: |
+      cd ./Dependencies/IPlug
+      rm -r WAM_AWP
+      git clone https://github.com/jariseon/audioworklet-polyfill WAM_AWP
+      rm -r WAM_AWP/.git
+    displayName: Download WAM AWP
+    condition: eq(variables.build_web, true)
+
+  - bash: |
+      rm -r .git
+      cd ./Dependencies/Build/
+      find . -type f -iname \*.png -delete
+    displayName: Delete unwanted files
+
+  - task: ArchiveFiles@2
+    inputs:
+      rootFolderOrFile: $(Build.SourcesDirectory)
+      archiveFile: '$(Build.ArtifactStagingDirectory)/SRC.zip'
+      includeRootFolder: false
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      targetPath: '$(Build.ArtifactStagingDirectory)'
+      artifactName: 'SRC'
+    displayName: Publish Source

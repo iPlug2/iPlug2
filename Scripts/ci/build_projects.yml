@@ -1,0 +1,96 @@
+jobs:
+- job: BUILD_MAC_PROJECTS
+  condition: and(eq(variables.build_deps, false), eq(variables.build_mac, true))
+  dependsOn: GET_SRC_TREE
+
+  strategy:
+    matrix:
+      NANOVG:
+        graphics: 'NANOVG'
+      CAIRO:
+        graphics: 'CAIRO'
+      LICE:
+        graphics: 'LICE'
+      # AGG:
+      #   graphics: 'AGG'
+
+  pool:
+    vmImage: 'macos-10.13'
+
+  steps:
+  - checkout: none
+
+  - template: get_src_artifact.yml
+
+  - template: projects.yml
+    parameters:
+      platform: build_project-mac.yml
+      graphics: $(graphics)
+
+- job: BUILD_WIN_PROJECTS
+  condition: and(eq(variables.build_deps, false), eq(variables.build_win, true))
+  dependsOn: 
+    - GET_SRC_TREE
+    # comment this dependency if not building with AAX_SDK.zip secure file
+    # - BUILD_WIN_AAX_LIBS
+
+  strategy:
+    matrix:
+      NANOVG:
+        graphics: 'NANOVG'
+      CAIRO:
+        graphics: 'CAIRO'
+      LICE:
+        graphics: 'LICE'
+      # AGG:
+      #   graphics: 'AGG'
+
+  pool:
+    vmImage: 'vs2017-win2016'
+
+  steps:
+  - checkout: none
+
+  - template: get_src_artifact.yml
+
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'DEPS_AAX_LIB_WIN'
+      targetPath: 'Dependencies/IPlug/AAX_SDK/Libs/'
+    condition: eq(variables.build_aax, true)
+
+  - template: projects.yml
+    parameters:
+      platform: build_project-win.yml
+      graphics: $(graphics)
+
+- job: BUILD_WEB_PROJECTS
+  condition: and(eq(variables.build_deps, false), eq(variables.build_web, true))
+  dependsOn: GET_SRC_TREE
+
+  strategy:
+    matrix:
+      NANOVG:
+        graphics: 'NANOVG'
+      CANVAS:
+        graphics: 'CANVAS'
+
+  pool:
+    vmImage: 'ubuntu-16.04'
+
+  steps:
+  - checkout: none
+
+  - bash: |
+      git clone https://github.com/emscripten-core/emsdk.git
+      cd emsdk
+      ./emsdk install sdk-1.38.28-64bit
+      ./emsdk activate sdk-1.38.28-64bit
+    displayName: Install emscripten
+
+  - template: get_src_artifact.yml
+
+  - template: projects.yml
+    parameters:
+      platform: build_project-web.yml
+      graphics: $(graphics)

@@ -197,7 +197,7 @@ void IVKnobControl::Draw(IGraphics& g)
   g.DrawCircle(GetColor(kFR), cx, cy, radius, 0, mFrameThickness);
   g.DrawRadialLine(GetColor(kFR), cx, cy, v, 0.7f * radius, 0.9f * radius, 0, mFrameThickness);
   
-  if(mLabelBounds.H())
+  if(mLabelBounds.H() > 0.f)
     g.DrawText(mLabelText, mLabel.Get(), mLabelBounds);
   
   if(mDisplayParamValue)
@@ -362,12 +362,12 @@ IBSliderControl::IBSliderControl(float x, float y, int len, int paramIdx, const 
   if (dir == kVertical)
   {
     mRECT = mTargetRECT = IRECT(x, y, x + bitmap.W(), y + len);
-    mTrack = mRECT.GetPadded(0, (float) bitmap.H(), 0, 0);
+    mTrack = mRECT.GetPadded(0, -(float) bitmap.H(), 0, 0);
   }
   else
   {
     mRECT = mTargetRECT = IRECT(x, y, x + len, y + bitmap.H());
-    mTrack = mRECT.GetPadded(0, 0, (float) bitmap.W(), 0);
+    mTrack = mRECT.GetPadded(0, 0, -(float) bitmap.W(), 0);
   }
 }
 

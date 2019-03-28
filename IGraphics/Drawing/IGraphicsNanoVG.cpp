@@ -161,50 +161,18 @@ inline void NanoVGSetBlendMode(NVGcontext* context, const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case kBlendNone:
-      nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
-      break;
-    case kBlendClobber:
-      nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
-      //nvgGlobalCompositeOperation(context, NVG_COPY);
-      break;
-          
-    case kBlendAdd:
-      nvgGlobalCompositeBlendFunc(context, NVG_SRC_ALPHA, NVG_DST_ALPHA);
-      break;
-  
-    case kBlendSourceOver:
-      nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
-      break;
-    case kBlendSourceIn:
-      nvgGlobalCompositeOperation(context, NVG_SOURCE_IN);
-      break;
-    case kBlendSourceOut:
-      nvgGlobalCompositeOperation(context, NVG_SOURCE_OUT);
-      break;
-    case kBlendSourceAtop:
-      nvgGlobalCompositeOperation(context, NVG_ATOP);
-      break;
-          
-    case kBlendDestOver:
-      nvgGlobalCompositeOperation(context, NVG_DESTINATION_OVER);
-      break;
-    case kBlendDestIn:
-      nvgGlobalCompositeOperation(context, NVG_DESTINATION_IN);
-      break;
-    case kBlendDestOut:
-      nvgGlobalCompositeOperation(context, NVG_DESTINATION_OUT);
-      break;
-    case kBlendDestAtop:
-      nvgGlobalCompositeOperation(context, NVG_DESTINATION_ATOP);
-      break;
-          
-    case kBlendXOR:
-      nvgGlobalCompositeOperation(context, NVG_XOR);
-      break;
-          
-    default:
-      nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
+    case kBlendDefault:       // fall through
+    case kBlendClobber:       // fall through
+    case kBlendSourceOver:    nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);                break;
+    case kBlendSourceIn:      nvgGlobalCompositeOperation(context, NVG_SOURCE_IN);                  break;
+    case kBlendSourceOut:     nvgGlobalCompositeOperation(context, NVG_SOURCE_OUT);                 break;
+    case kBlendSourceAtop:    nvgGlobalCompositeOperation(context, NVG_ATOP);                       break;
+    case kBlendDestOver:      nvgGlobalCompositeOperation(context, NVG_DESTINATION_OVER);           break;
+    case kBlendDestIn:        nvgGlobalCompositeOperation(context, NVG_DESTINATION_IN);             break;
+    case kBlendDestOut:       nvgGlobalCompositeOperation(context, NVG_DESTINATION_OUT);            break;
+    case kBlendDestAtop:      nvgGlobalCompositeOperation(context, NVG_DESTINATION_ATOP);           break;
+    case kBlendAdd:           nvgGlobalCompositeBlendFunc(context, NVG_SRC_ALPHA, NVG_DST_ALPHA);   break;
+    case kBlendXOR:           nvgGlobalCompositeOperation(context, NVG_XOR);                        break;
   }
 }
 
@@ -335,7 +303,7 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
 APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetBackingPixelScale();
-  return new NanoVGBitmap(this, mVG, std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
+  return new NanoVGBitmap(this, mVG, std::ceil(width * scale), std::ceil(height * scale), GetScreenScale(), GetDrawScale());
 }
 
 void IGraphicsNanoVG::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
@@ -764,7 +732,7 @@ void IGraphicsNanoVG::UpdateLayer()
   if (mLayers.empty())
   {
     nvgEndFrame(mVG);
-#ifndef IGRAPHICS_METAL
+#ifdef IGRAPHICS_GL
     glViewport(0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
 #endif
     nvgBindFramebuffer(mMainFrameBuffer);
@@ -773,7 +741,7 @@ void IGraphicsNanoVG::UpdateLayer()
   else
   {
     nvgEndFrame(mVG);
-#ifndef IGRAPHICS_METAL
+#ifdef IGRAPHICS_GL
     const double scale = GetBackingPixelScale();
     glViewport(0, 0, mLayers.top()->Bounds().W() * scale, mLayers.top()->Bounds().H() * scale);
 #endif
@@ -834,7 +802,7 @@ void IGraphicsNanoVG::DrawDottedLine(const IColor& color, float x1, float y1, fl
     
     progress += incr;
     
-    xs = x1 + progress * (x2 - x1);;
+    xs = x1 + progress * (x2 - x1);
     ys = y1 + progress * (y2 - y1);
     
     PathMoveTo(xs, ys);

@@ -6,6 +6,8 @@
 IGraphicsStressTest::IGraphicsStressTest(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, 1, instanceInfo)
 {
+  GetParam(0)->InitGain("Dummy");
+  
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
     return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, 1.);
