@@ -71,7 +71,7 @@ tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
 {
   TRACE;
   
-  Process(this, data, processSetup, audioInputs, audioOutputs, mMidiMsgsFromEditor, mMidiMsgsFromProcessor, mSysExDataFromEditor, mSysexBuf);
+  Process(data, processSetup, audioInputs, audioOutputs, mMidiMsgsFromEditor, mMidiMsgsFromProcessor, mSysExDataFromEditor, mSysexBuf);
   return kResultOk;
 }
 
