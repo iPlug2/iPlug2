@@ -343,8 +343,12 @@ public:
 
   void SetOverSampling(EFactor factor)
   {
-    mRate = std::pow(2, (int) factor);
-    Reset();
+    if(factor != mFactor)
+    {
+      mFactor = factor;
+      mRate = std::pow(2, (int) factor);
+      Reset();
+    }
   }
   
   static EFactor RateToFactor(int rate)
@@ -366,6 +370,7 @@ public:
   }
 
 private:
+  EFactor mFactor = kNone;
   int mRate = 1;
   int mWritePos = 0;
   T mDownSamplerOutput = 0.;
