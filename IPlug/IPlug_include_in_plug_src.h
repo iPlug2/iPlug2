@@ -120,6 +120,8 @@ static Steinberg::FUnknown* createControllerInstance (void*) {
 }
 
 #elif defined VST3C_API
+DEF_CLASS_IID(Steinberg::IPlugViewContentScaleSupport)
+
 IPlug* MakeController()
 {
   static WDL_Mutex sMutex;
@@ -132,6 +134,9 @@ IPlug* MakeController()
   return new PLUG_CLASS_NAME(instanceInfo);
 }
 #elif defined VST3_API
+
+DEF_CLASS_IID(Steinberg::IPlugViewContentScaleSupport)
+
 IPlug* MakePlug()
 {
   static WDL_Mutex sMutex;

@@ -9,12 +9,16 @@
 */
 
 #pragma once
+#include "pluginterfaces/gui/iplugviewcontentscalesupport.h"
+
 using namespace Steinberg;
 using namespace Vst;
 
 /** IPlug VST3 View  */
 template <class T>
 class IPlugVST3View : public CPluginView
+                    , public IPlugViewContentScaleSupport
+
 {
 public:
   IPlugVST3View(T& owner)
@@ -101,7 +105,21 @@ public:
     
     return CPluginView::removed();
   }
-  
+
+  tresult PLUGIN_API setContentScaleFactor(ScaleFactor factor) override
+  {
+    return Steinberg::kResultOk;
+  }
+
+  tresult PLUGIN_API queryInterface(const TUID _iid, void** obj)
+  {
+    QUERY_INTERFACE(_iid, obj, IPlugViewContentScaleSupport::iid, IPlugViewContentScaleSupport)
+    *obj = 0;
+    return CPluginView::queryInterface(_iid, obj);
+  }
+
+  DELEGATE_REFCOUNT(Steinberg::CPluginView)
+
   void resize(int w, int h)
   {
     TRACE;
@@ -109,6 +127,6 @@ public:
     ViewRect newSize = ViewRect(0, 0, w, h);
     plugFrame->resizeView(this, &newSize);
   }
-  
+
   T& mOwner;
 };
