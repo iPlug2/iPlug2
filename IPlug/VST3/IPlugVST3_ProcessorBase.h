@@ -31,8 +31,6 @@ class IPlugVST3ProcessorBase : public IPlugProcessor<PLUG_SAMPLE_DST>
 public:
   IPlugVST3ProcessorBase(IPlugConfig c, IPlugAPIBase& plug);
   
-  // Initialize Method
-  
   template <class T>
   void Initialize(T* plug)
   {
