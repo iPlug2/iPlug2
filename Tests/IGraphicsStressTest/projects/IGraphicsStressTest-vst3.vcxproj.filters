@@ -32,9 +32,6 @@
     <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\VST3\IPlugVST3.cpp">
-      <Filter>IPlug\VST3</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IGraphics\Controls\ITextEntryControl.cpp">
       <Filter>IGraphics\Controls</Filter>
     </ClCompile>
@@ -121,6 +118,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugPaths.cpp">
       <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\VST3\IPlugVST3_ProcessorBase.cpp">
+      <Filter>IPlug\VST3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\VST3\IPlugVST3.cpp">
+      <Filter>IPlug\VST3</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -261,15 +264,6 @@
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_src.h">
       <Filter>IPlug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_Parameter.h">
-      <Filter>IPlug\VST3</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_view.h">
-      <Filter>IPlug\VST3</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3.h">
-      <Filter>IPlug\VST3</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Controls\ITextEntryControl.h">
       <Filter>IGraphics\Controls</Filter>
     </ClInclude>
@@ -350,6 +344,24 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugPaths.h">
       <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_Common.h">
+      <Filter>IPlug\VST3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_ControllerBase.h">
+      <Filter>IPlug\VST3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_Parameter.h">
+      <Filter>IPlug\VST3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_ProcessorBase.h">
+      <Filter>IPlug\VST3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_View.h">
+      <Filter>IPlug\VST3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3.h">
+      <Filter>IPlug\VST3</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

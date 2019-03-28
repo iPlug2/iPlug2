@@ -197,7 +197,7 @@ void IVKnobControl::Draw(IGraphics& g)
   g.DrawCircle(GetColor(kFR), cx, cy, radius, 0, mFrameThickness);
   g.DrawRadialLine(GetColor(kFR), cx, cy, v, 0.7f * radius, 0.9f * radius, 0, mFrameThickness);
   
-  if(mLabelBounds.H())
+  if(mLabelBounds.H() > 0.f)
     g.DrawText(mLabelText, mLabel.Get(), mLabelBounds);
   
   if(mDisplayParamValue)

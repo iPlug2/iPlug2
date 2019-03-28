@@ -184,9 +184,9 @@ public:
   /**  */
   int GetAUPluginType() const
   {
-    if(mPlugType == EIPlugPluginType::kEffect)
+    if (mPlugType == EIPlugPluginType::kEffect)
     {
-      if(DoesMIDIIn())
+      if (DoesMIDIIn())
         return 'aumf';
       else
         return 'aufx';

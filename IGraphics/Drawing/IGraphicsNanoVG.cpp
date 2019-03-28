@@ -732,7 +732,7 @@ void IGraphicsNanoVG::UpdateLayer()
   if (mLayers.empty())
   {
     nvgEndFrame(mVG);
-#ifndef IGRAPHICS_METAL
+#ifdef IGRAPHICS_GL
     glViewport(0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
 #endif
     nvgBindFramebuffer(mMainFrameBuffer);
@@ -741,7 +741,7 @@ void IGraphicsNanoVG::UpdateLayer()
   else
   {
     nvgEndFrame(mVG);
-#ifndef IGRAPHICS_METAL
+#ifdef IGRAPHICS_GL
     const double scale = GetBackingPixelScale();
     glViewport(0, 0, mLayers.top()->Bounds().W() * scale, mLayers.top()->Bounds().H() * scale);
 #endif

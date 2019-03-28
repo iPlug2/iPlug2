@@ -8,6 +8,17 @@
  ==============================================================================
 */
 
+#pragma once
+
+#include "pluginterfaces/base/ustring.h"
+#include "public.sdk/source/vst/vstparameters.h"
+#include "base/source/fstring.h"
+
+#include "IPlugParameter.h"
+
+using namespace Steinberg;
+using namespace Vst;
+
 class IPlugVST3Parameter : public Parameter
 {
 public:
@@ -45,7 +56,7 @@ public:
   virtual bool fromString(const TChar* string, ParamValue& valueNormalized) const override
   {
     String str((TChar*)string);
-    valueNormalized = mIPlugParam->ToNormalized(atof(str.text8()));
+    valueNormalized = mIPlugParam->ToNormalized(mIPlugParam->StringToValue(str.text8()));
 
     return true;
   }
@@ -64,4 +75,27 @@ public:
 
 protected:
   IParam* mIPlugParam = nullptr;
+};
+
+class IPlugVST3PresetParameter : public Parameter
+{
+public:
+    IPlugVST3PresetParameter(int nPresets)
+    : Parameter(STR16("Preset"), kPresetParam, STR16(""), 0, nPresets, ParameterInfo::kIsProgramChange)
+    {}
+    
+    OBJ_METHODS(IPlugVST3PresetParameter, Parameter)
+};
+
+class IPlugVST3BypassParameter : public StringListParameter
+{
+public:
+  IPlugVST3BypassParameter()
+  : StringListParameter(STR16("Bypass"), kBypassParam, 0, ParameterInfo::kCanAutomate | ParameterInfo::kIsBypass | ParameterInfo::kIsList)
+  {
+    appendString(STR16("off"));
+    appendString(STR16("on"));
+  }
+  
+  OBJ_METHODS(IPlugVST3BypassParameter, StringListParameter)
 };
