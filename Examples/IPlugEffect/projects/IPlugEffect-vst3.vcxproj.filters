@@ -264,7 +264,7 @@
     <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_Parameter.h">
       <Filter>IPlug\VST3</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_view.h">
+    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_View.h">
       <Filter>IPlug\VST3</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3.h">
