@@ -30,7 +30,7 @@
 using namespace Steinberg;
 using namespace Vst;
 
-/**  VST3 Processor base class for a distributed IPlug VST3 plug-in
+/**  VST3 Processor API-base class for a distributed IPlug VST3 plug-in
  *   @ingroup APIClasses */
 class IPlugVST3Processor : public AudioEffect
                          , public IPlugAPIBase

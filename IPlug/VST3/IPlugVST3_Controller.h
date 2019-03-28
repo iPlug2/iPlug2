@@ -23,12 +23,13 @@
 #include "IPlugAPIBase.h"
 
 #include "IPlugVST3_View.h"
+#include "IPlugVST3_ControllerBase.h"
 #include "IPlugVST3_Common.h"
 
 using namespace Steinberg;
 using namespace Vst;
 
-/**  VST3 Controller base class for a distributed IPlug VST3 plug-in
+/**  VST3 Controller API-base class for a distributed IPlug VST3 plug-in
  *   @ingroup APIClasses */
 class IPlugVST3Controller : public EditControllerEx1
                           , public IMidiMapping
