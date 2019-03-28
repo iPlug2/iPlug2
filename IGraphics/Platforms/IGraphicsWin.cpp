@@ -351,7 +351,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     {
       auto addDrawRect = [pGraphics](IRECTList& rects, RECT r) {
         IRECT ir(r.left, r.top, r.right, r.bottom);
-        ir.Scale(1.f / pGraphics->GetDrawScale());
+        ir.Scale(1.f / (pGraphics->GetDrawScale() * pGraphics->GetScreenScale()));
         ir.PixelAlign();
         rects.Add(ir);
       };
