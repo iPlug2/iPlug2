@@ -264,58 +264,58 @@ public:
   {
     auto ProcessDown16x = [&](T input)
     {
-      mDown16x[mWritePos] = (T) input;
+      mDown16x.Get()[mWritePos] = (T) input;
 
       mWritePos++;
       mWritePos &= 15;
 
       if(mWritePos == 0)
       {
-        mDownsampler16x.process_block(mDown8x, mDown16x, 8);
-        mDownsampler8x.process_block(mDown4x, mDown8x, 4);
-        mDownsampler4x.process_block(mDown2x, mDown4x, 2);
-        mDownSamplerOutput = mDownsampler2x.process_sample(mDown2x);
+        mDownsampler16x.process_block(mDown8x.Get(), mDown16x.Get(), 8);
+        mDownsampler8x.process_block(mDown4x.Get(), mDown8x.Get(), 4);
+        mDownsampler4x.process_block(mDown2x.Get(), mDown4x.Get(), 2);
+        mDownSamplerOutput = mDownsampler2x.process_sample(mDown2x.Get());
       }
     };
 
     auto ProcessDown8x = [&](T input)
     {
-      mDown8x[mWritePos] = (T) input;
+      mDown8x.Get()[mWritePos] = (T) input;
 
       mWritePos++;
       mWritePos &= 7;
 
       if(mWritePos == 0)
       {
-        mDownsampler8x.process_block(mDown4x, mDown8x, 4);
-        mDownsampler4x.process_block(mDown2x, mDown4x, 2);
-        mDownSamplerOutput = mDownsampler2x.process_sample(mDown2x);
+        mDownsampler8x.process_block(mDown4x.Get(), mDown8x.Get(), 4);
+        mDownsampler4x.process_block(mDown2x.Get(), mDown4x.Get(), 2);
+        mDownSamplerOutput = mDownsampler2x.process_sample(mDown2x.Get());
       }
     };
 
     auto ProcessDown4x = [&](T input)
     {
-      mDown4x[mWritePos] = (T) input;
+      mDown4x.Get()[mWritePos] = (T) input;
 
       mWritePos++;
       mWritePos &= 3;
 
       if(mWritePos == 0)
       {
-        mDownsampler4x.process_block(mDown2x, mDown4x, 2);
-        mDownSamplerOutput = mDownsampler2x.process_sample(mDown2x);
+        mDownsampler4x.process_block(mDown2x.Get(), mDown4x.Get(), 2);
+        mDownSamplerOutput = mDownsampler2x.process_sample(mDown2x.Get());
       }
     };
 
     auto ProcessDown2x = [&](T input)
     {
-      mDown2x[mWritePos] = (T) input;
+      mDown2x.Get()[mWritePos] = (T) input;
 
       mWritePos = !mWritePos;
 
       if(mWritePos == 0)
       {
-        mDownSamplerOutput = mDownsampler2x.process_sample(mDown2x);
+        mDownSamplerOutput = mDownsampler2x.process_sample(mDown2x.Get());
       }
     };
 
