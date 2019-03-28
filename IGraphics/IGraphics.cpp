@@ -21,7 +21,7 @@ typedef IPlugVST3 VST3_API_BASE;
 #elif defined VST3C_API
 #include "pluginterfaces/base/ustring.h"
 #include "IPlugVST3_Controller.h"
-#include "IPlugVST3_view.h"
+#include "IPlugVST3_View.h"
 typedef IPlugVST3Controller VST3_API_BASE;
 #endif
 
