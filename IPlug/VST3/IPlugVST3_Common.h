@@ -12,9 +12,8 @@
 #pragma once
 
 #include "pluginterfaces/base/ibstream.h"
-
+#
 #include "IPlugAPIBase.h"
-
 #include "IPlugVST3_Parameter.h"
 
 using namespace Steinberg;
@@ -23,14 +22,13 @@ using namespace Vst;
 class IPlugVST3ControllerBase
 {
 public:
-  
   void Initialize(IPlugAPIBase* pPlug, ParameterContainer& parameters, bool plugIsInstrument)
   {
     if (pPlug->NPresets())
       parameters.addParameter(new IPlugVST3PresetParameter(pPlug->NPresets()));
     
     if (plugIsInstrument)
-      parameters.addParameter(new IPlugVST3BypassParameter());
+      parameters.addParameter(mBypassParameter = new IPlugVST3BypassParameter());
     
     for (int i = 0; i < pPlug->NParams(); i++)
     {
@@ -194,6 +192,8 @@ public:
      }
      */
   }
+public:
+  IPlugVST3BypassParameter* mBypassParameter = nullptr;
 };
 
 // State
@@ -255,9 +255,13 @@ struct IPlugVST3State
       return kResultFalse;
     }
     
-    Parameter* bypassParameter = pPlug->getParameterObject(kBypassParam);
-    if (bypassParameter)
-      bypassParameter->setNormalized(savedBypass);
+    IPlugVST3ControllerBase* pController = dynamic_cast<IPlugVST3ControllerBase*>(pPlug);
+    
+    if(pController)
+    {
+      if (pController->mBypassParameter)
+        pController->mBypassParameter->setNormalized(savedBypass);
+    }
     
     pPlug->OnRestoreState();
     return kResultOk;
