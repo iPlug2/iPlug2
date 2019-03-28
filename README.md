@@ -2,9 +2,7 @@
 
 [![Build Status](https://dev.azure.com/iplug2/iplug2/_apis/build/status/iPlug2?branchName=master)](https://dev.azure.com/iplug2/iplug2/_build/latest?definitionId=2?branchName=master)
 
-<!--[![Build Status](https://travis-ci.org/iPlug2/iPlug2.svg?branch=master)](https://travis-ci.org/iPlug2/iPlug2) -->
-
-![https://www.patreon.com/olilarkin](Documentation/img/become_a_patron_button.png)
+[![patreon](Documentation/img/become_a_patron_button.png)](https://www.patreon.com/olilarkin)
 
 iPlug 2 is a simple-to-use C++ framework for developing cross platform audio plug-ins/apps and targeting multiple plug-in APIs with the same minimalistic code. It abstracts an audio plug-in (IPlug) and it's drawing engine/GUI toolkit (IGraphics). IGraphics contains a collection of common controls well suited for audio plug-in GUIs, either using bitmap or vector graphics. 
 
@@ -27,5 +25,4 @@ You may like to check out the [Web Audio Module version of VirtualCZ](https://vi
 
 
 
-
-![http://faust.grame.fr/news/2018/07/23/Results-Faust-Awards-2018.html](Documentation/img/faustaward2018.png)
+[![faustaward](Documentation/img/faustaward2018.png)](http://faust.grame.fr/news/2018/07/23/Results-Faust-Awards-2018.html)
