@@ -789,10 +789,32 @@ int IGraphicsWin::ShowMessageBox(const char* text, const char* caption, EMessage
   return MessageBox(GetMainWnd(), text, caption, (int) type);
 }
 
+static double GetScaleForWindow(HWND hWnd)
+{
+  double scale = 1.;
+
+  static UINT (WINAPI *__GetDpiForWindow)(HWND);
+
+  if (!__GetDpiForWindow)
+  {
+    HINSTANCE h = LoadLibrary("user32.dll");
+    if (h) *(void **)&__GetDpiForWindow = GetProcAddress(h,"GetDpiForWindow");
+    if (!__GetDpiForWindow)
+      *(void **)&__GetDpiForWindow = (void*)(INT_PTR)1;
+  }
+  if (hWnd && (UINT_PTR)__GetDpiForWindow > (UINT_PTR)1)
+  {
+    int dpi = __GetDpiForWindow(hWnd);
+    if (dpi != 96)
+      scale = static_cast<double>(dpi / USER_DEFAULT_SCREEN_DPI);
+  }
+
+  return scale;
+}
 void* IGraphicsWin::OpenWindow(void* pParent)
 {
-  mParentWnd = (HWND)pParent;
-  mScreenScale = static_cast<double>(GetDpiForWindow(mParentWnd) / USER_DEFAULT_SCREEN_DPI);
+  mParentWnd = (HWND) pParent;
+  mScreenScale = GetScaleForWindow(mParentWnd);
 
   int x = 0, y = 0, w = WindowWidth() * GetScreenScale(), h = WindowHeight() * GetScreenScale();
 
