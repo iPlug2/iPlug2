@@ -14,7 +14,7 @@
 
 IPlugVST3Processor::IPlugVST3Processor(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPlugAPIBase(c, kAPIVST3)
-, IPlugVST3ProcessorBase(c)
+, IPlugVST3ProcessorBase(c, *this)
 {
   setControllerClass(instanceInfo.mOtherGUID);
   CreateTimer();
