@@ -329,7 +329,9 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
                                                                                 static_cast<bool>(GetKeyState(VK_CONTROL) & 0x8000),
                                                                                 static_cast<bool>(GetKeyState(VK_MENU) & 0x8000) };
 
-        handle = pGraphics->OnKeyDown(p.x, p.y, keyPress);
+        double scale = pGraphics->GetDrawScale() * pGraphics->GetScreenScale();
+
+        handle = pGraphics->OnKeyDown(p.x / scale, p.y / scale, keyPress);
       }
 
       if (!handle)
@@ -1126,8 +1128,8 @@ IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
     {
       POINT cPos;
 
-      cPos.x = bounds.L * GetDrawScale();
-      cPos.y = bounds.B * GetDrawScale();
+      cPos.x = bounds.L * (GetDrawScale() * GetScreenScale());
+      cPos.y = bounds.B * (GetDrawScale() * GetScreenScale());
 
       ::ClientToScreen(mPlugWnd, &cPos);
 
@@ -1183,13 +1185,14 @@ void IGraphicsWin::CreatePlatformTextEntry(IControl& control, const IText& text,
     default:                  editStyle = ES_CENTER; break;
   }
 
-  IRECT scaledBounds = bounds.GetScaled(GetDrawScale());
+  double scale = GetDrawScale() * GetScreenScale();
+  IRECT scaledBounds = bounds.GetScaled(scale);
 
   mParamEditWnd = CreateWindow("EDIT", str, ES_AUTOHSCROLL /*only works for left aligned text*/ | WS_CHILD | WS_VISIBLE | ES_MULTILINE | editStyle,
     scaledBounds.L, scaledBounds.T, scaledBounds.W()+1, scaledBounds.H()+1,
     mPlugWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
 
-  HFONT font = CreateFont(text.mSize, 0, 0, 0, text.mStyle == IText::kStyleBold ? FW_BOLD : 0, text.mStyle == IText::kStyleItalic ? TRUE : 0, 0, 0, 0, 0, 0, 0, 0, text.mFont);
+  HFONT font = CreateFont(text.mSize * scale, 0, 0, 0, text.mStyle == IText::kStyleBold ? FW_BOLD : 0, text.mStyle == IText::kStyleItalic ? TRUE : 0, 0, 0, 0, 0, 0, 0, 0, text.mFont);
 
   SendMessage(mParamEditWnd, EM_LIMITTEXT, (WPARAM) control.GetTextEntryLength(), 0);
   SendMessage(mParamEditWnd, WM_SETFONT, (WPARAM) font, 0);
