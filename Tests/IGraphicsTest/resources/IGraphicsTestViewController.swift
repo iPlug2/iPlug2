@@ -30,9 +30,10 @@ public class IGraphicsTestViewController: AUViewController {
   }
   
   func connectViewWithAU() {
-//    if let view = self.view as? GenericUI {
-//      view.createGenericUI(audioUnit!)
-//    }
+    // To use the generic UI (swift), change the view in IGraphicsTest-iOS-MainInterface.storyboard to custom class: GenericUI  module: IGraphicsTestFramework
+    if let view = self.view as? GenericUI {
+      view.createGenericUI(audioUnit!)
+    }
   }
   
   override public func viewDidLayoutSubviews()

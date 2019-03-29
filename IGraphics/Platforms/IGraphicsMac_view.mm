@@ -739,7 +739,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
     // apply shadow
     size_t width = CGImageGetWidth(rasterCGImage);
     size_t height = CGImageGetHeight(rasterCGImage);
-    CGSize offset = CGSize { offsetX * scale, offsetY * scale };
+    CGSize offset = CGSize { static_cast<CGFloat>(offsetX * scale), static_cast<CGFloat>(offsetY * scale) };
     CGContextRef shadowContext = CGBitmapContextCreate(NULL, width, height, CGImageGetBitsPerComponent(rasterCGImage), 0, CGImageGetColorSpace(rasterCGImage), CGImageGetBitmapInfo(rasterCGImage));
     CGContextSetShadowWithColor(shadowContext, offset, blur * scale, shadowColor);
     CGContextDrawImage(shadowContext, CGRectMake(0, 0, width, height), rasterCGImage);

@@ -170,7 +170,7 @@ void IPlugControls::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   
   for (int s = 0; s < nFrames; s++) {
     for (int c = 0; c < nChans; c++) {
-      outputs[c][s] = inputs[c][s] * gain;
+      outputs[c][s] = 0.;
     }
   }
 }

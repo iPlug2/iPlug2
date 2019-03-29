@@ -35,36 +35,36 @@ public:
     const float alpha = static_cast<float>(mValue);
 
     int cell = 0;
-    IRECT r;
     auto nextCell = [&]() {
-      r = mRECT.GetGridCell(cell++, 2, 2);
-      return r;
+      return mRECT.GetGridCell(cell++, 4, 4);
     };
 
-    IBlend bNone {kBlendNone, alpha};
-    nextCell();
-    g.FillCircle(COLOR_RED, r.MW(), r.MH(), r.W() / 2.0);
-    g.DrawFittedBitmap(mBitmap, r, &bNone);
-    g.DrawText(mText, "None", r);
+    auto drawBlendPic = [this](IGraphics& g, IRECT r, EBlendType blend, const char* name, float alpha)
+    {
+      IBlend blendMode { blend, alpha };
+      g.FillCircle(IColor(128, 255, 0, 0), r.MW(), r.MH(), r.W() / 2.0);
+      g.DrawFittedBitmap(mBitmap, r, &blendMode);
+      g.DrawText(mText, name, r);
+    };
 
-    IBlend bClobber {kBlendClobber, alpha};
-    nextCell();
-    g.FillCircle(COLOR_RED, r.MW(), r.MH(), r.W() / 2.0);
-    g.DrawFittedBitmap(mBitmap, r, &bClobber);
-    g.DrawText(mText, "Clobber", r);
-
-#ifndef IGRAPHICS_CAIRO
-    IBlend bColorDodge {kBlendColorDodge, alpha};
-    nextCell();
-    g.FillCircle(COLOR_RED, r.MW(), r.MH(), r.W() / 2.0);
-    g.DrawFittedBitmap(mBitmap, r, &bColorDodge);
-    g.DrawText(mText, "Color Dodge", r);
-#endif
-
-    IBlend bAdd {kBlendAdd, alpha};
-    nextCell();
-    g.FillCircle(COLOR_RED, r.MW(), r.MH(), r.W() / 2.0);
-    g.DrawFittedBitmap(mBitmap, r, &bAdd);
-    g.DrawText(mText, "Add", r);
+    g.StartLayer(mRECT);
+    drawBlendPic(g, nextCell(), kBlendDefault, "Default", alpha);
+    drawBlendPic(g, nextCell(), kBlendClobber, "Clobber", alpha);
+    drawBlendPic(g, nextCell(), kBlendAdd, "Add", alpha);
+    drawBlendPic(g, nextCell(), kBlendXOR, "XOR", alpha);
+    drawBlendPic(g, nextCell(), kBlendSourceOver, "Src Over", alpha);
+    drawBlendPic(g, nextCell(), kBlendSourceIn, "Src In", alpha);
+    drawBlendPic(g, nextCell(), kBlendSourceOut, "Src Out", alpha);
+    drawBlendPic(g, nextCell(), kBlendSourceAtop, "Src Atop", alpha);
+    drawBlendPic(g, nextCell(), kBlendDestOver, "Dst Over", alpha);
+    drawBlendPic(g, nextCell(), kBlendDestIn, "Dst In", alpha);
+    drawBlendPic(g, nextCell(), kBlendDestOut, "Dst Out", alpha);
+    drawBlendPic(g, nextCell(), kBlendDestAtop, "Dst Atop", alpha);
+    mLayer = g.EndLayer();
+    g.DrawLayer(mLayer);
   }
+    
+private:
+    
+  ILayerPtr mLayer;
 };

@@ -92,23 +92,18 @@ inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
   }
   switch (pBlend->mMethod)
   {
-    case kBlendNone:        return CAIRO_OPERATOR_OVER;
-    case kBlendClobber:     return CAIRO_OPERATOR_SOURCE;
-          
-    case kBlendSourceOver:  return CAIRO_OPERATOR_OVER;
-    case kBlendSourceIn:    return CAIRO_OPERATOR_IN;
-    case kBlendSourceOut:   return CAIRO_OPERATOR_OUT;
-    case kBlendSourceAtop:  return CAIRO_OPERATOR_ATOP;
-          
-    case kBlendDestOver:    return CAIRO_OPERATOR_DEST_OVER;
-    case kBlendDestIn:      return CAIRO_OPERATOR_DEST_IN;
-    case kBlendDestOut:     return CAIRO_OPERATOR_DEST_OUT;
-    case kBlendDestAtop:    return CAIRO_OPERATOR_DEST_ATOP;
-          
-    case kBlendXOR:         return CAIRO_OPERATOR_XOR;
-        
-    case kBlendAdd:         return CAIRO_OPERATOR_ADD;
-    case kBlendColorDodge:  return CAIRO_OPERATOR_COLOR_DODGE;
+    case kBlendDefault:         // fall through
+    case kBlendClobber:         // fall through
+    case kBlendSourceOver:      return CAIRO_OPERATOR_OVER;
+    case kBlendSourceIn:        return CAIRO_OPERATOR_IN;
+    case kBlendSourceOut:       return CAIRO_OPERATOR_OUT;
+    case kBlendSourceAtop:      return CAIRO_OPERATOR_ATOP;
+    case kBlendDestOver:        return CAIRO_OPERATOR_DEST_OVER;
+    case kBlendDestIn:          return CAIRO_OPERATOR_DEST_IN;
+    case kBlendDestOut:         return CAIRO_OPERATOR_DEST_OUT;
+    case kBlendDestAtop:        return CAIRO_OPERATOR_DEST_ATOP;
+    case kBlendAdd:             return CAIRO_OPERATOR_ADD;
+    case kBlendXOR:             return CAIRO_OPERATOR_XOR;
   }
 }
 
@@ -199,7 +194,7 @@ APIBitmap* IGraphicsCairo::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
 APIBitmap* IGraphicsCairo::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetBackingPixelScale();
-  return new CairoBitmap(mSurface, std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
+  return new CairoBitmap(mSurface, std::ceil(width * scale), std::ceil(height * scale), GetScreenScale(), GetDrawScale());
 }
 
 bool IGraphicsCairo::BitmapExtSupported(const char* ext)
@@ -267,7 +262,7 @@ void IGraphicsCairo::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, cons
       cairo_fill(pContext);
     }
     
-    IBlend blend(kBlendNone, shadow.mOpacity);
+    IBlend blend(kBlendDefault, shadow.mOpacity);
     cairo_translate(pContext, -layer->Bounds().L, -layer->Bounds().T);
     SetCairoSourcePattern(pContext, shadow.mPattern, &blend);
     cairo_identity_matrix(pContext);
@@ -444,6 +439,17 @@ IColor IGraphicsCairo::GetPoint(int x, int y)
 
 bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
+  if (measure && !mSurface && !mContext)
+  {
+    // TODO - make this nicer
+      
+    // Create a temporary context in case there is a need to measure text before the real context is created
+      
+    cairo_surface_t* pSurface = cairo_recording_surface_create(CAIRO_CONTENT_COLOR_ALPHA, nullptr);
+    mContext = cairo_create(pSurface);
+    cairo_surface_destroy(pSurface);
+  }
+    
 #if defined IGRAPHICS_FREETYPE
 //  FT_Face ft_face;
 //
@@ -527,7 +533,6 @@ bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
   else
     fgColor = text.mFGColor;
 
-  cairo_set_source_rgba(mContext, fgColor.R / 255.0, fgColor.G / 255.0, fgColor.B / 255.0, (BlendWeight(pBlend) * fgColor.A) / 255.0);
   cairo_select_font_face(mContext, text.mFont, CAIRO_FONT_SLANT_NORMAL, text.mStyle == IText::kStyleBold ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL);
   cairo_set_font_size(mContext, text.mSize);
 //  cairo_font_options_t* font_options = cairo_font_options_create ();
@@ -560,9 +565,12 @@ bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
   if (measure)
   {
     bounds = IRECT(0, 0, textExtents.width, fontExtents.height);
+    if (!mSurface)
+      UpdateCairoContext();
     return true;
   }
 
+  cairo_set_source_rgba(mContext, fgColor.R / 255.0, fgColor.G / 255.0, fgColor.B / 255.0, (BlendWeight(pBlend) * fgColor.A) / 255.0);
   cairo_move_to(mContext, x, y);
   cairo_show_text(mContext, str);
 #endif

@@ -54,8 +54,8 @@ struct SVGHolder
   }
 };
 
-static StaticStorage<APIBitmap> s_bitmapCache;
-static StaticStorage<SVGHolder> s_SVGCache;
+static StaticStorage<APIBitmap> sBitmapCache;
+static StaticStorage<SVGHolder> sSVGCache;
 
 IGraphics::IGraphics(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : mDelegate(&dlg)
@@ -71,9 +71,9 @@ IGraphics::IGraphics(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 {
   mFPS = (fps > 0 ? fps : DEFAULT_FPS);
     
-  StaticStorage<APIBitmap>::Accessor bitmapStorage(s_bitmapCache);
+  StaticStorage<APIBitmap>::Accessor bitmapStorage(sBitmapCache);
   bitmapStorage.Retain();
-  StaticStorage<SVGHolder>::Accessor svgStorage(s_SVGCache);
+  StaticStorage<SVGHolder>::Accessor svgStorage(sSVGCache);
   svgStorage.Retain();
 }
 
@@ -81,9 +81,9 @@ IGraphics::~IGraphics()
 {
   RemoveAllControls();
     
-  StaticStorage<APIBitmap>::Accessor bitmapStorage(s_bitmapCache);
+  StaticStorage<APIBitmap>::Accessor bitmapStorage(sBitmapCache);
   bitmapStorage.Release();
-  StaticStorage<SVGHolder>::Accessor svgStorage(s_SVGCache);
+  StaticStorage<SVGHolder>::Accessor svgStorage(sSVGCache);
   svgStorage.Release();
 }
 
@@ -1155,7 +1155,7 @@ void IGraphics::EnableLiveEdit(bool enable/*, const char* file, int gridsize*/)
 
 ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 {
-  StaticStorage<SVGHolder>::Accessor storage(s_SVGCache);
+  StaticStorage<SVGHolder>::Accessor storage(sSVGCache);
   SVGHolder* pHolder = storage.Find(fileName);
 
   if(!pHolder)
@@ -1206,7 +1206,7 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
   if (targetScale == 0)
     targetScale = GetScreenScale();
 
-  StaticStorage<APIBitmap>::Accessor storage(s_bitmapCache);
+  StaticStorage<APIBitmap>::Accessor storage(sBitmapCache);
   APIBitmap* pAPIBitmap = storage.Find(name, targetScale);
 
   // If the bitmap is not already cached at the targetScale
@@ -1270,13 +1270,13 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
 
 void IGraphics::ReleaseBitmap(const IBitmap& bitmap)
 {
-  StaticStorage<APIBitmap>::Accessor storage(s_bitmapCache);
+  StaticStorage<APIBitmap>::Accessor storage(sBitmapCache);
   storage.Remove(bitmap.GetAPIBitmap());
 }
 
 void IGraphics::RetainBitmap(const IBitmap& bitmap, const char* cacheName)
 {
-  StaticStorage<APIBitmap>::Accessor storage(s_bitmapCache);
+  StaticStorage<APIBitmap>::Accessor storage(sBitmapCache);
   storage.Add(bitmap.GetAPIBitmap(), cacheName, bitmap.GetScale());
 }
 
@@ -1325,7 +1325,7 @@ EResourceLocation IGraphics::SearchImageResource(const char* name, const char* t
 
 APIBitmap* IGraphics::SearchBitmapInCache(const char* name, int targetScale, int& sourceScale)
 {
-  StaticStorage<APIBitmap>::Accessor storage(s_bitmapCache);
+  StaticStorage<APIBitmap>::Accessor storage(sBitmapCache);
     
   // Search target scale, then descending
   for (sourceScale = targetScale; sourceScale > 0; SearchNextScale(sourceScale, targetScale))
@@ -1373,8 +1373,8 @@ IPopupMenu* IGraphics::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IC
 void IGraphics::StartLayer(const IRECT& r)
 {
   IRECT alignedBounds = r.GetPixelAligned(GetBackingPixelScale());
-  const int w = static_cast<int>(std::round(alignedBounds.W()));
-  const int h = static_cast<int>(std::round(alignedBounds.H()));
+  const int w = static_cast<int>(std::ceil(alignedBounds.W()));
+  const int h = static_cast<int>(std::ceil(alignedBounds.H()));
 
   PushLayer(new ILayer(CreateAPIBitmap(w, h), alignedBounds), true);
 }

@@ -1,470 +1,68 @@
 variables:
-  buildDEPS: false
-  downloadDEPS: true
-  buildWeb: true
-  buildMac: true
-  buildWin: true
-  publishDownloads: false
-  publishPages: false
-  # buildNANOVG: true;
-  # buildLICE: false;
-  # buildCAIRO: false;
-  # buildAGG: false;
-  # buildCANVAS: false;
-  # buildInstallers: false #if true, the mac/win projects will build installers, rather than packaging individual binaries
-  configuration: 'Release'
-  target: 'All'
+  build_deps: false # set true to build optional dependencies, e.g. (Cairo, FAUST etc), if false, pre-built versions are downloaded
+  
+  #PLATFORMS
+  build_web: true # build web audio module versions of projects
+  build_mac: true # build mac binaries
+  build_win: true # build windows binaries
+
+  #FORMATS
+  build_app: true # build standalone app
+  build_vst3: true # build VST3 format plugins
+  build_auv2: true # build AUv2 format plugins
+  build_aax: false # build AAX format plugins ( must have AAX_SDK secure file in azure pipeline )
+  build_vst2: false # build VST2 format plugins ( must have VST2_SDK secure file in azure pipeline )
+
+  #TESTS
+  test_projects: true # test plug-ins with pluginval, auval, vstvalidator
+
+  #MISC
+  configuration: 'Release' # the configuration to build, e.g. 'Debug', 'Release', 'Tracer'
+
+  publish_downloads: false # publish project binaries to publish_site github releases
+  publish_pages: false # publish web audio modules to github publish_site
+  publish_docs: false # publish documentation to docs_site
+
+  publish_site: 'iPlug2/iPlug2.github.io'
+  docs_site: 'iPlug2/docs'
+  publish_email: olilarkin@googlemail.com
+  publish_user: olilarkin
 
 trigger:
-- azure-pipelines
+- master
+
+pr:
+- master
 
 jobs:
-# this job checks out the repository and optionally downloads pre-built dependencies, depending on buildDEPS
-- job: DOWNLOAD_DEPS
-  condition: eq(variables.downloadDEPS, true)
-
-  steps:
-  - checkout: self
-
-  - bash: |
-      cd ./Dependencies/IGraphics
-      ./download-igraphics-libs.sh
-    displayName: Download IGraphics Dependencies SRC
-    condition: eq(variables.buildDEPS, true)
-
-  - bash: |
-      cd $AGENT_TEMPDIRECTORY
-      wget https://github.com/iPlug2/iPlug2/releases/download/setup/IPLUG2_DEPS_MAC.zip
-      wget https://github.com/iPlug2/iPlug2/releases/download/setup/IPLUG2_DEPS_WIN.zip
-    displayName: Download IGraphics Dependencies BUILT
-    condition: eq(variables.buildDEPS, false)
-
-  - task: DownloadSecureFile@1
-    inputs:
-      secureFile: "VST2_SDK.zip"
-    displayName: Download VST2 SDK
-    condition: or(variables.buildMac, variables.buildWin)
-
-  - task: DownloadSecureFile@1
-    inputs:
-      secureFile: "AAX_SDK.zip"
-    displayName: Download AAX SDK
-    condition: or(variables.buildMac, variables.buildWin)
-
-  - task: DownloadSecureFile@1
-    inputs:
-      secureFile: "AGG.zip"
-    displayName: Download AGG
-    condition: or(variables.buildMac, variables.buildWin)
-
-  - task: ExtractFiles@1
-    inputs:
-      archiveFilePatterns: '$(Agent.TempDirectory)/*.zip'
-      destinationFolder: '$(Agent.TempDirectory)'
-      cleanDestinationFolder: false
-    condition: eq(variables.buildDEPS, false)
-
-  - bash: |
-      mkdir ./Dependencies/Build
-      mv $AGENT_TEMPDIRECTORY/IPLUG2_DEPS_MAC/* ./Dependencies/Build
-      mv $AGENT_TEMPDIRECTORY/IPLUG2_DEPS_WIN/* ./Dependencies/Build
-    displayName: Move IGraphics Dependencies BUILT
-    condition: and(or(variables.buildMac, variables.buildWin), eq(variables.buildDEPS, false))
-
-  - bash: |
-      mv $AGENT_TEMPDIRECTORY/AAX_SDK/* ./Dependencies/IPlug/AAX_SDK
-      mv $AGENT_TEMPDIRECTORY/VST2_SDK/* ./Dependencies/IPlug/VST2_SDK
-      mkdir ./Dependencies/IGraphics/AGG
-      mv $AGENT_TEMPDIRECTORY/AGG/* ./Dependencies/IGraphics/AGG
-      rm $AGENT_TEMPDIRECTORY/*.zip
-    displayName: Move Secure File Dependencies
-    condition: and(or(variables.buildMac, variables.buildWin), eq(variables.buildDEPS, false))
-
-  - bash: |
-      cd ./Dependencies/IPlug
-      rm -r VST3_SDK
-      git clone --recursive https://github.com/steinbergmedia/vst3sdk.git VST3_SDK
-      rm -r VST3_SDK/vstgui4
-      rm -r VST3_SDK/doc
-      rm -r VST3_SDK/cmake
-      rm -r VST3_SDK/public.sdk/samples
-      rm -r VST3_SDK/.git
-    displayName: Download VST3 SDK
-    condition: or(variables.buildMac, variables.buildWin)
-
-  - bash: |
-      cd ./Dependencies/IPlug
-      rm -r WAM_SDK
-      git clone https://github.com/webaudiomodules/api.git WAM_SDK
-      rm -r WAM_SDK/.git
-    displayName: Download WAM SDK
-    condition: eq(variables.buildWeb, true)
-
-  - bash: |
-      cd ./Dependencies/IPlug
-      rm -r WAM_AWP
-      git clone https://github.com/jariseon/audioworklet-polyfill WAM_AWP
-      rm -r WAM_AWP/.git
-    displayName: Download WAM AWP
-    condition: eq(variables.buildWeb, true)
-
-  - bash: |
-      rm -r .git
-      cd ./Dependencies/Build/
-      find . -type f -iname \*.png -delete
-    displayName: Delete unwanted files
-
-  - task: ArchiveFiles@2
-    inputs:
-      rootFolderOrFile: $(Build.SourcesDirectory)
-      archiveFile: '$(Build.ArtifactStagingDirectory)/SRC.zip'
-      includeRootFolder: false
-
-  - task: PublishPipelineArtifact@0
-    inputs:
-      targetPath: '$(Build.ArtifactStagingDirectory)'
-      artifactName: 'SRC'
-    displayName: Publish Source
-
-- job: BUILD_WIN_DEPS
-  dependsOn: DOWNLOAD_DEPS
-  condition: and(eq(variables.buildDEPS, true), eq(variables.buildWin, true))
-
-  strategy:
-    matrix:
-      x86_RELEASE:
-        buildPlatform: 'Win32'
-        buildConfiguration: 'Release'
-      x64_RELEASE:
-        buildPlatform: 'x64'
-        buildConfiguration: 'Release'
-      x86_DEBUG:
-        buildPlatform: 'Win32'
-        buildConfiguration: 'Debug'
-      x64_DEBUG:
-        buildPlatform: 'x64'
-        buildConfiguration: 'Debug'
-
-  pool:
-    vmImage: 'vs2017-win2016'
-
-  steps:
-  - checkout: none
-
-  - template: Scripts/azure-get_src.yml
-
-  - task: VSBuild@1
-    inputs:
-      solution: 'Dependencies/IGraphics/IGraphicsLibraries.sln'
-      platform: '$(buildPlatform)'
-      configuration: '$(buildConfiguration)'
-    displayName: Build Windows Dependencies
-
-  - task: PublishPipelineArtifact@0
-    inputs:
-      artifactName: 'DEPS_BUILD_WIN_$(buildPlatform)_$(buildConfiguration)'
-      targetPath: 'Dependencies/Build/'
-    displayName: Publish Windows $(buildPlatform) $(buildConfiguration) Dependencies Artifacts
-
-- job: PUBLISH_WIN_DEPS
-  condition: and(eq(variables.buildDEPS, true), eq(variables.buildWin, true))
-  dependsOn: BUILD_WIN_DEPS
-  steps:
-  - checkout: none
-
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'DEPS_BUILD_WIN_Win32_Release'
-      targetPath: 'Dependencies/Build/'
-    displayName: Download Win32_Release Artifact
-
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'DEPS_BUILD_WIN_Win32_Debug'
-      targetPath: 'Dependencies/Build/'
-    displayName: Download Win32_Debug Artifact
-
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'DEPS_BUILD_WIN_x64_Release'
-      targetPath: 'Dependencies/Build/'
-    displayName: Download x64_Release Artifact
-
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'DEPS_BUILD_WIN_x64_Debug'
-      targetPath: 'Dependencies/Build/'
-    displayName: Download x64_Debug Artifact
-
-  - task: DeleteFiles@1
-    inputs:
-      contents: 'Dependencies/Build/*.log'
-
-  - task: DeleteFiles@1
-    inputs:
-      contents: 'Dependencies/Build/tmp'
-
-  - task: PublishPipelineArtifact@0
-    inputs:
-      artifactName: 'IPLUG2_DEPS_WIN'
-      targetPath: 'Dependencies/Build/'
-    displayName: Publish Windows Dependencies Artifacts
-
-- job: BUILD_WIN_AAX_LIBS
-  condition: and(eq(variables.buildDEPS, false), eq(variables.buildWin, true))
-  pool:
-    vmImage: 'vs2017-win2016'
-
-  steps:
-  - checkout: none
-
-  - task: DownloadSecureFile@1
-    inputs:
-      secureFile: "AAX_SDK.zip"
-    displayName: Download AAX SDK
-  
-  - task: ExtractFiles@1
-    inputs:
-      archiveFilePatterns: '$(Agent.TempDirectory)/*.zip'
-      destinationFolder: 'AAX_SDK'
-      cleanDestinationFolder: false
-
-  - bash: |
-      mkdir -p ./Dependencies/IPlug/AAX_SDK
-      mv AAX_SDK/* ./Dependencies/IPlug/
-
-  - task: VSBuild@1
-    inputs:
-      solution: 'Dependencies/IPlug/AAX_SDK/Libs/AAXLibrary/WinBuild/vs2017/AAXLibrary.sln'
-      vsVersion: '15.0'
-      platform: x64
-      configuration: Release
-    displayName: Compile AAX Library Visual Studio Solution x64
-
-  - task: VSBuild@1
-    inputs:
-      solution: 'Dependencies/IPlug/AAX_SDK/Libs/AAXLibrary/WinBuild/vs2017/AAXLibrary.sln'
-      vsVersion: '15.0'
-      platform: Win32
-      configuration: Release
-    displayName: Compile AAX Library Visual Studio Solution Win32
-
-  - task: PublishPipelineArtifact@0
-    inputs:
-      artifactName: 'DEPS_AAX_LIB_WIN'
-      targetPath: 'Dependencies/IPlug/AAX_SDK/Libs/'
-    displayName: Publish Windows AAX Libs
-
-- job: BUILD_MAC_DEPS
-  dependsOn: DOWNLOAD_DEPS
-  condition: and(eq(variables.buildDEPS, true), eq(variables.buildMac, true))
-
-  pool:
-    vmImage: 'macos-10.13'
-  steps:
-  - checkout: none
-
-  - template: Scripts/azure-get_src.yml
-
-  - bash: |
-      #tmp force cairo rebuild
-      rm -r ./Dependencies/Build/src/cairo
-      cd ./Dependencies/IGraphics
-      ./build-igraphics-libs-mac.sh
-
-      cd $BUILD_SOURCESDIRECTORY
-      wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
-      tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
-      export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
-      echo "##vso[task.setvariable variable=PATH]$PATH"
-
-      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/faust
-      ./build-faust-mac.sh
-
-      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/civetweb
-      ./build-civetweb-mac.sh
-    displayName: Build macOS Dependencies
-
-  - bash: |
-      rm ./Dependencies/Build/*.log
-      rm -r ./Dependencies/Build/tmp
-      rm -r ./Dependencies/Build/src
-    displayName: Delete unwanted files
-
-  - task: PublishPipelineArtifact@0
-    inputs:
-      artifactName: 'IPLUG2_DEPS_MAC'
-      targetPath: 'Dependencies/Build/'
-    displayName: Publish Mac Dependencies Artifacts
-
-- job: BUILD_MAC_PROJECTS
-  condition: and(eq(variables.buildDEPS, false), eq(variables.buildMac, true))
-  dependsOn: DOWNLOAD_DEPS
-
-  strategy:
-    matrix:
-      NANOVG:
-        graphics: 'NANOVG'
-        # condition: eq(variables.buildNANOVG, true)
-      # CAIRO:
-      #   graphics: 'CAIRO'
-      #   condition: eq(variables.buildCAIRO, true)
-      # LICE:
-      #   graphics: 'LICE'
-      #   condition: eq(variables.buildLICE, true)
-      # AGG:
-      #   graphics: 'AGG'
-      #   condition: eq(variables.buildAGG, true)
-
-  pool:
-    vmImage: 'macos-10.13'
-
-  steps:
-  - checkout: none
-
-  - template: Scripts/azure-get_src.yml
-
-  - template: azure-projects.yml
-    parameters:
-      platform: Scripts/azure-project-mac.yml
-      graphics: $(graphics)
-
-- job: BUILD_WIN_PROJECTS
-  condition: and(eq(variables.buildDEPS, false), eq(variables.buildWin, true))
-  dependsOn: 
-    - DOWNLOAD_DEPS
-    - BUILD_WIN_AAX_LIBS
-
-  strategy:
-    matrix:
-      NANOVG:
-        graphics: 'NANOVG'
-        # condition: eq(variables.buildNANOVG, true)
-      # CAIRO:
-      #   graphics: 'CAIRO'
-      #   condition: eq(variables.buildCAIRO, true)
-      # LICE:
-      #   graphics: 'LICE'
-      #   condition: eq(variables.buildLICE, true)
-      # AGG:
-      #   graphics: 'AGG'
-      #   condition: eq(variables.buildAGG, true)
-
-  pool:
-    vmImage: 'vs2017-win2016'
-
-  steps:
-  - checkout: none
-
-  - template: Scripts/azure-get_src.yml
-
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'DEPS_AAX_LIB_WIN'
-      targetPath: 'Dependencies/IPlug/AAX_SDK/Libs/'
-
-  - template: azure-projects.yml
-    parameters:
-      platform: Scripts/azure-project-win.yml
-      graphics: $(graphics)
-
-- job: BUILD_WEB_PROJECTS
-  condition: and(eq(variables.buildDEPS, false), eq(variables.buildWeb, true))
-  dependsOn: DOWNLOAD_DEPS
-
-  strategy:
-    matrix:
-      NANOVG:
-        graphics: 'NANOVG'
-        # condition: eq(variables.buildNANOVG, true)
-      CANVAS:
-        graphics: 'CANVAS'
-        # condition: eq(variables.buildCANVAS, true)
-
-  pool:
-    vmImage: 'ubuntu-16.04'
-
-  steps:
-  - checkout: none
-
-  - bash: |
-      git clone https://github.com/emscripten-core/emsdk.git
-      cd emsdk
-      ./emsdk install latest
-      ./emsdk activate latest
-    displayName: Install emscripten
-
-  - template: Scripts/azure-get_src.yml
-
-  - template: azure-projects.yml
-    parameters:
-      platform: Scripts/azure-project-web.yml
-      graphics: $(graphics)
-
-- job: PUBLISH_WEBSITE_DOWNLOADS
-  condition: eq(variables.publishDownloads, true)
-  dependsOn: 
-    - BUILD_MAC_PROJECTS
-    - BUILD_WIN_PROJECTS
-    
-  strategy:
-    matrix:
-      NANOVG:
-        graphics: 'NANOVG'
-        # condition: eq(variables.buildNANOVG, true)
-      # CAIRO:
-      #   graphics: 'CAIRO'
-      #   condition: eq(variables.buildCAIRO, true)
-      # LICE:
-      #   graphics: 'LICE'
-      #   condition: eq(variables.buildLICE, true)
-      # AGG:
-      #   graphics: 'AGG'
-      #   condition: eq(variables.buildAGG, true)
-        
-  pool:
-    vmImage: 'ubuntu-16.04'
-
-  steps:
-  - checkout: none
-
-  - template: azure-projects.yml
-    parameters:
-      platform: Scripts/azure-project-upload.yml
-      graphics: $(graphics)
-      platformStr: 'MAC'
-  
-  - template: azure-projects.yml
-    parameters:
-      platform: Scripts/azure-project-upload.yml
-      graphics: $(graphics)
-      platformStr: 'WIN'
-
-- job: PUBLISH_WEBSITE_PAGES
-  condition: eq(variables.publishWebsite, true)
-  dependsOn: 
-    - BUILD_WEB_PROJECTS
-
-  pool:
-    vmImage: 'ubuntu-16.04'
-
-  steps:
-  - checkout: none
-
-  - bash: |
-      git clone https://olilarkin:$GITHUB_PAT@github.com/iPlug2/iPlug2.github.io.git $BUILD_SOURCESDIRECTORY
-    displayName: Clone website repo
-    env:
-      GITHUB_PAT: $(GITHUB_PAT)
-
-  - template: azure-projects.yml
-    parameters:
-      platform: Scripts/azure-project-upload.yml
-      graphics: 'NANOVG'
-      platformStr: 'WEB'
-
-  - template: azure-projects.yml
-    parameters:
-      platform: Scripts/azure-project-upload.yml
-      graphics: 'CANVAS'
-      platformStr: 'WEB'
+# get_tree.yml
+# Checks out the iPlug2 repository and installs various dependencies such as the VST3 and WAM SDKs.
+# Also installs various secure dependencies such as the VST2 and AAX SDKs. This will require editing if you have not set those secure files in Azure pipelines.
+# If build_deps == false, downloads optional pre-built dependencies IPLUG2_DEPS_MAC and IPLUG2_DEPS_WIN, unzips them in the src tree
+# Creates an artifact 'SRC' containing a populated iPlug 2 folder heirarchy
+- template: Scripts/ci/get_src_tree.yml
+
+# build_deps.yml
+# If build_deps == true, use the scripts in iPlug2/Dependencies to build the optional dependencies
+# Creates two artifacts IPLUG2_DEPS_MAC and IPLUG2_DEPS_WIN which are published on the releases page of the iPlug2 github
+# https://github.com/iPlug2/iPlug2/releases
+- template: Scripts/ci/build_deps.yml
+
+# build_projects.yml
+# Builds each of the projects listed in projects.yml, for multiple platforms
+# Creates artifacts for projects/platforms/graphics backends
+- template: Scripts/ci/build_projects.yml
+
+# test_projects.yml
+# Tests each of the projects listed in projects.yml, for multiple platforms
+- template: Scripts/ci/test_projects.yml
+
+# publish_site.yml
+# if publish_pages == true, publishes the WAMs hosted on https://iplug2.github.io/
+# if publish_downloads == true, publises the binaries for the examples hosted on the releases page of the iPlug2 website github https://github.com/iPlug2/iPlug2.github.io/releases
+# this Job will produce non-fatal errors when artefacts are not found
+- template: Scripts/ci/publish_site.yml
+
+# publish_docs.yml
+# if publish_docs == true, generates doxygen html from the iPlug2/Documentation/doxyfile and publishes it to https://iplug2.github.io/docs
+- template: Scripts/ci/publish_docs.yml
