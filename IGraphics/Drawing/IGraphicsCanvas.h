@@ -40,7 +40,6 @@ public:
   ~IGraphicsCanvas();
 
   void DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend) override;
-  void DrawRotatedBitmap(IBitmap& bitmap, float destCentreX, float destCentreY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
 
   void DrawResize() override {};
 
@@ -87,5 +86,5 @@ private:
   void SetClipRegion(const IRECT& r) override;
     
   void SetCanvasSourcePattern(val& context, const IPattern& pattern, const IBlend* pBlend = nullptr);
-  void SetCanvasBlendMode(const IBlend* pBlend);
+  void SetCanvasBlendMode(val& context, const IBlend* pBlend);
 };

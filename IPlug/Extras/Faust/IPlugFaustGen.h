@@ -29,6 +29,7 @@ typedef IPlugFaust FaustGen; // not used, except for CompileCPP();
 
 #include "IPlugPlatform.h"
 #include "IPlugConstants.h"
+#include "IPlugPaths.h"
 
 #include <sys/stat.h>
 
@@ -36,7 +37,7 @@ typedef IPlugFaust FaustGen; // not used, except for CompileCPP();
 typedef struct stat StatType;
 typedef timespec StatTime;
 
-static inline int GetStat(const char* pPath, StatType* pStatbuf) { return stat(pPath, pStatbuf); }
+static inline int GetStat(const char* path, StatType* pStatbuf) { return stat(path, pStatbuf); }
 static inline StatTime GetModifiedTime(StatType &s) { return s.st_mtimespec; }
 static inline bool Equal(StatTime a, StatTime b) { return (a.tv_sec == b.tv_sec && a.tv_nsec == b.tv_nsec); }
 static inline StatTime TimeZero()
@@ -48,12 +49,17 @@ static inline StatTime TimeZero()
 }
 #else //OS_WIN
 typedef struct _stat64i32 StatType;
-typedef time_t Time;
+typedef time_t StatTime;
 
-static inline int GetStat(std::wstring& path, StatType* pStatbuf) { return _wstat(path.c_str(), pStatbuf); }
-static inline Time GetModifiedTime(StatType &s) { return s.st_mtime; }
-static inline bool Equal(Time a, Time b) { return a == b; }
-static inline Time TimeZero() { return (Time) 0; }
+static inline int GetStat(const char* path, StatType* pStatbuf)
+{
+  wchar_t utf16str[MAX_PATH];
+  UTF8ToUTF16(utf16str, path, MAX_PATH);
+  return _wstat(utf16str, pStatbuf);
+}
+static inline StatTime GetModifiedTime(StatType &s) { return s.st_mtime; }
+static inline bool Equal(StatTime a, StatTime b) { return a == b; }
+static inline StatTime TimeZero() { return (StatTime) 0; }
 #endif
 
 #define FAUSTFLOAT sample
@@ -78,22 +84,39 @@ static inline Time TimeZero() { return (Time) 0; }
 #define FAUST_RECOMPILE_INTERVAL 5000 //ms
 
 #ifndef FAUST_EXE
-  #define FAUST_EXE "/usr/local/bin/faust"
+  #if defined OS_MAC || defined OS_LINUX
+    #define FAUST_EXE "/usr/local/bin/faust"
+  #else
+    #define FAUST_EXE "C:\\Program Files\\Faust\\bin\\faust.exe"
+  #endif
 #endif
 
-
-using namespace std;
+#ifndef FAUST_DLL_PATH
+  #if defined OS_MAC || defined OS_LINUX
+    #define FAUST_DLL_PATH "/usr/local/lib/"
+  #else
+    #define FAUST_DLL_PATH "C:\\Program Files\\Faust\\lib"
+  #endif
+#endif
 
 class FaustGen : public IPlugFaust
 {
   class Factory
   {
 #ifdef OS_MAC
-    static string GetLLVMArchStr()
+    static std::string GetLLVMArchStr()
     {
       int tmp;
       return (sizeof(&tmp) == 8) ? "" : "i386-apple-darwin10.6.0";
     }
+#else
+    static std::string GetLLVMArchStr()
+    {
+      return "";
+    }
+
+    static std::string getTarget() { return ""; }
+
 #endif
 
     //static const char *getCodeSize()
@@ -168,7 +191,7 @@ class FaustGen : public IPlugFaust
   private:
     int mInstanceIdx;
     WDL_Mutex mDSPMutex;
-    set<FaustGen*> mInstances;
+    std::set<FaustGen*> mInstances;
 
     llvm_dsp_factory* mLLVMFactory = nullptr;
     //  midi_handler mMidiHandler;
@@ -177,15 +200,15 @@ class FaustGen : public IPlugFaust
     WDL_String mDrawPath;
     WDL_String mName;
 
-    vector<string> mLibraryPaths;
-    vector<string> mOptions;
-    vector<string> mCompileOptions;
+    std::vector<std::string> mLibraryPaths;
+    std::vector<std::string> mOptions;
+    std::vector<std::string> mCompileOptions;
 
     int mNInputs = 0;
     int mNOutputs = 0;
     int mOptimizationLevel = LLVM_OPTIMIZATION;
     static int sFactoryCounter;
-    static map<string, Factory*> sFactoryMap;
+    static std::map<std::string, Factory*> sFactoryMap;
     WDL_String mInputDSPFile;
     StatTime mPreviousTime;
   };
@@ -195,7 +218,6 @@ public:
            const char* outputCPPFile = 0, const char* drawPath = 0, const char* libraryPath = DEFAULT_FAUST_LIBRARY_PATH);
 
   ~FaustGen();
-
 
   /** Call this method after constructing the class to inform FaustGen what the maximum I/O count is
    * @param maxNInputs Specify a number here to tell FaustGen the maximum number of inputs the hosting code can accommodate
@@ -215,6 +237,8 @@ public:
   /** This is a static method that can be called to compile all .dsp files used to a single .hpp file, using the commandline FAUST compiler
    * @return \c true on success */
   static bool CompileCPP();
+
+  //bool CompileObjectFile(const char* fileName);
 
   void SetAutoRecompile(bool enable);
   

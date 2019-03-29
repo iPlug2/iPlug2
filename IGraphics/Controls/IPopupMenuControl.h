@@ -161,7 +161,7 @@ private:
     IRECT mTargetRECT; // The mouse target bounds for this panel
     int mScrollMaxRows = 0; // 0 when no scroll
     bool mShouldDraw = true; // boolean determining whether this panel should be drawn
-    IBlend mBlend = { kBlendNone, 0.f }; // blend for sub panels appearing
+    IBlend mBlend = { kBlendDefault, 0.f }; // blend for sub panels appearing
 
     IRECT mSingleCellBounds; // The dimensions of the largest cell for the menu
     IRECT* mHighlightedCell = nullptr; // A pointer to one of the IRECTs in mCellBounds, if one should be highlighted

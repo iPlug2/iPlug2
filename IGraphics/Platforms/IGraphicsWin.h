@@ -31,11 +31,15 @@ public:
 
   void PlatformResize() override;
 
+#ifdef IGRAPHICS_GL
+  void DrawResize() override; // overriden here to deal with GL graphics context capture
+#endif
+
   void CheckTabletInput(UINT msg);
     
   void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override;
-  void SetMouseCursor(ECursor cursor) override;
+  ECursor SetMouseCursor(ECursor cursorType) override;
 
   int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) override;
 
@@ -92,6 +96,20 @@ private:
   inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam);
   inline IMouseInfo IGraphicsWin::GetMouseInfoDeltas(float&dX, float& dY, LPARAM lParam, WPARAM wParam);
   bool MouseCursorIsLocked();
+
+#ifdef IGRAPHICS_GL
+  //OpenGL context management - TODO: RAII instead?
+  void CreateGLContext();
+  void DestroyGLContext();
+
+  // Captures previously active GLContext and HDC for restoring, Gets DC
+  void ActivateGLContext();
+  // Restores previous GL context and Releases DC
+  void DeactivateGLContext();
+  HGLRC mHGLRC = nullptr;
+  HGLRC mStartHGLRC = nullptr;
+  HDC mStartHDC = nullptr;
+#endif
 
   HINSTANCE mHInstance = nullptr;
   HWND mPlugWnd = nullptr;

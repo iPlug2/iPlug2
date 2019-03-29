@@ -514,7 +514,11 @@ private:
   /** This is used to prepare a particular area of the display for drawing, normally resulting in clipping of the region.
    * @param bounds The rectangular region to prepare  */
   virtual void PrepareRegion(const IRECT& bounds) = 0;
- 
+
+  /** This is used to indicate that a particular area of the display has been drawn (for instance to transfer a temporary backing) Always called after a matching call to PrepareRegion.
+  * @param bounds The rectangular region that is complete  */
+  virtual void CompleteRegion(const IRECT& bounds) {}
+
 public:
     
 #pragma mark - IGraphics platform implementation
@@ -526,9 +530,16 @@ public:
    * @param y New Y position in pixels */
   virtual void MoveMouseCursor(float x, float y) = 0;
   
-  /** Sets the mouse cursor to one of ECursor
-   * @param cursor The cursor type */
-  virtual void SetMouseCursor(ECursor cursor = ECursor::ARROW) = 0;
+  /** Sets the mouse cursor to one of ECursor (implementations should return the result of the base implementation)
+   * @param cursor The cursor type
+   * @return the previous cursor type so it can be restored later */
+
+  virtual ECursor SetMouseCursor(ECursor cursorType = ECursor::ARROW)
+  {
+    ECursor oldCursorType = mCursorType;
+    mCursorType = cursorType;
+    return oldCursorType;
+  }
 
   /** Call to force end text entry (will cancel any half input text \todo check) */
   virtual void ForceEndUserEdit() = 0;
@@ -748,6 +759,11 @@ public:
     * @return The scale factor of the display on which this graphics context is currently located */
   int GetScreenScale() const { return mScreenScale; }
 
+  /** Gets the nearest backing pixel aligned rect to the input IRECT
+    * @param r The IRECT to snap
+    * @return The IRECT nearest to the input IRECT that is aligned exactly to backing pixels */
+  IRECT GetPixelSnapped(IRECT &r) const { return r.GetPixelSnapped(GetBackingPixelScale()); }
+    
   /** Gets a pointer to the delegate class that handles communication to and from this graphics context.
    * @return pointer to the delegate */
   IGEditorDelegate* GetDelegate() { return mDelegate; }
@@ -884,8 +900,11 @@ public:
    * @return \c true if handled \todo check this */
   bool OnMouseOver(float x, float y, const IMouseMod& mod);
 
-  /** TODO: not called on mac*/
+  /***/
   void OnMouseOut();
+  
+  /***/
+  void OnSetCursor() { SetMouseCursor(mCursorType); }
 
   /** @param str A CString with the absolute path of the dropped item
    * @param x The X coordinate in the graphics context where the drag and drop occurred
@@ -1082,6 +1101,7 @@ private:
   
   IPopupMenu mPromptPopupMenu;
   
+  ECursor mCursorType = ARROW;
   int mWidth;
   int mHeight;
   int mFPS;
@@ -1101,7 +1121,7 @@ private:
   int mMaxHeight;
   int mLastClickedParam = kNoParameter;
   bool mHandleMouseOver = false;
-  bool mStrict = true;
+  bool mStrict = false;
   bool mEnableTooltips = false;
   bool mShowControlBounds = false;
   bool mShowAreaDrawn = false;

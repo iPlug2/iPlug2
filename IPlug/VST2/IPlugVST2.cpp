@@ -211,21 +211,24 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
   {
     case effOpen:
     {
-      char productStr[256];
-      productStr[0] = '\0';
-      int version = 0;
-      _this->mHostCallback(&_this->mAEffect, audioMasterGetProductString, 0, 0, productStr, 0.0f);
-        
-      if (CStringHasContents(productStr))
+      if (_this->GetHost() == kHostUninit)
       {
-        int decVer = (int) _this->mHostCallback(&_this->mAEffect, audioMasterGetVendorVersion, 0, 0, 0, 0.0f);
-        int ver = decVer / 10000;
-        int rmaj = (decVer - 10000 * ver) / 100;
-        int rmin = (decVer - 10000 * ver - 100 * rmaj);
-        version = (ver << 16) + (rmaj << 8) + rmin;
-      }
+        char productStr[256];
+        productStr[0] = '\0';
+        int version = 0;
+        _this->mHostCallback(&_this->mAEffect, audioMasterGetProductString, 0, 0, productStr, 0.0f);
         
-      _this->SetHost(productStr, version);
+        if (CStringHasContents(productStr))
+        {
+          int decVer = (int) _this->mHostCallback(&_this->mAEffect, audioMasterGetVendorVersion, 0, 0, 0, 0.0f);
+          int ver = decVer / 10000;
+          int rmaj = (decVer - 10000 * ver) / 100;
+          int rmin = (decVer - 10000 * ver - 100 * rmaj);
+          version = (ver << 16) + (rmaj << 8) + rmin;
+        }
+        
+        _this->SetHost(productStr, version);
+      }
       _this->OnParamReset(kReset);
       return 0;
     }

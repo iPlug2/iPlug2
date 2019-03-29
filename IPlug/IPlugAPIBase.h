@@ -148,10 +148,14 @@ public:
   virtual void HostSpecificInit() {}
 
   //IEditorDelegate
-  void SendParameterValueFromUI(int paramIdx, double value) override { SetParameterValue(paramIdx, value); IPluginBase::SendParameterValueFromUI(paramIdx, value); }
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { BeginInformHostOfParamChange(paramIdx); }
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }
   void EditorPropertiesChangedFromUI(int viewWidth, int viewHeight, const IByteChunk& data) override { EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data); }
+  void SendParameterValueFromUI(int paramIdx, double normalisedValue) override
+  {
+    SetParameterValue(paramIdx, normalisedValue);
+    IPluginBase::SendParameterValueFromUI(paramIdx, normalisedValue);
+  }
   
   //These are handled in IPlugAPIBase for non DISTRIBUTED APIs
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;

@@ -54,8 +54,8 @@ struct SVGHolder
   }
 };
 
-static StaticStorage<APIBitmap> s_bitmapCache;
-static StaticStorage<SVGHolder> s_SVGCache;
+static StaticStorage<APIBitmap> sBitmapCache;
+static StaticStorage<SVGHolder> sSVGCache;
 
 IGraphics::IGraphics(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : mDelegate(&dlg)
@@ -71,9 +71,9 @@ IGraphics::IGraphics(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 {
   mFPS = (fps > 0 ? fps : DEFAULT_FPS);
     
-  StaticStorage<APIBitmap>::Accessor bitmapStorage(s_bitmapCache);
+  StaticStorage<APIBitmap>::Accessor bitmapStorage(sBitmapCache);
   bitmapStorage.Retain();
-  StaticStorage<SVGHolder>::Accessor svgStorage(s_SVGCache);
+  StaticStorage<SVGHolder>::Accessor svgStorage(sSVGCache);
   svgStorage.Retain();
 }
 
@@ -81,9 +81,9 @@ IGraphics::~IGraphics()
 {
   RemoveAllControls();
     
-  StaticStorage<APIBitmap>::Accessor bitmapStorage(s_bitmapCache);
+  StaticStorage<APIBitmap>::Accessor bitmapStorage(sBitmapCache);
   bitmapStorage.Release();
-  StaticStorage<SVGHolder>::Accessor svgStorage(s_SVGCache);
+  StaticStorage<SVGHolder>::Accessor svgStorage(sSVGCache);
   svgStorage.Release();
 }
 
@@ -627,7 +627,9 @@ bool IGraphics::IsDirty(IRECTList& rects)
   {
     if (control.IsDirty())
     {
-      rects.Add(control.GetRECT());
+      // N.B padding outlines for single line outlines
+        
+      rects.Add(control.GetRECT().GetPadded(0.75));
       dirty = true;
     }
   };
@@ -665,7 +667,9 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
 {
   if (pControl && (!pControl->IsHidden() || pControl == GetControl(0)))
   {
-    IRECT controlBounds = pControl->GetRECT().GetPixelAligned(scale);
+    // N.B. Padding allows single line outlines on controls
+      
+    IRECT controlBounds = pControl->GetRECT().GetPadded(0.75).GetPixelAligned(scale);
     IRECT clipBounds = bounds.Intersect(controlBounds);
 
     if (clipBounds.W() <= 0.0 || clipBounds.H() <= 0)
@@ -673,11 +677,10 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
     
     PrepareRegion(clipBounds);
     pControl->Draw(*this);
-    
 #ifdef AAX_API
     pControl->DrawPTHighlight(*this);
 #endif
-    
+
 #ifndef NDEBUG
     // helper for debugging
     if (mShowControlBounds)
@@ -685,6 +688,8 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
       DrawRect(CONTROL_BOUNDS_COLOR, pControl->GetRECT());
     }
 #endif
+    
+    CompleteRegion(clipBounds);
   }
 }
 
@@ -701,6 +706,7 @@ void IGraphics::Draw(const IRECT& bounds, float scale)
     static IColor c;
     c.Randomise(50);
     FillRect(c, bounds);
+    CompleteRegion(bounds);
   }
 #endif
 }
@@ -847,11 +853,13 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
   return pControl;
 }
 
-//TODO: THIS DOESN'T GET CALLED ON MAC
 void IGraphics::OnMouseOut()
 {
   Trace("IGraphics::OnMouseOut", __LINE__, "");
 
+  // Store the old cursor type so this gets restored when the mouse enters again
+    
+  mCursorType = SetMouseCursor(ARROW);
   ForAllControls(&IControl::OnMouseOut);
   mMouseOver = nullptr;
   mMouseOverIdx = -1;
@@ -1158,7 +1166,7 @@ void IGraphics::EnableLiveEdit(bool enable/*, const char* file, int gridsize*/)
 
 ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 {
-  StaticStorage<SVGHolder>::Accessor storage(s_SVGCache);
+  StaticStorage<SVGHolder>::Accessor storage(sSVGCache);
   SVGHolder* pHolder = storage.Find(fileName);
 
   if(!pHolder)
@@ -1209,7 +1217,7 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
   if (targetScale == 0)
     targetScale = GetScreenScale();
 
-  StaticStorage<APIBitmap>::Accessor storage(s_bitmapCache);
+  StaticStorage<APIBitmap>::Accessor storage(sBitmapCache);
   APIBitmap* pAPIBitmap = storage.Find(name, targetScale);
 
   // If the bitmap is not already cached at the targetScale
@@ -1273,13 +1281,13 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
 
 void IGraphics::ReleaseBitmap(const IBitmap& bitmap)
 {
-  StaticStorage<APIBitmap>::Accessor storage(s_bitmapCache);
+  StaticStorage<APIBitmap>::Accessor storage(sBitmapCache);
   storage.Remove(bitmap.GetAPIBitmap());
 }
 
 void IGraphics::RetainBitmap(const IBitmap& bitmap, const char* cacheName)
 {
-  StaticStorage<APIBitmap>::Accessor storage(s_bitmapCache);
+  StaticStorage<APIBitmap>::Accessor storage(sBitmapCache);
   storage.Add(bitmap.GetAPIBitmap(), cacheName, bitmap.GetScale());
 }
 
@@ -1328,7 +1336,7 @@ EResourceLocation IGraphics::SearchImageResource(const char* name, const char* t
 
 APIBitmap* IGraphics::SearchBitmapInCache(const char* name, int targetScale, int& sourceScale)
 {
-  StaticStorage<APIBitmap>::Accessor storage(s_bitmapCache);
+  StaticStorage<APIBitmap>::Accessor storage(sBitmapCache);
     
   // Search target scale, then descending
   for (sourceScale = targetScale; sourceScale > 0; SearchNextScale(sourceScale, targetScale))
@@ -1376,8 +1384,8 @@ IPopupMenu* IGraphics::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IC
 void IGraphics::StartLayer(const IRECT& r)
 {
   IRECT alignedBounds = r.GetPixelAligned(GetBackingPixelScale());
-  const int w = static_cast<int>(std::round(alignedBounds.W()));
-  const int h = static_cast<int>(std::round(alignedBounds.H()));
+  const int w = static_cast<int>(std::ceil(alignedBounds.W()));
+  const int h = static_cast<int>(std::ceil(alignedBounds.H()));
 
   PushLayer(new ILayer(CreateAPIBitmap(w, h), alignedBounds), true);
 }

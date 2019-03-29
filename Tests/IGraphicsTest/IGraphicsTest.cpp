@@ -17,6 +17,7 @@ enum EControlTags
 IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, 1, instanceInfo)
 {
+  GetParam(kParamDummy)->InitGain("Dummy");
   
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {

@@ -79,7 +79,7 @@ bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos) con
     float v = (float) GetParam(i)->Value();
     float vi = (float) *(data++);
     
-    isEqual &= (fabsf(v - vi) < 0.00001);
+    isEqual &= (std::fabs(v - vi) < 0.00001);
   }
   
   return isEqual;

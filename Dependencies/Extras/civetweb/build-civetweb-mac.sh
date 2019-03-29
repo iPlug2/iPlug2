@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-#should be executed in Extras/faust
+#should be executed in Extras/civetweb
 DEPS_DIR="$PWD"
 BUILD_DIR="$PWD/../../Build"
 SRC_DIR="$BUILD_DIR/src"
@@ -17,7 +17,18 @@ else
 fi
 cd $REPO_DIR
 
-export MACOSX_DEPLOYMENT_TARGET=10.9
+export MACOSX_DEPLOYMENT_TARGET=10.7
 make lib WITH_CPP=1 WITH_WEBSOCKET=1
+
+if [ ! -d "$INSTALL_DIR/lib" ];
+then
+  mkdir -p $INSTALL_DIR/lib
+fi
+
+if [ ! -d "$INSTALL_DIR/include" ];
+then
+  mkdir -p $INSTALL_DIR/include
+fi
+
 cp libcivetweb.a $INSTALL_DIR/lib/libcivetweb.a
 cp include/* $INSTALL_DIR/include

@@ -21,13 +21,15 @@
     <CAIRO_PATH>$(IGRAPHICS_DEPS_PATH)\Cairo;$(DEPS_PATH)\Build\src</CAIRO_PATH>
     <FREETYPE_PATH>$(DEPS_PATH)\Build\src\freetype\include</FREETYPE_PATH>
     <AGG_PATH>$(IGRAPHICS_DEPS_PATH)\AGG</AGG_PATH>
-    <GLEW_PATH>$(IGRAPHICS_DEPS_PATH)\glew\include</GLEW_PATH>
-    <GLAD_PATH>$(IGRAPHICS_DEPS_PATH)\glad\</GLAD_PATH>
+    <GLAD_GL2_PATHS>$(IGRAPHICS_DEPS_PATH)\glad_GL2\include;$(IGRAPHICS_DEPS_PATH)\glad_GL2\src</GLAD_GL2_PATHS>
+    <GLAD_GL3_PATHS>$(IGRAPHICS_DEPS_PATH)\glad_GL3\include;$(IGRAPHICS_DEPS_PATH)\glad_GL3\src</GLAD_GL3_PATHS>
     <PNG_PATH>$(WDL_PATH)\libpng</PNG_PATH>
     <ZLIB_PATH>$(WDL_PATH)\zlib</ZLIB_PATH>
     <STB_PATH>$(IGRAPHICS_DEPS_PATH)\STB</STB_PATH>
+    <FAUST_INC_PATHS>$(ProgramW6432)\Faust\include;</FAUST_INC_PATHS>
+    <FAUST_LIB_PATH>$(ProgramW6432)\Faust\lib</FAUST_LIB_PATH>
     <STATIC_LIBS_PATH>$(DEPS_PATH)\Build\win\$(Platform)\$(Configuration)</STATIC_LIBS_PATH>
-    <IGRAPHICS_INC_PATHS>$(IGRAPHICS_PATH);$(LICE_PATH);$(NANOSVG_PATH);$(NANOVG_PATH);$(AGG_PATH);$(CAIRO_PATH);$(CONTROLS_PATH);$(PLATFORMS_PATH);$(DRAWING_PATH);$(GLEW_PATH);$(GLAD_PATH)\include; $(GLAD_PATH)\src\;$(PNG_PATH);$(ZLIB_PATH);$(FREETYPE_PATH);$(STB_PATH)</IGRAPHICS_INC_PATHS>
+    <IGRAPHICS_INC_PATHS>$(IGRAPHICS_PATH);$(LICE_PATH);$(NANOSVG_PATH);$(NANOVG_PATH);$(AGG_PATH);$(CAIRO_PATH);$(CONTROLS_PATH);$(PLATFORMS_PATH);$(DRAWING_PATH);$(PNG_PATH);$(ZLIB_PATH);$(FREETYPE_PATH);$(STB_PATH)</IGRAPHICS_INC_PATHS>
     <VST2_SDK>$(IPLUG_DEPS_PATH)\VST2_SDK</VST2_SDK>
     <VST3_SDK>$(IPLUG_DEPS_PATH)\VST3_SDK</VST3_SDK>
     <ASIO_SDK>$(IPLUG_DEPS_PATH)\RTAudio\include</ASIO_SDK>
@@ -54,8 +56,7 @@
     <VST3_INC_PATHS>$(IPLUG_PATH)\VST3;$(VST3_SDK)</VST3_INC_PATHS>
     <AAX_INC_PATHS>$(IPLUG_PATH)\AAX;$(AAX_SDK)\Interfaces;$(AAX_SDK)\Interfaces\ACF;</AAX_INC_PATHS>
     <AAX_DEFS>AAX_API;IPLUG_EDITOR=1;IPLUG_DSP=1;_WINDOWS;WIN32;_WIN32;WINDOWS_VERSION;_LIB;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE</AAX_DEFS>
-    <PNG_DEFS />
-    <ALL_DEFS>WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX;$(PNG_DEFS)</ALL_DEFS>
+    <ALL_DEFS>WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX</ALL_DEFS>
     <AAX_LIBS>wininet.lib;odbc32.lib;odbccp32.lib;psapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comctl32.lib;</AAX_LIBS>
     <APP_LIBS>dsound.lib;winmm.lib;</APP_LIBS>
     <VST2_32_COMMAND_ARGS />
@@ -64,6 +65,8 @@
     <VST3_32_COMMAND_ARGS />
     <COPY_VST2>1</COPY_VST2>
     <REAPER_SDK>$(IPLUG_DEPS_PATH)/Reaper</REAPER_SDK>
+    <AAX_ICON>$(AAX_SDK)\Utilities\PlugIn.ico</AAX_ICON>
+    <VST_ICON>$(VST3_SDK)\doc\artwork\VST_Logo_Steinberg.ico</VST_ICON>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
@@ -77,7 +80,8 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(STATIC_LIBS_PATH);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(STATIC_LIBS_PATH);$(AAX_SDK)\Libs\$(Configuration);$(FAUST_LIB_PATH);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
     </Link>
     <Lib>
       <AdditionalDependencies />
@@ -144,8 +148,11 @@
     <BuildMacro Include="GLEW_PATH">
       <Value>$(GLEW_PATH)</Value>
     </BuildMacro>
-    <BuildMacro Include="GLAD_PATH">
-      <Value>$(GLAD_PATH)</Value>
+    <BuildMacro Include="GLAD_GL2_PATHS">
+      <Value>$(GLAD_GL2_PATHS)</Value>
+    </BuildMacro>
+    <BuildMacro Include="GLAD_GL3_PATHS">
+      <Value>$(GLAD_GL3_PATHS)</Value>
     </BuildMacro>
     <BuildMacro Include="PNG_PATH">
       <Value>$(PNG_PATH)</Value>
@@ -155,6 +162,9 @@
     </BuildMacro>
     <BuildMacro Include="STB_PATH">
       <Value>$(STB_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="FAUST_INC_PATHS">
+      <Value>$(FAUST_INC_PATHS)</Value>
     </BuildMacro>
     <BuildMacro Include="STATIC_LIBS_PATH">
       <Value>$(STATIC_LIBS_PATH)</Value>
@@ -240,9 +250,6 @@
     <BuildMacro Include="AAX_DEFS">
       <Value>$(AAX_DEFS)</Value>
     </BuildMacro>
-    <BuildMacro Include="PNG_DEFS">
-      <Value>$(PNG_DEFS)</Value>
-    </BuildMacro>
     <BuildMacro Include="ALL_DEFS">
       <Value>$(ALL_DEFS)</Value>
     </BuildMacro>
@@ -269,6 +276,15 @@
     </BuildMacro>
     <BuildMacro Include="REAPER_SDK">
       <Value>$(REAPER_SDK)</Value>
+    </BuildMacro>
+    <BuildMacro Include="AAX_ICON">
+      <Value>$(AAX_ICON)</Value>
+    </BuildMacro>
+    <BuildMacro Include="VST_ICON">
+      <Value>$(VST_ICON)</Value>
+    </BuildMacro>
+    <BuildMacro Include="FAUST_LIB_PATH">
+      <Value>$(FAUST_LIB_PATH)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

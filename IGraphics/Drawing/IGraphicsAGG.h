@@ -52,8 +52,11 @@ private:
 class AGGBitmap : public APIBitmap
 {
 public:
-  AGGBitmap(agg::pixel_map* pPixMap, int scale, float drawScale) : APIBitmap (pPixMap, pPixMap->width(), pPixMap->height(), scale, drawScale) {}
+  AGGBitmap(agg::pixel_map* pPixMap, int scale, float drawScale, bool preMultiplied) : APIBitmap (pPixMap, pPixMap->width(), pPixMap->height(), scale, drawScale), mPreMultiplied(preMultiplied) {}
   virtual ~AGGBitmap() { delete ((agg::pixel_map*) GetBitmap()); }
+    bool IsPreMultiplied() const { return mPreMultiplied; }
+private:
+  bool mPreMultiplied;
 };
 
 /** IGraphics draw class using Antigrain Geometry
@@ -80,97 +83,176 @@ public:
 #else
 #error NOT IMPLEMENTED
 #endif
-    
+  typedef agg::span_allocator<agg::rgba8> SpanAllocatorType;
+  typedef agg::span_interpolator_linear<> InterpolatorType;
+  // Pre-multiplied source types
+  typedef agg::comp_op_adaptor_rgba_pre<agg::rgba8, PixelOrder> BlenderPreType;
+  typedef agg::pixfmt_custom_blend_rgba<BlenderPreType, agg::rendering_buffer> PixfmtPreType;
+  typedef agg::renderer_base <PixfmtPreType> RenbasePreType;
+   // Non pre-multiplied source types
   typedef agg::comp_op_adaptor_rgba<agg::rgba8, PixelOrder> BlenderType;
   typedef agg::pixfmt_custom_blend_rgba<BlenderType, agg::rendering_buffer> PixfmtType;
   typedef agg::renderer_base <PixfmtType> RenbaseType;
-  typedef agg::renderer_scanline_aa_solid<RenbaseType> RendererSolid;
-  typedef agg::font_engine_freetype_int32 FontEngineType;
-  typedef agg::font_cache_manager <FontEngineType> FontManagerType;
-  typedef agg::span_interpolator_linear<> InterpolatorType;
+  // Image bitmap types
   typedef agg::image_accessor_clone<PixfmtType> imgSourceType;
-  typedef agg::span_allocator<agg::rgba8> SpanAllocatorType;
   typedef agg::span_image_filter_rgba_bilinear<imgSourceType, InterpolatorType> SpanGeneratorType;
   typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, SpanGeneratorType> BitmapRenderType;
-  typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, alpha_span_generator<SpanGeneratorType> > BitmapAlphaRenderType;
-  typedef agg::renderer_base<agg::pixfmt_gray8> maskRenBase;
+  // Font types
+  typedef agg::font_engine_freetype_int32 FontEngineType;
+  typedef agg::font_cache_manager <FontEngineType> FontManagerType;
 
   class Rasterizer
   {
   public:
 
     Rasterizer(IGraphicsAGG& graphics) : mGraphics(graphics) {}
-      
-    RenbaseType& GetBase() { return mRenBase; }
-
+    
     agg::rgba8 GetPixel(int x, int y) { return mRenBase.pixel(x, y); }
 
     void SetOutput(agg::rendering_buffer& renBuf)
     {
       mPixf = PixfmtType(renBuf);
       mRenBase = RenbaseType(mPixf);
+      mPixfPre = PixfmtPreType(renBuf);
+      mRenBasePre = RenbasePreType(mPixfPre);
       mRenBase.clear(agg::rgba(1, 1, 1));
     }
 
     template <typename VertexSourceType>
-    void Rasterize(VertexSourceType& path, const IPattern& pattern, agg::comp_op_e mode, float opacity, EFillRule rule = kFillWinding)
+    void Rasterize(VertexSourceType& path, agg::rgba8 color, agg::comp_op_e op)
     {
       SetPath(path);
-      RasterizePattern(pattern, mode, opacity, rule);
+      Rasterize(color, op);
     }
-
-    template <typename VertexSourceType, typename RendererType>
-    void Rasterize(VertexSourceType& path, RendererType& renderer, agg::comp_op_e op)
+    
+    void Rasterize(agg::rgba8 color, agg::comp_op_e op)
     {
-      SetPath(path);
-      Rasterize(renderer, op);
-    }
+      typedef agg::renderer_scanline_aa_solid<RenbaseType> RenderType;
       
-    template <typename RendererType>
-    void Rasterize(RendererType& renderer, agg::comp_op_e op)
+      RenderType renderer(mRenBase);
+      renderer.color(color);
+      Render(renderer, op);
+    }
+    
+    template <typename VertexSourceType, typename CustomSpanGeneratorType>
+    void Rasterize(VertexSourceType& path, CustomSpanGeneratorType spanGenerator, agg::comp_op_e op)
     {
-      agg::scanline_p8 scanline;
-      mPixf.comp_op(op);
-      agg::render_scanlines(mRasterizer, scanline, renderer);
+      SetPath(path);
+      Rasterize(spanGenerator, op);
+    }
+    
+    template <typename CustomSpanGeneratorType>
+    void Rasterize(CustomSpanGeneratorType spanGenerator, agg::comp_op_e op)
+    {
+      typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, CustomSpanGeneratorType> RendererType;
+      
+      SpanAllocatorType spanAllocator;
+      RendererType renderer(mRenBase, spanAllocator, spanGenerator);
+      Render(renderer, op);
     }
     
     template <typename VertexSourceType>
-    void Rasterize(VertexSourceType& path, agg::rgba8 color, agg::comp_op_e op)
+    void Rasterize(PixfmtType& src, VertexSourceType& path, agg::trans_affine& srcMtx, agg::comp_op_e op, agg::cover_type cover)
     {
-      agg::scanline_u8 scanline;
-      RendererSolid renderer(mRenBase);
-      renderer.color(color);
-      mPixf.comp_op(op);
       SetPath(path);
-      agg::render_scanlines(mRasterizer, scanline, renderer);
+      Rasterize(src, srcMtx, op, cover);
     }
-      
-    void BlendFrom(agg::rendering_buffer& renBuf, const IRECT& bounds, int srcX, int srcY, agg::comp_op_e op, agg::cover_type cover)
+    
+    void Rasterize(PixfmtType& src, agg::trans_affine& srcMtx, agg::comp_op_e op, agg::cover_type cover)
+    {
+      RenderBitmap(src, mRenBase, srcMtx, op, cover);
+    }
+    
+    template <typename VertexSourceType>
+    void Rasterize(PixfmtPreType& src, VertexSourceType& path, agg::trans_affine& srcMtx, agg::comp_op_e op, agg::cover_type cover)
+    {
+      SetPath(path);
+      Rasterize(src, srcMtx, op, cover);
+    }
+    
+    void Rasterize(PixfmtPreType& src, agg::trans_affine& srcMtx, agg::comp_op_e op, agg::cover_type cover)
+    {
+      RenderBitmap(src, mRenBasePre, srcMtx, op, cover);
+    }
+    
+    void BlendFrom(agg::rendering_buffer& renBuf, const IRECT& bounds, int srcX, int srcY, agg::comp_op_e op, agg::cover_type cover, bool preMultiplied)
     {
       // N.B. blend_from/rect_i is inclusive, hence -1 on each dimension here
-      mPixf.comp_op(op);
+      
       agg::rect_i r(srcX, srcY, srcX + std::round(bounds.W()) - 1, srcY + std::round(bounds.H()) - 1);
-      mRenBase.blend_from(PixfmtType(renBuf), &r, std::round(bounds.L) - srcX, std::round(bounds.T) - srcY, cover);
+      int x = std::round(bounds.L) - srcX;
+      int y = std::round(bounds.T) - srcY;
+      
+      if (preMultiplied)
+      {
+        mPixfPre.comp_op(op);
+        mRenBasePre.blend_from(PixfmtType(renBuf), &r, x, y, cover);
+      }
+      else
+      {
+        mPixf.comp_op(op);
+        mRenBase.blend_from(PixfmtType(renBuf), &r, x, y, cover);
+      }
     }
+    
+    template <typename VertexSourceType>
+    void Rasterize(VertexSourceType& path, const IPattern& pattern, agg::comp_op_e op, float opacity, EFillRule rule = kFillWinding)
+    {
+      SetPath(path);
+      Rasterize(pattern, op, opacity, rule);
+    }
+    
+    void Rasterize(const IPattern& pattern, agg::comp_op_e op, float opacity, EFillRule rule = kFillWinding);
 
     template <typename VertexSourceType>
     void SetPath(VertexSourceType& path)
     {
       // Clip
+      
       IRECT clip = mGraphics.mClipRECT.Empty() ? mGraphics.GetBounds() : mGraphics.mClipRECT;
       clip.Translate(mGraphics.XTranslate(), mGraphics.YTranslate());
       clip.Scale(mGraphics.GetBackingPixelScale());
       mRasterizer.clip_box(clip.L, clip.T, clip.R, clip.B);
+      
       // Add path
+      
       mRasterizer.reset();
       mRasterizer.add_path(path);
     }
 
-    void RasterizePattern(const IPattern& pattern, agg::comp_op_e mode, float opacity, EFillRule rule = kFillWinding);
+  private:
+    
+    template <typename RendererType>
+    void Render(RendererType& renderer, agg::comp_op_e op)
+    {
+      agg::scanline_p8 scanline;
+      mPixf.comp_op(op);
+      mPixfPre.comp_op(op);
+      agg::render_scanlines(mRasterizer, scanline, renderer);
+    }
+    
+    template <typename PixSourceType, typename RenderBaseType>
+    void RenderBitmap(PixSourceType& src, RenderBaseType& renderbase, agg::trans_affine& srcMtx, agg::comp_op_e op, agg::cover_type cover)
+    {
+      typedef agg::image_accessor_clone<PixSourceType> ImgSrcType;
+      typedef agg::span_image_filter_rgba_bilinear<ImgSrcType, InterpolatorType> FilterType;
+      typedef alpha_span_generator<FilterType> CustomSpanGeneratorType;
+      typedef agg::renderer_scanline_aa<RenderBaseType, SpanAllocatorType, CustomSpanGeneratorType> RendererType;
+      
+      SpanAllocatorType spanAllocator;
+      InterpolatorType interpolator(srcMtx);
+      ImgSrcType imgSrc(src);
+      CustomSpanGeneratorType spanGenerator(imgSrc, interpolator, cover);
+      RendererType renderer(renderbase, spanAllocator, spanGenerator);
+      
+      Render(renderer, op);
+    }
 
     IGraphicsAGG& mGraphics;
     RenbaseType mRenBase;
     PixfmtType mPixf;
+    RenbasePreType mRenBasePre;
+    PixfmtPreType mPixfPre;
     agg::rasterizer_scanline_aa<> mRasterizer;
   };
 

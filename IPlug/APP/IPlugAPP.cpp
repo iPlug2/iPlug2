@@ -12,7 +12,7 @@
 #include "IPlugAPP_host.h"
 
 #if defined OS_MAC || defined OS_LINUX
-#include "swell.h"
+#include <IPlugSWELL.h>
 #endif
 
 extern HWND gHWND;

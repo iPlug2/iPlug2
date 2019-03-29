@@ -1,0 +1,94 @@
+parameters:
+  name: ''
+  graphics: 'NANOVG'
+
+steps:
+  - task: DeleteFiles@1
+    inputs:
+      sourceFolder: $(Build.BinariesDirectory)
+      contents: '**'
+    displayName: Clean Binaries Directory
+
+  - task: DeleteFiles@1
+    inputs:
+      sourceFolder: $(Build.StagingDirectory)
+      contents: '**'
+    displayName: Clean Staging Directory
+
+  - task: DownloadPipelineArtifact@0
+    continueOnError: true
+    inputs:
+      artifactName: 'MAC_VST2_${{parameters.name}}_${{parameters.graphics}}'
+      targetPath: $(Build.BinariesDirectory)
+    displayName: Download MAC_VST2_${{parameters.name}}_${{parameters.graphics}}
+    condition: eq(variables.build_vst2, True)
+
+  - task: DownloadPipelineArtifact@0
+    continueOnError: true
+    inputs:
+      artifactName: 'MAC_VST3_${{parameters.name}}_${{parameters.graphics}}'
+      targetPath: $(Build.BinariesDirectory)
+    displayName: Download MAC_VST3_${{parameters.name}}_${{parameters.graphics}}
+    condition: eq(variables.build_vst3, True)
+  
+  # - task: DownloadPipelineArtifact@0
+  #   continueOnError: true
+  #   inputs:
+  #     artifactName: 'MAC_AAX_${{parameters.name}}_${{parameters.graphics}}'
+  #     targetPath: $(Build.BinariesDirectory)
+  #   displayName: Download MAC_AAX_${{parameters.name}}_${{parameters.graphics}}
+  #   condition: eq(variables.build_aax, True)
+
+  - task: DownloadPipelineArtifact@0
+    continueOnError: true
+    inputs:
+      artifactName: 'MAC_AU_${{parameters.name}}_${{parameters.graphics}}'
+      targetPath: $(Build.BinariesDirectory)
+    displayName: Download MAC_AU_${{parameters.name}}_${{parameters.graphics}}
+    condition: eq(variables.build_auv2, True)
+
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: '$(Build.BinariesDirectory)/*.zip'
+      destinationFolder: $(Build.StagingDirectory)
+      cleanDestinationFolder: True
+    displayName: Extract zip file if it exists
+
+  - bash: |
+      pluginval.app/Contents/MacOS/pluginval --validate-in-process --skip-gui-tests --output-dir "./bin" --validate "$BUILD_STAGINGDIRECTORY/${{parameters.name}}.vst" || exit 1
+    displayName: Pluginval - Test ${{parameters.name}} VST2
+    continueOnError: true
+    condition: eq(variables.build_vst2, True)
+
+  - bash: |
+      pluginval.app/Contents/MacOS/pluginval --validate-in-process --skip-gui-tests --output-dir "./bin" --validate "$BUILD_STAGINGDIRECTORY/${{parameters.name}}.vst3" || exit 1
+    displayName: Pluginval - Test ${{parameters.name}} VST3
+    continueOnError: true
+    condition: eq(variables.build_vst3, True)
+
+  - bash: |
+      ./validator $BUILD_STAGINGDIRECTORY/${{parameters.name}}.vst3
+    displayName: VST3 Validator - Test ${{parameters.name}} VST3
+    continueOnError: true
+    condition: eq(variables.build_vst3, True)
+
+  - bash: |
+      mkdir -p ~/Library/Audio/Plug-Ins/Components/
+      killall -9 AudioComponentRegistrar
+      mv $BUILD_STAGINGDIRECTORY/${{parameters.name}}.component ~/Library/Audio/Plug-Ins/Components/
+    continueOnError: true
+    displayName: Install AUv2
+    condition: eq(variables.build_auv2, True)
+
+  - bash: |
+      cd $BUILD_STAGINGDIRECTORY
+      ./validate_audiounit.sh config.h
+    continueOnError: true
+    displayName: AUVAL - Test ${{parameters.name}} AUv2
+    condition: eq(variables.build_auv2, True)
+
+  # - bash: |
+  #     pluginval.app/Contents/MacOS/pluginval --validate-in-process --skip-gui-tests --output-dir "./bin" --validate ${{parameters.name}}.component || exit 1
+  #   displayName: Pluginval - Test ${{parameters.name}} AUv2
+  #   continueOnError: true
+  #   condition: eq(variables.build_auv2, True)

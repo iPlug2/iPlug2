@@ -60,7 +60,7 @@ bool IWebsocketEditorDelegate::OnWebsocketData(int connIdx, void* pData, size_t 
 
 void IWebsocketEditorDelegate::SendMidiMsgFromUI(const IMidiMsg& msg)
 {
-  IByteChunk data; // FIXME: don't copy
+  IByteChunk data;
   data.PutStr("SMMFD");
   data.Put(&msg.mStatus);
   data.Put(&msg.mData1);
@@ -74,7 +74,7 @@ void IWebsocketEditorDelegate::SendMidiMsgFromUI(const IMidiMsg& msg)
 
 void IWebsocketEditorDelegate::SendSysexMsgFromUI(const ISysEx& msg)
 {
-  IByteChunk data; // FIXME: don't copy
+  IByteChunk data;
   data.PutStr("SSMFD");
   data.Put(&msg.mSize);
   data.PutBytes(&msg.mData, msg.mSize);
@@ -87,7 +87,7 @@ void IWebsocketEditorDelegate::SendSysexMsgFromUI(const ISysEx& msg)
 
 void IWebsocketEditorDelegate::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData)
 {
-  IByteChunk data; // FIXME: don't copy
+  IByteChunk data;
   data.PutStr("SSMFD");
   data.Put(&messageTag);
   data.Put(&controlTag);
@@ -108,7 +108,7 @@ void IWebsocketEditorDelegate::SendArbitraryMsgFromUI(int messageTag, int contro
 
 void IWebsocketEditorDelegate::SendParameterValueFromUI(int paramIdx, double normalizedValue)
 {
-  IByteChunk data; // FIXME: don't copy
+  IByteChunk data;
   data.PutStr("SPVFD");
   data.Put(&paramIdx);
   data.Put(&normalizedValue);
@@ -126,7 +126,7 @@ void IWebsocketEditorDelegate::SendParameterValueFromUI(int paramIdx, double nor
 
 void IWebsocketEditorDelegate::SendControlValueFromDelegate(int controlTag, double normalizedValue)
 {
-  IByteChunk data; // FIXME: don't copy
+  IByteChunk data;
   data.PutStr("SCVFD");
   data.Put(&controlTag);
   data.Put(&normalizedValue);
@@ -138,7 +138,7 @@ void IWebsocketEditorDelegate::SendControlValueFromDelegate(int controlTag, doub
 
 void IWebsocketEditorDelegate::SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData)
 {
-  IByteChunk data; // FIXME: don't copy
+  IByteChunk data;
   data.PutStr("SCMFD");
   data.Put(&controlTag);
   data.Put(&messageTag);
@@ -152,7 +152,7 @@ void IWebsocketEditorDelegate::SendControlMsgFromDelegate(int controlTag, int me
 
 void IWebsocketEditorDelegate::SendArbitraryMsgFromDelegate(int messageTag, int dataSize, const void* pData)
 {
-  IByteChunk data; // FIXME: don't copy
+  IByteChunk data;
   data.PutStr("SAMFD");
   data.Put(&messageTag);
   data.Put(&dataSize);
@@ -165,7 +165,7 @@ void IWebsocketEditorDelegate::SendArbitraryMsgFromDelegate(int messageTag, int 
 
 void IWebsocketEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
 {
-  IByteChunk data; // FIXME: don't copy
+  IByteChunk data;
   data.PutStr("SMMFD");
   data.Put(&msg.mStatus);
   data.Put(&msg.mData1);
@@ -178,7 +178,7 @@ void IWebsocketEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
 
 void IWebsocketEditorDelegate::SendSysexMsgFromDelegate(const ISysEx& msg)
 {
-  IByteChunk data; // FIXME: don't copy
+  IByteChunk data;
   data.PutStr("SSMFD");
   data.Put(&msg.mSize);
   data.PutBytes(msg.mData, msg.mSize);

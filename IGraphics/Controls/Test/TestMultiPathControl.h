@@ -46,23 +46,23 @@ public:
       }
       else if (mShape == 1)
       {
-        float pad1 = (mRECT.W() / 2.0) * (1.0 - value);
-        float pad2 = (mRECT.H() / 2.0) * (1.0 - value);
-        IRECT size1 = mRECT.GetPadded(pad1, pad2, -pad1, -pad2);
-        pad1 = (size1.W() / 2.0) * (1.0 - value);
-        pad2 = (size1.H() / 2.0) * (1.0 - value);
-        IRECT size2 = size1.GetPadded(pad1, pad2, -pad1, -pad2);
+        float pad1 = (mRECT.W() / 2.0) * (1.0 - GetValue());
+        float pad2 = (mRECT.H() / 2.0) * (1.0 - GetValue());
+        IRECT size1 = mRECT.GetPadded(-pad1, -pad2, -pad1, -pad2);
+        pad1 = (size1.W() / 2.0) * (1.0 - GetValue());
+        pad2 = (size1.H() / 2.0) * (1.0 - GetValue());
+        IRECT size2 = size1.GetPadded(-pad1, -pad2, -pad1, -pad2);
         g.PathRect(size1);
         g.PathRect(size2);
       }
       else if (mShape == 2)
       {
-        float pad1 = (mRECT.W() / 2.0) * (1.0 - value);
-        float pad2 = (mRECT.H() / 2.0) * (1.0 - value);
-        IRECT size1 = mRECT.GetPadded(pad1, pad2, -pad1, -pad2);
-        pad1 = (size1.W() / 2.0) * (1.0 - value);
-        pad2 = (size1.H() / 2.0) * (1.0 - value);
-        IRECT size2 = size1.GetPadded(pad1, pad2, -pad1, -pad2);
+        float pad1 = (mRECT.W() / 2.0) * (1.0 - GetValue());
+        float pad2 = (mRECT.H() / 2.0) * (1.0 - GetValue());
+        IRECT size1 = mRECT.GetPadded(-pad1, -pad2, -pad1, -pad2);
+        pad1 = (size1.W() / 2.0) * (1.0 - GetValue());
+        pad2 = (size1.H() / 2.0) * (1.0 - GetValue());
+        IRECT size2 = size1.GetPadded(-pad1, -pad2, -pad1, -pad2);
         g.PathRoundRect(size1, size1.H() * 0.125);
         g.PathRoundRect(size2, size2.H() * 0.125);
       }

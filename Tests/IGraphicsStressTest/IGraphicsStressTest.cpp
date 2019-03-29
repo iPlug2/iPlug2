@@ -6,14 +6,16 @@
 IGraphicsStressTest::IGraphicsStressTest(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, 1, instanceInfo)
 {
+  GetParam(0)->InitGain("Dummy");
+  
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
     return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, 1.);
   };
-  
 #endif
 }
 
+#if IPLUG_EDITOR
 void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
 {
   IRECT bounds = pGraphics->GetBounds();
@@ -101,3 +103,4 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
   pGraphics->AttachControl(new ITextControl(bounds.GetGridCell(0, 2, 1), "", IText(100)), kCtrlTagNumThings);
   pGraphics->AttachControl(new ITextControl(bounds.GetGridCell(1, 2, 1), "", IText(100)), kCtrlTagTestNum);
 }
+#endif

@@ -91,7 +91,7 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
   char hostNameCString[128];
   FUnknownPtr<IHostApplication>app(context);
 
-  if (app)
+  if ((GetHost() == kHostUninit) && app)
   {
     app->getName(tmpStringBuf);
     Steinberg::UString(tmpStringBuf, 128).toAscii(hostNameCString, 128);
@@ -1003,16 +1003,18 @@ tresult PLUGIN_API IPlugVST3View::attached(void* parent, FIDString type)
 {
   if (mPlug->HasUI())
   {
+    void* pView = nullptr;
     #ifdef OS_WIN
     if (strcmp(type, kPlatformTypeHWND) == 0)
-      mPlug->OpenWindow(parent);
+      pView = mPlug->OpenWindow(parent);
     #elif defined OS_MAC
     if (strcmp (type, kPlatformTypeNSView) == 0)
-      mPlug->OpenWindow(parent);
+      pView = mPlug->OpenWindow(parent);
     else // Carbon
       return kResultFalse;
     #endif
-    mPlug->OnUIOpen();
+    if (pView)
+      mPlug->OnUIOpen();
 
     return kResultTrue;
   }

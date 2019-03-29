@@ -14,7 +14,7 @@
             ],
             "defines": [
                 "OS_MAC",
-                "VST2_API",
+                "APP_API",
                 "IPLUG_DSP=1",
                 "IPLUG_EDITOR=1",
                 "IGRAPHICS_NANOVG",

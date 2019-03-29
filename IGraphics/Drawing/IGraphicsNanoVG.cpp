@@ -100,8 +100,9 @@ NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double source
   SetBitmap(nvgImageID, w, h, sourceScale, 1.f);
 }
 
-NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, int scale, float drawScale)
+NanoVGBitmap::NanoVGBitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, int scale, float drawScale)
 {
+  mGraphics = pGraphics;
   mVG = pContext;
   mFBO = nvgCreateFramebuffer(pContext, width, height, 0);
   
@@ -131,7 +132,7 @@ NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, const ui
 NanoVGBitmap::~NanoVGBitmap()
 {
   if(mFBO)
-    nvgDeleteFramebuffer(mFBO);
+    mGraphics->DeleteFBO(mFBO);
   else
     nvgDeleteImage(mVG, GetBitmap());
 }
@@ -160,50 +161,18 @@ inline void NanoVGSetBlendMode(NVGcontext* context, const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case kBlendNone:
-      nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
-      break;
-    case kBlendClobber:
-      nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
-      //nvgGlobalCompositeOperation(context, NVG_COPY);
-      break;
-          
-    case kBlendAdd:
-      nvgGlobalCompositeBlendFunc(context, NVG_SRC_ALPHA, NVG_DST_ALPHA);
-      break;
-  
-    case kBlendSourceOver:
-      nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
-      break;
-    case kBlendSourceIn:
-      nvgGlobalCompositeOperation(context, NVG_SOURCE_IN);
-      break;
-    case kBlendSourceOut:
-      nvgGlobalCompositeOperation(context, NVG_SOURCE_OUT);
-      break;
-    case kBlendSourceAtop:
-      nvgGlobalCompositeOperation(context, NVG_ATOP);
-      break;
-          
-    case kBlendDestOver:
-      nvgGlobalCompositeOperation(context, NVG_DESTINATION_OVER);
-      break;
-    case kBlendDestIn:
-      nvgGlobalCompositeOperation(context, NVG_DESTINATION_IN);
-      break;
-    case kBlendDestOut:
-      nvgGlobalCompositeOperation(context, NVG_DESTINATION_OUT);
-      break;
-    case kBlendDestAtop:
-      nvgGlobalCompositeOperation(context, NVG_DESTINATION_ATOP);
-      break;
-          
-    case kBlendXOR:
-      nvgGlobalCompositeOperation(context, NVG_XOR);
-      break;
-          
-    default:
-      nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
+    case kBlendDefault:       // fall through
+    case kBlendClobber:       // fall through
+    case kBlendSourceOver:    nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);                break;
+    case kBlendSourceIn:      nvgGlobalCompositeOperation(context, NVG_SOURCE_IN);                  break;
+    case kBlendSourceOut:     nvgGlobalCompositeOperation(context, NVG_SOURCE_OUT);                 break;
+    case kBlendSourceAtop:    nvgGlobalCompositeOperation(context, NVG_ATOP);                       break;
+    case kBlendDestOver:      nvgGlobalCompositeOperation(context, NVG_DESTINATION_OVER);           break;
+    case kBlendDestIn:        nvgGlobalCompositeOperation(context, NVG_DESTINATION_IN);             break;
+    case kBlendDestOut:       nvgGlobalCompositeOperation(context, NVG_DESTINATION_OUT);            break;
+    case kBlendDestAtop:      nvgGlobalCompositeOperation(context, NVG_DESTINATION_ATOP);           break;
+    case kBlendAdd:           nvgGlobalCompositeBlendFunc(context, NVG_SRC_ALPHA, NVG_DST_ALPHA);   break;
+    case kBlendXOR:           nvgGlobalCompositeOperation(context, NVG_XOR);                        break;
   }
 }
 
@@ -240,6 +209,7 @@ IGraphicsNanoVG::IGraphicsNanoVG(IGEditorDelegate& dlg, int w, int h, int fps, f
 
 IGraphicsNanoVG::~IGraphicsNanoVG() 
 {
+  ClearFBOStack();
 }
 
 const char* IGraphicsNanoVG::GetDrawingAPIStr()
@@ -333,7 +303,7 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
 APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetBackingPixelScale();
-  return new NanoVGBitmap(mVG, std::round(width * scale), std::round(height * scale), GetScreenScale(), GetDrawScale());
+  return new NanoVGBitmap(this, mVG, std::ceil(width * scale), std::ceil(height * scale), GetScreenScale(), GetDrawScale());
 }
 
 void IGraphicsNanoVG::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
@@ -373,7 +343,7 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
     IRECT bounds(layer->Bounds());
     
     NanoVGBitmap maskRawBitmap(mVG, width, height, mask.Get(), pBitmap->GetScale(), pBitmap->GetDrawScale());
-    APIBitmap* shadowBitmap = new NanoVGBitmap(mVG, width, height, pBitmap->GetScale(), pBitmap->GetDrawScale());
+    APIBitmap* shadowBitmap = new NanoVGBitmap(this, mVG, width, height, pBitmap->GetScale(), pBitmap->GetDrawScale());
     IBitmap tempLayerBitmap(shadowBitmap, 1, false);
     IBitmap maskBitmap(&maskRawBitmap, 1, false);
     ILayer shadowLayer(shadowBitmap, layer->Bounds());
@@ -398,49 +368,11 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
 void IGraphicsNanoVG::SetPlatformContext(void* pContext)
 {
   mPlatformContext = pContext;
-#ifdef OS_WIN
-  if(pContext)
-    OnViewInitialized(pContext);
-#endif
 }
 
 void IGraphicsNanoVG::OnViewInitialized(void* pContext)
 {
-#if defined OS_WIN
-  if (pContext)
-  {
-    PIXELFORMATDESCRIPTOR pfd =
-    {
-      sizeof(PIXELFORMATDESCRIPTOR),
-      1,
-      PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER, //Flags
-      PFD_TYPE_RGBA, // The kind of framebuffer. RGBA or palette.
-      32, // Colordepth of the framebuffer.
-      0, 0, 0, 0, 0, 0,
-      0,
-      0,
-      0,
-      0, 0, 0, 0,
-      24, // Number of bits for the depthbuffer
-      8, // Number of bits for the stencilbuffer
-      0, // Number of Aux buffers in the framebuffer.
-      PFD_MAIN_PLANE,
-      0,
-      0, 0, 0
-    };
-    
-    HDC dc = (HDC) pContext;
-    
-    int fmt = ChoosePixelFormat(dc, &pfd);
-    SetPixelFormat(dc, fmt, &pfd);
-    
-    mHGLRC = wglCreateContext(dc);
-    wglMakeCurrent(dc, mHGLRC);
-    if (!gladLoadGL())
-      throw std::runtime_error{"Error initializing glad"};
-    glGetError();
-  }
-#elif defined OS_WEB
+#if defined OS_WEB
   if (!glfwInit())
   {
     DBGMSG("Failed to init GLFW.");
@@ -496,13 +428,7 @@ void IGraphicsNanoVG::OnViewDestroyed()
   
   mVG = nullptr;
   
-#if defined OS_WIN
-  if (mHGLRC)
-  {
-    wglMakeCurrent((HDC)mPlatformContext, nullptr);
-    wglDeleteContext(mHGLRC);
-  }
-#elif defined OS_WEB
+#if defined OS_WEB
   glfwTerminate();
 #endif
 }
@@ -520,6 +446,7 @@ void IGraphicsNanoVG::DrawResize()
 
 void IGraphicsNanoVG::BeginFrame()
 {
+  mInDraw = true;
   IGraphics::BeginFrame(); // start perf graph timing
 
 #ifdef IGRAPHICS_METAL
@@ -558,7 +485,9 @@ void IGraphicsNanoVG::EndFrame()
   nvgRestore(mVG);
   
   nvgEndFrame(mVG);
-
+  mInDraw = false;
+  ClearFBOStack();
+    
 #if defined OS_WEB
   glEnable(GL_DEPTH_TEST);
 #endif
@@ -803,7 +732,7 @@ void IGraphicsNanoVG::UpdateLayer()
   if (mLayers.empty())
   {
     nvgEndFrame(mVG);
-#ifndef IGRAPHICS_METAL
+#ifdef IGRAPHICS_GL
     glViewport(0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
 #endif
     nvgBindFramebuffer(mMainFrameBuffer);
@@ -812,7 +741,7 @@ void IGraphicsNanoVG::UpdateLayer()
   else
   {
     nvgEndFrame(mVG);
-#ifndef IGRAPHICS_METAL
+#ifdef IGRAPHICS_GL
     const double scale = GetBackingPixelScale();
     glViewport(0, 0, mLayers.top()->Bounds().W() * scale, mLayers.top()->Bounds().H() * scale);
 #endif
@@ -873,7 +802,7 @@ void IGraphicsNanoVG::DrawDottedLine(const IColor& color, float x1, float y1, fl
     
     progress += incr;
     
-    xs = x1 + progress * (x2 - x1);;
+    xs = x1 + progress * (x2 - x1);
     ys = y1 + progress * (y2 - y1);
     
     PathMoveTo(xs, ys);
@@ -921,4 +850,25 @@ void IGraphicsNanoVG::DrawDottedRect(const IColor& color, const IRECT& bounds, c
   }
   
   PathStroke(color, thickness, IStrokeOptions(), pBlend);
+}
+
+void IGraphicsNanoVG::DeleteFBO(NVGframebuffer* pBuffer)
+{
+  if (!mInDraw)
+    nvgDeleteFramebuffer(pBuffer);
+  else
+  {
+    WDL_MutexLock lock(&mFBOMutex);
+    mFBOStack.push(pBuffer);
+  }
+}
+
+void IGraphicsNanoVG::ClearFBOStack()
+{
+  WDL_MutexLock lock(&mFBOMutex);
+  while (!mFBOStack.empty())
+  {
+    nvgDeleteFramebuffer(mFBOStack.top());
+    mFBOStack.pop();
+  }
 }
