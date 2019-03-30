@@ -33,7 +33,7 @@
 	<key>NSMainNibFile</key>
 	<string>IPlugEffect-macOS-MainMenu</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>This app needs mic access to proecss audio.</string>
+	<string>This app needs mic access to process audio.</string>
 	<key>NSPrincipalClass</key>
 	<string>SWELLApplication</string>
 </dict>
