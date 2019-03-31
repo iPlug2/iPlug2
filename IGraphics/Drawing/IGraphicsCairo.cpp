@@ -110,22 +110,18 @@ struct WinCairoDiskFont : CairoFont
 class PNGStream
 {
 public:
-  PNGStream(const char* path)
-  : mData(nullptr), mSize(0), mCount(0)
-  {
-    mData = reinterpret_cast<uint8_t *>(LoadWinResource(path, "png", mSize));
-  }
+  PNGStream(const uint8_t* pData, int size) : mData(pData), mSize(size)
+  {}
 
-  cairo_status_t Read(void *object, uint8_t* data, uint32_t length)
+  static cairo_status_t Read(void *object, uint8_t* data, uint32_t length)
   {
     PNGStream* reader = reinterpret_cast<PNGStream*>(object);
     
-    if (length > reader->mSize)
+    if ((reader->mSize -= static_cast<int>(length)) < 0)
       return CAIRO_STATUS_READ_ERROR;
       
     memcpy(data, reader->mData, length);
     reader->mData += length;
-    reader->mSize -= length;
       
     return CAIRO_STATUS_SUCCESS;
   }
@@ -229,7 +225,9 @@ APIBitmap* IGraphicsCairo::LoadAPIBitmap(const char* fileNameOrResID, int scale,
 #ifdef OS_WIN
   if (location == EResourceLocation::kWinBinary)
   {
-    PNGStream reader(fileNameOrResID);
+    int size = 0;
+    const void* pData = LoadWinResource(fileNameOrResID, "png", size);
+    PNGStream reader(reinterpret_cast<const uint8_t *>(pData), size);
     pSurface = cairo_image_surface_create_from_png_stream(&PNGStream::Read, &reader);
   }
   else
