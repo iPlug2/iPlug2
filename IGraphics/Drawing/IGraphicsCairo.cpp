@@ -24,17 +24,38 @@ struct CairoFont
 };
 
 #ifdef OS_WIN
-cairo_font_face_t* GetWinCairoFont(const char* fontName, int weight = FW_REGULAR, bool italic = false, DWORD quality)
+
+cairo_font_face_t* GetWinCairoFont(const char* fontName, int weight = FW_REGULAR, bool italic = false, DWORD quality = DEFAULT_QUALITY, bool enumerate = false)
 {
-  // what really needs to happen here is that actual font family name needs to be extracted from the ttf somehow and used instead of fontName.
-  // Note that even if we fail to add the font from disk or resources, CreateFont will likely give us *something* similar
-  
-  HFONT pFont = CreateFont(0, 0, 0, 0, weight, italic, false, false, DEFAULT_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, quality, DEFAULT_PITCH, fontName);
-  
-  if (pFont)
+  cairo_font_face_t* pCairoFont = nullptr;
+  HFONT pFont = nullptr;
+  LOGFONT lFont;
+
+  lFont.lfHeight = 0;
+  lFont.lfWidth = 0;
+  lFont.lfEscapement = 0;
+  lFont.lfOrientation = 0;
+  lFont.lfWeight = weight;
+  lFont.lfItalic = italic;
+  lFont.lfUnderline = false;
+  lFont.lfStrikeOut = false;
+  lFont.lfCharSet = DEFAULT_CHARSET;
+  lFont.lfOutPrecision = OUT_TT_PRECIS;
+  lFont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
+  lFont.lfQuality = quality;
+  lFont.lfPitchAndFamily = DEFAULT_PITCH;
+
+  strncpy(lFont.lfFaceName, fontName, LF_FACESIZE);
+
+  auto enumProc = [](const LOGFONT* pLFont, const TEXTMETRIC* pTextMetric, DWORD FontType, LPARAM lParam)
   {
-    cairo_font_face_t* pCairoFont = cairo_win32_font_face_create_for_hfont(pFont);
-    DeleteObject(font);
+    return -1;
+  };
+
+  if ((!enumerate || EnumFontFamiliesEx(GetDC(NULL), &lFont, enumProc, NULL, 0) == -1) && (pFont = CreateFontIndirect(&lFont)))
+  {
+    pCairoFont = cairo_win32_font_face_create_for_hfont(pFont);
+    DeleteObject(pFont);
   }
   
   return pCairoFont;
@@ -42,23 +63,22 @@ cairo_font_face_t* GetWinCairoFont(const char* fontName, int weight = FW_REGULAR
 
 struct WinCairoMemFont : CairoFont
 {
-  WinCairoMemFont(const char * name)
+  WinCairoMemFont(const char* name, void* data, int resSize)
   : CairoFont(nullptr), mFontHandle(nullptr)
   {
-    int resSize;
-    // AddFontMemResourceEx doesn't accept const void *
-    void* data = const_cast<void*>(LoadWinResource(fullPath.Get(), "ttf", resSize));
     if (data)
     {
-      mFontHandle = AddFontMemResourceEx(data, resSize, NULL, &mNumFonts);
+      DWORD numFonts;
+      mFontHandle = AddFontMemResourceEx(data, resSize, NULL, &numFonts);
+      if (mFontHandle)
+        mFont = GetWinCairoFont(name);
     }
-    
-    mFont = GetWinCairoFont(name);
   }
   
   ~WinCairoMemFont()
   {
-    RemoveFontMemResourceEx(mAddResult);
+    if (mFontHandle)
+      RemoveFontMemResourceEx(mFontHandle);
   }
   
   HANDLE mFontHandle;
@@ -67,20 +87,23 @@ struct WinCairoMemFont : CairoFont
 struct WinCairoDiskFont : CairoFont
 {
   WinCairoDiskFont(const char *path, const char *name)
-    : CairoFont(nullptr), mName(name), mNumFonts(0)
+    : CairoFont(nullptr)
   {
-    mNumFonts = AddFontResourceEx(fullPath.Get(), FR_PRIVATE, NULL);
-    mFont = GetWinCairoFont(name);
+    if (AddFontResourceEx(path, FR_NOT_ENUM, NULL))
+    {
+      mName = WDL_String(name);
+      mFont = GetWinCairoFont(name);
+    }
   }
   
-  ~WinFont()
+  ~WinCairoDiskFont()
   {
-    RemoveFontResourceEx(mName.Get(), FR_PRIVATE, NULL);
+    if (mName.GetLength())
+      RemoveFontResourceEx(mName.Get(), FR_PRIVATE, NULL);
   }
   
   WDL_String mName;
-  DWORD mNumFonts;
-=};
+};
 
 //TODO: could replace some of this with IGraphics::LoadWinResource
 class PNGStreamReader
@@ -671,15 +694,21 @@ bool IGraphicsCairo::LoadFont(const char* name)
 
     return true;
 #elif defined OS_WIN
-    WinFont* winFont = nullptr;
-  
+    CairoFont* winFont = nullptr;
+    int resSize = 0;
+
     switch (fontLocation)
     {
-      case kAbsolutePath:   winFont = new WinCairoDiskFont(fullPath, fontName);
-      case kWinBinary:      winFont = new WinCairoMemFont(fontName);
+      case kAbsolutePath:
+        winFont = new WinCairoDiskFont(fullPath.Get(), fontName);
+        break;
+      case kWinBinary:
+        void* pFontMem = const_cast<void *>(LoadWinResource(fullPath.Get(), "ttf", resSize));
+        winFont = new WinCairoMemFont(fontName, pFontMem, resSize);
+        break;
     }
     
-    if (winFont.mFont)
+    if (winFont && winFont->mFont)
     {
       storage.Add(winFont, fontName);
       return true;
@@ -739,11 +768,11 @@ bool IGraphicsCairo::LoadFont(const char* fontName, IText::EStyle style)
     case IText::kQualityNonAntiAliased: quality = NONANTIALIASED_QUALITY; break;
   }
   
-  cairo_font_face_t* pCairoFont = GetWinCairoFont(fontName, weight, italic, quality);
+  cairo_font_face_t* pCairoFont = GetWinCairoFont(fontName, weight, italic, quality, true);
  
   if (pCairoFont)
   {
-    storage.Add(new CairoFont(pCairoFont, fontWithStyle.Get());
+    storage.Add(new CairoFont(pCairoFont), fontWithStyle.Get());
     return true;
   }
 #endif
