@@ -47,12 +47,7 @@ cairo_font_face_t* GetWinCairoFont(const char* fontName, int weight = FW_REGULAR
 
   strncpy(lFont.lfFaceName, fontName, LF_FACESIZE);
 
-  auto enumProc = [](const LOGFONT* pLFont, const TEXTMETRIC* pTextMetric, DWORD FontType, LPARAM lParam)
-  {
-    return -1;
-  };
-
-  if (EnumFontFamiliesEx(GetDC(NULL), &lFont, enumProc, NULL, 0) == -1 && (pFont = CreateFontIndirect(&lFont)))
+  if ((pFont = CreateFontIndirect(&lFont)))
   {
     pCairoFont = cairo_win32_font_face_create_for_hfont(pFont);
     DeleteObject(pFont);
@@ -89,7 +84,7 @@ struct WinCairoDiskFont : CairoFont
   WinCairoDiskFont(const char *path, const char *name)
     : CairoFont(nullptr)
   {
-    if (AddFontResourceEx(path, FR_PRIVATE, NULL))
+    if (AddFontResourceEx(path, FR_NOT_ENUM, NULL))
     {
       mName = WDL_String(name);
       mFont = GetWinCairoFont(name);
