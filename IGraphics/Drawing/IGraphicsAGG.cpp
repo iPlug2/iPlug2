@@ -612,7 +612,7 @@ void IGraphicsAGG::EndFrame()
 {
 #ifdef OS_MAC
   CGContext* pCGContext = (CGContext*) GetPlatformContext();
-  CGContextSaveGState();
+  CGContextSaveGState(pCGContext);
   CGContextTranslateCTM(pCGContext, 0.0, WindowHeight());
   CGContextScaleCTM(pCGContext, 1.0, -1.0);
   mPixelMap.draw(pCGContext, GetScreenScale());
