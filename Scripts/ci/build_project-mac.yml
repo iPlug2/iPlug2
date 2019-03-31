@@ -12,22 +12,23 @@ steps:
   #     certSecureFile: macos_certificate.p12
   #     certPwd: $(CERT_PWD)
 
-  - bash: |
-      echo srcRepo parameter = ${{ parameters.srcRepo }}
-      if [ ${{ parameters.srcRepo }} != none ]
-      then
-        if [ ! -d ./${{parameters.path}} ]
+  - ${{ if ne(parameters.srcRepo, 'none') }}:
+    - bash: |
+        echo srcRepo parameter = ${{ parameters.srcRepo }}
+        if [ ${{ parameters.srcRepo }} != none ]
         then
-          mkdir -p ./${{parameters.path}}
+          if [ ! -d ./${{parameters.path}} ]
+          then
+            mkdir -p ./${{parameters.path}}
+          fi
+          cd ./${{parameters.path}}
+          git clone --recursive -b ${{ parameters.srcBranch }} ${{ parameters.srcRepo }} ${{parameters.name}}
+        else
+          echo no remote repo argument supplied, building local project ${{parameters.path}}/${{parameters.name}} ... 
         fi
-        cd ./${{parameters.path}}
-        git clone --recursive -b ${{ parameters.srcBranch }} ${{ parameters.srcRepo }} ${{parameters.name}}
-      else
-        echo no remote repo argument supplied, building local project ${{parameters.path}}/${{parameters.name}} ... 
-      fi
-    env:
-      GITHUB_PAT: $(GITHUB_PAT)
-    displayName: (Optionally) clone ${{parameters.name}} repo
+      env:
+        GITHUB_PAT: $(GITHUB_PAT)
+      displayName: (Optionally) clone remote project repo
 
   - bash: |
       cd ./${{parameters.path}}/${{parameters.name}}/scripts
@@ -135,6 +136,7 @@ steps:
       cd ${{parameters.path}}/${{parameters.name}}/build-mac/
       if [ -d ${{parameters.name}}.vst3 ]; then
         zip -r ${{parameters.name}}_VST3.zip ${{parameters.name}}.vst3*
+        rm -r ${{parameters.name}}.vst3
         mv ${{parameters.name}}_VST3.zip $outputDir
       fi
     displayName: Organize VST3 artifact
@@ -191,9 +193,13 @@ steps:
       mkdir -p $outputDir
       cd ${{parameters.path}}/${{parameters.name}}/build-mac/
       if [ -d ${{parameters.name}}.component ]; then
-        zip -r ${{parameters.name}}_AU.zip ${{parameters.name}}.component*
+        zip -r ../${{parameters.name}}_AU.zip ${{parameters.name}}.component; 
+        cd ..; 
+        cp ../../Scripts/validate_audiounit.sh .
+        zip -ur ${{parameters.name}}_AU.zip config.h validate_audiounit.sh
         mv ${{parameters.name}}_AU.zip $outputDir
       fi
+
     displayName: Organize AU artifact
     condition: eq(variables.build_auv2, True)
 

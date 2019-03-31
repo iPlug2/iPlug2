@@ -25,9 +25,9 @@
 
 #ifndef DEFAULT_FAUST_LIBRARY_PATH
   #if defined OS_MAC || defined OS_LINUX
-  #define DEFAULT_FAUST_LIBRARY_PATH "/usr/local/share/faust/"
+    #define DEFAULT_FAUST_LIBRARY_PATH "/usr/local/share/faust/"
   #else
-  #define DEFAULT_FAUST_LIBRARY_PATH "" //TODO
+   #define DEFAULT_FAUST_LIBRARY_PATH "C:\\Program Files\\Faust\\share\\faust"
   #endif
 #endif
 
@@ -261,10 +261,10 @@ protected:
         pParam->InitBool(label, 0);
         break;
       case IParam::EParamType::kTypeInt:
-        pParam->InitInt(label, init, min, max);
+        pParam->InitInt(label, static_cast<int>(init), static_cast<int>(min), static_cast<int>(max));
         break;
       case IParam::EParamType::kTypeEnum:
-        pParam->InitEnum(label, init, max - min);
+        pParam->InitEnum(label, static_cast<int>(init), static_cast<int>(max - min));
         //TODO: metadata
         break;
       case IParam::EParamType::kTypeDouble:

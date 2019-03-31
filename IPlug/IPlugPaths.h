@@ -56,3 +56,8 @@ extern void SandboxSafeAppSupportPath(WDL_String& path);
  * @param pluginName CString to specify the plug-in name, which will be the sub folder (beneath mfrName) in which the .vstpreset files are located
  * @param isSystem Set \c true if you want to obtain the system-wide path, otherwise the path will be in the user's home folder */
 extern void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem = true);
+
+/** Get the path to the folder where the App's settings.ini file is stored
+ * @param path WDL_String reference where the path will be put on success or empty string on failure
+ * @param pluginName CString to specify the plug-in name (BUNDLE_NAME from config.h can be used here) */
+extern void INIPath(WDL_String& path, const char * pluginName);

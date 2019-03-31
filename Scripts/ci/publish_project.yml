@@ -25,28 +25,28 @@ steps:
     displayName: Publish ${{parameters.platformStr}}_${{parameters.name}}_${{parameters.graphics}} to github pages
     
 - ${{ if or(eq(parameters.platformStr, 'MAC'), eq(parameters.platformStr, 'WIN')) }}:
-  - template: project-upload-release.yml
+  - template: publish_project-ghrelease.yml
     parameters: 
       name: '${{parameters.name}}'
       platformStr: '${{parameters.platformStr}}'
       graphics: '${{parameters.graphics}}'
       pluginType: 'APP'
 
-  - template: project-upload-release.yml
+  - template: publish_project-ghrelease.yml
     parameters:
       name: '${{parameters.name}}'
       platformStr: '${{parameters.platformStr}}'
       graphics: '${{parameters.graphics}}'
       pluginType: 'VST2'
 
-  - template: project-upload-release.yml
+  - template: publish_project-ghrelease.yml
     parameters:
       name: '${{parameters.name}}'
       platformStr: '${{parameters.platformStr}}'
       graphics: '${{parameters.graphics}}'
       pluginType: 'VST3'
 
-  - template: project-upload-release.yml
+  - template: publish_project-ghrelease.yml
     parameters:
       name: '${{parameters.name}}'
       platformStr: '${{parameters.platformStr}}'
@@ -54,7 +54,7 @@ steps:
       pluginType: 'AAX'
 
   - ${{ if eq(parameters.platformStr, 'MAC') }}:
-    - template: project-upload-release.yml
+    - template: publish_project-ghrelease.yml
       parameters:
         name: '${{parameters.name}}'
         platformStr: '${{parameters.platformStr}}'

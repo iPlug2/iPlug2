@@ -358,7 +358,7 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
 {
   OnViewInitialized(nullptr /* not used */);
 
-  SetScreenScale(val::global("window")["devicePixelRatio"].as<int>());
+  SetScreenScale(std::max(emscripten_get_device_pixel_ratio(), 1.));
 
   GetDelegate()->LayoutUI(this);
   
@@ -372,7 +372,7 @@ void IGraphicsWeb::HideMouseCursor(bool hide, bool lock)
     if (lock)
       emscripten_request_pointerlock("canvas", EM_FALSE);
     else
-      val::global("document")["body"]["style"].set("cursor", std::string("none"));
+      emscripten_hide_mouse();
     
     mCursorLock = lock;
   }

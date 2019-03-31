@@ -1,10 +1,6 @@
 #include "IPlugFaustDSP.h"
 #include "IPlug_include_in_plug_src.h"
 
-#if IPLUG_EDITOR
-#include "IPlugFaust_edit.h"
-#endif
-
 IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, 1, instanceInfo)
 {
@@ -24,21 +20,21 @@ IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
     IRECT b = pGraphics->GetBounds().GetPadded(-20);
-    
+
+    IRECT knobs = b.GetFromTop(100.);
+    IRECT viz = b.GetReducedFromTop(100);
     pGraphics->AttachCornerResizer(kUIResizerScale);
     pGraphics->LoadFont(ROBOTTO_FN);
-    
-    pGraphics->AttachPanelBackground(COLOR_BLACK);
-    pGraphics->AttachControl(new IVScopeControl<>(b.GetReducedFromTop(50)), kControlTagScope);
-    
-#ifndef FAUST_COMPILED
-    pGraphics->AttachControl(new IVButtonControl(b.GetFromTRHC(150, 30), [](IControl* pCaller)
-                                                 {
-                                                   FlashCircleClickActionFunc(pCaller);
 
-                                                   OpenFaustEditorWindow(DSP_FILE);
-                                                 }, "Edit FAUST File"));
-#endif
+    for (int i = 0; i < kNumParams; i++) {
+      pGraphics->AttachControl(new IVKnobControl(knobs.GetGridCell(i, 1, kNumParams), i));
+    }
+    
+    pGraphics->AttachPanelBackground(COLOR_GRAY);
+    IVScopeControl<>* pScopeCtrl = new IVScopeControl<>(viz);
+    pGraphics->AttachControl(pScopeCtrl, kControlTagScope);
+    pScopeCtrl->SetColor(kBG, COLOR_BLACK);
+    pScopeCtrl->SetColor(kFG, COLOR_GREEN);
   };
 #endif
 }

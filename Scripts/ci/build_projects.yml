@@ -7,10 +7,10 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      # CAIRO:
-      #   graphics: 'CAIRO'
-      # LICE:
-      #   graphics: 'LICE'
+      CAIRO:
+        graphics: 'CAIRO'
+      LICE:
+        graphics: 'LICE'
       # AGG:
       #   graphics: 'AGG'
 
@@ -24,24 +24,24 @@ jobs:
 
   - template: projects.yml
     parameters:
-      platform: project-mac.yml
+      platform: build_project-mac.yml
       graphics: $(graphics)
 
 - job: BUILD_WIN_PROJECTS
   condition: and(eq(variables.build_deps, false), eq(variables.build_win, true))
   dependsOn: 
     - GET_SRC_TREE
-    #comment this is not building with secure files
+    # comment this dependency if not building with AAX_SDK.zip secure file
     # - BUILD_WIN_AAX_LIBS
 
   strategy:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      # CAIRO:
-      #   graphics: 'CAIRO'
-      # LICE:
-      #   graphics: 'LICE'
+      CAIRO:
+        graphics: 'CAIRO'
+      LICE:
+        graphics: 'LICE'
       # AGG:
       #   graphics: 'AGG'
 
@@ -61,7 +61,7 @@ jobs:
 
   - template: projects.yml
     parameters:
-      platform: project-win.yml
+      platform: build_project-win.yml
       graphics: $(graphics)
 
 - job: BUILD_WEB_PROJECTS
@@ -72,8 +72,8 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      # CANVAS:
-      #   graphics: 'CANVAS'
+      CANVAS:
+        graphics: 'CANVAS'
 
   pool:
     vmImage: 'ubuntu-16.04'
@@ -84,13 +84,13 @@ jobs:
   - bash: |
       git clone https://github.com/emscripten-core/emsdk.git
       cd emsdk
-      ./emsdk install latest
-      ./emsdk activate latest
+      ./emsdk install sdk-1.38.28-64bit
+      ./emsdk activate sdk-1.38.28-64bit
     displayName: Install emscripten
 
   - template: get_src_artifact.yml
 
   - template: projects.yml
     parameters:
-      platform: project-web.yml
+      platform: build_project-web.yml
       graphics: $(graphics)

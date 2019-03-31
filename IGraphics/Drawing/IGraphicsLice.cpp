@@ -519,7 +519,7 @@ bool IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT&
     fmt |= DT_CALCRECT;
     RECT R = {0,0,0,0};
 #if defined OS_MAC || defined OS_LINUX
-    font->SWELL_DrawText(mRenderBitmap, str, -1, &R, fmt);
+    font->DrawText(mRenderBitmap, str, -1, &R, fmt);
 #elif defined OS_WIN
     font->DrawTextA(mRenderBitmap, str, -1, &R, fmt);
 #else
@@ -551,7 +551,7 @@ bool IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT&
     r.Scale(ds);
     RECT R = { (LONG) r.L, (LONG) r.T, (LONG) r.R, (LONG) r.B };
 #if defined OS_MAC || defined OS_LINUX
-    font->SWELL_DrawText(mRenderBitmap, str, -1, &R, fmt);
+    font->DrawText(mRenderBitmap, str, -1, &R, fmt);
 #elif defined OS_WIN
     font->DrawTextA(mRenderBitmap, str, -1, &R, fmt);
 #else

@@ -86,5 +86,5 @@ private:
   void SetClipRegion(const IRECT& r) override;
     
   void SetCanvasSourcePattern(val& context, const IPattern& pattern, const IBlend* pBlend = nullptr);
-  void SetCanvasBlendMode(const IBlend* pBlend);
+  void SetCanvasBlendMode(val& context, const IBlend* pBlend);
 };

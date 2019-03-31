@@ -1,0 +1,70 @@
+parameters:
+  name: ''
+  graphics: 'NANOVG'
+
+steps:
+  - task: DeleteFiles@1
+    inputs:
+      sourceFolder: $(Build.BinariesDirectory)
+      contents: '**'
+    displayName: Clean Binaries Directory
+
+  - task: DeleteFiles@1
+    inputs:
+      sourceFolder: $(Build.StagingDirectory)
+      contents: '**'
+    displayName: Clean Staging Directory
+
+  - task: DownloadPipelineArtifact@0
+    continueOnError: true
+    inputs:
+      artifactName: 'WIN_VST2_${{parameters.name}}_${{parameters.graphics}}'
+      targetPath: $(Build.BinariesDirectory)
+    displayName: Download WIN_VST2_${{parameters.name}}_${{parameters.graphics}}
+    condition: eq(variables.build_vst2, True)
+
+  - task: DownloadPipelineArtifact@0
+    continueOnError: true
+    inputs:
+      artifactName: 'WIN_VST3_${{parameters.name}}_${{parameters.graphics}}'
+      targetPath: $(Build.BinariesDirectory)
+    displayName: Download WIN_VST3_${{parameters.name}}_${{parameters.graphics}}
+    condition: eq(variables.build_vst3, True)
+  
+  # - task: DownloadPipelineArtifact@0
+  #   continueOnError: true
+  #   inputs:
+  #     artifactName: 'WIN_AAX_${{parameters.name}}_${{parameters.graphics}}'
+  #     targetPath: $(Build.BinariesDirectory)
+  #   displayName: Download WIN_AAX_${{parameters.name}}_${{parameters.graphics}}
+  #   condition: eq(variables.build_aax, True)
+
+  # - task: ExtractFiles@1
+  #   inputs:
+  #     archiveFilePatterns: '$(Build.BinariesDirectory)/*.zip'
+  #     destinationFolder: $(Build.StagingDirectory)
+  #     cleanDestinationFolder: True
+  #   displayName: Extract zip file if it exists
+
+  # NOTE: Win artifacts are not currently double zipped, like mac ones. If that changes BUILD_BINARIESDIRECTORY -> BUILD_STAGINGDIRECTORY
+
+  - script: |
+      pluginval.exe --validate-in-process --output-dir "./bin" --skip-gui-tests --validate "%BUILD_BINARIESDIRECTORY%\${{parameters.name}}_x64.dll"
+      if %ERRORLEVEL% neq 0 exit /b 1
+    displayName: Pluginval - Test ${{parameters.name}} VST2
+    continueOnError: true
+    condition: eq(variables.build_vst2, True)
+
+  - script: |
+      dir
+      pluginval.exe --validate-in-process --output-dir "./bin" --skip-gui-tests --validate "%BUILD_BINARIESDIRECTORY%\${{parameters.name}}.vst3\Contents\x86_64-win\${{parameters.name}}.vst3"
+      if %ERRORLEVEL% neq 0 exit /b 1
+    displayName: Pluginval - Test ${{parameters.name}} VST3
+    continueOnError: true
+    condition: eq(variables.build_vst3, True)
+
+  - script: |
+      validator.exe "%BUILD_BINARIESDIRECTORY%\${{parameters.name}}.vst3\Contents\x86_64-win\${{parameters.name}}.vst3"
+    displayName: VST3 Validator - Test ${{parameters.name}} VST3
+    continueOnError: true
+    condition: eq(variables.build_vst3, True)
