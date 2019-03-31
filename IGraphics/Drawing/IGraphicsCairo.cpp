@@ -25,7 +25,7 @@ struct CairoFont
 
 #ifdef OS_WIN
 
-cairo_font_face_t* GetWinCairoFont(const char* fontName, int weight = FW_REGULAR, bool italic = false, DWORD quality = DEFAULT_QUALITY)
+cairo_font_face_t* GetWinCairoFont(const char* fontName, int weight = FW_REGULAR, bool italic = false, DWORD quality = DEFAULT_QUALITY, bool enumerate = false)
 {
   cairo_font_face_t* pCairoFont = nullptr;
   HFONT pFont = nullptr;
@@ -47,7 +47,12 @@ cairo_font_face_t* GetWinCairoFont(const char* fontName, int weight = FW_REGULAR
 
   strncpy(lFont.lfFaceName, fontName, LF_FACESIZE);
 
-  if ((pFont = CreateFontIndirect(&lFont)))
+  auto enumProc = [](const LOGFONT* pLFont, const TEXTMETRIC* pTextMetric, DWORD FontType, LPARAM lParam)
+  {
+    return -1;
+  };
+
+  if ((!enumerate || EnumFontFamiliesEx(GetDC(NULL), &lFont, enumProc, NULL, 0) == -1) && (pFont = CreateFontIndirect(&lFont)))
   {
     pCairoFont = cairo_win32_font_face_create_for_hfont(pFont);
     DeleteObject(pFont);
@@ -764,7 +769,7 @@ bool IGraphicsCairo::LoadFont(const char* fontName, IText::EStyle style)
     case IText::kQualityNonAntiAliased: quality = NONANTIALIASED_QUALITY; break;
   }
   
-  cairo_font_face_t* pCairoFont = GetWinCairoFont(fontName, weight, italic, quality);
+  cairo_font_face_t* pCairoFont = GetWinCairoFont(fontName, weight, italic, quality, true);
  
   if (pCairoFont)
   {
