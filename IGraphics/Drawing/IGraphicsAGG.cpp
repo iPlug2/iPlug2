@@ -611,11 +611,12 @@ void IGraphicsAGG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const 
 void IGraphicsAGG::EndFrame()
 {
 #ifdef OS_MAC
-  CGContextSaveGState((CGContext*) GetPlatformContext());
-  CGContextTranslateCTM((CGContext*) GetPlatformContext(), 0.0, WindowHeight());
-  CGContextScaleCTM((CGContext*) GetPlatformContext(), 1.0, -1.0);
-  mPixelMap.draw((CGContext*) GetPlatformContext(), GetScreenScale());
-  CGContextRestoreGState((CGContext*) GetPlatformContext());
+  CGContext* pCGContext = (CGContext*) GetPlatformContext();
+  CGContextSaveGState();
+  CGContextTranslateCTM(pCGContext, 0.0, WindowHeight());
+  CGContextScaleCTM(pCGContext, 1.0, -1.0);
+  mPixelMap.draw(pCGContext, GetScreenScale());
+  CGContextRestoreGState(pCGContext);
 #else
   PAINTSTRUCT ps;
   HWND hWnd = (HWND) GetWindow();

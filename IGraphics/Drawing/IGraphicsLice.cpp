@@ -881,11 +881,12 @@ void IGraphicsLice::EndFrame()
 
   if (img)
   {
-    CGContextSaveGState((CGContext*) GetPlatformContext());
-    CGContextTranslateCTM((CGContext*) GetPlatformContext(), 0.0, WindowHeight());
-    CGContextScaleCTM((CGContext*) GetPlatformContext(), 1.0, -1.0);
-    CGContextDrawImage((CGContext*) GetPlatformContext(), r, img);
-    CGContextRestoreGState((CGContext*) GetPlatformContext());
+    CGContext* pCGContext = (CGContext*) GetPlatformContext();
+    CGContextSaveGState(pCGContext);
+    CGContextTranslateCTM(pCGContext, 0.0, WindowHeight());
+    CGContextScaleCTM(pCGContext, 1.0, -1.0);
+    CGContextDrawImage(pCGContext, r, img);
+    CGContextRestoreGState(pCGContext);
     CGImageRelease(img);
   }
     

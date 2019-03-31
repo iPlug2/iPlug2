@@ -365,11 +365,6 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
   }
 }
 
-void IGraphicsNanoVG::SetPlatformContext(void* pContext)
-{
-  mPlatformContext = pContext;
-}
-
 void IGraphicsNanoVG::OnViewInitialized(void* pContext)
 {
 #if defined OS_WEB
