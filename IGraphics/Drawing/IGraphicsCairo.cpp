@@ -28,6 +28,7 @@ struct CairoFont
 cairo_font_face_t* GetWinCairoFont(const char* fontName, int weight = FW_REGULAR, bool italic = false, DWORD quality = DEFAULT_QUALITY, bool enumerate = false)
 {
   cairo_font_face_t* pCairoFont = nullptr;
+  HDC hdc = GetDC(NULL);
   HFONT pFont = nullptr;
   LOGFONT lFont;
 
@@ -52,12 +53,14 @@ cairo_font_face_t* GetWinCairoFont(const char* fontName, int weight = FW_REGULAR
     return -1;
   };
 
-  if ((!enumerate || EnumFontFamiliesEx(GetDC(NULL), &lFont, enumProc, NULL, 0) == -1) && (pFont = CreateFontIndirect(&lFont)))
+  if ((!enumerate || EnumFontFamiliesEx(hdc, &lFont, enumProc, NULL, 0) == -1) && (pFont = CreateFontIndirect(&lFont)))
   {
     pCairoFont = cairo_win32_font_face_create_for_hfont(pFont);
     DeleteObject(pFont);
   }
   
+  ReleaseDC(NULL, hdc);
+    
   return pCairoFont;
 }
 
@@ -541,6 +544,14 @@ bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
   cairo_set_font_face(mContext, FindFont(text));
   cairo_set_font_size(mContext, text.mSize);
   cairo_font_extents(mContext, &fontExtents);
+
+  // Set the size *again* to match the height we want
+   
+  cairo_set_font_size(mContext, text.mSize * (fontExtents.ascent / fontExtents.height));
+  cairo_font_extents(mContext, &fontExtents);
+    
+  // Draw / measure
+    
   cairo_scaled_font_t* pFont = cairo_get_scaled_font(mContext);
   cairo_glyph_t *pGlyphs = nullptr;
   int numGlyphs = 0;
