@@ -645,7 +645,6 @@ bool IGraphicsCairo::LoadFont(const char* name)
 
   WDL_String fontNameWithoutExt(name, (int) strlen(name));
   fontNameWithoutExt.remove_fileext();
-  // strip out just the name of the font, in case the name provided is a full path
   const char* fontName = fontNameWithoutExt.get_filepart();
 
   if (storage.Find(fontName))
@@ -654,8 +653,9 @@ bool IGraphicsCairo::LoadFont(const char* name)
   WDL_String fullPath;
   const EResourceLocation fontLocation = OSFindResource(name, "ttf", fullPath);
     
-  if (fullPath.GetLength())
-  {
+  if (fontLocation == kNotFound)
+    return false;
+  
 #ifdef OS_MAC
     CFStringRef path = CFStringCreateWithCString(kCFAllocatorDefault, fullPath.Get(), kCFStringEncodingUTF8);
     CFURLRef url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, path, kCFURLPOSIXPathStyle, false);
@@ -689,7 +689,6 @@ bool IGraphicsCairo::LoadFont(const char* name)
       delete winFont;
     }
 #endif
-  }
 
   return false;
 }
@@ -760,7 +759,7 @@ cairo_font_face_t* IGraphicsCairo::FindFont(const IText& text)
   if (pFont)
     return pFont->mFont;
   
-  if (pFont = storage.Find(text.mFont))
+  if ((pFont = storage.Find(text.mFont)))
     return pFont->mFont;
   
   assert(0 && "No font found - did you forget to load it?");
