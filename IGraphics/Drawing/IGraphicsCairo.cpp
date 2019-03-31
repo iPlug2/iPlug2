@@ -682,7 +682,7 @@ bool IGraphicsCairo::LoadFont(const char* name)
     storage.Add(new CairoFont(cairo_quartz_font_face_create_for_cgfont(font)), fontName);
 
     CGFontRelease(font);
-    CFRelease(dataProvider);
+    CGDataProviderRelease(dataProvider);
     CFRelease(url);
     CFRelease(path);
 
@@ -735,14 +735,17 @@ bool IGraphicsCairo::LoadFont(const char* fontName, IText::EStyle style)
   
   CFDictionaryRef dictionary = CFDictionaryCreate(kCFAllocatorDefault, (const void**)&keys, (const void**)&values, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
   CTFontDescriptorRef fontDescriptor = CTFontDescriptorCreateWithAttributes(dictionary);
-  CTFontRef font = CTFontCreateWithFontDescriptor(fontDescriptor, 0.0, nullptr);
+  CFURLRef url = (CFURLRef)CTFontDescriptorCopyAttribute(fontDescriptor, kCTFontURLAttribute);
   
-  CGFontRef pCGFont = CTFontCopyGraphicsFont(font, nullptr);
-  CFRelease(font);
-  CFRelease(fontDescriptor);
-  CFRelease(dictionary);
+  CGDataProviderRef dataProvider = CGDataProviderCreateWithURL(url);
+  CGFontRef pCGFont = CGFontCreateWithDataProvider(dataProvider);
+    
   CFRelease(fontStr);
   CFRelease(styleStr);
+  CFRelease(dictionary);
+  CFRelease(fontDescriptor);
+  CFRelease(url);
+  CGDataProviderRelease(dataProvider);
   
   if (pCGFont)
   {
