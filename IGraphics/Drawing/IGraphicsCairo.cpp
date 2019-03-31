@@ -24,7 +24,6 @@ struct CairoFont
 };
 
 #ifdef OS_WIN
-
 cairo_font_face_t* GetWinCairoFont(const char* fontName, int weight = FW_REGULAR, bool italic = false, DWORD quality = DEFAULT_QUALITY, bool enumerate = false)
 {
   cairo_font_face_t* pCairoFont = nullptr;
@@ -108,46 +107,32 @@ struct WinCairoDiskFont : CairoFont
   WDL_String mName;
 };
 
-//TODO: could replace some of this with IGraphics::LoadWinResource
-class PNGStreamReader
+class PNGStream
 {
 public:
-  PNGStreamReader(HINSTANCE hInst, const char* path)
+  PNGStream(const char* path)
   : mData(nullptr), mSize(0), mCount(0)
   {
-    HRSRC resInfo = FindResource(hInst, path, "PNG");
-    if (resInfo)
-    {
-      HGLOBAL res = LoadResource(hInst, resInfo);
-      if (res)
-      {
-        mData = (uint8_t *) LockResource(res);
-        mSize = SizeofResource(hInst, resInfo);
-      }
-    }
+    mData = reinterpret_cast<uint8_t *>(LoadWinResource(path, "png", mSize));
   }
 
-  cairo_status_t Read(uint8_t* data, uint32_t length)
+  cairo_status_t Read(void *object, uint8_t* data, uint32_t length)
   {
-    mCount += length;
-    if (mCount <= mSize)
-    {
-      memcpy(data, mData + mCount - length, length);
-      return CAIRO_STATUS_SUCCESS;
-    }
-
-    return CAIRO_STATUS_READ_ERROR;
+    PNGStream* reader = reinterpret_cast<PNGStream*>(object);
+    
+    if (length > reader->mSize)
+      return CAIRO_STATUS_READ_ERROR;
+      
+    memcpy(data, reader->mData, length);
+    reader->mData += length;
+    reader->mSize -= length;
+      
+    return CAIRO_STATUS_SUCCESS;
   }
 
-  static cairo_status_t StaticRead(void *reader, uint8_t *data, uint32_t length)
-  {
-    return ((PNGStreamReader*)reader)->Read(data, length);
-  }
-  
 private:
   const uint8_t* mData;
-  size_t mCount;
-  size_t mSize;
+  int mSize;
 };
 #endif
 
@@ -244,8 +229,8 @@ APIBitmap* IGraphicsCairo::LoadAPIBitmap(const char* fileNameOrResID, int scale,
 #ifdef OS_WIN
   if (location == EResourceLocation::kWinBinary)
   {
-    PNGStreamReader reader((HINSTANCE) GetWinModuleHandle(), fileNameOrResID);
-    pSurface = cairo_image_surface_create_from_png_stream(&PNGStreamReader::StaticRead, &reader);
+    PNGStream reader(fileNameOrResID);
+    pSurface = cairo_image_surface_create_from_png_stream(&PNGStream::Read, &reader);
   }
   else
 #endif
