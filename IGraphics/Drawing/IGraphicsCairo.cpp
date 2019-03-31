@@ -30,7 +30,7 @@ struct MacCairoFont : CairoFont
   {
     CGDataProviderRef dataProvider = CGDataProviderCreateWithURL(url);
     CGFontRef pCGFont = CGFontCreateWithDataProvider(dataProvider);
-    mFont = cairo_quartz_font_face_create_for_cgfont(font)), fontName);
+    mFont = cairo_quartz_font_face_create_for_cgfont(pCGFont);
     CGFontRelease(pCGFont);
     CGDataProviderRelease(dataProvider);
   }
@@ -745,7 +745,7 @@ bool IGraphicsCairo::LoadFont(const char* fontName, IText::EStyle style)
   CFRelease(dictionary);
   CFRelease(fontDescriptor);
   
-  CairoFont* pFont = new MacCairoFont(url);
+  pFont = new MacCairoFont(url);
   CFRelease(url);
 #elif defined OS_WIN
   int weight = text.mStyle == IText::kStyleBold ? FW_BOLD : FW_REGULAR;
@@ -763,7 +763,7 @@ bool IGraphicsCairo::LoadFont(const char* fontName, IText::EStyle style)
   
   if (pFont && pFont->mFont)
   {
-    storage.Add(new CairoFont(pCairoFont), fontWithStyle.Get());
+    storage.Add(pFont, fontWithStyle.Get());
     return true;
   }
     
