@@ -24,16 +24,33 @@ struct CairoFont
 };
 
 #ifdef OS_WIN
+
 cairo_font_face_t* GetWinCairoFont(const char* fontName, int weight = FW_REGULAR, bool italic = false, DWORD quality = DEFAULT_QUALITY)
 {
   cairo_font_face_t* pCairoFont = nullptr;
+  HFONT pFont = nullptr;
+  LOGFONT lFont;
 
-  // what really needs to happen here is that actual font family name needs to be extracted from the ttf somehow and used instead of fontName.
-  // Note that even if we fail to add the font from disk or resources, CreateFont will likely give us *something* similar
-  
-  HFONT pFont = CreateFont(0, 0, 0, 0, weight, italic, false, false, DEFAULT_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, quality, DEFAULT_PITCH, fontName);
-  
-  if (pFont)
+  lFont.lfHeight = 0;
+  lFont.lfWidth = 0;
+  lFont.lfEscapement = 0;
+  lFont.lfOrientation = 0;
+  lFont.lfWeight = weight;
+  lFont.lfItalic = italic;
+  lFont.lfUnderline = false;
+  lFont.lfStrikeOut = false;
+  lFont.lfCharSet = DEFAULT_CHARSET;
+  lFont.lfOutPrecision = OUT_TT_PRECIS;
+  lFont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
+  lFont.lfQuality = quality;
+  lFont.lfPitchAndFamily = DEFAULT_PITCH;
+
+  strncpy(lFont.lfFaceName, fontName, LF_FACESIZE);
+
+  auto enumProc = [](const LOGFONT* lpelfe, const TEXTMETRIC* lpntme, DWORD FontType, LPARAM lParam)
+  { return -1; };
+
+  if (EnumFontFamiliesExA(GetDC(NULL), &lFont, enumProc, NULL, 0) == -1 && (pFont = CreateFontIndirect(&lFont)))
   {
     pCairoFont = cairo_win32_font_face_create_for_hfont(pFont);
     DeleteObject(pFont);
@@ -44,7 +61,7 @@ cairo_font_face_t* GetWinCairoFont(const char* fontName, int weight = FW_REGULAR
 
 struct WinCairoMemFont : CairoFont
 {
-  WinCairoMemFont(const char * name, void* data, int resSize)
+  WinCairoMemFont(const char* name, void* data, int resSize)
   : CairoFont(nullptr), mFontHandle(nullptr)
   {
     if (data)
@@ -70,8 +87,7 @@ struct WinCairoDiskFont : CairoFont
   WinCairoDiskFont(const char *path, const char *name)
     : CairoFont(nullptr)
   {
-    int result = AddFontResourceEx(path, FR_PRIVATE, NULL);
-    if (result)
+    if (AddFontResourceEx(path, FR_PRIVATE, NULL))
     {
       mName = WDL_String(name);
       mFont = GetWinCairoFont(name);
