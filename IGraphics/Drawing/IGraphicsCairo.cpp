@@ -15,15 +15,56 @@
 #include "IGraphicsCairo.h"
 #include "ITextEntryControl.h"
 
+#ifdef OS_WIN
+struct WinFont
+{
+  WinFont(const char * name, EResourceLocation location, HANDLE result) : mName(name), mLocation(location), mAddResult(result) {}
+  ~WinFont()
+  {
+    switch (mLocation)
+    {
+      case kAbsolutePath:
+        if (mAddResult)
+          RemoveFontResourceEx(mName.Get(), FR_PRIVATE, NULL);
+        break;
+
+      case kWinBinary:
+        if (mAddResult)
+          RemoveFontMemResourceEx(mAddResult);
+        break;
+    }
+  }
+
+  // path or resource name, as provided to LoadFont
+  WDL_String mName;
+  // where it was loaded from, so we know how to unload it
+  EResourceLocation mLocation;
+  // return value of the font loading function
+  HANDLE mAddResult;
+};
+#endif
+
 struct CairoFont
 {
+#ifdef OS_WIN
+  CairoFont(cairo_font_face_t* font, WinFont* winFont) : mFont(font), mWinFont(winFont) {}
+#else
   CairoFont(cairo_font_face_t* font) : mFont(font) {}
+#endif
   ~CairoFont()
   {
     cairo_font_face_destroy(mFont);
+#ifdef OS_WIN
+    if (mWinFont)
+      delete mWinFont;
+#endif
   }
   
   cairo_font_face_t* mFont;
+
+#ifdef OS_WIN
+  WinFont* mWinFont;
+#endif
 };
 
 static StaticStorage<CairoFont> sFontCache;
@@ -596,11 +637,14 @@ bool IGraphicsCairo::LoadFont(const char* name)
 
   WDL_String fontNameWithoutExt(name, (int) strlen(name));
   fontNameWithoutExt.remove_fileext();
-  WDL_String fullPath;
-  OSFindResource(name, "ttf", fullPath);
-  
-  if (storage.Find(fontNameWithoutExt.Get()))
+  // strip out just the name of the font, in case the name provided is a full path
+  const char* fontName = fontNameWithoutExt.get_filepart();
+
+  if (storage.Find(fontName))
     return true;
+
+  WDL_String fullPath;
+  const EResourceLocation fontLocation = OSFindResource(name, "ttf", fullPath);
     
   if (fullPath.GetLength())
   {
@@ -610,7 +654,7 @@ bool IGraphicsCairo::LoadFont(const char* name)
     CGDataProviderRef dataProvider = CGDataProviderCreateWithURL(url);
     CGFontRef font = CGFontCreateWithDataProvider(dataProvider);
     
-    storage.Add(new CairoFont(cairo_quartz_font_face_create_for_cgfont(font)), fontNameWithoutExt.Get());
+    storage.Add(new CairoFont(cairo_quartz_font_face_create_for_cgfont(font)), fontName);
 
     CGFontRelease(font);
     CFRelease(dataProvider);
@@ -618,6 +662,45 @@ bool IGraphicsCairo::LoadFont(const char* name)
     CFRelease(path);
 
     return true;
+#elif defined(OS_WIN)
+    const char * fontPath = fullPath.Get();
+    // first need to register the font.
+    WinFont* winFont = NULL;
+    switch (fontLocation)
+    {
+      case kAbsolutePath:
+      {        
+        int result = AddFontResourceEx(fontPath, FR_PRIVATE, NULL);
+        if (result)
+          winFont = new WinFont(fontPath, fontLocation, (HANDLE)result);
+      }
+      break;
+
+      case kWinBinary:
+      {
+        int resSize;
+        // AddFontMemResourceEx doesn't accept const void *
+        void* data = const_cast<void*>(LoadWinResource(fontPath, "ttf", resSize));
+        if (data)
+        {
+          DWORD nFonts;
+          HANDLE result = AddFontMemResourceEx(data, resSize, NULL, &nFonts);
+          if (result)
+            winFont = new WinFont(fontPath, fontLocation, result);
+        }
+      }
+      break;
+    }
+
+    // what really needs to happen here is that actual font family name needs to be extracted from the ttf somehow and used instead of fontName.
+    // Note that even if we fail to add the font from disk or resources, CreateFont will likely give us *something* similar
+    HFONT font = CreateFont(0, 0, 0, 0, FW_REGULAR, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH, fontName);
+    if (font != NULL)
+    {
+      storage.Add(new CairoFont(cairo_win32_font_face_create_for_hfont(font), winFont), fontName);
+      DeleteObject(font);
+      return true;
+    }
 #endif
   }
 
@@ -664,6 +747,25 @@ bool IGraphicsCairo::LoadFont(const char* fontName, IText::EStyle style)
     CGFontRelease(pCGFont);
     return true;
   }
+#elif defined(OS_WIN)
+  int weight = text.mStyle == IText::kStyleBold ? FW_BOLD : FW_REGULAR;
+  DWORD italic = text.mStyle == IText::kStyleItalic ? TRUE : FALSE;
+  DWORD quality = DEFAULT_QUALITY;
+  switch (text.mQuality)
+  {
+    case IText::kQualityAntiAliased: quality = ANTIALIASED_QUALITY; break;
+    case IText::kQualityClearType: quality = CLEARTYPE_QUALITY; break;
+    case IText::kQualityNonAntiAliased: quality = NONANTIALIASED_QUALITY; break;
+  }
+  HFONT font = CreateFont(0, 0, 0, 0, weight, italic, FALSE, FALSE, DEFAULT_CHARSET, OUT_TT_PRECIS, CLIP_DEFAULT_PRECIS, quality, DEFAULT_PITCH, fontName);
+  if (font != NULL)
+  {
+    const char * styleName = fontWithStyle.Get();
+    // don't need to provide a WinFont because this is a font that's already installed
+    storage.Add(new CairoFont(cairo_win32_font_face_create_for_hfont(font), nullptr), styleName);
+    DeleteObject(font);
+    return true;
+  }
 #endif
   
   return false;
@@ -672,12 +774,12 @@ bool IGraphicsCairo::LoadFont(const char* fontName, IText::EStyle style)
 cairo_font_face_t* IGraphicsCairo::FindFont(const IText& text)
 {
   StaticStorage<CairoFont>::Accessor storage(sFontCache);
-  CairoFont* pFont = storage.Find(text.mFont, 0);
+  CairoFont* pFont = storage.Find(text.GetFontWithStyle().Get());
   
   if (pFont)
     return pFont->mFont;
   
-  if ((pFont = storage.Find(text.GetFontWithStyle().Get())))
+  if (pFont = storage.Find(text.mFont))
     return pFont->mFont;
   
   assert(0 && "No font found - did you forget to load it?");
