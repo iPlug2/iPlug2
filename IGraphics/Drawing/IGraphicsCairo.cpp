@@ -23,7 +23,19 @@ struct CairoFont
   cairo_font_face_t* mFont;
 };
 
-#ifdef OS_WIN
+#ifdef OS_MAC
+struct MacCairoFont : CairoFont
+{
+  MacCairoFont(CFURLRef url) : CairoFont(nullptr)
+  {
+    CGDataProviderRef dataProvider = CGDataProviderCreateWithURL(url);
+    CGFontRef pCGFont = CGFontCreateWithDataProvider(dataProvider);
+    mFont = cairo_quartz_font_face_create_for_cgfont(font)), fontName);
+    CGFontRelease(pCGFont);
+    CGDataProviderRelease(dataProvider);
+  }
+};
+#elif defined OS_WIN
 cairo_font_face_t* GetWinCairoFont(const char* fontName, int weight = FW_REGULAR, bool italic = false, DWORD quality = DEFAULT_QUALITY, bool enumerate = false)
 {
   cairo_font_face_t* pCairoFont = nullptr;
@@ -663,7 +675,8 @@ bool IGraphicsCairo::LoadFont(const char* name)
   WDL_String fontNameWithoutExt(name, (int) strlen(name));
   fontNameWithoutExt.remove_fileext();
   const char* fontName = fontNameWithoutExt.get_filepart();
-
+  CairoFont* pFont = nullptr;
+    
   if (storage.Find(fontName))
     return true;
 
@@ -676,43 +689,32 @@ bool IGraphicsCairo::LoadFont(const char* name)
 #ifdef OS_MAC
     CFStringRef path = CFStringCreateWithCString(kCFAllocatorDefault, fullPath.Get(), kCFStringEncodingUTF8);
     CFURLRef url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, path, kCFURLPOSIXPathStyle, false);
-    CGDataProviderRef dataProvider = CGDataProviderCreateWithURL(url);
-    CGFontRef font = CGFontCreateWithDataProvider(dataProvider);
-    
-    storage.Add(new CairoFont(cairo_quartz_font_face_create_for_cgfont(font)), fontName);
-
-    CGFontRelease(font);
-    CGDataProviderRelease(dataProvider);
-    CFRelease(url);
     CFRelease(path);
 
-    return true;
+    pFont = new MacCairoFont(url);
+    CFRelease(url);
 #elif defined OS_WIN
-    CairoFont* winFont = nullptr;
     int resSize = 0;
 
     switch (fontLocation)
     {
       case kAbsolutePath:
-        winFont = new WinCairoDiskFont(fullPath.Get(), fontName);
+        pFont = new WinCairoDiskFont(fullPath.Get(), fontName);
         break;
       case kWinBinary:
         void* pFontMem = const_cast<void *>(LoadWinResource(fullPath.Get(), "ttf", resSize));
-        winFont = new WinCairoMemFont(fontName, pFontMem, resSize);
+        pFont = new WinCairoMemFont(fontName, pFontMem, resSize);
         break;
-    }
-    
-    if (winFont && winFont->mFont)
-    {
-      storage.Add(winFont, fontName);
-      return true;
-    }
-    else
-    {
-      delete winFont;
     }
 #endif
 
+  if (pFont && pFont->mFont)
+  {
+    storage.Add(pFont, fontName);
+    return true;
+  }
+    
+  delete pFont;
   return false;
 }
 
@@ -720,7 +722,8 @@ bool IGraphicsCairo::LoadFont(const char* fontName, IText::EStyle style)
 {
   StaticStorage<CairoFont>::Accessor storage(sFontCache);
   IText text(0, DEFAULT_TEXT_FGCOLOR, fontName, style);
-  
+  CairoFont* pFont = nullptr;
+    
   WDL_String fontWithStyle = text.GetFontWithStyle();
   
   if (storage.Find(fontWithStyle.Get()))
@@ -736,24 +739,14 @@ bool IGraphicsCairo::LoadFont(const char* fontName, IText::EStyle style)
   CFDictionaryRef dictionary = CFDictionaryCreate(kCFAllocatorDefault, (const void**)&keys, (const void**)&values, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
   CTFontDescriptorRef fontDescriptor = CTFontDescriptorCreateWithAttributes(dictionary);
   CFURLRef url = (CFURLRef)CTFontDescriptorCopyAttribute(fontDescriptor, kCTFontURLAttribute);
-  
-  CGDataProviderRef dataProvider = CGDataProviderCreateWithURL(url);
-  CGFontRef pCGFont = CGFontCreateWithDataProvider(dataProvider);
     
   CFRelease(fontStr);
   CFRelease(styleStr);
   CFRelease(dictionary);
   CFRelease(fontDescriptor);
-  CFRelease(url);
-  CGDataProviderRelease(dataProvider);
   
-  if (pCGFont)
-  {
-    cairo_font_face_t* pCairoFont = cairo_quartz_font_face_create_for_cgfont(pCGFont);
-    storage.Add(new CairoFont(pCairoFont), fontWithStyle.Get());
-    CGFontRelease(pCGFont);
-    return true;
-  }
+  CairoFont* pFont = new MacCairoFont(url);
+  CFRelease(url);
 #elif defined OS_WIN
   int weight = text.mStyle == IText::kStyleBold ? FW_BOLD : FW_REGULAR;
   bool italic = text.mStyle == IText::kStyleItalic;
@@ -765,15 +758,16 @@ bool IGraphicsCairo::LoadFont(const char* fontName, IText::EStyle style)
     case IText::kQualityNonAntiAliased: quality = NONANTIALIASED_QUALITY; break;
   }
   
-  cairo_font_face_t* pCairoFont = GetWinCairoFont(fontName, weight, italic, quality, true);
- 
-  if (pCairoFont)
+  pFont = new CairoFont(GetWinCairoFont(fontName, weight, italic, quality, true));
+#endif
+  
+  if (pFont && pFont->mFont)
   {
     storage.Add(new CairoFont(pCairoFont), fontWithStyle.Get());
     return true;
   }
-#endif
-  
+    
+  delete pFont;
   return false;
 }
 
