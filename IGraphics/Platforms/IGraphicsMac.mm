@@ -73,6 +73,33 @@ static double gettm()
 }
 #endif
 
+// Font
+
+IGraphicsMac::MacOSFont::~MacOSFont()
+{
+  CGDataProviderRelease(mProvider);
+  if (mData)
+    CFRelease(mData);
+};
+
+void IGraphicsMac::MacOSFont::CheckData()
+{
+  if (!mData)
+    mData = CGDataProviderCopyData(mProvider);
+}
+
+const void* IGraphicsMac::MacOSFont::GetFontData()
+{
+  CheckData();
+  return CFDataGetBytePtr(mData);
+}
+
+int IGraphicsMac::MacOSFont::GetFontDataSize()
+{
+  CheckData();
+  return static_cast<int>(CFDataGetLength(mData));
+}
+  
 #pragma mark -
 
 IGraphicsMac::IGraphicsMac(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
@@ -200,9 +227,11 @@ IGraphics::OSFontPtr IGraphicsMac::OSLoadFont(const char* fileNameOrResID)
     
   CFStringRef path = CFStringCreateWithCString(NULL, fullPath.Get(), kCFStringEncodingUTF8);
   CFURLRef url = CFURLCreateWithFileSystemPath(NULL, path, kCFURLPOSIXPathStyle, false);
+  CGDataProviderRef dataProvider = CGDataProviderCreateWithURL(url);
   CFRelease(path);
+  CFRelease(url);
   
-  return OSFontPtr(url ? new MacOSFont(url) : nullptr);
+  return OSFontPtr(dataProvider ? new MacOSFont(dataProvider) : nullptr);
 }
 
 IGraphics::OSFontPtr IGraphicsMac::OSLoadFont(const IText& text)
@@ -216,13 +245,15 @@ IGraphics::OSFontPtr IGraphicsMac::OSLoadFont(const IText& text)
   CFDictionaryRef dictionary = CFDictionaryCreate(NULL, (const void**)&keys, (const void**)&values, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
   CTFontDescriptorRef fontDescriptor = CTFontDescriptorCreateWithAttributes(dictionary);
   CFURLRef url = (CFURLRef)CTFontDescriptorCopyAttribute(fontDescriptor, kCTFontURLAttribute);
-  
+  CGDataProviderRef dataProvider = CGDataProviderCreateWithURL(url);
+
   CFRelease(fontStr);
   CFRelease(styleStr);
   CFRelease(dictionary);
   CFRelease(fontDescriptor);
+  CFRelease(url);
   
-  return OSFontPtr(url ? new MacOSFont(url) : nullptr);
+  return OSFontPtr(dataProvider ? new MacOSFont(dataProvider) : nullptr);
 }
 
 bool IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds)

@@ -72,14 +72,28 @@ public:
     LineInfo() : mWidth(0.0), mStartChar(0), mEndChar(0) {}
   };
 
+  class AGGFont : public agg::font
+  {
+  public:
+    
+    AGGFont(const char* data, int size);
+    ~AGGFont() { destroy(); }
+    
+    void destroy() override { delete[] m_buf; };
+    const char* buf() override { return m_buf; };
+    virtual int size() override { return m_size; };
+    
+  private:
+    char *m_buf;
+    int m_size;
+  };
+  
 #ifdef OS_WIN
   typedef agg::order_bgra PixelOrder;
   typedef agg::pixel_map_win32 PixelMapType;
-  typedef agg::font_win32 FontType;
 #elif defined OS_MAC
   typedef agg::order_argb PixelOrder;
   typedef agg::pixel_map_mac PixelMapType;
-  typedef agg::font_mac FontType;
 #else
 #error NOT IMPLEMENTED
 #endif

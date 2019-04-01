@@ -13,7 +13,7 @@
 #ifndef NO_IGRAPHICS
 
 #include "IGraphics_select.h"
-#include <CoreGraphics/CGGeometry.h>
+#include <CoreGraphics/CoreGraphics.h>
 
 /** IGraphics platform class for macOS
 *   @ingroup PlatformClasses */
@@ -24,12 +24,17 @@ public:
   class MacOSFont : public OSFont
   {
   public:
-    MacOSFont(CFURLRef url) : mURL(url) {}
-    ~MacOSFont() { CFRelease(mURL); }
+    MacOSFont(CGDataProviderRef provider) : mProvider(provider), mData(nullptr) {}
+    ~MacOSFont();
       
-    const void* GetFont() override { return reinterpret_cast<const void*>(mURL); }
+    const void* GetFont() override { return reinterpret_cast<const void*>(mProvider); }
+    const void* GetFontData() override;
+    int GetFontDataSize() override;
   private:
-    CFURLRef mURL;
+    void CheckData();
+      
+    CFDataRef mData;
+    CGDataProviderRef mProvider;
   };
     
   IGraphicsMac(IGEditorDelegate& dlg, int w, int h, int fps, float scale);

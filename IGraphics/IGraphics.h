@@ -70,8 +70,11 @@ protected:
 
   struct OSFont
   {
-    virtual const void* GetFont() { return nullptr; }
     virtual ~OSFont() {}
+
+    virtual const void* GetFont() { return nullptr; }
+    virtual const void* GetFontData() { return nullptr; }
+    virtual int GetFontDataSize() { return 0; }
   };
 
   typedef std::unique_ptr<OSFont> OSFontPtr;

@@ -13,6 +13,8 @@
 #include "IGraphicsNanoVG.h"
 #include "ITextEntryControl.h"
 
+#include "stb_truetype.h"
+
 #if defined IGRAPHICS_GL
   #if defined OS_MAC
     #if defined IGRAPHICS_GL2
@@ -734,21 +736,17 @@ bool IGraphicsNanoVG::LoadFont(const char* fontName, IText::EStyle style)
   
   if (nvgFindFont(mVG, fontWithStyle.Get()) != -1)
     return true;
-  
-#ifdef OS_MAC
-  WDL_String fullPath("/Library/Fonts/");
-  fullPath.Append(fontName);
-  
-  if (style != IText::kStyleNormal)
+    
+  OSFontPtr OSFont = OSLoadFont(text);
+    
+  if (OSFont)
   {
-    fullPath.Append(" ");
-    fullPath.Append(text.GetStyleString());
-  }
-  fullPath.Append(".ttf");
-  
-  if (nvgCreateFont(mVG, fontWithStyle.Get(), fullPath.Get()) != -1)
+    const unsigned char* data = reinterpret_cast<const unsigned char*>(OSFont->GetFontData());
+    int size = OSFont->GetFontDataSize();
+    int offset = static_cast<int>(stbtt_GetFontOffsetForIndex(data, 0));
+    nvgCreateFontMem(mVG, fontWithStyle.Get(), (unsigned char*) data + offset, size - offset, 0);
     return true;
-#endif
+  }
   
   DBGMSG("Could not locate font %s\n", fontName);
   return false;

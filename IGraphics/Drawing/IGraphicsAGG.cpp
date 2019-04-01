@@ -8,11 +8,22 @@
  ==============================================================================
 */
 
+#include <algorithm>
 #include <cmath>
 
 #include "IGraphicsAGG.h"
 
-static StaticStorage<IGraphicsAGG::FontType> sFontCache;
+static StaticStorage<IGraphicsAGG::AGGFont> sFontCache;
+
+// Font
+
+IGraphicsAGG::AGGFont::AGGFont(const char* data, int size)
+{
+  m_buf = new char[size];
+  m_size = size;
+    
+  std::copy(data, data + size, m_buf);
+}
 
 // Utility
 
@@ -90,7 +101,7 @@ agg::pixel_map* CreatePixmap(int w, int h)
   
   return pPixelMap;
 }
- 
+
 // Rasterizing
 
 template <typename FuncType, typename ColorArrayType>
@@ -193,13 +204,13 @@ IGraphicsAGG::IGraphicsAGG(IGEditorDelegate& dlg, int w, int h, int fps, float s
 {
   DBGMSG("IGraphics AGG @ %i FPS\n", fps);
     
-  StaticStorage<IGraphicsAGG::FontType>::Accessor storage(sFontCache);
+  StaticStorage<IGraphicsAGG::AGGFont>::Accessor storage(sFontCache);
   storage.Retain();
 }
 
 IGraphicsAGG::~IGraphicsAGG()
 {
-  StaticStorage<IGraphicsAGG::FontType>::Accessor storage(sFontCache);
+  StaticStorage<IGraphicsAGG::AGGFont>::Accessor storage(sFontCache);
   storage.Release();
 }
 
@@ -220,7 +231,7 @@ void IGraphicsAGG::UpdateLayer()
 
 bool IGraphicsAGG::LoadFont(const char* fileNameOrResID)
 {
-  StaticStorage<FontType>::Accessor storage(sFontCache);
+  StaticStorage<AGGFont>::Accessor storage(sFontCache);
 
   WDL_String fontNameWithoutExt(fileNameOrResID);
   fontNameWithoutExt.remove_fileext();
@@ -230,30 +241,22 @@ bool IGraphicsAGG::LoadFont(const char* fileNameOrResID)
     return true;
     
   OSFontPtr pOSFont = OSLoadFont(fileNameOrResID);
-  FontType* pFont = new FontType();
-    
+ 
   if (pOSFont)
   {
-#ifdef OS_MAC
-    CFURLRef fontRef = (CFURLRef) pOSFont->GetFont();
-#elif defined OS_WIN
-    HFONT fontRef = (HFONT) pOSFont->GetFont();
-#endif
-    if (pFont->load_font(fontRef))
-    {
-      storage.Add(pFont, fontName, 0);
-      return true;
-    }
+    const char* data = reinterpret_cast<const char*>(pOSFont->GetFontData());
+    int size = pOSFont->GetFontDataSize();
+    storage.Add(new AGGFont(data, size), fontName, 0);
+    return true;
   }
   
-  DELETE_NULL(pFont);
   DBGMSG("Could not locate font %s\n", fileNameOrResID);
   return false;
 }
 
 bool IGraphicsAGG::LoadFont(const char* fontName, IText::EStyle style)
 {
-  StaticStorage<FontType>::Accessor storage(sFontCache);
+  StaticStorage<AGGFont>::Accessor storage(sFontCache);
   IText text(0, DEFAULT_TEXT_FGCOLOR, fontName, style);
 
   WDL_String fontWithStyle = text.GetFontWithStyle();
@@ -265,21 +268,10 @@ bool IGraphicsAGG::LoadFont(const char* fontName, IText::EStyle style)
 
   if (pOSFont)
   {
-    FontType* pFont = new FontType;
-
-#ifdef OS_MAC
-    CFURLRef fontRef = (CFURLRef) pOSFont->GetFont();
-#elif defined OS_WIN
-    HFONT fontRef = (HFONT) pOSFont->GetFont();
-#endif
-      
-    if (!pFont->load_font(fontRef))
-      DELETE_NULL(pFont);
-    if (pFont)
-    {
-      storage.Add(pFont, fontWithStyle.Get(), 0);
-      return true;
-    }
+    const char* data = reinterpret_cast<const char*>(pOSFont->GetFontData());
+    int size = pOSFont->GetFontDataSize();
+    storage.Add(new AGGFont(data, size), fontName, 0);
+    return true;
   }
   
   DBGMSG("Could not locate font %s\n", fontName);
@@ -288,8 +280,8 @@ bool IGraphicsAGG::LoadFont(const char* fontName, IText::EStyle style)
 
 agg::font* IGraphicsAGG::FindFont(const IText& text)
 {
-  StaticStorage<FontType>::Accessor storage(sFontCache);
-  FontType* pFont = storage.Find(text.mFont, 0);
+  StaticStorage<AGGFont>::Accessor storage(sFontCache);
+  AGGFont* pFont = storage.Find(text.mFont, 0);
   
   if (pFont)
     return pFont;
