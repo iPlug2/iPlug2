@@ -91,6 +91,30 @@ void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int
 #endif
 }
 
+// Font storage for system fonts
+
+struct SystemFont
+{
+  SystemFont(const void *data, int size)
+  {
+    const unsigned char* src = reinterpret_cast<const unsigned char*>(data);
+    mData = new unsigned char[size];
+    mSize = size;
+    
+    std::copy(src, src + size, mData);
+  }
+    
+  ~SystemFont()
+  {
+    delete[] mData;
+  }
+    
+  unsigned char* mData;
+  int mSize;
+};
+
+StaticStorage<SystemFont> sFontCache;
+
 NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID)
 {
   assert(nvgImageID > 0);
@@ -207,10 +231,14 @@ IGraphicsNanoVG::IGraphicsNanoVG(IGEditorDelegate& dlg, int w, int h, int fps, f
 : IGraphicsPathBase(dlg, w, h, fps, scale)
 {
   DBGMSG("IGraphics NanoVG @ %i FPS\n", fps);
+  StaticStorage<SystemFont>::Accessor storage(sFontCache);
+  storage.Release();
 }
 
 IGraphicsNanoVG::~IGraphicsNanoVG() 
 {
+  StaticStorage<SystemFont>::Accessor storage(sFontCache);
+  storage.Release();
   ClearFBOStack();
 }
 
@@ -741,10 +769,12 @@ bool IGraphicsNanoVG::LoadFont(const char* fontName, IText::EStyle style)
     
   if (OSFont)
   {
-    const unsigned char* data = reinterpret_cast<const unsigned char*>(OSFont->GetFontData());
-    int size = OSFont->GetFontDataSize();
-    int offset = static_cast<int>(stbtt_GetFontOffsetForIndex(data, 0));
-    nvgCreateFontMem(mVG, fontWithStyle.Get(), (unsigned char*) data + offset, size - offset, 0);
+    StaticStorage<SystemFont>::Accessor storage(sFontCache);
+    SystemFont* pFont = new SystemFont(OSFont->GetFontData(), OSFont->GetFontDataSize());
+    storage.Add(pFont, fontWithStyle.Get());
+ 
+    int offset = static_cast<int>(stbtt_GetFontOffsetForIndex(pFont->mData, 0));
+    nvgCreateFontMem(mVG, fontWithStyle.Get(), pFont->mData + offset, pFont->mSize - offset, 0);
     return true;
   }
   
