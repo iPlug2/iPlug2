@@ -25,7 +25,7 @@ class TestFontControl : public IControl
     
 public:
     TestFontControl(IRECT bounds)
-  : IControl(bounds), mCount(-1), mFontCount(0)
+  : IControl(bounds), mCount(-1), mFontCount(0), mStrCount(0)
   {
     SetTooltip("TestFontControl");
     mDblAsSingleClick = true;
@@ -44,9 +44,11 @@ public:
     else
       rect = mRECT.GetFromBottom(size);
       
+    const char* str = mStrCount ? "Quickly dog" : "Font Test";
+      
     g.FillRect(COLOR_WHITE, mRECT);
     g.FillRect(COLOR_MID_GRAY, rect);
-    g.DrawText(mText, "Quickly dog", mRECT);
+    g.DrawText(mText, str, mRECT);
   }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
@@ -63,6 +65,8 @@ public:
       mFontCount = 1 - mFontCount;
     }
     
+    mStrCount = 1 - mStrCount;
+      
     IColor c = DEFAULT_TEXT_FGCOLOR;
     const char* font = mFontCount ? "Roboto-Regular" : "Times New Roman";
     if (mCount == 0)
@@ -90,4 +94,5 @@ private:
   int mCount;
   int mFontCount;
   int mStringIndex;
+  int mStrCount;
 };
