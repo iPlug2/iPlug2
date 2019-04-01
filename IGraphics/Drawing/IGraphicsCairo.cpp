@@ -465,7 +465,7 @@ bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
    
   cairo_set_font_size(mContext, text.mSize * (fontExtents.ascent / fontExtents.height));
   cairo_font_extents(mContext, &fontExtents);
-    
+  
   // Draw / measure
     
   cairo_scaled_font_t* pFont = cairo_get_scaled_font(mContext);
@@ -485,17 +485,17 @@ bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
 
   switch (text.mAlign)
   {
-    case IText::EAlign::kAlignNear:     x = bounds.L;                                                                       break;
-    case IText::EAlign::kAlignFar:      x = bounds.R - textExtents.width - textExtents.x_bearing;                           break;
-    case IText::EAlign::kAlignCenter:   x = bounds.L + ((bounds.W() - textExtents.width - textExtents.x_bearing) / 2.0);    break;
+    case IText::kAlignNear:     x = bounds.L;                                                                       break;
+    case IText::kAlignFar:      x = bounds.R - textExtents.width - textExtents.x_bearing;                           break;
+    case IText::kAlignCenter:   x = bounds.L + ((bounds.W() - textExtents.width - textExtents.x_bearing) / 2.0);    break;
     default: break;
   }
   
   switch (text.mVAlign)
   {
-    case IText::EVAlign::kVAlignTop:      y = bounds.T + fontExtents.ascent;          break;
-    case IText::EVAlign::kVAlignMiddle:   y = bounds.MH() + (fontExtents.ascent/2.);  break;
-    case IText::EVAlign::kVAlignBottom:   y = bounds.B - fontExtents.descent;         break;
+    case IText::kVAlignTop:      y = bounds.T + fontExtents.ascent;                                 break;
+    case IText::kVAlignMiddle:   y = bounds.MH() - fontExtents.descent + fontExtents.height/2.;     break;
+    case IText::kVAlignBottom:   y = bounds.B - fontExtents.descent;                                break;
     default: break;
   }
   
