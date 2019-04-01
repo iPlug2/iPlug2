@@ -699,14 +699,9 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
       
     switch (text.mVAlign)
     {
-      case IText::kVAlignTop:
-        break;
-      case IText::kVAlignMiddle:
-        y += ((bounds.H() - (lines.GetSize() * text.mSize)) / 2.0);
-        break;
-      case IText::kVAlignBottom:
-        y = bounds.B;
-        break;
+      case IText::kVAlignTop:      y = bounds.T + mFontEngine.ascender();                               break;
+      case IText::kVAlignMiddle:   y = bounds.MH() + mFontEngine.descender() + text.mSize/2.;           break;
+      case IText::kVAlignBottom:   y = bounds.B + mFontEngine.descender();                              break;
     }
       
     if (measure)
