@@ -591,18 +591,18 @@ void IGraphicsCairo::EndFrame()
 #endif
 }
 
-bool IGraphicsCairo::LoadFont(const char* name)
+bool IGraphicsCairo::LoadFont(const char* fileNameOrResID)
 {
   StaticStorage<CairoFont>::Accessor storage(sFontCache);
 
-  WDL_String fontNameWithoutExt(name);
+  WDL_String fontNameWithoutExt(fileNameOrResID);
   fontNameWithoutExt.remove_fileext();
   const char* fontName = fontNameWithoutExt.get_filepart();
   
   if (storage.Find(fontName))
     return true;
 
-  OSFontPtr pOSFont = OSLoadFont(name);
+  OSFontPtr pOSFont = OSLoadFont(fileNameOrResID);
     
   if (pOSFont)
   {
@@ -616,6 +616,7 @@ bool IGraphicsCairo::LoadFont(const char* name)
     return true;
   }
   
+  DBGMSG("Could not locate font %s\n", fileNameOrResID);
   return false;
 }
 
@@ -643,6 +644,7 @@ bool IGraphicsCairo::LoadFont(const char* fontName, IText::EStyle style)
     return true;
   }
 
+  DBGMSG("Could not locate font %s\n", fontName);
   return false;
 }
 
