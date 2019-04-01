@@ -461,11 +461,12 @@ bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
   cairo_set_font_size(mContext, text.mSize);
   cairo_font_extents(mContext, &fontExtents);
 
-  // Set the size *again* to match the height we want
+  // Set the size *again* to match the height we want (so that the ascent + descent is text.mSize
    
-  cairo_set_font_size(mContext, text.mSize * (fontExtents.ascent / fontExtents.height));
+  double newSize = text.mSize * text.mSize / (fontExtents.ascent + fontExtents.descent);
+  cairo_set_font_size(mContext, newSize);
   cairo_font_extents(mContext, &fontExtents);
-  
+
   // Draw / measure
     
   cairo_scaled_font_t* pFont = cairo_get_scaled_font(mContext);
