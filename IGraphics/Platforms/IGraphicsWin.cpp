@@ -75,7 +75,7 @@ struct WinDiskFont : WinFont
   ~WinDiskFont()
   {
     if (IsValid())
-      RemoveFontResourceEx(mName.Get(), FR_PRIVATE, NULL);
+      RemoveFontResourceEx(mName.Get(), FR_NOT_ENUM, NULL);
   }
 
   virtual bool IsValid() { return mName.GetLength(); }
