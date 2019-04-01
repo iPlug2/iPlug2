@@ -38,7 +38,7 @@ struct MacCairoFont : CairoFont
 #elif defined OS_WIN
 struct WinCairoFont : CairoFont
 {
-  WinCairoFont(HFONT pFont) : CairoFont(cairo_win32_font_face_create_for_hfont(pFont))
+  WinCairoFont(HFONT font) : CairoFont(cairo_win32_font_face_create_for_hfont(font))
   {}
 };
 
@@ -595,7 +595,7 @@ bool IGraphicsCairo::LoadFont(const char* name)
 {
   StaticStorage<CairoFont>::Accessor storage(sFontCache);
 
-  WDL_String fontNameWithoutExt(name, (int) strlen(name));
+  WDL_String fontNameWithoutExt(name);
   fontNameWithoutExt.remove_fileext();
   const char* fontName = fontNameWithoutExt.get_filepart();
   
@@ -610,7 +610,7 @@ bool IGraphicsCairo::LoadFont(const char* name)
     CFURLRef url = (CFURLRef) pOSFont->GetFont();
     storage.Add(new MacCairoFont(url), fontName);
 #elif defined OS_WIN
-    HFONT pFont = (HFONT) pOSFont->GetFont();
+    HFONT font = (HFONT) pOSFont->GetFont();
     storage.Add(new WinCairoFont(pFont), fontName);
 #endif
     return true;
@@ -637,8 +637,8 @@ bool IGraphicsCairo::LoadFont(const char* fontName, IText::EStyle style)
     CFURLRef url = (CFURLRef) pOSFont->GetFont();
     storage.Add(new MacCairoFont(url), fontWithStyle.Get());
 #elif defined OS_WIN
-    HFONT pFont = (HFONT) pOSFont->GetFont();
-    storage.Add(new WinCairoFont(pFont), fontWithStyle.Get());
+    HFONT font = (HFONT) pOSFont->GetFont();
+    storage.Add(new WinCairoFont(font), fontWithStyle.Get());
 #endif
     return true;
   }

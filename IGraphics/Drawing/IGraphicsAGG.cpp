@@ -222,11 +222,11 @@ bool IGraphicsAGG::LoadFont(const char* fileName)
 {
   StaticStorage<FontType>::Accessor storage(sFontCache);
 
-  WDL_String fontNameWithoutExt(fileName, (int) strlen(fileName));
+  WDL_String fontNameWithoutExt(name);
   fontNameWithoutExt.remove_fileext();
-  WDL_String fullPath;
+  const char* fontName = fontNameWithoutExt.get_filepart();
   
-  if (storage.Find(fontNameWithoutExt.Get()))
+  if (storage.Find(fontName))
     return true;
     
   OSFontPtr pOSFont = OSLoadFont(fileName);
@@ -240,7 +240,7 @@ bool IGraphicsAGG::LoadFont(const char* fileName)
     
   if (pOSFont && pFont->load_font(fontRef))
   {
-    storage.Add(pFont, fontNameWithoutExt.Get(), 0);
+    storage.Add(pFont, fontName, 0);
     return true;
   }
   
