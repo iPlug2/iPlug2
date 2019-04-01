@@ -691,7 +691,7 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
   agg::font* pFontData = FindFont(text);    
   assert(pFontData);
     
-  if (pFontData != 0 && mFontEngine.load_font("", 0, agg::glyph_ren_outline, pFontData->buf(), pFontData->size()))
+  if (pFontData != 0 && mFontEngine.load_font(text.mFont, 0, agg::glyph_ren_outline, pFontData->buf(), pFontData->size()))
   {
     mFontEngine.hinting(hinting);
     mFontEngine.height(text.mSize);
