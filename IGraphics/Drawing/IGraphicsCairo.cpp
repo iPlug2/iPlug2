@@ -26,7 +26,7 @@ struct CairoFont
 #ifdef OS_MAC
 struct OSCairoFont : CairoFont
 {
-  OSCairoFont(void* fontRef) : CairoFont(nullptr)
+  OSCairoFont(const void* fontRef) : CairoFont(nullptr)
   {
     CGFontRef pCGFont = CGFontCreateWithDataProvider((CGDataProviderRef) fontRef);
     mFont = cairo_quartz_font_face_create_for_cgfont(pCGFont);
@@ -36,7 +36,7 @@ struct OSCairoFont : CairoFont
 #elif defined OS_WIN
 struct OSCairoFont : CairoFont
 {
-  OSCairoFont(void* fontRef) : CairoFont(cairo_win32_font_face_create_for_hfont((HFONT) fontRef))
+  OSCairoFont(const void* fontRef) : CairoFont(cairo_win32_font_face_create_for_hfont((HFONT) fontRef))
   {}
 };
 
