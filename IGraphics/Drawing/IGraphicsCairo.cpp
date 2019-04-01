@@ -595,7 +595,7 @@ bool IGraphicsCairo::LoadFont(const char* name)
 {
   StaticStorage<CairoFont>::Accessor storage(sFontCache);
 
-  WDL_String fontNameWithoutExt(name, (int) strlen(name));
+  WDL_String fontNameWithoutExt(name);
   fontNameWithoutExt.remove_fileext();
   const char* fontName = fontNameWithoutExt.get_filepart();
   
