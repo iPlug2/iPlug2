@@ -145,7 +145,7 @@ public:
   void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override { }; // NO-OP
   bool BitmapExtSupported(const char* ext) override;
 
-  bool LoadFont(const char* fileName) override;
+  bool LoadFont(const char* fileNameOrResID) override;
   bool LoadFont(const char* fontName, IText::EStyle style) override;
 
   void DeleteFBO(NVGframebuffer* pBuffer);

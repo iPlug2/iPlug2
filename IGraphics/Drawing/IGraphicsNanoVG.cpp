@@ -686,13 +686,13 @@ void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& opti
     nvgBeginPath(mVG); // Clears the path state
 }
 
-bool IGraphicsNanoVG::LoadFont(const char* fileName)
+bool IGraphicsNanoVG::LoadFont(const char* fileNameOrResID)
 {
   // does not check for existing fonts
-  WDL_String fontNameWithoutExt(fileName, (int) strlen(fileName));
+  WDL_String fontNameWithoutExt(fileNameOrResID);
   fontNameWithoutExt.remove_fileext();
   WDL_String fullPath;
-  EResourceLocation foundResource = OSFindResource(fileName, "ttf", fullPath);
+  EResourceLocation foundResource = OSFindResource(fileNameOrResID, "ttf", fullPath);
  
   if (foundResource != EResourceLocation::kNotFound)
   {
@@ -716,7 +716,7 @@ bool IGraphicsNanoVG::LoadFont(const char* fileName)
 
     if (fontID == -1)
     {
-      DBGMSG("Could not locate font %s\n", fileName);
+      DBGMSG("Could not locate font %s\n", fileNameOrResID);
       return false;
     }
     else
@@ -750,6 +750,7 @@ bool IGraphicsNanoVG::LoadFont(const char* fontName, IText::EStyle style)
     return true;
 #endif
   
+  DBGMSG("Could not locate font %s\n", fontName);
   return false;
 }
 

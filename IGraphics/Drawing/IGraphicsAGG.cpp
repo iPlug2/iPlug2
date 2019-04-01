@@ -218,18 +218,18 @@ void IGraphicsAGG::UpdateLayer()
   mRenBuf.attach(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
 }
 
-bool IGraphicsAGG::LoadFont(const char* fileName)
+bool IGraphicsAGG::LoadFont(const char* fileNameOrResID)
 {
   StaticStorage<FontType>::Accessor storage(sFontCache);
 
-  WDL_String fontNameWithoutExt(name);
+  WDL_String fontNameWithoutExt(fileNameOrResID);
   fontNameWithoutExt.remove_fileext();
   const char* fontName = fontNameWithoutExt.get_filepart();
   
   if (storage.Find(fontName))
     return true;
     
-  OSFontPtr pOSFont = OSLoadFont(fileName);
+  OSFontPtr pOSFont = OSLoadFont(fileNameOrResID);
   FontType* pFont = new FontType();
     
 #ifdef OS_MAC
@@ -245,7 +245,7 @@ bool IGraphicsAGG::LoadFont(const char* fileName)
   }
   
   DELETE_NULL(pFont);
-  DBGMSG("Could not locate font %s\n", fileName);
+  DBGMSG("Could not locate font %s\n", fileNameOrResID);
   return false;
 }
 
@@ -272,6 +272,7 @@ bool IGraphicsAGG::LoadFont(const char* fontName, IText::EStyle style)
   if (pFont)
     storage.Add(pFont, fontWithStyle.Get(), 0);
     
+  DBGMSG("Could not locate font %s\n", fontName);
   return pFont;
 }
 

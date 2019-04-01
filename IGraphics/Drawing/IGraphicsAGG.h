@@ -285,7 +285,7 @@ public:
   
   bool BitmapExtSupported(const char* ext) override;
 
-  bool LoadFont(const char* fileName) override;
+  bool LoadFont(const char* fileNameOrResID) override;
   bool LoadFont(const char* fontName, IText::EStyle style) override;
 
 protected:
