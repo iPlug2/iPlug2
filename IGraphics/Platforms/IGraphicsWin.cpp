@@ -33,6 +33,59 @@ static double sFPS = 0.0;
 #define IPLUG_TIMER_ID 2
 #define IPLUG_WIN_MAX_WIDE_PATH 4096
 
+// Fonts
+
+struct WinFont
+{
+  virtual ~WinFont() {}
+  virtual bool IsValid() = 0;
+};
+
+struct WinMemFont : WinFont
+{
+  WinMemFont(void* data, int resSize)
+    : mFontHandle(nullptr)
+  {
+    if (data)
+    {
+      DWORD numFonts;
+      mFontHandle = AddFontMemResourceEx(data, resSize, NULL, &numFonts);
+    }
+  }
+
+  ~WinMemFont()
+  {
+    if (IsValid())
+      RemoveFontMemResourceEx(mFontHandle);
+  }
+
+  virtual bool IsValid() { return mFontHandle; }
+
+  HANDLE mFontHandle;
+};
+
+struct WinDiskFont : WinFont
+{
+  WinDiskFont(const char *path, const char *name)
+  {
+    if (AddFontResourceEx(path, FR_NOT_ENUM, NULL))
+      mName = WDL_String(name);
+  }
+
+  ~WinDiskFont()
+  {
+    if (IsValid())
+      RemoveFontResourceEx(mName.Get(), FR_PRIVATE, NULL);
+  }
+
+  virtual bool IsValid() { return mName.GetLength(); }
+
+  WDL_String mName;
+};
+
+static StaticStorage<WinFont> sOSFontCache;
+
+// Mouse
 
 inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 {
@@ -542,10 +595,15 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
 
 IGraphicsWin::IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
   : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
-{}
+{
+  StaticStorage<WinFont>::Accessor storage(sOSFontCache);
+  storage.Retain();
+}
 
 IGraphicsWin::~IGraphicsWin()
 {
+  StaticStorage<WinFont>::Accessor storage(sOSFontCache);
+  storage.Release();
   CloseWindow();
   FREE_NULL(mCustomColorStorage);
 }
@@ -1601,119 +1659,108 @@ const void* IGraphicsWin::LoadWinResource(const char* resid, const char* type, i
   }
 }
 
-
-#if 0
-WDL_String fullPath;
-const EResourceLocation fontLocation = OSFindResource(name, "ttf", fullPath);
-
-if (fontLocation == kNotFound)
-return false;
-
-int resSize = 0;
-
-switch (fontLocation)
-{
-    case kAbsolutePath:
-        pFont = new WinDiskFont(fullPath.Get(), fontName);
-        break;
-    case kWinBinary:
-        void* pFontMem = const_cast<void *>(LoadWinResource(fullPath.Get(), "ttf", resSize));
-        pFont = new WinMemFont(fontName, pFontMem, resSize);
-        break;
-}
-#endif
-#if 0
-int weight = text.mStyle == IText::kStyleBold ? FW_BOLD : FW_REGULAR;
-bool italic = text.mStyle == IText::kStyleItalic;
-DWORD quality = DEFAULT_QUALITY;
-switch (text.mQuality)
-{
-    case IText::kQualityAntiAliased: quality = ANTIALIASED_QUALITY; break;
-    case IText::kQualityClearType: quality = CLEARTYPE_QUALITY; break;
-    case IText::kQualityNonAntiAliased: quality = NONANTIALIASED_QUALITY; break;
-}
-
-pFont = new CairoFont(GetWinCairoFont(fontName, weight, italic, quality, true));
-#endif
-
 HFONT GetWinFont(const char* fontName, int weight = FW_REGULAR, bool italic = false, DWORD quality = DEFAULT_QUALITY, bool enumerate = false)
 {
-    cairo_font_face_t* pCairoFont = nullptr;
-    HDC hdc = GetDC(NULL);
-    HFONT pFont = nullptr;
-    LOGFONT lFont;
-    
-    lFont.lfHeight = 0;
-    lFont.lfWidth = 0;
-    lFont.lfEscapement = 0;
-    lFont.lfOrientation = 0;
-    lFont.lfWeight = weight;
-    lFont.lfItalic = italic;
-    lFont.lfUnderline = false;
-    lFont.lfStrikeOut = false;
-    lFont.lfCharSet = DEFAULT_CHARSET;
-    lFont.lfOutPrecision = OUT_TT_PRECIS;
-    lFont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
-    lFont.lfQuality = quality;
-    lFont.lfPitchAndFamily = DEFAULT_PITCH;
-    
-    strncpy(lFont.lfFaceName, fontName, LF_FACESIZE);
-    
-    auto enumProc = [](const LOGFONT* pLFont, const TEXTMETRIC* pTextMetric, DWORD FontType, LPARAM lParam)
-    {
-        return -1;
-    };
-    
-    if ((!enumerate || EnumFontFamiliesEx(hdc, &lFont, enumProc, NULL, 0) == -1) && (pFont = CreateFontIndirect(&lFont)))
-    {
-        pCairoFont = cairo_win32_font_face_create_for_hfont(pFont);
-        DeleteObject(pFont);
-    }
-    
-    ReleaseDC(NULL, hdc);
-    
-    return pCairoFont;
+  HDC hdc = GetDC(NULL);
+  HFONT font = nullptr;
+  LOGFONT lFont;
+
+  lFont.lfHeight = 0;
+  lFont.lfWidth = 0;
+  lFont.lfEscapement = 0;
+  lFont.lfOrientation = 0;
+  lFont.lfWeight = weight;
+  lFont.lfItalic = italic;
+  lFont.lfUnderline = false;
+  lFont.lfStrikeOut = false;
+  lFont.lfCharSet = DEFAULT_CHARSET;
+  lFont.lfOutPrecision = OUT_TT_PRECIS;
+  lFont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
+  lFont.lfQuality = quality;
+  lFont.lfPitchAndFamily = DEFAULT_PITCH;
+
+  strncpy(lFont.lfFaceName, fontName, LF_FACESIZE);
+
+  auto enumProc = [](const LOGFONT* pLFont, const TEXTMETRIC* pTextMetric, DWORD FontType, LPARAM lParam)
+  {
+    return -1;
+  };
+
+  if ((!enumerate || EnumFontFamiliesEx(hdc, &lFont, enumProc, NULL, 0) == -1))
+    font = CreateFontIndirect(&lFont);
+
+
+  ReleaseDC(NULL, hdc);
+
+  return font;
 }
 
-struct WinMemFont
+IGraphics::OSFontPtr IGraphicsWin::OSLoadFont(const char* fileNameOrResID)
 {
-    WinMemFont(const char* name, void* data, int resSize)
-    : mFontHandle(nullptr)
-    {
-        if (data)
-        {
-            DWORD numFonts;
-            mFontHandle = AddFontMemResourceEx(data, resSize, NULL, &numFonts);
-        }
-    }
-    
-    ~WinCairoMemFont()
-    {
-        if (mFontHandle)
-            RemoveFontMemResourceEx(mFontHandle);
-    }
-    
-    HANDLE mFontHandle;
-};
+  StaticStorage<WinFont>::Accessor storage(sOSFontCache);
 
-struct WinDiskFont : CairoFont
+  WDL_String fontNameWithoutExt(fileNameOrResID);
+  fontNameWithoutExt.remove_fileext();
+  const char* fontName = fontNameWithoutExt.get_filepart();
+
+  WinFont* pFont = nullptr;
+  WDL_String fullPath;
+  const EResourceLocation fontLocation = OSFindResource(fileNameOrResID, "ttf", fullPath);
+
+  if (fontLocation == kNotFound)
+    return nullptr;
+
+  int resSize = 0;
+
+  switch (fontLocation)
+  {
+  case kAbsolutePath:
+    pFont = new WinDiskFont(fullPath.Get(), fontName);
+    break;
+  case kWinBinary:
+    void* pFontMem = const_cast<void *>(LoadWinResource(fullPath.Get(), "ttf", resSize));
+    pFont = new WinMemFont(pFontMem, resSize);
+    break;
+  }
+
+  if (pFont && !pFont->IsValid())
+    
+
+  if (pFont)
+  {
+    HFONT font = nullptr;
+
+    if (pFont->IsValid())
+      font = GetWinFont(fontName);
+
+    if (font)
+    {
+      storage.Add(pFont, fontName);
+      return OSFontPtr(new WinOSFont(font));
+    }
+  }
+
+  delete pFont;
+  return nullptr;
+}
+
+IGraphics::OSFontPtr IGraphicsWin::OSLoadFont(const IText& text)
 {
-    WinDiskFont(const char *path, const char *name)
-    {
-        if (AddFontResourceEx(path, FR_NOT_ENUM, NULL))
-            mName = WDL_String(name);
-    }
-    
-    ~WinDiskFont()
-    {
-        if (mName.GetLength())
-            RemoveFontResourceEx(mName.Get(), FR_PRIVATE, NULL);
-    }
-    
-    WDL_String mName;
-};
+  int weight = text.mStyle == IText::kStyleBold ? FW_BOLD : FW_REGULAR;
+  bool italic = text.mStyle == IText::kStyleItalic;
+  DWORD quality = DEFAULT_QUALITY;
 
+  switch (text.mQuality)
+  {
+  case IText::kQualityAntiAliased: quality = ANTIALIASED_QUALITY; break;
+  case IText::kQualityClearType: quality = CLEARTYPE_QUALITY; break;
+  case IText::kQualityNonAntiAliased: quality = NONANTIALIASED_QUALITY; break;
+  }
 
+  HFONT font = GetWinFont(text.mFont, weight, italic, quality, true);
+
+  return OSFontPtr(font ? new WinOSFont(font) : nullptr);
+}
 
 //TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT
 #ifndef NO_IGRAPHICS

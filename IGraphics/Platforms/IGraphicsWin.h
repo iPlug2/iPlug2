@@ -21,6 +21,18 @@
 class IGraphicsWin final : public IGRAPHICS_DRAW_CLASS
 {
 public:
+
+  class WinOSFont : public OSFont
+  {
+  public:
+    WinOSFont(HFONT font) : mFont(font) {}
+    ~WinOSFont() { DeleteObject(mFont); }
+
+    const void* GetFont() override { return reinterpret_cast<const void*>(mFont); }
+  private:
+    HFONT mFont;
+  };
+
   IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsWin();
 
