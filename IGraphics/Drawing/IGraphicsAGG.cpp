@@ -232,16 +232,18 @@ bool IGraphicsAGG::LoadFont(const char* fileNameOrResID)
   OSFontPtr pOSFont = OSLoadFont(fileNameOrResID);
   FontType* pFont = new FontType();
     
-#ifdef OS_MAC
-  CFURLRef fontRef = (CFURLRef) pOSFont->GetFont();
-#elif defined OS_WIN
-  HFONT fontRef = (HFONT) pOSFont->GetFont();
-#endif
-    
-  if (pOSFont && pFont->load_font(fontRef))
+  if (pOSFont)
   {
-    storage.Add(pFont, fontName, 0);
-    return true;
+#ifdef OS_MAC
+    CFURLRef fontRef = (CFURLRef) pOSFont->GetFont();
+#elif defined OS_WIN
+    HFONT fontRef = (HFONT) pOSFont->GetFont();
+#endif
+    if (pFont->load_font(fontRef))
+    {
+      storage.Add(pFont, fontName, 0);
+      return true;
+    }
   }
   
   DELETE_NULL(pFont);
@@ -260,20 +262,28 @@ bool IGraphicsAGG::LoadFont(const char* fontName, IText::EStyle style)
     return true;
   
   OSFontPtr pOSFont = OSLoadFont(text);
-  FontType* pFont = new FontType;
+
+  if (pOSFont)
+  {
+    FontType* pFont = new FontType;
+
 #ifdef OS_MAC
-  CFURLRef fontRef = (CFURLRef) pOSFont->GetFont();
+    CFURLRef fontRef = (CFURLRef) pOSFont->GetFont();
 #elif defined OS_WIN
-  HFONT fontRef = (HFONT) pOSFont->GetFont();
+    HFONT fontRef = (HFONT) pOSFont->GetFont();
 #endif
-    
-  if (!pFont->load_font(fontRef))
-    DELETE_NULL(pFont);
-  if (pFont)
-    storage.Add(pFont, fontWithStyle.Get(), 0);
-    
+      
+    if (!pFont->load_font(fontRef))
+      DELETE_NULL(pFont);
+    if (pFont)
+    {
+      storage.Add(pFont, fontWithStyle.Get(), 0);
+      return true;
+    }
+  }
+  
   DBGMSG("Could not locate font %s\n", fontName);
-  return pFont;
+  return false;
 }
 
 agg::font* IGraphicsAGG::FindFont(const IText& text)
