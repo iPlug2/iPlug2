@@ -1721,10 +1721,7 @@ IGraphics::OSFontPtr IGraphicsWin::OSLoadFont(const char* fileNameOrResID)
     void* pFontMem = const_cast<void *>(LoadWinResource(fullPath.Get(), "ttf", resSize));
     pFont = new WinMemFont(pFontMem, resSize);
     break;
-  }
-
-  if (pFont && !pFont->IsValid())
-    
+  } 
 
   if (pFont)
   {
