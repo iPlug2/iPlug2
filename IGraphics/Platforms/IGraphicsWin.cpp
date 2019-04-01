@@ -83,6 +83,50 @@ struct WinDiskFont : WinFont
   WDL_String mName;
 };
 
+IGraphicsWin::WinOSFont::~WinOSFont()
+{
+  DeleteObject(mFont);
+  if (mData)
+    delete[] mData;
+};
+
+void IGraphicsWin::WinOSFont::CheckData()
+{
+  if (!mData)
+  {
+    HDC hdc = CreateCompatibleDC(NULL);
+
+    if (hdc != NULL)
+    {
+      SelectObject(hdc, mFont);
+      const size_t size = ::GetFontData(hdc, 0, 0, NULL, 0);
+
+      if (size > 0)
+      {
+        mData = new char[size];
+        if (::GetFontData(hdc, 0, 0, mData, size) == size)
+          mSize = size;
+        else
+          delete[] mData;
+      }
+
+      DeleteDC(hdc);
+    }
+  }
+}
+
+const void* IGraphicsWin::WinOSFont::GetFontData()
+{
+  CheckData();
+  return mData;
+}
+
+int IGraphicsWin::WinOSFont::GetFontDataSize()
+{
+  CheckData();
+  return mSize;
+}
+
 static StaticStorage<WinFont> sOSFontCache;
 
 // Mouse
