@@ -43,8 +43,6 @@ public:
 
   const char* GetPlatformAPIStr() override { return "WEB"; }
 
-  void SetPlatformContext(void* pContext) override {} // TODO:
-
   void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override { /* NOT SUPPORTABLE*/ }
   ECursor SetMouseCursor(ECursor cursorType) override;
