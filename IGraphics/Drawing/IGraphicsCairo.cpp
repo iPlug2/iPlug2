@@ -611,7 +611,7 @@ bool IGraphicsCairo::LoadFont(const char* name)
     storage.Add(new MacCairoFont(url), fontName);
 #elif defined OS_WIN
     HFONT font = (HFONT) pOSFont->GetFont();
-    storage.Add(new WinCairoFont(pFont), fontName);
+    storage.Add(new WinCairoFont(font), fontName);
 #endif
     return true;
   }
