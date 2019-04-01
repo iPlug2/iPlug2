@@ -190,6 +190,41 @@ EResourceLocation IGraphicsMac::OSFindResource(const char* name, const char* typ
   return EResourceLocation::kNotFound;
 }
 
+IGraphics::OSFontPtr IGraphicsMac::OSLoadFont(const char* fileNameOrResID)
+{
+  WDL_String fullPath;
+  const EResourceLocation fontLocation = OSFindResource(fileNameOrResID, "ttf", fullPath);
+    
+  if (fontLocation == kNotFound)
+    return nullptr;
+    
+  CFStringRef path = CFStringCreateWithCString(NULL, fullPath.Get(), kCFStringEncodingUTF8);
+  CFURLRef url = CFURLCreateWithFileSystemPath(NULL, path, kCFURLPOSIXPathStyle, false);
+  CFRelease(path);
+  
+  return OSFontPtr(url ? new MacOSFont(url) : nullptr);
+}
+
+IGraphics::OSFontPtr IGraphicsMac::OSLoadFont(const IText& text)
+{
+  CFStringRef fontStr = CFStringCreateWithCString(NULL, text.mFont, kCFStringEncodingUTF8);
+  CFStringRef styleStr = CFStringCreateWithCString(NULL, text.GetStyleString(), kCFStringEncodingUTF8);
+  
+  CFStringRef keys[] = { kCTFontNameAttribute, kCTFontStyleNameAttribute };
+  CFTypeRef values[] = { fontStr, styleStr };
+  
+  CFDictionaryRef dictionary = CFDictionaryCreate(NULL, (const void**)&keys, (const void**)&values, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+  CTFontDescriptorRef fontDescriptor = CTFontDescriptorCreateWithAttributes(dictionary);
+  CFURLRef url = (CFURLRef)CTFontDescriptorCopyAttribute(fontDescriptor, kCTFontURLAttribute);
+  
+  CFRelease(fontStr);
+  CFRelease(styleStr);
+  CFRelease(dictionary);
+  CFRelease(fontDescriptor);
+  
+  return OSFontPtr(url ? new MacOSFont(url) : nullptr);
+}
+
 bool IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds)
 {
 #ifdef IGRAPHICS_LICE

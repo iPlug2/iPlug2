@@ -20,6 +20,18 @@
 class IGraphicsMac final : public IGRAPHICS_DRAW_CLASS
 {
 public:
+    
+  class MacOSFont : public OSFont
+  {
+  public:
+    MacOSFont(CFURLRef url) : mURL(url) {}
+    ~MacOSFont() { CFRelease(mURL); }
+      
+    const void* GetFont() override { return reinterpret_cast<const void*>(mURL); }
+  private:
+    CFURLRef mURL;
+  };
+    
   IGraphicsMac(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   virtual ~IGraphicsMac();
 
@@ -71,6 +83,8 @@ protected:
   void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
 private:
   EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result) override;
+  OSFontPtr OSLoadFont(const char* fileNameOrResID) override;
+  OSFontPtr OSLoadFont(const IText& text) override;
   bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath);
   bool GetResourcePathFromUsersMusicFolder(const char* fileName, const char* searchExt, WDL_String& fullPath);
   void RepositionCursor(CGPoint point);

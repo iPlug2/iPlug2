@@ -66,7 +66,16 @@ class IGraphics
 : public IPlugAAXView_Interface
 #endif
 {
+protected:
 
+  struct OSFont
+  {
+    virtual const void* GetFont() { return nullptr; }
+    virtual ~OSFont() {}
+  };
+
+  typedef std::unique_ptr<OSFont> OSFontPtr;
+    
 public:
 #pragma mark - IGraphics drawing API implementation
 
@@ -656,6 +665,16 @@ public:
    * @param type The resource type in lower or upper case, e.g. ttf or TTF for a truetype font
    * @return const void pointer to the data if successfull on windows. Returns nullptr if unsuccessfull or on platforms other than windows */
   virtual const void* LoadWinResource(const char* resID, const char* type, int& sizeInBytes) { return nullptr; }
+
+  /** Load a font from disk or resource in a platform format.
+   * @param fileNameOrResID A resource or file name/path
+   * @return OSFontPtr from which the platform font can be retrieved */
+  virtual OSFontPtr OSLoadFont(const char* fileNameOrResID) { return nullptr; }
+  
+  /** Load a system font in a platform format.
+   * @param text A IText structure defining the font name and style
+   * @return OSFontPtr from which the platform font can be retrieved */
+  virtual OSFontPtr OSLoadFont(const IText& text) { return nullptr; }
 
   /** Get the bundle ID on macOS and iOS, returns emtpy string on other OSs */
   virtual const char* GetBundleID() { return ""; }
