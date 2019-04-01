@@ -227,9 +227,10 @@ IGraphics::OSFontPtr IGraphicsMac::OSLoadFont(const char* fileNameOrResID)
     
   CFStringRef path = CFStringCreateWithCString(NULL, fullPath.Get(), kCFStringEncodingUTF8);
   CFURLRef url = CFURLCreateWithFileSystemPath(NULL, path, kCFURLPOSIXPathStyle, false);
-  CGDataProviderRef dataProvider = CGDataProviderCreateWithURL(url);
+  CGDataProviderRef dataProvider = url ? CGDataProviderCreateWithURL(url) : nullptr;
   CFRelease(path);
-  CFRelease(url);
+  if (url)
+    CFRelease(url);
   
   return OSFontPtr(dataProvider ? new MacOSFont(dataProvider) : nullptr);
 }
@@ -245,13 +246,14 @@ IGraphics::OSFontPtr IGraphicsMac::OSLoadFont(const IText& text)
   CFDictionaryRef dictionary = CFDictionaryCreate(NULL, (const void**)&keys, (const void**)&values, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
   CTFontDescriptorRef fontDescriptor = CTFontDescriptorCreateWithAttributes(dictionary);
   CFURLRef url = (CFURLRef)CTFontDescriptorCopyAttribute(fontDescriptor, kCTFontURLAttribute);
-  CGDataProviderRef dataProvider = CGDataProviderCreateWithURL(url);
+  CGDataProviderRef dataProvider = url ? CGDataProviderCreateWithURL(url) : nullptr;
 
   CFRelease(fontStr);
   CFRelease(styleStr);
   CFRelease(dictionary);
   CFRelease(fontDescriptor);
-  CFRelease(url);
+  if (url)
+    CFRelease(url);
   
   return OSFontPtr(dataProvider ? new MacOSFont(dataProvider) : nullptr);
 }
