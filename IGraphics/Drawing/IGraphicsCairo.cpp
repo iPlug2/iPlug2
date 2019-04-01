@@ -24,19 +24,19 @@ struct CairoFont
 };
 
 #ifdef OS_MAC
-struct MacCairoFont : CairoFont
+struct OSCairoFont : CairoFont
 {
-  MacCairoFont(CGDataProviderRef provider) : CairoFont(nullptr)
+  OSCairoFont(void* fontRef) : CairoFont(nullptr)
   {
-    CGFontRef pCGFont = CGFontCreateWithDataProvider(provider);
+    CGFontRef pCGFont = CGFontCreateWithDataProvider((CGDataProviderRef) fontRef);
     mFont = cairo_quartz_font_face_create_for_cgfont(pCGFont);
     CGFontRelease(pCGFont);
   }
 };
 #elif defined OS_WIN
-struct WinCairoFont : CairoFont
+struct OSCairoFont : CairoFont
 {
-  WinCairoFont(HFONT font) : CairoFont(cairo_win32_font_face_create_for_hfont(font))
+  OSCairoFont(void* fontRef) : CairoFont(cairo_win32_font_face_create_for_hfont((HFONT) fontRef))
   {}
 };
 
@@ -604,13 +604,7 @@ bool IGraphicsCairo::LoadFont(const char* fileNameOrResID)
     
   if (pOSFont)
   {
-#ifdef OS_MAC
-    CGDataProviderRef ref = (CGDataProviderRef) pOSFont->GetFont();
-    storage.Add(new MacCairoFont(ref), fontName);
-#elif defined OS_WIN
-    HFONT font = (HFONT) pOSFont->GetFont();
-    storage.Add(new WinCairoFont(font), fontName);
-#endif
+    storage.Add(new OSCairoFont(pOSFont->GetFont()), fontName);
     return true;
   }
   
@@ -632,13 +626,7 @@ bool IGraphicsCairo::LoadFont(const char* fontName, IText::EStyle style)
   
   if (pOSFont)
   {
-#ifdef OS_MAC
-    CGDataProviderRef ref = (CGDataProviderRef) pOSFont->GetFont();
-    storage.Add(new MacCairoFont(ref), fontWithStyle.Get());
-#elif defined OS_WIN
-    HFONT font = (HFONT) pOSFont->GetFont();
-    storage.Add(new WinCairoFont(font), fontWithStyle.Get());
-#endif
+    storage.Add(new OSCairoFont(pOSFont->GetFont()), fontWithStyle.Get());
     return true;
   }
 
