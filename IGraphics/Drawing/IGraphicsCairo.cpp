@@ -36,87 +36,10 @@ struct MacCairoFont : CairoFont
   }
 };
 #elif defined OS_WIN
-cairo_font_face_t* GetWinCairoFont(const char* fontName, int weight = FW_REGULAR, bool italic = false, DWORD quality = DEFAULT_QUALITY, bool enumerate = false)
+struct WinCairoFont : CairoFont
 {
-  cairo_font_face_t* pCairoFont = nullptr;
-  HDC hdc = GetDC(NULL);
-  HFONT pFont = nullptr;
-  LOGFONT lFont;
-
-  lFont.lfHeight = 0;
-  lFont.lfWidth = 0;
-  lFont.lfEscapement = 0;
-  lFont.lfOrientation = 0;
-  lFont.lfWeight = weight;
-  lFont.lfItalic = italic;
-  lFont.lfUnderline = false;
-  lFont.lfStrikeOut = false;
-  lFont.lfCharSet = DEFAULT_CHARSET;
-  lFont.lfOutPrecision = OUT_TT_PRECIS;
-  lFont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
-  lFont.lfQuality = quality;
-  lFont.lfPitchAndFamily = DEFAULT_PITCH;
-
-  strncpy(lFont.lfFaceName, fontName, LF_FACESIZE);
-
-  auto enumProc = [](const LOGFONT* pLFont, const TEXTMETRIC* pTextMetric, DWORD FontType, LPARAM lParam)
-  {
-    return -1;
-  };
-
-  if ((!enumerate || EnumFontFamiliesEx(hdc, &lFont, enumProc, NULL, 0) == -1) && (pFont = CreateFontIndirect(&lFont)))
-  {
-    pCairoFont = cairo_win32_font_face_create_for_hfont(pFont);
-    DeleteObject(pFont);
-  }
-  
-  ReleaseDC(NULL, hdc);
-    
-  return pCairoFont;
-}
-
-struct WinCairoMemFont : CairoFont
-{
-  WinCairoMemFont(const char* name, void* data, int resSize)
-  : CairoFont(nullptr), mFontHandle(nullptr)
-  {
-    if (data)
-    {
-      DWORD numFonts;
-      mFontHandle = AddFontMemResourceEx(data, resSize, NULL, &numFonts);
-      if (mFontHandle)
-        mFont = GetWinCairoFont(name);
-    }
-  }
-  
-  ~WinCairoMemFont()
-  {
-    if (mFontHandle)
-      RemoveFontMemResourceEx(mFontHandle);
-  }
-  
-  HANDLE mFontHandle;
-};
-
-struct WinCairoDiskFont : CairoFont
-{
-  WinCairoDiskFont(const char *path, const char *name)
-    : CairoFont(nullptr)
-  {
-    if (AddFontResourceEx(path, FR_NOT_ENUM, NULL))
-    {
-      mName = WDL_String(name);
-      mFont = GetWinCairoFont(name);
-    }
-  }
-  
-  ~WinCairoDiskFont()
-  {
-    if (mName.GetLength())
-      RemoveFontResourceEx(mName.Get(), FR_PRIVATE, NULL);
-  }
-  
-  WDL_String mName;
+  WinCairoFont(HFONT pFont) : CairoFont(cairo_win32_font_face_create_for_hfont(pFont))
+  {}
 };
 
 class PNGStream
@@ -675,46 +598,24 @@ bool IGraphicsCairo::LoadFont(const char* name)
   WDL_String fontNameWithoutExt(name, (int) strlen(name));
   fontNameWithoutExt.remove_fileext();
   const char* fontName = fontNameWithoutExt.get_filepart();
-  CairoFont* pFont = nullptr;
-    
+  
   if (storage.Find(fontName))
     return true;
 
-  WDL_String fullPath;
-  const EResourceLocation fontLocation = OSFindResource(name, "ttf", fullPath);
+  OSFontPtr pOSFont = OSLoadFont(name);
     
-  if (fontLocation == kNotFound)
-    return false;
-  
-#ifdef OS_MAC
-    CFStringRef path = CFStringCreateWithCString(kCFAllocatorDefault, fullPath.Get(), kCFStringEncodingUTF8);
-    CFURLRef url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, path, kCFURLPOSIXPathStyle, false);
-    CFRelease(path);
-
-    pFont = new MacCairoFont(url);
-    CFRelease(url);
-#elif defined OS_WIN
-    int resSize = 0;
-
-    switch (fontLocation)
-    {
-      case kAbsolutePath:
-        pFont = new WinCairoDiskFont(fullPath.Get(), fontName);
-        break;
-      case kWinBinary:
-        void* pFontMem = const_cast<void *>(LoadWinResource(fullPath.Get(), "ttf", resSize));
-        pFont = new WinCairoMemFont(fontName, pFontMem, resSize);
-        break;
-    }
-#endif
-
-  if (pFont && pFont->mFont)
+  if (pOSFont)
   {
-    storage.Add(pFont, fontName);
+#ifdef OS_MAC
+    CFURLRef url = (CFURLRef) pOSFont->GetFont();
+    storage.Add(new MacCairoFont(url), fontName);
+#elif defined OS_WIN
+    HFONT pFont = (HFONT) pOSFont->GetFont();
+    storage.Add(new WinCairoFont(pFont), fontName);
+#endif
     return true;
   }
-    
-  delete pFont;
+  
   return false;
 }
 
@@ -722,52 +623,26 @@ bool IGraphicsCairo::LoadFont(const char* fontName, IText::EStyle style)
 {
   StaticStorage<CairoFont>::Accessor storage(sFontCache);
   IText text(0, DEFAULT_TEXT_FGCOLOR, fontName, style);
-  CairoFont* pFont = nullptr;
     
   WDL_String fontWithStyle = text.GetFontWithStyle();
   
   if (storage.Find(fontWithStyle.Get()))
     return true;
   
+  OSFontPtr pOSFont = OSLoadFont(text);
+  
+  if (pOSFont)
+  {
 #ifdef OS_MAC
-  CFStringRef fontStr = CFStringCreateWithCStringNoCopy(kCFAllocatorDefault, text.mFont, 0, kCFAllocatorNull);
-  CFStringRef styleStr = CFStringCreateWithCStringNoCopy(kCFAllocatorDefault, text.GetStyleString(), 0, kCFAllocatorNull);
-  
-  CFStringRef keys[] = { kCTFontNameAttribute, kCTFontStyleNameAttribute };
-  CFTypeRef values[] = { fontStr, styleStr };
-  
-  CFDictionaryRef dictionary = CFDictionaryCreate(kCFAllocatorDefault, (const void**)&keys, (const void**)&values, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-  CTFontDescriptorRef fontDescriptor = CTFontDescriptorCreateWithAttributes(dictionary);
-  CFURLRef url = (CFURLRef)CTFontDescriptorCopyAttribute(fontDescriptor, kCTFontURLAttribute);
-    
-  CFRelease(fontStr);
-  CFRelease(styleStr);
-  CFRelease(dictionary);
-  CFRelease(fontDescriptor);
-  
-  pFont = new MacCairoFont(url);
-  CFRelease(url);
+    CFURLRef url = (CFURLRef) pOSFont->GetFont();
+    storage.Add(new MacCairoFont(url), fontWithStyle.Get());
 #elif defined OS_WIN
-  int weight = text.mStyle == IText::kStyleBold ? FW_BOLD : FW_REGULAR;
-  bool italic = text.mStyle == IText::kStyleItalic;
-  DWORD quality = DEFAULT_QUALITY;
-  switch (text.mQuality)
-  {
-    case IText::kQualityAntiAliased: quality = ANTIALIASED_QUALITY; break;
-    case IText::kQualityClearType: quality = CLEARTYPE_QUALITY; break;
-    case IText::kQualityNonAntiAliased: quality = NONANTIALIASED_QUALITY; break;
-  }
-  
-  pFont = new CairoFont(GetWinCairoFont(fontName, weight, italic, quality, true));
+    HFONT pFont = (HFONT) pOSFont->GetFont();
+    storage.Add(new WinCairoFont(pFont), fontWithStyle.Get());
 #endif
-  
-  if (pFont && pFont->mFont)
-  {
-    storage.Add(pFont, fontWithStyle.Get());
     return true;
   }
-    
-  delete pFont;
+
   return false;
 }
 

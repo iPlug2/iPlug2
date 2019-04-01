@@ -225,41 +225,27 @@ bool IGraphicsAGG::LoadFont(const char* fileName)
   WDL_String fontNameWithoutExt(fileName, (int) strlen(fileName));
   fontNameWithoutExt.remove_fileext();
   WDL_String fullPath;
-  EResourceLocation foundResource = OSFindResource(fileName, "ttf", fullPath);
   
   if (storage.Find(fontNameWithoutExt.Get()))
     return true;
     
-  if (foundResource != EResourceLocation::kNotFound)
-  {
-#ifdef OS_WIN
-    if (foundResource == EResourceLocation::kWinBinary)
-    {
-      int sizeInBytes = 0;
-      const void* pResData = LoadWinResource(fullPath.Get(), "ttf", sizeInBytes);
-      
-      if (pResData && sizeInBytes)
-      {
-        // Load from resource...
-      }
-    }
-    else
+  OSFontPtr pOSFont = OSLoadFont(fileName);
+  FontType* pFont = new FontType();
+    
+#ifdef OS_MAC
+  CFURLRef fontRef = (CFURLRef) pOSFont->GetFont();
+#elif defined OS_WIN
+  HFONT fontRef = (HFONT) pOSFont->GetFont();
 #endif
     
-    FontType* pFont = new FontType();
-    if (pFont->load_font(fullPath.Get()))
-    {
-      storage.Add(pFont, fontNameWithoutExt.Get(), 0);
-      return true;
-    }
-    else
-    {
-      DELETE_NULL(pFont);
-      DBGMSG("Could not locate font %s\n", fileName);
-      return false;
-    }
+  if (pOSFont && pFont->load_font(fontRef))
+  {
+    storage.Add(pFont, fontNameWithoutExt.Get(), 0);
+    return true;
   }
   
+  DELETE_NULL(pFont);
+  DBGMSG("Could not locate font %s\n", fileName);
   return false;
 }
 
@@ -273,8 +259,15 @@ bool IGraphicsAGG::LoadFont(const char* fontName, IText::EStyle style)
   if (storage.Find(fontWithStyle.Get(), 0))
     return true;
   
+  OSFontPtr pOSFont = OSLoadFont(text);
   FontType* pFont = new FontType;
-  if (!pFont->load_font(text.mFont, text.GetStyleString(), 0))
+#ifdef OS_MAC
+  CFURLRef fontRef = (CFURLRef) pOSFont->GetFont();
+#elif defined OS_WIN
+  HFONT fontRef = (HFONT) pOSFont->GetFont();
+#endif
+    
+  if (!pFont->load_font(fontRef))
     DELETE_NULL(pFont);
   if (pFont)
     storage.Add(pFont, fontWithStyle.Get(), 0);
