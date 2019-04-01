@@ -21,6 +21,7 @@
 #include "TestMultiPathControl.h"
 #include "TestPolyControl.h"
 #include "TestTextControl.h"
+#include "TestFontControl.h"
 #include "TestAnimationControl.h"
 #include "TestDrawContextControl.h"
 #include "TestSizeControl.h"

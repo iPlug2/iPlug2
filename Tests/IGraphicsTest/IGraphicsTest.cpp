@@ -54,6 +54,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     });
     
     pGraphics->LoadFont(ROBOTTO_FN);
+    pGraphics->LoadFont("Times New Roman", IText::kStyleNormal);
     pGraphics->LoadFont(MONTSERRAT_FN);
     ISVG tiger = pGraphics->LoadSVG(TIGER_FN);
     IBitmap smiley = pGraphics->LoadBitmap(SMILEY_FN);
@@ -127,7 +128,8 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new TestCursorControl(nextCell()));
     pGraphics->AttachControl(new TestKeyboardControl(nextCell()));
     pGraphics->AttachControl(new TestShadowGradientControl(nextCell()));
-
+    pGraphics->AttachControl(new TestFontControl(nextCell()));
+                                              
     WDL_String path;
     //    DesktopPath(path);
     path.Set(__FILE__);

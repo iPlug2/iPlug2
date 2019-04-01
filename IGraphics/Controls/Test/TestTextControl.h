@@ -26,6 +26,7 @@ public:
   : IControl(bounds)
   {
     SetTooltip("TestTextControl");
+    mDblAsSingleClick = true;
     Randomise();
   }
 
