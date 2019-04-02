@@ -9,20 +9,15 @@
  ==============================================================================
  */
 
-#include "swell.h"
+#pragma once
 
-#ifdef LineTo
-#undef LineTo
+#include <nanovg.h>
+
+#ifdef __cplusplus
+extern "C" {
 #endif
-#ifdef SetPixel
-#undef SetPixel
-#endif
-#ifdef FillRect
-#undef FillRect
-#endif
-#ifdef DrawText
-#undef DrawText
-#endif
-#ifdef Polygon
-#undef Polygon
+int nvgCreateFontMemIdx(NVGcontext* ctx, const char* name, unsigned char* data, int dataSize, int faceIdx);
+
+#ifdef __cplusplus
+}
 #endif

@@ -24,16 +24,20 @@ public:
   class MacOSFont : public OSFont
   {
   public:
-    MacOSFont(CGDataProviderRef provider) : mProvider(provider), mData(nullptr) {}
+      MacOSFont(CGDataProviderRef provider, const char* styleName = "")
+      : mProvider(provider), mStyleName(styleName), mData(nullptr) {}
     ~MacOSFont();
       
     const void* GetFont() override { return reinterpret_cast<const void*>(mProvider); }
     const void* GetFontData() override;
     int GetFontDataSize() override;
+    int GetFaceIdx() override;
+
   private:
     void CheckData();
       
     CFDataRef mData;
+    WDL_String mStyleName;
     CGDataProviderRef mProvider;
   };
     

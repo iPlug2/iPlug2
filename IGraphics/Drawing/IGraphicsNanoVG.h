@@ -13,7 +13,7 @@
 #include "IPlugPlatform.h"
 #include "IGraphicsPathBase.h"
 
-#include "nanovg.h"
+#include "nanovg_extended.h"
 #include "mutex.h"
 #include <stack>
 

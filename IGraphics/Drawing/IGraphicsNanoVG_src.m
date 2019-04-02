@@ -5,5 +5,5 @@
   #if defined IGRAPHICS_FREETYPE
     #define FONS_USE_FREETYPE
   #endif
-  #include "nanovg.c"
+  #include "nanovg_extended.c"
 #endif

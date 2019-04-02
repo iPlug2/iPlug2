@@ -317,7 +317,7 @@ protected:
 
 private:
   
-  agg::font* FindFont(const IText& text);
+  void SetFont(const char* name,AGGFont* pFont, int faceIdx);
 
   void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& bounds, const char* str, FontManagerType& manager);
 

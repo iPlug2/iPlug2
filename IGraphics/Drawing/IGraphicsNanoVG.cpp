@@ -634,7 +634,7 @@ bool IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IREC
     r.L = fbounds[0]; r.T = fbounds[1]; r.R = fbounds[2]; r.B = fbounds[3];
   };
   
-  if(measure)
+  if (measure)
   {
     calcTextBounds(bounds);
     return true;
@@ -764,13 +764,13 @@ bool IGraphicsNanoVG::LoadFont(const char* fontName, IText::EStyle style)
   {
     StaticStorage<SystemFont>::Accessor storage(sFontCache);
     const unsigned char* fontData = (const unsigned char*) OSFont->GetFontData();
-    int offset = stbtt_FindMatchingFont(fontData, fontWithStyle.Get(), 0);
-    
-    if (offset >= 0)
+    int faceIdx = OSFont->GetFaceIdx();
+      
+    if (faceIdx >= 0)
     {
       SystemFont* pFont = new SystemFont(fontData, OSFont->GetFontDataSize());
       storage.Add(pFont, fontWithStyle.Get());
-      nvgCreateFontMem(mVG, fontWithStyle.Get(), pFont->mData + offset, pFont->mSize - offset, 0);
+      nvgCreateFontMemIdx(mVG, fontWithStyle.Get(), pFont->mData, pFont->mSize, faceIdx);
     }
     return true;
   }
