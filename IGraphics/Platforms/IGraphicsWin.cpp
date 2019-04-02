@@ -1800,7 +1800,7 @@ IGraphics::OSFontPtr IGraphicsWin::OSLoadFont(const IText& text)
 
   HFONT font = GetWinFont(text.mFont, weight, italic, quality, true);
 
-  return OSFontPtr(font ? new WinOSFont(font) : nullptr);
+  return OSFontPtr(font ? new WinOSFont(font, text.GetStyleString()) : nullptr);
 }
 
 //TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT
