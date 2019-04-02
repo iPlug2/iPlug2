@@ -763,11 +763,15 @@ bool IGraphicsNanoVG::LoadFont(const char* fontName, IText::EStyle style)
   if (OSFont)
   {
     StaticStorage<SystemFont>::Accessor storage(sFontCache);
-    SystemFont* pFont = new SystemFont(OSFont->GetFontData(), OSFont->GetFontDataSize());
-    storage.Add(pFont, fontWithStyle.Get());
- 
-    int offset = static_cast<int>(stbtt_GetFontOffsetForIndex(pFont->mData, 0));
-    nvgCreateFontMem(mVG, fontWithStyle.Get(), pFont->mData + offset, pFont->mSize - offset, 0);
+    const unsigned char* fontData = (const unsigned char*) OSFont->GetFontData();
+    int offset = stbtt_FindMatchingFont(fontData, fontWithStyle.Get(), 0);
+    
+    if (offset >= 0)
+    {
+      SystemFont* pFont = new SystemFont(fontData, OSFont->GetFontDataSize());
+      storage.Add(pFont, fontWithStyle.Get());
+      nvgCreateFontMem(mVG, fontWithStyle.Get(), pFont->mData + offset, pFont->mSize - offset, 0);
+    }
     return true;
   }
   
