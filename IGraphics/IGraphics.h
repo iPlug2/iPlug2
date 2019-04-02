@@ -70,12 +70,15 @@ protected:
 
   struct OSFont
   {
+    OSFont(const char* styleName) : mStyleName(styleName) {}
     virtual ~OSFont() {}
 
     virtual const void* GetFont() { return nullptr; }
     virtual const void* GetFontData() { return nullptr; }
     virtual int GetFontDataSize() { return 0; }
-    virtual int GetFaceIdx() { return 0; }
+    int GetFaceIdx();
+      
+    WDL_String mStyleName;
   };
 
   typedef std::unique_ptr<OSFont> OSFontPtr;

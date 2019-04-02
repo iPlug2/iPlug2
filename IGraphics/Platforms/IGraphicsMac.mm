@@ -21,11 +21,6 @@
 #include "IPlugPluginBase.h"
 #include "IPlugPaths.h"
 
-#ifndef IGRAPHICS_NANOVG
-#define STB_TRUETYPE_IMPLEMENTATION
-#endif
-#include "stb_truetype.h"
-
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 int GetSystemVersion()
@@ -103,26 +98,6 @@ int IGraphicsMac::MacOSFont::GetFontDataSize()
 {
   CheckData();
   return static_cast<int>(CFDataGetLength(mData));
-}
-
-int IGraphicsMac::MacOSFont::GetFaceIdx()
-{
-  const unsigned char* data = (const unsigned char*) GetFontData();
-
-  for (int idx = 0; ; idx++)
-  {
-    stbtt_fontinfo fontInfo;
-    int length;
-    int offset = stbtt_GetFontOffsetForIndex(data, idx);
-    if (offset < 0)
-      return -1;
-      
-    stbtt_InitFont(&fontInfo, data, offset);
-    const char* stylename = stbtt_GetFontNameString(&fontInfo, &length, STBTT_PLATFORM_ID_MAC, STBTT_MAC_EID_ROMAN, STBTT_MAC_LANG_ENGLISH, 2);
-    
-    if (mStyleName.GetLength() == length && !strncmp(stylename, mStyleName.Get(), length))
-      return idx;
-  }
 }
   
 #pragma mark -
