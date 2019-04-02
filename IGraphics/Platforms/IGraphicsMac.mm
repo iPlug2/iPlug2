@@ -240,7 +240,7 @@ IGraphics::OSFontPtr IGraphicsMac::OSLoadFont(const IText& text)
   CFStringRef fontStr = CFStringCreateWithCString(NULL, text.mFont, kCFStringEncodingUTF8);
   CFStringRef styleStr = CFStringCreateWithCString(NULL, text.GetStyleString(), kCFStringEncodingUTF8);
   
-  CFStringRef keys[] = { kCTFontNameAttribute, kCTFontStyleNameAttribute };
+  CFStringRef keys[] = { kCTFontFamilyNameAttribute, kCTFontStyleNameAttribute };
   CFTypeRef values[] = { fontStr, styleStr };
   
   CFDictionaryRef dictionary = CFDictionaryCreate(NULL, (const void**)&keys, (const void**)&values, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);

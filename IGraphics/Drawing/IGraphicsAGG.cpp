@@ -270,7 +270,7 @@ bool IGraphicsAGG::LoadFont(const char* fontName, IText::EStyle style)
   {
     const char* data = reinterpret_cast<const char*>(pOSFont->GetFontData());
     int size = pOSFont->GetFontDataSize();
-    storage.Add(new AGGFont(data, size), fontName, 0);
+    storage.Add(new AGGFont(data, size), fontWithStyle.Get(), 0);
     return true;
   }
   
