@@ -24,8 +24,8 @@ public:
   class MacOSFont : public OSFont
   {
   public:
-      MacOSFont(CGDataProviderRef provider, const char* styleName = "")
-      : OSFont(styleName), mProvider(provider), mData(nullptr) {}
+    MacOSFont(CGDataProviderRef provider, const char* styleName = "")
+     : OSFont(styleName), mProvider(provider), mData(nullptr) {}
     ~MacOSFont();
       
     const void* GetFont() override { return reinterpret_cast<const void*>(mProvider); }
