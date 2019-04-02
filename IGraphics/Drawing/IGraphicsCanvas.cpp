@@ -227,11 +227,11 @@ bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
   val font = context["font"];
   sprintf(fontString, "%s %dpx %s", styles[text.mStyle], text.mSize, text.mFont);
   context.set("font", std::string(fontString));
-  double textWidth = context.call<val>("measureText", textString)["width"].as<double>();
-  double textHeight = EM_ASM_DOUBLE({
-    return parseFloat(document.getElementById("canvas").getContext("2d").font);
-  });
-  
+  val metrics = context.call<val>("measureText", textString);
+  double textWidth = metrics["width"].as<double>();
+  double textHeight = text.mSize;
+  //EM_ASM_DOUBLE({return parseFloat(document.getElementById("canvas").getContext("2d").font);});
+
   if (measure)
   {
     bounds = IRECT(0, 0, (float) textWidth, (float) textHeight);
@@ -251,10 +251,18 @@ bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
     
     switch (text.mVAlign)
     {
-      case IText::EVAlign::kVAlignTop: y = bounds.T; break;
-      case IText::EVAlign::kVAlignMiddle: y = bounds.MH() - (textHeight/2.); break;
-      case IText::EVAlign::kVAlignBottom: y = bounds.B - textHeight; break;
-      default: break;
+      case IText::EVAlign::kVAlignTop:
+        y = bounds.T;
+        context.set("textBaseline", std::string("top"));
+        break;
+      case IText::EVAlign::kVAlignMiddle:
+        y = bounds.MH();
+        context.set("textBaseline", std::string("middle"));
+        break;
+      case IText::EVAlign::kVAlignBottom:
+        y = bounds.B;
+        context.set("textBaseline", std::string("bottom"));
+        break;
     }
 
     context.call<void>("save");
