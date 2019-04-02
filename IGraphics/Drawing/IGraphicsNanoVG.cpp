@@ -723,36 +723,29 @@ bool IGraphicsNanoVG::LoadFont(const char* fileNameOrResID)
   fontNameWithoutExt.remove_fileext();
   WDL_String fullPath;
   EResourceLocation foundResource = OSFindResource(fileNameOrResID, "ttf", fullPath);
- 
+
   if (foundResource != EResourceLocation::kNotFound)
   {
     int fontID = -1;
 
 #ifdef OS_WIN
-    if(foundResource == EResourceLocation::kWinBinary)
+    if (foundResource == EResourceLocation::kWinBinary)
     {
       int sizeInBytes = 0;
       const void* pResData = LoadWinResource(fullPath.Get(), "ttf", sizeInBytes);
 
-      if(pResData && sizeInBytes)
+      if (pResData && sizeInBytes)
         fontID = nvgCreateFontMem(mVG, fontNameWithoutExt.Get(), (unsigned char*) pResData, sizeInBytes, 0 /* ?? */);
-
-      if(fontID == -1)
-        return false;
     }
     else
 #endif
     fontID = nvgCreateFont(mVG, fontNameWithoutExt.Get(), fullPath.Get());
 
-    if (fontID == -1)
-    {
-      DBGMSG("Could not locate font %s\n", fileNameOrResID);
-      return false;
-    }
-    else
+    if (fontID != -1)
       return true;
   }
 
+  DBGMSG("Could not locate font %s\n", fileNameOrResID);
   return false;
 }
 
