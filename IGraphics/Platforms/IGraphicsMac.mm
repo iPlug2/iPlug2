@@ -80,6 +80,8 @@ IGraphicsMac::MacOSFont::~MacOSFont()
   CGDataProviderRelease(mProvider);
   if (mData)
     CFRelease(mData);
+  if (mDescriptor)
+    CFRelease(mDescriptor);
 };
 
 void IGraphicsMac::MacOSFont::CheckData()
@@ -228,11 +230,20 @@ IGraphics::OSFontPtr IGraphicsMac::OSLoadFont(const char* fileNameOrResID)
   CFStringRef path = CFStringCreateWithCString(NULL, fullPath.Get(), kCFStringEncodingUTF8);
   CFURLRef url = CFURLCreateWithFileSystemPath(NULL, path, kCFURLPOSIXPathStyle, false);
   CGDataProviderRef dataProvider = url ? CGDataProviderCreateWithURL(url) : nullptr;
+  CGFontRef cgFont = CGFontCreateWithDataProvider(dataProvider);
+  CTFontRef ctFont = CTFontCreateWithGraphicsFont(cgFont, 0.f, NULL, NULL);
+  CTFontDescriptorRef descriptor = CTFontCopyFontDescriptor(ctFont);
+  
   CFRelease(path);
   if (url)
     CFRelease(url);
-  
-  return OSFontPtr(dataProvider ? new MacOSFont(dataProvider) : nullptr);
+  if(!descriptor)
+    CFRelease(dataProvider);
+  CGFontRelease(cgFont);
+  if (ctFont)
+    CFRelease(ctFont);
+
+  return OSFontPtr(descriptor ? new MacOSFont(descriptor, dataProvider) : nullptr);
 }
 
 IGraphics::OSFontPtr IGraphicsMac::OSLoadFont(const IText& text)
@@ -244,18 +255,19 @@ IGraphics::OSFontPtr IGraphicsMac::OSLoadFont(const IText& text)
   CFTypeRef values[] = { fontStr, styleStr };
   
   CFDictionaryRef dictionary = CFDictionaryCreate(NULL, (const void**)&keys, (const void**)&values, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-  CTFontDescriptorRef fontDescriptor = CTFontDescriptorCreateWithAttributes(dictionary);
-  CFURLRef url = (CFURLRef)CTFontDescriptorCopyAttribute(fontDescriptor, kCTFontURLAttribute);
+  CTFontDescriptorRef descriptor = CTFontDescriptorCreateWithAttributes(dictionary);
+  CFURLRef url = (CFURLRef)CTFontDescriptorCopyAttribute(descriptor, kCTFontURLAttribute);
   CGDataProviderRef dataProvider = url ? CGDataProviderCreateWithURL(url) : nullptr;
 
   CFRelease(fontStr);
   CFRelease(styleStr);
   CFRelease(dictionary);
-  CFRelease(fontDescriptor);
+  if (!dataProvider)
+    CFRelease(descriptor);
   if (url)
     CFRelease(url);
   
-  return OSFontPtr(dataProvider ? new MacOSFont(dataProvider, text.GetStyleString()) : nullptr);
+  return OSFontPtr(dataProvider ? new MacOSFont(descriptor, dataProvider, text.GetStyleString()) : nullptr);
 }
 
 bool IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds)

@@ -28,9 +28,11 @@ struct OSCairoFont : CairoFont
 {
   OSCairoFont(const void* fontRef) : CairoFont(nullptr)
   {
-    CGFontRef pCGFont = CGFontCreateWithDataProvider((CGDataProviderRef) fontRef);
-    mFont = cairo_quartz_font_face_create_for_cgfont(pCGFont);
-    CGFontRelease(pCGFont);
+    CTFontRef ctFont = CTFontCreateWithFontDescriptor((CTFontDescriptorRef) fontRef, 0.f, NULL);
+    CGFontRef cgFont = CTFontCopyGraphicsFont(ctFont, NULL);
+    mFont = cairo_quartz_font_face_create_for_cgfont(cgFont);
+    CFRelease(ctFont);
+    CGFontRelease(cgFont);
   }
 };
 #elif defined OS_WIN
