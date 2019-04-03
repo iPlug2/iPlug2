@@ -13,7 +13,7 @@
 #define NANOSVG_IMPLEMENTATION
 #include "nanosvg.h"
 
-#if defined IGRAPHICS_NANOVG || defined IGRAPHICS_FREETYPE
+#if !defined IGRAPHICS_NANOVG || defined IGRAPHICS_FREETYPE
 #define STB_TRUETYPE_IMPLEMENTATION
 #endif
 #include "stb_truetype.h"
