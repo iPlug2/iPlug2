@@ -229,10 +229,10 @@ void IGraphicsMac::CloseWindow()
     IGRAPHICS_VIEW* view = (IGRAPHICS_VIEW*) mView;
     [view removeAllToolTips];
     [view killTimer];
-	[view removeFromSuperview];
-	[view release];
-	  
-	mView = nullptr;
+    [view removeFromSuperview];
+    [view release];
+      
+    mView = nullptr;
     OnViewDestroyed();
   }
 }

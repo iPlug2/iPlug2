@@ -20,7 +20,7 @@ IGEditorDelegate::IGEditorDelegate(int nParams)
 IGEditorDelegate::~IGEditorDelegate()
 {
   if (mGraphics)
-	DELETE_NULL(mGraphics);
+    DELETE_NULL(mGraphics);
 }
 
 void IGEditorDelegate::OnUIOpen()
@@ -62,15 +62,14 @@ void IGEditorDelegate::CloseWindow()
 {
   IEditorDelegate::CloseWindow();
   IGraphics* pGraphics = mGraphics;
-	
   mGraphics = nullptr;
-	
+    
   if (pGraphics)
   {
-	pGraphics->CloseWindow();
-	  
-	if (mIGraphicsTransient)
-	  delete pGraphics;
+    pGraphics->CloseWindow();
+    
+    if (mIGraphicsTransient)
+      delete pGraphics;
   }
 }
 
