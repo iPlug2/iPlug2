@@ -862,15 +862,10 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 //    mWebView = nullptr;
 //  }
   
-  if (mGraphics)
-  {
-    IGraphics* pGraphics = mGraphics;
-    mGraphics = nullptr;
-    pGraphics->SetPlatformContext(nullptr);
+  mGraphics->SetPlatformContext(nullptr);
     
-    //For some APIs (AUv2) this is where we know about the window being closed, close via delegate
-    pGraphics->GetDelegate()->CloseWindow();
-  }
+  //For some APIs (AUv2) this is where we know about the window being closed, close via delegate
+  mGraphics->GetDelegate()->CloseWindow();
   [super removeFromSuperview];
 }
 

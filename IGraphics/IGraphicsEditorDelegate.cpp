@@ -19,6 +19,8 @@ IGEditorDelegate::IGEditorDelegate(int nParams)
 
 IGEditorDelegate::~IGEditorDelegate()
 {
+  if (mGraphics)
+	DELETE_NULL(mGraphics);
 }
 
 void IGEditorDelegate::OnUIOpen()
@@ -59,12 +61,17 @@ void* IGEditorDelegate::OpenWindow(void* pParent)
 void IGEditorDelegate::CloseWindow()
 {
   IEditorDelegate::CloseWindow();
-  
-  if(mGraphics)
-    mGraphics->CloseWindow();
-  
-  if(mIGraphicsTransient)
-    DELETE_NULL(mGraphics);
+  IGraphics* pGraphics = mGraphics;
+	
+  mGraphics = nullptr;
+	
+  if (pGraphics)
+  {
+	pGraphics->CloseWindow();
+	  
+	if (mIGraphicsTransient)
+	  delete pGraphics;
+  }
 }
 
 void IGEditorDelegate::SendControlValueFromDelegate(int controlTag, double normalizedValue)
