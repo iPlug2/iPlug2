@@ -68,7 +68,7 @@ class IGraphics
 {
 protected:
 
-  static bool FontDataGetName(WDL_String& family, WDL_String&style, const void* data, int idx);
+  static int FontDataGetName(WDL_String& family, WDL_String&style, const void* data, int idx);
 
   struct OSFont
   {

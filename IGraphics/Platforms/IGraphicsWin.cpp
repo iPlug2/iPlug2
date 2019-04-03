@@ -64,7 +64,7 @@ IGraphicsWin::WinOSFont::~WinOSFont()
   if (mData)
     delete[] mData;
 };
-
+#include <vector>
 void IGraphicsWin::WinOSFont::CheckData()
 {
   if (!mData)
@@ -76,15 +76,18 @@ void IGraphicsWin::WinOSFont::CheckData()
       SelectObject(hdc, mFont);
       const size_t size = ::GetFontData(hdc, 0, 0, NULL, 0);
 
-      if (size > 0)
+      if (size != GDI_ERROR)
       {
         mData = new char[size];
-        if (::GetFontData(hdc, 0, 0, mData, size) == size)
+        size_t result = ::GetFontData(hdc, 0x66637474, 0, mData, size);
+        if (result == GDI_ERROR)
+          result = ::GetFontData(hdc, 0, 0, mData, size);
+        if (result != GDI_ERROR)
           mSize = size;
         else
           delete[] mData;
       }
-
+      
       DeleteDC(hdc);
     }
   }

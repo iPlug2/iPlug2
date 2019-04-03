@@ -56,27 +56,28 @@ bool FontDataAttemptName(WDL_String& family, WDL_String&style, stbtt_fontinfo* i
   return true;
 }
 
-bool IGraphics::FontDataGetName(WDL_String& family, WDL_String&style, const void* data, int idx)
+int IGraphics::FontDataGetName(WDL_String& family, WDL_String&style, const void* data, int idx)
 {
-  stbtt_fontinfo info;
-  
   int offset = stbtt_GetFontOffsetForIndex((const unsigned char*) data, idx);
   
   if (offset >= 0)
   {
+      stbtt_fontinfo info;
       stbtt_InitFont(&info, (const unsigned char*) data, offset);
     
       if (FontDataAttemptName(family, style, &info, STBTT_PLATFORM_ID_MAC, STBTT_MAC_EID_ROMAN, STBTT_MAC_LANG_ENGLISH))
-          return true;
-      if (FontDataAttemptName(family, style, &info, STBTT_PLATFORM_ID_MICROSOFT, STBTT_MS_EID_UNICODE_BMP, STBTT_MS_LANG_ENGLISH))
-          return true;
+          return 0;
+      if (FontDataAttemptName(family, style, &info, STBTT_PLATFORM_ID_MICROSOFT, STBTT_MS_EID_UNICODE_FULL, STBTT_MS_LANG_ENGLISH))
+          return 0;
       if (FontDataAttemptName(family, style, &info, STBTT_PLATFORM_ID_MICROSOFT, STBTT_MS_EID_SYMBOL, STBTT_MS_LANG_ENGLISH))
-          return true;
-      if (FontDataAttemptName(family, style, &info, STBTT_PLATFORM_ID_UNICODE, STBTT_UNICODE_EID_UNICODE_1_0, 0))
-          return true;
+          return 0;
+      if (FontDataAttemptName(family, style, &info, STBTT_PLATFORM_ID_UNICODE, STBTT_UNICODE_EID_UNICODE_2_0_FULL, 0))
+          return 0;
+
+      return -1;
   }
 
-  return false;
+  return -2;
 }
 
 int IGraphics::OSFont::GetFaceIdx()
@@ -86,11 +87,12 @@ int IGraphics::OSFont::GetFaceIdx()
   for (int idx = 0; ; idx++)
   {
     WDL_String family, style;
-    
-    if (!FontDataGetName(family, style, data, idx))
+    int result = FontDataGetName(family, style, data, idx);
+
+    if (result == -2)
       return -1;
-    
-    if (!strcmp(style.Get(), mStyleName.Get()))
+
+    if (!result && !strcmp(style.Get(), mStyleName.Get()))
       return idx;
   }
 }
