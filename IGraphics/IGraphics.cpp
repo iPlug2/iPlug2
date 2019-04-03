@@ -40,30 +40,41 @@ typedef IPlugVST3Controller VST3_API_BASE;
 #include "IPopupMenuControl.h"
 #include "ITextEntryControl.h"
 
+bool FontDataAttemptName(WDL_String& family, WDL_String&style, stbtt_fontinfo* info, int platform,  int encoding, int language)
+{
+  const char* str;
+  int length = 0;
+
+  str = stbtt_GetFontNameString(info, &length, platform, encoding, language, 16);
+  if (!length)
+    str = stbtt_GetFontNameString(info, &length, platform, encoding, language, 1);
+  family.Set(str, length);
+  if (!length)
+    return false;
+  str = stbtt_GetFontNameString(info, &length, platform, encoding, language, 2);
+  style.Set(str, length);
+  return true;
+}
+
 bool IGraphics::FontDataGetName(WDL_String& family, WDL_String&style, const void* data, int idx)
 {
   stbtt_fontinfo info;
-  const char* str;
-
-  int platformID = STBTT_PLATFORM_ID_MAC;
-  int encodingID = STBTT_MAC_EID_ROMAN;
-  int langID = STBTT_MAC_LANG_ENGLISH;
-  int length = 0;
   
   int offset = stbtt_GetFontOffsetForIndex((const unsigned char*) data, idx);
   
-  if (offset < 0)
-    return false;
-  
-  stbtt_InitFont(&info, (const unsigned char*) data, offset);
-  str = stbtt_GetFontNameString(&info, &length, platformID, encodingID, langID, 16);
-  if (!length)
-    str = stbtt_GetFontNameString(&info, &length, platformID, encodingID, langID, 1);
-  family.Set(str, length);
-  str = stbtt_GetFontNameString(&info, &length, platformID, encodingID, langID, 2);
-  style.Set(str, length);
+  if (offset >= 0)
+  {
+      stbtt_InitFont(&info, (const unsigned char*) data, offset);
+    
+      if (FontDataAttemptName(family, style, &info, STBTT_PLATFORM_ID_MAC, STBTT_MAC_EID_ROMAN, STBTT_MAC_LANG_ENGLISH))
+          return true;
+      if (FontDataAttemptName(family, style, &info, STBTT_PLATFORM_ID_MICROSOFT, STBTT_MS_EID_UNICODE_BMP, STBTT_MS_LANG_ENGLISH))
+          return true;
+      if (FontDataAttemptName(family, style, &info, STBTT_PLATFORM_ID_MICROSOFT, STBTT_MS_EID_SYMBOL, STBTT_MS_LANG_ENGLISH))
+          return true;
+  }
 
-  return true;
+  return false;
 }
 
 int IGraphics::OSFont::GetFaceIdx()
