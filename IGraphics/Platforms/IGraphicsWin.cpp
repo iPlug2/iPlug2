@@ -1798,7 +1798,7 @@ IGraphics::OSFontPtr IGraphicsWin::OSLoadFont(const IText& text)
 #ifdef IGRAPHICS_FREETYPE
 #define FONS_USE_FREETYPE
 #endif
-  #include "nanovg_extended.c"
+  #include "nanovg.c"
   #include "glad.c"
 #else
   #include "IGraphicsCairo.cpp"
