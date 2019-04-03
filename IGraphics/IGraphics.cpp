@@ -56,7 +56,9 @@ bool IGraphics::FontDataGetName(WDL_String& family, WDL_String&style, const void
     return false;
   
   stbtt_InitFont(&info, (const unsigned char*) data, offset);
-  str = stbtt_GetFontNameString(&info, &length, platformID, encodingID, langID, 1);
+  str = stbtt_GetFontNameString(&info, &length, platformID, encodingID, langID, 16);
+  if (!length)
+    str = stbtt_GetFontNameString(&info, &length, platformID, encodingID, langID, 1);
   family.Set(str, length);
   str = stbtt_GetFontNameString(&info, &length, platformID, encodingID, langID, 2);
   style.Set(str, length);
