@@ -41,22 +41,42 @@ typedef IPlugVST3Controller VST3_API_BASE;
 #include "IPopupMenuControl.h"
 #include "ITextEntryControl.h"
 
+bool IGraphics::FontDataGetName(WDL_String& family, WDL_String&style, const unsigned char* data, int idx, bool macNames)
+{
+  stbtt_fontinfo info;
+  const char* str;
+  
+  int platformID = macNames ? STBTT_PLATFORM_ID_MAC : STBTT_PLATFORM_ID_MICROSOFT;
+  int encodingID = macNames ? STBTT_MAC_EID_ROMAN : STBTT_MS_LANG_ENGLISH;
+  int langID = macNames ? STBTT_MAC_LANG_ENGLISH : STBTT_MS_LANG_ENGLISH;
+  int length = 0;
+  
+  int offset = stbtt_GetFontOffsetForIndex(data, idx);
+  
+  if (offset < 0)
+    return false;
+  
+  stbtt_InitFont(&info, data, offset);
+  str = stbtt_GetFontNameString(&info, &length, platformID, encodingID, langID, 2);
+  family.Set(str, length);
+  str = stbtt_GetFontNameString(&info, &length, platformID, encodingID, langID, 2);
+  family.Set(str, length);
+
+  return true;
+}
+
 int IGraphics::OSFont::GetFaceIdx()
 {
   const unsigned char* data = (const unsigned char*) GetFontData();
   
   for (int idx = 0; ; idx++)
   {
-    stbtt_fontinfo fontInfo;
-    int length;
-    int offset = stbtt_GetFontOffsetForIndex(data, idx);
-    if (offset < 0)
+    WDL_String family, style;
+    
+    if (!FontDataGetName(family, style, data, idx, true))
       return -1;
     
-    stbtt_InitFont(&fontInfo, data, offset);
-    const char* stylename = stbtt_GetFontNameString(&fontInfo, &length, STBTT_PLATFORM_ID_MAC, STBTT_MAC_EID_ROMAN, STBTT_MAC_LANG_ENGLISH, 2);
-    
-    if (mStyleName.GetLength() == length && !strncmp(stylename, mStyleName.Get(), length))
+    if (!strcmp(style.Get(), mStyleName.Get()))
       return idx;
   }
 }
@@ -1332,7 +1352,7 @@ EResourceLocation IGraphics::SearchImageResource(const char* name, const char* t
     
     if (sourceScale != 1)
     {
-      WDL_String baseName(fullName.get_filepart()); baseName.remove_fileext();
+      WDL_String baseName(name); baseName.remove_fileext();
       WDL_String ext(fullName.get_fileext());
       fullName.SetFormatted((int) (strlen(name) + strlen("@2x")), "%s@%dx%s", baseName.Get(), sourceScale, ext.Get());
     }

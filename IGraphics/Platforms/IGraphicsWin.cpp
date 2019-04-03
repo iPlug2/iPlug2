@@ -37,13 +37,7 @@ static double sFPS = 0.0;
 
 struct WinFont
 {
-  virtual ~WinFont() {}
-  virtual bool IsValid() = 0;
-};
-
-struct WinMemFont : WinFont
-{
-  WinMemFont(void* data, int resSize)
+  WinFont(void* data, int resSize)
     : mFontHandle(nullptr)
   {
     if (data)
@@ -53,7 +47,7 @@ struct WinMemFont : WinFont
     }
   }
 
-  ~WinMemFont()
+  ~WinFont()
   {
     if (IsValid())
       RemoveFontMemResourceEx(mFontHandle);
@@ -62,25 +56,6 @@ struct WinMemFont : WinFont
   virtual bool IsValid() { return mFontHandle; }
 
   HANDLE mFontHandle;
-};
-
-struct WinDiskFont : WinFont
-{
-  WinDiskFont(const char *path, const char *name)
-  {
-    if (AddFontResourceEx(path, FR_NOT_ENUM, NULL))
-      mName = WDL_String(name);
-  }
-
-  ~WinDiskFont()
-  {
-    if (IsValid())
-      RemoveFontResourceEx(mName.Get(), FR_NOT_ENUM, NULL);
-  }
-
-  virtual bool IsValid() { return mName.GetLength(); }
-
-  WDL_String mName;
 };
 
 IGraphicsWin::WinOSFont::~WinOSFont()
@@ -1703,7 +1678,7 @@ const void* IGraphicsWin::LoadWinResource(const char* resid, const char* type, i
   }
 }
 
-HFONT GetWinFont(const char* fontName, int weight = FW_REGULAR, bool italic = false, DWORD quality = DEFAULT_QUALITY, bool enumerate = false)
+HFONT GetHFont(const char* fontName, int weight = FW_REGULAR, bool italic = false, DWORD quality = DEFAULT_QUALITY, bool enumerate = false)
 {
   HDC hdc = GetDC(NULL);
   HFONT font = nullptr;
@@ -1733,7 +1708,6 @@ HFONT GetWinFont(const char* fontName, int weight = FW_REGULAR, bool italic = fa
   if ((!enumerate || EnumFontFamiliesEx(hdc, &lFont, enumProc, NULL, 0) == -1))
     font = CreateFontIndirect(&lFont);
 
-
   ReleaseDC(NULL, hdc);
 
   return font;
@@ -1743,12 +1717,8 @@ IGraphics::OSFontPtr IGraphicsWin::OSLoadFont(const char* fileNameOrResID)
 {
   StaticStorage<WinFont>::Accessor storage(sOSFontCache);
 
-  WDL_String fontNameWithoutExt(fileNameOrResID);
-  fontNameWithoutExt.remove_fileext();
-  const char* fontName = fontNameWithoutExt.get_filepart();
-
   WinFont* pFont = nullptr;
-  WDL_String fullPath;
+  WDL_String fullPath, family, style;
   const EResourceLocation fontLocation = OSFindResource(fileNameOrResID, "ttf", fullPath);
 
   if (fontLocation == kNotFound)
@@ -1759,24 +1729,29 @@ IGraphics::OSFontPtr IGraphicsWin::OSLoadFont(const char* fileNameOrResID)
   switch (fontLocation)
   {
   case kAbsolutePath:
-    pFont = new WinDiskFont(fullPath.Get(), fontName);
+    HANDLE file = CreateFile(fullPath.Get(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    HANDLE mapping = CreateFileMapping(file, NULL, PAGE_READONLY, 0, 0, NULL);
+    LPVOID view = MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
+    FontDataGetName(family, style, data, 0, false);
+    pFont = new WinFont(pFontMem, resSize);
+    UnmapViewOfFile(view);
+    CloseHandle(mapping);
+    CloseHandle(file);
     break;
   case kWinBinary:
     void* pFontMem = const_cast<void *>(LoadWinResource(fullPath.Get(), "ttf", resSize));
-    pFont = new WinMemFont(pFontMem, resSize);
+    FontDataGetName(family, style, data, 0, false);
+    pFont = new WinFont(pFontMem, resSize);
     break;
   } 
 
-  if (pFont)
+  if (pFont && pFont->IsValid())
   {
-    HFONT font = nullptr;
-
-    if (pFont->IsValid())
-      font = GetWinFont(fontName);
+    HFONT font = GetHFont(familyName);
 
     if (font)
     {
-      storage.Add(pFont, fontName);
+      storage.Add(pFont, fileNameOrResID);
       return OSFontPtr(new WinOSFont(font));
     }
   }

@@ -68,6 +68,8 @@ class IGraphics
 {
 protected:
 
+  static bool FontDataGetName(WDL_String& family, WDL_String&style, const unsigned char* data, int idx, bool macNames);
+
   struct OSFont
   {
     OSFont(const char* styleName) : mStyleName(styleName) {}
