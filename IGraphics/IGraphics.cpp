@@ -72,6 +72,8 @@ bool IGraphics::FontDataGetName(WDL_String& family, WDL_String&style, const void
           return true;
       if (FontDataAttemptName(family, style, &info, STBTT_PLATFORM_ID_MICROSOFT, STBTT_MS_EID_SYMBOL, STBTT_MS_LANG_ENGLISH))
           return true;
+      if (FontDataAttemptName(family, style, &info, STBTT_PLATFORM_ID_UNICODE, STBTT_UNICODE_EID_UNICODE_1_0, 0))
+          return true;
   }
 
   return false;
