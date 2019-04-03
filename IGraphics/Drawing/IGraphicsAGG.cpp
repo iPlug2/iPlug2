@@ -655,7 +655,7 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IREC
   }
 }
 
-void IGraphicsAGG::SetFont(const char* name,AGGFont* pFont, int faceIdx)
+void IGraphicsAGG::SetFont(const char* name, AGGFont* pFont, int faceIdx)
 {
   mFontEngine.load_font(name, faceIdx, agg::glyph_ren_outline, pFont->buf(), pFont->size());
 }

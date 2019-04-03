@@ -8,7 +8,6 @@
  ==============================================================================
 */
 
-
 #include "IGraphics.h"
 
 #define NANOSVG_IMPLEMENTATION
@@ -41,39 +40,39 @@ typedef IPlugVST3Controller VST3_API_BASE;
 #include "IPopupMenuControl.h"
 #include "ITextEntryControl.h"
 
-bool IGraphics::FontDataGetName(WDL_String& family, WDL_String&style, const unsigned char* data, int idx, bool macNames)
+bool IGraphics::FontDataGetName(WDL_String& family, WDL_String&style, const void* data, int idx)
 {
   stbtt_fontinfo info;
   const char* str;
-  
-  int platformID = macNames ? STBTT_PLATFORM_ID_MAC : STBTT_PLATFORM_ID_MICROSOFT;
-  int encodingID = macNames ? STBTT_MAC_EID_ROMAN : STBTT_MS_LANG_ENGLISH;
-  int langID = macNames ? STBTT_MAC_LANG_ENGLISH : STBTT_MS_LANG_ENGLISH;
+
+  int platformID = STBTT_PLATFORM_ID_MAC;
+  int encodingID = STBTT_MAC_EID_ROMAN;
+  int langID = STBTT_MAC_LANG_ENGLISH;
   int length = 0;
   
-  int offset = stbtt_GetFontOffsetForIndex(data, idx);
+  int offset = stbtt_GetFontOffsetForIndex((const unsigned char*) data, idx);
   
   if (offset < 0)
     return false;
   
-  stbtt_InitFont(&info, data, offset);
-  str = stbtt_GetFontNameString(&info, &length, platformID, encodingID, langID, 2);
+  stbtt_InitFont(&info, (const unsigned char*) data, offset);
+  str = stbtt_GetFontNameString(&info, &length, platformID, encodingID, langID, 1);
   family.Set(str, length);
   str = stbtt_GetFontNameString(&info, &length, platformID, encodingID, langID, 2);
-  family.Set(str, length);
+  style.Set(str, length);
 
   return true;
 }
 
 int IGraphics::OSFont::GetFaceIdx()
 {
-  const unsigned char* data = (const unsigned char*) GetFontData();
+  const void* data = GetFontData();
   
   for (int idx = 0; ; idx++)
   {
     WDL_String family, style;
     
-    if (!FontDataGetName(family, style, data, idx, true))
+    if (!FontDataGetName(family, style, data, idx))
       return -1;
     
     if (!strcmp(style.Get(), mStyleName.Get()))

@@ -1728,26 +1728,30 @@ IGraphics::OSFontPtr IGraphicsWin::OSLoadFont(const char* fileNameOrResID)
 
   switch (fontLocation)
   {
-  case kAbsolutePath:
-    HANDLE file = CreateFile(fullPath.Get(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-    HANDLE mapping = CreateFileMapping(file, NULL, PAGE_READONLY, 0, 0, NULL);
-    LPVOID view = MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
-    FontDataGetName(family, style, data, 0, false);
-    pFont = new WinFont(pFontMem, resSize);
-    UnmapViewOfFile(view);
-    CloseHandle(mapping);
-    CloseHandle(file);
+    case kAbsolutePath:
+    {
+      HANDLE file = CreateFile(fullPath.Get(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+      HANDLE mapping = CreateFileMapping(file, NULL, PAGE_READONLY, 0, 0, NULL);
+      LPVOID view = MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
+      FontDataGetName(family, style, view, 0);
+      pFont = new WinFont(view, resSize);
+      UnmapViewOfFile(view);
+      CloseHandle(mapping);
+      CloseHandle(file);
+    }
     break;
-  case kWinBinary:
-    void* pFontMem = const_cast<void *>(LoadWinResource(fullPath.Get(), "ttf", resSize));
-    FontDataGetName(family, style, data, 0, false);
-    pFont = new WinFont(pFontMem, resSize);
+    case kWinBinary:
+    {
+      void* pFontMem = const_cast<void *>(LoadWinResource(fullPath.Get(), "ttf", resSize));
+      FontDataGetName(family, style, pFontMem, 0);
+      pFont = new WinFont(pFontMem, resSize);
+    }
     break;
   } 
 
   if (pFont && pFont->IsValid())
   {
-    HFONT font = GetHFont(familyName);
+    HFONT font = GetHFont(family.Get());
 
     if (font)
     {
@@ -1773,7 +1777,7 @@ IGraphics::OSFontPtr IGraphicsWin::OSLoadFont(const IText& text)
   case IText::kQualityNonAntiAliased: quality = NONANTIALIASED_QUALITY; break;
   }
 
-  HFONT font = GetWinFont(text.mFont, weight, italic, quality, true);
+  HFONT font = GetHFont(text.mFont, weight, italic, quality, true);
 
   return OSFontPtr(font ? new WinOSFont(font, text.GetStyleString()) : nullptr);
 }
