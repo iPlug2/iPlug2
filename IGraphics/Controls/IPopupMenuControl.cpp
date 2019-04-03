@@ -17,7 +17,7 @@
 #include "IPopupMenuControl.h"
 
 #ifdef IGRAPHICS_NANOVG
-#include "nanovg.h"
+#include "nanovg_extended.h"
 #endif
 
 IPopupMenuControl::IPopupMenuControl(int paramIdx, IText text, IRECT collapsedBounds, IRECT expandedBounds)
