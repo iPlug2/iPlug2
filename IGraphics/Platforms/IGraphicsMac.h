@@ -13,6 +13,7 @@
 #ifndef NO_IGRAPHICS
 
 #include "IGraphics_select.h"
+#include <CoreText/CoreText.h>
 #include <CoreGraphics/CoreGraphics.h>
 
 /** IGraphics platform class for macOS
