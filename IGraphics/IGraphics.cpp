@@ -67,12 +67,6 @@ int IGraphics::FontDataGetName(WDL_String& family, WDL_String&style, const void*
     
       if (FontDataAttemptName(family, style, &info, STBTT_PLATFORM_ID_MAC, STBTT_MAC_EID_ROMAN, STBTT_MAC_LANG_ENGLISH))
           return 0;
-      if (FontDataAttemptName(family, style, &info, STBTT_PLATFORM_ID_MICROSOFT, STBTT_MS_EID_UNICODE_FULL, STBTT_MS_LANG_ENGLISH))
-          return 0;
-      if (FontDataAttemptName(family, style, &info, STBTT_PLATFORM_ID_MICROSOFT, STBTT_MS_EID_SYMBOL, STBTT_MS_LANG_ENGLISH))
-          return 0;
-      if (FontDataAttemptName(family, style, &info, STBTT_PLATFORM_ID_UNICODE, STBTT_UNICODE_EID_UNICODE_2_0_FULL, 0))
-          return 0;
 
       return -1;
   }
