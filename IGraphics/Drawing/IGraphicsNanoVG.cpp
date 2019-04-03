@@ -770,7 +770,7 @@ bool IGraphicsNanoVG::LoadFont(const char* fontName, IText::EStyle style)
     {
       SystemFont* pFont = new SystemFont(fontData, OSFont->GetFontDataSize());
       storage.Add(pFont, fontWithStyle.Get());
-      nvgCreateFontMemIdx(mVG, fontWithStyle.Get(), pFont->mData, pFont->mSize, faceIdx);
+      nvgCreateFontFaceMem(mVG, fontWithStyle.Get(), pFont->mData, pFont->mSize, faceIdx, 0);
     }
     return true;
   }
