@@ -81,9 +81,12 @@ bool IGraphicsMac::IsSandboxed()
 bool IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds)
 {
 #ifdef IGRAPHICS_LICE
-  CocoaAutoReleasePool pool;
+  @autoreleasepool {
+    return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
+  }
+#else
+  return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);    return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
 #endif
-  return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
 }
 
 void* IGraphicsMac::OpenWindow(void* pParent)
