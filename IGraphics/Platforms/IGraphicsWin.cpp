@@ -10,7 +10,6 @@
 
 
 #include <Shlobj.h>
-#include <Shlwapi.h>
 #include <commctrl.h>
 
 #include "IPlugParameter.h"
@@ -1521,28 +1520,6 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
     str.Set("");
   
   return success;
-}
-
-BOOL IGraphicsWin::EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG_PTR param)
-{
-  if (IS_INTRESOURCE(name)) return true; // integer resources not wanted
-  else {
-    WDL_String* search = (WDL_String*) param;
-    if (search != 0 && name != 0)
-    {
-      //strip off extra quotes
-      WDL_String strippedName(strlwr(name+1)); 
-      strippedName.SetLen(strippedName.GetLength() - 1);
-
-      if (strcmp(strlwr(search->Get()), strippedName.Get()) == 0) // if we are looking for a resource with this name
-      {
-        search->SetFormatted(strippedName.GetLength() + 7, "found: %s", strippedName.Get());
-        return false;
-      }
-    }
-  }
-
-  return true; // keep enumerating
 }
 
 //TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT

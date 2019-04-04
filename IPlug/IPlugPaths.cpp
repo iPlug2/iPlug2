@@ -20,6 +20,7 @@
 #ifdef OS_WIN
 #include <windows.h>
 #include <Shlobj.h>
+#include <Shlwapi.h>
 
 // Unicode helpers
 void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
@@ -139,14 +140,38 @@ void INIPath(WDL_String& path, const char * pluginName)
   path.AppendFormatted(MAX_WIN32_PATH_LEN, "\\%s", pluginName);
 }
 
-EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result, const char*)
+static BOOL EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG_PTR param)
+{
+  if (IS_INTRESOURCE(name)) return true; // integer resources not wanted
+  else {
+    WDL_String* search = (WDL_String*)param;
+    if (search != 0 && name != 0)
+    {
+      //strip off extra quotes
+      WDL_String strippedName(strlwr(name + 1));
+      strippedName.SetLen(strippedName.GetLength() - 1);
+
+      if (strcmp(strlwr(search->Get()), strippedName.Get()) == 0) // if we are looking for a resource with this name
+      {
+        search->SetFormatted(strippedName.GetLength() + 7, "found: %s", strippedName.Get());
+        return false;
+      }
+    }
+  }
+
+  return true; // keep enumerating
+}
+
+EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result, const char*, void* pHInstance)
 {
   if (CStringHasContents(name))
   {
     WDL_String search(name);
     WDL_String typeUpper(type);
 
-    EnumResourceNames(mHInstance, _strupr(typeUpper.Get()), (ENUMRESNAMEPROC)EnumResNameProc, (LONG_PTR)&search);
+    HMODULE hInstance = static_cast<HMODULE>(pHInstance);
+
+    EnumResourceNames(hInstance, _strupr(typeUpper.Get()), (ENUMRESNAMEPROC)EnumResNameProc, (LONG_PTR)&search);
 
     if (strstr(search.Get(), "found: ") != 0)
     {
@@ -169,17 +194,19 @@ const void* LoadWinResource(const char* resid, const char* type, int& sizeInByte
 {
   WDL_String typeUpper(type);
 
-  HRSRC hResource = FindResource(pHInstance, resid, _strupr(typeUpper.Get()));
+  HMODULE hInstance = static_cast<HMODULE>(pHInstance);
+
+  HRSRC hResource = FindResource(hInstance, resid, _strupr(typeUpper.Get()));
 
   if (!hResource)
     return NULL;
 
-  DWORD size = SizeofResource(pHInstance, hResource);
+  DWORD size = SizeofResource(hInstance, hResource);
 
   if (size < 8)
     return NULL;
 
-  HGLOBAL res = LoadResource(pHInstance, hResource);
+  HGLOBAL res = LoadResource(hInstance, hResource);
 
   const void* pResourceData = LockResource(res);
 

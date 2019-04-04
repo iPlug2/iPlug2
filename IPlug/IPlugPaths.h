@@ -72,7 +72,7 @@ extern void INIPath(WDL_String& path, const char * pluginName);
  * @param type The resource type (file extension) in lower or upper case, e.g. ttf or TTF for a truetype font
  * @param result WDL_String which will either contain the full path to the resource on disk, or the ful Windows resourceID on success
  * @return \c true on success */
-extern EResourceLocation OSFindResource(const char* fileNameOrResID, const char* type, WDL_String& result, const char* bundleID = nullptr);
+extern EResourceLocation OSFindResource(const char* fileNameOrResID, const char* type, WDL_String& result, const char* bundleID = nullptr, void* pHInstance = nullptr);
 
 /** Load a resource from the binary (windows only).
  * @param type The resource type in lower or upper case, e.g. ttf or TTF for a truetype font

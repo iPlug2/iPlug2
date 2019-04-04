@@ -122,7 +122,6 @@ bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_
 {
   @autoreleasepool {
 
-  
   const char* ext = fileName+strlen(fileName)-1;
   while (ext >= fileName && *ext != '.') --ext;
   ++ext;
@@ -190,7 +189,7 @@ bool GetResourcePathFromUsersMusicFolder(const char* fileName, const char* searc
   }
 }
 
-EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result, const char* bundleID)
+EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result, const char* bundleID, void*)
 {
   if(CStringHasContents(name))
   {
