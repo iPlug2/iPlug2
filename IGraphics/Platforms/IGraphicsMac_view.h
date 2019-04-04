@@ -43,8 +43,6 @@ inline NSColor* ToNSColor(const IColor& c)
   return [NSColor colorWithDeviceRed:(double) c.R / 255.0 green:(double) c.G / 255.0 blue:(double) c.B / 255.0 alpha:(double) c.A / 255.0];
 }
 
-NSString* ToNSString(const char* cStr);
-
 // based on code by Scott Gruby http://blog.gruby.com/2008/03/30/filtering-nstextfield-take-2/
 @interface IGRAPHICS_FORMATTER : NSFormatter
 {

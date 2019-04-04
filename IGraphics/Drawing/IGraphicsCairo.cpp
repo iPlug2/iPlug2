@@ -654,7 +654,7 @@ void IGraphicsCairo::EndFrame()
 #endif
 }
 
-bool IGraphicsCairo::LoadFont(const char* name)
+bool IGraphicsCairo::LoadFont(const char* fileName)
 {
 #ifdef IGRAPHICS_FREETYPE
   if(!mFTLibrary)
@@ -663,7 +663,7 @@ bool IGraphicsCairo::LoadFont(const char* name)
   WDL_String fontNameWithoutExt(name, (int) strlen(name));
   fontNameWithoutExt.remove_fileext();
   WDL_String fullPath;
-  OSFindResource(name, "ttf", fullPath);
+  OSFindResource(fileName, "ttf", fullPath, GetBundleID());
 
   FT_Face ftFace;
   FT_Error ftError;

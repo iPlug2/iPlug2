@@ -285,7 +285,7 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
     const void* pResData = nullptr;
 
     int size = 0;
-    pResData = LoadWinResource(fileNameOrResID, ext, size);
+    pResData = LoadWinResource(fileNameOrResID, ext, size, GetWinModuleHandle());
 
     if (pResData)
       idx = nvgCreateImageMem(mVG, 0 /*flags*/, (unsigned char*)pResData, size);
@@ -693,7 +693,7 @@ bool IGraphicsNanoVG::LoadFont(const char* fileName)
   WDL_String fontNameWithoutExt(fileName, (int) strlen(fileName));
   fontNameWithoutExt.remove_fileext();
   WDL_String fullPath;
-  EResourceLocation foundResource = OSFindResource(fileName, "ttf", fullPath);
+  EResourceLocation foundResource = OSFindResource(fileName, "ttf", fullPath, GetBundleID());
  
   if (foundResource != EResourceLocation::kNotFound)
   {
@@ -703,7 +703,7 @@ bool IGraphicsNanoVG::LoadFont(const char* fileName)
     if(foundResource == EResourceLocation::kWinBinary)
     {
       int sizeInBytes = 0;
-      const void* pResData = LoadWinResource(fullPath.Get(), "ttf", sizeInBytes);
+      const void* pResData = LoadWinResource(fullPath.Get(), "ttf", sizeInBytes, GetWinModuleHandle());
 
       if(pResData && sizeInBytes)
         fontID = nvgCreateFontMem(mVG, fontNameWithoutExt.Get(), (unsigned char*) pResData, sizeInBytes, 0 /* ?? */);

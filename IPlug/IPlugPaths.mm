@@ -13,15 +13,14 @@
  * @brief IPlugPaths implementation for macOS and iOS
  */
 
-#include "IPlugPlatform.h"
+
 #include "IPlugPaths.h"
-#include "IPlugConstants.h"
 
 #ifdef OS_MAC
-
 void HostPath(WDL_String& path, const char* bundleID)
 {
-  //  CocoaAutoReleasePool pool; //TODO:
+  @autoreleasepool {
+  
   NSBundle* pBundle = [NSBundle bundleWithIdentifier: [NSString stringWithCString:bundleID encoding:NSUTF8StringEncoding]];
   
   if (pBundle)
@@ -32,11 +31,14 @@ void HostPath(WDL_String& path, const char* bundleID)
       path.Set([pPath UTF8String]);
     }
   }
+    
+  }
 }
 
 void PluginPath(WDL_String& path, const char* bundleID)
 {
-//  CocoaAutoReleasePool pool; //TODO:
+  @autoreleasepool {
+
   NSBundle* pBundle = [NSBundle bundleWithIdentifier: [NSString stringWithCString:bundleID encoding:NSUTF8StringEncoding]];
   
   if (pBundle)
@@ -49,16 +51,20 @@ void PluginPath(WDL_String& path, const char* bundleID)
       path.Append("/");
     }
   }
+    
+  }
 }
 
 void BundleResourcePath(WDL_String& path, const char* bundleID)
 {
-//  CocoaAutoReleasePool pool;
-  
+  @autoreleasepool {
+
   NSBundle* pBundle = [NSBundle bundleWithIdentifier:[NSString stringWithCString:bundleID encoding:NSUTF8StringEncoding]];
   NSString* pResPath = [pBundle resourcePath];
   
   path.Set([pResPath UTF8String]);
+    
+  }
 }
 
 void DesktopPath(WDL_String& path)
@@ -110,6 +116,102 @@ void SandboxSafeAppSupportPath(WDL_String& path)
   NSArray *pPaths = NSSearchPathForDirectoriesInDomains(NSMusicDirectory, NSUserDomainMask, YES);
   NSString *pUserMusicDirectory = [pPaths objectAtIndex:0];
   path.Set([pUserMusicDirectory UTF8String]);
+}
+
+bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath, const char* bundleID)
+{
+  @autoreleasepool {
+
+  
+  const char* ext = fileName+strlen(fileName)-1;
+  while (ext >= fileName && *ext != '.') --ext;
+  ++ext;
+  
+  bool isCorrectType = !strcasecmp(ext, searchExt);
+  
+  NSBundle* pBundle = [NSBundle bundleWithIdentifier:[NSString stringWithCString:bundleID encoding:NSUTF8StringEncoding]];
+  NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
+  
+  if (isCorrectType && pBundle && pFile)
+  {
+    NSString* pPath = [pBundle pathForResource:pFile ofType:[NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding]];
+    
+    if (pPath)
+    {
+      if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
+      {
+        fullPath.Set([pPath cString]);
+        return true;
+      }
+    }
+  }
+  
+  fullPath.Set("");
+  return false;
+  
+  }
+}
+
+bool GetResourcePathFromUsersMusicFolder(const char* fileName, const char* searchExt, WDL_String& fullPath, const char* subfolder)
+{
+  @autoreleasepool {
+
+  const char* ext = fileName+strlen(fileName)-1;
+  while (ext >= fileName && *ext != '.') --ext;
+  ++ext;
+
+  bool isCorrectType = !strcasecmp(ext, searchExt);
+
+  NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
+  NSString* pExt = [NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding];
+
+  if (isCorrectType && pFile)
+  {
+    WDL_String musicFolder;
+    SandboxSafeAppSupportPath(musicFolder);
+
+    if(subfolder)
+    {
+      NSString* pPluginName = [NSString stringWithCString: subfolder encoding:NSUTF8StringEncoding];
+      NSString* pMusicLocation = [NSString stringWithCString: musicFolder.Get() encoding:NSUTF8StringEncoding];
+      NSString* pPath = [[[[pMusicLocation stringByAppendingPathComponent:pPluginName] stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent: pFile] stringByAppendingPathExtension:pExt];
+
+      if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
+      {
+        fullPath.Set([pPath cString]);
+        return true;
+      }
+    }
+  }
+
+  fullPath.Set("");
+  return false;
+    
+  }
+}
+
+EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result, const char* bundleID)
+{
+  if(CStringHasContents(name))
+  {
+    // first check this bundle
+    if(GetResourcePathFromBundle(name, type, result, bundleID))
+      return EResourceLocation::kAbsolutePath;
+    
+    // then check ~/Music/PLUG_NAME, which is a shared folder that can be accessed from app sandbox
+//    if(GetResourcePathFromUsersMusicFolder(name, type, result))
+//      return EResourceLocation::kAbsolutePath;
+    
+    // finally check name, which might be a full path - if the plug-in is trying to load a resource at runtime (e.g. skin-able UI)
+    NSString* pPath = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
+    
+    if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
+    {
+      result.Set([pPath UTF8String]);
+      return EResourceLocation::kAbsolutePath;
+    }
+  }
+  return EResourceLocation::kNotFound;
 }
 
 #elif defined OS_IOS
