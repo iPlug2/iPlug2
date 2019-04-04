@@ -151,7 +151,7 @@ bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_
   }
 }
 
-bool GetResourcePathFromUsersMusicFolder(const char* fileName, const char* searchExt, WDL_String& fullPath, const char* subfolder)
+bool GetResourcePathFromSharedLocation(const char* fileName, const char* searchExt, WDL_String& fullPath, const char* subfolder)
 {
   @autoreleasepool {
 
@@ -198,7 +198,7 @@ EResourceLocation OSFindResource(const char* name, const char* type, WDL_String&
       return EResourceLocation::kAbsolutePath;
     
     // then check ~/Music/PLUG_NAME, which is a shared folder that can be accessed from app sandbox
-//    if(GetResourcePathFromUsersMusicFolder(name, type, result))
+//    if(GetResourcePathFromSharedLocation(name, type, result))
 //      return EResourceLocation::kAbsolutePath;
     
     // finally check name, which might be a full path - if the plug-in is trying to load a resource at runtime (e.g. skin-able UI)

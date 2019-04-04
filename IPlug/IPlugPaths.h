@@ -81,4 +81,4 @@ extern const void* LoadWinResource(const char* resID, const char* type, int& siz
 
 extern bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath, const char* bundleID = nullptr);
 
-extern bool GetResourcePathFromUsersMusicFolder(const char* fileName, const char* searchExt, WDL_String& fullPath, const char* subfolder);
+extern bool GetResourcePathFromSharedLocation(const char* fileName, const char* searchExt, WDL_String& fullPath, const char* subfolder);
