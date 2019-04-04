@@ -33,37 +33,6 @@ IGraphicsIOS::~IGraphicsIOS()
   CloseWindow();
 }
 
- bool IGraphicsIOS::GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath)
- {
-  @autoreleasepool {
-  
-   const char* ext = fileName+strlen(fileName)-1;
-   while (ext >= fileName && *ext != '.') --ext;
-   ++ext;
-  
-   bool isCorrectType = !strcasecmp(ext, searchExt);
-  
-   NSBundle* pBundle = [NSBundle bundleWithIdentifier:NSString stringWithCString:GetBundleID() encoding:NSUTF8StringEncoding]];
-   NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
-   NSString* pExt = [NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding];
-  
-   if (isCorrectType && pBundle && pFile)
-   {
-     NSString* pParent = [[[pBundle bundlePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent];
-     NSString* pPath = [[[[pParent stringByAppendingString:@"/"] stringByAppendingString:pFile] stringByAppendingString: @"."] stringByAppendingString:pExt];
-
-     if (pPath)
-     {
-       fullPath.Set([pPath cString]);
-       return true;
-     }
-   }
-  
-   fullPath.Set("");
-   return false;
-  }
- }
-
 void* IGraphicsIOS::OpenWindow(void* pParent)
 {
   TRACE;

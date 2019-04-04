@@ -214,6 +214,8 @@ EResourceLocation OSFindResource(const char* name, const char* type, WDL_String&
 }
 
 #elif defined OS_IOS
+#pragma mark - IOS
+#import <Foundation/Foundation.h>
 
 void AppSupportPath(WDL_String& path, bool isSystem)
 {
@@ -225,7 +227,6 @@ void SandboxSafeAppSupportPath(WDL_String& path)
 
 void DesktopPath(WDL_String& path)
 {
-  
 }
 
 void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem)
@@ -237,5 +238,48 @@ void INIPath(WDL_String& path, const char* pluginName)
 {
   path.Set("");
 }
+
+EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result, const char* bundleID, void*)
+{
+  if(CStringHasContents(name))
+  {
+    if(GetResourcePathFromBundle(name, type, result, bundleID))
+      return EResourceLocation::kAbsolutePath;
+  }
+  
+  return EResourceLocation::kNotFound;
+}
+
+bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath, const char* bundleID)
+{
+  @autoreleasepool {
+    
+    const char* ext = fileName+strlen(fileName)-1;
+    while (ext >= fileName && *ext != '.') --ext;
+    ++ext;
+    
+    bool isCorrectType = !strcasecmp(ext, searchExt);
+    
+    NSBundle* pBundle = [NSBundle bundleWithIdentifier:[NSString stringWithCString:bundleID encoding:NSUTF8StringEncoding]];
+    NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
+    NSString* pExt = [NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding];
+    
+    if (isCorrectType && pBundle && pFile)
+    {
+      NSString* pParent = [[[pBundle bundlePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent];
+      NSString* pPath = [[[[pParent stringByAppendingString:@"/"] stringByAppendingString:pFile] stringByAppendingString: @"."] stringByAppendingString:pExt];
+      
+      if (pPath)
+      {
+        fullPath.Set([pPath cStringUsingEncoding:NSUTF8StringEncoding]);
+        return true;
+      }
+    }
+    
+    fullPath.Set("");
+    return false;
+  }
+}
+
 
 #endif
