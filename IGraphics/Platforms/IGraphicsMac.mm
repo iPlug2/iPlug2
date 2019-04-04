@@ -85,7 +85,7 @@ bool IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds
     return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
   }
 #else
-  return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);    return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
+  return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
 #endif
 }
 
