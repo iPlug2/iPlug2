@@ -248,7 +248,7 @@ void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginNa
 
 using namespace emscripten;
 
-EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result, const char*)
+EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result, const char*, void*)
 {
   if (CStringHasContents(name))
   {
