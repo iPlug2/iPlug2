@@ -14,6 +14,7 @@
 #include "ITextEntryControl.h"
 
 #include "stb_truetype.h"
+#include "heapbuf.h"
 
 #if defined IGRAPHICS_GL
   #if defined OS_MAC
@@ -98,19 +99,13 @@ struct SystemFont
   SystemFont(const void *data, int size)
   {
     const unsigned char* src = reinterpret_cast<const unsigned char*>(data);
-    mData = new unsigned char[size];
-    mSize = size;
+    unsigned char* dest = mData.ResizeOK(size);
     
-    std::copy(src, src + size, mData);
+    if (dest)
+      std::copy(src, src + size, dest);
   }
     
-  ~SystemFont()
-  {
-    delete[] mData;
-  }
-    
-  unsigned char* mData;
-  int mSize;
+  WDL_TypedBuf<unsigned char> mData;
 };
 
 StaticStorage<SystemFont> sFontCache;
@@ -770,7 +765,7 @@ bool IGraphicsNanoVG::LoadFont(const char* fontName, IText::EStyle style)
     {
       SystemFont* pFont = new SystemFont(fontData, font->GetFontDataSize());
       storage.Add(pFont, fontWithStyle.Get());
-      nvgCreateFontFaceMem(mVG, fontWithStyle.Get(), pFont->mData, pFont->mSize, faceIdx, 0);
+      nvgCreateFontFaceMem(mVG, fontWithStyle.Get(), pFont->mData.Get(), pFont->mData.GetSize(), faceIdx, 0);
     }
     return true;
   }
