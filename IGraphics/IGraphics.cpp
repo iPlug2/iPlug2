@@ -1033,7 +1033,7 @@ IControl* IGraphics::GetMouseControl(float x, float y, bool capture, bool mouseO
     control = mTextEntryControl;
   
 #if !defined(NDEBUG)
-  if (mLiveEdit)
+  if (!control && mLiveEdit)
     control = mLiveEdit;
 #endif
   
