@@ -55,8 +55,8 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     
     pGraphics->LoadFont(ROBOTTO_FN);
     pGraphics->LoadFont(MONTSERRAT_FN);
-		ISVG tiger = pGraphics->LoadSVG(TIGER_FN);
-		ISVG orbs = pGraphics->LoadSVG(ORBS_FN);
+    ISVG tiger = pGraphics->LoadSVG(TIGER_FN);
+    ISVG orbs = pGraphics->LoadSVG(ORBS_FN);
     IBitmap smiley = pGraphics->LoadBitmap(SMILEY_FN);
     IBitmap base = pGraphics->LoadBitmap(BASE_FN);
     IBitmap mask = pGraphics->LoadBitmap(MASK_FN);
