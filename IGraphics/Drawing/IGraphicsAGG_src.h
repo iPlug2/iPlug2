@@ -45,7 +45,6 @@
 #include "agg_ellipse.h"
 #include "agg_font_freetype.h"
 #include "agg_pmap.h"
-#include "agg_font.h"
 #include "agg_image_accessors.h"
 #include "agg_span_allocator.h"
 #include "agg_span_interpolator_linear.h"
