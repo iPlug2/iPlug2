@@ -225,7 +225,7 @@ bool IGraphicsAGG::LoadFont(const char* fileName)
   WDL_String fontNameWithoutExt(fileName, (int) strlen(fileName));
   fontNameWithoutExt.remove_fileext();
   WDL_String fullPath;
-  EResourceLocation foundResource = FindResource(fileName, "ttf", fullPath, GetBundleID(), GetWinModuleHandle());
+  EResourceLocation foundResource = LocateResource(fileName, "ttf", fullPath, GetBundleID(), GetWinModuleHandle());
   
   if (foundResource != EResourceLocation::kNotFound)
   {
