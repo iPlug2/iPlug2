@@ -90,12 +90,9 @@ public:
 
   bool GetTextFromClipboard(WDL_String& str) override;
 
-  EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result) override;
-
-  const void* LoadWinResource(const char* resid, const char* resType, int& sizeInBytes) override;
   OSFontPtr OSLoadFont(const char* fileNameOrResID) override;
   OSFontPtr OSLoadFont(const IText& text) override;
-    
+  
 protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
@@ -151,7 +148,6 @@ private:
 
   WDL_String mMainWndClassName;
 public:
-  static BOOL EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG_PTR param);
   static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
   static LRESULT CALLBACK ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
   static BOOL CALLBACK FindMainWindow(HWND hWnd, LPARAM lParam);

@@ -10,7 +10,6 @@
 
 
 #include <Shlobj.h>
-#include <Shlwapi.h>
 #include <commctrl.h>
 
 #include "IPlugParameter.h"
@@ -1603,126 +1602,13 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
   return success;
 }
 
-BOOL IGraphicsWin::EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG_PTR param)
-{
-  if (IS_INTRESOURCE(name)) return true; // integer resources not wanted
-  else {
-    WDL_String* search = (WDL_String*) param;
-    if (search != 0 && name != 0)
-    {
-      //strip off extra quotes
-      WDL_String strippedName(strlwr(name+1)); 
-      strippedName.SetLen(strippedName.GetLength() - 1);
-
-      if (strcmp(strlwr(search->Get()), strippedName.Get()) == 0) // if we are looking for a resource with this name
-      {
-        search->SetFormatted(strippedName.GetLength() + 7, "found: %s", strippedName.Get());
-        return false;
-      }
-    }
-  }
-
-  return true; // keep enumerating
-}
-
-EResourceLocation IGraphicsWin::OSFindResource(const char* name, const char* type, WDL_String& result)
-{
-  if (CStringHasContents(name))
-  {
-    WDL_String search(name);
-    WDL_String typeUpper(type);
-
-    EnumResourceNames(mHInstance, _strupr(typeUpper.Get()), (ENUMRESNAMEPROC)EnumResNameProc, (LONG_PTR)&search);
-
-    if (strstr(search.Get(), "found: ") != 0)
-    {
-      result.SetFormatted(MAX_PATH, "\"%s\"", search.Get() + 7, search.GetLength() - 7); // 7 = strlen("found: ")
-      return EResourceLocation::kWinBinary;
-    }
-    else
-    {
-      if (PathFileExists(name))
-      {
-        result.Set(name);
-        return EResourceLocation::kAbsolutePath;
-      }
-    }
-  }
-  return EResourceLocation::kNotFound;
-}
-
-const void* IGraphicsWin::LoadWinResource(const char* resid, const char* type, int& sizeInBytes)
-{
-  WDL_String typeUpper(type);
-
-  HRSRC hResource = FindResource(mHInstance, resid, _strupr(typeUpper.Get()));
-
-  if (!hResource)
-    return NULL;
-
-  DWORD size = SizeofResource(mHInstance, hResource);
-
-  if (size < 8)
-    return NULL;
-
-  HGLOBAL res = LoadResource(mHInstance, hResource);
-
-  const void* pResourceData = LockResource(res);
-
-  if (!pResourceData)
-  {
-    sizeInBytes = 0;
-    return NULL;
-  }
-  else
-  {
-    sizeInBytes = size;
-    return pResourceData;
-  }
-}
-
-HFONT GetHFont(const char* fontName, int weight = FW_REGULAR, bool italic = false, DWORD quality = DEFAULT_QUALITY, bool enumerate = false)
-{
-  HDC hdc = GetDC(NULL);
-  HFONT font = nullptr;
-  LOGFONT lFont;
-
-  lFont.lfHeight = 0;
-  lFont.lfWidth = 0;
-  lFont.lfEscapement = 0;
-  lFont.lfOrientation = 0;
-  lFont.lfWeight = weight;
-  lFont.lfItalic = italic;
-  lFont.lfUnderline = false;
-  lFont.lfStrikeOut = false;
-  lFont.lfCharSet = DEFAULT_CHARSET;
-  lFont.lfOutPrecision = OUT_TT_PRECIS;
-  lFont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
-  lFont.lfQuality = quality;
-  lFont.lfPitchAndFamily = DEFAULT_PITCH;
-
-  strncpy(lFont.lfFaceName, fontName, LF_FACESIZE);
-
-  auto enumProc = [](const LOGFONT* pLFont, const TEXTMETRIC* pTextMetric, DWORD FontType, LPARAM lParam)
-  {
-    return -1;
-  };
-
-  if ((!enumerate || EnumFontFamiliesEx(hdc, &lFont, enumProc, NULL, 0) == -1))
-    font = CreateFontIndirect(&lFont);
-
-  ReleaseDC(NULL, hdc);
-
-  return font;
-}
-
 IGraphics::OSFontPtr IGraphicsWin::OSLoadFont(const char* fileNameOrResID)
 {
   StaticStorage<WinFont>::Accessor storage(sOSFontCache);
 
   WinFont* pFont = nullptr;
   WDL_String fullPath, family, style;
-  const EResourceLocation fontLocation = OSFindResource(fileNameOrResID, "ttf", fullPath);
+  const EResourceLocation fontLocation = FindResource(fileNameOrResID, "ttf", fullPath, Get);
 
   if (fontLocation == kNotFound)
     return nullptr;

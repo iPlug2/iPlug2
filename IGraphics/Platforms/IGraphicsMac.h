@@ -91,11 +91,9 @@ protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
 private:
-  EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result) override;
   OSFontPtr OSLoadFont(const char* fileNameOrResID) override;
   OSFontPtr OSLoadFont(const IText& text) override;
-  bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath);
-  bool GetResourcePathFromUsersMusicFolder(const char* fileName, const char* searchExt, WDL_String& fullPath);
+
   void RepositionCursor(CGPoint point);
   void StoreCursorPosition();
 
