@@ -475,31 +475,24 @@ IColor IGraphicsAGG::GetPoint(int x, int y)
 
 APIBitmap* IGraphicsAGG::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext)
 {
-  APIBitmap* pResult = nullptr;
-  PixelMapType* pPixelMap = new PixelMapType();
+  std::unique_ptr<PixelMapType> pixelMap(new PixelMapType());
   bool ispng = strstr(fileNameOrResID, "png") != nullptr;
 
 #if defined OS_WIN
   if (location != EResourceLocation::kNotFound && ispng)
   {
-    if (pPixelMap->load_img((HINSTANCE)GetWinModuleHandle(), fileNameOrResID, agg::pixel_map::format_png))
-      pResult = new AGGBitmap(pPixelMap, scale, 1.f, false);
+    if (pixelMap->load_img((HINSTANCE)GetWinModuleHandle(), fileNameOrResID, agg::pixel_map::format_png))
+      return new AGGBitmap(pixelMap.release(), scale, 1.f, false);
   }
 #else
   if (location == EResourceLocation::kAbsolutePath && ispng)
   {
-    if (pPixelMap->load_img(fileNameOrResID, agg::pixel_map::format_png))
-      pResult = new AGGBitmap(pPixelMap, scale, 1.f, false);
+    if (pixelMap->load_img(fileNameOrResID, agg::pixel_map::format_png))
+      return new AGGBitmap(pixelMap.release(), scale, 1.f, false);
   }
 #endif
 
-  if (!pResult)
-  {
-    delete pPixelMap;
-    return new APIBitmap();
-  }
-  else
-    return pResult;
+  return new APIBitmap();
 }
 
 APIBitmap* IGraphicsAGG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)

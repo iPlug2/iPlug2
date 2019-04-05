@@ -134,7 +134,7 @@ IGraphicsCairo::~IGraphicsCairo()
   StaticStorage<CairoFont>::Accessor storage(sFontCache);
   storage.Release();
   
-  // N.B. calls through to delete context and surface
+  // N.B. calls through to destroy context and surface
   
   UpdateCairoMainSurface(nullptr);
 }

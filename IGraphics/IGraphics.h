@@ -987,8 +987,8 @@ public:
   
   EUIResizerMode GetResizerMode() const { return mGUISizeMode; }
   
-  IPopupMenuControl* GetPopupMenuControl() { return mPopupControl; }
-  ITextEntryControl* GetTextEntryControl() { return mTextEntryControl; }
+  IPopupMenuControl* GetPopupMenuControl() { return mPopupControl.get(); }
+  ITextEntryControl* GetTextEntryControl() { return mTextEntryControl.get(); }
   
   void StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec = DEFAULT_SPEC);
 #pragma mark - Plug-in API Specific
@@ -1076,7 +1076,7 @@ protected:
   template<typename T, typename... Args>
   void ForMatchingControls(T method, int paramIdx, Args... args);
   
-  IGEditorDelegate* mDelegate = nullptr;
+  IGEditorDelegate* mDelegate;
   void* mPlatformContext = nullptr;
   bool mCursorHidden = false;
   bool mCursorLock = false;
@@ -1107,11 +1107,11 @@ private:
 
   // Order (front-to-back) ToolTip / PopUp / TextEntry / LiveEdit / Corner / PerfDisplay
   
-  ICornerResizerControl* mCornerResizer = nullptr;
-  IPopupMenuControl* mPopupControl = nullptr;
-  IFPSDisplayControl* mPerfDisplay = nullptr;
-  ITextEntryControl* mTextEntryControl = nullptr;
-  IControl* mLiveEdit = nullptr;
+  std::unique_ptr<ICornerResizerControl> mCornerResizer;
+  std::unique_ptr<IPopupMenuControl> mPopupControl;
+  std::unique_ptr<IFPSDisplayControl> mPerfDisplay;
+  std::unique_ptr<ITextEntryControl> mTextEntryControl;
+  std::unique_ptr<IControl> mLiveEdit;
   
   IPopupMenu mPromptPopupMenu;
   
