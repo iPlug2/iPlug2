@@ -2024,7 +2024,7 @@ bool IPlugAU::SendSysEx(const ISysEx& sysEx)
   
   ByteCount listSize = sysEx.mSize;
   
-  assert(listSize > 65536); // maximum packet list size
+  assert(listSize <= 65536); // maximum packet list size
   
   MIDIPacketList* pPktlist = (MIDIPacketList*) malloc(listSize);
   MIDIPacket* pPkt = MIDIPacketListInit(pPktlist);
