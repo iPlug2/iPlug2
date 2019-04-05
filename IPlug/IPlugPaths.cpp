@@ -162,7 +162,7 @@ static BOOL EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG_PTR p
   return true; // keep enumerating
 }
 
-EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result, const char*, void* pHInstance)
+EResourceLocation FindResource(const char* name, const char* type, WDL_String& result, const char*, void* pHInstance)
 {
   if (CStringHasContents(name))
   {
@@ -248,7 +248,7 @@ void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginNa
 
 using namespace emscripten;
 
-EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result, const char*, void*)
+EResourceLocation FindResource(const char* name, const char* type, WDL_String& result, const char*, void*)
 {
   if (CStringHasContents(name))
   {
@@ -256,7 +256,7 @@ EResourceLocation OSFindResource(const char* name, const char* type, WDL_String&
     
     bool foundResource = false;
     
-    //TODO: OSFindResource is not sufficient here
+    //TODO: FindResource is not sufficient here
     
     if(strcmp(type, "png") == 0) { //TODO: lowercase/uppercase png
       plusSlash.SetFormatted(strlen("/resources/img/") + strlen(name) + 1, "/resources/img/%s", name);
