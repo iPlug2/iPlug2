@@ -758,17 +758,17 @@ bool IGraphicsNanoVG::LoadFont(const char* fontName, IText::EStyle style)
   if (nvgFindFont(mVG, fontWithStyle.Get()) != -1)
     return true;
     
-  OSFontPtr OSFont = OSLoadFont(text);
+  PlatformFontPtr font = LoadPlatformFont(text);
     
-  if (OSFont)
+  if (font)
   {
     StaticStorage<SystemFont>::Accessor storage(sFontCache);
-    const unsigned char* fontData = (const unsigned char*) OSFont->GetFontData();
-    int faceIdx = OSFont->GetFaceIdx();
+    const unsigned char* fontData = (const unsigned char*) font->GetFontData();
+    int faceIdx = font->GetFaceIdx();
       
     if (faceIdx >= 0)
     {
-      SystemFont* pFont = new SystemFont(fontData, OSFont->GetFontDataSize());
+      SystemFont* pFont = new SystemFont(fontData, font->GetFontDataSize());
       storage.Add(pFont, fontWithStyle.Get());
       nvgCreateFontFaceMem(mVG, fontWithStyle.Get(), pFont->mData, pFont->mSize, faceIdx, 0);
     }

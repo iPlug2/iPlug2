@@ -71,10 +71,10 @@ protected:
 
   static int FontDataGetName(WDL_String& family, WDL_String&style, const void* data, int idx);
 
-  struct OSFont
+  struct PlatformFont
   {
-    OSFont(const char* styleName) : mStyleName(styleName) {}
-    virtual ~OSFont() {}
+    PlatformFont(const char* styleName) : mStyleName(styleName) {}
+    virtual ~PlatformFont() {}
 
     virtual const void* GetFont() { return nullptr; }
     virtual const void* GetFontData() { return nullptr; }
@@ -84,7 +84,7 @@ protected:
     WDL_String mStyleName;
   };
 
-  typedef std::unique_ptr<OSFont> OSFontPtr;
+  typedef std::unique_ptr<PlatformFont> PlatformFontPtr;
     
 public:
 #pragma mark - IGraphics drawing API implementation
@@ -658,13 +658,13 @@ public:
 
   /** Load a font from disk or resource in a platform format.
    * @param fileNameOrResID A resource or file name/path
-   * @return OSFontPtr from which the platform font can be retrieved */
-  virtual OSFontPtr OSLoadFont(const char* fileNameOrResID) { return nullptr; }
+   * @return PlatformFontPtr from which the platform font can be retrieved */
+  virtual PlatformFontPtr LoadPlatformFont(const char* fileNameOrResID) { return nullptr; }
   
   /** Load a system font in a platform format.
    * @param text A IText structure defining the font name and style
-   * @return OSFontPtr from which the platform font can be retrieved */
-  virtual OSFontPtr OSLoadFont(const IText& text) { return nullptr; }
+   * @return PlatformFontPtr from which the platform font can be retrieved */
+  virtual PlatformFontPtr LoadPlatformFont(const IText& text) { return nullptr; }
 
   /** Get the bundle ID on macOS and iOS, returns emtpy string on other OSs */
   virtual const char* GetBundleID() { return ""; }

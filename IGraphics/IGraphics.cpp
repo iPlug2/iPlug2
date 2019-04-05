@@ -74,7 +74,7 @@ int IGraphics::FontDataGetName(WDL_String& family, WDL_String&style, const void*
   return -2;
 }
 
-int IGraphics::OSFont::GetFaceIdx()
+int IGraphics::PlatformFont::GetFaceIdx()
 {
   const void* data = GetFontData();
   

@@ -24,9 +24,9 @@ struct CairoFont
 };
 
 #ifdef OS_MAC
-struct OSCairoFont : CairoFont
+struct CairoPlatformFont : CairoFont
 {
-  OSCairoFont(const void* fontRef) : CairoFont(nullptr)
+  CairoPlatformFont(const void* fontRef) : CairoFont(nullptr)
   {
     CTFontRef ctFont = CTFontCreateWithFontDescriptor((CTFontDescriptorRef) fontRef, 0.f, NULL);
     CGFontRef cgFont = CTFontCopyGraphicsFont(ctFont, NULL);
@@ -36,9 +36,9 @@ struct OSCairoFont : CairoFont
   }
 };
 #elif defined OS_WIN
-struct OSCairoFont : CairoFont
+struct CairoPlatformFont : CairoFont
 {
-  OSCairoFont(const void* fontRef) : CairoFont(cairo_win32_font_face_create_for_hfont((HFONT) fontRef))
+  CairoPlatformFont(const void* fontRef) : CairoFont(cairo_win32_font_face_create_for_hfont((HFONT) fontRef))
   {}
 };
 
@@ -603,11 +603,11 @@ bool IGraphicsCairo::LoadFont(const char* fileNameOrResID)
   if (storage.Find(fontName))
     return true;
 
-  OSFontPtr pOSFont = OSLoadFont(fileNameOrResID);
+  PlatformFontPtr font = LoadPlatformFont(fileNameOrResID);
     
-  if (pOSFont)
+  if (font)
   {
-    storage.Add(new OSCairoFont(pOSFont->GetFont()), fontName);
+    storage.Add(new CairoPlatformFont(font->GetFont()), fontName);
     return true;
   }
   
@@ -625,11 +625,11 @@ bool IGraphicsCairo::LoadFont(const char* fontName, IText::EStyle style)
   if (storage.Find(fontWithStyle.Get()))
     return true;
   
-  OSFontPtr pOSFont = OSLoadFont(text);
+  PlatformFontPtr font = LoadPlatformFont(text);
   
-  if (pOSFont)
+  if (font)
   {
-    storage.Add(new OSCairoFont(pOSFont->GetFont()), fontWithStyle.Get());
+    storage.Add(new CairoPlatformFont(font->GetFont()), fontWithStyle.Get());
     return true;
   }
 

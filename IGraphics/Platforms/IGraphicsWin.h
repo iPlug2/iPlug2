@@ -22,12 +22,12 @@ class IGraphicsWin final : public IGRAPHICS_DRAW_CLASS
 {
 public:
 
-  class WinOSFont : public OSFont
+  class WinFont : public PlatformFont
   {
   public:
-    WinOSFont(HFONT font, const char* styleName = "")
-      : OSFont(styleName), mFont(font), mData(nullptr), mSize(0) {}
-    ~WinOSFont();
+    WinFont(HFONT font, const char* styleName = "")
+      : PlatformFont(styleName), mFont(font), mData(nullptr), mSize(0) {}
+    ~WinFont();
 
     const void* GetFont() override { return reinterpret_cast<const void*>(mFont); }
     const void* GetFontData() override;
@@ -90,8 +90,8 @@ public:
 
   bool GetTextFromClipboard(WDL_String& str) override;
 
-  OSFontPtr OSLoadFont(const char* fileNameOrResID) override;
-  OSFontPtr OSLoadFont(const IText& text) override;
+  PlatformFontPtr LoadPlatformFont(const char* fileNameOrResID) override;
+  PlatformFontPtr LoadPlatformFont(const IText& text) override;
   
 protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;

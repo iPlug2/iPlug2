@@ -34,9 +34,9 @@ static double sFPS = 0.0;
 
 // Fonts
 
-struct WinFont
+struct WinCachedFont
 {
-  WinFont(void* data, int resSize)
+  WinCachedFont(void* data, int resSize)
     : mFontHandle(nullptr)
   {
     if (data)
@@ -46,7 +46,7 @@ struct WinFont
     }
   }
 
-  ~WinFont()
+  ~WinCachedFont()
   {
     if (IsValid())
       RemoveFontMemResourceEx(mFontHandle);
@@ -57,14 +57,14 @@ struct WinFont
   HANDLE mFontHandle;
 };
 
-IGraphicsWin::WinOSFont::~WinOSFont()
+IGraphicsWin::WinFont::~WinFont()
 {
   DeleteObject(mFont);
   if (mData)
     delete[] mData;
 };
 #include <vector>
-void IGraphicsWin::WinOSFont::CheckData()
+void IGraphicsWin::WinFont::CheckData()
 {
   if (!mData)
   {
@@ -92,19 +92,19 @@ void IGraphicsWin::WinOSFont::CheckData()
   }
 }
 
-const void* IGraphicsWin::WinOSFont::GetFontData()
+const void* IGraphicsWin::WinFont::GetFontData()
 {
   CheckData();
   return mData;
 }
 
-int IGraphicsWin::WinOSFont::GetFontDataSize()
+int IGraphicsWin::WinFont::GetFontDataSize()
 {
   CheckData();
   return mSize;
 }
 
-static StaticStorage<WinFont> sOSFontCache;
+static StaticStorage<WinCachedFont> sPlatformFontCache;
 
 // Mouse
 
@@ -617,13 +617,13 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
 IGraphicsWin::IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
   : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
 {
-  StaticStorage<WinFont>::Accessor storage(sOSFontCache);
+  StaticStorage<WinCachedFont>::Accessor storage(sPlatformFontCache);
   storage.Retain();
 }
 
 IGraphicsWin::~IGraphicsWin()
 {
-  StaticStorage<WinFont>::Accessor storage(sOSFontCache);
+  StaticStorage<WinCachedFont>::Accessor storage(sPlatformFontCache);
   storage.Release();
   CloseWindow();
   FREE_NULL(mCustomColorStorage);
@@ -1602,11 +1602,11 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
   return success;
 }
 
-IGraphics::OSFontPtr IGraphicsWin::OSLoadFont(const char* fileNameOrResID)
+IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fileNameOrResID)
 {
-  StaticStorage<WinFont>::Accessor storage(sOSFontCache);
+  StaticStorage<WinCachedFont>::Accessor storage(sPlatformFontCache);
 
-  WinFont* pFont = nullptr;
+  WinCachedFont* pFont = nullptr;
   WDL_String fullPath, family, style;
   const EResourceLocation fontLocation = FindResource(fileNameOrResID, "ttf", fullPath, Get);
 
@@ -1623,7 +1623,7 @@ IGraphics::OSFontPtr IGraphicsWin::OSLoadFont(const char* fileNameOrResID)
       HANDLE mapping = CreateFileMapping(file, NULL, PAGE_READONLY, 0, 0, NULL);
       LPVOID view = MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
       FontDataGetName(family, style, view, 0);
-      pFont = new WinFont(view, resSize);
+      pFont = new WinCachedFont(view, resSize);
       UnmapViewOfFile(view);
       CloseHandle(mapping);
       CloseHandle(file);
@@ -1633,7 +1633,7 @@ IGraphics::OSFontPtr IGraphicsWin::OSLoadFont(const char* fileNameOrResID)
     {
       void* pFontMem = const_cast<void *>(LoadWinResource(fullPath.Get(), "ttf", resSize));
       FontDataGetName(family, style, pFontMem, 0);
-      pFont = new WinFont(pFontMem, resSize);
+      pFont = new WinCachedFont(pFontMem, resSize);
     }
     break;
   } 
@@ -1645,7 +1645,7 @@ IGraphics::OSFontPtr IGraphicsWin::OSLoadFont(const char* fileNameOrResID)
     if (font)
     {
       storage.Add(pFont, fileNameOrResID);
-      return OSFontPtr(new WinOSFont(font));
+      return PlatformFontPtr(new WinFont(font));
     }
   }
 
@@ -1653,7 +1653,7 @@ IGraphics::OSFontPtr IGraphicsWin::OSLoadFont(const char* fileNameOrResID)
   return nullptr;
 }
 
-IGraphics::OSFontPtr IGraphicsWin::OSLoadFont(const IText& text)
+IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const IText& text)
 {
   int weight = text.mStyle == IText::kStyleBold ? FW_BOLD : FW_REGULAR;
   bool italic = text.mStyle == IText::kStyleItalic;
@@ -1668,7 +1668,7 @@ IGraphics::OSFontPtr IGraphicsWin::OSLoadFont(const IText& text)
 
   HFONT font = GetHFont(text.mFont, weight, italic, quality, true);
 
-  return OSFontPtr(font ? new WinOSFont(font, text.GetStyleString()) : nullptr);
+  return PlatformFontPtr(font ? new WinFont(font, text.GetStyleString()) : nullptr);
 }
 
 //TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT

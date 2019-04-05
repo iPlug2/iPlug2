@@ -56,7 +56,7 @@ static double gettm()
 
 // Font
 
-IGraphicsMac::MacOSFont::~MacOSFont()
+IGraphicsMac::MacFont::~MacFont()
 {
   CGDataProviderRelease(mProvider);
   if (mData)
@@ -65,19 +65,19 @@ IGraphicsMac::MacOSFont::~MacOSFont()
     CFRelease(mDescriptor);
 };
 
-void IGraphicsMac::MacOSFont::CheckData()
+void IGraphicsMac::MacFont::CheckData()
 {
   if (!mData)
     mData = CGDataProviderCopyData(mProvider);
 }
 
-const void* IGraphicsMac::MacOSFont::GetFontData()
+const void* IGraphicsMac::MacFont::GetFontData()
 {
   CheckData();
   return CFDataGetBytePtr(mData);
 }
 
-int IGraphicsMac::MacOSFont::GetFontDataSize()
+int IGraphicsMac::MacFont::GetFontDataSize()
 {
   CheckData();
   return static_cast<int>(CFDataGetLength(mData));
@@ -107,7 +107,7 @@ bool IGraphicsMac::IsSandboxed()
   return false;
 }
 
-IGraphics::OSFontPtr IGraphicsMac::OSLoadFont(const char* fileNameOrResID)
+IGraphics::PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fileNameOrResID)
 {
   WDL_String fullPath;
   const EResourceLocation fontLocation = FindResource(fileNameOrResID, "ttf", fullPath, GetBundleID());
@@ -131,10 +131,10 @@ IGraphics::OSFontPtr IGraphicsMac::OSLoadFont(const char* fileNameOrResID)
   if (ctFont)
     CFRelease(ctFont);
 
-  return OSFontPtr(descriptor ? new MacOSFont(descriptor, dataProvider) : nullptr);
+  return PlatformFontPtr(descriptor ? new MacFont(descriptor, dataProvider) : nullptr);
 }
 
-IGraphics::OSFontPtr IGraphicsMac::OSLoadFont(const IText& text)
+IGraphics::PlatformFontPtr IGraphicsMac::LoadPlatformFont(const IText& text)
 {
   CFStringRef fontStr = CFStringCreateWithCString(NULL, text.mFont, kCFStringEncodingUTF8);
   CFStringRef styleStr = CFStringCreateWithCString(NULL, text.GetStyleString(), kCFStringEncodingUTF8);
@@ -155,7 +155,7 @@ IGraphics::OSFontPtr IGraphicsMac::OSLoadFont(const IText& text)
   if (url)
     CFRelease(url);
   
-  return OSFontPtr(dataProvider ? new MacOSFont(descriptor, dataProvider, text.GetStyleString()) : nullptr);
+  return PlatformFontPtr(dataProvider ? new MacFont(descriptor, dataProvider, text.GetStyleString()) : nullptr);
 }
 
 bool IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds)

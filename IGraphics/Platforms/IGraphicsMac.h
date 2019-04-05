@@ -22,12 +22,12 @@ class IGraphicsMac final : public IGRAPHICS_DRAW_CLASS
 {
 public:
     
-  class MacOSFont : public OSFont
+  class MacFont : public PlatformFont
   {
   public:
-    MacOSFont(CTFontDescriptorRef descriptor, CGDataProviderRef provider, const char* styleName = "")
-     : OSFont(styleName), mDescriptor(descriptor), mProvider(provider), mData(nullptr) {}
-    ~MacOSFont();
+    MacFont(CTFontDescriptorRef descriptor, CGDataProviderRef provider, const char* styleName = "")
+     : PlatformFont(styleName), mDescriptor(descriptor), mProvider(provider), mData(nullptr) {}
+    ~MacFont();
       
     const void* GetFont() override { return reinterpret_cast<const void*>(mDescriptor); }
     const void* GetFontData() override;
@@ -91,8 +91,8 @@ protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
 private:
-  OSFontPtr OSLoadFont(const char* fileNameOrResID) override;
-  OSFontPtr OSLoadFont(const IText& text) override;
+  PlatformFontPtr LoadPlatformFont(const char* fileNameOrResID) override;
+  PlatformFontPtr LoadPlatformFont(const IText& text) override;
 
   void RepositionCursor(CGPoint point);
   void StoreCursorPosition();

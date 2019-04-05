@@ -240,12 +240,12 @@ bool IGraphicsAGG::LoadFont(const char* fileNameOrResID)
   if (storage.Find(fontName))
     return true;
     
-  OSFontPtr pOSFont = OSLoadFont(fileNameOrResID);
+  PlatformFontPtr font = LoadPlatformFont(fileNameOrResID);
  
-  if (pOSFont)
+  if (font)
   {
-    const char* data = reinterpret_cast<const char*>(pOSFont->GetFontData());
-    int size = pOSFont->GetFontDataSize();
+    const char* data = reinterpret_cast<const char*>(font->GetFontData());
+    int size = font->GetFontDataSize();
     AGGFont* pFont = new AGGFont(data, size);
     SetFont(fontName, pFont, 0);
     storage.Add(pFont, fontName, 0);
@@ -266,14 +266,14 @@ bool IGraphicsAGG::LoadFont(const char* fontName, IText::EStyle style)
   if (storage.Find(fontWithStyle.Get(), 0))
     return true;
   
-  OSFontPtr pOSFont = OSLoadFont(text);
+  PlatformFontPtr font = LoadPlatformFont(text);
 
-  if (pOSFont)
+  if (font)
   {
-    const char* data = reinterpret_cast<const char*>(pOSFont->GetFontData());
-    int size = pOSFont->GetFontDataSize();
+    const char* data = reinterpret_cast<const char*>(font->GetFontData());
+    int size = font->GetFontDataSize();
     AGGFont* pFont = new AGGFont(data, size);
-    SetFont(fontWithStyle.Get(), pFont, pOSFont->GetFaceIdx());
+    SetFont(fontWithStyle.Get(), pFont, font->GetFaceIdx());
     storage.Add(pFont, fontWithStyle.Get(), 0);
     return true;
   }
