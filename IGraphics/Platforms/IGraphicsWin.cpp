@@ -549,7 +549,6 @@ IGraphicsWin::IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float s
 IGraphicsWin::~IGraphicsWin()
 {
   CloseWindow();
-  FREE_NULL(mCustomColorStorage);
 }
 
 void GetWindowSize(HWND pWnd, int* pW, int* pH)
@@ -1372,16 +1371,15 @@ bool IGraphicsWin::PromptForColor(IColor& color, const char* prompt)
   {
     return false;
   }
-  if (!mCustomColorStorage)
-  {
-    mCustomColorStorage = (COLORREF*) calloc(16, sizeof(COLORREF));
-  }
+
+  static COLORREF customColorStorage[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  
   CHOOSECOLOR cc;
   memset(&cc, 0, sizeof(CHOOSECOLOR));
   cc.lStructSize = sizeof(CHOOSECOLOR);
   cc.hwndOwner = mPlugWnd;
   cc.rgbResult = RGB(color.R, color.G, color.B);
-  cc.lpCustColors = mCustomColorStorage;
+  cc.lpCustColors = customColorStorage;
   cc.lCustData = (LPARAM) prompt;
   cc.lpfnHook = CCHookProc;
   cc.Flags = CC_RGBINIT | CC_ANYCOLOR | CC_FULLOPEN | CC_SOLIDCOLOR | CC_ENABLEHOOK;
@@ -1470,10 +1468,10 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
           
           if (newLen > 0)
           {
-            WDL_TypedBuf<char> UTF8;
-            UTF8String.Resize(newLen);
-            numChars = WideCharToMultiByte(CP_UTF8, 0, origStr, -1, UTF8.Get(), UTF8.GetSize(), NULL, NULL);
-            str.Set(UTF8.Get());
+            WDL_TypedBuf<char> utf8;
+            utf8.Resize(newLen);
+            numChars = WideCharToMultiByte(CP_UTF8, 0, origStr, -1, utf8.Get(), utf8.GetSize(), NULL, NULL);
+            str.Set(utf8.Get());
           }
           
           GlobalUnlock(hglb);
