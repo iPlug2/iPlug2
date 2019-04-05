@@ -130,7 +130,7 @@ IGraphicsCairo::~IGraphicsCairo()
   }
 #endif
   
-  // N.B. calls through to delete context and surface
+  // N.B. calls through to destroy context and surface
   
   UpdateCairoMainSurface(nullptr);
 }

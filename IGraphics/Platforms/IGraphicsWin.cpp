@@ -12,6 +12,8 @@
 #include <Shlobj.h>
 #include <commctrl.h>
 
+#include "heapbuf.h"
+
 #include "IPlugParameter.h"
 #include "IGraphicsWin.h"
 #include "IControl.h"
@@ -546,7 +548,6 @@ IGraphicsWin::IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float s
 IGraphicsWin::~IGraphicsWin()
 {
   CloseWindow();
-  FREE_NULL(mCustomColorStorage);
 }
 
 void GetWindowSize(HWND pWnd, int* pW, int* pH)
@@ -1009,42 +1010,35 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* pOffsetIdx)
     else
     {
       const char* str = pMenuItem->GetText();
-      char* titleWithPrefixNumbers = 0;
+      int maxlen = strlen(str) + menu.GetPrefix() ? 50 : 0;
+      WDL_String entryText(str);
 
       if (menu.GetPrefix())
       {
-        titleWithPrefixNumbers = (char*)malloc(strlen(str) + 50);
-
         switch (menu.GetPrefix())
         {
           case 1:
           {
-            sprintf(titleWithPrefixNumbers, "%1d: %s", i+1, str); break;
+            entryText.SetFormatted(maxlen, "%1d: %s", i+1, str); break;
           }
           case 2:
           {
-            sprintf(titleWithPrefixNumbers, "%02d: %s", i+1, str); break;
+            entryText.SetFormatted(maxlen, "%02d: %s", i+1, str); break;
           }
           case 3:
           {
-            sprintf(titleWithPrefixNumbers, "%03d: %s", i+1, str); break;
+            entryText.SetFormatted(maxlen, "%03d: %s", i+1, str); break;
           }
         }
       }
 
-      const char* entryText(titleWithPrefixNumbers ? titleWithPrefixNumbers : str);
-
       // Escape ampersands if present
 
-      if (strchr(entryText, '&'))
+      if (strchr(entryText.Get(), '&'))
       {
-        escapedText = WDL_String(entryText);
-
-        for (int c = 0; c < escapedText.GetLength(); c++)
-          if (escapedText.Get()[c] == '&')
-            escapedText.Insert("&", c++);
-
-         entryText = escapedText.Get();
+        for (int c = 0; c < entryText.GetLength(); c++)
+          if (entryText.Get()[c] == '&')
+            entryText.Insert("&", c++);
       }
 
       flags = MF_STRING;
@@ -1056,7 +1050,7 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* pOffsetIdx)
         HMENU submenu = CreateMenu(*pMenuItem->GetSubmenu(), pOffsetIdx);
         if (submenu)
         {
-          AppendMenu(hMenu, flags|MF_POPUP|MF_ENABLED, (UINT_PTR)submenu, (const TCHAR*)entryText);
+          AppendMenu(hMenu, flags|MF_POPUP|MF_ENABLED, (UINT_PTR)submenu, (const TCHAR*)entryText.Get());
         }
       }
       else
@@ -1072,11 +1066,8 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* pOffsetIdx)
         else
           flags |= MF_UNCHECKED;
 
-        AppendMenu(hMenu, flags, offset + inc, entryText);
+        AppendMenu(hMenu, flags, offset + inc, entryText.Get());
       }
-
-      if(titleWithPrefixNumbers)
-        FREE_NULL(titleWithPrefixNumbers);
     }
     inc++;
   }
@@ -1379,16 +1370,16 @@ bool IGraphicsWin::PromptForColor(IColor& color, const char* prompt)
   {
     return false;
   }
-  if (!mCustomColorStorage)
-  {
-    mCustomColorStorage = (COLORREF*) calloc(16, sizeof(COLORREF));
-  }
+
+  const COLORREF w = RGB(255, 255, 255);
+  static COLORREF customColorStorage[16] = { w, w, w, w, w, w, w, w, w, w, w, w, w, w, w, w };
+  
   CHOOSECOLOR cc;
   memset(&cc, 0, sizeof(CHOOSECOLOR));
   cc.lStructSize = sizeof(CHOOSECOLOR);
   cc.hwndOwner = mPlugWnd;
   cc.rgbResult = RGB(color.R, color.G, color.B);
-  cc.lpCustColors = mCustomColorStorage;
+  cc.lpCustColors = customColorStorage;
   cc.lCustData = (LPARAM) prompt;
   cc.lpfnHook = CCHookProc;
   cc.Flags = CC_RGBINIT | CC_ANYCOLOR | CC_FULLOPEN | CC_SOLIDCOLOR | CC_ENABLEHOOK;
@@ -1457,55 +1448,30 @@ void IGraphicsWin::HideTooltip()
 
 bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
 {
-  bool success = false;
-  HGLOBAL hglb;
+  int numChars = 0;
   
   if (IsClipboardFormatAvailable(CF_UNICODETEXT))
   {
     if(OpenClipboard(0))
     {
-      hglb = GetClipboardData(CF_UNICODETEXT);
+      HGLOBAL hglb = GetClipboardData(CF_UNICODETEXT);
       
-      if(hglb != NULL)
+      if (hglb != NULL)
       {
-        WCHAR *orig_str = (WCHAR*)GlobalLock(hglb);
+        WCHAR *origStr = (WCHAR*)GlobalLock(hglb);
         
-        if (orig_str != NULL)
+        if (origStr != NULL)
         {
-          int orig_len = (int) wcslen(orig_str);
+          // Find out how much space is needed
+
+          int newLen = WideCharToMultiByte(CP_UTF8, 0, origStr, -1, 0, 0, NULL, NULL);
           
-          orig_len += 1;
-          
-          // find out how much space is needed
-          int new_len = WideCharToMultiByte(CP_UTF8,
-                                            0,
-                                            orig_str,
-                                            orig_len,
-                                            0,
-                                            0,
-                                            NULL,
-                                            NULL);
-          
-          if (new_len > 0)
+          if (newLen > 0)
           {
-            char *new_str = new char[new_len + 1];
-            
-            int num_chars = WideCharToMultiByte(CP_UTF8,
-                                                0,
-                                                orig_str,
-                                                orig_len,
-                                                new_str,
-                                                new_len,
-                                                NULL,
-                                                NULL);
-            
-            if (num_chars > 0)
-            {
-              success = true;
-              str.Set(new_str);
-            }
-            
-            delete [] new_str;
+            WDL_TypedBuf<char> utf8;
+            utf8.Resize(newLen);
+            numChars = WideCharToMultiByte(CP_UTF8, 0, origStr, -1, utf8.Get(), utf8.GetSize(), NULL, NULL);
+            str.Set(utf8.Get());
           }
           
           GlobalUnlock(hglb);
@@ -1516,10 +1482,10 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
     CloseClipboard();
   }
   
-  if(!success)
+  if (!numChars)
     str.Set("");
   
-  return success;
+  return numChars;
 }
 
 //TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT

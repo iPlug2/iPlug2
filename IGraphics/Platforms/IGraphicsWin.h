@@ -113,7 +113,6 @@ private:
   HWND mTooltipWnd = nullptr;
   HWND mParentWnd = nullptr;
   HWND mMainWnd = nullptr;
-  COLORREF* mCustomColorStorage = nullptr;
   WNDPROC mDefEditProc = nullptr;
   DWORD mPID = 0;
 

@@ -14,6 +14,7 @@
 #include <cstring>
 #include <cstdio>
 #include <cassert>
+#include <memory>
 
 #include "wdlstring.h"
 #include "ptrlist.h"
@@ -65,10 +66,6 @@ public:
     
     ~Item()
     {
-      if (mSubmenu)
-        delete mSubmenu;
-      
-      mSubmenu = nullptr;
     }
     
     void SetText(const char* str) { mText.Set(str); }
@@ -79,7 +76,7 @@ public:
     bool GetIsTitle() const { return (mFlags & kTitle) != 0; }
     bool GetIsSeparator() const { return (mFlags & kSeparator) != 0; }
     int GetTag() const { return mTag; }
-    IPopupMenu* GetSubmenu() const { return mSubmenu; }
+    IPopupMenu* GetSubmenu() const { return mSubmenu.get(); }
     bool GetIsChoosable() const
     {
       if(GetIsTitle()) return false;
@@ -100,7 +97,7 @@ public:
     
   protected:
     WDL_String mText;
-    IPopupMenu* mSubmenu = nullptr;
+    std::unique_ptr<IPopupMenu> mSubmenu;
     int mFlags;
     int mTag = -1;
   };

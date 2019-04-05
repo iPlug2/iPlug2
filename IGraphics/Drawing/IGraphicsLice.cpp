@@ -97,12 +97,6 @@ IGraphicsLice::~IGraphicsLice()
     mColorSpace = nullptr;
   }
 #endif
-  
-  DELETE_NULL(mDrawBitmap);
-  DELETE_NULL(mTmpBitmap);
-#ifdef OS_WIN
-  DELETE_NULL(mScaleBitmap);
-#endif
 
   StaticStorage<LICE_IFont>::Accessor storage(s_fontCache);
   storage.Release();
@@ -111,25 +105,25 @@ IGraphicsLice::~IGraphicsLice()
 void IGraphicsLice::DrawResize()
 {
   if(!mDrawBitmap)
-    mDrawBitmap = new LICE_SysBitmap(Width() * GetScreenScale(), Height() * GetScreenScale());
+    mDrawBitmap.reset(new LICE_SysBitmap(Width() * GetScreenScale(), Height() * GetScreenScale()));
   else
     mDrawBitmap->resize(Width() * GetScreenScale(), Height() * GetScreenScale());
 
 #ifdef OS_WIN
   if (GetDrawScale() == 1.0)
   {
-    DELETE_NULL(mScaleBitmap);
+    mScaleBitmap.reset(nullptr);
   }
   else
   {
     if (!mScaleBitmap)
-      mScaleBitmap = new LICE_SysBitmap(WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
+      mScaleBitmap.reset(new LICE_SysBitmap(WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale()));
     else
       mScaleBitmap->resize(WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
   }
 #endif
 
-  mRenderBitmap = mDrawBitmap;
+  mRenderBitmap = mDrawBitmap.get();
 }
 
 void IGraphicsLice::DrawSVG(ISVG& svg, const IRECT& bounds, const IBlend* pBlend)
@@ -187,20 +181,20 @@ void IGraphicsLice::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, 
   float xOffs = (W % 2 ? -0.5f : 0.0f);
   
   if (!mTmpBitmap)
-    mTmpBitmap = new LICE_MemBitmap();
+    mTmpBitmap.reset(new LICE_MemBitmap());
   
   const float angleRadians = DegToRad(angle);
   
-  LICE_Copy(mTmpBitmap, pBase);
-  LICE_ClearRect(mTmpBitmap, 0, 0, W, H, LICE_RGBA(255, 255, 255, 0));
+  LICE_Copy(mTmpBitmap.get(), pBase);
+  LICE_ClearRect(mTmpBitmap.get(), 0, 0, W, H, LICE_RGBA(255, 255, 255, 0));
   
-  LICE_RotatedBlit(mTmpBitmap, pMask, 0, 0, W, H, 0.0f, 0.0f, (float) W, (float) H, angleRadians,
+  LICE_RotatedBlit(mTmpBitmap.get(), pMask, 0, 0, W, H, 0.0f, 0.0f, (float) W, (float) H, angleRadians,
                    true, 1.0f, LICE_BLIT_MODE_ADD | LICE_BLIT_FILTER_BILINEAR | LICE_BLIT_USE_ALPHA, xOffs, 0.0f);
-  LICE_RotatedBlit(mTmpBitmap, pTop, 0, 0, W, H, 0.0f, 0.0f, (float) W, (float) H, angleRadians,
+  LICE_RotatedBlit(mTmpBitmap.get(), pTop, 0, 0, W, H, 0.0f, 0.0f, (float) W, (float) H, angleRadians,
                    true, 1.0f, LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR | LICE_BLIT_USE_ALPHA, xOffs, 0.0f);
   
   IRECT r = IRECT(x, y, x + W, y + H).Intersect(mDrawRECT);
-  LICE_Blit(mRenderBitmap, mTmpBitmap, r.L, r.T, r.L - x, r.T - y, r.R - r.L, r.B - r.T, BlendWeight(pBlend), LiceBlendMode(pBlend));
+  LICE_Blit(mRenderBitmap, mTmpBitmap.get(), r.L, r.T, r.L - x, r.T - y, r.R - r.L, r.B - r.T, BlendWeight(pBlend), LiceBlendMode(pBlend));
 }
 
 void IGraphicsLice::DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend)
@@ -389,6 +383,7 @@ void IGraphicsLice::FillConvexPolygon(const IColor& color, float* x, float* y, i
 
   //TODO: review floating point input support
   
+  WDL_TypedBuf<int> largeArray;
   int xarray[512];
   int yarray[512];
   int* xpoints = xarray;
@@ -396,7 +391,10 @@ void IGraphicsLice::FillConvexPolygon(const IColor& color, float* x, float* y, i
 
   if (npoints > 512)
   {
-    xpoints = new int[npoints * 2];
+    if (!largeArray.ResizeOK(npoints * 2))
+      return;
+      
+    xpoints = largeArray.Get();
     ypoints = xpoints + npoints;
   }
 
@@ -407,9 +405,6 @@ void IGraphicsLice::FillConvexPolygon(const IColor& color, float* x, float* y, i
   }
     
   LICE_FillConvexPolygon(mRenderBitmap, xpoints, ypoints, npoints, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend));
-    
-  if (npoints > 512)
-    delete[] xpoints;
 }
 
 void IGraphicsLice::FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
@@ -469,7 +464,7 @@ void IGraphicsLice::FillArc(const IColor& color, float cx, float cy, float r, fl
 IColor IGraphicsLice::GetPoint(int x, int y)
 {
   const int ds = GetScreenScale();
-  LICE_pixel pix = LICE_GetPixel(mDrawBitmap, x * ds, y * ds);
+  LICE_pixel pix = LICE_GetPixel(mDrawBitmap.get(), x * ds, y * ds);
   return IColor(LICE_GETA(pix), LICE_GETR(pix), LICE_GETG(pix), LICE_GETB(pix));
 }
 
@@ -609,7 +604,7 @@ void IGraphicsLice::CompleteRegion(const IRECT& r)
     LICE_IBitmap* bitmap = mClippingLayer->GetAPIBitmap()->GetBitmap();
     int x = mDrawOffsetX * GetScreenScale();
     int y = mDrawOffsetY * GetScreenScale();
-    PreMulBlit(mDrawBitmap, bitmap, x, y, 0, 0, bitmap->getWidth(), bitmap->getHeight(), 1.f, mode);
+    PreMulBlit(mDrawBitmap.get(), bitmap, x, y, 0, 0, bitmap->getWidth(), bitmap->getHeight(), 1.f, mode);
     mClippingLayer.reset();
   }
   UpdateLayer();
@@ -619,7 +614,7 @@ void IGraphicsLice::UpdateLayer()
 {
   ILayer* currentLayer = mLayers.empty() ? mClippingLayer.get() : mLayers.top();
   IRECT r = currentLayer ? currentLayer->Bounds() : IRECT();
-  mRenderBitmap = currentLayer ? currentLayer->GetAPIBitmap()->GetBitmap() : mDrawBitmap;
+  mRenderBitmap = currentLayer ? currentLayer->GetAPIBitmap()->GetBitmap() : mDrawBitmap.get();
   mDrawRECT = currentLayer ? IRECT(0, 0, r.W(), r.H()) : mClipRECT;
   mDrawOffsetX = currentLayer ? r.L : 0;
   mDrawOffsetY = currentLayer ? r.T : 0;
@@ -904,7 +899,7 @@ void IGraphicsLice::EndFrame()
   }
   else
   {
-    LICE_ScaledBlit(mScaleBitmap, mDrawBitmap, 0, 0, WindowWidth(), WindowHeight(), 0, 0, Width(), Height(), 1.0, LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR
+    LICE_ScaledBlit(mScaleBitmap.get(), mDrawBitmap.get(), 0, 0, WindowWidth(), WindowHeight(), 0, 0, Width(), Height(), 1.0, LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR
     );
     BitBlt(dc, 0, 0, WindowWidth(), WindowHeight(), mScaleBitmap->getDC(), 0, 0, SRCCOPY);
   }
