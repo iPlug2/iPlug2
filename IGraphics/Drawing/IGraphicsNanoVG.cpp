@@ -493,7 +493,7 @@ void IGraphicsNanoVG::EndFrame()
 #endif
 }
 
-void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
+void IGraphicsNanoVG::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
   APIBitmap* pAPIBitmap = bitmap.GetAPIBitmap();
   

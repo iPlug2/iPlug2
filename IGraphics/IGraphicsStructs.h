@@ -218,7 +218,7 @@ struct ISVG
     mImage = pImage;
   }
 
-  float W()
+  float W() const
   {
     if (mImage)
       return mImage->width;
@@ -226,7 +226,7 @@ struct ISVG
       return 0;
   }
 
-  float H()
+  float H() const
   {
     if (mImage)
       return mImage->height;

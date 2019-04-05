@@ -55,7 +55,7 @@ IGraphicsCanvas::~IGraphicsCanvas()
 {
 }
 
-void IGraphicsCanvas::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend)
+void IGraphicsCanvas::DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend)
 {
   val context = GetContext();
   val img = *bitmap.GetAPIBitmap()->GetBitmap();
@@ -301,36 +301,6 @@ bool IGraphicsCanvas::BitmapExtSupported(const char* ext)
 APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext)
 {
   return new CanvasBitmap(GetPreloadedImages()[fileNameOrResID], fileNameOrResID + 1, scale);
-}
-
-APIBitmap* IGraphicsCanvas::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
-{
-//  int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
-//  int destH = (pBitmap->GetHeight() / pBitmap->GetScale()) * scale;
-//
-//  val imgSrc = *pBitmap->GetBitmap();
-//
-//  // Make an offscreen canvas and resize
-//  val documentHead = val::global("document")["head"];
-//  val canvas = GetCanvas();
-//  documentHead.call<val>("appendChild", canvas);
-//  val canvasNode = documentHead["lastChild"];
-//  val context = canvas.call<val>("getContext", std::string("2d"));
-//  context.set("width", destW);
-//  context.set("height", destH);
-//
-//  // Scale and draw
-//  context.call<void>("scale", scale / pBitmap->GetScale(), scale / pBitmap->GetScale());
-//  context.call<void>("drawImage", imgSrc, 0, 0);
-//
-//  // Copy to an image
-//  val img = val::global("Image").new_();
-//  img.set("src", canvas.call<val>("toDataURL"));
-//
-//  // Delete the canvas
-//  documentHead.call<val>("removeChild", canvasNode);
-
-  return new CanvasBitmap(GetPreloadedImages()[""], "", scale);
 }
 
 APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height)

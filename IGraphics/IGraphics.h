@@ -86,7 +86,7 @@ public:
    * @param svg The SVG image to the graphics context
    * @param bounds The rectangular region to draw the image in
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawSVG(ISVG& svg, const IRECT& bounds, const IBlend* pBlend = 0) = 0;
+  virtual void DrawSVG(const ISVG& svg, const IRECT& bounds, const IBlend* pBlend = 0) = 0;
 
   /** Draw an SVG image to the graphics context with rotation
    * @param svg The SVG image to draw to the graphics context
@@ -96,7 +96,7 @@ public:
    * @param height \todo
    * @param angle The angle to rotate the bitmap mask at in degrees clockwise
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawRotatedSVG(ISVG& svg, float destCentreX, float destCentreY, float width, float height, double angle, const IBlend* pBlend = 0) = 0;
+  virtual void DrawRotatedSVG(const ISVG& svg, float destCentreX, float destCentreY, float width, float height, double angle, const IBlend* pBlend = 0) = 0;
 
   /** Draw a bitmap (raster) image to the graphics context
    * @param bitmap The bitmap image to draw to the graphics context
@@ -104,13 +104,13 @@ public:
    * @param srcX The X coordinate in the source image to draw from \todo
    * @param srcY The Y coordinate in the source image to draw from \todo
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend = 0) = 0;
+  virtual void DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend = 0) = 0;
 
   /** Draw a bitmap (raster) image to the graphics context, scaling the image to fit the bounds
    * @param bitmap The bitmap image to draw to the graphics context
    * @param bounds The rectangular region to draw the image in
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend = 0) = 0;
+  virtual void DrawFittedBitmap(const IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend = 0) = 0;
   
   /** Draw a bitmap (raster) image to the graphics context with rotation
    * @param bitmap The bitmap image to draw to the graphics context
@@ -119,7 +119,7 @@ public:
    * @param angle The angle of rotation in degrees
    * @param yOffsetZeroDeg \todo
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawRotatedBitmap(IBitmap& bitmap, float destCentreX, float destCentreY, double angle, int yOffsetZeroDeg = 0, const IBlend* pBlend = 0) = 0;
+  virtual void DrawRotatedBitmap(const IBitmap& bitmap, float destCentreX, float destCentreY, double angle, int yOffsetZeroDeg = 0, const IBlend* pBlend = 0) = 0;
 
   /** Draw a rotated, masked bitmap to the graphics context
    * @param base The base bitmap image to draw to the graphics context \todo explain base
@@ -129,7 +129,7 @@ public:
    * @param y The Y coordinate in the graphics context at which to draw
    * @param angle The angle to rotate the bitmap mask at in degrees clockwise
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, float x, float y, double angle, const IBlend* pBlend = 0) = 0;
+  virtual void DrawRotatedMask(const IBitmap& base, const IBitmap& mask, const IBitmap& top, float x, float y, double angle, const IBlend* pBlend = 0) = 0;
 
   /** Fill a rectangle corresponding to a pixel on a 1:1 screen with a color
    * @param color The color to fill the point with
@@ -362,7 +362,6 @@ public:
   virtual const char* GetDrawingAPIStr() = 0;
 
 #pragma mark - IGraphics drawing API implementation (bitmap handling)
-  virtual IBitmap ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, int targetScale);
   virtual void RetainBitmap(const IBitmap& bitmap, const char* cacheName);
   virtual void ReleaseBitmap(const IBitmap& bitmap);
   IBitmap GetScaledBitmap(IBitmap& src);
@@ -377,7 +376,7 @@ public:
    * @param bounds - where to draw the bitmap
    * @param frame - the frame index of the bitmap to draw (when bitmap is multi-frame)
    * @param pBlend - blend operation */
-  void DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int frame = 1, const IBlend* pBlend = 0);
+  void DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int frame = 1, const IBlend* pBlend = 0);
 
   /** Draws mono spaced bitmap text. Useful for identical looking text on multiple platforms.
    * @param bitmap the bitmap containing glyphs to draw
@@ -390,7 +389,7 @@ public:
    * @param charWidth how wide is a character in the bitmap
    * @param charHeight how high is a character in the bitmap
    * @param charOffset what is the offset between characters drawn */
-  void DrawBitmapedText(IBitmap& bitmap, IRECT& bounds, IText& text, IBlend* pBlend, const char* str, bool vCenter = true, bool multiline = false, int charWidth = 6, int charHeight = 12, int charOffset = 0);
+  void DrawBitmapedText(const IBitmap& bitmap, IRECT& bounds, IText& text, IBlend* pBlend, const char* str, bool vCenter = true, bool multiline = false, int charWidth = 6, int charHeight = 12, int charOffset = 0);
 
   /** Draw a vertical line, within a rectangular region of the graphics context
    * @param color The color to draw the line with
@@ -1031,8 +1030,9 @@ protected:
 
   typedef WDL_TypedBuf<unsigned char> RawBitmapData;
 
+  IBitmap ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, int targetScale);
+    
   virtual APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) = 0;
-  virtual APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) = 0;
   virtual APIBitmap* CreateAPIBitmap(int width, int height) = 0;
     
   virtual int AlphaChannel() const = 0;

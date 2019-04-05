@@ -454,7 +454,7 @@ bool IGraphics::DrawText(const IText& text, const char* str, float x, float y, c
   return DrawText(text, str, bounds, pBlend);
 }
 
-void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int bmpState, const IBlend* pBlend)
+void IGraphics::DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int bmpState, const IBlend* pBlend)
 {
   int srcX = 0;
   int srcY = 0;
@@ -476,7 +476,7 @@ void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int bmpState, c
   return DrawBitmap(bitmap, bounds, srcX, srcY, pBlend);
 }
 
-void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& bounds, IText& text, IBlend* pBlend, const char* str, bool vCenter, bool multiline, int charWidth, int charHeight, int charOffset)
+void IGraphics::DrawBitmapedText(const IBitmap& bitmap, IRECT& bounds, IText& text, IBlend* pBlend, const char* str, bool vCenter, bool multiline, int charWidth, int charHeight, int charOffset)
 {
   if (CStringHasContents(str))
   {
@@ -1266,10 +1266,22 @@ void IGraphics::RetainBitmap(const IBitmap& bitmap, const char* cacheName)
 
 IBitmap IGraphics::ScaleBitmap(const IBitmap& inBitmap, const char* name, int scale)
 {
-  APIBitmap* pAPIBitmap = ScaleAPIBitmap(inBitmap.GetAPIBitmap(), scale);
-  IBitmap bitmap = IBitmap(pAPIBitmap, inBitmap.N(), inBitmap.GetFramesAreHorizontal(), name);
+  int screenScale = GetScreenScale();
+  double drawScale = GetDrawScale();
+
+  mScreenScale = scale;
+  mDrawScale = inBitmap.GetDrawScale();
+
+  IRECT bounds = IRECT(0, 0, inBitmap.W() / inBitmap.GetDrawScale(), inBitmap.H() / inBitmap.GetDrawScale());
+  StartLayer(bounds);
+  DrawBitmap(inBitmap, bounds, 0, 0, nullptr);
+  ILayerPtr layer = EndLayer();
+  IBitmap bitmap = IBitmap(layer->mBitmap.release(), inBitmap.N(), inBitmap.GetFramesAreHorizontal(), name);
   RetainBitmap(bitmap, name);
 
+  mScreenScale = screenScale;
+  mDrawScale = drawScale;
+    
   return bitmap;
 }
 
