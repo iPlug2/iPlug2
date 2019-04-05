@@ -11,6 +11,8 @@
 #include <algorithm>
 #include <CoreMIDI/CoreMIDI.h>
 
+#include "heapbuf.h"
+
 #include "dfx-au-utilities.h"
 #include "IPlugAU.h"
 #include "IPlugAU_ioconfig.h"
@@ -33,21 +35,15 @@ struct CFStrLocal
   }
 };
 
-struct CStrLocal
+struct CStrLocal : WDL_TypedBuf<char>
 {
-  char* mCStr;
-    CStrLocal(CFStringRef cfStr) : mCStr(nullptr)
+  CStrLocal(CFStringRef cfStr)
   {
     if (cfStr)
     {
-      long n = CFStringGetLength(cfStr) + 1;
-      mCStr = (char*) malloc(n);
-      CFStringGetCString(cfStr, mCStr, n, kCFStringEncodingUTF8);
+      Resize((int) CFStringGetLength(cfStr) + 1);
+      CFStringGetCString(cfStr, Get(), GetSize(), kCFStringEncodingUTF8);
     }
-  }
-  ~CStrLocal()
-  {
-    FREE_NULL(mCStr);
   }
 };
 
@@ -93,7 +89,7 @@ inline bool GetStrFromDict(CFDictionaryRef pDict, const char* key, char* value)
   if (pValue)
   {
     CStrLocal cStr(pValue);
-    strcpy(value, cStr.mCStr);
+    strcpy(value, cStr.Get());
     return true;
   }
   value[0] = '\0';
@@ -1002,7 +998,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         {
           CStrLocal cStr(pVFS->inString);
           ENTER_PARAMS_MUTEX;
-          const double v = GetParam(pVFS->inParamID)->StringToValue(cStr.mCStr);
+          const double v = GetParam(pVFS->inParamID)->StringToValue(cStr.Get());
           LEAVE_PARAMS_MUTEX;
           pVFS->outValue = (AudioUnitParameterValue) v;
         }
@@ -1254,7 +1250,7 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         int version = (pHostID->hostVersion.majorRev << 16)
                     + ((pHostID->hostVersion.minorAndBugRev & 0xF0) << 4)
                     + ((pHostID->hostVersion.minorAndBugRev & 0x0F));
-        SetHost(hostStr.mCStr, version);
+        SetHost(hostStr.Get(), version);
       }
       return noErr;
     }
@@ -2189,14 +2185,14 @@ OSStatus IPlugAU::DoInitialize(IPlugAU* _this)
       CStrLocal versionStr((CFStringRef) CFBundleGetValueForInfoDictionaryKey(mainBundle, kCFBundleVersionKey));
       
       char *pStr;
-      long ver = versionStr.mCStr ? strtol(versionStr.mCStr, &pStr, 10) : 0;
-      long verRevMaj = versionStr.mCStr && *pStr ? strtol(pStr + 1, &pStr, 10) : 0;
-      long verRevMin = versionStr.mCStr && *pStr ? strtol(pStr + 1, &pStr, 10) : 0;
+      long ver = versionStr.Get() ? strtol(versionStr.Get(), &pStr, 10) : 0;
+      long verRevMaj = versionStr.Get() && *pStr ? strtol(pStr + 1, &pStr, 10) : 0;
+      long verRevMin = versionStr.Get() && *pStr ? strtol(pStr + 1, &pStr, 10) : 0;
 
       version = (int) (((ver & 0xFFFF) << 16) | ((verRevMaj &  0xFF) << 8) | (verRevMin & 0xFF));
     }
 
-    _this->SetHost(id ? CStrLocal(id).mCStr : "", version);
+    _this->SetHost(id ? CStrLocal(id).Get() : "", version);
   }
     
   if (!(_this->CheckLegalIO()))

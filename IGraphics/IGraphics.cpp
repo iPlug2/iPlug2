@@ -1243,7 +1243,7 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
       }
     }
 
-    // Protection from searching for non-existant bitmaps (e.g. typos in config.h or .rc)
+    // Protection from searching for non-existent bitmaps (e.g. typos in config.h or .rc)
     assert(pAPIBitmap);
 
     const IBitmap bitmap(pAPIBitmap, nStates, framesAreHorizontal, name);

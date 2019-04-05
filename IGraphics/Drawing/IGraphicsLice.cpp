@@ -389,6 +389,7 @@ void IGraphicsLice::FillConvexPolygon(const IColor& color, float* x, float* y, i
 
   //TODO: review floating point input support
   
+  WDL_TypedBuf<int> largeArray;
   int xarray[512];
   int yarray[512];
   int* xpoints = xarray;
@@ -396,7 +397,10 @@ void IGraphicsLice::FillConvexPolygon(const IColor& color, float* x, float* y, i
 
   if (npoints > 512)
   {
-    xpoints = new int[npoints * 2];
+    if (!largeArray.ResizeOK(npoints * 2))
+      return;
+      
+    xpoints = largeArray.Get();
     ypoints = xpoints + npoints;
   }
 
@@ -407,9 +411,6 @@ void IGraphicsLice::FillConvexPolygon(const IColor& color, float* x, float* y, i
   }
     
   LICE_FillConvexPolygon(mRenderBitmap, xpoints, ypoints, npoints, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend));
-    
-  if (npoints > 512)
-    delete[] xpoints;
 }
 
 void IGraphicsLice::FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
