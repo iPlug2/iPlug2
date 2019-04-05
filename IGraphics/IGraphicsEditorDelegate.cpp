@@ -19,8 +19,6 @@ IGEditorDelegate::IGEditorDelegate(int nParams)
 
 IGEditorDelegate::~IGEditorDelegate()
 {
-  if (mGraphics)
-    DELETE_NULL(mGraphics);
 }
 
 void IGEditorDelegate::OnUIOpen()
@@ -49,7 +47,7 @@ void* IGEditorDelegate::OpenWindow(void* pParent)
 {
   if(!mGraphics) {
     mIGraphicsTransient = true;
-    mGraphics = CreateGraphics();
+    mGraphics.reset(CreateGraphics());
   }
   
   if(mGraphics)
@@ -61,15 +59,19 @@ void* IGEditorDelegate::OpenWindow(void* pParent)
 void IGEditorDelegate::CloseWindow()
 {
   IEditorDelegate::CloseWindow();
-  IGraphics* pGraphics = mGraphics;
-  mGraphics = nullptr;
-    
-  if (pGraphics)
+  
+  if (mGraphics)
   {
-    pGraphics->CloseWindow();
-    
     if (mIGraphicsTransient)
-      delete pGraphics;
+    {
+      std::unique_ptr<IGraphics> graphics;
+      graphics.swap(mGraphics);
+      graphics->CloseWindow();
+    }
+    else
+    {
+      mGraphics->CloseWindow();
+    }
   }
 }
 
@@ -153,9 +155,9 @@ void IGEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
 
 void IGEditorDelegate::AttachGraphics(IGraphics* pGraphics)
 {
-  assert(mGraphics == nullptr); // protect against calling AttachGraphics() when mGraphics allready exists
+  assert(!mGraphics); // protect against calling AttachGraphics() when mGraphics already exists
 
-  mGraphics = pGraphics;
+  mGraphics.reset(pGraphics);
   mIGraphicsTransient = false;
 }
 
