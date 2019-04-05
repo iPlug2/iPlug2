@@ -71,7 +71,13 @@ CairoBitmap::CairoBitmap(cairo_surface_t* pSurface, int scale, float drawScale)
 
 CairoBitmap::CairoBitmap(cairo_surface_t* pSurfaceType, int width, int height, int scale, float drawScale)
 {
-  cairo_surface_t* pSurface = cairo_surface_create_similar_image(pSurfaceType, CAIRO_FORMAT_ARGB32, width, height);
+  cairo_surface_t* pSurface;
+    
+  if (pSurfaceType)
+    pSurface = cairo_surface_create_similar_image(pSurfaceType, CAIRO_FORMAT_ARGB32, width, height);
+  else
+    pSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+    
   cairo_surface_set_device_scale(pSurface, scale * drawScale, scale * drawScale);
   
   SetBitmap(pSurface, width, height, scale, drawScale);
@@ -266,7 +272,8 @@ void IGraphicsCairo::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int sr
 
 void IGraphicsCairo::PathClear()
 {
-  cairo_new_path(mContext);
+  if (mContext)
+    cairo_new_path(mContext);
 }
 
 void IGraphicsCairo::PathClose()
@@ -669,6 +676,9 @@ void IGraphicsCairo::PathTransformSetMatrix(const IMatrix& m)
   double xTranslate = 0.0;
   double yTranslate = 0.0;
   
+  if (!mContext)
+    return;
+    
   if (!mLayers.empty())
   {
     IRECT bounds = mLayers.top()->Bounds();
@@ -687,6 +697,9 @@ void IGraphicsCairo::PathTransformSetMatrix(const IMatrix& m)
 
 void IGraphicsCairo::SetClipRegion(const IRECT& r) 
 {
+  if (!mContext)
+    return;
+    
   cairo_reset_clip(mContext);
   if (!r.Empty())
   {
