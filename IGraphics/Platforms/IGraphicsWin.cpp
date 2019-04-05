@@ -1372,7 +1372,8 @@ bool IGraphicsWin::PromptForColor(IColor& color, const char* prompt)
     return false;
   }
 
-  static COLORREF customColorStorage[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+  const COLORREF w = RGB(255, 255, 255);
+  static COLORREF customColorStorage[16] = { w, w, w, w, w, w, w, w, w, w, w, w, w, w, w, w };
   
   CHOOSECOLOR cc;
   memset(&cc, 0, sizeof(CHOOSECOLOR));
