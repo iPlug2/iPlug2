@@ -582,10 +582,10 @@ void IGraphicsLice::NeedsClipping()
   if (!mClippingLayer && mLayers.empty() && !mClipRECT.Contains(GetBounds()))
   {
     IRECT alignedBounds = mClipRECT.GetPixelAligned(GetBackingPixelScale());
-    const int w = static_cast<int>(std::round(alignedBounds.W()));
-    const int h = static_cast<int>(std::round(alignedBounds.H()));
+    const int w = static_cast<int>(std::round(alignedBounds.W() * GetBackingPixelScale()));
+    const int h = static_cast<int>(std::round(alignedBounds.H() * GetBackingPixelScale()));
     
-    mClippingLayer.reset(new ILayer(CreateAPIBitmap(w, h), alignedBounds));
+    mClippingLayer.reset(new ILayer(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds));
     UpdateLayer();
   }
 }
@@ -730,10 +730,9 @@ APIBitmap* IGraphicsLice::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
   return nullptr;
 }
 
-APIBitmap* IGraphicsLice::CreateAPIBitmap(int width, int height)
+APIBitmap* IGraphicsLice::CreateAPIBitmap(int width, int height, int scale, double drawScale)
 {
-  const int scale = GetScreenScale();
-  LICE_IBitmap* pBitmap = new LICE_MemBitmap(width * scale, height * scale);
+  LICE_IBitmap* pBitmap = new LICE_MemBitmap(width, height);
   memset(pBitmap->getBits(), 0, pBitmap->getRowSpan() * pBitmap->getHeight() * sizeof(LICE_pixel));
   return new LICEBitmap(pBitmap, scale, true);
 }

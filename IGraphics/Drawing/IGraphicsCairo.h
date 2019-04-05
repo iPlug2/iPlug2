@@ -86,7 +86,7 @@ public:
 
 protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
-  APIBitmap* CreateAPIBitmap(int width, int height) override;
+  APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) override;
 
   int AlphaChannel() const override { return 3; }
   bool FlippedBitmap() const override { return false; }

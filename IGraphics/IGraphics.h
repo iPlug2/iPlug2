@@ -1033,7 +1033,7 @@ protected:
   IBitmap ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, int targetScale);
     
   virtual APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) = 0;
-  virtual APIBitmap* CreateAPIBitmap(int width, int height) = 0;
+  virtual APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) = 0;
     
   virtual int AlphaChannel() const = 0;
   virtual bool FlippedBitmap() const = 0;

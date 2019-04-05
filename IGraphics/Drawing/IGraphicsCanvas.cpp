@@ -303,10 +303,9 @@ APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const char* fileNameOrResID, int scale
   return new CanvasBitmap(GetPreloadedImages()[fileNameOrResID], fileNameOrResID + 1, scale);
 }
 
-APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height)
+APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height, int scale, double drawScale)
 {
-  const double scale = GetBackingPixelScale();
-  return new CanvasBitmap(std::ceil(width * scale), std::ceil(height * scale), GetScreenScale(), GetDrawScale());
+  return new CanvasBitmap(width, height, scale, drawScale);
 }
 
 void IGraphicsCanvas::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
