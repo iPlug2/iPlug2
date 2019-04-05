@@ -17,12 +17,12 @@ static StaticStorage<IGraphicsAGG::AGGFont> sFontCache;
 
 // Font
 
-IGraphicsAGG::AGGFont::AGGFont(const char* data, int size)
+IGraphicsAGG::AGGFont::AGGFont(const char* data, int size, int faceIdx) : mFaceIdx(faceIdx)
 {
-  m_buf = new char[size];
-  m_size = size;
-    
-  std::copy(data, data + size, m_buf);
+  char* buffer = mData.ResizeOK(size);
+
+  if (buffer)
+    std::copy(data, data + size, buffer);
 }
 
 // Utility
@@ -246,8 +246,8 @@ bool IGraphicsAGG::LoadFont(const char* fileNameOrResID)
   {
     const char* data = reinterpret_cast<const char*>(font->GetFontData());
     int size = font->GetFontDataSize();
-    AGGFont* pFont = new AGGFont(data, size);
-    SetFont(fontName, pFont, 0);
+    AGGFont* pFont = new AGGFont(data, size, font->GetFaceIdx());
+    SetFont(fontName, pFont, font->GetFaceIdx());
     storage.Add(pFont, fontName, 0);
     return true;
   }
@@ -272,7 +272,7 @@ bool IGraphicsAGG::LoadFont(const char* fontName, IText::EStyle style)
   {
     const char* data = reinterpret_cast<const char*>(font->GetFontData());
     int size = font->GetFontDataSize();
-    AGGFont* pFont = new AGGFont(data, size);
+    AGGFont* pFont = new AGGFont(data, size, font->GetFaceIdx());
     SetFont(fontWithStyle.Get(), pFont, font->GetFaceIdx());
     storage.Add(pFont, fontWithStyle.Get(), 0);
     return true;
@@ -671,9 +671,9 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
   WDL_String fontWithStyle = text.GetFontWithStyle();
   
   if (pFont)
-    SetFont(text.mFont, pFont, 0);
+    SetFont(text.mFont, pFont, pFont->faceIdx());
   else if ((pFont = storage.Find(fontWithStyle.Get(), 0)))
-    SetFont(fontWithStyle.Get(), pFont, 0);
+    SetFont(fontWithStyle.Get(), pFont, pFont->faceIdx());
   else
     assert(0 && "No font found - did you forget to load it?");
   

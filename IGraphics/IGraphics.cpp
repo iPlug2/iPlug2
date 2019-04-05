@@ -86,7 +86,7 @@ int IGraphics::PlatformFont::GetFaceIdx()
     if (result == -2)
       return -1;
 
-    if (!result && !strcmp(style.Get(), mStyleName.Get()))
+    if (!result && (!mStyleName.Get()[0] || !strcmp(style.Get(), mStyleName.Get())))
       return idx;
   }
 }

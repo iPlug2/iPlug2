@@ -23,6 +23,8 @@
 #include "IGraphicsPathBase.h"
 #include "IGraphicsAGG_src.h"
 
+#include "heapbuf.h"
+
 template <class SpanGeneratorType>
 class alpha_span_generator : public SpanGeneratorType
 {
@@ -78,15 +80,15 @@ public:
   {
   public:
     
-    AGGFont(const char* data, int size);
-    ~AGGFont() { delete[] m_buf; }
+    AGGFont(const char* data, int size, int faceIdx);
     
-    const char* buf() { return m_buf; };
-    int size() { return m_size; };
+    const char* buf() { return mData.Get(); };
+    int size() const { return mData.GetSize(); };
+    int faceIdx() const { return mFaceIdx; };
     
   private:
-    char *m_buf;
-    int m_size;
+    WDL_TypedBuf<char> mData;
+    int mFaceIdx;
   };
   
 #ifdef OS_WIN
