@@ -722,7 +722,7 @@ bool IGraphicsNanoVG::LoadFont(const char* fileNameOrResID)
   WDL_String fontNameWithoutExt(fileNameOrResID);
   fontNameWithoutExt.remove_fileext();
   WDL_String fullPath;
-  EResourceLocation foundResource = FindResource(fileNameOrResID, "ttf", fullPath, GetBundleID());
+  EResourceLocation foundResource = FindResource(fileNameOrResID, "ttf", fullPath, GetBundleID(), GetWinModuleHandle());
  
   if (foundResource != EResourceLocation::kNotFound)
   {
