@@ -2017,7 +2017,7 @@ bool IPlugAU::SendSysEx(const ISysEx& sysEx)
   if(mMidiCallback.midiOutputCallback == nullptr)
     return false;
 
-  assert(sysEx.mSize > 65536); // maximum packet list size
+  assert(sysEx.mSize <= 65536); // maximum packet list size
   
   WDL_HeapBuf heapBuf;
   MIDIPacketList* pPktlist = (MIDIPacketList*) heapBuf.ResizeOK(sysEx.mSize);
