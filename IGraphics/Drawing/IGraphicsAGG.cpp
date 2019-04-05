@@ -473,14 +473,14 @@ APIBitmap* IGraphicsAGG::LoadAPIBitmap(const char* fileNameOrResID, int scale, E
 #if defined OS_WIN
   if (location != EResourceLocation::kNotFound && ispng)
   {
-    if (pPixelMap->load_img((HINSTANCE)GetWinModuleHandle(), fileNameOrResID, agg::pixel_map::format_png))
-      return new AGGBitmap(pPixelMap.release(), scale, 1.f, false);
+    if (pixelMap->load_img((HINSTANCE)GetWinModuleHandle(), fileNameOrResID, agg::pixel_map::format_png))
+      return new AGGBitmap(pixelMap.release(), scale, 1.f, false);
   }
 #else
   if (location == EResourceLocation::kAbsolutePath && ispng)
   {
-    if (pPixelMap->load_img(fileNameOrResID, agg::pixel_map::format_png))
-      return new AGGBitmap(pPixelMap.release(), scale, 1.f, false);
+    if (pixelMap->load_img(fileNameOrResID, agg::pixel_map::format_png))
+      return new AGGBitmap(pixelMap.release(), scale, 1.f, false);
   }
 #endif
 
