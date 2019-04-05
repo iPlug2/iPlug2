@@ -1574,7 +1574,7 @@ IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fileNameOr
 
   WinCachedFont* pFont = nullptr;
   WDL_String fullPath, family, style;
-  const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, Get);
+  const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, GetBundleID(), GetWinModuleHandle());
 
   if (fontLocation == kNotFound)
     return nullptr;
