@@ -1046,7 +1046,7 @@ public:
   , IBitmapBase(bitmap, blend)
   {}
   
-  IBitmapControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendDefault)
+  IBitmapControl(IRECT bounds, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendDefault)
   : IControl(bounds, paramIdx)
   , IBitmapBase(bitmap, blend)
   {}

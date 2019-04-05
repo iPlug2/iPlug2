@@ -199,6 +199,7 @@ def main():
   macOSapp['NSMainNibFile'] = config['BUNDLE_NAME'] + "-macOS-MainMenu"
   macOSapp['LSApplicationCategoryType'] = "public.app-category.music"
   macOSapp['CFBundleIconFile'] = config['BUNDLE_NAME'] + ".icns"
+#  macOSapp['NSMicrophoneUsageDescription'] = 	"This app needs mic access to process audio."
 
   plistlib.writePlist(macOSapp, plistpath)
 

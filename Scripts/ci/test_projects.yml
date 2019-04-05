@@ -8,12 +8,12 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      # CAIRO:
-      #   graphics: 'CAIRO'
-      # LICE:
-      #   graphics: 'LICE'
-      # AGG:
-      #   graphics: 'AGG'
+      CAIRO:
+        graphics: 'CAIRO'
+      LICE:
+        graphics: 'LICE'
+    # AGG:
+    #   graphics: 'AGG'
 
   pool:
     vmImage: 'macos-10.13'

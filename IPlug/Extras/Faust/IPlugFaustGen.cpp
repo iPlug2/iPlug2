@@ -502,6 +502,7 @@ void FaustGen::GetDrawPath(WDL_String& path)
 
 bool FaustGen::CompileCPP()
 {
+#ifndef OS_WIN
   WDL_String archFile;
   archFile.Set(__FILE__);
   archFile.remove_filepart(true);
@@ -548,6 +549,8 @@ bool FaustGen::CompileCPP()
     return false;
   }
 
+#endif
+
   return true;
 }
 
@@ -593,7 +596,6 @@ void FaustGen::OnTimer(Timer& timer)
     // TODO: should check for successfull JIT
     DBGMSG("FaustGen-%s: Statically compiling all FAUST blocks\n", mName.Get());
     CompileCPP();
-
     //WDL_String objFile;
     //objFile.Set(pInputFile);
     //objFile.remove_fileext();
