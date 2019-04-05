@@ -74,16 +74,15 @@ public:
     LineInfo() : mWidth(0.0), mStartChar(0), mEndChar(0) {}
   };
 
-  class AGGFont : public agg::font
+  class AGGFont
   {
   public:
     
     AGGFont(const char* data, int size);
-    ~AGGFont() { destroy(); }
+    ~AGGFont() { delete[] m_buf; }
     
-    void destroy() override { delete[] m_buf; };
-    const char* buf() override { return m_buf; };
-    virtual int size() override { return m_size; };
+    const char* buf() { return m_buf; };
+    int size() { return m_size; };
     
   private:
     char *m_buf;
