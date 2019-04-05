@@ -27,6 +27,8 @@
 #include "IGraphicsLice_src.h"
 #include "IGraphics.h"
 
+#include <memory>
+
 inline LICE_pixel LiceColor(const IColor& color)
 {
   auto preMul = [](int color, int A) {return (color * (A + 1)) >> 8; };
@@ -111,7 +113,7 @@ public:
     
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return mDrawBitmap->getBits(); }
-  inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
+  inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap.get(); }
 
   // Not implemented
   void DrawRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend, float thickness) override { /* TODO - mark unsupported */ }
@@ -181,10 +183,10 @@ private:
   int mDrawOffsetX = 0;
   int mDrawOffsetY = 0;
   
-  LICE_SysBitmap* mDrawBitmap = nullptr;
-  LICE_MemBitmap* mTmpBitmap = nullptr;
+  std::unique_ptr<LICE_SysBitmap> mDrawBitmap;
+  std::unique_ptr<LICE_MemBitmap> mTmpBitmap;
 #ifdef OS_WIN
-  LICE_SysBitmap* mScaleBitmap = nullptr;
+  std::unique_ptr<LICE_SysBitmap> mScaleBitmap;
 #endif
   // N.B. mRenderBitmap is not owned through this pointer, and should not be deleted
   LICE_IBitmap* mRenderBitmap = nullptr;
