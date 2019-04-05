@@ -24,7 +24,7 @@ public:
   PNGStreamReader(HINSTANCE hInst, const char* path)
   : mData(nullptr), mSize(0), mCount(0)
   {
-    HRSRC resInfo = FindResource(hInst, path, "PNG", GetBundleID(), GetWinModuleHandle());
+    HRSRC resInfo = FindResource(hInst, path, "PNG");
     if (resInfo)
     {
       HGLOBAL res = LoadResource(hInst, resInfo);
@@ -663,7 +663,7 @@ bool IGraphicsCairo::LoadFont(const char* fileName)
   WDL_String fontNameWithoutExt(name, (int) strlen(name));
   fontNameWithoutExt.remove_fileext();
   WDL_String fullPath;
-  FindResource(fileName, "ttf", fullPath, GetBundleID(), GetWinModuleHandle());
+  LocateResource(fileName, "ttf", fullPath, GetBundleID(), GetWinModuleHandle());
 
   FT_Face ftFace;
   FT_Error ftError;
