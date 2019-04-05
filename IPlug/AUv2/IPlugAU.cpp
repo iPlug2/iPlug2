@@ -1986,10 +1986,11 @@ bool IPlugAU::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
   if(mMidiCallback.midiOutputCallback == nullptr)
     return false;
   
-  ByteCount listSize = msgs.GetSize() * 3;
-  MIDIPacketList* pPktlist = (MIDIPacketList*) malloc(listSize);
+  WDL_HeapBuf heapBuf;
+  MIDIPacketList* pPktlist = (MIDIPacketList*) heapBuf.ResizeOK(msgs.GetSize() * 3);
   MIDIPacket* pPkt = MIDIPacketListInit(pPktlist);
-  
+  ByteCount listSize = heapBuf.GetSize();
+    
   IMidiMsg* pMsg = msgs.Get();
   for (int i = 0; i < msgs.GetSize(); ++i, ++pMsg)
   {
@@ -2006,8 +2007,6 @@ bool IPlugAU::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
       result = true;
   }
   
-  free(pPktlist);
-  
   return result;
 }
 
@@ -2017,14 +2016,14 @@ bool IPlugAU::SendSysEx(const ISysEx& sysEx)
 
   if(mMidiCallback.midiOutputCallback == nullptr)
     return false;
+
+  assert(sysEx.mSize > 65536); // maximum packet list size
   
-  ByteCount listSize = sysEx.mSize;
-  
-  assert(listSize > 65536); // maximum packet list size
-  
-  MIDIPacketList* pPktlist = (MIDIPacketList*) malloc(listSize);
+  WDL_HeapBuf heapBuf;
+  MIDIPacketList* pPktlist = (MIDIPacketList*) heapBuf.ResizeOK(sysEx.mSize);
   MIDIPacket* pPkt = MIDIPacketListInit(pPktlist);
   
+  ByteCount listSize = heapBuf.GetSize();
   ByteCount bytesLeft = listSize;
   
   while (bytesLeft) {
@@ -2042,8 +2041,6 @@ bool IPlugAU::SendSysEx(const ISysEx& sysEx)
     if (status == noErr)
       result = true;
   }
-  
-  free(pPktlist);
   
   return result;
 }
