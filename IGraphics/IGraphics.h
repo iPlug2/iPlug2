@@ -1062,7 +1062,7 @@ protected:
   template<typename T, typename... Args>
   void ForMatchingControls(T method, int paramIdx, Args... args);
   
-  IGEditorDelegate* mDelegate = nullptr;
+  IGEditorDelegate* mDelegate;
   void* mPlatformContext = nullptr;
   bool mCursorHidden = false;
   bool mCursorLock = false;

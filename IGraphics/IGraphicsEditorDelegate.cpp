@@ -58,20 +58,22 @@ void* IGEditorDelegate::OpenWindow(void* pParent)
 
 void IGEditorDelegate::CloseWindow()
 {
-  IEditorDelegate::CloseWindow();
-  
-  if (mGraphics)
+  if (!mClosing)
   {
-    if (mIGraphicsTransient)
+    mClosing = true;
+    IEditorDelegate::CloseWindow();
+  
+    if (mGraphics)
     {
-      std::unique_ptr<IGraphics> graphics;
-      graphics.swap(mGraphics);
-      graphics->CloseWindow();
-    }
-    else
-    {
+    
       mGraphics->CloseWindow();
+    
+      if (mIGraphicsTransient)
+      {
+        mGraphics.reset(nullptr);
+      }
     }
+    mClosing = false;
   }
 }
 

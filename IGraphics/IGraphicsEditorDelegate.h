@@ -86,4 +86,5 @@ private:
 
   std::unique_ptr<IGraphics> mGraphics;
   bool mIGraphicsTransient = false; // If creating IGraphics on demand this will be true
+  bool mClosing = false; // used to prevent re-etnrancy one closing
 };
