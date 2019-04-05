@@ -162,7 +162,7 @@ static BOOL EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG_PTR p
   return true; // keep enumerating
 }
 
-EResourceLocation FindResource(const char* name, const char* type, WDL_String& result, const char*, void* pHInstance)
+EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char*, void* pHInstance)
 {
   if (CStringHasContents(name))
   {
@@ -248,7 +248,7 @@ void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginNa
 
 using namespace emscripten;
 
-EResourceLocation FindResource(const char* name, const char* type, WDL_String& result, const char*, void*)
+EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char*, void*)
 {
   if (CStringHasContents(name))
   {

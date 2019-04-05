@@ -184,7 +184,7 @@ bool GetResourcePathFromSharedLocation(const char* fileName, const char* searchE
   }
 }
 
-EResourceLocation FindResource(const char* name, const char* type, WDL_String& result, const char* bundleID, void*)
+EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char* bundleID, void*)
 {
   if(CStringHasContents(name))
   {
@@ -234,7 +234,7 @@ void INIPath(WDL_String& path, const char* pluginName)
   path.Set("");
 }
 
-EResourceLocation FindResource(const char* name, const char* type, WDL_String& result, const char* bundleID, void*)
+EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char* bundleID, void*)
 {
   if(CStringHasContents(name))
   {
