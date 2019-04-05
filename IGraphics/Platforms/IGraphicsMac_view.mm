@@ -245,11 +245,6 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
 
 @end
 
-NSString* ToNSString(const char* cStr)
-{
-  return [NSString stringWithCString:cStr encoding:NSUTF8StringEncoding];
-}
-
 inline int GetMouseOver(IGraphicsMac* pGraphics)
 {
   return pGraphics->GetMouseOver();
@@ -976,7 +971,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   [mTextFieldView setTextColor:ToNSColor(text.mTextEntryFGColor)];
   [mTextFieldView setBackgroundColor:ToNSColor(text.mTextEntryBGColor)];
 
-  [mTextFieldView setStringValue: ToNSString(str)];
+  [mTextFieldView setStringValue: [NSString stringWithCString:str encoding:NSUTF8StringEncoding]];
 
 #ifndef COCOA_TEXTENTRY_BORDERED
   [mTextFieldView setBordered: NO];
@@ -1023,7 +1018,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   if (c < 0) return @"";
 
   const char* tooltip = mGraphics->GetControl(c)->GetTooltip();
-  return CStringHasContents(tooltip) ? ToNSString((const char*) tooltip) : @"";
+  return CStringHasContents(tooltip) ? [NSString stringWithCString:tooltip encoding:NSUTF8StringEncoding] : @"";
 }
 
 - (void) registerToolTip: (IRECT&) bounds

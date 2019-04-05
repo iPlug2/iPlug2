@@ -1159,7 +1159,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
   if(!pHolder)
   {
     WDL_String path;
-    EResourceLocation resourceFound = OSFindResource(fileName, "svg", path);
+    EResourceLocation resourceFound = FindResource(fileName, "svg", path, GetBundleID());
 
     if (resourceFound == EResourceLocation::kNotFound)
       return ISVG(nullptr); // return invalid SVG
@@ -1170,7 +1170,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
     if (resourceFound == EResourceLocation::kWinBinary)
     {
       int size = 0;
-      const void* pResData = LoadWinResource(path.Get(), "svg", size);
+      const void* pResData = LoadWinResource(path.Get(), "svg", size, GetWinModuleHandle());
 
       if (pResData)
       {
@@ -1312,7 +1312,7 @@ EResourceLocation IGraphics::SearchImageResource(const char* name, const char* t
       fullName.SetFormatted((int) (strlen(name) + strlen("@2x")), "%s@%dx%s", baseName.Get(), sourceScale, ext.Get());
     }
 
-    EResourceLocation found = OSFindResource(fullName.Get(), type, result);
+    EResourceLocation found = FindResource(fullName.Get(), type, result, GetBundleID());
 
     if (found > EResourceLocation::kNotFound)
       return found;
