@@ -211,16 +211,14 @@ void IGraphics::AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerM
 {
   assert(!mCornerResizer); // only want one corner resizer
 
+  std::unique_ptr<ICornerResizerControl> control(pControl);
+    
   if (!mCornerResizer)
   {
-    mCornerResizer.reset(pControl);
+    mCornerResizer.swap(control);
     mGUISizeMode = sizeMode;
     mLayoutOnResize = layoutOnResize;
     mCornerResizer->SetDelegate(*GetDelegate());
-  }
-  else
-  {
-    delete pControl;
   }
 }
 
@@ -1204,8 +1202,8 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
   if (!pAPIBitmap)
   {
     WDL_String fullPath;
+    std::unique_ptr<APIBitmap> loadedBitmap;
     int sourceScale = 0;
-    bool fromDisk = false;
     
     const char* ext = name + strlen(name) - 1;
     while (ext >= name && *ext != '.') --ext;
@@ -1213,7 +1211,7 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
     
     bool bitmapTypeSupported = BitmapExtSupported(ext);
     
-    if(!bitmapTypeSupported)
+    if (!bitmapTypeSupported)
       return IBitmap(); // return invalid IBitmap
 
     EResourceLocation resourceLocation = SearchImageResource(name, ext, fullPath, targetScale, sourceScale);
@@ -1225,35 +1223,30 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
     }
     else
     {
-      // Try again in cache for mismatched bitmaps, but load from disk if needed
+      // Try in the cache for a mismatched bitmap
       if (sourceScale != targetScale)
         pAPIBitmap = storage.Find(name, sourceScale);
 
+      // Load the resource if no match found
       if (!pAPIBitmap)
       {
-        pAPIBitmap = LoadAPIBitmap(fullPath.Get(), sourceScale, resourceLocation, ext);
-        fromDisk = true;
+        loadedBitmap.reset(LoadAPIBitmap(fullPath.Get(), sourceScale, resourceLocation, ext));
+        pAPIBitmap= loadedBitmap.get();
       }
     }
 
     // Protection from searching for non-existent bitmaps (e.g. typos in config.h or .rc)
     assert(pAPIBitmap);
 
-    const IBitmap bitmap(pAPIBitmap, nStates, framesAreHorizontal, name);
-
-    // Scale if needed
+    // Scale or retain if needed (N.B. - scaling retains in the cache)
     if (pAPIBitmap->GetScale() != targetScale)
     {
-      // Scaling adds to the cache but if we've loaded from disk then we need to dispose of the temporary APIBitmap
-      IBitmap scaledBitmap = ScaleBitmap(bitmap, name, targetScale);
-      if (fromDisk)
-        delete pAPIBitmap;
-      return scaledBitmap;
+      return ScaleBitmap(IBitmap(pAPIBitmap, nStates, framesAreHorizontal, name), name, targetScale);
     }
-
-    // Retain if we've newly loaded from disk
-    if (fromDisk)
-      RetainBitmap(bitmap, name);
+    else if (loadedBitmap)
+    {
+      RetainBitmap(IBitmap(loadedBitmap.release(), nStates, framesAreHorizontal, name), name);
+    }
   }
 
   return IBitmap(pAPIBitmap, nStates, framesAreHorizontal, name);
