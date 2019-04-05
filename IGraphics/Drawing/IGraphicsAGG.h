@@ -52,9 +52,11 @@ private:
 class AGGBitmap : public APIBitmap
 {
 public:
-  AGGBitmap(agg::pixel_map* pPixMap, int scale, float drawScale, bool preMultiplied) : APIBitmap (pPixMap, pPixMap->width(), pPixMap->height(), scale, drawScale), mPreMultiplied(preMultiplied) {}
+  AGGBitmap(agg::pixel_map* pPixMap, int scale, float drawScale, bool preMultiplied)
+    : APIBitmap(pPixMap, pPixMap->width(), pPixMap->height(), scale, drawScale), mPreMultiplied(preMultiplied)
+    {}
   virtual ~AGGBitmap() { delete GetBitmap(); }
-    bool IsPreMultiplied() const { return mPreMultiplied; }
+  bool IsPreMultiplied() const { return mPreMultiplied; }
 private:
   bool mPreMultiplied;
 };
