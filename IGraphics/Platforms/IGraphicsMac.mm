@@ -110,7 +110,7 @@ bool IGraphicsMac::IsSandboxed()
 IGraphics::PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fileNameOrResID)
 {
   WDL_String fullPath;
-  const EResourceLocation fontLocation = FindResource(fileNameOrResID, "ttf", fullPath, GetBundleID());
+  const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, GetBundleID());
     
   if (fontLocation == kNotFound)
     return nullptr;
