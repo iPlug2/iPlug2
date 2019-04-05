@@ -150,65 +150,77 @@ def main():
   global VERSION
   print("\nIPlug Project Duplicator v" + VERSION + " by Oli Larkin ------------------------------\n")
 
-  if len(sys.argv) != 4:
-    print("Usage: duplicate.py inputprojectname outputprojectname manufacturername")
+  numargs = len(sys.argv) - 1
+  if not (numargs == 3 or numargs == 4):
+    print("Usage: duplicate.py inputprojectname outputprojectname manufacturername (outputprojectpath)")
     sys.exit(1)
   else:
-    input=sys.argv[1]
-    output=sys.argv[2]
+    inputprojectname=sys.argv[1]
+    outputprojectname=sys.argv[2]
     manufacturer=sys.argv[3]
 
-    if ' ' in input:
-      print("error: input project name has spaces")
-      sys.exit(1)
+  if numargs == 4:
+    outputbasepath=os.path.abspath(sys.argv[4])
+  else:
+    outputbasepath=os.getcwd()
 
-    if ' ' in output:
-      print("error: output project name has spaces")
-      sys.exit(1)
+  if not (os.path.isdir(outputbasepath)):
+    print("error: Output path does not exist")
+    sys.exit(1)
 
-    if ' ' in manufacturer:
-      print("error: manufacturer name has spaces")
-      sys.exit(1)
+  #outputpath = outputbasepath + "/" + outputprojectname
+  outputpath = os.path.join(outputbasepath, outputprojectname)
 
-    # remove a trailing slash if it exists
-    if input[-1:] == "/":
-      input = input[0:-1]
+  if ' ' in inputprojectname:
+    print("error: input project name has spaces")
+    sys.exit(1)
 
-    if output[-1:] == "/":
-      output = output[0:-1]
+  if ' ' in outputprojectname:
+    print("error: output project name has spaces")
+    sys.exit(1)
 
-    #check that the folders are OK
-    if os.path.isdir(input) == False:
-      print("error: input project not found")
-      sys.exit(1)
+  if ' ' in manufacturer:
+    print("error: manufacturer name has spaces")
+    sys.exit(1)
 
-    if os.path.isdir(output):
-      print("error: output folder allready exists")
-      sys.exit(1)
-    # rmtree(output)
+  # remove a trailing slash if it exists
+  if inputprojectname[-1:] == "/":
+    inputprojectname = inputprojectname[0:-1]
 
-    print("copying " + input + " folder to " + output)
-    copytree(input, output, ignore=ignore_patterns(*DONT_COPY))
-    cpath = os.path.join(os.getcwd(), output)
+  if outputprojectname[-1:] == "/":
+    outputprojectname = outputprojectname[0:-1]
 
-    #replace manufacturer name strings
-    for dir in dirwalk(cpath, input, output, "AcmeInc", manufacturer):
-      pass
+  #check that the folders are OK
+  if os.path.isdir(inputprojectname) == False:
+    print("error: input project not found")
+    sys.exit(1)
 
-    print("\ncopying gitignore template into project folder\n")
+  if os.path.isdir(outputpath):
+    print("error: output project allready exists")
+    sys.exit(1)
+  # rmtree(output)
 
-    copy('gitignore_template', output + "/.gitignore")
+  print("copying " + inputprojectname + " folder to " + outputpath)
+  copytree(inputprojectname, outputpath, ignore=ignore_patterns(*DONT_COPY))
 
-    config = parse_config(output)
+  #replace manufacturer name strings
+  for dir in dirwalk(outputpath, inputprojectname, outputprojectname, "AcmeInc", manufacturer):
+    pass
 
-    config["PLUG_UNIQUE_ID"] = randomFourChar()
+  print("\ncopying gitignore template into project folder\n")
 
-    set_uniqueid(output, config["PLUG_UNIQUE_ID"])
+  copy('gitignore_template', outputpath + "/.gitignore")
 
-    pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(config)
+  config = parse_config(outputpath)
 
-    print("\ndone - don't forget to change MFR_UID in config.h")
+  config["PLUG_UNIQUE_ID"] = randomFourChar()
+
+  set_uniqueid(outputpath, config["PLUG_UNIQUE_ID"])
+
+  pp = pprint.PrettyPrinter(indent=4)
+  pp.pprint(config)
+
+  print("\ndone - don't forget to change MFR_UID in config.h")
 
 if __name__ == '__main__':
   main()
