@@ -1573,3 +1573,36 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
     
   ApplyShadowMask(layer, temp1, shadow);
 }
+
+bool IGraphics::LoadFont(const char* fileNameOrResID)
+{
+  WDL_String fontWithoutExt(fileNameOrResID);
+  fontWithoutExt.remove_fileext();
+  const char* fontID = fontWithoutExt.get_filepart();
+  PlatformFontPtr font = LoadPlatformFont(fileNameOrResID);
+  
+  if (font && font->IsValid())
+  {
+    if (LoadAPIFont(fontID, font))
+      return true;
+  }
+  
+  DBGMSG("Could not locate font %s\n", fileNameOrResID);
+  return false;
+}
+
+bool IGraphics::LoadFont(const char* fontID, IText::EStyle style)
+{
+  IText text(0, DEFAULT_TEXT_FGCOLOR, fontID, style);
+  WDL_String fontWithStyle = text.GetFontWithStyle();
+  PlatformFontPtr font = LoadPlatformFont(text);
+  
+  if (font && font->IsValid())
+  {
+    if (LoadAPIFont(fontID, font))
+      return true;
+  }
+  
+  DBGMSG("Could not locate font %s\n", fontID);
+  return false;
+}

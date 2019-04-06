@@ -72,9 +72,6 @@ public:
   void SetPlatformContext(void* pContext) override;
   void DrawResize() override;
 
-  bool LoadFont(const char* fileNameOrResID) override;
-  bool LoadFont(const char* fontName, IText::EStyle style) override;
-
   bool BitmapExtSupported(const char* ext) override;
 
 protected:
@@ -82,6 +79,8 @@ protected:
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
   APIBitmap* CreateAPIBitmap(int width, int height) override;
 
+  bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font);
+    
   int AlphaChannel() const override { return 3; }
   bool FlippedBitmap() const override { return false; }
 

@@ -111,6 +111,15 @@ private:
 class IGraphicsNanoVG : public IGraphicsPathBase
 {
 public:
+    
+  struct NanoVGFontData : private WDL_TypedBuf<unsigned char>
+  {
+    NanoVGFontData(const IGraphics::PlatformFontPtr& font);
+    
+    unsigned char* Get() { return WDL_TypedBuf<unsigned char>::Get(); }
+    int GetSize() const { return WDL_TypedBuf<unsigned char>::GetSize(); }
+  };
+  
   const char* GetDrawingAPIStr() override;
 
   IGraphicsNanoVG(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
@@ -145,15 +154,14 @@ public:
   void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override { }; // NO-OP
   bool BitmapExtSupported(const char* ext) override;
 
-  bool LoadFont(const char* fileNameOrResID) override;
-  bool LoadFont(const char* fontName, IText::EStyle style) override;
-
   void DeleteFBO(NVGframebuffer* pBuffer);
     
 protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override { return new APIBitmap(); } // NO-OP
   APIBitmap* CreateAPIBitmap(int width, int height) override;
+
+  bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override;
 
   int AlphaChannel() const override { return 3; }
   

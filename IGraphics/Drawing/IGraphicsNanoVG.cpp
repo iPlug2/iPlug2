@@ -74,6 +74,23 @@
   #error you must define either IGRAPHICS_GL2, IGRAPHICS_GLES2 etc or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
 #endif
 
+
+// Fonts
+
+StaticStorage<IGraphicsNanoVG::NanoVGFontData> sFontCache;
+
+IGraphicsNanoVG::NanoVGFontData::NanoVGFontData(const IGraphics::PlatformFontPtr& font)
+{
+  int size = font->GetFontDataSize();
+  const unsigned char* src = reinterpret_cast<const unsigned char*>(font->GetFontData());
+  unsigned char* dest = ResizeOK(size);
+    
+  if (dest)
+    std::copy(src, src + size, dest);
+}
+
+// Retriving pixels
+
 void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData)
 {
 #if defined(IGRAPHICS_GL)
@@ -92,23 +109,7 @@ void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int
 #endif
 }
 
-// Font storage for system fonts
-
-struct SystemFont
-{
-  SystemFont(const void *data, int size)
-  {
-    const unsigned char* src = reinterpret_cast<const unsigned char*>(data);
-    unsigned char* dest = mData.ResizeOK(size);
-    
-    if (dest)
-      std::copy(src, src + size, dest);
-  }
-    
-  WDL_TypedBuf<unsigned char> mData;
-};
-
-StaticStorage<SystemFont> sFontCache;
+// Bitmaps
 
 NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID)
 {
@@ -226,13 +227,13 @@ IGraphicsNanoVG::IGraphicsNanoVG(IGEditorDelegate& dlg, int w, int h, int fps, f
 : IGraphicsPathBase(dlg, w, h, fps, scale)
 {
   DBGMSG("IGraphics NanoVG @ %i FPS\n", fps);
-  StaticStorage<SystemFont>::Accessor storage(sFontCache);
+  StaticStorage<NanoVGFontData>::Accessor storage(sFontCache);
   storage.Release();
 }
 
 IGraphicsNanoVG::~IGraphicsNanoVG() 
 {
-  StaticStorage<SystemFont>::Accessor storage(sFontCache);
+  StaticStorage<NanoVGFontData>::Accessor storage(sFontCache);
   storage.Release();
   ClearFBOStack();
 }
@@ -711,66 +712,21 @@ void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& opti
     nvgBeginPath(mVG); // Clears the path state
 }
 
-bool IGraphicsNanoVG::LoadFont(const char* fileNameOrResID)
+bool IGraphicsNanoVG::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 {
-  // does not check for existing fonts
-  WDL_String fontNameWithoutExt(fileNameOrResID);
-  fontNameWithoutExt.remove_fileext();
-  WDL_String fullPath;
-  EResourceLocation foundResource = LocateResource(fileNameOrResID, "ttf", fullPath, GetBundleID(), GetWinModuleHandle());
- 
-  if (foundResource != EResourceLocation::kNotFound)
-  {
-    int fontID = -1;
+  StaticStorage<NanoVGFontData>::Accessor storage(sFontCache);
 
-#ifdef OS_WIN
-    if (foundResource == EResourceLocation::kWinBinary)
-    {
-      int sizeInBytes = 0;
-      const void* pResData = LoadWinResource(fullPath.Get(), "ttf", sizeInBytes, GetWinModuleHandle());
-
-      if (pResData && sizeInBytes)
-        fontID = nvgCreateFontMem(mVG, fontNameWithoutExt.Get(), (unsigned char*) pResData, sizeInBytes, 0 /* ?? */);
-    }
-    else
-#endif
-    fontID = nvgCreateFont(mVG, fontNameWithoutExt.Get(), fullPath.Get());
-
-    if (fontID != -1)
-      return true;
-  }
-
-  DBGMSG("Could not locate font %s\n", fileNameOrResID);
-  return false;
-}
-
-bool IGraphicsNanoVG::LoadFont(const char* fontName, IText::EStyle style)
-{
-  IText text(0, DEFAULT_TEXT_FGCOLOR, fontName, style);
-  
-  WDL_String fontWithStyle = text.GetFontWithStyle();
-  
-  if (nvgFindFont(mVG, fontWithStyle.Get()) != -1)
+  if (storage.Find(fontID))
     return true;
     
-  PlatformFontPtr font = LoadPlatformFont(text);
+  std::unique_ptr<AGGFont> data(new NanoVGFontData(font));
     
-  if (font)
+  if (nvgCreateFontFaceMem(mVG, fontID, data->Get(), data->GetSize(), font->GetFaceIdx(), 0) != -1)
   {
-    StaticStorage<SystemFont>::Accessor storage(sFontCache);
-    const unsigned char* fontData = (const unsigned char*) font->GetFontData();
-    int faceIdx = font->GetFaceIdx();
-      
-    if (faceIdx >= 0)
-    {
-      SystemFont* pFont = new SystemFont(fontData, font->GetFontDataSize());
-      storage.Add(pFont, fontWithStyle.Get());
-      nvgCreateFontFaceMem(mVG, fontWithStyle.Get(), pFont->mData.Get(), pFont->mData.GetSize(), faceIdx, 0);
-    }
+    storage.Add(fontData.release(), fontID);
     return true;
   }
-  
-  DBGMSG("Could not locate font %s\n", fontName);
+
   return false;
 }
 

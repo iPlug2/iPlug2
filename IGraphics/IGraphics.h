@@ -76,11 +76,12 @@ protected:
     PlatformFont(const char* styleName) : mStyleName(styleName) {}
     virtual ~PlatformFont() {}
 
+    bool IsValid() { return GetFaceIdx() >= 0; }
     virtual const void* GetFont() { return nullptr; }
     virtual const void* GetFontData() { return nullptr; }
     virtual int GetFontDataSize() { return 0; }
     int GetFaceIdx();
-      
+    
     WDL_String mStyleName;
   };
 
@@ -465,6 +466,15 @@ public:
 
   virtual void DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints = nullptr, const IBlend* pBlend = 0, float thickness = 1.f);
   
+  /** @param fileNameOrResID A CString absolute path or resource ID
+    * @return \c true on success */
+  virtual bool LoadFont(const char* fileNameOrResID);
+    
+  /** @param fontName A CString font name
+   * @param style A font style
+   * @return \c true on success */
+  bool LoadFont(const char* fontName, IText::EStyle style);
+    
 #pragma mark - IGraphics drawing API layer support
     
   void StartLayer(const IRECT& r);
@@ -1029,15 +1039,6 @@ public:
    * @param fileNameOrResID A CString absolute path or resource ID
    * @return An ISVG representing the image */
   virtual ISVG LoadSVG(const char* fileNameOrResID, const char* units = "px", float dpi = 72.f);
-
-  /** @param fileNameOrResID A CString absolute path or resource ID
-   * @return \c true on success */
-  virtual bool LoadFont(const char* fileNameOrResID) { return false; }
-    
-  /** @param fontName A CString font name
-   * @param style A font style
-   * @return \c true on success */
-  virtual bool LoadFont(const char* fontName, IText::EStyle style) { return false; }
   
 protected:
   virtual void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") = 0;
@@ -1048,7 +1049,9 @@ protected:
   virtual APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) = 0;
   virtual APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) = 0;
   virtual APIBitmap* CreateAPIBitmap(int width, int height) = 0;
-    
+
+  virtual bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) = 0;
+
   virtual int AlphaChannel() const = 0;
   virtual bool FlippedBitmap() const = 0;
 

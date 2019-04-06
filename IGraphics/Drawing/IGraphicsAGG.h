@@ -76,18 +76,17 @@ public:
     LineInfo() : mWidth(0.0), mStartChar(0), mEndChar(0) {}
   };
 
-  class AGGFont
+  class AGGFont : private WDL_TypedBuf<char>
   {
   public:
     
-    AGGFont(const char* data, int size, int faceIdx);
+    AGGFont(const PlatformFontPtr& font);
     
-    const char* buf() { return mData.Get(); };
-    int size() const { return mData.GetSize(); };
+    const char* Get()   { return WDL_TypedBuf<char>::Get(); };
+    int GetSize() const { return WDL_TypedBuf<char>::GetSize(); };
     int faceIdx() const { return mFaceIdx; };
     
   private:
-    WDL_TypedBuf<char> mData;
     int mFaceIdx;
   };
   
@@ -302,13 +301,12 @@ public:
   
   bool BitmapExtSupported(const char* ext) override;
 
-  bool LoadFont(const char* fileNameOrResID) override;
-  bool LoadFont(const char* fontName, IText::EStyle style) override;
-
 protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int s) override;
   APIBitmap* CreateAPIBitmap(int width, int height) override;
+
+  bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override;
 
   int AlphaChannel() const override { return PixelOrder().A; }
   bool FlippedBitmap() const override { return false; }
@@ -320,7 +318,7 @@ protected:
 
 private:
   
-  void SetFont(const char* name,AGGFont* pFont, int faceIdx);
+  bool SetFont(const char* fontID, AGGFont* pFont);
 
   void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& bounds, const char* str, FontManagerType& manager);
 

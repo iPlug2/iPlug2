@@ -592,49 +592,15 @@ void IGraphicsCairo::EndFrame()
 #endif
 }
 
-bool IGraphicsCairo::LoadFont(const char* fileNameOrResID)
+bool IGraphicsCairo::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 {
   StaticStorage<CairoFont>::Accessor storage(sFontCache);
-
-  WDL_String fontNameWithoutExt(fileNameOrResID);
-  fontNameWithoutExt.remove_fileext();
-  const char* fontName = fontNameWithoutExt.get_filepart();
   
-  if (storage.Find(fontName))
+  if (storage.Find(fontID))
     return true;
 
-  PlatformFontPtr font = LoadPlatformFont(fileNameOrResID);
-    
-  if (font)
-  {
-    storage.Add(new CairoPlatformFont(font->GetFont()), fontName);
-    return true;
-  }
-  
-  DBGMSG("Could not locate font %s\n", fileNameOrResID);
-  return false;
-}
-
-bool IGraphicsCairo::LoadFont(const char* fontName, IText::EStyle style)
-{
-  StaticStorage<CairoFont>::Accessor storage(sFontCache);
-  IText text(0, DEFAULT_TEXT_FGCOLOR, fontName, style);
-    
-  WDL_String fontWithStyle = text.GetFontWithStyle();
-  
-  if (storage.Find(fontWithStyle.Get()))
-    return true;
-  
-  PlatformFontPtr font = LoadPlatformFont(text);
-  
-  if (font)
-  {
-    storage.Add(new CairoPlatformFont(font->GetFont()), fontWithStyle.Get());
-    return true;
-  }
-
-  DBGMSG("Could not locate font %s\n", fontName);
-  return false;
+  storage.Add(new CairoPlatformFont(font->GetFont()), fontID);
+  return true;
 }
 
 cairo_font_face_t* IGraphicsCairo::FindFont(const IText& text)

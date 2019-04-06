@@ -13,16 +13,18 @@
 
 #include "IGraphicsAGG.h"
 
+// Fonts
+
 static StaticStorage<IGraphicsAGG::AGGFont> sFontCache;
 
-// Font
-
-IGraphicsAGG::AGGFont::AGGFont(const char* data, int size, int faceIdx) : mFaceIdx(faceIdx)
+IGraphicsAGG::AGGFont::AGGFont(const PlatformFontPtr& font) : mFaceIdx(font->GetFaceIdx())
 {
-  char* buffer = mData.ResizeOK(size);
+  int size = font->GetFontDataSize();
+  const char* src = reinterpret_cast<const char*>(font->GetFontData());
+  char* dest = ResizeOK(size);
 
-  if (buffer)
-    std::copy(data, data + size, buffer);
+  if (dest)
+    std::copy(src, src + size, dest);
 }
 
 // Utility
@@ -204,13 +206,13 @@ IGraphicsAGG::IGraphicsAGG(IGEditorDelegate& dlg, int w, int h, int fps, float s
 {
   DBGMSG("IGraphics AGG @ %i FPS\n", fps);
     
-  StaticStorage<IGraphicsAGG::AGGFont>::Accessor storage(sFontCache);
+  StaticStorage<AGGFont>::Accessor storage(sFontCache);
   storage.Retain();
 }
 
 IGraphicsAGG::~IGraphicsAGG()
 {
-  StaticStorage<IGraphicsAGG::AGGFont>::Accessor storage(sFontCache);
+  StaticStorage<AGGFont>::Accessor storage(sFontCache);
   storage.Release();
 }
 
@@ -229,56 +231,21 @@ void IGraphicsAGG::UpdateLayer()
   mRenBuf.attach(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
 }
 
-bool IGraphicsAGG::LoadFont(const char* fileNameOrResID)
+bool IGraphicsAGG::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 {
   StaticStorage<AGGFont>::Accessor storage(sFontCache);
-
-  WDL_String fontNameWithoutExt(fileNameOrResID);
-  fontNameWithoutExt.remove_fileext();
-  const char* fontName = fontNameWithoutExt.get_filepart();
   
-  if (storage.Find(fontName))
+  if (storage.Find(fontID))
     return true;
     
-  PlatformFontPtr font = LoadPlatformFont(fileNameOrResID);
- 
-  if (font)
-  {
-    const char* data = reinterpret_cast<const char*>(font->GetFontData());
-    int size = font->GetFontDataSize();
-    AGGFont* pFont = new AGGFont(data, size, font->GetFaceIdx());
-    SetFont(fontName, pFont, font->GetFaceIdx());
-    storage.Add(pFont, fontName, 0);
-    return true;
-  }
-  
-  DBGMSG("Could not locate font %s\n", fileNameOrResID);
-  return false;
-}
-
-bool IGraphicsAGG::LoadFont(const char* fontName, IText::EStyle style)
-{
-  StaticStorage<AGGFont>::Accessor storage(sFontCache);
-  IText text(0, DEFAULT_TEXT_FGCOLOR, fontName, style);
-
-  WDL_String fontWithStyle = text.GetFontWithStyle();
+  std::unique_ptr<AGGFont> aggFont(new AGGFont(font));
     
-  if (storage.Find(fontWithStyle.Get(), 0))
-    return true;
-  
-  PlatformFontPtr font = LoadPlatformFont(text);
-
-  if (font)
+  if (SetFont(fontID, aggFont.get()))
   {
-    const char* data = reinterpret_cast<const char*>(font->GetFontData());
-    int size = font->GetFontDataSize();
-    AGGFont* pFont = new AGGFont(data, size, font->GetFaceIdx());
-    SetFont(fontWithStyle.Get(), pFont, font->GetFaceIdx());
-    storage.Add(pFont, fontWithStyle.Get(), 0);
+    storage.Add(aggFont.release(), fontID);
     return true;
   }
-  
-  DBGMSG("Could not locate font %s\n", fontName);
+
   return false;
 }
 
@@ -648,9 +615,10 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IREC
   }
 }
 
-void IGraphicsAGG::SetFont(const char* name, AGGFont* pFont, int faceIdx)
+bool IGraphicsAGG::SetFont(const char* fontID, AGGFont* pFont)
 {
-  mFontEngine.load_font(name, faceIdx, agg::glyph_ren_outline, pFont->buf(), pFont->size());
+  agg::glyph_rendering render = agg::glyph_ren_outline;
+  return mFontEngine.load_font(fontID, pFont->faceIdx(), render, pFont->Get(), pFont->GetSize());
 }
 
 bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
@@ -667,16 +635,17 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
   mFontContour.width(-weight * (text.mSize * 0.05));
   
   StaticStorage<AGGFont>::Accessor storage(sFontCache);
-  AGGFont* pFont = storage.Find(text.mFont, 0);
-  WDL_String fontWithStyle = text.GetFontWithStyle();
+  WDL_String fontID(text.mFont);
+  AGGFont* pFont = storage.Find(fontID.Get());
+    
+  if (!pFont)
+  {
+    fontID = text.GetFontWithStyle();
+    pFont = storage.Find(fontID.Get());
+  }
   
-  if (pFont)
-    SetFont(text.mFont, pFont, pFont->faceIdx());
-  else if ((pFont = storage.Find(fontWithStyle.Get(), 0)))
-    SetFont(fontWithStyle.Get(), pFont, pFont->faceIdx());
-  else
+  if (!pFont || !SetFont(fontID.Get(), pFont))
     assert(0 && "No font found - did you forget to load it?");
-  
   mFontEngine.hinting(hinting);
   mFontEngine.height(text.mSize);
   mFontEngine.width(text.mSize);
