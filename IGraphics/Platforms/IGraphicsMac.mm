@@ -89,6 +89,14 @@ bool IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds
 #endif
 }
 
+void IGraphicsMac::ContextReady(void* pLayer)
+{
+  OnViewInitialized(pLayer);
+  SetScreenScale([[NSScreen mainScreen] backingScaleFactor]);
+  GetDelegate()->LayoutUI(this);
+  UpdateTooltips();
+}
+
 void* IGraphicsMac::OpenWindow(void* pParent)
 {
   TRACE;
@@ -96,19 +104,15 @@ void* IGraphicsMac::OpenWindow(void* pParent)
   mView = (IGRAPHICS_VIEW*) [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
   
   IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
-
-  OnViewInitialized([pView layer]);
   
-  SetScreenScale([[NSScreen mainScreen] backingScaleFactor]);
-    
-  GetDelegate()->LayoutUI(this);
-
+#ifndef IGRAPHICS_GL
+  ContextReady([pView layer]);
+#endif
+  
   if (pParent) // Cocoa VST host.
   {
     [(NSView*) pParent addSubview: (IGRAPHICS_VIEW*) mView];
   }
-
-  UpdateTooltips();
 
   return mView;
 }

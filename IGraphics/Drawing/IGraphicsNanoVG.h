@@ -37,6 +37,12 @@
   #define IGRAPHICS_GL
   #if defined OS_WIN
     #include <glad/glad.h>
+  #elif defined OS_MAC
+    #if defined IGRAPHICS_GL2
+      #include <OpenGL/gl.h>
+    #elif defined IGRAPHICS_GL3
+      #include <OpenGL/gl3.h>
+    #endif
   #else
     #include <OpenGL/gl.h>
   #endif
@@ -82,6 +88,13 @@
   typedef NVGLUframebuffer NVGframebuffer;
 #elif defined IGRAPHICS_METAL
   typedef MNVGframebuffer NVGframebuffer;
+#endif
+
+//FIXME: for some reason the render to offscreen frame buffer approach, causes strobing with macOS GL, so set everything dirty...
+#if defined IGRAPHICS_GL && defined IGRAPHICS_NANOVG
+  #define RENDER_TO_FBO 0
+#else
+  #define RENDER_TO_FBO 1
 #endif
 
 void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData);

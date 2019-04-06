@@ -59,6 +59,9 @@
     GLFWwindow* gWindow;
     void GLFWError(int error, const char* desc) { DBGMSG("GLFW error %d: %s\n", error, desc); }
   #endif
+  #if defined IGRAPHICS_GL3
+    #include <OpenGL/gl3.h>
+  #endif
   #include "nanovg_gl.h"
   #include "nanovg_gl_utils.h"
 #elif defined IGRAPHICS_METAL
@@ -453,7 +456,7 @@ void IGraphicsNanoVG::BeginFrame()
   //  mnvgClearWithColor(mVG, nvgRGBAf(0, 0, 0, 0));
 #else
   glViewport(0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClearColor(0.f, 0.f, 0.f, 0.f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
   #ifdef OS_WEB
   glEnable(GL_BLEND);
@@ -463,19 +466,23 @@ void IGraphicsNanoVG::BeginFrame()
   #endif
 #endif
   
+#if RENDER_TO_FBO
   nvgBindFramebuffer(mMainFrameBuffer); // begin main frame buffer update
+#endif
+  
   nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
 }
 
 void IGraphicsNanoVG::EndFrame()
 {
+#if RENDER_TO_FBO
   nvgEndFrame(mVG); // end main frame buffer update
   nvgBindFramebuffer(nullptr);
-  
+
   nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
 
   NVGpaint img = nvgImagePattern(mVG, 0, 0, WindowWidth(), WindowHeight(), 0, mMainFrameBuffer->image, 1.0f);
-  
+
   nvgSave(mVG);
   nvgResetTransform(mVG);
   nvgBeginPath(mVG);
@@ -483,11 +490,12 @@ void IGraphicsNanoVG::EndFrame()
   nvgFillPaint(mVG, img);
   nvgFill(mVG);
   nvgRestore(mVG);
+#endif
   
   nvgEndFrame(mVG);
   mInDraw = false;
   ClearFBOStack();
-    
+
 #if defined OS_WEB
   glEnable(GL_DEPTH_TEST);
 #endif
