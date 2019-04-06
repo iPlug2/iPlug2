@@ -20,6 +20,20 @@ using namespace emscripten;
 
 extern IGraphics* gGraphics;
 
+// Font
+
+IGraphicsWeb::WebFont::WebFont(const char* fontName, const char* styleName, void* data, int size)
+ : PlatformFont(styleName), mName(fontName)
+{
+  const unsigned char* src = reinterpret_cast<const unsigned char*>(data);
+  unsigned char* dest = ResizeOK(size);
+  
+  if (dest)
+    std::copy(src, src + size, dest);
+}
+
+// Key combos
+
 static int domVKToWinVK(int dom_vk_code)
 {
   switch(dom_vk_code)
@@ -332,6 +346,8 @@ EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* pEvent, void* 
   return true;
 }
 
+#pragma mark -
+
 IGraphicsWeb::IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
 {
@@ -535,6 +551,44 @@ void IGraphicsWeb::DrawResize()
   canvas.set("height", Height() * GetBackingPixelScale());
   
   IGRAPHICS_DRAW_CLASS::DrawResize();
+}
+
+IGraphics::PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fileNameOrResID)
+{
+  WDL_String fullPath;
+  const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, GetBundleID(), nullptr);
+  
+  if (fontLocation == kNotFound)
+    return nullptr;
+
+  FILE* fp = fopen(fullPath.Get(), "rb");
+  
+  // Read in the font data.
+
+  if (!fp)
+    return nullptr;
+  
+  WDL_TypedBuf<char> data;
+
+  fseek(fp,0,SEEK_END);
+  char* buffer = data.ResizeOK((int)ftell(fp));
+
+  if (!buffer)
+    return nullptr;
+  
+  fseek(fp,0,SEEK_SET);
+  size_t readSize = fread(buffer, 1, data.GetSize(), fp);
+  fclose(fp);
+    
+  if (readSize == data.GetSize())
+    return PlatformFontPtr(new WebFont("", "", data.Get(), data.GetSize()));
+
+  return nullptr;
+}
+
+IGraphics::PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const IText& text)
+{
+  return nullptr;
 }
 
 #if defined IGRAPHICS_CANVAS

@@ -19,6 +19,9 @@
 
 #include "IGraphics_select.h"
 
+#include "heapbuf.h"
+
+
 using namespace emscripten;
 
 static val GetCanvas()
@@ -36,6 +39,19 @@ static val GetPreloadedImages()
 class IGraphicsWeb final : public IGRAPHICS_DRAW_CLASS
 {
 public:
+    
+  struct WebFont : public PlatformFont, private WDL_TypedBuf<unsigned char>
+  {
+  public:
+    WebFont(const char* fontName, const char* styleName, void* data, int size);
+    
+    const void* GetFont() override { return reinterpret_cast<const void*>(mName.Get()); }
+    const void* GetFontData() override { return Get();};
+    int GetFontDataSize() override  { return GetSize();};
+    
+    WDL_String mName;
+  };
+  
   IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsWeb();
 
@@ -69,4 +85,8 @@ public:
 protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
+    
+private:
+  PlatformFontPtr LoadPlatformFont(const char* fileNameOrResID) override;
+  PlatformFontPtr LoadPlatformFont(const IText& text) override;
 };
