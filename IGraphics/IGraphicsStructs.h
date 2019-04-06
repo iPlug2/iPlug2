@@ -57,6 +57,8 @@ typedef std::chrono::high_resolution_clock Time;
 typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimePoint;
 typedef std::chrono::duration<double, std::chrono::milliseconds::period> Milliseconds;
 
+typedef WDL_TypedBuf<unsigned char> RawBitmapData;
+
 #ifdef IGRAPHICS_AGG
   #include "IGraphicsAGG_src.h"
   typedef agg::pixel_map* BitmapData;
@@ -89,12 +91,19 @@ typedef std::chrono::duration<double, std::chrono::milliseconds::period> Millise
 class APIBitmap
 {
 public:
-  APIBitmap(BitmapData pBitmap, int w, int h, int s, float ds)
+  
+  /** APIBitmap constructor
+  * @param pBitmap pointer or integer index (NanoVG) to the image data
+  * @param w The width of the bitmap
+  * @param h The height of the bitmap
+  * @param scale An integer representing the scale of this bitmap in relation to a 1:1 pixel screen, e.g. 2 for an @2x bitmap
+  * @param drawScale The draw scale at which this API bitmap was created (used in the context of layers) */
+  APIBitmap(BitmapData pBitmap, int w, int h, int scale, float drawScale)
   : mBitmap(pBitmap)
   , mWidth(w)
   , mHeight(h)
-  , mScale(s)
-  , mDrawScale(ds)
+  , mScale(scale)
+  , mDrawScale(drawScale)
   {}
 
   APIBitmap()
@@ -107,13 +116,19 @@ public:
 
   virtual ~APIBitmap() {}
 
-  void SetBitmap(BitmapData pBitmap, int w, int h, int s, float ds)
+  /** Used to initialise the members after construction
+   * @param pBitmap pointer or integer index (NanoVG) to the image data
+   * @param w The width of the bitmap
+   * @param h The height of the bitmap
+   * @param scale An integer representing the scale of this bitmap in relation to a 1:1 pixel screen, e.g. 2 for an @2x bitmap
+   * @param drawScale The draw scale at which this API bitmap was created (used in the context of layers) */
+  void SetBitmap(BitmapData pBitmap, int w, int h, int scale, float drawScale)
   {
     mBitmap = pBitmap;
     mWidth = w;
     mHeight = h;
-    mScale = s;
-    mDrawScale = ds;
+    mScale = scale;
+    mDrawScale = drawScale;
   }
 
   BitmapData GetBitmap() const { return mBitmap; }
@@ -131,18 +146,16 @@ private:
 };
 
 /** User-facing bitmap abstraction that you use to manage bitmap data, independant of draw class/platform.
- * IBitmap doesn't actually own the image data @see APIBitmap
+ * IBitmap doesn't actually own the image data \see APIBitmap
  * An IBitmap's width and height are always in relation to a 1:1 (low dpi) screen. Any scaling happens at the drawing stage. */
 class IBitmap
 {
 public:
-  /** Creates a new IBitmap object
-  * @param pData Pointer to the raw bitmap data
-  * @param w Bitmap width (in pixels)
-  * @param h Bitmap height (in pixels)
-  * @param n Number of frames (for multi frame bitmaps)
-  * @param framesAreHorizontal \c true if the frames are positioned horizontally
-  * @param name Resource name for the bitmap */
+  /** IBitmap Constructor
+   @param pAPIBitmap Pointer to a drawing API bitmap
+   @param n Number of frames (for multi frame film-strip bitmaps)
+   @param framesAreHorizontal framesAreHorizontal \c true if the frames are positioned horizontally
+   @param name Resource name for the bitmap */
   IBitmap(APIBitmap* pAPIBitmap, int n, bool framesAreHorizontal, const char* name = "")
     : mAPIBitmap(pAPIBitmap)
     , mW(pAPIBitmap->GetWidth() / pAPIBitmap->GetScale())
@@ -394,8 +407,7 @@ struct IBlend
 
   /** Creates a new IBlend
    * @param type Blend type (defaults to none)
-   * @param weight normalised alpha blending amount
-  */
+   * @param weight normalised alpha blending amount */
   IBlend(EBlendType type = kBlendDefault, float weight = 1.0f)
   : mMethod(type)
   , mWeight(Clip(weight, 0.f, 1.f))
@@ -435,9 +447,9 @@ struct IStrokeOptions
   public:
     int GetCount() const { return mCount; }
     float GetOffset() const { return mOffset; }
-    const float *GetArray() const { return mArray; }
+    const float* GetArray() const { return mArray; }
 
-    void SetDash(float *array, float offset, int count)
+    void SetDash(float* array, float offset, int count)
     {
       assert(count >= 0 && count <= 8);
 

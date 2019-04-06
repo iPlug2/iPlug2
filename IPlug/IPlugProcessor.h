@@ -78,7 +78,7 @@ public:
   virtual bool SendMidiMsg(const IMidiMsg& msg) = 0;
 
   /** Send a collection of MIDI messages // TODO: info about what thread should this be called on or not called on!
-   * @param msg The IMidiMsg to send
+   * @param msgs The IMidiMsg to send
    * @return \c true if successful */
   virtual bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs);
 
@@ -216,19 +216,19 @@ public:
    * * For example a 4 channel plug-in that deals with FuMa BFormat first order ambisonic material, might label these channels
    "W", "X", "Y", "Z", rather than the default "input 1", "input 2", "input 3", "input 4"
    * @param idx The index of the channel that you wish to label
-   * @param limited printf style format string to compose label for the channel - where %i will be the channel index
+   * @param formatStr printf style format string to compose label for the channel - where %i will be the channel index
    * @param zeroBased If \c true the index in the format string will be zero based */
   void SetChannelLabel(ERoute direction, int idx, const char* formatStr, bool zeroBased = false);
 
   /** Call this if the latency of your plug-in changes after initialization (perhaps from OnReset() )
    * This may not be supported by the host. The method is virtual because it's overridden in API classes.
-   @param samples Latency in samples */
+   @param latency Latency in samples */
   virtual void SetLatency(int latency);
 
   /** Call this method if you need to update the tail size at runtime, for example if the decay time of your reverb effect changes
    * Some apis have special interpretations of certain numbers. For VST3 set to 0xffffffff for infinite tail, or 0 for none (default)
    * For VST2 setting to 1 means no tail
-   * @param tailSizeSamples the new tailsize in samples*/
+   * @param tailSize the new tailsize in samples*/
   void SetTailSize(int tailSize) { mTailSize = tailSize; }
 
   /** A static method to parse the config.h channel I/O string.
