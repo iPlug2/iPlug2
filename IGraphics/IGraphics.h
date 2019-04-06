@@ -944,6 +944,10 @@ public:
    * @return An IRECT that corresponds to the entire UI area, with, L = 0, T = 0, R = Width() and B  = Height() */
   IRECT GetBounds() const { return IRECT(0.f, 0.f, (float) Width(), (float) Height()); }
   
+  /** /todo
+   * @param keyHandlerFunc /todo */
+  void SetKeyHandlerFunc(std::function<bool(const IKeyPress& key)> keyHandlerFunc) { mKeyHandlerFunc = keyHandlerFunc; }
+  
 #pragma mark - Control management
   /** /todo
    * @param func /todo */
@@ -1001,10 +1005,6 @@ public:
    @param text The text style to use for the menu
    @param bounds The area that the menu should occupy /todo check */
   void AttachPopupMenuControl(const IText& text = DEFAULT_TEXT, const IRECT& bounds = IRECT());
-  
-  /** /todo 
-   * @param keyHandlerFunc /todo */
-  void SetKeyHandlerFunc(std::function<bool(const IKeyPress& key)> keyHandlerFunc) { mKeyHandlerFunc = keyHandlerFunc; }
   
   /** Shows a control to display the frame rate of drawing
    * @param enable \c true to show */
