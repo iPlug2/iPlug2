@@ -361,11 +361,26 @@ public:
 
   /** @return A CString representing the Drawing API in use e.g. "LICE" */
   virtual const char* GetDrawingAPIStr() = 0;
-
-#pragma mark - Drawing API implementation (bitmap handling)
+  
+  /** /todo 
+   * @param srcbitmap /todo
+   * @param cacheName /todo
+   * @param targetScale /todo
+   * @return IBitmap /todo */
   virtual IBitmap ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, int targetScale);
+
+  /** /todo 
+   * @param bitmap /todo
+   * @param cacheName /todo */
   virtual void RetainBitmap(const IBitmap& bitmap, const char* cacheName);
+
+  /** /todo 
+   * @param bitmap /todo */
   virtual void ReleaseBitmap(const IBitmap& bitmap);
+
+  /** /todo 
+   * @param src /todo
+   * @return IBitmap /todo */
   IBitmap GetScaledBitmap(IBitmap& src);
   
   /** Checks a file extension and reports whether this drawing API supports loading that extension */
@@ -455,7 +470,7 @@ public:
    * @param thickness /todo */
   virtual void DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints = nullptr, const IBlend* pBlend = 0, float thickness = 1.f);
   
-#pragma mark - Drawing API layer support
+#pragma mark - Layer management
   
   /** /todo 
    * @param r /todo*/
@@ -499,10 +514,30 @@ private:
   /** /todo */
   virtual void UpdateLayer() {}
 
+  /** /todo
+   * @param layer /todo
+   * @param data /todo */
+  virtual void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) = 0;
+  
+  /** /todo
+   * @param layer /todo
+   * @param mask /todo
+   * @param shadow /todo */
+  virtual void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) = 0;
+  
+  /** /todo
+   * @param layer /todo
+   * @param clearTransforms /todo */
+  void PushLayer(ILayer* layer, bool clearTransforms);
+  
+  /** /todo
+   * @param clearTransforms /todo
+   * @return ILayer* /todo */
+  ILayer* PopLayer(bool clearTransforms);
+  
+#pragma mark - Drawing API path support
 public:
   
-#pragma mark - Drawing API Path support
-
   virtual bool HasPathSupport() const { return false; }
 
   /** /todo */
@@ -790,7 +825,24 @@ public:
 
   /** Get the bundle ID on macOS and iOS, returns emtpy string on other OSs */
   virtual const char* GetBundleID() { return ""; }
+  
+protected:
+  /** /todo
+   * @param control /todo
+   * @param text /todo
+   * @param bounds /todo
+   * @param str /todo */
+  virtual void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") = 0;
+  
+  /** /todo
+   * @param menu /todo
+   * @param bounds /todo
+   * @param pCaller /todo
+   * @return IPopupMenu* /todo */
+  virtual IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller = nullptr) = 0;
+
 #pragma mark - Base implementation
+public:
   IGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.);
 
   virtual ~IGraphics();
@@ -948,7 +1000,31 @@ public:
    * @param keyHandlerFunc /todo */
   void SetKeyHandlerFunc(std::function<bool(const IKeyPress& key)> keyHandlerFunc) { mKeyHandlerFunc = keyHandlerFunc; }
   
+private:
+  /** /todo */
+  virtual void PlatformResize() {}
+  
+  /** /todo */
+  virtual void DrawResize() {}
+  
+  /** /todo
+   * @param bounds /todo
+   * @param scale /todo */
+  void Draw(const IRECT& bounds, float scale);
+  
+  /** /todo
+   * @param pControl /todo
+   * @param bounds /todo
+   * @param scale /todo */
+  void DrawControl(IControl* pControl, const IRECT& bounds, float scale);
+  
+protected: // TODO: correct?
+  /** /todo */
+  void StartResizeGesture() { mResizingInProcess = true; };
+  
 #pragma mark - Control management
+public:
+  
   /** /todo
    * @param func /todo */
   void ForAllControlsFunc(std::function<void(IControl& control)> func);
@@ -1090,6 +1166,22 @@ public:
   /** Calls SetClean() on every control */
   void SetAllControlsClean();
 
+private:
+  /** /todo
+   * @param x /todo
+   * @param y /todo
+   * @param mouseOver /todo
+   * @return int /todo */
+  int GetMouseControlIdx(float x, float y, bool mouseOver = false);
+  
+  /** /todo
+   * @param x /todo
+   * @param y /todo
+   * @param capture /todo
+   * @param mouseOver /todo
+   * @return IControl* /todo */
+  IControl* GetMouseControl(float x, float y, bool capture, bool mouseOver = false);
+  
 #pragma mark - Event handling
 
   /** @param x The X coordinate in the graphics context at which the mouse event occurred
@@ -1197,6 +1289,13 @@ public:
    * @param y The Y coordinate in the graphics context at which to popup the context menu */
   void PopupHostContextMenuForParam(int controlIdx, int paramIdx, float x, float y);
 
+  /** /todo
+   * @param pControl /todo
+   * @param paramIdx /todo
+   * @param x /todo
+   * @param y /todo */
+  void PopupHostContextMenuForParam(IControl* pControl, int paramIdx, float x, float y);
+  
 #pragma mark - Resource/File Loading
   /** Load a bitmap image from disk or from windows resource
    * @param fileNameOrResID CString file name or resource ID
@@ -1216,20 +1315,6 @@ public:
   virtual bool LoadFont(const char* fileNameOrResID) { return false; }
   
 protected:
-  /** /todo
-  * @param control /todo
-  * @param text /todo
-  * @param bounds /todo
-  * @param str /todo */
-  virtual void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") = 0;
-
-  /** /todo
-   * @param menu /todo
-   * @param bounds /todo
-   * @param pCaller /todo
-   * @return IPopupMenu* /todo */
-  virtual IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller = nullptr) = 0;
-
   /** /todo
    * @param fileNameOrResID /todo 
    * @param scale /todo
@@ -1255,27 +1340,6 @@ protected:
 
   /** /todo */
   virtual bool FlippedBitmap() const = 0;
-
-  /** /todo
-   * @param layer /todo
-   * @param data /todo */
-  virtual void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) = 0;
-
-  /** /todo 
-   * @param layer /todo
-   * @param mask /todo
-   * @param shadow /todo */
-  virtual void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) = 0;
-
-  /** /todo
-   * @param layer /todo
-   * @param clearTransforms /todo */
-  void PushLayer(ILayer* layer, bool clearTransforms);
-
-  /** /todo 
-   * @param clearTransforms /todo
-   * @return ILayer* /todo */
-  ILayer* PopLayer(bool clearTransforms);
 
   /** Utility used by SearchImageResource/SearchBitmapInCache
    * @param sourceScale /todo
@@ -1309,49 +1373,9 @@ protected:
 
   /** @return float /todo */
   virtual float GetBackingPixelScale() const = 0;
-
-private:
-  /** /todo */
-  virtual void PlatformResize() {}
-
-  /** /todo */
-  virtual void DrawResize() {}
   
-  /** /todo 
-   * @param bounds /todo
-   * @param scale /todo */
-  void Draw(const IRECT& bounds, float scale);
+#pragma mark -
 
-  /** /todo 
-   * @param pControl /todo
-   * @param bounds /todo
-   * @param scale /todo */
-  void DrawControl(IControl* pControl, const IRECT& bounds, float scale);
-  
-  /** /todo 
-   * @param x /todo
-   * @param y /todo
-   * @param mouseOver /todo
-   * @return int /todo */
-  int GetMouseControlIdx(float x, float y, bool mouseOver = false);
-
-  /** /todo 
-   * @param x /todo
-   * @param y /todo
-   * @param capture /todo
-   * @param mouseOver /todo
-   * @return IControl* /todo */
-  IControl* GetMouseControl(float x, float y, bool capture, bool mouseOver = false);
-  
-  /** /todo */
-  void StartResizeGesture() { mResizingInProcess = true; };
-  
-  /** /todo 
-   * @param pControl /todo
-   * @param paramIdx /todo
-   * @param x /todo
-   * @param y /todo */
-  void PopupHostContextMenuForParam(IControl* pControl, int paramIdx, float x, float y);
 private:
   WDL_PtrList<IControl> mControls;
 
