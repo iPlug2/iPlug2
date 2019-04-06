@@ -13,7 +13,7 @@ void TestMPSControl::Draw(IGraphics& g)
     NVGcontext* pCtx = static_cast<NVGcontext*>(g.GetDrawContext());
 
     if(!mFBO) {
-      mFBO = nvgCreateFramebuffer(pCtx, mBitmap.W(), mBitmap.H(), 0);
+      mFBO = nvgCreateFramebuffer(pCtx, mBitmap.W() * mBitmap.GetScale(), mBitmap.H() * mBitmap.GetScale(), 0);
     }
 
     id<MTLDevice> dev = static_cast<id<MTLDevice>>(mnvgDevice(pCtx));
@@ -37,7 +37,7 @@ void TestMPSControl::Draw(IGraphics& g)
   
     [pKernel release];
     
-    APIBitmap apibmp {mFBO->image, mBitmap.W(), mBitmap.H(), 1, 1.};
+    APIBitmap apibmp {mFBO->image, int(mBitmap.W() * mBitmap.GetScale()), int(mBitmap.H() * mBitmap.GetScale()), 1, 1.};
     IBitmap bmp {&apibmp, 1, false};
     
     g.DrawFittedBitmap(bmp, mRECT);
