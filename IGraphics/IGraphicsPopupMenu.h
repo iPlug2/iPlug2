@@ -106,11 +106,14 @@ public:
 
   #pragma mark -
   
-  IPopupMenu(int prefix = 0, bool multicheck = false)
+  IPopupMenu(int prefix = 0, bool multicheck = false, const std::initializer_list<const char*>& items = {})
   : mPrefix(prefix)
   , mCanMultiCheck(multicheck)
-  {}
-
+  {
+    for (auto& item : items)
+      AddItem(item);
+  }
+  
   ~IPopupMenu()
   {
     mMenuItems.Empty(true);
