@@ -58,6 +58,8 @@ typedef std::chrono::high_resolution_clock Time;
 typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimePoint;
 typedef std::chrono::duration<double, std::chrono::milliseconds::period> Milliseconds;
 
+typedef WDL_TypedBuf<unsigned char> RawBitmapData;
+
 #ifdef IGRAPHICS_AGG
   #include "IGraphicsAGG_src.h"
   typedef agg::pixel_map* BitmapData;
@@ -89,12 +91,19 @@ typedef std::chrono::duration<double, std::chrono::milliseconds::period> Millise
 class APIBitmap
 {
 public:
-  APIBitmap(BitmapData pBitmap, int w, int h, int s, float ds)
+  
+  /** APIBitmap constructor
+  * @param pBitmap pointer or integer index (NanoVG) to the image data
+  * @param w The width of the bitmap
+  * @param h The height of the bitmap
+  * @param scale An integer representing the scale of this bitmap in relation to a 1:1 pixel screen, e.g. 2 for an @2x bitmap
+  * @param drawScale The draw scale at which this API bitmap was created (used in the context of layers) */
+  APIBitmap(BitmapData pBitmap, int w, int h, int scale, float drawScale)
   : mBitmap(pBitmap)
   , mWidth(w)
   , mHeight(h)
-  , mScale(s)
-  , mDrawScale(ds)
+  , mScale(scale)
+  , mDrawScale(drawScale)
   {}
 
   APIBitmap()
@@ -107,19 +116,34 @@ public:
 
   virtual ~APIBitmap() {}
 
-  void SetBitmap(BitmapData pBitmap, int w, int h, int s, float ds)
+  /** Used to initialise the members after construction
+   * @param pBitmap pointer or integer index (NanoVG) to the image data
+   * @param w The width of the bitmap
+   * @param h The height of the bitmap
+   * @param scale An integer representing the scale of this bitmap in relation to a 1:1 pixel screen, e.g. 2 for an @2x bitmap
+   * @param drawScale The draw scale at which this API bitmap was created (used in the context of layers) */
+  void SetBitmap(BitmapData pBitmap, int w, int h, int scale, float drawScale)
   {
     mBitmap = pBitmap;
     mWidth = w;
     mHeight = h;
-    mScale = s;
-    mDrawScale = ds;
+    mScale = scale;
+    mDrawScale = drawScale;
   }
 
+  /** @return BitmapData /todo */
   BitmapData GetBitmap() const { return mBitmap; }
+
+  /** /todo */
   int GetWidth() const { return mWidth; }
+
+  /** /todo */
   int GetHeight() const { return mHeight; }
+
+  /** /todo */
   int GetScale() const { return mScale; }
+  
+  /** /todo */
   float GetDrawScale() const { return mDrawScale; }
 
 private:
@@ -131,18 +155,16 @@ private:
 };
 
 /** User-facing bitmap abstraction that you use to manage bitmap data, independant of draw class/platform.
- * IBitmap doesn't actually own the image data @see APIBitmap
+ * IBitmap doesn't actually own the image data \see APIBitmap
  * An IBitmap's width and height are always in relation to a 1:1 (low dpi) screen. Any scaling happens at the drawing stage. */
 class IBitmap
 {
 public:
-  /** Creates a new IBitmap object
-  * @param pData Pointer to the raw bitmap data
-  * @param w Bitmap width (in pixels)
-  * @param h Bitmap height (in pixels)
-  * @param n Number of frames (for multi frame bitmaps)
-  * @param framesAreHorizontal \c true if the frames are positioned horizontally
-  * @param name Resource name for the bitmap */
+  /** IBitmap Constructor
+   @param pAPIBitmap Pointer to a drawing API bitmap
+   @param n Number of frames (for multi frame film-strip bitmaps)
+   @param framesAreHorizontal framesAreHorizontal \c true if the frames are positioned horizontally
+   @param name Resource name for the bitmap */
   IBitmap(APIBitmap* pAPIBitmap, int n, bool framesAreHorizontal, const char* name = "")
     : mAPIBitmap(pAPIBitmap)
     , mW(pAPIBitmap->GetWidth() / pAPIBitmap->GetScale())
@@ -218,6 +240,7 @@ struct ISVG
     mImage = pImage;
   }
 
+  /** /todo */
   float W()
   {
     if (mImage)
@@ -226,6 +249,7 @@ struct ISVG
       return 0;
   }
 
+  /** /todo */
   float H()
   {
     if (mImage)
@@ -244,13 +268,24 @@ struct ISVG
 struct IColor
 {
   int A, R, G, B;
+  
   IColor(int a = 255, int r = 0, int g = 0, int b = 0) : A(a), R(r), G(g), B(b) {}
+
   bool operator==(const IColor& rhs) { return (rhs.A == A && rhs.R == R && rhs.G == G && rhs.B == B); }
+  
   bool operator!=(const IColor& rhs) { return !operator==(rhs); }
+  
+  /** /todo */
   bool Empty() const { return A == 0 && R == 0 && G == 0 && B == 0; }
+  
+  /** /todo */
   void Clamp() { A = Clip(A, 0, 255); R = Clip(R, 0, 255); Clip(G, 0, 255); B = Clip(B, 0, 255); }
+  
+  /** /todo 
+   * @param alpha */
   void Randomise(int alpha = 255) { A = alpha; R = std::rand() % 255; G = std::rand() % 255; B = std::rand() % 255; }
 
+  /**  @param c /todo */
   void AddContrast(double c)
   {
     const int mod = int(c * 255.);
@@ -259,6 +294,9 @@ struct IColor
     B = std::min(B += mod, 255);
   }
 
+  /** /todo 
+   * @param c /todo
+   * @return IColor /todo */
   IColor GetContrasted(double c) const
   {
     const int mod = int(c * 255.);
@@ -269,6 +307,9 @@ struct IColor
     return n;
   }
 
+  /** /todo 
+   * @param randomAlpha /todo
+   * @return IColor /todo */
   static IColor GetRandomColor(bool randomAlpha = false)
   {
     int A = randomAlpha ? std::rand() & 0xFF : 255;
@@ -279,7 +320,12 @@ struct IColor
     return IColor(A, R, G, B);
   }
 
-  // thanks nanovg
+  /** /todo 
+   * @param h /todo
+   * @param s /todo
+   * @param l /todo
+   * @param a /todo
+   * @return IColor /todo */
   static IColor GetFromHSLA(float h, float s, float l, float a = 1.)
   {
     auto hue = [](float h, float m1, float m2)
@@ -309,6 +355,8 @@ struct IColor
     return col;
   }
 
+  /** /todo 
+   * @return int /todo */
   int GetLuminosity() const
   {
     int min = R < G ? (R < B ? R : B) : (G < B ? G : B);
@@ -316,6 +364,11 @@ struct IColor
     return (min + max) / 2;
   };
   
+  /** /todo 
+   * @param start /todo
+   * @param dest /todo
+   * @param result /todo
+   * @param progress /todo */
   static void LinearInterpolateBetween(const IColor& start, const IColor& dest, IColor& result, float progress)
   {
     result.A = start.A + static_cast<int>(progress * static_cast<float>(dest.A -  start.A));
@@ -369,6 +422,7 @@ struct IVColorSpec
   IColor mX2Color = DEFAULT_X2COLOR; // Extra 2
   IColor mX3Color = DEFAULT_X3COLOR; // Extra 3
 
+  /** /todo  */
   void SetColors(const IColor BGColor = DEFAULT_BGCOLOR,
                  const IColor FGColor = DEFAULT_FGCOLOR,
                  const IColor PRColor = DEFAULT_PRCOLOR,
@@ -381,6 +435,7 @@ struct IVColorSpec
   {
   }
 
+  /** /todo  */
   void ResetColors() { SetColors(); }
 };
 
@@ -394,14 +449,16 @@ struct IBlend
 
   /** Creates a new IBlend
    * @param type Blend type (defaults to none)
-   * @param weight normalised alpha blending amount
-  */
+   * @param weight normalised alpha blending amount */
   IBlend(EBlendType type = kBlendDefault, float weight = 1.0f)
   : mMethod(type)
   , mWeight(Clip(weight, 0.f, 1.f))
   {}
 };
 
+/** /todo 
+ * @param pBlend /todo
+ * @return float /todo */
 inline float BlendWeight(const IBlend* pBlend)
 {
   return (pBlend ? pBlend->mWeight : 1.0f);
@@ -433,11 +490,21 @@ struct IStrokeOptions
   class DashOptions
   {
   public:
-    int GetCount() const { return mCount; }
-    float GetOffset() const { return mOffset; }
-    const float *GetArray() const { return mArray; }
 
-    void SetDash(float *array, float offset, int count)
+    /** @return int /todo */
+    int GetCount() const { return mCount; }
+
+    /** @return float  /todo */
+    float GetOffset() const { return mOffset; }
+
+    /** @return float* /todo */
+    const float* GetArray() const { return mArray; }
+
+    /** /todo 
+     * @param array /todo
+     * @param offset /todo
+     * @param count /todo */
+    void SetDash(float* array, float offset, int count)
     {
       assert(count >= 0 && count <= 8);
 
@@ -464,11 +531,29 @@ struct IStrokeOptions
 /** Used to manage font and text/text entry style for a piece of text on the UI, independant of draw class/platform.*/
 struct IText
 {
+  /** /todo */
   enum EStyle { kStyleNormal, kStyleBold, kStyleItalic } mStyle;
+
+  /** /todo */
   enum EAlign { kAlignNear, kAlignCenter, kAlignFar } mAlign;
+
+  /** /todo */
   enum EVAlign { kVAlignTop, kVAlignMiddle, kVAlignBottom } mVAlign;
+
+  /** /todo */
   enum EQuality { kQualityDefault, kQualityNonAntiAliased, kQualityAntiAliased, kQualityClearType } mQuality = kQualityDefault;
 
+  /** /todo 
+   * @param size /todo
+   * @param color /todo
+   * @param font /todo
+   * @param style /todo
+   * @param align /todo
+   * @param valign /todo
+   * @param orientation /todo
+   * @param quality /todo
+   * @param TEBGColor /todo
+   * @param TEFGColor /todo */
   IText(int size = DEFAULT_TEXT_SIZE,
         const IColor& color = DEFAULT_TEXT_FGCOLOR,
         const char* font = nullptr,
@@ -492,6 +577,9 @@ struct IText
     strcpy(mFont, (font ? font : DEFAULT_FONT));
   }
 
+  /** /todo 
+    * @param size /todo
+    * @param valign /todo */
   IText(int size, EVAlign valign)
   : IText()
   {
@@ -499,6 +587,9 @@ struct IText
     mVAlign = valign;
   }
   
+  /** /todo 
+   * @param size /todo
+   * @param align /todo */
   IText(int size, EAlign align)
   : IText()
   {
@@ -567,15 +658,25 @@ struct IRECT
 {
   float L, T, R, B;
 
+  /** /todo  */
   IRECT()
   {
     L = T = R = B = 0.f;
   }
   
+  /** /todo 
+   * @param l /todo
+   * @param t /todo
+   * @param r /todo
+   * @param b /todo */
   IRECT(float l, float t, float r, float b)
   : L(l), R(r), T(t), B(b)
   {}
   
+  /** /todo 
+   * @param x /todo
+   * @param y /todo
+   * @param bitmap /todo */
   IRECT(float x, float y, const IBitmap& bitmap)
   {
     L = x;
@@ -584,11 +685,13 @@ struct IRECT
     B = T + (float) bitmap.FH();
   }
 
+  /** @return true */
   bool Empty() const
   {
     return (L == 0.f && T == 0.f && R == 0.f && B == 0.f);
   }
 
+  /** /todo  */
   void Clear()
   {
     L = T = R = B = 0.f;
@@ -604,12 +707,24 @@ struct IRECT
     return !(*this == rhs);
   }
 
+  /** @return float /todo  */
   inline float W() const { return R - L; }
+
+  /** @return float /todo  */
   inline float H() const { return B - T; }
+
+  /** @return float /todo  */
   inline float MW() const { return 0.5f * (L + R); }
+
+  /** @return float /todo  */
   inline float MH() const { return 0.5f * (T + B); }
+
+  /** @return float /todo  */
   inline float Area() const { return W() * H(); }
   
+  /** /todo 
+   * @param rhs /todo
+   * @return IRECT /todo*/
   inline IRECT Union(const IRECT& rhs) const
   {
     if (Empty()) { return rhs; }
@@ -617,6 +732,9 @@ struct IRECT
     return IRECT(std::min(L, rhs.L), std::min(T, rhs.T), std::max(R, rhs.R), std::max(B, rhs.B));
   }
 
+  /** /todo 
+   * @param rhs /todo
+   * @return IRECT /todo */
   inline IRECT Intersect(const IRECT& rhs) const
   {
     if (Intersects(rhs))
@@ -625,27 +743,48 @@ struct IRECT
     return IRECT();
   }
 
+  /** /todo 
+   * @param rhs /todo
+   * @return true /todo
+   * @return false /todo */
   inline bool Intersects(const IRECT& rhs) const
   {
     return (!Empty() && !rhs.Empty() && R >= rhs.L && L < rhs.R && B >= rhs.T && T < rhs.B);
   }
 
+  /** /todo 
+   * @param rhs /todo
+   * @return true /todo
+   * @return false /todo */
   inline bool Contains(const IRECT& rhs) const
   {
     return (!Empty() && !rhs.Empty() && rhs.L >= L && rhs.R <= R && rhs.T >= T && rhs.B <= B);
   }
 
+  /** /todo 
+   * @param x /todo
+   * @param y /todo
+   * @return true /todo
+   * @return false /todo */
   inline bool Contains(float x, float y) const
   {
     return (!Empty() && x >= L && x < R && y >= T && y < B);
   }
   
-  //includes right-most and bottom-most pixels
+  /** /todo
+   * includes right-most and bottom-most pixels
+   * @param x /todo
+   * @param y /todo
+   * @return true /todo
+   * @return false /todo */
   inline bool ContainsEdge(float x, float y) const
   {
     return (!Empty() && x >= L && x <= R && y >= T && y <= B);
   }
 
+  /** /todo 
+   * @param x /todo
+   * @param y /todo */
   inline void Constrain(float& x, float& y)
   {
     if (x < L) x = L;
@@ -655,7 +794,10 @@ struct IRECT
     else if (y > B) y = B;
   }
   
-  //The two rects cover exactly the area returned by Union()
+  /** /todo
+   * The two rects cover exactly the area returned by Union()
+   * @param rhs /todo
+   * @return true /todo */
   bool Mergeable(const IRECT& rhs) const
   {
     if (Empty() || rhs.Empty())
@@ -665,6 +807,11 @@ struct IRECT
     return T == rhs.T && B == rhs.B && ((L >= rhs.L && L <= rhs.R) || (rhs.L >= L && rhs.L <= R));
   }
   
+  /** /todo 
+   * @param layoutDir /todo
+   * @param frac /todo
+   * @param fromTopOrRight /todo
+   * @return IRECT /todo */
   inline IRECT FracRect(EDirection layoutDir, float frac, bool fromTopOrRight = false) const
   {
     if(layoutDir == EDirection::kVertical)
@@ -673,6 +820,10 @@ struct IRECT
       return FracRectHorizontal(frac, fromTopOrRight);
   }
   
+  /** /todo 
+   * @param frac /todo
+   * @param rhs /todo
+   * @return IRECT /todo */
   inline IRECT FracRectHorizontal(float frac, bool rhs = false) const
   {
     float widthOfSubRect = W() * frac;
@@ -683,6 +834,10 @@ struct IRECT
       return IRECT(L, T, L + widthOfSubRect, B);
   }
   
+  /** /todo 
+   * @param frac /todo
+   * @param fromTop /todo
+   * @return IRECT /todo */
   inline IRECT FracRectVertical(float frac, bool fromTop = false) const
   {
     float heightOfSubRect = H() * frac;
@@ -693,6 +848,10 @@ struct IRECT
       return IRECT(L, B - heightOfSubRect, R, B);
   }
 
+  /** /todo 
+   * @param numSlices /todo
+   * @param sliceIdx /todo
+   * @return IRECT /todo */
   inline IRECT SubRectVertical(int numSlices, int sliceIdx) const
   {
     float heightOfSubRect = H() / (float) numSlices;
@@ -701,6 +860,10 @@ struct IRECT
     return IRECT(L, T + t, R, T + t + heightOfSubRect);
   }
 
+  /** /todo 
+   * @param numSlices /todo
+   * @param sliceIdx /todo
+   * @return IRECT /todo */
   inline IRECT SubRectHorizontal(int numSlices, int sliceIdx) const
   {
     float widthOfSubRect = W() / (float) numSlices;
@@ -709,6 +872,11 @@ struct IRECT
     return IRECT(L + l, T, L + l + widthOfSubRect, B);
   }
   
+  /** /todo 
+   * @param layoutDir /todo
+   * @param numSlices /todo
+   * @param sliceIdx /todo
+   * @return IRECT /todo */
   inline IRECT SubRect(EDirection layoutDir, int numSlices, int sliceIdx) const
   {
     if(layoutDir == EDirection::kVertical)
@@ -717,21 +885,76 @@ struct IRECT
       return SubRectHorizontal(numSlices, sliceIdx);
   }
   
+  /** /todo 
+   * @param w /todo
+   * @param h /todo
+   * @return IRECT /todo */
   inline IRECT GetFromTLHC(float w, float h) const { return IRECT(L, T, L+w, T+h); }
+
+  /** /todo 
+   * @param w /todo
+   * @param h /todo
+   * @return IRECT /todo */
   inline IRECT GetFromBLHC(float w, float h) const { return IRECT(L, B-h, L+w, B); }
+
+  /** /todo 
+   * @param w /todo
+   * @param h /todo
+   * @return IRECT /todo */
   inline IRECT GetFromTRHC(float w, float h) const { return IRECT(R-w, T, R, T+h); }
+
+  /** /todo 
+   * @param w /todo
+   * @param h /todo
+   * @return IRECT /todo */
   inline IRECT GetFromBRHC(float w, float h) const { return IRECT(R-w, B-h, R, B); }
 
+  /** /todo 
+   * @param amount /todo
+   * @return IRECT /todo */
   inline IRECT GetFromTop(float amount) const { return IRECT(L, T, R, T+amount); }
+
+  /** /todo 
+   * @param amount /todo
+   * @return IRECT /todo */
   inline IRECT GetFromBottom(float amount) const { return IRECT(L, B-amount, R, B); }
+
+  /** /todo 
+   * @param amount /todo
+   * @return IRECT /todo */
   inline IRECT GetFromLeft(float amount) const { return IRECT(L, T, L+amount, B); }
+
+  /** /todo 
+   * @param amount /todo
+   * @return IRECT /todo */
   inline IRECT GetFromRight(float amount) const { return IRECT(R-amount, T, R, B); }
   
+  /** /todo 
+   * @param amount /todo
+   * @return IRECT /todo */
   inline IRECT GetReducedFromTop(float amount) const { return IRECT(L, T+amount, R, B); }
+
+  /** /todo 
+   * @param amount /todo
+   * @return IRECT /todo */
   inline IRECT GetReducedFromBottom(float amount) const { return IRECT(L, T, R, B-amount); }
+
+  /** /todo
+   * @param amount /todo
+   * @return IRECT /todo */
   inline IRECT GetReducedFromLeft(float amount) const { return IRECT(L+amount, T, R, B); }
+
+  /** /todo 
+   * @param amount /todo
+   * @return IRECT /todo  */
   inline IRECT GetReducedFromRight(float amount) const { return IRECT(L, T, R-amount, B); }
   
+  /** /todo 
+   * @param row /todo
+   * @param col /todo
+   * @param nRows /todo
+   * @param nColumns /todo
+   * @return IRECT /todo */
   inline IRECT GetGridCell(int row, int col, int nRows, int nColumns/*, EDirection = kHorizontal*/) const
   {
     assert(row * col <= nRows * nColumns); // not enough cells !
@@ -740,6 +963,12 @@ struct IRECT
     return vrect.SubRectHorizontal(nColumns, col);
   }
   
+  /** /todo 
+   * @param cellIndex /todo
+   * @param nRows /todo
+   * @param nColumns /todo
+   * @param dir /todo
+   * @return IRECT /todo */
   inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns, EDirection dir = kHorizontal) const
   {
     assert(cellIndex <= nRows * nColumns); // not enough cells !
@@ -782,6 +1011,7 @@ struct IRECT
     return *this;
   }
   
+  /** @return true /todo */
   bool IsPixelAligned() const
   {
     // If all values are within 1/1000th of a pixel of an integer the IRECT is considered pixel aligned
@@ -790,7 +1020,10 @@ struct IRECT
       
     return isInteger(L) && isInteger(T) && isInteger(R) && isInteger(B);
   }
-   
+  
+  /** /todo
+   * @param scale /todo
+   * @return false /todo */
   bool IsPixelAligned(float scale) const
   {
     IRECT r = *this;
@@ -798,7 +1031,7 @@ struct IRECT
     return r.IsPixelAligned();
   }
   
-  // Pixel aligns in an inclusive manner (moves all points outwards)
+  /** Pixel aligns the rect in an inclusive manner (moves all points outwards) */
   inline void PixelAlign() 
   {
     L = std::floor(L);
@@ -806,7 +1039,9 @@ struct IRECT
     R = std::ceil(R);
     B = std::ceil(B);
   }
-    
+
+  /** /todo 
+   * @param scale /todo */
   inline void PixelAlign(float scale)
   {
     // N.B. - double precision is *required* for accuracy of the reciprocal
@@ -814,14 +1049,19 @@ struct IRECT
     PixelAlign();
     Scale(static_cast<float>(1.0/static_cast<double>(scale)));
   }
-    
+  
+  /** /todo 
+   * @return IRECT /todo  */
   inline IRECT GetPixelAligned() const
   {
     IRECT r = *this;
     r.PixelAlign();
     return r;
   }
-    
+  
+  /** /todo 
+   * @param scale /todo
+   * @return IRECT /todo */
   inline IRECT GetPixelAligned(float scale) const
   {
     IRECT r = *this;
@@ -829,7 +1069,7 @@ struct IRECT
     return r;
   }
     
-  // Pixel aligns to nearest pixels
+  /** Pixel aligns to nearest pixels */
   inline void PixelSnap()
   {
     L = std::round(L);
@@ -838,6 +1078,8 @@ struct IRECT
     B = std::round(B);
   }
   
+  /** /todo 
+   * @param scale /todo */
   inline void PixelSnap(float scale)
   {
     // N.B. - double precision is *required* for accuracy of the reciprocal
@@ -846,6 +1088,7 @@ struct IRECT
     Scale(static_cast<float>(1.0/static_cast<double>(scale)));
   }
   
+  /** @return IRECT /todo */
   inline IRECT GetPixelSnapped() const
   {
     IRECT r = *this;
@@ -853,6 +1096,9 @@ struct IRECT
     return r;
   }
   
+  /** /todo 
+   * @param scale /todo
+   * @return IRECT /todo */
   inline IRECT GetPixelSnapped(float scale) const
   {
     IRECT r = *this;
@@ -860,6 +1106,8 @@ struct IRECT
     return r;
   }
   
+  /** /todo 
+   * @param padding /todo */
   inline void Pad(float padding)
   {
     L -= padding;
@@ -868,6 +1116,11 @@ struct IRECT
     B += padding;
   }
   
+  /** /todo 
+   * @param padL /todo
+   * @param padT /todo
+   * @param padR /todo
+   * @param padB /todo */
   inline void Pad(float padL, float padT, float padR, float padB)
   {
     L -= padL;
@@ -876,18 +1129,24 @@ struct IRECT
     B += padB;
   }
   
+  /** /todo 
+  * @param padding /todo */
   inline void HPad(float padding)
   {
     L -= padding;
     R += padding;
   }
   
+  /** /todo 
+  * @param padding /todo */
   inline void VPad(float padding)
   {
     T -= padding;
     B += padding;
   }
   
+  /** /todo 
+   * @param padding /todo */
   inline void MidHPad(float padding)
   {
     const float mw = MW();
@@ -895,6 +1154,8 @@ struct IRECT
     R = mw + padding;
   }
   
+  /** /todo 
+   * @param padding /todo */
   inline void MidVPad(float padding)
   {
     const float mh = MH();
@@ -902,36 +1163,58 @@ struct IRECT
     B = mh + padding;
   }
 
+  /** /todo 
+   * @param padding /todo
+   * @return IRECT /todo */
   inline IRECT GetPadded(float padding) const
   {
     return IRECT(L-padding, T-padding, R+padding, B+padding);
   }
 
+  /** /todo 
+   * @param padding /todo
+   * @return IRECT /todo */
   inline IRECT GetPadded(float padL, float padT, float padR, float padB) const
   {
     return IRECT(L-padL, T-padT, R+padR, B+padB);
   }
 
+  /** /todo 
+   * @param padding /todo
+   * @return IRECT /todo */
   inline IRECT GetHPadded(float padding) const
   {
     return IRECT(L-padding, T, R+padding, B);
   }
 
+  /** /todo 
+   * @param padding /todo
+   * @return IRECT /todo */
   inline IRECT GetVPadded(float padding) const
   {
     return IRECT(L, T-padding, R, B+padding);
   }
 
+  /** /todo 
+   * @param padding /todo
+   * @return IRECT /todo */
   inline IRECT GetMidHPadded(float padding) const
   {
     return IRECT(MW()-padding, T, MW()+padding, B);
   }
 
+  /** /todo 
+   * @param padding /todo
+   * @return IRECT /todo */
   inline IRECT GetMidVPadded(float padding) const
   {
     return IRECT(L, MH()-padding, R, MH()+padding);
   }
 
+  /** /todo 
+   * @param w /todo
+   * @param rhs /todo
+   * @return IRECT /todo */
   inline IRECT GetHSliced(float w, bool rhs = false) const
   {
     if(rhs)
@@ -940,6 +1223,10 @@ struct IRECT
       return IRECT(L, T, L + w, B);
   }
   
+  /** /todo 
+   * @param h /todo
+   * @param bot /todo
+   * @return IRECT /todo */
   inline IRECT GetVSliced(float h, bool bot = false) const
   {
     if(bot)
@@ -948,6 +1235,8 @@ struct IRECT
       return IRECT(L, T + h, R, B);
   }
   
+  /** /todo 
+   * @param rhs /todo */
   void Clank(const IRECT& rhs)
   {
     if (L < rhs.L)
@@ -972,6 +1261,8 @@ struct IRECT
     }
   }
   
+  /** /todo 
+   * @param scale /todo */
   void Scale(float scale)
   {
     L *= scale;
@@ -980,6 +1271,8 @@ struct IRECT
     B *= scale;
   }
   
+  /** /todo 
+   * @param scale /todo  */
   void ScaleAboutCentre(float scale)
   {
     float x = MW();
@@ -992,6 +1285,9 @@ struct IRECT
     B = y + (hh * scale);
   }
   
+  /** /todo 
+   * @param scale /todo
+   * @return IRECT /todo */
   IRECT GetScaledAboutCentre(float scale)
   {
     const float x = MW();
@@ -1002,6 +1298,11 @@ struct IRECT
     return IRECT(x - (hw * scale), y - (hh * scale), x + (hw * scale), y + (hh * scale));
   }
   
+  /** /todo 
+   * @param start /todo
+   * @param dest /todo
+   * @param result /todo
+   * @param progress /todo */
   static void LinearInterpolateBetween(const IRECT& start, const IRECT& dest, IRECT& result, float progress)
   {
     result.L = start.L + progress * (dest.L -  start.L);
@@ -1010,6 +1311,9 @@ struct IRECT
     result.B = start.B + progress * (dest.B -  start.B);
   }
 
+  /** /todo 
+   * @param scale /todo
+   * @return IRECT /todo */
   IRECT GetScaled(float scale) const
   {
     IRECT r = *this;
@@ -1017,6 +1321,9 @@ struct IRECT
     return r;
   }
 
+  /** /todo 
+   * @param x /todo
+   * @param y /todo */
   void GetRandomPoint(float& x, float& y) const
   {
     const float r1 = static_cast<float>(std::rand()/(RAND_MAX+1.f));
@@ -1026,6 +1333,7 @@ struct IRECT
     y = T + r2 * H();
   }
 
+  /** @return IRECT /todo */
   IRECT GetRandomSubRect() const
   {
     float l, t, r, b;
@@ -1036,6 +1344,11 @@ struct IRECT
     return IRECT(l, t, r, b);
   }
 
+  /** /todo 
+   * @param l /todo
+   * @param t /todo
+   * @param r /todo
+   * @param b /todo */
   void Alter(float l, float t, float r, float b)
   {
     L += l;
@@ -1044,11 +1357,20 @@ struct IRECT
     B += b;
   }
   
+  /** /todo 
+   * @param l /todo
+   * @param t /todo
+   * @param r /todo
+   * @param b /todo
+   * @return IRECT /todo  */
   IRECT GetAltered(float l, float t, float r, float b) const
   {
     return IRECT(L + l, T + t, R + r, B + b);
   }
   
+  /** /todo 
+   * @param x /todo
+   * @param y /todo */
   void Translate(float x, float y)
   {
     L += x;
@@ -1057,21 +1379,34 @@ struct IRECT
     B += y;
   }
   
+  /** /todo 
+   * @param x /todo
+   * @param y /todo
+   * @return IRECT /todo */
   IRECT GetTranslated(float x, float y) const
   {
     return IRECT(L + x, T + y, R + x, B + y);
   }
   
+  /** /todo 
+   * @param x /todo
+   * @return IRECT /todo */
   IRECT GetHShifted(float x) const
   {
     return GetTranslated(x, 0.f);
   }
   
+  /** /todo 
+   * @param y /todo
+   * @return IRECT /todo */
   IRECT GetVShifted(float y) const
   {
     return GetTranslated(0.f, y);
   }
 
+  /** /todo 
+   * @param sr /todo
+   * @return IRECT /todo */
   IRECT GetCentredInside(IRECT sr) const
   {
     IRECT r;
@@ -1083,6 +1418,10 @@ struct IRECT
     return r;
   }
   
+  /** /todo 
+   * @param w /todo
+   * @param h /todo
+   * @return IRECT /todo */
   IRECT GetCentredInside(float w, float h = 0.f) const
   {
     assert(w > 0.f);
@@ -1099,6 +1438,9 @@ struct IRECT
     return r;
   }
 
+  /** /todo 
+   * @param bitmap /todo
+   * @return IRECT /todo */
   IRECT GetCentredInside(IBitmap bitmap)
   {
     IRECT r;
@@ -1110,6 +1452,8 @@ struct IRECT
     return r;
   }
   
+  /** /todo 
+   * @return float /todo */
   float GetLengthOfShortestSide() const
   {
     if(W() < H())
@@ -1126,6 +1470,12 @@ struct IKeyPress
   char Ascii;
   bool S, C, A; // SHIFT / CTRL(WIN) or CMD (MAC) / ALT
   
+  /** /todo 
+   * @param ascii /todo
+   * @param vk /todo
+   * @param s /todo
+   * @param c /todo
+   * @param a /todo */
   IKeyPress(char ascii, int vk, bool s = false, bool c = false, bool a = false)
   : VK(vk)
   , Ascii(ascii)
@@ -1137,9 +1487,18 @@ struct IKeyPress
 struct IMouseMod
 {
   bool L, R, S, C, A;
+
+  /** /todo 
+   * @param l /todo
+   * @param r /todo
+   * @param s /todo
+   * @param c /todo
+   * @param a /todo */
   IMouseMod(bool l = false, bool r = false, bool s = false, bool c = false, bool a = false)
-    : L(l), R(r), S(s), C(c), A(a) {}
+    : L(l), R(r), S(s), C(c), A(a) 
+    {}
   
+  /** /todo */
   void DBGPrint() { DBGMSG("L: %i, R: %i, S: %i, C: %i,: A: %i\n", L, R, S, C, A); }
 };
 
@@ -1154,28 +1513,40 @@ struct IMouseInfo
 class IRECTList
 {
 public:
+  /** /todo
+   * @return int /todo */
   int Size() const { return mRects.GetSize(); }
   
+  /** /todo 
+   * @param rect /todo */
   void Add(const IRECT rect)
   {
     mRects.Add(rect);
   }
   
+  /** /todo 
+   * @param idx /todo
+   * @param rect /todo */
   void Set(int idx, const IRECT rect)
   {
     *(mRects.GetFast() + idx) = rect;
   }
   
+  /** /todo 
+   * @param idx /todo
+   * @return const IRECT& /todo */
   const IRECT& Get(int idx) const
   {
     return *(mRects.GetFast() + idx);
   }
   
+  /** /todo */
   void Clear()
   {
     mRects.Resize(0);
   }
   
+  /** /todo * @return IRECT /todo */
   IRECT Bounds()
   {
     IRECT r = Get(0);
@@ -1184,6 +1555,7 @@ public:
     return r;
   }
   
+  /** /todo */
   void PixelAlign()
   {
     for (auto i = 0; i < Size(); i++)
@@ -1194,6 +1566,8 @@ public:
     }
   }
 
+  /** /todo 
+   * @param scale /todo */
   void PixelAlign(float scale)
   {
     for (auto i = 0; i < Size(); i++)
@@ -1204,6 +1578,13 @@ public:
     }
   }
   
+  /** /todo 
+   * @param input /todo
+   * @param rects /todo
+   * @param rowFractions /todo
+   * @param colFractions /todo
+   * @return true /todo
+   * @return false /todo */
   static bool GetFracGrid(const IRECT& input, IRECTList& rects, const std::initializer_list<float>& rowFractions, const std::initializer_list<float>& colFractions)
   {
     IRECT rowsLeft = input;
@@ -1239,6 +1620,7 @@ public:
     return true;
   }
   
+  /** /todo  */
   void Optimize()
   {
     // Remove rects that are contained by other rects and intersections
@@ -1290,7 +1672,10 @@ public:
   }
   
 private:
-  
+  /** /todo 
+   * @param r /todo
+   * @param i /todo
+   * @return IRECT /todo */
   IRECT Shrink(const IRECT &r, const IRECT &i)
   {
     if (i.L != r.L)
@@ -1302,6 +1687,10 @@ private:
     return IRECT(r.L, i.B, r.R, r.B);
   }
   
+  /** /todo 
+   * @param r /todo
+   * @param i /todo
+   * @return IRECT /todo */
   IRECT Split(const IRECT r, const IRECT &i)
   {
     if (r.L == i.L)
@@ -1336,23 +1725,42 @@ private:
 /** Used to store transformation matrices **/
 struct IMatrix
 {
+  /** /todo 
+   * @param xx /todo
+   * @param yx /todo
+   * @param xy /todo
+   * @param yy /todo
+   * @param tx /todo
+   * @param ty /todo */
   IMatrix(double xx, double yx, double xy, double yy, double tx, double ty)
   : mXX(xx), mYX(yx), mXY(xy), mYY(yy), mTX(tx), mTY(ty)
   {}
   
+  /** /todo */
   IMatrix() : IMatrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
   {}
   
+  /** /todo 
+   * @param x /todo
+   * @param y /todo
+   * @return IMatrix& /todo */
   IMatrix& Translate(float x, float y)
   {
     return Transform(IMatrix(1.0, 0.0, 0.0, 1.0, x, y));
   }
   
+  /** /todo 
+   * @param x /todo
+   * @param y /todo
+   * @return IMatrix& /todo */
   IMatrix& Scale(float x, float y)
   {
     return Transform(IMatrix(x, 0.0, 0.0, y, 0.0, 0.0));
   }
   
+  /** /todo 
+   * @param a /todo
+   * @return IMatrix& /todo */
   IMatrix& Rotate(float a)
   {
     const double rad = DegToRad(a);
@@ -1362,22 +1770,38 @@ struct IMatrix
     return Transform(IMatrix(c, s, -s, c, 0.0, 0.0));
   }
   
+  /** /todo 
+   * @param xa /todo
+   * @param ya /todo
+   * @return IMatrix& /todo */
   IMatrix& Skew(float xa, float ya)
   {
     return Transform(IMatrix(1.0, std::tan(DegToRad(ya)), std::tan(DegToRad(xa)), 1.0, 0.0, 0.0));
   }
   
+  /** /todo 
+   * @param x /todo
+   * @param y /todo
+   * @param x0 /todo
+   * @param y0 /todo */
   void TransformPoint(double& x, double& y, double x0, double y0)
   {
     x = x0 * mXX + y0 * mXY + mTX;
     y = x0 * mYX + y0 * mYY + mTY;
   };
   
+  /** /todo 
+   * @param x /todo
+   * @param y /todo */
   void TransformPoint(double& x, double& y)
   {
     TransformPoint(x, y, x, y);
   };
   
+  /** /todo 
+   * @param before /todo
+   * @param after /todo
+   * @return IMatrix& /todo */
   IMatrix& Transform(const IRECT& before, const IRECT& after)
   {
     const double sx = after.W() / before.W();
@@ -1388,6 +1812,9 @@ struct IMatrix
     return *this = IMatrix(sx, 0.0, 0.0, sy, tx, ty);
   }
   
+  /** /todo 
+   * @param m /todo
+   * @return IMatrix& /todo */
   IMatrix& Transform(const IMatrix& m)
   {
     IMatrix p = *this;
@@ -1402,6 +1829,8 @@ struct IMatrix
     return *this;
   }
   
+  /** /todo 
+   * @return IMatrix& /todo */
   IMatrix& Invert()
   {
     IMatrix m = *this;
@@ -1428,6 +1857,9 @@ struct IColorStop
   : mOffset(0.f)
   {}
   
+  /** /todo 
+   * @param color /todo
+   * @param offset /todo */
   IColorStop(IColor color, float offset)
   : mColor(color)
   , mOffset(offset)
@@ -1448,16 +1880,27 @@ struct IPattern
   int mNStops;
   IMatrix mTransform;
   
+  /** /todo 
+   * @param type /todo */
   IPattern(EPatternType type)
   : mType(type), mExtend(kExtendPad), mNStops(0)
   {}
   
+  /** /todo 
+   * @param color /todo */
   IPattern(const IColor& color)
   : mType(kSolidPattern), mExtend(kExtendPad), mNStops(1)
   {
     mStops[0] = IColorStop(color, 0.0);
   }
   
+  /** /todo 
+   * @param x1 /todo
+   * @param y1 /todo
+   * @param x2 /todo
+   * @param y2 /todo
+   * @param stops /todo
+   * @return IPattern /todo */
   static IPattern CreateLinearGradient(float x1, float y1, float x2, float y2, const std::initializer_list<IColorStop>& stops = {})
   {
     IPattern pattern(kLinearPattern);
@@ -1486,6 +1929,11 @@ struct IPattern
     return pattern;
   }
   
+  /** /todo 
+   * @param bounds /todo
+   * @param direction /todo
+   * @param stops /todo
+   * @return IPattern /todo */
   static IPattern CreateLinearGradient(const IRECT& bounds, EDirection direction, const std::initializer_list<IColorStop>& stops = {})
   {
     float x1, y1, x2, y2;
@@ -1506,6 +1954,12 @@ struct IPattern
     return CreateLinearGradient(x1, y1, x2, y2, stops);
   }
   
+  /** /todo 
+   * @param x1 /todo
+   * @param y1 /todo
+   * @param r /todo
+   * @param stops /todo
+   * @return IPattern /todo */
   static IPattern CreateRadialGradient(float x1, float y1, float r, const std::initializer_list<IColorStop>& stops = {})
   {
     IPattern pattern(kRadialPattern);
@@ -1520,16 +1974,24 @@ struct IPattern
     return pattern;
   }
   
+  /** /todo 
+   * @return int /todo */
   int NStops() const
   {
     return mNStops;
   }
   
+  /** /todo 
+   * @param idx /todo
+   * @return const IColorStop& /todo */
   const IColorStop& GetStop(int idx) const
   {
     return mStops[idx];
   }
   
+  /** /todo 
+   * @param color /todo
+   * @param offset /todo */
   void AddStop(IColor color, float offset)
   {
     assert(mType != kSolidPattern && mNStops < 16);
@@ -1538,11 +2000,20 @@ struct IPattern
       mStops[mNStops++] = IColorStop(color, offset);
   }
   
+  /** /todo 
+   * @param xx /todo
+   * @param yx /todo
+   * @param xy /todo
+   * @param yy /todo
+   * @param x0 /todo
+   * @param y0 /todo */
   void SetTransform(float xx, float yx, float xy, float yy, float x0, float y0)
   {
     mTransform = IMatrix(xx, yx, xy, yy, x0, y0);
   }
   
+  /** /todo 
+   * @param transform /todo */
   void SetTransform(const IMatrix& transform)
   {
     mTransform = transform;
@@ -1558,18 +2029,28 @@ class ILayer
   friend IGraphics;
   
 public:
+  /** /todo 
+   * @param pBitmap /todo
+   * @param r /todo */
   ILayer(APIBitmap* pBitmap, IRECT r)
   : mBitmap(pBitmap)
   , mRECT(r)
   , mInvalid(false)
   {}
-  
+
   ILayer(const ILayer&) = delete;
   ILayer operator =(const ILayer&) = delete;
   
+  /** /todo */
   void Invalidate() { mInvalid = true; }
+
+  /**  @return const APIBitmap* /todo */
   const APIBitmap* GetAPIBitmap() const { return mBitmap.get(); }
+
+  /** @return IBitmap /todo */
   IBitmap GetBitmap() const { return IBitmap(mBitmap.get(), 1, false); }
+
+  /** @return const IRECT& /todo*/
   const IRECT& Bounds() const { return mRECT; }
   
 private:
@@ -1587,7 +2068,14 @@ typedef std::unique_ptr<ILayer> ILayerPtr;
 struct IShadow
 {
   IShadow(){}
-    
+
+  /** /todo 
+   * @param pattern /todo
+   * @param blurSize /todo
+   * @param xOffset /todo
+   * @param yOffset /todo
+   * @param opacity /todo
+   * @param drawForeground /todo */
   IShadow(const IPattern& pattern, float blurSize, float xOffset, float yOffset, float opacity, bool drawForeground = true)
   : mPattern(pattern)
   , mBlurSize(blurSize)
@@ -1610,14 +2098,14 @@ template <class T>
 class StaticStorage
 {
 public:
-  
-  // Accessor class that mantains threadsafety when using static storage via RAII
-  
+  /** Accessor class that mantains thread safety when using static storage via RAII */
   class Accessor : private WDL_MutexLock
   {
   public:
-    
-    Accessor(StaticStorage& storage) : WDL_MutexLock(&storage.mMutex), mStorage(storage) {}
+    Accessor(StaticStorage& storage) 
+    : WDL_MutexLock(&storage.mMutex)
+    , mStorage(storage) 
+    {}
     
     T* Find(const char* str, double scale = 1.)               { return mStorage.Find(str, scale); }
     void Add(T* pData, const char* str, double scale = 1.)    { return mStorage.Add(pData, str, scale); }
@@ -1627,17 +2115,16 @@ public:
     void Release()                                            { return mStorage.Release(); }
       
   private:
-    
     StaticStorage& mStorage;
   };
-    
+  
   ~StaticStorage()
   {
     Clear();
   }
 
 private:
-    
+  /** /todo */
   struct DataKey
   {
     // N.B. - hashID is not guaranteed to be unique
@@ -1646,13 +2133,20 @@ private:
     double scale;
     std::unique_ptr<T> data;
   };
-    
+  
+  /** /todo 
+   * @param str /todo
+   * @return size_t /todo */
   size_t Hash(const char* str)
   {
     std::string string(str);
     return std::hash<std::string>()(string);
   }
 
+  /** /todo 
+   * @param str /todo
+   * @param scale /todo
+   * @return T* /todo */
   T* Find(const char* str, double scale = 1.)
   {
     WDL_String cacheName(str);
@@ -1672,7 +2166,11 @@ private:
     return nullptr;
   }
 
-  void Add(T* pData, const char* str, double scale = 1. /* scale where 2x = retina, omit if not needed */)
+  /** /todo 
+   * @param pData /todo
+   * @param str /todo
+   * @param scale /todo scale where 2x = retina, omit if not needed */
+  void Add(T* pData, const char* str, double scale = 1.)
   {
     DataKey* pKey = mDatas.Add(new DataKey);
 
@@ -1687,6 +2185,7 @@ private:
     //DBGMSG("adding %s to the static storage at %.1fx the original scale\n", str, scale);
   }
 
+  /** /todo @param pData /todo */
   void Remove(T* pData)
   {
     for (int i = 0; i < mDatas.GetSize(); ++i)
@@ -1699,16 +2198,19 @@ private:
     }
   }
 
+  /** /todo  */
   void Clear()
   {
     mDatas.Empty(true);
   };
 
+  /** /todo  */
   void Retain()
   {
     mCount++;
   }
-    
+  
+  /** /todo  */
   void Release()
   {
     if (--mCount == 0)

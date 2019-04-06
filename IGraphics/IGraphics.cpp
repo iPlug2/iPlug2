@@ -1172,7 +1172,7 @@ void IGraphics::EnableTooltips(bool enable)
   if (enable) mHandleMouseOver = true;
 }
 
-void IGraphics::EnableLiveEdit(bool enable/*, const char* file, int gridsize*/)
+void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 {
 #if defined(_DEBUG)
   if (enable)
@@ -1474,6 +1474,18 @@ void IGraphics::DrawLayer(const ILayerPtr& layer, const IBlend* pBlend)
   IBitmap bitmap = layer->GetBitmap();
   IRECT bounds = layer->Bounds();
   DrawBitmap(bitmap, bounds, 0, 0, pBlend);
+  PathTransformRestore();
+}
+
+void IGraphics::DrawFittedLayer(const ILayerPtr& layer, const IRECT& bounds, const IBlend* pBlend)
+{
+  IBitmap bitmap = layer->GetBitmap();
+  IRECT layerBounds = layer->Bounds();
+  PathTransformSave();
+  PathTransformTranslate(bounds.L, bounds.T);
+  IRECT newBounds(0., 0., layerBounds.W(), layerBounds.H());
+  PathTransformScale(bounds.W() / layerBounds.W(), bounds.H() / layerBounds.H());
+  DrawBitmap(bitmap, newBounds, 0, 0, pBlend);
   PathTransformRestore();
 }
 
