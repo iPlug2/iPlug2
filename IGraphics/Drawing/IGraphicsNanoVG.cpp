@@ -719,11 +719,11 @@ bool IGraphicsNanoVG::LoadAPIFont(const char* fontID, const PlatformFontPtr& fon
   if (storage.Find(fontID))
     return true;
     
-  std::unique_ptr<AGGFont> data(new NanoVGFontData(font));
+  std::unique_ptr<NanoVGFontData> data(new NanoVGFontData(font));
     
   if (nvgCreateFontFaceMem(mVG, fontID, data->Get(), data->GetSize(), font->GetFaceIdx(), 0) != -1)
   {
-    storage.Add(fontData.release(), fontID);
+    storage.Add(data.release(), fontID);
     return true;
   }
 
