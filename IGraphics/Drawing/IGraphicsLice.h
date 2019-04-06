@@ -129,6 +129,8 @@ protected:
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
   APIBitmap* CreateAPIBitmap(int width, int height) override;
 
+  bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override { return false; }
+
   int AlphaChannel() const override { return LICE_PIXEL_A; }
   bool FlippedBitmap() const override { return false; }
 
