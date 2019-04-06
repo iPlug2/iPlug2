@@ -67,11 +67,11 @@ IFontDataPtr IGraphicsMac::MacFont::GetFontData()
 {
   CFDataRef rawData = CGDataProviderCopyData(mProvider);
   const UInt8* bytes = CFDataGetBytePtr(rawData);
-  IFontDataPtr data(new IFontData(bytes, (int) CFDataGetLength(rawData), GetFaceIdx(bytes)));
+  IFontDataPtr fontData(new IFontData(bytes, (int) CFDataGetLength(rawData), GetFaceIdx(bytes)));
   CFRelease(rawData);
    
-  if (data->GetFaceIdx() >= 0)
-    return IFontDataPtr(data.release());
+  if (fontData->GetFaceIdx() >= 0)
+    return fontData;
   else
     return nullptr;
 }

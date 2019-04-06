@@ -29,15 +29,12 @@ public:
       : PlatformFont(styleName), mFont(font), mData(nullptr), mSize(0) {}
     ~WinFont();
 
-    const void* GetFont() override { return reinterpret_cast<const void*>(mFont); }
-    const void* GetFontData() override;
+    const void* GetDescriptor() override { return reinterpret_cast<const void*>(mFont); }
+    IFontDataPtr GetFontData() override;
     int GetFontDataSize() override;
+      
   private:
-    void CheckData();
-
     HFONT mFont;
-    char *mData;
-    int mSize;
   };
 
   IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale);

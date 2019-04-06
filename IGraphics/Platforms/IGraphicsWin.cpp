@@ -65,45 +65,36 @@ IGraphicsWin::WinFont::~WinFont()
   if (mData)
     delete[] mData;
 };
-#include <vector>
-void IGraphicsWin::WinFont::CheckData()
+
+IFontDataPtr IGraphicsWin::WinFont::GetFontData()
 {
-  if (!mData)
+  HDC hdc = CreateCompatibleDC(NULL);
+  WDL_HeapBuf buffer;
+  IFontDataPtr fontData;
+  
+  if (hdc != NULL)
   {
-    HDC hdc = CreateCompatibleDC(NULL);
-
-    if (hdc != NULL)
+    SelectObject(hdc, mFont);
+    const size_t size = ::GetFontData(hdc, 0, 0, NULL, 0);
+    
+    if (size != GDI_ERROR && buffer.ResizeOK(size))
     {
-      SelectObject(hdc, mFont);
-      const size_t size = ::GetFontData(hdc, 0, 0, NULL, 0);
-
-      if (size != GDI_ERROR)
+      size_t result = ::GetFontData(hdc, 0x66637474, 0, buffer.Get(), size);
+      if (result == GDI_ERROR)
+        result = ::GetFontData(hdc, 0, 0, buffer.Get(), size);
+      if (result == size)
       {
-        mData = new char[size];
-        size_t result = ::GetFontData(hdc, 0x66637474, 0, mData, size);
-        if (result == GDI_ERROR)
-          result = ::GetFontData(hdc, 0, 0, mData, size);
-        if (result != GDI_ERROR)
-          mSize = size;
-        else
-          delete[] mData;
-      }
+        int faceIdx = GetFaceIdx(data);
       
-      DeleteDC(hdc);
+        if (faceIdx >= 0)
+          fontData.reset(new IFontData(data, size, faceIdx));
+      }
     }
+    
+    DeleteDC(hdc);
   }
-}
 
-const void* IGraphicsWin::WinFont::GetFontData()
-{
-  CheckData();
-  return mData;
-}
-
-int IGraphicsWin::WinFont::GetFontDataSize()
-{
-  CheckData();
-  return mSize;
+  return fontData;
 }
 
 static StaticStorage<WinCachedFont> sPlatformFontCache;
