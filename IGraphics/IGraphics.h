@@ -510,7 +510,6 @@ public:
   * @param shadow - the shadow to add */
   void ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow);
     
-private:
   /** /todo */
   virtual void UpdateLayer() {}
 
