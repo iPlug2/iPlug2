@@ -599,8 +599,15 @@ bool IGraphicsCairo::LoadAPIFont(const char* fontID, const PlatformFontPtr& font
   if (storage.Find(fontID))
     return true;
 
-  storage.Add(new CairoPlatformFont(font->GetFont()), fontID);
-  return true;
+  std::unique_ptr<CairoPlatformFont> cairoFont(new CairoPlatformFont(font->GetFont()));
+
+  if (cairo_font_face_status(cairoFont->mFont) == CAIRO_STATUS_SUCCESS)
+  {
+    storage.Add(cairoFont.release(), fontID);
+    return true;
+  }
+    
+  return false;
 }
 
 cairo_font_face_t* IGraphicsCairo::FindFont(const IText& text)
