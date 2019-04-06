@@ -16,6 +16,7 @@
  */
 
 #include "IControl.h"
+#include "IGraphicsNanoVG.h"
 
 /** Control to test IGraphicsNanoVG with Metal Performance Shaders
  *   @ingroup TestControls */
@@ -27,24 +28,33 @@ public:
   : IKnobControlBase(bounds)
   , IBitmapBase(bitmap)
   {
-    SetTooltip("TestColorControl");
-    
-    SetActionFunction([&](IControl* pCaller) {
-                        mLayer->Invalidate();
-    });
+    SetTooltip("TestMPSControl");
+  }
+  
+  ~TestMPSControl()
+  {
+    if (mFBO)
+      nvgDeleteFramebuffer(mFBO);
   }
   
   void Draw(IGraphics& g) override;
 
-  void OnMouseUp(float x, float y, const IMouseMod& mod) override
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    mKernelType++;
-    mKernelType %= 3;
-    mLayer->Invalidate();
+    if(mod.R)
+      GetUI()->CreatePopupMenu(mMenu, x, y, this);
+    
     SetDirty(false);
+  }
+  
+  void OnPopupMenuSelection(IPopupMenu* pSelectedMenu) override
+  {
+    if(pSelectedMenu)
+      mKernelType = pSelectedMenu->GetChosenItemIdx();
   }
   
 private:
   int mKernelType = 0;
-  ILayerPtr mLayer;
+  NVGframebuffer* mFBO = nullptr;
+  IPopupMenu mMenu {0, false, {"MPSImageGaussianBlur", "MPSImageSobel", "MPSImageThresholdToZero"}};
 };
