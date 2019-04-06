@@ -83,7 +83,7 @@ def replacestrsChop(filename, s, r):
       line = r + "\n"
     sys.stdout.write(line)
 
-def dirwalk(dir, searchproject, replaceproject, searchman, replaceman):
+def dirwalk(dir, searchproject, replaceproject, searchman, replaceman, oldroot= "", newroot=""):
   for f in os.listdir(dir):
     fullpath = os.path.join(dir, f)
 
@@ -93,32 +93,32 @@ def dirwalk(dir, searchproject, replaceproject, searchman, replaceman):
         fullpath = os.path.join(dir, replaceproject + "-macOS.xcodeproj")
 
         print("recursing in macOS xcode project directory: ")
-        for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman):
+        for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman, oldroot, newroot):
           yield x
       elif checkdirname(f, searchproject + "-iOS.xcodeproj"):
         os.rename(fullpath, os.path.join(dir, replaceproject + "-iOS.xcodeproj"))
         fullpath = os.path.join(dir, replaceproject + "-iOS.xcodeproj")
 
         print("recursing in iOS xcode project directory: ")
-        for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman):
+        for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman, oldroot, newroot):
           yield x
       elif checkdirname(f, searchproject + ".xcworkspace"):
         os.rename(fullpath, os.path.join(dir, replaceproject + ".xcworkspace"))
         fullpath = os.path.join(dir, replaceproject + ".xcworkspace")
 
         print("recursing in main xcode workspace directory: ")
-        for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman):
+        for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman, oldroot, newroot):
           yield x
       elif checkdirname(f, searchproject + "iOSAppIcon.appiconset"):
         os.rename(fullpath, os.path.join(dir, replaceproject + "iOSAppIcon.appiconset"))
         fullpath = os.path.join(dir, replaceproject + "iOSAppIcon.appiconset")
 
         print("recursing in iOSAppIcon directory: ")
-        for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman):
+        for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman, oldroot, newroot):
           yield x
       elif (f in SUBFOLDERS_TO_SEARCH):
         print('recursing in ' + f + ' directory: ')
-        for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman):
+        for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman, oldroot, newroot):
           yield x
 
     if os.path.isfile(fullpath):
@@ -127,6 +127,7 @@ def dirwalk(dir, searchproject, replaceproject, searchman, replaceman):
       base, extension = os.path.splitext(filename)
 
       if (not(extension in FILTERED_FILE_EXTENSIONS)):
+
         print("Replacing project name strings in file " + filename)
         replacestrs(fullpath, searchproject, replaceproject)
 
@@ -135,6 +136,11 @@ def dirwalk(dir, searchproject, replaceproject, searchman, replaceman):
 
         print("Replacing manufacturer name strings in file " + filename)
         replacestrs(fullpath, searchman, replaceman)
+
+        if (oldroot and newroot):
+          print ("Replacing iPlug2 root folder in file  " + filename)
+          replacestrs(fullpath, oldroot, newroot)
+
       else:
         print("NOT replacing name strings in file " + filename)
 
@@ -151,6 +157,7 @@ def main():
   print("\nIPlug Project Duplicator v" + VERSION + " by Oli Larkin ------------------------------\n")
 
   numargs = len(sys.argv) - 1
+
   if not (numargs == 3 or numargs == 4):
     print("Usage: duplicate.py inputprojectname outputprojectname manufacturername (outputprojectpath)")
     sys.exit(1)
@@ -168,7 +175,6 @@ def main():
     print("error: Output path does not exist")
     sys.exit(1)
 
-  #outputpath = outputbasepath + "/" + outputprojectname
   outputpath = os.path.join(outputbasepath, outputprojectname)
 
   if ' ' in inputprojectname:
@@ -203,8 +209,17 @@ def main():
   print("copying " + inputprojectname + " folder to " + outputpath)
   copytree(inputprojectname, outputpath, ignore=ignore_patterns(*DONT_COPY))
 
+  if numargs == 4:
+    configpath = os.path.join(inputprojectname, "config")
+    xcconfig = parse_xcconfig(configpath + "/" + inputprojectname + "-mac.xcconfig")
+    oldroot = xcconfig["ROOT"]
+    iplug2folder = os.path.abspath(os.path.join(configpath, oldroot))
+    newroot = os.path.relpath(iplug2folder, os.path.join(outputpath, "config"))
+  else:
+    newroot = ""
+
   #replace manufacturer name strings
-  for dir in dirwalk(outputpath, inputprojectname, outputprojectname, "AcmeInc", manufacturer):
+  for dir in dirwalk(outputpath, inputprojectname, outputprojectname, "AcmeInc", manufacturer, oldroot, newroot):
     pass
 
   print("\ncopying gitignore template into project folder\n")
