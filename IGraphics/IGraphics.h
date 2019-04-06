@@ -1183,7 +1183,7 @@ private:
   IControl* GetMouseControl(float x, float y, bool capture, bool mouseOver = false);
   
 #pragma mark - Event handling
-
+public:
   /** @param x The X coordinate in the graphics context at which the mouse event occurred
    * @param y The Y coordinate in the graphics context at which the mouse event occurred
    * @param mod IMouseMod struct contain information about the modifiers held */
