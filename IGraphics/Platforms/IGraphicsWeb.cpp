@@ -20,18 +20,6 @@ using namespace emscripten;
 
 extern IGraphics* gGraphics;
 
-// Font
-
-IGraphicsWeb::WebFont::WebFont(const char* fontName, const char* styleName, void* data, int size)
- : PlatformFont(styleName), mName(fontName)
-{
-  const unsigned char* src = reinterpret_cast<const unsigned char*>(data);
-  unsigned char* dest = ResizeOK(size);
-  
-  if (dest)
-    std::copy(src, src + size, dest);
-}
-
 // Key combos
 
 static int domVKToWinVK(int dom_vk_code)
@@ -581,7 +569,7 @@ IGraphics::PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fileNameOr
   fclose(fp);
     
   if (readSize == data.GetSize())
-    return PlatformFontPtr(new WebFont("", "", data.Get(), data.GetSize()));
+    return PlatformFontPtr(new WebFont("", "", data.Get(), data.GetSize(), 0));
 
   return nullptr;
 }

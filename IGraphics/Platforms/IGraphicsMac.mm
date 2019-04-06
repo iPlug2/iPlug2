@@ -59,28 +59,21 @@ static double gettm()
 IGraphicsMac::MacFont::~MacFont()
 {
   CGDataProviderRelease(mProvider);
-  if (mData)
-    CFRelease(mData);
   if (mDescriptor)
     CFRelease(mDescriptor);
 };
 
-void IGraphicsMac::MacFont::CheckData()
+IFontDataPtr IGraphicsMac::MacFont::GetFontData()
 {
-  if (!mData)
-    mData = CGDataProviderCopyData(mProvider);
-}
-
-const void* IGraphicsMac::MacFont::GetFontData()
-{
-  CheckData();
-  return CFDataGetBytePtr(mData);
-}
-
-int IGraphicsMac::MacFont::GetFontDataSize()
-{
-  CheckData();
-  return static_cast<int>(CFDataGetLength(mData));
+  CFDataRef rawData = CGDataProviderCopyData(mProvider);
+  const UInt8* bytes = CFDataGetBytePtr(rawData);
+  IFontDataPtr data(new IFontData(bytes, (int) CFDataGetLength(rawData), GetFaceIdx(bytes)));
+  CFRelease(rawData);
+   
+  if (data->GetFaceIdx() >= 0)
+    return IFontDataPtr(data.release());
+  else
+    return nullptr;
 }
   
 #pragma mark -
@@ -107,6 +100,24 @@ bool IGraphicsMac::IsSandboxed()
   return false;
 }
 
+template <class T>
+struct CFLocal
+{
+    CFLocal(T obj) : mObject(obj) {}
+    ~CFLocal() { if (mObject) CFRelease(mObject); }
+    
+    T Get() { return mObject; }
+    
+    T Release()
+    {
+      T prev = mObject;
+      mObject = nullptr;
+      return prev;
+    }
+
+    T mObject;
+};
+
 IGraphics::PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fileNameOrResID)
 {
   WDL_String fullPath;
@@ -115,47 +126,36 @@ IGraphics::PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fileNameOr
   if (fontLocation == kNotFound)
     return nullptr;
     
-  CFStringRef path = CFStringCreateWithCString(NULL, fullPath.Get(), kCFStringEncodingUTF8);
-  CFURLRef url = CFURLCreateWithFileSystemPath(NULL, path, kCFURLPOSIXPathStyle, false);
-  CGDataProviderRef dataProvider = url ? CGDataProviderCreateWithURL(url) : nullptr;
-  CGFontRef cgFont = CGFontCreateWithDataProvider(dataProvider);
-  CTFontRef ctFont = CTFontCreateWithGraphicsFont(cgFont, 0.f, NULL, NULL);
-  CTFontDescriptorRef descriptor = CTFontCopyFontDescriptor(ctFont);
+  CFLocal<CFStringRef> path = CFStringCreateWithCString(NULL, fullPath.Get(), kCFStringEncodingUTF8);
+  CFLocal<CFURLRef> url = CFURLCreateWithFileSystemPath(NULL, path.Get(), kCFURLPOSIXPathStyle, false);
+  CFLocal<CGDataProviderRef> provider = url.Get() ? CGDataProviderCreateWithURL(url.Get()) : nullptr;
+  CFLocal<CGFontRef> cgFont = CGFontCreateWithDataProvider(provider.Get());
+  CFLocal<CTFontRef> ctFont = CTFontCreateWithGraphicsFont(cgFont.Get(), 0.f, NULL, NULL);
+  CFLocal<CTFontDescriptorRef> descriptor = CTFontCopyFontDescriptor(ctFont.Get());
   
-  CFRelease(path);
-  if (url)
-    CFRelease(url);
-  if(!descriptor)
-    CFRelease(dataProvider);
-  CGFontRelease(cgFont);
-  if (ctFont)
-    CFRelease(ctFont);
-
-  return PlatformFontPtr(descriptor ? new MacFont(descriptor, dataProvider) : nullptr);
+  if (!descriptor.Get())
+    return nullptr;
+    
+  return PlatformFontPtr(new MacFont(descriptor.Release(), provider.Release()));
 }
 
 IGraphics::PlatformFontPtr IGraphicsMac::LoadPlatformFont(const IText& text)
 {
-  CFStringRef fontStr = CFStringCreateWithCString(NULL, text.mFont, kCFStringEncodingUTF8);
-  CFStringRef styleStr = CFStringCreateWithCString(NULL, text.GetStyleString(), kCFStringEncodingUTF8);
+  CFLocal<CFStringRef> fontStr = CFStringCreateWithCString(NULL, text.mFont, kCFStringEncodingUTF8);
+  CFLocal<CFStringRef> styleStr = CFStringCreateWithCString(NULL, text.GetStyleString(), kCFStringEncodingUTF8);
   
   CFStringRef keys[] = { kCTFontFamilyNameAttribute, kCTFontStyleNameAttribute };
-  CFTypeRef values[] = { fontStr, styleStr };
+  CFTypeRef values[] = { fontStr.Get(), styleStr.Get() };
   
-  CFDictionaryRef dictionary = CFDictionaryCreate(NULL, (const void**)&keys, (const void**)&values, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-  CTFontDescriptorRef descriptor = CTFontDescriptorCreateWithAttributes(dictionary);
-  CFURLRef url = (CFURLRef)CTFontDescriptorCopyAttribute(descriptor, kCTFontURLAttribute);
-  CGDataProviderRef dataProvider = url ? CGDataProviderCreateWithURL(url) : nullptr;
+  CFLocal<CFDictionaryRef> dictionary = CFDictionaryCreate(NULL, (const void**)&keys, (const void**)&values, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+  CFLocal<CTFontDescriptorRef> descriptor = CTFontDescriptorCreateWithAttributes(dictionary.Get());
+  CFLocal<CFURLRef> url = (CFURLRef) CTFontDescriptorCopyAttribute(descriptor.Get(), kCTFontURLAttribute);
+  CFLocal<CGDataProviderRef> provider = url.Get() ? CGDataProviderCreateWithURL(url.Get()) : nullptr;
 
-  CFRelease(fontStr);
-  CFRelease(styleStr);
-  CFRelease(dictionary);
-  if (!dataProvider)
-    CFRelease(descriptor);
-  if (url)
-    CFRelease(url);
-  
-  return PlatformFontPtr(dataProvider ? new MacFont(descriptor, dataProvider, text.GetStyleString()) : nullptr);
+  if (!provider.Get())
+    return nullptr;
+    
+  return PlatformFontPtr(new MacFont(descriptor.Release(), provider.Release(), text.GetStyleString()));
 }
 
 bool IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds)

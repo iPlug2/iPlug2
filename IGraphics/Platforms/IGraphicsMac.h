@@ -26,17 +26,14 @@ public:
   {
   public:
     MacFont(CTFontDescriptorRef descriptor, CGDataProviderRef provider, const char* styleName = "")
-     : PlatformFont(styleName), mDescriptor(descriptor), mProvider(provider), mData(nullptr) {}
+     : PlatformFont(styleName), mDescriptor(descriptor), mProvider(provider) {}
     ~MacFont();
       
-    const void* GetFont() override { return reinterpret_cast<const void*>(mDescriptor); }
-    const void* GetFontData() override;
-    int GetFontDataSize() override;
+    const void* GetDescriptor() override { return reinterpret_cast<const void*>(mDescriptor); }
+    IFontDataPtr GetFontData() override;
 
   private:
-    void CheckData();
       
-    CFDataRef mData;
     CTFontDescriptorRef mDescriptor;
     CGDataProviderRef mProvider;
   };

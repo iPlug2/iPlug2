@@ -15,17 +15,7 @@
 
 // Fonts
 
-static StaticStorage<IGraphicsAGG::AGGFont> sFontCache;
-
-IGraphicsAGG::AGGFont::AGGFont(const PlatformFontPtr& font) : mFaceIdx(font->GetFaceIdx())
-{
-  int size = font->GetFontDataSize();
-  const char* src = reinterpret_cast<const char*>(font->GetFontData());
-  char* dest = ResizeOK(size);
-
-  if (dest)
-    std::copy(src, src + size, dest);
-}
+static StaticStorage<IFontData> sFontCache;
 
 // Utility
 
@@ -206,13 +196,13 @@ IGraphicsAGG::IGraphicsAGG(IGEditorDelegate& dlg, int w, int h, int fps, float s
 {
   DBGMSG("IGraphics AGG @ %i FPS\n", fps);
     
-  StaticStorage<AGGFont>::Accessor storage(sFontCache);
+  StaticStorage<IFontData>::Accessor storage(sFontCache);
   storage.Retain();
 }
 
 IGraphicsAGG::~IGraphicsAGG()
 {
-  StaticStorage<AGGFont>::Accessor storage(sFontCache);
+  StaticStorage<IFontData>::Accessor storage(sFontCache);
   storage.Release();
 }
 
@@ -233,16 +223,16 @@ void IGraphicsAGG::UpdateLayer()
 
 bool IGraphicsAGG::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 {
-  StaticStorage<AGGFont>::Accessor storage(sFontCache);
+  StaticStorage<IFontData>::Accessor storage(sFontCache);
   
   if (storage.Find(fontID))
     return true;
     
-  std::unique_ptr<AGGFont> aggFont(new AGGFont(font));
-    
-  if (SetFont(fontID, aggFont.get()))
+  IFontDataPtr data = font->GetFontData();
+
+  if (data && SetFont(fontID, data.get()))
   {
-    storage.Add(aggFont.release(), fontID);
+    storage.Add(data.release(), fontID);
     return true;
   }
 
@@ -615,10 +605,10 @@ void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IREC
   }
 }
 
-bool IGraphicsAGG::SetFont(const char* fontID, AGGFont* pFont)
+bool IGraphicsAGG::SetFont(const char* fontID, IFontData* pFont)
 {
   agg::glyph_rendering render = agg::glyph_ren_outline;
-  return mFontEngine.load_font(fontID, pFont->faceIdx(), render, pFont->Get(), pFont->GetSize());
+  return mFontEngine.load_font(fontID, pFont->GetFaceIdx(), render, (char*) pFont->Get(), pFont->GetSize());
 }
 
 bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
@@ -634,9 +624,9 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
 
   mFontContour.width(-weight * (text.mSize * 0.05));
   
-  StaticStorage<AGGFont>::Accessor storage(sFontCache);
+  StaticStorage<IFontData>::Accessor storage(sFontCache);
   WDL_String fontID(text.mFont);
-  AGGFont* pFont = storage.Find(fontID.Get());
+  IFontData* pFont = storage.Find(fontID.Get());
     
   if (!pFont)
   {

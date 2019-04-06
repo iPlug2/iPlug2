@@ -40,15 +40,17 @@ class IGraphicsWeb final : public IGRAPHICS_DRAW_CLASS
 {
 public:
     
-  struct WebFont : public PlatformFont, private WDL_TypedBuf<unsigned char>
+  class WebFont : public PlatformFont, private IFontData
   {
   public:
-    WebFont(const char* fontName, const char* styleName, void* data, int size);
+    WebFont(const char* fontName, const char* styleName, void* data, int size, int faceIdx)
+    : IFontData(data, size, faceIdx), PlatformFont(styleName), mName(fontName)
+    {}
     
-    const void* GetFont() override { return reinterpret_cast<const void*>(mName.Get()); }
-    const void* GetFontData() override { return Get();};
-    int GetFontDataSize() override  { return GetSize();};
-    
+    const void* GetDescriptor() override { return reinterpret_cast<const void*>(mName.Get()); }
+    IFontDataPtr GetFontData() override { return IFontDataPtr(new IFontData(Get(), GetSize(), GetFaceIdx())); }
+
+  private:
     WDL_String mName;
   };
   

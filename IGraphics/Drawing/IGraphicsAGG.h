@@ -75,20 +75,6 @@ public:
     double mWidth;
     LineInfo() : mWidth(0.0), mStartChar(0), mEndChar(0) {}
   };
-
-  class AGGFont : private WDL_TypedBuf<char>
-  {
-  public:
-    
-    AGGFont(const PlatformFontPtr& font);
-    
-    const char* Get()   { return WDL_TypedBuf<char>::Get(); };
-    int GetSize() const { return WDL_TypedBuf<char>::GetSize(); };
-    int faceIdx() const { return mFaceIdx; };
-    
-  private:
-    int mFaceIdx;
-  };
   
 #ifdef OS_WIN
   typedef agg::order_bgra PixelOrder;
@@ -318,7 +304,7 @@ protected:
 
 private:
   
-  bool SetFont(const char* fontID, AGGFont* pFont);
+  bool SetFont(const char* fontID, IFontData* pFont);
 
   void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& bounds, const char* str, FontManagerType& manager);
 

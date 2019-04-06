@@ -28,6 +28,7 @@
 #include "mutex.h"
 #include "wdlstring.h"
 #include "ptrlist.h"
+#include "heapbuf.h"
 
 #include "nanosvg.h"
 
@@ -533,6 +534,31 @@ struct IText
 };
 
 const IText DEFAULT_TEXT = IText();
+
+/** Used to manage raw font data. */
+class IFontData : private WDL_TypedBuf<unsigned char>
+{
+public:
+    
+  IFontData(const void* data, int size, int faceIdx) : mFaceIdx(faceIdx)
+  {
+    const unsigned char* src = reinterpret_cast<const unsigned char*>(data);
+    unsigned char* dest = ResizeOK(size);
+      
+    if (dest)
+      std::copy(src, src + size, dest);
+  }
+    
+  unsigned char* Get() const { return WDL_TypedBuf<unsigned char>::Get(); }
+  int GetSize() const { return WDL_TypedBuf<unsigned char>::GetSize(); }
+  int GetFaceIdx() const { return mFaceIdx; }
+    
+private:
+  int mFaceIdx;
+};
+
+/** IFontDataPtr is a managed pointer for transferring the ownership of font data */
+typedef std::unique_ptr<IFontData> IFontDataPtr;
 
 /** Used to manage a rectangular area, independant of draw class/platform.
  * An IRECT is always specified in 1:1 pixels, any scaling for high DPI happens in the drawing class.

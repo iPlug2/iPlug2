@@ -71,17 +71,22 @@ protected:
 
   static int FontDataGetName(WDL_String& family, WDL_String&style, const void* data, int idx);
 
-  struct PlatformFont
+  class PlatformFont
   {
+  public:
+      
     PlatformFont(const char* styleName) : mStyleName(styleName) {}
     virtual ~PlatformFont() {}
 
-    bool IsValid() { return GetFaceIdx() >= 0; }
-    virtual const void* GetFont() { return nullptr; }
-    virtual const void* GetFontData() { return nullptr; }
-    virtual int GetFontDataSize() { return 0; }
-    int GetFaceIdx();
-    
+    bool IsValid() { return true;}//GetFaceIdx() >= 0; }
+    virtual const void* GetDescriptor() { return nullptr; }
+    virtual IFontDataPtr GetFontData() { return nullptr; }
+
+  protected:
+      
+    int GetFaceIdx(const void* data);
+      
+  private:
     WDL_String mStyleName;
   };
 

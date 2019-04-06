@@ -77,17 +77,7 @@
 
 // Fonts
 
-StaticStorage<IGraphicsNanoVG::NanoVGFontData> sFontCache;
-
-IGraphicsNanoVG::NanoVGFontData::NanoVGFontData(const IGraphics::PlatformFontPtr& font)
-{
-  int size = font->GetFontDataSize();
-  const unsigned char* src = reinterpret_cast<const unsigned char*>(font->GetFontData());
-  unsigned char* dest = ResizeOK(size);
-    
-  if (dest)
-    std::copy(src, src + size, dest);
-}
+StaticStorage<IFontData> sFontCache;
 
 // Retriving pixels
 
@@ -227,13 +217,13 @@ IGraphicsNanoVG::IGraphicsNanoVG(IGEditorDelegate& dlg, int w, int h, int fps, f
 : IGraphicsPathBase(dlg, w, h, fps, scale)
 {
   DBGMSG("IGraphics NanoVG @ %i FPS\n", fps);
-  StaticStorage<NanoVGFontData>::Accessor storage(sFontCache);
+  StaticStorage<IFontData>::Accessor storage(sFontCache);
   storage.Release();
 }
 
 IGraphicsNanoVG::~IGraphicsNanoVG() 
 {
-  StaticStorage<NanoVGFontData>::Accessor storage(sFontCache);
+  StaticStorage<IFontData>::Accessor storage(sFontCache);
   storage.Release();
   ClearFBOStack();
 }
@@ -714,14 +704,14 @@ void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& opti
 
 bool IGraphicsNanoVG::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 {
-  StaticStorage<NanoVGFontData>::Accessor storage(sFontCache);
+  StaticStorage<IFontData>::Accessor storage(sFontCache);
 
   if (storage.Find(fontID))
     return true;
     
-  std::unique_ptr<NanoVGFontData> data(new NanoVGFontData(font));
-    
-  if (nvgCreateFontFaceMem(mVG, fontID, data->Get(), data->GetSize(), font->GetFaceIdx(), 0) != -1)
+  IFontDataPtr data = font->GetFontData();
+
+  if (data && nvgCreateFontFaceMem(mVG, fontID, data->Get(), data->GetSize(), data->GetFaceIdx(), 0) != -1)
   {
     storage.Add(data.release(), fontID);
     return true;

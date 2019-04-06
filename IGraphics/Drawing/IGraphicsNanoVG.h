@@ -111,14 +111,6 @@ private:
 class IGraphicsNanoVG : public IGraphicsPathBase
 {
 public:
-    
-  struct NanoVGFontData : private WDL_TypedBuf<unsigned char>
-  {
-    NanoVGFontData(const IGraphics::PlatformFontPtr& font);
-    
-    unsigned char* Get() { return WDL_TypedBuf<unsigned char>::Get(); }
-    int GetSize() const { return WDL_TypedBuf<unsigned char>::GetSize(); }
-  };
   
   const char* GetDrawingAPIStr() override;
 
