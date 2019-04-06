@@ -130,7 +130,7 @@ IGraphicsCairo::~IGraphicsCairo()
   }
 #endif
   
-  // N.B. calls through to delete context and surface
+  // N.B. calls through to destroy context and surface
   
   UpdateCairoMainSurface(nullptr);
 }
@@ -654,7 +654,7 @@ void IGraphicsCairo::EndFrame()
 #endif
 }
 
-bool IGraphicsCairo::LoadFont(const char* name)
+bool IGraphicsCairo::LoadFont(const char* fileName)
 {
 #ifdef IGRAPHICS_FREETYPE
   if(!mFTLibrary)
@@ -663,7 +663,7 @@ bool IGraphicsCairo::LoadFont(const char* name)
   WDL_String fontNameWithoutExt(name, (int) strlen(name));
   fontNameWithoutExt.remove_fileext();
   WDL_String fullPath;
-  OSFindResource(name, "ttf", fullPath);
+  LocateResource(fileName, "ttf", fullPath, GetBundleID(), GetWinModuleHandle());
 
   FT_Face ftFace;
   FT_Error ftError;

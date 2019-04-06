@@ -19,27 +19,7 @@
 #include "IPlugPluginBase.h"
 #include "IPlugPaths.h"
 
-NSString* ToNSString(const char* cStr)
-{
-  return [NSString stringWithCString:cStr encoding:NSUTF8StringEncoding];
-}
-
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-
-//struct CocoaAutoReleasePool
-//{
-//  NSAutoreleasePool* mPool;
-//
-//  CocoaAutoReleasePool()
-//  {
-//    mPool = [[NSAutoreleasePool alloc] init];
-//  }
-//
-//  ~CocoaAutoReleasePool()
-//  {
-//    [mPool release];
-//  }
-//};
 
 #pragma mark -
 
@@ -51,78 +31,6 @@ IGraphicsIOS::IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float s
 IGraphicsIOS::~IGraphicsIOS()
 {
   CloseWindow();
-}
-
-bool IGraphicsIOS::GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath)
-{
-//  CocoaAutoReleasePool pool;
-  
-  const char* ext = fileName+strlen(fileName)-1;
-  while (ext >= fileName && *ext != '.') --ext;
-  ++ext;
-  
-  bool isCorrectType = !strcasecmp(ext, searchExt);
-  
-  NSBundle* pBundle = [NSBundle bundleWithIdentifier:ToNSString(GetBundleID())];
-  NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
-  NSString* pExt = [NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding];
-  
-  if (isCorrectType && pBundle && pFile)
-  {
-    NSString* pParent = [[[pBundle bundlePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent];
-    NSString* pPath = [[[[pParent stringByAppendingString:@"/"] stringByAppendingString:pFile] stringByAppendingString: @"."] stringByAppendingString:pExt];
-
-    if (pPath)
-    {
-      fullPath.Set([pPath cString]);
-      return true;
-    }
-  }
-  
-  fullPath.Set("");
-  return false;
-}
-
-bool IGraphicsIOS::GetResourcePathFromUsersMusicFolder(const char* fileName, const char* searchExt, WDL_String& fullPath)
-{
-  //  CocoaAutoReleasePool pool; TODO:
-  
-  const char* ext = fileName+strlen(fileName)-1;
-  while (ext >= fileName && *ext != '.') --ext;
-  ++ext;
-  
-  bool isCorrectType = !strcasecmp(ext, searchExt);
-  
-  NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
-  NSString* pExt = [NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding];
-  
-//  if (isCorrectType && pFile)
-//  {
-//    WDL_String musicFolder;
-//    SandboxSafeAppSupportPath(musicFolder);
-//    NSString* pPluginName = [NSString stringWithCString: dynamic_cast<IPluginBase&>(GetDelegate()).GetPluginName() encoding:NSUTF8StringEncoding];
-//    NSString* pMusicLocation = [NSString stringWithCString: musicFolder.Get() encoding:NSUTF8StringEncoding];
-//    NSString* pPath = [[[[pMusicLocation stringByAppendingPathComponent:pPluginName] stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent: pFile] stringByAppendingPathExtension:pExt];
-//
-//    if (pPath)
-//    {
-//      fullPath.Set([pPath UTF8String]);
-//      return true;
-//    }
-//  }
-  
-  fullPath.Set("");
-  return false;
-}
-
-EResourceLocation IGraphicsIOS::OSFindResource(const char* name, const char* type, WDL_String& result)
-{
-  if(CStringHasContents(name))
-  {
-    if(GetResourcePathFromBundle(name, type, result))
-      return EResourceLocation::kAbsolutePath;
-  }
-  return EResourceLocation::kNotFound;
 }
 
 void* IGraphicsIOS::OpenWindow(void* pParent)

@@ -34,6 +34,7 @@
 
 #include "IPlugConstants.h"
 #include "IPlugLogger.h"
+#include "IPlugPaths.h"
 
 #include "IGraphicsConstants.h"
 #include "IGraphicsStructs.h"
@@ -453,6 +454,7 @@ public:
   ILayerPtr EndLayer();
   bool CheckLayer(const ILayerPtr& layer);
   void DrawLayer(const ILayerPtr& layer, const IBlend* pBlend = nullptr);
+  void DrawFittedLayer(const ILayerPtr& layer, const IRECT& bounds, const IBlend* pBlend);
   void DrawRotatedLayer(const ILayerPtr& layer, double angle);
     
   /** Applies a dropshadow directly onto a layer
@@ -636,26 +638,6 @@ public:
    * @param x the x position to convert
    * @param y the y position to convert */
   virtual void ClientToScreen(float& x, float& y) {};
-
-  /** Find the absolute path of a resource based on it's file name (e.g. “background.png”) and type (e.g. “png”), or in the case of windows, 
-   * confirm the existence of a particular resource in the binary. If it fails to find the resource with the binary it will test the fileNameOrResID argument
-   * as an absolute path, to see if the file exists in that place.
-   * On macOS resources are usually included inside the bundle resources folder.
-   * On Windows resources are usually baked into the binary via the resource compiler. In this case the fileName argument is the resource id to look for. 
-   * The .rc file must include these ids, otherwise you may hit a runtime assertion when you come to load the file.
-   * In some cases you may want to provide an absolute path to a file in a shared resources folder
-   * here (for example if you want to reduce the disk footprint of multiple bundles, such as when you have multiple plug-in formats installed).
-   *
-   * @param fileNameOrResID The filename or resourceID including extension. If no resource is found this argument is tested as an absolute path.
-   * @param type The resource type (file extension) in lower or upper case, e.g. ttf or TTF for a truetype font 
-   * @param result WDL_String which will either contain the full path to the resource on disk, or the ful Windows resourceID on success
-   * @return \c true on success */
-  virtual EResourceLocation OSFindResource(const char* fileNameOrResID, const char* type, WDL_String& result) = 0;
-
-  /** Load a resource from the binary (windows only).
-   * @param type The resource type in lower or upper case, e.g. ttf or TTF for a truetype font
-   * @return const void pointer to the data if successfull on windows. Returns nullptr if unsuccessfull or on platforms other than windows */
-  virtual const void* LoadWinResource(const char* resID, const char* type, int& sizeInBytes) { return nullptr; }
 
   /** Get the bundle ID on macOS and iOS, returns emtpy string on other OSs */
   virtual const char* GetBundleID() { return ""; }
@@ -978,8 +960,8 @@ public:
   
   EUIResizerMode GetResizerMode() const { return mGUISizeMode; }
   
-  IPopupMenuControl* GetPopupMenuControl() { return mPopupControl; }
-  ITextEntryControl* GetTextEntryControl() { return mTextEntryControl; }
+  IPopupMenuControl* GetPopupMenuControl() { return mPopupControl.get(); }
+  ITextEntryControl* GetTextEntryControl() { return mTextEntryControl.get(); }
   
   void StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec = DEFAULT_SPEC);
 #pragma mark - Plug-in API Specific
@@ -1062,7 +1044,7 @@ protected:
   template<typename T, typename... Args>
   void ForMatchingControls(T method, int paramIdx, Args... args);
   
-  IGEditorDelegate* mDelegate = nullptr;
+  IGEditorDelegate* mDelegate;
   void* mPlatformContext = nullptr;
   bool mCursorHidden = false;
   bool mCursorLock = false;
@@ -1093,11 +1075,11 @@ private:
 
   // Order (front-to-back) ToolTip / PopUp / TextEntry / LiveEdit / Corner / PerfDisplay
   
-  ICornerResizerControl* mCornerResizer = nullptr;
-  IPopupMenuControl* mPopupControl = nullptr;
-  IFPSDisplayControl* mPerfDisplay = nullptr;
-  ITextEntryControl* mTextEntryControl = nullptr;
-  IControl* mLiveEdit = nullptr;
+  std::unique_ptr<ICornerResizerControl> mCornerResizer;
+  std::unique_ptr<IPopupMenuControl> mPopupControl;
+  std::unique_ptr<IFPSDisplayControl> mPerfDisplay;
+  std::unique_ptr<ITextEntryControl> mTextEntryControl;
+  std::unique_ptr<IControl> mLiveEdit;
   
   IPopupMenu mPromptPopupMenu;
   
