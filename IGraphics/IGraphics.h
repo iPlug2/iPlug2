@@ -419,9 +419,9 @@ public:
 
   /** \todo
    * @param color The color to draw the line with
-   * @param xi \todo
-   * @param yLo \todo
-   * @param yHi \todo
+   * @param yi \todo
+   * @param xLo \todo
+   * @param xHi \todo
    * @param pBlend Optional blend method, see IBlend documentation*/
   void DrawHorizontalLine(const IColor& color, float yi, float xLo, float xHi, const IBlend* pBlend = 0, float thickness = 1.f);
 
@@ -533,9 +533,8 @@ public:
   virtual void MoveMouseCursor(float x, float y) = 0;
   
   /** Sets the mouse cursor to one of ECursor (implementations should return the result of the base implementation)
-   * @param cursor The cursor type
+   * @param cursorType The cursor type
    * @return the previous cursor type so it can be restored later */
-
   virtual ECursor SetMouseCursor(ECursor cursorType = ECursor::ARROW)
   {
     ECursor oldCursorType = mCursorType;
@@ -651,7 +650,7 @@ public:
   void SetScreenScale(int scale);
     
   /** Called repeatedly at frame rate by the platform class to check what the graphics context says is dirty
-   * @param bounds The rectangular region which will be added to to mark what is dirty in the context
+   * @param rects The rectangular regions which will be added to to mark what is dirty in the context
    * @return /c true if a control is dirty */
   bool IsDirty(IRECTList& rects);
 
@@ -768,7 +767,9 @@ public:
   void AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale, bool layoutOnResize = false);
 
   /** Attach a control for pop-up menus, to override platform style menus
-   * @param pControl A control that inherits from IPopupMenuControl */
+   @param text The text style to use for the menu
+   @param bounds The area that the menu should occupy /todo check
+   */
   void AttachPopupMenuControl(const IText& text = DEFAULT_TEXT, const IRECT& bounds = IRECT());
   
   void SetKeyHandlerFunc(std::function<bool(const IKeyPress& key)> keyHandlerFunc) { mKeyHandlerFunc = keyHandlerFunc; }
@@ -900,7 +901,7 @@ public:
   void OnResizeGesture(float x, float y);
 
   /** @param enable Set \c true if you want to handle mouse over messages. Note: this may increase the amount CPU usage if you redraw on mouse overs etc */
-  void HandleMouseOver(bool canHandle) { mHandleMouseOver = canHandle; }
+  void HandleMouseOver(bool enable) { mHandleMouseOver = enable; }
 
   /** Used to tell the graphics context to stop tracking mouse interaction with a control \todo internal only? */
   void ReleaseMouseCapture();
@@ -945,7 +946,7 @@ public:
 
   /** Get the x, y position in the graphics context of the last mouse down message. Does not get cleared on mouse up etc.
    * @param x Where the X position will be stored
-   * @param float&y Where the Y position will be stored */
+   * @param y Where the Y position will be stored */
   void GetMouseDownPoint(float& x, float&y) const { x = mMouseDownX; y = mMouseDownY; }
   
   /** @return Get a persistant IPopupMenu (remember to clear it before use) */
@@ -955,7 +956,7 @@ public:
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
 
   /**  Set by the platform class if the mouse input is coming from a tablet/stylus
-   * @param tablet, \c true means input is from a tablet */
+   * @param tablet \c true means input is from a tablet */
   void SetTabletInput(bool tablet) { mTabletInput = tablet; }
   
   EUIResizerMode GetResizerMode() const { return mGUISizeMode; }

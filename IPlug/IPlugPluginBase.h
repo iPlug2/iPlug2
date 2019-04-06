@@ -290,7 +290,7 @@ public:
   
   /** Modify a parameter group simulataneously
    * @param paramGroup The name of the group to modify
-   * @param param func A lambda function to modify the parameter. Ideas: you could randomise the parameter value or reset to default*/
+   * @param func A lambda function to modify the parameter. Ideas: you could randomise the parameter value or reset to default*/
   void ForParamInGroup(const char* paramGroup, std::function<void(int paramIdx, IParam& param)> func);
   
   /** Copy a range of parameter values

@@ -137,12 +137,10 @@ class IBitmap
 {
 public:
   /** Creates a new IBitmap object
-  * @param pData Pointer to the raw bitmap data
-  * @param w Bitmap width (in pixels)
-  * @param h Bitmap height (in pixels)
-  * @param n Number of frames (for multi frame bitmaps)
-  * @param framesAreHorizontal \c true if the frames are positioned horizontally
-  * @param name Resource name for the bitmap */
+   @param pAPIBitmap Pointer to a drawing API bitmap
+   @param n Number of frames (for multi frame film-strip bitmaps)
+   @param framesAreHorizontal framesAreHorizontal \c true if the frames are positioned horizontally
+   @param name Resource name for the bitmap */
   IBitmap(APIBitmap* pAPIBitmap, int n, bool framesAreHorizontal, const char* name = "")
     : mAPIBitmap(pAPIBitmap)
     , mW(pAPIBitmap->GetWidth() / pAPIBitmap->GetScale())
