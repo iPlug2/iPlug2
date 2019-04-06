@@ -62,8 +62,6 @@ struct WinCachedFont
 IGraphicsWin::WinFont::~WinFont()
 {
   DeleteObject(mFont);
-  if (mData)
-    delete[] mData;
 };
 
 IFontDataPtr IGraphicsWin::WinFont::GetFontData()
@@ -84,10 +82,10 @@ IFontDataPtr IGraphicsWin::WinFont::GetFontData()
         result = ::GetFontData(hdc, 0, 0, buffer.Get(), size);
       if (result == size)
       {
-        int faceIdx = GetFaceIdx(data);
+        int faceIdx = GetFaceIdx(buffer.Get());
       
         if (faceIdx >= 0)
-          fontData.reset(new IFontData(data, size, faceIdx));
+          fontData.reset(new IFontData(buffer.Get(), size, faceIdx));
       }
     }
     
@@ -1559,6 +1557,41 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
   return numChars;
 }
 
+HFONT GetHFont(const char* fontName, int weight = FW_REGULAR, bool italic = false, DWORD quality = DEFAULT_QUALITY, bool enumerate = false)
+{
+  HDC hdc = GetDC(NULL);
+  HFONT font = nullptr;
+  LOGFONT lFont;
+
+  lFont.lfHeight = 0;
+  lFont.lfWidth = 0;
+  lFont.lfEscapement = 0;
+  lFont.lfOrientation = 0;
+  lFont.lfWeight = weight;
+  lFont.lfItalic = italic;
+  lFont.lfUnderline = false;
+  lFont.lfStrikeOut = false;
+  lFont.lfCharSet = DEFAULT_CHARSET;
+  lFont.lfOutPrecision = OUT_TT_PRECIS;
+  lFont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
+  lFont.lfQuality = quality;
+  lFont.lfPitchAndFamily = DEFAULT_PITCH;
+
+  strncpy(lFont.lfFaceName, fontName, LF_FACESIZE);
+
+  auto enumProc = [](const LOGFONT* pLFont, const TEXTMETRIC* pTextMetric, DWORD FontType, LPARAM lParam)
+  {
+    return -1;
+  };
+
+  if ((!enumerate || EnumFontFamiliesEx(hdc, &lFont, enumProc, NULL, 0) == -1))
+    font = CreateFontIndirect(&lFont);
+
+  ReleaseDC(NULL, hdc);
+
+  return font;
+}
+
 IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fileNameOrResID)
 {
   StaticStorage<WinCachedFont>::Accessor storage(sPlatformFontCache);
@@ -1588,7 +1621,7 @@ IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fileNameOr
     break;
     case kWinBinary:
     {
-      void* pFontMem = const_cast<void *>(LoadWinResource(fullPath.Get(), "ttf", resSize));
+      void* pFontMem = const_cast<void *>(LoadWinResource(fullPath.Get(), "ttf", resSize, GetWinModuleHandle()));
       FontDataGetName(family, style, pFontMem, 0);
       pFont = new WinCachedFont(pFontMem, resSize);
     }

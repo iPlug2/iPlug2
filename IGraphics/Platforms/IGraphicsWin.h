@@ -26,12 +26,11 @@ public:
   {
   public:
     WinFont(HFONT font, const char* styleName = "")
-      : PlatformFont(styleName), mFont(font), mData(nullptr), mSize(0) {}
+      : PlatformFont(styleName), mFont(font) {}
     ~WinFont();
 
     const void* GetDescriptor() override { return reinterpret_cast<const void*>(mFont); }
     IFontDataPtr GetFontData() override;
-    int GetFontDataSize() override;
       
   private:
     HFONT mFont;
