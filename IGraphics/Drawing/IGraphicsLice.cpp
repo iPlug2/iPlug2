@@ -476,14 +476,7 @@ bool IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT&
     return true;
   }
   
-  LICE_IFont* font = text.mCached;
-    
-  if (!font || text.mCachedScale != ds)
-  {
-    font = CacheFont(text, ds);
-    if (!font) return false;
-  }
-  
+  LICE_IFont* font = CacheFont(text, ds);
   LICE_pixel color;
   
   if (GetTextEntryControl() && GetTextEntryControl()->GetRECT() == bounds)
@@ -671,8 +664,7 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text, double scale)
 #endif
     storage.Add(font, hashStr.Get(), scale);
   }
-  text.mCached = font;
-  text.mCachedScale = scale;
+    
   return font;
 }
 

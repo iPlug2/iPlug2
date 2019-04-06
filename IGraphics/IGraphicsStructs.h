@@ -74,7 +74,6 @@ typedef std::chrono::duration<double, std::chrono::milliseconds::period> Millise
 #elif defined IGRAPHICS_LICE
   #include "lice.h"
   typedef LICE_IBitmap* BitmapData;
-  class LICE_IFont;
 #elif defined IGRAPHICS_CANVAS
   #include <emscripten.h>
   #include <emscripten/val.h>
@@ -531,11 +530,6 @@ struct IText
   IColor mTextEntryBGColor;
   IColor mTextEntryFGColor;
   int mOrientation = 0; // Degrees ccwise from normal.
-
-#ifdef IGRAPHICS_LICE
-  mutable double mCachedScale = 1.0;
-  mutable LICE_IFont* mCached = nullptr;
-#endif
 };
 
 const IText DEFAULT_TEXT = IText();
