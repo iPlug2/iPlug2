@@ -161,7 +161,7 @@ APIBitmap* IGraphicsCairo::LoadAPIBitmap(const char* fileNameOrResID, int scale,
   if (location == EResourceLocation::kWinBinary)
   {
     int size = 0;
-    const void* pData = LoadWinResource(fileNameOrResID, "png", size);
+    const void* pData = LoadWinResource(fileNameOrResID, "png", size, GetWinModuleHandle());
     PNGStream reader(reinterpret_cast<const uint8_t *>(pData), size);
     pSurface = cairo_image_surface_create_from_png_stream(&PNGStream::Read, &reader);
   }

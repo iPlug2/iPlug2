@@ -649,7 +649,7 @@ public:
 
   void SetFaceIdx(int faceIdx) { mFaceIdx = faceIdx; }
 
-  bool IsValid() const { return GetSize()) && mFaceIdx >= 0; }
+  bool IsValid() const { return GetSize() && mFaceIdx >= 0; }
     
   unsigned char* Get() { return WDL_TypedBuf<unsigned char>::Get(); }
   int GetSize() const { return WDL_TypedBuf<unsigned char>::GetSize(); }
