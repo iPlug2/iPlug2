@@ -78,7 +78,6 @@ protected:
     PlatformFont(const char* styleName) : mStyleName(styleName) {}
     virtual ~PlatformFont() {}
 
-    bool IsValid() { return true;}//GetFaceIdx() >= 0; }
     virtual const void* GetDescriptor() { return nullptr; }
     virtual IFontDataPtr GetFontData() { return nullptr; }
 

@@ -67,7 +67,7 @@ IGraphicsWin::WinFont::~WinFont()
 IFontDataPtr IGraphicsWin::WinFont::GetFontData()
 {
   HDC hdc = CreateCompatibleDC(NULL);
-  IFontDataPtr fontData;
+  IFontDataPtr fontData(new IFontData());
   
   if (hdc != NULL)
   {

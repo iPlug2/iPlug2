@@ -1591,7 +1591,7 @@ bool IGraphics::LoadFont(const char* fileNameOrResID)
   const char* fontID = fontWithoutExt.get_filepart();
   PlatformFontPtr font = LoadPlatformFont(fileNameOrResID);
   
-  if (font && font->IsValid())
+  if (font)
   {
     if (LoadAPIFont(fontID, font))
       return true;
@@ -1607,7 +1607,7 @@ bool IGraphics::LoadFont(const char* fontID, IText::EStyle style)
   WDL_String fontWithStyle = text.GetFontWithStyle();
   PlatformFontPtr font = LoadPlatformFont(text);
   
-  if (font && font->IsValid())
+  if (font)
   {
     if (LoadAPIFont(fontID, font))
       return true;

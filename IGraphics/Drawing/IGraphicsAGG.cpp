@@ -230,7 +230,7 @@ bool IGraphicsAGG::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
     
   IFontDataPtr data = font->GetFontData();
 
-  if (data && SetFont(fontID, data.get()))
+  if (data->IsValid() && SetFont(fontID, data.get()))
   {
     storage.Add(data.release(), fontID);
     return true;

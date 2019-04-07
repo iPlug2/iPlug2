@@ -70,10 +70,7 @@ IFontDataPtr IGraphicsMac::MacFont::GetFontData()
   IFontDataPtr fontData(new IFontData(bytes, (int) CFDataGetLength(rawData), GetFaceIdx(bytes)));
   CFRelease(rawData);
    
-  if (fontData->GetFaceIdx() >= 0)
-    return fontData;
-  else
-    return nullptr;
+  return fontData;
 }
   
 #pragma mark -

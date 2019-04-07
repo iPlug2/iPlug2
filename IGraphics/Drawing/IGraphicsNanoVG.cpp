@@ -711,7 +711,7 @@ bool IGraphicsNanoVG::LoadAPIFont(const char* fontID, const PlatformFontPtr& fon
     
   IFontDataPtr data = font->GetFontData();
 
-  if (data && nvgCreateFontFaceMem(mVG, fontID, data->Get(), data->GetSize(), data->GetFaceIdx(), 0) != -1)
+  if (data->IsValid() && nvgCreateFontFaceMem(mVG, fontID, data->Get(), data->GetSize(), data->GetFaceIdx(), 0) != -1)
   {
     storage.Add(data.release(), fontID);
     return true;
