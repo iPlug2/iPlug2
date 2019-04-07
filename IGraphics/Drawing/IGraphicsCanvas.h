@@ -59,7 +59,7 @@ public:
   bool BitmapExtSupported(const char* ext) override;
 protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
-  APIBitmap* CreateAPIBitmap(int width, int height) override;
+  APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) override;
 
   bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override;
 
