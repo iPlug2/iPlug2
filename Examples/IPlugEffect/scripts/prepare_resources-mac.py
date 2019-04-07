@@ -18,7 +18,6 @@ rootfolder = "../../.."
 
 sys.path.insert(0, os.path.join(os.getcwd(), rootfolder + '/scripts'))
 
-
 from parse_config import parse_config, parse_xcconfig
 
 def main():
