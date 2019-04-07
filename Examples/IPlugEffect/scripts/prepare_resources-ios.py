@@ -38,7 +38,7 @@ def main():
            shutil.copy(projectpath + "/resources/fonts/" + font, dst)
            
   config = parse_config(projectpath)
-  xcconfig = parse_xcconfig(os.path.join(os.getcwd(), rootfolder +  '/common-mac.xcconfig'))
+  xcconfig = parse_xcconfig(os.path.join(os.getcwd(), rootfolder +  '/common-ios.xcconfig'))
 
   CFBundleGetInfoString = config['BUNDLE_NAME'] + " v" + config['FULL_VER_STR'] + " " + config['PLUG_COPYRIGHT_STR']
   CFBundleVersion = config['FULL_VER_STR']
