@@ -13,6 +13,8 @@
 #include <stdio.h>
 #include <emscripten.h>
 
+#include "wdl_base64.h"
+
 using namespace emscripten;
 
 extern IGraphics* gGraphics;
@@ -345,6 +347,37 @@ APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height)
 {
   const double scale = GetBackingPixelScale();
   return new CanvasBitmap(std::ceil(width * scale), std::ceil(height * scale), GetScreenScale(), GetDrawScale());
+}
+
+bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
+{
+  IFontDataPtr data = font->GetFontData();
+    
+  if (data->IsValid())
+  {
+    // Embed the font data in base64 format as CSS in the head of the html
+    
+    WDL_TypedBuf<char> base64Encoded;
+    
+    if (!base64Encoded.ResizeOK(((data->GetSize() * 4) + 3) / 3 + 1))
+      return false;
+    
+    wdl_base64encode(data->Get(), base64Encoded.Get(), data->GetSize());
+    std::string htmlText("@font-face { font-family: '");
+    htmlText.append(fontID);
+    htmlText.append("'; src: url(data:font/ttf;base64,");
+    htmlText.append(base64Encoded.Get());
+    htmlText.append(") format('truetype'); }");
+    val document = val::global("document");
+    val documentHead = document["head"];
+    val css = document.call<val>("createElement", std::string("style"));
+    css.set("type", std::string("text/css"));
+    css.set("innerHTML", htmlText);
+    document["head"].call<void>("appendChild", css);
+    return true;
+  }
+  
+  return false;
 }
 
 void IGraphicsCanvas::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
