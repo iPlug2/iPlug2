@@ -316,10 +316,9 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
   return new NanoVGBitmap(mVG, fileNameOrResID, scale, idx);
 }
 
-APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height)
+APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height, int scale, double drawScale)
 {
-  const double scale = GetBackingPixelScale();
-  return new NanoVGBitmap(this, mVG, std::ceil(width * scale), std::ceil(height * scale), GetScreenScale(), GetDrawScale());
+  return new NanoVGBitmap(this, mVG, width, height, scale, drawScale);
 }
 
 void IGraphicsNanoVG::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
@@ -504,7 +503,7 @@ void IGraphicsNanoVG::EndFrame()
 #endif
 }
 
-void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
+void IGraphicsNanoVG::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
   APIBitmap* pAPIBitmap = bitmap.GetAPIBitmap();
   

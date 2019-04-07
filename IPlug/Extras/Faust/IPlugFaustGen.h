@@ -70,7 +70,9 @@ static inline StatTime TimeZero() { return (StatTime) 0; }
 
 #include "mutex.h"
 
-#ifndef OS_WIN
+#ifdef OS_WIN
+#pragma comment(lib, "faust.lib")
+#else
 #include <libgen.h>
 #endif
 
@@ -87,7 +89,7 @@ static inline StatTime TimeZero() { return (StatTime) 0; }
   #if defined OS_MAC || defined OS_LINUX
     #define FAUST_EXE "/usr/local/bin/faust"
   #else
-    #define FAUST_EXE "C:\\Program Files\\Faust\\bin\\faust.exe"
+    #define FAUST_EXE "C:\\\"Program Files\"\\Faust\\bin\\faust.exe"//Double quotes around "Program Files" because of whitespace
   #endif
 #endif
 

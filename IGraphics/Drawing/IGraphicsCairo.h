@@ -54,7 +54,7 @@ public:
   IGraphicsCairo(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsCairo();
 
-  void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
+  void DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
       
   void PathClear() override;
   void PathClose() override;
@@ -76,8 +76,7 @@ public:
 
 protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
-  APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
-  APIBitmap* CreateAPIBitmap(int width, int height) override;
+  APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) override;
 
   bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font);
     
