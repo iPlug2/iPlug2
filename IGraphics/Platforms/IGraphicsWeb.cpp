@@ -569,7 +569,7 @@ IGraphics::PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fileNameOr
   fclose(fp);
     
   if (readSize == data.GetSize())
-    return PlatformFontPtr(new WebFont("", "", data.Get(), data.GetSize(), 0));
+    return PlatformFontPtr(new WebFont("", data.Get(), data.GetSize(), 0));
 
   return nullptr;
 }

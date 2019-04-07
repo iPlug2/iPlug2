@@ -43,12 +43,12 @@ public:
   class WebFont : public PlatformFont, private IFontData
   {
   public:
-    WebFont(const char* fontName, const char* styleName, void* data, int size, int faceIdx)
-    : IFontData(data, size, faceIdx), PlatformFont(styleName), mName(fontName)
+    WebFont(const char* fontName, void* data, int size, int faceIdx)
+    : IFontData(data, size, faceIdx), mName(fontName)
     {}
     
     const void* GetDescriptor() override { return reinterpret_cast<const void*>(mName.Get()); }
-    IFontDataPtr GetFontData() override { return IFontDataPtr(new IFontData(Get(), GetSize(), GetFaceIdx())); }
+    IFontDataPtr GetFontData() override { return IFontDataPtr(new IFontData(Get(), GetSize(), IFontData::GetFaceIdx())); };
 
   private:
     WDL_String mName;

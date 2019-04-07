@@ -75,7 +75,6 @@ protected:
   {
   public:
       
-    PlatformFont(const char* styleName) : mStyleName(styleName) {}
     virtual ~PlatformFont() {}
 
     virtual const void* GetDescriptor() { return nullptr; }
@@ -83,10 +82,7 @@ protected:
 
   protected:
       
-    int GetFaceIdx(const void* data);
-      
-  private:
-    WDL_String mStyleName;
+    int GetFaceIdx(const void* data, const char* styleName);
   };
 
   typedef std::unique_ptr<PlatformFont> PlatformFontPtr;

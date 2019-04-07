@@ -74,7 +74,7 @@ int IGraphics::FontDataGetName(WDL_String& family, WDL_String&style, const void*
   return -2;
 }
 
-int IGraphics::PlatformFont::GetFaceIdx(const void* data)
+int IGraphics::PlatformFont::GetFaceIdx(const void* data, const char* styleName)
 {
   for (int idx = 0; ; idx++)
   {
@@ -84,7 +84,7 @@ int IGraphics::PlatformFont::GetFaceIdx(const void* data)
     if (result == -2)
       return -1;
 
-    if (!result && (!mStyleName.Get()[0] || !strcmp(style.Get(), mStyleName.Get())))
+    if (!result && (!styleName[0] || !strcmp(style.Get(), styleName)))
       return idx;
   }
 }

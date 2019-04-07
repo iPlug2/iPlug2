@@ -25,8 +25,8 @@ public:
   class MacFont : public PlatformFont
   {
   public:
-    MacFont(CTFontDescriptorRef descriptor, CGDataProviderRef provider, const char* styleName = "")
-     : PlatformFont(styleName), mDescriptor(descriptor), mProvider(provider) {}
+    MacFont(CTFontDescriptorRef descriptor, CGDataProviderRef provider)
+     : mDescriptor(descriptor), mProvider(provider) {}
     ~MacFont();
       
     const void* GetDescriptor() override { return reinterpret_cast<const void*>(mDescriptor); }

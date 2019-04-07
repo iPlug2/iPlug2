@@ -54,6 +54,24 @@ static double gettm()
 }
 #endif
 
+template <class T>
+struct CFLocal
+{
+    CFLocal(T obj) : mObject(obj) {}
+    ~CFLocal() { if (mObject) CFRelease(mObject); }
+    
+    T Get() { return mObject; }
+    
+    T Release()
+    {
+        T prev = mObject;
+        mObject = nullptr;
+        return prev;
+    }
+    
+    T mObject;
+};
+
 // Font
 
 IGraphicsMac::MacFont::~MacFont()
@@ -65,10 +83,13 @@ IGraphicsMac::MacFont::~MacFont()
 
 IFontDataPtr IGraphicsMac::MacFont::GetFontData()
 {
-  CFDataRef rawData = CGDataProviderCopyData(mProvider);
-  const UInt8* bytes = CFDataGetBytePtr(rawData);
-  IFontDataPtr fontData(new IFontData(bytes, (int) CFDataGetLength(rawData), GetFaceIdx(bytes)));
-  CFRelease(rawData);
+  char styleCString[64];
+    
+  CFLocal<CFDataRef> rawData = CGDataProviderCopyData(mProvider);
+  const UInt8* bytes = CFDataGetBytePtr(rawData.Get());
+  CFLocal<CFStringRef> styleString = (CFStringRef) CTFontDescriptorCopyAttribute(mDescriptor, kCTFontStyleNameAttribute);
+  CFStringGetCString(styleString.Get(), styleCString, 64, kCFStringEncodingUTF8);
+  IFontDataPtr fontData(new IFontData(bytes, (int) CFDataGetLength(rawData.Get()), GetFaceIdx(bytes, styleCString)));
    
   return fontData;
 }
@@ -97,24 +118,6 @@ bool IGraphicsMac::IsSandboxed()
   return false;
 }
 
-template <class T>
-struct CFLocal
-{
-    CFLocal(T obj) : mObject(obj) {}
-    ~CFLocal() { if (mObject) CFRelease(mObject); }
-    
-    T Get() { return mObject; }
-    
-    T Release()
-    {
-      T prev = mObject;
-      mObject = nullptr;
-      return prev;
-    }
-
-    T mObject;
-};
-
 IGraphics::PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fileNameOrResID)
 {
   WDL_String fullPath;
@@ -122,7 +125,7 @@ IGraphics::PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fileNameOr
     
   if (fontLocation == kNotFound)
     return nullptr;
-    
+
   CFLocal<CFStringRef> path = CFStringCreateWithCString(NULL, fullPath.Get(), kCFStringEncodingUTF8);
   CFLocal<CFURLRef> url = CFURLCreateWithFileSystemPath(NULL, path.Get(), kCFURLPOSIXPathStyle, false);
   CFLocal<CGDataProviderRef> provider = url.Get() ? CGDataProviderCreateWithURL(url.Get()) : nullptr;
@@ -152,7 +155,7 @@ IGraphics::PlatformFontPtr IGraphicsMac::LoadPlatformFont(const IText& text)
   if (!provider.Get())
     return nullptr;
     
-  return PlatformFontPtr(new MacFont(descriptor.Release(), provider.Release(), text.GetStyleString()));
+  return PlatformFontPtr(new MacFont(descriptor.Release(), provider.Release()));
 }
 
 bool IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds)
