@@ -67,25 +67,24 @@ IGraphicsWin::WinFont::~WinFont()
 IFontDataPtr IGraphicsWin::WinFont::GetFontData()
 {
   HDC hdc = CreateCompatibleDC(NULL);
-  WDL_HeapBuf buffer;
   IFontDataPtr fontData;
   
   if (hdc != NULL)
   {
     SelectObject(hdc, mFont);
     const size_t size = ::GetFontData(hdc, 0, 0, NULL, 0);
-    
-    if (size != GDI_ERROR && buffer.ResizeOK(size))
+
+    if (size != GDI_ERROR)
     {
-      size_t result = ::GetFontData(hdc, 0x66637474, 0, buffer.Get(), size);
-      if (result == GDI_ERROR)
-        result = ::GetFontData(hdc, 0, 0, buffer.Get(), size);
-      if (result == size)
+      fontData.reset(new IFontData(size));
+
+      if (fontData->GetSize() == size)
       {
-        int faceIdx = GetFaceIdx(buffer.Get());
-      
-        if (faceIdx >= 0)
-          fontData.reset(new IFontData(buffer.Get(), size, faceIdx));
+        size_t result = ::GetFontData(hdc, 0x66637474, 0, fontData->Get(), size);
+        if (result == GDI_ERROR)
+          result = ::GetFontData(hdc, 0, 0, fontData->Get(), size);
+        if (result == size)
+          fontData->SetFaceIdx(GetFaceIdx(fontData->Get()));
       }
     }
     
