@@ -84,7 +84,7 @@ IFontDataPtr IGraphicsWin::WinFont::GetFontData()
         if (result == GDI_ERROR)
           result = ::GetFontData(hdc, 0, 0, fontData->Get(), size);
         if (result == size)
-          fontData->SetFaceIdx(GetFaceIdx(fontData->Get()));
+          fontData->SetFaceIdx(GetFaceIdx(fontData->Get(), mStyleName.Get()));
       }
     }
     

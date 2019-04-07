@@ -26,7 +26,7 @@ public:
   {
   public:
     WinFont(HFONT font, const char* styleName = "")
-      : PlatformFont(styleName), mFont(font) {}
+      : mFont(font), mStyleName(styleName) {}
     ~WinFont();
 
     const void* GetDescriptor() override { return reinterpret_cast<const void*>(mFont); }
@@ -34,6 +34,7 @@ public:
       
   private:
     HFONT mFont;
+    WDL_String mStyleName;
   };
 
   IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
