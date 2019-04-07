@@ -631,6 +631,8 @@ class IFontData : private WDL_TypedBuf<unsigned char>
 {
 public:
     
+  IFontData() : mFaceIdx(-1) {}
+    
   IFontData(const void* data, int size, int faceIdx) : mFaceIdx(faceIdx)
   {
     const unsigned char* src = reinterpret_cast<const unsigned char*>(data);
@@ -639,8 +641,17 @@ public:
     if (dest)
       std::copy(src, src + size, dest);
   }
+  
+  IFontData(int size) : mFaceIdx(-1)
+  {
+    Resize(size);
+  }
+
+  void SetFaceIdx(int faceIdx) { mFaceIdx = faceIdx; }
+
+  bool IsValid() const { return GetSize()) && mFaceIdx >= 0; }
     
-  unsigned char* Get() const { return WDL_TypedBuf<unsigned char>::Get(); }
+  unsigned char* Get() { return WDL_TypedBuf<unsigned char>::Get(); }
   int GetSize() const { return WDL_TypedBuf<unsigned char>::GetSize(); }
   int GetFaceIdx() const { return mFaceIdx; }
     
