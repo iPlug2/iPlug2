@@ -1326,11 +1326,12 @@ protected:
   /** /todo
    * @param width /todo
    * @param height /todo
+   * @param scale /todo
+   * @param drawScale /todo
    * @return APIBitmap* /todo */
-  virtual APIBitmap* CreateAPIBitmap(int width, int height) = 0;
+  virtual APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) = 0;
 
   /** /todo */   
->>>>>>> 0588aad7926afbd1410e9f41ed06825202f670e3
   virtual int AlphaChannel() const = 0;
 
   /** /todo */
