@@ -70,7 +70,9 @@ static inline StatTime TimeZero() { return (StatTime) 0; }
 
 #include "mutex.h"
 
-#ifndef OS_WIN
+#ifdef OS_WIN
+#pragma comment(lib, "faust.lib")
+#else
 #include <libgen.h>
 #endif
 
