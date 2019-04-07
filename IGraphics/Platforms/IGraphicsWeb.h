@@ -39,19 +39,20 @@ static val GetPreloadedImages()
 class IGraphicsWeb final : public IGRAPHICS_DRAW_CLASS
 {
 public:
-    
-  class WebFont : public PlatformFont, private IFontData
+  
+  class WebFileFont : public PlatformFont
   {
   public:
-    WebFont(const char* fontName, void* data, int size, int faceIdx)
-    : IFontData(data, size, faceIdx), mName(fontName)
+    WebFileFont(const char* fontName, const char* fontPath)
+    : mName(fontName), mPath(fontPath)
     {}
     
     const void* GetDescriptor() override { return reinterpret_cast<const void*>(mName.Get()); }
-    IFontDataPtr GetFontData() override { return IFontDataPtr(new IFontData(Get(), GetSize(), IFontData::GetFaceIdx())); };
-
+    IFontDataPtr GetFontData() override;
+    
   private:
     WDL_String mName;
+    WDL_String mPath;
   };
   
   IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float scale);

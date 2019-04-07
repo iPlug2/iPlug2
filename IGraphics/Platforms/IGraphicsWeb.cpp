@@ -20,6 +20,34 @@ using namespace emscripten;
 
 extern IGraphics* gGraphics;
 
+// Font
+
+IFontDataPtr IGraphicsWeb::WebFileFont::GetFontData()
+{
+  IFontDataPtr fontData(new IFontData());
+  FILE* fp = fopen(mPath.Get(), "rb");
+  
+  // Read in the font data.
+  
+  if (!fp)
+    return fontData;
+  
+  fseek(fp,0,SEEK_END);
+  fontData.reset(new IFontData((int) ftell(fp)));
+  
+  if (!fontData->GetSize())
+    return fontData;
+  
+  fseek(fp,0,SEEK_SET);
+  size_t readSize = fread(fontData->Get(), 1, fontData->GetSize(), fp);
+  fclose(fp);
+  
+  if (readSize && readSize == fontData->GetSize())
+    fontData->SetFaceIdx(0);
+  
+  return fontData;
+}
+
 // Key combos
 
 static int domVKToWinVK(int dom_vk_code)
@@ -284,7 +312,7 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
     case EMSCRIPTEN_EVENT_CLICK: break;
     case EMSCRIPTEN_EVENT_MOUSEDOWN: pGraphics->OnMouseDown(x, y, modifiers); break;
     case EMSCRIPTEN_EVENT_MOUSEUP: pGraphics->OnMouseUp(x, y, modifiers); break;
-    case EMSCRIPTEN_EVENT_DBLCLICK: pGraphics->OnMouseDblClick(x, y, modifiers);break;
+    case EMSCRIPTEN_EVENT_DBLCLICK: pGraphics->OnMouseDblClick(x, y, modifiers); break;
     case EMSCRIPTEN_EVENT_MOUSEMOVE:
       if(pEvent->buttons == 0)
         pGraphics->OnMouseOver(x, y, modifiers);
@@ -549,29 +577,7 @@ IGraphics::PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fileNameOr
   if (fontLocation == kNotFound)
     return nullptr;
 
-  FILE* fp = fopen(fullPath.Get(), "rb");
-  
-  // Read in the font data.
-
-  if (!fp)
-    return nullptr;
-  
-  WDL_TypedBuf<char> data;
-
-  fseek(fp,0,SEEK_END);
-  char* buffer = data.ResizeOK((int)ftell(fp));
-
-  if (!buffer)
-    return nullptr;
-  
-  fseek(fp,0,SEEK_SET);
-  size_t readSize = fread(buffer, 1, data.GetSize(), fp);
-  fclose(fp);
-    
-  if (readSize == data.GetSize())
-    return PlatformFontPtr(new WebFont("", data.Get(), data.GetSize(), 0));
-
-  return nullptr;
+  return PlatformFontPtr(new WebFileFont("", fullPath.Get()));
 }
 
 IGraphics::PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const IText& text)
