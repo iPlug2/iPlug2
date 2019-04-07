@@ -62,7 +62,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     DrawMenuBar(gHWND);
 #endif
 
-
     for(;;)
     {
       MSG msg= {0,};
@@ -71,7 +70,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
       if (!vvv)
         break;
       
-      if (vvv<0)
+      if (vvv < 0)
       {
         Sleep(10);
         continue;
@@ -83,7 +82,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
         continue;
       }
       
-      if (gHWND && IsDialogMessage(gHWND, &msg)) continue;
+      if (gHWND && (TranslateAccelerator(gHWND, hAccel, &msg) || IsDialogMessage(gHWND, &msg)))
+        continue;
       
       // default processing for other dialogs
       HWND hWndParent = NULL;
@@ -93,20 +93,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
       {
         if (GetClassLong(temphwnd, GCW_ATOM) == (INT)32770)
         {
-          hWndParent=temphwnd;
-          if (!(GetWindowLong(temphwnd, GWL_STYLE) &WS_CHILD))
+          hWndParent = temphwnd;
+          if (!(GetWindowLong(temphwnd, GWL_STYLE) & WS_CHILD))
             break; // not a child, exit
         }
       }
       while (temphwnd = GetParent(temphwnd));
       
-      if (hWndParent && IsDialogMessage(hWndParent,&msg)) continue;
+      if (hWndParent && IsDialogMessage(hWndParent,&msg))
+        continue;
 
-      if (!TranslateAccelerator(gHWND, hAccel, &msg))
-      {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-      }
+      TranslateMessage(&msg);
+      DispatchMessage(&msg);
     }
     
     // in case gHWND didnt get destroyed -- this corresponds to SWELLAPP_DESTROY roughly
@@ -124,7 +122,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 #pragma mark - MAC
 #elif defined(OS_MAC)
 #import <Cocoa/Cocoa.h>
-#include "swell.h"
+#include <IPlugSWELL.h>
 HWND gHWND;
 extern HMENU SWELL_app_stocksysmenu;
 
@@ -251,16 +249,19 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
       NSView* pContentView = (NSView*) pMSG->hwnd;
       NSEvent* pEvent = (NSEvent*) parm2;
       int etype = [pEvent type];
-
-      if(etype == NSKeyDown)
+          
+      bool textField = [pContentView isKindOfClass:[NSText class]];
+          
+      if (!textField && etype == NSKeyDown)
       {
         int flag, code = SWELL_MacKeyToWindowsKey(pEvent, &flag);
         
-        if (!(flag&~FVIRTKEY))
-          if(code == VK_RETURN || code == VK_ESCAPE)
-            [pContentView keyDown: pEvent];
+        if (!(flag&~FVIRTKEY) && (code == VK_RETURN || code == VK_ESCAPE))
+        {
+          [pContentView keyDown: pEvent];
+          return 1;
+        }
       }
-      
       break;
   }
   return 0;
@@ -279,7 +280,7 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 
 #pragma mark - LINUX
 #elif defined(OS_LINUX)
-//#include "swell.h"
+//#include <IPlugSWELL.h>
 //#include "swell-internal.h" // fixes problem with HWND forward decl
 //
 //HWND gHWND;

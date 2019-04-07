@@ -39,8 +39,9 @@ void AAX_CEffectGUI_IPLUG::CreateViewContainer()
   
   if (pWindow && mPlug->HasUI())
   {
-    mPlug->OpenWindow(pWindow);
-    
+    if (mPlug->OpenWindow(pWindow))
+      mPlug->OnUIOpen();
+      
     IPlugAAXView_Interface* pViewInterface = (IPlugAAXView_Interface*) mPlug->GetAAXViewInterface();
     
     if(pViewInterface)
@@ -120,7 +121,8 @@ AAX_Result IPlugAAX::EffectInit()
 { 
   TRACE;
 
-  SetHost("ProTools", 0); // TODO:vendor version correct?
+  if (GetHost() == kHostUninit)
+    SetHost("ProTools", 0); // TODO:vendor version correct?
     
   AAX_CString bypassID = NULL;
   this->GetMasterBypassParameter( &bypassID );

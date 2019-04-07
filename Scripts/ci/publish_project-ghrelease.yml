@@ -1,0 +1,56 @@
+ parameters:
+  name: ''
+  platformStr: ''
+  graphics: ''
+  pluginType: ''
+
+ steps:
+  - bash: |
+      rm -r $BUILD_BINARIESDIRECTORY
+    displayName: Clean temporary directory
+
+  - task: DownloadPipelineArtifact@0
+    continueOnError: true
+    inputs:
+      artifactName: '${{parameters.platformStr}}_${{parameters.pluginType}}_${{parameters.name}}_${{parameters.graphics}}'
+      targetPath: '$(Build.BinariesDirectory)'
+    displayName: Download ${{parameters.platformStr}}_${{parameters.pluginType}}_${{parameters.name}}_${{parameters.graphics}}
+
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: '$(Build.BinariesDirectory)/*.zip'
+      destinationFolder: '$(Build.BinariesDirectory)'
+      cleanDestinationFolder: false
+    displayName: Extract zip file if it exists
+
+  - bash: |
+      if [ -f $BUILD_BINARIESDIRECTORY/*.zip ]
+      then
+        rm $BUILD_BINARIESDIRECTORY/*.zip
+      fi
+    displayName: Delete zip file if it exists
+
+  - task: ArchiveFiles@2
+    continueOnError: true
+    inputs:
+      rootFolderOrFile: '$(Build.BinariesDirectory)'
+      archiveFile: '$(Build.ArtifactStagingDirectory)/${{parameters.platformStr}}_${{parameters.pluginType}}_${{parameters.name}}_${{parameters.graphics}}.zip'
+      includeRootFolder: false
+    displayName: Archive ${{parameters.platformStr}}_${{parameters.pluginType}}_${{parameters.name}}_${{parameters.graphics}}
+
+  - task: GithubRelease@0
+    continueOnError: true
+    inputs:
+      gitHubConnection: $(publish_user)
+      repositoryName: $(publish_site)
+      action: 'edit' 
+      target: 'master'
+      tag: 'latest'
+      title: 'iPlug 2 Examples'
+      releaseNotes: 'Here you can download binaries of the iPlug 2 examples and tests, built by continuous integration.\n\nNo binaries are code-signed, so they may not work in hosts that require a valid signature.'
+      assets: '$(Build.ArtifactStagingDirectory)/${{parameters.platformStr}}_${{parameters.pluginType}}_${{parameters.name}}_${{parameters.graphics}}.zip'
+      assetUploadMode: 'replace'
+      isDraft: true
+      isPreRelease: true
+      addChangeLog: false
+    displayName: Publish ${{parameters.platformStr}}_${{parameters.pluginType}}_${{parameters.name}}_${{parameters.graphics}} to github release assets

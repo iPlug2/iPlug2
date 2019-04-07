@@ -562,7 +562,8 @@ private:
     if (keepWidth)
     {
       mWKWidth = mRECT.W();
-      if (numWhites) mWKWidth /= (numWhites + mBKWidthRatio * (WKPadStart + WKPadEnd));
+      if (numWhites)
+        mWKWidth /= (numWhites + mBKWidthRatio * (WKPadStart + WKPadEnd));
     }
 
     float BKWidth = mWKWidth;

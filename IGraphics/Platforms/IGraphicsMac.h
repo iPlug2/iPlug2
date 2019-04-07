@@ -37,7 +37,7 @@ public:
 
   void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override;
-  void SetMouseCursor(ECursor cursor) override;
+  ECursor SetMouseCursor(ECursor cursorType) override;
     
   void DoCursorLock(float x, float y, float& prevX, float& prevY);
     
@@ -66,16 +66,10 @@ public:
 
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
 
-  //IGraphicsMac
-  void SetMousePosition(float x, float y);
-
 protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
 private:
-  EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result) override;
-  bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath);
-  bool GetResourcePathFromUsersMusicFolder(const char* fileName, const char* searchExt, WDL_String& fullPath);
   void RepositionCursor(CGPoint point);
   void StoreCursorPosition();
 

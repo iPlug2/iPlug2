@@ -11,6 +11,8 @@
 #include <algorithm>
 #include <CoreMIDI/CoreMIDI.h>
 
+#include "heapbuf.h"
+
 #include "dfx-au-utilities.h"
 #include "IPlugAU.h"
 #include "IPlugAU_ioconfig.h"
@@ -33,18 +35,15 @@ struct CFStrLocal
   }
 };
 
-struct CStrLocal
+struct CStrLocal : WDL_TypedBuf<char>
 {
-  char* mCStr;
   CStrLocal(CFStringRef cfStr)
   {
-    long n = CFStringGetLength(cfStr) + 1;
-    mCStr = (char*) malloc(n);
-    CFStringGetCString(cfStr, mCStr, n, kCFStringEncodingUTF8);
-  }
-  ~CStrLocal()
-  {
-    FREE_NULL(mCStr);
+    if (cfStr)
+    {
+      Resize((int) CFStringGetLength(cfStr) + 1);
+      CFStringGetCString(cfStr, Get(), GetSize(), kCFStringEncodingUTF8);
+    }
   }
 };
 
@@ -90,7 +89,7 @@ inline bool GetStrFromDict(CFDictionaryRef pDict, const char* key, char* value)
   if (pValue)
   {
     CStrLocal cStr(pValue);
-    strcpy(value, cStr.mCStr);
+    strcpy(value, cStr.Get());
     return true;
   }
   value[0] = '\0';
@@ -729,11 +728,12 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     {
       ASSERT_SCOPE(kAudioUnitScope_Global);
       ASSERT_ELEMENT(NParams());
-      ENTER_PARAMS_MUTEX;;
+      ENTER_PARAMS_MUTEX;
       IParam* pParam = GetParam(element);
       int n = pParam->NDisplayTexts();
       if (!n)
       {
+        LEAVE_PARAMS_MUTEX;
         *pDataSize = 0;
         return kAudioUnitErr_InvalidProperty;
       }
@@ -749,7 +749,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         }
         *((CFArrayRef*) pData) = nameArray;
       }
-      LEAVE_PARAMS_MUTEX;;
+      LEAVE_PARAMS_MUTEX;
       return noErr;
     }
     case kAudioUnitProperty_GetUIComponentList:          // 18,
@@ -934,8 +934,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         AudioUnitParameterIDName* pIDName = (AudioUnitParameterIDName*) pData;
         char cStr[MAX_PARAM_NAME_LEN];
         ENTER_PARAMS_MUTEX;
-        IParam* pParam = GetParam(pIDName->inID);
-        strcpy(cStr, pParam->GetNameForHost());
+        strcpy(cStr, GetParam(pIDName->inID)->GetNameForHost());
         LEAVE_PARAMS_MUTEX;
         if (pIDName->inDesiredLength != kAudioUnitParameterName_Full)
         {
@@ -983,8 +982,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       {
         AudioUnitParameterStringFromValue* pSFV = (AudioUnitParameterStringFromValue*) pData;
         ENTER_PARAMS_MUTEX;
-        IParam* pParam = GetParam(pSFV->inParamID);
-        pParam->GetDisplayForHost(*(pSFV->inValue), false, mParamDisplayStr);
+        GetParam(pSFV->inParamID)->GetDisplayForHost(*(pSFV->inValue), false, mParamDisplayStr);
         LEAVE_PARAMS_MUTEX;
         pSFV->outString = MakeCFString((const char*) mParamDisplayStr.Get());
       }
@@ -1000,8 +998,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         {
           CStrLocal cStr(pVFS->inString);
           ENTER_PARAMS_MUTEX;
-          IParam* pParam = GetParam(pVFS->inParamID);
-          const double v = pParam->StringToValue(cStr.mCStr);
+          const double v = GetParam(pVFS->inParamID)->StringToValue(cStr.Get());
           LEAVE_PARAMS_MUTEX;
           pVFS->outValue = (AudioUnitParameterValue) v;
         }
@@ -1250,10 +1247,10 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       {
         AUHostIdentifier* pHostID = (AUHostIdentifier*) pData;
         CStrLocal hostStr(pHostID->hostName);
-        int hostVer = (pHostID->hostVersion.majorRev << 16)
+        int version = (pHostID->hostVersion.majorRev << 16)
                     + ((pHostID->hostVersion.minorAndBugRev & 0xF0) << 4)
                     + ((pHostID->hostVersion.minorAndBugRev & 0x0F));
-        SetHost(hostStr.mCStr, hostVer);
+        SetHost(hostStr.Get(), version);
       }
       return noErr;
     }
@@ -1543,8 +1540,7 @@ OSStatus IPlugAU::SetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioU
   ASSERT_SCOPE(kAudioUnitScope_Global);
   IPlugAU* _this = (IPlugAU*) pPlug;
   ENTER_PARAMS_MUTEX_STATIC;
-  IParam* pParam = _this->GetParam(paramID);
-  pParam->Set(value);
+  _this->GetParam(paramID)->Set(value);
   _this->SendParameterValueFromAPI(paramID, value, false);
   _this->OnParamChange(paramID, kHost);
   LEAVE_PARAMS_MUTEX_STATIC;
@@ -1663,6 +1659,8 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
     int startChannelIdx = pOutBus->mPlugChannelStartIdx;
     int nConnected = std::min<int>(pOutBus->mNHostChannels, pOutBufList->mNumberBuffers);
     int nUnconnected = std::max(pOutBus->mNPlugChannels - nConnected, 0);
+    
+    assert(nConnected > -1);
     _this->SetChannelConnections(ERoute::kOutput, startChannelIdx, nConnected, true);
     _this->SetChannelConnections(ERoute::kOutput, startChannelIdx + nConnected, nUnconnected, false); // This will disconnect the right handle channel on a single stereo bus
     pOutBus->mConnected = true;
@@ -1988,10 +1986,11 @@ bool IPlugAU::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
   if(mMidiCallback.midiOutputCallback == nullptr)
     return false;
   
-  ByteCount listSize = msgs.GetSize() * 3;
-  MIDIPacketList* pPktlist = (MIDIPacketList*) malloc(listSize);
+  WDL_HeapBuf heapBuf;
+  MIDIPacketList* pPktlist = (MIDIPacketList*) heapBuf.ResizeOK(msgs.GetSize() * 3);
   MIDIPacket* pPkt = MIDIPacketListInit(pPktlist);
-  
+  ByteCount listSize = heapBuf.GetSize();
+    
   IMidiMsg* pMsg = msgs.Get();
   for (int i = 0; i < msgs.GetSize(); ++i, ++pMsg)
   {
@@ -2008,8 +2007,6 @@ bool IPlugAU::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
       result = true;
   }
   
-  free(pPktlist);
-  
   return result;
 }
 
@@ -2019,14 +2016,14 @@ bool IPlugAU::SendSysEx(const ISysEx& sysEx)
 
   if(mMidiCallback.midiOutputCallback == nullptr)
     return false;
+
+  assert(sysEx.mSize <= 65536); // maximum packet list size
   
-  ByteCount listSize = sysEx.mSize;
-  
-  assert(listSize > 65536); // maximum packet list size
-  
-  MIDIPacketList* pPktlist = (MIDIPacketList*) malloc(listSize);
+  WDL_HeapBuf heapBuf;
+  MIDIPacketList* pPktlist = (MIDIPacketList*) heapBuf.ResizeOK(sysEx.mSize);
   MIDIPacket* pPkt = MIDIPacketListInit(pPktlist);
   
+  ByteCount listSize = heapBuf.GetSize();
   ByteCount bytesLeft = listSize;
   
   while (bytesLeft) {
@@ -2044,8 +2041,6 @@ bool IPlugAU::SendSysEx(const ISysEx& sysEx)
     if (status == noErr)
       result = true;
   }
-  
-  free(pPktlist);
   
   return result;
 }
@@ -2066,124 +2061,109 @@ void IPlugAU::OutputSysexFromEditor()
 #pragma mark - IPlugAU Dispatch
 
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
-#define GETINSTANCE(x)  (IPlugAU*) &((AudioComponentPlugInInstance *) x)->mInstanceStorage
+
+IPlugAU* GetPlug(void *x) { return (IPlugAU*) &((AudioComponentPlugInInstance *) x)->mInstanceStorage; }
+
 //static
 OSStatus IPlugAU::AUMethodInitialize(void* pSelf)
 {
-  IPlugAU* _this = GETINSTANCE(pSelf);
-  return _this->DoInitialize(_this);
+  return DoInitialize(GetPlug(pSelf));
 }
 
 //static
 OSStatus IPlugAU::AUMethodUninitialize(void* pSelf)
 {
-  IPlugAU* _this = GETINSTANCE(pSelf);
-  return _this->DoUninitialize(_this);
+  return DoUninitialize(GetPlug(pSelf));
 }
 
 //static
 OSStatus IPlugAU::AUMethodGetPropertyInfo(void* pSelf, AudioUnitPropertyID prop, AudioUnitScope scope, AudioUnitElement elem, UInt32* outDataSize, Boolean* outWritable)
 {
-  IPlugAU* _this = GETINSTANCE(pSelf);
-  return _this->DoGetPropertyInfo(_this, prop, scope, elem, outDataSize, outWritable);
+  return DoGetPropertyInfo(GetPlug(pSelf), prop, scope, elem, outDataSize, outWritable);
 }
 
 //static
 OSStatus IPlugAU::AUMethodGetProperty(void* pSelf, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, void* outData, UInt32* ioDataSize)
 {
-  IPlugAU* _this = GETINSTANCE(pSelf);
-  return _this->DoGetProperty(_this, inID, inScope, inElement, outData, ioDataSize);
+  return DoGetProperty(GetPlug(pSelf), inID, inScope, inElement, outData, ioDataSize);
 }
 
 //static
 OSStatus IPlugAU::AUMethodSetProperty(void* pSelf, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, const void* inData, UInt32* inDataSize)
 {
-  IPlugAU* _this = GETINSTANCE(pSelf);
-  return _this->DoSetProperty(_this, inID, inScope, inElement, inData, inDataSize);
+  return DoSetProperty(GetPlug(pSelf), inID, inScope, inElement, inData, inDataSize);
 }
 
 //static
 OSStatus IPlugAU::AUMethodAddPropertyListener(void* pSelf, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc, void* userData)
 {
-  IPlugAU* _this = GETINSTANCE(pSelf);
-  return _this->DoAddPropertyListener(_this, prop, proc, userData);
+  return DoAddPropertyListener(GetPlug(pSelf), prop, proc, userData);
 }
 
 //static
 OSStatus IPlugAU::AUMethodRemovePropertyListener(void* pSelf, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc)
 {
-  IPlugAU* _this = GETINSTANCE(pSelf);
-  return _this->DoRemovePropertyListener(_this, prop, proc);
+  return DoRemovePropertyListener(GetPlug(pSelf), prop, proc);
 }
 
 //static
 OSStatus IPlugAU::AUMethodRemovePropertyListenerWithUserData(void* pSelf, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc, void* userData)
 {
-  IPlugAU* _this = GETINSTANCE(pSelf);
-  return _this->DoRemovePropertyListenerWithUserData(_this, prop, proc, userData);
+  return DoRemovePropertyListenerWithUserData(GetPlug(pSelf), prop, proc, userData);
 }
 
 //static
 OSStatus IPlugAU::AUMethodAddRenderNotify(void* pSelf, AURenderCallback proc, void* userData)
 {
-  IPlugAU* _this = GETINSTANCE(pSelf);
-  return _this->DoAddRenderNotify(_this, proc, userData);
+  return DoAddRenderNotify(GetPlug(pSelf), proc, userData);
 }
 
 //static
 OSStatus IPlugAU::AUMethodRemoveRenderNotify(void* pSelf, AURenderCallback proc, void* userData)
 {
-  IPlugAU* _this = GETINSTANCE(pSelf);
-  return _this->DoRemoveRenderNotify(_this, proc, userData);
+  return DoRemoveRenderNotify(GetPlug(pSelf), proc, userData);
 }
 
 //static
 OSStatus IPlugAU::AUMethodGetParameter(void* pSelf, AudioUnitParameterID param, AudioUnitScope scope, AudioUnitElement elem, AudioUnitParameterValue* value)
 {
-  IPlugAU* _this = GETINSTANCE(pSelf);
-  return _this->DoGetParameter(_this, param, scope, elem, value);
+  return DoGetParameter(GetPlug(pSelf), param, scope, elem, value);
 }
 
 //static
 OSStatus IPlugAU::AUMethodSetParameter(void* pSelf, AudioUnitParameterID param, AudioUnitScope scope, AudioUnitElement elem, AudioUnitParameterValue value, UInt32 bufferOffset)
 {
-  IPlugAU* _this = GETINSTANCE(pSelf);
-  return _this->DoSetParameter(_this, param, scope, elem, value, bufferOffset);
+  return DoSetParameter(GetPlug(pSelf), param, scope, elem, value, bufferOffset);
 }
 
 //static
 OSStatus IPlugAU::AUMethodScheduleParameters(void* pSelf, const AudioUnitParameterEvent *pEvent, UInt32 nEvents)
 {
-  IPlugAU* _this = GETINSTANCE(pSelf);
-  return _this->DoScheduleParameters(_this, pEvent, nEvents);
+  return DoScheduleParameters(GetPlug(pSelf), pEvent, nEvents);
 }
 
 //static
 OSStatus IPlugAU::AUMethodRender(void* pSelf, AudioUnitRenderActionFlags* ioActionFlags, const AudioTimeStamp* inTimeStamp, UInt32 inOutputBusNumber, UInt32 inNumberFrames, AudioBufferList* ioData)
 {
-  IPlugAU* _this = GETINSTANCE(pSelf);
-  return _this->DoRender(_this, ioActionFlags, inTimeStamp, inOutputBusNumber, inNumberFrames, ioData);
+  return DoRender(GetPlug(pSelf), ioActionFlags, inTimeStamp, inOutputBusNumber, inNumberFrames, ioData);
 }
 
 //static
 OSStatus IPlugAU::AUMethodReset(void* pSelf, AudioUnitScope scope, AudioUnitElement elem)
 {
-  IPlugAU* _this = GETINSTANCE(pSelf);
-  return _this->DoReset(_this);
+  return DoReset(GetPlug(pSelf));
 }
 
 //static
 OSStatus IPlugAU::AUMethodMIDIEvent(void* pSelf, UInt32 inStatus, UInt32 inData1, UInt32 inData2, UInt32 inOffsetSampleFrame)
 {
-  IPlugAU* _this = GETINSTANCE(pSelf);
-  return _this->DoMIDIEvent(_this, inStatus, inData1, inData2, inOffsetSampleFrame);
+  return DoMIDIEvent(GetPlug(pSelf), inStatus, inData1, inData2, inOffsetSampleFrame);
 }
 
 //static
 OSStatus IPlugAU::AUMethodSysEx(void* pSelf, const UInt8* inData, UInt32 inLength)
 {
-  IPlugAU* _this = GETINSTANCE(pSelf);
-  return _this->DoSysEx(_this, inData, inLength);
+  return DoSysEx(GetPlug(pSelf), inData, inLength);
 }
 #endif
 
@@ -2193,17 +2173,23 @@ OSStatus IPlugAU::DoInitialize(IPlugAU* _this)
   if (_this->GetHost() == kHostUninit)
   {
     CFBundleRef mainBundle = CFBundleGetMainBundle();
-    CFStringRef id;
-        
-    if (mainBundle && (id = CFBundleGetIdentifier(mainBundle)))
+    CFStringRef id = nullptr;
+    int version = 0;
+      
+    if (mainBundle)
     {
-      //CFStringRef versStr = (CFStringRef) CFBundleGetValueForInfoDictionaryKey(mainBundle, kCFBundleVersionKey);
-      _this->SetHost(CStrLocal(id).mCStr, 0);
+      id = CFBundleGetIdentifier(mainBundle);
+      CStrLocal versionStr((CFStringRef) CFBundleGetValueForInfoDictionaryKey(mainBundle, kCFBundleVersionKey));
+      
+      char *pStr;
+      long ver = versionStr.Get() ? strtol(versionStr.Get(), &pStr, 10) : 0;
+      long verRevMaj = versionStr.Get() && *pStr ? strtol(pStr + 1, &pStr, 10) : 0;
+      long verRevMin = versionStr.Get() && *pStr ? strtol(pStr + 1, &pStr, 10) : 0;
+
+      version = (int) (((ver & 0xFFFF) << 16) | ((verRevMaj &  0xFF) << 8) | (verRevMin & 0xFF));
     }
-    else
-    {
-      _this->SetHost("", 0);
-    }
+
+    _this->SetHost(id ? CStrLocal(id).Get() : "", version);
   }
     
   if (!(_this->CheckLegalIO()))

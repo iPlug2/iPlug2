@@ -197,7 +197,7 @@ public:
   , IBitmapBase(bitmap)
   {}
 
-  IBButtonControl(const IRECT& bounds, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
+  IBButtonControl(IRECT bounds, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
   : IButtonControlBase(bounds, actionFunc)
   , IBitmapBase(bitmap)
   {}
@@ -226,7 +226,7 @@ public:
   IBSwitchControl(float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter)
   : IBitmapControl(x, y, bitmap, paramIdx) {}
 
-  IBSwitchControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter)
+  IBSwitchControl(IRECT bounds, const IBitmap& bitmap, int paramIdx = kNoParameter)
   : IBitmapControl(bounds, bitmap, paramIdx) {}
 
   virtual ~IBSwitchControl() {}
@@ -332,7 +332,7 @@ class IBTextControl : public ITextControl
                     , public IBitmapBase
 {
 public:
-  IBTextControl(IRECT bounds, const IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType blend = kBlendNone)
+  IBTextControl(IRECT bounds, const IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType blend = kBlendDefault)
   : ITextControl(bounds, str, text)
   , IBitmapBase(bitmap, blend)
   , mCharWidth(charWidth)

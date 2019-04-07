@@ -34,13 +34,18 @@ public class IPlugControlsViewController: AUViewController {
     if let view = self.view as? GenericUI {
       view.createGenericUI(audioUnit!)
     }
-    else {
-      audioUnit?.openWindow(self.view)
-    }
   }
   
   override public func viewDidLayoutSubviews()
   {
-//    audioUnit?.resize(self.view.bounds)
+    audioUnit?.resize(self.view.bounds)
+  }
+  
+  override public func viewWillAppear(_ animated: Bool) {
+    audioUnit?.openWindow(self.view)
+  }
+  
+  override public func viewWillDisappear(_ animated: Bool) {
+    audioUnit?.closeWindow()
   }
 }

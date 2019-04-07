@@ -14,12 +14,12 @@
 
 #ifdef OS_MAC
   #include <CoreGraphics/CoreGraphics.h>
-  #include "swell.h"
+  #include <IPlugSWELL.h>
 #elif defined OS_WIN
   #pragma comment(lib, "libpng.lib")
   #pragma comment(lib, "zlib.lib")
 #elif defined OS_LINUX
-  #include "swell.h"
+  #include <IPlugSWELL.h>
 #else
   #error NOT IMPLEMENTED
 #endif
@@ -27,15 +27,18 @@
 #include "IGraphicsLice_src.h"
 #include "IGraphics.h"
 
-inline LICE_pixel LiceColor(const IColor& color, const IBlend* pBlend)
-{
-  int alpha = std::round(color.A * BlendWeight(pBlend));
-  return LICE_RGBA(color.R, color.G, color.B, alpha);
-}
+#include <memory>
 
 inline LICE_pixel LiceColor(const IColor& color)
 {
-  return LICE_RGBA(color.R, color.G, color.B, color.A);
+  auto preMul = [](int color, int A) {return (color * (A + 1)) >> 8; };
+  return LICE_RGBA(preMul(color.R, color.A), preMul(color.G, color.A), preMul(color.B, color.A), color.A);
+}
+
+inline LICE_pixel LiceColor(const IColor& color, const IBlend* pBlend)
+{
+    int alpha = std::round(color.A * BlendWeight(pBlend));
+    return LICE_RGBA(color.R, color.G, color.B, alpha);
 }
 
 inline int LiceBlendMode(const IBlend* pBlend)
@@ -46,10 +49,9 @@ inline int LiceBlendMode(const IBlend* pBlend)
   }
   switch (pBlend->mMethod)
   {
-    case EBlendType::kBlendClobber: return LICE_BLIT_MODE_COPY;
-    case EBlendType::kBlendAdd: return LICE_BLIT_MODE_ADD | LICE_BLIT_USE_ALPHA;
-    case EBlendType::kBlendColorDodge: return LICE_BLIT_MODE_DODGE | LICE_BLIT_USE_ALPHA;
-    case EBlendType::kBlendNone:
+    case EBlendType::kBlendClobber:     return LICE_BLIT_MODE_COPY;
+    case EBlendType::kBlendAdd:         return LICE_BLIT_MODE_ADD | LICE_BLIT_USE_ALPHA;
+    case EBlendType::kBlendDefault:
     default:
     {
       return LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA;
@@ -62,8 +64,13 @@ inline int LiceBlendMode(const IBlend* pBlend)
 class LICEBitmap : public APIBitmap
 {
 public:
-  LICEBitmap(LICE_IBitmap* pBitmap, int scale) : APIBitmap (pBitmap, pBitmap->getWidth(), pBitmap->getHeight(), scale, 1.f) {}
-  virtual ~LICEBitmap() { delete ((LICE_IBitmap*) GetBitmap()); }
+  LICEBitmap(LICE_IBitmap* pBitmap, int scale, bool preMultiplied)
+    : APIBitmap(pBitmap, pBitmap->getWidth(), pBitmap->getHeight(), scale, 1.f), mPremultiplied(preMultiplied)
+    {}
+  virtual ~LICEBitmap() { delete GetBitmap(); }
+  bool IsPreMultiplied() { return mPremultiplied; }
+private:
+  bool mPremultiplied;
 };
 
 /** IGraphics draw class using Cockos' LICE  
@@ -106,7 +113,7 @@ public:
     
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return mDrawBitmap->getBits(); }
-  inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap; }
+  inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap.get(); }
 
   // Not implemented
   void DrawRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend, float thickness) override { /* TODO - mark unsupported */ }
@@ -132,7 +139,7 @@ protected:
 
   void EndFrame() override;
     
-  float GetBackingPixelScale() const override { return GetScreenScale(); };
+  float GetBackingPixelScale() const override { return (float) GetScreenScale(); };
 
 private:
     
@@ -157,18 +164,15 @@ private:
   IRECT TransformRECT(const IRECT& r)
   {
     IRECT tr = r;
-    tr.Translate(-mDrawOffsetX, - mDrawOffsetY);
+    tr.Translate(-mDrawOffsetX, -mDrawOffsetY);
     tr.Scale(GetScreenScale());
     return tr;
   }
     
-  void PrepareRegion(const IRECT& r) override
-  {
-    mDrawRECT = r;
-    mDrawRECT.PixelAlign();
-    mClipRECT = mDrawRECT;
-  }
-  
+  void NeedsClipping();
+  void PrepareRegion(const IRECT& r) override;
+  void CompleteRegion(const IRECT& r) override;
+    
   void UpdateLayer() override;
     
   LICE_IFont* CacheFont(const IText& text, double scale);
@@ -179,13 +183,16 @@ private:
   int mDrawOffsetX = 0;
   int mDrawOffsetY = 0;
   
-  LICE_SysBitmap* mDrawBitmap = nullptr;
-  LICE_MemBitmap* mTmpBitmap = nullptr;
+  std::unique_ptr<LICE_SysBitmap> mDrawBitmap;
+  std::unique_ptr<LICE_MemBitmap> mTmpBitmap;
 #ifdef OS_WIN
-  LICE_SysBitmap* mScaleBitmap = nullptr;
+  std::unique_ptr<LICE_SysBitmap> mScaleBitmap;
 #endif
   // N.B. mRenderBitmap is not owned through this pointer, and should not be deleted
   LICE_IBitmap* mRenderBitmap = nullptr;
+    
+  ILayerPtr mClippingLayer;
+    
 #ifdef OS_MAC
   CGColorSpaceRef mColorSpace = nullptr;
 #endif

@@ -73,13 +73,19 @@ const int FONT_LEN = 32;
  */
 enum EBlendType
 {
-  kBlendNone,     // Copy over whatever is already there, but look at src alpha.
-  kBlendClobber,  // Copy completely over whatever is already there.
-  kBlendAdd,
-  kBlendColorDodge,
-  kBlendUnder,
+  kBlendDefault,
+  kBlendClobber,
+  kBlendSourceOver,
   kBlendSourceIn,
-  // etc
+  kBlendSourceOut,
+  kBlendSourceAtop,
+  kBlendDestOver,
+  kBlendDestIn,
+  kBlendDestOut,
+  kBlendDestAtop,
+  kBlendAdd,
+  kBlendXOR,
+  kBlendNone = kBlendDefault
 };
 
 enum EFileAction
@@ -92,13 +98,6 @@ enum EDirection
 {
   kVertical = 0,
   kHorizontal = 1
-};
-
-enum EResourceLocation
-{
-  kNotFound = 0,
-  kAbsolutePath,
-  kWinBinary
 };
 
 enum EVColor

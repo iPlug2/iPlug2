@@ -4,11 +4,23 @@ cd "$(dirname "$0")"
 
 cd ..
 
-if [ "$1" == "websocket" ]
+websocket=0
+if [ "$1" = "websocket" ]
 then
+  emrunmode=2
   websocket=1
+elif [ "$1" = "off" ]
+then
+  emrunmode=0
 else
-  websocket=0
+  emrunmode=1
+fi
+
+origin="/"
+
+if [ "$#" -eq 2 ]
+then
+  origin=${2}
 fi
 
 if [ -d build-web/.git ]
@@ -43,6 +55,11 @@ then
   rm imgs@2x.js
 fi
 
+if [ -f svgs.js ]
+then
+  rm svgs.js
+fi
+
 if [ -f fonts.js ]
 then
   rm fonts.js
@@ -53,19 +70,19 @@ then
   rm presets.js
 fi
 
-python $EMSCRIPTEN/tools/file_packager.py fonts.data --preload ../resources/fonts/ --exclude .DS_store --js-output=fonts.js
+python $EMSCRIPTEN/tools/file_packager.py fonts.data --preload ../resources/fonts/ --exclude .DS_Store --js-output=fonts.js
 python $EMSCRIPTEN/tools/file_packager.py svgs.data --preload ../resources/img/ --exclude *.png --exclude *DS_Store --js-output=svgs.js
 
-#echo "if(window.devicePixelRatio == 1) {\n" > imgs.js
-python $EMSCRIPTEN/tools/file_packager.py imgs.data --use-preload-plugins --preload ../resources/img/ --use-preload-cache --indexedDB-name="/IPlugFaustDSP_pkg" --exclude *@2x.png .DS_store *.svg >> imgs.js
-#echo "\n}" >> imgs.js
-# @ package @2x resources into separate .data file
+# echo "if(window.devicePixelRatio == 1) {\n" > imgs.js
+python $EMSCRIPTEN/tools/file_packager.py imgs.data --use-preload-plugins --preload ../resources/img/ --use-preload-cache --indexedDB-name="/IPlugFaustDSP_pkg" --exclude *DS_Store --exclude  *@2x.png --exclude  *.svg >> imgs.js
+# echo "\n}" >> imgs.js
+# package @2x resources into separate .data file
 mkdir ./2x/
 cp ../resources/img/*@2x* ./2x
-#echo "if(window.devicePixelRatio > 1) {\n" > imgs@2x.js
+# echo "if(window.devicePixelRatio > 1) {\n" > imgs@2x.js
 #--use-preload-cache --indexedDB-name="/IPlugFaustDSP_data"
-python $EMSCRIPTEN/tools/file_packager.py imgs@2x.data --use-preload-plugins --preload ./2x@/resources/img/ --use-preload-cache --indexedDB-name="/IPlugFaustDSP_pkg" --exclude .DS_store >> imgs@2x.js
-#echo "\n}" >> imgs@2x.js
+python $EMSCRIPTEN/tools/file_packager.py imgs@2x.data --use-preload-plugins --preload ./2x@/resources/img/ --use-preload-cache --indexedDB-name="/IPlugFaustDSP_pkg" --exclude *DS_Store >> imgs@2x.js
+# echo "\n}" >> imgs@2x.js
 rm -r ./2x
 
 cd ..
@@ -93,7 +110,9 @@ cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awn.js IPlugFaustDSP-awn.js
 sed -i.bak s/NAME_PLACEHOLDER/IPlugFaustDSP/g IPlugFaustDSP-awn.js
 cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awp.js IPlugFaustDSP-awp.js
 sed -i.bak s/NAME_PLACEHOLDER/IPlugFaustDSP/g IPlugFaustDSP-awp.js
+sed -i.bak s,ORIGIN_PLACEHOLDER,$origin,g IPlugFaustDSP-awn.js
 rm *.bak
+
 cd ..
 
 #copy in the template html - comment if you have customised the html
@@ -122,10 +141,13 @@ echo payload:
 find . -maxdepth 2 -mindepth 1 -exec du -hs {} \;
 du -hc
 
-if [ "$websocket" -eq "1" ]
+if [ "$emrunmode" -eq "2" ]
 then
   emrun --browser chrome --no_server --port=8001 index.html
-else
+elif [ "$emrunmode" -eq "1" ]
+then
   emrun --browser chrome --no_emrun_detect index.html
 # emrun --browser firefox index.html
+else
+  echo "Not running emrun"
 fi

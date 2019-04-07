@@ -31,11 +31,15 @@ public:
 
   void PlatformResize() override;
 
+#ifdef IGRAPHICS_GL
+  void DrawResize() override; // overriden here to deal with GL graphics context capture
+#endif
+
   void CheckTabletInput(UINT msg);
     
   void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override;
-  void SetMouseCursor(ECursor cursor) override;
+  ECursor SetMouseCursor(ECursor cursorType) override;
 
   int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) override;
 
@@ -67,10 +71,6 @@ public:
 
   bool GetTextFromClipboard(WDL_String& str) override;
 
-  EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result) override;
-
-  const void* LoadWinResource(const char* resid, const char* resType, int& sizeInBytes) override;
-
 protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
@@ -93,13 +93,26 @@ private:
   inline IMouseInfo IGraphicsWin::GetMouseInfoDeltas(float&dX, float& dY, LPARAM lParam, WPARAM wParam);
   bool MouseCursorIsLocked();
 
+#ifdef IGRAPHICS_GL
+  //OpenGL context management - TODO: RAII instead?
+  void CreateGLContext();
+  void DestroyGLContext();
+
+  // Captures previously active GLContext and HDC for restoring, Gets DC
+  void ActivateGLContext();
+  // Restores previous GL context and Releases DC
+  void DeactivateGLContext();
+  HGLRC mHGLRC = nullptr;
+  HGLRC mStartHGLRC = nullptr;
+  HDC mStartHDC = nullptr;
+#endif
+
   HINSTANCE mHInstance = nullptr;
   HWND mPlugWnd = nullptr;
   HWND mParamEditWnd = nullptr;
   HWND mTooltipWnd = nullptr;
   HWND mParentWnd = nullptr;
   HWND mMainWnd = nullptr;
-  COLORREF* mCustomColorStorage = nullptr;
   WNDPROC mDefEditProc = nullptr;
   DWORD mPID = 0;
 
@@ -112,7 +125,6 @@ private:
 
   WDL_String mMainWndClassName;
 public:
-  static BOOL EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG_PTR param);
   static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
   static LRESULT CALLBACK ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
   static BOOL CALLBACK FindMainWindow(HWND hWnd, LPARAM lParam);

@@ -4,11 +4,23 @@ cd "$(dirname "$0")"
 
 cd ..
 
-if [ "$1" == "websocket" ]
+websocket=0
+if [ "$1" = "websocket" ]
 then
+  emrunmode=2
   websocket=1
+elif [ "$1" = "off" ]
+then
+  emrunmode=0
 else
-  websocket=0
+  emrunmode=1
+fi
+
+origin="/"
+
+if [ "$#" -eq 2 ]
+then
+  origin=${2}
 fi
 
 if [ -d build-web/.git ]
@@ -98,7 +110,9 @@ cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awn.js IPlugEffect-awn.js
 sed -i.bak s/NAME_PLACEHOLDER/IPlugEffect/g IPlugEffect-awn.js
 cp ../../../../IPlug/WEB/Template/scripts/IPlugWAM-awp.js IPlugEffect-awp.js
 sed -i.bak s/NAME_PLACEHOLDER/IPlugEffect/g IPlugEffect-awp.js
+sed -i.bak s,ORIGIN_PLACEHOLDER,$origin,g IPlugEffect-awn.js
 rm *.bak
+
 cd ..
 
 #copy in the template html - comment if you have customised the html
@@ -127,10 +141,13 @@ echo payload:
 find . -maxdepth 2 -mindepth 1 -exec du -hs {} \;
 du -hc
 
-if [ "$websocket" -eq "1" ]
+if [ "$emrunmode" -eq "2" ]
 then
   emrun --browser chrome --no_server --port=8001 index.html
-else
+elif [ "$emrunmode" -eq "1" ]
+then
   emrun --browser chrome --no_emrun_detect index.html
 # emrun --browser firefox index.html
+else
+  echo "Not running emrun"
 fi

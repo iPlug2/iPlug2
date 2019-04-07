@@ -54,8 +54,8 @@ struct SVGHolder
   }
 };
 
-static StaticStorage<APIBitmap> s_bitmapCache;
-static StaticStorage<SVGHolder> s_SVGCache;
+static StaticStorage<APIBitmap> sBitmapCache;
+static StaticStorage<SVGHolder> sSVGCache;
 
 IGraphics::IGraphics(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : mDelegate(&dlg)
@@ -71,9 +71,9 @@ IGraphics::IGraphics(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 {
   mFPS = (fps > 0 ? fps : DEFAULT_FPS);
     
-  StaticStorage<APIBitmap>::Accessor bitmapStorage(s_bitmapCache);
+  StaticStorage<APIBitmap>::Accessor bitmapStorage(sBitmapCache);
   bitmapStorage.Retain();
-  StaticStorage<SVGHolder>::Accessor svgStorage(s_SVGCache);
+  StaticStorage<SVGHolder>::Accessor svgStorage(sSVGCache);
   svgStorage.Retain();
 }
 
@@ -81,9 +81,9 @@ IGraphics::~IGraphics()
 {
   RemoveAllControls();
     
-  StaticStorage<APIBitmap>::Accessor bitmapStorage(s_bitmapCache);
+  StaticStorage<APIBitmap>::Accessor bitmapStorage(sBitmapCache);
   bitmapStorage.Release();
-  StaticStorage<SVGHolder>::Accessor svgStorage(s_SVGCache);
+  StaticStorage<SVGHolder>::Accessor svgStorage(sSVGCache);
   svgStorage.Release();
 }
 
@@ -155,18 +155,13 @@ void IGraphics::RemoveAllControls()
   mMouseCapture = mMouseOver = nullptr;
   mMouseOverIdx = -1;
 
-  if (mPopupControl)
-    DELETE_NULL(mPopupControl);
-  
-  if (mTextEntryControl)
-    DELETE_NULL(mTextEntryControl);
-  
-  if (mCornerResizer)
-    DELETE_NULL(mCornerResizer);
-  
+  mPopupControl.reset(nullptr);
+  mTextEntryControl.reset(nullptr);
+  mCornerResizer.reset(nullptr);
+  mPerfDisplay.reset(nullptr);
+    
 #if !defined(NDEBUG)
-  if (mLiveEdit)
-    DELETE_NULL(mLiveEdit);
+  mLiveEdit.reset(nullptr);
 #endif
   
   mControls.Empty(true);
@@ -214,53 +209,50 @@ void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize
 
 void IGraphics::AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerMode sizeMode, bool layoutOnResize)
 {
-  assert(mCornerResizer == nullptr); // only want one corner resizer
+  assert(!mCornerResizer); // only want one corner resizer
 
-  if (mCornerResizer == nullptr)
+  std::unique_ptr<ICornerResizerControl> control(pControl);
+    
+  if (!mCornerResizer)
   {
-    mCornerResizer = pControl;
+    mCornerResizer.swap(control);
     mGUISizeMode = sizeMode;
     mLayoutOnResize = layoutOnResize;
     mCornerResizer->SetDelegate(*GetDelegate());
-  }
-  else
-  {
-    delete pControl;
   }
 }
 
 void IGraphics::AttachPopupMenuControl(const IText& text, const IRECT& bounds)
 {
-  if (mPopupControl == nullptr)
+  if (!mPopupControl)
   {
-    mPopupControl = new IPopupMenuControl(kNoParameter, text, IRECT(), bounds);
+    mPopupControl.reset(new IPopupMenuControl(kNoParameter, text, IRECT(), bounds));
     mPopupControl->SetDelegate(*GetDelegate());
   }
 }
 
 void IGraphics::AttachTextEntryControl()
 {
-  if(mTextEntryControl == nullptr)
+  if (!mTextEntryControl)
   {
-    mTextEntryControl = new ITextEntryControl();
+    mTextEntryControl.reset(new ITextEntryControl());
     mTextEntryControl->SetDelegate(*GetDelegate());
   }
 }
 
 void IGraphics::ShowFPSDisplay(bool enable)
 {
-  if(enable)
+  if (enable)
   {
-    if (mPerfDisplay == nullptr)
+    if (!mPerfDisplay)
     {
-      mPerfDisplay = new IFPSDisplayControl(GetBounds().GetPadded(-10).GetFromTLHC(200, 50));
+      mPerfDisplay.reset(new IFPSDisplayControl(GetBounds().GetPadded(-10).GetFromTLHC(200, 50)));
       mPerfDisplay->SetDelegate(*GetDelegate());
     }
   }
   else
   {
-    if(mPerfDisplay)
-      DELETE_NULL(mPerfDisplay);
+    mPerfDisplay.reset(nullptr);
   }
 
   SetAllControlsDirty();
@@ -620,7 +612,9 @@ bool IGraphics::IsDirty(IRECTList& rects)
   {
     if (control.IsDirty())
     {
-      rects.Add(control.GetRECT());
+      // N.B padding outlines for single line outlines
+        
+      rects.Add(control.GetRECT().GetPadded(0.75));
       dirty = true;
     }
   };
@@ -658,7 +652,9 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
 {
   if (pControl && (!pControl->IsHidden() || pControl == GetControl(0)))
   {
-    IRECT controlBounds = pControl->GetRECT().GetPixelAligned(scale);
+    // N.B. Padding allows single line outlines on controls
+      
+    IRECT controlBounds = pControl->GetRECT().GetPadded(0.75).GetPixelAligned(scale);
     IRECT clipBounds = bounds.Intersect(controlBounds);
 
     if (clipBounds.W() <= 0.0 || clipBounds.H() <= 0)
@@ -666,11 +662,10 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
     
     PrepareRegion(clipBounds);
     pControl->Draw(*this);
-    
 #ifdef AAX_API
     pControl->DrawPTHighlight(*this);
 #endif
-    
+
 #ifndef NDEBUG
     // helper for debugging
     if (mShowControlBounds)
@@ -678,6 +673,8 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
       DrawRect(CONTROL_BOUNDS_COLOR, pControl->GetRECT());
     }
 #endif
+    
+    CompleteRegion(clipBounds);
   }
 }
 
@@ -694,6 +691,7 @@ void IGraphics::Draw(const IRECT& bounds, float scale)
     static IColor c;
     c.Randomise(50);
     FillRect(c, bounds);
+    CompleteRegion(bounds);
   }
 #endif
 }
@@ -817,7 +815,7 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
   Trace("IGraphics::OnMouseOver", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
 
-  // N.B. GetMouseControl handles which controls can recieve mouseovers
+  // N.B. GetMouseControl handles which controls can receive mouseovers
     
   IControl* pControl = GetMouseControl(x, y, false, true);
     
@@ -835,11 +833,13 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
   return pControl;
 }
 
-//TODO: THIS DOESN'T GET CALLED ON MAC
 void IGraphics::OnMouseOut()
 {
   Trace("IGraphics::OnMouseOut", __LINE__, "");
 
+  // Store the old cursor type so this gets restored when the mouse enters again
+    
+  mCursorType = SetMouseCursor(ARROW);
   ForAllControls(&IControl::OnMouseOut);
   mMouseOver = nullptr;
   mMouseOverIdx = -1;
@@ -964,21 +964,21 @@ IControl* IGraphics::GetMouseControl(float x, float y, bool capture, bool mouseO
   int controlIdx = -1;
   
   if (!control && mPopupControl && mPopupControl->GetExpanded())
-    control = mPopupControl;
+    control = mPopupControl.get();
   
   if (!control && mTextEntryControl && mTextEntryControl->EditInProgress())
-    control = mTextEntryControl;
+    control = mTextEntryControl.get();
   
 #if !defined(NDEBUG)
-  if (mLiveEdit)
-    control = mLiveEdit;
+  if (!control && mLiveEdit)
+    control = mLiveEdit.get();
 #endif
   
   if (!control && mCornerResizer && mCornerResizer->GetRECT().Contains(x, y))
-    control = mCornerResizer;
+    control = mCornerResizer.get();
   
   if (!control && mPerfDisplay && mPerfDisplay->GetRECT().Contains(x, y))
-    control = mPerfDisplay;
+    control = mPerfDisplay.get();
   
   if (!control)
   {
@@ -1119,21 +1119,20 @@ void IGraphics::EnableTooltips(bool enable)
   if (enable) mHandleMouseOver = true;
 }
 
-void IGraphics::EnableLiveEdit(bool enable/*, const char* file, int gridsize*/)
+void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 {
 #if defined(_DEBUG)
-  if(enable)
+  if (enable)
   {
-    if (mLiveEdit == nullptr)
+    if (!mLiveEdit)
     {
-      mLiveEdit = new IGraphicsLiveEdit(mHandleMouseOver/*, file, gridsize*/);
+      mLiveEdit.reset(new IGraphicsLiveEdit(mHandleMouseOver/*, file, gridsize*/));
       mLiveEdit->SetDelegate(*GetDelegate());
     }
   }
   else
   {
-    if(mLiveEdit)
-      DELETE_NULL(mLiveEdit);
+    mLiveEdit.reset(nullptr);
   }
   
   mMouseOver = nullptr;
@@ -1145,13 +1144,13 @@ void IGraphics::EnableLiveEdit(bool enable/*, const char* file, int gridsize*/)
 
 ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 {
-  StaticStorage<SVGHolder>::Accessor storage(s_SVGCache);
+  StaticStorage<SVGHolder>::Accessor storage(sSVGCache);
   SVGHolder* pHolder = storage.Find(fileName);
 
   if(!pHolder)
   {
     WDL_String path;
-    EResourceLocation resourceFound = OSFindResource(fileName, "svg", path);
+    EResourceLocation resourceFound = LocateResource(fileName, "svg", path, GetBundleID(), GetWinModuleHandle());
 
     if (resourceFound == EResourceLocation::kNotFound)
       return ISVG(nullptr); // return invalid SVG
@@ -1162,7 +1161,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
     if (resourceFound == EResourceLocation::kWinBinary)
     {
       int size = 0;
-      const void* pResData = LoadWinResource(path.Get(), "svg", size);
+      const void* pResData = LoadWinResource(path.Get(), "svg", size, GetWinModuleHandle());
 
       if (pResData)
       {
@@ -1196,15 +1195,15 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
   if (targetScale == 0)
     targetScale = GetScreenScale();
 
-  StaticStorage<APIBitmap>::Accessor storage(s_bitmapCache);
+  StaticStorage<APIBitmap>::Accessor storage(sBitmapCache);
   APIBitmap* pAPIBitmap = storage.Find(name, targetScale);
 
   // If the bitmap is not already cached at the targetScale
   if (!pAPIBitmap)
   {
     WDL_String fullPath;
+    std::unique_ptr<APIBitmap> loadedBitmap;
     int sourceScale = 0;
-    bool fromDisk = false;
     
     const char* ext = name + strlen(name) - 1;
     while (ext >= name && *ext != '.') --ext;
@@ -1212,7 +1211,7 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
     
     bool bitmapTypeSupported = BitmapExtSupported(ext);
     
-    if(!bitmapTypeSupported)
+    if (!bitmapTypeSupported)
       return IBitmap(); // return invalid IBitmap
 
     EResourceLocation resourceLocation = SearchImageResource(name, ext, fullPath, targetScale, sourceScale);
@@ -1224,35 +1223,30 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
     }
     else
     {
-      // Try again in cache for mismatched bitmaps, but load from disk if needed
+      // Try in the cache for a mismatched bitmap
       if (sourceScale != targetScale)
         pAPIBitmap = storage.Find(name, sourceScale);
 
+      // Load the resource if no match found
       if (!pAPIBitmap)
       {
-        pAPIBitmap = LoadAPIBitmap(fullPath.Get(), sourceScale, resourceLocation, ext);
-        fromDisk = true;
+        loadedBitmap.reset(LoadAPIBitmap(fullPath.Get(), sourceScale, resourceLocation, ext));
+        pAPIBitmap= loadedBitmap.get();
       }
     }
 
-    // Protection from searching for non-existant bitmaps (e.g. typos in config.h or .rc)
+    // Protection from searching for non-existent bitmaps (e.g. typos in config.h or .rc)
     assert(pAPIBitmap);
 
-    const IBitmap bitmap(pAPIBitmap, nStates, framesAreHorizontal, name);
-
-    // Scale if needed
+    // Scale or retain if needed (N.B. - scaling retains in the cache)
     if (pAPIBitmap->GetScale() != targetScale)
     {
-      // Scaling adds to the cache but if we've loaded from disk then we need to dispose of the temporary APIBitmap
-      IBitmap scaledBitmap = ScaleBitmap(bitmap, name, targetScale);
-      if (fromDisk)
-        delete pAPIBitmap;
-      return scaledBitmap;
+      return ScaleBitmap(IBitmap(pAPIBitmap, nStates, framesAreHorizontal, name), name, targetScale);
     }
-
-    // Retain if we've newly loaded from disk
-    if (fromDisk)
-      RetainBitmap(bitmap, name);
+    else if (loadedBitmap)
+    {
+      RetainBitmap(IBitmap(loadedBitmap.release(), nStates, framesAreHorizontal, name), name);
+    }
   }
 
   return IBitmap(pAPIBitmap, nStates, framesAreHorizontal, name);
@@ -1260,13 +1254,13 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
 
 void IGraphics::ReleaseBitmap(const IBitmap& bitmap)
 {
-  StaticStorage<APIBitmap>::Accessor storage(s_bitmapCache);
+  StaticStorage<APIBitmap>::Accessor storage(sBitmapCache);
   storage.Remove(bitmap.GetAPIBitmap());
 }
 
 void IGraphics::RetainBitmap(const IBitmap& bitmap, const char* cacheName)
 {
-  StaticStorage<APIBitmap>::Accessor storage(s_bitmapCache);
+  StaticStorage<APIBitmap>::Accessor storage(sBitmapCache);
   storage.Add(bitmap.GetAPIBitmap(), cacheName, bitmap.GetScale());
 }
 
@@ -1304,7 +1298,7 @@ EResourceLocation IGraphics::SearchImageResource(const char* name, const char* t
       fullName.SetFormatted((int) (strlen(name) + strlen("@2x")), "%s@%dx%s", baseName.Get(), sourceScale, ext.Get());
     }
 
-    EResourceLocation found = OSFindResource(fullName.Get(), type, result);
+    EResourceLocation found = LocateResource(fullName.Get(), type, result, GetBundleID(), GetWinModuleHandle());
 
     if (found > EResourceLocation::kNotFound)
       return found;
@@ -1315,7 +1309,7 @@ EResourceLocation IGraphics::SearchImageResource(const char* name, const char* t
 
 APIBitmap* IGraphics::SearchBitmapInCache(const char* name, int targetScale, int& sourceScale)
 {
-  StaticStorage<APIBitmap>::Accessor storage(s_bitmapCache);
+  StaticStorage<APIBitmap>::Accessor storage(sBitmapCache);
     
   // Search target scale, then descending
   for (sourceScale = targetScale; sourceScale > 0; SearchNextScale(sourceScale, targetScale))
@@ -1363,8 +1357,8 @@ IPopupMenu* IGraphics::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IC
 void IGraphics::StartLayer(const IRECT& r)
 {
   IRECT alignedBounds = r.GetPixelAligned(GetBackingPixelScale());
-  const int w = static_cast<int>(std::round(alignedBounds.W()));
-  const int h = static_cast<int>(std::round(alignedBounds.H()));
+  const int w = static_cast<int>(std::ceil(alignedBounds.W()));
+  const int h = static_cast<int>(std::ceil(alignedBounds.H()));
 
   PushLayer(new ILayer(CreateAPIBitmap(w, h), alignedBounds), true);
 }
@@ -1427,6 +1421,18 @@ void IGraphics::DrawLayer(const ILayerPtr& layer, const IBlend* pBlend)
   IBitmap bitmap = layer->GetBitmap();
   IRECT bounds = layer->Bounds();
   DrawBitmap(bitmap, bounds, 0, 0, pBlend);
+  PathTransformRestore();
+}
+
+void IGraphics::DrawFittedLayer(const ILayerPtr& layer, const IRECT& bounds, const IBlend* pBlend)
+{
+  IBitmap bitmap = layer->GetBitmap();
+  IRECT layerBounds = layer->Bounds();
+  PathTransformSave();
+  PathTransformTranslate(bounds.L, bounds.T);
+  IRECT newBounds(0., 0., layerBounds.W(), layerBounds.H());
+  PathTransformScale(bounds.W() / layerBounds.W(), bounds.H() / layerBounds.H());
+  DrawBitmap(bitmap, newBounds, 0, 0, pBlend);
   PathTransformRestore();
 }
 

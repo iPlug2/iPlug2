@@ -271,7 +271,7 @@ public:
    * @param shape A IParam::Shape class to determine how the parameter shape should be skewed
    * @param unit An IParam::EParamUnit which can be used in audiounit plug-ins to specify certain kinds of parameter
    * @param displayFunc An IParam::DisplayFunc lambda function to specify a custom display function */
-  void InitParamRange(int startIdx, int endIdx, int countStart, const char* nameFmtStr, double defaultVal, double minVal, double maxVal, double step, const char* label = "", int flags = 0, const char* group = "", IParam::Shape* shape = nullptr, IParam::EParamUnit unit = IParam::kUnitCustom, IParam::DisplayFunc displayFunc = nullptr);
+  void InitParamRange(int startIdx, int endIdx, int countStart, const char* nameFmtStr, double defaultVal, double minVal, double maxVal, double step, const char* label = "", int flags = 0, const char* group = "", const IParam::Shape& shape = IParam::ShapeLinear(), IParam::EParamUnit unit = IParam::kUnitCustom, IParam::DisplayFunc displayFunc = nullptr);
   
   /** Clone a range of parameters, optionally doing a string substitution on the parameter name.
    * @param cloneStartIdx The index of the first parameter to clone
@@ -290,7 +290,7 @@ public:
   
   /** Modify a parameter group simulataneously
    * @param paramGroup The name of the group to modify
-   * @param param func A lambda function to modify the parameter. Ideas: you could randomise the parameter value or reset to default*/
+   * @param func A lambda function to modify the parameter. Ideas: you could randomise the parameter value or reset to default*/
   void ForParamInGroup(const char* paramGroup, std::function<void(int paramIdx, IParam& param)> func);
   
   /** Copy a range of parameter values

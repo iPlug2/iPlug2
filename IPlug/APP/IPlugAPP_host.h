@@ -53,12 +53,12 @@
   #define DEFAULT_INPUT_DEV "Default Device"
   #define DEFAULT_OUTPUT_DEV "Default Device"
 #elif defined(OS_MAC)
-  #include "swell.h"
+  #include <IPlugSWELL.h>
   #define SLEEP( milliseconds ) usleep( (unsigned long) (milliseconds * 1000.0) )
   #define DEFAULT_INPUT_DEV "Built-in Input"
   #define DEFAULT_OUTPUT_DEV "Built-in Output"
 #elif defined(OS_LINUX)
-  #include "swell.h"
+  #include <IPlugSWELL.h>
 #endif
 
 #define OFF_TEXT "off"

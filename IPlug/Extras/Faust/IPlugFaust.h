@@ -25,9 +25,9 @@
 
 #ifndef DEFAULT_FAUST_LIBRARY_PATH
   #if defined OS_MAC || defined OS_LINUX
-  #define DEFAULT_FAUST_LIBRARY_PATH "/usr/local/share/faust/"
+    #define DEFAULT_FAUST_LIBRARY_PATH "/usr/local/share/faust/"
   #else
-  #define DEFAULT_FAUST_LIBRARY_PATH "" //TODO
+   #define DEFAULT_FAUST_LIBRARY_PATH "C:\\Program Files\\Faust\\share\\faust"
   #endif
 #endif
 
@@ -41,7 +41,7 @@ public:
   : mNVoices(nVoices)
   {
     if(rate > 1)
-      mOverSampler = new OverSampler<sample>(OverSampler<sample>::RateToFactor(rate), true, 1 /* TODO: */);
+      mOverSampler = new OverSampler<sample>(OverSampler<sample>::RateToFactor(rate), true, 2 /* TODO: flexible channel count */);
     
     mName.Set(name);
   }
@@ -106,13 +106,13 @@ public:
     {
       assert(mDSP->getSampleRate() != 0); // did you forget to call SetSampleRate?
       
-//      if(mOverSampler)
-//        mOverSampler->ProcessBlock(inputs, outputs, nFrames, 1 /* DOESN'T YET WORK WITH MC */,
-//                                   [&](sample** inputs, sample** outputs, int nFrames)
-//                                   {
-//                                     mDSP->compute(nFrames, inputs, outputs);
-//                                   });
-//      else
+      if(mOverSampler)
+        mOverSampler->ProcessBlock(inputs, outputs, nFrames, 2 /* TODO: flexible channel count */,
+                                   [&](sample** inputs, sample** outputs, int nFrames)
+                                   {
+                                     mDSP->compute(nFrames, inputs, outputs);
+                                   });
+      else
         mDSP->compute(nFrames, inputs, outputs);
     }
 //    else silence?
@@ -261,10 +261,10 @@ protected:
         pParam->InitBool(label, 0);
         break;
       case IParam::EParamType::kTypeInt:
-        pParam->InitInt(label, init, min, max);
+        pParam->InitInt(label, static_cast<int>(init), static_cast<int>(min), static_cast<int>(max));
         break;
       case IParam::EParamType::kTypeEnum:
-        pParam->InitEnum(label, init, max - min);
+        pParam->InitEnum(label, static_cast<int>(init), static_cast<int>(max - min));
         //TODO: metadata
         break;
       case IParam::EParamType::kTypeDouble:

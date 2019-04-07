@@ -39,9 +39,7 @@
 #pragma warning(disable:4805)		// Compare bool and BOOL.
 #endif
 
-#define FREE_NULL(p) {free(p);p=nullptr;}
 #define DELETE_NULL(p) {delete(p); p=nullptr;}
-#define DELETE_ARRAY(p) {delete[](p); (p)=nullptr;}
 
 /** Clips the value \p x between \p lo and \p hi
  * @param x Input value
@@ -102,7 +100,7 @@ static inline double DBToAmp(double dB)
  */
 static inline double AmpToDB(double amp)
 {
-  return AMP_DB * log(fabs(amp));
+  return AMP_DB * log(std::fabs(amp));
 }
 
 static inline void GetVersionParts(int version, int& ver, int& maj, int& min)

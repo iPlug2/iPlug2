@@ -9,7 +9,6 @@
 */
 
 #ifndef NO_IGRAPHICS
-#include <Foundation/NSArchiver.h>
 
 #include "IGraphicsMac.h"
 
@@ -17,9 +16,6 @@
 #include "IPopupMenuControl.h"
 
 #import "IGraphicsMac_view.h"
-
-#include "IPlugPluginBase.h"
-#include "IPlugPaths.h"
 
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
@@ -44,21 +40,6 @@ int GetSystemVersion()
   }
   return v;
 }
-
-struct CocoaAutoReleasePool
-{
-  NSAutoreleasePool* mPool;
-
-  CocoaAutoReleasePool()
-  {
-    mPool = [[NSAutoreleasePool alloc] init];
-  }
-
-  ~CocoaAutoReleasePool()
-  {
-    [mPool release];
-  }
-};
 
 //#define IGRAPHICS_MAC_BLIT_BENCHMARK
 //#define IGRAPHICS_MAC_OLD_IMAGE_DRAWING
@@ -97,105 +78,15 @@ bool IGraphicsMac::IsSandboxed()
   return false;
 }
 
-bool IGraphicsMac::GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath)
-{
-  CocoaAutoReleasePool pool;
-
-  const char* ext = fileName+strlen(fileName)-1;
-  while (ext >= fileName && *ext != '.') --ext;
-  ++ext;
-
-  bool isCorrectType = !strcasecmp(ext, searchExt);
-
-  NSBundle* pBundle = [NSBundle bundleWithIdentifier:ToNSString(GetBundleID())];
-  NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
-
-  if (isCorrectType && pBundle && pFile)
-  {
-    NSString* pPath = [pBundle pathForResource:pFile ofType:ToNSString(searchExt)];
-
-    if (pPath)
-    {
-      if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
-      {
-        fullPath.Set([pPath cString]);
-        return true;
-      }
-    }
-  }
-
-  fullPath.Set("");
-  return false;
-}
-
-bool IGraphicsMac::GetResourcePathFromUsersMusicFolder(const char* fileName, const char* searchExt, WDL_String& fullPath)
-{
-  CocoaAutoReleasePool pool;
-
-  const char* ext = fileName+strlen(fileName)-1;
-  while (ext >= fileName && *ext != '.') --ext;
-  ++ext;
-
-  bool isCorrectType = !strcasecmp(ext, searchExt);
-
-  NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
-  NSString* pExt = [NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding];
-
-  if (isCorrectType && pFile)
-  {
-    WDL_String musicFolder;
-    SandboxSafeAppSupportPath(musicFolder);
-    IPluginBase* pPlugin = dynamic_cast<IPluginBase*>(GetDelegate());
-    
-    if(pPlugin != nullptr)
-    {
-  
-      NSString* pPluginName = [NSString stringWithCString: pPlugin->GetPluginName() encoding:NSUTF8StringEncoding];
-      NSString* pMusicLocation = [NSString stringWithCString: musicFolder.Get() encoding:NSUTF8StringEncoding];
-      NSString* pPath = [[[[pMusicLocation stringByAppendingPathComponent:pPluginName] stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent: pFile] stringByAppendingPathExtension:pExt];
-
-      if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
-      {
-        fullPath.Set([pPath cString]);
-        return true;
-      }
-    }
-  }
-
-  fullPath.Set("");
-  return false;
-}
-
-EResourceLocation IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String& result)
-{
-  if(CStringHasContents(name))
-  {
-    // first check this bundle
-    if(GetResourcePathFromBundle(name, type, result))
-      return EResourceLocation::kAbsolutePath;
-
-    // then check ~/Music/PLUG_NAME, which is a shared folder that can be accessed from app sandbox
-    if(GetResourcePathFromUsersMusicFolder(name, type, result))
-      return EResourceLocation::kAbsolutePath;
-
-    // finally check name, which might be a full path - if the plug-in is trying to load a resource at runtime (e.g. skin-able UI)
-    NSString* pPath = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
-
-    if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
-    {
-      result.Set([pPath UTF8String]);
-      return EResourceLocation::kAbsolutePath;
-    }
-  }
-  return EResourceLocation::kNotFound;
-}
-
 bool IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds)
 {
 #ifdef IGRAPHICS_LICE
-  CocoaAutoReleasePool pool;
-#endif
+  @autoreleasepool {
+    return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
+  }
+#else
   return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
+#endif
 }
 
 void* IGraphicsMac::OpenWindow(void* pParent)
@@ -229,14 +120,10 @@ void IGraphicsMac::CloseWindow()
     IGRAPHICS_VIEW* view = (IGRAPHICS_VIEW*) mView;
     [view removeAllToolTips];
     [view killTimer];
-    mView = nullptr;
-
-    if (view->mGraphics)
-    {
-      [view removeFromSuperview];
-    }
+    [view removeFromSuperview];
     [view release];
       
+    mView = nullptr;
     OnViewDestroyed();
   }
 }
@@ -253,8 +140,6 @@ void IGraphicsMac::PlatformResize()
     NSSize size = { static_cast<CGFloat>(WindowWidth()), static_cast<CGFloat>(WindowHeight()) };
 
     DBGMSG("%f, %f\n", size.width, size.height);
-    // Prevent animation during resize
-    // N.B. - The bounds perform scaling on the window, and so use the nominal size
 
     [NSAnimationContext beginGrouping]; // Prevent animated resizing
     [[NSAnimationContext currentContext] setDuration:0.0];
@@ -410,9 +295,10 @@ void IGraphicsMac::ForceEndUserEdit()
 
 void IGraphicsMac::UpdateTooltips()
 {
-  if (!(mView && TooltipsEnabled())) return;
+  if (!(mView && TooltipsEnabled()))
+    return;
 
-  CocoaAutoReleasePool pool;
+  @autoreleasepool {
 
   [(IGRAPHICS_VIEW*) mView removeAllToolTips];
 
@@ -434,6 +320,8 @@ void IGraphicsMac::UpdateTooltips()
   };
 
   ForStandardControlsFunc(func);
+  
+  }
 }
 
 const char* IGraphicsMac::GetPlatformAPIStr()
@@ -443,10 +331,10 @@ const char* IGraphicsMac::GetPlatformAPIStr()
 
 bool IGraphicsMac::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
 {
-  CocoaAutoReleasePool pool;
-
   BOOL success = FALSE;
 
+  @autoreleasepool {
+    
   if(path.GetLength())
   {
     NSString* pPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
@@ -472,6 +360,7 @@ bool IGraphicsMac::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
     }
   }
 
+  }
   return (bool) success;
 }
 
@@ -634,12 +523,12 @@ void IGraphicsMac::CreatePlatformTextEntry(IControl& control, const IText& text,
 //  }
 //}
 
-void IGraphicsMac::SetMouseCursor(ECursor cursor)
+ECursor IGraphicsMac::SetMouseCursor(ECursor cursorType)
 {
   if (mView)
-  {
-    [(IGRAPHICS_VIEW*) mView setMouseCursor: cursor];
-  }
+    [(IGRAPHICS_VIEW*) mView setMouseCursor: cursorType];
+    
+  return IGraphics::SetMouseCursor(cursorType);
 }
 
 bool IGraphicsMac::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
@@ -647,17 +536,13 @@ bool IGraphicsMac::OpenURL(const char* url, const char* msgWindowTitle, const ch
   #pragma REMINDER("Warning and error messages for OpenURL not implemented")
   NSURL* pNSURL = nullptr;
   if (strstr(url, "http"))
-  {
-    pNSURL = [NSURL URLWithString:ToNSString(url)];
-  }
+    pNSURL = [NSURL URLWithString:[NSString stringWithCString:url encoding:NSUTF8StringEncoding]];
   else
-  {
-    pNSURL = [NSURL fileURLWithPath:ToNSString(url)];
-  }
+    pNSURL = [NSURL fileURLWithPath:[NSString stringWithCString:url encoding:NSUTF8StringEncoding]];
+
   if (pNSURL)
   {
     bool ok = ([[NSWorkspace sharedWorkspace] openURL:pNSURL]);
-    // [pURL release];
     return ok;
   }
   return true;
@@ -694,16 +579,10 @@ bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
 //TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT
 #ifdef IGRAPHICS_AGG
   #include "IGraphicsAGG.cpp"
-  #include "agg_mac_pmap.mm"
-  #include "agg_mac_font.mm"
 #elif defined IGRAPHICS_CAIRO
   #include "IGraphicsCairo.cpp"
 #elif defined IGRAPHICS_NANOVG
   #include "IGraphicsNanoVG.cpp"
-  #ifdef IGRAPHICS_FREETYPE
-    #define FONS_USE_FREETYPE
-  #endif
-  #include "nanovg.c"
 #elif defined IGRAPHICS_SKIA
   #include "IGraphicsSkia.cpp"
 #elif defined IGRAPHICS_LICE

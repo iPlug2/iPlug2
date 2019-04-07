@@ -17,6 +17,7 @@ enum EControlTags
 IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, 1, instanceInfo)
 {
+  GetParam(kParamDummy)->InitGain("Dummy");
   
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
@@ -55,11 +56,15 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->LoadFont(ROBOTTO_FN);
     pGraphics->LoadFont(MONTSERRAT_FN);
     ISVG tiger = pGraphics->LoadSVG(TIGER_FN);
+    ISVG orbs = pGraphics->LoadSVG(ORBS_FN);
     IBitmap smiley = pGraphics->LoadBitmap(SMILEY_FN);
+    
+#ifndef OS_IOS
     IBitmap base = pGraphics->LoadBitmap(BASE_FN);
     IBitmap mask = pGraphics->LoadBitmap(MASK_FN);
     IBitmap top = pGraphics->LoadBitmap(TOP_FN);
-
+#endif
+    
     IRECT bounds = pGraphics->GetBounds();
     
     int cellIdx = 0;
@@ -122,11 +127,15 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new TestImageControl(nextCell()));
     pGraphics->AttachControl(new TestLayerControl(nextCell()));
     pGraphics->AttachControl(new TestBlendControl(nextCell(), smiley));
-    pGraphics->AttachControl(new TestDropShadowControl(nextCell(), tiger));
+    pGraphics->AttachControl(new TestDropShadowControl(nextCell(), orbs));
     pGraphics->AttachControl(new TestCursorControl(nextCell()));
     pGraphics->AttachControl(new TestKeyboardControl(nextCell()));
     pGraphics->AttachControl(new TestShadowGradientControl(nextCell()));
 
+#ifdef IGRAPHICS_METAL
+    pGraphics->AttachControl(new TestMPSControl(nextCell(), smiley));
+#endif
+    
     WDL_String path;
     //    DesktopPath(path);
     path.Set(__FILE__);
@@ -138,9 +147,11 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
 #endif
     pGraphics->AttachControl(new TestDirBrowseControl(nextCell(), "png", path.Get()));
 
+#ifndef OS_IOS
     IRECT r = nextCell();
     pGraphics->AttachControl(new TestRotatingMaskControl(r.L, r.T, base, mask, top));
-
+#endif
+    
 #if 0
     pGraphics->AttachControl(new ITextControl(nextCell(), "Hello World!", {24, COLOR_WHITE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop, 90}));
     pGraphics->AttachControl(new ITextControl(nextCell(), "Two!", {18, COLOR_GREEN, "Montserrat-LightItalic", IText::kStyleItalic, IText::kAlignCenter, IText::kVAlignMiddle, 45}));
