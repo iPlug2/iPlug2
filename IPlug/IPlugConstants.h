@@ -226,5 +226,12 @@ enum EHost
   // MiniHost
 };
 
+enum EResourceLocation
+{
+  kNotFound = 0,
+  kAbsolutePath,
+  kWinBinary
+};
+
 /**@}*/
 

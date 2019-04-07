@@ -1119,7 +1119,7 @@ void IGraphics::EnableTooltips(bool enable)
   if (enable) mHandleMouseOver = true;
 }
 
-void IGraphics::EnableLiveEdit(bool enable/*, const char* file, int gridsize*/)
+void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 {
 #if defined(_DEBUG)
   if (enable)
@@ -1150,7 +1150,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
   if(!pHolder)
   {
     WDL_String path;
-    EResourceLocation resourceFound = OSFindResource(fileName, "svg", path);
+    EResourceLocation resourceFound = LocateResource(fileName, "svg", path, GetBundleID(), GetWinModuleHandle());
 
     if (resourceFound == EResourceLocation::kNotFound)
       return ISVG(nullptr); // return invalid SVG
@@ -1161,7 +1161,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
     if (resourceFound == EResourceLocation::kWinBinary)
     {
       int size = 0;
-      const void* pResData = LoadWinResource(path.Get(), "svg", size);
+      const void* pResData = LoadWinResource(path.Get(), "svg", size, GetWinModuleHandle());
 
       if (pResData)
       {
@@ -1310,7 +1310,7 @@ EResourceLocation IGraphics::SearchImageResource(const char* name, const char* t
       fullName.SetFormatted((int) (strlen(name) + strlen("@2x")), "%s@%dx%s", baseName.Get(), sourceScale, ext.Get());
     }
 
-    EResourceLocation found = OSFindResource(fullName.Get(), type, result);
+    EResourceLocation found = LocateResource(fullName.Get(), type, result, GetBundleID(), GetWinModuleHandle());
 
     if (found > EResourceLocation::kNotFound)
       return found;
@@ -1433,6 +1433,18 @@ void IGraphics::DrawLayer(const ILayerPtr& layer, const IBlend* pBlend)
   IBitmap bitmap = layer->GetBitmap();
   IRECT bounds = layer->Bounds();
   DrawBitmap(bitmap, bounds, 0, 0, pBlend);
+  PathTransformRestore();
+}
+
+void IGraphics::DrawFittedLayer(const ILayerPtr& layer, const IRECT& bounds, const IBlend* pBlend)
+{
+  IBitmap bitmap = layer->GetBitmap();
+  IRECT layerBounds = layer->Bounds();
+  PathTransformSave();
+  PathTransformTranslate(bounds.L, bounds.T);
+  IRECT newBounds(0., 0., layerBounds.W(), layerBounds.H());
+  PathTransformScale(bounds.W() / layerBounds.W(), bounds.H() / layerBounds.H());
+  DrawBitmap(bitmap, newBounds, 0, 0, pBlend);
   PathTransformRestore();
 }
 

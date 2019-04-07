@@ -157,6 +157,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
+      <DelayLoadDLLs>faust.dll</DelayLoadDLLs>
     </Link>
     <PostBuildEvent />
   </ItemDefinitionGroup>
@@ -170,6 +171,7 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
+      <DelayLoadDLLs>faust.dll</DelayLoadDLLs>
     </Link>
     <PostBuildEvent />
     <ResourceCompile>

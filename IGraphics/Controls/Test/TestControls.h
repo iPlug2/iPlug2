@@ -32,3 +32,6 @@
 #include "TestKeyboardControl.h"
 #include "TestRotatingMaskControl.h"
 #include "TestShadowGradientControl.h"
+#ifdef IGRAPHICS_METAL
+#include "TestMPSControl.h"
+#endif

@@ -225,7 +225,7 @@ bool IGraphicsAGG::LoadFont(const char* fileName)
   WDL_String fontNameWithoutExt(fileName, (int) strlen(fileName));
   fontNameWithoutExt.remove_fileext();
   WDL_String fullPath;
-  EResourceLocation foundResource = OSFindResource(fileName, "ttf", fullPath);
+  EResourceLocation foundResource = LocateResource(fileName, "ttf", fullPath, GetBundleID(), GetWinModuleHandle());
   
   if (foundResource != EResourceLocation::kNotFound)
   {
@@ -233,7 +233,7 @@ bool IGraphicsAGG::LoadFont(const char* fileName)
     if (foundResource == EResourceLocation::kWinBinary)
     {
       int sizeInBytes = 0;
-      const void* pResData = LoadWinResource(fullPath.Get(), "ttf", sizeInBytes);
+      const void* pResData = LoadWinResource(fullPath.Get(), "ttf", sizeInBytes, GetWinModuleHandle());
       
       if(pResData && sizeInBytes)
       {

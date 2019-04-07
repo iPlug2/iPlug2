@@ -107,7 +107,7 @@ public:
   
   /** Helper method to retrieve the IPlug version number from the beginning of the byte chunk
    * @param chunk The incoming byte chunk that contains the version number
-   * @param pos The position (in bytes) to start looking
+   * @param position The position (in bytes) to start looking
    * @return The IPlug version number, retrieved from the chunk, or 0 if it failed */
   static int GetIPlugVerFromChunk(const IByteChunk& chunk, int& position)
   {
