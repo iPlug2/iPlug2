@@ -33,10 +33,10 @@ inline SkBlendMode SkiaBlendMode(const IBlend* pBlend)
 {
   switch (pBlend->mMethod)
   {
-    case EBlendType::kBlendAdd: return SkBlendMode::kPlus;
-    case EBlendType::kBlendClobber: return SkBlendMode::kClear;
-    case EBlendType::kBlendColorDodge: return SkBlendMode::kColorDodge;
-    case EBlendType::kBlendNone:
+//    case EBlendType::kBlendAdd: return SkBlendMode::kPlus;
+//    case EBlendType::kBlendClobber: return SkBlendMode::kClear;
+//    case EBlendType::kBlendColorDodge: return SkBlendMode::kColorDodge;
+//    case EBlendType::kBlendNone:
     default:
       return SkBlendMode::kClear;
   }
@@ -238,10 +238,6 @@ void IGraphicsSkia::PathFill(const IPattern& pattern, const IFillOptions& option
   
   if (!options.mPreserve)
     mMainPath.reset();
-}
-
-void IGraphicsSkia::DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, float pad, const IBlend* pBlend)
-{
 }
 
 void IGraphicsSkia::PathTransformSetMatrix(const IMatrix& m)

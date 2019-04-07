@@ -67,7 +67,6 @@ public:
   void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override { }; // NO-OP
   APIBitmap* CreateAPIBitmap(int width, int height) override { return nullptr; }; // TODO:
 
-  void DrawBoxShadow(const IRECT& bounds, float cr, float ydrop, float pad, const IBlend* pBlend) override;
   void SetPlatformContext(void* pContext) override;
   
   void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override {}; // TODO:
