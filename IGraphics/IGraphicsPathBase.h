@@ -504,9 +504,9 @@ private:
       {
         PathMoveTo(pPath->pts[0], pPath->pts[1]);
         
-        for (int i = 0; i < pPath->npts - 1; i += 3)
+        for (int i = 1; i < pPath->npts; i += 3)
         {
-          float *p = pPath->pts + i * 2 + 2;
+          float *p = pPath->pts + i * 2;
           PathCurveTo(p[0], p[1], p[2], p[3], p[4], p[5]);
         }
         
