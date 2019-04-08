@@ -10,6 +10,7 @@
 
 #include "IGraphicsCanvas.h"
 #include <string>
+#include <utility>
 #include <stdio.h>
 #include <emscripten.h>
 
@@ -317,8 +318,27 @@ APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height, int scale, do
   return new CanvasBitmap(width, height, scale, drawScale);
 }
 
+bool IGraphicsCanvas::CompareFontMetrics(const char* style, const char* font1, const char* font2, int size)
+{
+  val context = GetContext();
+  std::string textString("@BmwdWMoqPYyzZr1234567890.+-=_~'");
+  
+  char fontString[FONT_LEN + 64];
+  
+  sprintf(fontString, "%s %dpx %s", style, size, font2);
+  context.set("font", std::string(fontString));
+  val metrics1 = context.call<val>("measureText", textString);
+
+  sprintf(fontString, "%s %dpx %s, %s", style, size, font1, font2);
+  context.set("font", std::string(fontString));
+  val metrics2 = context.call<val>("measureText", textString);
+  
+  return metrics1["width"].as<double>() == metrics2["width"].as<double>();
+}
+
 bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 {
+  typedef std::pair<WDL_String, WDL_String> DescType;
   IFontDataPtr data = font->GetFontData();
     
   if (data->IsValid())
@@ -344,6 +364,17 @@ bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& fon
     document["head"].call<void>("appendChild", css);
     return true;
   }
+  
+  const DescType* descriptor = reinterpret_cast<const DescType*>(font->GetDescriptor());
+  const char* fontName = descriptor->first.Get();
+  const char* styleName = descriptor->second.Get();
+  
+  if (!CompareFontMetrics(styleName, fontName, "monospace", 72))
+    return true;
+  if (!CompareFontMetrics(styleName, fontName, "sans-serif", 72))
+    return true;
+  if (!CompareFontMetrics(styleName, fontName, "serif", 72))
+    return true;
   
   return false;
 }

@@ -55,6 +55,9 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     
     pGraphics->LoadFont(ROBOTTO_FN);
     pGraphics->LoadFont("Times New Roman", IText::kStyleNormal);
+      pGraphics->LoadFont("MadeUp", IText::kStyleItalic);
+      pGraphics->LoadFont("Font Light Italic", IText::kStyleNormal);
+      pGraphics->LoadFont("Arial Bleck", IText::kStyleBold);
     pGraphics->LoadFont(MONTSERRAT_FN);
     ISVG tiger = pGraphics->LoadSVG(TIGER_FN);
     ISVG orbs = pGraphics->LoadSVG(ORBS_FN);
