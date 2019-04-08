@@ -850,14 +850,15 @@ public:
   virtual void ClientToScreen(float& x, float& y) {};
 
   /** Load a font from disk or resource in a platform format.
+   * @param fontID A string that is used to reference the font
    * @param fileNameOrResID A resource or file name/path
    * @return PlatformFontPtr from which the platform font can be retrieved */
-  virtual PlatformFontPtr LoadPlatformFont(const char* fileNameOrResID) { return nullptr; }
+  virtual PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) { return nullptr; }
   
   /** Load a system font in a platform format.
    * @param text A IText structure defining the font name and style
    * @return PlatformFontPtr from which the platform font can be retrieved */
-  virtual PlatformFontPtr LoadPlatformFont(const IText& text) { return nullptr; }
+  virtual PlatformFontPtr LoadPlatformFont(const char* fontID, const IText& text) { return nullptr; }
 
   /** Get the bundle ID on macOS and iOS, returns emtpy string on other OSs */
   virtual const char* GetBundleID() { return ""; }

@@ -1601,7 +1601,7 @@ bool IGraphics::LoadFont(const char* fileNameOrResID)
   WDL_String fontWithoutExt(fileNameOrResID);
   fontWithoutExt.remove_fileext();
   const char* fontID = fontWithoutExt.get_filepart();
-  PlatformFontPtr font = LoadPlatformFont(fileNameOrResID);
+  PlatformFontPtr font = LoadPlatformFont(fontID, fileNameOrResID);
   
   if (font)
   {
@@ -1613,11 +1613,12 @@ bool IGraphics::LoadFont(const char* fileNameOrResID)
   return false;
 }
 
-bool IGraphics::LoadFont(const char* fontID, IText::EStyle style)
+bool IGraphics::LoadFont(const char* fontName, IText::EStyle style)
 {
-  IText text(0, DEFAULT_TEXT_FGCOLOR, fontID, style);
+  IText text(0, DEFAULT_TEXT_FGCOLOR, fontName, style);
   WDL_String fontWithStyle = text.GetFontWithStyle();
-  PlatformFontPtr font = LoadPlatformFont(text);
+  const char* fontID = fontWithStyle.Get();
+  PlatformFontPtr font = LoadPlatformFont(fontID, text);
   
   if (font)
   {

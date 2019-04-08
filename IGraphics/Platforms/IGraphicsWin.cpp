@@ -1591,7 +1591,7 @@ HFONT GetHFont(const char* fontName, int weight = FW_REGULAR, bool italic = fals
   return font;
 }
 
-IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fileNameOrResID)
+IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
 {
   StaticStorage<WinCachedFont>::Accessor storage(sPlatformFontCache);
 
@@ -1642,7 +1642,7 @@ IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fileNameOr
   return nullptr;
 }
 
-IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const IText& text)
+IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const IText& text)
 {
   int weight = text.mStyle == IText::kStyleBold ? FW_BOLD : FW_REGULAR;
   bool italic = text.mStyle == IText::kStyleItalic;

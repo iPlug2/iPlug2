@@ -900,7 +900,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   else return nullptr;
 }
 
-- (void) createTextEntry: (IControl&) control : (const IText&) text : (const char*) str : (NSRect) areaRect;
+- (void) createTextEntry: (IControl&) control : (NSFont*) font : (const IText&) text : (const char*) str : (NSRect) areaRect;
 {
   if (mTextFieldView)
     return;
@@ -915,14 +915,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
     [mTextFieldView setDrawsBackground: TRUE];
   }
 
-  //TODO: address font types for platform text entries
-#ifdef IGRAPHICS_NANOVG
-  NSString* font = [NSString stringWithUTF8String: "Arial"];
-#else
-  NSString* font = [NSString stringWithUTF8String: text.mFont];
-#endif
-
-  [mTextFieldView setFont: [NSFont fontWithName:font size: text.mSize * 0.75f]];
+  [mTextFieldView setFont: font];
   
   switch (text.mAlign)
   {

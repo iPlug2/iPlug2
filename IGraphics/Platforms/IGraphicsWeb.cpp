@@ -569,7 +569,7 @@ void IGraphicsWeb::DrawResize()
   IGRAPHICS_DRAW_CLASS::DrawResize();
 }
 
-IGraphics::PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fileNameOrResID)
+IGraphics::PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
 {
   WDL_String fullPath;
   const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, GetBundleID(), nullptr);
@@ -580,7 +580,7 @@ IGraphics::PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fileNameOr
   return PlatformFontPtr(new WebFileFont("__custom__", "__custom__", fullPath.Get()));
 }
 
-IGraphics::PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const IText& text)
+IGraphics::PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const IText& text)
 {
   const char* styles[] = { "normal", "bold", "italic" };
   

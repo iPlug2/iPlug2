@@ -87,8 +87,8 @@ public:
 
   bool GetTextFromClipboard(WDL_String& str) override;
 
-  PlatformFontPtr LoadPlatformFont(const char* fileNameOrResID) override;
-  PlatformFontPtr LoadPlatformFont(const IText& text) override;
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const IText& text) override;
   
 protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
