@@ -470,7 +470,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   r.size.height = (float) pGraphics->WindowHeight();
   self = [super initWithFrame:r];
   
-#if defined IGRAPHICS_NANOVG
+#if defined IGRAPHICS_NANOVG || defined IGRAPHICS_SKIA
   if (!self.wantsLayer) {
     #if defined IGRAPHICS_METAL
     self.layer = [CAMetalLayer new];
@@ -608,8 +608,9 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 - (void) render
 {
   mGraphics->SetAllControlsClean();
+
   // for layer-backed views drawRect is not called
-#if !defined IGRAPHICS_NANOVG
+#if !defined IGRAPHICS_GL && !defined IGRAPHICS_METAL
   for (int i = 0; i < mDirtyRects.Size(); i++)
     [self setNeedsDisplayInRect:ToNSRect(mGraphics, mDirtyRects.Get(i))];
 #else

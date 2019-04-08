@@ -8,12 +8,12 @@
 #include "SkCanvas.h"
 #include "SkImage.h"
 
-#ifdef IGRAPHICS_GL
-//todo
+#ifdef IGRAPHICS_GL2
+#define IGRAPHICS_GL
 #elif defined IGRAPHICS_CPU
 //todo
 #else
-#error you must define either IGRAPHICS_GL or IGRAPHICS_CPU when using IGRAPHICS_SKIA
+#error you must define either IGRAPHICS_GL2, IGRAPHICS_GL3 or IGRAPHICS_CPU when using IGRAPHICS_SKIA
 #endif
 
 
@@ -56,7 +56,7 @@ public:
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
   
   IColor GetPoint(int x, int y) override;
-  void* GetDrawContext() override { return (void*) mSurface->getCanvas(); }
+  void* GetDrawContext() override { return (void*) mCanvas; }
 
   bool BitmapExtSupported(const char* ext) override;
   int AlphaChannel() const override { return 0; } // TODO:
@@ -73,7 +73,7 @@ public:
   void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override {}; // TODO:
 
 protected:
-  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override { return false; } // TODO:
+  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
 
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override { return new APIBitmap(); } // NO-OP
@@ -81,5 +81,8 @@ private:
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
   sk_sp<SkSurface> mSurface;
+  SkCanvas* mCanvas = nullptr;
+  sk_sp<GrContext> mGrContext;
+  std::unique_ptr<GrBackendRenderTarget> mBackendRenderTarget;
   SkPath mMainPath;
 };

@@ -1,12 +1,21 @@
 #include <cmath>
 
 #include "IGraphicsSkia.h"
+
 #include "SkDashPathEffect.h"
 #include "SkGradientShader.h"
+#include "SkFont.h"
+
+#include "gl/GrGLInterface.h"
+#include "gl/GrGLUtil.h"
+#include "GrContext.h"
 
 #ifdef OS_MAC
 #include "SkCGUtils.h"
 #endif
+
+#include <OpenGL/gl.h>
+
 
 SkiaBitmap::SkiaBitmap(const char* path, double sourceScale)
 {
@@ -33,13 +42,21 @@ inline SkBlendMode SkiaBlendMode(const IBlend* pBlend)
 {
   switch (pBlend->mMethod)
   {
-//    case EBlendType::kBlendAdd: return SkBlendMode::kPlus;
-//    case EBlendType::kBlendClobber: return SkBlendMode::kClear;
-//    case EBlendType::kBlendColorDodge: return SkBlendMode::kColorDodge;
-//    case EBlendType::kBlendNone:
-    default:
-      return SkBlendMode::kClear;
+    case kBlendDefault:         // fall through
+    case kBlendClobber:         // fall through
+    case kBlendSourceOver:      return SkBlendMode::kSrcOver;
+    case kBlendSourceIn:        return SkBlendMode::kSrcIn;
+    case kBlendSourceOut:       return SkBlendMode::kSrcOut;
+    case kBlendSourceAtop:      return SkBlendMode::kSrcATop;
+    case kBlendDestOver:        return SkBlendMode::kDstOver;
+    case kBlendDestIn:          return SkBlendMode::kDstIn;
+    case kBlendDestOut:         return SkBlendMode::kDstOut;
+    case kBlendDestAtop:        return SkBlendMode::kDstATop;
+    case kBlendAdd:             return SkBlendMode::kPlus;
+    case kBlendXOR:             return SkBlendMode::kXor;
   }
+  
+  return SkBlendMode::kClear;
 }
 
 SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
@@ -101,31 +118,32 @@ void IGraphicsSkia::SetPlatformContext(void* pContext)
 {
   mPlatformContext = pContext;
   
+#if defined IGRAPHICS_CPU
   mSurface = SkSurface::MakeRasterN32Premul(WindowWidth() * GetDrawScale(), WindowHeight() * GetDrawScale());
-  
-//  const GrGLInterface * interface = nullptr;
-//  auto grcontext = GrContext::Create(kOpenGL_GrBackend, (GrBackendContext)interface);
-//
-//  GrBackendTextureDesc desc;
-//  desc.fFlags = kRenderTarget_GrBackendTextureFlag;
-//  desc.fOrigin = kBottomLeft_GrSurfaceOrigin;
-//  desc.fWidth = mScaleFactor * Width();
-//  desc.fHeight = mScaleFactor * Height();
-//  desc.fConfig = kRGBA_8888_GrPixelConfig;
-//  desc.fSampleCnt = 0;
-//  GrGLTextureInfo info;
-//  info.fTarget = GL_TEXTURE_RECTANGLE;
-//  info.fID = mSkiaGLTexture.GetName();
-//  desc.fTextureHandle = (GrBackendObject)&info;
-//
-//  mSurface = SkSurface::MakeFromBackendTexture( grcontext, desc, 0);
-//  mSkCanvas = mSurface->getCanvas();
-//  mSkCanvas->scale(mScaleFactor, mScaleFactor);
-//  mSkCanvas->clear(SkColorSetARGB(255, 0, 0, 0));
+  mCanvas = mSurface->getCanvas();
+#endif
 }
 
 void IGraphicsSkia::OnViewInitialized(void* pContext)
 {
+#if defined IGRAPHICS_GL
+  int fbo = 0, samples = 0, stencilBits = 0;
+  glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
+  glGetIntegerv(GL_SAMPLES, &samples);
+  glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
+  
+  auto interface = GrGLMakeNativeInterface();
+  mGrContext = GrContext::MakeGL(interface);
+  
+  GrGLFramebufferInfo fbinfo;
+  fbinfo.fFBOID = fbo;
+  fbinfo.fFormat = 0x8058;
+  
+  auto backendRenderTarget = GrBackendRenderTarget(WindowWidth() * GetDrawScale(), WindowHeight() * GetDrawScale(), samples, stencilBits, fbinfo);
+
+  mSurface = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRenderTarget, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, nullptr, nullptr);
+  mCanvas = mSurface->getCanvas();
+#endif
 }
 
 void IGraphicsSkia::OnViewDestroyed()
@@ -141,7 +159,7 @@ void IGraphicsSkia::DrawResize()
 
 void IGraphicsSkia::BeginFrame()
 {
-  mSurface->getCanvas()->clear(SK_ColorWHITE);
+  mCanvas->clear(SK_ColorWHITE);
 }
 
 void IGraphicsSkia::EndFrame()
@@ -154,6 +172,8 @@ void IGraphicsSkia::EndFrame()
     bmp.installPixels(pixmap);
     SkCGDrawBitmap((CGContextRef) mPlatformContext, bmp, 0, 0);
   #endif
+#else
+  mCanvas->flush();
 #endif
 }
 
@@ -161,7 +181,7 @@ void IGraphicsSkia::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int
 {
   SkPaint p;
   p.setFilterQuality(kHigh_SkFilterQuality);
-  mSurface->getCanvas()->drawImage(dynamic_cast<SkImage*>(bitmap.GetAPIBitmap()->GetBitmap()), dest.L, dest.T, &p);
+  mCanvas->drawImage(dynamic_cast<SkImage*>(bitmap.GetAPIBitmap()->GetBitmap()), dest.L, dest.T, &p);
 }
 
 IColor IGraphicsSkia::GetPoint(int x, int y)
@@ -169,22 +189,18 @@ IColor IGraphicsSkia::GetPoint(int x, int y)
   return COLOR_BLACK; //TODO:
 }
 
-//bool IGraphicsSkia::DrawText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
-//{
-//  SkPaint textPaint;
-//  textPaint.setColor(SkiaColor(text.mFGColor));
-//  textPaint.setTextSize((float) text.mSize);
-//  textPaint.setAntiAlias(true);
-//
-////  textPaint.setTextAlign(SkPaint::kLeft_Align);
-//
-//  mSurface->getCanvas()->drawText(str, strlen(str), bounds.L, bounds.B, textPaint);
-//}
-//
-//bool IGraphicsSkia::MeasureText(const IText& text, const char* str, IRECT& bounds)
-//{
-//  return DrawText(text, str, bounds, 0, true);
-//}
+bool IGraphicsSkia::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+{
+  SkFont font;
+  font.setSubpixel(true);
+  font.setSize(text.mSize);
+  SkPaint paint;
+  paint.setColor(SkiaColor(text.mFGColor, pBlend));
+
+  mCanvas->drawSimpleText(str, strlen(str), kUTF8_SkTextEncoding, bounds.L, bounds.T, font, paint);
+  
+  return true;
+}
 
 void IGraphicsSkia::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
 {
@@ -218,7 +234,7 @@ void IGraphicsSkia::PathStroke(const IPattern& pattern, float thickness, const I
   paint.setStrokeWidth(thickness);
   paint.setStrokeMiter(options.mMiterLimit);
   
-  mSurface->getCanvas()->drawPath(mMainPath, paint);
+  mCanvas->drawPath(mMainPath, paint);
   
   if (!options.mPreserve)
     mMainPath.reset();
@@ -234,7 +250,7 @@ void IGraphicsSkia::PathFill(const IPattern& pattern, const IFillOptions& option
   else
     mMainPath.setFillType(SkPath::kEvenOdd_FillType);
   
-  mSurface->getCanvas()->drawPath(mMainPath, paint);
+  mCanvas->drawPath(mMainPath, paint);
   
   if (!options.mPreserve)
     mMainPath.reset();
@@ -242,8 +258,9 @@ void IGraphicsSkia::PathFill(const IPattern& pattern, const IFillOptions& option
 
 void IGraphicsSkia::PathTransformSetMatrix(const IMatrix& m)
 {
-  mSurface->getCanvas()->scale(GetDrawScale(), GetDrawScale());
-  //TODO:
+//  SkMatrix::MakeAll(XX, <#SkScalar skewX#>, <#SkScalar transX#>, <#SkScalar skewY#>, <#SkScalar scaleY#>, <#SkScalar transY#>, <#SkScalar pers0#>, <#SkScalar pers1#>, <#SkScalar pers2#>)
+//  mCanvas->scale(GetDrawScale(), GetDrawScale());
+//  //TODO:
 }
 
 void IGraphicsSkia::SetClipRegion(const IRECT& r)
@@ -252,5 +269,5 @@ void IGraphicsSkia::SetClipRegion(const IRECT& r)
 
 //  SkRect skrect;
 //  skrect.set(r.L, r.T, r.R, r.B);
-//  mSurface->getCanvas()->clipRect(skrect);
+//  mCanvas->clipRect(skrect);
 }
