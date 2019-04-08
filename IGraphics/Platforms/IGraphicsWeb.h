@@ -103,4 +103,5 @@ protected:
 private:
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
   PlatformFontPtr LoadPlatformFont(const char* fontID, const IText& text) override;
+  void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override {}
 };

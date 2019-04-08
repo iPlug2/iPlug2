@@ -94,14 +94,14 @@ IFontDataPtr IGraphicsMac::MacFont::GetFontData()
   return fontData;
 }
 
-struct MacCachedFont
+struct MacFontDescriptor
 {
-  MacCachedFont(CTFontDescriptorRef descriptor) : mDescriptor(descriptor)
+  MacFontDescriptor(CTFontDescriptorRef descriptor) : mDescriptor(descriptor)
   {
     CFRetain(mDescriptor);
   }
   
-  ~MacCachedFont()
+  ~MacFontDescriptor()
   {
     CFRelease(mDescriptor);
   }
@@ -109,7 +109,7 @@ struct MacCachedFont
   CTFontDescriptorRef mDescriptor;
 };
 
-static StaticStorage<MacCachedFont> sPlatformFontCache;
+static StaticStorage<MacFontDescriptor> sPlatformFontCache;
   
 #pragma mark -
 
@@ -117,13 +117,13 @@ IGraphicsMac::IGraphicsMac(IGEditorDelegate& dlg, int w, int h, int fps, float s
 : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
 {
   NSApplicationLoad();
-  StaticStorage<MacCachedFont>::Accessor storage(sPlatformFontCache);
+  StaticStorage<MacFontDescriptor>::Accessor storage(sPlatformFontCache);
   storage.Retain();
 }
 
 IGraphicsMac::~IGraphicsMac()
 {
-  StaticStorage<MacCachedFont>::Accessor storage(sPlatformFontCache);
+  StaticStorage<MacFontDescriptor>::Accessor storage(sPlatformFontCache);
   storage.Release();
   
   CloseWindow();
@@ -142,9 +142,7 @@ bool IGraphicsMac::IsSandboxed()
 
 IGraphics::PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
 {
-  StaticStorage<MacCachedFont>::Accessor storage(sPlatformFontCache);
-
-  WDL_String fullPath;
+   WDL_String fullPath;
   const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, GetBundleID(), nullptr);
     
   if (fontLocation == kNotFound)
@@ -160,16 +158,11 @@ IGraphics::PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fontID, co
   if (!descriptor.Get())
     return nullptr;
   
-  if (!storage.Find(fontID))
-    storage.Add(new MacCachedFont(descriptor.Get()), fontID);
-  
   return PlatformFontPtr(new MacFont(descriptor.Release(), provider.Release()));
 }
 
 IGraphics::PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fontID, const IText& text)
 {
-  StaticStorage<MacCachedFont>::Accessor storage(sPlatformFontCache);
-
   CFLocal<CFStringRef> fontStr = CFStringCreateWithCString(NULL, text.mFont, kCFStringEncodingUTF8);
   CFLocal<CFStringRef> styleStr = CFStringCreateWithCString(NULL, text.GetStyleString(), kCFStringEncodingUTF8);
   
@@ -184,10 +177,17 @@ IGraphics::PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fontID, co
   if (!provider.Get())
     return nullptr;
   
-  if (!storage.Find(fontID))
-    storage.Add(new MacCachedFont(descriptor.Get()), fontID);
-      
   return PlatformFontPtr(new MacFont(descriptor.Release(), provider.Release()));
+}
+
+void IGraphicsMac::CachePlatformFont(const char* fontID, const PlatformFontPtr& font)
+{
+  StaticStorage<MacFontDescriptor>::Accessor storage(sPlatformFontCache);
+ 
+  CTFontDescriptorRef descriptor = (CTFontDescriptorRef) font->GetDescriptor();
+  
+  if (!storage.Find(fontID))
+    storage.Add(new MacFontDescriptor(descriptor), fontID);
 }
 
 bool IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds)
@@ -628,9 +628,9 @@ void IGraphicsMac::CreatePlatformTextEntry(IControl& control, const IText& text,
 
 CTFontDescriptorRef IGraphicsMac::GetCTFontDescriptor(const IText& text)
 {
-  StaticStorage<MacCachedFont>::Accessor storage(sPlatformFontCache);
+  StaticStorage<MacFontDescriptor>::Accessor storage(sPlatformFontCache);
 
-  MacCachedFont* cachedFont = storage.Find(text.mFont);
+  MacFontDescriptor* cachedFont = storage.Find(text.mFont);
   if (!cachedFont)
   {
     WDL_String fontID = text.GetFontWithStyle();

@@ -853,12 +853,18 @@ public:
    * @param fontID A string that is used to reference the font
    * @param fileNameOrResID A resource or file name/path
    * @return PlatformFontPtr from which the platform font can be retrieved */
-  virtual PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) { return nullptr; }
+  virtual PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) = 0;
   
   /** Load a system font in a platform format.
+   * @param fontID  A string that is used to reference the fon
    * @param text A IText structure defining the font name and style
    * @return PlatformFontPtr from which the platform font can be retrieved */
-  virtual PlatformFontPtr LoadPlatformFont(const char* fontID, const IText& text) { return nullptr; }
+  virtual PlatformFontPtr LoadPlatformFont(const char* fontID, const IText& text) = 0;
+
+  /** Called to indicate that the platform should cache data about the platform font if needed.
+   * @param fontID  A string that is used to reference the fon
+   * @param font A const PlatformFontPtr reference to the relevant font */
+  virtual void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) = 0;
 
   /** Get the bundle ID on macOS and iOS, returns emtpy string on other OSs */
   virtual const char* GetBundleID() { return ""; }

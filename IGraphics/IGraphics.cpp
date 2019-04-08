@@ -1606,7 +1606,10 @@ bool IGraphics::LoadFont(const char* fileNameOrResID)
   if (font)
   {
     if (LoadAPIFont(fontID, font))
+    {
+      CachePlatformFont(fontID, font);
       return true;
+    }
   }
   
   DBGMSG("Could not locate font %s\n", fileNameOrResID);
@@ -1623,7 +1626,10 @@ bool IGraphics::LoadFont(const char* fontName, IText::EStyle style)
   if (font)
   {
     if (LoadAPIFont(fontID, font))
+    {
+      CachePlatformFont(fontID, font);
       return true;
+    }
   }
   
   DBGMSG("Could not locate font %s\n", fontID);
