@@ -19,36 +19,13 @@
 
 // Thanks to Olli Wang/MOUI for much of this macro magic  https://github.com/ollix/moui
 
-#if defined IGRAPHICS_GLES2
-  #define IGRAPHICS_GL
-  #if defined OS_IOS
-    #include <OpenGLES/ES2/gl.h>
-  #elif defined OS_WEB
-    #include <GLES2/gl2.h>
-  #endif
-#elif defined IGRAPHICS_GLES3
-  #define IGRAPHICS_GL
-  #if defined OS_IOS
-    #include <OpenGLES/ES3/gl.h>
-  #elif defined OS_WEB
-    #include <GLES3/gl3.h>
-  #endif
-#elif defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
-  #define IGRAPHICS_GL
-  #if defined OS_WIN
-    #include <glad/glad.h>
-  #else
-    #include <OpenGL/gl.h>
-  #endif
+#if defined IGRAPHICS_GL
+  #define NANOVG_FBO_VALID 1
+  #include "nanovg_gl_utils.h"
 #elif defined IGRAPHICS_METAL
   #include "nanovg_mtl.h"
 #else
   #error you must define either IGRAPHICS_GL2, IGRAPHICS_GLES2 etc or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
-#endif
-
-#ifdef IGRAPHICS_GL
-  #define NANOVG_FBO_VALID 1
-  #include "nanovg_gl_utils.h"
 #endif
 
 #if defined IGRAPHICS_GL2
