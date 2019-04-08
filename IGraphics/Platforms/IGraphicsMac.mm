@@ -111,7 +111,8 @@ public:
   
   NSFont* FontWithSize(CGFloat fontSize)
   {
-    return [NSFont fontWithDescriptor:mDescriptor size: fontSize];
+    // TODO - get the size correct
+    return [NSFont fontWithDescriptor:mDescriptor size: fontSize * 0.75];
   }
   
 private:
@@ -634,7 +635,7 @@ void IGraphicsMac::CreatePlatformTextEntry(IControl& control, const IText& text,
     StaticStorage<MacCachedFont>::Accessor storage(sPlatformFontCache);
     
     MacCachedFont* cachedFont = storage.Find(text.mFont);
-    if (! cachedFont)
+    if (!cachedFont)
     {
       WDL_String fontID = text.GetFontWithStyle();
       cachedFont = storage.Find(fontID.Get());
