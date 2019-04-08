@@ -716,7 +716,7 @@ void IGraphics::Draw(IRECTList& rects)
   {
     rects.PixelAlign(scale);
     rects.Optimize();
-    
+
     for (auto i = 0; i < rects.Size(); i++)
       Draw(rects.Get(i), scale);
   }

@@ -66,13 +66,15 @@ public:
 
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
 
+  void ContextReady(void* pLayer);
+
 protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
 private:
   void RepositionCursor(CGPoint point);
   void StoreCursorPosition();
-
+  
   void* mView = nullptr;
   CGPoint mCursorLockPosition;
   WDL_String mBundleID;
