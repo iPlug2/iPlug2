@@ -73,6 +73,10 @@ public:
 
 //  void CreateWebView(const IRECT& bounds, const char* url) override;
   
+#ifdef __OBJC__
+  NSFont* GetNSFont(const IText& text);
+#endif
+    
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
 
   void* GetWindow() override;

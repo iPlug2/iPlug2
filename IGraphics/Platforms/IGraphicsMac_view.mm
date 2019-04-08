@@ -900,7 +900,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   else return nullptr;
 }
 
-- (void) createTextEntry: (IControl&) control : (NSFont*) font : (const IText&) text : (const char*) str : (NSRect) areaRect;
+- (void) createTextEntry: (IControl&) control : (const IText&) text : (const char*) str : (NSRect) areaRect;
 {
   if (mTextFieldView)
     return;
@@ -915,7 +915,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
     [mTextFieldView setDrawsBackground: TRUE];
   }
 
-  [mTextFieldView setFont: font];
+  [mTextFieldView setFont: mGraphics->GetNSFont(text)];
   
   switch (text.mAlign)
   {

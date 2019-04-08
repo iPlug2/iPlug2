@@ -632,21 +632,25 @@ void IGraphicsMac::CreatePlatformTextEntry(IControl& control, const IText& text,
 {
   if (mView)
   {
-    StaticStorage<MacCachedFont>::Accessor storage(sPlatformFontCache);
-    
-    MacCachedFont* cachedFont = storage.Find(text.mFont);
-    if (!cachedFont)
-    {
-      WDL_String fontID = text.GetFontWithStyle();
-      cachedFont = storage.Find(fontID.Get());
-    }
-    
-    assert(cachedFont && "font not found - did you forget to load it?");
-    
-    NSFont* font = cachedFont->FontWithSize(text.mSize);
     NSRect areaRect = ToNSRect(this, bounds);
-    [(IGRAPHICS_VIEW*) mView createTextEntry: control: font : text: str: areaRect];
+    [(IGRAPHICS_VIEW*) mView createTextEntry: control : text: str: areaRect];
   }
+}
+
+NSFont* IGraphicsMac::GetNSFont(const IText& text)
+{
+  StaticStorage<MacCachedFont>::Accessor storage(sPlatformFontCache);
+
+  MacCachedFont* cachedFont = storage.Find(text.mFont);
+  if (!cachedFont)
+  {
+    WDL_String fontID = text.GetFontWithStyle();
+    cachedFont = storage.Find(fontID.Get());
+  }
+
+  assert(cachedFont && "font not found - did you forget to load it?");
+
+  return cachedFont->FontWithSize(text.mSize);
 }
 
 //void IGraphicsMac::CreateWebView(const IRECT& bounds, const char* url)

@@ -128,7 +128,7 @@ inline NSColor* ToNSColor(const IColor& c)
 //text entry
 - (void) removeFromSuperview;
 - (void) controlTextDidEndEditing: (NSNotification*) aNotification;
-- (void) createTextEntry: (IControl&) control : (NSFont*) font : (const IText&) text : (const char*) str : (NSRect) areaRect;
+- (void) createTextEntry: (IControl&) control : (const IText&) text : (const char*) str : (NSRect) areaRect;
 - (void) endUserInput;
 //web view
 //- (void) createWebView: (NSRect) areaRect : (const char*) url;
