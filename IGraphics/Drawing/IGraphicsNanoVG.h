@@ -62,7 +62,7 @@
 #endif
 
 //FIXME: for some reason the render to offscreen frame buffer approach, causes strobing with macOS GL, so set everything dirty...
-#if defined IGRAPHICS_GL && defined IGRAPHICS_NANOVG
+#if defined OS_MAC && defined IGRAPHICS_GL
   #define RENDER_TO_FBO 0
 #else
   #define RENDER_TO_FBO 1
