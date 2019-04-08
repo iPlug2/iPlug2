@@ -82,9 +82,9 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
       colors[i] = SkiaColor(pattern.GetStop(i).mColor);
    
     if(pattern.mType == kLinearPattern)
-       paint.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, pattern.NStops(), SkShader::kClamp_TileMode, 0, nullptr));
+      paint.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, pattern.NStops(), SkTileMode::kClamp, 0, nullptr));
     else
-      paint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(128.0f, 128.0f) /*TODO: points*/, 180.0f, colors, nullptr, pattern.NStops(), SkShader::kClamp_TileMode, 0, nullptr));
+      paint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(128.0f, 128.0f) /*TODO: points*/, 180.0f, colors, nullptr, pattern.NStops(), SkTileMode::kClamp, 0, nullptr));
   }
   
   return paint;
