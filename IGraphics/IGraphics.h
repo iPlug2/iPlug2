@@ -42,7 +42,6 @@
 #include "IGraphicsPopupMenu.h"
 #include "IGraphicsEditorDelegate.h"
 
-#include "heapbuf.h"
 #include <stack>
 #include <memory>
 
@@ -78,7 +77,7 @@ protected:
     virtual ~PlatformFont() {}
 
     virtual const void* GetDescriptor() { return nullptr; }
-    virtual IFontDataPtr GetFontData() { return nullptr; }
+    virtual IFontDataPtr GetFontData() { return IFontDataPtr(new IFontData()); }
 
   protected:
       

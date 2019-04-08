@@ -15,11 +15,11 @@
 #include <emscripten/bind.h>
 #include <emscripten/html5.h>
 
+#include <utility>
+
 #include "IPlugPlatform.h"
 
 #include "IGraphics_select.h"
-
-#include "heapbuf.h"
 
 
 using namespace emscripten;
@@ -40,18 +40,29 @@ class IGraphicsWeb final : public IGRAPHICS_DRAW_CLASS
 {
 public:
   
-  class WebFileFont : public PlatformFont
+  class WebFont : public PlatformFont
   {
   public:
-    WebFileFont(const char* fontName, const char* fontPath)
-    : mName(fontName), mPath(fontPath)
+    WebFont(const char* fontName, const char* fontStyle)
+    : mDescriptor{fontName, fontStyle}
     {}
     
-    const void* GetDescriptor() override { return reinterpret_cast<const void*>(mName.Get()); }
+    const void* GetDescriptor() override { return reinterpret_cast<const void*>(&mDescriptor); }
+    
+  private:
+    std::pair<WDL_String, WDL_String> mDescriptor;
+  };
+    
+  class WebFileFont : public WebFont
+  {
+  public:
+    WebFileFont(const char* fontName, const char* fontStyle, const char* fontPath)
+    : WebFont(fontName, fontStyle), mPath(fontPath)
+    {}
+    
     IFontDataPtr GetFontData() override;
     
   private:
-    WDL_String mName;
     WDL_String mPath;
   };
   

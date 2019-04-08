@@ -226,7 +226,6 @@ bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
   char fontString[FONT_LEN + 64];
   const char* styles[] = { "normal", "bold", "italic" };
   context.set("textBaseline", std::string("top"));
-  val font = context["font"];
   sprintf(fontString, "%s %dpx %s", styles[text.mStyle], text.mSize, text.mFont);
   context.set("font", std::string(fontString));
   val metrics = context.call<val>("measureText", textString);

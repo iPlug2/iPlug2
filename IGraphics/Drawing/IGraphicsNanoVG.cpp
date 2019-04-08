@@ -13,9 +13,6 @@
 #include "IGraphicsNanoVG.h"
 #include "ITextEntryControl.h"
 
-#include "stb_truetype.h"
-#include "heapbuf.h"
-
 #if defined IGRAPHICS_GL
   #if defined OS_MAC
     #if defined IGRAPHICS_GL2

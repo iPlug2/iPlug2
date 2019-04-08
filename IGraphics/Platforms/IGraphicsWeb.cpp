@@ -577,12 +577,14 @@ IGraphics::PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fileNameOr
   if (fontLocation == kNotFound)
     return nullptr;
 
-  return PlatformFontPtr(new WebFileFont("", fullPath.Get()));
+  return PlatformFontPtr(new WebFileFont("__custom__", "__custom__", fullPath.Get()));
 }
 
 IGraphics::PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const IText& text)
 {
-  return nullptr;
+  const char* styles[] = { "normal", "bold", "italic" };
+  
+  return PlatformFontPtr(new WebFont(text.mFont, styles[text.mStyle]));
 }
 
 #if defined IGRAPHICS_CANVAS
