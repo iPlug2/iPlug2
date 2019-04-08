@@ -202,6 +202,16 @@ public:
    * @param defaultVal /todo
    * @param minVal /todo
    * @param maxVal /todo
+   * @param step /todo
+   * @param flags /todo
+   * @param group /todo */
+  void InitGain(const char* name, double defaultVal = 0., double minVal = -70., double maxVal = 24., double step = 0.5, int flags = 0, const char* group = "");
+  
+  /** /todo 
+   * @param name /todo
+   * @param defaultVal /todo
+   * @param minVal /todo
+   * @param maxVal /todo
    * @param flags /todo
    * @param group /todo */
   void InitPercentage(const char* name, double defaultVal = 0., double minVal = 0., double maxVal = 100., int flags = 0, const char* group = "");
