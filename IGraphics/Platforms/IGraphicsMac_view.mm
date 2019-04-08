@@ -915,7 +915,9 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
     [mTextFieldView setDrawsBackground: TRUE];
   }
 
-  [mTextFieldView setFont: mGraphics->GetNSFont(text)];
+  NSFontDescriptor*  fontDescriptor = (NSFontDescriptor*) mGraphics->GetCTFontDescriptor(text);
+  NSFont* font = [NSFont fontWithDescriptor: fontDescriptor : text.mSize * 0.75];
+  [mTextFieldView setFont: font];
   
   switch (text.mAlign)
   {

@@ -94,30 +94,19 @@ IFontDataPtr IGraphicsMac::MacFont::GetFontData()
   return fontData;
 }
 
-class MacCachedFont
+struct MacCachedFont
 {
-  
-public:
-  
-  MacCachedFont(CTFontDescriptorRef descriptor)
+  MacCachedFont(CTFontDescriptorRef descriptor) : mDescriptor(descriptor)
   {
-    mDescriptor = [(NSFontDescriptor*) descriptor retain];
+    CFRetain(mDescriptor);
   }
   
   ~MacCachedFont()
   {
-    [mDescriptor release];
+    CFRelease(mDescriptor);
   }
   
-  NSFont* FontWithSize(CGFloat fontSize)
-  {
-    // TODO - get the size correct
-    return [NSFont fontWithDescriptor:mDescriptor size: fontSize * 0.75];
-  }
-  
-private:
-  
-  NSFontDescriptor* mDescriptor;
+  CTFontDescriptorRef mDescriptor;
 };
 
 static StaticStorage<MacCachedFont> sPlatformFontCache;
@@ -637,7 +626,7 @@ void IGraphicsMac::CreatePlatformTextEntry(IControl& control, const IText& text,
   }
 }
 
-NSFont* IGraphicsMac::GetNSFont(const IText& text)
+CTFontDescriptorRef IGraphicsMac::GetCTFontDescriptor(const IText& text)
 {
   StaticStorage<MacCachedFont>::Accessor storage(sPlatformFontCache);
 
@@ -650,7 +639,7 @@ NSFont* IGraphicsMac::GetNSFont(const IText& text)
 
   assert(cachedFont && "font not found - did you forget to load it?");
 
-  return cachedFont->FontWithSize(text.mSize);
+  return cachedFont->mDescriptor;
 }
 
 //void IGraphicsMac::CreateWebView(const IRECT& bounds, const char* url)
