@@ -70,23 +70,23 @@ public:
     IColor c = DEFAULT_TEXT_FGCOLOR;
     const char* font = mFontCount ? "Roboto-Regular" : "Times New Roman";
     if (mCount == 0)
-      mText = IText(size, c, font, IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop);
+      mText = IText(size, c, font, IText::kAlignNear, IText::kVAlignTop);
     else if (mCount == 1)
-      mText = IText(size, c, font, IText::kStyleNormal, IText::kAlignCenter, IText::kVAlignTop);
+      mText = IText(size, c, font, IText::kAlignCenter, IText::kVAlignTop);
     else if (mCount == 2)
-      mText = IText(size, c, font, IText::kStyleNormal, IText::kAlignFar, IText::kVAlignTop);
+      mText = IText(size, c, font, IText::kAlignFar, IText::kVAlignTop);
     else if (mCount == 3)
-      mText = IText(size, c, font, IText::kStyleNormal, IText::kAlignNear, IText::kVAlignMiddle);
+      mText = IText(size, c, font, IText::kAlignNear, IText::kVAlignMiddle);
     else if (mCount == 4)
-      mText = IText(size, c, font, IText::kStyleNormal, IText::kAlignCenter, IText::kVAlignMiddle);
+      mText = IText(size, c, font, IText::kAlignCenter, IText::kVAlignMiddle);
     else if (mCount == 5)
-      mText = IText(size, c, font, IText::kStyleNormal, IText::kAlignFar, IText::kVAlignMiddle);
+      mText = IText(size, c, font, IText::kAlignFar, IText::kVAlignMiddle);
     else if (mCount == 6)
-      mText = IText(size, c, font, IText::kStyleNormal, IText::kAlignNear, IText::kVAlignBottom);
+      mText = IText(size, c, font, IText::kAlignNear, IText::kVAlignBottom);
     else if (mCount == 7)
-      mText = IText(size, c, font, IText::kStyleNormal, IText::kAlignCenter, IText::kVAlignBottom);
+      mText = IText(size, c, font, IText::kAlignCenter, IText::kVAlignBottom);
     else
-      mText = IText(size, c, font, IText::kStyleNormal, IText::kAlignFar, IText::kVAlignBottom);
+      mText = IText(size, c, font, IText::kAlignFar, IText::kVAlignBottom);
   }
 
 private:

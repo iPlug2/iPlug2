@@ -1613,10 +1613,9 @@ bool IGraphics::LoadFont(const char* fontID, const char* fileNameOrResID)
   return false;
 }
 
-bool IGraphics::LoadFont(const char* fontID, const char* fontName, IText::EStyle style)
+bool IGraphics::LoadFont(const char* fontID, const char* fontName, ETextStyle style)
 {
-  IText text(0, DEFAULT_TEXT_FGCOLOR, fontName, style);
-  PlatformFontPtr font = LoadPlatformFont(fontID, text);
+  PlatformFontPtr font = LoadPlatformFont(fontID, fontName, style);
   
   if (font)
   {

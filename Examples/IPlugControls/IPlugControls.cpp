@@ -99,8 +99,8 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     const IBitmap bitmap2 = pGraphics->LoadBitmap(PNGKNOBROTATE_FN);
     const ISVG vectorknob = pGraphics->LoadSVG(SVGKNOBROTATE_FN);
     
-    const IText bigLabel {24, COLOR_WHITE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop, 0};
-    const IText buttonLabels {14, COLOR_BLACK, "Roboto-Regular", IText::kStyleNormal, IText::kAlignCenter, IText::kVAlignMiddle, 0};
+    const IText bigLabel {24, COLOR_WHITE, "Roboto-Regular", IText::kAlignNear, IText::kVAlignTop, 0};
+    const IText buttonLabels {14, COLOR_BLACK, "Roboto-Regular", IText::kAlignCenter, IText::kVAlignMiddle, 0};
 
     
     const int nRows = 5;

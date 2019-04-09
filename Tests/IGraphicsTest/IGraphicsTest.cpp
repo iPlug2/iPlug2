@@ -54,7 +54,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     });
     
     pGraphics->LoadFont("Roboto-Regular", ROBOTTO_FN);
-    pGraphics->LoadFont("Times New Roman", "Times New Roman", IText::kStyleNormal);
+    pGraphics->LoadFont("Times New Roman", "Times New Roman", kTextStyleNormal);
     pGraphics->LoadFont("Montserrat-LightItalic", MONTSERRAT_FN);
     ISVG tiger = pGraphics->LoadSVG(TIGER_FN);
     ISVG orbs = pGraphics->LoadSVG(ORBS_FN);
@@ -155,10 +155,10 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
 #endif
     
 #if 0
-    pGraphics->AttachControl(new ITextControl(nextCell(), "Hello World!", {24, COLOR_WHITE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop, 90}));
-    pGraphics->AttachControl(new ITextControl(nextCell(), "Two!", {18, COLOR_GREEN, "Montserrat-LightItalic", IText::kStyleItalic, IText::kAlignCenter, IText::kVAlignMiddle, 45}));
-    pGraphics->AttachControl(new ITextControl(nextCell(), "Three!", {24, COLOR_RED, "Roboto-Regular", IText::kStyleNormal, IText::kAlignFar, IText::kVAlignBottom}));
-    pGraphics->AttachControl(new ITextControl(nextCell(), "Four!", {40, COLOR_ORANGE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignCenter, IText::kVAlignBottom}));
+    pGraphics->AttachControl(new ITextControl(nextCell(), "Hello World!", {24, COLOR_WHITE, "Roboto-Regular", IText::kAlignNear, IText::kVAlignTop, 90}));
+    pGraphics->AttachControl(new ITextControl(nextCell(), "Two!", {18, COLOR_GREEN, "Montserrat-LightItalic", IText::kAlignCenter, IText::kVAlignMiddle, 45}));
+    pGraphics->AttachControl(new ITextControl(nextCell(), "Three!", {24, COLOR_RED, "Roboto-Regular", IText::kAlignFar, IText::kVAlignBottom}));
+    pGraphics->AttachControl(new ITextControl(nextCell(), "Four!", {40, COLOR_ORANGE, "Roboto-Regular", IText::kAlignCenter, IText::kVAlignBottom}));
 #endif
   };
   

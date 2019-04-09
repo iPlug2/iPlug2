@@ -528,12 +528,22 @@ struct IStrokeOptions
   DashOptions mDash;
 };
 
+/** Used to specify text styles when loading fonts. */
+enum ETextStyle { kTextStyleNormal, kTextStyleBold, kTextStyleItalic };
+
+static const char* TextStyleString(ETextStyle style)
+{
+    switch (style)
+    {
+        case kTextStyleNormal:      return "Regular";
+        case kTextStyleBold:        return "Bold";
+        case kTextStyleItalic:      return "Italic";
+    }
+}
+
 /** Used to manage font and text/text entry style for a piece of text on the UI, independent of draw class/platform.*/
 struct IText
 {
-  /** /todo */
-  enum EStyle { kStyleNormal, kStyleBold, kStyleItalic } mStyle;
-
   /** /todo */
   enum EAlign { kAlignNear, kAlignCenter, kAlignFar } mAlign;
 
@@ -547,7 +557,6 @@ struct IText
    * @param size /todo
    * @param color /todo
    * @param font /todo
-   * @param style /todo
    * @param align /todo
    * @param valign /todo
    * @param orientation /todo
@@ -557,7 +566,6 @@ struct IText
   IText(int size = DEFAULT_TEXT_SIZE,
         const IColor& color = DEFAULT_TEXT_FGCOLOR,
         const char* font = nullptr,
-        EStyle style = kStyleNormal,
         EAlign align = kAlignCenter,
         EVAlign valign = kVAlignMiddle,
         int orientation = 0,
@@ -566,7 +574,6 @@ struct IText
         const IColor& TEFGColor = DEFAULT_TEXTENTRY_FGCOLOR)
     : mSize(size)
     , mFGColor(color)
-    , mStyle(style)
     , mAlign(align)
     , mVAlign(valign)
     , mOrientation(orientation)
@@ -595,16 +602,6 @@ struct IText
   {
     mSize = size;
     mAlign = align;
-  }
-
-  const char* GetStyleString() const
-  {
-    switch(mStyle)
-    {
-      case kStyleNormal:      return "Regular";
-      case kStyleBold:        return "Bold";
-      case kStyleItalic:      return "Italic";
-    }
   }
     
   char mFont[FONT_LEN];

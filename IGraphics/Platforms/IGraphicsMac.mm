@@ -161,10 +161,10 @@ IGraphics::PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fontID, co
   return PlatformFontPtr(new MacFont(descriptor.Release(), provider.Release()));
 }
 
-IGraphics::PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fontID, const IText& text)
+IGraphics::PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
 {
-  CFLocal<CFStringRef> fontStr = CFStringCreateWithCString(NULL, text.mFont, kCFStringEncodingUTF8);
-  CFLocal<CFStringRef> styleStr = CFStringCreateWithCString(NULL, text.GetStyleString(), kCFStringEncodingUTF8);
+  CFLocal<CFStringRef> fontStr = CFStringCreateWithCString(NULL, fontName, kCFStringEncodingUTF8);
+  CFLocal<CFStringRef> styleStr = CFStringCreateWithCString(NULL, TextStyleString(style), kCFStringEncodingUTF8);
   
   CFStringRef keys[] = { kCTFontFamilyNameAttribute, kCTFontStyleNameAttribute };
   CFTypeRef values[] = { fontStr.Get(), styleStr.Get() };

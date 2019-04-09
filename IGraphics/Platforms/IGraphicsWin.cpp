@@ -1642,22 +1642,22 @@ IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, co
   return nullptr;
 }
 
-IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const IText& text)
+IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
 {
-  int weight = text.mStyle == IText::kStyleBold ? FW_BOLD : FW_REGULAR;
-  bool italic = text.mStyle == IText::kStyleItalic;
+  int weight = style == kStyleBold ? FW_BOLD : FW_REGULAR;
+  bool italic = style == kStyleItalic;
   DWORD quality = DEFAULT_QUALITY;
-
+/*
   switch (text.mQuality)
   {
   case IText::kQualityAntiAliased: quality = ANTIALIASED_QUALITY; break;
   case IText::kQualityClearType: quality = CLEARTYPE_QUALITY; break;
   case IText::kQualityNonAntiAliased: quality = NONANTIALIASED_QUALITY; break;
-  }
+  }*/
 
-  HFONT font = GetHFont(text.mFont, weight, italic, quality, true);
+  HFONT font = GetHFont(fontName, weight, italic, quality, true);
 
-  return PlatformFontPtr(font ? new WinFont(font, text.GetStyleString()) : nullptr);
+  return PlatformFontPtr(font ? new WinFont(font, TextStyleString(style)) : nullptr);
 }
 
 //TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT

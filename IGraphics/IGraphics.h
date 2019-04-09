@@ -497,7 +497,7 @@ public:
    * @param fontName A CString font name
    * @param style A font style
    * @return \c true on success */
-  bool LoadFont(const char* fontID, const char* fontName, IText::EStyle style);
+  bool LoadFont(const char* fontID, const char* fontName, ETextStyle style);
 
 #pragma mark - Layer management
   
@@ -858,13 +858,14 @@ public:
   virtual PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) = 0;
   
   /** Load a system font in a platform format.
-   * @param fontID  A string that is used to reference the fon
-   * @param text A IText structure defining the font name and style
+   * @param fontID  A string that is used to reference the font
+   * @param fontName A string defining the font name
+   * @param style An ETextStyle defining the font style
    * @return PlatformFontPtr from which the platform font can be retrieved */
-  virtual PlatformFontPtr LoadPlatformFont(const char* fontID, const IText& text) = 0;
+  virtual PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) = 0;
 
   /** Called to indicate that the platform should cache data about the platform font if needed.
-   * @param fontID  A string that is used to reference the fon
+   * @param fontID  A string that is used to reference the font
    * @param font A const PlatformFontPtr reference to the relevant font */
   virtual void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) = 0;
 
