@@ -108,7 +108,7 @@ public:
       
       if(mOverSampler)
         mOverSampler->ProcessBlock(inputs, outputs, nFrames, 2 /* TODO: flexible channel count */,
-                                   [&](sample** inputs, sample** outputs, int nFrames)
+                                   [&](sample** inputs, sample** outputs, int nFrames) //TODO:: badness capture = allocated
                                    {
                                      mDSP->compute(nFrames, inputs, outputs);
                                    });

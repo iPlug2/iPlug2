@@ -71,7 +71,13 @@ CairoBitmap::CairoBitmap(cairo_surface_t* pSurface, int scale, float drawScale)
 
 CairoBitmap::CairoBitmap(cairo_surface_t* pSurfaceType, int width, int height, int scale, float drawScale)
 {
-  cairo_surface_t* pSurface = cairo_surface_create_similar_image(pSurfaceType, CAIRO_FORMAT_ARGB32, width, height);
+  cairo_surface_t* pSurface;
+    
+  if (pSurfaceType)
+    pSurface = cairo_surface_create_similar_image(pSurfaceType, CAIRO_FORMAT_ARGB32, width, height);
+  else
+    pSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+    
   cairo_surface_set_device_scale(pSurface, scale * drawScale, scale * drawScale);
   
   SetBitmap(pSurface, width, height, scale, drawScale);
@@ -169,32 +175,9 @@ APIBitmap* IGraphicsCairo::LoadAPIBitmap(const char* fileNameOrResID, int scale,
   return new CairoBitmap(pSurface, scale, 1.f);
 }
 
-APIBitmap* IGraphicsCairo::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
+APIBitmap* IGraphicsCairo::CreateAPIBitmap(int width, int height, int scale, double drawScale)
 {
-  cairo_surface_t* pInSurface = pBitmap->GetBitmap();
-  
-  int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
-  int destH = (pBitmap->GetHeight() / pBitmap->GetScale()) * scale;
-    
-  // Create resources to redraw
-    
-  cairo_surface_t* pOutSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, destW, destH);
-  cairo_t* pOutContext = cairo_create(pOutSurface);
-    
-  // Scale and paint (destroying the context / the surface is retained)
-    
-  cairo_scale(pOutContext, scale, scale);
-  cairo_set_source_surface(pOutContext, pInSurface, 0, 0);
-  cairo_paint(pOutContext);
-  cairo_destroy(pOutContext);
-    
-  return new CairoBitmap(pOutSurface, scale, pBitmap->GetDrawScale());
-}
-
-APIBitmap* IGraphicsCairo::CreateAPIBitmap(int width, int height)
-{
-  const double scale = GetBackingPixelScale();
-  return new CairoBitmap(mSurface, std::ceil(width * scale), std::ceil(height * scale), GetScreenScale(), GetDrawScale());
+  return new CairoBitmap(mSurface, width, height, scale, drawScale);
 }
 
 bool IGraphicsCairo::BitmapExtSupported(const char* ext)
@@ -273,7 +256,7 @@ void IGraphicsCairo::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, cons
   }  
 }
 
-void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
+void IGraphicsCairo::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
   const double scale = GetScreenScale() / (bitmap.GetScale() * bitmap.GetDrawScale());
 
@@ -289,7 +272,8 @@ void IGraphicsCairo::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, in
 
 void IGraphicsCairo::PathClear()
 {
-  cairo_new_path(mContext);
+  if (mContext)
+    cairo_new_path(mContext);
 }
 
 void IGraphicsCairo::PathClose()
@@ -692,6 +676,9 @@ void IGraphicsCairo::PathTransformSetMatrix(const IMatrix& m)
   double xTranslate = 0.0;
   double yTranslate = 0.0;
   
+  if (!mContext)
+    return;
+    
   if (!mLayers.empty())
   {
     IRECT bounds = mLayers.top()->Bounds();
@@ -710,6 +697,9 @@ void IGraphicsCairo::PathTransformSetMatrix(const IMatrix& m)
 
 void IGraphicsCairo::SetClipRegion(const IRECT& r) 
 {
+  if (!mContext)
+    return;
+    
   cairo_reset_clip(mContext);
   if (!r.Empty())
   {

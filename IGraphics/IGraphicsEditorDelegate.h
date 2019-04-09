@@ -22,7 +22,7 @@
 class IGraphics;
 class IControl;
 
-/** An editor delgate base class for a SOMETHING that uses IGraphics for it's UI */
+/** An editor delegate base class for a SOMETHING that uses IGraphics for it's UI */
 class IGEditorDelegate : public IEditorDelegate
 {
 public:
@@ -86,5 +86,5 @@ private:
 
   std::unique_ptr<IGraphics> mGraphics;
   bool mIGraphicsTransient = false; // If creating IGraphics on demand this will be true
-  bool mClosing = false; // used to prevent re-etnrancy one closing
+  bool mClosing = false; // used to prevent re-entrancy on closing
 };

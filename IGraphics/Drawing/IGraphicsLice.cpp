@@ -126,18 +126,18 @@ void IGraphicsLice::DrawResize()
   mRenderBitmap = mDrawBitmap.get();
 }
 
-void IGraphicsLice::DrawSVG(ISVG& svg, const IRECT& bounds, const IBlend* pBlend)
+void IGraphicsLice::DrawSVG(const ISVG& svg, const IRECT& bounds, const IBlend* pBlend)
 {
   DrawText(DEFAULT_TEXT, "UNSUPPORTED", bounds);
 }
 
-void IGraphicsLice::DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend)
+void IGraphicsLice::DrawRotatedSVG(const ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend)
 {
   IRECT r = IRECT(destCtrX - (width/2.), destCtrY - (height/2.), destCtrX + width, destCtrY + height);
   DrawText(DEFAULT_TEXT, "UNSUPPORTED", r);
 }
 
-void IGraphicsLice::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend)
+void IGraphicsLice::DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend)
 {
   bool preMultiplied = static_cast<LICEBitmap*>(bitmap.GetAPIBitmap())->IsPreMultiplied();
   const int ds = GetScreenScale();
@@ -154,7 +154,7 @@ void IGraphicsLice::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, i
     LICE_Blit(mRenderBitmap, bitmap.GetAPIBitmap()->GetBitmap(), r.L, r.T, srcX, srcY, r.W(), r.H(), BlendWeight(pBlend), LiceBlendMode(pBlend));
 }
 
-void IGraphicsLice::DrawRotatedBitmap(IBitmap& bitmap, float destCtrX, float destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
+void IGraphicsLice::DrawRotatedBitmap(const IBitmap& bitmap, float destCtrX, float destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
 {
   const int ds = GetScreenScale();
   LICE_IBitmap* pLB = bitmap.GetAPIBitmap()->GetBitmap();
@@ -167,7 +167,7 @@ void IGraphicsLice::DrawRotatedBitmap(IBitmap& bitmap, float destCtrX, float des
   LICE_RotatedBlit(mRenderBitmap, pLB, destX, destY, W, H, 0.0f, 0.0f, (float) W, (float) H, (float) DegToRad(angle), false, BlendWeight(pBlend), LiceBlendMode(pBlend) | LICE_BLIT_FILTER_BILINEAR, 0.0f, (float) yOffsetZeroDeg);
 }
 
-void IGraphicsLice::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, float x, float y, double angle, const IBlend* pBlend)
+void IGraphicsLice::DrawRotatedMask(const IBitmap& base, const IBitmap& mask, const IBitmap& top, float x, float y, double angle, const IBlend* pBlend)
 {
   x = TransformX(x);
   y = TransformY(y);
@@ -197,7 +197,7 @@ void IGraphicsLice::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, 
   LICE_Blit(mRenderBitmap, mTmpBitmap.get(), r.L, r.T, r.L - x, r.T - y, r.R - r.L, r.B - r.T, BlendWeight(pBlend), LiceBlendMode(pBlend));
 }
 
-void IGraphicsLice::DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend)
+void IGraphicsLice::DrawFittedBitmap(const IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend)
 {
   NeedsClipping();
   // TODO - clipping
@@ -582,10 +582,10 @@ void IGraphicsLice::NeedsClipping()
   if (!mClippingLayer && mLayers.empty() && !mClipRECT.Contains(GetBounds()))
   {
     IRECT alignedBounds = mClipRECT.GetPixelAligned(GetBackingPixelScale());
-    const int w = static_cast<int>(std::round(alignedBounds.W()));
-    const int h = static_cast<int>(std::round(alignedBounds.H()));
+    const int w = static_cast<int>(std::round(alignedBounds.W() * GetBackingPixelScale()));
+    const int h = static_cast<int>(std::round(alignedBounds.H() * GetBackingPixelScale()));
     
-    mClippingLayer.reset(new ILayer(CreateAPIBitmap(w, h), alignedBounds));
+    mClippingLayer.reset(new ILayer(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds));
     UpdateLayer();
   }
 }
@@ -730,22 +730,9 @@ APIBitmap* IGraphicsLice::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
   return nullptr;
 }
 
-APIBitmap* IGraphicsLice::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
+APIBitmap* IGraphicsLice::CreateAPIBitmap(int width, int height, int scale, double drawScale)
 {
-  int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
-  int destH = (pBitmap->GetHeight() / pBitmap->GetScale()) * scale;
-  
-  LICE_IBitmap* pSrc = pBitmap->GetBitmap();
-  LICE_MemBitmap* pDest = new LICE_MemBitmap(destW, destH);
-  LICE_ScaledBlit(pDest, pSrc, 0, 0, destW, destH, 0.0f, 0.0f, (float) pSrc->getWidth(), (float) pSrc->getHeight(), 1.0f, LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR);
-  
-  return new LICEBitmap(pDest, scale, false);
-}
-
-APIBitmap* IGraphicsLice::CreateAPIBitmap(int width, int height)
-{
-  const int scale = GetScreenScale();
-  LICE_IBitmap* pBitmap = new LICE_MemBitmap(width * scale, height * scale);
+  LICE_IBitmap* pBitmap = new LICE_MemBitmap(width, height);
   memset(pBitmap->getBits(), 0, pBitmap->getRowSpan() * pBitmap->getHeight() * sizeof(LICE_pixel));
   return new LICEBitmap(pBitmap, scale, true);
 }

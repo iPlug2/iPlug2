@@ -149,7 +149,7 @@ public:
    * @param g The graphics context to which this control belongs. */
   virtual void DrawPTHighlight(IGraphics& g);
 
-  /** Call this method in reponse to a mouse event to create an edit box so the user can enter a value, or pop up a pop-up menu,
+  /** Call this method in response to a mouse event to create an edit box so the user can enter a value, or pop up a pop-up menu,
    * if the control is linked to a parameter (mParamIdx > kNoParameter) */
   void PromptUserInput();
   
@@ -266,11 +266,11 @@ public:
   bool IsGrayed() const { return mGrayed; }
 
   /** Specify whether the control should respond to mouse overs when grayed out
-   * @param allow \c true if it should resond to mouse overs when grayed out (false by default) */
+   * @param allow \c true if it should respond to mouse overs when grayed out (false by default) */
   void SetMOWhenGrayed(bool allow) { mMOWhenGrayed = allow; }
 
   /** Specify whether the control should respond to other mouse events when grayed out
-   * @param allow \c true if it should resond to other mouse events when grayed out (false by default) */
+   * @param allow \c true if it should respond to other mouse events when grayed out (false by default) */
   void SetMEWhenGrayed(bool allow) { mMEWhenGrayed = allow; }
 
   /** @return \c true if the control responds to mouse overs when grayed out */
@@ -307,7 +307,7 @@ public:
   
   /** Called at each display refresh by the IGraphics draw loop to determine if the control is marked as dirty. 
    * This is not const, because it is typically  overridden and used to update something at the display refresh rate
-   * The default implementation exectutes a control's Animation Function, so if you override this you may want to call the base implementation, @see Animation Functions
+   * The default implementation executes a control's Animation Function, so if you override this you may want to call the base implementation, @see Animation Functions
    * @return \c true if the control is marked dirty. */
   virtual bool IsDirty();
 
@@ -363,7 +363,7 @@ public:
    * @param y The Y coordinate for snapping
    * @param direction The direction of the control's travel- horizontal or vertical fader
    * @param bounds The area in which the track of e.g. a slider should be snapped
-   * @param scalar A scalar to speedup/slowdown mousing along the track */
+   * @param scalar A scalar to speed-up or slow-down mousing along the track */
   virtual void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar = 1.);
 
   virtual void OnEndAnimation() // if you override this you must call the base implementation, to free mAnimationFunc
@@ -495,7 +495,7 @@ protected:
 };
 
 /** A base interface to be combined with IControl for vectorial controls "IVControls", in order for them to share a common set of colors. 
- * If you need more flexibility for theming, you're on your own! */
+ * If you need more flexibility, you're on your own! */
 class IVectorBase
 {
 public:
@@ -977,7 +977,7 @@ private:
   bool mDrawFrame;
 };
 
-/** A control that can be specialised with a lamda function, for quick experiments without making a custom IControl */
+/** A control that can be specialised with a lambda function, for quick experiments without making a custom IControl */
 class ILambdaControl : public IControl
 {
 public:

@@ -332,8 +332,11 @@
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_hdr.h" />
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_src.h" />
     <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3.h" />
+    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_Common.h" />
+    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_ControllerBase.h" />
     <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_Parameter.h" />
-    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_view.h" />
+    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_ProcessorBase.h" />
+    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_View.h" />
     <ClInclude Include="..\IGraphicsStressTest.h" />
     <ClInclude Include="..\resources\resource.h" />
   </ItemGroup>
@@ -355,8 +358,9 @@
     <ClCompile Include="..\..\..\Dependencies\IPlug\VST3_SDK\pluginterfaces\base\ustring.cpp" />
     <ClCompile Include="..\..\..\Dependencies\IPlug\VST3_SDK\public.sdk\source\common\memorystream.cpp" />
     <ClCompile Include="..\..\..\Dependencies\IPlug\VST3_SDK\public.sdk\source\common\pluginview.cpp" />
+    <ClCompile Include="..\..\..\Dependencies\IPlug\VST3_SDK\public.sdk\source\common\commoniids.cpp" />
     <ClCompile Include="..\..\..\Dependencies\IPlug\VST3_SDK\public.sdk\source\main\dllmain.cpp" />
-    <ClCompile Include="..\..\..\Dependencies\IPlug\VST3_SDK\public.sdk\source\main\pluginfactoryvst3.cpp" />
+    <ClCompile Include="..\..\..\Dependencies\IPlug\VST3_SDK\public.sdk\source\main\pluginfactory.cpp" />
     <ClCompile Include="..\..\..\Dependencies\IPlug\VST3_SDK\public.sdk\source\vst\vstaudioeffect.cpp" />
     <ClCompile Include="..\..\..\Dependencies\IPlug\VST3_SDK\public.sdk\source\vst\vstbus.cpp" />
     <ClCompile Include="..\..\..\Dependencies\IPlug\VST3_SDK\public.sdk\source\vst\vstcomponent.cpp" />
@@ -385,6 +389,7 @@
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp" />
     <ClCompile Include="..\..\..\IPlug\VST3\IPlugVST3.cpp" />
+    <ClCompile Include="..\..\..\IPlug\VST3\IPlugVST3_ProcessorBase.cpp" />
     <ClCompile Include="..\IGraphicsStressTest.cpp" />
   </ItemGroup>
   <ItemGroup>

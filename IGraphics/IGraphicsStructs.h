@@ -88,7 +88,7 @@ typedef WDL_TypedBuf<unsigned char> RawBitmapData;
   typedef void* BitmapData;
 #endif
 
-/** A bitmap abstraction around the different drawing backend bitmap representations.
+/** A bitmap abstraction around the different drawing back end bitmap representations.
  * In most cases it does own the bitmap data, the exception being with NanoVG, where the image is loaded onto the GPU as a texture,
  * but still needs to be freed. Most of the time  end-users will deal with IBitmap rather than APIBitmap, which is used behind the scenes. */
 class APIBitmap
@@ -244,7 +244,7 @@ struct ISVG
   }
 
   /** /todo */
-  float W()
+  float W() const
   {
     if (mImage)
       return mImage->width;
@@ -253,7 +253,7 @@ struct ISVG
   }
 
   /** /todo */
-  float H()
+  float H() const
   {
     if (mImage)
       return mImage->height;
@@ -419,7 +419,7 @@ struct IVColorSpec
   IColor mFGColor = DEFAULT_FGCOLOR; // Foreground
   IColor mPRColor = DEFAULT_PRCOLOR; // Pressed
   IColor mFRColor = DEFAULT_FRCOLOR; // Frame
-  IColor mHLColor = DEFAULT_HLCOLOR; // Higlight
+  IColor mHLColor = DEFAULT_HLCOLOR; // Highlight
   IColor mSHColor = DEFAULT_SHCOLOR; // Shadow
   IColor mX1Color = DEFAULT_X1COLOR; // Extra 1
   IColor mX2Color = DEFAULT_X2COLOR; // Extra 2
@@ -444,7 +444,7 @@ struct IVColorSpec
 
 const IVColorSpec DEFAULT_SPEC = IVColorSpec();
 
-/** Used to manage composite/blend operations, independant of draw class/platform */
+/** Used to manage composite/blend operations, independent of draw class/platform */
 struct IBlend
 {
   EBlendType mMethod;
@@ -474,7 +474,7 @@ const IBlend BLEND_10 = IBlend(kBlendDefault, 0.1f);
 const IBlend BLEND_05 = IBlend(kBlendDefault, 0.05f);
 const IBlend BLEND_01 = IBlend(kBlendDefault, 0.01f);
 
-/** Used to manage fill behaviour for path based drawing backends */
+/** Used to manage fill behaviour for path based drawing back ends */
 struct IFillOptions
 {
   IFillOptions()
@@ -486,7 +486,7 @@ struct IFillOptions
   bool mPreserve;
 };
 
-/** Used to manage stroke behaviour for path based drawing backends */
+/** Used to manage stroke behaviour for path based drawing back ends */
 struct IStrokeOptions
 {
   /** Used to manage dashes for stroke */
@@ -531,7 +531,7 @@ struct IStrokeOptions
   DashOptions mDash;
 };
 
-/** Used to manage font and text/text entry style for a piece of text on the UI, independant of draw class/platform.*/
+/** Used to manage font and text/text entry style for a piece of text on the UI, independent of draw class/platform.*/
 struct IText
 {
   /** /todo */
@@ -615,7 +615,7 @@ struct IText
 
 const IText DEFAULT_TEXT = IText();
 
-/** Used to manage a rectangular area, independant of draw class/platform.
+/** Used to manage a rectangular area, independent of draw class/platform.
  * An IRECT is always specified in 1:1 pixels, any scaling for high DPI happens in the drawing class.
  * In IGraphics 0,0 is top left. */
 struct IRECT

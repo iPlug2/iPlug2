@@ -189,7 +189,7 @@ public:
    * @param outputs Two-dimensional array for audio output (non-interleaved).
    * @param nFrames The block size for this block: number of samples per channel.
    * @param nChans The number of channels to process. Must be less or equal to the number of channels passed to the constructor
-   * @param func The function that processes the audio sample at the higher sampling rate */
+   * @param func The function that processes the audio sample at the higher sampling rate. NOTE: std::function can call malloc if you pass in captures */
   void ProcessBlock(T** inputs, T** outputs, int nFrames, int nChans, BlockProcessFunc func)
   {
     assert(nChans <= mNChannels);
@@ -284,7 +284,7 @@ public:
   
   /** Over sample an input sample with a per-sample function (up-sample input -> process with function -> down-sample)
    * @param input The audio sample to input
-   * @param std::function<double(double)> The function that processes the audio sample at the higher sampling rate
+   * @param std::function<double(double)> The function that processes the audio sample at the higher sampling rate. NOTE: std::function can call malloc if you pass in captures
    * @return The audio sample output */
   T Process(T input, std::function<T(T)> func)
   {

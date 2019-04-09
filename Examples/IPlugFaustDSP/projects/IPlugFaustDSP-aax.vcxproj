@@ -157,6 +157,7 @@
       </AssemblyDebug>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
+      <DelayLoadDLLs>faust.dll</DelayLoadDLLs>
     </Link>
     <Bscmake />
     <PostBuildEvent />
@@ -281,6 +282,7 @@
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
+      <DelayLoadDLLs>faust.dll</DelayLoadDLLs>
     </Link>
     <Bscmake />
     <PostBuildEvent />

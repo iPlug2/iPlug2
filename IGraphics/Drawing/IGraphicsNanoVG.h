@@ -106,7 +106,7 @@ public:
   void OnViewDestroyed() override;
   void DrawResize() override;
 
-  void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
+  void DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
 
   void DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness, float dashLen) override;
   void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness, float dashLen) override;
@@ -124,7 +124,6 @@ public:
   void* GetDrawContext() override { return (void*) mVG; }
     
   IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale) override;
-  IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, int targetScale) override { return bitmap; } // NO-OP
   void ReleaseBitmap(const IBitmap& bitmap) override { }; // NO-OP
   void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override { }; // NO-OP
   bool BitmapExtSupported(const char* ext) override;
@@ -137,8 +136,7 @@ public:
     
 protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
-  APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override { return new APIBitmap(); } // NO-OP
-  APIBitmap* CreateAPIBitmap(int width, int height) override;
+  APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) override;
 
   int AlphaChannel() const override { return 3; }
   

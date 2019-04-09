@@ -21,7 +21,7 @@ typedef IPlugVST3 VST3_API_BASE;
 #elif defined VST3C_API
 #include "pluginterfaces/base/ustring.h"
 #include "IPlugVST3_Controller.h"
-#include "IPlugVST3_view.h"
+#include "IPlugVST3_View.h"
 typedef IPlugVST3Controller VST3_API_BASE;
 #endif
 
@@ -454,7 +454,7 @@ bool IGraphics::DrawText(const IText& text, const char* str, float x, float y, c
   return DrawText(text, str, bounds, pBlend);
 }
 
-void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int bmpState, const IBlend* pBlend)
+void IGraphics::DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int bmpState, const IBlend* pBlend)
 {
   int srcX = 0;
   int srcY = 0;
@@ -476,7 +476,7 @@ void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int bmpState, c
   return DrawBitmap(bitmap, bounds, srcX, srcY, pBlend);
 }
 
-void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& bounds, IText& text, IBlend* pBlend, const char* str, bool vCenter, bool multiline, int charWidth, int charHeight, int charOffset)
+void IGraphics::DrawBitmapedText(const IBitmap& bitmap, IRECT& bounds, IText& text, IBlend* pBlend, const char* str, bool vCenter, bool multiline, int charWidth, int charHeight, int charOffset)
 {
   if (CStringHasContents(str))
   {
@@ -1266,10 +1266,22 @@ void IGraphics::RetainBitmap(const IBitmap& bitmap, const char* cacheName)
 
 IBitmap IGraphics::ScaleBitmap(const IBitmap& inBitmap, const char* name, int scale)
 {
-  APIBitmap* pAPIBitmap = ScaleAPIBitmap(inBitmap.GetAPIBitmap(), scale);
-  IBitmap bitmap = IBitmap(pAPIBitmap, inBitmap.N(), inBitmap.GetFramesAreHorizontal(), name);
+  int screenScale = GetScreenScale();
+  double drawScale = GetDrawScale();
+
+  mScreenScale = scale;
+  mDrawScale = inBitmap.GetDrawScale();
+
+  IRECT bounds = IRECT(0, 0, inBitmap.W() / inBitmap.GetDrawScale(), inBitmap.H() / inBitmap.GetDrawScale());
+  StartLayer(bounds);
+  DrawBitmap(inBitmap, bounds, 0, 0, nullptr);
+  ILayerPtr layer = EndLayer();
+  IBitmap bitmap = IBitmap(layer->mBitmap.release(), inBitmap.N(), inBitmap.GetFramesAreHorizontal(), name);
   RetainBitmap(bitmap, name);
 
+  mScreenScale = screenScale;
+  mDrawScale = drawScale;
+    
   return bitmap;
 }
 
@@ -1357,10 +1369,10 @@ IPopupMenu* IGraphics::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IC
 void IGraphics::StartLayer(const IRECT& r)
 {
   IRECT alignedBounds = r.GetPixelAligned(GetBackingPixelScale());
-  const int w = static_cast<int>(std::ceil(alignedBounds.W()));
-  const int h = static_cast<int>(std::ceil(alignedBounds.H()));
+  const int w = static_cast<int>(std::ceil(GetBackingPixelScale() * std::ceil(alignedBounds.W())));
+  const int h = static_cast<int>(std::ceil(GetBackingPixelScale() * std::ceil(alignedBounds.H())));
 
-  PushLayer(new ILayer(CreateAPIBitmap(w, h), alignedBounds), true);
+  PushLayer(new ILayer(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds), true);
 }
 
 void IGraphics::ResumeLayer(ILayerPtr& layer)
