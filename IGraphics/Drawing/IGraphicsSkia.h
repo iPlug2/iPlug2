@@ -41,7 +41,7 @@ public:
   void OnViewDestroyed() override;
   void DrawResize() override;
 
-  void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
+  void DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
 
   void PathClear() override { mMainPath.reset(); }
   void PathClose() override { mMainPath.close(); }
@@ -65,7 +65,7 @@ public:
   IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, int targetScale) override { return bitmap; } // NO-OP
   void ReleaseBitmap(const IBitmap& bitmap) override { }; // NO-OP
   void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override { }; // NO-OP
-  APIBitmap* CreateAPIBitmap(int width, int height) override { return nullptr; }; // TODO:
+  APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) override { return nullptr; }; // TODO:
 
   void SetPlatformContext(void* pContext) override;
   
@@ -76,7 +76,6 @@ protected:
   bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
 
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
-  APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override { return new APIBitmap(); } // NO-OP
 private:
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;

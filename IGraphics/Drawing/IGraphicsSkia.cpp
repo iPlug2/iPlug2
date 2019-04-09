@@ -177,7 +177,7 @@ void IGraphicsSkia::EndFrame()
 #endif
 }
 
-void IGraphicsSkia::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
+void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
   SkPaint p;
   p.setFilterQuality(kHigh_SkFilterQuality);
