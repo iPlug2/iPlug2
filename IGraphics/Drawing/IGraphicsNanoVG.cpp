@@ -570,15 +570,11 @@ IColor IGraphicsNanoVG::GetPoint(int x, int y)
 
 bool IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
-  WDL_String fontWithStyle = text.GetFontWithStyle();
-  
-  bool fontIsResource = nvgFindFont(mVG, text.mFont) != -1;
-  
-  assert(fontIsResource || nvgFindFont(mVG, fontWithStyle.Get()) != -1); // did you forget to LoadFont for this font?
+  assert(nvgFindFont(mVG, text.mFont) != -1); // did you forget to LoadFont for this font?
   
   nvgFontBlur(mVG, 0);
   nvgFontSize(mVG, text.mSize);
-  nvgFontFace(mVG, fontIsResource ? text.mFont : fontWithStyle.Get());
+  nvgFontFace(mVG, text.mFont);
   
   if(GetTextEntryControl() && GetTextEntryControl()->GetRECT() == bounds)
     nvgFillColor(mVG, NanoVGColor(text.mTextEntryFGColor, pBlend));

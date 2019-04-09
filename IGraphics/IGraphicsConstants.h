@@ -50,7 +50,7 @@ static const char* DEFAULT_PATH = "~/Desktop";
 
 const char* const DEFAULT_FONT = "Roboto-Regular";
 const int DEFAULT_TEXT_SIZE = 14;
-const int FONT_LEN = 32;
+const int FONT_LEN = 64;
 
 /** @enum EType Blend type
  * \todo This could use some documentation

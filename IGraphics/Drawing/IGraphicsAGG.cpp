@@ -593,17 +593,13 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
   mFontContour.width(-weight * (text.mSize * 0.05));
   
   StaticStorage<IFontData>::Accessor storage(sFontCache);
-  WDL_String fontID(text.mFont);
-  IFontData* pFont = storage.Find(fontID.Get());
-    
-  if (!pFont)
-  {
-    fontID = text.GetFontWithStyle();
-    pFont = storage.Find(fontID.Get());
-  }
+  IFontData* pFont = storage.Find(text.mFont);
   
-  if (!pFont || !SetFont(fontID.Get(), pFont))
+  if (!pFont || !SetFont(text.mFont, pFont))
+  {
     assert(0 && "No font found - did you forget to load it?");
+  }
+    
   mFontEngine.hinting(hinting);
   mFontEngine.height(text.mSize);
   mFontEngine.width(text.mSize);

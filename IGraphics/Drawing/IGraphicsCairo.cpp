@@ -597,12 +597,9 @@ bool IGraphicsCairo::LoadAPIFont(const char* fontID, const PlatformFontPtr& font
 cairo_font_face_t* IGraphicsCairo::FindFont(const IText& text)
 {
   StaticStorage<CairoFont>::Accessor storage(sFontCache);
-  CairoFont* pFont = storage.Find(text.GetFontWithStyle().Get());
+  CairoFont* pFont = storage.Find(text.mFont);
   
   if (pFont)
-    return pFont->mFont;
-  
-  if ((pFont = storage.Find(text.mFont)))
     return pFont->mFont;
   
   assert(0 && "No font found - did you forget to load it?");

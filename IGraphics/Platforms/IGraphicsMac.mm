@@ -631,12 +631,7 @@ CTFontDescriptorRef IGraphicsMac::GetCTFontDescriptor(const IText& text)
   StaticStorage<MacFontDescriptor>::Accessor storage(sPlatformFontCache);
 
   MacFontDescriptor* cachedFont = storage.Find(text.mFont);
-  if (!cachedFont)
-  {
-    WDL_String fontID = text.GetFontWithStyle();
-    cachedFont = storage.Find(fontID.Get());
-  }
-
+  
   assert(cachedFont && "font not found - did you forget to load it?");
 
   return cachedFont->mDescriptor;

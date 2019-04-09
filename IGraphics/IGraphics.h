@@ -488,14 +488,16 @@ public:
    * @param thickness /todo */
   virtual void DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints = nullptr, const IBlend* pBlend = 0, float thickness = 1.f);
   
-  /** @param fileNameOrResID A CString absolute path or resource ID
+   /** @param fontID A string that is used to reference the font
+    * @param fileNameOrResID A CString absolute path or resource ID
     * @return \c true on success */
-  virtual bool LoadFont(const char* fileNameOrResID);
+  virtual bool LoadFont(const char* fontID, const char* fileNameOrResID);
     
-  /** @param fontName A CString font name
+  /** @param fontID A string that is used to reference the font
+   * @param fontName A CString font name
    * @param style A font style
    * @return \c true on success */
-  bool LoadFont(const char* fontName, IText::EStyle style);
+  bool LoadFont(const char* fontID, const char* fontName, IText::EStyle style);
 
 #pragma mark - Layer management
   

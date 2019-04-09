@@ -1596,11 +1596,8 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
   ApplyShadowMask(layer, temp1, shadow);
 }
 
-bool IGraphics::LoadFont(const char* fileNameOrResID)
+bool IGraphics::LoadFont(const char* fontID, const char* fileNameOrResID)
 {
-  WDL_String fontWithoutExt(fileNameOrResID);
-  fontWithoutExt.remove_fileext();
-  const char* fontID = fontWithoutExt.get_filepart();
   PlatformFontPtr font = LoadPlatformFont(fontID, fileNameOrResID);
   
   if (font)
@@ -1616,11 +1613,9 @@ bool IGraphics::LoadFont(const char* fileNameOrResID)
   return false;
 }
 
-bool IGraphics::LoadFont(const char* fontName, IText::EStyle style)
+bool IGraphics::LoadFont(const char* fontID, const char* fontName, IText::EStyle style)
 {
   IText text(0, DEFAULT_TEXT_FGCOLOR, fontName, style);
-  WDL_String fontWithStyle = text.GetFontWithStyle();
-  const char* fontID = fontWithStyle.Get();
   PlatformFontPtr font = LoadPlatformFont(fontID, text);
   
   if (font)

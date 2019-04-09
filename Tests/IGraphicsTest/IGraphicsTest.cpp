@@ -53,12 +53,12 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
       return true;
     });
     
-    pGraphics->LoadFont(ROBOTTO_FN);
-    pGraphics->LoadFont("Times New Roman", IText::kStyleNormal);
-      pGraphics->LoadFont("MadeUp", IText::kStyleItalic);
-      pGraphics->LoadFont("Font Light Italic", IText::kStyleNormal);
-      pGraphics->LoadFont("Arial Bleck", IText::kStyleBold);
-    pGraphics->LoadFont(MONTSERRAT_FN);
+    pGraphics->LoadFont("Roboto-Regular", ROBOTTO_FN);
+    pGraphics->LoadFont("Times New Roman", "Times New Roman", IText::kStyleNormal);
+      //pGraphics->LoadFont("MadeUp", "MadeUp", IText::kStyleItalic);
+      //pGraphics->LoadFont("Font Light Italic", "Font Light Italic", IText::kStyleNormal);
+      //pGraphics->LoadFont("Arial Bleck", "Arial Bleck", IText::kStyleBold);
+    pGraphics->LoadFont("Montserrat-LightItalic", MONTSERRAT_FN);
     ISVG tiger = pGraphics->LoadSVG(TIGER_FN);
     ISVG orbs = pGraphics->LoadSVG(ORBS_FN);
     IBitmap smiley = pGraphics->LoadBitmap(SMILEY_FN);

@@ -607,15 +607,6 @@ struct IText
     }
   }
     
-  WDL_String GetFontWithStyle() const
-  {
-    WDL_String str = WDL_String(mFont);
-    str.Append(" ");
-    str.Append(GetStyleString());
-      
-    return str;
-  }
-    
   char mFont[FONT_LEN];
   int mSize;
   IColor mFGColor;
