@@ -84,6 +84,7 @@ public:
   /** @return \c true if the plug-in is meant to have a UI, as defined in config.h */
   bool HasUI() const { return mHasUI; }
   
+  /*** @return a CString with the bundle identifier (macOS/IOS only) */
   const char* GetBundleID() const { return mBundleID.Get(); }
     
 #pragma mark - Parameters
@@ -197,61 +198,181 @@ public:
 #else
   #pragma mark - Preset Manipulation - OPs - These methods are not included if you define NO_PRESETS
   
+  /** /todo 
+   * @param name /todo */
   void ModifyCurrentPreset(const char* name = 0);
+
+  /**  @return int The number of "baked-in" factory presets */
   int NPresets() const { return mPresets.GetSize(); }
+
+  /** /todo 
+   * @param idx /todo
+   * @return true /todo
+   * @return false /todo */
   bool RestorePreset(int idx);
+
+  /** /todo 
+   * @param name /todo
+   * @return true /todo
+   * @return false /todo */
   bool RestorePreset(const char* name);
+
+  /** /todo 
+   * @param idx /todo
+   * @return const char* /todo */
   const char* GetPresetName(int idx) const;
   
-  // You can't use these three methods with chunks-based plugins, because there is no way to set the custom data
+  /** /todo 
+   * @param name /todo
+   * @param nPresets /todo */
   void MakeDefaultPreset(const char* name = 0, int nPresets = 1);
-  // MakePreset(name, param1, param2, ..., paramN)
+
+  /** usage: MakePreset(name, param1, param2, ..., paramN)
+   * @param name /todo
+   * @param ... /todo */
   void MakePreset(const char* name, ...);
-  // MakePresetFromNamedParams(name, nParamsNamed, paramEnum1, paramVal1, paramEnum2, paramVal2, ..., paramEnumN, paramVal2)
-  // nParamsNamed may be less than the total number of params.
+
+  /** /todo
+   * MakePresetFromNamedParams(name, nParamsNamed, paramEnum1, paramVal1, paramEnum2, paramVal2, ..., paramEnumN, paramVal2)
+   * nParamsNamed may be less than the total number of params.
+   * @param name /todo
+   * @param nParamsNamed /todo
+   * @param ... /todo  */
   void MakePresetFromNamedParams(const char* name, int nParamsNamed, ...);
   
-  // Use these methods with chunks-based plugins
+  /** /todo 
+   * @param name /todo
+   * @param chunk /todo */
   void MakePresetFromChunk(const char* name, IByteChunk& chunk);
+
+  /** /todo 
+   * @param name /todo
+   * @param blob /todo
+   * @param sizeOfChunk /todo */
   void MakePresetFromBlob(const char* name, const char* blob, int sizeOfChunk);
   
+  /** /todo */
   void PruneUninitializedPresets();
   
-  // VST2 API only
+  /** [VST2 only] /todo *  */
   virtual void OnPresetsModified() {}
+
+  /** [VST2 only] /todo *  */
   void EnsureDefaultPreset();
+
+  /** [VST2 only] /todo *  
+   * @param chunk /todo
+   * @return true /todo
+   * @return false /todo */
   bool SerializePresets(IByteChunk& chunk) const;
+
+  /** [VST2 only] /todo * 
+   * @param chunk /todo
+   * @param startPos /todo
+   * @return int /todo */
   int UnserializePresets(IByteChunk& chunk, int startPos); // Returns the new chunk position (endPos).
-  // /VST2 API only
   
   // Dump the current state as source code for a call to MakePresetFromNamedParams / MakePresetFromBlob
+
+  /** /todo 
+   * @param file /todo
+   * @param paramEnumNames /todo */
   void DumpPresetSrcCode(const char* file, const char* paramEnumNames[]) const;
+
+  /** /todo 
+   * @param file /todo */
   void DumpPresetBlob(const char* file) const;
+
+  /** /todo 
+   * @param filename /todo */
   void DumpAllPresetsBlob(const char* filename) const;
+
+  /** /todo 
+   * @param file /todo */
   void DumpBankBlob(const char* file) const;
   
-  //VST2 Presets
+  /** Save current state as a VST2 format preset
+   * @param file /todo
+   * @return true /todo */
   bool SaveProgramAsFXP(const char* file) const;
+
+  /** Save current bank as a VST2 format bank [VST2 only]
+   * @param file /todo
+   * @return true /todo */
   bool SaveBankAsFXB(const char* file) const;
+
+  /** Load VST2 format preset 
+   * @param file /todo
+   * @return true /todo */
   bool LoadProgramFromFXP(const char* file);
+
+  /** Load VST2 format bank [VST2 only]
+   * @param file /todo
+   * @return true /todo
+   * @return false /todo */
   bool LoadBankFromFXB(const char* file);
+
+  /** Save current bank as individual VST2 format presets [VST2 only]
+   * @param path /todo
+   * @return true /todo
+   * @return false /todo */
   bool SaveBankAsFXPs(const char* path) const { return false; }
   
-  //VST3 format
+  /** /todo 
+   * @param chunk /todo
+   * @param componentState /todo
+   * @param controllerState /todo */
   void MakeVSTPresetChunk(IByteChunk& chunk, IByteChunk& componentState, IByteChunk& controllerState) const;
+
+  /** /todo 
+   * @param file /todo
+   * @return true /todo */
   bool SaveProgramAsVSTPreset(const char* file) const;
+
+  /** /todo 
+   * @param file /todo
+   * @return true /todo*/
   bool LoadProgramFromVSTPreset(const char* file);
+
+  /** /todo 
+   * @param path /todo
+   * @return true */
   bool SaveBankAsVSTPresets(const char* path) { return false; }
   
-  //AU format
+  /** /todo 
+   * @param name /todo
+   * @param file /todo
+   * @return true /todo  */
   bool SaveProgramAsAUPreset(const char* name, const char* file) const { return false; }
+
+  /** /todo 
+   * @param file /todo
+   * @return true /todo  */
   bool LoadProgramFromAUPreset(const char* file) { return false; }
+
+  /** /todo 
+   * @param path /todo
+   * @return true /todo */
   bool SaveBankAsAUPresets(const char* path) { return false; }
   
-  //ProTools format
+  /** /todo 
+   * @param presetName /todo
+   * @param file /todo
+   * @param pluginID /todo
+   * @return true /todo */
   bool SaveProgramAsProToolsPreset(const char* presetName, const char* file, unsigned long pluginID) const { return false; }
+
+  /** /todo 
+   * @param file /todo
+   * @return true /todo */
   bool LoadProgramFromProToolsPreset(const char* file) { return false; }
-  bool SaveBankAsProToolsPresets(const char* bath, unsigned long pluginID) { return false; }
+
+  /** /todo 
+   * @param path /todo
+   * @param pluginID /todo
+   * @return true /todo
+   * @return false /todo */
+  bool SaveBankAsProToolsPresets(const char* path, unsigned long pluginID) { return false; }
 #endif
   
 #pragma mark - Parameter manipulation

@@ -36,6 +36,9 @@ template<typename T>
 class IPlugProcessor
 {
 public:
+  /** IPlugProcessor constructor
+   * @param config /todo
+   * @param plugAPI /todo */
   IPlugProcessor(IPlugConfig config, EAPI plugAPI);
   virtual ~IPlugProcessor();
 
@@ -181,7 +184,8 @@ public:
   /** @return \c true if the plug-in was configured as an instrument at compile time */
   bool IsInstrument() const { return mPlugType == EIPlugPluginType::kInstrument; }
   
-  /**  */
+  /** /todo 
+   * @return int /todo */
   int GetAUPluginType() const
   {
     if(mPlugType == EIPlugPluginType::kEffect)

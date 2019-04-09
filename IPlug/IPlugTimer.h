@@ -14,7 +14,8 @@
 /** @file
  * @brief This file includes classes for implementing timers - in order to get a regular callback on the main thread
  * The interface is partially based on the api of Steinberg's timer.cpp from the VST3_SDK for compatibility,
- * rewritten using SWELL: base/source/timer.cpp, so thanks to them */
+ * rewritten using SWELL: base/source/timer.cpp, so thanks to them 
+ * */
 
 #include <cstring>
 #include <stdint.h>
@@ -30,7 +31,7 @@
 struct Timer
 {
   typedef std::function<void(Timer& t)> ITimerFunction;
-    
+
   static Timer* Create(ITimerFunction func, uint32_t intervalMs)
   {
     return new Timer();

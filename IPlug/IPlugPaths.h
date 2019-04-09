@@ -79,6 +79,20 @@ extern EResourceLocation LocateResource(const char* fileNameOrResID, const char*
  * @return const void pointer to the data if successfull on windows. Returns nullptr if unsuccessfull or on platforms other than windows */
 extern const void* LoadWinResource(const char* resID, const char* type, int& sizeInBytes, void* pHInstance);
 
+/** /todo  
+ * @param fileName /todo
+ * @param searchExt /todo
+ * @param fullPath /todo
+ * @param bundleID /todo
+ * @return true /todo
+ * @return false /todo */
 extern bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath, const char* bundleID = nullptr);
 
+/** /todo 
+ * @param fileName /todo
+ * @param searchExt /todo
+ * @param fullPath /todo
+ * @param subfolder /todo
+ * @return true /todo
+ * @return false /todo */
 extern bool GetResourcePathFromSharedLocation(const char* fileName, const char* searchExt, WDL_String& fullPath, const char* subfolder);
