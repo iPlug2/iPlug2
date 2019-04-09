@@ -152,6 +152,7 @@
     <Link>
       <AdditionalDependencies>$(APP_LIBS);%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
+      <DelayLoadDLLs>faust.dll</DelayLoadDLLs>
     </Link>
     <ResourceCompile />
     <ResourceCompile>
@@ -169,6 +170,7 @@
     <Link>
       <AdditionalDependencies>$(APP_LIBS);%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
+      <DelayLoadDLLs>faust.dll</DelayLoadDLLs>
     </Link>
     <ResourceCompile />
     <ResourceCompile>

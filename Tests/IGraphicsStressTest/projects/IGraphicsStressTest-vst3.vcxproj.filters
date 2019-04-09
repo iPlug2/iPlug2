@@ -135,9 +135,6 @@
     <ClInclude Include="..\..\..\IGraphics\IGraphics.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsAutoGUI.h">
-      <Filter>IGraphics</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\IGraphicsConstants.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
