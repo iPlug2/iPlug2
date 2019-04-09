@@ -140,6 +140,7 @@ def dirwalk(dir, searchproject, replaceproject, searchman, replaceman, oldroot= 
         if (oldroot and newroot):
           print ("Replacing iPlug2 root folder in file  " + filename)
           replacestrs(fullpath, oldroot, newroot)
+          replacestrs(fullpath, oldroot.replace('/', '\\'), newroot.replace('/', '\\'))
 
       else:
         print("NOT replacing name strings in file " + filename)

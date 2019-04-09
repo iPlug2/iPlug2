@@ -3,7 +3,6 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <RTAUDIOMIDI_PATH>$(IPLUG_PATH)\APP\RTAudioMidi</RTAUDIOMIDI_PATH>
-    <ROOT_PATH>$(SolutionDir)..\..</ROOT_PATH>
     <WDL_PATH>$(ROOT_PATH)\WDL</WDL_PATH>
     <LICE_PATH>$(WDL_PATH)\lice</LICE_PATH>
     <IPLUG_PATH>$(ROOT_PATH)\IPlug</IPLUG_PATH>
