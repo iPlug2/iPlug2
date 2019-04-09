@@ -86,9 +86,6 @@ public:
   const char* GetPlatformAPIStr() override { return "win32"; };
 
   bool GetTextFromClipboard(WDL_String& str) override;
-
-  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
-  PlatformFontPtr LoadPlatformFont(const char* fontID, const IText& text) override;
   
 protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
@@ -107,6 +104,10 @@ private:
     kCancel,
     kCommit
   };
+
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
+  void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override;
 
   inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam);
   inline IMouseInfo IGraphicsWin::GetMouseInfoDeltas(float&dX, float& dY, LPARAM lParam, WPARAM wParam);
