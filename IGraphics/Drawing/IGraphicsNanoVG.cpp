@@ -697,9 +697,13 @@ void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& opti
 bool IGraphicsNanoVG::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 {
   StaticStorage<IFontData>::Accessor storage(sFontCache);
-
-  if (storage.Find(fontID))
+  IFontData* cached = storage.Find(fontID);
+    
+  if (cached)
+  {
+    nvgCreateFontFaceMem(mVG, fontID, cached->Get(), cached->GetSize(), cached->GetFaceIdx(), 0);
     return true;
+  }
     
   IFontDataPtr data = font->GetFontData();
 

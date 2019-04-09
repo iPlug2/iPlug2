@@ -224,10 +224,14 @@ void IGraphicsAGG::UpdateLayer()
 bool IGraphicsAGG::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 {
   StaticStorage<IFontData>::Accessor storage(sFontCache);
+  IFontData* cached = storage.Find(fontID);
   
-  if (storage.Find(fontID))
+  if (cached)
+  {
+    SetFont(fontID, cached);
     return true;
-    
+  }
+  
   IFontDataPtr data = font->GetFontData();
 
   if (data->IsValid() && SetFont(fontID, data.get()))
