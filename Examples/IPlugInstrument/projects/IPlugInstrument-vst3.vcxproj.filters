@@ -122,7 +122,7 @@
     <ClCompile Include="..\..\..\Dependencies\IPlug\VST3_SDK\pluginterfaces\base\ustring.cpp">
       <Filter>IPlug\VST3\VST3_SDK\plugininterfaces\base</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Dependencies\IPlug\VST3_SDK\public.sdk\source\main\pluginfactoryvst3.cpp">
+    <ClCompile Include="..\..\..\Dependencies\IPlug\VST3_SDK\public.sdk\source\main\pluginfactory.cpp">
       <Filter>IPlug\VST3\VST3_SDK\public.sdk\main</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugPaths.cpp">
