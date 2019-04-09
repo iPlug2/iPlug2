@@ -109,7 +109,7 @@ struct MacFontDescriptor
   CTFontDescriptorRef mDescriptor;
 };
 
-static StaticStorage<MacFontDescriptor> sPlatformFontCache;
+static StaticStorage<MacFontDescriptor> sFontDescriptorCache;
   
 #pragma mark -
 
@@ -117,13 +117,13 @@ IGraphicsMac::IGraphicsMac(IGEditorDelegate& dlg, int w, int h, int fps, float s
 : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
 {
   NSApplicationLoad();
-  StaticStorage<MacFontDescriptor>::Accessor storage(sPlatformFontCache);
+  StaticStorage<MacFontDescriptor>::Accessor storage(sFontDescriptorCache);
   storage.Retain();
 }
 
 IGraphicsMac::~IGraphicsMac()
 {
-  StaticStorage<MacFontDescriptor>::Accessor storage(sPlatformFontCache);
+  StaticStorage<MacFontDescriptor>::Accessor storage(sFontDescriptorCache);
   storage.Release();
   
   CloseWindow();
@@ -182,7 +182,7 @@ IGraphics::PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fontID, co
 
 void IGraphicsMac::CachePlatformFont(const char* fontID, const PlatformFontPtr& font)
 {
-  StaticStorage<MacFontDescriptor>::Accessor storage(sPlatformFontCache);
+  StaticStorage<MacFontDescriptor>::Accessor storage(sFontDescriptorCache);
  
   CTFontDescriptorRef descriptor = (CTFontDescriptorRef) font->GetDescriptor();
   
@@ -628,7 +628,7 @@ void IGraphicsMac::CreatePlatformTextEntry(IControl& control, const IText& text,
 
 CTFontDescriptorRef IGraphicsMac::GetCTFontDescriptor(const IText& text)
 {
-  StaticStorage<MacFontDescriptor>::Accessor storage(sPlatformFontCache);
+  StaticStorage<MacFontDescriptor>::Accessor storage(sFontDescriptorCache);
 
   MacFontDescriptor* cachedFont = storage.Find(text.mFont);
   
