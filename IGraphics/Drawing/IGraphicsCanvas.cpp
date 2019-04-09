@@ -55,7 +55,7 @@ IGraphicsCanvas::~IGraphicsCanvas()
 {
 }
 
-void IGraphicsCanvas::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend)
+void IGraphicsCanvas::DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend)
 {
   val context = GetContext();
   val img = *bitmap.GetAPIBitmap()->GetBitmap();
@@ -303,40 +303,9 @@ APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const char* fileNameOrResID, int scale
   return new CanvasBitmap(GetPreloadedImages()[fileNameOrResID], fileNameOrResID + 1, scale);
 }
 
-APIBitmap* IGraphicsCanvas::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
+APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height, int scale, double drawScale)
 {
-//  int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
-//  int destH = (pBitmap->GetHeight() / pBitmap->GetScale()) * scale;
-//
-//  val imgSrc = *pBitmap->GetBitmap();
-//
-//  // Make an offscreen canvas and resize
-//  val documentHead = val::global("document")["head"];
-//  val canvas = GetCanvas();
-//  documentHead.call<val>("appendChild", canvas);
-//  val canvasNode = documentHead["lastChild"];
-//  val context = canvas.call<val>("getContext", std::string("2d"));
-//  context.set("width", destW);
-//  context.set("height", destH);
-//
-//  // Scale and draw
-//  context.call<void>("scale", scale / pBitmap->GetScale(), scale / pBitmap->GetScale());
-//  context.call<void>("drawImage", imgSrc, 0, 0);
-//
-//  // Copy to an image
-//  val img = val::global("Image").new_();
-//  img.set("src", canvas.call<val>("toDataURL"));
-//
-//  // Delete the canvas
-//  documentHead.call<val>("removeChild", canvasNode);
-
-  return new CanvasBitmap(GetPreloadedImages()[""], "", scale);
-}
-
-APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height)
-{
-  const double scale = GetBackingPixelScale();
-  return new CanvasBitmap(std::ceil(width * scale), std::ceil(height * scale), GetScreenScale(), GetDrawScale());
+  return new CanvasBitmap(width, height, scale, drawScale);
 }
 
 void IGraphicsCanvas::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)

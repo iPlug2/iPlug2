@@ -287,7 +287,7 @@ bool CheckTransform(const agg::trans_affine& mtx)
   return mtx_without_translate.is_identity(1e-3);
 }
 
-void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
+void IGraphicsAGG::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
   bool preMultiplied = static_cast<AGGBitmap*>(bitmap.GetAPIBitmap())->IsPreMultiplied();
   IRECT bounds = mClipRECT.Empty() ? dest : mClipRECT.Intersect(dest);
@@ -487,41 +487,9 @@ APIBitmap* IGraphicsAGG::LoadAPIBitmap(const char* fileNameOrResID, int scale, E
   return new APIBitmap();
 }
 
-APIBitmap* IGraphicsAGG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
+APIBitmap* IGraphicsAGG::CreateAPIBitmap(int width, int height, int scale, double drawScale)
 {
-  int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
-  int destH = (pBitmap->GetHeight() / pBitmap->GetScale()) * scale;
-    
-  agg::pixel_map* pSource = pBitmap->GetBitmap();
-  agg::pixel_map* pCopy = CreatePixmap(destW, destH);
-  agg::rendering_buffer src(pSource->buf(), pSource->width(), pSource->height(), pSource->row_bytes());
-  agg::rendering_buffer dest(pCopy->buf(), pCopy->width(), pCopy->height(), pCopy->row_bytes());
-  PixfmtType imgPixfSrc(src);
-  PixfmtType imgPixfDest(dest);
-  
-  RenbaseType renBase(imgPixfDest);
-  renBase.clear(agg::rgba(0, 0, 0, 0));
-  
-  agg::rasterizer_scanline_aa<> rasterizer;
-  agg::trans_affine_scaling srcMtx(pBitmap->GetScale() / (double) scale);
-  InterpolatorType interpolator(srcMtx);
-  imgSourceType imgSrc(imgPixfSrc);
-  SpanAllocatorType spanAllocator;
-  agg::scanline_u8 scanline;
-  SpanGeneratorType spanGenerator(imgSrc, interpolator);
-  BitmapRenderType renderer(renBase, spanAllocator, spanGenerator);
-  
-  agg::rounded_rect bounds(0, 0, destW, destH, 0);
-  rasterizer.add_path(bounds);
-  agg::render_scanlines(rasterizer, scanline, renderer);
-  
-  return new AGGBitmap(pCopy, scale, pBitmap->GetDrawScale(), false);
-}
-
-APIBitmap* IGraphicsAGG::CreateAPIBitmap(int width, int height)
-{
-  const double scale = GetBackingPixelScale();
-  return new AGGBitmap(CreatePixmap(std::ceil(width * scale), std::ceil(height * scale)), GetScreenScale(), GetDrawScale(), true);
+  return new AGGBitmap(CreatePixmap(width, height), scale, drawScale, true);
 }
 
 bool IGraphicsAGG::BitmapExtSupported(const char* ext)
