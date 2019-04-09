@@ -93,37 +93,26 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 //    pGraphics->AttachTextEntryControl();
     
     IRECT b = pGraphics->GetBounds().GetPadded(-5);
-
-    // load from Resources
-    pGraphics->LoadFont(ROBOTTO_FN);
-#ifdef OS_WIN
-    // On Windows, once loaded from resources, we can load variations as if it is a system font
-    pGraphics->LoadFont("Roboto", IText::kStyleBold);
-#endif
-    // load system font
-    pGraphics->LoadFont(DEFAULT_FONT, IText::kStyleNormal);
-    pGraphics->LoadFont(DEFAULT_FONT, IText::kStyleBold);
+    
+    pGraphics->LoadFont("Roboto-Regular", ROBOTTO_FN);
     const IBitmap bitmap1 = pGraphics->LoadBitmap(PNGKNOB_FN, 60);
     const IBitmap bitmap2 = pGraphics->LoadBitmap(PNGKNOBROTATE_FN);
     const ISVG vectorknob = pGraphics->LoadSVG(SVGKNOBROTATE_FN);
     
-    const IText bigLabel {24, COLOR_WHITE, "Roboto", IText::kStyleBold, IText::kAlignNear, IText::kVAlignTop, 0 };
-    // note: bold style will fallback to normal style if a Bold version of the font is not loaded
-    const IText bigLabelBold { 24, COLOR_WHITE, DEFAULT_FONT, IText::kStyleBold, IText::kAlignNear, IText::kVAlignTop, 0 };
-    const IText buttonLabels {14, COLOR_BLACK, "Roboto", IText::kStyleNormal, IText::kAlignCenter, IText::kVAlignMiddle, 0};
+    const IText bigLabel {24, COLOR_WHITE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop, 0};
+    const IText buttonLabels {14, COLOR_BLACK, "Roboto-Regular", IText::kStyleNormal, IText::kAlignCenter, IText::kVAlignMiddle, 0};
 
     
     const int nRows = 5;
     const int nCols = 5;
-
-    pGraphics->AttachControl(new IPanelControl(b.GetFromTop(bigLabel.mSize), COLOR_RED));
+    
     pGraphics->AttachControl(new ITextControl(b.GetGridCell(0, nRows, 1), "Bitmap Controls", bigLabel));
     pGraphics->AttachControl(new IBKnobControl(b.GetGridCell(0, nRows, nCols).GetPadded(-5.), bitmap1, kGain));
     pGraphics->AttachControl(new IBKnobRotaterControl(b.GetGridCell(1, nRows, nCols).GetPadded(-5.), bitmap2, kGain));
     pGraphics->AttachControl(new IBSwitchControl(b.GetGridCell(2, nRows, nCols), bitmap1));
     pGraphics->AttachControl(new IBButtonControl(b.GetGridCell(3, nRows, nCols), bitmap1));
 
-    pGraphics->AttachControl(new ITextControl(b.GetGridCell(1, nRows, 1), "Vector Controls", bigLabelBold));
+    pGraphics->AttachControl(new ITextControl(b.GetGridCell(1, nRows, 1), "Vector Controls", bigLabel));
     pGraphics->AttachControl(new IVKnobControl(b.GetGridCell(5, nRows, nCols).GetCentredInside(100.), kGain));
     pGraphics->AttachControl(new IVSliderControl(b.GetGridCell(6, nRows, nCols).GetGridCell(0, 1, 3)));
     pGraphics->AttachControl(new IVSliderControl(b.GetGridCell(6, nRows, nCols).GetGridCell(3, 3, 2), kNoParameter, DEFAULT_SPEC, kHorizontal));
@@ -165,7 +154,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new ITextControl(b.GetGridCell(9, nRows, nCols).GetGridCell(3, 4, 1), "Dialog result shown here...", DEFAULT_TEXT, COLOR_RED), kCtrlTagDialogResult);
 
     pGraphics->AttachControl(new ITextControl(b.GetGridCell(2, nRows, 1), "Text Controls", bigLabel));
-    pGraphics->AttachControl(new ICaptionControl(b.GetGridCell(10, nRows, nCols).GetMidVPadded(20.), kGain, IText(50, COLOR_BLACK, "Roboto"), false));
+    pGraphics->AttachControl(new ICaptionControl(b.GetGridCell(10, nRows, nCols).GetMidVPadded(20.), kGain, IText(50), false));
 
     pGraphics->AttachControl(new ITextControl(b.GetGridCell(3, nRows, 1), "Misc Controls", bigLabel));
     pGraphics->AttachControl(new FileBrowser(b.GetGridCell(15, nRows, nCols).Union(b.GetGridCell(16, nRows, nCols)).GetPadded(-25)));
