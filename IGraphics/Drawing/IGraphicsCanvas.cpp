@@ -23,12 +23,21 @@ extern IGraphics* gGraphics;
 extern val GetPreloadedImages();
 extern val GetCanvas();
 
+// Fonts
+
+typedef std::pair<WDL_String, WDL_String> FontDescType;
+StaticStorage<FontDescType> sFontCache;
+
+// Color Utility
+
 static std::string CanvasColor(const IColor& color, float alpha = 1.0)
 {
   WDL_String str;
   str.SetFormatted(64, "rgba(%d, %d, %d, %lf)", color.R, color.G, color.B, alpha * color.A / 255.0);
   return str.Get();
 }
+
+// Bitmap
 
 CanvasBitmap::CanvasBitmap(val imageCanvas, const char* name, int scale)
 {
@@ -52,10 +61,14 @@ CanvasBitmap::~CanvasBitmap()
 IGraphicsCanvas::IGraphicsCanvas(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphicsPathBase(dlg, w, h, fps, scale)
 {
+  StaticStorage<FontDescType>::Accessor storage(sFontCache);
+  storage.Retain();
 }
 
 IGraphicsCanvas::~IGraphicsCanvas()
 {
+  StaticStorage<FontDescType>::Accessor storage(sFontCache);
+  storage.Release();
 }
 
 void IGraphicsCanvas::DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend)
@@ -220,14 +233,18 @@ void IGraphicsCanvas::SetCanvasBlendMode(val& context, const IBlend* pBlend)
 
 bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
+  StaticStorage<FontDescType>::Accessor storage(sFontCache);
+  FontDescType* descriptor = storage.Find(text.mFont);
+    
+  assert(descriptor && "No font found - did you forget to load it?");
+    
   // TODO: orientation
   val context = GetContext();
   std::string textString(str);
   
   char fontString[FONT_LEN + 64];
-  const char* styles[] = { "normal", "bold", "italic" };
   context.set("textBaseline", std::string("top"));
-  sprintf(fontString, "%s %dpx %s", styles[text.mStyle], text.mSize, text.mFont);
+  sprintf(fontString, "%s %dpx %s", descriptor->second.Get(), text.mSize, descriptor->first.Get());
   context.set("font", std::string(fontString));
   val metrics = context.call<val>("measureText", textString);
   double textWidth = metrics["width"].as<double>();
@@ -338,7 +355,11 @@ bool IGraphicsCanvas::CompareFontMetrics(const char* style, const char* font1, c
 
 bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 {
-  typedef std::pair<WDL_String, WDL_String> DescType;
+  StaticStorage<FontDescType>::Accessor storage(sFontCache);
+
+  if (storage.Find(fontID))
+    return true;
+
   IFontDataPtr data = font->GetFontData();
     
   if (data->IsValid())
@@ -362,21 +383,31 @@ bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& fon
     css.set("type", std::string("text/css"));
     css.set("innerHTML", htmlText);
     document["head"].call<void>("appendChild", css);
+      
+    const FontDescType* descriptor = reinterpret_cast<const FontDescType*>(font->GetDescriptor());
+    storage.Add(new FontDescType{descriptor->first, descriptor->second}, fontID);
+      
     return true;
   }
   
-  const DescType* descriptor = reinterpret_cast<const DescType*>(font->GetDescriptor());
+  bool found = false;
+  const FontDescType* descriptor = reinterpret_cast<const FontDescType*>(font->GetDescriptor());
   const char* fontName = descriptor->first.Get();
   const char* styleName = descriptor->second.Get();
   
   if (!CompareFontMetrics(styleName, fontName, "monospace", 72))
-    return true;
-  if (!CompareFontMetrics(styleName, fontName, "sans-serif", 72))
-    return true;
-  if (!CompareFontMetrics(styleName, fontName, "serif", 72))
-    return true;
+    found = true;
+  if (!found && !CompareFontMetrics(styleName, fontName, "sans-serif", 72))
+    found = true;
+  if (!found && !CompareFontMetrics(styleName, fontName, "serif", 72))
+    found = true;
   
-  return false;
+  if (found)
+  {
+    storage.Add(new FontDescType{descriptor->first, descriptor->second}, fontID);
+  }
+    
+  return found;
 }
 
 void IGraphicsCanvas::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
