@@ -210,6 +210,9 @@ def main():
   print("copying " + inputprojectname + " folder to " + outputpath)
   copytree(inputprojectname, outputpath, ignore=ignore_patterns(*DONT_COPY))
 
+  oldroot = ""
+  newroot = ""
+  
   if numargs == 4:
     configpath = os.path.join(inputprojectname, "config")
     xcconfig = parse_xcconfig(configpath + "/" + inputprojectname + "-mac.xcconfig")
