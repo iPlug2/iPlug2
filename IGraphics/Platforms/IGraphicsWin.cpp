@@ -1611,7 +1611,7 @@ IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, co
 {
   StaticStorage<WinCachedFont>::Accessor fontStorage(sPlatformFontCache);
 
-  WinCachedFont* pFont = nullptr;
+  std::unique_ptr<WinCachedFont> pFont;
   WDL_String fullPath, family, style;
   const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, GetBundleID(), GetWinModuleHandle());
 
@@ -1628,7 +1628,7 @@ IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, co
       HANDLE mapping = CreateFileMapping(file, NULL, PAGE_READONLY, 0, 0, NULL);
       LPVOID view = MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
       FontDataGetName(family, style, view, 0);
-      pFont = new WinCachedFont(view, resSize);
+      pFont.reset(new WinCachedFont(view, resSize));
       UnmapViewOfFile(view);
       CloseHandle(mapping);
       CloseHandle(file);
@@ -1638,7 +1638,7 @@ IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, co
     {
       void* pFontMem = const_cast<void *>(LoadWinResource(fullPath.Get(), "ttf", resSize, GetWinModuleHandle()));
       FontDataGetName(family, style, pFontMem, 0);
-      pFont = new WinCachedFont(pFontMem, resSize);
+      pFont.reset(new WinCachedFont(pFontMem, resSize));
     }
     break;
   } 
@@ -1649,12 +1649,11 @@ IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, co
 
     if (font)
     {
-      fontStorage.Add(pFont, fileNameOrResID);
+      fontStorage.Add(pFont.release(), fileNameOrResID);
       return PlatformFontPtr(new WinFont(font));
     }
   }
 
-  delete pFont;
   return nullptr;
 }
 
