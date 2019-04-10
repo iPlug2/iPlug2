@@ -30,7 +30,7 @@ public:
   : IGraphics(dlg, w, h, fps, scale) 
   {}
 
-  void DrawRotatedBitmap(IBitmap& bitmap, float destCtrX, float destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override
+  void DrawRotatedBitmap(const IBitmap& bitmap, float destCtrX, float destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override
   {
     //TODO: offset support
     
@@ -44,7 +44,7 @@ public:
     PathTransformRestore();
   }
   
-  void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, float x, float y, double angle, const IBlend* pBlend) override
+  void DrawRotatedMask(const IBitmap& base, const IBitmap& mask, const IBitmap& top, float x, float y, double angle, const IBlend* pBlend) override
   {
     float width = (float) base.W();
     float height = (float) base.H();
@@ -417,7 +417,7 @@ public:
     PathTransformSetMatrix(mTransform);
   }
   
-  void DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend) override
+  void DrawFittedBitmap(const IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend) override
   {
     PathTransformSave();
     PathTransformTranslate(bounds.L, bounds.T);
@@ -427,7 +427,7 @@ public:
     PathTransformRestore();
   }
   
-  void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override
+  void DrawSVG(const ISVG& svg, const IRECT& dest, const IBlend* pBlend) override
   {
     float xScale = dest.W() / svg.W();
     float yScale = dest.H() / svg.H();
@@ -440,7 +440,7 @@ public:
     PathTransformRestore();
   }
   
-  void DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend) override
+  void DrawRotatedSVG(const ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend) override
   {
     PathTransformSave();
     PathTransformTranslate(destCtrX, destCtrY);

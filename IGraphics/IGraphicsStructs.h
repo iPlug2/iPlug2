@@ -241,7 +241,7 @@ struct ISVG
   }
 
   /** /todo */
-  float W()
+  float W() const
   {
     if (mImage)
       return mImage->width;
@@ -250,7 +250,7 @@ struct ISVG
   }
 
   /** /todo */
-  float H()
+  float H() const
   {
     if (mImage)
       return mImage->height;
