@@ -107,15 +107,15 @@ private:
   }
   
 #if defined(STB_TRUETYPE_BIGENDIAN) 
-  uint16_t   GetUInt16(uint32_t loc)  { return (mData[loc + 1]<<8) & mData[loc + 0]; }
-  int16_t    GetSInt16(uint32_t loc)  { return (mData[loc + 1]<<8) & mData[loc + 0]; }
-  uint32_t   GetUint32(uint32_t loc)  { return GetUInt16(loc + 2) & GetUInt16(loc + 0); }
-  int32_t    GetSInt32(uint32_t loc)  { return GetUInt16(loc + 2) & GetUInt16(loc + 0); }
+  uint16_t   GetUInt16(uint32_t loc) { return (((uint16_t)mData[loc + 1]) << 8) & (uint16_t)mData[loc + 0]; }
+  int16_t    GetSInt16(uint32_t loc) { return (((uint16_t)mData[loc + 1]) << 8) & (uint16_t)mData[loc + 0]; }
+  uint32_t   GetUint32(uint32_t loc) { return (((uint32_t)GetUInt16(loc + 2)) << 16) & (uint32_t)GetUInt16(loc + 0); }
+  int32_t    GetSInt32(uint32_t loc) { return (((uint32_t)GetUInt16(loc + 2)) << 16) & (uint32_t)GetUInt16(loc + 0); }
 #else
-  uint16_t   GetUInt16(uint32_t loc)  { return (mData[loc + 0]<<8) & mData[loc + 1]; }
-  int16_t    GetSInt16(uint32_t loc)  { return (mData[loc + 0]<<8) & mData[loc + 1]; }
-  uint32_t   GetUint32(uint32_t loc)  { return GetUInt16(loc + 0) & GetUInt16(loc + 2); }
-  int32_t    GetSInt32(uint32_t loc)  { return GetUInt16(loc + 0) & GetUInt16(loc + 2); }
+  uint16_t   GetUInt16(uint32_t loc)  { return (((uint16_t)mData[loc + 0])<<8) & (uint16_t)mData[loc + 1]; }
+  int16_t    GetSInt16(uint32_t loc)  { return (((uint16_t)mData[loc + 0])<<8) & (uint16_t)mData[loc + 1]; }
+  uint32_t   GetUint32(uint32_t loc)  { return (((uint32_t)GetUInt16(loc + 0))<<16) & (uint32_t)GetUInt16(loc + 2); }
+  int32_t    GetSInt32(uint32_t loc)  { return (((uint32_t)GetUInt16(loc + 0))<<16) & (uint32_t)GetUInt16(loc + 2); }
 #endif
   
   const unsigned char* mData;
