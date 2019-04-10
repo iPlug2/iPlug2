@@ -16,6 +16,7 @@
 
 #include "IPlugParameter.h"
 #include "IGraphicsWin.h"
+#include "IGraphicsFontMeta.h"
 #include "IControl.h"
 #include "IPopupMenuControl.h"
 #include "IPlugPaths.h"
@@ -1556,7 +1557,7 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
   return numChars;
 }
 
-HFONT GetHFont(const char* fontName, int weight = FW_REGULAR, bool italic = false, DWORD quality = DEFAULT_QUALITY, bool enumerate = false)
+HFONT GetHFont(const char* fontName, int weight, bool italic, bool underline, DWORD quality = DEFAULT_QUALITY, bool enumerate = false)
 {
   HDC hdc = GetDC(NULL);
   HFONT font = nullptr;
@@ -1568,7 +1569,7 @@ HFONT GetHFont(const char* fontName, int weight = FW_REGULAR, bool italic = fals
   lFont.lfOrientation = 0;
   lFont.lfWeight = weight;
   lFont.lfItalic = italic;
-  lFont.lfUnderline = false;
+  lFont.lfUnderline = underline;
   lFont.lfStrikeOut = false;
   lFont.lfCharSet = DEFAULT_CHARSET;
   lFont.lfOutPrecision = OUT_TT_PRECIS;
@@ -1603,6 +1604,9 @@ IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, co
     return nullptr;
 
   int resSize = 0;
+  int weight = FW_REGULAR;
+  bool italic = false;
+  bool underline = false;
 
   switch (fontLocation)
   {
@@ -1623,13 +1627,18 @@ IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, co
       void* pFontMem = const_cast<void *>(LoadWinResource(fullPath.Get(), "ttf", resSize, GetWinModuleHandle()));
       FontDataGetName(family, style, pFontMem, 0);
       pFont = new WinCachedFont(pFontMem, resSize);
+        
+      FontMeta fontMeta (pFontMem, resSize, 0);
+      weight = fontMeta->IsBold() ? FW_BOLD : FW_REGULAR;
+      italic = fontMeta->IsItalic();
+      underline = fontMeta->IsUnderline();
     }
     break;
   } 
 
   if (pFont && pFont->IsValid())
   {
-    HFONT font = GetHFont(family.Get());
+    HFONT font = GetHFont(family.Get(), weight, italic, underline);
 
     if (font)
     {
@@ -1646,6 +1655,7 @@ IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, co
 {
   int weight = style == kStyleBold ? FW_BOLD : FW_REGULAR;
   bool italic = style == kStyleItalic;
+  bool underline = false;
   DWORD quality = DEFAULT_QUALITY;
 /*
   switch (text.mQuality)
@@ -1655,7 +1665,7 @@ IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, co
   case IText::kQualityNonAntiAliased: quality = NONANTIALIASED_QUALITY; break;
   }*/
 
-  HFONT font = GetHFont(fontName, weight, italic, quality, true);
+  HFONT font = GetHFont(fontName, weight, italic, underline, quality, true);
 
   return PlatformFontPtr(font ? new WinFont(font, TextStyleString(style)) : nullptr);
 }
