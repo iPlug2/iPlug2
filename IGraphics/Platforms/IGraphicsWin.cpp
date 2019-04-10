@@ -94,7 +94,7 @@ IFontDataPtr IGraphicsWin::WinFont::GetFontData()
         if (result == GDI_ERROR)
           result = ::GetFontData(hdc, 0, 0, fontData->Get(), size);
         if (result == size)
-          fontData->SetFaceIdx(GetFaceIdx(fontData->Get(), mStyleName.Get()));
+          fontData->SetFaceIdx(GetFaceIdx(fontData->Get(), fontData->GetSize(), mStyleName.Get()));
       }
     }
     
@@ -1613,16 +1613,14 @@ IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, co
   StaticStorage<WinCachedFont>::Accessor fontStorage(sPlatformFontCache);
 
   std::unique_ptr<WinCachedFont> pFont;
-  WDL_String fullPath, family, style;
+  WDL_String fullPath;
   const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, GetBundleID(), GetWinModuleHandle());
 
   if (fontLocation == kNotFound)
     return nullptr;
 
+  void* pFontMem = nullptr;
   int resSize = 0;
-  int weight = FW_REGULAR;
-  bool italic = false;
-  bool underline = false;
 
   switch (fontLocation)
   {
@@ -1630,30 +1628,29 @@ IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, co
     {
       HANDLE file = CreateFile(fullPath.Get(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
       HANDLE mapping = CreateFileMapping(file, NULL, PAGE_READONLY, 0, 0, NULL);
-      LPVOID view = MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
-      FontDataGetName(family, style, view, 0);
-      pFont.reset(new WinCachedFont(view, resSize));
-      UnmapViewOfFile(view);
+      pFontMem = MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
+      pFont.reset(new WinCachedFont(pFontMem, resSize));
+      UnmapViewOfFile(pFontMem);
       CloseHandle(mapping);
       CloseHandle(file);
     }
     break;
     case kWinBinary:
     {
-      void* pFontMem = const_cast<void *>(LoadWinResource(fullPath.Get(), "ttf", resSize, GetWinModuleHandle()));
-      FontDataGetName(family, style, pFontMem, 0);
+      pFontMem = const_cast<void *>(LoadWinResource(fullPath.Get(), "ttf", resSize, GetWinModuleHandle()));
       pFont.reset(new WinCachedFont(pFontMem, resSize));
-        
-      IFontMeta fontMeta(pFontMem, resSize, 0);
-      weight = fontMeta->IsBold() ? FW_BOLD : FW_REGULAR;
-      italic = fontMeta->IsItalic();
-      underline = fontMeta->IsUnderline();
     }
     break;
   } 
 
-  if (pFont && pFont->IsValid())
+  if (pFontMem && pFont && pFont->IsValid())
   {
+    IFontMeta fontMeta(pFontMem, resSize, 0);
+    WDL_String family = fontMeta.GetFamily();
+    int weight = fontMeta.IsBold() ? FW_BOLD : FW_REGULAR;
+    bool italic = fontMeta.IsItalic();
+    bool underline = fontMeta.IsUnderline();
+
     HFONT font = GetHFont(family.Get(), weight, italic, underline);
 
     if (font)

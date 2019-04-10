@@ -68,8 +68,6 @@ class IGraphics
 {
 protected:
 
-  static int FontDataGetName(WDL_String& family, WDL_String&style, const void* data, int idx);
-
   class PlatformFont
   {
   public:
