@@ -40,12 +40,12 @@ int IGraphics::PlatformFont::GetFaceIdx(const void* data, int dataSize, const ch
 {
   for (int idx = 0; ; idx++)
   {
-    IFontInfo fontMeta(data, dataSize, idx);
+    IFontInfo fontInfo(data, dataSize, idx);
 
-    if (!fontMeta.IsValid())
+    if (!fontInfo.IsValid())
       return -1;
 
-    const WDL_String& style = fontMeta.GetStyle();
+    const WDL_String& style = fontInfo.GetStyle();
 
     if (style.GetLength() && (!styleName[0] || !strcmp(style.Get(), styleName)))
       return idx;

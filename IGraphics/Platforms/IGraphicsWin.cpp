@@ -1645,11 +1645,11 @@ IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, co
 
   if (pFontMem && pFont && pFont->IsValid())
   {
-    IFontInfo fontMeta(pFontMem, resSize, 0);
-    WDL_String family = fontMeta.GetFamily();
-    int weight = fontMeta.IsBold() ? FW_BOLD : FW_REGULAR;
-    bool italic = fontMeta.IsItalic();
-    bool underline = fontMeta.IsUnderline();
+    IFontInfo fontInfo(pFontMem, resSize, 0);
+    WDL_String family = fontInfo.GetFamily();
+    int weight = fontInfo.IsBold() ? FW_BOLD : FW_REGULAR;
+    bool italic = fontInfo.IsItalic();
+    bool underline = fontInfo.IsUnderline();
 
     HFONT font = GetHFont(family.Get(), weight, italic, underline);
 
