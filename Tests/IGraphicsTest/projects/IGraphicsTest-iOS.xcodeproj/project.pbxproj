@@ -20,6 +20,28 @@
 		4F23CECE20B20C9300E8B70F /* nanovg_mtl.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F8028BB20A24DFD003A66EC /* nanovg_mtl.m */; };
 		4F3E0F6A20A0BCD900A9C2BE /* IGraphicsTest-iOS.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6720A0BC5B00A9C2BE /* IGraphicsTest-iOS.storyboard */; };
 		4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */; };
+		4F5FCFC92246FD26004F29F4 /* TestCursorControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5FCFB32246FD26004F29F4 /* TestCursorControl.h */; };
+		4F5FCFCA2246FD26004F29F4 /* TestSizeControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5FCFB42246FD26004F29F4 /* TestSizeControl.h */; };
+		4F5FCFCB2246FD26004F29F4 /* TestAnimationControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5FCFB52246FD26004F29F4 /* TestAnimationControl.h */; };
+		4F5FCFCC2246FD26004F29F4 /* TestMPSControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5FCFB62246FD26004F29F4 /* TestMPSControl.h */; };
+		4F5FCFCD2246FD26004F29F4 /* TestTextControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5FCFB72246FD26004F29F4 /* TestTextControl.h */; };
+		4F5FCFCE2246FD26004F29F4 /* TestDrawContextControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5FCFB82246FD26004F29F4 /* TestDrawContextControl.h */; };
+		4F5FCFCF2246FD26004F29F4 /* TestSVGControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5FCFB92246FD26004F29F4 /* TestSVGControl.h */; };
+		4F5FCFD02246FD26004F29F4 /* TestShadowGradientControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5FCFBA2246FD26004F29F4 /* TestShadowGradientControl.h */; };
+		4F5FCFD12246FD26004F29F4 /* TestImageControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5FCFBB2246FD26004F29F4 /* TestImageControl.h */; };
+		4F5FCFD22246FD26004F29F4 /* TestDirBrowseControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5FCFBC2246FD26004F29F4 /* TestDirBrowseControl.h */; };
+		4F5FCFD32246FD26004F29F4 /* TestLayerControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5FCFBD2246FD26004F29F4 /* TestLayerControl.h */; };
+		4F5FCFD42246FD26004F29F4 /* TestControls.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5FCFBE2246FD26004F29F4 /* TestControls.h */; };
+		4F5FCFD52246FD26004F29F4 /* TestKeyboardControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5FCFBF2246FD26004F29F4 /* TestKeyboardControl.h */; };
+		4F5FCFD62246FD26004F29F4 /* TestColorControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5FCFC02246FD26004F29F4 /* TestColorControl.h */; };
+		4F5FCFD72246FD26004F29F4 /* TestBlendControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5FCFC12246FD26004F29F4 /* TestBlendControl.h */; };
+		4F5FCFD82246FD26004F29F4 /* TestGradientControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5FCFC22246FD26004F29F4 /* TestGradientControl.h */; };
+		4F5FCFD92246FD26004F29F4 /* TestDropShadowControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5FCFC32246FD26004F29F4 /* TestDropShadowControl.h */; };
+		4F5FCFDA2246FD26004F29F4 /* TestRotatingMaskControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5FCFC42246FD26004F29F4 /* TestRotatingMaskControl.h */; };
+		4F5FCFDB2246FD26004F29F4 /* TestMultiPathControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5FCFC52246FD26004F29F4 /* TestMultiPathControl.h */; };
+		4F5FCFDC2246FD26004F29F4 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5FCFC62246FD26004F29F4 /* TestMPSControl.mm */; };
+		4F5FCFDD2246FD26004F29F4 /* TestArcControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5FCFC72246FD26004F29F4 /* TestArcControl.h */; };
+		4F5FCFDE2246FD26004F29F4 /* TestPolyControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F5FCFC82246FD26004F29F4 /* TestPolyControl.h */; };
 		4F6369AC20A463AF0022C370 /* IGraphicsNanoVG.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63697C20A463AF0022C370 /* IGraphicsNanoVG.h */; };
 		4F6369B220A463AF0022C370 /* IGraphics_include_in_plug_hdr.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63698220A463AF0022C370 /* IGraphics_include_in_plug_hdr.h */; };
 		4F6369C120A463AF0022C370 /* IGraphicsPopupMenu.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F63699220A463AF0022C370 /* IGraphicsPopupMenu.h */; };
@@ -177,6 +199,28 @@
 		4F3E0F6520A0BC4000A9C2BE /* IGraphicsTest-iOS-AUv3-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IGraphicsTest-iOS-AUv3-Info.plist"; path = "../resources/IGraphicsTest-iOS-AUv3-Info.plist"; sourceTree = "<group>"; };
 		4F3E0F6720A0BC5B00A9C2BE /* IGraphicsTest-iOS.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = "IGraphicsTest-iOS.storyboard"; path = "../resources/IGraphicsTest-iOS.storyboard"; sourceTree = "<group>"; };
 		4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ../resources/Images.xcassets; sourceTree = "<group>"; };
+		4F5FCFB32246FD26004F29F4 /* TestCursorControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestCursorControl.h; sourceTree = "<group>"; };
+		4F5FCFB42246FD26004F29F4 /* TestSizeControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestSizeControl.h; sourceTree = "<group>"; };
+		4F5FCFB52246FD26004F29F4 /* TestAnimationControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestAnimationControl.h; sourceTree = "<group>"; };
+		4F5FCFB62246FD26004F29F4 /* TestMPSControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestMPSControl.h; sourceTree = "<group>"; };
+		4F5FCFB72246FD26004F29F4 /* TestTextControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestTextControl.h; sourceTree = "<group>"; };
+		4F5FCFB82246FD26004F29F4 /* TestDrawContextControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestDrawContextControl.h; sourceTree = "<group>"; };
+		4F5FCFB92246FD26004F29F4 /* TestSVGControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestSVGControl.h; sourceTree = "<group>"; };
+		4F5FCFBA2246FD26004F29F4 /* TestShadowGradientControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestShadowGradientControl.h; sourceTree = "<group>"; };
+		4F5FCFBB2246FD26004F29F4 /* TestImageControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestImageControl.h; sourceTree = "<group>"; };
+		4F5FCFBC2246FD26004F29F4 /* TestDirBrowseControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestDirBrowseControl.h; sourceTree = "<group>"; };
+		4F5FCFBD2246FD26004F29F4 /* TestLayerControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestLayerControl.h; sourceTree = "<group>"; };
+		4F5FCFBE2246FD26004F29F4 /* TestControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestControls.h; sourceTree = "<group>"; };
+		4F5FCFBF2246FD26004F29F4 /* TestKeyboardControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestKeyboardControl.h; sourceTree = "<group>"; };
+		4F5FCFC02246FD26004F29F4 /* TestColorControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestColorControl.h; sourceTree = "<group>"; };
+		4F5FCFC12246FD26004F29F4 /* TestBlendControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestBlendControl.h; sourceTree = "<group>"; };
+		4F5FCFC22246FD26004F29F4 /* TestGradientControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestGradientControl.h; sourceTree = "<group>"; };
+		4F5FCFC32246FD26004F29F4 /* TestDropShadowControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestDropShadowControl.h; sourceTree = "<group>"; };
+		4F5FCFC42246FD26004F29F4 /* TestRotatingMaskControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestRotatingMaskControl.h; sourceTree = "<group>"; };
+		4F5FCFC52246FD26004F29F4 /* TestMultiPathControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestMultiPathControl.h; sourceTree = "<group>"; };
+		4F5FCFC62246FD26004F29F4 /* TestMPSControl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TestMPSControl.mm; sourceTree = "<group>"; };
+		4F5FCFC72246FD26004F29F4 /* TestArcControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestArcControl.h; sourceTree = "<group>"; };
+		4F5FCFC82246FD26004F29F4 /* TestPolyControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestPolyControl.h; sourceTree = "<group>"; };
 		4F63697620A463AF0022C370 /* IGraphicsLice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLice.h; sourceTree = "<group>"; };
 		4F63697720A463AF0022C370 /* IGraphicsAGG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsAGG.h; sourceTree = "<group>"; };
 		4F63697820A463AF0022C370 /* IGraphicsLice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsLice.cpp; sourceTree = "<group>"; };
@@ -246,7 +290,6 @@
 		4F977D4520CC9DD800D19F46 /* license.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = license.txt; sourceTree = "<group>"; };
 		4F977D4820CC9DD800D19F46 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4F977D4A20CC9DD800D19F46 /* IPlugFaust.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugFaust.h; sourceTree = "<group>"; };
-		4F977D4B20CC9DD800D19F46 /* IPlugFaust_notdone.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = IPlugFaust_notdone.txt; sourceTree = "<group>"; };
 		4F977D4C20CC9DD800D19F46 /* IPlugFaustGen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaustGen.cpp; sourceTree = "<group>"; };
 		4F977D4D20CC9DD800D19F46 /* IPlugFaust_arch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaust_arch.cpp; sourceTree = "<group>"; };
 		4F977D4E20CC9DD800D19F46 /* IPlugFaustGen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugFaustGen.h; sourceTree = "<group>"; };
@@ -357,6 +400,35 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		4F5FCFB22246FD26004F29F4 /* Test */ = {
+			isa = PBXGroup;
+			children = (
+				4F5FCFB32246FD26004F29F4 /* TestCursorControl.h */,
+				4F5FCFB42246FD26004F29F4 /* TestSizeControl.h */,
+				4F5FCFB52246FD26004F29F4 /* TestAnimationControl.h */,
+				4F5FCFB62246FD26004F29F4 /* TestMPSControl.h */,
+				4F5FCFB72246FD26004F29F4 /* TestTextControl.h */,
+				4F5FCFB82246FD26004F29F4 /* TestDrawContextControl.h */,
+				4F5FCFB92246FD26004F29F4 /* TestSVGControl.h */,
+				4F5FCFBA2246FD26004F29F4 /* TestShadowGradientControl.h */,
+				4F5FCFBB2246FD26004F29F4 /* TestImageControl.h */,
+				4F5FCFBC2246FD26004F29F4 /* TestDirBrowseControl.h */,
+				4F5FCFBD2246FD26004F29F4 /* TestLayerControl.h */,
+				4F5FCFBE2246FD26004F29F4 /* TestControls.h */,
+				4F5FCFBF2246FD26004F29F4 /* TestKeyboardControl.h */,
+				4F5FCFC02246FD26004F29F4 /* TestColorControl.h */,
+				4F5FCFC12246FD26004F29F4 /* TestBlendControl.h */,
+				4F5FCFC22246FD26004F29F4 /* TestGradientControl.h */,
+				4F5FCFC32246FD26004F29F4 /* TestDropShadowControl.h */,
+				4F5FCFC42246FD26004F29F4 /* TestRotatingMaskControl.h */,
+				4F5FCFC52246FD26004F29F4 /* TestMultiPathControl.h */,
+				4F5FCFC62246FD26004F29F4 /* TestMPSControl.mm */,
+				4F5FCFC72246FD26004F29F4 /* TestArcControl.h */,
+				4F5FCFC82246FD26004F29F4 /* TestPolyControl.h */,
+			);
+			path = Test;
+			sourceTree = "<group>";
+		};
 		4F63697420A463AF0022C370 /* IGraphics */ = {
 			isa = PBXGroup;
 			children = (
@@ -426,6 +498,7 @@
 		4F63699620A463AF0022C370 /* Controls */ = {
 			isa = PBXGroup;
 			children = (
+				4F5FCFB22246FD26004F29F4 /* Test */,
 				4FCE29DF21D6ED81004BCBA1 /* ITextEntryControl.cpp */,
 				4FCE29DE21D6ED81004BCBA1 /* ITextEntryControl.h */,
 				4F9A8300213DE87600BE63A4 /* IControls.cpp */,
@@ -658,6 +731,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F5FCFD32246FD26004F29F4 /* TestLayerControl.h in Headers */,
 				4F977D6220CC9DD800D19F46 /* Array.h in Headers */,
 				4FFF105C20A0E57100D3092F /* IPlugAUAudioUnit.h in Headers */,
 				4F048C9720B1E74F002052E7 /* IGraphicsTestFramework.h in Headers */,
@@ -665,8 +739,11 @@
 				4F9A830C213DE87600BE63A4 /* IFPSDisplayControl.h in Headers */,
 				4FFF108920A1036200D3092F /* config.h in Headers */,
 				4F8028CC20A24FA9003A66EC /* fontstash.h in Headers */,
+				4F5FCFCC2246FD26004F29F4 /* TestMPSControl.h in Headers */,
 				4F9A830B213DE87600BE63A4 /* IControls.h in Headers */,
 				4FFF104420A0E55A00D3092F /* IPlugPlatform.h in Headers */,
+				4F5FCFD12246FD26004F29F4 /* TestImageControl.h in Headers */,
+				4F5FCFDA2246FD26004F29F4 /* TestRotatingMaskControl.h in Headers */,
 				4F6369B220A463AF0022C370 /* IGraphics_include_in_plug_hdr.h in Headers */,
 				4F977D6520CC9DD800D19F46 /* FPUDownsampler2x.h in Headers */,
 				4FFF106120A0E57100D3092F /* IPlugAUv3.h in Headers */,
@@ -677,6 +754,7 @@
 				4F6369C120A463AF0022C370 /* IGraphicsPopupMenu.h in Headers */,
 				4FFF108D20A1036200D3092F /* IGraphicsTest.h in Headers */,
 				4F8028CA20A24FA9003A66EC /* nanovg.h in Headers */,
+				4F5FCFCD2246FD26004F29F4 /* TestTextControl.h in Headers */,
 				4F9A8308213DE87600BE63A4 /* IVMultiSliderControl.h in Headers */,
 				4F977D5E20CC9DD800D19F46 /* Oscillator.h in Headers */,
 				4FFF107920A0E5A500D3092F /* wdlstring.h in Headers */,
@@ -684,37 +762,52 @@
 				4FFF105D20A0E57100D3092F /* BufferedAudioBus.hpp in Headers */,
 				4FFF104920A0E55A00D3092F /* IPlugProcessor.h in Headers */,
 				4FFF107A20A0E5A500D3092F /* wdl_base64.h in Headers */,
+				4F5FCFDD2246FD26004F29F4 /* TestArcControl.h in Headers */,
 				4F6369CD20A463AF0022C370 /* IGraphicsStructs.h in Headers */,
+				4F5FCFDB2246FD26004F29F4 /* TestMultiPathControl.h in Headers */,
+				4F5FCFD22246FD26004F29F4 /* TestDirBrowseControl.h in Headers */,
+				4F5FCFD62246FD26004F29F4 /* TestColorControl.h in Headers */,
 				4FFF104720A0E55A00D3092F /* IPlugParameter.h in Headers */,
 				4F977D7520CC9DD800D19F46 /* Oversampler.h in Headers */,
 				4FFF106D20A0E58600D3092F /* IPlugPluginBase.h in Headers */,
 				4F9A830D213DE87600BE63A4 /* IVMeterControl.h in Headers */,
 				4F977D5F20CC9DD800D19F46 /* PolyphaseIIR2Designer.h in Headers */,
 				4FFF104E20A0E55A00D3092F /* IPlugMidi.h in Headers */,
+				4F5FCFCF2246FD26004F29F4 /* TestSVGControl.h in Headers */,
 				4F977D6A20CC9DD800D19F46 /* IPlugFaust.h in Headers */,
 				4F8028C620A24FA9003A66EC /* stb_image.h in Headers */,
+				4F5FCFCA2246FD26004F29F4 /* TestSizeControl.h in Headers */,
+				4F5FCFCE2246FD26004F29F4 /* TestDrawContextControl.h in Headers */,
 				4FFF107820A0E5A500D3092F /* heapbuf.h in Headers */,
 				4F977D6E20CC9DD800D19F46 /* IPlugFaustGen.h in Headers */,
 				4FFF104F20A0E55A00D3092F /* IPlugLogger.h in Headers */,
 				4FFF107C20A0E5A500D3092F /* wdltypes.h in Headers */,
 				4F9A830F213DE87600BE63A4 /* IVScopeControl.h in Headers */,
+				4F5FCFCB2246FD26004F29F4 /* TestAnimationControl.h in Headers */,
 				4F6369D120A463AF0022C370 /* IGraphics_include_in_plug_src.h in Headers */,
 				4FFF106F20A0E58600D3092F /* IPlugDelegate_select.h in Headers */,
 				4F6369D420A463D80022C370 /* IGraphicsIOS_view.h in Headers */,
 				4F8028C820A24FA9003A66EC /* stb_truetype.h in Headers */,
 				4FFF107B20A0E5A500D3092F /* mutex.h in Headers */,
+				4F5FCFDE2246FD26004F29F4 /* TestPolyControl.h in Headers */,
 				4F9A830E213DE87600BE63A4 /* IVKeyboardControl.h in Headers */,
 				4F6369CE20A463AF0022C370 /* IGraphicsConstants.h in Headers */,
 				4FFF104D20A0E55A00D3092F /* IPlugUtilities.h in Headers */,
+				4F5FCFC92246FD26004F29F4 /* TestCursorControl.h in Headers */,
+				4F5FCFD42246FD26004F29F4 /* TestControls.h in Headers */,
 				4FFF107D20A0E5A500D3092F /* ptrlist.h in Headers */,
 				4FCE29E021D6ED81004BCBA1 /* ITextEntryControl.h in Headers */,
 				4FFF104C20A0E55A00D3092F /* IPlugStructs.h in Headers */,
 				4FFF107E20A0E5A500D3092F /* wdlendian.h in Headers */,
+				4F5FCFD72246FD26004F29F4 /* TestBlendControl.h in Headers */,
 				4FFF104220A0E55A00D3092F /* IPlugQueue.h in Headers */,
+				4F5FCFD82246FD26004F29F4 /* TestGradientControl.h in Headers */,
 				4F977D7420CC9DD800D19F46 /* Oscillator_table.h in Headers */,
+				4F5FCFD92246FD26004F29F4 /* TestDropShadowControl.h in Headers */,
 				4F6369D020A463AF0022C370 /* IGraphics_select.h in Headers */,
 				4F977D5920CC9DD800D19F46 /* NChanDelay.h in Headers */,
 				4F9A8307213DE87600BE63A4 /* IPopupMenuControl.h in Headers */,
+				4F5FCFD52246FD26004F29F4 /* TestKeyboardControl.h in Headers */,
 				4F977D7320CC9DD800D19F46 /* SVF.h in Headers */,
 				4F8028C720A24FA9003A66EC /* nanovg_gl_utils.h in Headers */,
 				4FFF106E20A0E58600D3092F /* IPlugEditorDelegate.h in Headers */,
@@ -725,6 +818,7 @@
 				4FE8F3B220BA273800BF938F /* IGraphicsEditorDelegate.h in Headers */,
 				4FFF104820A0E55A00D3092F /* IPlug_include_in_plug_src.h in Headers */,
 				4FFF105020A0E55A00D3092F /* IPlugAPIBase.h in Headers */,
+				4F5FCFD02246FD26004F29F4 /* TestShadowGradientControl.h in Headers */,
 				4FFF104120A0E55A00D3092F /* IPlugConstants.h in Headers */,
 				4FFF104620A0E55A00D3092F /* IPlug_include_in_plug_hdr.h in Headers */,
 				4F977D5B20CC9DD800D19F46 /* IPlugOSC.h in Headers */,
@@ -924,6 +1018,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F5FCFDC2246FD26004F29F4 /* TestMPSControl.mm in Sources */,
 				4F9A830A213DE87600BE63A4 /* IPopupMenuControl.cpp in Sources */,
 				4F977D8520CCA5FB00D19F46 /* GenericUI.swift in Sources */,
 				4FA758462186222E00F1BCC3 /* IPlugPaths.mm in Sources */,

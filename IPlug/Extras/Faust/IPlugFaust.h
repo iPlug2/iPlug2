@@ -41,7 +41,7 @@ public:
   : mNVoices(nVoices)
   {
     if(rate > 1)
-      mOverSampler = new OverSampler<sample>(OverSampler<sample>::RateToFactor(rate), true, 1 /* TODO: */);
+      mOverSampler = new OverSampler<sample>(OverSampler<sample>::RateToFactor(rate), true, 2 /* TODO: flexible channel count */);
     
     mName.Set(name);
   }
@@ -106,13 +106,13 @@ public:
     {
       assert(mDSP->getSampleRate() != 0); // did you forget to call SetSampleRate?
       
-//      if(mOverSampler)
-//        mOverSampler->ProcessBlock(inputs, outputs, nFrames, 1 /* DOESN'T YET WORK WITH MC */,
-//                                   [&](sample** inputs, sample** outputs, int nFrames)
-//                                   {
-//                                     mDSP->compute(nFrames, inputs, outputs);
-//                                   });
-//      else
+      if(mOverSampler)
+        mOverSampler->ProcessBlock(inputs, outputs, nFrames, 2 /* TODO: flexible channel count */,
+                                   [&](sample** inputs, sample** outputs, int nFrames) //TODO:: badness capture = allocated
+                                   {
+                                     mDSP->compute(nFrames, inputs, outputs);
+                                   });
+      else
         mDSP->compute(nFrames, inputs, outputs);
     }
 //    else silence?

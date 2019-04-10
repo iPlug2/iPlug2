@@ -34,7 +34,7 @@ static double GetTimestamp()
 }
 
 /** Calculate evenly distributed points on a radial line. NOTE: will crash if the nPoints and data array do not match size.
- * @param angle The angle to draw at in degrees clockwise where 0 is up
+ * @param angleDegrees The angle to draw at in degrees clockwise where 0 is up
  * @param cx centre point x coordinate
  * @param cy centre point y coordinate
  * @param rMin minima of the radial line (distance from cx,cy)

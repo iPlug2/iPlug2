@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include "IPlugEditorDelegate.h"
 
 /**
@@ -20,7 +22,7 @@
 class IGraphics;
 class IControl;
 
-/** An editor delgate base class for a SOMETHING that uses IGraphics for it's UI */
+/** An editor delegate base class for a SOMETHING that uses IGraphics for it's UI */
 class IGEditorDelegate : public IEditorDelegate
 {
 public:
@@ -61,7 +63,7 @@ public:
   }
   
   /** Get a pointer to the IGraphics context */
-  IGraphics* GetUI() { return mGraphics; };
+  IGraphics* GetUI() { return mGraphics.get(); };
 
   /** Called when the IGraphics context properties are changed */
   void EditorPropertiesModified();
@@ -82,6 +84,7 @@ protected:
   std::function<void(IGraphics* pGraphics)> mLayoutFunc = nullptr;
 private:
 
-  IGraphics* mGraphics = nullptr;
+  std::unique_ptr<IGraphics> mGraphics;
   bool mIGraphicsTransient = false; // If creating IGraphics on demand this will be true
+  bool mClosing = false; // used to prevent re-entrancy on closing
 };

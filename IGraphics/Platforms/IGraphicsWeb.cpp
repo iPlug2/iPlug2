@@ -358,9 +358,7 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
 {
   OnViewInitialized(nullptr /* not used */);
 
-  double scale = std::max(1.0, val::global("window")["devicePixelRatio"].as<double>());
-    
-  SetScreenScale(static_cast<int>(scale));
+  SetScreenScale(std::max(emscripten_get_device_pixel_ratio(), 1.));
 
   GetDelegate()->LayoutUI(this);
   
@@ -374,7 +372,7 @@ void IGraphicsWeb::HideMouseCursor(bool hide, bool lock)
     if (lock)
       emscripten_request_pointerlock("canvas", EM_FALSE);
     else
-      val::global("document")["body"]["style"].set("cursor", std::string("none"));
+      emscripten_hide_mouse();
     
     mCursorLock = lock;
   }
@@ -413,38 +411,6 @@ ECursor IGraphicsWeb::SetMouseCursor(ECursor cursorType)
   
   val::global("document")["body"]["style"].set("cursor", cursor);
   return IGraphics::SetMouseCursor(cursorType);
-}
-
-EResourceLocation IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String& result)
-{
-  if (CStringHasContents(name))
-  {
-    WDL_String plusSlash;
-    
-    bool foundResource = false;
-    
-    //TODO: OSFindResource is not sufficient here
-    
-    if(strcmp(type, "png") == 0) { //TODO: lowercase/uppercase png
-      plusSlash.SetFormatted(strlen("/resources/img/") + strlen(name) + 1, "/resources/img/%s", name);
-      foundResource = GetPreloadedImages().call<bool>("hasOwnProperty", std::string(plusSlash.Get()));
-    }
-    else if(strcmp(type, "ttf") == 0) { //TODO: lowercase/uppercase ttf
-      plusSlash.SetFormatted(strlen("/resources/fonts/") + strlen(name) + 1, "/resources/fonts/%s", name);
-      foundResource = true; // TODO: check ttf
-    }
-    else if(strcmp(type, "svg") == 0) { //TODO: lowercase/uppercase svg
-      plusSlash.SetFormatted(strlen("/resources/img/") + strlen(name) + 1, "/resources/img/%s", name);
-      foundResource = true; // TODO: check svg
-    }
-    
-    if(foundResource)
-    {
-      result.Set(plusSlash.Get());
-      return EResourceLocation::kAbsolutePath;
-    }
-  }
-  return EResourceLocation::kNotFound;
 }
 
 //static

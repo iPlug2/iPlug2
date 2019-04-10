@@ -502,6 +502,7 @@ void FaustGen::GetDrawPath(WDL_String& path)
 
 bool FaustGen::CompileCPP()
 {
+//#ifndef OS_WIN
   WDL_String archFile;
   archFile.Set(__FILE__);
   archFile.remove_filepart(true);
@@ -518,7 +519,7 @@ bool FaustGen::CompileCPP()
     outputFile.remove_fileext();
     outputFile.AppendFormatted(1024, ".tmp");
     //-double
-    command.SetFormatted(1024, "%s -cn %s -i -a %s %s -o %s", FAUST_EXE, f.second->mName.Get(), archFile.Get(), inputFile.Get(), outputFile.Get());
+    command.SetFormatted(1024, "%s -cn %s -i -a %s -o %s %s", FAUST_EXE, f.second->mName.Get(), archFile.Get(), outputFile.Get(), inputFile.Get());
 
     DBGMSG("exec: %s\n", command.Get());
 
@@ -530,7 +531,11 @@ bool FaustGen::CompileCPP()
   folder.remove_filepart(true);
   WDL_String finalOutput = folder;
   finalOutput.AppendFormatted(1024, "FaustCode.hpp");
+#ifndef OS_WIN
   command.SetFormatted(1024, "cat %s*.tmp > %s", folder.Get(), finalOutput.Get());
+#else
+  command.SetFormatted(1024, "copy %s*.tmp %s", folder.Get(), finalOutput.Get());
+#endif
 
   if(system(command.Get()) == -1)
   {
@@ -539,7 +544,11 @@ bool FaustGen::CompileCPP()
     return false;
   }
 
+#ifndef OS_WIN
   command.SetFormatted(1024, "rm %s*.tmp", folder.Get());
+#else
+  command.SetFormatted(1024, "del %s*.tmp", folder.Get());
+#endif
 
   if(system(command.Get()) == -1)
   {
@@ -547,6 +556,8 @@ bool FaustGen::CompileCPP()
 
     return false;
   }
+
+//#endif
 
   return true;
 }
@@ -593,7 +604,6 @@ void FaustGen::OnTimer(Timer& timer)
     // TODO: should check for successfull JIT
     DBGMSG("FaustGen-%s: Statically compiling all FAUST blocks\n", mName.Get());
     CompileCPP();
-
     //WDL_String objFile;
     //objFile.Set(pInputFile);
     //objFile.remove_fileext();

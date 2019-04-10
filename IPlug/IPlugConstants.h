@@ -14,6 +14,7 @@
  * @file
  * @brief IPlug Constant definitions, Types, magic numbers
  * @defgroup IPlugConstants IPlug::Constants
+ * IPlug Constant definitions, Types, magic numbers
  * @{
  */
 
@@ -224,6 +225,13 @@ enum EHost
   // These hosts don't report the host name:
   // EnergyXT2
   // MiniHost
+};
+
+enum EResourceLocation
+{
+  kNotFound = 0,
+  kAbsolutePath,
+  kWinBinary
 };
 
 /**@}*/

@@ -197,8 +197,8 @@ public:
   , IBitmapBase(bitmap)
   {}
 
-  IBButtonControl(const IRECT& bounds, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
-  : IButtonControlBase(bounds, actionFunc)
+  IBButtonControl(IRECT bounds, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
+  : IButtonControlBase(bounds.GetCentredInside(bitmap), actionFunc)
   , IBitmapBase(bitmap)
   {}
 
@@ -226,8 +226,8 @@ public:
   IBSwitchControl(float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter)
   : IBitmapControl(x, y, bitmap, paramIdx) {}
 
-  IBSwitchControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter)
-  : IBitmapControl(bounds, bitmap, paramIdx) {}
+  IBSwitchControl(IRECT bounds, const IBitmap& bitmap, int paramIdx = kNoParameter)
+  : IBitmapControl(bounds.GetCentredInside(bitmap), bitmap, paramIdx) {}
 
   virtual ~IBSwitchControl() {}
 

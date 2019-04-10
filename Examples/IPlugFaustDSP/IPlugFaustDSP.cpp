@@ -7,7 +7,7 @@ IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
   InitParamRange(0, kNumParams-1, 0, "Param %i", 0., 0., 1., 0.01, "", IParam::kFlagsNone);
   
 #if IPLUG_DSP
-  mFaustProcessor.SetMaxChannelCount(MaxNChannels(kInput), MaxNChannels(kOutput));
+  mFaustProcessor.SetMaxChannelCount(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput));
   mFaustProcessor.Init();
   mFaustProcessor.CompileCPP();
   mFaustProcessor.SetAutoRecompile(true);
@@ -31,7 +31,10 @@ IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
     }
     
     pGraphics->AttachPanelBackground(COLOR_GRAY);
-    pGraphics->AttachControl(new IVScopeControl<>(viz), kControlTagScope);
+    IVScopeControl<>* pScopeCtrl = new IVScopeControl<>(viz);
+    pGraphics->AttachControl(pScopeCtrl, kControlTagScope);
+    pScopeCtrl->SetColor(kBG, COLOR_BLACK);
+    pScopeCtrl->SetColor(kFG, COLOR_GREEN);
   };
 #endif
 }

@@ -47,7 +47,7 @@ void* IGEditorDelegate::OpenWindow(void* pParent)
 {
   if(!mGraphics) {
     mIGraphicsTransient = true;
-    mGraphics = CreateGraphics();
+    mGraphics.reset(CreateGraphics());
   }
   
   if(mGraphics)
@@ -58,13 +58,23 @@ void* IGEditorDelegate::OpenWindow(void* pParent)
 
 void IGEditorDelegate::CloseWindow()
 {
-  IEditorDelegate::CloseWindow();
+  if (!mClosing)
+  {
+    mClosing = true;
+    IEditorDelegate::CloseWindow();
   
-  if(mGraphics)
-    mGraphics->CloseWindow();
-  
-  if(mIGraphicsTransient)
-    DELETE_NULL(mGraphics);
+    if (mGraphics)
+    {
+    
+      mGraphics->CloseWindow();
+    
+      if (mIGraphicsTransient)
+      {
+        mGraphics.reset(nullptr);
+      }
+    }
+    mClosing = false;
+  }
 }
 
 void IGEditorDelegate::SendControlValueFromDelegate(int controlTag, double normalizedValue)
@@ -147,9 +157,9 @@ void IGEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
 
 void IGEditorDelegate::AttachGraphics(IGraphics* pGraphics)
 {
-  assert(mGraphics == nullptr); // protect against calling AttachGraphics() when mGraphics allready exists
+  assert(!mGraphics); // protect against calling AttachGraphics() when mGraphics already exists
 
-  mGraphics = pGraphics;
+  mGraphics.reset(pGraphics);
   mIGraphicsTransient = false;
 }
 
