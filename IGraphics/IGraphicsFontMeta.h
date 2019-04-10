@@ -29,13 +29,13 @@ public:
     }
   }
   
-  bool IsBold() const       { return mMacStyle & 1 << 0; }
-  bool IsItalic() const     { return mMacStyle & 1 << 1; }
-  bool IsUnderline() const  { return mMacStyle & 1 << 2; }
-  bool IsOutline() const    { return mMacStyle & 1 << 3; }
-  bool IsShadow() const     { return mMacStyle & 1 << 4; }
-  bool IsCondensed() const  { return mMacStyle & 1 << 5; }
-  bool IsExpanded() const   { return mMacStyle & 1 << 6; }
+  bool IsBold() const       { return mMacStyle & (1 << 0); }
+  bool IsItalic() const     { return mMacStyle & (1 << 1); }
+  bool IsUnderline() const  { return mMacStyle & (1 << 2); }
+  bool IsOutline() const    { return mMacStyle & (1 << 3); }
+  bool IsShadow() const     { return mMacStyle & (1 << 4); }
+  bool IsCondensed() const  { return mMacStyle & (1 << 5); }
+  bool IsExpanded() const   { return mMacStyle & (1 << 6); }
     
   uint16_t GetUnitsPerEM() const { return mUnitsPerEM; }
   int16_t GetAscender() const    { return mAscender; }
