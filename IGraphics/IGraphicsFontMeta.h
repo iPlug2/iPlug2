@@ -67,9 +67,9 @@ private:
   
   uint32_t LocateTable(const char *tag)
   {
-    int32_t numTables = GetUInt16(4);
+    uint16_t numTables = GetUInt16(4);
     
-    for (uint32_t i = 0; i < numTables; ++i)
+    for (uint16_t i = 0; i < numTables; ++i)
     {
       uint32_t tableLocation = 12 + 16 * i;
       if (MatchTag(tableLocation, tag))
