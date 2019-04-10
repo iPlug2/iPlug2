@@ -3,11 +3,11 @@
 
 #include <cstdint>
 
-class IFontMeta
+class IFontInfo
 {
 public:
   
-  IFontMeta(const void* data, uint32_t dataSize, uint32_t faceIdx)
+  IFontInfo(const void* data, uint32_t dataSize, uint32_t faceIdx)
     : mData(reinterpret_cast<const unsigned char*>(data)), mHeadLocation(0), mNameLocation(0), mHheaLocation(0), mMacStyle(0), mUnitsPerEM(0), mAscender(0), mDescender(0), mLineGap(0), mLineHeight(0)
   {
     FindFace(faceIdx);
@@ -17,11 +17,13 @@ public:
       mHeadLocation = LocateTable("head");
       mNameLocation = LocateTable("name");
       mHheaLocation = LocateTable("hhea");
-      
+      mFDscLocation = LocateTable("fdsc");
+
       if (IsValid())
       {
         mUnitsPerEM = GetUInt16(mHeadLocation + 18);
         mMacStyle = GetUInt16(mHeadLocation + 44);
+        mWeight = GetWeight();
         mFamily = GetFamilyString();
         mStyle = GetStyleString();
         mAscender = GetSInt16(mHheaLocation + 4);
@@ -79,9 +81,9 @@ private:
     
     for (uint16_t i = 0; i < numTables; ++i)
     {
-      uint32_t tableLocation = 12 + 16 * i;
+      uint32_t tableLocation = 12 + (16 * i);
       if (MatchTag(tableLocation, tag))
-        return GetUint32(tableLocation + 8);
+        return GetUInt32(tableLocation + 8);
     }
     
     return 0;
@@ -105,7 +107,7 @@ private:
   {
     for (uint16_t i = 0; i < GetUInt16(mNameLocation + 2); ++i)
     {
-      uint32_t loc = mNameLocation + 6 + 12 * i;
+      uint32_t loc = mNameLocation + 6 + (12 * i);
       if (platformID == GetUInt16(loc + 0) && encodingID == GetUInt16(loc + 2)
         && languageID == GetUInt16(loc + 4) && nameID == GetUInt16(loc + 6))
       {
@@ -117,6 +119,22 @@ private:
     }
       
     return WDL_String();
+  }
+    
+  double GetWeight()
+  {
+    if (!mFDscLocation)
+      return 1.0;
+      
+    for (uint32_t i = 0; i < GetUInt32(mFDscLocation + 4); ++i)
+    {
+      uint32_t loc = mFDscLocation + 8 + (8 * i);
+
+      if (MatchTag(loc, "wght"))
+        return GetUInt32(loc + 8) / 65536.0;
+    }
+      
+    return 1.0;
   }
     
   void FindFace(uint32_t faceIdx)
@@ -134,11 +152,11 @@ private:
     {
       // Check verison
       
-      if (GetUint32(4) == 0x00010000 || GetUint32(4) == 0x00020000)
+      if (GetUInt32(4) == 0x00010000 || GetUInt32(4) == 0x00020000)
       {
         if (faceIdx < GetSInt32(8))
         {
-          mData += GetUint32(12 + faceIdx * 4);
+          mData += GetUInt32(12 + faceIdx * 4);
           return;
         }
       }
@@ -149,12 +167,12 @@ private:
 #if defined(STB_TRUETYPE_BIGENDIAN) 
   uint16_t   GetUInt16(uint32_t loc)  { return (((uint16_t)mData[loc + 1]) << 8) | (uint16_t)mData[loc + 0]; }
   int16_t    GetSInt16(uint32_t loc)  { return (((uint16_t)mData[loc + 1]) << 8) | (uint16_t)mData[loc + 0]; }
-  uint32_t   GetUint32(uint32_t loc)  { return (((uint32_t)GetUInt16(loc + 2)) << 16) | (uint32_t)GetUInt16(loc + 0); }
+  uint32_t   GetUInt32(uint32_t loc)  { return (((uint32_t)GetUInt16(loc + 2)) << 16) | (uint32_t)GetUInt16(loc + 0); }
   int32_t    GetSInt32(uint32_t loc)  { return (((uint32_t)GetUInt16(loc + 2)) << 16) | (uint32_t)GetUInt16(loc + 0); }
 #else
   uint16_t   GetUInt16(uint32_t loc)  { return (((uint16_t)mData[loc + 0]) << 8) | (uint16_t)mData[loc + 1]; }
   int16_t    GetSInt16(uint32_t loc)  { return (((uint16_t)mData[loc + 0]) << 8) | (uint16_t)mData[loc + 1]; }
-  uint32_t   GetUint32(uint32_t loc)  { return (((uint32_t)GetUInt16(loc + 0)) << 16) | (uint32_t)GetUInt16(loc + 2); }
+  uint32_t   GetUInt32(uint32_t loc)  { return (((uint32_t)GetUInt16(loc + 0)) << 16) | (uint32_t)GetUInt16(loc + 2); }
   int32_t    GetSInt32(uint32_t loc)  { return (((uint32_t)GetUInt16(loc + 0)) << 16) | (uint32_t)GetUInt16(loc + 2); }
 #endif
   
@@ -165,13 +183,15 @@ private:
   uint32_t mHeadLocation;
   uint32_t mNameLocation;
   uint32_t mHheaLocation;
+  uint32_t mFDscLocation;
     
   // Font Identifiers
   
   WDL_String mFamily;
   WDL_String mStyle;
   uint16_t mMacStyle;
-  
+  double mWeight;
+    
   // Metrics
   
   uint16_t mUnitsPerEM;

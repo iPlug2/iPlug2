@@ -1645,7 +1645,7 @@ IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, co
 
   if (pFontMem && pFont && pFont->IsValid())
   {
-    IFontMeta fontMeta(pFontMem, resSize, 0);
+    IFontInfo fontMeta(pFontMem, resSize, 0);
     WDL_String family = fontMeta.GetFamily();
     int weight = fontMeta.IsBold() ? FW_BOLD : FW_REGULAR;
     bool italic = fontMeta.IsItalic();

@@ -40,7 +40,7 @@ int IGraphics::PlatformFont::GetFaceIdx(const void* data, int dataSize, const ch
 {
   for (int idx = 0; ; idx++)
   {
-    IFontMeta fontMeta(data, dataSize, idx);
+    IFontInfo fontMeta(data, dataSize, idx);
 
     if (!fontMeta.IsValid())
       return -1;
