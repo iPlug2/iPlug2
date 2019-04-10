@@ -8,8 +8,6 @@
  ==============================================================================
 */
 
-#ifndef NO_IGRAPHICS
-
 #include "IGraphicsMac.h"
 
 #include "IControl.h"
@@ -586,5 +584,3 @@ bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
 #else
   #include "IGraphicsLice.cpp"
 #endif
-
-#endif// NO_IGRAPHICS

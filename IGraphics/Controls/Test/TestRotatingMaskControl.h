@@ -12,7 +12,7 @@
 
 #include "IControl.h"
 
-
+/** Control to test rotating mask bitmaps */
 class TestRotatingMaskControl : public IKnobControlBase
 {
 public:
