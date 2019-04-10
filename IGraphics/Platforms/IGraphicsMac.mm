@@ -89,7 +89,7 @@ IFontDataPtr IGraphicsMac::MacFont::GetFontData()
   const UInt8* bytes = CFDataGetBytePtr(rawData.Get());
   CFLocal<CFStringRef> styleString = (CFStringRef) CTFontDescriptorCopyAttribute(mDescriptor, kCTFontStyleNameAttribute);
   CFStringGetCString(styleString.Get(), styleCString, 64, kCFStringEncodingUTF8);
-  IFontDataPtr fontData(new IFontData(bytes, (int) CFDataGetLength(rawData.Get()), GetFaceIdx(bytes, styleCString)));
+  IFontDataPtr fontData(new IFontData(bytes, (int) CFDataGetLength(rawData.Get()), GetFaceIdx(bytes, CFDataGetLength(rawData.Get()), styleCString)));
   
   return fontData;
 }

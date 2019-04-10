@@ -81,7 +81,7 @@ protected:
 
   protected:
       
-    int GetFaceIdx(const void* data, const char* styleName);
+    int GetFaceIdx(const void* data, int dataSize, const char* styleName);
   };
 
   typedef std::unique_ptr<PlatformFont> PlatformFontPtr;

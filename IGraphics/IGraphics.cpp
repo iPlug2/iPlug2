@@ -9,14 +9,10 @@
 */
 
 #include "IGraphics.h"
+#include "IGraphicsFontMeta.h"
 
 #define NANOSVG_IMPLEMENTATION
 #include "nanosvg.h"
-
-#if !defined IGRAPHICS_NANOVG || defined IGRAPHICS_FREETYPE
-#define STB_TRUETYPE_IMPLEMENTATION
-#endif
-#include "stb_truetype.h"
 
 #if defined VST3_API
 #include "pluginterfaces/base/ustring.h"
@@ -40,51 +36,18 @@ typedef IPlugVST3Controller VST3_API_BASE;
 #include "IPopupMenuControl.h"
 #include "ITextEntryControl.h"
 
-bool FontDataAttemptName(WDL_String& family, WDL_String&style, stbtt_fontinfo* info, int platform,  int encoding, int language)
-{
-  const char* str;
-  int length = 0;
-
-  str = stbtt_GetFontNameString(info, &length, platform, encoding, language, 16);
-  if (!length)
-    str = stbtt_GetFontNameString(info, &length, platform, encoding, language, 1);
-  family.Set(str, length);
-  if (!length)
-    return false;
-  str = stbtt_GetFontNameString(info, &length, platform, encoding, language, 2);
-  style.Set(str, length);
-  return true;
-}
-
-int IGraphics::FontDataGetName(WDL_String& family, WDL_String&style, const void* data, int idx)
-{
-  int offset = stbtt_GetFontOffsetForIndex((const unsigned char*) data, idx);
-  
-  if (offset >= 0)
-  {
-      stbtt_fontinfo info;
-      stbtt_InitFont(&info, (const unsigned char*) data, offset);
-    
-      if (FontDataAttemptName(family, style, &info, STBTT_PLATFORM_ID_MAC, STBTT_MAC_EID_ROMAN, STBTT_MAC_LANG_ENGLISH))
-          return 0;
-
-      return -1;
-  }
-
-  return -2;
-}
-
-int IGraphics::PlatformFont::GetFaceIdx(const void* data, const char* styleName)
+int IGraphics::PlatformFont::GetFaceIdx(const void* data, int dataSize, const char* styleName)
 {
   for (int idx = 0; ; idx++)
   {
-    WDL_String family, style;
-    int result = FontDataGetName(family, style, data, idx);
+    IFontMeta fontMeta(data, dataSize, idx);
 
-    if (result == -2)
+    if (!fontMeta.IsValid())
       return -1;
 
-    if (!result && (!styleName[0] || !strcmp(style.Get(), styleName)))
+    const WDL_String& style = fontMeta.GetStyle();
+
+    if (style.GetLength() && (!styleName[0] || !strcmp(style.Get(), styleName)))
       return idx;
   }
 }

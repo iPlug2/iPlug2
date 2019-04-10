@@ -1644,7 +1644,7 @@ IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, co
       FontDataGetName(family, style, pFontMem, 0);
       pFont.reset(new WinCachedFont(pFontMem, resSize));
         
-      FontMeta fontMeta (pFontMem, resSize, 0);
+      IFontMeta fontMeta(pFontMem, resSize, 0);
       weight = fontMeta->IsBold() ? FW_BOLD : FW_REGULAR;
       italic = fontMeta->IsItalic();
       underline = fontMeta->IsUnderline();

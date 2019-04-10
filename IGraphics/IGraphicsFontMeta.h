@@ -3,32 +3,40 @@
 
 #include <cstdint>
 
-class FontMeta
+class IFontMeta
 {
 public:
   
-  FontMeta(const unsigned char* data, uint32_t length, uint32_t faceIdx) : mData(data)
+  IFontMeta(const void* data, uint32_t dataSize, uint32_t faceIdx)
+    : mData(reinterpret_cast<const unsigned char*>(data)), mHeadLocation(0), mNameLocation(0), mHheaLocation(0), mMacStyle(0), mUnitsPerEM(0), mAscender(0), mDescender(0), mLineGap(0), mLineHeight(0)
   {
-    FindFace(data, length, faceIdx);
+    FindFace(faceIdx);
     
     if (mData)
     {
-      uint32_t headLocation = LocateTable("head");
-      uint32_t hheaLocation = LocateTable("hhea");
-      uint32_t nameLocation = LocateTable("name");
+      mHeadLocation = LocateTable("head");
+      mNameLocation = LocateTable("name");
+      mHheaLocation = LocateTable("hhea");
       
-      if (headLocation && hheaLocation && nameLocation)
+      if (IsValid())
       {
-        mUnitsPerEM = GetUInt16(headLocation + 18);
-        mMacStyle = GetUInt16(headLocation + 44);
-        mAscender = GetSInt16(hheaLocation + 4);
-        mDescender = GetSInt16(hheaLocation + 6);
-        mLineGap = GetSInt16(hheaLocation + 8);
+        mUnitsPerEM = GetUInt16(mHeadLocation + 18);
+        mMacStyle = GetUInt16(mHeadLocation + 44);
+        mFamily = GetFamilyString();
+        mStyle = GetStyleString();
+        mAscender = GetSInt16(mHheaLocation + 4);
+        mDescender = GetSInt16(mHheaLocation + 6);
+        mLineGap = GetSInt16(mHheaLocation + 8);
         mLineHeight = (mAscender - mDescender) + mLineGap;
       }
     }
   }
-  
+
+  bool IsValid() const       { return mData && mHeadLocation && mNameLocation && mHheaLocation; }
+
+  const WDL_String& GetFamily() const   { return mFamily; }
+  const WDL_String& GetStyle() const    { return mStyle; }
+
   bool IsBold() const       { return mMacStyle & (1 << 0); }
   bool IsItalic() const     { return mMacStyle & (1 << 1); }
   bool IsUnderline() const  { return mMacStyle & (1 << 2); }
@@ -79,7 +87,39 @@ private:
     return 0;
   }
   
-  void FindFace(const unsigned char* data, uint32_t length, uint32_t faceIdx)
+  WDL_String GetFamilyString()
+  {
+    WDL_String string = GetFontString(1, 0, 0, 16);
+    if (!string.GetLength())
+      string = GetFontString(1, 0, 0, 1);
+      
+    return string;
+  }
+    
+  WDL_String GetStyleString()
+  {
+    return GetFontString(1, 0, 0, 2);
+  }
+    
+  WDL_String GetFontString(int platformID, int encodingID, int languageID, int nameID)
+  {
+    for (uint16_t i = 0; i < GetUInt16(mNameLocation + 2); ++i)
+    {
+      uint32_t loc = mNameLocation + 6 + 12 * i;
+      if (platformID == GetUInt16(loc + 0) && encodingID == GetUInt16(loc + 2)
+        && languageID == GetUInt16(loc + 4) && nameID == GetUInt16(loc + 6))
+      {
+        uint32_t stringOffset = GetUInt16(mNameLocation + 4);
+        uint16_t length = GetUInt16(loc + 8);
+        
+        return WDL_String((const char*) (mData + mNameLocation + stringOffset + GetUInt16(loc + 10)), length);;
+      }
+    }
+      
+    return WDL_String();
+  }
+    
+  void FindFace(uint32_t faceIdx)
   {
     // Check if it is a single font
     
@@ -118,10 +158,18 @@ private:
   int32_t    GetSInt32(uint32_t loc)  { return (((uint32_t)GetUInt16(loc + 0))<<16) | (uint32_t)GetUInt16(loc + 2); }
 #endif
   
+  // Data
+    
   const unsigned char* mData;
   
+  uint32_t mHeadLocation;
+  uint32_t mNameLocation;
+  uint32_t mHheaLocation;
+    
   // Font Identifiers
   
+  WDL_String mFamily;
+  WDL_String mStyle;
   uint16_t mMacStyle;
   
   // Metrics
