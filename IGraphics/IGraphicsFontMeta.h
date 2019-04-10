@@ -29,6 +29,20 @@ public:
     }
   }
   
+  bool IsBold() const       { return mMacStyle & 1 << 0; }
+  bool IsItalic() const     { return mMacStyle & 1 << 1; }
+  bool IsUnderline() const  { return mMacStyle & 1 << 2; }
+  bool IsOutline() const    { return mMacStyle & 1 << 3; }
+  bool IsShadow() const     { return mMacStyle & 1 << 4; }
+  bool IsCondensed() const  { return mMacStyle & 1 << 5; }
+  bool IsExpanded() const   { return mMacStyle & 1 << 6; }
+    
+  uint16_t GetUnitsPerEM() const { return mUnitsPerEM; }
+  int16_t GetAscender() const    { return mAscender; }
+  int16_t GetDescender() const   { return mDescender; }
+  int16_t GetLineGap() const     { return mLineGap; }
+  int16_t GetLineHeight() const  { return mLineHeight; }
+    
 private:
   
   bool MatchTag(uint32_t loc, const char* tag)
@@ -91,14 +105,6 @@ private:
     }
     mData = nullptr;
   }
-  
-  bool IsBold() const       { return mMacStyle & 1 << 0; }
-  bool IsItalic() const     { return mMacStyle & 1 << 1; }
-  bool IsUnderline() const  { return mMacStyle & 1 << 2; }
-  bool IsOutline() const    { return mMacStyle & 1 << 3; }
-  bool IsShadow() const     { return mMacStyle & 1 << 4; }
-  bool IsCondensed() const  { return mMacStyle & 1 << 5; }
-  bool IsExpanded() const   { return mMacStyle & 1 << 6; }
   
 #if defined(STB_TRUETYPE_BIGENDIAN) 
   uint16_t   GetUInt16(uint32_t loc)  { return (mData[loc + 1]<<8) & mData[loc + 0]; }
