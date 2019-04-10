@@ -969,8 +969,14 @@ static int mtlnvg__renderCreate(void* uptr) {
   memset(mtl->cbuffers, 0, kBufferSize);
   mtl->buffers = mtl->cbuffers;
   mtl->buffers->isBusy = YES;
-  mtl->semaphore = dispatch_semaphore_create(mtl->maxBuffers - 1);
-
+  
+//  mtl->semaphore = dispatch_semaphore_create(mtl->maxBuffers - 1);
+//  https://lists.apple.com/archives/cocoa-dev/2014/Apr/msg00484.html
+  mtl->semaphore = dispatch_semaphore_create(0);
+  for (int i=0; i<mtl->maxBuffers - 1; i++) {
+    dispatch_semaphore_signal(mtl->semaphore);
+  }
+  
   // Initializes vertex descriptor.
   mtl->vertexDescriptor = [MTLVertexDescriptor vertexDescriptor];
   [mtl->vertexDescriptor retain];
