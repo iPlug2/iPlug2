@@ -195,18 +195,27 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
       }
       case 'X':
       {
-        //TODO: Cut
-        return false;
+        CopySelection();
+        CallSTB([&] {
+          stb_textedit_cut(this, &mEditState);
+        });
+        return true;
       }
       case 'C':
       {
-        //TODO: Copy
-        return false;
+        CopySelection();
+        return true;
       }
       case 'V':
       {
-        //TODO: Paste
-        return false;
+        WDL_String fromClipboard;
+        if (GetUI()->GetTextFromClipboard(fromClipboard))
+        {
+          CallSTB([&] {
+            stb_textedit_paste(this, &mEditState, fromClipboard.Get(), fromClipboard.GetLength());
+          });
+        }
+        return true;
       }
     
       default:
@@ -254,6 +263,18 @@ void ITextEntryControl::OnEndAnimation()
 {
   if(mEditing)
     SetDirty(true);
+}
+
+void ITextEntryControl::CopySelection()
+{
+  if (mEditState.select_start != mEditState.select_end)
+  {
+    const int start = std::min(mEditState.select_start, mEditState.select_end);
+    const int end = std::max(mEditState.select_start, mEditState.select_end);
+    WDL_String selection;
+    selection.Set(mEditString.Get() + start, end - start);
+    GetUI()->SetTextInClipboard(selection);
+  }
 }
 
 //static

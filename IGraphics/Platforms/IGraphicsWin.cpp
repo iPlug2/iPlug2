@@ -1584,6 +1584,41 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
   return numChars;
 }
 
+bool IGraphicsWin::SetTextInClipboard(const WDL_String& str)
+{
+  if (!OpenClipboard(mMainWnd))
+    return false;
+
+  EmptyClipboard();
+
+  const int len = str.GetLength();
+  if (len > 0)
+  {
+    // figure out how much memory we need for the wide version of this string
+    int wchar_len = MultiByteToWideChar(CP_UTF8, 0, str.Get(), -1, NULL, 0);
+
+    // allocate global memory object for the text
+    HGLOBAL hglbCopy = GlobalAlloc(GMEM_MOVEABLE, wchar_len*sizeof(WCHAR));
+    if (hglbCopy == NULL)
+    {
+      CloseClipboard();
+      return false;
+    }
+
+    // lock the handle and copy the string into the buffer
+    LPWSTR lpstrCopy = (LPWSTR)GlobalLock(hglbCopy);
+    MultiByteToWideChar(CP_UTF8, 0, str.Get(), -1, lpstrCopy, wchar_len);
+    GlobalUnlock(hglbCopy);
+
+    // place the handle on the clipboard
+    SetClipboardData(CF_UNICODETEXT, hglbCopy);
+  }
+
+  CloseClipboard();
+
+  return len > 0;
+}
+
 HFONT GetHFont(const char* fontName, int weight, bool italic, bool underline, DWORD quality = DEFAULT_QUALITY, bool enumerate = false)
 {
   HDC hdc = GetDC(NULL);

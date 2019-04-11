@@ -71,6 +71,7 @@ private:
   void FillCharWidthCache();
   void CalcCursorSizes();
   float GetCharWidth (char c, char pc);
+  void CopySelection();
 
   bool mDrawCursor = false;
 
