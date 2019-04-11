@@ -26,7 +26,6 @@ public:
   : IControl(bounds)
   {
     SetTooltip("TestTextControl");
-    mDblAsSingleClick = true;
     Randomise();
   }
 
@@ -41,6 +40,12 @@ public:
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     Randomise();
+    SetDirty(false);
+  }
+    
+  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override
+  {
+    GetUI()->CreateTextEntry(*this, mText, mRECT);
     SetDirty(false);
   }
 
