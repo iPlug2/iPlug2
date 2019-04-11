@@ -411,9 +411,10 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
       if (len == 1)
       {
-        IKeyPress keyPress{ static_cast<char>(ascii), static_cast<int>(wParam), static_cast<bool>(GetKeyState(VK_SHIFT) & 0x8000),
-                                                                                static_cast<bool>(GetKeyState(VK_CONTROL) & 0x8000),
-                                                                                static_cast<bool>(GetKeyState(VK_MENU) & 0x8000) };
+        IKeyPress keyPress{ static_cast<char>(ascii), static_cast<int>(wParam),
+                            static_cast<bool>(GetKeyState(VK_SHIFT) & 0x8000),
+                            static_cast<bool>(GetKeyState(VK_CONTROL) & 0x8000),
+                            static_cast<bool>(GetKeyState(VK_MENU) & 0x8000) };
 
         handle = pGraphics->OnKeyDown(p.x, p.y, keyPress);
       }
