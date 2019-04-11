@@ -241,13 +241,13 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
               {
                 pGraphics->mEdControl->OnTextEntryCompletion(txt);
               }
-              DestroyEditWindow();
+              pGraphics->DestroyEditWindow();
             }
             break;
                   
             case kCancel:
             {
-              DestroyEditWindow();
+              pGraphics->DestroyEditWindow();
             }
             break;
           }
