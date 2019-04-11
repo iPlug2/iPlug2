@@ -85,6 +85,28 @@ ITextEntryControl::ITextEntryControl()
 void ITextEntryControl::Draw(IGraphics& g)
 {
   g.FillRect(mText.mTextEntryBGColor, mRECT);
+
+  if (mEditState.select_start != mEditState.select_end)
+  {
+    float selectionStart = 0.0f, selectionEnd = 0.0f;
+    const int start = std::min(mEditState.select_start, mEditState.select_end);
+    const int end = std::max(mEditState.select_start, mEditState.select_end);
+    for (int i = 0; i < mCharWidths.GetSize() && i < end; ++i)
+    {
+      if (i < start)
+      {
+        selectionStart += mCharWidths.Get()[i];
+      }
+
+      selectionEnd += mCharWidths.Get()[i];
+    }
+    IRECT selectionRect = mRECT.GetVPadded(-2.f);
+    selectionRect.R = selectionRect.L + selectionEnd;
+    selectionRect.L += selectionStart;
+    IBlend blend(kBlendDefault, 0.2);
+    g.FillRect(mText.mTextEntryFGColor, selectionRect, &blend);
+  }
+
   g.DrawText(mText, mEditString.Get(), mRECT);
   
   if (mDrawCursor)
@@ -128,6 +150,30 @@ void ITextEntryControl::OnMouseDown(float x, float y, const IMouseMod& mod)
       stb_textedit_click(this, &mEditState, x - mRECT.L, y - mRECT.T);
     });
     
+    SetDirty(true);
+  }
+}
+
+void ITextEntryControl::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
+{
+  if (mod.L)
+  {
+    CallSTB ([&]() {
+      stb_textedit_drag(this, &mEditState, x - mRECT.L, y - mRECT.T);
+    });
+
+    SetDirty(true);
+  }
+}
+
+void ITextEntryControl::OnMouseUp(float x, float y, const IMouseMod& mod)
+{
+  if (mod.L)
+  {
+    CallSTB([&]() {
+      stb_textedit_drag(this, &mEditState, x - mRECT.L, y - mRECT.T);
+    });
+
     SetDirty(true);
   }
 }
