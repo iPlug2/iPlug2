@@ -133,6 +133,7 @@ private:
   HWND mParentWnd = nullptr;
   HWND mMainWnd = nullptr;
   WNDPROC mDefEditProc = nullptr;
+  HFONT mEditFont = nullptr;
   DWORD mPID = 0;
 
   IControl* mEdControl = nullptr;

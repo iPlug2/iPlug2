@@ -59,11 +59,14 @@ struct WinCachedFont
   HANDLE mFontHandle;
 };
 
-
 struct WinFontDescriptor
 {
-  WinFontDescriptor(HFONT descriptor) : mDescriptor(descriptor)
-  {}
+  WinFontDescriptor(HFONT descriptor) : mDescriptor(nullptr)
+  {
+    LOGFONT lFont = { 0 };
+    GetObject(descriptor, sizeof(LOGFONT), &lFont);
+    mDescriptor = CreateFontIndirect(&lFont);
+  }
 
   HFONT mDescriptor;
 };
@@ -233,6 +236,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
               pGraphics->mParamEditWnd = nullptr;
               pGraphics->mEdControl = nullptr;
               pGraphics->mDefEditProc = nullptr;
+              DeleteObject(pGraphics->mEditFont);
+              pGraphics->mEditFont = nullptr;
             }
             break;
           }
@@ -1237,12 +1242,16 @@ void IGraphicsWin::CreatePlatformTextEntry(IControl& control, const IText& text,
 
   StaticStorage<WinFontDescriptor>::Accessor descriptorStorage(sFontDescriptorCache);
 
+  LOGFONT lFont = { 0 };
   WinFontDescriptor* descriptor = descriptorStorage.Find(text.mFont);
+  GetObject(descriptor->mDescriptor, sizeof(LOGFONT), &lFont);
+  lFont.lfHeight = text.mSize;
+  mEditFont = CreateFontIndirect(&lFont);
 
   assert(descriptor && "font not found - did you forget to load it?");
 
   SendMessage(mParamEditWnd, EM_LIMITTEXT, (WPARAM) control.GetTextEntryLength(), 0);
-  SendMessage(mParamEditWnd, WM_SETFONT, (WPARAM) descriptor->mDescriptor, 0);
+  SendMessage(mParamEditWnd, WM_SETFONT, (WPARAM)mEditFont, 0);
   SendMessage(mParamEditWnd, EM_SETSEL, 0, -1);
 
   SetFocus(mParamEditWnd);
