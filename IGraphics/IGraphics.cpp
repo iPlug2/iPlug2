@@ -9,7 +9,6 @@
 */
 
 #include "IGraphics.h"
-#include "IGraphicsFontMeta.h"
 
 #define NANOSVG_IMPLEMENTATION
 #include "nanosvg.h"

@@ -16,7 +16,6 @@
 
 #include "IPlugParameter.h"
 #include "IGraphicsWin.h"
-#include "IGraphicsFontMeta.h"
 #include "IControl.h"
 #include "IPopupMenuControl.h"
 #include "IPlugPaths.h"
