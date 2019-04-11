@@ -1469,14 +1469,14 @@ void GaussianBlurSwap(unsigned char *out, unsigned char *in, unsigned char *kern
         accum += kernel[k] * in[(j - k) * 4];
       for (int k = 1; k < kernelSize; k++)
         accum += kernel[k] * in[(j + k) * 4];
-      out[j * outStride + (i * 4)] = std::min(static_cast<unsigned long>(255), accum / norm);
+      out[j * outStride + (i * 4)] = static_cast<unsigned char>(std::min(static_cast<unsigned long>(255), accum / norm));
     }
     for (int j = kernelSize - 1; j < (width - kernelSize) + 1; j++)
     {
       unsigned long accum = in[j * 4] * kernel[0];
       for (int k = 1; k < kernelSize; k++)
         accum += kernel[k] * (in[(j - k) * 4] + in[(j + k) * 4]);
-      out[j * outStride + (i * 4)] = std::min(static_cast<unsigned long>(255), accum / norm);
+      out[j * outStride + (i * 4)] = static_cast<unsigned char>(std::min(static_cast<unsigned long>(255), accum / norm));
     }
     for (int j = (width - kernelSize) + 1; j < width; j++)
     {
@@ -1485,7 +1485,7 @@ void GaussianBlurSwap(unsigned char *out, unsigned char *in, unsigned char *kern
         accum += kernel[k] * in[(j - k) * 4];
       for (int k = 1; k < width - j; k++)
         accum += kernel[k] * in[(j + k) * 4];
-      out[j * outStride + (i * 4)] = std::min(static_cast<unsigned long>(255), accum / norm);
+      out[j * outStride + (i * 4)] = static_cast<unsigned char>(std::min(static_cast<unsigned long>(255), accum / norm));
     }
   }
 }
@@ -1507,10 +1507,10 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
   // Form kernel (reference blurSize from zero (which will be no blur))
   
   bool flipped = FlippedBitmap();
-  double scale = layer->GetAPIBitmap()->GetScale() * layer->GetAPIBitmap()->GetDrawScale();
-  double blurSize = std::max(1.0, (shadow.mBlurSize * scale) + 1.0);
-  double blurConst = 4.5 / (blurSize * blurSize);
-  int iSize = ceil(blurSize);
+  float scale = layer->GetAPIBitmap()->GetScale() * layer->GetAPIBitmap()->GetDrawScale();
+  float blurSize = std::max(1.f, (shadow.mBlurSize * scale) + 1.f);
+  float blurConst = 4.5f / (blurSize * blurSize);
+  int iSize = static_cast<int>(ceil(blurSize));
   int width = layer->GetAPIBitmap()->GetWidth();
   int height = layer->GetAPIBitmap()->GetHeight();
   int stride1 = temp1.GetSize() / width;
@@ -1520,7 +1520,7 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
   kernel.Resize(iSize);
         
   for (int i = 0; i < iSize; i++)
-    kernel.Get()[i] = std::round(255.f * std::expf(-(i * i) * blurConst));
+    kernel.Get()[i] = static_cast<uint8_t>(std::round(255.f * std::expf(-(i * i) * blurConst)));
   
   // Kernel normalisation
   
