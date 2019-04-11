@@ -23,9 +23,8 @@ public:
       {
         mUnitsPerEM = GetUInt16(mHeadLocation + 18);
         mMacStyle = GetUInt16(mHeadLocation + 44);
-        mWeight = GetWeight();
-        mFamily = GetFamilyString();
-        mStyle = GetStyleString();
+        mFamily = GetFontString(1);
+        mStyle = GetFontString(2);
         mAscender = GetSInt16(mHheaLocation + 4);
         mDescender = GetSInt16(mHheaLocation + 6);
         mLineGap = GetSInt16(mHheaLocation + 8);
@@ -89,52 +88,53 @@ private:
     return 0;
   }
   
-  WDL_String GetFamilyString()
+  WDL_String GetFontString(int nameID)
   {
-    WDL_String string = GetFontString(1, 0, 0, 16);
-    if (!string.GetLength())
-      string = GetFontString(1, 0, 0, 1);
-      
-    return string;
-  }
-    
-  WDL_String GetStyleString()
-  {
-    return GetFontString(1, 0, 0, 2);
-  }
-    
-  WDL_String GetFontString(int platformID, int encodingID, int languageID, int nameID)
-  {
+#ifdef OS_WIN
+    int platformID = 3;
+    int encodingID = 1;
+    int languageID = 0x409;
+#else
+    int platformID = 1;
+    int encodingID = 0;
+    int languageID = 0;
+#endif
+
     for (uint16_t i = 0; i < GetUInt16(mNameLocation + 2); ++i)
     {
       uint32_t loc = mNameLocation + 6 + (12 * i);
+
+      uint16_t platform = GetUInt16(loc + 0);
+      uint16_t encoding = GetUInt16(loc + 2);
+      uint16_t language = GetUInt16(loc + 4);
+      uint16_t name = GetUInt16(loc + 6);
+
       if (platformID == GetUInt16(loc + 0) && encodingID == GetUInt16(loc + 2)
         && languageID == GetUInt16(loc + 4) && nameID == GetUInt16(loc + 6))
       {
-        uint32_t stringOffset = GetUInt16(mNameLocation + 4);
+        uint32_t stringLocation = GetUInt16(mNameLocation + 4) + GetUInt16(loc + 10);
         uint16_t length = GetUInt16(loc + 8);
-        
-        return WDL_String((const char*) (mData + mNameLocation + stringOffset + GetUInt16(loc + 10)), length);;
+
+#ifdef OS_WIN
+       WDL_TypedBuf<WCHAR> utf16;
+       WDL_TypedBuf<char> utf8;
+
+       utf16.Resize(length / sizeof(WCHAR));
+
+       for (int j = 0; j < length; j++)
+         utf16.Get()[j] = GetUInt16(mNameLocation + stringLocation + j * 2);
+
+       int convertedLength = WideCharToMultiByte(CP_UTF8, 0, utf16.Get(), utf16.GetSize(), 0, 0, NULL, NULL);
+       utf8.Resize(convertedLength);
+       WideCharToMultiByte(CP_UTF8, 0, utf16.Get(), utf16.GetSize(), utf8.Get(), utf8.GetSize(), NULL, NULL);
+       return WDL_String(utf8.Get(), convertedLength);
+#else
+      return WDL_String((const char*)(mData + mNameLocation + stringLocation), length);
+#endif
       }
     }
       
     return WDL_String();
-  }
-    
-  double GetWeight()
-  {
-    if (!mFDscLocation)
-      return 1.0;
-      
-    for (uint32_t i = 0; i < GetUInt32(mFDscLocation + 4); ++i)
-    {
-      uint32_t loc = mFDscLocation + 8 + (8 * i);
-
-      if (MatchTag(loc, "wght"))
-        return GetUInt32(loc + 8) / 65536.0;
-    }
-      
-    return 1.0;
   }
     
   void FindFace(uint32_t faceIdx)
@@ -190,7 +190,6 @@ private:
   WDL_String mFamily;
   WDL_String mStyle;
   uint16_t mMacStyle;
-  double mWeight;
     
   // Metrics
   

@@ -1603,6 +1603,19 @@ HFONT GetHFont(const char* fontName, int weight, bool italic, bool underline, DW
   if ((!enumerate || EnumFontFamiliesEx(hdc, &lFont, enumProc, NULL, 0) == -1))
     font = CreateFontIndirect(&lFont);
 
+  if (font)
+  {
+    char selectedFontName[64];
+
+    SelectFont(hdc, font);
+    GetTextFace(hdc, 64, selectedFontName);
+    if (strcmp(selectedFontName, fontName))
+    {
+      DeleteObject(font);
+      return nullptr;
+    }
+  }
+
   ReleaseDC(NULL, hdc);
 
   return font;
@@ -1613,14 +1626,14 @@ IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, co
   StaticStorage<WinCachedFont>::Accessor fontStorage(sPlatformFontCache);
 
   std::unique_ptr<WinCachedFont> pFont;
+  void* pFontMem = nullptr;
+  int resSize = 0;
   WDL_String fullPath;
+ 
   const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, GetBundleID(), GetWinModuleHandle());
 
   if (fontLocation == kNotFound)
     return nullptr;
-
-  void* pFontMem = nullptr;
-  int resSize = 0;
 
   switch (fontLocation)
   {
