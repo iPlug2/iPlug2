@@ -25,8 +25,7 @@ public:
   class WinFont : public PlatformFont
   {
   public:
-    WinFont(HFONT font, const char* styleName = "")
-      : mFont(font), mStyleName(styleName) {}
+    WinFont(HFONT font, const char* styleName = "") : mFont(font), mStyleName(styleName) {}
     ~WinFont();
 
     const void* GetDescriptor() override { return reinterpret_cast<const void*>(mFont); }
