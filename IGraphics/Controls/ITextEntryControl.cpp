@@ -282,17 +282,27 @@ void ITextEntryControl::OnStateChanged()
 
 void ITextEntryControl::OnTextChange()
 {
-  //TODO:
+  //TODO: clear character cache here?
 }
 
 void ITextEntryControl::FillCharWidthCache()
 {
-  //TODO:
+  //TODO: should we only do this if the cache is empty?
+  // If so, we'll need to clear the cache when the string changes.
+  const int len = mEditString.GetLength();
+  mCharWidths.Resize(len);
+  char pc = 0;
+  for (int i = 0; i < len; ++i)
+  {
+    char c = mEditString.Get()[i];
+    mCharWidths.Get()[i] = GetCharWidth(c, pc);
+    pc = c;
+  }
 }
 
 void ITextEntryControl::CalcCursorSizes()
 {
-  //TODO:
+  //TODO: cache cursor size and location?
 }
 
 float ITextEntryControl::GetCharWidth(char c, char pc)
