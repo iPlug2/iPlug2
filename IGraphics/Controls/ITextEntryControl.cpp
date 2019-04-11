@@ -87,10 +87,16 @@ void ITextEntryControl::Draw(IGraphics& g)
   g.FillRect(mText.mTextEntryBGColor, mRECT);
   g.DrawText(mText, mEditString.Get(), mRECT);
   
-  //TODO: draw selection rect
-  
-  if(mDrawCursor)
-    g.DrawVerticalLine(mText.mTextEntryFGColor, mRECT.GetVPadded(-2.f), 0.4f);
+  if (mDrawCursor)
+  {
+    float cursorPos = 0.0f;
+    for (int i = 0; i < mCharWidths.GetSize() && i < mEditState.cursor; ++i)
+    {
+      cursorPos += mCharWidths.Get()[i];
+    }
+    cursorPos /= mRECT.W();
+    g.DrawVerticalLine(mText.mTextEntryFGColor, mRECT.GetVPadded(-2.f), cursorPos);
+  }
 }
 
 template<typename Proc>
