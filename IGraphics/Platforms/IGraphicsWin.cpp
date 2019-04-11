@@ -155,6 +155,20 @@ void IGraphicsWin::CheckTabletInput(UINT msg)
   }
 }
 
+void IGraphicsWin::DestroyEditWindow()
+{
+ if (mParamEditWnd)
+ {
+   SetWindowLongPtr(mParamEditWnd, GWLP_WNDPROC, (LPARAM) mDefEditProc);
+   DestroyWindow(mParamEditWnd);
+   mParamEditWnd = nullptr;
+   mEdControl = nullptr;
+   mDefEditProc = nullptr;
+   DeleteObject(mEditFont);
+   mEditFont = nullptr;
+ }
+}
+
 // static
 LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -227,17 +241,13 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
               {
                 pGraphics->mEdControl->OnTextEntryCompletion(txt);
               }
-              // Fall through.
+              DestroyEditWindow();
             }
+            break;
+                  
             case kCancel:
             {
-              SetWindowLongPtr(pGraphics->mParamEditWnd, GWLP_WNDPROC, (LPARAM) pGraphics->mDefEditProc);
-              DestroyWindow(pGraphics->mParamEditWnd);
-              pGraphics->mParamEditWnd = nullptr;
-              pGraphics->mEdControl = nullptr;
-              pGraphics->mDefEditProc = nullptr;
-              DeleteObject(pGraphics->mEditFont);
-              pGraphics->mEditFont = nullptr;
+              DestroyEditWindow();
             }
             break;
           }
@@ -634,6 +644,7 @@ IGraphicsWin::~IGraphicsWin()
   StaticStorage<WinFontDescriptor>::Accessor descriptorStorage(sFontDescriptorCache);
   fontStorage.Release();
   descriptorStorage.Release();
+  DestroyEditWindow();
   CloseWindow();
 }
 

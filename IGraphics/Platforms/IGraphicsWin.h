@@ -51,6 +51,7 @@ public:
 #endif
 
   void CheckTabletInput(UINT msg);
+  void DestroyEditWindow();
     
   void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override;
