@@ -86,7 +86,8 @@ void ITextEntryControl::Draw(IGraphics& g)
 {
   g.FillRect(mText.mTextEntryBGColor, mRECT);
 
-  if (mEditState.select_start != mEditState.select_end)
+  const bool hasSelection = mEditState.select_start != mEditState.select_end;
+  if (hasSelection)
   {
     float selectionStart = 0.0f, selectionEnd = 0.0f;
     const int start = std::min(mEditState.select_start, mEditState.select_end);
@@ -109,7 +110,7 @@ void ITextEntryControl::Draw(IGraphics& g)
 
   g.DrawText(mText, mEditString.Get(), mRECT);
   
-  if (mDrawCursor)
+  if (mDrawCursor && !hasSelection)
   {
     float cursorPos = 0.0f;
     for (int i = 0; i < mCharWidths.GetSize() && i < mEditState.cursor; ++i)
@@ -186,7 +187,10 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
     {
       case 'A':
       {
-        //TODO: Select All
+        CallSTB([&] {
+          mEditState.select_start = 0;
+          mEditState.select_end = mEditString.GetLength();
+        });
         return true;
       }
       case 'X':
