@@ -216,12 +216,10 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
   
   switch (key.VK)
   {
-    case kVK_SPACE: stbKey = kVK_SPACE; break;
+    case kVK_SPACE: stbKey = ' '; break;
     case kVK_TAB: return false;
     case kVK_DELETE: stbKey = STB_TEXTEDIT_K_DELETE; break;
     case kVK_BACK: stbKey = STB_TEXTEDIT_K_BACKSPACE; break;
-    // #TODO: left, right, home, end: on windows will require modifying key handling in IGraphicsWin
-    // #TODO: up and down, once multi-line editing is supported
     case kVK_RETURN: CommitEdit(); break;
     case kVK_ESCAPE: DismissEdit(); break;
     default:
@@ -233,8 +231,7 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
       if(key.VK >= 'A' && key.VK <= 'Z')
         break;
       else
-      // TODO: need to shift correct bits for VK
-//        stbKey = (key.VK) | VIRTUAL_KEY_BIT;
+        stbKey = (key.VK) | VIRTUAL_KEY_BIT;
       break;
     }
   }

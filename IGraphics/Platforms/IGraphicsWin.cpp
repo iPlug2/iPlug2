@@ -398,7 +398,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       // TODO: should get unicode?
       bool handle = false;
 
-      if (len == 1)
+      // send when len is 0 because wParam might be something like VK_LEFT or VK_HOME, etc.
+      if (len == 0 || len == 1)
       {
         char str[2];
         str[0] = static_cast<char>(character);
