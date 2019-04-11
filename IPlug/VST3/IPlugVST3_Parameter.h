@@ -19,6 +19,7 @@
 using namespace Steinberg;
 using namespace Vst;
 
+/** VST3 parameter helper */
 class IPlugVST3Parameter : public Parameter
 {
 public:
@@ -77,6 +78,7 @@ protected:
   IParam* mIPlugParam = nullptr;
 };
 
+/** VST3 preset parameter helper */
 class IPlugVST3PresetParameter : public Parameter
 {
 public:
@@ -87,6 +89,7 @@ public:
     OBJ_METHODS(IPlugVST3PresetParameter, Parameter)
 };
 
+/** VST3 bypass parameter helper */
 class IPlugVST3BypassParameter : public StringListParameter
 {
 public:

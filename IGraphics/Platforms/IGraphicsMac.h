@@ -10,8 +10,6 @@
 
 #pragma once
 
-#ifndef NO_IGRAPHICS
-
 #include "IGraphics_select.h"
 #include <CoreText/CoreText.h>
 #include <CoreGraphics/CoreGraphics.h>
@@ -102,5 +100,3 @@ private:
   WDL_String mBundleID;
   friend int GetMouseOver(IGraphicsMac* pGraphics);
 };
-
-#endif // NO_IGRAPHICS

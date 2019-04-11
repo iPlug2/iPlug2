@@ -14,12 +14,20 @@
  * @file
  * @copydoc IGraphics
  * @defgroup IGraphicsStructs IGraphics::Structs
+ * Utility structures and classes for IGraphics
  * @defgroup DrawClasses IGraphics::DrawClasses
+ * The IGraphics draw classes allow the actual drawing to be performed using different drawing API back-ends.
+ * A project-wide definition such as IGRAPHICS_CAIRO, chooses which gets used at compile time
  * @defgroup PlatformClasses IGraphics::PlatformClasses
+ * The IGraphics platform classes deal with event handling and platform specific contextual UI
  * @defgroup Controls IGraphics::IControls
+ * UI Widgets, such as knobs, sliders, buttons
  * @defgroup BaseControls IGraphics::IControls::BaseControls
+ * Base classes, to simplify making certain kinds of control
  * @defgroup SpecialControls IGraphics::IControls::SpecialControls
+ * Special controls live outside the main stack, for implementing things like the corner resizer
  * @defgroup TestControls IGraphics::IControls::TestControls
+ * The IGraphicsTest project includes lots of IControls to test functionality, which can also be used to understand how things work
  */
 
 #ifndef NO_IGRAPHICS

@@ -53,8 +53,8 @@ typedef std::function<void(ILambdaControl*, IGraphics&, IRECT&)> ILambdaDrawFunc
 
 void DefaultClickActionFunc(IControl* pCaller);
 void DefaultAnimationFunc(IControl* pCaller);
-void FlashCircleClickActionFunc(IControl* pCaller);
-void FlashCircleClickAnimationFunc(IControl* pCaller);
+void SplashClickActionFunc(IControl* pCaller);
+void SplashAnimationFunc(IControl* pCaller);
 
 typedef std::chrono::high_resolution_clock Time;
 typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimePoint;
