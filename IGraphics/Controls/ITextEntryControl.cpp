@@ -172,8 +172,10 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
   {
     case kVK_SPACE: stbKey = kVK_SPACE; break;
     case kVK_TAB: return false;
-    case kVK_DELETE: stbKey = kVK_DELETE; break;
-    case kVK_BACK: stbKey = kVK_BACK; break;
+    case kVK_DELETE: stbKey = STB_TEXTEDIT_K_DELETE; break;
+    case kVK_BACK: stbKey = STB_TEXTEDIT_K_BACKSPACE; break;
+    // #TODO: left, right, home, end: on windows will require modifying key handling in IGraphicsWin
+    // #TODO: up and down, once multi-line editing is supported
     case kVK_RETURN: CommitEdit(); break;
     case kVK_ESCAPE: DismissEdit(); break;
     default:
