@@ -85,9 +85,9 @@ public:
 
     glViewport(0, 0, w, h);
 
-    glEnable(GL_SCISSOR_TEST);
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
+//    glEnable(GL_SCISSOR_TEST);
+//    glEnable(GL_CULL_FACE);
+//    glEnable(GL_DEPTH_TEST);
 
     glScissor(0, 0, w, h);
     glClearColor(0.f, 0.f, 0.f, 0.f);
@@ -95,9 +95,9 @@ public:
 
     DrawGL();
 
-    glDisable(GL_SCISSOR_TEST);
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
+//    glDisable(GL_SCISSOR_TEST);
+//    glDisable(GL_CULL_FACE);
+//    glDisable(GL_DEPTH_TEST);
 
     glViewport(vp[0], vp[1], vp[2], vp[3]);
 
@@ -116,69 +116,84 @@ public:
   }
 
 #ifdef IGRAPHICS_GL
-  //https://www.wikihow.com/Make-a-Cube-in-OpenGL
   void DrawGL()
   {
-    // Reset transformations
-    glLoadIdentity();
-
-    // Rotate when user changes rotate_x and rotate_y
-    glRotatef(mXRotation, 1.0, 0.0, 0.0);
-    glRotatef(mYRotation, 0.0, 1.0, 0.0);
-
-    // Yellow side - FRONT
-    glBegin(GL_POLYGON);
-    glColor3f(1.0, 1.0, 0.0); 
-    glVertex3f(0.5, -0.5, -0.5);
-    glVertex3f(0.5, 0.5, -0.5);
-    glVertex3f(-0.5, 0.5, -0.5);
-    glVertex3f(-0.5, -0.5, -0.5);
-    glEnd();
-
-    // White side - BACK
-    glBegin(GL_POLYGON);
-    glColor3f(1.0, 1.0, 1.0);
-    glVertex3f(0.5, -0.5, 0.5);
-    glVertex3f(0.5, 0.5, 0.5);
-    glVertex3f(-0.5, 0.5, 0.5);
-    glVertex3f(-0.5, -0.5, 0.5);
-    glEnd();
-
-    // Purple side - RIGHT
-    glBegin(GL_POLYGON);
-    glColor3f(1.0, 0.0, 1.0);
-    glVertex3f(0.5, -0.5, -0.5);
-    glVertex3f(0.5, 0.5, -0.5);
-    glVertex3f(0.5, 0.5, 0.5);
-    glVertex3f(0.5, -0.5, 0.5);
-    glEnd();
-
-    // Green side - LEFT
-    glBegin(GL_POLYGON);
-    glColor3f(0.0, 1.0, 0.0);
-    glVertex3f(-0.5, -0.5, 0.5);
-    glVertex3f(-0.5, 0.5, 0.5);
-    glVertex3f(-0.5, 0.5, -0.5);
-    glVertex3f(-0.5, -0.5, -0.5);
-    glEnd();
-
-    // Blue side - TOP
-    glBegin(GL_POLYGON);
-    glColor3f(0.0, 0.0, 1.0);
-    glVertex3f(0.5, 0.5, 0.5);
-    glVertex3f(0.5, 0.5, -0.5);
-    glVertex3f(-0.5, 0.5, -0.5);
-    glVertex3f(-0.5, 0.5, 0.5);
-    glEnd();
-
-    // Red side - BOTTOM
-    glBegin(GL_POLYGON);
-    glColor3f(1.0, 0.0, 0.0);
-    glVertex3f(0.5, -0.5, -0.5);
-    glVertex3f(0.5, -0.5, 0.5);
-    glVertex3f(-0.5, -0.5, 0.5);
-    glVertex3f(-0.5, -0.5, -0.5);
-    glEnd();
+    // code from emscripten tests
+    
+    auto compileShader = [](GLenum shaderType, const char *src) {
+      GLuint shader = glCreateShader(shaderType);
+      glShaderSource(shader, 1, &src, NULL);
+      glCompileShader(shader);
+      
+      GLint isCompiled = 0;
+      glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
+      if (!isCompiled)
+      {
+        GLint maxLength = 0;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
+        char *buf = (char*)malloc(maxLength+1);
+        glGetShaderInfoLog(shader, maxLength, &maxLength, buf);
+        printf("%s\n", buf);
+        free(buf);
+        return GLuint(0);
+      }
+      
+      return shader;
+    };
+    
+    auto createProgram = [](GLuint vertexShader, GLuint fragmentShader) {
+      GLuint program = glCreateProgram();
+      glAttachShader(program, vertexShader);
+      glAttachShader(program, fragmentShader);
+      glBindAttribLocation(program, 0, "apos");
+      glBindAttribLocation(program, 1, "acolor");
+      glLinkProgram(program);
+      return program;
+    };
+    
+    static const char vs_str[] =
+    "attribute vec4 apos;"
+    "attribute vec4 acolor;"
+    "varying vec4 color;"
+    "void main() {"
+    "color = acolor;"
+    "gl_Position = apos;"
+    "}";
+    GLuint vs = compileShader(GL_VERTEX_SHADER, vs_str);
+    
+    static const char fs_str[] =
+#ifdef OS_WEB
+    "precision lowp float;"
+#endif
+    "varying vec4 color;"
+    "uniform vec4 color2;"
+    "void main() {"
+    "gl_FragColor = color*color2;"
+    "}";
+    GLuint fs = compileShader(GL_FRAGMENT_SHADER, fs_str);
+    
+    GLuint program = createProgram(vs, fs);
+    glUseProgram(program);
+    
+    static const float posAndColor[] = {
+      //     x,     y, r, g, b
+      -0.6f, -0.6f, 1, 0, 0,
+      0.6f, -0.6f, 0, 1, 0,
+      0.f,   0.6f, 0, 0, 1,
+    };
+    
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(posAndColor), posAndColor, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 20, 0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 20, (void*)8);
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    
+    float color2[4] = { 0.0f, 1.f, 0.0f, 1.0f };
+    glUniform4fv(glGetUniformLocation(program, "color2"), 1, color2);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
   }
 #endif
 
