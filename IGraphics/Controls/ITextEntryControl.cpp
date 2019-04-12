@@ -87,10 +87,13 @@ void ITextEntryControl::Draw(IGraphics& g)
 {
   g.FillRect(mText.mTextEntryBGColor, mRECT);
 
+  StbTexteditRow row;
+  Layout(&row, this, 0);
+
   const bool hasSelection = mEditState.select_start != mEditState.select_end;
   if (hasSelection)
   {
-    float selectionStart = 0.0f, selectionEnd = 0.0f;
+    float selectionStart = row.x0, selectionEnd = row.x0;
     const int start = std::min(mEditState.select_start, mEditState.select_end);
     const int end = std::max(mEditState.select_start, mEditState.select_end);
     for (int i = 0; i < mCharWidths.GetSize() && i < end; ++i)
@@ -103,8 +106,8 @@ void ITextEntryControl::Draw(IGraphics& g)
       selectionEnd += mCharWidths.Get()[i];
     }
     IRECT selectionRect = mRECT.GetVPadded(-2.f);
-    selectionRect.R = selectionRect.L + selectionEnd;
-    selectionRect.L += selectionStart;
+    selectionRect.L = selectionStart;
+    selectionRect.R = selectionEnd;
     IBlend blend(kBlendDefault, 0.2);
     g.FillRect(mText.mTextEntryFGColor, selectionRect, &blend);
   }
@@ -113,13 +116,15 @@ void ITextEntryControl::Draw(IGraphics& g)
   
   if (mDrawCursor && !hasSelection)
   {
-    float cursorPos = 0.0f;
+    float cursorPos = row.x0;
     for (int i = 0; i < mCharWidths.GetSize() && i < mEditState.cursor; ++i)
     {
       cursorPos += mCharWidths.Get()[i];
     }
-    cursorPos /= mRECT.W();
-    g.DrawVerticalLine(mText.mTextEntryFGColor, mRECT.GetVPadded(-2.f), cursorPos);
+    IRECT cursorRect = mRECT.GetVPadded(-2.f);
+    cursorRect.L = roundf(cursorPos);
+    cursorRect.R = cursorRect.L;
+    g.FillRect(mText.mTextEntryFGColor, cursorRect);
   }
 }
 
@@ -355,15 +360,21 @@ void ITextEntryControl::Layout(StbTexteditRow* row, ITextEntryControl* _this, in
   {
     case IText::kAlignNear:
     {
-      row->x0 = static_cast<float> (_this->GetRECT().L); // TODO: inset?
+      // TODO: may want some kind of inset here because the cursor winds up a bit close to the text in Center and Far alignments
+      row->x0 = _this->GetRECT().L; 
       row->x1 = row->x0 + textWidth;
       break;
     }
     case IText::kAlignCenter:
     {
-      row->x0 = static_cast<float> ((_this->GetRECT().W() / 2.) - (textWidth / 2.));
+      row->x0 = roundf(_this->GetRECT().MW() - (textWidth * 0.5f));
       row->x1 = row->x0 + textWidth;
       break;
+    }
+    case IText::kAlignFar:
+    {
+      row->x0 = _this->GetRECT().R - textWidth;
+      row->x1 = row->x0 + textWidth;
     }
     default:
     {
