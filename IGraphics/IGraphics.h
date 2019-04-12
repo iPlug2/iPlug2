@@ -79,14 +79,12 @@ protected:
   class PlatformFont
   {
   public:
-      
     virtual ~PlatformFont() {}
 
     virtual const void* GetDescriptor() { return nullptr; }
     virtual IFontDataPtr GetFontData() { return IFontDataPtr(new IFontData()); }
 
   protected:
-      
     int GetFaceIdx(const void* data, int dataSize, const char* styleName);
   };
 
@@ -494,12 +492,14 @@ public:
    * @param thickness /todo */
   virtual void DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints = nullptr, const IBlend* pBlend = 0, float thickness = 1.f);
   
-   /** @param fontID A string that is used to reference the font
-    * @param fileNameOrResID A CString absolute path or resource ID
-    * @return \c true on success */
+  /** Load a font to be used by the graphics context
+   * @param fontID A CString that will be used to reference the font
+   * @param fileNameOrResID A CString absolute path or resource ID
+   * @return \c true on success */
   virtual bool LoadFont(const char* fontID, const char* fileNameOrResID);
     
-  /** @param fontID A string that is used to reference the font
+  /** \todo
+   * @param fontID A CString that will be used to reference the font
    * @param fontName A CString font name
    * @param style A font style
    * @return \c true on success */

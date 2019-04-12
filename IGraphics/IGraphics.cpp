@@ -668,7 +668,6 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
   if (pControl && (!pControl->IsHidden() || pControl == GetControl(0)))
   {
     // N.B. Padding allows single line outlines on controls
-      
     IRECT controlBounds = pControl->GetRECT().GetPadded(0.75).GetPixelAligned(scale);
     IRECT clipBounds = bounds.Intersect(controlBounds);
 
@@ -682,7 +681,6 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
 #endif
 
 #ifndef NDEBUG
-    // helper for debugging
     if (mShowControlBounds)
     {
       DrawRect(CONTROL_BOUNDS_COLOR, pControl->GetRECT());
@@ -699,7 +697,6 @@ void IGraphics::Draw(const IRECT& bounds, float scale)
   ForAllControlsFunc([this, bounds, scale](IControl& control) { DrawControl(&control, bounds, scale); });
 
 #ifndef NDEBUG
-  // Helper for debugging
   if (mShowAreaDrawn)
   {
     PrepareRegion(bounds);
@@ -831,7 +828,6 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
 
   // N.B. GetMouseControl handles which controls can receive mouseovers
-    
   IControl* pControl = GetMouseControl(x, y, false, true);
     
   if (pControl != mMouseOver)
@@ -853,7 +849,6 @@ void IGraphics::OnMouseOut()
   Trace("IGraphics::OnMouseOut", __LINE__, "");
 
   // Store the old cursor type so this gets restored when the mouse enters again
-    
   mCursorType = SetMouseCursor(ARROW);
   ForAllControls(&IControl::OnMouseOut);
   mMouseOver = nullptr;
@@ -1512,7 +1507,6 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
   RawBitmapData kernel;
     
   // Get bitmap in 32-bit form
-    
   GetLayerBitmapData(layer, temp1);
     
   if (!temp1.GetSize())
@@ -1520,7 +1514,6 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
   temp2.Resize(temp1.GetSize());
     
   // Form kernel (reference blurSize from zero (which will be no blur))
-  
   bool flipped = FlippedBitmap();
   float scale = layer->GetAPIBitmap()->GetScale() * layer->GetAPIBitmap()->GetDrawScale();
   float blurSize = std::max(1.f, (shadow.mBlurSize * scale) + 1.f);

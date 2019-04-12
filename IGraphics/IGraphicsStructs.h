@@ -539,12 +539,12 @@ enum ETextStyle { kTextStyleNormal, kTextStyleBold, kTextStyleItalic };
 
 static const char* TextStyleString(ETextStyle style)
 {
-    switch (style)
-    {
-        case kTextStyleNormal:      return "Regular";
-        case kTextStyleBold:        return "Bold";
-        case kTextStyleItalic:      return "Italic";
-    }
+  switch (style)
+  {
+    case kTextStyleNormal:  return "Regular";
+    case kTextStyleBold:    return "Bold";
+    case kTextStyleItalic:  return "Italic";
+  }
 }
 
 /** Used to manage font and text/text entry style for a piece of text on the UI, independent of draw class/platform.*/
@@ -624,7 +624,6 @@ const IText DEFAULT_TEXT = IText();
 class IFontData : private WDL_TypedBuf<unsigned char>
 {
 public:
-    
   IFontData() : mFaceIdx(-1) {}
     
   IFontData(const void* data, int size, int faceIdx) : mFaceIdx(faceIdx)
@@ -660,7 +659,6 @@ typedef std::unique_ptr<IFontData> IFontDataPtr;
 class IFontInfo
 {
 public:
-  
   IFontInfo(const void* data, uint32_t dataSize, uint32_t faceIdx)
   : mData(reinterpret_cast<const unsigned char*>(data)), mHeadLocation(0), mNameLocation(0), mHheaLocation(0), mMacStyle(0), mUnitsPerEM(0), mAscender(0), mDescender(0), mLineGap(0), mLineHeight(0)
   {
@@ -743,11 +741,6 @@ private:
     {
       uint32_t loc = mNameLocation + 6 + (12 * i);
       
-      uint16_t platform = GetUInt16(loc + 0);
-      uint16_t encoding = GetUInt16(loc + 2);
-      uint16_t language = GetUInt16(loc + 4);
-      uint16_t name = GetUInt16(loc + 6);
-      
       if (platformID == GetUInt16(loc + 0) && encodingID == GetUInt16(loc + 2)
           && languageID == GetUInt16(loc + 4) && nameID == GetUInt16(loc + 6))
       {
@@ -778,19 +771,15 @@ private:
   
   void FindFace(uint32_t faceIdx)
   {
-    // Check if it is a single font
-    
     bool singleFont = IsSingleFont();
     
     if (singleFont && faceIdx == 0 )
       return;
     
     // Check if it's a TTC file
-    
     if (!singleFont && MatchTag(0, "ttcf"))
     {
-      // Check verison
-      
+      // Check version
       if (GetUInt32(4) == 0x00010000 || GetUInt32(4) == 0x00020000)
       {
         if (faceIdx < GetSInt32(8))
@@ -808,8 +797,7 @@ private:
     char TTV1[4] = { '1', 0, 0, 0 };
     char OTV1[4] = { 0, 1, 0, 0 };
     
-    // Check the Version Number
-    
+    // Check the version number
     if (MatchTag(0, TTV1)) return true;   // TrueType 1
     if (MatchTag(0, "typ1")) return true; // TrueType with type 1 font -- we don't support this!
     if (MatchTag(0, "OTTO")) return true; // OpenType with CFF
@@ -831,7 +819,6 @@ private:
 #endif
   
   // Data
-  
   const unsigned char* mData;
   
   uint32_t mHeadLocation;
@@ -840,13 +827,11 @@ private:
   uint32_t mFDscLocation;
   
   // Font Identifiers
-  
   WDL_String mFamily;
   WDL_String mStyle;
   uint16_t mMacStyle;
   
   // Metrics
-  
   uint16_t mUnitsPerEM;
   int16_t mAscender;
   int16_t mDescender;

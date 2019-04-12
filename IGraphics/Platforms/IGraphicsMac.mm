@@ -55,19 +55,19 @@ static double gettm()
 template <class T>
 struct CFLocal
 {
-    CFLocal(T obj) : mObject(obj) {}
-    ~CFLocal() { if (mObject) CFRelease(mObject); }
-    
-    T Get() { return mObject; }
-    
-    T Release()
-    {
-        T prev = mObject;
-        mObject = nullptr;
-        return prev;
-    }
-    
-    T mObject;
+  CFLocal(T obj) : mObject(obj) {}
+  ~CFLocal() { if (mObject) CFRelease(mObject); }
+  
+  T Get() { return mObject; }
+  
+  T Release()
+  {
+    T prev = mObject;
+    mObject = nullptr;
+    return prev;
+  }
+  
+  T mObject;
 };
 
 // Fonts
@@ -87,7 +87,7 @@ IFontDataPtr IGraphicsMac::MacFont::GetFontData()
   const UInt8* bytes = CFDataGetBytePtr(rawData.Get());
   CFLocal<CFStringRef> styleString = (CFStringRef) CTFontDescriptorCopyAttribute(mDescriptor, kCTFontStyleNameAttribute);
   CFStringGetCString(styleString.Get(), styleCString, 64, kCFStringEncodingUTF8);
-  IFontDataPtr fontData(new IFontData(bytes, (int) CFDataGetLength(rawData.Get()), GetFaceIdx(bytes, CFDataGetLength(rawData.Get()), styleCString)));
+  IFontDataPtr fontData(new IFontData(bytes, static_cast<int>(CFDataGetLength(rawData.Get())), GetFaceIdx(bytes, static_cast<int>(CFDataGetLength(rawData.Get())), styleCString)));
   
   return fontData;
 }
