@@ -137,7 +137,10 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
 #ifdef IGRAPHICS_METAL
     pGraphics->AttachControl(new TestMPSControl(nextCell(), smiley));
 #endif
-    
+
+#ifdef IGRAPHICS_NANOVG
+    pGraphics->AttachControl(new TestGLControl(nextCell()));
+#endif
     WDL_String path;
     //    DesktopPath(path);
     path.Set(__FILE__);

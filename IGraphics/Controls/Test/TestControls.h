@@ -36,3 +36,7 @@
 #ifdef IGRAPHICS_METAL
 #include "TestMPSControl.h"
 #endif
+
+#ifdef IGRAPHICS_GL
+#include "TestGLControl.h"
+#endif
