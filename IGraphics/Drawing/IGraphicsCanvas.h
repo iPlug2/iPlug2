@@ -39,7 +39,7 @@ public:
   IGraphicsCanvas(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsCanvas();
 
-  void DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend) override;
+  void DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend) override;
 
   void DrawResize() override {};
 
@@ -59,8 +59,9 @@ public:
   bool BitmapExtSupported(const char* ext) override;
 protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
-  APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
-  APIBitmap* CreateAPIBitmap(int width, int height) override;
+  APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) override;
+
+  bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override;
 
   int AlphaChannel() const override { return 3; }
   bool FlippedBitmap() const override { return false; }
@@ -78,6 +79,8 @@ private:
       
     return canvas.call<val>("getContext", std::string("2d"));
   }
+    
+  bool CompareFontMetrics(const char* style, const char* font1, const char* font2, int size);
     
   double XTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().L; }
   double YTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().T; }

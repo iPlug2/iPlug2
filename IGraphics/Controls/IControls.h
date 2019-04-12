@@ -36,7 +36,7 @@ class IVButtonControl : public IButtonControlBase
                       , public IVectorBase
 {
 public:
-  IVButtonControl(IRECT bounds, IActionFunction actionFunc = FlashCircleClickActionFunc,
+  IVButtonControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc,
     const char* str = "", const IText& text = DEFAULT_TEXT, const IVColorSpec& colorSpec = DEFAULT_SPEC);
 
   void Draw(IGraphics& g) override;
@@ -50,7 +50,7 @@ class IVSwitchControl : public ISwitchControlBase
                       , public IVectorBase
 {
 public:
-  IVSwitchControl(IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = FlashCircleClickActionFunc,
+  IVSwitchControl(IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = SplashClickActionFunc,
                   const char* label = "", const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2);
 
   void Draw(IGraphics& g) override;
@@ -66,7 +66,7 @@ class IVRadioButtonControl : public ISwitchControlBase
                            , public IVectorBase
 {
 public:
-  IVRadioButtonControl(IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = FlashCircleClickActionFunc,
+  IVRadioButtonControl(IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = SplashClickActionFunc,
                        const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2, EDirection dir = kVertical);
 
   virtual ~IVRadioButtonControl() { mLabels.Empty(true); }
@@ -198,7 +198,7 @@ public:
   {}
 
   IBButtonControl(IRECT bounds, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
-  : IButtonControlBase(bounds, actionFunc)
+  : IButtonControlBase(bounds.GetCentredInside(bitmap), actionFunc)
   , IBitmapBase(bitmap)
   {}
 
@@ -227,7 +227,7 @@ public:
   : IBitmapControl(x, y, bitmap, paramIdx) {}
 
   IBSwitchControl(IRECT bounds, const IBitmap& bitmap, int paramIdx = kNoParameter)
-  : IBitmapControl(bounds, bitmap, paramIdx) {}
+  : IBitmapControl(bounds.GetCentredInside(bitmap), bitmap, paramIdx) {}
 
   virtual ~IBSwitchControl() {}
 

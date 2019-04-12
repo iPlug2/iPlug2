@@ -163,6 +163,9 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          IGRAPHICS_MENU \
                          IGRAPHICS_MENU_RCVR \
                          IGRAPHICS_VIEW \
+                         IGRAPHICS_TEXTFIELD \
+                         IGRAPHICS_TEXTFIELD_CELL \
+                         IGraphicsIOS_View \
                          LineInfo \
                          StaticStorage \
                          CocoaAutoReleasePool \

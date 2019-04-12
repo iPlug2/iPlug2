@@ -44,7 +44,7 @@ public:
 
     SetColor(kBG, COLOR_WHITE);
 
-    mNameLabelText = IText(14, GetColor(kFR), DEFAULT_FONT, IText::kStyleNormal, IText::kAlignNear, IText::kVAlignBottom);
+    mNameLabelText = IText(14, GetColor(kFR), DEFAULT_FONT, IText::kAlignNear, IText::kVAlignBottom);
   }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
@@ -159,8 +159,8 @@ private:
 
   float mPadding = 1.f;
   IText& mNameLabelText = mText;
-  IText mAPILabelText = IText(14, GetColor(kFR), DEFAULT_FONT, IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop);
-  IText mTopLabelText = IText(18, GetColor(kFR), DEFAULT_FONT, IText::kStyleNormal, IText::kAlignFar, IText::kVAlignTop);
-  IText mBottomLabelText = IText(15, GetColor(kFR), DEFAULT_FONT, IText::kStyleNormal, IText::kAlignFar, IText::kVAlignBottom);
+  IText mAPILabelText = IText(14, GetColor(kFR), DEFAULT_FONT, IText::kAlignNear, IText::kVAlignTop);
+  IText mTopLabelText = IText(18, GetColor(kFR), DEFAULT_FONT, IText::kAlignFar, IText::kVAlignTop);
+  IText mBottomLabelText = IText(15, GetColor(kFR), DEFAULT_FONT, IText::kAlignFar, IText::kVAlignBottom);
 };
 

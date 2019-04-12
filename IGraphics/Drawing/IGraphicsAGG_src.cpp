@@ -40,6 +40,5 @@
 #ifdef OS_WIN
 //#include "agg_win312_pmap.cpp"
  #include "agg_win32_pmap.cpp"
- #include "agg_win32_font.cpp"
 #endif
 #endif //IGRAPHICS_AGG

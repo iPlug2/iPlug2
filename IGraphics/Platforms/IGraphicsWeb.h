@@ -15,9 +15,12 @@
 #include <emscripten/bind.h>
 #include <emscripten/html5.h>
 
+#include <utility>
+
 #include "IPlugPlatform.h"
 
 #include "IGraphics_select.h"
+
 
 using namespace emscripten;
 
@@ -36,14 +39,39 @@ static val GetPreloadedImages()
 class IGraphicsWeb final : public IGRAPHICS_DRAW_CLASS
 {
 public:
+  
+  class WebFont : public PlatformFont
+  {
+  public:
+    WebFont(const char* fontName, const char* fontStyle)
+    : mDescriptor{fontName, fontStyle}
+    {}
+    
+    const void* GetDescriptor() override { return reinterpret_cast<const void*>(&mDescriptor); }
+    
+  private:
+    std::pair<WDL_String, WDL_String> mDescriptor;
+  };
+    
+  class WebFileFont : public WebFont
+  {
+  public:
+    WebFileFont(const char* fontName, const char* fontStyle, const char* fontPath)
+    : WebFont(fontName, fontStyle), mPath(fontPath)
+    {}
+    
+    IFontDataPtr GetFontData() override;
+    
+  private:
+    WDL_String mPath;
+  };
+  
   IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsWeb();
 
   void DrawResize() override;
 
   const char* GetPlatformAPIStr() override { return "WEB"; }
-
-  void SetPlatformContext(void* pContext) override {} // TODO:
 
   void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override { /* NOT SUPPORTABLE*/ }
@@ -71,4 +99,9 @@ public:
 protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
+    
+private:
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
+  void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override {}
 };

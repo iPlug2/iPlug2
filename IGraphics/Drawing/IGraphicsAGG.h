@@ -23,6 +23,8 @@
 #include "IGraphicsPathBase.h"
 #include "IGraphicsAGG_src.h"
 
+#include "heapbuf.h"
+
 template <class SpanGeneratorType>
 class alpha_span_generator : public SpanGeneratorType
 {
@@ -73,15 +75,13 @@ public:
     double mWidth;
     LineInfo() : mWidth(0.0), mStartChar(0), mEndChar(0) {}
   };
-
+  
 #ifdef OS_WIN
   typedef agg::order_bgra PixelOrder;
   typedef agg::pixel_map_win32 PixelMapType;
-  typedef agg::font_win32 FontType;
 #elif defined OS_MAC
   typedef agg::order_argb PixelOrder;
   typedef agg::pixel_map_mac PixelMapType;
-  typedef agg::font_mac FontType;
 #else
 #error NOT IMPLEMENTED
 #endif
@@ -101,7 +101,7 @@ public:
   typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, SpanGeneratorType> BitmapRenderType;
   // Font types
   typedef agg::font_engine_freetype_int32 FontEngineType;
-  typedef agg::font_cache_manager <FontEngineType> FontManagerType;
+  typedef agg::font_cache_manager<FontEngineType> FontManagerType;
 
   class Rasterizer
   {
@@ -263,7 +263,7 @@ public:
 
   void DrawResize() override;
 
-  void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
+  void DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
 
   void PathClear() override { mPath.remove_all(); }
   void PathClose() override { mPath.close_polygon(); }
@@ -287,12 +287,11 @@ public:
   
   bool BitmapExtSupported(const char* ext) override;
 
-  bool LoadFont(const char* fileName) override;
-
 protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
-  APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int s) override;
-  APIBitmap* CreateAPIBitmap(int width, int height) override;
+  APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) override;
+
+  bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override;
 
   int AlphaChannel() const override { return PixelOrder().A; }
   bool FlippedBitmap() const override { return false; }
@@ -304,7 +303,7 @@ protected:
 
 private:
   
-  agg::font* FindFont(const char* font, int size);
+  bool SetFont(const char* fontID, IFontData* pFont);
 
   void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& bounds, const char* str, FontManagerType& manager);
 

@@ -8,7 +8,6 @@
  ==============================================================================
 */
 
-
 #include "IGraphics.h"
 
 #define NANOSVG_IMPLEMENTATION
@@ -21,7 +20,7 @@ typedef IPlugVST3 VST3_API_BASE;
 #elif defined VST3C_API
 #include "pluginterfaces/base/ustring.h"
 #include "IPlugVST3_Controller.h"
-#include "IPlugVST3_view.h"
+#include "IPlugVST3_View.h"
 typedef IPlugVST3Controller VST3_API_BASE;
 #endif
 
@@ -35,6 +34,22 @@ typedef IPlugVST3Controller VST3_API_BASE;
 #include "ICornerResizerControl.h"
 #include "IPopupMenuControl.h"
 #include "ITextEntryControl.h"
+
+int IGraphics::PlatformFont::GetFaceIdx(const void* data, int dataSize, const char* styleName)
+{
+  for (int idx = 0; ; idx++)
+  {
+    IFontInfo fontInfo(data, dataSize, idx);
+
+    if (!fontInfo.IsValid())
+      return -1;
+
+    const WDL_String& style = fontInfo.GetStyle();
+
+    if (style.GetLength() && (!styleName[0] || !strcmp(style.Get(), styleName)))
+      return idx;
+  }
+}
 
 struct SVGHolder
 {
@@ -454,7 +469,7 @@ bool IGraphics::DrawText(const IText& text, const char* str, float x, float y, c
   return DrawText(text, str, bounds, pBlend);
 }
 
-void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int bmpState, const IBlend* pBlend)
+void IGraphics::DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int bmpState, const IBlend* pBlend)
 {
   int srcX = 0;
   int srcY = 0;
@@ -476,7 +491,7 @@ void IGraphics::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int bmpState, c
   return DrawBitmap(bitmap, bounds, srcX, srcY, pBlend);
 }
 
-void IGraphics::DrawBitmapedText(IBitmap& bitmap, IRECT& bounds, IText& text, IBlend* pBlend, const char* str, bool vCenter, bool multiline, int charWidth, int charHeight, int charOffset)
+void IGraphics::DrawBitmapedText(const IBitmap& bitmap, IRECT& bounds, IText& text, IBlend* pBlend, const char* str, bool vCenter, bool multiline, int charWidth, int charHeight, int charOffset)
 {
   if (CStringHasContents(str))
   {
@@ -652,7 +667,6 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
   if (pControl && (!pControl->IsHidden() || pControl == GetControl(0)))
   {
     // N.B. Padding allows single line outlines on controls
-      
     IRECT controlBounds = pControl->GetRECT().GetPadded(0.75).GetPixelAligned(scale);
     IRECT clipBounds = bounds.Intersect(controlBounds);
 
@@ -666,7 +680,6 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
 #endif
 
 #ifndef NDEBUG
-    // helper for debugging
     if (mShowControlBounds)
     {
       DrawRect(CONTROL_BOUNDS_COLOR, pControl->GetRECT());
@@ -683,7 +696,6 @@ void IGraphics::Draw(const IRECT& bounds, float scale)
   ForAllControlsFunc([this, bounds, scale](IControl& control) { DrawControl(&control, bounds, scale); });
 
 #ifndef NDEBUG
-  // Helper for debugging
   if (mShowAreaDrawn)
   {
     PrepareRegion(bounds);
@@ -815,7 +827,6 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
 
   // N.B. GetMouseControl handles which controls can receive mouseovers
-    
   IControl* pControl = GetMouseControl(x, y, false, true);
     
   if (pControl != mMouseOver)
@@ -837,7 +848,6 @@ void IGraphics::OnMouseOut()
   Trace("IGraphics::OnMouseOut", __LINE__, "");
 
   // Store the old cursor type so this gets restored when the mouse enters again
-    
   mCursorType = SetMouseCursor(ARROW);
   ForAllControls(&IControl::OnMouseOut);
   mMouseOver = nullptr;
@@ -1265,10 +1275,22 @@ void IGraphics::RetainBitmap(const IBitmap& bitmap, const char* cacheName)
 
 IBitmap IGraphics::ScaleBitmap(const IBitmap& inBitmap, const char* name, int scale)
 {
-  APIBitmap* pAPIBitmap = ScaleAPIBitmap(inBitmap.GetAPIBitmap(), scale);
-  IBitmap bitmap = IBitmap(pAPIBitmap, inBitmap.N(), inBitmap.GetFramesAreHorizontal(), name);
+  int screenScale = GetScreenScale();
+  double drawScale = GetDrawScale();
+
+  mScreenScale = scale;
+  mDrawScale = inBitmap.GetDrawScale();
+
+  IRECT bounds = IRECT(0, 0, inBitmap.W() / inBitmap.GetDrawScale(), inBitmap.H() / inBitmap.GetDrawScale());
+  StartLayer(bounds);
+  DrawBitmap(inBitmap, bounds, 0, 0, nullptr);
+  ILayerPtr layer = EndLayer();
+  IBitmap bitmap = IBitmap(layer->mBitmap.release(), inBitmap.N(), inBitmap.GetFramesAreHorizontal(), name);
   RetainBitmap(bitmap, name);
 
+  mScreenScale = screenScale;
+  mDrawScale = drawScale;
+    
   return bitmap;
 }
 
@@ -1292,7 +1314,7 @@ EResourceLocation IGraphics::SearchImageResource(const char* name, const char* t
     
     if (sourceScale != 1)
     {
-      WDL_String baseName(fullName.get_filepart()); baseName.remove_fileext();
+      WDL_String baseName(name); baseName.remove_fileext();
       WDL_String ext(fullName.get_fileext());
       fullName.SetFormatted((int) (strlen(name) + strlen("@2x")), "%s@%dx%s", baseName.Get(), sourceScale, ext.Get());
     }
@@ -1356,10 +1378,10 @@ IPopupMenu* IGraphics::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IC
 void IGraphics::StartLayer(const IRECT& r)
 {
   IRECT alignedBounds = r.GetPixelAligned(GetBackingPixelScale());
-  const int w = static_cast<int>(std::ceil(alignedBounds.W()));
-  const int h = static_cast<int>(std::ceil(alignedBounds.H()));
+  const int w = static_cast<int>(std::ceil(GetBackingPixelScale() * std::ceil(alignedBounds.W())));
+  const int h = static_cast<int>(std::ceil(GetBackingPixelScale() * std::ceil(alignedBounds.H())));
 
-  PushLayer(new ILayer(CreateAPIBitmap(w, h), alignedBounds), true);
+  PushLayer(new ILayer(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds), true);
 }
 
 void IGraphics::ResumeLayer(ILayerPtr& layer)
@@ -1456,14 +1478,14 @@ void GaussianBlurSwap(unsigned char *out, unsigned char *in, unsigned char *kern
         accum += kernel[k] * in[(j - k) * 4];
       for (int k = 1; k < kernelSize; k++)
         accum += kernel[k] * in[(j + k) * 4];
-      out[j * outStride + (i * 4)] = std::min(static_cast<unsigned long>(255), accum / norm);
+      out[j * outStride + (i * 4)] = static_cast<unsigned char>(std::min(static_cast<unsigned long>(255), accum / norm));
     }
     for (int j = kernelSize - 1; j < (width - kernelSize) + 1; j++)
     {
       unsigned long accum = in[j * 4] * kernel[0];
       for (int k = 1; k < kernelSize; k++)
         accum += kernel[k] * (in[(j - k) * 4] + in[(j + k) * 4]);
-      out[j * outStride + (i * 4)] = std::min(static_cast<unsigned long>(255), accum / norm);
+      out[j * outStride + (i * 4)] = static_cast<unsigned char>(std::min(static_cast<unsigned long>(255), accum / norm));
     }
     for (int j = (width - kernelSize) + 1; j < width; j++)
     {
@@ -1472,7 +1494,7 @@ void GaussianBlurSwap(unsigned char *out, unsigned char *in, unsigned char *kern
         accum += kernel[k] * in[(j - k) * 4];
       for (int k = 1; k < width - j; k++)
         accum += kernel[k] * in[(j + k) * 4];
-      out[j * outStride + (i * 4)] = std::min(static_cast<unsigned long>(255), accum / norm);
+      out[j * outStride + (i * 4)] = static_cast<unsigned char>(std::min(static_cast<unsigned long>(255), accum / norm));
     }
   }
 }
@@ -1484,7 +1506,6 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
   RawBitmapData kernel;
     
   // Get bitmap in 32-bit form
-    
   GetLayerBitmapData(layer, temp1);
     
   if (!temp1.GetSize())
@@ -1492,12 +1513,11 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
   temp2.Resize(temp1.GetSize());
     
   // Form kernel (reference blurSize from zero (which will be no blur))
-  
   bool flipped = FlippedBitmap();
-  double scale = layer->GetAPIBitmap()->GetScale() * layer->GetAPIBitmap()->GetDrawScale();
-  double blurSize = std::max(1.0, (shadow.mBlurSize * scale) + 1.0);
-  double blurConst = 4.5 / (blurSize * blurSize);
-  int iSize = ceil(blurSize);
+  float scale = layer->GetAPIBitmap()->GetScale() * layer->GetAPIBitmap()->GetDrawScale();
+  float blurSize = std::max(1.f, (shadow.mBlurSize * scale) + 1.f);
+  float blurConst = 4.5f / (blurSize * blurSize);
+  int iSize = static_cast<int>(ceil(blurSize));
   int width = layer->GetAPIBitmap()->GetWidth();
   int height = layer->GetAPIBitmap()->GetHeight();
   int stride1 = temp1.GetSize() / width;
@@ -1507,7 +1527,7 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
   kernel.Resize(iSize);
         
   for (int i = 0; i < iSize; i++)
-    kernel.Get()[i] = std::round(255.f * std::expf(-(i * i) * blurConst));
+    kernel.Get()[i] = static_cast<uint8_t>(std::round(255.f * std::expf(-(i * i) * blurConst)));
   
   // Kernel normalisation
   
@@ -1528,4 +1548,38 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
   // Apply alphas to the pattern and recombine/replace the image
     
   ApplyShadowMask(layer, temp1, shadow);
+}
+
+bool IGraphics::LoadFont(const char* fontID, const char* fileNameOrResID)
+{
+  PlatformFontPtr font = LoadPlatformFont(fontID, fileNameOrResID);
+  
+  if (font)
+  {
+    if (LoadAPIFont(fontID, font))
+    {
+      CachePlatformFont(fontID, font);
+      return true;
+    }
+  }
+  
+  DBGMSG("Could not locate font %s\n", fileNameOrResID);
+  return false;
+}
+
+bool IGraphics::LoadFont(const char* fontID, const char* fontName, ETextStyle style)
+{
+  PlatformFontPtr font = LoadPlatformFont(fontID, fontName, style);
+  
+  if (font)
+  {
+    if (LoadAPIFont(fontID, font))
+    {
+      CachePlatformFont(fontID, font);
+      return true;
+    }
+  }
+  
+  DBGMSG("Could not locate font %s\n", fontID);
+  return false;
 }

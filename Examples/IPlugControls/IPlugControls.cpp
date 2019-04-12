@@ -94,13 +94,13 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     
     IRECT b = pGraphics->GetBounds().GetPadded(-5);
     
-    pGraphics->LoadFont(ROBOTTO_FN);
+    pGraphics->LoadFont("Roboto-Regular", ROBOTTO_FN);
     const IBitmap bitmap1 = pGraphics->LoadBitmap(PNGKNOB_FN, 60);
     const IBitmap bitmap2 = pGraphics->LoadBitmap(PNGKNOBROTATE_FN);
     const ISVG vectorknob = pGraphics->LoadSVG(SVGKNOBROTATE_FN);
     
-    const IText bigLabel {24, COLOR_WHITE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop, 0};
-    const IText buttonLabels {14, COLOR_BLACK, "Roboto-Regular", IText::kStyleNormal, IText::kAlignCenter, IText::kVAlignMiddle, 0};
+    const IText bigLabel {24, COLOR_WHITE, "Roboto-Regular", IText::kAlignNear, IText::kVAlignTop, 0};
+    const IText buttonLabels {14, COLOR_BLACK, "Roboto-Regular", IText::kAlignCenter, IText::kVAlignMiddle, 0};
 
     
     const int nRows = 5;
@@ -118,7 +118,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new IVSliderControl(b.GetGridCell(6, nRows, nCols).GetGridCell(3, 3, 2), kNoParameter, DEFAULT_SPEC, kHorizontal));
     pGraphics->AttachControl(new IVSwitchControl(b.GetGridCell(7, nRows, nCols).GetCentredInside(50.), kMode, [](IControl* pCaller)
     {
-      FlashCircleClickActionFunc(pCaller);
+      SplashClickActionFunc(pCaller);
       dynamic_cast<IVectorBase*>(pCaller)->SetRoundness(pCaller->GetValue());
     }));
     
@@ -127,7 +127,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new ISVGKnob(b.GetGridCell(8, nRows, nCols).GetCentredInside(100), vectorknob, kGain));
     
     auto button1action = [](IControl* pCaller) {
-      FlashCircleClickActionFunc(pCaller);
+      SplashClickActionFunc(pCaller);
       int result = pCaller->GetUI()->ShowMessageBox("Message", "Title in Bold", kMB_YESNO);
       WDL_String str;
       str.SetFormatted(32, "%s pressed", kMessageResultStrs[result]);
@@ -135,14 +135,14 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     };
     
     auto button2action = [](IControl* pCaller) {
-      FlashCircleClickActionFunc(pCaller);
+      SplashClickActionFunc(pCaller);
       WDL_String file, path;
       pCaller->GetUI()->PromptForFile(file, path);
       dynamic_cast<ITextControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagDialogResult))->SetStr(file.Get());
     };
     
     auto button3action = [](IControl* pCaller) {
-      FlashCircleClickActionFunc(pCaller);
+      SplashClickActionFunc(pCaller);
       WDL_String dir;
       pCaller->GetUI()->PromptForDirectory(dir);
       dynamic_cast<ITextControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagDialogResult))->SetStr(dir.Get());

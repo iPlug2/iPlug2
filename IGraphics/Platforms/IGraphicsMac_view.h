@@ -8,8 +8,6 @@
  ==============================================================================
 */
 
-#ifndef NO_IGRAPHICS
-
 #import <Cocoa/Cocoa.h>
 //#import <WebKit/WebKit.h>
 
@@ -152,5 +150,3 @@ inline NSColor* ToNSColor(const IColor& c)
 
 - (id) initWithIGraphicsView: (IGRAPHICS_VIEW*) pGraphics;
 @end
-
-#endif //NO_IGRAPHICS

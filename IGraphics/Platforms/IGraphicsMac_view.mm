@@ -8,8 +8,6 @@
  ==============================================================================
 */
 
-#ifndef NO_IGRAPHICS
-
 #ifdef IGRAPHICS_NANOVG
 #import <QuartzCore/QuartzCore.h>
 #endif
@@ -418,10 +416,8 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (NSOpenGLPixelFormat *)openGLPixelFormatForDisplayMask:(uint32_t)mask
 {
-  NSOpenGLPixelFormatAttribute profile;
-  #if defined IGRAPHICS_GL2
-    profile = NSOpenGLProfileVersionLegacy;
-  #elif defined IGRAPHICS_GL3
+  NSOpenGLPixelFormatAttribute profile = NSOpenGLProfileVersionLegacy;
+  #if defined IGRAPHICS_GL3
     profile = (NSOpenGLPixelFormatAttribute)NSOpenGLProfileVersion3_2Core;
   #endif
   
@@ -991,14 +987,9 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
     [mTextFieldView setDrawsBackground: TRUE];
   }
 
-  //TODO: address font types for platform text entries
-#ifdef IGRAPHICS_NANOVG
-  NSString* font = [NSString stringWithUTF8String: "Arial"];
-#else
-  NSString* font = [NSString stringWithUTF8String: text.mFont];
-#endif
-
-  [mTextFieldView setFont: [NSFont fontWithName:font size: text.mSize * 0.75f]];
+  NSFontDescriptor*  fontDescriptor = (NSFontDescriptor*) mGraphics->GetCTFontDescriptor(text);
+  NSFont* font = [NSFont fontWithDescriptor: fontDescriptor size: text.mSize * 0.75];
+  [mTextFieldView setFont: font];
   
   switch (text.mAlign)
   {
@@ -1169,5 +1160,3 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 //}
 
 @end
-
-#endif //NO_IGRAPHICS

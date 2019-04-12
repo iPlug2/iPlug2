@@ -19,42 +19,13 @@
 
 // Thanks to Olli Wang/MOUI for much of this macro magic  https://github.com/ollix/moui
 
-#if defined IGRAPHICS_GLES2
-  #define IGRAPHICS_GL
-  #if defined OS_IOS
-    #include <OpenGLES/ES2/gl.h>
-  #elif defined OS_WEB
-    #include <GLES2/gl2.h>
-  #endif
-#elif defined IGRAPHICS_GLES3
-  #define IGRAPHICS_GL
-  #if defined OS_IOS
-    #include <OpenGLES/ES3/gl.h>
-  #elif defined OS_WEB
-    #include <GLES3/gl3.h>
-  #endif
-#elif defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
-  #define IGRAPHICS_GL
-  #if defined OS_WIN
-    #include <glad/glad.h>
-  #elif defined OS_MAC
-    #if defined IGRAPHICS_GL2
-      #include <OpenGL/gl.h>
-    #elif defined IGRAPHICS_GL3
-      #include <OpenGL/gl3.h>
-    #endif
-  #else
-    #include <OpenGL/gl.h>
-  #endif
+#if defined IGRAPHICS_GL
+  #define NANOVG_FBO_VALID 1
+  #include "nanovg_gl_utils.h"
 #elif defined IGRAPHICS_METAL
   #include "nanovg_mtl.h"
 #else
   #error you must define either IGRAPHICS_GL2, IGRAPHICS_GLES2 etc or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
-#endif
-
-#ifdef IGRAPHICS_GL
-  #define NANOVG_FBO_VALID 1
-  #include "nanovg_gl_utils.h"
 #endif
 
 #if defined IGRAPHICS_GL2
@@ -117,6 +88,7 @@ private:
 class IGraphicsNanoVG : public IGraphicsPathBase
 {
 public:
+  
   const char* GetDrawingAPIStr() override;
 
   IGraphicsNanoVG(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
@@ -128,7 +100,7 @@ public:
   void OnViewDestroyed() override;
   void DrawResize() override;
 
-  void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
+  void DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
 
   void DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness, float dashLen) override;
   void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness, float dashLen) override;
@@ -146,21 +118,17 @@ public:
   void* GetDrawContext() override { return (void*) mVG; }
     
   IBitmap LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale) override;
-  IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, int targetScale) override { return bitmap; } // NO-OP
   void ReleaseBitmap(const IBitmap& bitmap) override { }; // NO-OP
   void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override { }; // NO-OP
   bool BitmapExtSupported(const char* ext) override;
-
-  bool LoadFont(const char* fileName) override;
-  
-  void SetPlatformContext(void* pContext) override;
 
   void DeleteFBO(NVGframebuffer* pBuffer);
     
 protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
-  APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override { return new APIBitmap(); } // NO-OP
-  APIBitmap* CreateAPIBitmap(int width, int height) override;
+  APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) override;
+
+  bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override;
 
   int AlphaChannel() const override { return 3; }
   

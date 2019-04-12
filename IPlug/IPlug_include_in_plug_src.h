@@ -63,7 +63,7 @@
 
 #pragma mark - VST3
 #elif defined VST3_API || VST3C_API || defined VST3P_API
-#include "public.sdk/source/main/pluginfactoryvst3.h"
+#include "public.sdk/source/main/pluginfactory.h"
 #include "pluginterfaces/vst/ivstcomponent.h"
 #include "pluginterfaces/vst/ivsteditcontroller.h"
 
