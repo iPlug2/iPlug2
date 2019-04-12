@@ -14,6 +14,7 @@
  * @file
  * @brief IPlug Constant definitions, Types, magic numbers
  * @defgroup IPlugConstants IPlug::Constants
+ * IPlug Constant definitions, Types, magic numbers
  * @{
  */
 

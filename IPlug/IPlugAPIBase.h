@@ -29,11 +29,12 @@
  * @file
  * @copydoc IPlugAPIBase
  * @defgroup APIClasses IPlug::APIClasses
+ * An IPlug API class is the base class for a particular audio plug-in API
 */
 
 struct IPlugConfig;
 
-/** The base class of an IPlug plug-in, which interacts with the different plug-in APIs. No UI framework code here.
+/** The base class of an IPlug plug-in, which interacts with the different plug-in APIs.
  *  This interface does not handle audio processing, see @IPlugProcessor  */
 class IPlugAPIBase : public IPluginBase
 {

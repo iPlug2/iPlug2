@@ -8,8 +8,6 @@
  ==============================================================================
 */
 
-#ifndef NO_IGRAPHICS
-
 #import <Cocoa/Cocoa.h>
 //#import <WebKit/WebKit.h>
 
@@ -144,5 +142,3 @@ inline NSColor* ToNSColor(const IColor& c)
 //
 - (void) setMouseCursor: (ECursor) cursorType;
 @end
-
-#endif //NO_IGRAPHICS

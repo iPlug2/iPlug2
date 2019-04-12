@@ -40,7 +40,7 @@ void DefaultAnimationFunc(IControl* pCaller)
   }
 };
 
-void FlashCircleAnimationFunc(IControl* pCaller)
+void SplashAnimationFunc(IControl* pCaller)
 {
   auto progress = pCaller->GetAnimationProgress();
   
@@ -49,13 +49,13 @@ void FlashCircleAnimationFunc(IControl* pCaller)
     return;
   }
   
-  dynamic_cast<IVectorBase*>(pCaller)->SetFlashCircleRadius((float) progress);
+  dynamic_cast<IVectorBase*>(pCaller)->SetSplashRadius((float) progress);
   
   pCaller->SetDirty(false);
 };
 
 void DefaultClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(DefaultAnimationFunc, DEFAULT_ANIMATION_DURATION); };
-void FlashCircleClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(FlashCircleAnimationFunc, DEFAULT_ANIMATION_DURATION); }
+void SplashClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(SplashAnimationFunc, DEFAULT_ANIMATION_DURATION); }
 
 IControl::IControl(IRECT bounds, int paramIdx, IActionFunction actionFunc)
 : mRECT(bounds)

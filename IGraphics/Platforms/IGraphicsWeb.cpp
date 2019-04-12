@@ -20,6 +20,36 @@ using namespace emscripten;
 
 extern IGraphics* gGraphics;
 
+// Font
+
+IFontDataPtr IGraphicsWeb::WebFileFont::GetFontData()
+{
+  IFontDataPtr fontData(new IFontData());
+  FILE* fp = fopen(mPath.Get(), "rb");
+  
+  // Read in the font data.
+  
+  if (!fp)
+    return fontData;
+  
+  fseek(fp,0,SEEK_END);
+  fontData.reset(new IFontData((int) ftell(fp)));
+  
+  if (!fontData->GetSize())
+    return fontData;
+  
+  fseek(fp,0,SEEK_SET);
+  size_t readSize = fread(fontData->Get(), 1, fontData->GetSize(), fp);
+  fclose(fp);
+  
+  if (readSize && readSize == fontData->GetSize())
+    fontData->SetFaceIdx(0);
+  
+  return fontData;
+}
+
+// Key combos
+
 static int domVKToWinVK(int dom_vk_code)
 {
   switch(dom_vk_code)
@@ -282,7 +312,7 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
     case EMSCRIPTEN_EVENT_CLICK: break;
     case EMSCRIPTEN_EVENT_MOUSEDOWN: pGraphics->OnMouseDown(x, y, modifiers); break;
     case EMSCRIPTEN_EVENT_MOUSEUP: pGraphics->OnMouseUp(x, y, modifiers); break;
-    case EMSCRIPTEN_EVENT_DBLCLICK: pGraphics->OnMouseDblClick(x, y, modifiers);break;
+    case EMSCRIPTEN_EVENT_DBLCLICK: pGraphics->OnMouseDblClick(x, y, modifiers); break;
     case EMSCRIPTEN_EVENT_MOUSEMOVE:
       if(pEvent->buttons == 0)
         pGraphics->OnMouseOver(x, y, modifiers);
@@ -331,6 +361,8 @@ EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* pEvent, void* 
   
   return true;
 }
+
+#pragma mark -
 
 IGraphicsWeb::IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
@@ -535,6 +567,24 @@ void IGraphicsWeb::DrawResize()
   canvas.set("height", Height() * GetBackingPixelScale());
   
   IGRAPHICS_DRAW_CLASS::DrawResize();
+}
+
+IGraphics::PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
+{
+  WDL_String fullPath;
+  const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, GetBundleID(), nullptr);
+  
+  if (fontLocation == kNotFound)
+    return nullptr;
+
+  return PlatformFontPtr(new WebFileFont(fontID, "", fullPath.Get()));
+}
+
+IGraphics::PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
+{
+  const char* styles[] = { "normal", "bold", "italic" };
+  
+  return PlatformFontPtr(new WebFont(fontName, styles[style]));
 }
 
 #if defined IGRAPHICS_CANVAS

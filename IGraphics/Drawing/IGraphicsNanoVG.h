@@ -88,6 +88,7 @@ private:
 class IGraphicsNanoVG : public IGraphicsPathBase
 {
 public:
+  
   const char* GetDrawingAPIStr() override;
 
   IGraphicsNanoVG(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
@@ -121,15 +122,13 @@ public:
   void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override { }; // NO-OP
   bool BitmapExtSupported(const char* ext) override;
 
-  bool LoadFont(const char* fileName) override;
-  
-  void SetPlatformContext(void* pContext) override;
-
   void DeleteFBO(NVGframebuffer* pBuffer);
     
 protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) override;
+
+  bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override;
 
   int AlphaChannel() const override { return 3; }
   

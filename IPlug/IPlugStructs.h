@@ -13,6 +13,7 @@
 /**
  * @file Structures in small classes used throughout the IPlug code base
  * @defgroup IPlugStructs IPlug::Structs
+ * Structures in small classes used throughout the IPlug code base
  * @{
  */
 
