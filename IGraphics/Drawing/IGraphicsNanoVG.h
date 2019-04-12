@@ -90,13 +90,6 @@
   typedef MNVGframebuffer NVGframebuffer;
 #endif
 
-//FIXME: for some reason the render to offscreen frame buffer approach, causes strobing with macOS GL, so set everything dirty...
-#if defined IGRAPHICS_GL && defined IGRAPHICS_NANOVG
-  #define RENDER_TO_FBO 0
-#else
-  #define RENDER_TO_FBO 1
-#endif
-
 void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData);
 
 // Forward declaration
@@ -191,13 +184,12 @@ private:
   void UpdateLayer() override;
   void ClearFBOStack();
     
-  // A stack of FBOs that requires freeing at the end of the frame
   
   bool mInDraw = false;
   WDL_Mutex mFBOMutex;
-  std::stack<NVGframebuffer*> mFBOStack;
-    
+  std::stack<NVGframebuffer*> mFBOStack; // A stack of FBOs that requires freeing at the end of the frame
   StaticStorage<APIBitmap> mBitmapCache; //not actually static (doesn't require retaining or releasing)
   NVGcontext* mVG = nullptr;
-  NVGframebuffer* mMainFrameBuffer = nullptr;    
+  NVGframebuffer* mMainFrameBuffer = nullptr;
+  int mInitialFBO = 0;
 };

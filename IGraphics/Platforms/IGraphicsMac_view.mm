@@ -398,7 +398,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   if ( self != nil )
   {
     self.needsDisplayOnBoundsChange = YES;
-    self.asynchronous = YES;
+    self.asynchronous = NO;
   }
   
   return self;
@@ -441,19 +441,13 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   return [[NSOpenGLPixelFormat alloc] initWithAttributes:kAttributes];
 }
 
-- (BOOL)canDrawInOpenGLContext:(NSOpenGLContext *)context pixelFormat:(NSOpenGLPixelFormat *)pixelFormat forLayerTime:(CFTimeInterval)timeInterval displayTime:(const CVTimeStamp *)timeStamp
-{
-  return [mView shouldRender];
-//  return YES;
-}
+//- (BOOL)canDrawInOpenGLContext:(NSOpenGLContext *)context pixelFormat:(NSOpenGLPixelFormat *)pixelFormat forLayerTime:(CFTimeInterval)timeInterval displayTime:(const CVTimeStamp *)timeStamp
+//{
+//}
 
 - (void)drawInOpenGLContext:(NSOpenGLContext *)context pixelFormat:(NSOpenGLPixelFormat *)pixelFormat forLayerTime:(CFTimeInterval)timeInterval displayTime:(const CVTimeStamp *)timeStamp
 {
-  [context makeCurrentContext];
-  
   [mView render];
-  
-  [context flushBuffer];
 }
 
 @end
@@ -479,6 +473,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     self.layer = [CAMetalLayer new];
     #elif defined IGRAPHICS_GL
     self.layer = [[IGRAPHICS_GLLAYER alloc] initWithIGraphicsView:self];
+    [self wantsBestResolutionOpenGLSurface];
     #endif
     self.layer.opaque = YES;
     self.wantsLayer = YES;
@@ -487,12 +482,10 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
   [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
 
-#ifndef IGRAPHICS_GL
   double sec = 1.0 / (double) pGraphics->FPS();
   mTimer = [NSTimer timerWithTimeInterval:sec target:self selector:@selector(onTimer:) userInfo:nil repeats:YES];
   [[NSRunLoop currentRunLoop] addTimer: mTimer forMode: (NSString*) kCFRunLoopCommonModes];
-#endif
-  
+
   return self;
 }
 
@@ -561,6 +554,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   
   if (newScale != mGraphics->GetScreenScale())
     mGraphics->SetScreenScale(newScale);
+
 }
 
 - (CGContextRef) getCGContextRef
@@ -594,25 +588,9 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   }
 }
 
-- (BOOL) shouldRender
-{
-  //FIXME: for some reason the render to offscreen frame buffer approach, causes strobing with macOS GL, so set everything dirty...
-#if defined IGRAPHICS_GL && defined IGRAPHICS_NANOVG
-  mGraphics->IsDirty(mDirtyRects);
-  mDirtyRects.Clear();
-  mDirtyRects.Add(mGraphics->GetBounds());
-  return YES;
-#else
-  mDirtyRects.Clear();
-  return mGraphics->IsDirty(mDirtyRects);
-#endif
-}
-
 - (void) render
 {
-  mGraphics->SetAllControlsClean();
-  // for layer-backed views drawRect is not called
-#if !defined IGRAPHICS_NANOVG
+#if !defined IGRAPHICS_NANOVG // for layer-backed views drawRect is not called
   for (int i = 0; i < mDirtyRects.Size(); i++)
     [self setNeedsDisplayInRect:ToNSRect(mGraphics, mDirtyRects.Get(i))];
 #else
@@ -623,10 +601,18 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void) onTimer: (NSTimer*) pTimer
 {
-#ifndef IGRAPHICS_GL
-  if([self shouldRender])
+  mDirtyRects.Clear();
+  
+  if (mGraphics->IsDirty(mDirtyRects))
+  {
+#ifdef IGRAPHICS_GL
+    [self.layer setNeedsDisplay];
+#else
+    [self render];
 #endif
-  [self render];
+  }
+  
+  mGraphics->SetAllControlsClean();
 }
 
 - (void) getMouseXY: (NSEvent*) pEvent x: (float&) pX y: (float&) pY

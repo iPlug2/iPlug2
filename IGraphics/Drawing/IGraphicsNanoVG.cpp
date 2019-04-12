@@ -458,24 +458,23 @@ void IGraphicsNanoVG::BeginFrame()
   glViewport(0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
   glClearColor(0.f, 0.f, 0.f, 0.f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  #ifdef OS_WEB
+#ifdef OS_WEB
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_CULL_FACE);
   glDisable(GL_DEPTH_TEST);
-  #endif
+#elif defined OS_MAC
+  glGetIntegerv(GL_FRAMEBUFFER_BINDING, &mInitialFBO);
+#endif
 #endif
   
-#if RENDER_TO_FBO
   nvgBindFramebuffer(mMainFrameBuffer); // begin main frame buffer update
-#endif
-  
+
   nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
 }
 
 void IGraphicsNanoVG::EndFrame()
 {
-#if RENDER_TO_FBO
   nvgEndFrame(mVG); // end main frame buffer update
   nvgBindFramebuffer(nullptr);
 
@@ -490,6 +489,9 @@ void IGraphicsNanoVG::EndFrame()
   nvgFillPaint(mVG, img);
   nvgFill(mVG);
   nvgRestore(mVG);
+  
+#if defined OS_MAC && defined IGRAPHICS_GL
+  glBindFramebuffer(GL_FRAMEBUFFER, mInitialFBO); // restore apple fbo
 #endif
   
   nvgEndFrame(mVG);
@@ -508,7 +510,6 @@ void IGraphicsNanoVG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, i
   assert(pAPIBitmap);
     
   // First generate a scaled image paint
-    
   NVGpaint imgPaint;
   double scale = 1.0 / (pAPIBitmap->GetScale() * pAPIBitmap->GetDrawScale());
 
