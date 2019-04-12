@@ -29,24 +29,24 @@ public:
   {
     SetTooltip("TestGLControl");
 
-    SetActionFunction([&](IControl* pCaller)
-    {
-      SetAnimation([&](IControl* pCaller)
-      {
-        auto progress = pCaller->GetAnimationProgress();
-
-        mXRotation += progress * 5.;
-        mYRotation += progress * 10.;
-
-        pCaller->SetDirty(false);
-
-        if (progress > 1.) {
-          pCaller->OnEndAnimation();
-          return;
-        }
-
-      }, 1000);
-    });
+//    SetActionFunction([&](IControl* pCaller)
+//    {
+//      SetAnimation([&](IControl* pCaller)
+//      {
+//        auto progress = pCaller->GetAnimationProgress();
+//
+//        mXRotation += progress * 5.;
+//        mYRotation += progress * 10.;
+//
+//        pCaller->SetDirty(false);
+//
+//        if (progress > 1.) {
+//          pCaller->OnEndAnimation();
+//          return;
+//        }
+//
+//      }, 1000);
+//    });
   }
   
   ~TestGLControl()
@@ -66,7 +66,6 @@ public:
     int w = static_cast<int>(mRECT.W() * g.GetDrawScale());
     int h = static_cast<int>(mRECT.H() * g.GetDrawScale());
     
-    
     if(mFBO == nullptr)
       mFBO = nvgCreateFramebuffer(vg, w, h, 0);
     
@@ -74,7 +73,6 @@ public:
     g.FillRect(mMouseIsOver ? COLOR_TRANSLUCENT : COLOR_TRANSPARENT, mRECT);
 
 #ifdef IGRAPHICS_GL
-
     nvgEndFrame(vg);
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &mInitialFBO);
 
@@ -200,8 +198,8 @@ public:
 private:
   NVGframebuffer* mFBO = nullptr;
   int mInitialFBO = 0;
-  double mYRotation = 0;
-  double mXRotation = 0;
+//  double mYRotation = 0;
+//  double mXRotation = 0;
 };
 
 #endif
