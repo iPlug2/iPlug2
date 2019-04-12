@@ -870,52 +870,52 @@ struct IRECT
    * @return IRECT /todo */
   inline IRECT GetFromBRHC(float w, float h) const { return IRECT(R-w, B-h, R, B); }
 
-  /** /todo 
-   * @param amount /todo
-   * @return IRECT /todo */
+  /** Get a subrect of this IRECT bounded in Y by the top edge and 'amount'
+   * @param amount Size in Y of the desired IRECT
+   * @return IRECT The resulting subrect */
   inline IRECT GetFromTop(float amount) const { return IRECT(L, T, R, T+amount); }
 
-  /** /todo 
-   * @param amount /todo
-   * @return IRECT /todo */
+  /** Get a subrect of this IRECT bounded in Y by 'amount' and the bottom edge
+   * @param amount Size in Y of the desired IRECT
+   * @return IRECT The resulting subrect */
   inline IRECT GetFromBottom(float amount) const { return IRECT(L, B-amount, R, B); }
 
-  /** /todo 
-   * @param amount /todo
-   * @return IRECT /todo */
+  /** Get a subrect of this IRECT bounded in X by the left edge and 'amount'
+   * @param amount Size in X of the desired IRECT
+   * @return IRECT The resulting subrect */
   inline IRECT GetFromLeft(float amount) const { return IRECT(L, T, L+amount, B); }
 
-  /** /todo 
-   * @param amount /todo
-   * @return IRECT /todo */
+  /** Get a subrect of this IRECT bounded in X by 'amount' and the right edge
+   * @param amount Size in X of the desired IRECT
+   * @return IRECT The resulting subrect */
   inline IRECT GetFromRight(float amount) const { return IRECT(R-amount, T, R, B); }
   
-  /** /todo 
-   * @param amount /todo
-   * @return IRECT /todo */
+  /** Get a subrect of this IRECT reduced in height from the top edge by 'amount'
+   * @param amount Size in Y to reduce by
+   * @return IRECT The resulting subrect */
   inline IRECT GetReducedFromTop(float amount) const { return IRECT(L, T+amount, R, B); }
 
-  /** /todo 
-   * @param amount /todo
-   * @return IRECT /todo */
+  /** Get a subrect of this IRECT reduced in height from the bottom edge by 'amount'
+   * @param amount Size in Y to reduce by
+   * @return IRECT The resulting subrect */
   inline IRECT GetReducedFromBottom(float amount) const { return IRECT(L, T, R, B-amount); }
 
-  /** /todo
-   * @param amount /todo
-   * @return IRECT /todo */
+  /** Get a subrect of this IRECT reduced in width from the left edge by 'amount'
+   * @param amount Size in X to reduce by
+   * @return IRECT The resulting subrect */
   inline IRECT GetReducedFromLeft(float amount) const { return IRECT(L+amount, T, R, B); }
 
-  /** /todo 
-   * @param amount /todo
-   * @return IRECT /todo  */
+  /** Get a subrect of this IRECT reduced in width from the right edge by 'amount'
+   * @param amount Size in X to reduce by
+   * @return IRECT The resulting subrect */
   inline IRECT GetReducedFromRight(float amount) const { return IRECT(L, T, R-amount, B); }
   
-  /** /todo 
-   * @param row /todo
-   * @param col /todo
-   * @param nRows /todo
-   * @param nColumns /todo
-   * @return IRECT /todo */
+  /** Get a subrect (by row, column) of this IRECT which is a cell in a grid of size (nRows * nColumns)
+   * @param row Row index of the desired subrect
+   * @param col Column index of the desired subrect
+   * @param nRows Number of rows in the cell grid
+   * @param nColumns Number of columns in the cell grid
+   * @return IRECT The resulting subrect */
   inline IRECT GetGridCell(int row, int col, int nRows, int nColumns/*, EDirection = kHorizontal*/) const
   {
     assert(row * col <= nRows * nColumns); // not enough cells !
@@ -924,12 +924,12 @@ struct IRECT
     return vrect.SubRectHorizontal(nColumns, col);
   }
   
-  /** /todo 
-   * @param cellIndex /todo
-   * @param nRows /todo
-   * @param nColumns /todo
-   * @param dir /todo
-   * @return IRECT /todo */
+  /** Get a subrect (by index) of this IRECT which is a cell in a grid of size (nRows * nColumns)
+   * @param cellIndex Index of the desired cell in the cell grid
+   * @param nRows Number of rows in the cell grid
+   * @param nColumns Number of columns in the cell grid
+   * @param dir Desired direction of indexing, by row (kHorizontal) or by column (kVertical)
+   * @return IRECT The resulting subrect */
   inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns, EDirection dir = kHorizontal) const
   {
     assert(cellIndex <= nRows * nColumns); // not enough cells !
