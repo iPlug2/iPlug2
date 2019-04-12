@@ -113,7 +113,6 @@ private:
   inline IMouseInfo IGraphicsWin::GetMouseInfoDeltas(float&dX, float& dY, LPARAM lParam, WPARAM wParam);
   bool MouseCursorIsLocked();
 
-  MMRESULT mMMTimerHandle;
 #ifdef IGRAPHICS_GL
   //OpenGL context management - TODO: RAII instead?
   void CreateGLContext();
@@ -130,6 +129,7 @@ private:
 
   HINSTANCE mHInstance = nullptr;
   HWND mPlugWnd = nullptr;
+  HANDLE mTimer = nullptr;
   HWND mParamEditWnd = nullptr;
   HWND mTooltipWnd = nullptr;
   HWND mParentWnd = nullptr;
@@ -154,5 +154,5 @@ public:
   static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
   static LRESULT CALLBACK ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
   static BOOL CALLBACK FindMainWindow(HWND hWnd, LPARAM lParam);
-  static void CALLBACK MMTimerCallback(UINT uTimerID, UINT uMsg, DWORD_PTR param, DWORD_PTR dw1, DWORD_PTR dw2);
+  static void CALLBACK TimerProc(void* param, BOOLEAN timerCalled);
 };

@@ -166,6 +166,17 @@ void IGraphicsWin::DestroyEditWindow()
 }
 
 // static
+void CALLBACK IGraphicsWin::TimerProc(void* param, BOOLEAN timerCalled)
+{
+  IGraphicsWin* pGraphics = static_cast<IGraphicsWin*>(param);
+
+  if (pGraphics->mParamEditMsg == kNone)
+    InvalidateRect(pGraphics->mPlugWnd, &pGraphics->mInvalidRECT, FALSE);
+  else
+    ValidateRect(pGraphics->mPlugWnd, &pGraphics->mValidRECT); // make sure we dont redraw the edit box area
+};
+
+// static
 LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 
@@ -175,9 +186,12 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     SetWindowLongPtr(hWnd, GWLP_USERDATA, (LPARAM) (lpcs->lpCreateParams));
     IGraphicsWin* pGraphics = (IGraphicsWin*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
     int mSec = static_cast<int>(std::round(1000.0 / pGraphics->FPS()));
+    SetTimer(hWnd, IPLUG_TIMER_ID, mSec, NULL); // event timer
 
-    pGraphics->mMMTimerHandle = timeSetEvent(mSec, 0, MMTimerCallback, reinterpret_cast<DWORD>(hWnd), TIME_PERIODIC | TIME_KILL_SYNCHRONOUS);
-    SetTimer(hWnd, IPLUG_TIMER_ID, mSec, NULL);
+    BOOL success = CreateTimerQueueTimer(&pGraphics->mTimer, NULL, TimerProc, pGraphics, 0, mSec, WT_EXECUTEINTIMERTHREAD);
+
+    assert(success);
+
     SetFocus(hWnd); // gets scroll wheel working straight away
     DragAcceptFiles(hWnd, true);
     return 0;
@@ -274,6 +288,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
             //InvalidateRect(hWnd, &r, FALSE); //TODO could queue?
           //}
           IRECT dirtyR = rects.Bounds();
+          dirtyR.Scale(pGraphics->GetDrawScale());
+          dirtyR.PixelAlign();
           pGraphics->mInvalidRECT = { (LONG)dirtyR.L, (LONG)dirtyR.T, (LONG)dirtyR.R, (LONG)dirtyR.B };
 
           if (pGraphics->mParamEditWnd)
@@ -1047,7 +1063,12 @@ void IGraphicsWin::CloseWindow()
       mTooltipIdx = -1;
     }
 
+#if 0
     timeKillEvent(mMMTimerHandle);
+#else
+    DeleteTimerQueueTimer(NULL, mTimer, NULL);
+    mTimer = nullptr;
+#endif
 
     DestroyWindow(mPlugWnd);
     mPlugWnd = 0;
@@ -1724,17 +1745,6 @@ void IGraphicsWin::CachePlatformFont(const char* fontID, const PlatformFontPtr& 
 
   if (!descriptorStorage.Find(fontID))
     descriptorStorage.Add(new WinFontDescriptor(descriptor), fontID);
-}
-
-void CALLBACK IGraphicsWin::MMTimerCallback(UINT uTimerID, UINT uMsg, DWORD_PTR param, DWORD_PTR dw1, DWORD_PTR dw2)
-{
-  HWND hWnd = (HWND)param;
-  IGraphicsWin* pGraphics = (IGraphicsWin*) GetWindowLongPtr(hWnd, GWLP_USERDATA);
-
-  if (pGraphics->mParamEditMsg == kNone)
-    InvalidateRect(hWnd, &pGraphics->mInvalidRECT, FALSE);
-  else
-    ValidateRect(hWnd, &pGraphics->mValidRECT); // make sure we dont redraw the edit box area
 }
 
 //TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT
