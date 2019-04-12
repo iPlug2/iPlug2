@@ -18,6 +18,7 @@
 #include "IControl.h"
 #include "IGraphics_select.h"
 
+#ifdef IGRAPHICS_NANOVG
  /** Control to test Drawing in 3D in supporting backends
   *   @ingroup TestControls */
 class TestGLControl : public IControl
@@ -47,6 +48,12 @@ public:
       }, 1000);
     });
   }
+  
+  ~TestGLControl()
+  {
+    if (mFBO)
+      nvgDeleteFramebuffer(mFBO);
+  }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
@@ -55,40 +62,54 @@ public:
 
   void Draw(IGraphics& g) override
   {
+    NVGcontext* vg = static_cast<NVGcontext*>(g.GetDrawContext());
+    int w = static_cast<int>(mRECT.W() * g.GetDrawScale());
+    int h = static_cast<int>(mRECT.H() * g.GetDrawScale());
+    
+    
+    if(mFBO == nullptr)
+      mFBO = nvgCreateFramebuffer(vg, w, h, 0);
+    
     g.DrawDottedRect(COLOR_BLACK, mRECT);
-
-#ifdef IGRAPHICS_GL
     g.FillRect(mMouseIsOver ? COLOR_TRANSLUCENT : COLOR_TRANSPARENT, mRECT);
 
-    if (!g.CheckLayer(mLayer))
-    {
-      g.StartLayer(mRECT);
+#ifdef IGRAPHICS_GL
 
-      GLint vp[4];
-      glGetIntegerv(GL_VIEWPORT, vp);
+    nvgEndFrame(vg);
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &mInitialFBO);
 
-      glViewport(0, 0, mRECT.W() * g.GetDrawScale(), mRECT.H() * g.GetDrawScale());
+    nvgBindFramebuffer(mFBO);
+    nvgBeginFrame(vg, w, h, g.GetScreenScale());
+    GLint vp[4];
+    glGetIntegerv(GL_VIEWPORT, vp);
 
-      glEnable(GL_SCISSOR_TEST);
-      glEnable(GL_CULL_FACE);
-      glEnable(GL_DEPTH_TEST);
+    glViewport(0, 0, w, h);
 
-      glScissor(0, 0, mRECT.W() * g.GetDrawScale(), mRECT.H() * g.GetDrawScale());
-      glClearColor(0.f, 0.f, 0.f, 0.f);
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glEnable(GL_SCISSOR_TEST);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
 
-      DrawGL();
+    glScissor(0, 0, w, h);
+    glClearColor(0.f, 0.f, 0.f, 0.f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-      glDisable(GL_SCISSOR_TEST);
-      glDisable(GL_CULL_FACE);
-      glDisable(GL_DEPTH_TEST);
+    DrawGL();
 
-      glViewport(vp[0], vp[1], vp[2], vp[3]);
+    glDisable(GL_SCISSOR_TEST);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
 
-      mLayer = g.EndLayer();
-    }
+    glViewport(vp[0], vp[1], vp[2], vp[3]);
 
-    g.DrawLayer(mLayer);
+    nvgEndFrame(vg);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, mInitialFBO);
+    nvgBeginFrame(vg, g.WindowWidth(), g.WindowHeight(), g.GetScreenScale());
+
+    APIBitmap apibmp {mFBO->image, w, h, 1, 1.};
+    IBitmap bmp {&apibmp, 1, false};
+    
+    g.DrawFittedBitmap(bmp, mRECT);
 #else
     g.DrawText(mText, "UNSUPPORTED", mRECT);
 #endif
@@ -161,16 +182,11 @@ public:
   }
 #endif
 
-  void SetDirty(bool push) override
-  {
-    if(mLayer)
-      mLayer->Invalidate();
-
-    IControl::SetDirty(push);
-  }
-
 private:
-  ILayerPtr mLayer;
+  NVGframebuffer* mFBO = nullptr;
+  int mInitialFBO = 0;
   double mYRotation = 0;
   double mXRotation = 0;
 };
+
+#endif
