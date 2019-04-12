@@ -418,6 +418,13 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (NSOpenGLPixelFormat *)openGLPixelFormatForDisplayMask:(uint32_t)mask
 {
+  NSOpenGLPixelFormatAttribute profile;
+  #if defined IGRAPHICS_GL2
+    profile = NSOpenGLProfileVersionLegacy;
+  #elif defined IGRAPHICS_GL3
+    profile = (NSOpenGLPixelFormatAttribute)NSOpenGLProfileVersion3_2Core;
+  #endif
+  
   const NSOpenGLPixelFormatAttribute kAttributes[] =  {
     NSOpenGLPFAAccelerated,
     NSOpenGLPFANoRecovery,
@@ -426,15 +433,11 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     NSOpenGLPFAColorSize, 24,
     NSOpenGLPFADepthSize, 0,
     NSOpenGLPFAStencilSize, 8,
-//#if defined IGRAPHICS_GL2
-//    NSOpenGLProfileVersionLegacy,
-//#elif defined IGRAPHICS_GL3
-//    (NSOpenGLPixelFormatAttribute)NSOpenGLProfileVersion3_2Core,
-//#endif
+    NSOpenGLPFAOpenGLProfile, profile,
     (NSOpenGLPixelFormatAttribute) 0
     
   };
-  
+
   return [[NSOpenGLPixelFormat alloc] initWithAttributes:kAttributes];
 }
 
