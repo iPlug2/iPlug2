@@ -140,9 +140,10 @@ public:
    * @param pSelectedMenu If pSelectedMenu is invalid it means the user didn't select anything */
   virtual void OnPopupMenuSelection(IPopupMenu* pSelectedMenu);
 
-  /** Implement this method to hand text input after IGraphics::CreateTextEntry/IControl::PromptUserInput
+  /** Implement this method to handle text input after IGraphics::CreateTextEntry/IControl::PromptUserInput
+   * The default implementation will attempt to convert the string to an appropriate IParam value if this control has an IParam.
    * @param str A CString with the inputted text */
-  virtual void OnTextEntryCompletion(const char* str) {}
+  virtual void OnTextEntryCompletion(const char* str);
 
   /** Implement this to respond to a menu selection from CreateContextMenu(); @see CreateContextMenu() */
   virtual void OnContextSelection(int itemSelected) {}

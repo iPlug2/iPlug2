@@ -50,7 +50,7 @@ public:
 //  void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
   void OnEndAnimation() override;
 
-  void CreateTextEntry(const IRECT& bounds, const IText& text, const char* str);
+  void CreateTextEntry(IControl& control, const IRECT& bounds, const IText& text, const char* str);
 
   static int DeleteChars(ITextEntryControl* _this, size_t pos, size_t num);
   static int InsertChars(ITextEntryControl* _this, size_t pos, const char* text, size_t num);
@@ -81,6 +81,7 @@ private:
   bool mCursorSizesValid = false;
   bool mNotifyTextChange = false;
 
+  IControl* mTargetControl;
   STB_TexteditState mEditState;
   WDL_String mEditString;
   WDL_TypedBuf<float> mCharWidths;

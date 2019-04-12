@@ -213,6 +213,18 @@ void IControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu)
   }
 }
 
+void IControl::OnTextEntryCompletion(const char* str)
+{
+  const IParam* pParam = GetParam();
+
+  if (pParam)
+  {
+    const double v = pParam->StringToValue(str);
+    SetValueFromUserInput(pParam->ToNormalized(v));
+  }
+}
+
+
 void IControl::PromptUserInput()
 {
   if (mParamIdx >= 0 && !mDisablePrompt)

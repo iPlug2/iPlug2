@@ -1433,7 +1433,7 @@ void IGraphics::CreateTextEntry(IControl& control, const IText& text, const IREC
 {
   if (mTextEntryControl)
   {
-    mTextEntryControl->CreateTextEntry(bounds, text, str);
+    mTextEntryControl->CreateTextEntry(control, bounds, text, str);
     return;
   }
   else

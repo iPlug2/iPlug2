@@ -57,6 +57,7 @@
 
 ITextEntryControl::ITextEntryControl()
 : IControl(IRECT())
+, mTargetControl(nullptr)
 {
   stb_textedit_initialize_state(&mEditState, true);
   
@@ -402,12 +403,14 @@ float ITextEntryControl::GetCharWidth(char c, char pc)
   return bounds.W();
 }
 
-void ITextEntryControl::CreateTextEntry(const IRECT& bounds, const IText& text, const char* str)
+void ITextEntryControl::CreateTextEntry(IControl& control, const IRECT& bounds, const IText& text, const char* str)
 {
   SetTargetAndDrawRECTs(bounds);
   SetText(text);
   mText.mFGColor = mText.mTextEntryFGColor;
+  mTargetControl = &control;
   mEditString.Set(str);
+  OnTextChange();
   SetDirty(false);
   mEditing = true;
 }
@@ -415,6 +418,7 @@ void ITextEntryControl::CreateTextEntry(const IRECT& bounds, const IText& text, 
 void ITextEntryControl::DismissEdit()
 {
   mEditing = false;
+  mTargetControl = nullptr;
   SetTargetAndDrawRECTs(IRECT());
   GetUI()->SetAllControlsDirty();
 }
@@ -422,6 +426,11 @@ void ITextEntryControl::DismissEdit()
 void ITextEntryControl::CommitEdit()
 {
   mEditing = false;
+  if (mTargetControl != nullptr)
+  {
+    mTargetControl->OnTextEntryCompletion(mEditString.Get());
+    mTargetControl = nullptr;
+  }
   SetTargetAndDrawRECTs(IRECT());
   GetUI()->SetAllControlsDirty();
 }
