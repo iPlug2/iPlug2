@@ -170,9 +170,9 @@ void CALLBACK IGraphicsWin::TimerProc(void* param, BOOLEAN timerCalled)
 {
   IGraphicsWin* pGraphics = static_cast<IGraphicsWin*>(param);
 
+  InvalidateRect(pGraphics->mPlugWnd, &pGraphics->mInvalidRECT, FALSE);
+
   if (pGraphics->mParamEditMsg == kNone)
-    InvalidateRect(pGraphics->mPlugWnd, &pGraphics->mInvalidRECT, FALSE);
-  else
     ValidateRect(pGraphics->mPlugWnd, &pGraphics->mValidRECT); // make sure we dont redraw the edit box area
 };
 
@@ -185,7 +185,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     LPCREATESTRUCT lpcs = (LPCREATESTRUCT) lParam;
     SetWindowLongPtr(hWnd, GWLP_USERDATA, (LPARAM) (lpcs->lpCreateParams));
     IGraphicsWin* pGraphics = (IGraphicsWin*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-    int mSec = static_cast<int>(std::round(1000.0 / pGraphics->FPS()));
+    DWORD mSec = static_cast<DWORD>(std::floor(1000.0 / (double) pGraphics->FPS()));
     SetTimer(hWnd, IPLUG_TIMER_ID, mSec, NULL); // event timer
 
     BOOL success = CreateTimerQueueTimer(&pGraphics->mTimer, NULL, TimerProc, pGraphics, 0, mSec, WT_EXECUTEINTIMERTHREAD);
@@ -297,7 +297,6 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
             IRECT notDirtyR = pGraphics->mEdControl->GetRECT();
             notDirtyR.Scale(pGraphics->GetDrawScale());
             notDirtyR.PixelAlign();
-            pGraphics->mInvalidRECT = { 0,0,0,0 };
             pGraphics->mValidRECT = { (LONG) notDirtyR.L, (LONG) notDirtyR.T, (LONG) notDirtyR.R, (LONG) notDirtyR.B };
             pGraphics->mParamEditMsg = kUpdate;
           }
