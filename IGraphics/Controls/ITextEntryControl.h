@@ -82,6 +82,7 @@ private:
   bool mNotifyTextChange = false;
 
   IControl* mTargetControl;
+  IParam::EParamType mParamType = IParam::kTypeNone;
   STB_TexteditState mEditState;
   WDL_String mEditString;
   WDL_TypedBuf<float> mCharWidths;

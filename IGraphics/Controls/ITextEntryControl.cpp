@@ -238,14 +238,41 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
     case kVK_ESCAPE: DismissEdit(); break;
     default:
     {
-      if(key.VK >= '0' && key.VK <= '9')
-        break;
-      if(key.VK >= kVK_NUMPAD0 && key.VK <= kVK_NUMPAD9)
-        break;
-      if(key.VK >= 'A' && key.VK <= 'Z')
-        break;
-      else
+      // validate input based on param type
+      switch (mParamType)
+      {
+        case IParam::kTypeEnum:
+        case IParam::kTypeInt:
+        case IParam::kTypeBool:
+        {
+          if (key.VK >= '0' && key.VK <= '9')
+            break;
+          if (key.VK >= kVK_NUMPAD0 && key.VK <= kVK_NUMPAD9)
+            break;
+          if (stbKey == '+' || stbKey == '-')
+            break;
+          stbKey = 0;
+          break;
+        }
+        case IParam::kTypeDouble:
+        {
+          if (key.VK >= '0' && key.VK <= '9')
+            break;
+          if (key.VK >= kVK_NUMPAD0 && key.VK <= kVK_NUMPAD9)
+            break;
+          if (stbKey == '+' || stbKey == '-' || stbKey == '.')
+            break;
+          stbKey = 0;
+          break;
+        }
+        default:
+          break;
+      }
+
+      if (stbKey == 0)
+      {
         stbKey = (key.VK) | VIRTUAL_KEY_BIT;
+      }
       break;
     }
   }
@@ -409,6 +436,8 @@ void ITextEntryControl::CreateTextEntry(IControl& control, const IRECT& bounds, 
   SetText(text);
   mText.mFGColor = mText.mTextEntryFGColor;
   mTargetControl = &control;
+  const IParam* param = mTargetControl->GetParam();
+  mParamType = param ? param->Type() : IParam::kTypeNone;
   mEditString.Set(str);
   OnTextChange();
   SetDirty(false);
@@ -430,6 +459,7 @@ void ITextEntryControl::CommitEdit()
   {
     mTargetControl->OnTextEntryCompletion(mEditString.Get());
     mTargetControl = nullptr;
+    mParamType = IParam::kTypeNone;
   }
   SetTargetAndDrawRECTs(IRECT());
   GetUI()->SetAllControlsDirty();
