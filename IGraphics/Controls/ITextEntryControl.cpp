@@ -281,7 +281,7 @@ void ITextEntryControl::CopySelection()
 int ITextEntryControl::DeleteChars(ITextEntryControl* _this, size_t pos, size_t num)
 {
   _this->mEditString.DeleteSub((int) pos, (int) num);
-  
+  _this->OnTextChange();
   return true; // TODO: Error checking
 }
 
@@ -290,6 +290,7 @@ int ITextEntryControl::InsertChars(ITextEntryControl* _this, size_t pos, const c
 {
   WDL_String str = WDL_String(text, (int) num);
   _this->mEditString.Insert(&str, (int) pos);
+  _this->OnTextChange();
   return true; // TODO: Error checking
 }
 
@@ -358,13 +359,11 @@ void ITextEntryControl::OnStateChanged()
 
 void ITextEntryControl::OnTextChange()
 {
-  //TODO: clear character cache here?
+  FillCharWidthCache();
 }
 
 void ITextEntryControl::FillCharWidthCache()
 {
-  //TODO: should we only do this if the cache is empty?
-  // If so, we'll need to clear the cache when the string changes.
   const int len = mEditString.GetLength();
   mCharWidths.Resize(len);
   char pc = 0;
