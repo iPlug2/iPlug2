@@ -28,14 +28,14 @@ public:
   {
     SetTooltip("TestGLControl");
 
-    SetActionFunction([&](IControl* pCaller) {
-
+    SetActionFunction([&](IControl* pCaller)
+    {
       SetAnimation([&](IControl* pCaller)
       {
         auto progress = pCaller->GetAnimationProgress();
 
-        mXRotation += 10;
-        mYRotation += 20;
+        mXRotation += progress * 5.;
+        mYRotation += progress * 10.;
 
         pCaller->SetDirty(false);
 
