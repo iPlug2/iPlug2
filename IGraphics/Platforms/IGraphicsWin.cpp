@@ -265,15 +265,16 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         {
           pGraphics->SetAllControlsClean();
 
-          for (int i = 0; i < rects.Size(); i++)
-          {
-            IRECT dirtyR = rects.Get(i);
-            dirtyR.Scale(pGraphics->GetDrawScale());
-            dirtyR.PixelAlign();
-            RECT r = { (LONG)dirtyR.L, (LONG)dirtyR.T, (LONG)dirtyR.R, (LONG)dirtyR.B };
-
-//            InvalidateRect(hWnd, &r, FALSE); //TODO
-          }
+          //for (int i = 0; i < rects.Size(); i++)
+          //{
+            //IRECT dirtyR = rects.Get(i);
+            //dirtyR.Scale(pGraphics->GetDrawScale());
+            //dirtyR.PixelAlign();
+            //RECT r = { (LONG)dirtyR.L, (LONG)dirtyR.T, (LONG)dirtyR.R, (LONG)dirtyR.B };
+            //InvalidateRect(hWnd, &r, FALSE); //TODO could queue?
+          //}
+          IRECT dirtyR = rects.Bounds();
+          pGraphics->mInvalidRECT = { (LONG)dirtyR.L, (LONG)dirtyR.T, (LONG)dirtyR.R, (LONG)dirtyR.B };
 
           if (pGraphics->mParamEditWnd)
           {
