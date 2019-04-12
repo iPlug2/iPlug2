@@ -55,19 +55,21 @@ public:
       nvgDeleteFramebuffer(mFBO);
   }
 
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override
-  {
-    SetDirty(true);
-  }
-
   void Draw(IGraphics& g) override
   {
     NVGcontext* vg = static_cast<NVGcontext*>(g.GetDrawContext());
     int w = static_cast<int>(mRECT.W() * g.GetDrawScale());
     int h = static_cast<int>(mRECT.H() * g.GetDrawScale());
     
-    if(mFBO == nullptr)
+    if(invalidateFBO)
+    {
+      if (mFBO)
+        nvgDeleteFramebuffer(mFBO);
+      
       mFBO = nvgCreateFramebuffer(vg, w, h, 0);
+      
+      invalidateFBO = false;
+    }
     
     g.DrawDottedRect(COLOR_BLACK, mRECT);
     g.FillRect(mMouseIsOver ? COLOR_TRANSLUCENT : COLOR_TRANSPARENT, mRECT);
@@ -83,24 +85,14 @@ public:
 
     glViewport(0, 0, w, h);
 
-//    glEnable(GL_SCISSOR_TEST);
-//    glEnable(GL_CULL_FACE);
-//    glEnable(GL_DEPTH_TEST);
-
     glScissor(0, 0, w, h);
     glClearColor(0.f, 0.f, 0.f, 0.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     DrawGL();
-
-//    glDisable(GL_SCISSOR_TEST);
-//    glDisable(GL_CULL_FACE);
-//    glDisable(GL_DEPTH_TEST);
-
     glViewport(vp[0], vp[1], vp[2], vp[3]);
-
+    
     nvgEndFrame(vg);
-
     glBindFramebuffer(GL_FRAMEBUFFER, mInitialFBO);
     nvgBeginFrame(vg, g.WindowWidth(), g.WindowHeight(), g.GetScreenScale());
 
@@ -111,6 +103,16 @@ public:
 #else
     g.DrawText(mText, "UNSUPPORTED", mRECT);
 #endif
+  }
+  
+  void OnResize() override
+  {
+    invalidateFBO = true;
+  }
+  
+  void OnRescale() override
+  {
+    invalidateFBO = true;
   }
 
 #ifdef IGRAPHICS_GL
@@ -198,8 +200,7 @@ public:
 private:
   NVGframebuffer* mFBO = nullptr;
   int mInitialFBO = 0;
-//  double mYRotation = 0;
-//  double mXRotation = 0;
+  bool invalidateFBO = true;
 };
 
 #endif
