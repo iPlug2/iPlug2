@@ -1,7 +1,9 @@
 #include "IGraphicsTest.h"
 #include "IPlug_include_in_plug_src.h"
 
+#if IPLUG_EDITOR
 #include "Test/TestControls.h"
+#endif
 
 enum EParam
 {
