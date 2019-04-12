@@ -39,7 +39,7 @@ static double sFPS = 0.0;
 struct WinCachedFont
 {
   WinCachedFont(void* data, int resSize)
-    : mFontHandle(nullptr)
+  : mFontHandle(nullptr)
   {
     if (data)
     {
@@ -108,8 +108,6 @@ IFontDataPtr IGraphicsWin::WinFont::GetFontData()
 
 static StaticStorage<WinCachedFont> sPlatformFontCache;
 static StaticStorage<WinFontDescriptor> sFontDescriptorCache;
-
-// Mouse
 
 inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 {
