@@ -54,11 +54,11 @@
 		4F977D6520CC9DD800D19F46 /* FPUDownsampler2x.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D4420CC9DD800D19F46 /* FPUDownsampler2x.h */; };
 		4F977D6A20CC9DD800D19F46 /* IPlugFaust.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D4A20CC9DD800D19F46 /* IPlugFaust.h */; };
 		4F977D6E20CC9DD800D19F46 /* IPlugFaustGen.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D4E20CC9DD800D19F46 /* IPlugFaustGen.h */; };
-		4F977D7020CC9DD800D19F46 /* IPlugFaust_edit.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D5020CC9DD800D19F46 /* IPlugFaust_edit.h */; };
-		4F977D7220CC9DD800D19F46 /* ParamSmoothers.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D5220CC9DD800D19F46 /* ParamSmoothers.h */; };
 		4F977D7320CC9DD800D19F46 /* SVF.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D5320CC9DD800D19F46 /* SVF.h */; };
 		4F977D7420CC9DD800D19F46 /* Oscillator_table.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D5420CC9DD800D19F46 /* Oscillator_table.h */; };
 		4F977D7520CC9DD800D19F46 /* Oversampler.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F977D5520CC9DD800D19F46 /* Oversampler.h */; };
+		4F977D8520CCA5FB00D19F46 /* GenericUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F10E7CF20B1CB5800F5B09B /* GenericUI.swift */; };
+		4F977D8620CCA5FE00D19F46 /* GenericUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F10E7CF20B1CB5800F5B09B /* GenericUI.swift */; };
 		4F9A8307213DE87600BE63A4 /* IPopupMenuControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A82FE213DE87600BE63A4 /* IPopupMenuControl.h */; };
 		4F9A8308213DE87600BE63A4 /* IVMultiSliderControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A82FF213DE87600BE63A4 /* IVMultiSliderControl.h */; };
 		4F9A8309213DE87600BE63A4 /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F9A8300213DE87600BE63A4 /* IControls.cpp */; };
@@ -70,8 +70,8 @@
 		4F9A830F213DE87600BE63A4 /* IVScopeControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A8306213DE87600BE63A4 /* IVScopeControl.h */; };
 		4FA758462186222E00F1BCC3 /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FA758452186222E00F1BCC3 /* IPlugPaths.mm */; };
 		4FB2269720A0D3A800614769 /* IGraphicsStressTest-iOS-launchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* IGraphicsStressTest-iOS-launchScreen.storyboard */; };
-		4FCE29C021D6ECF8004BCBA1 /* ITextEntryControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FCE29BE21D6ECF8004BCBA1 /* ITextEntryControl.h */; };
-		4FCE29C121D6ECF8004BCBA1 /* ITextEntryControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCE29BF21D6ECF8004BCBA1 /* ITextEntryControl.cpp */; };
+		4FCE29E021D6ED81004BCBA1 /* ITextEntryControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FCE29DE21D6ED81004BCBA1 /* ITextEntryControl.h */; };
+		4FCE29E121D6ED81004BCBA1 /* ITextEntryControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCE29DF21D6ED81004BCBA1 /* ITextEntryControl.cpp */; };
 		4FE8F3B120BA273800BF938F /* IGraphicsEditorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FE8F3AF20BA273800BF938F /* IGraphicsEditorDelegate.cpp */; };
 		4FE8F3B220BA273800BF938F /* IGraphicsEditorDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE8F3B020BA273800BF938F /* IGraphicsEditorDelegate.h */; };
 		4FFF104120A0E55A00D3092F /* IPlugConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF103020A0E55900D3092F /* IPlugConstants.h */; };
@@ -170,6 +170,7 @@
 		4F10E7C120B1880700F5B09B /* IGraphicsStressTest-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "IGraphicsStressTest-Bridging-Header.h"; sourceTree = "<group>"; };
 		4F10E7C520B189DD00F5B09B /* IGraphicsStressTest-iOS.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = "IGraphicsStressTest-iOS.entitlements"; sourceTree = "<group>"; };
 		4F10E7C920B1919A00F5B09B /* IGraphicsStressTestViewController+AUAudioUnitFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "IGraphicsStressTestViewController+AUAudioUnitFactory.swift"; path = "../resources/IGraphicsStressTestViewController+AUAudioUnitFactory.swift"; sourceTree = "<group>"; };
+		4F10E7CF20B1CB5800F5B09B /* GenericUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GenericUI.swift; path = ../../../IPlug/AUv3/IOSApp/GenericUI.swift; sourceTree = "<group>"; };
 		4F2020F620A1B2B500F22200 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
 		4F20210120A1BF1E00F22200 /* IGraphicsStressTestViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = IGraphicsStressTestViewController.swift; path = ../resources/IGraphicsStressTestViewController.swift; sourceTree = "<group>"; };
 		4F3E0F6420A0BC1C00A9C2BE /* IGraphicsStressTest-iOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IGraphicsStressTest-iOS-Info.plist"; path = "../resources/IGraphicsStressTest-iOS-Info.plist"; sourceTree = "<group>"; };
@@ -215,6 +216,12 @@
 		4F6369D820A464060022C370 /* IGraphicsLinux.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsLinux.cpp; sourceTree = "<group>"; };
 		4F6369E420A466320022C370 /* IControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControl.h; sourceTree = "<group>"; };
 		4F6369E520A466320022C370 /* IControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IControl.cpp; sourceTree = "<group>"; };
+		4F6E673621C5613A005991A9 /* VoiceAllocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VoiceAllocator.h; sourceTree = "<group>"; };
+		4F6E673721C5613A005991A9 /* SynthVoice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SynthVoice.h; sourceTree = "<group>"; };
+		4F6E673821C5613A005991A9 /* VoiceAllocator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = VoiceAllocator.cpp; sourceTree = "<group>"; };
+		4F6E673921C5613A005991A9 /* MidiSynth.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MidiSynth.h; sourceTree = "<group>"; };
+		4F6E673A21C5613A005991A9 /* ControlRamp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ControlRamp.h; sourceTree = "<group>"; };
+		4F6E673B21C5613A005991A9 /* MidiSynth.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MidiSynth.cpp; sourceTree = "<group>"; };
 		4F8028BB20A24DFD003A66EC /* nanovg_mtl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = nanovg_mtl.m; path = ../../../Dependencies/IGraphics/MetalNanoVG/src/nanovg_mtl.m; sourceTree = "<group>"; };
 		4F8028BF20A24FA9003A66EC /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stb_image.h; path = ../../../Dependencies/IGraphics/NanoVG/src/stb_image.h; sourceTree = "<group>"; };
 		4F8028C020A24FA9003A66EC /* nanovg_gl_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nanovg_gl_utils.h; path = ../../../Dependencies/IGraphics/NanoVG/src/nanovg_gl_utils.h; sourceTree = "<group>"; };
@@ -237,16 +244,12 @@
 		4F977D4320CC9DD800D19F46 /* readme.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme.txt; sourceTree = "<group>"; };
 		4F977D4420CC9DD800D19F46 /* FPUDownsampler2x.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPUDownsampler2x.h; sourceTree = "<group>"; };
 		4F977D4520CC9DD800D19F46 /* license.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = license.txt; sourceTree = "<group>"; };
-		4F977D4620CC9DD800D19F46 /* halfband.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = halfband.c; sourceTree = "<group>"; };
 		4F977D4820CC9DD800D19F46 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4F977D4A20CC9DD800D19F46 /* IPlugFaust.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugFaust.h; sourceTree = "<group>"; };
 		4F977D4B20CC9DD800D19F46 /* IPlugFaust_notdone.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = IPlugFaust_notdone.txt; sourceTree = "<group>"; };
 		4F977D4C20CC9DD800D19F46 /* IPlugFaustGen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaustGen.cpp; sourceTree = "<group>"; };
 		4F977D4D20CC9DD800D19F46 /* IPlugFaust_arch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaust_arch.cpp; sourceTree = "<group>"; };
 		4F977D4E20CC9DD800D19F46 /* IPlugFaustGen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugFaustGen.h; sourceTree = "<group>"; };
-		4F977D4F20CC9DD800D19F46 /* IPlugFaust_edit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaust_edit.cpp; sourceTree = "<group>"; };
-		4F977D5020CC9DD800D19F46 /* IPlugFaust_edit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugFaust_edit.h; sourceTree = "<group>"; };
-		4F977D5220CC9DD800D19F46 /* ParamSmoothers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParamSmoothers.h; sourceTree = "<group>"; };
 		4F977D5320CC9DD800D19F46 /* SVF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVF.h; sourceTree = "<group>"; };
 		4F977D5420CC9DD800D19F46 /* Oscillator_table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Oscillator_table.h; sourceTree = "<group>"; };
 		4F977D5520CC9DD800D19F46 /* Oversampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Oversampler.h; sourceTree = "<group>"; };
@@ -266,8 +269,8 @@
 		4FBBD7F420B6ABE700A37DE2 /* config */ = {isa = PBXFileReference; lastKnownFileType = folder; name = config; path = ../config; sourceTree = "<group>"; };
 		4FC82B4720BD524700722133 /* img */ = {isa = PBXFileReference; lastKnownFileType = folder; name = img; path = ../resources/img; sourceTree = "<group>"; };
 		4FC82B4820BD524700722133 /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fonts; path = ../resources/fonts; sourceTree = "<group>"; };
-		4FCE29BE21D6ECF8004BCBA1 /* ITextEntryControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ITextEntryControl.h; sourceTree = "<group>"; };
-		4FCE29BF21D6ECF8004BCBA1 /* ITextEntryControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ITextEntryControl.cpp; sourceTree = "<group>"; };
+		4FCE29DE21D6ED81004BCBA1 /* ITextEntryControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ITextEntryControl.h; sourceTree = "<group>"; };
+		4FCE29DF21D6ED81004BCBA1 /* ITextEntryControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ITextEntryControl.cpp; sourceTree = "<group>"; };
 		4FDA600520B5868D00C49ABA /* IGraphicsStressTest-ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "IGraphicsStressTest-ios.xcconfig"; path = "../config/IGraphicsStressTest-ios.xcconfig"; sourceTree = "<group>"; };
 		4FE8F3AF20BA273800BF938F /* IGraphicsEditorDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsEditorDelegate.cpp; sourceTree = "<group>"; };
 		4FE8F3B020BA273800BF938F /* IGraphicsEditorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsEditorDelegate.h; sourceTree = "<group>"; };
@@ -423,8 +426,8 @@
 		4F63699620A463AF0022C370 /* Controls */ = {
 			isa = PBXGroup;
 			children = (
-				4FCE29BF21D6ECF8004BCBA1 /* ITextEntryControl.cpp */,
-				4FCE29BE21D6ECF8004BCBA1 /* ITextEntryControl.h */,
+				4FCE29DF21D6ED81004BCBA1 /* ITextEntryControl.cpp */,
+				4FCE29DE21D6ED81004BCBA1 /* ITextEntryControl.h */,
 				4F9A8300213DE87600BE63A4 /* IControls.cpp */,
 				4F9A8302213DE87600BE63A4 /* IControls.h */,
 				4F9A8303213DE87600BE63A4 /* IFPSDisplayControl.h */,
@@ -451,6 +454,19 @@
 				4FDA600520B5868D00C49ABA /* IGraphicsStressTest-ios.xcconfig */,
 			);
 			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		4F6E673521C5613A005991A9 /* Synth */ = {
+			isa = PBXGroup;
+			children = (
+				4F6E673621C5613A005991A9 /* VoiceAllocator.h */,
+				4F6E673721C5613A005991A9 /* SynthVoice.h */,
+				4F6E673821C5613A005991A9 /* VoiceAllocator.cpp */,
+				4F6E673921C5613A005991A9 /* MidiSynth.h */,
+				4F6E673A21C5613A005991A9 /* ControlRamp.h */,
+				4F6E673B21C5613A005991A9 /* MidiSynth.cpp */,
+			);
+			path = Synth;
 			sourceTree = "<group>";
 		};
 		4F8028BE20A24F97003A66EC /* NanoVG */ = {
@@ -488,6 +504,7 @@
 		4F977D3120CC9DD800D19F46 /* Extras */ = {
 			isa = PBXGroup;
 			children = (
+				4F6E673521C5613A005991A9 /* Synth */,
 				4F977D3520CC9DD800D19F46 /* Easing.h */,
 				4F977D3620CC9DD800D19F46 /* NChanDelay.h */,
 				4F977D3720CC9DD800D19F46 /* OSC */,
@@ -495,7 +512,6 @@
 				4F977D3D20CC9DD800D19F46 /* HIIR */,
 				4F977D4820CC9DD800D19F46 /* README.md */,
 				4F977D4920CC9DD800D19F46 /* Faust */,
-				4F977D5220CC9DD800D19F46 /* ParamSmoothers.h */,
 				4F977D5320CC9DD800D19F46 /* SVF.h */,
 				4F977D5420CC9DD800D19F46 /* Oscillator_table.h */,
 				4F977D5520CC9DD800D19F46 /* Oversampler.h */,
@@ -525,7 +541,6 @@
 				4F977D4320CC9DD800D19F46 /* readme.txt */,
 				4F977D4420CC9DD800D19F46 /* FPUDownsampler2x.h */,
 				4F977D4520CC9DD800D19F46 /* license.txt */,
-				4F977D4620CC9DD800D19F46 /* halfband.c */,
 			);
 			path = HIIR;
 			sourceTree = "<group>";
@@ -534,12 +549,9 @@
 			isa = PBXGroup;
 			children = (
 				4F977D4A20CC9DD800D19F46 /* IPlugFaust.h */,
-				4F977D4B20CC9DD800D19F46 /* IPlugFaust_notdone.txt */,
 				4F977D4C20CC9DD800D19F46 /* IPlugFaustGen.cpp */,
 				4F977D4D20CC9DD800D19F46 /* IPlugFaust_arch.cpp */,
 				4F977D4E20CC9DD800D19F46 /* IPlugFaustGen.h */,
-				4F977D4F20CC9DD800D19F46 /* IPlugFaust_edit.cpp */,
-				4F977D5020CC9DD800D19F46 /* IPlugFaust_edit.h */,
 			);
 			path = Faust;
 			sourceTree = "<group>";
@@ -617,9 +629,10 @@
 		91D3DA0B1B023C03008FFFBB = {
 			isa = PBXGroup;
 			children = (
-				4FFF108420A1036200D3092F /* config.h */,
 				4FFF108820A1036200D3092F /* IGraphicsStressTest.h */,
+				4FFF108420A1036200D3092F /* config.h */,
 				4FFF108720A1036200D3092F /* IGraphicsStressTest.cpp */,
+				4F10E7CF20B1CB5800F5B09B /* GenericUI.swift */,
 				4F20210120A1BF1E00F22200 /* IGraphicsStressTestViewController.swift */,
 				4F8BF48D20A12D2E0081DF0A /* Resources */,
 				4F67D51620A121F60061FB8E /* Other Sources */,
@@ -655,7 +668,6 @@
 				4F9A830B213DE87600BE63A4 /* IControls.h in Headers */,
 				4FFF104420A0E55A00D3092F /* IPlugPlatform.h in Headers */,
 				4F6369B220A463AF0022C370 /* IGraphics_include_in_plug_hdr.h in Headers */,
-				4F977D7020CC9DD800D19F46 /* IPlugFaust_edit.h in Headers */,
 				4F977D6520CC9DD800D19F46 /* FPUDownsampler2x.h in Headers */,
 				4FFF106120A0E57100D3092F /* IPlugAUv3.h in Headers */,
 				4F6369AC20A463AF0022C370 /* IGraphicsNanoVG.h in Headers */,
@@ -695,9 +707,8 @@
 				4F6369CE20A463AF0022C370 /* IGraphicsConstants.h in Headers */,
 				4FFF104D20A0E55A00D3092F /* IPlugUtilities.h in Headers */,
 				4FFF107D20A0E5A500D3092F /* ptrlist.h in Headers */,
-				4FCE29C021D6ECF8004BCBA1 /* ITextEntryControl.h in Headers */,
+				4FCE29E021D6ED81004BCBA1 /* ITextEntryControl.h in Headers */,
 				4FFF104C20A0E55A00D3092F /* IPlugStructs.h in Headers */,
-				4F977D7220CC9DD800D19F46 /* ParamSmoothers.h in Headers */,
 				4FFF107E20A0E5A500D3092F /* wdlendian.h in Headers */,
 				4FFF104220A0E55A00D3092F /* IPlugQueue.h in Headers */,
 				4F977D7420CC9DD800D19F46 /* Oscillator_table.h in Headers */,
@@ -729,7 +740,7 @@
 			buildPhases = (
 				91236D091B08F42B00734C5E /* Sources */,
 				91236D0A1B08F42B00734C5E /* Frameworks */,
-				4F33163721C53E0100612805 /* Run Script - prepare_resources-ios.py */,
+				4F33163621C53DD500612805 /* Run Script - prepare_resources-ios.py */,
 				91236D0B1B08F42B00734C5E /* Resources */,
 				91236D6F1B08F52E00734C5E /* Embed Frameworks */,
 				91236D851B08F59300734C5E /* Embed App Extensions */,
@@ -874,10 +885,10 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-ios.py\n";
+			shellScript = "python ../scripts/prepare_resources-ios.py";
 			showEnvVarsInLog = 0;
 		};
-		4F33163721C53E0100612805 /* Run Script - prepare_resources-ios.py */ = {
+		4F33163621C53DD500612805 /* Run Script - prepare_resources-ios.py */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -905,6 +916,7 @@
 				4F02B68320A1A21700C86910 /* AppDelegate.swift in Sources */,
 				4F10E7B620B16C5A00F5B09B /* IGraphicsStressTestAppViewController.swift in Sources */,
 				4F10E7CE20B1A69900F5B09B /* SimplePlayEngine.swift in Sources */,
+				4F977D8620CCA5FE00D19F46 /* GenericUI.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -913,8 +925,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F9A830A213DE87600BE63A4 /* IPopupMenuControl.cpp in Sources */,
+				4F977D8520CCA5FB00D19F46 /* GenericUI.swift in Sources */,
 				4FA758462186222E00F1BCC3 /* IPlugPaths.mm in Sources */,
-				4FCE29C121D6ECF8004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4F6369C320A463AF0022C370 /* IGraphics.cpp in Sources */,
 				4F23CECB20B20C6400E8B70F /* IGraphicsNanoVG.cpp in Sources */,
 				4F8028C920A24FA9003A66EC /* nanovg.c in Sources */,
@@ -926,6 +938,7 @@
 				4F23CECD20B20C7C00E8B70F /* IGraphicsIOS_view.mm in Sources */,
 				4F23CECE20B20C9300E8B70F /* nanovg_mtl.m in Sources */,
 				4FFF104320A0E55A00D3092F /* IPlugParameter.cpp in Sources */,
+				4FCE29E121D6ED81004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4FFF105B20A0E57100D3092F /* IPlugAUAudioUnit.mm in Sources */,
 				4F9A8309213DE87600BE63A4 /* IControls.cpp in Sources */,
 				4F23CECC20B20C7C00E8B70F /* IGraphicsIOS.mm in Sources */,

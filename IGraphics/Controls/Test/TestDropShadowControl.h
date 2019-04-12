@@ -23,8 +23,8 @@
 class TestDropShadowControl : public IControl
 {
 public:
-  TestDropShadowControl(IGEditorDelegate& dlg, IRECT bounds, const ISVG& svg)
-  : IControl(dlg, bounds)
+  TestDropShadowControl(IRECT bounds, const ISVG& svg)
+  : IControl(bounds)
   , mSVG(svg)
   {
     SetTooltip("TestDropShadowControl");
@@ -37,18 +37,13 @@ public:
     if (!g.CheckLayer(mLayer))
     {
       g.StartLayer(mRECT);
+      
       if (g.HasPathSupport())
-      {
         g.DrawSVG(mSVG, mRECT);
-      }
       else
-      {
         g.FillCircle(COLOR_BLUE, mRECT.MW(), mRECT.MH(), mRECT.W() / 3);
-      }
+
       mLayer = g.EndLayer();
-      IPattern pattern = IPattern::CreateRadialGradient(mRECT.MW(), mRECT.MH(), mRECT.W() / 2.0);
-      pattern.AddStop(COLOR_BLACK, 0.8);
-      pattern.AddStop(COLOR_TRANSPARENT, 1.0);
       IShadow shadow(COLOR_BLACK, 10.0, 5.0, 10.0, 0.7f, true);
       g.ApplyLayerDropShadow(mLayer, shadow);
     }

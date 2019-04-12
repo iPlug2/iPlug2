@@ -63,7 +63,7 @@
 
 #pragma mark - VST3
 #elif defined VST3_API || VST3C_API || defined VST3P_API
-#include "public.sdk/source/main/pluginfactoryvst3.h"
+#include "public.sdk/source/main/pluginfactory.h"
 #include "pluginterfaces/vst/ivstcomponent.h"
 #include "pluginterfaces/vst/ivsteditcontroller.h"
 
@@ -83,7 +83,7 @@ static unsigned int GUID_DATA4 = PLUG_UNIQUE_ID;
 #endif
 
 #if defined VST3P_API || defined VST3_API
-bool InitModule ()
+bool InitModule()
 {
 #ifdef OS_WIN
   extern void* moduleHandle;
@@ -93,7 +93,7 @@ bool InitModule ()
 }
 
 // called after library is unloaded
-bool DeinitModule ()
+bool DeinitModule()
 {
   return true;
 }
@@ -211,23 +211,23 @@ class IPlugAUFactory
       ((PLUG_CLASS_NAME*) pMemory)->~PLUG_CLASS_NAME();
     }
 
-    static AudioComponentMethod Lookup (SInt16 selector)
+    static AudioComponentMethod Lookup(SInt16 selector)
     {
       switch (selector) {
-        case kAudioUnitInitializeSelect:  return (AudioComponentMethod)IPlugAU::AUMethodInitialize;
-        case kAudioUnitUninitializeSelect:  return (AudioComponentMethod)IPlugAU::AUMethodUninitialize;
-        case kAudioUnitGetPropertyInfoSelect:	return (AudioComponentMethod)IPlugAU::AUMethodGetPropertyInfo;
+        case kAudioUnitInitializeSelect: return (AudioComponentMethod)IPlugAU::AUMethodInitialize;
+        case kAudioUnitUninitializeSelect: return (AudioComponentMethod)IPlugAU::AUMethodUninitialize;
+        case kAudioUnitGetPropertyInfoSelect: return (AudioComponentMethod)IPlugAU::AUMethodGetPropertyInfo;
         case kAudioUnitGetPropertySelect: return (AudioComponentMethod)IPlugAU::AUMethodGetProperty;
         case kAudioUnitSetPropertySelect: return (AudioComponentMethod)IPlugAU::AUMethodSetProperty;
         case kAudioUnitAddPropertyListenerSelect:return (AudioComponentMethod)IPlugAU::AUMethodAddPropertyListener;
         case kAudioUnitRemovePropertyListenerSelect:  return (AudioComponentMethod)IPlugAU::AUMethodRemovePropertyListener;
         case kAudioUnitRemovePropertyListenerWithUserDataSelect:  return (AudioComponentMethod)IPlugAU::AUMethodRemovePropertyListenerWithUserData;
-        case kAudioUnitAddRenderNotifySelect:	return (AudioComponentMethod)IPlugAU::AUMethodAddRenderNotify;
+        case kAudioUnitAddRenderNotifySelect: return (AudioComponentMethod)IPlugAU::AUMethodAddRenderNotify;
         case kAudioUnitRemoveRenderNotifySelect:return (AudioComponentMethod)IPlugAU::AUMethodRemoveRenderNotify;
-        case kAudioUnitGetParameterSelect:  return (AudioComponentMethod)IPlugAU::AUMethodGetParameter;
-        case kAudioUnitSetParameterSelect:  return (AudioComponentMethod)IPlugAU::AUMethodSetParameter;
+        case kAudioUnitGetParameterSelect: return (AudioComponentMethod)IPlugAU::AUMethodGetParameter;
+        case kAudioUnitSetParameterSelect: return (AudioComponentMethod)IPlugAU::AUMethodSetParameter;
         case kAudioUnitScheduleParametersSelect:return (AudioComponentMethod)IPlugAU::AUMethodScheduleParameters;
-        case kAudioUnitRenderSelect:  return (AudioComponentMethod)IPlugAU::AUMethodRender;
+        case kAudioUnitRenderSelect: return (AudioComponentMethod)IPlugAU::AUMethodRender;
         case kAudioUnitResetSelect: return (AudioComponentMethod)IPlugAU::AUMethodReset;
 #if PLUG_DOES_MIDI_IN
         case kMusicDeviceMIDIEventSelect:  return (AudioComponentMethod)IPlugAU::AUMethodMIDIEvent;
@@ -248,7 +248,6 @@ class IPlugAUFactory
       IPlugAU* plug = (IPlugAU*) &acpi->mInstanceStorage;
 
       plug->mCI = compInstance;
-      plug->HostSpecificInit();
       plug->PruneUninitializedPresets();
 
       return noErr;
@@ -368,6 +367,7 @@ extern "C"
     EMSCRIPTEN_KEEPALIVE void iplug_fsready()
     {
       gPlug = MakePlug();
+      gPlug->SetHost("www", 0);
       gPlug->OpenWindow(nullptr);
       gPlug->OnUIOpen();
       iplug_syncfs(); // plug in may initialise settings in constructor, write to persistent data after init
@@ -378,7 +378,7 @@ extern "C"
   {
     //create persistent data file system and synchronise
     EM_ASM(
-           var name = '/' + Pointer_stringify($0) + '_data';
+           var name = '/' + UTF8ToString($0) + '_data';
            FS.mkdir(name);
            FS.mount(IDBFS, {}, name);
 
@@ -402,21 +402,6 @@ extern "C"
   #error "No API defined!"
 #endif
 
-#if defined OS_MAC || defined OS_IOS
-#if defined SWELL_NO_POSTMESSAGE && !defined VST3P_API
-void Sleep(int ms)
-{
-  usleep(ms?ms*1000:100);
-}
-
-DWORD GetTickCount()
-{
-  struct timeval tm={0,};
-  gettimeofday(&tm,NULL);
-  return (DWORD) (tm.tv_sec*1000 + tm.tv_usec/1000);
-}
-#endif
-#endif
 /*
 #if defined _DEBUG
   #define PUBLIC_NAME APPEND_TIMESTAMP(PLUG_NAME " DEBUG")

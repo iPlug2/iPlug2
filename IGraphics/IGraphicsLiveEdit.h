@@ -27,13 +27,13 @@
 class IGraphicsLiveEdit : public IControl
 {
 public:
-  IGraphicsLiveEdit(IGEditorDelegate& dlg, bool mouseOversEnabled, const char* pathToSourceFile = 0, float gridSize = 10)
-  : IControl(dlg, IRECT())
+  IGraphicsLiveEdit(bool mouseOversEnabled, const char* pathToSourceFile = 0, float gridSize = 10)
+  : IControl(IRECT())
   , mPathToSourceFile(pathToSourceFile)
   , mGridSize(gridSize)
   , mMouseOversEnabled(mouseOversEnabled)
   {
-    dlg.GetUI()->HandleMouseOver(true);
+    //dlg.GetUI()->HandleMouseOver(true); TODO:
 
     mTargetRECT = mRECT;
   }

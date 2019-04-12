@@ -40,7 +40,6 @@ public:
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;
   void InformHostOfProgramChange() override;
-  EHost GetHost() override;
   void HostSpecificInit() override;
   void EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data) override;
 
@@ -80,8 +79,6 @@ private:
   
   ERect mEditRect;
   VstSpeakerArrangement mInputSpkrArr, mOutputSpkrArr;
-
-  bool mHostSpecificInitDone = false;
 
   enum { VSTEXT_NONE=0, VSTEXT_COCKOS, VSTEXT_COCOA }; // list of VST extensions supported by host
   int mHasVSTExtensions;

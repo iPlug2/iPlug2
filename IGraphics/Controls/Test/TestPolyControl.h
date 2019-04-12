@@ -22,8 +22,8 @@
 class TestPolyControl : public IKnobControlBase
 {
 public:
-  TestPolyControl(IGEditorDelegate& dlg, IRECT rect, int paramIdx = kNoParameter)
-  : IKnobControlBase(dlg, rect, paramIdx)
+  TestPolyControl(IRECT rect, int paramIdx = kNoParameter)
+  : IKnobControlBase(rect, paramIdx)
   {
     SetTooltip("TestPolyControl");
   }
@@ -46,7 +46,8 @@ public:
       yarray[i] = mRECT.MH() + cosf(angle + (float) i * incr) * mRECT.W() * 0.45f;
     }
 
-    g.FillConvexPolygon(COLOR_ORANGE, xarray, yarray, npoints);
+    //IBlend blend { kBlendDefault, 0.5 };
+    g.FillConvexPolygon(IColor(120, 255, 127, 0), xarray, yarray, npoints);//, &blend);
     g.DrawConvexPolygon(COLOR_BLACK, xarray, yarray, npoints);
   }
 

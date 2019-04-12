@@ -49,12 +49,11 @@ public:
   };
 
   /** Create a new IPopupMenuControl
-  * @param dlg The editor delegate that this control is attached to
   * @param paramIdx Whether this control should be linked to a parameter
   * @param text An IText specifying properties of the menu text
   * @param collapsedBounds If this control, when collapsed should occupy an area of the graphics context, specify this, otherwise the collapsed area is empty
   * @param expandedBounds If you want to explicitly specify the size of the expanded pop-up, you can specify an area here */
-  IPopupMenuControl(IGEditorDelegate& dlg, int paramIdx = kNoParameter, IText text = IText(16), IRECT collapsedBounds = IRECT(), IRECT expandedBounds = IRECT());
+  IPopupMenuControl(int paramIdx = kNoParameter, IText text = IText(16), IRECT collapsedBounds = IRECT(), IRECT expandedBounds = IRECT());
   virtual ~IPopupMenuControl();
 
   //IControl
@@ -162,7 +161,7 @@ private:
     IRECT mTargetRECT; // The mouse target bounds for this panel
     int mScrollMaxRows = 0; // 0 when no scroll
     bool mShouldDraw = true; // boolean determining whether this panel should be drawn
-    IBlend mBlend = { kBlendNone, 0.f }; // blend for sub panels appearing
+    IBlend mBlend = { kBlendDefault, 0.f }; // blend for sub panels appearing
 
     IRECT mSingleCellBounds; // The dimensions of the largest cell for the menu
     IRECT* mHighlightedCell = nullptr; // A pointer to one of the IRECTs in mCellBounds, if one should be highlighted

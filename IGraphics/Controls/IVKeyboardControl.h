@@ -71,11 +71,11 @@ public:
     //kFR = kFR
   };
 
-  IVKeyboardControl(IGEditorDelegate& dlg, IRECT bounds,
+  IVKeyboardControl(IRECT bounds,
                     int minNote = 36, int maxNote = 84,
                     bool roundedKeys = false,
                     IActionFunction actionFunc = nullptr)
-  : IControl(dlg, bounds, kNoParameter, actionFunc)
+  : IControl(bounds, kNoParameter, actionFunc)
   , IVectorBase(&DEFAULT_WK_COLOR, &DEFAULT_BK_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR)
   , mRoundedKeys(roundedKeys)
   {
@@ -350,7 +350,7 @@ public:
     }
 
     if(GetAnimationFunction())
-      DrawFlashCircle(g);
+      DrawSplash(g);
 
 #ifdef _DEBUG
     //g.DrawRect(COLOR_GREEN, mTargetRECT);
@@ -562,7 +562,8 @@ private:
     if (keepWidth)
     {
       mWKWidth = mRECT.W();
-      if (numWhites) mWKWidth /= (numWhites + mBKWidthRatio * (WKPadStart + WKPadEnd));
+      if (numWhites)
+        mWKWidth /= (numWhites + mBKWidthRatio * (WKPadStart + WKPadEnd));
     }
 
     float BKWidth = mWKWidth;

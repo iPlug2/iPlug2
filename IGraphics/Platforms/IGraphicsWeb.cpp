@@ -20,6 +20,36 @@ using namespace emscripten;
 
 extern IGraphics* gGraphics;
 
+// Font
+
+IFontDataPtr IGraphicsWeb::WebFileFont::GetFontData()
+{
+  IFontDataPtr fontData(new IFontData());
+  FILE* fp = fopen(mPath.Get(), "rb");
+  
+  // Read in the font data.
+  
+  if (!fp)
+    return fontData;
+  
+  fseek(fp,0,SEEK_END);
+  fontData.reset(new IFontData((int) ftell(fp)));
+  
+  if (!fontData->GetSize())
+    return fontData;
+  
+  fseek(fp,0,SEEK_SET);
+  size_t readSize = fread(fontData->Get(), 1, fontData->GetSize(), fp);
+  fclose(fp);
+  
+  if (readSize && readSize == fontData->GetSize())
+    fontData->SetFaceIdx(0);
+  
+  return fontData;
+}
+
+// Key combos
+
 static int domVKToWinVK(int dom_vk_code)
 {
   switch(dom_vk_code)
@@ -244,7 +274,8 @@ EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent
   x /= pGraphics->GetDrawScale();
   y /= pGraphics->GetDrawScale();
   
-  switch (eventType) {
+  switch (eventType)
+  {
     case EMSCRIPTEN_EVENT_MOUSEUP: pGraphics->OnMouseUp(x, y, modifiers);
       pGraphics->OnMouseUp(x, y, modifiers); break;
       emscripten_set_mousemove_callback("#window", pGraphics, 1, nullptr);
@@ -276,11 +307,12 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
   x /= pGraphics->GetDrawScale();
   y /= pGraphics->GetDrawScale();
   
-  switch (eventType) {
+  switch (eventType)
+  {
     case EMSCRIPTEN_EVENT_CLICK: break;
     case EMSCRIPTEN_EVENT_MOUSEDOWN: pGraphics->OnMouseDown(x, y, modifiers); break;
     case EMSCRIPTEN_EVENT_MOUSEUP: pGraphics->OnMouseUp(x, y, modifiers); break;
-    case EMSCRIPTEN_EVENT_DBLCLICK: pGraphics->OnMouseDblClick(x, y, modifiers);break;
+    case EMSCRIPTEN_EVENT_DBLCLICK: pGraphics->OnMouseDblClick(x, y, modifiers); break;
     case EMSCRIPTEN_EVENT_MOUSEMOVE:
       if(pEvent->buttons == 0)
         pGraphics->OnMouseOver(x, y, modifiers);
@@ -288,15 +320,16 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
         pGraphics->OnMouseDrag(x, y, pEvent->movementX, pEvent->movementY, modifiers);
       break;
     case EMSCRIPTEN_EVENT_MOUSEENTER:
+      pGraphics->OnSetCursor();
       pGraphics->OnMouseOver(x, y, modifiers);
       emscripten_set_mousemove_callback("#window", pGraphics, 1, nullptr);
       break;
     case EMSCRIPTEN_EVENT_MOUSELEAVE:
-      if(pEvent->buttons != 0) {
+      if(pEvent->buttons != 0)
+      {
         emscripten_set_mousemove_callback("#window", pGraphics, 1, outside_mouse_callback);
         emscripten_set_mouseup_callback("#window", pGraphics, 1, outside_mouse_callback);
       }
-
       pGraphics->OnMouseOut(); break;
     default:
       break;
@@ -329,6 +362,8 @@ EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* pEvent, void* 
   return true;
 }
 
+#pragma mark -
+
 IGraphicsWeb::IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
 {
@@ -355,7 +390,7 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
 {
   OnViewInitialized(nullptr /* not used */);
 
-  SetScreenScale(val::global("window")["devicePixelRatio"].as<int>());
+  SetScreenScale(std::max(emscripten_get_device_pixel_ratio(), 1.));
 
   GetDelegate()->LayoutUI(this);
   
@@ -369,7 +404,7 @@ void IGraphicsWeb::HideMouseCursor(bool hide, bool lock)
     if (lock)
       emscripten_request_pointerlock("canvas", EM_FALSE);
     else
-      val::global("document")["body"]["style"].set("cursor", std::string("none"));
+      emscripten_hide_mouse();
     
     mCursorLock = lock;
   }
@@ -378,68 +413,36 @@ void IGraphicsWeb::HideMouseCursor(bool hide, bool lock)
     if (mCursorLock)
       emscripten_exit_pointerlock();
     else
-      SetMouseCursor(mCursorType);
+      OnSetCursor();
       
     mCursorLock = false;
   }
 }
 
-void IGraphicsWeb::SetMouseCursor(ECursor cursor)
+ECursor IGraphicsWeb::SetMouseCursor(ECursor cursorType)
 {
-  std::string cursorType("pointer");
+  std::string cursor("pointer");
   
-  switch (cursor)
+  switch (cursorType)
   {
-    case ECursor::ARROW:            cursorType = "default";         break;
-    case ECursor::IBEAM:            cursorType = "text";            break;
-    case ECursor::WAIT:             cursorType = "wait";            break;
-    case ECursor::CROSS:            cursorType = "crosshair";       break;
-    case ECursor::UPARROW:          cursorType = "n-resize";        break;
-    case ECursor::SIZENWSE:         cursorType = "nwse-resize";     break;
-    case ECursor::SIZENESW:         cursorType = "nesw-resize";     break;
-    case ECursor::SIZEWE:           cursorType = "ew-resize";       break;
-    case ECursor::SIZENS:           cursorType = "ns-resize";       break;
-    case ECursor::SIZEALL:          cursorType = "move";            break;
-    case ECursor::INO:              cursorType = "not-allowed";     break;
-    case ECursor::HAND:             cursorType = "grab";            break;
-    case ECursor::APPSTARTING:      cursorType = "progress";        break;
-    case ECursor::HELP:             cursorType = "help";            break;
+    case ECursor::ARROW:            cursor = "default";         break;
+    case ECursor::IBEAM:            cursor = "text";            break;
+    case ECursor::WAIT:             cursor = "wait";            break;
+    case ECursor::CROSS:            cursor = "crosshair";       break;
+    case ECursor::UPARROW:          cursor = "n-resize";        break;
+    case ECursor::SIZENWSE:         cursor = "nwse-resize";     break;
+    case ECursor::SIZENESW:         cursor = "nesw-resize";     break;
+    case ECursor::SIZEWE:           cursor = "ew-resize";       break;
+    case ECursor::SIZENS:           cursor = "ns-resize";       break;
+    case ECursor::SIZEALL:          cursor = "move";            break;
+    case ECursor::INO:              cursor = "not-allowed";     break;
+    case ECursor::HAND:             cursor = "pointer";         break;
+    case ECursor::APPSTARTING:      cursor = "progress";        break;
+    case ECursor::HELP:             cursor = "help";            break;
   }
   
-  val::global("document")["body"]["style"].set("cursor", cursorType);
-  mCursorType = cursor;
-}
-
-EResourceLocation IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String& result)
-{
-  if (CStringHasContents(name))
-  {
-    WDL_String plusSlash;
-    
-    bool foundResource = false;
-    
-    //TODO: OSFindResource is not sufficient here
-    
-    if(strcmp(type, "png") == 0) { //TODO: lowercase/uppercase png
-      plusSlash.SetFormatted(strlen("/resources/img/") + strlen(name) + 1, "/resources/img/%s", name);
-      foundResource = GetPreloadedImages().call<bool>("hasOwnProperty", std::string(plusSlash.Get()));
-    }
-    else if(strcmp(type, "ttf") == 0) { //TODO: lowercase/uppercase ttf
-      plusSlash.SetFormatted(strlen("/resources/fonts/") + strlen(name) + 1, "/resources/fonts/%s", name);
-      foundResource = true; // TODO: check ttf
-    }
-    else if(strcmp(type, "svg") == 0) { //TODO: lowercase/uppercase svg
-      plusSlash.SetFormatted(strlen("/resources/img/") + strlen(name) + 1, "/resources/img/%s", name);
-      foundResource = true; // TODO: check svg
-    }
-    
-    if(foundResource)
-    {
-      result.Set(plusSlash.Get());
-      return EResourceLocation::kAbsolutePath;
-    }
-  }
-  return EResourceLocation::kNotFound;
+  val::global("document")["body"]["style"].set("cursor", cursor);
+  return IGraphics::SetMouseCursor(cursorType);
 }
 
 //static
@@ -564,6 +567,24 @@ void IGraphicsWeb::DrawResize()
   canvas.set("height", Height() * GetBackingPixelScale());
   
   IGRAPHICS_DRAW_CLASS::DrawResize();
+}
+
+IGraphics::PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
+{
+  WDL_String fullPath;
+  const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, GetBundleID(), nullptr);
+  
+  if (fontLocation == kNotFound)
+    return nullptr;
+
+  return PlatformFontPtr(new WebFileFont(fontID, "", fullPath.Get()));
+}
+
+IGraphics::PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
+{
+  const char* styles[] = { "normal", "bold", "italic" };
+  
+  return PlatformFontPtr(new WebFont(fontName, styles[style]));
 }
 
 #if defined IGRAPHICS_CANVAS

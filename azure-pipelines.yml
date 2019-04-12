@@ -1,0 +1,68 @@
+variables:
+  build_deps: false # set true to build optional dependencies, e.g. (Cairo, FAUST etc), if false, pre-built versions are downloaded
+  
+  #PLATFORMS
+  build_web: true # build web audio module versions of projects
+  build_mac: true # build mac binaries
+  build_win: true # build windows binaries
+
+  #FORMATS
+  build_app: true # build standalone app
+  build_vst3: true # build VST3 format plugins
+  build_auv2: true # build AUv2 format plugins
+  build_aax: false # build AAX format plugins ( must have AAX_SDK secure file in azure pipeline )
+  build_vst2: false # build VST2 format plugins ( must have VST2_SDK secure file in azure pipeline )
+
+  #TESTS
+  test_projects: true # test plug-ins with pluginval, auval, vstvalidator
+
+  #MISC
+  configuration: 'Release' # the configuration to build, e.g. 'Debug', 'Release', 'Tracer'
+
+  publish_downloads: false # publish project binaries to publish_site github releases
+  publish_pages: false # publish web audio modules to github publish_site
+  publish_docs: false # publish documentation to docs_site
+
+  publish_site: 'iPlug2/iPlug2.github.io'
+  docs_site: 'iPlug2/docs'
+  publish_email: olilarkin@googlemail.com
+  publish_user: olilarkin
+
+trigger:
+- master
+
+pr:
+- master
+
+jobs:
+# get_tree.yml
+# Checks out the iPlug2 repository and installs various dependencies such as the VST3 and WAM SDKs.
+# Also installs various secure dependencies such as the VST2 and AAX SDKs. This will require editing if you have not set those secure files in Azure pipelines.
+# If build_deps == false, downloads optional pre-built dependencies IPLUG2_DEPS_MAC and IPLUG2_DEPS_WIN, unzips them in the src tree
+# Creates an artifact 'SRC' containing a populated iPlug 2 folder heirarchy
+- template: Scripts/ci/get_src_tree.yml
+
+# build_deps.yml
+# If build_deps == true, use the scripts in iPlug2/Dependencies to build the optional dependencies
+# Creates two artifacts IPLUG2_DEPS_MAC and IPLUG2_DEPS_WIN which are published on the releases page of the iPlug2 github
+# https://github.com/iPlug2/iPlug2/releases
+- template: Scripts/ci/build_deps.yml
+
+# build_projects.yml
+# Builds each of the projects listed in projects.yml, for multiple platforms
+# Creates artifacts for projects/platforms/graphics backends
+- template: Scripts/ci/build_projects.yml
+
+# test_projects.yml
+# Tests each of the projects listed in projects.yml, for multiple platforms
+- template: Scripts/ci/test_projects.yml
+
+# publish_site.yml
+# if publish_pages == true, publishes the WAMs hosted on https://iplug2.github.io/
+# if publish_downloads == true, publises the binaries for the examples hosted on the releases page of the iPlug2 website github https://github.com/iPlug2/iPlug2.github.io/releases
+# this Job will produce non-fatal errors when artefacts are not found
+- template: Scripts/ci/publish_site.yml
+
+# publish_docs.yml
+# if publish_docs == true, generates doxygen html from the iPlug2/Documentation/doxyfile and publishes it to https://iplug2.github.io/docs
+- template: Scripts/ci/publish_docs.yml

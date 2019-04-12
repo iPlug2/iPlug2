@@ -8,18 +8,12 @@
  ==============================================================================
 */
 
-#ifndef NO_IGRAPHICS
-#include <Foundation/NSArchiver.h>
-
 #include "IGraphicsMac.h"
 
 #include "IControl.h"
 #include "IPopupMenuControl.h"
 
 #import "IGraphicsMac_view.h"
-
-#include "IPlugPluginBase.h"
-#include "IPlugPaths.h"
 
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
@@ -45,21 +39,6 @@ int GetSystemVersion()
   return v;
 }
 
-struct CocoaAutoReleasePool
-{
-  NSAutoreleasePool* mPool;
-
-  CocoaAutoReleasePool()
-  {
-    mPool = [[NSAutoreleasePool alloc] init];
-  }
-
-  ~CocoaAutoReleasePool()
-  {
-    [mPool release];
-  }
-};
-
 //#define IGRAPHICS_MAC_BLIT_BENCHMARK
 //#define IGRAPHICS_MAC_OLD_IMAGE_DRAWING
 
@@ -73,16 +52,78 @@ static double gettm()
 }
 #endif
 
+template <class T>
+struct CFLocal
+{
+  CFLocal(T obj) : mObject(obj) {}
+  ~CFLocal() { if (mObject) CFRelease(mObject); }
+  
+  T Get() { return mObject; }
+  
+  T Release()
+  {
+    T prev = mObject;
+    mObject = nullptr;
+    return prev;
+  }
+  
+  T mObject;
+};
+
+// Fonts
+
+IGraphicsMac::MacFont::~MacFont()
+{
+  CGDataProviderRelease(mProvider);
+  if (mDescriptor)
+    CFRelease(mDescriptor);
+};
+
+IFontDataPtr IGraphicsMac::MacFont::GetFontData()
+{
+  char styleCString[64];
+  
+  CFLocal<CFDataRef> rawData = CGDataProviderCopyData(mProvider);
+  const UInt8* bytes = CFDataGetBytePtr(rawData.Get());
+  CFLocal<CFStringRef> styleString = (CFStringRef) CTFontDescriptorCopyAttribute(mDescriptor, kCTFontStyleNameAttribute);
+  CFStringGetCString(styleString.Get(), styleCString, 64, kCFStringEncodingUTF8);
+  IFontDataPtr fontData(new IFontData(bytes, static_cast<int>(CFDataGetLength(rawData.Get())), GetFaceIdx(bytes, static_cast<int>(CFDataGetLength(rawData.Get())), styleCString)));
+  
+  return fontData;
+}
+
+struct MacFontDescriptor
+{
+  MacFontDescriptor(CTFontDescriptorRef descriptor) : mDescriptor(descriptor)
+  {
+    CFRetain(mDescriptor);
+  }
+  
+  ~MacFontDescriptor()
+  {
+    CFRelease(mDescriptor);
+  }
+  
+  CTFontDescriptorRef mDescriptor;
+};
+
+static StaticStorage<MacFontDescriptor> sFontDescriptorCache;
+  
 #pragma mark -
 
 IGraphicsMac::IGraphicsMac(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
 {
   NSApplicationLoad();
+  StaticStorage<MacFontDescriptor>::Accessor storage(sFontDescriptorCache);
+  storage.Retain();
 }
 
 IGraphicsMac::~IGraphicsMac()
 {
+  StaticStorage<MacFontDescriptor>::Accessor storage(sFontDescriptorCache);
+  storage.Release();
+  
   CloseWindow();
 }
 
@@ -97,105 +138,65 @@ bool IGraphicsMac::IsSandboxed()
   return false;
 }
 
-bool IGraphicsMac::GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath)
+IGraphics::PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
 {
-  CocoaAutoReleasePool pool;
-
-  const char* ext = fileName+strlen(fileName)-1;
-  while (ext >= fileName && *ext != '.') --ext;
-  ++ext;
-
-  bool isCorrectType = !strcasecmp(ext, searchExt);
-
-  NSBundle* pBundle = [NSBundle bundleWithIdentifier:ToNSString(GetBundleID())];
-  NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
-
-  if (isCorrectType && pBundle && pFile)
-  {
-    NSString* pPath = [pBundle pathForResource:pFile ofType:ToNSString(searchExt)];
-
-    if (pPath)
-    {
-      if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
-      {
-        fullPath.Set([pPath cString]);
-        return true;
-      }
-    }
-  }
-
-  fullPath.Set("");
-  return false;
-}
-
-bool IGraphicsMac::GetResourcePathFromUsersMusicFolder(const char* fileName, const char* searchExt, WDL_String& fullPath)
-{
-  CocoaAutoReleasePool pool;
-
-  const char* ext = fileName+strlen(fileName)-1;
-  while (ext >= fileName && *ext != '.') --ext;
-  ++ext;
-
-  bool isCorrectType = !strcasecmp(ext, searchExt);
-
-  NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
-  NSString* pExt = [NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding];
-
-  if (isCorrectType && pFile)
-  {
-    WDL_String musicFolder;
-    SandboxSafeAppSupportPath(musicFolder);
-    IPluginBase* pPlugin = dynamic_cast<IPluginBase*>(GetDelegate());
+   WDL_String fullPath;
+  const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, GetBundleID(), nullptr);
     
-    if(pPlugin != nullptr)
-    {
+  if (fontLocation == kNotFound)
+    return nullptr;
+
+  CFLocal<CFStringRef> path = CFStringCreateWithCString(NULL, fullPath.Get(), kCFStringEncodingUTF8);
+  CFLocal<CFURLRef> url = CFURLCreateWithFileSystemPath(NULL, path.Get(), kCFURLPOSIXPathStyle, false);
+  CFLocal<CGDataProviderRef> provider = url.Get() ? CGDataProviderCreateWithURL(url.Get()) : nullptr;
+  CFLocal<CGFontRef> cgFont = CGFontCreateWithDataProvider(provider.Get());
+  CFLocal<CTFontRef> ctFont = CTFontCreateWithGraphicsFont(cgFont.Get(), 0.f, NULL, NULL);
+  CFLocal<CTFontDescriptorRef> descriptor = CTFontCopyFontDescriptor(ctFont.Get());
   
-      NSString* pPluginName = [NSString stringWithCString: pPlugin->GetPluginName() encoding:NSUTF8StringEncoding];
-      NSString* pMusicLocation = [NSString stringWithCString: musicFolder.Get() encoding:NSUTF8StringEncoding];
-      NSString* pPath = [[[[pMusicLocation stringByAppendingPathComponent:pPluginName] stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent: pFile] stringByAppendingPathExtension:pExt];
-
-      if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
-      {
-        fullPath.Set([pPath cString]);
-        return true;
-      }
-    }
-  }
-
-  fullPath.Set("");
-  return false;
+  if (!descriptor.Get())
+    return nullptr;
+  
+  return PlatformFontPtr(new MacFont(descriptor.Release(), provider.Release()));
 }
 
-EResourceLocation IGraphicsMac::OSFindResource(const char* name, const char* type, WDL_String& result)
+IGraphics::PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
 {
-  if(CStringHasContents(name))
-  {
-    // first check this bundle
-    if(GetResourcePathFromBundle(name, type, result))
-      return EResourceLocation::kAbsolutePath;
+  CFLocal<CFStringRef> fontStr = CFStringCreateWithCString(NULL, fontName, kCFStringEncodingUTF8);
+  CFLocal<CFStringRef> styleStr = CFStringCreateWithCString(NULL, TextStyleString(style), kCFStringEncodingUTF8);
+  
+  CFStringRef keys[] = { kCTFontFamilyNameAttribute, kCTFontStyleNameAttribute };
+  CFTypeRef values[] = { fontStr.Get(), styleStr.Get() };
+  
+  CFLocal<CFDictionaryRef> dictionary = CFDictionaryCreate(NULL, (const void**)&keys, (const void**)&values, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+  CFLocal<CTFontDescriptorRef> descriptor = CTFontDescriptorCreateWithAttributes(dictionary.Get());
+  CFLocal<CFURLRef> url = (CFURLRef) CTFontDescriptorCopyAttribute(descriptor.Get(), kCTFontURLAttribute);
+  CFLocal<CGDataProviderRef> provider = url.Get() ? CGDataProviderCreateWithURL(url.Get()) : nullptr;
 
-    // then check ~/Music/PLUG_NAME, which is a shared folder that can be accessed from app sandbox
-    if(GetResourcePathFromUsersMusicFolder(name, type, result))
-      return EResourceLocation::kAbsolutePath;
+  if (!provider.Get())
+    return nullptr;
+  
+  return PlatformFontPtr(new MacFont(descriptor.Release(), provider.Release()));
+}
 
-    // finally check name, which might be a full path - if the plug-in is trying to load a resource at runtime (e.g. skin-able UI)
-    NSString* pPath = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
-
-    if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
-    {
-      result.Set([pPath UTF8String]);
-      return EResourceLocation::kAbsolutePath;
-    }
-  }
-  return EResourceLocation::kNotFound;
+void IGraphicsMac::CachePlatformFont(const char* fontID, const PlatformFontPtr& font)
+{
+  StaticStorage<MacFontDescriptor>::Accessor storage(sFontDescriptorCache);
+ 
+  CTFontDescriptorRef descriptor = (CTFontDescriptorRef) font->GetDescriptor();
+  
+  if (!storage.Find(fontID))
+    storage.Add(new MacFontDescriptor(descriptor), fontID);
 }
 
 bool IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds)
 {
 #ifdef IGRAPHICS_LICE
-  CocoaAutoReleasePool pool;
-#endif
+  @autoreleasepool {
+    return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
+  }
+#else
   return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
+#endif
 }
 
 void* IGraphicsMac::OpenWindow(void* pParent)
@@ -229,14 +230,10 @@ void IGraphicsMac::CloseWindow()
     IGRAPHICS_VIEW* view = (IGRAPHICS_VIEW*) mView;
     [view removeAllToolTips];
     [view killTimer];
-    mView = nullptr;
-
-    if (view->mGraphics)
-    {
-      [view removeFromSuperview];
-    }
+    [view removeFromSuperview];
     [view release];
       
+    mView = nullptr;
     OnViewDestroyed();
   }
 }
@@ -253,8 +250,6 @@ void IGraphicsMac::PlatformResize()
     NSSize size = { static_cast<CGFloat>(WindowWidth()), static_cast<CGFloat>(WindowHeight()) };
 
     DBGMSG("%f, %f\n", size.width, size.height);
-    // Prevent animation during resize
-    // N.B. - The bounds perform scaling on the window, and so use the nominal size
 
     [NSAnimationContext beginGrouping]; // Prevent animated resizing
     [[NSAnimationContext currentContext] setDuration:0.0];
@@ -410,9 +405,10 @@ void IGraphicsMac::ForceEndUserEdit()
 
 void IGraphicsMac::UpdateTooltips()
 {
-  if (!(mView && TooltipsEnabled())) return;
+  if (!(mView && TooltipsEnabled()))
+    return;
 
-  CocoaAutoReleasePool pool;
+  @autoreleasepool {
 
   [(IGRAPHICS_VIEW*) mView removeAllToolTips];
 
@@ -434,6 +430,8 @@ void IGraphicsMac::UpdateTooltips()
   };
 
   ForStandardControlsFunc(func);
+  
+  }
 }
 
 const char* IGraphicsMac::GetPlatformAPIStr()
@@ -443,10 +441,10 @@ const char* IGraphicsMac::GetPlatformAPIStr()
 
 bool IGraphicsMac::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
 {
-  CocoaAutoReleasePool pool;
-
   BOOL success = FALSE;
 
+  @autoreleasepool {
+    
   if(path.GetLength())
   {
     NSString* pPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
@@ -472,6 +470,7 @@ bool IGraphicsMac::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
     }
   }
 
+  }
   return (bool) success;
 }
 
@@ -621,8 +620,19 @@ void IGraphicsMac::CreatePlatformTextEntry(IControl& control, const IText& text,
   if (mView)
   {
     NSRect areaRect = ToNSRect(this, bounds);
-    [(IGRAPHICS_VIEW*) mView createTextEntry: control: text: str: areaRect];
+    [(IGRAPHICS_VIEW*) mView createTextEntry: control : text: str: areaRect];
   }
+}
+
+CTFontDescriptorRef IGraphicsMac::GetCTFontDescriptor(const IText& text)
+{
+  StaticStorage<MacFontDescriptor>::Accessor storage(sFontDescriptorCache);
+
+  MacFontDescriptor* cachedFont = storage.Find(text.mFont);
+  
+  assert(cachedFont && "font not found - did you forget to load it?");
+
+  return cachedFont->mDescriptor;
 }
 
 //void IGraphicsMac::CreateWebView(const IRECT& bounds, const char* url)
@@ -634,12 +644,12 @@ void IGraphicsMac::CreatePlatformTextEntry(IControl& control, const IText& text,
 //  }
 //}
 
-void IGraphicsMac::SetMouseCursor(ECursor cursor)
+ECursor IGraphicsMac::SetMouseCursor(ECursor cursorType)
 {
   if (mView)
-  {
-    [(IGRAPHICS_VIEW*) mView setMouseCursor: cursor];
-  }
+    [(IGRAPHICS_VIEW*) mView setMouseCursor: cursorType];
+    
+  return IGraphics::SetMouseCursor(cursorType);
 }
 
 bool IGraphicsMac::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
@@ -647,17 +657,13 @@ bool IGraphicsMac::OpenURL(const char* url, const char* msgWindowTitle, const ch
   #pragma REMINDER("Warning and error messages for OpenURL not implemented")
   NSURL* pNSURL = nullptr;
   if (strstr(url, "http"))
-  {
-    pNSURL = [NSURL URLWithString:ToNSString(url)];
-  }
+    pNSURL = [NSURL URLWithString:[NSString stringWithCString:url encoding:NSUTF8StringEncoding]];
   else
-  {
-    pNSURL = [NSURL fileURLWithPath:ToNSString(url)];
-  }
+    pNSURL = [NSURL fileURLWithPath:[NSString stringWithCString:url encoding:NSUTF8StringEncoding]];
+
   if (pNSURL)
   {
     bool ok = ([[NSWorkspace sharedWorkspace] openURL:pNSURL]);
-    // [pURL release];
     return ok;
   }
   return true;
@@ -694,18 +700,10 @@ bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
 //TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT
 #ifdef IGRAPHICS_AGG
   #include "IGraphicsAGG.cpp"
-  #include "agg_mac_pmap.mm"
-  #include "agg_mac_font.mm"
 #elif defined IGRAPHICS_CAIRO
   #include "IGraphicsCairo.cpp"
 #elif defined IGRAPHICS_NANOVG
   #include "IGraphicsNanoVG.cpp"
-  #ifdef IGRAPHICS_FREETYPE
-    #define FONS_USE_FREETYPE
-  #endif
-#include "nanovg.c"
 #else
   #include "IGraphicsLice.cpp"
 #endif
-
-#endif// NO_IGRAPHICS

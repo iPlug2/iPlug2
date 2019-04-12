@@ -1,0 +1,129 @@
+jobs:
+# comment out this job if you don't have access to the AAX_SDK.zip secure file set up
+# - template: build_aax_libs.yml
+
+- job: BUILD_WIN_DEPS
+  dependsOn: GET_SRC_TREE
+  condition: and(eq(variables.build_deps, true), eq(variables.build_win, true))
+
+  strategy:
+    matrix:
+      x86_RELEASE:
+        buildPlatform: 'Win32'
+        buildConfiguration: 'Release'
+      x64_RELEASE:
+        buildPlatform: 'x64'
+        buildConfiguration: 'Release'
+      x86_DEBUG:
+        buildPlatform: 'Win32'
+        buildConfiguration: 'Debug'
+      x64_DEBUG:
+        buildPlatform: 'x64'
+        buildConfiguration: 'Debug'
+
+  pool:
+    vmImage: 'vs2017-win2016'
+
+  steps:
+  - checkout: none
+
+  - template: get_src_artifact.yml
+
+  - task: VSBuild@1
+    inputs:
+      solution: 'Dependencies/IGraphics/IGraphicsLibraries.sln'
+      platform: '$(buildPlatform)'
+      configuration: '$(buildConfiguration)'
+    displayName: Build Windows Dependencies
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'DEPS_BUILD_WIN_$(buildPlatform)_$(buildConfiguration)'
+      targetPath: 'Dependencies/Build/'
+    displayName: Publish Windows $(buildPlatform) $(buildConfiguration) Dependencies Artifacts
+
+- job: PUBLISH_WIN_DEPS
+  condition: and(eq(variables.build_deps, true), eq(variables.build_win, true))
+  dependsOn: BUILD_WIN_DEPS
+  steps:
+  - checkout: none
+
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'DEPS_BUILD_WIN_Win32_Release'
+      targetPath: 'Dependencies/Build/'
+    displayName: Download Win32_Release Artifact
+
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'DEPS_BUILD_WIN_Win32_Debug'
+      targetPath: 'Dependencies/Build/'
+    displayName: Download Win32_Debug Artifact
+
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'DEPS_BUILD_WIN_x64_Release'
+      targetPath: 'Dependencies/Build/'
+    displayName: Download x64_Release Artifact
+
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'DEPS_BUILD_WIN_x64_Debug'
+      targetPath: 'Dependencies/Build/'
+    displayName: Download x64_Debug Artifact
+
+  - task: DeleteFiles@1
+    inputs:
+      contents: 'Dependencies/Build/*.log'
+
+  - task: DeleteFiles@1
+    inputs:
+      contents: 'Dependencies/Build/tmp'
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'IPLUG2_DEPS_WIN'
+      targetPath: 'Dependencies/Build/'
+    displayName: Publish Windows Dependencies Artifacts
+
+- job: BUILD_MAC_DEPS
+  dependsOn: GET_SRC_TREE
+  condition: and(eq(variables.build_deps, true), eq(variables.build_mac, true))
+
+  pool:
+    vmImage: 'macos-10.13'
+  steps:
+  - checkout: none
+
+  - template: get_src_artifact.yml
+
+  - bash: |
+      #tmp force cairo rebuild
+      rm -r ./Dependencies/Build/src/cairo
+      cd ./Dependencies/IGraphics
+      ./build-igraphics-libs-mac.sh
+
+      cd $BUILD_SOURCESDIRECTORY
+      wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
+      tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
+      export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
+      echo "##vso[task.setvariable variable=PATH]$PATH"
+
+      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/faust
+      ./build-faust-mac.sh
+
+      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/civetweb
+      ./build-civetweb-mac.sh
+    displayName: Build macOS Dependencies
+
+  - bash: |
+      rm ./Dependencies/Build/*.log
+      rm -r ./Dependencies/Build/tmp
+      rm -r ./Dependencies/Build/src
+    displayName: Delete unwanted files
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'IPLUG2_DEPS_MAC'
+      targetPath: 'Dependencies/Build/'
+    displayName: Publish Mac Dependencies Artifacts

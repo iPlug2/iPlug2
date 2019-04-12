@@ -12,7 +12,7 @@
 #include "IPlugAPP_host.h"
 
 #if defined OS_MAC || defined OS_LINUX
-#include "swell.h"
+#include <IPlugSWELL.h>
 #endif
 
 extern HWND gHWND;
@@ -29,8 +29,7 @@ IPlugAPP::IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
 
   SetBlockSize(DEFAULT_BLOCK_SIZE);
-  SetHost("standalone", c.vendorVersion);
-    
+  
   CreateTimer();
 }
 

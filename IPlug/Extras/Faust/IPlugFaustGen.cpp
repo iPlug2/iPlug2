@@ -18,15 +18,12 @@
 #include "faust/dsp/libfaust.h"
 #define LLVM_DSP
 #include "faust/dsp/poly-dsp.h"
-
-//#ifndef OS_WIN
-//#include "faust/sound-file.h"
-//#endif
+#include "fileread.h"
 
 int FaustGen::sFaustGenCounter = 0;
 int FaustGen::Factory::sFactoryCounter = 0;
 bool FaustGen::sAutoRecompile = false;
-map<string, FaustGen::Factory *> FaustGen::Factory::sFactoryMap;
+std::map<std::string, FaustGen::Factory *> FaustGen::Factory::sFactoryMap;
 std::list<GUI*> GUI::fGuiList;
 Timer* FaustGen::sTimer = nullptr;
 
@@ -94,7 +91,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
   PrintCompileOptions();
 
   // Prepare compile options
-  string error;
+  std::string error;
   const char* argv[64];
 
   const int N = (int) mCompileOptions.size();
@@ -112,15 +109,9 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 //    DBGMSG("FaustGen-%s: Generate SVG error : %s\n", error.c_str());
 //  }
 
-#ifdef OS_WIN
-  argv[N] = "-l";
-  argv[N + 1] = "llvm_math.ll";
-  argv[N + 2] = 0; // NULL terminated argv
-  llvm_dsp_factory* pFactory = createDSPFactoryFromString(name.Get(), mSourceCodeStr.Get(), N + 2, argv, getTarget(), error, mOptimizationLevel);
-#else
   argv[N] = 0; // NULL terminated argv
+
   llvm_dsp_factory* pFactory = createDSPFactoryFromString(name.Get(), mSourceCodeStr.Get(), N, argv, GetLLVMArchStr(), error, mOptimizationLevel);
-#endif
 
   if (pFactory)
   {
@@ -212,28 +203,8 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
   }
 
     // Otherwise creates default DSP keeping the same input/output number
-#ifdef OS_WIN
-//  // Prepare compile options
-//  const char* argv[64];
-//
-//  const int N = (int) mCompileOptions.size();
-//
-//  assert(N < 64);
-//
-//  for (auto i = 0; i< N; i++)
-//  {
-//    argv[i] = mCompileOptions[i];
-//  }
-//
-//  argv[N] = "-l";
-//  argv[N + 1] = "llvm_math.ll";
-//  argv[N + 2] = 0; // NULL terminated argv
-//
-//  mLLVMFactory = createDSPFactoryFromString("default", DEFAULT_SOURCE_CODE, N + 2, argv, getTarget(), error, 0);
-#else
   mSourceCodeStr.SetFormatted(256, maxInputs == 0 ? DEFAULT_SOURCE_CODE_FMT_STR_INSTRUMENT : DEFAULT_SOURCE_CODE_FMT_STR_FX, maxOutputs);
   mLLVMFactory = createDSPFactoryFromString("default", mSourceCodeStr.Get(), 0, 0, GetLLVMArchStr(), error, 0);
-#endif
 
   pDSP = CreateDSPInstance();
   DBGMSG("FaustGen-%s: Allocation of default DSP succeeded, %i input(s), %i output(s)\n", mName.Get(), pDSP->getNumInputs(), pDSP->getNumOutputs());
@@ -381,26 +352,19 @@ bool FaustGen::Factory::LoadFile(const char* file)
 
   mBitCodeStr.Set("");
 
-  FILE* fp = fopen(file, "r");
-  WDL_String data;
+  WDL_FileRead infile(file);
 
-  if (fp)
+  if (infile.IsOpen() == true)
   {
-    long fileSize;
-    
-    fseek(fp , 0 , SEEK_END);
-    fileSize = ftell(fp);
-    rewind(fp);
-    data.SetLen((int) fileSize);
-    fread(data.Get(), fileSize, 1, fp);
-    
-    fclose(fp);
-    
+    std::vector<char> buffer(infile.GetSize() + 1); // +1 to have space for the terminating zero
+    infile.Read(buffer.data(), infile.GetSize());
+    buffer[infile.GetSize()] = '\0'; // put in the string terminating zero
+
     StatType buf;
     GetStat(fileStr.Get(), &buf);
     mPreviousTime = GetModifiedTime(buf);
-    
-    mSourceCodeStr.Set(data.Get());
+
+    mSourceCodeStr.Set(buffer.data());
     
     // Add path of file to library path
     fileStr.remove_filepart(true);
@@ -471,6 +435,10 @@ FaustGen::FaustGen(const char* name, const char* inputDSPFile, int nVoices, int 
 {
   sFaustGenCounter++;
 
+#ifdef OS_WIN
+  SetDllDirectoryA(FAUST_DLL_PATH);
+#endif
+  
   //if a factory doesn't already exist for this name, create one otherwise set mFactory to the existing one
   if (FaustGen::Factory::sFactoryMap.find(name) != FaustGen::Factory::sFactoryMap.end())
   {
@@ -478,6 +446,7 @@ FaustGen::FaustGen(const char* name, const char* inputDSPFile, int nVoices, int 
   }
   else
   {
+    DBGMSG("FaustGen: attempting to load %s\n", inputDSPFile);
     mFactory = new Factory(name, libraryPath, drawPath, inputDSPFile);
     FaustGen::Factory::sFactoryMap[name] = mFactory;
   }
@@ -533,6 +502,7 @@ void FaustGen::GetDrawPath(WDL_String& path)
 
 bool FaustGen::CompileCPP()
 {
+//#ifndef OS_WIN
   WDL_String archFile;
   archFile.Set(__FILE__);
   archFile.remove_filepart(true);
@@ -549,7 +519,7 @@ bool FaustGen::CompileCPP()
     outputFile.remove_fileext();
     outputFile.AppendFormatted(1024, ".tmp");
     //-double
-    command.SetFormatted(1024, "%s -cn %s -i -a %s %s -o %s", FAUST_EXE, f.second->mName.Get(), archFile.Get(), inputFile.Get(), outputFile.Get());
+    command.SetFormatted(1024, "%s -cn %s -i -a %s -o %s %s", FAUST_EXE, f.second->mName.Get(), archFile.Get(), outputFile.Get(), inputFile.Get());
 
     DBGMSG("exec: %s\n", command.Get());
 
@@ -561,7 +531,11 @@ bool FaustGen::CompileCPP()
   folder.remove_filepart(true);
   WDL_String finalOutput = folder;
   finalOutput.AppendFormatted(1024, "FaustCode.hpp");
+#ifndef OS_WIN
   command.SetFormatted(1024, "cat %s*.tmp > %s", folder.Get(), finalOutput.Get());
+#else
+  command.SetFormatted(1024, "copy %s*.tmp %s", folder.Get(), finalOutput.Get());
+#endif
 
   if(system(command.Get()) == -1)
   {
@@ -570,7 +544,11 @@ bool FaustGen::CompileCPP()
     return false;
   }
 
+#ifndef OS_WIN
   command.SetFormatted(1024, "rm %s*.tmp", folder.Get());
+#else
+  command.SetFormatted(1024, "del %s*.tmp", folder.Get());
+#endif
 
   if(system(command.Get()) == -1)
   {
@@ -579,8 +557,19 @@ bool FaustGen::CompileCPP()
     return false;
   }
 
+//#endif
+
   return true;
 }
+
+//bool FaustGen::CompileObjectFile(const char* fileName)
+//{
+//  if (!writeDSPFactoryToObjectcodeFile(mFactory, fileName, "")) {
+//    return false;
+//  }
+//
+//  return true;
+//}
 
 void FaustGen::OnTimer(Timer& timer)
 {
@@ -615,6 +604,17 @@ void FaustGen::OnTimer(Timer& timer)
     // TODO: should check for successfull JIT
     DBGMSG("FaustGen-%s: Statically compiling all FAUST blocks\n", mName.Get());
     CompileCPP();
+    //WDL_String objFile;
+    //objFile.Set(pInputFile);
+    //objFile.remove_fileext();
+
+//#ifdef OS_WIN
+//    objFile.Append(".obj");
+//#else
+//    objFile.Append(".o");
+//#endif
+//
+//    CompileObjectFile(objFile.Get());
   }
 }
 

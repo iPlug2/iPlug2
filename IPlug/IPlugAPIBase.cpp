@@ -66,7 +66,7 @@ void IPlugAPIBase::CreateTimer()
   mTimer = Timer::Create(std::bind(&IPlugAPIBase::OnTimer, this, std::placeholders::_1), IDLE_TIMER_RATE);
 }
 
-bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos)
+bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos) const
 {
   bool isEqual = true;
   
@@ -79,7 +79,7 @@ bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos)
     float v = (float) GetParam(i)->Value();
     float vi = (float) *(data++);
     
-    isEqual &= (fabsf(v - vi) < 0.00001);
+    isEqual &= (std::fabs(v - vi) < 0.00001);
   }
   
   return isEqual;
@@ -98,12 +98,17 @@ void IPlugAPIBase::PrintDebugInfo() const
 
 void IPlugAPIBase::SetHost(const char* host, int version)
 {
+  assert(mHost == kHostUninit);
+    
   mHost = LookUpHost(host);
   mHostVersion = version;
   
   WDL_String vStr;
   GetVersionStr(version, vStr);
   Trace(TRACELOC, "host_%sknown:%s:%s", (mHost == kHostUnknown ? "un" : ""), host, vStr.Get());
+    
+  HostSpecificInit();
+  OnHostIdentified();
 }
 
 void IPlugAPIBase::SetParameterValue(int idx, double normalizedValue)

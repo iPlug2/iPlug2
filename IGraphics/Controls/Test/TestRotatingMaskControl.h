@@ -12,12 +12,12 @@
 
 #include "IControl.h"
 
-
+/** Control to test rotating mask bitmaps */
 class TestRotatingMaskControl : public IKnobControlBase
 {
 public:
-  TestRotatingMaskControl(IGEditorDelegate& dlg, float x, float y, IBitmap& base, IBitmap& mask, IBitmap& top, int paramIdx = kNoParameter)
-  : IKnobControlBase(dlg, IRECT(x, y, base), paramIdx), mBase(base), mMask(mask), mTop(top)
+  TestRotatingMaskControl(float x, float y, IBitmap& base, IBitmap& mask, IBitmap& top, int paramIdx = kNoParameter)
+  : IKnobControlBase(IRECT(x, y, base), paramIdx), mBase(base), mMask(mask), mTop(top)
   {
     SetTooltip("TestRotatingMaskControl");
   }

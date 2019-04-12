@@ -14,12 +14,20 @@
  * @file
  * @copydoc IGraphics
  * @defgroup IGraphicsStructs IGraphics::Structs
+ * Utility structures and classes for IGraphics
  * @defgroup DrawClasses IGraphics::DrawClasses
+ * The IGraphics draw classes allow the actual drawing to be performed using different drawing API back-ends.
+ * A project-wide definition such as IGRAPHICS_CAIRO, chooses which gets used at compile time
  * @defgroup PlatformClasses IGraphics::PlatformClasses
+ * The IGraphics platform classes deal with event handling and platform specific contextual UI
  * @defgroup Controls IGraphics::IControls
+ * UI Widgets, such as knobs, sliders, buttons
  * @defgroup BaseControls IGraphics::IControls::BaseControls
+ * Base classes, to simplify making certain kinds of control
  * @defgroup SpecialControls IGraphics::IControls::SpecialControls
+ * Special controls live outside the main stack, for implementing things like the corner resizer
  * @defgroup TestControls IGraphics::IControls::TestControls
+ * The IGraphicsTest project includes lots of IControls to test functionality, which can also be used to understand how things work
  */
 
 #ifndef NO_IGRAPHICS
@@ -34,6 +42,7 @@
 
 #include "IPlugConstants.h"
 #include "IPlugLogger.h"
+#include "IPlugPaths.h"
 
 #include "IGraphicsConstants.h"
 #include "IGraphicsStructs.h"
@@ -41,7 +50,6 @@
 #include "IGraphicsPopupMenu.h"
 #include "IGraphicsEditorDelegate.h"
 
-#include "heapbuf.h"
 #include <stack>
 #include <memory>
 
@@ -66,9 +74,24 @@ class IGraphics
 : public IPlugAAXView_Interface
 #endif
 {
+protected:
 
+  class PlatformFont
+  {
+  public:
+    virtual ~PlatformFont() {}
+
+    virtual const void* GetDescriptor() { return nullptr; }
+    virtual IFontDataPtr GetFontData() { return IFontDataPtr(new IFontData()); }
+
+  protected:
+    int GetFaceIdx(const void* data, int dataSize, const char* styleName);
+  };
+
+  typedef std::unique_ptr<PlatformFont> PlatformFontPtr;
+    
 public:
-#pragma mark - IGraphics drawing API implementation
+#pragma mark - Drawing API implementation
 
   /** Called at the beginning of drawing. Call base implementation if overridden. */
   virtual void BeginFrame();
@@ -77,7 +100,7 @@ public:
   virtual void OnViewInitialized(void* pContext) {};
   
   /** Called after a platform view is destroyed, so that drawing classes can e.g. free any resources */
-  virtual void OnViewDestroyed() {}; //TODO: should happen before platform view is destroyed?
+  virtual void OnViewDestroyed() {};
 
   /** Called by some drawing API classes to finally blit the draw bitmap onto the screen or perform other cleanup after drawing */
   virtual void EndFrame() {};
@@ -86,7 +109,7 @@ public:
    * @param svg The SVG image to the graphics context
    * @param bounds The rectangular region to draw the image in
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawSVG(ISVG& svg, const IRECT& bounds, const IBlend* pBlend = 0) = 0;
+  virtual void DrawSVG(const ISVG& svg, const IRECT& bounds, const IBlend* pBlend = 0) = 0;
 
   /** Draw an SVG image to the graphics context with rotation
    * @param svg The SVG image to draw to the graphics context
@@ -96,7 +119,7 @@ public:
    * @param height \todo
    * @param angle The angle to rotate the bitmap mask at in degrees clockwise
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawRotatedSVG(ISVG& svg, float destCentreX, float destCentreY, float width, float height, double angle, const IBlend* pBlend = 0) = 0;
+  virtual void DrawRotatedSVG(const ISVG& svg, float destCentreX, float destCentreY, float width, float height, double angle, const IBlend* pBlend = 0) = 0;
 
   /** Draw a bitmap (raster) image to the graphics context
    * @param bitmap The bitmap image to draw to the graphics context
@@ -104,13 +127,13 @@ public:
    * @param srcX The X coordinate in the source image to draw from \todo
    * @param srcY The Y coordinate in the source image to draw from \todo
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend = 0) = 0;
+  virtual void DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend = 0) = 0;
 
   /** Draw a bitmap (raster) image to the graphics context, scaling the image to fit the bounds
    * @param bitmap The bitmap image to draw to the graphics context
    * @param bounds The rectangular region to draw the image in
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend = 0) = 0;
+  virtual void DrawFittedBitmap(const IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend = 0) = 0;
   
   /** Draw a bitmap (raster) image to the graphics context with rotation
    * @param bitmap The bitmap image to draw to the graphics context
@@ -119,7 +142,7 @@ public:
    * @param angle The angle of rotation in degrees
    * @param yOffsetZeroDeg \todo
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawRotatedBitmap(IBitmap& bitmap, float destCentreX, float destCentreY, double angle, int yOffsetZeroDeg = 0, const IBlend* pBlend = 0) = 0;
+  virtual void DrawRotatedBitmap(const IBitmap& bitmap, float destCentreX, float destCentreY, double angle, int yOffsetZeroDeg = 0, const IBlend* pBlend = 0) = 0;
 
   /** Draw a rotated, masked bitmap to the graphics context
    * @param base The base bitmap image to draw to the graphics context \todo explain base
@@ -129,7 +152,7 @@ public:
    * @param y The Y coordinate in the graphics context at which to draw
    * @param angle The angle to rotate the bitmap mask at in degrees clockwise
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, float x, float y, double angle, const IBlend* pBlend = 0) = 0;
+  virtual void DrawRotatedMask(const IBitmap& base, const IBitmap& mask, const IBitmap& top, float x, float y, double angle, const IBlend* pBlend = 0) = 0;
 
   /** Fill a rectangle corresponding to a pixel on a 1:1 screen with a color
    * @param color The color to fill the point with
@@ -360,24 +383,39 @@ public:
 
   /** @return A CString representing the Drawing API in use e.g. "LICE" */
   virtual const char* GetDrawingAPIStr() = 0;
-
-#pragma mark - IGraphics drawing API implementation (bitmap handling)
+  
+  /** /todo 
+   * @param srcbitmap /todo
+   * @param cacheName /todo
+   * @param targetScale /todo
+   * @return IBitmap /todo */
   virtual IBitmap ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, int targetScale);
+
+  /** /todo 
+   * @param bitmap /todo
+   * @param cacheName /todo */
   virtual void RetainBitmap(const IBitmap& bitmap, const char* cacheName);
+
+  /** /todo 
+   * @param bitmap /todo */
   virtual void ReleaseBitmap(const IBitmap& bitmap);
+
+  /** /todo 
+   * @param src /todo
+   * @return IBitmap /todo */
   IBitmap GetScaledBitmap(IBitmap& src);
   
   /** Checks a file extension and reports whether this drawing API supports loading that extension */
   virtual bool BitmapExtSupported(const char* ext) = 0;
   
-#pragma mark - IGraphics base implementation - drawing helpers
+#pragma mark - Base implementation - drawing helpers
 
   /** Draws a bitmap into the graphics context. NOTE: this helper method handles multi-frame bitmaps, indexable via frame
    * @param bitmap - the bitmap to draw
    * @param bounds - where to draw the bitmap
    * @param frame - the frame index of the bitmap to draw (when bitmap is multi-frame)
    * @param pBlend - blend operation */
-  void DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int frame = 1, const IBlend* pBlend = 0);
+  void DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int frame = 1, const IBlend* pBlend = 0);
 
   /** Draws mono spaced bitmap text. Useful for identical looking text on multiple platforms.
    * @param bitmap the bitmap containing glyphs to draw
@@ -390,7 +428,7 @@ public:
    * @param charWidth how wide is a character in the bitmap
    * @param charHeight how high is a character in the bitmap
    * @param charOffset what is the offset between characters drawn */
-  void DrawBitmapedText(IBitmap& bitmap, IRECT& bounds, IText& text, IBlend* pBlend, const char* str, bool vCenter = true, bool multiline = false, int charWidth = 6, int charHeight = 12, int charOffset = 0);
+  void DrawBitmapedText(const IBitmap& bitmap, IRECT& bounds, IText& text, IBlend* pBlend, const char* str, bool vCenter = true, bool multiline = false, int charWidth = 6, int charHeight = 12, int charOffset = 0);
 
   /** Draw a vertical line, within a rectangular region of the graphics context
    * @param color The color to draw the line with
@@ -418,9 +456,9 @@ public:
 
   /** \todo
    * @param color The color to draw the line with
-   * @param xi \todo
-   * @param yLo \todo
-   * @param yHi \todo
+   * @param yi \todo
+   * @param xLo \todo
+   * @param xHi \todo
    * @param pBlend Optional blend method, see IBlend documentation*/
   void DrawHorizontalLine(const IColor& color, float yi, float xLo, float xHi, const IBlend* pBlend = 0, float thickness = 1.f);
 
@@ -444,15 +482,62 @@ public:
    * @param thickness Optional line thickness */
   virtual void DrawGrid(const IColor& color, const IRECT& bounds, float gridSizeH, float gridSizeV, const IBlend* pBlend = 0, float thickness = 1.f);
 
+  /** /todo
+   * @param color /todo
+   * @param bounds /todo
+   * @param normYPoints /todo
+   * @param nPoints /todo
+   * @param normXPoints /todo
+   * @param pBlend /todo
+   * @param thickness /todo */
   virtual void DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints = nullptr, const IBlend* pBlend = 0, float thickness = 1.f);
   
-#pragma mark - IGraphics drawing API layer support
+  /** Load a font to be used by the graphics context
+   * @param fontID A CString that will be used to reference the font
+   * @param fileNameOrResID A CString absolute path or resource ID
+   * @return \c true on success */
+  virtual bool LoadFont(const char* fontID, const char* fileNameOrResID);
     
+  /** \todo
+   * @param fontID A CString that will be used to reference the font
+   * @param fontName A CString font name
+   * @param style A font style
+   * @return \c true on success */
+  bool LoadFont(const char* fontID, const char* fontName, ETextStyle style);
+
+#pragma mark - Layer management
+  
+  /** /todo 
+   * @param r /todo*/
   void StartLayer(const IRECT& r);
+  
+  /** /todo
+   * @param layer /todo*/
   void ResumeLayer(ILayerPtr& layer);
+
+  /** /todo
+   * @return ILayerPtr /todo */
   ILayerPtr EndLayer();
+
+  /** /todo 
+   * @param layer /todo
+   * @return /todo */
   bool CheckLayer(const ILayerPtr& layer);
+
+  /** /todo 
+   * @param layer /todo
+   * @param pBlend /todo */
   void DrawLayer(const ILayerPtr& layer, const IBlend* pBlend = nullptr);
+
+  /** /todo
+   * @param layer /todo
+   * @param bounds /todo
+   * @param pBlend /todo */
+  void DrawFittedLayer(const ILayerPtr& layer, const IRECT& bounds, const IBlend* pBlend);
+
+  /** /todo
+   * @param layer /todo
+   * @param angle /todo */
   void DrawRotatedLayer(const ILayerPtr& layer, double angle);
     
   /** Applies a dropshadow directly onto a layer
@@ -460,65 +545,205 @@ public:
   * @param shadow - the shadow to add */
   void ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow);
     
-private:
+  /** /todo */
   virtual void UpdateLayer() {}
 
+  /** /todo
+   * @param layer /todo
+   * @param data /todo */
+  virtual void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) = 0;
+  
+  /** /todo
+   * @param layer /todo
+   * @param mask /todo
+   * @param shadow /todo */
+  virtual void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) = 0;
+  
+  /** /todo
+   * @param layer /todo
+   * @param clearTransforms /todo */
+  void PushLayer(ILayer* layer, bool clearTransforms);
+  
+  /** /todo
+   * @param clearTransforms /todo
+   * @return ILayer* /todo */
+  ILayer* PopLayer(bool clearTransforms);
+  
+#pragma mark - Drawing API path support
 public:
   
-#pragma mark - IGraphics drawing API Path support
-
   virtual bool HasPathSupport() const { return false; }
 
+  /** /todo */
   virtual void PathClear() {}
+
+  /** /todo */
   virtual void PathClose() {}
 
+  /** /todo 
+   * @param x1 /todo
+   * @param y1 /todo
+   * @param x2 /todo
+   * @param y2 /todo */
   void PathLine(float x1, float y1, float x2, float y2)
   {
     PathMoveTo(x1, y1);
     PathLineTo(x2, y2);
   }
 
+  /** /todo 
+   * @param cx /todo
+   * @param cy /todo
+   * @param angle /todo
+   * @param rMin /todo
+   * @param rMax /todo */
   void PathRadialLine(float cx, float cy, float angle, float rMin, float rMax);
 
+  /** /todo 
+   * @param x1 /todo
+   * @param y1 /todo
+   * @param x2 /todo
+   * @param y2 /todo
+   * @param x3 /todo
+   * @param y3 /todo */
   virtual void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) {}
+
+  /** /todo 
+   * @param bounds /todo */
   virtual void PathRect(const IRECT& bounds) {}
+
+  /** /todo 
+   * @param bounds /todo
+   * @param ctl /todo
+   * @param ctr /todo
+   * @param cbl /todo
+   * @param cbr /todo */
   virtual void PathRoundRect(const IRECT& bounds, float ctl, float ctr, float cbl, float cbr) {}
+
+  /** /todo 
+   * @param bounds /todo
+   * @param cr /todo */
   virtual void PathRoundRect(const IRECT& bounds, float cr = 5.f) {}
+
+  /** /todo 
+   * @param cx /todo
+   * @param cy /todo
+   * @param r /todo
+   * @param aMin /todo
+   * @param aMax /todo */
   virtual void PathArc(float cx, float cy, float r, float aMin, float aMax) {}
+
+  /** /todo 
+   * @param cx /todo
+   * @param cy /todo
+   * @param r /todo  */
   virtual void PathCircle(float cx, float cy, float r) {}
+
+  /** /todo 
+   * @param x /todo
+   * @param y /todo
+   * @param r1 /todo
+   * @param r2 /todo
+   * @param angle /todo */
   virtual void PathEllipse(float x, float y, float r1, float r2, float angle = 0.0) {}
+
+  /** /todo 
+   * @param bounds /todo */
   virtual void PathEllipse(const IRECT& bounds) {}
+
+  /** /todo 
+   * @param x /todo
+   * @param y /todo
+   * @param nPoints /todo */
   virtual void PathConvexPolygon(float* x, float* y, int nPoints) {}
 
+  /** /todo 
+   * @param x /todo
+   * @param y /todo */
   virtual void PathMoveTo(float x, float y) {}
+
+  /** /todo 
+   * @param x /todo
+   * @param y /todo */
   virtual void PathLineTo(float x, float y) {}
+
+  /** /todo 
+   * @param x1 /todo
+   * @param y1 /todo
+   * @param x2 /todo
+   * @param y2 /todo
+   * @param x3 /todo
+   * @param y3 /todo */
   virtual void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) {}
 
+  /** /todo 
+   * @param pattern /todo
+   * @param thickness /todo
+   * @param options /todo
+   * @param pBlend /todo */
   virtual void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options = IStrokeOptions(), const IBlend* pBlend = 0) {}
+
+  /** /todo 
+   * @param pattern /todo
+   * @param options /todo
+   * @param pBlend /todo */
   virtual void PathFill(const IPattern& pattern, const IFillOptions& options = IFillOptions(), const IBlend* pBlend = 0) {}
 
+  /** /todo */
   virtual void PathTransformSave() {}
+
+  /** /todo */
   virtual void PathTransformRestore() {}
+
+  /** /todo 
+   * @param clearStates /todo */
   virtual void PathTransformReset(bool clearStates = false) {}
+
+  /** /todo 
+   * @param x /todo
+   * @param y /todo */
   virtual void PathTransformTranslate(float x, float y) {}
+
+  /** /todo 
+   * @param scaleX /todo
+   * @param scaleY /todo */
   virtual void PathTransformScale(float scaleX, float scaleY) {}
+
+  /** /todo 
+   * @param scale /todo */
   virtual void PathTransformScale(float scale) {}
+
+  /** /todo 
+   * @param angle /todo*/
   virtual void PathTransformRotate(float angle) {}
+
+  /** /todo 
+   * @param xAngle /todo
+   * @param yAngle /todo */
   virtual void PathTransformSkew(float xAngle, float yAngle) {}
+
+  /** /todo 
+   * @param matrix /todo */
   virtual void PathTransformMatrix(const IMatrix& matrix) {}
 
+  /** /todo 
+   * @param r /todo */
   virtual void PathClipRegion(const IRECT r = IRECT()) {}
   
 private:
-    
-  /** This is used to prepare a particular area of the display for drawing, normally resulting in clipping of the region.
+  /** Prepare a particular area of the display for drawing, normally resulting in clipping of the region.
    * @param bounds The rectangular region to prepare  */
   virtual void PrepareRegion(const IRECT& bounds) = 0;
- 
+
+  /** Indicate that a particular area of the display has been drawn (for instance to transfer a temporary backing) Always called after a matching call to PrepareRegion.
+  * @param bounds The rectangular region that is complete  */
+  virtual void CompleteRegion(const IRECT& bounds) {}
+
 public:
-    
-#pragma mark - IGraphics platform implementation
-  /** Call to hide the mouse cursor */ 
+#pragma mark - Platform implementation
+  /** Call to hide the mouse cursor 
+   * @param hide /todo
+   * @param lock /todo */
   virtual void HideMouseCursor(bool hide = true, bool lock = true) = 0;
 
   /** Force move the mouse cursor to a specific position in the graphics context
@@ -526,9 +751,15 @@ public:
    * @param y New Y position in pixels */
   virtual void MoveMouseCursor(float x, float y) = 0;
   
-  /** Sets the mouse cursor to one of ECursor
-   * @param cursor The cursor type */
-  virtual void SetMouseCursor(ECursor cursor = ECursor::ARROW) = 0;
+  /** Sets the mouse cursor to one of ECursor (implementations should return the result of the base implementation)
+   * @param cursorType The cursor type
+   * @return the previous cursor type so it can be restored later */
+  virtual ECursor SetMouseCursor(ECursor cursorType = ECursor::ARROW)
+  {
+    ECursor oldCursorType = mCursorType;
+    mCursorType = cursorType;
+    return oldCursorType;
+  }
 
   /** Call to force end text entry (will cancel any half input text \todo check) */
   virtual void ForceEndUserEdit() = 0;
@@ -626,29 +857,44 @@ public:
    * @param y the y position to convert */
   virtual void ClientToScreen(float& x, float& y) {};
 
-  /** Find the absolute path of a resource based on it's file name (e.g. “background.png”) and type (e.g. “png”), or in the case of windows, 
-   * confirm the existence of a particular resource in the binary. If it fails to find the resource with the binary it will test the fileNameOrResID argument
-   * as an absolute path, to see if the file exists in that place.
-   * On macOS resources are usually included inside the bundle resources folder.
-   * On Windows resources are usually baked into the binary via the resource compiler. In this case the fileName argument is the resource id to look for. 
-   * The .rc file must include these ids, otherwise you may hit a runtime assertion when you come to load the file.
-   * In some cases you may want to provide an absolute path to a file in a shared resources folder
-   * here (for example if you want to reduce the disk footprint of multiple bundles, such as when you have multiple plug-in formats installed).
-   *
-   * @param fileNameOrResID The filename or resourceID including extension. If no resource is found this argument is tested as an absolute path.
-   * @param type The resource type (file extension) in lower or upper case, e.g. ttf or TTF for a truetype font 
-   * @param result WDL_String which will either contain the full path to the resource on disk, or the ful Windows resourceID on success
-   * @return \c true on success */
-  virtual EResourceLocation OSFindResource(const char* fileNameOrResID, const char* type, WDL_String& result) = 0;
+  /** Load a font from disk or resource in a platform format.
+   * @param fontID A string that is used to reference the font
+   * @param fileNameOrResID A resource or file name/path
+   * @return PlatformFontPtr from which the platform font can be retrieved */
+  virtual PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) = 0;
+  
+  /** Load a system font in a platform format.
+   * @param fontID  A string that is used to reference the font
+   * @param fontName A string defining the font name
+   * @param style An ETextStyle defining the font style
+   * @return PlatformFontPtr from which the platform font can be retrieved */
+  virtual PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) = 0;
 
-  /** Load a resource from the binary (windows only).
-   * @param type The resource type in lower or upper case, e.g. ttf or TTF for a truetype font
-   * @return const void pointer to the data if successfull on windows. Returns nullptr if unsuccessfull or on platforms other than windows */
-  virtual const void* LoadWinResource(const char* resID, const char* type, int& sizeInBytes) { return nullptr; }
+  /** Called to indicate that the platform should cache data about the platform font if needed.
+   * @param fontID  A string that is used to reference the font
+   * @param font A const PlatformFontPtr reference to the relevant font */
+  virtual void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) = 0;
 
   /** Get the bundle ID on macOS and iOS, returns emtpy string on other OSs */
   virtual const char* GetBundleID() { return ""; }
-#pragma mark - IGraphics base implementation
+  
+protected:
+  /** /todo
+   * @param control /todo
+   * @param text /todo
+   * @param bounds /todo
+   * @param str /todo */
+  virtual void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") = 0;
+  
+  /** /todo
+   * @param menu /todo
+   * @param bounds /todo
+   * @param pCaller /todo
+   * @return IPopupMenu* /todo */
+  virtual IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller = nullptr) = 0;
+
+#pragma mark - Base implementation
+public:
   IGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.);
 
   virtual ~IGraphics();
@@ -658,17 +904,13 @@ public:
   void SetScreenScale(int scale);
     
   /** Called repeatedly at frame rate by the platform class to check what the graphics context says is dirty
-   * @param bounds The rectangular region which will be added to to mark what is dirty in the context
+   * @param rects The rectangular regions which will be added to to mark what is dirty in the context
    * @return /c true if a control is dirty */
   bool IsDirty(IRECTList& rects);
 
   /** Called by the platform class when an area needs to be redrawn
    * @param rects A set of rectangular regions to draw */
   void Draw(IRECTList& rects);
-
-  /** This method is called after interacting with a control, so that any other controls linked to the same parameter index, will also be set dirty, and have their values updated.
-   * @param pCaller The control that triggered the parameter change. */
-  void UpdatePeers(IControl* pCaller);
 
   /** Prompt for user input either using a text entry or pop up menu
    * @param control Reference to the control which the prompt relates to
@@ -694,12 +936,20 @@ public:
    * @return Pointer to an IPopupMenu that represents the menu that user finally clicked on (might not be the same as menu if they clicked a submenu) */
   IPopupMenu* CreatePopupMenu(IPopupMenu& menu, float x, float y, IControl* pCaller = nullptr) { const IRECT bounds = IRECT(x,y,x,y); return CreatePopupMenu(menu, bounds, pCaller); }
 
+  /** /todo 
+   * @param lo /todo
+   * @param hi /todo */
   void SetScaleConstraints(float lo, float hi)
   {
     mMinScale = std::min(lo, hi);
     mMaxScale = std::max(lo, hi);
   }
   
+  /** /todo 
+   * @param widthLo /todo
+   * @param widthHi /todo
+   * @param heightLo /todo
+   * @param heightHi /todo */
   void SetSizeConstraints(int widthLo, int widthHi, int heightLo, int heightHi)
   {
     mMinWidth = std::min(widthLo, widthHi);
@@ -748,10 +998,120 @@ public:
     * @return The scale factor of the display on which this graphics context is currently located */
   int GetScreenScale() const { return mScreenScale; }
 
+  /** Gets the nearest backing pixel aligned rect to the input IRECT
+    * @param r The IRECT to snap
+    * @return The IRECT nearest to the input IRECT that is aligned exactly to backing pixels */
+  IRECT GetPixelSnapped(IRECT &r) const { return r.GetPixelSnapped(GetBackingPixelScale()); }
+    
   /** Gets a pointer to the delegate class that handles communication to and from this graphics context.
    * @return pointer to the delegate */
-  IGEditorDelegate* GetDelegate() { return &mDelegate; }
+  IGEditorDelegate* GetDelegate() { return mDelegate; }
 
+  /** @return Get a persistant IPopupMenu (remember to clear it before use) */
+  IPopupMenu& GetPromptMenu() { return mPromptPopupMenu; }
+  
+  /** @return \c true if tool tips are enabled */
+  inline bool TooltipsEnabled() const { return mEnableTooltips; }
+  
+  /** @return An EUIResizerMode Representing whether the graphics context should scale or be resized, e.g. when dragging a corner resizer */
+  EUIResizerMode GetResizerMode() const { return mGUISizeMode; }
+  
+  /** @param enable Set \c true to enable tool tips when the user mouses over a control */
+  void EnableTooltips(bool enable);
+  
+  /** Call this method in order to create tool tips for every IControl that show the associated parameter's name */
+  void AssignParamNameToolTips();
+  
+  /** @param enable Set \c true if you wish to draw the rectangular region of the graphics context occupied by each IControl in mControls  */
+  inline void ShowControlBounds(bool enable) { mShowControlBounds = enable; SetAllControlsDirty(); }
+  
+  /** @param enable Set \c true if you wish to show the rectangular region that is drawn on each frame, in order to debug redraw problems */
+  inline void ShowAreaDrawn(bool enable) { mShowAreaDrawn = enable; if(!enable) SetAllControlsDirty(); }
+  
+  /**@return \c true if showning the area drawn on each frame */
+  bool ShowAreaDrawnEnabled() const { return mShowAreaDrawn; }
+  
+  /**@return \c true if showning the control bounds */
+  bool ShowControlBoundsEnabled() const { return mShowControlBounds; }
+  
+  /** Live edit mode allows you to relocate controls at runtime in debug builds and save the locations to a predefined file (e.g. main plugin .cpp file) \todo we need a separate page for liveedit info
+   * @param enable Set \c true if you wish to enable live editing mode
+   * @param file The absolute path of the file which contains the layout info (correctly tagged) for live editing
+   * @param gridsize The size of the layout grid in pixels */
+  void EnableLiveEdit(bool enable, const char* file = 0, int gridsize = 10);
+  
+  /**@return \c true if live edit mode is enabled */
+  bool LiveEditEnabled() const { return mLiveEdit != nullptr; }
+  
+  /** Returns an IRECT that represents the entire UI bounds
+   * This is useful for programatically arranging UI elements by slicing up the IRECT using the various IRECT methods
+   * @return An IRECT that corresponds to the entire UI area, with, L = 0, T = 0, R = Width() and B  = Height() */
+  IRECT GetBounds() const { return IRECT(0.f, 0.f, (float) Width(), (float) Height()); }
+  
+  /** /todo
+   * @param keyHandlerFunc /todo */
+  void SetKeyHandlerFunc(std::function<bool(const IKeyPress& key)> keyHandlerFunc) { mKeyHandlerFunc = keyHandlerFunc; }
+  
+private:
+  /** /todo */
+  virtual void PlatformResize() {}
+  
+  /** /todo */
+  virtual void DrawResize() {}
+  
+  /** /todo
+   * @param bounds /todo
+   * @param scale /todo */
+  void Draw(const IRECT& bounds, float scale);
+  
+  /** /todo
+   * @param pControl /todo
+   * @param bounds /todo
+   * @param scale /todo */
+  void DrawControl(IControl* pControl, const IRECT& bounds, float scale);
+  
+protected: // TODO: correct?
+  /** /todo */
+  void StartResizeGesture() { mResizingInProcess = true; };
+  
+#pragma mark - Control management
+public:
+  
+  /** /todo
+   * @param func /todo */
+  void ForAllControlsFunc(std::function<void(IControl& control)> func);
+  
+  /** /todo
+   * @tparam T /todo
+   * @tparam Args /todo
+   * @param method /todo
+   * @param args /todo */
+  template<typename T, typename... Args>
+  void ForAllControls(T method, Args... args);
+  
+  /** For all standard controls in the main control stack perform a function
+   * @param func A std::function to perform on each control */
+  void ForStandardControlsFunc(std::function<void(IControl& control)> func);
+  
+  /** /todo
+   * @tparam T /todo
+   * @tparam Args /todo
+   * @param method /todo
+   * @param paramIdx /todo
+   * @param args /todo */
+  template<typename T, typename... Args>
+  void ForMatchingControls(T method, int paramIdx, Args... args);
+
+  /** /todo
+   * @param paramIdx /todo
+   * @param func /todo */
+  void ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func);
+  
+  /** \todo
+   * @param group /todo
+   * @param func /todo */
+  void ForControlInGroup(const char* group, std::function<void(IControl& control)> func);
+  
   /** Attach an IBitmapControl as the lowest IControl in the control stack to be the background for the graphics context
    * @param fileName CString fileName resource id for the bitmap image \todo check this */
   void AttachBackground(const char* fileName);
@@ -770,10 +1130,9 @@ public:
   void AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale, bool layoutOnResize = false);
 
   /** Attach a control for pop-up menus, to override platform style menus
-   * @param pControl A control that inherits from IPopupMenuControl */
+   @param text The text style to use for the menu
+   @param bounds The area that the menu should occupy /todo check */
   void AttachPopupMenuControl(const IText& text = DEFAULT_TEXT, const IRECT& bounds = IRECT());
-  
-  void SetKeyHandlerFunc(std::function<bool(const IKeyPress& key)> keyHandlerFunc) { mKeyHandlerFunc = keyHandlerFunc; }
   
   /** Shows a control to display the frame rate of drawing
    * @param enable \c true to show */
@@ -807,6 +1166,26 @@ public:
   /* Get the first control in the control list, the background */
   IControl* GetBackgroundControl() { return GetControl(0);  }
   
+  /** @return Pointer to the special pop-up menu control, if one has been attached. \todo */
+  IPopupMenuControl* GetPopupMenuControl() { return mPopupControl.get(); }
+  
+  /** @return Pointer to the special text entry control, if one has been attached. \todo */
+  ITextEntryControl* GetTextEntryControl() { return mTextEntryControl.get(); }
+  
+  /** Helper method to style all of the controls which inherit IVectorBase
+   * @param drawFrame Should the controls draw a frame
+   * @param drawShadow Should the controls draw a shadow (where relevant)
+   * @param emboss Should the controls be embossed (where relevant)
+   * @param roundness Roundness in pixels of the corners, of rectangles in the controls
+   * @param frameThickness Thickness in pixels of the control frame
+   * @param shadowOffset Offset in pixels of the control shadow (where relevant)
+   * @param spec Color spec for the controls */
+  void StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec = DEFAULT_SPEC);
+  
+  /** This method is called after interacting with a control, so that any other controls linked to the same parameter index, will also be set dirty, and have their values updated.
+   * @param pCaller The control that triggered the parameter change. */
+  void UpdatePeers(IControl* pCaller);
+  
   /** @return The number of controls that have been added to this graphics context */
   int NControls() const { return mControls.GetSize(); }
 
@@ -816,33 +1195,47 @@ public:
   /** Removes all regular IControls from the control list, as well as special controls (frees memory). */
   void RemoveAllControls();
   
-  /** @param paramIdx <#paramIdx>
-   * @param hide <#hide> */
+  /** Hide controls linked to a specific parameter
+   * @param paramIdx The parameter index
+   * @param hide /true to hide */
   void HideControl(int paramIdx, bool hide);
 
-  /** @param paramIdx <#paramIdx>
-   * @param gray <#gray>
-  */
+  /** Gray-out controls linked to a specific parameter
+   * @param paramIdx The parameter index
+   * @param gray /true to gray-out */
   void GrayOutControl(int paramIdx, bool gray);
 
-  /** @param paramIdx <#paramIdx>
-   * @param lo <#lo>
-   * @param hi <#hi>
-   * @param normalized <#normalized>*/
+  /** Clamp controls link to a specific parameter
+   * @param paramIdx The parameter index
+   * @param lo The minimum control value
+   * @param hi The maximum control value
+   * @param normalized Determines whether the minimum and maximum are normalized or not */
   void ClampControl(int paramIdx, double lo, double hi, bool normalized);
 
-  /***/
-  void ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func);
-
-  /***/
-  void ForControlInGroup(const char* group, std::function<void(IControl& control)> func);
-
-  /***/
+  /** Calls SetDirty() on every control */
   void SetAllControlsDirty();
   
-  /***/
+  /** Calls SetClean() on every control */
   void SetAllControlsClean();
+
+private:
+  /** /todo
+   * @param x /todo
+   * @param y /todo
+   * @param mouseOver /todo
+   * @return int /todo */
+  int GetMouseControlIdx(float x, float y, bool mouseOver = false);
   
+  /** /todo
+   * @param x /todo
+   * @param y /todo
+   * @param capture /todo
+   * @param mouseOver /todo
+   * @return IControl* /todo */
+  IControl* GetMouseControl(float x, float y, bool capture, bool mouseOver = false);
+  
+#pragma mark - Event handling
+public:
   /** @param x The X coordinate in the graphics context at which the mouse event occurred
    * @param y The Y coordinate in the graphics context at which the mouse event occurred
    * @param mod IMouseMod struct contain information about the modifiers held */
@@ -874,7 +1267,7 @@ public:
 
   /** @param x The X coordinate in the graphics context of the mouse cursor at the time of the key press
    * @param y The Y coordinate in the graphics context of the mouse cursor at the time of the key press
-   * @param \todo
+   * @param key \todo
    * @return \c true if handled \todo check this */
   bool OnKeyDown(float x, float y, const IKeyPress& key);
 
@@ -884,57 +1277,28 @@ public:
    * @return \c true if handled \todo check this */
   bool OnMouseOver(float x, float y, const IMouseMod& mod);
 
-  /** TODO: not called on mac*/
+  /** \todo */
   void OnMouseOut();
+  
+  /** \todo */
+  void OnSetCursor() { SetMouseCursor(mCursorType); }
 
   /** @param str A CString with the absolute path of the dropped item
    * @param x The X coordinate in the graphics context where the drag and drop occurred
    * @param y The Y coordinate in the graphics context where the drag and drop occurred */
   void OnDrop(const char* str, float x, float y);
 
-  /***/
+  /** \todo */
   void OnGUIIdle();
   
-  /***/
+  /** \todo */
   void OnResizeGesture(float x, float y);
 
   /** @param enable Set \c true if you want to handle mouse over messages. Note: this may increase the amount CPU usage if you redraw on mouse overs etc */
-  void HandleMouseOver(bool canHandle) { mHandleMouseOver = canHandle; }
+  void HandleMouseOver(bool enable) { mHandleMouseOver = enable; }
 
   /** Used to tell the graphics context to stop tracking mouse interaction with a control \todo internal only? */
   void ReleaseMouseCapture();
-
-  /** @param enable Set \c true to enable tool tips when the user mouses over a control */
-  void EnableTooltips(bool enable);
-
-  /** Call this method in order to create tool tips for every IControl that show the associated parameter's name */
-  void AssignParamNameToolTips();
-
-  /** @param enable Set \c true if you wish to draw the rectangular region of the graphics context occupied by each IControl in mControls  */
-  inline void ShowControlBounds(bool enable) { mShowControlBounds = enable; SetAllControlsDirty(); }
-
-  /** @param enable Set \c true if you wish to show the rectangular region that is drawn on each frame, in order to debug redraw problems */
-  inline void ShowAreaDrawn(bool enable) { mShowAreaDrawn = enable; if(!enable) SetAllControlsDirty(); }
-  
-  /**@return \c true if showning the area drawn on each frame */
-  bool ShowAreaDrawnEnabled() const { return mShowAreaDrawn; }
-
-  /**@return \c true if showning the control bounds */
-  bool ShowControlBoundsEnabled() const { return mShowControlBounds; }
-  
-  /** Live edit mode allows you to relocate controls at runtime in debug builds and save the locations to a predefined file (e.g. main plugin .cpp file) \todo we need a separate page for liveedit info
-   * @param enable Set \c true if you wish to enable live editing mode
-   * @param file The absolute path of the file which contains the layout info (correctly tagged) for live editing
-   * @param gridsize The size of the layout grid in pixels */
-  void EnableLiveEdit(bool enable/*, const char* file = 0, int gridsize = 10*/);
-  
-  /**@return \c true if live edit mode is enabled */
-  bool LiveEditEnabled() const { return mLiveEdit != nullptr; }
-
-  /** Returns an IRECT that represents the entire UI bounds
-   * This is useful for programatically arranging UI elements by slicing up the IRECT using the various IRECT methods
-   * @return An IRECT that corresponds to the entire UI area, with, L = 0, T = 0, R = Width() and B  = Height() */
-  IRECT GetBounds() const { return IRECT(0.f, 0.f, (float) Width(), (float) Height()); }
 
   /** @return \c true if the context can handle mouse overs */
   bool CanHandleMouseOver() const { return mHandleMouseOver; }
@@ -944,25 +1308,12 @@ public:
 
   /** Get the x, y position in the graphics context of the last mouse down message. Does not get cleared on mouse up etc.
    * @param x Where the X position will be stored
-   * @param float&y Where the Y position will be stored */
+   * @param y Where the Y position will be stored */
   void GetMouseDownPoint(float& x, float&y) const { x = mMouseDownX; y = mMouseDownY; }
   
-  /** @return Get a persistant IPopupMenu (remember to clear it before use) */
-  IPopupMenu& GetPromptMenu() { return mPromptPopupMenu; }
-  
-  /** @return \c true if tool tips are enabled */
-  inline bool TooltipsEnabled() const { return mEnableTooltips; }
-
   /**  Set by the platform class if the mouse input is coming from a tablet/stylus
-   * @param tablet, \c true means input is from a tablet */
+   * @param tablet \c true means input is from a tablet */
   void SetTabletInput(bool tablet) { mTabletInput = tablet; }
-  
-  EUIResizerMode GetResizerMode() const { return mGUISizeMode; }
-  
-  IPopupMenuControl* GetPopupMenuControl() { return mPopupControl; }
-  ITextEntryControl* GetTextEntryControl() { return mTextEntryControl; }
-  
-  void StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec = DEFAULT_SPEC);
 #pragma mark - Plug-in API Specific
 
   /** [AAX only] This can be called by the ProTools API class (e.g. IPlugAAX) in order to ascertain the parameter linked to the control under the mouse.
@@ -982,13 +1333,23 @@ public:
    * @param color An integer corresponding to AAX_EParameterHighlight \todo check Enum name */
   void SetPTParameterHighlight(int paramIdx, bool isHighlighted, int color);
 
-  /** [VST3 primarily]
-   * @param controlIdx <#controlIdx>
+  /** [VST3 primarily] In VST3 plug-ins this enable support for the IContextMenu interface,
+   * which allows the host to add contextual options to e.g. automate a parameter associated with a control
+   * @param controlIdx The index of the control in the control stack
+   * @param paramIdx The parameter index associated with the control
    * @param x The X coordinate in the graphics context at which to popup the context menu
    * @param y The Y coordinate in the graphics context at which to popup the context menu */
   void PopupHostContextMenuForParam(int controlIdx, int paramIdx, float x, float y);
 
+  /** /todo
+   * @param pControl /todo
+   * @param paramIdx /todo
+   * @param x /todo
+   * @param y /todo */
+  void PopupHostContextMenuForParam(IControl* pControl, int paramIdx, float x, float y);
+  
 #pragma mark - Resource/File Loading
+    
   /** Load a bitmap image from disk or from windows resource
    * @param fileNameOrResID CString file name or resource ID
    * @param nStates The number of states/frames in a multi-frame stacked bitmap
@@ -1001,87 +1362,84 @@ public:
    * @param fileNameOrResID A CString absolute path or resource ID
    * @return An ISVG representing the image */
   virtual ISVG LoadSVG(const char* fileNameOrResID, const char* units = "px", float dpi = 72.f);
-
-  /** @param fileNameOrResID A CString absolute path or resource ID
-   * @return \c true on success */
-  virtual bool LoadFont(const char* fileNameOrResID) { return false; }
   
 protected:
-  virtual void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") = 0;
-  virtual IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller = nullptr) = 0;
-
-  typedef WDL_TypedBuf<unsigned char> RawBitmapData;
-
+  /** /todo
+   * @param fileNameOrResID /todo 
+   * @param scale /todo
+   * @param location /todo
+   * @param ext /todo
+   * @return APIBitmap* /todo */
   virtual APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) = 0;
-  virtual APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) = 0;
-  virtual APIBitmap* CreateAPIBitmap(int width, int height) = 0;
-    
+
+  /** /todo
+   * @param width /todo
+   * @param height /todo
+   * @param scale /todo
+   * @param drawScale /todo
+   * @return APIBitmap* /todo */
+  virtual APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) = 0;
+
+  /** /todo
+   * @param fontID /todo
+   * @param font /todo
+   * @return bool* /todo */
+  virtual bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) = 0;
+
+  /** /todo */
   virtual int AlphaChannel() const = 0;
+
+  /** /todo */
   virtual bool FlippedBitmap() const = 0;
 
-  virtual void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) = 0;
-  virtual void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) = 0;
-
-  void PushLayer(ILayer* layer, bool clearTransforms);
-  ILayer* PopLayer(bool clearTransforms);
-    
-  /** Utility used by SearchImageResource/SearchBitmapInCache */
+  /** Utility used by SearchImageResource/SearchBitmapInCache
+   * @param sourceScale /todo
+   * @param targetScale /todo */
   inline void SearchNextScale(int& sourceScale, int targetScale);
 
-  /** Search for a bitmap image resource matching the target scale */
+  /** Search for a bitmap image resource matching the target scale 
+   * @param fileName /todo
+   * @param type /todo 
+   * @param result /todo
+   * @param targetScale /todo
+   * @param sourceScale /todo
+   * @return EResourceLocation /todo */
   EResourceLocation SearchImageResource(const char* fileName, const char* type, WDL_String& result, int targetScale, int& sourceScale);
 
-  /** Search the static storage cache for a bitmap image resource matching the target scale */
+  /** Search the static storage cache for a bitmap image resource matching the target scale
+   * @param fileName /todo
+   * @param targetScale /todo
+   * @param sourceScale /todo
+   * @return  pointer to the bitmap in the cache,  or null pointer if not found */
   APIBitmap* SearchBitmapInCache(const char* fileName, int targetScale, int& sourceScale);
 
+  /** /todo
+   * @param text /todo
+   * @param str /todo
+   * @param bounds /todo
+   * @param pBlend /todo
+   * @param measure /todo
+   * @return true /todo */
   virtual bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = nullptr, bool measure = false) = 0;
-    
-  virtual float GetBackingPixelScale() const = 0;
 
-  void ForStandardControlsFunc(std::function<void(IControl& control)> func);
+  /** @return float /todo */
+  virtual float GetBackingPixelScale() const = 0;
   
-  template<typename T, typename... Args>
-  void ForMatchingControls(T method, int paramIdx, Args... args);
-  
-  IGEditorDelegate& mDelegate;
-  void* mPlatformContext = nullptr;
-  bool mCursorHidden = false;
-  bool mCursorLock = false;
-  bool mTabletInput = false;
-  float mCursorX = -1.f;
-  float mCursorY = -1.f;
+#pragma mark -
 
 private:
-  virtual void PlatformResize() {}
-  virtual void DrawResize() {}
-  
-  void Draw(const IRECT& bounds, float scale);
-  void DrawControl(IControl* pControl, const IRECT& bounds, float scale);
-  
-  int GetMouseControlIdx(float x, float y, bool mouseOver = false);
-  IControl* GetMouseControl(float x, float y, bool capture, bool mouseOver = false);
-  
-  void StartResizeGesture() { mResizingInProcess = true; };
-  
-  void PopupHostContextMenuForParam(IControl* pControl, int paramIdx, float x, float y);
-
-  void ForAllControlsFunc(std::function<void(IControl& control)> func);
-    
-  template<typename T, typename... Args>
-  void ForAllControls(T method, Args... args);
-  
   WDL_PtrList<IControl> mControls;
 
   // Order (front-to-back) ToolTip / PopUp / TextEntry / LiveEdit / Corner / PerfDisplay
-  
-  ICornerResizerControl* mCornerResizer = nullptr;
-  IPopupMenuControl* mPopupControl = nullptr;
-  IFPSDisplayControl* mPerfDisplay = nullptr;
-  ITextEntryControl* mTextEntryControl = nullptr;
-  IControl* mLiveEdit = nullptr;
+  std::unique_ptr<ICornerResizerControl> mCornerResizer;
+  std::unique_ptr<IPopupMenuControl> mPopupControl;
+  std::unique_ptr<IFPSDisplayControl> mPerfDisplay;
+  std::unique_ptr<ITextEntryControl> mTextEntryControl;
+  std::unique_ptr<IControl> mLiveEdit;
   
   IPopupMenu mPromptPopupMenu;
   
+  ECursor mCursorType = ARROW;
   int mWidth;
   int mHeight;
   int mFPS;
@@ -1101,7 +1459,7 @@ private:
   int mMaxHeight;
   int mLastClickedParam = kNoParameter;
   bool mHandleMouseOver = false;
-  bool mStrict = true;
+  bool mStrict = false;
   bool mEnableTooltips = false;
   bool mShowControlBounds = false;
   bool mShowAreaDrawn = false;
@@ -1111,6 +1469,14 @@ private:
   double mPrevTimestamp = 0.;
   std::function<bool(const IKeyPress& key)> mKeyHandlerFunc = nullptr;
 protected:
+  IGEditorDelegate* mDelegate;
+  void* mPlatformContext = nullptr;
+  bool mCursorHidden = false;
+  bool mCursorLock = false;
+  bool mTabletInput = false;
+  float mCursorX = -1.f;
+  float mCursorY = -1.f;
+
   friend class IGraphicsLiveEdit;
   friend class ICornerResizerControl;
   

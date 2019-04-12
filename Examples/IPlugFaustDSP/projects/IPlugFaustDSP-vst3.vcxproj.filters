@@ -32,9 +32,6 @@
     <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\VST3\IPlugVST3.cpp">
-      <Filter>IPlug\VST3</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IGraphics\Controls\ITextEntryControl.cpp">
       <Filter>IGraphics\Controls</Filter>
     </ClCompile>
@@ -116,9 +113,25 @@
     <ClCompile Include="..\..\..\Dependencies\IPlug\VST3_SDK\pluginterfaces\base\ustring.cpp">
       <Filter>IPlug\VST3\VST3_SDK\plugininterfaces\base</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\Dependencies\IPlug\VST3_SDK\public.sdk\source\main\pluginfactoryvst3.cpp">
+    <ClCompile Include="..\..\..\Dependencies\IPlug\VST3_SDK\public.sdk\source\main\pluginfactory.cpp">
       <Filter>IPlug\VST3\VST3_SDK\public.sdk\main</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugPaths.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\Faust\IPlugFaustGen.cpp">
+      <Filter>IPlug\Extras</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\Faust\IPlugFaust_arch.cpp">
+      <Filter>IPlug\Extras</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\VST3\IPlugVST3_ProcessorBase.cpp">
+      <Filter>IPlug\VST3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\VST3\IPlugVST3.cpp">
+      <Filter>IPlug\VST3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Dependencies\IPlug\VST3_SDK\public.sdk\source\common\commoniids.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../config.h" />
@@ -127,9 +140,6 @@
       <Filter>resources</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\IGraphics.h">
-      <Filter>IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsAutoGUI.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\IGraphicsConstants.h">
@@ -157,12 +167,6 @@
       <Filter>IGraphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\IGraphics_select.h">
-      <Filter>IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsIOS.h">
-      <Filter>IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsIOS_view.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsAGG.h">
@@ -258,15 +262,6 @@
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_src.h">
       <Filter>IPlug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_Parameter.h">
-      <Filter>IPlug\VST3</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_view.h">
-      <Filter>IPlug\VST3</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3.h">
-      <Filter>IPlug\VST3</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Controls\ITextEntryControl.h">
       <Filter>IGraphics\Controls</Filter>
     </ClInclude>
@@ -345,6 +340,33 @@
     <ClInclude Include="..\..\..\Dependencies\IPlug\VST3_SDK\pluginterfaces\base\funknown.h">
       <Filter>IPlug\VST3\VST3_SDK\plugininterfaces\base</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPaths.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\Extras\Faust\IPlugFaust.h">
+      <Filter>IPlug\Extras</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\Extras\Faust\IPlugFaustGen.h">
+      <Filter>IPlug\Extras</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_ControllerBase.h">
+      <Filter>IPlug\VST3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_Parameter.h">
+      <Filter>IPlug\VST3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_ProcessorBase.h">
+      <Filter>IPlug\VST3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_View.h">
+      <Filter>IPlug\VST3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3.h">
+      <Filter>IPlug\VST3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_Common.h">
+      <Filter>IPlug\VST3</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="resources">
@@ -403,6 +425,9 @@
     </Filter>
     <Filter Include="IPlug\VST3\VST3_SDK\plugininterfaces\base">
       <UniqueIdentifier>{5f06b03e-5093-46c0-9513-efb4e494c857}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\Extras">
+      <UniqueIdentifier>{6b872b1f-eaad-4358-997e-504b758315f6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

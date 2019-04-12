@@ -59,8 +59,6 @@ public:
   void EndInformHostOfParamChange(int idx) override;
   void InformHostOfProgramChange() override;
   void InformHostOfParameterDetailsChange() override;
-  EHost GetHost() override;
-  void HostSpecificInit() override;
 
 //IPlugProcessor
   bool SendMidiMsg(const IMidiMsg& msg) override;
@@ -91,7 +89,7 @@ private:
     bool mConnected;
     int mNHostChannels;
     int mNPlugChannels;
-    int mPlugChannelStartIdx;;
+    int mPlugChannelStartIdx;
   };
   
   struct BufferList

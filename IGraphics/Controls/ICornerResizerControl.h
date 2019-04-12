@@ -23,8 +23,8 @@
 class ICornerResizerControl : public IControl
 {
 public:
-  ICornerResizerControl(IGEditorDelegate& dlg, IRECT graphicsBounds, float size)
-  : IControl(dlg, graphicsBounds.GetFromBRHC(size, size).GetPadded(-1))
+  ICornerResizerControl(IRECT graphicsBounds, float size)
+  : IControl(graphicsBounds.GetFromBRHC(size, size).GetPadded(-1))
   , mInitialGraphicsBounds(graphicsBounds)
   , mSize(size)
   {
@@ -55,17 +55,23 @@ public:
 
   void OnMouseOver(float x, float y, const IMouseMod& mod) override
   {
-    GetUI()->SetMouseCursor(ECursor::SIZENWSE);
+    if (!mMouseOver)
+      mPrevCursorType = GetUI()->SetMouseCursor(ECursor::SIZENWSE);
+    mMouseOver = true;
     IControl::OnMouseOver(x, y, mod);
   }
 
   void OnMouseOut() override
   {
-    GetUI()->SetMouseCursor(ECursor::ARROW);
+    if (mMouseOver)
+      GetUI()->SetMouseCursor(mPrevCursorType);
+    mMouseOver = false;
     IControl::OnMouseOut();
   }
 
 private:
   float mSize;
+  bool mMouseOver = false;
+  ECursor mPrevCursorType = ARROW;
   IRECT mInitialGraphicsBounds;
 };

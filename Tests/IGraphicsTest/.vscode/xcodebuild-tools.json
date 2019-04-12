@@ -1,0 +1,19 @@
+{
+    "workspace": "${workspaceRoot}/IPlugEffect.xcworkspace",
+    "scheme": "APP",
+    "variables": {
+        "ARG1": "argument 1",
+        "ARG2": "argument 2"
+    },
+    "debugConfigurations": [
+        {
+            "name": "test",
+            "cwd": "${workspaceRoot}",
+            "program": "/Users/oli/Applications/IPlugEffect.app/Contents/MacOS/IPlugEffect",
+            "args": [
+                "${ARG1}",
+                "${ARG2}"
+            ]
+        }
+    ] 
+}

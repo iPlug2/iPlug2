@@ -150,12 +150,14 @@ END
 BEGIN
     "#include ""..\\config.h""\r\n"
     "TIGER_FN SVG TIGER_FN\r\n"
+    "ORBS_FN SVG ORBS_FN\r\n"
     "ROBOTTO_FN TTF ROBOTTO_FN\r\n"
     "MONTSERRAT_FN TTF MONTSERRAT_FN\r\n"
     "SMILEY_FN PNG SMILEY_FN\r\n"
     "BASE_FN PNG BASE_FN\r\n"
     "MASK_FN PNG MASK_FN\r\n"
     "TOP_FN PNG TOP_FN\r\n"
+    "\r\n"
     "\0"
 END
 
@@ -171,6 +173,60 @@ END
 // remains consistent on all systems.
 IDI_ICON1               ICON                    "IGraphicsTest.ico"
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_ACCELERATOR1 ACCELERATORS
+BEGIN
+    VK_OEM_COMMA,   ID_PREFERENCES,         VIRTKEY, CONTROL, NOINVERT
+    "B",            ID_SHOW_BOUNDS,         VIRTKEY, CONTROL, NOINVERT
+    "D",            ID_SHOW_DRAWN,          VIRTKEY, CONTROL, NOINVERT
+    "F",            ID_SHOW_FPS,            VIRTKEY, CONTROL, NOINVERT
+    "E",            ID_LIVE_EDIT,           VIRTKEY, CONTROL, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 0,0,1,0
+ PRODUCTVERSION 0,0,1,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040004e4"
+        BEGIN
+            VALUE "FileVersion", "0.0.1"
+            VALUE "ProductVersion", "0.0.1"
+            VALUE "FileDescription", "IGraphicsTest"
+            VALUE "InternalName", "IGraphicsTest"
+            VALUE "ProductName", "IGraphicsTest"
+            VALUE "CompanyName", "AcmeInc"
+            VALUE "LegalCopyright", "Copyright 2019 Acme Inc"
+            VALUE "LegalTrademarks", "VST is a trademark of Steinberg Media Technologies GmbH, Audio Unit is a trademark of Apple, Inc."
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x400, 1252
+    END
+END
+
 #endif    // English (United Kingdom) resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -183,12 +239,14 @@ IDI_ICON1               ICON                    "IGraphicsTest.ico"
 //
 #include "..\config.h"
 TIGER_FN SVG TIGER_FN
+ORBS_FN SVG ORBS_FN
 ROBOTTO_FN TTF ROBOTTO_FN
 MONTSERRAT_FN TTF MONTSERRAT_FN
 SMILEY_FN PNG SMILEY_FN
 BASE_FN PNG BASE_FN
 MASK_FN PNG MASK_FN
 TOP_FN PNG TOP_FN
+
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED

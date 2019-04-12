@@ -21,6 +21,21 @@
 class IGraphicsWin final : public IGRAPHICS_DRAW_CLASS
 {
 public:
+
+  class WinFont : public PlatformFont
+  {
+  public:
+    WinFont(HFONT font, const char* styleName = "") : mFont(font), mStyleName(styleName) {}
+    ~WinFont();
+
+    const void* GetDescriptor() override { return reinterpret_cast<const void*>(mFont); }
+    IFontDataPtr GetFontData() override;
+      
+  private:
+    HFONT mFont;
+    WDL_String mStyleName;
+  };
+
   IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsWin();
 
@@ -31,11 +46,16 @@ public:
 
   void PlatformResize() override;
 
+#ifdef IGRAPHICS_GL
+  void DrawResize() override; // overriden here to deal with GL graphics context capture
+#endif
+
   void CheckTabletInput(UINT msg);
+  void DestroyEditWindow();
     
   void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override;
-  void SetMouseCursor(ECursor cursor) override;
+  ECursor SetMouseCursor(ECursor cursorType) override;
 
   int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) override;
 
@@ -66,11 +86,7 @@ public:
   const char* GetPlatformAPIStr() override { return "win32"; };
 
   bool GetTextFromClipboard(WDL_String& str) override;
-
-  EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result) override;
-
-  const void* LoadWinResource(const char* resid, const char* resType, int& sizeInBytes) override;
-
+  
 protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
@@ -89,11 +105,28 @@ private:
     kCommit
   };
 
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
+  void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override;
+
   inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam);
   inline IMouseInfo IGraphicsWin::GetMouseInfoDeltas(float&dX, float& dY, LPARAM lParam, WPARAM wParam);
   bool MouseCursorIsLocked();
 
   MMRESULT mMMTimerHandle;
+#ifdef IGRAPHICS_GL
+  //OpenGL context management - TODO: RAII instead?
+  void CreateGLContext();
+  void DestroyGLContext();
+
+  // Captures previously active GLContext and HDC for restoring, Gets DC
+  void ActivateGLContext();
+  // Restores previous GL context and Releases DC
+  void DeactivateGLContext();
+  HGLRC mHGLRC = nullptr;
+  HGLRC mStartHGLRC = nullptr;
+  HDC mStartHDC = nullptr;
+#endif
 
   HINSTANCE mHInstance = nullptr;
   HWND mPlugWnd = nullptr;
@@ -101,8 +134,8 @@ private:
   HWND mTooltipWnd = nullptr;
   HWND mParentWnd = nullptr;
   HWND mMainWnd = nullptr;
-  COLORREF* mCustomColorStorage = nullptr;
   WNDPROC mDefEditProc = nullptr;
+  HFONT mEditFont = nullptr;
   DWORD mPID = 0;
 
   IControl* mEdControl = nullptr;

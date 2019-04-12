@@ -25,13 +25,26 @@ template<typename T>
 class IPlugQueue final
 {
 public:
+  /** IPlugQueue constructor 
+   * @param size /todo */
   IPlugQueue(int size)
   {
-    mData.Resize(size + 1);
+    Resize(size);
   }
 
   ~IPlugQueue(){}
 
+  /** /todo 
+   * @param size /todo */
+  void Resize(int size)
+  {
+    mData.Resize(size + 1);
+  }
+
+  /** /todo 
+   * @param item /todo
+   * @return true /todo
+   * @return false /todo */
   bool Push(const T& item)
   {
     const auto currentWriteIndex = mWriteIndex.load(std::memory_order_relaxed);
@@ -45,6 +58,10 @@ public:
     return false;
   }
 
+  /** /todo 
+   * @param item /todo
+   * @return true /todo
+   * @return false /todo */
   bool Pop(T& item)
   {
     const auto currentReadIndex = mReadIndex.load(std::memory_order_relaxed);
@@ -57,24 +74,34 @@ public:
     return true;
   }
 
+  /** /todo 
+   * @return size_t /todo */
   size_t ElementsAvailable() const
   {
     return (mWriteIndex.load(std::memory_order_acquire) - mReadIndex.load(std::memory_order_relaxed))%mData.GetSize();
   }
 
-  // useful for reading elements while a criteria is met. Can be used like
-  // while IPlugQueue.ElementsAvailable() && q.peek().mTime < 100 { elem = q.pop() ... }
+  /** /todo
+   * useful for reading elements while a criterion is met. Can be used like
+   * while IPlugQueue.ElementsAvailable() && q.peek().mTime < 100 { elem = q.pop() ... }
+   * @return const T& /todo */
   const T& Peek()
   {
     const auto currentReadIndex = mReadIndex.load(std::memory_order_relaxed);
     return mData[currentReadIndex];
   }
 
+  /** /todo 
+   * @return true /todo
+   * @return false /todo */
   bool WasEmpty() const
   {
     return (mWriteIndex.load() == mReadIndex.load());
   }
 
+  /** /todo 
+   * @return true /todo
+   * @return false /todo */
   bool WasFull() const
   {
     const auto nextWriteIndex = increment(mWriteIndex.load());
@@ -82,6 +109,9 @@ public:
   }
 
 private:
+  /** /todo 
+   * @param idx /todo
+   * @return size_t /todo */
   size_t Increment(size_t idx) const
   {
     return (idx + 1) % (mData.GetSize());

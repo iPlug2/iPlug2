@@ -1,0 +1,139 @@
+parameters:
+  name: ''
+  path: ''
+  graphics: 'NANOVG'
+  target: 'All'
+  artifactName: ''
+  srcRepo: 'none'
+  srcBranch: 'master'
+
+steps:
+  - bash: |
+      echo srcRepo parameter = ${{parameters.srcRepo}}
+      if [ ${{ parameters.srcRepo }} != none ]
+      then
+        if [ ! -d ./${{parameters.path}} ]
+        then  
+          mkdir -p ./${{parameters.path}}
+        fi
+        cd ./${{parameters.path}}
+        git clone --recursive -b ${{parameters.srcBranch}} ${{parameters.srcRepo}} ${{parameters.name}}
+      else
+        echo no remote repo argument supplied, building local project ${{parameters.path}}/${{parameters.name}} ... 
+      fi
+    env:
+      GITHUB_PAT: $(GITHUB_PAT)
+    displayName: (Optionally) clone ${{parameters.name}} repo
+
+  - bash: |
+      graphics=${{parameters.graphics}}
+      if [ $graphics = "LICE" ]
+      then
+        cd ./${{parameters.path}}/${{parameters.name}}/config
+        sed -i.bu 's/IGRAPHICS_NANOVG;IGRAPHICS_GL2/IGRAPHICS_LICE/' ${{parameters.name}}-win.props
+      elif [ $graphics = "CAIRO" ]
+      then
+        cd ./${{parameters.path}}/${{parameters.name}}/config
+        sed -i.bu 's/IGRAPHICS_NANOVG;IGRAPHICS_GL2/IGRAPHICS_CAIRO/' ${{parameters.name}}-win.props
+      elif [ $graphics = "AGG" ]
+      then
+        cd ./${{parameters.path}}/${{parameters.name}}/config
+        sed -i.bu 's/IGRAPHICS_NANOVG;IGRAPHICS_GL2/IGRAPHICS_AGG/' ${{parameters.name}}-win.props
+      fi
+    displayName: Set graphics string to ${{parameters.graphics}}
+
+  - task: VSBuild@1
+    inputs:
+      solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
+      vsVersion: '15.0'
+      platform: x64
+      msbuildArgs: /t:${{parameters.name}}-vst2
+      configuration: '${{parameters.configuration}}'
+    displayName: Compile ${{parameters.name}} VST2 x64
+    condition: eq(variables.build_vst2, True) 
+
+  - task: VSBuild@1
+    inputs:
+      solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
+      vsVersion: '15.0'
+      platform: x64
+      msbuildArgs: /t:${{parameters.name}}-vst3
+      configuration: '${{parameters.configuration}}'
+    displayName: Compile ${{parameters.name}} VST3 x64
+    condition: eq(variables.build_vst3, True) 
+
+  - task: VSBuild@1
+    inputs:
+      solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
+      vsVersion: '15.0'
+      platform: x64
+      msbuildArgs: /t:${{parameters.name}}-aax
+      configuration: '${{parameters.configuration}}'
+    displayName: Compile ${{parameters.name}} AAX x64
+    condition: eq(variables.build_aax, True) 
+
+  - task: VSBuild@1
+    inputs:
+      solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
+      vsVersion: '15.0'
+      platform: x64
+      msbuildArgs: /t:${{parameters.name}}-app
+      configuration: '${{parameters.configuration}}'
+    displayName: Compile ${{parameters.name}} APP x64
+    condition: eq(variables.build_app, True) 
+
+  - bash: |
+      mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/APP/${{parameters.name}}
+      mv ${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}_x64.exe $BUILD_ARTIFACTSTAGINGDIRECTORY/APP/${{parameters.name}}
+      mv ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-app_x64.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/APP/${{parameters.name}} 
+    displayName: Organize APP artifact
+    condition: eq(variables.build_app, True) 
+
+  - bash: |
+      mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/VST3/${{parameters.name}}
+      mv ${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}.vst3* $BUILD_ARTIFACTSTAGINGDIRECTORY/VST3/${{parameters.name}} # must move VST3 first
+      mv ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-vst3_x64.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/VST3/${{parameters.name}}
+    displayName: Organize VST3 artifact
+    condition: eq(variables.build_vst3, True) 
+
+  - bash: |
+      mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/VST2/${{parameters.name}}
+      mv ${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}_x64.dll $BUILD_ARTIFACTSTAGINGDIRECTORY/VST2/${{parameters.name}}
+      mv ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-vst2_x64.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/VST2/${{parameters.name}}
+    displayName: Organize VST2 artifact
+    condition: eq(variables.build_vst2, True)     
+
+  - bash: |
+      mkdir -p $BUILD_ARTIFACTSTAGINGDIRECTORY/AAX/${{parameters.name}}
+      mv ${{parameters.path}}/${{parameters.name}}/build-win/${{parameters.name}}.aaxplugin* $BUILD_ARTIFACTSTAGINGDIRECTORY/AAX/${{parameters.name}}
+      mv ${{parameters.path}}/${{parameters.name}}/build-win/pdbs/${{parameters.name}}-aax_x64.pdb $BUILD_ARTIFACTSTAGINGDIRECTORY/AAX/${{parameters.name}}
+    displayName: Organize AAX artifact
+    condition: eq(variables.build_aax, True)    
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'WIN_VST2_${{parameters.artifactName}}'
+      targetPath: '$(Build.ArtifactStagingDirectory)/VST2/${{parameters.name}}'
+    displayName: Publish ${{parameters.name}} VST2
+    condition: eq(variables.build_vst2, True) 
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'WIN_VST3_${{parameters.artifactName}}'
+      targetPath: '$(Build.ArtifactStagingDirectory)/VST3/${{parameters.name}}'
+    displayName: Publish ${{parameters.name}} VST3
+    condition: eq(variables.build_vst3, True) 
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'WIN_AAX_${{parameters.artifactName}}'
+      targetPath: '$(Build.ArtifactStagingDirectory)/AAX/${{parameters.name}}'
+    displayName: Publish ${{parameters.name}} AAX
+    condition: eq(variables.build_aax, True) 
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'WIN_APP_${{parameters.artifactName}}'
+      targetPath: '$(Build.ArtifactStagingDirectory)/APP/${{parameters.name}}'
+    displayName: Publish ${{parameters.name}} APP
+    condition: eq(variables.build_app, True) 

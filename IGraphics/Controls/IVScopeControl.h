@@ -105,8 +105,8 @@ public:
     bool mPrevAboveThreshold = true;
   };
 
-  IVScopeControl(IGEditorDelegate& dlg, IRECT bounds, const char* trackNames = 0, ...)
-  : IControl(dlg, bounds)
+  IVScopeControl(IRECT bounds, const char* trackNames = 0, ...)
+  : IControl(bounds)
   {
     AttachIControl(this);
   }

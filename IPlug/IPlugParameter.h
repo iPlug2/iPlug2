@@ -18,6 +18,7 @@
 #include <atomic>
 #include <cstring>
 #include <functional>
+#include <memory>
 
 #include "wdlstring.h"
 
@@ -28,10 +29,16 @@ class IParam
 {
 public:
 
+  /** /todo */
   enum EParamType { kTypeNone, kTypeBool, kTypeInt, kTypeEnum, kTypeDouble };
+
+  /** /todo */
   enum EParamUnit { kUnitPercentage, kUnitSeconds, kUnitMilliseconds, kUnitSamples, kUnitDB, kUnitLinearGain, kUnitPan, kUnitPhase, kUnitDegrees, kUnitMeters, kUnitRate, kUnitRatio, kUnitFrequency, kUnitOctaves, kUnitCents, kUnitAbsCents, kUnitSemitones, kUnitMIDINote, kUnitMIDICtrlNum, kUnitBPM, kUnitBeats, kUnitCustom };
+
+  /** /todo */
   enum EDisplayType { kDisplayLinear, kDisplayLog, kDisplayExp, kDisplaySquared, kDisplaySquareRoot, kDisplayCubed, kDisplayCubeRoot };
 
+  /** /todo */
   enum EFlags
   {
     kFlagsNone            = 0,
@@ -50,10 +57,29 @@ public:
   struct Shape
   {
     virtual ~Shape() {}
+
+    /** /todo 
+     * @return Shape* /todo */
     virtual Shape* Clone() const = 0;
+
+    /** /todo 
+     * @param param /todo */
     virtual void Init(const IParam& param) {}
+
+    /** /todo 
+     * @return EDisplayType /todo */
     virtual EDisplayType GetDisplayType() const = 0;
+
+    /** /todo 
+     * @param value /todo
+     * @param param /todo
+     * @return double /todo */
     virtual double NormalizedToValue(double value, const IParam& param) const = 0;
+
+    /** /todo 
+     * @param value /todo
+     * @param param /todo
+     * @return double /todo */
     virtual double ValueToNormalized(double value, const IParam& param) const = 0;
   };
 
@@ -97,34 +123,136 @@ public:
 
   IParam();
 
-  ~IParam()
-  {
-    delete mShape;
-  };
-
+  /** /todo 
+   * @param name /todo
+   * @param defaultValue /todo
+   * @param label /todo
+   * @param flags /todo
+   * @param group /todo
+   * @param offText /todo
+   * @param onText /todo */
   void InitBool(const char* name, bool defaultValue, const char* label = "", int flags = 0, const char* group = "", const char* offText = "off", const char* onText = "on"); // // LABEL not used here TODO: so why have it?
+  
+  /** /todo 
+   * @param name /todo
+   * @param defaultValue /todo
+   * @param nEnums /todo
+   * @param label /todo
+   * @param flags /todo
+   * @param group /todo
+   * @param listItems /todo
+   * @param ... /todo */
   void InitEnum(const char* name, int defaultValue, int nEnums, const char* label = "", int flags = 0, const char* group = "", const char* listItems = 0, ...); // LABEL not used here TODO: so why have it?
+  
+  /** /todo 
+   * @param name /todo
+   * @param defaultValue /todo
+   * @param minVal /todo
+   * @param maxVal /todo
+   * @param label /todo
+   * @param flags /todo
+   * @param group /todo */
   void InitInt(const char* name, int defaultValue, int minVal, int maxVal, const char* label = "", int flags = 0, const char* group = "");
-  void InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label = "", int flags = 0, const char* group = "", Shape* shape = nullptr, EParamUnit unit = kUnitCustom, DisplayFunc displayFunc = nullptr);
+  
+  /** /todo 
+   * @param name /todo
+   * @param defaultVal /todo
+   * @param minVal /todo
+   * @param maxVal /todo
+   * @param step /todo
+   * @param label /todo
+   * @param flags /todo
+   * @param group /todo
+   * @param shape /todo
+   * @param unit /todo
+   * @param displayFunc /todo */
+  void InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label = "", int flags = 0, const char* group = "", const Shape& shape = ShapeLinear(), EParamUnit unit = kUnitCustom, DisplayFunc displayFunc = nullptr);
 
+  /** /todo 
+   * @param name /todo
+   * @param defaultVal /todo
+   * @param minVal /todo
+   * @param maxVal /todo
+   * @param step /todo
+   * @param flags /todo
+   * @param group /todo */
   void InitSeconds(const char* name, double defaultVal = 1., double minVal = 0., double maxVal = 10., double step = 0.1, int flags = 0, const char* group = "");
+  
+  /** /todo 
+   * @param name /todo
+   * @param defaultVal /todo
+   * @param minVal /todo
+   * @param maxVal /todo
+   * @param step /todo
+   * @param flags /todo
+   * @param group /todo */
   void InitFrequency(const char* name, double defaultVal = 1000., double minVal = 0.1, double maxVal = 10000., double step = 0.1, int flags = 0, const char* group = "");
+  
+  /** /todo 
+   * @param name /todo
+   * @param defaultVal /todo
+   * @param minVal /todo
+   * @param maxVal /todo
+   * @param flags /todo
+   * @param group /todo */
   void InitPitch(const char* name, int defaultVal = 60, int minVal = 0, int maxVal = 128, int flags = 0, const char* group = "");
+  
+  /** /todo 
+   * @param name /todo
+   * @param defaultVal /todo
+   * @param minVal /todo
+   * @param maxVal /todo
+   * @param step /todo
+   * @param flags /todo
+   * @param group /todo */
   void InitGain(const char* name, double defaultVal = 0., double minVal = -70., double maxVal = 24., double step = 0.5, int flags = 0, const char* group = "");
+  
+  /** /todo 
+   * @param name /todo
+   * @param defaultVal /todo
+   * @param minVal /todo
+   * @param maxVal /todo
+   * @param flags /todo
+   * @param group /todo */
   void InitPercentage(const char* name, double defaultVal = 0., double minVal = 0., double maxVal = 100., int flags = 0, const char* group = "");
+
+  /** /todo 
+   * @param name /todo
+   * @param defaultVal /todo
+   * @param minVal /todo
+   * @param maxVal /todo
+   * @param flags /todo
+   * @param group /todo */
   void InitAngleDegrees(const char* name, double defaultVal = 0., double minVal = 0., double maxVal = 360., int flags = 0, const char* group = "");
 
+  /** /todo 
+   * @param p /todo
+   * @param searchStr /todo
+   * @param replaceStr /todo
+   * @param newGroup /todo */
   void Init(const IParam& p, const char* searchStr = "", const char* replaceStr = "", const char* newGroup = "");
   
+  /** /todo 
+   * @param str /todo
+   * @return double /todo */
   double StringToValue(const char* str) const;
 
+  /** /todo 
+   * @param value /todo
+   * @return double /todo */
   inline double Constrain(double value) const { return Clip((mFlags & kFlagStepped ? round(value / mStep) * mStep : value), mMin, mMax); }
 
+  /** /todo 
+   * @param nonNormalizedValue /todo
+   * @return double /todo */
   inline double ToNormalized(double nonNormalizedValue) const
   {
     return Clip(mShape->ValueToNormalized(Constrain(nonNormalizedValue), *this), 0., 1.);
   }
 
+  /** /todo 
+   * @param normalizedValue /todo
+   * @return double /todo */
   inline double FromNormalized(double normalizedValue) const
   {
     return Constrain(mShape->NormalizedToValue(normalizedValue, *this));
@@ -133,63 +261,169 @@ public:
   /** Sets the parameter value
    * @param value Value to be set. Will be stepped and clamped between \c mMin and \c mMax */
   void Set(double value) { mValue.store(Constrain(value)); }
+
+  /** /todo 
+   * @param normalizedValue /todo */
   void SetNormalized(double normalizedValue) { Set(FromNormalized(normalizedValue)); }
+
+  /** /todo 
+   * @param str /todo */
   void SetString(const char* str) { mValue.store(StringToValue(str)); }
+
+  /** /todo  */
   void SetToDefault() { mValue.store(mDefault); }
+
+  /** /todo 
+   * @param value /todo */
   void SetDefault(double value) { mDefault = value; SetToDefault(); }
 
+  /** /todo 
+   * @param value /todo
+   * @param str /todo */
   void SetDisplayText(double value, const char* str);
 
-  // Accessors / converters.
-  // These all return the readable value, not the VST (0,1).
   /** Gets a readable value of the parameter
    * @return Current value of the parameter */
   double Value() const { return mValue.load(); }
+
   /** Returns the parameter's value as a boolean
    * @return \c true if value >= 0.5, else otherwise */
   bool Bool() const { return (mValue.load() >= 0.5); }
-  /** Returns the parameter's value as an integer
-   * @return Current value of the parameter */
+
+  /** @return Current value of the parameter as an integer */
   int Int() const { return static_cast<int>(mValue.load()); }
+  
+  /** /todo 
+   * @return double /todo */
   double DBToAmp() const { return ::DBToAmp(mValue.load()); }
+
+  /** /todo 
+   * @return double /todo */
   double GetNormalized() const { return ToNormalized(mValue.load()); }
 
+  /** /todo 
+   * @param display /todo
+   * @param withDisplayText /todo */
   void GetDisplayForHost(WDL_String& display, bool withDisplayText = true) const { GetDisplayForHost(mValue.load(), false, display, withDisplayText); }
+
+  /** /todo 
+   * @param value /todo
+   * @param normalized /todo
+   * @param display /todo
+   * @param withDisplayText /todo */
   void GetDisplayForHost(double value, bool normalized, WDL_String& display, bool withDisplayText = true) const;
 
+  /** /todo 
+   * @return const char* /todo */
   const char* GetNameForHost() const;
+
+  /** /todo 
+   * @return const char* /todo */
   const char* GetLabelForHost() const;
+
+  /** /todo 
+   * @return const char* /todo */
   const char* GetGroupForHost() const;
+
+  /** /todo 
+   * @return const char* /todo */
   const char* GetCustomUnit() const { return mUnit == kUnitCustom ? mLabel : nullptr; }
   
+  /** /todo 
+   * @return int /todo */
   int NDisplayTexts() const;
+
+  /** /todo 
+   * @param value /todo
+   * @return const char* /todo */
   const char* GetDisplayText(double value) const;
+
+  /** /todo 
+   * @param idx /todo
+   * @param pValue /todo
+   * @return const char* /todo  */
   const char* GetDisplayTextAtIdx(int idx, double* pValue = nullptr) const;
+
+  /** /todo 
+   * @param str /todo
+   * @param pValue /todo
+   * @return true /todo
+   * @return false /todo */
   bool MapDisplayText(const char* str, double* pValue) const;  // Reverse map back to value.
   
+  /** /todo 
+   * @return EParamType /todo */
   EParamType Type() const { return mType; }
+
+  /** /todo 
+   * @return EParamUnit /todo */
   EParamUnit Unit() const { return mUnit; }
+
+  /** /todo 
+   * @return EDisplayType /todo */
   EDisplayType DisplayType() const { return mShape->GetDisplayType(); }
   
+  /** /todo 
+   * @param normalized /todo
+   * @return double /todo  */
   double GetDefault(bool normalized = false) const { return normalized ? ToNormalized(GetDefault()) : mDefault; }
   
+  /**  @return double /todo */
   double GetMin() const { return mMin; }
+
+  /**  @return double /todo */
   double GetMax() const { return mMax; }
+  
+  /** /todo 
+   * @param lo /todo
+   * @param hi /todo */
   void GetBounds(double& lo, double& hi) const;
+
+  /** /todo 
+   * @return double /todo  */
   double GetRange() const { return mMax - mMin; }
+
+  /** /todo 
+   * @return double /todo */
   double GetStep() const { return mStep; }
+
+  /** /todo 
+   * @return int /todo */
   int GetDisplayPrecision() const {return mDisplayPrecision;}
   
+  /** /todo 
+   * @return int /todo */
   int GetFlags() const { return mFlags; }
-  bool GetCanAutomate() const { return !(mFlags & kFlagCannotAutomate); }
-  bool GetStepped() const { return mFlags & kFlagStepped; }
-  bool GetNegateDisplay() const { return mFlags & kFlagNegateDisplay; }
-  bool GetSignDisplay() const { return mFlags & kFlagSignDisplay; }
-  bool GetMeta() const { return mFlags & kFlagMeta; }
 
+  /** /todo 
+   * @return true /todo  */
+  bool GetCanAutomate() const { return !(mFlags & kFlagCannotAutomate); }
+
+  /** /todo 
+   * @return true /todo */
+  bool GetStepped() const { return mFlags & kFlagStepped; }
+
+  /** /todo 
+   * @return false /todo */
+  bool GetNegateDisplay() const { return mFlags & kFlagNegateDisplay; }
+
+  /** /todo 
+   * @return false /todo */
+  bool GetSignDisplay() const { return mFlags & kFlagSignDisplay; }
+
+  /** /todo 
+   * @return false /todo */
+  bool GetMeta() const { return mFlags & kFlagMeta; }
+ 
+  /** /todo 
+   * @param json /todo
+   * @param idx /todo */
   void GetJSON(WDL_String& json, int idx) const;
+
+  /** /todo */
   void PrintDetails() const;
 private:
+  /** /todo */
   struct DisplayText
   {
     double mValue;
@@ -210,7 +444,7 @@ private:
   char mLabel[MAX_PARAM_LABEL_LEN];
   char mParamGroup[MAX_PARAM_GROUP_LEN];
   
-  Shape* mShape = nullptr;
+  std::unique_ptr<Shape> mShape;
   DisplayFunc mDisplayFunction = nullptr;
 
   WDL_TypedBuf<DisplayText> mDisplayTexts;

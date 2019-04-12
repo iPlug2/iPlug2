@@ -1,0 +1,58 @@
+#Download and unzip secure files for VST2_SDK, AAX_SDK and AGG
+steps:
+  - task: DownloadSecureFile@1
+    inputs:
+      secureFile: "VST2_SDK.zip"
+    condition: and(or(variables.build_mac, variables.build_win), eq(variables.build_vst2, true))
+    displayName: Download VST2 SDK
+
+  - task: DownloadSecureFile@1
+    inputs:
+      secureFile: "AAX_SDK.zip"
+    condition: and(or(variables.build_mac, variables.build_win), eq(variables.build_aax, true))
+    displayName: Download AAX SDK
+
+  # - task: DownloadSecureFile@1
+  #   inputs:
+  #     secureFile: "AGG.zip"
+  #   condition: or(variables.build_mac, variables.build_win)
+  #   displayName: Download AGG
+
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: '$(Agent.TempDirectory)/VST2_SDK.zip'
+      destinationFolder: '$(Agent.TempDirectory)'
+      cleanDestinationFolder: false
+    condition: and(or(variables.build_mac, variables.build_win), eq(variables.build_vst2, true))
+    displayName: Extract VST2 SDK
+
+  - task: ExtractFiles@1
+    inputs:
+      archiveFilePatterns: '$(Agent.TempDirectory)/AAX_SDK.zip'
+      destinationFolder: '$(Agent.TempDirectory)'
+      cleanDestinationFolder: false
+    condition: and(or(variables.build_mac, variables.build_win), eq(variables.build_aax, true))
+    displayName: Extract AAX SDK
+
+  # - task: ExtractFiles@1
+  #   inputs:
+  #     archiveFilePatterns: '$(Agent.TempDirectory)/AGG.zip'
+  #     destinationFolder: '$(Agent.TempDirectory)'
+  #     cleanDestinationFolder: false
+  #   displayName: Extract AGG
+
+  - bash: |
+      mv $AGENT_TEMPDIRECTORY/VST2_SDK/* ./Dependencies/IPlug/VST2_SDK
+    displayName: Move VST2 File Dependencies
+    condition: and(or(variables.build_mac, variables.build_win), eq(variables.build_deps, false), eq(variables.build_vst2, true))
+
+  - bash: |
+      mv $AGENT_TEMPDIRECTORY/AAX_SDK/* ./Dependencies/IPlug/AAX_SDK
+    displayName: Move AAX File Dependencies
+    condition: and(or(variables.build_mac, variables.build_win), eq(variables.build_deps, false), eq(variables.build_aax, true))
+  
+  # - bash: |
+  #     mkdir ./Dependencies/IGraphics/AGG
+  #     mv $AGENT_TEMPDIRECTORY/AGG/* ./Dependencies/IGraphics/AGG
+  #   displayName: Move AGG Secure File Dependencies
+  #   condition: and(or(variables.build_mac, variables.build_win), eq(variables.build_deps, false))

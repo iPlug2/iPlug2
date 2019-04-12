@@ -10,16 +10,32 @@
 
 #pragma once
 
-#ifndef NO_IGRAPHICS
-
 #include "IGraphics_select.h"
-#include <CoreGraphics/CGGeometry.h>
+#include <CoreText/CoreText.h>
+#include <CoreGraphics/CoreGraphics.h>
 
 /** IGraphics platform class for macOS
 *   @ingroup PlatformClasses */
 class IGraphicsMac final : public IGRAPHICS_DRAW_CLASS
 {
 public:
+    
+  class MacFont : public PlatformFont
+  {
+  public:
+    MacFont(CTFontDescriptorRef descriptor, CGDataProviderRef provider)
+     : mDescriptor(descriptor), mProvider(provider) {}
+    ~MacFont();
+      
+    const void* GetDescriptor() override { return reinterpret_cast<const void*>(mDescriptor); }
+    IFontDataPtr GetFontData() override;
+
+  private:
+      
+    CTFontDescriptorRef mDescriptor;
+    CGDataProviderRef mProvider;
+  };
+    
   IGraphicsMac(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   virtual ~IGraphicsMac();
 
@@ -37,7 +53,7 @@ public:
 
   void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override;
-  void SetMouseCursor(ECursor cursor) override;
+  ECursor SetMouseCursor(ECursor cursorType) override;
     
   void DoCursorLock(float x, float y, float& prevX, float& prevY);
     
@@ -55,6 +71,8 @@ public:
 
 //  void CreateWebView(const IRECT& bounds, const char* url) override;
   
+  CTFontDescriptorRef GetCTFontDescriptor(const IText& text);
+    
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
 
   void* GetWindow() override;
@@ -66,16 +84,14 @@ public:
 
   bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
 
-  //IGraphicsMac
-  void SetMousePosition(float x, float y);
-
 protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
 private:
-  EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result) override;
-  bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath);
-  bool GetResourcePathFromUsersMusicFolder(const char* fileName, const char* searchExt, WDL_String& fullPath);
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
+  void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override;
+
   void RepositionCursor(CGPoint point);
   void StoreCursorPosition();
 
@@ -84,5 +100,3 @@ private:
   WDL_String mBundleID;
   friend int GetMouseOver(IGraphicsMac* pGraphics);
 };
-
-#endif // NO_IGRAPHICS

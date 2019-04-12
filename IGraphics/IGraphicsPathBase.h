@@ -30,7 +30,7 @@ public:
   : IGraphics(dlg, w, h, fps, scale) 
   {}
 
-  void DrawRotatedBitmap(IBitmap& bitmap, float destCtrX, float destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override
+  void DrawRotatedBitmap(const IBitmap& bitmap, float destCtrX, float destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override
   {
     //TODO: offset support
     
@@ -38,13 +38,13 @@ public:
     float height = bitmap.H() / bitmap.GetDrawScale();
     
     PathTransformSave();
-    PathTransformTranslate((float) destCtrX, (float) destCtrY);
+    PathTransformTranslate(destCtrX, destCtrY);
     PathTransformRotate((float) angle);
     DrawBitmap(bitmap, IRECT(-width * 0.5f, - height * 0.5f, width * 0.5f, height * 0.5f), 0, 0, pBlend);
     PathTransformRestore();
   }
   
-  void DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, float x, float y, double angle, const IBlend* pBlend) override
+  void DrawRotatedMask(const IBitmap& base, const IBitmap& mask, const IBitmap& top, float x, float y, double angle, const IBlend* pBlend) override
   {
     float width = (float) base.W();
     float height = (float) base.H();
@@ -417,7 +417,7 @@ public:
     PathTransformSetMatrix(mTransform);
   }
   
-  void DrawFittedBitmap(IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend) override
+  void DrawFittedBitmap(const IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend) override
   {
     PathTransformSave();
     PathTransformTranslate(bounds.L, bounds.T);
@@ -427,7 +427,7 @@ public:
     PathTransformRestore();
   }
   
-  void DrawSVG(ISVG& svg, const IRECT& dest, const IBlend* pBlend) override
+  void DrawSVG(const ISVG& svg, const IRECT& dest, const IBlend* pBlend) override
   {
     float xScale = dest.W() / svg.W();
     float yScale = dest.H() / svg.H();
@@ -440,7 +440,7 @@ public:
     PathTransformRestore();
   }
   
-  void DrawRotatedSVG(ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend) override
+  void DrawRotatedSVG(const ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend) override
   {
     PathTransformSave();
     PathTransformTranslate(destCtrX, destCtrY);
@@ -500,13 +500,15 @@ private:
       if (!(pShape->flags & NSVG_FLAGS_VISIBLE))
         continue;
       
+      PathClear();
+        
       for (NSVGpath* pPath = pShape->paths; pPath; pPath = pPath->next)
       {
         PathMoveTo(pPath->pts[0], pPath->pts[1]);
         
-        for (int i = 0; i < pPath->npts - 1; i += 3)
+        for (int i = 1; i < pPath->npts; i += 3)
         {
-          float *p = pPath->pts + i * 2 + 2;
+          float *p = pPath->pts + i * 2;
           PathCurveTo(p[0], p[1], p[2], p[3], p[4], p[5]);
         }
         

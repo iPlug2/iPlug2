@@ -163,6 +163,9 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          IGRAPHICS_MENU \
                          IGRAPHICS_MENU_RCVR \
                          IGRAPHICS_VIEW \
+                         IGRAPHICS_TEXTFIELD \
+                         IGRAPHICS_TEXTFIELD_CELL \
+                         IGraphicsIOS_View \
                          LineInfo \
                          StaticStorage \
                          CocoaAutoReleasePool \
@@ -354,12 +357,12 @@ GROUP_GRAPHS           = YES
 UML_LOOK               = NO
 UML_LIMIT_NUM_FIELDS   = 10
 TEMPLATE_RELATIONS     = NO
-INCLUDE_GRAPH          = YES
-INCLUDED_BY_GRAPH      = YES
+INCLUDE_GRAPH          = NO
+INCLUDED_BY_GRAPH      = NO
 CALL_GRAPH             = NO
 CALLER_GRAPH           = NO
 GRAPHICAL_HIERARCHY    = YES
-DIRECTORY_GRAPH        = YES
+DIRECTORY_GRAPH        = NO
 DOT_IMAGE_FORMAT       = svg
 INTERACTIVE_SVG        = YES
 DOT_PATH               = /usr/local/bin

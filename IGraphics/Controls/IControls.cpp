@@ -23,9 +23,9 @@ const IColor IVKeyboardControl::DEFAULT_WK_COLOR = IColor(255, 240, 240, 240);
 const IColor IVKeyboardControl::DEFAULT_PK_COLOR = IColor(60, 0, 0, 0);
 const IColor IVKeyboardControl::DEFAULT_FR_COLOR = DEFAULT_BK_COLOR;
 
-IVButtonControl::IVButtonControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc,
+IVButtonControl::IVButtonControl(IRECT bounds, IActionFunction actionFunc,
   const char* str, const IText& text, const IVColorSpec& colorSpec)
-: IButtonControlBase(dlg, bounds, actionFunc)
+: IButtonControlBase(bounds, actionFunc)
 , IVectorBase(colorSpec)
 {
   AttachIControl(this);
@@ -42,9 +42,9 @@ void IVButtonControl::Draw(IGraphics& g)
     g.DrawText(mText, mStr.Get(), handleBounds);
 }
 
-IVSwitchControl::IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc
+IVSwitchControl::IVSwitchControl(IRECT bounds, int paramIdx, IActionFunction actionFunc
   , const char* str, const IVColorSpec& colorSpec, int numStates)
-  : ISwitchControlBase(dlg, bounds, paramIdx, actionFunc, numStates)
+  : ISwitchControlBase(bounds, paramIdx, actionFunc, numStates)
   , IVectorBase(colorSpec)
 {
   AttachIControl(this);
@@ -70,9 +70,9 @@ void IVSwitchControl::Draw(IGraphics& g)
     g.DrawText(mText, mStr.Get(), handleBounds);
 }
 
-IVRadioButtonControl::IVRadioButtonControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, IActionFunction actionFunc,
+IVRadioButtonControl::IVRadioButtonControl(IRECT bounds, int paramIdx, IActionFunction actionFunc,
   const IVColorSpec& colorSpec, int numStates, EDirection dir)
-: ISwitchControlBase(dlg, bounds, paramIdx, actionFunc, numStates)
+: ISwitchControlBase(bounds, paramIdx, actionFunc, numStates)
 , IVectorBase(colorSpec)
 , mDirection(dir)
 {
@@ -131,12 +131,12 @@ void IVRadioButtonControl::OnResize()
   }
 }
 
-IVKnobControl::IVKnobControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx,
+IVKnobControl::IVKnobControl(IRECT bounds, int paramIdx,
                              const char* label, bool displayParamValue,
                              const IVColorSpec& colorSpec, const IText& labelText, const IText& valueText,
                              float aMin, float aMax, float knobFrac,
                              EDirection direction, double gearing)
-: IKnobControlBase(dlg, bounds, paramIdx, direction, gearing)
+: IKnobControlBase(bounds, paramIdx, direction, gearing)
 , IVectorBase(colorSpec)
 , mAngleMin(aMin)
 , mAngleMax(aMax)
@@ -152,12 +152,12 @@ IVKnobControl::IVKnobControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx,
   AttachIControl(this);
 }
 
-IVKnobControl::IVKnobControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunction,
+IVKnobControl::IVKnobControl(IRECT bounds, IActionFunction actionFunction,
                              const char* label, bool displayParamValue,
                              const IVColorSpec& colorSpec, const IText& labelText, const IText& valueText,
                              float aMin, float aMax, float knobFrac,
                              EDirection direction, double gearing)
-: IKnobControlBase(dlg, bounds, kNoParameter, direction, gearing)
+: IKnobControlBase(bounds, kNoParameter, direction, gearing)
 , IVectorBase(colorSpec)
 , mAngleMin(aMin)
 , mAngleMax(aMax)
@@ -197,7 +197,7 @@ void IVKnobControl::Draw(IGraphics& g)
   g.DrawCircle(GetColor(kFR), cx, cy, radius, 0, mFrameThickness);
   g.DrawRadialLine(GetColor(kFR), cx, cy, v, 0.7f * radius, 0.9f * radius, 0, mFrameThickness);
   
-  if(mLabelBounds.H())
+  if(mLabelBounds.H() > 0.f)
     g.DrawText(mLabelText, mLabel.Get(), mLabelBounds);
   
   if(mDisplayParamValue)
@@ -347,27 +347,27 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   SetDirty();
 }
 
-IBSliderControl::IBSliderControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, const IBitmap& bitmap,
+IBSliderControl::IBSliderControl(IRECT bounds, int paramIdx, const IBitmap& bitmap,
                                  EDirection dir, bool onlyHandle)
-: ISliderControlBase(dlg, bounds, paramIdx, dir, onlyHandle)
+: ISliderControlBase(bounds, paramIdx, dir, onlyHandle)
 , IBitmapBase(bitmap)
 {
   mTrack = bounds; // TODO: check
 }
 
-IBSliderControl::IBSliderControl(IGEditorDelegate& dlg, float x, float y, int len, int paramIdx, const IBitmap& bitmap, EDirection dir, bool onlyHandle)
-: ISliderControlBase(dlg, IRECT(x, y, x + bitmap.W(), y + len), paramIdx)
+IBSliderControl::IBSliderControl(float x, float y, int len, int paramIdx, const IBitmap& bitmap, EDirection dir, bool onlyHandle)
+: ISliderControlBase(IRECT(x, y, x + bitmap.W(), y + len), paramIdx)
 , IBitmapBase(bitmap)
 {
   if (dir == kVertical)
   {
     mRECT = mTargetRECT = IRECT(x, y, x + bitmap.W(), y + len);
-    mTrack = mRECT.GetPadded(0, (float) bitmap.H(), 0, 0);
+    mTrack = mRECT.GetPadded(0, -(float) bitmap.H(), 0, 0);
   }
   else
   {
     mRECT = mTargetRECT = IRECT(x, y, x + len, y + bitmap.H());
-    mTrack = mRECT.GetPadded(0, 0, (float) bitmap.W(), 0);
+    mTrack = mRECT.GetPadded(0, 0, -(float) bitmap.W(), 0);
   }
 }
 

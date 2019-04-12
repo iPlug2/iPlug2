@@ -22,8 +22,8 @@
 class TestDirBrowseControl : public IDirBrowseControlBase
 {
 public:
-  TestDirBrowseControl(IGEditorDelegate& dlg, IRECT rect, const char* extension, const char* path)
-  : IDirBrowseControlBase(dlg, rect, extension)
+  TestDirBrowseControl(IRECT rect, const char* extension, const char* path)
+  : IDirBrowseControlBase(rect, extension)
   {
     mLabel.SetFormatted(32, "Select a %s file", extension);
     SetPath(path);
@@ -32,7 +32,7 @@ public:
   
   void OnResize() override
   {
-    but = mRECT.GetCentredInside(mRECT.W()-10., 20);
+    but = mRECT.GetCentredInside(mRECT.W()-10.f, 20.f);
     arrow = but.GetFromRight(20.).GetPadded(-5.);
     useplat = mRECT.GetFromBottom(30).GetPadded(-5);
     useplatbut = useplat.GetFromRight(20.).GetPadded(-5.);

@@ -22,8 +22,8 @@
 class TestCursorControl : public IControl
 {
 public:
-  TestCursorControl(IGEditorDelegate& dlg, IRECT rect, int paramIdx = kNoParameter)
-  : IControl(dlg, rect, paramIdx)
+  TestCursorControl(IRECT rect, int paramIdx = kNoParameter)
+  : IControl(rect, paramIdx)
   {
     SetTooltip("TestCursorControl");
   }
@@ -42,7 +42,7 @@ public:
     if (mCursor > (int) ECursor::HELP)
       mCursor = -1;
     
-    GetUI()->SetMouseCursor((ECursor) mCursor);
+    GetUI()->SetMouseCursor((ECursor) std::max(0, mCursor));
     
     SetDirty(false);
   }

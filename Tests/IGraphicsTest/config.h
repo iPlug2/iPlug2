@@ -4,9 +4,9 @@
 #define PLUG_VERSION_STR "1.0.0"
 #define PLUG_UNIQUE_ID 'Ipgt'
 #define PLUG_MFR_ID 'Acme'
-#define PLUG_URL_STR "www.olilarkin.co.uk"
+#define PLUG_URL_STR "https://iplug2.github.io"
 #define PLUG_EMAIL_STR "spam@me.com"
-#define PLUG_COPYRIGHT_STR "Copyright 2017 Acme Inc"
+#define PLUG_COPYRIGHT_STR "Copyright 2019 Acme Inc"
 #define PLUG_CLASS_NAME IGraphicsTest
 
 #define BUNDLE_NAME "IGraphicsTest"
@@ -35,7 +35,7 @@
 
 #define AAX_TYPE_IDS 'EFN1', 'EFN2'
 #define AAX_TYPE_IDS_AUDIOSUITE 'EFA1', 'EFA2'
-#define AAX_PLUG_MFR_STR "AcmeInc\nAcmeInc\nAcme"
+#define AAX_PLUG_MFR_STR "Acme"
 #define AAX_PLUG_NAME_STR "IGraphicsTest\nIPEF"
 #define AAX_PLUG_CATEGORY_STR "Effect"
 #define AAX_DOES_AUDIOSUITE 1
@@ -52,6 +52,7 @@
 #define ROBOTTO_FN "Roboto-Regular.ttf"
 #define MONTSERRAT_FN "Montserrat-LightItalic.ttf"
 #define TIGER_FN "23.svg"
+#define ORBS_FN "orbs.svg"
 #define SMILEY_FN "smiley.png"
 #define BASE_FN "IKRMC_Base.png"
 #define MASK_FN "IKRMC_Mask.png"

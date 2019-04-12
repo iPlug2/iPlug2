@@ -9,8 +9,8 @@ private:
   WDL_String mLabel;
   IBitmap mBitmap;
 public:
-  FileBrowser(IGEditorDelegate& dlg, IRECT bounds)
-  : IDirBrowseControlBase(dlg, bounds, ".png")
+  FileBrowser(IRECT bounds)
+  : IDirBrowseControlBase(bounds, ".png")
   {
     WDL_String path;
 //    DesktopPath(path);
@@ -94,40 +94,40 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     
     IRECT b = pGraphics->GetBounds().GetPadded(-5);
     
-    pGraphics->LoadFont(ROBOTTO_FN);
+    pGraphics->LoadFont("Roboto-Regular", ROBOTTO_FN);
     const IBitmap bitmap1 = pGraphics->LoadBitmap(PNGKNOB_FN, 60);
     const IBitmap bitmap2 = pGraphics->LoadBitmap(PNGKNOBROTATE_FN);
     const ISVG vectorknob = pGraphics->LoadSVG(SVGKNOBROTATE_FN);
     
-    const IText bigLabel {24, COLOR_WHITE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop, 0};
-    const IText buttonLabels {14, COLOR_BLACK, "Roboto-Regular", IText::kStyleNormal, IText::kAlignCenter, IText::kVAlignMiddle, 0};
+    const IText bigLabel {24, COLOR_WHITE, "Roboto-Regular", IText::kAlignNear, IText::kVAlignTop, 0};
+    const IText buttonLabels {14, COLOR_BLACK, "Roboto-Regular", IText::kAlignCenter, IText::kVAlignMiddle, 0};
 
     
     const int nRows = 5;
     const int nCols = 5;
     
-    pGraphics->AttachControl(new ITextControl(*this, b.GetGridCell(0, nRows, 1), "Bitmap Controls", bigLabel));
-    pGraphics->AttachControl(new IBKnobControl(*this, b.GetGridCell(0, nRows, nCols).GetPadded(-5.), bitmap1, kGain));
-    pGraphics->AttachControl(new IBKnobRotaterControl(*this, b.GetGridCell(1, nRows, nCols).GetPadded(-5.), bitmap2, kGain));
-    pGraphics->AttachControl(new IBSwitchControl(*this, b.GetGridCell(2, nRows, nCols), bitmap1));
-    pGraphics->AttachControl(new IBButtonControl(*this, b.GetGridCell(3, nRows, nCols), bitmap1));
+    pGraphics->AttachControl(new ITextControl(b.GetGridCell(0, nRows, 1), "Bitmap Controls", bigLabel));
+    pGraphics->AttachControl(new IBKnobControl(b.GetGridCell(0, nRows, nCols).GetPadded(-5.), bitmap1, kGain));
+    pGraphics->AttachControl(new IBKnobRotaterControl(b.GetGridCell(1, nRows, nCols).GetPadded(-5.), bitmap2, kGain));
+    pGraphics->AttachControl(new IBSwitchControl(b.GetGridCell(2, nRows, nCols), bitmap1));
+    pGraphics->AttachControl(new IBButtonControl(b.GetGridCell(3, nRows, nCols), bitmap1));
 
-    pGraphics->AttachControl(new ITextControl(*this, b.GetGridCell(1, nRows, 1), "Vector Controls", bigLabel));
-    pGraphics->AttachControl(new IVKnobControl(*this, b.GetGridCell(5, nRows, nCols).GetCentredInside(100.), kGain));
-    pGraphics->AttachControl(new IVSliderControl(*this, b.GetGridCell(6, nRows, nCols).GetGridCell(0, 1, 3)));
-    pGraphics->AttachControl(new IVSliderControl(*this, b.GetGridCell(6, nRows, nCols).GetGridCell(3, 3, 2), kNoParameter, DEFAULT_SPEC, kHorizontal));
-    pGraphics->AttachControl(new IVSwitchControl(*this, b.GetGridCell(7, nRows, nCols).GetCentredInside(50.), kMode, [](IControl* pCaller)
+    pGraphics->AttachControl(new ITextControl(b.GetGridCell(1, nRows, 1), "Vector Controls", bigLabel));
+    pGraphics->AttachControl(new IVKnobControl(b.GetGridCell(5, nRows, nCols).GetCentredInside(100.), kGain));
+    pGraphics->AttachControl(new IVSliderControl(b.GetGridCell(6, nRows, nCols).GetGridCell(0, 1, 3)));
+    pGraphics->AttachControl(new IVSliderControl(b.GetGridCell(6, nRows, nCols).GetGridCell(3, 3, 2), kNoParameter, DEFAULT_SPEC, kHorizontal));
+    pGraphics->AttachControl(new IVSwitchControl(b.GetGridCell(7, nRows, nCols).GetCentredInside(50.), kMode, [](IControl* pCaller)
     {
-      FlashCircleClickActionFunc(pCaller);
+      SplashClickActionFunc(pCaller);
       dynamic_cast<IVectorBase*>(pCaller)->SetRoundness(pCaller->GetValue());
     }));
     
     //    pGraphics->AttachControl(new IVMeterControl<2>(*this, nextCell()), kControlTagMeter);
     //    pGraphics->AttachControl(new IVScopeControl<>(*this, nextCell()), kControlTagScope);
-    pGraphics->AttachControl(new ISVGKnob(*this, b.GetGridCell(8, nRows, nCols).GetCentredInside(100), vectorknob, kGain));
+    pGraphics->AttachControl(new ISVGKnob(b.GetGridCell(8, nRows, nCols).GetCentredInside(100), vectorknob, kGain));
     
     auto button1action = [](IControl* pCaller) {
-      FlashCircleClickActionFunc(pCaller);
+      SplashClickActionFunc(pCaller);
       int result = pCaller->GetUI()->ShowMessageBox("Message", "Title in Bold", kMB_YESNO);
       WDL_String str;
       str.SetFormatted(32, "%s pressed", kMessageResultStrs[result]);
@@ -135,31 +135,31 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     };
     
     auto button2action = [](IControl* pCaller) {
-      FlashCircleClickActionFunc(pCaller);
+      SplashClickActionFunc(pCaller);
       WDL_String file, path;
       pCaller->GetUI()->PromptForFile(file, path);
       dynamic_cast<ITextControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagDialogResult))->SetStr(file.Get());
     };
     
     auto button3action = [](IControl* pCaller) {
-      FlashCircleClickActionFunc(pCaller);
+      SplashClickActionFunc(pCaller);
       WDL_String dir;
       pCaller->GetUI()->PromptForDirectory(dir);
       dynamic_cast<ITextControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagDialogResult))->SetStr(dir.Get());
     };
     
-    pGraphics->AttachControl(new IVButtonControl(*this, b.GetGridCell(9, nRows, nCols).GetGridCell(0, 4, 1), button1action, "Trigger Message Box", buttonLabels));
-    pGraphics->AttachControl(new IVButtonControl(*this, b.GetGridCell(9, nRows, nCols).GetGridCell(1, 4, 1), button2action, "Trigger open file dialog", buttonLabels));
-    pGraphics->AttachControl(new IVButtonControl(*this, b.GetGridCell(9, nRows, nCols).GetGridCell(2, 4, 1), button3action, "Trigger open directory dialog", buttonLabels));
-    pGraphics->AttachControl(new ITextControl(*this, b.GetGridCell(9, nRows, nCols).GetGridCell(3, 4, 1), "Dialog result shown here...", DEFAULT_TEXT, COLOR_RED), kCtrlTagDialogResult);
+    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).GetGridCell(0, 4, 1), button1action, "Trigger Message Box", buttonLabels));
+    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).GetGridCell(1, 4, 1), button2action, "Trigger open file dialog", buttonLabels));
+    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).GetGridCell(2, 4, 1), button3action, "Trigger open directory dialog", buttonLabels));
+    pGraphics->AttachControl(new ITextControl(b.GetGridCell(9, nRows, nCols).GetGridCell(3, 4, 1), "Dialog result shown here...", DEFAULT_TEXT, COLOR_RED), kCtrlTagDialogResult);
 
-    pGraphics->AttachControl(new ITextControl(*this, b.GetGridCell(2, nRows, 1), "Text Controls", bigLabel));
-    pGraphics->AttachControl(new ICaptionControl(*this, b.GetGridCell(10, nRows, nCols).GetMidVPadded(20.), kGain, IText(50), false));
+    pGraphics->AttachControl(new ITextControl(b.GetGridCell(2, nRows, 1), "Text Controls", bigLabel));
+    pGraphics->AttachControl(new ICaptionControl(b.GetGridCell(10, nRows, nCols).GetMidVPadded(20.), kGain, IText(50), false));
 
-    pGraphics->AttachControl(new ITextControl(*this, b.GetGridCell(3, nRows, 1), "Misc Controls", bigLabel));
-    pGraphics->AttachControl(new FileBrowser(*this, b.GetGridCell(15, nRows, nCols).Union(b.GetGridCell(16, nRows, nCols)).GetPadded(-25)));
-    pGraphics->AttachControl(new IVKeyboardControl(*this, b.GetGridCell(17, nRows, nCols).Union(b.GetGridCell(18, nRows, nCols)).GetPadded(-25), 36, 72));
-//    pGraphics->AttachControl(new IColorPickerControl(*this, b.GetGridCell(12, nRows, nCols).GetCentredInside(150.)));
+    pGraphics->AttachControl(new ITextControl(b.GetGridCell(3, nRows, 1), "Misc Controls", bigLabel));
+    pGraphics->AttachControl(new FileBrowser(b.GetGridCell(15, nRows, nCols).Union(b.GetGridCell(16, nRows, nCols)).GetPadded(-25)));
+    pGraphics->AttachControl(new IVKeyboardControl(b.GetGridCell(17, nRows, nCols).Union(b.GetGridCell(18, nRows, nCols)).GetPadded(-25), 36, 72));
+//    pGraphics->AttachControl(new IColorPickerControl(b.GetGridCell(12, nRows, nCols).GetCentredInside(150.)));
 
 
   };
@@ -169,13 +169,13 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 #if IPLUG_DSP
 void IPlugControls::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
-//  const double gain = GetParam(kGain)->Value() / 100.;
-//  const int nChans = NOutChansConnected();
-//  
-//  for (int s = 0; s < nFrames; s++) {
-//    for (int c = 0; c < nChans; c++) {
-//      outputs[c][s] = inputs[c][s] * gain;
-//    }
-//  }
+  const double gain = GetParam(kGain)->Value() / 100.;
+  const int nChans = NOutChansConnected();
+  
+  for (int s = 0; s < nFrames; s++) {
+    for (int c = 0; c < nChans; c++) {
+      outputs[c][s] = 0.;
+    }
+  }
 }
 #endif

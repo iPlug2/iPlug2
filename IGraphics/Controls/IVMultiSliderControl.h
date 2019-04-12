@@ -26,8 +26,8 @@ class IVMultiSliderControl : public IVTrackControlBase
 {
 public:
 
-  IVMultiSliderControl(IGEditorDelegate& dlg, IRECT bounds, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
-  : IVTrackControlBase(dlg, bounds, MAXNC, minTrackValue, maxTrackValue, trackNames)
+  IVMultiSliderControl(IRECT bounds, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  : IVTrackControlBase(bounds, MAXNC, minTrackValue, maxTrackValue, trackNames)
   {
     mOuterPadding = 0.f;
     mDrawTrackFrame = false;

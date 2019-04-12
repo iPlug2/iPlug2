@@ -11,10 +11,12 @@ PLATFORMS_PATH = $(IGRAPHICS_PATH)/Platforms
 DRAWING_PATH = $(IGRAPHICS_PATH)/Drawing
 IPLUG_EXTRAS_PATH = $(IPLUG_PATH)/Extras
 IPLUG_SYNTH_PATH = $(IPLUG_EXTRAS_PATH)/Synth
+IPLUG_FAUST_PATH = $(IPLUG_EXTRAS_PATH)/Faust
 IPLUG_WEB_PATH = $(IPLUG_PATH)/WEB
 NANOVG_PATH = $(DEPS_PATH)/IGraphics/NanoVG/src
 NANOSVG_PATH = $(DEPS_PATH)/IGraphics/NanoSVG/src
 STB_PATH = $(DEPS_PATH)/IGraphics/STB
+NANOVG_LDFLAGS = -s USE_GLFW=3 -s USE_WEBGL2=0 -s FULL_ES3=1
 
 IPLUG_SRC = $(IPLUG_PATH)/IPlugAPIBase.cpp \
 	$(IPLUG_PATH)/IPlugParameter.cpp \
@@ -34,6 +36,7 @@ INCLUDE_PATHS = -I$(PROJECT_ROOT) \
 -I$(IPLUG_PATH) \
 -I$(IPLUG_EXTRAS_PATH) \
 -I$(IPLUG_SYNTH_PATH) \
+-I$(IPLUG_FAUST_PATH) \
 -I$(IPLUG_WEB_PATH) \
 -I$(IGRAPHICS_PATH) \
 -I$(DRAWING_PATH) \
@@ -83,13 +86,13 @@ LDFLAGS = -s ALLOW_MEMORY_GROWTH=1 --bind
 # We can't compile the WASM module synchronously on main thread (.wasm over 4k in size requires async compile on chrome) https://developers.google.com/web/updates/2018/04/loading-wasm
 # and you can't compile asynchronously in AudioWorklet scope
 # The following settings mean the WASM is delivered as BASE64 and included in the MyPluginName-wam.js file.
-WAM_LDFLAGS = -s EXTRA_EXPORTED_RUNTIME_METHODS="['ccall', 'cwrap', 'setValue', 'Pointer_stringify']" \
+WAM_LDFLAGS = -s EXTRA_EXPORTED_RUNTIME_METHODS="['ccall', 'cwrap', 'setValue', 'UTF8ToString']" \
 -s BINARYEN_ASYNC_COMPILATION=0 \
 -s SINGLE_FILE=1 \
 #-s ENVIRONMENT=worker
 
 WEB_LDFLAGS = -s EXPORTED_FUNCTIONS=$(WEB_EXPORTS) \
--s EXTRA_EXPORTED_RUNTIME_METHODS="['Pointer_stringify']" \
+-s EXTRA_EXPORTED_RUNTIME_METHODS="['UTF8ToString']" \
 -s BINARYEN_ASYNC_COMPILATION=1 \
 -s FORCE_FILESYSTEM=1 \
 -s ENVIRONMENT=web

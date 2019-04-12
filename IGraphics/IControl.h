@@ -42,23 +42,21 @@ class IControl
 {
 public:
   /** Constructor
-   * @param dlg The class implementing the IEditorDelegate interface that will handle parameter changes.
-   * In a plug-in, this would typically be your main plug-in class
-   * If you're doing something using IGraphics on its own (e.g. drawing into an extra window), you need to implement the IEditorDelegate interface somewhere
-   * to handle dummy "parameter" changes.
+   * @brief Creates an IControl
+   * NOTE: An IControl does not know about the delegate or graphics context to which it belongs in the constructor
+   * If you need to do something once those things are know, see IControl::OnInit()
    * @param bounds The rectangular area that the control occupies
    * @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a plugin parameter
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
-  IControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
+  IControl(IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
   
   /** Constructor (no paramIdx)
-   * @param dlg The class implementing the IEditorDelegate interface that will handle parameter changes.
-   * In a plug-in, this would typically be your main plug-in class
-   * If you're doing something using IGraphics on its own (e.g. drawing into an extra window), you need to implement the IEditorDelegate interface somewhere
-   * to handle dummy "parameter" changes.
+   * @brief Creates an IControl which is not linked to a parameter
+   * NOTE: An IControl does not know about the delegate or graphics context to which it belongs in the constructor
+   * If you need to do something once those things are know, see IControl::OnInit()
    * @param bounds The rectangular area that the control occupies
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
-  IControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc);
+  IControl(IRECT bounds, IActionFunction actionFunc);
 
   /** Destructor. Clean up any resources that your control owns. */
   virtual ~IControl() {}
@@ -120,6 +118,9 @@ public:
   /** Called when IControl is constructed or resized using SetRect(). NOTE: if you call SetDirty() in this method, you should call SetDirty(false) to avoid triggering parameter changes */
   virtual void OnResize() {}
   
+  /** Called after the control has been attached, and its delegate and graphics member variable set */
+  virtual void OnInit() {}
+  
   /** Implement to receive messages sent to the control, see IEditorDelegate:SendControlMsgFromDelegate() */
   virtual void OnMsgFromDelegate(int messageTag, int dataSize, const void* pData) {};
   
@@ -148,7 +149,7 @@ public:
    * @param g The graphics context to which this control belongs. */
   virtual void DrawPTHighlight(IGraphics& g);
 
-  /** Call this method in reponse to a mouse event to create an edit box so the user can enter a value, or pop up a pop-up menu,
+  /** Call this method in response to a mouse event to create an edit box so the user can enter a value, or pop up a pop-up menu,
    * if the control is linked to a parameter (mParamIdx > kNoParameter) */
   void PromptUserInput();
   
@@ -232,11 +233,11 @@ public:
   const IRECT& GetTargetRECT() const { return mTargetRECT; } // The mouse target area (default = draw area).
 
   /** Set the rectangular mouse tracking target area, within the graphics context for this control
-   * @param The control's new target bounds within the graphics context */
+   * @param bounds The control's new target bounds within the graphics context */
   void SetTargetRECT(const IRECT& bounds) { mTargetRECT = bounds; mMouseIsOver = false; }
   
   /** Set BOTH the draw rect and the target area, within the graphics context for this control
-   * @param The control's new draw and target bounds within the graphics context */
+   * @param bounds The control's new draw and target bounds within the graphics context */
   void SetTargetAndDrawRECTs(const IRECT& bounds) { mRECT = mTargetRECT = bounds; mMouseIsOver = false; OnResize(); }
 
   /** Used internally by the AAX wrapper view interface to set the control parmeter highlight 
@@ -265,11 +266,11 @@ public:
   bool IsGrayed() const { return mGrayed; }
 
   /** Specify whether the control should respond to mouse overs when grayed out
-   * @param allow \c true if it should resond to mouse overs when grayed out (false by default) */
+   * @param allow \c true if it should respond to mouse overs when grayed out (false by default) */
   void SetMOWhenGrayed(bool allow) { mMOWhenGrayed = allow; }
 
   /** Specify whether the control should respond to other mouse events when grayed out
-   * @param allow \c true if it should resond to other mouse events when grayed out (false by default) */
+   * @param allow \c true if it should respond to other mouse events when grayed out (false by default) */
   void SetMEWhenGrayed(bool allow) { mMEWhenGrayed = allow; }
 
   /** @return \c true if the control responds to mouse overs when grayed out */
@@ -292,7 +293,7 @@ public:
   void SetValDisplayControl(IControl* pValDisplayControl) { mValDisplayControl = pValDisplayControl; }
   
   /** Set a control which should display the name of the parameter that this control is linked to when this control is modified with the mouse  
-  * @param pValDisplayControl A pointer to an IControl which should display parameter names. */
+  * @param pNameDisplayControl A pointer to an IControl which should display parameter names. */
   void SetNameDisplayControl(IControl* pNameDisplayControl) { mNameDisplayControl = pNameDisplayControl; }
 
   /** Mark the control as dirty, i.e. it should be redrawn on the next display refresh
@@ -306,7 +307,7 @@ public:
   
   /** Called at each display refresh by the IGraphics draw loop to determine if the control is marked as dirty. 
    * This is not const, because it is typically  overridden and used to update something at the display refresh rate
-   * The default implementation exectutes a control's Animation Function, so if you override this you may want to call the base implementation, @see Animation Functions
+   * The default implementation executes a control's Animation Function, so if you override this you may want to call the base implementation, @see Animation Functions
    * @return \c true if the control is marked dirty. */
   virtual bool IsDirty();
 
@@ -338,12 +339,14 @@ public:
   /** Gets a pointer to the class implementing the IEditorDelegate interface that handles parameter changes from this IGraphics instance.
    * If you need to call other methods on that class, you can use static_cast<PLUG_CLASS_NAME>(GetDelegate();
    * @return The class implementing the IEditorDelegate interface that handles communication to/from from this IGraphics instance.*/
-  IEditorDelegate* GetDelegate() { return &mDelegate; }
+  IEditorDelegate* GetDelegate() { return mDelegate; }
   
-  /** Used internally to set the mGraphics variable */
-  void SetGraphics(IGraphics* pGraphics)
+  /** Used internally to set the mDelegate (and mGraphics) variables */
+  void SetDelegate(IGEditorDelegate& dlg)
   {
-    mGraphics = pGraphics;
+    mDelegate = &dlg;
+    mGraphics = dlg.GetUI();
+    OnInit();
     OnResize();
     OnRescale();
   }
@@ -360,7 +363,7 @@ public:
    * @param y The Y coordinate for snapping
    * @param direction The direction of the control's travel- horizontal or vertical fader
    * @param bounds The area in which the track of e.g. a slider should be snapped
-   * @param scalar A scalar to speedup/slowdown mousing along the track */
+   * @param scalar A scalar to speed-up or slow-down mousing along the track */
   virtual void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar = 1.);
 
   virtual void OnEndAnimation() // if you override this you must call the base implementation, to free mAnimationFunc
@@ -404,8 +407,6 @@ public:
   
 #pragma mark - IControl Member variables
 protected:
-  IEditorDelegate& mDelegate;
-  IGraphics* mGraphics = nullptr;
   int mTag = kNoTag;
   IRECT mRECT;
   IRECT mTargetRECT;
@@ -451,6 +452,8 @@ protected:
 #endif
   
 private:
+  IEditorDelegate* mDelegate = nullptr;
+  IGraphics* mGraphics = nullptr;
   IActionFunction mActionFunc = nullptr;
   IAnimationFunction mAnimationFunc = nullptr;
   TimePoint mAnimationStartTime;
@@ -468,7 +471,7 @@ private:
 class IBitmapBase
 {
 public:
-  IBitmapBase(const IBitmap& bitmap, EBlendType blend = kBlendNone)
+  IBitmapBase(const IBitmap& bitmap, EBlendType blend = kBlendDefault)
   : mBitmap(bitmap)
   , mBlend(blend)
   {
@@ -492,7 +495,7 @@ protected:
 };
 
 /** A base interface to be combined with IControl for vectorial controls "IVControls", in order for them to share a common set of colors. 
- * If you need more flexibility for theming, you're on your own! */
+ * If you need more flexibility, you're on your own! */
 class IVectorBase
 {
 public:
@@ -608,7 +611,7 @@ public:
   void SetEmboss(bool emboss) { mEmboss = emboss; mControl->SetDirty(false); }
   void SetShadowOffset(float offset) { mShadowOffset = offset; mControl->SetDirty(false); }
   void SetFrameThickness(float thickness) { mFrameThickness = thickness; mControl->SetDirty(false); }
-  void SetFlashCircleRadius(float radius) { mFlashCircleRadius = radius * mMaxFlashCircleRadius; }
+  void SetSplashRadius(float radius) { mSplashRadius = radius * mMaxSplashRadius; }
 
   void Style(bool drawFrame, bool drawShadows, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec)
   {
@@ -632,11 +635,11 @@ public:
     return handleBounds;
   }
   
-  void DrawFlashCircle(IGraphics& g)
+  void DrawSplash(IGraphics& g)
   {
     float mouseDownX, mouseDownY;
     g.GetMouseDownPoint(mouseDownX, mouseDownY);
-    g.FillCircle(GetColor(kHL), mouseDownX, mouseDownY, mFlashCircleRadius);
+    g.FillCircle(GetColor(kHL), mouseDownX, mouseDownY, mSplashRadius);
   }
   
   IRECT DrawVectorButton(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver)
@@ -671,7 +674,7 @@ public:
       g.FillRoundRect(GetColor(kHL), handleBounds, cornerRadius);
     
     if(mControl->GetAnimationFunction())
-      DrawFlashCircle(g);
+      DrawSplash(g);
     
     if(mDrawFrame)
       g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius, 0, mFrameThickness);
@@ -688,17 +691,17 @@ protected:
   bool mDrawFrame = true;
   bool mDrawShadows = true;
   bool mEmboss = false;
-  float mFlashCircleRadius = 0.f;
-  float mMaxFlashCircleRadius = 50.f;
+  float mSplashRadius = 0.f;
+  float mMaxSplashRadius = 50.f;
 };
 
 /** A base class for knob/dial controls, to handle mouse action and ballistics. */
 class IKnobControlBase : public IControl
 {
 public:
-  IKnobControlBase(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
+  IKnobControlBase(IRECT bounds, int paramIdx = kNoParameter,
     EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
-    : IControl(dlg, bounds, paramIdx)
+    : IControl(bounds, paramIdx)
     , mDirection(direction)
     , mGearing(gearing)
   {}
@@ -716,18 +719,18 @@ protected:
 class ISliderControlBase : public IControl
 {
 public:
-  ISliderControlBase(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
+  ISliderControlBase(IRECT bounds, int paramIdx = kNoParameter,
                      EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 0.f)
-  : IControl(dlg, bounds, paramIdx)
+  : IControl(bounds, paramIdx)
   , mDirection(dir)
   , mOnlyHandle(onlyHandle)
   {
     handleSize == 0 ? mHandleSize = bounds.W() : mHandleSize = handleSize;
   }
   
-  ISliderControlBase(IGEditorDelegate& dlg, IRECT bounds, IActionFunction aF = nullptr,
+  ISliderControlBase(IRECT bounds, IActionFunction aF = nullptr,
                      EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 0.f)
-  : IControl(dlg, bounds, aF)
+  : IControl(bounds, aF)
   , mDirection(dir)
   , mOnlyHandle(onlyHandle)
   {
@@ -749,8 +752,8 @@ class IVTrackControlBase : public IControl
                          , public IVectorBase
 {
 public:
-  IVTrackControlBase(IGEditorDelegate& dlg, IRECT bounds, int maxNTracks = 1, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
-  : IControl(dlg, bounds)
+  IVTrackControlBase(IRECT bounds, int maxNTracks = 1, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  : IControl(bounds)
   , mMaxNTracks(maxNTracks)
   , mMinTrackValue(minTrackValue)
   , mMaxTrackValue(maxTrackValue)
@@ -860,7 +863,7 @@ protected:
 class IButtonControlBase : public IControl
 {
 public:
-  IButtonControlBase(IGEditorDelegate& dlg, IRECT bounds, IActionFunction aF);
+  IButtonControlBase(IRECT bounds, IActionFunction aF);
   
   virtual ~IButtonControlBase() {}
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
@@ -871,10 +874,10 @@ public:
 class ISwitchControlBase : public IControl
 {
 public:
-  ISwitchControlBase(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction aF = nullptr, int numStates = 2);
+  ISwitchControlBase(IRECT bounds, int paramIdx = kNoParameter, IActionFunction aF = nullptr, int numStates = 2);
 
   virtual ~ISwitchControlBase() {}
-
+  virtual void OnInit() override;
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   virtual void OnMouseUp(float x, float y, const IMouseMod& mod) override;
 protected:
@@ -886,8 +889,8 @@ protected:
 class IDirBrowseControlBase : public IControl
 {
 public:
-  IDirBrowseControlBase(IGEditorDelegate& dlg, IRECT bounds, const char* extension /* e.g. ".txt"*/)
-  : IControl(dlg, bounds)
+  IDirBrowseControlBase(IRECT bounds, const char* extension /* e.g. ".txt"*/)
+  : IControl(bounds)
   {
     mExtension.Set(extension);
   }
@@ -933,19 +936,20 @@ protected:
 class IPanelControl : public IControl
 {
 public:
-  IPanelControl(IGEditorDelegate& dlg, IRECT bounds, const IColor& color, bool drawFrame = false)
-  : IControl(dlg, bounds, kNoParameter)
+  IPanelControl(IRECT bounds, const IColor& color, bool drawFrame = false)
+  : IControl(bounds, kNoParameter)
   , mPattern(color)
   , mDrawFrame(drawFrame)
   {
     mIgnoreMouse = true;
   }
   
-  IPanelControl(IGEditorDelegate& dlg, IRECT bounds, const IPattern& pattern, bool drawFrame = false)
-  : IControl(dlg, bounds, kNoParameter)
+  IPanelControl(IRECT bounds, const IPattern& pattern, bool drawFrame = false)
+  : IControl(bounds, kNoParameter)
   , mPattern(pattern)
   , mDrawFrame(drawFrame)
   {
+    mIgnoreMouse = true;
   }
 
   void Draw(IGraphics& g) override
@@ -973,13 +977,13 @@ private:
   bool mDrawFrame;
 };
 
-/** A control that can be specialised with a lamda function, for quick experiments without making a custom IControl */
+/** A control that can be specialised with a lambda function, for quick experiments without making a custom IControl */
 class ILambdaControl : public IControl
 {
 public:
-  ILambdaControl(IGEditorDelegate& dlg, IRECT bounds, ILambdaDrawFunction drawFunc, int animationDuration = DEFAULT_ANIMATION_DURATION,
+  ILambdaControl(IRECT bounds, ILambdaDrawFunction drawFunc, int animationDuration = DEFAULT_ANIMATION_DURATION,
     bool loopAnimation = false, bool startImmediately = false, int paramIdx = kNoParameter)
-  : IControl(dlg, bounds, paramIdx, DefaultClickActionFunc)
+  : IControl(bounds, paramIdx, DefaultClickActionFunc)
   , mDrawFunc(drawFunc)
   , mLoopAnimation(loopAnimation)
   , mAnimationDuration(animationDuration)
@@ -1037,13 +1041,13 @@ public:
   /** Creates a bitmap control
    * @param paramIdx Parameter index (-1 or kNoParameter, if this should not be linked to a parameter)
    * @param bitmap Image to be drawn */
-  IBitmapControl(IGEditorDelegate& dlg, float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendNone)
-  : IControl(dlg, IRECT(x, y, bitmap), paramIdx)
+  IBitmapControl(float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendDefault)
+  : IControl(IRECT(x, y, bitmap), paramIdx)
   , IBitmapBase(bitmap, blend)
   {}
   
-  IBitmapControl(IGEditorDelegate& dlg, const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendNone)
-  : IControl(dlg, bounds, paramIdx)
+  IBitmapControl(IRECT bounds, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendDefault)
+  : IControl(bounds, paramIdx)
   , IBitmapBase(bitmap, blend)
   {}
   
@@ -1066,8 +1070,8 @@ public:
 class ISVGControl : public IControl
 {
 public:
-  ISVGControl(IGEditorDelegate& dlg, IRECT bounds, ISVG& svg, bool useLayer = false)
-    : IControl(dlg, bounds)
+  ISVGControl(IRECT bounds, ISVG& svg, bool useLayer = false)
+    : IControl(bounds)
     , mSVG(svg)
     , mUseLayer(useLayer)
   {}
@@ -1106,8 +1110,8 @@ private:
 class ITextControl : public IControl
 {
 public:
-  ITextControl(IGEditorDelegate& dlg, IRECT bounds, const char* str = "", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR)
-  : IControl(dlg, bounds)
+  ITextControl(IRECT bounds, const char* str = "", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR)
+  : IControl(bounds)
   , mStr(str)
   , mBGColor(BGColor)
   {
@@ -1130,14 +1134,13 @@ protected:
 class ICaptionControl : public ITextControl
 {
 public:
-  ICaptionControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, const IText& text = DEFAULT_TEXT, bool showParamLabel = true);
-  
+  ICaptionControl(IRECT bounds, int paramIdx, const IText& text = DEFAULT_TEXT, bool showParamLabel = true);
   void Draw(IGraphics& g) override;
   virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-
+  void OnResize() override;
 protected:
   bool mShowParamLabel;
-  bool mIsListControl = false;
+  IRECT mTri;
 };
 
 /**@}*/
