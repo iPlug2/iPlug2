@@ -71,6 +71,13 @@
   #error you must define either IGRAPHICS_GL2, IGRAPHICS_GLES2 etc or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
 #endif
 
+
+// Fonts
+
+StaticStorage<IFontData> sFontCache;
+
+// Retriving pixels
+
 void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData)
 {
 #if defined(IGRAPHICS_GL)
@@ -88,6 +95,8 @@ void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int
   mnvgReadPixels(pContext, image, x, y, width, height, pData);
 #endif
 }
+
+// Bitmaps
 
 NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID)
 {
@@ -205,10 +214,14 @@ IGraphicsNanoVG::IGraphicsNanoVG(IGEditorDelegate& dlg, int w, int h, int fps, f
 : IGraphicsPathBase(dlg, w, h, fps, scale)
 {
   DBGMSG("IGraphics NanoVG @ %i FPS\n", fps);
+  StaticStorage<IFontData>::Accessor storage(sFontCache);
+  storage.Release();
 }
 
 IGraphicsNanoVG::~IGraphicsNanoVG() 
 {
+  StaticStorage<IFontData>::Accessor storage(sFontCache);
+  storage.Release();
   ClearFBOStack();
 }
 
@@ -362,11 +375,6 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
     PopLayer(false);
     PathTransformRestore();
   }
-}
-
-void IGraphicsNanoVG::SetPlatformContext(void* pContext)
-{
-  mPlatformContext = pContext;
 }
 
 void IGraphicsNanoVG::OnViewInitialized(void* pContext)
@@ -562,7 +570,7 @@ IColor IGraphicsNanoVG::GetPoint(int x, int y)
 
 bool IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
-  assert(nvgFindFont(mVG, text.mFont) != -1); // did you forget to LoadFont for this font name?
+  assert(nvgFindFont(mVG, text.mFont) != -1); // did you forget to LoadFont for this font?
   
   nvgFontBlur(mVG, 0);
   nvgFontSize(mVG, text.mSize);
@@ -604,7 +612,7 @@ bool IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IREC
     r.L = fbounds[0]; r.T = fbounds[1]; r.R = fbounds[2]; r.B = fbounds[3];
   };
   
-  if(measure)
+  if (measure)
   {
     calcTextBounds(bounds);
     return true;
@@ -686,41 +694,23 @@ void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& opti
     nvgBeginPath(mVG); // Clears the path state
 }
 
-bool IGraphicsNanoVG::LoadFont(const char* fileName)
+bool IGraphicsNanoVG::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 {
-  // does not check for existing fonts
-  WDL_String fontNameWithoutExt(fileName, (int) strlen(fileName));
-  fontNameWithoutExt.remove_fileext();
-  WDL_String fullPath;
-  EResourceLocation foundResource = LocateResource(fileName, "ttf", fullPath, GetBundleID(), GetWinModuleHandle());
- 
-  if (foundResource != EResourceLocation::kNotFound)
+  StaticStorage<IFontData>::Accessor storage(sFontCache);
+  IFontData* cached = storage.Find(fontID);
+    
+  if (cached)
   {
-    int fontID = -1;
+    nvgCreateFontFaceMem(mVG, fontID, cached->Get(), cached->GetSize(), cached->GetFaceIdx(), 0);
+    return true;
+  }
+    
+  IFontDataPtr data = font->GetFontData();
 
-#ifdef OS_WIN
-    if(foundResource == EResourceLocation::kWinBinary)
-    {
-      int sizeInBytes = 0;
-      const void* pResData = LoadWinResource(fullPath.Get(), "ttf", sizeInBytes, GetWinModuleHandle());
-
-      if(pResData && sizeInBytes)
-        fontID = nvgCreateFontMem(mVG, fontNameWithoutExt.Get(), (unsigned char*) pResData, sizeInBytes, 0 /* ?? */);
-
-      if(fontID == -1)
-        return false;
-    }
-    else
-#endif
-    fontID = nvgCreateFont(mVG, fontNameWithoutExt.Get(), fullPath.Get());
-
-    if (fontID == -1)
-    {
-      DBGMSG("Could not locate font %s\n", fileName);
-      return false;
-    }
-    else
-      return true;
+  if (data->IsValid() && nvgCreateFontFaceMem(mVG, fontID, data->Get(), data->GetSize(), data->GetFaceIdx(), 0) != -1)
+  {
+    storage.Add(data.release(), fontID);
+    return true;
   }
 
   return false;

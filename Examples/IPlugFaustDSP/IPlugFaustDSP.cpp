@@ -24,7 +24,7 @@ IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
     IRECT knobs = b.GetFromTop(100.);
     IRECT viz = b.GetReducedFromTop(100);
     pGraphics->AttachCornerResizer(kUIResizerScale);
-    pGraphics->LoadFont(ROBOTTO_FN);
+    pGraphics->LoadFont("Roboto-Regular", ROBOTTO_FN);
 
     for (int i = 0; i < kNumParams; i++) {
       pGraphics->AttachControl(new IVKnobControl(knobs.GetGridCell(i, 1, kNumParams), i));

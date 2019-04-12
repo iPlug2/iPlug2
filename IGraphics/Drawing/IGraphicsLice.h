@@ -128,6 +128,8 @@ protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) override;
 
+  bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override;
+
   int AlphaChannel() const override { return LICE_PIXEL_A; }
   bool FlippedBitmap() const override { return false; }
 
@@ -174,7 +176,7 @@ private:
     
   void UpdateLayer() override;
     
-  LICE_IFont* CacheFont(const IText& text, double scale);
+  LICE_IFont* CacheFont(const IText& text);
 
   IRECT mDrawRECT;
   IRECT mClipRECT;

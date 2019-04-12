@@ -8,7 +8,6 @@
  ==============================================================================
 */
 
-
 #include "IGraphics.h"
 
 #define NANOSVG_IMPLEMENTATION
@@ -35,6 +34,22 @@ typedef IPlugVST3Controller VST3_API_BASE;
 #include "ICornerResizerControl.h"
 #include "IPopupMenuControl.h"
 #include "ITextEntryControl.h"
+
+int IGraphics::PlatformFont::GetFaceIdx(const void* data, int dataSize, const char* styleName)
+{
+  for (int idx = 0; ; idx++)
+  {
+    IFontInfo fontInfo(data, dataSize, idx);
+
+    if (!fontInfo.IsValid())
+      return -1;
+
+    const WDL_String& style = fontInfo.GetStyle();
+
+    if (style.GetLength() && (!styleName[0] || !strcmp(style.Get(), styleName)))
+      return idx;
+  }
+}
 
 struct SVGHolder
 {
@@ -653,7 +668,6 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
   if (pControl && (!pControl->IsHidden() || pControl == GetControl(0)))
   {
     // N.B. Padding allows single line outlines on controls
-      
     IRECT controlBounds = pControl->GetRECT().GetPadded(0.75).GetPixelAligned(scale);
     IRECT clipBounds = bounds.Intersect(controlBounds);
 
@@ -667,7 +681,6 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
 #endif
 
 #ifndef NDEBUG
-    // helper for debugging
     if (mShowControlBounds)
     {
       DrawRect(CONTROL_BOUNDS_COLOR, pControl->GetRECT());
@@ -684,7 +697,6 @@ void IGraphics::Draw(const IRECT& bounds, float scale)
   ForAllControlsFunc([this, bounds, scale](IControl& control) { DrawControl(&control, bounds, scale); });
 
 #ifndef NDEBUG
-  // Helper for debugging
   if (mShowAreaDrawn)
   {
     PrepareRegion(bounds);
@@ -816,7 +828,6 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
 
   // N.B. GetMouseControl handles which controls can receive mouseovers
-    
   IControl* pControl = GetMouseControl(x, y, false, true);
     
   if (pControl != mMouseOver)
@@ -838,7 +849,6 @@ void IGraphics::OnMouseOut()
   Trace("IGraphics::OnMouseOut", __LINE__, "");
 
   // Store the old cursor type so this gets restored when the mouse enters again
-    
   mCursorType = SetMouseCursor(ARROW);
   ForAllControls(&IControl::OnMouseOut);
   mMouseOver = nullptr;
@@ -1305,7 +1315,7 @@ EResourceLocation IGraphics::SearchImageResource(const char* name, const char* t
     
     if (sourceScale != 1)
     {
-      WDL_String baseName(fullName.get_filepart()); baseName.remove_fileext();
+      WDL_String baseName(name); baseName.remove_fileext();
       WDL_String ext(fullName.get_fileext());
       fullName.SetFormatted((int) (strlen(name) + strlen("@2x")), "%s@%dx%s", baseName.Get(), sourceScale, ext.Get());
     }
@@ -1497,7 +1507,6 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
   RawBitmapData kernel;
     
   // Get bitmap in 32-bit form
-    
   GetLayerBitmapData(layer, temp1);
     
   if (!temp1.GetSize())
@@ -1505,7 +1514,6 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
   temp2.Resize(temp1.GetSize());
     
   // Form kernel (reference blurSize from zero (which will be no blur))
-  
   bool flipped = FlippedBitmap();
   float scale = layer->GetAPIBitmap()->GetScale() * layer->GetAPIBitmap()->GetDrawScale();
   float blurSize = std::max(1.f, (shadow.mBlurSize * scale) + 1.f);
@@ -1541,4 +1549,38 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
   // Apply alphas to the pattern and recombine/replace the image
     
   ApplyShadowMask(layer, temp1, shadow);
+}
+
+bool IGraphics::LoadFont(const char* fontID, const char* fileNameOrResID)
+{
+  PlatformFontPtr font = LoadPlatformFont(fontID, fileNameOrResID);
+  
+  if (font)
+  {
+    if (LoadAPIFont(fontID, font))
+    {
+      CachePlatformFont(fontID, font);
+      return true;
+    }
+  }
+  
+  DBGMSG("Could not locate font %s\n", fileNameOrResID);
+  return false;
+}
+
+bool IGraphics::LoadFont(const char* fontID, const char* fontName, ETextStyle style)
+{
+  PlatformFontPtr font = LoadPlatformFont(fontID, fontName, style);
+  
+  if (font)
+  {
+    if (LoadAPIFont(fontID, font))
+    {
+      CachePlatformFont(fontID, font);
+      return true;
+    }
+  }
+  
+  DBGMSG("Could not locate font %s\n", fontID);
+  return false;
 }

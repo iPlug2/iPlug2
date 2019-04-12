@@ -34,6 +34,80 @@ static double sFPS = 0.0;
 #define IPLUG_TIMER_ID 2
 #define IPLUG_WIN_MAX_WIDE_PATH 4096
 
+// Fonts
+
+struct WinCachedFont
+{
+  WinCachedFont(void* data, int resSize)
+  : mFontHandle(nullptr)
+  {
+    if (data)
+    {
+      DWORD numFonts;
+      mFontHandle = AddFontMemResourceEx(data, resSize, NULL, &numFonts);
+    }
+  }
+
+  ~WinCachedFont()
+  {
+    if (IsValid())
+      RemoveFontMemResourceEx(mFontHandle);
+  }
+
+  virtual bool IsValid() { return mFontHandle; }
+
+  HANDLE mFontHandle;
+};
+
+struct WinFontDescriptor
+{
+  WinFontDescriptor(HFONT descriptor) : mDescriptor(nullptr)
+  {
+    LOGFONT lFont = { 0 };
+    GetObject(descriptor, sizeof(LOGFONT), &lFont);
+    mDescriptor = CreateFontIndirect(&lFont);
+  }
+
+  HFONT mDescriptor;
+};
+
+IGraphicsWin::WinFont::~WinFont()
+{
+  DeleteObject(mFont);
+};
+
+IFontDataPtr IGraphicsWin::WinFont::GetFontData()
+{
+  HDC hdc = CreateCompatibleDC(NULL);
+  IFontDataPtr fontData(new IFontData());
+  
+  if (hdc != NULL)
+  {
+    SelectObject(hdc, mFont);
+    const size_t size = ::GetFontData(hdc, 0, 0, NULL, 0);
+
+    if (size != GDI_ERROR)
+    {
+      fontData.reset(new IFontData(size));
+
+      if (fontData->GetSize() == size)
+      {
+        size_t result = ::GetFontData(hdc, 0x66637474, 0, fontData->Get(), size);
+        if (result == GDI_ERROR)
+          result = ::GetFontData(hdc, 0, 0, fontData->Get(), size);
+        if (result == size)
+          fontData->SetFaceIdx(GetFaceIdx(fontData->Get(), fontData->GetSize(), mStyleName.Get()));
+      }
+    }
+    
+    DeleteDC(hdc);
+  }
+
+  return fontData;
+}
+
+static StaticStorage<WinCachedFont> sPlatformFontCache;
+static StaticStorage<WinFontDescriptor> sFontDescriptorCache;
 
 inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 {
@@ -77,6 +151,20 @@ void IGraphicsWin::CheckTabletInput(UINT msg)
     SetTabletInput(((extraInfo & c_SIGNATURE_MASK) == c_MOUSEEVENTF_FROMTOUCH));
     mCursorLock &= !mTabletInput;
   }
+}
+
+void IGraphicsWin::DestroyEditWindow()
+{
+ if (mParamEditWnd)
+ {
+   SetWindowLongPtr(mParamEditWnd, GWLP_WNDPROC, (LPARAM) mDefEditProc);
+   DestroyWindow(mParamEditWnd);
+   mParamEditWnd = nullptr;
+   mEdControl = nullptr;
+   mDefEditProc = nullptr;
+   DeleteObject(mEditFont);
+   mEditFont = nullptr;
+ }
 }
 
 // static
@@ -151,15 +239,13 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
               {
                 pGraphics->mEdControl->OnTextEntryCompletion(txt);
               }
-              // Fall through.
+              pGraphics->DestroyEditWindow();
             }
+            break;
+                  
             case kCancel:
             {
-              SetWindowLongPtr(pGraphics->mParamEditWnd, GWLP_WNDPROC, (LPARAM) pGraphics->mDefEditProc);
-              DestroyWindow(pGraphics->mParamEditWnd);
-              pGraphics->mParamEditWnd = nullptr;
-              pGraphics->mEdControl = nullptr;
-              pGraphics->mDefEditProc = nullptr;
+              pGraphics->DestroyEditWindow();
             }
             break;
           }
@@ -323,9 +409,10 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
       if (len == 1)
       {
-        IKeyPress keyPress{ static_cast<char>(ascii), static_cast<int>(wParam), static_cast<bool>(GetKeyState(VK_SHIFT) & 0x8000),
-                                                                                static_cast<bool>(GetKeyState(VK_CONTROL) & 0x8000),
-                                                                                static_cast<bool>(GetKeyState(VK_MENU) & 0x8000) };
+        IKeyPress keyPress{ static_cast<char>(ascii), static_cast<int>(wParam),
+                            static_cast<bool>(GetKeyState(VK_SHIFT) & 0x8000),
+                            static_cast<bool>(GetKeyState(VK_CONTROL) & 0x8000),
+                            static_cast<bool>(GetKeyState(VK_MENU) & 0x8000) };
 
         handle = pGraphics->OnKeyDown(p.x, p.y, keyPress);
       }
@@ -543,10 +630,20 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
 
 IGraphicsWin::IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
   : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
-{}
+{
+  StaticStorage<WinCachedFont>::Accessor fontStorage(sPlatformFontCache);
+  StaticStorage<WinFontDescriptor>::Accessor descriptorStorage(sFontDescriptorCache);
+  fontStorage.Retain();
+  descriptorStorage.Retain();
+}
 
 IGraphicsWin::~IGraphicsWin()
 {
+  StaticStorage<WinCachedFont>::Accessor fontStorage(sPlatformFontCache);
+  StaticStorage<WinFontDescriptor>::Accessor descriptorStorage(sFontDescriptorCache);
+  fontStorage.Release();
+  descriptorStorage.Release();
+  DestroyEditWindow();
   CloseWindow();
 }
 
@@ -1153,18 +1250,24 @@ void IGraphicsWin::CreatePlatformTextEntry(IControl& control, const IText& text,
     scaledBounds.L, scaledBounds.T, scaledBounds.W()+1, scaledBounds.H()+1,
     mPlugWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
 
-  HFONT font = CreateFont(text.mSize, 0, 0, 0, text.mStyle == IText::kStyleBold ? FW_BOLD : 0, text.mStyle == IText::kStyleItalic ? TRUE : 0, 0, 0, 0, 0, 0, 0, 0, text.mFont);
+  StaticStorage<WinFontDescriptor>::Accessor descriptorStorage(sFontDescriptorCache);
+
+  LOGFONT lFont = { 0 };
+  WinFontDescriptor* descriptor = descriptorStorage.Find(text.mFont);
+  GetObject(descriptor->mDescriptor, sizeof(LOGFONT), &lFont);
+  lFont.lfHeight = text.mSize;
+  mEditFont = CreateFontIndirect(&lFont);
+
+  assert(descriptor && "font not found - did you forget to load it?");
 
   SendMessage(mParamEditWnd, EM_LIMITTEXT, (WPARAM) control.GetTextEntryLength(), 0);
-  SendMessage(mParamEditWnd, WM_SETFONT, (WPARAM) font, 0);
+  SendMessage(mParamEditWnd, WM_SETFONT, (WPARAM)mEditFont, 0);
   SendMessage(mParamEditWnd, EM_SETSEL, 0, -1);
 
   SetFocus(mParamEditWnd);
 
   mDefEditProc = (WNDPROC) SetWindowLongPtr(mParamEditWnd, GWLP_WNDPROC, (LONG_PTR) ParamEditProc);
   SetWindowLongPtr(mParamEditWnd, GWLP_USERDATA, 0xdeadf00b);
-
-  //DeleteObject(font);
 
   mEdControl = &control;
 }
@@ -1486,6 +1589,138 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
     str.Set("");
   
   return numChars;
+}
+
+HFONT GetHFont(const char* fontName, int weight, bool italic, bool underline, DWORD quality = DEFAULT_QUALITY, bool enumerate = false)
+{
+  HDC hdc = GetDC(NULL);
+  HFONT font = nullptr;
+  LOGFONT lFont;
+
+  lFont.lfHeight = 0;
+  lFont.lfWidth = 0;
+  lFont.lfEscapement = 0;
+  lFont.lfOrientation = 0;
+  lFont.lfWeight = weight;
+  lFont.lfItalic = italic;
+  lFont.lfUnderline = underline;
+  lFont.lfStrikeOut = false;
+  lFont.lfCharSet = DEFAULT_CHARSET;
+  lFont.lfOutPrecision = OUT_TT_PRECIS;
+  lFont.lfClipPrecision = CLIP_DEFAULT_PRECIS;
+  lFont.lfQuality = quality;
+  lFont.lfPitchAndFamily = DEFAULT_PITCH;
+
+  strncpy(lFont.lfFaceName, fontName, LF_FACESIZE);
+
+  auto enumProc = [](const LOGFONT* pLFont, const TEXTMETRIC* pTextMetric, DWORD FontType, LPARAM lParam)
+  {
+    return -1;
+  };
+
+  if ((!enumerate || EnumFontFamiliesEx(hdc, &lFont, enumProc, NULL, 0) == -1))
+    font = CreateFontIndirect(&lFont);
+
+  if (font)
+  {
+    char selectedFontName[64];
+
+    SelectFont(hdc, font);
+    GetTextFace(hdc, 64, selectedFontName);
+    if (strcmp(selectedFontName, fontName))
+    {
+      DeleteObject(font);
+      return nullptr;
+    }
+  }
+
+  ReleaseDC(NULL, hdc);
+
+  return font;
+}
+
+IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
+{
+  StaticStorage<WinCachedFont>::Accessor fontStorage(sPlatformFontCache);
+
+  std::unique_ptr<WinCachedFont> pFont;
+  void* pFontMem = nullptr;
+  int resSize = 0;
+  WDL_String fullPath;
+ 
+  const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, GetBundleID(), GetWinModuleHandle());
+
+  if (fontLocation == kNotFound)
+    return nullptr;
+
+  switch (fontLocation)
+  {
+    case kAbsolutePath:
+    {
+      HANDLE file = CreateFile(fullPath.Get(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+      HANDLE mapping = CreateFileMapping(file, NULL, PAGE_READONLY, 0, 0, NULL);
+      pFontMem = MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
+      pFont.reset(new WinCachedFont(pFontMem, resSize));
+      UnmapViewOfFile(pFontMem);
+      CloseHandle(mapping);
+      CloseHandle(file);
+    }
+    break;
+    case kWinBinary:
+    {
+      pFontMem = const_cast<void *>(LoadWinResource(fullPath.Get(), "ttf", resSize, GetWinModuleHandle()));
+      pFont.reset(new WinCachedFont(pFontMem, resSize));
+    }
+    break;
+  } 
+
+  if (pFontMem && pFont && pFont->IsValid())
+  {
+    IFontInfo fontInfo(pFontMem, resSize, 0);
+    WDL_String family = fontInfo.GetFamily();
+    int weight = fontInfo.IsBold() ? FW_BOLD : FW_REGULAR;
+    bool italic = fontInfo.IsItalic();
+    bool underline = fontInfo.IsUnderline();
+
+    HFONT font = GetHFont(family.Get(), weight, italic, underline);
+
+    if (font)
+    {
+      fontStorage.Add(pFont.release(), fileNameOrResID);
+      return PlatformFontPtr(new WinFont(font));
+    }
+  }
+
+  return nullptr;
+}
+
+IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
+{
+  int weight = style == kTextStyleBold ? FW_BOLD : FW_REGULAR;
+  bool italic = style == kTextStyleItalic;
+  bool underline = false;
+  DWORD quality = DEFAULT_QUALITY;
+/*
+  switch (text.mQuality)
+  {
+  case IText::kQualityAntiAliased: quality = ANTIALIASED_QUALITY; break;
+  case IText::kQualityClearType: quality = CLEARTYPE_QUALITY; break;
+  case IText::kQualityNonAntiAliased: quality = NONANTIALIASED_QUALITY; break;
+  }*/
+
+  HFONT font = GetHFont(fontName, weight, italic, underline, quality, true);
+
+  return PlatformFontPtr(font ? new WinFont(font, TextStyleString(style)) : nullptr);
+}
+
+void IGraphicsWin::CachePlatformFont(const char* fontID, const PlatformFontPtr& font)
+{
+  StaticStorage<WinFontDescriptor>::Accessor descriptorStorage(sFontDescriptorCache);
+
+  HFONT descriptor = (HFONT)font->GetDescriptor();
+
+  if (!descriptorStorage.Find(fontID))
+    descriptorStorage.Add(new WinFontDescriptor(descriptor), fontID);
 }
 
 //TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT
