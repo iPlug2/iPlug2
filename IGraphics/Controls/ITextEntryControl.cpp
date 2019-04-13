@@ -360,8 +360,7 @@ void ITextEntryControl::Layout(StbTexteditRow* row, ITextEntryControl* _this, in
   {
     case IText::kAlignNear:
     {
-      // TODO: may want some kind of inset here because the cursor winds up a bit close to the text in Center and Far alignments
-      row->x0 = _this->GetRECT().L; 
+      row->x0 = _this->GetRECT().L + 1; 
       row->x1 = row->x0 + textWidth;
       break;
     }
