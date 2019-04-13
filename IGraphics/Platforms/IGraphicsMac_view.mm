@@ -431,7 +431,6 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     NSOpenGLPFAStencilSize, 8,
     NSOpenGLPFAOpenGLProfile, profile,
     (NSOpenGLPixelFormatAttribute) 0
-    
   };
 
   return [[NSOpenGLPixelFormat alloc] initWithAttributes:kAttributes];
@@ -469,7 +468,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     self.layer = [CAMetalLayer new];
     #elif defined IGRAPHICS_GL
     self.layer = [[IGRAPHICS_GLLAYER alloc] initWithIGraphicsView:self];
-    [self wantsBestResolutionOpenGLSurface];
+    self.wantsBestResolutionOpenGLSurface = YES;
     #endif
     self.layer.opaque = YES;
     self.wantsLayer = YES;
@@ -551,6 +550,9 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   if (newScale != mGraphics->GetScreenScale())
     mGraphics->SetScreenScale(newScale);
 
+#ifdef IGRAPHICS_GL
+  self.layer.contentsScale = 1./newScale;
+#endif
 }
 
 - (CGContextRef) getCGContextRef
@@ -646,9 +648,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void) updateTrackingAreas
 {
-  // This is needed to get mouseEntered and mouseExited
-    
-  [super updateTrackingAreas];
+  [super updateTrackingAreas]; // This is needed to get mouseEntered and mouseExited
     
   if (mTrackingArea != nil) {
       [self removeTrackingArea:mTrackingArea];
