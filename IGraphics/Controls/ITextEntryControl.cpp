@@ -48,7 +48,7 @@
 ((key & VIRTUAL_KEY_BIT) ? 0 : ((key & STB_TEXTEDIT_K_CONTROL) ? 0 : (key & (~0xF0000000))));
 #define STB_TEXTEDIT_GETCHAR(tc, i) ITextEntryControl::GetChar (tc, i)
 #define STB_TEXTEDIT_NEWLINE '\n'
-//#define STB_TEXTEDIT_IS_SPACE(ch) isSpace (ch)
+#define STB_TEXTEDIT_IS_SPACE(ch) isspace(ch)
 #define STB_TEXTEDIT_DELETECHARS ITextEntryControl::DeleteChars
 #define STB_TEXTEDIT_INSERTCHARS ITextEntryControl::InsertChars
 
