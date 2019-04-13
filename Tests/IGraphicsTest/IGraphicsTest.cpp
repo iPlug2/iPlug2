@@ -54,7 +54,11 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     });
     
     pGraphics->LoadFont("Roboto-Regular", ROBOTTO_FN);
-    pGraphics->LoadFont("Times New Roman", "Times New Roman", kTextStyleNormal);
+    if (!pGraphics->LoadFont("Alternative Font", "Times New Roman", kTextStyleNormal))
+    {
+      // This covers cases where we can't load system fonts, or the font doesn't exist
+      pGraphics->LoadFont("Alternative Font", MONTSERRAT_FN);
+    }
     pGraphics->LoadFont("Montserrat-LightItalic", MONTSERRAT_FN);
     ISVG tiger = pGraphics->LoadSVG(TIGER_FN);
     ISVG orbs = pGraphics->LoadSVG(ORBS_FN);
