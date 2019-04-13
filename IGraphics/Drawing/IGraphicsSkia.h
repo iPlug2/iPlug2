@@ -75,6 +75,8 @@ public:
 protected:
   bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
 
+  bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override { return false; } // TODO:
+
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
 private:
   void PathTransformSetMatrix(const IMatrix& m) override;
