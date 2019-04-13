@@ -448,14 +448,16 @@ ECursor IGraphicsWeb::SetMouseCursor(ECursor cursorType)
 //static
 void IGraphicsWeb::OnMainLoopTimer()
 {
+  IRECTList rects;
   int screenScale = (int) std::ceil(std::max(emscripten_get_device_pixel_ratio(), 1.));
 
+  if (!gGraphics)
+    return;
+  
   if (screenScale != gGraphics->GetScreenScale())
   {
     gGraphics->SetScreenScale(screenScale);
   }
-    
-  IRECTList rects;
 
   if (gGraphics->IsDirty(rects))
   {
