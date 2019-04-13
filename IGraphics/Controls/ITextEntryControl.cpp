@@ -399,13 +399,19 @@ void ITextEntryControl::OnStateChanged()
 
 void ITextEntryControl::OnTextChange()
 {
+  // rebuild the cache when the text changes
+  mCharWidths.Resize(0, false);
   FillCharWidthCache();
 }
 
 void ITextEntryControl::FillCharWidthCache()
 {
+  // only calculate when empty
+  if (mCharWidths.GetSize())
+    return;
+
   const int len = mEditString.GetLength();
-  mCharWidths.Resize(len);
+  mCharWidths.Resize(len, false);
   for (int i = 0; i < len; ++i)
   {
     char c = mEditString.Get()[i];
