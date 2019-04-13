@@ -388,7 +388,8 @@ void ITextEntryControl::Layout(StbTexteditRow* row, ITextEntryControl* _this, in
 float ITextEntryControl::GetCharWidth(ITextEntryControl* _this, int n, int i)
 {
   _this->FillCharWidthCache();
-  return _this->mCharWidths.Get()[i];
+  assert((n + i) < _this->mEditString.GetLength());
+  return _this->mCharWidths.Get()[n+i];
 }
 
 void ITextEntryControl::OnStateChanged()
@@ -405,12 +406,11 @@ void ITextEntryControl::FillCharWidthCache()
 {
   const int len = mEditString.GetLength();
   mCharWidths.Resize(len);
-  char pc = 0;
   for (int i = 0; i < len; ++i)
   {
     char c = mEditString.Get()[i];
-    mCharWidths.Get()[i] = GetCharWidth(c, pc);
-    pc = c;
+    char nc = (i + 1) == len ? 0 : mEditString.Get()[i];
+    mCharWidths.Get()[i] = GetCharWidth(c, nc);
   }
 }
 
@@ -419,21 +419,27 @@ void ITextEntryControl::CalcCursorSizes()
   //TODO: cache cursor size and location?
 }
 
-float ITextEntryControl::GetCharWidth(char c, char pc)
+// the width of character 'c' should include the kerning between it and the next character,
+// so that when adding up character widths in the cache we can get to the beginning of the visible glyph,
+// which is important for cursor placement to look correct.
+// stb_textedit behavior for clicking in the text field is to place the cursor in front of a character
+// when the xpos is less than halfway into the width of the character and in front of the following character otherwise.
+// see: https://github.com/nothings/stb/issues/6
+float ITextEntryControl::GetCharWidth(char c, char nc)
 {
   IRECT bounds;
 
-  if (pc)
+  if (nc)
   {
-    WDL_String pcstr; pcstr.SetFormatted(1, "%c", pc);
+    WDL_String ncstr; ncstr.SetFormatted(1, "%c", nc);
     WDL_String cstr; cstr.SetFormatted(1, "%c", c);
 
-    GetUI()->MeasureText(mText, pcstr.Get(), bounds);
-    float pcWidth = bounds.W();
-    pcstr.Append(&cstr);
-    GetUI()->MeasureText(mText, pcstr.Get(), bounds);
+    GetUI()->MeasureText(mText, ncstr.Get(), bounds);
+    float ncWidth = bounds.W();
+    cstr.Append(&ncstr);
+    GetUI()->MeasureText(mText, cstr.Get(), bounds);
     float tcWidth = bounds.W();
-    return tcWidth - pcWidth;
+    return tcWidth - ncWidth;
   }
   
   WDL_String cstr; cstr.SetFormatted(1, "%c", c);

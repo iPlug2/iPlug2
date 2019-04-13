@@ -70,7 +70,7 @@ private:
   void OnTextChange();
   void FillCharWidthCache();
   void CalcCursorSizes();
-  float GetCharWidth (char c, char pc);
+  float GetCharWidth (char c, char nc);
   void CopySelection();
 
   bool mDrawCursor = false;
