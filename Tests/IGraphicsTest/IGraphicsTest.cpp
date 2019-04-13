@@ -1,7 +1,9 @@
 #include "IGraphicsTest.h"
 #include "IPlug_include_in_plug_src.h"
 
+#if IPLUG_EDITOR
 #include "Test/TestControls.h"
+#endif
 
 enum EParam
 {
@@ -137,7 +139,10 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
 #ifdef IGRAPHICS_METAL
     pGraphics->AttachControl(new TestMPSControl(nextCell(), smiley));
 #endif
-    
+
+#ifdef IGRAPHICS_NANOVG
+    pGraphics->AttachControl(new TestGLControl(nextCell()));
+#endif
     WDL_String path;
     //    DesktopPath(path);
     path.Set(__FILE__);

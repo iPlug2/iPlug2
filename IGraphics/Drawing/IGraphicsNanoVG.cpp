@@ -45,19 +45,16 @@
   #elif defined OS_LINUX
     #error NOT IMPLEMENTED
   #elif defined OS_WEB
-    #define GLFW_INCLUDE_GLEXT
     #if defined IGRAPHICS_GLES2
-      #define GLFW_INCLUDE_ES2
       #define NANOVG_GLES2_IMPLEMENTATION
     #elif defined IGRAPHICS_GLES3
       #define NANOVG_GLES3_IMPLEMENTATION
-      #define GLFW_INCLUDE_ES3
     #else
       #error Define either IGRAPHICS_GLES2 or IGRAPHICS_GLES3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with OS_WEB
     #endif
-    #include <GLFW/glfw3.h>
-    GLFWwindow* gWindow;
-    void GLFWError(int error, const char* desc) { DBGMSG("GLFW error %d: %s\n", error, desc); }
+  #endif
+  #if defined IGRAPHICS_GL3
+    #include <OpenGL/gl3.h>
   #endif
   #include "nanovg_gl.h"
   #include "nanovg_gl_utils.h"
@@ -73,11 +70,9 @@
 
 
 // Fonts
-
 StaticStorage<IFontData> sFontCache;
 
-// Retriving pixels
-
+// Retrieving pixels
 void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData)
 {
 #if defined(IGRAPHICS_GL)
@@ -97,7 +92,6 @@ void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int
 }
 
 // Bitmaps
-
 NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID)
 {
   assert(nvgImageID > 0);
@@ -149,7 +143,6 @@ NanoVGBitmap::~NanoVGBitmap()
 #pragma mark -
 
 // Utility conversions
-
 inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0)
 {
   NVGcolor c;
@@ -379,31 +372,6 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
 
 void IGraphicsNanoVG::OnViewInitialized(void* pContext)
 {
-#if defined OS_WEB
-  if (!glfwInit())
-  {
-    DBGMSG("Failed to init GLFW.");
-    return;
-  }
-
-  glfwSetErrorCallback(GLFWError);
-
-  glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-
-  gWindow = glfwCreateWindow(WindowWidth(), WindowHeight(), "NanoVG", NULL, NULL);
-
-  if (!gWindow)
-  {
-    glfwTerminate();
-    return;
-  }
-
-//  glfwSetKeyCallback(gWindow, key);
-  glfwMakeContextCurrent(gWindow);
-#endif // OS_WEB
- 
   int flags = NVG_ANTIALIAS | NVG_STENCIL_STROKES;
   
 #if defined IGRAPHICS_METAL
@@ -434,10 +402,6 @@ void IGraphicsNanoVG::OnViewDestroyed()
     nvgDeleteContext(mVG);
   
   mVG = nullptr;
-  
-#if defined OS_WEB
-  glfwTerminate();
-#endif
 }
 
 void IGraphicsNanoVG::DrawResize()
@@ -459,18 +423,16 @@ void IGraphicsNanoVG::BeginFrame()
 #ifdef IGRAPHICS_METAL
   //  mnvgClearWithColor(mVG, nvgRGBAf(0, 0, 0, 0));
 #else
-  glViewport(0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  #ifdef OS_WEB
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glEnable(GL_CULL_FACE);
-  glDisable(GL_DEPTH_TEST);
+    glViewport(0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
+    glClearColor(0.f, 0.f, 0.f, 0.f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  #if defined OS_MAC
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &mInitialFBO); // stash apple fbo
   #endif
 #endif
   
   nvgBindFramebuffer(mMainFrameBuffer); // begin main frame buffer update
+
   nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
 }
 
@@ -478,11 +440,11 @@ void IGraphicsNanoVG::EndFrame()
 {
   nvgEndFrame(mVG); // end main frame buffer update
   nvgBindFramebuffer(nullptr);
-  
+
   nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
 
   NVGpaint img = nvgImagePattern(mVG, 0, 0, WindowWidth(), WindowHeight(), 0, mMainFrameBuffer->image, 1.0f);
-  
+
   nvgSave(mVG);
   nvgResetTransform(mVG);
   nvgBeginPath(mVG);
@@ -491,13 +453,13 @@ void IGraphicsNanoVG::EndFrame()
   nvgFill(mVG);
   nvgRestore(mVG);
   
+#if defined OS_MAC && defined IGRAPHICS_GL
+  glBindFramebuffer(GL_FRAMEBUFFER, mInitialFBO); // restore apple fbo
+#endif
+  
   nvgEndFrame(mVG);
   mInDraw = false;
   ClearFBOStack();
-    
-#if defined OS_WEB
-  glEnable(GL_DEPTH_TEST);
-#endif
 }
 
 void IGraphicsNanoVG::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
@@ -507,7 +469,6 @@ void IGraphicsNanoVG::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int s
   assert(pAPIBitmap);
     
   // First generate a scaled image paint
-    
   NVGpaint imgPaint;
   double scale = 1.0 / (pAPIBitmap->GetScale() * pAPIBitmap->GetDrawScale());
 

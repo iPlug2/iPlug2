@@ -14,8 +14,7 @@
 #include "IGraphicsMac.h"
 
 #if defined IGRAPHICS_GL
-#error IGRAPHICS_GL MACOS NOT IMPLEMENTED
-//#include <OpenGL/gl.h>
+#import <QuartzCore/QuartzCore.h>
 #endif
 
 inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& bounds)
@@ -94,10 +93,10 @@ inline NSColor* ToNSColor(const IColor& c)
 //  WKWebView* mWebView;
   IControl* mEdControl; // the control linked to the open text edit
   float mPrevX, mPrevY;
+  IRECTList mDirtyRects;
 @public
   IGraphicsMac* mGraphics; // OBJC instance variables have to be pointers
 }
-//- (id) init;
 - (id) initWithIGraphics: (IGraphicsMac*) pGraphics;
 - (BOOL) isOpaque;
 - (BOOL) acceptsFirstResponder;
@@ -105,6 +104,7 @@ inline NSColor* ToNSColor(const IColor& c)
 - (void) viewDidMoveToWindow;
 - (void) viewDidChangeBackingProperties:(NSNotification *) notification;
 - (void) drawRect: (NSRect) bounds;
+- (void) render;
 - (void) onTimer: (NSTimer*) pTimer;
 - (void) killTimer;
 //mouse
@@ -141,4 +141,12 @@ inline NSColor* ToNSColor(const IColor& c)
 - (BOOL) performDragOperation: (id<NSDraggingInfo>) sender;
 //
 - (void) setMouseCursor: (ECursor) cursorType;
+@end
+
+@interface IGRAPHICS_GLLAYER : NSOpenGLLayer
+{
+  IGRAPHICS_VIEW* mView; // OBJC instance variables have to be pointers
+}
+
+- (id) initWithIGraphicsView: (IGRAPHICS_VIEW*) pGraphics;
 @end
