@@ -14,12 +14,20 @@
  * @file
  * @copydoc IGraphics
  * @defgroup IGraphicsStructs IGraphics::Structs
+ * Utility structures and classes for IGraphics
  * @defgroup DrawClasses IGraphics::DrawClasses
+ * The IGraphics draw classes allow the actual drawing to be performed using different drawing API back-ends.
+ * A project-wide definition such as IGRAPHICS_CAIRO, chooses which gets used at compile time
  * @defgroup PlatformClasses IGraphics::PlatformClasses
+ * The IGraphics platform classes deal with event handling and platform specific contextual UI
  * @defgroup Controls IGraphics::IControls
+ * UI Widgets, such as knobs, sliders, buttons
  * @defgroup BaseControls IGraphics::IControls::BaseControls
+ * Base classes, to simplify making certain kinds of control
  * @defgroup SpecialControls IGraphics::IControls::SpecialControls
+ * Special controls live outside the main stack, for implementing things like the corner resizer
  * @defgroup TestControls IGraphics::IControls::TestControls
+ * The IGraphicsTest project includes lots of IControls to test functionality, which can also be used to understand how things work
  */
 
 #ifndef NO_IGRAPHICS
@@ -42,7 +50,6 @@
 #include "IGraphicsPopupMenu.h"
 #include "IGraphicsEditorDelegate.h"
 
-#include "heapbuf.h"
 #include <stack>
 #include <memory>
 
@@ -67,7 +74,22 @@ class IGraphics
 : public IPlugAAXView_Interface
 #endif
 {
+protected:
 
+  class PlatformFont
+  {
+  public:
+    virtual ~PlatformFont() {}
+
+    virtual const void* GetDescriptor() { return nullptr; }
+    virtual IFontDataPtr GetFontData() { return IFontDataPtr(new IFontData()); }
+
+  protected:
+    int GetFaceIdx(const void* data, int dataSize, const char* styleName);
+  };
+
+  typedef std::unique_ptr<PlatformFont> PlatformFontPtr;
+    
 public:
 #pragma mark - Drawing API implementation
 
@@ -470,6 +492,19 @@ public:
    * @param thickness /todo */
   virtual void DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints = nullptr, const IBlend* pBlend = 0, float thickness = 1.f);
   
+  /** Load a font to be used by the graphics context
+   * @param fontID A CString that will be used to reference the font
+   * @param fileNameOrResID A CString absolute path or resource ID
+   * @return \c true on success */
+  virtual bool LoadFont(const char* fontID, const char* fileNameOrResID);
+    
+  /** \todo
+   * @param fontID A CString that will be used to reference the font
+   * @param fontName A CString font name
+   * @param style A font style
+   * @return \c true on success */
+  bool LoadFont(const char* fontID, const char* fontName, ETextStyle style);
+
 #pragma mark - Layer management
   
   /** /todo 
@@ -821,6 +856,24 @@ public:
    * @param x the x position to convert
    * @param y the y position to convert */
   virtual void ClientToScreen(float& x, float& y) {};
+
+  /** Load a font from disk or resource in a platform format.
+   * @param fontID A string that is used to reference the font
+   * @param fileNameOrResID A resource or file name/path
+   * @return PlatformFontPtr from which the platform font can be retrieved */
+  virtual PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) = 0;
+  
+  /** Load a system font in a platform format.
+   * @param fontID  A string that is used to reference the font
+   * @param fontName A string defining the font name
+   * @param style An ETextStyle defining the font style
+   * @return PlatformFontPtr from which the platform font can be retrieved */
+  virtual PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) = 0;
+
+  /** Called to indicate that the platform should cache data about the platform font if needed.
+   * @param fontID  A string that is used to reference the font
+   * @param font A const PlatformFontPtr reference to the relevant font */
+  virtual void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) = 0;
 
   /** Get the bundle ID on macOS and iOS, returns emtpy string on other OSs */
   virtual const char* GetBundleID() { return ""; }
@@ -1309,10 +1362,6 @@ public:
    * @param fileNameOrResID A CString absolute path or resource ID
    * @return An ISVG representing the image */
   virtual ISVG LoadSVG(const char* fileNameOrResID, const char* units = "px", float dpi = 72.f);
-
-  /** @param fileNameOrResID A CString absolute path or resource ID
-   * @return \c true on success */
-  virtual bool LoadFont(const char* fileNameOrResID) { return false; }
   
 protected:
   /** /todo
@@ -1331,7 +1380,13 @@ protected:
    * @return APIBitmap* /todo */
   virtual APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) = 0;
 
-  /** /todo */   
+  /** /todo
+   * @param fontID /todo
+   * @param font /todo
+   * @return bool* /todo */
+  virtual bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) = 0;
+
+  /** /todo */
   virtual int AlphaChannel() const = 0;
 
   /** /todo */

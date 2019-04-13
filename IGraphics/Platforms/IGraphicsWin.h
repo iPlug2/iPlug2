@@ -21,6 +21,21 @@
 class IGraphicsWin final : public IGRAPHICS_DRAW_CLASS
 {
 public:
+
+  class WinFont : public PlatformFont
+  {
+  public:
+    WinFont(HFONT font, const char* styleName = "") : mFont(font), mStyleName(styleName) {}
+    ~WinFont();
+
+    const void* GetDescriptor() override { return reinterpret_cast<const void*>(mFont); }
+    IFontDataPtr GetFontData() override;
+      
+  private:
+    HFONT mFont;
+    WDL_String mStyleName;
+  };
+
   IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsWin();
 
@@ -36,6 +51,7 @@ public:
 #endif
 
   void CheckTabletInput(UINT msg);
+  void DestroyEditWindow();
     
   void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override;
@@ -70,7 +86,7 @@ public:
   const char* GetPlatformAPIStr() override { return "win32"; };
 
   bool GetTextFromClipboard(WDL_String& str) override;
-
+  
 protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
@@ -88,6 +104,10 @@ private:
     kCancel,
     kCommit
   };
+
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
+  void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override;
 
   inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam);
   inline IMouseInfo IGraphicsWin::GetMouseInfoDeltas(float&dX, float& dY, LPARAM lParam, WPARAM wParam);
@@ -114,6 +134,7 @@ private:
   HWND mParentWnd = nullptr;
   HWND mMainWnd = nullptr;
   WNDPROC mDefEditProc = nullptr;
+  HFONT mEditFont = nullptr;
   DWORD mPID = 0;
 
   IControl* mEdControl = nullptr;

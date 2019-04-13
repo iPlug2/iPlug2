@@ -10,16 +10,32 @@
 
 #pragma once
 
-#ifndef NO_IGRAPHICS
-
 #include "IGraphics_select.h"
-#include <CoreGraphics/CGGeometry.h>
+#include <CoreText/CoreText.h>
+#include <CoreGraphics/CoreGraphics.h>
 
 /** IGraphics platform class for macOS
 *   @ingroup PlatformClasses */
 class IGraphicsMac final : public IGRAPHICS_DRAW_CLASS
 {
 public:
+    
+  class MacFont : public PlatformFont
+  {
+  public:
+    MacFont(CTFontDescriptorRef descriptor, CGDataProviderRef provider)
+     : mDescriptor(descriptor), mProvider(provider) {}
+    ~MacFont();
+      
+    const void* GetDescriptor() override { return reinterpret_cast<const void*>(mDescriptor); }
+    IFontDataPtr GetFontData() override;
+
+  private:
+      
+    CTFontDescriptorRef mDescriptor;
+    CGDataProviderRef mProvider;
+  };
+    
   IGraphicsMac(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   virtual ~IGraphicsMac();
 
@@ -55,6 +71,8 @@ public:
 
 //  void CreateWebView(const IRECT& bounds, const char* url) override;
   
+  CTFontDescriptorRef GetCTFontDescriptor(const IText& text);
+    
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
 
   void* GetWindow() override;
@@ -72,6 +90,10 @@ protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
 private:
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
+  void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override;
+
   void RepositionCursor(CGPoint point);
   void StoreCursorPosition();
   
@@ -80,5 +102,3 @@ private:
   WDL_String mBundleID;
   friend int GetMouseOver(IGraphicsMac* pGraphics);
 };
-
-#endif // NO_IGRAPHICS

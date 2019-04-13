@@ -42,11 +42,16 @@ public:
     Randomise();
     SetDirty(false);
   }
+    
+  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override
+  {
+    GetUI()->CreateTextEntry(*this, mText, mRECT);
+    SetDirty(false);
+  }
 
   void Randomise()
   {
     int size = (std::rand() % 100) + 5;
-    int style = (std::rand() % 3);
     int align = (std::rand() % 3);
     int valign = (std::rand() % 3);
     int type = (std::rand() % 2);
@@ -54,7 +59,7 @@ public:
 
     const char* types[] = { "Roboto-Regular", "Montserrat-LightItalic" };
 
-    mText = IText(size, IColor::GetRandomColor(), types[type], (IText::EStyle) style, (IText::EAlign) align, (IText::EVAlign) valign);
+    mText = IText(size, IColor::GetRandomColor(), types[type], (IText::EAlign) align, (IText::EVAlign) valign);
   }
 
 private:

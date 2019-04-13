@@ -611,7 +611,7 @@ public:
   void SetEmboss(bool emboss) { mEmboss = emboss; mControl->SetDirty(false); }
   void SetShadowOffset(float offset) { mShadowOffset = offset; mControl->SetDirty(false); }
   void SetFrameThickness(float thickness) { mFrameThickness = thickness; mControl->SetDirty(false); }
-  void SetFlashCircleRadius(float radius) { mFlashCircleRadius = radius * mMaxFlashCircleRadius; }
+  void SetSplashRadius(float radius) { mSplashRadius = radius * mMaxSplashRadius; }
 
   void Style(bool drawFrame, bool drawShadows, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec)
   {
@@ -635,11 +635,11 @@ public:
     return handleBounds;
   }
   
-  void DrawFlashCircle(IGraphics& g)
+  void DrawSplash(IGraphics& g)
   {
     float mouseDownX, mouseDownY;
     g.GetMouseDownPoint(mouseDownX, mouseDownY);
-    g.FillCircle(GetColor(kHL), mouseDownX, mouseDownY, mFlashCircleRadius);
+    g.FillCircle(GetColor(kHL), mouseDownX, mouseDownY, mSplashRadius);
   }
   
   IRECT DrawVectorButton(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver)
@@ -674,7 +674,7 @@ public:
       g.FillRoundRect(GetColor(kHL), handleBounds, cornerRadius);
     
     if(mControl->GetAnimationFunction())
-      DrawFlashCircle(g);
+      DrawSplash(g);
     
     if(mDrawFrame)
       g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius, 0, mFrameThickness);
@@ -691,8 +691,8 @@ protected:
   bool mDrawFrame = true;
   bool mDrawShadows = true;
   bool mEmboss = false;
-  float mFlashCircleRadius = 0.f;
-  float mMaxFlashCircleRadius = 50.f;
+  float mSplashRadius = 0.f;
+  float mMaxSplashRadius = 50.f;
 };
 
 /** A base class for knob/dial controls, to handle mouse action and ballistics. */

@@ -8,8 +8,6 @@
  ==============================================================================
 */
 
-#ifndef NO_IGRAPHICS
-
 #import "IGraphicsIOS_view.h"
 #include "IControl.h"
 #include "IPlugParameter.h"
@@ -192,5 +190,3 @@
 }
 
 @end
-
-#endif //NO_IGRAPHICS

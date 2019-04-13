@@ -14,6 +14,7 @@
  * @file
  * Utility functions and macros
  * @defgroup IPlugUtilities IPlug::Utilities
+ * Utility functions and macros
  * @{
  */
 

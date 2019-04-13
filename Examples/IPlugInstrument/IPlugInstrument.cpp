@@ -22,7 +22,7 @@ IPlugInstrument::IPlugInstrument(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->HandleMouseOver(true);
 //    pGraphics->EnableLiveEdit(true);
-    pGraphics->LoadFont(ROBOTTO_FN);
+    pGraphics->LoadFont("Roboto-Regular", ROBOTTO_FN);
     const IRECT b = pGraphics->GetBounds();
     pGraphics->AttachControl(new IVKeyboardControl(IRECT(10, 335, PLUG_WIDTH-10, PLUG_HEIGHT-10)));
     pGraphics->AttachControl(new IVMultiSliderControl<8>(b.GetGridCell(0, 2, 2).GetPadded(-30)));

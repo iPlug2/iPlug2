@@ -8,8 +8,6 @@
  ==============================================================================
 */
 
-#ifndef NO_IGRAPHICS
-
 #import <UIKit/UIKit.h>
 #include "IGraphicsIOS.h"
 
@@ -37,5 +35,3 @@ inline CGRect ToCGRect(IGraphics* pGraphics, const IRECT& bounds)
 @property (nonatomic, strong) CADisplayLink *displayLink;
 
 @end
-
-#endif //NO_IGRAPHICS

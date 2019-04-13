@@ -18,6 +18,7 @@
 using namespace Steinberg;
 using namespace Vst;
 
+/** Shared VST3 controller code */
 class IPlugVST3ControllerBase
 {
 public:

@@ -8,8 +8,6 @@
  ==============================================================================
 */
 
-#ifndef NO_IGRAPHICS
-
 #ifdef IGRAPHICS_NANOVG
 #import <QuartzCore/QuartzCore.h>
 #endif
@@ -398,7 +396,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   if ( self != nil )
   {
     self.needsDisplayOnBoundsChange = YES;
-    self.asynchronous = YES;
+    self.asynchronous = NO;
   }
   
   return self;
@@ -418,6 +416,11 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (NSOpenGLPixelFormat *)openGLPixelFormatForDisplayMask:(uint32_t)mask
 {
+  NSOpenGLPixelFormatAttribute profile = NSOpenGLProfileVersionLegacy;
+  #if defined IGRAPHICS_GL3
+    profile = (NSOpenGLPixelFormatAttribute)NSOpenGLProfileVersion3_2Core;
+  #endif
+  
   const NSOpenGLPixelFormatAttribute kAttributes[] =  {
     NSOpenGLPFAAccelerated,
     NSOpenGLPFANoRecovery,
@@ -426,31 +429,20 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     NSOpenGLPFAColorSize, 24,
     NSOpenGLPFADepthSize, 0,
     NSOpenGLPFAStencilSize, 8,
-//#if defined IGRAPHICS_GL2
-//    NSOpenGLProfileVersionLegacy,
-//#elif defined IGRAPHICS_GL3
-//    (NSOpenGLPixelFormatAttribute)NSOpenGLProfileVersion3_2Core,
-//#endif
+    NSOpenGLPFAOpenGLProfile, profile,
     (NSOpenGLPixelFormatAttribute) 0
-    
   };
-  
+
   return [[NSOpenGLPixelFormat alloc] initWithAttributes:kAttributes];
 }
 
-- (BOOL)canDrawInOpenGLContext:(NSOpenGLContext *)context pixelFormat:(NSOpenGLPixelFormat *)pixelFormat forLayerTime:(CFTimeInterval)timeInterval displayTime:(const CVTimeStamp *)timeStamp
-{
-  return [mView shouldRender];
-//  return YES;
-}
+//- (BOOL)canDrawInOpenGLContext:(NSOpenGLContext *)context pixelFormat:(NSOpenGLPixelFormat *)pixelFormat forLayerTime:(CFTimeInterval)timeInterval displayTime:(const CVTimeStamp *)timeStamp
+//{
+//}
 
 - (void)drawInOpenGLContext:(NSOpenGLContext *)context pixelFormat:(NSOpenGLPixelFormat *)pixelFormat forLayerTime:(CFTimeInterval)timeInterval displayTime:(const CVTimeStamp *)timeStamp
 {
-  [context makeCurrentContext];
-  
   [mView render];
-  
-  [context flushBuffer];
 }
 
 @end
@@ -476,6 +468,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     self.layer = [CAMetalLayer new];
     #elif defined IGRAPHICS_GL
     self.layer = [[IGRAPHICS_GLLAYER alloc] initWithIGraphicsView:self];
+    self.wantsBestResolutionOpenGLSurface = YES;
     #endif
     self.layer.opaque = YES;
     self.wantsLayer = YES;
@@ -484,12 +477,10 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
   [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
 
-#ifndef IGRAPHICS_GL
   double sec = 1.0 / (double) pGraphics->FPS();
   mTimer = [NSTimer timerWithTimeInterval:sec target:self selector:@selector(onTimer:) userInfo:nil repeats:YES];
   [[NSRunLoop currentRunLoop] addTimer: mTimer forMode: (NSString*) kCFRunLoopCommonModes];
-#endif
-  
+
   return self;
 }
 
@@ -558,6 +549,10 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   
   if (newScale != mGraphics->GetScreenScale())
     mGraphics->SetScreenScale(newScale);
+
+#ifdef IGRAPHICS_GL
+  self.layer.contentsScale = 1./newScale;
+#endif
 }
 
 - (CGContextRef) getCGContextRef
@@ -591,26 +586,9 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   }
 }
 
-- (BOOL) shouldRender
-{
-  //FIXME: for some reason the render to offscreen frame buffer approach, causes strobing with macOS GL, so set everything dirty...
-#if defined IGRAPHICS_GL && defined IGRAPHICS_NANOVG
-  mGraphics->IsDirty(mDirtyRects);
-  mDirtyRects.Clear();
-  mDirtyRects.Add(mGraphics->GetBounds());
-  return YES;
-#else
-  mDirtyRects.Clear();
-  return mGraphics->IsDirty(mDirtyRects);
-#endif
-}
-
 - (void) render
 {
-  mGraphics->SetAllControlsClean();
-
-  // for layer-backed views drawRect is not called
-#if !defined IGRAPHICS_GL && !defined IGRAPHICS_METAL
+#if !defined IGRAPHICS_NANOVG // for layer-backed views drawRect is not called
   for (int i = 0; i < mDirtyRects.Size(); i++)
     [self setNeedsDisplayInRect:ToNSRect(mGraphics, mDirtyRects.Get(i))];
 #else
@@ -621,10 +599,18 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void) onTimer: (NSTimer*) pTimer
 {
-#ifndef IGRAPHICS_GL
-  if([self shouldRender])
+  mDirtyRects.Clear();
+  
+  if (mGraphics->IsDirty(mDirtyRects))
+  {
+#ifdef IGRAPHICS_GL
+    [self.layer setNeedsDisplay];
+#else
+    [self render];
 #endif
-  [self render];
+  }
+  
+  mGraphics->SetAllControlsClean();
 }
 
 - (void) getMouseXY: (NSEvent*) pEvent x: (float&) pX y: (float&) pY
@@ -662,9 +648,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void) updateTrackingAreas
 {
-  // This is needed to get mouseEntered and mouseExited
-    
-  [super updateTrackingAreas];
+  [super updateTrackingAreas]; // This is needed to get mouseEntered and mouseExited
     
   if (mTrackingArea != nil) {
       [self removeTrackingArea:mTrackingArea];
@@ -1003,14 +987,9 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
     [mTextFieldView setDrawsBackground: TRUE];
   }
 
-  //TODO: address font types for platform text entries
-#ifdef IGRAPHICS_NANOVG
-  NSString* font = [NSString stringWithUTF8String: "Arial"];
-#else
-  NSString* font = [NSString stringWithUTF8String: text.mFont];
-#endif
-
-  [mTextFieldView setFont: [NSFont fontWithName:font size: text.mSize * 0.75f]];
+  NSFontDescriptor*  fontDescriptor = (NSFontDescriptor*) mGraphics->GetCTFontDescriptor(text);
+  NSFont* font = [NSFont fontWithDescriptor: fontDescriptor size: text.mSize * 0.75];
+  [mTextFieldView setFont: font];
   
   switch (text.mAlign)
   {
@@ -1181,5 +1160,3 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 //}
 
 @end
-
-#endif //NO_IGRAPHICS

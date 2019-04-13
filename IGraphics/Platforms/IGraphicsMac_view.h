@@ -8,8 +8,6 @@
  ==============================================================================
 */
 
-#ifndef NO_IGRAPHICS
-
 #import <Cocoa/Cocoa.h>
 //#import <WebKit/WebKit.h>
 
@@ -99,7 +97,6 @@ inline NSColor* ToNSColor(const IColor& c)
 @public
   IGraphicsMac* mGraphics; // OBJC instance variables have to be pointers
 }
-//- (id) init;
 - (id) initWithIGraphics: (IGraphicsMac*) pGraphics;
 - (BOOL) isOpaque;
 - (BOOL) acceptsFirstResponder;
@@ -107,7 +104,6 @@ inline NSColor* ToNSColor(const IColor& c)
 - (void) viewDidMoveToWindow;
 - (void) viewDidChangeBackingProperties:(NSNotification *) notification;
 - (void) drawRect: (NSRect) bounds;
-- (BOOL) shouldRender;
 - (void) render;
 - (void) onTimer: (NSTimer*) pTimer;
 - (void) killTimer;
@@ -150,11 +146,7 @@ inline NSColor* ToNSColor(const IColor& c)
 @interface IGRAPHICS_GLLAYER : NSOpenGLLayer
 {
   IGRAPHICS_VIEW* mView; // OBJC instance variables have to be pointers
-  CFTimeInterval mPrevTime;
-  double mInterval;
 }
 
 - (id) initWithIGraphicsView: (IGRAPHICS_VIEW*) pGraphics;
 @end
-
-#endif //NO_IGRAPHICS
