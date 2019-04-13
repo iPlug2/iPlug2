@@ -450,8 +450,11 @@ void ITextEntryControl::CreateTextEntry(IControl& control, const IRECT& bounds, 
   const IParam* param = mTargetControl->GetParam();
   mParamType = param ? param->Type() : IParam::kTypeNone;
   mEditString.Set(str);
+  mEditState.select_start = 0;
+  mEditState.select_end = mEditString.GetLength();
+  mEditState.cursor = 0;
   OnTextChange();
-  SetDirty(false);
+  SetDirty(true);
   mEditing = true;
 }
 
