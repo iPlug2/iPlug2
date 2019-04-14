@@ -401,7 +401,7 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
   
   OnViewInitialized(nullptr /* not used */);
 
-  SetScreenScale(std::max(emscripten_get_device_pixel_ratio(), 1.));
+  SetScreenScale(std::ceil(std::max(emscripten_get_device_pixel_ratio(), 1.)));
 
   GetDelegate()->LayoutUI(this);
   
@@ -460,6 +460,15 @@ ECursor IGraphicsWeb::SetMouseCursor(ECursor cursorType)
 void IGraphicsWeb::OnMainLoopTimer()
 {
   IRECTList rects;
+  int screenScale = (int) std::ceil(std::max(emscripten_get_device_pixel_ratio(), 1.));
+
+  if (!gGraphics)
+    return;
+  
+  if (screenScale != gGraphics->GetScreenScale())
+  {
+    gGraphics->SetScreenScale(screenScale);
+  }
 
   if (gGraphics->IsDirty(rects))
   {

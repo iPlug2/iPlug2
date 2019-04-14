@@ -265,19 +265,18 @@ void IGraphicsAGG::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX
   APIBitmap* pAPIBitmap = dynamic_cast<AGGBitmap*>(bitmap.GetAPIBitmap());
   agg::pixel_map* pSource = pAPIBitmap->GetBitmap();
   agg::rendering_buffer src(pSource->buf(), pSource->width(), pSource->height(), pSource->row_bytes());
-  const double scale = GetScreenScale() / (pAPIBitmap->GetScale() * pAPIBitmap->GetDrawScale());
 
   agg::trans_affine srcMtx;
   srcMtx /= mTransform;
-  srcMtx *= agg::trans_affine_translation((srcX * scale) - dest.L, (srcY * scale) - dest.T);
+  srcMtx *= agg::trans_affine_translation(srcX - dest.L, srcY - dest.T);
   srcMtx *= agg::trans_affine_scaling(bitmap.GetScale() * bitmap.GetDrawScale());
     
   if (bounds.IsPixelAligned() && CheckTransform(srcMtx))
   {
-    double offsetScale = scale * GetScreenScale();
+    double scale = GetScreenScale() * GetScreenScale() / pAPIBitmap->GetScale();
     IRECT destScaled = dest.GetScaled(GetBackingPixelScale());
-    srcX = std::round(srcX * offsetScale + std::max(0.f, bounds.L - destScaled.L));
-    srcY = std::round(srcY * offsetScale + std::max(0.f, bounds.T - destScaled.T));
+    srcX = std::round(srcX * scale + std::max(0.f, bounds.L - destScaled.L));
+    srcY = std::round(srcY * scale + std::max(0.f, bounds.T - destScaled.T));
     bounds.Translate(mTransform.tx, mTransform.ty);
 
     mRasterizer.BlendFrom(src, bounds, srcX, srcY, AGGBlendMode(pBlend), AGGCover(pBlend), preMultiplied);
