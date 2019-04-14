@@ -480,11 +480,11 @@ void IGraphics::DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int bmpSt
   {
     if (bitmap.GetFramesAreHorizontal())
     {
-      srcX = int(0.5f + bitmap.W() * (float) (bmpState - 1) / (float) bitmap.N());
+      srcX = bitmap.W() * (bmpState - 1) / bitmap.N();
     }
     else
     {
-      srcY = int(0.5f + bitmap.H() * (float) (bmpState - 1) / (float) bitmap.N());
+      srcY = bitmap.H() * (bmpState - 1) / bitmap.N();
     }
   }
 
