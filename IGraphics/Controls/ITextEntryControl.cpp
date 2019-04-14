@@ -120,7 +120,7 @@ void ITextEntryControl::Draw(IGraphics& g)
     {
       cursorPos += mCharWidths.Get()[i];
     }
-    IRECT cursorRect(roundf(cursorPos), mRECT.T + row.ymin, roundf(cursorPos), mRECT.T + row.ymax);
+    IRECT cursorRect(roundf(cursorPos-1), mRECT.T + row.ymin, roundf(cursorPos), mRECT.T + row.ymax);
     cursorRect = cursorRect.GetVPadded(-mText.mSize*0.1f);
     g.FillRect(mText.mTextEntryFGColor, cursorRect);
   }
