@@ -504,6 +504,7 @@ void ClientResize(HWND hWnd, int nWidth, int nHeight)
   int screenwidth, screenheight;
   int x, y;
 
+#ifdef OS_WIN
   static UINT (WINAPI *__GetDpiForWindow)(HWND);
 
   double scale = 1.;
@@ -521,10 +522,11 @@ void ClientResize(HWND hWnd, int nWidth, int nHeight)
     if (dpi != 96)
       scale = static_cast<double>(dpi / USER_DEFAULT_SCREEN_DPI);
   }
-
+  
   nWidth *= scale;
   nHeight *= scale;
-
+#endif
+  
   screenwidth  = GetSystemMetrics(SM_CXSCREEN);
   screenheight = GetSystemMetrics(SM_CYSCREEN);
   x = (screenwidth / 2) - (nWidth/2);
