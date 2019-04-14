@@ -428,7 +428,7 @@ struct IVColorSpec
   IColor mX2Color = DEFAULT_X2COLOR; // Extra 2
   IColor mX3Color = DEFAULT_X3COLOR; // Extra 3
 
-  /** /todo  */
+  /** Set all IVColorSpec colors */
   void SetColors(const IColor BGColor = DEFAULT_BGCOLOR,
                  const IColor FGColor = DEFAULT_FGCOLOR,
                  const IColor PRColor = DEFAULT_PRCOLOR,
@@ -439,6 +439,15 @@ struct IVColorSpec
                  const IColor X2Color = DEFAULT_X2COLOR,
                  const IColor X3Color = DEFAULT_X3COLOR)
   {
+      mBGColor = BGColor; // Background
+      mFGColor = FGColor; // Foreground
+      mPRColor = PRColor; // Pressed
+      mFRColor = FRColor; // Frame
+      mHLColor = HLColor; // Highlight
+      mSHColor = SHColor; // Shadow
+      mX1Color = X1Color; // Extra 1
+      mX2Color = X2Color; // Extra 2
+      mX3Color = X3Color; // Extra 3
   }
 
   /** /todo  */
