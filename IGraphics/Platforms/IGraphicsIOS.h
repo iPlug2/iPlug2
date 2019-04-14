@@ -49,6 +49,7 @@ public:
   static int GetUserOSVersion();
   
   bool GetTextFromClipboard(WDL_String& str) override;
+  bool SetTextInClipboard(const WDL_String& str) override;
 
   void CreatePlatformImGui() override;
 

@@ -177,6 +177,11 @@ bool IGraphicsIOS::GetTextFromClipboard(WDL_String& str)
   return false;
 }
 
+bool SetTextInClipboard(const WDL_String& str)
+{
+  return false;
+}
+
 void IGraphicsIOS::CreatePlatformImGui()
 {
 #ifdef IGRAPHICS_IMGUI
