@@ -8,8 +8,6 @@
  ==============================================================================
 */
 
-#ifndef NO_IGRAPHICS
-
 #ifdef IGRAPHICS_NANOVG
 #import <QuartzCore/QuartzCore.h>
 #endif
@@ -388,6 +386,67 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 }
 @end
 
+@implementation IGRAPHICS_GLLAYER
+
+- (id) initWithIGraphicsView: (IGRAPHICS_VIEW*) pView;
+{
+  mView = pView;
+  
+  self = [super init];
+  if ( self != nil )
+  {
+    self.needsDisplayOnBoundsChange = YES;
+    self.asynchronous = NO;
+  }
+  
+  return self;
+}
+
+- (NSOpenGLContext *)openGLContextForPixelFormat:(NSOpenGLPixelFormat *)pixelFormat
+{
+  NSOpenGLContext* context = [super openGLContextForPixelFormat: pixelFormat];
+  
+  [context makeCurrentContext];
+  
+  if(!mView->mGraphics->GetDrawContext())
+    mView->mGraphics->ContextReady(self);
+  
+  return context;
+}
+
+- (NSOpenGLPixelFormat *)openGLPixelFormatForDisplayMask:(uint32_t)mask
+{
+  NSOpenGLPixelFormatAttribute profile = NSOpenGLProfileVersionLegacy;
+  #if defined IGRAPHICS_GL3
+    profile = (NSOpenGLPixelFormatAttribute)NSOpenGLProfileVersion3_2Core;
+  #endif
+  
+  const NSOpenGLPixelFormatAttribute kAttributes[] =  {
+    NSOpenGLPFAAccelerated,
+    NSOpenGLPFANoRecovery,
+    NSOpenGLPFADoubleBuffer,
+    NSOpenGLPFAAlphaSize, 8,
+    NSOpenGLPFAColorSize, 24,
+    NSOpenGLPFADepthSize, 0,
+    NSOpenGLPFAStencilSize, 8,
+    NSOpenGLPFAOpenGLProfile, profile,
+    (NSOpenGLPixelFormatAttribute) 0
+  };
+
+  return [[NSOpenGLPixelFormat alloc] initWithAttributes:kAttributes];
+}
+
+//- (BOOL)canDrawInOpenGLContext:(NSOpenGLContext *)context pixelFormat:(NSOpenGLPixelFormat *)pixelFormat forLayerTime:(CFTimeInterval)timeInterval displayTime:(const CVTimeStamp *)timeStamp
+//{
+//}
+
+- (void)drawInOpenGLContext:(NSOpenGLContext *)context pixelFormat:(NSOpenGLPixelFormat *)pixelFormat forLayerTime:(CFTimeInterval)timeInterval displayTime:(const CVTimeStamp *)timeStamp
+{
+  [mView render];
+}
+
+@end
+
 #pragma mark -
 
 @implementation IGRAPHICS_VIEW
@@ -404,15 +463,16 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   self = [super initWithFrame:r];
   
 #if defined IGRAPHICS_NANOVG
-  #if defined IGRAPHICS_METAL
-    if (!self.wantsLayer) {
-      self.layer = [CAMetalLayer new];
-      self.layer.opaque = YES;
-      self.wantsLayer = YES;
-    }
-  #elif defined IGRAPHICS_GL
-  //TODO: IGRAPHICS_GL context setup
-  #endif
+  if (!self.wantsLayer) {
+    #if defined IGRAPHICS_METAL
+    self.layer = [CAMetalLayer new];
+    #elif defined IGRAPHICS_GL
+    self.layer = [[IGRAPHICS_GLLAYER alloc] initWithIGraphicsView:self];
+    self.wantsBestResolutionOpenGLSurface = YES;
+    #endif
+    self.layer.opaque = YES;
+    self.wantsLayer = YES;
+  }
 #endif
 
   [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
@@ -461,7 +521,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     [pWindow makeFirstResponder: self];
     [pWindow setAcceptsMouseMovedEvents: YES];
     
-    if (mGraphics)
+    if (mGraphics && mGraphics->GetDrawContext())
       mGraphics->SetScreenScale([pWindow backingScaleFactor]);
     
 //    [[NSNotificationCenter defaultCenter] addObserver:self
@@ -489,6 +549,10 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   
   if (newScale != mGraphics->GetScreenScale())
     mGraphics->SetScreenScale(newScale);
+
+#ifdef IGRAPHICS_GL
+  self.layer.contentsScale = 1./newScale;
+#endif
 }
 
 - (CGContextRef) getCGContextRef
@@ -499,7 +563,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   return pCGC;
 }
 
-// not called for METAL
+// not called for layer backed views
 - (void) drawRect: (NSRect) bounds
 {
   if (mGraphics)
@@ -522,21 +586,31 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   }
 }
 
+- (void) render
+{
+#if !defined IGRAPHICS_NANOVG // for layer-backed views drawRect is not called
+  for (int i = 0; i < mDirtyRects.Size(); i++)
+    [self setNeedsDisplayInRect:ToNSRect(mGraphics, mDirtyRects.Get(i))];
+#else
+  // so just draw on each frame, if something is dirty
+  mGraphics->Draw(mDirtyRects);
+#endif
+}
+
 - (void) onTimer: (NSTimer*) pTimer
 {
-  IRECTList rects;
-  if (mGraphics->IsDirty(rects))
+  mDirtyRects.Clear();
+  
+  if (mGraphics->IsDirty(mDirtyRects))
   {
-    mGraphics->SetAllControlsClean();
-    // for METAL layer-backed view drawRect is not called
-#if !defined IGRAPHICS_NANOVG
-    for (int i = 0; i < rects.Size(); i++)
-      [self setNeedsDisplayInRect:ToNSRect(mGraphics, rects.Get(i))];
+#ifdef IGRAPHICS_GL
+    [self.layer setNeedsDisplay];
 #else
-    // so just draw on each frame, if something is dirty
-    mGraphics->Draw(rects);
+    [self render];
 #endif
   }
+  
+  mGraphics->SetAllControlsClean();
 }
 
 - (void) getMouseXY: (NSEvent*) pEvent x: (float&) pX y: (float&) pY
@@ -574,9 +648,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void) updateTrackingAreas
 {
-  // This is needed to get mouseEntered and mouseExited
-    
-  [super updateTrackingAreas];
+  [super updateTrackingAreas]; // This is needed to get mouseEntered and mouseExited
     
   if (mTrackingArea != nil) {
       [self removeTrackingArea:mTrackingArea];
@@ -1088,5 +1160,3 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 //}
 
 @end
-
-#endif //NO_IGRAPHICS

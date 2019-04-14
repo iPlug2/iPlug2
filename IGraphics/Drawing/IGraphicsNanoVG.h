@@ -152,13 +152,12 @@ private:
   void UpdateLayer() override;
   void ClearFBOStack();
     
-  // A stack of FBOs that requires freeing at the end of the frame
   
   bool mInDraw = false;
   WDL_Mutex mFBOMutex;
-  std::stack<NVGframebuffer*> mFBOStack;
-    
+  std::stack<NVGframebuffer*> mFBOStack; // A stack of FBOs that requires freeing at the end of the frame
   StaticStorage<APIBitmap> mBitmapCache; //not actually static (doesn't require retaining or releasing)
   NVGcontext* mVG = nullptr;
-  NVGframebuffer* mMainFrameBuffer = nullptr;    
+  NVGframebuffer* mMainFrameBuffer = nullptr;
+  int mInitialFBO = 0;
 };

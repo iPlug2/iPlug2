@@ -388,6 +388,17 @@ IGraphicsWeb::~IGraphicsWeb()
 
 void* IGraphicsWeb::OpenWindow(void* pHandle)
 {
+#ifdef IGRAPHICS_GL
+  EmscriptenWebGLContextAttributes attr;
+  emscripten_webgl_init_context_attributes(&attr);
+  attr.stencil = true;
+  attr.depth = true;
+//  attr.explicitSwapControl = 1;
+  
+  EMSCRIPTEN_WEBGL_CONTEXT_HANDLE ctx = emscripten_webgl_create_context("#canvas", &attr);
+  emscripten_webgl_make_context_current(ctx);
+#endif
+  
   OnViewInitialized(nullptr /* not used */);
 
   SetScreenScale(std::max(emscripten_get_device_pixel_ratio(), 1.));
