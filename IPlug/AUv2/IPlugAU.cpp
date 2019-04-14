@@ -189,7 +189,7 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
   if (select == kComponentCloseSelect)
   {
     _this->ClearConnections();
-    DELETE_NULL(_this);
+    delete _this;
     return noErr;
   }
 

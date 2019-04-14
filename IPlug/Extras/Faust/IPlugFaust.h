@@ -15,6 +15,8 @@
  * @copydoc IPlugFaust
  */
 
+#include <memory>
+
 #include "faust/gui/UI.h"
 #include "faust/gui/MidiUI.h"
 #include "assocarray.h"
@@ -74,7 +76,7 @@ public:
   
   void FreeDSP()
   {
-    DELETE_NULL(mDSP);
+    mDSP.reset(nullptr);
   }
   
   void SetOverSamplingRate(int rate)
@@ -314,7 +316,7 @@ protected:
   OverSampler<sample>* mOverSampler = nullptr;
   WDL_String mName;
   int mNVoices;
-  ::dsp* mDSP = nullptr;
+  std::unique_ptr<::dsp> mDSP;
   MidiUI* mMidiUI = nullptr;
   WDL_PtrList<IParam> mParams;
   WDL_PtrList<FAUSTFLOAT> mZones;

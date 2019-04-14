@@ -22,12 +22,11 @@
 
 #define STRBUFSZ 100
 
-IPlugAPPHost* IPlugAPPHost::sInstance = nullptr;
+std::unique_ptr<IPlugAPPHost> IPlugAPPHost::sInstance;
 UINT gSCROLLMSG;
 
-IPlugAPPHost::IPlugAPPHost()
+IPlugAPPHost::IPlugAPPHost() : mIPlug(MakePlug(this))
 {
-  mIPlug = MakePlug(this);
 }
 
 IPlugAPPHost::~IPlugAPPHost()
@@ -43,18 +42,13 @@ IPlugAPPHost::~IPlugAPPHost()
     if(mDAC->isStreamOpen())
       mDAC->abortStream();
   }
-  
-  DELETE_NULL(mIPlug);
-  DELETE_NULL(mMidiIn);
-  DELETE_NULL(mMidiOut);
-  DELETE_NULL(mDAC);
 }
 
 //static
 IPlugAPPHost* IPlugAPPHost::Create()
 {
-  sInstance = new IPlugAPPHost();
-  return sInstance;
+  sInstance.reset(new IPlugAPPHost());
+  return sInstance.get();
 }
 
 bool IPlugAPPHost::Init()
@@ -382,7 +376,7 @@ bool IPlugAPPHost::TryToChangeAudioDriverType()
       mDAC->closeStream();
     }
 
-    DELETE_NULL(mDAC);
+    mDAC.reset(nullptr);
   }
 
 #if defined OS_WIN
@@ -392,9 +386,9 @@ bool IPlugAPPHost::TryToChangeAudioDriverType()
     mDAC = new RtAudio(RtAudio::WINDOWS_DS);
 #elif defined OS_MAC
   if(mState.mAudioDriverType == kDeviceCoreAudio)
-    mDAC = new RtAudio(RtAudio::MACOSX_CORE);
+    mDAC.reset(new RtAudio(RtAudio::MACOSX_CORE));
   //else
-  //mDAC = new RtAudio(RtAudio::UNIX_JACK);
+  //mDAC.reset(new RtAudio(RtAudio::UNIX_JACK));
 #else
   #error NOT IMPLEMENTED
 #endif
@@ -627,22 +621,22 @@ bool IPlugAPPHost::InitMidi()
 {
   try
   {
-    mMidiIn = new RtMidiIn();
+    mMidiIn.reset(new RtMidiIn());
   }
-  catch ( RtMidiError &error )
+  catch (RtMidiError &error)
   {
-    DELETE_NULL(mMidiIn);
+    mMidiIn.reset(nullptr);
     error.printMessage();
     return false;
   }
 
   try
   {
-    mMidiOut = new RtMidiOut();
+    mMidiOut.reset(new RtMidiOut());
   }
-  catch ( RtMidiError &error )
+  catch (RtMidiError &error)
   {
-    DELETE_NULL(mMidiOut);
+    mMidiOut.reset(nullptr);
     error.printMessage();
     return false;
   }
@@ -656,10 +650,10 @@ bool IPlugAPPHost::InitMidi()
 // static
 int IPlugAPPHost::AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_t nFrames, double streamTime, RtAudioStreamStatus status, void* pUserData)
 {
-  if ( status )
+  if (status)
     std::cout << "Stream underflow detected!" << std::endl;
 
-  IPlugAPPHost* _this = sInstance;
+  IPlugAPPHost* _this = sInstance.get();
 
   double* pInputBufferD = static_cast<double*>(pInputBuffer);
   double* pOutputBufferD = static_cast<double*>(pOutputBuffer);
