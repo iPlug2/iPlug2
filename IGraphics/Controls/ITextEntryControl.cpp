@@ -105,9 +105,8 @@ void ITextEntryControl::Draw(IGraphics& g)
 
       selectionEnd += mCharWidths.Get()[i];
     }
-    IRECT selectionRect = mRECT.GetVPadded(-2.f);
-    selectionRect.L = selectionStart;
-    selectionRect.R = selectionEnd;
+    IRECT selectionRect(selectionStart, mRECT.T + row.ymin, selectionEnd, mRECT.T + row.ymax);
+    selectionRect = selectionRect.GetVPadded(-mText.mSize*0.1f);
     IBlend blend(kBlendDefault, 0.2);
     g.FillRect(mText.mTextEntryFGColor, selectionRect, &blend);
   }
@@ -121,9 +120,8 @@ void ITextEntryControl::Draw(IGraphics& g)
     {
       cursorPos += mCharWidths.Get()[i];
     }
-    IRECT cursorRect = mRECT.GetVPadded(-2.f);
-    cursorRect.L = roundf(cursorPos);
-    cursorRect.R = cursorRect.L;
+    IRECT cursorRect(roundf(cursorPos), mRECT.T + row.ymin, roundf(cursorPos), mRECT.T + row.ymax);
+    cursorRect = cursorRect.GetVPadded(-mText.mSize*0.1f);
     g.FillRect(mText.mTextEntryFGColor, cursorRect);
   }
 }
@@ -353,8 +351,6 @@ void ITextEntryControl::Layout(StbTexteditRow* row, ITextEntryControl* _this, in
 
   row->num_chars = _this->mEditString.GetLength();
   row->baseline_y_delta = 1.25;
-  row->ymin = 0.f;
-  row->ymax = static_cast<float> (_this->GetText().mSize);
 
   switch (_this->GetText().mAlign)
   {
@@ -381,6 +377,35 @@ void ITextEntryControl::Layout(StbTexteditRow* row, ITextEntryControl* _this, in
       break;
     }
   }
+
+  switch (_this->GetText().mVAlign)
+  {
+    case IText::kVAlignTop:
+    {
+      row->ymin = 0;
+      break;
+    }
+
+    case IText::kVAlignMiddle:
+    {
+      row->ymin = _this->GetRECT().H()*0.5f - _this->GetText().mSize*0.5f;
+      break;
+    }
+
+    case IText::kVAlignBottom:
+    {
+      row->ymin = _this->GetRECT().H() - _this->GetText().mSize;
+      break;
+    }
+
+    default:
+    {
+      assert(false); // not implemented
+      break;
+    }
+  }
+
+  row->ymax = row->ymin + static_cast<float> (_this->GetText().mSize);
 }
 
 //static
