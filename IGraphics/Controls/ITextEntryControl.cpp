@@ -221,6 +221,18 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
         }
         return true;
       }
+      case 'Z':
+      {
+        if (key.S)
+        {
+          CallSTB([&]() { stb_textedit_key(this, &mEditState, STB_TEXTEDIT_K_REDO); });
+        }
+        else
+        {
+          CallSTB([&]() { stb_textedit_key(this, &mEditState, STB_TEXTEDIT_K_UNDO); });
+        }
+        return true;
+      }
     
       default:
         break;
