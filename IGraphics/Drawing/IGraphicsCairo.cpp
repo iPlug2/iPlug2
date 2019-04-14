@@ -264,7 +264,7 @@ void IGraphicsCairo::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, cons
 
 void IGraphicsCairo::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
-  const double scale = GetScreenScale() / (bitmap.GetScale() * bitmap.GetDrawScale());
+  const double scale = 1.0 / bitmap.GetDrawScale();
 
   cairo_save(mContext);
   cairo_rectangle(mContext, dest.L, dest.T, dest.W(), dest.H());
