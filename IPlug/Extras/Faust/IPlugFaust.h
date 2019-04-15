@@ -43,17 +43,13 @@ public:
   : mNVoices(nVoices)
   {
     if(rate > 1)
-      mOverSampler = new OverSampler<sample>(OverSampler<sample>::RateToFactor(rate), true, 2 /* TODO: flexible channel count */);
+      mOverSampler.reset(new OverSampler<sample>(OverSampler<sample>::RateToFactor(rate), true, 2 /* TODO: flexible channel count */));
     
     mName.Set(name);
   }
 
   virtual ~IPlugFaust()
   {
-    if(mOverSampler)
-      delete mOverSampler;
-    //delete mMidiUI;
-
     mParams.Empty(true);
   }
 
@@ -313,11 +309,11 @@ protected:
     return -1;
   }
   
-  OverSampler<sample>* mOverSampler = nullptr;
+  std::unique_ptr<OverSampler<sample>> mOverSampler;
   WDL_String mName;
   int mNVoices;
   std::unique_ptr<::dsp> mDSP;
-  MidiUI* mMidiUI = nullptr;
+  std::unique_ptr<MidiUI> mMidiUI;
   WDL_PtrList<IParam> mParams;
   WDL_PtrList<FAUSTFLOAT> mZones;
   WDL_StringKeyedArray<FAUSTFLOAT*> mMap; // map is used for setting FAUST parameters by name, also used to reconnect existing parameters
