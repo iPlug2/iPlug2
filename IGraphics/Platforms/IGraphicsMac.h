@@ -87,6 +87,8 @@ public:
   void ContextReady(void* pLayer);
 
 protected:
+  void CreatePlatformImGui() override;
+
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
 private:
@@ -98,6 +100,7 @@ private:
   void StoreCursorPosition();
   
   void* mView = nullptr;
+  void* mImGuiView = nullptr;
   CGPoint mCursorLockPosition;
   WDL_String mBundleID;
   friend int GetMouseOver(IGraphicsMac* pGraphics);

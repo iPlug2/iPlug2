@@ -35,3 +35,15 @@ inline CGRect ToCGRect(IGraphics* pGraphics, const IRECT& bounds)
 @property (nonatomic, strong) CADisplayLink *displayLink;
 
 @end
+
+#ifdef IGRAPHICS_IMGUI
+#import <MetalKit/MetalKit.h>
+
+@interface IGRAPHICS_IMGUIVIEW : MTKView
+{
+  IGraphicsIOS_View* mView; // OBJC instance variables have to be pointers
+}
+@property (nonatomic, strong) id <MTLCommandQueue> commandQueue;
+- (id) initWithIGraphicsView: (IGraphicsIOS_View*) pView;
+@end
+#endif

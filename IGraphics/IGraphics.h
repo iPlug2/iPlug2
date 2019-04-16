@@ -49,6 +49,7 @@
 #include "IGraphicsUtilities.h"
 #include "IGraphicsPopupMenu.h"
 #include "IGraphicsEditorDelegate.h"
+#include "IGraphicsImGui.h"
 
 #include <stack>
 #include <memory>
@@ -1050,9 +1051,15 @@ public:
   
   /** /todo
    * @param keyHandlerFunc /todo */
-  void SetKeyHandlerFunc(std::function<bool(const IKeyPress& key)> keyHandlerFunc) { mKeyHandlerFunc = keyHandlerFunc; }
+  void SetKeyHandlerFunc(std::function<bool(const IKeyPress& key)> func) { mKeyHandlerFunc = func; }
+
+  /** /todo */
+  void AttachImGui(std::function<void(IGraphics*)> drawFunc, std::function<void()> setupFunc = nullptr);
   
 private:
+  /* /todo */
+  virtual void CreatePlatformImGui() {}
+  
   /** /todo */
   virtual void PlatformResize() {}
   
@@ -1133,7 +1140,7 @@ public:
    @param text The text style to use for the menu
    @param bounds The area that the menu should occupy /todo check */
   void AttachPopupMenuControl(const IText& text = DEFAULT_TEXT, const IRECT& bounds = IRECT());
-  
+
   /** Shows a control to display the frame rate of drawing
    * @param enable \c true to show */
   void ShowFPSDisplay(bool enable);
@@ -1271,6 +1278,12 @@ public:
    * @return \c true if handled \todo check this */
   bool OnKeyDown(float x, float y, const IKeyPress& key);
 
+  /** @param x The X coordinate in the graphics context of the mouse cursor at the time of the key press
+   * @param y The Y coordinate in the graphics context of the mouse cursor at the time of the key press
+   * @param key \todo
+   * @return \c true if handled \todo check this */
+  bool OnKeyUp(float x, float y, const IKeyPress& key);
+  
   /** @param x The X coordinate in the graphics context at which to draw
    * @param y The Y coordinate in the graphics context at which to draw
    * @param mod IMouseMod struct contain information about the modifiers held
@@ -1481,5 +1494,9 @@ protected:
   friend class ICornerResizerControl;
   
   std::stack<ILayer*> mLayers;
+  
+#ifdef IGRAPHICS_IMGUI
+public:
+  std::unique_ptr<ImGuiRenderer> mImGuiRenderer;
+#endif
 };
-

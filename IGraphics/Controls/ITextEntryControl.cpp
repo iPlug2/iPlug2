@@ -16,6 +16,7 @@
 
 #include "ITextEntryControl.h"
 #include "IPlugPlatform.h"
+#include "wdlutf8.h"
 
 #define VIRTUAL_KEY_BIT 0x80000000
 #define STB_TEXTEDIT_K_SHIFT 0x40000000
@@ -157,7 +158,9 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
     }
   }
   
-  STB_TEXTEDIT_KEYTYPE stbKey = key.Ascii;
+  int stbKey;
+  
+  wdl_utf8_parsechar(key.utf8, &stbKey);
   
   switch (key.VK)
   {

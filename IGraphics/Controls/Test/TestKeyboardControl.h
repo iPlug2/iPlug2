@@ -147,8 +147,10 @@ public:
     mStr.Set(vk_to_string(key.VK));
 
     if(strcmp(mStr.Get(),"Unknown VK code")==0)
-      mStr.Set(&key.Ascii);
-
+    {
+      mStr.Set(key.utf8);
+    }
+    
     mNewText = true;
     SetAnimation(DefaultAnimationFunc);
     StartAnimation(5000.);

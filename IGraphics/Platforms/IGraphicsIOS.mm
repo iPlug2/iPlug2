@@ -59,6 +59,16 @@ void IGraphicsIOS::CloseWindow()
 {
   if (mView)
   {
+#ifdef IGRAPHICS_IMGUI
+    if(mImGuiView)
+    {
+      IGRAPHICS_IMGUIVIEW* pImGuiView = (IGRAPHICS_IMGUIVIEW*) mImGuiView;
+      [pImGuiView removeFromSuperview];
+      [pImGuiView release];
+      mImGuiView = nullptr;
+    }
+#endif
+    
     IGraphicsIOS_View* view = (IGraphicsIOS_View*) mView;
 
     mView = nullptr;
@@ -165,5 +175,20 @@ bool IGraphicsIOS::GetTextFromClipboard(WDL_String& str)
 {
   return false;
 }
+
+void IGraphicsIOS::CreatePlatformImGui()
+{
+#ifdef IGRAPHICS_IMGUI
+  if(mView)
+  {
+    IGraphicsIOS_View* pView = (IGraphicsIOS_View*) mView;
+    
+    IGRAPHICS_IMGUIVIEW* pImGuiView = [[IGRAPHICS_IMGUIVIEW alloc] initWithIGraphicsView:pView];
+    [pView addSubview: pImGuiView];
+    mImGuiView = pImGuiView;
+  }
+#endif
+}
+
 
 #endif// NO_IGRAPHICS
