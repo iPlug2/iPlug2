@@ -176,7 +176,8 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
 
   if (select == kComponentOpenSelect)
   {
-    IPlugAU* _this = MakePlug();
+    // N.B. calling this with nullptr will call through to new (hence the delete below)
+    IPlugAU* _this = MakePlug(nullptr);
     
     _this->PruneUninitializedPresets();
     _this->mCI = GET_COMP_PARAM(ComponentInstance, 0, 1);
