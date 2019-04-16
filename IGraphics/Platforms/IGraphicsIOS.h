@@ -50,11 +50,15 @@ public:
   
   bool GetTextFromClipboard(WDL_String& str) override;
 
+  void CreatePlatformImGui() override;
+
 protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
 
 private:
   void* mView = nullptr;
+  void* mImGuiView = nullptr;
+
   WDL_String mBundleID;
 };

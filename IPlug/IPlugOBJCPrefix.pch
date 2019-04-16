@@ -42,5 +42,6 @@
   #define IGRAPHICS_TEXTFIELD CONCAT(IGraphicsTextField_)
   #define IGRAPHICS_TEXTFIELDCELL CONCAT(IGraphicsTextFieldCell_)
   #define IGRAPHICS_GLLAYER CONCAT(IGraphicsLayer_)
+  #define IGRAPHICS_IMGUIVIEW CONCAT(IGraphicsImGuiView_)
 #endif
 

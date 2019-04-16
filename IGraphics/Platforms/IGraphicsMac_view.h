@@ -148,5 +148,17 @@ inline NSColor* ToNSColor(const IColor& c)
   IGRAPHICS_VIEW* mView; // OBJC instance variables have to be pointers
 }
 
-- (id) initWithIGraphicsView: (IGRAPHICS_VIEW*) pGraphics;
+- (id) initWithIGraphicsView: (IGRAPHICS_VIEW*) pView;
 @end
+
+#ifdef IGRAPHICS_IMGUI
+#import <MetalKit/MetalKit.h>
+
+@interface IGRAPHICS_IMGUIVIEW : MTKView
+{
+  IGRAPHICS_VIEW* mView; // OBJC instance variables have to be pointers
+}
+@property (nonatomic, strong) id <MTLCommandQueue> commandQueue;
+- (id) initWithIGraphicsView: (IGRAPHICS_VIEW*) pView;
+@end
+#endif

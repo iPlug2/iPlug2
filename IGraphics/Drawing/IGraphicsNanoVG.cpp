@@ -375,14 +375,14 @@ void IGraphicsNanoVG::OnViewInitialized(void* pContext)
 #else
   mVG = nvgCreateContext(flags);
 #endif
-  
+
   if (mVG == nullptr)
     DBGMSG("Could not init nanovg.\n");
 }
 
 void IGraphicsNanoVG::OnViewDestroyed()
 {
-  // need to free framebuffers, before deleting context
+  // need to remove all the controls to free framebuffers, before deleting context
   RemoveAllControls();
 
   StaticStorage<APIBitmap>::Accessor storage(mBitmapCache);
@@ -451,8 +451,14 @@ void IGraphicsNanoVG::EndFrame()
 #if defined OS_MAC && defined IGRAPHICS_GL
   glBindFramebuffer(GL_FRAMEBUFFER, mInitialFBO); // restore apple fbo
 #endif
-  
+
   nvgEndFrame(mVG);
+
+#if defined IGRAPHICS_IMGUI && defined IGRAPHICS_GL
+  if(mImGuiRenderer)
+    mImGuiRenderer->NewFrame();
+#endif
+  
   mInDraw = false;
   ClearFBOStack();
 }

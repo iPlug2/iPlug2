@@ -8,6 +8,13 @@
  ==============================================================================
 */
 
+#import <QuartzCore/QuartzCore.h>
+#ifdef IGRAPHICS_IMGUI
+#import <Metal/Metal.h>
+#include "imgui.h"
+#import "imgui_impl_metal.h"
+#endif
+
 #import "IGraphicsIOS_view.h"
 #include "IControl.h"
 #include "IPlugParameter.h"
@@ -19,10 +26,7 @@
   TRACE;
 
   mGraphics = pGraphics;
-  CGRect r;
-  r.origin.x = r.origin.y = 0.0f;
-  r.size.width = (float) pGraphics->WindowWidth();
-  r.size.height = (float) pGraphics->WindowHeight();
+  CGRect r = CGRectMake(0.f, 0.f, (float) pGraphics->WindowWidth(), (float) pGraphics->WindowHeight());
   self = [super initWithFrame:r];
 
   self.layer.opaque = YES;
@@ -190,3 +194,52 @@
 }
 
 @end
+
+#ifdef IGRAPHICS_IMGUI
+
+@implementation IGRAPHICS_IMGUIVIEW
+{
+}
+
+- (id) initWithIGraphicsView: (IGraphicsIOS_View*) pView;
+{
+  mView = pView;
+  self = [super initWithFrame:[pView frame] device: MTLCreateSystemDefaultDevice()];
+  if(self) {
+    _commandQueue = [self.device newCommandQueue];
+    self.layer.opaque = NO;
+  }
+  
+  return self;
+}
+
+- (void)drawRect:(CGRect)rect
+{
+  id<MTLCommandBuffer> commandBuffer = [self.commandQueue commandBuffer];
+  
+  MTLRenderPassDescriptor *renderPassDescriptor = self.currentRenderPassDescriptor;
+  if (renderPassDescriptor != nil)
+  {
+    renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0,0,0,0);
+    
+    id <MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+    [renderEncoder pushDebugGroup:@"ImGui IGraphics"];
+    
+    ImGui_ImplMetal_NewFrame(renderPassDescriptor);
+    
+    mView->mGraphics->mImGuiRenderer->DoFrame();
+    
+    ImDrawData *drawData = ImGui::GetDrawData();
+    ImGui_ImplMetal_RenderDrawData(drawData, commandBuffer, renderEncoder);
+    
+    [renderEncoder popDebugGroup];
+    [renderEncoder endEncoding];
+    
+    [commandBuffer presentDrawable:self.currentDrawable];
+  }
+  [commandBuffer commit];
+}
+
+@end
+
+#endif

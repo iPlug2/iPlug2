@@ -49,6 +49,7 @@
 #include "IGraphicsUtilities.h"
 #include "IGraphicsPopupMenu.h"
 #include "IGraphicsEditorDelegate.h"
+#include "IGraphicsImGui.h"
 
 #include <stack>
 #include <memory>
@@ -1050,9 +1051,15 @@ public:
   
   /** /todo
    * @param keyHandlerFunc /todo */
-  void SetKeyHandlerFunc(std::function<bool(const IKeyPress& key)> keyHandlerFunc) { mKeyHandlerFunc = keyHandlerFunc; }
+  void SetKeyHandlerFunc(std::function<bool(const IKeyPress& key)> func) { mKeyHandlerFunc = func; }
+
+  /** /todo */
+  void AttachImGui(std::function<void(IGraphics*)> drawFunc, std::function<void()> setupFunc = nullptr);
   
 private:
+  /* /todo */
+  virtual void CreatePlatformImGui() {}
+  
   /** /todo */
   virtual void PlatformResize() {}
   
@@ -1133,7 +1140,7 @@ public:
    @param text The text style to use for the menu
    @param bounds The area that the menu should occupy /todo check */
   void AttachPopupMenuControl(const IText& text = DEFAULT_TEXT, const IRECT& bounds = IRECT());
-  
+
   /** Shows a control to display the frame rate of drawing
    * @param enable \c true to show */
   void ShowFPSDisplay(bool enable);
@@ -1487,5 +1494,9 @@ protected:
   friend class ICornerResizerControl;
   
   std::stack<ILayer*> mLayers;
+  
+#ifdef IGRAPHICS_IMGUI
+public:
+  std::unique_ptr<ImGuiRenderer> mImGuiRenderer;
+#endif
 };
-

@@ -213,9 +213,8 @@ void* IGraphicsMac::OpenWindow(void* pParent)
   CloseWindow();
   mView = (IGRAPHICS_VIEW*) [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
   
-  IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
-  
 #ifndef IGRAPHICS_GL
+  IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
   ContextReady([pView layer]);
 #endif
   
@@ -231,11 +230,21 @@ void IGraphicsMac::CloseWindow()
 {
   if (mView)
   {
-    IGRAPHICS_VIEW* view = (IGRAPHICS_VIEW*) mView;
-    [view removeAllToolTips];
-    [view killTimer];
-    [view removeFromSuperview];
-    [view release];
+#ifdef IGRAPHICS_IMGUI
+    if(mImGuiView)
+    {
+      IGRAPHICS_IMGUIVIEW* pImGuiView = (IGRAPHICS_IMGUIVIEW*) mImGuiView;
+      [pImGuiView removeFromSuperview];
+      [pImGuiView release];
+      mImGuiView = nullptr;
+    }
+#endif
+    
+    IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
+    [pView removeAllToolTips];
+    [pView killTimer];
+    [pView removeFromSuperview];
+    [pView release];
       
     mView = nullptr;
     OnViewDestroyed();
@@ -258,6 +267,12 @@ void IGraphicsMac::PlatformResize()
     [NSAnimationContext beginGrouping]; // Prevent animated resizing
     [[NSAnimationContext currentContext] setDuration:0.0];
     [(IGRAPHICS_VIEW*) mView setFrameSize: size ];
+    
+#ifdef IGRAPHICS_IMGUI
+    if(mImGuiView)
+      [(IGRAPHICS_IMGUIVIEW*) mImGuiView setFrameSize: size ];
+#endif
+    
     [NSAnimationContext endGrouping];
   }  
 }
@@ -699,6 +714,20 @@ bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
     str.Set([pTextOnClipboard UTF8String]);
     return true;
   }
+}
+
+void IGraphicsMac::CreatePlatformImGui()
+{
+#ifdef IGRAPHICS_IMGUI
+  if(mView)
+  {
+    IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
+    
+    IGRAPHICS_IMGUIVIEW* pImGuiView = [[IGRAPHICS_IMGUIVIEW alloc] initWithIGraphicsView:pView];
+    [pView addSubview: pImGuiView];
+    mImGuiView = pImGuiView;
+  }
+#endif
 }
 
 //TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT
