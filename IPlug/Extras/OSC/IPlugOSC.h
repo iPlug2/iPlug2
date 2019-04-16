@@ -21,6 +21,7 @@
 #include <ctime>
 #include <unistd.h>
 #include <functional>
+#include <memory>
 
 #include "jnetlib/jnetlib.h"
 
@@ -249,7 +250,7 @@ public:
   WDL_Queue m_recvq;
 };
 
-WDL_PtrList<IODevice > g_devices;
+WDL_PtrList<IODevice> g_devices;
 
 class OSCReciever;
 
@@ -308,15 +309,15 @@ public:
     
     if (!r)
     {
-      r = new OSCDevice(nullptr, 0, -1, &addr);
-      if (r->m_sendsock == INVALID_SOCKET)
+      std::unique_ptr device(new OSCDevice(nullptr, 0, -1, &addr))
+
+      if (device->m_sendsock == INVALID_SOCKET)
       {
-        delete r;
-        r = nullptr;
         results.AppendFormatted(1024,"\tError listening for '%s:%i'\r\n", buf, port);
       }
       else
       {
+        r = device.release();
         results.AppendFormatted(1024,"\tListening on '%s:%i'\r\n", buf, port);
       }
     }
@@ -355,12 +356,14 @@ public:
     if (!r)
     {
       is_reuse = false;
-      r = new OSCDevice(dp.Get(), 0, -1, nullptr);
-      if (r->m_sendsock == INVALID_SOCKET)
+      std::unique_ptr device(new OSCDevice(dp.Get(), 0, -1, nullptr));
+      if (device->m_sendsock == INVALID_SOCKET)
       {
         results.AppendFormatted(1024,"\tWarning: failed creating destination for output '%s' OSC '%s'\r\n", dp.Get(), dp.Get());
-        delete r;
-        r = nullptr;
+      }
+      else
+      {
+        r = device.release();
       }
     }
     
