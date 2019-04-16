@@ -80,6 +80,7 @@ public:
   tresult PLUGIN_API getState(IBStream* pState) override;
     
   // IEditController
+  tresult PLUGIN_API setParamNormalized(ParamID tag, ParamValue value) override;
   IPlugView* PLUGIN_API createView(const char* name) override;
   tresult PLUGIN_API setEditorState(IBStream* pState) override;
   tresult PLUGIN_API getEditorState(IBStream* pState) override;

@@ -24,10 +24,8 @@
     #endif
   #elif defined OS_IOS
 //    #if defined IGRAPHICS_GLES2
-//      #include <OpenGLES/ES2/gl.h>
 //      #define NANOVG_GLES2_IMPLEMENTATION
 //    #elif defined IGRAPHICS_GLES3
-//      #include <OpenGLES/ES3/gl.h>
 //      #define NANOVG_GLES2_IMPLEMENTATION
 //    #else
 //      #error Define either IGRAPHICS_GLES2 or IGRAPHICS_GLES3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with OS_IOS
@@ -45,19 +43,13 @@
   #elif defined OS_LINUX
     #error NOT IMPLEMENTED
   #elif defined OS_WEB
-    #define GLFW_INCLUDE_GLEXT
     #if defined IGRAPHICS_GLES2
-      #define GLFW_INCLUDE_ES2
       #define NANOVG_GLES2_IMPLEMENTATION
     #elif defined IGRAPHICS_GLES3
       #define NANOVG_GLES3_IMPLEMENTATION
-      #define GLFW_INCLUDE_ES3
     #else
       #error Define either IGRAPHICS_GLES2 or IGRAPHICS_GLES3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with OS_WEB
     #endif
-    #include <GLFW/glfw3.h>
-    GLFWwindow* gWindow;
-    void GLFWError(int error, const char* desc) { DBGMSG("GLFW error %d: %s\n", error, desc); }
   #endif
   #include "nanovg_gl.h"
   #include "nanovg_gl_utils.h"
@@ -71,6 +63,11 @@
   #error you must define either IGRAPHICS_GL2, IGRAPHICS_GLES2 etc or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
 #endif
 
+
+// Fonts
+StaticStorage<IFontData> sFontCache;
+
+// Retrieving pixels
 void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData)
 {
 #if defined(IGRAPHICS_GL)
@@ -89,6 +86,7 @@ void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int
 #endif
 }
 
+// Bitmaps
 NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID)
 {
   assert(nvgImageID > 0);
@@ -140,7 +138,6 @@ NanoVGBitmap::~NanoVGBitmap()
 #pragma mark -
 
 // Utility conversions
-
 inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0)
 {
   NVGcolor c;
@@ -205,10 +202,14 @@ IGraphicsNanoVG::IGraphicsNanoVG(IGEditorDelegate& dlg, int w, int h, int fps, f
 : IGraphicsPathBase(dlg, w, h, fps, scale)
 {
   DBGMSG("IGraphics NanoVG @ %i FPS\n", fps);
+  StaticStorage<IFontData>::Accessor storage(sFontCache);
+  storage.Release();
 }
 
 IGraphicsNanoVG::~IGraphicsNanoVG() 
 {
+  StaticStorage<IFontData>::Accessor storage(sFontCache);
+  storage.Release();
   ClearFBOStack();
 }
 
@@ -364,38 +365,8 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
   }
 }
 
-void IGraphicsNanoVG::SetPlatformContext(void* pContext)
-{
-  mPlatformContext = pContext;
-}
-
 void IGraphicsNanoVG::OnViewInitialized(void* pContext)
 {
-#if defined OS_WEB
-  if (!glfwInit())
-  {
-    DBGMSG("Failed to init GLFW.");
-    return;
-  }
-
-  glfwSetErrorCallback(GLFWError);
-
-  glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-
-  gWindow = glfwCreateWindow(WindowWidth(), WindowHeight(), "NanoVG", NULL, NULL);
-
-  if (!gWindow)
-  {
-    glfwTerminate();
-    return;
-  }
-
-//  glfwSetKeyCallback(gWindow, key);
-  glfwMakeContextCurrent(gWindow);
-#endif // OS_WEB
- 
   int flags = NVG_ANTIALIAS | NVG_STENCIL_STROKES;
   
 #if defined IGRAPHICS_METAL
@@ -404,14 +375,14 @@ void IGraphicsNanoVG::OnViewInitialized(void* pContext)
 #else
   mVG = nvgCreateContext(flags);
 #endif
-  
+
   if (mVG == nullptr)
     DBGMSG("Could not init nanovg.\n");
 }
 
 void IGraphicsNanoVG::OnViewDestroyed()
 {
-  // need to free framebuffers, before deleting context
+  // need to remove all the controls to free framebuffers, before deleting context
   RemoveAllControls();
 
   StaticStorage<APIBitmap>::Accessor storage(mBitmapCache);
@@ -426,10 +397,6 @@ void IGraphicsNanoVG::OnViewDestroyed()
     nvgDeleteContext(mVG);
   
   mVG = nullptr;
-  
-#if defined OS_WEB
-  glfwTerminate();
-#endif
 }
 
 void IGraphicsNanoVG::DrawResize()
@@ -451,18 +418,16 @@ void IGraphicsNanoVG::BeginFrame()
 #ifdef IGRAPHICS_METAL
   //  mnvgClearWithColor(mVG, nvgRGBAf(0, 0, 0, 0));
 #else
-  glViewport(0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  #ifdef OS_WEB
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glEnable(GL_CULL_FACE);
-  glDisable(GL_DEPTH_TEST);
+    glViewport(0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
+    glClearColor(0.f, 0.f, 0.f, 0.f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+  #if defined OS_MAC
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &mInitialFBO); // stash apple fbo
   #endif
 #endif
   
   nvgBindFramebuffer(mMainFrameBuffer); // begin main frame buffer update
+
   nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
 }
 
@@ -470,11 +435,11 @@ void IGraphicsNanoVG::EndFrame()
 {
   nvgEndFrame(mVG); // end main frame buffer update
   nvgBindFramebuffer(nullptr);
-  
+
   nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
 
   NVGpaint img = nvgImagePattern(mVG, 0, 0, WindowWidth(), WindowHeight(), 0, mMainFrameBuffer->image, 1.0f);
-  
+
   nvgSave(mVG);
   nvgResetTransform(mVG);
   nvgBeginPath(mVG);
@@ -483,13 +448,19 @@ void IGraphicsNanoVG::EndFrame()
   nvgFill(mVG);
   nvgRestore(mVG);
   
+#if defined OS_MAC && defined IGRAPHICS_GL
+  glBindFramebuffer(GL_FRAMEBUFFER, mInitialFBO); // restore apple fbo
+#endif
+
   nvgEndFrame(mVG);
+
+#if defined IGRAPHICS_IMGUI && defined IGRAPHICS_GL
+  if(mImGuiRenderer)
+    mImGuiRenderer->NewFrame();
+#endif
+  
   mInDraw = false;
   ClearFBOStack();
-    
-#if defined OS_WEB
-  glEnable(GL_DEPTH_TEST);
-#endif
 }
 
 void IGraphicsNanoVG::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
@@ -499,15 +470,13 @@ void IGraphicsNanoVG::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int s
   assert(pAPIBitmap);
     
   // First generate a scaled image paint
-    
   NVGpaint imgPaint;
   double scale = 1.0 / (pAPIBitmap->GetScale() * pAPIBitmap->GetDrawScale());
 
   nvgTransformScale(imgPaint.xform, scale, scale);
 
-  scale *= GetScreenScale();
-  imgPaint.xform[4] = dest.L - (srcX * scale);
-  imgPaint.xform[5] = dest.T - (srcY * scale);
+  imgPaint.xform[4] = dest.L - srcX;
+  imgPaint.xform[5] = dest.T - srcY;
   imgPaint.extent[0] = bitmap.W() * bitmap.GetScale();
   imgPaint.extent[1] = bitmap.H() * bitmap.GetScale();
   imgPaint.image = pAPIBitmap->GetBitmap();
@@ -562,7 +531,7 @@ IColor IGraphicsNanoVG::GetPoint(int x, int y)
 
 bool IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
-  assert(nvgFindFont(mVG, text.mFont) != -1); // did you forget to LoadFont for this font name?
+  assert(nvgFindFont(mVG, text.mFont) != -1); // did you forget to LoadFont for this font?
   
   nvgFontBlur(mVG, 0);
   nvgFontSize(mVG, text.mSize);
@@ -604,7 +573,7 @@ bool IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IREC
     r.L = fbounds[0]; r.T = fbounds[1]; r.R = fbounds[2]; r.B = fbounds[3];
   };
   
-  if(measure)
+  if (measure)
   {
     calcTextBounds(bounds);
     return true;
@@ -686,41 +655,23 @@ void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& opti
     nvgBeginPath(mVG); // Clears the path state
 }
 
-bool IGraphicsNanoVG::LoadFont(const char* fileName)
+bool IGraphicsNanoVG::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 {
-  // does not check for existing fonts
-  WDL_String fontNameWithoutExt(fileName, (int) strlen(fileName));
-  fontNameWithoutExt.remove_fileext();
-  WDL_String fullPath;
-  EResourceLocation foundResource = LocateResource(fileName, "ttf", fullPath, GetBundleID(), GetWinModuleHandle());
- 
-  if (foundResource != EResourceLocation::kNotFound)
+  StaticStorage<IFontData>::Accessor storage(sFontCache);
+  IFontData* cached = storage.Find(fontID);
+    
+  if (cached)
   {
-    int fontID = -1;
+    nvgCreateFontFaceMem(mVG, fontID, cached->Get(), cached->GetSize(), cached->GetFaceIdx(), 0);
+    return true;
+  }
+    
+  IFontDataPtr data = font->GetFontData();
 
-#ifdef OS_WIN
-    if(foundResource == EResourceLocation::kWinBinary)
-    {
-      int sizeInBytes = 0;
-      const void* pResData = LoadWinResource(fullPath.Get(), "ttf", sizeInBytes, GetWinModuleHandle());
-
-      if(pResData && sizeInBytes)
-        fontID = nvgCreateFontMem(mVG, fontNameWithoutExt.Get(), (unsigned char*) pResData, sizeInBytes, 0 /* ?? */);
-
-      if(fontID == -1)
-        return false;
-    }
-    else
-#endif
-    fontID = nvgCreateFont(mVG, fontNameWithoutExt.Get(), fullPath.Get());
-
-    if (fontID == -1)
-    {
-      DBGMSG("Could not locate font %s\n", fileName);
-      return false;
-    }
-    else
-      return true;
+  if (data->IsValid() && nvgCreateFontFaceMem(mVG, fontID, data->Get(), data->GetSize(), data->GetFaceIdx(), 0) != -1)
+  {
+    storage.Add(data.release(), fontID);
+    return true;
   }
 
   return false;

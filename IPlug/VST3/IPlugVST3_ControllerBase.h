@@ -18,6 +18,7 @@
 using namespace Steinberg;
 using namespace Vst;
 
+/** Shared VST3 controller code */
 class IPlugVST3ControllerBase
 {
 public:
@@ -119,6 +120,40 @@ public:
      }
      */
   }
+  
+  void PLUGIN_API setParamNormalized(IPlugAPIBase* pPlug, ParamID tag, ParamValue value)
+  {
+    if (tag >= kBypassParam)
+    {
+      switch (tag)
+      {
+//        case kBypassParam:
+//        {
+//          break;
+//        }
+        case kPresetParam:
+        {
+          pPlug->RestorePreset(pPlug->NPresets() * value);
+          
+          break;
+        }
+        default:
+          break;
+      }
+    }
+    else
+    {
+      IParam* pParam = pPlug->GetParam(tag);
+      
+      if (pParam)
+      {
+        pParam->SetNormalized(value);
+        pPlug->OnParamChangeUI(tag, kHost);
+        pPlug->SendParameterValueFromAPI(tag, value, true);
+      }
+    }
+  }
+  
 public:
   IPlugVST3BypassParameter* mBypassParameter = nullptr;
 };

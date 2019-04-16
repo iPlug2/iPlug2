@@ -8,8 +8,6 @@
  ==============================================================================
 */
 
-#ifndef NO_IGRAPHICS
-
 #import <UIKit/UIKit.h>
 #include "IGraphicsIOS.h"
 
@@ -38,4 +36,14 @@ inline CGRect ToCGRect(IGraphics* pGraphics, const IRECT& bounds)
 
 @end
 
-#endif //NO_IGRAPHICS
+#ifdef IGRAPHICS_IMGUI
+#import <MetalKit/MetalKit.h>
+
+@interface IGRAPHICS_IMGUIVIEW : MTKView
+{
+  IGraphicsIOS_View* mView; // OBJC instance variables have to be pointers
+}
+@property (nonatomic, strong) id <MTLCommandQueue> commandQueue;
+- (id) initWithIGraphicsView: (IGraphicsIOS_View*) pView;
+@end
+#endif

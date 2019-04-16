@@ -10,8 +10,6 @@
 
 #pragma once
 
-#ifndef NO_IGRAPHICS
-
 #include "IGraphics_select.h"
 
 /** IGraphics platform class for linux
@@ -51,5 +49,3 @@ protected:
   IPopupMenu* CreatePlatformPopupMenu(const IPopupMenu& menu, IRECT& bounds) override;
   void CreatePlatformTextEntry(IControl* pControl, const IText& text, const IRECT& bounds, const char* str) override;
 }
-
-#endif // NO_IGRAPHICS

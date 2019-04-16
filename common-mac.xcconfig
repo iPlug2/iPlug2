@@ -11,7 +11,7 @@ BASE_SDK_MAC = macosx // latest SDK
 CLANG_CXX_LANGUAGE_STANDARD = c++11
 CLANG_CXX_LIBRARY = libc++
 
-CLANG_WARN_DOCUMENTATION_COMMENTS = YES
+CLANG_WARN_DOCUMENTATION_COMMENTS = NO
 
 // the minimum OS to support
 MACOSX_DEPLOYMENT_TARGET = 10.11
@@ -69,6 +69,7 @@ EXTRAS_PATH = $(IPLUG_PATH)/Extras
 JSON11_PATH = $(DEPS_PATH)/Extras/json11
 YOGA_PATH = $(DEPS_PATH)/IGraphics/yoga/yoga
 PUGL_PATH = $(DEPS_PATH)/Extras/pugl
+IMGUI_PATH = $(DEPS_PATH)/IGraphics/imgui
 
 //faust is linked as a dynamic library
 FAUST_LIB_PATHS = $(BUILT_LIBS_LIB_PATH)
@@ -90,6 +91,8 @@ REAPER_SDK = $(DEPS_PATH)/IPlug/Reaper
 // this build setting is included at the xcode project level, since we need all these include paths
 IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(SWELL_PATH) $(SWELL_FOR_IPLUG_PATH) $(IPLUG_PATH) $(EXTRAS_INC_PATHS)
 
+IMGUI_INC_PATHS = $(IMGUI_PATH) $(IMGUI_PATH)/examples
+
 IGRAPHICS_PATH = $(ROOT)/IGraphics
 
 // IGraphics dependencies
@@ -103,7 +106,7 @@ STB_PATH = $(DEPS_PATH)/IGraphics/STB
 FT_PATH = $(BUILT_LIBS_INC_PATH)/freetype2
 
 // you can optionally include this build setting, by adding it to EXTRA_INC_PATHS in MyProject.xcconfig in order to get all varieties of IGraphics support
-IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(IGRAPHICS_PATH)/Controls $(IGRAPHICS_PATH)/Platforms $(IGRAPHICS_PATH)/Drawing $(LICE_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(AGG_PATH) $(BUILT_LIBS_INC_PATH) $(FT_PATH) $(STB_PATH)
+IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(IGRAPHICS_PATH)/Controls $(IGRAPHICS_PATH)/Platforms $(IGRAPHICS_PATH)/Drawing $(IGRAPHICS_PATH)/Extras $(LICE_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(AGG_PATH) $(BUILT_LIBS_INC_PATH) $(FT_PATH) $(STB_PATH) $(IMGUI_INC_PATHS)//$(HB_PATH)
 
 // *****  LINKER/LIBRARY INCLUDE PATHS AND LINKER FLAGS
 
@@ -118,7 +121,7 @@ LIB_CIVET = $(BUILT_LIBS_LIB_PATH)/libcivetweb.a
 // you can optionally include this build setting, by adding it to EXTRA_LIB_PATHS, in order to get all varieties of IGraphics support
 IGRAPHICS_LNK_FLAGS = $(LIB_CAIRO) $(LIB_FT) $(LIB_PIXMAN) $(LIB_PNG) $(LIB_Z)
 
-ALL_FRAMEWORKS = -framework Cocoa -framework Carbon -framework CoreFoundation -framework CoreData -framework Foundation -framework CoreServices -framework Metal -framework QuartzCore -framework WebKit -framework OpenGL
+ALL_FRAMEWORKS = -framework Cocoa -framework Carbon -framework CoreFoundation -framework CoreData -framework Foundation -framework CoreServices -framework Metal -framework MetalKit -framework QuartzCore -framework WebKit -framework OpenGL
 APP_FRAMEWORKS = -framework AppKit -framework CoreMidi -framework CoreAudio
 AU_FRAMEWORKS = -framework AudioToolbox -framework AudioUnit -framework CoreAudio -framework CoreMidi
 AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework CoreAudio -framework CoreAudioKit

@@ -19,7 +19,7 @@
 using namespace Steinberg;
 using namespace Vst;
 
-// State
+/** Shared VST3 State management code */
 struct IPlugVST3State
 {
   template <class T>

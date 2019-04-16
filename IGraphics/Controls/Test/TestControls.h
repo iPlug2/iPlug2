@@ -21,6 +21,7 @@
 #include "TestMultiPathControl.h"
 #include "TestPolyControl.h"
 #include "TestTextControl.h"
+#include "TestFontControl.h"
 #include "TestAnimationControl.h"
 #include "TestDrawContextControl.h"
 #include "TestSizeControl.h"
@@ -32,6 +33,8 @@
 #include "TestKeyboardControl.h"
 #include "TestRotatingMaskControl.h"
 #include "TestShadowGradientControl.h"
+#include "TestGLControl.h"
 #ifdef IGRAPHICS_METAL
 #include "TestMPSControl.h"
 #endif
+
