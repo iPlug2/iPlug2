@@ -261,16 +261,16 @@ public:
   {
     JNL::open_socketlib();
     
-    if(mTimer == nullptr)
-      mTimer = Timer::Create(std::bind(&OSCInterface::OnTimer, this, std::placeholders::_1), updateRateMs);
+    if(!mTimer)
+      mTimer.reset(Timer::Create(std::bind(&OSCInterface::OnTimer, this, std::placeholders::_1), updateRateMs));
+      
+    sInstances++;
   }
   
   virtual ~OSCInterface()
   {
-    if(mTimer != nullptr)
-      delete mTimer;
-    
-    mTimer = nullptr;
+    if (--sInstances == 0)
+      mTimer.reset(nullptr);
   }
   
   static void MessageCallback(void *d1, int dev_idx, char type, int msglen, void *msg);
@@ -455,7 +455,8 @@ private:
   // these are non-owned refs
   WDL_PtrList<IODevice> m_devs;
 protected:
-  static Timer* mTimer;
+  static std::unique_ptr<Timer> mTimer;
+  static int sInstances;
   WDL_FastString results;
   std::function<void()> mInputProc = nullptr;
   std::function<void()> mOutputProc = nullptr;
@@ -464,7 +465,8 @@ protected:
   static const int DEVICE_INDEX_BASE = 0x400000;
 };
 
-Timer* OSCInterface::mTimer = nullptr;
+std::unique_ptr<Timer> OSCInterface::mTimer;
+int OSCInterface::sInstances = 0;
 
 class OSCSender : public OSCInterface
 {
