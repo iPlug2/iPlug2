@@ -7,8 +7,10 @@ IPlugMidiEffect::IPlugMidiEffect(IPlugInstanceInfo instanceInfo)
 {
   GetParam(kParamGain)->InitDouble("Gain", 100., 0., 100.0, 0.01, "%");
   
+#if IPLUG_DSP
   SetTailSize(4410000);
-
+#endif
+  
 #if IPLUG_EDITOR // All UI methods and member variables should be within an IPLUG_EDITOR guard, should you want distributed UI
   mMakeGraphicsFunc = [&]() {
     return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, 1.);
