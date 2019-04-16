@@ -24,10 +24,8 @@
     #endif
   #elif defined OS_IOS
 //    #if defined IGRAPHICS_GLES2
-//      #include <OpenGLES/ES2/gl.h>
 //      #define NANOVG_GLES2_IMPLEMENTATION
 //    #elif defined IGRAPHICS_GLES3
-//      #include <OpenGLES/ES3/gl.h>
 //      #define NANOVG_GLES2_IMPLEMENTATION
 //    #else
 //      #error Define either IGRAPHICS_GLES2 or IGRAPHICS_GLES3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with OS_IOS
@@ -52,9 +50,6 @@
     #else
       #error Define either IGRAPHICS_GLES2 or IGRAPHICS_GLES3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with OS_WEB
     #endif
-  #endif
-  #if defined IGRAPHICS_GL3
-    #include <OpenGL/gl3.h>
   #endif
   #include "nanovg_gl.h"
   #include "nanovg_gl_utils.h"
