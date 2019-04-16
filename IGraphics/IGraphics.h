@@ -49,7 +49,10 @@
 #include "IGraphicsUtilities.h"
 #include "IGraphicsPopupMenu.h"
 #include "IGraphicsEditorDelegate.h"
+
+#ifdef IGRAPHICS_IMGUI
 #include "IGraphicsImGui.h"
+#endif
 
 #include <stack>
 #include <memory>
