@@ -22,6 +22,14 @@ steps:
 
 - template: ${{parameters.platform}}
   parameters:
+    name: IPlugMidiEffect
+    path: 'Examples'
+    graphics: ${{parameters.graphics}}
+    artifactName: IPlugMidiEffect_${{parameters.graphics}}
+    platformStr: ${{parameters.platformStr}}
+
+- template: ${{parameters.platform}}
+  parameters:
     name: IPlugControls
     path: 'Examples'
     graphics: ${{parameters.graphics}}
