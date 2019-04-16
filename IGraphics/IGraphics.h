@@ -1271,6 +1271,12 @@ public:
    * @return \c true if handled \todo check this */
   bool OnKeyDown(float x, float y, const IKeyPress& key);
 
+  /** @param x The X coordinate in the graphics context of the mouse cursor at the time of the key press
+   * @param y The Y coordinate in the graphics context of the mouse cursor at the time of the key press
+   * @param key \todo
+   * @return \c true if handled \todo check this */
+  bool OnKeyUp(float x, float y, const IKeyPress& key);
+  
   /** @param x The X coordinate in the graphics context at which to draw
    * @param y The Y coordinate in the graphics context at which to draw
    * @param mod IMouseMod struct contain information about the modifiers held

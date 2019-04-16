@@ -900,8 +900,8 @@ void IGraphics::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
 
 bool IGraphics::OnKeyDown(float x, float y, const IKeyPress& key)
 {
-  Trace("IGraphics::OnKeyDown", __LINE__, "x:%0.2f, y:%0.2f, key:%i",
-        x, y, key.Ascii);
+  Trace("IGraphics::OnKeyDown", __LINE__, "x:%0.2f, y:%0.2f, key:%s",
+        x, y, key.utf8);
 
   bool handled = false;
 
@@ -910,6 +910,25 @@ bool IGraphics::OnKeyDown(float x, float y, const IKeyPress& key)
   if (pControl && pControl != GetControl(0))
     handled = pControl->OnKeyDown(x, y, key);
 
+  if(!handled)
+    handled = mKeyHandlerFunc ? mKeyHandlerFunc(key) : false;
+  
+  return handled;
+}
+
+bool IGraphics::OnKeyUp(float x, float y, const IKeyPress& key)
+{
+  Trace("IGraphics::OnKeyUp", __LINE__, "x:%0.2f, y:%0.2f, key:%s",
+        x, y, key.utf8);
+  
+  bool handled = false;
+  
+  
+  IControl* pControl = GetMouseControl(x, y, false);
+  
+  if (pControl && pControl != GetControl(0))
+    handled = pControl->OnKeyUp(x, y, key);
+  
   if(!handled)
     handled = mKeyHandlerFunc ? mKeyHandlerFunc(key) : false;
   
@@ -1530,14 +1549,12 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
     kernel.Get()[i] = static_cast<uint8_t>(std::round(255.f * std::expf(-(i * i) * blurConst)));
   
   // Kernel normalisation
-  
   int normFactor = kernel.Get()[0];
     
   for (int i = 1; i < iSize; i++)
     normFactor += kernel.Get()[i] + kernel.Get()[i];
   
   // Do blur
-  
   unsigned char* asRows = temp1.Get() + AlphaChannel();
   unsigned char* inRows = flipped ? asRows + stride3 * (height - 1) : asRows;
   unsigned char* asCols = temp2.Get() + AlphaChannel();
@@ -1546,7 +1563,6 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
   GaussianBlurSwap(asRows, asCols, kernel.Get(), height, width, stride3, stride1, iSize, normFactor);
   
   // Apply alphas to the pattern and recombine/replace the image
-    
   ApplyShadowMask(layer, temp1, shadow);
 }
 
