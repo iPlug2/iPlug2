@@ -1656,20 +1656,21 @@ struct IRECT
 struct IKeyPress
 {
   int VK; // Windows VK_XXX
-  char Ascii;
+  char utf8[5] = {0}; // UTF8 key
   bool S, C, A; // SHIFT / CTRL(WIN) or CMD (MAC) / ALT
   
   /** /todo 
-   * @param ascii /todo
+   * @param unichar /todo
    * @param vk /todo
    * @param s /todo
    * @param c /todo
    * @param a /todo */
-  IKeyPress(char ascii, int vk, bool s = false, bool c = false, bool a = false)
+  IKeyPress(const char* _utf8, int vk, bool s = false, bool c = false, bool a = false)
   : VK(vk)
-  , Ascii(ascii)
   , S(s), C(c), A(a)
-  {}
+  {
+    strcpy(utf8, _utf8);
+  }
 };
 
 /** Used to manage mouse modifiers i.e. right click and shift/control/alt keys. */

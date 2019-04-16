@@ -189,6 +189,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   {
     return DefWindowProc(hWnd, msg, wParam, lParam);
   }
+
   if (pGraphics->mParamEditWnd && pGraphics->mParamEditMsg == kEditing)
   {
     if (msg == WM_RBUTTONDOWN || (msg == WM_LBUTTONDOWN))
@@ -394,43 +395,45 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     case WM_GETDLGCODE:
       return DLGC_WANTALLKEYS;
     case WM_KEYDOWN:
+    case WM_KEYUP:
     {
       POINT p;
       GetCursorPos(&p);
       ScreenToClient(hWnd, &p);
 
-      BYTE keyboardState[256];
+      BYTE keyboardState[256] = {};
       GetKeyboardState(keyboardState);
       const int keyboardScanCode = (lParam >> 16) & 0x00ff;
-      WORD ascii = 0;
-      const int len = ToAscii(wParam, keyboardScanCode, keyboardState, &ascii, 0);
-
+      WORD character = 0;
+      const int len = ToAscii(wParam, keyboardScanCode, keyboardState, &character, 0);
+      // TODO: should get unicode?
       bool handle = false;
 
       if (len == 1)
       {
-        IKeyPress keyPress{ static_cast<char>(ascii), static_cast<int>(wParam),
+        char str[2];
+        str[0] = static_cast<char>(character);
+        str[1] = '\0';
+          
+        IKeyPress keyPress{ str, static_cast<int>(wParam),
                             static_cast<bool>(GetKeyState(VK_SHIFT) & 0x8000),
                             static_cast<bool>(GetKeyState(VK_CONTROL) & 0x8000),
                             static_cast<bool>(GetKeyState(VK_MENU) & 0x8000) };
 
-        handle = pGraphics->OnKeyDown(p.x, p.y, keyPress);
+        if(msg == WM_KEYDOWN)
+          handle = pGraphics->OnKeyDown(p.x, p.y, keyPress);
+        else
+          handle = pGraphics->OnKeyUp(p.x, p.y, keyPress);
       }
 
       if (!handle)
       {
         HWND rootHWnd = GetAncestor( hWnd, GA_ROOT);
-        SendMessage(rootHWnd, WM_KEYDOWN, wParam, lParam);
+        SendMessage(rootHWnd, msg, wParam, lParam);
         return DefWindowProc(hWnd, msg, wParam, lParam);
       }
       else
         return 0;
-    }
-    case WM_KEYUP:
-    {
-      HWND rootHWnd = GetAncestor(hWnd, GA_ROOT);
-      SendMessage(rootHWnd, msg, wParam, lParam);
-      return DefWindowProc(hWnd, msg, wParam, lParam);
     }
     case WM_PAINT:
     {

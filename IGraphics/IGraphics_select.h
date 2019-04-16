@@ -75,3 +75,7 @@
     #error NO IGRAPHICS_MODE defined
   #endif
 #endif
+
+#if defined IGRAPHICS_IMGUI
+  #include "imgui.h"
+#endif
