@@ -24,9 +24,9 @@ const IColor IVKeyboardControl::DEFAULT_PK_COLOR = IColor(60, 0, 0, 0);
 const IColor IVKeyboardControl::DEFAULT_FR_COLOR = DEFAULT_BK_COLOR;
 
 IVButtonControl::IVButtonControl(IRECT bounds, IActionFunction actionFunc,
-  const char* str, const IText& text, const IVColorSpec& colorSpec)
+  const char* str, const IText& text, const IVColorSpec& colorSpec, const IVStyle& style)
 : IButtonControlBase(bounds, actionFunc)
-, IVectorBase(colorSpec)
+, IVectorBase(colorSpec, style)
 {
   AttachIControl(this);
   mDblAsSingleClick = true;
@@ -43,9 +43,9 @@ void IVButtonControl::Draw(IGraphics& g)
 }
 
 IVTriangleButtonControl::IVTriangleButtonControl(IRECT bounds, IActionFunction actionFunc,
-    float angle, const IVColorSpec& colorSpec)
+    float angle, const IVColorSpec& colorSpec, const IVStyle& style)
   : IButtonControlBase(bounds, actionFunc)
-  , IVectorBase(colorSpec)
+  , IVectorBase(colorSpec, style)
   , mAngle(angle)
 {
   AttachIControl(this);

@@ -37,7 +37,7 @@ class IVButtonControl : public IButtonControlBase
 {
 public:
   IVButtonControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc,
-    const char* str = "", const IText& text = DEFAULT_TEXT, const IVColorSpec& colorSpec = DEFAULT_SPEC);
+    const char* str = "", const IText& text = DEFAULT_TEXT, const IVColorSpec& colorSpec = DEFAULT_SPEC, const IVStyle& style = DEFAULT_STYLE);
 
   void Draw(IGraphics& g) override;
 
@@ -50,7 +50,7 @@ class IVTriangleButtonControl : public IButtonControlBase
                               , public IVectorBase
 {
 public:
-  IVTriangleButtonControl(IRECT bounds, IActionFunction actionFunc = DefaultClickActionFunc, float angle = 0.0f, const IVColorSpec& colorSpec = DEFAULT_SPEC);
+  IVTriangleButtonControl(IRECT bounds, IActionFunction actionFunc = DefaultClickActionFunc, float angle = 0.0f, const IVColorSpec& colorSpec = DEFAULT_SPEC, const IVStyle& style = DEFAULT_STYLE);
 
   virtual void Draw(IGraphics& g) override;
 

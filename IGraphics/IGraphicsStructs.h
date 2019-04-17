@@ -460,6 +460,26 @@ struct IVColorSpec
 
 const IVColorSpec DEFAULT_SPEC = IVColorSpec();
 
+const bool DEFAULT_DRAW_FRAME = true;
+const bool DEFAULT_DRAW_SHADOWS = true;
+const bool DEFAULT_EMBOSS = false;
+const float DEFAULT_ROUNDNESS = 0.f;
+const float DEFAULT_FRAME_THICKNESS = 2.f;
+const float DEFAULT_SHADOW_OFFSET = 3.f;
+
+/** Defines a style used to theme IVControls */
+struct IVStyle
+{
+  bool mDrawFrame = DEFAULT_DRAW_FRAME;
+  bool mDrawShadows = DEFAULT_DRAW_SHADOWS;
+  bool mEmboss = DEFAULT_EMBOSS;
+  float mRoundness = DEFAULT_ROUNDNESS;
+  float mFrameThickness = DEFAULT_FRAME_THICKNESS;
+  float mShadowOffset = DEFAULT_SHADOW_OFFSET;
+};
+
+const IVStyle DEFAULT_STYLE = IVStyle();
+
 /** Used to manage composite/blend operations, independent of draw class/platform */
 struct IBlend
 {

@@ -505,6 +505,7 @@ protected:
 class IVectorBase
 {
 public:
+
   IVectorBase(const IColor* pBGColor = &DEFAULT_BGCOLOR,
               const IColor* pFGColor = &DEFAULT_FGCOLOR,
               const IColor* pPRColor = &DEFAULT_PRCOLOR,
@@ -519,20 +520,25 @@ public:
     AddColors(pBGColor, pFGColor, pPRColor, pRCColor, pFRColor, pHLColor, pSHColor, pX1Color, pX2Color, pX3Color);
   }
 
-  IVectorBase(const IVColorSpec& spec)
+  IVectorBase(const IVColorSpec& spec, const IVStyle& style)
   {
     AddColors(&spec.mBGColor,
-              &spec.mFGColor,
-              &spec.mPRColor,
-              &spec.mRCColor,
-              &spec.mFRColor,
-              &spec.mHLColor,
-              &spec.mSHColor,
-              &spec.mX1Color,
-              &spec.mX2Color,
-              &spec.mX3Color);
+      &spec.mFGColor,
+      &spec.mPRColor,
+      &spec.mRCColor,
+      &spec.mFRColor,
+      &spec.mHLColor,
+      &spec.mSHColor,
+      &spec.mX1Color,
+      &spec.mX2Color,
+      &spec.mX3Color);
+
+    SetStyle(style);
   }
-  
+
+  IVectorBase(const IVColorSpec& spec) : IVectorBase(spec, DEFAULT_STYLE) {}
+  IVectorBase(const IVStyle& style) : IVectorBase(DEFAULT_SPEC, style) {}
+
   void AttachIControl(IControl* pControl) { mControl = pControl; }
   
   void AddColor(const IColor& color)
@@ -567,8 +573,9 @@ public:
   {
     if(colorIdx < mColors.GetSize())
       mColors.Get()[colorIdx] = color;
-    
-    mControl->SetDirty(false);
+
+    if(mControl)
+      mControl->SetDirty(false);
   }
   
   void SetColors(const IColor& BGColor,
@@ -617,7 +624,20 @@ public:
     else
       return mColors.Get()[0];
   }
-  
+
+  void SetStyle(const IVStyle& style)
+  {
+    mRoundness = Clip(style.mRoundness, 0.f, 1.f);
+    mDrawFrame = style.mDrawFrame;
+    mDrawShadows = style.mDrawShadows;
+    mEmboss = style.mEmboss;
+    mShadowOffset = style.mShadowOffset;
+    mFrameThickness = style.mFrameThickness;
+
+    if(mControl)
+      mControl->SetDirty(false);
+  }
+
   void SetRoundness(float roundness) { mRoundness = Clip(roundness, 0.f, 1.f); mControl->SetDirty(false); }
   void SetDrawFrame(bool draw) { mDrawFrame = draw; mControl->SetDirty(false); }
   void SetDrawShadows(bool draw) { mDrawShadows = draw; mControl->SetDirty(false); }
@@ -626,6 +646,7 @@ public:
   void SetFrameThickness(float thickness) { mFrameThickness = thickness; mControl->SetDirty(false); }
   void SetSplashRadius(float radius) { mSplashRadius = radius * mMaxSplashRadius; }
 
+  // NB(@drakfluga): Deprecate this?
   void Style(bool drawFrame, bool drawShadows, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec)
   {
     mDrawFrame = drawFrame;
@@ -660,7 +681,7 @@ public:
     g.FillRect(GetColor(kBG), bounds);
     
     IRECT handleBounds = GetAdjustedHandleBounds(bounds);
-    const float cornerRadius = mRoundness * (handleBounds.W() / 2.f);
+    const float cornerRadius = mRoundness * (handleBounds.GetLengthOfShortestSide() / 2.f);
     
     if (pressed)
     {
