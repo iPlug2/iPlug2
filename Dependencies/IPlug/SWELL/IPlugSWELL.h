@@ -26,3 +26,6 @@
 #ifdef Polygon
 #undef Polygon
 #endif
+#ifdef SetCursorPos
+#undef SetCursorPos
+#endif

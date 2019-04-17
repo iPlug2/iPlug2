@@ -16,7 +16,7 @@
 *   @ingroup PlatformClasses */
 class IGraphicsIOS final : public IGRAPHICS_DRAW_CLASS
 {
-public:
+public:  
   IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   virtual ~IGraphicsIOS();
   
@@ -50,11 +50,19 @@ public:
   
   bool GetTextFromClipboard(WDL_String& str) override;
 
+  void CreatePlatformImGui() override;
+
 protected:
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
+  void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override;
+  
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
 
 private:
   void* mView = nullptr;
+  void* mImGuiView = nullptr;
+
   WDL_String mBundleID;
 };

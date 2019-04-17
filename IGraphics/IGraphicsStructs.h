@@ -852,8 +852,35 @@ private:
   int16_t mLineHeight;
 };
 
-/** Used to manage a rectangular area, independent of draw class/platform.
+/** /todo */
+class PlatformFont
+{
+public:
+  virtual ~PlatformFont() {}
+  virtual const void* GetDescriptor() { return nullptr; }
+  virtual IFontDataPtr GetFontData() { return IFontDataPtr(new IFontData()); }
+  
+protected:
+  int GetFaceIdx(const void* data, int dataSize, const char* styleName)
+  {
+    for (int idx = 0; ; idx++)
+    {
+      IFontInfo fontInfo(data, dataSize, idx);
+      
+      if (!fontInfo.IsValid())
+      return -1;
+      
+      const WDL_String& style = fontInfo.GetStyle();
+      
+      if (style.GetLength() && (!styleName[0] || !strcmp(style.Get(), styleName)))
+      return idx;
+    }
+  }
+};
 
+typedef std::unique_ptr<PlatformFont> PlatformFontPtr;
+
+/** Used to manage a rectangular area, independent of draw class/platform.
  * An IRECT is always specified in 1:1 pixels, any scaling for high DPI happens in the drawing class.
  * In IGraphics 0,0 is top left. */
 struct IRECT
@@ -1669,20 +1696,21 @@ struct IRECT
 struct IKeyPress
 {
   int VK; // Windows VK_XXX
-  char Ascii;
+  char utf8[5] = {0}; // UTF8 key
   bool S, C, A; // SHIFT / CTRL(WIN) or CMD (MAC) / ALT
   
   /** /todo 
-   * @param ascii /todo
+   * @param unichar /todo
    * @param vk /todo
    * @param s /todo
    * @param c /todo
    * @param a /todo */
-  IKeyPress(char ascii, int vk, bool s = false, bool c = false, bool a = false)
+  IKeyPress(const char* _utf8, int vk, bool s = false, bool c = false, bool a = false)
   : VK(vk)
-  , Ascii(ascii)
   , S(s), C(c), A(a)
-  {}
+  {
+    strcpy(utf8, _utf8);
+  }
 };
 
 /** Used to manage mouse modifiers i.e. right click and shift/control/alt keys. */

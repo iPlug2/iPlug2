@@ -100,6 +100,12 @@ public:
    * @param key \todo */
   virtual bool OnKeyDown(float x, float y, const IKeyPress& key) { return false; }
 
+  /** Implement this method to respond to a key up event on this control.
+   * @param x The X coordinate of the mouse at the time of this key down event
+   * @param y The Y coordinate of the mouse at the time of this key down event
+   * @param key \todo */
+  virtual bool OnKeyUp(float x, float y, const IKeyPress& key) { return false; }
+  
   /** Implement this method to respond to a mouseover event on this control. Implementations should call base class, if you wish to use mMouseIsOver.
    * @param x The X coordinate of the mouse event
    * @param y The Y coordinate of the mouse event

@@ -1,4 +1,4 @@
-# iPlug 2 - C++ Audio Plug-in Framework
+# iPlug 2 - C++ Audio Plug-in Framework for desktop and web
 
 [![Build Status](https://dev.azure.com/iplug2/iplug2/_apis/build/status/iPlug2?branchName=master)](https://dev.azure.com/iplug2/iplug2/_build/latest?definitionId=2?branchName=master)
 

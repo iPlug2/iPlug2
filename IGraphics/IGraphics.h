@@ -50,6 +50,10 @@
 #include "IGraphicsPopupMenu.h"
 #include "IGraphicsEditorDelegate.h"
 
+#ifdef IGRAPHICS_IMGUI
+#include "IGraphicsImGui.h"
+#endif
+
 #include <stack>
 #include <memory>
 
@@ -74,22 +78,6 @@ class IGraphics
 : public IPlugAAXView_Interface
 #endif
 {
-protected:
-
-  class PlatformFont
-  {
-  public:
-    virtual ~PlatformFont() {}
-
-    virtual const void* GetDescriptor() { return nullptr; }
-    virtual IFontDataPtr GetFontData() { return IFontDataPtr(new IFontData()); }
-
-  protected:
-    int GetFaceIdx(const void* data, int dataSize, const char* styleName);
-  };
-
-  typedef std::unique_ptr<PlatformFont> PlatformFontPtr;
-    
 public:
 #pragma mark - Drawing API implementation
 
@@ -817,8 +805,6 @@ public:
    * @param str The text to display in the dialog box e.g. "Please choose a color..."
    * @return /true if prompt completed successfully */
   virtual bool PromptForColor(IColor& color, const char* str = "") = 0;
-  
-  virtual void CreateWebView(const IRECT& bounds, const char* url) {};
 
   /** Open a URL in the platform’s default browser
    * @param url CString specifying the URL to open
@@ -1050,9 +1036,15 @@ public:
   
   /** /todo
    * @param keyHandlerFunc /todo */
-  void SetKeyHandlerFunc(std::function<bool(const IKeyPress& key)> keyHandlerFunc) { mKeyHandlerFunc = keyHandlerFunc; }
+  void SetKeyHandlerFunc(std::function<bool(const IKeyPress& key)> func) { mKeyHandlerFunc = func; }
+
+  /** /todo */
+  void AttachImGui(std::function<void(IGraphics*)> drawFunc, std::function<void()> setupFunc = nullptr);
   
 private:
+  /* /todo */
+  virtual void CreatePlatformImGui() {}
+  
   /** /todo */
   virtual void PlatformResize() {}
   
@@ -1133,7 +1125,7 @@ public:
    @param text The text style to use for the menu
    @param bounds The area that the menu should occupy /todo check */
   void AttachPopupMenuControl(const IText& text = DEFAULT_TEXT, const IRECT& bounds = IRECT());
-  
+
   /** Shows a control to display the frame rate of drawing
    * @param enable \c true to show */
   void ShowFPSDisplay(bool enable);
@@ -1271,6 +1263,12 @@ public:
    * @return \c true if handled \todo check this */
   bool OnKeyDown(float x, float y, const IKeyPress& key);
 
+  /** @param x The X coordinate in the graphics context of the mouse cursor at the time of the key press
+   * @param y The Y coordinate in the graphics context of the mouse cursor at the time of the key press
+   * @param key \todo
+   * @return \c true if handled \todo check this */
+  bool OnKeyUp(float x, float y, const IKeyPress& key);
+  
   /** @param x The X coordinate in the graphics context at which to draw
    * @param y The Y coordinate in the graphics context at which to draw
    * @param mod IMouseMod struct contain information about the modifiers held
@@ -1481,5 +1479,9 @@ protected:
   friend class ICornerResizerControl;
   
   std::stack<ILayer*> mLayers;
+  
+#ifdef IGRAPHICS_IMGUI
+public:
+  std::unique_ptr<ImGuiRenderer> mImGuiRenderer;
+#endif
 };
-

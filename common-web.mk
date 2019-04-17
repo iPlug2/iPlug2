@@ -15,8 +15,8 @@ IPLUG_FAUST_PATH = $(IPLUG_EXTRAS_PATH)/Faust
 IPLUG_WEB_PATH = $(IPLUG_PATH)/WEB
 NANOVG_PATH = $(DEPS_PATH)/IGraphics/NanoVG/src
 NANOSVG_PATH = $(DEPS_PATH)/IGraphics/NanoSVG/src
+IMGUI_PATH = $(DEPS_PATH)/IGraphics/imgui
 STB_PATH = $(DEPS_PATH)/IGraphics/STB
-NANOVG_LDFLAGS = -s USE_WEBGL2=0 -s FULL_ES3=1
 
 IPLUG_SRC = $(IPLUG_PATH)/IPlugAPIBase.cpp \
 	$(IPLUG_PATH)/IPlugParameter.cpp \
@@ -28,6 +28,8 @@ IGRAPHICS_SRC = $(IGRAPHICS_PATH)/IGraphics.cpp \
 	$(IGRAPHICS_PATH)/IControl.cpp \
 	$(CONTROLS_PATH)/*.cpp \
 	$(PLATFORMS_PATH)/IGraphicsWeb.cpp
+
+IMGUI_SRC = $(IGRAPHICS_PATH)/IGraphicsImGui.cpp
 
 INCLUDE_PATHS = -I$(PROJECT_ROOT) \
 -I$(WAM_SDK_PATH) \
@@ -44,7 +46,9 @@ INCLUDE_PATHS = -I$(PROJECT_ROOT) \
 -I$(PLATFORMS_PATH) \
 -I$(NANOVG_PATH) \
 -I$(NANOSVG_PATH) \
--I$(STB_PATH)
+-I$(STB_PATH) \
+-I$(IMGUI_PATH) \
+-I$(IMGUI_PATH)/examples
 
 #every cpp file that is needed for both WASM modules
 SRC = $(IPLUG_SRC)
@@ -57,6 +61,10 @@ $(WAM_SDK_PATH)/processor.cpp
 WEB_SRC = $(IGRAPHICS_SRC) \
 $(IPLUG_WEB_PATH)/IPlugWeb.cpp \
 $(IGRAPHICS_PATH)/IGraphicsEditorDelegate.cpp
+
+NANOVG_LDFLAGS = -s USE_WEBGL2=0 -s FULL_ES3=1
+
+IMGUI_LDFLAGS = -s BINARYEN_TRAP_MODE=clamp 
 
 # CFLAGS for both WAM and WEB targets
 CFLAGS = $(INCLUDE_PATHS) \

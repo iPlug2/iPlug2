@@ -8,18 +8,19 @@
  ==============================================================================
 */
 
-#ifndef NO_IGRAPHICS
 #import <QuartzCore/QuartzCore.h>
-#import "IGraphicsIOS_view.h"
 
 #include "IGraphicsIOS.h"
+#include "IGraphicsCoreText.h"
+
+#import "IGraphicsIOS_view.h"
+
 #include "IControl.h"
 #include "IPopupMenuControl.h"
 
-#include "IPlugPluginBase.h"
-#include "IPlugPaths.h"
-
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
+StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 #pragma mark -
 
@@ -59,6 +60,16 @@ void IGraphicsIOS::CloseWindow()
 {
   if (mView)
   {
+#ifdef IGRAPHICS_IMGUI
+    if(mImGuiView)
+    {
+      IGRAPHICS_IMGUIVIEW* pImGuiView = (IGRAPHICS_IMGUIVIEW*) mImGuiView;
+      [pImGuiView removeFromSuperview];
+      [pImGuiView release];
+      mImGuiView = nullptr;
+    }
+#endif
+    
     IGraphicsIOS_View* view = (IGraphicsIOS_View*) mView;
 
     mView = nullptr;
@@ -166,4 +177,31 @@ bool IGraphicsIOS::GetTextFromClipboard(WDL_String& str)
   return false;
 }
 
-#endif// NO_IGRAPHICS
+void IGraphicsIOS::CreatePlatformImGui()
+{
+#ifdef IGRAPHICS_IMGUI
+  if(mView)
+  {
+    IGraphicsIOS_View* pView = (IGraphicsIOS_View*) mView;
+    
+    IGRAPHICS_IMGUIVIEW* pImGuiView = [[IGRAPHICS_IMGUIVIEW alloc] initWithIGraphicsView:pView];
+    [pView addSubview: pImGuiView];
+    mImGuiView = pImGuiView;
+  }
+#endif
+}
+
+PlatformFontPtr IGraphicsIOS::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
+{
+  return CoreTextHelpers::LoadPlatformFont(fontID, fileNameOrResID, GetBundleID());
+}
+
+PlatformFontPtr IGraphicsIOS::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
+{
+  return CoreTextHelpers::LoadPlatformFont(fontID, fontName, style);
+}
+
+void IGraphicsIOS::CachePlatformFont(const char* fontID, const PlatformFontPtr& font)
+{
+  CoreTextHelpers::CachePlatformFont(fontID, font, sFontDescriptorCache);
+}
