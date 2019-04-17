@@ -45,6 +45,19 @@ protected:
   WDL_String mStr;
 };
 
+/** A triangle-shaped vector button control. */
+class IVTriangleButtonControl : public IButtonControlBase
+                              , public IVectorBase
+{
+public:
+  IVTriangleButtonControl(IRECT bounds, IActionFunction actionFunc = DefaultClickActionFunc, float angle = 0.0f, const IVColorSpec& colorSpec = DEFAULT_SPEC);
+
+  virtual void Draw(IGraphics& g) override;
+
+private:
+  float mAngle;
+};
+
 /** A vector switch control. Click to cycle through states. */
 class IVSwitchControl : public ISwitchControlBase
                       , public IVectorBase

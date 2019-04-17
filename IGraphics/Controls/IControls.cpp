@@ -42,6 +42,21 @@ void IVButtonControl::Draw(IGraphics& g)
     g.DrawText(mText, mStr.Get(), handleBounds);
 }
 
+IVTriangleButtonControl::IVTriangleButtonControl(IRECT bounds, IActionFunction actionFunc,
+    float angle, const IVColorSpec& colorSpec)
+  : IButtonControlBase(bounds, actionFunc)
+  , IVectorBase(colorSpec)
+  , mAngle(angle)
+{
+  AttachIControl(this);
+  mDblAsSingleClick = true;
+}
+
+void IVTriangleButtonControl::Draw(IGraphics& g)
+{
+  DrawVectorTriangleButton(g, mRECT, mAngle, (bool)mValue, GetMouseIsOver());
+}
+
 IVSwitchControl::IVSwitchControl(IRECT bounds, int paramIdx, IActionFunction actionFunc
   , const char* str, const IVColorSpec& colorSpec, int numStates)
   : ISwitchControlBase(bounds, paramIdx, actionFunc, numStates)

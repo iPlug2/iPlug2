@@ -681,7 +681,73 @@ public:
     
     return handleBounds;
   }
-  
+
+  /** Draw a triangle-shaped vector button
+* @param g The IGraphics context used for drawing
+* @param bounds Where to draw the button
+* @param angle Angle of rotation in degrees (NB: non-right angles don't work properly yet)
+* @param pressed Whether to draw the button pressed or unpressed
+* @param mouseOver Whether mouse is currently hovering on control */
+  IRECT DrawVectorTriangleButton(IGraphics&g, const IRECT& bounds, float angle, bool pressed, bool mouseOver)
+  {
+    g.FillRect(GetColor(kBG), bounds);
+
+    float x1, x2, x3, y1, y2, y3;
+
+    // Degrees to radians
+    float theta = (PI / 180.0f) * angle;
+
+    IRECT handleBounds = GetAdjustedHandleBounds(bounds);
+
+    // Center bounds around origin for rotation
+    float xT = handleBounds.L + handleBounds.W() * 0.5f;
+    float yT = handleBounds.T + handleBounds.H() * 0.5f;
+    IRECT centered = handleBounds.GetTranslated(-xT, -yT);
+
+    // Do rotation and translate points back into view space
+    float c = cosf(theta);
+    float s = sinf(theta);
+    x1 = centered.L * c - centered.B * s + xT;
+    y1 = centered.L * s + centered.B * c + yT;
+    x2 = centered.MW() * c - centered.T * s + xT;
+    y2 = centered.MW() * s + centered.T * c + yT;
+    x3 = centered.R * c - centered.B * s + xT;
+    y3 = centered.R * s + centered.B * c + yT;
+
+    if (pressed)
+    {
+      g.FillTriangle(GetColor(kPR), x1, y1, x2, y2, x3, y3);
+
+      //inner shadow
+      if (mDrawShadows && mEmboss)
+      {
+        g.PathTriangle(x1 + mShadowOffset, y1, x2 + mShadowOffset, y2 + mShadowOffset, x3, y3);
+        g.PathFill(GetColor(kSH));
+      }
+    }
+    else
+    {
+      //outer shadow
+      if (mDrawShadows && !mEmboss)
+      {
+        g.FillTriangle(GetColor(kSH), x1 + mShadowOffset, y1 + mShadowOffset, x2 + mShadowOffset, y2 + mShadowOffset, x3 + mShadowOffset, y3 + mShadowOffset);
+      }
+
+      g.FillTriangle(GetColor(kFG), x1, y1, x2, y2, x3, y3);
+    }
+
+    if (mouseOver)
+      g.FillTriangle(GetColor(kHL), x1, y1, x2, y2, x3, y3);
+
+    if (mControl->GetAnimationFunction())
+      DrawSplash(g);
+
+    if (mDrawFrame)
+      g.DrawTriangle(GetColor(kFR), x1, y1, x2, y2, x3, y3, 0, mFrameThickness);
+
+    return handleBounds;
+  }
+
 protected:
   IControl* mControl = nullptr;
   WDL_TypedBuf<IColor> mColors;
