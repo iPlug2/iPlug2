@@ -31,7 +31,6 @@ public:
     IFontDataPtr GetFontData() override;
 
   private:
-      
     CTFontDescriptorRef mDescriptor;
     CGDataProviderRef mProvider;
   };

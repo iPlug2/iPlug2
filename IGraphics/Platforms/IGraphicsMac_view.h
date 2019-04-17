@@ -145,7 +145,7 @@ inline NSColor* ToNSColor(const IColor& c)
 
 @interface IGRAPHICS_GLLAYER : NSOpenGLLayer
 {
-  IGRAPHICS_VIEW* mView; // OBJC instance variables have to be pointers
+  IGRAPHICS_VIEW* mView;
 }
 
 - (id) initWithIGraphicsView: (IGRAPHICS_VIEW*) pView;
@@ -156,7 +156,7 @@ inline NSColor* ToNSColor(const IColor& c)
 
 @interface IGRAPHICS_IMGUIVIEW : MTKView
 {
-  IGRAPHICS_VIEW* mView; // OBJC instance variables have to be pointers
+  IGRAPHICS_VIEW* mView;
 }
 @property (nonatomic, strong) id <MTLCommandQueue> commandQueue;
 - (id) initWithIGraphicsView: (IGRAPHICS_VIEW*) pView;

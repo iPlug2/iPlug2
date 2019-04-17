@@ -16,7 +16,7 @@
 *   @ingroup PlatformClasses */
 class IGraphicsIOS final : public IGRAPHICS_DRAW_CLASS
 {
-public:
+public:  
   IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   virtual ~IGraphicsIOS();
   
