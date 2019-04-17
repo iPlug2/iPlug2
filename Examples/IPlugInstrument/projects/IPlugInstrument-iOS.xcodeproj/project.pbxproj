@@ -41,6 +41,8 @@
 		4F6E672D21C560BD005991A9 /* MidiSynth.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6E672721C560BD005991A9 /* MidiSynth.h */; };
 		4F6E672E21C560BD005991A9 /* ControlRamp.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6E672821C560BD005991A9 /* ControlRamp.h */; };
 		4F6E672F21C560BD005991A9 /* MidiSynth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F6E672921C560BD005991A9 /* MidiSynth.cpp */; };
+		4F6FD2BB22676BDF00FC59E6 /* (null) in Headers */ = {isa = PBXBuildFile; };
+		4F6FD2BC22676BDF00FC59E6 /* (null) in Sources */ = {isa = PBXBuildFile; };
 		4F8028C620A24FA9003A66EC /* stb_image.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8028BF20A24FA9003A66EC /* stb_image.h */; };
 		4F8028C720A24FA9003A66EC /* nanovg_gl_utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8028C020A24FA9003A66EC /* nanovg_gl_utils.h */; };
 		4F8028C820A24FA9003A66EC /* stb_truetype.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8028C120A24FA9003A66EC /* stb_truetype.h */; };
@@ -79,6 +81,8 @@
 		4FB72D9421C5B73E00DF244D /* IPlugInstrument_DSP.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FB72D9321C5B73D00DF244D /* IPlugInstrument_DSP.h */; };
 		4FCE29C521D6ED0C004BCBA1 /* ITextEntryControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FCE29C321D6ED0C004BCBA1 /* ITextEntryControl.h */; };
 		4FCE29C621D6ED0C004BCBA1 /* ITextEntryControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCE29C421D6ED0C004BCBA1 /* ITextEntryControl.cpp */; };
+		4FD208D322678934009FB279 /* IGraphicsCoreText.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD208D122678934009FB279 /* IGraphicsCoreText.mm */; };
+		4FD208D422678934009FB279 /* IGraphicsCoreText.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD208D222678934009FB279 /* IGraphicsCoreText.h */; };
 		4FE8F3B120BA273800BF938F /* IGraphicsEditorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FE8F3AF20BA273800BF938F /* IGraphicsEditorDelegate.cpp */; };
 		4FE8F3B220BA273800BF938F /* IGraphicsEditorDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE8F3B020BA273800BF938F /* IGraphicsEditorDelegate.h */; };
 		4FFF104120A0E55A00D3092F /* IPlugConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF103020A0E55900D3092F /* IPlugConstants.h */; };
@@ -253,7 +257,6 @@
 		4F977D4520CC9DD800D19F46 /* license.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = license.txt; sourceTree = "<group>"; };
 		4F977D4820CC9DD800D19F46 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4F977D4A20CC9DD800D19F46 /* IPlugFaust.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugFaust.h; sourceTree = "<group>"; };
-		4F977D4B20CC9DD800D19F46 /* IPlugFaust_notdone.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = IPlugFaust_notdone.txt; sourceTree = "<group>"; };
 		4F977D4C20CC9DD800D19F46 /* IPlugFaustGen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaustGen.cpp; sourceTree = "<group>"; };
 		4F977D4D20CC9DD800D19F46 /* IPlugFaust_arch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaust_arch.cpp; sourceTree = "<group>"; };
 		4F977D4E20CC9DD800D19F46 /* IPlugFaustGen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugFaustGen.h; sourceTree = "<group>"; };
@@ -279,6 +282,8 @@
 		4FC82B4820BD524700722133 /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fonts; path = ../resources/fonts; sourceTree = "<group>"; };
 		4FCE29C321D6ED0C004BCBA1 /* ITextEntryControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ITextEntryControl.h; sourceTree = "<group>"; };
 		4FCE29C421D6ED0C004BCBA1 /* ITextEntryControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ITextEntryControl.cpp; sourceTree = "<group>"; };
+		4FD208D122678934009FB279 /* IGraphicsCoreText.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsCoreText.mm; sourceTree = "<group>"; };
+		4FD208D222678934009FB279 /* IGraphicsCoreText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsCoreText.h; sourceTree = "<group>"; };
 		4FDA600520B5868D00C49ABA /* IPlugInstrument-ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "IPlugInstrument-ios.xcconfig"; path = "../config/IPlugInstrument-ios.xcconfig"; sourceTree = "<group>"; };
 		4FE8F3AF20BA273800BF938F /* IGraphicsEditorDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsEditorDelegate.cpp; sourceTree = "<group>"; };
 		4FE8F3B020BA273800BF938F /* IGraphicsEditorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsEditorDelegate.h; sourceTree = "<group>"; };
@@ -413,6 +418,8 @@
 		4F63698320A463AF0022C370 /* Platforms */ = {
 			isa = PBXGroup;
 			children = (
+				4FD208D222678934009FB279 /* IGraphicsCoreText.h */,
+				4FD208D122678934009FB279 /* IGraphicsCoreText.mm */,
 				4F63698620A463AF0022C370 /* IGraphicsWeb.h */,
 				4F63698520A463AF0022C370 /* IGraphicsWeb.cpp */,
 				4F63698820A463AF0022C370 /* IGraphicsLinux.h */,
@@ -691,10 +698,12 @@
 				4FFF108D20A1036200D3092F /* IPlugInstrument.h in Headers */,
 				4F8028CA20A24FA9003A66EC /* nanovg.h in Headers */,
 				4F9A8308213DE87600BE63A4 /* IVMultiSliderControl.h in Headers */,
+				4FD208D422678934009FB279 /* IGraphicsCoreText.h in Headers */,
 				4F977D5E20CC9DD800D19F46 /* Oscillator.h in Headers */,
 				4FFF107920A0E5A500D3092F /* wdlstring.h in Headers */,
 				4F977D5A20CC9DD800D19F46 /* IPlugOSC_msg.h in Headers */,
 				4FFF105D20A0E57100D3092F /* BufferedAudioBus.hpp in Headers */,
+				4F6FD2BB22676BDF00FC59E6 /* (null) in Headers */,
 				4FFF104920A0E55A00D3092F /* IPlugProcessor.h in Headers */,
 				4FFF107A20A0E5A500D3092F /* wdl_base64.h in Headers */,
 				4F6369CD20A463AF0022C370 /* IGraphicsStructs.h in Headers */,
@@ -957,9 +966,11 @@
 				4FFF105B20A0E57100D3092F /* IPlugAUAudioUnit.mm in Sources */,
 				4F9A8309213DE87600BE63A4 /* IControls.cpp in Sources */,
 				4F23CECC20B20C7C00E8B70F /* IGraphicsIOS.mm in Sources */,
+				4F6FD2BC22676BDF00FC59E6 /* (null) in Sources */,
 				4FFF106C20A0E58600D3092F /* IPlugPluginBase.cpp in Sources */,
 				4FFF108C20A1036200D3092F /* IPlugInstrument.cpp in Sources */,
 				4FFF104B20A0E55A00D3092F /* IPlugAPIBase.cpp in Sources */,
+				4FD208D322678934009FB279 /* IGraphicsCoreText.mm in Sources */,
 				4FCE29C621D6ED0C004BCBA1 /* ITextEntryControl.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

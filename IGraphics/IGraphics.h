@@ -78,22 +78,6 @@ class IGraphics
 : public IPlugAAXView_Interface
 #endif
 {
-protected:
-
-  class PlatformFont
-  {
-  public:
-    virtual ~PlatformFont() {}
-
-    virtual const void* GetDescriptor() { return nullptr; }
-    virtual IFontDataPtr GetFontData() { return IFontDataPtr(new IFontData()); }
-
-  protected:
-    int GetFaceIdx(const void* data, int dataSize, const char* styleName);
-  };
-
-  typedef std::unique_ptr<PlatformFont> PlatformFontPtr;
-    
 public:
 #pragma mark - Drawing API implementation
 
@@ -821,8 +805,6 @@ public:
    * @param str The text to display in the dialog box e.g. "Please choose a color..."
    * @return /true if prompt completed successfully */
   virtual bool PromptForColor(IColor& color, const char* str = "") = 0;
-  
-  virtual void CreateWebView(const IRECT& bounds, const char* url) {};
 
   /** Open a URL in the platform’s default browser
    * @param url CString specifying the URL to open

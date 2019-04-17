@@ -35,22 +35,6 @@ typedef IPlugVST3Controller VST3_API_BASE;
 #include "IPopupMenuControl.h"
 #include "ITextEntryControl.h"
 
-int IGraphics::PlatformFont::GetFaceIdx(const void* data, int dataSize, const char* styleName)
-{
-  for (int idx = 0; ; idx++)
-  {
-    IFontInfo fontInfo(data, dataSize, idx);
-
-    if (!fontInfo.IsValid())
-      return -1;
-
-    const WDL_String& style = fontInfo.GetStyle();
-
-    if (style.GetLength() && (!styleName[0] || !strcmp(style.Get(), styleName)))
-      return idx;
-  }
-}
-
 struct SVGHolder
 {
   NSVGimage* mImage = nullptr;
