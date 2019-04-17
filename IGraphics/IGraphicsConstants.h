@@ -88,15 +88,16 @@ enum EVColor
 {
   kBG = 0,    // background color: All vector controls should fill their BG with this color, which is transparent by default
   kFG,        // foreground
-  kOFF = kFG, // off states will use the same color as kFG to fill
   kPR,        // pressed
-  kON = kPR,  // on states will use the same color as kPR to fill
+  kRC,        // recessed
   kFR,        // frame: the color of the stroke/borders
   kHL,        // highlight: mouse over or focus
   kSH,        // shadow
   kX1,        // extra1
   kX2,        // extra2
   kX3,        // extra3
+  kON = kPR,  // on states will use the same color as kPR to fill
+  kOFF = kFG, // off states will use the same color as kFG to fill
   kNumDefaultVColors
 };
 

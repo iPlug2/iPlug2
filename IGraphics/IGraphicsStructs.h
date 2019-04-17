@@ -403,6 +403,7 @@ const IColor DEFAULT_GRAPHICS_BGCOLOR = COLOR_GRAY;
 const IColor DEFAULT_BGCOLOR = COLOR_TRANSPARENT;
 const IColor DEFAULT_FGCOLOR = COLOR_MID_GRAY;
 const IColor DEFAULT_PRCOLOR = COLOR_LIGHT_GRAY;
+const IColor DEFAULT_RCCOLOR = COLOR_MID_GRAY;
 
 const IColor DEFAULT_FRCOLOR = COLOR_DARK_GRAY;
 const IColor DEFAULT_HLCOLOR = COLOR_TRANSLUCENT;
@@ -421,6 +422,7 @@ struct IVColorSpec
   IColor mBGColor = DEFAULT_BGCOLOR; // Background
   IColor mFGColor = DEFAULT_FGCOLOR; // Foreground
   IColor mPRColor = DEFAULT_PRCOLOR; // Pressed
+  IColor mRCColor = DEFAULT_RCCOLOR; // Recessed
   IColor mFRColor = DEFAULT_FRCOLOR; // Frame
   IColor mHLColor = DEFAULT_HLCOLOR; // Highlight
   IColor mSHColor = DEFAULT_SHCOLOR; // Shadow
@@ -432,6 +434,7 @@ struct IVColorSpec
   void SetColors(const IColor BGColor = DEFAULT_BGCOLOR,
                  const IColor FGColor = DEFAULT_FGCOLOR,
                  const IColor PRColor = DEFAULT_PRCOLOR,
+                 const IColor RCColor = DEFAULT_RCCOLOR,
                  const IColor FRColor = DEFAULT_FRCOLOR,
                  const IColor HLColor = DEFAULT_HLCOLOR,
                  const IColor SHColor = DEFAULT_SHCOLOR,
@@ -442,6 +445,7 @@ struct IVColorSpec
       mBGColor = BGColor; // Background
       mFGColor = FGColor; // Foreground
       mPRColor = PRColor; // Pressed
+      mRCColor = RCColor; // Recessed
       mFRColor = FRColor; // Frame
       mHLColor = HLColor; // Highlight
       mSHColor = SHColor; // Shadow

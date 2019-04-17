@@ -502,6 +502,7 @@ public:
   IVectorBase(const IColor* pBGColor = &DEFAULT_BGCOLOR,
               const IColor* pFGColor = &DEFAULT_FGCOLOR,
               const IColor* pPRColor = &DEFAULT_PRCOLOR,
+              const IColor* pRCColor = &DEFAULT_RCCOLOR,
               const IColor* pFRColor = &DEFAULT_FRCOLOR,
               const IColor* pHLColor = &DEFAULT_HLCOLOR,
               const IColor* pSHColor = &DEFAULT_SHCOLOR,
@@ -509,7 +510,7 @@ public:
               const IColor* pX2Color = &DEFAULT_X2COLOR,
               const IColor* pX3Color = &DEFAULT_X3COLOR)
   {
-    AddColors(pBGColor, pFGColor, pPRColor, pFRColor, pHLColor, pSHColor, pX1Color, pX2Color, pX3Color);
+    AddColors(pBGColor, pFGColor, pPRColor, pRCColor, pFRColor, pHLColor, pSHColor, pX1Color, pX2Color, pX3Color);
   }
 
   IVectorBase(const IVColorSpec& spec)
@@ -517,6 +518,7 @@ public:
     AddColors(&spec.mBGColor,
               &spec.mFGColor,
               &spec.mPRColor,
+              &spec.mRCColor,
               &spec.mFRColor,
               &spec.mHLColor,
               &spec.mSHColor,
@@ -535,6 +537,7 @@ public:
   void AddColors(const IColor* pBGColor = 0,
                  const IColor* pFGColor = 0,
                  const IColor* pPRColor = 0,
+                 const IColor* pRCColor = 0,
                  const IColor* pFRColor = 0,
                  const IColor* pHLColor = 0,
                  const IColor* pSHColor = 0,
@@ -545,6 +548,7 @@ public:
     if(pBGColor) AddColor(*pBGColor);
     if(pFGColor) AddColor(*pFGColor);
     if(pPRColor) AddColor(*pPRColor);
+    if(pRCColor) AddColor(*pRCColor);
     if(pFRColor) AddColor(*pFRColor);
     if(pHLColor) AddColor(*pHLColor);
     if(pSHColor) AddColor(*pSHColor);
@@ -564,6 +568,7 @@ public:
   void SetColors(const IColor& BGColor,
                  const IColor& FGColor,
                  const IColor& PRColor,
+                 const IColor& RCColor,
                  const IColor& FRColor,
                  const IColor& HLColor,
                  const IColor& SHColor,
@@ -574,6 +579,7 @@ public:
     mColors.Get()[kBG] = BGColor;
     mColors.Get()[kFG] = FGColor;
     mColors.Get()[kPR] = PRColor;
+    mColors.Get()[kRC] = RCColor;
     mColors.Get()[kFR] = FRColor;
     mColors.Get()[kHL] = HLColor;
     mColors.Get()[kSH] = SHColor;
@@ -589,6 +595,7 @@ public:
     SetColors(spec.mBGColor,
               spec.mFGColor,
               spec.mPRColor,
+              spec.mRCColor,
               spec.mFRColor,
               spec.mHLColor,
               spec.mSHColor,
