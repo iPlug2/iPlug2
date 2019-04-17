@@ -10,7 +10,10 @@
 
 #pragma once
 
+#include <CoreGraphics/CoreGraphics.h>
+
 #include "IGraphics_select.h"
+#include "IGraphicsCoreText.h"
 
 /** IGraphics platform class for macOS
 *   @ingroup PlatformClasses */

@@ -11,7 +11,6 @@
 #pragma once
 
 #include <CoreText/CoreText.h>
-#include <CoreGraphics/CoreGraphics.h>
 #include "IGraphicsStructs.h"
 
 class CoreTextFont : public PlatformFont

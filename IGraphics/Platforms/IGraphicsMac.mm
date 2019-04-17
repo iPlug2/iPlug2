@@ -9,7 +9,6 @@
 */
 
 #include "IGraphicsMac.h"
-#include "IGraphicsCoreText.h"
 #import "IGraphicsMac_view.h"
 
 #include "IControl.h"
