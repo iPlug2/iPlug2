@@ -381,9 +381,9 @@ bool IPlugAPPHost::TryToChangeAudioDriverType()
 
 #if defined OS_WIN
   if(mState.mAudioDriverType == kDeviceASIO)
-    mDAC = new RtAudio(RtAudio::WINDOWS_ASIO);
+    mDAC.reset(new RtAudio(RtAudio::WINDOWS_ASIO));
   else
-    mDAC = new RtAudio(RtAudio::WINDOWS_DS);
+    mDAC.reset(new RtAudio(RtAudio::WINDOWS_DS));
 #elif defined OS_MAC
   if(mState.mAudioDriverType == kDeviceCoreAudio)
     mDAC.reset(new RtAudio(RtAudio::MACOSX_CORE));
