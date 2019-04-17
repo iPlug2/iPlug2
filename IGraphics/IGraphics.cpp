@@ -79,7 +79,7 @@ IGraphics::IGraphics(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 IGraphics::~IGraphics()
 {
 #ifdef IGRAPHICS_IMGUI
-  mImGuiRenderer.reset(nullptr);
+  mImGuiRenderer = nullptr;
 #endif
   
   RemoveAllControls();
@@ -158,13 +158,13 @@ void IGraphics::RemoveAllControls()
   mMouseCapture = mMouseOver = nullptr;
   mMouseOverIdx = -1;
 
-  mPopupControl.reset(nullptr);
-  mTextEntryControl.reset(nullptr);
-  mCornerResizer.reset(nullptr);
-  mPerfDisplay.reset(nullptr);
+  mPopupControl = nullptr;
+  mTextEntryControl = nullptr;
+  mCornerResizer = nullptr;
+  mPerfDisplay = nullptr;
     
 #if !defined(NDEBUG)
-  mLiveEdit.reset(nullptr);
+  mLiveEdit = nullptr;
 #endif
   
   mControls.Empty(true);
@@ -229,7 +229,7 @@ void IGraphics::AttachPopupMenuControl(const IText& text, const IRECT& bounds)
 {
   if (!mPopupControl)
   {
-    mPopupControl.reset(new IPopupMenuControl(kNoParameter, text, IRECT(), bounds));
+    mPopupControl = std::make_unique<IPopupMenuControl>(kNoParameter, text, IRECT(), bounds);
     mPopupControl->SetDelegate(*GetDelegate());
   }
 }
@@ -238,7 +238,7 @@ void IGraphics::AttachTextEntryControl()
 {
   if (!mTextEntryControl)
   {
-    mTextEntryControl.reset(new ITextEntryControl());
+    mTextEntryControl = std::make_unique<ITextEntryControl>();
     mTextEntryControl->SetDelegate(*GetDelegate());
   }
 }
@@ -249,13 +249,13 @@ void IGraphics::ShowFPSDisplay(bool enable)
   {
     if (!mPerfDisplay)
     {
-      mPerfDisplay.reset(new IFPSDisplayControl(GetBounds().GetPadded(-10).GetFromTLHC(200, 50)));
+      mPerfDisplay = std::make_unique<IFPSDisplayControl>(GetBounds().GetPadded(-10).GetFromTLHC(200, 50));
       mPerfDisplay->SetDelegate(*GetDelegate());
     }
   }
   else
   {
-    mPerfDisplay.reset(nullptr);
+    mPerfDisplay = nullptr;
   }
 
   SetAllControlsDirty();
@@ -1217,13 +1217,13 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
   {
     if (!mLiveEdit)
     {
-      mLiveEdit.reset(new IGraphicsLiveEdit(mHandleMouseOver/*, file, gridsize*/));
+      mLiveEdit = std::make_unique<IGraphicsLiveEdit>(mHandleMouseOver/*, file, gridsize*/);
       mLiveEdit->SetDelegate(*GetDelegate());
     }
   }
   else
   {
-    mLiveEdit.reset(nullptr);
+    mLiveEdit = nullptr;
   }
   
   mMouseOver = nullptr;
@@ -1666,7 +1666,7 @@ bool IGraphics::LoadFont(const char* fontID, const char* fontName, ETextStyle st
 #ifdef IGRAPHICS_IMGUI
 void IGraphics::AttachImGui(std::function<void(IGraphics*)> drawFunc, std::function<void()> setupFunc)
 {
-  mImGuiRenderer.reset(new ImGuiRenderer(this, drawFunc, setupFunc));
+  mImGuiRenderer std::make_unique<ImGuiRenderer>(this, drawFunc, setupFunc);
   
 #if !defined IGRAPHICS_GL2 && !defined IGRAPHICS_GL3 // TODO: IGRAPHICS_GL!
   CreatePlatformImGui();
