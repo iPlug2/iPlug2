@@ -241,7 +241,6 @@
 		4FD16D4213B635AB001D0217 /* swell-wnd.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4113B635AB001D0217 /* swell-wnd.mm */; settings = {COMPILER_FLAGS = "-Wno-unreachable-code"; }; };
 		4FD16D4413B635B2001D0217 /* swell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4313B635B2001D0217 /* swell.cpp */; };
 		4FD208DA22678990009FB279 /* IGraphicsCoreText.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD208D822678990009FB279 /* IGraphicsCoreText.mm */; };
-		4FD208DC22678990009FB279 /* IGraphicsCoreText.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD208D822678990009FB279 /* IGraphicsCoreText.mm */; };
 		4FD208DE22678990009FB279 /* IGraphicsCoreText.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD208D822678990009FB279 /* IGraphicsCoreText.mm */; };
 		4FD208E122678990009FB279 /* IGraphicsCoreText.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD208D922678990009FB279 /* IGraphicsCoreText.h */; };
 		4FD52131202A5B9B00A4D22A /* IPlugAU_view_factory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD5212E202A5B9B00A4D22A /* IPlugAU_view_factory.mm */; };
@@ -2129,7 +2128,6 @@
 				4FA9F80621F760C1004E6FE2 /* IGraphicsLice_src.mm in Sources */,
 				4F9828B8140A9EB700F3FCC1 /* IPlugAPIBase.cpp in Sources */,
 				4F81597F205D50EB00393585 /* fdynlib.cpp in Sources */,
-				4FD208DC22678990009FB279 /* IGraphicsCoreText.mm in Sources */,
 				4F815919205D50EB00393585 /* memorystream.cpp in Sources */,
 				4F9828C1140A9EB700F3FCC1 /* IPlugParameter.cpp in Sources */,
 				4F81591A205D50EB00393585 /* pluginview.cpp in Sources */,
