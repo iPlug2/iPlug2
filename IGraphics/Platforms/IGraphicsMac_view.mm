@@ -455,6 +455,8 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 #pragma mark -
 
+extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
+
 @implementation IGRAPHICS_VIEW
 
 - (id) initWithIGraphics: (IGraphicsMac*) pGraphics
@@ -1019,7 +1021,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
     [mTextFieldView setDrawsBackground: TRUE];
   }
 
-  NSFontDescriptor*  fontDescriptor = (NSFontDescriptor*) mGraphics->GetCTFontDescriptor(text);
+  NSFontDescriptor* fontDescriptor = (NSFontDescriptor*) CoreTextHelpers::GetCTFontDescriptor(text, sFontDescriptorCache);
   NSFont* font = [NSFont fontWithDescriptor: fontDescriptor size: text.mSize * 0.75];
   [mTextFieldView setFont: font];
   

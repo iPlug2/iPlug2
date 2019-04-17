@@ -9,11 +9,11 @@
 */
 
 #include "IGraphicsMac.h"
+#include "IGraphicsCoreText.h"
+#import "IGraphicsMac_view.h"
 
 #include "IControl.h"
 #include "IPopupMenuControl.h"
-
-#import "IGraphicsMac_view.h"
 
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
@@ -39,77 +39,20 @@ int GetSystemVersion()
   return v;
 }
 
-
-template <class T>
-struct CFLocal
-{
-  CFLocal(T obj) : mObject(obj) {}
-  ~CFLocal() { if (mObject) CFRelease(mObject); }
-  
-  T Get() { return mObject; }
-  
-  T Release()
-  {
-    T prev = mObject;
-    mObject = nullptr;
-    return prev;
-  }
-  
-  T mObject;
-};
-
-// Fonts
-
-IGraphicsMac::MacFont::~MacFont()
-{
-  CGDataProviderRelease(mProvider);
-  if (mDescriptor)
-    CFRelease(mDescriptor);
-};
-
-IFontDataPtr IGraphicsMac::MacFont::GetFontData()
-{
-  char styleCString[64];
-  
-  CFLocal<CFDataRef> rawData = CGDataProviderCopyData(mProvider);
-  const UInt8* bytes = CFDataGetBytePtr(rawData.Get());
-  CFLocal<CFStringRef> styleString = (CFStringRef) CTFontDescriptorCopyAttribute(mDescriptor, kCTFontStyleNameAttribute);
-  CFStringGetCString(styleString.Get(), styleCString, 64, kCFStringEncodingUTF8);
-  IFontDataPtr fontData(new IFontData(bytes, static_cast<int>(CFDataGetLength(rawData.Get())), GetFaceIdx(bytes, static_cast<int>(CFDataGetLength(rawData.Get())), styleCString)));
-  
-  return fontData;
-}
-
-struct MacFontDescriptor
-{
-  MacFontDescriptor(CTFontDescriptorRef descriptor) : mDescriptor(descriptor)
-  {
-    CFRetain(mDescriptor);
-  }
-  
-  ~MacFontDescriptor()
-  {
-    CFRelease(mDescriptor);
-  }
-  
-  CTFontDescriptorRef mDescriptor;
-};
-
-static StaticStorage<MacFontDescriptor> sFontDescriptorCache;
-  
+StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 #pragma mark -
 
 IGraphicsMac::IGraphicsMac(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
 {
   NSApplicationLoad();
-  StaticStorage<MacFontDescriptor>::Accessor storage(sFontDescriptorCache);
+  StaticStorage<CoreTextFontDescriptor>::Accessor storage(sFontDescriptorCache);
   storage.Retain();
 }
 
 IGraphicsMac::~IGraphicsMac()
 {
-  StaticStorage<MacFontDescriptor>::Accessor storage(sFontDescriptorCache);
+  StaticStorage<CoreTextFontDescriptor>::Accessor storage(sFontDescriptorCache);
   storage.Release();
   
   CloseWindow();
@@ -126,54 +69,19 @@ bool IGraphicsMac::IsSandboxed()
   return false;
 }
 
-IGraphics::PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
+PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
 {
-  WDL_String fullPath;
-  const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, GetBundleID(), nullptr);
-    
-  if (fontLocation == kNotFound)
-    return nullptr;
-
-  CFLocal<CFStringRef> path = CFStringCreateWithCString(NULL, fullPath.Get(), kCFStringEncodingUTF8);
-  CFLocal<CFURLRef> url = CFURLCreateWithFileSystemPath(NULL, path.Get(), kCFURLPOSIXPathStyle, false);
-  CFLocal<CGDataProviderRef> provider = url.Get() ? CGDataProviderCreateWithURL(url.Get()) : nullptr;
-  CFLocal<CGFontRef> cgFont = CGFontCreateWithDataProvider(provider.Get());
-  CFLocal<CTFontRef> ctFont = CTFontCreateWithGraphicsFont(cgFont.Get(), 0.f, NULL, NULL);
-  CFLocal<CTFontDescriptorRef> descriptor = CTFontCopyFontDescriptor(ctFont.Get());
-  
-  if (!descriptor.Get())
-    return nullptr;
-  
-  return PlatformFontPtr(new MacFont(descriptor.Release(), provider.Release()));
+  return CoreTextHelpers::LoadPlatformFont(fontID, fileNameOrResID, GetBundleID());
 }
 
-IGraphics::PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
+PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
 {
-  CFLocal<CFStringRef> fontStr = CFStringCreateWithCString(NULL, fontName, kCFStringEncodingUTF8);
-  CFLocal<CFStringRef> styleStr = CFStringCreateWithCString(NULL, TextStyleString(style), kCFStringEncodingUTF8);
-  
-  CFStringRef keys[] = { kCTFontFamilyNameAttribute, kCTFontStyleNameAttribute };
-  CFTypeRef values[] = { fontStr.Get(), styleStr.Get() };
-  
-  CFLocal<CFDictionaryRef> dictionary = CFDictionaryCreate(NULL, (const void**)&keys, (const void**)&values, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-  CFLocal<CTFontDescriptorRef> descriptor = CTFontDescriptorCreateWithAttributes(dictionary.Get());
-  CFLocal<CFURLRef> url = (CFURLRef) CTFontDescriptorCopyAttribute(descriptor.Get(), kCTFontURLAttribute);
-  CFLocal<CGDataProviderRef> provider = url.Get() ? CGDataProviderCreateWithURL(url.Get()) : nullptr;
-
-  if (!provider.Get())
-    return nullptr;
-  
-  return PlatformFontPtr(new MacFont(descriptor.Release(), provider.Release()));
+  return CoreTextHelpers::LoadPlatformFont(fontID, fontName, style);
 }
 
 void IGraphicsMac::CachePlatformFont(const char* fontID, const PlatformFontPtr& font)
 {
-  StaticStorage<MacFontDescriptor>::Accessor storage(sFontDescriptorCache);
- 
-  CTFontDescriptorRef descriptor = (CTFontDescriptorRef) font->GetDescriptor();
-  
-  if (!storage.Find(fontID))
-    storage.Add(new MacFontDescriptor(descriptor), fontID);
+  CoreTextHelpers::CachePlatformFont(fontID, font, sFontDescriptorCache);
 }
 
 bool IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds)
@@ -629,17 +537,6 @@ void IGraphicsMac::CreatePlatformTextEntry(IControl& control, const IText& text,
     NSRect areaRect = ToNSRect(this, bounds);
     [(IGRAPHICS_VIEW*) mView createTextEntry: control : text: str: areaRect];
   }
-}
-
-CTFontDescriptorRef IGraphicsMac::GetCTFontDescriptor(const IText& text)
-{
-  StaticStorage<MacFontDescriptor>::Accessor storage(sFontDescriptorCache);
-
-  MacFontDescriptor* cachedFont = storage.Find(text.mFont);
-  
-  assert(cachedFont && "font not found - did you forget to load it?");
-
-  return cachedFont->mDescriptor;
 }
 
 ECursor IGraphicsMac::SetMouseCursor(ECursor cursorType)

@@ -11,30 +11,12 @@
 #pragma once
 
 #include "IGraphics_select.h"
-#include <CoreText/CoreText.h>
-#include <CoreGraphics/CoreGraphics.h>
 
 /** IGraphics platform class for macOS
 *   @ingroup PlatformClasses */
 class IGraphicsMac final : public IGRAPHICS_DRAW_CLASS
 {
 public:
-    
-  class MacFont : public PlatformFont
-  {
-  public:
-    MacFont(CTFontDescriptorRef descriptor, CGDataProviderRef provider)
-     : mDescriptor(descriptor), mProvider(provider) {}
-    ~MacFont();
-      
-    const void* GetDescriptor() override { return reinterpret_cast<const void*>(mDescriptor); }
-    IFontDataPtr GetFontData() override;
-
-  private:
-    CTFontDescriptorRef mDescriptor;
-    CGDataProviderRef mProvider;
-  };
-    
   IGraphicsMac(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   virtual ~IGraphicsMac();
 
@@ -67,8 +49,6 @@ public:
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext) override;
   void PromptForDirectory(WDL_String& dir) override;
   bool PromptForColor(IColor& color, const char* str) override;
-
-  CTFontDescriptorRef GetCTFontDescriptor(const IText& text);
     
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
 
