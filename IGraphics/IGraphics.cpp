@@ -901,6 +901,14 @@ bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 {
   Trace("IGraphics::OnMouseDblClick", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
+  
+#ifdef IGRAPHICS_IMGUI
+  if(mImGuiRenderer)
+  {
+    mImGuiRenderer.get()->OnMouseDown(x, y, mod);
+    return true;
+  }
+#endif
 
   IControl* pControl = GetMouseControl(x, y, true);
     
