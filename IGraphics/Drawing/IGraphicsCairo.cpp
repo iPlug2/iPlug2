@@ -587,11 +587,7 @@ bool IGraphicsCairo::LoadAPIFont(const char* fontID, const PlatformFontPtr& font
   if (!data->IsValid())
     return false;
     
-  IFontInfo info(data->Get(), data->GetSize(), data->GetFaceIdx());
-  double ratio = info.GetUnitsPerEM() / (double) (info.GetAscender() - info.GetDescender());
-    DBGMSG("LOAD RATIO %s %lf\n", fontID, ratio);
-
-  std::unique_ptr<CairoPlatformFont> cairoFont(new CairoPlatformFont(font->GetDescriptor(), ratio));
+  std::unique_ptr<CairoPlatformFont> cairoFont(new CairoPlatformFont(font->GetDescriptor(), data->GetHeightEMRatio()));
 
   if (cairo_font_face_status(cairoFont->mFont) == CAIRO_STATUS_SUCCESS)
   {
