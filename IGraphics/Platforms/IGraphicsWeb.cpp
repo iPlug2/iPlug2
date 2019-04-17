@@ -31,7 +31,7 @@ IFontDataPtr IGraphicsWeb::WebFileFont::GetFontData()
     return fontData;
   
   fseek(fp,0,SEEK_END);
-  fontData.reset(new IFontData((int) ftell(fp)));
+  fontData = std::make_unique<IFontData>((int) ftell(fp));
   
   if (!fontData->GetSize())
     return fontData;
