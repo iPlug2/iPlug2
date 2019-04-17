@@ -118,7 +118,7 @@ IGraphicsLice::~IGraphicsLice()
 void IGraphicsLice::DrawResize()
 {
   if(!mDrawBitmap)
-    mDrawBitmap = std::make_unique<LICE_SysBitmap>(Width() * GetScreenScale(), Height() * GetScreenScale()));
+    mDrawBitmap = std::make_unique<LICE_SysBitmap>(Width() * GetScreenScale(), Height() * GetScreenScale());
   else
     mDrawBitmap->resize(Width() * GetScreenScale(), Height() * GetScreenScale());
 
@@ -130,7 +130,7 @@ void IGraphicsLice::DrawResize()
   else
   {
     if (!mScaleBitmap)
-      mScaleBitmap = std::make_unique<LICE_SysBitmap>(WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale()));
+      mScaleBitmap = std::make_unique<LICE_SysBitmap>(WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
     else
       mScaleBitmap->resize(WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
   }
@@ -591,7 +591,7 @@ void IGraphicsLice::NeedsClipping()
     const int w = static_cast<int>(std::round(alignedBounds.W() * GetBackingPixelScale()));
     const int h = static_cast<int>(std::round(alignedBounds.H() * GetBackingPixelScale()));
     
-    mClippingLayer = std::make_unique<ILayer>(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds));
+    mClippingLayer = std::make_unique<ILayer>(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds);
     UpdateLayer();
   }
 }
