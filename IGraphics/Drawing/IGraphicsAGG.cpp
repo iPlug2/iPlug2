@@ -604,8 +604,7 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
   }
     
   mFontEngine.hinting(hinting);
-  mFontEngine.height(text.mSize);
-  mFontEngine.width(text.mSize);
+  mFontEngine.height(text.mSize * pFont->GetHeightEMRatio());
   mFontEngine.flip_y(true);
 
   WDL_TypedBuf<LineInfo> lines;
@@ -614,12 +613,14 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
   
   double x = bounds.L;
   double y = bounds.T + (text.mSize);
-  
+  double EMHeight = pFont->GetAscender() - pFont->GetDescender();
+  double ascender = text.mSize * pFont->GetAscender() / EMHeight;
+  double descender = text.mSize * pFont->GetDescender() / EMHeight;
   switch (text.mVAlign)
   {
-    case IText::kVAlignTop:      y = bounds.T + mFontEngine.ascender();                               break;
-    case IText::kVAlignMiddle:   y = bounds.MH() + mFontEngine.descender() + text.mSize/2.;           break;
-    case IText::kVAlignBottom:   y = bounds.B + mFontEngine.descender();                              break;
+    case IText::kVAlignTop:      y = bounds.T + ascender;                               break;
+    case IText::kVAlignMiddle:   y = bounds.MH() + descender + text.mSize/2.;           break;
+    case IText::kVAlignBottom:   y = bounds.B + descender;                              break;
   }
   
   if (measure)
