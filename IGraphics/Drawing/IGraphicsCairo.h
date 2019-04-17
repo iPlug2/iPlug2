@@ -92,8 +92,6 @@ protected:
   
 private:
     
-  cairo_font_face_t* FindFont(const IText& text);
-
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
   

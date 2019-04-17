@@ -17,16 +17,17 @@
 
 struct CairoFont
 {
-  CairoFont(cairo_font_face_t* font) : mFont(font) {}
+  CairoFont(cairo_font_face_t* font, double ratio) : mFont(font), mRatio(ratio) {}
   virtual ~CairoFont() { if (mFont) cairo_font_face_destroy(mFont); }
-  
+
   cairo_font_face_t* mFont;
+  double mRatio;
 };
 
 #ifdef OS_MAC
 struct CairoPlatformFont : CairoFont
 {
-  CairoPlatformFont(const void* fontRef) : CairoFont(nullptr)
+  CairoPlatformFont(const void* fontRef, double ratio) : CairoFont(nullptr, ratio)
   {
     CTFontRef ctFont = CTFontCreateWithFontDescriptor((CTFontDescriptorRef) fontRef, 0.f, NULL);
     CGFontRef cgFont = CTFontCopyGraphicsFont(ctFont, NULL);
@@ -38,7 +39,8 @@ struct CairoPlatformFont : CairoFont
 #elif defined OS_WIN
 struct CairoPlatformFont : CairoFont
 {
-  CairoPlatformFont(const void* fontRef) : CairoFont(cairo_win32_font_face_create_for_hfont((HFONT) fontRef))
+  CairoPlatformFont(const void* fontRef, double ratio)
+  : CairoFont(cairo_win32_font_face_create_for_hfont((HFONT) fontRef), ratio)
   {}
 };
 
@@ -439,16 +441,15 @@ bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
     cairo_surface_destroy(pSurface);
   }
   
+  StaticStorage<CairoFont>::Accessor storage(sFontCache);
+  CairoFont* pCachedFont = storage.Find(text.mFont);
+    
+  assert(pCachedFont && "No font found - did you forget to load it?");
+    
   // Get the correct font face
   
-  cairo_set_font_face(mContext, FindFont(text));
-  cairo_set_font_size(mContext, text.mSize);
-  cairo_font_extents(mContext, &fontExtents);
-
-  // Set the size *again* to match the height we want (so that the ascent + descent is text.mSize
-   
-  double newSize = text.mSize * text.mSize / (fontExtents.ascent + fontExtents.descent);
-  cairo_set_font_size(mContext, newSize);
+  cairo_set_font_face(mContext, pCachedFont->mFont);
+  cairo_set_font_size(mContext, text.mSize * pCachedFont->mRatio);
   cairo_font_extents(mContext, &fontExtents);
 
   // Draw / measure
@@ -581,7 +582,16 @@ bool IGraphicsCairo::LoadAPIFont(const char* fontID, const PlatformFontPtr& font
   if (storage.Find(fontID))
     return true;
 
-  std::unique_ptr<CairoPlatformFont> cairoFont(new CairoPlatformFont(font->GetDescriptor()));
+  IFontDataPtr data = font->GetFontData();
+  
+  if (!data->IsValid())
+    return false;
+    
+  IFontInfo info(data->Get(), data->GetSize(), data->GetFaceIdx());
+  double ratio = info.GetUnitsPerEM() / (double) (info.GetAscender() - info.GetDescender());
+    DBGMSG("LOAD RATIO %s %lf\n", fontID, ratio);
+
+  std::unique_ptr<CairoPlatformFont> cairoFont(new CairoPlatformFont(font->GetDescriptor(), ratio));
 
   if (cairo_font_face_status(cairoFont->mFont) == CAIRO_STATUS_SUCCESS)
   {
@@ -590,19 +600,6 @@ bool IGraphicsCairo::LoadAPIFont(const char* fontID, const PlatformFontPtr& font
   }
     
   return false;
-}
-
-cairo_font_face_t* IGraphicsCairo::FindFont(const IText& text)
-{
-  StaticStorage<CairoFont>::Accessor storage(sFontCache);
-  CairoFont* pFont = storage.Find(text.mFont);
-  
-  if (pFont)
-    return pFont->mFont;
-  
-  assert(0 && "No font found - did you forget to load it?");
-
-  return nullptr;
 }
 
 void IGraphicsCairo::PathTransformSetMatrix(const IMatrix& m)
