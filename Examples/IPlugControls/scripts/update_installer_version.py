@@ -6,9 +6,9 @@ import plistlib, os, datetime, fileinput, glob, sys, string
 scriptpath = os.path.dirname(os.path.realpath(__file__))
 projectpath = os.path.abspath(os.path.join(scriptpath, os.pardir))
 
-rootfolder = "../../.."
+IPLUG2_ROOT = "../../.."
 
-sys.path.insert(0, os.path.join(os.getcwd(), rootfolder + '/scripts'))
+sys.path.insert(0, os.path.join(os.getcwd(), IPLUG2_ROOT + '/scripts'))
 
 from parse_config import parse_config
 
