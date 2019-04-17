@@ -68,8 +68,6 @@ public:
   void PromptForDirectory(WDL_String& dir) override;
   bool PromptForColor(IColor& color, const char* str) override;
 
-//  void CreateWebView(const IRECT& bounds, const char* url) override;
-  
   CTFontDescriptorRef GetCTFontDescriptor(const IText& text);
     
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;

@@ -821,8 +821,6 @@ public:
    * @param str The text to display in the dialog box e.g. "Please choose a color..."
    * @return /true if prompt completed successfully */
   virtual bool PromptForColor(IColor& color, const char* str = "") = 0;
-  
-  virtual void CreateWebView(const IRECT& bounds, const char* url) {};
 
   /** Open a URL in the platform’s default browser
    * @param url CString specifying the URL to open

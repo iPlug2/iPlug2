@@ -9,13 +9,12 @@
 */
 
 #import <Cocoa/Cocoa.h>
-//#import <WebKit/WebKit.h>
-
-#include "IGraphicsMac.h"
 
 #if defined IGRAPHICS_GL
 #import <QuartzCore/QuartzCore.h>
 #endif
+
+#include "IGraphicsMac.h"
 
 inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& bounds)
 {
@@ -90,7 +89,6 @@ inline NSColor* ToNSColor(const IColor& c)
   NSTimer* mTimer;
   IGRAPHICS_TEXTFIELD* mTextFieldView;
   NSCursor* mMoveCursor;
-//  WKWebView* mWebView;
   IControl* mEdControl; // the control linked to the open text edit
   float mPrevX, mPrevY;
   IRECTList mDirtyRects;
@@ -128,9 +126,6 @@ inline NSColor* ToNSColor(const IColor& c)
 - (void) controlTextDidEndEditing: (NSNotification*) aNotification;
 - (void) createTextEntry: (IControl&) control : (const IText&) text : (const char*) str : (NSRect) areaRect;
 - (void) endUserInput;
-//web view
-//- (void) createWebView: (NSRect) areaRect : (const char*) url;
-//- (void) userContentController:didReceiveScriptMessage;
 //pop-up menu
 - (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (NSRect) bounds;
 //tooltip

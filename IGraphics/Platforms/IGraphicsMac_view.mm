@@ -961,11 +961,6 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   if (mTextFieldView)
     [self endUserInput ];
   
-//  if (mWebView) {
-//    [mWebView removeFromSuperview ];
-//    mWebView = nullptr;
-//  }
-  
   mGraphics->SetPlatformContext(nullptr);
     
   //For some APIs (AUv2) this is where we know about the window being closed, close via delegate
@@ -1103,18 +1098,6 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   mTextFieldView = nullptr;
   mEdControl = nullptr;
 }
-
-//- (void) createWebView: (NSRect) areaRect : (const char*) url
-//{
-//  mWebView = [[WKWebView alloc] initWithFrame: areaRect ];
-//  [self addSubview: mWebView];
-//  [mWebView loadRequest: [NSURLRequest requestWithURL: [NSURL URLWithString:[NSString stringWithUTF8String:url]]]];
-//}
-//
-//-(void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message
-//{
-//  NSLog(@"%@",message.body);
-//}
 
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData
 {

@@ -642,15 +642,6 @@ CTFontDescriptorRef IGraphicsMac::GetCTFontDescriptor(const IText& text)
   return cachedFont->mDescriptor;
 }
 
-//void IGraphicsMac::CreateWebView(const IRECT& bounds, const char* url)
-//{
-//  if (mView)
-//  {
-//    NSRect areaRect = ToNSRect(this, bounds);
-//    [(IGRAPHICS_VIEW*) mView createWebView:areaRect :url];
-//  }
-//}
-
 ECursor IGraphicsMac::SetMouseCursor(ECursor cursorType)
 {
   if (mView)
