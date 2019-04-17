@@ -67,7 +67,7 @@ public:
     {
       int flags = 0;
       UString(tmpStringBuf, 128).fromAscii("Dummy Output", 128);
-      plug->addAudioOutput(tmpStringBuf, SpeakerArr::kEmpty, Vst::BusTypes::kMain, flags);
+      plug->addAudioOutput(tmpStringBuf, Steinberg::Vst::SpeakerArr::kEmpty, Vst::BusTypes::kMain, flags);
     }
     
     if (DoesMIDIIn())
