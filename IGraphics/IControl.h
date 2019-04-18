@@ -673,47 +673,99 @@ public:
   {
     float mouseDownX, mouseDownY;
     g.GetMouseDownPoint(mouseDownX, mouseDownY);
+    g.GetMouseDownPoint(mouseDownX, mouseDownY);
     g.FillCircle(GetColor(kHL), mouseDownX, mouseDownY, mSplashRadius);
   }
-  
+
+  /* TODO(@drakfluga): Make a lot of this reusable */
   IRECT DrawVectorButton(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver)
   {
     g.FillRect(GetColor(kBG), bounds);
     
     IRECT handleBounds = GetAdjustedHandleBounds(bounds);
     const float cornerRadius = mRoundness * (handleBounds.GetLengthOfShortestSide() / 2.f);
-    
+
+    // Pressed styles
     if (pressed)
     {
-      g.FillRoundRect(GetColor(kPR), handleBounds.GetVSliced(mShadowOffset).GetHSliced(mShadowOffset), cornerRadius);
-
-      //inner shadow
+      // Embossed style pressed
       if (mDrawShadows && mEmboss)
       {
+        // Fill background with pressed color and shade it
+        g.FillRoundRect(GetColor(kPR), handleBounds, cornerRadius);
         g.FillRoundRect(GetColor(kSH), handleBounds, cornerRadius);
 
-        // Draw foreground with offset to cover the shadow
-        g.FillRoundRect(GetColor(kPR), handleBounds.GetVSliced(mShadowOffset).GetHSliced(mShadowOffset), cornerRadius);
+        // Fill in center with pressed color for a "recessed" look
+        IRECT pressedBounds = handleBounds.GetTranslated(mShadowOffset, mShadowOffset).GetVSliced(mShadowOffset * 2.f, true).GetHSliced(mShadowOffset * 2.f, true);
+        g.FillRoundRect(GetColor(kPR), pressedBounds, cornerRadius);
+      }
+
+      // Outer shadow style pressed
+      else if (mDrawShadows && !mEmboss)
+      {
+        // Offset the button to make it "move" when pressed (translate in-place in case we are drawing the frame later)
+        handleBounds.Translate(mShadowOffset, mShadowOffset);
+        g.FillRoundRect(GetColor(kPR), handleBounds, cornerRadius);
+      }
+
+      // Plain style pressed
+      else
+      {
+        g.FillRoundRect(GetColor(kPR), handleBounds, cornerRadius);
       }
     }
+    // Unpressed styles
     else
     {
-      //outer shadow
-      if (mDrawShadows && !mEmboss)
-        g.FillRoundRect(GetColor(kSH), handleBounds.GetTranslated(mShadowOffset, mShadowOffset), cornerRadius);
-      
-      g.FillRoundRect(GetColor(kFG), handleBounds, cornerRadius);
+      // Embossed style unpressed
+      if (mDrawShadows && mEmboss)
+      {
+        // Positive light (NB: use the Pressed color for now, maybe change the name?
+        g.FillRoundRect(GetColor(kPR), handleBounds, cornerRadius);
+
+        // Negative light
+        IRECT shadowBounds = handleBounds.GetTranslated(mShadowOffset, mShadowOffset).GetVSliced(mShadowOffset, true).GetHSliced(mShadowOffset, true);
+        g.FillRoundRect(GetColor(kSH), shadowBounds, cornerRadius);
+
+        // Fill in foreground
+        g.FillRoundRect(GetColor(kFG), shadowBounds.GetVSliced(mShadowOffset, true).GetHSliced(mShadowOffset, true), cornerRadius);
+
+        // Shade when hovered
+        if (mouseOver)
+          g.FillRoundRect(GetColor(kHL), shadowBounds.GetVSliced(mShadowOffset, true).GetHSliced(mShadowOffset, true), cornerRadius);
+      }
+
+      // Outer shadow style unpressed
+      else if (mDrawShadows && !mEmboss)
+      {
+        // Draw shadow
+        IRECT shadowBounds = handleBounds.GetTranslated(mShadowOffset, mShadowOffset);
+        g.FillRoundRect(GetColor(kSH), shadowBounds, cornerRadius);
+
+        // Fill in foreground
+        g.FillRoundRect(GetColor(kFG), handleBounds, cornerRadius);
+
+        // Shade when hovered
+        if (mouseOver)
+          g.FillRoundRect(GetColor(kHL), handleBounds, cornerRadius);
+      }
+
+      // Plain style unpressed
+      else
+      {
+        g.FillRoundRect(GetColor(kFG), handleBounds, cornerRadius);
+
+        if (mouseOver)
+          g.FillRoundRect(GetColor(kHL), handleBounds, cornerRadius);
+      }
     }
-    
-    if(mouseOver)
-      g.FillRoundRect(GetColor(kHL), handleBounds, cornerRadius);
-    
-    if(mControl->GetAnimationFunction())
-      DrawSplash(g);
-    
-    if(mDrawFrame)
+
+    if (mDrawFrame)
       g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius, 0, mFrameThickness);
-    
+
+    if (mControl->GetAnimationFunction())
+      DrawSplash(g);
+
     return handleBounds;
   }
 

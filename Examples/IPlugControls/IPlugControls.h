@@ -22,9 +22,9 @@ IVStyle style
   true, // Draw frame
   true, // Draw shadows
   true, // Emboss
-  0.0f, // Button roundness
-  3.0f, // Frame thickness
-  3.0f, // Shadow offset
+  0.2f, // Button roundness
+  1.0f, // Frame thickness
+  2.0f, // Shadow offset
 };
 
 class IPlugControls : public IPlug
