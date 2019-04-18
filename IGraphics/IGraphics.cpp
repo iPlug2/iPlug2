@@ -1549,40 +1549,41 @@ void IGraphics::DrawRotatedLayer(const ILayerPtr& layer, double angle)
   PathTransformRestore();
 }
 
-void GaussianBlurSwap(unsigned char *out, unsigned char *in, unsigned char *kernel, int width, int height, int outStride, int inStride, int kernelSize, unsigned long norm)
-{
-  for (int i = 0; i < height; i++, in += inStride)
-  {
-    for (int j = 0; j < kernelSize - 1; j++)
-    {
-      unsigned long accum = in[j * 4] * kernel[0];
-      for (int k = 1; k < j + 1; k++)
-        accum += kernel[k] * in[(j - k) * 4];
-      for (int k = 1; k < kernelSize; k++)
-        accum += kernel[k] * in[(j + k) * 4];
-      out[j * outStride + (i * 4)] = static_cast<unsigned char>(std::min(static_cast<unsigned long>(255), accum / norm));
-    }
-    for (int j = kernelSize - 1; j < (width - kernelSize) + 1; j++)
-    {
-      unsigned long accum = in[j * 4] * kernel[0];
-      for (int k = 1; k < kernelSize; k++)
-        accum += kernel[k] * (in[(j - k) * 4] + in[(j + k) * 4]);
-      out[j * outStride + (i * 4)] = static_cast<unsigned char>(std::min(static_cast<unsigned long>(255), accum / norm));
-    }
-    for (int j = (width - kernelSize) + 1; j < width; j++)
-    {
-      unsigned long accum = in[j * 4] * kernel[0];
-      for (int k = 1; k < kernelSize; k++)
-        accum += kernel[k] * in[(j - k) * 4];
-      for (int k = 1; k < width - j; k++)
-        accum += kernel[k] * in[(j + k) * 4];
-      out[j * outStride + (i * 4)] = static_cast<unsigned char>(std::min(static_cast<unsigned long>(255), accum / norm));
-    }
-  }
-}
-
 void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
 {
+  auto GaussianBlurSwap = [](uint8_t* out, uint8_t* in, uint8_t* kernel, int width, int height,
+                             int outStride, int inStride, int kernelSize, uint32_t norm)
+  {
+    for (int i = 0; i < height; i++, in += inStride)
+    {
+      for (int j = 0; j < kernelSize - 1; j++)
+      {
+        uint32_t accum = in[j * 4] * kernel[0];
+        for (int k = 1; k < j + 1; k++)
+          accum += kernel[k] * in[(j - k) * 4];
+        for (int k = 1; k < kernelSize; k++)
+          accum += kernel[k] * in[(j + k) * 4];
+        out[j * outStride + (i * 4)] = static_cast<uint8_t>(std::min(static_cast<uint32_t>(255), accum / norm));
+      }
+      for (int j = kernelSize - 1; j < (width - kernelSize) + 1; j++)
+      {
+        uint32_t accum = in[j * 4] * kernel[0];
+        for (int k = 1; k < kernelSize; k++)
+          accum += kernel[k] * (in[(j - k) * 4] + in[(j + k) * 4]);
+        out[j * outStride + (i * 4)] = static_cast<uint8_t>(std::min(static_cast<uint32_t>(255), accum / norm));
+      }
+      for (int j = (width - kernelSize) + 1; j < width; j++)
+      {
+        uint32_t accum = in[j * 4] * kernel[0];
+        for (int k = 1; k < kernelSize; k++)
+          accum += kernel[k] * in[(j - k) * 4];
+        for (int k = 1; k < width - j; k++)
+          accum += kernel[k] * in[(j + k) * 4];
+        out[j * outStride + (i * 4)] = static_cast<uint8_t>(std::min(static_cast<uint32_t>(255), accum / norm));
+      }
+    }
+  };
+  
   RawBitmapData temp1;
   RawBitmapData temp2;
   RawBitmapData kernel;
@@ -1618,9 +1619,9 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
     normFactor += kernel.Get()[i] + kernel.Get()[i];
   
   // Do blur
-  unsigned char* asRows = temp1.Get() + AlphaChannel();
-  unsigned char* inRows = flipped ? asRows + stride3 * (height - 1) : asRows;
-  unsigned char* asCols = temp2.Get() + AlphaChannel();
+  uint8_t* asRows = temp1.Get() + AlphaChannel();
+  uint8_t* inRows = flipped ? asRows + stride3 * (height - 1) : asRows;
+  uint8_t* asCols = temp2.Get() + AlphaChannel();
   
   GaussianBlurSwap(asCols, inRows, kernel.Get(), width, height, stride1, stride2, iSize, normFactor);
   GaussianBlurSwap(asRows, asCols, kernel.Get(), height, width, stride3, stride1, iSize, normFactor);

@@ -60,7 +60,7 @@ typedef std::chrono::high_resolution_clock Time;
 typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimePoint;
 typedef std::chrono::duration<double, std::chrono::milliseconds::period> Milliseconds;
 
-typedef WDL_TypedBuf<unsigned char> RawBitmapData;
+typedef WDL_TypedBuf<uint8_t> RawBitmapData;
 
 #ifdef IGRAPHICS_AGG
   #include "IGraphicsAGG_src.h"
