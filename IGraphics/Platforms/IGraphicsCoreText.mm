@@ -76,12 +76,13 @@ void CoreTextHelpers::CachePlatformFont(const char* fontID, const PlatformFontPt
   StaticStorage<CoreTextFontDescriptor>::Accessor storage(cache);
   
   CTFontDescriptorRef descriptor = (CTFontDescriptorRef) font->GetDescriptor();
-  
+  IFontDataPtr data = font->GetFontData();
+    
   if (!storage.Find(fontID))
-    storage.Add(new CoreTextFontDescriptor(descriptor), fontID);
+    storage.Add(new CoreTextFontDescriptor(descriptor, data->GetHeightEMRatio()), fontID);
 }
 
-CTFontDescriptorRef CoreTextHelpers::GetCTFontDescriptor(const IText& text, StaticStorage<CoreTextFontDescriptor>& cache)
+CoreTextFontDescriptor* CoreTextHelpers::GetCTFontDescriptor(const IText& text, StaticStorage<CoreTextFontDescriptor>& cache)
 {
   StaticStorage<CoreTextFontDescriptor>::Accessor storage(cache);
   
@@ -89,6 +90,6 @@ CTFontDescriptorRef CoreTextHelpers::GetCTFontDescriptor(const IText& text, Stat
   
   assert(cachedFont && "font not found - did you forget to load it?");
   
-  return cachedFont->mDescriptor;
+  return cachedFont;
 }
 

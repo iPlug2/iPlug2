@@ -29,12 +29,12 @@ typedef std::pair<WDL_String, WDL_String> FontDescType;
 
 struct CanvasFont
 {
-  CanvasFont(FontDescType descriptor, double ascenderRatio, double ratio)
-  : mDescriptor(descriptor), mAscenderRatio(ascenderRatio), mRatio(ratio) {}
+  CanvasFont(FontDescType descriptor, double ascenderRatio, double EMRatio)
+  : mDescriptor(descriptor), mAscenderRatio(ascenderRatio), mEMRatio(EMRatio) {}
     
   FontDescType mDescriptor;
   double mAscenderRatio;
-  double mRatio;
+  double mEMRatio;
 };
 
 StaticStorage<CanvasFont> sFontCache;
@@ -256,7 +256,7 @@ bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
   const FontDescType& descriptor = pFont->mDescriptor;
   char fontString[FONT_LEN + 64];
   context.set("textBaseline", std::string("top"));
-  sprintf(fontString, "%s %lfpx %s", descriptor.second.Get(), text.mSize * pFont->mRatio, descriptor.first.Get());
+  sprintf(fontString, "%s %lfpx %s", descriptor.second.Get(), text.mSize * pFont->mEMRatio, descriptor.first.Get());
   context.set("font", std::string(fontString));
   val metrics = context.call<val>("measureText", textString);
   const double textWidth = metrics["width"].as<double>();

@@ -17,17 +17,17 @@
 
 struct CairoFont
 {
-  CairoFont(cairo_font_face_t* font, double ratio) : mFont(font), mRatio(ratio) {}
+  CairoFont(cairo_font_face_t* font, double EMRatio) : mFont(font), mEMRatio(EMRatio) {}
   virtual ~CairoFont() { if (mFont) cairo_font_face_destroy(mFont); }
 
   cairo_font_face_t* mFont;
-  double mRatio;
+  double mEMRatio;
 };
 
 #ifdef OS_MAC
 struct CairoPlatformFont : CairoFont
 {
-  CairoPlatformFont(const void* fontRef, double ratio) : CairoFont(nullptr, ratio)
+  CairoPlatformFont(const void* fontRef, double EMRatio) : CairoFont(nullptr, EMRatio)
   {
     CTFontRef ctFont = CTFontCreateWithFontDescriptor((CTFontDescriptorRef) fontRef, 0.f, NULL);
     CGFontRef cgFont = CTFontCopyGraphicsFont(ctFont, NULL);
@@ -39,8 +39,8 @@ struct CairoPlatformFont : CairoFont
 #elif defined OS_WIN
 struct CairoPlatformFont : CairoFont
 {
-  CairoPlatformFont(const void* fontRef, double ratio)
-  : CairoFont(cairo_win32_font_face_create_for_hfont((HFONT) fontRef), ratio)
+  CairoPlatformFont(const void* fontRef, double EMRatio)
+  : CairoFont(cairo_win32_font_face_create_for_hfont((HFONT) fontRef), EMRatio)
   {}
 };
 
@@ -449,7 +449,7 @@ bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
   // Get the correct font face
   
   cairo_set_font_face(mContext, pCachedFont->mFont);
-  cairo_set_font_size(mContext, text.mSize * pCachedFont->mRatio);
+  cairo_set_font_size(mContext, text.mSize * pCachedFont->mEMRatio);
   cairo_font_extents(mContext, &fontExtents);
 
   // Draw / measure

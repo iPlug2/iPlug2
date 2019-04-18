@@ -48,7 +48,8 @@ struct CFLocal
 
 struct CoreTextFontDescriptor
 {
-  CoreTextFontDescriptor(CTFontDescriptorRef descriptor) : mDescriptor(descriptor)
+  CoreTextFontDescriptor(CTFontDescriptorRef descriptor, double EMRatio)
+  : mDescriptor(descriptor), mEMRatio(EMRatio)
   {
     CFRetain(mDescriptor);
   }
@@ -59,6 +60,7 @@ struct CoreTextFontDescriptor
   }
   
   CTFontDescriptorRef mDescriptor;
+  double mEMRatio;
 };
 
 namespace CoreTextHelpers
@@ -69,5 +71,5 @@ namespace CoreTextHelpers
 
   extern void CachePlatformFont(const char* fontID, const PlatformFontPtr& font, StaticStorage<CoreTextFontDescriptor>& cache);
   
-  CTFontDescriptorRef GetCTFontDescriptor(const IText& text, StaticStorage<CoreTextFontDescriptor>& cache);
+  CoreTextFontDescriptor* GetCTFontDescriptor(const IText& text, StaticStorage<CoreTextFontDescriptor>& cache);
 }
