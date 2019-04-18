@@ -68,14 +68,6 @@ private:
 class IGraphicsAGG : public IGraphicsPathBase
 {
 public:
-  struct LineInfo
-  {
-    int mStartChar;
-    int mEndChar;
-    double mWidth;
-    LineInfo() : mWidth(0.0), mStartChar(0), mEndChar(0) {}
-  };
-  
 #ifdef OS_WIN
   typedef agg::order_bgra PixelOrder;
   typedef agg::pixel_map_win32 PixelMapType;
@@ -305,8 +297,6 @@ private:
   
   bool SetFont(const char* fontID, IFontData* pFont);
 
-  void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& bounds, const char* str, FontManagerType& manager);
-
   double XTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().L; }
   double YTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().T; }
   
@@ -331,7 +321,5 @@ private:
     
   //pipeline to process the vectors glyph paths(curves + contour)
   agg::conv_curve<FontManagerType::path_adaptor_type> mFontCurves;
-  agg::conv_contour<agg::conv_curve<FontManagerType::path_adaptor_type>> mFontContour;
   agg::conv_transform<agg::conv_curve<FontManagerType::path_adaptor_type>> mFontCurvesTransformed;
-  agg::conv_transform<agg::conv_contour<agg::conv_curve<FontManagerType::path_adaptor_type>>> mFontContourTransformed;
 };
