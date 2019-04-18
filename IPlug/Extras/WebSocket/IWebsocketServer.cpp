@@ -30,7 +30,7 @@ bool IWebsocketServer::CreateServer(const char* DOCUMENT_ROOT, const char* PORT)
   
   if (!sServer)
   {
-    try { sServer.reset(new CivetServer(cpp_options)); }
+    try { sServer = std::make_unique<CivetServer>(cpp_options); }
     catch (const std::exception& e)
     {
       DBGMSG("Couldn't create server, port probably already in use\n");
@@ -56,7 +56,7 @@ void IWebsocketServer::DestroyServer()
 {
   if (sInstances && (--sInstances == 0))
   {
-    sServer.reset(nullptr);
+    sServer = nullptr;
   }
 }
   

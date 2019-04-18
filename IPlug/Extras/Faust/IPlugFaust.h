@@ -43,7 +43,7 @@ public:
   : mNVoices(nVoices)
   {
     if(rate > 1)
-      mOverSampler.reset(new OverSampler<sample>(OverSampler<sample>::RateToFactor(rate), true, 2 /* TODO: flexible channel count */));
+      mOverSampler = std::make_unique<OverSampler<sample>>(OverSampler<sample>::RateToFactor(rate), true, 2 /* TODO: flexible channel count */);
     
     mName.Set(name);
   }
@@ -72,7 +72,7 @@ public:
   
   void FreeDSP()
   {
-    mDSP.reset(nullptr);
+    mDSP = nullptr;
   }
   
   void SetOverSamplingRate(int rate)

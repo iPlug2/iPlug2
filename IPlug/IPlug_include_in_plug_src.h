@@ -395,7 +395,7 @@ extern "C"
     StartMainLoopTimer();
 
     // TODO: this code never runs, so when do we delete?!
-    gPlug.reset(nullptr);
+    gPlug = nullptr;
     
     return 0;
   }

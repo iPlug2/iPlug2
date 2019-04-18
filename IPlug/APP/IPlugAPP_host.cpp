@@ -47,7 +47,7 @@ IPlugAPPHost::~IPlugAPPHost()
 //static
 IPlugAPPHost* IPlugAPPHost::Create()
 {
-  sInstance.reset(new IPlugAPPHost());
+  sInstance = std::make_unique<IPlugAPPHost>();
   return sInstance.get();
 }
 
@@ -376,19 +376,19 @@ bool IPlugAPPHost::TryToChangeAudioDriverType()
       mDAC->closeStream();
     }
 
-    mDAC.reset(nullptr);
+    mDAC = nullptr;
   }
 
 #if defined OS_WIN
   if(mState.mAudioDriverType == kDeviceASIO)
-    mDAC.reset(new RtAudio(RtAudio::WINDOWS_ASIO));
+    mDAC = std::make_unique<RtAudio>(RtAudio::WINDOWS_ASIO);
   else
-    mDAC.reset(new RtAudio(RtAudio::WINDOWS_DS));
+    mDAC = std::make_unique<RtAudio>(RtAudio::WINDOWS_DS);
 #elif defined OS_MAC
   if(mState.mAudioDriverType == kDeviceCoreAudio)
-    mDAC.reset(new RtAudio(RtAudio::MACOSX_CORE));
+    mDAC = std::make_unique<RtAudio>(RtAudio::MACOSX_CORE);
   //else
-  //mDAC.reset(new RtAudio(RtAudio::UNIX_JACK));
+  //mDAC = std::make_unique<RtAudio>(RtAudio::UNIX_JACK);
 #else
   #error NOT IMPLEMENTED
 #endif
@@ -621,22 +621,22 @@ bool IPlugAPPHost::InitMidi()
 {
   try
   {
-    mMidiIn.reset(new RtMidiIn());
+    mMidiIn = std::make_unique<RtMidiIn>();
   }
   catch (RtMidiError &error)
   {
-    mMidiIn.reset(nullptr);
+    mMidiIn = nullptr;
     error.printMessage();
     return false;
   }
 
   try
   {
-    mMidiOut.reset(new RtMidiOut());
+    mMidiOut = std::make_unique<RtMidiOut>();
   }
   catch (RtMidiError &error)
   {
-    mMidiOut.reset(nullptr);
+    mMidiOut = nullptr;
     error.printMessage();
     return false;
   }

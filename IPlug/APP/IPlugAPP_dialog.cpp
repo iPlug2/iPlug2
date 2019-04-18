@@ -538,7 +538,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
     case WM_DESTROY:
       pAppHost->CloseWindow();
       gHWND = NULL;
-      IPlugAPPHost::sInstance.reset(nullptr);
+      IPlugAPPHost::sInstance = nullptr;
       
       #ifdef OS_WIN
       PostQuitMessage(0);

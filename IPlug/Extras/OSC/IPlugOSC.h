@@ -270,7 +270,7 @@ public:
   virtual ~OSCInterface()
   {
     if (--sInstances == 0)
-      mTimer.reset(nullptr);
+      mTimer = nullptr;
   }
   
   static void MessageCallback(void *d1, int dev_idx, char type, int msglen, void *msg);
