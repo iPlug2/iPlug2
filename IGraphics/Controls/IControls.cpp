@@ -58,9 +58,9 @@ void IVTriangleButtonControl::Draw(IGraphics& g)
 }
 
 IVSwitchControl::IVSwitchControl(IRECT bounds, int paramIdx, IActionFunction actionFunc
-  , const char* str, const IVColorSpec& colorSpec, int numStates)
+  , const char* str, const IVColorSpec& colorSpec, const IVStyle& style, int numStates)
   : ISwitchControlBase(bounds, paramIdx, actionFunc, numStates)
-  , IVectorBase(colorSpec)
+  , IVectorBase(colorSpec, style)
 {
   AttachIControl(this);
   mDblAsSingleClick = true;

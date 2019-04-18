@@ -120,7 +120,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     {
       SplashClickActionFunc(pCaller);
       dynamic_cast<IVectorBase*>(pCaller)->SetRoundness(pCaller->GetValue());
-    }));
+    }, "", DEFAULT_SPEC, style, 2));
     
     //    pGraphics->AttachControl(new IVMeterControl<2>(*this, nextCell()), kControlTagMeter);
     //    pGraphics->AttachControl(new IVScopeControl<>(*this, nextCell()), kControlTagScope);
@@ -148,9 +148,9 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
       dynamic_cast<ITextControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagDialogResult))->SetStr(dir.Get());
     };
     
-    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).GetGridCell(0, 4, 1), button1action, "Trigger Message Box", buttonLabels));
-    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).GetGridCell(1, 4, 1), button2action, "Trigger open file dialog", buttonLabels));
-    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).GetGridCell(2, 4, 1), button3action, "Trigger open directory dialog", buttonLabels));
+    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).GetGridCell(0, 4, 1), button1action, "Trigger Message Box", buttonLabels, DEFAULT_SPEC, style));
+    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).GetGridCell(1, 4, 1), button2action, "Trigger open file dialog", buttonLabels, DEFAULT_SPEC, style));
+    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).GetGridCell(2, 4, 1), button3action, "Trigger open directory dialog", buttonLabels, DEFAULT_SPEC, style));
     pGraphics->AttachControl(new ITextControl(b.GetGridCell(9, nRows, nCols).GetGridCell(3, 4, 1), "Dialog result shown here...", DEFAULT_TEXT, COLOR_RED), kCtrlTagDialogResult);
 
     pGraphics->AttachControl(new ITextControl(b.GetGridCell(2, nRows, 1), "Text Controls", bigLabel));

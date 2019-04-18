@@ -64,7 +64,7 @@ class IVSwitchControl : public ISwitchControlBase
 {
 public:
   IVSwitchControl(IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = SplashClickActionFunc,
-                  const char* label = "", const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2);
+                  const char* label = "", const IVColorSpec& colorSpec = DEFAULT_SPEC, const IVStyle& style = DEFAULT_STYLE, int numStates = 2);
 
   void Draw(IGraphics& g) override;
 

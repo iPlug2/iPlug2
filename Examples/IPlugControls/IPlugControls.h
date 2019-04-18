@@ -17,6 +17,16 @@ enum EControlTags
   kControlTags
 };
 
+IVStyle style
+{
+  true, // Draw frame
+  true, // Draw shadows
+  true, // Emboss
+  0.0f, // Button roundness
+  3.0f, // Frame thickness
+  3.0f, // Shadow offset
+};
+
 class IPlugControls : public IPlug
 {
 public:
