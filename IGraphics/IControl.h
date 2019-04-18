@@ -685,14 +685,15 @@ public:
     
     if (pressed)
     {
-      g.FillRoundRect(GetColor(kPR), handleBounds, cornerRadius);
-      
+      g.FillRoundRect(GetColor(kPR), handleBounds.GetVSliced(mShadowOffset).GetHSliced(mShadowOffset), cornerRadius);
+
       //inner shadow
       if (mDrawShadows && mEmboss)
       {
-        g.PathRect(handleBounds.GetHSliced(mShadowOffset));
-        g.PathRect(handleBounds.GetVSliced(mShadowOffset));
-        g.PathFill(GetColor(kSH));
+        g.FillRoundRect(GetColor(kSH), handleBounds, cornerRadius);
+
+        // Draw foreground with offset to cover the shadow
+        g.FillRoundRect(GetColor(kPR), handleBounds.GetVSliced(mShadowOffset).GetHSliced(mShadowOffset), cornerRadius);
       }
     }
     else
