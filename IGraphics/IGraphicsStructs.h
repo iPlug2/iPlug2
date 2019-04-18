@@ -1460,26 +1460,26 @@ struct IRECT
     return IRECT(L, MH()-padding, R, MH()+padding);
   }
 
-  /** /todo 
-   * @param w /todo
-   * @param rhs /todo
-   * @return IRECT /todo */
+  /** Get a subrect of this IRECT with an amount sliced off on the horizontal axis
+   * @param w How much to cut off the side
+   * @param rhs If this is true, slice off from the right side, otherwise slice off the left
+   * @return IRECT The resulting IRECT by value */
   inline IRECT GetHSliced(float w, bool rhs = false) const
   {
     if(rhs)
-      return IRECT(R - w, T, R, B);
+      return IRECT(L, T, R - w, B);
     else
-      return IRECT(L, T, L + w, B);
+      return IRECT(L + w, T, R, B);
   }
   
-  /** /todo 
-   * @param h /todo
-   * @param bot /todo
-   * @return IRECT /todo */
+  /** Get a subrect of this IRECT with an amount sliced off on the vertical axis
+   * @param h How much to cut off
+   * @param bot If this is true, slice off from the bottom, otherwise slice off the top
+   * @return IRECT The resulting IRECT by value */
   inline IRECT GetVSliced(float h, bool bot = false) const
   {
     if(bot)
-      return IRECT(L, B - h, R, B);
+      return IRECT(L, T, R, B - h);
     else
       return IRECT(L, T + h, R, B);
   }
