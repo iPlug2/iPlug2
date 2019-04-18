@@ -5,13 +5,17 @@
 #include "IGraphics_select.h"
 
 #if defined IGRAPHICS_GL2
-#include "imgui_impl_opengl2.h"
+  #include "imgui_impl_opengl2.h"
 #elif defined IGRAPHICS_GL3 || defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
-#include "imgui_impl_opengl3.h"
+  #include "imgui_impl_opengl3.h"
 #else
-#import <Metal/Metal.h>
-#import <QuartzCore/QuartzCore.h>
-#include "imgui_impl_metal.h"
+  #if defined OS_MAC || defined OS_IOS
+    #import <Metal/Metal.h>
+    #import <QuartzCore/QuartzCore.h>
+    #include "imgui_impl_metal.h"
+  #else
+    #error "ImGui is only supported on this platform using the OpenGL based backends"
+  #endif
 #endif
 
 ImGuiRenderer::ImGuiRenderer(IGraphics* pGraphics, std::function<void(IGraphics*)> drawFunc, std::function<void()> setupFunc)
@@ -79,7 +83,7 @@ void ImGuiRenderer::DoFrame()
   ImGuiIO &io = ImGui::GetIO();
   io.DisplaySize.x = std::round(mGraphics->Width() * mGraphics->GetDrawScale());
   io.DisplaySize.y = std::round(mGraphics->Height() * mGraphics->GetDrawScale());
-  int scale = mGraphics->GetScreenScale();
+  float scale = (float) mGraphics->GetScreenScale();
   io.DisplayFramebufferScale = ImVec2(scale, scale);
   io.DeltaTime = 1.f / mGraphics->FPS();
   
@@ -161,7 +165,6 @@ bool ImGuiRenderer::OnKeyDown(float x, float y, const IKeyPress& keyPress)
   io.KeyCtrl = keyPress.C;
   io.KeyShift = keyPress.S;
   io.KeyAlt = keyPress.A;
-//  io.KeySuper
   
   return io.WantCaptureKeyboard;
 }
@@ -210,14 +213,14 @@ void ImGuiRenderer::NewFrame()
   this->DoFrame();
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 #else
-
+  //Metal rendering handled in IGRAPHICS_IMGUIVIEW
 #endif
 }
 
 #include "imgui.cpp"
 #include "imgui_widgets.cpp"
 #include "imgui_draw.cpp"
-#include "imgui_demo.cpp"
+//#include "imgui_demo.cpp"
 
 #if defined IGRAPHICS_GL2
   #include "imgui_impl_opengl2.cpp"

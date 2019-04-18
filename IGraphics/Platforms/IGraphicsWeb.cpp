@@ -31,7 +31,7 @@ IFontDataPtr IGraphicsWeb::WebFileFont::GetFontData()
     return fontData;
   
   fseek(fp,0,SEEK_END);
-  fontData.reset(new IFontData((int) ftell(fp)));
+  fontData = std::make_unique<IFontData>((int) ftell(fp));
   
   if (!fontData->GetSize())
     return fontData;
@@ -595,7 +595,7 @@ void IGraphicsWeb::DrawResize()
   IGRAPHICS_DRAW_CLASS::DrawResize();
 }
 
-IGraphics::PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
+PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
 {
   WDL_String fullPath;
   const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, GetBundleID(), nullptr);
@@ -606,7 +606,7 @@ IGraphics::PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, co
   return PlatformFontPtr(new WebFileFont(fontID, "", fullPath.Get()));
 }
 
-IGraphics::PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
+PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
 {
   const char* styles[] = { "normal", "bold", "italic" };
   

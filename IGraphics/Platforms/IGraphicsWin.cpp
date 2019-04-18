@@ -88,7 +88,7 @@ IFontDataPtr IGraphicsWin::WinFont::GetFontData()
 
     if (size != GDI_ERROR)
     {
-      fontData.reset(new IFontData(size));
+      fontData = std::make_unique<IFontData>(size);
 
       if (fontData->GetSize() == size)
       {
@@ -1642,7 +1642,7 @@ HFONT GetHFont(const char* fontName, int weight, bool italic, bool underline, DW
   return font;
 }
 
-IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
+PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
 {
   StaticStorage<WinCachedFont>::Accessor fontStorage(sPlatformFontCache);
 
@@ -1663,7 +1663,7 @@ IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, co
       HANDLE file = CreateFile(fullPath.Get(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
       HANDLE mapping = CreateFileMapping(file, NULL, PAGE_READONLY, 0, 0, NULL);
       pFontMem = MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
-      pFont.reset(new WinCachedFont(pFontMem, resSize));
+      pFont = std::make_unique<WinCachedFont>(pFontMem, resSize);
       UnmapViewOfFile(pFontMem);
       CloseHandle(mapping);
       CloseHandle(file);
@@ -1672,7 +1672,7 @@ IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, co
     case kWinBinary:
     {
       pFontMem = const_cast<void *>(LoadWinResource(fullPath.Get(), "ttf", resSize, GetWinModuleHandle()));
-      pFont.reset(new WinCachedFont(pFontMem, resSize));
+      pFont = std::make_unique<WinCachedFont>(pFontMem, resSize);
     }
     break;
   } 
@@ -1697,7 +1697,7 @@ IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, co
   return nullptr;
 }
 
-IGraphics::PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
+PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
 {
   int weight = style == kTextStyleBold ? FW_BOLD : FW_REGULAR;
   bool italic = style == kTextStyleItalic;

@@ -50,7 +50,7 @@ jobs:
       cd ./Dependencies/IPlug
       rm -r WAM_SDK
       # git clone https://github.com/webaudiomodules/api.git WAM_SDK
-      git clone --single-branch --branch pointer_stringify https://github.com/olilarkin/api.git WAM_SDK
+      git clone https://github.com/iplug2/api.git WAM_SDK
       rm -r WAM_SDK/.git
     displayName: Download WAM SDK
     condition: eq(variables.build_web, true)
@@ -58,7 +58,7 @@ jobs:
   - bash: |
       cd ./Dependencies/IPlug
       rm -r WAM_AWP
-      git clone https://github.com/jariseon/audioworklet-polyfill WAM_AWP
+      git clone https://github.com/iplug2/audioworklet-polyfill WAM_AWP
       rm -r WAM_AWP/.git
     displayName: Download WAM AWP
     condition: eq(variables.build_web, true)

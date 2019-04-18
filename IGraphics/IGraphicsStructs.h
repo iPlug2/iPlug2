@@ -60,7 +60,7 @@ typedef std::chrono::high_resolution_clock Time;
 typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimePoint;
 typedef std::chrono::duration<double, std::chrono::milliseconds::period> Milliseconds;
 
-typedef WDL_TypedBuf<unsigned char> RawBitmapData;
+typedef WDL_TypedBuf<uint8_t> RawBitmapData;
 
 #ifdef IGRAPHICS_AGG
   #include "IGraphicsAGG_src.h"
@@ -839,8 +839,35 @@ private:
   int16_t mLineHeight;
 };
 
-/** Used to manage a rectangular area, independent of draw class/platform.
+/** /todo */
+class PlatformFont
+{
+public:
+  virtual ~PlatformFont() {}
+  virtual const void* GetDescriptor() { return nullptr; }
+  virtual IFontDataPtr GetFontData() { return IFontDataPtr(new IFontData()); }
+  
+protected:
+  int GetFaceIdx(const void* data, int dataSize, const char* styleName)
+  {
+    for (int idx = 0; ; idx++)
+    {
+      IFontInfo fontInfo(data, dataSize, idx);
+      
+      if (!fontInfo.IsValid())
+      return -1;
+      
+      const WDL_String& style = fontInfo.GetStyle();
+      
+      if (style.GetLength() && (!styleName[0] || !strcmp(style.Get(), styleName)))
+      return idx;
+    }
+  }
+};
 
+typedef std::unique_ptr<PlatformFont> PlatformFontPtr;
+
+/** Used to manage a rectangular area, independent of draw class/platform.
  * An IRECT is always specified in 1:1 pixels, any scaling for high DPI happens in the drawing class.
  * In IGraphics 0,0 is top left. */
 struct IRECT

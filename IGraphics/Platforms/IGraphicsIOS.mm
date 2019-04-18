@@ -8,18 +8,19 @@
  ==============================================================================
 */
 
-#ifndef NO_IGRAPHICS
 #import <QuartzCore/QuartzCore.h>
-#import "IGraphicsIOS_view.h"
 
 #include "IGraphicsIOS.h"
+#include "IGraphicsCoreText.h"
+
+#import "IGraphicsIOS_view.h"
+
 #include "IControl.h"
 #include "IPopupMenuControl.h"
 
-#include "IPlugPluginBase.h"
-#include "IPlugPaths.h"
-
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
+StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 #pragma mark -
 
@@ -190,5 +191,17 @@ void IGraphicsIOS::CreatePlatformImGui()
 #endif
 }
 
+PlatformFontPtr IGraphicsIOS::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
+{
+  return CoreTextHelpers::LoadPlatformFont(fontID, fileNameOrResID, GetBundleID());
+}
 
-#endif// NO_IGRAPHICS
+PlatformFontPtr IGraphicsIOS::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
+{
+  return CoreTextHelpers::LoadPlatformFont(fontID, fontName, style);
+}
+
+void IGraphicsIOS::CachePlatformFont(const char* fontID, const PlatformFontPtr& font)
+{
+  CoreTextHelpers::CachePlatformFont(fontID, font, sFontDescriptorCache);
+}

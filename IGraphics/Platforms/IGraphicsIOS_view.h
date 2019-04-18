@@ -20,7 +20,7 @@ inline CGRect ToCGRect(IGraphics* pGraphics, const IRECT& bounds)
 @interface IGraphicsIOS_View : UIView
 {  
 @public
-  IGraphicsIOS* mGraphics; // OBJC instance variables have to be pointers
+  IGraphicsIOS* mGraphics;
 }
 - (id) initWithIGraphics: (IGraphicsIOS*) pGraphics;
 - (BOOL) isOpaque;
@@ -41,7 +41,7 @@ inline CGRect ToCGRect(IGraphics* pGraphics, const IRECT& bounds)
 
 @interface IGRAPHICS_IMGUIVIEW : MTKView
 {
-  IGraphicsIOS_View* mView; // OBJC instance variables have to be pointers
+  IGraphicsIOS_View* mView;
 }
 @property (nonatomic, strong) id <MTLCommandQueue> commandQueue;
 - (id) initWithIGraphicsView: (IGraphicsIOS_View*) pView;
