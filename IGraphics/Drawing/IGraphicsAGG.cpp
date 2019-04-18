@@ -542,7 +542,7 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
     return false;
   }
 
-  const bool kerning = false;
+  const bool kerning = true;
   const bool hinting = false;
   
   StaticStorage<IFontData>::Accessor storage(sFontCache);
@@ -572,8 +572,9 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
     case IText::kVAlignBottom:   y = bounds.B + descender;                              break;
   }
   
+  mFontManager.reset_last_glyph();
   double width = 0.0;
-    
+  
   for (int i = 0; str[i]; i++)
   {
     const agg::glyph_cache* pGlyph = mFontManager.glyph(str[i]);
@@ -604,7 +605,8 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
     }
     
     agg::rgba8 color(AGGColor(text.mFGColor, BlendWeight(pBlend)));
-
+    mFontManager.reset_last_glyph();
+    
     for (size_t c = 0; str[c]; c++)
     {
       const agg::glyph_cache* pGlyph = mFontManager.glyph(str[c]);
