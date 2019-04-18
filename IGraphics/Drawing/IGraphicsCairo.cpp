@@ -464,7 +464,7 @@ bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
   {
     bounds = IRECT(0, 0, textExtents.width, textExtents.height);
     if (!mSurface)
-        UpdateCairoContext();
+      UpdateCairoContext();
     cairo_glyph_free(pGlyphs);
     return true;
   }
