@@ -80,6 +80,7 @@ private:
     return canvas.call<val>("getContext", std::string("2d"));
   }
     
+  void GetFontMetrics(const char* font, const char* style, double& ascenderRatio, double& EMRatio);
   bool CompareFontMetrics(const char* style, const char* font1, const char* font2, int size);
     
   double XTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().L; }

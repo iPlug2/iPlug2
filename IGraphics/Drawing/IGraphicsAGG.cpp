@@ -557,15 +557,18 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
   mFontEngine.height(text.mSize * pFont->GetHeightEMRatio());
   mFontEngine.flip_y(true);
   
+  const double textHeight = text.mSize;
+  const double EMHeight = pFont->GetAscender() - pFont->GetDescender();
+  const double ascender = text.mSize * pFont->GetAscender() / EMHeight;
+  const double descender = text.mSize * pFont->GetDescender() / EMHeight;
+  
   double x = bounds.L;
-  double y = bounds.T + (text.mSize);
-  double EMHeight = pFont->GetAscender() - pFont->GetDescender();
-  double ascender = text.mSize * pFont->GetAscender() / EMHeight;
-  double descender = text.mSize * pFont->GetDescender() / EMHeight;
+  double y = bounds.T + textHeight;
+  
   switch (text.mVAlign)
   {
     case IText::kVAlignTop:      y = bounds.T + ascender;                               break;
-    case IText::kVAlignMiddle:   y = bounds.MH() + descender + text.mSize/2.;           break;
+    case IText::kVAlignMiddle:   y = bounds.MH() + descender + textHeight/2.;           break;
     case IText::kVAlignBottom:   y = bounds.B + descender;                              break;
   }
   
@@ -588,7 +591,7 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
     
   if (measure)
   {
-    bounds.B = bounds.T + text.mSize;
+    bounds.B = bounds.T + textHeight;
     bounds.R = bounds.L + width;
   }
   else
