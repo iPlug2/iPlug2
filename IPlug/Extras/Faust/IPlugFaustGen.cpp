@@ -471,7 +471,7 @@ void FaustGen::Init()
 {
   mZones.Empty(); // remove existing pointers to zones
   
-  mDSP = mFactory->GetDSP(mMaxNInputs, mMaxNOutputs);
+  mDSP.reset(mFactory->GetDSP(mMaxNInputs, mMaxNOutputs));
   assert(mDSP);
 
 //    AddMidiHandler();

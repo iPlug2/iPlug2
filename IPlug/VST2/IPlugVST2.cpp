@@ -234,7 +234,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     }
     case effClose:
     {
-      DELETE_NULL(_this);
+      delete _this;
       return 0;
     }
     case effGetParamLabel:

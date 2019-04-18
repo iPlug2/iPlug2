@@ -12,6 +12,7 @@
 
 #include <cstring>
 #include <cstdint>
+#include <memory>
 
 #include "ptrlist.h"
 #include "mutex.h"
@@ -197,7 +198,7 @@ private:
 
 protected:
   WDL_String mParamDisplayStr;
-  Timer* mTimer = nullptr;
+  std::unique_ptr<Timer> mTimer;
   
   IPlugQueue<IParamChange> mParamChangeFromProcessor {PARAM_TRANSFER_SIZE};
   IPlugQueue<IMidiMsg> mMidiMsgsFromEditor {MIDI_TRANSFER_SIZE}; // a queue of midi messages generated in the editor by clicking keyboard UI etc

@@ -642,14 +642,13 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text)
 
     assert (fontInfo && "No font found - did you forget to load it?");
       
-    font = new LICE_CachedFont;
     int h = round(text.mSize * scale);
     int esc = 10 * text.mOrientation;
     int wt = fontInfo->mBold ? FW_BOLD : FW_NORMAL;
     int it = fontInfo->mItalic ? TRUE : FALSE;
     int ot = fontInfo->mOutline ? TRUE : FALSE;
-      
     int q;
+      
     if (text.mQuality == IText::kQualityDefault)
       q = DEFAULT_QUALITY;
 #ifdef CLEARTYPE_QUALITY
@@ -671,9 +670,9 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text)
     HFONT hFont = CreateFont(h, 0, esc, esc, wt, it, ot, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, q, DEFAULT_PITCH, fontInfo->mFontName.Get());
     if (!hFont)
     {
-      delete(font);
       return 0;
     }
+    font = new LICE_CachedFont;
     font->SetFromHFont(hFont, LICE_FONT_FLAG_OWNS_HFONT | LICE_FONT_FLAG_FORCE_NATIVE);
 #ifdef OS_MAC
     if (!resized && font->GetLineHeight() != h)
