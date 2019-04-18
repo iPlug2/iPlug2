@@ -70,7 +70,7 @@ void IGEditorDelegate::CloseWindow()
     
       if (mIGraphicsTransient)
       {
-        mGraphics.reset(nullptr);
+        mGraphics = nullptr;
       }
     }
     mClosing = false;

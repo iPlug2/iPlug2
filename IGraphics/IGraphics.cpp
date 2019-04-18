@@ -79,7 +79,7 @@ IGraphics::IGraphics(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 IGraphics::~IGraphics()
 {
 #ifdef IGRAPHICS_IMGUI
-  mImGuiRenderer.reset(nullptr);
+  mImGuiRenderer = nullptr;
 #endif
   
   RemoveAllControls();
@@ -158,13 +158,13 @@ void IGraphics::RemoveAllControls()
   mMouseCapture = mMouseOver = nullptr;
   mMouseOverIdx = -1;
 
-  mPopupControl.reset(nullptr);
-  mTextEntryControl.reset(nullptr);
-  mCornerResizer.reset(nullptr);
-  mPerfDisplay.reset(nullptr);
+  mPopupControl = nullptr;
+  mTextEntryControl = nullptr;
+  mCornerResizer = nullptr;
+  mPerfDisplay = nullptr;
     
 #if !defined(NDEBUG)
-  mLiveEdit.reset(nullptr);
+  mLiveEdit = nullptr;
 #endif
   
   mControls.Empty(true);
@@ -229,7 +229,7 @@ void IGraphics::AttachPopupMenuControl(const IText& text, const IRECT& bounds)
 {
   if (!mPopupControl)
   {
-    mPopupControl.reset(new IPopupMenuControl(kNoParameter, text, IRECT(), bounds));
+    mPopupControl = std::make_unique<IPopupMenuControl>(kNoParameter, text, IRECT(), bounds);
     mPopupControl->SetDelegate(*GetDelegate());
   }
 }
@@ -238,7 +238,7 @@ void IGraphics::AttachTextEntryControl()
 {
   if (!mTextEntryControl)
   {
-    mTextEntryControl.reset(new ITextEntryControl());
+    mTextEntryControl = std::make_unique<ITextEntryControl>();
     mTextEntryControl->SetDelegate(*GetDelegate());
   }
 }
@@ -249,13 +249,13 @@ void IGraphics::ShowFPSDisplay(bool enable)
   {
     if (!mPerfDisplay)
     {
-      mPerfDisplay.reset(new IFPSDisplayControl(GetBounds().GetPadded(-10).GetFromTLHC(200, 50)));
+      mPerfDisplay = std::make_unique<IFPSDisplayControl>(GetBounds().GetPadded(-10).GetFromTLHC(200, 50));
       mPerfDisplay->SetDelegate(*GetDelegate());
     }
   }
   else
   {
-    mPerfDisplay.reset(nullptr);
+    mPerfDisplay = nullptr;
   }
 
   SetAllControlsDirty();
@@ -901,6 +901,14 @@ bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 {
   Trace("IGraphics::OnMouseDblClick", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
+  
+#ifdef IGRAPHICS_IMGUI
+  if(mImGuiRenderer)
+  {
+    mImGuiRenderer.get()->OnMouseDown(x, y, mod);
+    return true;
+  }
+#endif
 
   IControl* pControl = GetMouseControl(x, y, true);
     
@@ -1209,13 +1217,13 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
   {
     if (!mLiveEdit)
     {
-      mLiveEdit.reset(new IGraphicsLiveEdit(mHandleMouseOver/*, file, gridsize*/));
+      mLiveEdit = std::make_unique<IGraphicsLiveEdit>(mHandleMouseOver/*, file, gridsize*/);
       mLiveEdit->SetDelegate(*GetDelegate());
     }
   }
   else
   {
-    mLiveEdit.reset(nullptr);
+    mLiveEdit = nullptr;
   }
   
   mMouseOver = nullptr;
@@ -1541,40 +1549,41 @@ void IGraphics::DrawRotatedLayer(const ILayerPtr& layer, double angle)
   PathTransformRestore();
 }
 
-void GaussianBlurSwap(unsigned char *out, unsigned char *in, unsigned char *kernel, int width, int height, int outStride, int inStride, int kernelSize, unsigned long norm)
-{
-  for (int i = 0; i < height; i++, in += inStride)
-  {
-    for (int j = 0; j < kernelSize - 1; j++)
-    {
-      unsigned long accum = in[j * 4] * kernel[0];
-      for (int k = 1; k < j + 1; k++)
-        accum += kernel[k] * in[(j - k) * 4];
-      for (int k = 1; k < kernelSize; k++)
-        accum += kernel[k] * in[(j + k) * 4];
-      out[j * outStride + (i * 4)] = static_cast<unsigned char>(std::min(static_cast<unsigned long>(255), accum / norm));
-    }
-    for (int j = kernelSize - 1; j < (width - kernelSize) + 1; j++)
-    {
-      unsigned long accum = in[j * 4] * kernel[0];
-      for (int k = 1; k < kernelSize; k++)
-        accum += kernel[k] * (in[(j - k) * 4] + in[(j + k) * 4]);
-      out[j * outStride + (i * 4)] = static_cast<unsigned char>(std::min(static_cast<unsigned long>(255), accum / norm));
-    }
-    for (int j = (width - kernelSize) + 1; j < width; j++)
-    {
-      unsigned long accum = in[j * 4] * kernel[0];
-      for (int k = 1; k < kernelSize; k++)
-        accum += kernel[k] * in[(j - k) * 4];
-      for (int k = 1; k < width - j; k++)
-        accum += kernel[k] * in[(j + k) * 4];
-      out[j * outStride + (i * 4)] = static_cast<unsigned char>(std::min(static_cast<unsigned long>(255), accum / norm));
-    }
-  }
-}
-
 void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
 {
+  auto GaussianBlurSwap = [](uint8_t* out, uint8_t* in, uint8_t* kernel, int width, int height,
+                             int outStride, int inStride, int kernelSize, uint32_t norm)
+  {
+    for (int i = 0; i < height; i++, in += inStride)
+    {
+      for (int j = 0; j < kernelSize - 1; j++)
+      {
+        uint32_t accum = in[j * 4] * kernel[0];
+        for (int k = 1; k < j + 1; k++)
+          accum += kernel[k] * in[(j - k) * 4];
+        for (int k = 1; k < kernelSize; k++)
+          accum += kernel[k] * in[(j + k) * 4];
+        out[j * outStride + (i * 4)] = static_cast<uint8_t>(std::min(static_cast<uint32_t>(255), accum / norm));
+      }
+      for (int j = kernelSize - 1; j < (width - kernelSize) + 1; j++)
+      {
+        uint32_t accum = in[j * 4] * kernel[0];
+        for (int k = 1; k < kernelSize; k++)
+          accum += kernel[k] * (in[(j - k) * 4] + in[(j + k) * 4]);
+        out[j * outStride + (i * 4)] = static_cast<uint8_t>(std::min(static_cast<uint32_t>(255), accum / norm));
+      }
+      for (int j = (width - kernelSize) + 1; j < width; j++)
+      {
+        uint32_t accum = in[j * 4] * kernel[0];
+        for (int k = 1; k < kernelSize; k++)
+          accum += kernel[k] * in[(j - k) * 4];
+        for (int k = 1; k < width - j; k++)
+          accum += kernel[k] * in[(j + k) * 4];
+        out[j * outStride + (i * 4)] = static_cast<uint8_t>(std::min(static_cast<uint32_t>(255), accum / norm));
+      }
+    }
+  };
+  
   RawBitmapData temp1;
   RawBitmapData temp2;
   RawBitmapData kernel;
@@ -1610,9 +1619,9 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
     normFactor += kernel.Get()[i] + kernel.Get()[i];
   
   // Do blur
-  unsigned char* asRows = temp1.Get() + AlphaChannel();
-  unsigned char* inRows = flipped ? asRows + stride3 * (height - 1) : asRows;
-  unsigned char* asCols = temp2.Get() + AlphaChannel();
+  uint8_t* asRows = temp1.Get() + AlphaChannel();
+  uint8_t* inRows = flipped ? asRows + stride3 * (height - 1) : asRows;
+  uint8_t* asCols = temp2.Get() + AlphaChannel();
   
   GaussianBlurSwap(asCols, inRows, kernel.Get(), width, height, stride1, stride2, iSize, normFactor);
   GaussianBlurSwap(asRows, asCols, kernel.Get(), height, width, stride3, stride1, iSize, normFactor);
@@ -1658,7 +1667,7 @@ bool IGraphics::LoadFont(const char* fontID, const char* fontName, ETextStyle st
 #ifdef IGRAPHICS_IMGUI
 void IGraphics::AttachImGui(std::function<void(IGraphics*)> drawFunc, std::function<void()> setupFunc)
 {
-  mImGuiRenderer.reset(new ImGuiRenderer(this, drawFunc, setupFunc));
+  mImGuiRenderer std::make_unique<ImGuiRenderer>(this, drawFunc, setupFunc);
   
 #if !defined IGRAPHICS_GL2 && !defined IGRAPHICS_GL3 // TODO: IGRAPHICS_GL!
   CreatePlatformImGui();

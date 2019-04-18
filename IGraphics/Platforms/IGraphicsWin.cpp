@@ -88,7 +88,7 @@ IFontDataPtr IGraphicsWin::WinFont::GetFontData()
 
     if (size != GDI_ERROR)
     {
-      fontData.reset(new IFontData(size));
+      fontData = std::make_unique<IFontData>(size);
 
       if (fontData->GetSize() == size)
       {
@@ -1663,7 +1663,7 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
       HANDLE file = CreateFile(fullPath.Get(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
       HANDLE mapping = CreateFileMapping(file, NULL, PAGE_READONLY, 0, 0, NULL);
       pFontMem = MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
-      pFont.reset(new WinCachedFont(pFontMem, resSize));
+      pFont = std::make_unique<WinCachedFont>(pFontMem, resSize);
       UnmapViewOfFile(pFontMem);
       CloseHandle(mapping);
       CloseHandle(file);
@@ -1672,7 +1672,7 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
     case kWinBinary:
     {
       pFontMem = const_cast<void *>(LoadWinResource(fullPath.Get(), "ttf", resSize, GetWinModuleHandle()));
-      pFont.reset(new WinCachedFont(pFontMem, resSize));
+      pFont = std::make_unique<WinCachedFont>(pFontMem, resSize);
     }
     break;
   } 

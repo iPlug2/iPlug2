@@ -220,7 +220,7 @@ void ImGuiRenderer::NewFrame()
 #include "imgui.cpp"
 #include "imgui_widgets.cpp"
 #include "imgui_draw.cpp"
-#include "imgui_demo.cpp"
+//#include "imgui_demo.cpp"
 
 #if defined IGRAPHICS_GL2
   #include "imgui_impl_opengl2.cpp"
