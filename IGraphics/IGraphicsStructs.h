@@ -625,7 +625,7 @@ class IFontInfo
 {
 public:
   IFontInfo(const void* data, uint32_t dataSize, uint32_t faceIdx)
-  : mData(reinterpret_cast<const unsigned char*>(data)), mHeadLocation(0), mNameLocation(0), mHheaLocation(0), mMacStyle(0), mUnitsPerEM(0), mAscender(0), mDescender(0), mLineGap(0), mLineHeight(0)
+  : mData(reinterpret_cast<const unsigned char*>(data)), mHeadLocation(0), mNameLocation(0), mHheaLocation(0), mMacStyle(0), mUnitsPerEM(0), mAscender(0), mDescender(0), mLineGap(0)
   {
     if (mData)
       FindFace(faceIdx);
@@ -646,7 +646,6 @@ public:
         mAscender = GetSInt16(mHheaLocation + 4);
         mDescender = GetSInt16(mHheaLocation + 6);
         mLineGap = GetSInt16(mHheaLocation + 8);
-        mLineHeight = (mAscender - mDescender) + mLineGap;
       }
     }
   }
@@ -670,7 +669,7 @@ public:
   int16_t GetAscender() const    { return mAscender; }
   int16_t GetDescender() const   { return mDescender; }
   int16_t GetLineGap() const     { return mLineGap; }
-  int16_t GetLineHeight() const  { return mLineHeight; }
+  int16_t GetLineHeight() const  { return (mAscender - mDescender) + mLineGap; }
   
 private:
   
@@ -804,7 +803,6 @@ private:
   int16_t mAscender;
   int16_t mDescender;
   int16_t mLineGap;
-  int16_t mLineHeight;
 };
 
 /** Used to manage raw font data. */
