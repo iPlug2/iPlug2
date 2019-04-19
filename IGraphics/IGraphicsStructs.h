@@ -848,10 +848,12 @@ typedef std::unique_ptr<IFontData> IFontDataPtr;
 class PlatformFont
 {
 public:
+  PlatformFont(bool system) : mSystem(system) {}
   virtual ~PlatformFont() {}
   virtual const void* GetDescriptor() { return nullptr; }
   virtual IFontDataPtr GetFontData() { return IFontDataPtr(new IFontData()); }
-  
+  bool IsSystem() { return mSystem; }
+    
 protected:
   int GetFaceIdx(const void* data, int dataSize, const char* styleName)
   {
@@ -868,6 +870,8 @@ protected:
       return idx;
     }
   }
+
+  bool mSystem;
 };
 
 typedef std::unique_ptr<PlatformFont> PlatformFontPtr;
