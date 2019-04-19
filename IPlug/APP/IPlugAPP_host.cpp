@@ -725,10 +725,13 @@ void IPlugAPPHost::MIDICallback(double deltatime, std::vector<uint8_t>* pMsg, vo
     _this->mIPlug->mSysExMsgsFromCallback.Push(data);
     return;
   }
-  else
+  else if (pMsg->size())
   {
-    IMidiMsg msg(0, pMsg->at(0), pMsg->at(1), pMsg->at(2));
-    
+    IMidiMsg msg;
+    msg.mStatus = pMsg->at(0);
+    pMsg->size() > 1 ? msg.mData1 = pMsg->at(1) : msg.mData1 = 0;
+    pMsg->size() > 2 ? msg.mData2 = pMsg->at(2) : msg.mData2 = 0;
+
     _this->mIPlug->mMidiMsgsFromCallback.Push(msg);
   }
 }
