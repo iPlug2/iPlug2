@@ -148,7 +148,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new TestGLControl(nextCell()));
 #endif
     WDL_String path;
-    //    DesktopPath(path);
+    // DesktopPath(path);
     path.Set(__FILE__);
     path.remove_filepart();
 #ifdef OS_WIN
