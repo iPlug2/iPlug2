@@ -38,6 +38,15 @@ struct CanvasFont
   double mEMRatio;
 };
 
+std::string GetFontString(const char* fontName, const char* styleName, double size)
+{
+  WDL_String fontString;
+  
+  fontString.SetFormatted(FONT_LEN + 64, "%s %lfpx %s", styleName, size, fontName);
+    
+  return std::string(fontString.Get());
+}
+
 StaticStorage<CanvasFont> sFontCache;
 
 // Color Utility
@@ -249,15 +258,14 @@ void IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
   CanvasFont* pFont = storage.Find(text.mFont);
     
   assert(pFont && "No font found - did you forget to load it?");
-    
+  
+  FontDescriptor descriptor = &pFont->mDescriptor;
   val context = GetContext();
   std::string textString(str);
-  FontDescriptor descriptor = &pFont->mDescriptor;
-  char fontString[FONT_LEN + 64];
+  std::string fontString = GetFontString(descriptor->first.Get(), descriptor->second.Get(), text.mSize * pFont->mEMRatio);
   
-  sprintf(fontString, "%s %lfpx %s", descriptor->second.Get(), text.mSize * pFont->mEMRatio, descriptor->first.Get());
-  context.set("font", std::string(fontString));
-    
+  context.set("font", fontString);
+  
   val metrics = context.call<val>("measureText", textString);
   const double textWidth = metrics["width"].as<double>();
   const double textHeight = text.mSize;
@@ -341,15 +349,13 @@ void IGraphicsCanvas::GetFontMetrics(const char* font, const char* style, double
 {
   // Provides approximate font metrics for a system font (until text metrics are properly supported)
   
-  char fontString[FONT_LEN + 64];
   int size = 1000;
-  
-  sprintf(fontString, "%s %dpx %s", style, size, font);
+  std::string fontString = GetFontString(font, style, size);
   
   val document = val::global("document");
   val textSpan = document.call<val>("createElement", std::string("span"));
   textSpan.set("innerHTML", std::string("M"));
-  textSpan["style"].set("font", std::string(fontString));
+  textSpan["style"].set("font", fontString);
   
   val block = document.call<val>("createElement", std::string("div"));
   block["style"].set("display", std::string("inline-block"));
@@ -372,17 +378,15 @@ void IGraphicsCanvas::GetFontMetrics(const char* font, const char* style, double
 
 bool IGraphicsCanvas::CompareFontMetrics(const char* style, const char* font1, const char* font2, int size)
 {
+  WDL_String fontCombination;
+  fontCombination.SetFormatted(FONT_LEN * 2, "%s %s", font1, font2);
   val context = GetContext();
   std::string textString("@BmwdWMoqPYyzZr1234567890.+-=_~'");
   
-  char fontString[FONT_LEN + 64];
-  
-  sprintf(fontString, "%s %dpx %s", style, size, font2);
-  context.set("font", std::string(fontString));
+  context.set("font", GetFontString(font2, style, size));
   val metrics1 = context.call<val>("measureText", textString);
 
-  sprintf(fontString, "%s %dpx %s, %s", style, size, font1, font2);
-  context.set("font", std::string(fontString));
+  context.set("font", GetFontString(fontCombination.Get(), style, size));
   val metrics2 = context.call<val>("measureText", textString);
   
   return metrics1["width"].as<double>() == metrics2["width"].as<double>();
@@ -427,9 +431,7 @@ bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& fon
       storage.Add(new CanvasFont({descriptor->first, descriptor->second}, ascenderRatio, EMRatio), fontID);
       
       // Load snd draw the font to the canvas
-      char fontString[FONT_LEN + 64];
-      sprintf(fontString, "%s %dpx %s", descriptor->second.Get(), 12, descriptor->first.Get());
-      GetContext().set("font", std::string(fontString));
+      GetContext().set("font", GetFontString(descriptor->first.Get(), descriptor->second.Get(), 12));
       GetContext().call<void>("fillText", std::string("Load"), 0, 0);
       
       return true;
