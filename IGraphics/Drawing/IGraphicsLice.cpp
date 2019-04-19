@@ -132,14 +132,6 @@ IGraphicsLice::IGraphicsLice(IGEditorDelegate& dlg, int w, int h, int fps, float
 
 IGraphicsLice::~IGraphicsLice() 
 {
-#ifdef OS_MAC
-  if (mColorSpace)
-  {
-    CFRelease(mColorSpace);
-    mColorSpace = nullptr;
-  }
-#endif
-
   StaticStorage<LICE_IFont>::Accessor fontStorage(sFontCache);
   StaticStorage<LICEFontInfo>::Accessor fontInfoStorage(sLICEFontInfoCache);
   fontStorage.Release();
@@ -147,6 +139,12 @@ IGraphicsLice::~IGraphicsLice()
 #ifdef OS_MAC
   StaticStorage<MacRegisteredFont>::Accessor registeredFontStorage(sMacRegistedFontCache);
   registeredFontStorage.Release();
+    
+  if (mColorSpace)
+  {
+    CFRelease(mColorSpace);
+    mColorSpace = nullptr;
+  }
 #endif
 }
 
