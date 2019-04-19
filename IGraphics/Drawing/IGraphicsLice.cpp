@@ -516,40 +516,27 @@ IColor IGraphicsLice::GetPoint(int x, int y)
 
 void IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
+#if defined OS_WIN
+#define DrawText DrawTextA
+#endif
+  
   LICE_IFont* font = CacheFont(text);
   LICE_pixel color = LiceColor(text.mFGColor, pBlend);
+  RECT R = {0,0,0,0};
   int ds = GetScreenScale();
+  UINT fmt = DT_NOCLIP | DT_TOP | DT_LEFT;
   
-  font->SetTextColor(color);
+  if (LICE_GETA(color) < 255)
+    fmt |= LICE_DT_USEFGALPHA;
   
-  UINT fmt = DT_NOCLIP;
-  if (LICE_GETA(color) < 255) fmt |= LICE_DT_USEFGALPHA;
-  if (text.mAlign == IText::kAlignNear)
-    fmt |= DT_LEFT;
-  else if (text.mAlign == IText::kAlignCenter)
-    fmt |= DT_CENTER;
-  else // if (text.mAlign == IText::kAlignFar)
-    fmt |= DT_RIGHT;
+  font->DrawText(mRenderBitmap, str, -1, &R, fmt | DT_CALCRECT);
   
-  if (text.mVAlign == IText::kVAlignTop)
-    fmt |= DT_TOP;
-  else if (text.mVAlign == IText::kVAlignBottom)
-    fmt |= DT_BOTTOM;
-  else if (text.mVAlign == IText::kVAlignMiddle)
-    fmt |= DT_VCENTER;
+  const float textWidth = R.right / static_cast<float>(ds);
+  const float textHeight = R.bottom / static_cast<float>(ds);
   
   if (measure)
   {
-    fmt |= DT_CALCRECT;
-    RECT R = {0,0,0,0};
-#if defined OS_MAC || defined OS_LINUX
-    font->DrawText(mRenderBitmap, str, -1, &R, fmt);
-#elif defined OS_WIN
-    font->DrawTextA(mRenderBitmap, str, -1, &R, fmt);
-#else
-  #error NOT IMPLEMENTED
-#endif
-    if( text.mAlign == IText::kAlignNear)
+    if (text.mAlign == IText::kAlignNear)
       bounds.R = R.right;
     else if (text.mAlign == IText::kAlignCenter)
     {
@@ -570,16 +557,33 @@ void IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT&
   
   NeedsClipping();
 
-  IRECT r = bounds;
+  float x = 0.f;
+  float y = 0.f;
+  
+  switch (text.mAlign)
+  {
+    case IText::kAlignNear:     x = bounds.L;                           break;
+    case IText::kAlignCenter:   x = bounds.MW() - (textWidth / 2.f);    break;
+    case IText::kAlignFar:      x = bounds.R - textWidth;               break;
+  }
+  
+  switch (text.mVAlign)
+  {
+    case IText::kVAlignTop:      y = bounds.T;                                  break;
+    case IText::kVAlignMiddle:   y = bounds.MH() - (textHeight / 2.f);          break;
+    case IText::kVAlignBottom:   y = bounds.B - textHeight;                     break;
+  }
+  
+  IRECT r(x, y, bounds.R, bounds.B);
   r.Translate(-mDrawOffsetX, -mDrawOffsetY);
   r.Scale(ds);
-  RECT R = { (LONG) r.L, (LONG) r.T, (LONG) r.R, (LONG) r.B };
-#if defined OS_MAC || defined OS_LINUX
+  r.PixelAlign();
+  R = { (LONG) r.L, (LONG) r.T, (LONG) r.R, (LONG) r.B };
+  font->SetTextColor(color);
   font->DrawText(mRenderBitmap, str, -1, &R, fmt);
-#elif defined OS_WIN
-  font->DrawTextA(mRenderBitmap, str, -1, &R, fmt);
-#else
-  #error NOT IMPLEMENTED
+  
+#ifdef DrawText
+#undef DrawText
 #endif
 }
 
@@ -658,15 +662,15 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text)
   if (!font)
   {
     StaticStorage<LICEFontInfo>::Accessor fontInfoStorage(sLICEFontInfoCache);
-    LICEFontInfo* fontInfo = fontInfoStorage.Find(text.mFont);
+    LICEFontInfo* pFontInfo = fontInfoStorage.Find(text.mFont);
 
-    assert (fontInfo && "No font found - did you forget to load it?");
+    assert(pFontInfo && "No font found - did you forget to load it?");
       
     int h = round(text.mSize * scale);
     int esc = 10 * text.mOrientation;
-    int wt = fontInfo->mBold ? FW_BOLD : FW_NORMAL;
-    int it = fontInfo->mItalic ? TRUE : FALSE;
-    int ul = fontInfo->mUnderline ? TRUE : FALSE;
+    int wt = pFontInfo->mBold ? FW_BOLD : FW_NORMAL;
+    int it = pFontInfo->mItalic ? TRUE : FALSE;
+    int ul = pFontInfo->mUnderline ? TRUE : FALSE;
     int q = DEFAULT_QUALITY;
 
 #ifdef OS_MAC
@@ -674,7 +678,7 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text)
   Resize:
     if (h < 2) h = 2;
 #endif
-    HFONT hFont = CreateFont(h, 0, esc, esc, wt, it, ul, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, q, DEFAULT_PITCH, fontInfo->mFontName.Get());
+    HFONT hFont = CreateFont(h, 0, esc, esc, wt, it, ul, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, q, DEFAULT_PITCH, pFontInfo->mFontName.Get());
     if (!hFont)
     {
       return 0;
