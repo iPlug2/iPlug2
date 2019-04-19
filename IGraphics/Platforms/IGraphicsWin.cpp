@@ -74,7 +74,7 @@ struct WinFontDescriptor
 class WinFont : public PlatformFont
 {
 public:
-  WinFont(HFONT font, const char* styleName = "", bool system)
+  WinFont(HFONT font, const char* styleName, bool system)
   : PlatformFont(system), mFont(font), mStyleName(styleName) {}
   ~WinFont()
   {
@@ -1703,7 +1703,7 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
     if (font)
     {
       fontStorage.Add(pFont.release(), fileNameOrResID);
-      return PlatformFontPtr(new WinFont(font));
+      return PlatformFontPtr(new WinFont(font, "", false));
     }
   }
 
@@ -1726,7 +1726,7 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
 
   HFONT font = GetHFont(fontName, weight, italic, underline, quality, true);
 
-  return PlatformFontPtr(font ? new WinFont(font, TextStyleString(style)) : nullptr);
+  return PlatformFontPtr(font ? new WinFont(font, TextStyleString(style), true) : nullptr);
 }
 
 void IGraphicsWin::CachePlatformFont(const char* fontID, const PlatformFontPtr& font)
