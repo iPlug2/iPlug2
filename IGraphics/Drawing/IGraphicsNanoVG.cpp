@@ -536,69 +536,39 @@ bool IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IREC
   nvgFontBlur(mVG, 0);
   nvgFontSize(mVG, text.mSize);
   nvgFontFace(mVG, text.mFont);
+  nvgFillColor(mVG, NanoVGColor(text.mFGColor, pBlend));
   
-  if(GetTextEntryControl() && GetTextEntryControl()->GetRECT() == bounds)
-    nvgFillColor(mVG, NanoVGColor(text.mTextEntryFGColor, pBlend));
-  else
-    nvgFillColor(mVG, NanoVGColor(text.mFGColor, pBlend));
-  
-  float xpos = 0.;
-  float ypos = 0.;
-  
+  float x = 0.f;
+  float y = 0.f;
   int align = 0;
+  
   switch (text.mAlign)
   {
-    case IText::kAlignNear: align = NVG_ALIGN_LEFT; xpos = bounds.L; break;
-    case IText::kAlignCenter: align = NVG_ALIGN_CENTER; xpos = bounds.MW(); break;
-    case IText::kAlignFar: align = NVG_ALIGN_RIGHT; xpos = bounds.R; break;
-    default:
-      break;
+    case IText::kAlignNear:     align = NVG_ALIGN_LEFT;     x = bounds.L;         break;
+    case IText::kAlignCenter:   align = NVG_ALIGN_CENTER;   x = bounds.MW();      break;
+    case IText::kAlignFar:      align = NVG_ALIGN_RIGHT;    x = bounds.R;         break;
   }
   
   switch (text.mVAlign)
   {
-    case IText::kVAlignBottom: align |= NVG_ALIGN_BOTTOM; ypos = bounds.B; break;
-    case IText::kVAlignMiddle: align |= NVG_ALIGN_MIDDLE; ypos = bounds.MH(); break;
-    case IText::kVAlignTop: align |= NVG_ALIGN_TOP; ypos = bounds.T; break;
-    default: break;
-      break;
+    case IText::kVAlignBottom:  align |= NVG_ALIGN_BOTTOM;  y = bounds.B;         break;
+    case IText::kVAlignMiddle:  align |= NVG_ALIGN_MIDDLE;  y = bounds.MH();      break;
+    case IText::kVAlignTop:     align |= NVG_ALIGN_TOP;     y = bounds.T;         break;
   }
   
   nvgTextAlign(mVG, align);
   
-  auto calcTextBounds = [&](IRECT& r)
+  if (measure)
   {
     float fbounds[4];
     nvgTextBounds(mVG, xpos, ypos, str, NULL, fbounds);
-    r.L = fbounds[0]; r.T = fbounds[1]; r.R = fbounds[2]; r.B = fbounds[3];
-  };
-  
-  if (measure)
-  {
-    calcTextBounds(bounds);
+    bounds = IRECT(fbounds[0], fbounds[1], fbounds[2], fbounds[3]);
     return true;
   }
-  else
-  {
-    NanoVGSetBlendMode(mVG, pBlend);
-      
-    if(text.mOrientation != 0)
-    {
-      IRECT tmp;
-      calcTextBounds(tmp);
-
-      nvgSave(mVG);
-      nvgTranslate(mVG, tmp.L, tmp.B);
-      nvgRotate(mVG, nvgDegToRad(text.mOrientation));
-      nvgTranslate(mVG, -tmp.L, -tmp.B);
-      nvgText(mVG, xpos, ypos, str, NULL);
-      nvgRestore(mVG);
-    }
-    else
-      nvgText(mVG, xpos, ypos, str, NULL);
-      
-    nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
-  }
+  
+  NanoVGSetBlendMode(mVG, pBlend);
+  nvgText(mVG, xpos, ypos, str, NULL);
+  nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
     
   return true;
 }

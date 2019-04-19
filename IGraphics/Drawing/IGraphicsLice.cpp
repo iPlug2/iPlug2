@@ -524,13 +524,8 @@ bool IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT&
   }
   
   LICE_IFont* font = CacheFont(text);
-  LICE_pixel color;
+  LICE_pixel color = LiceColor(text.mFGColor, pBlend);
   int ds = GetScreenScale();
-    
-  if (GetTextEntryControl() && GetTextEntryControl()->GetRECT() == bounds)
-    color = LiceColor(text.mTextEntryFGColor, pBlend);
-  else
-    color = LiceColor(text.mFGColor, pBlend);
   
   font->SetTextColor(color);
   

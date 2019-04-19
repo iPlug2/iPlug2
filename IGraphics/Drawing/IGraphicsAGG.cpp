@@ -562,16 +562,6 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
   const double ascender = text.mSize * pFont->GetAscender() / EMHeight;
   const double descender = text.mSize * pFont->GetDescender() / EMHeight;
   
-  double x = bounds.L;
-  double y = bounds.T + textHeight;
-  
-  switch (text.mVAlign)
-  {
-    case IText::kVAlignTop:      y = bounds.T + ascender;                               break;
-    case IText::kVAlignMiddle:   y = bounds.MH() + descender + textHeight/2.;           break;
-    case IText::kVAlignBottom:   y = bounds.B + descender;                              break;
-  }
-  
   mFontManager.reset_last_glyph();
   double width = 0.0;
   
@@ -595,35 +585,43 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
     bounds.B = bounds.T + textHeight;
     bounds.R = bounds.L + width;
   }
-  else
+  
+  double x = 0.0;
+  double y = 0.0;
+    
+  switch (text.mVAlign)
   {
-    switch (text.mAlign)
-    {
-      case IText::kAlignNear:     x = bounds.L;                                   break;
-      case IText::kAlignCenter:   x = bounds.L + ((bounds.W() - width) / 2.0);    break;
-      case IText::kAlignFar:      x = bounds.L + (bounds.W() - width);            break;
-    }
+    case IText::kVAlignTop:      y = bounds.T + ascender;                               break;
+    case IText::kVAlignMiddle:   y = bounds.MH() + descender + textHeight/2.;           break;
+    case IText::kVAlignBottom:   y = bounds.B + descender;                              break;
+  }
+  
+  switch (text.mAlign)
+  {
+    case IText::kAlignNear:     x = bounds.L;                                   break;
+    case IText::kAlignCenter:   x = bounds.L + ((bounds.W() - width) / 2.0);    break;
+    case IText::kAlignFar:      x = bounds.L + (bounds.W() - width);            break;
+  }
+  
+  agg::rgba8 color(AGGColor(text.mFGColor, BlendWeight(pBlend)));
+  mFontManager.reset_last_glyph();
+  
+  for (size_t c = 0; str[c]; c++)
+  {
+    const agg::glyph_cache* pGlyph = mFontManager.glyph(str[c]);
     
-    agg::rgba8 color(AGGColor(text.mFGColor, BlendWeight(pBlend)));
-    mFontManager.reset_last_glyph();
-    
-    for (size_t c = 0; str[c]; c++)
+    if (pGlyph)
     {
-      const agg::glyph_cache* pGlyph = mFontManager.glyph(str[c]);
-      
-      if (pGlyph)
+      if (kerning)
       {
-        if (kerning)
-        {
-          mFontManager.add_kerning(&x, &y);
-        }
-        
-        mFontManager.init_embedded_adaptors(pGlyph, x, y);
-        mRasterizer.Rasterize(mFontCurvesTransformed, color, AGGBlendMode(pBlend));
+        mFontManager.add_kerning(&x, &y);
       }
-      x += pGlyph->advance_x;
-      y += pGlyph->advance_y;
+      
+      mFontManager.init_embedded_adaptors(pGlyph, x, y);
+      mRasterizer.Rasterize(mFontCurvesTransformed, color, AGGBlendMode(pBlend));
     }
+    x += pGlyph->advance_x;
+    y += pGlyph->advance_y;
   }
   
   return true;

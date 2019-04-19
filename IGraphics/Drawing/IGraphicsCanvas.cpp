@@ -250,15 +250,15 @@ bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
     
   assert(pFont && "No font found - did you forget to load it?");
     
-  // TODO: orientation
   val context = GetContext();
   std::string textString(str);
   
   FontDescriptor descriptor = &pFont->mDescriptor;
   char fontString[FONT_LEN + 64];
-  context.set("textBaseline", std::string("top"));
+  
   sprintf(fontString, "%s %lfpx %s", descriptor->second.Get(), text.mSize * pFont->mEMRatio, descriptor->first.Get());
   context.set("font", std::string(fontString));
+    
   val metrics = context.call<val>("measureText", textString);
   const double textWidth = metrics["width"].as<double>();
   const double textHeight = text.mSize;
@@ -270,35 +270,33 @@ bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
     bounds = IRECT(0, 0, (float) textWidth, (float) textHeight);
     return true;
   }
-  else
+    
+  context.set("textBaseline", std::string("alphabetic"));
+
+  double x = 0.0;
+  double y = 0.0;
+  
+  switch (text.mAlign)
   {
-    context.set("textBaseline", std::string("alphabetic"));
-
-    double x = bounds.L;
-    double y = bounds.T;
-    
-    switch (text.mAlign)
-    {
-      case IText::kAlignNear:     break;
-      case IText::kAlignCenter:   x = bounds.MW() - (textWidth / 2.0);    break;
-      case IText::kAlignFar:      x = bounds.R - textWidth;               break;
-    }
-    
-    switch (text.mVAlign)
-    {
-      case IText::kVAlignTop:      y = bounds.T + ascender;                               break;
-      case IText::kVAlignMiddle:   y = bounds.MH() + descender + textHeight/2.;           break;
-      case IText::kVAlignBottom:   y = bounds.B + descender;                              break;
-    }
-
-    context.call<void>("save");
-    PathRect(bounds);
-    context.call<void>("clip");
-    PathClear();
-    SetCanvasSourcePattern(context, text.mFGColor, pBlend);
-    context.call<void>("fillText", textString, x, y);
-    context.call<void>("restore");
+    case IText::kAlignNear:     break;
+    case IText::kAlignCenter:   x = bounds.MW() - (textWidth / 2.0);    break;
+    case IText::kAlignFar:      x = bounds.R - textWidth;               break;
   }
+  
+  switch (text.mVAlign)
+  {
+    case IText::kVAlignTop:      y = bounds.T + ascender;                               break;
+    case IText::kVAlignMiddle:   y = bounds.MH() + descender + textHeight/2.;           break;
+    case IText::kVAlignBottom:   y = bounds.B + descender;                              break;
+  }
+  
+  context.call<void>("save");
+  PathRect(bounds);
+  context.call<void>("clip");
+  PathClear();
+  SetCanvasSourcePattern(context, text.mFGColor, pBlend);
+  context.call<void>("fillText", textString, x, y);
+  context.call<void>("restore");
   
   return true;
 }

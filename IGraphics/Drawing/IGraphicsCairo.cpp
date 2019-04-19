@@ -426,7 +426,6 @@ IColor IGraphicsCairo::GetPoint(int x, int y)
 
 bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
-  double x = 0., y = 0.;
   cairo_text_extents_t textExtents;
   cairo_font_extents_t fontExtents;
 
@@ -454,9 +453,9 @@ bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
 
   // Draw / measure
     
-  cairo_scaled_font_t* pFont = cairo_get_scaled_font(mContext);
   cairo_glyph_t *pGlyphs = nullptr;
   int numGlyphs = 0;
+  cairo_scaled_font_t* pFont = cairo_get_scaled_font(mContext);
   cairo_scaled_font_text_to_glyphs(pFont, 0, 0, str, -1, &pGlyphs, &numGlyphs, nullptr, nullptr, nullptr);
   cairo_glyph_extents(mContext, pGlyphs, numGlyphs, &textExtents);
   
@@ -469,6 +468,9 @@ bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
     return true;
   }
 
+  double x = 0.0;
+  double y = 0.0;
+    
   switch (text.mAlign)
   {
     case IText::kAlignNear:     x = bounds.L;                                                                       break;
@@ -485,8 +487,7 @@ bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
     default: break;
   }
   
-  bool textEntry = GetTextEntryControl() && GetTextEntryControl()->GetRECT() == bounds;
-  IColor color = textEntry ? text.mTextEntryFGColor : text.mFGColor;
+  const IColor& color = text.mFGColor;
 
   cairo_save(mContext);
   cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, (BlendWeight(pBlend) * color.A) / 255.0);
