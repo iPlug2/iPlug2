@@ -424,7 +424,7 @@ IColor IGraphicsCairo::GetPoint(int x, int y)
   return IColor(A, R, G, B);
 }
 
-bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+void IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
   cairo_text_extents_t textExtents;
   cairo_font_extents_t fontExtents;
@@ -465,25 +465,29 @@ bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
     if (!mSurface)
       UpdateCairoContext();
     cairo_glyph_free(pGlyphs);
-    return true;
+    return;
   }
 
   double x = 0.0;
   double y = 0.0;
+  const double textWidth = textExtents.width + textExtents.x_bearing;
+  const double textHeight = fontExtents.height;
+  const double ascender = fontExtents.ascent;
+  const double descender = fontExtents.descent;
     
   switch (text.mAlign)
   {
-    case IText::kAlignNear:     x = bounds.L;                                                                       break;
-    case IText::kAlignFar:      x = bounds.R - textExtents.width - textExtents.x_bearing;                           break;
-    case IText::kAlignCenter:   x = bounds.L + ((bounds.W() - textExtents.width - textExtents.x_bearing) / 2.0);    break;
+    case IText::kAlignNear:     x = bounds.L;                           break;
+    case IText::kAlignCenter:   x = bounds.MW() - (textWidth / 2.0);    break;
+    case IText::kAlignFar:      x = bounds.R - textWidth;               break;
     default: break;
   }
   
   switch (text.mVAlign)
   {
-    case IText::kVAlignTop:      y = bounds.T + fontExtents.ascent;                                 break;
-    case IText::kVAlignMiddle:   y = bounds.MH() - fontExtents.descent + fontExtents.height/2.;     break;
-    case IText::kVAlignBottom:   y = bounds.B - fontExtents.descent;                                break;
+    case IText::kVAlignTop:      y = bounds.T + ascender;                             break;
+    case IText::kVAlignMiddle:   y = bounds.MH() - descender + (textHeight / 2.0);    break;
+    case IText::kVAlignBottom:   y = bounds.B - descender;                            break;
     default: break;
   }
   
@@ -495,8 +499,6 @@ bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
   cairo_show_glyphs(mContext, pGlyphs, numGlyphs);
   cairo_restore(mContext);
   cairo_glyph_free(pGlyphs);
-
-  return true;
 }
 
 void IGraphicsCairo::UpdateCairoContext()

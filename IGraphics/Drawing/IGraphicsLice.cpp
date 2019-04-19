@@ -514,11 +514,11 @@ IColor IGraphicsLice::GetPoint(int x, int y)
   return IColor(LICE_GETA(pix), LICE_GETR(pix), LICE_GETG(pix), LICE_GETB(pix));
 }
 
-bool IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+void IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
   if (!str || str[0] == '\0')
   {
-    return true;
+    return;
   }
   
   LICE_IFont* font = CacheFont(text);
@@ -570,7 +570,7 @@ bool IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT&
     bounds.B = bounds.T + R.bottom;
       
     bounds.Scale(1.0 / ds);
-    return true;
+    return;
   }
   
   NeedsClipping();
@@ -586,8 +586,6 @@ bool IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT&
 #else
   #error NOT IMPLEMENTED
 #endif
-  
-  return true;
 }
 
 bool OpacityCheck(const IBlend* pBlend)

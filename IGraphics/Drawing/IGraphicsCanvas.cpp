@@ -243,7 +243,7 @@ void IGraphicsCanvas::SetCanvasBlendMode(val& context, const IBlend* pBlend)
   }
 }
 
-bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+void IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
   StaticStorage<CanvasFont>::Accessor storage(sFontCache);
   CanvasFont* pFont = storage.Find(text.mFont);
@@ -267,7 +267,7 @@ bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
   if (measure)
   {
     bounds = IRECT(0, 0, (float) textWidth, (float) textHeight);
-    return true;
+    return;
   }
     
   context.set("textBaseline", std::string("alphabetic"));
@@ -285,7 +285,7 @@ bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
   switch (text.mVAlign)
   {
     case IText::kVAlignTop:      y = bounds.T + ascender;                               break;
-    case IText::kVAlignMiddle:   y = bounds.MH() + descender + textHeight/2.;           break;
+    case IText::kVAlignMiddle:   y = bounds.MH() + descender + (textHeight / 2.0);      break;
     case IText::kVAlignBottom:   y = bounds.B + descender;                              break;
   }
   
@@ -296,8 +296,6 @@ bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
   SetCanvasSourcePattern(context, text.mFGColor, pBlend);
   context.call<void>("fillText", textString, x, y);
   context.call<void>("restore");
-  
-  return true;
 }
 
 void IGraphicsCanvas::PathTransformSetMatrix(const IMatrix& m)

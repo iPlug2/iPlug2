@@ -340,24 +340,21 @@ public:
   /** Draw some text to the graphics context in a specific rectangle
    * @param text An IText struct containing font and text properties and layout info
    * @param str The text string to draw in the graphics context
-   * @param bounds The rectangular region in the graphics where you would like to draw the text
-   * @return \todo */
-  bool DrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend = 0);
+   * @param bounds The rectangular region in the graphics where you would like to draw the text */
+  void DrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend = 0);
 
   /** Draw some text to the graphics context at a point
    * @param text An IText struct containing font and text properties and layout info
    * @param str The text string to draw in the graphics context
    * @param x The x position in the graphics where you would like to draw the text
-   * @param y The y position in the graphics where you would like to draw the text
-   * @return \todo */
-  bool DrawText(const IText& text, const char* str, float x, float y, const IBlend* pBlend = 0);
+   * @param y The y position in the graphics where you would like to draw the text */
+  void DrawText(const IText& text, const char* str, float x, float y, const IBlend* pBlend = 0);
   
   /** Measure the rectangular region that some text will occupy
    * @param text An IText struct containing font and text properties and layout info
    * @param str The text string to draw in the graphics context
-   * @param bounds after calling the method this IRECT will be updated with the rectangular region the text will occupy
-   * @return \todo */
-  virtual bool MeasureText(const IText& text, const char* str, IRECT& bounds);
+   * @param bounds after calling the method this IRECT will be updated with the rectangular region the text will occupy */
+  virtual void MeasureText(const IText& text, const char* str, IRECT& bounds);
 
   /** Get the color of a point in the graphics context. On a 1:1 screen this corresponds to a pixel. \todo check this
    * @param x The X coordinate in the graphics context of the pixel
@@ -1418,7 +1415,7 @@ protected:
    * @param pBlend /todo
    * @param measure /todo
    * @return true /todo */
-  virtual bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = nullptr, bool measure = false) = 0;
+  virtual void DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = nullptr, bool measure = false) = 0;
 
   /** @return float /todo */
   virtual float GetBackingPixelScale() const = 0;

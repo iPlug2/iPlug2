@@ -535,11 +535,11 @@ bool IGraphicsAGG::SetFont(const char* fontID, IFontData* pFont)
   return mFontEngine.load_font(fontID, pFont->GetFaceIdx(), render, (char*) pFont->Get(), pFont->GetSize());
 }
 
-bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+void IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
   if (!str || str[0] == '\0')
   {
-    return false;
+    return;
   }
 
   const bool kerning = true;
@@ -584,6 +584,8 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
   {
     bounds.B = bounds.T + textHeight;
     bounds.R = bounds.L + width;
+    
+    return;
   }
   
   double x = 0.0;
@@ -591,15 +593,15 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
   
   switch (text.mAlign)
   {
-    case IText::kAlignNear:     x = bounds.L;                                   break;
-    case IText::kAlignCenter:   x = bounds.L + ((bounds.W() - width) / 2.0);    break;
-    case IText::kAlignFar:      x = bounds.L + (bounds.W() - width);            break;
+    case IText::kAlignNear:     x = bounds.L;                       break;
+    case IText::kAlignCenter:   x = bounds.MW + (width / 2.0);      break;
+    case IText::kAlignFar:      x = bounds.R - width);              break;
   }
   
   switch (text.mVAlign)
   {
     case IText::kVAlignTop:      y = bounds.T + ascender;                               break;
-    case IText::kVAlignMiddle:   y = bounds.MH() + descender + textHeight/2.;           break;
+    case IText::kVAlignMiddle:   y = bounds.MH() + descender + (textHeight / 2.0);      break;
     case IText::kVAlignBottom:   y = bounds.B + descender;                              break;
   }
   
@@ -623,8 +625,6 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
     x += pGlyph->advance_x;
     y += pGlyph->advance_y;
   }
-  
-  return true;
 }
 
 #include "IGraphicsAGG_src.cpp"
