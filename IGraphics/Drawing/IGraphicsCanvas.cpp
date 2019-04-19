@@ -264,7 +264,6 @@ bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
   const double textHeight = text.mSize;
   const double ascender = pFont->mAscenderRatio * textHeight;
   const double descender = -(1.0 - pFont->mAscenderRatio) * textHeight;
-  //EM_ASM_DOUBLE({return parseFloat(document.getElementById("canvas").getContext("2d").font);});
 
   if (measure)
   {
