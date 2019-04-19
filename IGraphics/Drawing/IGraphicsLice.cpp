@@ -516,11 +516,6 @@ IColor IGraphicsLice::GetPoint(int x, int y)
 
 void IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
-  if (!str || str[0] == '\0')
-  {
-    return;
-  }
-  
   LICE_IFont* font = CacheFont(text);
   LICE_pixel color = LiceColor(text.mFGColor, pBlend);
   int ds = GetScreenScale();

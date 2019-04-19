@@ -537,11 +537,6 @@ bool IGraphicsAGG::SetFont(const char* fontID, IFontData* pFont)
 
 void IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
-  if (!str || str[0] == '\0')
-  {
-    return;
-  }
-
   const bool kerning = true;
   const bool hinting = false;
   
