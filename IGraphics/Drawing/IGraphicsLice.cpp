@@ -22,7 +22,7 @@ struct LICEFontInfo
   WDL_String mFontName;
   bool mBold;
   bool mItalic;
-  bool mOutline;
+  bool mUnderline;
 };
 
 static StaticStorage<LICE_IFont> sFontCache;
@@ -646,7 +646,7 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text)
     int esc = 10 * text.mOrientation;
     int wt = fontInfo->mBold ? FW_BOLD : FW_NORMAL;
     int it = fontInfo->mItalic ? TRUE : FALSE;
-    int ot = fontInfo->mOutline ? TRUE : FALSE;
+    int ul = fontInfo->mUnderline ? TRUE : FALSE;
     int q;
       
     if (text.mQuality == IText::kQualityDefault)
@@ -667,7 +667,7 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text)
   Resize:
     if (h < 2) h = 2;
 #endif
-    HFONT hFont = CreateFont(h, 0, esc, esc, wt, it, ot, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, q, DEFAULT_PITCH, fontInfo->mFontName.Get());
+    HFONT hFont = CreateFont(h, 0, esc, esc, wt, it, ul, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, q, DEFAULT_PITCH, fontInfo->mFontName.Get());
     if (!hFont)
     {
       return 0;
@@ -690,10 +690,6 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text)
 
 bool IGraphicsLice::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 {
-#ifdef OS_MAC
-
-#endif
-    
   StaticStorage<LICEFontInfo>::Accessor fontInfoStorage(sLICEFontInfoCache);
   LICEFontInfo* cached = fontInfoStorage.Find(fontID);
   
@@ -704,8 +700,27 @@ bool IGraphicsLice::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
   
   if (data->IsValid())
   {
-    IFontInfo info(data->Get(), data->GetSize(), data->GetFaceIdx());
-    fontInfoStorage.Add(new LICEFontInfo{info.GetFamily(), info.IsBold(), info.IsItalic(), info.IsOutline()}, fontID);
+#ifdef OS_MAC
+    WDL_String fontName(data->GetFamily());
+    if (strcmp(data->GetStyle().Get(), "Regular"))
+    {
+      fontName.Append(" ");
+      fontName.Append(&data->GetStyle());
+    }
+    fontInfoStorage.Add(new LICEFontInfo{fontName, false, false, false}, fontID);
+      
+    // FIX - de-registering Mac fonts
+    if (!font->IsSystem())
+    {
+      CTFontRef ctFont = CTFontCreateWithFontDescriptor((CTFontDescriptorRef) font->GetDescriptor(), 0.f, NULL);
+      CGFontRef cgFont = CTFontCopyGraphicsFont(ctFont, NULL);
+      CTFontManagerRegisterGraphicsFont(cgFont, NULL);
+      CFRelease(ctFont);
+      CGFontRelease(cgFont);
+    }
+#else
+    fontInfoStorage.Add(new LICEFontInfo{data->GetFamily(), data->IsBold(), data->IsItalic(), data->IsUnderline()}, fontID);
+#endif
     return true;
   }
   
