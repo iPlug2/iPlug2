@@ -17,6 +17,8 @@
 
 extern int GetSystemVersion();
 
+// Fonts
+
 struct LICEFontInfo
 {
   WDL_String mFontName;
@@ -24,6 +26,31 @@ struct LICEFontInfo
   bool mItalic;
   bool mUnderline;
 };
+
+#ifdef OS_MAC
+class MacRegisteredFont
+{
+public:
+  MacRegisteredFont(CTFontDescriptorRef descriptor)
+  {
+    CTFontRef ctFont = CTFontCreateWithFontDescriptor(descriptor, 0.f, NULL);
+    mCGFont = CTFontCopyGraphicsFont(ctFont, NULL);
+    CTFontManagerRegisterGraphicsFont(mCGFont, NULL);
+    CFRelease(ctFont);
+  }
+  
+  ~MacRegisteredFont()
+  {
+    CTFontManagerUnregisterGraphicsFont(mCGFont, NULL);
+    CGFontRelease(mCGFont);
+  }
+
+private:
+  CGFontRef mCGFont;
+};
+
+static StaticStorage<MacRegisteredFont> sMacRegistedFontCache;
+#endif
 
 static StaticStorage<LICE_IFont> sFontCache;
 static StaticStorage<LICEFontInfo> sLICEFontInfoCache;
@@ -97,6 +124,10 @@ IGraphicsLice::IGraphicsLice(IGEditorDelegate& dlg, int w, int h, int fps, float
   StaticStorage<LICEFontInfo>::Accessor fontInfoStorage(sLICEFontInfoCache);
   fontStorage.Retain();
   fontInfoStorage.Retain();
+#ifdef OS_MAC
+  StaticStorage<MacRegisteredFont>::Accessor registeredFontStorage(sMacRegistedFontCache);
+  registeredFontStorage.Retain();
+#endif
 }
 
 IGraphicsLice::~IGraphicsLice() 
@@ -113,6 +144,10 @@ IGraphicsLice::~IGraphicsLice()
   StaticStorage<LICEFontInfo>::Accessor fontInfoStorage(sLICEFontInfoCache);
   fontStorage.Release();
   fontInfoStorage.Release();
+#ifdef OS_MAC
+  StaticStorage<MacRegisteredFont>::Accessor registeredFontStorage(sMacRegistedFontCache);
+  registeredFontStorage.Release();
+#endif
 }
 
 void IGraphicsLice::DrawResize()
@@ -701,6 +736,8 @@ bool IGraphicsLice::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
   if (data->IsValid())
   {
 #ifdef OS_MAC
+    StaticStorage<MacRegisteredFont>::Accessor registeredFontStorage(sMacRegistedFontCache);
+
     WDL_String fontName(data->GetFamily());
     if (strcmp(data->GetStyle().Get(), "Regular"))
     {
@@ -709,14 +746,9 @@ bool IGraphicsLice::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
     }
     fontInfoStorage.Add(new LICEFontInfo{fontName, false, false, false}, fontID);
       
-    // FIX - de-registering Mac fonts
     if (!font->IsSystem())
     {
-      CTFontRef ctFont = CTFontCreateWithFontDescriptor((CTFontDescriptorRef) font->GetDescriptor(), 0.f, NULL);
-      CGFontRef cgFont = CTFontCopyGraphicsFont(ctFont, NULL);
-      CTFontManagerRegisterGraphicsFont(cgFont, NULL);
-      CFRelease(ctFont);
-      CGFontRelease(cgFont);
+      registeredFontStorage.Add(new MacRegisteredFont((CTFontDescriptorRef) font->GetDescriptor()), fontID);
     }
 #else
     fontInfoStorage.Add(new LICEFontInfo{data->GetFamily(), data->IsBold(), data->IsItalic(), data->IsUnderline()}, fontID);
@@ -872,11 +904,6 @@ void IGraphicsLice::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const
 void IGraphicsLice::EndFrame()
 {
 #ifdef OS_MAC
-
-#ifdef IGRAPHICS_MAC_BLIT_BENCHMARK
-  double tm=gettm();
-#endif
-    
   CGImageRef img = NULL;
   CGRect r = CGRectMake(0, 0, WindowWidth(), WindowHeight());
 
@@ -922,11 +949,6 @@ void IGraphicsLice::EndFrame()
     CGContextRestoreGState(pCGContext);
     CGImageRelease(img);
   }
-    
-#ifdef IGRAPHICS_MAC_BLIT_BENCHMARK
-    printf("blit %fms\n",(gettm()-tm)*1000.0);
-#endif
-    
 #else // OS_WIN
   PAINTSTRUCT ps;
   HWND hWnd = (HWND) GetWindow();
