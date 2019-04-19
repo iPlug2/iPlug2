@@ -252,7 +252,6 @@ bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
     
   val context = GetContext();
   std::string textString(str);
-  
   FontDescriptor descriptor = &pFont->mDescriptor;
   char fontString[FONT_LEN + 64];
   
@@ -278,7 +277,7 @@ bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
   
   switch (text.mAlign)
   {
-    case IText::kAlignNear:     break;
+    case IText::kAlignNear:     x = bound.L;                            break;
     case IText::kAlignCenter:   x = bounds.MW() - (textWidth / 2.0);    break;
     case IText::kAlignFar:      x = bounds.R - textWidth;               break;
   }

@@ -588,19 +588,19 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
   
   double x = 0.0;
   double y = 0.0;
-    
-  switch (text.mVAlign)
-  {
-    case IText::kVAlignTop:      y = bounds.T + ascender;                               break;
-    case IText::kVAlignMiddle:   y = bounds.MH() + descender + textHeight/2.;           break;
-    case IText::kVAlignBottom:   y = bounds.B + descender;                              break;
-  }
   
   switch (text.mAlign)
   {
     case IText::kAlignNear:     x = bounds.L;                                   break;
     case IText::kAlignCenter:   x = bounds.L + ((bounds.W() - width) / 2.0);    break;
     case IText::kAlignFar:      x = bounds.L + (bounds.W() - width);            break;
+  }
+  
+  switch (text.mVAlign)
+  {
+    case IText::kVAlignTop:      y = bounds.T + ascender;                               break;
+    case IText::kVAlignMiddle:   y = bounds.MH() + descender + textHeight/2.;           break;
+    case IText::kVAlignBottom:   y = bounds.B + descender;                              break;
   }
   
   agg::rgba8 color(AGGColor(text.mFGColor, BlendWeight(pBlend)));

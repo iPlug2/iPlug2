@@ -570,23 +570,22 @@ bool IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT&
     bounds.B = bounds.T + R.bottom;
       
     bounds.Scale(1.0 / ds);
+    return true;
   }
-  else
-  {
-    NeedsClipping();
+  
+  NeedsClipping();
 
-    IRECT r = bounds;
-    r.Translate(-mDrawOffsetX, -mDrawOffsetY);
-    r.Scale(ds);
-    RECT R = { (LONG) r.L, (LONG) r.T, (LONG) r.R, (LONG) r.B };
+  IRECT r = bounds;
+  r.Translate(-mDrawOffsetX, -mDrawOffsetY);
+  r.Scale(ds);
+  RECT R = { (LONG) r.L, (LONG) r.T, (LONG) r.R, (LONG) r.B };
 #if defined OS_MAC || defined OS_LINUX
-    font->DrawText(mRenderBitmap, str, -1, &R, fmt);
+  font->DrawText(mRenderBitmap, str, -1, &R, fmt);
 #elif defined OS_WIN
-    font->DrawTextA(mRenderBitmap, str, -1, &R, fmt);
+  font->DrawTextA(mRenderBitmap, str, -1, &R, fmt);
 #else
   #error NOT IMPLEMENTED
 #endif
-  }
   
   return true;
 }

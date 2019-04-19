@@ -536,7 +536,6 @@ bool IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IREC
   nvgFontBlur(mVG, 0);
   nvgFontSize(mVG, text.mSize);
   nvgFontFace(mVG, text.mFont);
-  nvgFillColor(mVG, NanoVGColor(text.mFGColor, pBlend));
   
   float x = 0.f;
   float y = 0.f;
@@ -566,6 +565,7 @@ bool IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IREC
     return true;
   }
   
+  nvgFillColor(mVG, NanoVGColor(text.mFGColor, pBlend));
   NanoVGSetBlendMode(mVG, pBlend);
   nvgText(mVG, xpos, ypos, str, NULL);
   nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
