@@ -400,59 +400,59 @@ bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& fon
   if (storage.Find(fontID))
     return true;
 
-  IFontDataPtr data = font->GetFontData();
-    
-  if (data->IsValid())
+  if (!font->IsSystem())
   {
-    // Embed the font data in base64 format as CSS in the head of the html
+    IFontDataPtr data = font->GetFontData();
     
-    WDL_TypedBuf<char> base64Encoded;
-    
-    if (!base64Encoded.ResizeOK(((data->GetSize() * 4) + 3) / 3 + 1))
-      return false;
-    
-    wdl_base64encode(data->Get(), base64Encoded.Get(), data->GetSize());
-    std::string htmlText("@font-face { font-family: '");
-    htmlText.append(fontID);
-    htmlText.append("'; src: url(data:font/ttf;base64,");
-    htmlText.append(base64Encoded.Get());
-    htmlText.append(") format('truetype'); }");
-    val document = val::global("document");
-    val documentHead = document["head"];
-    val css = document.call<val>("createElement", std::string("style"));
-    css.set("type", std::string("text/css"));
-    css.set("innerHTML", htmlText);
-    document["head"].call<void>("appendChild", css);
+    if (data->IsValid())
+    {
+      // Embed the font data in base64 format as CSS in the head of the html
       
+      WDL_TypedBuf<char> base64Encoded;
+      
+      if (!base64Encoded.ResizeOK(((data->GetSize() * 4) + 3) / 3 + 1))
+        return false;
+      
+      wdl_base64encode(data->Get(), base64Encoded.Get(), data->GetSize());
+      std::string htmlText("@font-face { font-family: '");
+      htmlText.append(fontID);
+      htmlText.append("'; src: url(data:font/ttf;base64,");
+      htmlText.append(base64Encoded.Get());
+      htmlText.append(") format('truetype'); }");
+      val document = val::global("document");
+      val documentHead = document["head"];
+      val css = document.call<val>("createElement", std::string("style"));
+      css.set("type", std::string("text/css"));
+      css.set("innerHTML", htmlText);
+      document["head"].call<void>("appendChild", css);
+      
+      const FontDescType* descriptor = reinterpret_cast<const FontDescType*>(font->GetDescriptor());
+      const double ascenderRatio = data->GetAscender() / static_cast<double>(data->GetAscender() - data->GetDescender());
+      const double EMRatio = data->GetHeightEMRatio();
+      storage.Add(new CanvasFont(FontDescType{descriptor->first, descriptor->second}, ascenderRatio, EMRatio), fontID);
+      
+      return true;
+    }
+  }
+  else
+  {
     const FontDescType* descriptor = reinterpret_cast<const FontDescType*>(font->GetDescriptor());
-    const double ascenderRatio = data->GetAscender() / static_cast<double>(data->GetAscender() - data->GetDescender());
-    const double EMRatio = data->GetHeightEMRatio();
-    storage.Add(new CanvasFont(FontDescType{descriptor->first, descriptor->second}, ascenderRatio, EMRatio), fontID);
+    const char* fontName = descriptor->first.Get();
+    const char* styleName = descriptor->second.Get();
+    
+    if (!CompareFontMetrics(styleName, fontName, "monospace", 72) ||
+        !CompareFontMetrics(styleName, fontName, "sans-serif", 72) ||
+        !CompareFontMetrics(styleName, fontName, "serif", 72))
+    {
+      double ascenderRatio, EMRatio;
       
-    return true;
+      GetFontMetrics(descriptor->first.Get(), descriptor->second.Get(), ascenderRatio, EMRatio);
+      storage.Add(new CanvasFont(FontDescType{descriptor->first, descriptor->second}, ascenderRatio, EMRatio), fontID);
+      return true;
+    }
   }
   
-  bool found = false;
-  const FontDescType* descriptor = reinterpret_cast<const FontDescType*>(font->GetDescriptor());
-  const char* fontName = descriptor->first.Get();
-  const char* styleName = descriptor->second.Get();
-  
-  if (!CompareFontMetrics(styleName, fontName, "monospace", 72))
-    found = true;
-  if (!found && !CompareFontMetrics(styleName, fontName, "sans-serif", 72))
-    found = true;
-  if (!found && !CompareFontMetrics(styleName, fontName, "serif", 72))
-    found = true;
-  
-  if (found)
-  {
-    double ascenderRatio, EMRatio;
-    
-    GetFontMetrics(descriptor->first.Get(), descriptor->second.Get(), ascenderRatio, EMRatio);
-    storage.Add(new CanvasFont(FontDescType{descriptor->first, descriptor->second}, ascenderRatio, EMRatio), fontID);    
-  }
-    
-  return found;
+  return false;
 }
 
 void IGraphicsCanvas::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
