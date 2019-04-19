@@ -296,9 +296,6 @@ void IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
   }
   
   context.call<void>("save");
-  PathRect(bounds);
-  context.call<void>("clip");
-  PathClear();
   SetCanvasSourcePattern(context, text.mFGColor, pBlend);
   context.call<void>("fillText", textString, x, y);
   context.call<void>("restore");
