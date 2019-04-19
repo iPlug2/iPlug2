@@ -262,7 +262,7 @@ public:
     JNL::open_socketlib();
     
     if(!mTimer)
-      mTimer.reset(Timer::Create(std::bind(&OSCInterface::OnTimer, this, std::placeholders::_1), updateRateMs));
+      mTimer = std::unique_ptr<Timer>(Timer::Create(std::bind(&OSCInterface::OnTimer, this, std::placeholders::_1), updateRateMs));
       
     sInstances++;
   }

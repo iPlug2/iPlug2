@@ -1321,7 +1321,7 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
       // Load the resource if no match found
       if (!pAPIBitmap)
       {
-        loadedBitmap.reset(LoadAPIBitmap(fullPath.Get(), sourceScale, resourceLocation, ext));
+        loadedBitmap = std::unique_ptr<APIBitmap>(LoadAPIBitmap(fullPath.Get(), sourceScale, resourceLocation, ext));
         pAPIBitmap= loadedBitmap.get();
       }
     }
