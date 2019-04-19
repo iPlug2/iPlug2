@@ -75,7 +75,7 @@ void CoreTextHelpers::CachePlatformFont(const char* fontID, const PlatformFontPt
 {
   StaticStorage<CoreTextFontDescriptor>::Accessor storage(cache);
   
-  CTFontDescriptorRef descriptor = (CTFontDescriptorRef) font->GetDescriptor();
+  CTFontDescriptorRef descriptor = font->GetDescriptor();
   IFontDataPtr data = font->GetFontData();
     
   if (!storage.Find(fontID))

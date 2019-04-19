@@ -748,7 +748,7 @@ bool IGraphicsLice::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
       
     if (!font->IsSystem())
     {
-      registeredFontStorage.Add(new MacRegisteredFont((CTFontDescriptorRef) font->GetDescriptor()), fontID);
+      registeredFontStorage.Add(new MacRegisteredFont(font->GetDescriptor()), fontID);
     }
 #else
     fontInfoStorage.Add(new LICEFontInfo{data->GetFamily(), data->IsBold(), data->IsItalic(), data->IsUnderline()}, fontID);

@@ -81,7 +81,7 @@ public:
     DeleteObject(mFont);
   }
   
-  const void* GetDescriptor() override { return reinterpret_cast<const void*>(mFont); }
+  FontDescriptor GetDescriptor() override { return mFont; }
   IFontDataPtr GetFontData() override;
   
 private:
@@ -1733,7 +1733,7 @@ void IGraphicsWin::CachePlatformFont(const char* fontID, const PlatformFontPtr& 
 {
   StaticStorage<WinFontDescriptor>::Accessor descriptorStorage(sFontDescriptorCache);
 
-  HFONT descriptor = (HFONT)font->GetDescriptor();
+  HFONT descriptor = font->GetDescriptor();
 
   if (!descriptorStorage.Find(fontID))
     descriptorStorage.Add(new WinFontDescriptor(descriptor), fontID);
