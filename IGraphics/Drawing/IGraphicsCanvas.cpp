@@ -277,7 +277,7 @@ void IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
   
   switch (text.mAlign)
   {
-    case IText::kAlignNear:     x = bound.L;                            break;
+    case IText::kAlignNear:     x = bounds.L;                           break;
     case IText::kAlignCenter:   x = bounds.MW() - (textWidth / 2.0);    break;
     case IText::kAlignFar:      x = bounds.R - textWidth;               break;
   }
