@@ -44,7 +44,7 @@ public:
   /** Constructor
    * @brief Creates an IControl
    * NOTE: An IControl does not know about the delegate or graphics context to which it belongs in the constructor
-   * If you need to do something once those things are know, see IControl::OnInit()
+   * If you need to do something once those things are known, see IControl::OnInit()
    * @param bounds The rectangular area that the control occupies
    * @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a plugin parameter
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
@@ -53,7 +53,7 @@ public:
   /** Constructor (no paramIdx)
    * @brief Creates an IControl which is not linked to a parameter
    * NOTE: An IControl does not know about the delegate or graphics context to which it belongs in the constructor
-   * If you need to do something once those things are know, see IControl::OnInit()
+   * If you need to do something once those things are known, see IControl::OnInit()
    * @param bounds The rectangular area that the control occupies
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
   IControl(IRECT bounds, IActionFunction actionFunc);
