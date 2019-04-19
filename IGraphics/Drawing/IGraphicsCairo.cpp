@@ -480,7 +480,6 @@ void IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
     case IText::kAlignNear:     x = bounds.L;                           break;
     case IText::kAlignCenter:   x = bounds.MW() - (textWidth / 2.0);    break;
     case IText::kAlignFar:      x = bounds.R - textWidth;               break;
-    default: break;
   }
   
   switch (text.mVAlign)
@@ -488,7 +487,6 @@ void IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
     case IText::kVAlignTop:      y = bounds.T + ascender;                             break;
     case IText::kVAlignMiddle:   y = bounds.MH() - descender + (textHeight / 2.0);    break;
     case IText::kVAlignBottom:   y = bounds.B - descender;                            break;
-    default: break;
   }
   
   const IColor& color = text.mFGColor;

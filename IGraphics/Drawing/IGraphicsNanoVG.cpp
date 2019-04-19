@@ -531,7 +531,7 @@ IColor IGraphicsNanoVG::GetPoint(int x, int y)
 
 void IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
 {
-  assert(nvgFindFont(mVG, text.mFont) != -1); // did you forget to LoadFont for this font?
+  assert(nvgFindFont(mVG, text.mFont) != -1 && "No font found - did you forget to load it?");
   
   nvgFontBlur(mVG, 0);
   nvgFontSize(mVG, text.mSize);
