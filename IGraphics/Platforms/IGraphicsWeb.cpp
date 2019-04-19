@@ -20,8 +20,37 @@ using namespace emscripten;
 
 extern IGraphics* gGraphics;
 
-// Font
-IFontDataPtr IGraphicsWeb::WebFileFont::GetFontData()
+// Fonts
+
+class WebFont : public PlatformFont
+{
+public:
+  WebFont(const char* fontName, const char* fontStyle)
+  : PlatformFont(true), mDescriptor{fontName, fontStyle}
+  {}
+  
+  const void* GetDescriptor() override { return reinterpret_cast<const void*>(&mDescriptor); }
+  
+private:
+  std::pair<WDL_String, WDL_String> mDescriptor;
+};
+
+class WebFileFont : public WebFont
+{
+public:
+  WebFileFont(const char* fontName, const char* fontStyle, const char* fontPath)
+  : WebFont(fontName, fontStyle), mPath(fontPath)
+  {
+    mSystem = false;
+  }
+  
+  IFontDataPtr GetFontData() override;
+  
+private:
+  WDL_String mPath;
+};
+
+IFontDataPtr WebFileFont::GetFontData()
 {
   IFontDataPtr fontData(new IFontData());
   FILE* fp = fopen(mPath.Get(), "rb");

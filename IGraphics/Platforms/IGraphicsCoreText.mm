@@ -49,7 +49,7 @@ PlatformFontPtr CoreTextHelpers::LoadPlatformFont(const char* fontID, const char
   if (!descriptor.Get())
     return nullptr;
   
-  return PlatformFontPtr(new CoreTextFont(descriptor.Release(), provider.Release()));
+  return PlatformFontPtr(new CoreTextFont(descriptor.Release(), provider.Release(), false));
 }
 
 PlatformFontPtr CoreTextHelpers::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
@@ -68,7 +68,7 @@ PlatformFontPtr CoreTextHelpers::LoadPlatformFont(const char* fontID, const char
   if (!provider.Get())
     return nullptr;
   
-  return PlatformFontPtr(new CoreTextFont(descriptor.Release(), provider.Release()));
+  return PlatformFontPtr(new CoreTextFont(descriptor.Release(), provider.Release(), true));
 }
 
 void CoreTextHelpers::CachePlatformFont(const char* fontID, const PlatformFontPtr& font, StaticStorage<CoreTextFontDescriptor>& cache)

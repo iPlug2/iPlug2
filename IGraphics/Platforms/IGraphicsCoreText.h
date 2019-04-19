@@ -16,8 +16,8 @@
 class CoreTextFont : public PlatformFont
 {
 public:
-  CoreTextFont(CTFontDescriptorRef descriptor, CGDataProviderRef provider)
-  : mDescriptor(descriptor), mProvider(provider) {}
+  CoreTextFont(CTFontDescriptorRef descriptor, CGDataProviderRef provider, bool system)
+  : PlatformFont(system), mDescriptor(descriptor), mProvider(provider) {}
   ~CoreTextFont();
   
   const void* GetDescriptor() override { return reinterpret_cast<const void*>(mDescriptor); }
