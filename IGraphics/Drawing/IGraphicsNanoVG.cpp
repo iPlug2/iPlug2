@@ -560,14 +560,14 @@ bool IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IREC
   if (measure)
   {
     float fbounds[4];
-    nvgTextBounds(mVG, xpos, ypos, str, NULL, fbounds);
+    nvgTextBounds(mVG, x, y, str, NULL, fbounds);
     bounds = IRECT(fbounds[0], fbounds[1], fbounds[2], fbounds[3]);
     return true;
   }
   
   nvgFillColor(mVG, NanoVGColor(text.mFGColor, pBlend));
   NanoVGSetBlendMode(mVG, pBlend);
-  nvgText(mVG, xpos, ypos, str, NULL);
+  nvgText(mVG, x, y, str, NULL);
   nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
     
   return true;
