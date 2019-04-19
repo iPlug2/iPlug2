@@ -431,6 +431,12 @@ bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& fon
       const double EMRatio = data->GetHeightEMRatio();
       storage.Add(new CanvasFont({descriptor->first, descriptor->second}, ascenderRatio, EMRatio), fontID);
       
+      // Load snd draw the font to the canvas
+      char fontString[FONT_LEN + 64];
+      sprintf(fontString, "%s %dpx %s", descriptor->second.Get(), 12, descriptor->first.Get());
+      GetContext().set("font", std::string(fontString));
+      GetContext().call<void>("fillText", std::string("Load"), 0, 0);
+      
       return true;
     }
   }

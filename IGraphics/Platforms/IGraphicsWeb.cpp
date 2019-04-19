@@ -19,6 +19,7 @@
 using namespace emscripten;
 
 extern IGraphics* gGraphics;
+bool gGraphicsLoaded = false;
 
 // Fonts
 
@@ -497,8 +498,13 @@ void IGraphicsWeb::OnMainLoopTimer()
   IRECTList rects;
   int screenScale = (int) std::ceil(std::max(emscripten_get_device_pixel_ratio(), 1.));
 
-  if (!gGraphics)
+  // Only draw on the second timer so that fonts will be loaded
+  if (!gGraphics || !gGraphicsLoaded)
+  {
+    if (gGraphics)
+      gGraphicsLoaded = true;
     return;
+  }
   
   if (screenScale != gGraphics->GetScreenScale())
   {
