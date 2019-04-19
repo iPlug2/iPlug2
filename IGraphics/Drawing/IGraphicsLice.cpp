@@ -682,21 +682,8 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text)
     int wt = fontInfo->mBold ? FW_BOLD : FW_NORMAL;
     int it = fontInfo->mItalic ? TRUE : FALSE;
     int ul = fontInfo->mUnderline ? TRUE : FALSE;
-    int q;
-      
-    if (text.mQuality == IText::kQualityDefault)
-      q = DEFAULT_QUALITY;
-#ifdef CLEARTYPE_QUALITY
-    else if (text.mQuality == IText::kQualityClearType)
-      q = CLEARTYPE_QUALITY;
-    else if (text.mQuality == IText::kQualityAntiAliased)
-#else
-    else if (text.mQuality != IText::kQualityNonAntiAliased)
-#endif
-      q = ANTIALIASED_QUALITY;
-    else // if (text.mQuality == IText::kQualityNonAntiAliased)
-      q = NONANTIALIASED_QUALITY;
-    
+    int q = DEFAULT_QUALITY;
+
 #ifdef OS_MAC
     bool resized = false;
   Resize:

@@ -1716,13 +1716,6 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
   bool italic = style == kTextStyleItalic;
   bool underline = false;
   DWORD quality = DEFAULT_QUALITY;
-/*
-  switch (text.mQuality)
-  {
-  case IText::kQualityAntiAliased: quality = ANTIALIASED_QUALITY; break;
-  case IText::kQualityClearType: quality = CLEARTYPE_QUALITY; break;
-  case IText::kQualityNonAntiAliased: quality = NONANTIALIASED_QUALITY; break;
-  }*/
 
   HFONT font = GetHFont(fontName, weight, italic, underline, quality, true);
 

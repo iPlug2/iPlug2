@@ -565,9 +565,6 @@ struct IText
   /** /todo */
   enum EVAlign { kVAlignTop, kVAlignMiddle, kVAlignBottom } mVAlign;
 
-  /** /todo */
-  enum EQuality { kQualityDefault, kQualityNonAntiAliased, kQualityAntiAliased, kQualityClearType } mQuality = kQualityDefault;
-
   /** /todo 
    * @param size /todo
    * @param color /todo
@@ -575,7 +572,6 @@ struct IText
    * @param align /todo
    * @param valign /todo
    * @param orientation /todo
-   * @param quality /todo
    * @param TEBGColor /todo
    * @param TEFGColor /todo */
   IText(int size = DEFAULT_TEXT_SIZE,
@@ -584,7 +580,6 @@ struct IText
         EAlign align = kAlignCenter,
         EVAlign valign = kVAlignMiddle,
         int orientation = 0,
-        EQuality quality = kQualityDefault,
         const IColor& TEBGColor = DEFAULT_TEXTENTRY_BGCOLOR,
         const IColor& TEFGColor = DEFAULT_TEXTENTRY_FGCOLOR)
     : mSize(size)
@@ -592,7 +587,6 @@ struct IText
     , mAlign(align)
     , mVAlign(valign)
     , mOrientation(orientation)
-    , mQuality(quality)
     , mTextEntryBGColor(TEBGColor)
     , mTextEntryFGColor(TEFGColor)
   {
