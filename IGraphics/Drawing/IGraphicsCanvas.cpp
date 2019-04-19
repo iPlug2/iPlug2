@@ -12,6 +12,7 @@
 #include <string>
 #include <utility>
 #include <stdio.h>
+#include <type_traits>
 #include <emscripten.h>
 
 #include "wdl_base64.h"
@@ -25,14 +26,14 @@ extern val GetCanvas();
 
 // Fonts
 
-typedef std::pair<WDL_String, WDL_String> FontDescType;
-
 struct CanvasFont
 {
-  CanvasFont(FontDescType descriptor, double ascenderRatio, double EMRatio)
+  typedef std::remove_pointer<FontDescriptor>::type FontDesc;
+  
+  CanvasFont(FontDesc descriptor, double ascenderRatio, double EMRatio)
   : mDescriptor(descriptor), mAscenderRatio(ascenderRatio), mEMRatio(EMRatio) {}
     
-  FontDescType mDescriptor;
+  FontDesc mDescriptor;
   double mAscenderRatio;
   double mEMRatio;
 };
@@ -253,10 +254,10 @@ bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
   val context = GetContext();
   std::string textString(str);
   
-  const FontDescType& descriptor = pFont->mDescriptor;
+  FontDescriptor descriptor = &pFont->mDescriptor;
   char fontString[FONT_LEN + 64];
   context.set("textBaseline", std::string("top"));
-  sprintf(fontString, "%s %lfpx %s", descriptor.second.Get(), text.mSize * pFont->mEMRatio, descriptor.first.Get());
+  sprintf(fontString, "%s %lfpx %s", descriptor->second.Get(), text.mSize * pFont->mEMRatio, descriptor->first.Get());
   context.set("font", std::string(fontString));
   val metrics = context.call<val>("measureText", textString);
   const double textWidth = metrics["width"].as<double>();
@@ -426,17 +427,17 @@ bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& fon
       css.set("innerHTML", htmlText);
       document["head"].call<void>("appendChild", css);
       
-      const FontDescType* descriptor = reinterpret_cast<const FontDescType*>(font->GetDescriptor());
+      FontDescriptor descriptor = font->GetDescriptor();
       const double ascenderRatio = data->GetAscender() / static_cast<double>(data->GetAscender() - data->GetDescender());
       const double EMRatio = data->GetHeightEMRatio();
-      storage.Add(new CanvasFont(FontDescType{descriptor->first, descriptor->second}, ascenderRatio, EMRatio), fontID);
+      storage.Add(new CanvasFont({descriptor->first, descriptor->second}, ascenderRatio, EMRatio), fontID);
       
       return true;
     }
   }
   else
   {
-    const FontDescType* descriptor = reinterpret_cast<const FontDescType*>(font->GetDescriptor());
+    FontDescriptor descriptor = font->GetDescriptor();
     const char* fontName = descriptor->first.Get();
     const char* styleName = descriptor->second.Get();
     
@@ -447,7 +448,7 @@ bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& fon
       double ascenderRatio, EMRatio;
       
       GetFontMetrics(descriptor->first.Get(), descriptor->second.Get(), ascenderRatio, EMRatio);
-      storage.Add(new CanvasFont(FontDescType{descriptor->first, descriptor->second}, ascenderRatio, EMRatio), fontID);
+      storage.Add(new CanvasFont({descriptor->first, descriptor->second}, ascenderRatio, EMRatio), fontID);
       return true;
     }
   }

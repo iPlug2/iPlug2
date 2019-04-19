@@ -87,8 +87,17 @@ typedef WDL_TypedBuf<uint8_t> RawBitmapData;
   typedef void* BitmapData;
 #endif
 
-#ifdef OS_WIN
+#if defined OS_MAC
+#include <CoreText/CoreText.h>
+typedef CTFontDescriptorRef FontDescriptor;
+#elif defined OS_WIN
+#include "wingdi.h"
 #include "Stringapiset.h"
+typedef HFONT FontDescriptor;
+#elif defined OS_WEB
+typedef std::pair<WDL_String, WDL_String>* FontDescriptor;
+#else // NO_IGRAPHICS
+typedef void* BitmapData;
 #endif
 
 /** A bitmap abstraction around the different drawing back end bitmap representations.
@@ -850,7 +859,7 @@ class PlatformFont
 public:
   PlatformFont(bool system) : mSystem(system) {}
   virtual ~PlatformFont() {}
-  virtual const void* GetDescriptor() { return nullptr; }
+  virtual FontDescriptor GetDescriptor() { return nullptr; }
   virtual IFontDataPtr GetFontData() { return IFontDataPtr(new IFontData()); }
   bool IsSystem() { return mSystem; }
     

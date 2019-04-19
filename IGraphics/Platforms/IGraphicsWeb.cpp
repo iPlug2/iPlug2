@@ -29,7 +29,7 @@ public:
   : PlatformFont(true), mDescriptor{fontName, fontStyle}
   {}
   
-  const void* GetDescriptor() override { return reinterpret_cast<const void*>(&mDescriptor); }
+  FontDescriptor GetDescriptor() override { return &mDescriptor; }
   
 private:
   std::pair<WDL_String, WDL_String> mDescriptor;

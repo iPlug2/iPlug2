@@ -20,7 +20,7 @@ public:
   : PlatformFont(system), mDescriptor(descriptor), mProvider(provider) {}
   ~CoreTextFont();
   
-  const void* GetDescriptor() override { return reinterpret_cast<const void*>(mDescriptor); }
+  FontDescriptor GetDescriptor() override { return mDescriptor; }
   IFontDataPtr GetFontData() override;
   
 private:

@@ -27,9 +27,9 @@ struct CairoFont
 #ifdef OS_MAC
 struct CairoPlatformFont : CairoFont
 {
-  CairoPlatformFont(const void* fontRef, double EMRatio) : CairoFont(nullptr, EMRatio)
+  CairoPlatformFont(const FontDescriptor fontRef, double EMRatio) : CairoFont(nullptr, EMRatio)
   {
-    CTFontRef ctFont = CTFontCreateWithFontDescriptor((CTFontDescriptorRef) fontRef, 0.f, NULL);
+    CTFontRef ctFont = CTFontCreateWithFontDescriptor(fontRef, 0.f, NULL);
     CGFontRef cgFont = CTFontCopyGraphicsFont(ctFont, NULL);
     mFont = cairo_quartz_font_face_create_for_cgfont(cgFont);
     CFRelease(ctFont);
@@ -39,8 +39,8 @@ struct CairoPlatformFont : CairoFont
 #elif defined OS_WIN
 struct CairoPlatformFont : CairoFont
 {
-  CairoPlatformFont(const void* fontRef, double EMRatio)
-  : CairoFont(cairo_win32_font_face_create_for_hfont((HFONT) fontRef), EMRatio)
+  CairoPlatformFont(const FontDescriptor fontRef, double EMRatio)
+  : CairoFont(cairo_win32_font_face_create_for_hfont(fontRef), EMRatio)
   {}
 };
 
