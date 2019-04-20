@@ -17,7 +17,7 @@
 
 #include "IControl.h"
 
-/** Control to test drawing text
+/** Control to test drawing fonts
  *   @ingroup TestControls */
 class TestFontControl : public IControl
 {
@@ -93,6 +93,5 @@ private:
 
   int mCount;
   int mFontCount;
-  int mStringIndex;
   int mStrCount;
 };
