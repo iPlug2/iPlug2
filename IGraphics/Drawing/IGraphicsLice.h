@@ -136,13 +136,15 @@ protected:
   void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
   void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
 
-  void DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
+  void DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
+  void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
 
   void EndFrame() override;
     
   float GetBackingPixelScale() const override { return (float) GetScreenScale(); };
 
 private:
+  void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, float& x, float& y, LICE_IFont*& pFont) const;
     
   bool OpacityCheck(const IColor& color, const IBlend* pBlend)
   {
@@ -176,7 +178,7 @@ private:
     
   void UpdateLayer() override;
     
-  LICE_IFont* CacheFont(const IText& text);
+  LICE_IFont* CacheFont(const IText& text) const;
 
   IRECT mDrawRECT;
   IRECT mClipRECT;

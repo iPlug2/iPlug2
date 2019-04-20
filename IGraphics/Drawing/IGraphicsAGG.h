@@ -295,7 +295,7 @@ protected:
   void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
 
 private:
-  void MeasureTextImpl(const IText& text, const char* str, IRECT& bounds, double& x, double & y) const;
+  void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y) const;
   bool SetFont(const char* fontID, IFontData* pFont) const;
 
   double XTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().L; }

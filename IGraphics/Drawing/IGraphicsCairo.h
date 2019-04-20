@@ -93,7 +93,7 @@ protected:
   
 private:
     
-  void MeasureTextImpl(const IText& text, const char* str, IRECT& bounds, double& x, double & y, cairo_glyph_t*& pGlyphs, int& numGlyphs) const;
+  void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y, cairo_glyph_t*& pGlyphs, int& numGlyphs) const;
     
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;

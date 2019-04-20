@@ -424,7 +424,7 @@ IColor IGraphicsCairo::GetPoint(int x, int y)
   return IColor(A, R, G, B);
 }
 
-void IGraphicsCairo::MeasureTextImpl(const IText& text, const char* str, IRECT& bounds, double& x, double & y, cairo_glyph_t*& pGlyphs, int& numGlyphs) const
+void IGraphicsCairo::PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y, cairo_glyph_t*& pGlyphs, int& numGlyphs) const
 {
   cairo_text_extents_t textExtents;
   cairo_font_extents_t fontExtents;
@@ -466,19 +466,19 @@ void IGraphicsCairo::MeasureTextImpl(const IText& text, const char* str, IRECT& 
     
   switch (text.mAlign)
   {
-    case IText::kAlignNear:     x = bounds.L;                           break;
-    case IText::kAlignCenter:   x = bounds.MW() - (textWidth / 2.0);    break;
-    case IText::kAlignFar:      x = bounds.R - textWidth;               break;
+    case IText::kAlignNear:     x = r.L;                          break;
+    case IText::kAlignCenter:   x = r.MW() - (textWidth / 2.0);   break;
+    case IText::kAlignFar:      x = r.R - textWidth;              break;
   }
   
   switch (text.mVAlign)
   {
-    case IText::kVAlignTop:      y = bounds.T + ascender;                             break;
-    case IText::kVAlignMiddle:   y = bounds.MH() - descender + (textHeight / 2.0);    break;
-    case IText::kVAlignBottom:   y = bounds.B - descender;                            break;
+    case IText::kVAlignTop:      y = r.T + ascender;                            break;
+    case IText::kVAlignMiddle:   y = r.MH() - descender + (textHeight / 2.0);   break;
+    case IText::kVAlignBottom:   y = r.B - descender;                           break;
   }
   
-  bounds = IRECT((float) x, (float) (y - ascender), (float) (x + textWidth), (float) (y + textHeight - ascender));
+  r = IRECT((float) x, (float) (y - ascender), (float) (x + textWidth), (float) (y + textHeight - ascender));
   
   // Destroy temporary context
   if (context != mContext)
@@ -491,7 +491,7 @@ void IGraphicsCairo::DoMeasureText(const IText& text, const char* str, IRECT& bo
   cairo_glyph_t* pGlyphs;
   int numGlyphs;
   double x, y;
-  MeasureTextImpl(text, str, bounds, x, y, pGlyphs, numGlyphs);
+  PrepareAndMeasureText(text, str, bounds, x, y, pGlyphs, numGlyphs);
   DoMeasureTextRotation(r, bounds, text.mAlign, text.mVAlign, text.mOrientation);
   cairo_glyph_free(pGlyphs);
 }
@@ -505,7 +505,7 @@ void IGraphicsCairo::DoDrawText(const IText& text, const char* str, const IRECT&
   
   const IColor& color = text.mFGColor;
   
-  MeasureTextImpl(text, str, measured, x, y, pGlyphs, numGlyphs);
+  PrepareAndMeasureText(text, str, measured, x, y, pGlyphs, numGlyphs);
   PathTransformSave();
   DoTextRotation(bounds, measured, text.mAlign, text.mVAlign, text.mOrientation);
   cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, (BlendWeight(pBlend) * color.A) / 255.0);

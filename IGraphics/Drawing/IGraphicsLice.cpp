@@ -514,59 +514,69 @@ IColor IGraphicsLice::GetPoint(int x, int y)
   return IColor(LICE_GETA(pix), LICE_GETR(pix), LICE_GETG(pix), LICE_GETB(pix));
 }
 
-void IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
-{
 #if defined OS_WIN
 #define DrawText DrawTextA
 #endif
-  
-  LICE_IFont* font = CacheFont(text);
-  RECT R = {0,0,0,0};
-  int ds = GetScreenScale();
+
+void IGraphicsLice::PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, float& x, float& y, LICE_IFont*& pFont) const
+{
+  pFont = CacheFont(text);
+  RECT R = {0, 0, 0, 0};
   UINT fmt = DT_NOCLIP | DT_TOP | DT_LEFT | LICE_DT_USEFGALPHA;
   
-  font->DrawText(mRenderBitmap, str, -1, &R, fmt | DT_CALCRECT);
+  pFont->DrawText(mRenderBitmap, str, -1, &R, fmt | DT_CALCRECT);
   
-  const float textWidth = R.right / static_cast<float>(ds);
-  const float textHeight = R.bottom / static_cast<float>(ds);
-  float x = 0.f;
-  float y = 0.f;
+  const float textWidth = R.right / static_cast<float>(GetScreenScale());
+  const float textHeight = R.bottom / static_cast<float>(GetScreenScale());
   
   switch (text.mAlign)
   {
-    case IText::kAlignNear:     x = bounds.L;                           break;
-    case IText::kAlignCenter:   x = bounds.MW() - (textWidth / 2.f);    break;
-    case IText::kAlignFar:      x = bounds.R - textWidth;               break;
+    case IText::kAlignNear:     x = r.L;                          break;
+    case IText::kAlignCenter:   x = r.MW() - (textWidth / 2.f);   break;
+    case IText::kAlignFar:      x = r.R - textWidth;              break;
   }
   
   switch (text.mVAlign)
   {
-    case IText::kVAlignTop:      y = bounds.T;                                  break;
-    case IText::kVAlignMiddle:   y = bounds.MH() - (textHeight / 2.f);          break;
-    case IText::kVAlignBottom:   y = bounds.B - textHeight;                     break;
+    case IText::kVAlignTop:      y = r.T;                           break;
+    case IText::kVAlignMiddle:   y = r.MH() - (textHeight / 2.f);   break;
+    case IText::kVAlignBottom:   y = r.B - textHeight;              break;
   }
   
-  if (measure)
-  {
-    bounds = IRECT(x, y, x + textWidth, y + textHeight);
-    return;
-  }
+  r = IRECT(x, y, x + textWidth, y + textHeight);
+}
+
+void IGraphicsLice::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
+{
+  LICE_IFont* pFont;
+  float x, y;
+  PrepareAndMeasureText(text, str, bounds, x, y, pFont);
+}
+
+void IGraphicsLice::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
+{
+  IRECT measured = bounds;
+  LICE_IFont* pFont;
+  float x, y;
+  UINT fmt = DT_NOCLIP | DT_TOP | DT_LEFT | LICE_DT_USEFGALPHA;
   
   NeedsClipping();
+
+  PrepareAndMeasureText(text, str, measured, x, y, pFont);
   
   IRECT r(x, y, bounds.R, bounds.B);
   r.Translate(-mDrawOffsetX, -mDrawOffsetY);
-  r.Scale(ds);
+  r.Scale(GetScreenScale());
   r.PixelAlign();
-  R = { (LONG) r.L, (LONG) r.T, (LONG) r.R, (LONG) r.B };
+  RECT R{ (LONG) r.L, (LONG) r.T, (LONG) r.R, (LONG) r.B };
   
-  font->SetTextColor(LiceColor(text.mFGColor, pBlend));
-  font->DrawText(mRenderBitmap, str, -1, &R, fmt);
-  
+  pFont->SetTextColor(LiceColor(text.mFGColor, pBlend));
+  pFont->DrawText(mRenderBitmap, str, -1, &R, fmt);
+}
+
 #ifdef DrawText
 #undef DrawText
 #endif
-}
 
 bool OpacityCheck(const IBlend* pBlend)
 {
@@ -631,7 +641,7 @@ void IGraphicsLice::UpdateLayer()
   mDrawOffsetY = currentLayer ? r.T : 0;
 }
 
-LICE_IFont* IGraphicsLice::CacheFont(const IText& text)
+LICE_IFont* IGraphicsLice::CacheFont(const IText& text) const
 {
   StaticStorage<LICE_IFont>::Accessor fontStorage(sFontCache);
   WDL_String hashStr(text.mFont);

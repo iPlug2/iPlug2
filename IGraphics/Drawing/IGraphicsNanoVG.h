@@ -148,7 +148,7 @@ protected:
   void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
 
 private:
-  void MeasureTextImpl(const IText& text, const char* str, IRECT& bounds, double& x, double & y) const;
+  void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y) const;
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
   void UpdateLayer() override;

@@ -250,7 +250,7 @@ void IGraphicsCanvas::SetCanvasBlendMode(val& context, const IBlend* pBlend)
   }
 }
 
-void IGraphicsCanvas::MeasureTextImpl(const IText& text, const char* str, IRECT& bounds, double& x, double & y) const
+void IGraphicsCanvas::PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y) const
 {
   StaticStorage<CanvasFont>::Accessor storage(sFontCache);
   CanvasFont* pFont = storage.Find(text.mFont);
@@ -270,26 +270,26 @@ void IGraphicsCanvas::MeasureTextImpl(const IText& text, const char* str, IRECT&
   
   switch (text.mAlign)
   {
-    case IText::kAlignNear:     x = bounds.L;                           break;
-    case IText::kAlignCenter:   x = bounds.MW() - (textWidth / 2.0);    break;
-    case IText::kAlignFar:      x = bounds.R - textWidth;               break;
+    case IText::kAlignNear:     x = r.L;                          break;
+    case IText::kAlignCenter:   x = r.MW() - (textWidth / 2.0);   break;
+    case IText::kAlignFar:      x = r.R - textWidth;              break;
   }
   
   switch (text.mVAlign)
   {
-    case IText::kVAlignTop:      y = bounds.T + ascender;                               break;
-    case IText::kVAlignMiddle:   y = bounds.MH() + descender + (textHeight / 2.0);      break;
-    case IText::kVAlignBottom:   y = bounds.B + descender;                              break;
+    case IText::kVAlignTop:      y = r.T + ascender;                            break;
+    case IText::kVAlignMiddle:   y = r.MH() + descender + (textHeight / 2.0);   break;
+    case IText::kVAlignBottom:   y = r.B + descender;                           break;
   }
   
-  bounds = IRECT((float) x, (float) (y - ascender), (float) (x + textWidth), (float) (y + textHeight - ascender));
+  r = IRECT((float) x, (float) (y - ascender), (float) (x + textWidth), (float) (y + textHeight - ascender));
 }
 
 void IGraphicsCanvas::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
   IRECT r = bounds;
   double x, y;
-  MeasureTextImpl(text, str, bounds, x, y);
+  PrepareAndMeasureText(text, str, bounds, x, y);
   DoMeasureTextRotation(r, bounds, text.mAlign, text.mVAlign, text.mOrientation);
 }
 
@@ -299,7 +299,7 @@ void IGraphicsCanvas::DoDrawText(const IText& text, const char* str, const IRECT
   val context = GetContext();
   double x, y;
   
-  MeasureTextImpl(text, str, measured, x, y);
+  PrepareAndMeasureText(text, str, measured, x, y);
   PathTransformSave();
   DoTextRotation(bounds, measured, text.mAlign, text.mVAlign, text.mOrientation);
   context.set("textBaseline", std::string("alphabetic"));

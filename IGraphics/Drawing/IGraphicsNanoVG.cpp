@@ -529,7 +529,7 @@ IColor IGraphicsNanoVG::GetPoint(int x, int y)
   return COLOR_BLACK; //TODO:
 }
 
-void IGraphicsNanoVG::MeasureTextImpl(const IText& text, const char* str, IRECT& bounds, double& x, double & y) const
+void IGraphicsNanoVG::PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y) const
 {
   float fbounds[4];
   
@@ -543,29 +543,29 @@ void IGraphicsNanoVG::MeasureTextImpl(const IText& text, const char* str, IRECT&
   
   switch (text.mAlign)
   {
-    case IText::kAlignNear:     align = NVG_ALIGN_LEFT;     x = bounds.L;         break;
-    case IText::kAlignCenter:   align = NVG_ALIGN_CENTER;   x = bounds.MW();      break;
-    case IText::kAlignFar:      align = NVG_ALIGN_RIGHT;    x = bounds.R;         break;
+    case IText::kAlignNear:     align = NVG_ALIGN_LEFT;     x = r.L;        break;
+    case IText::kAlignCenter:   align = NVG_ALIGN_CENTER;   x = r.MW();     break;
+    case IText::kAlignFar:      align = NVG_ALIGN_RIGHT;    x = r.R;        break;
   }
   
   switch (text.mVAlign)
   {
-    case IText::kVAlignBottom:  align |= NVG_ALIGN_BOTTOM;  y = bounds.B;         break;
-    case IText::kVAlignMiddle:  align |= NVG_ALIGN_MIDDLE;  y = bounds.MH();      break;
-    case IText::kVAlignTop:     align |= NVG_ALIGN_TOP;     y = bounds.T;         break;
+    case IText::kVAlignBottom:  align |= NVG_ALIGN_BOTTOM;  y = r.B;        break;
+    case IText::kVAlignMiddle:  align |= NVG_ALIGN_MIDDLE;  y = r.MH();     break;
+    case IText::kVAlignTop:     align |= NVG_ALIGN_TOP;     y = r.T;        break;
   }
   
   nvgTextAlign(mVG, align);
   nvgTextBounds(mVG, x, y, str, NULL, fbounds);
   
-  bounds = IRECT(fbounds[0], fbounds[1], fbounds[2], fbounds[3]);
+  r = IRECT(fbounds[0], fbounds[1], fbounds[2], fbounds[3]);
 }
 
 void IGraphicsNanoVG::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
   IRECT r = bounds;
   double x, y;
-  MeasureTextImpl(text, str, bounds, x, y);
+  PrepareAndMeasureText(text, str, bounds, x, y);
   DoMeasureTextRotation(r, bounds, text.mAlign, text.mVAlign, text.mOrientation);
 }
 
@@ -574,7 +574,7 @@ void IGraphicsNanoVG::DoDrawText(const IText& text, const char* str, const IRECT
   IRECT measured = bounds;
   double x, y;
   
-  MeasureTextImpl(text, str, measured, x, y);
+  PrepareAndMeasureText(text, str, measured, x, y);
   PathTransformSave();
   DoTextRotation(bounds, measured, text.mAlign, text.mVAlign, text.mOrientation);
   nvgFillColor(mVG, NanoVGColor(text.mFGColor, pBlend));
