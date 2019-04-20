@@ -558,7 +558,7 @@ void IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
   const double descender = text.mSize * pFont->GetDescender() / EMHeight;
   
   mFontManager.reset_last_glyph();
-  double width = 0.0;
+  double textWidth = 0.0;
   
   for (int i = 0; str[i]; i++)
   {
@@ -569,10 +569,10 @@ void IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
       double dx = 0.0;
       double dy = 0.0;
       mFontManager.add_kerning(&dx, &dy);
-      width += dx;
+      textWidth += dx;
     }
     
-    width += pGlyph->advance_x;
+    textWidth += pGlyph->advance_x;
   }
   
   double x = 0.0;
@@ -580,9 +580,9 @@ void IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
   
   switch (text.mAlign)
   {
-    case IText::kAlignNear:     x = bounds.L;                       break;
-    case IText::kAlignCenter:   x = bounds.MW + (width / 2.0);      break;
-    case IText::kAlignFar:      x = bounds.R - width);              break;
+    case IText::kAlignNear:     x = bounds.L;                             break;
+    case IText::kAlignCenter:   x = bounds.MW() - (textWidth / 2.0);      break;
+    case IText::kAlignFar:      x = bounds.R - textWidth;                 break;
   }
   
   switch (text.mVAlign)
@@ -595,7 +595,7 @@ void IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
   if (measure)
   {
     y -= ascender;
-    bounds = IRECT((float) x, (float) y, (float) (x + textWidth), (float) (y + textHeight);
+    bounds = IRECT((float) x, (float) y, (float) (x + textWidth), (float) (y + textHeight));
     return;
   }
   
