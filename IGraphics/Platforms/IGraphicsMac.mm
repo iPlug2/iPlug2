@@ -83,7 +83,7 @@ void IGraphicsMac::CachePlatformFont(const char* fontID, const PlatformFontPtr& 
   CoreTextHelpers::CachePlatformFont(fontID, font, sFontDescriptorCache);
 }
 
-void IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds)
+void IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
 #ifdef IGRAPHICS_LICE
   @autoreleasepool

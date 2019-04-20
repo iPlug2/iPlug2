@@ -291,11 +291,12 @@ protected:
   void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
   void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
 
-  void DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0, bool measure = false) override;
+  void DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
+  void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
 
 private:
-  
-  bool SetFont(const char* fontID, IFontData* pFont);
+  void MeasureTextImpl(const IText& text, const char* str, IRECT& bounds, double& x, double & y) const;
+  bool SetFont(const char* fontID, IFontData* pFont) const;
 
   double XTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().L; }
   double YTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().T; }
@@ -311,8 +312,8 @@ private:
   void SetClipRegion(const IRECT& r) override { mClipRECT = r; }
 
   IRECT mClipRECT;
-  FontEngineType mFontEngine;
-  FontManagerType mFontManager;
+  mutable FontEngineType mFontEngine;
+  mutable FontManagerType mFontManager;
   agg::rendering_buffer mRenBuf;
   agg::path_storage mPath;
   agg::trans_affine mTransform;

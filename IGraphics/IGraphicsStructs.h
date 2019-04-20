@@ -579,7 +579,7 @@ struct IText
         const char* font = nullptr,
         EAlign align = kAlignCenter,
         EVAlign valign = kVAlignMiddle,
-        int orientation = 0,
+        float orientation = 0,
         const IColor& TEBGColor = DEFAULT_TEXTENTRY_BGCOLOR,
         const IColor& TEFGColor = DEFAULT_TEXTENTRY_FGCOLOR)
     : mSize(size)
@@ -618,7 +618,7 @@ struct IText
   IColor mFGColor;
   IColor mTextEntryBGColor;
   IColor mTextEntryFGColor;
-  int mOrientation = 0; // Degrees ccwise from normal.
+  float mOrientation = 0.f; // Degrees ccwise from normal.
 };
 
 const IText DEFAULT_TEXT = IText();

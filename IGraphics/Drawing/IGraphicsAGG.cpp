@@ -13,9 +13,12 @@
 
 #include "IGraphicsAGG.h"
 
-// Fonts
+// Fonts / Text
 
 static StaticStorage<IFontData> sFontCache;
+
+const bool textKerning = true;
+const bool textHinting = false;
 
 // Utility
 
@@ -529,17 +532,14 @@ void IGraphicsAGG::EndFrame()
 #endif
 }
 
-bool IGraphicsAGG::SetFont(const char* fontID, IFontData* pFont)
+bool IGraphicsAGG::SetFont(const char* fontID, IFontData* pFont) const
 {
   agg::glyph_rendering render = agg::glyph_ren_outline;
   return mFontEngine.load_font(fontID, pFont->GetFaceIdx(), render, (char*) pFont->Get(), pFont->GetSize());
 }
 
-void IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+void IGraphicsAGG::MeasureTextImpl(const IText& text, const char* str, IRECT& bounds, double& x, double & y) const
 {
-  const bool kerning = true;
-  const bool hinting = false;
-  
   StaticStorage<IFontData>::Accessor storage(sFontCache);
   IFontData* pFont = storage.Find(text.mFont);
   
@@ -548,7 +548,7 @@ void IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
     assert(0 && "No font found - did you forget to load it?");
   }
     
-  mFontEngine.hinting(hinting);
+  mFontEngine.hinting(textHinting);
   mFontEngine.height(text.mSize * pFont->GetHeightEMRatio());
   mFontEngine.flip_y(true);
   
@@ -564,7 +564,7 @@ void IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
   {
     const agg::glyph_cache* pGlyph = mFontManager.glyph(str[i]);
     
-    if (kerning)
+    if (textKerning)
     {
       double dx = 0.0;
       double dy = 0.0;
@@ -574,9 +574,6 @@ void IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
     
     textWidth += pGlyph->advance_x;
   }
-  
-  double x = 0.0;
-  double y = 0.0;
   
   switch (text.mAlign)
   {
@@ -592,15 +589,28 @@ void IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
     case IText::kVAlignBottom:   y = bounds.B + descender;                              break;
   }
   
-  if (measure)
-  {
-    y -= ascender;
-    bounds = IRECT((float) x, (float) y, (float) (x + textWidth), (float) (y + textHeight));
-    return;
-  }
+  bounds = IRECT((float) x, (float) y - ascender, (float) (x + textWidth), (float) (y + textHeight - ascender));
+}
+
+void IGraphicsAGG::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
+{
+  IRECT r = bounds;
+  double x, y;
+  MeasureTextImpl(text, str, bounds, x, y);
+  DoMeasureTextRotation(r, bounds, text.mAlign, text.mVAlign, text.mOrientation);
+}
+
+void IGraphicsAGG::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
+{
+  IRECT measured = bounds;
+  double x, y;
   
   agg::rgba8 color(AGGColor(text.mFGColor, BlendWeight(pBlend)));
   mFontManager.reset_last_glyph();
+  
+  MeasureTextImpl(text, str, measured, x, y);
+  PathTransformSave();
+  DoTextRotation(bounds, measured, text.mAlign, text.mVAlign, text.mOrientation);
   
   for (size_t c = 0; str[c]; c++)
   {
@@ -608,7 +618,7 @@ void IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
     
     if (pGlyph)
     {
-      if (kerning)
+      if (textKerning)
       {
         mFontManager.add_kerning(&x, &y);
       }
@@ -619,6 +629,7 @@ void IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
     x += pGlyph->advance_x;
     y += pGlyph->advance_y;
   }
+  PathTransformRestore();
 }
 
 #include "IGraphicsAGG_src.cpp"

@@ -250,7 +250,7 @@ void IGraphicsCanvas::SetCanvasBlendMode(val& context, const IBlend* pBlend)
   }
 }
 
-void IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+void IGraphicsCanvas::MeasureTextImpl(const IText& text, const char* str, IRECT& bounds, double& x, double & y) const
 {
   StaticStorage<CanvasFont>::Accessor storage(sFontCache);
   CanvasFont* pFont = storage.Find(text.mFont);
@@ -259,17 +259,14 @@ void IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
   
   FontDescriptor descriptor = &pFont->mDescriptor;
   val context = GetContext();
-  std::string textString(str);
   std::string fontString = GetFontString(descriptor->first.Get(), descriptor->second.Get(), text.mSize * pFont->mEMRatio);
   
   context.set("font", fontString);
   
-  const double textWidth = context.call<val>("measureText", textString)["width"].as<double>();
+  const double textWidth = context.call<val>("measureText", std::string(str))["width"].as<double>();
   const double textHeight = text.mSize;
   const double ascender = pFont->mAscenderRatio * textHeight;
   const double descender = -(1.0 - pFont->mAscenderRatio) * textHeight;
-  double x = 0.0;
-  double y = 0.0;
   
   switch (text.mAlign)
   {
@@ -285,18 +282,30 @@ void IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
     case IText::kVAlignBottom:   y = bounds.B + descender;                              break;
   }
   
-  if (measure)
-  {
-    y -= ascender;
-    bounds = IRECT((float) x, (float) y, (float) (x + textWidth), (float) (y + textHeight));
-    return;
-  }
+  bounds = IRECT((float) x, (float) (y - ascender), (float) (x + textWidth), (float) (y + textHeight - ascender));
+}
+
+void IGraphicsCanvas::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
+{
+  IRECT r = bounds;
+  double x, y;
+  MeasureTextImpl(text, str, bounds, x, y);
+  DoMeasureTextRotation(r, bounds, text.mAlign, text.mVAlign, text.mOrientation);
+}
+
+void IGraphicsCanvas::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
+{
+  IRECT measured = bounds;
+  val context = GetContext();
+  double x, y;
   
-  context.call<void>("save");
+  MeasureTextImpl(text, str, measured, x, y);
+  PathTransformSave();
+  DoTextRotation(bounds, measured, text.mAlign, text.mVAlign, text.mOrientation);
   context.set("textBaseline", std::string("alphabetic"));
   SetCanvasSourcePattern(context, text.mFGColor, pBlend);
-  context.call<void>("fillText", textString, x, y);
-  context.call<void>("restore");
+  context.call<void>("fillText", std::string(str), x, y);
+  PathTransformRestore();
 }
 
 void IGraphicsCanvas::PathTransformSetMatrix(const IMatrix& m)

@@ -445,16 +445,15 @@ void IGraphics::DrawText(const IText& text, const char* str, const IRECT& bounds
   if (!str || str[0] == '\0')
     return;
     
-  IRECT r(bounds);
-  DoDrawMeasureText(text, str, r, pBlend, false);
+  DoDrawText(text, str, bounds, pBlend);
 }
 
-void IGraphics::MeasureText(const IText& text, const char* str, IRECT& bounds)
+void IGraphics::MeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
   if (!str || str[0] == '\0')
     return;
     
-  DoDrawMeasureText(text, str, bounds, nullptr, true);
+  DoMeasureText(text, str, bounds);
 }
 
 void IGraphics::DrawText(const IText& text, const char* str, float x, float y, const IBlend* pBlend)

@@ -529,16 +529,16 @@ IColor IGraphicsNanoVG::GetPoint(int x, int y)
   return COLOR_BLACK; //TODO:
 }
 
-void IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+void IGraphicsNanoVG::MeasureTextImpl(const IText& text, const char* str, IRECT& bounds, double& x, double & y) const
 {
+  float fbounds[4];
+  
   assert(nvgFindFont(mVG, text.mFont) != -1 && "No font found - did you forget to load it?");
   
   nvgFontBlur(mVG, 0);
   nvgFontSize(mVG, text.mSize);
   nvgFontFace(mVG, text.mFont);
   
-  float x = 0.f;
-  float y = 0.f;
   int align = 0;
   
   switch (text.mAlign)
@@ -556,19 +556,32 @@ void IGraphicsNanoVG::DoDrawMeasureText(const IText& text, const char* str, IREC
   }
   
   nvgTextAlign(mVG, align);
+  nvgTextBounds(mVG, x, y, str, NULL, fbounds);
   
-  if (measure)
-  {
-    float fbounds[4];
-    nvgTextBounds(mVG, x, y, str, NULL, fbounds);
-    bounds = IRECT(fbounds[0], fbounds[1], fbounds[2], fbounds[3]);
-    return;
-  }
+  bounds = IRECT(fbounds[0], fbounds[1], fbounds[2], fbounds[3]);
+}
+
+void IGraphicsNanoVG::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
+{
+  IRECT r = bounds;
+  double x, y;
+  MeasureTextImpl(text, str, bounds, x, y);
+  DoMeasureTextRotation(r, bounds, text.mAlign, text.mVAlign, text.mOrientation);
+}
+
+void IGraphicsNanoVG::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
+{
+  IRECT measured = bounds;
+  double x, y;
   
+  MeasureTextImpl(text, str, measured, x, y);
+  PathTransformSave();
+  DoTextRotation(bounds, measured, text.mAlign, text.mVAlign, text.mOrientation);
   nvgFillColor(mVG, NanoVGColor(text.mFGColor, pBlend));
   NanoVGSetBlendMode(mVG, pBlend);
   nvgText(mVG, x, y, str, NULL);
   nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
+  PathTransformRestore();
 }
 
 void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)

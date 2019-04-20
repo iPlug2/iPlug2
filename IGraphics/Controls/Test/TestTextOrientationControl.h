@@ -33,62 +33,15 @@ public:
     mValue = 0.5;
   }
 
-  void TextRotation(IGraphics& g, const IRECT& textRECT, IText::EAlign hAlign, IText::EVAlign vAlign, double angle)
-  {
-    IMatrix m = IMatrix().Rotate(angle);
-    
-    double x0 = textRECT.L;
-    double y0 = textRECT.T;
-    double x1 = textRECT.R;
-    double y1 = textRECT.T;
-    double x2 = textRECT.R;
-    double y2 = textRECT.B;
-    double x3 = textRECT.L;
-    double y3 = textRECT.B;
-      
-    m.TransformPoint(x0, y0);
-    m.TransformPoint(x1, y1);
-    m.TransformPoint(x2, y2);
-    m.TransformPoint(x3, y3);
-      
-    IRECT r1(std::min(x0, x3), std::min(y0, y3), std::max(x0, x3), std::max(y0, y3));
-    IRECT r2(std::min(x1, x2), std::min(y1, y2), std::max(x1, x2), std::max(y1, y2));
-    IRECT rotatedBounds = r1.Union(r2);
-    
-    double tx, ty;
-      
-    switch (hAlign)
-    {
-      case IText::kAlignNear:     tx = mRECT.L - rotatedBounds.L;           break;
-      case IText::kAlignCenter:   tx = mRECT.MW() - rotatedBounds.MW();     break;
-      case IText::kAlignFar:      tx = mRECT.R - rotatedBounds.R;           break;
-    }
-      
-    switch (vAlign)
-    {
-      case IText::kVAlignTop:      ty = mRECT.T - rotatedBounds.T;          break;
-      case IText::kVAlignMiddle:   ty = mRECT.MH() - rotatedBounds.MH();    break;
-      case IText::kVAlignBottom:   ty = mRECT.B - rotatedBounds.B;          break;
-    }
-      
-    g.PathTransformTranslate(tx, ty);
-    g.PathTransformRotate(angle);
-  }
-    
   void Draw(IGraphics& g) override
   {
-    IRECT rect = mRECT;
-
+    IRECT drawRECT = mRECT;
     const char* str = "Some Text To Rotate";
-
-    g.MeasureText(mText, str, rect);
+    mText.mOrientation = mValue * 360.0 - 180.0;
     
-    double angle = mValue * 360.0 - 180.0;
-    
+    g.MeasureText(mText, str, drawRECT);
     g.FillRect(COLOR_WHITE, mRECT);
-    g.PathTransformSave();
-    TextRotation(g, rect, mText.mAlign, mText.mVAlign, angle);
-    g.FillRect(COLOR_MID_GRAY, rect);
+    g.FillRect(COLOR_MID_GRAY, drawRECT);
     g.DrawText(mText, str, mRECT);
     g.PathTransformRestore();
   }

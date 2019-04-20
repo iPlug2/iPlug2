@@ -25,6 +25,9 @@
 /** A base class to share implementations of IGraphics.h functionality across different path based graphics backends. */
 class IGraphicsPathBase : public IGraphics
 {
+  using EAlign = IText::EAlign;
+  using EVAlign = IText::EVAlign;
+  
 public:
   IGraphicsPathBase(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
   : IGraphics(dlg, w, h, fps, scale) 
@@ -560,10 +563,71 @@ private:
   
 protected:
     
+  void DoTextRotation(const IRECT& bounds, const IRECT& textRECT, EAlign hAlign, EVAlign vAlign, double angle)
+  {
+    if (!angle)
+      return;
+    
+    IRECT rotatedRECT = textRECT;
+    double tx, ty;
+    
+    CalulateTextRotation(bounds, rotatedRECT, hAlign, vAlign, angle, tx, ty);
+    PathTransformTranslate(tx, ty);
+    PathTransformRotate(angle);
+  }
+  
+  void DoMeasureTextRotation(const IRECT& bounds, IRECT& textRECT, EAlign hAlign, EVAlign vAlign, double angle) const
+  {
+    double tx = 0.0, ty = 0.0;
+
+    CalulateTextRotation(bounds, textRECT, hAlign, vAlign, angle, tx, ty);
+    textRECT.Translate(tx, ty);
+  }
+  
   float GetBackingPixelScale() const override { return GetScreenScale() * GetDrawScale(); };
 
 private:
-
+  
+  void CalulateTextRotation(const IRECT& bounds, IRECT& r, EAlign hA, EVAlign vA, double angle, double& tx, double& ty) const
+  {
+    if (!angle)
+      return;
+    
+    IMatrix m = IMatrix().Rotate(angle);
+    
+    double x0 = r.L;
+    double y0 = r.T;
+    double x1 = r.R;
+    double y1 = r.T;
+    double x2 = r.R;
+    double y2 = r.B;
+    double x3 = r.L;
+    double y3 = r.B;
+    
+    m.TransformPoint(x0, y0);
+    m.TransformPoint(x1, y1);
+    m.TransformPoint(x2, y2);
+    m.TransformPoint(x3, y3);
+    
+    IRECT r1(std::min(x0, x3), std::min(y0, y3), std::max(x0, x3), std::max(y0, y3));
+    IRECT r2(std::min(x1, x2), std::min(y1, y2), std::max(x1, x2), std::max(y1, y2));
+    r = r1.Union(r2);
+    
+    switch (hA)
+    {
+      case IText::kAlignNear:     tx = bounds.L - r.L;          break;
+      case IText::kAlignCenter:   tx = bounds.MW() - r.MW();    break;
+      case IText::kAlignFar:      tx = bounds.R - r.R;          break;
+    }
+    
+    switch (vA)
+    {
+      case IText::kVAlignTop:      ty = bounds.T - r.T;         break;
+      case IText::kVAlignMiddle:   ty = bounds.MH() - r.MH();   break;
+      case IText::kVAlignBottom:   ty = bounds.B - r.B;         break;
+    }
+  }
+  
   void PrepareRegion(const IRECT& r) override
   {
     PathTransformReset(true);
