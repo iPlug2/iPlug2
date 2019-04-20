@@ -459,15 +459,6 @@ void IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
   cairo_scaled_font_text_to_glyphs(pFont, 0, 0, str, -1, &pGlyphs, &numGlyphs, nullptr, nullptr, nullptr);
   cairo_glyph_extents(mContext, pGlyphs, numGlyphs, &textExtents);
   
-  if (measure)
-  {
-    bounds = IRECT(0, 0, textExtents.width, textExtents.height);
-    if (!mSurface)
-      UpdateCairoContext();
-    cairo_glyph_free(pGlyphs);
-    return;
-  }
-
   double x = 0.0;
   double y = 0.0;
   const double textWidth = textExtents.width + textExtents.x_bearing;
@@ -487,6 +478,16 @@ void IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT
     case IText::kVAlignTop:      y = bounds.T + ascender;                             break;
     case IText::kVAlignMiddle:   y = bounds.MH() - descender + (textHeight / 2.0);    break;
     case IText::kVAlignBottom:   y = bounds.B - descender;                            break;
+  }
+  
+  if (measure)
+  {
+    y -= ascender;
+    bounds = IRECT(x, y, x + textWidth, y + textHeight);
+    if (!mSurface)
+      UpdateCairoContext();
+    cairo_glyph_free(pGlyphs);
+    return;
   }
   
   const IColor& color = text.mFGColor;

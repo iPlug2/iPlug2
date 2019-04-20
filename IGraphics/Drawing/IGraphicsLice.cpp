@@ -529,30 +529,6 @@ void IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT&
   
   const float textWidth = R.right / static_cast<float>(ds);
   const float textHeight = R.bottom / static_cast<float>(ds);
-  
-  if (measure)
-  {
-    if (text.mAlign == IText::kAlignNear)
-      bounds.R = R.right;
-    else if (text.mAlign == IText::kAlignCenter)
-    {
-      bounds.L = (int) bounds.MW() - (R.right/2);
-      bounds.R = bounds.L + R.right;
-    }
-    else // (text.mAlign == IText::kAlignFar)
-    {
-      bounds.L = bounds.R - R.right;
-      bounds.R = bounds.L + R.right;
-    }
-    
-    bounds.B = bounds.T + R.bottom;
-      
-    bounds.Scale(1.0 / ds);
-    return;
-  }
-  
-  NeedsClipping();
-
   float x = 0.f;
   float y = 0.f;
   
@@ -569,6 +545,14 @@ void IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT&
     case IText::kVAlignMiddle:   y = bounds.MH() - (textHeight / 2.f);          break;
     case IText::kVAlignBottom:   y = bounds.B - textHeight;                     break;
   }
+  
+  if (measure)
+  {
+    bounds = IRECT(x, y, x + textWidth, y + textHeight);
+    return;
+  }
+  
+  NeedsClipping();
   
   IRECT r(x, y, bounds.R, bounds.B);
   r.Translate(-mDrawOffsetX, -mDrawOffsetY);

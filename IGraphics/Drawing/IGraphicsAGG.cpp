@@ -574,14 +574,6 @@ void IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
     
     width += pGlyph->advance_x;
   }
-    
-  if (measure)
-  {
-    bounds.B = bounds.T + textHeight;
-    bounds.R = bounds.L + width;
-    
-    return;
-  }
   
   double x = 0.0;
   double y = 0.0;
@@ -598,6 +590,13 @@ void IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
     case IText::kVAlignTop:      y = bounds.T + ascender;                               break;
     case IText::kVAlignMiddle:   y = bounds.MH() + descender + (textHeight / 2.0);      break;
     case IText::kVAlignBottom:   y = bounds.B + descender;                              break;
+  }
+  
+  if (measure)
+  {
+    y -= ascender;
+    bounds = IRECT((float) x, (float) y, (float) (x + textWidth), (float) (y + textHeight);
+    return;
   }
   
   agg::rgba8 color(AGGColor(text.mFGColor, BlendWeight(pBlend)));

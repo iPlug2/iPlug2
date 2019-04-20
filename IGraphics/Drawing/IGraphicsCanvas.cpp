@@ -264,20 +264,10 @@ void IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
   
   context.set("font", fontString);
   
-  val metrics = context.call<val>("measureText", textString);
-  const double textWidth = metrics["width"].as<double>();
+  const double textWidth = context.call<val>("measureText", textString)["width"].as<double>();
   const double textHeight = text.mSize;
   const double ascender = pFont->mAscenderRatio * textHeight;
   const double descender = -(1.0 - pFont->mAscenderRatio) * textHeight;
-
-  if (measure)
-  {
-    bounds = IRECT(0, 0, (float) textWidth, (float) textHeight);
-    return;
-  }
-    
-  context.set("textBaseline", std::string("alphabetic"));
-
   double x = 0.0;
   double y = 0.0;
   
@@ -295,7 +285,15 @@ void IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
     case IText::kVAlignBottom:   y = bounds.B + descender;                              break;
   }
   
+  if (measure)
+  {
+    y -= ascender;
+    bounds = IRECT((float) x, (float) y, (float) (x + textWidth), (float) (y + textHeight);
+    return;
+  }
+  
   context.call<void>("save");
+  context.set("textBaseline", std::string("alphabetic"));
   SetCanvasSourcePattern(context, text.mFGColor, pBlend);
   context.call<void>("fillText", textString, x, y);
   context.call<void>("restore");
