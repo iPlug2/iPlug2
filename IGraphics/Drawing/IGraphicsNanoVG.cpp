@@ -566,7 +566,7 @@ void IGraphicsNanoVG::DoMeasureText(const IText& text, const char* str, IRECT& b
   IRECT r = bounds;
   double x, y;
   PrepareAndMeasureText(text, str, bounds, x, y);
-  DoMeasureTextRotation(r, bounds, text.mAlign, text.mVAlign, text.mOrientation);
+  DoMeasureTextRotation(text, r, bounds);
 }
 
 void IGraphicsNanoVG::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
@@ -576,7 +576,7 @@ void IGraphicsNanoVG::DoDrawText(const IText& text, const char* str, const IRECT
   
   PrepareAndMeasureText(text, str, measured, x, y);
   PathTransformSave();
-  DoTextRotation(bounds, measured, text.mAlign, text.mVAlign, text.mOrientation);
+  DoTextRotation(text, bounds, measured);
   nvgFillColor(mVG, NanoVGColor(text.mFGColor, pBlend));
   NanoVGSetBlendMode(mVG, pBlend);
   nvgText(mVG, x, y, str, NULL);

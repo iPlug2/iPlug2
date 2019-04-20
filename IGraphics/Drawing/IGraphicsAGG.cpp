@@ -597,7 +597,7 @@ void IGraphicsAGG::DoMeasureText(const IText& text, const char* str, IRECT& boun
   IRECT r = bounds;
   double x, y;
   PrepareAndMeasureText(text, str, bounds, x, y);
-  DoMeasureTextRotation(r, bounds, text.mAlign, text.mVAlign, text.mOrientation);
+  DoMeasureTextRotation(text, r, bounds);
 }
 
 void IGraphicsAGG::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
@@ -610,8 +610,8 @@ void IGraphicsAGG::DoDrawText(const IText& text, const char* str, const IRECT& b
   
   PrepareAndMeasureText(text, str, measured, x, y);
   PathTransformSave();
-  DoTextRotation(bounds, measured, text.mAlign, text.mVAlign, text.mOrientation);
-  
+  DoTextRotation(text, bounds, measured);
+
   for (size_t c = 0; str[c]; c++)
   {
     const agg::glyph_cache* pGlyph = mFontManager.glyph(str[c]);

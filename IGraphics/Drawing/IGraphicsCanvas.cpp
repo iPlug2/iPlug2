@@ -290,7 +290,7 @@ void IGraphicsCanvas::DoMeasureText(const IText& text, const char* str, IRECT& b
   IRECT r = bounds;
   double x, y;
   PrepareAndMeasureText(text, str, bounds, x, y);
-  DoMeasureTextRotation(r, bounds, text.mAlign, text.mVAlign, text.mOrientation);
+  DoMeasureTextRotation(text, r, bounds);
 }
 
 void IGraphicsCanvas::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
@@ -301,7 +301,7 @@ void IGraphicsCanvas::DoDrawText(const IText& text, const char* str, const IRECT
   
   PrepareAndMeasureText(text, str, measured, x, y);
   PathTransformSave();
-  DoTextRotation(bounds, measured, text.mAlign, text.mVAlign, text.mOrientation);
+  DoTextRotation(text, bounds, measured);
   context.set("textBaseline", std::string("alphabetic"));
   SetCanvasSourcePattern(context, text.mFGColor, pBlend);
   context.call<void>("fillText", std::string(str), x, y);

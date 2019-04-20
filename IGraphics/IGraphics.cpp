@@ -1669,6 +1669,54 @@ bool IGraphics::LoadFont(const char* fontID, const char* fontName, ETextStyle st
   return false;
 }
 
+void IGraphics::DoMeasureTextRotation(const IText& text, const IRECT& bounds, IRECT& rect) const
+{
+  double tx = 0.0, ty = 0.0;
+  
+  CalulateTextRotation(text, bounds, rect, tx, ty);
+  rect.Translate(tx, ty);
+}
+
+void IGraphics::CalulateTextRotation(const IText& text, const IRECT& bounds, IRECT& rect, double& tx, double& ty) const
+{
+  if (!text.mOrientation)
+    return;
+  
+  IMatrix m = IMatrix().Rotate(text.mOrientation);
+  
+  double x0 = rect.L;
+  double y0 = rect.T;
+  double x1 = rect.R;
+  double y1 = rect.T;
+  double x2 = rect.R;
+  double y2 = rect.B;
+  double x3 = rect.L;
+  double y3 = rect.B;
+  
+  m.TransformPoint(x0, y0);
+  m.TransformPoint(x1, y1);
+  m.TransformPoint(x2, y2);
+  m.TransformPoint(x3, y3);
+  
+  IRECT r1(std::min(x0, x3), std::min(y0, y3), std::max(x0, x3), std::max(y0, y3));
+  IRECT r2(std::min(x1, x2), std::min(y1, y2), std::max(x1, x2), std::max(y1, y2));
+  rect = r1.Union(r2);
+  
+  switch (text.mAlign)
+  {
+    case IText::kAlignNear:     tx = bounds.L - rect.L;         break;
+    case IText::kAlignCenter:   tx = bounds.MW() - rect.MW();   break;
+    case IText::kAlignFar:      tx = bounds.R - rect.R;         break;
+  }
+  
+  switch (text.mVAlign)
+  {
+    case IText::kVAlignTop:      ty = bounds.T - rect.T;        break;
+    case IText::kVAlignMiddle:   ty = bounds.MH() - rect.MH();  break;
+    case IText::kVAlignBottom:   ty = bounds.B - rect.B;        break;
+  }
+}
+
 #ifdef IGRAPHICS_IMGUI
 void IGraphics::AttachImGui(std::function<void(IGraphics*)> drawFunc, std::function<void()> setupFunc)
 {

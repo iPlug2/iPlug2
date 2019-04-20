@@ -492,7 +492,7 @@ void IGraphicsCairo::DoMeasureText(const IText& text, const char* str, IRECT& bo
   int numGlyphs;
   double x, y;
   PrepareAndMeasureText(text, str, bounds, x, y, pGlyphs, numGlyphs);
-  DoMeasureTextRotation(r, bounds, text.mAlign, text.mVAlign, text.mOrientation);
+  DoMeasureTextRotation(text, r, bounds);
   cairo_glyph_free(pGlyphs);
 }
 
@@ -507,7 +507,7 @@ void IGraphicsCairo::DoDrawText(const IText& text, const char* str, const IRECT&
   
   PrepareAndMeasureText(text, str, measured, x, y, pGlyphs, numGlyphs);
   PathTransformSave();
-  DoTextRotation(bounds, measured, text.mAlign, text.mVAlign, text.mOrientation);
+  DoTextRotation(text, bounds, measured);
   cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, (BlendWeight(pBlend) * color.A) / 255.0);
   cairo_translate(mContext, x, y);
   cairo_show_glyphs(mContext, pGlyphs, numGlyphs);

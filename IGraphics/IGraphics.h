@@ -1422,6 +1422,21 @@ protected:
    * @param pBlend /todo */
   virtual void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend = nullptr) = 0;
 
+  /** /todo
+   * @param text /todo
+   * @param bounds /todo
+   * @param rect /todo */
+  void DoMeasureTextRotation(const IText& text, const IRECT& bounds, IRECT& rect) const;
+  
+  /** /todo
+   text
+   * @param text /todo
+   * @param bounds /todo
+   * @param rect /todo
+   * @param tx /todo
+   * @param ty /todo */
+  void CalulateTextRotation(const IText& text, const IRECT& bounds, IRECT& rect, double& tx, double& ty) const;
+  
   /** @return float /todo */
   virtual float GetBackingPixelScale() const = 0;
   

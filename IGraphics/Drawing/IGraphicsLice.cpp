@@ -550,8 +550,10 @@ void IGraphicsLice::PrepareAndMeasureText(const IText& text, const char* str, IR
 
 void IGraphicsLice::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
+  IRECT r = bounds;
   LICE_IFont* pFont;
   PrepareAndMeasureText(text, str, bounds, pFont);
+  DoMeasureTextRotation(text, r, bounds);
 }
 
 void IGraphicsLice::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
@@ -645,7 +647,7 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text) const
 {
   StaticStorage<LICE_IFont>::Accessor fontStorage(sFontCache);
   WDL_String hashStr(text.mFont);
-  hashStr.AppendFormatted(50, "-%d-%d", text.mSize, text.mOrientation);
+  hashStr.AppendFormatted(50, "-%d", text.mSize);
   int scale = GetScreenScale();
     
   LICE_CachedFont* font = (LICE_CachedFont*) fontStorage.Find(hashStr.Get(), scale);
@@ -658,7 +660,6 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text) const
     assert(pFontInfo && "No font found - did you forget to load it?");
       
     int h = round(text.mSize * scale);
-    int esc = 10 * text.mOrientation;
     int wt = pFontInfo->mBold ? FW_BOLD : FW_NORMAL;
     int it = pFontInfo->mItalic ? TRUE : FALSE;
     int ul = pFontInfo->mUnderline ? TRUE : FALSE;
@@ -669,7 +670,7 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text) const
   Resize:
     if (h < 2) h = 2;
 #endif
-    HFONT hFont = CreateFont(h, 0, esc, esc, wt, it, ul, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, q, DEFAULT_PITCH, pFontInfo->mFontName.Get());
+    HFONT hFont = CreateFont(h, 0, 0, 0, wt, it, ul, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, q, DEFAULT_PITCH, pFontInfo->mFontName.Get());
     if (!hFont)
     {
       return 0;
