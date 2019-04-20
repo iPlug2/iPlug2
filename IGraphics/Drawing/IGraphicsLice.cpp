@@ -521,13 +521,9 @@ void IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT&
 #endif
   
   LICE_IFont* font = CacheFont(text);
-  LICE_pixel color = LiceColor(text.mFGColor, pBlend);
   RECT R = {0,0,0,0};
   int ds = GetScreenScale();
   UINT fmt = DT_NOCLIP | DT_TOP | DT_LEFT;
-  
-  if (LICE_GETA(color) < 255)
-    fmt |= LICE_DT_USEFGALPHA;
   
   font->DrawText(mRenderBitmap, str, -1, &R, fmt | DT_CALCRECT);
   
@@ -555,7 +551,11 @@ void IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT&
     return;
   }
   
+#if defined OS_WIN
+  StartLayer(mClipRECT);
+#else
   NeedsClipping();
+#endif
 
   float x = 0.f;
   float y = 0.f;
@@ -579,8 +579,18 @@ void IGraphicsLice::DoDrawMeasureText(const IText& text, const char* str, IRECT&
   r.Scale(ds);
   r.PixelAlign();
   R = { (LONG) r.L, (LONG) r.T, (LONG) r.R, (LONG) r.B };
+  LICE_pixel color = LiceColor(text.mFGColor, pBlend);
+  
+  if (LICE_GETA(color) < 255)
+    fmt |= LICE_DT_USEFGALPHA;
+  
   font->SetTextColor(color);
   font->DrawText(mRenderBitmap, str, -1, &R, fmt);
+  
+#if defined OS_WIN
+  ILayerPtr textLayer = EndLayer();
+  DrawLayer(textLayer)
+#endif
   
 #ifdef DrawText
 #undef DrawText
