@@ -288,7 +288,7 @@ void IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IREC
   if (measure)
   {
     y -= ascender;
-    bounds = IRECT((float) x, (float) y, (float) (x + textWidth), (float) (y + textHeight);
+    bounds = IRECT((float) x, (float) y, (float) (x + textWidth), (float) (y + textHeight));
     return;
   }
   
