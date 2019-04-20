@@ -518,7 +518,7 @@ IColor IGraphicsLice::GetPoint(int x, int y)
 #define DrawText DrawTextA
 #endif
 
-void IGraphicsLice::PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, float& x, float& y, LICE_IFont*& pFont) const
+void IGraphicsLice::PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, LICE_IFont*& pFont) const
 {
   pFont = CacheFont(text);
   RECT R = {0, 0, 0, 0};
@@ -528,7 +528,9 @@ void IGraphicsLice::PrepareAndMeasureText(const IText& text, const char* str, IR
   
   const float textWidth = R.right / static_cast<float>(GetScreenScale());
   const float textHeight = R.bottom / static_cast<float>(GetScreenScale());
-  
+  float x = 0.f;
+  float y = 0.f;
+
   switch (text.mAlign)
   {
     case IText::kAlignNear:     x = r.L;                          break;
@@ -549,22 +551,20 @@ void IGraphicsLice::PrepareAndMeasureText(const IText& text, const char* str, IR
 void IGraphicsLice::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
   LICE_IFont* pFont;
-  float x, y;
-  PrepareAndMeasureText(text, str, bounds, x, y, pFont);
+  PrepareAndMeasureText(text, str, bounds, pFont);
 }
 
 void IGraphicsLice::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
 {
   IRECT measured = bounds;
   LICE_IFont* pFont;
-  float x, y;
   UINT fmt = DT_NOCLIP | DT_TOP | DT_LEFT | LICE_DT_USEFGALPHA;
   
   NeedsClipping();
 
-  PrepareAndMeasureText(text, str, measured, x, y, pFont);
+  PrepareAndMeasureText(text, str, measured, pFont);
   
-  IRECT r(x, y, bounds.R, bounds.B);
+  IRECT r(measured.L, measured.T, bounds.R, bounds.B);
   r.Translate(-mDrawOffsetX, -mDrawOffsetY);
   r.Scale(GetScreenScale());
   r.PixelAlign();

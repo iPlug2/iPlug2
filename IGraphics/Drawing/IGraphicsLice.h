@@ -144,7 +144,7 @@ protected:
   float GetBackingPixelScale() const override { return (float) GetScreenScale(); };
 
 private:
-  void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, float& x, float& y, LICE_IFont*& pFont) const;
+  void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, LICE_IFont*& pFont) const;
     
   bool OpacityCheck(const IColor& color, const IBlend* pBlend)
   {
