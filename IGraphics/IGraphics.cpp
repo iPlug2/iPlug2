@@ -285,22 +285,6 @@ void IGraphics::GrayOutControl(int paramIdx, bool gray)
   ForMatchingControls(&IControl::GrayOut, paramIdx, gray);
 }
 
-void IGraphics::ClampControl(int paramIdx, double lo, double hi, bool normalized)
-{
-  if (!normalized)
-  {
-    const IParam* pParam = GetDelegate()->GetParam(paramIdx);
-
-    if (pParam)
-    {
-      lo = pParam->ToNormalized(lo);
-      hi = pParam->ToNormalized(hi);
-    }
-  }
-
-  ForMatchingControls(&IControl::Clamp, paramIdx, lo, hi);
-}
-
 void IGraphics::ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func)
 {
   for (auto c = 0; c < NControls(); c++)
@@ -440,21 +424,26 @@ void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds)
   }
 }
 
-bool IGraphics::DrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
+void IGraphics::DrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
 {
-  IRECT r(bounds);
-  return DoDrawMeasureText(text, str, r, pBlend, false);
+  if (!str || str[0] == '\0')
+    return;
+    
+  DoDrawText(text, str, bounds, pBlend);
 }
 
-bool IGraphics::MeasureText(const IText& text, const char* str, IRECT& bounds)
+void IGraphics::MeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
-  return DoDrawMeasureText(text, str, bounds, nullptr, true);
+  if (!str || str[0] == '\0')
+    return;
+    
+  DoMeasureText(text, str, bounds);
 }
 
-bool IGraphics::DrawText(const IText& text, const char* str, float x, float y, const IBlend* pBlend)
+void IGraphics::DrawText(const IText& text, const char* str, float x, float y, const IBlend* pBlend)
 {
   IRECT bounds = { x, y, x, y };
-  return DrawText(text, str, bounds, pBlend);
+  DrawText(text, str, bounds, pBlend);
 }
 
 void IGraphics::DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int bmpState, const IBlend* pBlend)
@@ -1327,7 +1316,7 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
     }
 
     // Protection from searching for non-existent bitmaps (e.g. typos in config.h or .rc)
-    assert(pAPIBitmap);
+    assert(pAPIBitmap && "Bitmap not found");
 
     // Scale or retain if needed (N.B. - scaling retains in the cache)
     if (pAPIBitmap->GetScale() != targetScale)
@@ -1463,7 +1452,7 @@ void IGraphics::StartLayer(const IRECT& r)
   const int w = static_cast<int>(std::ceil(GetBackingPixelScale() * std::ceil(alignedBounds.W())));
   const int h = static_cast<int>(std::ceil(GetBackingPixelScale() * std::ceil(alignedBounds.H())));
 
-  PushLayer(new ILayer(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds), true);
+  PushLayer(new ILayer(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds));
 }
 
 void IGraphics::ResumeLayer(ILayerPtr& layer)
@@ -1475,25 +1464,25 @@ void IGraphics::ResumeLayer(ILayerPtr& layer)
     
   if (ownerlessLayer)
   {
-    PushLayer(ownerlessLayer, true);
+    PushLayer(ownerlessLayer);
   }
 }
 
 ILayerPtr IGraphics::EndLayer()
 {
-  return ILayerPtr(PopLayer(true));
+  return ILayerPtr(PopLayer());
 }
 
-void IGraphics::PushLayer(ILayer *layer, bool clearTransforms)
+void IGraphics::PushLayer(ILayer *layer)
 {
   mLayers.push(layer);
   UpdateLayer();
-  PathTransformReset(clearTransforms);
+  PathTransformReset();
   PathClipRegion(layer->Bounds());
   PathClear();
 }
 
-ILayer* IGraphics::PopLayer(bool clearTransforms)
+ILayer* IGraphics::PopLayer()
 {
   ILayer* pLayer = nullptr;
   
@@ -1504,7 +1493,7 @@ ILayer* IGraphics::PopLayer(bool clearTransforms)
   }
   
   UpdateLayer();
-  PathTransformReset(clearTransforms);
+  PathTransformReset();
   PathClipRegion();
   PathClear();
   
@@ -1521,9 +1510,7 @@ void IGraphics::DrawLayer(const ILayerPtr& layer, const IBlend* pBlend)
 {
   PathTransformSave();
   PathTransformReset();
-  IBitmap bitmap = layer->GetBitmap();
-  IRECT bounds = layer->Bounds();
-  DrawBitmap(bitmap, bounds, 0, 0, pBlend);
+  DrawBitmap(layer->GetBitmap(), layer->Bounds(), 0, 0, pBlend);
   PathTransformRestore();
 }
 
@@ -1662,6 +1649,54 @@ bool IGraphics::LoadFont(const char* fontID, const char* fontName, ETextStyle st
   
   DBGMSG("Could not locate font %s\n", fontID);
   return false;
+}
+
+void IGraphics::DoMeasureTextRotation(const IText& text, const IRECT& bounds, IRECT& rect) const
+{
+  double tx = 0.0, ty = 0.0;
+  
+  CalulateTextRotation(text, bounds, rect, tx, ty);
+  rect.Translate(tx, ty);
+}
+
+void IGraphics::CalulateTextRotation(const IText& text, const IRECT& bounds, IRECT& rect, double& tx, double& ty) const
+{
+  if (!text.mOrientation)
+    return;
+  
+  IMatrix m = IMatrix().Rotate(text.mOrientation);
+  
+  double x0 = rect.L;
+  double y0 = rect.T;
+  double x1 = rect.R;
+  double y1 = rect.T;
+  double x2 = rect.R;
+  double y2 = rect.B;
+  double x3 = rect.L;
+  double y3 = rect.B;
+  
+  m.TransformPoint(x0, y0);
+  m.TransformPoint(x1, y1);
+  m.TransformPoint(x2, y2);
+  m.TransformPoint(x3, y3);
+  
+  IRECT r1(std::min(x0, x3), std::min(y0, y3), std::max(x0, x3), std::max(y0, y3));
+  IRECT r2(std::min(x1, x2), std::min(y1, y2), std::max(x1, x2), std::max(y1, y2));
+  rect = r1.Union(r2);
+  
+  switch (text.mAlign)
+  {
+    case IText::kAlignNear:     tx = bounds.L - rect.L;         break;
+    case IText::kAlignCenter:   tx = bounds.MW() - rect.MW();   break;
+    case IText::kAlignFar:      tx = bounds.R - rect.R;         break;
+  }
+  
+  switch (text.mVAlign)
+  {
+    case IText::kVAlignTop:      ty = bounds.T - rect.T;        break;
+    case IText::kVAlignMiddle:   ty = bounds.MH() - rect.MH();  break;
+    case IText::kVAlignBottom:   ty = bounds.B - rect.B;        break;
+  }
 }
 
 #ifdef IGRAPHICS_IMGUI

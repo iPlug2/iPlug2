@@ -321,6 +321,7 @@ void ITextEntryControl::CreateTextEntry(const IRECT& bounds, const IText& text, 
 {
   SetTargetAndDrawRECTs(bounds);
   SetText(text);
+  mText.mFGColor = mText.mTextEntryFGColor;
   mEditString.Set(str);
   SetDirty(false);
   mEditing = true;

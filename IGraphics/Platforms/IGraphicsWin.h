@@ -21,21 +21,6 @@
 class IGraphicsWin final : public IGRAPHICS_DRAW_CLASS
 {
 public:
-
-  class WinFont : public PlatformFont
-  {
-  public:
-    WinFont(HFONT font, const char* styleName = "") : mFont(font), mStyleName(styleName) {}
-    ~WinFont();
-
-    const void* GetDescriptor() override { return reinterpret_cast<const void*>(mFont); }
-    IFontDataPtr GetFontData() override;
-      
-  private:
-    HFONT mFont;
-    WDL_String mStyleName;
-  };
-
   IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsWin();
 

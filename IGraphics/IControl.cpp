@@ -112,7 +112,7 @@ void IControl::SetValueToDefault()
 
 void IControl::SetDirty(bool triggerAction)
 {
-  mValue = Clip(mValue, mClampLo, mClampHi);
+  mValue = Clip(mValue, 0.0, 1.0);
   mDirty = true;
   
   if (triggerAction)

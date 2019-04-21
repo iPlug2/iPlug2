@@ -12,63 +12,66 @@
 
 /**
  * @file
- * @copydoc TestFontControl
+ * @copydoc TestTextOrientationControl
  */
 
 #include "IControl.h"
 
-/** Control to test drawing fonts
+/** Control to test drawing text with orientation
  *   @ingroup TestControls */
-class TestFontControl : public IControl
+class TestTextOrientationControl : public IKnobControlBase
 {
-  static const int size = 20;
+  static const int size = 14;
     
 public:
-    TestFontControl(IRECT bounds)
-  : IControl(bounds), mCount(-1), mFontCount(0), mStrCount(0)
+    TestTextOrientationControl(IRECT bounds)
+  : IKnobControlBase(bounds), mCount(-1)
   {
-    SetTooltip("TestFontControl");
+    SetTooltip("TestTextOrientationControl");
     mDblAsSingleClick = true;
     Next();
+    mValue = 0.5;
   }
 
   void Draw(IGraphics& g) override
   {
-    int pos = mCount / 3;
-    IRECT rect = mRECT;
+    IRECT drawRECT = mRECT;
+    const char* str = "Some Text To Rotate";
+    mText.mOrientation = mValue * 360.0 - 180.0;
     
-    if (pos == 0)
-      rect = mRECT.GetFromTop(size);
-    else if (pos == 1)
-      rect = mRECT.GetCentredInside(mRECT.W(), size);
-    else
-      rect = mRECT.GetFromBottom(size);
-      
-    const char* str = mStrCount ? "Quickly dog" : "Font Test";
-      
+    g.MeasureText(mText, str, drawRECT);
     g.FillRect(COLOR_WHITE, mRECT);
-    g.FillRect(COLOR_MID_GRAY, rect);
+    g.FillRect(COLOR_MID_GRAY, drawRECT);
     g.DrawText(mText, str, mRECT);
   }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    Next();
-    SetDirty(false);
+    mDrag = false;
+  }
+    
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override
+  {
+    if (!mDrag)
+    {
+      Next();
+      SetDirty(false);
+    }
+  }
+    
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
+  {
+    mDrag = true;
+    IKnobControlBase::OnMouseDrag(x, y, dX, dY, mod);
   }
 
   void Next()
   {
     if (++mCount > 8)
-    {
       mCount = 0;
-      mFontCount = 1 - mFontCount;
-    }
-    
-    mStrCount = 1 - mStrCount;
       
     IColor c = DEFAULT_TEXT_FGCOLOR;
-    const char* font = mFontCount ? "Roboto-Regular" : "Alternative Font";
+    const char* font = "Roboto-Regular";
     if (mCount == 0)
       mText = IText(size, c, font, IText::kAlignNear, IText::kVAlignTop);
     else if (mCount == 1)
@@ -90,8 +93,6 @@ public:
   }
 
 private:
-
+  bool mDrag = false;
   int mCount;
-  int mFontCount;
-  int mStrCount;
 };

@@ -330,24 +330,21 @@ public:
   /** Draw some text to the graphics context in a specific rectangle
    * @param text An IText struct containing font and text properties and layout info
    * @param str The text string to draw in the graphics context
-   * @param bounds The rectangular region in the graphics where you would like to draw the text
-   * @return \todo */
-  bool DrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend = 0);
+   * @param bounds The rectangular region in the graphics where you would like to draw the text */
+  void DrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend = 0);
 
   /** Draw some text to the graphics context at a point
    * @param text An IText struct containing font and text properties and layout info
    * @param str The text string to draw in the graphics context
    * @param x The x position in the graphics where you would like to draw the text
-   * @param y The y position in the graphics where you would like to draw the text
-   * @return \todo */
-  bool DrawText(const IText& text, const char* str, float x, float y, const IBlend* pBlend = 0);
+   * @param y The y position in the graphics where you would like to draw the text */
+  void DrawText(const IText& text, const char* str, float x, float y, const IBlend* pBlend = 0);
   
   /** Measure the rectangular region that some text will occupy
    * @param text An IText struct containing font and text properties and layout info
    * @param str The text string to draw in the graphics context
-   * @param bounds after calling the method this IRECT will be updated with the rectangular region the text will occupy
-   * @return \todo */
-  virtual bool MeasureText(const IText& text, const char* str, IRECT& bounds);
+   * @param bounds after calling the method this IRECT will be updated with the rectangular region the text will occupy */
+  virtual void MeasureText(const IText& text, const char* str, IRECT& bounds) const;
 
   /** Get the color of a point in the graphics context. On a 1:1 screen this corresponds to a pixel. \todo check this
    * @param x The X coordinate in the graphics context of the pixel
@@ -538,14 +535,12 @@ public:
   virtual void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) = 0;
   
   /** /todo
-   * @param layer /todo
-   * @param clearTransforms /todo */
-  void PushLayer(ILayer* layer, bool clearTransforms);
+   * @param layer /todo */
+  void PushLayer(ILayer* layer);
   
   /** /todo
-   * @param clearTransforms /todo
    * @return ILayer* /todo */
-  ILayer* PopLayer(bool clearTransforms);
+  ILayer* PopLayer();
   
 #pragma mark - Drawing API path support
 public:
@@ -1187,13 +1182,6 @@ public:
    * @param gray /true to gray-out */
   void GrayOutControl(int paramIdx, bool gray);
 
-  /** Clamp controls link to a specific parameter
-   * @param paramIdx The parameter index
-   * @param lo The minimum control value
-   * @param hi The maximum control value
-   * @param normalized Determines whether the minimum and maximum are normalized or not */
-  void ClampControl(int paramIdx, double lo, double hi, bool normalized);
-
   /** Calls SetDirty() on every control */
   void SetAllControlsDirty();
   
@@ -1405,11 +1393,31 @@ protected:
    * @param text /todo
    * @param str /todo
    * @param bounds /todo
-   * @param pBlend /todo
-   * @param measure /todo
-   * @return true /todo */
-  virtual bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = nullptr, bool measure = false) = 0;
+   * @param pBlend /todo */
+  virtual void DoMeasureText(const IText& text, const char* str, IRECT& bounds) const = 0;
+    
+  /** /todo
+   * @param text /todo
+   * @param str /todo
+   * @param bounds /todo
+   * @param pBlend /todo */
+  virtual void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend = nullptr) = 0;
 
+  /** /todo
+   * @param text /todo
+   * @param bounds /todo
+   * @param rect /todo */
+  void DoMeasureTextRotation(const IText& text, const IRECT& bounds, IRECT& rect) const;
+  
+  /** /todo
+   text
+   * @param text /todo
+   * @param bounds /todo
+   * @param rect /todo
+   * @param tx /todo
+   * @param ty /todo */
+  void CalulateTextRotation(const IText& text, const IRECT& bounds, IRECT& rect, double& tx, double& ty) const;
+  
   /** @return float /todo */
   virtual float GetBackingPixelScale() const = 0;
   

@@ -16,11 +16,15 @@
 class CoreTextFont : public PlatformFont
 {
 public:
-  CoreTextFont(CTFontDescriptorRef descriptor, CGDataProviderRef provider)
-  : mDescriptor(descriptor), mProvider(provider) {}
+  CoreTextFont(CTFontDescriptorRef descriptor, CGDataProviderRef provider, bool system)
+  : PlatformFont(system)
+  , mDescriptor(descriptor)
+  , mProvider(provider)
+  {}
+  
   ~CoreTextFont();
   
-  const void* GetDescriptor() override { return reinterpret_cast<const void*>(mDescriptor); }
+  FontDescriptor GetDescriptor() override { return mDescriptor; }
   IFontDataPtr GetFontData() override;
   
 private:
@@ -31,10 +35,17 @@ private:
 template <class T>
 struct CFLocal
 {
-  CFLocal(T obj) : mObject(obj) {}
-  ~CFLocal() { if (mObject) CFRelease(mObject); }
+  CFLocal(T obj)
+  : mObject(obj)
+  {}
   
-  T Get(){ return mObject; }
+  ~CFLocal()
+  {
+    if (mObject)
+      CFRelease(mObject);
+  }
+  
+  T Get() { return mObject;  }
   
   T Release()
   {
@@ -48,7 +59,9 @@ struct CFLocal
 
 struct CoreTextFontDescriptor
 {
-  CoreTextFontDescriptor(CTFontDescriptorRef descriptor) : mDescriptor(descriptor)
+  CoreTextFontDescriptor(CTFontDescriptorRef descriptor, double EMRatio)
+  : mDescriptor(descriptor)
+  , mEMRatio(EMRatio)
   {
     CFRetain(mDescriptor);
   }
@@ -59,6 +72,7 @@ struct CoreTextFontDescriptor
   }
   
   CTFontDescriptorRef mDescriptor;
+  double mEMRatio;
 };
 
 namespace CoreTextHelpers
@@ -69,5 +83,5 @@ namespace CoreTextHelpers
 
   extern void CachePlatformFont(const char* fontID, const PlatformFontPtr& font, StaticStorage<CoreTextFontDescriptor>& cache);
   
-  CTFontDescriptorRef GetCTFontDescriptor(const IText& text, StaticStorage<CoreTextFontDescriptor>& cache);
+  CoreTextFontDescriptor* GetCTFontDescriptor(const IText& text, StaticStorage<CoreTextFontDescriptor>& cache);
 }

@@ -317,11 +317,6 @@ public:
    * @return \c true if the control is marked dirty. */
   virtual bool IsDirty();
 
-  /** Set a range with which to limit the control's movement
-   * @param lo The low bounds of the clamp (should be within the range 0-1)
-   * @param hi The high bounds of the clamp (should be within the range 0-1) */
-  void Clamp(double lo, double hi) { mClampLo = lo; mClampHi = hi; }
-
   /** Disable/enable right-clicking the control to prompt for user input /todo check this
    * @param disable \c true*/
   void DisablePrompt(bool disable) { mDisablePrompt = disable; }
@@ -359,6 +354,9 @@ public:
   
   /** @return A pointer to the IGraphics context that owns this control */ 
   IGraphics* GetUI() { return mGraphics; }
+    
+  /** @return A const pointer to the IGraphics context that owns this control */
+  const IGraphics* GetUI() const { return mGraphics; }
 
   /* This can be used in IControl::Draw() to check if the mouse is over the control, without implementing mouse over methods 
    * @return \true if the mouse is over this control. */
@@ -428,8 +426,6 @@ protected:
   int mTextEntryLength = DEFAULT_TEXT_ENTRY_LEN;
   double mValue = 0.; // mValue is mapped to the normalized parameter value in controls where mParamIdx > -1
   double mDefaultValue = -1.; // it's important this is -1 to start with
-  double mClampLo = 0.;
-  double mClampHi = 1.;
   bool mDirty = true;
   bool mHide = false;
   bool mGrayed = false;
