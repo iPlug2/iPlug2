@@ -563,17 +563,49 @@ void IGraphicsLice::DoDrawText(const IText& text, const char* str, const IRECT& 
   UINT fmt = DT_NOCLIP | DT_TOP | DT_LEFT | LICE_DT_USEFGALPHA;
   
   NeedsClipping();
-
   PrepareAndMeasureText(text, str, measured, pFont);
   
-  IRECT r(measured.L, measured.T, bounds.R, bounds.B);
-  r.Translate(-mDrawOffsetX, -mDrawOffsetY);
-  r.Scale(GetScreenScale());
-  r.PixelAlign();
-  RECT R{ (LONG) r.L, (LONG) r.T, (LONG) r.R, (LONG) r.B };
+  if (text.mOrientation)
+  {
+    float pad = std::max(measured.W(), measured.H()) * 0.5;
+    IRECT layerRect(measured.GetPadded(pad));
+    StartLayer(layerRect);
+  }
+
+  IRECT r0(measured);
+  r0.Translate(-mDrawOffsetX, -mDrawOffsetY);
+  r0.Scale(GetScreenScale());
+  IRECT r1 = r0.GetPixelAligned();
+  RECT R{ (LONG) r1.L, (LONG) r1.T, (LONG) r1.R, (LONG) r1.B };
   
   pFont->SetTextColor(LiceColor(text.mFGColor, pBlend));
   pFont->DrawText(mRenderBitmap, str, -1, &R, fmt);
+  
+  if (text.mOrientation)
+  {
+    ILayerPtr layer = EndLayer();
+    LICE_IBitmap* pLICEBitmap = layer->GetAPIBitmap()->GetBitmap();
+    int mode = LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA | LICE_BLIT_FILTER_BILINEAR;
+  
+    DoMeasureTextRotation(text, bounds, measured);
+    
+    float radians = DegToRad(text.mOrientation);
+    
+    IRECT r2 = measured;
+    r2.Translate(-mDrawOffsetX, -mDrawOffsetY);
+    r2.Scale(GetScreenScale());
+    
+    int size = std::max(pLICEBitmap->getWidth(), pLICEBitmap->getHeight());
+    const float c = std::cos(radians);
+    const float s = std::sin(radians);
+    const float mx = r0.MW() - (size / 2.f);
+    const float my = r0.MH() - (size / 2.f);
+    const float x1 = r2.L + (size / 2.f) + c * mx - s * my;
+    const float y1 = r2.T + (size / 2.f) + s * mx + c * my;
+    const int x = r2.L + std::round(r2.MW() - x1);
+    const int y = r2.T + std::round(r2.MH() - y1);
+    LICE_RotatedBlit(mRenderBitmap, pLICEBitmap, x, y, size, size, 0.f, -0.f, size, size, radians, true, 1.f, mode);
+  }
 }
 
 #ifdef DrawText
