@@ -172,7 +172,6 @@ public:
     void BlendFrom(agg::rendering_buffer& renBuf, const IRECT& bounds, int srcX, int srcY, agg::comp_op_e op, agg::cover_type cover, bool preMultiplied)
     {
       // N.B. blend_from/rect_i is inclusive, hence -1 on each dimension here
-      
       agg::rect_i r(srcX, srcY, srcX + std::round(bounds.W()) - 1, srcY + std::round(bounds.H()) - 1);
       int x = std::round(bounds.L) - srcX;
       int y = std::round(bounds.T) - srcY;
@@ -202,14 +201,12 @@ public:
     void SetPath(VertexSourceType& path)
     {
       // Clip
-      
       IRECT clip = mGraphics.mClipRECT.Empty() ? mGraphics.GetBounds() : mGraphics.mClipRECT;
       clip.Translate(mGraphics.XTranslate(), mGraphics.YTranslate());
       clip.Scale(mGraphics.GetBackingPixelScale());
       mRasterizer.clip_box(clip.L, clip.T, clip.R, clip.B);
       
       // Add path
-      
       mRasterizer.reset();
       mRasterizer.add_path(path);
     }

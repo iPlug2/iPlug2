@@ -17,8 +17,6 @@
 
 extern int GetSystemVersion();
 
-// Fonts
-
 struct LICEFontInfo
 {
   WDL_String mFontName;
@@ -56,7 +54,6 @@ static StaticStorage<LICE_IFont> sFontCache;
 static StaticStorage<LICEFontInfo> sLICEFontInfoCache;
 
 // Utilities for pre-multiplied blits (LICE assumes sources are not pre-multiplied)
-
 inline void PreMulCompositeSourceOver(LICE_pixel_chan* out, LICE_pixel_chan* in)
 {
   unsigned int alphaCmp = 256 - in[LICE_PIXEL_A];
@@ -307,9 +304,9 @@ void IGraphicsLice::DrawRect(const IColor& color, const IRECT& bounds, const IBl
   DrawLine(color, bounds.R, bounds.T, bounds.R, bounds.B, pBlend, thickness);
 }
 
+//TODO: review floating point input support
 void IGraphicsLice::DrawRoundRect(const IColor& color, const IRECT& bounds, float cr, const IBlend* pBlend, float)
 {
-  //TODO: review floating point input support
   if (!mClipRECT.Contains(bounds))
     NeedsClipping();
 
@@ -334,21 +331,17 @@ void IGraphicsLice::DrawConvexPolygon(const IColor& color, float* x, float* y, i
   DrawLine(color, x[npoints - 1], y[npoints - 1], x[0], y[0], pBlend, 1.0);
 }
 
+//TODO: review floating point input support
 void IGraphicsLice::DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend, float thickness)
 {
   NeedsClipping();
-
-  //TODO: review floating point input support
-
   LICE_Arc(mRenderBitmap, TransformX(cx), TransformY(cy), r * GetScreenScale(), DegToRad(aMin), DegToRad(aMax), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
+//TODO: review floating point input support
 void IGraphicsLice::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend, float)
 {
   NeedsClipping();
-
-  //TODO: review floating point input support
-
   LICE_Circle(mRenderBitmap, TransformX(cx), TransformY(cy), r * GetScreenScale(), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
@@ -366,29 +359,28 @@ void IGraphicsLice::DrawDottedRect(const IColor& color, const IRECT& bounds, con
   DrawDottedLine(color, bounds.R, bounds.T, bounds.R, bounds.B, pBlend, thickness, dashLen);
 }
 
+//TODO: review floating point input support
 void IGraphicsLice::FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
 {
-  //TODO: review floating point input support
   if (!(mClipRECT.Contains(x1, y1) && mClipRECT.Contains(x2, y2) && mClipRECT.Contains(x3, y3)))
     NeedsClipping();
 
   LICE_FillTriangle(mRenderBitmap, TransformX(x1), TransformY(y1), TransformX(x2), TransformY(y2), TransformX(x3), TransformY(y3), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend));
 }
 
+//TODO: review floating point input support
 void IGraphicsLice::FillRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend)
 {
-  //TODO: review floating point input support and edges
   IRECT r = TransformRECT(bounds).Intersect(mDrawRECT.GetScaled(GetScreenScale()));
 
   LICE_FillRect(mRenderBitmap, r.L, r.T, r.W(), r.H(), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend));
 }
 
+//TODO: review floating point input support
 void IGraphicsLice::FillRoundRect(const IColor& color, const IRECT& bounds, float cr, const IBlend* pBlend)
 {
   if (!mClipRECT.Contains(bounds))
     NeedsClipping();
-
-  //TODO: review floating point input support
   
   if (!OpacityCheck(color, pBlend))
   {
@@ -423,12 +415,11 @@ void IGraphicsLice::FillRoundRect(const IColor& color, const IRECT& bounds, floa
   LICE_FillCircle(mRenderBitmap, x1+cr, y1+h-cr, cr, lcolor, weight, mode, true);
 }
 
+//TODO: review floating point input support
 void IGraphicsLice::FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend)
 {
   NeedsClipping();
 
-  //TODO: review floating point input support
-  
   WDL_TypedBuf<int> largeArray;
   int xarray[512];
   int yarray[512];
@@ -453,12 +444,10 @@ void IGraphicsLice::FillConvexPolygon(const IColor& color, float* x, float* y, i
   LICE_FillConvexPolygon(mRenderBitmap, xpoints, ypoints, npoints, LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend));
 }
 
+//TODO: review floating point input support
 void IGraphicsLice::FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
 {
   NeedsClipping();
-
-  //TODO: review floating point input support
-
   LICE_FillCircle(mRenderBitmap, TransformX(cx), TransformY(cy), r * GetScreenScale(), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
@@ -849,7 +838,6 @@ void IGraphicsLice::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const
     LICE_pixel_chan* out = ((LICE_pixel_chan*) pLayerBitmap->getBits()) + (std::max(x, 0) * 4) + (std::max(y, 0) * stride);
     
     // Pre-multiply color components
-    
     IColor color = shadow.mPattern.GetStop(0).mColor;
     color.Clamp();
     unsigned int ia = (color.A * static_cast<int>(Clip(shadow.mOpacity, 0.f, 1.f) * 255.0));

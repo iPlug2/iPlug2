@@ -143,7 +143,6 @@ IGraphicsCairo::~IGraphicsCairo()
   storage.Release();
   
   // N.B. calls through to destroy context and surface
-  
   UpdateCairoMainSurface(nullptr);
 }
 
@@ -310,8 +309,6 @@ void IGraphicsCairo::PathCurveTo(float x1, float y1, float x2, float y2, float x
 void IGraphicsCairo::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
 {
   double dashArray[8];
-  
-  // First set options
   
   switch (options.mCapOption)
   {

@@ -17,7 +17,11 @@ class CoreTextFont : public PlatformFont
 {
 public:
   CoreTextFont(CTFontDescriptorRef descriptor, CGDataProviderRef provider, bool system)
-  : PlatformFont(system), mDescriptor(descriptor), mProvider(provider) {}
+  : PlatformFont(system)
+  , mDescriptor(descriptor)
+  , mProvider(provider)
+  {}
+  
   ~CoreTextFont();
   
   FontDescriptor GetDescriptor() override { return mDescriptor; }
@@ -31,10 +35,17 @@ private:
 template <class T>
 struct CFLocal
 {
-  CFLocal(T obj) : mObject(obj) {}
-  ~CFLocal() { if (mObject) CFRelease(mObject); }
+  CFLocal(T obj)
+  : mObject(obj)
+  {}
   
-  T Get(){ return mObject; }
+  ~CFLocal()
+  {
+    if (mObject)
+      CFRelease(mObject);
+  }
+  
+  T Get() { return mObject;  }
   
   T Release()
   {
@@ -49,7 +60,8 @@ struct CFLocal
 struct CoreTextFontDescriptor
 {
   CoreTextFontDescriptor(CTFontDescriptorRef descriptor, double EMRatio)
-  : mDescriptor(descriptor), mEMRatio(EMRatio)
+  : mDescriptor(descriptor)
+  , mEMRatio(EMRatio)
   {
     CFRetain(mDescriptor);
   }

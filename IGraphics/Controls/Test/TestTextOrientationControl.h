@@ -93,7 +93,6 @@ public:
   }
 
 private:
-
   bool mDrag = false;
   int mCount;
 };

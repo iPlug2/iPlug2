@@ -24,8 +24,6 @@ extern IGraphics* gGraphics;
 extern val GetPreloadedImages();
 extern val GetCanvas();
 
-// Fonts
-
 struct CanvasFont
 {
   typedef std::remove_pointer<FontDescriptor>::type FontDesc;
@@ -47,16 +45,12 @@ std::string GetFontString(const char* fontName, const char* styleName, double si
 
 StaticStorage<CanvasFont> sFontCache;
 
-// Color Utility
-
 static std::string CanvasColor(const IColor& color, float alpha = 1.0)
 {
   WDL_String str;
   str.SetFormatted(64, "rgba(%d, %d, %d, %lf)", color.R, color.G, color.B, alpha * color.A / 255.0);
   return str.Get();
 }
-
-// Bitmap
 
 CanvasBitmap::CanvasBitmap(val imageCanvas, const char* name, int scale)
 {
@@ -350,7 +344,6 @@ APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height, int scale, do
 void IGraphicsCanvas::GetFontMetrics(const char* font, const char* style, double& ascenderRatio, double& EMRatio)
 {
   // Provides approximate font metrics for a system font (until text metrics are properly supported)
-  
   int size = 1000;
   std::string fontString = GetFontString(font, style, size);
   
@@ -408,7 +401,6 @@ bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& fon
     if (data->IsValid())
     {
       // Embed the font data in base64 format as CSS in the head of the html
-      
       WDL_TypedBuf<char> base64Encoded;
       
       if (!base64Encoded.ResizeOK(((data->GetSize() * 4) + 3) / 3 + 1))
@@ -432,7 +424,7 @@ bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& fon
       const double EMRatio = data->GetHeightEMRatio();
       storage.Add(new CanvasFont({descriptor->first, descriptor->second}, ascenderRatio, EMRatio), fontID);
       
-      // Load snd draw the font to the canvas
+      // Load and draw the font to the canvas
       GetContext().set("font", GetFontString(descriptor->first.Get(), descriptor->second.Get(), 12));
       GetContext().call<void>("fillText", std::string("Load"), 0, 0);
       
@@ -470,7 +462,6 @@ void IGraphicsCanvas::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& 
   data.Resize(size);
   
   // Copy pixels from context
-  
   if (data.GetSize() >= size)
   {
     unsigned char* out = data.Get();

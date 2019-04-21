@@ -13,19 +13,14 @@
 
 #include "IGraphicsAGG.h"
 
-// Fonts / Text
-
 static StaticStorage<IFontData> sFontCache;
 
 const bool textKerning = true;
 const bool textHinting = false;
 
-// Utility
-
 class pixel_wrapper : public agg::pixel_map
 {
 public:
-  
   pixel_wrapper(unsigned char* buf, unsigned w, unsigned h, unsigned bpp, int row_bytes)
   : m_buf(buf)
   , m_width(w)
@@ -112,11 +107,9 @@ void GradientRasterize(IGraphicsAGG::Rasterizer& rasterizer, const FuncType& gra
 template <typename FuncType, typename ColorArrayType>
 void GradientRasterizeAdapt(IGraphicsAGG::Rasterizer& rasterizer, EPatternExtend extend, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray, agg::comp_op_e op)
 {
-  // TODO extend none
-  
   switch (extend)
   {
-    case kExtendNone:
+    case kExtendNone: //TODO:  extend none
     case kExtendPad:
       GradientRasterize(rasterizer, gradientFunc, xform, colorArray, op);
       break;
@@ -136,29 +129,21 @@ void IGraphicsAGG::Rasterizer::Rasterize(const IPattern& pattern, agg::comp_op_e
   switch (pattern.mType)
   {
     case kSolidPattern:
-    {
-      // Rasterize
-      
       Rasterize(AGGColor(pattern.GetStop(0).mColor, opacity), op);
-    }
-      break;
-      
+    break;
     case kLinearPattern:
     case kRadialPattern:
     {
       // Common gradient objects
-      
       const IMatrix& m = pattern.mTransform;
       
       agg::trans_affine gradientMTX(m.mXX, m.mYX , m.mXY, m.mYY, m.mTX, m.mTY);
       agg::gradient_lut<agg::color_interpolator<agg::rgba8>, 512> colorArray;
       
       // Scaling
-      
       gradientMTX = (agg::trans_affine() / mGraphics.mTransform) * gradientMTX * agg::trans_affine_scaling(512.0);
       
       // Make gradient lut
-      
       colorArray.remove_all();
       
       for (int i = 0; i < pattern.NStops(); i++)
@@ -171,15 +156,10 @@ void IGraphicsAGG::Rasterizer::Rasterize(const IPattern& pattern, agg::comp_op_e
       colorArray.build_lut();
       
       // Rasterize
-      
       if (pattern.mType == kLinearPattern)
-      {
         GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_y(), gradientMTX, colorArray, op);
-      }
       else
-      {
         GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_radial_d(), gradientMTX, colorArray, op);
-      }
     }
     break;
   }
@@ -350,8 +330,6 @@ void IGraphicsAGG::PathCurveTo(float x1, float y1, float x2, float y2, float x3,
 template<typename StrokeType>
 void StrokeOptions(StrokeType& strokes, double thickness, const IStrokeOptions& options)
 {
-  // Set stroke options
-  
   strokes.width(thickness);
   
   switch (options.mCapOption)
@@ -392,7 +370,6 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
     D4Type finalPath(strokedDashedPath, mTransform);
       
     // Set the dashes (N.B. - for odd counts the array is read twice)
-
     int dashCount = options.mDash.GetCount();
     int dashMax = dashCount & 1 ? dashCount * 2 : dashCount;
     const float* dashArray = options.mDash.GetArray();
