@@ -264,13 +264,16 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
     bool bitmapTypeSupported = BitmapExtSupported(ext);
     
     if(resourceFound == EResourceLocation::kNotFound || !bitmapTypeSupported)
+    {
+      assert("Bitmap not found");
       return IBitmap(); // return invalid IBitmap
+    }
 
     pAPIBitmap = LoadAPIBitmap(fullPathOrResourceID.Get(), sourceScale, resourceFound, ext);
     
     storage.Add(pAPIBitmap, name, sourceScale);
 
-    assert(pAPIBitmap);
+    assert(pAPIBitmap && "Bitmap not loaded");
   }
   
   return IBitmap(pAPIBitmap, nStates, framesAreHorizontal, name);

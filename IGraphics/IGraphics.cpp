@@ -1327,7 +1327,7 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
     }
 
     // Protection from searching for non-existent bitmaps (e.g. typos in config.h or .rc)
-    assert(pAPIBitmap);
+    assert(pAPIBitmap && "Bitmap not found");
 
     // Scale or retain if needed (N.B. - scaling retains in the cache)
     if (pAPIBitmap->GetScale() != targetScale)
