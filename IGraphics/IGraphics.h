@@ -545,14 +545,12 @@ public:
   virtual void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) = 0;
   
   /** /todo
-   * @param layer /todo
-   * @param clearTransforms /todo */
-  void PushLayer(ILayer* layer, bool clearTransforms);
+   * @param layer /todo */
+  void PushLayer(ILayer* layer);
   
   /** /todo
-   * @param clearTransforms /todo
    * @return ILayer* /todo */
-  ILayer* PopLayer(bool clearTransforms);
+  ILayer* PopLayer();
   
 #pragma mark - Drawing API path support
 public:

@@ -1468,7 +1468,7 @@ void IGraphics::StartLayer(const IRECT& r)
   const int w = static_cast<int>(std::ceil(GetBackingPixelScale() * std::ceil(alignedBounds.W())));
   const int h = static_cast<int>(std::ceil(GetBackingPixelScale() * std::ceil(alignedBounds.H())));
 
-  PushLayer(new ILayer(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds), true);
+  PushLayer(new ILayer(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds));
 }
 
 void IGraphics::ResumeLayer(ILayerPtr& layer)
@@ -1480,25 +1480,25 @@ void IGraphics::ResumeLayer(ILayerPtr& layer)
     
   if (ownerlessLayer)
   {
-    PushLayer(ownerlessLayer, true);
+    PushLayer(ownerlessLayer);
   }
 }
 
 ILayerPtr IGraphics::EndLayer()
 {
-  return ILayerPtr(PopLayer(true));
+  return ILayerPtr(PopLayer());
 }
 
-void IGraphics::PushLayer(ILayer *layer, bool clearTransforms)
+void IGraphics::PushLayer(ILayer *layer)
 {
   mLayers.push(layer);
   UpdateLayer();
-  PathTransformReset(clearTransforms);
+  PathTransformReset();
   PathClipRegion(layer->Bounds());
   PathClear();
 }
 
-ILayer* IGraphics::PopLayer(bool clearTransforms)
+ILayer* IGraphics::PopLayer()
 {
   ILayer* pLayer = nullptr;
   
@@ -1509,7 +1509,7 @@ ILayer* IGraphics::PopLayer(bool clearTransforms)
   }
   
   UpdateLayer();
-  PathTransformReset(clearTransforms);
+  PathTransformReset();
   PathClipRegion();
   PathClear();
   

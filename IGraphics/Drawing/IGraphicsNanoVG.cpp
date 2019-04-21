@@ -315,9 +315,9 @@ void IGraphicsNanoVG::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& 
   
   if (data.GetSize() >= size)
   {
-    PushLayer(layer.get(), false);
+    PushLayer(layer.get());
     nvgReadPixels(mVG, pBitmap->GetBitmap(), 0, 0, pBitmap->GetWidth(), pBitmap->GetHeight(), data.Get());
-    PopLayer(false);    
+    PopLayer();    
   }
 }
 
@@ -332,12 +332,12 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
   {
     if (!shadow.mDrawForeground)
     {
-      PushLayer(layer.get(), false);
+      PushLayer(layer.get());
       nvgGlobalCompositeBlendFunc(mVG, NVG_ZERO, NVG_ZERO);
       PathRect(layer->Bounds());
       nvgFillColor(mVG, NanoVGColor(COLOR_TRANSPARENT));
       nvgFill(mVG);
-      PopLayer(false);
+      PopLayer();
     }
     
     IRECT bounds(layer->Bounds());
@@ -349,18 +349,18 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
     ILayer shadowLayer(shadowBitmap, layer->Bounds());
     
     PathTransformSave();
-    PushLayer(layer.get(), false);
-    PushLayer(&shadowLayer, false);
+    PushLayer(layer.get());
+    PushLayer(&shadowLayer);
     DrawBitmap(maskBitmap, bounds, 0, 0, nullptr);
     IBlend blend1(kBlendSourceIn, 1.0);
     PathRect(layer->Bounds());
     PathTransformTranslate(-shadow.mXOffset, -shadow.mYOffset);
     PathFill(shadow.mPattern, IFillOptions(), &blend1);
-    PopLayer(false);
+    PopLayer();
     IBlend blend2(kBlendDestOver, shadow.mOpacity);
     bounds.Translate(shadow.mXOffset, shadow.mYOffset);
     DrawBitmap(tempLayerBitmap, bounds, 0, 0, &blend2);
-    PopLayer(false);
+    PopLayer();
     PathTransformRestore();
   }
 }
