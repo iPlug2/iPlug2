@@ -656,11 +656,6 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text) const
     int ul = pFontInfo->mUnderline ? TRUE : FALSE;
     int q = DEFAULT_QUALITY;
 
-#ifdef OS_MAC
-    bool resized = false;
-  Resize:
-    if (h < 2) h = 2;
-#endif
     HFONT hFont = CreateFont(h, 0, 0, 0, wt, it, ul, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, q, DEFAULT_PITCH, pFontInfo->mFontName.Get());
     if (!hFont)
     {
@@ -668,14 +663,6 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text) const
     }
     font = new LICE_CachedFont;
     font->SetFromHFont(hFont, LICE_FONT_FLAG_OWNS_HFONT | LICE_FONT_FLAG_FORCE_NATIVE);
-#ifdef OS_MAC
-    if (!resized && font->GetLineHeight() != h)
-    {
-      h = int((double)(h * h) / (double)font->GetLineHeight() + 0.5);
-      resized = true;
-      goto Resize;
-    }
-#endif
     fontStorage.Add(font, hashStr.Get(), scale);
   }
     
