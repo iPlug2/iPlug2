@@ -189,6 +189,22 @@ void IControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
   #endif
 }
 
+void IControl::OnMouseOver(float x, float y, const IMouseMod& mod)
+{
+  bool prev = mMouseIsOver;
+  mMouseIsOver = true;
+  if (prev == false)
+    SetDirty(false);
+}
+
+void IControl::OnMouseOut()
+{
+  bool prev = mMouseIsOver;
+  mMouseIsOver = false;
+  if (prev == true)
+    SetDirty(false);
+}
+
 void IControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu)
 {
   if (pSelectedMenu != nullptr && mParamIdx >= 0 && !mDisablePrompt)
