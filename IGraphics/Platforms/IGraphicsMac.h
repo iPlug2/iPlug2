@@ -62,7 +62,7 @@ public:
 
   bool GetTextFromClipboard(WDL_String& str) override;
 
-  bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
+  void MeasureText(const IText& text, const char* str, IRECT& bounds) const override;
 
   void ContextReady(void* pLayer);
 

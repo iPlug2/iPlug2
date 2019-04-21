@@ -354,6 +354,9 @@ public:
   
   /** @return A pointer to the IGraphics context that owns this control */ 
   IGraphics* GetUI() { return mGraphics; }
+    
+  /** @return A const pointer to the IGraphics context that owns this control */
+  const IGraphics* GetUI() const { return mGraphics; }
 
   /* This can be used in IControl::Draw() to check if the mouse is over the control, without implementing mouse over methods 
    * @return \true if the mouse is over this control. */

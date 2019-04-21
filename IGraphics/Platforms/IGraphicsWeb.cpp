@@ -19,9 +19,39 @@
 using namespace emscripten;
 
 extern IGraphics* gGraphics;
+bool gGraphicsLoaded = false;
 
-// Font
-IFontDataPtr IGraphicsWeb::WebFileFont::GetFontData()
+// Fonts
+
+class WebFont : public PlatformFont
+{
+public:
+  WebFont(const char* fontName, const char* fontStyle)
+  : PlatformFont(true), mDescriptor{fontName, fontStyle}
+  {}
+  
+  FontDescriptor GetDescriptor() override { return &mDescriptor; }
+  
+private:
+  std::pair<WDL_String, WDL_String> mDescriptor;
+};
+
+class WebFileFont : public WebFont
+{
+public:
+  WebFileFont(const char* fontName, const char* fontStyle, const char* fontPath)
+  : WebFont(fontName, fontStyle), mPath(fontPath)
+  {
+    mSystem = false;
+  }
+  
+  IFontDataPtr GetFontData() override;
+  
+private:
+  WDL_String mPath;
+};
+
+IFontDataPtr WebFileFont::GetFontData()
 {
   IFontDataPtr fontData(new IFontData());
   FILE* fp = fopen(mPath.Get(), "rb");
@@ -468,8 +498,13 @@ void IGraphicsWeb::OnMainLoopTimer()
   IRECTList rects;
   int screenScale = (int) std::ceil(std::max(emscripten_get_device_pixel_ratio(), 1.));
 
-  if (!gGraphics)
+  // Only draw on the second timer so that fonts will be loaded
+  if (!gGraphics || !gGraphicsLoaded)
+  {
+    if (gGraphics)
+      gGraphicsLoaded = true;
     return;
+  }
   
   if (screenScale != gGraphics->GetScreenScale())
   {

@@ -39,33 +39,6 @@ static val GetPreloadedImages()
 class IGraphicsWeb final : public IGRAPHICS_DRAW_CLASS
 {
 public:
-  
-  class WebFont : public PlatformFont
-  {
-  public:
-    WebFont(const char* fontName, const char* fontStyle)
-    : mDescriptor{fontName, fontStyle}
-    {}
-    
-    const void* GetDescriptor() override { return reinterpret_cast<const void*>(&mDescriptor); }
-    
-  private:
-    std::pair<WDL_String, WDL_String> mDescriptor;
-  };
-    
-  class WebFileFont : public WebFont
-  {
-  public:
-    WebFileFont(const char* fontName, const char* fontStyle, const char* fontPath)
-    : WebFont(fontName, fontStyle), mPath(fontPath)
-    {}
-    
-    IFontDataPtr GetFontData() override;
-    
-  private:
-    WDL_String mPath;
-  };
-  
   IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsWeb();
 

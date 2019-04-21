@@ -560,10 +560,24 @@ private:
   
 protected:
     
+  void DoTextRotation(const IText& text, const IRECT& bounds, const IRECT& rect)
+  {
+    if (!text.mOrientation)
+      return;
+    
+    IRECT rotated = rect;
+    double tx, ty;
+    
+    CalulateTextRotation(text, bounds, rotated, tx, ty);
+    PathTransformTranslate(tx, ty);
+    PathTransformRotate(text.mOrientation);
+  }
+  
   float GetBackingPixelScale() const override { return GetScreenScale() * GetDrawScale(); };
 
+  IMatrix GetTransformMatrix() const { return mTransform; }
+  
 private:
-
   void PrepareRegion(const IRECT& r) override
   {
     PathTransformReset(true);

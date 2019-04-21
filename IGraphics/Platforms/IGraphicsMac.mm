@@ -83,14 +83,15 @@ void IGraphicsMac::CachePlatformFont(const char* fontID, const PlatformFontPtr& 
   CoreTextHelpers::CachePlatformFont(fontID, font, sFontDescriptorCache);
 }
 
-bool IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds)
+void IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
 #ifdef IGRAPHICS_LICE
-  @autoreleasepool {
-    return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
+  @autoreleasepool
+  {
+    IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
   }
 #else
-  return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
+  IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
 #endif
 }
 

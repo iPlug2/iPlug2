@@ -87,8 +87,17 @@ typedef WDL_TypedBuf<uint8_t> RawBitmapData;
   typedef void* BitmapData;
 #endif
 
-#ifdef OS_WIN
+#if defined OS_MAC
+#include <CoreText/CoreText.h>
+typedef CTFontDescriptorRef FontDescriptor;
+#elif defined OS_WIN
+#include "wingdi.h"
 #include "Stringapiset.h"
+typedef HFONT FontDescriptor;
+#elif defined OS_WEB
+typedef std::pair<WDL_String, WDL_String>* FontDescriptor;
+#else // NO_IGRAPHICS
+typedef void* BitmapData;
 #endif
 
 /** A bitmap abstraction around the different drawing back end bitmap representations.
@@ -556,9 +565,6 @@ struct IText
   /** /todo */
   enum EVAlign { kVAlignTop, kVAlignMiddle, kVAlignBottom } mVAlign;
 
-  /** /todo */
-  enum EQuality { kQualityDefault, kQualityNonAntiAliased, kQualityAntiAliased, kQualityClearType } mQuality = kQualityDefault;
-
   /** /todo 
    * @param size /todo
    * @param color /todo
@@ -566,7 +572,6 @@ struct IText
    * @param align /todo
    * @param valign /todo
    * @param orientation /todo
-   * @param quality /todo
    * @param TEBGColor /todo
    * @param TEFGColor /todo */
   IText(int size = DEFAULT_TEXT_SIZE,
@@ -574,8 +579,7 @@ struct IText
         const char* font = nullptr,
         EAlign align = kAlignCenter,
         EVAlign valign = kVAlignMiddle,
-        int orientation = 0,
-        EQuality quality = kQualityDefault,
+        float orientation = 0,
         const IColor& TEBGColor = DEFAULT_TEXTENTRY_BGCOLOR,
         const IColor& TEFGColor = DEFAULT_TEXTENTRY_FGCOLOR)
     : mSize(size)
@@ -583,7 +587,6 @@ struct IText
     , mAlign(align)
     , mVAlign(valign)
     , mOrientation(orientation)
-    , mQuality(quality)
     , mTextEntryBGColor(TEBGColor)
     , mTextEntryFGColor(TEFGColor)
   {
@@ -615,54 +618,20 @@ struct IText
   IColor mFGColor;
   IColor mTextEntryBGColor;
   IColor mTextEntryFGColor;
-  int mOrientation = 0; // Degrees ccwise from normal.
+  float mOrientation = 0.f; // Degrees ccwise from normal.
 };
 
 const IText DEFAULT_TEXT = IText();
-
-/** Used to manage raw font data. */
-class IFontData : private WDL_TypedBuf<unsigned char>
-{
-public:
-  IFontData() : mFaceIdx(-1) {}
-    
-  IFontData(const void* data, int size, int faceIdx) : mFaceIdx(faceIdx)
-  {
-    const unsigned char* src = reinterpret_cast<const unsigned char*>(data);
-    unsigned char* dest = ResizeOK(size);
-      
-    if (dest)
-      std::copy(src, src + size, dest);
-  }
-  
-  IFontData(int size) : mFaceIdx(-1)
-  {
-    Resize(size);
-  }
-
-  void SetFaceIdx(int faceIdx) { mFaceIdx = faceIdx; }
-
-  bool IsValid() const { return GetSize() && mFaceIdx >= 0; }
-    
-  unsigned char* Get() { return WDL_TypedBuf<unsigned char>::Get(); }
-  int GetSize() const { return WDL_TypedBuf<unsigned char>::GetSize(); }
-  int GetFaceIdx() const { return mFaceIdx; }
-    
-private:
-  int mFaceIdx;
-};
-
-/** IFontDataPtr is a managed pointer for transferring the ownership of font data */
-typedef std::unique_ptr<IFontData> IFontDataPtr;
 
 /** Used to retrieve font info directly from a raw memory buffer. */
 class IFontInfo
 {
 public:
   IFontInfo(const void* data, uint32_t dataSize, uint32_t faceIdx)
-  : mData(reinterpret_cast<const unsigned char*>(data)), mHeadLocation(0), mNameLocation(0), mHheaLocation(0), mMacStyle(0), mUnitsPerEM(0), mAscender(0), mDescender(0), mLineGap(0), mLineHeight(0)
+  : mData(reinterpret_cast<const unsigned char*>(data)), mHeadLocation(0), mNameLocation(0), mHheaLocation(0), mMacStyle(0), mUnitsPerEM(0), mAscender(0), mDescender(0), mLineGap(0)
   {
-    FindFace(faceIdx);
+    if (mData)
+      FindFace(faceIdx);
     
     if (mData)
     {
@@ -680,7 +649,6 @@ public:
         mAscender = GetSInt16(mHheaLocation + 4);
         mDescender = GetSInt16(mHheaLocation + 6);
         mLineGap = GetSInt16(mHheaLocation + 8);
-        mLineHeight = (mAscender - mDescender) + mLineGap;
       }
     }
   }
@@ -698,11 +666,13 @@ public:
   bool IsCondensed() const  { return mMacStyle & (1 << 5); }
   bool IsExpanded() const   { return mMacStyle & (1 << 6); }
   
+  double GetHeightEMRatio() const { return mUnitsPerEM / static_cast<double>(mAscender - mDescender); }
+
   uint16_t GetUnitsPerEM() const { return mUnitsPerEM; }
   int16_t GetAscender() const    { return mAscender; }
   int16_t GetDescender() const   { return mDescender; }
   int16_t GetLineGap() const     { return mLineGap; }
-  int16_t GetLineHeight() const  { return mLineHeight; }
+  int16_t GetLineHeight() const  { return (mAscender - mDescender) + mLineGap; }
   
 private:
   
@@ -836,17 +806,57 @@ private:
   int16_t mAscender;
   int16_t mDescender;
   int16_t mLineGap;
-  int16_t mLineHeight;
 };
+
+/** Used to manage raw font data. */
+class IFontData : public IFontInfo, private WDL_TypedBuf<unsigned char>
+{
+public:
+    IFontData() : IFontInfo(nullptr, 0, -1), mFaceIdx(-1) {}
+    
+    IFontData(const void* data, int size, int faceIdx) : IFontInfo(data, size, faceIdx), mFaceIdx(faceIdx)
+    {
+        const unsigned char* src = reinterpret_cast<const unsigned char*>(data);
+        unsigned char* dest = ResizeOK(size);
+        
+        if (dest)
+            std::copy(src, src + size, dest);
+    }
+    
+    IFontData(int size) : IFontInfo(nullptr, 0, -1), mFaceIdx(-1)
+    {
+      Resize(size);
+    }
+    
+    void SetFaceIdx(int faceIdx)
+    {
+      mFaceIdx = faceIdx;
+      static_cast<IFontData&>(*this) = IFontData(Get(), GetSize(), mFaceIdx);
+    }
+    
+    bool IsValid() const { return GetSize() && mFaceIdx >= 0 && IFontInfo::IsValid(); }
+    
+    unsigned char* Get() { return WDL_TypedBuf<unsigned char>::Get(); }
+    int GetSize() const { return WDL_TypedBuf<unsigned char>::GetSize(); }
+    int GetFaceIdx() const { return mFaceIdx; }
+    
+private:
+    int mFaceIdx;
+};
+
+/** IFontDataPtr is a managed pointer for transferring the ownership of font data */
+typedef std::unique_ptr<IFontData> IFontDataPtr;
 
 /** /todo */
 class PlatformFont
 {
 public:
+  PlatformFont(bool system) : mSystem(system) {}
   virtual ~PlatformFont() {}
-  virtual const void* GetDescriptor() { return nullptr; }
+  virtual FontDescriptor GetDescriptor() { return nullptr; }
   virtual IFontDataPtr GetFontData() { return IFontDataPtr(new IFontData()); }
-  
+  bool IsSystem() { return mSystem; }
+    
 protected:
   int GetFaceIdx(const void* data, int dataSize, const char* styleName)
   {
@@ -863,6 +873,8 @@ protected:
       return idx;
     }
   }
+
+  bool mSystem;
 };
 
 typedef std::unique_ptr<PlatformFont> PlatformFontPtr;

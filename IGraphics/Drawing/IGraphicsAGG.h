@@ -68,14 +68,6 @@ private:
 class IGraphicsAGG : public IGraphicsPathBase
 {
 public:
-  struct LineInfo
-  {
-    int mStartChar;
-    int mEndChar;
-    double mWidth;
-    LineInfo() : mWidth(0.0), mStartChar(0), mEndChar(0) {}
-  };
-  
 #ifdef OS_WIN
   typedef agg::order_bgra PixelOrder;
   typedef agg::pixel_map_win32 PixelMapType;
@@ -180,7 +172,6 @@ public:
     void BlendFrom(agg::rendering_buffer& renBuf, const IRECT& bounds, int srcX, int srcY, agg::comp_op_e op, agg::cover_type cover, bool preMultiplied)
     {
       // N.B. blend_from/rect_i is inclusive, hence -1 on each dimension here
-      
       agg::rect_i r(srcX, srcY, srcX + std::round(bounds.W()) - 1, srcY + std::round(bounds.H()) - 1);
       int x = std::round(bounds.L) - srcX;
       int y = std::round(bounds.T) - srcY;
@@ -210,14 +201,12 @@ public:
     void SetPath(VertexSourceType& path)
     {
       // Clip
-      
       IRECT clip = mGraphics.mClipRECT.Empty() ? mGraphics.GetBounds() : mGraphics.mClipRECT;
       clip.Translate(mGraphics.XTranslate(), mGraphics.YTranslate());
       clip.Scale(mGraphics.GetBackingPixelScale());
       mRasterizer.clip_box(clip.L, clip.T, clip.R, clip.B);
       
       // Add path
-      
       mRasterizer.reset();
       mRasterizer.add_path(path);
     }
@@ -299,13 +288,12 @@ protected:
   void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
   void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
 
-  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0, bool measure = false) override;
+  void DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
+  void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
 
 private:
-  
-  bool SetFont(const char* fontID, IFontData* pFont);
-
-  void CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& bounds, const char* str, FontManagerType& manager);
+  void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y) const;
+  bool SetFont(const char* fontID, IFontData* pFont) const;
 
   double XTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().L; }
   double YTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().T; }
@@ -321,8 +309,8 @@ private:
   void SetClipRegion(const IRECT& r) override { mClipRECT = r; }
 
   IRECT mClipRECT;
-  FontEngineType mFontEngine;
-  FontManagerType mFontManager;
+  mutable FontEngineType mFontEngine;
+  mutable FontManagerType mFontManager;
   agg::rendering_buffer mRenBuf;
   agg::path_storage mPath;
   agg::trans_affine mTransform;
@@ -331,7 +319,5 @@ private:
     
   //pipeline to process the vectors glyph paths(curves + contour)
   agg::conv_curve<FontManagerType::path_adaptor_type> mFontCurves;
-  agg::conv_contour<agg::conv_curve<FontManagerType::path_adaptor_type>> mFontContour;
   agg::conv_transform<agg::conv_curve<FontManagerType::path_adaptor_type>> mFontCurvesTransformed;
-  agg::conv_transform<agg::conv_contour<agg::conv_curve<FontManagerType::path_adaptor_type>>> mFontContourTransformed;
 };
