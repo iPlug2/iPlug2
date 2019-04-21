@@ -34,6 +34,7 @@
 #include "TestShadowGradientControl.h"
 #include "TestGLControl.h"
 #include "TestTextOrientationControl.h"
+#include "TestTextSizeControl.h"
 #ifdef IGRAPHICS_METAL
 #include "TestMPSControl.h"
 #endif
