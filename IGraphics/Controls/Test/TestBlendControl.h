@@ -28,6 +28,7 @@ public:
   , IBitmapBase(bitmap)
   {
     SetTooltip("TestBlendControl");
+    mText.mSize = 12;
   }
 
   void Draw(IGraphics& g) override
