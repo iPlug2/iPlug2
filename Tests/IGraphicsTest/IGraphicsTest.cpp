@@ -134,7 +134,9 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new TestShadowGradientControl(nextCell()));
     pGraphics->AttachControl(new TestFontControl(nextCell()));
     pGraphics->AttachControl(new TestTextOrientationControl(nextCell()));
+    pGraphics->AttachControl(new TestTextSizeControl(nextCell()));
 
+      
 #ifdef IGRAPHICS_METAL
     pGraphics->AttachControl(new TestMPSControl(nextCell(), smiley));
 #endif

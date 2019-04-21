@@ -574,7 +574,7 @@ struct IText
    * @param orientation /todo
    * @param TEBGColor /todo
    * @param TEFGColor /todo */
-  IText(int size = DEFAULT_TEXT_SIZE,
+  IText(float size = DEFAULT_TEXT_SIZE,
         const IColor& color = DEFAULT_TEXT_FGCOLOR,
         const char* font = nullptr,
         EAlign align = kAlignCenter,
@@ -596,7 +596,7 @@ struct IText
   /** /todo 
     * @param size /todo
     * @param valign /todo */
-  IText(int size, EVAlign valign)
+  IText(float size, EVAlign valign)
   : IText()
   {
     mSize = size;
@@ -606,7 +606,7 @@ struct IText
   /** /todo 
    * @param size /todo
    * @param align /todo */
-  IText(int size, EAlign align)
+  IText(float size, EAlign align)
   : IText()
   {
     mSize = size;
@@ -614,7 +614,7 @@ struct IText
   }
     
   char mFont[FONT_LEN];
-  int mSize;
+  float mSize;
   IColor mFGColor;
   IColor mTextEntryBGColor;
   IColor mTextEntryFGColor;
