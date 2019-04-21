@@ -108,7 +108,7 @@ void* IGraphicsMac::OpenWindow(void* pParent)
   CloseWindow();
   mView = (IGRAPHICS_VIEW*) [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
   
-#ifndef IGRAPHICS_GL
+#ifndef IGRAPHICS_GL // with OpenGL, we don't get given the glcontext until later, ContextReady will get called elsewhere
   IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
   ContextReady([pView layer]);
 #endif
@@ -605,7 +605,6 @@ void IGraphicsMac::CreatePlatformImGui()
 #endif
 }
 
-//TODO: THIS IS TEMPORARY, TO EASE DEVELOPMENT
 #ifdef IGRAPHICS_AGG
   #include "IGraphicsAGG.cpp"
 #elif defined IGRAPHICS_CAIRO
