@@ -575,6 +575,8 @@ protected:
   
   float GetBackingPixelScale() const override { return GetScreenScale() * GetDrawScale(); };
 
+  IMatrix GetTransformMatrix() const { return mTransform; }
+  
 private:
   void PrepareRegion(const IRECT& r) override
   {
