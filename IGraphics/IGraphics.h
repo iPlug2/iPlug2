@@ -132,16 +132,6 @@ public:
    * @param pBlend Optional blend method, see IBlend documentation */
   virtual void DrawRotatedBitmap(const IBitmap& bitmap, float destCentreX, float destCentreY, double angle, int yOffsetZeroDeg = 0, const IBlend* pBlend = 0) = 0;
 
-  /** Draw a rotated, masked bitmap to the graphics context
-   * @param base The base bitmap image to draw to the graphics context \todo explain base
-   * @param mask The mask bitmap image to draw to the graphics context \todo explain mask
-   * @param top The bitmap image to draw to the graphics context \todo explain top
-   * @param x The X coordinate in the graphics context at which to draw
-   * @param y The Y coordinate in the graphics context at which to draw
-   * @param angle The angle to rotate the bitmap mask at in degrees clockwise
-   * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawRotatedMask(const IBitmap& base, const IBitmap& mask, const IBitmap& top, float x, float y, double angle, const IBlend* pBlend = 0) = 0;
-
   /** Fill a rectangle corresponding to a pixel on a 1:1 screen with a color
    * @param color The color to fill the point with
    * @param x The X coordinate in the graphics context at which to draw

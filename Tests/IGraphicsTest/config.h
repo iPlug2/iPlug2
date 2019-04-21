@@ -54,8 +54,3 @@
 #define TIGER_FN "23.svg"
 #define ORBS_FN "orbs.svg"
 #define SMILEY_FN "smiley.png"
-#define BASE_FN "IKRMC_Base.png"
-#define MASK_FN "IKRMC_Mask.png"
-#define TOP_FN "IKRMC_Top.png"
-
-

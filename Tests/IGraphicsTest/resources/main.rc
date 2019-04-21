@@ -135,18 +135,18 @@ END
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE
 BEGIN
     "#include ""winres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE
 BEGIN
     "#include ""..\\config.h""\r\n"
     "TIGER_FN SVG TIGER_FN\r\n"
@@ -154,9 +154,6 @@ BEGIN
     "ROBOTTO_FN TTF ROBOTTO_FN\r\n"
     "MONTSERRAT_FN TTF MONTSERRAT_FN\r\n"
     "SMILEY_FN PNG SMILEY_FN\r\n"
-    "BASE_FN PNG BASE_FN\r\n"
-    "MASK_FN PNG MASK_FN\r\n"
-    "TOP_FN PNG TOP_FN\r\n"
     "\r\n"
     "\0"
 END
@@ -243,11 +240,7 @@ ORBS_FN SVG ORBS_FN
 ROBOTTO_FN TTF ROBOTTO_FN
 MONTSERRAT_FN TTF MONTSERRAT_FN
 SMILEY_FN PNG SMILEY_FN
-BASE_FN PNG BASE_FN
-MASK_FN PNG MASK_FN
-TOP_FN PNG TOP_FN
 
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
-
