@@ -638,8 +638,8 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text) const
 {
   StaticStorage<LICE_IFont>::Accessor fontStorage(sFontCache);
   WDL_String hashStr(text.mFont);
-  hashStr.AppendFormatted(50, "-%d", text.mSize);
   int scale = GetScreenScale();
+  hashStr.AppendFormatted(50, "-%d", (int) std::round(text.mSize * scale));
     
   LICE_CachedFont* font = (LICE_CachedFont*) fontStorage.Find(hashStr.Get(), scale);
     
