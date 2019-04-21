@@ -645,7 +645,7 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text) const
 #ifdef OS_MAC
   int h = static_cast<int>(std::round(text.mSize * pFontInfo->mEMRatio * GetScreenScale()));
 #else
-  int h = static_cast<int>(std::round(text.mSize) * GetScreenScale()));
+  int h = static_cast<int>(std::round(text.mSize) * GetScreenScale());
 #endif
     
   WDL_String hashStr(text.mFont);
