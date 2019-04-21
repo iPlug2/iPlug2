@@ -1197,13 +1197,6 @@ public:
    * @param gray /true to gray-out */
   void GrayOutControl(int paramIdx, bool gray);
 
-  /** Clamp controls link to a specific parameter
-   * @param paramIdx The parameter index
-   * @param lo The minimum control value
-   * @param hi The maximum control value
-   * @param normalized Determines whether the minimum and maximum are normalized or not */
-  void ClampControl(int paramIdx, double lo, double hi, bool normalized);
-
   /** Calls SetDirty() on every control */
   void SetAllControlsDirty();
   

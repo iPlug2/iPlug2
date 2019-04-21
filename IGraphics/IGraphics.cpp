@@ -285,22 +285,6 @@ void IGraphics::GrayOutControl(int paramIdx, bool gray)
   ForMatchingControls(&IControl::GrayOut, paramIdx, gray);
 }
 
-void IGraphics::ClampControl(int paramIdx, double lo, double hi, bool normalized)
-{
-  if (!normalized)
-  {
-    const IParam* pParam = GetDelegate()->GetParam(paramIdx);
-
-    if (pParam)
-    {
-      lo = pParam->ToNormalized(lo);
-      hi = pParam->ToNormalized(hi);
-    }
-  }
-
-  ForMatchingControls(&IControl::Clamp, paramIdx, lo, hi);
-}
-
 void IGraphics::ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func)
 {
   for (auto c = 0; c < NControls(); c++)

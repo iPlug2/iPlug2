@@ -27,7 +27,6 @@ public:
   , mShape(0)
   {
     SetTooltip("TestMultiPathControl");
-    Clamp(0.5, 1.);
   }
 
   void Draw(IGraphics& g) override
