@@ -151,7 +151,7 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
     ;
   }
     
-  mShape.reset(shape.Clone());
+  mShape = std::unique_ptr<Shape>(shape.Clone());
   mShape->Init(*this);
 }
 

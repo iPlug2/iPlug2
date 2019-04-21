@@ -346,7 +346,7 @@ extern "C"
     return new PLUG_CLASS_NAME(instanceInfo);
   }
 
-  std::unique_ptr <IPlugWeb> gPlug;
+  std::unique_ptr<IPlugWeb> gPlug;
   extern void StartMainLoopTimer();
 
   extern "C"
@@ -367,7 +367,7 @@ extern "C"
     
     EMSCRIPTEN_KEEPALIVE void iplug_fsready()
     {
-      gPlug.reset(MakePlug());
+      gPlug = std::unique_ptr<IPlugWeb>(MakePlug());
       gPlug->SetHost("www", 0);
       gPlug->OpenWindow(nullptr);
       gPlug->OnUIOpen();

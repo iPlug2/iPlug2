@@ -611,7 +611,7 @@ void IGraphicsLice::CompleteRegion(const IRECT& r)
     int x = mDrawOffsetX * GetScreenScale();
     int y = mDrawOffsetY * GetScreenScale();
     PreMulBlit(mDrawBitmap.get(), bitmap, x, y, 0, 0, bitmap->getWidth(), bitmap->getHeight(), 1.f, mode);
-    mClippingLayer.reset();
+    mClippingLayer = nullptr;
   }
   UpdateLayer();
 }
