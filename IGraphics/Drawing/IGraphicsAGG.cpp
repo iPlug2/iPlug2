@@ -16,7 +16,6 @@
 static StaticStorage<IFontData> sFontCache;
 
 const bool textKerning = true;
-const bool textHinting = false;
 
 class pixel_wrapper : public agg::pixel_map
 {
@@ -524,6 +523,8 @@ void IGraphicsAGG::PrepareAndMeasureText(const IText& text, const char* str, IRE
   {
     assert(0 && "No font found - did you forget to load it?");
   }
+    
+  const bool textHinting = false;
     
   // Set dpi to 72 to allow finer resolution of text sizes
   mFontEngine.resolution(72);
