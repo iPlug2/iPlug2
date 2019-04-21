@@ -525,6 +525,8 @@ void IGraphicsAGG::PrepareAndMeasureText(const IText& text, const char* str, IRE
     assert(0 && "No font found - did you forget to load it?");
   }
     
+  // Set dpi to 72 to allow finer resolution of text sizes
+  mFontEngine.resolution(72);
   mFontEngine.hinting(textHinting);
   mFontEngine.height(text.mSize * pFont->GetHeightEMRatio());
   mFontEngine.flip_y(true);
