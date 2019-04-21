@@ -44,21 +44,6 @@ public:
     PathTransformRestore();
   }
   
-  void DrawRotatedMask(const IBitmap& base, const IBitmap& mask, const IBitmap& top, float x, float y, double angle, const IBlend* pBlend) override
-  {
-    float width = (float) base.W();
-    float height = (float) base.H();
-    
-    IBlend addBlend(kBlendAdd);
-    PathTransformSave();
-    DrawBitmap(base, IRECT(x, y, x + width, y + height), 0, 0, pBlend);
-    PathTransformTranslate(x + 0.5f * width, y + 0.5f * height);
-    PathTransformRotate((float) angle);
-    DrawBitmap(mask, IRECT(-width * 0.5f, - height * 0.5f, width * 0.5f, height * 0.5f), 0, 0, &addBlend);
-    DrawBitmap(top, IRECT(-width * 0.5f, - height * 0.5f, width * 0.5f, height * 0.5f), 0, 0, pBlend);
-    PathTransformRestore();
-  }
-  
   void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override
   {
     FillRect(color, IRECT(x, y, x+1.f, y+1.f), pBlend);

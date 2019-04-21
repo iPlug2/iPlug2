@@ -180,36 +180,6 @@ void IGraphicsLice::DrawRotatedBitmap(const IBitmap& bitmap, float destCtrX, flo
   LICE_RotatedBlit(mRenderBitmap, pLB, destX, destY, W, H, 0.0f, 0.0f, (float) W, (float) H, (float) DegToRad(angle), false, BlendWeight(pBlend), LiceBlendMode(pBlend) | LICE_BLIT_FILTER_BILINEAR, 0.0f, (float) yOffsetZeroDeg);
 }
 
-void IGraphicsLice::DrawRotatedMask(const IBitmap& base, const IBitmap& mask, const IBitmap& top, float x, float y, double angle, const IBlend* pBlend)
-{
-  x = TransformX(x);
-  y = TransformY(y);
-  
-  LICE_IBitmap* pBase = base.GetAPIBitmap()->GetBitmap();
-  LICE_IBitmap* pMask = mask.GetAPIBitmap()->GetBitmap();
-  LICE_IBitmap* pTop = top.GetAPIBitmap()->GetBitmap();
-  
-  int W = base.W();
-  int H = base.H();
-  float xOffs = (W % 2 ? -0.5f : 0.0f);
-  
-  if (!mTmpBitmap)
-    mTmpBitmap = std::make_unique<LICE_MemBitmap>();
-  
-  const float angleRadians = DegToRad(angle);
-  
-  LICE_Copy(mTmpBitmap.get(), pBase);
-  LICE_ClearRect(mTmpBitmap.get(), 0, 0, W, H, LICE_RGBA(255, 255, 255, 0));
-  
-  LICE_RotatedBlit(mTmpBitmap.get(), pMask, 0, 0, W, H, 0.0f, 0.0f, (float) W, (float) H, angleRadians,
-                   true, 1.0f, LICE_BLIT_MODE_ADD | LICE_BLIT_FILTER_BILINEAR | LICE_BLIT_USE_ALPHA, xOffs, 0.0f);
-  LICE_RotatedBlit(mTmpBitmap.get(), pTop, 0, 0, W, H, 0.0f, 0.0f, (float) W, (float) H, angleRadians,
-                   true, 1.0f, LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR | LICE_BLIT_USE_ALPHA, xOffs, 0.0f);
-  
-  IRECT r = IRECT(x, y, x + W, y + H).Intersect(mDrawRECT);
-  LICE_Blit(mRenderBitmap, mTmpBitmap.get(), r.L, r.T, r.L - x, r.T - y, r.R - r.L, r.B - r.T, BlendWeight(pBlend), LiceBlendMode(pBlend));
-}
-
 void IGraphicsLice::DrawFittedBitmap(const IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend)
 {
   NeedsClipping();
