@@ -504,8 +504,13 @@ void IGraphicsCairo::DoDrawText(const IText& text, const char* str, const IRECT&
   double x, y;
   
   const IColor& c = text.mFGColor;
-  bool useNativeTransforms = false;
-  
+  bool useNativeTransforms = true;
+
+#ifdef OS_WIN
+  IMatrix m = GetTransformMatrix();
+  useNativeTransforms = !text.mOrientation && !m.mXY && !m.mYX;
+#endif 
+
   PrepareAndMeasureText(text, str, measured, x, y, pGlyphs, numGlyphs);
   PathTransformSave();
   
