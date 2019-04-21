@@ -43,7 +43,6 @@ public:
     g.FillRect(COLOR_WHITE, mRECT);
     g.FillRect(COLOR_MID_GRAY, drawRECT);
     g.DrawText(mText, str, mRECT);
-    g.PathTransformRestore();
   }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
