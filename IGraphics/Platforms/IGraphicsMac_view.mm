@@ -552,7 +552,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   
   CGFloat newScale = [pWindow backingScaleFactor];
   
-  if (newScale != mGraphics->GetScreenScale())
+  if (mGraphics->GetDrawContext() && newScale != mGraphics->GetScreenScale())
     mGraphics->SetScreenScale(newScale);
 
 #ifdef IGRAPHICS_GL
