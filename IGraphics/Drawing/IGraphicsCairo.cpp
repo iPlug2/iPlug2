@@ -503,14 +503,33 @@ void IGraphicsCairo::DoDrawText(const IText& text, const char* str, const IRECT&
   int numGlyphs;
   double x, y;
   
-  const IColor& color = text.mFGColor;
+  const IColor& c = text.mFGColor;
+  bool useNativeTransforms = false;
   
   PrepareAndMeasureText(text, str, measured, x, y, pGlyphs, numGlyphs);
   PathTransformSave();
-  DoTextRotation(text, bounds, measured);
-  cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, (BlendWeight(pBlend) * color.A) / 255.0);
-  cairo_translate(mContext, x, y);
-  cairo_show_glyphs(mContext, pGlyphs, numGlyphs);
+  
+  if (useNativeTransforms)
+  {
+    DoTextRotation(text, bounds, measured);
+    cairo_set_source_rgba(mContext, c.R / 255.0, c.G / 255.0, c.B / 255.0, (BlendWeight(pBlend) * c.A) / 255.0);
+    cairo_translate(mContext, x, y);
+    cairo_show_glyphs(mContext, pGlyphs, numGlyphs);
+  }
+  else
+  {
+    PathTransformSave();
+    PathTransformReset();
+    StartLayer(measured);
+    cairo_set_source_rgba(mContext, c.R / 255.0, c.G / 255.0, c.B / 255.0, (BlendWeight(pBlend) * c.A) / 255.0);
+    cairo_translate(mContext, x, y);
+    cairo_show_glyphs(mContext, pGlyphs, numGlyphs);
+    ILayerPtr layer = EndLayer();
+    PathTransformRestore();
+    DoTextRotation(text, bounds, measured);
+    DrawBitmap(layer->GetBitmap(), layer->Bounds(), 0, 0, pBlend);
+  }
+  
   PathTransformRestore();
   cairo_glyph_free(pGlyphs);
 }

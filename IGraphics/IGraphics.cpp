@@ -1526,9 +1526,7 @@ void IGraphics::DrawLayer(const ILayerPtr& layer, const IBlend* pBlend)
 {
   PathTransformSave();
   PathTransformReset();
-  IBitmap bitmap = layer->GetBitmap();
-  IRECT bounds = layer->Bounds();
-  DrawBitmap(bitmap, bounds, 0, 0, pBlend);
+  DrawBitmap(layer->GetBitmap(), layer->Bounds(), 0, 0, pBlend);
   PathTransformRestore();
 }
 
