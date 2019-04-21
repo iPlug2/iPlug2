@@ -299,20 +299,16 @@ EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent
   
   IMouseMod modifiers(0, 0, pEvent->shiftKey, pEvent->ctrlKey, pEvent->altKey);
   
-  double x = pEvent->targetX;
-  double y = pEvent->targetY;
-  
-  val rect = GetCanvas().call<val>("getBoundingClientRect");
-  x -= rect["left"].as<double>();
-  y -= rect["top"].as<double>();
+  double x = pEvent->canvasX;
+  double y = pEvent->canvasY;
 
   x /= pGraphics->GetDrawScale();
   y /= pGraphics->GetDrawScale();
   
   switch (eventType)
   {
-    case EMSCRIPTEN_EVENT_MOUSEUP: pGraphics->OnMouseUp(x, y, modifiers);
-      pGraphics->OnMouseUp(x, y, modifiers); break;
+    case EMSCRIPTEN_EVENT_MOUSEUP:
+      pGraphics->OnMouseUp(x, y, modifiers);
       emscripten_set_mousemove_callback("#window", pGraphics, 1, nullptr);
       emscripten_set_mouseup_callback("#window", pGraphics, 1, nullptr);
       break;
@@ -336,8 +332,8 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
   
   IMouseMod modifiers(pEvent->buttons == 1, pEvent->buttons == 2, pEvent->shiftKey, pEvent->ctrlKey, pEvent->altKey);
   
-  double x = pEvent->targetX;
-  double y = pEvent->targetY;
+  double x = pEvent->canvasX;
+  double y = pEvent->canvasY;
   
   x /= pGraphics->GetDrawScale();
   y /= pGraphics->GetDrawScale();
