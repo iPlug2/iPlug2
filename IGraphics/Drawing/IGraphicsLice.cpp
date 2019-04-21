@@ -23,6 +23,7 @@ struct LICEFontInfo
   bool mBold;
   bool mItalic;
   bool mUnderline;
+  double mEMRatio;
 };
 
 #ifdef OS_MAC
@@ -636,21 +637,25 @@ void IGraphicsLice::UpdateLayer()
 
 LICE_IFont* IGraphicsLice::CacheFont(const IText& text) const
 {
-  StaticStorage<LICE_IFont>::Accessor fontStorage(sFontCache);
-  WDL_String hashStr(text.mFont);
-  int scale = GetScreenScale();
-  hashStr.AppendFormatted(50, "-%d", (int) std::round(text.mSize * scale));
+  StaticStorage<LICEFontInfo>::Accessor fontInfoStorage(sLICEFontInfoCache);
+  LICEFontInfo* pFontInfo = fontInfoStorage.Find(text.mFont);
+  
+  assert(pFontInfo && "No font found - did you forget to load it?");
+  
+#ifdef OS_MAC
+  int h = static_cast<int>(std::round(text.mSize * pFontInfo->mEMRatio * GetScreenScale()));
+#else
+  int h = static_cast<int>(std::round(text.mSize) * GetScreenScale()));
+#endif
     
-  LICE_CachedFont* font = (LICE_CachedFont*) fontStorage.Find(hashStr.Get(), scale);
+  WDL_String hashStr(text.mFont);
+  hashStr.AppendFormatted(FONT_LEN + 10, "-%d", h);
+    
+  StaticStorage<LICE_IFont>::Accessor fontStorage(sFontCache);
+  LICE_CachedFont* font = (LICE_CachedFont*) fontStorage.Find(hashStr.Get());
     
   if (!font)
   {
-    StaticStorage<LICEFontInfo>::Accessor fontInfoStorage(sLICEFontInfoCache);
-    LICEFontInfo* pFontInfo = fontInfoStorage.Find(text.mFont);
-
-    assert(pFontInfo && "No font found - did you forget to load it?");
-      
-    int h = round(text.mSize * scale);
     int wt = pFontInfo->mBold ? FW_BOLD : FW_NORMAL;
     int it = pFontInfo->mItalic ? TRUE : FALSE;
     int ul = pFontInfo->mUnderline ? TRUE : FALSE;
@@ -663,7 +668,7 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text) const
     }
     font = new LICE_CachedFont;
     font->SetFromHFont(hFont, LICE_FONT_FLAG_OWNS_HFONT | LICE_FONT_FLAG_FORCE_NATIVE);
-    fontStorage.Add(font, hashStr.Get(), scale);
+    fontStorage.Add(font, hashStr.Get());
   }
     
   return font;
@@ -681,6 +686,8 @@ bool IGraphicsLice::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
   
   if (data->IsValid())
   {
+    double EMRatio = data->GetHeightEMRatio();
+      
 #ifdef OS_MAC
     StaticStorage<MacRegisteredFont>::Accessor registeredFontStorage(sMacRegistedFontCache);
 
@@ -690,14 +697,14 @@ bool IGraphicsLice::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
       fontName.Append(" ");
       fontName.Append(&data->GetStyle());
     }
-    fontInfoStorage.Add(new LICEFontInfo{fontName, false, false, false}, fontID);
+    fontInfoStorage.Add(new LICEFontInfo{fontName, false, false, false, EMRatio}, fontID);
       
     if (!font->IsSystem())
     {
       registeredFontStorage.Add(new MacRegisteredFont(font->GetDescriptor()), fontID);
     }
 #else
-    fontInfoStorage.Add(new LICEFontInfo{data->GetFamily(), data->IsBold(), data->IsItalic(), data->IsUnderline()}, fontID);
+    fontInfoStorage.Add(new LICEFontInfo{data->GetFamily(), data->IsBold(), data->IsItalic(), data->IsUnderline(), EMRatio}, fontID);
 #endif
     return true;
   }
