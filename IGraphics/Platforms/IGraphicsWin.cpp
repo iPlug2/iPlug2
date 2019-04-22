@@ -1162,7 +1162,7 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* pOffsetIdx)
   return hMenu;
 }
 
-IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds)
 {
   long offsetIdx = 0;
   HMENU hMenu = CreateMenu(menu, &offsetIdx);
@@ -1209,9 +1209,6 @@ IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
       RECT r = { 0, 0, WindowWidth(), WindowHeight() };
       InvalidateRect(mPlugWnd, &r, FALSE);
     }
-
-    if (pCaller)
-      pCaller->OnPopupMenuSelection(result);
 
     return result;
   }

@@ -510,7 +510,7 @@ bool IGraphicsMac::PromptForColor(IColor& color, const char* str)
   return false;
 }
 
-IPopupMenu* IGraphicsMac::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+IPopupMenu* IGraphicsMac::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds)
 {
   IPopupMenu* pReturnMenu = nullptr;
 
@@ -523,9 +523,6 @@ IPopupMenu* IGraphicsMac::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
   //synchronous
   if(pReturnMenu && pReturnMenu->GetFunction())
     pReturnMenu->ExecFunction();
-
-  if(pCaller)
-    pCaller->OnPopupMenuSelection(pReturnMenu); // should fire even if pReturnMenu == nullptr
 
   return pReturnMenu;
 }

@@ -75,7 +75,7 @@ public:
   {
     if(but.Contains(x, y))
     {
-      GetUI()->CreatePopupMenu(mMainMenu, x, y, this);
+      GetUI()->CreatePopupMenu(*this, mMainMenu, x, y);
     }
     else if(useplatbut.Contains(x, y))
     {

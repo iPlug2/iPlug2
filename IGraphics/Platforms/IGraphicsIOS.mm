@@ -129,7 +129,7 @@ bool IGraphicsIOS::PromptForColor(IColor& color, const char* str)
   return false;
 }
 
-IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds)
 {
   IPopupMenu* pReturnMenu = nullptr;
   
@@ -143,9 +143,6 @@ IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
   if(pReturnMenu && pReturnMenu->GetFunction())
     pReturnMenu->ExecFunction();
   
-  if(pCaller)
-    pCaller->OnPopupMenuSelection(pReturnMenu); // should fire even if pReturnMenu == nullptr
-
   return pReturnMenu;
 }
 

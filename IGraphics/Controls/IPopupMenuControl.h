@@ -96,18 +96,14 @@ public:
   /** Call this to create a pop-up menu
    @param menu Reference to a menu from which to populate this user interface control. NOTE: this object should not be a temporary, otherwise when the menu returns asynchronously, it may not exist.
    @param bounds \todo
-   @param pCaller The IControl that called this method, and will receive the call back after menu selection
-   @return the menu */
-  IPopupMenu* CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller);
+   @param pCaller The IControl that called this method, and will receive the call back after menu selection */
+  void CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds);
 
   /** @return \true if the pop-up is fully expanded */
   bool GetExpanded() const { return mState == kExpanded; }
 
   /** @return EPopupState indicating the state of the pop-up */
   EPopupState GetState() const { return mState; }
-
-  /** This is called by the IGraphics class when a context menu is being created (a special popup that certain plug-in formats (e.g. VST3) may append to)  */
-  void SetMenuIsContextMenu(bool isContextMenu) { mIsContextMenu = isContextMenu; }
 
   /** Force the menu to open with a specific bounds - useful on small screens for making it modal.*/
   void SetExpandedBounds(const IRECT& bounds) { mSpecifiedExpandedBounds = bounds; }
@@ -181,8 +177,6 @@ private:
   EPopupState mState = kCollapsed; // The state of the pop-up, mainly used for animation
   IRECT* mMouseCellBounds = nullptr;
   IRECT* mPrevMouseCellBounds = nullptr;
-  IControl* mCaller = nullptr; // Pointer to the IControl that created this pop-up menu, for callback
-  bool mIsContextMenu = false;
   IPopupMenu* mMenu = nullptr; // Pointer to the main IPopupMenu, that this control is visualising. This control does not own the menu.
     
   int mMaxColumnItems = 0; // How long the list can get before adding a new column - 0 equals no limit

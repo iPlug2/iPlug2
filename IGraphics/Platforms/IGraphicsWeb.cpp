@@ -601,7 +601,7 @@ void IGraphicsWeb::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
 //  input.call<void>("focus");
 }
 
-IPopupMenu* IGraphicsWeb::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+IPopupMenu* IGraphicsWeb::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds)
 {
   return nullptr;
 }
