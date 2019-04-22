@@ -104,7 +104,6 @@ NanoVGBitmap::NanoVGBitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int
   mVG = pContext;
   mFBO = nvgCreateFramebuffer(pContext, width, height, 0);
   
-  nvgEndFrame(mVG);
   nvgBindFramebuffer(mFBO);
   
 #ifdef IGRAPHICS_METAL
@@ -306,7 +305,20 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
 
 APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height, int scale, double drawScale)
 {
-  return new NanoVGBitmap(this, mVG, width, height, scale, drawScale);
+  if (mInDraw)
+  {
+    nvgEndFrame(mVG);
+  }
+  
+  APIBitmap* pAPIBitmap =  new NanoVGBitmap(this, mVG, width, height, scale, drawScale);
+
+  if (mInDraw)
+  {
+    nvgBindFramebuffer(mMainFrameBuffer); // begin main frame buffer update
+    nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
+  }
+  
+  return pAPIBitmap;
 }
 
 void IGraphicsNanoVG::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
@@ -430,7 +442,6 @@ void IGraphicsNanoVG::BeginFrame()
 #endif
   
   nvgBindFramebuffer(mMainFrameBuffer); // begin main frame buffer update
-
   nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
 }
 
@@ -438,9 +449,8 @@ void IGraphicsNanoVG::EndFrame()
 {
   nvgEndFrame(mVG); // end main frame buffer update
   nvgBindFramebuffer(nullptr);
-
   nvgBeginFrame(mVG, WindowWidth(), WindowHeight(), GetScreenScale());
-
+  
   NVGpaint img = nvgImagePattern(mVG, 0, 0, WindowWidth(), WindowHeight(), 0, mMainFrameBuffer->image, 1.0f);
 
   nvgSave(mVG);
