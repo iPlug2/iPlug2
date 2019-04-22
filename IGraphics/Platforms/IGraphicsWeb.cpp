@@ -19,6 +19,64 @@
 using namespace emscripten;
 
 extern IGraphics* gGraphics;
+bool gGraphicsLoaded = false;
+
+// Fonts
+
+class WebFont : public PlatformFont
+{
+public:
+  WebFont(const char* fontName, const char* fontStyle)
+  : PlatformFont(true), mDescriptor{fontName, fontStyle}
+  {}
+  
+  FontDescriptor GetDescriptor() override { return &mDescriptor; }
+  
+private:
+  std::pair<WDL_String, WDL_String> mDescriptor;
+};
+
+class WebFileFont : public WebFont
+{
+public:
+  WebFileFont(const char* fontName, const char* fontStyle, const char* fontPath)
+  : WebFont(fontName, fontStyle), mPath(fontPath)
+  {
+    mSystem = false;
+  }
+  
+  IFontDataPtr GetFontData() override;
+  
+private:
+  WDL_String mPath;
+};
+
+IFontDataPtr WebFileFont::GetFontData()
+{
+  IFontDataPtr fontData(new IFontData());
+  FILE* fp = fopen(mPath.Get(), "rb");
+  
+  // Read in the font data.
+  if (!fp)
+    return fontData;
+  
+  fseek(fp,0,SEEK_END);
+  fontData = std::make_unique<IFontData>((int) ftell(fp));
+  
+  if (!fontData->GetSize())
+    return fontData;
+  
+  fseek(fp,0,SEEK_SET);
+  size_t readSize = fread(fontData->Get(), 1, fontData->GetSize(), fp);
+  fclose(fp);
+  
+  if (readSize && readSize == fontData->GetSize())
+    fontData->SetFaceIdx(0);
+  
+  return fontData;
+}
+
+// Key combos
 
 static int domVKToWinVK(int dom_vk_code)
 {
@@ -210,15 +268,22 @@ EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent* pEvent, void*
 {
   IGraphicsWeb* pGraphicsWeb = (IGraphicsWeb*) pUserData;
   
+  IKeyPress keyPress {pEvent->key,
+                      domVKToWinVK(pEvent->keyCode),
+                      static_cast<bool>(pEvent->shiftKey),
+                      static_cast<bool>(pEvent->ctrlKey),
+                      static_cast<bool>(pEvent->altKey)};
+  
   switch (eventType)
   {
     case EMSCRIPTEN_EVENT_KEYDOWN:
     {
-      IKeyPress keyPress {*pEvent->key, domVKToWinVK(pEvent->keyCode), static_cast<bool>(pEvent->shiftKey),
-                                                                       static_cast<bool>(pEvent->ctrlKey),
-                                                                       static_cast<bool>(pEvent->altKey)};
-      
       pGraphicsWeb->OnKeyDown(pGraphicsWeb->mPrevX, pGraphicsWeb->mPrevY, keyPress);
+      break;
+    }
+    case EMSCRIPTEN_EVENT_KEYUP:
+    {
+      pGraphicsWeb->OnKeyUp(pGraphicsWeb->mPrevX, pGraphicsWeb->mPrevY, keyPress);
       break;
     }
     default:
@@ -234,20 +299,16 @@ EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent
   
   IMouseMod modifiers(0, 0, pEvent->shiftKey, pEvent->ctrlKey, pEvent->altKey);
   
-  double x = pEvent->targetX;
-  double y = pEvent->targetY;
-  
-  val rect = GetCanvas().call<val>("getBoundingClientRect");
-  x -= rect["left"].as<double>();
-  y -= rect["top"].as<double>();
+  double x = pEvent->canvasX;
+  double y = pEvent->canvasY;
 
   x /= pGraphics->GetDrawScale();
   y /= pGraphics->GetDrawScale();
   
   switch (eventType)
   {
-    case EMSCRIPTEN_EVENT_MOUSEUP: pGraphics->OnMouseUp(x, y, modifiers);
-      pGraphics->OnMouseUp(x, y, modifiers); break;
+    case EMSCRIPTEN_EVENT_MOUSEUP:
+      pGraphics->OnMouseUp(x, y, modifiers);
       emscripten_set_mousemove_callback("#window", pGraphics, 1, nullptr);
       emscripten_set_mouseup_callback("#window", pGraphics, 1, nullptr);
       break;
@@ -271,8 +332,8 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
   
   IMouseMod modifiers(pEvent->buttons == 1, pEvent->buttons == 2, pEvent->shiftKey, pEvent->ctrlKey, pEvent->altKey);
   
-  double x = pEvent->targetX;
-  double y = pEvent->targetY;
+  double x = pEvent->canvasX;
+  double y = pEvent->canvasY;
   
   x /= pGraphics->GetDrawScale();
   y /= pGraphics->GetDrawScale();
@@ -282,7 +343,7 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
     case EMSCRIPTEN_EVENT_CLICK: break;
     case EMSCRIPTEN_EVENT_MOUSEDOWN: pGraphics->OnMouseDown(x, y, modifiers); break;
     case EMSCRIPTEN_EVENT_MOUSEUP: pGraphics->OnMouseUp(x, y, modifiers); break;
-    case EMSCRIPTEN_EVENT_DBLCLICK: pGraphics->OnMouseDblClick(x, y, modifiers);break;
+    case EMSCRIPTEN_EVENT_DBLCLICK: pGraphics->OnMouseDblClick(x, y, modifiers); break;
     case EMSCRIPTEN_EVENT_MOUSEMOVE:
       if(pEvent->buttons == 0)
         pGraphics->OnMouseOver(x, y, modifiers);
@@ -332,6 +393,8 @@ EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* pEvent, void* 
   return true;
 }
 
+#pragma mark -
+
 IGraphicsWeb::IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
 {
@@ -348,6 +411,7 @@ IGraphicsWeb::IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float s
   emscripten_set_mouseleave_callback("canvas", this, 1, mouse_callback);
   emscripten_set_wheel_callback("canvas", this, 1, wheel_callback);
   emscripten_set_keydown_callback("#window", this, 1, key_callback);
+  emscripten_set_keyup_callback("#window", this, 1, key_callback);
 }
 
 IGraphicsWeb::~IGraphicsWeb()
@@ -356,9 +420,20 @@ IGraphicsWeb::~IGraphicsWeb()
 
 void* IGraphicsWeb::OpenWindow(void* pHandle)
 {
+#ifdef IGRAPHICS_GL
+  EmscriptenWebGLContextAttributes attr;
+  emscripten_webgl_init_context_attributes(&attr);
+  attr.stencil = true;
+  attr.depth = true;
+//  attr.explicitSwapControl = 1;
+  
+  EMSCRIPTEN_WEBGL_CONTEXT_HANDLE ctx = emscripten_webgl_create_context("#canvas", &attr);
+  emscripten_webgl_make_context_current(ctx);
+#endif
+  
   OnViewInitialized(nullptr /* not used */);
 
-  SetScreenScale(std::max(emscripten_get_device_pixel_ratio(), 1.));
+  SetScreenScale(std::ceil(std::max(emscripten_get_device_pixel_ratio(), 1.)));
 
   GetDelegate()->LayoutUI(this);
   
@@ -413,42 +488,24 @@ ECursor IGraphicsWeb::SetMouseCursor(ECursor cursorType)
   return IGraphics::SetMouseCursor(cursorType);
 }
 
-EResourceLocation IGraphicsWeb::OSFindResource(const char* name, const char* type, WDL_String& result)
-{
-  if (CStringHasContents(name))
-  {
-    WDL_String plusSlash;
-    
-    bool foundResource = false;
-    
-    //TODO: OSFindResource is not sufficient here
-    
-    if(strcmp(type, "png") == 0) { //TODO: lowercase/uppercase png
-      plusSlash.SetFormatted(strlen("/resources/img/") + strlen(name) + 1, "/resources/img/%s", name);
-      foundResource = GetPreloadedImages().call<bool>("hasOwnProperty", std::string(plusSlash.Get()));
-    }
-    else if(strcmp(type, "ttf") == 0) { //TODO: lowercase/uppercase ttf
-      plusSlash.SetFormatted(strlen("/resources/fonts/") + strlen(name) + 1, "/resources/fonts/%s", name);
-      foundResource = true; // TODO: check ttf
-    }
-    else if(strcmp(type, "svg") == 0) { //TODO: lowercase/uppercase svg
-      plusSlash.SetFormatted(strlen("/resources/img/") + strlen(name) + 1, "/resources/img/%s", name);
-      foundResource = true; // TODO: check svg
-    }
-    
-    if(foundResource)
-    {
-      result.Set(plusSlash.Get());
-      return EResourceLocation::kAbsolutePath;
-    }
-  }
-  return EResourceLocation::kNotFound;
-}
-
 //static
 void IGraphicsWeb::OnMainLoopTimer()
 {
   IRECTList rects;
+  int screenScale = (int) std::ceil(std::max(emscripten_get_device_pixel_ratio(), 1.));
+
+  // Only draw on the second timer so that fonts will be loaded
+  if (!gGraphics || !gGraphicsLoaded)
+  {
+    if (gGraphics)
+      gGraphicsLoaded = true;
+    return;
+  }
+  
+  if (screenScale != gGraphics->GetScreenScale())
+  {
+    gGraphics->SetScreenScale(screenScale);
+  }
 
   if (gGraphics->IsDirty(rects))
   {
@@ -567,6 +624,24 @@ void IGraphicsWeb::DrawResize()
   canvas.set("height", Height() * GetBackingPixelScale());
   
   IGRAPHICS_DRAW_CLASS::DrawResize();
+}
+
+PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
+{
+  WDL_String fullPath;
+  const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, GetBundleID(), nullptr);
+  
+  if (fontLocation == kNotFound)
+    return nullptr;
+
+  return PlatformFontPtr(new WebFileFont(fontID, "", fullPath.Get()));
+}
+
+PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
+{
+  const char* styles[] = { "normal", "bold", "italic" };
+  
+  return PlatformFontPtr(new WebFont(fontName, styles[style]));
 }
 
 #if defined IGRAPHICS_CANVAS

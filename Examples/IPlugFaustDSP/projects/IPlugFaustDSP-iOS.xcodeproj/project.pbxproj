@@ -35,6 +35,8 @@
 		4F6369E620A466320022C370 /* IControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6369E420A466320022C370 /* IControl.h */; };
 		4F6369E720A466320022C370 /* IControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F6369E520A466320022C370 /* IControl.cpp */; };
 		4F6C621520CD687E002B117F /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF103920A0E55900D3092F /* IPlugTimer.cpp */; };
+		4F6FD2BB22676BDF00FC59E6 /* (null) in Headers */ = {isa = PBXBuildFile; };
+		4F6FD2BC22676BDF00FC59E6 /* (null) in Sources */ = {isa = PBXBuildFile; };
 		4F8028C620A24FA9003A66EC /* stb_image.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8028BF20A24FA9003A66EC /* stb_image.h */; };
 		4F8028C720A24FA9003A66EC /* nanovg_gl_utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8028C020A24FA9003A66EC /* nanovg_gl_utils.h */; };
 		4F8028C820A24FA9003A66EC /* stb_truetype.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8028C120A24FA9003A66EC /* stb_truetype.h */; };
@@ -70,6 +72,8 @@
 		4FB2269720A0D3A800614769 /* IPlugFaustDSP-iOS-launchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* IPlugFaustDSP-iOS-launchScreen.storyboard */; };
 		4FCE29E521D6ED9F004BCBA1 /* ITextEntryControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FCE29E321D6ED9F004BCBA1 /* ITextEntryControl.h */; };
 		4FCE29E621D6ED9F004BCBA1 /* ITextEntryControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCE29E421D6ED9F004BCBA1 /* ITextEntryControl.cpp */; };
+		4FD208F1226789E5009FB279 /* IGraphicsCoreText.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD208EF226789E5009FB279 /* IGraphicsCoreText.mm */; };
+		4FD208F2226789E5009FB279 /* IGraphicsCoreText.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD208F0226789E5009FB279 /* IGraphicsCoreText.h */; };
 		4FE8F3B120BA273800BF938F /* IGraphicsEditorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FE8F3AF20BA273800BF938F /* IGraphicsEditorDelegate.cpp */; };
 		4FE8F3B220BA273800BF938F /* IGraphicsEditorDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE8F3B020BA273800BF938F /* IGraphicsEditorDelegate.h */; };
 		4FFF104120A0E55A00D3092F /* IPlugConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF103020A0E55900D3092F /* IPlugConstants.h */; };
@@ -258,6 +262,8 @@
 		4FC82B4820BD524700722133 /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fonts; path = ../resources/fonts; sourceTree = "<group>"; };
 		4FCE29E321D6ED9F004BCBA1 /* ITextEntryControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ITextEntryControl.h; sourceTree = "<group>"; };
 		4FCE29E421D6ED9F004BCBA1 /* ITextEntryControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ITextEntryControl.cpp; sourceTree = "<group>"; };
+		4FD208EF226789E5009FB279 /* IGraphicsCoreText.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsCoreText.mm; sourceTree = "<group>"; };
+		4FD208F0226789E5009FB279 /* IGraphicsCoreText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsCoreText.h; sourceTree = "<group>"; };
 		4FDA600520B5868D00C49ABA /* IPlugFaustDSP-ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "IPlugFaustDSP-ios.xcconfig"; path = "../config/IPlugFaustDSP-ios.xcconfig"; sourceTree = "<group>"; };
 		4FE8F3AF20BA273800BF938F /* IGraphicsEditorDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsEditorDelegate.cpp; sourceTree = "<group>"; };
 		4FE8F3B020BA273800BF938F /* IGraphicsEditorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsEditorDelegate.h; sourceTree = "<group>"; };
@@ -392,6 +398,8 @@
 		4F63698320A463AF0022C370 /* Platforms */ = {
 			isa = PBXGroup;
 			children = (
+				4FD208F0226789E5009FB279 /* IGraphicsCoreText.h */,
+				4FD208EF226789E5009FB279 /* IGraphicsCoreText.mm */,
 				4F63698620A463AF0022C370 /* IGraphicsWeb.h */,
 				4F63698520A463AF0022C370 /* IGraphicsWeb.cpp */,
 				4F63698820A463AF0022C370 /* IGraphicsLinux.h */,
@@ -636,6 +644,7 @@
 				4F6369C420A463AF0022C370 /* IGraphicsPathBase.h in Headers */,
 				4F977D5820CC9DD800D19F46 /* Easing.h in Headers */,
 				4F6369C120A463AF0022C370 /* IGraphicsPopupMenu.h in Headers */,
+				4FD208F2226789E5009FB279 /* IGraphicsCoreText.h in Headers */,
 				4FFF108D20A1036200D3092F /* IPlugFaustDSP.h in Headers */,
 				4F8028CA20A24FA9003A66EC /* nanovg.h in Headers */,
 				4F9A8308213DE87600BE63A4 /* IVMultiSliderControl.h in Headers */,
@@ -643,6 +652,7 @@
 				4FFF107920A0E5A500D3092F /* wdlstring.h in Headers */,
 				4F977D5A20CC9DD800D19F46 /* IPlugOSC_msg.h in Headers */,
 				4FFF105D20A0E57100D3092F /* BufferedAudioBus.hpp in Headers */,
+				4F6FD2BB22676BDF00FC59E6 /* (null) in Headers */,
 				4FFF104920A0E55A00D3092F /* IPlugProcessor.h in Headers */,
 				4FFF107A20A0E5A500D3092F /* wdl_base64.h in Headers */,
 				4F6369CD20A463AF0022C370 /* IGraphicsStructs.h in Headers */,
@@ -891,6 +901,7 @@
 				4FFF106020A0E57100D3092F /* IPlugAUv3.mm in Sources */,
 				4F6369E720A466320022C370 /* IControl.cpp in Sources */,
 				4F10E7CD20B1A61D00F5B09B /* IPlugFaustDSPViewController.swift in Sources */,
+				4FD208F1226789E5009FB279 /* IGraphicsCoreText.mm in Sources */,
 				4F6C621520CD687E002B117F /* IPlugTimer.cpp in Sources */,
 				4FE8F3B120BA273800BF938F /* IGraphicsEditorDelegate.cpp in Sources */,
 				4F23CECD20B20C7C00E8B70F /* IGraphicsIOS_view.mm in Sources */,
@@ -900,6 +911,7 @@
 				4FFF105B20A0E57100D3092F /* IPlugAUAudioUnit.mm in Sources */,
 				4F9A8309213DE87600BE63A4 /* IControls.cpp in Sources */,
 				4F23CECC20B20C7C00E8B70F /* IGraphicsIOS.mm in Sources */,
+				4F6FD2BC22676BDF00FC59E6 /* (null) in Sources */,
 				4FFF106C20A0E58600D3092F /* IPlugPluginBase.cpp in Sources */,
 				4FFF108C20A1036200D3092F /* IPlugFaustDSP.cpp in Sources */,
 				4FFF104B20A0E55A00D3092F /* IPlugAPIBase.cpp in Sources */,

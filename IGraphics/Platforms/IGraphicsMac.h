@@ -10,10 +10,10 @@
 
 #pragma once
 
-#ifndef NO_IGRAPHICS
+#include <CoreGraphics/CoreGraphics.h>
 
 #include "IGraphics_select.h"
-#include <CoreGraphics/CGGeometry.h>
+#include "IGraphicsCoreText.h"
 
 /** IGraphics platform class for macOS
 *   @ingroup PlatformClasses */
@@ -52,9 +52,7 @@ public:
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext) override;
   void PromptForDirectory(WDL_String& dir) override;
   bool PromptForColor(IColor& color, const char* str) override;
-
-//  void CreateWebView(const IRECT& bounds, const char* url) override;
-  
+    
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
 
   void* GetWindow() override;
@@ -64,22 +62,26 @@ public:
 
   bool GetTextFromClipboard(WDL_String& str) override;
 
-  bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
+  void MeasureText(const IText& text, const char* str, IRECT& bounds) const override;
+
+  void ContextReady(void* pLayer);
 
 protected:
+  void CreatePlatformImGui() override;
+
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
   void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
 private:
-  EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result) override;
-  bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath);
-  bool GetResourcePathFromUsersMusicFolder(const char* fileName, const char* searchExt, WDL_String& fullPath);
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
+  void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override;
+
   void RepositionCursor(CGPoint point);
   void StoreCursorPosition();
-
+  
   void* mView = nullptr;
+  void* mImGuiView = nullptr;
   CGPoint mCursorLockPosition;
   WDL_String mBundleID;
   friend int GetMouseOver(IGraphicsMac* pGraphics);
 };
-
-#endif // NO_IGRAPHICS

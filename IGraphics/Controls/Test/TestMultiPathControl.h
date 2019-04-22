@@ -27,7 +27,6 @@ public:
   , mShape(0)
   {
     SetTooltip("TestMultiPathControl");
-    Clamp(0.5, 1.);
   }
 
   void Draw(IGraphics& g) override
@@ -38,11 +37,21 @@ public:
 
     if (g.HasPathSupport())
     {
-      double r = value * (mRECT.H() / 2.0);
+      double r0 = value * (mRECT.H() / 2.0);
+      float l = mRECT.L + mRECT.W() * 0.1;
+      float r = mRECT.L + mRECT.W() * 0.9;
+      float t = mRECT.T + mRECT.H() * 0.1;
+      float b = mRECT.T + mRECT.H() * 0.9;
+      float l0 = mRECT.L + mRECT.W() * 0.2;
+      float t0 = mRECT.T + mRECT.H() * 0.3;
+      float b0 = mRECT.T + mRECT.H() * 0.7;
+      float mx = mRECT.L + mRECT.W() * 0.43;
+      float my = mRECT.MH();
+
       if (mShape == 0)
       {
-        g.PathCircle(mRECT.MW(), mRECT.MH(), r);
-        g.PathCircle(mRECT.MW(), mRECT.MH(), r * 0.5);
+        g.PathCircle(mRECT.MW(), mRECT.MH(), r0);
+        g.PathCircle(mRECT.MW(), mRECT.MH(), r0 * 0.5);
       }
       else if (mShape == 1)
       {
@@ -73,7 +82,55 @@ public:
         g.PathLineTo(mRECT.MW(), mRECT.B);
         g.PathClose();
       }
-
+      else if (mShape == 4)
+      {
+        g.PathMoveTo(l, b);
+        g.PathLineTo(l, t);
+        g.PathLineTo(r, t);
+        g.PathLineTo(l0, b0);
+        g.PathLineTo(l0, t0);
+        g.PathLineTo(r, b);
+        g.PathClose();
+      }
+      else if (mShape == 5)
+      {
+        g.PathMoveTo(l, b);
+        g.PathLineTo(l, t);
+        g.PathLineTo(r, t);
+        g.PathLineTo(mx, my);
+        g.PathLineTo(l0, t0);
+        g.PathLineTo(l0, b0);
+        g.PathLineTo(mx, my);
+        g.PathLineTo(r, b);
+        g.PathClose();
+      }
+      else if (mShape == 6)
+      {
+        g.PathMoveTo(l, b);
+        g.PathLineTo(l, t);
+        g.PathLineTo(r, t);
+        g.PathLineTo(mx, my);
+        g.PathLineTo(r, b);
+        g.PathClose();
+        g.PathMoveTo(l0, b0);
+        g.PathLineTo(l0, t0);
+        g.PathLineTo(mx, my);
+        g.PathClose();
+      }
+      else if (mShape == 7)
+      {
+        g.PathMoveTo(l, b);
+        g.PathLineTo(l, t);
+        g.PathLineTo(r, t);
+        g.PathLineTo(mx, my);
+        g.PathLineTo(r, b);
+        g.PathClose();
+        g.PathMoveTo(l0, t0);
+        g.PathLineTo(l0, b0);
+        g.PathLineTo(mx, my);
+        g.PathClose();
+      }
+        
       IFillOptions fillOptions;
       fillOptions.mFillRule = value > 0.5 ? kFillEvenOdd : kFillWinding;
       fillOptions.mPreserve = true;
@@ -89,7 +146,7 @@ public:
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    if (++mShape > 3)
+    if (++mShape > 7)
       mShape = 0;
 
     SetDirty(false);

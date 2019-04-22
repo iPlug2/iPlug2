@@ -1,7 +1,9 @@
 #include "IGraphicsTest.h"
 #include "IPlug_include_in_plug_src.h"
 
+#if IPLUG_EDITOR
 #include "Test/TestControls.h"
+#endif
 
 enum EParam
 {
@@ -53,14 +55,17 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
       return true;
     });
     
-    pGraphics->LoadFont(ROBOTTO_FN);
-    pGraphics->LoadFont(MONTSERRAT_FN);
+    pGraphics->LoadFont("Roboto-Regular", ROBOTTO_FN);
+    if (!pGraphics->LoadFont("Alternative Font", "Times New Roman", kTextStyleNormal))
+    {
+      // This covers cases where we can't load system fonts, or the font doesn't exist
+      pGraphics->LoadFont("Alternative Font", MONTSERRAT_FN);
+    }
+    pGraphics->LoadFont("Montserrat-LightItalic", MONTSERRAT_FN);
     ISVG tiger = pGraphics->LoadSVG(TIGER_FN);
+    ISVG orbs = pGraphics->LoadSVG(ORBS_FN);
     IBitmap smiley = pGraphics->LoadBitmap(SMILEY_FN);
-    IBitmap base = pGraphics->LoadBitmap(BASE_FN);
-    IBitmap mask = pGraphics->LoadBitmap(MASK_FN);
-    IBitmap top = pGraphics->LoadBitmap(TOP_FN);
-
+      
     IRECT bounds = pGraphics->GetBounds();
     
     int cellIdx = 0;
@@ -123,13 +128,24 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new TestImageControl(nextCell()));
     pGraphics->AttachControl(new TestLayerControl(nextCell()));
     pGraphics->AttachControl(new TestBlendControl(nextCell(), smiley));
-    pGraphics->AttachControl(new TestDropShadowControl(nextCell(), tiger));
+    pGraphics->AttachControl(new TestDropShadowControl(nextCell(), orbs));
     pGraphics->AttachControl(new TestCursorControl(nextCell()));
     pGraphics->AttachControl(new TestKeyboardControl(nextCell()));
     pGraphics->AttachControl(new TestShadowGradientControl(nextCell()));
+    pGraphics->AttachControl(new TestFontControl(nextCell()));
+    pGraphics->AttachControl(new TestTextOrientationControl(nextCell()));
+    pGraphics->AttachControl(new TestTextSizeControl(nextCell()));
 
+      
+#ifdef IGRAPHICS_METAL
+    pGraphics->AttachControl(new TestMPSControl(nextCell(), smiley));
+#endif
+
+#ifdef IGRAPHICS_NANOVG
+    pGraphics->AttachControl(new TestGLControl(nextCell()));
+#endif
     WDL_String path;
-    //    DesktopPath(path);
+    // DesktopPath(path);
     path.Set(__FILE__);
     path.remove_filepart();
 #ifdef OS_WIN
@@ -139,14 +155,11 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
 #endif
     pGraphics->AttachControl(new TestDirBrowseControl(nextCell(), "png", path.Get()));
 
-    IRECT r = nextCell();
-    pGraphics->AttachControl(new TestRotatingMaskControl(r.L, r.T, base, mask, top));
-
 #if 0
-    pGraphics->AttachControl(new ITextControl(nextCell(), "Hello World!", {24, COLOR_WHITE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignNear, IText::kVAlignTop, 90}));
-    pGraphics->AttachControl(new ITextControl(nextCell(), "Two!", {18, COLOR_GREEN, "Montserrat-LightItalic", IText::kStyleItalic, IText::kAlignCenter, IText::kVAlignMiddle, 45}));
-    pGraphics->AttachControl(new ITextControl(nextCell(), "Three!", {24, COLOR_RED, "Roboto-Regular", IText::kStyleNormal, IText::kAlignFar, IText::kVAlignBottom}));
-    pGraphics->AttachControl(new ITextControl(nextCell(), "Four!", {40, COLOR_ORANGE, "Roboto-Regular", IText::kStyleNormal, IText::kAlignCenter, IText::kVAlignBottom}));
+    pGraphics->AttachControl(new ITextControl(nextCell(), "Hello World!", {24, COLOR_WHITE, "Roboto-Regular", IText::kAlignNear, IText::kVAlignTop, 90}));
+    pGraphics->AttachControl(new ITextControl(nextCell(), "Two!", {18, COLOR_GREEN, "Montserrat-LightItalic", IText::kAlignCenter, IText::kVAlignMiddle, 45}));
+    pGraphics->AttachControl(new ITextControl(nextCell(), "Three!", {24, COLOR_RED, "Roboto-Regular", IText::kAlignFar, IText::kVAlignBottom}));
+    pGraphics->AttachControl(new ITextControl(nextCell(), "Four!", {40, COLOR_ORANGE, "Roboto-Regular", IText::kAlignCenter, IText::kVAlignBottom}));
 #endif
   };
   

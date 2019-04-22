@@ -350,7 +350,7 @@ public:
     }
 
     if(GetAnimationFunction())
-      DrawFlashCircle(g);
+      DrawSplash(g);
 
 #ifdef _DEBUG
     //g.DrawRect(COLOR_GREEN, mTargetRECT);

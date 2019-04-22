@@ -40,7 +40,7 @@ void DefaultAnimationFunc(IControl* pCaller)
   }
 };
 
-void FlashCircleAnimationFunc(IControl* pCaller)
+void SplashAnimationFunc(IControl* pCaller)
 {
   auto progress = pCaller->GetAnimationProgress();
   
@@ -49,13 +49,13 @@ void FlashCircleAnimationFunc(IControl* pCaller)
     return;
   }
   
-  dynamic_cast<IVectorBase*>(pCaller)->SetFlashCircleRadius((float) progress);
+  dynamic_cast<IVectorBase*>(pCaller)->SetSplashRadius((float) progress);
   
   pCaller->SetDirty(false);
 };
 
 void DefaultClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(DefaultAnimationFunc, DEFAULT_ANIMATION_DURATION); };
-void FlashCircleClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(FlashCircleAnimationFunc, DEFAULT_ANIMATION_DURATION); }
+void SplashClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(SplashAnimationFunc, DEFAULT_ANIMATION_DURATION); }
 
 IControl::IControl(IRECT bounds, int paramIdx, IActionFunction actionFunc)
 : mRECT(bounds)
@@ -175,7 +175,7 @@ void IControl::SetDirty(bool triggerAction, int valIdx)
 {
   valIdx = (NVals() == 1) ? 0 : valIdx;
 
-  auto setValue = [this](int v) { SetValue(Clip(GetValue(v), mClampLo, mClampHi), v); };
+  auto setValue = [this](int v) { SetValue(Clip(GetValue(v), 0.0, 1.0), v); };
   ForValIdx(valIdx, setValue);
   
   mDirty = true;
@@ -240,6 +240,22 @@ void IControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
   #else
   SetValueToDefault(GetValIdxForPos(x, y));
   #endif
+}
+
+void IControl::OnMouseOver(float x, float y, const IMouseMod& mod)
+{
+  bool prev = mMouseIsOver;
+  mMouseIsOver = true;
+  if (prev == false)
+    SetDirty(false);
+}
+
+void IControl::OnMouseOut()
+{
+  bool prev = mMouseIsOver;
+  mMouseIsOver = false;
+  if (prev == true)
+    SetDirty(false);
 }
 
 void IControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu)

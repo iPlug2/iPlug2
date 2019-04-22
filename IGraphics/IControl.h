@@ -45,7 +45,7 @@ public:
   /** Constructor
    * @brief Creates an IControl
    * NOTE: An IControl does not know about the delegate or graphics context to which it belongs in the constructor
-   * If you need to do something once those things are know, see IControl::OnInit()
+   * If you need to do something once those things are known, see IControl::OnInit()
    * @param bounds The rectangular area that the control occupies
    * @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a plugin parameter
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
@@ -63,7 +63,7 @@ public:
   /** Constructor (no paramIdx)
    * @brief Creates an IControl which is not linked to a parameter
    * NOTE: An IControl does not know about the delegate or graphics context to which it belongs in the constructor
-   * If you need to do something once those things are know, see IControl::OnInit()
+   * If you need to do something once those things are known, see IControl::OnInit()
    * @param bounds The rectangular area that the control occupies
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
   IControl(IRECT bounds, IActionFunction actionFunc);
@@ -110,14 +110,20 @@ public:
    * @param key \todo */
   virtual bool OnKeyDown(float x, float y, const IKeyPress& key) { return false; }
 
+  /** Implement this method to respond to a key up event on this control.
+   * @param x The X coordinate of the mouse at the time of this key down event
+   * @param y The Y coordinate of the mouse at the time of this key down event
+   * @param key \todo */
+  virtual bool OnKeyUp(float x, float y, const IKeyPress& key) { return false; }
+  
   /** Implement this method to respond to a mouseover event on this control. Implementations should call base class, if you wish to use mMouseIsOver.
    * @param x The X coordinate of the mouse event
    * @param y The Y coordinate of the mouse event
    * @param mod A struct indicating which modifier keys are held for the event */
-  virtual void OnMouseOver(float x, float y, const IMouseMod& mod) { mMouseIsOver = true; SetDirty(false); }
+  virtual void OnMouseOver(float x, float y, const IMouseMod& mod);
 
   /** Implement this method to respond to a mouseout event on this control. Implementations should call base class, if you wish to use mMouseIsOver. */
-  virtual void OnMouseOut() { mMouseIsOver = false; SetDirty(false);  }
+  virtual void OnMouseOut();
 
   /** Implement to do something when something was drag 'n dropped onto this control */
   virtual void OnDrop(const char* str) {};
@@ -159,7 +165,7 @@ public:
    * @param g The graphics context to which this control belongs. */
   virtual void DrawPTHighlight(IGraphics& g);
 
-  /** Call this method in reponse to a mouse event to create an edit box so the user can enter a value, or pop up a pop-up menu,
+  /** Call this method in response to a mouse event to create an edit box so the user can enter a value, or pop up a pop-up menu,
    * if the control is linked to a parameter (mParamIdx > kNoParameter) */
   void PromptUserInput();
   
@@ -271,11 +277,11 @@ public:
   const IRECT& GetTargetRECT() const { return mTargetRECT; } // The mouse target area (default = draw area).
 
   /** Set the rectangular mouse tracking target area, within the graphics context for this control
-   * @param The control's new target bounds within the graphics context */
+   * @param bounds The control's new target bounds within the graphics context */
   void SetTargetRECT(const IRECT& bounds) { mTargetRECT = bounds; mMouseIsOver = false; }
   
   /** Set BOTH the draw rect and the target area, within the graphics context for this control
-   * @param The control's new draw and target bounds within the graphics context */
+   * @param bounds The control's new draw and target bounds within the graphics context */
   void SetTargetAndDrawRECTs(const IRECT& bounds) { mRECT = mTargetRECT = bounds; mMouseIsOver = false; OnResize(); }
 
   /** Used internally by the AAX wrapper view interface to set the control parmeter highlight 
@@ -304,11 +310,11 @@ public:
   bool IsGrayed() const { return mGrayed; }
 
   /** Specify whether the control should respond to mouse overs when grayed out
-   * @param allow \c true if it should resond to mouse overs when grayed out (false by default) */
+   * @param allow \c true if it should respond to mouse overs when grayed out (false by default) */
   void SetMOWhenGrayed(bool allow) { mMOWhenGrayed = allow; }
 
   /** Specify whether the control should respond to other mouse events when grayed out
-   * @param allow \c true if it should resond to other mouse events when grayed out (false by default) */
+   * @param allow \c true if it should respond to other mouse events when grayed out (false by default) */
   void SetMEWhenGrayed(bool allow) { mMEWhenGrayed = allow; }
 
   /** @return \c true if the control responds to mouse overs when grayed out */
@@ -337,14 +343,9 @@ public:
   
   /** Called at each display refresh by the IGraphics draw loop to determine if the control is marked as dirty. 
    * This is not const, because it is typically  overridden and used to update something at the display refresh rate
-   * The default implementation exectutes a control's Animation Function, so if you override this you may want to call the base implementation, @see Animation Functions
+   * The default implementation executes a control's Animation Function, so if you override this you may want to call the base implementation, @see Animation Functions
    * @return \c true if the control is marked dirty. */
   virtual bool IsDirty();
-
-  /** Set a range with which to limit the control's movement
-   * @param lo The low bounds of the clamp (should be within the range 0-1)
-   * @param hi The high bounds of the clamp (should be within the range 0-1) */
-  void Clamp(double lo, double hi) { mClampLo = lo; mClampHi = hi; }
 
   /** Disable/enable right-clicking the control to prompt for user input /todo check this
    * @param disable \c true*/
@@ -383,6 +384,9 @@ public:
   
   /** @return A pointer to the IGraphics context that owns this control */ 
   IGraphics* GetUI() { return mGraphics; }
+    
+  /** @return A const pointer to the IGraphics context that owns this control */
+  const IGraphics* GetUI() const { return mGraphics; }
 
   /* This can be used in IControl::Draw() to check if the mouse is over the control, without implementing mouse over methods 
    * @return \true if the mouse is over this control. */
@@ -468,8 +472,6 @@ protected:
   IText mText;
 
   int mTextEntryLength = DEFAULT_TEXT_ENTRY_LEN;
-  double mClampLo = 0.;
-  double mClampHi = 1.;
   bool mDirty = true;
   bool mHide = false;
   bool mGrayed = false;
@@ -545,7 +547,7 @@ protected:
 };
 
 /** A base interface to be combined with IControl for vectorial controls "IVControls", in order for them to share a common set of colors. 
- * If you need more flexibility for theming, you're on your own! */
+ * If you need more flexibility, you're on your own! */
 class IVectorBase
 {
 public:
@@ -661,7 +663,7 @@ public:
   void SetEmboss(bool emboss) { mEmboss = emboss; mControl->SetDirty(false); }
   void SetShadowOffset(float offset) { mShadowOffset = offset; mControl->SetDirty(false); }
   void SetFrameThickness(float thickness) { mFrameThickness = thickness; mControl->SetDirty(false); }
-  void SetFlashCircleRadius(float radius) { mFlashCircleRadius = radius * mMaxFlashCircleRadius; }
+  void SetSplashRadius(float radius) { mSplashRadius = radius * mMaxSplashRadius; }
 
   void Style(bool drawFrame, bool drawShadows, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec)
   {
@@ -685,11 +687,11 @@ public:
     return handleBounds;
   }
   
-  void DrawFlashCircle(IGraphics& g)
+  void DrawSplash(IGraphics& g)
   {
     float mouseDownX, mouseDownY;
     g.GetMouseDownPoint(mouseDownX, mouseDownY);
-    g.FillCircle(GetColor(kHL), mouseDownX, mouseDownY, mFlashCircleRadius);
+    g.FillCircle(GetColor(kHL), mouseDownX, mouseDownY, mSplashRadius);
   }
   
   IRECT DrawVectorButton(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver)
@@ -724,7 +726,7 @@ public:
       g.FillRoundRect(GetColor(kHL), handleBounds, cornerRadius);
     
     if(mControl->GetAnimationFunction())
-      DrawFlashCircle(g);
+      DrawSplash(g);
     
     if(mDrawFrame)
       g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius, 0, mFrameThickness);
@@ -741,8 +743,8 @@ protected:
   bool mDrawFrame = true;
   bool mDrawShadows = true;
   bool mEmboss = false;
-  float mFlashCircleRadius = 0.f;
-  float mMaxFlashCircleRadius = 50.f;
+  float mSplashRadius = 0.f;
+  float mMaxSplashRadius = 50.f;
 };
 
 /** A base class for knob/dial controls, to handle mouse action and ballistics. */
@@ -1026,7 +1028,7 @@ private:
   bool mDrawFrame;
 };
 
-/** A control that can be specialised with a lamda function, for quick experiments without making a custom IControl */
+/** A control that can be specialised with a lambda function, for quick experiments without making a custom IControl */
 class ILambdaControl : public IControl
 {
 public:
