@@ -228,31 +228,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
             case kCommit:
             {
               SendMessage(pGraphics->mParamEditWnd, WM_GETTEXT, MAX_WIN32_PARAM_LEN, (LPARAM) txt);
-
-              const IParam* pParam = pGraphics->mEdControl->GetParam();
-              
-              if(pParam)
-              {
-                if (pParam->Type() == IParam::kTypeEnum || pParam->Type() == IParam::kTypeBool)
-                {
-                  double vi = 0.;
-                  pParam->MapDisplayText(txt, &vi);
-                  v = (double) vi;
-                }
-                else
-                {
-                  v = atof(txt);
-                  if (pParam->GetNegateDisplay())
-                  {
-                    v = -v;
-                  }
-                }
-                pGraphics->mEdControl->SetValueFromUserInput(pParam->ToNormalized(v));
-              }
-              else
-              {
-                pGraphics->mEdControl->OnTextEntryCompletion(txt);
-              }
+              pGraphics->SetControlValueFromStringAfterPrompt(*pGraphics->mEdControl, txt);
               pGraphics->DestroyEditWindow();
             }
             break;
