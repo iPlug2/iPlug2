@@ -1,7 +1,7 @@
 jobs:
 - job: TEST_MAC_PROJECTS
   condition: and(eq(variables.test_projects, true), eq(variables.build_mac, true))
-  dependsOn: 
+  dependsOn:
     - BUILD_MAC_PROJECTS
 
   strategy:
@@ -12,8 +12,8 @@ jobs:
         graphics: 'CAIRO'
       LICE:
         graphics: 'LICE'
-    # AGG:
-    #   graphics: 'AGG'
+      AGG:
+        graphics: 'AGG'
 
   pool:
     vmImage: 'macos-10.13'
@@ -43,19 +43,19 @@ jobs:
 
 - job: TEST_WIN_PROJECTS
   condition: and(eq(variables.test_projects, true), eq(variables.build_win, true))
-  dependsOn: 
+  dependsOn:
     - BUILD_WIN_PROJECTS
 
   strategy:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      # CAIRO:
-      #   graphics: 'CAIRO'
-      # LICE:
-      #   graphics: 'LICE'
-      # AGG:
-      #   graphics: 'AGG'
+      CAIRO:
+        graphics: 'CAIRO'
+      LICE:
+        graphics: 'LICE'
+      AGG:
+        graphics: 'AGG'
 
   pool:
     vmImage: 'vs2017-win2016'
