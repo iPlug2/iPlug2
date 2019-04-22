@@ -22,7 +22,7 @@
 #define AGG_MAC_PMAP_INCLUDED
 
 #include <stdio.h>
-#include <ApplicationServices/ApplicationServices.h>
+#include <CoreGraphics/CoreGraphics.h>
 #include "agg_pmap.h"
 
 namespace agg
