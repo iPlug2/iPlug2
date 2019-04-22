@@ -13,8 +13,6 @@
 #include <emscripten/key_codes.h>
 
 #include "IGraphicsWeb.h"
-#include "IControl.h"
-#include "IPopupMenuControl.h"
 
 using namespace emscripten;
 

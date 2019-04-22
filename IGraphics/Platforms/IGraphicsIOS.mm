@@ -15,9 +15,6 @@
 
 #import "IGraphicsIOS_view.h"
 
-#include "IControl.h"
-#include "IPopupMenuControl.h"
-
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
