@@ -149,7 +149,7 @@ IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
   return pReturnMenu;
 }
 
-void IGraphicsIOS::CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
+void IGraphicsIOS::CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str)
 {
 }
 

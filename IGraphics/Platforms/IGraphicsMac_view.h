@@ -89,7 +89,6 @@ inline NSColor* ToNSColor(const IColor& c)
   NSTimer* mTimer;
   IGRAPHICS_TEXTFIELD* mTextFieldView;
   NSCursor* mMoveCursor;
-  IControl* mEdControl; // the control linked to the open text edit
   float mPrevX, mPrevY;
   IRECTList mDirtyRects;
 @public
@@ -124,7 +123,7 @@ inline NSColor* ToNSColor(const IColor& c)
 //text entry
 - (void) removeFromSuperview;
 - (void) controlTextDidEndEditing: (NSNotification*) aNotification;
-- (void) createTextEntry: (IControl&) control : (const IText&) text : (const char*) str : (NSRect) areaRect;
+- (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (NSRect) areaRect;
 - (void) endUserInput;
 //pop-up menu
 - (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (NSRect) bounds;

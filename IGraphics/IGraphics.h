@@ -855,7 +855,7 @@ protected:
    * @param text /todo
    * @param bounds /todo
    * @param str /todo */
-  virtual void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") = 0;
+  virtual void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) = 0;
   
   /** /todo
    * @param menu /todo
@@ -888,10 +888,9 @@ public:
    * @param bounds Rectangular region of the graphics context that the prompt (e.g. text entry box) should occupy */
   void PromptUserInput(IControl& control, const IRECT& bounds);
 
-  /** Called by the platform class after returning from a prompt (typically a text entry) in order to update a control with a new value
-   * @param control Reference to the control which the call relates to
+  /** Called by the platform class after returning from a text entry in order to update a control with a new value. the base class has a record of the control, so it is not needed here.
    * @param str The new value as a CString */
-  void SetControlValueFromStringAfterPrompt(IControl& control, const char* str);
+  void SetControlValueFromStringAfterTextEdit(const char* str);
 
   /** Shows a pop up/contextual menu in relation to a rectangular region of the graphics context
    * @param menu Reference to an IPopupMenu class populated with the items for the platform menu
@@ -1444,6 +1443,7 @@ private:
   int mIdleTicks = 0;
   IControl* mMouseCapture = nullptr;
   IControl* mMouseOver = nullptr;
+  IControl* mInTextEdit = nullptr;
   int mMouseOverIdx = -1;
   float mMouseDownX = -1.f;
   float mMouseDownY = -1.f;

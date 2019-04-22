@@ -173,7 +173,6 @@ void IGraphicsWin::DestroyEditWindow()
    SetWindowLongPtr(mParamEditWnd, GWLP_WNDPROC, (LPARAM) mDefEditProc);
    DestroyWindow(mParamEditWnd);
    mParamEditWnd = nullptr;
-   mEdControl = nullptr;
    mDefEditProc = nullptr;
    DeleteObject(mEditFont);
    mEditFont = nullptr;
@@ -228,7 +227,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
             case kCommit:
             {
               SendMessage(pGraphics->mParamEditWnd, WM_GETTEXT, MAX_WIN32_PARAM_LEN, (LPARAM) txt);
-              pGraphics->SetControlValueFromStringAfterPrompt(*pGraphics->mEdControl, txt);
+              pGraphics->SetControlValueFromStringAfterTextEdit(txt);
               pGraphics->DestroyEditWindow();
             }
             break;
@@ -1221,7 +1220,7 @@ IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
   return nullptr;
 }
 
-void IGraphicsWin::CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
+void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str)
 {
   if (mParamEditWnd)
     return;
@@ -1260,8 +1259,6 @@ void IGraphicsWin::CreatePlatformTextEntry(IControl& control, const IText& text,
 
   mDefEditProc = (WNDPROC) SetWindowLongPtr(mParamEditWnd, GWLP_WNDPROC, (LONG_PTR) ParamEditProc);
   SetWindowLongPtr(mParamEditWnd, GWLP_USERDATA, 0xdeadf00b);
-
-  mEdControl = &control;
 }
 
 bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)

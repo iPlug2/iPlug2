@@ -146,6 +146,10 @@ void IGraphics::RemoveControls(int fromIdx)
       mMouseOver = nullptr;
       mMouseOverIdx = -1;
     }
+    if (pControl == mInTextEdit)
+    {
+      mInTextEdit = nullptr;
+    }
     
     mControls.Delete(idx--, true);
   }
@@ -170,19 +174,24 @@ void IGraphics::RemoveAllControls()
   mControls.Empty(true);
 }
 
-void IGraphics::SetControlValueFromStringAfterPrompt(IControl& control, const char* str)
+void IGraphics::SetControlValueFromStringAfterTextEdit(const char* str)
 {
-  const IParam* pParam = control.GetParam();
+  if (!mInTextEdit)
+    return;
+    
+  const IParam* pParam = mInTextEdit->GetParam();
 
   if (pParam)
   {
     const double v = pParam->StringToValue(str);
-    control.SetValueFromUserInput(pParam->ToNormalized(v));
+    mInTextEdit->SetValueFromUserInput(pParam->ToNormalized(v));
   }
   else
   {
-    control.OnTextEntryCompletion(str);
+    mInTextEdit->OnTextEntryCompletion(str);
   }
+
+  mInTextEdit = nullptr;
 }
 
 void IGraphics::AttachBackground(const char* name)
@@ -1431,13 +1440,15 @@ void IGraphics::StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emb
 
 void IGraphics::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
 {
+  mInTextEdit = &control;
+    
   if (mTextEntryControl)
   {
     mTextEntryControl->CreateTextEntry(bounds, text, str);
     return;
   }
   else
-    CreatePlatformTextEntry(control, text, bounds, str);
+    CreatePlatformTextEntry(control.ParamIdx(), text, bounds, control.GetTextEntryLength(), str);
 }
 
 IPopupMenu* IGraphics::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)

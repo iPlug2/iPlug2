@@ -530,12 +530,12 @@ IPopupMenu* IGraphicsMac::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
   return pReturnMenu;
 }
 
-void IGraphicsMac::CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
+void IGraphicsMac::CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str)
 {
   if (mView)
   {
     NSRect areaRect = ToNSRect(this, bounds);
-    [(IGRAPHICS_VIEW*) mView createTextEntry: control : text: str: areaRect];
+    [(IGRAPHICS_VIEW*) mView createTextEntry: paramIdx : text: str: length: areaRect];
   }
 }
 
