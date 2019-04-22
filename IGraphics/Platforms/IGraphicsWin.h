@@ -122,6 +122,10 @@ private:
   HFONT mEditFont = nullptr;
   DWORD mPID = 0;
 
+  const IParam* mEditParam = nullptr;
+  IText mEditText;
+  IRECT mEditRECT;
+
   EParamEditMsg mParamEditMsg = kNone;
   bool mShowingTooltip = false;
   float mHiddenCursorX;

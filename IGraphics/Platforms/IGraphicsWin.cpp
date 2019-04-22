@@ -260,7 +260,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
           if (pGraphics->mParamEditWnd)
           {
-            IRECT notDirtyR = pGraphics->mEdControl->GetRECT();
+            IRECT notDirtyR = pGraphics->mEditRECT;
             notDirtyR.Scale(pGraphics->GetDrawScale());
             notDirtyR.PixelAlign();
             RECT r2 = { (LONG) notDirtyR.L, (LONG) notDirtyR.T, (LONG) notDirtyR.R, (LONG) notDirtyR.B };
@@ -475,10 +475,10 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
     case WM_CTLCOLOREDIT:
     {
-      if(!pGraphics->mEdControl)
+      if(!pGraphics->mParamEditWnd)
         return 0;
 
-      const IText& text = pGraphics->mEdControl->GetText();
+      const IText& text = pGraphics->mEditText;
       HDC dc = (HDC) wParam;
       SetBkColor(dc, RGB(text.mTextEntryBGColor.R, text.mTextEntryBGColor.G, text.mTextEntryBGColor.B));
       SetTextColor(dc, RGB(text.mTextEntryFGColor.R, text.mTextEntryFGColor.G, text.mTextEntryFGColor.B));
@@ -529,15 +529,14 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
     {
       case WM_CHAR:
       {
-        const IParam* pParam = pGraphics->mEdControl->GetParam();
         // limit to numbers for text entry on appropriate parameters
-        if(pParam)
+        if(pGraphics->mEditParam)
         {
           char c = wParam;
 
           if(c == 0x08) break; // backspace
 
-          switch ( pParam->Type() )
+          switch (pGraphics->mEditParam->Type())
           {
             case IParam::kTypeEnum:
             case IParam::kTypeInt:
@@ -1251,7 +1250,11 @@ void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
 
   assert(descriptor && "font not found - did you forget to load it?");
 
-  SendMessage(mParamEditWnd, EM_LIMITTEXT, (WPARAM) control.GetTextEntryLength(), 0);
+  mEditParam = paramIdx > kNoParameter ? GetDelegate()->GetParam(paramIdx) : nullptr;
+  mEditText = text;
+  mEditRECT = bounds;
+
+  SendMessage(mParamEditWnd, EM_LIMITTEXT, (WPARAM) length, 0);
   SendMessage(mParamEditWnd, WM_SETFONT, (WPARAM)mEditFont, 0);
   SendMessage(mParamEditWnd, EM_SETSEL, 0, -1);
 
