@@ -147,12 +147,12 @@ void IControl::SetValueFromDelegate(double value, int valIdx)
   }
 }
 
-void IControl::SetValueFromUserInput(double value)
+void IControl::SetValueFromUserInput(double value, int valIdx)
 {
-  if (GetValue() != value)
+  if (GetValue(valIdx) != value)
   {
-    SetValue(value);
-    SetDirty();
+    SetValue(value, valIdx);
+    SetDirty(true, valIdx);
   }
 }
 
@@ -230,13 +230,13 @@ void IControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   #endif
 
   if (mod.R)
-    PromptUserInput();
+    PromptUserInput(GetValIdxForPos(x, y));
 }
 
 void IControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 {
   #ifdef PROTOOLS
-  PromptUserInput();
+  PromptUserInput(GetValIdxForPos(x, y));
   #else
   SetValueToDefault(GetValIdxForPos(x, y));
   #endif
@@ -266,11 +266,11 @@ void IControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu)
   }
 }
 
-void IControl::PromptUserInput()
+void IControl::PromptUserInput(int valIdx)
 {
-  if (GetParamIdx() > kNoParameter && !mDisablePrompt) // TODO: only dealing with single param
+  if (GetParamIdx(valIdx) > kNoParameter && !mDisablePrompt)
   {
-    if (GetParam()->NDisplayTexts()) // popup menu
+    if (GetParam(valIdx)->NDisplayTexts()) // popup menu
     {
       GetUI()->PromptUserInput(*this, mRECT);
     }
@@ -282,18 +282,18 @@ void IControl::PromptUserInput()
       float halfH = float(PARAM_EDIT_H)/2.f;
 
       IRECT txtRECT = IRECT(cX - halfW, cY - halfH, cX + halfW,cY + halfH);
-      GetUI()->PromptUserInput(*this, txtRECT);
+      GetUI()->PromptUserInput(*this, txtRECT);  // TODO: only dealing with single param
     }
     
     SetDirty(false);
   }
 }
 
-void IControl::PromptUserInput(const IRECT& bounds)
+void IControl::PromptUserInput(const IRECT& bounds, int valIdx)
 {
-  if (GetParamIdx() > kNoParameter && !mDisablePrompt) // TODO: only dealing with single param
+  if (GetParamIdx(valIdx) > kNoParameter && !mDisablePrompt)
   {
-    GetUI()->PromptUserInput(*this, bounds);
+    GetUI()->PromptUserInput(*this, bounds); // TODO: only dealing with single param
   }
 }
 

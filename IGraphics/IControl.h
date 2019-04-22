@@ -146,11 +146,11 @@ public:
   /** Called by default when the user right clicks a control. If IGRAPHICS_NO_CONTEXT_MENU is enabled as a preprocessor macro right clicking control will mean IControl::CreateContextMenu() and IControl::OnContextSelection() do not function on right clicking control. VST3 provides contextual menu support which is hard wired to right click controls by default. You can add custom items to the menu by implementing IControl::CreateContextMenu() and handle them in IControl::OnContextSelection(). In non-VST 3 hosts right clicking will still create the menu, but it will not feature entries added by the host. */
   virtual void CreateContextMenu(IPopupMenu& contextMenu) {}
   
-  /** Implement this method to hand popup menu selection after IGraphics::CreatePopupMenu/IControl::PromptUserInput
+  /** Implement this method to handle popup menu selection after IGraphics::CreatePopupMenu/IControl::PromptUserInput
    * @param pSelectedMenu If pSelectedMenu is invalid it means the user didn't select anything */
   virtual void OnPopupMenuSelection(IPopupMenu* pSelectedMenu);
 
-  /** Implement this method to hand text input after IGraphics::CreateTextEntry/IControl::PromptUserInput
+  /** Implement this method to handle text input after IGraphics::CreateTextEntry/IControl::PromptUserInput
    * @param str A CString with the inputted text */
   virtual void OnTextEntryCompletion(const char* str) {}
 
@@ -166,13 +166,15 @@ public:
   virtual void DrawPTHighlight(IGraphics& g);
 
   /** Call this method in response to a mouse event to create an edit box so the user can enter a value, or pop up a pop-up menu,
-   * if the control is linked to a parameter (mParamIdx > kNoParameter) */
-  void PromptUserInput();
+   * if the control is linked to a parameter (mParamIdx > kNoParameter)
+   * @param valIdx An index to choose which of the controls linked parameters to retrieve. NOTE: since controls usually have only 1 parameter you can omit this argument and use the default index of 0 */
+  void PromptUserInput(int valIdx = 0);
   
   /** Create a text entry box so the user can enter a value, or pop up a pop-up menu,
    * if the control is linked to a parameter (mParamIdx > kNoParameter), specifying the bounds
-   * @param bounds The rectangle for the text entry. Pop-up menu's will appear below the rectangle. /todo check */
-  void PromptUserInput(const IRECT& bounds);
+   * @param bounds The rectangle for the text entry. Pop-up menu's will appear below the rectangle. /todo check
+   * @param valIdx An index to choose which of the controls linked parameters to retrieve. NOTE: since controls usually have only 1 parameter you can omit this argument and use the default index of 0 */
+  void PromptUserInput(const IRECT& bounds, int valIdx = 0);
   
   /** Set an Action Function for this control. 
    * actionfunc @see Action Functions */
@@ -222,8 +224,9 @@ public:
   
   /** Set the control's value after user input.
    * This method is called after a text entry or popup menu prompt triggered by PromptUserInput(), calling SetDirty(true), which will mean that the new value gets sent back to the delegate
-   * @param value the normalised value after user input via text entry or pop-up menu */
-  virtual void SetValueFromUserInput(double value);
+   * @param value the normalised value after user input via text entry or pop-up menu
+   * @param valIdx An index to choose which of the controls linked parameters to retrieve. NOTE: since controls usually have only 1 parameter you can omit this argument and use the default index of 0 */
+  virtual void SetValueFromUserInput(double value, int valIdx = 0);
     
   /** Set one or all of the control's values to the default value of the associated parameter.
    * @param valIdx either an integer > -1 (kNoValIdx) in order to set an individual value to the default value of the associated parameter, or kNoValIdx to default all values
