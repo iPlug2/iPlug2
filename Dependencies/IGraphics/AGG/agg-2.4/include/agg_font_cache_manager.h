@@ -39,7 +39,7 @@ namespace agg
         int8u*          data;
         unsigned        data_size;
         glyph_data_type data_type;
-        rect_i          bounds;
+        rect_d          bounds;
         double          advance_x;
         double          advance_y;
     };
@@ -87,7 +87,7 @@ namespace agg
                                  unsigned        glyph_index,
                                  unsigned        data_size,
                                  glyph_data_type data_type,
-                                 const rect_i&   bounds,
+                                 const rect_d&   bounds,
                                  double          advance_x,
                                  double          advance_y)
         {
@@ -202,7 +202,7 @@ namespace agg
                                  unsigned        glyph_index,
                                  unsigned        data_size,
                                  glyph_data_type data_type,
-                                 const rect_i&   bounds,
+                                 const rect_d&   bounds,
                                  double          advance_x,
                                  double          advance_y)
         {

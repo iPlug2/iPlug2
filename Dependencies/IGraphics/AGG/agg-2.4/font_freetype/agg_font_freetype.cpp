@@ -974,10 +974,7 @@ namespace agg
                             rect_d bnd  = m_path32.bounding_rect();
                             m_data_size = m_path32.byte_size();
                             m_data_type = glyph_data_outline;
-                            m_bounds.x1 = int(floor(bnd.x1));
-                            m_bounds.y1 = int(floor(bnd.y1));
-                            m_bounds.x2 = int(ceil(bnd.x2));
-                            m_bounds.y2 = int(ceil(bnd.y2));
+                            m_bounds = bnd;
                             m_advance_x = int26p6_to_dbl(m_cur_face->glyph->advance.x);
                             m_advance_y = int26p6_to_dbl(m_cur_face->glyph->advance.y);
                             m_affine.transform(&m_advance_x, &m_advance_y);
@@ -995,10 +992,7 @@ namespace agg
                             rect_d bnd  = m_path16.bounding_rect();
                             m_data_size = m_path16.byte_size();
                             m_data_type = glyph_data_outline;
-                            m_bounds.x1 = int(floor(bnd.x1));
-                            m_bounds.y1 = int(floor(bnd.y1));
-                            m_bounds.x2 = int(ceil(bnd.x2));
-                            m_bounds.y2 = int(ceil(bnd.y2));
+                            m_bounds = bnd;
                             m_advance_x = int26p6_to_dbl(m_cur_face->glyph->advance.x);
                             m_advance_y = int26p6_to_dbl(m_cur_face->glyph->advance.y);
                             m_affine.transform(&m_advance_x, &m_advance_y);
