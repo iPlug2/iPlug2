@@ -50,7 +50,7 @@ public:
   {
     SetUpMenu();
     
-    GetUI()->CreatePopupMenu(mMainMenu, x, y, this);
+    GetUI()->CreatePopupMenu(*this, mMainMenu, x, y);
   }
   
   void OnPopupMenuSelection(IPopupMenu* pSelectedMenu) override
