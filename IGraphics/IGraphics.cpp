@@ -179,6 +179,10 @@ void IGraphics::SetControlValueFromStringAfterPrompt(IControl& control, const ch
     const double v = pParam->StringToValue(str);
     control.SetValueFromUserInput(pParam->ToNormalized(v));
   }
+  else
+  {
+    control.OnTextEntryCompletion(str);
+  }
 }
 
 void IGraphics::AttachBackground(const char* name)
