@@ -147,12 +147,14 @@ public:
   virtual void CreateContextMenu(IPopupMenu& contextMenu) {}
   
   /** Implement this method to handle popup menu selection after IGraphics::CreatePopupMenu/IControl::PromptUserInput
-   * @param pSelectedMenu If pSelectedMenu is invalid it means the user didn't select anything */
-  virtual void OnPopupMenuSelection(IPopupMenu* pSelectedMenu);
+   * @param pSelectedMenu If pSelectedMenu is invalid it means the user didn't select anything
+   * @param valIdx An index that indicates which of the controls vals the menu relates to */
+  virtual void OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx);
 
   /** Implement this method to handle text input after IGraphics::CreateTextEntry/IControl::PromptUserInput
-   * @param str A CString with the inputted text */
-  virtual void OnTextEntryCompletion(const char* str) {}
+   * @param str A CString with the inputted text
+   * @param valIdx An index that indicates which of the controls vals the text completion relates to */
+  virtual void OnTextEntryCompletion(const char* str, int valIdx) {}
 
   /** Implement this to respond to a menu selection from CreateContextMenu(); @see CreateContextMenu() */
   virtual void OnContextSelection(int itemSelected) {}

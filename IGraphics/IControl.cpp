@@ -258,11 +258,11 @@ void IControl::OnMouseOut()
     SetDirty(false);
 }
 
-void IControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu)
+void IControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx)
 {
-  if (pSelectedMenu != nullptr && GetParamIdx() > kNoParameter && !mDisablePrompt) // TODO: only dealing with single param
+  if (pSelectedMenu != nullptr && GetParamIdx(valIdx) > kNoParameter && !mDisablePrompt) 
   {
-    SetValueFromUserInput(GetParam()->ToNormalized( (double) pSelectedMenu->GetChosenItemIdx() ));
+    SetValueFromUserInput(GetParam()->ToNormalized( (double) pSelectedMenu->GetChosenItemIdx()), valIdx);
   }
 }
 
@@ -272,7 +272,7 @@ void IControl::PromptUserInput(int valIdx)
   {
     if (GetParam(valIdx)->NDisplayTexts()) // popup menu
     {
-      GetUI()->PromptUserInput(*this, mRECT);
+      GetUI()->PromptUserInput(*this, mRECT, valIdx);
     }
     else // text entry
     {
@@ -282,7 +282,7 @@ void IControl::PromptUserInput(int valIdx)
       float halfH = float(PARAM_EDIT_H)/2.f;
 
       IRECT txtRECT = IRECT(cX - halfW, cY - halfH, cX + halfW,cY + halfH);
-      GetUI()->PromptUserInput(*this, txtRECT);  // TODO: only dealing with single param
+      GetUI()->PromptUserInput(*this, txtRECT, valIdx);
     }
     
     SetDirty(false);
@@ -293,7 +293,7 @@ void IControl::PromptUserInput(const IRECT& bounds, int valIdx)
 {
   if (GetParamIdx(valIdx) > kNoParameter && !mDisablePrompt)
   {
-    GetUI()->PromptUserInput(*this, bounds); // TODO: only dealing with single param
+    GetUI()->PromptUserInput(*this, bounds, valIdx);
   }
 }
 
