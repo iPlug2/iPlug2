@@ -268,7 +268,7 @@ void IControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx)
 
 void IControl::PromptUserInput(int valIdx)
 {
-  if (GetParamIdx(valIdx) > kNoParameter && !mDisablePrompt)
+  if (valIdx > kNoValIdx && GetParamIdx(valIdx) > kNoParameter && !mDisablePrompt)
   {
     if (GetParam(valIdx)->NDisplayTexts()) // popup menu
     {
@@ -291,7 +291,7 @@ void IControl::PromptUserInput(int valIdx)
 
 void IControl::PromptUserInput(const IRECT& bounds, int valIdx)
 {
-  if (GetParamIdx(valIdx) > kNoParameter && !mDisablePrompt)
+  if (valIdx > kNoValIdx && GetParamIdx(valIdx) > kNoParameter && !mDisablePrompt)
   {
     GetUI()->PromptUserInput(*this, bounds, valIdx);
   }

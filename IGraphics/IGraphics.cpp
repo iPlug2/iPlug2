@@ -426,6 +426,8 @@ void IGraphics::UpdatePeers(IControl* pCaller, int callerValIdx) // TODO: this c
 
 void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds, int valIdx)
 {
+  assert(valIdx > kNoValIdx);
+    
   const IParam* pParam = control.GetParam(valIdx);
 
   if(pParam)
