@@ -54,7 +54,7 @@ public:
       g.FillRect(COLOR_BLACK, useplatbut.GetPadded(-2));
   }
   
-  void OnPopupMenuSelection(IPopupMenu* pMenu)override
+  void OnPopupMenuSelection(IPopupMenu* pMenu, int valIdx) override
   {
     if(pMenu)
     {

@@ -47,7 +47,7 @@ public:
     SetDirty(false);
   }
   
-  void OnPopupMenuSelection(IPopupMenu* pSelectedMenu) override
+  void OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx) override
   {
     if(pSelectedMenu)
       mKernelType = pSelectedMenu->GetChosenItemIdx();
