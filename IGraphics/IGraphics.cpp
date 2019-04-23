@@ -1454,10 +1454,7 @@ void IGraphics::CreateTextEntry(IControl& control, const IText& text, const IREC
   mInTextEdit = &control;
     
   if (mTextEntryControl)
-  {
     mTextEntryControl->CreateTextEntry(bounds, text, str);
-    return;
-  }
   else
     CreatePlatformTextEntry(control.ParamIdx(), text, bounds, control.GetTextEntryLength(), str);
 }
