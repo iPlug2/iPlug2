@@ -1168,17 +1168,7 @@ void IGraphics::PopupHostContextMenuForParam(IControl* pControl, int paramIdx, f
     if(!contextMenu.NItems())
       return;
 
-    if(mPopupControl) // if we are not using platform popup menus, IPopupMenuControl will not block
-    {
-      mInPopUpMenu = pControl;
-      mIsContextMenu = true;
-      mPopupControl->CreatePopupMenu(contextMenu, IRECT(x, y, x, y));
-    }
-    else
-    {
-      CreatePlatformPopupMenu(contextMenu, IRECT(x, y, x, y)); 
-      pControl->OnContextSelection(contextMenu.GetChosenItemIdx());
-    }
+    CreateSupportedPopupMenu(*pControl, contextMenu, IRECT(x, y, x, y), true);
 #endif
   }
 }
@@ -1459,21 +1449,27 @@ void IGraphics::CreateTextEntry(IControl& control, const IText& text, const IREC
     CreatePlatformTextEntry(control.ParamIdx(), text, bounds, control.GetTextEntryLength(), str);
 }
 
-void IGraphics::CreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds)
+void IGraphics::CreateSupportedPopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, bool isContext)
 {
   ReleaseMouseCapture();
-
+    
+  mInPopUpMenu = &control;
+  mIsContextMenu = isContext;
+    
   if(mPopupControl) // if we are not using platform pop-up menus
   {
-    mInPopUpMenu = &control;
-    mIsContextMenu = false;
     mPopupControl->CreatePopupMenu(menu, bounds);
   }
   else
   {
     IPopupMenu* pReturnMenu = CreatePlatformPopupMenu(menu, bounds);
-    control.OnPopupMenuSelection(pReturnMenu);
+    SetControlValueAfterPopupMenu(pReturnMenu);
   }
+}
+
+void IGraphics::CreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds)
+{
+  CreateSupportedPopupMenu(control, menu, bounds, false);
 }
 
 void IGraphics::StartLayer(const IRECT& r)

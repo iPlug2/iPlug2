@@ -1051,6 +1051,13 @@ private:
    * @param scale /todo */
   void DrawControl(IControl* pControl, const IRECT& bounds, float scale);
   
+  /** Shows a pop up/contextual menu in relation to a rectangular region of the graphics context
+   * @param control A reference to the IControl creating this pop-up menu. If it exists IControl::OnPopupMenuSelection() will be called on successful selection
+   * @param menu Reference to an IPopupMenu class populated with the items for the platform menu
+   * @param bounds The platform menu will popup at the bottom left hand corner of this rectangular region
+   * @param isContext Determines if the menu is a contextual menu or not */
+  void CreateSupportedPopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, bool isContext);
+    
 protected: // TODO: correct?
   /** /todo */
   void StartResizeGesture() { mResizingInProcess = true; };
