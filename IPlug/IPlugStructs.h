@@ -31,12 +31,10 @@ struct ParamTuple
 {
   int idx;
   double value;
-  bool normalized; // TODO: Remove this
   
-  ParamTuple(int idx = kNoParameter, double value = 0., bool normalized = false)
+  ParamTuple(int idx = kNoParameter, double value = 0.)
   : idx(idx)
   , value(value)
-  , normalized(normalized)
   {}
 };
 

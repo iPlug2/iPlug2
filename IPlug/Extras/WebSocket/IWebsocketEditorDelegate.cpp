@@ -34,7 +34,7 @@ bool IWebsocketEditorDelegate::OnWebsocketData(int connIdx, void* pData, size_t 
     int paramIdx = * ((int*)(pByteData + pos)); pos+= 4;
     double value = * ((double*)(pByteData + pos)); pos += 8;
     
-    mParamChangeFromClients.Push(ParamTuple { paramIdx, value, true } );
+    mParamChangeFromClients.Push(ParamTuple { paramIdx, value } );
   }
   else if (memcmp(pData, "SMMFUI" , 6) == 0) // send midi message from user interface
   {
@@ -205,7 +205,7 @@ void IWebsocketEditorDelegate::ProcessWebsocketQueue()
 //    OnParamChange(p.idx, kHost);
 //    LEAVE_PARAMS_MUTEX;
     
-    SendParameterValueFromDelegate(p.idx, p.value, p.normalized); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
+    SendParameterValueFromDelegate(p.idx, p.value, true); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
   }
   
   while (mMIDIFromClients.ElementsAvailable()) {

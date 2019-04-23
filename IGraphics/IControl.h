@@ -468,9 +468,6 @@ protected:
   IRECT mRECT;
   IRECT mTargetRECT;
   
-//  double& mValue = mVals[0].value;
-//  int& mParamIdx = mVals[0].idx;
-  
   /** Controls can be grouped for hiding and showing panels */
   WDL_String mGroup;
   
@@ -514,7 +511,7 @@ private:
   IAnimationFunction mAnimationFunc = nullptr;
   TimePoint mAnimationStartTime;
   Milliseconds mAnimationDuration;
-  std::vector<ParamTuple> mVals { {kNoParameter, 0., false /*delete*/} };
+  std::vector<ParamTuple> mVals { {kNoParameter, 0.} };
 };
 
 #pragma mark - Base Controls
