@@ -60,6 +60,14 @@ steps:
     artifactName: IGraphicsTest_${{parameters.graphics}}
     platformStr: ${{parameters.platformStr}}
 
+- template: ${{parameters.platform}}
+  parameters:
+    name: MetaParamTest
+    path: 'Tests'
+    graphics: ${{parameters.graphics}}
+    artifactName: MetaParamTest_${{parameters.graphics}}
+    platformStr: ${{parameters.platformStr}}
+
 # External Project
 # - template: ${{parameters.platform}}
 #   parameters:
