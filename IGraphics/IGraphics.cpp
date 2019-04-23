@@ -204,9 +204,9 @@ void IGraphics::SetControlValueAfterPopupMenu(IPopupMenu* pMenu)
     return;
     
   if (mIsContextMenu)
-    mInPopupMenu->OnContextSelection(pMenu->GetChosenItemIdx());
+    mInPopupMenu->OnContextSelection(pMenu ? pMenu->GetChosenItemIdx() : -1);
   else
-    mInPopupMenu->OnPopupMenuSelection(pMenu->GetChosenItemIdx() == -1 ? nullptr : pMenu, mPopupMenuValIdx);
+    mInPopupMenu->OnPopupMenuSelection(!pMenu || pMenu->GetChosenItemIdx() == -1 ? nullptr : pMenu, mPopupMenuValIdx);
     
   mInPopupMenu = nullptr;
 }
