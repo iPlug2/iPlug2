@@ -74,7 +74,9 @@
   IMouseInfo info;
   info.ms.L = true;
   [self getTouchXY:pt x:&info.x y:&info.y];
-  mGraphics->OnMouseDown(info.x, info.y, info.ms);
+  
+  if(mGraphics)
+    mGraphics->OnMouseDown(info.x, info.y, info.ms);
 }
 
 - (void) touchesMoved: (NSSet*) pTouches withEvent: (UIEvent*) pEvent
@@ -92,7 +94,8 @@
   float dX = info.x - prevX;
   float dY = info.y - prevY;
   
-  mGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
+  if(mGraphics)
+    mGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
 }
 
 - (void) touchesEnded: (NSSet*) pTouches withEvent: (UIEvent*) pEvent
@@ -103,7 +106,9 @@
   
   IMouseInfo info;
   [self getTouchXY:pt x:&info.x y:&info.y];
-  mGraphics->OnMouseUp(info.x, info.y, info.ms);
+  
+  if(mGraphics)
+    mGraphics->OnMouseUp(info.x, info.y, info.ms);
 }
 
 - (void) touchesCancelled: (NSSet*) pTouches withEvent: (UIEvent*) pEvent
@@ -142,10 +147,13 @@
 {
   IRECTList rects;
   
-  if (mGraphics->IsDirty(rects))
+  if(mGraphics)
   {
-    mGraphics->SetAllControlsClean();
-    mGraphics->Draw(rects);
+    if (mGraphics->IsDirty(rects))
+    {
+      mGraphics->SetAllControlsClean();
+      mGraphics->Draw(rects);
+    }
   }
 }
 

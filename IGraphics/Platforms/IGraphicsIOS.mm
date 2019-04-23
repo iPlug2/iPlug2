@@ -71,13 +71,7 @@ void IGraphicsIOS::CloseWindow()
 #endif
     
     IGraphicsIOS_View* view = (IGraphicsIOS_View*) mView;
-
-    mView = nullptr;
-    
-    if (view->mGraphics)
-    {
-      [view removeFromSuperview];  
-    }
+    [view removeFromSuperview];
     [view release];
 
     OnViewDestroyed();
