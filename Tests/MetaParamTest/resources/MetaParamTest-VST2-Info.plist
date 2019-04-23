@@ -7,9 +7,9 @@
 	<key>CFBundleExecutable</key>
 	<string>MetaParamTest</string>
 	<key>CFBundleGetInfoString</key>
-	<string>MetaParamTest v1.0.0 Copyright 2017 Acme Inc</string>
+	<string>MetaParamTest v1.0.0 Copyright 2019 Acme Inc</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.OliLarkin.vst.MetaParamTest</string>
+	<string>com.AcmeInc.vst.MetaParamTest</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -19,7 +19,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.0.0</string>
 	<key>CFBundleSignature</key>
-	<string>VG4y</string>
+	<string>Dvjx</string>
 	<key>CFBundleVersion</key>
 	<string>1.0.0</string>
 	<key>CSResourcesFileMapped</key>

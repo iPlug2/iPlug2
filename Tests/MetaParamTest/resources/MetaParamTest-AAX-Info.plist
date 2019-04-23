@@ -7,9 +7,9 @@
 	<key>CFBundleExecutable</key>
 	<string>MetaParamTest</string>
 	<key>CFBundleGetInfoString</key>
-	<string>MetaParamTest v1.0.0 Copyright 2017 Acme Inc</string>
+	<string>MetaParamTest v1.0.0 Copyright 2019 Acme Inc</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.OliLarkin.aax.MetaParamTest</string>
+	<string>com.AcmeInc.aax.MetaParamTest</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

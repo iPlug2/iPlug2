@@ -9,11 +9,8 @@
 	<key>CFBundleIcons</key>
 	<dict>
 	</dict>
-	<key>CFBundleIcons~ipad</key>
-	<dict>
-	</dict>
 	<key>CFBundleIdentifier</key>
-	<string>com.OliLarkin.app.MetaParamTest</string>
+	<string>com.AcmeInc.app.MetaParamTest</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -30,11 +27,11 @@
 	<string>public.app-category.music</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Needs microphone access to process audio</string>
 	<key>UILaunchStoryboardName</key>
-	<string>MetaParamTest-iOS-launchScreen</string>
+	<string>MetaParamTest-iOS-LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
-	<string>MetaParamTest-iOS</string>
-	<key>UIMainStoryboardFile~ipad</key>
 	<string>MetaParamTest-iOS</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>

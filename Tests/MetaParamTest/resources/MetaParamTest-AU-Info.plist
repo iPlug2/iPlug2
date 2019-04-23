@@ -12,13 +12,13 @@
 			<key>manufacturer</key>
 			<string>Acme</string>
 			<key>name</key>
-			<string>OliLarkin: MetaParamTest</string>
+			<string>AcmeInc: MetaParamTest</string>
 			<key>sandboxSafe</key>
 			<true/>
 			<key>subtype</key>
-			<string>VG4y</string>
+			<string>Dvjx</string>
 			<key>type</key>
-			<string>aumf</string>
+			<string>aufx</string>
 			<key>version</key>
 			<integer>65536</integer>
 		</dict>
@@ -30,9 +30,9 @@
 	<key>CFBundleExecutable</key>
 	<string>MetaParamTest</string>
 	<key>CFBundleGetInfoString</key>
-	<string>MetaParamTest v1.0.0 Copyright 2017 Acme Inc</string>
+	<string>MetaParamTest v1.0.0 Copyright 2019 Acme Inc</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.OliLarkin.audiounit.MetaParamTest</string>
+	<string>com.AcmeInc.audiounit.MetaParamTest</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -42,7 +42,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.0.0</string>
 	<key>CFBundleSignature</key>
-	<string>VG4y</string>
+	<string>Dvjx</string>
 	<key>CFBundleVersion</key>
 	<string>1.0.0</string>
 	<key>CSResourcesFileMapped</key>

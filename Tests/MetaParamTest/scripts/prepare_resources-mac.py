@@ -143,7 +143,7 @@ def main():
   auv3['CFBundlePackageType'] = "XPC!"
   auv3['NSExtension'] = dict(
   NSExtensionAttributes = dict(
-#                               AudioComponentBundle = "com.OliLarkin.app." + config['BUNDLE_NAME'] + ".AUv3.framework",
+#                               AudioComponentBundle = "com.AcmeInc.app." + config['BUNDLE_NAME'] + ".AUv3.framework",
                                AudioComponents = [{}]),
 #                               NSExtensionServiceRoleType = "NSExtensionServiceRoleTypeEditor",
   NSExtensionPointIdentifier = NSEXTENSIONPOINTIDENTIFIER,
@@ -199,6 +199,7 @@ def main():
   macOSapp['NSMainNibFile'] = config['BUNDLE_NAME'] + "-macOS-MainMenu"
   macOSapp['LSApplicationCategoryType'] = "public.app-category.music"
   macOSapp['CFBundleIconFile'] = config['BUNDLE_NAME'] + ".icns"
+  macOSapp['NSMicrophoneUsageDescription'] = 	"This app needs mic access to process audio."
 
   plistlib.writePlist(macOSapp, plistpath)
 
