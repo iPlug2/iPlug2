@@ -15,9 +15,6 @@
 
 #import "IGraphicsIOS_view.h"
 
-#include "IControl.h"
-#include "IPopupMenuControl.h"
-
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
@@ -129,7 +126,7 @@ bool IGraphicsIOS::PromptForColor(IColor& color, const char* str)
   return false;
 }
 
-IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds)
 {
   IPopupMenu* pReturnMenu = nullptr;
   
@@ -143,13 +140,10 @@ IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
   if(pReturnMenu && pReturnMenu->GetFunction())
     pReturnMenu->ExecFunction();
   
-  if(pCaller)
-    pCaller->OnPopupMenuSelection(pReturnMenu); // should fire even if pReturnMenu == nullptr
-
   return pReturnMenu;
 }
 
-void IGraphicsIOS::CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
+void IGraphicsIOS::CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str)
 {
 }
 

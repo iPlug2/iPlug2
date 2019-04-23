@@ -42,7 +42,7 @@ public:
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     if(mod.R)
-      GetUI()->CreatePopupMenu(mMenu, x, y, this);
+      GetUI()->CreatePopupMenu(*this, mMenu, x, y);
     
     SetDirty(false);
   }

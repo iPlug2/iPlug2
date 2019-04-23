@@ -146,6 +146,10 @@ void IGraphics::RemoveControls(int fromIdx)
       mMouseOver = nullptr;
       mMouseOverIdx = -1;
     }
+    if (pControl == mInTextEdit)
+    {
+      mInTextEdit = nullptr;
+    }
     
     mControls.Delete(idx--, true);
   }
@@ -170,19 +174,34 @@ void IGraphics::RemoveAllControls()
   mControls.Empty(true);
 }
 
-void IGraphics::SetControlValueFromStringAfterPrompt(IControl& control, const char* str)
+void IGraphics::SetControlValueAfterTextEdit(const char* str)
 {
-  const IParam* pParam = control.GetParam();
+  if (!mInTextEdit)
+    return;
+    
+  const IParam* pParam = mInTextEdit->GetParam();
 
   if (pParam)
   {
     const double v = pParam->StringToValue(str);
-    control.SetValueFromUserInput(pParam->ToNormalized(v));
+    mInTextEdit->SetValueFromUserInput(pParam->ToNormalized(v));
   }
   else
   {
-    control.OnTextEntryCompletion(str);
+    mInTextEdit->OnTextEntryCompletion(str);
   }
+
+  mInTextEdit = nullptr;
+}
+
+void IGraphics::SetControlValueAfterPopupMenu(IPopupMenu* pMenu)
+{
+  if (mIsContextMenu)
+    mInPopUpMenu->OnContextSelection(pMenu->GetChosenItemIdx());
+  else
+    mInPopUpMenu->OnPopupMenuSelection(pMenu->GetChosenItemIdx() == -1 ? nullptr : pMenu);
+    
+  mInPopUpMenu = nullptr;
 }
 
 void IGraphics::AttachBackground(const char* name)
@@ -424,7 +443,7 @@ void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds)
           mPromptPopupMenu.AddItem( new IPopupMenu::Item(str), -1 );
       }
 
-      CreatePopupMenu(mPromptPopupMenu, bounds, &control);
+      CreatePopupMenu(control, mPromptPopupMenu, bounds);
     }
     // TODO: what if there are Int/Double Params with a display text e.g. -96db = "mute"
     else // type == IParam::kTypeInt || type == IParam::kTypeDouble
@@ -1162,16 +1181,7 @@ void IGraphics::PopupHostContextMenuForParam(IControl* pControl, int paramIdx, f
     if(!contextMenu.NItems())
       return;
 
-    if(mPopupControl) // if we are not using platform popup menus, IPopupMenuControl will not block
-    {
-      CreatePopupMenu(contextMenu, x, y, pControl);
-      mPopupControl->SetMenuIsContextMenu(true);
-    }
-    else
-    {
-      CreatePopupMenu(contextMenu, x, y);
-      pControl->OnContextSelection(contextMenu.GetChosenItemIdx());
-    }
+    CreateSupportedPopupMenu(*pControl, contextMenu, IRECT(x, y, x, y), true);
 #endif
   }
 }
@@ -1444,23 +1454,35 @@ void IGraphics::StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emb
 
 void IGraphics::CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
 {
+  mInTextEdit = &control;
+    
   if (mTextEntryControl)
-  {
     mTextEntryControl->CreateTextEntry(bounds, text, str);
-    return;
-  }
   else
-    CreatePlatformTextEntry(control, text, bounds, str);
+    CreatePlatformTextEntry(control.ParamIdx(), text, bounds, control.GetTextEntryLength(), str);
 }
 
-IPopupMenu* IGraphics::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+void IGraphics::CreateSupportedPopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, bool isContext)
 {
   ReleaseMouseCapture();
-
+    
+  mInPopUpMenu = &control;
+  mIsContextMenu = isContext;
+    
   if(mPopupControl) // if we are not using platform pop-up menus
-    return mPopupControl->CreatePopupMenu(menu, bounds, pCaller);
+  {
+    mPopupControl->CreatePopupMenu(menu, bounds);
+  }
   else
-    return CreatePlatformPopupMenu(menu, bounds, pCaller);
+  {
+    IPopupMenu* pReturnMenu = CreatePlatformPopupMenu(menu, bounds);
+    SetControlValueAfterPopupMenu(pReturnMenu);
+  }
+}
+
+void IGraphics::CreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds)
+{
+  CreateSupportedPopupMenu(control, menu, bounds, false);
 }
 
 void IGraphics::StartLayer(const IRECT& r)

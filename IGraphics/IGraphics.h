@@ -855,14 +855,14 @@ protected:
    * @param text /todo
    * @param bounds /todo
    * @param str /todo */
-  virtual void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") = 0;
+  virtual void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) = 0;
   
   /** /todo
    * @param menu /todo
    * @param bounds /todo
    * @param pCaller /todo
    * @return IPopupMenu* /todo */
-  virtual IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller = nullptr) = 0;
+  virtual IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds) = 0;
 
 #pragma mark - Base implementation
 public:
@@ -888,24 +888,28 @@ public:
    * @param bounds Rectangular region of the graphics context that the prompt (e.g. text entry box) should occupy */
   void PromptUserInput(IControl& control, const IRECT& bounds);
 
-  /** Called by the platform class after returning from a prompt (typically a text entry) in order to update a control with a new value
-   * @param control Reference to the control which the call relates to
+  /** Called by the platform class after returning from a text entry in order to update a control with a new value. The base class has a record of the control, so it is not needed here.
    * @param str The new value as a CString */
-  void SetControlValueFromStringAfterPrompt(IControl& control, const char* str);
+  void SetControlValueAfterTextEdit(const char* str);
+    
+  /** Called by PopupMenuControl in order to update a control with a new value after returning from the non-blocking menu. The base class has a record of the control, so it is not needed here.
+   * @param pReturnMenu The new value as a CString */
+  void SetControlValueAfterPopupMenu(IPopupMenu* pMenu);
 
   /** Shows a pop up/contextual menu in relation to a rectangular region of the graphics context
+   * @param control A reference to the IControl creating this pop-up menu. If it exists IControl::OnPopupMenuSelection() will be called on successful selection
    * @param menu Reference to an IPopupMenu class populated with the items for the platform menu
-   * @param bounds The platform menu will popup at the bottom left hand corner of this rectangular region
-   * @param pCaller A pointed to the IControl creating this pop-up menu. If it exists IControl::OnPopupMenuSelection() will be called on successful selection
-   * @return Pointer to an IPopupMenu that represents the menu that user finally clicked on (might not be the same as menu if they clicked a submenu) */
-  IPopupMenu* CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller = nullptr);
+   * @param bounds The platform menu will popup at the bottom left hand corner of this rectangular region */
+  void CreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds);
 
   /** Shows a pop up/contextual menu at point in the graphics context
+   * @param control A reference to the IControl creating this pop-up menu. If it exists IControl::OnPopupMenuSelection() will be called on successful selection
    * @param x The X coordinate in the graphics context at which to pop up the menu
-   * @param y The Y coordinate in the graphics context at which to pop up the menu
-   * @param pCaller A pointer to the IControl creating this pop-up menu. If it exists IControl::OnPopupMenuSelection() will be called on successful selection
-   * @return Pointer to an IPopupMenu that represents the menu that user finally clicked on (might not be the same as menu if they clicked a submenu) */
-  IPopupMenu* CreatePopupMenu(IPopupMenu& menu, float x, float y, IControl* pCaller = nullptr) { const IRECT bounds = IRECT(x,y,x,y); return CreatePopupMenu(menu, bounds, pCaller); }
+   * @param y The Y coordinate in the graphics context at which to pop up the menu */
+  void CreatePopupMenu(IControl& control, IPopupMenu& menu, float x, float y)
+  {
+    return CreatePopupMenu(control, menu, IRECT(x, y, x, y));
+  }
 
   /** /todo 
    * @param lo /todo
@@ -1047,6 +1051,13 @@ private:
    * @param scale /todo */
   void DrawControl(IControl* pControl, const IRECT& bounds, float scale);
   
+  /** Shows a pop up/contextual menu in relation to a rectangular region of the graphics context
+   * @param control A reference to the IControl creating this pop-up menu. If it exists IControl::OnPopupMenuSelection() will be called on successful selection
+   * @param menu Reference to an IPopupMenu class populated with the items for the platform menu
+   * @param bounds The platform menu will popup at the bottom left hand corner of this rectangular region
+   * @param isContext Determines if the menu is a contextual menu or not */
+  void CreateSupportedPopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, bool isContext);
+    
 protected: // TODO: correct?
   /** /todo */
   void StartResizeGesture() { mResizingInProcess = true; };
@@ -1445,6 +1456,9 @@ private:
   int mIdleTicks = 0;
   IControl* mMouseCapture = nullptr;
   IControl* mMouseOver = nullptr;
+  IControl* mInTextEdit = nullptr;
+  IControl* mInPopUpMenu = nullptr;
+  bool mIsContextMenu;
   int mMouseOverIdx = -1;
   float mMouseDownX = -1.f;
   float mMouseDownY = -1.f;

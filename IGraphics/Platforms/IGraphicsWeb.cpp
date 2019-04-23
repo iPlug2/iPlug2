@@ -13,8 +13,6 @@
 #include <emscripten/key_codes.h>
 
 #include "IGraphicsWeb.h"
-#include "IControl.h"
-#include "IPopupMenuControl.h"
 
 using namespace emscripten;
 
@@ -554,7 +552,7 @@ void IGraphicsWeb::PromptForDirectory(WDL_String& path)
   inputEl.call<void>("click");
 }
 
-void IGraphicsWeb::CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
+void IGraphicsWeb::CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str)
 {
     ShowMessageBox("Warning", "Text entry not yet implemented", kMB_OK);
 //  val input = val::global("document").call<val>("createElement", std::string("input"));
@@ -572,10 +570,10 @@ void IGraphicsWeb::CreatePlatformTextEntry(IControl& control, const IText& text,
 //  input["style"].set("width", std::string(dimstr.Get()));
 //  dimstr.SetFormatted(32, "%fpx",  bounds.H());
 //  input["style"].set("height", std::string(dimstr.Get()));
-//  
-//  if (control.GetParamIdx() > kNoParameter)
+//
+//  if (paramIdx > kNoParameter)
 //  {
-//    const IParam* pParam = control.GetParam();
+//    const IParam* pParam = GetParam(paramIdx);
 //    
 //    switch ( pParam->Type() )
 //    {
@@ -601,7 +599,7 @@ void IGraphicsWeb::CreatePlatformTextEntry(IControl& control, const IText& text,
 //  input.call<void>("focus");
 }
 
-IPopupMenu* IGraphicsWeb::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+IPopupMenu* IGraphicsWeb::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds)
 {
   return nullptr;
 }
