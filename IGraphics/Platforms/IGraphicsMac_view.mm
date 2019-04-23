@@ -471,6 +471,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   if (!self.wantsLayer) {
     #if defined IGRAPHICS_METAL
     self.layer = [CAMetalLayer new];
+    [(CAMetalLayer*)[self layer] setPixelFormat:MTLPixelFormatBGRA8Unorm];
     #elif defined IGRAPHICS_GL
     self.layer = [[IGRAPHICS_GLLAYER alloc] initWithIGraphicsView:self];
     self.wantsBestResolutionOpenGLSurface = YES;
@@ -526,8 +527,17 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     [pWindow makeFirstResponder: self];
     [pWindow setAcceptsMouseMovedEvents: YES];
     
-    if (mGraphics && mGraphics->GetDrawContext())
-      mGraphics->SetScreenScale([pWindow backingScaleFactor]);
+    CGFloat newScale = [pWindow backingScaleFactor];
+
+    if (mGraphics)
+      mGraphics->SetScreenScale(newScale);
+    
+    #ifdef IGRAPHICS_METAL
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(frameDidChange:)
+                                                 name:NSViewFrameDidChangeNotification
+                                               object:self];
+    #endif
     
 //    [[NSNotificationCenter defaultCenter] addObserver:self
 //                                             selector:@selector(windowResized:) name:NSWindowDidEndLiveResizeNotification
@@ -555,8 +565,11 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   if (mGraphics->GetDrawContext() && newScale != mGraphics->GetScreenScale())
     mGraphics->SetScreenScale(newScale);
 
-#ifdef IGRAPHICS_GL
+#if defined IGRAPHICS_GL
   self.layer.contentsScale = 1./newScale;
+#else if defined IGRAPHICS_METAL
+  [(CAMetalLayer*)[self layer] setDrawableSize:CGSizeMake(self.frame.size.width * newScale,
+                                                          self.frame.size.height * newScale)];
 #endif
 }
 
@@ -1138,6 +1151,16 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 
   return YES;
 }
+
+#ifdef IGRAPHICS_METAL
+- (void)frameDidChange:(NSNotification*)notification
+{
+  CGFloat scale = [[self window] backingScaleFactor];
+
+  [(CAMetalLayer*)[self layer] setDrawableSize:CGSizeMake(self.frame.size.width * scale,
+                                                          self.frame.size.height * scale)];
+}
+#endif
 
 //- (void)windowResized:(NSNotification *)notification;
 //{

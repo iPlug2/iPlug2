@@ -9,9 +9,6 @@
 	<key>CFBundleIcons</key>
 	<dict>
 	</dict>
-	<key>CFBundleIcons~ipad</key>
-	<dict>
-	</dict>
 	<key>CFBundleIdentifier</key>
 	<string>com.AcmeInc.app.IPlugEffect</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -30,11 +27,11 @@
 	<string>public.app-category.music</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Needs microphone access to process audio</string>
 	<key>UILaunchStoryboardName</key>
-	<string>IPlugEffect-iOS-launchScreen</string>
+	<string>IPlugEffect-iOS-LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
-	<string>IPlugEffect-iOS</string>
-	<key>UIMainStoryboardFile~ipad</key>
 	<string>IPlugEffect-iOS</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>

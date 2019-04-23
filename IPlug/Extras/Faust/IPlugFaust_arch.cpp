@@ -23,7 +23,7 @@ public:
 
 	void Init() override
 	{
-		mDSP = new FAUSTCLASS();
+		mDSP = std::make_unique<FAUSTCLASS>();
 		mDSP->buildUserInterface(this);
 		BuildParameterMap();
 		mInitialized = true;
