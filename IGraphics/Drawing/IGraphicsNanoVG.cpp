@@ -73,15 +73,6 @@ void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int
 #if defined(IGRAPHICS_GL)
   glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pData);
 #elif defined(IGRAPHICS_METAL)
-#if defined OS_MAC
-  id<MTLCommandBuffer> commandBuffer = [static_cast<id<MTLCommandQueue>>(mnvgCommandQueue(pContext)) commandBuffer];
-  id<MTLBlitCommandEncoder> blitCommandEncoder = [commandBuffer blitCommandEncoder];
-  id<MTLTexture> texture = static_cast<id<MTLTexture>>(mnvgImageHandle(pContext, image));
-  [blitCommandEncoder synchronizeTexture:texture slice:0 level:0];
-  [blitCommandEncoder endEncoding];
-  [commandBuffer commit];
-  [commandBuffer waitUntilCompleted];
-#endif
   mnvgReadPixels(pContext, image, x, y, width, height, pData);
 #endif
 }
