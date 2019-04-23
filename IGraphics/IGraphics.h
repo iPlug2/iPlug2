@@ -890,7 +890,7 @@ public:
 
   /** Called by the platform class after returning from a text entry in order to update a control with a new value. The base class has a record of the control, so it is not needed here.
    * @param str The new value as a CString */
-  void SetControlValueFromStringAfterTextEdit(const char* str);
+  void SetControlValueAfterTextEdit(const char* str);
     
   /** Called by PopupMenuControl in order to update a control with a new value after returning from the non-blocking menu. The base class has a record of the control, so it is not needed here.
    * @param pReturnMenu The new value as a CString */

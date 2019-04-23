@@ -174,7 +174,7 @@ void IGraphics::RemoveAllControls()
   mControls.Empty(true);
 }
 
-void IGraphics::SetControlValueFromStringAfterTextEdit(const char* str)
+void IGraphics::SetControlValueAfterTextEdit(const char* str)
 {
   if (!mInTextEdit)
     return;

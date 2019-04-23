@@ -226,7 +226,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
             case kCommit:
             {
               SendMessage(pGraphics->mParamEditWnd, WM_GETTEXT, MAX_WIN32_PARAM_LEN, (LPARAM) txt);
-              pGraphics->SetControlValueFromStringAfterTextEdit(txt);
+              pGraphics->SetControlValueAfterTextEdit(txt);
               pGraphics->DestroyEditWindow();
             }
             break;
