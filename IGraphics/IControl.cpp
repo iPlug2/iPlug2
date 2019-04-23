@@ -193,7 +193,7 @@ void IControl::SetDirty(bool triggerAction, int valIdx)
       
     ForValIdx(valIdx, paramUpdate);
     
-    if (mActionFunc != nullptr)
+    if (mActionFunc)
       mActionFunc(this);
   }
 }
@@ -260,7 +260,7 @@ void IControl::OnMouseOut()
 
 void IControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx)
 {
-  if (pSelectedMenu != nullptr && GetParamIdx(valIdx) > kNoParameter && !mDisablePrompt) 
+  if (pSelectedMenu && valIdx > kNoValIdx && GetParamIdx(valIdx) > kNoParameter && !mDisablePrompt)
   {
     SetValueFromUserInput(GetParam()->ToNormalized( (double) pSelectedMenu->GetChosenItemIdx()), valIdx);
   }
