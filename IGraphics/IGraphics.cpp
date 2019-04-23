@@ -150,7 +150,11 @@ void IGraphics::RemoveControls(int fromIdx)
     {
       mInTextEdit = nullptr;
     }
-    
+    if (pControl == mInPopupMenu)
+    {
+      mInPopupMenu = nullptr;
+    }
+
     mControls.Delete(idx--, true);
   }
   
@@ -196,12 +200,15 @@ void IGraphics::SetControlValueAfterTextEdit(const char* str)
 
 void IGraphics::SetControlValueAfterPopupMenu(IPopupMenu* pMenu)
 {
-  if (mIsContextMenu)
-    mInPopUpMenu->OnContextSelection(pMenu->GetChosenItemIdx());
-  else
-    mInPopUpMenu->OnPopupMenuSelection(pMenu->GetChosenItemIdx() == -1 ? nullptr : pMenu);
+  if (!mInPopupMenu)
+    return;
     
-  mInPopUpMenu = nullptr;
+  if (mIsContextMenu)
+    mInPopupMenu->OnContextSelection(pMenu->GetChosenItemIdx());
+  else
+    mInPopupMenu->OnPopupMenuSelection(pMenu->GetChosenItemIdx() == -1 ? nullptr : pMenu);
+    
+  mInPopupMenu = nullptr;
 }
 
 void IGraphics::AttachBackground(const char* name)
@@ -1453,7 +1460,7 @@ void IGraphics::CreateSupportedPopupMenu(IControl& control, IPopupMenu& menu, co
 {
   ReleaseMouseCapture();
     
-  mInPopUpMenu = &control;
+  mInPopupMenu = &control;
   mIsContextMenu = isContext;
     
   if(mPopupControl) // if we are not using platform pop-up menus

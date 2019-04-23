@@ -1456,7 +1456,7 @@ private:
   IControl* mMouseCapture = nullptr;
   IControl* mMouseOver = nullptr;
   IControl* mInTextEdit = nullptr;
-  IControl* mInPopUpMenu = nullptr;
+  IControl* mInPopupMenu = nullptr;
   bool mIsContextMenu;
   int mMouseOverIdx = -1;
   float mMouseDownX = -1.f;
