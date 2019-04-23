@@ -49,7 +49,7 @@
 #define APP_RESIZABLE 1
 #define APP_SIGNAL_VECTOR_SIZE 64
 
-#define ROBOTTO_FN "Roboto-Regular.ttf"
+#define ROBOTO_FN "Roboto-Regular.ttf"
 #define MONTSERRAT_FN "Montserrat-LightItalic.ttf"
 #define TIGER_FN "23.svg"
 #define SMILEY_FN "smiley.png"

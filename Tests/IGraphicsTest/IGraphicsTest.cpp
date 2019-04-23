@@ -55,7 +55,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
       return true;
     });
     
-    pGraphics->LoadFont("Roboto-Regular", ROBOTTO_FN);
+    pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     if (!pGraphics->LoadFont("Alternative Font", "Times New Roman", kTextStyleNormal))
     {
       // This covers cases where we can't load system fonts, or the font doesn't exist

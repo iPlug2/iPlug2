@@ -24,7 +24,7 @@ MetaParamTest::MetaParamTest(IPlugInstanceInfo instanceInfo)
   mLayoutFunc = [&](IGraphics* pGraphics) {
     pGraphics->AttachCornerResizer(kUIResizerScale, false);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
-    pGraphics->LoadFont("Roboto-Regular", ROBOTTO_FN);
+    pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     pGraphics->ShowFPSDisplay(true);
     const IRECT b = pGraphics->GetBounds();
     pGraphics->AttachControl(new IVXYPadControl(b.GetGridCell(0, 2, 2), {kParamLeftX, kParamLeftY}), kCtrlLeftXYPad, "mux");
