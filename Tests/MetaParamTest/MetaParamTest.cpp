@@ -5,6 +5,7 @@
 #include "IControls.h"
 #endif
 
+#if IPLUG_EDITOR
 struct FourValues : public IControl
 {
   FourValues(IRECT bounds, int paramIdx1, int paramIdx2, int paramIdx3, int paramIdx4)
@@ -47,6 +48,7 @@ struct FourValues : public IControl
       drawVal(i);
   }
 };
+#endif
 
 MetaParamTest::MetaParamTest(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
