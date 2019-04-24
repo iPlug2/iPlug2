@@ -552,51 +552,79 @@ void IGraphicsWeb::PromptForDirectory(WDL_String& path)
   inputEl.call<void>("click");
 }
 
+EM_BOOL complete_text_entry(int eventType, const EmscriptenFocusEvent* focusEvent, void* pUserData)
+{
+  IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
+  
+  val input = val::global("document").call<val>("getElementById", std::string("textEntry"));
+  std::string str = input["value"].as<std::string>();
+  val::global("document")["body"].call<void>("removeChild", input);
+  pGraphics->SetControlValueAfterTextEdit(str.c_str());
+  
+  return true;
+}
+
+EM_BOOL text_entry_keydown(int eventType, const EmscriptenKeyboardEvent* pEvent, void* pUserData)
+{
+  IGraphicsWeb* pGraphicsWeb = (IGraphicsWeb*) pUserData;
+  
+  IKeyPress keyPress {pEvent->key, domVKToWinVK(pEvent->keyCode),
+    static_cast<bool>(pEvent->shiftKey),
+    static_cast<bool>(pEvent->ctrlKey),
+    static_cast<bool>(pEvent->altKey)};
+  
+  if (keyPress.VK == kVK_RETURN || keyPress.VK ==  kVK_TAB)
+    return complete_text_entry(0, nullptr, pUserData);
+  
+  return false;
+}
+
 void IGraphicsWeb::CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str)
 {
-    ShowMessageBox("Warning", "Text entry not yet implemented", kMB_OK);
-//  val input = val::global("document").call<val>("createElement", std::string("input"));
-//  
-//  val rect = GetCanvas().call<val>("getBoundingClientRect");
-//  
-//  WDL_String dimstr;
-//  
-//  input["style"].set("position", val("fixed"));
-//  dimstr.SetFormatted(32, "%fpx",  rect["left"].as<double>() + bounds.L);
-//  input["style"].set("left", std::string(dimstr.Get()));
-//  dimstr.SetFormatted(32, "%fpx",  rect["top"].as<double>() + bounds.T);
-//  input["style"].set("top", std::string(dimstr.Get()));
-//  dimstr.SetFormatted(32, "%fpx",  bounds.W());
-//  input["style"].set("width", std::string(dimstr.Get()));
-//  dimstr.SetFormatted(32, "%fpx",  bounds.H());
-//  input["style"].set("height", std::string(dimstr.Get()));
-//
-//  if (paramIdx > kNoParameter)
-//  {
-//    const IParam* pParam = GetParam(paramIdx);
-//    
-//    switch ( pParam->Type() )
-//    {
-//      case IParam::kTypeEnum:
-//      case IParam::kTypeInt:
-//      case IParam::kTypeBool:
-//        input.set("type", val("number"));
-//        break;
-//      case IParam::kTypeDouble:
-//        input.set("type", val("number")); // TODO
-//        break;
-//      default:
-//        break;
-//    }
-//  }
-//  else
-//  {
-//    input.set("type", val("text"));
-//  }
-//
-//  val::global("document")["body"].call<void>("appendChild", input);
-//  
-//  input.call<void>("focus");
+  val input = val::global("document").call<val>("createElement", std::string("input"));
+  val rect = GetCanvas().call<val>("getBoundingClientRect");
+
+  auto setDim = [&input](const char *dimName, double pixels)
+  {
+    WDL_String dimstr;
+    dimstr.SetFormatted(32, "%fpx",  pixels);
+    input["style"].set(dimName, std::string(dimstr.Get()));
+  };
+  
+  input.set("id", std::string("textEntry"));
+  input["style"].set("position", val("fixed"));
+  setDim("left", rect["left"].as<double>() + bounds.L);
+  setDim("top", rect["top"].as<double>() + bounds.T);
+  setDim("width", bounds.W());
+  setDim("height", bounds.H());
+  
+  if (paramIdx > kNoParameter)
+  {
+    const IParam* pParam = GetDelegate()->GetParam(paramIdx);
+
+    switch (pParam->Type())
+    {
+      case IParam::kTypeEnum:
+      case IParam::kTypeInt:
+      case IParam::kTypeBool:
+        input.set("type", val("number")); // TODO
+        break;
+      case IParam::kTypeDouble:
+        input.set("type", val("number"));
+        break;
+      default:
+        break;
+    }
+  }
+  else
+  {
+    input.set("type", val("text"));
+  }
+
+  val::global("document")["body"].call<void>("appendChild", input);
+  input.call<void>("focus");
+  emscripten_set_focusout_callback("textEntry", this, 1, complete_text_entry);
+  emscripten_set_keydown_callback("textEntry", this, 1, text_entry_keydown);
 }
 
 IPopupMenu* IGraphicsWeb::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds)
