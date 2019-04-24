@@ -11,6 +11,8 @@ enum EParams
   kParamRightX,
   kParamRightY,
   kParamLink,
+  kParamEnum1,
+  kParamEnum2,
   kNumParams
 };
 

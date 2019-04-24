@@ -5,6 +5,49 @@
 #include "IControls.h"
 #endif
 
+struct FourValues : public IControl
+{
+  FourValues(IRECT bounds, int paramIdx1, int paramIdx2, int paramIdx3, int paramIdx4)
+  : IControl(bounds, {paramIdx1, paramIdx2, paramIdx3, paramIdx4})
+  {
+    mText.mAlign = IText::kAlignCenter;
+    mText.mVAlign = IText::kVAlignMiddle;
+    mDisablePrompt = false;
+  }
+  
+  int GetValIdxForPos(float x, float y) const override
+  {
+    int a = x > mRECT.MW();
+    int b = y > mRECT.MH();
+    
+    return b * 2 + a;
+  }
+  
+  IRECT GetRect(int num)
+  {
+    return mRECT.GetGridCell(num / 2, num % 2, 2, 2).GetPadded(-120, -5, -120, -5);
+  }
+  
+  void OnMouseDblClick(float x, float y, const IMouseMod&) override
+  {
+    PromptUserInput(GetRect(GetValIdxForPos(x, y)), GetValIdxForPos(x, y));
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    auto drawVal = [this, &g](int num)
+    {
+      WDL_String str;
+      IRECT r = GetRect(num);
+      GetParam(num)->GetDisplayForHost(str);
+      g.DrawText(mText, str.Get(), r);
+    };
+    
+    for (int i = 0; i < 4; i++)
+      drawVal(i);
+  }
+};
+
 MetaParamTest::MetaParamTest(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
 {
@@ -13,6 +56,17 @@ MetaParamTest::MetaParamTest(IPlugInstanceInfo instanceInfo)
   GetParam(kParamRightX)->InitDouble("X2", 100., 0., 100.0, 0.01, "%");
   GetParam(kParamRightY)->InitDouble("Y2", 100., 0., 100.0, 0.01, "%");
   GetParam(kParamLink)->InitBool("link", false);
+    
+  GetParam(kParamEnum1)->InitEnum("Enum 1", 0, 4);
+  GetParam(kParamEnum1)->SetDisplayText(0, "Apple");
+  GetParam(kParamEnum1)->SetDisplayText(1, "Orange");
+  GetParam(kParamEnum1)->SetDisplayText(2, "Pear");
+  GetParam(kParamEnum1)->SetDisplayText(3, "Banana");
+  GetParam(kParamEnum2)->InitEnum("Enum 2", 0, 4);
+  GetParam(kParamEnum2)->SetDisplayText(0, "Spades");
+  GetParam(kParamEnum2)->SetDisplayText(1, "Diamonds");
+  GetParam(kParamEnum2)->SetDisplayText(2, "Hearts");
+  GetParam(kParamEnum2)->SetDisplayText(3, "Clubs");
   
 #if IPLUG_EDITOR // All UI methods and member variables should be within an IPLUG_EDITOR guard, should you want distributed UI
   mMakeGraphicsFunc = [&]() {
@@ -34,6 +88,7 @@ MetaParamTest::MetaParamTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new IVKnobControl(b.GetGridCell(3, 2, 2).FracRectHorizontal(0.5), kParamRightX), kCtrlRightXKnob, "mux");
     pGraphics->AttachControl(new IVKnobControl(b.GetGridCell(3, 2, 2).FracRectHorizontal(0.5, true), kParamRightY), kCtrlRightYKnob, "mux");
     pGraphics->AttachControl(new IVSwitchControl(b.GetCentredInside(30), kParamLink));
+    pGraphics->AttachControl(new FourValues(b.GetFromBottom(100).GetPadded(-20), kParamEnum1, kParamLeftX, kParamLeftY, kParamEnum2));
     
     pGraphics->ForControlInGroup("mux", [&](IControl& control)
     {
