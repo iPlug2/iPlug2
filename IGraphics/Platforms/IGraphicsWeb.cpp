@@ -383,7 +383,7 @@ EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* pEvent, void* 
   y /= pGraphics->GetDrawScale();
   
   switch (eventType) {
-    case EMSCRIPTEN_EVENT_WHEEL: pGraphics->OnMouseWheel(x, y, modifiers, pEvent->deltaY);
+    case EMSCRIPTEN_EVENT_WHEEL: pGraphics->OnMouseWheel(x, y, modifiers, -pEvent->deltaY);
     default:
       break;
   }
