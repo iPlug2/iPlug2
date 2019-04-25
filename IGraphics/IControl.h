@@ -212,7 +212,7 @@ public:
    * @param x x coordinate to check
    * @param y x coordinate to check
    * @return An integer specifying which value matches the x, y coordinates, or kNoValIdx if the position is not linked to a value. */
-    virtual int GetValIdxForPos(float x, float y) const { return mVals.size() == 1 ? 0 : kNoValIdx; }
+  virtual int GetValIdxForPos(float x, float y) const { return mVals.size() == 1 ? 0 : kNoValIdx; }
   
   /** Get a const pointer to the IParam object (owned by the editor delegate class), associated with this control
    * @return const pointer to an IParam or nullptr if the control is not associated with a parameter */ 
