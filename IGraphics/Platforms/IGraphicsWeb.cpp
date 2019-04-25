@@ -591,6 +591,13 @@ void IGraphicsWeb::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
     input["style"].set(dimName, std::string(dimstr.Get()));
   };
   
+  auto setColor = [&input](const char *colorName, IColor color)
+  {
+    WDL_String str;
+    str.SetFormatted(64, "rgba(%d, %d, %d, %d)", color.R, color.G, color.B, color.A);
+    input["style"].set(colorName, std::string(str.Get()));
+  };
+
   input.set("id", std::string("textEntry"));
   input["style"].set("position", val("fixed"));
   setDim("left", rect["left"].as<double>() + bounds.L);
@@ -598,6 +605,8 @@ void IGraphicsWeb::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
   setDim("width", bounds.W());
   setDim("height", bounds.H());
   
+  setColor("color", text.mTextEntryFGColor);
+  setColor("background-color", text.mTextEntryBGColor);
   if (paramIdx > kNoParameter)
   {
     const IParam* pParam = GetDelegate()->GetParam(paramIdx);
