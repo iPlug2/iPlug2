@@ -6,7 +6,7 @@
 
 The Examples folder contains example/template projects to demonstrate how to use different features of my modified IPlug and WDL. They also serve as a testbed to make sure that the various aspects are working. Each folder contains scripts which automate the build process and package everything along with a pdf manual in an installer. The scripts also code sign binaries/installers and set icons where required.
 
-Visual Studio 2017+ and Xcode 8+, which are both available for free are supported. If you know what you're doing you may be able to get things to compile with other IDEs/versions, you are highly recommended to use the latest versions. No effort is made to make the code compatible with other IDEs, or compilers such as mingw. 
+Visual Studio 2019 and Xcode 10+, which are both available for free are supported. If you know what you're doing you may be able to get things to compile with other IDEs/versions, you are highly recommended to use the latest versions. No effort is made to make the code compatible with other IDEs, or compilers such as mingw. 
 
 Note: although Visual Studio and Xcode required to build IPlug plug-ins, projects are setup in such a way that you may easily use your favourite text editor and call build scripts, to build the binaries (although then you lack the debugger functionality of the IDE).
 
@@ -16,7 +16,7 @@ Some of these are optional, but without them the build-scripts will need to be e
 
 **Windows**
 
-* [Microsoft Visual Studio 2017 Community](https://www.visualstudio.com/downloads/) (or one of the premium versions)
+* [Microsoft Visual Studio 2019 Community](https://www.visualstudio.com/downloads/) (or one of the premium versions)
 \todo Add a list of Visual Studio packages required
 
 * [Python 2.7 or 3](http://www.python.org/) for running various scripts
@@ -26,7 +26,7 @@ Some of these are optional, but without them the build-scripts will need to be e
 
 **Mac**
 
-* Xcode 9 installed, including command-line tools
+* Xcode 10 installed, including command-line tools
 * [Packages](http://s.sudre.free.fr/Software/Packages/about.html) for building OSX installers 
 * [setfileicon utility](http://maxao.free.fr/telechargements/setfileicon.gz) for changing icons
 * Mac Developer ID Certificates for code signing installers and dmg files
