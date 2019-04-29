@@ -22,7 +22,7 @@
     <ProjectGuid>{4E9953CA-2B45-4C54-943B-A4689660C7A8}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>cairo</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
