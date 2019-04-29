@@ -1,4 +1,13 @@
 echo off
+setlocal EnableDelayedExpansion
+
+echo Usage:    makedist-win.bat ^<demo version^> ^<include AAX^> ^<include VST2^> ^<include VST3^> ^<sign the installer^>
+echo           ^<demo version^>: Whether to build as demo. Possible values: 0 (no), 1 (yes). Default: 0.
+echo           ^<include AAX^>: Whether to include AAX format. Possible values: 0 (no), 1 (yes). Default: 1.
+echo           ^<include VST2^>: Whether to include VST2 format. Possible values: 0 (no), 1 (yes). Default: 1.
+echo           ^<include VST3^>: Whether to include VST3 format. Possible values: 0 (no), 1 (yes). Default: 1.
+echo           ^<sign the installer^>: Whether to sign the installer with a certificate. Possible values: 0 (no), 1 (yes). Default: 1.
+echo           Example (no demo, does not include AAX and does not sign the installer, but includes VST2 and VST3): makedist-win.bat 0 0 1 1 0
 
 REM - batch file to build MSVS project and zip the resulting binaries (or make installer)
 REM - updating version numbers requires python and python path added to %PATH% env variable 
@@ -6,7 +15,15 @@ REM - zipping requires 7zip in %ProgramFiles%\7-Zip\7z.exe
 REM - building installer requires innotsetup in "%ProgramFiles(x86)%\Inno Setup 5\iscc"
 REM - AAX codesigning requires wraptool tool added to %PATH% env variable and aax.key/.crt in .\..\..\..\Certificates\
 
-if %1 == 1 (echo Making IPlugEffect Windows DEMO VERSION distribution ...) else (echo Making IPlugEffect Windows FULL VERSION distribution ...)
+if "%1"=="1" (set "BUILD_DEMO=1") else (set "BUILD_DEMO=0")
+if "%2"=="0" (set "INCLUDE_AAX=0") else (set "INCLUDE_AAX=1") 
+if "%3"=="0" (set "INCLUDE_VST2=0") else (set "INCLUDE_VST2=1") 
+if "%4"=="0" (set "INCLUDE_VST3=0") else (set "INCLUDE_VST3=1") 
+if "%5"=="0" (set "SIGN_INSTALLER=0") else (set "SIGN_INSTALLER=1") 
+echo Configuration based on parameter values: BUILD_DEMO = %BUILD_DEMO%, INCLUDE_AAX = %INCLUDE_AAX%, INCLUDE_VST2 = %INCLUDE_VST2%, INCLUDE_VST3 = %INCLUDE_VST3%, SIGN_INSTALLER = %SIGN_INSTALLER%
+
+
+if BUILD_DEMO (echo Making IPlugEffect Windows DEMO VERSION distribution ...) else (echo Making IPlugEffect Windows FULL VERSION distribution ...)
 
 echo "touching source"
 cd ..\
