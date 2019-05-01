@@ -1699,7 +1699,7 @@ struct IKeyPress
   bool S, C, A; // SHIFT / CTRL(WIN) or CMD (MAC) / ALT
   
   /** /todo 
-   * @param unichar /todo
+   * @param _utf8 /todo
    * @param vk /todo
    * @param s /todo
    * @param c /todo
@@ -1710,6 +1710,8 @@ struct IKeyPress
   {
     strcpy(utf8, _utf8);
   }
+  
+  void DBGPrint() const { DBGMSG("VK: %i\n", VK); }
 };
 
 /** Used to manage mouse modifiers i.e. right click and shift/control/alt keys. */
