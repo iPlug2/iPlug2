@@ -326,13 +326,6 @@
 			remoteGlobalIDString = 4F3AE17812C0E5E2001FD7A4;
 			remoteInfo = "AU_32&64_intel";
 		};
-		4F8157D6205D4FEE00393585 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D;
-			remoteInfo = AAXLibrary;
-		};
 		4F8157D8205D4FEE00393585 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
@@ -481,7 +474,6 @@
 		4F5FCFA22246F723004F29F4 /* TestBlendControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestBlendControl.h; sourceTree = "<group>"; };
 		4F5FCFA32246F723004F29F4 /* TestGradientControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestGradientControl.h; sourceTree = "<group>"; };
 		4F5FCFA42246F723004F29F4 /* TestDropShadowControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestDropShadowControl.h; sourceTree = "<group>"; };
-		4F5FCFA52246F723004F29F4 /* TestRotatingMaskControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestRotatingMaskControl.h; sourceTree = "<group>"; };
 		4F5FCFA62246F723004F29F4 /* TestMultiPathControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestMultiPathControl.h; sourceTree = "<group>"; };
 		4F5FCFA72246F723004F29F4 /* TestMPSControl.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TestMPSControl.mm; sourceTree = "<group>"; };
 		4F5FCFA82246F723004F29F4 /* TestArcControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestArcControl.h; sourceTree = "<group>"; };
@@ -1108,7 +1100,6 @@
 				4F5FCFA22246F723004F29F4 /* TestBlendControl.h */,
 				4F5FCFA32246F723004F29F4 /* TestGradientControl.h */,
 				4F5FCFA42246F723004F29F4 /* TestDropShadowControl.h */,
-				4F5FCFA52246F723004F29F4 /* TestRotatingMaskControl.h */,
 				4F5FCFA62246F723004F29F4 /* TestMultiPathControl.h */,
 				4F5FCF972246F723004F29F4 /* TestMPSControl.h */,
 				4F5FCFA72246F723004F29F4 /* TestMPSControl.mm */,
@@ -1258,7 +1249,6 @@
 		4F8157D2205D4FEE00393585 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				4F8157D7205D4FEE00393585 /* libAAXLibrary.a */,
 				4F8157D9205D4FEE00393585 /* libAAXLibrary_libcpp.a */,
 			);
 			name = Products;
@@ -1894,13 +1884,6 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		4F8157D7205D4FEE00393585 /* libAAXLibrary.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libAAXLibrary.a;
-			remoteRef = 4F8157D6205D4FEE00393585 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		4F8157D9205D4FEE00393585 /* libAAXLibrary_libcpp.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;

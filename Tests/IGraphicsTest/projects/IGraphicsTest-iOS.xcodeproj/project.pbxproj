@@ -209,7 +209,7 @@
 		4FDF6D692267CDBE0007B686 /* IGraphicsCoreText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsCoreText.h; sourceTree = "<group>"; };
 		4FDF6D6A2267CDBE0007B686 /* IGraphicsCoreText.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsCoreText.mm; sourceTree = "<group>"; };
 		4FDF6D722267CE540007B686 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		4FDF6D732267CE540007B686 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		4FDF6D732267CE540007B686 /* AppViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AppViewController.mm; sourceTree = "<group>"; };
 		4FDF6D742267CE540007B686 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4FDF6D752267CE540007B686 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		4FDF6D762267CE540007B686 /* AppViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppViewController.h; sourceTree = "<group>"; };
@@ -236,7 +236,6 @@
 		4FF07B0E226B9837002828E3 /* TestBlendControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestBlendControl.h; sourceTree = "<group>"; };
 		4FF07B0F226B9837002828E3 /* TestGradientControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestGradientControl.h; sourceTree = "<group>"; };
 		4FF07B10226B9837002828E3 /* TestDropShadowControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestDropShadowControl.h; sourceTree = "<group>"; };
-		4FF07B11226B9837002828E3 /* TestRotatingMaskControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestRotatingMaskControl.h; sourceTree = "<group>"; };
 		4FF07B12226B9837002828E3 /* TestMultiPathControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestMultiPathControl.h; sourceTree = "<group>"; };
 		4FF07B13226B9837002828E3 /* TestMPSControl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TestMPSControl.mm; sourceTree = "<group>"; };
 		4FF07B14226B9837002828E3 /* TestArcControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestArcControl.h; sourceTree = "<group>"; };
@@ -559,7 +558,6 @@
 				4FF07B0E226B9837002828E3 /* TestBlendControl.h */,
 				4FF07B0F226B9837002828E3 /* TestGradientControl.h */,
 				4FF07B10226B9837002828E3 /* TestDropShadowControl.h */,
-				4FF07B11226B9837002828E3 /* TestRotatingMaskControl.h */,
 				4FF07B12226B9837002828E3 /* TestMultiPathControl.h */,
 				4FF07B13226B9837002828E3 /* TestMPSControl.mm */,
 				4FF07B14226B9837002828E3 /* TestArcControl.h */,
@@ -634,8 +632,8 @@
 		91D3DA0B1B023C03008FFFBB = {
 			isa = PBXGroup;
 			children = (
-				4FFF108820A1036200D3092F /* IGraphicsTest.h */,
 				4FFF108420A1036200D3092F /* config.h */,
+				4FFF108820A1036200D3092F /* IGraphicsTest.h */,
 				4FFF108720A1036200D3092F /* IGraphicsTest.cpp */,
 				4F8BF48D20A12D2E0081DF0A /* Resources */,
 				4F67D51620A121F60061FB8E /* Other Sources */,
