@@ -567,7 +567,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 #if defined IGRAPHICS_GL
   self.layer.contentsScale = 1./newScale;
-#else if defined IGRAPHICS_METAL
+#elif defined IGRAPHICS_METAL
   [(CAMetalLayer*)[self layer] setDrawableSize:CGSizeMake(self.frame.size.width * newScale,
                                                           self.frame.size.height * newScale)];
 #endif
