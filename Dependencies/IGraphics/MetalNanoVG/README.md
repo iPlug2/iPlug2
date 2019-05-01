@@ -8,7 +8,7 @@ Precautions
 
  * Works only on [macOS 10.11+](https://support.apple.com/en-us/HT205073), tvOS 9.0+ and [iOS 8.0+](https://developer.apple.com/library/content/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/DeviceCompatibilityMatrix/DeviceCompatibilityMatrix.html#//apple_ref/doc/uid/TP40013599-CH17-SW1) (simulator is not supported).
  * Not all Apple hardwares are supported even if meets the OS requirement.
- * [ARC](https://en.wikipedia.org/wiki/Automatic_Reference_Counting) is not supported. If your project uses ARC, you can build MetalNanoVG along NanoVG as a static library.
+ * [ARC](https://en.wikipedia.org/wiki/Automatic_Reference_Counting) is required.
 
 Advantages
 ==========
@@ -60,3 +60,9 @@ OpenGL ES2 implementations get constant 60 FPS.
   | Resolution | 1080 x 1920 | 2732 * 2048           |
   | Metal      | 20%         | 20%                   |
   | OpenGL ES2 | 35%         | 33%                   |
+
+Example
+=======
+MetalNanoVG was originally created to improve the performance of the iOS app [Fog of World](https://fogofworld.com).
+
+![Screenshot of Fog of World](http://media.fogofworld.com.s3.amazonaws.com/github/fogofworld_screenshot.jpg)

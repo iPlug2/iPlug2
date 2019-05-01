@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "91236D541B08F52D00734C5E"
-               BuildableName = "IGraphicsTestFramework.framework"
-               BlueprintName = "Framework"
+               BlueprintIdentifier = "4F2602B12269F00000C7E97E"
+               BuildableName = "IGraphicsTestShared.a"
+               BlueprintName = "Shared"
                ReferencedContainer = "container:IGraphicsTest-iOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,9 +45,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "91236D541B08F52D00734C5E"
-            BuildableName = "IGraphicsTestFramework.framework"
-            BlueprintName = "Framework"
+            BlueprintIdentifier = "4F2602B12269F00000C7E97E"
+            BuildableName = "IGraphicsTestShared.a"
+            BlueprintName = "Shared"
             ReferencedContainer = "container:IGraphicsTest-iOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -63,9 +63,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "91236D541B08F52D00734C5E"
-            BuildableName = "IGraphicsTestFramework.framework"
-            BlueprintName = "Framework"
+            BlueprintIdentifier = "4F2602B12269F00000C7E97E"
+            BuildableName = "IGraphicsTestShared.a"
+            BlueprintName = "Shared"
             ReferencedContainer = "container:IGraphicsTest-iOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

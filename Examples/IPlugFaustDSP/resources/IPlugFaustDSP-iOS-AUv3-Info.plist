@@ -32,7 +32,7 @@
 					<key>description</key>
 					<string>IPlugFaustDSP</string>
 					<key>factoryFunction</key>
-					<string>IPlugFaustDSPViewController</string>
+					<string>IPlugAUViewController</string>
 					<key>manufacturer</key>
 					<string>Acme</string>
 					<key>name</key>

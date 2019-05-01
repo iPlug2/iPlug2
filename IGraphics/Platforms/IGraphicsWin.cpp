@@ -841,9 +841,9 @@ void IGraphicsWin::CreateGLContext()
   mHGLRC = wglCreateContext(dc);
   wglMakeCurrent(dc, mHGLRC);
 
-  //TODO: do we want this?
+  //TODO: return false if GL init fails?
   if (!gladLoadGL())
-    throw std::runtime_error{ "Error initializing glad" };
+    DBGMSG("Error initializing glad");
 
   glGetError();
 

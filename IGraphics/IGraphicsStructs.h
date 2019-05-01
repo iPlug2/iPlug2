@@ -25,6 +25,7 @@
 #include <numeric>
 #include <chrono>
 #include <string>
+#include <memory>
 
 #include "mutex.h"
 #include "wdlstring.h"
@@ -87,7 +88,7 @@ typedef WDL_TypedBuf<uint8_t> RawBitmapData;
   typedef void* BitmapData;
 #endif
 
-#if defined OS_MAC
+#if defined OS_MAC || defined OS_IOS
 #include <CoreText/CoreText.h>
 typedef CTFontDescriptorRef FontDescriptor;
 #elif defined OS_WIN
@@ -97,7 +98,6 @@ typedef HFONT FontDescriptor;
 #elif defined OS_WEB
 typedef std::pair<WDL_String, WDL_String>* FontDescriptor;
 #else // NO_IGRAPHICS
-typedef void* BitmapData;
 #endif
 
 /** A bitmap abstraction around the different drawing back end bitmap representations.
