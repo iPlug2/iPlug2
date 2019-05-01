@@ -36,7 +36,7 @@
 		4F3E0F6A20A0BCD900A9C2BE /* IGraphicsStressTest-iOS.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6720A0BC5B00A9C2BE /* IGraphicsStressTest-iOS.storyboard */; };
 		4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */; };
 		4FB2269720A0D3A800614769 /* IGraphicsStressTest-iOS-LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* IGraphicsStressTest-iOS-LaunchScreen.storyboard */; };
-		4FDF6D772267CE540007B686 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D732267CE540007B686 /* ViewController.m */; };
+		4FDF6D772267CE540007B686 /* AppViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D732267CE540007B686 /* AppViewController.mm */; };
 		4FDF6D792267CE540007B686 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D742267CE540007B686 /* main.m */; };
 		4FDF6D7B2267CE540007B686 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D752267CE540007B686 /* AppDelegate.m */; };
 		4FDF6D7F2267CEBA0007B686 /* IPlugAUPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D7D2267CEBA0007B686 /* IPlugAUPlayer.mm */; };
@@ -211,7 +211,7 @@
 		4FDF6D732267CE540007B686 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		4FDF6D742267CE540007B686 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4FDF6D752267CE540007B686 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		4FDF6D762267CE540007B686 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		4FDF6D762267CE540007B686 /* AppViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppViewController.h; sourceTree = "<group>"; };
 		4FDF6D7D2267CEBA0007B686 /* IPlugAUPlayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugAUPlayer.mm; sourceTree = "<group>"; };
 		4FDF6D7E2267CEBA0007B686 /* IPlugAUPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugAUPlayer.h; sourceTree = "<group>"; };
 		4FE8F3AF20BA273800BF938F /* IGraphicsEditorDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsEditorDelegate.cpp; sourceTree = "<group>"; };
@@ -502,8 +502,8 @@
 				4FDF6D742267CE540007B686 /* main.m */,
 				4FDF6D722267CE540007B686 /* AppDelegate.h */,
 				4FDF6D752267CE540007B686 /* AppDelegate.m */,
-				4FDF6D762267CE540007B686 /* ViewController.h */,
-				4FDF6D732267CE540007B686 /* ViewController.m */,
+				4FDF6D762267CE540007B686 /* AppViewController.h */,
+				4FDF6D732267CE540007B686 /* AppViewController.mm */,
 				4FDF6D7E2267CEBA0007B686 /* IPlugAUPlayer.h */,
 				4FDF6D7D2267CEBA0007B686 /* IPlugAUPlayer.mm */,
 			);
@@ -785,7 +785,7 @@
 				4F2602D52269F38900C7E97E /* IGraphicsStressTest.cpp in Sources */,
 				4FDF6D7F2267CEBA0007B686 /* IPlugAUPlayer.mm in Sources */,
 				4FDF6D7B2267CE540007B686 /* AppDelegate.m in Sources */,
-				4FDF6D772267CE540007B686 /* ViewController.m in Sources */,
+				4FDF6D772267CE540007B686 /* AppViewController.mm in Sources */,
 				4FDF6D792267CE540007B686 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
