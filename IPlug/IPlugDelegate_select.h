@@ -18,7 +18,7 @@
 //  typedef PUGLEditorDelegate EDITOR_DELEGATE_CLASS;
 //#el
 #if defined UIKIT_EDITOR_DELEGATE
-  #include "UIKitEditorDelegate.h"
+  #include "IPlugUIKitEditorDelegate.h"
   typedef UIKitEditorDelegate EDITOR_DELEGATE_CLASS;
 #elif defined NO_IGRAPHICS
   #include "IPlugEditorDelegate.h"
