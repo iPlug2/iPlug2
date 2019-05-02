@@ -171,7 +171,7 @@ bool IGraphicsIOS::GetTextFromClipboard(WDL_String& str)
   return false;
 }
 
-bool SetTextInClipboard(const WDL_String& str)
+bool IGraphicsIOS::SetTextInClipboard(const WDL_String& str)
 {
   return false;
 }
