@@ -1706,7 +1706,7 @@ void IGraphics::CalulateTextRotation(const IText& text, const IRECT& bounds, IRE
 #ifdef IGRAPHICS_IMGUI
 void IGraphics::AttachImGui(std::function<void(IGraphics*)> drawFunc, std::function<void()> setupFunc)
 {
-  mImGuiRenderer std::make_unique<ImGuiRenderer>(this, drawFunc, setupFunc);
+  mImGuiRenderer = std::make_unique<ImGuiRenderer>(this, drawFunc, setupFunc);
   
 #if !defined IGRAPHICS_GL2 && !defined IGRAPHICS_GL3 // TODO: IGRAPHICS_GL!
   CreatePlatformImGui();
