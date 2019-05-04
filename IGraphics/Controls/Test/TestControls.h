@@ -24,7 +24,6 @@
 #include "TestFontControl.h"
 #include "TestAnimationControl.h"
 #include "TestDrawContextControl.h"
-#include "TestSizeControl.h"
 #include "TestSVGControl.h"
 #include "TestImageControl.h"
 #include "TestBlendControl.h"
@@ -35,6 +34,8 @@
 #include "TestGLControl.h"
 #include "TestTextOrientationControl.h"
 #include "TestTextSizeControl.h"
+#include "TestSizeControl.h"
+#include "TestGFXLabel.h"
 #ifdef IGRAPHICS_METAL
 #include "TestMPSControl.h"
 #endif

@@ -161,6 +161,8 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new ITextControl(nextCell(), "Three!", {24, COLOR_RED, "Roboto-Regular", IText::kAlignFar, IText::kVAlignBottom}));
     pGraphics->AttachControl(new ITextControl(nextCell(), "Four!", {40, COLOR_ORANGE, "Roboto-Regular", IText::kAlignCenter, IText::kVAlignBottom}));
 #endif
+    
+    pGraphics->AttachControl(new GFXLabelControl(bounds.GetFromTRHC(100, 100).GetTranslated(25, -25)));
   };
   
 #endif
