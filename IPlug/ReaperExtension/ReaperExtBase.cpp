@@ -15,9 +15,36 @@ void ReaperExtBase::OnTimer(Timer& t)
   OnIdle();
 }
 
+auto ClientResize = [](HWND hWnd, int nWidth, int nHeight) {
+  RECT rcClient, rcWindow;
+  POINT ptDiff;
+  int screenwidth, screenheight;
+  int x, y;
+  
+  screenwidth = GetSystemMetrics(SM_CXSCREEN);
+  screenheight = GetSystemMetrics(SM_CYSCREEN);
+  x = (screenwidth / 2) - (nWidth / 2);
+  y = (screenheight / 2) - (nHeight / 2);
+  
+  GetClientRect(hWnd, &rcClient);
+  GetWindowRect(hWnd, &rcWindow);
+  ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
+  ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
+  
+  SetWindowPos(hWnd, 0, x, y, nWidth + ptDiff.x, nHeight + ptDiff.y, 0);
+};
+
 void ReaperExtBase::EditorPropertiesChangedFromUI(int viewWidth, int viewHeight, const IByteChunk& data)
 {
-  //TODO: handle iplug corner resizer
+  if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
+  {
+#ifdef OS_MAC
+#define TITLEBAR_BODGE 22 //TODO: sort this out
+    RECT r;
+    GetWindowRect(gHWND, &r);
+    SetWindowPos(gHWND, 0, r.left, r.bottom - viewHeight - TITLEBAR_BODGE, viewWidth, viewHeight + TITLEBAR_BODGE, 0);
+#endif
+  }
 }
 
 void ReaperExtBase::ShowHideMainWindow()
@@ -28,6 +55,23 @@ void ReaperExtBase::ShowHideMainWindow()
   }
   else
     DestroyWindow(gHWND);
+}
+
+void ReaperExtBase::ToggleDocking()
+{
+  if (!mDocked)
+  {
+    mDocked = true;
+    ShowWindow(gHWND, SW_HIDE);
+    DockWindowAdd(gHWND, (char*) "TEST", 0, false);
+    DockWindowActivate(gHWND);
+  }
+  else
+  {
+    DestroyWindow(gHWND);
+    mDocked = false;
+//    Show(false, true);
+  }
 }
 
 void ReaperExtBase::RegisterAction(const char* actionName, std::function<void()> func, bool addMenuItem, int* pToggle/*, IKeyPress keyCmd*/)
@@ -81,37 +125,15 @@ int ReaperExtBase::ToggleActionCallback(int command)
 //static
 WDL_DLGRET ReaperExtBase::MainDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-  auto Resize = [&]()
-  {
-    RECT r;
-    GetWindowRect(hwnd, &r);
-    if(memcmp((void*) &r, (void*) &gPrevBounds, sizeof(RECT)) > 0)
-      gPlug->GetUI()->Resize(r.right-r.left, r.bottom-r.top, 1);
-    
-    gPrevBounds = r;
-  };
-
-#ifdef OS_WIN
-  auto ClientResize = [](HWND hWnd, int nWidth, int nHeight) {
-    RECT rcClient, rcWindow;
-    POINT ptDiff;
-    int screenwidth, screenheight;
-    int x, y;
-
-    screenwidth = GetSystemMetrics(SM_CXSCREEN);
-    screenheight = GetSystemMetrics(SM_CYSCREEN);
-    x = (screenwidth / 2) - (nWidth / 2);
-    y = (screenheight / 2) - (nHeight / 2);
-
-    GetClientRect(hWnd, &rcClient);
-    GetWindowRect(hWnd, &rcWindow);
-    ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
-    ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
-
-    SetWindowPos(hWnd, 0, x, y, nWidth + ptDiff.x, nHeight + ptDiff.y, 0);
-    //  MoveWindow(hWnd, x, y, nWidth + ptDiff.x, nHeight + ptDiff.y, FALSE);
-  };
-#endif
+//  auto Resize = [&]()
+//  {
+//    RECT r;
+//    GetWindowRect(hwnd, &r);
+//    if(memcmp((void*) &r, (void*) &gPrevBounds, sizeof(RECT)) > 0)
+//      gPlug->GetUI()->Resize(r.right-r.left, r.bottom-r.top, 1);
+//
+//    gPrevBounds = r;
+//  };
 
   switch (uMsg)
   {
@@ -119,9 +141,7 @@ WDL_DLGRET ReaperExtBase::MainDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
     {
       AttachWindowTopmostButton(hwnd);
       gPlug->OpenWindow(hwnd);
-#ifdef OS_WIN
       ClientResize(hwnd, PLUG_WIDTH, PLUG_HEIGHT);
-#endif
       ShowWindow(hwnd, SW_SHOW);
       GetWindowRect(hwnd, &gPrevBounds);
       
@@ -134,11 +154,11 @@ WDL_DLGRET ReaperExtBase::MainDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
       gPlug->CloseWindow();
       DestroyWindow(hwnd);
       return 0;
-    case WM_SIZE:
-    {
+//    case WM_SIZE:
+//    {
       //Resize();
-      return 0;
-    }
+//      return 0;
+//    }
   }
   return 0;
 }

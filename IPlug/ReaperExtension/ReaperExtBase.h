@@ -45,6 +45,8 @@ public:
   
   /** /todo */
   void ShowHideMainWindow();
+  
+  void ToggleDocking();
 
 public:
   // Reaper calls back to this when it wants to execute an action registered by the extension plugin
@@ -60,4 +62,5 @@ private:
 
   reaper_plugin_info_t* mRec = nullptr;
   std::unique_ptr<Timer> mTimer;
+  bool mDocked = false;
 };

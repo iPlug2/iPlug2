@@ -55,7 +55,9 @@ extern "C"
       IMPAPI(AddExtensionsMainMenu);
       IMPAPI(AttachWindowTopmostButton);
       IMPAPI(ShowConsoleMsg);
-
+      IMPAPI(DockWindowAdd);
+      IMPAPI(DockWindowActivate);
+      
       if (gErrorCount > 0)
         return 0;
       
@@ -100,7 +102,7 @@ extern "C"
 
 
 #ifndef OS_WIN
-#define SWELL_DLG_FLAGS_AUTOGEN SWELL_DLG_WS_FLIPPED|SWELL_DLG_WS_RESIZABLE
+#define SWELL_DLG_FLAGS_AUTOGEN SWELL_DLG_WS_FLIPPED//|SWELL_DLG_WS_RESIZABLE
 #include "swell-dlggen.h"
 #include "main.rc_mac_dlg"
 #undef BEGIN

@@ -39,13 +39,19 @@ ReaperExtension::ReaperExtension(reaper_plugin_info_t* pRec)
     
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     pGraphics->AttachPanelBackground(COLOR_RED);
-    pGraphics->SetLayoutOnResize(true);
+    pGraphics->AttachCornerResizer();
     pGraphics->SetSizeConstraints(100, 4096, 100, 4096);
-    pGraphics->AttachControl(new IVButtonControl(bounds.GetGridCell(0, 2, 2).GetCentredInside(150),
+    pGraphics->AttachControl(new IVButtonControl(bounds.GetGridCell(0, 2, 2).GetPadded(-20.).SubRectVertical(2, 0).GetMidVPadded(20),
                                                  [&](IControl* pCaller) {
                                                    SplashClickActionFunc(pCaller);
                                                    action2();
                                                  }, "Action 2 - Add Track"));
+
+//    pGraphics->AttachControl(new IVButtonControl(bounds.GetGridCell(0, 2, 2).GetPadded(-20.).SubRectVertical(2, 1).GetMidVPadded(20),
+//                                                 [&](IControl* pCaller) {
+//                                                   SplashClickActionFunc(pCaller);
+//                                                   ToggleDocking();
+//                                                 }, "Dock"));
     
     WDL_String str;
     mPrevTrackCount = CountTracks(0);
@@ -53,17 +59,15 @@ ReaperExtension::ReaperExtension(reaper_plugin_info_t* pRec)
     
     pGraphics->AttachControl(new ITextControl(bounds.GetGridCell(1, 2, 2), str.Get(), IText(24, IText::kAlignNear)), kCtrlTagText);
     
-    pGraphics->AttachControl(new IVSliderControl(bounds.GetGridCell(2, 2, 2).GetPadded(-20), [](IControl* pCaller)
-                                                 {
+    pGraphics->AttachControl(new IVSliderControl(bounds.GetGridCell(3, 2, 2).GetPadded(-20), [](IControl* pCaller) {
                                                    WDL_String valStr;
                                                    valStr.SetFormatted(32, "slider %f\n", pCaller->GetValue());
                                                    ShowConsoleMsg(valStr.Get());
                                                  }));
     
-    pGraphics->AttachImGui([](IGraphics* pGraphics)
-    {
-      ImGui::ShowDemoWindow();
-    });
+//    pGraphics->AttachImGui([](IGraphics* pGraphics) {
+//      ImGui::ShowDemoWindow();
+//    });
   };
 }
 
