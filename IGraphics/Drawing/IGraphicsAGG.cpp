@@ -279,11 +279,11 @@ void IGraphicsAGG::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX
   }
 }
 
-void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax)
+void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding)
 {
   agg::path_storage transformedPath;
     
-  agg::arc arc(cx, cy, r, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f));
+  agg::arc arc(cx, cy, r, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f), winding == kWindingCCW);
   arc.approximation_scale(mTransform.scale());
     
   transformedPath.join_path(arc);
