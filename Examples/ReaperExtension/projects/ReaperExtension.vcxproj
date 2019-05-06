@@ -220,6 +220,7 @@
     <ClInclude Include="..\..\..\IPlug\ReaperExtension\ReaperExtBase.h" />
     <ClInclude Include="..\..\..\IPlug\ReaperExtension\ReaperExt_include_in_plug_hdr.h" />
     <ClInclude Include="..\..\..\IPlug\ReaperExtension\ReaperExt_include_in_plug_src.h" />
+    <ClInclude Include="..\config.h" />
     <ClInclude Include="..\ReaperExtension.h" />
     <ClInclude Include="..\resources\resource.h" />
   </ItemGroup>

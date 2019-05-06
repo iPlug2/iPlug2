@@ -3,7 +3,6 @@
 // Used by main.rc
 //
 #define IDD_DIALOG_MAIN                 40001
-#define IDC_RECT                        40008
 
 // Next default values for new objects
 // 

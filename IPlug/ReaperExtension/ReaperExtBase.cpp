@@ -24,7 +24,7 @@ void ReaperExtBase::ShowHideMainWindow()
 {
   if(gHWND == NULL)
   {
-    gHWND = CreateDialog(NULL, MAKEINTRESOURCE(IDD_DIALOG_MAIN), 0, ReaperExtBase::MainDlgProc); // TODO: why is this not finding the dialog on windows?
+    gHWND = CreateDialog(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_MAIN), gParent, ReaperExtBase::MainDlgProc);
   }
   else
     DestroyWindow(gHWND);
@@ -90,13 +90,38 @@ WDL_DLGRET ReaperExtBase::MainDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
     
     gPrevBounds = r;
   };
-  
+
+#ifdef OS_WIN
+  auto ClientResize = [](HWND hWnd, int nWidth, int nHeight) {
+    RECT rcClient, rcWindow;
+    POINT ptDiff;
+    int screenwidth, screenheight;
+    int x, y;
+
+    screenwidth = GetSystemMetrics(SM_CXSCREEN);
+    screenheight = GetSystemMetrics(SM_CYSCREEN);
+    x = (screenwidth / 2) - (nWidth / 2);
+    y = (screenheight / 2) - (nHeight / 2);
+
+    GetClientRect(hWnd, &rcClient);
+    GetWindowRect(hWnd, &rcWindow);
+    ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
+    ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
+
+    SetWindowPos(hWnd, 0, x, y, nWidth + ptDiff.x, nHeight + ptDiff.y, 0);
+    //  MoveWindow(hWnd, x, y, nWidth + ptDiff.x, nHeight + ptDiff.y, FALSE);
+  };
+#endif
+
   switch (uMsg)
   {
     case WM_INITDIALOG:
     {
       AttachWindowTopmostButton(hwnd);
       gPlug->OpenWindow(hwnd);
+#ifdef OS_WIN
+      ClientResize(hwnd, PLUG_WIDTH, PLUG_HEIGHT);
+#endif
       ShowWindow(hwnd, SW_SHOW);
       GetWindowRect(hwnd, &gPrevBounds);
       
@@ -106,15 +131,14 @@ WDL_DLGRET ReaperExtBase::MainDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
       gHWND = NULL;
       return 0;
     case WM_CLOSE:
-      KillTimer(hwnd, -1);
       gPlug->CloseWindow();
       DestroyWindow(hwnd);
       return 0;
     case WM_SIZE:
     {
-      Resize();
+      //Resize();
       return 0;
     }
   }
-  return 1;
+  return 0;
 }
