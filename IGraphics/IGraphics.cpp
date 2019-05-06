@@ -776,7 +776,11 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 #ifdef IGRAPHICS_IMGUI
   if(mImGuiRenderer)
   {
-    if(pControl != mCornerResizer.get() && mImGuiRenderer.get()->OnMouseDown(x, y, mod))
+    bool cornerResizer = false;
+    if(mCornerResizer.get() != nullptr)
+      cornerResizer = pControl == mCornerResizer.get();
+
+    if(!cornerResizer && mImGuiRenderer.get()->OnMouseDown(x, y, mod))
     {
       ReleaseMouseCapture();
       return;
@@ -1467,7 +1471,7 @@ void IGraphics::CreateTextEntry(IControl& control, const IText& text, const IREC
   mTextEntryValIdx = valIdx;
     
   if (mTextEntryControl)
-    mTextEntryControl->CreateTextEntry(bounds, text, str);
+    mTextEntryControl->CreateTextEntry(control.GetParamIdx(valIdx), text, bounds, control.GetTextEntryLength(), str);
   else
     CreatePlatformTextEntry(control.GetParamIdx(valIdx), text, bounds, control.GetTextEntryLength(), str);
 }
@@ -1752,7 +1756,7 @@ void IGraphics::CalulateTextRotation(const IText& text, const IRECT& bounds, IRE
 #ifdef IGRAPHICS_IMGUI
 void IGraphics::AttachImGui(std::function<void(IGraphics*)> drawFunc, std::function<void()> setupFunc)
 {
-  mImGuiRenderer std::make_unique<ImGuiRenderer>(this, drawFunc, setupFunc);
+  mImGuiRenderer = std::make_unique<ImGuiRenderer>(this, drawFunc, setupFunc);
   
 #if !defined IGRAPHICS_GL2 && !defined IGRAPHICS_GL3 // TODO: IGRAPHICS_GL!
   CreatePlatformImGui();

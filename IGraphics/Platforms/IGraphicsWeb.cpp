@@ -112,16 +112,16 @@ static int domVKToWinVK(int dom_vk_code)
 //    case DOM_VK_PRINTSCREEN:          return 0;  // TODO
     case DOM_VK_INSERT:               return kVK_INSERT;
     case DOM_VK_DELETE:               return kVK_DELETE;
-//    case DOM_VK_0:                    return 0;  // TODO
-//    case DOM_VK_1:                    return 0;  // TODO
-//    case DOM_VK_2:                    return 0;  // TODO
-//    case DOM_VK_3:                    return 0;  // TODO
-//    case DOM_VK_4:                    return 0;  // TODO
-//    case DOM_VK_5:                    return 0;  // TODO
-//    case DOM_VK_6:                    return 0;  // TODO
-//    case DOM_VK_7:                    return 0;  // TODO
-//    case DOM_VK_8:                    return 0;  // TODO
-//    case DOM_VK_9:                    return 0;  // TODO
+    case DOM_VK_0:                    return kVK_0;
+    case DOM_VK_1:                    return kVK_1;
+    case DOM_VK_2:                    return kVK_2;
+    case DOM_VK_3:                    return kVK_3;
+    case DOM_VK_4:                    return kVK_4;
+    case DOM_VK_5:                    return kVK_5;
+    case DOM_VK_6:                    return kVK_6;
+    case DOM_VK_7:                    return kVK_7;
+    case DOM_VK_8:                    return kVK_8;
+    case DOM_VK_9:                    return kVK_9;
 //    case DOM_VK_COLON:                return 0;  // TODO
 //    case DOM_VK_SEMICOLON:            return 0;  // TODO
 //    case DOM_VK_LESS_THAN:            return 0;  // TODO
@@ -129,32 +129,32 @@ static int domVKToWinVK(int dom_vk_code)
 //    case DOM_VK_GREATER_THAN:         return 0;  // TODO
 //    case DOM_VK_QUESTION_MARK:        return 0;  // TODO
 //    case DOM_VK_AT:                   return 0;  // TODO
-//    case DOM_VK_A:                    return VK_A;
-//    case DOM_VK_B:                    return VK_B;
-//    case DOM_VK_C:                    return VK_C;
-//    case DOM_VK_D:                    return VK_D;
-//    case DOM_VK_E:                    return VK_E;
-//    case DOM_VK_F:                    return VK_F;
-//    case DOM_VK_G:                    return VK_G;
-//    case DOM_VK_H:                    return VK_H;
-//    case DOM_VK_I:                    return VK_I;
-//    case DOM_VK_J:                    return VK_J;
-//    case DOM_VK_K:                    return VK_K;
-//    case DOM_VK_L:                    return VK_L;
-//    case DOM_VK_M:                    return VK_M;
-//    case DOM_VK_N:                    return VK_N;
-//    case DOM_VK_O:                    return VK_O;
-//    case DOM_VK_P:                    return VK_P;
-//    case DOM_VK_Q:                    return VK_Q;
-//    case DOM_VK_R:                    return VK_R;
-//    case DOM_VK_S:                    return VK_S;
-//    case DOM_VK_T:                    return VK_T;
-//    case DOM_VK_U:                    return VK_U;
-//    case DOM_VK_V:                    return VK_V;
-//    case DOM_VK_W:                    return VK_W;
-//    case DOM_VK_X:                    return VK_X;
-//    case DOM_VK_Y:                    return VK_Y;
-//    case DOM_VK_Z:                    return VK_Z;
+    case DOM_VK_A:                    return kVK_A;
+    case DOM_VK_B:                    return kVK_B;
+    case DOM_VK_C:                    return kVK_C;
+    case DOM_VK_D:                    return kVK_D;
+    case DOM_VK_E:                    return kVK_E;
+    case DOM_VK_F:                    return kVK_F;
+    case DOM_VK_G:                    return kVK_G;
+    case DOM_VK_H:                    return kVK_H;
+    case DOM_VK_I:                    return kVK_I;
+    case DOM_VK_J:                    return kVK_J;
+    case DOM_VK_K:                    return kVK_K;
+    case DOM_VK_L:                    return kVK_L;
+    case DOM_VK_M:                    return kVK_M;
+    case DOM_VK_N:                    return kVK_N;
+    case DOM_VK_O:                    return kVK_O;
+    case DOM_VK_P:                    return kVK_P;
+    case DOM_VK_Q:                    return kVK_Q;
+    case DOM_VK_R:                    return kVK_R;
+    case DOM_VK_S:                    return kVK_S;
+    case DOM_VK_T:                    return kVK_T;
+    case DOM_VK_U:                    return kVK_U;
+    case DOM_VK_V:                    return kVK_V;
+    case DOM_VK_W:                    return kVK_W;
+    case DOM_VK_X:                    return kVK_X;
+    case DOM_VK_Y:                    return kVK_Y;
+    case DOM_VK_Z:                    return kVK_Z;
 //    case DOM_VK_WIN:                  return 0;  // TODO
 //    case DOM_VK_CONTEXT_MENU:         return 0;  // TODO
 //    case DOM_VK_SLEEP:                return 0;  // TODO

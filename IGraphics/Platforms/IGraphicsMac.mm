@@ -589,6 +589,13 @@ bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
   }
 }
 
+bool IGraphicsMac::SetTextInClipboard(const WDL_String& str)
+{
+  NSString* pTextForClipboard = [NSString stringWithUTF8String:str.Get()];
+  [[NSPasteboard generalPasteboard] clearContents];
+  return [[NSPasteboard generalPasteboard] setString:pTextForClipboard forType:NSStringPboardType];
+}
+
 void IGraphicsMac::CreatePlatformImGui()
 {
 #ifdef IGRAPHICS_IMGUI

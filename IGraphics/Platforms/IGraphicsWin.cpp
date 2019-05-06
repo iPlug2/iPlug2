@@ -396,7 +396,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       // TODO: should get unicode?
       bool handle = false;
 
-      if (len == 1)
+      // send when len is 0 because wParam might be something like VK_LEFT or VK_HOME, etc.
+      if (len == 0 || len == 1)
       {
         char str[2];
         str[0] = static_cast<char>(character);
@@ -836,9 +837,9 @@ void IGraphicsWin::CreateGLContext()
   mHGLRC = wglCreateContext(dc);
   wglMakeCurrent(dc, mHGLRC);
 
-  //TODO: do we want this?
+  //TODO: return false if GL init fails?
   if (!gladLoadGL())
-    throw std::runtime_error{ "Error initializing glad" };
+    DBGMSG("Error initializing glad");
 
   glGetError();
 
@@ -1576,6 +1577,41 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
     str.Set("");
   
   return numChars;
+}
+
+bool IGraphicsWin::SetTextInClipboard(const WDL_String& str)
+{
+  if (!OpenClipboard(mMainWnd))
+    return false;
+
+  EmptyClipboard();
+
+  const int len = str.GetLength();
+  if (len > 0)
+  {
+    // figure out how much memory we need for the wide version of this string
+    int wchar_len = MultiByteToWideChar(CP_UTF8, 0, str.Get(), -1, NULL, 0);
+
+    // allocate global memory object for the text
+    HGLOBAL hglbCopy = GlobalAlloc(GMEM_MOVEABLE, wchar_len*sizeof(WCHAR));
+    if (hglbCopy == NULL)
+    {
+      CloseClipboard();
+      return false;
+    }
+
+    // lock the handle and copy the string into the buffer
+    LPWSTR lpstrCopy = (LPWSTR)GlobalLock(hglbCopy);
+    MultiByteToWideChar(CP_UTF8, 0, str.Get(), -1, lpstrCopy, wchar_len);
+    GlobalUnlock(hglbCopy);
+
+    // place the handle on the clipboard
+    SetClipboardData(CF_UNICODETEXT, hglbCopy);
+  }
+
+  CloseClipboard();
+
+  return len > 0;
 }
 
 HFONT GetHFont(const char* fontName, int weight, bool italic, bool underline, DWORD quality = DEFAULT_QUALITY, bool enumerate = false)

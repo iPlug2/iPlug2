@@ -37,10 +37,12 @@ jobs:
   - bash: |
       cd ./Dependencies/IPlug
       rm -r VST3_SDK
-      git clone --recursive https://github.com/steinbergmedia/vst3sdk.git VST3_SDK
-      rm -r VST3_SDK/vstgui4
-      rm -r VST3_SDK/doc
-      rm -r VST3_SDK/cmake
+      git clone https://github.com/steinbergmedia/vst3sdk.git VST3_SDK
+      cd VST3_SDK
+      git submodule update --init pluginterfaces
+      git submodule update --init base
+      git submodule update --init public.sdk
+      cd ..
       rm -r VST3_SDK/public.sdk/samples
       rm -r VST3_SDK/.git
     displayName: Download VST3 SDK

@@ -19,14 +19,9 @@ IPlugMidiEffect::IPlugMidiEffect(IPlugInstanceInfo instanceInfo)
   mLayoutFunc = [&](IGraphics* pGraphics) {
     
     auto actionFunc = [&](IControl* pCaller) {
-      
-      
       static bool onoff = false;
-      
       onoff = !onoff;
-      
       IMidiMsg msg;
-      
       constexpr int pitches[3] = {60, 65, 67};
       
       for (int i = 0; i<3; i++)
