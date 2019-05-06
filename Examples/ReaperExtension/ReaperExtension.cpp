@@ -38,10 +38,10 @@ ReaperExtension::ReaperExtension(reaper_plugin_info_t* pRec)
     }
     
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
-    pGraphics->AttachPanelBackground(COLOR_RED);
+    pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->AttachCornerResizer();
     pGraphics->SetSizeConstraints(100, 4096, 100, 4096);
-    pGraphics->AttachControl(new IVButtonControl(bounds.GetGridCell(0, 2, 2).GetPadded(-20.).SubRectVertical(2, 0).GetMidVPadded(20),
+    pGraphics->AttachControl(new IVButtonControl(bounds.GetGridCell(0, 3, 1).GetPadded(-20.).SubRectVertical(2, 0).GetMidVPadded(20),
                                                  [&](IControl* pCaller) {
                                                    SplashClickActionFunc(pCaller);
                                                    action2();
@@ -57,13 +57,13 @@ ReaperExtension::ReaperExtension(reaper_plugin_info_t* pRec)
     mPrevTrackCount = CountTracks(0);
     str.SetFormatted(64, "NumTracks: %i", mPrevTrackCount);
     
-    pGraphics->AttachControl(new ITextControl(bounds.GetGridCell(1, 2, 2), str.Get(), IText(24, IText::kAlignNear)), kCtrlTagText);
+    pGraphics->AttachControl(new ITextControl(bounds.GetGridCell(1, 3, 1), str.Get(), IText(24, IText::kAlignCenter)), kCtrlTagText);
     
-    pGraphics->AttachControl(new IVSliderControl(bounds.GetGridCell(3, 2, 2).GetPadded(-20), [](IControl* pCaller) {
+    pGraphics->AttachControl(new IVSliderControl(bounds.GetGridCell(2, 3, 1).GetPadded(-20), [](IControl* pCaller) {
                                                    WDL_String valStr;
                                                    valStr.SetFormatted(32, "slider %f\n", pCaller->GetValue());
                                                    ShowConsoleMsg(valStr.Get());
-                                                 }));
+                                                 }, DEFAULT_SPEC, kHorizontal));
     
 //    pGraphics->AttachImGui([](IGraphics* pGraphics) {
 //      ImGui::ShowDemoWindow();
