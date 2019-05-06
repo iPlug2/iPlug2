@@ -59,6 +59,11 @@ ReaperExtension::ReaperExtension(reaper_plugin_info_t* pRec)
                                                    valStr.SetFormatted(32, "slider %f\n", pCaller->GetValue());
                                                    ShowConsoleMsg(valStr.Get());
                                                  }));
+    
+    pGraphics->AttachImGui([](IGraphics* pGraphics)
+    {
+      ImGui::ShowDemoWindow();
+    });
   };
 }
 

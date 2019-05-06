@@ -10,6 +10,8 @@
 		4F56E31B227F43A400F3E839 /* IGraphicsCoreText.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F56E319227F43A400F3E839 /* IGraphicsCoreText.mm */; };
 		4F56E325227F9C3200F3E839 /* IGraphicsNanoVG_src.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8C2521EA55BD00C1EF1B /* IGraphicsNanoVG_src.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F56E32A227FA3C400F3E839 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F56E328227FA3C400F3E839 /* IPlugTimer.cpp */; };
+		4FB401CF2280684300F35D81 /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FB401CC2280684300F35D81 /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4FB401D222806B3B00F35D81 /* IGraphicsAGG_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FB401D122806B3B00F35D81 /* IGraphicsAGG_src.mm */; };
 		4FBA83B120ECB19100423B90 /* ReaperExtension.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA837B20ECAE7B00423B90 /* ReaperExtension.cpp */; };
 		4FBA83B420ECB63400423B90 /* swell-modstub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA83A720ECAED000423B90 /* swell-modstub.mm */; };
 		4FBB8C7421EA55BD00C1EF1B /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8C3221EA55BD00C1EF1B /* IGraphicsMac.mm */; };
@@ -40,6 +42,10 @@
 		4FA39B01228064A900C6FCAE /* ReaperExt_include_in_plug_hdr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaperExt_include_in_plug_hdr.h; sourceTree = "<group>"; };
 		4FA39B02228064A900C6FCAE /* ReaperExtBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaperExtBase.h; sourceTree = "<group>"; };
 		4FA39B03228064A900C6FCAE /* ReaperExtBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReaperExtBase.cpp; sourceTree = "<group>"; };
+		4FB401CC2280684300F35D81 /* IGraphicsImGui_src.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsImGui_src.mm; path = ../Extras/IGraphicsImGui_src.mm; sourceTree = "<group>"; };
+		4FB401CD2280684300F35D81 /* IGraphicsImGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsImGui.h; path = ../Extras/IGraphicsImGui.h; sourceTree = "<group>"; };
+		4FB401CE2280684300F35D81 /* IGraphicsImGui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsImGui.cpp; path = ../Extras/IGraphicsImGui.cpp; sourceTree = "<group>"; };
+		4FB401D122806B3B00F35D81 /* IGraphicsAGG_src.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsAGG_src.mm; sourceTree = "<group>"; };
 		4FBA837B20ECAE7B00423B90 /* ReaperExtension.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = ReaperExtension.cpp; path = ../ReaperExtension.cpp; sourceTree = "<group>"; };
 		4FBA83A720ECAED000423B90 /* swell-modstub.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-modstub.mm"; path = "../../../WDL/swell/swell-modstub.mm"; sourceTree = "<group>"; };
 		4FBA83AC20ECAF0B00423B90 /* reaper_ReaperExtension.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = reaper_ReaperExtension.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -226,6 +232,17 @@
 			path = ../../../IPlug/ReaperExtension;
 			sourceTree = "<group>";
 		};
+		4FB401CB2280682F00F35D81 /* Extras */ = {
+			isa = PBXGroup;
+			children = (
+				4FB401CC2280684300F35D81 /* IGraphicsImGui_src.mm */,
+				4FB401CE2280684300F35D81 /* IGraphicsImGui.cpp */,
+				4FB401CD2280684300F35D81 /* IGraphicsImGui.h */,
+			);
+			name = Extras;
+			path = "New Group";
+			sourceTree = "<group>";
+		};
 		4FBA83BF20ECBBBE00423B90 /* Reaper */ = {
 			isa = PBXGroup;
 			children = (
@@ -242,6 +259,7 @@
 		4FBB8C1921EA55BD00C1EF1B /* IGraphics */ = {
 			isa = PBXGroup;
 			children = (
+				4FB401CB2280682F00F35D81 /* Extras */,
 				4FBB8C1A21EA55BD00C1EF1B /* Drawing */,
 				4FBB8C2B21EA55BD00C1EF1B /* Platforms */,
 				4FBB8C4021EA55BD00C1EF1B /* Controls */,
@@ -268,6 +286,7 @@
 		4FBB8C1A21EA55BD00C1EF1B /* Drawing */ = {
 			isa = PBXGroup;
 			children = (
+				4FB401D122806B3B00F35D81 /* IGraphicsAGG_src.mm */,
 				4FBB8C1B21EA55BD00C1EF1B /* IGraphicsLice.h */,
 				4FBB8C1C21EA55BD00C1EF1B /* IGraphicsAGG.h */,
 				4FBB8C1D21EA55BD00C1EF1B /* IGraphicsLice.cpp */,
@@ -481,10 +500,12 @@
 				4FBB8C7B21EA55BD00C1EF1B /* IGraphics.cpp in Sources */,
 				4FBA83B120ECB19100423B90 /* ReaperExtension.cpp in Sources */,
 				4FBB8C7A21EA55BD00C1EF1B /* IGraphicsEditorDelegate.cpp in Sources */,
+				4FB401CF2280684300F35D81 /* IGraphicsImGui_src.mm in Sources */,
 				4FBB8C7C21EA55BD00C1EF1B /* ITextEntryControl.cpp in Sources */,
 				4FBB8C8821EA56C600C1EF1B /* IPlugPaths.cpp in Sources */,
 				4FBB8C7421EA55BD00C1EF1B /* IGraphicsMac.mm in Sources */,
 				4FBB8C7521EA55BD00C1EF1B /* IGraphicsMac_view.mm in Sources */,
+				4FB401D222806B3B00F35D81 /* IGraphicsAGG_src.mm in Sources */,
 				4F56E31B227F43A400F3E839 /* IGraphicsCoreText.mm in Sources */,
 				4FBB8C7F21EA55BD00C1EF1B /* IControl.cpp in Sources */,
 			);
