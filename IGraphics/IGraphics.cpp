@@ -741,7 +741,11 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
 #ifdef IGRAPHICS_IMGUI
   if(mImGuiRenderer)
   {
-    if(pControl != mCornerResizer.get() && mImGuiRenderer.get()->OnMouseDown(x, y, mod))
+    bool cornerResizer = false;
+    if(mCornerResizer.get() != nullptr)
+      cornerResizer = pControl == mCornerResizer.get();
+
+    if(!cornerResizer && mImGuiRenderer.get()->OnMouseDown(x, y, mod))
     {
       ReleaseMouseCapture();
       return;
