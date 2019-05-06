@@ -2,7 +2,7 @@
 // Microsoft Visual C++ generated include file.
 // Used by main.rc
 //
-#define IDD_DIALOG_MAIN                 3000
+#define IDD_DIALOG_MAIN                 40001
 #define IDC_RECT                        40008
 
 // Next default values for new objects
