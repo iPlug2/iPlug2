@@ -1066,7 +1066,7 @@ private:
    * @param bounds The platform menu will popup at the bottom left hand corner of this rectangular region
    * @param isContext Determines if the menu is a contextual menu or not
    * @param valIdx The value index for the control value that the prompt relates to */
-  void CreateSupportedPopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx, bool isContext);
+  void DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx, bool isContext);
     
 protected: // TODO: correct?
   /** /todo */

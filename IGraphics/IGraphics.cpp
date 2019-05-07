@@ -1194,7 +1194,7 @@ void IGraphics::PopupHostContextMenuForParam(IControl* pControl, int paramIdx, f
     if(!contextMenu.NItems())
       return;
 
-    CreateSupportedPopupMenu(*pControl, contextMenu, IRECT(x, y, x, y), kNoValIdx, true);
+    DoCreatePopupMenu(*pControl, contextMenu, IRECT(x, y, x, y), kNoValIdx, true);
 #endif
   }
 }
@@ -1476,7 +1476,7 @@ void IGraphics::CreateTextEntry(IControl& control, const IText& text, const IREC
     CreatePlatformTextEntry(control.GetParamIdx(valIdx), text, bounds, control.GetTextEntryLength(), str);
 }
 
-void IGraphics::CreateSupportedPopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx, bool isContext)
+void IGraphics::DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx, bool isContext)
 {
   ReleaseMouseCapture();
     
@@ -1497,7 +1497,7 @@ void IGraphics::CreateSupportedPopupMenu(IControl& control, IPopupMenu& menu, co
 
 void IGraphics::CreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx)
 {
-  CreateSupportedPopupMenu(control, menu, bounds, valIdx, false);
+  DoCreatePopupMenu(control, menu, bounds, valIdx, false);
 }
 
 void IGraphics::StartLayer(const IRECT& r)
