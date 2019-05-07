@@ -58,7 +58,7 @@ public:
   {
   }
 
-  virtual inline T Process(double freqHz) override
+  inline T Process(double freqHz) override
   {
     IOscillator<T>::SetFreqCPS(freqHz);
     IOscillator<T>::mPhase = IOscillator<T>::mPhase + IOscillator<T>::mPhaseIncr;

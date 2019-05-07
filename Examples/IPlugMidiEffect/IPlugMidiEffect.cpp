@@ -37,7 +37,7 @@ IPlugMidiEffect::IPlugMidiEffect(IPlugInstanceInfo instanceInfo)
       SplashClickActionFunc(pCaller);
     };
     
-    pGraphics->LoadFont("Roboto-Regular", ROBOTTO_FN);
+    pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->AttachControl(new IVButtonControl(pGraphics->GetBounds().GetPadded(-10), actionFunc, "Trigger Chord"));
   };

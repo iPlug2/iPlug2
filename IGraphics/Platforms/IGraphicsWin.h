@@ -74,8 +74,8 @@ public:
   bool SetTextInClipboard(const WDL_String& str) override;
   
 protected:
-  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
-  void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
+  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds) override;
+  void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
 
   void SetTooltip(const char* tooltip);
   void ShowTooltip();
@@ -123,7 +123,10 @@ private:
   HFONT mEditFont = nullptr;
   DWORD mPID = 0;
 
-  IControl* mEdControl = nullptr;
+  const IParam* mEditParam = nullptr;
+  IText mEditText;
+  IRECT mEditRECT;
+
   EParamEditMsg mParamEditMsg = kNone;
   bool mShowingTooltip = false;
   float mHiddenCursorX;

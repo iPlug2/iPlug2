@@ -68,9 +68,9 @@ void IPlugWAM::onProcess(WAM::AudioBus* pAudio, void* pData)
   {
     while(mParamChangeFromProcessor.ElementsAvailable())
     {
-      IParamChange p;
+      ParamTuple p;
       mParamChangeFromProcessor.Pop(p);
-      SendParameterValueFromDelegate(p.paramIdx, p.value, p.normalized);
+      SendParameterValueFromDelegate(p.idx, p.value, false);
     }
     
     while (mMidiMsgsFromProcessor.ElementsAvailable())

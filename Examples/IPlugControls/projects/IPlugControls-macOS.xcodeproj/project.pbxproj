@@ -324,13 +324,6 @@
 			remoteGlobalIDString = 4F3AE17812C0E5E2001FD7A4;
 			remoteInfo = "AU_32&64_intel";
 		};
-		4F8157D6205D4FEE00393585 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC046055464E500DB518D;
-			remoteInfo = AAXLibrary;
-		};
 		4F8157D8205D4FEE00393585 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4FF7B0F3156A831000E6CB12 /* AAXLibrary.xcodeproj */;
@@ -1181,7 +1174,6 @@
 		4F8157D2205D4FEE00393585 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				4F8157D7205D4FEE00393585 /* libAAXLibrary.a */,
 				4F8157D9205D4FEE00393585 /* libAAXLibrary_libcpp.a */,
 			);
 			name = Products;
@@ -1808,13 +1800,6 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		4F8157D7205D4FEE00393585 /* libAAXLibrary.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libAAXLibrary.a;
-			remoteRef = 4F8157D6205D4FEE00393585 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		4F8157D9205D4FEE00393585 /* libAAXLibrary_libcpp.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;

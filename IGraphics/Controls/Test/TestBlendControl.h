@@ -33,7 +33,7 @@ public:
 
   void Draw(IGraphics& g) override
   {
-    const float alpha = static_cast<float>(mValue);
+    const float alpha = (float) GetValue();
 
     int cell = 0;
     auto nextCell = [&]() {

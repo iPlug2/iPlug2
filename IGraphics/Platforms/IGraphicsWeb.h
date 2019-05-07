@@ -71,8 +71,8 @@ public:
   double mPrevY = 0.;
   
 protected:
-  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
-  void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
+  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds) override;
+  void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
     
 private:
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;

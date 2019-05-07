@@ -54,7 +54,7 @@ public:
       g.FillRect(COLOR_BLACK, useplatbut.GetPadded(-2));
   }
   
-  void OnPopupMenuSelection(IPopupMenu* pMenu)override
+  void OnPopupMenuSelection(IPopupMenu* pMenu, int valIdx) override
   {
     if(pMenu)
     {
@@ -75,7 +75,7 @@ public:
   {
     if(but.Contains(x, y))
     {
-      GetUI()->CreatePopupMenu(mMainMenu, x, y, this);
+      GetUI()->CreatePopupMenu(*this, mMainMenu, x, y);
     }
     else if(useplatbut.Contains(x, y))
     {

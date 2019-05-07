@@ -510,7 +510,7 @@ bool IGraphicsMac::PromptForColor(IColor& color, const char* str)
   return false;
 }
 
-IPopupMenu* IGraphicsMac::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+IPopupMenu* IGraphicsMac::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds)
 {
   IPopupMenu* pReturnMenu = nullptr;
 
@@ -524,18 +524,15 @@ IPopupMenu* IGraphicsMac::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
   if(pReturnMenu && pReturnMenu->GetFunction())
     pReturnMenu->ExecFunction();
 
-  if(pCaller)
-    pCaller->OnPopupMenuSelection(pReturnMenu); // should fire even if pReturnMenu == nullptr
-
   return pReturnMenu;
 }
 
-void IGraphicsMac::CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
+void IGraphicsMac::CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str)
 {
   if (mView)
   {
     NSRect areaRect = ToNSRect(this, bounds);
-    [(IGRAPHICS_VIEW*) mView createTextEntry: control : text: str: areaRect];
+    [(IGRAPHICS_VIEW*) mView createTextEntry: paramIdx : text: str: length: areaRect];
   }
 }
 

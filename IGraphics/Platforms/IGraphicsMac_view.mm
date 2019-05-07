@@ -987,7 +987,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 {
   char* txt = (char*)[[mTextFieldView stringValue] UTF8String];
 
-  mGraphics->SetControlValueFromStringAfterPrompt(*mEdControl, txt);
+  mGraphics->SetControlValueAfterTextEdit(txt);
   mGraphics->SetAllControlsDirty();
 
   [self endUserInput ];
@@ -1016,7 +1016,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   else return nullptr;
 }
 
-- (void) createTextEntry: (IControl&) control : (const IText&) text : (const char*) str : (NSRect) areaRect;
+- (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (NSRect) areaRect;
 {
   if (mTextFieldView)
     return;
@@ -1051,7 +1051,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
       break;
   }
 
-  const IParam* pParam = control.GetParam();
+  const IParam* pParam = paramIdx > kNoParameter ? mGraphics->GetDelegate()->GetParam(paramIdx) : nullptr;
 
   // set up formatter
   if (pParam)
@@ -1074,7 +1074,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 
     [mTextFieldView setFormatter:[[[IGRAPHICS_FORMATTER alloc] init] autorelease]];
     [[mTextFieldView formatter] setAcceptableCharacterSet:characterSet];
-    [[mTextFieldView formatter] setMaximumLength:control.GetTextEntryLength()];
+    [[mTextFieldView formatter] setMaximumLength:length];
     [characterSet release];
   }
 
@@ -1096,8 +1096,6 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   NSWindow* pWindow = [self window];
   [pWindow makeKeyAndOrderFront:nil];
   [pWindow makeFirstResponder: mTextFieldView];
-
-  mEdControl = &control;
 }
 
 - (void) endUserInput
@@ -1109,7 +1107,6 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   [pWindow makeFirstResponder: self];
 
   mTextFieldView = nullptr;
-  mEdControl = nullptr;
 }
 
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData

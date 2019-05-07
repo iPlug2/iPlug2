@@ -30,14 +30,14 @@ public:
     SetTooltip("TestTextOrientationControl");
     mDblAsSingleClick = true;
     Next();
-    mValue = 0.5;
+    SetValue(0.5);
   }
 
   void Draw(IGraphics& g) override
   {
     IRECT drawRECT = mRECT;
     const char* str = "Some Text To Rotate";
-    mText.mOrientation = mValue * 360.0 - 180.0;
+    mText.mOrientation = GetValue() * 360.0 - 180.0;
     
     g.MeasureText(mText, str, drawRECT);
     g.FillRect(COLOR_WHITE, mRECT);

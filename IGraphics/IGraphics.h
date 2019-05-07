@@ -772,13 +772,6 @@ public:
    * @return \todo check */
   virtual int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) = 0;
 
-  /** Create a text entry box
-   * @param control The control that the text entry belongs to. If this control is linked to a parameter, the text entry will be configured with initial text matching the parameter value
-   * @param text An IText struct to set the formatting of the text entry box
-   * @param bounds The rectangular region in the graphics context that the text entry will occupy.
-   * @param str A CString to specify the default text to display when the text entry box is opened (unless the control specified by the first argument is linked to a parameter) */
-  void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "");
-
   /** Create a platform file prompt dialog to choose a file/directory path for opening/saving a file/directory. NOTE: this method will block the main thread
    * @param fileName Non const WDL_String reference specifying the file name. Set this prior to calling the method for save dialogs, to provide a default file name. For load dialogs, on successful selection of a file this will get set to the file’s name.
    * @param path WDL_String reference where the path will be put on success or empty string on failure/user cancelled
@@ -860,14 +853,14 @@ protected:
    * @param text /todo
    * @param bounds /todo
    * @param str /todo */
-  virtual void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "") = 0;
+  virtual void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) = 0;
   
   /** /todo
    * @param menu /todo
    * @param bounds /todo
    * @param pCaller /todo
    * @return IPopupMenu* /todo */
-  virtual IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller = nullptr) = 0;
+  virtual IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds) = 0;
 
 #pragma mark - Base implementation
 public:
@@ -890,28 +883,43 @@ public:
 
   /** Prompt for user input either using a text entry or pop up menu
    * @param control Reference to the control which the prompt relates to
-   * @param bounds Rectangular region of the graphics context that the prompt (e.g. text entry box) should occupy */
-  void PromptUserInput(IControl& control, const IRECT& bounds);
-
-  /** Called by the platform class after returning from a prompt (typically a text entry) in order to update a control with a new value
-   * @param control Reference to the control which the call relates to
-   * @param str The new value as a CString */
-  void SetControlValueFromStringAfterPrompt(IControl& control, const char* str);
+   * @param bounds Rectangular region of the graphics context that the prompt (e.g. text entry box) should occupy
+   * @param valIdx The value index for the control value that the prompt relates to */
+  void PromptUserInput(IControl& control, const IRECT& bounds, int valIdx = 0);
 
   /** Shows a pop up/contextual menu in relation to a rectangular region of the graphics context
+   * @param control A reference to the IControl creating this pop-up menu. If it exists IControl::OnPopupMenuSelection() will be called on successful selection
    * @param menu Reference to an IPopupMenu class populated with the items for the platform menu
    * @param bounds The platform menu will popup at the bottom left hand corner of this rectangular region
-   * @param pCaller A pointed to the IControl creating this pop-up menu. If it exists IControl::OnPopupMenuSelection() will be called on successful selection
-   * @return Pointer to an IPopupMenu that represents the menu that user finally clicked on (might not be the same as menu if they clicked a submenu) */
-  IPopupMenu* CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller = nullptr);
+   * @param valIdx The value index for the control value that the menu relates to */
+  void CreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx = 0);
 
   /** Shows a pop up/contextual menu at point in the graphics context
+   * @param control A reference to the IControl creating this pop-up menu. If it exists IControl::OnPopupMenuSelection() will be called on successful selection
    * @param x The X coordinate in the graphics context at which to pop up the menu
    * @param y The Y coordinate in the graphics context at which to pop up the menu
-   * @param pCaller A pointer to the IControl creating this pop-up menu. If it exists IControl::OnPopupMenuSelection() will be called on successful selection
-   * @return Pointer to an IPopupMenu that represents the menu that user finally clicked on (might not be the same as menu if they clicked a submenu) */
-  IPopupMenu* CreatePopupMenu(IPopupMenu& menu, float x, float y, IControl* pCaller = nullptr) { const IRECT bounds = IRECT(x,y,x,y); return CreatePopupMenu(menu, bounds, pCaller); }
+   * @param valIdx The value index for the control value that the menu relates to */
+  void CreatePopupMenu(IControl& control, IPopupMenu& menu, float x, float y, int valIdx = 0)
+  {
+    return CreatePopupMenu(control, menu, IRECT(x, y, x, y), valIdx);
+  }
+    
+  /** Create a text entry box
+   * @param control The control that the text entry belongs to. If this control is linked to a parameter, the text entry will be configured with initial text matching the parameter value
+   * @param text An IText struct to set the formatting of the text entry box
+   * @param bounds The rectangular region in the graphics context that the text entry will occupy.
+   * @param str A CString to specify the default text to display when the text entry box is opened (unless the control specified by the first argument is linked to a parameter)
+   * @param valIdx The value index for the control value that the text entry relates to */
+  void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "", int valIdx = 0);
 
+   /** Called by the platform class after returning from a text entry in order to update a control with a new value. The base class has a record of the control, so it is not needed here.
+    * @param str The new value as a CString */
+  void SetControlValueAfterTextEdit(const char* str);
+    
+  /** Called by PopupMenuControl in order to update a control with a new value after returning from the non-blocking menu. The base class has a record of the control, so it is not needed here.
+   * @param pReturnMenu The new value as a CString */
+  void SetControlValueAfterPopupMenu(IPopupMenu* pMenu);
+    
   /** /todo 
    * @param lo /todo
    * @param hi /todo */
@@ -1052,6 +1060,14 @@ private:
    * @param scale /todo */
   void DrawControl(IControl* pControl, const IRECT& bounds, float scale);
   
+  /** Shows a pop up/contextual menu in relation to a rectangular region of the graphics context
+   * @param control A reference to the IControl creating this pop-up menu. If it exists IControl::OnPopupMenuSelection() will be called on successful selection
+   * @param menu Reference to an IPopupMenu class populated with the items for the platform menu
+   * @param bounds The platform menu will popup at the bottom left hand corner of this rectangular region
+   * @param isContext Determines if the menu is a contextual menu or not
+   * @param valIdx The value index for the control value that the prompt relates to */
+  void DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx, bool isContext);
+    
 protected: // TODO: correct?
   /** /todo */
   void StartResizeGesture() { mResizingInProcess = true; };
@@ -1164,9 +1180,10 @@ public:
    * @param spec Color spec for the controls */
   void StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec = DEFAULT_SPEC);
   
-  /** This method is called after interacting with a control, so that any other controls linked to the same parameter index, will also be set dirty, and have their values updated.
-   * @param pCaller The control that triggered the parameter change. */
-  void UpdatePeers(IControl* pCaller);
+   /** This method is called after interacting with a control, so that any other controls linked to the same parameter index, will also be set dirty, and have their values updated.
+    * @param pCaller The control that triggered the parameter change.
+    * @param callerValIdx The index of the value in the control that triggered the parameter change. */
+  void UpdatePeers(IControl* pCaller, int callerValIdx);
   
   /** @return The number of controls that have been added to this graphics context */
   int NControls() const { return mControls.GetSize(); }
@@ -1449,6 +1466,11 @@ private:
   int mIdleTicks = 0;
   IControl* mMouseCapture = nullptr;
   IControl* mMouseOver = nullptr;
+  IControl* mInTextEntry = nullptr;
+  IControl* mInPopupMenu = nullptr;
+  bool mIsContextMenu;
+  int mTextEntryValIdx = kNoValIdx;
+  int mPopupMenuValIdx = kNoValIdx;
   int mMouseOverIdx = -1;
   float mMouseDownX = -1.f;
   float mMouseDownY = -1.f;
@@ -1480,6 +1502,7 @@ protected:
 
   friend class IGraphicsLiveEdit;
   friend class ICornerResizerControl;
+  friend class ITextEntryControl;
   
   std::stack<ILayer*> mLayers;
   

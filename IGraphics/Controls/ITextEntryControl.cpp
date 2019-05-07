@@ -57,7 +57,6 @@
 
 ITextEntryControl::ITextEntryControl()
 : IControl(IRECT())
-, mTargetControl(nullptr)
 {
   stb_textedit_initialize_state(&mEditState, true);
   
@@ -254,34 +253,39 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
     default:
     {
       // validate input based on param type
-      switch (mParamType)
+      const IParam* pParam = GetUI()->mInTextEntry->GetParam();
+
+      if(pParam)
       {
-        case IParam::kTypeEnum:
-        case IParam::kTypeInt:
-        case IParam::kTypeBool:
+        switch (pParam->Type())
         {
-          if (key.VK >= '0' && key.VK <= '9')
+          case IParam::kTypeEnum:
+          case IParam::kTypeInt:
+          case IParam::kTypeBool:
+          {
+            if (key.VK >= '0' && key.VK <= '9')
+              break;
+            if (key.VK >= kVK_NUMPAD0 && key.VK <= kVK_NUMPAD9)
+              break;
+            if (stbKey == '+' || stbKey == '-')
+              break;
+            stbKey = 0;
             break;
-          if (key.VK >= kVK_NUMPAD0 && key.VK <= kVK_NUMPAD9)
+          }
+          case IParam::kTypeDouble:
+          {
+            if (key.VK >= '0' && key.VK <= '9')
+              break;
+            if (key.VK >= kVK_NUMPAD0 && key.VK <= kVK_NUMPAD9)
+              break;
+            if (stbKey == '+' || stbKey == '-' || stbKey == '.')
+              break;
+            stbKey = 0;
             break;
-          if (stbKey == '+' || stbKey == '-')
+          }
+          default:
             break;
-          stbKey = 0;
-          break;
         }
-        case IParam::kTypeDouble:
-        {
-          if (key.VK >= '0' && key.VK <= '9')
-            break;
-          if (key.VK >= kVK_NUMPAD0 && key.VK <= kVK_NUMPAD9)
-            break;
-          if (stbKey == '+' || stbKey == '-' || stbKey == '.')
-            break;
-          stbKey = 0;
-          break;
-        }
-        default:
-          break;
       }
 
       if (stbKey == 0)
@@ -489,14 +493,11 @@ float ITextEntryControl::GetCharWidth(char c, char nc)
   return bounds.W();
 }
 
-void ITextEntryControl::CreateTextEntry(IControl& control, const IRECT& bounds, const IText& text, const char* str)
+void ITextEntryControl::CreateTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str)
 {
   SetTargetAndDrawRECTs(bounds);
   SetText(text);
   mText.mFGColor = mText.mTextEntryFGColor;
-  mTargetControl = &control;
-  const IParam* param = mTargetControl->GetParam();
-  mParamType = param ? param->Type() : IParam::kTypeNone;
   mEditString.Set(str);
   mEditState.select_start = 0;
   mEditState.select_end = mEditString.GetLength();
@@ -509,7 +510,6 @@ void ITextEntryControl::CreateTextEntry(IControl& control, const IRECT& bounds, 
 void ITextEntryControl::DismissEdit()
 {
   mEditing = false;
-  mTargetControl = nullptr;
   SetTargetAndDrawRECTs(IRECT());
   GetUI()->SetAllControlsDirty();
 }
@@ -517,12 +517,7 @@ void ITextEntryControl::DismissEdit()
 void ITextEntryControl::CommitEdit()
 {
   mEditing = false;
-  if (mTargetControl != nullptr)
-  {
-    mTargetControl->OnTextEntryCompletion(mEditString.Get());
-    mTargetControl = nullptr;
-    mParamType = IParam::kTypeNone;
-  }
+  GetUI()->SetControlValueAfterTextEdit(mEditString.Get());
   SetTargetAndDrawRECTs(IRECT());
   GetUI()->SetAllControlsDirty();
 }

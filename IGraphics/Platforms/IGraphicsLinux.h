@@ -48,5 +48,5 @@ public:
 
 protected:
   IPopupMenu* CreatePlatformPopupMenu(const IPopupMenu& menu, IRECT& bounds) override;
-  void CreatePlatformTextEntry(IControl* pControl, const IText& text, const IRECT& bounds, const char* str) override;
+  void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
 }

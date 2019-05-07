@@ -55,7 +55,7 @@ public:
 
   void Draw(IGraphics& g) override;
 
-  void SetDirty(bool push) override;
+  void SetDirty(bool push, int valIdx = kNoValIdx) override;
 
 protected:
   WDL_String mStr;
@@ -70,9 +70,9 @@ public:
                        const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2, EDirection dir = kVertical);
 
   virtual ~IVRadioButtonControl() { mLabels.Empty(true); }
-  virtual void Draw(IGraphics& g) override;
-  virtual void OnResize() override;
-//  virtual bool IsHit(float x, float y) const override;
+  void Draw(IGraphics& g) override;
+  void OnResize() override;
+//bool IsHit(float x, float y) const override;
 
 protected:
   EDirection mDirection;
@@ -135,7 +135,7 @@ public:
       mLayer = g.EndLayer();
     }
 
-    g.DrawRotatedLayer(mLayer, mStartAngle + mValue * (mEndAngle - mStartAngle));
+    g.DrawRotatedLayer(mLayer, mStartAngle + GetValue() * (mEndAngle - mStartAngle));
   }
 
   void SetSVG(ISVG& svg)
@@ -178,11 +178,68 @@ public:
 
   virtual ~IVSliderControl() {}
 
-  virtual void Draw(IGraphics& g) override;
+  void Draw(IGraphics& g) override;
   void OnResize() override;
 
-private:
+protected:
   float mTrackSize;
+};
+
+class IVRangeSliderControl : public IVSliderControl
+{
+public:
+  IVRangeSliderControl(IRECT bounds, int paramIdxLo, int paramIdxHi);
+
+  void Draw(IGraphics& g) override;
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
+
+protected:
+  float mMouseDownVal = 0.f;
+};
+
+
+class IVXYPadControl : public IControl
+                     , public IVectorBase
+{
+public:
+  IVXYPadControl(IRECT bounds, const std::initializer_list<int>& params,
+    const IVColorSpec& colorSpec = DEFAULT_SPEC,
+    float handleRadius = 10.f)
+    : IControl(bounds, params)
+    , IVectorBase(colorSpec)
+    , mHandleRadius(handleRadius)
+  {
+    AttachIControl(this);
+  }
+
+  void Draw(IGraphics& g) override
+  {
+    float xpos = GetValue(0) * mRECT.W();
+    float ypos = GetValue(1) * mRECT.H();
+
+    g.DrawVerticalLine(GetColor(kFG), mRECT, 0.5);
+    g.DrawHorizontalLine(GetColor(kFG), mRECT, 0.5);
+    g.FillCircle(GetMouseIsOver() ? GetColor(kHL) : GetColor(kPR), mRECT.L + xpos, mRECT.B - ypos, mHandleRadius);
+  }
+
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    OnMouseDrag(x, y, 0., 0., mod);
+  }
+
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
+  {
+    mRECT.Constrain(x, y);
+    float xn = (x - mRECT.L) / mRECT.W();
+    float yn = 1.f - ((y - mRECT.T) / mRECT.H());
+    SetValue(xn, 0);
+    SetValue(yn, 1);
+    SetDirty(true);
+  }
+
+private:
+  float mHandleRadius;
 };
 
 #pragma mark - Bitmap Controls
@@ -204,15 +261,15 @@ public:
 
   void Draw(IGraphics& g) override
   {
-    g.DrawBitmap(mBitmap, mRECT, (int) mValue + 1, &mBlend);
+    g.DrawBitmap(mBitmap, mRECT, (int) GetValue() + 1, &mBlend);
   }
 
-  virtual void OnRescale() override
+  void OnRescale() override
   {
     mBitmap = GetUI()->GetScaledBitmap(mBitmap);
   }
 
-  virtual void GrayOut(bool gray) override
+  void GrayOut(bool gray) override
   {
     IBitmapBase::GrayOut(gray);
     IControl::GrayOut(gray);
@@ -234,7 +291,7 @@ public:
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {  OnMouseDown(x, y, mod); }
 
-  virtual void GrayOut(bool gray) override
+  void GrayOut(bool gray) override
   {
     IBitmapBase::GrayOut(gray);
     IControl::GrayOut(gray);
@@ -260,9 +317,9 @@ public:
 
   virtual ~IBKnobControl() {}
 
-  virtual void Draw(IGraphics& g) override
+  void Draw(IGraphics& g) override
   {
-    int i = 1 + int(0.5 + mValue * (double) (mBitmap.N() - 1));
+    int i = 1 + int(0.5 + GetValue() * (double) (mBitmap.N() - 1));
     g.DrawBitmap(mBitmap, mRECT, i, &mBlend);
   }
 
@@ -271,7 +328,7 @@ public:
     mBitmap = GetUI()->GetScaledBitmap(mBitmap);
   }
 
-  virtual void GrayOut(bool gray) override
+  void GrayOut(bool gray) override
   {
     IBitmapBase::GrayOut(gray);
     IControl::GrayOut(gray);
@@ -296,7 +353,7 @@ public:
 
   void Draw(IGraphics& g) override
   {
-    double angle = -130.0 + mValue * 260.0;
+    double angle = -130.0 + GetValue() * 260.0;
     g.DrawRotatedBitmap(mBitmap, mRECT.MW(), mRECT.MH(), angle);
   }
 };
@@ -314,13 +371,13 @@ public:
 
   virtual ~IBSliderControl() {}
 
-  virtual void Draw(IGraphics& g) override;
-  virtual void OnRescale() override;
-  virtual void OnResize() override;
+  void Draw(IGraphics& g) override;
+  void OnRescale() override;
+  void OnResize() override;
 
   IRECT GetHandleBounds(double value = -1.0) const;
 
-  virtual void GrayOut(bool gray) override
+  void GrayOut(bool gray) override
   {
     IBitmapBase::GrayOut(gray);
     IControl::GrayOut(gray);
@@ -351,7 +408,7 @@ public:
     g.DrawBitmapedText(mBitmap, mRECT, mText, &mBlend, mStr.Get(), mVCentre, mMultiLine, mCharWidth, mCharHeight, mCharOffset);
   }
 
-  virtual void GrayOut(bool gray) override
+  void GrayOut(bool gray) override
   {
     IBitmapBase::GrayOut(gray);
     IControl::GrayOut(gray);

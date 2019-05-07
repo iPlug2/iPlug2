@@ -49,7 +49,7 @@ public:
     }
 
     g.FillCircle(COLOR_BLUE, mRECT.MW(), mRECT.MH(), mRECT.H() / 4.0);
-    g.DrawRadialLine(COLOR_BLACK, mRECT.MW(), mRECT.MH(), -120.0 + mValue * 240.0, 0.0, mRECT.H() / 4.0, nullptr, 3.0);
+    g.DrawRadialLine(COLOR_BLACK, mRECT.MW(), mRECT.MH(), -120.0 + GetValue() * 240.0, 0.0, mRECT.H() / 4.0, nullptr, 3.0);
   }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override

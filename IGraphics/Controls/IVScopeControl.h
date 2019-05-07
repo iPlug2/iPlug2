@@ -111,7 +111,7 @@ public:
     AttachIControl(this);
   }
 
-  virtual void Draw(IGraphics& g) override
+  void Draw(IGraphics& g) override
   {
     g.FillRect(GetColor(kBG), mRECT);
 

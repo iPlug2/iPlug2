@@ -16,7 +16,6 @@
 
 #include "IPlugParameter.h"
 #include "IGraphicsWin.h"
-#include "IControl.h"
 #include "IPopupMenuControl.h"
 #include "IPlugPaths.h"
 
@@ -173,7 +172,6 @@ void IGraphicsWin::DestroyEditWindow()
    SetWindowLongPtr(mParamEditWnd, GWLP_WNDPROC, (LPARAM) mDefEditProc);
    DestroyWindow(mParamEditWnd);
    mParamEditWnd = nullptr;
-   mEdControl = nullptr;
    mDefEditProc = nullptr;
    DeleteObject(mEditFont);
    mEditFont = nullptr;
@@ -228,7 +226,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
             case kCommit:
             {
               SendMessage(pGraphics->mParamEditWnd, WM_GETTEXT, MAX_WIN32_PARAM_LEN, (LPARAM) txt);
-              pGraphics->SetControlValueFromStringAfterPrompt(*pGraphics->mEdControl, txt);
+              pGraphics->SetControlValueAfterTextEdit(txt);
               pGraphics->DestroyEditWindow();
             }
             break;
@@ -261,7 +259,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
           if (pGraphics->mParamEditWnd)
           {
-            IRECT notDirtyR = pGraphics->mEdControl->GetRECT();
+            IRECT notDirtyR = pGraphics->mEditRECT;
             notDirtyR.Scale(pGraphics->GetDrawScale());
             notDirtyR.PixelAlign();
             RECT r2 = { (LONG) notDirtyR.L, (LONG) notDirtyR.T, (LONG) notDirtyR.R, (LONG) notDirtyR.B };
@@ -477,10 +475,10 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
     case WM_CTLCOLOREDIT:
     {
-      if(!pGraphics->mEdControl)
+      if(!pGraphics->mParamEditWnd)
         return 0;
 
-      const IText& text = pGraphics->mEdControl->GetText();
+      const IText& text = pGraphics->mEditText;
       HDC dc = (HDC) wParam;
       SetBkColor(dc, RGB(text.mTextEntryBGColor.R, text.mTextEntryBGColor.G, text.mTextEntryBGColor.B));
       SetTextColor(dc, RGB(text.mTextEntryFGColor.R, text.mTextEntryFGColor.G, text.mTextEntryFGColor.B));
@@ -531,15 +529,14 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
     {
       case WM_CHAR:
       {
-        const IParam* pParam = pGraphics->mEdControl->GetParam();
         // limit to numbers for text entry on appropriate parameters
-        if(pParam)
+        if(pGraphics->mEditParam)
         {
           char c = wParam;
 
           if(c == 0x08) break; // backspace
 
-          switch ( pParam->Type() )
+          switch (pGraphics->mEditParam->Type())
           {
             case IParam::kTypeEnum:
             case IParam::kTypeInt:
@@ -588,7 +585,6 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
       //  (normally single line edit boxes don't get sent return key messages)
       case WM_GETDLGCODE:
       {
-        if (pGraphics->mEdControl->GetParam()) break;
         LPARAM lres;
         // find out if the original control wants it
         lres = CallWindowProc(pGraphics->mDefEditProc, hWnd, WM_GETDLGCODE, wParam, lParam);
@@ -1165,7 +1161,7 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* pOffsetIdx)
   return hMenu;
 }
 
-IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds)
 {
   long offsetIdx = 0;
   HMENU hMenu = CreateMenu(menu, &offsetIdx);
@@ -1213,16 +1209,13 @@ IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
       InvalidateRect(mPlugWnd, &r, FALSE);
     }
 
-    if (pCaller)
-      pCaller->OnPopupMenuSelection(result);
-
     return result;
   }
 
   return nullptr;
 }
 
-void IGraphicsWin::CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
+void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str)
 {
   if (mParamEditWnd)
     return;
@@ -1253,7 +1246,11 @@ void IGraphicsWin::CreatePlatformTextEntry(IControl& control, const IText& text,
 
   assert(descriptor && "font not found - did you forget to load it?");
 
-  SendMessage(mParamEditWnd, EM_LIMITTEXT, (WPARAM) control.GetTextEntryLength(), 0);
+  mEditParam = paramIdx > kNoParameter ? GetDelegate()->GetParam(paramIdx) : nullptr;
+  mEditText = text;
+  mEditRECT = bounds;
+
+  SendMessage(mParamEditWnd, EM_LIMITTEXT, (WPARAM) length, 0);
   SendMessage(mParamEditWnd, WM_SETFONT, (WPARAM)mEditFont, 0);
   SendMessage(mParamEditWnd, EM_SETSEL, 0, -1);
 
@@ -1261,8 +1258,6 @@ void IGraphicsWin::CreatePlatformTextEntry(IControl& control, const IText& text,
 
   mDefEditProc = (WNDPROC) SetWindowLongPtr(mParamEditWnd, GWLP_WNDPROC, (LONG_PTR) ParamEditProc);
   SetWindowLongPtr(mParamEditWnd, GWLP_USERDATA, 0xdeadf00b);
-
-  mEdControl = &control;
 }
 
 bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)

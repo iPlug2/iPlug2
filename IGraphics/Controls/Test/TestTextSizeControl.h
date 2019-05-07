@@ -30,13 +30,13 @@ public:
     SetTooltip("TestTextSizeControl");
     mDblAsSingleClick = true;
     Next();
-    mValue = 0.2;
+    SetValue(0.2);
   }
 
   void Draw(IGraphics& g) override
   {
     const char* str = "Some Text To Resize";
-    mText.mSize = mValue * 40. + 5.0;
+    mText.mSize = GetValue() * 40. + 5.0;
     
     g.FillRect(COLOR_WHITE, mRECT);
     g.DrawText(mText, str, mRECT);
