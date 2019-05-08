@@ -1003,7 +1003,7 @@ bool IGraphics::OnKeyDown(float x, float y, const IKeyPress& key)
     handled = pControl->OnKeyDown(x, y, key);
 
   if(!handled)
-    handled = mKeyHandlerFunc ? mKeyHandlerFunc(key) : false;
+    handled = mKeyHandlerFunc ? mKeyHandlerFunc(key, false) : false;
   
   return handled;
 }
@@ -1031,7 +1031,7 @@ bool IGraphics::OnKeyUp(float x, float y, const IKeyPress& key)
     handled = pControl->OnKeyUp(x, y, key);
   
   if(!handled)
-    handled = mKeyHandlerFunc ? mKeyHandlerFunc(key) : false;
+    handled = mKeyHandlerFunc ? mKeyHandlerFunc(key, true) : false;
   
   return handled;
 }

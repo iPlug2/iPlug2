@@ -45,12 +45,15 @@ class IControl;
 class ILambdaControl;
 struct IRECT;
 struct IMouseInfo;
+struct IKeyPress;
+
 template <typename T = double>
 inline T DegToRad(T degrees);
 
 typedef std::function<void(IControl*)> IActionFunction;
 typedef std::function<void(IControl*)> IAnimationFunction;
 typedef std::function<void(ILambdaControl*, IGraphics&, IRECT&)> ILambdaDrawFunction;
+typedef std::function<bool(const IKeyPress& key, bool isUp)> IKeyHandlerFunc;
 
 void DefaultClickActionFunc(IControl* pCaller);
 void DefaultAnimationFunc(IControl* pCaller);

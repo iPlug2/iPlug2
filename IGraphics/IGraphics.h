@@ -1034,7 +1034,7 @@ public:
   
   /** /todo
    * @param keyHandlerFunc /todo */
-  void SetKeyHandlerFunc(std::function<bool(const IKeyPress& key)> func) { mKeyHandlerFunc = func; }
+  void SetKeyHandlerFunc(IKeyHandlerFunc func) { mKeyHandlerFunc = func; }
 
   /** /todo */
   void AttachImGui(std::function<void(IGraphics*)> drawFunc, std::function<void()> setupFunc = nullptr);
@@ -1490,7 +1490,7 @@ private:
   bool mLayoutOnResize = false;
   EUIResizerMode mGUISizeMode = EUIResizerMode::kUIResizerScale;
   double mPrevTimestamp = 0.;
-  std::function<bool(const IKeyPress& key)> mKeyHandlerFunc = nullptr;
+  IKeyHandlerFunc mKeyHandlerFunc = nullptr;
 protected:
   IGEditorDelegate* mDelegate;
   void* mPlatformContext = nullptr;

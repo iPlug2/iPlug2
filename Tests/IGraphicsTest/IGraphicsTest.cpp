@@ -42,17 +42,22 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->HandleMouseOver(true);
     pGraphics->EnableTooltips(true);
     
-    pGraphics->SetKeyHandlerFunc([&](const IKeyPress& key)
+    pGraphics->SetKeyHandlerFunc([&](const IKeyPress& key, bool isUp)
     {
-      switch (key.VK) {
-        case kVK_TAB:
-          dynamic_cast<IPanelControl*>(GetUI()->GetBackgroundControl())->SetPattern(IColor::GetRandomColor());
-          break;
-          
-        default:
-          break;
+      if(!isUp)
+      {
+        switch (key.VK) {
+          case kVK_TAB:
+            dynamic_cast<IPanelControl*>(GetUI()->GetBackgroundControl())->SetPattern(IColor::GetRandomColor());
+            break;
+            
+          default:
+            break;
+        }
+        return true;
       }
-      return true;
+      
+      return false;
     });
     
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
