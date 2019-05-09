@@ -121,8 +121,8 @@ LIB_CIVET = $(BUILT_LIBS_LIB_PATH)/libcivetweb.a
 IGRAPHICS_LNK_FLAGS = $(LIB_CAIRO) $(LIB_FT) $(LIB_PIXMAN) $(LIB_PNG) $(LIB_Z)
 
 ALL_FRAMEWORKS = -framework Cocoa -framework Carbon -framework CoreFoundation -framework CoreData -framework Foundation -framework CoreServices -framework Metal -framework MetalKit -framework QuartzCore -framework WebKit -framework OpenGL
-APP_FRAMEWORKS = -framework AppKit -framework CoreMidi -framework CoreAudio
-AU_FRAMEWORKS = -framework AudioToolbox -framework AudioUnit -framework CoreAudio -framework CoreMidi
+APP_FRAMEWORKS = -framework AppKit -framework CoreMIDI -framework CoreAudio
+AU_FRAMEWORKS = -framework AudioToolbox -framework AudioUnit -framework CoreAudio -framework CoreMIDI
 AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework CoreAudio -framework CoreAudioKit
 
 
