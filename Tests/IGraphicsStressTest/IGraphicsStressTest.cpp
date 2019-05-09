@@ -32,19 +32,22 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
   pGraphics->SetSizeConstraints(100, 100000, 100, 100000);
   pGraphics->ShowFPSDisplay(true);
   pGraphics->AttachCornerResizer(EUIResizerMode::kUIResizerSize, true);
-  pGraphics->SetKeyHandlerFunc([&](const IKeyPress& key)
+  pGraphics->SetKeyHandlerFunc([&](const IKeyPress& key, bool isUp)
   {
-    switch (key.VK) {
-      case kVK_UP: mNumberOfThings++; break;
-      case kVK_DOWN: mNumberOfThings--; break;
-      case kVK_TAB: key.S ? mKindOfThing-- : mKindOfThing++; break;
-      default: return false;
-    }
+    if(!isUp) {
+      switch (key.VK) {
+        case kVK_UP: mNumberOfThings++; break;
+        case kVK_DOWN: mNumberOfThings--; break;
+        case kVK_TAB: key.S ? mKindOfThing-- : mKindOfThing++; break;
+        default: return false;
+      }
 
-    dynamic_cast<ITextControl*>(GetUI()->GetControlWithTag(kCtrlTagNumThings))->SetStrFmt(64, "Number of things = %i", mNumberOfThings);
-    dynamic_cast<ITextControl*>(GetUI()->GetControlWithTag(kCtrlTagTestNum))->SetStrFmt(64, "Test %i/%i", mKindOfThing, 32);
-    GetUI()->SetAllControlsDirty();
-    return true;
+      dynamic_cast<ITextControl*>(GetUI()->GetControlWithTag(kCtrlTagNumThings))->SetStrFmt(64, "Number of things = %i", mNumberOfThings);
+      dynamic_cast<ITextControl*>(GetUI()->GetControlWithTag(kCtrlTagTestNum))->SetStrFmt(64, "Test %i/%i", mKindOfThing, 32);
+      GetUI()->SetAllControlsDirty();
+      return true;
+    }
+    return false;
   });
   
   pGraphics->HandleMouseOver(false);
