@@ -283,7 +283,7 @@ void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax, 
 {
   agg::path_storage transformedPath;
     
-  agg::arc arc(cx, cy, r, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f), winding == kWindingCCW);
+  agg::arc arc(cx, cy, r, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f), winding == kWindingCW);
   arc.approximation_scale(mTransform.scale());
     
   transformedPath.join_path(arc);
