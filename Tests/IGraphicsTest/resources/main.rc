@@ -240,7 +240,7 @@ ORBS_FN SVG ORBS_FN
 ROBOTO_FN TTF ROBOTO_FN
 MONTSERRAT_FN TTF MONTSERRAT_FN
 SMILEY_FN PNG SMILEY_FN
-
+IPLUG_FN PNG IPLUG_FN
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
