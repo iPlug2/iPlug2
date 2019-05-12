@@ -1,9 +1,11 @@
 echo off
 setlocal EnableDelayedExpansion
 
-echo Usage:    makedist-win.bat ^<demo version^> ^<include AAX^> ^<include VST2^> ^<include VST3^> ^<sign the installer^>
+echo Usage:    makedist-win.bat ^<demo version^> ^<include Standalone^> ^<include AAX 32^>  ^<include AAX 64^> ^<include VST2^> ^<include VST3^> ^<sign the installer^>
 echo           ^<demo version^>: Whether to build as demo. Possible values: 0 (no), 1 (yes). Default: 0.
-echo           ^<include AAX^>: Whether to include AAX format. Possible values: 0 (no), 1 (yes). Default: 1.
+echo           ^<include standalone app^>: Whether to include the standalone application. Possible values: 0 (no), 1 (yes). Default: 1.
+echo           ^<include AAX 32bit^>: Whether to include AAX (32 bit) format. Possible values: 0 (no), 1 (yes). Default: 0.
+echo           ^<include AAX 64bit^>: Whether to include AAX (64 bit) format. Possible values: 0 (no), 1 (yes). Default: 1.
 echo           ^<include VST2^>: Whether to include VST2 format. Possible values: 0 (no), 1 (yes). Default: 1.
 echo           ^<include VST3^>: Whether to include VST3 format. Possible values: 0 (no), 1 (yes). Default: 1.
 echo           ^<sign the installer^>: Whether to sign the installer with a certificate. Possible values: 0 (no), 1 (yes). Default: 1.
@@ -16,14 +18,15 @@ REM - building installer requires innotsetup in "%ProgramFiles(x86)%\Inno Setup 
 REM - AAX codesigning requires wraptool tool added to %PATH% env variable and aax.key/.crt in .\..\..\..\Certificates\
 
 if "%1"=="1" (set "BUILD_DEMO=1") else (set "BUILD_DEMO=0")
-if "%2"=="0" (set "INCLUDE_AAX=0") else (set "INCLUDE_AAX=1") 
-if "%3"=="0" (set "INCLUDE_VST2=0") else (set "INCLUDE_VST2=1") 
-if "%4"=="0" (set "INCLUDE_VST3=0") else (set "INCLUDE_VST3=1") 
-if "%5"=="0" (set "SIGN_INSTALLER=0") else (set "SIGN_INSTALLER=1") 
-echo Configuration based on parameter values: BUILD_DEMO = %BUILD_DEMO%, INCLUDE_AAX = %INCLUDE_AAX%, INCLUDE_VST2 = %INCLUDE_VST2%, INCLUDE_VST3 = %INCLUDE_VST3%, SIGN_INSTALLER = %SIGN_INSTALLER%
+if "%2"=="0" (set "INCLUDE_STANDALONE=0") else (set "INCLUDE_STANDALONE=1")
+if "%3"=="0" (set "INCLUDE_AAX_32=0") else (set "INCLUDE_AAX_32=1")
+if "%4"=="0" (set "INCLUDE_AAX_64=0") else (set "INCLUDE_AAX_64=1")
+if "%5"=="0" (set "INCLUDE_VST2=0") else (set "INCLUDE_VST2=1")
+if "%6"=="0" (set "INCLUDE_VST3=0") else (set "INCLUDE_VST3=1")
+if "%7"=="0" (set "SIGN_INSTALLER=0") else (set "SIGN_INSTALLER=1")
+echo Configuration based on parameter values: BUILD_DEMO = %BUILD_DEMO%, INCLUDE_STANDALONE = %INCLUDE_STANDALONE%, INCLUDE_AAX_32 = %INCLUDE_AAX_32%, INCLUDE_AAX_64 = %INCLUDE_AAX_64%, INCLUDE_VST2 = %INCLUDE_VST2%, INCLUDE_VST3 = %INCLUDE_VST3%, SIGN_INSTALLER = %SIGN_INSTALLER%
 
-
-if BUILD_DEMO (echo Making IPlugEffect Windows DEMO VERSION distribution ...) else (echo Making IPlugEffect Windows FULL VERSION distribution ...)
+if %BUILD_DEMO% == 1 (echo Making IPlugEffect Windows DEMO VERSION distribution ...) else (echo Making IPlugEffect Windows FULL VERSION distribution ...)
 
 echo "touching source"
 cd ..\
@@ -34,6 +37,7 @@ echo Updating version numbers ...
 
 call python scripts\prepare_resources-win.py %1
 call python scripts\update_installer_version.py %1
+call python scripts\update_installer_components.py %1 %2 %3 %4 %5 %6 %7 
 
 echo ------------------------------------------------------------------
 echo Building ...
@@ -53,7 +57,6 @@ goto END
 :END
 )
 
-
 REM - set preprocessor macros like this, for instance to enable demo build:
 if %1 == 1 (
 set CMDLINE_DEFINES="DEMO_VERSION=1"
@@ -67,10 +70,29 @@ REM - Could build individual targets like this:
 REM - msbuild IPlugEffect-app.vcxproj /p:configuration=release /p:platform=win32
 
 echo Building 32 bit binaries...
-msbuild IPlugEffect.sln /p:configuration=release /p:platform=win32 /nologo /verbosity:minimal /fileLogger /m /flp:logfile=build-win.log;errorsonly 
+if %INCLUDE_AAX_32% == 1 (
+    msbuild IPlugEffect.sln /t:IPlugEffect-aax /p:configuration=release /p:platform=win32 /nologo /verbosity:minimal /fileLogger /m /flp:logfile=build-win.log;errorsonly 
+)
+if %INCLUDE_VST2% == 1 (
+    msbuild IPlugEffect.sln /t:IPlugEffect-vst2 /p:configuration=release /p:platform=win32 /nologo /verbosity:minimal /fileLogger /m /flp:logfile=build-win.log;errorsonly 
+)
+if %INCLUDE_VST3% == 1 (
+    msbuild IPlugEffect.sln /t:IPlugEffect-vst3 /p:configuration=release /p:platform=win32 /nologo /verbosity:minimal /fileLogger /m /flp:logfile=build-win.log;errorsonly 
+)
 
 echo Building 64 bit binaries...
-msbuild IPlugEffect.sln /p:configuration=release /p:platform=x64 /nologo /verbosity:minimal /fileLogger /m /flp:logfile=build-win.log;errorsonly;append
+if %INCLUDE_STANDALONE% == 1 (
+   msbuild IPlugEffect.sln /t:IPlugEffect-app /p:configuration=release /p:platform=x64 /nologo /verbosity:minimal /fileLogger /m /flp:logfile=build-win.log;errorsonly 
+)
+if %INCLUDE_AAX_64% == 1 (
+   msbuild IPlugEffect.sln /t:IPlugEffect-aax /p:configuration=release /p:platform=x64 /nologo /verbosity:minimal /fileLogger /m /flp:logfile=build-win.log;errorsonly 
+)
+if %INCLUDE_VST2% == 1 (
+   msbuild IPlugEffect.sln /t:IPlugEffect-vst2 /p:configuration=release /p:platform=x64 /nologo /verbosity:minimal /fileLogger /m /flp:logfile=build-win.log;errorsonly 
+)
+if %INCLUDE_VST3% == 1 (
+   msbuild IPlugEffect.sln /t:IPlugEffect-vst3 /p:configuration=release /p:platform=x64 /nologo /verbosity:minimal /fileLogger /m /flp:logfile=build-win.log;errorsonly 
+)
 
 REM --echo Copying AAX Presets
 
@@ -88,11 +110,11 @@ echo Making Installer ...
 if exist "%ProgramFiles(x86)%" (goto 64-Bit-is) else (goto 32-Bit-is)
 
 :32-Bit-is
-"%ProgramFiles%\Inno Setup 5\iscc" /Q /cc ".\installer\IPlugEffect.iss"
+"%ProgramFiles%\Inno Setup 5\iscc" /Q ".\installer\IPlugEffect.iss"
 goto END-is
 
 :64-Bit-is
-"%ProgramFiles(x86)%\Inno Setup 5\iscc" /Q /cc ".\installer\IPlugEffect.iss"
+"%ProgramFiles(x86)%\Inno Setup 5\iscc" /Q ".\installer\IPlugEffect.iss"
 goto END-is
 
 :END-is
