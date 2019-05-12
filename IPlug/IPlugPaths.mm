@@ -126,7 +126,7 @@ bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_
     bool isCorrectType = !strcasecmp(ext, searchExt);
     
     NSBundle* pBundle = [NSBundle bundleWithIdentifier:[NSString stringWithCString:bundleID encoding:NSUTF8StringEncoding]];
-    NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
+    NSString* pFile = [[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] stringByDeletingPathExtension];
     
     if (isCorrectType && pBundle && pFile)
     {
