@@ -107,14 +107,9 @@ public:
 
   /** Call this method from a delegate, for example if you wish to store graphics dimensions in your plug-in state in order to notify the API of a graphics resize or other layout change.
    * If calling from a UI interaction use EditorPropertiesChangedFromUI()
-   * When this is overridden in subclasses the subclass should call this in order to update the member variables */
-  virtual bool EditorPropertiesChangedFromDelegate(int width, int height, const IByteChunk& data)
-  {
-    mEditorWidth = width;
-    mEditorHeight = height;
-    mEditorData = data;
-    return false;
-  }
+   * When this is overridden in subclasses the subclass should call this in order to update the member variables
+   * returns a bool to indicate whether the DAW or plugin class has resized the host window */
+  virtual bool EditorPropertiesChangedFromDelegate(int width, int height, const IByteChunk& data);
 
   /** Implemented by the API class, called by the UI (or by a delegate) at the beginning of a parameter change gesture
    * @param paramIdx The parameter that is being changed */

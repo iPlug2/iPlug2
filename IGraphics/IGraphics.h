@@ -1044,7 +1044,7 @@ private:
   virtual void CreatePlatformImGui() {}
   
   /** /todo */
-  virtual void PlatformResize(bool resized) {}
+  virtual void PlatformResize(bool parentHasResized) {}
   
   /** /todo */
   virtual void DrawResize() {}

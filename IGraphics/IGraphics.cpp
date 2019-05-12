@@ -116,9 +116,9 @@ void IGraphics::Resize(int w, int h, float scale)
   if (mCornerResizer)
     mCornerResizer->OnRescale();
 
-  bool resized = GetDelegate()->EditorPropertiesModified();
+  bool parentHasResized = GetDelegate()->EditorPropertiesModified();
 
-  PlatformResize(resized);
+  PlatformResize(parentHasResized);
   ForAllControls(&IControl::OnResize);
   SetAllControlsDirty();
   DrawResize();
