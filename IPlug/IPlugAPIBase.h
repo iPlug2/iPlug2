@@ -108,7 +108,13 @@ public:
   /** Call this method from a delegate, for example if you wish to store graphics dimensions in your plug-in state in order to notify the API of a graphics resize or other layout change.
    * If calling from a UI interaction use EditorPropertiesChangedFromUI()
    * When this is overridden in subclasses the subclass should call this in order to update the member variables */
-  virtual void EditorPropertiesChangedFromDelegate(int width, int height, const IByteChunk& data) { mEditorWidth = width; mEditorHeight = height; mEditorData = data; }
+  virtual bool EditorPropertiesChangedFromDelegate(int width, int height, const IByteChunk& data)
+  {
+    mEditorWidth = width;
+    mEditorHeight = height;
+    mEditorData = data;
+    return false;
+  }
 
   /** Implemented by the API class, called by the UI (or by a delegate) at the beginning of a parameter change gesture
    * @param paramIdx The parameter that is being changed */
@@ -156,7 +162,7 @@ public:
   
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }
   
-  void EditorPropertiesChangedFromUI(int viewWidth, int viewHeight, const IByteChunk& data) override { EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data); }
+  bool EditorPropertiesChangedFromUI(int viewWidth, int viewHeight, const IByteChunk& data) override { return EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data); }
   
   void SendParameterValueFromUI(int paramIdx, double normalisedValue) override
   {

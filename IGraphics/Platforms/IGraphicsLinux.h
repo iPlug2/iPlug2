@@ -24,7 +24,7 @@ public:
   void* OpenWindow(void* pWindow) override;
   void CloseWindow() override;
   bool WindowIsOpen() override;
-  void PlatformResize() override;
+  void PlatformResize(bool resized) override;
 
   void HideMouseCursor() override;
   void ShowMouseCursor() override;

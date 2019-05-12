@@ -29,7 +29,7 @@ public:
 
   void ForceEndUserEdit() override;
 
-  void PlatformResize() override;
+  void PlatformResize(bool resized) override;
 
 #ifdef IGRAPHICS_GL
   void DrawResize() override; // overriden here to deal with GL graphics context capture
