@@ -48,7 +48,6 @@ def enableVST2(line, config, formatEnabled):
   
   if "procedure InitializeWizard" in line:
     line = "procedure InitializeWizard;\n" if formatEnabled else "procedure InitializeWizardDisabled;\n"  
-
   return line
 
 def enableVST3(line, config, formatEnabled):
@@ -83,24 +82,7 @@ def main():
 
   # MAC INSTALLER
 
-  #  print "Updating Mac Installer version info..."
-  #
-  #  plistpath = projectpath + "/installer/" + config['BUNDLE_NAME'] + ".pkgproj"
-  #  installer = plistlib.readPlist(plistpath)
-  #
-  #  # range  = number of items in the installer (VST 2, VST 3, app, audiounit, aax)
-  #  for x in range(0,5):
-  #    installer['PACKAGES'][x]['PACKAGE_SETTINGS']['VERSION'] = config['FULL_VER_STR']
-  #
-  #  if demo:
-  #    installer['PROJECT']['PROJECT_PRESENTATION']['TITLE']['LOCALIZATIONS'][0]['VALUE'] = config['BUNDLE_NAME'] + " Demo"
-  #    installer['PROJECT']['PROJECT_PRESENTATION']['INTRODUCTION']['LOCALIZATIONS'][0]['VALUE']['PATH'] = "intro-demo.rtf"
-  #  else:
-  #    installer['PROJECT']['PROJECT_PRESENTATION']['TITLE']['LOCALIZATIONS'][0]['VALUE'] = config['BUNDLE_NAME']
-  #    installer['PROJECT']['PROJECT_PRESENTATION']['INTRODUCTION']['LOCALIZATIONS'][0]['VALUE']['PATH'] = "intro.rtf"
-  #
-  #  plistlib.writePlist(installer, plistpath)
-  #   replacestrs(plistpath, "//Apple//", "//Apple Computer//");
+  #  TODO
 
   # WIN INSTALLER
   print "Updating Windows Installer component list ..."
