@@ -37,8 +37,8 @@ class IPlugVST3Controller : public EditControllerEx1
                           , public IPlugVST3ControllerBase
 {
 public:
-  typedef IPlugVST3View<IPlugVST3Controller> ViewType;
-    
+  using ViewType = IPlugVST3View<IPlugVST3Controller>;
+  
   struct IPlugInstanceInfo
   {
     Steinberg::FUID mOtherGUID;

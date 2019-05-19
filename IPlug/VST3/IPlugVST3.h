@@ -47,7 +47,7 @@ class IPlugVST3 : public IPlugAPIBase
                 , public Vst::SingleComponentEffect
 {
 public:
-  typedef IPlugVST3View<IPlugVST3> ViewType;
+  using ViewType = IPlugVST3View<IPlugVST3>;
     
   IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig config);
   ~IPlugVST3();
