@@ -16,7 +16,7 @@
 #include "heapbuf.h"
 
 template <class SpanGeneratorType>
-class Alpha_span_generator : public SpanGeneratorType
+class alpha_span_generator : public SpanGeneratorType
 {
 public:
   
