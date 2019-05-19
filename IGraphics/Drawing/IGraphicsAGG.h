@@ -19,7 +19,6 @@ template <class SpanGeneratorType>
 class alpha_span_generator : public SpanGeneratorType
 {
 public:
-  
   alpha_span_generator(typename SpanGeneratorType::source_type& source, typename SpanGeneratorType::interpolator_type& interpolator, agg::cover_type a)
   : SpanGeneratorType(source, interpolator), alpha(a) {}
   
@@ -214,7 +213,7 @@ public:
     {
       using ImgSrcType = agg::image_accessor_clone<PixSourceType>;
       using FilterType = agg::span_image_filter_rgba_bilinear<ImgSrcType, InterpolatorType>;
-      using CustomSpanGeneratorType = Alpha_span_generator<FilterType>;
+      using CustomSpanGeneratorType = alpha_span_generator<FilterType>;
       using RendererType = agg::renderer_scanline_aa<RenderBaseType, SpanAllocatorType, CustomSpanGeneratorType>;
       
       SpanAllocatorType spanAllocator;
