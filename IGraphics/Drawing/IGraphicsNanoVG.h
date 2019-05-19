@@ -56,9 +56,9 @@
   #define nvgBindFramebuffer(fb) nvgluBindFramebuffer(fb)
   #define nvgCreateFramebuffer(ctx, w, h, flags) nvgluCreateFramebuffer(ctx, w, h, flags)
   #define nvgDeleteFramebuffer(fb) nvgluDeleteFramebuffer(fb)
-  typedef NVGLUframebuffer NVGframebuffer;
+  using NVGframebuffer = NVGLUframebuffer;
 #elif defined IGRAPHICS_METAL
-  typedef MNVGframebuffer NVGframebuffer;
+  using NVGframebuffer = MNVGframebuffer;
 #endif
 
 void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData);

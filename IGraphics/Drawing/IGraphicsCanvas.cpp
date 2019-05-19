@@ -26,7 +26,7 @@ extern val GetCanvas();
 
 struct CanvasFont
 {
-  typedef std::remove_pointer<FontDescriptor>::type FontDesc;
+  using FontDesc = std::remove_pointer<FontDescriptor>::type;
   
   CanvasFont(FontDesc descriptor, double ascenderRatio, double EMRatio)
   : mDescriptor(descriptor), mAscenderRatio(ascenderRatio), mEMRatio(EMRatio) {}

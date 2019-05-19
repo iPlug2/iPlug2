@@ -49,7 +49,7 @@ public:
     kFlagMeta             = 0x10,
   };
   
-  typedef std::function<void(double, WDL_String&)> DisplayFunc;
+  using DisplayFunc = std::function<void(double, WDL_String&)>;
 
 #pragma mark - Shape
 
