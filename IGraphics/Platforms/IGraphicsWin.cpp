@@ -435,7 +435,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       HRGN region = CreateRectRgn(0, 0, 0, 0);
       int regionType = GetUpdateRgn(hWnd, region, FALSE);
 
-      if ((regionType == COMPLEXREGION) || (regionType = SIMPLEREGION))
+      if ((regionType == COMPLEXREGION) || (regionType == SIMPLEREGION))
       {
         #ifdef IGRAPHICS_GL
         pGraphics->ActivateGLContext();
@@ -483,7 +483,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       SetBkColor(dc, RGB(text.mTextEntryBGColor.R, text.mTextEntryBGColor.G, text.mTextEntryBGColor.B));
       SetTextColor(dc, RGB(text.mTextEntryFGColor.R, text.mTextEntryFGColor.G, text.mTextEntryFGColor.B));
       SetBkMode(dc, OPAQUE);
-      return GetStockObject(DC_BRUSH) != 0;
+      SetDCBrushColor(dc, RGB(text.mTextEntryBGColor.R, text.mTextEntryBGColor.G, text.mTextEntryBGColor.B));
+      return (LRESULT)GetStockObject(DC_BRUSH);
     }
     case WM_DROPFILES:
     {
