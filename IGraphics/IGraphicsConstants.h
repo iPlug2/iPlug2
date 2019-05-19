@@ -48,25 +48,9 @@ static const float GRAYED_ALPHA = 0.25f;
 static const char* DEFAULT_PATH = "~/Desktop";
 #endif
 
-#ifdef IGRAPHICS_NANOVG
 const char* const DEFAULT_FONT = "Roboto-Regular";
 const int DEFAULT_TEXT_SIZE = 14;
-#else
-  #if defined OS_WIN
-    const char* const DEFAULT_FONT = "Verdana";
-    const int DEFAULT_TEXT_SIZE = 12;
-  #elif defined OS_MAC
-    const char* const DEFAULT_FONT = "Verdana";
-    const int DEFAULT_TEXT_SIZE = 10;
-  #elif defined OS_LINUX
-    #error NOT IMPLEMENTED
-  #elif defined OS_WEB
-    const char* const DEFAULT_FONT = "Verdana";
-    const int DEFAULT_TEXT_SIZE = 10;
-  #endif
-#endif
-
-const int FONT_LEN = 32;
+const int FONT_LEN = 64;
 
 /** @enum EType Blend type
  * \todo This could use some documentation
@@ -98,13 +82,6 @@ enum EDirection
 {
   kVertical = 0,
   kHorizontal = 1
-};
-
-enum EResourceLocation
-{
-  kNotFound = 0,
-  kAbsolutePath,
-  kWinBinary
 };
 
 enum EVColor
@@ -256,8 +233,45 @@ enum EVirtualKey
   kVK_DELETE =      0x2E,
   kVK_HELP =        0x2F,
 
+  kVK_0 =           0x30,
+  kVK_1 =           0x31,
+  kVK_2 =           0x32,
+  kVK_3 =           0x33,
+  kVK_4 =           0x34,
+  kVK_5 =           0x35,
+  kVK_6 =           0x36,
+  kVK_7 =           0x37,
+  kVK_8 =           0x38,
+  kVK_9 =           0x39,
+  kVK_A =           0x41,
+  kVK_B =           0x42,
+  kVK_C =           0x43,
+  kVK_D =           0x44,
+  kVK_E =           0x45,
+  kVK_F =           0x46,
+  kVK_G =           0x47,
+  kVK_H =           0x48,
+  kVK_I =           0x49,
+  kVK_J =           0x4A,
+  kVK_K =           0x4B,
+  kVK_L =           0x4C,
+  kVK_M =           0x4D,
+  kVK_N =           0x4E,
+  kVK_O =           0x4F,
+  kVK_P =           0x50,
+  kVK_Q =           0x51,
+  kVK_R =           0x52,
+  kVK_S =           0x53,
+  kVK_T =           0x54,
+  kVK_U =           0x55,
+  kVK_V =           0x56,
+  kVK_W =           0x57,
+  kVK_X =           0x58,
+  kVK_Y =           0x59,
+  kVK_Z =           0x5A,
+  
   kVK_LWIN =        0x5B,
-
+  
   kVK_NUMPAD0 =     0x60,
   kVK_NUMPAD1 =     0x61,
   kVK_NUMPAD2 =     0x62,

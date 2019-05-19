@@ -11,6 +11,8 @@
 #include <algorithm>
 #include <CoreMIDI/CoreMIDI.h>
 
+#include "heapbuf.h"
+
 #include "dfx-au-utilities.h"
 #include "IPlugAU.h"
 #include "IPlugAU_ioconfig.h"
@@ -33,21 +35,15 @@ struct CFStrLocal
   }
 };
 
-struct CStrLocal
+struct CStrLocal : WDL_TypedBuf<char>
 {
-  char* mCStr;
-    CStrLocal(CFStringRef cfStr) : mCStr(nullptr)
+  CStrLocal(CFStringRef cfStr)
   {
     if (cfStr)
     {
-      long n = CFStringGetLength(cfStr) + 1;
-      mCStr = (char*) malloc(n);
-      CFStringGetCString(cfStr, mCStr, n, kCFStringEncodingUTF8);
+      Resize((int) CFStringGetLength(cfStr) + 1);
+      CFStringGetCString(cfStr, Get(), GetSize(), kCFStringEncodingUTF8);
     }
-  }
-  ~CStrLocal()
-  {
-    FREE_NULL(mCStr);
   }
 };
 
@@ -93,7 +89,7 @@ inline bool GetStrFromDict(CFDictionaryRef pDict, const char* key, char* value)
   if (pValue)
   {
     CStrLocal cStr(pValue);
-    strcpy(value, cStr.mCStr);
+    strcpy(value, cStr.Get());
     return true;
   }
   value[0] = '\0';
@@ -180,7 +176,8 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
 
   if (select == kComponentOpenSelect)
   {
-    IPlugAU* _this = MakePlug();
+    // N.B. calling this with nullptr will call through to new (hence the delete below)
+    IPlugAU* _this = MakePlug(nullptr);
     
     _this->PruneUninitializedPresets();
     _this->mCI = GET_COMP_PARAM(ComponentInstance, 0, 1);
@@ -193,7 +190,7 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
   if (select == kComponentCloseSelect)
   {
     _this->ClearConnections();
-    DELETE_NULL(_this);
+    delete _this;
     return noErr;
   }
 
@@ -1002,7 +999,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         {
           CStrLocal cStr(pVFS->inString);
           ENTER_PARAMS_MUTEX;
-          const double v = GetParam(pVFS->inParamID)->StringToValue(cStr.mCStr);
+          const double v = GetParam(pVFS->inParamID)->StringToValue(cStr.Get());
           LEAVE_PARAMS_MUTEX;
           pVFS->outValue = (AudioUnitParameterValue) v;
         }
@@ -1254,7 +1251,7 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         int version = (pHostID->hostVersion.majorRev << 16)
                     + ((pHostID->hostVersion.minorAndBugRev & 0xF0) << 4)
                     + ((pHostID->hostVersion.minorAndBugRev & 0x0F));
-        SetHost(hostStr.mCStr, version);
+        SetHost(hostStr.Get(), version);
       }
       return noErr;
     }
@@ -1567,7 +1564,7 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
   
   _this->mLastRenderTimeStamp = *pTimestamp;
 
-  if (!(pTimestamp->mFlags & kAudioTimeStampSampleTimeValid) || outputBusIdx >= _this->mOutBuses.GetSize() || nFrames > _this->GetBlockSize())
+  if (!(pTimestamp->mFlags & kAudioTimeStampSampleTimeValid) /*|| outputBusIdx >= _this->mOutBuses.GetSize()*/ || nFrames > _this->GetBlockSize())
   {
     return kAudioUnitErr_InvalidPropertyValue;
   }
@@ -1584,115 +1581,118 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
     }
   }
 
-  double renderSampleTime = pTimestamp->mSampleTime;
-
-  // Pull input buffers.
-  if (renderSampleTime != _this->mLastRenderSampleTime)
-  {
-    BufferList bufList;
-    AudioBufferList* pInBufList = (AudioBufferList*) &bufList;
-
-    int nIn = _this->mInBuses.GetSize();
-
-    for (int i = 0; i < nIn; ++i)
-    {
-      BusChannels* pInBus = _this->mInBuses.Get(i);
-      InputBusConnection* pInBusConn = _this->mInBusConnections.Get(i);
-
-      if (pInBus->mConnected)
-      {
-        pInBufList->mNumberBuffers = pInBus->mNHostChannels;
-
-        for (int b = 0; b < pInBufList->mNumberBuffers; ++b)
-        {
-          AudioBuffer* pBuffer = &(pInBufList->mBuffers[b]);
-          pBuffer->mNumberChannels = 1;
-          pBuffer->mDataByteSize = nFrames * sizeof(AudioSampleType);
-          pBuffer->mData = 0;
-        }
-
-        AudioUnitRenderActionFlags flags = 0;
-        OSStatus r = noErr;
-
-        switch (pInBusConn->mInputType)
-        {
-          case eDirectFastProc:
-          {
-            r = pInBusConn->mUpstreamRenderProc(pInBusConn->mUpstreamObj, &flags, pTimestamp, pInBusConn->mUpstreamBusIdx, nFrames, pInBufList);
-            break;
-          }
-          case eDirectNoFastProc:
-          {
-            r = AudioUnitRender(pInBusConn->mUpstreamUnit, &flags, pTimestamp, pInBusConn->mUpstreamBusIdx, nFrames, pInBufList);
-            break;
-          }
-          case eRenderCallback:
-          {
-            AudioSampleType* pScratchInput = _this->mInScratchBuf.Get() + pInBus->mPlugChannelStartIdx * nFrames;
-
-            for (int b = 0; b < pInBufList->mNumberBuffers; ++b, pScratchInput += nFrames)
-            {
-              pInBufList->mBuffers[b].mData = pScratchInput;
-            }
-
-            r = RenderCallback(&(pInBusConn->mUpstreamRenderCallback), &flags, pTimestamp, i, nFrames, pInBufList);
-            break;
-          }
-          default:
-            break;
-        }
-        if (r != noErr)
-        {
-          return r;   // Something went wrong upstream.
-        }
-
-        for (int i = 0, chIdx = pInBus->mPlugChannelStartIdx; i < pInBus->mNHostChannels; ++i, ++chIdx)
-        {
-          _this->AttachBuffers(ERoute::kInput, chIdx, 1, (AudioSampleType**) &(pInBufList->mBuffers[i].mData), nFrames);
-        }
-      }
-    }
-    _this->mLastRenderSampleTime = renderSampleTime;
-  }
-
-  BusChannels* pOutBus = _this->mOutBuses.Get(outputBusIdx);
-
-  // if this bus is not connected OR the number of buffers that the host has given are not equal to the number the bus expects
-  if (!(pOutBus->mConnected) || pOutBus->mNHostChannels != pOutBufList->mNumberBuffers)
-  {
-    int startChannelIdx = pOutBus->mPlugChannelStartIdx;
-    int nConnected = std::min<int>(pOutBus->mNHostChannels, pOutBufList->mNumberBuffers);
-    int nUnconnected = std::max(pOutBus->mNPlugChannels - nConnected, 0);
-    
-    assert(nConnected > -1);
-    _this->SetChannelConnections(ERoute::kOutput, startChannelIdx, nConnected, true);
-    _this->SetChannelConnections(ERoute::kOutput, startChannelIdx + nConnected, nUnconnected, false); // This will disconnect the right handle channel on a single stereo bus
-    pOutBus->mConnected = true;
-  }
-
-  for (int i = 0, chIdx = pOutBus->mPlugChannelStartIdx; i < pOutBufList->mNumberBuffers; ++i, ++chIdx)
-  {
-    if (!(pOutBufList->mBuffers[i].mData)) // Downstream unit didn't give us buffers.
-      pOutBufList->mBuffers[i].mData = _this->mOutScratchBuf.Get() + chIdx * nFrames;
-
-    _this->AttachBuffers(ERoute::kOutput, chIdx, 1, (AudioSampleType**) &(pOutBufList->mBuffers[i].mData), nFrames);
-  }
-
   int lastConnectedOutputBus = -1;
 
-  for(int i = 0; i < _this->mOutBuses.GetSize(); i++)
+  if(!_this->IsMidiEffect())
   {
-    if(!_this->mOutBuses.Get(i)->mConnected)
+    double renderSampleTime = pTimestamp->mSampleTime;
+
+    // Pull input buffers.
+    if (renderSampleTime != _this->mLastRenderSampleTime)
     {
-      break;
+      BufferList bufList;
+      AudioBufferList* pInBufList = (AudioBufferList*) &bufList;
+
+      int nIn = _this->mInBuses.GetSize();
+
+      for (int i = 0; i < nIn; ++i)
+      {
+        BusChannels* pInBus = _this->mInBuses.Get(i);
+        InputBusConnection* pInBusConn = _this->mInBusConnections.Get(i);
+
+        if (pInBus->mConnected)
+        {
+          pInBufList->mNumberBuffers = pInBus->mNHostChannels;
+
+          for (int b = 0; b < pInBufList->mNumberBuffers; ++b)
+          {
+            AudioBuffer* pBuffer = &(pInBufList->mBuffers[b]);
+            pBuffer->mNumberChannels = 1;
+            pBuffer->mDataByteSize = nFrames * sizeof(AudioSampleType);
+            pBuffer->mData = 0;
+          }
+
+          AudioUnitRenderActionFlags flags = 0;
+          OSStatus r = noErr;
+
+          switch (pInBusConn->mInputType)
+          {
+            case eDirectFastProc:
+            {
+              r = pInBusConn->mUpstreamRenderProc(pInBusConn->mUpstreamObj, &flags, pTimestamp, pInBusConn->mUpstreamBusIdx, nFrames, pInBufList);
+              break;
+            }
+            case eDirectNoFastProc:
+            {
+              r = AudioUnitRender(pInBusConn->mUpstreamUnit, &flags, pTimestamp, pInBusConn->mUpstreamBusIdx, nFrames, pInBufList);
+              break;
+            }
+            case eRenderCallback:
+            {
+              AudioSampleType* pScratchInput = _this->mInScratchBuf.Get() + pInBus->mPlugChannelStartIdx * nFrames;
+
+              for (int b = 0; b < pInBufList->mNumberBuffers; ++b, pScratchInput += nFrames)
+              {
+                pInBufList->mBuffers[b].mData = pScratchInput;
+              }
+
+              r = RenderCallback(&(pInBusConn->mUpstreamRenderCallback), &flags, pTimestamp, i, nFrames, pInBufList);
+              break;
+            }
+            default:
+              break;
+          }
+          if (r != noErr)
+          {
+            return r;   // Something went wrong upstream.
+          }
+
+          for (int i = 0, chIdx = pInBus->mPlugChannelStartIdx; i < pInBus->mNHostChannels; ++i, ++chIdx)
+          {
+            _this->AttachBuffers(ERoute::kInput, chIdx, 1, (AudioSampleType**) &(pInBufList->mBuffers[i].mData), nFrames);
+          }
+        }
+      }
+      _this->mLastRenderSampleTime = renderSampleTime;
     }
-    else
+  
+    BusChannels* pOutBus = _this->mOutBuses.Get(outputBusIdx);
+
+    // if this bus is not connected OR the number of buffers that the host has given are not equal to the number the bus expects
+    if (!(pOutBus->mConnected) || pOutBus->mNHostChannels != pOutBufList->mNumberBuffers)
     {
-      lastConnectedOutputBus++;
+      int startChannelIdx = pOutBus->mPlugChannelStartIdx;
+      int nConnected = std::min<int>(pOutBus->mNHostChannels, pOutBufList->mNumberBuffers);
+      int nUnconnected = std::max(pOutBus->mNPlugChannels - nConnected, 0);
+      
+      assert(nConnected > -1);
+      _this->SetChannelConnections(ERoute::kOutput, startChannelIdx, nConnected, true);
+      _this->SetChannelConnections(ERoute::kOutput, startChannelIdx + nConnected, nUnconnected, false); // This will disconnect the right handle channel on a single stereo bus
+      pOutBus->mConnected = true;
+    }
+
+    for (int i = 0, chIdx = pOutBus->mPlugChannelStartIdx; i < pOutBufList->mNumberBuffers; ++i, ++chIdx)
+    {
+      if (!(pOutBufList->mBuffers[i].mData)) // Downstream unit didn't give us buffers.
+        pOutBufList->mBuffers[i].mData = _this->mOutScratchBuf.Get() + chIdx * nFrames;
+
+      _this->AttachBuffers(ERoute::kOutput, chIdx, 1, (AudioSampleType**) &(pOutBufList->mBuffers[i].mData), nFrames);
+    }
+
+    for(int i = 0; i < _this->mOutBuses.GetSize(); i++)
+    {
+      if(!_this->mOutBuses.Get(i)->mConnected)
+      {
+        break;
+      }
+      else
+      {
+        lastConnectedOutputBus++;
+      }
     }
   }
 
-  if (outputBusIdx == lastConnectedOutputBus)
+  if (_this->IsMidiEffect() || outputBusIdx == lastConnectedOutputBus)
   {
     int busIdx1based = outputBusIdx+1;
 
@@ -1990,10 +1990,11 @@ bool IPlugAU::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
   if(mMidiCallback.midiOutputCallback == nullptr)
     return false;
   
-  ByteCount listSize = msgs.GetSize() * 3;
-  MIDIPacketList* pPktlist = (MIDIPacketList*) malloc(listSize);
+  WDL_HeapBuf heapBuf;
+  MIDIPacketList* pPktlist = (MIDIPacketList*) heapBuf.ResizeOK(msgs.GetSize() * 3);
   MIDIPacket* pPkt = MIDIPacketListInit(pPktlist);
-  
+  ByteCount listSize = heapBuf.GetSize();
+    
   IMidiMsg* pMsg = msgs.Get();
   for (int i = 0; i < msgs.GetSize(); ++i, ++pMsg)
   {
@@ -2010,8 +2011,6 @@ bool IPlugAU::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
       result = true;
   }
   
-  free(pPktlist);
-  
   return result;
 }
 
@@ -2021,14 +2020,14 @@ bool IPlugAU::SendSysEx(const ISysEx& sysEx)
 
   if(mMidiCallback.midiOutputCallback == nullptr)
     return false;
+
+  assert(sysEx.mSize <= 65536); // maximum packet list size
   
-  ByteCount listSize = sysEx.mSize;
-  
-  assert(listSize > 65536); // maximum packet list size
-  
-  MIDIPacketList* pPktlist = (MIDIPacketList*) malloc(listSize);
+  WDL_HeapBuf heapBuf;
+  MIDIPacketList* pPktlist = (MIDIPacketList*) heapBuf.ResizeOK(sysEx.mSize);
   MIDIPacket* pPkt = MIDIPacketListInit(pPktlist);
   
+  ByteCount listSize = heapBuf.GetSize();
   ByteCount bytesLeft = listSize;
   
   while (bytesLeft) {
@@ -2046,8 +2045,6 @@ bool IPlugAU::SendSysEx(const ISysEx& sysEx)
     if (status == noErr)
       result = true;
   }
-  
-  free(pPktlist);
   
   return result;
 }
@@ -2189,14 +2186,14 @@ OSStatus IPlugAU::DoInitialize(IPlugAU* _this)
       CStrLocal versionStr((CFStringRef) CFBundleGetValueForInfoDictionaryKey(mainBundle, kCFBundleVersionKey));
       
       char *pStr;
-      long ver = versionStr.mCStr ? strtol(versionStr.mCStr, &pStr, 10) : 0;
-      long verRevMaj = versionStr.mCStr && *pStr ? strtol(pStr + 1, &pStr, 10) : 0;
-      long verRevMin = versionStr.mCStr && *pStr ? strtol(pStr + 1, &pStr, 10) : 0;
+      long ver = versionStr.Get() ? strtol(versionStr.Get(), &pStr, 10) : 0;
+      long verRevMaj = versionStr.Get() && *pStr ? strtol(pStr + 1, &pStr, 10) : 0;
+      long verRevMin = versionStr.Get() && *pStr ? strtol(pStr + 1, &pStr, 10) : 0;
 
       version = (int) (((ver & 0xFFFF) << 16) | ((verRevMaj &  0xFF) << 8) | (verRevMin & 0xFF));
     }
 
-    _this->SetHost(id ? CStrLocal(id).mCStr : "", version);
+    _this->SetHost(id ? CStrLocal(id).Get() : "", version);
   }
     
   if (!(_this->CheckLegalIO()))

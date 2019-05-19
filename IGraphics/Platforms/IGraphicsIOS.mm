@@ -8,38 +8,16 @@
  ==============================================================================
 */
 
-#ifndef NO_IGRAPHICS
 #import <QuartzCore/QuartzCore.h>
-#import "IGraphicsIOS_view.h"
 
 #include "IGraphicsIOS.h"
-#include "IControl.h"
-#include "IPopupMenuControl.h"
+#include "IGraphicsCoreText.h"
 
-#include "IPlugPluginBase.h"
-#include "IPlugPaths.h"
-
-NSString* ToNSString(const char* cStr)
-{
-  return [NSString stringWithCString:cStr encoding:NSUTF8StringEncoding];
-}
+#import "IGraphicsIOS_view.h"
 
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
-//struct CocoaAutoReleasePool
-//{
-//  NSAutoreleasePool* mPool;
-//
-//  CocoaAutoReleasePool()
-//  {
-//    mPool = [[NSAutoreleasePool alloc] init];
-//  }
-//
-//  ~CocoaAutoReleasePool()
-//  {
-//    [mPool release];
-//  }
-//};
+StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 #pragma mark -
 
@@ -51,78 +29,6 @@ IGraphicsIOS::IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float s
 IGraphicsIOS::~IGraphicsIOS()
 {
   CloseWindow();
-}
-
-bool IGraphicsIOS::GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath)
-{
-//  CocoaAutoReleasePool pool;
-  
-  const char* ext = fileName+strlen(fileName)-1;
-  while (ext >= fileName && *ext != '.') --ext;
-  ++ext;
-  
-  bool isCorrectType = !strcasecmp(ext, searchExt);
-  
-  NSBundle* pBundle = [NSBundle bundleWithIdentifier:ToNSString(GetBundleID())];
-  NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
-  NSString* pExt = [NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding];
-  
-  if (isCorrectType && pBundle && pFile)
-  {
-    NSString* pParent = [[[pBundle bundlePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent];
-    NSString* pPath = [[[[pParent stringByAppendingString:@"/"] stringByAppendingString:pFile] stringByAppendingString: @"."] stringByAppendingString:pExt];
-
-    if (pPath)
-    {
-      fullPath.Set([pPath cString]);
-      return true;
-    }
-  }
-  
-  fullPath.Set("");
-  return false;
-}
-
-bool IGraphicsIOS::GetResourcePathFromUsersMusicFolder(const char* fileName, const char* searchExt, WDL_String& fullPath)
-{
-  //  CocoaAutoReleasePool pool; TODO:
-  
-  const char* ext = fileName+strlen(fileName)-1;
-  while (ext >= fileName && *ext != '.') --ext;
-  ++ext;
-  
-  bool isCorrectType = !strcasecmp(ext, searchExt);
-  
-  NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
-  NSString* pExt = [NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding];
-  
-//  if (isCorrectType && pFile)
-//  {
-//    WDL_String musicFolder;
-//    SandboxSafeAppSupportPath(musicFolder);
-//    NSString* pPluginName = [NSString stringWithCString: dynamic_cast<IPluginBase&>(GetDelegate()).GetPluginName() encoding:NSUTF8StringEncoding];
-//    NSString* pMusicLocation = [NSString stringWithCString: musicFolder.Get() encoding:NSUTF8StringEncoding];
-//    NSString* pPath = [[[[pMusicLocation stringByAppendingPathComponent:pPluginName] stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent: pFile] stringByAppendingPathExtension:pExt];
-//
-//    if (pPath)
-//    {
-//      fullPath.Set([pPath UTF8String]);
-//      return true;
-//    }
-//  }
-  
-  fullPath.Set("");
-  return false;
-}
-
-EResourceLocation IGraphicsIOS::OSFindResource(const char* name, const char* type, WDL_String& result)
-{
-  if(CStringHasContents(name))
-  {
-    if(GetResourcePathFromBundle(name, type, result))
-      return EResourceLocation::kAbsolutePath;
-  }
-  return EResourceLocation::kNotFound;
 }
 
 void* IGraphicsIOS::OpenWindow(void* pParent)
@@ -151,14 +57,18 @@ void IGraphicsIOS::CloseWindow()
 {
   if (mView)
   {
-    IGraphicsIOS_View* view = (IGraphicsIOS_View*) mView;
-
-    mView = nullptr;
-    
-    if (view->mGraphics)
+#ifdef IGRAPHICS_IMGUI
+    if(mImGuiView)
     {
-      [view removeFromSuperview];  
+      IGRAPHICS_IMGUIVIEW* pImGuiView = (IGRAPHICS_IMGUIVIEW*) mImGuiView;
+      [pImGuiView removeFromSuperview];
+      [pImGuiView release];
+      mImGuiView = nullptr;
     }
+#endif
+    
+    IGraphicsIOS_View* view = (IGraphicsIOS_View*) mView;
+    [view removeFromSuperview];
     [view release];
 
     OnViewDestroyed();
@@ -210,7 +120,7 @@ bool IGraphicsIOS::PromptForColor(IColor& color, const char* str)
   return false;
 }
 
-IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds)
 {
   IPopupMenu* pReturnMenu = nullptr;
   
@@ -224,13 +134,10 @@ IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
   if(pReturnMenu && pReturnMenu->GetFunction())
     pReturnMenu->ExecFunction();
   
-  if(pCaller)
-    pCaller->OnPopupMenuSelection(pReturnMenu); // should fire even if pReturnMenu == nullptr
-
   return pReturnMenu;
 }
 
-void IGraphicsIOS::CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
+void IGraphicsIOS::CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str)
 {
 }
 
@@ -258,4 +165,36 @@ bool IGraphicsIOS::GetTextFromClipboard(WDL_String& str)
   return false;
 }
 
-#endif// NO_IGRAPHICS
+bool IGraphicsIOS::SetTextInClipboard(const WDL_String& str)
+{
+  return false;
+}
+
+void IGraphicsIOS::CreatePlatformImGui()
+{
+#ifdef IGRAPHICS_IMGUI
+  if(mView)
+  {
+    IGraphicsIOS_View* pView = (IGraphicsIOS_View*) mView;
+    
+    IGRAPHICS_IMGUIVIEW* pImGuiView = [[IGRAPHICS_IMGUIVIEW alloc] initWithIGraphicsView:pView];
+    [pView addSubview: pImGuiView];
+    mImGuiView = pImGuiView;
+  }
+#endif
+}
+
+PlatformFontPtr IGraphicsIOS::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
+{
+  return CoreTextHelpers::LoadPlatformFont(fontID, fileNameOrResID, GetBundleID());
+}
+
+PlatformFontPtr IGraphicsIOS::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
+{
+  return CoreTextHelpers::LoadPlatformFont(fontID, fontName, style);
+}
+
+void IGraphicsIOS::CachePlatformFont(const char* fontID, const PlatformFontPtr& font)
+{
+  CoreTextHelpers::CachePlatformFont(fontID, font, sFontDescriptorCache);
+}

@@ -12,6 +12,7 @@
 
 #include <cstring>
 #include <cstdint>
+#include <memory>
 
 #include "ptrlist.h"
 #include "mutex.h"
@@ -29,11 +30,12 @@
  * @file
  * @copydoc IPlugAPIBase
  * @defgroup APIClasses IPlug::APIClasses
+ * An IPlug API class is the base class for a particular audio plug-in API
 */
 
 struct IPlugConfig;
 
-/** The base class of an IPlug plug-in, which interacts with the different plug-in APIs. No UI framework code here.
+/** The base class of an IPlug plug-in, which interacts with the different plug-in APIs.
  *  This interface does not handle audio processing, see @IPlugProcessor  */
 class IPlugAPIBase : public IPluginBase
 {
@@ -128,7 +130,9 @@ public:
   /** Get the name of the track that the plug-in is inserted on */
   virtual void GetTrackName(WDL_String& str) {};
   
+  /** /todo */
   virtual void DirtyParametersFromUI() override;
+
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
 
   /** This is called from the plug-in API class in order to update UI controls linked to plug-in parameters, prior to calling OnParamChange()
@@ -149,8 +153,11 @@ public:
 
   //IEditorDelegate
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { BeginInformHostOfParamChange(paramIdx); }
+  
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }
+  
   void EditorPropertiesChangedFromUI(int viewWidth, int viewHeight, const IByteChunk& data) override { EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data); }
+  
   void SendParameterValueFromUI(int paramIdx, double normalisedValue) override
   {
     SetParameterValue(paramIdx, normalisedValue);
@@ -159,16 +166,20 @@ public:
   
   //These are handled in IPlugAPIBase for non DISTRIBUTED APIs
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
+  
   void SendSysexMsgFromUI(const ISysEx& msg) override;
+  
   void SendArbitraryMsgFromUI(int messageTag, int controlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) override;
   
   void DeferMidiMsg(const IMidiMsg& msg) override { mMidiMsgsFromEditor.Push(msg); }
+  
   void DeferSysexMsg(const ISysEx& msg) override
   {
     SysExData data(msg.mOffset, msg.mSize, msg.mData); // copies data
     mSysExDataFromEditor.Push(data);
   }
 
+  /** /todo */
   void CreateTimer();
   
 private:
@@ -178,16 +189,19 @@ private:
   virtual void InformHostOfParamChange(int paramIdx, double normalizedValue) {};
   
   //DISTRIBUTED ONLY (Currently only VST3)
+  /** /todo */
   virtual void TransmitMidiMsgFromProcessor(const IMidiMsg& msg) {};
+  
+  /** /todo */
   virtual void TransmitSysExDataFromProcessor(const SysExData& data) {};
 
   void OnTimer(Timer& t);
 
 protected:
   WDL_String mParamDisplayStr;
-  Timer* mTimer = nullptr;
+  std::unique_ptr<Timer> mTimer;
   
-  IPlugQueue<IParamChange> mParamChangeFromProcessor {PARAM_TRANSFER_SIZE};
+  IPlugQueue<ParamTuple> mParamChangeFromProcessor {PARAM_TRANSFER_SIZE};
   IPlugQueue<IMidiMsg> mMidiMsgsFromEditor {MIDI_TRANSFER_SIZE}; // a queue of midi messages generated in the editor by clicking keyboard UI etc
   IPlugQueue<IMidiMsg> mMidiMsgsFromProcessor {MIDI_TRANSFER_SIZE}; // a queue of MIDI messages received (potentially on the high priority thread), by the processor to send to the editor
   IPlugQueue<SysExData> mSysExDataFromEditor {SYSEX_TRANSFER_SIZE}; // a queue of SYSEX data to send to the processor

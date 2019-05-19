@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include "IPlugEditorDelegate.h"
 
 /**
@@ -20,7 +22,7 @@
 class IGraphics;
 class IControl;
 
-/** An editor delgate base class for a SOMETHING that uses IGraphics for it's UI */
+/** An editor delegate base class for a SOMETHING that uses IGraphics for it's UI */
 class IGEditorDelegate : public IEditorDelegate
 {
 public:
@@ -31,13 +33,13 @@ public:
   void* OpenWindow(void* pHandle) final override;
   void CloseWindow() final override;
   //The rest should be final, but the WebSocketEditorDelegate needs to override them
-  virtual void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;
-  virtual void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize = 0, const void* pData = nullptr) override;
-  virtual void SendMidiMsgFromDelegate(const IMidiMsg& msg) override;
-  virtual void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
+  void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;
+  void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize = 0, const void* pData = nullptr) override;
+  void SendMidiMsgFromDelegate(const IMidiMsg& msg) override;
+  void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
 
   /** If you override this method you must call the parent! */
-  virtual void OnUIOpen() override;
+  void OnUIOpen() override;
 
   //IGEditorDelegate
   /** Attach IGraphics context - only call this method if creating/populating your UI in your plug-in constructor.
@@ -61,7 +63,7 @@ public:
   }
   
   /** Get a pointer to the IGraphics context */
-  IGraphics* GetUI() { return mGraphics; };
+  IGraphics* GetUI() { return mGraphics.get(); };
 
   /** Called when the IGraphics context properties are changed */
   void EditorPropertiesModified();
@@ -82,6 +84,7 @@ protected:
   std::function<void(IGraphics* pGraphics)> mLayoutFunc = nullptr;
 private:
 
-  IGraphics* mGraphics = nullptr;
+  std::unique_ptr<IGraphics> mGraphics;
   bool mIGraphicsTransient = false; // If creating IGraphics on demand this will be true
+  bool mClosing = false; // used to prevent re-entrancy on closing
 };

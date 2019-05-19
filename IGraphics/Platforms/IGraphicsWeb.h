@@ -15,9 +15,12 @@
 #include <emscripten/bind.h>
 #include <emscripten/html5.h>
 
+#include <utility>
+
 #include "IPlugPlatform.h"
 
 #include "IGraphics_select.h"
+
 
 using namespace emscripten;
 
@@ -43,8 +46,6 @@ public:
 
   const char* GetPlatformAPIStr() override { return "WEB"; }
 
-  void SetPlatformContext(void* pContext) override {} // TODO:
-
   void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override { /* NOT SUPPORTABLE*/ }
   ECursor SetMouseCursor(ECursor cursorType) override;
@@ -55,6 +56,7 @@ public:
   void* GetWindow() override { return nullptr; } // TODO:
   bool WindowIsOpen() override { return GetWindow(); } // TODO: ??
   bool GetTextFromClipboard(WDL_String& str) override;
+  bool SetTextInClipboard(const WDL_String& str) override { return false; } // TODO
   void UpdateTooltips() override {} // TODO:
   int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) override;
   
@@ -69,7 +71,11 @@ public:
   double mPrevY = 0.;
   
 protected:
-  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
-  void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
-  EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result) override;
+  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds) override;
+  void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
+    
+private:
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
+  void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override {}
 };

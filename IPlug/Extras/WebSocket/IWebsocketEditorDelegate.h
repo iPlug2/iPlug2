@@ -27,9 +27,9 @@ public:
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
   void SendSysexMsgFromUI(const ISysEx& msg) override;
   void SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData) override;
-//  virtual void BeginInformHostOfParamChangeFromUI(int paramIdx) override;
+//void BeginInformHostOfParamChangeFromUI(int paramIdx) override;
   void SendParameterValueFromUI(int paramIdx, double normalizedValue) override;
-//  virtual void EndInformHostOfParamChangeFromUI(int paramIdx) override;
+//void EndInformHostOfParamChangeFromUI(int paramIdx) override;
 
   void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;
   void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) override;
@@ -42,6 +42,6 @@ public:
   void ProcessWebsocketQueue();
   
 private:
-  IPlugQueue<IParamChange> mParamChangeFromClients; // TODO: This is a single producer single consumer queue - it is not sufficient, since each client connection will be on a different server thread
+  IPlugQueue<ParamTuple> mParamChangeFromClients; // TODO: This is a single producer single consumer queue - it is not sufficient, since each client connection will be on a different server thread
   IPlugQueue<IMidiMsg> mMIDIFromClients; // TODO: This is a single producer single consumer queue - it is not sufficient, since each client connection will be on a different server thread
 };

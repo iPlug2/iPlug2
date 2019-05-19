@@ -10,8 +10,6 @@
 
 #pragma once
 
-#ifndef NO_IGRAPHICS
-
 #include "IGraphics_select.h"
 
 /** IGraphics platform class for linux
@@ -46,11 +44,9 @@ public:
 
   static int GetUserOSVersion();
   bool GetTextFromClipboard(WDL_String& str) override;
+  bool SetTextInClipboard(const WDL_String& str) override { return false; } // TODO
 
 protected:
   IPopupMenu* CreatePlatformPopupMenu(const IPopupMenu& menu, IRECT& bounds) override;
-  void CreatePlatformTextEntry(IControl* pControl, const IText& text, const IRECT& bounds, const char* str) override;
-  EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result) override;
+  void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
 }
-
-#endif // NO_IGRAPHICS

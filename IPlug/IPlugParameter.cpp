@@ -21,7 +21,6 @@
 
 #pragma mark - Shape
 
-// Linear
 double IParam::ShapeLinear::NormalizedToValue(double value, const IParam& param) const
 {
   return param.mMin + value * (param.mMax - param.mMin);
@@ -32,7 +31,6 @@ double IParam::ShapeLinear::ValueToNormalized(double value, const IParam& param)
   return (value - param.mMin) / (param.mMax - param.mMin);
 }
 
-// Power curve shape
 IParam::ShapePowCurve::ShapePowCurve(double shape)
 : mShape(shape)
 {
@@ -58,7 +56,6 @@ double IParam::ShapePowCurve::ValueToNormalized(double value, const IParam& para
   return std::pow((value - param.GetMin()) / (param.GetMax() - param.GetMin()), 1.0 / mShape);
 }
 
-// Exponential shape
 void IParam::ShapeExp::Init(const IParam& param)
 {
   double min = param.GetMin();
@@ -84,7 +81,7 @@ double IParam::ShapeExp::ValueToNormalized(double value, const IParam& param) co
 
 IParam::IParam()
 {
-  mShape.reset(new ShapeLinear);
+  mShape = std::make_unique<ShapeLinear>();
   memset(mName, 0, MAX_PARAM_NAME_LEN * sizeof(char));
   memset(mLabel, 0, MAX_PARAM_LABEL_LEN * sizeof(char));
   memset(mParamGroup, 0, MAX_PARAM_LABEL_LEN * sizeof(char));
@@ -154,7 +151,7 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
     ;
   }
     
-  mShape.reset(shape.Clone());
+  mShape = std::unique_ptr<Shape>(shape.Clone());
   mShape->Init(*this);
 }
 
