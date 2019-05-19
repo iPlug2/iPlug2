@@ -102,7 +102,7 @@ public:
     int mTag = -1;
   };
   
-  typedef std::function<void(int indexInMenu, IPopupMenu::Item* itemChosen)> IPopupFunction;
+  using IPopupFunction = std::function<void(int indexInMenu, IPopupMenu::Item* itemChosen)>;
 
   #pragma mark -
   
