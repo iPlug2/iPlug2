@@ -20,7 +20,7 @@ class Alpha_span_generator : public SpanGeneratorType
 {
 public:
   
-  Alpha_span_generator(typename SpanGeneratorType::source_type& source, typename SpanGeneratorType::interpolator_type& interpolator, agg::cover_type a)
+  alpha_span_generator(typename SpanGeneratorType::source_type& source, typename SpanGeneratorType::interpolator_type& interpolator, agg::cover_type a)
   : SpanGeneratorType(source, interpolator), alpha(a) {}
   
   void generate(typename SpanGeneratorType::color_type* span, int x, int y, unsigned len)
