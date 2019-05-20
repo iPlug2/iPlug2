@@ -111,7 +111,6 @@ public:
   bool IsHit(float x, float y) const override;
 protected:
   float mAngleMin, mAngleMax;
-  float mKnobFrac;
 };
 
 /** A vector knob/dial control which rotates an SVG image */
