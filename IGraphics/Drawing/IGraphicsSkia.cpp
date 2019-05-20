@@ -189,17 +189,20 @@ IColor IGraphicsSkia::GetPoint(int x, int y)
   return COLOR_BLACK; //TODO:
 }
 
-bool IGraphicsSkia::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+void IGraphicsSkia::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
+{
+  
+}
+
+void IGraphicsSkia::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
 {
   SkFont font;
   font.setSubpixel(true);
   font.setSize(text.mSize);
   SkPaint paint;
   paint.setColor(SkiaColor(text.mFGColor, pBlend));
-
-  mCanvas->drawSimpleText(str, strlen(str), kUTF8_SkTextEncoding, bounds.L, bounds.T, font, paint);
   
-  return true;
+  mCanvas->drawSimpleText(str, strlen(str), kUTF8_SkTextEncoding, bounds.L, bounds.T, font, paint);
 }
 
 void IGraphicsSkia::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
