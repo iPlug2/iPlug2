@@ -62,6 +62,13 @@ public:
       plug->addAudioOutput(tmpStringBuf, busType, (Vst::BusTypes) busIdx > 0, flags);
     }
 //  }
+
+    if (IsMidiEffect() && pConfig->NBuses(ERoute::kOutput) == 0)
+    {
+      int flags = 0;
+      UString(tmpStringBuf, 128).fromAscii("Dummy Output", 128);
+      plug->addAudioOutput(tmpStringBuf, Steinberg::Vst::SpeakerArr::kEmpty, Vst::BusTypes::kMain, flags);
+    }
     
     if (DoesMIDIIn())
       plug->addEventInput(STR16("MIDI Input"), 1);

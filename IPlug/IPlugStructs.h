@@ -27,11 +27,15 @@
 #include "IPlugUtilities.h"
 
 /** In certain cases we need to queue parameter changes for transferral between threads */
-struct IParamChange
+struct ParamTuple
 {
-  int paramIdx;
+  int idx;
   double value;
-  bool normalized; // TODO: Remove this
+  
+  ParamTuple(int idx = kNoParameter, double value = 0.)
+  : idx(idx)
+  , value(value)
+  {}
 };
 
 /** This structure is used when queueing Sysex messages. You may need to set MAX_SYSEX_SIZE to reflect the max sysex payload in bytes */

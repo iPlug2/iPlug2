@@ -13,16 +13,13 @@
 
 #include "IGraphicsAGG.h"
 
-// Fonts
-
 static StaticStorage<IFontData> sFontCache;
 
-// Utility
+const bool textKerning = true;
 
 class pixel_wrapper : public agg::pixel_map
 {
 public:
-  
   pixel_wrapper(unsigned char* buf, unsigned w, unsigned h, unsigned bpp, int row_bytes)
   : m_buf(buf)
   , m_width(w)
@@ -99,7 +96,7 @@ agg::pixel_map* CreatePixmap(int w, int h)
 template <typename FuncType, typename ColorArrayType>
 void GradientRasterize(IGraphicsAGG::Rasterizer& rasterizer, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray, agg::comp_op_e op)
 {
-  typedef agg::span_gradient<agg::rgba8, IGraphicsAGG::InterpolatorType, FuncType, ColorArrayType> SpanGradientType;
+  using SpanGradientType = agg::span_gradient<agg::rgba8, IGraphicsAGG::InterpolatorType, FuncType, ColorArrayType>;
   
   IGraphicsAGG::InterpolatorType spanInterpolator(xform);
   SpanGradientType spanGradient(spanInterpolator, gradientFunc, colorArray, 0, 512);
@@ -109,11 +106,9 @@ void GradientRasterize(IGraphicsAGG::Rasterizer& rasterizer, const FuncType& gra
 template <typename FuncType, typename ColorArrayType>
 void GradientRasterizeAdapt(IGraphicsAGG::Rasterizer& rasterizer, EPatternExtend extend, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray, agg::comp_op_e op)
 {
-  // TODO extend none
-  
   switch (extend)
   {
-    case kExtendNone:
+    case kExtendNone: //TODO:  extend none
     case kExtendPad:
       GradientRasterize(rasterizer, gradientFunc, xform, colorArray, op);
       break;
@@ -133,29 +128,21 @@ void IGraphicsAGG::Rasterizer::Rasterize(const IPattern& pattern, agg::comp_op_e
   switch (pattern.mType)
   {
     case kSolidPattern:
-    {
-      // Rasterize
-      
       Rasterize(AGGColor(pattern.GetStop(0).mColor, opacity), op);
-    }
-      break;
-      
+    break;
     case kLinearPattern:
     case kRadialPattern:
     {
       // Common gradient objects
-      
       const IMatrix& m = pattern.mTransform;
       
       agg::trans_affine gradientMTX(m.mXX, m.mYX , m.mXY, m.mYY, m.mTX, m.mTY);
       agg::gradient_lut<agg::color_interpolator<agg::rgba8>, 512> colorArray;
       
       // Scaling
-      
       gradientMTX = (agg::trans_affine() / mGraphics.mTransform) * gradientMTX * agg::trans_affine_scaling(512.0);
       
       // Make gradient lut
-      
       colorArray.remove_all();
       
       for (int i = 0; i < pattern.NStops(); i++)
@@ -168,15 +155,10 @@ void IGraphicsAGG::Rasterizer::Rasterize(const IPattern& pattern, agg::comp_op_e
       colorArray.build_lut();
       
       // Rasterize
-      
       if (pattern.mType == kLinearPattern)
-      {
         GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_y(), gradientMTX, colorArray, op);
-      }
       else
-      {
         GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_radial_d(), gradientMTX, colorArray, op);
-      }
     }
     break;
   }
@@ -190,9 +172,7 @@ IGraphicsAGG::IGraphicsAGG(IGEditorDelegate& dlg, int w, int h, int fps, float s
 , mFontEngine()
 , mFontManager(mFontEngine)
 , mFontCurves(mFontManager.path_adaptor())
-, mFontContour(mFontCurves)
 , mFontCurvesTransformed(mFontCurves, mTransform)
-, mFontContourTransformed(mFontContour, mTransform)
 {
   DBGMSG("IGraphics AGG @ %i FPS\n", fps);
     
@@ -265,19 +245,18 @@ void IGraphicsAGG::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX
   APIBitmap* pAPIBitmap = dynamic_cast<AGGBitmap*>(bitmap.GetAPIBitmap());
   agg::pixel_map* pSource = pAPIBitmap->GetBitmap();
   agg::rendering_buffer src(pSource->buf(), pSource->width(), pSource->height(), pSource->row_bytes());
-  const double scale = GetScreenScale() / (pAPIBitmap->GetScale() * pAPIBitmap->GetDrawScale());
 
   agg::trans_affine srcMtx;
   srcMtx /= mTransform;
-  srcMtx *= agg::trans_affine_translation((srcX * scale) - dest.L, (srcY * scale) - dest.T);
+  srcMtx *= agg::trans_affine_translation(srcX - dest.L, srcY - dest.T);
   srcMtx *= agg::trans_affine_scaling(bitmap.GetScale() * bitmap.GetDrawScale());
     
   if (bounds.IsPixelAligned() && CheckTransform(srcMtx))
   {
-    double offsetScale = scale * GetScreenScale();
+    double scale = GetScreenScale() * GetScreenScale() / pAPIBitmap->GetScale();
     IRECT destScaled = dest.GetScaled(GetBackingPixelScale());
-    srcX = std::round(srcX * offsetScale + std::max(0.f, bounds.L - destScaled.L));
-    srcY = std::round(srcY * offsetScale + std::max(0.f, bounds.T - destScaled.T));
+    srcX = std::round(srcX * scale + std::max(0.f, bounds.L - destScaled.L));
+    srcY = std::round(srcY * scale + std::max(0.f, bounds.T - destScaled.T));
     bounds.Translate(mTransform.tx, mTransform.ty);
 
     mRasterizer.BlendFrom(src, bounds, srcX, srcY, AGGBlendMode(pBlend), AGGCover(pBlend), preMultiplied);
@@ -350,8 +329,6 @@ void IGraphicsAGG::PathCurveTo(float x1, float y1, float x2, float y2, float x3,
 template<typename StrokeType>
 void StrokeOptions(StrokeType& strokes, double thickness, const IStrokeOptions& options)
 {
-  // Set stroke options
-  
   strokes.width(thickness);
   
   switch (options.mCapOption)
@@ -373,13 +350,13 @@ void StrokeOptions(StrokeType& strokes, double thickness, const IStrokeOptions& 
 
 void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
 {
-  typedef agg::conv_curve<agg::path_storage>    CPType;
-  typedef agg::conv_transform<CPType>           S1Type;
-  typedef agg::conv_stroke<S1Type>              S2Type;
-  typedef agg::conv_transform<S2Type>           S3Type;
-  typedef agg::conv_dash<S1Type>                D2Type;
-  typedef agg::conv_stroke<D2Type>              D3Type;
-  typedef agg::conv_transform<D3Type>           D4Type;
+  using CPType = agg::conv_curve<agg::path_storage>;
+  using S1Type = agg::conv_transform<CPType>;
+  using S2Type = agg::conv_stroke<S1Type>;
+  using S3Type = agg::conv_transform<S2Type>;
+  using D2Type = agg::conv_dash<S1Type>;
+  using D3Type = agg::conv_stroke<D2Type>;
+  using D4Type = agg::conv_transform<D3Type>;
 
   agg::trans_affine tranform(mTransform);
   CPType curvedPath(mPath);
@@ -392,7 +369,6 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
     D4Type finalPath(strokedDashedPath, mTransform);
       
     // Set the dashes (N.B. - for odd counts the array is read twice)
-
     int dashCount = options.mDash.GetCount();
     int dashMax = dashCount & 1 ? dashCount * 2 : dashCount;
     const float* dashArray = options.mDash.GetArray();
@@ -499,17 +475,17 @@ void IGraphicsAGG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const 
     ILayer shadowLayer(shadowBitmap, layer->Bounds());
       
     PathTransformSave();
-    PushLayer(layer.get(), false);
-    PushLayer(&shadowLayer, false);
+    PushLayer(layer.get());
+    PushLayer(&shadowLayer);
     PathRect(layer->Bounds());
     IBlend blend1(kBlendSourceIn, 1.0);
     PathTransformTranslate(-shadow.mXOffset, -shadow.mYOffset);
     PathFill(shadow.mPattern, IFillOptions(), &blend1);
-    PopLayer(false);
+    PopLayer();
     IBlend blend2(kBlendDestOver, shadow.mOpacity);
     bounds.Translate(shadow.mXOffset, shadow.mYOffset);
     DrawBitmap(bitmap, bounds, 0, 0, &blend2);
-    PopLayer(false);
+    PopLayer();
     PathTransformRestore();
   }
 }
@@ -532,70 +508,14 @@ void IGraphicsAGG::EndFrame()
 #endif
 }
 
-void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& bounds, const char* str, FontManagerType& manager)
-{
-  LineInfo info;
-  info.mStartChar = 0;
-  info.mEndChar = 0;
-  pLines->Add(info);
-  
-  LineInfo* pLine = pLines->Get();
-  
-  int linePos = 0;
-  double xCount = 0.0;
-  
-  const char* cstr = str;
-  
-  while (*cstr)
-  {
-    const agg::glyph_cache* pGlyph = manager.glyph(*cstr);
-    
-    if (pGlyph)
-    {
-      xCount += pGlyph->advance_x;
-    }
-
-    cstr++;
-    linePos++;
-    
-    if (*cstr == ' ' || *cstr == 0)
-    {
-      pLine->mEndChar = linePos;
-      pLine->mWidth = xCount;
-    }
-    /*
-    if (bounds.W() > 0 && xCount >= bounds.W())
-    {
-      cstr = &str[pLine->mEndChar];
-        
-      LineInfo info;
-      info.mStartChar = info.mEndChar = linePos = pLine->mEndChar + 1;
-      info.mWidth = xCount = 0.0;
-    
-      pLine = pLines->Add(info);
-    }*/
-  }
-}
-
-bool IGraphicsAGG::SetFont(const char* fontID, IFontData* pFont)
+bool IGraphicsAGG::SetFont(const char* fontID, IFontData* pFont) const
 {
   agg::glyph_rendering render = agg::glyph_ren_outline;
   return mFontEngine.load_font(fontID, pFont->GetFaceIdx(), render, (char*) pFont->Get(), pFont->GetSize());
 }
 
-bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+void IGraphicsAGG::PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y) const
 {
-  if (!str || str[0] == '\0')
-  {
-    return false;
-  }
-
-  float weight = 0.0;
-  const bool kerning = false;
-  const bool hinting = false;
-
-  mFontContour.width(-weight * (text.mSize * 0.05));
-  
   StaticStorage<IFontData>::Accessor storage(sFontCache);
   IFontData* pFont = storage.Find(text.mFont);
   
@@ -604,84 +524,92 @@ bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& 
     assert(0 && "No font found - did you forget to load it?");
   }
     
-  mFontEngine.hinting(hinting);
-  mFontEngine.height(text.mSize);
-  mFontEngine.width(text.mSize);
+  const bool textHinting = false;
+    
+  // Set dpi to 72 to allow finer resolution of text sizes
+  mFontEngine.resolution(72);
+  mFontEngine.hinting(textHinting);
+  mFontEngine.height(text.mSize * pFont->GetHeightEMRatio());
   mFontEngine.flip_y(true);
-
-  WDL_TypedBuf<LineInfo> lines;
-  CalculateTextLines(&lines, bounds, str, mFontManager);
-  LineInfo * pLines = lines.Get();
   
-  double x = bounds.L;
-  double y = bounds.T + (text.mSize);
+  const double textHeight = text.mSize;
+  const double EMHeight = pFont->GetAscender() - pFont->GetDescender();
+  const double ascender = text.mSize * pFont->GetAscender() / EMHeight;
+  const double descender = text.mSize * pFont->GetDescender() / EMHeight;
+  
+  mFontManager.reset_last_glyph();
+  double textWidth = 0.0;
+  
+  for (int i = 0; str[i]; i++)
+  {
+    const agg::glyph_cache* pGlyph = mFontManager.glyph(str[i]);
+    
+    if (textKerning)
+    {
+      double dx = 0.0;
+      double dy = 0.0;
+      mFontManager.add_kerning(&dx, &dy);
+      textWidth += dx;
+    }
+    
+    textWidth += pGlyph->advance_x;
+  }
+  
+  switch (text.mAlign)
+  {
+    case IText::kAlignNear:     x = r.L;                          break;
+    case IText::kAlignCenter:   x = r.MW() - (textWidth / 2.0);   break;
+    case IText::kAlignFar:      x = r.R - textWidth;              break;
+  }
   
   switch (text.mVAlign)
   {
-    case IText::kVAlignTop:      y = bounds.T + mFontEngine.ascender();                               break;
-    case IText::kVAlignMiddle:   y = bounds.MH() + mFontEngine.descender() + text.mSize/2.;           break;
-    case IText::kVAlignBottom:   y = bounds.B + mFontEngine.descender();                              break;
+    case IText::kVAlignTop:      y = r.T + ascender;                            break;
+    case IText::kVAlignMiddle:   y = r.MH() + descender + (textHeight / 2.0);   break;
+    case IText::kVAlignBottom:   y = r.B + descender;                           break;
   }
   
-  if (measure)
+  r = IRECT((float) x, (float) y - ascender, (float) (x + textWidth), (float) (y + textHeight - ascender));
+}
+
+void IGraphicsAGG::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
+{
+  IRECT r = bounds;
+  double x, y;
+  PrepareAndMeasureText(text, str, bounds, x, y);
+  DoMeasureTextRotation(text, r, bounds);
+}
+
+void IGraphicsAGG::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
+{
+  IRECT measured = bounds;
+  double x, y;
+  
+  agg::rgba8 color(AGGColor(text.mFGColor, BlendWeight(pBlend)));
+  mFontManager.reset_last_glyph();
+  
+  PrepareAndMeasureText(text, str, measured, x, y);
+  PathTransformSave();
+  DoTextRotation(text, bounds, measured);
+
+  for (size_t c = 0; str[c]; c++)
   {
-    double width = 0.0;
+    const agg::glyph_cache* pGlyph = mFontManager.glyph(str[c]);
     
-    for (int i = 0; i < lines.GetSize(); ++i, ++pLines)
-      width = std::max(width, pLines->mWidth);
-    
-    bounds.B = bounds.T + lines.GetSize() * text.mSize;
-    bounds.R = bounds.L + width;
-  }
-  else
-  {
-    for (int i = 0; i < lines.GetSize(); ++i, ++pLines)
+    if (pGlyph)
     {
-      switch (text.mAlign)
+      if (textKerning)
       {
-        case IText::kAlignNear:
-          x = bounds.L;
-          break;
-        case IText::kAlignCenter:
-          x = bounds.L + ((bounds.W() - pLines->mWidth) / 2.0);
-          break;
-        case IText::kAlignFar:
-          x = bounds.L + (bounds.W() - pLines->mWidth);
-          break;
+        mFontManager.add_kerning(&x, &y);
       }
       
-      for (size_t c = pLines->mStartChar; c < pLines->mEndChar; c++)
-      {
-        const agg::glyph_cache* pGlyph = mFontManager.glyph(str[c]);
-        
-        if (pGlyph)
-        {
-          if (kerning)
-          {
-            mFontManager.add_kerning(&x, &y);
-          }
-          
-          mFontManager.init_embedded_adaptors(pGlyph, x, y);
-          agg::rgba8 color(AGGColor(text.mFGColor, BlendWeight(pBlend)));
-          
-          if (std::fabs(weight) <= 0.01)
-          {
-            //for the sake of efficiency skip the contour converter if the weight is about zero.
-            mRasterizer.Rasterize(mFontCurvesTransformed, color, AGGBlendMode(pBlend));
-          }
-          else
-          {
-            mRasterizer.Rasterize(mFontContourTransformed, color, AGGBlendMode(pBlend));
-          }
-        }
-        x += pGlyph->advance_x;
-        y += pGlyph->advance_y;
-      }
-      y += text.mSize;
+      mFontManager.init_embedded_adaptors(pGlyph, x, y);
+      mRasterizer.Rasterize(mFontCurvesTransformed, color, AGGBlendMode(pBlend));
     }
+    x += pGlyph->advance_x;
+    y += pGlyph->advance_y;
   }
-  
-  return true;
+  PathTransformRestore();
 }
 
 #include "IGraphicsAGG_src.cpp"

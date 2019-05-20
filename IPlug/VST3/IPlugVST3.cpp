@@ -113,6 +113,12 @@ tresult PLUGIN_API IPlugVST3::getState(IBStream* pState)
 }
 
 #pragma mark IEditController overrides
+tresult PLUGIN_API IPlugVST3::setParamNormalized(ParamID tag, ParamValue value)
+{
+  IPlugVST3ControllerBase::setParamNormalized(this, tag, value);
+  
+  return EditControllerEx1::setParamNormalized(tag, value);
+}
 
 IPlugView* PLUGIN_API IPlugVST3::createView(const char* name)
 {

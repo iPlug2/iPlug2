@@ -27,53 +27,53 @@
   #define LICE_PROVIDED_BY_APP
 //  #define SWELL_PROVIDED_BY_APP
   #include "IPlugReaperVST2.h"
-  typedef IPlugReaperVST2 IPlug;
+  using IPlug = IPlugReaperVST2;
 #else
   #include "IPlugVST2.h"
-  typedef IPlugVST2 IPlug;
+  using IPlug = IPlugVST2;
 #endif
   #define API_EXT "vst"
 #elif defined AU_API
   #include "IPlugAU.h"
-  typedef IPlugAU IPlug;
+  using IPlug = IPlugAU;
   #define API_EXT "audiounit"
 #elif defined AUv3_API
   #include "IPlugAUv3.h"
-  typedef IPlugAUv3 IPlug;
+  using IPlug = IPlugAUv3;
   #define API_EXT "app"
   #undef API_EXT2
   #define API_EXT2 ".AUv3"
 #elif defined AAX_API
   #include "IPlugAAX.h"
-  typedef IPlugAAX IPlug;
+  using IPlug = IPlugAAX;
   #define API_EXT "aax"
   #define PROTOOLS
 #elif defined APP_API
   #include "IPlugAPP.h"
-  typedef IPlugAPP IPlug;
+  using IPlug = IPlugAPP;
   #define API_EXT "app"
 #elif defined WAM_API
   #include "IPlugWAM.h"
-  typedef IPlugWAM IPlug;
+  using IPlug = IPlugWAM;
 #elif defined WEB_API
   #include "IPlugWeb.h"
-  typedef IPlugWeb IPlug;
+  using IPlug = IPlugWeb;
 #elif defined VST3_API
   #define IPLUG_VST3
   #include "IPlugVST3.h"
-  typedef IPlugVST3 IPlug;
+  using IPlug = IPlugVST3;
   #define API_EXT "vst3"
 #elif defined VST3C_API
   #define IPLUG_VST3
   #include "IPlugVST3_Controller.h"
-  typedef IPlugVST3Controller IPlug;
+  using IPlug = IPlugVST3Controller;
   #undef PLUG_CLASS_NAME
   #define PLUG_CLASS_NAME VST3Controller
   #define API_EXT "vst3"
 #elif defined VST3P_API
   #define IPLUG_VST3
   #include "IPlugVST3_Processor.h"
-  typedef IPlugVST3Processor IPlug;
+  using IPlug = IPlugVST3Processor;
   #define API_EXT "vst3"
 #else
   #error "No API defined!"

@@ -50,10 +50,10 @@ public:
   {
     SetUpMenu();
     
-    GetUI()->CreatePopupMenu(mMainMenu, x, y, this);
+    GetUI()->CreatePopupMenu(*this, mMainMenu, x, y);
   }
   
-  void OnPopupMenuSelection(IPopupMenu* pSelectedMenu) override
+  void OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx) override
   {
     if(pSelectedMenu)
     {
@@ -90,11 +90,11 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachCornerResizer(kUIResizerScale, true);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->EnableTooltips(true);
-//    pGraphics->AttachTextEntryControl();
+    pGraphics->AttachTextEntryControl();
     
     IRECT b = pGraphics->GetBounds().GetPadded(-5);
     
-    pGraphics->LoadFont("Roboto-Regular", ROBOTTO_FN);
+    pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     const IBitmap bitmap1 = pGraphics->LoadBitmap(PNGKNOB_FN, 60);
     const IBitmap bitmap2 = pGraphics->LoadBitmap(PNGKNOBROTATE_FN);
     const ISVG vectorknob = pGraphics->LoadSVG(SVGKNOBROTATE_FN);

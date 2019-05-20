@@ -8,9 +8,15 @@
  ==============================================================================
 */
 
-#ifdef IGRAPHICS_NANOVG
 #import <QuartzCore/QuartzCore.h>
+
+#ifdef IGRAPHICS_IMGUI
+#import <Metal/Metal.h>
+#include "imgui.h"
+#import "imgui_impl_metal.h"
 #endif
+
+#include "wdlutf8.h"
 
 #import "IGraphicsMac_view.h"
 #include "IControl.h"
@@ -231,14 +237,14 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
 
 - (bool) becomeFirstResponder;
 {
-    bool success = [super becomeFirstResponder];
-    if (success)
-    {
-        NSTextView *textField = (NSTextView*) [self currentEditor];
-        if( [textField respondsToSelector: @selector(setInsertionPointColor:)] )
-            [textField setInsertionPointColor: [self textColor]];
-    }
-    return success;
+  bool success = [super becomeFirstResponder];
+  if (success)
+  {
+    NSTextView *textField = (NSTextView*) [self currentEditor];
+    if( [textField respondsToSelector: @selector(setInsertionPointColor:)] )
+      [textField setInsertionPointColor: [self textColor]];
+  }
+  return success;
 }
 
 @end
@@ -449,6 +455,8 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 #pragma mark -
 
+extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
+
 @implementation IGRAPHICS_VIEW
 
 - (id) initWithIGraphics: (IGraphicsMac*) pGraphics
@@ -456,16 +464,14 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   TRACE;
 
   mGraphics = pGraphics;
-  NSRect r;
-  r.origin.x = r.origin.y = 0.0f;
-  r.size.width = (float) pGraphics->WindowWidth();
-  r.size.height = (float) pGraphics->WindowHeight();
+  NSRect r = NSMakeRect(0.f, 0.f, (float) pGraphics->WindowWidth(), (float) pGraphics->WindowHeight());
   self = [super initWithFrame:r];
   
 #if defined IGRAPHICS_NANOVG || defined IGRAPHICS_SKIA
   if (!self.wantsLayer) {
     #if defined IGRAPHICS_METAL
     self.layer = [CAMetalLayer new];
+    [(CAMetalLayer*)[self layer] setPixelFormat:MTLPixelFormatBGRA8Unorm];
     #elif defined IGRAPHICS_GL
     self.layer = [[IGRAPHICS_GLLAYER alloc] initWithIGraphicsView:self];
     self.wantsBestResolutionOpenGLSurface = YES;
@@ -474,7 +480,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     self.wantsLayer = YES;
   }
 #endif
-
+  
   [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
 
   double sec = 1.0 / (double) pGraphics->FPS();
@@ -485,7 +491,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 }
 
 - (void)dealloc
-{
+{  
   [mMoveCursor release];
   [mTrackingArea release];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -521,8 +527,17 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     [pWindow makeFirstResponder: self];
     [pWindow setAcceptsMouseMovedEvents: YES];
     
-    if (mGraphics && mGraphics->GetDrawContext())
-      mGraphics->SetScreenScale([pWindow backingScaleFactor]);
+    CGFloat newScale = [pWindow backingScaleFactor];
+
+    if (mGraphics)
+      mGraphics->SetScreenScale(newScale);
+    
+    #ifdef IGRAPHICS_METAL
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(frameDidChange:)
+                                                 name:NSViewFrameDidChangeNotification
+                                               object:self];
+    #endif
     
 //    [[NSNotificationCenter defaultCenter] addObserver:self
 //                                             selector:@selector(windowResized:) name:NSWindowDidEndLiveResizeNotification
@@ -547,11 +562,14 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   
   CGFloat newScale = [pWindow backingScaleFactor];
   
-  if (newScale != mGraphics->GetScreenScale())
+  if (mGraphics->GetDrawContext() && newScale != mGraphics->GetScreenScale())
     mGraphics->SetScreenScale(newScale);
 
-#ifdef IGRAPHICS_GL
+#if defined IGRAPHICS_GL
   self.layer.contentsScale = 1./newScale;
+#elif defined IGRAPHICS_METAL
+  [(CAMetalLayer*)[self layer] setDrawableSize:CGSizeMake(self.frame.size.width * newScale,
+                                                          self.frame.size.height * newScale)];
 #endif
 }
 
@@ -588,7 +606,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void) render
 {
-#if !defined IGRAPHICS_NANOVG // for layer-backed views drawRect is not called
+#if !defined IGRAPHICS_NANOVG // for layer-backed views setNeedsDisplayInRect/drawRect is not called
   for (int i = 0; i < mDirtyRects.Size(); i++)
     [self setNeedsDisplayInRect:ToNSRect(mGraphics, mDirtyRects.Get(i))];
 #else
@@ -751,15 +769,49 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     code = kVK_NONE;
   }
   
-  IKeyPress keyPress {static_cast<char>(c), code, static_cast<bool>(flag & kFSHIFT),
-                                                  static_cast<bool>(flag & kFCONTROL),
-                                                  static_cast<bool>(flag & kFALT)};
+  char utf8[5];
+  WDL_MakeUTFChar(utf8, c, 4);
+  
+  IKeyPress keyPress {utf8, code, static_cast<bool>(flag & kFSHIFT),
+                                  static_cast<bool>(flag & kFCONTROL),
+                                  static_cast<bool>(flag & kFALT)};
   
   bool handle = mGraphics->OnKeyDown(mPrevX, mPrevY, keyPress);
   
   if (!handle)
   {
     [[self nextResponder] keyDown:pEvent];
+  }
+}
+
+- (void)keyUp: (NSEvent *)pEvent
+{
+  int flag = 0;
+  int code = MacKeyEventToVK(pEvent, flag);
+  NSString *s = [pEvent charactersIgnoringModifiers];
+  
+  unichar c = 0;
+  
+  if ([s length] == 1)
+    c = [s characterAtIndex:0];
+  
+  if(!static_cast<bool>(flag & kFVIRTKEY))
+  {
+    code = kVK_NONE;
+  }
+  
+  char utf8[5];
+  WDL_MakeUTFChar(utf8, c, 4);
+  
+  IKeyPress keyPress {utf8, code, static_cast<bool>(flag & kFSHIFT),
+                                                  static_cast<bool>(flag & kFCONTROL),
+                                                  static_cast<bool>(flag & kFALT)};
+  
+  bool handle = mGraphics->OnKeyUp(mPrevX, mPrevY, keyPress);
+  
+  if (!handle)
+  {
+    [[self nextResponder] keyUp:pEvent];
   }
 }
 
@@ -924,11 +976,6 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   if (mTextFieldView)
     [self endUserInput ];
   
-//  if (mWebView) {
-//    [mWebView removeFromSuperview ];
-//    mWebView = nullptr;
-//  }
-  
   mGraphics->SetPlatformContext(nullptr);
     
   //For some APIs (AUv2) this is where we know about the window being closed, close via delegate
@@ -940,10 +987,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 {
   char* txt = (char*)[[mTextFieldView stringValue] UTF8String];
 
-  if (mEdControl->GetParam())
-    mGraphics->SetControlValueFromStringAfterPrompt(*mEdControl, txt);
-
-  mEdControl->OnTextEntryCompletion(txt);
+  mGraphics->SetControlValueAfterTextEdit(txt);
   mGraphics->SetAllControlsDirty();
 
   [self endUserInput ];
@@ -972,7 +1016,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   else return nullptr;
 }
 
-- (void) createTextEntry: (IControl&) control : (const IText&) text : (const char*) str : (NSRect) areaRect;
+- (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (NSRect) areaRect;
 {
   if (mTextFieldView)
     return;
@@ -987,7 +1031,8 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
     [mTextFieldView setDrawsBackground: TRUE];
   }
 
-  NSFontDescriptor*  fontDescriptor = (NSFontDescriptor*) mGraphics->GetCTFontDescriptor(text);
+  CoreTextFontDescriptor* CTFontDescriptor = CoreTextHelpers::GetCTFontDescriptor(text, sFontDescriptorCache);
+  NSFontDescriptor* fontDescriptor = (NSFontDescriptor*) CTFontDescriptor->mDescriptor;
   NSFont* font = [NSFont fontWithDescriptor: fontDescriptor size: text.mSize * 0.75];
   [mTextFieldView setFont: font];
   
@@ -1006,7 +1051,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
       break;
   }
 
-  const IParam* pParam = control.GetParam();
+  const IParam* pParam = paramIdx > kNoParameter ? mGraphics->GetDelegate()->GetParam(paramIdx) : nullptr;
 
   // set up formatter
   if (pParam)
@@ -1029,7 +1074,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 
     [mTextFieldView setFormatter:[[[IGRAPHICS_FORMATTER alloc] init] autorelease]];
     [[mTextFieldView formatter] setAcceptableCharacterSet:characterSet];
-    [[mTextFieldView formatter] setMaximumLength:control.GetTextEntryLength()];
+    [[mTextFieldView formatter] setMaximumLength:length];
     [characterSet release];
   }
 
@@ -1051,8 +1096,6 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   NSWindow* pWindow = [self window];
   [pWindow makeKeyAndOrderFront:nil];
   [pWindow makeFirstResponder: mTextFieldView];
-
-  mEdControl = &control;
 }
 
 - (void) endUserInput
@@ -1064,20 +1107,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   [pWindow makeFirstResponder: self];
 
   mTextFieldView = nullptr;
-  mEdControl = nullptr;
 }
-
-//- (void) createWebView: (NSRect) areaRect : (const char*) url
-//{
-//  mWebView = [[WKWebView alloc] initWithFrame: areaRect ];
-//  [self addSubview: mWebView];
-//  [mWebView loadRequest: [NSURLRequest requestWithURL: [NSURL URLWithString:[NSString stringWithUTF8String:url]]]];
-//}
-//
-//-(void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message
-//{
-//  NSLog(@"%@",message.body);
-//}
 
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData
 {
@@ -1122,6 +1152,16 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   return YES;
 }
 
+#ifdef IGRAPHICS_METAL
+- (void)frameDidChange:(NSNotification*)notification
+{
+  CGFloat scale = [[self window] backingScaleFactor];
+
+  [(CAMetalLayer*)[self layer] setDrawableSize:CGSizeMake(self.frame.size.width * scale,
+                                                          self.frame.size.height * scale)];
+}
+#endif
+
 //- (void)windowResized:(NSNotification *)notification;
 //{
 //  if(!mGraphics)
@@ -1160,3 +1200,52 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 //}
 
 @end
+
+#ifdef IGRAPHICS_IMGUI
+
+@implementation IGRAPHICS_IMGUIVIEW
+{
+}
+
+- (id) initWithIGraphicsView: (IGRAPHICS_VIEW*) pView;
+{
+  mView = pView;
+  self = [super initWithFrame:[pView frame] device: MTLCreateSystemDefaultDevice()];
+  if(self) {
+    _commandQueue = [self.device newCommandQueue];
+    self.layer.opaque = NO;
+  }
+  
+  return self;
+}
+
+- (void)drawRect:(NSRect)dirtyRect
+{
+  id<MTLCommandBuffer> commandBuffer = [self.commandQueue commandBuffer];
+  
+  MTLRenderPassDescriptor *renderPassDescriptor = self.currentRenderPassDescriptor;
+  if (renderPassDescriptor != nil)
+  {
+    renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0,0,0,0);
+    
+    id <MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+    [renderEncoder pushDebugGroup:@"ImGui IGraphics"];
+    
+    ImGui_ImplMetal_NewFrame(renderPassDescriptor);
+    
+    mView->mGraphics->mImGuiRenderer->DoFrame();
+
+    ImDrawData *drawData = ImGui::GetDrawData();
+    ImGui_ImplMetal_RenderDrawData(drawData, commandBuffer, renderEncoder);
+    
+    [renderEncoder popDebugGroup];
+    [renderEncoder endEncoding];
+    
+    [commandBuffer presentDrawable:self.currentDrawable];
+  }
+  [commandBuffer commit];
+}
+
+@end
+
+#endif

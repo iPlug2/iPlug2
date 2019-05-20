@@ -176,7 +176,8 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
 
   if (select == kComponentOpenSelect)
   {
-    IPlugAU* _this = MakePlug();
+    // N.B. calling this with nullptr will call through to new (hence the delete below)
+    IPlugAU* _this = MakePlug(nullptr);
     
     _this->PruneUninitializedPresets();
     _this->mCI = GET_COMP_PARAM(ComponentInstance, 0, 1);
@@ -189,7 +190,7 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
   if (select == kComponentCloseSelect)
   {
     _this->ClearConnections();
-    DELETE_NULL(_this);
+    delete _this;
     return noErr;
   }
 
@@ -1563,7 +1564,7 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
   
   _this->mLastRenderTimeStamp = *pTimestamp;
 
-  if (!(pTimestamp->mFlags & kAudioTimeStampSampleTimeValid) || outputBusIdx >= _this->mOutBuses.GetSize() || nFrames > _this->GetBlockSize())
+  if (!(pTimestamp->mFlags & kAudioTimeStampSampleTimeValid) /*|| outputBusIdx >= _this->mOutBuses.GetSize()*/ || nFrames > _this->GetBlockSize())
   {
     return kAudioUnitErr_InvalidPropertyValue;
   }
@@ -1580,115 +1581,118 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
     }
   }
 
-  double renderSampleTime = pTimestamp->mSampleTime;
-
-  // Pull input buffers.
-  if (renderSampleTime != _this->mLastRenderSampleTime)
-  {
-    BufferList bufList;
-    AudioBufferList* pInBufList = (AudioBufferList*) &bufList;
-
-    int nIn = _this->mInBuses.GetSize();
-
-    for (int i = 0; i < nIn; ++i)
-    {
-      BusChannels* pInBus = _this->mInBuses.Get(i);
-      InputBusConnection* pInBusConn = _this->mInBusConnections.Get(i);
-
-      if (pInBus->mConnected)
-      {
-        pInBufList->mNumberBuffers = pInBus->mNHostChannels;
-
-        for (int b = 0; b < pInBufList->mNumberBuffers; ++b)
-        {
-          AudioBuffer* pBuffer = &(pInBufList->mBuffers[b]);
-          pBuffer->mNumberChannels = 1;
-          pBuffer->mDataByteSize = nFrames * sizeof(AudioSampleType);
-          pBuffer->mData = 0;
-        }
-
-        AudioUnitRenderActionFlags flags = 0;
-        OSStatus r = noErr;
-
-        switch (pInBusConn->mInputType)
-        {
-          case eDirectFastProc:
-          {
-            r = pInBusConn->mUpstreamRenderProc(pInBusConn->mUpstreamObj, &flags, pTimestamp, pInBusConn->mUpstreamBusIdx, nFrames, pInBufList);
-            break;
-          }
-          case eDirectNoFastProc:
-          {
-            r = AudioUnitRender(pInBusConn->mUpstreamUnit, &flags, pTimestamp, pInBusConn->mUpstreamBusIdx, nFrames, pInBufList);
-            break;
-          }
-          case eRenderCallback:
-          {
-            AudioSampleType* pScratchInput = _this->mInScratchBuf.Get() + pInBus->mPlugChannelStartIdx * nFrames;
-
-            for (int b = 0; b < pInBufList->mNumberBuffers; ++b, pScratchInput += nFrames)
-            {
-              pInBufList->mBuffers[b].mData = pScratchInput;
-            }
-
-            r = RenderCallback(&(pInBusConn->mUpstreamRenderCallback), &flags, pTimestamp, i, nFrames, pInBufList);
-            break;
-          }
-          default:
-            break;
-        }
-        if (r != noErr)
-        {
-          return r;   // Something went wrong upstream.
-        }
-
-        for (int i = 0, chIdx = pInBus->mPlugChannelStartIdx; i < pInBus->mNHostChannels; ++i, ++chIdx)
-        {
-          _this->AttachBuffers(ERoute::kInput, chIdx, 1, (AudioSampleType**) &(pInBufList->mBuffers[i].mData), nFrames);
-        }
-      }
-    }
-    _this->mLastRenderSampleTime = renderSampleTime;
-  }
-
-  BusChannels* pOutBus = _this->mOutBuses.Get(outputBusIdx);
-
-  // if this bus is not connected OR the number of buffers that the host has given are not equal to the number the bus expects
-  if (!(pOutBus->mConnected) || pOutBus->mNHostChannels != pOutBufList->mNumberBuffers)
-  {
-    int startChannelIdx = pOutBus->mPlugChannelStartIdx;
-    int nConnected = std::min<int>(pOutBus->mNHostChannels, pOutBufList->mNumberBuffers);
-    int nUnconnected = std::max(pOutBus->mNPlugChannels - nConnected, 0);
-    
-    assert(nConnected > -1);
-    _this->SetChannelConnections(ERoute::kOutput, startChannelIdx, nConnected, true);
-    _this->SetChannelConnections(ERoute::kOutput, startChannelIdx + nConnected, nUnconnected, false); // This will disconnect the right handle channel on a single stereo bus
-    pOutBus->mConnected = true;
-  }
-
-  for (int i = 0, chIdx = pOutBus->mPlugChannelStartIdx; i < pOutBufList->mNumberBuffers; ++i, ++chIdx)
-  {
-    if (!(pOutBufList->mBuffers[i].mData)) // Downstream unit didn't give us buffers.
-      pOutBufList->mBuffers[i].mData = _this->mOutScratchBuf.Get() + chIdx * nFrames;
-
-    _this->AttachBuffers(ERoute::kOutput, chIdx, 1, (AudioSampleType**) &(pOutBufList->mBuffers[i].mData), nFrames);
-  }
-
   int lastConnectedOutputBus = -1;
 
-  for(int i = 0; i < _this->mOutBuses.GetSize(); i++)
+  if(!_this->IsMidiEffect())
   {
-    if(!_this->mOutBuses.Get(i)->mConnected)
+    double renderSampleTime = pTimestamp->mSampleTime;
+
+    // Pull input buffers.
+    if (renderSampleTime != _this->mLastRenderSampleTime)
     {
-      break;
+      BufferList bufList;
+      AudioBufferList* pInBufList = (AudioBufferList*) &bufList;
+
+      int nIn = _this->mInBuses.GetSize();
+
+      for (int i = 0; i < nIn; ++i)
+      {
+        BusChannels* pInBus = _this->mInBuses.Get(i);
+        InputBusConnection* pInBusConn = _this->mInBusConnections.Get(i);
+
+        if (pInBus->mConnected)
+        {
+          pInBufList->mNumberBuffers = pInBus->mNHostChannels;
+
+          for (int b = 0; b < pInBufList->mNumberBuffers; ++b)
+          {
+            AudioBuffer* pBuffer = &(pInBufList->mBuffers[b]);
+            pBuffer->mNumberChannels = 1;
+            pBuffer->mDataByteSize = nFrames * sizeof(AudioSampleType);
+            pBuffer->mData = 0;
+          }
+
+          AudioUnitRenderActionFlags flags = 0;
+          OSStatus r = noErr;
+
+          switch (pInBusConn->mInputType)
+          {
+            case eDirectFastProc:
+            {
+              r = pInBusConn->mUpstreamRenderProc(pInBusConn->mUpstreamObj, &flags, pTimestamp, pInBusConn->mUpstreamBusIdx, nFrames, pInBufList);
+              break;
+            }
+            case eDirectNoFastProc:
+            {
+              r = AudioUnitRender(pInBusConn->mUpstreamUnit, &flags, pTimestamp, pInBusConn->mUpstreamBusIdx, nFrames, pInBufList);
+              break;
+            }
+            case eRenderCallback:
+            {
+              AudioSampleType* pScratchInput = _this->mInScratchBuf.Get() + pInBus->mPlugChannelStartIdx * nFrames;
+
+              for (int b = 0; b < pInBufList->mNumberBuffers; ++b, pScratchInput += nFrames)
+              {
+                pInBufList->mBuffers[b].mData = pScratchInput;
+              }
+
+              r = RenderCallback(&(pInBusConn->mUpstreamRenderCallback), &flags, pTimestamp, i, nFrames, pInBufList);
+              break;
+            }
+            default:
+              break;
+          }
+          if (r != noErr)
+          {
+            return r;   // Something went wrong upstream.
+          }
+
+          for (int i = 0, chIdx = pInBus->mPlugChannelStartIdx; i < pInBus->mNHostChannels; ++i, ++chIdx)
+          {
+            _this->AttachBuffers(ERoute::kInput, chIdx, 1, (AudioSampleType**) &(pInBufList->mBuffers[i].mData), nFrames);
+          }
+        }
+      }
+      _this->mLastRenderSampleTime = renderSampleTime;
     }
-    else
+  
+    BusChannels* pOutBus = _this->mOutBuses.Get(outputBusIdx);
+
+    // if this bus is not connected OR the number of buffers that the host has given are not equal to the number the bus expects
+    if (!(pOutBus->mConnected) || pOutBus->mNHostChannels != pOutBufList->mNumberBuffers)
     {
-      lastConnectedOutputBus++;
+      int startChannelIdx = pOutBus->mPlugChannelStartIdx;
+      int nConnected = std::min<int>(pOutBus->mNHostChannels, pOutBufList->mNumberBuffers);
+      int nUnconnected = std::max(pOutBus->mNPlugChannels - nConnected, 0);
+      
+      assert(nConnected > -1);
+      _this->SetChannelConnections(ERoute::kOutput, startChannelIdx, nConnected, true);
+      _this->SetChannelConnections(ERoute::kOutput, startChannelIdx + nConnected, nUnconnected, false); // This will disconnect the right handle channel on a single stereo bus
+      pOutBus->mConnected = true;
+    }
+
+    for (int i = 0, chIdx = pOutBus->mPlugChannelStartIdx; i < pOutBufList->mNumberBuffers; ++i, ++chIdx)
+    {
+      if (!(pOutBufList->mBuffers[i].mData)) // Downstream unit didn't give us buffers.
+        pOutBufList->mBuffers[i].mData = _this->mOutScratchBuf.Get() + chIdx * nFrames;
+
+      _this->AttachBuffers(ERoute::kOutput, chIdx, 1, (AudioSampleType**) &(pOutBufList->mBuffers[i].mData), nFrames);
+    }
+
+    for(int i = 0; i < _this->mOutBuses.GetSize(); i++)
+    {
+      if(!_this->mOutBuses.Get(i)->mConnected)
+      {
+        break;
+      }
+      else
+      {
+        lastConnectedOutputBus++;
+      }
     }
   }
 
-  if (outputBusIdx == lastConnectedOutputBus)
+  if (_this->IsMidiEffect() || outputBusIdx == lastConnectedOutputBus)
   {
     int busIdx1based = outputBusIdx+1;
 

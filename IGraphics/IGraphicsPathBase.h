@@ -44,21 +44,6 @@ public:
     PathTransformRestore();
   }
   
-  void DrawRotatedMask(const IBitmap& base, const IBitmap& mask, const IBitmap& top, float x, float y, double angle, const IBlend* pBlend) override
-  {
-    float width = (float) base.W();
-    float height = (float) base.H();
-    
-    IBlend addBlend(kBlendAdd);
-    PathTransformSave();
-    DrawBitmap(base, IRECT(x, y, x + width, y + height), 0, 0, pBlend);
-    PathTransformTranslate(x + 0.5f * width, y + 0.5f * height);
-    PathTransformRotate((float) angle);
-    DrawBitmap(mask, IRECT(-width * 0.5f, - height * 0.5f, width * 0.5f, height * 0.5f), 0, 0, &addBlend);
-    DrawBitmap(top, IRECT(-width * 0.5f, - height * 0.5f, width * 0.5f, height * 0.5f), 0, 0, pBlend);
-    PathTransformRestore();
-  }
-  
   void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override
   {
     FillRect(color, IRECT(x, y, x+1.f, y+1.f), pBlend);
@@ -310,7 +295,7 @@ public:
     PathRoundRect(bounds, cr, cr, cr, cr);
   }
   
-  virtual void PathEllipse(float x, float y, float r1, float r2, float angle = 0.0) override
+  void PathEllipse(float x, float y, float r1, float r2, float angle = 0.0) override
   {
     PathTransformSave();
     
@@ -560,10 +545,24 @@ private:
   
 protected:
     
+  void DoTextRotation(const IText& text, const IRECT& bounds, const IRECT& rect)
+  {
+    if (!text.mOrientation)
+      return;
+    
+    IRECT rotated = rect;
+    double tx, ty;
+    
+    CalulateTextRotation(text, bounds, rotated, tx, ty);
+    PathTransformTranslate(tx, ty);
+    PathTransformRotate(text.mOrientation);
+  }
+  
   float GetBackingPixelScale() const override { return GetScreenScale() * GetDrawScale(); };
 
+  IMatrix GetTransformMatrix() const { return mTransform; }
+  
 private:
-
   void PrepareRegion(const IRECT& r) override
   {
     PathTransformReset(true);

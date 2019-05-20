@@ -24,17 +24,17 @@
 #include "TestFontControl.h"
 #include "TestAnimationControl.h"
 #include "TestDrawContextControl.h"
-#include "TestSizeControl.h"
 #include "TestSVGControl.h"
 #include "TestImageControl.h"
 #include "TestBlendControl.h"
 #include "TestDropShadowControl.h"
 #include "TestCursorControl.h"
 #include "TestKeyboardControl.h"
-#include "TestRotatingMaskControl.h"
 #include "TestShadowGradientControl.h"
 #include "TestGLControl.h"
-#ifdef IGRAPHICS_METAL
+#include "TestTextOrientationControl.h"
+#include "TestTextSizeControl.h"
+#include "TestSizeControl.h"
+#include "TestGFXLabel.h"
 #include "TestMPSControl.h"
-#endif
 

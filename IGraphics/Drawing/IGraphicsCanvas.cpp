@@ -12,6 +12,7 @@
 #include <string>
 #include <utility>
 #include <stdio.h>
+#include <type_traits>
 #include <emscripten.h>
 
 #include "wdl_base64.h"
@@ -23,12 +24,26 @@ extern IGraphics* gGraphics;
 extern val GetPreloadedImages();
 extern val GetCanvas();
 
-// Fonts
+struct CanvasFont
+{
+  using FontDesc = std::remove_pointer<FontDescriptor>::type;
+  
+  CanvasFont(FontDesc descriptor, double ascenderRatio, double EMRatio)
+  : mDescriptor(descriptor), mAscenderRatio(ascenderRatio), mEMRatio(EMRatio) {}
+    
+  FontDesc mDescriptor;
+  double mAscenderRatio;
+  double mEMRatio;
+};
 
-typedef std::pair<WDL_String, WDL_String> FontDescType;
-StaticStorage<FontDescType> sFontCache;
+std::string GetFontString(const char* fontName, const char* styleName, double size)
+{
+  WDL_String fontString;
+  fontString.SetFormatted(FONT_LEN + 64, "%s %lfpx %s", styleName, size, fontName);
+  return std::string(fontString.Get());
+}
 
-// Color Utility
+StaticStorage<CanvasFont> sFontCache;
 
 static std::string CanvasColor(const IColor& color, float alpha = 1.0)
 {
@@ -36,8 +51,6 @@ static std::string CanvasColor(const IColor& color, float alpha = 1.0)
   str.SetFormatted(64, "rgba(%d, %d, %d, %lf)", color.R, color.G, color.B, alpha * color.A / 255.0);
   return str.Get();
 }
-
-// Bitmap
 
 CanvasBitmap::CanvasBitmap(val imageCanvas, const char* name, int scale)
 {
@@ -61,13 +74,13 @@ CanvasBitmap::~CanvasBitmap()
 IGraphicsCanvas::IGraphicsCanvas(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphicsPathBase(dlg, w, h, fps, scale)
 {
-  StaticStorage<FontDescType>::Accessor storage(sFontCache);
+  StaticStorage<CanvasFont>::Accessor storage(sFontCache);
   storage.Retain();
 }
 
 IGraphicsCanvas::~IGraphicsCanvas()
 {
-  StaticStorage<FontDescType>::Accessor storage(sFontCache);
+  StaticStorage<CanvasFont>::Accessor storage(sFontCache);
   storage.Release();
 }
 
@@ -231,69 +244,62 @@ void IGraphicsCanvas::SetCanvasBlendMode(val& context, const IBlend* pBlend)
   }
 }
 
-bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+void IGraphicsCanvas::PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y) const
 {
-  StaticStorage<FontDescType>::Accessor storage(sFontCache);
-  FontDescType* descriptor = storage.Find(text.mFont);
+  StaticStorage<CanvasFont>::Accessor storage(sFontCache);
+  CanvasFont* pFont = storage.Find(text.mFont);
     
-  assert(descriptor && "No font found - did you forget to load it?");
-    
-  // TODO: orientation
+  assert(pFont && "No font found - did you forget to load it?");
+  
+  FontDescriptor descriptor = &pFont->mDescriptor;
   val context = GetContext();
-  std::string textString(str);
+  std::string fontString = GetFontString(descriptor->first.Get(), descriptor->second.Get(), text.mSize * pFont->mEMRatio);
   
-  char fontString[FONT_LEN + 64];
-  context.set("textBaseline", std::string("top"));
-  sprintf(fontString, "%s %dpx %s", descriptor->second.Get(), text.mSize, descriptor->first.Get());
-  context.set("font", std::string(fontString));
-  val metrics = context.call<val>("measureText", textString);
-  double textWidth = metrics["width"].as<double>();
-  double textHeight = text.mSize;
-  //EM_ASM_DOUBLE({return parseFloat(document.getElementById("canvas").getContext("2d").font);});
-
-  if (measure)
+  context.set("font", fontString);
+  
+  const double textWidth = context.call<val>("measureText", std::string(str))["width"].as<double>();
+  const double textHeight = text.mSize;
+  const double ascender = pFont->mAscenderRatio * textHeight;
+  const double descender = -(1.0 - pFont->mAscenderRatio) * textHeight;
+  
+  switch (text.mAlign)
   {
-    bounds = IRECT(0, 0, (float) textWidth, (float) textHeight);
-    return true;
-  }
-  else
-  {
-    double x = bounds.L;
-    double y = bounds.T;
-    
-    switch (text.mAlign)
-    {
-      case IText::kAlignNear:     break;
-      case IText::kAlignCenter:   x = bounds.MW() - (textWidth / 2.0);    break;
-      case IText::kAlignFar:      x = bounds.R - textWidth;               break;
-    }
-    
-    switch (text.mVAlign)
-    {
-      case IText::EVAlign::kVAlignTop:
-        y = bounds.T;
-        context.set("textBaseline", std::string("top"));
-        break;
-      case IText::EVAlign::kVAlignMiddle:
-        y = bounds.MH();
-        context.set("textBaseline", std::string("middle"));
-        break;
-      case IText::EVAlign::kVAlignBottom:
-        y = bounds.B;
-        context.set("textBaseline", std::string("bottom"));
-        break;
-    }
-
-    context.call<void>("save");
-    PathRect(bounds);
-    context.call<void>("clip");
-    PathClear();
-    SetCanvasSourcePattern(context, text.mFGColor, pBlend);
-    context.call<void>("fillText", textString, x, y);
-    context.call<void>("restore");
+    case IText::kAlignNear:     x = r.L;                          break;
+    case IText::kAlignCenter:   x = r.MW() - (textWidth / 2.0);   break;
+    case IText::kAlignFar:      x = r.R - textWidth;              break;
   }
   
-  return true;
+  switch (text.mVAlign)
+  {
+    case IText::kVAlignTop:      y = r.T + ascender;                            break;
+    case IText::kVAlignMiddle:   y = r.MH() + descender + (textHeight / 2.0);   break;
+    case IText::kVAlignBottom:   y = r.B + descender;                           break;
+  }
+  
+  r = IRECT((float) x, (float) (y - ascender), (float) (x + textWidth), (float) (y + textHeight - ascender));
+}
+
+void IGraphicsCanvas::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
+{
+  IRECT r = bounds;
+  double x, y;
+  PrepareAndMeasureText(text, str, bounds, x, y);
+  DoMeasureTextRotation(text, r, bounds);
+}
+
+void IGraphicsCanvas::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
+{
+  IRECT measured = bounds;
+  val context = GetContext();
+  double x, y;
+  
+  PrepareAndMeasureText(text, str, measured, x, y);
+  PathTransformSave();
+  DoTextRotation(text, bounds, measured);
+  context.set("textBaseline", std::string("alphabetic"));
+  SetCanvasSourcePattern(context, text.mFGColor, pBlend);
+  context.call<void>("fillText", std::string(str), x, y);
+  PathTransformRestore();
 }
 
 void IGraphicsCanvas::PathTransformSetMatrix(const IMatrix& m)
@@ -335,19 +341,47 @@ APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height, int scale, do
   return new CanvasBitmap(width, height, scale, drawScale);
 }
 
+void IGraphicsCanvas::GetFontMetrics(const char* font, const char* style, double& ascenderRatio, double& EMRatio)
+{
+  // Provides approximate font metrics for a system font (until text metrics are properly supported)
+  int size = 1000;
+  std::string fontString = GetFontString(font, style, size);
+  
+  val document = val::global("document");
+  val textSpan = document.call<val>("createElement", std::string("span"));
+  textSpan.set("innerHTML", std::string("M"));
+  textSpan["style"].set("font", fontString);
+  
+  val block = document.call<val>("createElement", std::string("div"));
+  block["style"].set("display", std::string("inline-block"));
+  block["style"].set("width", std::string("1px"));
+  block["style"].set("height", std::string("0px"));
+  
+  val div = document.call<val>("createElement", std::string("div"));
+  div.call<void>("appendChild", textSpan);
+  div.call<void>("appendChild", block);
+  document["body"].call<void>("appendChild", div);
+  
+  block["style"].set("vertical-align", std::string("baseline"));
+  double ascent = block["offsetTop"].as<double>() - textSpan["offsetTop"].as<double>();
+  double height = textSpan.call<val>("getBoundingClientRect")["height"].as<double>();
+  document["body"].call<void>("removeChild", div);
+  
+  EMRatio = size / height;
+  ascenderRatio = ascent / height;
+}
+
 bool IGraphicsCanvas::CompareFontMetrics(const char* style, const char* font1, const char* font2, int size)
 {
+  WDL_String fontCombination;
+  fontCombination.SetFormatted(FONT_LEN * 2, "%s %s", font1, font2);
   val context = GetContext();
   std::string textString("@BmwdWMoqPYyzZr1234567890.+-=_~'");
   
-  char fontString[FONT_LEN + 64];
-  
-  sprintf(fontString, "%s %dpx %s", style, size, font2);
-  context.set("font", std::string(fontString));
+  context.set("font", GetFontString(font2, style, size));
   val metrics1 = context.call<val>("measureText", textString);
 
-  sprintf(fontString, "%s %dpx %s, %s", style, size, font1, font2);
-  context.set("font", std::string(fontString));
+  context.set("font", GetFontString(fontCombination.Get(), style, size));
   val metrics2 = context.call<val>("measureText", textString);
   
   return metrics1["width"].as<double>() == metrics2["width"].as<double>();
@@ -355,59 +389,67 @@ bool IGraphicsCanvas::CompareFontMetrics(const char* style, const char* font1, c
 
 bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 {
-  StaticStorage<FontDescType>::Accessor storage(sFontCache);
+  StaticStorage<CanvasFont>::Accessor storage(sFontCache);
 
   if (storage.Find(fontID))
     return true;
 
-  IFontDataPtr data = font->GetFontData();
-    
-  if (data->IsValid())
+  if (!font->IsSystem())
   {
-    // Embed the font data in base64 format as CSS in the head of the html
+    IFontDataPtr data = font->GetFontData();
     
-    WDL_TypedBuf<char> base64Encoded;
-    
-    if (!base64Encoded.ResizeOK(((data->GetSize() * 4) + 3) / 3 + 1))
-      return false;
-    
-    wdl_base64encode(data->Get(), base64Encoded.Get(), data->GetSize());
-    std::string htmlText("@font-face { font-family: '");
-    htmlText.append(fontID);
-    htmlText.append("'; src: url(data:font/ttf;base64,");
-    htmlText.append(base64Encoded.Get());
-    htmlText.append(") format('truetype'); }");
-    val document = val::global("document");
-    val documentHead = document["head"];
-    val css = document.call<val>("createElement", std::string("style"));
-    css.set("type", std::string("text/css"));
-    css.set("innerHTML", htmlText);
-    document["head"].call<void>("appendChild", css);
+    if (data->IsValid())
+    {
+      // Embed the font data in base64 format as CSS in the head of the html
+      WDL_TypedBuf<char> base64Encoded;
       
-    const FontDescType* descriptor = reinterpret_cast<const FontDescType*>(font->GetDescriptor());
-    storage.Add(new FontDescType{descriptor->first, descriptor->second}, fontID);
+      if (!base64Encoded.ResizeOK(((data->GetSize() * 4) + 3) / 3 + 1))
+        return false;
       
-    return true;
+      wdl_base64encode(data->Get(), base64Encoded.Get(), data->GetSize());
+      std::string htmlText("@font-face { font-family: '");
+      htmlText.append(fontID);
+      htmlText.append("'; src: url(data:font/ttf;base64,");
+      htmlText.append(base64Encoded.Get());
+      htmlText.append(") format('truetype'); }");
+      val document = val::global("document");
+      val documentHead = document["head"];
+      val css = document.call<val>("createElement", std::string("style"));
+      css.set("type", std::string("text/css"));
+      css.set("innerHTML", htmlText);
+      document["head"].call<void>("appendChild", css);
+      
+      FontDescriptor descriptor = font->GetDescriptor();
+      const double ascenderRatio = data->GetAscender() / static_cast<double>(data->GetAscender() - data->GetDescender());
+      const double EMRatio = data->GetHeightEMRatio();
+      storage.Add(new CanvasFont({descriptor->first, descriptor->second}, ascenderRatio, EMRatio), fontID);
+      
+      // Load and draw the font to the canvas
+      GetContext().set("font", GetFontString(descriptor->first.Get(), descriptor->second.Get(), 12));
+      GetContext().call<void>("fillText", std::string("Load"), 0, 0);
+      
+      return true;
+    }
+  }
+  else
+  {
+    FontDescriptor descriptor = font->GetDescriptor();
+    const char* fontName = descriptor->first.Get();
+    const char* styleName = descriptor->second.Get();
+    
+    if (!CompareFontMetrics(styleName, fontName, "monospace", 72) ||
+        !CompareFontMetrics(styleName, fontName, "sans-serif", 72) ||
+        !CompareFontMetrics(styleName, fontName, "serif", 72))
+    {
+      double ascenderRatio, EMRatio;
+      
+      GetFontMetrics(descriptor->first.Get(), descriptor->second.Get(), ascenderRatio, EMRatio);
+      storage.Add(new CanvasFont({descriptor->first, descriptor->second}, ascenderRatio, EMRatio), fontID);
+      return true;
+    }
   }
   
-  bool found = false;
-  const FontDescType* descriptor = reinterpret_cast<const FontDescType*>(font->GetDescriptor());
-  const char* fontName = descriptor->first.Get();
-  const char* styleName = descriptor->second.Get();
-  
-  if (!CompareFontMetrics(styleName, fontName, "monospace", 72))
-    found = true;
-  if (!found && !CompareFontMetrics(styleName, fontName, "sans-serif", 72))
-    found = true;
-  if (!found && !CompareFontMetrics(styleName, fontName, "serif", 72))
-    found = true;
-  
-  if (found)
-  {
-    storage.Add(new FontDescType{descriptor->first, descriptor->second}, fontID);
-  }
-    
-  return found;
+  return false;
 }
 
 void IGraphicsCanvas::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
@@ -420,7 +462,6 @@ void IGraphicsCanvas::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& 
   data.Resize(size);
   
   // Copy pixels from context
-  
   if (data.GetSize() >= size)
   {
     unsigned char* out = data.Get();

@@ -47,7 +47,7 @@ void* IGEditorDelegate::OpenWindow(void* pParent)
 {
   if(!mGraphics) {
     mIGraphicsTransient = true;
-    mGraphics.reset(CreateGraphics());
+    mGraphics = std::unique_ptr<IGraphics>(CreateGraphics());
   }
   
   if(mGraphics)
@@ -70,7 +70,7 @@ void IGEditorDelegate::CloseWindow()
     
       if (mIGraphicsTransient)
       {
-        mGraphics.reset(nullptr);
+        mGraphics = nullptr;
       }
     }
     mClosing = false;
@@ -122,15 +122,21 @@ void IGEditorDelegate::SendParameterValueFromDelegate(int paramIdx, double value
     if (!normalized)
       value = GetParam(paramIdx)->ToNormalized(value);
 
-    for (auto c = 0; c < mGraphics->NControls(); c++)
+    for (int c = 0; c < mGraphics->NControls(); c++)
     {
       IControl* pControl = mGraphics->GetControl(c);
       
-      if (pControl->ParamIdx() == paramIdx)
+      int nVals = pControl->NVals();
+      
+      for(int v = 0; v < nVals; v++)
       {
-        pControl->SetValueFromDelegate(value);
-        // Could be more than one, don't break until we check them all.
+        if (pControl->GetParamIdx(v) == paramIdx)
+        {
+          pControl->SetValueFromDelegate(value, v);
+          // Could be more than one, don't break until we check them all.
+        }
       }
+
     }
   }
   
@@ -159,7 +165,7 @@ void IGEditorDelegate::AttachGraphics(IGraphics* pGraphics)
 {
   assert(!mGraphics); // protect against calling AttachGraphics() when mGraphics already exists
 
-  mGraphics.reset(pGraphics);
+  mGraphics = std::unique_ptr<IGraphics>(pGraphics);
   mIGraphicsTransient = false;
 }
 

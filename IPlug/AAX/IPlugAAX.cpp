@@ -233,7 +233,7 @@ AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID paramID, double
   
   int paramIdx = atoi(paramID) - kAAXParamIdxOffset;
   
-  if ((paramIdx >= 0) && (paramIdx < NParams())) 
+  if ((paramIdx > kNoParameter) && (paramIdx < NParams())) 
   {
     ENTER_PARAMS_MUTEX;
     GetParam(paramIdx)->SetNormalized(iValue);

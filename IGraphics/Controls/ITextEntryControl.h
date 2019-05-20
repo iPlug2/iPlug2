@@ -43,13 +43,14 @@ public:
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   bool OnKeyDown(float x, float y, const IKeyPress& key) override;
-//  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override;
 //  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
 //  void OnMouseOut() override;
 //  void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
   void OnEndAnimation() override;
-
-  void CreateTextEntry(const IRECT& bounds, const IText& text, const char* str);
+  
+  void CreateTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str);
 
   static int DeleteChars(ITextEntryControl* _this, size_t pos, size_t num);
   static int InsertChars(ITextEntryControl* _this, size_t pos, const char* text, size_t num);
@@ -69,7 +70,8 @@ private:
   void OnTextChange();
   void FillCharWidthCache();
   void CalcCursorSizes();
-  float GetCharWidth (char c, char pc);
+  float GetCharWidth (char c, char nc);
+  void CopySelection();
 
   bool mDrawCursor = false;
 

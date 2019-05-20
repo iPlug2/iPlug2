@@ -12,6 +12,7 @@
 
 #include <cstring>
 #include <cstdint>
+#include <memory>
 
 #include "ptrlist.h"
 #include "mutex.h"
@@ -131,6 +132,7 @@ public:
   
   /** /todo */
   virtual void DirtyParametersFromUI() override;
+
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
 
   /** This is called from the plug-in API class in order to update UI controls linked to plug-in parameters, prior to calling OnParamChange()
@@ -197,9 +199,9 @@ private:
 
 protected:
   WDL_String mParamDisplayStr;
-  Timer* mTimer = nullptr;
+  std::unique_ptr<Timer> mTimer;
   
-  IPlugQueue<IParamChange> mParamChangeFromProcessor {PARAM_TRANSFER_SIZE};
+  IPlugQueue<ParamTuple> mParamChangeFromProcessor {PARAM_TRANSFER_SIZE};
   IPlugQueue<IMidiMsg> mMidiMsgsFromEditor {MIDI_TRANSFER_SIZE}; // a queue of midi messages generated in the editor by clicking keyboard UI etc
   IPlugQueue<IMidiMsg> mMidiMsgsFromProcessor {MIDI_TRANSFER_SIZE}; // a queue of MIDI messages received (potentially on the high priority thread), by the processor to send to the editor
   IPlugQueue<SysExData> mSysExDataFromEditor {SYSEX_TRANSFER_SIZE}; // a queue of SYSEX data to send to the processor

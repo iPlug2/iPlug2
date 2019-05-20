@@ -17,7 +17,7 @@
 
 #include "IControl.h"
 
-/** Control to test drawing text
+/** Control to test drawing fonts
  *   @ingroup TestControls */
 class TestFontControl : public IControl
 {
@@ -68,7 +68,7 @@ public:
     mStrCount = 1 - mStrCount;
       
     IColor c = DEFAULT_TEXT_FGCOLOR;
-    const char* font = mFontCount ? "Roboto-Regular" : "Times New Roman";
+    const char* font = mFontCount ? "Roboto-Regular" : "Alternative Font";
     if (mCount == 0)
       mText = IText(size, c, font, IText::kAlignNear, IText::kVAlignTop);
     else if (mCount == 1)
@@ -93,6 +93,5 @@ private:
 
   int mCount;
   int mFontCount;
-  int mStringIndex;
   int mStrCount;
 };

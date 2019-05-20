@@ -36,7 +36,7 @@ IVButtonControl::IVButtonControl(IRECT bounds, IActionFunction actionFunc,
 
 void IVButtonControl::Draw(IGraphics& g)
 {
-  IRECT handleBounds = DrawVectorButton(g, mRECT, (bool) mValue, mMouseIsOver);
+  IRECT handleBounds = DrawVectorButton(g, mRECT, (bool) GetValue(), mMouseIsOver);
   
   if(CStringHasContents(mStr.Get()))
     g.DrawText(mText, mStr.Get(), handleBounds);
@@ -52,7 +52,7 @@ IVSwitchControl::IVSwitchControl(IRECT bounds, int paramIdx, IActionFunction act
   mStr.Set(str);
 }
 
-void IVSwitchControl::SetDirty(bool push)
+void IVSwitchControl::SetDirty(bool push, int valIdx)
 {
   IControl::SetDirty(push);
 
@@ -93,7 +93,7 @@ IVRadioButtonControl::IVRadioButtonControl(IRECT bounds, int paramIdx, IActionFu
 
 void IVRadioButtonControl::Draw(IGraphics& g)
 {
-  int hit = int(0.5 + mValue * (double) (mNumStates - 1));
+  int hit = int(0.5 + GetValue() * (double) (mNumStates - 1));
   
   for (int i = 0; i < mNumStates; i++)
   {
@@ -178,7 +178,7 @@ void IVKnobControl::Draw(IGraphics& g)
 {
   g.FillRect(GetColor(kBG), mRECT);
 
-  const float v = mAngleMin + ((float)mValue * (mAngleMax - mAngleMin));
+  const float v = mAngleMin + ((float) GetValue() * (mAngleMax - mAngleMin));
   const float cx = mHandleBounds.MW(), cy = mHandleBounds.MH();
   const float radius = (mHandleBounds.W()/2.f);
 
@@ -289,7 +289,7 @@ void IVSliderControl::Draw(IGraphics& g)
   const float halfHandleSize = mHandleSize / 2.f;
 
   //track
-  IRECT filledTrack = mTrack.FracRect(mDirection, (float) mValue);
+  IRECT filledTrack = mTrack.FracRect(mDirection, (float) GetValue());
 
   g.FillRect(GetColor(kFR), mTrack);
   g.FillRect(GetColor(kFG), filledTrack);
@@ -332,17 +332,85 @@ void IVSliderControl::OnResize()
   SetDirty(false);
 }
 
+IVRangeSliderControl::IVRangeSliderControl(IRECT bounds, int paramIdxLo, int paramIdxHi)
+  :IVSliderControl(bounds)
+{
+  SetNVals(2);
+  SetParamIdx(paramIdxLo, 0);
+  SetParamIdx(paramIdxHi, 1);
+
+  mTrackSize = bounds.W();
+}
+
+void IVRangeSliderControl::Draw(IGraphics & g)
+{
+  g.FillRect(GetColor(kBG), mRECT);
+
+  //const float halfHandleSize = mHandleSize / 2.f;
+
+  //track
+  const float minVal = (float) std::min(GetValue(0), GetValue(1));
+  const float maxVal = (float) std::max(GetValue(0), GetValue(1));
+
+  IRECT filledTrack = { mTrack.L, mTrack.B - (maxVal * mTrack.H()), mTrack.R, mTrack.B - (minVal * mTrack.H()) };
+
+  g.FillRect(GetColor(kFR), mTrack);
+  g.FillRect(GetColor(kFG), filledTrack);
+  g.DrawRect(GetColor(kFR), mTrack);
+
+  float cx[2];
+  float cy[2];
+
+  if (mDirection == kVertical)
+  {
+    cx[0] = cx[1] = filledTrack.MW();
+    cy[0] = filledTrack.T;
+    cy[1] = filledTrack.B;
+  }
+  else
+  {
+    cx[0] = filledTrack.L;
+    cx[1] = filledTrack.R;
+    cy[0] = cy[1] = filledTrack.MH();
+  }
+
+  ////Handles
+  //for (int i = 0; i < 2; i++)
+  //{
+  //  if (mDrawShadows && !mEmboss)
+  //    g.FillCircle(GetColor(kSH), cx[i] + mShadowOffset, cy[i] + mShadowOffset, halfHandleSize);
+
+  //  g.FillCircle(GetColor(kFG), cx[i], cy[i], halfHandleSize);
+
+  //  if (GetMouseIsOver())
+  //    g.FillCircle(GetColor(kHL), cx[i], cy[i], halfHandleSize);
+
+  //  g.DrawCircle(GetColor(kFR), cx[i], cy[i], halfHandleSize, 0, mFrameThickness);
+  //  g.DrawCircle(GetColor(kON), cx[i], cy[i], halfHandleSize * 0.7f, 0, mFrameThickness);
+  //}
+}
+
+void IVRangeSliderControl::OnMouseDown(float x, float y, const IMouseMod & mod)
+{
+  SnapToMouse(x, y, mDirection, mTrack);
+}
+
+void IVRangeSliderControl::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod & mod)
+{
+  SnapToMouse(x, y, mDirection, mTrack);
+}
+
 #pragma mark - BITMAP CONTROLS
 
 void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   if (mBitmap.N() > 1)
-    mValue += 1.0 / (double)(mBitmap.N() - 1);
+    SetValue(GetValue() + 1.0 / (double)(mBitmap.N() - 1));
   else
-    mValue += 1.0;
+    SetValue(GetValue() + 1.0);
 
-  if (mValue > 1.001)
-    mValue = 0.0;
+  if (GetValue() > 1.001)
+    SetValue(0.);
 
   SetDirty();
 }
@@ -390,7 +458,7 @@ void IBSliderControl::OnResize()
 IRECT IBSliderControl::GetHandleBounds(double value) const
 {
   if (value < 0.0)
-    value = mValue;
+    value = GetValue();
   
   IRECT r(mRECT.L, mRECT.T, mRECT.L + mBitmap.W(), mRECT.T + mBitmap.H());
 
@@ -408,4 +476,3 @@ IRECT IBSliderControl::GetHandleBounds(double value) const
   }
   return r;
 }
-

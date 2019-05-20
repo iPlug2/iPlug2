@@ -23,14 +23,14 @@
 #endif
 
 #ifdef SAMPLE_TYPE_DOUBLE
-typedef double PLUG_SAMPLE_DST;
-typedef float PLUG_SAMPLE_SRC;
+using PLUG_SAMPLE_DST = double;
+using PLUG_SAMPLE_SRC = float;
 #else
-typedef float PLUG_SAMPLE_DST;
-typedef double PLUG_SAMPLE_SRC;
+using PLUG_SAMPLE_DST = float;
+using PLUG_SAMPLE_SRC = double;
 #endif
 
-typedef PLUG_SAMPLE_DST sample;
+using sample = PLUG_SAMPLE_DST;
 
 #define LOGFILE "IPlugLog.txt"
 #define MAX_PROCESS_TRACE_COUNT 100
@@ -121,6 +121,7 @@ static const int MAX_PARAM_DISPLAY_PRECISION = 6;
 static const int DEFAULT_BLOCK_SIZE = 1024;
 static const double DEFAULT_TEMPO = 120.0;
 static const int kNoParameter = -1;
+static const int kNoValIdx = -1;
 static const int kNoTag = -1;
 
 #define MAX_BUS_CHANS 64 // wild cards in channel i/o strings will result in this many channels

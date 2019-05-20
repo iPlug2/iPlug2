@@ -21,6 +21,7 @@
 #include <ctime>
 #include <unistd.h>
 #include <functional>
+#include <memory>
 
 #include "jnetlib/jnetlib.h"
 
@@ -249,7 +250,7 @@ public:
   WDL_Queue m_recvq;
 };
 
-WDL_PtrList<IODevice > g_devices;
+WDL_PtrList<IODevice> g_devices;
 
 class OSCReciever;
 
@@ -260,16 +261,16 @@ public:
   {
     JNL::open_socketlib();
     
-    if(mTimer == nullptr)
-      mTimer = Timer::Create(std::bind(&OSCInterface::OnTimer, this, std::placeholders::_1), updateRateMs);
+    if(!mTimer)
+      mTimer = std::unique_ptr<Timer>(Timer::Create(std::bind(&OSCInterface::OnTimer, this, std::placeholders::_1), updateRateMs));
+      
+    sInstances++;
   }
   
   virtual ~OSCInterface()
   {
-    if(mTimer != nullptr)
-      delete mTimer;
-    
-    mTimer = nullptr;
+    if (--sInstances == 0)
+      mTimer = nullptr;
   }
   
   static void MessageCallback(void *d1, int dev_idx, char type, int msglen, void *msg);
@@ -308,15 +309,15 @@ public:
     
     if (!r)
     {
-      r = new OSCDevice(nullptr, 0, -1, &addr);
-      if (r->m_sendsock == INVALID_SOCKET)
+      std::unique_ptr device(new OSCDevice(nullptr, 0, -1, &addr))
+
+      if (device->m_sendsock == INVALID_SOCKET)
       {
-        delete r;
-        r = nullptr;
         results.AppendFormatted(1024,"\tError listening for '%s:%i'\r\n", buf, port);
       }
       else
       {
+        r = device.release();
         results.AppendFormatted(1024,"\tListening on '%s:%i'\r\n", buf, port);
       }
     }
@@ -355,12 +356,14 @@ public:
     if (!r)
     {
       is_reuse = false;
-      r = new OSCDevice(dp.Get(), 0, -1, nullptr);
-      if (r->m_sendsock == INVALID_SOCKET)
+      std::unique_ptr device(new OSCDevice(dp.Get(), 0, -1, nullptr));
+      if (device->m_sendsock == INVALID_SOCKET)
       {
         results.AppendFormatted(1024,"\tWarning: failed creating destination for output '%s' OSC '%s'\r\n", dp.Get(), dp.Get());
-        delete r;
-        r = nullptr;
+      }
+      else
+      {
+        r = device.release();
       }
     }
     
@@ -452,7 +455,8 @@ private:
   // these are non-owned refs
   WDL_PtrList<IODevice> m_devs;
 protected:
-  static Timer* mTimer;
+  static std::unique_ptr<Timer> mTimer;
+  static int sInstances;
   WDL_FastString results;
   std::function<void()> mInputProc = nullptr;
   std::function<void()> mOutputProc = nullptr;
@@ -461,7 +465,8 @@ protected:
   static const int DEVICE_INDEX_BASE = 0x400000;
 };
 
-Timer* OSCInterface::mTimer = nullptr;
+std::unique_ptr<Timer> OSCInterface::mTimer;
+int OSCInterface::sInstances = 0;
 
 class OSCSender : public OSCInterface
 {

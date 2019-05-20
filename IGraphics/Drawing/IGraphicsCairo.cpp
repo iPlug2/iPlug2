@@ -17,18 +17,19 @@
 
 struct CairoFont
 {
-  CairoFont(cairo_font_face_t* font) : mFont(font) {}
+  CairoFont(cairo_font_face_t* font, double EMRatio) : mFont(font), mEMRatio(EMRatio) {}
   virtual ~CairoFont() { if (mFont) cairo_font_face_destroy(mFont); }
-  
+
   cairo_font_face_t* mFont;
+  double mEMRatio;
 };
 
 #ifdef OS_MAC
 struct CairoPlatformFont : CairoFont
 {
-  CairoPlatformFont(const void* fontRef) : CairoFont(nullptr)
+  CairoPlatformFont(const FontDescriptor fontRef, double EMRatio) : CairoFont(nullptr, EMRatio)
   {
-    CTFontRef ctFont = CTFontCreateWithFontDescriptor((CTFontDescriptorRef) fontRef, 0.f, NULL);
+    CTFontRef ctFont = CTFontCreateWithFontDescriptor(fontRef, 0.f, NULL);
     CGFontRef cgFont = CTFontCopyGraphicsFont(ctFont, NULL);
     mFont = cairo_quartz_font_face_create_for_cgfont(cgFont);
     CFRelease(ctFont);
@@ -38,7 +39,8 @@ struct CairoPlatformFont : CairoFont
 #elif defined OS_WIN
 struct CairoPlatformFont : CairoFont
 {
-  CairoPlatformFont(const void* fontRef) : CairoFont(cairo_win32_font_face_create_for_hfont((HFONT) fontRef))
+  CairoPlatformFont(const FontDescriptor fontRef, double EMRatio)
+  : CairoFont(cairo_win32_font_face_create_for_hfont(fontRef), EMRatio)
   {}
 };
 
@@ -141,7 +143,6 @@ IGraphicsCairo::~IGraphicsCairo()
   storage.Release();
   
   // N.B. calls through to destroy context and surface
-  
   UpdateCairoMainSurface(nullptr);
 }
 
@@ -264,13 +265,11 @@ void IGraphicsCairo::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, cons
 
 void IGraphicsCairo::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
-  const double scale = GetScreenScale() / (bitmap.GetScale() * bitmap.GetDrawScale());
-
   cairo_save(mContext);
   cairo_rectangle(mContext, dest.L, dest.T, dest.W(), dest.H());
   cairo_clip(mContext);
   cairo_surface_t* surface = bitmap.GetAPIBitmap()->GetBitmap();
-  cairo_set_source_surface(mContext, surface, dest.L - (srcX * scale), dest.T - (srcY * scale));
+  cairo_set_source_surface(mContext, surface, dest.L - srcX, dest.T - srcY);
   cairo_set_operator(mContext, CairoBlendMode(pBlend));
   cairo_paint_with_alpha(mContext, BlendWeight(pBlend));
   cairo_restore(mContext);
@@ -310,8 +309,6 @@ void IGraphicsCairo::PathCurveTo(float x1, float y1, float x2, float y2, float x
 void IGraphicsCairo::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
 {
   double dashArray[8];
-  
-  // First set options
   
   switch (options.mCapOption)
   {
@@ -424,79 +421,119 @@ IColor IGraphicsCairo::GetPoint(int x, int y)
   return IColor(A, R, G, B);
 }
 
-bool IGraphicsCairo::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+void IGraphicsCairo::PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y, cairo_glyph_t*& pGlyphs, int& numGlyphs) const
 {
-  double x = 0., y = 0.;
   cairo_text_extents_t textExtents;
   cairo_font_extents_t fontExtents;
-
-  if (measure && !mSurface && !mContext)
+  cairo_t* context;
+  
+  if (!mSurface && !mContext)
   {
-    // TODO - make this nicer
-      
     // Create a temporary context in case there is a need to measure text before the real context is created
-      
     cairo_surface_t* pSurface = cairo_recording_surface_create(CAIRO_CONTENT_COLOR_ALPHA, nullptr);
-    mContext = cairo_create(pSurface);
+    context = cairo_create(pSurface);
     cairo_surface_destroy(pSurface);
   }
+  else
+    context = mContext;
   
+  StaticStorage<CairoFont>::Accessor storage(sFontCache);
+  CairoFont* pCachedFont = storage.Find(text.mFont);
+    
+  assert(pCachedFont && "No font found - did you forget to load it?");
+    
   // Get the correct font face
   
-  cairo_set_font_face(mContext, FindFont(text));
-  cairo_set_font_size(mContext, text.mSize);
-  cairo_font_extents(mContext, &fontExtents);
-
-  // Set the size *again* to match the height we want (so that the ascent + descent is text.mSize
-   
-  double newSize = text.mSize * text.mSize / (fontExtents.ascent + fontExtents.descent);
-  cairo_set_font_size(mContext, newSize);
-  cairo_font_extents(mContext, &fontExtents);
+  cairo_set_font_face(context, pCachedFont->mFont);
+  cairo_set_font_size(context, text.mSize * pCachedFont->mEMRatio);
+  cairo_font_extents(context, &fontExtents);
 
   // Draw / measure
     
-  cairo_scaled_font_t* pFont = cairo_get_scaled_font(mContext);
-  cairo_glyph_t *pGlyphs = nullptr;
-  int numGlyphs = 0;
+  pGlyphs = nullptr;
+  numGlyphs = 0;
+  cairo_scaled_font_t* pFont = cairo_get_scaled_font(context);
   cairo_scaled_font_text_to_glyphs(pFont, 0, 0, str, -1, &pGlyphs, &numGlyphs, nullptr, nullptr, nullptr);
-  cairo_glyph_extents(mContext, pGlyphs, numGlyphs, &textExtents);
+  cairo_glyph_extents(context, pGlyphs, numGlyphs, &textExtents);
   
-  if (measure)
-  {
-    bounds = IRECT(0, 0, textExtents.width, textExtents.height);
-    if (!mSurface)
-        UpdateCairoContext();
-    cairo_glyph_free(pGlyphs);
-    return true;
-  }
-
+  const double textWidth = textExtents.width + textExtents.x_bearing;
+  const double textHeight = fontExtents.height;
+  const double ascender = fontExtents.ascent;
+  const double descender = fontExtents.descent;
+    
   switch (text.mAlign)
   {
-    case IText::kAlignNear:     x = bounds.L;                                                                       break;
-    case IText::kAlignFar:      x = bounds.R - textExtents.width - textExtents.x_bearing;                           break;
-    case IText::kAlignCenter:   x = bounds.L + ((bounds.W() - textExtents.width - textExtents.x_bearing) / 2.0);    break;
-    default: break;
+    case IText::kAlignNear:     x = r.L;                          break;
+    case IText::kAlignCenter:   x = r.MW() - (textWidth / 2.0);   break;
+    case IText::kAlignFar:      x = r.R - textWidth;              break;
   }
   
   switch (text.mVAlign)
   {
-    case IText::kVAlignTop:      y = bounds.T + fontExtents.ascent;                                 break;
-    case IText::kVAlignMiddle:   y = bounds.MH() - fontExtents.descent + fontExtents.height/2.;     break;
-    case IText::kVAlignBottom:   y = bounds.B - fontExtents.descent;                                break;
-    default: break;
+    case IText::kVAlignTop:      y = r.T + ascender;                            break;
+    case IText::kVAlignMiddle:   y = r.MH() - descender + (textHeight / 2.0);   break;
+    case IText::kVAlignBottom:   y = r.B - descender;                           break;
   }
   
-  bool textEntry = GetTextEntryControl() && GetTextEntryControl()->GetRECT() == bounds;
-  IColor color = textEntry ? text.mTextEntryFGColor : text.mFGColor;
+  r = IRECT((float) x, (float) (y - ascender), (float) (x + textWidth), (float) (y + textHeight - ascender));
+  
+  // Destroy temporary context
+  if (context != mContext)
+    cairo_destroy(context);
+}
 
-  cairo_save(mContext);
-  cairo_set_source_rgba(mContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, (BlendWeight(pBlend) * color.A) / 255.0);
-  cairo_translate(mContext, x, y);
-  cairo_show_glyphs(mContext, pGlyphs, numGlyphs);
-  cairo_restore(mContext);
+void IGraphicsCairo::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
+{
+  IRECT r = bounds;
+  cairo_glyph_t* pGlyphs;
+  int numGlyphs;
+  double x, y;
+  PrepareAndMeasureText(text, str, bounds, x, y, pGlyphs, numGlyphs);
+  DoMeasureTextRotation(text, r, bounds);
   cairo_glyph_free(pGlyphs);
+}
 
-  return true;
+void IGraphicsCairo::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
+{
+  IRECT measured = bounds;
+  cairo_glyph_t* pGlyphs;
+  int numGlyphs;
+  double x, y;
+  
+  const IColor& c = text.mFGColor;
+  bool useNativeTransforms = true;
+
+#ifdef OS_WIN
+  IMatrix m = GetTransformMatrix();
+  useNativeTransforms = !text.mOrientation && !m.mXY && !m.mYX;
+#endif 
+
+  PrepareAndMeasureText(text, str, measured, x, y, pGlyphs, numGlyphs);
+  PathTransformSave();
+  
+  if (useNativeTransforms)
+  {
+    DoTextRotation(text, bounds, measured);
+    cairo_set_source_rgba(mContext, c.R / 255.0, c.G / 255.0, c.B / 255.0, (BlendWeight(pBlend) * c.A) / 255.0);
+    cairo_translate(mContext, x, y);
+    cairo_show_glyphs(mContext, pGlyphs, numGlyphs);
+  }
+  else
+  {
+    PathTransformSave();
+    PathTransformReset();
+    StartLayer(measured);
+    cairo_set_source_rgba(mContext, c.R / 255.0, c.G / 255.0, c.B / 255.0, (BlendWeight(pBlend) * c.A) / 255.0);
+    cairo_translate(mContext, x, y);
+    cairo_show_glyphs(mContext, pGlyphs, numGlyphs);
+    ILayerPtr layer = EndLayer();
+    PathTransformRestore();
+    DoTextRotation(text, bounds, measured);
+    DrawBitmap(layer->GetBitmap(), layer->Bounds(), 0, 0, pBlend);
+  }
+  
+  PathTransformRestore();
+  cairo_glyph_free(pGlyphs);
 }
 
 void IGraphicsCairo::UpdateCairoContext()
@@ -583,7 +620,12 @@ bool IGraphicsCairo::LoadAPIFont(const char* fontID, const PlatformFontPtr& font
   if (storage.Find(fontID))
     return true;
 
-  std::unique_ptr<CairoPlatformFont> cairoFont(new CairoPlatformFont(font->GetDescriptor()));
+  IFontDataPtr data = font->GetFontData();
+  
+  if (!data->IsValid())
+    return false;
+    
+  std::unique_ptr<CairoPlatformFont> cairoFont(new CairoPlatformFont(font->GetDescriptor(), data->GetHeightEMRatio()));
 
   if (cairo_font_face_status(cairoFont->mFont) == CAIRO_STATUS_SUCCESS)
   {
@@ -592,19 +634,6 @@ bool IGraphicsCairo::LoadAPIFont(const char* fontID, const PlatformFontPtr& font
   }
     
   return false;
-}
-
-cairo_font_face_t* IGraphicsCairo::FindFont(const IText& text)
-{
-  StaticStorage<CairoFont>::Accessor storage(sFontCache);
-  CairoFont* pFont = storage.Find(text.mFont);
-  
-  if (pFont)
-    return pFont->mFont;
-  
-  assert(0 && "No font found - did you forget to load it?");
-
-  return nullptr;
 }
 
 void IGraphicsCairo::PathTransformSetMatrix(const IMatrix& m)

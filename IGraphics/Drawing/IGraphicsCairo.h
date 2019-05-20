@@ -78,7 +78,7 @@ protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) override;
 
-  bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font);
+  bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override;
     
   int AlphaChannel() const override { return 3; }
   bool FlippedBitmap() const override { return false; }
@@ -86,14 +86,15 @@ protected:
   void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
   void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
     
-  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
+  void DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
+  void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
 
   void SetCairoSourcePattern(cairo_t* context, const IPattern& pattern, const IBlend* pBlend);
   
 private:
     
-  cairo_font_face_t* FindFont(const IText& text);
-
+  void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y, cairo_glyph_t*& pGlyphs, int& numGlyphs) const;
+    
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
   

@@ -22,6 +22,14 @@ steps:
 
 - template: ${{parameters.platform}}
   parameters:
+    name: IPlugMidiEffect
+    path: 'Examples'
+    graphics: ${{parameters.graphics}}
+    artifactName: IPlugMidiEffect_${{parameters.graphics}}
+    platformStr: ${{parameters.platformStr}}
+
+- template: ${{parameters.platform}}
+  parameters:
     name: IPlugControls
     path: 'Examples'
     graphics: ${{parameters.graphics}}
@@ -50,6 +58,14 @@ steps:
     path: 'Tests'
     graphics: ${{parameters.graphics}}
     artifactName: IGraphicsTest_${{parameters.graphics}}
+    platformStr: ${{parameters.platformStr}}
+
+- template: ${{parameters.platform}}
+  parameters:
+    name: MetaParamTest
+    path: 'Tests'
+    graphics: ${{parameters.graphics}}
+    artifactName: MetaParamTest_${{parameters.graphics}}
     platformStr: ${{parameters.platformStr}}
 
 # External Project
