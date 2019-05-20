@@ -26,8 +26,8 @@ class IVMultiSliderControl : public IVTrackControlBase
 {
 public:
 
-  IVMultiSliderControl(IRECT bounds, EDirection dir = kVertical, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
-  : IVTrackControlBase(bounds, MAXNC, dir, minTrackValue, maxTrackValue, trackNames)
+  IVMultiSliderControl(IRECT bounds, const IVStyle& style = DEFAULT_STYLE, EDirection dir = kVertical, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  : IVTrackControlBase(bounds, style, MAXNC, dir, minTrackValue, maxTrackValue, trackNames)
   {
     mOuterPadding = 0.f;
     mDrawTrackFrame = false;
@@ -35,8 +35,8 @@ public:
     SetColor(kFG, COLOR_BLACK);
   }
 
-  IVMultiSliderControl(IRECT bounds, int loParamIdx, EDirection dir = kVertical, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
-    : IVTrackControlBase(bounds, loParamIdx, MAXNC, dir, minTrackValue, maxTrackValue, trackNames)
+  IVMultiSliderControl(IRECT bounds, const IVStyle& style = DEFAULT_STYLE, int loParamIdx = kNoParameter, EDirection dir = kVertical, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  : IVTrackControlBase(bounds, style, loParamIdx, MAXNC, dir, minTrackValue, maxTrackValue, trackNames)
   {
     mOuterPadding = 0.f;
     mDrawTrackFrame = false;

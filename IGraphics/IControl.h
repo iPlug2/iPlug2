@@ -964,8 +964,9 @@ class IVTrackControlBase : public IControl
                          , public IVectorBase
 {
 public:
-  IVTrackControlBase(IRECT bounds, int maxNTracks = 1, EDirection dir = kHorizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  IVTrackControlBase(IRECT bounds, const IVStyle& style, int maxNTracks = 1, EDirection dir = kHorizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
   : IControl(bounds)
+  , IVectorBase(style)
   , mMinTrackValue(minTrackValue)
   , mMaxTrackValue(maxTrackValue)
   , mDirection(dir)
@@ -981,8 +982,9 @@ public:
     AttachIControl(this, ""/*TODO*/);
   }
 
-  IVTrackControlBase(IRECT bounds, int lowParamidx, int maxNTracks = 1, EDirection dir = kHorizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  IVTrackControlBase(IRECT bounds, const IVStyle& style, int lowParamidx, int maxNTracks = 1, EDirection dir = kHorizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
     : IControl(bounds)
+    , IVectorBase(style)
     , mMinTrackValue(minTrackValue)
     , mMaxTrackValue(maxTrackValue)
     , mDirection(dir)
