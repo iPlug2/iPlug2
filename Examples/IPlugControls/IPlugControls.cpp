@@ -113,9 +113,9 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new IBButtonControl(b.GetGridCell(3, nRows, nCols), bitmap1));
 
     pGraphics->AttachControl(new ITextControl(b.GetGridCell(1, nRows, 1), "Vector Controls", bigLabel));
-    pGraphics->AttachControl(new IVKnobControl(b.GetGridCell(5, nRows, nCols).GetCentredInside(100.), kGain));
+    pGraphics->AttachControl(new IVKnobControl(b.GetGridCell(5, nRows, nCols).GetCentredInside(100.), kGain, "", DEFAULT_STYLE, true));
     pGraphics->AttachControl(new IVSliderControl(b.GetGridCell(6, nRows, nCols).GetGridCell(0, 1, 3)));
-    pGraphics->AttachControl(new IVSliderControl(b.GetGridCell(6, nRows, nCols).GetGridCell(3, 3, 2), kNoParameter, "", DEFAULT_SPEC, kHorizontal));
+    pGraphics->AttachControl(new IVSliderControl(b.GetGridCell(6, nRows, nCols).GetGridCell(3, 3, 2), kNoParameter, "", DEFAULT_STYLE, kHorizontal));
     pGraphics->AttachControl(new IVSwitchControl(b.GetGridCell(7, nRows, nCols).GetCentredInside(50.), kMode, ""));
     
     //    pGraphics->AttachControl(new IVMeterControl<2>(*this, nextCell()), kControlTagMeter);
@@ -144,9 +144,9 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
       dynamic_cast<ITextControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagDialogResult))->SetStr(dir.Get());
     };
     
-    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).GetGridCell(0, 4, 1), button1action, "Trigger Message Box", buttonLabels));
-    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).GetGridCell(1, 4, 1), button2action, "Trigger open file dialog", buttonLabels));
-    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).GetGridCell(2, 4, 1), button3action, "Trigger open directory dialog", buttonLabels));
+    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).GetGridCell(0, 4, 1), button1action, "Trigger Message Box"));
+    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).GetGridCell(1, 4, 1), button2action, "Trigger open file dialog"));
+    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).GetGridCell(2, 4, 1), button3action, "Trigger open directory dialog"));
     pGraphics->AttachControl(new ITextControl(b.GetGridCell(9, nRows, nCols).GetGridCell(3, 4, 1), "Dialog result shown here...", DEFAULT_TEXT, COLOR_RED), kCtrlTagDialogResult);
 
     pGraphics->AttachControl(new ITextControl(b.GetGridCell(2, nRows, 1), "Text Controls", bigLabel));

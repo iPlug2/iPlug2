@@ -25,13 +25,12 @@ const IColor IVKeyboardControl::DEFAULT_FR_COLOR = DEFAULT_BK_COLOR;
 
 IVButtonControl::IVButtonControl(IRECT bounds, IActionFunction actionFunc,
                                  const char* label,
-                                 const IText& text, const IVStyle& style)
+                                 const IVStyle& style)
 : IButtonControlBase(bounds, actionFunc)
 , IVectorBase(style)
 {
   AttachIControl(this, label);
   mDblAsSingleClick = true;
-  mText = text;
 }
 
 void IVButtonControl::Draw(IGraphics& g)
@@ -39,7 +38,7 @@ void IVButtonControl::Draw(IGraphics& g)
   DrawBackGround(g, mRECT);
   DrawWidget(g);
   DrawTitle(g);
-  DrawValue(g);
+  DrawValue(g, false);
 }
 
 void IVButtonControl::DrawWidget(IGraphics& g)
@@ -49,7 +48,7 @@ void IVButtonControl::DrawWidget(IGraphics& g)
 
 void IVButtonControl::OnResize()
 {
-  SetTargetRECT(CalculateRects(mRECT, mTitleStr.Get(), "", true));
+  SetTargetRECT(CalculateRects(mRECT, mLabelStr.Get(), "", true));
   SetDirty(false);
 }
 
@@ -59,9 +58,9 @@ bool IVButtonControl::IsHit(float x, float y) const
 }
 
 IVTriangleButtonControl::IVTriangleButtonControl(IRECT bounds, IActionFunction actionFunc,
-                                                 const char* label, const IText& text,
-                                                 float angle, const IVStyle& style)
-: IVButtonControl(bounds, actionFunc, label, text, style)
+                                                 const char* label, const IVStyle& style,
+                                                 float angle)
+: IVButtonControl(bounds, actionFunc, label, style)
 , mAngle(angle)
 {};
 
@@ -91,7 +90,7 @@ void IVSwitchControl::Draw(IGraphics& g)
   DrawBackGround(g, mRECT);
   DrawWidget(g);
   DrawTitle(g);
-  DrawValue(g);
+  DrawValue(g, false);
 }
 
 void IVSwitchControl::DrawWidget(IGraphics& g)
@@ -111,7 +110,7 @@ void IVSwitchControl::SetDirty(bool push, int valIdx)
 
 void IVSwitchControl::OnResize()
 {
-  SetTargetRECT(CalculateRects(mRECT, mTitleStr.Get(), "", true));
+  SetTargetRECT(CalculateRects(mRECT, mLabelStr.Get(), "", true));
   SetDirty(false);
 }
 
@@ -190,6 +189,7 @@ void IVRadioButtonControl::OnResize()
 IVKnobControl::IVKnobControl(IRECT bounds, int paramIdx,
                              const char* label,
                              const IVStyle& style,
+                             bool valueIsEditable,
                              float aMin, float aMax,
                              EDirection direction, double gearing)
 : IKnobControlBase(bounds, paramIdx, direction, gearing)
@@ -197,8 +197,7 @@ IVKnobControl::IVKnobControl(IRECT bounds, int paramIdx,
 , mAngleMin(aMin)
 , mAngleMax(aMax)
 {
-  //  if(mDisplayParamValue) // TODO: wrong
-//    DisablePrompt(false);
+  DisablePrompt(!valueIsEditable);
   
   AttachIControl(this, label);
 }
@@ -206,6 +205,7 @@ IVKnobControl::IVKnobControl(IRECT bounds, int paramIdx,
 IVKnobControl::IVKnobControl(IRECT bounds, IActionFunction actionFunction,
                              const char* label,
                              const IVStyle& style,
+                             bool valueIsEditable,
                              float aMin, float aMax,
                              EDirection direction, double gearing)
 : IKnobControlBase(bounds, kNoParameter, direction, gearing)
@@ -213,8 +213,7 @@ IVKnobControl::IVKnobControl(IRECT bounds, IActionFunction actionFunction,
 , mAngleMin(aMin)
 , mAngleMax(aMax)
 {
-//  if(mDisplayParamValue) // TODO: wrong
-//    DisablePrompt(false);
+  DisablePrompt(!valueIsEditable);
 
   SetActionFunction(actionFunction);
   AttachIControl(this, label);
@@ -225,7 +224,7 @@ void IVKnobControl::Draw(IGraphics& g)
   DrawBackGround(g, mRECT);
   DrawWidget(g);
   DrawTitle(g);
-  DrawValue(g);
+  DrawValue(g, mValueMouseOver);
 }
 
 void IVKnobControl::DrawWidget(IGraphics& g)
@@ -251,7 +250,7 @@ void IVKnobControl::DrawWidget(IGraphics& g)
     
     g.DrawCircle(GetColor(kON), cx, cy, radius * 0.9f, 0, mStyle.frameThickness);
     
-    if(mMouseIsOver)
+    if(mMouseIsOver && !mValueMouseOver)
       g.FillCircle(GetColor(kHL), cx, cy, radius * 0.8f);
     
     g.DrawCircle(GetColor(kFR), cx, cy, radius, 0, mStyle.frameThickness);
@@ -273,36 +272,54 @@ void IVKnobControl::OnMouseDown(float x, float y, const IMouseMod& mod)
     IKnobControlBase::OnMouseDown(x, y, mod);
 }
 
+void IVKnobControl::OnMouseOver(float x, float y, const IMouseMod& mod)
+{
+  if(mStyle.showValue && !mDisablePrompt)
+    mValueMouseOver = mValueBounds.Contains(x,y);
+  
+  IKnobControlBase::OnMouseOver(x, y, mod);
+}
+
 void IVKnobControl::OnResize()
 {
-  SetTargetRECT(CalculateRects(mRECT, mTitleStr.Get()));
+  SetTargetRECT(CalculateRects(mRECT, mLabelStr.Get()));
   SetDirty(false);
 }
 
 bool IVKnobControl::IsHit(float x, float y) const
 {
+  if(!mDisablePrompt)
+  {
+    if(mValueBounds.Contains(x,y))
+      return true;
+  }
+  
   return mWidgetBounds.Contains(x, y);
 }
 
 IVSliderControl::IVSliderControl(IRECT bounds, int paramIdx,
                 const char* label,
                 const IVStyle& style,
+                bool valueIsEditable,
                 EDirection dir, bool onlyHandle, float handleSize, float trackSize)
 : ISliderControlBase(bounds, paramIdx, dir, onlyHandle, handleSize)
 , IVectorBase(style)
 , mTrackSize(trackSize)
 {
+  DisablePrompt(!valueIsEditable);
   AttachIControl(this, label);
 }
 
 IVSliderControl::IVSliderControl(IRECT bounds, IActionFunction aF,
                 const char* label,
                 const IVStyle& style,
+                bool valueIsEditable,
                 EDirection dir, bool onlyHandle, float handleSize, float trackSize)
 : ISliderControlBase(bounds, aF, dir, onlyHandle, handleSize)
 , IVectorBase(style)
 , mTrackSize(trackSize)
 {
+  DisablePrompt(!valueIsEditable);
   AttachIControl(this, label);
 }
 
@@ -311,7 +328,7 @@ void IVSliderControl::Draw(IGraphics& g)
   DrawBackGround(g, mRECT);
   DrawWidget(g);
   DrawTitle(g);
-  DrawValue(g);
+  DrawValue(g, mValueMouseOver);
 }
 
 void IVSliderControl::DrawWidget(IGraphics& g)
@@ -352,9 +369,27 @@ void IVSliderControl::DrawWidget(IGraphics& g)
   g.DrawCircle(GetColor(kON), cx, cy, halfHandleSize * 0.7f, 0, mStyle.frameThickness);
 }
 
+void IVSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  if(mStyle.showValue && mValueBounds.Contains(x, y))
+  {
+    PromptUserInput(mValueBounds);
+  }
+  else
+    ISliderControlBase::OnMouseDown(x, y, mod);
+}
+
+void IVSliderControl::OnMouseOver(float x, float y, const IMouseMod& mod)
+{
+  if(mStyle.showValue && !mDisablePrompt)
+    mValueMouseOver = mValueBounds.Contains(x,y);
+  
+  ISliderControlBase::OnMouseOver(x, y, mod);
+}
+
 void IVSliderControl::OnResize()
 {
-  CalculateRects(mRECT, mTitleStr.Get());
+  CalculateRects(mRECT, mLabelStr.Get());
   
   if(mDirection == kVertical)
     mTrack = mWidgetBounds.GetPadded(-mHandleSize).GetMidHPadded(mTrackSize);
@@ -363,6 +398,20 @@ void IVSliderControl::OnResize()
 
   SetDirty(false);
 }
+
+bool IVSliderControl::IsHit(float x, float y) const
+{
+  if(!mDisablePrompt)
+  {
+    if(mValueBounds.Contains(x,y))
+    {
+      return true;
+    }
+  }
+  
+  return mWidgetBounds.Contains(x, y);
+}
+
 
 IVRangeSliderControl::IVRangeSliderControl(IRECT bounds, int paramIdxLo, int paramIdxHi)
   :IVSliderControl(bounds)

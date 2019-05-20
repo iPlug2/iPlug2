@@ -37,7 +37,7 @@ class IVButtonControl : public IButtonControlBase
 {
 public:
   IVButtonControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc,
-    const char* str = "", const IText& text = DEFAULT_TEXT, const IVStyle& style = DEFAULT_STYLE);
+    const char* str = "", const IVStyle& style = DEFAULT_STYLE);
 
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
@@ -49,7 +49,7 @@ public:
 class IVTriangleButtonControl : public IVButtonControl
 {
 public:
-  IVTriangleButtonControl(IRECT bounds, IActionFunction actionFunc = DefaultClickActionFunc, const char* label = "", const IText& text = DEFAULT_TEXT, float angle = 0.0f, const IVStyle& style = DEFAULT_STYLE);
+  IVTriangleButtonControl(IRECT bounds, IActionFunction actionFunc = DefaultClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, float angle = 0.0f);
   
   virtual void DrawWidget(IGraphics& g) override;
   void SetAngle(float angle) { mAngle = angle; SetDirty(false); }
@@ -103,12 +103,14 @@ public:
   IVKnobControl(IRECT bounds, int paramIdx,
                 const char* label = "",
                 const IVStyle& style = DEFAULT_STYLE,
+                bool valueIsEditable = false,
                 float aMin = -135.f, float aMax = 135.f,
                 EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
 
   IVKnobControl(IRECT bounds, IActionFunction actionFunction,
                 const char* label = "",
                 const IVStyle& style = DEFAULT_STYLE,
+                bool valueIsEditable = false,
                 float aMin = -135.f, float aMax = 135.f,
                 EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
 
@@ -118,11 +120,15 @@ public:
   virtual void DrawWidget(IGraphics& g) override;
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOut() override { mValueMouseOver = false; IKnobControlBase::OnMouseOut(); }
+
 //  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {  OnMouseDown(x, y, mod); }
   void OnResize() override;
   bool IsHit(float x, float y) const override;
 protected:
   float mAngleMin, mAngleMax;
+  bool mValueMouseOver = false;
 };
 
 /** A vector knob/dial control which rotates an SVG image */
@@ -168,20 +174,27 @@ public:
   IVSliderControl(IRECT bounds, int paramIdx = kNoParameter,
                   const char* label = "",
                   const IVStyle& style = DEFAULT_STYLE,
+                  bool valueIsEditable = false,
                   EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
   
   IVSliderControl(IRECT bounds, IActionFunction aF,
                   const char* label = "",
                   const IVStyle& style = DEFAULT_STYLE,
+                  bool valueIsEditable = false,
                   EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
 
   virtual ~IVSliderControl() {}
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOut() override { mValueMouseOver = false; ISliderControlBase::OnMouseOut(); }
+  bool IsHit(float x, float y) const override;
   void OnResize() override;
 
 protected:
   float mTrackSize;
+  bool mValueMouseOver = false;
 };
 
 class IVRangeSliderControl : public IVSliderControl

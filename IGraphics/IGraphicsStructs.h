@@ -2542,7 +2542,7 @@ struct IVStyle
   , drawFrame(drawFrame)
   , drawShadows(drawShadows)
   , emboss(emboss)
-  , roundness(drawShadows)
+  , roundness(roundness)
   , frameThickness(frameThickness)
   , shadowOffset(shadowOffset)
   {

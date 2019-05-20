@@ -549,7 +549,7 @@ protected:
   IBlend mBlend;
 };
 
-/** A base interface to be combined with IControl for vectorial controls "IVControls", in order for them to share a common set of colors. 
+/** A base interface to be combined with IControl for vectorial controls "IVControls", in order for them to share a common style
  * If you need more flexibility, you're on your own! */
 class IVectorBase
 {
@@ -575,7 +575,7 @@ public:
   void AttachIControl(IControl* pControl, const char* label)
   {
     mControl = pControl;
-    mTitleStr.Set(label);
+    mLabelStr.Set(label);
   }
   
   void AddColor(const IColor& color)
@@ -699,12 +699,15 @@ public:
   
   virtual void DrawTitle(IGraphics& g)
   {
-    if(mTitleBounds.H())
-      g.DrawText(mStyle.labelText, mTitleStr.Get(), mTitleBounds);
+    if(mLabelBounds.H())
+      g.DrawText(mStyle.labelText, mLabelStr.Get(), mLabelBounds);
   }
   
-  virtual void DrawValue(IGraphics& g)
+  virtual void DrawValue(IGraphics& g, bool mouseOver)
   {
+    if(mouseOver)
+      g.FillRect(COLOR_TRANSLUCENT, mValueBounds);
+    
     //TODO: wrong
     if(mStyle.showValue)
     {
@@ -847,13 +850,13 @@ public:
       IRECT textRect;
       mControl->GetUI()->MeasureText(mStyle.labelText, label, textRect);
 
-      mTitleBounds = parent.GetFromTop(textRect.H());
+      mLabelBounds = parent.GetFromTop(textRect.H());
     }
     else
-      mTitleBounds = IRECT();
+      mLabelBounds = IRECT();
     
-    if(mTitleBounds.H())
-      clickableArea = parent.GetReducedFromTop(mTitleBounds.H());
+    if(mLabelBounds.H())
+      clickableArea = parent.GetReducedFromTop(mLabelBounds.H());
     else
       clickableArea = parent;
     
@@ -896,14 +899,7 @@ public:
     }
     
     mWidgetBounds = GetAdjustedHandleBounds(clickableArea).GetScaledAboutCentre(mHandleFrac);
-    
-//    if(valueInWidget)
-//    {
-//      // TODO:
-//      mStyle.mValueText = IText(15, IText::kVAlignMiddle);
-//      mValueBounds = mWidgetBounds;
-//    }
-    
+        
     return clickableArea;
   }
   
@@ -915,9 +911,9 @@ protected:
   float mSplashRadius = 0.f;
   float mMaxSplashRadius = 50.f;
   IRECT mWidgetBounds; // The knob/slider/button
-  IRECT mTitleBounds; // A piece of text above the control
+  IRECT mLabelBounds; // A piece of text above the control
   IRECT mValueBounds; // Text below the contol, usually displaying the value of a parameter
-  WDL_String mTitleStr;
+  WDL_String mLabelStr;
   WDL_String mValueStr;
 };
 
