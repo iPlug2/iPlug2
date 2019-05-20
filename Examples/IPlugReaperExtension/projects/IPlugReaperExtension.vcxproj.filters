@@ -24,11 +24,11 @@
     <Filter Include="Source Files\IGraphics\Platforms">
       <UniqueIdentifier>{a9726673-fb14-42e1-b80f-2b1e891619fd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\IPlug\IPlugReaperExtension">
-      <UniqueIdentifier>{94e9c179-2e06-46d1-8dc3-0e9fd63a7791}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\IGraphics\Extras">
       <UniqueIdentifier>{a11609cf-5f2c-40c9-aa0b-a6b46f6f6b18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\IPlug\ReaperExtension">
+      <UniqueIdentifier>{94e9c179-2e06-46d1-8dc3-0e9fd63a7791}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -86,11 +86,11 @@
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp">
       <Filter>Source Files\IPlug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IPlugReaperExtension\ReaperExtBase.cpp">
-      <Filter>Source Files\IPlug\IPlugReaperExtension</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IGraphics\Extras\IGraphicsImGui.cpp">
       <Filter>Source Files\IGraphics\Extras</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\ReaperExtension\ReaperExtBase.cpp">
+      <Filter>Source Files\IPlug\ReaperExtension</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -216,20 +216,20 @@
     <ClInclude Include="..\IPlugReaperExtension.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugReaperExtension\ReaperExt_include_in_plug_hdr.h">
-      <Filter>Source Files\IPlug\IPlugReaperExtension</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugReaperExtension\ReaperExt_include_in_plug_src.h">
-      <Filter>Source Files\IPlug\IPlugReaperExtension</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugReaperExtension\ReaperExtBase.h">
-      <Filter>Source Files\IPlug\IPlugReaperExtension</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Extras\IGraphicsImGui.h">
       <Filter>Source Files\IGraphics\Extras</Filter>
     </ClInclude>
     <ClInclude Include="..\config.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\ReaperExtension\ReaperExt_include_in_plug_hdr.h">
+      <Filter>Source Files\IPlug\ReaperExtension</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\ReaperExtension\ReaperExt_include_in_plug_src.h">
+      <Filter>Source Files\IPlug\ReaperExtension</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\ReaperExtension\ReaperExtBase.h">
+      <Filter>Source Files\IPlug\ReaperExtension</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
