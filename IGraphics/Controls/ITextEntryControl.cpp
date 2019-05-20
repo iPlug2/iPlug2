@@ -170,6 +170,14 @@ void ITextEntryControl::OnMouseDrag(float x, float y, float dX, float dY, const 
   }
 }
 
+void ITextEntryControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
+{
+  CallSTB([&] {
+    mEditState.select_start = 0;
+    mEditState.select_end = mEditString.GetLength();
+  });
+}
+
 void ITextEntryControl::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
   if (mod.L)
