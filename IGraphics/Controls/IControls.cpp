@@ -218,7 +218,12 @@ void IVKnobControl::Draw(IGraphics& g)
 
 void IVKnobControl::DrawWidget(IGraphics& g)
 {
-  const float radius = (mWidgetBounds.H()/2.f);
+  float radius;
+  if(mWidgetBounds.W() > mWidgetBounds.H())
+    radius = (mWidgetBounds.H()/2.f);
+  else
+    radius = (mWidgetBounds.W()/2.f);
+  
   const float cx = mWidgetBounds.MW(), cy = mWidgetBounds.MH();
   
   if(!IsGrayed())
