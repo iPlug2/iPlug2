@@ -1440,6 +1440,12 @@ protected:
 #pragma mark -
 
 private:
+  void ClearMouseOver()
+  {
+    mMouseOver = nullptr;
+    mMouseOverIdx = -1;
+  }
+  
   WDL_PtrList<IControl> mControls;
 
   // Order (front-to-back) ToolTip / PopUp / TextEntry / LiveEdit / Corner / PerfDisplay

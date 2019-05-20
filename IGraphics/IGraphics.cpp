@@ -137,24 +137,19 @@ void IGraphics::RemoveControls(int fromIdx)
   while (idx >= fromIdx)
   {
     IControl* pControl = GetControl(idx);
+    
     if (pControl == mMouseCapture)
-    {
       mMouseCapture = nullptr;
-    }
+
     if (pControl == mMouseOver)
-    {
-      mMouseOver = nullptr;
-      mMouseOverIdx = -1;
-    }
+      ClearMouseOver();
+
     if (pControl == mInTextEntry)
-    {
       mInTextEntry = nullptr;
-    }
+
     if (pControl == mInPopupMenu)
-    {
       mInPopupMenu = nullptr;
-    }
-      
+    
     mControls.Delete(idx--, true);
   }
   
@@ -163,8 +158,8 @@ void IGraphics::RemoveControls(int fromIdx)
 
 void IGraphics::RemoveAllControls()
 {
-  mMouseCapture = mMouseOver = nullptr;
-  mMouseOverIdx = -1;
+  mMouseCapture = nullptr;
+  ClearMouseOver();
 
   mPopupControl = nullptr;
   mTextEntryControl = nullptr;
@@ -286,6 +281,7 @@ void IGraphics::ShowFPSDisplay(bool enable)
   else
   {
     mPerfDisplay = nullptr;
+    ClearMouseOver();
   }
 
   SetAllControlsDirty();
@@ -894,7 +890,7 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
   {
     if (mMouseOver)
       mMouseOver->OnMouseOut();
-
+    
     mMouseOver = pControl;
   }
 
@@ -911,8 +907,7 @@ void IGraphics::OnMouseOut()
   // Store the old cursor type so this gets restored when the mouse enters again
   mCursorType = SetMouseCursor(ARROW);
   ForAllControls(&IControl::OnMouseOut);
-  mMouseOver = nullptr;
-  mMouseOverIdx = -1;
+  ClearMouseOver();
 }
 
 void IGraphics::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
@@ -1073,7 +1068,7 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
         }
 #if _DEBUG
       }
-      else if (pControl->IsHit(x, y))
+      else if (pControl->GetRECT().Contains(x, y))
       {
         return c;
       }
@@ -1255,11 +1250,8 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
     mLiveEdit = nullptr;
   }
   
-  mMouseOver = nullptr;
-  mMouseOverIdx = -1;
-  
+  ClearMouseOver();
   SetMouseCursor(ECursor::ARROW);
-
   SetAllControlsDirty();
 #endif
 }
