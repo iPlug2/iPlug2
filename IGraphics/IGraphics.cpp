@@ -1068,7 +1068,7 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
         }
 #if _DEBUG
       }
-      else if (pControl->IsHit(x, y))
+      else if (pControl->GetRECT().Contains(x, y))
       {
         return c;
       }
