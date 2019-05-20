@@ -1171,14 +1171,8 @@ public:
   ITextEntryControl* GetTextEntryControl() { return mTextEntryControl.get(); }
   
   /** Helper method to style all of the controls which inherit IVectorBase
-   * @param drawFrame Should the controls draw a frame
-   * @param drawShadow Should the controls draw a shadow (where relevant)
-   * @param emboss Should the controls be embossed (where relevant)
-   * @param roundness Roundness in pixels of the corners, of rectangles in the controls
-   * @param frameThickness Thickness in pixels of the control frame
-   * @param shadowOffset Offset in pixels of the control shadow (where relevant)
-   * @param spec Color spec for the controls */
-  void StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec = DEFAULT_SPEC);
+   * @param IVStyle Style for the controls */
+  void StyleAllVectorControls(const IVStyle& style);
   
    /** This method is called after interacting with a control, so that any other controls linked to the same parameter index, will also be set dirty, and have their values updated.
     * @param pCaller The control that triggered the parameter change.

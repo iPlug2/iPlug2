@@ -567,17 +567,9 @@ public:
     AddColors(pBGColor, pFGColor, pPRColor, pFRColor, pHLColor, pSHColor, pX1Color, pX2Color, pX3Color);
   }
 
-  IVectorBase(const IVColorSpec& spec)
+  IVectorBase(const IVStyle& style)
   {
-    AddColors(&spec.GetColor(kBG),
-              &spec.GetColor(kFG),
-              &spec.GetColor(kPR),
-              &spec.GetColor(kFR),
-              &spec.GetColor(kHL),
-              &spec.GetColor(kSH),
-              &spec.GetColor(kX1),
-              &spec.GetColor(kX2),
-              &spec.GetColor(kX3));
+    Style(style);
   }
   
   void AttachIControl(IControl* pControl, const char* label)
@@ -639,8 +631,6 @@ public:
     mColors.Get()[kX1] = X1Color;
     mColors.Get()[kX2] = X2Color;
     mColors.Get()[kX3] = X3Color;
-    
-    mControl->SetDirty(false);
   }
 
   void SetColors(const IVColorSpec& spec)
@@ -664,32 +654,28 @@ public:
       return mColors.Get()[0];
   }
   
-  void SetRoundness(float roundness) { mRoundness = Clip(roundness, 0.f, 1.f); mControl->SetDirty(false); }
-  void SetDrawFrame(bool draw) { mDrawFrame = draw; mControl->SetDirty(false); }
-  void SetDrawShadows(bool draw) { mDrawShadows = draw; mControl->SetDirty(false); }
-  void SetEmboss(bool emboss) { mEmboss = emboss; mControl->SetDirty(false); }
-  void SetShadowOffset(float offset) { mShadowOffset = offset; mControl->SetDirty(false); }
-  void SetFrameThickness(float thickness) { mFrameThickness = thickness; mControl->SetDirty(false); }
+  void SetRoundness(float roundness) { mStyle.roundness = Clip(roundness, 0.f, 1.f); mControl->SetDirty(false); }
+  void SetDrawFrame(bool draw) { mStyle.drawFrame = draw; mControl->SetDirty(false); }
+  void SetDrawShadows(bool draw) { mStyle.drawShadows = draw; mControl->SetDirty(false); }
+  void SetEmboss(bool emboss) { mStyle.emboss = emboss; mControl->SetDirty(false); }
+  void SetShadowOffset(float offset) { mStyle.shadowOffset = offset; mControl->SetDirty(false); }
+  void SetFrameThickness(float thickness) { mStyle.frameThickness = thickness; mControl->SetDirty(false); }
   void SetSplashRadius(float radius) { mSplashRadius = radius * mMaxSplashRadius; }
 
-  void Style(bool drawFrame, bool drawShadows, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec)
+  void Style(const IVStyle& style)
   {
-    mDrawFrame = drawFrame;
-    mDrawShadows = drawShadows;
-    mEmboss = emboss;
-    mRoundness = roundness;
-    mFrameThickness = frameThickness;
-    mShadowOffset = shadowOffset;
-    SetColors(spec);
+    mStyle = style;
+    mColors.Resize(kNumDefaultVColors); // TODO?
+    SetColors(style.colorSpec);
   }
   
   IRECT GetAdjustedHandleBounds(IRECT handleBounds)
   {
-    if(mDrawFrame)
-      handleBounds.Pad(- 0.5f * mFrameThickness);
+    if(mStyle.drawFrame)
+      handleBounds.Pad(- 0.5f * mStyle.frameThickness);
     
-    if (mDrawShadows && !mEmboss)
-      handleBounds.Alter(0, 0, -mShadowOffset, -mShadowOffset);
+    if (mStyle.drawShadows && !mStyle.emboss)
+      handleBounds.Alter(0, 0, -mStyle.shadowOffset, -mStyle.shadowOffset);
     
     return handleBounds;
   }
@@ -714,51 +700,63 @@ public:
   virtual void DrawTitle(IGraphics& g)
   {
     if(mTitleBounds.H())
-      g.DrawText(mTitleText, mTitleStr.Get(), mTitleBounds);
+      g.DrawText(mStyle.labelText, mTitleStr.Get(), mTitleBounds);
   }
   
   virtual void DrawValue(IGraphics& g)
   {
     //TODO: wrong
-    if(mDisplayParamValue)
+    if(mStyle.showValue)
     {
-//      WDL_String str;
-//      mControl->GetParam()->GetDisplayForHost(str);
-//      
-//      if (mShowParamLabel)
+      WDL_String str;
+      
+      const IParam* pParam = mControl->GetParam();
+      
+      if(pParam)
+      {
+        pParam->GetDisplayForHost(str);
+
+//      if (mStyle.mShowLabel)
 //      {
-//        str.Append(" ");
-//        str.Append(mControl->GetParam()->GetLabelForHost());
+        str.Append(" ");
+        str.Append(pParam->GetLabelForHost());
 //      }
-//      
-      g.DrawText(mValueText, mValueStr.Get(), mValueBounds);
+      }
+      
+      g.DrawText(mStyle.valueText, str.Get(), mValueBounds);
     }
   }
   
+  /** /todo
+   @param IGraphics&g /todo
+   @param bounds /todo
+   @param pressed /todo
+   @param mouseOver /todo
+   @return /todo */
   IRECT DrawVectorButton(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver)
   {
     g.FillRect(GetColor(kBG), bounds);
     
     IRECT handleBounds = GetAdjustedHandleBounds(bounds);
-    const float cornerRadius = mRoundness * (handleBounds.W() / 2.f);
+    const float cornerRadius = mStyle.roundness * (handleBounds.W() / 2.f);
     
     if (pressed)
     {
       g.FillRoundRect(GetColor(kPR), handleBounds, cornerRadius);
       
       //inner shadow
-      if (mDrawShadows && mEmboss)
+      if (mStyle.drawShadows && mStyle.emboss)
       {
-        g.PathRect(handleBounds.GetHSliced(mShadowOffset));
-        g.PathRect(handleBounds.GetVSliced(mShadowOffset));
+        g.PathRect(handleBounds.GetHSliced(mStyle.shadowOffset));
+        g.PathRect(handleBounds.GetVSliced(mStyle.shadowOffset));
         g.PathFill(GetColor(kSH));
       }
     }
     else
     {
       //outer shadow
-      if (mDrawShadows && !mEmboss)
-        g.FillRoundRect(GetColor(kSH), handleBounds.GetTranslated(mShadowOffset, mShadowOffset), cornerRadius);
+      if (mStyle.drawShadows && !mStyle.emboss)
+        g.FillRoundRect(GetColor(kSH), handleBounds.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset), cornerRadius);
       
       g.FillRoundRect(GetColor(kFG), handleBounds, cornerRadius);
     }
@@ -769,8 +767,73 @@ public:
     if(mControl->GetAnimationFunction())
       DrawSplash(g);
     
-    if(mDrawFrame)
-      g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius, 0, mFrameThickness);
+    if(mStyle.drawFrame)
+      g.DrawRoundRect(GetColor(kFR), handleBounds, cornerRadius, 0, mStyle.frameThickness);
+    
+    return handleBounds;
+  }
+  
+  /** Draw a triangle-shaped vector button
+   * @param g The IGraphics context used for drawing
+   * @param bounds Where to draw the button
+   * @param angle Angle of rotation in degrees
+   * @param pressed Whether to draw the button pressed or unpressed
+   * @param mouseOver Whether mouse is currently hovering on control */
+  IRECT DrawVectorTriangleButton(IGraphics&g, const IRECT& bounds, float angle, bool pressed, bool mouseOver)
+  {
+    g.FillRect(GetColor(kBG), bounds);
+    
+    float x1, x2, x3, y1, y2, y3;
+    
+    float theta = DegToRad(angle);
+    
+    IRECT handleBounds = GetAdjustedHandleBounds(bounds);
+    
+    // Center bounds around origin for rotation
+    float xT = handleBounds.L + handleBounds.W() * 0.5f;
+    float yT = handleBounds.T + handleBounds.H() * 0.5f;
+    IRECT centered = handleBounds.GetTranslated(-xT, -yT);
+    
+    // Do rotation and translate points back into view space
+    float c = cosf(theta);
+    float s = sinf(theta);
+    x1 = centered.L * c - centered.B * s + xT;
+    y1 = centered.L * s + centered.B * c + yT;
+    x2 = centered.MW() * c - centered.T * s + xT;
+    y2 = centered.MW() * s + centered.T * c + yT;
+    x3 = centered.R * c - centered.B * s + xT;
+    y3 = centered.R * s + centered.B * c + yT;
+    
+    if (pressed)
+    {
+      g.FillTriangle(GetColor(kPR), x1, y1, x2, y2, x3, y3);
+      
+      //inner shadow
+      if (mStyle.drawShadows && mStyle.emboss)
+      {
+        g.PathTriangle(x1 + mStyle.shadowOffset, y1, x2 + mStyle.shadowOffset, y2 + mStyle.shadowOffset, x3, y3);
+        g.PathFill(GetColor(kSH));
+      }
+    }
+    else
+    {
+      //outer shadow
+      if (mStyle.drawShadows && !mStyle.emboss)
+      {
+        g.FillTriangle(GetColor(kSH), x1 + mStyle.shadowOffset, y1 + mStyle.shadowOffset, x2 + mStyle.shadowOffset, y2 + mStyle.shadowOffset, x3 + mStyle.shadowOffset, y3 + mStyle.shadowOffset);
+      }
+      
+      g.FillTriangle(GetColor(kFG), x1, y1, x2, y2, x3, y3);
+    }
+    
+    if (mouseOver)
+      g.FillTriangle(GetColor(kHL), x1, y1, x2, y2, x3, y3);
+    
+    if (mControl->GetAnimationFunction())
+      DrawSplash(g);
+    
+    if (mStyle.drawFrame)
+      g.DrawTriangle(GetColor(kFR), x1, y1, x2, y2, x3, y3, 0, mStyle.frameThickness);
     
     return handleBounds;
   }
@@ -779,10 +842,10 @@ public:
   {
     IRECT clickableArea;
     
-    if(CStringHasContents(label))
+    if(mStyle.showLabel && CStringHasContents(label))
     {
       IRECT textRect;
-      mControl->GetUI()->MeasureText(mTitleText, label, textRect);
+      mControl->GetUI()->MeasureText(mStyle.labelText, label, textRect);
 
       mTitleBounds = parent.GetFromTop(textRect.H());
     }
@@ -794,7 +857,7 @@ public:
     else
       clickableArea = parent;
     
-    if (mDisplayParamValue)
+    if (mStyle.showValue)
     {
       IRECT textRect;
       WDL_String str;
@@ -804,11 +867,11 @@ public:
       if(pParam)
         pParam->GetDisplayForHost(str);
 
-      mControl->GetUI()->MeasureText(mValueText, str.Get(), textRect);
+      mControl->GetUI()->MeasureText(mStyle.valueText, str.Get(), textRect);
 
       const float valueDisplayWidth = clickableArea.W() * mHandleFrac * 0.5f;
       
-      switch (mValueText.mVAlign)
+      switch (mStyle.valueText.mVAlign)
       {
         case IText::kVAlignMiddle:
           mWidgetBounds = clickableArea;
@@ -832,13 +895,14 @@ public:
         mValueBounds = mValueBounds.GetMidHPadded(clickableArea.W()/2.f);
     }
     
-    mWidgetBounds = GetAdjustedHandleBounds(mControl->GetTargetRECT()).GetScaledAboutCentre(mHandleFrac);
+    mWidgetBounds = GetAdjustedHandleBounds(clickableArea).GetScaledAboutCentre(mHandleFrac);
     
-    if(valueInWidget)
-    {
-      mValueText = IText(15, IText::kVAlignMiddle);
-      mValueBounds = mWidgetBounds;
-    }
+//    if(valueInWidget)
+//    {
+//      // TODO:
+//      mStyle.mValueText = IText(15, IText::kVAlignMiddle);
+//      mValueBounds = mWidgetBounds;
+//    }
     
     return clickableArea;
   }
@@ -846,22 +910,13 @@ public:
 protected:
   IControl* mControl = nullptr;
   WDL_TypedBuf<IColor> mColors;
-  float mHandleFrac = 0.5f;
-  float mRoundness = 0.f;
-  float mShadowOffset = 3.f;
-  float mFrameThickness = 2.f;
-  bool mDrawFrame = true;
-  bool mDrawShadows = true;
-  bool mEmboss = false;
+  float mHandleFrac = 0.75f;
+  IVStyle mStyle;
   float mSplashRadius = 0.f;
   float mMaxSplashRadius = 50.f;
-  bool mDisplayParamValue = true;
-  bool mShowParamLabel = true;
   IRECT mWidgetBounds; // The knob/slider/button
   IRECT mTitleBounds; // A piece of text above the control
   IRECT mValueBounds; // Text below the contol, usually displaying the value of a parameter
-  IText mTitleText {DEFAULT_TEXT_SIZE + 5, IText::kVAlignTop};
-  IText mValueText {DEFAULT_TEXT_SIZE, IText::kVAlignBottom};
   WDL_String mTitleStr;
   WDL_String mValueStr;
 };
@@ -965,7 +1020,7 @@ public:
       DrawTrack(g, mTrackBounds.Get()[ch], ch);
     }
     
-    if(mDrawFrame)
+    if(mStyle.drawFrame)
       DrawFrame(g);
   }
   
@@ -973,7 +1028,7 @@ public:
 private:
   virtual void DrawFrame(IGraphics& g)
   {
-    g.DrawRect(GetColor(kFR), mRECT, nullptr, mFrameThickness);
+    g.DrawRect(GetColor(kFR), mRECT, nullptr, mStyle.frameThickness);
   }
   
   virtual void DrawTrack(IGraphics& g, IRECT& r, int chIdx)
@@ -982,7 +1037,7 @@ private:
     DrawTrackHandle(g, r, chIdx);
     
     if(mDrawTrackFrame)
-      g.DrawRect(GetColor(kFR), r, nullptr, mFrameThickness);
+      g.DrawRect(GetColor(kFR), r, nullptr, mStyle.frameThickness);
   }
   
   virtual void DrawTrackBG(IGraphics& g, IRECT& r, int chIdx)

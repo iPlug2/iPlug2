@@ -37,12 +37,24 @@ class IVButtonControl : public IButtonControlBase
 {
 public:
   IVButtonControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc,
-    const char* str = "", const IText& text = DEFAULT_TEXT, const IVColorSpec& colorSpec = DEFAULT_SPEC);
+    const char* str = "", const IText& text = DEFAULT_TEXT, const IVStyle& style = DEFAULT_STYLE);
 
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
   bool IsHit(float x, float y) const override;
   void OnResize() override;
+};
+
+/** A triangle-shaped vector button control. */
+class IVTriangleButtonControl : public IVButtonControl
+{
+public:
+  IVTriangleButtonControl(IRECT bounds, IActionFunction actionFunc = DefaultClickActionFunc, const char* label = "", const IText& text = DEFAULT_TEXT, float angle = 0.0f, const IVStyle& style = DEFAULT_STYLE);
+  
+  virtual void DrawWidget(IGraphics& g) override;
+  void SetAngle(float angle) { mAngle = angle; SetDirty(false); }
+private:
+  float mAngle;
 };
 
 /** A vector switch control. Click to cycle through states. */
@@ -51,10 +63,10 @@ class IVSwitchControl : public ISwitchControlBase
 {
 public:
   IVSwitchControl(IRECT bounds, int paramIdx = kNoParameter,
-                  const char* label = "", const IVColorSpec& colorSpec = DEFAULT_SPEC);
+                  const char* label = "", const IVStyle& style = DEFAULT_STYLE);
   
   IVSwitchControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc,
-                  const char* label = "", const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2);
+                  const char* label = "", const IVStyle& style = DEFAULT_STYLE, int numStates = 2);
   
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
@@ -69,7 +81,7 @@ class IVRadioButtonControl : public ISwitchControlBase
 {
 public:
   IVRadioButtonControl(IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = SplashClickActionFunc,
-                       const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2, EDirection dir = kVertical);
+                       const IVStyle& style = DEFAULT_STYLE, int numStates = 2, EDirection dir = kVertical);
 
   virtual ~IVRadioButtonControl() { mLabels.Empty(true); }
   void Draw(IGraphics& g) override;
@@ -90,13 +102,13 @@ class IVKnobControl : public IKnobControlBase
 public:
   IVKnobControl(IRECT bounds, int paramIdx,
                 const char* label = "",
-                const IVColorSpec& colorSpec = DEFAULT_SPEC,
+                const IVStyle& style = DEFAULT_STYLE,
                 float aMin = -135.f, float aMax = 135.f,
                 EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
 
   IVKnobControl(IRECT bounds, IActionFunction actionFunction,
                 const char* label = "",
-                const IVColorSpec& colorSpec = DEFAULT_SPEC,
+                const IVStyle& style = DEFAULT_STYLE,
                 float aMin = -135.f, float aMax = 135.f,
                 EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
 
@@ -155,12 +167,12 @@ class IVSliderControl : public ISliderControlBase
 public:
   IVSliderControl(IRECT bounds, int paramIdx = kNoParameter,
                   const char* label = "",
-                  const IVColorSpec& colorSpec = DEFAULT_SPEC,
+                  const IVStyle& style = DEFAULT_STYLE,
                   EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
   
   IVSliderControl(IRECT bounds, IActionFunction aF,
                   const char* label = "",
-                  const IVColorSpec& colorSpec = DEFAULT_SPEC,
+                  const IVStyle& style = DEFAULT_STYLE,
                   EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
 
   virtual ~IVSliderControl() {}
@@ -191,10 +203,10 @@ class IVXYPadControl : public IControl
 {
 public:
   IVXYPadControl(IRECT bounds, const std::initializer_list<int>& params,
-    const IVColorSpec& colorSpec = DEFAULT_SPEC,
+    const IVStyle& style = DEFAULT_STYLE,
     float handleRadius = 10.f)
     : IControl(bounds, params)
-    , IVectorBase(colorSpec)
+    , IVectorBase(style)
     , mHandleRadius(handleRadius)
   {
     AttachIControl(this, ""/*TODO*/);

@@ -428,82 +428,6 @@ const IColor DEFAULT_TEXT_FGCOLOR = COLOR_BLACK;
 const IColor DEFAULT_TEXTENTRY_BGCOLOR = COLOR_WHITE;
 const IColor DEFAULT_TEXTENTRY_FGCOLOR = COLOR_BLACK;
 
-/** Contains a set of colours used to theme IVControls */
-struct IVColorSpec
-{
-  IColor mColors[kNumDefaultVColors];
-  
-  void SetColors(const IColor BGColor = DEFAULT_BGCOLOR,
-                 const IColor FGColor = DEFAULT_FGCOLOR,
-                 const IColor PRColor = DEFAULT_PRCOLOR,
-                 const IColor FRColor = DEFAULT_FRCOLOR,
-                 const IColor HLColor = DEFAULT_HLCOLOR,
-                 const IColor SHColor = DEFAULT_SHCOLOR,
-                 const IColor X1Color = DEFAULT_X1COLOR,
-                 const IColor X2Color = DEFAULT_X2COLOR,
-                 const IColor X3Color = DEFAULT_X3COLOR)
-  {
-  }
-  
-  const IColor& GetColor(EVColor color) const
-  {
-    return mColors[(int) color];
-  }
-  
-  static const IColor& GetDefaultColor(EVColor idx)
-  {
-    switch(idx)
-    {
-      case kBG: return DEFAULT_BGCOLOR; // Background
-      case kFG: return DEFAULT_FGCOLOR; // Foreground
-      case kPR: return DEFAULT_PRCOLOR; // Pressed
-      case kFR: return DEFAULT_FRCOLOR; // Frame
-      case kHL: return DEFAULT_HLCOLOR; // Higlight
-      case kSH: return DEFAULT_SHCOLOR; // Shadow
-      case kX1: return DEFAULT_X1COLOR; // Extra 1
-      case kX2: return DEFAULT_X2COLOR; // Extra 2
-      case kX3: return DEFAULT_X3COLOR; // Extra 3
-      default:
-        return COLOR_TRANSPARENT;
-    };
-  }
-  
-  IVColorSpec()
-  {
-    mColors[kBG] = DEFAULT_BGCOLOR; // Background
-    mColors[kFG] = DEFAULT_FGCOLOR; // Foreground
-    mColors[kPR] = DEFAULT_PRCOLOR; // Pressed
-    mColors[kFR] = DEFAULT_FRCOLOR; // Frame
-    mColors[kHL] = DEFAULT_HLCOLOR; // Higlight
-    mColors[kSH] = DEFAULT_SHCOLOR; // Shadow
-    mColors[kX1] = DEFAULT_X1COLOR; // Extra 1
-    mColors[kX2] = DEFAULT_X2COLOR; // Extra 2
-    mColors[kX3] = DEFAULT_X3COLOR; // Extra 3
-  }
-  
-  IVColorSpec(const std::initializer_list<IColor>& colors)
-  {
-    assert(colors.size() < kNumDefaultVColors);
-    
-    int i = 0;
-    
-    for(auto& c : colors)
-    {
-      mColors[i++] = c;
-    }
-    
-    for(;i < kNumDefaultVColors; i++)
-    {
-      mColors[i] = GetDefaultColor((EVColor) i);
-    }
-  }
-
-  /** /todo  */
-  void ResetColors() { SetColors(); }
-};
-
-const IVColorSpec DEFAULT_SPEC = IVColorSpec();
-
 /** Used to manage composite/blend operations, independent of draw class/platform */
 struct IBlend
 {
@@ -972,7 +896,7 @@ struct IRECT
   {
     L = T = R = B = 0.f;
   }
-
+  
   bool operator==(const IRECT& rhs) const
   {
     return (L == rhs.L && T == rhs.T && R == rhs.R && B == rhs.B);
@@ -2346,7 +2270,7 @@ using ILayerPtr = std::unique_ptr<ILayer>;
 /** Used to specify a gaussian drop-shadow. */
 struct IShadow
 {
-  IShadow(){}
+  IShadow() {}
 
   /** /todo 
    * @param pattern /todo
@@ -2501,4 +2425,129 @@ private:
   WDL_PtrList<DataKey> mDatas;
 };
 
+/** Contains a set of colors used to theme IVControls */
+struct IVColorSpec
+{
+  IColor mColors[kNumDefaultVColors];
+  
+  void SetColors(const IColor BGColor = DEFAULT_BGCOLOR,
+                 const IColor FGColor = DEFAULT_FGCOLOR,
+                 const IColor PRColor = DEFAULT_PRCOLOR,
+                 const IColor FRColor = DEFAULT_FRCOLOR,
+                 const IColor HLColor = DEFAULT_HLCOLOR,
+                 const IColor SHColor = DEFAULT_SHCOLOR,
+                 const IColor X1Color = DEFAULT_X1COLOR,
+                 const IColor X2Color = DEFAULT_X2COLOR,
+                 const IColor X3Color = DEFAULT_X3COLOR)
+  {
+  }
+  
+  const IColor& GetColor(EVColor color) const
+  {
+    return mColors[(int) color];
+  }
+  
+  static const IColor& GetDefaultColor(EVColor idx)
+  {
+    switch(idx)
+    {
+      case kBG: return DEFAULT_BGCOLOR; // Background
+      case kFG: return DEFAULT_FGCOLOR; // Foreground
+      case kPR: return DEFAULT_PRCOLOR; // Pressed
+      case kFR: return DEFAULT_FRCOLOR; // Frame
+      case kHL: return DEFAULT_HLCOLOR; // Higlight
+      case kSH: return DEFAULT_SHCOLOR; // Shadow
+      case kX1: return DEFAULT_X1COLOR; // Extra 1
+      case kX2: return DEFAULT_X2COLOR; // Extra 2
+      case kX3: return DEFAULT_X3COLOR; // Extra 3
+      default:
+        return COLOR_TRANSPARENT;
+    };
+  }
+  
+  IVColorSpec()
+  {
+    mColors[kBG] = DEFAULT_BGCOLOR; // Background
+    mColors[kFG] = DEFAULT_FGCOLOR; // Foreground
+    mColors[kPR] = DEFAULT_PRCOLOR; // Pressed
+    mColors[kFR] = DEFAULT_FRCOLOR; // Frame
+    mColors[kHL] = DEFAULT_HLCOLOR; // Higlight
+    mColors[kSH] = DEFAULT_SHCOLOR; // Shadow
+    mColors[kX1] = DEFAULT_X1COLOR; // Extra 1
+    mColors[kX2] = DEFAULT_X2COLOR; // Extra 2
+    mColors[kX3] = DEFAULT_X3COLOR; // Extra 3
+  }
+  
+  IVColorSpec(const std::initializer_list<IColor>& colors)
+  {
+    assert(colors.size() < kNumDefaultVColors);
+    
+    int i = 0;
+    
+    for(auto& c : colors)
+    {
+      mColors[i++] = c;
+    }
+    
+    for(;i < kNumDefaultVColors; i++)
+    {
+      mColors[i] = GetDefaultColor((EVColor) i);
+    }
+  }
+  
+  /** /todo  */
+  void ResetColors() { SetColors(); }
+};
+
+const IVColorSpec DEFAULT_SPEC = IVColorSpec();
+
+
+static constexpr bool DEFAULT_SHOW_VALUE = true;
+static constexpr bool DEFAULT_SHOW_LABEL = true;
+static constexpr bool DEFAULT_DRAW_FRAME = true;
+static constexpr bool DEFAULT_DRAW_SHADOWS = true;
+static constexpr bool DEFAULT_EMBOSS = false;
+static constexpr float DEFAULT_ROUNDNESS = 0.f;
+static constexpr float DEFAULT_FRAME_THICKNESS = 2.f;
+static constexpr float DEFAULT_SHADOW_OFFSET = 3.f;
+const IText DEFAULT_LABEL_TEXT = {DEFAULT_TEXT_SIZE + 5, IText::kVAlignTop};
+const IText DEFAULT_VALUE_TEXT = {DEFAULT_TEXT_SIZE, IText::kVAlignBottom};
+
+struct IVStyle
+{
+  bool showLabel = DEFAULT_SHOW_LABEL;
+  bool showValue = DEFAULT_SHOW_VALUE;
+  bool drawFrame = DEFAULT_DRAW_FRAME;
+  bool drawShadows = DEFAULT_DRAW_SHADOWS;
+  bool emboss = DEFAULT_EMBOSS;
+  float roundness = DEFAULT_ROUNDNESS;
+  float frameThickness = DEFAULT_FRAME_THICKNESS;
+  float shadowOffset = DEFAULT_SHADOW_OFFSET;
+  IVColorSpec colorSpec = DEFAULT_SPEC;
+  IText labelText = DEFAULT_LABEL_TEXT;
+  IText valueText = DEFAULT_VALUE_TEXT;
+  
+  IVStyle(bool showLabel = DEFAULT_SHOW_LABEL,
+          bool showValue = DEFAULT_SHOW_VALUE,
+          const std::initializer_list<IColor>& colors = {},
+          bool drawFrame = DEFAULT_DRAW_FRAME,
+          bool drawShadows = DEFAULT_DRAW_SHADOWS,
+          bool emboss = DEFAULT_EMBOSS,
+          float roundness = DEFAULT_ROUNDNESS,
+          float frameThickness = DEFAULT_FRAME_THICKNESS,
+          float shadowOffset = DEFAULT_SHADOW_OFFSET)
+  : showLabel(showLabel)
+  , showValue(showValue)
+  , colorSpec(colors)
+  , drawFrame(drawFrame)
+  , drawShadows(drawShadows)
+  , emboss(emboss)
+  , roundness(drawShadows)
+  , frameThickness(frameThickness)
+  , shadowOffset(shadowOffset)
+  {
+  }
+};
+
+const IVStyle DEFAULT_STYLE = IVStyle();
 /**@}*/

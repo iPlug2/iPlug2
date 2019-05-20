@@ -25,9 +25,9 @@ const IColor IVKeyboardControl::DEFAULT_FR_COLOR = DEFAULT_BK_COLOR;
 
 IVButtonControl::IVButtonControl(IRECT bounds, IActionFunction actionFunc,
                                  const char* label,
-                                 const IText& text, const IVColorSpec& colorSpec)
+                                 const IText& text, const IVStyle& style)
 : IButtonControlBase(bounds, actionFunc)
-, IVectorBase(colorSpec)
+, IVectorBase(style)
 {
   AttachIControl(this, label);
   mDblAsSingleClick = true;
@@ -58,17 +58,29 @@ bool IVButtonControl::IsHit(float x, float y) const
   return mWidgetBounds.Contains(x, y);
 }
 
-IVSwitchControl::IVSwitchControl(IRECT bounds, int paramIdx, const char* label, const IVColorSpec& colorSpec)
+IVTriangleButtonControl::IVTriangleButtonControl(IRECT bounds, IActionFunction actionFunc,
+                                                 const char* label, const IText& text,
+                                                 float angle, const IVStyle& style)
+: IVButtonControl(bounds, actionFunc, label, text, style)
+, mAngle(angle)
+{};
+
+void IVTriangleButtonControl::DrawWidget(IGraphics& g)
+{
+  DrawVectorTriangleButton(g, mWidgetBounds, mAngle, (bool) GetValue(), mMouseIsOver);
+}
+
+IVSwitchControl::IVSwitchControl(IRECT bounds, int paramIdx, const char* label, const IVStyle& style)
   : ISwitchControlBase(bounds, paramIdx, SplashClickActionFunc)
-  , IVectorBase(colorSpec)
+  , IVectorBase(style)
 {
   AttachIControl(this, label);
   mDblAsSingleClick = true;
 }
 
-IVSwitchControl::IVSwitchControl(IRECT bounds, IActionFunction actionFunc, const char* label, const IVColorSpec& colorSpec, int numStates)
+IVSwitchControl::IVSwitchControl(IRECT bounds, IActionFunction actionFunc, const char* label, const IVStyle& style, int numStates)
 : ISwitchControlBase(bounds, kNoParameter, actionFunc, numStates)
-, IVectorBase(colorSpec)
+, IVectorBase(style)
 {
   AttachIControl(this, label);
   mDblAsSingleClick = true;
@@ -109,16 +121,16 @@ bool IVSwitchControl::IsHit(float x, float y) const
 }
 
 IVRadioButtonControl::IVRadioButtonControl(IRECT bounds, int paramIdx, IActionFunction actionFunc,
-  const IVColorSpec& colorSpec, int numStates, EDirection dir)
+  const IVStyle& style, int numStates, EDirection dir)
 : ISwitchControlBase(bounds, paramIdx, actionFunc, numStates)
-, IVectorBase(colorSpec)
+, IVectorBase(style)
 , mDirection(dir)
 {
   AttachIControl(this, "");//TODO
   mDblAsSingleClick = true;
   mText.mAlign = IText::kAlignNear;
   mText.mVAlign = IText::kVAlignMiddle;
-  mDrawShadows = false;
+  mStyle.drawShadows = false;
 
   if(GetParam())
   {
@@ -177,11 +189,11 @@ void IVRadioButtonControl::OnResize()
 
 IVKnobControl::IVKnobControl(IRECT bounds, int paramIdx,
                              const char* label,
-                             const IVColorSpec& colorSpec,
+                             const IVStyle& style,
                              float aMin, float aMax,
                              EDirection direction, double gearing)
 : IKnobControlBase(bounds, paramIdx, direction, gearing)
-, IVectorBase(colorSpec)
+, IVectorBase(style)
 , mAngleMin(aMin)
 , mAngleMax(aMax)
 {
@@ -193,11 +205,11 @@ IVKnobControl::IVKnobControl(IRECT bounds, int paramIdx,
 
 IVKnobControl::IVKnobControl(IRECT bounds, IActionFunction actionFunction,
                              const char* label,
-                             const IVColorSpec& colorSpec,
+                             const IVStyle& style,
                              float aMin, float aMax,
                              EDirection direction, double gearing)
 : IKnobControlBase(bounds, kNoParameter, direction, gearing)
-, IVectorBase(colorSpec)
+, IVectorBase(style)
 , mAngleMin(aMin)
 , mAngleMax(aMax)
 {
@@ -232,18 +244,18 @@ void IVKnobControl::DrawWidget(IGraphics& g)
     
     g.DrawArc(GetColor(kFR), cx, cy, radius + 5.f, mAngleMin, v, 0, 3.f);
     
-    if(mDrawShadows && !mEmboss)
-      g.FillCircle(GetColor(kSH), cx + mShadowOffset, cy + mShadowOffset, radius);
+    if(mStyle.drawShadows && !mStyle.emboss)
+      g.FillCircle(GetColor(kSH), cx + mStyle.shadowOffset, cy + mStyle.shadowOffset, radius);
     
     g.FillCircle(GetColor(kFG), cx, cy, radius);
     
-    g.DrawCircle(GetColor(kON), cx, cy, radius * 0.9f, 0, mFrameThickness);
+    g.DrawCircle(GetColor(kON), cx, cy, radius * 0.9f, 0, mStyle.frameThickness);
     
     if(mMouseIsOver)
       g.FillCircle(GetColor(kHL), cx, cy, radius * 0.8f);
     
-    g.DrawCircle(GetColor(kFR), cx, cy, radius, 0, mFrameThickness);
-    g.DrawRadialLine(GetColor(kFR), cx, cy, v, 0.7f * radius, 0.9f * radius, 0, mFrameThickness);
+    g.DrawCircle(GetColor(kFR), cx, cy, radius, 0, mStyle.frameThickness);
+    g.DrawRadialLine(GetColor(kFR), cx, cy, v, 0.7f * radius, 0.9f * radius, 0, mStyle.frameThickness);
   }
   else
   {
@@ -253,7 +265,7 @@ void IVKnobControl::DrawWidget(IGraphics& g)
 
 void IVKnobControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
-  if(mDisplayParamValue && mValueBounds.Contains(x, y))
+  if(mStyle.showValue && mValueBounds.Contains(x, y))
   {
     PromptUserInput(mValueBounds);
   }
@@ -274,10 +286,10 @@ bool IVKnobControl::IsHit(float x, float y) const
 
 IVSliderControl::IVSliderControl(IRECT bounds, int paramIdx,
                 const char* label,
-                const IVColorSpec& colorSpec,
+                const IVStyle& style,
                 EDirection dir, bool onlyHandle, float handleSize, float trackSize)
 : ISliderControlBase(bounds, paramIdx, dir, onlyHandle, handleSize)
-, IVectorBase(colorSpec)
+, IVectorBase(style)
 , mTrackSize(trackSize)
 {
   AttachIControl(this, label);
@@ -285,10 +297,10 @@ IVSliderControl::IVSliderControl(IRECT bounds, int paramIdx,
 
 IVSliderControl::IVSliderControl(IRECT bounds, IActionFunction aF,
                 const char* label,
-                const IVColorSpec& colorSpec,
+                const IVStyle& style,
                 EDirection dir, bool onlyHandle, float handleSize, float trackSize)
 : ISliderControlBase(bounds, aF, dir, onlyHandle, handleSize)
-, IVectorBase(colorSpec)
+, IVectorBase(style)
 , mTrackSize(trackSize)
 {
   AttachIControl(this, label);
@@ -328,16 +340,16 @@ void IVSliderControl::DrawWidget(IGraphics& g)
   }
   
   //Handle
-  if(mDrawShadows && !mEmboss)
-    g.FillCircle(GetColor(kSH), cx + mShadowOffset, cy + mShadowOffset, halfHandleSize);
+  if(mStyle.drawShadows && !mStyle.emboss)
+    g.FillCircle(GetColor(kSH), cx + mStyle.shadowOffset, cy + mStyle.shadowOffset, halfHandleSize);
   
   g.FillCircle(GetColor(kFG), cx, cy, halfHandleSize);
   
   if(GetMouseIsOver())
     g.FillCircle(GetColor(kHL), cx, cy, halfHandleSize);
   
-  g.DrawCircle(GetColor(kFR), cx, cy, halfHandleSize, 0, mFrameThickness);
-  g.DrawCircle(GetColor(kON), cx, cy, halfHandleSize * 0.7f, 0, mFrameThickness);
+  g.DrawCircle(GetColor(kFR), cx, cy, halfHandleSize, 0, mStyle.frameThickness);
+  g.DrawCircle(GetColor(kON), cx, cy, halfHandleSize * 0.7f, 0, mStyle.frameThickness);
 }
 
 void IVSliderControl::OnResize()
