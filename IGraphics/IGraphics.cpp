@@ -1455,7 +1455,7 @@ void IGraphics::StyleAllVectorControls(const IVStyle& style)
   {
     IVectorBase* pVB = dynamic_cast<IVectorBase*>(GetControl(c));
     if (pVB)
-      pVB->Style(style);
+      pVB->SetStyle(style);
   }
 }
 

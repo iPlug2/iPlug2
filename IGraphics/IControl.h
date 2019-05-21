@@ -569,7 +569,7 @@ public:
 
   IVectorBase(const IVStyle& style)
   {
-    Style(style);
+    SetStyle(style);
   }
   
   void AttachIControl(IControl* pControl, const char* label)
@@ -662,7 +662,7 @@ public:
   void SetFrameThickness(float thickness) { mStyle.frameThickness = thickness; mControl->SetDirty(false); }
   void SetSplashRadius(float radius) { mSplashRadius = radius * mMaxSplashRadius; }
 
-  void Style(const IVStyle& style)
+  void SetStyle(const IVStyle& style)
   {
     mStyle = style;
     mColors.Resize(kNumDefaultVColors); // TODO?
