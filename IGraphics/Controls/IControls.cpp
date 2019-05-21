@@ -29,6 +29,7 @@ IVButtonControl::IVButtonControl(IRECT bounds, IActionFunction actionFunc,
 : IButtonControlBase(bounds, actionFunc)
 , IVectorBase(style)
 {
+  mText = style.valueText;
   AttachIControl(this, label);
   mDblAsSingleClick = true;
 }
@@ -74,6 +75,7 @@ IVSwitchControl::IVSwitchControl(IRECT bounds, int paramIdx, const char* label, 
   , IVectorBase(style)
 {
   AttachIControl(this, label);
+  mText = style.valueText;
   mDblAsSingleClick = true;
 }
 
@@ -198,7 +200,7 @@ IVKnobControl::IVKnobControl(IRECT bounds, int paramIdx,
 , mAngleMax(aMax)
 {
   DisablePrompt(!valueIsEditable);
-  
+  mText = style.valueText;
   AttachIControl(this, label);
 }
 
@@ -214,7 +216,7 @@ IVKnobControl::IVKnobControl(IRECT bounds, IActionFunction actionFunction,
 , mAngleMax(aMax)
 {
   DisablePrompt(!valueIsEditable);
-
+  mText = style.valueText;
   SetActionFunction(actionFunction);
   AttachIControl(this, label);
 }
@@ -307,6 +309,7 @@ IVSliderControl::IVSliderControl(IRECT bounds, int paramIdx,
 , mTrackSize(trackSize)
 {
   DisablePrompt(!valueIsEditable);
+  mText = style.valueText;
   AttachIControl(this, label);
 }
 
@@ -320,6 +323,7 @@ IVSliderControl::IVSliderControl(IRECT bounds, IActionFunction aF,
 , mTrackSize(trackSize)
 {
   DisablePrompt(!valueIsEditable);
+  mText = style.valueText;
   AttachIControl(this, label);
 }
 
@@ -414,7 +418,7 @@ bool IVSliderControl::IsHit(float x, float y) const
 
 
 IVRangeSliderControl::IVRangeSliderControl(IRECT bounds, int paramIdxLo, int paramIdxHi)
-  :IVSliderControl(bounds)
+: IVSliderControl(bounds)
 {
   SetNVals(2);
   SetParamIdx(paramIdxLo, 0);
