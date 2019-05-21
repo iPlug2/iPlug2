@@ -567,8 +567,9 @@ public:
     AddColors(pBGColor, pFGColor, pPRColor, pFRColor, pHLColor, pSHColor, pX1Color, pX2Color, pX3Color);
   }
 
-  IVectorBase(const IVStyle& style, bool labelInWidget = false)
+  IVectorBase(const IVStyle& style, bool labelInWidget = false, bool valueInWidget = false)
   : mLabelInWidget(labelInWidget)
+  , mValueInWidget(valueInWidget)
   {
     SetStyle(style);
   }
@@ -833,7 +834,7 @@ public:
     return handleBounds;
   }
   
-  IRECT CalculateRects(const IRECT& parent, const char* label, const char* value = "", bool valueInWidget = false)
+  IRECT CalculateRects(const IRECT& parent, const char* label, const char* value = "")
   {
     IRECT clickableArea;
     
@@ -857,7 +858,7 @@ public:
     else
       clickableArea = parent;
     
-    if (mStyle.showValue)
+    if (mStyle.showValue && !mValueInWidget)
     {
       IRECT textRect;
       WDL_String str;
@@ -899,7 +900,10 @@ public:
     
     if(mLabelInWidget)
       mLabelBounds = mWidgetBounds;
-        
+    
+    if(mValueInWidget)
+      mValueBounds = mWidgetBounds;
+    
     return clickableArea;
   }
   
@@ -909,6 +913,7 @@ protected:
   float mHandleFrac = 0.75f;
   IVStyle mStyle;
   bool mLabelInWidget = false;
+  bool mValueInWidget = false;
   float mSplashRadius = 0.f;
   float mMaxSplashRadius = 50.f;
   IRECT mWidgetBounds; // The knob/slider/button

@@ -50,7 +50,7 @@ void IVButtonControl::DrawWidget(IGraphics& g)
 
 void IVButtonControl::OnResize()
 {
-  SetTargetRECT(CalculateRects(mRECT, mLabelStr.Get(), "", true));
+  SetTargetRECT(CalculateRects(mRECT, mLabelStr.Get(), ""));
   SetDirty(false);
 }
 
@@ -71,20 +71,29 @@ void IVTriangleButtonControl::DrawWidget(IGraphics& g)
   DrawVectorTriangleButton(g, mWidgetBounds, mAngle, (bool) GetValue(), mMouseIsOver);
 }
 
-IVSwitchControl::IVSwitchControl(IRECT bounds, int paramIdx, const char* label, const IVStyle& style)
+IVSwitchControl::IVSwitchControl(IRECT bounds, int paramIdx, const char* label, const IVStyle& style, bool valueInButton)
   : ISwitchControlBase(bounds, paramIdx, SplashClickActionFunc)
-  , IVectorBase(style)
+  , IVectorBase(style, false, valueInButton)
 {
   AttachIControl(this, label);
   mText = style.valueText;
+  
+  if(valueInButton)
+    mText.mVAlign = mStyle.valueText.mVAlign = IText::kVAlignMiddle;
+  
   mDblAsSingleClick = true;
 }
 
-IVSwitchControl::IVSwitchControl(IRECT bounds, IActionFunction actionFunc, const char* label, const IVStyle& style, int numStates)
+IVSwitchControl::IVSwitchControl(IRECT bounds, IActionFunction actionFunc, const char* label, const IVStyle& style, int numStates, bool valueInButton)
 : ISwitchControlBase(bounds, kNoParameter, actionFunc, numStates)
-, IVectorBase(style)
+, IVectorBase(style, false, valueInButton)
 {
   AttachIControl(this, label);
+  mText = style.valueText;
+  
+  if(valueInButton)
+    mText.mVAlign = mStyle.valueText.mVAlign = IText::kVAlignMiddle;
+
   mDblAsSingleClick = true;
 }
 
@@ -98,7 +107,7 @@ void IVSwitchControl::Draw(IGraphics& g)
 
 void IVSwitchControl::DrawWidget(IGraphics& g)
 {
-  DrawVectorButton(g, mWidgetBounds, (bool) GetValue(), mMouseIsOver);
+  DrawVectorButton(g, mWidgetBounds, mMouseDown, mMouseIsOver);
 }
 
 void IVSwitchControl::SetDirty(bool push, int valIdx)
@@ -113,7 +122,7 @@ void IVSwitchControl::SetDirty(bool push, int valIdx)
 
 void IVSwitchControl::OnResize()
 {
-  SetTargetRECT(CalculateRects(mRECT, mLabelStr.Get(), "", true));
+  SetTargetRECT(CalculateRects(mRECT, mLabelStr.Get(), ""));
   SetDirty(false);
 }
 

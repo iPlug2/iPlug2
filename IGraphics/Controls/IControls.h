@@ -36,8 +36,7 @@ class IVButtonControl : public IButtonControlBase
                       , public IVectorBase
 {
 public:
-  IVButtonControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc,
-    const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool labelInButton = true);
+  IVButtonControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool labelInButton = true);
 
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
@@ -62,11 +61,9 @@ class IVSwitchControl : public ISwitchControlBase
                       , public IVectorBase
 {
 public:
-  IVSwitchControl(IRECT bounds, int paramIdx = kNoParameter,
-                  const char* label = "", const IVStyle& style = DEFAULT_STYLE);
+  IVSwitchControl(IRECT bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueInButton = true);
   
-  IVSwitchControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc,
-                  const char* label = "", const IVStyle& style = DEFAULT_STYLE, int numStates = 2);
+  IVSwitchControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, int numStates = 2, bool valueInButton = true);
   
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
@@ -80,14 +77,9 @@ class IVRadioButtonControl : public ISwitchControlBase
                            , public IVectorBase
 {
 public:
-  IVRadioButtonControl(IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = SplashClickActionFunc,
-                       const char* label = "",
-                       const IVStyle& style = DEFAULT_STYLE, int numStates = 2, EDirection dir = kVertical);
+  IVRadioButtonControl(IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, int numStates = 2, EDirection dir = kVertical);
 
-  IVRadioButtonControl(IRECT bounds, IActionFunction actionFunc,
-                       const std::initializer_list<const char*>& options,
-                       const char* label = "",
-                       const IVStyle& style = DEFAULT_STYLE, EDirection dir = kVertical);
+  IVRadioButtonControl(IRECT bounds, IActionFunction actionFunc, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EDirection dir = kVertical);
   
   virtual ~IVRadioButtonControl() { mLabels.Empty(true); }
   void Draw(IGraphics& g) override;
