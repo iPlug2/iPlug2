@@ -2527,9 +2527,11 @@ struct IVStyle
   IText labelText = DEFAULT_LABEL_TEXT;
   IText valueText = DEFAULT_VALUE_TEXT;
   
-  IVStyle(bool showLabel = DEFAULT_SHOW_LABEL,
+  explicit IVStyle(bool showLabel = DEFAULT_SHOW_LABEL,
           bool showValue = DEFAULT_SHOW_VALUE,
           const std::initializer_list<IColor>& colors = {},
+          const IText& labelText = DEFAULT_LABEL_TEXT,
+          const IText& valueText = DEFAULT_VALUE_TEXT,
           bool drawFrame = DEFAULT_DRAW_FRAME,
           bool drawShadows = DEFAULT_DRAW_SHADOWS,
           bool emboss = DEFAULT_EMBOSS,
@@ -2539,12 +2541,19 @@ struct IVStyle
   : showLabel(showLabel)
   , showValue(showValue)
   , colorSpec(colors)
+  , labelText(labelText)
+  , valueText(valueText)
   , drawFrame(drawFrame)
   , drawShadows(drawShadows)
   , emboss(emboss)
   , roundness(roundness)
   , frameThickness(frameThickness)
   , shadowOffset(shadowOffset)
+  {
+  }
+  
+  explicit IVStyle(const std::initializer_list<IColor>& colors)
+  : colorSpec(colors)
   {
   }
 };
