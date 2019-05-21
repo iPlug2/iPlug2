@@ -25,9 +25,10 @@ const IColor IVKeyboardControl::DEFAULT_FR_COLOR = DEFAULT_BK_COLOR;
 
 IVButtonControl::IVButtonControl(IRECT bounds, IActionFunction actionFunc,
                                  const char* label,
-                                 const IVStyle& style)
+                                 const IVStyle& style,
+                                 bool labelInButton)
 : IButtonControlBase(bounds, actionFunc)
-, IVectorBase(style)
+, IVectorBase(style, labelInButton)
 {
   mText = style.valueText;
   AttachIControl(this, label);
@@ -122,16 +123,17 @@ bool IVSwitchControl::IsHit(float x, float y) const
 }
 
 IVRadioButtonControl::IVRadioButtonControl(IRECT bounds, int paramIdx, IActionFunction actionFunc,
-  const IVStyle& style, int numStates, EDirection dir)
+  const char* label, const IVStyle& style, int numStates, EDirection dir)
 : ISwitchControlBase(bounds, paramIdx, actionFunc, numStates)
 , IVectorBase(style)
 , mDirection(dir)
 {
-  AttachIControl(this, "");//TODO
+  AttachIControl(this, label);
   mDblAsSingleClick = true;
-  mText.mAlign = IText::kAlignNear;
-  mText.mVAlign = IText::kVAlignMiddle;
-  mStyle.drawShadows = false;
+  mText = style.valueText;
+  mText.mAlign = IText::kAlignNear; //TODO?
+  mText.mVAlign = IText::kVAlignMiddle; //TODO?
+  mStyle.drawShadows = false;  //TODO?
 
   if(GetParam())
   {
@@ -142,8 +144,28 @@ IVRadioButtonControl::IVRadioButtonControl(IRECT bounds, int paramIdx, IActionFu
   }
 }
 
+IVRadioButtonControl::IVRadioButtonControl(IRECT bounds, IActionFunction actionFunc,
+                                           const std::initializer_list<const char*>& options,
+                                           const char* label, const IVStyle& style, EDirection dir)
+: ISwitchControlBase(bounds, kNoParameter, actionFunc, options.size())
+, IVectorBase(style)
+, mDirection(dir)
+{
+  AttachIControl(this, label);
+  mDblAsSingleClick = true;
+  mText = style.valueText;
+  mText.mAlign = IText::kAlignNear; //TODO?
+  mText.mVAlign = IText::kVAlignMiddle; //TODO?
+  mStyle.drawShadows = false;  //TODO?
+  
+  for (auto& option : options) {
+    mLabels.Add(new WDL_String(option));
+  }
+}
+
 void IVRadioButtonControl::Draw(IGraphics& g)
 {
+  DrawTitle(g);
   DrawWidget(g);
 }
 
@@ -165,7 +187,6 @@ void IVRadioButtonControl::DrawWidget(IGraphics& g)
   }
 }
 
-
 //bool IVRadioButtonControl::IsHit(float x, float y) const
 //{
 //  bool hit = false;
@@ -180,12 +201,16 @@ void IVRadioButtonControl::DrawWidget(IGraphics& g)
 
 void IVRadioButtonControl::OnResize()
 {
+  SetTargetRECT(CalculateRects(mRECT, mLabelStr.Get()));
+  
   mButtons.Resize(0);
   
   for (int i = 0; i < mNumStates; i++)
   {
-    mButtons.Add(mRECT.SubRect(mDirection, mNumStates, i));
+    mButtons.Add(mWidgetBounds.SubRect(mDirection, mNumStates, i));
   }
+  
+  SetDirty(false);
 }
 
 IVKnobControl::IVKnobControl(IRECT bounds, int paramIdx,

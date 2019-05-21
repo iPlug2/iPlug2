@@ -2480,7 +2480,7 @@ struct IVColorSpec
   
   IVColorSpec(const std::initializer_list<IColor>& colors)
   {
-    assert(colors.size() < kNumDefaultVColors);
+    assert(colors.size() <= kNumDefaultVColors);
     
     int i = 0;
     

@@ -37,7 +37,7 @@ class IVButtonControl : public IButtonControlBase
 {
 public:
   IVButtonControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc,
-    const char* str = "", const IVStyle& style = DEFAULT_STYLE);
+    const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool labelInButton = true);
 
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
@@ -81,8 +81,14 @@ class IVRadioButtonControl : public ISwitchControlBase
 {
 public:
   IVRadioButtonControl(IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = SplashClickActionFunc,
+                       const char* label = "",
                        const IVStyle& style = DEFAULT_STYLE, int numStates = 2, EDirection dir = kVertical);
 
+  IVRadioButtonControl(IRECT bounds, IActionFunction actionFunc,
+                       const std::initializer_list<const char*>& options,
+                       const char* label = "",
+                       const IVStyle& style = DEFAULT_STYLE, EDirection dir = kVertical);
+  
   virtual ~IVRadioButtonControl() { mLabels.Empty(true); }
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;

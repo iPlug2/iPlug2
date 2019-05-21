@@ -567,7 +567,8 @@ public:
     AddColors(pBGColor, pFGColor, pPRColor, pFRColor, pHLColor, pSHColor, pX1Color, pX2Color, pX3Color);
   }
 
-  IVectorBase(const IVStyle& style)
+  IVectorBase(const IVStyle& style, bool labelInWidget = false)
+  : mLabelInWidget(labelInWidget)
   {
     SetStyle(style);
   }
@@ -836,18 +837,23 @@ public:
   {
     IRECT clickableArea;
     
-    if(mStyle.showLabel && CStringHasContents(label))
+    if(!mLabelInWidget)
     {
-      IRECT textRect;
-      mControl->GetUI()->MeasureText(mStyle.labelText, label, textRect);
+      if(mStyle.showLabel && CStringHasContents(label))
+      {
+        IRECT textRect;
+        mControl->GetUI()->MeasureText(mStyle.labelText, label, textRect);
 
-      mLabelBounds = parent.GetFromTop(textRect.H());
+        mLabelBounds = parent.GetFromTop(textRect.H());
+      }
+      else
+        mLabelBounds = IRECT();
+      
+      if(mLabelBounds.H())
+        clickableArea = parent.GetReducedFromTop(mLabelBounds.H());
+      else
+        clickableArea = parent;
     }
-    else
-      mLabelBounds = IRECT();
-    
-    if(mLabelBounds.H())
-      clickableArea = parent.GetReducedFromTop(mLabelBounds.H());
     else
       clickableArea = parent;
     
@@ -890,6 +896,9 @@ public:
     }
     
     mWidgetBounds = GetAdjustedHandleBounds(clickableArea).GetScaledAboutCentre(mHandleFrac);
+    
+    if(mLabelInWidget)
+      mLabelBounds = mWidgetBounds;
         
     return clickableArea;
   }
@@ -899,6 +908,7 @@ protected:
   WDL_TypedBuf<IColor> mColors;
   float mHandleFrac = 0.75f;
   IVStyle mStyle;
+  bool mLabelInWidget = false;
   float mSplashRadius = 0.f;
   float mMaxSplashRadius = 50.f;
   IRECT mWidgetBounds; // The knob/slider/button
