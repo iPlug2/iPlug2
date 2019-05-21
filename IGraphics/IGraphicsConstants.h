@@ -49,7 +49,7 @@ static const char* DEFAULT_PATH = "~/Desktop";
 #endif
 
 const char* const DEFAULT_FONT = "Roboto-Regular";
-const int DEFAULT_TEXT_SIZE = 14;
+const float DEFAULT_TEXT_SIZE = 14.f;
 const int FONT_LEN = 64;
 
 /** @enum EType Blend type

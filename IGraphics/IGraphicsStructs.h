@@ -546,7 +546,7 @@ struct IText
    * @param orientation /todo
    * @param TEBGColor /todo
    * @param TEFGColor /todo */
-  IText(float size = DEFAULT_TEXT_SIZE,
+  explicit IText(float size = DEFAULT_TEXT_SIZE,
         const IColor& color = DEFAULT_TEXT_FGCOLOR,
         const char* font = nullptr,
         EAlign align = kAlignCenter,
@@ -568,7 +568,7 @@ struct IText
   /** /todo 
     * @param size /todo
     * @param valign /todo */
-  IText(float size, EVAlign valign)
+  explicit IText(float size, EVAlign valign)
   : IText()
   {
     mSize = size;
@@ -578,7 +578,7 @@ struct IText
   /** /todo 
    * @param size /todo
    * @param align /todo */
-  IText(float size, EAlign align)
+  explicit IText(float size, EAlign align)
   : IText()
   {
     mSize = size;
@@ -2510,8 +2510,8 @@ static constexpr bool DEFAULT_EMBOSS = false;
 static constexpr float DEFAULT_ROUNDNESS = 0.f;
 static constexpr float DEFAULT_FRAME_THICKNESS = 2.f;
 static constexpr float DEFAULT_SHADOW_OFFSET = 3.f;
-const IText DEFAULT_LABEL_TEXT = {DEFAULT_TEXT_SIZE + 5, IText::kVAlignTop};
-const IText DEFAULT_VALUE_TEXT = {DEFAULT_TEXT_SIZE, IText::kVAlignBottom};
+const IText DEFAULT_LABEL_TEXT {DEFAULT_TEXT_SIZE + 5.f, IText::kVAlignTop};
+const IText DEFAULT_VALUE_TEXT {DEFAULT_TEXT_SIZE, IText::kVAlignBottom};
 
 struct IVStyle
 {
