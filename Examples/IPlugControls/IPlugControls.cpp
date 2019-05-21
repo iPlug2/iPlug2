@@ -133,7 +133,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     
     auto button1action = [](IControl* pCaller) {
       SplashClickActionFunc(pCaller);
-      int result = pCaller->GetUI()->ShowMessageBox("Message", "Title in Bold", kMB_YESNO);
+      int result = pCaller->GetUI()->ShowMessageBox("Message Title", "Message", kMB_YESNO);
       WDL_String str;
       str.SetFormatted(32, "%s pressed", kMessageResultStrs[result]);
 //      dynamic_cast<ITextControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagDialogResult))->SetStr(str.Get());
