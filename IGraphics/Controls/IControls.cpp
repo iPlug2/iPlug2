@@ -393,7 +393,7 @@ void IVSliderControl::OnMouseOver(float x, float y, const IMouseMod& mod)
 
 void IVSliderControl::OnResize()
 {
-  CalculateRects(mRECT, mLabelStr.Get());
+  SetTargetRECT(CalculateRects(mRECT, mLabelStr.Get()));
   
   if(mDirection == kVertical)
     mTrack = mWidgetBounds.GetPadded(-mHandleSize).GetMidHPadded(mTrackSize);
