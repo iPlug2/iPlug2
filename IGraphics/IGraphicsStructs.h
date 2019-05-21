@@ -2455,7 +2455,7 @@ struct IVColorSpec
       case kFG: return DEFAULT_FGCOLOR; // Foreground
       case kPR: return DEFAULT_PRCOLOR; // Pressed
       case kFR: return DEFAULT_FRCOLOR; // Frame
-      case kHL: return DEFAULT_HLCOLOR; // Higlight
+      case kHL: return DEFAULT_HLCOLOR; // Highlight
       case kSH: return DEFAULT_SHCOLOR; // Shadow
       case kX1: return DEFAULT_X1COLOR; // Extra 1
       case kX2: return DEFAULT_X2COLOR; // Extra 2
@@ -2471,7 +2471,7 @@ struct IVColorSpec
     mColors[kFG] = DEFAULT_FGCOLOR; // Foreground
     mColors[kPR] = DEFAULT_PRCOLOR; // Pressed
     mColors[kFR] = DEFAULT_FRCOLOR; // Frame
-    mColors[kHL] = DEFAULT_HLCOLOR; // Higlight
+    mColors[kHL] = DEFAULT_HLCOLOR; // Highlight
     mColors[kSH] = DEFAULT_SHCOLOR; // Shadow
     mColors[kX1] = DEFAULT_X1COLOR; // Extra 1
     mColors[kX2] = DEFAULT_X2COLOR; // Extra 2

@@ -122,7 +122,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
         DEFAULT_FGCOLOR, // Foreground
         DEFAULT_PRCOLOR, // Pressed
         DEFAULT_FRCOLOR, // Frame
-        DEFAULT_HLCOLOR, // Higlight
+        DEFAULT_HLCOLOR, // Highlight
         DEFAULT_SHCOLOR, // Shadow
         DEFAULT_X1COLOR, // Extra 1
         DEFAULT_X2COLOR, // Extra 2
