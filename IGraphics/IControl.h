@@ -869,16 +869,16 @@ public:
       {
         case IText::kVAlignMiddle:
           mWidgetBounds = clickableArea;
-          mValueBounds = clickableArea.GetMidVPadded(textRect.H()/2.f).GetMidHPadded(valueDisplayWidth);
+          mValueBounds = clickableArea.GetMidVPadded(textRect.H()/2.f).GetMidHPadded(valueDisplayWidth/2.);
           break;
         case IText::kVAlignBottom:
         {
-          mValueBounds = clickableArea.GetFromBottom(textRect.H()).GetMidHPadded(valueDisplayWidth);
+          mValueBounds = clickableArea.GetFromBottom(textRect.H()).GetMidHPadded(valueDisplayWidth/2.);
           mWidgetBounds = clickableArea.GetReducedFromBottom(textRect.H());
           break;
         }
         case IText::kVAlignTop:
-          mValueBounds = clickableArea.GetFromTop(textRect.H()).GetMidHPadded(valueDisplayWidth);
+          mValueBounds = clickableArea.GetFromTop(textRect.H()).GetMidHPadded(valueDisplayWidth/2.);
           mWidgetBounds = clickableArea.GetReducedFromTop(textRect.H());
           break;
         default:
