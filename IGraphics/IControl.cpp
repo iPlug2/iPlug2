@@ -395,6 +395,13 @@ void ITextControl::Draw(IGraphics& g)
     g.DrawText(mText, mStr.Get(), mRECT);
 }
 
+void ITextControl::SetBoundsBasedOnTextDimensions()
+{
+  IRECT r;
+  GetUI()->MeasureText(mText, mStr.Get(), r);
+  SetTargetAndDrawRECTs({mRECT.L, mRECT.T, mRECT.L + r.W(), mRECT.T + r.H()});
+}
+
 ICaptionControl::ICaptionControl(IRECT bounds, int paramIdx, const IText& text, bool showParamLabel)
 : ITextControl(bounds, "", text)
 , mShowParamLabel(showParamLabel)

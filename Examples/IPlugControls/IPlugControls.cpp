@@ -106,14 +106,17 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     const int nRows = 5;
     const int nCols = 5;
     
-    pGraphics->AttachControl(new ITextControl(b.GetGridCell(0, nRows, 1), "Bitmap Controls", bigLabel));
+    ITextControl* pLabel;
+    pGraphics->AttachControl(pLabel = new ITextControl(b.GetGridCell(0, nRows, 1), "Bitmap Controls", bigLabel));
+    pLabel->SetBoundsBasedOnTextDimensions();
     pGraphics->AttachControl(new IBKnobControl(b.GetGridCell(0, nRows, nCols).GetPadded(-5.), bitmap1, kGain));
     pGraphics->AttachControl(new IBKnobRotaterControl(b.GetGridCell(1, nRows, nCols).GetPadded(-5.), bitmap2, kGain));
     pGraphics->AttachControl(new IBSwitchControl(b.GetGridCell(2, nRows, nCols), bitmap1));
     pGraphics->AttachControl(new IBButtonControl(b.GetGridCell(3, nRows, nCols), bitmap1));
 
-    pGraphics->AttachControl(new ITextControl(b.GetGridCell(1, nRows, 1), "Vector Controls", bigLabel));
-    
+    pGraphics->AttachControl(pLabel = new ITextControl(b.GetGridCell(1, nRows, 1), "Vector Controls", bigLabel));
+    pLabel->SetBoundsBasedOnTextDimensions();
+
     const IVStyle style {
       true, // Show label
       true, // Show value
@@ -169,10 +172,14 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 //    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).GetGridCell(2, 4, 1), button3action, "Trigger open directory dialog"));
 //    pGraphics->AttachControl(new ITextControl(b.GetGridCell(9, nRows, nCols).GetGridCell(3, 4, 1), "Dialog result shown here...", DEFAULT_TEXT, COLOR_RED), kCtrlTagDialogResult);
 
-    pGraphics->AttachControl(new ITextControl(b.GetGridCell(2, nRows, 1), "Text Controls", bigLabel));
+    pGraphics->AttachControl(pLabel = new ITextControl(b.GetGridCell(2, nRows, 1), "Text Controls", bigLabel));
+    pLabel->SetBoundsBasedOnTextDimensions();
+    
     pGraphics->AttachControl(new ICaptionControl(b.GetGridCell(10, nRows, nCols).GetMidVPadded(20.), kGain, IText(50), false));
 
-    pGraphics->AttachControl(new ITextControl(b.GetGridCell(3, nRows, 1), "Misc Controls", bigLabel));
+    pGraphics->AttachControl(pLabel = new ITextControl(b.GetGridCell(3, nRows, 1), "Misc Controls", bigLabel));
+    pLabel->SetBoundsBasedOnTextDimensions();
+
     pGraphics->AttachControl(new FileBrowser(b.GetGridCell(15, nRows, nCols).Union(b.GetGridCell(16, nRows, nCols)).GetPadded(-25)));
     pGraphics->AttachControl(new IVKeyboardControl(b.GetGridCell(17, nRows, nCols).Union(b.GetGridCell(18, nRows, nCols)).GetPadded(-25), 36, 72));
 //    pGraphics->AttachControl(new IColorPickerControl(b.GetGridCell(12, nRows, nCols).GetCentredInside(150.)));

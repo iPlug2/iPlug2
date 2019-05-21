@@ -1354,6 +1354,8 @@ public:
   virtual void SetStrFmt(int maxlen, const char* fmt, ...);
   virtual void ClearStr() { SetStr(""); }
   
+  void SetBoundsBasedOnTextDimensions();
+  
 protected:
   WDL_String mStr;
   IColor mBGColor;
