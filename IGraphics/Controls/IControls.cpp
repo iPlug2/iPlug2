@@ -45,7 +45,7 @@ void IVButtonControl::Draw(IGraphics& g)
 
 void IVButtonControl::DrawWidget(IGraphics& g)
 {
-  DrawVectorButton(g, mWidgetBounds, (bool) GetValue(), mMouseIsOver);
+  DrawPressableRectangle(g, mWidgetBounds, (bool) GetValue(), mMouseIsOver);
 }
 
 void IVButtonControl::OnResize()
@@ -68,7 +68,7 @@ IVTriangleButtonControl::IVTriangleButtonControl(IRECT bounds, IActionFunction a
 
 void IVTriangleButtonControl::DrawWidget(IGraphics& g)
 {
-  DrawVectorTriangleButton(g, mWidgetBounds, mAngle, (bool) GetValue(), mMouseIsOver);
+  DrawPressableTriangle(g, mWidgetBounds, mAngle, (bool) GetValue(), mMouseIsOver);
 }
 
 IVSwitchControl::IVSwitchControl(IRECT bounds, int paramIdx, const char* label, const IVStyle& style, bool valueInButton)
@@ -107,7 +107,7 @@ void IVSwitchControl::Draw(IGraphics& g)
 
 void IVSwitchControl::DrawWidget(IGraphics& g)
 {
-  DrawVectorButton(g, mWidgetBounds, mMouseDown, mMouseIsOver);
+  DrawPressableRectangle(g, mWidgetBounds, mMouseDown, mMouseIsOver);
 }
 
 void IVSwitchControl::SetDirty(bool push, int valIdx)
@@ -132,10 +132,11 @@ bool IVSwitchControl::IsHit(float x, float y) const
 }
 
 IVRadioButtonControl::IVRadioButtonControl(IRECT bounds, int paramIdx, IActionFunction actionFunc,
-  const char* label, const IVStyle& style, int numStates, EDirection dir)
+  int numStates, const char* label, const IVStyle& style, IVShape shape, float buttonSize)
 : ISwitchControlBase(bounds, paramIdx, actionFunc, numStates)
 , IVectorBase(style)
-, mDirection(dir)
+, mShape(shape)
+, mButtonSize(buttonSize)
 {
   AttachIControl(this, label);
   mDblAsSingleClick = true;
@@ -155,17 +156,17 @@ IVRadioButtonControl::IVRadioButtonControl(IRECT bounds, int paramIdx, IActionFu
 
 IVRadioButtonControl::IVRadioButtonControl(IRECT bounds, IActionFunction actionFunc,
                                            const std::initializer_list<const char*>& options,
-                                           const char* label, const IVStyle& style, EDirection dir)
-: ISwitchControlBase(bounds, kNoParameter, actionFunc, options.size())
+                                           const char* label, const IVStyle& style, IVShape shape, float buttonSize)
+: ISwitchControlBase(bounds, kNoParameter, actionFunc, static_cast<int>(options.size()))
 , IVectorBase(style)
-, mDirection(dir)
+, mShape(shape)
+, mButtonSize(buttonSize)
 {
   AttachIControl(this, label);
   mDblAsSingleClick = true;
   mText = style.valueText;
-  mText.mAlign = IText::kAlignNear; //TODO?
-  mText.mVAlign = IText::kVAlignMiddle; //TODO?
-  mStyle.drawShadows = false;  //TODO?
+  mText.mAlign = mStyle.valueText.mAlign = IText::kAlignNear; //TODO?
+  mText.mVAlign = mStyle.valueText.mVAlign = IText::kVAlignMiddle; //TODO?
   
   for (auto& option : options) {
     mLabels.Add(new WDL_String(option));
@@ -178,6 +179,24 @@ void IVRadioButtonControl::Draw(IGraphics& g)
   DrawWidget(g);
 }
 
+void IVRadioButtonControl::DrawButton(IGraphics& g, const IRECT& r, bool pressed, bool mouseOver)
+{
+  switch (mShape)
+  {
+    case kVShapeCircle:
+      DrawPressableCircle(g, r.FracRectHorizontal(0.25f), 10.f, pressed, mouseOver);
+      break;
+    case kVShapeRectangle:
+      DrawPressableRectangle(g, r.FracRectHorizontal(0.25f).GetCentredInside(mButtonSize), pressed, mouseOver);
+      break;
+    case kVShapeTriangle:
+      DrawPressableTriangle(g, r.FracRectHorizontal(0.25f).GetCentredInside(mButtonSize), 90., pressed, mouseOver);
+      break;
+    default:
+      break;
+  }
+}
+
 void IVRadioButtonControl::DrawWidget(IGraphics& g)
 {
   int hit = int(0.5 + GetValue() * (double) (mNumStates - 1));
@@ -185,7 +204,8 @@ void IVRadioButtonControl::DrawWidget(IGraphics& g)
   for (int i = 0; i < mNumStates; i++)
   {
     IRECT r = mButtons.Get()[i];
-    DrawVectorButton(g, r.FracRectHorizontal(0.25f).GetCentredInside(10.f), i == hit , mMouseIsOver);
+    
+    DrawButton(g, r, i == hit, mMouseOverButton == i);
     
     if (mLabels.Get(i))
     {
@@ -196,17 +216,54 @@ void IVRadioButtonControl::DrawWidget(IGraphics& g)
   }
 }
 
-//bool IVRadioButtonControl::IsHit(float x, float y) const
-//{
-//  bool hit = false;
-//  
-//  for (int i = 0; i < mNumStates; i++)
-//  {
-//    hit |= mButtons.Get()[i].Contains(x, y);
-//  }
-//  
-//  return hit;
-//}
+bool IVRadioButtonControl::IsHit(float x, float y) const
+{
+  bool hit = false;
+  
+  for (int i = 0; i < mNumStates; i++)
+  {
+    hit |= mButtons.Get()[i].FracRectHorizontal(0.25f).Contains(x, y);
+  }
+  
+  return hit;
+}
+
+void IVRadioButtonControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  int hit = -1;
+  
+  for (int i = 0; i < mNumStates; i++)
+  {
+    if(mButtons.Get()[i].FracRectHorizontal(0.25f).Contains(x, y))
+    {
+      hit = i;
+      break;
+    }
+  }
+  
+  if(hit > -1)
+    SetValue(((double) hit * (1./(double) (mNumStates-1))));
+  
+  SetDirty(true);
+}
+
+void IVRadioButtonControl::OnMouseOver(float x, float y, const IMouseMod& mod)
+{
+  mMouseOverButton = -1;
+  
+  for (int i = 0; i < mNumStates; i++)
+  {
+    if(mButtons.Get()[i].FracRectHorizontal(0.25f).Contains(x, y))
+    {
+      mMouseOverButton = i;
+      break;
+    }
+  }
+  
+  ISwitchControlBase::OnMouseOver(x, y, mod);
+  
+  SetDirty(false);
+}
 
 void IVRadioButtonControl::OnResize()
 {
@@ -216,7 +273,7 @@ void IVRadioButtonControl::OnResize()
   
   for (int i = 0; i < mNumStates; i++)
   {
-    mButtons.Add(mWidgetBounds.SubRect(mDirection, mNumStates, i));
+    mButtons.Add(mWidgetBounds.SubRect(kVertical /*TODO: optional direction*/, mNumStates, i));
   }
   
   SetDirty(false);
@@ -266,10 +323,11 @@ void IVKnobControl::Draw(IGraphics& g)
 void IVKnobControl::DrawWidget(IGraphics& g)
 {
   float radius;
+  
   if(mWidgetBounds.W() > mWidgetBounds.H())
-    radius = (mWidgetBounds.H()/2.f);
+    radius = (mWidgetBounds.H()/2.5f);
   else
-    radius = (mWidgetBounds.W()/2.f);
+    radius = (mWidgetBounds.W()/2.5f);
   
   const float cx = mWidgetBounds.MW(), cy = mWidgetBounds.MH();
   
@@ -279,17 +337,8 @@ void IVKnobControl::DrawWidget(IGraphics& g)
     
     g.DrawArc(GetColor(kFR), cx, cy, radius + 5.f, mAngleMin, v, 0, 3.f);
     
-    if(mStyle.drawShadows && !mStyle.emboss)
-      g.FillCircle(GetColor(kSH), cx + mStyle.shadowOffset, cy + mStyle.shadowOffset, radius);
+    DrawPressableCircle(g, mWidgetBounds, radius, false, mMouseIsOver & !mValueMouseOver);
     
-    g.FillCircle(GetColor(kFG), cx, cy, radius);
-    
-    g.DrawCircle(GetColor(kON), cx, cy, radius * 0.9f, 0, mStyle.frameThickness);
-    
-    if(mMouseIsOver && !mValueMouseOver)
-      g.FillCircle(GetColor(kHL), cx, cy, radius * 0.8f);
-    
-    g.DrawCircle(GetColor(kFR), cx, cy, radius, 0, mStyle.frameThickness);
     g.DrawRadialLine(GetColor(kFR), cx, cy, v, 0.7f * radius, 0.9f * radius, 0, mStyle.frameThickness);
   }
   else

@@ -723,13 +723,30 @@ public:
     }
   }
   
+  void DrawPressableCircle(IGraphics&g, const IRECT& bounds, float radius, bool pressed, bool mouseOver)
+  {
+    const float cx = bounds.MW(), cy = bounds.MH();
+
+    if(!pressed && mStyle.drawShadows && !mStyle.emboss)
+      g.FillCircle(GetColor(kSH), cx + mStyle.shadowOffset, cy + mStyle.shadowOffset, radius);
+    
+    g.FillCircle(GetColor(kFG), cx, cy, radius);
+    
+    g.DrawCircle(GetColor(kON), cx, cy, radius * 0.9f, 0, mStyle.frameThickness);
+    
+    if(mouseOver)
+      g.FillCircle(GetColor(kHL), cx, cy, radius * 0.8f);
+    
+    g.DrawCircle(GetColor(kFR), cx, cy, radius, 0, mStyle.frameThickness);
+  }
+  
   /** /todo
    @param IGraphics&g /todo
    @param bounds /todo
    @param pressed /todo
    @param mouseOver /todo
    @return /todo */
-  IRECT DrawVectorButton(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver)
+  IRECT DrawPressableRectangle(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver)
   {
     g.FillRect(GetColor(kBG), bounds);
     
@@ -775,7 +792,7 @@ public:
    * @param angle Angle of rotation in degrees
    * @param pressed Whether to draw the button pressed or unpressed
    * @param mouseOver Whether mouse is currently hovering on control */
-  IRECT DrawVectorTriangleButton(IGraphics&g, const IRECT& bounds, float angle, bool pressed, bool mouseOver)
+  IRECT DrawPressableTriangle(IGraphics&g, const IRECT& bounds, float angle, bool pressed, bool mouseOver)
   {
     g.FillRect(GetColor(kBG), bounds);
     
@@ -870,33 +887,30 @@ public:
 
       mControl->GetUI()->MeasureText(mStyle.valueText, str.Get(), textRect);
 
-      const float valueDisplayWidth = clickableArea.W() * mHandleFrac * 0.5f;
-      
+      const float valueDisplayWidth = textRect.W() * 0.5f;
+
       switch (mStyle.valueText.mVAlign)
       {
         case IText::kVAlignMiddle:
           mWidgetBounds = clickableArea;
-          mValueBounds = clickableArea.GetMidVPadded(textRect.H()/2.f).GetMidHPadded(valueDisplayWidth/2.);
+          mValueBounds = clickableArea.GetMidVPadded(textRect.H()/2.f).GetMidHPadded(valueDisplayWidth);
           break;
         case IText::kVAlignBottom:
         {
-          mValueBounds = clickableArea.GetFromBottom(textRect.H()).GetMidHPadded(valueDisplayWidth/2.);
+          mValueBounds = clickableArea.GetFromBottom(textRect.H()).GetMidHPadded(valueDisplayWidth);
           mWidgetBounds = clickableArea.GetReducedFromBottom(textRect.H());
           break;
         }
         case IText::kVAlignTop:
-          mValueBounds = clickableArea.GetFromTop(textRect.H()).GetMidHPadded(valueDisplayWidth/2.);
+          mValueBounds = clickableArea.GetFromTop(textRect.H()).GetMidHPadded(valueDisplayWidth);
           mWidgetBounds = clickableArea.GetReducedFromTop(textRect.H());
           break;
         default:
           break;
       }
-      
-      if(mValueBounds.W() < textRect.W())
-        mValueBounds = mValueBounds.GetMidHPadded(clickableArea.W()/2.f);
     }
     
-    mWidgetBounds = GetAdjustedHandleBounds(clickableArea).GetScaledAboutCentre(mHandleFrac);
+    mWidgetBounds = GetAdjustedHandleBounds(clickableArea).GetScaledAboutCentre(mWidgetFrac);
     
     if(mLabelInWidget)
       mLabelBounds = mWidgetBounds;
@@ -910,7 +924,7 @@ public:
 protected:
   IControl* mControl = nullptr;
   WDL_TypedBuf<IColor> mColors;
-  float mHandleFrac = 0.75f;
+  float mWidgetFrac = 0.8f;
   IVStyle mStyle;
   bool mLabelInWidget = false;
   bool mValueInWidget = false;

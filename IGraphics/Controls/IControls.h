@@ -77,18 +77,26 @@ class IVRadioButtonControl : public ISwitchControlBase
                            , public IVectorBase
 {
 public:
-  IVRadioButtonControl(IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, int numStates = 2, EDirection dir = kVertical);
+  IVRadioButtonControl(IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = SplashClickActionFunc, int numStates = 2, const char* label = "", const IVStyle& style = DEFAULT_STYLE, IVShape shape = kVShapeCircle, float buttonSize = 10.f);
 
-  IVRadioButtonControl(IRECT bounds, IActionFunction actionFunc, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EDirection dir = kVertical);
+  IVRadioButtonControl(IRECT bounds, IActionFunction actionFunc, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, IVShape shape = kVShapeCircle, float buttonSize = 10.f);
   
   virtual ~IVRadioButtonControl() { mLabels.Empty(true); }
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
+  virtual void DrawButton(IGraphics& g, const IRECT& bounds, bool pressed, bool mouseOver);
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOut() override { mMouseOverButton = -1; }
   void OnResize() override;
-//  virtual bool IsHit(float x, float y) const override;
+  virtual bool IsHit(float x, float y) const override;
 
+  void SetShape(IVShape shape) { mShape = shape; SetDirty(false); }
+  
 protected:
-  EDirection mDirection;
+  int mMouseOverButton = -1;
+  IVShape mShape;
+  float mButtonSize;
   WDL_TypedBuf<IRECT> mButtons;
   WDL_PtrList<WDL_String> mLabels;
 };

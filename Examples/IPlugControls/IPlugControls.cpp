@@ -144,9 +144,14 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     
     pGraphics->AttachControl(new IVKnobControl(b.GetGridCell(5, nRows, nCols).GetCentredInside(110.), kGain, "IVKnobControl", style, true));
     pGraphics->AttachControl(new IVSliderControl(b.GetGridCell(6, nRows, nCols).GetCentredInside(110.), kGain, "IVSliderControl", style, true));
-    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).GetCentredInside(110.), button1action, "IVButtonControl", style, false));
+    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).FracRectVertical(0.5, true), button1action, "IVButtonControl", style, false));
+    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).FracRectVertical(0.5), button1action, "IVButtonControl", style, true));
     pGraphics->AttachControl(new IVSwitchControl(b.GetGridCell(7, nRows, nCols).GetCentredInside(110.), kMode, "IVSwitchControl", style));
-    pGraphics->AttachControl(new IVRadioButtonControl(b.GetGridCell(8, nRows, nCols).GetCentredInside(110.), SplashClickActionFunc, {"One", "Two", "Three"}, "IVRadioButtonControl", style));
+    pGraphics->AttachControl(new IVRadioButtonControl(b.GetGridCell(8, nRows, nCols).GetCentredInside(110.), [](IControl* pCaller)
+    {
+//      dynamic_cast<IVRadioButtonControl*>(pCaller)->SetShape(static_cast<IVShape>(1.f/pCaller->GetValue()));
+      SplashClickActionFunc(pCaller);
+    }, {"Circle", "Rectangle", "Triangle"}, "IVRadioButtonControl", style, kVShapeCircle, 20.f));
 
     //    pGraphics->AttachControl(new IVMeterControl<2>(*this, nextCell()), kControlTagMeter);
     //    pGraphics->AttachControl(new IVScopeControl<>(*this, nextCell()), kControlTagScope);

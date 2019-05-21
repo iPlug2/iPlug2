@@ -2425,6 +2425,14 @@ private:
   WDL_PtrList<DataKey> mDatas;
 };
 
+enum IVShape
+{
+  kVShapeCircle = 0,
+  kVShapeRectangle,
+  kVShapeTriangle,
+  kNumVShapes
+};
+
 /** Contains a set of colors used to theme IVControls */
 struct IVColorSpec
 {
