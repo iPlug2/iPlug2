@@ -708,7 +708,6 @@ public:
     if(mouseOver)
       g.FillRect(COLOR_TRANSLUCENT, mValueBounds);
     
-    //TODO: wrong
     if(mStyle.showValue)
     {
       WDL_String str;
@@ -716,15 +715,7 @@ public:
       const IParam* pParam = mControl->GetParam();
       
       if(pParam)
-      {
-        pParam->GetDisplayForHost(str);
-
-//      if (mStyle.mShowLabel)
-//      {
-        str.Append(" ");
-        str.Append(pParam->GetLabelForHost());
-//      }
-      }
+        pParam->GetDisplayForHostWithLabel(str);
       
       g.DrawText(mStyle.valueText, str.Get(), mValueBounds);
     }
@@ -868,7 +859,7 @@ public:
       const IParam* pParam = mControl->GetParam();
       
       if(pParam)
-        pParam->GetDisplayForHost(str);
+        pParam->GetDisplayForHostWithLabel(str);
 
       mControl->GetUI()->MeasureText(mStyle.valueText, str.Get(), textRect);
 
