@@ -526,19 +526,21 @@ bool IVSliderControl::IsHit(float x, float y) const
 }
 
 
-IVRangeSliderControl::IVRangeSliderControl(IRECT bounds, int paramIdxLo, int paramIdxHi)
-: IVSliderControl(bounds)
+IVRangeSliderControl::IVRangeSliderControl(IRECT bounds, int paramIdxLo, int paramIdxHi,
+                                           const char* label,
+                                           const IVStyle& style,
+//                                           bool valueIsEditable = false,
+                                           EDirection dir, bool onlyHandle, float handleSize, float trackSize)
+: IVSliderControl(bounds, paramIdxLo, label, style, false, dir, onlyHandle, handleSize, trackSize)
 {
   SetNVals(2);
   SetParamIdx(paramIdxLo, 0);
   SetParamIdx(paramIdxHi, 1);
-
-  mTrackSize = bounds.W();
 }
 
-void IVRangeSliderControl::Draw(IGraphics & g)
+void IVRangeSliderControl::DrawWidget(IGraphics & g)
 {
-  g.FillRect(GetColor(kBG), mRECT);
+  g.FillRect(GetColor(kBG), mWidgetBounds);
 
   //const float halfHandleSize = mHandleSize / 2.f;
 
@@ -586,12 +588,46 @@ void IVRangeSliderControl::Draw(IGraphics & g)
 
 void IVRangeSliderControl::OnMouseDown(float x, float y, const IMouseMod & mod)
 {
-  SnapToMouse(x, y, mDirection, mTrack);
+  if(mDirection == kVertical)
+    mMouseDownVal = 1.f - (y-mRECT.T) / mRECT.H();
+  else
+    mMouseDownVal = (x-mRECT.L) / mRECT.W();
 }
 
 void IVRangeSliderControl::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod & mod)
 {
   SnapToMouse(x, y, mDirection, mTrack);
+}
+
+void IVRangeSliderControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, int valIdx, float scalar /* TODO: scalar! */)
+{
+  bounds.Constrain(x, y);
+  
+  double newVal;
+  
+  if(direction == kVertical)
+    newVal = 1.f - (y-bounds.T) / bounds.H();
+  else
+    newVal = (x-bounds.L) / bounds.W();
+  
+  double* pHighVal;
+  double* pLowVal;
+  
+  if(mMouseDownVal > newVal)
+  {
+    pHighVal = &mMouseDownVal;
+    pLowVal = &newVal;
+  }
+  else
+  {
+    pHighVal = &newVal;
+    pLowVal = &mMouseDownVal;
+  }
+  
+  SetValue(std::round(*pHighVal / 0.001 ) * 0.001, 0);
+  SetValue(std::round(*pLowVal / 0.001 ) * 0.001, 1);
+
+  SetDirty(true, valIdx);
 }
 
 IVXYPadControl::IVXYPadControl(IRECT bounds, const std::initializer_list<int>& params,

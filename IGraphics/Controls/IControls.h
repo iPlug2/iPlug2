@@ -208,14 +208,20 @@ protected:
 class IVRangeSliderControl : public IVSliderControl
 {
 public:
-  IVRangeSliderControl(IRECT bounds, int paramIdxLo, int paramIdxHi);
+  IVRangeSliderControl(IRECT bounds, int paramIdxLo = kNoParameter, int paramIdxHi = kNoParameter,
+                       const char* label = "",
+                       const IVStyle& style = DEFAULT_STYLE,
+//                       bool valueIsEditable = false,
+                       EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
 
-  void Draw(IGraphics& g) override;
+  void DrawWidget(IGraphics& g) override;
+  void DrawValue(IGraphics& g, bool mouseover) override {};
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
+  void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, int valIdx = -1, float scalar = 1.) override;
 
 protected:
-  float mMouseDownVal = 0.f;
+  double mMouseDownVal = 0.f;
 };
 
 
