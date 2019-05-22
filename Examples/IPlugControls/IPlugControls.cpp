@@ -72,6 +72,8 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 {
   GetParam(kGain)->InitDouble("Gain", 100., 0., 100.0, 0.01, "%");
   GetParam(kMode)->InitEnum("Mode", 0, 4, "", IParam::kFlagsNone, "", "one", "two", "three", "four");
+  GetParam(kX)->InitDouble("X", 50., 0., 100.0, 0.01, "%");
+  GetParam(kY)->InitDouble("Y", 50., 0., 100.0, 0.01, "%");
 
 #if IPLUG_EDITOR // All UI methods and member variables should be within an IPLUG_EDITOR guard, should you want distributed UI
   mMakeGraphicsFunc = [&]() {
@@ -90,7 +92,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachCornerResizer(kUIResizerScale, true);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->EnableTooltips(true);
-    pGraphics->AttachTextEntryControl();
+//    pGraphics->AttachTextEntryControl();
     
     IRECT b = pGraphics->GetBounds().GetPadded(-5);
     
@@ -104,18 +106,25 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 
     
     const int nRows = 5;
-    const int nCols = 5;
+    const int nCols = 8;
     
-    ITextControl* pLabel;
-    pGraphics->AttachControl(pLabel = new ITextControl(b.GetGridCell(0, nRows, 1), "Bitmap Controls", bigLabel));
-    pLabel->SetBoundsBasedOnTextDimensions();
-    pGraphics->AttachControl(new IBKnobControl(b.GetGridCell(0, nRows, nCols).GetPadded(-5.), bitmap1, kGain));
-    pGraphics->AttachControl(new IBKnobRotaterControl(b.GetGridCell(1, nRows, nCols).GetPadded(-5.), bitmap2, kGain));
-    pGraphics->AttachControl(new IBSwitchControl(b.GetGridCell(2, nRows, nCols), bitmap1));
-    pGraphics->AttachControl(new IBButtonControl(b.GetGridCell(3, nRows, nCols), bitmap1));
+    int cellIdx = 0;
+    
+    auto nextCell = [&](){
+      return b.GetGridCell(cellIdx++, nRows, nCols).GetPadded(-5.);
+    };
+    
+    
+//    ITextControl* pLabel;
+//    pGraphics->AttachControl(pLabel = new ITextControl(b.GetGridCell(0, nRows, 1), "Bitmap Controls", bigLabel));
+//    pLabel->SetBoundsBasedOnTextDimensions();
+    pGraphics->AttachControl(new IBKnobControl(nextCell().GetPadded(-5.), bitmap1, kGain));
+    pGraphics->AttachControl(new IBKnobRotaterControl(nextCell().GetPadded(-5.), bitmap2, kGain));
+    pGraphics->AttachControl(new IBSwitchControl(nextCell(), bitmap1));
+    pGraphics->AttachControl(new IBButtonControl(nextCell(), bitmap1));
 
-    pGraphics->AttachControl(pLabel = new ITextControl(b.GetGridCell(1, nRows, 1), "Vector Controls", bigLabel));
-    pLabel->SetBoundsBasedOnTextDimensions();
+//    pGraphics->AttachControl(pLabel = new ITextControl(b.GetGridCell(1, nRows, 1), "Vector Controls", bigLabel));
+//    pLabel->SetBoundsBasedOnTextDimensions();
 
     const IVStyle style {
       true, // Show label
@@ -136,20 +145,20 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     
     auto button1action = [](IControl* pCaller) {
       SplashClickActionFunc(pCaller);
-      int result = pCaller->GetUI()->ShowMessageBox("Message Title", "Message", kMB_YESNO);
+      int result = pCaller->GetUI()->ShowMessageBox("Message Title", "Message", kMB_YESNO, [](EMsgBoxResult result)
+                                                    {
+                                                      
+                                                    });
       WDL_String str;
       str.SetFormatted(32, "%s pressed", kMessageResultStrs[result]);
 //      dynamic_cast<ITextControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagDialogResult))->SetStr(str.Get());
     };
     
-    int cellIdx = 5;
-    
-    auto nextCell = [&](){
-      return b.GetGridCell(cellIdx++, nRows, nCols).GetPadded(-5.);
-    };
-    
     pGraphics->AttachControl(new IVKnobControl(nextCell().GetCentredInside(110.), kGain, "IVKnobControl", style, true));
     pGraphics->AttachControl(new IVSliderControl(nextCell().GetCentredInside(110.), kGain, "IVSliderControl", style, true));
+    pGraphics->AttachControl(new IVSliderControl(nextCell().GetCentredInside(110.), kGain, "IVSliderControl", style, true, kHorizontal));
+    pGraphics->AttachControl(new IVRangeSliderControl(nextCell().GetCentredInside(110.), kX, kY, "IVRangeSliderControl", style, kVertical, 2.f, 10.f, 50.f));
+    
     pGraphics->AttachControl(new IVButtonControl(nextCell().FracRectVertical(0.5, true), button1action, "IVButtonControl", style, false));
     pGraphics->AttachControl(new IVButtonControl(nextCell().FracRectVertical(0.5), button1action, "IVButtonControl", style, true));
     pGraphics->AttachControl(new IVSwitchControl(nextCell().GetCentredInside(110.), kMode, "IVSwitchControl", style));
