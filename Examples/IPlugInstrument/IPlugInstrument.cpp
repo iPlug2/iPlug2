@@ -126,6 +126,14 @@ void IPlugInstrument::OnIdle()
   mMeterBallistics.TransmitData(*this);
 }
 
+bool IPlugInstrument::OnKeyDown(const IKeyPress& key) {
+  return GetUI()->OnKeyDown(0, 0, key);
+}
+
+bool IPlugInstrument::OnKeyUp(const IKeyPress& key) {
+  return GetUI()->OnKeyUp(0, 0, key);
+}
+
 void IPlugInstrument::OnReset()
 {
   mDSP.Reset(GetSampleRate(), GetBlockSize());
