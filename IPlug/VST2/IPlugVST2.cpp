@@ -16,7 +16,6 @@
 
 const int VST_VERSION = 2400;
 
-
 static int VSTKeyCodeToVK(int code, int ascii)
 {
   // Numbers and uppercase alpha chars map directly to VK
