@@ -184,7 +184,7 @@ void IVRadioButtonControl::DrawButton(IGraphics& g, const IRECT& r, bool pressed
   switch (mShape)
   {
     case kVShapeCircle:
-      DrawPressableCircle(g, r.FracRectHorizontal(0.25f), 10.f, pressed, mouseOver);
+      DrawPressableCircle(g, r.FracRectHorizontal(0.25f), mButtonSize, pressed, mouseOver);
       break;
     case kVShapeRectangle:
       DrawPressableRectangle(g, r.FracRectHorizontal(0.25f).GetCentredInside(mButtonSize), pressed, mouseOver);

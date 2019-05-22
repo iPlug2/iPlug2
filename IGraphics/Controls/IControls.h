@@ -222,13 +222,14 @@ class IVXYPadControl : public IControl
 {
 public:
   IVXYPadControl(IRECT bounds, const std::initializer_list<int>& params,
-    const IVStyle& style = DEFAULT_STYLE,
-    float handleRadius = 10.f)
-    : IControl(bounds, params)
-    , IVectorBase(style)
-    , mHandleRadius(handleRadius)
+                 const char* label = "",
+                 const IVStyle& style = DEFAULT_STYLE,
+                 float handleRadius = 10.f)
+  : IControl(bounds, params)
+  , IVectorBase(style)
+  , mHandleRadius(handleRadius)
   {
-    AttachIControl(this, ""/*TODO*/);
+    AttachIControl(this, label);
   }
 
   void Draw(IGraphics& g) override
@@ -238,12 +239,19 @@ public:
 
     g.DrawVerticalLine(GetColor(kFG), mRECT, 0.5);
     g.DrawHorizontalLine(GetColor(kFG), mRECT, 0.5);
-    g.FillCircle(GetMouseIsOver() ? GetColor(kHL) : GetColor(kPR), mRECT.L + xpos, mRECT.B - ypos, mHandleRadius);
+    DrawPressableCircle(g, IRECT(mRECT.L + xpos-mHandleRadius, mRECT.B - ypos-mHandleRadius, mRECT.L + xpos+mHandleRadius,  mRECT.B -ypos+mHandleRadius), mHandleRadius, mMouseDown, mMouseIsOver);
   }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
+    mMouseDown = true;
     OnMouseDrag(x, y, 0., 0., mod);
+  }
+  
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override
+  {
+    mMouseDown = false;
+    SetDirty(true);
   }
 
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
@@ -256,8 +264,9 @@ public:
     SetDirty(true);
   }
 
-private:
+protected:
   float mHandleRadius;
+  bool mMouseDown = false;
 };
 
 #pragma mark - Bitmap Controls

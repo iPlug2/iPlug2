@@ -142,19 +142,28 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 //      dynamic_cast<ITextControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagDialogResult))->SetStr(str.Get());
     };
     
-    pGraphics->AttachControl(new IVKnobControl(b.GetGridCell(5, nRows, nCols).GetCentredInside(110.), kGain, "IVKnobControl", style, true));
-    pGraphics->AttachControl(new IVSliderControl(b.GetGridCell(6, nRows, nCols).GetCentredInside(110.), kGain, "IVSliderControl", style, true));
-    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).FracRectVertical(0.5, true), button1action, "IVButtonControl", style, false));
-    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).FracRectVertical(0.5), button1action, "IVButtonControl", style, true));
-    pGraphics->AttachControl(new IVSwitchControl(b.GetGridCell(7, nRows, nCols).GetCentredInside(110.), kMode, "IVSwitchControl", style));
-    pGraphics->AttachControl(new IVRadioButtonControl(b.GetGridCell(8, nRows, nCols).GetCentredInside(110.), [](IControl* pCaller)
+    int cellIdx = 5;
+    
+    auto nextCell = [&](){
+      return b.GetGridCell(cellIdx++, nRows, nCols).GetPadded(-5.);
+    };
+    
+    pGraphics->AttachControl(new IVKnobControl(nextCell().GetCentredInside(110.), kGain, "IVKnobControl", style, true));
+    pGraphics->AttachControl(new IVSliderControl(nextCell().GetCentredInside(110.), kGain, "IVSliderControl", style, true));
+    pGraphics->AttachControl(new IVButtonControl(nextCell().FracRectVertical(0.5, true), button1action, "IVButtonControl", style, false));
+    pGraphics->AttachControl(new IVButtonControl(nextCell().FracRectVertical(0.5), button1action, "IVButtonControl", style, true));
+    pGraphics->AttachControl(new IVSwitchControl(nextCell().GetCentredInside(110.), kMode, "IVSwitchControl", style));
+    pGraphics->AttachControl(new IVRadioButtonControl(nextCell().GetCentredInside(110.), [](IControl* pCaller)
     {
 //      dynamic_cast<IVRadioButtonControl*>(pCaller)->SetShape(static_cast<IVShape>(1.f/pCaller->GetValue()));
       SplashClickActionFunc(pCaller);
-    }, {"Circle", "Rectangle", "Triangle"}, "IVRadioButtonControl", style, kVShapeCircle, 20.f));
+    }, {"Circle", "Rectangle", "Triangle"}, "IVRadioButtonControl", style, kVShapeCircle, 5.f));
 
-    //    pGraphics->AttachControl(new IVMeterControl<2>(*this, nextCell()), kControlTagMeter);
-    //    pGraphics->AttachControl(new IVScopeControl<>(*this, nextCell()), kControlTagScope);
+    pGraphics->AttachControl(new IVXYPadControl(nextCell(), {kX, kY}));
+
+//    pGraphics->AttachControl(new IVMeterControl<2>(nextCell()), 0);
+//    pGraphics->AttachControl(new IVScopeControl<>(nextCell()), 0);
+    
 //    pGraphics->AttachControl(new ISVGKnob(b.GetGridCell(8, nRows, nCols).GetCentredInside(100), vectorknob, kGain));
     
 
@@ -177,16 +186,16 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 //    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).GetGridCell(2, 4, 1), button3action, "Trigger open directory dialog"));
 //    pGraphics->AttachControl(new ITextControl(b.GetGridCell(9, nRows, nCols).GetGridCell(3, 4, 1), "Dialog result shown here...", DEFAULT_TEXT, COLOR_RED), kCtrlTagDialogResult);
 
-    pGraphics->AttachControl(pLabel = new ITextControl(b.GetGridCell(2, nRows, 1), "Text Controls", bigLabel));
-    pLabel->SetBoundsBasedOnTextDimensions();
-    
-    pGraphics->AttachControl(new ICaptionControl(b.GetGridCell(10, nRows, nCols).GetMidVPadded(20.), kGain, IText(50), false));
-
-    pGraphics->AttachControl(pLabel = new ITextControl(b.GetGridCell(3, nRows, 1), "Misc Controls", bigLabel));
-    pLabel->SetBoundsBasedOnTextDimensions();
-
-    pGraphics->AttachControl(new FileBrowser(b.GetGridCell(15, nRows, nCols).Union(b.GetGridCell(16, nRows, nCols)).GetPadded(-25)));
-    pGraphics->AttachControl(new IVKeyboardControl(b.GetGridCell(17, nRows, nCols).Union(b.GetGridCell(18, nRows, nCols)).GetPadded(-25), 36, 72));
+//    pGraphics->AttachControl(pLabel = new ITextControl(b.GetGridCell(2, nRows, 1), "Text Controls", bigLabel));
+//    pLabel->SetBoundsBasedOnTextDimensions();
+//
+//    pGraphics->AttachControl(new ICaptionControl(b.GetGridCell(10, nRows, nCols).GetMidVPadded(20.), kGain, IText(50), false));
+//
+//    pGraphics->AttachControl(pLabel = new ITextControl(b.GetGridCell(3, nRows, 1), "Misc Controls", bigLabel));
+//    pLabel->SetBoundsBasedOnTextDimensions();
+//
+//    pGraphics->AttachControl(new FileBrowser(b.GetGridCell(15, nRows, nCols).Union(b.GetGridCell(16, nRows, nCols)).GetPadded(-25)));
+//    pGraphics->AttachControl(new IVKeyboardControl(b.GetGridCell(17, nRows, nCols).Union(b.GetGridCell(18, nRows, nCols)).GetPadded(-25), 36, 72));
 //    pGraphics->AttachControl(new IColorPickerControl(b.GetGridCell(12, nRows, nCols).GetCentredInside(150.)));
 
 
