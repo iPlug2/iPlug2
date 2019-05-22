@@ -91,6 +91,7 @@ void IGraphicsIOS::PlatformResize()
 int IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, EMessageBoxType type)
 {
   //TODO
+  ReleaseMouseCapture();
   return 0;
 }
 

@@ -270,6 +270,7 @@ void IGraphicsMac::StoreCursorPosition()
 int IGraphicsMac::ShowMessageBox(const char* str, const char* caption, EMessageBoxType type)
 {
   NSInteger ret = 0;
+  ReleaseMouseCapture();
   
   if (!str) str= "";
   if (!caption) caption= "";

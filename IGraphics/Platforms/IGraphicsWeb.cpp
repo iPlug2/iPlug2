@@ -523,6 +523,8 @@ bool IGraphicsWeb::GetTextFromClipboard(WDL_String& str)
 
 int IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, EMessageBoxType type)
 {
+  ReleaseMouseCapture();
+  
   switch (type)
   {
     case kMB_OK: val::global("window").call<val>("alert", std::string(str)); return 0;
