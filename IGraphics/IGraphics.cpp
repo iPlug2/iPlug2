@@ -1251,6 +1251,8 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
   }
   
   ClearMouseOver();
+  ReleaseMouseCapture();
+  SetMouseCursor(ECursor::ARROW);
   SetAllControlsDirty();
 #endif
 }
