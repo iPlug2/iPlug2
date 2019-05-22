@@ -994,6 +994,9 @@ public:
   /** @return Get a persistant IPopupMenu (remember to clear it before use) */
   IPopupMenu& GetPromptMenu() { return mPromptPopupMenu; }
   
+  /** @return True if text entry in progress */
+  bool IsInTextEntry() { return mInTextEntry != nullptr; }
+  
   /** @return \c true if tool tips are enabled */
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
   
