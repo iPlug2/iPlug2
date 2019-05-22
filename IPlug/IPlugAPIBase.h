@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -25,7 +25,6 @@
 #include "IPlugParameter.h"
 #include "IPlugQueue.h"
 #include "IPlugTimer.h"
-#include "IGraphicsStructs.h"
 
 /**
  * @file
@@ -35,6 +34,7 @@
 */
 
 struct IPlugConfig;
+struct IKeyPress;
 
 /** The base class of an IPlug plug-in, which interacts with the different plug-in APIs.
  *  This interface does not handle audio processing, see @IPlugProcessor  */
@@ -59,22 +59,22 @@ public:
 
   /* implement this and return true to trigger your custom help info, when someone clicks help in the menu of a standalone app or VST3 plugin */
   virtual bool OnHostRequestingProductHelp() { return false; }
-  
+
   /** Implement this to do something specific when IPlug becomes aware of the particular host that is hosting the plug-in.
    * The method may get called multiple times. */
   virtual void OnHostIdentified() {}
-  
+
   /** Called by AUv3 plug-ins to get the "overview parameters"
    * @param count How many overview parameters
    * @param results You should populate this typed buf with the indexes of the overview parameters if the host wants to show count number of controls */
   virtual void OnHostRequestingImportantParameters(int count, WDL_TypedBuf<int>& results);
-  
+
   /** Called by AUv3 plug-in hosts to query support for multiple UI sizes
    * @param width The width the host offers
    * @param height The height the host offers
    * @return return \c true if your plug-in supports these dimensions */
   virtual bool OnHostRequestingSupportedViewConfiguration(int width, int height) { return true; }
-  
+
   /** Called by some AUv3 plug-in hosts when a particular UI size is selected
    * @param width The selected width
    * @param height The selected height */
@@ -113,7 +113,7 @@ public:
 
   /** Override this method to get an "idle"" call on the main thread */
   virtual void OnIdle() {}
-    
+
 #pragma mark - Methods you can call - some of which have custom implementations in the API classes, some implemented in IPlugAPIBase.cpp
   /** Helper method, used to print some info to the console in debug builds. Can be overridden in other IPlugAPIBases, for specific functionality, such as printing UI details. */
   virtual void PrintDebugInfo() const;
@@ -136,13 +136,13 @@ public:
    * @param paramIdx The index of the parameter that changed
    * @param normalizedValue The new (normalised) value */
   void SetParameterValue(int paramIdx, double normalizedValue);
-  
+
   /** Get the color of the track that the plug-in is inserted on */
   virtual void GetTrackColor(int& r, int& g, int& b) {};
 
   /** Get the name of the track that the plug-in is inserted on */
   virtual void GetTrackName(WDL_String& str) {};
-  
+
   /** /todo */
   virtual void DirtyParametersFromUI() override;
 
@@ -166,26 +166,26 @@ public:
 
   //IEditorDelegate
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { BeginInformHostOfParamChange(paramIdx); }
-  
+
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }
-  
+
   void EditorPropertiesChangedFromUI(int viewWidth, int viewHeight, const IByteChunk& data) override { EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data); }
-  
+
   void SendParameterValueFromUI(int paramIdx, double normalisedValue) override
   {
     SetParameterValue(paramIdx, normalisedValue);
     IPluginBase::SendParameterValueFromUI(paramIdx, normalisedValue);
   }
-  
+
   //These are handled in IPlugAPIBase for non DISTRIBUTED APIs
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
-  
+
   void SendSysexMsgFromUI(const ISysEx& msg) override;
-  
+
   void SendArbitraryMsgFromUI(int messageTag, int controlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) override;
-  
+
   void DeferMidiMsg(const IMidiMsg& msg) override { mMidiMsgsFromEditor.Push(msg); }
-  
+
   void DeferSysexMsg(const ISysEx& msg) override
   {
     SysExData data(msg.mOffset, msg.mSize, msg.mData); // copies data
@@ -194,17 +194,17 @@ public:
 
   /** /todo */
   void CreateTimer();
-  
+
 private:
   /** Implemented by the API class, called by the UI via SetParameterValue() with the value of a parameter change gesture
    * @param paramIdx The parameter that is being changed
    * @param normalizedValue The new normalised value of the parameter being changed */
   virtual void InformHostOfParamChange(int paramIdx, double normalizedValue) {};
-  
+
   //DISTRIBUTED ONLY (Currently only VST3)
   /** /todo */
   virtual void TransmitMidiMsgFromProcessor(const IMidiMsg& msg) {};
-  
+
   /** /todo */
   virtual void TransmitSysExDataFromProcessor(const SysExData& data) {};
 
@@ -213,7 +213,7 @@ private:
 protected:
   WDL_String mParamDisplayStr;
   std::unique_ptr<Timer> mTimer;
-  
+
   IPlugQueue<ParamTuple> mParamChangeFromProcessor {PARAM_TRANSFER_SIZE};
   IPlugQueue<IMidiMsg> mMidiMsgsFromEditor {MIDI_TRANSFER_SIZE}; // a queue of midi messages generated in the editor by clicking keyboard UI etc
   IPlugQueue<IMidiMsg> mMidiMsgsFromProcessor {MIDI_TRANSFER_SIZE}; // a queue of MIDI messages received (potentially on the high priority thread), by the processor to send to the editor

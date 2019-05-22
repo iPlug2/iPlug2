@@ -11,6 +11,7 @@
 #include <cstdio>
 #include "IPlugVST2.h"
 #include "IPlugPluginBase.h"
+#include "IGraphicsStructs.h"
 #include "IGraphicsConstants.h"
 
 const int VST_VERSION = 2400;
