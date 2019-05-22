@@ -2510,6 +2510,7 @@ struct IVColorSpec
 const IVColorSpec DEFAULT_SPEC = IVColorSpec();
 
 
+static constexpr bool DEFAULT_HIDE_CURSOR = true;
 static constexpr bool DEFAULT_SHOW_VALUE = true;
 static constexpr bool DEFAULT_SHOW_LABEL = true;
 static constexpr bool DEFAULT_DRAW_FRAME = true;
@@ -2523,6 +2524,7 @@ const IText DEFAULT_VALUE_TEXT {DEFAULT_TEXT_SIZE, IText::kVAlignBottom};
 
 struct IVStyle
 {
+  bool hideCursor = DEFAULT_HIDE_CURSOR;
   bool showLabel = DEFAULT_SHOW_LABEL;
   bool showValue = DEFAULT_SHOW_VALUE;
   bool drawFrame = DEFAULT_DRAW_FRAME;
@@ -2540,6 +2542,7 @@ struct IVStyle
           const std::initializer_list<IColor>& colors = {},
           const IText& labelText = DEFAULT_LABEL_TEXT,
           const IText& valueText = DEFAULT_VALUE_TEXT,
+          bool hideCursor = DEFAULT_HIDE_CURSOR,
           bool drawFrame = DEFAULT_DRAW_FRAME,
           bool drawShadows = DEFAULT_DRAW_SHADOWS,
           bool emboss = DEFAULT_EMBOSS,
@@ -2551,6 +2554,7 @@ struct IVStyle
   , colorSpec(colors)
   , labelText(labelText)
   , valueText(valueText)
+  , hideCursor(hideCursor)
   , drawFrame(drawFrame)
   , drawShadows(drawShadows)
   , emboss(emboss)

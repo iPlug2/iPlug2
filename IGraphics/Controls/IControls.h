@@ -126,6 +126,7 @@ public:
   virtual void DrawWidget(IGraphics& g) override;
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override { mValueMouseOver = false; IKnobControlBase::OnMouseOut(); }
 
@@ -193,6 +194,7 @@ public:
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override { mValueMouseOver = false; ISliderControlBase::OnMouseOut(); }
   bool IsHit(float x, float y) const override;
@@ -224,45 +226,12 @@ public:
   IVXYPadControl(IRECT bounds, const std::initializer_list<int>& params,
                  const char* label = "",
                  const IVStyle& style = DEFAULT_STYLE,
-                 float handleRadius = 10.f)
-  : IControl(bounds, params)
-  , IVectorBase(style)
-  , mHandleRadius(handleRadius)
-  {
-    AttachIControl(this, label);
-  }
+                 float handleRadius = 10.f);
 
-  void Draw(IGraphics& g) override
-  {
-    float xpos = GetValue(0) * mRECT.W();
-    float ypos = GetValue(1) * mRECT.H();
-
-    g.DrawVerticalLine(GetColor(kFG), mRECT, 0.5);
-    g.DrawHorizontalLine(GetColor(kFG), mRECT, 0.5);
-    DrawPressableCircle(g, IRECT(mRECT.L + xpos-mHandleRadius, mRECT.B - ypos-mHandleRadius, mRECT.L + xpos+mHandleRadius,  mRECT.B -ypos+mHandleRadius), mHandleRadius, mMouseDown, mMouseIsOver);
-  }
-
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override
-  {
-    mMouseDown = true;
-    OnMouseDrag(x, y, 0., 0., mod);
-  }
-  
-  void OnMouseUp(float x, float y, const IMouseMod& mod) override
-  {
-    mMouseDown = false;
-    SetDirty(true);
-  }
-
-  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
-  {
-    mRECT.Constrain(x, y);
-    float xn = (x - mRECT.L) / mRECT.W();
-    float yn = 1.f - ((y - mRECT.T) / mRECT.H());
-    SetValue(xn, 0);
-    SetValue(yn, 1);
-    SetDirty(true);
-  }
+  void Draw(IGraphics& g) override;
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override;
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
 
 protected:
   float mHandleRadius;

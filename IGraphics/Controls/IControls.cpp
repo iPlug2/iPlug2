@@ -354,7 +354,20 @@ void IVKnobControl::OnMouseDown(float x, float y, const IMouseMod& mod)
     PromptUserInput(mValueBounds);
   }
   else
+  {
+    if(mStyle.hideCursor)
+      GetUI()->HideMouseCursor(true, true);
+    
     IKnobControlBase::OnMouseDown(x, y, mod);
+  }
+}
+
+void IVKnobControl::OnMouseUp(float x, float y, const IMouseMod& mod)
+{
+  if(mStyle.hideCursor)
+    GetUI()->HideMouseCursor(false);
+    
+  SetDirty(true);
 }
 
 void IVKnobControl::OnMouseOver(float x, float y, const IMouseMod& mod)
@@ -463,7 +476,20 @@ void IVSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
     PromptUserInput(mValueBounds);
   }
   else
+  {
+    if(mStyle.hideCursor)
+      GetUI()->HideMouseCursor(true, true);
+    
     ISliderControlBase::OnMouseDown(x, y, mod);
+  }
+}
+
+void IVSliderControl::OnMouseUp(float x, float y, const IMouseMod& mod)
+{
+  if(mStyle.hideCursor)
+    GetUI()->HideMouseCursor(false);
+    
+  SetDirty(true);
 }
 
 void IVSliderControl::OnMouseOver(float x, float y, const IMouseMod& mod)
@@ -566,6 +592,55 @@ void IVRangeSliderControl::OnMouseDown(float x, float y, const IMouseMod & mod)
 void IVRangeSliderControl::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod & mod)
 {
   SnapToMouse(x, y, mDirection, mTrack);
+}
+
+IVXYPadControl::IVXYPadControl(IRECT bounds, const std::initializer_list<int>& params,
+               const char* label,
+               const IVStyle& style,
+               float handleRadius)
+: IControl(bounds, params)
+, IVectorBase(style)
+, mHandleRadius(handleRadius)
+{
+  AttachIControl(this, label);
+}
+
+void IVXYPadControl::Draw(IGraphics& g)
+{
+  float xpos = GetValue(0) * mRECT.W();
+  float ypos = GetValue(1) * mRECT.H();
+  
+  g.DrawVerticalLine(GetColor(kFG), mRECT, 0.5);
+  g.DrawHorizontalLine(GetColor(kFG), mRECT, 0.5);
+  DrawPressableCircle(g, IRECT(mRECT.L + xpos-mHandleRadius, mRECT.B - ypos-mHandleRadius, mRECT.L + xpos+mHandleRadius,  mRECT.B -ypos+mHandleRadius), mHandleRadius, mMouseDown, mMouseIsOver);
+}
+
+void IVXYPadControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  mMouseDown = true;
+  if(mStyle.hideCursor)
+    GetUI()->HideMouseCursor(true, true);
+
+  OnMouseDrag(x, y, 0., 0., mod);
+}
+
+void IVXYPadControl::OnMouseUp(float x, float y, const IMouseMod& mod)
+{
+  if(mStyle.hideCursor)
+    GetUI()->HideMouseCursor(false);
+
+  mMouseDown = false;
+  SetDirty(true);
+}
+
+void IVXYPadControl::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
+{
+  mRECT.Constrain(x, y);
+  float xn = (x - mRECT.L) / mRECT.W();
+  float yn = 1.f - ((y - mRECT.T) / mRECT.H());
+  SetValue(xn, 0);
+  SetValue(yn, 1);
+  SetDirty(true);
 }
 
 #pragma mark - BITMAP CONTROLS
