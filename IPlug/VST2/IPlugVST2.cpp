@@ -16,8 +16,11 @@
 
 const int VST_VERSION = 2400;
 
-static int VSTKeyCodeToVK(int code, int ascii)
-{
+static int AsciiToVK(int ascii) {
+#ifdef WIN32
+  HKL layout = GetKeyboardLayout(0);
+  return VkKeyScanExA((CHAR)ascii, layout);
+#else
   // Numbers and uppercase alpha chars map directly to VK
   if ((ascii >= 0x30 && ascii <= 0x39) || (ascii >= 0x41 && ascii <= 0x5A))
   {
@@ -28,6 +31,18 @@ static int VSTKeyCodeToVK(int code, int ascii)
   if (ascii >= 0x61 && ascii <= 0x7A)
   {
     return ascii - 0x20;
+  }
+
+  return kVK_NONE;
+#endif
+}
+
+static int VSTKeyCodeToVK(int code, int ascii)
+{
+  // If the keycode provided by the host is 0, we can still calculate the VK from the ascii value
+  // NOTE: VKEY_EQUALS Doesn't seem to map to a Windows VK, so get the VK from the ascii char instead
+  if (code == 0 || code == VKEY_EQUALS) {
+    return AsciiToVK(ascii);
   }
 
   switch (code)
@@ -88,7 +103,7 @@ static int VSTKeyCodeToVK(int code, int ascii)
   case VKEY_SHIFT: return kVK_SHIFT;
   case VKEY_CONTROL: return kVK_CONTROL;
   case VKEY_ALT: return kVK_MENU;
-  case VKEY_EQUALS: return kVK_NONE; // Doesn't seem to map to a windows VK
+  case VKEY_EQUALS: return kVK_NONE; 
   }
 
   return kVK_NONE;
