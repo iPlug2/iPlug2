@@ -127,11 +127,19 @@ void IPlugInstrument::OnIdle()
 }
 
 bool IPlugInstrument::OnKeyDown(const IKeyPress& key) {
+#ifndef NO_IGRAPHICS
   return GetUI()->OnKeyDown(0, 0, key);
+#else
+  return false;
+#endif
 }
 
 bool IPlugInstrument::OnKeyUp(const IKeyPress& key) {
+#ifndef NO_IGRAPHICS
   return GetUI()->OnKeyUp(0, 0, key);
+#else
+  return false;
+#endif
 }
 
 void IPlugInstrument::OnReset()
