@@ -26,9 +26,9 @@ const IColor IVKeyboardControl::DEFAULT_FR_COLOR = DEFAULT_BK_COLOR;
 IVButtonControl::IVButtonControl(IRECT bounds, IActionFunction actionFunc,
                                  const char* label,
                                  const IVStyle& style,
-                                 bool labelInButton, IVShape shape, float angle)
+                                 bool labelInButton, bool valueInButton, IVShape shape, float angle)
 : IButtonControlBase(bounds, actionFunc)
-, IVectorBase(style, labelInButton)
+, IVectorBase(style, labelInButton, valueInButton)
 , mShape(shape)
 , mAngle(angle)
 {
@@ -133,6 +133,33 @@ void IVSwitchControl::OnResize()
 bool IVSwitchControl::IsHit(float x, float y) const
 {
   return mWidgetBounds.Contains(x, y);
+}
+
+IVToggleControl::IVToggleControl(IRECT bounds, int paramIdx, const char* offText, const char* onText, const char* label, const IVStyle& style)
+: IVSwitchControl(bounds, paramIdx, label, style, true)
+, mOnText(onText)
+, mOffText(offText)
+{
+  //TODO: assert boolean?
+}
+
+IVToggleControl::IVToggleControl(IRECT bounds, IActionFunction actionFunc, const char* offText, const char* onText, const char* label, const IVStyle& style)
+: IVSwitchControl(bounds, actionFunc, label, style, 2, true)
+, mOnText(onText)
+, mOffText(offText)
+{
+  
+}
+
+void IVToggleControl::DrawValue(IGraphics& g, bool mouseOver)
+{
+  if(mouseOver)
+    g.FillRect(COLOR_TRANSLUCENT, mValueBounds);
+  
+  if(GetValue() > 0.5)
+    g.DrawText(mStyle.valueText, mOnText.Get(), mValueBounds);
+  else
+    g.DrawText(mStyle.valueText, mOffText.Get(), mValueBounds);
 }
 
 IVRadioButtonControl::IVRadioButtonControl(IRECT bounds, int paramIdx, IActionFunction actionFunc,

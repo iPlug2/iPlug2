@@ -585,6 +585,13 @@ struct IText
     mSize = size;
     mAlign = align;
   }
+  
+  explicit IText(float size, const char* font)
+  : IText()
+  {
+    mSize = size;
+    strcpy(mFont, (font ? font : DEFAULT_FONT));
+  }
     
   char mFont[FONT_LEN];
   float mSize;
@@ -2568,6 +2575,20 @@ struct IVStyle
   explicit IVStyle(const std::initializer_list<IColor>& colors)
   : colorSpec(colors)
   {
+  }
+  
+  IVStyle WithLabelText(const IText& text) const
+  {
+    IVStyle newStyle = *this;
+    newStyle.labelText = text;
+    return newStyle;
+  }
+  
+  IVStyle WithValueText(const IText& text) const
+  {
+    IVStyle newStyle = *this;
+    newStyle.valueText = text;
+    return newStyle;
   }
 };
 

@@ -36,7 +36,7 @@ class IVButtonControl : public IButtonControlBase
                       , public IVectorBase
 {
 public:
-  IVButtonControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool labelInButton = true, IVShape shape = kVShapeRectangle, float angle = 0.f);
+  IVButtonControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool labelInButton = true, bool valueInButton = true, IVShape shape = kVShapeRectangle, float angle = 0.f);
 
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
@@ -65,6 +65,19 @@ public:
   bool IsHit(float x, float y) const override;
   void SetDirty(bool push, int valIdx = kNoValIdx) override;
   void OnResize() override;
+};
+
+class IVToggleControl : public IVSwitchControl
+{
+public:
+  IVToggleControl(IRECT bounds, int paramIdx = kNoParameter, const char* offText = "OFF", const char* onText = "ON", const char* label = "", const IVStyle& style = DEFAULT_STYLE);
+  
+  IVToggleControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* offText = "OFF", const char* onText = "ON", const char* label = "", const IVStyle& style = DEFAULT_STYLE);
+  
+  void DrawValue(IGraphics& g, bool mouseOver) override;
+protected:
+  WDL_String mOffText;
+  WDL_String mOnText;
 };
 
 /** A vector switch control. Click to cycle through states. */

@@ -1380,6 +1380,19 @@ protected:
   IColor mBGColor;
 };
 
+class ITextToggleControl : public ITextControl
+{
+public:
+  ITextToggleControl(IRECT bounds, int paramIdx = kNoParameter, const char* offText = "OFF", const char* onText = "ON", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR);
+  
+  ITextToggleControl(IRECT bounds, IActionFunction aF = nullptr, const char* offText = "OFF", const char* onText = "ON", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR);
+
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+protected:
+  WDL_String mOffText;
+  WDL_String mOnText;
+};
+
 /** A control to display the textual representation of a parameter */
 class ICaptionControl : public ITextControl
 {
