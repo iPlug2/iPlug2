@@ -35,9 +35,8 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
 {
   TRACE;
   CloseWindow();
-  mView = (IGraphicsIOS_View*) [[IGraphicsIOS_View alloc] initWithIGraphics: this];
-  
-  IGraphicsIOS_View* view = (IGraphicsIOS_View*) mView;
+  IGraphicsIOS_View* view = (IGraphicsIOS_View*) [[IGraphicsIOS_View alloc] initWithIGraphics: this];
+  mView = view;
   
   OnViewInitialized([view layer]);
   
@@ -47,7 +46,7 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
 
   if (pParent)
   {
-    [(UIView*) pParent addSubview: (IGraphicsIOS_View*) mView];
+    [(UIView*) pParent addSubview: view];
   }
 
   return mView;
@@ -91,7 +90,8 @@ void IGraphicsIOS::PlatformResize()
 EMsgBoxResult IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
 {
   ReleaseMouseCapture();
-  return 0;
+  [(IGraphicsIOS_View*) mView showMessageBox:str :caption :type :completionHandler];
+  return EMsgBoxResult::kNoResult; // we need to rely on completionHandler
 }
 
 void IGraphicsIOS::ForceEndUserEdit()
@@ -139,6 +139,9 @@ IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
 
 void IGraphicsIOS::CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str)
 {
+  ReleaseMouseCapture();
+  CGRect areaRect = ToCGRect(this, bounds);
+  [(IGraphicsIOS_View*) mView createTextEntry: paramIdx : text: str: length: areaRect];
 }
 
 bool IGraphicsIOS::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
@@ -175,7 +178,7 @@ void IGraphicsIOS::CreatePlatformImGui()
 #ifdef IGRAPHICS_IMGUI
   if(mView)
   {
-    IGraphicsIOS_View* pView = (IGraphicsIOS_View*) mView;
+    IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
     
     IGRAPHICS_IMGUIVIEW* pImGuiView = [[IGRAPHICS_IMGUIVIEW alloc] initWithIGraphicsView:pView];
     [pView addSubview: pImGuiView];
