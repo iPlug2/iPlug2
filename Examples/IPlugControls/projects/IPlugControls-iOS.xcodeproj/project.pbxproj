@@ -35,6 +35,7 @@
 		4F2602D92269F4CD00C7E97E /* IPlugAUViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105A20A0E57100D3092F /* IPlugAUViewController.mm */; };
 		4F3E0F6A20A0BCD900A9C2BE /* IPlugControls-iOS.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6720A0BC5B00A9C2BE /* IPlugControls-iOS.storyboard */; };
 		4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */; };
+		4F86407A229554440037601E /* IPlugControls-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* IPlugControls-iOS-MainInterface.storyboard */; };
 		4FB2269720A0D3A800614769 /* IPlugControls-iOS-LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* IPlugControls-iOS-LaunchScreen.storyboard */; };
 		4FDF6D772267CE540007B686 /* AppViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D732267CE540007B686 /* AppViewController.mm */; };
 		4FDF6D792267CE540007B686 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D742267CE540007B686 /* main.m */; };
@@ -714,6 +715,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */,
+				4F86407A229554440037601E /* IPlugControls-iOS-MainInterface.storyboard in Resources */,
 				4FB2269720A0D3A800614769 /* IPlugControls-iOS-LaunchScreen.storyboard in Resources */,
 				4F3E0F6A20A0BCD900A9C2BE /* IPlugControls-iOS.storyboard in Resources */,
 			);
