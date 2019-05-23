@@ -36,24 +36,19 @@ class IVButtonControl : public IButtonControlBase
                       , public IVectorBase
 {
 public:
-  IVButtonControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool labelInButton = true);
+  IVButtonControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool labelInButton = true, IVShape shape = kVShapeRectangle, float angle = 0.f);
 
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
   bool IsHit(float x, float y) const override;
   void OnResize() override;
-};
-
-/** A triangle-shaped vector button control. */
-class IVTriangleButtonControl : public IVButtonControl
-{
-public:
-  IVTriangleButtonControl(IRECT bounds, IActionFunction actionFunc = DefaultClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, float angle = 0.0f);
   
-  virtual void DrawWidget(IGraphics& g) override;
   void SetAngle(float angle) { mAngle = angle; SetDirty(false); }
-private:
-  float mAngle;
+  void SetShape(IVShape shape) { mShape = shape; SetDirty(false); }
+  
+protected:
+  IVShape mShape = kVShapeRectangle;
+  float mAngle = 0.; // only used for triangle
 };
 
 /** A vector switch control. Click to cycle through states. */
@@ -92,6 +87,7 @@ public:
   virtual bool IsHit(float x, float y) const override;
 
   void SetShape(IVShape shape) { mShape = shape; SetDirty(false); }
+  int GetSelectedIdx() const { return int(0.5 + GetValue() * (double) (mNumStates - 1)); }
   
 protected:
   int mMouseOverButton = -1;

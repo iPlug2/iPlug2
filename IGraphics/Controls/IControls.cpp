@@ -26,9 +26,11 @@ const IColor IVKeyboardControl::DEFAULT_FR_COLOR = DEFAULT_BK_COLOR;
 IVButtonControl::IVButtonControl(IRECT bounds, IActionFunction actionFunc,
                                  const char* label,
                                  const IVStyle& style,
-                                 bool labelInButton)
+                                 bool labelInButton, IVShape shape, float angle)
 : IButtonControlBase(bounds, actionFunc)
 , IVectorBase(style, labelInButton)
+, mShape(shape)
+, mAngle(angle)
 {
   mText = style.valueText;
   AttachIControl(this, label);
@@ -45,7 +47,21 @@ void IVButtonControl::Draw(IGraphics& g)
 
 void IVButtonControl::DrawWidget(IGraphics& g)
 {
-  DrawPressableRectangle(g, mWidgetBounds, (bool) GetValue(), mMouseIsOver);
+  bool pressed = (bool) GetValue();
+  switch (mShape)
+  {
+    case kVShapeCircle:
+      DrawPressableCircle(g, mWidgetBounds, mWidgetBounds.W()/3.5f /*TODO: fix bodge*/, pressed, mMouseIsOver);
+      break;
+    case kVShapeRectangle:
+      DrawPressableRectangle(g, mWidgetBounds, pressed, mMouseIsOver);
+      break;
+    case kVShapeTriangle:
+      DrawPressableTriangle(g, mWidgetBounds, mAngle, pressed, mMouseIsOver);
+      break;
+    default:
+      break;
+  }
 }
 
 void IVButtonControl::OnResize()
@@ -57,18 +73,6 @@ void IVButtonControl::OnResize()
 bool IVButtonControl::IsHit(float x, float y) const
 {
   return mWidgetBounds.Contains(x, y);
-}
-
-IVTriangleButtonControl::IVTriangleButtonControl(IRECT bounds, IActionFunction actionFunc,
-                                                 const char* label, const IVStyle& style,
-                                                 float angle)
-: IVButtonControl(bounds, actionFunc, label, style)
-, mAngle(angle)
-{};
-
-void IVTriangleButtonControl::DrawWidget(IGraphics& g)
-{
-  DrawPressableTriangle(g, mWidgetBounds, mAngle, (bool) GetValue(), mMouseIsOver);
 }
 
 IVSwitchControl::IVSwitchControl(IRECT bounds, int paramIdx, const char* label, const IVStyle& style, bool valueInButton)
@@ -199,7 +203,7 @@ void IVRadioButtonControl::DrawButton(IGraphics& g, const IRECT& r, bool pressed
 
 void IVRadioButtonControl::DrawWidget(IGraphics& g)
 {
-  int hit = int(0.5 + GetValue() * (double) (mNumStates - 1));
+  int hit = GetSelectedIdx();
   
   for (int i = 0; i < mNumStates; i++)
   {
@@ -325,9 +329,9 @@ void IVKnobControl::DrawWidget(IGraphics& g)
   float radius;
   
   if(mWidgetBounds.W() > mWidgetBounds.H())
-    radius = (mWidgetBounds.H()/2.5f);
+    radius = (mWidgetBounds.H()/2.5f /*TODO: fix bodge*/);
   else
-    radius = (mWidgetBounds.W()/2.5f);
+    radius = (mWidgetBounds.W()/2.5f /*TODO: fix bodge*/);
   
   const float cx = mWidgetBounds.MW(), cy = mWidgetBounds.MH();
   

@@ -16,6 +16,7 @@ enum EParams
 enum EControlTags
 {
   kCtrlTagDialogResult = 0,
+  kCtrlTagVectorButton,
   kControlTags
 };
 

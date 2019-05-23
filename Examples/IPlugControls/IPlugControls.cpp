@@ -113,6 +113,10 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     auto nextCell = [&](){
       return b.GetGridCell(cellIdx++, nRows, nCols).GetPadded(-5.);
     };
+
+    auto sameCell = [&](){
+      return b.GetGridCell(cellIdx-1, nRows, nCols).GetPadded(-5.);
+    };
     
     
 //    ITextControl* pLabel;
@@ -145,13 +149,11 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     
     auto button1action = [](IControl* pCaller) {
       SplashClickActionFunc(pCaller);
-      int result = pCaller->GetUI()->ShowMessageBox("Message Title", "Message", kMB_YESNO, [](EMsgBoxResult result)
-                                                    {
-                                                      
+      pCaller->GetUI()->ShowMessageBox("Message Title", "Message", kMB_YESNO, [&](EMsgBoxResult result) {
+                                                      WDL_String str;
+                                                      str.SetFormatted(32, "%s pressed", kMessageResultStrs[result]);
+                                                      dynamic_cast<ITextControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagDialogResult))->SetStr(str.Get());
                                                     });
-      WDL_String str;
-      str.SetFormatted(32, "%s pressed", kMessageResultStrs[result]);
-//      dynamic_cast<ITextControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagDialogResult))->SetStr(str.Get());
     };
     
     pGraphics->AttachControl(new IVKnobControl(nextCell().GetCentredInside(110.), kGain, "IVKnobControl", style, true));
@@ -159,13 +161,13 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new IVSliderControl(nextCell().GetCentredInside(110.), kGain, "IVSliderControl", style, true, kHorizontal));
     pGraphics->AttachControl(new IVRangeSliderControl(nextCell().GetCentredInside(110.), kX, kY, "IVRangeSliderControl", style, kVertical, 2.f, 10.f, 50.f));
     
-    pGraphics->AttachControl(new IVButtonControl(nextCell().FracRectVertical(0.5, true), button1action, "IVButtonControl", style, false));
-    pGraphics->AttachControl(new IVButtonControl(nextCell().FracRectVertical(0.5), button1action, "IVButtonControl", style, true));
+    pGraphics->AttachControl(new IVButtonControl(nextCell().FracRectVertical(0.5, true), button1action, "IVButtonControl", style, false), kCtrlTagVectorButton);
+    pGraphics->AttachControl(new IVButtonControl(sameCell().FracRectVertical(0.5), button1action, "Label in button", style, true));
     pGraphics->AttachControl(new IVSwitchControl(nextCell().GetCentredInside(110.), kMode, "IVSwitchControl", style));
-    pGraphics->AttachControl(new IVRadioButtonControl(nextCell().GetCentredInside(110.), [](IControl* pCaller)
-    {
-//      dynamic_cast<IVRadioButtonControl*>(pCaller)->SetShape(static_cast<IVShape>(1.f/pCaller->GetValue()));
+    pGraphics->AttachControl(new IVRadioButtonControl(nextCell().GetCentredInside(110.), [](IControl* pCaller) {
       SplashClickActionFunc(pCaller);
+      dynamic_cast<IVButtonControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagVectorButton))->SetShape((IVShape) dynamic_cast<IVRadioButtonControl*>(pCaller)->GetSelectedIdx());
+      
     }, {"Circle", "Rectangle", "Triangle"}, "IVRadioButtonControl", style, kVShapeCircle, 5.f));
 
     pGraphics->AttachControl(new IVXYPadControl(nextCell(), {kX, kY}));
@@ -193,7 +195,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 //
 //    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).GetGridCell(1, 4, 1), button2action, "Trigger open file dialog"));
 //    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).GetGridCell(2, 4, 1), button3action, "Trigger open directory dialog"));
-//    pGraphics->AttachControl(new ITextControl(b.GetGridCell(9, nRows, nCols).GetGridCell(3, 4, 1), "Dialog result shown here...", DEFAULT_TEXT, COLOR_RED), kCtrlTagDialogResult);
+    pGraphics->AttachControl(new ITextControl(nextCell(), "Dialog result shown here...", DEFAULT_TEXT, COLOR_RED), kCtrlTagDialogResult);
 
 //    pGraphics->AttachControl(pLabel = new ITextControl(b.GetGridCell(2, nRows, 1), "Text Controls", bigLabel));
 //    pLabel->SetBoundsBasedOnTextDimensions();
@@ -215,7 +217,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 #if IPLUG_DSP
 void IPlugControls::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
-  const double gain = GetParam(kGain)->Value() / 100.;
+//  const double gain = GetParam(kGain)->Value() / 100.;
   const int nChans = NOutChansConnected();
   
   for (int s = 0; s < nFrames; s++) {
