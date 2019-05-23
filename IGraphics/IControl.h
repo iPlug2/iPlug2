@@ -699,7 +699,7 @@ public:
     // no-op
   }
   
-  virtual void DrawTitle(IGraphics& g)
+  virtual void DrawLabel(IGraphics& g)
   {
     if(mLabelBounds.H())
       g.DrawText(mStyle.labelText, mLabelStr.Get(), mLabelBounds);

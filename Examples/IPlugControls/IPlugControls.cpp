@@ -111,7 +111,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     const int nRows = 5;
     const int nCols = 8;
     
-    int cellIdx = 0;
+    int cellIdx = -1;
     
     auto nextCell = [&](){
       return b.GetGridCell(++cellIdx, nRows, nCols).GetPadded(-5.);
@@ -121,18 +121,6 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
       return b.GetGridCell(cellIdx, nRows, nCols).GetPadded(-5.);
     };
     
-    
-//    ITextControl* pLabel;
-//    pGraphics->AttachControl(pLabel = new ITextControl(b.GetGridCell(0, nRows, 1), "Bitmap Controls", bigLabel));
-//    pLabel->SetBoundsBasedOnTextDimensions();
-    pGraphics->AttachControl(new IBKnobControl(nextCell().GetPadded(-5.), bitmap1, kGain));
-    pGraphics->AttachControl(new IBKnobRotaterControl(nextCell().GetPadded(-5.), bitmap2, kGain));
-    pGraphics->AttachControl(new IBSwitchControl(nextCell(), bitmap1));
-    pGraphics->AttachControl(new IBButtonControl(nextCell(), bitmap1));
-
-//    pGraphics->AttachControl(pLabel = new ITextControl(b.GetGridCell(1, nRows, 1), "Vector Controls", bigLabel));
-//    pLabel->SetBoundsBasedOnTextDimensions();
-
     const IVStyle style {
       true, // Show label
       true, // Show value
@@ -149,9 +137,21 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
       }, // Colors
       IText(12.f, IText::kAlignCenter) // Label text
     };
-
     const IText forkAwesomeText {24.f, "ForkAwesome"};
     
+    auto AddLabel = [&](const char* label) {
+      pGraphics->AttachControl(new ITextControl(nextCell().GetFromTop(20.f), label, style.labelText));
+    };
+  
+    AddLabel("IBKnobControl");
+    pGraphics->AttachControl(new IBKnobControl(sameCell().GetPadded(-5.), bitmap1, kGain));
+    AddLabel("IBKnobRotaterControl");
+    pGraphics->AttachControl(new IBKnobRotaterControl(sameCell().GetPadded(-5.), bitmap2, kGain));
+    AddLabel("IBSwitchControl");
+    pGraphics->AttachControl(new IBSwitchControl(sameCell(), bitmap1));
+    AddLabel("IBButtonControl");
+    pGraphics->AttachControl(new IBButtonControl(sameCell(), bitmap1));
+
     auto button1action = [](IControl* pCaller) {
       SplashClickActionFunc(pCaller);
       pCaller->GetUI()->ShowMessageBox("Message Title", "Message", kMB_YESNO, [&](EMsgBoxResult result) {
@@ -160,48 +160,52 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
                                                       dynamic_cast<ITextControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagDialogResult))->SetStr(str.Get());
                                                     });
     };
-    
+
     pGraphics->AttachControl(new IVKnobControl(nextCell().GetCentredInside(110.), kGain, "IVKnobControl", style, true));
     pGraphics->AttachControl(new IVSliderControl(nextCell().GetCentredInside(110.), kGain, "IVSliderControl", style, true));
     pGraphics->AttachControl(new IVRangeSliderControl(nextCell().GetCentredInside(110.), kX, kY, "IVRangeSliderControl", style, kVertical, 2.f, 10.f, 50.f));
-    
-    pGraphics->AttachControl(new IVButtonControl(nextCell().GetGridCell(0, 3, 1), button1action, "IVButtonControl", style, false), kCtrlTagVectorButton);
-    pGraphics->AttachControl(new IVButtonControl(sameCell().GetGridCell(1, 3, 1), button1action, "Label in button", style, true));
-    pGraphics->AttachControl(new ITextControl(sameCell().GetGridCell(2, 3, 1), "Result...", DEFAULT_TEXT, COLOR_RED), kCtrlTagDialogResult);
 
-    pGraphics->AttachControl(new IVButtonControl(nextCell(), SplashClickActionFunc, ICON_FK_BOMB, style.WithLabelText(forkAwesomeText), true));
-    
-    pGraphics->AttachControl(new IVSliderControl(nextCell().GetCentredInside(110.), [](IControl* pCaller) {
-                                                   dynamic_cast<IVButtonControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagVectorButton))->SetRoundness(pCaller->GetValue());
-                                                 }, "Roundness", style, true, kHorizontal));
-    
-    pGraphics->AttachControl(new IVSliderControl(nextCell().GetCentredInside(110.), [](IControl* pCaller) {
-                                                  dynamic_cast<IVButtonControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagVectorButton))->SetAngle(pCaller->GetValue() * 360.);
-                                                    }, "Angle", style, true, kHorizontal));
-    
+    pGraphics->AttachControl(new IVButtonControl(nextCell(), button1action, "IVButtonControl", style, false), kCtrlTagVectorButton);
+    AddLabel("IVButtonControl 2");
+    pGraphics->AttachControl(new IVButtonControl(sameCell(), button1action, "Label in button", style, true));
+
+    AddLabel("IVButtonControl 3");
+    pGraphics->AttachControl(new IVButtonControl(sameCell(), SplashClickActionFunc, ICON_FK_BOMB, style.WithLabelText(forkAwesomeText), true));
+
     pGraphics->AttachControl(new IVSwitchControl(nextCell().GetCentredInside(110.), kMode, "IVSwitchControl", style));
-    
-    pGraphics->AttachControl(new IVToggleControl(nextCell().GetCentredInside(110.), SplashClickActionFunc, "OFF", "ON", "IVToggleControl", style));
-    
+
+    pGraphics->AttachControl(new IVToggleControl(nextCell().GetCentredInside(110.), SplashClickActionFunc, "", ICON_FK_CHECK, "IVToggleControl", style.WithValueText(forkAwesomeText)));
+
     pGraphics->AttachControl(new IVRadioButtonControl(nextCell().GetCentredInside(110.), [](IControl* pCaller) {
       SplashClickActionFunc(pCaller);
       dynamic_cast<IVButtonControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagVectorButton))->SetShape((IVShape) dynamic_cast<IVRadioButtonControl*>(pCaller)->GetSelectedIdx());
-      
-    }, {"Circle", "Rectangle", "Triangle"}, "IVRadioButtonControl", style, kVShapeCircle, 5.f));
 
-    pGraphics->AttachControl(new IVXYPadControl(nextCell(), {kX, kY}));
+    }, {"One", "Two", "Three"}, "IVRadioButtonControl", style, kVShapeCircle, 5.f));
 
-    pGraphics->AttachControl(new ITextToggleControl(nextCell().GetGridCell(0, 3, 3), [](IControl* pCaller){}, ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE, forkAwesomeText));
-    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 3, 3), [](IControl* pCaller){}, ICON_FK_CIRCLE_O, ICON_FK_CHECK_CIRCLE, forkAwesomeText));
-    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(2, 3, 3), [](IControl* pCaller){}, ICON_FK_PLUS_SQUARE, ICON_FK_MINUS_SQUARE, forkAwesomeText));
+    pGraphics->AttachControl(new IVXYPadControl(nextCell(), {kX, kY}, "IVXYPadControl", style));
 
+    AddLabel("ITextControl");
+    pGraphics->AttachControl(new ITextControl(sameCell().GetMidVPadded(20.f), "Result...", DEFAULT_TEXT, COLOR_LIGHT_GRAY), kCtrlTagDialogResult);
+
+    AddLabel("ITextToggleControl");
+    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 0, 4, 3), [](IControl* pCaller){}, ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE, forkAwesomeText));
+    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 1, 4, 3), [](IControl* pCaller){}, ICON_FK_CIRCLE_O, ICON_FK_CHECK_CIRCLE, forkAwesomeText));
+    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 2, 4, 3), [](IControl* pCaller){}, ICON_FK_PLUS_SQUARE, ICON_FK_MINUS_SQUARE, forkAwesomeText));
+
+
+    pGraphics->AttachControl(new IVMeterControl<2>(nextCell()), 0);
+    pGraphics->AttachControl(new IVScopeControl<>(nextCell()), 0);
     
-//    pGraphics->AttachControl(new IVMeterControl<2>(nextCell()), 0);
-//    pGraphics->AttachControl(new IVScopeControl<>(nextCell()), 0);
-    
-//    pGraphics->AttachControl(new ISVGKnob(b.GetGridCell(8, nRows, nCols).GetCentredInside(100), vectorknob, kGain));
+    pGraphics->AttachControl(new ISVGKnob(nextCell().GetCentredInside(100), vectorknob, kGain));
     
 
+    pGraphics->AttachControl(new IVSliderControl(nextCell().GetGridCell(0, 0, 3, 1), [](IControl* pCaller) {
+      dynamic_cast<IVButtonControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagVectorButton))->SetRoundness(pCaller->GetValue());
+    }, "Roundness", style, true, kHorizontal));
+    
+    pGraphics->AttachControl(new IVSliderControl(sameCell().GetGridCell(1, 0, 3, 1), [](IControl* pCaller) {
+      dynamic_cast<IVButtonControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagVectorButton))->SetAngle(pCaller->GetValue() * 360.);
+    }, "Angle", style, true, kHorizontal));
 //
 //    auto button2action = [](IControl* pCaller) {
 //      SplashClickActionFunc(pCaller);

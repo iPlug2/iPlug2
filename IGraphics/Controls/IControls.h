@@ -244,10 +244,11 @@ public:
                  float handleRadius = 10.f);
 
   void Draw(IGraphics& g) override;
+  void DrawWidget(IGraphics& g) override;
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
-
+  void OnResize() override;
 protected:
   float mHandleRadius;
   bool mMouseDown = false;

@@ -41,7 +41,7 @@ void IVButtonControl::Draw(IGraphics& g)
 {
   DrawBackGround(g, mRECT);
   DrawWidget(g);
-  DrawTitle(g);
+  DrawLabel(g);
   DrawValue(g, false);
 }
 
@@ -105,7 +105,7 @@ void IVSwitchControl::Draw(IGraphics& g)
 {
   DrawBackGround(g, mRECT);
   DrawWidget(g);
-  DrawTitle(g);
+  DrawLabel(g);
   DrawValue(g, false);
 }
 
@@ -206,7 +206,7 @@ IVRadioButtonControl::IVRadioButtonControl(IRECT bounds, IActionFunction actionF
 
 void IVRadioButtonControl::Draw(IGraphics& g)
 {
-  DrawTitle(g);
+  DrawLabel(g);
   DrawWidget(g);
 }
 
@@ -347,7 +347,7 @@ void IVKnobControl::Draw(IGraphics& g)
 {
   DrawBackGround(g, mRECT);
   DrawWidget(g);
-  DrawTitle(g);
+  DrawLabel(g);
   DrawValue(g, mValueMouseOver);
 }
 
@@ -458,7 +458,7 @@ void IVSliderControl::Draw(IGraphics& g)
 {
   DrawBackGround(g, mRECT);
   DrawWidget(g);
-  DrawTitle(g);
+  DrawLabel(g);
   DrawValue(g, mValueMouseOver);
 }
 
@@ -509,7 +509,7 @@ void IVSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   else
   {
     if(mStyle.hideCursor)
-      GetUI()->HideMouseCursor(true, true);
+      GetUI()->HideMouseCursor(true, false);
     
     ISliderControlBase::OnMouseDown(x, y, mod);
   }
@@ -674,19 +674,25 @@ IVXYPadControl::IVXYPadControl(IRECT bounds, const std::initializer_list<int>& p
 
 void IVXYPadControl::Draw(IGraphics& g)
 {
-  float xpos = GetValue(0) * mRECT.W();
-  float ypos = GetValue(1) * mRECT.H();
+  DrawLabel(g);
+  DrawWidget(g);
+}
+
+void IVXYPadControl::DrawWidget(IGraphics& g)
+{
+  float xpos = GetValue(0) * mWidgetBounds.W();
+  float ypos = GetValue(1) * mWidgetBounds.H();
   
-  g.DrawVerticalLine(GetColor(kFG), mRECT, 0.5);
-  g.DrawHorizontalLine(GetColor(kFG), mRECT, 0.5);
-  DrawPressableCircle(g, IRECT(mRECT.L + xpos-mHandleRadius, mRECT.B - ypos-mHandleRadius, mRECT.L + xpos+mHandleRadius,  mRECT.B -ypos+mHandleRadius), mHandleRadius, mMouseDown, mMouseIsOver);
+  g.DrawVerticalLine(GetColor(kFG), mWidgetBounds, 0.5);
+  g.DrawHorizontalLine(GetColor(kFG), mWidgetBounds, 0.5);
+  DrawPressableCircle(g, IRECT(mWidgetBounds.L + xpos-mHandleRadius, mWidgetBounds.B - ypos-mHandleRadius, mWidgetBounds.L + xpos+mHandleRadius,  mWidgetBounds.B -ypos+mHandleRadius), mHandleRadius, mMouseDown, mMouseIsOver);
 }
 
 void IVXYPadControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   mMouseDown = true;
   if(mStyle.hideCursor)
-    GetUI()->HideMouseCursor(true, true);
+    GetUI()->HideMouseCursor(true, false);
 
   OnMouseDrag(x, y, 0., 0., mod);
 }
@@ -708,6 +714,13 @@ void IVXYPadControl::OnMouseDrag(float x, float y, float dX, float dY, const IMo
   SetValue(xn, 0);
   SetValue(yn, 1);
   SetDirty(true);
+}
+
+void IVXYPadControl::OnResize()
+{
+  SetTargetRECT(CalculateRects(mRECT, mLabelStr.Get()));
+
+  SetDirty(false);
 }
 
 #pragma mark - BITMAP CONTROLS
