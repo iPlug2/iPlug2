@@ -634,7 +634,6 @@
 		4FB1F58820E4AFEF004157C8 /* IGraphicsMac_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsMac_view.h; path = ../../../IGraphics/Platforms/IGraphicsMac_view.h; sourceTree = "<group>"; };
 		4FB600331567CB0A0020189A /* IPlugControls.aaxplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugControls.aaxplugin; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FBAA593207918230054E717 /* IPlugDelegate_select.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugDelegate_select.h; path = ../../../IPlug/IPlugDelegate_select.h; sourceTree = "<group>"; };
-		4FBBD7F320B6AB9800A37DE2 /* config */ = {isa = PBXFileReference; lastKnownFileType = folder; name = config; path = ../config; sourceTree = "<group>"; };
 		4FC3EFC42086C0A600BD11FA /* IPlugControlsVST3Controller.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = IPlugControlsVST3Controller.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FC3EFDC2086CE5600BD11FA /* eventlist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = eventlist.cpp; sourceTree = "<group>"; };
 		4FC3EFDD2086CE5600BD11FA /* eventlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = eventlist.h; sourceTree = "<group>"; };
@@ -843,7 +842,6 @@
 		32C88E010371C26100C91783 /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
-				4FBBD7F320B6AB9800A37DE2 /* config */,
 				4F3862FF2014BCC70009F402 /* scripts */,
 				4FF7B0D4156A825000E6CB12 /* common-mac.xcconfig */,
 				4FDA600620B586AC00C49ABA /* IPlugControls-mac.xcconfig */,
