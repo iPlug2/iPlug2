@@ -751,8 +751,13 @@ public:
     g.FillRect(GetColor(kBG), bounds);
     
     IRECT handleBounds = GetAdjustedHandleBounds(bounds);
-    const float cornerRadius = mStyle.roundness * (handleBounds.W() / 2.f);
+    float cornerRadius;
     
+    if(handleBounds.W() < handleBounds.H())
+      cornerRadius = mStyle.roundness * (handleBounds.W() / 2.f);
+    else
+      cornerRadius = mStyle.roundness * (handleBounds.H() / 2.f);
+
     if (pressed)
     {
       g.FillRoundRect(GetColor(kPR), handleBounds, cornerRadius);
