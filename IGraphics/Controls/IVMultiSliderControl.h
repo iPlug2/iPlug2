@@ -32,16 +32,14 @@ public:
     mOuterPadding = 0.f;
     mDrawTrackFrame = false;
     mTrackPadding = 1.f;
-    SetColor(kFG, COLOR_BLACK);
   }
 
-  IVMultiSliderControl(IRECT bounds, const IVStyle& style = DEFAULT_STYLE, int loParamIdx = kNoParameter, EDirection dir = kVertical, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  IVMultiSliderControl(IRECT bounds, const IVStyle& style, int loParamIdx, EDirection dir, float minTrackValue, float maxTrackValue, const char* trackNames = 0, ...)
   : IVTrackControlBase(bounds, style, loParamIdx, MAXNC, dir, minTrackValue, maxTrackValue, trackNames)
   {
     mOuterPadding = 0.f;
     mDrawTrackFrame = false;
     mTrackPadding = 1.f;
-    SetColor(kFG, COLOR_BLACK);
   }
 
   int GetValIdxForPos(float x, float y) const override

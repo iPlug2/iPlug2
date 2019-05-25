@@ -61,7 +61,6 @@ void DefaultAnimationFunc(IControl* pCaller);
 void SplashClickActionFunc(IControl* pCaller);
 void SplashAnimationFunc(IControl* pCaller);
 
-using Time = std::chrono::high_resolution_clock;
 using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
 using Milliseconds = std::chrono::duration<double, std::chrono::milliseconds::period>;
 
@@ -592,7 +591,16 @@ struct IText
     mSize = size;
     strcpy(mFont, (font ? font : DEFAULT_FONT));
   }
-    
+  
+  IText WithColors(const IColor& fgColor, const IColor& teBgColor = DEFAULT_TEXTENTRY_BGCOLOR, const IColor& teFgColor = DEFAULT_TEXTENTRY_FGCOLOR) const
+  {
+    IText newText = *this;
+    newText.mFGColor = fgColor;
+    newText.mTextEntryBGColor = teBgColor;
+    newText.mTextEntryFGColor = teFgColor;
+    return newText;
+  }
+  
   char mFont[FONT_LEN];
   float mSize;
   IColor mFGColor;
@@ -2577,6 +2585,20 @@ struct IVStyle
   {
   }
   
+  IVStyle WithShowLabel(bool show) const
+  {
+    IVStyle newStyle = *this;
+    newStyle.showLabel = show;
+    return newStyle;
+  }
+  
+  IVStyle WithShowValue(bool show) const
+  {
+    IVStyle newStyle = *this;
+    newStyle.showValue = show;
+    return newStyle;
+  }
+  
   IVStyle WithLabelText(const IText& text) const
   {
     IVStyle newStyle = *this;
@@ -2588,6 +2610,20 @@ struct IVStyle
   {
     IVStyle newStyle = *this;
     newStyle.valueText = text;
+    return newStyle;
+  }
+  
+  IVStyle WithColor(EVColor idx, IColor color) const
+  {
+    IVStyle newStyle = *this;
+    newStyle.colorSpec.mColors[idx] = color;
+    return newStyle;
+  }
+  
+  IVStyle WithColors(IVColorSpec spec) const
+  {
+    IVStyle newStyle = *this;
+    newStyle.colorSpec = spec;
     return newStyle;
   }
 };

@@ -437,7 +437,7 @@ public:
     if(!mAnimationFunc)
       return 0.;
     
-    auto elapsed = Milliseconds(Time::now() - mAnimationStartTime);
+    auto elapsed = Milliseconds(std::chrono::high_resolution_clock::now() - mAnimationStartTime);
     return elapsed.count() / mAnimationDuration.count();
   }
   
@@ -1065,7 +1065,7 @@ private:
   
   virtual void DrawTrackBG(IGraphics& g, IRECT& r, int chIdx)
   {
-    g.FillRect(GetColor(kSH), r);
+    g.FillRect(kBG, r);
   }
   
   virtual void DrawTrackHandle(IGraphics& g, IRECT& r, int chIdx)
@@ -1086,7 +1086,7 @@ private:
   
   virtual void DrawPeak(IGraphics& g, IRECT& r, int chIdx)
   {
-    g.FillRect(GetColor(kHL), r);
+    g.FillRect(GetColor(kFR), r);
   }
   
   void OnResize() override
@@ -1095,14 +1095,13 @@ private:
   }
   
 protected:
-  
   EDirection mDirection = EDirection::kVertical;
   WDL_TypedBuf<IRECT> mTrackBounds;
   float mMinTrackValue;
   float mMaxTrackValue;
   float mOuterPadding = 10.;
   float mTrackPadding = 2;
-  float mPeakSize = 5.;
+  float mPeakSize = 1.;
   bool mDrawTrackFrame = true;
 };
 

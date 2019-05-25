@@ -581,7 +581,7 @@ void IVRangeSliderControl::DrawWidget(IGraphics & g)
 
   IRECT filledTrack = { mTrack.L, mTrack.B - (maxVal * mTrack.H()), mTrack.R, mTrack.B - (minVal * mTrack.H()) };
 
-  g.FillRect(GetColor(kFR), mTrack);
+  g.FillRect(GetColor(kSH), mTrack);
   g.FillRect(GetColor(kFG), filledTrack);
   g.DrawRect(GetColor(kFR), mTrack);
 

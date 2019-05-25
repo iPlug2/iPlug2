@@ -101,6 +101,19 @@ enum EVColor
   kNumDefaultVColors
 };
 
+static const char* kVColorStrs[kNumDefaultVColors] =
+{
+  "background",
+  "foreground/off states",
+  "pressed/on states",
+  "frame",
+  "highlight",
+  "shadow",
+  "extra1/greyed",
+  "extra2",
+  "extra3"
+};
+
 enum EFillRule
 {
   kFillWinding,

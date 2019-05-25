@@ -101,7 +101,6 @@ public:
 
   void SetShape(IVShape shape) { mShape = shape; SetDirty(false); }
   int GetSelectedIdx() const { return int(0.5 + GetValue() * (double) (mNumStates - 1)); }
-  
 protected:
   int mMouseOverButton = -1;
   IVShape mShape;
@@ -273,7 +272,14 @@ public:
 
   void Draw(IGraphics& g) override
   {
-    g.DrawBitmap(mBitmap, mRECT, (int) GetValue() + 1, &mBlend);
+    int i = 1;
+    if (mBitmap.N() > 1)
+    {
+      i = 1 + int(0.5 + GetValue() * (double) (mBitmap.N() - 1));
+      i = Clip(i, 1, mBitmap.N());
+    }
+    
+    g.DrawBitmap(mBitmap, mRECT, i, &mBlend);
   }
 
   void OnRescale() override

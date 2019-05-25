@@ -105,8 +105,9 @@ public:
     bool mPrevAboveThreshold = true;
   };
 
-  IVScopeControl(IRECT bounds, const char* trackNames = 0, ...)
+  IVScopeControl(IRECT bounds, const IVStyle& style, const char* trackNames = 0, ...)
   : IControl(bounds)
+  , IVectorBase(style)
   {
     AttachIControl(this, "");
   }
@@ -114,7 +115,9 @@ public:
   void Draw(IGraphics& g) override
   {
     g.FillRect(GetColor(kBG), mRECT);
-
+    g.DrawRect(GetColor(kFR), mRECT, nullptr, mStyle.frameThickness);
+    g.DrawHorizontalLine(GetColor(kHL), mRECT, 0.5, nullptr, mStyle.frameThickness);
+    
     IRECT r = mRECT.GetPadded(-mPadding);
 
     const float maxY = (r.H() / 2.f); // y +/- centre

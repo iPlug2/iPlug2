@@ -114,6 +114,16 @@ public:
       AddItem(item);
   }
   
+  IPopupMenu(const std::initializer_list<const char*>& items, IPopupFunction func)
+  : mPrefix(0)
+  , mCanMultiCheck(false)
+  {
+    for (auto& item : items)
+      AddItem(item);
+    
+    SetFunction(func);
+  }
+  
   ~IPopupMenu()
   {
     mMenuItems.Empty(true);
