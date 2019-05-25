@@ -9,8 +9,8 @@ enum EParams
 {
   kGain = 0,
   kMode,
-  kX,
-  kY,
+  kFreq1,
+  kFreq2,
   kNumParams
 };
 

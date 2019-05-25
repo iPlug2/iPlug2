@@ -73,8 +73,8 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 {
   GetParam(kGain)->InitDouble("Gain", 100., 0., 100.0, 0.01, "%");
   GetParam(kMode)->InitEnum("Mode", 0, 4, "", IParam::kFlagsNone, "", "one", "two", "three", "four");
-  GetParam(kX)->InitDouble("X", 50., 0., 100.0, 0.01, "%");
-  GetParam(kY)->InitDouble("Y", 50., 0., 100.0, 0.01, "%");
+  GetParam(kFreq1)->InitDouble("Freq 1 - X", 50., 0., 100.0, 0.01, "%");
+  GetParam(kFreq2)->InitDouble("Freq 2 - Y", 50., 0., 100.0, 0.01, "%");
 
 #if IPLUG_EDITOR // All UI methods and member variables should be within an IPLUG_EDITOR guard, should you want distributed UI
   mMakeGraphicsFunc = [&]() {
@@ -176,7 +176,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 
     pGraphics->AttachControl(new IVKnobControl(nextCell().GetCentredInside(110.), kGain, "IVKnobControl", style, true));
     pGraphics->AttachControl(new IVSliderControl(nextCell().GetCentredInside(110.), kGain, "IVSliderControl", style, true));
-    pGraphics->AttachControl(new IVRangeSliderControl(nextCell().GetCentredInside(110.), kX, kY, "IVRangeSliderControl", style, kVertical, true, 10.f, 50.f));
+    pGraphics->AttachControl(new IVRangeSliderControl(nextCell().GetCentredInside(110.), kFreq1, kFreq2, "IVRangeSliderControl", style, kVertical, true, 10.f, 50.f));
 
     pGraphics->AttachControl(new IVButtonControl(nextCell().GetCentredInside(110.), button1action, "IVButtonControl", style, false), kCtrlTagVectorButton);
     AddLabel("IVButtonControl 2");
@@ -206,7 +206,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 
     }, {"One", "Two", "Three"}, "IVRadioButtonControl", style, kVShapeCircle, 5.f));
 
-    pGraphics->AttachControl(new IVXYPadControl(nextCell(), {kX, kY}, "IVXYPadControl", style));
+    pGraphics->AttachControl(new IVXYPadControl(nextCell(), {kFreq1, kFreq2}, "IVXYPadControl", style));
 
     AddLabel("ITextControl");
     pGraphics->AttachControl(new ITextControl(sameCell().GetMidVPadded(20.f), "Result...", DEFAULT_TEXT, COLOR_LIGHT_GRAY), kCtrlTagDialogResult);
@@ -234,10 +234,16 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     }, "Angle", style, true, kHorizontal));
     
     IRECT cell = nextCell().Union(nextCell()).Union(nextCell());
-    for(int i = 0; i < kNumDefaultVColors; i++) {
+    for(int i = 0; i < kNumDefaultVColors; i++)
+    {
       IRECT r = cell.GetGridCell(i, 3, 3);
-      pGraphics->AttachControl(new IPanelControl(r, style.colorSpec.GetColor((EVColor) i)));
-      pGraphics->AttachControl(new ITextControl(r, kVColorStrs[i]));
+      pGraphics->AttachControl(new IVButtonControl(r, [](IControl* pCaller){
+        SplashClickActionFunc(pCaller);
+        IColor currentColor = dynamic_cast<IVButtonControl*>(pCaller)->GetColor(kFG);
+        pCaller->GetUI()->PromptForColor(currentColor, "", [=](const IColor& result) {
+                                           dynamic_cast<IVButtonControl*>(pCaller)->SetColor(kFG, result);
+                                         });
+      }, kVColorStrs[i], style.WithColor(kFG, DEFAULT_SPEC.mColors[i]).WithDrawFrame(false).WithDrawShadows(false)));
     }
     
     
@@ -286,12 +292,15 @@ void IPlugControls::OnIdle()
 
 void IPlugControls::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
-//  const double gain = GetParam(kGain)->Value() / 100.;
-  
+  const double phaseIncr1 = GetParam(kFreq1)->Value() * 0.00001;
+  const double phaseIncr2 = GetParam(kFreq2)->Value() * 0.00001;
+
   for (int s = 0; s < nFrames; s++) {
-    static double phase = 0.;
-    outputs[0][s] = cos(phase);
-    outputs[1][s] = sin(phase += 0.00001);
+    static double phase1 = 0.;
+    static double phase2 = 0.;
+
+    outputs[0][s] = cos(phase1 += phaseIncr1);
+    outputs[1][s] = sin(phase2 += phaseIncr2);
   }
   
   mScopeBallistics.ProcessBlock(outputs, nFrames);

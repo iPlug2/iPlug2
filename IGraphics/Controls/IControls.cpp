@@ -469,7 +469,7 @@ void IVSliderControl::DrawWidget(IGraphics& g)
   //track
   IRECT filledTrack = mTrack.FracRect(mDirection, (float) GetValue());
 
-  g.FillRect(GetColor(kFR), mTrack);
+  g.FillRect(GetColor(kSH), mTrack);
   g.FillRect(GetColor(kFG), filledTrack);
   
   g.DrawRect(GetColor(kFR), mTrack);
@@ -674,6 +674,7 @@ IVXYPadControl::IVXYPadControl(IRECT bounds, const std::initializer_list<int>& p
 
 void IVXYPadControl::Draw(IGraphics& g)
 {
+  DrawBackGround(g, mRECT);
   DrawLabel(g);
   DrawWidget(g);
 }
