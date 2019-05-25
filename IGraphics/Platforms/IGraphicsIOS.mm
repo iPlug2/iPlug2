@@ -115,7 +115,7 @@ void IGraphicsIOS::PromptForDirectory(WDL_String& dir)
 {
 }
 
-bool IGraphicsIOS::PromptForColor(IColor& color, const char* str)
+bool IGraphicsIOS::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
 {
   return false;
 }

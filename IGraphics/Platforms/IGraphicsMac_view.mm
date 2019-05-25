@@ -1109,6 +1109,24 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   mTextFieldView = nullptr;
 }
 
+- (BOOL) promptForColor: (IColor&) color : (IColorPickerHandlerFunc) func;
+{
+  NSColorPanel* colorPicker = [NSColorPanel sharedColorPanel];
+  [colorPicker setColor:ToNSColor(color)];
+  [colorPicker setTarget:self];
+  [colorPicker setAction:@selector(onColorPicked:)];
+  [colorPicker orderFront:nil];
+
+  mColorPickerFunc = func;
+  
+  return colorPicker != nil;
+}
+
+- (void) onColorPicked: (NSColorPanel*) colorPanel
+{
+  mColorPickerFunc(FromNSColor(colorPanel.color));
+}
+
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData
 {
   int c = mGraphics ? GetMouseOver(mGraphics) : -1;

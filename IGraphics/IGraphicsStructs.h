@@ -46,6 +46,7 @@ class ILambdaControl;
 struct IRECT;
 struct IMouseInfo;
 struct IKeyPress;
+struct IColor;
 
 template <typename T = double>
 inline T DegToRad(T degrees);
@@ -55,6 +56,8 @@ using IAnimationFunction = std::function<void(IControl*)>;
 using ILambdaDrawFunction = std::function<void(ILambdaControl*, IGraphics&, IRECT&)>;
 using IKeyHandlerFunc = std::function<bool(const IKeyPress& key, bool isUp)>;
 using IMsgBoxCompletionHanderFunc = std::function<void(EMsgBoxResult result)>;
+using IColorPickerHandlerFunc = std::function<void(const IColor& result)>;
+
 
 void DefaultClickActionFunc(IControl* pCaller);
 void DefaultAnimationFunc(IControl* pCaller);

@@ -509,9 +509,11 @@ void IGraphicsMac::PromptForDirectory(WDL_String& dir)
   }
 }
 
-bool IGraphicsMac::PromptForColor(IColor& color, const char* str)
+bool IGraphicsMac::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
 {
-  //TODO:
+  if (mView)
+    return [(IGRAPHICS_VIEW*) mView promptForColor:color : func];
+
   return false;
 }
 
