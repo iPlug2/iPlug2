@@ -93,7 +93,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachCornerResizer(kUIResizerScale, true);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->EnableTooltips(true);
-//    pGraphics->AttachTextEntryControl();
+    pGraphics->AttachTextEntryControl();
     
     IRECT b = pGraphics->GetBounds().GetPadded(-5);
     
@@ -102,8 +102,29 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     
     const IBitmap bitmap1 = pGraphics->LoadBitmap(PNGKNOB_FN, 60);
     const IBitmap bitmap2 = pGraphics->LoadBitmap(PNGKNOBROTATE_FN);
+    const IBitmap switchBitmap = pGraphics->LoadBitmap(PNGSWITCH_FN, 2, true);
+    const IBitmap buttonBitmap = pGraphics->LoadBitmap(PNGBUTTON_FN, 10);
+
     const ISVG vectorknob = pGraphics->LoadSVG(SVGKNOBROTATE_FN);
     
+    const IVStyle style {
+      true, // Show label
+      true, // Show value
+      {
+        DEFAULT_BGCOLOR, // Background
+        DEFAULT_FGCOLOR, // Foreground
+        DEFAULT_PRCOLOR, // Pressed
+        COLOR_BLACK, // Frame
+        DEFAULT_HLCOLOR, // Highlight
+        DEFAULT_SHCOLOR, // Shadow
+        DEFAULT_X1COLOR, // Extra 1
+        DEFAULT_X2COLOR, // Extra 2
+        DEFAULT_X3COLOR  // Extra 3
+      }, // Colors
+      IText(12.f, IText::kAlignCenter) // Label text
+    };
+    
+    const IText forkAwesomeText {24.f, "ForkAwesome"};
     const IText bigLabel {24, COLOR_WHITE, "Roboto-Regular", IText::kAlignNear, IText::kVAlignTop, 0};
     const IText buttonLabels {14, COLOR_BLACK, "Roboto-Regular", IText::kAlignCenter, IText::kVAlignMiddle, 0};
 
@@ -121,25 +142,8 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
       return b.GetGridCell(cellIdx, nRows, nCols).GetPadded(-5.);
     };
     
-    const IVStyle style {
-      true, // Show label
-      true, // Show value
-      {
-        DEFAULT_BGCOLOR, // Background
-        DEFAULT_FGCOLOR, // Foreground
-        DEFAULT_PRCOLOR, // Pressed
-        DEFAULT_FRCOLOR, // Frame
-        DEFAULT_HLCOLOR, // Highlight
-        DEFAULT_SHCOLOR, // Shadow
-        DEFAULT_X1COLOR, // Extra 1
-        DEFAULT_X2COLOR, // Extra 2
-        DEFAULT_X3COLOR  // Extra 3
-      }, // Colors
-      IText(12.f, IText::kAlignCenter) // Label text
-    };
-    const IText forkAwesomeText {24.f, "ForkAwesome"};
     
-    auto AddLabel = [&](const char* label) {
+    auto AddLabel = [&](const char* label){
       pGraphics->AttachControl(new ITextControl(nextCell().GetFromTop(20.f), label, style.labelText));
     };
   
@@ -148,31 +152,51 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     AddLabel("IBKnobRotaterControl");
     pGraphics->AttachControl(new IBKnobRotaterControl(sameCell().GetPadded(-5.), bitmap2, kGain));
     AddLabel("IBSwitchControl");
-    pGraphics->AttachControl(new IBSwitchControl(sameCell(), bitmap1));
+    pGraphics->AttachControl(new IBSwitchControl(sameCell(), switchBitmap));
     AddLabel("IBButtonControl");
-    pGraphics->AttachControl(new IBButtonControl(sameCell(), bitmap1));
+    pGraphics->AttachControl(new IBButtonControl(sameCell(), buttonBitmap, [](IControl* pCaller) {
+      pCaller->SetAnimation([](IControl* pCaller){
+        auto progress = pCaller->GetAnimationProgress();
+        if(progress > 1.) {
+          pCaller->OnEndAnimation();
+          return;
+        }
+        pCaller->SetValue(Clip(progress + .5, 0., 1.));
+      }, 100);
+    }));
 
-    auto button1action = [](IControl* pCaller) {
+    auto button1action = [&](IControl* pCaller){
       SplashClickActionFunc(pCaller);
       pCaller->GetUI()->ShowMessageBox("Message Title", "Message", kMB_YESNO, [&](EMsgBoxResult result) {
                                                       WDL_String str;
                                                       str.SetFormatted(32, "%s pressed", kMessageResultStrs[result]);
-                                                      dynamic_cast<ITextControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagDialogResult))->SetStr(str.Get());
+                                                      dynamic_cast<ITextControl*>(GetUI()->GetControlWithTag(kCtrlTagDialogResult))->SetStr(str.Get());
                                                     });
     };
 
     pGraphics->AttachControl(new IVKnobControl(nextCell().GetCentredInside(110.), kGain, "IVKnobControl", style, true));
     pGraphics->AttachControl(new IVSliderControl(nextCell().GetCentredInside(110.), kGain, "IVSliderControl", style, true));
-    pGraphics->AttachControl(new IVRangeSliderControl(nextCell().GetCentredInside(110.), kX, kY, "IVRangeSliderControl", style, kVertical, 2.f, 10.f, 50.f));
+    pGraphics->AttachControl(new IVRangeSliderControl(nextCell().GetCentredInside(110.), kX, kY, "IVRangeSliderControl", style, kVertical, true, 10.f, 50.f));
 
-    pGraphics->AttachControl(new IVButtonControl(nextCell(), button1action, "IVButtonControl", style, false), kCtrlTagVectorButton);
+    pGraphics->AttachControl(new IVButtonControl(nextCell().GetCentredInside(110.), button1action, "IVButtonControl", style, false), kCtrlTagVectorButton);
     AddLabel("IVButtonControl 2");
-    pGraphics->AttachControl(new IVButtonControl(sameCell(), button1action, "Label in button", style, true));
+    pGraphics->AttachControl(new IVButtonControl(sameCell().GetCentredInside(110.), button1action, "Label in button", style, true));
 
     AddLabel("IVButtonControl 3");
-    pGraphics->AttachControl(new IVButtonControl(sameCell(), SplashClickActionFunc, ICON_FK_BOMB, style.WithLabelText(forkAwesomeText), true));
+    pGraphics->AttachControl(new IVButtonControl(sameCell().GetCentredInside(110.), [](IControl* pCaller){
+      
+      SplashClickActionFunc(pCaller);
 
-    pGraphics->AttachControl(new IVSwitchControl(nextCell().GetCentredInside(110.), kMode, "IVSwitchControl", style));
+      static IPopupMenu menu {{"One", "Two", "Three"}, [](int indexInMenu, IPopupMenu::Item* itemChosen) {
+        
+        }
+      };
+      
+      pCaller->GetUI()->CreatePopupMenu(*pCaller, menu, pCaller->GetRECT());
+      
+    }, ICON_FK_BOMB, style.WithLabelText(forkAwesomeText), true));
+
+    pGraphics->AttachControl(new IVSwitchControl(nextCell().GetCentredInside(110.), kMode, "IVSwitchControl", style.WithValueText(IText(36.f, IText::kAlignCenter))));
 
     pGraphics->AttachControl(new IVToggleControl(nextCell().GetCentredInside(110.), SplashClickActionFunc, "", ICON_FK_CHECK, "IVToggleControl", style.WithValueText(forkAwesomeText)));
 
@@ -188,13 +212,15 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new ITextControl(sameCell().GetMidVPadded(20.f), "Result...", DEFAULT_TEXT, COLOR_LIGHT_GRAY), kCtrlTagDialogResult);
 
     AddLabel("ITextToggleControl");
-    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 0, 4, 3), [](IControl* pCaller){}, ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE, forkAwesomeText));
-    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 1, 4, 3), [](IControl* pCaller){}, ICON_FK_CIRCLE_O, ICON_FK_CHECK_CIRCLE, forkAwesomeText));
-    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 2, 4, 3), [](IControl* pCaller){}, ICON_FK_PLUS_SQUARE, ICON_FK_MINUS_SQUARE, forkAwesomeText));
+    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 0, 3, 3), nullptr, ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE, forkAwesomeText));
+    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 1, 3, 3), nullptr, ICON_FK_CIRCLE_O, ICON_FK_CHECK_CIRCLE, forkAwesomeText));
+    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 2, 3, 3), nullptr, ICON_FK_PLUS_SQUARE, ICON_FK_MINUS_SQUARE, forkAwesomeText));
 
 
-    pGraphics->AttachControl(new IVMeterControl<2>(nextCell()), 0);
-    pGraphics->AttachControl(new IVScopeControl<>(nextCell()), 0);
+    pGraphics->AttachControl(new IVMultiSliderControl<4>(nextCell(), style));
+
+    pGraphics->AttachControl(new IVMeterControl<2>(nextCell(), style), kCtrlTagMeter);
+    pGraphics->AttachControl(new IVScopeControl<2>(nextCell(), style.WithColor(kFG, COLOR_BLACK)), kCtrlTagScope);
     
     pGraphics->AttachControl(new ISVGKnob(nextCell().GetCentredInside(100), vectorknob, kGain));
     
@@ -206,6 +232,16 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new IVSliderControl(sameCell().GetGridCell(1, 0, 3, 1), [](IControl* pCaller) {
       dynamic_cast<IVButtonControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagVectorButton))->SetAngle(pCaller->GetValue() * 360.);
     }, "Angle", style, true, kHorizontal));
+    
+    IRECT cell = nextCell().Union(nextCell()).Union(nextCell());
+    for(int i = 0; i < kNumDefaultVColors; i++) {
+      IRECT r = cell.GetGridCell(i, 3, 3);
+      pGraphics->AttachControl(new IPanelControl(r, style.colorSpec.GetColor((EVColor) i)));
+      pGraphics->AttachControl(new ITextControl(r, kVColorStrs[i]));
+    }
+    
+    
+    
 //
 //    auto button2action = [](IControl* pCaller) {
 //      SplashClickActionFunc(pCaller);
@@ -227,7 +263,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 //    pGraphics->AttachControl(pLabel = new ITextControl(b.GetGridCell(2, nRows, 1), "Text Controls", bigLabel));
 //    pLabel->SetBoundsBasedOnTextDimensions();
 //
-//    pGraphics->AttachControl(new ICaptionControl(b.GetGridCell(10, nRows, nCols).GetMidVPadded(20.), kGain, IText(50), false));
+    pGraphics->AttachControl(new ICaptionControl(nextCell().GetMidVPadded(20.), kGain, style.labelText.WithColors(COLOR_RED, COLOR_BLACK, COLOR_RED), false));
 //
 //    pGraphics->AttachControl(pLabel = new ITextControl(b.GetGridCell(3, nRows, 1), "Misc Controls", bigLabel));
 //    pLabel->SetBoundsBasedOnTextDimensions();
@@ -242,15 +278,28 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 }
 
 #if IPLUG_DSP
+void IPlugControls::OnIdle()
+{
+  mScopeBallistics.TransmitData(*this);
+  mMeterBallistics.TransmitData(*this);
+}
+
 void IPlugControls::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
 //  const double gain = GetParam(kGain)->Value() / 100.;
-  const int nChans = NOutChansConnected();
   
   for (int s = 0; s < nFrames; s++) {
-    for (int c = 0; c < nChans; c++) {
-      outputs[c][s] = 0.;
-    }
+    static double phase = 0.;
+    outputs[0][s] = cos(phase);
+    outputs[1][s] = sin(phase += 0.00001);
+  }
+  
+  mScopeBallistics.ProcessBlock(outputs, nFrames);
+  mMeterBallistics.ProcessBlock(outputs, nFrames);
+
+  for (int s = 0; s < nFrames; s++) {
+    outputs[0][s] = 0.;
+    outputs[1][s] = 0.;
   }
 }
 #endif

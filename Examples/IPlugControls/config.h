@@ -52,4 +52,7 @@
 #define ROBOTO_FN "Roboto-Regular.ttf"
 #define PNGKNOB_FN "knob.png"
 #define PNGKNOBROTATE_FN "knob-rotate.png"
+#define PNGSWITCH_FN "switch.png"
+#define PNGBUTTON_FN "button.png"
+
 #define SVGKNOBROTATE_FN "vector-knob.svg"
