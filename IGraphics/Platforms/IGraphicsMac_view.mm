@@ -1112,12 +1112,13 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 - (BOOL) promptForColor: (IColor&) color : (IColorPickerHandlerFunc) func;
 {
   NSColorPanel* colorPicker = [NSColorPanel sharedColorPanel];
+  mColorPickerFunc = func;
+
+  [colorPicker setShowsAlpha:TRUE];
   [colorPicker setColor:ToNSColor(color)];
   [colorPicker setTarget:self];
   [colorPicker setAction:@selector(onColorPicked:)];
   [colorPicker orderFront:nil];
-
-  mColorPickerFunc = func;
   
   return colorPicker != nil;
 }
