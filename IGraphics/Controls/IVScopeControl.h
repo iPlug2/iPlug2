@@ -130,14 +130,16 @@ public:
       float yHi = mBuf.vals[c][0] * maxY;
       yHi = Clip(yHi, -maxY, maxY);
 
+      g.PathMoveTo(r.L + xHi, r.MH() - yHi);
       for (int s = 1; s < MAXBUF; s++)
       {
-        float xLo = xHi, yLo = yHi;
         xHi = ((float) s * xPerData);
         yHi = mBuf.vals[c][s] * maxY;
         yHi = Clip(yHi, -maxY, maxY);
-        g.DrawLine(GetColor(kFG), r.L + xLo, r.MH() - yLo, r.L + xHi, r.MH() - yHi);
+        g.PathLineTo(r.L + xHi, r.MH() - yHi);
       }
+      
+      g.PathStroke(GetColor(kFG), 1.0);
     }
   }
 
