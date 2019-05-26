@@ -256,7 +256,7 @@ void IPlugVST3::InformHostOfParameterDetailsChange()
   handler->restartComponent(kParamTitlesChanged);
 }
 
-void IPlugVST3::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
+bool IPlugVST3::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
 {
   if (HasUI())
   {
@@ -265,6 +265,8 @@ void IPlugVST3::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeigh
 
     IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
   }
+  
+  return true;
 }
 
 void IPlugVST3::DirtyParametersFromUI()

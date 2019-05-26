@@ -30,7 +30,7 @@ public:
   void* OpenWindow(void* pWindow) override;
   void CloseWindow() override;
   bool WindowIsOpen() override;
-  void PlatformResize() override;
+  void PlatformResize(bool parentHasResized) override;
   
   void PointToScreen(float& x, float& y);
   void ScreenToPoint(float& x, float& y);

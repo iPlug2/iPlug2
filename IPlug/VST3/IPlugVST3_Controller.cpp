@@ -133,7 +133,7 @@ tresult PLUGIN_API IPlugVST3Controller::getProgramName(ProgramListID listId, int
 //  }
 //}
 
-void IPlugVST3Controller::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
+bool IPlugVST3Controller::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
 {
   if (HasUI())
   {
@@ -142,6 +142,8 @@ void IPlugVST3Controller::EditorPropertiesChangedFromDelegate(int viewWidth, int
  
     IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
   }
+  
+  return true;
 }
 
 void IPlugVST3Controller::DirtyParametersFromUI()

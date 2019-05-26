@@ -65,8 +65,9 @@ public:
   /** Get a pointer to the IGraphics context */
   IGraphics* GetUI() { return mGraphics.get(); };
 
-  /** Called when the IGraphics context properties are changed */
-  void EditorPropertiesModified();
+  /** Called when the IGraphics context properties are changed
+   * @return \c true if the base API resized the window */
+  bool EditorPropertiesModified();
   
   /** Override this method to serialize custom editor state data.
   * @param chunk The output bytechunk where data can be serialized
