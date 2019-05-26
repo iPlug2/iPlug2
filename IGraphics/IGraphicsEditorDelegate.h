@@ -86,7 +86,7 @@ protected:
   std::function<void(IGraphics* pGraphics)> mLayoutFunc = nullptr;
 private:
     
-  int UpdateSizeAndData();
+  int UpdateSizeAndData(const IByteChunk& data, int startPos);
 
   std::unique_ptr<IGraphics> mGraphics;
   bool mIGraphicsTransient = false; // If creating IGraphics on demand this will be true
