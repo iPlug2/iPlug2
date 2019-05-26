@@ -84,6 +84,15 @@ bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos) con
   return isEqual;
 }
 
+bool IPlugAPIBase::EditorPropertiesChangedFromDelegate(int width, int height, const IByteChunk& data)
+{
+  mEditorWidth = width;
+  mEditorHeight = height;
+  mEditorData = data;
+
+  return false;
+}
+
 #pragma mark -
 
 void IPlugAPIBase::PrintDebugInfo() const

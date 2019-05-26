@@ -63,7 +63,7 @@ public:
   void DirtyParametersFromUI() override;
   
   // IPlugProcessor
-  void EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data) override;
+  bool EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data) override;
   void SetLatency(int samples) override;
   
   // AudioEffect
