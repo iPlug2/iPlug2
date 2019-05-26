@@ -76,7 +76,7 @@ tresult PLUGIN_API IPlugVST3Controller::getState(IBStream* pState)
   return kResultOk;
 }
 
-ParamValue PLUGIN_API IPlugVST3Controller::getParamNormalized (ParamID tag)
+ParamValue PLUGIN_API IPlugVST3Controller::getParamNormalized(ParamID tag)
 {
   if (tag >= kBypassParam)
     return EditControllerEx1::getParamNormalized(tag);

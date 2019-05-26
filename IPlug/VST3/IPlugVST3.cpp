@@ -113,7 +113,7 @@ tresult PLUGIN_API IPlugVST3::getState(IBStream* pState)
 }
 
 #pragma mark IEditController overrides
-ParamValue PLUGIN_API IPlugVST3::getParamNormalized (ParamID tag)
+ParamValue PLUGIN_API IPlugVST3::getParamNormalized(ParamID tag)
 {
   if (tag >= kBypassParam)
     return EditControllerEx1::getParamNormalized(tag);
