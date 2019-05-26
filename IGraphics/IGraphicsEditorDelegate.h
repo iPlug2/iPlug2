@@ -37,6 +37,7 @@ public:
   void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize = 0, const void* pData = nullptr) override;
   void SendMidiMsgFromDelegate(const IMidiMsg& msg) override;
   void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
+  int SetEditorData(const IByteChunk& data, int startPos) override;
 
   /** If you override this method you must call the parent! */
   void OnUIOpen() override;
@@ -84,6 +85,8 @@ protected:
   std::function<IGraphics*()> mMakeGraphicsFunc = nullptr;
   std::function<void(IGraphics* pGraphics)> mLayoutFunc = nullptr;
 private:
+    
+  int UpdateSizeAndData();
 
   std::unique_ptr<IGraphics> mGraphics;
   bool mIGraphicsTransient = false; // If creating IGraphics on demand this will be true

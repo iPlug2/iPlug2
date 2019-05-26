@@ -249,6 +249,12 @@ public:
   /** @return An IByteChunk with any arbitrary data that the editor wishes to store  */
   const IByteChunk& GetEditorData() const { return mEditorData; }
   
+  /** This method should be called to set and unserialize editor data from the plugin
+   * @param data A IByteChunk containing the new data
+   * @param startPos Starting point in the chunk
+   * @return The new chunk position (endPos)*/
+  virtual int SetEditorData(const IByteChunk& data, int startPos) { return startPos; }
+
 protected:
   /** The width of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist. */
   int mEditorWidth = 0;

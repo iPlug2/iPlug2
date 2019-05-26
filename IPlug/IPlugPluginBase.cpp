@@ -152,6 +152,16 @@ int IPluginBase::UnserializeParams(const IByteChunk& chunk, int startPos)
   return pos;
 }
 
+bool IPluginBase::SerializeEditorData(IByteChunk& chunk) const
+{
+  return chunk.PutChunk(&GetEditorData()) > 0;
+}
+
+int IPluginBase::UnserializeEditorData(const IByteChunk& chunk, int startPos)
+{
+  SetEditorData(chunk, startPos);
+}
+
 void IPluginBase::InitParamRange(int startIdx, int endIdx, int countStart, const char* nameFmtStr, double defaultVal, double minVal, double maxVal, double step, const char *label, int flags, const char *group, const IParam::Shape& shape, IParam::EParamUnit unit, IParam::DisplayFunc displayFunc)
 {
   WDL_String nameStr;

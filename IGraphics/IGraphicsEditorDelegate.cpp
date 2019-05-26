@@ -25,22 +25,7 @@ void IGEditorDelegate::OnUIOpen()
 {
   IEditorDelegate::OnUIOpen();
   
-  int width = GetEditorWidth();
-  int height = GetEditorHeight();
-  float scale = 1.f;
-    
-  // Recall size data (if not present use the defaults above)
-    
-  const IByteChunk& data = GetEditorData();
-    
-  int pos = data.Get(&width, 0);
-  pos = data.Get(&height, pos);
-  pos = data.Get(&scale, pos);
-    
-  if (pos > 0)
-    GetUI()->Resize(width, height, scale);
-    
-  pos = UnSerializeEditorProperties(data, pos);
+  UpdateSizeAndData();
 }
 
 void* IGEditorDelegate::OpenWindow(void* pParent)
@@ -75,6 +60,11 @@ void IGEditorDelegate::CloseWindow()
     }
     mClosing = false;
   }
+}
+
+int IGEditorDelegate::SetEditorData(const IByteChunk& data, int startPos)
+{
+  return UpdateSizeAndData();
 }
 
 void IGEditorDelegate::SendControlValueFromDelegate(int controlTag, double normalizedValue)
@@ -184,4 +174,24 @@ bool IGEditorDelegate::EditorPropertiesModified()
   SerializeEditorProperties(data);
     
   return EditorPropertiesChangedFromUI(mGraphics->WindowWidth(), mGraphics->WindowHeight(), data);
+}
+
+int IGEditorDelegate::UpdateSizeAndData()
+{
+  int width = GetEditorWidth();
+  int height = GetEditorHeight();
+  float scale = 1.f;
+    
+  // Recall size data (if not present use the defaults above)
+    
+  const IByteChunk& data = GetEditorData();
+    
+  int pos = data.Get(&width, 0);
+  pos = data.Get(&height, pos);
+  pos = data.Get(&scale, pos);
+    
+  if (pos > 0)
+    GetUI()->Resize(width, height, scale);
+    
+  return UnSerializeEditorProperties(data, pos);
 }
