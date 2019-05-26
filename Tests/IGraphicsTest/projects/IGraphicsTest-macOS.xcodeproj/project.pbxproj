@@ -390,6 +390,7 @@
 		4F10D3D3203A6711003EF82A /* RtAudio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtAudio.cpp; path = ../../../Dependencies/IPlug/RTAudio/RtAudio.cpp; sourceTree = "<group>"; };
 		4F10D3D6203A6719003EF82A /* RtMidi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtMidi.h; path = ../../../Dependencies/IPlug/RTMidi/RtMidi.h; sourceTree = "<group>"; };
 		4F10D3D7203A6719003EF82A /* RtMidi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtMidi.cpp; path = ../../../Dependencies/IPlug/RTMidi/RtMidi.cpp; sourceTree = "<group>"; };
+		4F157AF422831632002C4759 /* TestGFXLabel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestGFXLabel.h; sourceTree = "<group>"; };
 		4F1A5279205D90FF00CF2908 /* IPlugVST2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugVST2.h; path = ../../../IPlug/VST2/IPlugVST2.h; sourceTree = "<group>"; };
 		4F1A527A205D910000CF2908 /* IPlugVST2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugVST2.cpp; path = ../../../IPlug/VST2/IPlugVST2.cpp; sourceTree = "<group>"; };
 		4F1A527C205D911900CF2908 /* IPlugVST3.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugVST3.cpp; path = ../../../IPlug/VST3/IPlugVST3.cpp; sourceTree = "<group>"; };
@@ -1084,6 +1085,7 @@
 		4F5FCF932246F723004F29F4 /* Test */ = {
 			isa = PBXGroup;
 			children = (
+				4F157AF422831632002C4759 /* TestGFXLabel.h */,
 				4F5FCF942246F723004F29F4 /* TestCursorControl.h */,
 				4F5FCF952246F723004F29F4 /* TestSizeControl.h */,
 				4F5FCF962246F723004F29F4 /* TestAnimationControl.h */,

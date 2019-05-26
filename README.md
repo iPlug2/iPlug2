@@ -1,8 +1,7 @@
-# iPlug 2 - C++ Audio Plug-in Framework for desktop and web
+# iPlug 2
+### C++ audio plug-in framework for desktop and web
 
 [![Build Status](https://dev.azure.com/iplug2/iplug2/_apis/build/status/iPlug2?branchName=master)](https://dev.azure.com/iplug2/iplug2/_build/latest?definitionId=2?branchName=master)
-
-[![patreon](Documentation/img/become_a_patron_button.png)](https://www.patreon.com/olilarkin)
 
 iPlug 2 is a simple-to-use C++ framework for developing cross platform audio plug-ins/apps and targeting multiple plug-in APIs with the same minimalistic code. It abstracts an audio plug-in (IPlug) and it's drawing engine/GUI toolkit (IGraphics). IGraphics uses a retained mode paradigm and contains a collection of common controls well suited for audio plug-in GUIs, either using bitmap or vector graphics. 
 
@@ -19,10 +18,7 @@ Please consider supporting the project by helping out with bug fixes, features o
 
 **NOTE: THIS IS NOT YET PRODUCTION READY - zero commercial/free plug-ins are shipping with iPlug 2 - there are many bugs still to fix and a few features to add!** 
 
+
 You may like to check out the [Web Audio Module version of VirtualCZ](https://virtualcz.io/) which has been made using iPlug 2. 
 
-
-
-
-
-[![faustaward](Documentation/img/faustaward2018.png)](http://faust.grame.fr/news/2018/07/23/Results-Faust-Awards-2018.html)
+[![patreon](Documentation/img/become_a_patron_button.png)](https://www.patreon.com/olilarkin) [![paypal](Documentation/img/paypal_donate_button.gif)](https://paypal.me/olilarkin?locale.x=en_GB)[![slack](Documentation/img/join_slack_button.png)](https://join.slack.com/t/iplug-users/shared_invite/enQtMzA1NzA1NzE0OTY1LWYyODdjNzkyYTk4MDRmYzZjZTI4ZGVkYTIxZTk0OWRiYWE2MTA0ZWVlODM1NjkzNDAyNDFhMDdjNGI4OTY2YTU)

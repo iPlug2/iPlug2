@@ -10,16 +10,6 @@
 
 #pragma once
 
-/*
-
- AGG 2.4 should be modified to avoid bringing carbon headers on mac, which can cause conflicts
-
- in "agg_mac_pmap.h" ...
- //#include <ApplicationServices/ApplicationServices.h>
- #include <CoreGraphics/CoreGraphics.h>
-
- */
-
 #include "IGraphicsPathBase.h"
 #include "IGraphicsAGG_src.h"
 
@@ -29,7 +19,6 @@ template <class SpanGeneratorType>
 class alpha_span_generator : public SpanGeneratorType
 {
 public:
-  
   alpha_span_generator(typename SpanGeneratorType::source_type& source, typename SpanGeneratorType::interpolator_type& interpolator, agg::cover_type a)
   : SpanGeneratorType(source, interpolator), alpha(a) {}
   
@@ -45,7 +34,6 @@ public:
   }
   
 private:
-  
   agg::cover_type alpha;
 };
 
@@ -69,36 +57,35 @@ class IGraphicsAGG : public IGraphicsPathBase
 {
 public:
 #ifdef OS_WIN
-  typedef agg::order_bgra PixelOrder;
-  typedef agg::pixel_map_win32 PixelMapType;
+  using PixelOrder = agg::order_bgra;
+  using PixelMapType = agg::pixel_map_win32;
 #elif defined OS_MAC
-  typedef agg::order_argb PixelOrder;
-  typedef agg::pixel_map_mac PixelMapType;
+  using PixelOrder = agg::order_argb;
+  using PixelMapType = agg::pixel_map_mac;
 #else
 #error NOT IMPLEMENTED
 #endif
-  typedef agg::span_allocator<agg::rgba8> SpanAllocatorType;
-  typedef agg::span_interpolator_linear<> InterpolatorType;
+  using SpanAllocatorType = agg::span_allocator<agg::rgba8>;
+  using InterpolatorType = agg::span_interpolator_linear<>;
   // Pre-multiplied source types
-  typedef agg::comp_op_adaptor_rgba_pre<agg::rgba8, PixelOrder> BlenderPreType;
-  typedef agg::pixfmt_custom_blend_rgba<BlenderPreType, agg::rendering_buffer> PixfmtPreType;
-  typedef agg::renderer_base <PixfmtPreType> RenbasePreType;
+  using BlenderPreType = agg::comp_op_adaptor_rgba_pre<agg::rgba8, PixelOrder>;
+  using PixfmtPreType = agg::pixfmt_custom_blend_rgba<BlenderPreType, agg::rendering_buffer>;
+  using RenbasePreType = agg::renderer_base <PixfmtPreType>;
    // Non pre-multiplied source types
-  typedef agg::comp_op_adaptor_rgba<agg::rgba8, PixelOrder> BlenderType;
-  typedef agg::pixfmt_custom_blend_rgba<BlenderType, agg::rendering_buffer> PixfmtType;
-  typedef agg::renderer_base <PixfmtType> RenbaseType;
+  using BlenderType = agg::comp_op_adaptor_rgba<agg::rgba8, PixelOrder>;
+  using PixfmtType = agg::pixfmt_custom_blend_rgba<BlenderType, agg::rendering_buffer>;
+  using RenbaseType = agg::renderer_base <PixfmtType>;
   // Image bitmap types
-  typedef agg::image_accessor_clone<PixfmtType> imgSourceType;
-  typedef agg::span_image_filter_rgba_bilinear<imgSourceType, InterpolatorType> SpanGeneratorType;
-  typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, SpanGeneratorType> BitmapRenderType;
+  using ImgSourceType = agg::image_accessor_clone<PixfmtType>;
+  using SpanGeneratorType = agg::span_image_filter_rgba_bilinear<ImgSourceType, InterpolatorType>;
+  using BitmapRenderType = agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, SpanGeneratorType>;
   // Font types
-  typedef agg::font_engine_freetype_int32 FontEngineType;
-  typedef agg::font_cache_manager<FontEngineType> FontManagerType;
+  using FontEngineType = agg::font_engine_freetype_int32;
+  using FontManagerType = agg::font_cache_manager<FontEngineType>;
 
   class Rasterizer
   {
   public:
-
     Rasterizer(IGraphicsAGG& graphics) : mGraphics(graphics) {}
     
     agg::rgba8 GetPixel(int x, int y) { return mRenBase.pixel(x, y); }
@@ -121,7 +108,7 @@ public:
     
     void Rasterize(agg::rgba8 color, agg::comp_op_e op)
     {
-      typedef agg::renderer_scanline_aa_solid<RenbaseType> RenderType;
+      using RenderType = agg::renderer_scanline_aa_solid<RenbaseType>;
       
       RenderType renderer(mRenBase);
       renderer.color(color);
@@ -138,7 +125,7 @@ public:
     template <typename CustomSpanGeneratorType>
     void Rasterize(CustomSpanGeneratorType spanGenerator, agg::comp_op_e op)
     {
-      typedef agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, CustomSpanGeneratorType> RendererType;
+      using RendererType = agg::renderer_scanline_aa<RenbaseType, SpanAllocatorType, CustomSpanGeneratorType>;
       
       SpanAllocatorType spanAllocator;
       RendererType renderer(mRenBase, spanAllocator, spanGenerator);
@@ -212,7 +199,6 @@ public:
     }
 
   private:
-    
     template <typename RendererType>
     void Render(RendererType& renderer, agg::comp_op_e op)
     {
@@ -225,10 +211,10 @@ public:
     template <typename PixSourceType, typename RenderBaseType>
     void RenderBitmap(PixSourceType& src, RenderBaseType& renderbase, agg::trans_affine& srcMtx, agg::comp_op_e op, agg::cover_type cover)
     {
-      typedef agg::image_accessor_clone<PixSourceType> ImgSrcType;
-      typedef agg::span_image_filter_rgba_bilinear<ImgSrcType, InterpolatorType> FilterType;
-      typedef alpha_span_generator<FilterType> CustomSpanGeneratorType;
-      typedef agg::renderer_scanline_aa<RenderBaseType, SpanAllocatorType, CustomSpanGeneratorType> RendererType;
+      using ImgSrcType = agg::image_accessor_clone<PixSourceType>;
+      using FilterType = agg::span_image_filter_rgba_bilinear<ImgSrcType, InterpolatorType>;
+      using CustomSpanGeneratorType = alpha_span_generator<FilterType>;
+      using RendererType = agg::renderer_scanline_aa<RenderBaseType, SpanAllocatorType, CustomSpanGeneratorType>;
       
       SpanAllocatorType spanAllocator;
       InterpolatorType interpolator(srcMtx);
@@ -257,7 +243,7 @@ public:
   void PathClear() override { mPath.remove_all(); }
   void PathClose() override { mPath.close_polygon(); }
 
-  void PathArc(float cx, float cy, float r, float aMin, float aMax) override;
+  void PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding) override;
 
   void PathMoveTo(float x, float y) override;
   void PathLineTo(float x, float y) override;
@@ -316,7 +302,7 @@ private:
   agg::trans_affine mTransform;
   PixelMapType mPixelMap;
   Rasterizer mRasterizer;
-    
+
   //pipeline to process the vectors glyph paths(curves + contour)
   agg::conv_curve<FontManagerType::path_adaptor_type> mFontCurves;
   agg::conv_transform<agg::conv_curve<FontManagerType::path_adaptor_type>> mFontCurvesTransformed;

@@ -286,9 +286,12 @@ void IGraphicsCairo::PathClose()
   cairo_close_path(mContext);
 }
 
-void IGraphicsCairo::PathArc(float cx, float cy, float r, float aMin, float aMax)
+void IGraphicsCairo::PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding)
 {
-  cairo_arc(mContext, cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f));
+  if (winding == kWindingCW)
+    cairo_arc(mContext, cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f));
+  else
+    cairo_arc_negative(mContext, cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f));
 }
 
 void IGraphicsCairo::PathMoveTo(float x, float y)

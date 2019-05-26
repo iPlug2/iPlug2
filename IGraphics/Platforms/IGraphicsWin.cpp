@@ -319,7 +319,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           TrackMouseEvent(&eventTrack);
         }
       }
-      else if (GetCapture() == hWnd && !pGraphics->mParamEditWnd)
+      else if (GetCapture() == hWnd && !pGraphics->IsInTextEntry())
       {
         float dX, dY;
         IMouseInfo info = pGraphics->GetMouseInfoDeltas(dX, dY, lParam, wParam);
@@ -865,10 +865,16 @@ void IGraphicsWin::DeactivateGLContext()
 }
 #endif
 
-int IGraphicsWin::ShowMessageBox(const char* text, const char* caption, EMessageBoxType type)
+EMsgBoxResult IGraphicsWin::ShowMessageBox(const char* text, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
 {
   ReleaseMouseCapture();
-  return MessageBox(GetMainWnd(), text, caption, (int) type);
+  
+  EMsgBoxResult result = static_cast<EMsgBoxResult>(MessageBox(GetMainWnd(), text, caption, static_cast<int>(type)));
+  
+  if(completionHandler)
+    completionHandler(result);
+  
+  return result;
 }
 
 void* IGraphicsWin::OpenWindow(void* pParent)

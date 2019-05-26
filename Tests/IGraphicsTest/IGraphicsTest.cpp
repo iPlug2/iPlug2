@@ -70,7 +70,8 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     ISVG tiger = pGraphics->LoadSVG(TIGER_FN);
     ISVG orbs = pGraphics->LoadSVG(ORBS_FN);
     IBitmap smiley = pGraphics->LoadBitmap(SMILEY_FN);
-      
+    IBitmap iplug = pGraphics->LoadBitmap(IPLUG_FN);
+
     IRECT bounds = pGraphics->GetBounds();
     
     int cellIdx = 0;
@@ -80,7 +81,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     };
     
     pGraphics->AttachPanelBackground(COLOR_GRAY);
-    pGraphics->AttachControl(new TestSizeControl(bounds), kCtrlTagSize);
+//    pGraphics->AttachControl(new TestSizeControl(bounds), kCtrlTagSize);
 
     pGraphics->AttachControl(new ILambdaControl(nextCell(), [](ILambdaControl* pCaller, IGraphics& g, IRECT& r) {
       
@@ -130,7 +131,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new TestAnimationControl(nextCell()));
     pGraphics->AttachControl(new TestDrawContextControl(nextCell()));
     pGraphics->AttachControl(new TestSVGControl(nextCell(), tiger));
-    pGraphics->AttachControl(new TestImageControl(nextCell()));
+    pGraphics->AttachControl(new TestImageControl(nextCell(), iplug));
     pGraphics->AttachControl(new TestLayerControl(nextCell()));
     pGraphics->AttachControl(new TestBlendControl(nextCell(), smiley));
     pGraphics->AttachControl(new TestDropShadowControl(nextCell(), orbs));
@@ -140,15 +141,9 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new TestFontControl(nextCell()));
     pGraphics->AttachControl(new TestTextOrientationControl(nextCell()));
     pGraphics->AttachControl(new TestTextSizeControl(nextCell()));
-
-      
-#ifdef IGRAPHICS_METAL
     pGraphics->AttachControl(new TestMPSControl(nextCell(), smiley));
-#endif
-
-#ifdef IGRAPHICS_NANOVG
     pGraphics->AttachControl(new TestGLControl(nextCell()));
-#endif
+    
     WDL_String path;
     // DesktopPath(path);
     path.Set(__FILE__);
@@ -167,7 +162,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new ITextControl(nextCell(), "Four!", {40, COLOR_ORANGE, "Roboto-Regular", IText::kAlignCenter, IText::kVAlignBottom}));
 #endif
     
-    pGraphics->AttachControl(new GFXLabelControl(bounds.GetFromTRHC(100, 100).GetTranslated(25, -25)));
+    pGraphics->AttachControl(new GFXLabelControl(bounds.GetFromTRHC(125, 125).GetTranslated(25, -25)));
   };
   
 #endif

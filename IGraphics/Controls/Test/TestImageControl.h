@@ -22,8 +22,9 @@
 class TestImageControl : public IControl
 {
 public:
-  TestImageControl(IRECT bounds)
+  TestImageControl(IRECT bounds, const IBitmap& bmp)
   : IControl(bounds)
+  , mBitmap(bmp)
   {
     SetTooltip("TestImageControl - Click or Drag 'n drop here to load a new bitmap");
   }

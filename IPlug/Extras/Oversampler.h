@@ -38,7 +38,7 @@ template<typename T = double>
 class OverSampler
 {
 public:
-  typedef std::function<void(T**, T**, int)> BlockProcessFunc;
+  using BlockProcessFunc = std::function<void(T**, T**, int)>;
   
   OverSampler(EFactor factor = kNone, bool blockProcessing = true, int nChannels = 1)
   : mBlockProcessing(blockProcessing)

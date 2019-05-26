@@ -47,7 +47,7 @@ class IPlugVST3 : public IPlugAPIBase
                 , public Vst::SingleComponentEffect
 {
 public:
-  typedef IPlugVST3View<IPlugVST3> ViewType;
+  using ViewType = IPlugVST3View<IPlugVST3>;
     
   IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig config);
   ~IPlugVST3();
@@ -80,6 +80,7 @@ public:
   tresult PLUGIN_API getState(IBStream* pState) override;
     
   // IEditController
+  ParamValue PLUGIN_API getParamNormalized (ParamID tag) override;
   tresult PLUGIN_API setParamNormalized(ParamID tag, ParamValue value) override;
   IPlugView* PLUGIN_API createView(const char* name) override;
   tresult PLUGIN_API setEditorState(IBStream* pState) override;

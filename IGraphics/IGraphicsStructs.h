@@ -50,25 +50,26 @@ struct IKeyPress;
 template <typename T = double>
 inline T DegToRad(T degrees);
 
-typedef std::function<void(IControl*)> IActionFunction;
-typedef std::function<void(IControl*)> IAnimationFunction;
-typedef std::function<void(ILambdaControl*, IGraphics&, IRECT&)> ILambdaDrawFunction;
-typedef std::function<bool(const IKeyPress& key, bool isUp)> IKeyHandlerFunc;
+using IActionFunction = std::function<void(IControl*)>;
+using IAnimationFunction = std::function<void(IControl*)>;
+using ILambdaDrawFunction = std::function<void(ILambdaControl*, IGraphics&, IRECT&)>;
+using IKeyHandlerFunc = std::function<bool(const IKeyPress& key, bool isUp)>;
+using IMsgBoxCompletionHanderFunc = std::function<void(EMsgBoxResult result)>;
 
 void DefaultClickActionFunc(IControl* pCaller);
 void DefaultAnimationFunc(IControl* pCaller);
 void SplashClickActionFunc(IControl* pCaller);
 void SplashAnimationFunc(IControl* pCaller);
 
-typedef std::chrono::high_resolution_clock Time;
-typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimePoint;
-typedef std::chrono::duration<double, std::chrono::milliseconds::period> Milliseconds;
+using Time = std::chrono::high_resolution_clock;
+using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
+using Milliseconds = std::chrono::duration<double, std::chrono::milliseconds::period>;
 
-typedef WDL_TypedBuf<uint8_t> RawBitmapData;
+using RawBitmapData = WDL_TypedBuf<uint8_t>;
 
 #ifdef IGRAPHICS_AGG
   #include "IGraphicsAGG_src.h"
-  typedef agg::pixel_map* BitmapData;
+  using BitmapData = agg::pixel_map*;
 #elif defined IGRAPHICS_CAIRO
   #if defined OS_MAC || defined OS_LINUX
     #include "cairo/cairo.h"
@@ -77,30 +78,31 @@ typedef WDL_TypedBuf<uint8_t> RawBitmapData;
   #else
     #error NOT IMPLEMENTED
   #endif
-  typedef cairo_surface_t* BitmapData;
+  using BitmapData = cairo_surface_t*;
 #elif defined IGRAPHICS_NANOVG
-  typedef int BitmapData;
+  using BitmapData = int;
 #elif defined IGRAPHICS_LICE
   #include "lice.h"
-  typedef LICE_IBitmap* BitmapData;
+  using BitmapData = LICE_IBitmap*;
 #elif defined IGRAPHICS_CANVAS
   #include <emscripten.h>
   #include <emscripten/val.h>
-  typedef emscripten::val* BitmapData;
+  using BitmapData = emscripten::val*;
 #else // NO_IGRAPHICS
-  typedef void* BitmapData;
+  using BitmapData = void*;
 #endif
 
 #if defined OS_MAC || defined OS_IOS
-#include <CoreText/CoreText.h>
-typedef CTFontDescriptorRef FontDescriptor;
+  #include <CoreText/CoreText.h>
+  using FontDescriptor = CTFontDescriptorRef;
 #elif defined OS_WIN
-#include "wingdi.h"
-#include "Stringapiset.h"
-typedef HFONT FontDescriptor;
+  #include "wingdi.h"
+  #include "Stringapiset.h"
+  using FontDescriptor = HFONT;
 #elif defined OS_WEB
-typedef std::pair<WDL_String, WDL_String>* FontDescriptor;
-#else // NO_IGRAPHICS
+  using FontDescriptor = std::pair<WDL_String, WDL_String>*;
+#else 
+  // NO_IGRAPHICS
 #endif
 
 /** A bitmap abstraction around the different drawing back end bitmap representations.
@@ -848,7 +850,7 @@ private:
 };
 
 /** IFontDataPtr is a managed pointer for transferring the ownership of font data */
-typedef std::unique_ptr<IFontData> IFontDataPtr;
+using IFontDataPtr = std::unique_ptr<IFontData>;
 
 /** /todo */
 class PlatformFont
@@ -880,7 +882,7 @@ protected:
   bool mSystem;
 };
 
-typedef std::unique_ptr<PlatformFont> PlatformFontPtr;
+using PlatformFontPtr = std::unique_ptr<PlatformFont>;
 
 /** Used to manage a rectangular area, independent of draw class/platform.
  * An IRECT is always specified in 1:1 pixels, any scaling for high DPI happens in the drawing class.
@@ -2296,7 +2298,7 @@ private:
 };
 
 /** ILayerPtr is a managed pointer for transferring the ownership of layers */
-typedef std::unique_ptr<ILayer> ILayerPtr;
+using ILayerPtr = std::unique_ptr<ILayer>;
 
 /** Used to specify a gaussian drop-shadow. */
 struct IShadow

@@ -96,7 +96,7 @@ agg::pixel_map* CreatePixmap(int w, int h)
 template <typename FuncType, typename ColorArrayType>
 void GradientRasterize(IGraphicsAGG::Rasterizer& rasterizer, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray, agg::comp_op_e op)
 {
-  typedef agg::span_gradient<agg::rgba8, IGraphicsAGG::InterpolatorType, FuncType, ColorArrayType> SpanGradientType;
+  using SpanGradientType = agg::span_gradient<agg::rgba8, IGraphicsAGG::InterpolatorType, FuncType, ColorArrayType>;
   
   IGraphicsAGG::InterpolatorType spanInterpolator(xform);
   SpanGradientType spanGradient(spanInterpolator, gradientFunc, colorArray, 0, 512);
@@ -279,11 +279,11 @@ void IGraphicsAGG::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX
   }
 }
 
-void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax)
+void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding)
 {
   agg::path_storage transformedPath;
     
-  agg::arc arc(cx, cy, r, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f));
+  agg::arc arc(cx, cy, r, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f), winding == kWindingCW);
   arc.approximation_scale(mTransform.scale());
     
   transformedPath.join_path(arc);
@@ -350,13 +350,13 @@ void StrokeOptions(StrokeType& strokes, double thickness, const IStrokeOptions& 
 
 void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
 {
-  typedef agg::conv_curve<agg::path_storage>    CPType;
-  typedef agg::conv_transform<CPType>           S1Type;
-  typedef agg::conv_stroke<S1Type>              S2Type;
-  typedef agg::conv_transform<S2Type>           S3Type;
-  typedef agg::conv_dash<S1Type>                D2Type;
-  typedef agg::conv_stroke<D2Type>              D3Type;
-  typedef agg::conv_transform<D3Type>           D4Type;
+  using CPType = agg::conv_curve<agg::path_storage>;
+  using S1Type = agg::conv_transform<CPType>;
+  using S2Type = agg::conv_stroke<S1Type>;
+  using S3Type = agg::conv_transform<S2Type>;
+  using D2Type = agg::conv_dash<S1Type>;
+  using D3Type = agg::conv_stroke<D2Type>;
+  using D4Type = agg::conv_transform<D3Type>;
 
   agg::trans_affine tranform(mTransform);
   CPType curvedPath(mPath);

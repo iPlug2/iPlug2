@@ -604,7 +604,7 @@ public:
    * @param r /todo
    * @param aMin /todo
    * @param aMax /todo */
-  virtual void PathArc(float cx, float cy, float r, float aMin, float aMax) {}
+  virtual void PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding = kWindingCW) {}
 
   /** /todo 
    * @param cx /todo
@@ -768,9 +768,9 @@ public:
   /** Pop up a modal platform message box dialog. NOTE: this method will block the main thread
    * @param str The text message to display in the dialogue
    * @param caption The title of the message box window \todo check
-   * @param type EMessageBoxType describing the button options available \see EMessageBoxType
+   * @param type EMsgBoxType describing the button options available \see EMsgBoxType
    * @return \todo check */
-  virtual int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) = 0;
+  virtual EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler = nullptr) = 0;
 
   /** Create a platform file prompt dialog to choose a file/directory path for opening/saving a file/directory. NOTE: this method will block the main thread
    * @param fileName Non const WDL_String reference specifying the file name. Set this prior to calling the method for save dialogs, to provide a default file name. For load dialogs, on successful selection of a file this will get set to the file’s name.
@@ -993,6 +993,9 @@ public:
 
   /** @return Get a persistant IPopupMenu (remember to clear it before use) */
   IPopupMenu& GetPromptMenu() { return mPromptPopupMenu; }
+  
+  /** @return True if text entry in progress */
+  bool IsInTextEntry() { return mInTextEntry != nullptr; }
   
   /** @return \c true if tool tips are enabled */
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
@@ -1446,6 +1449,12 @@ protected:
 #pragma mark -
 
 private:
+  void ClearMouseOver()
+  {
+    mMouseOver = nullptr;
+    mMouseOverIdx = -1;
+  }
+  
   WDL_PtrList<IControl> mControls;
 
   // Order (front-to-back) ToolTip / PopUp / TextEntry / LiveEdit / Corner / PerfDisplay

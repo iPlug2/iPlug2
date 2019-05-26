@@ -42,7 +42,7 @@ public:
   void MoveMouseCursor(float x, float y) override;
   ECursor SetMouseCursor(ECursor cursorType) override;
 
-  int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) override;
+  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
 
   void* OpenWindow(void* pParent) override;
   void CloseWindow() override;

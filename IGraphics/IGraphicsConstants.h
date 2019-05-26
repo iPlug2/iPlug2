@@ -100,6 +100,12 @@ enum EVColor
   kNumDefaultVColors
 };
 
+enum EWinding
+{
+  kWindingCW,
+  kWindingCCW
+};
+
 enum EFillRule
 {
   kFillWinding,
@@ -160,7 +166,7 @@ enum ECursor
 };
 
 // This enumeration must match win32 message box options
-enum EMessageBoxType
+enum EMsgBoxType
 {
   kMB_OK = 0,
   kMB_OKCANCEL = 1,
@@ -170,8 +176,9 @@ enum EMessageBoxType
 };
 
 // This enumeration must match win32 message box results
-enum EMessageBoxResult
+enum EMsgBoxResult
 {
+  kNoResult, //If IGraphics::ShowMessageBox can't return inline (e.g. because it requires an asynchronous call)
   kOK = 1,
   kCANCEL = 2,
   kABORT = 3,

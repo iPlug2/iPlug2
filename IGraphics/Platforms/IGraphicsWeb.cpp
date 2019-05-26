@@ -311,7 +311,7 @@ EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent
       emscripten_set_mouseup_callback("#window", pGraphics, 1, nullptr);
       break;
     case EMSCRIPTEN_EVENT_MOUSEMOVE:
-      if(pEvent->buttons != 0)
+      if(pEvent->buttons != 0 && !pGraphics->IsInTextEntry())
         pGraphics->OnMouseDrag(x, y, pEvent->movementX, pEvent->movementY, modifiers);
       break;
     default:
@@ -346,7 +346,10 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
       if(pEvent->buttons == 0)
         pGraphics->OnMouseOver(x, y, modifiers);
       else
-        pGraphics->OnMouseDrag(x, y, pEvent->movementX, pEvent->movementY, modifiers);
+      {
+        if(!pGraphics->IsInTextEntry())
+          pGraphics->OnMouseDrag(x, y, pEvent->movementX, pEvent->movementY, modifiers);
+      }
       break;
     case EMSCRIPTEN_EVENT_MOUSEENTER:
       pGraphics->OnSetCursor();
@@ -521,18 +524,35 @@ bool IGraphicsWeb::GetTextFromClipboard(WDL_String& str)
   return true; // TODO: return?
 }
 
-int IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, EMessageBoxType type)
+EMsgBoxResult IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
 {
+  ReleaseMouseCapture();
+  
+  EMsgBoxResult result = kNoResult;
+  
   switch (type)
   {
-    case kMB_OK: val::global("window").call<val>("alert", std::string(str)); return 0;
+    case kMB_OK:
+    {
+      val::global("window").call<val>("alert", std::string(str));
+      result = EMsgBoxResult::kOK;
+      break;
+    }
     case kMB_YESNO:
     case kMB_OKCANCEL:
-      return val::global("window").call<val>("confirm", std::string(str)).as<int>();
+    {
+      result = static_cast<EMsgBoxResult>(val::global("window").call<val>("confirm", std::string(str)).as<int>());
+    }
     // case MB_CANCEL:
     //   break;
-    default: return 0;
+    default:
+      return result = kNoResult;
   }
+  
+  if(completionHandler)
+    completionHandler(result);
+  
+  return result;
 }
 
 void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext)

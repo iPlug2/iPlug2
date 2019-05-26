@@ -203,4 +203,19 @@ private:
   bool invalidateFBO = true;
 };
 
+#else
+class TestGLControl : public IControl
+{
+public:
+  TestGLControl(IRECT rect)
+  : IControl(rect)
+  {
+    SetTooltip("TestGLControl");
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    g.DrawText(mText, "UNSUPPORTED", mRECT);
+  }
+};
 #endif

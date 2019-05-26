@@ -41,7 +41,7 @@ public:
     
   void DoCursorLock(float x, float y, float& prevX, float& prevY);
     
-  int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) override;
+  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
   void ForceEndUserEdit() override;
 
   const char* GetPlatformAPIStr() override;

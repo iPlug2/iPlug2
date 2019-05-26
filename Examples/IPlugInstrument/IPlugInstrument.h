@@ -20,6 +20,7 @@ enum EParams
 enum ECtrlTags
 {
   kCtrlTagMeter = 0,
+  kCtrlTagKeyboard,
   kNumCtrlTags
 };
 

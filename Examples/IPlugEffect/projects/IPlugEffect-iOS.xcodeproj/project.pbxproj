@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4F10E7C020B17EDB00F5B09B /* IPlugEffect-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* IPlugEffect-iOS-MainInterface.storyboard */; };
+		4F1115CF2296DA95000CFCBF /* IPlugEffect-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* IPlugEffect-iOS-MainInterface.storyboard */; };
 		4F2602BD2269F0A000C7E97E /* IPlugEffectShared.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F2602B22269F00000C7E97E /* IPlugEffectShared.a */; };
 		4F2602C02269F0B500C7E97E /* IPlugEffectShared.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F2602B22269F00000C7E97E /* IPlugEffectShared.a */; };
 		4F2602C12269F15000C7E97E /* IGraphicsCoreText.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D6A2267CDBE0007B686 /* IGraphicsCoreText.mm */; };
@@ -713,6 +714,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F1115CF2296DA95000CFCBF /* IPlugEffect-iOS-MainInterface.storyboard in Resources */,
 				4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */,
 				4FB2269720A0D3A800614769 /* IPlugEffect-iOS-LaunchScreen.storyboard in Resources */,
 				4F3E0F6A20A0BCD900A9C2BE /* IPlugEffect-iOS.storyboard in Resources */,
