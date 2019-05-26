@@ -66,7 +66,7 @@ void IVButtonControl::DrawWidget(IGraphics& g)
 
 void IVButtonControl::OnResize()
 {
-  SetTargetRECT(CalculateRects(mRECT, mLabelStr.Get(), ""));
+  SetTargetRECT(CalculateRects(mRECT, mLabelStr.Get()));
   SetDirty(false);
 }
 
@@ -126,7 +126,7 @@ void IVSwitchControl::SetDirty(bool push, int valIdx)
 
 void IVSwitchControl::OnResize()
 {
-  SetTargetRECT(CalculateRects(mRECT, mLabelStr.Get(), ""));
+  SetTargetRECT(CalculateRects(mRECT, mLabelStr.Get()));
   SetDirty(false);
 }
 
@@ -426,6 +426,16 @@ bool IVKnobControl::IsHit(float x, float y) const
   return mWidgetBounds.Contains(x, y);
 }
 
+void IVKnobControl::SetDirty(bool push, int valIdx)
+{
+  IKnobControlBase::SetDirty(push);
+  
+  const IParam* pParam = GetParam();
+  
+  if(pParam)
+    pParam->GetDisplayForHostWithLabel(mValueStr);
+}
+
 IVSliderControl::IVSliderControl(IRECT bounds, int paramIdx,
                 const char* label,
                 const IVStyle& style,
@@ -556,6 +566,15 @@ bool IVSliderControl::IsHit(float x, float y) const
   return mWidgetBounds.Contains(x, y);
 }
 
+void IVSliderControl::SetDirty(bool push, int valIdx)
+{
+  ISliderControlBase::SetDirty(push);
+  
+  const IParam* pParam = GetParam();
+  
+  if(pParam)
+    pParam->GetDisplayForHostWithLabel(mValueStr);
+}
 
 IVRangeSliderControl::IVRangeSliderControl(IRECT bounds, int paramIdxLo, int paramIdxHi,
                                            const char* label,
@@ -676,6 +695,10 @@ void IVXYPadControl::Draw(IGraphics& g)
 {
   DrawBackGround(g, mRECT);
   DrawLabel(g);
+  
+  if(mStyle.drawFrame)
+    g.DrawRect(GetColor(kFR), mWidgetBounds, nullptr, mStyle.frameThickness);
+  
   DrawWidget(g);
 }
 
@@ -684,8 +707,8 @@ void IVXYPadControl::DrawWidget(IGraphics& g)
   float xpos = GetValue(0) * mWidgetBounds.W();
   float ypos = GetValue(1) * mWidgetBounds.H();
   
-  g.DrawVerticalLine(GetColor(kFG), mWidgetBounds, 0.5);
-  g.DrawHorizontalLine(GetColor(kFG), mWidgetBounds, 0.5);
+  g.DrawVerticalLine(GetColor(kSH), mWidgetBounds, 0.5);
+  g.DrawHorizontalLine(GetColor(kSH), mWidgetBounds, 0.5);
   DrawPressableCircle(g, IRECT(mWidgetBounds.L + xpos-mHandleRadius, mWidgetBounds.B - ypos-mHandleRadius, mWidgetBounds.L + xpos+mHandleRadius,  mWidgetBounds.B -ypos+mHandleRadius), mHandleRadius, mMouseDown, mMouseIsOver);
 }
 

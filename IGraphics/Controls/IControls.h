@@ -141,6 +141,8 @@ public:
 //  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {  OnMouseDown(x, y, mod); }
   void OnResize() override;
   bool IsHit(float x, float y) const override;
+  void SetDirty(bool push, int valIdx = kNoValIdx) override;
+
 protected:
   float mAngleMin, mAngleMax;
   bool mValueMouseOver = false;
@@ -207,6 +209,7 @@ public:
   void OnMouseOut() override { mValueMouseOver = false; ISliderControlBase::OnMouseOut(); }
   bool IsHit(float x, float y) const override;
   void OnResize() override;
+  void SetDirty(bool push, int valIdx = kNoValIdx) override;
 
 protected:
   float mTrackSize;

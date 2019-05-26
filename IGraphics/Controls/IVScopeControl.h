@@ -105,20 +105,28 @@ public:
     bool mPrevAboveThreshold = true;
   };
 
-  IVScopeControl(IRECT bounds, const IVStyle& style, const char* trackNames = 0, ...)
+  IVScopeControl(IRECT bounds, const char* label, const IVStyle& style, const char* trackNames = 0, ...)
   : IControl(bounds)
   , IVectorBase(style)
   {
-    AttachIControl(this, "");
+    AttachIControl(this, label);
   }
-
+  
   void Draw(IGraphics& g) override
   {
-    g.FillRect(GetColor(kBG), mRECT);
-    g.DrawRect(GetColor(kFR), mRECT, nullptr, mStyle.frameThickness);
-    g.DrawHorizontalLine(GetColor(kHL), mRECT, 0.5, nullptr, mStyle.frameThickness);
+    DrawBackGround(g, mRECT);
+    DrawWidget(g);
+    DrawLabel(g);
     
-    IRECT r = mRECT.GetPadded(-mPadding);
+    if(mStyle.drawFrame)
+      g.DrawRect(GetColor(kFR), mWidgetBounds, nullptr, mStyle.frameThickness);
+  }
+
+  void DrawWidget(IGraphics& g) override
+  {
+    g.DrawHorizontalLine(GetColor(kSH), mWidgetBounds, 0.5, nullptr, mStyle.frameThickness);
+    
+    IRECT r = mWidgetBounds.GetPadded(-mPadding);
 
     const float maxY = (r.H() / 2.f); // y +/- centre
 
@@ -141,6 +149,12 @@ public:
       
       g.PathStroke(GetColor(kFG), 1.0);
     }
+  }
+  
+  void OnResize() override
+  {
+    SetTargetRECT(CalculateRects(mRECT, mLabelStr.Get()));
+    SetDirty(false);
   }
 
   void OnMsgFromDelegate(int messageTag, int dataSize, const void* pData) override

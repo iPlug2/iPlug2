@@ -648,7 +648,7 @@ public:
               spec.GetColor(kX3));
   }
 
-  const IColor& GetColor(int colorIdx)
+  const IColor& GetColor(int colorIdx) const
   {
     if(colorIdx < mColors.GetSize())
       return mColors.Get()[colorIdx];
@@ -656,6 +656,8 @@ public:
       return mColors.Get()[0];
   }
   
+  void SetLabelStr(const char* label) { mLabelStr.Set(label); mControl->SetDirty(false); }
+  void SetValueStr(const char* value) { mValueStr.Set(value); mControl->SetDirty(false); }
   void SetRoundness(float roundness) { mStyle.roundness = Clip(roundness, 0.f, 1.f); mControl->SetDirty(false); }
   void SetDrawFrame(bool draw) { mStyle.drawFrame = draw; mControl->SetDirty(false); }
   void SetDrawShadows(bool draw) { mStyle.drawShadows = draw; mControl->SetDirty(false); }
@@ -671,7 +673,7 @@ public:
     SetColors(style.colorSpec);
   }
   
-  IRECT GetAdjustedHandleBounds(IRECT handleBounds)
+  IRECT GetAdjustedHandleBounds(IRECT handleBounds) const
   {
     if(mStyle.drawFrame)
       handleBounds.Pad(- 0.5f * mStyle.frameThickness);
@@ -712,14 +714,7 @@ public:
     
     if(mStyle.showValue)
     {
-      WDL_String str;
-      
-      const IParam* pParam = mControl->GetParam();
-      
-      if(pParam)
-        pParam->GetDisplayForHostWithLabel(str);
-      
-      g.DrawText(mStyle.valueText, str.Get(), mValueBounds);
+      g.DrawText(mStyle.valueText, mValueStr.Get(), mValueBounds);
     }
   }
   
@@ -929,7 +924,7 @@ public:
 protected:
   IControl* mControl = nullptr;
   WDL_TypedBuf<IColor> mColors;
-  float mWidgetFrac = 0.8f;
+  float mWidgetFrac = 1.f;
   IVStyle mStyle;
   bool mLabelInWidget = false;
   bool mValueInWidget = false;
@@ -985,7 +980,7 @@ class IVTrackControlBase : public IControl
                          , public IVectorBase
 {
 public:
-  IVTrackControlBase(IRECT bounds, const IVStyle& style, int maxNTracks = 1, EDirection dir = kHorizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  IVTrackControlBase(IRECT bounds, const char* label, const IVStyle& style, int maxNTracks = 1, EDirection dir = kHorizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
   : IControl(bounds)
   , IVectorBase(style)
   , mMinTrackValue(minTrackValue)
@@ -1000,10 +995,10 @@ public:
       mTrackBounds.Add(IRECT());
     }
     
-    AttachIControl(this, ""/*TODO*/);
+    AttachIControl(this, label);
   }
 
-  IVTrackControlBase(IRECT bounds, const IVStyle& style, int lowParamidx, int maxNTracks = 1, EDirection dir = kHorizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  IVTrackControlBase(IRECT bounds, const char* label, const IVStyle& style, int lowParamidx, int maxNTracks = 1, EDirection dir = kHorizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
     : IControl(bounds)
     , IVectorBase(style)
     , mMinTrackValue(minTrackValue)
@@ -1018,41 +1013,32 @@ public:
       mTrackBounds.Add(IRECT());
     }
 
-    AttachIControl(this, ""/*TODO*/);
+    AttachIControl(this, label);
   }
   
-  void MakeRects()
+  void MakeTrackRects(const IRECT& bounds)
   {
     int nVals = NVals();
     for (int ch = 0; ch < nVals; ch++)
     {
-      mTrackBounds.Get()[ch] = mRECT.GetPadded(-mOuterPadding).
+      mTrackBounds.Get()[ch] = bounds.GetPadded(-mOuterPadding).
                                      SubRect(EDirection(!mDirection), nVals, ch).
                                      GetPadded(0, -mTrackPadding * (float) mDirection, -mTrackPadding * (float) !mDirection, -mTrackPadding);
     }
   }
   
-  void Draw(IGraphics& g) override
+  void DrawWidget(IGraphics& g) override
   {
     int nVals = NVals();
-
-    g.FillRect(GetColor(kBG), mRECT);
     
     for (int ch = 0; ch < nVals; ch++)
     {
       DrawTrack(g, mTrackBounds.Get()[ch], ch);
     }
-    
-    if(mStyle.drawFrame)
-      DrawFrame(g);
   }
   
   //void SetAllTrackData(float val) { memset(mTrackData.Get(), (int) Clip(val, mMinTrackValue, mMaxTrackValue), mTrackData.GetSize() * sizeof(float) ); }
 private:
-  virtual void DrawFrame(IGraphics& g)
-  {
-    g.DrawRect(GetColor(kFR), mRECT, nullptr, mStyle.frameThickness);
-  }
   
   virtual void DrawTrack(IGraphics& g, IRECT& r, int chIdx)
   {
@@ -1089,9 +1075,9 @@ private:
     g.FillRect(GetColor(kFR), r);
   }
   
-  void OnResize() override
+  virtual void OnResize() override
   {
-    MakeRects();
+    MakeTrackRects(mRECT);
   }
   
 protected:
