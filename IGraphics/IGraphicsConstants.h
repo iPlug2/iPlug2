@@ -100,6 +100,12 @@ enum EVColor
   kNumDefaultVColors
 };
 
+enum EWinding
+{
+  kWindingCW,
+  kWindingCCW
+};
+
 enum EFillRule
 {
   kFillWinding,
