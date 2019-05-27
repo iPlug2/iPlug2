@@ -98,9 +98,7 @@ void ITextEntryControl::Draw(IGraphics& g)
     for (int i = 0; i < mCharWidths.GetSize() && i < end; ++i)
     {
       if (i < start)
-      {
         selectionStart += mCharWidths.Get()[i];
-      }
 
       selectionEnd += mCharWidths.Get()[i];
     }
@@ -148,13 +146,29 @@ void ITextEntryControl::OnMouseDown(float x, float y, const IMouseMod& mod)
     return;
   }
     
-  if (mod.L)
+  if(mod.L)
   {
     CallSTB ([&]() {
       stb_textedit_click(this, &mEditState, x - mRECT.L, y - mRECT.T);
     });
     
     SetDirty(true);
+  }
+  
+  if(mod.R)
+  {
+    static IPopupMenu menu {{"Cut", "Copy", "Paste"}, [&](int indexInMenu, IPopupMenu::Item* itemChosen) {
+      switch (indexInMenu) {
+        case 0: Cut(); break;
+        case 1: CopySelection(); break;
+        case 2: Paste(); break;
+        default:
+          break;
+      }
+    }
+    };
+    
+    GetUI()->CreatePopupMenu(*this, menu, x, y);
   }
 }
 
@@ -206,10 +220,7 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
       }
       case 'X':
       {
-        CopySelection();
-        CallSTB([&] {
-          stb_textedit_cut(this, &mEditState);
-        });
+        Cut();
         return true;
       }
       case 'C':
@@ -219,25 +230,15 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
       }
       case 'V':
       {
-        WDL_String fromClipboard;
-        if (GetUI()->GetTextFromClipboard(fromClipboard))
-        {
-          CallSTB([&] {
-            stb_textedit_paste(this, &mEditState, fromClipboard.Get(), fromClipboard.GetLength());
-          });
-        }
+        Paste();
         return true;
       }
       case 'Z':
       {
         if (key.S)
-        {
           CallSTB([&]() { stb_textedit_key(this, &mEditState, STB_TEXTEDIT_K_REDO); });
-        }
         else
-        {
           CallSTB([&]() { stb_textedit_key(this, &mEditState, STB_TEXTEDIT_K_UNDO); });
-        }
         return true;
       }
     
@@ -330,6 +331,25 @@ void ITextEntryControl::CopySelection()
     selection.Set(mEditString.Get() + start, end - start);
     GetUI()->SetTextInClipboard(selection);
   }
+}
+
+void ITextEntryControl::Paste()
+{
+  WDL_String fromClipboard;
+  if (GetUI()->GetTextFromClipboard(fromClipboard))
+  {
+    CallSTB([&] {
+      stb_textedit_paste(this, &mEditState, fromClipboard.Get(), fromClipboard.GetLength());
+    });
+  }
+}
+
+void ITextEntryControl::Cut()
+{
+  CopySelection();
+  CallSTB([&] {
+    stb_textedit_cut(this, &mEditState);
+  });
 }
 
 //static
