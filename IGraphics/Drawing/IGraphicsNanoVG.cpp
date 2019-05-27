@@ -255,7 +255,7 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
     
     if(resourceFound == EResourceLocation::kNotFound || !bitmapTypeSupported)
     {
-      assert("Bitmap not found");
+      assert(0 && "Bitmap not found");
       return IBitmap(); // return invalid IBitmap
     }
 
