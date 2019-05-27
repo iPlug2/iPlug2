@@ -143,12 +143,12 @@ IVToggleControl::IVToggleControl(IRECT bounds, int paramIdx, const char* offText
   //TODO: assert boolean?
 }
 
-IVToggleControl::IVToggleControl(IRECT bounds, IActionFunction actionFunc, const char* offText, const char* onText, const char* label, const IVStyle& style)
+IVToggleControl::IVToggleControl(IRECT bounds, IActionFunction actionFunc, const char* offText, const char* onText, const char* label, const IVStyle& style, bool initialState)
 : IVSwitchControl(bounds, actionFunc, label, style, 2, true)
 , mOnText(onText)
 , mOffText(offText)
 {
-  
+  SetValue((double) initialState);
 }
 
 void IVToggleControl::DrawValue(IGraphics& g, bool mouseOver)

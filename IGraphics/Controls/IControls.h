@@ -72,7 +72,7 @@ class IVToggleControl : public IVSwitchControl
 public:
   IVToggleControl(IRECT bounds, int paramIdx = kNoParameter, const char* offText = "OFF", const char* onText = "ON", const char* label = "", const IVStyle& style = DEFAULT_STYLE);
   
-  IVToggleControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* offText = "OFF", const char* onText = "ON", const char* label = "", const IVStyle& style = DEFAULT_STYLE);
+  IVToggleControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* offText = "OFF", const char* onText = "ON", const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool initialState = false);
   
   void DrawValue(IGraphics& g, bool mouseOver) override;
 protected:

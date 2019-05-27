@@ -313,9 +313,26 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 //      dynamic_cast<IVButtonControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagVectorButton))->SetAngle(pCaller->GetValue() * 360.);
 //    }, "Angle", style, true, kHorizontal));
     
-    pGraphics->AttachControl(new IVButtonControl(nextCell().GetGridCell(0, 0, 3, 1), [](IControl* pCaller){
+    pGraphics->AttachControl(new IVToggleControl(nextCell().GetGridCell(0, 0, 3, 1), [](IControl* pCaller){
       SplashClickActionFunc(pCaller);
-    }, "IVButtonControl 3", style.WithValueText(IText(36.f, IText::kVAlignMiddle)),  false, true));
+      pCaller->GetUI()->ForControlInGroup("vcontrols", [=](IControl& control) {
+        dynamic_cast<IVectorBase&>(control).SetDrawFrame((bool) pCaller->GetValue());
+      });
+    }, ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE, "Draw Frame", style.WithValueText(forkAwesomeText).WithDrawFrame(false).WithDrawShadows(false), true));
+    
+    pGraphics->AttachControl(new IVToggleControl(sameCell().GetGridCell(1, 0, 3, 1), [](IControl* pCaller){
+      SplashClickActionFunc(pCaller);
+      pCaller->GetUI()->ForControlInGroup("vcontrols", [=](IControl& control) {
+        dynamic_cast<IVectorBase&>(control).SetDrawShadows((bool) pCaller->GetValue());
+      });
+    }, ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE, "Draw Shadows", style.WithValueText(forkAwesomeText).WithDrawFrame(false).WithDrawShadows(false), true));
+    
+    pGraphics->AttachControl(new IVToggleControl(sameCell().GetGridCell(2, 0, 3, 1), [](IControl* pCaller){
+      SplashClickActionFunc(pCaller);
+      pCaller->GetUI()->ForControlInGroup("vcontrols", [=](IControl& control) {
+        dynamic_cast<IVectorBase&>(control).SetEmboss((bool) pCaller->GetValue());
+      });
+    }, ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE, "Emboss", style.WithValueText(forkAwesomeText).WithDrawFrame(false).WithDrawShadows(false), false));
     
     wideCell = nextCell().Union(nextCell()).Union(nextCell());
     for(int colorIdx = 0; colorIdx < kNumDefaultVColors; colorIdx++)
