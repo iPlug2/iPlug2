@@ -881,7 +881,7 @@ EMsgBoxResult IGraphicsWin::ShowMessageBox(const char* text, const char* caption
   return result;
 }
 
-static double GetScaleForWindow(HWND hWnd)
+static int GetScaleForWindow(HWND hWnd)
 {
   double scale = 1.;
 
@@ -901,13 +901,14 @@ static double GetScaleForWindow(HWND hWnd)
       scale = static_cast<double>(dpi / USER_DEFAULT_SCREEN_DPI);
   }
 
-  return scale;
+  return std::round(scale);
 }
+
 void* IGraphicsWin::OpenWindow(void* pParent)
 {
   mParentWnd = (HWND) pParent;
-
-  int x = 0, y = 0, w = WindowWidth() * GetScreenScale(), h = WindowHeight() * GetScreenScale();
+  int screenScale = GetScaleForWindow(mParentWnd);
+  int x = 0, y = 0, w = WindowWidth() * screenScale, h = WindowHeight() * screenScale;
 
   if (mPlugWnd)
   {
@@ -940,7 +941,7 @@ void* IGraphicsWin::OpenWindow(void* pParent)
 
   OnViewInitialized((void*) dc);
 
-  SetScreenScale(GetScaleForWindow(mParentWnd)); // actually resizes draw contexts
+  SetScreenScale(screenScale); // actually resizes draw contexts
 
   GetDelegate()->LayoutUI(this);
 
