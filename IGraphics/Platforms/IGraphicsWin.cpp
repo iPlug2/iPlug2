@@ -906,7 +906,6 @@ static double GetScaleForWindow(HWND hWnd)
 void* IGraphicsWin::OpenWindow(void* pParent)
 {
   mParentWnd = (HWND) pParent;
-  mScreenScale = GetScaleForWindow(mParentWnd);
 
   int x = 0, y = 0, w = WindowWidth() * GetScreenScale(), h = WindowHeight() * GetScreenScale();
 
@@ -941,7 +940,7 @@ void* IGraphicsWin::OpenWindow(void* pParent)
 
   OnViewInitialized((void*) dc);
 
-  SetScreenScale(mScreenScale); // actually resizes draw contexts
+  SetScreenScale(GetScaleForWindow(mParentWnd)); // actually resizes draw contexts
 
   GetDelegate()->LayoutUI(this);
 
