@@ -65,7 +65,7 @@ public:
     
     if (mOwner.HasUI())
     {
-      *pSize = ViewRect(0, 0, mOwner.GetEditorWidth() * mContentScaleFactor, mOwner.GetEditorHeight() * mContentScaleFactor);
+      *pSize = ViewRect(0, 0, mOwner.GetEditorWidth(), mOwner.GetEditorHeight());
       
       return kResultTrue;
     }
@@ -108,7 +108,7 @@ public:
 
   tresult PLUGIN_API setContentScaleFactor(ScaleFactor factor) override
   {
-    mContentScaleFactor = factor;
+    mOwner.SetScreenScale(factor);
 
     return Steinberg::kResultOk;
   }
@@ -126,10 +126,9 @@ public:
   {
     TRACE;
     
-    ViewRect newSize = ViewRect(0, 0, w * mContentScaleFactor, h * mContentScaleFactor);
+    ViewRect newSize = ViewRect(0, 0, w, h);
     plugFrame->resizeView(this, &newSize);
   }
 
   T& mOwner;
-  ScaleFactor mContentScaleFactor = 1.;
 };
