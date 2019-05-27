@@ -108,8 +108,8 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 {
   GetParam(kGain)->InitDouble("Gain", 100., 0., 100.0, 0.01, "%");
   GetParam(kMode)->InitEnum("Mode", 0, 4, "", IParam::kFlagsNone, "", "one", "two", "three", "four");
-  GetParam(kFreq1)->InitDouble("Freq 1 - X", 50., 0., 100.0, 0.01, "%");
-  GetParam(kFreq2)->InitDouble("Freq 2 - Y", 50., 0., 100.0, 0.01, "%");
+  GetParam(kFreq1)->InitDouble("Freq 1 - X", 0.5, 0., 2, 0.01, "Hz");
+  GetParam(kFreq2)->InitDouble("Freq 2 - Y", 0.5, 0., 2, 0.01, "Hz");
 
 #if IPLUG_EDITOR // All UI methods and member variables should be within an IPLUG_EDITOR guard, should you want distributed UI
   mMakeGraphicsFunc = [&]() {
@@ -141,7 +141,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     const IBitmap switchBitmap = pGraphics->LoadBitmap(PNGSWITCH_FN, 2, true);
     const IBitmap buttonBitmap = pGraphics->LoadBitmap(PNGBUTTON_FN, 10);
 
-    const ISVG vectorknob = pGraphics->LoadSVG(SVGKNOBROTATE_FN);
+    const ISVG knobSVG = pGraphics->LoadSVG(SVGKNOBROTATE_FN);
     
     const IVStyle style {
       true, // Show label
@@ -162,8 +162,6 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     
     const IText forkAwesomeText {24.f, "ForkAwesome"};
     const IText bigLabel {24, COLOR_WHITE, "Roboto-Regular", IText::kAlignNear, IText::kVAlignTop, 0};
-    const IText buttonLabels {14, COLOR_BLACK, "Roboto-Regular", IText::kAlignCenter, IText::kVAlignMiddle, 0};
-
     
     const int nRows = 5;
     const int nCols = 8;
@@ -183,6 +181,18 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
       pGraphics->AttachControl(new ITextControl(nextCell().GetFromTop(20.f), label, style.labelText));
     };
   
+    
+    AddLabel("ITextControl");
+    pGraphics->AttachControl(new ITextControl(sameCell().GetMidVPadded(20.f), "Result...", DEFAULT_TEXT, COLOR_LIGHT_GRAY), kCtrlTagDialogResult);
+    
+    AddLabel("ITextToggleControl");
+    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 0, 3, 3), nullptr, ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE, forkAwesomeText));
+    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 1, 3, 3), nullptr, ICON_FK_CIRCLE_O, ICON_FK_CHECK_CIRCLE, forkAwesomeText));
+    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 2, 3, 3), nullptr, ICON_FK_PLUS_SQUARE, ICON_FK_MINUS_SQUARE, forkAwesomeText));
+
+    AddLabel("ICaptionControl");
+    pGraphics->AttachControl(new ICaptionControl(sameCell().GetMidVPadded(20.), kGain, IText(36.f), COLOR_RED, false));
+    
     AddLabel("IBKnobControl");
     pGraphics->AttachControl(new IBKnobControl(sameCell().GetPadded(-5.), bitmap1, kGain));
     AddLabel("IBKnobRotaterControl");
@@ -200,6 +210,9 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
         pCaller->SetValue(Clip(progress + .5, 0., 1.));
       }, 100);
     }));
+    
+    AddLabel("ISVGKnob");
+    pGraphics->AttachControl(new ISVGKnob(sameCell().GetCentredInside(100), knobSVG, kGain));
 
     auto button1action = [&](IControl* pCaller){
       SplashClickActionFunc(pCaller);
@@ -221,7 +234,8 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new IVButtonControl(nextCell().GetCentredInside(110.), [](IControl* pCaller){
       SplashClickActionFunc(pCaller);
       static IPopupMenu menu {{"one", "two", "three"}, [=](int indexInMenu, IPopupMenu::Item* itemChosen) {
-          dynamic_cast<IVButtonControl*>(pCaller)->SetValueStr(itemChosen->GetText());
+          if(itemChosen)
+            dynamic_cast<IVButtonControl*>(pCaller)->SetValueStr(itemChosen->GetText());
         }
       };
       
@@ -243,52 +257,14 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     }, {"One", "Two", "Three"}, "IVRadioButtonControl", style, kVShapeCircle, 5.f), kNoTag, "vcontrols");
 
     pGraphics->AttachControl(new IVXYPadControl(nextCell(), {kFreq1, kFreq2}, "IVXYPadControl", style), kNoTag, "vcontrols");
-
-    AddLabel("ITextControl");
-    pGraphics->AttachControl(new ITextControl(sameCell().GetMidVPadded(20.f), "Result...", DEFAULT_TEXT, COLOR_LIGHT_GRAY), kCtrlTagDialogResult);
-
-    AddLabel("ITextToggleControl");
-    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 0, 3, 3), nullptr, ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE, forkAwesomeText));
-    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 1, 3, 3), nullptr, ICON_FK_CIRCLE_O, ICON_FK_CHECK_CIRCLE, forkAwesomeText));
-    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 2, 3, 3), nullptr, ICON_FK_PLUS_SQUARE, ICON_FK_MINUS_SQUARE, forkAwesomeText));
-
-
     pGraphics->AttachControl(new IVMultiSliderControl<4>(nextCell(), "IVMultiSliderControl", style), kNoTag, "vcontrols");
-
     pGraphics->AttachControl(new IVMeterControl<2>(nextCell(), "IVMeterControl", style), kCtrlTagMeter, "vcontrols");
     pGraphics->AttachControl(new IVScopeControl<2>(nextCell(), "IVScopeControl", style.WithColor(kFG, COLOR_BLACK)), kCtrlTagScope, "vcontrols");
-    
-    pGraphics->AttachControl(new ISVGKnob(nextCell().GetCentredInside(100), vectorknob, kGain));
-    
-
-    pGraphics->AttachControl(new IVSliderControl(nextCell().GetGridCell(0, 0, 3, 1), [](IControl* pCaller) {
-                                            pCaller->GetUI()->ForControlInGroup("vcontrols", [=](IControl& control) {
-                                            dynamic_cast<IVectorBase&>(control).SetRoundness(pCaller->GetValue());
-                                          });
-    }, "Roundness", style, true, kHorizontal));
-    
-    pGraphics->AttachControl(new IVSliderControl(sameCell().GetGridCell(1, 0, 3, 1), [](IControl* pCaller) {
-      dynamic_cast<IVButtonControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagVectorButton))->SetAngle(pCaller->GetValue() * 360.);
-    }, "Angle", style, true, kHorizontal));
-    
-    IRECT cell = nextCell().Union(nextCell()).Union(nextCell());
-    for(int colorIdx = 0; colorIdx < kNumDefaultVColors; colorIdx++)
-    {
-      IRECT r = cell.GetGridCell(colorIdx, 3, 3);
-      pGraphics->AttachControl(new IVButtonControl(r, [=](IControl* pCaller){
-        SplashClickActionFunc(pCaller);
-        IColor currentColor = dynamic_cast<IVButtonControl*>(pCaller)->GetColor(kFG);
-        pCaller->GetUI()->PromptForColor(currentColor, "", [=](const IColor& result) {
-                                          dynamic_cast<IVButtonControl*>(pCaller)->SetColor(kFG, result);
-                                          pCaller->GetUI()->ForControlInGroup("vcontrols", [=](IControl& control) {
-                                            dynamic_cast<IVectorBase&>(control).SetColor(colorIdx, result);
-                                          });
-                                         });
-      }, kVColorStrs[colorIdx], style.WithColor(kFG, DEFAULT_SPEC.mColors[colorIdx]).WithDrawFrame(false).WithDrawShadows(false)));
-    }
-    
     pGraphics->AttachControl(new IVCustomControl(nextCell(), "IVCustomControl", style), kNoTag, "vcontrols");
     
+    IRECT wideCell = nextCell().Union(nextCell());
+    pGraphics->AttachControl(new ITextControl(wideCell.GetFromTop(20.f), "File Browser (IDirBrowseControlBase) demo", style.labelText));
+    pGraphics->AttachControl(new FileBrowser(wideCell.GetReducedFromTop(20.f)));
 //
 //    auto button2action = [](IControl* pCaller) {
 //      SplashClickActionFunc(pCaller);
@@ -304,23 +280,59 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 //      dynamic_cast<ITextControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagDialogResult))->SetStr(dir.Get());
 //    };
 //
-//    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).GetGridCell(1, 4, 1), button2action, "Trigger open file dialog"));
-//    pGraphics->AttachControl(new IVButtonControl(b.GetGridCell(9, nRows, nCols).GetGridCell(2, 4, 1), button3action, "Trigger open directory dialog"));
+//    pGraphics->AttachControl(new IVButtonControl(nextCell(), button2action, "Trigger open file dialog"));
+//    pGraphics->AttachControl(new IVButtonControl(nextCell(), button3action, "Trigger open directory dialog"));
 
-//    pGraphics->AttachControl(pLabel = new ITextControl(b.GetGridCell(2, nRows, 1), "Text Controls", bigLabel));
-//    pLabel->SetBoundsBasedOnTextDimensions();
-//
-    AddLabel("ICaptionControl");
-    pGraphics->AttachControl(new ICaptionControl(sameCell().GetMidVPadded(20.), kGain, IText(36.f), COLOR_RED, false));
-//
-//    pGraphics->AttachControl(pLabel = new ITextControl(b.GetGridCell(3, nRows, 1), "Misc Controls", bigLabel));
-//    pLabel->SetBoundsBasedOnTextDimensions();
-//
-//    pGraphics->AttachControl(new FileBrowser(b.GetGridCell(15, nRows, nCols).Union(b.GetGridCell(16, nRows, nCols)).GetPadded(-25)));
-//    pGraphics->AttachControl(new IVKeyboardControl(b.GetGridCell(17, nRows, nCols).Union(b.GetGridCell(18, nRows, nCols)).GetPadded(-25), 36, 72));
-//    pGraphics->AttachControl(new IColorPickerControl(b.GetGridCell(12, nRows, nCols).GetCentredInside(150.)));
+    AddLabel("IVKeyboardControl");
+    wideCell = sameCell().Union(nextCell()).Union(nextCell());
+    pGraphics->AttachControl(new IVKeyboardControl(wideCell.GetPadded(-25), 36, 72), kNoTag, "vcontrols");
 
-
+    pGraphics->AttachControl(new IPanelControl(b.GetGridCell(4, 5, 1), COLOR_MID_GRAY));
+    
+    cellIdx = 31;
+    
+    pGraphics->AttachControl(new IVSliderControl(nextCell().GetGridCell(0, 0, 3, 1), [](IControl* pCaller) {
+      pCaller->GetUI()->ForControlInGroup("vcontrols", [=](IControl& control) {
+        dynamic_cast<IVectorBase&>(control).SetRoundness(pCaller->GetValue());
+      });
+    }, "Roundness", style, true, kHorizontal));
+    
+    pGraphics->AttachControl(new IVSliderControl(sameCell().GetGridCell(1, 0, 3, 1), [](IControl* pCaller) {
+      pCaller->GetUI()->ForControlInGroup("vcontrols", [=](IControl& control) {
+        dynamic_cast<IVectorBase&>(control).SetShadowOffset(pCaller->GetValue() * 5.f);
+      });
+    }, "Shadow Offset", style, true, kHorizontal));
+    
+    pGraphics->AttachControl(new IVSliderControl(sameCell().GetGridCell(2, 0, 3, 1), [](IControl* pCaller) {
+      pCaller->GetUI()->ForControlInGroup("vcontrols", [=](IControl& control) {
+        dynamic_cast<IVectorBase&>(control).SetFrameThickness(pCaller->GetValue() * 5.f);
+      });
+    }, "Frame Thickness", style, true, kHorizontal));
+    
+//    pGraphics->AttachControl(new IVSliderControl(sameCell().GetGridCell(1, 0, 3, 1), [](IControl* pCaller) {
+//      dynamic_cast<IVButtonControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagVectorButton))->SetAngle(pCaller->GetValue() * 360.);
+//    }, "Angle", style, true, kHorizontal));
+    
+    pGraphics->AttachControl(new IVButtonControl(nextCell().GetGridCell(0, 0, 3, 1), [](IControl* pCaller){
+      SplashClickActionFunc(pCaller);
+    }, "IVButtonControl 3", style.WithValueText(IText(36.f, IText::kVAlignMiddle)),  false, true));
+    
+    wideCell = nextCell().Union(nextCell()).Union(nextCell());
+    for(int colorIdx = 0; colorIdx < kNumDefaultVColors; colorIdx++)
+    {
+      IRECT r = wideCell.GetGridCell(colorIdx, 3, 3);
+      pGraphics->AttachControl(new IVButtonControl(r, [=](IControl* pCaller){
+        SplashClickActionFunc(pCaller);
+        IColor currentColor = dynamic_cast<IVButtonControl*>(pCaller)->GetColor(kFG);
+        pCaller->GetUI()->PromptForColor(currentColor, "", [=](const IColor& result) {
+          dynamic_cast<IVButtonControl*>(pCaller)->SetColor(kFG, result);
+          pCaller->GetUI()->ForControlInGroup("vcontrols", [=](IControl& control) {
+            dynamic_cast<IVectorBase&>(control).SetColor(colorIdx, result);
+          });
+        });
+      }, kVColorStrs[colorIdx], style.WithColor(kFG, DEFAULT_SPEC.mColors[colorIdx]).WithDrawFrame(false).WithDrawShadows(false)));
+    }
+    
   };
 #endif
 }
