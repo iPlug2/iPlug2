@@ -726,6 +726,7 @@ void IVXYPadControl::DrawWidget(IGraphics& g)
   
   g.DrawVerticalLine(GetColor(kSH), mWidgetBounds, 0.5);
   g.DrawHorizontalLine(GetColor(kSH), mWidgetBounds, 0.5);
+  g.PathClipRegion(mWidgetBounds.GetPadded(-0.5 * mStyle.frameThickness));
   DrawPressableCircle(g, IRECT(mWidgetBounds.L + xpos-mHandleRadius, mWidgetBounds.B - ypos-mHandleRadius, mWidgetBounds.L + xpos+mHandleRadius,  mWidgetBounds.B -ypos+mHandleRadius), mHandleRadius, mMouseDown, mMouseIsOver);
 }
 
