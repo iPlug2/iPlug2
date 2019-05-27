@@ -243,7 +243,7 @@ public:
   void PathClear() override { mPath.remove_all(); }
   void PathClose() override { mPath.close_polygon(); }
 
-  void PathArc(float cx, float cy, float r, float aMin, float aMax) override;
+  void PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding) override;
 
   void PathMoveTo(float x, float y) override;
   void PathLineTo(float x, float y) override;

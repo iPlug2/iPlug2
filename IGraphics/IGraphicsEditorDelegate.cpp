@@ -169,7 +169,7 @@ void IGEditorDelegate::AttachGraphics(IGraphics* pGraphics)
   mIGraphicsTransient = false;
 }
 
-void IGEditorDelegate::EditorPropertiesModified()
+bool IGEditorDelegate::EditorPropertiesModified()
 {
   IByteChunk data;
     
@@ -183,5 +183,5 @@ void IGEditorDelegate::EditorPropertiesModified()
     
   SerializeEditorProperties(data);
     
-  EditorPropertiesChangedFromUI(mGraphics->WindowWidth(), mGraphics->WindowHeight(), data);
+  return EditorPropertiesChangedFromUI(mGraphics->WindowWidth(), mGraphics->WindowHeight(), data);
 }

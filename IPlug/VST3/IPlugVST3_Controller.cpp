@@ -76,6 +76,14 @@ tresult PLUGIN_API IPlugVST3Controller::getState(IBStream* pState)
   return kResultOk;
 }
 
+ParamValue PLUGIN_API IPlugVST3Controller::getParamNormalized(ParamID tag)
+{
+  if (tag >= kBypassParam)
+    return EditControllerEx1::getParamNormalized(tag);
+  
+  return IPlugVST3ControllerBase::getParamNormalized(this, tag);
+}
+
 tresult PLUGIN_API IPlugVST3Controller::setParamNormalized(ParamID tag, ParamValue value)
 {
   IPlugVST3ControllerBase::setParamNormalized(this, tag, value);
@@ -125,7 +133,7 @@ tresult PLUGIN_API IPlugVST3Controller::getProgramName(ProgramListID listId, int
 //  }
 //}
 
-void IPlugVST3Controller::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
+bool IPlugVST3Controller::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
 {
   if (HasUI())
   {
@@ -134,6 +142,8 @@ void IPlugVST3Controller::EditorPropertiesChangedFromDelegate(int viewWidth, int
  
     IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
   }
+  
+  return true;
 }
 
 void IPlugVST3Controller::DirtyParametersFromUI()

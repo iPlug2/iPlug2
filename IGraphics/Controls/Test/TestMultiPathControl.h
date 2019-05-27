@@ -130,6 +130,20 @@ public:
         g.PathLineTo(mx, my);
         g.PathClose();
       }
+      else
+      {
+        float centerX = mRECT.MW();
+        float centerY = mRECT.MH();
+        float radius = mRECT.W() * 0.25f;
+        float width = radius * 0.75f;
+        float startAngle = -90.0f;
+        float endAngle = +90.0f;
+          
+        g.PathArc(centerX, centerY, radius - width * 0.5f, startAngle, endAngle);
+        g.PathArc(centerX, centerY, radius + width * 0.5f, endAngle, startAngle, kWindingCCW);
+        g.PathClose();
+      }
+            
         
       IFillOptions fillOptions;
       fillOptions.mFillRule = value > 0.5 ? kFillEvenOdd : kFillWinding;
@@ -146,7 +160,7 @@ public:
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    if (++mShape > 7)
+    if (++mShape > 8)
       mShape = 0;
 
     SetDirty(false);

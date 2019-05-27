@@ -604,7 +604,7 @@ public:
    * @param r /todo
    * @param aMin /todo
    * @param aMax /todo */
-  virtual void PathArc(float cx, float cy, float r, float aMin, float aMax) {}
+  virtual void PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding = kWindingCW) {}
 
   /** /todo 
    * @param cx /todo
@@ -1048,7 +1048,7 @@ private:
   virtual void CreatePlatformImGui() {}
   
   /** /todo */
-  virtual void PlatformResize() {}
+  virtual void PlatformResize(bool parentHasResized) {}
   
   /** /todo */
   virtual void DrawResize() {}

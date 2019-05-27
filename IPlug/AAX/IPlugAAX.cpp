@@ -511,7 +511,7 @@ void IPlugAAX::EndInformHostOfParamChange(int idx)
   ReleaseParameter(mParamIDs.Get(idx)->Get());
 }
 
-void IPlugAAX::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
+bool IPlugAAX::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
 {
   if (HasUI())
   {
@@ -526,6 +526,8 @@ void IPlugAAX::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight
 
     IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
   }
+  
+  return true;
 }
 
 void IPlugAAX::SetLatency(int latency)

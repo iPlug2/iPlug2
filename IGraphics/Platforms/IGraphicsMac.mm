@@ -152,7 +152,7 @@ bool IGraphicsMac::WindowIsOpen()
   return mView;
 }
 
-void IGraphicsMac::PlatformResize()
+void IGraphicsMac::PlatformResize(bool parentHasResized)
 {
   if (mView)
   {

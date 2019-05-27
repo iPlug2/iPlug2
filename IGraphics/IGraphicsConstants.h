@@ -114,6 +114,12 @@ static const char* kVColorStrs[kNumDefaultVColors] =
   "extra3"
 };
 
+enum EWinding
+{
+  kWindingCW,
+  kWindingCCW
+};
+
 enum EFillRule
 {
   kFillWinding,

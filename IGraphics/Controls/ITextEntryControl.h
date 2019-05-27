@@ -73,7 +73,9 @@ private:
   void CalcCursorSizes();
   float GetCharWidth (char c, char nc);
   void CopySelection();
-
+  void Paste();
+  void Cut();
+  
   bool mDrawCursor = false;
 
   bool mEditing = false;

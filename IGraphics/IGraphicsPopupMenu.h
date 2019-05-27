@@ -69,7 +69,7 @@ public:
     }
     
     void SetText(const char* str) { mText.Set(str); }
-    const char* GetText() const { return mText.Get(); };
+    const char* GetText() const { return mText.Get(); }; // TODO: Text -> Str!
     
     bool GetEnabled() const { return !(mFlags & kDisabled); }
     bool GetChecked() const { return (mFlags & kChecked) != 0; }
