@@ -36,13 +36,19 @@ class IVButtonControl : public IButtonControlBase
                       , public IVectorBase
 {
 public:
-  IVButtonControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc,
-    const char* str = "", const IText& text = DEFAULT_TEXT, const IVColorSpec& colorSpec = DEFAULT_SPEC);
+  IVButtonControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool labelInButton = true, bool valueInButton = true, IVShape shape = kVShapeRectangle, float angle = 0.f);
 
   void Draw(IGraphics& g) override;
-
+  virtual void DrawWidget(IGraphics& g) override;
+  bool IsHit(float x, float y) const override;
+  void OnResize() override;
+  
+  void SetAngle(float angle) { mAngle = angle; SetDirty(false); }
+  void SetShape(IVShape shape) { mShape = shape; SetDirty(false); }
+  
 protected:
-  WDL_String mStr;
+  IVShape mShape = kVShapeRectangle;
+  float mAngle = 0.; // only used for triangle
 };
 
 /** A vector switch control. Click to cycle through states. */
@@ -50,15 +56,28 @@ class IVSwitchControl : public ISwitchControlBase
                       , public IVectorBase
 {
 public:
-  IVSwitchControl(IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = SplashClickActionFunc,
-                  const char* label = "", const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2);
-
+  IVSwitchControl(IRECT bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueInButton = true);
+  
+  IVSwitchControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, int numStates = 2, bool valueInButton = true);
+  
   void Draw(IGraphics& g) override;
-
+  virtual void DrawWidget(IGraphics& g) override;
+  bool IsHit(float x, float y) const override;
   void SetDirty(bool push, int valIdx = kNoValIdx) override;
+  void OnResize() override;
+};
 
+class IVToggleControl : public IVSwitchControl
+{
+public:
+  IVToggleControl(IRECT bounds, int paramIdx = kNoParameter, const char* offText = "OFF", const char* onText = "ON", const char* label = "", const IVStyle& style = DEFAULT_STYLE);
+  
+  IVToggleControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* offText = "OFF", const char* onText = "ON", const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool initialState = false);
+  
+  void DrawValue(IGraphics& g, bool mouseOver) override;
 protected:
-  WDL_String mStr;
+  WDL_String mOffText;
+  WDL_String mOnText;
 };
 
 /** A vector switch control. Click to cycle through states. */
@@ -66,16 +85,26 @@ class IVRadioButtonControl : public ISwitchControlBase
                            , public IVectorBase
 {
 public:
-  IVRadioButtonControl(IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = SplashClickActionFunc,
-                       const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2, EDirection dir = kVertical);
+  IVRadioButtonControl(IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = SplashClickActionFunc, int numStates = 2, const char* label = "", const IVStyle& style = DEFAULT_STYLE, IVShape shape = kVShapeCircle, float buttonSize = 10.f);
 
+  IVRadioButtonControl(IRECT bounds, IActionFunction actionFunc, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, IVShape shape = kVShapeCircle, float buttonSize = 10.f);
+  
   virtual ~IVRadioButtonControl() { mLabels.Empty(true); }
   void Draw(IGraphics& g) override;
+  virtual void DrawWidget(IGraphics& g) override;
+  virtual void DrawButton(IGraphics& g, const IRECT& bounds, bool pressed, bool mouseOver);
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOut() override { mMouseOverButton = -1; }
   void OnResize() override;
-//bool IsHit(float x, float y) const override;
+  virtual bool IsHit(float x, float y) const override;
 
+  void SetShape(IVShape shape) { mShape = shape; SetDirty(false); }
+  int GetSelectedIdx() const { return int(0.5 + GetValue() * (double) (mNumStates - 1)); }
 protected:
-  EDirection mDirection;
+  int mMouseOverButton = -1;
+  IVShape mShape;
+  float mButtonSize;
   WDL_TypedBuf<IRECT> mButtons;
   WDL_PtrList<WDL_String> mLabels;
 };
@@ -86,34 +115,38 @@ class IVKnobControl : public IKnobControlBase
 {
 public:
   IVKnobControl(IRECT bounds, int paramIdx,
-                const char* label = "", bool displayParamValue = false,
-                const IVColorSpec& colorSpec = DEFAULT_SPEC, const IText& labelText = IText(DEFAULT_TEXT_SIZE + 5, IText::kVAlignTop), const IText& valueText = IText(DEFAULT_TEXT_SIZE, IText::kVAlignBottom),
-                float aMin = -135.f, float aMax = 135.f, float knobFrac = 0.50f,
+                const char* label = "",
+                const IVStyle& style = DEFAULT_STYLE,
+                bool valueIsEditable = false,
+                float aMin = -135.f, float aMax = 135.f,
                 EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
 
   IVKnobControl(IRECT bounds, IActionFunction actionFunction,
-                const char* label = "", bool displayParamValue = false,
-                const IVColorSpec& colorSpec = DEFAULT_SPEC, const IText& labelText = IText(DEFAULT_TEXT_SIZE + 5, IText::kVAlignTop), const IText& valueText = IText(DEFAULT_TEXT_SIZE, IText::kVAlignBottom),
-                float aMin = -135.f, float aMax = 135.f, float knobFrac = 0.50f,
+                const char* label = "",
+                const IVStyle& style = DEFAULT_STYLE,
+                bool valueIsEditable = false,
+                float aMin = -135.f, float aMax = 135.f,
                 EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
 
   virtual ~IVKnobControl() {}
 
   void Draw(IGraphics& g) override;
+  virtual void DrawWidget(IGraphics& g) override;
+
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOut() override { mValueMouseOver = false; IKnobControlBase::OnMouseOut(); }
+
 //  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {  OnMouseDown(x, y, mod); }
   void OnResize() override;
+  bool IsHit(float x, float y) const override;
+  void SetDirty(bool push, int valIdx = kNoValIdx) override;
+  void OnInit() override;
+
 protected:
-  bool mDisplayParamValue;
-  bool mShowParamLabel = true;
-  IRECT mHandleBounds;
-  IRECT mLabelBounds;
-  IRECT mValueBounds;
   float mAngleMin, mAngleMax;
-  float mKnobFrac;
-  WDL_String mLabel;
-  IText mLabelText;
-  IText& mValueText = mText;
+  bool mValueMouseOver = false;
 };
 
 /** A vector knob/dial control which rotates an SVG image */
@@ -157,45 +190,51 @@ class IVSliderControl : public ISliderControlBase
 {
 public:
   IVSliderControl(IRECT bounds, int paramIdx = kNoParameter,
-                  const IVColorSpec& colorSpec = DEFAULT_SPEC,
-                  EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f)
-  : ISliderControlBase(bounds, paramIdx, dir, onlyHandle, handleSize)
-  , IVectorBase(colorSpec)
-  , mTrackSize(trackSize)
-  {
-    AttachIControl(this);
-  }
-
+                  const char* label = "",
+                  const IVStyle& style = DEFAULT_STYLE,
+                  bool valueIsEditable = false,
+                  EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
+  
   IVSliderControl(IRECT bounds, IActionFunction aF,
-                  const IVColorSpec& colorSpec = DEFAULT_SPEC,
-                  EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f)
-  : ISliderControlBase(bounds, aF, dir, onlyHandle, handleSize)
-  , IVectorBase(colorSpec)
-  , mTrackSize(trackSize)
-  {
-    AttachIControl(this);
-  }
+                  const char* label = "",
+                  const IVStyle& style = DEFAULT_STYLE,
+                  bool valueIsEditable = false,
+                  EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
 
   virtual ~IVSliderControl() {}
-
   void Draw(IGraphics& g) override;
+  virtual void DrawWidget(IGraphics& g) override;
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOut() override { mValueMouseOver = false; ISliderControlBase::OnMouseOut(); }
+  bool IsHit(float x, float y) const override;
   void OnResize() override;
-
+  void SetDirty(bool push, int valIdx = kNoValIdx) override;
+  void OnInit() override;
+  
 protected:
   float mTrackSize;
+  bool mValueMouseOver = false;
 };
 
 class IVRangeSliderControl : public IVSliderControl
 {
 public:
-  IVRangeSliderControl(IRECT bounds, int paramIdxLo, int paramIdxHi);
+  IVRangeSliderControl(IRECT bounds, int paramIdxLo = kNoParameter, int paramIdxHi = kNoParameter,
+                       const char* label = "",
+                       const IVStyle& style = DEFAULT_STYLE,
+//                       bool valueIsEditable = false,
+                       EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
 
-  void Draw(IGraphics& g) override;
+  void DrawWidget(IGraphics& g) override;
+  void DrawValue(IGraphics& g, bool mouseover) override {};
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
+  void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, int valIdx = -1, float scalar = 1.) override;
 
 protected:
-  float mMouseDownVal = 0.f;
+  double mMouseDownVal = 0.f;
 };
 
 
@@ -204,42 +243,19 @@ class IVXYPadControl : public IControl
 {
 public:
   IVXYPadControl(IRECT bounds, const std::initializer_list<int>& params,
-    const IVColorSpec& colorSpec = DEFAULT_SPEC,
-    float handleRadius = 10.f)
-    : IControl(bounds, params)
-    , IVectorBase(colorSpec)
-    , mHandleRadius(handleRadius)
-  {
-    AttachIControl(this);
-  }
+                 const char* label = "",
+                 const IVStyle& style = DEFAULT_STYLE,
+                 float handleRadius = 10.f);
 
-  void Draw(IGraphics& g) override
-  {
-    float xpos = GetValue(0) * mRECT.W();
-    float ypos = GetValue(1) * mRECT.H();
-
-    g.DrawVerticalLine(GetColor(kFG), mRECT, 0.5);
-    g.DrawHorizontalLine(GetColor(kFG), mRECT, 0.5);
-    g.FillCircle(GetMouseIsOver() ? GetColor(kHL) : GetColor(kPR), mRECT.L + xpos, mRECT.B - ypos, mHandleRadius);
-  }
-
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override
-  {
-    OnMouseDrag(x, y, 0., 0., mod);
-  }
-
-  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
-  {
-    mRECT.Constrain(x, y);
-    float xn = (x - mRECT.L) / mRECT.W();
-    float yn = 1.f - ((y - mRECT.T) / mRECT.H());
-    SetValue(xn, 0);
-    SetValue(yn, 1);
-    SetDirty(true);
-  }
-
-private:
+  void Draw(IGraphics& g) override;
+  void DrawWidget(IGraphics& g) override;
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override;
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
+  void OnResize() override;
+protected:
   float mHandleRadius;
+  bool mMouseDown = false;
 };
 
 #pragma mark - Bitmap Controls
@@ -261,7 +277,14 @@ public:
 
   void Draw(IGraphics& g) override
   {
-    g.DrawBitmap(mBitmap, mRECT, (int) GetValue() + 1, &mBlend);
+    int i = 1;
+    if (mBitmap.N() > 1)
+    {
+      i = 1 + int(0.5 + GetValue() * (double) (mBitmap.N() - 1));
+      i = Clip(i, 1, mBitmap.N());
+    }
+    
+    g.DrawBitmap(mBitmap, mRECT, i, &mBlend);
   }
 
   void OnRescale() override

@@ -215,7 +215,7 @@ void IGraphics::AttachBackground(const char* name)
   mControls.Insert(0, pBG);
 }
 
-void IGraphics::AttachPanelBackground(const IColor& color)
+void IGraphics::AttachPanelBackground(const IPattern& color)
 {
   IControl* pBG = new IPanelControl(GetBounds(), color);
   pBG->SetDelegate(*GetDelegate());
@@ -1451,13 +1451,13 @@ APIBitmap* IGraphics::SearchBitmapInCache(const char* name, int targetScale, int
   return nullptr;
 }
 
-void IGraphics::StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec)
+void IGraphics::StyleAllVectorControls(const IVStyle& style)
 {
   for (auto c = 0; c < NControls(); c++)
   {
     IVectorBase* pVB = dynamic_cast<IVectorBase*>(GetControl(c));
     if (pVB)
-      pVB->Style(drawFrame, drawShadow, emboss, roundness, frameThickness, shadowOffset, spec);
+      pVB->SetStyle(style);
   }
 }
 

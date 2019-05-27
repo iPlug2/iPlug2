@@ -79,7 +79,7 @@ public:
   , IVectorBase(&DEFAULT_WK_COLOR, &DEFAULT_BK_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR)
   , mRoundedKeys(roundedKeys)
   {
-    AttachIControl(this);
+    AttachIControl(this, "");
 
     mText.mFGColor = GetColor(kFR);
     mDblAsSingleClick = true;
@@ -258,7 +258,7 @@ public:
           // draw played white key
           DrawKey(g, keyBounds, GetColor(kPK));
 
-          if (mDrawShadows)
+          if (mStyle.drawShadows)
           {
             IRECT shadowBounds = keyBounds;
             shadowBounds.R = shadowBounds.L + 0.35f * shadowBounds.W();
@@ -266,7 +266,7 @@ public:
 //            g.FillRoundRect(shadowColor, shadowBounds, 0., 0., mCurve, mCurve); // this one looks strange with rounded corners
           }
         }
-        if (mDrawFrame && i != 0)
+        if (mStyle.drawFrame && i != 0)
         { // only draw the left border if it doesn't overlay mRECT l border
           g.DrawLine(GetColor(kFR), kL, mRECT.T, kL, mRECT.B);
           if (i == NKeys() - 2 && IsBlackKey(NKeys() - 1))
@@ -283,7 +283,7 @@ public:
         float kL = *GetKeyXPos(i);
         IRECT keyBounds = IRECT(kL, mRECT.T, kL + BKWidth, BKBottom);
         // first draw underlying shadows
-        if (mDrawShadows && !GetKeyIsPressed(i) && i < NKeys() - 1)
+        if (mStyle.drawShadows && !GetKeyIsPressed(i) && i < NKeys() - 1)
         {
           IRECT shadowBounds = keyBounds;
           float w = shadowBounds.W();
@@ -320,7 +320,7 @@ public:
       }
     }
 
-    if (mDrawFrame)
+    if (mStyle.drawFrame)
       g.DrawRect(GetColor(kFR), mRECT);
 
     if (mShowNoteAndVel)

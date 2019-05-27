@@ -36,7 +36,7 @@ public:
 
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext) override;
   void PromptForDirectory(WDL_String& dir) override;
-  bool PromptForColor(IColor& color, const char* str) override;
+  bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
   
   void HideMouseCursor(bool hide, bool lock) override {}; // NOOP
   void MoveMouseCursor(float x, float y) override {}; // NOOP

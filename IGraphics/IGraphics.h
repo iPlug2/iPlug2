@@ -785,9 +785,10 @@ public:
 
   /** Create a platform color chooser dialog. NOTE: this method will block the main thread
    * @param color When a color is chosen the IColor referenced will be updated with the new color
-   * @param str The text to display in the dialog box e.g. "Please choose a color..."
+   * @param str The text to display in the dialog box e.g. "Please choose a color... (Windows only)"
+   * @param IColorPickerHandlerFunc func callback for asynchronouse color pickers (macOS)
    * @return /true if prompt completed successfully */
-  virtual bool PromptForColor(IColor& color, const char* str = "") = 0;
+  virtual bool PromptForColor(IColor& color, const char* str = "", IColorPickerHandlerFunc func = nullptr) = 0;
 
   /** Open a URL in the platform’s default browser
    * @param url CString specifying the URL to open
@@ -1119,7 +1120,7 @@ public:
 
   /** Attach an IPanelControl as the lowest IControl in the control stack to fill the background with a solid color
    * @param color The color to fill the panel with */
-  void AttachPanelBackground(const IColor& color);
+  void AttachPanelBackground(const IPattern& color);
   
   /** Attach the default control to scale or increase the UI size by dragging the plug-in bottom right-hand corner
    * @param sizeMode Choose whether to scale or size the UI */
@@ -1174,14 +1175,8 @@ public:
   ITextEntryControl* GetTextEntryControl() { return mTextEntryControl.get(); }
   
   /** Helper method to style all of the controls which inherit IVectorBase
-   * @param drawFrame Should the controls draw a frame
-   * @param drawShadow Should the controls draw a shadow (where relevant)
-   * @param emboss Should the controls be embossed (where relevant)
-   * @param roundness Roundness in pixels of the corners, of rectangles in the controls
-   * @param frameThickness Thickness in pixels of the control frame
-   * @param shadowOffset Offset in pixels of the control shadow (where relevant)
-   * @param spec Color spec for the controls */
-  void StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec = DEFAULT_SPEC);
+   * @param IVStyle Style for the controls */
+  void StyleAllVectorControls(const IVStyle& style);
   
    /** This method is called after interacting with a control, so that any other controls linked to the same parameter index, will also be set dirty, and have their values updated.
     * @param pCaller The control that triggered the parameter change.

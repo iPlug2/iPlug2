@@ -105,17 +105,28 @@ public:
     bool mPrevAboveThreshold = true;
   };
 
-  IVScopeControl(IRECT bounds, const char* trackNames = 0, ...)
+  IVScopeControl(IRECT bounds, const char* label, const IVStyle& style, const char* trackNames = 0, ...)
   : IControl(bounds)
+  , IVectorBase(style)
   {
-    AttachIControl(this);
+    AttachIControl(this, label);
   }
-
+  
   void Draw(IGraphics& g) override
   {
-    g.FillRect(GetColor(kBG), mRECT);
+    DrawBackGround(g, mRECT);
+    DrawWidget(g);
+    DrawLabel(g);
+    
+    if(mStyle.drawFrame)
+      g.DrawRect(GetColor(kFR), mWidgetBounds, nullptr, mStyle.frameThickness);
+  }
 
-    IRECT r = mRECT.GetPadded(-mPadding);
+  void DrawWidget(IGraphics& g) override
+  {
+    g.DrawHorizontalLine(GetColor(kSH), mWidgetBounds, 0.5, nullptr, mStyle.frameThickness);
+    
+    IRECT r = mWidgetBounds.GetPadded(-mPadding);
 
     const float maxY = (r.H() / 2.f); // y +/- centre
 
@@ -127,15 +138,23 @@ public:
       float yHi = mBuf.vals[c][0] * maxY;
       yHi = Clip(yHi, -maxY, maxY);
 
+      g.PathMoveTo(r.L + xHi, r.MH() - yHi);
       for (int s = 1; s < MAXBUF; s++)
       {
-        float xLo = xHi, yLo = yHi;
         xHi = ((float) s * xPerData);
         yHi = mBuf.vals[c][s] * maxY;
         yHi = Clip(yHi, -maxY, maxY);
-        g.DrawLine(GetColor(kFG), r.L + xLo, r.MH() - yLo, r.L + xHi, r.MH() - yHi);
+        g.PathLineTo(r.L + xHi, r.MH() - yHi);
       }
+      
+      g.PathStroke(GetColor(kFG), 1.0);
     }
+  }
+  
+  void OnResize() override
+  {
+    SetTargetRECT(CalculateRects(mRECT));
+    SetDirty(false);
   }
 
   void OnMsgFromDelegate(int messageTag, int dataSize, const void* pData) override

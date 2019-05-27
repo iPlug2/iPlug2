@@ -395,8 +395,54 @@ void ITextControl::Draw(IGraphics& g)
     g.DrawText(mText, mStr.Get(), mRECT);
 }
 
-ICaptionControl::ICaptionControl(IRECT bounds, int paramIdx, const IText& text, bool showParamLabel)
-: ITextControl(bounds, "", text)
+void ITextControl::SetBoundsBasedOnTextDimensions()
+{
+  IRECT r;
+  GetUI()->MeasureText(mText, mStr.Get(), r);
+  SetTargetAndDrawRECTs({mRECT.L, mRECT.T, mRECT.L + r.W(), mRECT.T + r.H()});
+}
+
+ITextToggleControl::ITextToggleControl(IRECT bounds, int paramIdx, const char* offText, const char* onText, const IText& text, const IColor& bgColor)
+: ITextControl(bounds, offText, text, bgColor)
+, mOnText(onText)
+, mOffText(offText)
+{
+  SetParamIdx(paramIdx);
+  //TODO: assert boolean?
+  mIgnoreMouse = false;
+  mDblAsSingleClick = true;
+}
+
+ITextToggleControl::ITextToggleControl(IRECT bounds, IActionFunction aF, const char* offText, const char* onText, const IText& text, const IColor& bgColor)
+: ITextControl(bounds, offText, text, bgColor)
+, mOnText(onText)
+, mOffText(offText)
+{
+  SetActionFunction(aF);
+  mDblAsSingleClick = true;
+  //TODO: assert boolean?
+  mIgnoreMouse = false;
+}
+
+void ITextToggleControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  if(GetValue() < 0.5)
+  {
+    SetValue(1.);
+    SetStr(mOnText.Get());
+  }
+  else
+  {
+    SetValue(0.);
+    SetStr(mOffText.Get());
+  }
+  
+  SetDirty(true);
+}
+
+
+ICaptionControl::ICaptionControl(IRECT bounds, int paramIdx, const IText& text, const IColor& bgColor, bool showParamLabel)
+: ITextControl(bounds, "", text, bgColor)
 , mShowParamLabel(showParamLabel)
 {
   SetParamIdx(paramIdx);

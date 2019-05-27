@@ -26,22 +26,30 @@ class IVMultiSliderControl : public IVTrackControlBase
 {
 public:
 
-  IVMultiSliderControl(IRECT bounds, EDirection dir = kVertical, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
-  : IVTrackControlBase(bounds, MAXNC, dir, minTrackValue, maxTrackValue, trackNames)
+  IVMultiSliderControl(IRECT bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = kVertical, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  : IVTrackControlBase(bounds, label, style, MAXNC, dir, minTrackValue, maxTrackValue, trackNames)
   {
     mOuterPadding = 0.f;
     mDrawTrackFrame = false;
     mTrackPadding = 1.f;
-    SetColor(kFG, COLOR_BLACK);
   }
 
-  IVMultiSliderControl(IRECT bounds, int loParamIdx, EDirection dir = kVertical, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
-    : IVTrackControlBase(bounds, loParamIdx, MAXNC, dir, minTrackValue, maxTrackValue, trackNames)
+  IVMultiSliderControl(IRECT bounds, const char* label, const IVStyle& style, int loParamIdx, EDirection dir, float minTrackValue, float maxTrackValue, const char* trackNames = 0, ...)
+  : IVTrackControlBase(bounds, label, style, loParamIdx, MAXNC, dir, minTrackValue, maxTrackValue, trackNames)
   {
     mOuterPadding = 0.f;
     mDrawTrackFrame = false;
     mTrackPadding = 1.f;
-    SetColor(kFG, COLOR_BLACK);
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    DrawBackGround(g, mRECT);
+    DrawWidget(g);
+    DrawLabel(g);
+    
+    if(mStyle.drawFrame)
+      g.DrawRect(GetColor(kFR), mWidgetBounds, nullptr, mStyle.frameThickness);
   }
 
   int GetValIdxForPos(float x, float y) const override
@@ -138,7 +146,13 @@ public:
     SetDirty(true); // will send all param vals parameter value to delegate
   }
 
-  //  void OnResize() override;
+  void OnResize() override
+  {
+    SetTargetRECT(CalculateRects(mRECT));
+    MakeTrackRects(mWidgetBounds);
+    SetDirty(false);
+  }
+  
   //  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override

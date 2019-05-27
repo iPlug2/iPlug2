@@ -111,6 +111,7 @@
 		4F3E0F6520A0BC4000A9C2BE /* IPlugControls-iOS-AUv3-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugControls-iOS-AUv3-Info.plist"; path = "../resources/IPlugControls-iOS-AUv3-Info.plist"; sourceTree = "<group>"; };
 		4F3E0F6720A0BC5B00A9C2BE /* IPlugControls-iOS.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = "IPlugControls-iOS.storyboard"; path = "../resources/IPlugControls-iOS.storyboard"; sourceTree = "<group>"; };
 		4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ../resources/Images.xcassets; sourceTree = "<group>"; };
+		4F54BD0F229712B2001372B0 /* IconsForkAwesome.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IconsForkAwesome.h; path = ../IconsForkAwesome.h; sourceTree = "<group>"; };
 		4F63697620A463AF0022C370 /* IGraphicsLice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLice.h; sourceTree = "<group>"; };
 		4F63697720A463AF0022C370 /* IGraphicsAGG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsAGG.h; sourceTree = "<group>"; };
 		4F63697820A463AF0022C370 /* IGraphicsLice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsLice.cpp; sourceTree = "<group>"; };
@@ -581,6 +582,7 @@
 				4FFF108420A1036200D3092F /* config.h */,
 				4FFF108820A1036200D3092F /* IPlugControls.h */,
 				4FFF108720A1036200D3092F /* IPlugControls.cpp */,
+				4F54BD0F229712B2001372B0 /* IconsForkAwesome.h */,
 				4F8BF48D20A12D2E0081DF0A /* Resources */,
 				4F67D51620A121F60061FB8E /* Other Sources */,
 				4F3E0F9B20A0C64100A9C2BE /* Frameworks */,

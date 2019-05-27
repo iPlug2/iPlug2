@@ -1459,12 +1459,10 @@ UINT_PTR CALLBACK CCHookProc(HWND hdlg, UINT uiMsg, WPARAM wParam, LPARAM lParam
   return 0;
 }
 
-bool IGraphicsWin::PromptForColor(IColor& color, const char* prompt)
+bool IGraphicsWin::PromptForColor(IColor& color, const char* prompt, IColorPickerHandlerFunc func)
 {
   if (!mPlugWnd)
-  {
     return false;
-  }
 
   const COLORREF w = RGB(255, 255, 255);
   static COLORREF customColorStorage[16] = { w, w, w, w, w, w, w, w, w, w, w, w, w, w, w, w };
@@ -1484,6 +1482,10 @@ bool IGraphicsWin::PromptForColor(IColor& color, const char* prompt)
     color.R = GetRValue(cc.rgbResult);
     color.G = GetGValue(cc.rgbResult);
     color.B = GetBValue(cc.rgbResult);
+    
+    if(func)
+      func(color);
+    
     return true;
   }
   return false;

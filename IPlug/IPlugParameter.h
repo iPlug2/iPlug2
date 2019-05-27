@@ -306,6 +306,13 @@ public:
    * @param withDisplayText /todo */
   void GetDisplayForHost(WDL_String& display, bool withDisplayText = true) const { GetDisplayForHost(mValue.load(), false, display, withDisplayText); }
 
+  void GetDisplayForHostWithLabel(WDL_String& display, bool withDisplayText = true) const
+  {
+    GetDisplayForHost(mValue.load(), false, display, withDisplayText);
+    display.Append(" ");
+    display.Append(GetLabelForHost());
+  }
+  
   /** /todo 
    * @param value /todo
    * @param normalized /todo

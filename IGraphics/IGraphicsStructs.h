@@ -46,6 +46,7 @@ class ILambdaControl;
 struct IRECT;
 struct IMouseInfo;
 struct IKeyPress;
+struct IColor;
 
 template <typename T = double>
 inline T DegToRad(T degrees);
@@ -55,13 +56,14 @@ using IAnimationFunction = std::function<void(IControl*)>;
 using ILambdaDrawFunction = std::function<void(ILambdaControl*, IGraphics&, IRECT&)>;
 using IKeyHandlerFunc = std::function<bool(const IKeyPress& key, bool isUp)>;
 using IMsgBoxCompletionHanderFunc = std::function<void(EMsgBoxResult result)>;
+using IColorPickerHandlerFunc = std::function<void(const IColor& result)>;
+
 
 void DefaultClickActionFunc(IControl* pCaller);
 void DefaultAnimationFunc(IControl* pCaller);
 void SplashClickActionFunc(IControl* pCaller);
 void SplashAnimationFunc(IControl* pCaller);
 
-using Time = std::chrono::high_resolution_clock;
 using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
 using Milliseconds = std::chrono::duration<double, std::chrono::milliseconds::period>;
 
@@ -429,38 +431,6 @@ const IColor DEFAULT_TEXT_FGCOLOR = COLOR_BLACK;
 const IColor DEFAULT_TEXTENTRY_BGCOLOR = COLOR_WHITE;
 const IColor DEFAULT_TEXTENTRY_FGCOLOR = COLOR_BLACK;
 
-/** Contains a set of colours used to theme IVControls */
-struct IVColorSpec
-{
-  IColor mBGColor = DEFAULT_BGCOLOR; // Background
-  IColor mFGColor = DEFAULT_FGCOLOR; // Foreground
-  IColor mPRColor = DEFAULT_PRCOLOR; // Pressed
-  IColor mFRColor = DEFAULT_FRCOLOR; // Frame
-  IColor mHLColor = DEFAULT_HLCOLOR; // Highlight
-  IColor mSHColor = DEFAULT_SHCOLOR; // Shadow
-  IColor mX1Color = DEFAULT_X1COLOR; // Extra 1
-  IColor mX2Color = DEFAULT_X2COLOR; // Extra 2
-  IColor mX3Color = DEFAULT_X3COLOR; // Extra 3
-
-  /** /todo  */
-  void SetColors(const IColor BGColor = DEFAULT_BGCOLOR,
-                 const IColor FGColor = DEFAULT_FGCOLOR,
-                 const IColor PRColor = DEFAULT_PRCOLOR,
-                 const IColor FRColor = DEFAULT_FRCOLOR,
-                 const IColor HLColor = DEFAULT_HLCOLOR,
-                 const IColor SHColor = DEFAULT_SHCOLOR,
-                 const IColor X1Color = DEFAULT_X1COLOR,
-                 const IColor X2Color = DEFAULT_X2COLOR,
-                 const IColor X3Color = DEFAULT_X3COLOR)
-  {
-  }
-
-  /** /todo  */
-  void ResetColors() { SetColors(); }
-};
-
-const IVColorSpec DEFAULT_SPEC = IVColorSpec();
-
 /** Used to manage composite/blend operations, independent of draw class/platform */
 struct IBlend
 {
@@ -579,7 +549,7 @@ struct IText
    * @param orientation /todo
    * @param TEBGColor /todo
    * @param TEFGColor /todo */
-  IText(float size = DEFAULT_TEXT_SIZE,
+  explicit IText(float size = DEFAULT_TEXT_SIZE,
         const IColor& color = DEFAULT_TEXT_FGCOLOR,
         const char* font = nullptr,
         EAlign align = kAlignCenter,
@@ -601,7 +571,7 @@ struct IText
   /** /todo 
     * @param size /todo
     * @param valign /todo */
-  IText(float size, EVAlign valign)
+  explicit IText(float size, EVAlign valign)
   : IText()
   {
     mSize = size;
@@ -611,13 +581,29 @@ struct IText
   /** /todo 
    * @param size /todo
    * @param align /todo */
-  IText(float size, EAlign align)
+  explicit IText(float size, EAlign align)
   : IText()
   {
     mSize = size;
     mAlign = align;
   }
-    
+  
+  explicit IText(float size, const char* font)
+  : IText()
+  {
+    mSize = size;
+    strcpy(mFont, (font ? font : DEFAULT_FONT));
+  }
+  
+  IText WithColors(const IColor& fgColor, const IColor& teBgColor = DEFAULT_TEXTENTRY_BGCOLOR, const IColor& teFgColor = DEFAULT_TEXTENTRY_FGCOLOR) const
+  {
+    IText newText = *this;
+    newText.mFGColor = fgColor;
+    newText.mTextEntryBGColor = teBgColor;
+    newText.mTextEntryFGColor = teFgColor;
+    return newText;
+  }
+  
   char mFont[FONT_LEN];
   float mSize;
   IColor mFGColor;
@@ -929,7 +915,7 @@ struct IRECT
   {
     L = T = R = B = 0.f;
   }
-
+  
   bool operator==(const IRECT& rhs) const
   {
     return (L == rhs.L && T == rhs.T && R == rhs.R && B == rhs.B);
@@ -2303,7 +2289,7 @@ using ILayerPtr = std::unique_ptr<ILayer>;
 /** Used to specify a gaussian drop-shadow. */
 struct IShadow
 {
-  IShadow(){}
+  IShadow() {}
 
   /** /todo 
    * @param pattern /todo
@@ -2458,4 +2444,163 @@ private:
   WDL_PtrList<DataKey> mDatas;
 };
 
+enum IVShape
+{
+  kVShapeCircle = 0,
+  kVShapeRectangle,
+  kVShapeTriangle,
+  kNumVShapes
+};
+
+/** Contains a set of colors used to theme IVControls */
+struct IVColorSpec
+{
+  IColor mColors[kNumDefaultVColors];
+  
+  void SetColors(const IColor BGColor = DEFAULT_BGCOLOR,
+                 const IColor FGColor = DEFAULT_FGCOLOR,
+                 const IColor PRColor = DEFAULT_PRCOLOR,
+                 const IColor FRColor = DEFAULT_FRCOLOR,
+                 const IColor HLColor = DEFAULT_HLCOLOR,
+                 const IColor SHColor = DEFAULT_SHCOLOR,
+                 const IColor X1Color = DEFAULT_X1COLOR,
+                 const IColor X2Color = DEFAULT_X2COLOR,
+                 const IColor X3Color = DEFAULT_X3COLOR)
+  {
+  }
+  
+  const IColor& GetColor(EVColor color) const
+  {
+    return mColors[(int) color];
+  }
+  
+  static const IColor& GetDefaultColor(EVColor idx)
+  {
+    switch(idx)
+    {
+      case kBG: return DEFAULT_BGCOLOR; // Background
+      case kFG: return DEFAULT_FGCOLOR; // Foreground
+      case kPR: return DEFAULT_PRCOLOR; // Pressed
+      case kFR: return DEFAULT_FRCOLOR; // Frame
+      case kHL: return DEFAULT_HLCOLOR; // Highlight
+      case kSH: return DEFAULT_SHCOLOR; // Shadow
+      case kX1: return DEFAULT_X1COLOR; // Extra 1
+      case kX2: return DEFAULT_X2COLOR; // Extra 2
+      case kX3: return DEFAULT_X3COLOR; // Extra 3
+      default:
+        return COLOR_TRANSPARENT;
+    };
+  }
+  
+  IVColorSpec()
+  {
+    mColors[kBG] = DEFAULT_BGCOLOR; // Background
+    mColors[kFG] = DEFAULT_FGCOLOR; // Foreground
+    mColors[kPR] = DEFAULT_PRCOLOR; // Pressed
+    mColors[kFR] = DEFAULT_FRCOLOR; // Frame
+    mColors[kHL] = DEFAULT_HLCOLOR; // Highlight
+    mColors[kSH] = DEFAULT_SHCOLOR; // Shadow
+    mColors[kX1] = DEFAULT_X1COLOR; // Extra 1
+    mColors[kX2] = DEFAULT_X2COLOR; // Extra 2
+    mColors[kX3] = DEFAULT_X3COLOR; // Extra 3
+  }
+  
+  IVColorSpec(const std::initializer_list<IColor>& colors)
+  {
+    assert(colors.size() <= kNumDefaultVColors);
+    
+    int i = 0;
+    
+    for(auto& c : colors)
+    {
+      mColors[i++] = c;
+    }
+    
+    for(;i < kNumDefaultVColors; i++)
+    {
+      mColors[i] = GetDefaultColor((EVColor) i);
+    }
+  }
+  
+  /** /todo  */
+  void ResetColors() { SetColors(); }
+};
+
+const IVColorSpec DEFAULT_SPEC = IVColorSpec();
+
+
+static constexpr bool DEFAULT_HIDE_CURSOR = true;
+static constexpr bool DEFAULT_SHOW_VALUE = true;
+static constexpr bool DEFAULT_SHOW_LABEL = true;
+static constexpr bool DEFAULT_DRAW_FRAME = true;
+static constexpr bool DEFAULT_DRAW_SHADOWS = true;
+static constexpr bool DEFAULT_EMBOSS = false;
+static constexpr float DEFAULT_ROUNDNESS = 0.f;
+static constexpr float DEFAULT_FRAME_THICKNESS = 2.f;
+static constexpr float DEFAULT_SHADOW_OFFSET = 3.f;
+const IText DEFAULT_LABEL_TEXT {DEFAULT_TEXT_SIZE + 5.f, IText::kVAlignTop};
+const IText DEFAULT_VALUE_TEXT {DEFAULT_TEXT_SIZE, IText::kVAlignBottom};
+
+struct IVStyle
+{
+  bool hideCursor = DEFAULT_HIDE_CURSOR;
+  bool showLabel = DEFAULT_SHOW_LABEL;
+  bool showValue = DEFAULT_SHOW_VALUE;
+  bool drawFrame = DEFAULT_DRAW_FRAME;
+  bool drawShadows = DEFAULT_DRAW_SHADOWS;
+  bool emboss = DEFAULT_EMBOSS;
+  float roundness = DEFAULT_ROUNDNESS;
+  float frameThickness = DEFAULT_FRAME_THICKNESS;
+  float shadowOffset = DEFAULT_SHADOW_OFFSET;
+  IVColorSpec colorSpec = DEFAULT_SPEC;
+  IText labelText = DEFAULT_LABEL_TEXT;
+  IText valueText = DEFAULT_VALUE_TEXT;
+  
+  explicit IVStyle(bool showLabel = DEFAULT_SHOW_LABEL,
+          bool showValue = DEFAULT_SHOW_VALUE,
+          const std::initializer_list<IColor>& colors = {},
+          const IText& labelText = DEFAULT_LABEL_TEXT,
+          const IText& valueText = DEFAULT_VALUE_TEXT,
+          bool hideCursor = DEFAULT_HIDE_CURSOR,
+          bool drawFrame = DEFAULT_DRAW_FRAME,
+          bool drawShadows = DEFAULT_DRAW_SHADOWS,
+          bool emboss = DEFAULT_EMBOSS,
+          float roundness = DEFAULT_ROUNDNESS,
+          float frameThickness = DEFAULT_FRAME_THICKNESS,
+          float shadowOffset = DEFAULT_SHADOW_OFFSET)
+  : showLabel(showLabel)
+  , showValue(showValue)
+  , colorSpec(colors)
+  , labelText(labelText)
+  , valueText(valueText)
+  , hideCursor(hideCursor)
+  , drawFrame(drawFrame)
+  , drawShadows(drawShadows)
+  , emboss(emboss)
+  , roundness(roundness)
+  , frameThickness(frameThickness)
+  , shadowOffset(shadowOffset)
+  {
+  }
+  
+  explicit IVStyle(const std::initializer_list<IColor>& colors)
+  : colorSpec(colors)
+  {
+  }
+  
+  IVStyle WithShowLabel(bool show) const { IVStyle newStyle = *this; newStyle.showLabel = show; return newStyle; }
+  IVStyle WithShowValue(bool show) const { IVStyle newStyle = *this; newStyle.showValue = show; return newStyle; }
+  IVStyle WithLabelText(const IText& text) const { IVStyle newStyle = *this; newStyle.labelText = text; return newStyle;}
+  IVStyle WithValueText(const IText& text) const { IVStyle newStyle = *this; newStyle.valueText = text; return newStyle; }
+  IVStyle WithColor(EVColor idx, IColor color) const { IVStyle newStyle = *this; newStyle.colorSpec.mColors[idx] = color; return newStyle; }
+  IVStyle WithColors(IVColorSpec spec) const { IVStyle newStyle = *this; newStyle.colorSpec = spec; return newStyle; }
+  IVStyle WithRoundness(float r) const { IVStyle newStyle = *this; newStyle.roundness = r; return newStyle; }
+  IVStyle WithFrameThickness(float t) const { IVStyle newStyle = *this; newStyle.frameThickness = t; return newStyle; }
+  IVStyle WithShadowOffset(float t) const { IVStyle newStyle = *this; newStyle.shadowOffset = t; return newStyle; }
+  IVStyle WithEmboss(bool v) const { IVStyle newStyle = *this; newStyle.emboss = v; return newStyle; }
+  IVStyle WithDrawShadows(bool v) const { IVStyle newStyle = *this; newStyle.drawShadows = v; return newStyle; }
+  IVStyle WithDrawFrame(bool v) const { IVStyle newStyle = *this; newStyle.drawFrame = v; return newStyle; }
+};
+
+const IVStyle DEFAULT_STYLE = IVStyle();
 /**@}*/

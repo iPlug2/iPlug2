@@ -62,7 +62,7 @@ public:
   
   void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext) override;
   void PromptForDirectory(WDL_String& path) override;
-  bool PromptForColor(IColor& color, const char* str) override { return false; } // TODO:
+  bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override { return false; } // TODO:
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
   
   //IGraphicsWeb
