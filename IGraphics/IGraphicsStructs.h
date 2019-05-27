@@ -48,16 +48,12 @@ struct IMouseInfo;
 struct IKeyPress;
 struct IColor;
 
-template <typename T = double>
-inline T DegToRad(T degrees);
-
 using IActionFunction = std::function<void(IControl*)>;
 using IAnimationFunction = std::function<void(IControl*)>;
 using ILambdaDrawFunction = std::function<void(ILambdaControl*, IGraphics&, IRECT&)>;
 using IKeyHandlerFunc = std::function<bool(const IKeyPress& key, bool isUp)>;
 using IMsgBoxCompletionHanderFunc = std::function<void(EMsgBoxResult result)>;
 using IColorPickerHandlerFunc = std::function<void(const IColor& result)>;
-
 
 void DefaultClickActionFunc(IControl* pCaller);
 void DefaultAnimationFunc(IControl* pCaller);
@@ -68,6 +64,12 @@ using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
 using Milliseconds = std::chrono::duration<double, std::chrono::milliseconds::period>;
 
 using RawBitmapData = WDL_TypedBuf<uint8_t>;
+
+template <typename T>
+inline T DegToRad(T degrees)
+{
+  return static_cast<T>(::PI) * (degrees / static_cast<T>(180.0));
+}
 
 #ifdef IGRAPHICS_AGG
   #include "IGraphicsAGG_src.h"
