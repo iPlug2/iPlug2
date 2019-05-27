@@ -47,7 +47,7 @@ namespace voiceControlNames
 
 using namespace voiceControlNames;
 
-typedef std::array< ControlRamp, kNumVoiceControlRamps > VoiceInputs;
+using VoiceInputs = std::array<ControlRamp, kNumVoiceControlRamps>;
 
 #pragma mark - Voice class
 

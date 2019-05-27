@@ -113,7 +113,7 @@ public:
     return Steinberg::kResultOk;
   }
 
-  tresult PLUGIN_API queryInterface(const TUID _iid, void** obj)
+  tresult PLUGIN_API queryInterface(const TUID _iid, void** obj) override
   {
     QUERY_INTERFACE(_iid, obj, IPlugViewContentScaleSupport::iid, IPlugViewContentScaleSupport)
     *obj = 0;

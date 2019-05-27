@@ -8,11 +8,15 @@
  ==============================================================================
 */
 
-#ifndef NO_IGRAPHICS
-
-#ifdef IGRAPHICS_NANOVG
 #import <QuartzCore/QuartzCore.h>
+
+#ifdef IGRAPHICS_IMGUI
+#import <Metal/Metal.h>
+#include "imgui.h"
+#import "imgui_impl_metal.h"
 #endif
+
+#include "wdlutf8.h"
 
 #import "IGraphicsMac_view.h"
 #include "IControl.h"
@@ -233,22 +237,17 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
 
 - (bool) becomeFirstResponder;
 {
-    bool success = [super becomeFirstResponder];
-    if (success)
-    {
-        NSTextView *textField = (NSTextView*) [self currentEditor];
-        if( [textField respondsToSelector: @selector(setInsertionPointColor:)] )
-            [textField setInsertionPointColor: [self textColor]];
-    }
-    return success;
+  bool success = [super becomeFirstResponder];
+  if (success)
+  {
+    NSTextView *textField = (NSTextView*) [self currentEditor];
+    if( [textField respondsToSelector: @selector(setInsertionPointColor:)] )
+      [textField setInsertionPointColor: [self textColor]];
+  }
+  return success;
 }
 
 @end
-
-NSString* ToNSString(const char* cStr)
-{
-  return [NSString stringWithCString:cStr encoding:NSUTF8StringEncoding];
-}
 
 inline int GetMouseOver(IGraphicsMac* pGraphics)
 {
@@ -393,7 +392,70 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 }
 @end
 
+@implementation IGRAPHICS_GLLAYER
+
+- (id) initWithIGraphicsView: (IGRAPHICS_VIEW*) pView;
+{
+  mView = pView;
+  
+  self = [super init];
+  if ( self != nil )
+  {
+    self.needsDisplayOnBoundsChange = YES;
+    self.asynchronous = NO;
+  }
+  
+  return self;
+}
+
+- (NSOpenGLContext *)openGLContextForPixelFormat:(NSOpenGLPixelFormat *)pixelFormat
+{
+  NSOpenGLContext* context = [super openGLContextForPixelFormat: pixelFormat];
+  
+  [context makeCurrentContext];
+  
+  if(!mView->mGraphics->GetDrawContext())
+    mView->mGraphics->ContextReady(self);
+  
+  return context;
+}
+
+- (NSOpenGLPixelFormat *)openGLPixelFormatForDisplayMask:(uint32_t)mask
+{
+  NSOpenGLPixelFormatAttribute profile = NSOpenGLProfileVersionLegacy;
+  #if defined IGRAPHICS_GL3
+    profile = (NSOpenGLPixelFormatAttribute)NSOpenGLProfileVersion3_2Core;
+  #endif
+  
+  const NSOpenGLPixelFormatAttribute kAttributes[] =  {
+    NSOpenGLPFAAccelerated,
+    NSOpenGLPFANoRecovery,
+    NSOpenGLPFADoubleBuffer,
+    NSOpenGLPFAAlphaSize, 8,
+    NSOpenGLPFAColorSize, 24,
+    NSOpenGLPFADepthSize, 0,
+    NSOpenGLPFAStencilSize, 8,
+    NSOpenGLPFAOpenGLProfile, profile,
+    (NSOpenGLPixelFormatAttribute) 0
+  };
+
+  return [[NSOpenGLPixelFormat alloc] initWithAttributes:kAttributes];
+}
+
+//- (BOOL)canDrawInOpenGLContext:(NSOpenGLContext *)context pixelFormat:(NSOpenGLPixelFormat *)pixelFormat forLayerTime:(CFTimeInterval)timeInterval displayTime:(const CVTimeStamp *)timeStamp
+//{
+//}
+
+- (void)drawInOpenGLContext:(NSOpenGLContext *)context pixelFormat:(NSOpenGLPixelFormat *)pixelFormat forLayerTime:(CFTimeInterval)timeInterval displayTime:(const CVTimeStamp *)timeStamp
+{
+  [mView render];
+}
+
+@end
+
 #pragma mark -
+
+extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 @implementation IGRAPHICS_VIEW
 
@@ -402,24 +464,23 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   TRACE;
 
   mGraphics = pGraphics;
-  NSRect r;
-  r.origin.x = r.origin.y = 0.0f;
-  r.size.width = (float) pGraphics->WindowWidth();
-  r.size.height = (float) pGraphics->WindowHeight();
+  NSRect r = NSMakeRect(0.f, 0.f, (float) pGraphics->WindowWidth(), (float) pGraphics->WindowHeight());
   self = [super initWithFrame:r];
   
 #if defined IGRAPHICS_NANOVG
-  #if defined IGRAPHICS_METAL
-    if (!self.wantsLayer) {
-      self.layer = [CAMetalLayer new];
-      self.layer.opaque = YES;
-      self.wantsLayer = YES;
-    }
-  #elif defined IGRAPHICS_GL
-  //TODO: IGRAPHICS_GL context setup
-  #endif
+  if (!self.wantsLayer) {
+    #if defined IGRAPHICS_METAL
+    self.layer = [CAMetalLayer new];
+    [(CAMetalLayer*)[self layer] setPixelFormat:MTLPixelFormatBGRA8Unorm];
+    #elif defined IGRAPHICS_GL
+    self.layer = [[IGRAPHICS_GLLAYER alloc] initWithIGraphicsView:self];
+    self.wantsBestResolutionOpenGLSurface = YES;
+    #endif
+    self.layer.opaque = YES;
+    self.wantsLayer = YES;
+  }
 #endif
-
+  
   [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
 
   double sec = 1.0 / (double) pGraphics->FPS();
@@ -430,7 +491,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 }
 
 - (void)dealloc
-{
+{  
   [mMoveCursor release];
   [mTrackingArea release];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -466,8 +527,17 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     [pWindow makeFirstResponder: self];
     [pWindow setAcceptsMouseMovedEvents: YES];
     
+    CGFloat newScale = [pWindow backingScaleFactor];
+
     if (mGraphics)
-      mGraphics->SetScreenScale([pWindow backingScaleFactor]);
+      mGraphics->SetScreenScale(newScale);
+    
+    #ifdef IGRAPHICS_METAL
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(frameDidChange:)
+                                                 name:NSViewFrameDidChangeNotification
+                                               object:self];
+    #endif
     
 //    [[NSNotificationCenter defaultCenter] addObserver:self
 //                                             selector:@selector(windowResized:) name:NSWindowDidEndLiveResizeNotification
@@ -492,8 +562,15 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   
   CGFloat newScale = [pWindow backingScaleFactor];
   
-  if (newScale != mGraphics->GetScreenScale())
+  if (mGraphics->GetDrawContext() && newScale != mGraphics->GetScreenScale())
     mGraphics->SetScreenScale(newScale);
+
+#if defined IGRAPHICS_GL
+  self.layer.contentsScale = 1./newScale;
+#elif defined IGRAPHICS_METAL
+  [(CAMetalLayer*)[self layer] setDrawableSize:CGSizeMake(self.frame.size.width * newScale,
+                                                          self.frame.size.height * newScale)];
+#endif
 }
 
 - (CGContextRef) getCGContextRef
@@ -504,7 +581,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   return pCGC;
 }
 
-// not called for METAL
+// not called for layer backed views
 - (void) drawRect: (NSRect) bounds
 {
   if (mGraphics)
@@ -527,21 +604,31 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   }
 }
 
+- (void) render
+{
+#if !defined IGRAPHICS_NANOVG // for layer-backed views setNeedsDisplayInRect/drawRect is not called
+  for (int i = 0; i < mDirtyRects.Size(); i++)
+    [self setNeedsDisplayInRect:ToNSRect(mGraphics, mDirtyRects.Get(i))];
+#else
+  // so just draw on each frame, if something is dirty
+  mGraphics->Draw(mDirtyRects);
+#endif
+}
+
 - (void) onTimer: (NSTimer*) pTimer
 {
-  IRECTList rects;
-  if (mGraphics->IsDirty(rects))
+  mDirtyRects.Clear();
+  
+  if (mGraphics->IsDirty(mDirtyRects))
   {
-    mGraphics->SetAllControlsClean();
-    // for METAL layer-backed view drawRect is not called
-#if !defined IGRAPHICS_NANOVG
-    for (int i = 0; i < rects.Size(); i++)
-      [self setNeedsDisplayInRect:ToNSRect(mGraphics, rects.Get(i))];
+#ifdef IGRAPHICS_GL
+    [self.layer setNeedsDisplay];
 #else
-    // so just draw on each frame, if something is dirty
-    mGraphics->Draw(rects);
+    [self render];
 #endif
   }
+  
+  mGraphics->SetAllControlsClean();
 }
 
 - (void) getMouseXY: (NSEvent*) pEvent x: (float&) pX y: (float&) pY
@@ -579,9 +666,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
 
 - (void) updateTrackingAreas
 {
-  // This is needed to get mouseEntered and mouseExited
-    
-  [super updateTrackingAreas];
+  [super updateTrackingAreas]; // This is needed to get mouseEntered and mouseExited
     
   if (mTrackingArea != nil) {
       [self removeTrackingArea:mTrackingArea];
@@ -632,7 +717,7 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
   float prevX = mPrevX;
   float prevY = mPrevY;
   IMouseInfo info = [self getMouseLeft:pEvent];
-  if (mGraphics && !mTextFieldView)
+  if (mGraphics && !mGraphics->IsInTextEntry())
     mGraphics->OnMouseDrag(info.x, info.y, info.x - prevX, info.y - prevY, info.ms);
 }
 
@@ -684,15 +769,49 @@ inline int GetMouseOver(IGraphicsMac* pGraphics)
     code = kVK_NONE;
   }
   
-  IKeyPress keyPress {static_cast<char>(c), code, static_cast<bool>(flag & kFSHIFT),
-                                                  static_cast<bool>(flag & kFCONTROL),
-                                                  static_cast<bool>(flag & kFALT)};
+  char utf8[5];
+  WDL_MakeUTFChar(utf8, c, 4);
+  
+  IKeyPress keyPress {utf8, code, static_cast<bool>(flag & kFSHIFT),
+                                  static_cast<bool>(flag & kFCONTROL),
+                                  static_cast<bool>(flag & kFALT)};
   
   bool handle = mGraphics->OnKeyDown(mPrevX, mPrevY, keyPress);
   
   if (!handle)
   {
     [[self nextResponder] keyDown:pEvent];
+  }
+}
+
+- (void)keyUp: (NSEvent *)pEvent
+{
+  int flag = 0;
+  int code = MacKeyEventToVK(pEvent, flag);
+  NSString *s = [pEvent charactersIgnoringModifiers];
+  
+  unichar c = 0;
+  
+  if ([s length] == 1)
+    c = [s characterAtIndex:0];
+  
+  if(!static_cast<bool>(flag & kFVIRTKEY))
+  {
+    code = kVK_NONE;
+  }
+  
+  char utf8[5];
+  WDL_MakeUTFChar(utf8, c, 4);
+  
+  IKeyPress keyPress {utf8, code, static_cast<bool>(flag & kFSHIFT),
+                                                  static_cast<bool>(flag & kFCONTROL),
+                                                  static_cast<bool>(flag & kFALT)};
+  
+  bool handle = mGraphics->OnKeyUp(mPrevX, mPrevY, keyPress);
+  
+  if (!handle)
+  {
+    [[self nextResponder] keyUp:pEvent];
   }
 }
 
@@ -857,20 +976,10 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   if (mTextFieldView)
     [self endUserInput ];
   
-//  if (mWebView) {
-//    [mWebView removeFromSuperview ];
-//    mWebView = nullptr;
-//  }
-  
-  if (mGraphics)
-  {
-    IGraphics* pGraphics = mGraphics;
-    mGraphics = nullptr;
-    pGraphics->SetPlatformContext(nullptr);
+  mGraphics->SetPlatformContext(nullptr);
     
-    //For some APIs (AUv2) this is where we know about the window being closed, close via delegate
-    pGraphics->GetDelegate()->CloseWindow();
-  }
+  //For some APIs (AUv2) this is where we know about the window being closed, close via delegate
+  mGraphics->GetDelegate()->CloseWindow();
   [super removeFromSuperview];
 }
 
@@ -878,10 +987,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 {
   char* txt = (char*)[[mTextFieldView stringValue] UTF8String];
 
-  if (mEdControl->GetParam())
-    mGraphics->SetControlValueFromStringAfterPrompt(*mEdControl, txt);
-
-  mEdControl->OnTextEntryCompletion(txt);
+  mGraphics->SetControlValueAfterTextEdit(txt);
   mGraphics->SetAllControlsDirty();
 
   [self endUserInput ];
@@ -910,7 +1016,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   else return nullptr;
 }
 
-- (void) createTextEntry: (IControl&) control : (const IText&) text : (const char*) str : (NSRect) areaRect;
+- (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (NSRect) areaRect;
 {
   if (mTextFieldView)
     return;
@@ -925,14 +1031,10 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
     [mTextFieldView setDrawsBackground: TRUE];
   }
 
-  //TODO: address font types for platform text entries
-#ifdef IGRAPHICS_NANOVG
-  NSString* font = [NSString stringWithUTF8String: "Arial"];
-#else
-  NSString* font = [NSString stringWithUTF8String: text.mFont];
-#endif
-
-  [mTextFieldView setFont: [NSFont fontWithName:font size: text.mSize * 0.75f]];
+  CoreTextFontDescriptor* CTFontDescriptor = CoreTextHelpers::GetCTFontDescriptor(text, sFontDescriptorCache);
+  NSFontDescriptor* fontDescriptor = (NSFontDescriptor*) CTFontDescriptor->mDescriptor;
+  NSFont* font = [NSFont fontWithDescriptor: fontDescriptor size: text.mSize * 0.75];
+  [mTextFieldView setFont: font];
   
   switch (text.mAlign)
   {
@@ -949,7 +1051,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
       break;
   }
 
-  const IParam* pParam = control.GetParam();
+  const IParam* pParam = paramIdx > kNoParameter ? mGraphics->GetDelegate()->GetParam(paramIdx) : nullptr;
 
   // set up formatter
   if (pParam)
@@ -972,7 +1074,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 
     [mTextFieldView setFormatter:[[[IGRAPHICS_FORMATTER alloc] init] autorelease]];
     [[mTextFieldView formatter] setAcceptableCharacterSet:characterSet];
-    [[mTextFieldView formatter] setMaximumLength:control.GetTextEntryLength()];
+    [[mTextFieldView formatter] setMaximumLength:length];
     [characterSet release];
   }
 
@@ -981,7 +1083,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   [mTextFieldView setTextColor:ToNSColor(text.mTextEntryFGColor)];
   [mTextFieldView setBackgroundColor:ToNSColor(text.mTextEntryBGColor)];
 
-  [mTextFieldView setStringValue: ToNSString(str)];
+  [mTextFieldView setStringValue: [NSString stringWithCString:str encoding:NSUTF8StringEncoding]];
 
 #ifndef COCOA_TEXTENTRY_BORDERED
   [mTextFieldView setBordered: NO];
@@ -994,8 +1096,6 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   NSWindow* pWindow = [self window];
   [pWindow makeKeyAndOrderFront:nil];
   [pWindow makeFirstResponder: mTextFieldView];
-
-  mEdControl = &control;
 }
 
 - (void) endUserInput
@@ -1007,20 +1107,26 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   [pWindow makeFirstResponder: self];
 
   mTextFieldView = nullptr;
-  mEdControl = nullptr;
 }
 
-//- (void) createWebView: (NSRect) areaRect : (const char*) url
-//{
-//  mWebView = [[WKWebView alloc] initWithFrame: areaRect ];
-//  [self addSubview: mWebView];
-//  [mWebView loadRequest: [NSURLRequest requestWithURL: [NSURL URLWithString:[NSString stringWithUTF8String:url]]]];
-//}
-//
-//-(void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message
-//{
-//  NSLog(@"%@",message.body);
-//}
+- (BOOL) promptForColor: (IColor&) color : (IColorPickerHandlerFunc) func;
+{
+  NSColorPanel* colorPicker = [NSColorPanel sharedColorPanel];
+  mColorPickerFunc = func;
+
+  [colorPicker setShowsAlpha:TRUE];
+  [colorPicker setColor:ToNSColor(color)];
+  [colorPicker setTarget:self];
+  [colorPicker setAction:@selector(onColorPicked:)];
+  [colorPicker orderFront:nil];
+  
+  return colorPicker != nil;
+}
+
+- (void) onColorPicked: (NSColorPanel*) colorPanel
+{
+  mColorPickerFunc(FromNSColor(colorPanel.color));
+}
 
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData
 {
@@ -1028,7 +1134,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   if (c < 0) return @"";
 
   const char* tooltip = mGraphics->GetControl(c)->GetTooltip();
-  return CStringHasContents(tooltip) ? ToNSString((const char*) tooltip) : @"";
+  return CStringHasContents(tooltip) ? [NSString stringWithCString:tooltip encoding:NSUTF8StringEncoding] : @"";
 }
 
 - (void) registerToolTip: (IRECT&) bounds
@@ -1064,6 +1170,16 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 
   return YES;
 }
+
+#ifdef IGRAPHICS_METAL
+- (void)frameDidChange:(NSNotification*)notification
+{
+  CGFloat scale = [[self window] backingScaleFactor];
+
+  [(CAMetalLayer*)[self layer] setDrawableSize:CGSizeMake(self.frame.size.width * scale,
+                                                          self.frame.size.height * scale)];
+}
+#endif
 
 //- (void)windowResized:(NSNotification *)notification;
 //{
@@ -1104,4 +1220,51 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 
 @end
 
-#endif //NO_IGRAPHICS
+#ifdef IGRAPHICS_IMGUI
+
+@implementation IGRAPHICS_IMGUIVIEW
+{
+}
+
+- (id) initWithIGraphicsView: (IGRAPHICS_VIEW*) pView;
+{
+  mView = pView;
+  self = [super initWithFrame:[pView frame] device: MTLCreateSystemDefaultDevice()];
+  if(self) {
+    _commandQueue = [self.device newCommandQueue];
+    self.layer.opaque = NO;
+  }
+  
+  return self;
+}
+
+- (void)drawRect:(NSRect)dirtyRect
+{
+  id<MTLCommandBuffer> commandBuffer = [self.commandQueue commandBuffer];
+  
+  MTLRenderPassDescriptor *renderPassDescriptor = self.currentRenderPassDescriptor;
+  if (renderPassDescriptor != nil)
+  {
+    renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0,0,0,0);
+    
+    id <MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+    [renderEncoder pushDebugGroup:@"ImGui IGraphics"];
+    
+    ImGui_ImplMetal_NewFrame(renderPassDescriptor);
+    
+    mView->mGraphics->mImGuiRenderer->DoFrame();
+
+    ImDrawData *drawData = ImGui::GetDrawData();
+    ImGui_ImplMetal_RenderDrawData(drawData, commandBuffer, renderEncoder);
+    
+    [renderEncoder popDebugGroup];
+    [renderEncoder endEncoding];
+    
+    [commandBuffer presentDrawable:self.currentDrawable];
+  }
+  [commandBuffer commit];
+}
+
+@end
+
+#endif

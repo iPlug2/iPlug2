@@ -101,8 +101,10 @@ void IPlugVST2::InformHostOfProgramChange()
   mHostCallback(&mAEffect, audioMasterUpdateDisplay, 0, 0, 0, 0.0f);
 }
 
-void IPlugVST2::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
+bool IPlugVST2::EditorResizeFromDelegate(int viewWidth, int viewHeight)
 {
+  bool resized = false;
+
   if (HasUI())
   {
     if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
@@ -111,11 +113,13 @@ void IPlugVST2::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeigh
       mEditRect.right = viewWidth;
       mEditRect.bottom = viewHeight;
     
-      mHostCallback(&mAEffect, audioMasterSizeWindow, viewWidth, viewHeight, 0, 0.f);
+      resized = mHostCallback(&mAEffect, audioMasterSizeWindow, viewWidth, viewHeight, 0, 0.f);
     }
     
-    IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
+    IPlugAPIBase::EditorResizeFromDelegate(viewWidth, viewHeight);
   }
+
+  return resized;
 }
 
 void IPlugVST2::SetLatency(int samples)
@@ -234,7 +238,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     }
     case effClose:
     {
-      DELETE_NULL(_this);
+      delete _this;
       return 0;
     }
     case effGetParamLabel:

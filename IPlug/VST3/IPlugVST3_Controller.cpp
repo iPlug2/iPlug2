@@ -76,42 +76,18 @@ tresult PLUGIN_API IPlugVST3Controller::getState(IBStream* pState)
   return kResultOk;
 }
 
-tresult PLUGIN_API IPlugVST3Controller::setParamNormalized(ParamID tag, ParamValue value)
+ParamValue PLUGIN_API IPlugVST3Controller::getParamNormalized(ParamID tag)
 {
   if (tag >= kBypassParam)
-  {
-    switch (tag)
-    {
-      case kBypassParam:
-      {
-//        bool bypassed = (value > 0.5);
-//
-//        if (bypassed != IsBypassed())
-//          mIsBypassed = bypassed;
-//
-        break;
-      }
-      case kPresetParam:
-      {
-        RestorePreset(NPresets() * value);
+    return EditControllerEx1::getParamNormalized(tag);
+  
+  return IPlugVST3ControllerBase::getParamNormalized(this, tag);
+}
 
-        break;
-      }
-      default:
-        break;
-    }
-  }
-  else
-  {
-    IParam* pParam = GetParam(tag);
-
-    if (pParam)
-    {
-      pParam->SetNormalized(value);
-      OnParamChangeUI(tag, kHost);
-    }
-  }
-
+tresult PLUGIN_API IPlugVST3Controller::setParamNormalized(ParamID tag, ParamValue value)
+{
+  IPlugVST3ControllerBase::setParamNormalized(this, tag, value);
+  
   return EditControllerEx1::setParamNormalized(tag, value);
 }
 
@@ -157,15 +133,17 @@ tresult PLUGIN_API IPlugVST3Controller::getProgramName(ProgramListID listId, int
 //  }
 //}
 
-void IPlugVST3Controller::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
+bool IPlugVST3Controller::EditorResizeFromDelegate(int viewWidth, int viewHeight)
 {
   if (HasUI())
   {
     if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
       mView->resize(viewWidth, viewHeight);
  
-    IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
+    IPlugAPIBase::EditorResizeFromDelegate(viewWidth, viewHeight);
   }
+  
+  return true;
 }
 
 void IPlugVST3Controller::DirtyParametersFromUI()

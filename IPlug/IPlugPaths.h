@@ -15,12 +15,9 @@
  * @brief Common paths useful for plug-ins
  */
 
-#include "string.h"
-#include "wdlstring.h"
+#include "IPlugUtilities.h"
 
-
-
-#ifdef OS_WIN
+#if defined OS_WIN
 #include <windows.h>
  // Unicode helpers
 void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen);
@@ -61,3 +58,41 @@ extern void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* p
  * @param path WDL_String reference where the path will be put on success or empty string on failure
  * @param pluginName CString to specify the plug-in name (BUNDLE_NAME from config.h can be used here) */
 extern void INIPath(WDL_String& path, const char * pluginName);
+
+/** Find the absolute path of a resource based on it's file name (e.g. “background.png”) and type (e.g. “png”), or in the case of windows,
+ * confirm the existence of a particular resource in the binary. If it fails to find the resource with the binary it will test the fileNameOrResID argument
+ * as an absolute path, to see if the file exists in that place.
+ * On macOS resources are usually included inside the bundle resources folder.
+ * On Windows resources are usually baked into the binary via the resource compiler. In this case the fileName argument is the resource id to look for.
+ * The .rc file must include these ids, otherwise you may hit a runtime assertion when you come to load the file.
+ * In some cases you may want to provide an absolute path to a file in a shared resources folder
+ * here (for example if you want to reduce the disk footprint of multiple bundles, such as when you have multiple plug-in formats installed).
+ *
+ * @param fileNameOrResID The filename or resourceID including extension. If no resource is found this argument is tested as an absolute path.
+ * @param type The resource type (file extension) in lower or upper case, e.g. ttf or TTF for a truetype font
+ * @param result WDL_String which will either contain the full path to the resource on disk, or the ful Windows resourceID on success
+ * @return \c true on success */
+extern EResourceLocation LocateResource(const char* fileNameOrResID, const char* type, WDL_String& result, const char* bundleID, void* pHInstance);
+
+/** Load a resource from the binary (windows only).
+ * @param type The resource type in lower or upper case, e.g. ttf or TTF for a truetype font
+ * @return const void pointer to the data if successfull on windows. Returns nullptr if unsuccessfull or on platforms other than windows */
+extern const void* LoadWinResource(const char* resID, const char* type, int& sizeInBytes, void* pHInstance);
+
+/** /todo  
+ * @param fileName /todo
+ * @param searchExt /todo
+ * @param fullPath /todo
+ * @param bundleID /todo
+ * @return true /todo
+ * @return false /todo */
+extern bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath, const char* bundleID = nullptr);
+
+/** /todo 
+ * @param fileName /todo
+ * @param searchExt /todo
+ * @param fullPath /todo
+ * @param subfolder /todo
+ * @return true /todo
+ * @return false /todo */
+extern bool GetResourcePathFromSharedLocation(const char* fileName, const char* searchExt, WDL_String& fullPath, const char* subfolder);

@@ -98,12 +98,28 @@ public:
     IPlugQueue<Data> mQueue {QUEUE_SIZE};
   };
 
-  IVMeterControl(IRECT bounds, const char* trackNames = 0, ...)
-  : IVTrackControlBase(bounds, MAXNC, 0, 1., trackNames)
+  IVMeterControl(IRECT bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = kVertical, const char* trackNames = 0, ...)
+  : IVTrackControlBase(bounds, label, style, MAXNC, dir, 0, 1., trackNames)
   {
   }
 
-  //  void OnResize() override;
+  void Draw(IGraphics& g) override
+  {
+    DrawBackGround(g, mRECT);
+    DrawWidget(g);
+    DrawLabel(g);
+    
+    if(mStyle.drawFrame)
+      g.DrawRect(GetColor(kFR), mWidgetBounds, nullptr, mStyle.frameThickness);
+  }
+  
+  void OnResize() override
+  {
+    SetTargetRECT(CalculateRects(mRECT));
+    MakeTrackRects(mWidgetBounds);
+    SetDirty(false);
+  }
+
   //  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
   //  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
 
@@ -119,8 +135,7 @@ public:
     {
       for (auto i = 0; i < data.nchans; i++) {
         pos = stream.Get(&data.vals[i], pos);
-        float* pVal = GetTrackData(i);
-        *pVal = Clip(data.vals[i], 0.f, 1.f);
+        SetValue(Clip(data.vals[i], 0.f, 1.f), i);
       }
     }
 

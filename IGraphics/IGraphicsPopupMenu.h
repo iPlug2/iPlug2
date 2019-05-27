@@ -14,6 +14,7 @@
 #include <cstring>
 #include <cstdio>
 #include <cassert>
+#include <memory>
 
 #include "wdlstring.h"
 #include "ptrlist.h"
@@ -65,21 +66,17 @@ public:
     
     ~Item()
     {
-      if (mSubmenu)
-        delete mSubmenu;
-      
-      mSubmenu = nullptr;
     }
     
     void SetText(const char* str) { mText.Set(str); }
-    const char* GetText() const { return mText.Get(); };
+    const char* GetText() const { return mText.Get(); }; // TODO: Text -> Str!
     
     bool GetEnabled() const { return !(mFlags & kDisabled); }
     bool GetChecked() const { return (mFlags & kChecked) != 0; }
     bool GetIsTitle() const { return (mFlags & kTitle) != 0; }
     bool GetIsSeparator() const { return (mFlags & kSeparator) != 0; }
     int GetTag() const { return mTag; }
-    IPopupMenu* GetSubmenu() const { return mSubmenu; }
+    IPopupMenu* GetSubmenu() const { return mSubmenu.get(); }
     bool GetIsChoosable() const
     {
       if(GetIsTitle()) return false;
@@ -100,20 +97,33 @@ public:
     
   protected:
     WDL_String mText;
-    IPopupMenu* mSubmenu = nullptr;
+    std::unique_ptr<IPopupMenu> mSubmenu;
     int mFlags;
     int mTag = -1;
   };
   
-  typedef std::function<void(int indexInMenu, IPopupMenu::Item* itemChosen)> IPopupFunction;
+  using IPopupFunction = std::function<void(int indexInMenu, IPopupMenu::Item* itemChosen)>;
 
   #pragma mark -
   
-  IPopupMenu(int prefix = 0, bool multicheck = false)
+  IPopupMenu(int prefix = 0, bool multicheck = false, const std::initializer_list<const char*>& items = {})
   : mPrefix(prefix)
   , mCanMultiCheck(multicheck)
-  {}
-
+  {
+    for (auto& item : items)
+      AddItem(item);
+  }
+  
+  IPopupMenu(const std::initializer_list<const char*>& items, IPopupFunction func)
+  : mPrefix(0)
+  , mCanMultiCheck(false)
+  {
+    for (auto& item : items)
+      AddItem(item);
+    
+    SetFunction(func);
+  }
+  
   ~IPopupMenu()
   {
     mMenuItems.Empty(true);

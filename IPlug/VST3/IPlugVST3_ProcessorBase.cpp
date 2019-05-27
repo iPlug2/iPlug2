@@ -320,9 +320,6 @@ void IPlugVST3ProcessorBase::ProcessParameterChanges(ProcessData& data)
   {
     int32 numParamsChanged = paramChanges->getParameterCount();
     
-    // it is possible to get a finer resolution of control here by retrieving more values (points) from the queue
-    // for now we just grab the last one
-    
     for (int32 i = 0; i < numParamsChanged; i++)
     {
       IParamValueQueue* paramQueue = paramChanges->getParameterData(i);
@@ -341,23 +338,18 @@ void IPlugVST3ProcessorBase::ProcessParameterChanges(ProcessData& data)
             case kBypassParam:
             {
               const bool bypassed = (value > 0.5);
-              
+
               if (bypassed != GetBypassed())
                 SetBypassed(bypassed);
-              
+
               break;
             }
-            case kPresetParam:
-              //RestorePreset((int)round(FromNormalizedParam(value, 0, NPresets(), 1.))); // TODO
-              break;
-              //TODO: pitch bend, modwheel etc
             default:
             {
               if (idx >= 0 && idx < mPlug.NParams())
               {
                 ENTER_PARAMS_MUTEX;
-                mPlug.GetParam(idx)->SetNormalized((double)value);
-                mPlug.SendParameterValueFromAPI(idx, (double) value, true);
+                mPlug.GetParam(idx)->SetNormalized((double)value); // TODO: In VST3 non distributed the same parameter value is also set via IPlugVST3Controller::setParamNormalized(ParamID tag, ParamValue value)
                 mPlug.OnParamChange(idx, kHost, offsetSamples);
                 LEAVE_PARAMS_MUTEX;
               }

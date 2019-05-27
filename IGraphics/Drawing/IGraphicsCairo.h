@@ -32,14 +32,6 @@
   #error NOT IMPLEMENTED
 #endif
 
-#ifdef IGRAPHICS_FREETYPE
-#include "ft2build.h"
-#include FT_FREETYPE_H
-#include "cairo/cairo-ft.h"
-//#include "hb.h"
-//#include "hb-ft.h"
-#endif
-
 #include "IGraphicsPathBase.h"
 
 /** A Cairo API bitmap
@@ -62,11 +54,11 @@ public:
   IGraphicsCairo(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsCairo();
 
-  void DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
+  void DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
       
   void PathClear() override;
   void PathClose() override;
-  void PathArc(float cx, float cy, float r, float aMin, float aMax) override;
+  void PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding) override;
   void PathMoveTo(float x, float y) override;
   void PathLineTo(float x, float y) override;
   void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override;
@@ -80,26 +72,29 @@ public:
   void SetPlatformContext(void* pContext) override;
   void DrawResize() override;
 
-  bool LoadFont(const char* fileName) override;
-  
   bool BitmapExtSupported(const char* ext) override;
 
 protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
-  APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
-  APIBitmap* CreateAPIBitmap(int width, int height) override;
+  APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) override;
 
+  bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override;
+    
   int AlphaChannel() const override { return 3; }
   bool FlippedBitmap() const override { return false; }
 
   void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
   void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
     
-  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
+  void DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
+  void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
 
   void SetCairoSourcePattern(cairo_t* context, const IPattern& pattern, const IBlend* pBlend);
   
 private:
+    
+  void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y, cairo_glyph_t*& pGlyphs, int& numGlyphs) const;
+    
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
   
@@ -112,10 +107,4 @@ private:
     
   cairo_t* mContext;
   cairo_surface_t* mSurface;
-  
-#if defined IGRAPHICS_FREETYPE
-  FT_Library mFTLibrary = nullptr;
-  WDL_PtrList<FT_FaceRec_> mFTFaces;
-  WDL_PtrList<cairo_font_face_t> mCairoFTFaces;
-#endif
 };

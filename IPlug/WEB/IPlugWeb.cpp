@@ -9,6 +9,9 @@
 */
 
 #include "IPlugWeb.h"
+
+#include <memory>
+
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
@@ -119,7 +122,7 @@ void IPlugWeb::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSi
 #endif
 }
 
-extern IPlugWeb* gPlug;
+extern std::unique_ptr<IPlugWeb> gPlug;
 
 // could probably do this without these extra functions
 // https://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/embind.html#deriving-from-c-classes-in-javascript

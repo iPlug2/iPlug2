@@ -1,4 +1,3 @@
-
 /*
  ==============================================================================
  
@@ -7,7 +6,7 @@
  See LICENSE.txt for  more info.
  
  ==============================================================================
- */
+*/
 
 #pragma once
 
@@ -19,10 +18,11 @@
 using namespace Steinberg;
 using namespace Vst;
 
+/** Shared VST3 controller code */
 class IPlugVST3ControllerBase
 {
 public:
-  void Initialize(IPlugAPIBase* pPlug, ParameterContainer& parameters, bool plugIsInstrument)
+  void Initialize(IPlugAPIBase* pPlug, ParameterContainer& parameters, bool plugIsInstrument/*, bool midiIn*/)
   {
     if (pPlug->NPresets())
       parameters.addParameter(new IPlugVST3PresetParameter(pPlug->NPresets()));
@@ -57,115 +57,43 @@ public:
       Parameter* pVST3Parameter = new IPlugVST3Parameter(p, i, unitID);
       parameters.addParameter(pVST3Parameter);
     }
-    
-    /*
-     UnitInfo uinfo;
-     uinfo.id = kRootUnitId;
-     uinfo.parentUnitId = kNoParentUnitId;
-     
-     if (NPresets() > 1)
-     uinfo.programListId = kPresetParam;
-     else
-     uinfo.programListId = kNoProgramListId;
-     
-     UString name(uinfo.name, 128);
-     name.fromAscii("Root");
-     addUnit(new Unit(uinfo));
-     
-     int32 flags = 0;
-     UnitID unitID = kRootUnitId;
-     
-     for (int i = 0; i < NParams(); i++)
-     {
-     IParam* pParam = GetParam(i);
-     
-     pParam->SetToDefault();
-     
-     flags = 0;
-     unitID = kRootUnitId;
-     
-     const char* paramGroupName = pParam->GetGroupForHost();
-     
-     if (CStringHasContents(paramGroupName))
-     {
-     for(int j = 0; j < mParamGroups.GetSize(); j++)
-     {
-     if(strcmp(paramGroupName, mParamGroups.Get(j)) == 0)
-     {
-     unitID = j+1;
-     }
-     }
-     
-     if (unitID == kRootUnitId) // new unit, nothing found, so add it
-     {
-     mParamGroups.Add(paramGroupName);
-     unitID = mParamGroups.GetSize();
-     
-     // Add the unit
-     uinfo.id = unitID;
-     uinfo.parentUnitId = kRootUnitId;
-     uinfo.programListId = kNoProgramListId;
-     name.fromAscii(paramGroupName);
-     addUnit(new Unit(uinfo));
-     }
-     }
-     
-     if (pParam->GetCanAutomate())
-     flags |= ParameterInfo::kCanAutomate;
-     
-     //      if (pParam->IsReadOnly())
-     //        flags |= ParameterInfo::kIsReadOnly;
-     
-     Parameter* pVSTParam = new IPlugVST3Parameter(pParam, flags, unitID);
-     pVSTParam->setNormalized(pParam->GetDefault(true));
-     parameters.addParameter(pVSTParam);
-     }
-     
-     if (!IsInstrument())
-     parameters.addParameter(new IPlugVST3BypassParameter());
-     
-     //
-     //    if (NPresets() > 1)
-     //     parameters.addParameter(new IPlugVST3PresetParameter(NPresets()));
-     
-     //      parameters.addParameter(STR16("Preset"), STR16(""), NPresets(), 0, ParameterInfo::kIsProgramChange|ParameterInfo::kIsList, kPresetParam, kRootUnitId);
-     //
-     //    if (DoesMIDIIn())
-     //    {
-     //      mParamGroups.Add("MIDI Controllers");
-     //      uinfo.id = unitID = mParamGroups.GetSize();
-     //      uinfo.parentUnitId = kRootUnitId;
-     //      uinfo.programListId = kNoProgramListId;
-     //      name.fromAscii("MIDI Controllers");
-     //      addUnit(new Unit(uinfo));
-     //
-     //      ParamID midiParamIdx = kMIDICCParamStartIdx;
-     //      UnitID midiControllersID = unitID;
-     //
-     //      char buf[32];
-     
-     //      for (int chan = 0; chan < NUM_CC_CHANS_TO_ADD; chan++)
-     //      {
-     //        sprintf(buf, "Ch %i", chan+1);
-     //
-     //        mParamGroups.Add(buf);
-     //        uinfo.id = unitID = mParamGroups.GetSize();
-     //        uinfo.parentUnitId = midiControllersID;
-     //        uinfo.programListId = kNoProgramListId;
-     //        name.fromAscii(buf);
-     //        addUnit(new Unit(uinfo));
-     //
-     //        for (int i = 0; i < 128; i++)
-     //        {
-     //          name.fromAscii(ControlStr(i));
-     //          parameters.addParameter(name, STR16(""), 0, 0, 0, midiParamIdx++, unitID);
-     //        }
-     //
-     //        parameters.addParameter(STR16("Channel Aftertouch"), STR16(""), 0, 0, 0, midiParamIdx++, unitID);
-     //        parameters.addParameter(STR16("Pitch Bend"), STR16(""), 0, 0.5, 0, midiParamIdx++, unitID);
-     //      }
-     //    }
-     
+
+//    if (midiIn)
+//    {
+//      mParamGroups.Add("MIDI Controllers");
+//      uinfo.id = unitID = mParamGroups.GetSize();
+//      uinfo.parentUnitId = kRootUnitId;
+//      uinfo.programListId = kNoProgramListId;
+//      name.fromAscii("MIDI Controllers");
+//      addUnit(new Unit(uinfo));
+//
+//      ParamID midiParamIdx = kMIDICCParamStartIdx;
+//      UnitID midiControllersID = unitID;
+//
+//      char buf[32];
+//
+//      for (int chan = 0; chan < NUM_CC_CHANS_TO_ADD; chan++)
+//      {
+//        sprintf(buf, "Ch %i", chan+1);
+//
+//        mParamGroups.Add(buf);
+//        uinfo.id = unitID = mParamGroups.GetSize();
+//        uinfo.parentUnitId = midiControllersID;
+//        uinfo.programListId = kNoProgramListId;
+//        name.fromAscii(buf);
+//        addUnit(new Unit(uinfo));
+//
+//        for (int i = 0; i < 128; i++)
+//        {
+//          name.fromAscii(ControlStr(i));
+//          parameters.addParameter(name, STR16(""), 0, 0, 0, midiParamIdx++, unitID);
+//        }
+//
+//        parameters.addParameter(STR16("Channel Aftertouch"), STR16(""), 0, 0, 0, midiParamIdx++, unitID);
+//        parameters.addParameter(STR16("Pitch Bend"), STR16(""), 0, 0.5, 0, midiParamIdx++, unitID);
+//      }
+//    }
+     /*
      if (NPresets())
      {
      ProgramListWithPitchNames* list = new ProgramListWithPitchNames(String("Factory Presets"), kPresetParam, kRootUnitId);
@@ -192,6 +120,47 @@ public:
      }
      */
   }
+  
+  ParamValue PLUGIN_API getParamNormalized(IPlugAPIBase* pPlug, ParamID tag)
+  {
+    IParam* param = pPlug->GetParam(tag);
+        
+    if (param)
+    {
+      return param->GetNormalized();
+    }
+        
+    return 0.0;
+  }
+    
+  void PLUGIN_API setParamNormalized(IPlugAPIBase* pPlug, ParamID tag, ParamValue value)
+  {
+    if (tag >= kBypassParam)
+    {
+      switch (tag)
+      {
+        case kPresetParam:
+        {
+          pPlug->RestorePreset(pPlug->NPresets() * value);
+          break;
+        }
+        default:
+          break;
+      }
+    }
+    else
+    {
+      IParam* pParam = pPlug->GetParam(tag);
+      
+      if (pParam)
+      {
+        pParam->SetNormalized(value);
+        pPlug->OnParamChangeUI(tag, kHost);
+        pPlug->SendParameterValueFromAPI(tag, value, true);
+      }
+    }
+  }
+  
 public:
   IPlugVST3BypassParameter* mBypassParameter = nullptr;
 };

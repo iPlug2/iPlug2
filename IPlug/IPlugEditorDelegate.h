@@ -209,9 +209,12 @@ public:
    *  You can use it if you restore a preset using a custom preset mechanism. */
   virtual void DirtyParametersFromUI() {};
   
-  /** If the editor changes UI dimensions or other state we need to call into the plug-in API to store state or resize the window in the plugin
-   * This method is implemented in various classes that inherit this interface to implement that behaviour */
-  virtual void EditorPropertiesChangedFromUI(int viewWidth, int viewHeight, const IByteChunk& data) {};
+  /** If the editor changes UI dimensions we need to call into the plug-in API to  resize the window in the plugin
+   * returns a bool to indicate whether the DAW or plugin class has resized the host window */
+  virtual bool EditorResizeFromUI(int viewWidth, int viewHeight) { return false; }
+    
+  /** If the editor changes arbitrary data (such as layout/scale) this is called to store data into the plugin*/
+  virtual void EditorDataChangedFromUI(const IByteChunk& data) {}
   
   /** SendMidiMsgFromUI (Abbreviation: SMMFUI)
    * This method should be used  when  sending a MIDI message from the UI. For example clicking on a key in a virtual keyboard.
@@ -248,6 +251,12 @@ public:
   /** @return An IByteChunk with any arbitrary data that the editor wishes to store  */
   const IByteChunk& GetEditorData() const { return mEditorData; }
   
+  /** This method should be called to set and unserialize editor data from the plugin
+   * @param data A IByteChunk containing the new data
+   * @param startPos Starting point in the chunk
+   * @return The new chunk position (endPos)*/
+  virtual int SetEditorData(const IByteChunk& data, int startPos) { return startPos; }
+
 protected:
   /** The width of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist. */
   int mEditorWidth = 0;

@@ -176,7 +176,7 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
       break;
     case SWELLAPP_LOADED:
     {
-      pAppHost = IPlugAPPHost::sInstance;
+      pAppHost = IPlugAPPHost::sInstance.get();
 
       HMENU menu = SWELL_GetCurrentMenu();
 

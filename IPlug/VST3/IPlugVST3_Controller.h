@@ -37,8 +37,8 @@ class IPlugVST3Controller : public EditControllerEx1
                           , public IPlugVST3ControllerBase
 {
 public:
-  typedef IPlugVST3View<IPlugVST3Controller> ViewType;
-    
+  using ViewType = IPlugVST3View<IPlugVST3Controller>;
+  
   struct IPlugInstanceInfo
   {
     Steinberg::FUID mOtherGUID;
@@ -54,6 +54,7 @@ public:
   tresult PLUGIN_API setState(IBStream* pState) override;
   tresult PLUGIN_API getState(IBStream* pState) override;
   
+  ParamValue PLUGIN_API getParamNormalized (ParamID tag) override;
   tresult PLUGIN_API setParamNormalized(ParamID tag, ParamValue value) override;
   // ComponentBase
   tresult PLUGIN_API notify(IMessage* message) override;
@@ -72,7 +73,7 @@ public:
   void InformHostOfParamChange(int idx, double normalizedValue) override  { performEdit(idx, normalizedValue); }
   void EndInformHostOfParamChange(int idx) override  { endEdit(idx); }
   void InformHostOfProgramChange() override  { /* TODO: */}
-  void EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data) override;
+  bool EditorResizeFromDelegate(int viewWidth, int viewHeight) override;
   void DirtyParametersFromUI() override;
   
   // IEditorDelegate
