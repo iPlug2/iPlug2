@@ -173,8 +173,9 @@ void IGEditorDelegate::AttachGraphics(IGraphics* pGraphics)
 
 bool IGEditorDelegate::EditorResize()
 {
+  int scale = mGraphics->GetPlatformWindowScale();
   EditorDataModified();
-  return EditorResizeFromUI(mGraphics->WindowWidth(), mGraphics->WindowHeight());
+  return EditorResizeFromUI(mGraphics->WindowWidth() * scale, mGraphics->WindowHeight() * scale);
 }
 
 void IGEditorDelegate::EditorDataModified()

@@ -696,6 +696,9 @@ void IGraphicsWin::PlatformResize(bool parentHasResized)
       }
     }
 
+    if (!dw && !dh)
+      return;
+
     SetWindowPos(mPlugWnd, 0, 0, 0, dlgW + dw, dlgH + dh, SETPOS_FLAGS);
 
     if(pParent && !parentHasResized)
@@ -897,8 +900,8 @@ static int GetScaleForWindow(HWND hWnd)
   if (hWnd && (UINT_PTR)__GetDpiForWindow > (UINT_PTR)1)
   {
     int dpi = __GetDpiForWindow(hWnd);
-    if (dpi != 96)
-      scale = static_cast<double>(dpi / USER_DEFAULT_SCREEN_DPI);
+    if (dpi != USER_DEFAULT_SCREEN_DPI)
+      scale = static_cast<double>(dpi) / USER_DEFAULT_SCREEN_DPI;
   }
 
   return std::round(scale);
@@ -941,7 +944,13 @@ void* IGraphicsWin::OpenWindow(void* pParent)
 
   OnViewInitialized((void*) dc);
 
-  SetScreenScale(screenScale); // actually resizes draw contexts
+  // Make sure the parent window is the correct size 
+
+  if (screenScale != GetScreenScale())
+  {
+    SetScreenScale(screenScale); // actually resizes draw context
+    PlatformResize(GetDelegate()->EditorResize());
+  }
 
   GetDelegate()->LayoutUI(this);
 

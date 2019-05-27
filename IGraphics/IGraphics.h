@@ -1042,7 +1042,11 @@ public:
 
   /** /todo */
   void AttachImGui(std::function<void(IGraphics*)> drawFunc, std::function<void()> setupFunc = nullptr);
-  
+
+  /** Returns a scaling factor for resizing parent windows via the host/plugin API
+   * @return A scaling factor for resizing parent windows */
+  virtual int GetPlatformWindowScale() const { return 1; }
+
 private:
   /* /todo */
   virtual void CreatePlatformImGui() {}
