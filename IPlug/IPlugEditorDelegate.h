@@ -209,10 +209,12 @@ public:
    *  You can use it if you restore a preset using a custom preset mechanism. */
   virtual void DirtyParametersFromUI() {};
   
-  /** If the editor changes UI dimensions or other state we need to call into the plug-in API to store state or resize the window in the plugin
-   * This method is implemented in various classes that inherit this interface to implement that behaviour
+  /** If the editor changes UI dimensions we need to call into the plug-in API to  resize the window in the plugin
    * returns a bool to indicate whether the DAW or plugin class has resized the host window */
-  virtual bool EditorPropertiesChangedFromUI(int viewWidth, int viewHeight, const IByteChunk& data) { return false; }
+  virtual bool EditorResizeFromUI(int viewWidth, int viewHeight) { return false; }
+    
+  /** If the editor changes arbitrary data (such as layout/scale) this is called to store data into the plugin*/
+  virtual void EditorDataChangedFromUI(const IByteChunk& data) {}
   
   /** SendMidiMsgFromUI (Abbreviation: SMMFUI)
    * This method should be used  when  sending a MIDI message from the UI. For example clicking on a key in a virtual keyboard.

@@ -66,27 +66,31 @@ public:
   /** Get a pointer to the IGraphics context */
   IGraphics* GetUI() { return mGraphics.get(); };
 
-  /** Called when the IGraphics context properties are changed
+  /** Called from the UI to resize the editor via the plugin and store editor in the base.
+   & This calls through to EditorResizeFromUI after updating the data.
    * @return \c true if the base API resized the window */
-  bool EditorPropertiesModified();
+  bool EditorResize();
+        
+  /** Should be called when editor data changes*/
+  void EditorDataModified();
   
   /** Override this method to serialize custom editor state data.
   * @param chunk The output bytechunk where data can be serialized
   * @return \c true if serialization was successful*/
-  virtual bool SerializeEditorProperties(IByteChunk& chunk) const { TRACE; return true; }
+  virtual bool SerializeCustomEditorData(IByteChunk& chunk) const { TRACE; return true; }
     
   /** Override this method to unserialize custom editor state data
   * @param chunk The incoming chunk containing the state data.
   * @param startPos The position in the chunk where the data starts
   * @return The new chunk position (endPos)*/
-  virtual int UnSerializeEditorProperties(const IByteChunk& chunk, int startPos) { TRACE; return startPos; }
+  virtual int UnserializeCustomEditorData(const IByteChunk& chunk, int startPos) { TRACE; return startPos; }
     
 protected:
   std::function<IGraphics*()> mMakeGraphicsFunc = nullptr;
   std::function<void(IGraphics* pGraphics)> mLayoutFunc = nullptr;
 private:
     
-  int UpdateSizeAndData(const IByteChunk& data, int startPos);
+  int UpdateData(const IByteChunk& data, int startPos);
 
   std::unique_ptr<IGraphics> mGraphics;
   bool mIGraphicsTransient = false; // If creating IGraphics on demand this will be true

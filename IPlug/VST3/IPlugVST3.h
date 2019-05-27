@@ -58,12 +58,12 @@ public:
   void EndInformHostOfParamChange(int idx) override;
   void InformHostOfProgramChange() override {}
   void InformHostOfParameterDetailsChange() override;
-  
+  bool EditorResizeFromDelegate(int viewWidth, int viewHeight) override;
+
   // IEditorDelegate
   void DirtyParametersFromUI() override;
   
   // IPlugProcessor
-  bool EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data) override;
   void SetLatency(int samples) override;
   
   // AudioEffect

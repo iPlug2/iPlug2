@@ -159,7 +159,7 @@ bool IPluginBase::SerializeEditorData(IByteChunk& chunk) const
 
 int IPluginBase::UnserializeEditorData(const IByteChunk& chunk, int startPos)
 {
-  SetEditorData(chunk, startPos);
+  return SetEditorData(chunk, startPos);
 }
 
 void IPluginBase::InitParamRange(int startIdx, int endIdx, int countStart, const char* nameFmtStr, double defaultVal, double minVal, double maxVal, double step, const char *label, int flags, const char *group, const IParam::Shape& shape, IParam::EParamUnit unit, IParam::DisplayFunc displayFunc)
