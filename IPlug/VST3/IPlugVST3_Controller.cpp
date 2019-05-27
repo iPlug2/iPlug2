@@ -133,14 +133,14 @@ tresult PLUGIN_API IPlugVST3Controller::getProgramName(ProgramListID listId, int
 //  }
 //}
 
-bool IPlugVST3Controller::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
+bool IPlugVST3Controller::EditorResizeFromDelegate(int viewWidth, int viewHeight)
 {
   if (HasUI())
   {
     if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
       mView->resize(viewWidth, viewHeight);
  
-    IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
+    IPlugAPIBase::EditorResizeFromDelegate(viewWidth, viewHeight);
   }
   
   return true;

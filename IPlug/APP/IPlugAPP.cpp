@@ -33,7 +33,7 @@ IPlugAPP::IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   CreateTimer();
 }
 
-bool IPlugAPP::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
+bool IPlugAPP::EditorResizeFromDelegate(int viewWidth, int viewHeight)
 {
   if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
   {
@@ -45,7 +45,7 @@ bool IPlugAPP::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight
     #endif
   }
   
-  return IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
+  return IPlugAPIBase::EditorResizeFromDelegate(viewWidth, viewHeight);
 }
 
 bool IPlugAPP::SendMidiMsg(const IMidiMsg& msg)
