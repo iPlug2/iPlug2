@@ -441,8 +441,8 @@ void ITextToggleControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 }
 
 
-ICaptionControl::ICaptionControl(IRECT bounds, int paramIdx, const IText& text, bool showParamLabel)
-: ITextControl(bounds, "", text)
+ICaptionControl::ICaptionControl(IRECT bounds, int paramIdx, const IText& text, const IColor& bgColor, bool showParamLabel)
+: ITextControl(bounds, "", text, bgColor)
 , mShowParamLabel(showParamLabel)
 {
   SetParamIdx(paramIdx);

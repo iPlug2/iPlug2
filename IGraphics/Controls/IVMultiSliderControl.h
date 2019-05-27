@@ -148,7 +148,7 @@ public:
 
   void OnResize() override
   {
-    SetTargetRECT(CalculateRects(mRECT, mLabelStr.Get()));
+    SetTargetRECT(CalculateRects(mRECT));
     MakeTrackRects(mWidgetBounds);
     SetDirty(false);
   }

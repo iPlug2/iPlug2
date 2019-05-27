@@ -66,7 +66,7 @@ void IVButtonControl::DrawWidget(IGraphics& g)
 
 void IVButtonControl::OnResize()
 {
-  SetTargetRECT(CalculateRects(mRECT, mLabelStr.Get()));
+  SetTargetRECT(CalculateRects(mRECT, true));
   SetDirty(false);
 }
 
@@ -126,7 +126,7 @@ void IVSwitchControl::SetDirty(bool push, int valIdx)
 
 void IVSwitchControl::OnResize()
 {
-  SetTargetRECT(CalculateRects(mRECT, mLabelStr.Get()));
+  SetTargetRECT(CalculateRects(mRECT, true));
   SetDirty(false);
 }
 
@@ -206,6 +206,7 @@ IVRadioButtonControl::IVRadioButtonControl(IRECT bounds, IActionFunction actionF
 
 void IVRadioButtonControl::Draw(IGraphics& g)
 {
+  DrawBackGround(g, mRECT);
   DrawLabel(g);
   DrawWidget(g);
 }
@@ -298,7 +299,7 @@ void IVRadioButtonControl::OnMouseOver(float x, float y, const IMouseMod& mod)
 
 void IVRadioButtonControl::OnResize()
 {
-  SetTargetRECT(CalculateRects(mRECT, mLabelStr.Get()));
+  SetTargetRECT(CalculateRects(mRECT));
   
   mButtons.Resize(0);
   
@@ -411,7 +412,7 @@ void IVKnobControl::OnMouseOver(float x, float y, const IMouseMod& mod)
 
 void IVKnobControl::OnResize()
 {
-  SetTargetRECT(CalculateRects(mRECT, mLabelStr.Get()));
+  SetTargetRECT(CalculateRects(mRECT));
   SetDirty(false);
 }
 
@@ -430,6 +431,14 @@ void IVKnobControl::SetDirty(bool push, int valIdx)
 {
   IKnobControlBase::SetDirty(push);
   
+  const IParam* pParam = GetParam();
+  
+  if(pParam)
+    pParam->GetDisplayForHostWithLabel(mValueStr);
+}
+
+void IVKnobControl::OnInit()
+{
   const IParam* pParam = GetParam();
   
   if(pParam)
@@ -543,7 +552,7 @@ void IVSliderControl::OnMouseOver(float x, float y, const IMouseMod& mod)
 
 void IVSliderControl::OnResize()
 {
-  SetTargetRECT(CalculateRects(mRECT, mLabelStr.Get()));
+  SetTargetRECT(CalculateRects(mRECT));
   
   if(mDirection == kVertical)
     mTrack = mWidgetBounds.GetPadded(-mHandleSize).GetMidHPadded(mTrackSize);
@@ -570,6 +579,14 @@ void IVSliderControl::SetDirty(bool push, int valIdx)
 {
   ISliderControlBase::SetDirty(push);
   
+  const IParam* pParam = GetParam();
+  
+  if(pParam)
+    pParam->GetDisplayForHostWithLabel(mValueStr);
+}
+
+void IVSliderControl::OnInit()
+{
   const IParam* pParam = GetParam();
   
   if(pParam)
@@ -742,7 +759,7 @@ void IVXYPadControl::OnMouseDrag(float x, float y, float dX, float dY, const IMo
 
 void IVXYPadControl::OnResize()
 {
-  SetTargetRECT(CalculateRects(mRECT, mLabelStr.Get()));
+  SetTargetRECT(CalculateRects(mRECT));
 
   SetDirty(false);
 }

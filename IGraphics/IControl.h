@@ -713,9 +713,7 @@ public:
       g.FillRect(COLOR_TRANSLUCENT, mValueBounds);
     
     if(mStyle.showValue)
-    {
       g.DrawText(mStyle.valueText, mValueStr.Get(), mValueBounds);
-    }
   }
   
   void DrawPressableCircle(IGraphics&g, const IRECT& bounds, float radius, bool pressed, bool mouseOver)
@@ -851,16 +849,16 @@ public:
     return handleBounds;
   }
   
-  IRECT CalculateRects(const IRECT& parent, const char* label, const char* value = "")
+  IRECT CalculateRects(const IRECT& parent, bool hasHandle = false)
   {
-    IRECT clickableArea;
+    IRECT clickableArea = parent;
     
     if(!mLabelInWidget)
     {
-      if(mStyle.showLabel && CStringHasContents(label))
+      if(mStyle.showLabel && CStringHasContents(mLabelStr.Get()))
       {
         IRECT textRect;
-        mControl->GetUI()->MeasureText(mStyle.labelText, label, textRect);
+        mControl->GetUI()->MeasureText(mStyle.labelText, mLabelStr.Get(), textRect);
 
         mLabelBounds = parent.GetFromTop(textRect.H());
       }
@@ -869,48 +867,41 @@ public:
       
       if(mLabelBounds.H())
         clickableArea = parent.GetReducedFromTop(mLabelBounds.H());
-      else
-        clickableArea = parent;
     }
-    else
-      clickableArea = parent;
     
     if (mStyle.showValue && !mValueInWidget)
     {
       IRECT textRect;
-      WDL_String str;
       
-      const IParam* pParam = mControl->GetParam();
-      
-      if(pParam)
-        pParam->GetDisplayForHostWithLabel(str);
-
-      mControl->GetUI()->MeasureText(mStyle.valueText, str.Get(), textRect);
+      if(CStringHasContents(mValueStr.Get()))
+        mControl->GetUI()->MeasureText(mStyle.valueText, mValueStr.Get(), textRect);
 
       const float valueDisplayWidth = textRect.W() * 0.5f;
 
       switch (mStyle.valueText.mVAlign)
       {
         case IText::kVAlignMiddle:
-          mWidgetBounds = clickableArea;
+          mWidgetBounds = clickableArea.GetScaledAboutCentre(mWidgetFrac);
           mValueBounds = clickableArea.GetMidVPadded(textRect.H()/2.f).GetMidHPadded(valueDisplayWidth);
           break;
         case IText::kVAlignBottom:
         {
           mValueBounds = clickableArea.GetFromBottom(textRect.H()).GetMidHPadded(valueDisplayWidth);
-          mWidgetBounds = clickableArea.GetReducedFromBottom(textRect.H());
+          mWidgetBounds = clickableArea.GetReducedFromBottom(textRect.H()).GetScaledAboutCentre(mWidgetFrac);
           break;
         }
         case IText::kVAlignTop:
           mValueBounds = clickableArea.GetFromTop(textRect.H()).GetMidHPadded(valueDisplayWidth);
-          mWidgetBounds = clickableArea.GetReducedFromTop(textRect.H());
+          mWidgetBounds = clickableArea.GetReducedFromTop(textRect.H()).GetScaledAboutCentre(mWidgetFrac);
           break;
         default:
           break;
       }
     }
     
-    mWidgetBounds = GetAdjustedHandleBounds(clickableArea).GetScaledAboutCentre(mWidgetFrac);
+    if(hasHandle) {
+      mWidgetBounds = GetAdjustedHandleBounds(clickableArea);
+    }
     
     if(mLabelInWidget)
       mLabelBounds = mWidgetBounds;
@@ -1382,7 +1373,7 @@ protected:
 class ICaptionControl : public ITextControl
 {
 public:
-  ICaptionControl(IRECT bounds, int paramIdx, const IText& text = DEFAULT_TEXT, bool showParamLabel = true);
+  ICaptionControl(IRECT bounds, int paramIdx, const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR, bool showParamLabel = true);
   void Draw(IGraphics& g) override;
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnResize() override;

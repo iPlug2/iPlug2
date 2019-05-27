@@ -142,6 +142,7 @@ public:
   void OnResize() override;
   bool IsHit(float x, float y) const override;
   void SetDirty(bool push, int valIdx = kNoValIdx) override;
+  void OnInit() override;
 
 protected:
   float mAngleMin, mAngleMax;
@@ -210,7 +211,8 @@ public:
   bool IsHit(float x, float y) const override;
   void OnResize() override;
   void SetDirty(bool push, int valIdx = kNoValIdx) override;
-
+  void OnInit() override;
+  
 protected:
   float mTrackSize;
   bool mValueMouseOver = false;

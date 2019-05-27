@@ -4,6 +4,41 @@
 #include "IPlugPaths.h"
 #include "IconsForkAwesome.h"
 
+class IVCustomControl : public IControl
+                      , public IVectorBase
+{
+public:
+  IVCustomControl(IRECT bounds, const char* label, const IVStyle& style)
+  : IControl(bounds)
+  , IVectorBase(style)
+  {
+    AttachIControl(this, label);
+  }
+
+  void OnInit() override
+  {
+    mValueStr.Set("Test");
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    DrawBackGround(g, mRECT);
+    DrawWidget(g);
+    DrawLabel(g);
+    DrawValue(g, mMouseIsOver);
+  }
+  
+  virtual void DrawWidget(IGraphics& g) override
+  {
+    g.FillRect(GetColor(kFG), mWidgetBounds);
+  }
+  
+  void OnResize() override
+  {
+    SetTargetRECT(CalculateRects(mRECT));
+  }
+};
+
 class FileBrowser : public IDirBrowseControlBase
 {
 private:
@@ -94,6 +129,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->EnableTooltips(true);
     pGraphics->AttachTextEntryControl();
+    pGraphics->AttachPopupMenuControl();
     
     IRECT b = pGraphics->GetBounds().GetPadded(-5);
     
@@ -251,7 +287,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
       }, kVColorStrs[colorIdx], style.WithColor(kFG, DEFAULT_SPEC.mColors[colorIdx]).WithDrawFrame(false).WithDrawShadows(false)));
     }
     
-    
+    pGraphics->AttachControl(new IVCustomControl(nextCell(), "IVCustomControl", style), kNoTag, "vcontrols");
     
 //
 //    auto button2action = [](IControl* pCaller) {
@@ -274,7 +310,8 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 //    pGraphics->AttachControl(pLabel = new ITextControl(b.GetGridCell(2, nRows, 1), "Text Controls", bigLabel));
 //    pLabel->SetBoundsBasedOnTextDimensions();
 //
-    pGraphics->AttachControl(new ICaptionControl(nextCell().GetMidVPadded(20.), kGain, style.valueText.WithColors(COLOR_RED, COLOR_BLACK, COLOR_RED), false));
+    AddLabel("ICaptionControl");
+    pGraphics->AttachControl(new ICaptionControl(sameCell().GetMidVPadded(20.), kGain, IText(36.f), COLOR_RED, false));
 //
 //    pGraphics->AttachControl(pLabel = new ITextControl(b.GetGridCell(3, nRows, 1), "Misc Controls", bigLabel));
 //    pLabel->SetBoundsBasedOnTextDimensions();
