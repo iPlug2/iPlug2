@@ -134,7 +134,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     IRECT b = pGraphics->GetBounds().GetPadded(-5);
     
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
-    pGraphics->LoadFont("ForkAwesome", FONT_ICON_FILE_NAME_FK);
+    pGraphics->LoadFont("ForkAwesome", FORK_AWESOME_FN);
     
     const IBitmap bitmap1 = pGraphics->LoadBitmap(PNGKNOB_FN, 60);
     const IBitmap bitmap2 = pGraphics->LoadBitmap(PNGKNOBROTATE_FN);
