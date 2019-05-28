@@ -191,8 +191,9 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 2, 3, 3), nullptr, ICON_FK_PLUS_SQUARE, ICON_FK_MINUS_SQUARE, forkAwesomeText));
 
     AddLabel("ICaptionControl");
-    pGraphics->AttachControl(new ICaptionControl(sameCell().GetMidVPadded(20.), kGain, IText(36.f), COLOR_RED, false));
-    
+    pGraphics->AttachControl(new ICaptionControl(sameCell().FracRectVertical(0.5, true).GetMidVPadded(10.f), kGain, IText(24.f), DEFAULT_FGCOLOR, false));
+    pGraphics->AttachControl(new ICaptionControl(sameCell().FracRectVertical(0.5, false).GetMidVPadded(10.f), kMode, IText(24.f), DEFAULT_FGCOLOR, false));
+
     AddLabel("IBKnobControl");
     pGraphics->AttachControl(new IBKnobControl(sameCell().GetPadded(-5.), bitmap1, kGain));
     AddLabel("IBKnobRotaterControl");
