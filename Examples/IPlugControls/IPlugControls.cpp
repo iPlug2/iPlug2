@@ -263,17 +263,10 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new IVScopeControl<2>(nextCell(), "IVScopeControl", style.WithColor(kFG, COLOR_BLACK)), kCtrlTagScope, "vcontrols");
     pGraphics->AttachControl(new IVCustomControl(nextCell(), "IVCustomControl", style), kNoTag, "vcontrols");
     
-    IRECT wideCell;
-    
-#ifndef OS_WEB
-    wideCell = nextCell().Union(nextCell());
+    IRECT wideCell = nextCell().Union(nextCell());
     pGraphics->AttachControl(new ITextControl(wideCell.GetFromTop(20.f), "File Browser (IDirBrowseControlBase) demo", style.labelText));
     pGraphics->AttachControl(new FileBrowser(wideCell.GetReducedFromTop(20.f)));
-#else
-  //keep layout
-  nextCell();
-  nextCell();
-#endif
+
     
 //
 //    auto button2action = [](IControl* pCaller) {
