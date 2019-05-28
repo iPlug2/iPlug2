@@ -288,8 +288,8 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 //    pGraphics->AttachControl(new IVButtonControl(nextCell(), button2action, "Trigger open file dialog"));
 //    pGraphics->AttachControl(new IVButtonControl(nextCell(), button3action, "Trigger open directory dialog"));
 
-    AddLabel("IVKeyboardControl");
-    wideCell = sameCell().Union(nextCell()).Union(nextCell());
+    wideCell = sameCell().Union(nextCell()).Union(nextCell()).Union(nextCell());
+    pGraphics->AttachControl(new ITextControl(wideCell.GetFromTop(20.f), "IVKeyboardControl", style.labelText));
     pGraphics->AttachControl(new IVKeyboardControl(wideCell.GetPadded(-25), 36, 72), kNoTag, "vcontrols");
 
     pGraphics->AttachControl(new IPanelControl(b.GetGridCell(4, 5, 1), COLOR_MID_GRAY));
