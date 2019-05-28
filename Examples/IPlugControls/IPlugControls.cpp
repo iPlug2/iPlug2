@@ -269,6 +269,10 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     wideCell = nextCell().Union(nextCell());
     pGraphics->AttachControl(new ITextControl(wideCell.GetFromTop(20.f), "File Browser (IDirBrowseControlBase) demo", style.labelText));
     pGraphics->AttachControl(new FileBrowser(wideCell.GetReducedFromTop(20.f)));
+#else
+  //keep layout
+  nextCell();
+  nextCell();
 #endif
     
 //
