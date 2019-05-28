@@ -34,7 +34,7 @@ using FaustGen = IPlugFaust; // not used, except for CompileCPP();
 #include <sys/stat.h>
 
 #if defined OS_MAC || defined OS_LINUX
-typedef struct stat;
+typedef struct stat StatType;
 typedef timespec StatTime;
 
 static inline int GetStat(const char* path, StatType* pStatbuf) { return stat(path, pStatbuf); }
