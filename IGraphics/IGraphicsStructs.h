@@ -1628,7 +1628,7 @@ struct IRECT
   /** /todo 
    * @param sr /todo
    * @return IRECT /todo */
-  IRECT GetCentredInside(IRECT sr) const
+  IRECT GetCentredInside(const IRECT& sr) const
   {
     IRECT r;
     r.L = MW() - sr.W() / 2.f;
@@ -1662,7 +1662,7 @@ struct IRECT
   /** /todo 
    * @param bitmap /todo
    * @return IRECT /todo */
-  IRECT GetCentredInside(IBitmap bitmap)
+  IRECT GetCentredInside(const IBitmap& bitmap) const
   {
     IRECT r;
     r.L = MW() - bitmap.FW() / 2.f;

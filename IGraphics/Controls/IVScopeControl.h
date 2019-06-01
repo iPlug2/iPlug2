@@ -105,7 +105,7 @@ public:
     bool mPrevAboveThreshold = true;
   };
 
-  IVScopeControl(IRECT bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE, const char* trackNames = 0, ...)
+  IVScopeControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE, const char* trackNames = 0, ...)
   : IControl(bounds)
   , IVectorBase(style)
   {

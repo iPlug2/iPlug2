@@ -98,7 +98,7 @@ public:
     IPlugQueue<Data> mQueue {QUEUE_SIZE};
   };
 
-  IVMeterControl(IRECT bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = kVertical, const char* trackNames = 0, ...)
+  IVMeterControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = kVertical, const char* trackNames = 0, ...)
   : IVTrackControlBase(bounds, label, style, MAXNC, dir, 0, 1., trackNames)
   {
   }

@@ -71,7 +71,7 @@ public:
     //kFR = kFR
   };
 
-  IVKeyboardControl(IRECT bounds,
+  IVKeyboardControl(const IRECT& bounds,
                     int minNote = 36, int maxNote = 84,
                     bool roundedKeys = false,
                     IActionFunction actionFunc = nullptr)

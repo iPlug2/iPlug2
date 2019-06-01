@@ -22,7 +22,7 @@
 class TestSizeControl : public IControl
 {
 public:
-  TestSizeControl(IRECT bounds)
+  TestSizeControl(const IRECT& bounds)
   : IControl(bounds)
   {
     mIgnoreMouse = true;

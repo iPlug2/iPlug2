@@ -49,7 +49,7 @@ public:
    * @param bounds The rectangular area that the control occupies
    * @param paramIdx If this is > -1 (kNoParameter) this control will be associated with a plugin parameter
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
-  IControl(IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
+  IControl(const IRECT& bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr);
   
   /** Constructor (range of parameters)
    * @brief Creates an IControl which is linked to multiple parameters
@@ -58,7 +58,7 @@ public:
    * @param bounds The rectangular area that the control occupies
    * @param params An initializer list of valid integer parameter indexes
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
-  IControl(IRECT bounds, const std::initializer_list<int>& params, IActionFunction actionFunc = nullptr);
+  IControl(const IRECT& bounds, const std::initializer_list<int>& params, IActionFunction actionFunc = nullptr);
   
   /** Constructor (no paramIdx)
    * @brief Creates an IControl which is not linked to a parameter
@@ -66,7 +66,7 @@ public:
    * If you need to do something once those things are known, see IControl::OnInit()
    * @param bounds The rectangular area that the control occupies
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
-  IControl(IRECT bounds, IActionFunction actionFunc);
+  IControl(const IRECT& bounds, IActionFunction actionFunc);
 
   /** Destructor. Clean up any resources that your control owns. */
   virtual ~IControl() {}
@@ -932,7 +932,7 @@ protected:
 class IKnobControlBase : public IControl
 {
 public:
-  IKnobControlBase(IRECT bounds, int paramIdx = kNoParameter,
+  IKnobControlBase(const IRECT& bounds, int paramIdx = kNoParameter,
     EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
     : IControl(bounds, paramIdx)
     , mDirection(direction)
@@ -953,8 +953,8 @@ protected:
 class ISliderControlBase : public IControl
 {
 public:
-  ISliderControlBase(IRECT bounds, int paramIdx = kNoParameter,  EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 0.f);
-  ISliderControlBase(IRECT bounds, IActionFunction aF = nullptr, EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 0.f);
+  ISliderControlBase(const IRECT& bounds, int paramIdx = kNoParameter,  EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 0.f);
+  ISliderControlBase(const IRECT& bounds, IActionFunction aF = nullptr, EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 0.f);
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
@@ -971,7 +971,7 @@ class IVTrackControlBase : public IControl
                          , public IVectorBase
 {
 public:
-  IVTrackControlBase(IRECT bounds, const char* label, const IVStyle& style, int maxNTracks = 1, EDirection dir = kHorizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int maxNTracks = 1, EDirection dir = kHorizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
   : IControl(bounds)
   , IVectorBase(style)
   , mMinTrackValue(minTrackValue)
@@ -989,7 +989,7 @@ public:
     AttachIControl(this, label);
   }
 
-  IVTrackControlBase(IRECT bounds, const char* label, const IVStyle& style, int lowParamidx, int maxNTracks = 1, EDirection dir = kHorizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int lowParamidx, int maxNTracks = 1, EDirection dir = kHorizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
     : IControl(bounds)
     , IVectorBase(style)
     , mMinTrackValue(minTrackValue)
@@ -1087,7 +1087,7 @@ protected:
 class IButtonControlBase : public IControl
 {
 public:
-  IButtonControlBase(IRECT bounds, IActionFunction aF);
+  IButtonControlBase(const IRECT& bounds, IActionFunction aF);
   
   virtual ~IButtonControlBase() {}
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
@@ -1098,7 +1098,7 @@ public:
 class ISwitchControlBase : public IControl
 {
 public:
-  ISwitchControlBase(IRECT bounds, int paramIdx = kNoParameter, IActionFunction aF = nullptr, int numStates = 2);
+  ISwitchControlBase(const IRECT& bounds, int paramIdx = kNoParameter, IActionFunction aF = nullptr, int numStates = 2);
 
   virtual ~ISwitchControlBase() {}
   void OnInit() override;
@@ -1113,7 +1113,7 @@ protected:
 class IDirBrowseControlBase : public IControl
 {
 public:
-  IDirBrowseControlBase(IRECT bounds, const char* extension /* e.g. ".txt"*/)
+  IDirBrowseControlBase(const IRECT& bounds, const char* extension /* e.g. ".txt"*/)
   : IControl(bounds)
   {
     mExtension.Set(extension);
@@ -1160,7 +1160,7 @@ protected:
 class IPanelControl : public IControl
 {
 public:
-  IPanelControl(IRECT bounds, const IColor& color, bool drawFrame = false)
+  IPanelControl(const IRECT& bounds, const IColor& color, bool drawFrame = false)
   : IControl(bounds, kNoParameter)
   , mPattern(color)
   , mDrawFrame(drawFrame)
@@ -1168,7 +1168,7 @@ public:
     mIgnoreMouse = true;
   }
   
-  IPanelControl(IRECT bounds, const IPattern& pattern, bool drawFrame = false)
+  IPanelControl(const IRECT& bounds, const IPattern& pattern, bool drawFrame = false)
   : IControl(bounds, kNoParameter)
   , mPattern(pattern)
   , mDrawFrame(drawFrame)
@@ -1205,7 +1205,7 @@ private:
 class ILambdaControl : public IControl
 {
 public:
-  ILambdaControl(IRECT bounds, ILambdaDrawFunction drawFunc, int animationDuration = DEFAULT_ANIMATION_DURATION,
+  ILambdaControl(const IRECT& bounds, ILambdaDrawFunction drawFunc, int animationDuration = DEFAULT_ANIMATION_DURATION,
     bool loopAnimation = false, bool startImmediately = false, int paramIdx = kNoParameter)
   : IControl(bounds, paramIdx, DefaultClickActionFunc)
   , mDrawFunc(drawFunc)
@@ -1270,7 +1270,7 @@ public:
   , IBitmapBase(bitmap, blend)
   {}
   
-  IBitmapControl(IRECT bounds, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendDefault)
+  IBitmapControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendDefault)
   : IControl(bounds, paramIdx)
   , IBitmapBase(bitmap, blend)
   {}
@@ -1294,7 +1294,7 @@ public:
 class ISVGControl : public IControl
 {
 public:
-  ISVGControl(IRECT bounds, ISVG& svg, bool useLayer = false)
+  ISVGControl(const IRECT& bounds, ISVG& svg, bool useLayer = false)
     : IControl(bounds)
     , mSVG(svg)
     , mUseLayer(useLayer)
@@ -1334,7 +1334,7 @@ private:
 class ITextControl : public IControl
 {
 public:
-  ITextControl(IRECT bounds, const char* str = "", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR)
+  ITextControl(const IRECT& bounds, const char* str = "", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR)
   : IControl(bounds)
   , mStr(str)
   , mBGColor(BGColor)
@@ -1359,9 +1359,9 @@ protected:
 class ITextToggleControl : public ITextControl
 {
 public:
-  ITextToggleControl(IRECT bounds, int paramIdx = kNoParameter, const char* offText = "OFF", const char* onText = "ON", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR);
+  ITextToggleControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* offText = "OFF", const char* onText = "ON", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR);
   
-  ITextToggleControl(IRECT bounds, IActionFunction aF = nullptr, const char* offText = "OFF", const char* onText = "ON", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR);
+  ITextToggleControl(const IRECT& bounds, IActionFunction aF = nullptr, const char* offText = "OFF", const char* onText = "ON", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR);
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
 protected:
@@ -1373,7 +1373,7 @@ protected:
 class ICaptionControl : public ITextControl
 {
 public:
-  ICaptionControl(IRECT bounds, int paramIdx, const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR, bool showParamLabel = true);
+  ICaptionControl(const IRECT& bounds, int paramIdx, const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR, bool showParamLabel = true);
   void Draw(IGraphics& g) override;
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnResize() override;

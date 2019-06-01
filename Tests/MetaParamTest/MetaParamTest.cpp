@@ -8,7 +8,7 @@
 #if IPLUG_EDITOR
 struct FourValues : public IControl
 {
-  FourValues(IRECT bounds, int paramIdx1, int paramIdx2, int paramIdx3, int paramIdx4)
+  FourValues(const IRECT& bounds, int paramIdx1, int paramIdx2, int paramIdx3, int paramIdx4)
   : IControl(bounds, {paramIdx1, paramIdx2, paramIdx3, paramIdx4})
   {
     mText.mAlign = IText::kAlignCenter;

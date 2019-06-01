@@ -23,7 +23,7 @@
 class TestDropShadowControl : public IControl
 {
 public:
-  TestDropShadowControl(IRECT bounds, const ISVG& svg)
+  TestDropShadowControl(const IRECT& bounds, const ISVG& svg)
   : IControl(bounds)
   , mSVG(svg)
   {

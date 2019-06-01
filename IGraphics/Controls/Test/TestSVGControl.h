@@ -23,7 +23,7 @@
 class TestSVGControl : public IControl
 {
 public:
-  TestSVGControl(IRECT bounds, const ISVG& svg)
+  TestSVGControl(const IRECT& bounds, const ISVG& svg)
   : IControl(bounds)
   , mSVG(svg)
   {

@@ -24,7 +24,7 @@ class TestFontControl : public IControl
   static const int size = 20;
     
 public:
-    TestFontControl(IRECT bounds)
+    TestFontControl(const IRECT& bounds)
   : IControl(bounds), mCount(-1), mFontCount(0), mStrCount(0)
   {
     SetTooltip("TestFontControl");

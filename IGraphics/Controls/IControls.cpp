@@ -23,7 +23,7 @@ const IColor IVKeyboardControl::DEFAULT_WK_COLOR = IColor(255, 240, 240, 240);
 const IColor IVKeyboardControl::DEFAULT_PK_COLOR = IColor(60, 0, 0, 0);
 const IColor IVKeyboardControl::DEFAULT_FR_COLOR = DEFAULT_BK_COLOR;
 
-IVButtonControl::IVButtonControl(IRECT bounds, IActionFunction actionFunc,
+IVButtonControl::IVButtonControl(const IRECT& bounds, IActionFunction actionFunc,
                                  const char* label,
                                  const IVStyle& style,
                                  bool labelInButton, bool valueInButton, IVShape shape, float angle)
@@ -75,7 +75,7 @@ bool IVButtonControl::IsHit(float x, float y) const
   return mWidgetBounds.Contains(x, y);
 }
 
-IVSwitchControl::IVSwitchControl(IRECT bounds, int paramIdx, const char* label, const IVStyle& style, bool valueInButton)
+IVSwitchControl::IVSwitchControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueInButton)
   : ISwitchControlBase(bounds, paramIdx, SplashClickActionFunc)
   , IVectorBase(style, false, valueInButton)
 {
@@ -88,7 +88,7 @@ IVSwitchControl::IVSwitchControl(IRECT bounds, int paramIdx, const char* label, 
   mDblAsSingleClick = true;
 }
 
-IVSwitchControl::IVSwitchControl(IRECT bounds, IActionFunction actionFunc, const char* label, const IVStyle& style, int numStates, bool valueInButton)
+IVSwitchControl::IVSwitchControl(const IRECT& bounds, IActionFunction actionFunc, const char* label, const IVStyle& style, int numStates, bool valueInButton)
 : ISwitchControlBase(bounds, kNoParameter, actionFunc, numStates)
 , IVectorBase(style, false, valueInButton)
 {
@@ -135,7 +135,7 @@ bool IVSwitchControl::IsHit(float x, float y) const
   return mWidgetBounds.Contains(x, y);
 }
 
-IVToggleControl::IVToggleControl(IRECT bounds, int paramIdx, const char* offText, const char* onText, const char* label, const IVStyle& style)
+IVToggleControl::IVToggleControl(const IRECT& bounds, int paramIdx, const char* offText, const char* onText, const char* label, const IVStyle& style)
 : IVSwitchControl(bounds, paramIdx, label, style, true)
 , mOnText(onText)
 , mOffText(offText)
@@ -143,7 +143,7 @@ IVToggleControl::IVToggleControl(IRECT bounds, int paramIdx, const char* offText
   //TODO: assert boolean?
 }
 
-IVToggleControl::IVToggleControl(IRECT bounds, IActionFunction actionFunc, const char* offText, const char* onText, const char* label, const IVStyle& style, bool initialState)
+IVToggleControl::IVToggleControl(const IRECT& bounds, IActionFunction actionFunc, const char* offText, const char* onText, const char* label, const IVStyle& style, bool initialState)
 : IVSwitchControl(bounds, actionFunc, label, style, 2, true)
 , mOnText(onText)
 , mOffText(offText)
@@ -162,7 +162,7 @@ void IVToggleControl::DrawValue(IGraphics& g, bool mouseOver)
     g.DrawText(mStyle.valueText, mOffText.Get(), mValueBounds);
 }
 
-IVRadioButtonControl::IVRadioButtonControl(IRECT bounds, int paramIdx, IActionFunction actionFunc,
+IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, int paramIdx, IActionFunction actionFunc,
   int numStates, const char* label, const IVStyle& style, IVShape shape, float buttonSize)
 : ISwitchControlBase(bounds, paramIdx, actionFunc, numStates)
 , IVectorBase(style)
@@ -185,7 +185,7 @@ IVRadioButtonControl::IVRadioButtonControl(IRECT bounds, int paramIdx, IActionFu
   }
 }
 
-IVRadioButtonControl::IVRadioButtonControl(IRECT bounds, IActionFunction actionFunc,
+IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, IActionFunction actionFunc,
                                            const std::initializer_list<const char*>& options,
                                            const char* label, const IVStyle& style, IVShape shape, float buttonSize)
 : ISwitchControlBase(bounds, kNoParameter, actionFunc, static_cast<int>(options.size()))
@@ -311,7 +311,7 @@ void IVRadioButtonControl::OnResize()
   SetDirty(false);
 }
 
-IVKnobControl::IVKnobControl(IRECT bounds, int paramIdx,
+IVKnobControl::IVKnobControl(const IRECT& bounds, int paramIdx,
                              const char* label,
                              const IVStyle& style,
                              bool valueIsEditable,
@@ -327,7 +327,7 @@ IVKnobControl::IVKnobControl(IRECT bounds, int paramIdx,
   AttachIControl(this, label);
 }
 
-IVKnobControl::IVKnobControl(IRECT bounds, IActionFunction actionFunction,
+IVKnobControl::IVKnobControl(const IRECT& bounds, IActionFunction actionFunction,
                              const char* label,
                              const IVStyle& style,
                              bool valueIsEditable,
@@ -445,7 +445,7 @@ void IVKnobControl::OnInit()
     pParam->GetDisplayForHostWithLabel(mValueStr);
 }
 
-IVSliderControl::IVSliderControl(IRECT bounds, int paramIdx,
+IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx,
                 const char* label,
                 const IVStyle& style,
                 bool valueIsEditable,
@@ -459,7 +459,7 @@ IVSliderControl::IVSliderControl(IRECT bounds, int paramIdx,
   AttachIControl(this, label);
 }
 
-IVSliderControl::IVSliderControl(IRECT bounds, IActionFunction aF,
+IVSliderControl::IVSliderControl(const IRECT& bounds, IActionFunction aF,
                 const char* label,
                 const IVStyle& style,
                 bool valueIsEditable,
@@ -593,7 +593,7 @@ void IVSliderControl::OnInit()
     pParam->GetDisplayForHostWithLabel(mValueStr);
 }
 
-IVRangeSliderControl::IVRangeSliderControl(IRECT bounds, int paramIdxLo, int paramIdxHi,
+IVRangeSliderControl::IVRangeSliderControl(const IRECT& bounds, int paramIdxLo, int paramIdxHi,
                                            const char* label,
                                            const IVStyle& style,
 //                                           bool valueIsEditable = false,
@@ -697,7 +697,7 @@ void IVRangeSliderControl::SnapToMouse(float x, float y, EDirection direction, I
   SetDirty(true, valIdx);
 }
 
-IVXYPadControl::IVXYPadControl(IRECT bounds, const std::initializer_list<int>& params,
+IVXYPadControl::IVXYPadControl(const IRECT& bounds, const std::initializer_list<int>& params,
                const char* label,
                const IVStyle& style,
                float handleRadius)
@@ -780,7 +780,7 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   SetDirty();
 }
 
-IBSliderControl::IBSliderControl(IRECT bounds, int paramIdx, const IBitmap& bitmap,
+IBSliderControl::IBSliderControl(const IRECT& bounds, int paramIdx, const IBitmap& bitmap,
                                  EDirection dir, bool onlyHandle)
 : ISliderControlBase(bounds, paramIdx, dir, onlyHandle)
 , IBitmapBase(bitmap)

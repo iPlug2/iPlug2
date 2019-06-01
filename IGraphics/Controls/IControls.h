@@ -36,7 +36,7 @@ class IVButtonControl : public IButtonControlBase
                       , public IVectorBase
 {
 public:
-  IVButtonControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool labelInButton = true, bool valueInButton = true, IVShape shape = kVShapeRectangle, float angle = 0.f);
+  IVButtonControl(const IRECT& bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool labelInButton = true, bool valueInButton = true, IVShape shape = kVShapeRectangle, float angle = 0.f);
 
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
@@ -56,9 +56,9 @@ class IVSwitchControl : public ISwitchControlBase
                       , public IVectorBase
 {
 public:
-  IVSwitchControl(IRECT bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueInButton = true);
+  IVSwitchControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueInButton = true);
   
-  IVSwitchControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, int numStates = 2, bool valueInButton = true);
+  IVSwitchControl(const IRECT& bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, int numStates = 2, bool valueInButton = true);
   
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
@@ -70,9 +70,9 @@ public:
 class IVToggleControl : public IVSwitchControl
 {
 public:
-  IVToggleControl(IRECT bounds, int paramIdx = kNoParameter, const char* offText = "OFF", const char* onText = "ON", const char* label = "", const IVStyle& style = DEFAULT_STYLE);
+  IVToggleControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* offText = "OFF", const char* onText = "ON", const char* label = "", const IVStyle& style = DEFAULT_STYLE);
   
-  IVToggleControl(IRECT bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* offText = "OFF", const char* onText = "ON", const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool initialState = false);
+  IVToggleControl(const IRECT& bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* offText = "OFF", const char* onText = "ON", const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool initialState = false);
   
   void DrawValue(IGraphics& g, bool mouseOver) override;
 protected:
@@ -85,9 +85,9 @@ class IVRadioButtonControl : public ISwitchControlBase
                            , public IVectorBase
 {
 public:
-  IVRadioButtonControl(IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = SplashClickActionFunc, int numStates = 2, const char* label = "", const IVStyle& style = DEFAULT_STYLE, IVShape shape = kVShapeCircle, float buttonSize = 10.f);
+  IVRadioButtonControl(const IRECT& bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = SplashClickActionFunc, int numStates = 2, const char* label = "", const IVStyle& style = DEFAULT_STYLE, IVShape shape = kVShapeCircle, float buttonSize = 10.f);
 
-  IVRadioButtonControl(IRECT bounds, IActionFunction actionFunc, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, IVShape shape = kVShapeCircle, float buttonSize = 10.f);
+  IVRadioButtonControl(const IRECT& bounds, IActionFunction actionFunc, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, IVShape shape = kVShapeCircle, float buttonSize = 10.f);
   
   virtual ~IVRadioButtonControl() { mLabels.Empty(true); }
   void Draw(IGraphics& g) override;
@@ -114,14 +114,14 @@ class IVKnobControl : public IKnobControlBase
                     , public IVectorBase
 {
 public:
-  IVKnobControl(IRECT bounds, int paramIdx,
+  IVKnobControl(const IRECT& bounds, int paramIdx,
                 const char* label = "",
                 const IVStyle& style = DEFAULT_STYLE,
                 bool valueIsEditable = false,
                 float aMin = -135.f, float aMax = 135.f,
                 EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
 
-  IVKnobControl(IRECT bounds, IActionFunction actionFunction,
+  IVKnobControl(const IRECT& bounds, IActionFunction actionFunction,
                 const char* label = "",
                 const IVStyle& style = DEFAULT_STYLE,
                 bool valueIsEditable = false,
@@ -153,7 +153,7 @@ protected:
 class ISVGKnob : public IKnobControlBase
 {
 public:
-  ISVGKnob(IRECT bounds, const ISVG& svg, int paramIdx = kNoParameter)
+  ISVGKnob(const IRECT& bounds, const ISVG& svg, int paramIdx = kNoParameter)
     : IKnobControlBase(bounds, paramIdx)
     , mSVG(svg)
   {
@@ -189,13 +189,13 @@ class IVSliderControl : public ISliderControlBase
                       , public IVectorBase
 {
 public:
-  IVSliderControl(IRECT bounds, int paramIdx = kNoParameter,
+  IVSliderControl(const IRECT& bounds, int paramIdx = kNoParameter,
                   const char* label = "",
                   const IVStyle& style = DEFAULT_STYLE,
                   bool valueIsEditable = false,
                   EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
   
-  IVSliderControl(IRECT bounds, IActionFunction aF,
+  IVSliderControl(const IRECT& bounds, IActionFunction aF,
                   const char* label = "",
                   const IVStyle& style = DEFAULT_STYLE,
                   bool valueIsEditable = false,
@@ -221,7 +221,7 @@ protected:
 class IVRangeSliderControl : public IVSliderControl
 {
 public:
-  IVRangeSliderControl(IRECT bounds, int paramIdxLo = kNoParameter, int paramIdxHi = kNoParameter,
+  IVRangeSliderControl(const IRECT& bounds, int paramIdxLo = kNoParameter, int paramIdxHi = kNoParameter,
                        const char* label = "",
                        const IVStyle& style = DEFAULT_STYLE,
 //                       bool valueIsEditable = false,
@@ -242,7 +242,7 @@ class IVXYPadControl : public IControl
                      , public IVectorBase
 {
 public:
-  IVXYPadControl(IRECT bounds, const std::initializer_list<int>& params,
+  IVXYPadControl(const IRECT& bounds, const std::initializer_list<int>& params,
                  const char* label = "",
                  const IVStyle& style = DEFAULT_STYLE,
                  float handleRadius = 10.f);
@@ -270,7 +270,7 @@ public:
   , IBitmapBase(bitmap)
   {}
 
-  IBButtonControl(IRECT bounds, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
+  IBButtonControl(const IRECT& bounds, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
   : IButtonControlBase(bounds.GetCentredInside(bitmap), actionFunc)
   , IBitmapBase(bitmap)
   {}
@@ -306,7 +306,7 @@ public:
   IBSwitchControl(float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter)
   : IBitmapControl(x, y, bitmap, paramIdx) {}
 
-  IBSwitchControl(IRECT bounds, const IBitmap& bitmap, int paramIdx = kNoParameter)
+  IBSwitchControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter)
   : IBitmapControl(bounds.GetCentredInside(bitmap), bitmap, paramIdx) {}
 
   virtual ~IBSwitchControl() {}
@@ -332,7 +332,7 @@ public:
   {
   }
 
-  IBKnobControl(IRECT bounds, const IBitmap& bitmap, int paramIdx, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+  IBKnobControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
   : IKnobControlBase(bounds.GetCentredInside(bitmap), paramIdx, direction, gearing)
   , IBitmapBase(bitmap)
   {
@@ -367,7 +367,7 @@ public:
   {
   }
 
-  IBKnobRotaterControl(IRECT bounds, const IBitmap& bitmap, int paramIdx)
+  IBKnobRotaterControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx)
   : IBKnobControl(bounds.GetCentredInside(bitmap), bitmap, paramIdx)
   {
   }
@@ -386,7 +386,7 @@ class IBSliderControl : public ISliderControlBase
                       , public IBitmapBase
 {
 public:
-  IBSliderControl(IRECT bounds, int paramIdx, const IBitmap& bitmap,
+  IBSliderControl(const IRECT& bounds, int paramIdx, const IBitmap& bitmap,
                   EDirection dir = kVertical, bool onlyHandle = false);
 
   IBSliderControl(float x, float y, int len, int paramIdx,
@@ -412,7 +412,7 @@ class IBTextControl : public ITextControl
                     , public IBitmapBase
 {
 public:
-  IBTextControl(IRECT bounds, const IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType blend = kBlendDefault)
+  IBTextControl(const IRECT& bounds, const IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType blend = kBlendDefault)
   : ITextControl(bounds, str, text)
   , IBitmapBase(bitmap, blend)
   , mCharWidth(charWidth)

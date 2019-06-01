@@ -26,7 +26,7 @@ class IVMultiSliderControl : public IVTrackControlBase
 {
 public:
 
-  IVMultiSliderControl(IRECT bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = kVertical, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = kVertical, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
   : IVTrackControlBase(bounds, label, style, MAXNC, dir, minTrackValue, maxTrackValue, trackNames)
   {
     mOuterPadding = 0.f;
@@ -34,7 +34,7 @@ public:
     mTrackPadding = 1.f;
   }
 
-  IVMultiSliderControl(IRECT bounds, const char* label, const IVStyle& style, int loParamIdx, EDirection dir, float minTrackValue, float maxTrackValue, const char* trackNames = 0, ...)
+  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style, int loParamIdx, EDirection dir, float minTrackValue, float maxTrackValue, const char* trackNames = 0, ...)
   : IVTrackControlBase(bounds, label, style, loParamIdx, MAXNC, dir, minTrackValue, maxTrackValue, trackNames)
   {
     mOuterPadding = 0.f;
