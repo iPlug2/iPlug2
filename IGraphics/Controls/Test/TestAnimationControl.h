@@ -23,7 +23,7 @@
 class TestAnimationControl : public IControl
 {
 public:
-  TestAnimationControl(IRECT bounds)
+  TestAnimationControl(const IRECT& bounds)
   : IControl(bounds, kNoParameter)
   {
     SetTooltip("TestAnimationControl");

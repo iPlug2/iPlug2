@@ -57,7 +57,7 @@ void SplashAnimationFunc(IControl* pCaller)
 void DefaultClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(DefaultAnimationFunc, DEFAULT_ANIMATION_DURATION); };
 void SplashClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(SplashAnimationFunc, DEFAULT_ANIMATION_DURATION); }
 
-IControl::IControl(IRECT bounds, int paramIdx, IActionFunction actionFunc)
+IControl::IControl(const IRECT& bounds, int paramIdx, IActionFunction actionFunc)
 : mRECT(bounds)
 , mTargetRECT(bounds)
 , mActionFunc(actionFunc)
@@ -65,7 +65,7 @@ IControl::IControl(IRECT bounds, int paramIdx, IActionFunction actionFunc)
   mVals[0].idx = paramIdx;
 }
 
-IControl::IControl(IRECT bounds, const std::initializer_list<int>& params, IActionFunction actionFunc)
+IControl::IControl(const IRECT& bounds, const std::initializer_list<int>& params, IActionFunction actionFunc)
 : mRECT(bounds)
 , mTargetRECT(bounds)
 , mActionFunc(actionFunc)
@@ -76,7 +76,7 @@ IControl::IControl(IRECT bounds, const std::initializer_list<int>& params, IActi
   }
 }
 
-IControl::IControl(IRECT bounds, IActionFunction actionFunc)
+IControl::IControl(const IRECT& bounds, IActionFunction actionFunc)
 : mRECT(bounds)
 , mTargetRECT(bounds)
 , mActionFunc(actionFunc)
@@ -402,7 +402,7 @@ void ITextControl::SetBoundsBasedOnTextDimensions()
   SetTargetAndDrawRECTs({mRECT.L, mRECT.T, mRECT.L + r.W(), mRECT.T + r.H()});
 }
 
-ITextToggleControl::ITextToggleControl(IRECT bounds, int paramIdx, const char* offText, const char* onText, const IText& text, const IColor& bgColor)
+ITextToggleControl::ITextToggleControl(const IRECT& bounds, int paramIdx, const char* offText, const char* onText, const IText& text, const IColor& bgColor)
 : ITextControl(bounds, offText, text, bgColor)
 , mOnText(onText)
 , mOffText(offText)
@@ -413,7 +413,7 @@ ITextToggleControl::ITextToggleControl(IRECT bounds, int paramIdx, const char* o
   mDblAsSingleClick = true;
 }
 
-ITextToggleControl::ITextToggleControl(IRECT bounds, IActionFunction aF, const char* offText, const char* onText, const IText& text, const IColor& bgColor)
+ITextToggleControl::ITextToggleControl(const IRECT& bounds, IActionFunction aF, const char* offText, const char* onText, const IText& text, const IColor& bgColor)
 : ITextControl(bounds, offText, text, bgColor)
 , mOnText(onText)
 , mOffText(offText)
@@ -441,7 +441,7 @@ void ITextToggleControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 }
 
 
-ICaptionControl::ICaptionControl(IRECT bounds, int paramIdx, const IText& text, const IColor& bgColor, bool showParamLabel)
+ICaptionControl::ICaptionControl(const IRECT& bounds, int paramIdx, const IText& text, const IColor& bgColor, bool showParamLabel)
 : ITextControl(bounds, "", text, bgColor)
 , mShowParamLabel(showParamLabel)
 {
@@ -489,7 +489,7 @@ void ICaptionControl::OnResize()
   }
 }
 
-IButtonControlBase::IButtonControlBase(IRECT bounds, IActionFunction actionFunc)
+IButtonControlBase::IButtonControlBase(const IRECT& bounds, IActionFunction actionFunc)
 : IControl(bounds, kNoParameter, actionFunc)
 {
 }
@@ -506,7 +506,7 @@ void IButtonControlBase::OnEndAnimation()
   IControl::OnEndAnimation();
 }
 
-ISwitchControlBase::ISwitchControlBase(IRECT bounds, int paramIdx, IActionFunction actionFunc,
+ISwitchControlBase::ISwitchControlBase(const IRECT& bounds, int paramIdx, IActionFunction actionFunc,
   int numStates)
   : IControl(bounds, paramIdx, actionFunc)
   , mNumStates(numStates)
@@ -715,7 +715,7 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
 #endif
 }
 
-ISliderControlBase::ISliderControlBase(IRECT bounds, int paramIdx, EDirection dir, bool onlyHandle, float handleSize)
+ISliderControlBase::ISliderControlBase(const IRECT& bounds, int paramIdx, EDirection dir, bool onlyHandle, float handleSize)
 : IControl(bounds, paramIdx)
 , mDirection(dir)
 , mOnlyHandle(onlyHandle)
@@ -723,7 +723,7 @@ ISliderControlBase::ISliderControlBase(IRECT bounds, int paramIdx, EDirection di
   handleSize == 0 ? mHandleSize = bounds.W() : mHandleSize = handleSize;
 }
 
- ISliderControlBase::ISliderControlBase(IRECT bounds, IActionFunction aF, EDirection dir, bool onlyHandle, float handleSize)
+ ISliderControlBase::ISliderControlBase(const IRECT& bounds, IActionFunction aF, EDirection dir, bool onlyHandle, float handleSize)
 : IControl(bounds, aF)
 , mDirection(dir)
 , mOnlyHandle(onlyHandle)

@@ -786,7 +786,7 @@ public:
   /** Create a platform color chooser dialog. NOTE: this method will block the main thread
    * @param color When a color is chosen the IColor referenced will be updated with the new color
    * @param str The text to display in the dialog box e.g. "Please choose a color... (Windows only)"
-   * @param IColorPickerHandlerFunc func callback for asynchronouse color pickers (macOS)
+   * @param IColorPickerHandlerFunc func callback for asynchronous color pickers
    * @return /true if prompt completed successfully */
   virtual bool PromptForColor(IColor& color, const char* str = "", IColorPickerHandlerFunc func = nullptr) = 0;
 

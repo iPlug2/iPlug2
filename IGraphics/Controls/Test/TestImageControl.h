@@ -22,7 +22,7 @@
 class TestImageControl : public IControl
 {
 public:
-  TestImageControl(IRECT bounds, const IBitmap& bmp)
+  TestImageControl(const IRECT& bounds, const IBitmap& bmp)
   : IControl(bounds)
   , mBitmap(bmp)
   {

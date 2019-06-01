@@ -8,7 +8,7 @@ class IVCustomControl : public IControl
                       , public IVectorBase
 {
 public:
-  IVCustomControl(IRECT bounds, const char* label, const IVStyle& style)
+  IVCustomControl(const IRECT& bounds, const char* label, const IVStyle& style)
   : IControl(bounds)
   , IVectorBase(style)
   {
@@ -45,7 +45,7 @@ private:
   WDL_String mLabel;
   IBitmap mBitmap;
 public:
-  FileBrowser(IRECT bounds)
+  FileBrowser(const IRECT& bounds)
   : IDirBrowseControlBase(bounds, ".png")
   {
     WDL_String path;

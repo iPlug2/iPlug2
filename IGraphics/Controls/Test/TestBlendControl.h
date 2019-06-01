@@ -23,7 +23,7 @@ class TestBlendControl : public IKnobControlBase
                        , public IBitmapBase
 {
 public:
-  TestBlendControl(IRECT bounds, const IBitmap& bitmap)
+  TestBlendControl(const IRECT& bounds, const IBitmap& bitmap)
   : IKnobControlBase(bounds)
   , IBitmapBase(bitmap)
   {

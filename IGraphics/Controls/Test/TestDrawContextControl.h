@@ -22,7 +22,7 @@
 class TestDrawContextControl : public IControl
 {
 public:
-  TestDrawContextControl(IRECT bounds)
+  TestDrawContextControl(const IRECT& bounds)
   : IControl(bounds)
   {
     SetTooltip("TestDrawContextControl");

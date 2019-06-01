@@ -35,7 +35,7 @@ public:
     kNumStyles
   };
 
-  IFPSDisplayControl(IRECT bounds, EStyle style = EStyle::kFPS, const char* label = "Frame Time")
+  IFPSDisplayControl(const IRECT& bounds, EStyle style = EStyle::kFPS, const char* label = "Frame Time")
   : IControl(bounds)
   , mStyle(style)
   , mNameLabel(label)
