@@ -1737,6 +1737,11 @@ struct IMouseInfo
 class IRECTList
 {
 public:
+  IRECTList()
+  {}
+  
+  IRECTList(const IRECTList& other) = delete;
+  
   /** /todo
    * @return int /todo */
   int Size() const { return mRects.GetSize(); }

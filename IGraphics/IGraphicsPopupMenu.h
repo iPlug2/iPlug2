@@ -64,6 +64,8 @@ public:
       SetText(str);
     }
     
+    Item(const Item& other) = delete;
+    
     ~Item()
     {
     }
@@ -123,6 +125,8 @@ public:
     
     SetFunction(func);
   }
+  
+  IPopupMenu(const IPopupMenu& other) = delete;
   
   ~IPopupMenu()
   {
