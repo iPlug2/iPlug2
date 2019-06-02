@@ -786,7 +786,7 @@ public:
   /** Create a platform color chooser dialog. NOTE: this method will block the main thread
    * @param color When a color is chosen the IColor referenced will be updated with the new color
    * @param str The text to display in the dialog box e.g. "Please choose a color... (Windows only)"
-   * @param IColorPickerHandlerFunc func callback for asynchronouse color pickers (macOS)
+   * @param IColorPickerHandlerFunc func callback for asynchronous color pickers
    * @return /true if prompt completed successfully */
   virtual bool PromptForColor(IColor& color, const char* str = "", IColorPickerHandlerFunc func = nullptr) = 0;
 
@@ -873,12 +873,12 @@ public:
    * @param scale The scale of the display, typically 2 on a macOS retina screen */
   void SetScreenScale(int scale);
     
-  /** Called repeatedly at frame rate by the platform class to check what the graphics context says is dirty
+  /** Called repeatedly at frame rate by the platform class to check what the graphics context says is dirty.
    * @param rects The rectangular regions which will be added to to mark what is dirty in the context
    * @return /c true if a control is dirty */
   bool IsDirty(IRECTList& rects);
 
-  /** Called by the platform class when an area needs to be redrawn
+  /** Called by the platform class indicating a number of rectangles in the UI that need to redraw
    * @param rects A set of rectangular regions to draw */
   void Draw(IRECTList& rects);
 
@@ -1057,7 +1057,7 @@ private:
   /** /todo */
   virtual void DrawResize() {}
   
-  /** /todo
+  /** Draw a region of the graphics (redrawing all contained items)
    * @param bounds /todo
    * @param scale /todo */
   void Draw(const IRECT& bounds, float scale);

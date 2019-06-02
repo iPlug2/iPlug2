@@ -394,6 +394,29 @@ EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* pEvent, void* 
   return true;
 }
 
+IColorPickerHandlerFunc gColorPickerHandlerFunc = nullptr;
+
+static void color_picker_callback(val e)
+{
+  if(gColorPickerHandlerFunc)
+  {
+    std::string colorStrHex = e["target"]["value"].as<std::string>();
+    
+    if (colorStrHex[0] == '#')
+      colorStrHex = colorStrHex.erase(0, 1);
+    
+    IColor result;
+    result.A = 255;
+    sscanf(colorStrHex.c_str(), "%02x%02x%02x", &result.R, &result.G, &result.B);
+    
+    gColorPickerHandlerFunc(result);
+  }
+}
+
+EMSCRIPTEN_BINDINGS(events) {
+  function("color_picker_callback", color_picker_callback);
+}
+
 #pragma mark -
 
 IGraphicsWeb::IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
@@ -570,6 +593,22 @@ void IGraphicsWeb::PromptForDirectory(WDL_String& path)
   inputEl.call<void>("setAttribute", std::string("directory"));
   inputEl.call<void>("setAttribute", std::string("webkitdirectory"));
   inputEl.call<void>("click");
+}
+
+bool IGraphicsWeb::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
+{
+  gColorPickerHandlerFunc = func;
+
+  val inputEl = val::global("document").call<val>("createElement", std::string("input"));
+  inputEl.call<void>("setAttribute", std::string("type"), std::string("color"));
+  WDL_String colorStr;
+  colorStr.SetFormatted(64, "#%02x%02x%02x", color.R, color.G, color.B);
+  inputEl.call<void>("setAttribute", std::string("value"), std::string(colorStr.Get()));
+  inputEl.call<void>("click");
+  inputEl.call<void>("addEventListener", std::string("input"), val::module_property("color_picker_callback"), false);
+  inputEl.call<void>("addEventListener", std::string("onChange"), val::module_property("color_picker_callback"), false);
+
+  return false;
 }
 
 EM_BOOL complete_text_entry(int eventType, const EmscriptenFocusEvent* focusEvent, void* pUserData)

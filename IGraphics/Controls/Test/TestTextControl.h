@@ -22,7 +22,7 @@
 class TestTextControl : public IControl
 {
 public:
-  TestTextControl(IRECT bounds)
+  TestTextControl(const IRECT& bounds)
   : IControl(bounds)
   {
     SetTooltip("TestTextControl");

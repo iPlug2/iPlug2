@@ -711,7 +711,6 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
   }
 }
 
-// Draw a region of the graphics (redrawing all contained items)
 void IGraphics::Draw(const IRECT& bounds, float scale)
 {
   ForAllControlsFunc([this, bounds, scale](IControl& control) { DrawControl(&control, bounds, scale); });
@@ -728,7 +727,6 @@ void IGraphics::Draw(const IRECT& bounds, float scale)
 #endif
 }
 
-// Called indicating a number of rectangles in the UI that need to redraw
 void IGraphics::Draw(IRECTList& rects)
 {
   if (!rects.Size())

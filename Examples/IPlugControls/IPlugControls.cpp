@@ -8,7 +8,7 @@ class IVCustomControl : public IControl
                       , public IVectorBase
 {
 public:
-  IVCustomControl(IRECT bounds, const char* label, const IVStyle& style)
+  IVCustomControl(const IRECT& bounds, const char* label, const IVStyle& style)
   : IControl(bounds)
   , IVectorBase(style)
   {
@@ -45,7 +45,7 @@ private:
   WDL_String mLabel;
   IBitmap mBitmap;
 public:
-  FileBrowser(IRECT bounds)
+  FileBrowser(const IRECT& bounds)
   : IDirBrowseControlBase(bounds, ".png")
   {
     WDL_String path;
@@ -191,8 +191,9 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 2, 3, 3), nullptr, ICON_FK_PLUS_SQUARE, ICON_FK_MINUS_SQUARE, forkAwesomeText));
 
     AddLabel("ICaptionControl");
-    pGraphics->AttachControl(new ICaptionControl(sameCell().GetMidVPadded(20.), kGain, IText(36.f), COLOR_RED, false));
-    
+    pGraphics->AttachControl(new ICaptionControl(sameCell().FracRectVertical(0.5, true).GetMidVPadded(10.f), kGain, IText(24.f), DEFAULT_FGCOLOR, false));
+    pGraphics->AttachControl(new ICaptionControl(sameCell().FracRectVertical(0.5, false).GetMidVPadded(10.f), kMode, IText(24.f), DEFAULT_FGCOLOR, false));
+
     AddLabel("IBKnobControl");
     pGraphics->AttachControl(new IBKnobControl(sameCell().GetPadded(-5.), bitmap1, kGain));
     AddLabel("IBKnobRotaterControl");
@@ -262,9 +263,16 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new IVScopeControl<2>(nextCell(), "IVScopeControl", style.WithColor(kFG, COLOR_BLACK)), kCtrlTagScope, "vcontrols");
     pGraphics->AttachControl(new IVCustomControl(nextCell(), "IVCustomControl", style), kNoTag, "vcontrols");
     
-    IRECT wideCell = nextCell().Union(nextCell());
+    IRECT wideCell;
+#ifndef OS_WEB
+    wideCell = nextCell().Union(nextCell());
     pGraphics->AttachControl(new ITextControl(wideCell.GetFromTop(20.f), "File Browser (IDirBrowseControlBase) demo", style.labelText));
     pGraphics->AttachControl(new FileBrowser(wideCell.GetReducedFromTop(20.f)));
+#else
+    nextCell();
+    nextCell();
+#endif
+    
 //
 //    auto button2action = [](IControl* pCaller) {
 //      SplashClickActionFunc(pCaller);
@@ -283,8 +291,8 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 //    pGraphics->AttachControl(new IVButtonControl(nextCell(), button2action, "Trigger open file dialog"));
 //    pGraphics->AttachControl(new IVButtonControl(nextCell(), button3action, "Trigger open directory dialog"));
 
-    AddLabel("IVKeyboardControl");
-    wideCell = sameCell().Union(nextCell()).Union(nextCell());
+    wideCell = nextCell().Union(nextCell()).Union(nextCell()).Union(nextCell());
+    pGraphics->AttachControl(new ITextControl(wideCell.GetFromTop(20.f), "IVKeyboardControl", style.labelText));
     pGraphics->AttachControl(new IVKeyboardControl(wideCell.GetPadded(-25), 36, 72), kNoTag, "vcontrols");
 
     pGraphics->AttachControl(new IPanelControl(b.GetGridCell(4, 5, 1), COLOR_MID_GRAY));
