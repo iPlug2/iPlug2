@@ -805,36 +805,36 @@ private:
 class IFontData : public IFontInfo, private WDL_TypedBuf<unsigned char>
 {
 public:
-    IFontData() : IFontInfo(nullptr, 0, -1), mFaceIdx(-1) {}
+  IFontData() : IFontInfo(nullptr, 0, -1), mFaceIdx(-1) {}
+  
+  IFontData(const void* data, int size, int faceIdx) : IFontInfo(data, size, faceIdx), mFaceIdx(faceIdx)
+  {
+    const unsigned char* src = reinterpret_cast<const unsigned char*>(data);
+    unsigned char* dest = ResizeOK(size);
     
-    IFontData(const void* data, int size, int faceIdx) : IFontInfo(data, size, faceIdx), mFaceIdx(faceIdx)
-    {
-        const unsigned char* src = reinterpret_cast<const unsigned char*>(data);
-        unsigned char* dest = ResizeOK(size);
-        
-        if (dest)
-            std::copy(src, src + size, dest);
-    }
-    
-    IFontData(int size) : IFontInfo(nullptr, 0, -1), mFaceIdx(-1)
-    {
-      Resize(size);
-    }
-    
-    void SetFaceIdx(int faceIdx)
-    {
-      mFaceIdx = faceIdx;
-      static_cast<IFontData&>(*this) = IFontData(Get(), GetSize(), mFaceIdx);
-    }
-    
-    bool IsValid() const { return GetSize() && mFaceIdx >= 0 && IFontInfo::IsValid(); }
-    
-    unsigned char* Get() { return WDL_TypedBuf<unsigned char>::Get(); }
-    int GetSize() const { return WDL_TypedBuf<unsigned char>::GetSize(); }
-    int GetFaceIdx() const { return mFaceIdx; }
-    
+    if (dest)
+      std::copy(src, src + size, dest);
+  }
+  
+  IFontData(int size) : IFontInfo(nullptr, 0, -1), mFaceIdx(-1)
+  {
+    Resize(size);
+  }
+  
+  void SetFaceIdx(int faceIdx)
+  {
+    mFaceIdx = faceIdx;
+    static_cast<IFontData&>(*this) = IFontData(Get(), GetSize(), mFaceIdx);
+  }
+  
+  bool IsValid() const { return GetSize() && mFaceIdx >= 0 && IFontInfo::IsValid(); }
+  
+  unsigned char* Get() { return WDL_TypedBuf<unsigned char>::Get(); }
+  int GetSize() const { return WDL_TypedBuf<unsigned char>::GetSize(); }
+  int GetFaceIdx() const { return mFaceIdx; }
+  
 private:
-    int mFaceIdx;
+  int mFaceIdx;
 };
 
 /** IFontDataPtr is a managed pointer for transferring the ownership of font data */
