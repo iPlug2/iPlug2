@@ -68,8 +68,9 @@ public:
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
   IControl(const IRECT& bounds, IActionFunction actionFunc);
   
-  IControl(const IControl& other) = delete;
-
+  IControl(const IControl&) = delete;
+  void operator=(const IControl&) = delete;
+  
   /** Destructor. Clean up any resources that your control owns. */
   virtual ~IControl() {}
 

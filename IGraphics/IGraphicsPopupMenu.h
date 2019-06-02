@@ -64,8 +64,9 @@ public:
       SetText(str);
     }
     
-    Item(const Item& other) = delete;
-    
+    Item(const Item&) = delete;
+    void operator=(const Item&) = delete;
+
     ~Item()
     {
     }
@@ -126,7 +127,8 @@ public:
     SetFunction(func);
   }
   
-  IPopupMenu(const IPopupMenu& other) = delete;
+  IPopupMenu(const IPopupMenu&) = delete;
+  void operator=(const IPopupMenu&) = delete;
   
   ~IPopupMenu()
   {

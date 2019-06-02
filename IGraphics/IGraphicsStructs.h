@@ -208,6 +208,9 @@ public:
   {
   }
 
+  IBitmap(const IBitmap&) = delete;
+  void operator=(const IBitmap&) = delete;
+
   /** @return overall bitmap width in pixels */
   int W() const { return mW; }
 
@@ -263,6 +266,9 @@ struct ISVG
   {
     mImage = pImage;
   }
+
+  ISVG(const ISVG&) = delete;
+  void operator=(const ISVG&) = delete;
 
   /** /todo */
   float W() const
@@ -1740,8 +1746,9 @@ public:
   IRECTList()
   {}
   
-  IRECTList(const IRECTList& other) = delete;
-  
+  IRECTList(const IRECTList&) = delete;
+  void operator=(const IRECTList&) = delete;
+
   /** /todo
    * @return int /todo */
   int Size() const { return mRects.GetSize(); }
@@ -2268,7 +2275,7 @@ public:
   {}
 
   ILayer(const ILayer&) = delete;
-  ILayer operator =(const ILayer&) = delete;
+  ILayer operator=(const ILayer&) = delete;
   
   /** /todo */
   void Invalidate() { mInvalid = true; }
