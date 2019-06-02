@@ -92,14 +92,11 @@ IGraphics::~IGraphics()
 
 void IGraphics::SetScreenScale(int scale)
 {
-  if (mScreenScale != scale)
-  {
-    mScreenScale = scale;
-    PlatformResize(GetDelegate()->EditorResize());
-    ForAllControls(&IControl::OnRescale);
-    SetAllControlsDirty();
-    DrawResize();
-  }
+  mScreenScale = scale;
+  PlatformResize(GetDelegate()->EditorResize());
+  ForAllControls(&IControl::OnRescale);
+  SetAllControlsDirty();
+  DrawResize();
 }
 
 void IGraphics::Resize(int w, int h, float scale)
