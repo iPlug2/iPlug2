@@ -1334,14 +1334,7 @@ private:
 class ITextControl : public IControl
 {
 public:
-  ITextControl(const IRECT& bounds, const char* str = "", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR)
-  : IControl(bounds)
-  , mStr(str)
-  , mBGColor(BGColor)
-  {
-    mIgnoreMouse = true;
-    IControl::mText = text;
-  }
+  ITextControl(const IRECT& bounds, const char* str = "", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR);
 
   void Draw(IGraphics& g) override;
 

@@ -369,6 +369,15 @@ void IBitmapControl::OnRescale()
   mBitmap = GetUI()->GetScaledBitmap(mBitmap);
 }
 
+ITextControl::ITextControl(const IRECT& bounds, const char* str, const IText& text, const IColor& BGColor)
+: IControl(bounds)
+, mStr(str)
+, mBGColor(BGColor)
+{
+  mIgnoreMouse = true;
+  IControl::mText = text;
+}
+
 void ITextControl::SetStr(const char* str)
 {
   if (strcmp(mStr.Get(), str))
