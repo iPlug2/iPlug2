@@ -944,13 +944,12 @@ void* IGraphicsWin::OpenWindow(void* pParent)
 
   OnViewInitialized((void*) dc);
 
+  SetScreenScale(screenScale); // resizes draw context
+
   // Make sure the parent window is the correct size 
 
   if (screenScale != GetScreenScale())
-  {
-    SetScreenScale(screenScale); // actually resizes draw context
     PlatformResize(GetDelegate()->EditorResize());
-  }
 
   GetDelegate()->LayoutUI(this);
 
