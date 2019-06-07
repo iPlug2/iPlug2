@@ -533,15 +533,15 @@ static const char* TextStyleString(ETextStyle style)
   }
 }
 
+/** /todo */
+enum class EAlign { Near, Center, Far };
+
+/** /todo */
+enum class EVAlign { Top, Middle, Bottom };
+
 /** Used to manage font and text/text entry style for a piece of text on the UI, independent of draw class/platform.*/
 struct IText
 {
-  /** /todo */
-  enum EAlign { kAlignNear, kAlignCenter, kAlignFar } mAlign;
-
-  /** /todo */
-  enum EVAlign { kVAlignTop, kVAlignMiddle, kVAlignBottom } mVAlign;
-
   /** /todo 
    * @param size /todo
    * @param color /todo
@@ -554,8 +554,8 @@ struct IText
   explicit IText(float size = DEFAULT_TEXT_SIZE,
         const IColor& color = DEFAULT_TEXT_FGCOLOR,
         const char* font = nullptr,
-        EAlign align = kAlignCenter,
-        EVAlign valign = kVAlignMiddle,
+        EAlign align = EAlign::Center,
+        EVAlign valign = EVAlign::Middle,
         float orientation = 0,
         const IColor& TEBGColor = DEFAULT_TEXTENTRY_BGCOLOR,
         const IColor& TEFGColor = DEFAULT_TEXTENTRY_FGCOLOR)
@@ -612,6 +612,8 @@ struct IText
   IColor mTextEntryBGColor;
   IColor mTextEntryFGColor;
   float mOrientation = 0.f; // Degrees ccwise from normal.
+  EAlign mAlign = EAlign::Near;
+  EVAlign mVAlign = EVAlign::Middle;
 };
 
 const IText DEFAULT_TEXT = IText();
@@ -2541,8 +2543,8 @@ static constexpr bool DEFAULT_EMBOSS = false;
 static constexpr float DEFAULT_ROUNDNESS = 0.f;
 static constexpr float DEFAULT_FRAME_THICKNESS = 2.f;
 static constexpr float DEFAULT_SHADOW_OFFSET = 3.f;
-const IText DEFAULT_LABEL_TEXT {DEFAULT_TEXT_SIZE + 5.f, IText::kVAlignTop};
-const IText DEFAULT_VALUE_TEXT {DEFAULT_TEXT_SIZE, IText::kVAlignBottom};
+const IText DEFAULT_LABEL_TEXT {DEFAULT_TEXT_SIZE + 5.f, EVAlign::Top};
+const IText DEFAULT_VALUE_TEXT {DEFAULT_TEXT_SIZE, EVAlign::Bottom};
 
 struct IVStyle
 {

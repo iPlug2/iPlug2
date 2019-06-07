@@ -156,10 +156,10 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new TestDirBrowseControl(nextCell(), "png", path.Get()));
 
 #if 0
-    pGraphics->AttachControl(new ITextControl(nextCell(), "Hello World!", {24, COLOR_WHITE, "Roboto-Regular", IText::kAlignNear, IText::kVAlignTop, 90}));
-    pGraphics->AttachControl(new ITextControl(nextCell(), "Two!", {18, COLOR_GREEN, "Montserrat-LightItalic", IText::kAlignCenter, IText::kVAlignMiddle, 45}));
-    pGraphics->AttachControl(new ITextControl(nextCell(), "Three!", {24, COLOR_RED, "Roboto-Regular", IText::kAlignFar, IText::kVAlignBottom}));
-    pGraphics->AttachControl(new ITextControl(nextCell(), "Four!", {40, COLOR_ORANGE, "Roboto-Regular", IText::kAlignCenter, IText::kVAlignBottom}));
+    pGraphics->AttachControl(new ITextControl(nextCell(), "Hello World!", {24, COLOR_WHITE, "Roboto-Regular", EAlign::Near, EVAlign::Top, 90}));
+    pGraphics->AttachControl(new ITextControl(nextCell(), "Two!", {18, COLOR_GREEN, "Montserrat-LightItalic", EAlign::Center, EVAlign::Middle, 45}));
+    pGraphics->AttachControl(new ITextControl(nextCell(), "Three!", {24, COLOR_RED, "Roboto-Regular", EAlign::Far, EVAlign::Bottom}));
+    pGraphics->AttachControl(new ITextControl(nextCell(), "Four!", {40, COLOR_ORANGE, "Roboto-Regular", EAlign::Center, EVAlign::Bottom}));
 #endif
     
     pGraphics->AttachControl(new GFXLabelControl(bounds.GetFromTRHC(125, 125).GetTranslated(25, -25)));

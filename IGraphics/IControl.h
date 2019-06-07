@@ -880,17 +880,17 @@ public:
 
       switch (mStyle.valueText.mVAlign)
       {
-        case IText::kVAlignMiddle:
+        case EVAlign::Middle:
           mWidgetBounds = clickableArea.GetScaledAboutCentre(mWidgetFrac);
           mValueBounds = clickableArea.GetMidVPadded(textRect.H()/2.f).GetMidHPadded(valueDisplayWidth);
           break;
-        case IText::kVAlignBottom:
+        case EVAlign::Bottom:
         {
           mValueBounds = clickableArea.GetFromBottom(textRect.H()).GetMidHPadded(valueDisplayWidth);
           mWidgetBounds = clickableArea.GetReducedFromBottom(textRect.H()).GetScaledAboutCentre(mWidgetFrac);
           break;
         }
-        case IText::kVAlignTop:
+        case EVAlign::Top:
           mValueBounds = clickableArea.GetFromTop(textRect.H()).GetMidHPadded(valueDisplayWidth);
           mWidgetBounds = clickableArea.GetReducedFromTop(textRect.H()).GetScaledAboutCentre(mWidgetFrac);
           break;

@@ -544,16 +544,16 @@ void IGraphicsNanoVG::PrepareAndMeasureText(const IText& text, const char* str, 
   
   switch (text.mAlign)
   {
-    case IText::kAlignNear:     align = NVG_ALIGN_LEFT;     x = r.L;        break;
-    case IText::kAlignCenter:   align = NVG_ALIGN_CENTER;   x = r.MW();     break;
-    case IText::kAlignFar:      align = NVG_ALIGN_RIGHT;    x = r.R;        break;
+    case EAlign::Near:     align = NVG_ALIGN_LEFT;     x = r.L;        break;
+    case EAlign::Center:   align = NVG_ALIGN_CENTER;   x = r.MW();     break;
+    case EAlign::Far:      align = NVG_ALIGN_RIGHT;    x = r.R;        break;
   }
   
   switch (text.mVAlign)
   {
-    case IText::kVAlignTop:     align |= NVG_ALIGN_TOP;     y = r.T;        break;
-    case IText::kVAlignMiddle:  align |= NVG_ALIGN_MIDDLE;  y = r.MH();     break;
-    case IText::kVAlignBottom:  align |= NVG_ALIGN_BOTTOM;  y = r.B;        break;
+    case EVAlign::Top:     align |= NVG_ALIGN_TOP;     y = r.T;        break;
+    case EVAlign::Middle:  align |= NVG_ALIGN_MIDDLE;  y = r.MH();     break;
+    case EVAlign::Bottom:  align |= NVG_ALIGN_BOTTOM;  y = r.B;        break;
   }
   
   nvgTextAlign(mVG, align);

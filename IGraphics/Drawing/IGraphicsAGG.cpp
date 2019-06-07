@@ -557,16 +557,16 @@ void IGraphicsAGG::PrepareAndMeasureText(const IText& text, const char* str, IRE
   
   switch (text.mAlign)
   {
-    case IText::kAlignNear:     x = r.L;                          break;
-    case IText::kAlignCenter:   x = r.MW() - (textWidth / 2.0);   break;
-    case IText::kAlignFar:      x = r.R - textWidth;              break;
+    case EAlign::Near:     x = r.L;                          break;
+    case EAlign::Center:   x = r.MW() - (textWidth / 2.0);   break;
+    case EAlign::Far:      x = r.R - textWidth;              break;
   }
   
   switch (text.mVAlign)
   {
-    case IText::kVAlignTop:      y = r.T + ascender;                            break;
-    case IText::kVAlignMiddle:   y = r.MH() + descender + (textHeight / 2.0);   break;
-    case IText::kVAlignBottom:   y = r.B + descender;                           break;
+    case EVAlign::Top:      y = r.T + ascender;                            break;
+    case EVAlign::Middle:   y = r.MH() + descender + (textHeight / 2.0);   break;
+    case EVAlign::Bottom:   y = r.B + descender;                           break;
   }
   
   r = IRECT((float) x, (float) y - ascender, (float) (x + textWidth), (float) (y + textHeight - ascender));

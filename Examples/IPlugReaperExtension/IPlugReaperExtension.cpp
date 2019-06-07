@@ -57,7 +57,7 @@ IPlugReaperExtension::IPlugReaperExtension(reaper_plugin_info_t* pRec)
     mPrevTrackCount = CountTracks(0);
     str.SetFormatted(64, "NumTracks: %i", mPrevTrackCount);
     
-    pGraphics->AttachControl(new ITextControl(bounds.GetGridCell(1, 3, 1), str.Get(), IText(24, IText::kAlignCenter)), kCtrlTagText);
+    pGraphics->AttachControl(new ITextControl(bounds.GetGridCell(1, 3, 1), str.Get(), IText(24, EAlign::Center)), kCtrlTagText);
     
     pGraphics->AttachControl(new IVSliderControl(bounds.GetGridCell(2, 3, 1).GetPadded(-20), [](IControl* pCaller) {
                                                    WDL_String valStr;

@@ -33,9 +33,9 @@ public:
     {
       g.StartLayer(mRECT);
 #ifdef IGRAPHICS_NANOVG
-      static IText text {14, COLOR_WHITE, "Roboto-Regular", IText::kAlignCenter, IText::kVAlignMiddle, 0};
+      static IText text {14, COLOR_WHITE, "Roboto-Regular", EAlign::Center, EVAlign::Middle, 0};
 #else
-      static IText text {24, COLOR_WHITE, "Roboto-Regular", IText::kAlignCenter, IText::kVAlignMiddle, 0};
+      static IText text {24, COLOR_WHITE, "Roboto-Regular", EAlign::Center, EVAlign::Middle, 0};
 #endif
       IRECT r = mRECT;
       g.MeasureText(text, g.GetDrawingAPIStr(), r);

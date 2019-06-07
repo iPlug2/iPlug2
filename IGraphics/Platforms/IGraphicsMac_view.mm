@@ -1023,7 +1023,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 
   mTextFieldView = [[IGRAPHICS_TEXTFIELD alloc] initWithFrame: areaRect];
   
-  if (text.mVAlign == IText::kVAlignMiddle)
+  if (text.mVAlign == EVAlign::Middle)
   {
     IGRAPHICS_TEXTFIELDCELL* pCell = [[IGRAPHICS_TEXTFIELDCELL alloc] initTextCell:@"textfield"];
     [mTextFieldView setCell: pCell];
@@ -1038,13 +1038,13 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   
   switch (text.mAlign)
   {
-    case IText::kAlignNear:
+    case EAlign::Near:
       [mTextFieldView setAlignment: NSLeftTextAlignment];
       break;
-    case IText::kAlignCenter:
+    case EAlign::Center:
       [mTextFieldView setAlignment: NSCenterTextAlignment];
       break;
-    case IText::kAlignFar:
+    case EAlign::Far:
       [mTextFieldView setAlignment: NSRightTextAlignment];
       break;
     default:

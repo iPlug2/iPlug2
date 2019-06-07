@@ -516,11 +516,11 @@ void IGraphics::DrawBitmapedText(const IBitmap& bitmap, IRECT& bounds, IText& te
     else
       basicYOffset = bounds.T;
 
-    if (text.mAlign == IText::kAlignCenter)
+    if (text.mAlign == EAlign::Center)
       basicXOffset = bounds.L + ((bounds.W() - (stringLength * charWidth)) / 2.f);
-    else if (text.mAlign == IText::kAlignNear)
+    else if (text.mAlign == EAlign::Near)
       basicXOffset = bounds.L;
-    else if (text.mAlign == IText::kAlignFar)
+    else if (text.mAlign == EAlign::Far)
       basicXOffset = bounds.R - (stringLength * charWidth);
 
     int widthAsOneLine = charWidth * stringLength;
@@ -1732,16 +1732,16 @@ void IGraphics::CalulateTextRotation(const IText& text, const IRECT& bounds, IRE
   
   switch (text.mAlign)
   {
-    case IText::kAlignNear:     tx = bounds.L - rect.L;         break;
-    case IText::kAlignCenter:   tx = bounds.MW() - rect.MW();   break;
-    case IText::kAlignFar:      tx = bounds.R - rect.R;         break;
+    case EAlign::Near:     tx = bounds.L - rect.L;         break;
+    case EAlign::Center:   tx = bounds.MW() - rect.MW();   break;
+    case EAlign::Far:      tx = bounds.R - rect.R;         break;
   }
   
   switch (text.mVAlign)
   {
-    case IText::kVAlignTop:      ty = bounds.T - rect.T;        break;
-    case IText::kVAlignMiddle:   ty = bounds.MH() - rect.MH();  break;
-    case IText::kVAlignBottom:   ty = bounds.B - rect.B;        break;
+    case EVAlign::Top:      ty = bounds.T - rect.T;        break;
+    case EVAlign::Middle:   ty = bounds.MH() - rect.MH();  break;
+    case EVAlign::Bottom:   ty = bounds.B - rect.B;        break;
   }
 }
 

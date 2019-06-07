@@ -11,8 +11,8 @@ struct FourValues : public IControl
   FourValues(const IRECT& bounds, int paramIdx1, int paramIdx2, int paramIdx3, int paramIdx4)
   : IControl(bounds, {paramIdx1, paramIdx2, paramIdx3, paramIdx4})
   {
-    mText.mAlign = IText::kAlignCenter;
-    mText.mVAlign = IText::kVAlignMiddle;
+    mText.mAlign = EAlign::Center;
+    mText.mVAlign = EVAlign::Middle;
     mDisablePrompt = false;
   }
   

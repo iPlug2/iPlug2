@@ -83,7 +83,7 @@ IVSwitchControl::IVSwitchControl(const IRECT& bounds, int paramIdx, const char* 
   mText = style.valueText;
   
   if(valueInButton)
-    mText.mVAlign = mStyle.valueText.mVAlign = IText::kVAlignMiddle;
+    mText.mVAlign = mStyle.valueText.mVAlign = EVAlign::Middle;
   
   mDblAsSingleClick = true;
 }
@@ -96,7 +96,7 @@ IVSwitchControl::IVSwitchControl(const IRECT& bounds, IActionFunction actionFunc
   mText = style.valueText;
   
   if(valueInButton)
-    mText.mVAlign = mStyle.valueText.mVAlign = IText::kVAlignMiddle;
+    mText.mVAlign = mStyle.valueText.mVAlign = EVAlign::Middle;
 
   mDblAsSingleClick = true;
 }
@@ -172,8 +172,8 @@ IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, int paramIdx, IA
   AttachIControl(this, label);
   mDblAsSingleClick = true;
   mText = style.valueText;
-  mText.mAlign = IText::kAlignNear; //TODO?
-  mText.mVAlign = IText::kVAlignMiddle; //TODO?
+  mText.mAlign = EAlign::Near; //TODO?
+  mText.mVAlign = EVAlign::Middle; //TODO?
   mStyle.drawShadows = false;  //TODO?
 
   if(GetParam())
@@ -196,8 +196,8 @@ IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, IActionFunction 
   AttachIControl(this, label);
   mDblAsSingleClick = true;
   mText = style.valueText;
-  mText.mAlign = mStyle.valueText.mAlign = IText::kAlignNear; //TODO?
-  mText.mVAlign = mStyle.valueText.mVAlign = IText::kVAlignMiddle; //TODO?
+  mText.mAlign = mStyle.valueText.mAlign = EAlign::Near; //TODO?
+  mText.mVAlign = mStyle.valueText.mVAlign = EVAlign::Middle; //TODO?
   
   for (auto& option : options) {
     mLabels.Add(new WDL_String(option));

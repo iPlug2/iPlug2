@@ -1228,9 +1228,9 @@ void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
 
   switch ( text.mAlign )
   {
-    case IText::kAlignNear:   editStyle = ES_LEFT;   break;
-    case IText::kAlignFar:    editStyle = ES_RIGHT;  break;
-    case IText::kAlignCenter:
+    case EAlign::Near:   editStyle = ES_LEFT;   break;
+    case EAlign::Far:    editStyle = ES_RIGHT;  break;
+    case EAlign::Center:
     default:                  editStyle = ES_CENTER; break;
   }
 

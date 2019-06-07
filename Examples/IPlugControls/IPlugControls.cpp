@@ -157,11 +157,11 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
         DEFAULT_X2COLOR, // Extra 2
         DEFAULT_X3COLOR  // Extra 3
       }, // Colors
-      IText(12.f, IText::kAlignCenter) // Label text
+      IText(12.f, EAlign::Center) // Label text
     };
     
     const IText forkAwesomeText {24.f, "ForkAwesome"};
-    const IText bigLabel {24, COLOR_WHITE, "Roboto-Regular", IText::kAlignNear, IText::kVAlignTop, 0};
+    const IText bigLabel {24, COLOR_WHITE, "Roboto-Regular", EAlign::Near, EVAlign::Top, 0};
     
     const int nRows = 5;
     const int nCols = 8;
@@ -244,10 +244,10 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
       pCaller->GetUI()->GetMouseDownPoint(x, y);
       pCaller->GetUI()->CreatePopupMenu(*pCaller, menu, x, y);
       
-    }, "IVButtonControl 3", style.WithValueText(IText(36.f, IText::kVAlignMiddle)),  false, true), kNoTag, "vcontrols");
+    }, "IVButtonControl 3", style.WithValueText(IText(36.f, EVAlign::Middle)),  false, true), kNoTag, "vcontrols");
     dynamic_cast<IVButtonControl*>(pGraphics->GetControl(pGraphics->NControls()-1))->SetValueStr("one");
     
-    pGraphics->AttachControl(new IVSwitchControl(nextCell().GetCentredInside(110.), kMode, "IVSwitchControl", style.WithValueText(IText(36.f, IText::kAlignCenter))), kNoTag, "vcontrols");
+    pGraphics->AttachControl(new IVSwitchControl(nextCell().GetCentredInside(110.), kMode, "IVSwitchControl", style.WithValueText(IText(36.f, EAlign::Center))), kNoTag, "vcontrols");
 
     pGraphics->AttachControl(new IVToggleControl(nextCell().GetCentredInside(110.), SplashClickActionFunc, "", ICON_FK_CHECK, "IVToggleControl", style.WithValueText(forkAwesomeText)), kNoTag, "vcontrols");
 
