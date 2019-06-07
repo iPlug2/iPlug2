@@ -278,8 +278,8 @@ void IControl::PromptUserInput(int valIdx)
     {
       float cX = mRECT.MW();
       float cY = mRECT.MH();
-      float halfW = float(PARAM_EDIT_W)/2.f;
-      float halfH = float(PARAM_EDIT_H)/2.f;
+      float halfW = PARAM_EDIT_W/2.f;
+      float halfH = PARAM_EDIT_H/2.f;
 
       IRECT txtRECT = IRECT(cX - halfW, cY - halfH, cX + halfW,cY + halfH);
       GetUI()->PromptUserInput(*this, txtRECT, valIdx);
