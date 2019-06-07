@@ -10,14 +10,22 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc TestTextControl
+ */
+
 #include "IControl.h"
 
+/** Control to test drawing text
+ *   @ingroup TestControls */
 class TestTextControl : public IControl
 {
 public:
-  TestTextControl(IGEditorDelegate& dlg, IRECT bounds)
-  : IControl(dlg, bounds)
+  TestTextControl(const IRECT& bounds)
+  : IControl(bounds)
   {
+    SetTooltip("TestTextControl");
     Randomise();
   }
 
@@ -34,11 +42,16 @@ public:
     Randomise();
     SetDirty(false);
   }
+    
+  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override
+  {
+    GetUI()->CreateTextEntry(*this, mText, mRECT);
+    SetDirty(false);
+  }
 
   void Randomise()
   {
     int size = (std::rand() % 100) + 5;
-    int style = (std::rand() % 3);
     int align = (std::rand() % 3);
     int valign = (std::rand() % 3);
     int type = (std::rand() % 2);
@@ -46,7 +59,7 @@ public:
 
     const char* types[] = { "Roboto-Regular", "Montserrat-LightItalic" };
 
-    mText = IText(size, IColor::GetRandomColor(), types[type], (IText::EStyle) style, (IText::EAlign) align, (IText::EVAlign) valign);
+    mText = IText(size, IColor::GetRandomColor(), types[type], (EAlign) align, (EVAlign) valign);
   }
 
 private:

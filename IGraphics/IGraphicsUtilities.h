@@ -20,13 +20,6 @@
 #define MakeIRectVOffset(a, yoffs) IRECT(a##_X, a##_Y + yoffs, a##_X + a##_W, a##_Y + a##_H + yoffs)
 #define MakeIRectHVOffset(a, xoffs, yoffs) IRECT(a##_X + xoffs, a##_Y + yoffs, a##_X + a##_W + xoffs, a##_Y + a##_H + yoffs)
 
-
-template <typename T>
-inline T DegToRad(T degrees)
-{
-  return static_cast<T>(::PI) * (degrees / static_cast<T>(180.0));
-}
-
 static double GetTimestamp()
 {
   static auto start = std::chrono::steady_clock::now();
@@ -34,7 +27,7 @@ static double GetTimestamp()
 }
 
 /** Calculate evenly distributed points on a radial line. NOTE: will crash if the nPoints and data array do not match size.
- * @param angle The angle to draw at in degrees clockwise where 0 is up
+ * @param angleDegrees The angle to draw at in degrees clockwise where 0 is up
  * @param cx centre point x coordinate
  * @param cy centre point y coordinate
  * @param rMin minima of the radial line (distance from cx,cy)

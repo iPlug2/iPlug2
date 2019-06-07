@@ -3,8 +3,8 @@
 
 IWebsocketEditorDelegate::IWebsocketEditorDelegate(int nParams)
 : IGEditorDelegate(nParams)
-, mParamChangeFromClients(512) // TODO: constant
-, mMIDIFromClients(32)
+, mParamChangeFromClients(PARAM_TRANSFER_SIZE)
+, mMIDIFromClients(MIDI_TRANSFER_SIZE)
 {
   
 }
@@ -15,6 +15,7 @@ IWebsocketEditorDelegate::~IWebsocketEditorDelegate()
 
 void IWebsocketEditorDelegate::OnWebsocketReady(int connIdx)
 {
+  //TODO: need to send serialize state and send it to the client
 }
 
 bool IWebsocketEditorDelegate::OnWebsocketText(int connIdx, const char* pStr, size_t dataSize)
@@ -33,7 +34,7 @@ bool IWebsocketEditorDelegate::OnWebsocketData(int connIdx, void* pData, size_t 
     int paramIdx = * ((int*)(pByteData + pos)); pos+= 4;
     double value = * ((double*)(pByteData + pos)); pos += 8;
     
-    mParamChangeFromClients.Push(IParamChange { paramIdx, value, true } );
+    mParamChangeFromClients.Push(ParamTuple { paramIdx, value } );
   }
   else if (memcmp(pData, "SMMFUI" , 6) == 0) // send midi message from user interface
   {
@@ -59,7 +60,7 @@ bool IWebsocketEditorDelegate::OnWebsocketData(int connIdx, void* pData, size_t 
 
 void IWebsocketEditorDelegate::SendMidiMsgFromUI(const IMidiMsg& msg)
 {
-  IByteChunk data; // FIXME: don't copy
+  IByteChunk data;
   data.PutStr("SMMFD");
   data.Put(&msg.mStatus);
   data.Put(&msg.mData1);
@@ -73,7 +74,7 @@ void IWebsocketEditorDelegate::SendMidiMsgFromUI(const IMidiMsg& msg)
 
 void IWebsocketEditorDelegate::SendSysexMsgFromUI(const ISysEx& msg)
 {
-  IByteChunk data; // FIXME: don't copy
+  IByteChunk data;
   data.PutStr("SSMFD");
   data.Put(&msg.mSize);
   data.PutBytes(&msg.mData, msg.mSize);
@@ -86,7 +87,7 @@ void IWebsocketEditorDelegate::SendSysexMsgFromUI(const ISysEx& msg)
 
 void IWebsocketEditorDelegate::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData)
 {
-  IByteChunk data; // FIXME: don't copy
+  IByteChunk data;
   data.PutStr("SSMFD");
   data.Put(&messageTag);
   data.Put(&controlTag);
@@ -107,7 +108,7 @@ void IWebsocketEditorDelegate::SendArbitraryMsgFromUI(int messageTag, int contro
 
 void IWebsocketEditorDelegate::SendParameterValueFromUI(int paramIdx, double normalizedValue)
 {
-  IByteChunk data; // FIXME: don't copy
+  IByteChunk data;
   data.PutStr("SPVFD");
   data.Put(&paramIdx);
   data.Put(&normalizedValue);
@@ -125,7 +126,7 @@ void IWebsocketEditorDelegate::SendParameterValueFromUI(int paramIdx, double nor
 
 void IWebsocketEditorDelegate::SendControlValueFromDelegate(int controlTag, double normalizedValue)
 {
-  IByteChunk data; // FIXME: don't copy
+  IByteChunk data;
   data.PutStr("SCVFD");
   data.Put(&controlTag);
   data.Put(&normalizedValue);
@@ -137,7 +138,7 @@ void IWebsocketEditorDelegate::SendControlValueFromDelegate(int controlTag, doub
 
 void IWebsocketEditorDelegate::SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData)
 {
-  IByteChunk data; // FIXME: don't copy
+  IByteChunk data;
   data.PutStr("SCMFD");
   data.Put(&controlTag);
   data.Put(&messageTag);
@@ -151,7 +152,7 @@ void IWebsocketEditorDelegate::SendControlMsgFromDelegate(int controlTag, int me
 
 void IWebsocketEditorDelegate::SendArbitraryMsgFromDelegate(int messageTag, int dataSize, const void* pData)
 {
-  IByteChunk data; // FIXME: don't copy
+  IByteChunk data;
   data.PutStr("SAMFD");
   data.Put(&messageTag);
   data.Put(&dataSize);
@@ -164,7 +165,7 @@ void IWebsocketEditorDelegate::SendArbitraryMsgFromDelegate(int messageTag, int 
 
 void IWebsocketEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
 {
-  IByteChunk data; // FIXME: don't copy
+  IByteChunk data;
   data.PutStr("SMMFD");
   data.Put(&msg.mStatus);
   data.Put(&msg.mData1);
@@ -177,7 +178,7 @@ void IWebsocketEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
 
 void IWebsocketEditorDelegate::SendSysexMsgFromDelegate(const ISysEx& msg)
 {
-  IByteChunk data; // FIXME: don't copy
+  IByteChunk data;
   data.PutStr("SSMFD");
   data.Put(&msg.mSize);
   data.PutBytes(msg.mData, msg.mSize);
@@ -191,20 +192,20 @@ void IWebsocketEditorDelegate::ProcessWebsocketQueue()
 {
   while(mParamChangeFromClients.ElementsAvailable())
   {
-    IParamChange p;
+    ParamTuple p;
     mParamChangeFromClients.Pop(p);
     
     //FIXME: how do params get updated?
 //    ENTER_PARAMS_MUTEX;
 //    if(p.normalized)
-//      GetParam(p.paramIdx)->SetNormalized(p.value);
+//      GetParam(p.idx)->SetNormalized(p.value);
 //    else
-//      GetParam(p.paramIdx)->Set(p.value);
+//      GetParam(p.idx)->Set(p.value);
 //
-//    OnParamChange(p.paramIdx, kHost);
+//    OnParamChange(p.idx, kHost);
 //    LEAVE_PARAMS_MUTEX;
     
-    SendParameterValueFromDelegate(p.paramIdx, p.value, p.normalized); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
+    SendParameterValueFromDelegate(p.idx, p.value, true); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
   }
   
   while (mMIDIFromClients.ElementsAvailable()) {

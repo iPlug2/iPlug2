@@ -9,6 +9,7 @@
 */
 
 #ifdef IGRAPHICS_AGG
+
 #ifdef OS_MAC
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-register"
@@ -44,7 +45,6 @@
 #include "agg_ellipse.h"
 #include "agg_font_freetype.h"
 #include "agg_pmap.h"
-#include "agg_font.h"
 #include "agg_image_accessors.h"
 #include "agg_span_allocator.h"
 #include "agg_span_interpolator_linear.h"
@@ -62,8 +62,12 @@
 
 #ifdef OS_MAC
 #include "agg_mac_pmap.h"
-#include "agg_mac_font.h"
 #pragma clang diagnostic pop
+#elif defined OS_WIN
+#pragma comment(lib, "libpng.lib")
+#pragma comment(lib, "zlib.lib")
+#pragma comment(lib, "freetype.lib")
+#include "agg_win32_pmap.h"
 #endif
 
 #endif

@@ -12,6 +12,7 @@
 
 #include <cstring>
 #include <cstdint>
+#include <memory>
 
 #include "ptrlist.h"
 
@@ -35,6 +36,9 @@ template<typename T>
 class IPlugProcessor
 {
 public:
+  /** IPlugProcessor constructor
+   * @param config /todo
+   * @param plugAPI /todo */
   IPlugProcessor(IPlugConfig config, EAPI plugAPI);
   virtual ~IPlugProcessor();
 
@@ -77,14 +81,14 @@ public:
   virtual bool SendMidiMsg(const IMidiMsg& msg) = 0;
 
   /** Send a collection of MIDI messages // TODO: info about what thread should this be called on or not called on!
-   * @param msg The IMidiMsg to send
+   * @param msgs The IMidiMsg to send
    * @return \c true if successful */
   virtual bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs);
 
   /** Send a single MIDI System Exclusive (SysEx) message // TODO: info about what thread should this be called on or not called on!
    * @param msg The ISysEx to send
    * @return \c true if successful */
-  virtual bool SendSysEx(ISysEx& msg /* TODO: const? */) { return false; }
+  virtual bool SendSysEx(const ISysEx& msg) { return false; }
 
   /** @return Sample rate (in Hz) */
   double GetSampleRate() const { return mSampleRate; }
@@ -116,14 +120,14 @@ public:
 
   /** @param numerator The upper part of the current time signature e.g "6" in the time signature 6/8
    *  @param denominator The lower part of the current time signature e.g "8" in the time signature 6/8 */
-  void GetTimeSig(int& numerator, int& denominator) { numerator = mTimeInfo.mNumerator; denominator = mTimeInfo.mDenominator; }
+  void GetTimeSig(int& numerator, int& denominator) const { numerator = mTimeInfo.mNumerator; denominator = mTimeInfo.mDenominator; }
 
 #pragma mark -
   /** @return The number of channel I/O configs derived from the channel io string*/
   int NIOConfigs() const { return mIOConfigs.GetSize(); }
 
   /** @return Pointer to an IOConfig at idx. Can return nullptr if idx is invalid */
-  IOConfig* GetIOConfig(int idx) { return mIOConfigs.Get(idx); }
+  IOConfig* GetIOConfig(int idx) const { return mIOConfigs.Get(idx); }
 
   /** Used to determine the maximum number of input or output buses based on what was specified in the channel I/O config string
    * @param direction Return input or output bus count
@@ -156,11 +160,11 @@ public:
 
   /** Convenience method to find out how many input channels are connected
    * @return The number of channels connected for input. WARNING: this assumes consecutive channel connections */
-  inline int NInChansConnected() { return NChannelsConnected(ERoute::kInput); }
+  inline int NInChansConnected() const { return NChannelsConnected(ERoute::kInput); }
 
   /** Convenience method to find out how many output channels are connected
    * @return The number of channels connected for output. WARNING: this assumes consecutive channel connections */
-  inline int NOutChansConnected() { return NChannelsConnected(ERoute::kOutput); }
+  inline int NOutChansConnected() const { return NChannelsConnected(ERoute::kOutput); }
 
   /** Check if a certain configuration of input channels and output channels is allowed based on the channel I/O configs
    * @param NInputChans Number of inputs to test, if set to -1 = check NOutputChans only
@@ -180,6 +184,32 @@ public:
   /** @return \c true if the plug-in was configured as an instrument at compile time */
   bool IsInstrument() const { return mPlugType == EIPlugPluginType::kInstrument; }
 
+  /** @return \c true if the plug-in was configured as an MFX at compile time */
+  bool IsMidiEffect() const { return mPlugType == EIPlugPluginType::kMIDIEffect; }
+  
+  /** /todo 
+   * @return int /todo */
+  int GetAUPluginType() const
+  {
+    if (mPlugType == EIPlugPluginType::kEffect)
+    {
+      if (DoesMIDIIn())
+        return 'aumf';
+      else
+        return 'aufx';
+    }
+    else if (mPlugType == EIPlugPluginType::kInstrument)
+    {
+      return 'aumu';
+    }
+    else if (mPlugType == EIPlugPluginType::kMIDIEffect)
+    {
+      return 'aumi';
+    }
+    else
+      return 'aufx';
+  }
+
   /** @return \c true if the plug-in was configured to receive midi at compile time */
   bool DoesMIDIIn() const { return mDoesMIDIIn; }
 
@@ -193,19 +223,19 @@ public:
    * * For example a 4 channel plug-in that deals with FuMa BFormat first order ambisonic material, might label these channels
    "W", "X", "Y", "Z", rather than the default "input 1", "input 2", "input 3", "input 4"
    * @param idx The index of the channel that you wish to label
-   * @param limited printf style format string to compose label for the channel - where %i will be the channel index
+   * @param formatStr printf style format string to compose label for the channel - where %i will be the channel index
    * @param zeroBased If \c true the index in the format string will be zero based */
   void SetChannelLabel(ERoute direction, int idx, const char* formatStr, bool zeroBased = false);
 
   /** Call this if the latency of your plug-in changes after initialization (perhaps from OnReset() )
    * This may not be supported by the host. The method is virtual because it's overridden in API classes.
-   @param samples Latency in samples */
+   @param latency Latency in samples */
   virtual void SetLatency(int latency);
 
   /** Call this method if you need to update the tail size at runtime, for example if the decay time of your reverb effect changes
    * Some apis have special interpretations of certain numbers. For VST3 set to 0xffffffff for infinite tail, or 0 for none (default)
    * For VST2 setting to 1 means no tail
-   * @param tailSizeSamples the new tailsize in samples*/
+   * @param tailSize the new tailsize in samples*/
   void SetTailSize(int tailSize) { mTailSize = tailSize; }
 
   /** A static method to parse the config.h channel I/O string.
@@ -223,26 +253,24 @@ public:
 
 protected:
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
-  void _SetChannelConnections(ERoute direction, int idx, int n, bool connected);
+  void SetChannelConnections(ERoute direction, int idx, int n, bool connected);
 
   //The following methods are duplicated, in order to deal with either single or double precision processing,
   //depending on the value of arguments passed in
-  void _AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_DST** ppData, int nFrames);
-  void _AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_SRC** ppData, int nFrames);
-  void _PassThroughBuffers(PLUG_SAMPLE_SRC type, int nFrames);
-  void _PassThroughBuffers(PLUG_SAMPLE_DST type, int nFrames);
-  void _ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames);
-  void _ProcessBuffers(PLUG_SAMPLE_DST type, int nFrames);
-  void _ProcessBuffersAccumulating(int nFrames); // only for VST2 deprecated method single precision
-  void _ZeroScratchBuffers();
-
-public: //TODO: these will become protected once stand-alone app is rewritten
-  void _SetSampleRate(double sampleRate) { mSampleRate = sampleRate; }
-  void _SetBlockSize(int blockSize);
-  void _SetBypassed(bool bypassed) { mBypassed = bypassed; }
-  void _SetTimeInfo(const ITimeInfo& timeInfo) { mTimeInfo = timeInfo; }
-  void _SetRenderingOffline(bool renderingOffline) { mRenderingOffline = renderingOffline; }
-  const WDL_String& _GetChannelLabel(ERoute direction, int idx) { return mChannelData[direction].Get(idx)->mLabel; }
+  void AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_DST** ppData, int nFrames);
+  void AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_SRC** ppData, int nFrames);
+  void PassThroughBuffers(PLUG_SAMPLE_SRC type, int nFrames);
+  void PassThroughBuffers(PLUG_SAMPLE_DST type, int nFrames);
+  void ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames);
+  void ProcessBuffers(PLUG_SAMPLE_DST type, int nFrames);
+  void ProcessBuffersAccumulating(int nFrames); // only for VST2 deprecated method single precision
+  void ZeroScratchBuffers();
+  void SetSampleRate(double sampleRate) { mSampleRate = sampleRate; }
+  void SetBlockSize(int blockSize);
+  void SetBypassed(bool bypassed) { mBypassed = bypassed; }
+  void SetTimeInfo(const ITimeInfo& timeInfo) { mTimeInfo = timeInfo; }
+  void SetRenderingOffline(bool renderingOffline) { mRenderingOffline = renderingOffline; }
+  const WDL_String& GetChannelLabel(ERoute direction, int idx) { return mChannelData[direction].Get(idx)->mLabel; }
 
 private:
   /** See EIPlugPluginTypes */
@@ -272,8 +300,8 @@ private:
   /* A list of IChannelData structures corresponding to every input/output channel */
   WDL_PtrList<IChannelData<>> mChannelData[2];
 protected: // these members are protected because they need to be access by the API classes, and don't want a setter/getter
-  /** Pointer to a multichannel delay line used to delay the bypassed signal when a plug-in with latency is bypassed. */
-  NChanDelayLine<T>* mLatencyDelay = nullptr;
+  /** A multichannel delay line used to delay the bypassed signal when a plug-in with latency is bypassed. */
+  std::unique_ptr<NChanDelayLine<T>> mLatencyDelay = nullptr;
   /** Contains detailed information about the transport state */
   ITimeInfo mTimeInfo;
 };

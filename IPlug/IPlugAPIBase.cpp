@@ -8,13 +8,15 @@
  ==============================================================================
 */
 
+/**
+ * @file
+ * @brief IPlugAPIBase implementation
+ */
+
 #include <cmath>
 #include <cstdio>
 #include <ctime>
 #include <cassert>
-
-
-#include "wdlendian.h"
 
 #include "IPlugAPIBase.h"
 
@@ -44,7 +46,6 @@ IPlugAPIBase::~IPlugAPIBase()
   if(mTimer)
   {
     mTimer->Stop();
-    DELETE_NULL(mTimer);
   }
 
   TRACE;
@@ -61,10 +62,10 @@ void IPlugAPIBase::OnHostRequestingImportantParameters(int count, WDL_TypedBuf<i
 
 void IPlugAPIBase::CreateTimer()
 {
-  mTimer = Timer::Create(std::bind(&IPlugAPIBase::OnTimer, this, std::placeholders::_1), IDLE_TIMER_RATE);
+  mTimer = std::unique_ptr<Timer>(Timer::Create(std::bind(&IPlugAPIBase::OnTimer, this, std::placeholders::_1), IDLE_TIMER_RATE));
 }
 
-bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos)
+bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos) const
 {
   bool isEqual = true;
   
@@ -77,10 +78,18 @@ bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos)
     float v = (float) GetParam(i)->Value();
     float vi = (float) *(data++);
     
-    isEqual &= (fabsf(v - vi) < 0.00001);
+    isEqual &= (std::fabs(v - vi) < 0.00001);
   }
   
   return isEqual;
+}
+
+bool IPlugAPIBase::EditorResizeFromDelegate(int width, int height)
+{
+  mEditorWidth = width;
+  mEditorHeight = height;
+
+  return false;
 }
 
 #pragma mark -
@@ -96,12 +105,17 @@ void IPlugAPIBase::PrintDebugInfo() const
 
 void IPlugAPIBase::SetHost(const char* host, int version)
 {
+  assert(mHost == kHostUninit);
+    
   mHost = LookUpHost(host);
   mHostVersion = version;
   
   WDL_String vStr;
   GetVersionStr(version, vStr);
   Trace(TRACELOC, "host_%sknown:%s:%s", (mHost == kHostUnknown ? "un" : ""), host, vStr.Get());
+    
+  HostSpecificInit();
+  OnHostIdentified();
 }
 
 void IPlugAPIBase::SetParameterValue(int idx, double normalizedValue)
@@ -112,7 +126,7 @@ void IPlugAPIBase::SetParameterValue(int idx, double normalizedValue)
   OnParamChange(idx, kUI);
 }
 
-void IPlugAPIBase::DirtyParameters()
+void IPlugAPIBase::DirtyParametersFromUI()
 {
   for (int p = 0; p < NParams(); p++)
   {
@@ -121,11 +135,14 @@ void IPlugAPIBase::DirtyParameters()
   }
 }
 
-void IPlugAPIBase::_SendParameterValueFromAPI(int paramIdx, double value, bool normalized)
+void IPlugAPIBase::SendParameterValueFromAPI(int paramIdx, double value, bool normalized)
 {
   //TODO: Can we assume that no host is stupid enough to try and set parameters on multiple threads at the same time?
   // If that is the case then we need a MPSPC queue not SPSC
-  mParamChangeFromProcessor.Push(IParamChange { paramIdx, value, normalized } );
+  if (normalized)
+    value = GetParam(paramIdx)->FromNormalized(value);
+  
+  mParamChangeFromProcessor.Push(ParamTuple { paramIdx, value } );
 }
 
 void IPlugAPIBase::OnTimer(Timer& t)
@@ -136,9 +153,9 @@ void IPlugAPIBase::OnTimer(Timer& t)
   #if !defined VST3C_API && !defined VST3P_API
     while(mParamChangeFromProcessor.ElementsAvailable())
     {
-      IParamChange p;
+      ParamTuple p;
       mParamChangeFromProcessor.Pop(p);
-      SendParameterValueFromDelegate(p.paramIdx, p.value, p.normalized); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
+      SendParameterValueFromDelegate(p.idx, p.value, false); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
     }
     
     while (mMidiMsgsFromProcessor.ElementsAvailable())
@@ -146,6 +163,13 @@ void IPlugAPIBase::OnTimer(Timer& t)
       IMidiMsg msg;
       mMidiMsgsFromProcessor.Pop(msg);
       SendMidiMsgFromDelegate(msg);
+    }
+    
+    while (mSysExDataFromProcessor.ElementsAvailable())
+    {
+      SysExData msg;
+      mSysExDataFromProcessor.Pop(msg);
+      SendSysexMsgFromDelegate({msg.mOffset, msg.mData, msg.mSize});
     }
   #endif
     
@@ -155,7 +179,14 @@ void IPlugAPIBase::OnTimer(Timer& t)
     {
       IMidiMsg msg;
       mMidiMsgsFromProcessor.Pop(msg);
-      _TransmitMidiMsgFromProcessor(msg);
+      TransmitMidiMsgFromProcessor(msg);
+    }
+    
+    while (mSysExDataFromProcessor.ElementsAvailable())
+    {
+      SysExData data;
+      mSysExDataFromProcessor.Pop(data);
+      TransmitSysExDataFromProcessor(data);
     }
   #endif
   }
@@ -171,9 +202,8 @@ void IPlugAPIBase::SendMidiMsgFromUI(const IMidiMsg& msg)
 
 void IPlugAPIBase::SendSysexMsgFromUI(const ISysEx& msg)
 {
-  //TODO:
-  
-  EDITOR_DELEGATE_CLASS::SendSysexMsgFromUI(msg);
+  DeferSysexMsg(msg); // queue the message so that it will be handled by the processor
+  EDITOR_DELEGATE_CLASS::SendSysexMsgFromUI(msg); // for remote editors
 }
 
 void IPlugAPIBase::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData)

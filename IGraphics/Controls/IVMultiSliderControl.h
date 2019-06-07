@@ -10,49 +10,105 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc IVMultiSliderControl
+ */
+
 #include "IControl.h"
 
 #define LERP(a,b,f) ((b-a)*f+a)
 
+/** A vectorial multi-slider control
+ * @ingroup IControls */
 template <int MAXNC = 1>
 class IVMultiSliderControl : public IVTrackControlBase
 {
 public:
-  
-  IVMultiSliderControl(IGEditorDelegate& dlg, IRECT bounds, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
-  : IVTrackControlBase(dlg, bounds, MAXNC, minTrackValue, maxTrackValue, trackNames)
+
+  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  : IVTrackControlBase(bounds, label, style, MAXNC, dir, minTrackValue, maxTrackValue, trackNames)
   {
     mOuterPadding = 0.f;
     mDrawTrackFrame = false;
     mTrackPadding = 1.f;
-    SetColor(kFG, COLOR_BLACK);
+  }
+
+  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style, int loParamIdx, EDirection dir, float minTrackValue, float maxTrackValue, const char* trackNames = 0, ...)
+  : IVTrackControlBase(bounds, label, style, loParamIdx, MAXNC, dir, minTrackValue, maxTrackValue, trackNames)
+  {
+    mOuterPadding = 0.f;
+    mDrawTrackFrame = false;
+    mTrackPadding = 1.f;
   }
   
-  void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, float scalar = 1.) override //TODO: fixed for horizontal
+  void Draw(IGraphics& g) override
   {
-    bounds.Constrain(x, y);
+    DrawBackGround(g, mRECT);
+    DrawWidget(g);
+    DrawLabel(g);
     
-    float yValue = (y-bounds.T) / bounds.H();
+    if(mStyle.drawFrame)
+      g.DrawRect(GetColor(kFR), mWidgetBounds, nullptr, mStyle.frameThickness);
+  }
 
-    yValue = std::round( yValue / mGrain ) * mGrain;
-
-    int sliderTest = -1;
-
-    for(auto i = 0; i < MaxNTracks(); i++)
+  int GetValIdxForPos(float x, float y) const override
+  {
+    int nVals = NVals();
+    
+    for (auto v = 0; v < nVals; v++)
     {
-      if(mTrackBounds.Get()[i].Contains(x, mTrackBounds.Get()[i].MH()))
+      if (mTrackBounds.Get()[v].Contains(x, y))
       {
-        sliderTest = i;
-        break;
+        return v;
       }
     }
 
+    return kNoValIdx;
+  }
+
+  void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, int valIdx = -1 /* TODO:: not used*/, float scalar = 1.) override
+  {
+    bounds.Constrain(x, y);
+    int nVals = NVals();
+
+    float value = 0.;
+    int sliderTest = -1;
+
+    if(direction == EDirection::Vertical)
+    {
+      value = 1. - (y-bounds.T) / bounds.H();
+      
+      for(auto i = 0; i < nVals; i++)
+      {
+        if(mTrackBounds.Get()[i].Contains(x, mTrackBounds.Get()[i].MH()))
+        {
+          sliderTest = i;
+          break;
+        }
+      }
+    }
+    else
+    {
+      value = (x-bounds.L) / bounds.W();
+      
+      for(auto i = 0; i < nVals; i++)
+      {
+        if(mTrackBounds.Get()[i].Contains(mTrackBounds.Get()[i].MW(), y))
+        {
+          sliderTest = i;
+          break;
+        }
+      }
+    }
+    
+    value = std::round( value / mGrain ) * mGrain;
+    
     if (sliderTest > -1)
     {
-      float* trackValue = GetTrackData(sliderTest);
-      *trackValue = mMinTrackValue + (1.f - Clip(yValue, 0.f, 1.f)) * (mMaxTrackValue - mMinTrackValue);
-      OnNewValue(sliderTest, *trackValue);
-      
+      SetValue(mMinTrackValue + Clip(value, 0.f, 1.f) * (mMaxTrackValue - mMinTrackValue), sliderTest);
+      OnNewValue(sliderTest, GetValue(sliderTest));
+
       mSliderHit = sliderTest;
 
       if (mPrevSliderHit != -1)
@@ -74,10 +130,9 @@ public:
 
           for (auto i = lowBounds; i < highBounds; i++)
           {
-            trackValue = GetTrackData(i);
             float frac = (float)(i - lowBounds) / float(highBounds-lowBounds);
-            *trackValue = LERP(*GetTrackData(lowBounds), *GetTrackData(highBounds), frac);
-            OnNewValue(i, *trackValue);
+            SetValue(LERP(GetValue(lowBounds), GetValue(highBounds), frac), i);
+            OnNewValue(i, GetValue(i));
           }
         }
       }
@@ -88,32 +143,38 @@ public:
       mSliderHit = -1;
     }
 
-    SetDirty();
+    SetDirty(true); // will send all param vals parameter value to delegate
+  }
+
+  void OnResize() override
+  {
+    SetTargetRECT(CalculateRects(mRECT));
+    MakeTrackRects(mWidgetBounds);
+    SetDirty(false);
   }
   
-  //  void OnResize() override;
   //  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
-  
-  virtual void OnMouseDown(float x, float y, const IMouseMod& mod) override
+
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     IRECT innerBounds = mRECT.GetPadded(-mOuterPadding);
 
     if (!mod.S)
       mPrevSliderHit = -1;
-    
+
     SnapToMouse(x, y, mDirection, innerBounds);
   }
-  
-  virtual void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
+
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
   {
     IRECT innerBounds = mRECT.GetPadded(-mOuterPadding);
 
     SnapToMouse(x, y, mDirection, innerBounds);
   }
-  
+
   //override to do something when an individual slider is dragged
   virtual void OnNewValue(int trackIdx, float val) {}
-  
+
 protected:
   int mPrevSliderHit = -1;
   int mSliderHit = -1;

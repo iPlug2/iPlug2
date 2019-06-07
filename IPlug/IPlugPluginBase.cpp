@@ -8,6 +8,11 @@
  ==============================================================================
 */
 
+/**
+ * @file
+ * @brief IPluginBase implementation
+ */
+
 #include "IPlugPluginBase.h"
 #include "wdlendian.h"
 #include "wdl_base64.h"
@@ -47,9 +52,8 @@ void IPluginBase::GetPluginVersionStr(WDL_String& str) const
 #endif
 }
 
-int IPluginBase::GetHostVersion(bool decimal)
+int IPluginBase::GetHostVersion(bool decimal) const
 {
-  GetHost();
   if (decimal)
   {
     return GetDecimalVersion(mHostVersion);
@@ -57,9 +61,8 @@ int IPluginBase::GetHostVersion(bool decimal)
   return mHostVersion;
 }
 
-void IPluginBase::GetHostVersionStr(WDL_String& str)
+void IPluginBase::GetHostVersionStr(WDL_String& str) const
 {
-  GetHost();
   GetVersionStr(mHostVersion, str);
 }
 
@@ -105,15 +108,16 @@ void IPluginBase::OnParamChange(int paramIdx, EParamSource source, int sampleOff
 
 void IPluginBase::OnParamReset(EParamSource source)
 {
-  for (int i = 0; i < mParams.GetSize(); ++i)
+  for (int i = 0; i < NParams(); ++i)
   {
     OnParamChange(i, source);
+    OnParamChangeUI(i, source);
   }
 }
 
 #pragma mark -
 
-bool IPluginBase::SerializeParams(IByteChunk& chunk)
+bool IPluginBase::SerializeParams(IByteChunk& chunk) const
 {
   TRACE;
   bool savedOK = true;
@@ -148,7 +152,17 @@ int IPluginBase::UnserializeParams(const IByteChunk& chunk, int startPos)
   return pos;
 }
 
-void IPluginBase::InitParamRange(int startIdx, int endIdx, int countStart, const char* nameFmtStr, double defaultVal, double minVal, double maxVal, double step, const char *label, int flags, const char *group, IParam::Shape *shape, IParam::EParamUnit unit, IParam::DisplayFunc displayFunc)
+bool IPluginBase::SerializeEditorData(IByteChunk& chunk) const
+{
+  return chunk.PutChunk(&GetEditorData()) > 0;
+}
+
+int IPluginBase::UnserializeEditorData(const IByteChunk& chunk, int startPos)
+{
+  return SetEditorData(chunk, startPos);
+}
+
+void IPluginBase::InitParamRange(int startIdx, int endIdx, int countStart, const char* nameFmtStr, double defaultVal, double minVal, double maxVal, double step, const char *label, int flags, const char *group, const IParam::Shape& shape, IParam::EParamUnit unit, IParam::DisplayFunc displayFunc)
 {
   WDL_String nameStr;
   for (auto p = startIdx; p <= endIdx; p++)
@@ -250,27 +264,14 @@ void IPluginBase::RandomiseParamValues()
   RandomiseParamValues(0, NParams()-1);
 }
 
-
 void IPluginBase::RandomiseParamValues(int startIdx, int endIdx)
 {
-  std::random_device rd;
-  std::default_random_engine gen(rd());
-  std::uniform_real_distribution<> dis(0., 1.);
-  
-  ForParamInRange(startIdx, endIdx, [&gen, &dis](int paramIdx, IParam& param) {
-                      param.SetNormalized(dis(gen));
-                    });
+  ForParamInRange(startIdx, endIdx, [&](int paramIdx, IParam& param) { param.SetNormalized( static_cast<float>(std::rand()/(RAND_MAX+1.f)) ); });
 }
 
 void IPluginBase::RandomiseParamValues(const char *paramGroup)
 {
-  std::random_device rd;
-  std::default_random_engine gen(rd());
-  std::uniform_real_distribution<> dis(0., 1.);
-  
-  ForParamInGroup(paramGroup, [&gen, &dis](int paramIdx, IParam& param) {
-                      param.SetNormalized(dis(gen));
-                    });
+  ForParamInGroup(paramGroup, [&](int paramIdx, IParam& param) { param.SetNormalized( static_cast<float>(std::rand()/(RAND_MAX+1.f)) ); });
 }
 
 void IPluginBase::PrintParamValues()
@@ -357,7 +358,7 @@ void IPluginBase::MakePresetFromNamedParams(const char* name, int nParamsNamed, 
       int paramIdx = (int) va_arg(vp, int);
       // This assert will fire if any of the passed-in param values do not match
       // the type that the param was initialized with (int for bool, int, enum; double for double).
-      assert(paramIdx >= 0 && paramIdx < n);
+      assert(paramIdx > kNoParameter && paramIdx < n);
       GET_PARAM_FROM_VARARG(GetParam(paramIdx)->Type(), vp, *(vals.Get() + paramIdx));
     }
     va_end(vp);
@@ -480,7 +481,7 @@ bool IPluginBase::RestorePreset(const char* name)
   return false;
 }
 
-const char* IPluginBase::GetPresetName(int idx)
+const char* IPluginBase::GetPresetName(int idx) const
 {
   if (idx >= 0 && idx < mPresets.GetSize())
   {
@@ -507,7 +508,7 @@ void IPluginBase::ModifyCurrentPreset(const char* name)
   }
 }
 
-bool IPluginBase::SerializePresets(IByteChunk& chunk)
+bool IPluginBase::SerializePresets(IByteChunk& chunk) const
 {
   TRACE;
   bool savedOK = true;
@@ -556,7 +557,7 @@ int IPluginBase::UnserializePresets(IByteChunk& chunk, int startPos)
   return pos;
 }
 
-void IPluginBase::DumpPresetSrcCode(const char* filename, const char* paramEnumNames[])
+void IPluginBase::DumpPresetSrcCode(const char* filename, const char* paramEnumNames[]) const
 {
   // static bool sDumped = false;
   bool sDumped = false;
@@ -569,7 +570,7 @@ void IPluginBase::DumpPresetSrcCode(const char* filename, const char* paramEnumN
     fprintf(fp, "  MakePresetFromNamedParams(\"name\", %d", n);
     for (i = 0; i < n; ++i)
     {
-      IParam* pParam = GetParam(i);
+      const IParam* pParam = GetParam(i);
       char paramVal[32];
       switch (pParam->Type())
       {
@@ -594,7 +595,7 @@ void IPluginBase::DumpPresetSrcCode(const char* filename, const char* paramEnumN
   }
 }
 
-void IPluginBase::DumpAllPresetsBlob(const char* filename)
+void IPluginBase::DumpAllPresetsBlob(const char* filename) const
 {
   FILE* fp = fopen(filename, "w");
   
@@ -616,7 +617,7 @@ void IPluginBase::DumpAllPresetsBlob(const char* filename)
   fclose(fp);
 }
 
-void IPluginBase::DumpPresetBlob(const char* filename)
+void IPluginBase::DumpPresetBlob(const char* filename) const
 {
   FILE* fp = fopen(filename, "w");
   fprintf(fp, "MakePresetFromBlob(\"name\", \"");
@@ -632,7 +633,7 @@ void IPluginBase::DumpPresetBlob(const char* filename)
   fclose(fp);
 }
 
-void IPluginBase::DumpBankBlob(const char* filename)
+void IPluginBase::DumpBankBlob(const char* filename) const
 {
   FILE* fp = fopen(filename, "w");
   
@@ -662,7 +663,7 @@ const int kFXBVersionNum = 2;
 // so when we use it here, since vst fxp/fxb files are big endian, we need to swap the endianess
 // regardless of the endianness of the host, and on big endian hosts it will get swapped back to
 // big endian
-bool IPluginBase::SaveProgramAsFXP(const char* file)
+bool IPluginBase::SaveProgramAsFXP(const char* file) const
 {
   if (CStringHasContents(file))
   {
@@ -735,7 +736,7 @@ bool IPluginBase::SaveProgramAsFXP(const char* file)
   return false;
 }
 
-bool IPluginBase::SaveBankAsFXB(const char* file)
+bool IPluginBase::SaveBankAsFXB(const char* file) const
 {
   if (CStringHasContents(file))
   {
@@ -1094,7 +1095,7 @@ static const ChunkID commonChunks[kNumPresetChunks] = {
 static const int32_t kFormatVersion = 1;
 static const int32_t kClassIDSize = 32; // ASCII-encoded FUID
 static const int32_t kHeaderSize = sizeof (ChunkID) + sizeof (int32_t) + kClassIDSize + sizeof (int64_t);
-static const int32_t kListOffsetPos = kHeaderSize - sizeof (int64_t);
+//static const int32_t kListOffsetPos = kHeaderSize - sizeof (int64_t);
 
 inline bool isEqualID (const ChunkID id1, const ChunkID id2)
 {
@@ -1195,8 +1196,7 @@ bool IPluginBase::LoadProgramFromVSTPreset(const char* path)
     IByteChunk::GetIPlugVerFromChunk(pgm, pos /* updates pos */);
     pos = UnserializeVST3CtrlrState(pgm, pos);
     
-//    DirtyParameters();
-//    RedrawParamControls();
+    DirtyParametersFromUI();
     OnRestoreState();
     
     return true;
@@ -1205,7 +1205,7 @@ bool IPluginBase::LoadProgramFromVSTPreset(const char* path)
   return false;
 }
 
-void IPluginBase::MakeVSTPresetChunk(IByteChunk& chunk, IByteChunk& componentState, IByteChunk& controllerState)
+void IPluginBase::MakeVSTPresetChunk(IByteChunk& chunk, IByteChunk& componentState, IByteChunk& controllerState) const
 {
   WDL_String metaInfo("");
   
@@ -1257,7 +1257,7 @@ void IPluginBase::MakeVSTPresetChunk(IByteChunk& chunk, IByteChunk& componentSta
   chunk.Put(&metaInfoSize);
 }
 
-bool IPluginBase::SaveProgramAsVSTPreset(const char* path)
+bool IPluginBase::SaveProgramAsVSTPreset(const char* path) const
 {
   if (path)
   {

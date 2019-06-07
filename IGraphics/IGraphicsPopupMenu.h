@@ -14,6 +14,7 @@
 #include <cstring>
 #include <cstdio>
 #include <cassert>
+#include <memory>
 
 #include "wdlstring.h"
 #include "ptrlist.h"
@@ -21,11 +22,13 @@
 /**
  * @file
  * @copydoc IPopupMenu
- * @ingroup IGraphicsStructs
+ * @addtogroup IGraphicsStructs
+ * @{
  */
 
-/** A class for setting the contents of a pop up menu
- * NOTE: An IPopupMenu must not be declared as a temporary. In order for a receiving IControl or lambda function
+/** @brief A class for setting the contents of a pop up menu.
+ *
+ * An IPopupMenu must not be declared as a temporary. In order for a receiving IControl or lambda function
  * to be triggered when something is selected, the menu should persist across function calls, therefore
  * it should almost always be a member variable.
  * An IPopupMenu owns its sub items, including submenus
@@ -63,21 +66,17 @@ public:
     
     ~Item()
     {
-      if (mSubmenu)
-        delete mSubmenu;
-      
-      mSubmenu = nullptr;
     }
     
     void SetText(const char* str) { mText.Set(str); }
-    const char* GetText() const { return mText.Get(); };
+    const char* GetText() const { return mText.Get(); }; // TODO: Text -> Str!
     
     bool GetEnabled() const { return !(mFlags & kDisabled); }
     bool GetChecked() const { return (mFlags & kChecked) != 0; }
     bool GetIsTitle() const { return (mFlags & kTitle) != 0; }
     bool GetIsSeparator() const { return (mFlags & kSeparator) != 0; }
     int GetTag() const { return mTag; }
-    IPopupMenu* GetSubmenu() const { return mSubmenu; }
+    IPopupMenu* GetSubmenu() const { return mSubmenu.get(); }
     bool GetIsChoosable() const
     {
       if(GetIsTitle()) return false;
@@ -98,20 +97,33 @@ public:
     
   protected:
     WDL_String mText;
-    IPopupMenu* mSubmenu = nullptr;
+    std::unique_ptr<IPopupMenu> mSubmenu;
     int mFlags;
     int mTag = -1;
   };
   
-  typedef std::function<void(int indexInMenu, IPopupMenu::Item* itemChosen)> IPopupFunction;
+  using IPopupFunction = std::function<void(int indexInMenu, IPopupMenu::Item* itemChosen)>;
 
   #pragma mark -
   
-  IPopupMenu(int prefix = 0, bool multicheck = false)
+  IPopupMenu(int prefix = 0, bool multicheck = false, const std::initializer_list<const char*>& items = {})
   : mPrefix(prefix)
   , mCanMultiCheck(multicheck)
-  {}
-
+  {
+    for (auto& item : items)
+      AddItem(item);
+  }
+  
+  IPopupMenu(const std::initializer_list<const char*>& items, IPopupFunction func)
+  : mPrefix(0)
+  , mCanMultiCheck(false)
+  {
+    for (auto& item : items)
+      AddItem(item);
+    
+    SetFunction(func);
+  }
+  
   ~IPopupMenu()
   {
     mMenuItems.Empty(true);
@@ -160,6 +172,30 @@ public:
   {
     Item* pItem = new Item ("", Item::kSeparator);
     return AddItem(pItem, index);
+  }
+  
+  void RemoveEmptySubmenus()
+  {
+    int n = mMenuItems.GetSize();
+    
+    WDL_PtrList<IPopupMenu::Item> toDelete;
+    
+    for (int i = 0; i < n; i++)
+    {
+      IPopupMenu::Item* pItem = GetItem(i);
+      
+      IPopupMenu* pSubmenu = pItem->GetSubmenu();
+      
+      if(pSubmenu && pSubmenu->NItems() == 0)
+      {
+        toDelete.Add(pItem);
+      }
+    }
+    
+    for (int i = 0; i < toDelete.GetSize(); i++)
+    {
+      mMenuItems.DeletePtr(toDelete.Get(i));
+    }
   }
 
   void SetChosenItemIdx(int index) { mChosenItemIdx = index; };
@@ -239,12 +275,10 @@ public:
   
   bool IsItemChecked(int index)
   {
-    Item* item = mMenuItems.Get(index);
+    Item* pItem = mMenuItems.Get(index);
     
-    if (item)
-    {
-      return item->GetChecked();
-    }
+    if (pItem)
+      return pItem->GetChecked();
     
     return false;
   }
@@ -271,3 +305,5 @@ private:
   WDL_PtrList<Item> mMenuItems;
   IPopupFunction mPopupFunc = nullptr;
 };
+
+/**@}*/

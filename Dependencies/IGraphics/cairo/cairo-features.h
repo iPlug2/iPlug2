@@ -1,8 +1,8 @@
 #ifndef CAIRO_FEATURES_H
 #define CAIRO_FEATURES_H
 
-#include <GL/glew.h>
-#define CAIRO_HAS_GL_SURFACE 1
+//#include <GL/glew.h>
+//#define CAIRO_HAS_GL_SURFACE 1
 
 #define CAIRO_HAS_IMAGE_SURFACE 1
 #define CAIRO_HAS_USER_FONT 1

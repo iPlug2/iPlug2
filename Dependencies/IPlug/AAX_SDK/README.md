@@ -1,4 +1,6 @@
-extract AAX_SDK_2p3p0.zip here 
+extract **AAX_SDK_2p3p2.zip** here 
+
+# macOS
 
   - You need to modify the AAXlibrary project in order to compile with the same SDK as your plug-ins
 
@@ -9,6 +11,6 @@ extract AAX_SDK_2p3p0.zip here
   GCC_VERSION = com.apple.compilers.llvm.clang  
   SDKROOT = macosx10.X  
   MACOSX_DEPLOYMENT_TARGET = 10.X  
-  ARCHS = x86_64 i386  
+  ARCHS = x86_64  
 
 On Windows you will need to set the Libs/AAXLibrary/WinBuild/AAXLibrary.vcxproj project to link statically to the MSVC runtime library - change to /MT rather than /MD

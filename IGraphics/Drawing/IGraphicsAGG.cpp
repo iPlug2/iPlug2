@@ -8,17 +8,51 @@
  ==============================================================================
 */
 
+#include <algorithm>
 #include <cmath>
 
 #include "IGraphicsAGG.h"
 
-static StaticStorage<agg::font> s_fontCache;
+static StaticStorage<IFontData> sFontCache;
 
-// Utility
+const bool textKerning = true;
 
-inline const agg::rgba8 AGGColor(const IColor& color, const IBlend* pBlend = nullptr)
+class pixel_wrapper : public agg::pixel_map
 {
-  return agg::rgba8(color.R, color.G, color.B, (BlendWeight(pBlend) * color.A));
+public:
+  pixel_wrapper(unsigned char* buf, unsigned w, unsigned h, unsigned bpp, int row_bytes)
+  : m_buf(buf)
+  , m_width(w)
+  , m_height(h)
+  , m_bpp(bpp)
+  , m_row_bytes(row_bytes)
+  {}
+  
+  unsigned char* buf() override { return m_buf; }
+  unsigned width() const override { return m_width; }
+  unsigned height() const override { return m_height; }
+  
+  int row_bytes() const override { return m_row_bytes; }
+  unsigned bpp() const override  { return m_bpp; }
+  
+private:
+  
+  // Do not use!
+  
+  void create(unsigned width, unsigned height, unsigned clear_val=255) override {};
+  void clear(unsigned clear_val=255) override {};
+  void destroy() override {};
+  
+  unsigned char* m_buf;
+  unsigned m_width;
+  unsigned m_height;
+  unsigned m_bpp;
+  int m_row_bytes;
+};
+
+inline const agg::rgba8 AGGColor(const IColor& color, float opacity)
+{
+  return agg::rgba8(color.R, color.G, color.B, (opacity * color.A));
 }
 
 inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
@@ -28,12 +62,18 @@ inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case kBlendClobber: return agg::comp_op_src_over;
-    case kBlendAdd: return agg::comp_op_plus;
-    case kBlendColorDodge: return agg::comp_op_color_dodge;
-    case kBlendNone:
-    default:
-      return agg::comp_op_src_over;
+    case EBlend::Default:         // fall through
+    case EBlend::Clobber:         // fall through
+    case EBlend::SourceOver:      return agg::comp_op_src_over;
+    case EBlend::SourceIn:        return agg::comp_op_src_in;
+    case EBlend::SourceOut:       return agg::comp_op_src_out;
+    case EBlend::SourceAtop:      return agg::comp_op_src_atop;
+    case EBlend::DestOver:        return agg::comp_op_dst_over;
+    case EBlend::DestIn:          return agg::comp_op_dst_in;
+    case EBlend::DestOut:         return agg::comp_op_dst_out;
+    case EBlend::DestAtop:        return agg::comp_op_dst_atop;
+    case EBlend::Add:             return agg::comp_op_plus;
+    case EBlend::XOR:             return agg::comp_op_xor;
   }
 }
 
@@ -42,103 +82,83 @@ inline agg::cover_type AGGCover(const IBlend* pBlend = nullptr)
   return std::max(agg::cover_type(0), std::min(agg::cover_type(roundf(BlendWeight(pBlend) * 255.f)), agg::cover_type(255)));
 }
 
+agg::pixel_map* CreatePixmap(int w, int h)
+{
+  agg::pixel_map* pPixelMap = new IGraphicsAGG::PixelMapType();
+  
+  pPixelMap->create(w, h, 0);
+  
+  return pPixelMap;
+}
+
 // Rasterizing
 
 template <typename FuncType, typename ColorArrayType>
 void GradientRasterize(IGraphicsAGG::Rasterizer& rasterizer, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray, agg::comp_op_e op)
 {
-  IGraphicsAGG::SpanAllocatorType spanAllocator;
+  using SpanGradientType = agg::span_gradient<agg::rgba8, IGraphicsAGG::InterpolatorType, FuncType, ColorArrayType>;
+  
   IGraphicsAGG::InterpolatorType spanInterpolator(xform);
-  
-  // Gradient types
-  
-  typedef agg::span_gradient<agg::rgba8, IGraphicsAGG::InterpolatorType, FuncType, ColorArrayType> SpanGradientType;
-  typedef agg::renderer_scanline_aa<IGraphicsAGG::RenbaseType, IGraphicsAGG::SpanAllocatorType, SpanGradientType> RendererGradientType;
-  
-  // Gradient objects
-  
   SpanGradientType spanGradient(spanInterpolator, gradientFunc, colorArray, 0, 512);
-  RendererGradientType renderer(rasterizer.GetBase(), spanAllocator, spanGradient);
-  
-  rasterizer.Rasterize(renderer, op);
+  rasterizer.Rasterize(spanGradient, op);
 }
 
 template <typename FuncType, typename ColorArrayType>
 void GradientRasterizeAdapt(IGraphicsAGG::Rasterizer& rasterizer, EPatternExtend extend, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray, agg::comp_op_e op)
 {
-  // FIX extend none
-  
   switch (extend)
   {
-    case kExtendNone:
-    case kExtendPad:
+    case EPatternExtend::None: //TODO:  extend none
+    case EPatternExtend::Pad:
       GradientRasterize(rasterizer, gradientFunc, xform, colorArray, op);
       break;
-    case kExtendReflect:
+    case EPatternExtend::Reflect:
       GradientRasterize(rasterizer, agg::gradient_reflect_adaptor<FuncType>(gradientFunc), xform, colorArray, op);
       break;
-    case kExtendRepeat:
+    case EPatternExtend::Repeat:
       GradientRasterize(rasterizer, agg::gradient_repeat_adaptor<FuncType>(gradientFunc), xform, colorArray, op);
       break;
   }
 }
 
-void IGraphicsAGG::Rasterizer::RasterizePattern(agg::trans_affine transform, const IPattern& pattern, const IBlend* pBlend, EFillRule rule)
+void IGraphicsAGG::Rasterizer::Rasterize(const IPattern& pattern, agg::comp_op_e op, float opacity, EFillRule rule)
 {
-  mRasterizer.filling_rule(rule == kFillWinding ? agg::fill_non_zero : agg::fill_even_odd );
+  mRasterizer.filling_rule(rule == EFillRule::Winding ? agg::fill_non_zero : agg::fill_even_odd );
   
   switch (pattern.mType)
   {
-    case kSolidPattern:
-    {
-      RendererSolid renderer(mRenBase);
-      
-      const IColor &color = pattern.GetStop(0).mColor;
-      renderer.color(AGGColor(color, pBlend));
-      
-      // Rasterize
-      
-      Rasterize(renderer, AGGBlendMode(pBlend));
-    }
-      break;
-      
-    case kLinearPattern:
-    case kRadialPattern:
+    case EPatternType::Solid:
+      Rasterize(AGGColor(pattern.GetStop(0).mColor, opacity), op);
+    break;
+    case EPatternType::Linear:
+    case EPatternType::Radial:
     {
       // Common gradient objects
+      const IMatrix& m = pattern.mTransform;
       
-      const float* xform = pattern.mTransform;
-      
-      agg::trans_affine gradientMTX(xform[0], xform[1] , xform[2], xform[3], xform[4], xform[5]);
-      ColorArrayType colorArray;
+      agg::trans_affine gradientMTX(m.mXX, m.mYX , m.mXY, m.mYY, m.mTX, m.mTY);
+      agg::gradient_lut<agg::color_interpolator<agg::rgba8>, 512> colorArray;
       
       // Scaling
-      
-      gradientMTX = transform * gradientMTX * agg::trans_affine_scaling(512.0);
+      gradientMTX = (agg::trans_affine() / mGraphics.mTransform) * gradientMTX * agg::trans_affine_scaling(512.0);
       
       // Make gradient lut
-      
       colorArray.remove_all();
       
       for (int i = 0; i < pattern.NStops(); i++)
       {
         const IColorStop& stop = pattern.GetStop(i);
         float offset = stop.mOffset;
-        colorArray.add_color(offset, AGGColor(stop.mColor, pBlend));
+        colorArray.add_color(offset, AGGColor(stop.mColor, opacity));
       }
       
       colorArray.build_lut();
       
       // Rasterize
-      
-      if (pattern.mType == kLinearPattern)
-      {
-        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_x(), gradientMTX, colorArray, AGGBlendMode(pBlend));
-      }
+      if (pattern.mType == EPatternType::Linear)
+        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_y(), gradientMTX, colorArray, op);
       else
-      {
-        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_radial_d(), gradientMTX, colorArray, AGGBlendMode(pBlend));
-      }
+        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_radial_d(), gradientMTX, colorArray, op);
     }
     break;
   }
@@ -148,206 +168,150 @@ void IGraphicsAGG::Rasterizer::RasterizePattern(agg::trans_affine transform, con
 
 IGraphicsAGG::IGraphicsAGG(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphicsPathBase(dlg, w, h, fps, scale)
+, mRasterizer(*this)
 , mFontEngine()
 , mFontManager(mFontEngine)
 , mFontCurves(mFontManager.path_adaptor())
-, mFontContour(mFontCurves)
+, mFontCurvesTransformed(mFontCurves, mTransform)
 {
   DBGMSG("IGraphics AGG @ %i FPS\n", fps);
+    
+  StaticStorage<IFontData>::Accessor storage(sFontCache);
+  storage.Retain();
 }
 
 IGraphicsAGG::~IGraphicsAGG()
 {
+  StaticStorage<IFontData>::Accessor storage(sFontCache);
+  storage.Release();
 }
 
 void IGraphicsAGG::DrawResize()
 {
-  mPixelMap.create(WindowWidth() * GetDisplayScale(), WindowHeight() * GetDisplayScale());
-  mRenBuf.attach(mPixelMap.buf(), mPixelMap.width(), mPixelMap.height(), mPixelMap.row_bytes());
+  mPixelMap.create(WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
+  UpdateLayer();
   mRasterizer.SetOutput(mRenBuf);
-  mRasterizer.ClearWhite();
     
-  mTransform = agg::trans_affine_scaling(GetScale() * GetDisplayScale(), GetScale() * GetDisplayScale());
+  mTransform = agg::trans_affine_scaling(GetBackingPixelScale(), GetBackingPixelScale());
 }
 
-//IFontData IGraphicsAGG::LoadFont(const char* name, const int size)
-//{
-//  WDL_String cacheName(name);
-//  char buf [6] = {0};
-//  sprintf(buf, "-%dpt", size);
-//  cacheName.Append(buf);
-//
-//  agg::font* font_buf = s_fontCache.Find(cacheName.Get());
-//  if (!font_buf)
-//  {
-//    font_buf = (agg::font*) OSLoadFont(name, size);
-//#ifndef NDEBUG
-//    bool fontResourceFound = font_buf;
-//#endif
-//    assert(fontResourceFound); // Protect against typos in resource.h and .rc files.
-//
-//    s_fontCache.Add(font_buf, cacheName.Get());
-//  }
-//  return IFontData(font_buf);
-//}
-
-bool checkTransform(const agg::trans_affine& mtx)
+void IGraphicsAGG::UpdateLayer()
 {
-  double mtx_copy[6];
-  const double epsilon = agg::affine_epsilon;
-  mtx.store_to(mtx_copy);
-  
-  if (!agg::is_equal_eps(mtx_copy[4] - floor(mtx_copy[4]), 0.0, epsilon))
-    return false;
-  if (!agg::is_equal_eps(mtx_copy[5] - floor(mtx_copy[5]), 0.0, epsilon))
-    return false;
-
-  agg::trans_affine mtx_without_translate;
-
-  mtx_copy[4] = 0.0;
-  mtx_copy[5] = 0.0;
-  mtx_without_translate.load_from(mtx_copy);
-  
-  return mtx_without_translate.is_identity();
+  agg::pixel_map* pPixelMap = mLayers.empty() ? &mPixelMap : mLayers.top()->GetAPIBitmap()->GetBitmap();
+  mRenBuf.attach(pPixelMap->buf(), pPixelMap->width(), pPixelMap->height(), pPixelMap->row_bytes());
 }
 
-void IGraphicsAGG::DrawBitmap(IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
+bool IGraphicsAGG::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 {
-  double scale = GetDisplayScale();
-  IRECT bounds = dest.GetScaled(scale);
-
-  agg::pixel_map* pSource = (agg::pixel_map*) bitmap.GetAPIBitmap()->GetBitmap();
-  agg::rendering_buffer src(pSource->buf(), pSource->width(), pSource->height(), pSource->row_bytes());;
-  PixfmtType imgPixfSrc(src);
+  StaticStorage<IFontData>::Accessor storage(sFontCache);
+  IFontData* cached = storage.Find(fontID);
   
-  agg::trans_affine dstMtx(mTransform);
-  
-  agg::trans_affine srcMtx;
-  srcMtx /= dstMtx;
-  srcMtx *= agg::trans_affine_translation(-dest.L, -dest.T);
-  srcMtx *= agg::trans_affine_translation(srcX, srcY);
-  srcMtx *= agg::trans_affine_scaling(bitmap.GetScale());
-  
-  // TODO - fix clipping of bitmaps
-
-  if (bounds.IsPixelAligned() && checkTransform(srcMtx))
+  if (cached)
   {
-    double tx, ty;
+    SetFont(fontID, cached);
+    return true;
+  }
+  
+  IFontDataPtr data = font->GetFontData();
+
+  if (data->IsValid() && SetFont(fontID, data.get()))
+  {
+    storage.Add(data.release(), fontID);
+    return true;
+  }
+
+  return false;
+}
+
+bool CheckTransform(const agg::trans_affine& mtx)
+{
+  if (!agg::is_equal_eps(mtx.tx - std::round(mtx.tx), 0.0, 1e-3))
+    return false;
+  if (!agg::is_equal_eps(mtx.ty - std::round(mtx.ty), 0.0, 1e-3))
+    return false;
+
+  agg::trans_affine mtx_without_translate(mtx);
+  mtx_without_translate.tx = mtx_without_translate.ty = 0.0;
+  
+  return mtx_without_translate.is_identity(1e-3);
+}
+
+void IGraphicsAGG::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
+{
+  bool preMultiplied = static_cast<AGGBitmap*>(bitmap.GetAPIBitmap())->IsPreMultiplied();
+  IRECT bounds = mClipRECT.Empty() ? dest : mClipRECT.Intersect(dest);
+  bounds.Scale(GetBackingPixelScale());
+
+  APIBitmap* pAPIBitmap = dynamic_cast<AGGBitmap*>(bitmap.GetAPIBitmap());
+  agg::pixel_map* pSource = pAPIBitmap->GetBitmap();
+  agg::rendering_buffer src(pSource->buf(), pSource->width(), pSource->height(), pSource->row_bytes());
+
+  agg::trans_affine srcMtx;
+  srcMtx /= mTransform;
+  srcMtx *= agg::trans_affine_translation(srcX - dest.L, srcY - dest.T);
+  srcMtx *= agg::trans_affine_scaling(bitmap.GetScale() * bitmap.GetDrawScale());
     
-    dstMtx.translation(&tx, &ty);
-    
-    bounds.L += tx;
-    bounds.T += ty;
-    bounds.R += tx;
-    bounds.B += ty;
-    
-    mRasterizer.BlendFrom(src, bounds, srcX * scale, srcY * scale, AGGBlendMode(pBlend), AGGCover(pBlend));
+  if (bounds.IsPixelAligned() && CheckTransform(srcMtx))
+  {
+    double scale = GetScreenScale() * GetScreenScale() / pAPIBitmap->GetScale();
+    IRECT destScaled = dest.GetScaled(GetBackingPixelScale());
+    srcX = std::round(srcX * scale + std::max(0.f, bounds.L - destScaled.L));
+    srcY = std::round(srcY * scale + std::max(0.f, bounds.T - destScaled.T));
+    bounds.Translate(mTransform.tx, mTransform.ty);
+
+    mRasterizer.BlendFrom(src, bounds, srcX, srcY, AGGBlendMode(pBlend), AGGCover(pBlend), preMultiplied);
   }
   else
   {
-    imgSourceType imgSrc(imgPixfSrc);
-    InterpolatorType interpolator(srcMtx);
-    SpanAllocatorType spanAllocator;
-    SpanAlphaGeneratorType spanGenerator(imgSrc, interpolator, AGGCover(pBlend));
-    BitmapAlphaRenderType renderer(mRasterizer.GetBase(), spanAllocator, spanGenerator);
     agg::rounded_rect rect(dest.L, dest.T, dest.R, dest.B, 0);
-    agg::conv_transform<agg::rounded_rect> tr(rect, dstMtx);
-    
-    mRasterizer.SetPath(tr);
-    mRasterizer.Rasterize(renderer, AGGBlendMode(pBlend));
+    agg::conv_transform<agg::rounded_rect> tr(rect, mTransform);
+      
+    if (preMultiplied)
+    {
+      PixfmtPreType fmtSrc(src);
+      mRasterizer.Rasterize(fmtSrc, tr, srcMtx, AGGBlendMode(pBlend), AGGCover(pBlend));
+    }
+    else
+    {
+      PixfmtType fmtSrc(src);
+      mRasterizer.Rasterize(fmtSrc, tr, srcMtx, AGGBlendMode(pBlend), AGGCover(pBlend));
+    }
   }
 }
 
-void IGraphicsAGG::DrawRotatedMask(IBitmap& base, IBitmap& mask, IBitmap& top, float x, float y, double angle, const IBlend* pBlend)
+void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding)
 {
-  x *= GetDisplayScale();
-  y *= GetDisplayScale();
-
-  agg::pixel_map* pm_base = (agg::pixel_map*) base.GetAPIBitmap()->GetBitmap();
-  agg::pixel_map* pm_mask = (agg::pixel_map*) mask.GetAPIBitmap()->GetBitmap();
-  agg::pixel_map* pm_top = (agg::pixel_map*) top.GetAPIBitmap()->GetBitmap();
-  
-  agg::rendering_buffer rbuf_base(pm_base->buf(), pm_base->width(), pm_base->height(), pm_base->row_bytes());
-  agg::rendering_buffer rbuf_mask(pm_mask->buf(), pm_mask->width(), pm_mask->height(), pm_mask->row_bytes());
-  agg::rendering_buffer rbuf_top(pm_top->buf(), pm_top->width(), pm_top->height(), pm_top->row_bytes());
-
-  PixfmtType img_base(rbuf_base);
-  PixfmtType img_mask(rbuf_mask);
-  PixfmtType img_top(rbuf_top);
-
-  RenbaseType ren_base(img_base);
-  
-  ren_base.clear(agg::rgba8(255, 255, 255, 0));
-  
-  ren_base.blend_from(img_mask, 0, 0, agg::cover_mask);
-  ren_base.copy_from(img_top);
-  
-  const double width = base.W() * GetDisplayScale();
-  const double height = base.H() * GetDisplayScale();
-  
-  agg::trans_affine srcMatrix;
-  srcMatrix *= agg::trans_affine_translation(-(width / 2), -(height / 2));
-  srcMatrix *= agg::trans_affine_rotation(angle);
-  srcMatrix *= agg::trans_affine_translation(x + (width / 2), y + (height / 2));
-  
-  agg::trans_affine imgMtx = srcMatrix;
-  imgMtx.invert();
-  
-  InterpolatorType interpolator(imgMtx);
-  
-  imgSourceType imgSrc(img_base);
-  
-  SpanGeneratorType spanGenerator(imgSrc, interpolator);
-  SpanAllocatorType spanAllocator;
-  BitmapRenderType renderer(mRasterizer.GetBase(), spanAllocator, spanGenerator);
-  
-  agg::rounded_rect bounds(0, 0, width, height, 0);
-  agg::conv_transform<agg::rounded_rect> tr(bounds, srcMatrix);
-  
-  mRasterizer.SetPath(tr);
-  mRasterizer.Rasterize(renderer, AGGBlendMode(pBlend));
-}
-
-void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax)
-{
-  agg::trans_affine xform = mTransform;
-  
-  agg::arc arc(cx, cy, r, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f));
-  arc.approximation_scale(xform.scale());
   agg::path_storage transformedPath;
+    
+  agg::arc arc(cx, cy, r, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f), winding == EWinding::CW);
+  arc.approximation_scale(mTransform.scale());
+    
   transformedPath.join_path(arc);
-  
-  transformedPath.transform(xform);
+  transformedPath.transform(mTransform);
   
   mPath.join_path(transformedPath);
 }
 
 void IGraphicsAGG::PathMoveTo(float x, float y)
 {
-  agg::trans_affine xform = mTransform;
-  
   double xd = x;
   double yd = y;
   
-  xform.transform(&xd, &yd);
+  mTransform.transform(&xd, &yd);
   mPath.move_to(xd, yd);
 }
 
 void IGraphicsAGG::PathLineTo(float x, float y)
 {
-  agg::trans_affine xform = mTransform;
-  
   double xd = x;
   double yd = y;
 
-  xform.transform(&xd, &yd);
+  mTransform.transform(&xd, &yd);
   mPath.line_to(xd, yd);
 }
 
 void IGraphicsAGG::PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
 {
-  agg::trans_affine xform = mTransform;
-  
   double x1d = x1;
   double y1d = y1;
   double x2d = x2;
@@ -355,9 +319,9 @@ void IGraphicsAGG::PathCurveTo(float x1, float y1, float x2, float y2, float x3,
   double x3d = x3;
   double y3d = y3;
   
-  xform.transform(&x1d, &y1d);
-  xform.transform(&x2d, &y2d);
-  xform.transform(&x3d, &y3d);
+  mTransform.transform(&x1d, &y1d);
+  mTransform.transform(&x2d, &y2d);
+  mTransform.transform(&x3d, &y3d);
 
   mPath.curve4(x1d, y1d, x2d, y2d, x3d, y3d);
 }
@@ -365,22 +329,20 @@ void IGraphicsAGG::PathCurveTo(float x1, float y1, float x2, float y2, float x3,
 template<typename StrokeType>
 void StrokeOptions(StrokeType& strokes, double thickness, const IStrokeOptions& options)
 {
-  // Set stroke options
-  
   strokes.width(thickness);
   
   switch (options.mCapOption)
   {
-    case kCapButt:   strokes.line_cap(agg::butt_cap);     break;
-    case kCapRound:  strokes.line_cap(agg::round_cap);    break;
-    case kCapSquare: strokes.line_cap(agg::square_cap);   break;
+    case ELineCap::Butt:   strokes.line_cap(agg::butt_cap);     break;
+    case ELineCap::Round:  strokes.line_cap(agg::round_cap);    break;
+    case ELineCap::Square: strokes.line_cap(agg::square_cap);   break;
   }
   
   switch (options.mJoinOption)
   {
-    case kJoinMiter:   strokes.line_join(agg::miter_join);   break;
-    case kJoinRound:   strokes.line_join(agg::round_join);   break;
-    case kJoinBevel:   strokes.line_join(agg::bevel_join);   break;
+    case ELineJoin::Miter:   strokes.line_join(agg::miter_join);   break;
+    case ELineJoin::Round:   strokes.line_join(agg::round_join);   break;
+    case ELineJoin::Bevel:   strokes.line_join(agg::bevel_join);   break;
   }
   
   strokes.miter_limit(options.mMiterLimit);
@@ -388,42 +350,45 @@ void StrokeOptions(StrokeType& strokes, double thickness, const IStrokeOptions& 
 
 void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
 {
-  agg::trans_affine xform = mTransform;
-  
+  using CPType = agg::conv_curve<agg::path_storage>;
+  using S1Type = agg::conv_transform<CPType>;
+  using S2Type = agg::conv_stroke<S1Type>;
+  using S3Type = agg::conv_transform<S2Type>;
+  using D2Type = agg::conv_dash<S1Type>;
+  using D3Type = agg::conv_stroke<D2Type>;
+  using D4Type = agg::conv_transform<D3Type>;
+
+  agg::trans_affine tranform(mTransform);
+  CPType curvedPath(mPath);
+  S1Type basePath(curvedPath, tranform.invert());
+
   if (options.mDash.GetCount())
   {
-    CurvedPathType curvedPath(mPath);
-    DashType dashed(curvedPath);
-    DashStrokeType strokes(dashed);
-    //TransformedDashStrokePathType path(strokes, xform);
-
+    D2Type dashedPath(basePath);
+    D3Type strokedDashedPath(dashedPath);
+    D4Type finalPath(strokedDashedPath, mTransform);
+      
     // Set the dashes (N.B. - for odd counts the array is read twice)
-
     int dashCount = options.mDash.GetCount();
-    int dashMax = dashCount & 1 ? dashCount *2 : dashCount;
+    int dashMax = dashCount & 1 ? dashCount * 2 : dashCount;
     const float* dashArray = options.mDash.GetArray();
     
-    dashed.remove_all_dashes();
-    dashed.dash_start(options.mDash.GetOffset());
+    dashedPath.remove_all_dashes();
+    dashedPath.dash_start(options.mDash.GetOffset());
     
     for (int i = 0; i < dashMax; i += 2)
-        dashed.add_dash(dashArray[i % dashCount], dashArray[(i + 1) % dashCount]);
+      dashedPath.add_dash(dashArray[i % dashCount], dashArray[(i + 1) % dashCount]);
     
-    StrokeOptions(strokes, thickness, options);
-    agg::conv_clip_polygon<DashStrokeType> path(strokes);
-    DoClip(path);
-    mRasterizer.Rasterize(path, GetRasterTransform(), pattern, pBlend);
+    StrokeOptions(strokedDashedPath, thickness, options);
+    mRasterizer.Rasterize(finalPath, pattern, AGGBlendMode(pBlend), BlendWeight(pBlend));
   }
   else
   {
-    CurvedPathType curvedPath(mPath);
-    StrokeType strokes(curvedPath);
-    //TransformedStrokePathType path(strokes, xform);
-    
-    StrokeOptions(strokes, thickness, options);
-    agg::conv_clip_polygon<StrokeType> path(strokes);
-    DoClip(path);
-    mRasterizer.Rasterize(path, GetRasterTransform(), pattern, pBlend);
+    S2Type strokedPath(basePath);
+    S3Type finalPath(strokedPath, mTransform);
+      
+    StrokeOptions(strokedPath, thickness, options);
+    mRasterizer.Rasterize(finalPath, pattern, AGGBlendMode(pBlend), BlendWeight(pBlend));
   }
   
   if (!options.mPreserve)
@@ -432,11 +397,8 @@ void IGraphicsAGG::PathStroke(const IPattern& pattern, float thickness, const IS
 
 void IGraphicsAGG::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
 {
-  CurvedPathType curvedPath(mPath);
-  agg::conv_clip_polygon<CurvedPathType> path(curvedPath);
-  DoClip(path);
-  
-  mRasterizer.Rasterize(path, GetRasterTransform(), pattern, pBlend, options.mFillRule);
+  agg::conv_curve<agg::path_storage> curvedPath(mPath);
+  mRasterizer.Rasterize(curvedPath, pattern, AGGBlendMode(pBlend), BlendWeight(pBlend), options.mFillRule);
   if (!options.mPreserve)
     mPath.remove_all();
 }
@@ -448,311 +410,206 @@ IColor IGraphicsAGG::GetPoint(int x, int y)
   return color;
 }
 
-//IBitmap IGraphicsAGG::CreateIBitmap(const char* cacheName, int w, int h)
-//{
-//  agg::pixel_map* pPixelMap = (agg::pixel_map*) CreateAPIBitmap(w, h);
-//
-//  s_bitmapCache.Add(pPixelMap, cacheName, mScale);
-//  
-//  IBitmap bitmap(pPixelMap, pPixelMap->width(), pPixelMap->height());
-//  
-//  return bitmap;
-//}
-
-agg::pixel_map* IGraphicsAGG::CreateAPIBitmap(int w, int h)
+APIBitmap* IGraphicsAGG::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext)
 {
-#ifdef OS_MAC
-  agg::pixel_map_mac* pPixelMap = new agg::pixel_map_mac();
-#else
-  #error NOT IMPLEMENTED
-#endif
-  
-  pPixelMap->create(w, h, 0);
+  std::unique_ptr<PixelMapType> pixelMap(new PixelMapType());
+  bool ispng = strstr(fileNameOrResID, "png") != nullptr;
 
-  return pPixelMap;
-}
-
-APIBitmap* IGraphicsAGG::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
-{
-  const char *path = resourcePath.Get();
-#ifdef OS_MAC
-  if (CStringHasContents(path))
+#if defined OS_WIN
+  if (location != EResourceLocation::kNotFound && ispng)
   {
-    const char* ext = path+strlen(path)-1;
-    while (ext >= path && *ext != '.') --ext;
-    ++ext;
-    
-    bool ispng = !stricmp(ext, "png");
-#ifndef IPLUG_JPEG_SUPPORT
-    if (!ispng) return 0;
-#else
-    bool isjpg = !stricmp(ext, "jpg");
-    if (!isjpg && !ispng) return 0;
-#endif
-    
-    agg::pixel_map_mac* pPixelMap = new agg::pixel_map_mac();
-    if (pPixelMap->load_img(path, ispng ? agg::pixel_map::format_png : agg::pixel_map::format_jpg))
-      return new AGGBitmap(pPixelMap, scale);
-    else
-      delete pPixelMap;
+    if (pixelMap->load_img((HINSTANCE)GetWinModuleHandle(), fileNameOrResID, agg::pixel_map::format_png))
+      return new AGGBitmap(pixelMap.release(), scale, 1.f, false);
   }
-  
 #else
-  #error NOT IMPLEMENTED
+  if (location == EResourceLocation::kAbsolutePath && ispng)
+  {
+    if (pixelMap->load_img(fileNameOrResID, agg::pixel_map::format_png))
+      return new AGGBitmap(pixelMap.release(), scale, 1.f, false);
+  }
 #endif
-  
+
   return new APIBitmap();
 }
 
-APIBitmap* IGraphicsAGG::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
+APIBitmap* IGraphicsAGG::CreateAPIBitmap(int width, int height, int scale, double drawScale)
 {
-  int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
-  int destH = (pBitmap->GetHeight() / pBitmap->GetScale()) * scale;
+  return new AGGBitmap(CreatePixmap(width, height), scale, drawScale, true);
+}
+
+bool IGraphicsAGG::BitmapExtSupported(const char* ext)
+{
+  char extLower[32];
+  ToLower(extLower, ext);
+  return (strstr(extLower, "png") != nullptr) /*|| (strstr(extLower, "jpg") != nullptr) || (strstr(extLower, "jpeg") != nullptr)*/;
+}
+
+void IGraphicsAGG::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
+{
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
+  int size = pBitmap->GetBitmap()->height() * pBitmap->GetBitmap()->row_bytes();
     
-  agg::pixel_map* pSource = (agg::pixel_map*) pBitmap->GetBitmap();
-  agg::pixel_map* pCopy = (agg::pixel_map*) CreateAPIBitmap(destW, destH);
-  agg::rendering_buffer src(pSource->buf(), pSource->width(), pSource->height(), pSource->row_bytes());;
-  agg::rendering_buffer dest(pCopy->buf(), pCopy->width(), pCopy->height(), pCopy->row_bytes());
-  PixfmtType imgPixfSrc(src);
-  PixfmtType imgPixfDest(dest);
-  
-  RenbaseType renBase(imgPixfDest);
-  renBase.clear(agg::rgba(0, 0, 0, 0));
-  
-  agg::rasterizer_scanline_aa<> rasterizer;
-  agg::trans_affine_scaling srcMtx(pBitmap->GetScale() / (double) scale);
-  InterpolatorType interpolator(srcMtx);
-  imgSourceType imgSrc(imgPixfSrc);
-  SpanAllocatorType spanAllocator;
-  agg::scanline_u8 scanline;
-  SpanGeneratorType spanGenerator(imgSrc, interpolator);
-  BitmapRenderType renderer(renBase, spanAllocator, spanGenerator);
-  
-  agg::rounded_rect bounds(0, 0, destW, destH, 0);
-  rasterizer.add_path(bounds);
-  agg::render_scanlines(rasterizer, scanline, renderer);
-  
-  return new AGGBitmap(pCopy, scale);
+  data.Resize(size);
+    
+  if (data.GetSize() >= size)
+    memcpy(data.Get(), pBitmap->GetBitmap()->buf(), size);
+}
+
+void IGraphicsAGG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow)
+{
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
+  agg::pixel_map* pPixMap = pBitmap->GetBitmap();
+  int size = pPixMap->height() * pPixMap->row_bytes();
+    
+  if (mask.GetSize() >= size)
+  {
+    if (!shadow.mDrawForeground)
+    {
+      pBitmap->GetBitmap()->clear(0);
+    }
+    
+    IRECT bounds(layer->Bounds());
+    pixel_wrapper* shadowSource = new pixel_wrapper(mask.Get(), pPixMap->width(), pPixMap->height(), pPixMap->bpp(), pPixMap->row_bytes());
+    APIBitmap* shadowBitmap = new AGGBitmap(shadowSource, pBitmap->GetScale(), pBitmap->GetDrawScale(), true);
+    IBitmap bitmap(shadowBitmap, 1, false);
+    ILayer shadowLayer(shadowBitmap, layer->Bounds());
+      
+    PathTransformSave();
+    PushLayer(layer.get());
+    PushLayer(&shadowLayer);
+    PathRect(layer->Bounds());
+    IBlend blend1(EBlend::SourceIn, 1.0);
+    PathTransformTranslate(-shadow.mXOffset, -shadow.mYOffset);
+    PathFill(shadow.mPattern, IFillOptions(), &blend1);
+    PopLayer();
+    IBlend blend2(EBlend::DestOver, shadow.mOpacity);
+    bounds.Translate(shadow.mXOffset, shadow.mYOffset);
+    DrawBitmap(bitmap, bounds, 0, 0, &blend2);
+    PopLayer();
+    PathTransformRestore();
+  }
 }
 
 void IGraphicsAGG::EndFrame()
 {
 #ifdef OS_MAC
-  CGContextSaveGState((CGContext*) GetPlatformContext());
-  CGContextTranslateCTM((CGContext*) GetPlatformContext(), 0.0, WindowHeight());
-  CGContextScaleCTM((CGContext*) GetPlatformContext(), 1.0, -1.0);
-  mPixelMap.draw((CGContext*) GetPlatformContext(), GetDisplayScale());
-  CGContextRestoreGState((CGContext*) GetPlatformContext());
+  CGContext* pCGContext = (CGContext*) GetPlatformContext();
+  CGContextSaveGState(pCGContext);
+  CGContextTranslateCTM(pCGContext, 0.0, WindowHeight());
+  CGContextScaleCTM(pCGContext, 1.0, -1.0);
+  mPixelMap.draw(pCGContext, GetScreenScale());
+  CGContextRestoreGState(pCGContext);
 #else
-  #error NOT IMPLEMENTED
+  PAINTSTRUCT ps;
+  HWND hWnd = (HWND) GetWindow();
+  HDC dc = BeginPaint(hWnd, &ps);
+  mPixelMap.draw(dc, 0, 0, 1.0);
+  EndPaint(hWnd, &ps);
 #endif
 }
 
-void IGraphicsAGG::CalculateTextLines(WDL_TypedBuf<LineInfo>* pLines, const IRECT& bounds, const char* str, FontManagerType& manager)
+bool IGraphicsAGG::SetFont(const char* fontID, IFontData* pFont) const
 {
-  LineInfo info;
-  info.mStartChar = 0;
-  info.mEndChar = (int) strlen(str);
-  pLines->Add(info);
+  agg::glyph_rendering render = agg::glyph_ren_outline;
+  return mFontEngine.load_font(fontID, pFont->GetFaceIdx(), render, (char*) pFont->Get(), pFont->GetSize());
+}
+
+void IGraphicsAGG::PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y) const
+{
+  StaticStorage<IFontData>::Accessor storage(sFontCache);
+  IFontData* pFont = storage.Find(text.mFont);
   
-  LineInfo* pLine = pLines->Get();
-  
-  size_t lineStart = 0;
-  size_t lineWidth = 0;
-  size_t linePos = 0;
-  double xCount = 0.0;
-  
-  const char* cstr = str;
-  
-  while (*cstr)
+  if (!pFont || !SetFont(text.mFont, pFont))
   {
-    const agg::glyph_cache* pGlyph = manager.glyph(*cstr);
+    assert(0 && "No font found - did you forget to load it?");
+  }
+    
+  const bool textHinting = false;
+    
+  // Set dpi to 72 to allow finer resolution of text sizes
+  mFontEngine.resolution(72);
+  mFontEngine.hinting(textHinting);
+  mFontEngine.height(text.mSize * pFont->GetHeightEMRatio());
+  mFontEngine.flip_y(true);
+  
+  const double textHeight = text.mSize;
+  const double EMHeight = pFont->GetAscender() - pFont->GetDescender();
+  const double ascender = text.mSize * pFont->GetAscender() / EMHeight;
+  const double descender = text.mSize * pFont->GetDescender() / EMHeight;
+  
+  mFontManager.reset_last_glyph();
+  double textWidth = 0.0;
+  
+  for (int i = 0; str[i]; i++)
+  {
+    const agg::glyph_cache* pGlyph = mFontManager.glyph(str[i]);
+    
+    if (textKerning)
+    {
+      double dx = 0.0;
+      double dy = 0.0;
+      mFontManager.add_kerning(&dx, &dy);
+      textWidth += dx;
+    }
+    
+    textWidth += pGlyph->advance_x;
+  }
+  
+  switch (text.mAlign)
+  {
+    case EAlign::Near:     x = r.L;                          break;
+    case EAlign::Center:   x = r.MW() - (textWidth / 2.0);   break;
+    case EAlign::Far:      x = r.R - textWidth;              break;
+  }
+  
+  switch (text.mVAlign)
+  {
+    case EVAlign::Top:      y = r.T + ascender;                            break;
+    case EVAlign::Middle:   y = r.MH() + descender + (textHeight / 2.0);   break;
+    case EVAlign::Bottom:   y = r.B + descender;                           break;
+  }
+  
+  r = IRECT((float) x, (float) y - ascender, (float) (x + textWidth), (float) (y + textHeight - ascender));
+}
+
+void IGraphicsAGG::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
+{
+  IRECT r = bounds;
+  double x, y;
+  PrepareAndMeasureText(text, str, bounds, x, y);
+  DoMeasureTextRotation(text, r, bounds);
+}
+
+void IGraphicsAGG::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
+{
+  IRECT measured = bounds;
+  double x, y;
+  
+  agg::rgba8 color(AGGColor(text.mFGColor, BlendWeight(pBlend)));
+  mFontManager.reset_last_glyph();
+  
+  PrepareAndMeasureText(text, str, measured, x, y);
+  PathTransformSave();
+  DoTextRotation(text, bounds, measured);
+
+  for (size_t c = 0; str[c]; c++)
+  {
+    const agg::glyph_cache* pGlyph = mFontManager.glyph(str[c]);
     
     if (pGlyph)
     {
-      xCount += pGlyph->advance_x;
+      if (textKerning)
+      {
+        mFontManager.add_kerning(&x, &y);
+      }
+      
+      mFontManager.init_embedded_adaptors(pGlyph, x, y);
+      mRasterizer.Rasterize(mFontCurvesTransformed, color, AGGBlendMode(pBlend));
     }
-
-    cstr++;
-    linePos++;
-    
-    if (*cstr == ' ' || *cstr == 0)
-    {
-      pLine->mStartChar = (int) lineStart;
-      pLine->mEndChar = (int)  linePos;
-      pLine->mWidth = xCount;
-    }
-    
-    if (bounds.W() > 0 && xCount >= bounds.W())
-    {
-      assert(pLine);
-      
-      cstr = &str[pLine->mEndChar];
-      lineStart = pLine->mEndChar + 1;
-      linePos = pLine->mEndChar;
-      
-      LineInfo info;
-      pLines->Add(info);
-      pLine++;
-      
-      assert(pLines);
-      
-      xCount = 0;
-      lineWidth = 0;
-    }
-    
+    x += pGlyph->advance_x;
+    y += pGlyph->advance_y;
   }
+  PathTransformRestore();
 }
-
-bool IGraphicsAGG::DoDrawMeasureText(const IText& text, const char* str, IRECT& destBounds, const IBlend* pBlend, bool measure)
-{
-//  if (!str || str[0] == '\0')
-//  {
-//    return true;
-//  }
-//
-//  IRECT bounds = destBounds;
-//  bounds.Scale(GetDisplayScale());
-//
-//  RendererSolid renSolid(mRenBase);
-//  RendererBin renBin(mRenBase);
-//
-//  agg::scanline_u8 sl;
-//  agg::rasterizer_scanline_aa<> ras;
-//
-//  agg::glyph_rendering gren = agg::glyph_ren_agg_gray8;
-//  //agg::glyph_rendering gren = agg::glyph_ren_outline;
-//  //agg::glyph_rendering gren = agg::glyph_ren_agg_mono;
-//  //agg::glyph_rendering gren = agg::glyph_ren_native_gray8;
-//  //agg::glyph_rendering gren = agg::glyph_ren_native_mono;
-//
-//  float weight = 0.0;
-//  bool kerning = false;
-//  bool hinting = false;
-//
-//  if (gren == agg::glyph_ren_agg_mono)
-//  {
-//    mFontEngine.gamma(agg::gamma_threshold(0.5));
-//  }
-//  else
-//  {
-//    mFontEngine.gamma(agg::gamma_power(1.0));
-//  }
-//
-//  if (gren == agg::glyph_ren_outline)
-//  {
-//    //for outline cache set gamma for the rasterizer
-//    ras.gamma(agg::gamma_power(1.0));
-//  }
-//
-//  mFontContour.width(-weight * (text.mSize * 0.05) * GetDisplayScale());
-//
-//  IFontData font = LoadFont(text.mFont, text.mSize);
-//  agg::font* pFontData = (agg::font *)font.mData;
-//
-//  if (pFontData != 0 && mFontEngine.load_font("", 0, gren, pFontData->buf(), pFontData->size()))
-//  {
-//    mFontEngine.hinting(hinting);
-//    mFontEngine.height(text.mSize * GetDisplayScale());
-//    mFontEngine.width(text.mSize * GetDisplayScale());
-//    mFontEngine.flip_y(true);
-//
-//    double x = bounds.L;
-//    double y = bounds.T + (text.mSize * GetDisplayScale());
-//
-//    WDL_TypedBuf<LineInfo> lines;
-//
-//    CalculateTextLines(&lines, bounds, str, mFontManager);
-//
-//    LineInfo * pLines = lines.Get();
-//
-//    for (int i=0; i<lines.GetSize(); ++i, ++pLines)
-//    {
-//      switch (text.mAlign)
-//      {
-//        case IText::kAlignNear:
-//          x = bounds.L;
-//          break;
-//        case IText::kAlignCenter:
-//          x = bounds.L + ((bounds.W() - pLines->mWidth) / 2);
-//          break;
-//        case IText::kAlignFar:
-//          x = bounds.L + (bounds.W() - pLines->mWidth);
-//          break;
-//      }
-//
-//      for (size_t c=pLines->mStartChar; c<pLines->mEndChar; c++)
-//      {
-//        const agg::glyph_cache* pGlyph = mFontManager.glyph(str[c]);
-//
-//        if (pGlyph)
-//        {
-//          if (kerning)
-//          {
-//            mFontManager.add_kerning(&x, &y);
-//          }
-//
-//          mFontManager.init_embedded_adaptors(pGlyph, x, y);
-//
-//          switch (pGlyph->data_type)
-//          {
-//            case agg::glyph_data_mono:
-//
-//              renBin.color(IColorToAggColor(text.mColor));
-//              agg::render_scanlines(mFontManager.mono_adaptor(),
-//                                    mFontManager.mono_scanline(),
-//                                    renBin);
-//              break;
-//
-//            case agg::glyph_data_gray8:
-//
-//              renSolid.color(IColorToAggColor(text.mColor));
-//              agg::render_scanlines(mFontManager.gray8_adaptor(),
-//                                    mFontManager.gray8_scanline(),
-//                                    renSolid);
-//              break;
-//
-//            case agg::glyph_data_outline:
-//
-//              ras.reset();
-//
-//              if (fabs(weight) <= 0.01)
-//              {
-//                //for the sake of efficiency skip the
-//                //contour converter if the weight is about zero.
-//                ras.add_path(mFontCurves);
-//              }
-//              else
-//              {
-//                ras.add_path(mFontContour);
-//              }
-//
-//              renSolid.color(IColorToAggColor(text.mColor));
-//              agg::render_scanlines(ras, sl, renSolid);
-//
-//              break;
-//
-//            default: break;
-//          }
-//
-//          //increment pen position
-//          x += pGlyph->advance_x;
-//          y += pGlyph->advance_y;
-//        }
-//      }
-//      y += text.mSize * GetDisplayScale();
-//    }
-//  }
-  return false;
-}
-
-/*
-agg::pixel_map* IGraphicsAGG::load_image(const char* filename)
-{
-  IBitmap bitmap = LoadBitmap(filename, 1, 1.0);
-  return (agg::pixel_map*) bitmap.mData;
-}
-
-*/
 
 #include "IGraphicsAGG_src.cpp"

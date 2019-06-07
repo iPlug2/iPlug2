@@ -10,8 +10,12 @@
 
 #include "IGraphicsCanvas.h"
 #include <string>
+#include <utility>
 #include <stdio.h>
+#include <type_traits>
 #include <emscripten.h>
+
+#include "wdl_base64.h"
 
 using namespace emscripten;
 
@@ -20,6 +24,27 @@ extern IGraphics* gGraphics;
 extern val GetPreloadedImages();
 extern val GetCanvas();
 
+struct CanvasFont
+{
+  using FontDesc = std::remove_pointer<FontDescriptor>::type;
+  
+  CanvasFont(FontDesc descriptor, double ascenderRatio, double EMRatio)
+  : mDescriptor(descriptor), mAscenderRatio(ascenderRatio), mEMRatio(EMRatio) {}
+    
+  FontDesc mDescriptor;
+  double mAscenderRatio;
+  double mEMRatio;
+};
+
+std::string GetFontString(const char* fontName, const char* styleName, double size)
+{
+  WDL_String fontString;
+  fontString.SetFormatted(FONT_LEN + 64, "%s %lfpx %s", styleName, size, fontName);
+  return std::string(fontString.Get());
+}
+
+StaticStorage<CanvasFont> sFontCache;
+
 static std::string CanvasColor(const IColor& color, float alpha = 1.0)
 {
   WDL_String str;
@@ -27,42 +52,54 @@ static std::string CanvasColor(const IColor& color, float alpha = 1.0)
   return str.Get();
 }
 
-WebBitmap::WebBitmap(emscripten::val imageCanvas, const char* name, int scale)
+CanvasBitmap::CanvasBitmap(val imageCanvas, const char* name, int scale)
 {
-  SetBitmap(new RetainVal(imageCanvas), imageCanvas["width"].as<int>(), imageCanvas["height"].as<int>(), scale);
+  SetBitmap(new val(imageCanvas), imageCanvas["width"].as<int>(), imageCanvas["height"].as<int>(), scale, 1.f);
+}
+
+CanvasBitmap::CanvasBitmap(int width, int height, int scale, float drawScale)
+{
+  val canvas = val::global("document").call<val>("createElement", std::string("canvas"));
+  canvas.set("width", width);
+  canvas.set("height", height);
+
+  SetBitmap(new val(canvas), width, height, scale, drawScale);
+}
+
+CanvasBitmap::~CanvasBitmap()
+{
+  delete GetBitmap();
 }
 
 IGraphicsCanvas::IGraphicsCanvas(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphicsPathBase(dlg, w, h, fps, scale)
 {
+  StaticStorage<CanvasFont>::Accessor storage(sFontCache);
+  storage.Retain();
 }
 
 IGraphicsCanvas::~IGraphicsCanvas()
 {
+  StaticStorage<CanvasFont>::Accessor storage(sFontCache);
+  storage.Release();
 }
 
-void IGraphicsCanvas::DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend)
+void IGraphicsCanvas::DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend)
 {
   val context = GetContext();
-  RetainVal* pRV = (RetainVal*) bitmap.GetAPIBitmap()->GetBitmap();
-  GetContext().call<void>("save");
-  SetCanvasBlendMode(pBlend);
+  val img = *bitmap.GetAPIBitmap()->GetBitmap();
+  context.call<void>("save");
+  SetCanvasBlendMode(context, pBlend);
   context.set("globalAlpha", BlendWeight(pBlend));
-  
-  const float ds = GetDisplayScale();
+    
+  const float bs = bitmap.GetScale();
   IRECT sr = bounds;
-  sr.Scale(ds);
-  
-  srcX *= ds;
-  srcY *= ds;
-  
-  context.call<void>("drawImage", pRV->mItem, srcX, srcY, sr.W(), sr.H(), floor(bounds.L), floor(bounds.T), floor(bounds.W()), floor(bounds.H()));
-  GetContext().call<void>("restore");
-}
+  sr.Scale(bs * bitmap.GetDrawScale());
 
-void IGraphicsCanvas::DrawRotatedBitmap(IBitmap& bitmap, float destCentreX, float destCentreY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
-{
-  IGraphicsPathBase::DrawRotatedBitmap(bitmap, destCentreX, destCentreY, DegToRad(angle), yOffsetZeroDeg, pBlend);
+  PathRect(bounds);
+  context.call<void>("clip");
+  context.call<void>("drawImage", img, srcX * bs, srcY * bs, sr.W(), sr.H(), bounds.L, bounds.T, bounds.W(), bounds.H());
+  GetContext().call<void>("restore");
 }
 
 void IGraphicsCanvas::PathClear()
@@ -75,9 +112,9 @@ void IGraphicsCanvas::PathClose()
   GetContext().call<void>("closePath");
 }
 
-void IGraphicsCanvas::PathArc(float cx, float cy, float r, float aMin, float aMax)
+void IGraphicsCanvas::PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding)
 {
-  GetContext().call<void>("arc", cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f));
+  GetContext().call<void>("arc", cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f), winding == EWinding::CCW);
 }
 
 void IGraphicsCanvas::PathMoveTo(float x, float y)
@@ -101,16 +138,16 @@ void IGraphicsCanvas::PathStroke(const IPattern& pattern, float thickness, const
   
   switch (options.mCapOption)
   {
-    case kCapButt: context.set("lineCap", "butt"); break;
-    case kCapRound: context.set("lineCap", "round"); break;
-    case kCapSquare: context.set("lineCap", "square"); break;
+    case ELineCap::Butt: context.set("lineCap", "butt"); break;
+    case ELineCap::Round: context.set("lineCap", "round"); break;
+    case ELineCap::Square: context.set("lineCap", "square"); break;
   }
   
   switch (options.mJoinOption)
   {
-    case kJoinMiter: context.set("lineJoin", "miter"); break;
-    case kJoinRound: context.set("lineJoin", "round"); break;
-    case kJoinBevel: context.set("lineJoin", "bevel"); break;
+    case ELineJoin::Miter: context.set("lineJoin", "miter"); break;
+    case ELineJoin::Round: context.set("lineJoin", "round"); break;
+    case ELineJoin::Bevel: context.set("lineJoin", "bevel"); break;
   }
   
   context.set("miterLimit", options.mMiterLimit);
@@ -124,7 +161,7 @@ void IGraphicsCanvas::PathStroke(const IPattern& pattern, float thickness, const
   context.set("lineDashOffset", options.mDash.GetOffset());
   context.set("lineWidth", thickness);
   
-  SetCanvasSourcePattern(pattern, pBlend);
+  SetCanvasSourcePattern(context, pattern, pBlend);
 
   context.call<void>("stroke");
   
@@ -135,9 +172,9 @@ void IGraphicsCanvas::PathStroke(const IPattern& pattern, float thickness, const
 void IGraphicsCanvas::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
 {
   val context = GetContext();
-  std::string fillRule(options.mFillRule == kFillWinding ? "nonzero" : "evenodd");
+  std::string fillRule(options.mFillRule == EFillRule::Winding ? "nonzero" : "evenodd");
   
-  SetCanvasSourcePattern(pattern, pBlend);
+  SetCanvasSourcePattern(context, pattern, pBlend);
 
   context.call<void>("fill", fillRule);
 
@@ -145,27 +182,13 @@ void IGraphicsCanvas::PathFill(const IPattern& pattern, const IFillOptions& opti
     PathClear();
 }
 
-void IGraphicsCanvas::SetCanvasSourcePattern(const IPattern& pattern, const IBlend* pBlend)
+void IGraphicsCanvas::SetCanvasSourcePattern(val& context, const IPattern& pattern, const IBlend* pBlend)
 {
-  auto InvertTransform = [](float *xform, const float *xformIn)
-  {
-    double d = 1.0 / (xformIn[0] * xformIn[3] - xformIn[1] * xformIn[2]);
-    
-    xform[0] = xformIn[3] * d;
-    xform[1] = -xformIn[2] * d;
-    xform[2] = -xformIn[1] * d;
-    xform[3] =  xformIn[0] * d;
-    xform[4] = (-xformIn[4] * xformIn[3] * d) - (xformIn[5] * (-xformIn[2] * d));
-    xform[5] = (-xformIn[4] * (xformIn[1] * d)) - (xformIn[5] * (xformIn[0] * d));
-  };
-  
-  val context = GetContext();
-  
-  SetCanvasBlendMode(pBlend);
+  SetCanvasBlendMode(context, pBlend);
   
   switch (pattern.mType)
   {
-    case kSolidPattern:
+    case EPatternType::Solid:
     {
       const IColor color = pattern.GetStop(0).mColor;
       std::string colorString = CanvasColor(color, BlendWeight(pBlend));
@@ -175,23 +198,16 @@ void IGraphicsCanvas::SetCanvasSourcePattern(const IPattern& pattern, const IBle
     }
     break;
       
-    case kLinearPattern:
-    case kRadialPattern:
+    case EPatternType::Linear:
+    case EPatternType::Radial:
     {
-      float xform[6];
-      InvertTransform(xform, pattern.mTransform);
-      val gradient = (pattern.mType == kLinearPattern) ?
-        context.call<val>("createLinearGradient", xform[4], xform[5], xform[0] + xform[4], xform[1] + xform[5]) :
-        context.call<val>("createRadialGradient", xform[4], xform[5], 0.0, xform[4], xform[5], xform[0]);
-      
-      /*
-      switch (pattern.mExtend)
-      {
-        case kExtendNone:      cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_NONE);      break;
-        case kExtendPad:       cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_PAD);       break;
-        case kExtendReflect:   cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_REFLECT);   break;
-        case kExtendRepeat:    cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_REPEAT);    break;
-      }*/
+      double x, y;
+      IMatrix m = IMatrix(pattern.mTransform).Invert();
+      m.TransformPoint(x, y, 0.0, 1.0);
+        
+      val gradient = (pattern.mType == EPatternType::Linear) ?
+        context.call<val>("createLinearGradient", m.mTX, m.mTY, x, y) :
+        context.call<val>("createRadialGradient", m.mTX, m.mTY, 0.0, m.mTX, m.mTY, m.mXX);
       
       for (int i = 0; i < pattern.NStops(); i++)
       {
@@ -206,83 +222,92 @@ void IGraphicsCanvas::SetCanvasSourcePattern(const IPattern& pattern, const IBle
   }
 }
 
-void IGraphicsCanvas::SetCanvasBlendMode(const IBlend* pBlend)
+void IGraphicsCanvas::SetCanvasBlendMode(val& context, const IBlend* pBlend)
 {
   if (!pBlend)
-    GetContext().set("globalCompositeOperation", "source-over");
+    context.set("globalCompositeOperation", "source-over");
   
   switch (pBlend->mMethod)
   {
-    case kBlendClobber:     GetContext().set("globalCompositeOperation", "source-over");   break;
-    case kBlendAdd:         GetContext().set("globalCompositeOperation", "lighter");       break;
-    case kBlendColorDodge:  GetContext().set("globalCompositeOperation", "source-over");   break;
-    case kBlendNone:
-    default:
-      GetContext().set("globalCompositeOperation", "source-over");
+    case EBlend::Default:       // fall through
+    case EBlend::Clobber:       // fall through
+    case EBlend::SourceOver:    context.set("globalCompositeOperation", "source-over");        break;
+    case EBlend::SourceIn:      context.set("globalCompositeOperation", "source-in");          break;
+    case EBlend::SourceOut:     context.set("globalCompositeOperation", "source-out");         break;
+    case EBlend::SourceAtop:    context.set("globalCompositeOperation", "source-atop");        break;
+    case EBlend::DestOver:      context.set("globalCompositeOperation", "destination-over");   break;
+    case EBlend::DestIn:        context.set("globalCompositeOperation", "destination-in");     break;
+    case EBlend::DestOut:       context.set("globalCompositeOperation", "destination-out");    break;
+    case EBlend::DestAtop:      context.set("globalCompositeOperation", "destination-atop");   break;
+    case EBlend::Add:           context.set("globalCompositeOperation", "lighter");            break;
+    case EBlend::XOR:           context.set("globalCompositeOperation", "xor");                break;
   }
 }
 
-bool IGraphicsCanvas::DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure)
+void IGraphicsCanvas::PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y) const
 {
-  // TODO: orientation
+  StaticStorage<CanvasFont>::Accessor storage(sFontCache);
+  CanvasFont* pFont = storage.Find(text.mFont);
+    
+  assert(pFont && "No font found - did you forget to load it?");
+  
+  FontDescriptor descriptor = &pFont->mDescriptor;
   val context = GetContext();
-  std::string textString(str);
+  std::string fontString = GetFontString(descriptor->first.Get(), descriptor->second.Get(), text.mSize * pFont->mEMRatio);
   
-  char fontString[FONT_LEN + 64];
-  const char* styles[] = { "normal", "bold", "italic" };
-  context.set("textBaseline", std::string("top"));
-  val font = context["font"];
-  sprintf(fontString, "%s %dpx %s", styles[text.mStyle], text.mSize, text.mFont);
-  context.set("font", std::string(fontString));
-  double textWidth = context.call<val>("measureText", textString)["width"].as<double>();
-  double textHeight = EM_ASM_DOUBLE({
-    return parseFloat(document.getElementById("canvas").getContext("2d").font);
-  });
+  context.set("font", fontString);
   
-  if (measure)
+  const double textWidth = context.call<val>("measureText", std::string(str))["width"].as<double>();
+  const double textHeight = text.mSize;
+  const double ascender = pFont->mAscenderRatio * textHeight;
+  const double descender = -(1.0 - pFont->mAscenderRatio) * textHeight;
+  
+  switch (text.mAlign)
   {
-    bounds = IRECT(0, 0, (float) textWidth, (float) textHeight);
-    return true;
+    case EAlign::Near:     x = r.L;                          break;
+    case EAlign::Center:   x = r.MW() - (textWidth / 2.0);   break;
+    case EAlign::Far:      x = r.R - textWidth;              break;
   }
-  else
+  
+  switch (text.mVAlign)
   {
-    double x = bounds.L;
-    double y = bounds.T;
-    
-    switch (text.mAlign)
-    {
-      case IText::kAlignNear:     break;
-      case IText::kAlignCenter:   x = bounds.MW() - (textWidth / 2.0);    break;
-      case IText::kAlignFar:      x = bounds.R - textWidth;               break;
-    }
-    
-    switch (text.mVAlign)
-    {
-      case IText::EVAlign::kVAlignTop: y = bounds.T; break;
-      case IText::EVAlign::kVAlignMiddle: y = bounds.MH() - (textHeight/2.); break;
-      case IText::EVAlign::kVAlignBottom: y = bounds.B - textHeight; break;
-      default: break;
-    }
+    case EVAlign::Top:      y = r.T + ascender;                            break;
+    case EVAlign::Middle:   y = r.MH() + descender + (textHeight / 2.0);   break;
+    case EVAlign::Bottom:   y = r.B + descender;                           break;
+  }
+  
+  r = IRECT((float) x, (float) (y - ascender), (float) (x + textWidth), (float) (y + textHeight - ascender));
+}
 
-    context.call<void>("save");
-    PathRect(bounds);
-    context.call<void>("clip");
-    PathClear();
-    SetCanvasSourcePattern(text.mFGColor, pBlend);
-    context.call<void>("fillText", textString, x, y);
-    context.call<void>("restore");
-  }
+void IGraphicsCanvas::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
+{
+  IRECT r = bounds;
+  double x, y;
+  PrepareAndMeasureText(text, str, bounds, x, y);
+  DoMeasureTextRotation(text, r, bounds);
+}
+
+void IGraphicsCanvas::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
+{
+  IRECT measured = bounds;
+  val context = GetContext();
+  double x, y;
   
-  return true;
+  PrepareAndMeasureText(text, str, measured, x, y);
+  PathTransformSave();
+  DoTextRotation(text, bounds, measured);
+  context.set("textBaseline", std::string("alphabetic"));
+  SetCanvasSourcePattern(context, text.mFGColor, pBlend);
+  context.call<void>("fillText", std::string(str), x, y);
+  PathTransformRestore();
 }
 
 void IGraphicsCanvas::PathTransformSetMatrix(const IMatrix& m)
 {
-  IMatrix t;
-  t.Scale(GetScale() * GetDisplayScale(), GetScale() * GetDisplayScale());
-  t.Transform(m);
+  const double scale = GetBackingPixelScale();
+  IMatrix t = IMatrix().Scale(scale, scale).Translate(XTranslate(), YTranslate()).Transform(m);
 
-  GetContext().call<void>("setTransform", t.mTransform[0], t.mTransform[1], t.mTransform[2], t.mTransform[3], t.mTransform[4], t.mTransform[5]);
+  GetContext().call<void>("setTransform", t.mXX, t.mYX, t.mXY, t.mYY, t.mTX, t.mTY);
 }
 
 void IGraphicsCanvas::SetClipRegion(const IRECT& r)
@@ -299,37 +324,193 @@ void IGraphicsCanvas::SetClipRegion(const IRECT& r)
   }
 }
 
-APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const WDL_String& resourcePath, int scale)
+bool IGraphicsCanvas::BitmapExtSupported(const char* ext)
 {
-  return new WebBitmap(GetPreloadedImages()[resourcePath.Get()], resourcePath.Get() + 1, scale);
+  char extLower[32];
+  ToLower(extLower, ext);
+  return (strstr(extLower, "png") != nullptr) || (strstr(extLower, "jpg") != nullptr) || (strstr(extLower, "jpeg") != nullptr);
 }
 
-APIBitmap* IGraphicsCanvas::ScaleAPIBitmap(const APIBitmap* pBitmap, int scale)
+APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext)
 {
-//  int destW = (pBitmap->GetWidth() / pBitmap->GetScale()) * scale;
-//  int destH = (pBitmap->GetHeight() / pBitmap->GetScale()) * scale;
-//
-//  RetainVal* imgSrc = (RetainVal*)pBitmap->GetBitmap();
-//
-//  // Make an offscreen canvas and resize
-//  val documentHead = val::global("document")["head"];
-//  val canvas = GetCanvas();
-//  documentHead.call<val>("appendChild", canvas);
-//  val canvasNode = documentHead["lastChild"];
-//  val context = canvas.call<emscripten::val>("getContext", std::string("2d"));
-//  context.set("width", destW);
-//  context.set("height", destH);
-//
-//  // Scale and draw
-//  context.call<void>("scale", scale / pBitmap->GetScale(), scale / pBitmap->GetScale());
-//  context.call<void>("drawImage", imgSrc->mItem, 0, 0);
-//
-//  // Copy to an image
-//  val img = val::global("Image").new_();
-//  img.set("src", canvas.call<val>("toDataURL"));
-//
-//  // Delete the canvas
-//  documentHead.call<val>("removeChild", canvasNode);
+  return new CanvasBitmap(GetPreloadedImages()[fileNameOrResID], fileNameOrResID + 1, scale);
+}
 
-  return new WebBitmap(GetPreloadedImages()[""], "", scale);
+APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height, int scale, double drawScale)
+{
+  return new CanvasBitmap(width, height, scale, drawScale);
+}
+
+void IGraphicsCanvas::GetFontMetrics(const char* font, const char* style, double& ascenderRatio, double& EMRatio)
+{
+  // Provides approximate font metrics for a system font (until text metrics are properly supported)
+  int size = 1000;
+  std::string fontString = GetFontString(font, style, size);
+  
+  val document = val::global("document");
+  val textSpan = document.call<val>("createElement", std::string("span"));
+  textSpan.set("innerHTML", std::string("M"));
+  textSpan["style"].set("font", fontString);
+  
+  val block = document.call<val>("createElement", std::string("div"));
+  block["style"].set("display", std::string("inline-block"));
+  block["style"].set("width", std::string("1px"));
+  block["style"].set("height", std::string("0px"));
+  
+  val div = document.call<val>("createElement", std::string("div"));
+  div.call<void>("appendChild", textSpan);
+  div.call<void>("appendChild", block);
+  document["body"].call<void>("appendChild", div);
+  
+  block["style"].set("vertical-align", std::string("baseline"));
+  double ascent = block["offsetTop"].as<double>() - textSpan["offsetTop"].as<double>();
+  double height = textSpan.call<val>("getBoundingClientRect")["height"].as<double>();
+  document["body"].call<void>("removeChild", div);
+  
+  EMRatio = size / height;
+  ascenderRatio = ascent / height;
+}
+
+bool IGraphicsCanvas::CompareFontMetrics(const char* style, const char* font1, const char* font2, int size)
+{
+  WDL_String fontCombination;
+  fontCombination.SetFormatted(FONT_LEN * 2, "%s %s", font1, font2);
+  val context = GetContext();
+  std::string textString("@BmwdWMoqPYyzZr1234567890.+-=_~'");
+  
+  context.set("font", GetFontString(font2, style, size));
+  val metrics1 = context.call<val>("measureText", textString);
+
+  context.set("font", GetFontString(fontCombination.Get(), style, size));
+  val metrics2 = context.call<val>("measureText", textString);
+  
+  return metrics1["width"].as<double>() == metrics2["width"].as<double>();
+}
+
+bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
+{
+  StaticStorage<CanvasFont>::Accessor storage(sFontCache);
+
+  if (storage.Find(fontID))
+    return true;
+
+  if (!font->IsSystem())
+  {
+    IFontDataPtr data = font->GetFontData();
+    
+    if (data->IsValid())
+    {
+      // Embed the font data in base64 format as CSS in the head of the html
+      WDL_TypedBuf<char> base64Encoded;
+      
+      if (!base64Encoded.ResizeOK(((data->GetSize() * 4) + 3) / 3 + 1))
+        return false;
+      
+      wdl_base64encode(data->Get(), base64Encoded.Get(), data->GetSize());
+      std::string htmlText("@font-face { font-family: '");
+      htmlText.append(fontID);
+      htmlText.append("'; src: url(data:font/ttf;base64,");
+      htmlText.append(base64Encoded.Get());
+      htmlText.append(") format('truetype'); }");
+      val document = val::global("document");
+      val documentHead = document["head"];
+      val css = document.call<val>("createElement", std::string("style"));
+      css.set("type", std::string("text/css"));
+      css.set("innerHTML", htmlText);
+      document["head"].call<void>("appendChild", css);
+      
+      FontDescriptor descriptor = font->GetDescriptor();
+      const double ascenderRatio = data->GetAscender() / static_cast<double>(data->GetAscender() - data->GetDescender());
+      const double EMRatio = data->GetHeightEMRatio();
+      storage.Add(new CanvasFont({descriptor->first, descriptor->second}, ascenderRatio, EMRatio), fontID);
+      
+      // Load and draw the font to the canvas
+      GetContext().set("font", GetFontString(descriptor->first.Get(), descriptor->second.Get(), 12));
+      GetContext().call<void>("fillText", std::string("Load"), 0, 0);
+      
+      return true;
+    }
+  }
+  else
+  {
+    FontDescriptor descriptor = font->GetDescriptor();
+    const char* fontName = descriptor->first.Get();
+    const char* styleName = descriptor->second.Get();
+    
+    if (!CompareFontMetrics(styleName, fontName, "monospace", 72) ||
+        !CompareFontMetrics(styleName, fontName, "sans-serif", 72) ||
+        !CompareFontMetrics(styleName, fontName, "serif", 72))
+    {
+      double ascenderRatio, EMRatio;
+      
+      GetFontMetrics(descriptor->first.Get(), descriptor->second.Get(), ascenderRatio, EMRatio);
+      storage.Add(new CanvasFont({descriptor->first, descriptor->second}, ascenderRatio, EMRatio), fontID);
+      return true;
+    }
+  }
+  
+  return false;
+}
+
+void IGraphicsCanvas::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
+{
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
+  int size = pBitmap->GetWidth() * pBitmap->GetHeight() * 4;
+  val context = pBitmap->GetBitmap()->call<val>("getContext", std::string("2d"));
+  val imageData = context.call<val>("getImageData", 0, 0, pBitmap->GetWidth(), pBitmap->GetHeight());
+  val pixelData = imageData["data"];
+  data.Resize(size);
+  
+  // Copy pixels from context
+  if (data.GetSize() >= size)
+  {
+    unsigned char* out = data.Get();
+    
+    for (auto i = 0; i < size; i++)
+      out[i] = pixelData[i].as<unsigned char>();
+  }
+}
+
+void IGraphicsCanvas::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow)
+{
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
+  int size = pBitmap->GetWidth() * pBitmap->GetHeight() * 4;
+  
+  if (mask.GetSize() >= size)
+  {
+    int width = pBitmap->GetWidth();
+    int height = pBitmap->GetHeight();
+    double scale = pBitmap->GetScale() * pBitmap->GetDrawScale();
+    double x = shadow.mXOffset * scale;
+    double y = shadow.mYOffset * scale;
+    val layerCanvas = *pBitmap->GetBitmap();
+    val layerContext = layerCanvas.call<val>("getContext", std::string("2d"));
+    layerContext.call<void>("setTransform");
+    
+    if (!shadow.mDrawForeground)
+    {
+      layerContext.call<void>("clearRect", 0, 0, width, height);
+    }
+    
+    CanvasBitmap localBitmap(width, height, pBitmap->GetScale(), pBitmap->GetDrawScale());
+    val localCanvas = *localBitmap.GetBitmap();
+    val localContext = localCanvas.call<val>("getContext", std::string("2d"));
+    val imageData = localContext.call<val>("createImageData", width, height);
+    val pixelData = imageData["data"];
+    unsigned char* in = mask.Get();
+    
+    for (auto i = 0; i < size; i++)
+      pixelData.set(i, in[i]);
+    
+    localContext.call<void>("putImageData", imageData, 0, 0);
+    IBlend blend(EBlend::SourceIn, shadow.mOpacity);
+    localContext.call<void>("rect", 0, 0, width, height);
+    localContext.call<void>("scale", scale, scale);
+    localContext.call<void>("translate", -(layer->Bounds().L + shadow.mXOffset), -(layer->Bounds().T + shadow.mYOffset));
+    SetCanvasSourcePattern(localContext, shadow.mPattern, &blend);
+    localContext.call<void>("fill");
+    
+    layerContext.set("globalCompositeOperation", "destination-over");
+    layerContext.call<void>("drawImage", localCanvas, 0, 0, width, height, x, y, width, height);
+  }
 }

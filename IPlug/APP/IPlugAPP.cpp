@@ -12,7 +12,7 @@
 #include "IPlugAPP_host.h"
 
 #if defined OS_MAC || defined OS_LINUX
-#include "swell.h"
+#include <IPlugSWELL.h>
 #endif
 
 extern HWND gHWND;
@@ -25,26 +25,31 @@ IPlugAPP::IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   
   Trace(TRACELOC, "%s%s", c.pluginName, c.channelIOStr);
 
-  _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
-  _SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
+  SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
+  SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
 
-  _SetBlockSize(DEFAULT_BLOCK_SIZE);
-  SetHost("standalone", c.vendorVersion);
-    
+  SetBlockSize(DEFAULT_BLOCK_SIZE);
+  
   CreateTimer();
 }
 
-void IPlugAPP::ResizeGraphics(int viewWidth, int viewHeight, float scale)
+bool IPlugAPP::EditorResizeFromDelegate(int viewWidth, int viewHeight)
 {
-  #ifdef OS_MAC
-  #define TITLEBAR_BODGE 22 //TODO: sort this out
-  RECT r;
-  GetWindowRect(gHWND, &r);
-  SetWindowPos(gHWND, 0, r.left, r.bottom - viewHeight - TITLEBAR_BODGE, viewWidth, viewHeight + TITLEBAR_BODGE, 0);
-  #endif
+  bool parentResized = false;
+    
+  if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
+  {
+    #ifdef OS_MAC
+    #define TITLEBAR_BODGE 22 //TODO: sort this out
+    RECT r;
+    GetWindowRect(gHWND, &r);
+    SetWindowPos(gHWND, 0, r.left, r.bottom - viewHeight - TITLEBAR_BODGE, viewWidth, viewHeight + TITLEBAR_BODGE, 0);
+    parentResized = true;
+    #endif
+    IPlugAPIBase::EditorResizeFromDelegate(viewWidth, viewHeight);
+  }
   
-  IPlugAPIBase::ResizeGraphics(viewWidth, viewHeight, scale);
-  OnWindowResize();
+  return parentResized;
 }
 
 bool IPlugAPP::SendMidiMsg(const IMidiMsg& msg)
@@ -71,12 +76,11 @@ bool IPlugAPP::SendMidiMsg(const IMidiMsg& msg)
   return false;
 }
 
-bool IPlugAPP::SendSysEx(ISysEx& msg)
+bool IPlugAPP::SendSysEx(const ISysEx& msg)
 {
   if (DoesMIDIOut() && mAppHost->mMidiOut)
   {
     //TODO: midi out channel
-
     std::vector<uint8_t> message;
     
     for (int i = 0; i < msg.mSize; i++)
@@ -91,25 +95,52 @@ bool IPlugAPP::SendSysEx(ISysEx& msg)
   return false;
 }
 
+void IPlugAPP::SendSysexMsgFromUI(const ISysEx& msg)
+{
+  SendSysEx(msg);
+}
+
 void IPlugAPP::AppProcess(double** inputs, double** outputs, int nFrames)
 {
-  _SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false); //TODO: go elsewhere - enable inputs
-  _SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true); //TODO: go elsewhere
-  _AttachBuffers(ERoute::kInput, 0, NChannelsConnected(ERoute::kInput), inputs, GetBlockSize());
-  _AttachBuffers(ERoute::kOutput, 0, NChannelsConnected(ERoute::kOutput), outputs, GetBlockSize());
+  SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), !IsInstrument()); //TODO: go elsewhere - enable inputs
+  SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true); //TODO: go elsewhere
+  AttachBuffers(ERoute::kInput, 0, NChannelsConnected(ERoute::kInput), inputs, GetBlockSize());
+  AttachBuffers(ERoute::kOutput, 0, NChannelsConnected(ERoute::kOutput), outputs, GetBlockSize());
   
-  IMidiMsg msg;
-  
-  while (mMidiMsgsFromCallback.Pop(msg))
+  if(mMidiMsgsFromCallback.ElementsAvailable())
   {
-    ProcessMidiMsg(msg);
-    mMidiMsgsFromProcessor.Push(msg); // queue incoming MIDI for UI
+    IMidiMsg msg;
+    
+    while (mMidiMsgsFromCallback.Pop(msg))
+    {
+      ProcessMidiMsg(msg);
+      mMidiMsgsFromProcessor.Push(msg); // queue incoming MIDI for UI
+    }
   }
   
-  while (mMidiMsgsFromEditor.Pop(msg))
+  if(mSysExMsgsFromCallback.ElementsAvailable())
   {
-    ProcessMidiMsg(msg);
+    SysExData data;
+    
+    while (mSysExMsgsFromCallback.Pop(data))
+    {
+      ISysEx msg { data.mOffset, data.mData, data.mSize };
+      ProcessSysEx(msg);
+      mSysExDataFromProcessor.Push(data); // queue incoming Sysex for UI
+    }
   }
   
-  _ProcessBuffers(0.0, GetBlockSize());
+  if(mMidiMsgsFromEditor.ElementsAvailable())
+  {
+    IMidiMsg msg;
+
+    while (mMidiMsgsFromEditor.Pop(msg))
+    {
+      ProcessMidiMsg(msg);
+    }
+  }
+
+  //Do not handle Sysex messages here - SendSysexMsgFromUI overridden
+
+  ProcessBuffers(0.0, GetBlockSize());
 }

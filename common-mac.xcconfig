@@ -1,5 +1,6 @@
 // this is used for macOS Developer ID / Appstore code-signing
 CERTIFICATE_ID = Oliver Larkin
+DEVELOPMENT_TEAM = 686EDA2T8T // log in to developer.apple.com and see the end of the URL e.g. https://developer.apple.com/account/#/overview/686EDA2T8T
 
 // Which compiler to use
 //COMPILER = com.intel.compilers.icc.12_1_0
@@ -8,8 +9,10 @@ COMPILER = com.apple.compilers.llvm.clang.1_0
 // which osx sdk to compile against - defaults to latest SDK available
 BASE_SDK_MAC = macosx // latest SDK
 
-CLANG_CXX_LANGUAGE_STANDARD = c++11
+CLANG_CXX_LANGUAGE_STANDARD = c++14
 CLANG_CXX_LIBRARY = libc++
+
+CLANG_WARN_DOCUMENTATION_COMMENTS = NO
 
 // the minimum OS to support
 MACOSX_DEPLOYMENT_TARGET = 10.11
@@ -35,7 +38,7 @@ VST3P_DEFS = VST3P_API $PLUGIN_DEFS IPLUG_EDITOR=0 IPLUG_DSP=1 //NO_IGRAPHICS
 AU_DEFS = AU_API $PLUGIN_DEFS IPLUG_EDITOR=1 IPLUG_DSP=1
 AUv3_DEFS = AUv3_API $PLUGIN_DEFS IPLUG_EDITOR=1 IPLUG_DSP=1
 AAX_DEFS = AAX_API $PLUGIN_DEFS IPLUG_EDITOR=1 IPLUG_DSP=1
-APP_DEFS = APP_API __MACOSX_CORE__ IPLUG_EDITOR=1 IPLUG_DSP=1 // __UNIX_JACK__
+APP_DEFS = APP_API __MACOSX_CORE__ IPLUG_EDITOR=1 IPLUG_DSP=1 SWELL_COMPILED// __UNIX_JACK__
 
 // ***** HEADER INCLUDE PATHS
 // Where the SDKs etc. are located in relation to the plug-in Xcode project (which is in the projects subfolder of an IPlug project)
@@ -54,27 +57,29 @@ BUILT_LIBS_INC_PATH = $(BUILT_LIBS_PATH)/include
 BUILT_LIBS_LIB_PATH = $(BUILT_LIBS_PATH)/lib
 
 // IPlug dependencies
+SCRIPTS_PATH = $(ROOT)/Scripts
 WDL_PATH = $(ROOT)/WDL
 SWELL_PATH = $(WDL_PATH)/swell
+SWELL_FOR_IPLUG_PATH = $(DEPS_PATH)/IPlug/SWELL
 IPLUG_PATH = $(ROOT)/IPlug
 RTAUDIO_PATH = $(DEPS_PATH)/IPlug/RTAudio
 RTMIDI_PATH = $(DEPS_PATH)/IPlug/RTMidi
 
 EXTRAS_PATH = $(IPLUG_PATH)/Extras
-JSON11_PATH = $(DEPS_PATH)/Extras/json11
 YOGA_PATH = $(DEPS_PATH)/IGraphics/yoga/yoga
 PUGL_PATH = $(DEPS_PATH)/Extras/pugl
+IMGUI_PATH = $(DEPS_PATH)/IGraphics/imgui
 
 //faust is linked as a dynamic library
 FAUST_LIB_PATHS = $(BUILT_LIBS_LIB_PATH)
 FAUST_INC_PATHS = $(BUILT_LIBS_INC_PATH) $(WDL_PATH)/win32_curses
-FAUST_DEFS = FORCE_WIN32_CURSES FAUST_EXE=\"$(BUILT_LIBS_PATH)/bin/faust\" DEFAULT_FAUST_LIBRARY_PATH=\"$(BUILT_LIBS_PATH)/share/faust\"
+FAUST_DEFS = SWELL_COMPILED FORCE_WIN32_CURSES FAUST_EXE=\"$(BUILT_LIBS_PATH)/bin/faust\" DEFAULT_FAUST_LIBRARY_PATH=\"$(BUILT_LIBS_PATH)/share/faust\"
 FAUST_LNK_FLAGS = $(BUILT_LIBS_LIB_PATH)/libfaust.dylib
 
 CIVETWEB_INC_PATHS = $(BUILT_LIBS_INC_PATH)
 CIVETWEB_LNK_FLAGS = $(BUILT_LIBS_LIB_PATH)/libcivetweb.a
 
-EXTRAS_INC_PATHS = $(EXTRAS_PATH) $(EXTRAS_PATH)Synth $(EXTRAS_PATH)/Faust $(EXTRAS_PATH)/OSC $(EXTRAS_PATH)/HIIR $(EXTRAS_PATH)/WebSocket $(CIVETWEB_PATH) $(JSON11_PATH) $(RTAUDIO_PATH) $(RTMIDI_PATH)
+EXTRAS_INC_PATHS = $(EXTRAS_PATH) $(EXTRAS_PATH)/Synth $(EXTRAS_PATH)/Faust $(EXTRAS_PATH)/OSC $(EXTRAS_PATH)/HIIR $(EXTRAS_PATH)/WebSocket $(CIVETWEB_PATH) $(JSON11_PATH) $(RTAUDIO_PATH) $(RTMIDI_PATH)
 
 // Plug-in SDK paths
 VST2_SDK = $(DEPS_PATH)/IPlug/VST2_SDK
@@ -83,7 +88,9 @@ AAX_SDK = $(DEPS_PATH)/IPlug/AAX_SDK
 REAPER_SDK = $(DEPS_PATH)/IPlug/Reaper
 
 // this build setting is included at the xcode project level, since we need all these include paths
-IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(SWELL_PATH) $(IPLUG_PATH) $(EXTRAS_INC_PATHS)
+IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(SWELL_PATH) $(SWELL_FOR_IPLUG_PATH) $(IPLUG_PATH) $(EXTRAS_INC_PATHS)
+
+IMGUI_INC_PATHS = $(IMGUI_PATH) $(IMGUI_PATH)/examples
 
 IGRAPHICS_PATH = $(ROOT)/IGraphics
 
@@ -93,11 +100,13 @@ LICE_PATH = $(WDL_PATH)/lice
 NSVG_PATH = $(IGRAPHICS_DEPS_PATH)/NanoSVG/src
 NVG_PATH = $(IGRAPHICS_DEPS_PATH)/NanoVG/src
 NVGMTL_PATH = $(IGRAPHICS_DEPS_PATH)/MetalNanoVG/src
-AGG_PATH = $(IGRAPHICS_DEPS_PATH)/AGG
+AGG_PATH = $(IGRAPHICS_DEPS_PATH)/AGG/agg-2.4
+AGG_INC_PATHS = $(AGG_PATH)/include $(AGG_PATH)/font_freetype $(AGG_PATH)/include/util $(AGG_PATH)/include/platform/mac $(AGG_PATH)/src $(AGG_PATH)/src/platform/mac
+STB_PATH = $(DEPS_PATH)/IGraphics/STB
 FT_PATH = $(BUILT_LIBS_INC_PATH)/freetype2
-//HB_PATH = /usr/local/Cellar/harfbuzz/1.8.7/include/harfbuzz
+
 // you can optionally include this build setting, by adding it to EXTRA_INC_PATHS in MyProject.xcconfig in order to get all varieties of IGraphics support
-IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(IGRAPHICS_PATH)/Controls $(IGRAPHICS_PATH)/Platforms $(IGRAPHICS_PATH)/Drawing $(LICE_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(AGG_PATH) $(BUILT_LIBS_INC_PATH) $(FT_PATH) //$(HB_PATH)
+IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(IGRAPHICS_PATH)/Controls $(IGRAPHICS_PATH)/Platforms $(IGRAPHICS_PATH)/Drawing $(IGRAPHICS_PATH)/Extras $(LICE_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(AGG_INC_PATHS) $(BUILT_LIBS_INC_PATH) $(FT_PATH) $(STB_PATH) $(IMGUI_INC_PATHS)//$(HB_PATH)
 
 // *****  LINKER/LIBRARY INCLUDE PATHS AND LINKER FLAGS
 
@@ -106,21 +115,15 @@ LIB_CAIRO = $(BUILT_LIBS_LIB_PATH)/libcairo.a
 LIB_FT = $(BUILT_LIBS_LIB_PATH)/libfreetype.a
 LIB_PIXMAN = $(BUILT_LIBS_LIB_PATH)/libpixman-1.a
 LIB_PNG = $(BUILT_LIBS_LIB_PATH)/libpng.a
-//LIB_FC = $(BUILT_LIBS_LIB_PATH)/libfontconfig.a
-//LIB_BZ = $(BUILT_LIBS_LIB_PATH)/libbz2.a
-//LIB_EX = $(BUILT_LIBS_LIB_PATH)/libexpat.a
 LIB_Z = $(BUILT_LIBS_LIB_PATH)/libz.a
 LIB_CIVET = $(BUILT_LIBS_LIB_PATH)/libcivetweb.a
-//LIB_HB = /usr/local/Cellar/harfbuzz/1.8.7/lib/libharfbuzz.a
-//LIB_HB_ICU = /usr/local/Cellar/harfbuzz/1.8.7/lib/libharfbuzz-icu.a
-//LIB_GF = /usr/local/Cellar/graphite2/1.3.10/lib/libgraphite2.dylib
 
 // you can optionally include this build setting, by adding it to EXTRA_LIB_PATHS, in order to get all varieties of IGraphics support
-IGRAPHICS_LNK_FLAGS = $(LIB_CAIRO) $(LIB_FT) $(LIB_PIXMAN) $(LIB_PNG) $(LIB_Z) //$(LIB_HB) $(LIB_HB_ICU) $(LIB_GF)
+IGRAPHICS_LNK_FLAGS = $(LIB_CAIRO) $(LIB_FT) $(LIB_PIXMAN) $(LIB_PNG) $(LIB_Z)
 
-ALL_FRAMEWORKS = -framework Cocoa -framework Carbon -framework CoreFoundation -framework CoreData -framework Foundation -framework CoreServices -framework Metal -framework QuartzCore -framework WebKit -framework OpenGL
-APP_FRAMEWORKS = -framework AppKit -framework CoreMidi -framework CoreAudio
-AU_FRAMEWORKS = -framework AudioToolbox -framework AudioUnit -framework CoreAudio -framework CoreMidi
+ALL_FRAMEWORKS = -framework Cocoa -framework Carbon -framework CoreFoundation -framework CoreData -framework Foundation -framework CoreServices -framework Metal -framework MetalKit -framework QuartzCore -framework WebKit -framework OpenGL
+APP_FRAMEWORKS = -framework AppKit -framework CoreMIDI -framework CoreAudio
+AU_FRAMEWORKS = -framework AudioToolbox -framework AudioUnit -framework CoreAudio -framework CoreMIDI
 AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework CoreAudio -framework CoreAudioKit
 
 

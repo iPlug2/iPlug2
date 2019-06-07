@@ -10,6 +10,7 @@
 
 #include "CivetServer.h"
 #include <cstring>
+#include <memory>
 
 #include "ptrlist.h"
 #include "IPlugLogger.h"
@@ -55,8 +56,8 @@ private:
   
   void handleClose(CivetServer* pServer, const struct mg_connection* pConn) override;
   
-  WDL_PtrList<const struct mg_connection> mConnections;
-  static CivetServer* sServer;
+  WDL_PtrList<mg_connection> mConnections;
+  static std::unique_ptr<CivetServer> sServer;
   static int sInstances;
 
 protected:

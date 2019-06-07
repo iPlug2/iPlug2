@@ -10,39 +10,45 @@
 
 #pragma once
 
+/**
+ * @file
+ * @copydoc TestSizeControl
+ */
+
 #include "IControl.h"
 
+/** Control to display the size of a region
+ *   @ingroup TestControls */
 class TestSizeControl : public IControl
 {
 public:
-  TestSizeControl(IGEditorDelegate& dlg, IRECT bounds)
-  : IControl(dlg, bounds)
+  TestSizeControl(const IRECT& bounds)
+  : IControl(bounds)
   {
     mIgnoreMouse = true;
-    mText = IText(15, COLOR_BLACK, nullptr, IText::kStyleNormal, IText::kAlignNear);
+    mText = IText(15, COLOR_BLACK, nullptr, EAlign::Near);
   }
 
   void Draw(IGraphics& g) override
   {
-    g.DrawHorizontalLine(COLOR_BLACK, mRECT, 0.05);
-    g.DrawVerticalLine(COLOR_BLACK, mRECT, 0.05);
-    g.DrawText(mText, mWidthStr.Get(), mRECT.L + 5, mRECT.T + 5);
+    g.DrawLine(COLOR_BLACK, 10, 0, 10, mRECT.B);
+    g.DrawLine(COLOR_BLACK, 0, mRECT.B-10, mRECT.R, mRECT.B-10);
+    g.DrawText(mText, mWidthStr.Get(), mRECT.L + 15, mRECT.T + 5);
     g.DrawText(mText, mHeightStr.Get(), mRECT.R - 40, mRECT.B - 20);
-    g.DrawText(mText, mScaleStr.Get(), mRECT.MW(), mRECT.B - 20);
+    g.DrawText(mText, mScaleStr.Get(), mRECT.L + 15, mRECT.B - 20);
   }
 
   void OnRescale() override
   {
-    
   }
-  
+
   void OnResize() override
   {
     mWidthStr.SetFormatted(32, "%i px", (int) mRECT.W());
     mHeightStr.SetFormatted(32, "%i px", (int) mRECT.H());
-    mScaleStr.SetFormatted(50, "Window width %i, height %i, scale %0.2f", GetUI()->WindowWidth(), GetUI()->WindowHeight(), GetUI()->GetScale());
+    mScaleStr.SetFormatted(64, "width %i, height %i, scale %0.2f", GetUI()->WindowWidth(), GetUI()->WindowHeight(),  GetUI()->GetDrawScale());
   }
-  
+
 private:
   WDL_String mWidthStr;
   WDL_String mHeightStr;

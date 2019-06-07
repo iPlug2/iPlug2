@@ -19,17 +19,15 @@
 
 using namespace emscripten;
 
-class WebBitmap : public APIBitmap
+/** An HTML5 canvas API bitmap
+ * @ingroup APIBitmaps */
+class CanvasBitmap : public APIBitmap
 {
 public:
-  WebBitmap(val imageCanvas, const char* name, int scale);
+  CanvasBitmap(val imageCanvas, const char* name, int scale);
+  CanvasBitmap(int width, int height, int scale, float drawScale);
+  ~CanvasBitmap();
 };
-
-static val GetContext()
-{
-  val canvas = val::global("document").call<val>("getElementById", std::string("canvas"));
-  return canvas.call<val>("getContext", std::string("2d"));
-}
 
 /** IGraphics draw class HTML5 canvas
 * @ingroup DrawClasses */
@@ -41,14 +39,13 @@ public:
   IGraphicsCanvas(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsCanvas();
 
-  void DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend) override;
-  void DrawRotatedBitmap(IBitmap& bitmap, float destCentreX, float destCentreY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
+  void DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend) override;
 
   void DrawResize() override {};
 
   void PathClear() override;
   void PathClose() override;
-  void PathArc(float cx, float cy, float r, float aMin, float aMax) override;
+  void PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding) override;
   void PathMoveTo(float x, float y) override;
   void PathLineTo(float x, float y) override;
   void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override;
@@ -59,17 +56,41 @@ public:
   IColor GetPoint(int x, int y) override { return COLOR_BLACK; } // TODO:
   void* GetDrawContext() override { return nullptr; }
 
-  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
-
+  bool BitmapExtSupported(const char* ext) override;
 protected:
-  APIBitmap* LoadAPIBitmap(const WDL_String& resourcePath, int scale) override;
-  APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
+  APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
+  APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) override;
 
+  bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override;
+
+  int AlphaChannel() const override { return 3; }
+  bool FlippedBitmap() const override { return false; }
+
+  void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
+  void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
+
+  void DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
+  void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
+    
 private:
-  
+  void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y) const;
+    
+  val GetContext() const
+  {
+    val canvas = mLayers.empty() ? val::global("document").call<val>("getElementById", std::string("canvas")) : *(mLayers.top()->GetAPIBitmap()->GetBitmap());
+      
+    return canvas.call<val>("getContext", std::string("2d"));
+  }
+    
+  void GetFontMetrics(const char* font, const char* style, double& ascenderRatio, double& EMRatio);
+  bool CompareFontMetrics(const char* style, const char* font1, const char* font2, int size);
+    
+  double XTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().L; }
+  double YTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().T; }
+
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
     
-  void SetCanvasSourcePattern(const IPattern& pattern, const IBlend* pBlend = nullptr);
-  void SetCanvasBlendMode(const IBlend* pBlend);
+  void SetCanvasSourcePattern(val& context, const IPattern& pattern, const IBlend* pBlend = nullptr);
+  void SetCanvasBlendMode(val& context, const IBlend* pBlend);
 };

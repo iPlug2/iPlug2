@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # Python shell script for Duplicating WDL-OL IPlug Projects
-# Oli Larkin 2012-2018 http://www.olilarkin.co.uk
+# Oli Larkin 2012-2019 http://www.olilarkin.co.uk
 # License: WTFPL http://sam.zoy.org/wtfpl/COPYING
 # Modified from this script by Bibha Tripathi http://code.activestate.com/recipes/435904-sedawk-python-script-to-rename-subdirectories-of-a/
 # Author accepts no responsibilty for wiping your hd
@@ -30,7 +30,7 @@ from os.path import join
 
 scriptpath = os.path.dirname(os.path.realpath(__file__))
 
-sys.path.insert(0, scriptpath + '/../scripts/')
+sys.path.insert(0, scriptpath + '/../Scripts/')
 
 from parse_config import parse_config, parse_xcconfig, set_uniqueid
 

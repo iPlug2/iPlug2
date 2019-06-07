@@ -12,6 +12,7 @@
 
 #include <cstring>
 #include <cstdint>
+#include <memory>
 
 #include "ptrlist.h"
 #include "mutex.h"
@@ -29,11 +30,12 @@
  * @file
  * @copydoc IPlugAPIBase
  * @defgroup APIClasses IPlug::APIClasses
+ * An IPlug API class is the base class for a particular audio plug-in API
 */
 
 struct IPlugConfig;
 
-/** The base class of an IPlug plug-in, which interacts with the different plug-in APIs. No UI framework code here.
+/** The base class of an IPlug plug-in, which interacts with the different plug-in APIs.
  *  This interface does not handle audio processing, see @IPlugProcessor  */
 class IPlugAPIBase : public IPluginBase
 {
@@ -49,16 +51,13 @@ public:
    * @param pIncomingState The incoming state data
    * @param startPos The position to start in the incoming data in bytes
    * @return \c true in order to indicate that the states are equal. */
-  virtual bool CompareState(const uint8_t* pIncomingState, int startPos);
-
-  /** Implement this to do something after the user interface is resized */
-  virtual void OnWindowResize() {}
+  virtual bool CompareState(const uint8_t* pIncomingState, int startPos) const;
 
   /* implement this and return true to trigger your custom about box, when someone clicks about in the menu of a standalone app or VST3 plugin */
-  virtual void OnHostRequestingAboutBox() {} // TODO: implement this for VST 3
+  virtual bool OnHostRequestingAboutBox() { return false; }
 
   /* implement this and return true to trigger your custom help info, when someone clicks help in the menu of a standalone app or VST3 plugin */
-  virtual void OnHostRequestingProductHelp() {} // TODO: implement this for VST 3
+  virtual bool OnHostRequestingProductHelp() { return false; }
   
   /** Implement this to do something specific when IPlug becomes aware of the particular host that is hosting the plug-in.
    * The method may get called multiple times. */
@@ -106,14 +105,17 @@ public:
   /** Helper method, used to print some info to the console in debug builds. Can be overridden in other IPlugAPIBases, for specific functionality, such as printing UI details. */
   virtual void PrintDebugInfo() const;
 
-  /** This method will loop through all parameters, telling the host that they changed. You can use it if you restore a preset using a custom preset mechanism.*/
-  void DirtyParameters(); // TODO: This is a hack to tell the host to dirty the project state, when a preset is recalled, is it necessary?
-
-  /** Call this method from a delegate, for example if you wish to store graphics dimensions in your plug-in state in order to notify the API of a graphics resize.
-   * If calling from a UI interaction use ResizeGraphicsFromUI()
-   * When this is overridden in subclasses the subclass should call this in order to update the member variables */
-  virtual void ResizeGraphics(int width, int height, float scale) { mEditorWidth = width; mEditorHeight = height; mEditorScale = scale; }
-
+  /** Call this method from a delegate in order to resize the plugin window.
+   * If calling from a UI interaction use EditorResizeFromUI()
+   * When this is overridden in subclasses the subclass should call this in order to update the member variables
+   * returns a bool to indicate whether the DAW or plugin class has resized the host window */
+  virtual bool EditorResizeFromDelegate(int width, int height);
+  
+   /** Call this method from a delegate if you want to store arbitrary data about the editor (e.g. layout/scale info).
+   * If calling from a UI interaction use EditorDataChangedFromUI()
+   * When this is overridden in subclasses the subclass should call this in order to update member variables */
+   virtual void EditorDataChangedFromDelegate(const IByteChunk& data) { mEditorData = data; }
+    
   /** Implemented by the API class, called by the UI (or by a delegate) at the beginning of a parameter change gesture
    * @param paramIdx The parameter that is being changed */
   virtual void BeginInformHostOfParamChange(int paramIdx) {};
@@ -128,10 +130,15 @@ public:
    * @param normalizedValue The new (normalised) value */
   void SetParameterValue(int paramIdx, double normalizedValue);
   
+  /** Get the color of the track that the plug-in is inserted on */
   virtual void GetTrackColor(int& r, int& g, int& b) {};
 
+  /** Get the name of the track that the plug-in is inserted on */
   virtual void GetTrackName(WDL_String& str) {};
   
+  /** /todo */
+  virtual void DirtyParametersFromUI() override;
+
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
 
   /** This is called from the plug-in API class in order to update UI controls linked to plug-in parameters, prior to calling OnParamChange()
@@ -139,30 +146,48 @@ public:
    * @param paramIdx The index of the parameter that changed
    * @param value The new value
    * @param normalized /true if value is normalised */
-  virtual void _SendParameterValueFromAPI(int paramIdx, double value, bool normalized);
+  virtual void SendParameterValueFromAPI(int paramIdx, double value, bool normalized);
 
-  /** Called to set the name of the current host, if known.
+  /** Called to set the name of the current host, if known (calls on to HostSpecificInit() and OnHostIdentified()).
   * @param host The name of the plug-in host
   * @param version The version of the plug-in host where version in hex = 0xVVVVRRMM */
   void SetHost(const char* host, int version);
 
-  /** This method is called by some API classes, in order to do specific initialisation for particular problematic hosts.
+  /** This method is implemented in some API classes, in order to do specific initialisation for particular problematic hosts.
    * This is not the same as OnHostIdentified(), which you may implement in your plug-in class to do your own specific initialisation after a host has been identified */
-  virtual void HostSpecificInit() {}; //TODO: sort this method out, it's called differently from different APIs
+  virtual void HostSpecificInit() {}
 
   //IEditorDelegate
-  void SendParameterValueFromUI(int paramIdx, double value) override { SetParameterValue(paramIdx, value); IPluginBase::SendParameterValueFromUI(paramIdx, value); }
   void BeginInformHostOfParamChangeFromUI(int paramIdx) override { BeginInformHostOfParamChange(paramIdx); }
+  
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }
-  void ResizeGraphicsFromUI(int viewWidth, int viewHeight, float scale) override { ResizeGraphics(viewWidth, viewHeight, scale); }
+  
+  bool EditorResizeFromUI(int viewWidth, int viewHeight) override { return EditorResizeFromDelegate(viewWidth, viewHeight); }
+    
+  void EditorDataChangedFromUI(const IByteChunk& data) override { EditorDataChangedFromDelegate(data); }
+  
+  void SendParameterValueFromUI(int paramIdx, double normalisedValue) override
+  {
+    SetParameterValue(paramIdx, normalisedValue);
+    IPluginBase::SendParameterValueFromUI(paramIdx, normalisedValue);
+  }
   
   //These are handled in IPlugAPIBase for non DISTRIBUTED APIs
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
+  
   void SendSysexMsgFromUI(const ISysEx& msg) override;
+  
   void SendArbitraryMsgFromUI(int messageTag, int controlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) override;
   
   void DeferMidiMsg(const IMidiMsg& msg) override { mMidiMsgsFromEditor.Push(msg); }
+  
+  void DeferSysexMsg(const ISysEx& msg) override
+  {
+    SysExData data(msg.mOffset, msg.mSize, msg.mData); // copies data
+    mSysExDataFromEditor.Push(data);
+  }
 
+  /** /todo */
   void CreateTimer();
   
 private:
@@ -171,15 +196,23 @@ private:
    * @param normalizedValue The new normalised value of the parameter being changed */
   virtual void InformHostOfParamChange(int paramIdx, double normalizedValue) {};
   
-  //DISTRIBUTED ONLY
-  virtual void _TransmitMidiMsgFromProcessor(const IMidiMsg& msg) {};
+  //DISTRIBUTED ONLY (Currently only VST3)
+  /** /todo */
+  virtual void TransmitMidiMsgFromProcessor(const IMidiMsg& msg) {};
   
+  /** /todo */
+  virtual void TransmitSysExDataFromProcessor(const SysExData& data) {};
+
   void OnTimer(Timer& t);
 
-public:
-  IPlugQueue<IParamChange> mParamChangeFromProcessor {PARAM_TRANSFER_SIZE};
-  IPlugQueue<IMidiMsg> mMidiMsgsFromEditor {MIDI_TRANSFER_SIZE}; // a queue of midi messages received from the editor, by clicking keyboard UI etc
-  IPlugQueue<IMidiMsg> mMidiMsgsFromProcessor {MIDI_TRANSFER_SIZE};
+protected:
   WDL_String mParamDisplayStr;
-  Timer* mTimer = nullptr;
+  std::unique_ptr<Timer> mTimer;
+  
+  IPlugQueue<ParamTuple> mParamChangeFromProcessor {PARAM_TRANSFER_SIZE};
+  IPlugQueue<IMidiMsg> mMidiMsgsFromEditor {MIDI_TRANSFER_SIZE}; // a queue of midi messages generated in the editor by clicking keyboard UI etc
+  IPlugQueue<IMidiMsg> mMidiMsgsFromProcessor {MIDI_TRANSFER_SIZE}; // a queue of MIDI messages received (potentially on the high priority thread), by the processor to send to the editor
+  IPlugQueue<SysExData> mSysExDataFromEditor {SYSEX_TRANSFER_SIZE}; // a queue of SYSEX data to send to the processor
+  IPlugQueue<SysExData> mSysExDataFromProcessor {SYSEX_TRANSFER_SIZE}; // a queue of SYSEX data to send to the editor
+  SysExData mSysexBuf;
 };

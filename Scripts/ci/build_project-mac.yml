@@ -1,0 +1,211 @@
+parameters:
+  name: ''
+  path: ''
+  graphics: 'NANOVG'
+  artifactName: ''
+  srcRepo: 'none'
+  srcBranch: 'master'
+
+steps:
+  # - task: InstallAppleCertificate@2
+  #   inputs:
+  #     certSecureFile: macos_certificate.p12
+  #     certPwd: $(CERT_PWD)
+
+  - ${{ if ne(parameters.srcRepo, 'none') }}:
+    - bash: |
+        echo srcRepo parameter = ${{ parameters.srcRepo }}
+        if [ ${{ parameters.srcRepo }} != none ]
+        then
+          if [ ! -d ./${{parameters.path}} ]
+          then
+            mkdir -p ./${{parameters.path}}
+          fi
+          cd ./${{parameters.path}}
+          git clone --recursive -b ${{ parameters.srcBranch }} ${{ parameters.srcRepo }} ${{parameters.name}}
+        else
+          echo no remote repo argument supplied, building local project ${{parameters.path}}/${{parameters.name}} ... 
+        fi
+      env:
+        GITHUB_PAT: $(GITHUB_PAT)
+      displayName: (Optionally) clone remote project repo
+
+  - bash: |
+      cd ./${{parameters.path}}/${{parameters.name}}/scripts
+      chmod +x *.sh # in-case executable bit was lost (e.g. project duplicated on windows)
+      chmod +x *.command
+      chmod +x *.py
+    displayName: Ensure scripts are executable
+
+  - bash: |
+      graphics=${{parameters.graphics}}
+      if [ $graphics = "LICE" ]
+      then
+        cd ./${{parameters.path}}/${{parameters.name}}/config
+        sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/IGRAPHICS_LICE/' ${{parameters.name}}-mac.xcconfig
+        sed -i.bu 's/\/\/$(IGRAPHICS_LNK_FLAGS)/$(IGRAPHICS_LNK_FLAGS)/' ${{parameters.name}}-mac.xcconfig
+      elif [ $graphics = "CAIRO" ]
+      then
+        cd ./${{parameters.path}}/${{parameters.name}}/config
+        sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/IGRAPHICS_CAIRO/' ${{parameters.name}}-mac.xcconfig
+        sed -i.bu 's/\/\/$(IGRAPHICS_LNK_FLAGS)/$(IGRAPHICS_LNK_FLAGS)/' ${{parameters.name}}-mac.xcconfig
+      elif [ $graphics = "AGG" ]
+      then
+        cd ./${{parameters.path}}/${{parameters.name}}/config
+        sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/IGRAPHICS_AGG/' ${{parameters.name}}-mac.xcconfig
+        sed -i.bu 's/\/\/$(IGRAPHICS_LNK_FLAGS)/$(IGRAPHICS_LNK_FLAGS)/' ${{parameters.name}}-mac.xcconfig
+      fi
+    displayName: Set graphics string to ${{parameters.graphics}}
+
+  - task: Xcode@5
+    inputs:
+      sdk: 'macosx10.13'
+      xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
+      args: '-target VST2 -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
+      configuration: 'Release'
+      xcodeVersion: '9'
+    condition: eq(variables.build_vst2, True)
+    displayName: Build Xcode project VST2 Scheme
+
+  - task: Xcode@5
+    inputs:
+      sdk: 'macosx10.13'
+      xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
+      args: '-target VST3 -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
+      configuration: 'Release'
+      xcodeVersion: '9'
+    condition: eq(variables.build_vst3, True)
+    displayName: Build Xcode project VST3 Scheme
+
+  - task: Xcode@5
+    inputs:
+      sdk: 'macosx10.13'
+      xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
+      args: '-target AAX -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
+      configuration: '${{parameters.configuration}}'
+      xcodeVersion: '9'
+    condition: eq(variables.build_aax, True)
+    displayName: Build Xcode project AAX Scheme
+
+  - task: Xcode@5
+    inputs:
+      sdk: 'macosx10.13'
+      xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
+      args: '-target AU -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
+      configuration: 'Release'
+      xcodeVersion: '9'
+    condition: eq(variables.build_auv2, True)
+    displayName: Build Xcode project AUv2 Scheme
+
+  - task: Xcode@5
+    inputs:
+      sdk: 'macosx10.13'
+      xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
+      args: '-target APP -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
+      configuration: 'Release'
+      xcodeVersion: '9'
+      signingOption: 'manual'
+      signingIdentity: $(APPLE_CERTIFICATE_SIGNING_IDENTITY)
+
+    condition: eq(variables.build_app, True)
+    displayName: Build Xcode project App Scheme
+
+  - bash: |
+      rm -r $BUILD_ARTIFACTSTAGINGDIRECTORY
+      outputDir=$BUILD_ARTIFACTSTAGINGDIRECTORY/APP/${{parameters.name}}
+      mkdir -p $outputDir
+      cd ${{parameters.path}}/${{parameters.name}}/build-mac/
+      if [ -d ${{parameters.name}}.app ]; then
+        zip -r ${{parameters.name}}_APP.zip ${{parameters.name}}.app*
+        mv ${{parameters.name}}_APP.zip $outputDir
+      fi
+    displayName: Organize APP artifact
+    condition: eq(variables.build_app, True)
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'MAC_APP_${{parameters.artifactName}}'
+      targetPath: '$(Build.ArtifactStagingDirectory)/APP/${{parameters.name}}'
+    displayName: Publish ${{parameters.name}} APP
+    condition: eq(variables.build_app, True)
+
+  - bash: |
+      rm -r $BUILD_ARTIFACTSTAGINGDIRECTORY
+      outputDir=$BUILD_ARTIFACTSTAGINGDIRECTORY/VST3/${{parameters.name}}
+      mkdir -p $outputDir
+      cd ${{parameters.path}}/${{parameters.name}}/build-mac/
+      if [ -d ${{parameters.name}}.vst3 ]; then
+        zip -r ${{parameters.name}}_VST3.zip ${{parameters.name}}.vst3*
+        rm -r ${{parameters.name}}.vst3
+        mv ${{parameters.name}}_VST3.zip $outputDir
+      fi
+    displayName: Organize VST3 artifact
+    condition: eq(variables.build_vst3, True)
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'MAC_VST3_${{parameters.artifactName}}'
+      targetPath: '$(Build.ArtifactStagingDirectory)/VST3/${{parameters.name}}'
+    displayName: Publish ${{parameters.name}} VST3
+    condition: eq(variables.build_vst3, True)
+
+  - bash: |
+      rm -r $BUILD_ARTIFACTSTAGINGDIRECTORY
+      outputDir=$BUILD_ARTIFACTSTAGINGDIRECTORY/VST2/${{parameters.name}}
+      mkdir -p $outputDir
+      cd ${{parameters.path}}/${{parameters.name}}/build-mac/
+      if [ -d ${{parameters.name}}.vst ]; then
+        zip -r ${{parameters.name}}_VST2.zip ${{parameters.name}}.vst*
+        mv ${{parameters.name}}_VST2.zip $outputDir
+      fi
+    displayName: Organize VST2 artifact
+    condition: eq(variables.build_vst2, True)
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'MAC_VST2_${{parameters.artifactName}}'
+      targetPath: '$(Build.ArtifactStagingDirectory)/VST2/${{parameters.name}}'
+    displayName: Publish ${{parameters.name}} VST2
+    condition: eq(variables.build_vst2, True)
+
+  - bash: |
+      rm -r $BUILD_ARTIFACTSTAGINGDIRECTORY
+      outputDir=$BUILD_ARTIFACTSTAGINGDIRECTORY/AAX/${{parameters.name}}
+      mkdir -p $outputDir
+      cd ${{parameters.path}}/${{parameters.name}}/build-mac/
+      if [ -d ${{parameters.name}}.aaxplugin ]; then
+        zip -r ${{parameters.name}}_AAX.zip ${{parameters.name}}.aaxplugin*
+        mv ${{parameters.name}}_AAX.zip $outputDir
+      fi
+    displayName: Organize AAX artifact
+    condition: eq(variables.build_aax, True)
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'MAC_AAX_${{parameters.artifactName}}'
+      targetPath: '$(Build.ArtifactStagingDirectory)/AAX/${{parameters.name}}'
+    displayName: Publish ${{parameters.name}} AAX
+    condition: eq(variables.build_aax, True)
+
+  - bash: |
+      rm -r $BUILD_ARTIFACTSTAGINGDIRECTORY
+      outputDir=$BUILD_ARTIFACTSTAGINGDIRECTORY/AU/${{parameters.name}}
+      mkdir -p $outputDir
+      cd ${{parameters.path}}/${{parameters.name}}/build-mac/
+      if [ -d ${{parameters.name}}.component ]; then
+        zip -r ../${{parameters.name}}_AU.zip ${{parameters.name}}.component; 
+        cd ..; 
+        cp ../../Scripts/validate_audiounit.sh .
+        zip -ur ${{parameters.name}}_AU.zip config.h validate_audiounit.sh
+        mv ${{parameters.name}}_AU.zip $outputDir
+      fi
+
+    displayName: Organize AU artifact
+    condition: eq(variables.build_auv2, True)
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'MAC_AU_${{parameters.artifactName}}'
+      targetPath: '$(Build.ArtifactStagingDirectory)/AU/${{parameters.name}}'
+    displayName: Publish ${{parameters.name}} AU
+    condition: eq(variables.build_auv2, True)

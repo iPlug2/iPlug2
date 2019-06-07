@@ -12,6 +12,7 @@
 
 /**
  * @file
+ * @ingroup Controls
  * @brief A collection of IControls for common UI widgets, such as knobs, sliders, switches
  */
 
@@ -21,9 +22,10 @@
 #include "IVMeterControl.h"
 #include "IVScopeControl.h"
 #include "IVMultiSliderControl.h"
+#include "IRTTextControl.h"
 
 /**
- * \defgroup Controls IGraphics::IControls
+ * \addtogroup Controls
  * @{
  */
 
@@ -34,12 +36,19 @@ class IVButtonControl : public IButtonControlBase
                       , public IVectorBase
 {
 public:
-  IVButtonControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunc = FlashCircleClickActionFunc, const char* str = "", const IText& text = DEFAULT_TEXT, const IVColorSpec& colorSpec = DEFAULT_SPEC);
-  
+  IVButtonControl(const IRECT& bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool labelInButton = true, bool valueInButton = true, EVShape shape = EVShape::Rectangle, float angle = 0.f);
+
   void Draw(IGraphics& g) override;
+  virtual void DrawWidget(IGraphics& g) override;
+  bool IsHit(float x, float y) const override;
+  void OnResize() override;
+  
+  void SetAngle(float angle) { mAngle = angle; SetDirty(false); }
+  void SetShape(EVShape shape) { mShape = shape; SetDirty(false); }
   
 protected:
-  WDL_String mStr;
+  EVShape mShape = EVShape::Rectangle;
+  float mAngle = 0.; // only used for triangle
 };
 
 /** A vector switch control. Click to cycle through states. */
@@ -47,15 +56,28 @@ class IVSwitchControl : public ISwitchControlBase
                       , public IVectorBase
 {
 public:
-  IVSwitchControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = FlashCircleClickActionFunc,
-                  const char* label = "", const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2);
-
-  void Draw(IGraphics& g) override;
+  IVSwitchControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueInButton = true);
   
-  void SetDirty(bool push) override;
+  IVSwitchControl(const IRECT& bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, int numStates = 2, bool valueInButton = true);
+  
+  void Draw(IGraphics& g) override;
+  virtual void DrawWidget(IGraphics& g) override;
+  bool IsHit(float x, float y) const override;
+  void SetDirty(bool push, int valIdx = kNoValIdx) override;
+  void OnResize() override;
+};
 
+class IVToggleControl : public IVSwitchControl
+{
+public:
+  IVToggleControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* offText = "OFF", const char* onText = "ON", const char* label = "", const IVStyle& style = DEFAULT_STYLE);
+  
+  IVToggleControl(const IRECT& bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* offText = "OFF", const char* onText = "ON", const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool initialState = false);
+  
+  void DrawValue(IGraphics& g, bool mouseOver) override;
 protected:
-  WDL_String mStr;
+  WDL_String mOffText;
+  WDL_String mOnText;
 };
 
 /** A vector switch control. Click to cycle through states. */
@@ -63,16 +85,26 @@ class IVRadioButtonControl : public ISwitchControlBase
                            , public IVectorBase
 {
 public:
-  IVRadioButtonControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = FlashCircleClickActionFunc,
-                       const IVColorSpec& colorSpec = DEFAULT_SPEC, int numStates = 2, EDirection dir = kVertical);
+  IVRadioButtonControl(const IRECT& bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = SplashClickActionFunc, int numStates = 2, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Circle, float buttonSize = 10.f);
+
+  IVRadioButtonControl(const IRECT& bounds, IActionFunction actionFunc, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Circle, float buttonSize = 10.f);
   
   virtual ~IVRadioButtonControl() { mLabels.Empty(true); }
-  virtual void Draw(IGraphics& g) override;
-  virtual void OnResize() override;
-//  virtual bool IsHit(float x, float y) const override;
+  void Draw(IGraphics& g) override;
+  virtual void DrawWidget(IGraphics& g) override;
+  virtual void DrawButton(IGraphics& g, const IRECT& bounds, bool pressed, bool mouseOver);
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOut() override { mMouseOverButton = -1; }
+  void OnResize() override;
+  virtual bool IsHit(float x, float y) const override;
 
+  void SetShape(EVShape shape) { mShape = shape; SetDirty(false); }
+  int GetSelectedIdx() const { return int(0.5 + GetValue() * (double) (mNumStates - 1)); }
 protected:
-  EDirection mDirection;
+  int mMouseOverButton = -1;
+  EVShape mShape;
+  float mButtonSize;
   WDL_TypedBuf<IRECT> mButtons;
   WDL_PtrList<WDL_String> mLabels;
 };
@@ -82,50 +114,61 @@ class IVKnobControl : public IKnobControlBase
                     , public IVectorBase
 {
 public:
-  IVKnobControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx,
-                const char* label = "", bool displayParamValue = false,
-                const IVColorSpec& colorSpec = DEFAULT_SPEC, const IText& labelText = IText(DEFAULT_TEXT_SIZE + 5, IText::kVAlignTop), const IText& valueText = IText(DEFAULT_TEXT_SIZE, IText::kVAlignBottom),
-                float aMin = -135.f, float aMax = 135.f, float knobFrac = 0.50f,
-                EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
-  
-  IVKnobControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction actionFunction,
-                const char* label = "", bool displayParamValue = false,
-                const IVColorSpec& colorSpec = DEFAULT_SPEC, const IText& labelText = IText(DEFAULT_TEXT_SIZE + 5, IText::kVAlignTop), const IText& valueText = IText(DEFAULT_TEXT_SIZE, IText::kVAlignBottom),
-                float aMin = -135.f, float aMax = 135.f, float knobFrac = 0.50f,
-                EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
-  
+  IVKnobControl(const IRECT& bounds, int paramIdx,
+                const char* label = "",
+                const IVStyle& style = DEFAULT_STYLE,
+                bool valueIsEditable = false,
+                float aMin = -135.f, float aMax = 135.f,
+                EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING);
+
+  IVKnobControl(const IRECT& bounds, IActionFunction actionFunction,
+                const char* label = "",
+                const IVStyle& style = DEFAULT_STYLE,
+                bool valueIsEditable = false,
+                float aMin = -135.f, float aMax = 135.f,
+                EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING);
+
   virtual ~IVKnobControl() {}
 
   void Draw(IGraphics& g) override;
+  virtual void DrawWidget(IGraphics& g) override;
+
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOut() override { mValueMouseOver = false; IKnobControlBase::OnMouseOut(); }
+
 //  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {  OnMouseDown(x, y, mod); }
   void OnResize() override;
+  bool IsHit(float x, float y) const override;
+  void SetDirty(bool push, int valIdx = kNoValIdx) override;
+  void OnInit() override;
+
 protected:
-  bool mDisplayParamValue;
-  bool mShowParamLabel = true;
-  IRECT mHandleBounds;
-  IRECT mLabelBounds;
-  IRECT mValueBounds;
   float mAngleMin, mAngleMax;
-  float mKnobFrac;
-  WDL_String mLabel;
-  IText mLabelText;
-  IText& mValueText = mText;
+  bool mValueMouseOver = false;
 };
 
-/** A vector knob control which rotates an SVG image */
-class IVSVGKnob : public IKnobControlBase
+/** A vector knob/dial control which rotates an SVG image */
+class ISVGKnob : public IKnobControlBase
 {
 public:
-  IVSVGKnob(IGEditorDelegate& dlg, IRECT bounds, ISVG& svg, int paramIdx = kNoParameter)
-    : IKnobControlBase(dlg, bounds, paramIdx)
+  ISVGKnob(const IRECT& bounds, const ISVG& svg, int paramIdx = kNoParameter)
+    : IKnobControlBase(bounds, paramIdx)
     , mSVG(svg)
   {
   }
 
   void Draw(IGraphics& g) override
   {
-    g.DrawRotatedSVG(mSVG, mRECT.MW(), mRECT.MH(), mRECT.W(), mRECT.H(), mStartAngle + mValue * (mEndAngle - mStartAngle));
+    if (!g.CheckLayer(mLayer))
+    {
+      g.StartLayer(mRECT);
+      g.DrawSVG(mSVG, mRECT);
+      mLayer = g.EndLayer();
+    }
+
+    g.DrawRotatedLayer(mLayer, mStartAngle + GetValue() * (mEndAngle - mStartAngle));
   }
 
   void SetSVG(ISVG& svg)
@@ -135,42 +178,84 @@ public:
   }
 
 private:
+  ILayerPtr mLayer;
   ISVG mSVG;
   float mStartAngle = -135.f;
   float mEndAngle = 135.f;
 };
 
+/** A vector slider control */
 class IVSliderControl : public ISliderControlBase
                       , public IVectorBase
 {
 public:
-  IVSliderControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx = kNoParameter,
-                  const IVColorSpec& colorSpec = DEFAULT_SPEC,
-                  EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f)
-  : ISliderControlBase(dlg, bounds, paramIdx, dir, onlyHandle, handleSize)
-  , IVectorBase(colorSpec)
-  , mTrackSize(trackSize)
-  {
-    AttachIControl(this);
-  }
+  IVSliderControl(const IRECT& bounds, int paramIdx = kNoParameter,
+                  const char* label = "",
+                  const IVStyle& style = DEFAULT_STYLE,
+                  bool valueIsEditable = false,
+                  EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
   
-  IVSliderControl(IGEditorDelegate& dlg, IRECT bounds, IActionFunction aF,
-                  const IVColorSpec& colorSpec = DEFAULT_SPEC,
-                  EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f)
-  : ISliderControlBase(dlg, bounds, aF, dir, onlyHandle, handleSize)
-  , IVectorBase(colorSpec)
-  , mTrackSize(trackSize)
-  {
-    AttachIControl(this);
-  }
-  
+  IVSliderControl(const IRECT& bounds, IActionFunction aF,
+                  const char* label = "",
+                  const IVStyle& style = DEFAULT_STYLE,
+                  bool valueIsEditable = false,
+                  EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
+
   virtual ~IVSliderControl() {}
-  
-  virtual void Draw(IGraphics& g) override;
+  void Draw(IGraphics& g) override;
+  virtual void DrawWidget(IGraphics& g) override;
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOut() override { mValueMouseOver = false; ISliderControlBase::OnMouseOut(); }
+  bool IsHit(float x, float y) const override;
   void OnResize() override;
+  void SetDirty(bool push, int valIdx = kNoValIdx) override;
+  void OnInit() override;
   
-private:
+protected:
   float mTrackSize;
+  bool mValueMouseOver = false;
+};
+
+class IVRangeSliderControl : public IVSliderControl
+{
+public:
+  IVRangeSliderControl(const IRECT& bounds, int paramIdxLo = kNoParameter, int paramIdxHi = kNoParameter,
+                       const char* label = "",
+                       const IVStyle& style = DEFAULT_STYLE,
+//                       bool valueIsEditable = false,
+                       EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
+
+  void DrawWidget(IGraphics& g) override;
+  void DrawValue(IGraphics& g, bool mouseover) override {};
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
+  void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, int valIdx = -1, float scalar = 1.) override;
+
+protected:
+  double mMouseDownVal = 0.f;
+};
+
+
+class IVXYPadControl : public IControl
+                     , public IVectorBase
+{
+public:
+  IVXYPadControl(const IRECT& bounds, const std::initializer_list<int>& params,
+                 const char* label = "",
+                 const IVStyle& style = DEFAULT_STYLE,
+                 float handleRadius = 10.f);
+
+  void Draw(IGraphics& g) override;
+  void DrawWidget(IGraphics& g) override;
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override;
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
+  void OnResize() override;
+protected:
+  float mHandleRadius;
+  bool mMouseDown = false;
 };
 
 #pragma mark - Bitmap Controls
@@ -180,27 +265,34 @@ class IBButtonControl : public IButtonControlBase
                       , public IBitmapBase
 {
 public:
-  IBButtonControl(IGEditorDelegate& dlg, float x, float y, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
-  : IButtonControlBase(dlg, IRECT(x, y, bitmap), actionFunc)
+  IBButtonControl(float x, float y, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
+  : IButtonControlBase(IRECT(x, y, bitmap), actionFunc)
   , IBitmapBase(bitmap)
   {}
-  
-  IBButtonControl(IGEditorDelegate& dlg, const IRECT& bounds, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
-  : IButtonControlBase(dlg, bounds, actionFunc)
+
+  IBButtonControl(const IRECT& bounds, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
+  : IButtonControlBase(bounds.GetCentredInside(bitmap), actionFunc)
   , IBitmapBase(bitmap)
   {}
-  
+
   void Draw(IGraphics& g) override
   {
-    g.DrawBitmap(mBitmap, mRECT, (int) mValue + 1, &mBlend);
+    int i = 1;
+    if (mBitmap.N() > 1)
+    {
+      i = 1 + int(0.5 + GetValue() * (double) (mBitmap.N() - 1));
+      i = Clip(i, 1, mBitmap.N());
+    }
+    
+    g.DrawBitmap(mBitmap, mRECT, i, &mBlend);
   }
-  
-  virtual void OnRescale() override
+
+  void OnRescale() override
   {
     mBitmap = GetUI()->GetScaledBitmap(mBitmap);
   }
-  
-  virtual void GrayOut(bool gray) override
+
+  void GrayOut(bool gray) override
   {
     IBitmapBase::GrayOut(gray);
     IControl::GrayOut(gray);
@@ -211,116 +303,117 @@ public:
 class IBSwitchControl : public IBitmapControl
 {
 public:
-  IBSwitchControl(IGEditorDelegate& dlg, float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter)
-  : IBitmapControl(dlg, x, y, bitmap, paramIdx) {}
-  
-  IBSwitchControl(IGEditorDelegate& dlg, const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter)
-  : IBitmapControl(dlg, bounds, bitmap, paramIdx) {}
-  
+  IBSwitchControl(float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter)
+  : IBitmapControl(x, y, bitmap, paramIdx) {}
+
+  IBSwitchControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter)
+  : IBitmapControl(bounds.GetCentredInside(bitmap), bitmap, paramIdx) {}
+
   virtual ~IBSwitchControl() {}
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {  OnMouseDown(x, y, mod); }
-  
-  virtual void GrayOut(bool gray) override
+
+  void GrayOut(bool gray) override
   {
     IBitmapBase::GrayOut(gray);
     IControl::GrayOut(gray);
   }
 };
 
-/** A bitmap knob/dial control */
+/** A bitmap knob/dial control that draws a frame from a stacked bitmap */
 class IBKnobControl : public IKnobControlBase
                     , public IBitmapBase
 {
 public:
-  IBKnobControl(IGEditorDelegate& dlg, float x, float y, const IBitmap& bitmap, int paramIdx, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
-  : IKnobControlBase(dlg, IRECT(x, y, bitmap), paramIdx, direction, gearing)
+  IBKnobControl(float x, float y, const IBitmap& bitmap, int paramIdx, EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING)
+  : IKnobControlBase(IRECT(x, y, bitmap), paramIdx, direction, gearing)
   , IBitmapBase(bitmap)
   {
   }
-  
-  IBKnobControl(IGEditorDelegate& dlg, IRECT bounds, const IBitmap& bitmap, int paramIdx, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
-  : IKnobControlBase(dlg, bounds.GetCentredInside(bitmap), paramIdx, direction, gearing)
+
+  IBKnobControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx, EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING)
+  : IKnobControlBase(bounds.GetCentredInside(bitmap), paramIdx, direction, gearing)
   , IBitmapBase(bitmap)
   {
   }
-  
+
   virtual ~IBKnobControl() {}
-  
-  virtual void Draw(IGraphics& g) override
+
+  void Draw(IGraphics& g) override
   {
-    int i = 1 + int(0.5 + mValue * (double) (mBitmap.N() - 1));
+    int i = 1 + int(0.5 + GetValue() * (double) (mBitmap.N() - 1));
     g.DrawBitmap(mBitmap, mRECT, i, &mBlend);
   }
-  
+
   void OnRescale() override
   {
     mBitmap = GetUI()->GetScaledBitmap(mBitmap);
   }
-  
-  virtual void GrayOut(bool gray) override
+
+  void GrayOut(bool gray) override
   {
     IBitmapBase::GrayOut(gray);
     IControl::GrayOut(gray);
   }
 };
 
+/** A bitmap knob/dial control that rotates an image */
 class IBKnobRotaterControl : public IBKnobControl
 {
 public:
-  IBKnobRotaterControl(IGEditorDelegate& dlg, float x, float y, const IBitmap& bitmap, int paramIdx)
-  : IBKnobControl(dlg, IRECT(x, y, bitmap), bitmap, paramIdx)
+  IBKnobRotaterControl(float x, float y, const IBitmap& bitmap, int paramIdx)
+  : IBKnobControl(IRECT(x, y, bitmap), bitmap, paramIdx)
   {
   }
-  
-  IBKnobRotaterControl(IGEditorDelegate& dlg, IRECT bounds, const IBitmap& bitmap, int paramIdx)
-  : IBKnobControl(dlg, bounds.GetCentredInside(bitmap), bitmap, paramIdx)
+
+  IBKnobRotaterControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx)
+  : IBKnobControl(bounds.GetCentredInside(bitmap), bitmap, paramIdx)
   {
   }
-  
+
   virtual ~IBKnobRotaterControl() {}
 
   void Draw(IGraphics& g) override
   {
-    double angle = -130.0 + mValue * 260.0;
+    double angle = -130.0 + GetValue() * 260.0;
     g.DrawRotatedBitmap(mBitmap, mRECT.MW(), mRECT.MH(), angle);
   }
 };
 
+/** A bitmap slider/fader control */
 class IBSliderControl : public ISliderControlBase
                       , public IBitmapBase
 {
 public:
-  IBSliderControl(IGEditorDelegate& dlg, IRECT bounds, int paramIdx, const IBitmap& bitmap,
-                  EDirection dir = kVertical, bool onlyHandle = false);
-  
-  IBSliderControl(IGEditorDelegate& dlg, float x, float y, int len, int paramIdx,
-                  const IBitmap& bitmap, EDirection direction = kVertical, bool onlyHandle = false);
-  
+  IBSliderControl(const IRECT& bounds, int paramIdx, const IBitmap& bitmap,
+                  EDirection dir = EDirection::Vertical, bool onlyHandle = false);
+
+  IBSliderControl(float x, float y, int len, int paramIdx,
+                  const IBitmap& bitmap, EDirection direction = EDirection::Vertical, bool onlyHandle = false);
+
   virtual ~IBSliderControl() {}
 
-  virtual void Draw(IGraphics& g) override;
-  virtual void OnRescale() override;
-  virtual void OnResize() override;
-  
+  void Draw(IGraphics& g) override;
+  void OnRescale() override;
+  void OnResize() override;
+
   IRECT GetHandleBounds(double value = -1.0) const;
 
-  virtual void GrayOut(bool gray) override
+  void GrayOut(bool gray) override
   {
     IBitmapBase::GrayOut(gray);
     IControl::GrayOut(gray);
   }
 };
 
-/** Display monospace bitmap font text */
-// TODO: fix Centre/Right aligned behaviour when string exceeds bounds or should wrap onto new line
+/** A control to display text using a monospace bitmap font */
 class IBTextControl : public ITextControl
                     , public IBitmapBase
 {
 public:
-  IBTextControl(IGEditorDelegate& dlg, IRECT bounds, const IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlendType blend = kBlendNone)
-  : ITextControl(dlg, bounds, str, text)
+  IBTextControl(const IRECT& bounds, const IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlend blend = EBlend::Default)
+  : ITextControl(bounds, str, text)
   , IBitmapBase(bitmap, blend)
   , mCharWidth(charWidth)
   , mCharHeight(charHeight)
@@ -330,20 +423,20 @@ public:
   {
     mStr.Set(str);
   }
-  
+
   virtual ~IBTextControl() {}
 
   void Draw(IGraphics& g) override
   {
     g.DrawBitmapedText(mBitmap, mRECT, mText, &mBlend, mStr.Get(), mVCentre, mMultiLine, mCharWidth, mCharHeight, mCharOffset);
   }
-  
-  virtual void GrayOut(bool gray) override
+
+  void GrayOut(bool gray) override
   {
     IBitmapBase::GrayOut(gray);
     IControl::GrayOut(gray);
   }
-  
+
   void OnRescale() override
   {
     mBitmap = GetUI()->GetScaledBitmap(mBitmap);

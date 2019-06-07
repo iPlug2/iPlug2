@@ -28,22 +28,23 @@ bool IWebsocketServer::CreateServer(const char* DOCUMENT_ROOT, const char* PORT)
     cpp_options.push_back(options[i]);
   }
   
-  if(sInstances == 0 && sServer == nullptr)
+  if (!sServer)
   {
-    try { sServer = new CivetServer(cpp_options); }
+    try { sServer = std::make_unique<CivetServer>(cpp_options); }
     catch (const std::exception& e)
     {
-      DBGMSG("Couldn't create server, port probably allready in use\n");
+      DBGMSG("Couldn't create server, port probably already in use\n");
       return false;
     }
     
     sServer->addWebSocketHandler("/ws", this);
     DBGMSG("Websocket server running at http://localhost:%s/ws serving %s\n", PORT, DOCUMENT_ROOT);
   }
-  else {
+  else
+  {
     WDL_String url;
     GetURL(url);
-    DBGMSG("Websocket server allready running at %s\n", url.Get());
+    DBGMSG("Websocket server already running at %s\n", url.Get());
   }
   
   sInstances++;
@@ -53,20 +54,16 @@ bool IWebsocketServer::CreateServer(const char* DOCUMENT_ROOT, const char* PORT)
 
 void IWebsocketServer::DestroyServer()
 {
-  if(sInstances)
-    sInstances--;
-  
-  if(sInstances == 0) {
-    if(sServer) {
-      delete sServer;
-      sServer = nullptr;
-    }
+  if (sInstances && (--sInstances == 0))
+  {
+    sServer = nullptr;
   }
 }
   
 void IWebsocketServer::GetURL(WDL_String& url)
 {
-  if(sServer) {
+  if(sServer)
+  {
     std::vector<int> listeningPorts = sServer->getListeningPorts();
     url.SetFormatted(256, "http://localhost:%i", listeningPorts[0]);
   }
@@ -109,7 +106,7 @@ bool IWebsocketServer::DoSendToConnection(int idx, int opcode, const char* pData
   
   std::function<bool(int)> sendFunc = [&](int connIdx) {
     WDL_MutexLock lock(&mMutex);
-    mg_connection* pConn = const_cast<mg_connection*>(mConnections.Get(connIdx));
+    mg_connection* pConn = mConnections.Get(connIdx);
     
     if(pConn) {
       if(mg_websocket_write(pConn, opcode, pData, sizeInBytes))
@@ -141,10 +138,7 @@ bool IWebsocketServer::DoSendToConnection(int idx, int opcode, const char* pData
 bool IWebsocketServer::handleConnection(CivetServer* pServer, const struct mg_connection* pConn)
 {
   WDL_MutexLock lock(&mMutex);
-
-  mConnections.Add(pConn);
-  
-  DBGMSG("WS connected NClients %i\n", NClients());
+  DBGMSG("WS connected\n");
 
   return true;
 }
@@ -153,7 +147,9 @@ void IWebsocketServer::handleReadyState(CivetServer* pServer, struct mg_connecti
 {
   WDL_MutexLock lock(&mMutex);
   
-  DBGMSG("WS ready\n");
+  mConnections.Add(pConn);
+  
+  DBGMSG("WS ready NClients %i\n", NClients());
   
   OnWebsocketReady(NClients()-1); // should defer to main thread
 }
@@ -166,7 +162,7 @@ bool IWebsocketServer::handleData(CivetServer* pServer, struct mg_connection* pC
   
   if(*firstByte == 129) // TODO: check that
   {
-    return OnWebsocketText(mConnections.Find(pConn), const_cast<char*>(pData), dataSize);
+    return OnWebsocketText(mConnections.Find(pConn), pData, dataSize);
   }
   else if(*firstByte == 130) // TODO: check that
   {
@@ -185,5 +181,5 @@ void IWebsocketServer::handleClose(CivetServer* pServer, const struct mg_connect
   DBGMSG("WS closed NClients %i\n", NClients());
 }
 
-CivetServer* IWebsocketServer::sServer = nullptr;
+std::unique_ptr<CivetServer> IWebsocketServer::sServer;
 int IWebsocketServer::sInstances = 0;

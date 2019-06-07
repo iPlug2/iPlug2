@@ -8,20 +8,18 @@
  ==============================================================================
 */
 
-#ifndef NO_IGRAPHICS
-
 #import <Cocoa/Cocoa.h>
-//#import <WebKit/WebKit.h>
-
-#include "IGraphicsMac.h"
 
 #if defined IGRAPHICS_GL
-#include <OpenGL/gl.h>
+#import <QuartzCore/QuartzCore.h>
 #endif
+
+#include "IGraphicsMac.h"
+#include "IGraphicsStructs.h"
 
 inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& bounds)
 {
-  float scale = pGraphics->GetScale();
+  float scale = pGraphics->GetDrawScale();
   float x = floor(bounds.L * scale);
   float y = floor(bounds.T * scale);
   float x2 = ceil(bounds.R * scale);
@@ -32,17 +30,21 @@ inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& bounds)
 
 inline IRECT ToIRECT(IGraphics* pGraphics, const NSRect* pR)
 {
-  float scale = 1.f/pGraphics->GetScale();
+  float scale = 1.f/pGraphics->GetDrawScale();
   float x = pR->origin.x, y = pR->origin.y, w = pR->size.width, h = pR->size.height;
   return IRECT(x * scale, y * scale, (x + w) * scale, (y + h) * scale);
 }
 
 inline NSColor* ToNSColor(const IColor& c)
 {
-  return [NSColor colorWithCalibratedRed:(double) c.R / 255.0 green:(double) c.G / 255.0 blue:(double) c.B / 255.0 alpha:(double) c.A / 255.0];
+  return [NSColor colorWithDeviceRed:(double) c.R / 255.0 green:(double) c.G / 255.0 blue:(double) c.B / 255.0 alpha:(double) c.A / 255.0];
 }
 
-NSString* ToNSString(const char* cStr);
+inline IColor FromNSColor(const NSColor* c)
+{
+  return IColor(c.alphaComponent * 255., c.redComponent* 255., c.greenComponent * 255., c.blueComponent * 255.);
+}
+
 
 // based on code by Scott Gruby http://blog.gruby.com/2008/03/30/filtering-nstextfield-take-2/
 @interface IGRAPHICS_FORMATTER : NSFormatter
@@ -82,22 +84,24 @@ NSString* ToNSString(const char* cStr);
 - (NSMenuItem*) menuItem;
 @end
 
+@interface IGRAPHICS_TEXTFIELD : NSTextField
+{
+}
+- (bool) becomeFirstResponder;
+@end
+
 @interface IGRAPHICS_VIEW : NSView <NSTextFieldDelegate/*, WKScriptMessageHandler*/>
 {
-#ifdef IGRAPHICS_GL
-  NSOpenGLContext* mContext;
-  NSOpenGLPixelFormat* mPixelFormat;
-#endif
-  
+  NSTrackingArea* mTrackingArea;
   NSTimer* mTimer;
-  NSTextField* mTextFieldView;
-//  WKWebView* mWebView;
-  IControl* mEdControl; // the control linked to the open text edit
+  IGRAPHICS_TEXTFIELD* mTextFieldView;
+  NSCursor* mMoveCursor;
   float mPrevX, mPrevY;
+  IRECTList mDirtyRects;
+  IColorPickerHandlerFunc mColorPickerFunc;
 @public
   IGraphicsMac* mGraphics; // OBJC instance variables have to be pointers
 }
-//- (id) init;
 - (id) initWithIGraphics: (IGraphicsMac*) pGraphics;
 - (BOOL) isOpaque;
 - (BOOL) acceptsFirstResponder;
@@ -105,13 +109,16 @@ NSString* ToNSString(const char* cStr);
 - (void) viewDidMoveToWindow;
 - (void) viewDidChangeBackingProperties:(NSNotification *) notification;
 - (void) drawRect: (NSRect) bounds;
-- (void) onTimer: (NSTimer*) pTimer;
 - (void) render;
+- (void) onTimer: (NSTimer*) pTimer;
 - (void) killTimer;
 //mouse
-- (void) getMouseXY: (NSEvent*) pEvent x: (float*) pX y: (float*) pY;
+- (void) getMouseXY: (NSEvent*) pEvent x: (float&) pX y: (float&) pY;
 - (IMouseInfo) getMouseLeft: (NSEvent*) pEvent;
 - (IMouseInfo) getMouseRight: (NSEvent*) pEvent;
+- (void) updateTrackingAreas;
+- (void) mouseEntered:(NSEvent *)event;
+- (void) mouseExited:(NSEvent *)event;
 - (void) mouseDown: (NSEvent*) pEvent;
 - (void) mouseUp: (NSEvent*) pEvent;
 - (void) mouseDragged: (NSEvent*) pEvent;
@@ -124,13 +131,14 @@ NSString* ToNSString(const char* cStr);
 //text entry
 - (void) removeFromSuperview;
 - (void) controlTextDidEndEditing: (NSNotification*) aNotification;
-- (void) createTextEntry: (IControl&) control : (const IText&) text : (const char*) str : (NSRect) areaRect;
+- (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (NSRect) areaRect;
 - (void) endUserInput;
-//web view
-//- (void) createWebView: (NSRect) areaRect : (const char*) url;
-//- (void) userContentController:didReceiveScriptMessage;
 //pop-up menu
-- (IPopupMenu*) createPopupMenu: (const IPopupMenu&) menu : (NSRect) bounds;
+- (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (NSRect) bounds;
+//color picker
+- (BOOL) promptForColor: (IColor&) color : (IColorPickerHandlerFunc) func;
+- (void) onColorPicked: (NSColorPanel*) colorPanel;
+
 //tooltip
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData;
 - (void) registerToolTip: (IRECT&) bounds;
@@ -138,7 +146,25 @@ NSString* ToNSString(const char* cStr);
 - (NSDragOperation) draggingEntered: (id <NSDraggingInfo>) sender;
 - (BOOL) performDragOperation: (id<NSDraggingInfo>) sender;
 //
-- (void) setMouseCursor: (ECursor) cursor;
+- (void) setMouseCursor: (ECursor) cursorType;
 @end
 
-#endif //NO_IGRAPHICS
+@interface IGRAPHICS_GLLAYER : NSOpenGLLayer
+{
+  IGRAPHICS_VIEW* mView;
+}
+
+- (id) initWithIGraphicsView: (IGRAPHICS_VIEW*) pView;
+@end
+
+#ifdef IGRAPHICS_IMGUI
+#import <MetalKit/MetalKit.h>
+
+@interface IGRAPHICS_IMGUIVIEW : MTKView
+{
+  IGRAPHICS_VIEW* mView;
+}
+@property (nonatomic, strong) id <MTLCommandQueue> commandQueue;
+- (id) initWithIGraphicsView: (IGRAPHICS_VIEW*) pView;
+@end
+#endif

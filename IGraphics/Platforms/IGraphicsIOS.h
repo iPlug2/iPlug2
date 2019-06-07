@@ -16,7 +16,7 @@
 *   @ingroup PlatformClasses */
 class IGraphicsIOS final : public IGRAPHICS_DRAW_CLASS
 {
-public:
+public:  
   IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   virtual ~IGraphicsIOS();
   
@@ -25,9 +25,9 @@ public:
   void* OpenWindow(void* pWindow) override;
   void CloseWindow() override;
   bool WindowIsOpen() override;
-  void PlatformResize() override;
+  void PlatformResize(bool parentHasResized) override;
 
-  int ShowMessageBox(const char* str, const char* caption, int type) override;
+  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
   void ForceEndUserEdit() override;
 
   const char* GetPlatformAPIStr() override;
@@ -36,26 +36,34 @@ public:
 
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext) override;
   void PromptForDirectory(WDL_String& dir) override;
-  bool PromptForColor(IColor& color, const char* str) override;
+  bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
   
-  IPopupMenu* CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
-  void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
+  void HideMouseCursor(bool hide, bool lock) override {}; // NOOP
+  void MoveMouseCursor(float x, float y) override {}; // NOOP
   
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
   
   void* GetWindow() override;
   
-  const char* GetBundleID()  { return mBundleID.Get(); }
+  const char* GetBundleID() override { return mBundleID.Get(); }
   static int GetUserOSVersion();
   
   bool GetTextFromClipboard(WDL_String& str) override;
+  bool SetTextInClipboard(const WDL_String& str) override;
+
+  void CreatePlatformImGui() override;
 
 protected:
-  bool OSFindResource(const char* name, const char* type, WDL_String& result) override;
-  bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath);
-  bool GetResourcePathFromUsersMusicFolder(const char* fileName, const char* searchExt, WDL_String& fullPath);
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
+  void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override;
+  
+  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds) override;
+  void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
 
 private:
   void* mView = nullptr;
+  void* mImGuiView = nullptr;
+
   WDL_String mBundleID;
 };

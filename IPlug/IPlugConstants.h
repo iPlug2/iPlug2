@@ -12,7 +12,10 @@
 
 /**
  * @file
- * @brief Constant definitions, Types, magic numbers
+ * @brief IPlug Constant definitions, Types, magic numbers
+ * @defgroup IPlugConstants IPlug::Constants
+ * IPlug Constant definitions, Types, magic numbers
+ * @{
  */
 
 #if !defined(SAMPLE_TYPE_FLOAT) && !defined(SAMPLE_TYPE_DOUBLE)
@@ -20,14 +23,14 @@
 #endif
 
 #ifdef SAMPLE_TYPE_DOUBLE
-typedef double PLUG_SAMPLE_DST;
-typedef float PLUG_SAMPLE_SRC;
+using PLUG_SAMPLE_DST = double;
+using PLUG_SAMPLE_SRC = float;
 #else
-typedef float PLUG_SAMPLE_DST;
-typedef double PLUG_SAMPLE_SRC;
+using PLUG_SAMPLE_DST = float;
+using PLUG_SAMPLE_SRC = double;
 #endif
 
-typedef PLUG_SAMPLE_DST sample;
+using sample = PLUG_SAMPLE_DST;
 
 #define LOGFILE "IPlugLog.txt"
 #define MAX_PROCESS_TRACE_COUNT 100
@@ -38,21 +41,6 @@ enum EIPlugPluginType
   kEffect = 0,
   kInstrument = 1,
   kMIDIEffect = 2
-};
-
-enum EIPlugKeyCodes
-{
-  KEY_TAB,
-  KEY_SPACE,
-  KEY_UPARROW,
-  KEY_DOWNARROW,
-  KEY_LEFTARROW,
-  KEY_RIGHTARROW,
-  KEY_DIGIT_0,
-  KEY_DIGIT_9=KEY_DIGIT_0+9,
-  KEY_ALPHA_A,
-  KEY_ALPHA_Z=KEY_ALPHA_A+25,
-  KEY_NONE
 };
 
 enum EVST3ParamIDs
@@ -118,8 +106,14 @@ static const int MAX_PARAM_DISPLAY_PRECISION = 6;
 #define IDLE_TIMER_RATE 20 // this controls the frequency of data going from processor to editor (and OnIdle calls)
 #endif
 
+#ifndef MAX_SYSEX_SIZE
+#define MAX_SYSEX_SIZE 512
+#endif
+
 #define PARAM_TRANSFER_SIZE 512
 #define MIDI_TRANSFER_SIZE 32
+#define SYSEX_TRANSFER_SIZE 4
+
 // All version ints are stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision.
 #define IPLUG_VERSION 0x010000
 #define IPLUG_VERSION_MAGIC 'pfft'
@@ -127,6 +121,7 @@ static const int MAX_PARAM_DISPLAY_PRECISION = 6;
 static const int DEFAULT_BLOCK_SIZE = 1024;
 static const double DEFAULT_TEMPO = 120.0;
 static const int kNoParameter = -1;
+static const int kNoValIdx = -1;
 static const int kNoTag = -1;
 
 #define MAX_BUS_CHANS 64 // wild cards in channel i/o strings will result in this many channels
@@ -172,7 +167,7 @@ enum ERoute
   kOutput = 1
 };
 
-static const char* RoutingDirStrs[2]  = { "input", "output" };
+static const char* RoutingDirStrs[2]  = { "Input", "Output" };
 
 enum EAPI
 {
@@ -233,4 +228,12 @@ enum EHost
   // MiniHost
 };
 
+enum EResourceLocation
+{
+  kNotFound = 0,
+  kAbsolutePath,
+  kWinBinary
+};
+
+/**@}*/
 

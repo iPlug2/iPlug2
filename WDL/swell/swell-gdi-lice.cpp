@@ -1001,7 +1001,9 @@ BOOL GetTextMetrics(HDC ctx, TEXTMETRIC *tm)
     tm->tmDescent = face->size->metrics.descender/64;
     tm->tmHeight = face->size->metrics.height/64 + 1;
     tm->tmAveCharWidth = face->size->metrics.height / 112;
-    tm->tmInternalLeading=0;
+    // hmm? some font freetype/win32 expert can weigh in here :/
+    tm->tmInternalLeading = (face->size->metrics.height - face->size->metrics.ascender)/64;
+    if (tm->tmInternalLeading<0) tm->tmInternalLeading=0;
   }
 #endif
   
@@ -1398,7 +1400,7 @@ void BitBlt(HDC hdcOut, int x, int y, int w, int h, HDC hdcIn, int xin, int yin,
   LICE_Blit(out->surface,in->surface,
             x+out->surface_offs.x,y+out->surface_offs.y,
             xin+in->surface_offs.x,yin+in->surface_offs.y,w,h,
-            1.0f,LICE_BLIT_MODE_COPY);
+            1.0f,LICE_BLIT_MODE_COPY | (mode == (int)SRCCOPY_USEALPHACHAN ? LICE_BLIT_USE_ALPHA : 0));
   swell_DirtyContext(out,x,y,x+w,y+h);
 }
 
@@ -1425,7 +1427,7 @@ void StretchBlt(HDC hdcOut, int x, int y, int w, int h, HDC hdcIn, int xin, int 
   LICE_ScaledBlit(out->surface,in->surface,
             x+out->surface_offs.x,y+out->surface_offs.y,w,h,
             xin+in->surface_offs.x,yin+in->surface_offs.y,srcw,srch,
-            1.0f,LICE_BLIT_MODE_COPY);
+            1.0f,LICE_BLIT_MODE_COPY | (mode == (int)SRCCOPY_USEALPHACHAN ? LICE_BLIT_USE_ALPHA : 0));
   swell_DirtyContext(out,x,y,x+w,y+h);
 }
 

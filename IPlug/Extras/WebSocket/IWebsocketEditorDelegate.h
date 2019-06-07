@@ -10,7 +10,7 @@
  * @copydoc IWebsocketEditorDelegate
  */
 
-/** An IDelgate base class ... */
+/** An IEditorDelegate base class that embeds a websocket server ... */
 class IWebsocketEditorDelegate : public IGEditorDelegate, public IWebsocketServer
 {
 public:
@@ -27,12 +27,12 @@ public:
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
   void SendSysexMsgFromUI(const ISysEx& msg) override;
   void SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData) override;
-//  virtual void BeginInformHostOfParamChangeFromUI(int paramIdx) override;
+//void BeginInformHostOfParamChangeFromUI(int paramIdx) override;
   void SendParameterValueFromUI(int paramIdx, double normalizedValue) override;
-//  virtual void EndInformHostOfParamChangeFromUI(int paramIdx) override;
+//void EndInformHostOfParamChangeFromUI(int paramIdx) override;
 
   void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;
-  void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize = 0, const void* pData = nullptr) override;
+  void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) override;
   void SendArbitraryMsgFromDelegate(int messageTag, int dataSize, const void* pData) override;
   void SendMidiMsgFromDelegate(const IMidiMsg& msg) override;
   void SendSysexMsgFromDelegate(const ISysEx& msg) override;
@@ -42,6 +42,6 @@ public:
   void ProcessWebsocketQueue();
   
 private:
-  IPlugQueue<IParamChange> mParamChangeFromClients; // TODO: This is a single producer single consumer queue - it is not sufficient, since each client connection will be on a different server thread
+  IPlugQueue<ParamTuple> mParamChangeFromClients; // TODO: This is a single producer single consumer queue - it is not sufficient, since each client connection will be on a different server thread
   IPlugQueue<IMidiMsg> mMIDIFromClients; // TODO: This is a single producer single consumer queue - it is not sufficient, since each client connection will be on a different server thread
 };
