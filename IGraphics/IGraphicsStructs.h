@@ -2528,7 +2528,7 @@ struct IVColorSpec
   void ResetColors() { SetColors(); }
 };
 
-const IVColorSpec DEFAULT_SPEC = IVColorSpec();
+const IVColorSpec DEFAULT_COLOR_SPEC = IVColorSpec();
 
 
 static constexpr bool DEFAULT_HIDE_CURSOR = true;
@@ -2554,7 +2554,7 @@ struct IVStyle
   float roundness = DEFAULT_ROUNDNESS;
   float frameThickness = DEFAULT_FRAME_THICKNESS;
   float shadowOffset = DEFAULT_SHADOW_OFFSET;
-  IVColorSpec colorSpec = DEFAULT_SPEC;
+  IVColorSpec colorSpec = DEFAULT_COLOR_SPEC;
   IText labelText = DEFAULT_LABEL_TEXT;
   IText valueText = DEFAULT_VALUE_TEXT;
   
