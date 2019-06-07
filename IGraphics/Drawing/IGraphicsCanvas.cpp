@@ -229,18 +229,18 @@ void IGraphicsCanvas::SetCanvasBlendMode(val& context, const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case kBlendDefault:       // fall through
-    case kBlendClobber:       // fall through
-    case kBlendSourceOver:    context.set("globalCompositeOperation", "source-over");        break;
-    case kBlendSourceIn:      context.set("globalCompositeOperation", "source-in");          break;
-    case kBlendSourceOut:     context.set("globalCompositeOperation", "source-out");         break;
-    case kBlendSourceAtop:    context.set("globalCompositeOperation", "source-atop");        break;
-    case kBlendDestOver:      context.set("globalCompositeOperation", "destination-over");   break;
-    case kBlendDestIn:        context.set("globalCompositeOperation", "destination-in");     break;
-    case kBlendDestOut:       context.set("globalCompositeOperation", "destination-out");    break;
-    case kBlendDestAtop:      context.set("globalCompositeOperation", "destination-atop");   break;
-    case kBlendAdd:           context.set("globalCompositeOperation", "lighter");            break;
-    case kBlendXOR:           context.set("globalCompositeOperation", "xor");                break;
+    case EBlend::Default:       // fall through
+    case EBlend::Clobber:       // fall through
+    case EBlend::SourceOver:    context.set("globalCompositeOperation", "source-over");        break;
+    case EBlend::SourceIn:      context.set("globalCompositeOperation", "source-in");          break;
+    case EBlend::SourceOut:     context.set("globalCompositeOperation", "source-out");         break;
+    case EBlend::SourceAtop:    context.set("globalCompositeOperation", "source-atop");        break;
+    case EBlend::DestOver:      context.set("globalCompositeOperation", "destination-over");   break;
+    case EBlend::DestIn:        context.set("globalCompositeOperation", "destination-in");     break;
+    case EBlend::DestOut:       context.set("globalCompositeOperation", "destination-out");    break;
+    case EBlend::DestAtop:      context.set("globalCompositeOperation", "destination-atop");   break;
+    case EBlend::Add:           context.set("globalCompositeOperation", "lighter");            break;
+    case EBlend::XOR:           context.set("globalCompositeOperation", "xor");                break;
   }
 }
 
@@ -503,7 +503,7 @@ void IGraphicsCanvas::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
       pixelData.set(i, in[i]);
     
     localContext.call<void>("putImageData", imageData, 0, 0);
-    IBlend blend(kBlendSourceIn, shadow.mOpacity);
+    IBlend blend(EBlend::SourceIn, shadow.mOpacity);
     localContext.call<void>("rect", 0, 0, width, height);
     localContext.call<void>("scale", scale, scale);
     localContext.call<void>("translate", -(layer->Bounds().L + shadow.mXOffset), -(layer->Bounds().T + shadow.mYOffset));

@@ -55,21 +55,21 @@ const int FONT_LEN = 64;
 /** @enum EType Blend type
  * \todo This could use some documentation
  */
-enum EBlendType
+enum class EBlend
 {
-  kBlendDefault,
-  kBlendClobber,
-  kBlendSourceOver,
-  kBlendSourceIn,
-  kBlendSourceOut,
-  kBlendSourceAtop,
-  kBlendDestOver,
-  kBlendDestIn,
-  kBlendDestOut,
-  kBlendDestAtop,
-  kBlendAdd,
-  kBlendXOR,
-  kBlendNone = kBlendDefault
+  Default,
+  Clobber,
+  SourceOver,
+  SourceIn,
+  SourceOut,
+  SourceAtop,
+  DestOver,
+  DestIn,
+  DestOut,
+  DestAtop,
+  Add,
+  XOR,
+  None = EBlend::Default
 };
 
 enum EFileAction

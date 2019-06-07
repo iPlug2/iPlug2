@@ -109,18 +109,18 @@ inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
   }
   switch (pBlend->mMethod)
   {
-    case kBlendDefault:         // fall through
-    case kBlendClobber:         // fall through
-    case kBlendSourceOver:      return CAIRO_OPERATOR_OVER;
-    case kBlendSourceIn:        return CAIRO_OPERATOR_IN;
-    case kBlendSourceOut:       return CAIRO_OPERATOR_OUT;
-    case kBlendSourceAtop:      return CAIRO_OPERATOR_ATOP;
-    case kBlendDestOver:        return CAIRO_OPERATOR_DEST_OVER;
-    case kBlendDestIn:          return CAIRO_OPERATOR_DEST_IN;
-    case kBlendDestOut:         return CAIRO_OPERATOR_DEST_OUT;
-    case kBlendDestAtop:        return CAIRO_OPERATOR_DEST_ATOP;
-    case kBlendAdd:             return CAIRO_OPERATOR_ADD;
-    case kBlendXOR:             return CAIRO_OPERATOR_XOR;
+    case EBlend::Default:         // fall through
+    case EBlend::Clobber:         // fall through
+    case EBlend::SourceOver:      return CAIRO_OPERATOR_OVER;
+    case EBlend::SourceIn:        return CAIRO_OPERATOR_IN;
+    case EBlend::SourceOut:       return CAIRO_OPERATOR_OUT;
+    case EBlend::SourceAtop:      return CAIRO_OPERATOR_ATOP;
+    case EBlend::DestOver:        return CAIRO_OPERATOR_DEST_OVER;
+    case EBlend::DestIn:          return CAIRO_OPERATOR_DEST_IN;
+    case EBlend::DestOut:         return CAIRO_OPERATOR_DEST_OUT;
+    case EBlend::DestAtop:        return CAIRO_OPERATOR_DEST_ATOP;
+    case EBlend::Add:             return CAIRO_OPERATOR_ADD;
+    case EBlend::XOR:             return CAIRO_OPERATOR_XOR;
   }
 }
 
@@ -252,7 +252,7 @@ void IGraphicsCairo::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, cons
       cairo_fill(pContext);
     }
     
-    IBlend blend(kBlendDefault, shadow.mOpacity);
+    IBlend blend(EBlend::Default, shadow.mOpacity);
     cairo_translate(pContext, -layer->Bounds().L, -layer->Bounds().T);
     SetCairoSourcePattern(pContext, shadow.mPattern, &blend);
     cairo_identity_matrix(pContext);
