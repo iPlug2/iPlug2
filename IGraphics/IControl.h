@@ -899,9 +899,8 @@ public:
       }
     }
     
-    if(hasHandle) {
+    if(hasHandle)
       mWidgetBounds = GetAdjustedHandleBounds(clickableArea);
-    }
     
     if(mLabelInWidget)
       mLabelBounds = mWidgetBounds;
