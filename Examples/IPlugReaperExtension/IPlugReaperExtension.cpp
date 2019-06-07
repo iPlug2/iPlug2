@@ -63,7 +63,7 @@ IPlugReaperExtension::IPlugReaperExtension(reaper_plugin_info_t* pRec)
                                                    WDL_String valStr;
                                                    valStr.SetFormatted(32, "slider %f\n", pCaller->GetValue());
                                                    ShowConsoleMsg(valStr.Get());
-                                                 }, "Value:", DEFAULT_STYLE, EDirection::Horizontal));
+                                                 }, "Value:", DEFAULT_STYLE, true, EDirection::Horizontal));
     
 //    pGraphics->AttachImGui([](IGraphics* pGraphics) {
 //      ImGui::ShowDemoWindow();
