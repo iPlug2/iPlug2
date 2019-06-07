@@ -1730,8 +1730,8 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
 
 PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
 {
-  int weight = style == kTextStyleBold ? FW_BOLD : FW_REGULAR;
-  bool italic = style == kTextStyleItalic;
+  int weight = style == ETextStyle::Bold ? FW_BOLD : FW_REGULAR;
+  bool italic = style == ETextStyle::Italic;
   bool underline = false;
   DWORD quality = DEFAULT_QUALITY;
 

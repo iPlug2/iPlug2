@@ -521,15 +521,15 @@ struct IStrokeOptions
 };
 
 /** Used to specify text styles when loading fonts. */
-enum ETextStyle { kTextStyleNormal, kTextStyleBold, kTextStyleItalic };
+enum class ETextStyle { Normal, Bold, Italic };
 
 static const char* TextStyleString(ETextStyle style)
 {
   switch (style)
   {
-    case kTextStyleNormal:  return "Regular";
-    case kTextStyleBold:    return "Bold";
-    case kTextStyleItalic:  return "Italic";
+    case ETextStyle::Normal:  return "Regular";
+    case ETextStyle::Bold:    return "Bold";
+    case ETextStyle::Italic:  return "Italic";
   }
 }
 
