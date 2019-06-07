@@ -355,7 +355,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
             dynamic_cast<IVectorBase&>(control).SetColor(colorIdx, result);
           });
         });
-      }, kVColorStrs[colorIdx], style.WithColor(kFG, DEFAULT_SPEC.mColors[colorIdx]).WithDrawFrame(false).WithDrawShadows(false)));
+      }, kVColorStrs[colorIdx], style.WithColor(kFG, DEFAULT_COLOR_SPEC.mColors[colorIdx]).WithDrawFrame(false).WithDrawShadows(false)));
     }
     
   };
