@@ -169,8 +169,7 @@
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugPaths.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp" />
-    <ClCompile Include="..\..\..\IPlug\IPlugReaperExtension\ReaperExtBase.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    <ClCompile Include="..\..\..\IPlug\ReaperExt\ReaperExtBase.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\IPlugReaperExtension.cpp" />
@@ -217,9 +216,9 @@
     <ClInclude Include="..\..\..\IPlug\IPlugPaths.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugQueue.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugTimer.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugReaperExtension\ReaperExtBase.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugReaperExtension\ReaperExt_include_in_plug_hdr.h" />
-    <ClInclude Include="..\..\..\IPlug\IPlugReaperExtension\ReaperExt_include_in_plug_src.h" />
+    <ClInclude Include="..\..\..\IPlug\ReaperExt\ReaperExtBase.h" />
+    <ClInclude Include="..\..\..\IPlug\ReaperExt\ReaperExt_include_in_plug_hdr.h" />
+    <ClInclude Include="..\..\..\IPlug\ReaperExt\ReaperExt_include_in_plug_src.h" />
     <ClInclude Include="..\config.h" />
     <ClInclude Include="..\IPlugReaperExtension.h" />
     <ClInclude Include="..\resources\resource.h" />

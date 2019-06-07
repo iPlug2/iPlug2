@@ -34,7 +34,7 @@ auto ClientResize = [](HWND hWnd, int nWidth, int nHeight) {
   SetWindowPos(hWnd, 0, x, y, nWidth + ptDiff.x, nHeight + ptDiff.y, 0);
 };
 
-void ReaperExtBase::EditorPropertiesChangedFromUI(int viewWidth, int viewHeight, const IByteChunk& data)
+bool ReaperExtBase::EditorResizeFromUI(int viewWidth, int viewHeight)
 {
   if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
   {
@@ -44,7 +44,11 @@ void ReaperExtBase::EditorPropertiesChangedFromUI(int viewWidth, int viewHeight,
     GetWindowRect(gHWND, &r);
     SetWindowPos(gHWND, 0, r.left, r.bottom - viewHeight - TITLEBAR_BODGE, viewWidth, viewHeight + TITLEBAR_BODGE, 0);
 #endif
+
+    return true;
   }
+
+  return false;
 }
 
 void ReaperExtBase::ShowHideMainWindow()
