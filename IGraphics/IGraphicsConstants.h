@@ -72,12 +72,10 @@ enum class EBlend
   None = EBlend::Default
 };
 
-enum EFileAction
-{
-  kFileOpen,
-  kFileSave  
-};
+/** /todo */
+enum class EFileAction { Open, Save };
 
+/** /todo */
 enum class EDirection { Vertical, Horizontal };
 
 /** Used to specify text styles when loading fonts. */
@@ -89,6 +87,7 @@ enum class EAlign { Near, Center, Far };
 /** /todo */
 enum class EVAlign { Top, Middle, Bottom };
 
+/** /todo */
 enum EVColor
 {
   kBG = 0,    // background color: All vector controls should fill their BG with this color, which is transparent by default
@@ -119,20 +118,28 @@ static const char* kVColorStrs[kNumDefaultVColors] =
   "extra3"
 };
 
+/** /todo */
 enum class EWinding { CW, CCW };
 
+/** /todo */
 enum class EFillRule { Winding, EvenOdd };
 
+/** /todo */
 enum class ELineCap { Butt, Round, Square };
 
+/** /todo */
 enum class ELineJoin { Miter, Round, Bevel };
 
+/** /todo */
 enum class EPatternType { Solid, Linear, Radial };
 
+/** /todo */
 enum class EPatternExtend { None, Pad, Reflect, Repeat };
 
+/** /todo */
 enum class EUIResizerMode { Scale, Size };
 
+/** /todo */
 enum class ECursor
 {
   ARROW,
