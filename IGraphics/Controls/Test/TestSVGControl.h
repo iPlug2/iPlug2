@@ -54,7 +54,7 @@ public:
     WDL_String file;
     WDL_String path;
 
-    GetUI()->PromptForFile(file, path, kFileOpen, "svg");
+    GetUI()->PromptForFile(file, path, EFileAction::Open, "svg");
 
     if(file.GetLength())
       SetSVG(GetUI()->LoadSVG(file.Get()));
