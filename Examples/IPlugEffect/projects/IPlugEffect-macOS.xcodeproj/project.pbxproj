@@ -2566,7 +2566,6 @@
 				CODE_SIGN_ENTITLEMENTS = "IPlugEffect-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 686EDA2T8T;
 				EXECUTABLE_EXTENSION = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2611,7 +2610,6 @@
 				CODE_SIGN_ENTITLEMENTS = "IPlugEffect-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				DEVELOPMENT_TEAM = 686EDA2T8T;
 				ENABLE_NS_ASSERTIONS = NO;
 				EXECUTABLE_EXTENSION = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -2657,7 +2655,6 @@
 				CODE_SIGN_ENTITLEMENTS = "IPlugEffect-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				DEVELOPMENT_TEAM = 686EDA2T8T;
 				ENABLE_NS_ASSERTIONS = NO;
 				EXECUTABLE_EXTENSION = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -3134,7 +3131,6 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "IPlugEffect-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 686EDA2T8T;
 				DSTROOT = "$(APP_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_APP_DEFS)",
@@ -3161,7 +3157,6 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "IPlugEffect-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 686EDA2T8T;
 				DSTROOT = "$(APP_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_APP_DEFS)",
@@ -3188,7 +3183,6 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "IPlugEffect-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 686EDA2T8T;
 				DSTROOT = "$(APP_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_APP_DEFS)",
