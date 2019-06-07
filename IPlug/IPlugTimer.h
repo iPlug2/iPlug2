@@ -29,8 +29,8 @@
 /** Base class for timer */
 struct Timer
 {
-  typedef std::function<void(Timer& t)> ITimerFunction;
-    
+  using ITimerFunction = std::function<void(Timer& t)>;
+  
   static Timer* Create(ITimerFunction func, uint32_t intervalMs)
   {
     return new Timer();
@@ -44,7 +44,7 @@ struct Timer
 /** Base class for timer */
 struct Timer
 {
-  typedef std::function<void(Timer& t)> ITimerFunction;
+  using ITimerFunction = std::function<void(Timer& t)>;
 
   static Timer* Create(ITimerFunction func, uint32_t intervalMs);
   virtual ~Timer() {};
@@ -59,7 +59,6 @@ struct Timer
 class Timer_impl : public Timer
 {
 public:
-  
   Timer_impl(ITimerFunction func, uint32_t intervalMs);
   ~Timer_impl();
   
