@@ -1124,12 +1124,12 @@ public:
   
   /** Attach the default control to scale or increase the UI size by dragging the plug-in bottom right-hand corner
    * @param sizeMode Choose whether to scale or size the UI */
-  void AttachCornerResizer(EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale, bool layoutOnResize = false);
+  void AttachCornerResizer(EUIResizerMode sizeMode = EUIResizerMode::Scale, bool layoutOnResize = false);
 
   /** Attach your own control to scale or increase the UI size by dragging the plug-in bottom right-hand corner
    * @param pControl control a control that inherits from ICornerResizerControl
    * @param sizeMode Choose whether to scale or size the UI */
-  void AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale, bool layoutOnResize = false);
+  void AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerMode sizeMode = EUIResizerMode::Scale, bool layoutOnResize = false);
 
   /** Attach a control for pop-up menus, to override platform style menus
    @param text The text style to use for the menu
@@ -1461,7 +1461,7 @@ private:
   
   IPopupMenu mPromptPopupMenu;
   
-  ECursor mCursorType = ARROW;
+  ECursor mCursorType = ECursor::ARROW;
   int mWidth;
   int mHeight;
   int mFPS;
@@ -1492,7 +1492,7 @@ private:
   bool mShowAreaDrawn = false;
   bool mResizingInProcess = false;
   bool mLayoutOnResize = false;
-  EUIResizerMode mGUISizeMode = EUIResizerMode::kUIResizerScale;
+  EUIResizerMode mGUISizeMode = EUIResizerMode::Scale;
   double mPrevTimestamp = 0.;
   IKeyHandlerFunc mKeyHandlerFunc = nullptr;
 protected:

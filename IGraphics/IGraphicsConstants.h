@@ -131,13 +131,9 @@ enum class EPatternType { Solid, Linear, Radial };
 
 enum class EPatternExtend { None, Pad, Reflect, Repeat };
 
-enum EUIResizerMode
-{
-  kUIResizerScale,
-  kUIResizerSize
-};
+enum class EUIResizerMode { Scale, Size };
 
-enum ECursor
+enum class ECursor
 {
   ARROW,
   IBEAM,

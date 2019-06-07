@@ -125,7 +125,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     
 //    pGraphics->EnableLiveEdit(true);
     pGraphics->HandleMouseOver(true);
-    pGraphics->AttachCornerResizer(kUIResizerScale, true);
+    pGraphics->AttachCornerResizer(EUIResizerMode::Scale, true);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->EnableTooltips(true);
     pGraphics->AttachTextEntryControl();

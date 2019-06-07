@@ -38,7 +38,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
       return;
     }
     
-    pGraphics->AttachCornerResizer(EUIResizerMode::kUIResizerScale, true);
+    pGraphics->AttachCornerResizer(EUIResizerMode::Scale, true);
     pGraphics->HandleMouseOver(true);
     pGraphics->EnableTooltips(true);
     

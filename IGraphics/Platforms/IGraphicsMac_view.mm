@@ -1195,9 +1195,9 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 //  float scaleX = width / mGraphics->Width();
 //  float scaleY = height / mGraphics->Height();
 //
-//  if(mGraphics->GetUIResizerMode() == EUIResizerMode::kUIResizerScale)
+//  if(mGraphics->GetUIResizerMode() == EUIResizerMode::Scale)
 //    mGraphics->Resize(width, height, mGraphics->GetDrawScale());
-//  else // EUIResizerMode::kUIResizerSize
+//  else // EUIResizerMode::Size
 //    mGraphics->Resize(mGraphics->Width(), mGraphics->Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
 //}
 //
@@ -1212,9 +1212,9 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 //  float scaleX = width / mGraphics->Width();
 //  float scaleY = height / mGraphics->Height();
 //
-//  if(mGraphics->GetUIResizerMode() == EUIResizerMode::kUIResizerScale)
+//  if(mGraphics->GetUIResizerMode() == EUIResizerMode::Scale)
 //    mGraphics->Resize(width, height, mGraphics->GetDrawScale());
-//  else // EUIResizerMode::kUIResizerSize
+//  else // EUIResizerMode::Size
 //    mGraphics->Resize(mGraphics->Width(), mGraphics->Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
 //}
 

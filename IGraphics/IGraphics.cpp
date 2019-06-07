@@ -850,7 +850,7 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
   if (mResizingInProcess)
   {
     mResizingInProcess = false;
-    if (GetResizerMode() == EUIResizerMode::kUIResizerScale)
+    if (GetResizerMode() == EUIResizerMode::Scale)
     {
       // If scaling up we may want to load in high DPI bitmaps if scale > 1.
       ForAllControls(&IControl::OnRescale);
@@ -902,7 +902,7 @@ void IGraphics::OnMouseOut()
   Trace("IGraphics::OnMouseOut", __LINE__, "");
 
   // Store the old cursor type so this gets restored when the mouse enters again
-  mCursorType = SetMouseCursor(ARROW);
+  mCursorType = SetMouseCursor(ECursor::ARROW);
   ForAllControls(&IControl::OnMouseOut);
   ClearMouseOver();
 }
@@ -1205,7 +1205,7 @@ void IGraphics::OnGUIIdle()
 
 void IGraphics::OnResizeGesture(float x, float y)
 {
-  if(mGUISizeMode == EUIResizerMode::kUIResizerScale)
+  if(mGUISizeMode == EUIResizerMode::Scale)
   {
     float scaleX = (x * GetDrawScale()) / mMouseDownX;
     float scaleY = (y * GetDrawScale()) / mMouseDownY;
