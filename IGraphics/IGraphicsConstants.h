@@ -84,6 +84,15 @@ enum EDirection
   kHorizontal = 1
 };
 
+/** Used to specify text styles when loading fonts. */
+enum class ETextStyle { Normal, Bold, Italic };
+
+/** /todo */
+enum class EAlign { Near, Center, Far };
+
+/** /todo */
+enum class EVAlign { Top, Middle, Bottom };
+
 enum EVColor
 {
   kBG = 0,    // background color: All vector controls should fill their BG with this color, which is transparent by default
@@ -336,4 +345,3 @@ enum EVirtualKey
   kVK_NUMLOCK =     0x90,
   kVK_SCROLL =      0x91
 };
-

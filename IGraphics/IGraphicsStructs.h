@@ -520,9 +520,6 @@ struct IStrokeOptions
   DashOptions mDash;
 };
 
-/** Used to specify text styles when loading fonts. */
-enum class ETextStyle { Normal, Bold, Italic };
-
 static const char* TextStyleString(ETextStyle style)
 {
   switch (style)
@@ -532,12 +529,6 @@ static const char* TextStyleString(ETextStyle style)
     case ETextStyle::Italic:  return "Italic";
   }
 }
-
-/** /todo */
-enum class EAlign { Near, Center, Far };
-
-/** /todo */
-enum class EVAlign { Top, Middle, Bottom };
 
 /** Used to manage font and text/text entry style for a piece of text on the UI, independent of draw class/platform.*/
 struct IText
