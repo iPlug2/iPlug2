@@ -79,7 +79,7 @@ bool IGraphicsIOS::WindowIsOpen()
   return mView;
 }
 
-void IGraphicsIOS::PlatformResize()
+void IGraphicsIOS::PlatformResize(bool parentHasResized)
 {
   if (mView)
   {
