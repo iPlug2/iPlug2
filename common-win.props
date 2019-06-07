@@ -63,7 +63,7 @@
     <VST3_64_COMMAND_ARGS />
     <VST3_32_COMMAND_ARGS />
     <COPY_VST2>1</COPY_VST2>
-    <REAPER_SDK>$(IPLUG_DEPS_PATH)/Reaper</REAPER_SDK>
+    <REAPER_INC_PATHS>$(IPLUG_DEPS_PATH)/Reaper;$(IPLUG_PATH)\ReaperExt;</REAPER_INC_PATHS>
     <AAX_ICON>$(AAX_SDK)\Utilities\PlugIn.ico</AAX_ICON>
     <VST_ICON>$(VST3_SDK)\doc\artwork\VST_Logo_Steinberg.ico</VST_ICON>
   </PropertyGroup>
@@ -271,8 +271,8 @@
     <BuildMacro Include="COPY_VST2">
       <Value>$(COPY_VST2)</Value>
     </BuildMacro>
-    <BuildMacro Include="REAPER_SDK">
-      <Value>$(REAPER_SDK)</Value>
+    <BuildMacro Include="REAPER_INC_PATHS">
+      <Value>$(REAPER_INC_PATHS)</Value>
     </BuildMacro>
     <BuildMacro Include="AAX_ICON">
       <Value>$(AAX_ICON)</Value>
