@@ -103,7 +103,7 @@ inline T DegToRad(T degrees)
   #include "wingdi.h"
   #include "Stringapiset.h"
   using FontDescriptor = HFONT;
-#elif defined OS_WEB
+#elif defined OS_WEB || defined OS_LINUX
   using FontDescriptor = std::pair<WDL_String, WDL_String>*;
 #else 
   // NO_IGRAPHICS
@@ -366,7 +366,7 @@ struct IColor
     };
 
     IColor col;
-    h = std::fmodf(h, 1.0f);
+    h = ::fmodf(h, 1.0f); // std::fmodf not found with g++
     if (h < 0.0f) h += 1.0f;
     s = Clip(s, 0.0f, 1.0f);
     l = Clip(l, 0.0f, 1.0f);

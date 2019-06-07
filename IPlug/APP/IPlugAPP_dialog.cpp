@@ -15,7 +15,7 @@
 #ifdef OS_WIN
 #include "asio.h"
 #define GET_MENU() GetMenu(gHWND)
-#elif defined OS_MAC
+#elif defined OS_MAC || defined OS_LINUX
 #define GET_MENU() SWELL_GetCurrentMenu()
 #endif
 
@@ -285,8 +285,16 @@ void IPlugAPPHost::PopulatePreferencesDialog(HWND hwndDlg)
   PopulateAudioDialogs(hwndDlg);
   PopulateMidiDialogs(hwndDlg);
 }
-#else
-  #warning NOT IMPLEMENTED
+#elif defined OS_LINUX
+void IPlugAPPHost::PopulatePreferencesDialog(HWND hwndDlg)
+{
+  //SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_DRIVER,CB_ADDSTRING,0,(LPARAM)"Alsa");
+  SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_DRIVER,CB_ADDSTRING,0,(LPARAM)"Jack");
+  SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_DRIVER,CB_SETCURSEL, mState.mAudioDriverType, 0);
+
+  PopulateAudioDialogs(hwndDlg);
+  PopulateMidiDialogs(hwndDlg);
+}
 #endif
 
 WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)

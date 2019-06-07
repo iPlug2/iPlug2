@@ -60,6 +60,8 @@
   #define DEFAULT_OUTPUT_DEV "Built-in Output"
 #elif defined(OS_LINUX)
   #include <IPlugSWELL.h>
+  #define DEFAULT_INPUT_DEV "Built-in Input"
+  #define DEFAULT_OUTPUT_DEV "Built-in Output"
 #endif
 
 #define OFF_TEXT "off"

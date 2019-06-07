@@ -28,7 +28,7 @@ OBJS = $(APP_OBJS) $(SWELL_OBJS) $(LICE_OBJS) $(PROJECT_OBJS)
 RESFILES = resources/main.rc_mac_dlg resources/main.rc_mac_menu
 
 ### Compiler/Linker Flags
-CFLAGS += $(INCLUDE_PATHS) -I$(RTAUDIO_PATH) -I$(RTMIDI_PATH) -I$(IGRAPHICS_PATH) -I$(PROJECT_ROOT)/resources
+CFLAGS += $(IPLUG_INC_PATHS) $(IGRAPHICS_INC_PATHS) -I$(RTAUDIO_PATH) -I$(RTMIDI_PATH) -I$(PROJECT_ROOT)/resources
 CFLAGS += -pipe -fvisibility=hidden -fno-math-errno -fPIC -DPIC -Wall -Wshadow -Wno-unused-function -Wno-multichar -Wno-unused-result -Wno-deprecated-declarations -Wno-unknown-pragmas -Wno-reorder -Wno-shadow -Wno-sign-compare
 CFLAGS += -O0 -g -D_DEBUG
 LFLAGS = -lpthread -ldl -lX11 -lXi
@@ -39,7 +39,7 @@ LFLAGS += $(shell pkg-config gdk-2.0 --libs)
 CFLAGS += -DSWELL_LICE_GDI -DSWELL_FREETYPE $(shell freetype-config --cflags)
 LFLAGS += $(shell freetype-config --libs)
 
-CXXFLAGS = $(CFLAGS) -std=c++11 -DNOMINMAX
+CXXFLAGS = $(CFLAGS) -std=c++14 -DNOMINMAX -DIGRAPHICS_LICE
 
 ### Targets
 .PHONY: clean run
