@@ -2516,8 +2516,6 @@ struct IVColorSpec
 };
 
 const IVColorSpec DEFAULT_COLOR_SPEC = IVColorSpec();
-#define DEFAULT_COLOR_LIST DEFAULT_BGCOLOR, DEFAULT_FGCOLOR, DEFAULT_PRCOLOR, DEFAULT_FRCOLOR, \
-                           DEFAULT_HLCOLOR, DEFAULT_SHCOLOR, DEFAULT_X1COLOR, DEFAULT_X2COLOR, DEFAULT_X3COLOR
 
 static constexpr bool DEFAULT_HIDE_CURSOR = true;
 static constexpr bool DEFAULT_SHOW_VALUE = true;
@@ -2548,7 +2546,7 @@ struct IVStyle
   
   explicit IVStyle(bool showLabel = DEFAULT_SHOW_LABEL,
           bool showValue = DEFAULT_SHOW_VALUE,
-          const std::initializer_list<IColor>& colors = {DEFAULT_COLOR_LIST},
+          const std::initializer_list<IColor>& colors = {DEFAULT_BGCOLOR, DEFAULT_FGCOLOR, DEFAULT_PRCOLOR, DEFAULT_FRCOLOR, DEFAULT_HLCOLOR, DEFAULT_SHCOLOR, DEFAULT_X1COLOR, DEFAULT_X2COLOR, DEFAULT_X3COLOR},
           const IText& labelText = DEFAULT_LABEL_TEXT,
           const IText& valueText = DEFAULT_VALUE_TEXT,
           bool hideCursor = DEFAULT_HIDE_CURSOR,
