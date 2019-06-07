@@ -176,13 +176,13 @@ public:
     }
     
     template <typename VertexSourceType>
-    void Rasterize(VertexSourceType& path, const IPattern& pattern, agg::comp_op_e op, float opacity, EFillRule rule = kFillWinding)
+    void Rasterize(VertexSourceType& path, const IPattern& pattern, agg::comp_op_e op, float opacity, EFillRule rule = EFillRule::Winding)
     {
       SetPath(path);
       Rasterize(pattern, op, opacity, rule);
     }
     
-    void Rasterize(const IPattern& pattern, agg::comp_op_e op, float opacity, EFillRule rule = kFillWinding);
+    void Rasterize(const IPattern& pattern, agg::comp_op_e op, float opacity, EFillRule rule = EFillRule::Winding);
 
     template <typename VertexSourceType>
     void SetPath(VertexSourceType& path)

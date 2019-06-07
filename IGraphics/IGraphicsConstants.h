@@ -78,11 +78,7 @@ enum EFileAction
   kFileSave  
 };
 
-enum EDirection
-{
-  kVertical = 0,
-  kHorizontal = 1
-};
+enum class EDirection { Vertical, Horizontal };
 
 /** Used to specify text styles when loading fonts. */
 enum class ETextStyle { Normal, Bold, Italic };
@@ -123,46 +119,17 @@ static const char* kVColorStrs[kNumDefaultVColors] =
   "extra3"
 };
 
-enum EWinding
-{
-  kWindingCW,
-  kWindingCCW
-};
+enum class EWinding { CW, CCW };
 
-enum EFillRule
-{
-  kFillWinding,
-  kFillEvenOdd
-};
+enum class EFillRule { Winding, EvenOdd };
 
-enum ELineCap
-{
-  kCapButt,
-  kCapRound,
-  kCapSquare
-};
+enum class ELineCap { Butt, Round, Square };
 
-enum ELineJoin
-{
-  kJoinMiter,
-  kJoinRound,
-  kJoinBevel
-};
+enum class ELineJoin { Miter, Round, Bevel };
 
-enum EPatternType
-{
-  kSolidPattern,
-  kLinearPattern,
-  kRadialPattern
-};
+enum class EPatternType { Solid, Linear, Radial };
 
-enum EPatternExtend
-{
-  kExtendNone,
-  kExtendPad,
-  kExtendReflect,
-  kExtendRepeat
-};
+enum class EPatternExtend { None, Pad, Reflect, Repeat };
 
 enum EUIResizerMode
 {

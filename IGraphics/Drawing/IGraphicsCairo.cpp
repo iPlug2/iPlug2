@@ -288,7 +288,7 @@ void IGraphicsCairo::PathClose()
 
 void IGraphicsCairo::PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding)
 {
-  if (winding == kWindingCW)
+  if (winding == EWinding::CW)
     cairo_arc(mContext, cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f));
   else
     cairo_arc_negative(mContext, cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f));
@@ -315,16 +315,16 @@ void IGraphicsCairo::PathStroke(const IPattern& pattern, float thickness, const 
   
   switch (options.mCapOption)
   {
-    case kCapButt:   cairo_set_line_cap(mContext, CAIRO_LINE_CAP_BUTT);     break;
-    case kCapRound:  cairo_set_line_cap(mContext, CAIRO_LINE_CAP_ROUND);    break;
-    case kCapSquare: cairo_set_line_cap(mContext, CAIRO_LINE_CAP_SQUARE);   break;
+    case ELineCap::Butt:   cairo_set_line_cap(mContext, CAIRO_LINE_CAP_BUTT);     break;
+    case ELineCap::Round:  cairo_set_line_cap(mContext, CAIRO_LINE_CAP_ROUND);    break;
+    case ELineCap::Square: cairo_set_line_cap(mContext, CAIRO_LINE_CAP_SQUARE);   break;
   }
   
   switch (options.mJoinOption)
   {
-    case kJoinMiter:   cairo_set_line_join(mContext, CAIRO_LINE_JOIN_MITER);   break;
-    case kJoinRound:   cairo_set_line_join(mContext, CAIRO_LINE_JOIN_ROUND);   break;
-    case kJoinBevel:   cairo_set_line_join(mContext, CAIRO_LINE_JOIN_BEVEL);   break;
+    case ELineJoin::Miter:   cairo_set_line_join(mContext, CAIRO_LINE_JOIN_MITER);   break;
+    case ELineJoin::Round:   cairo_set_line_join(mContext, CAIRO_LINE_JOIN_ROUND);   break;
+    case ELineJoin::Bevel:   cairo_set_line_join(mContext, CAIRO_LINE_JOIN_BEVEL);   break;
   }
   
   cairo_set_miter_limit(mContext, options.mMiterLimit);
@@ -344,7 +344,7 @@ void IGraphicsCairo::PathStroke(const IPattern& pattern, float thickness, const 
 
 void IGraphicsCairo::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) 
 {
-  cairo_set_fill_rule(mContext, options.mFillRule == kFillEvenOdd ? CAIRO_FILL_RULE_EVEN_ODD : CAIRO_FILL_RULE_WINDING);
+  cairo_set_fill_rule(mContext, options.mFillRule == EFillRule::EvenOdd ? CAIRO_FILL_RULE_EVEN_ODD : CAIRO_FILL_RULE_WINDING);
   SetCairoSourcePattern(mContext, pattern, pBlend);
   if (options.mPreserve)
     cairo_fill_preserve(mContext);
@@ -358,31 +358,31 @@ void IGraphicsCairo::SetCairoSourcePattern(cairo_t* context, const IPattern& pat
   
   switch (pattern.mType)
   {
-    case kSolidPattern:
+    case EPatternType::Solid:
     {
       const IColor &color = pattern.GetStop(0).mColor;
       cairo_set_source_rgba(context, color.R / 255.0, color.G / 255.0, color.B / 255.0, (BlendWeight(pBlend) * color.A) / 255.0);
     }
     break;
       
-    case kLinearPattern:
-    case kRadialPattern:
+    case EPatternType::Linear:
+    case EPatternType::Radial:
     {
       cairo_pattern_t* cairoPattern;
       cairo_matrix_t matrix;
       const IMatrix& m = pattern.mTransform;
       
-      if (pattern.mType == kLinearPattern)
+      if (pattern.mType == EPatternType::Linear)
         cairoPattern = cairo_pattern_create_linear(0.0, 0.0, 0.0, 1.0);
       else
         cairoPattern = cairo_pattern_create_radial(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
       
       switch (pattern.mExtend)
       {
-        case kExtendNone:      cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_NONE);      break;
-        case kExtendPad:       cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_PAD);       break;
-        case kExtendReflect:   cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_REFLECT);   break;
-        case kExtendRepeat:    cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_REPEAT);    break;
+        case EPatternExtend::None:      cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_NONE);      break;
+        case EPatternExtend::Pad:       cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_PAD);       break;
+        case EPatternExtend::Reflect:   cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_REFLECT);   break;
+        case EPatternExtend::Repeat:    cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_REPEAT);    break;
       }
       
       for (int i = 0; i < pattern.NStops(); i++)

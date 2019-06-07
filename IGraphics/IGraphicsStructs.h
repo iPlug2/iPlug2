@@ -467,7 +467,7 @@ const IBlend BLEND_01 = IBlend(kBlendDefault, 0.01f);
 struct IFillOptions
 {
   IFillOptions()
-  : mFillRule(kFillWinding)
+  : mFillRule(EFillRule::Winding)
   , mPreserve(false)
   {}
 
@@ -515,8 +515,8 @@ struct IStrokeOptions
 
   float mMiterLimit = 10.f;
   bool mPreserve = false;
-  ELineCap mCapOption = kCapButt;
-  ELineJoin mJoinOption = kJoinMiter;
+  ELineCap mCapOption = ELineCap::Butt;
+  ELineJoin mJoinOption = ELineJoin::Miter;
   DashOptions mDash;
 };
 
@@ -1028,7 +1028,7 @@ struct IRECT
    * @return IRECT /todo */
   inline IRECT FracRect(EDirection layoutDir, float frac, bool fromTopOrRight = false) const
   {
-    if(layoutDir == EDirection::kVertical)
+    if(layoutDir == EDirection::Vertical)
       return FracRectVertical(frac, fromTopOrRight);
     else
       return FracRectHorizontal(frac, fromTopOrRight);
@@ -1093,7 +1093,7 @@ struct IRECT
    * @return IRECT /todo */
   inline IRECT SubRect(EDirection layoutDir, int numSlices, int sliceIdx) const
   {
-    if(layoutDir == EDirection::kVertical)
+    if(layoutDir == EDirection::Vertical)
       return SubRectVertical(numSlices, sliceIdx);
     else
       return SubRectHorizontal(numSlices, sliceIdx);
@@ -1169,7 +1169,7 @@ struct IRECT
    * @param nRows Number of rows in the cell grid
    * @param nColumns Number of columns in the cell grid
    * @return IRECT The resulting subrect */
-  inline IRECT GetGridCell(int row, int col, int nRows, int nColumns/*, EDirection = kHorizontal*/) const
+  inline IRECT GetGridCell(int row, int col, int nRows, int nColumns/*, EDirection = EDirection::Horizontal*/) const
   {
     assert(row * col <= nRows * nColumns); // not enough cells !
     
@@ -1181,15 +1181,15 @@ struct IRECT
    * @param cellIndex Index of the desired cell in the cell grid
    * @param nRows Number of rows in the cell grid
    * @param nColumns Number of columns in the cell grid
-   * @param dir Desired direction of indexing, by row (kHorizontal) or by column (kVertical)
+   * @param dir Desired direction of indexing, by row (EDirection::Horizontal) or by column (EDirection::Vertical)
    * @return IRECT The resulting subrect */
-  inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns, EDirection dir = kHorizontal) const
+  inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns, EDirection dir = EDirection::Horizontal) const
   {
     assert(cellIndex <= nRows * nColumns); // not enough cells !
 
     int cell = 0;
     
-    if(dir == kHorizontal)
+    if(dir == EDirection::Horizontal)
     {
       for(int row = 0; row < nRows; row++)
       {
@@ -2100,13 +2100,13 @@ struct IPattern
   /** /todo 
    * @param type /todo */
   IPattern(EPatternType type)
-  : mType(type), mExtend(kExtendPad), mNStops(0)
+  : mType(type), mExtend(EPatternExtend::Pad), mNStops(0)
   {}
   
   /** /todo 
    * @param color /todo */
   IPattern(const IColor& color)
-  : mType(kSolidPattern), mExtend(kExtendPad), mNStops(1)
+  : mType(EPatternType::Solid), mExtend(EPatternExtend::Pad), mNStops(1)
   {
     mStops[0] = IColorStop(color, 0.0);
   }
@@ -2120,7 +2120,7 @@ struct IPattern
    * @return IPattern /todo */
   static IPattern CreateLinearGradient(float x1, float y1, float x2, float y2, const std::initializer_list<IColorStop>& stops = {})
   {
-    IPattern pattern(kLinearPattern);
+    IPattern pattern(EPatternType::Linear);
     
     // Calculate the affine transform from one line segment to another!
     const double xd = x2 - x1;
@@ -2155,13 +2155,13 @@ struct IPattern
   {
     float x1, y1, x2, y2;
     
-    if(direction == kHorizontal)
+    if(direction == EDirection::Horizontal)
     {
       y1 = bounds.MH(); y2 = y1;
       x1 = bounds.L;
       x2 = bounds.R;
     }
-    else//(direction == kVertical)
+    else//(direction == EDirection::Vertical)
     {
       x1 = bounds.MW(); x2 = x1;
       y1 = bounds.T;
@@ -2179,7 +2179,7 @@ struct IPattern
    * @return IPattern /todo */
   static IPattern CreateRadialGradient(float x1, float y1, float r, const std::initializer_list<IColorStop>& stops = {})
   {
-    IPattern pattern(kRadialPattern);
+    IPattern pattern(EPatternType::Radial);
     
     const float s = 1.f / r;
 
@@ -2211,7 +2211,7 @@ struct IPattern
    * @param offset /todo */
   void AddStop(IColor color, float offset)
   {
-    assert(mType != kSolidPattern && mNStops < 16);
+    assert(mType != EPatternType::Solid && mNStops < 16);
     assert(!mNStops || GetStop(mNStops - 1).mOffset < offset);
     if (mNStops < 16)
       mStops[mNStops++] = IColorStop(color, offset);

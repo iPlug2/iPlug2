@@ -174,7 +174,7 @@ NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend
   IMatrix inverse = IMatrix(pattern.mTransform).Invert();
   inverse.TransformPoint(s[0], s[1], 0.0, 0.0);
 
-  if (pattern.mType == kRadialPattern)
+  if (pattern.mType == EPatternType::Radial)
   {
     return nvgRadialGradient(pContext, s[0], s[1], 0.0, inverse.mXX, icol, ocol);
   }
@@ -507,7 +507,7 @@ void IGraphicsNanoVG::PathClose()
 
 void IGraphicsNanoVG::PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding)
 {
-  nvgArc(mVG, cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f), winding == kWindingCW ? NVG_CW : NVG_CCW);
+  nvgArc(mVG, cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f), winding == EWinding::CW ? NVG_CW : NVG_CCW);
 }
 
 void IGraphicsNanoVG::PathMoveTo(float x, float y)
@@ -590,23 +590,23 @@ void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const
   // First set options
   switch (options.mCapOption)
   {
-    case kCapButt:   nvgLineCap(mVG, NVG_BUTT);     break;
-    case kCapRound:  nvgLineCap(mVG, NVG_ROUND);    break;
-    case kCapSquare: nvgLineCap(mVG, NVG_SQUARE);   break;
+    case ELineCap::Butt:   nvgLineCap(mVG, NVG_BUTT);     break;
+    case ELineCap::Round:  nvgLineCap(mVG, NVG_ROUND);    break;
+    case ELineCap::Square: nvgLineCap(mVG, NVG_SQUARE);   break;
   }
   
   switch (options.mJoinOption)
   {
-    case kJoinMiter: nvgLineJoin(mVG, NVG_MITER);   break;
-    case kJoinRound: nvgLineJoin(mVG, NVG_ROUND);   break;
-    case kJoinBevel: nvgLineJoin(mVG, NVG_BEVEL);   break;
+    case ELineJoin::Miter: nvgLineJoin(mVG, NVG_MITER);   break;
+    case ELineJoin::Round: nvgLineJoin(mVG, NVG_ROUND);   break;
+    case ELineJoin::Bevel: nvgLineJoin(mVG, NVG_BEVEL);   break;
   }
   
   nvgMiterLimit(mVG, options.mMiterLimit);
   nvgStrokeWidth(mVG, thickness);
  
   // NanoVG does not support dashed paths
-  if (pattern.mType == kSolidPattern)
+  if (pattern.mType == EPatternType::Solid)
     nvgStrokeColor(mVG, NanoVGColor(pattern.GetStop(0).mColor, pBlend));
   else
     nvgStrokePaint(mVG, NanoVGPaint(mVG, pattern, pBlend));
@@ -622,9 +622,9 @@ void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const
 
 void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
 {
-  nvgPathWinding(mVG, options.mFillRule == kFillWinding ? NVG_CCW : NVG_CW);
+  nvgPathWinding(mVG, options.mFillRule == EFillRule::Winding ? NVG_CCW : NVG_CW);
   
-  if (pattern.mType == kSolidPattern)
+  if (pattern.mType == EPatternType::Solid)
     nvgFillColor(mVG, NanoVGColor(pattern.GetStop(0).mColor, pBlend));
   else
     nvgFillPaint(mVG, NanoVGPaint(mVG, pattern, pBlend));

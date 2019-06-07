@@ -226,7 +226,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 
     pGraphics->AttachControl(new IVKnobControl(nextCell().GetCentredInside(110.), kGain, "IVKnobControl", style, true), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVSliderControl(nextCell().GetCentredInside(110.), kGain, "IVSliderControl", style, true), kNoTag, "vcontrols");
-    pGraphics->AttachControl(new IVRangeSliderControl(nextCell().GetCentredInside(110.), kFreq1, kFreq2, "IVRangeSliderControl", style, kVertical, true, 10.f, 50.f), kNoTag, "vcontrols");
+    pGraphics->AttachControl(new IVRangeSliderControl(nextCell().GetCentredInside(110.), kFreq1, kFreq2, "IVRangeSliderControl", style, EDirection::Vertical, true, 10.f, 50.f), kNoTag, "vcontrols");
 
     pGraphics->AttachControl(new IVButtonControl(nextCell().GetCentredInside(110.), button1action, "IVButtonControl", style, false), kCtrlTagVectorButton, "vcontrols");
     AddLabel("IVButtonControl 2");
@@ -303,23 +303,23 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
       pCaller->GetUI()->ForControlInGroup("vcontrols", [=](IControl& control) {
         dynamic_cast<IVectorBase&>(control).SetRoundness(pCaller->GetValue());
       });
-    }, "Roundness", style, true, kHorizontal));
+    }, "Roundness", style, true, EDirection::Horizontal));
     
     pGraphics->AttachControl(new IVSliderControl(sameCell().GetGridCell(1, 0, 3, 1), [](IControl* pCaller) {
       pCaller->GetUI()->ForControlInGroup("vcontrols", [=](IControl& control) {
         dynamic_cast<IVectorBase&>(control).SetShadowOffset(pCaller->GetValue() * 5.f);
       });
-    }, "Shadow Offset", style, true, kHorizontal));
+    }, "Shadow Offset", style, true, EDirection::Horizontal));
     
     pGraphics->AttachControl(new IVSliderControl(sameCell().GetGridCell(2, 0, 3, 1), [](IControl* pCaller) {
       pCaller->GetUI()->ForControlInGroup("vcontrols", [=](IControl& control) {
         dynamic_cast<IVectorBase&>(control).SetFrameThickness(pCaller->GetValue() * 5.f);
       });
-    }, "Frame Thickness", style, true, kHorizontal));
+    }, "Frame Thickness", style, true, EDirection::Horizontal));
     
 //    pGraphics->AttachControl(new IVSliderControl(sameCell().GetGridCell(1, 0, 3, 1), [](IControl* pCaller) {
 //      dynamic_cast<IVButtonControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagVectorButton))->SetAngle(pCaller->GetValue() * 360.);
-//    }, "Angle", style, true, kHorizontal));
+//    }, "Angle", style, true, EDirection::Horizontal));
     
     pGraphics->AttachControl(new IVToggleControl(nextCell().GetGridCell(0, 0, 3, 1), [](IControl* pCaller){
       SplashClickActionFunc(pCaller);

@@ -114,7 +114,7 @@ void IGraphicsCanvas::PathClose()
 
 void IGraphicsCanvas::PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding)
 {
-  GetContext().call<void>("arc", cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f), winding == kWindingCCW);
+  GetContext().call<void>("arc", cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f), winding == EWinding::CCW);
 }
 
 void IGraphicsCanvas::PathMoveTo(float x, float y)
@@ -138,16 +138,16 @@ void IGraphicsCanvas::PathStroke(const IPattern& pattern, float thickness, const
   
   switch (options.mCapOption)
   {
-    case kCapButt: context.set("lineCap", "butt"); break;
-    case kCapRound: context.set("lineCap", "round"); break;
-    case kCapSquare: context.set("lineCap", "square"); break;
+    case ELineCap::Butt: context.set("lineCap", "butt"); break;
+    case ELineCap::Round: context.set("lineCap", "round"); break;
+    case ELineCap::Square: context.set("lineCap", "square"); break;
   }
   
   switch (options.mJoinOption)
   {
-    case kJoinMiter: context.set("lineJoin", "miter"); break;
-    case kJoinRound: context.set("lineJoin", "round"); break;
-    case kJoinBevel: context.set("lineJoin", "bevel"); break;
+    case ELineJoin::Miter: context.set("lineJoin", "miter"); break;
+    case ELineJoin::Round: context.set("lineJoin", "round"); break;
+    case ELineJoin::Bevel: context.set("lineJoin", "bevel"); break;
   }
   
   context.set("miterLimit", options.mMiterLimit);
@@ -172,7 +172,7 @@ void IGraphicsCanvas::PathStroke(const IPattern& pattern, float thickness, const
 void IGraphicsCanvas::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
 {
   val context = GetContext();
-  std::string fillRule(options.mFillRule == kFillWinding ? "nonzero" : "evenodd");
+  std::string fillRule(options.mFillRule == EFillRule::Winding ? "nonzero" : "evenodd");
   
   SetCanvasSourcePattern(context, pattern, pBlend);
 
@@ -188,7 +188,7 @@ void IGraphicsCanvas::SetCanvasSourcePattern(val& context, const IPattern& patte
   
   switch (pattern.mType)
   {
-    case kSolidPattern:
+    case EPatternType::Solid:
     {
       const IColor color = pattern.GetStop(0).mColor;
       std::string colorString = CanvasColor(color, BlendWeight(pBlend));
@@ -198,14 +198,14 @@ void IGraphicsCanvas::SetCanvasSourcePattern(val& context, const IPattern& patte
     }
     break;
       
-    case kLinearPattern:
-    case kRadialPattern:
+    case EPatternType::Linear:
+    case EPatternType::Radial:
     {
       double x, y;
       IMatrix m = IMatrix(pattern.mTransform).Invert();
       m.TransformPoint(x, y, 0.0, 1.0);
         
-      val gradient = (pattern.mType == kLinearPattern) ?
+      val gradient = (pattern.mType == EPatternType::Linear) ?
         context.call<val>("createLinearGradient", m.mTX, m.mTY, x, y) :
         context.call<val>("createRadialGradient", m.mTX, m.mTY, 0.0, m.mTX, m.mTY, m.mXX);
       

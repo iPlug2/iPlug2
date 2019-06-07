@@ -604,7 +604,7 @@ public:
    * @param r /todo
    * @param aMin /todo
    * @param aMax /todo */
-  virtual void PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding = kWindingCW) {}
+  virtual void PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding = EWinding::CW) {}
 
   /** /todo 
    * @param cx /todo

@@ -108,14 +108,14 @@ void GradientRasterizeAdapt(IGraphicsAGG::Rasterizer& rasterizer, EPatternExtend
 {
   switch (extend)
   {
-    case kExtendNone: //TODO:  extend none
-    case kExtendPad:
+    case EPatternExtend::None: //TODO:  extend none
+    case EPatternExtend::Pad:
       GradientRasterize(rasterizer, gradientFunc, xform, colorArray, op);
       break;
-    case kExtendReflect:
+    case EPatternExtend::Reflect:
       GradientRasterize(rasterizer, agg::gradient_reflect_adaptor<FuncType>(gradientFunc), xform, colorArray, op);
       break;
-    case kExtendRepeat:
+    case EPatternExtend::Repeat:
       GradientRasterize(rasterizer, agg::gradient_repeat_adaptor<FuncType>(gradientFunc), xform, colorArray, op);
       break;
   }
@@ -123,15 +123,15 @@ void GradientRasterizeAdapt(IGraphicsAGG::Rasterizer& rasterizer, EPatternExtend
 
 void IGraphicsAGG::Rasterizer::Rasterize(const IPattern& pattern, agg::comp_op_e op, float opacity, EFillRule rule)
 {
-  mRasterizer.filling_rule(rule == kFillWinding ? agg::fill_non_zero : agg::fill_even_odd );
+  mRasterizer.filling_rule(rule == EFillRule::Winding ? agg::fill_non_zero : agg::fill_even_odd );
   
   switch (pattern.mType)
   {
-    case kSolidPattern:
+    case EPatternType::Solid:
       Rasterize(AGGColor(pattern.GetStop(0).mColor, opacity), op);
     break;
-    case kLinearPattern:
-    case kRadialPattern:
+    case EPatternType::Linear:
+    case EPatternType::Radial:
     {
       // Common gradient objects
       const IMatrix& m = pattern.mTransform;
@@ -155,7 +155,7 @@ void IGraphicsAGG::Rasterizer::Rasterize(const IPattern& pattern, agg::comp_op_e
       colorArray.build_lut();
       
       // Rasterize
-      if (pattern.mType == kLinearPattern)
+      if (pattern.mType == EPatternType::Linear)
         GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_y(), gradientMTX, colorArray, op);
       else
         GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_radial_d(), gradientMTX, colorArray, op);
@@ -283,7 +283,7 @@ void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax, 
 {
   agg::path_storage transformedPath;
     
-  agg::arc arc(cx, cy, r, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f), winding == kWindingCW);
+  agg::arc arc(cx, cy, r, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f), winding == EWinding::CW);
   arc.approximation_scale(mTransform.scale());
     
   transformedPath.join_path(arc);
@@ -333,16 +333,16 @@ void StrokeOptions(StrokeType& strokes, double thickness, const IStrokeOptions& 
   
   switch (options.mCapOption)
   {
-    case kCapButt:   strokes.line_cap(agg::butt_cap);     break;
-    case kCapRound:  strokes.line_cap(agg::round_cap);    break;
-    case kCapSquare: strokes.line_cap(agg::square_cap);   break;
+    case ELineCap::Butt:   strokes.line_cap(agg::butt_cap);     break;
+    case ELineCap::Round:  strokes.line_cap(agg::round_cap);    break;
+    case ELineCap::Square: strokes.line_cap(agg::square_cap);   break;
   }
   
   switch (options.mJoinOption)
   {
-    case kJoinMiter:   strokes.line_join(agg::miter_join);   break;
-    case kJoinRound:   strokes.line_join(agg::round_join);   break;
-    case kJoinBevel:   strokes.line_join(agg::bevel_join);   break;
+    case ELineJoin::Miter:   strokes.line_join(agg::miter_join);   break;
+    case ELineJoin::Round:   strokes.line_join(agg::round_join);   break;
+    case ELineJoin::Bevel:   strokes.line_join(agg::bevel_join);   break;
   }
   
   strokes.miter_limit(options.mMiterLimit);

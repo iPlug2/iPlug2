@@ -119,14 +119,14 @@ public:
                 const IVStyle& style = DEFAULT_STYLE,
                 bool valueIsEditable = false,
                 float aMin = -135.f, float aMax = 135.f,
-                EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
+                EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING);
 
   IVKnobControl(const IRECT& bounds, IActionFunction actionFunction,
                 const char* label = "",
                 const IVStyle& style = DEFAULT_STYLE,
                 bool valueIsEditable = false,
                 float aMin = -135.f, float aMax = 135.f,
-                EDirection direction = kVertical, double gearing = DEFAULT_GEARING);
+                EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING);
 
   virtual ~IVKnobControl() {}
 
@@ -193,13 +193,13 @@ public:
                   const char* label = "",
                   const IVStyle& style = DEFAULT_STYLE,
                   bool valueIsEditable = false,
-                  EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
+                  EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
   
   IVSliderControl(const IRECT& bounds, IActionFunction aF,
                   const char* label = "",
                   const IVStyle& style = DEFAULT_STYLE,
                   bool valueIsEditable = false,
-                  EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
+                  EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
 
   virtual ~IVSliderControl() {}
   void Draw(IGraphics& g) override;
@@ -225,7 +225,7 @@ public:
                        const char* label = "",
                        const IVStyle& style = DEFAULT_STYLE,
 //                       bool valueIsEditable = false,
-                       EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
+                       EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
 
   void DrawWidget(IGraphics& g) override;
   void DrawValue(IGraphics& g, bool mouseover) override {};
@@ -326,13 +326,13 @@ class IBKnobControl : public IKnobControlBase
                     , public IBitmapBase
 {
 public:
-  IBKnobControl(float x, float y, const IBitmap& bitmap, int paramIdx, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+  IBKnobControl(float x, float y, const IBitmap& bitmap, int paramIdx, EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING)
   : IKnobControlBase(IRECT(x, y, bitmap), paramIdx, direction, gearing)
   , IBitmapBase(bitmap)
   {
   }
 
-  IBKnobControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx, EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+  IBKnobControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx, EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING)
   : IKnobControlBase(bounds.GetCentredInside(bitmap), paramIdx, direction, gearing)
   , IBitmapBase(bitmap)
   {
@@ -387,10 +387,10 @@ class IBSliderControl : public ISliderControlBase
 {
 public:
   IBSliderControl(const IRECT& bounds, int paramIdx, const IBitmap& bitmap,
-                  EDirection dir = kVertical, bool onlyHandle = false);
+                  EDirection dir = EDirection::Vertical, bool onlyHandle = false);
 
   IBSliderControl(float x, float y, int len, int paramIdx,
-                  const IBitmap& bitmap, EDirection direction = kVertical, bool onlyHandle = false);
+                  const IBitmap& bitmap, EDirection direction = EDirection::Vertical, bool onlyHandle = false);
 
   virtual ~IBSliderControl() {}
 

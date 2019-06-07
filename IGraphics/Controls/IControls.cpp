@@ -305,7 +305,7 @@ void IVRadioButtonControl::OnResize()
   
   for (int i = 0; i < mNumStates; i++)
   {
-    mButtons.Add(mWidgetBounds.SubRect(kVertical /*TODO: optional direction*/, mNumStates, i));
+    mButtons.Add(mWidgetBounds.SubRect(EDirection::Vertical /*TODO: optional direction*/, mNumStates, i));
   }
   
   SetDirty(false);
@@ -495,7 +495,7 @@ void IVSliderControl::DrawWidget(IGraphics& g)
   
   float cx, cy;
   
-  if(mDirection == kVertical)
+  if(mDirection == EDirection::Vertical)
   {
     cx = filledTrack.MW();
     cy = filledTrack.T;
@@ -554,7 +554,7 @@ void IVSliderControl::OnResize()
 {
   SetTargetRECT(CalculateRects(mRECT));
   
-  if(mDirection == kVertical)
+  if(mDirection == EDirection::Vertical)
     mTrack = mWidgetBounds.GetPadded(-mHandleSize).GetMidHPadded(mTrackSize);
   else
     mTrack = mWidgetBounds.GetPadded(-mHandleSize).GetMidVPadded(mTrackSize);
@@ -624,7 +624,7 @@ void IVRangeSliderControl::DrawWidget(IGraphics & g)
   float cx[2];
   float cy[2];
 
-  if (mDirection == kVertical)
+  if (mDirection == EDirection::Vertical)
   {
     cx[0] = cx[1] = filledTrack.MW();
     cy[0] = filledTrack.T;
@@ -655,7 +655,7 @@ void IVRangeSliderControl::DrawWidget(IGraphics & g)
 
 void IVRangeSliderControl::OnMouseDown(float x, float y, const IMouseMod & mod)
 {
-  if(mDirection == kVertical)
+  if(mDirection == EDirection::Vertical)
     mMouseDownVal = 1.f - (y-mRECT.T) / mRECT.H();
   else
     mMouseDownVal = (x-mRECT.L) / mRECT.W();
@@ -672,7 +672,7 @@ void IVRangeSliderControl::SnapToMouse(float x, float y, EDirection direction, I
   
   double newVal;
   
-  if(direction == kVertical)
+  if(direction == EDirection::Vertical)
     newVal = 1.f - (y-bounds.T) / bounds.H();
   else
     newVal = (x-bounds.L) / bounds.W();
@@ -792,7 +792,7 @@ IBSliderControl::IBSliderControl(float x, float y, int len, int paramIdx, const 
 : ISliderControlBase(IRECT(x, y, x + bitmap.W(), y + len), paramIdx)
 , IBitmapBase(bitmap)
 {
-  if (dir == kVertical)
+  if (dir == EDirection::Vertical)
   {
     mRECT = mTargetRECT = IRECT(x, y, x + bitmap.W(), y + len);
     mTrack = mRECT.GetPadded(0, -(float) bitmap.H(), 0, 0);
@@ -827,7 +827,7 @@ IRECT IBSliderControl::GetHandleBounds(double value) const
   
   IRECT r(mRECT.L, mRECT.T, mRECT.L + mBitmap.W(), mRECT.T + mBitmap.H());
 
-  if (mDirection == kVertical)
+  if (mDirection == EDirection::Vertical)
   {
     float offs = (1.f - (float) value) * mTrack.H();
     r.T += offs;
