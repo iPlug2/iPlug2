@@ -23,7 +23,7 @@ IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
 
     IRECT knobs = b.GetFromTop(100.);
     IRECT viz = b.GetReducedFromTop(100);
-    pGraphics->AttachCornerResizer(kUIResizerScale);
+    pGraphics->AttachCornerResizer(EUIResizerMode::Scale);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
 
     for (int i = 0; i < kNumParams; i++) {

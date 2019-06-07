@@ -32,7 +32,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     {
       IRECT bounds = pGraphics->GetBounds();
       pGraphics->GetBackgroundControl()->SetRECT(bounds);
-      pGraphics->GetControlWithTag(kCtrlTagSize)->SetRECT(bounds);
+//      pGraphics->GetControlWithTag(kCtrlTagSize)->SetRECT(bounds);
       DBGMSG("SELECTED: W %i, H%i\n", pGraphics->Width(), pGraphics->Height());
       
       return;

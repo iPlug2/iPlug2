@@ -18,7 +18,7 @@ IPlugInstrument::IPlugInstrument(IPlugInstanceInfo instanceInfo)
   };
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
-    pGraphics->AttachCornerResizer(kUIResizerScale, false);
+    pGraphics->AttachCornerResizer(EUIResizerMode::Scale, false);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->HandleMouseOver(true);
 //    pGraphics->EnableLiveEdit(true);
