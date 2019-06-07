@@ -32,13 +32,13 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     {
       IRECT bounds = pGraphics->GetBounds();
       pGraphics->GetBackgroundControl()->SetRECT(bounds);
-      pGraphics->GetControlWithTag(kCtrlTagSize)->SetRECT(bounds);
+//      pGraphics->GetControlWithTag(kCtrlTagSize)->SetRECT(bounds);
       DBGMSG("SELECTED: W %i, H%i\n", pGraphics->Width(), pGraphics->Height());
       
       return;
     }
     
-    pGraphics->AttachCornerResizer(EUIResizerMode::kUIResizerScale, true);
+    pGraphics->AttachCornerResizer(EUIResizerMode::Scale, true);
     pGraphics->HandleMouseOver(true);
     pGraphics->EnableTooltips(true);
     
@@ -61,7 +61,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     });
     
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
-    if (!pGraphics->LoadFont("Alternative Font", "Times New Roman", kTextStyleNormal))
+    if (!pGraphics->LoadFont("Alternative Font", "Times New Roman", ETextStyle::Normal))
     {
       // This covers cases where we can't load system fonts, or the font doesn't exist
       pGraphics->LoadFont("Alternative Font", MONTSERRAT_FN);
@@ -156,10 +156,10 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new TestDirBrowseControl(nextCell(), "png", path.Get()));
 
 #if 0
-    pGraphics->AttachControl(new ITextControl(nextCell(), "Hello World!", {24, COLOR_WHITE, "Roboto-Regular", IText::kAlignNear, IText::kVAlignTop, 90}));
-    pGraphics->AttachControl(new ITextControl(nextCell(), "Two!", {18, COLOR_GREEN, "Montserrat-LightItalic", IText::kAlignCenter, IText::kVAlignMiddle, 45}));
-    pGraphics->AttachControl(new ITextControl(nextCell(), "Three!", {24, COLOR_RED, "Roboto-Regular", IText::kAlignFar, IText::kVAlignBottom}));
-    pGraphics->AttachControl(new ITextControl(nextCell(), "Four!", {40, COLOR_ORANGE, "Roboto-Regular", IText::kAlignCenter, IText::kVAlignBottom}));
+    pGraphics->AttachControl(new ITextControl(nextCell(), "Hello World!", {24, COLOR_WHITE, "Roboto-Regular", EAlign::Near, EVAlign::Top, 90}));
+    pGraphics->AttachControl(new ITextControl(nextCell(), "Two!", {18, COLOR_GREEN, "Montserrat-LightItalic", EAlign::Center, EVAlign::Middle, 45}));
+    pGraphics->AttachControl(new ITextControl(nextCell(), "Three!", {24, COLOR_RED, "Roboto-Regular", EAlign::Far, EVAlign::Bottom}));
+    pGraphics->AttachControl(new ITextControl(nextCell(), "Four!", {40, COLOR_ORANGE, "Roboto-Regular", EAlign::Center, EVAlign::Bottom}));
 #endif
     
     pGraphics->AttachControl(new GFXLabelControl(bounds.GetFromTRHC(125, 125).GetTranslated(25, -25)));

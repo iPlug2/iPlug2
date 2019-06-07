@@ -125,7 +125,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     
 //    pGraphics->EnableLiveEdit(true);
     pGraphics->HandleMouseOver(true);
-    pGraphics->AttachCornerResizer(kUIResizerScale, true);
+    pGraphics->AttachCornerResizer(EUIResizerMode::Scale, true);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->EnableTooltips(true);
     pGraphics->AttachTextEntryControl();
@@ -157,11 +157,11 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
         DEFAULT_X2COLOR, // Extra 2
         DEFAULT_X3COLOR  // Extra 3
       }, // Colors
-      IText(12.f, IText::kAlignCenter) // Label text
+      IText(12.f, EAlign::Center) // Label text
     };
     
     const IText forkAwesomeText {24.f, "ForkAwesome"};
-    const IText bigLabel {24, COLOR_WHITE, "Roboto-Regular", IText::kAlignNear, IText::kVAlignTop, 0};
+    const IText bigLabel {24, COLOR_WHITE, "Roboto-Regular", EAlign::Near, EVAlign::Top, 0};
     
     const int nRows = 5;
     const int nCols = 8;
@@ -226,7 +226,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 
     pGraphics->AttachControl(new IVKnobControl(nextCell().GetCentredInside(110.), kGain, "IVKnobControl", style, true), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVSliderControl(nextCell().GetCentredInside(110.), kGain, "IVSliderControl", style, true), kNoTag, "vcontrols");
-    pGraphics->AttachControl(new IVRangeSliderControl(nextCell().GetCentredInside(110.), kFreq1, kFreq2, "IVRangeSliderControl", style, kVertical, true, 10.f, 50.f), kNoTag, "vcontrols");
+    pGraphics->AttachControl(new IVRangeSliderControl(nextCell().GetCentredInside(110.), kFreq1, kFreq2, "IVRangeSliderControl", style, EDirection::Vertical, true, 10.f, 50.f), kNoTag, "vcontrols");
 
     pGraphics->AttachControl(new IVButtonControl(nextCell().GetCentredInside(110.), button1action, "IVButtonControl", style, false), kCtrlTagVectorButton, "vcontrols");
     AddLabel("IVButtonControl 2");
@@ -244,18 +244,18 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
       pCaller->GetUI()->GetMouseDownPoint(x, y);
       pCaller->GetUI()->CreatePopupMenu(*pCaller, menu, x, y);
       
-    }, "IVButtonControl 3", style.WithValueText(IText(36.f, IText::kVAlignMiddle)),  false, true), kNoTag, "vcontrols");
+    }, "IVButtonControl 3", style.WithValueText(IText(36.f, EVAlign::Middle)),  false, true), kNoTag, "vcontrols");
     dynamic_cast<IVButtonControl*>(pGraphics->GetControl(pGraphics->NControls()-1))->SetValueStr("one");
     
-    pGraphics->AttachControl(new IVSwitchControl(nextCell().GetCentredInside(110.), kMode, "IVSwitchControl", style.WithValueText(IText(36.f, IText::kAlignCenter))), kNoTag, "vcontrols");
+    pGraphics->AttachControl(new IVSwitchControl(nextCell().GetCentredInside(110.), kMode, "IVSwitchControl", style.WithValueText(IText(36.f, EAlign::Center))), kNoTag, "vcontrols");
 
     pGraphics->AttachControl(new IVToggleControl(nextCell().GetCentredInside(110.), SplashClickActionFunc, "", ICON_FK_CHECK, "IVToggleControl", style.WithValueText(forkAwesomeText)), kNoTag, "vcontrols");
 
     pGraphics->AttachControl(new IVRadioButtonControl(nextCell().GetCentredInside(110.), [](IControl* pCaller) {
       SplashClickActionFunc(pCaller);
-      dynamic_cast<IVButtonControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagVectorButton))->SetShape((IVShape) dynamic_cast<IVRadioButtonControl*>(pCaller)->GetSelectedIdx());
+      dynamic_cast<IVButtonControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagVectorButton))->SetShape((EVShape) dynamic_cast<IVRadioButtonControl*>(pCaller)->GetSelectedIdx());
 
-    }, {"One", "Two", "Three"}, "IVRadioButtonControl", style, kVShapeCircle, 5.f), kNoTag, "vcontrols");
+    }, {"One", "Two", "Three"}, "IVRadioButtonControl", style, EVShape::Circle, 5.f), kNoTag, "vcontrols");
 
     pGraphics->AttachControl(new IVXYPadControl(nextCell(), {kFreq1, kFreq2}, "IVXYPadControl", style), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVMultiSliderControl<4>(nextCell(), "IVMultiSliderControl", style), kNoTag, "vcontrols");
@@ -303,23 +303,23 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
       pCaller->GetUI()->ForControlInGroup("vcontrols", [=](IControl& control) {
         dynamic_cast<IVectorBase&>(control).SetRoundness(pCaller->GetValue());
       });
-    }, "Roundness", style, true, kHorizontal));
+    }, "Roundness", style, true, EDirection::Horizontal));
     
     pGraphics->AttachControl(new IVSliderControl(sameCell().GetGridCell(1, 0, 3, 1), [](IControl* pCaller) {
       pCaller->GetUI()->ForControlInGroup("vcontrols", [=](IControl& control) {
         dynamic_cast<IVectorBase&>(control).SetShadowOffset(pCaller->GetValue() * 5.f);
       });
-    }, "Shadow Offset", style, true, kHorizontal));
+    }, "Shadow Offset", style, true, EDirection::Horizontal));
     
     pGraphics->AttachControl(new IVSliderControl(sameCell().GetGridCell(2, 0, 3, 1), [](IControl* pCaller) {
       pCaller->GetUI()->ForControlInGroup("vcontrols", [=](IControl& control) {
         dynamic_cast<IVectorBase&>(control).SetFrameThickness(pCaller->GetValue() * 5.f);
       });
-    }, "Frame Thickness", style, true, kHorizontal));
+    }, "Frame Thickness", style, true, EDirection::Horizontal));
     
 //    pGraphics->AttachControl(new IVSliderControl(sameCell().GetGridCell(1, 0, 3, 1), [](IControl* pCaller) {
 //      dynamic_cast<IVButtonControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagVectorButton))->SetAngle(pCaller->GetValue() * 360.);
-//    }, "Angle", style, true, kHorizontal));
+//    }, "Angle", style, true, EDirection::Horizontal));
     
     pGraphics->AttachControl(new IVToggleControl(nextCell().GetGridCell(0, 0, 3, 1), [](IControl* pCaller){
       SplashClickActionFunc(pCaller);

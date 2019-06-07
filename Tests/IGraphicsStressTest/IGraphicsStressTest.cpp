@@ -31,7 +31,7 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
   
   pGraphics->SetSizeConstraints(100, 100000, 100, 100000);
   pGraphics->ShowFPSDisplay(true);
-  pGraphics->AttachCornerResizer(EUIResizerMode::kUIResizerSize, true);
+  pGraphics->AttachCornerResizer(EUIResizerMode::Size, true);
   pGraphics->SetKeyHandlerFunc([&](const IKeyPress& key, bool isUp)
   {
     if(!isUp) {

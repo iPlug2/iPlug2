@@ -337,7 +337,7 @@ void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds
 
   //val = 1.f - (y - (mRECT.B - (mRECT.H()*lengthMult)) / 2) / ((mLen*lengthMult));
   
-  if(direction == kVertical)
+  if(direction == EDirection::Vertical)
     val = 1.f - (y-bounds.T) / bounds.H();
   else
     //mValue = (double) (x - (mRECT.R - (mRECT.W()*lengthMult)) - mHandleHeadroom / 2) / (double) ((mLen*lengthMult) - mHandleHeadroom);
@@ -572,7 +572,7 @@ void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const I
 {
   double gearing = IsFineControl(mod, false) ? mGearing * 10.0 : mGearing;
 
-  if (mDirection == kVertical)
+  if (mDirection == EDirection::Vertical)
     SetValue(GetValue() + (double)dY / (double)(mRECT.T - mRECT.B) / gearing);
   else
     SetValue(GetValue() + (double)dX / (double)(mRECT.R - mRECT.L) / gearing);

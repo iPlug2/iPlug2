@@ -53,5 +53,5 @@ public:
   }
 
 private:
-  IPattern mPattern = IPattern(kLinearPattern);
+  IPattern mPattern = IPattern(EPatternType::Linear);
 };
