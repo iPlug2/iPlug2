@@ -26,7 +26,7 @@ const IColor IVKeyboardControl::DEFAULT_FR_COLOR = DEFAULT_BK_COLOR;
 IVButtonControl::IVButtonControl(const IRECT& bounds, IActionFunction actionFunc,
                                  const char* label,
                                  const IVStyle& style,
-                                 bool labelInButton, bool valueInButton, IVShape shape, float angle)
+                                 bool labelInButton, bool valueInButton, EVShape shape, float angle)
 : IButtonControlBase(bounds, actionFunc)
 , IVectorBase(style, labelInButton, valueInButton)
 , mShape(shape)
@@ -50,13 +50,13 @@ void IVButtonControl::DrawWidget(IGraphics& g)
   bool pressed = (bool) GetValue();
   switch (mShape)
   {
-    case kVShapeCircle:
+    case EVShape::Circle:
       DrawPressableCircle(g, mWidgetBounds, mWidgetBounds.W()/3.5f /*TODO: fix bodge*/, pressed, mMouseIsOver);
       break;
-    case kVShapeRectangle:
+    case EVShape::Rectangle:
       DrawPressableRectangle(g, mWidgetBounds, pressed, mMouseIsOver);
       break;
-    case kVShapeTriangle:
+    case EVShape::Triangle:
       DrawPressableTriangle(g, mWidgetBounds, mAngle, pressed, mMouseIsOver);
       break;
     default:
@@ -163,7 +163,7 @@ void IVToggleControl::DrawValue(IGraphics& g, bool mouseOver)
 }
 
 IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, int paramIdx, IActionFunction actionFunc,
-  int numStates, const char* label, const IVStyle& style, IVShape shape, float buttonSize)
+  int numStates, const char* label, const IVStyle& style, EVShape shape, float buttonSize)
 : ISwitchControlBase(bounds, paramIdx, actionFunc, numStates)
 , IVectorBase(style)
 , mShape(shape)
@@ -187,7 +187,7 @@ IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, int paramIdx, IA
 
 IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, IActionFunction actionFunc,
                                            const std::initializer_list<const char*>& options,
-                                           const char* label, const IVStyle& style, IVShape shape, float buttonSize)
+                                           const char* label, const IVStyle& style, EVShape shape, float buttonSize)
 : ISwitchControlBase(bounds, kNoParameter, actionFunc, static_cast<int>(options.size()))
 , IVectorBase(style)
 , mShape(shape)
@@ -215,13 +215,13 @@ void IVRadioButtonControl::DrawButton(IGraphics& g, const IRECT& r, bool pressed
 {
   switch (mShape)
   {
-    case kVShapeCircle:
+    case EVShape::Circle:
       DrawPressableCircle(g, r.FracRectHorizontal(0.25f), mButtonSize, pressed, mouseOver);
       break;
-    case kVShapeRectangle:
+    case EVShape::Rectangle:
       DrawPressableRectangle(g, r.FracRectHorizontal(0.25f).GetCentredInside(mButtonSize), pressed, mouseOver);
       break;
-    case kVShapeTriangle:
+    case EVShape::Triangle:
       DrawPressableTriangle(g, r.FracRectHorizontal(0.25f).GetCentredInside(mButtonSize), 90., pressed, mouseOver);
       break;
     default:

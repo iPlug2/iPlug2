@@ -253,9 +253,9 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 
     pGraphics->AttachControl(new IVRadioButtonControl(nextCell().GetCentredInside(110.), [](IControl* pCaller) {
       SplashClickActionFunc(pCaller);
-      dynamic_cast<IVButtonControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagVectorButton))->SetShape((IVShape) dynamic_cast<IVRadioButtonControl*>(pCaller)->GetSelectedIdx());
+      dynamic_cast<IVButtonControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagVectorButton))->SetShape((EVShape) dynamic_cast<IVRadioButtonControl*>(pCaller)->GetSelectedIdx());
 
-    }, {"One", "Two", "Three"}, "IVRadioButtonControl", style, kVShapeCircle, 5.f), kNoTag, "vcontrols");
+    }, {"One", "Two", "Three"}, "IVRadioButtonControl", style, EVShape::Circle, 5.f), kNoTag, "vcontrols");
 
     pGraphics->AttachControl(new IVXYPadControl(nextCell(), {kFreq1, kFreq2}, "IVXYPadControl", style), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVMultiSliderControl<4>(nextCell(), "IVMultiSliderControl", style), kNoTag, "vcontrols");
