@@ -50,10 +50,10 @@ public:
   };
 
   /** Used on the DSP side in order to queue sample values and transfer data to low priority thread. */
-  class IVMeterBallistics
+  class Sender
   {
   public:
-    IVMeterBallistics(int controlTag)
+    Sender(int controlTag)
     : mControlTag(controlTag)
     {
     }

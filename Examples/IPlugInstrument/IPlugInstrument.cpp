@@ -118,12 +118,12 @@ void IPlugInstrument::ProcessBlock(sample** inputs, sample** outputs, int nFrame
     }
   }
 
-  mMeterBallistics.ProcessBlock(outputs, nFrames);
+  mMeterSender.ProcessBlock(outputs, nFrames);
 }
 
 void IPlugInstrument::OnIdle()
 {
-  mMeterBallistics.TransmitData(*this);
+  mMeterSender.TransmitData(*this);
 }
 
 void IPlugInstrument::OnReset()

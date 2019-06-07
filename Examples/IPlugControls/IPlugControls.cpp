@@ -365,8 +365,8 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 #if IPLUG_DSP
 void IPlugControls::OnIdle()
 {
-  mScopeBallistics.TransmitData(*this);
-  mMeterBallistics.TransmitData(*this);
+  mScopeSender.TransmitData(*this);
+  mMeterSender.TransmitData(*this);
 }
 
 void IPlugControls::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
@@ -382,8 +382,8 @@ void IPlugControls::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
     outputs[1][s] = sin(phase2 += phaseIncr2);
   }
   
-  mScopeBallistics.ProcessBlock(outputs, nFrames);
-  mMeterBallistics.ProcessBlock(outputs, nFrames);
+  mScopeSender.ProcessBlock(outputs, nFrames);
+  mMeterSender.ProcessBlock(outputs, nFrames);
 
   for (int s = 0; s < nFrames; s++) {
     outputs[0][s] = 0.;

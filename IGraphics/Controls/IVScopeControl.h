@@ -54,12 +54,32 @@ public:
   };
 
   /** Used on the DSP side in order to queue sample values and transfer data to low priority thread. */
-  class IVScopeBallistics
+  class Sender
   {
   public:
-    IVScopeBallistics(int controlTag)
+    Sender(int controlTag)
     : mControlTag(controlTag)
     {
+    }
+    
+    void Process(sample* inputs)
+    {
+      if(mBufCount == MAXBUF)
+      {
+        if(mPrevAboveThreshold)
+          mQueue.Push(mBuf); // TODO: expensive?
+        
+        mPrevAboveThreshold = mBuf.AboveThreshold();
+        
+        mBufCount = 0;
+      }
+      
+      for (auto c = 0; c < MAXNC; c++)
+      {
+        mBuf.vals[c][mBufCount] = (float) inputs[c];
+      }
+      
+      mBufCount++;
     }
 
     void ProcessBlock(sample** inputs, int nFrames)
