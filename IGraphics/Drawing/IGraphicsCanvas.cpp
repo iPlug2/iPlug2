@@ -132,6 +132,11 @@ void IGraphicsCanvas::PathCubicBezierTo(float x1, float y1, float x2, float y2, 
   GetContext().call<void>("bezierCurveTo", x1, y1, x2, y2, x3, y3);
 }
 
+void IGraphicsCanvas::PathQuadraticBezierTo(float x1, float y1, float x2, float y2)
+{
+  GetContext().call<void>("quadraticCurveTo", x1, y1, x2, y2);
+}
+
 void IGraphicsCanvas::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
 {
   val context = GetContext();

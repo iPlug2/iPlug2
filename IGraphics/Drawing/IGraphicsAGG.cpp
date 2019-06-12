@@ -326,6 +326,19 @@ void IGraphicsAGG::PathCubicBezierTo(float x1, float y1, float x2, float y2, flo
   mPath.curve4(x1d, y1d, x2d, y2d, x3d, y3d);
 }
 
+void IGraphicsAGG::PathQuadraticBezierTo(float x1, float y1, float x2, float y2)
+{
+  double x1d = x1;
+  double y1d = y1;
+  double x2d = x2;
+  double y2d = y2;
+  
+  mTransform.transform(&x1d, &y1d);
+  mTransform.transform(&x2d, &y2d);
+  
+  mPath.curve3(x1d, y1d, x2d, y2d);
+}
+
 template<typename StrokeType>
 void StrokeOptions(StrokeType& strokes, double thickness, const IStrokeOptions& options)
 {

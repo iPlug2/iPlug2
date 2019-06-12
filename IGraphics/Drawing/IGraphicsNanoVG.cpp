@@ -525,6 +525,11 @@ void IGraphicsNanoVG::PathCubicBezierTo(float x1, float y1, float x2, float y2, 
   nvgBezierTo(mVG, x1, y1, x2, y2, x3, y3);
 }
 
+void IGraphicsNanoVG::PathQuadraticBezierTo(float x1, float y1, float x2, float y2)
+{
+  nvgQuadTo(mVG, x1, y1, x2, y2);
+}
+
 IColor IGraphicsNanoVG::GetPoint(int x, int y)
 {
   return COLOR_BLACK; //TODO:

@@ -649,6 +649,13 @@ public:
    * @param y3 /todo */
   virtual void PathCubicBezierTo(float x1, float y1, float x2, float y2, float x3, float y3) {}
 
+  /** /todo
+   * @param x1 /todo
+   * @param y1 /todo
+   * @param x2 /todo
+   * @param y2 /todo */
+  virtual void PathQuadraticBezierTo(float x1, float y1, float x2, float y2) {}
+  
   /** /todo 
    * @param pattern /todo
    * @param thickness /todo
