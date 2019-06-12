@@ -328,6 +328,7 @@ void IGraphicsAGG::PathCubicBezierTo(float x1, float y1, float x2, float y2, flo
 
 void IGraphicsAGG::PathQuadraticBezierTo(float x1, float y1, float x2, float y2)
 {
+  //TODO: not right?
   double x1d = x1;
   double y1d = y1;
   double x2d = x2;
