@@ -310,7 +310,7 @@ void IGraphicsAGG::PathLineTo(float x, float y)
   mPath.line_to(xd, yd);
 }
 
-void IGraphicsAGG::PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
+void IGraphicsAGG::PathCubicBezierTo(float x1, float y1, float x2, float y2, float x3, float y3)
 {
   double x1d = x1;
   double y1d = y1;

@@ -78,7 +78,7 @@ public:
       else if (mShape == 3)
       {
         g.PathMoveTo(mRECT.L, mRECT.B);
-        g.PathCurveTo(mRECT.L + mRECT.W() * 0.125, mRECT.T + mRECT.H() * 0.725, mRECT.L + mRECT.W() * 0.25, mRECT.T + mRECT.H() * 0.35, mRECT.MW(), mRECT.MH());
+        g.PathCubicBezierTo(mRECT.L + mRECT.W() * 0.125, mRECT.T + mRECT.H() * 0.725, mRECT.L + mRECT.W() * 0.25, mRECT.T + mRECT.H() * 0.35, mRECT.MW(), mRECT.MH());
         g.PathLineTo(mRECT.MW(), mRECT.B);
         g.PathClose();
       }

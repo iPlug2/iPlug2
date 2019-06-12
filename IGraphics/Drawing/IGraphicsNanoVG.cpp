@@ -520,7 +520,7 @@ void IGraphicsNanoVG::PathLineTo(float x, float y)
   nvgLineTo(mVG, x, y);
 }
 
-void IGraphicsNanoVG::PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
+void IGraphicsNanoVG::PathCubicBezierTo(float x1, float y1, float x2, float y2, float x3, float y3)
 {
   nvgBezierTo(mVG, x1, y1, x2, y2, x3, y3);
 }

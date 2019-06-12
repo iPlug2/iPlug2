@@ -304,7 +304,7 @@ void IGraphicsCairo::PathLineTo(float x, float y)
   cairo_line_to(mContext, x, y);
 }
 
-void IGraphicsCairo::PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
+void IGraphicsCairo::PathCubicBezierTo(float x1, float y1, float x2, float y2, float x3, float y3)
 {
   cairo_curve_to(mContext, x1, y1, x2, y2, x3, y3);
 }

@@ -127,7 +127,7 @@ void IGraphicsCanvas::PathLineTo(float x, float y)
   GetContext().call<void>("lineTo", x, y);
 }
 
-void IGraphicsCanvas::PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
+void IGraphicsCanvas::PathCubicBezierTo(float x1, float y1, float x2, float y2, float x3, float y3)
 {
   GetContext().call<void>("bezierCurveTo", x1, y1, x2, y2, x3, y3);
 }

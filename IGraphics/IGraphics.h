@@ -647,7 +647,7 @@ public:
    * @param y2 /todo
    * @param x3 /todo
    * @param y3 /todo */
-  virtual void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) {}
+  virtual void PathCubicBezierTo(float x1, float y1, float x2, float y2, float x3, float y3) {}
 
   /** /todo 
    * @param pattern /todo
