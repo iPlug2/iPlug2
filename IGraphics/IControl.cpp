@@ -429,24 +429,27 @@ ITextToggleControl::ITextToggleControl(const IRECT& bounds, IActionFunction aF, 
 {
   SetActionFunction(aF);
   mDblAsSingleClick = true;
-  //TODO: assert boolean?
   mIgnoreMouse = false;
 }
 
 void ITextToggleControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   if(GetValue() < 0.5)
-  {
     SetValue(1.);
-    SetStr(mOnText.Get());
-  }
   else
-  {
     SetValue(0.);
-    SetStr(mOffText.Get());
-  }
   
   SetDirty(true);
+}
+
+void ITextToggleControl::SetDirty(bool push, int valIdx)
+{
+  IControl::SetDirty(push);
+  
+  if(GetValue() > 0.5)
+    SetStr(mOnText.Get());
+  else
+    SetStr(mOffText.Get());
 }
 
 

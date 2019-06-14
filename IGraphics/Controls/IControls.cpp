@@ -50,8 +50,8 @@ void IVButtonControl::DrawWidget(IGraphics& g)
   bool pressed = (bool) GetValue();
   switch (mShape)
   {
-    case EVShape::Circle:
-      DrawPressableCircle(g, mWidgetBounds, mWidgetBounds.W()/3.5f /*TODO: fix bodge*/, pressed, mMouseIsOver);
+    case EVShape::Ellipse:
+      DrawPressableEllipse(g, mWidgetBounds, pressed, mMouseIsOver);
       break;
     case EVShape::Rectangle:
       DrawPressableRectangle(g, mWidgetBounds, pressed, mMouseIsOver);
@@ -59,6 +59,11 @@ void IVButtonControl::DrawWidget(IGraphics& g)
     case EVShape::Triangle:
       DrawPressableTriangle(g, mWidgetBounds, mAngle, pressed, mMouseIsOver);
       break;
+    case EVShape::EndsRounded:
+      DrawPressableRectangle(g, mWidgetBounds, pressed, mMouseIsOver, true, true, false, false);
+      break;
+    case EVShape::AllRounded:
+      DrawPressableRectangle(g, mWidgetBounds, pressed, mMouseIsOver, true, true, true, true);
     default:
       break;
   }
@@ -151,6 +156,11 @@ IVToggleControl::IVToggleControl(const IRECT& bounds, IActionFunction actionFunc
   SetValue((double) initialState);
 }
 
+void IVToggleControl::DrawWidget(IGraphics& g)
+{
+  DrawPressableRectangle(g, mWidgetBounds, GetValue() > 0.5, mMouseIsOver);
+}
+
 void IVToggleControl::DrawValue(IGraphics& g, bool mouseOver)
 {
   if(mouseOver)
@@ -162,9 +172,182 @@ void IVToggleControl::DrawValue(IGraphics& g, bool mouseOver)
     g.DrawText(mStyle.valueText, mOffText.Get(), mValueBounds);
 }
 
+
+IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, int paramIdx, IActionFunction actionFunc,
+                                       const char* label, const IVStyle& style, EVShape shape, EDirection direction)
+: ISwitchControlBase(bounds, paramIdx, actionFunc)
+, IVectorBase(style)
+, mShape(shape)
+, mDirection(direction)
+{
+  AttachIControl(this, label);
+  mDblAsSingleClick = true;
+  mText = style.valueText;
+  mText.mAlign = EAlign::Center; //TODO?
+  mText.mVAlign = EVAlign::Middle; //TODO?
+}
+
+IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, IActionFunction actionFunc,
+                                       const std::initializer_list<const char*>& options,
+                                       const char* label, const IVStyle& style, EVShape shape, EDirection direction)
+: ISwitchControlBase(bounds, kNoParameter, actionFunc, static_cast<int>(options.size()))
+, IVectorBase(style)
+, mShape(shape)
+, mDirection(direction)
+{
+  AttachIControl(this, label);
+  mDblAsSingleClick = true;
+  mText = style.valueText;
+  mText.mAlign = mStyle.valueText.mAlign = EAlign::Center; //TODO?
+  mText.mVAlign = mStyle.valueText.mVAlign = EVAlign::Middle; //TODO?
+  
+  for (auto& option : options) {
+    mTabLabels.Add(new WDL_String(option));
+  }
+}
+
+void IVTabSwitchControl::OnInit()
+{
+  ISwitchControlBase::OnInit();
+  
+  const IParam* pParam = GetParam();
+  
+  if(pParam)
+  {
+    for (int i = 0; i < mNumStates; i++)
+    {
+      mTabLabels.Add(new WDL_String(GetParam()->GetDisplayText(i)));
+    }
+  }
+}
+
+void IVTabSwitchControl::Draw(IGraphics& g)
+{
+  DrawBackGround(g, mRECT);
+  DrawLabel(g);
+  DrawWidget(g);
+}
+
+void IVTabSwitchControl::DrawButton(IGraphics& g, const IRECT& r, bool pressed, bool mouseOver, ETabSegment segment)
+{
+  switch (mShape)
+  {
+    case EVShape::Ellipse:
+      DrawPressableEllipse(g, r, pressed, mouseOver);
+      break;
+    case EVShape::Rectangle:
+      DrawPressableRectangle(g, r, pressed, mouseOver);
+      break;
+    case EVShape::Triangle:
+      DrawPressableTriangle(g, r, 90., pressed, mouseOver);
+      break;
+    case EVShape::EndsRounded:
+      if(mDirection == EDirection::Horizontal)
+        DrawPressableRectangle(g, r, pressed, mouseOver, segment == ETabSegment::Start, segment == ETabSegment::End, false, false);
+      else
+        DrawPressableRectangle(g, r, pressed, mouseOver, false, segment == ETabSegment::Start, false, segment == ETabSegment::End);
+      break;
+    case EVShape::AllRounded:
+      if(mDirection == EDirection::Horizontal)
+        DrawPressableRectangle(g, r, pressed, mouseOver, true, true, false, false);
+      else
+        DrawPressableRectangle(g, r, pressed, mouseOver, false, true, false, true);
+      break;
+    default:
+      break;
+  }
+}
+
+void IVTabSwitchControl::DrawWidget(IGraphics& g)
+{
+  int hit = GetSelectedIdx();
+  ETabSegment segment = ETabSegment::Start;
+
+  for (int i = 0; i < mNumStates; i++)
+  {
+    IRECT r = mButtons.Get()[i];
+    
+    if(i > 0)
+      segment = ETabSegment::Mid;
+    
+    if(i == mNumStates-1)
+      segment = ETabSegment::End;
+
+    DrawButton(g, r, i == hit, mMouseOverButton == i, segment);
+    
+    if (mTabLabels.Get(i))
+    {
+      g.DrawText(mText, mTabLabels.Get(i)->Get(), r);
+    }
+  }
+}
+
+bool IVTabSwitchControl::IsHit(float x, float y) const
+{
+  bool hit = false;
+  
+  for (int i = 0; i < mNumStates; i++)
+  {
+    hit |= mButtons.Get()[i].Contains(x, y);
+  }
+  
+  return hit;
+}
+
+void IVTabSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  int hit = -1;
+  
+  for (int i = 0; i < mNumStates; i++)
+  {
+    if(mButtons.Get()[i].Contains(x, y))
+    {
+      hit = i;
+      break;
+    }
+  }
+  
+  if(hit > -1)
+    SetValue(((double) hit * (1./(double) (mNumStates-1))));
+  
+  SetDirty(true);
+}
+
+void IVTabSwitchControl::OnMouseOver(float x, float y, const IMouseMod& mod)
+{
+  mMouseOverButton = -1;
+  
+  for (int i = 0; i < mNumStates; i++)
+  {
+    if(mButtons.Get()[i].Contains(x, y))
+    {
+      mMouseOverButton = i;
+      break;
+    }
+  }
+  
+  ISwitchControlBase::OnMouseOver(x, y, mod);
+  
+  SetDirty(false);
+}
+
+void IVTabSwitchControl::OnResize()
+{
+  SetTargetRECT(CalculateRects(mRECT));
+  
+  mButtons.Resize(0);
+  
+  for (int i = 0; i < mNumStates; i++)
+  {
+    mButtons.Add(mWidgetBounds.SubRect(mDirection, mNumStates, i));
+  }
+  
+  SetDirty(false);
+}
+
 IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, int paramIdx, IActionFunction actionFunc,
-  int numStates, const char* label, const IVStyle& style, EVShape shape, float buttonSize)
-: ISwitchControlBase(bounds, paramIdx, actionFunc, numStates)
+                                           const char* label, const IVStyle& style, EVShape shape, float buttonSize)
+: ISwitchControlBase(bounds, paramIdx, actionFunc)
 , IVectorBase(style)
 , mShape(shape)
 , mButtonSize(buttonSize)
@@ -174,15 +357,6 @@ IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, int paramIdx, IA
   mText = style.valueText;
   mText.mAlign = EAlign::Near; //TODO?
   mText.mVAlign = EVAlign::Middle; //TODO?
-  mStyle.drawShadows = false;  //TODO?
-
-  if(GetParam())
-  {
-    for (int i = 0; i < mNumStates; i++)
-    {
-      mLabels.Add(new WDL_String(GetParam()->GetDisplayText(i)));
-    }
-  }
 }
 
 IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, IActionFunction actionFunc,
@@ -215,14 +389,14 @@ void IVRadioButtonControl::DrawButton(IGraphics& g, const IRECT& r, bool pressed
 {
   switch (mShape)
   {
-    case EVShape::Circle:
-      DrawPressableCircle(g, r.FracRectHorizontal(0.25f), mButtonSize, pressed, mouseOver);
+    case EVShape::Ellipse:
+      DrawPressableEllipse(g, r.GetCentredInside(mButtonSize), pressed, mouseOver);
       break;
     case EVShape::Rectangle:
-      DrawPressableRectangle(g, r.FracRectHorizontal(0.25f).GetCentredInside(mButtonSize), pressed, mouseOver);
+      DrawPressableRectangle(g, r.GetCentredInside(mButtonSize), pressed, mouseOver);
       break;
     case EVShape::Triangle:
-      DrawPressableTriangle(g, r.FracRectHorizontal(0.25f).GetCentredInside(mButtonSize), 90., pressed, mouseOver);
+      DrawPressableTriangle(g, r.GetCentredInside(mButtonSize), 90., pressed, mouseOver);
       break;
     default:
       break;
@@ -237,7 +411,7 @@ void IVRadioButtonControl::DrawWidget(IGraphics& g)
   {
     IRECT r = mButtons.Get()[i];
     
-    DrawButton(g, r, i == hit, mMouseOverButton == i);
+    DrawButton(g, r.FracRectHorizontal(0.25), i == hit, mMouseOverButton == i);
     
     if (mLabels.Get(i))
     {
@@ -311,6 +485,21 @@ void IVRadioButtonControl::OnResize()
   SetDirty(false);
 }
 
+void IVRadioButtonControl::OnInit()
+{
+  ISwitchControlBase::OnInit();
+  
+  const IParam* pParam = GetParam();
+  
+  if(pParam)
+  {
+    for (int i = 0; i < mNumStates; i++)
+    {
+      mLabels.Add(new WDL_String(GetParam()->GetDisplayText(i)));
+    }
+  }
+}
+
 IVKnobControl::IVKnobControl(const IRECT& bounds, int paramIdx,
                              const char* label,
                              const IVStyle& style,
@@ -357,21 +546,27 @@ void IVKnobControl::DrawWidget(IGraphics& g)
   float radius;
   
   if(mWidgetBounds.W() > mWidgetBounds.H())
-    radius = (mWidgetBounds.H()/2.5f /*TODO: fix bodge*/);
+    radius = (mWidgetBounds.H()/2.f /*TODO: fix bodge*/);
   else
-    radius = (mWidgetBounds.W()/2.5f /*TODO: fix bodge*/);
+    radius = (mWidgetBounds.W()/2.f /*TODO: fix bodge*/);
   
   const float cx = mWidgetBounds.MW(), cy = mWidgetBounds.MH();
   
   if(!IsGrayed())
   {
+    /*TODO: constants! */
     const float v = mAngleMin + ((float) GetValue() * (mAngleMax - mAngleMin));
     
-    g.DrawArc(GetColor(kFR), cx, cy, radius + 5.f, mAngleMin, v, 0, 3.f);
+    g.DrawArc(GetColor(kX1), cx, cy, (radius * 0.8f) + 3.f, mAngleMin, v, 0, 2.f);
     
-    DrawPressableCircle(g, mWidgetBounds, radius, false, mMouseIsOver & !mValueMouseOver);
+    DrawPressableCircle(g, mWidgetBounds, radius * 0.8f, false/*mMouseDown*/, mMouseIsOver & !mValueMouseOver);
     
-    g.DrawRadialLine(GetColor(kFR), cx, cy, v, 0.7f * radius, 0.9f * radius, 0, mStyle.frameThickness);
+    g.DrawCircle(GetColor(kHL), cx, cy, radius * 0.7f);
+
+    if(mMouseDown)
+      g.FillCircle(GetColor(kON), cx, cy, radius * 0.7f);
+    
+    g.DrawRadialLine(GetColor(kFR), cx, cy, v, 0.6f * radius, 0.8f * radius, 0, mStyle.frameThickness >= 1.f ? mStyle.frameThickness : 1.f);
   }
   else
   {
@@ -398,7 +593,9 @@ void IVKnobControl::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
   if(mStyle.hideCursor)
     GetUI()->HideMouseCursor(false);
-    
+
+  IKnobControlBase::OnMouseUp(x, y, mod);
+
   SetDirty(true);
 }
 
@@ -481,42 +678,61 @@ void IVSliderControl::Draw(IGraphics& g)
   DrawValue(g, mValueMouseOver);
 }
 
+void IVSliderControl::DrawTrack(IGraphics& g, const IRECT& filledArea)
+{
+  g.FillRect(GetColor(kSH), mTrack);
+  g.FillRect(GetColor(kX1), filledArea);
+  
+  g.DrawRect(GetColor(kFR), mTrack, nullptr, mStyle.frameThickness);
+}
+
+void IVSliderControl::DrawHandle(IGraphics& g, const IRECT& handleBounds)
+{
+  switch (mShape)
+  {
+    case EVShape::Ellipse:
+      DrawPressableEllipse(g, handleBounds, mMouseDown, mMouseIsOver);
+      break;
+    case EVShape::Rectangle:
+      DrawPressableRectangle(g, handleBounds, mMouseDown, mMouseIsOver);
+      break;
+    case EVShape::Triangle:
+      DrawPressableTriangle(g, handleBounds, mMouseDown, mMouseDown, mMouseIsOver);
+      break;
+    case EVShape::EndsRounded:
+      DrawPressableRectangle(g, handleBounds, mMouseDown, mMouseIsOver, true, true, false, false);
+      break;
+    case EVShape::AllRounded:
+      DrawPressableRectangle(g, handleBounds, mMouseDown, mMouseIsOver, true, true, true, true);
+    default:
+      break;
+  }
+}
+
 void IVSliderControl::DrawWidget(IGraphics& g)
 {
-  const float halfHandleSize = mHandleSize / 2.f;
-
-  //track
   IRECT filledTrack = mTrack.FracRect(mDirection, (float) GetValue());
 
-  g.FillRect(GetColor(kSH), mTrack);
-  g.FillRect(GetColor(kFG), filledTrack);
-  
-  g.DrawRect(GetColor(kFR), mTrack);
+  DrawTrack(g, filledTrack);
   
   float cx, cy;
   
+  const float offset = (mStyle.drawShadows && mShape != EVShape::Ellipse /* TODO? */) ? mStyle.shadowOffset * 0.5f : 0.;
+  
   if(mDirection == EDirection::Vertical)
   {
-    cx = filledTrack.MW();
+    cx = filledTrack.MW() + offset;
     cy = filledTrack.T;
   }
   else
   {
     cx = filledTrack.R;
-    cy = filledTrack.MH();
+    cy = filledTrack.MH() + offset;
   }
   
-  //Handle
-  if(mStyle.drawShadows && !mStyle.emboss)
-    g.FillCircle(GetColor(kSH), cx + mStyle.shadowOffset, cy + mStyle.shadowOffset, halfHandleSize);
-  
-  g.FillCircle(GetColor(kFG), cx, cy, halfHandleSize);
-  
-  if(GetMouseIsOver())
-    g.FillCircle(GetColor(kHL), cx, cy, halfHandleSize);
-  
-  g.DrawCircle(GetColor(kFR), cx, cy, halfHandleSize, 0, mStyle.frameThickness);
-  g.DrawCircle(GetColor(kON), cx, cy, halfHandleSize * 0.7f, 0, mStyle.frameThickness);
+  IRECT handleBounds = IRECT(cx-mHandleSize, cy-mHandleSize, cx+mHandleSize, cy+mHandleSize);
+
+  DrawHandle(g, handleBounds);
 }
 
 void IVSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
@@ -538,7 +754,9 @@ void IVSliderControl::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
   if(mStyle.hideCursor)
     GetUI()->HideMouseCursor(false);
-    
+  
+  ISliderControlBase::OnMouseUp(x, y, mod);
+
   SetDirty(true);
 }
 
@@ -727,7 +945,7 @@ void IVXYPadControl::DrawWidget(IGraphics& g)
   g.DrawVerticalLine(GetColor(kSH), mWidgetBounds, 0.5);
   g.DrawHorizontalLine(GetColor(kSH), mWidgetBounds, 0.5);
   g.PathClipRegion(mWidgetBounds.GetPadded(-0.5 * mStyle.frameThickness));
-  DrawPressableCircle(g, IRECT(mWidgetBounds.L + xpos-mHandleRadius, mWidgetBounds.B - ypos-mHandleRadius, mWidgetBounds.L + xpos+mHandleRadius,  mWidgetBounds.B -ypos+mHandleRadius), mHandleRadius, mMouseDown, mMouseIsOver);
+  DrawPressableEllipse(g, IRECT(mWidgetBounds.L + xpos-mHandleRadius, mWidgetBounds.B - ypos-mHandleRadius, mWidgetBounds.L + xpos+mHandleRadius,  mWidgetBounds.B -ypos+mHandleRadius), mMouseDown, mMouseIsOver);
 }
 
 void IVXYPadControl::OnMouseDown(float x, float y, const IMouseMod& mod)

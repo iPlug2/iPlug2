@@ -67,6 +67,7 @@ public:
   void OnResize() override;
 };
 
+/** A vector toggle control. Click to cycle through two states. */
 class IVToggleControl : public IVSwitchControl
 {
 public:
@@ -75,19 +76,54 @@ public:
   IVToggleControl(const IRECT& bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* offText = "OFF", const char* onText = "ON", const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool initialState = false);
   
   void DrawValue(IGraphics& g, bool mouseOver) override;
+  void DrawWidget(IGraphics& g) override;
 protected:
   WDL_String mOffText;
   WDL_String mOnText;
 };
 
-/** A vector switch control. Click to cycle through states. */
+/** A vector "tab" multi switch control. Click tabs to cycle through states. */
+class IVTabSwitchControl : public ISwitchControlBase
+                         , public IVectorBase
+{
+public:
+  enum class ETabSegment { Start, Mid, End };
+
+  IVTabSwitchControl(const IRECT& bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle, EDirection direction = EDirection::Horizontal);
+  
+  IVTabSwitchControl(const IRECT& bounds, IActionFunction actionFunc, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle, EDirection direction = EDirection::Horizontal);
+  
+  virtual ~IVTabSwitchControl() { mTabLabels.Empty(true); }
+  void Draw(IGraphics& g) override;
+  void OnInit() override;
+
+  virtual void DrawWidget(IGraphics& g) override;
+  virtual void DrawButton(IGraphics& g, const IRECT& bounds, bool pressed, bool mouseOver, ETabSegment segment);
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOut() override { mMouseOverButton = -1; }
+  void OnResize() override;
+  virtual bool IsHit(float x, float y) const override;
+  
+  int GetSelectedIdx() const { return int(0.5 + GetValue() * (double) (mNumStates - 1)); }
+  
+  void SetShape(EVShape shape) { mShape = shape; SetDirty(false); }
+protected:
+  int mMouseOverButton = -1;
+  WDL_TypedBuf<IRECT> mButtons;
+  WDL_PtrList<WDL_String> mTabLabels;
+  EDirection mDirection;
+  EVShape mShape;
+};
+
+/** A vector radio button control. Click buttons to select state */
 class IVRadioButtonControl : public ISwitchControlBase
                            , public IVectorBase
 {
 public:
-  IVRadioButtonControl(const IRECT& bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = SplashClickActionFunc, int numStates = 2, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Circle, float buttonSize = 10.f);
+  IVRadioButtonControl(const IRECT& bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, float buttonSize = 20.f);
 
-  IVRadioButtonControl(const IRECT& bounds, IActionFunction actionFunc, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Circle, float buttonSize = 10.f);
+  IVRadioButtonControl(const IRECT& bounds, IActionFunction actionFunc, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, float buttonSize = 20.f);
   
   virtual ~IVRadioButtonControl() { mLabels.Empty(true); }
   void Draw(IGraphics& g) override;
@@ -98,6 +134,7 @@ public:
   void OnMouseOut() override { mMouseOverButton = -1; }
   void OnResize() override;
   virtual bool IsHit(float x, float y) const override;
+  void OnInit() override;
 
   void SetShape(EVShape shape) { mShape = shape; SetDirty(false); }
   int GetSelectedIdx() const { return int(0.5 + GetValue() * (double) (mNumStates - 1)); }
@@ -204,6 +241,8 @@ public:
   virtual ~IVSliderControl() {}
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
+  virtual void DrawTrack(IGraphics& g, const IRECT& filledArea);
+  virtual void DrawHandle(IGraphics& g, const IRECT& handleBounds);
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
@@ -212,10 +251,12 @@ public:
   void OnResize() override;
   void SetDirty(bool push, int valIdx = kNoValIdx) override;
   void OnInit() override;
-  
+  void SetShape(EVShape shape) { mShape = shape; SetDirty(false); }
+
 protected:
   float mTrackSize;
   bool mValueMouseOver = false;
+  EVShape mShape = EVShape::Ellipse;
 };
 
 class IVRangeSliderControl : public IVSliderControl

@@ -2542,7 +2542,7 @@ static constexpr bool DEFAULT_DRAW_FRAME = true;
 static constexpr bool DEFAULT_DRAW_SHADOWS = true;
 static constexpr bool DEFAULT_EMBOSS = false;
 static constexpr float DEFAULT_ROUNDNESS = 0.f;
-static constexpr float DEFAULT_FRAME_THICKNESS = 2.f;
+static constexpr float DEFAULT_FRAME_THICKNESS = 1.f;
 static constexpr float DEFAULT_SHADOW_OFFSET = 3.f;
 const IText DEFAULT_LABEL_TEXT {DEFAULT_TEXT_SIZE + 5.f, EVAlign::Top};
 const IText DEFAULT_VALUE_TEXT {DEFAULT_TEXT_SIZE, EVAlign::Bottom};
