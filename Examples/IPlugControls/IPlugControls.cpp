@@ -258,7 +258,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
       dynamic_cast<IVTabSwitchControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagTabSwitchControl))->SetShape((EVShape) selectedIdx);
       dynamic_cast<IVSliderControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagVectorSlider))->SetShape((EVShape) selectedIdx);
 
-    }, {"Rect", "Ellipse", "Triangle", "EndsRounded", "AllRounded"}, "IVRadioButtonControl", style, EVShape::Ellipse, 10.f), kNoTag, "vcontrols");
+    }, {"Rect", "Ellipse", "Triangle", "EndsRounded", "AllRounded"}, "IVRadioButtonControl", style, EVShape::Ellipse, EDirection::Vertical, 10.f), kNoTag, "vcontrols");
     
     pGraphics->AttachControl(new IVTabSwitchControl(nextCell().GetCentredInside(110.), SplashClickActionFunc, {"one", "two", "three"}, "IVTabSwitchControl", style, EVShape::EndsRounded), kCtrlTagTabSwitchControl, "vcontrols");
 

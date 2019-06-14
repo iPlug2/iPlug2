@@ -104,9 +104,7 @@ public:
   void OnMouseOut() override { mMouseOverButton = -1; }
   void OnResize() override;
   virtual bool IsHit(float x, float y) const override;
-  
   int GetSelectedIdx() const { return int(0.5 + GetValue() * (double) (mNumStates - 1)); }
-  
   void SetShape(EVShape shape) { mShape = shape; SetDirty(false); }
 protected:
   int mMouseOverButton = -1;
@@ -117,33 +115,21 @@ protected:
 };
 
 /** A vector radio button control. Click buttons to select state */
-class IVRadioButtonControl : public ISwitchControlBase
-                           , public IVectorBase
+class IVRadioButtonControl : public IVTabSwitchControl
 {
 public:
-  IVRadioButtonControl(const IRECT& bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, float buttonSize = 20.f);
+  IVRadioButtonControl(const IRECT& bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 20.f);
 
-  IVRadioButtonControl(const IRECT& bounds, IActionFunction actionFunc, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, float buttonSize = 20.f);
+  IVRadioButtonControl(const IRECT& bounds, IActionFunction actionFunc, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 20.f);
   
-  virtual ~IVRadioButtonControl() { mLabels.Empty(true); }
-  void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
-  virtual void DrawButton(IGraphics& g, const IRECT& bounds, bool pressed, bool mouseOver);
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override { mMouseOverButton = -1; }
   void OnResize() override;
   virtual bool IsHit(float x, float y) const override;
-  void OnInit() override;
-
-  void SetShape(EVShape shape) { mShape = shape; SetDirty(false); }
-  int GetSelectedIdx() const { return int(0.5 + GetValue() * (double) (mNumStates - 1)); }
 protected:
-  int mMouseOverButton = -1;
-  EVShape mShape;
   float mButtonSize;
-  WDL_TypedBuf<IRECT> mButtons;
-  WDL_PtrList<WDL_String> mLabels;
 };
 
 /** A vector knob control drawn using graphics primitves */

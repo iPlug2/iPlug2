@@ -346,61 +346,20 @@ void IVTabSwitchControl::OnResize()
 }
 
 IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, int paramIdx, IActionFunction actionFunc,
-                                           const char* label, const IVStyle& style, EVShape shape, float buttonSize)
-: ISwitchControlBase(bounds, paramIdx, actionFunc)
-, IVectorBase(style)
-, mShape(shape)
+                                           const char* label, const IVStyle& style, EVShape shape, EDirection direction, float buttonSize)
+: IVTabSwitchControl(bounds, paramIdx, actionFunc, label, style, shape, direction)
 , mButtonSize(buttonSize)
 {
-  AttachIControl(this, label);
-  mDblAsSingleClick = true;
-  mText = style.valueText;
   mText.mAlign = EAlign::Near; //TODO?
-  mText.mVAlign = EVAlign::Middle; //TODO?
 }
 
 IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, IActionFunction actionFunc,
                                            const std::initializer_list<const char*>& options,
-                                           const char* label, const IVStyle& style, EVShape shape, float buttonSize)
-: ISwitchControlBase(bounds, kNoParameter, actionFunc, static_cast<int>(options.size()))
-, IVectorBase(style)
-, mShape(shape)
+                                           const char* label, const IVStyle& style, EVShape shape, EDirection direction, float buttonSize)
+: IVTabSwitchControl(bounds, actionFunc, options, label, style, shape, direction)
 , mButtonSize(buttonSize)
 {
-  AttachIControl(this, label);
-  mDblAsSingleClick = true;
-  mText = style.valueText;
-  mText.mAlign = mStyle.valueText.mAlign = EAlign::Near; //TODO?
-  mText.mVAlign = mStyle.valueText.mVAlign = EVAlign::Middle; //TODO?
-  
-  for (auto& option : options) {
-    mLabels.Add(new WDL_String(option));
-  }
-}
-
-void IVRadioButtonControl::Draw(IGraphics& g)
-{
-  DrawBackGround(g, mRECT);
-  DrawLabel(g);
-  DrawWidget(g);
-}
-
-void IVRadioButtonControl::DrawButton(IGraphics& g, const IRECT& r, bool pressed, bool mouseOver)
-{
-  switch (mShape)
-  {
-    case EVShape::Ellipse:
-      DrawPressableEllipse(g, r.GetCentredInside(mButtonSize), pressed, mouseOver);
-      break;
-    case EVShape::Rectangle:
-      DrawPressableRectangle(g, r.GetCentredInside(mButtonSize), pressed, mouseOver);
-      break;
-    case EVShape::Triangle:
-      DrawPressableTriangle(g, r.GetCentredInside(mButtonSize), 90., pressed, mouseOver);
-      break;
-    default:
-      break;
-  }
+  mText.mAlign = EAlign::Near; //TODO?
 }
 
 void IVRadioButtonControl::DrawWidget(IGraphics& g)
@@ -411,13 +370,13 @@ void IVRadioButtonControl::DrawWidget(IGraphics& g)
   {
     IRECT r = mButtons.Get()[i];
     
-    DrawButton(g, r.FracRectHorizontal(0.25), i == hit, mMouseOverButton == i);
+    DrawButton(g, r.FracRectHorizontal(0.25).GetCentredInside(mButtonSize), i == hit, mMouseOverButton == i, ETabSegment::Mid);
     
-    if (mLabels.Get(i))
+    if (mTabLabels.Get(i))
     {
       r = r.FracRectHorizontal(0.7f, true);
-      i == hit ? mText.mFGColor = COLOR_WHITE : mText.mFGColor = COLOR_BLACK;
-      g.DrawText(mText, mLabels.Get(i)->Get(), r);
+      i == hit ? mText.mFGColor = GetColor(kON) : mText.mFGColor = mStyle.valueText.mFGColor;
+      g.DrawText(mText, mTabLabels.Get(i)->Get(), r);
     }
   }
 }
@@ -466,7 +425,7 @@ void IVRadioButtonControl::OnMouseOver(float x, float y, const IMouseMod& mod)
     }
   }
   
-  ISwitchControlBase::OnMouseOver(x, y, mod);
+  IVTabSwitchControl::OnMouseOver(x, y, mod);
   
   SetDirty(false);
 }
@@ -479,25 +438,10 @@ void IVRadioButtonControl::OnResize()
   
   for (int i = 0; i < mNumStates; i++)
   {
-    mButtons.Add(mWidgetBounds.SubRect(EDirection::Vertical /*TODO: optional direction*/, mNumStates, i));
+    mButtons.Add(mWidgetBounds.SubRect(mDirection, mNumStates, i));
   }
   
   SetDirty(false);
-}
-
-void IVRadioButtonControl::OnInit()
-{
-  ISwitchControlBase::OnInit();
-  
-  const IParam* pParam = GetParam();
-  
-  if(pParam)
-  {
-    for (int i = 0; i < mNumStates; i++)
-    {
-      mLabels.Add(new WDL_String(GetParam()->GetDisplayText(i)));
-    }
-  }
 }
 
 IVKnobControl::IVKnobControl(const IRECT& bounds, int paramIdx,
