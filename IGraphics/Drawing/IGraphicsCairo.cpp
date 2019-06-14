@@ -313,8 +313,8 @@ void IGraphicsCairo::PathQuadraticBezierTo(float x1, float y1, float x2, float y
 {
   //TODO: not right
   double x0, y0;
-  cairo_get_current_point (mContext, &x0, &y0);
-  cairo_curve_to (mContext,
+  cairo_get_current_point(mContext, &x0, &y0);
+  cairo_curve_to(mContext,
                   2.0 / 3.0 * x1 + 1.0 / 3.0 * x0,
                   2.0 / 3.0 * y1 + 1.0 / 3.0 * y0,
                   2.0 / 3.0 * x1 + 1.0 / 3.0 * x2,
