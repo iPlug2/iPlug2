@@ -2459,8 +2459,6 @@ private:
   WDL_PtrList<DataKey> mDatas;
 };
 
-enum class EVShape { Circle, Rectangle, Triangle };
-
 /** Contains a set of colors used to theme IVControls */
 struct IVColorSpec
 {
