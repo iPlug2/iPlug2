@@ -129,7 +129,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->EnableTooltips(true);
     pGraphics->AttachTextEntryControl();
-    pGraphics->AttachPopupMenuControl();
+//    pGraphics->AttachPopupMenuControl();
     
     IRECT b = pGraphics->GetBounds().GetPadded(-5);
     
@@ -153,7 +153,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
         COLOR_BLACK, // Frame
         DEFAULT_HLCOLOR, // Highlight
         DEFAULT_SHCOLOR, // Shadow
-        DEFAULT_X1COLOR, // Extra 1
+        COLOR_BLACK, // Extra 1
         DEFAULT_X2COLOR, // Extra 2
         DEFAULT_X3COLOR  // Extra 3
       }, // Colors
@@ -225,7 +225,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     };
 
     pGraphics->AttachControl(new IVKnobControl(nextCell().GetCentredInside(110.), kGain, "IVKnobControl", style, true), kNoTag, "vcontrols");
-    pGraphics->AttachControl(new IVSliderControl(nextCell().GetCentredInside(110.), kGain, "IVSliderControl", style, true), kNoTag, "vcontrols");
+    pGraphics->AttachControl(new IVSliderControl(nextCell().GetCentredInside(110.), kGain, "IVSliderControl", style, true), kCtrlTagVectorSlider, "vcontrols");
     pGraphics->AttachControl(new IVRangeSliderControl(nextCell().GetCentredInside(110.), kFreq1, kFreq2, "IVRangeSliderControl", style, EDirection::Vertical, true, 10.f, 50.f), kNoTag, "vcontrols");
 
     pGraphics->AttachControl(new IVButtonControl(nextCell().GetCentredInside(110.), button1action, "IVButtonControl", style, false), kCtrlTagVectorButton, "vcontrols");
@@ -253,15 +253,20 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 
     pGraphics->AttachControl(new IVRadioButtonControl(nextCell().GetCentredInside(110.), [](IControl* pCaller) {
       SplashClickActionFunc(pCaller);
-      dynamic_cast<IVButtonControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagVectorButton))->SetShape((EVShape) dynamic_cast<IVRadioButtonControl*>(pCaller)->GetSelectedIdx());
+      auto selectedIdx = dynamic_cast<IVRadioButtonControl*>(pCaller)->GetSelectedIdx();
+      dynamic_cast<IVButtonControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagVectorButton))->SetShape((EVShape) selectedIdx);
+      dynamic_cast<IVTabSwitchControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagTabSwitchControl))->SetShape((EVShape) selectedIdx);
+      dynamic_cast<IVSliderControl*>(pCaller->GetUI()->GetControlWithTag(kCtrlTagVectorSlider))->SetShape((EVShape) selectedIdx);
 
-    }, {"One", "Two", "Three"}, "IVRadioButtonControl", style, EVShape::Circle, 5.f), kNoTag, "vcontrols");
+    }, {"Rect", "Ellipse", "Triangle", "EndsRounded", "AllRounded"}, "IVRadioButtonControl", style, EVShape::Ellipse, 10.f), kNoTag, "vcontrols");
+    
+    pGraphics->AttachControl(new IVTabSwitchControl(nextCell().GetCentredInside(110.), SplashClickActionFunc, {"one", "two", "three"}, "IVTabSwitchControl", style, EVShape::EndsRounded), kCtrlTagTabSwitchControl, "vcontrols");
 
     pGraphics->AttachControl(new IVXYPadControl(nextCell(), {kFreq1, kFreq2}, "IVXYPadControl", style), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVMultiSliderControl<4>(nextCell(), "IVMultiSliderControl", style), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVMeterControl<2>(nextCell(), "IVMeterControl", style), kCtrlTagMeter, "vcontrols");
     pGraphics->AttachControl(new IVScopeControl<2>(nextCell(), "IVScopeControl", style.WithColor(kFG, COLOR_BLACK)), kCtrlTagScope, "vcontrols");
-    pGraphics->AttachControl(new IVCustomControl(nextCell(), "IVCustomControl", style), kNoTag, "vcontrols");
+//    pGraphics->AttachControl(new IVCustomControl(nextCell(), "IVCustomControl", style), kNoTag, "vcontrols");
     
     IRECT wideCell;
 #ifndef OS_WEB

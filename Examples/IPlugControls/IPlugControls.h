@@ -18,6 +18,8 @@ enum ECtrlTags
 {
   kCtrlTagDialogResult = 0,
   kCtrlTagVectorButton,
+  kCtrlTagVectorSlider,
+  kCtrlTagTabSwitchControl,
   kCtrlTagScope,
   kCtrlTagMeter,
   kCtrlTags
