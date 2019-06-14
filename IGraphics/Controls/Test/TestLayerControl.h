@@ -22,7 +22,7 @@
 class TestLayerControl : public IKnobControlBase
 {
 public:
-  TestLayerControl(IRECT rect)
+  TestLayerControl(const IRECT& rect)
   : IKnobControlBase(rect, kNoParameter)
   {
     SetTooltip("TestLayerControl");

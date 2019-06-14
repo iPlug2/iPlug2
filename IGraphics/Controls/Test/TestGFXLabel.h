@@ -22,9 +22,10 @@
 class GFXLabelControl : public IControl
 {
 public:
-  GFXLabelControl(IRECT rect)
+  GFXLabelControl(const IRECT& rect)
   : IControl(rect)
   {
+    mIgnoreMouse = true;
   }
   
   void Draw(IGraphics& g) override
