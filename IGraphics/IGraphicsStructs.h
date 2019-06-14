@@ -1163,6 +1163,26 @@ struct IRECT
    * @return IRECT The resulting subrect */
   inline IRECT GetReducedFromRight(float amount) const { return IRECT(L, T, R-amount, B); }
   
+  /** Reduce in height from the top edge by 'amount' and return the removed region
+   * @param amount Size in Y to reduce by
+   * @return IRECT The removed subrect */
+  inline IRECT ReduceFromTop(float amount) { IRECT r = GetFromTop(amount); T+=amount; return r; }
+  
+  /** Reduce in height from the bottom edge by 'amount' and return the removed region
+   * @param amount Size in Y to reduce by
+   * @return IRECT The removed subrect */
+  inline IRECT ReduceFromBottom(float amount) { IRECT r = GetFromBottom(amount); B-=amount; return r; }
+  
+  /** Reduce in width from the left edge by 'amount' and return the removed region
+   * @param amount Size in X to reduce by
+   * @return IRECT The removed subrect */
+  inline IRECT ReduceFromLeft(float amount) { IRECT r = GetFromLeft(amount); L+=amount; return r; }
+  
+  /** Reduce in width from the right edge by 'amount' and return the removed region
+   * @param amount Size in X to reduce by
+   * @return IRECT The removed subrect */
+  inline IRECT ReduceFromRight(float amount) { IRECT r = GetFromRight(amount); R-=amount; return r; }
+  
   /** Get a subrect (by row, column) of this IRECT which is a cell in a grid of size (nRows * nColumns)
    * @param row Row index of the desired subrect
    * @param col Column index of the desired subrect
