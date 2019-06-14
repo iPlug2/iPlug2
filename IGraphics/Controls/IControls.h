@@ -155,14 +155,14 @@ public:
                 const char* label = "",
                 const IVStyle& style = DEFAULT_STYLE,
                 bool valueIsEditable = false,
-                float aMin = -135.f, float aMax = 135.f,
+                float aMin = -135.f, float aMax = 135.f, float aAnchor = -135.f,
                 EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING);
 
   IVKnobControl(const IRECT& bounds, IActionFunction actionFunction,
                 const char* label = "",
                 const IVStyle& style = DEFAULT_STYLE,
                 bool valueIsEditable = false,
-                float aMin = -135.f, float aMax = 135.f,
+                float aMin = -135.f, float aMax = 135.f, float aAnchor = -135.f,
                 EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING);
 
   virtual ~IVKnobControl() {}
@@ -183,6 +183,7 @@ public:
 
 protected:
   float mAngleMin, mAngleMax;
+  float mAnchorAngle; // for bipolar arc
   bool mValueMouseOver = false;
 };
 

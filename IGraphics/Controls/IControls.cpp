@@ -504,12 +504,13 @@ IVKnobControl::IVKnobControl(const IRECT& bounds, int paramIdx,
                              const char* label,
                              const IVStyle& style,
                              bool valueIsEditable,
-                             float aMin, float aMax,
+                             float aMin, float aMax, float aAnchor,
                              EDirection direction, double gearing)
 : IKnobControlBase(bounds, paramIdx, direction, gearing)
 , IVectorBase(style)
 , mAngleMin(aMin)
 , mAngleMax(aMax)
+, mAnchorAngle(aAnchor)
 {
   DisablePrompt(!valueIsEditable);
   mText = style.valueText;
@@ -520,12 +521,13 @@ IVKnobControl::IVKnobControl(const IRECT& bounds, IActionFunction actionFunction
                              const char* label,
                              const IVStyle& style,
                              bool valueIsEditable,
-                             float aMin, float aMax,
+                             float aMin, float aMax, float aAnchor,
                              EDirection direction, double gearing)
 : IKnobControlBase(bounds, kNoParameter, direction, gearing)
 , IVectorBase(style)
 , mAngleMin(aMin)
 , mAngleMax(aMax)
+, mAnchorAngle(aAnchor)
 {
   DisablePrompt(!valueIsEditable);
   mText = style.valueText;
@@ -557,7 +559,7 @@ void IVKnobControl::DrawWidget(IGraphics& g)
     /*TODO: constants! */
     const float v = mAngleMin + ((float) GetValue() * (mAngleMax - mAngleMin));
     
-    g.DrawArc(GetColor(kX1), cx, cy, (radius * 0.8f) + 3.f, mAngleMin, v, 0, 2.f);
+    g.DrawArc(GetColor(kX1), cx, cy, (radius * 0.8f) + 3.f, v >= mAnchorAngle ? mAnchorAngle : mAnchorAngle - (mAnchorAngle-v), v >= mAnchorAngle ? v : mAnchorAngle, 0, 2.f);
     
     DrawPressableCircle(g, mWidgetBounds, radius * 0.8f, false/*mMouseDown*/, mMouseIsOver & !mValueMouseOver);
     
@@ -713,7 +715,8 @@ void IVSliderControl::DrawWidget(IGraphics& g)
 {
   IRECT filledTrack = mTrack.FracRect(mDirection, (float) GetValue());
 
-  DrawTrack(g, filledTrack);
+  if(!mOnlyHandle)
+    DrawTrack(g, filledTrack);
   
   float cx, cy;
   
