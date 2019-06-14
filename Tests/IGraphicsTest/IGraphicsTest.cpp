@@ -126,6 +126,7 @@ IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new TestColorControl(nextCell()));
     pGraphics->AttachControl(new TestPolyControl(nextCell(), kParamDummy));
     pGraphics->AttachControl(new TestArcControl(nextCell(), kParamDummy));
+    pGraphics->AttachControl(new TestBezierControl(nextCell()));
     pGraphics->AttachControl(new TestMultiPathControl(nextCell(), kParamDummy));
     pGraphics->AttachControl(new TestTextControl(nextCell()));
     pGraphics->AttachControl(new TestAnimationControl(nextCell()));
