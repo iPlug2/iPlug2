@@ -640,15 +640,22 @@ public:
    * @param y /todo */
   virtual void PathLineTo(float x, float y) {}
 
-  /** /todo 
-   * @param x1 /todo
-   * @param y1 /todo
-   * @param x2 /todo
-   * @param y2 /todo
-   * @param x3 /todo
-   * @param y3 /todo */
-  virtual void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) {}
+  /** /todo
+   * @param c1x  /todo
+   * @param c1y  /todo
+   * @param c2x  /todo
+   * @param c2y  /todo
+   * @param x2  /todo
+   * @param y2  /todo */
+  virtual void PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2) {}
 
+  /** /todo
+   * @param cx /todo
+   * @param cy /todo
+   * @param x2 /todo
+   * @param y2 /todo */
+  virtual void PathQuadraticBezierTo(float cx, float cy, float x2, float y2) {}
+  
   /** /todo 
    * @param pattern /todo
    * @param thickness /todo
