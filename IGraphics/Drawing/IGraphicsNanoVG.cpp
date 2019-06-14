@@ -520,9 +520,14 @@ void IGraphicsNanoVG::PathLineTo(float x, float y)
   nvgLineTo(mVG, x, y);
 }
 
-void IGraphicsNanoVG::PathCubicBezierTo(float x1, float y1, float x2, float y2, float x3, float y3)
+void IGraphicsNanoVG::PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2)
 {
-  nvgBezierTo(mVG, x1, y1, x2, y2, x3, y3);
+  nvgBezierTo(mVG, c1x, c1y, c2x, c2y, x2, y2);
+}
+
+void IGraphicsNanoVG::PathQuadraticBezierTo(float cx, float cy, float x2, float y2)
+{
+  nvgQuadTo(mVG, cx, cy, x2, y2);
 }
 
 IColor IGraphicsNanoVG::GetPoint(int x, int y)

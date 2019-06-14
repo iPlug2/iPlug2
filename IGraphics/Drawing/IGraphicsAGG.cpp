@@ -310,20 +310,33 @@ void IGraphicsAGG::PathLineTo(float x, float y)
   mPath.line_to(xd, yd);
 }
 
-void IGraphicsAGG::PathCubicBezierTo(float x1, float y1, float x2, float y2, float x3, float y3)
+void IGraphicsAGG::PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2)
 {
-  double x1d = x1;
-  double y1d = y1;
-  double x2d = x2;
-  double y2d = y2;
-  double x3d = x3;
-  double y3d = y3;
+  double x1d = c1x;
+  double y1d = c1y;
+  double x2d = c2x;
+  double y2d = c2y;
+  double x3d = x2;
+  double y3d = y2;
   
   mTransform.transform(&x1d, &y1d);
   mTransform.transform(&x2d, &y2d);
   mTransform.transform(&x3d, &y3d);
 
   mPath.curve4(x1d, y1d, x2d, y2d, x3d, y3d);
+}
+
+void IGraphicsAGG::PathQuadraticBezierTo(float cx, float cy, float x2, float y2)
+{
+  double x1d = cx;
+  double y1d = cy;
+  double x2d = x2;
+  double y2d = y2;
+  
+  mTransform.transform(&x1d, &y1d);
+  mTransform.transform(&x2d, &y2d);
+  
+  mPath.curve3(x1d, y1d, x2d, y2d);
 }
 
 template<typename StrokeType>

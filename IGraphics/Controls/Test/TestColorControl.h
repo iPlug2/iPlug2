@@ -22,7 +22,7 @@
 class TestColorControl : public IControl
 {
 public:
-  TestColorControl(IRECT rect)
+  TestColorControl(const IRECT& rect)
   : IControl(rect)
   {
     SetTooltip("TestColorControl");

@@ -127,9 +127,14 @@ void IGraphicsCanvas::PathLineTo(float x, float y)
   GetContext().call<void>("lineTo", x, y);
 }
 
-void IGraphicsCanvas::PathCubicBezierTo(float x1, float y1, float x2, float y2, float x3, float y3)
+void IGraphicsCanvas::PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2)
 {
-  GetContext().call<void>("bezierCurveTo", x1, y1, x2, y2, x3, y3);
+  GetContext().call<void>("bezierCurveTo", c1x, c1y, c2x, c2y, x2, y2);
+}
+
+void IGraphicsCanvas::PathQuadraticBezierTo(float cx, float cy, float x2, float y2)
+{
+  GetContext().call<void>("quadraticCurveTo", cx, cy, x2, y2);
 }
 
 void IGraphicsCanvas::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)

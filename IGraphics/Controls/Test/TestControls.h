@@ -37,4 +37,4 @@
 #include "TestSizeControl.h"
 #include "TestGFXLabel.h"
 #include "TestMPSControl.h"
-
+#include "TestBezierControl.h"
