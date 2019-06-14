@@ -898,6 +898,10 @@ public:
           break;
       }
     }
+    else
+    {
+      mWidgetBounds = clickableArea;
+    }
     
     if(hasHandle)
       mWidgetBounds = GetAdjustedHandleBounds(clickableArea);
