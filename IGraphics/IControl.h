@@ -735,7 +735,8 @@ public:
     if(mouseOver)
       g.FillCircle(GetColor(kHL), cx, cy, radius * 0.8f);
     
-    g.DrawCircle(GetColor(kFR), cx, cy, radius, 0, mStyle.frameThickness);
+    if(mStyle.drawFrame)
+      g.DrawCircle(GetColor(kFR), cx, cy, radius, 0, mStyle.frameThickness);
   }
   
   void DrawPressableEllipse(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver)
@@ -751,7 +752,8 @@ public:
     if(mouseOver)
       g.FillEllipse(GetColor(kHL), bounds);
     
-    g.DrawEllipse(GetColor(kFR), bounds, nullptr, mStyle.frameThickness);
+    if(mStyle.drawFrame)
+      g.DrawEllipse(GetColor(kFR), bounds, nullptr, mStyle.frameThickness);
   }
   
   /** /todo
@@ -763,8 +765,6 @@ public:
   IRECT DrawPressableRectangle(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver,
                                bool roundTopLeft = true, bool roundTopRight = true, bool roundBottomLeft = true, bool roundBottomRight = true)
   {
-    g.FillRect(GetColor(kBG), bounds);
-    
     IRECT handleBounds = GetAdjustedHandleBounds(bounds);
     float cR;
     
@@ -818,8 +818,6 @@ public:
    * @param mouseOver Whether mouse is currently hovering on control */
   IRECT DrawPressableTriangle(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver)
   {
-    g.FillRect(GetColor(kBG), bounds);
-    
     float x1, x2, x3, y1, y2, y3;
     
     float theta = DegToRad(mStyle.angle);

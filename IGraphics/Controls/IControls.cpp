@@ -628,7 +628,8 @@ void IVSliderControl::DrawTrack(IGraphics& g, const IRECT& filledArea)
   g.FillRect(GetColor(kSH), mTrack);
   g.FillRect(GetColor(kX1), filledArea);
   
-  g.DrawRect(GetColor(kFR), mTrack, nullptr, mStyle.frameThickness);
+  if(mStyle.drawFrame)
+    g.DrawRect(GetColor(kFR), mTrack, nullptr, mStyle.frameThickness);
 }
 
 void IVSliderControl::DrawHandle(IGraphics& g, const IRECT& handleBounds)
