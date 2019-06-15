@@ -772,7 +772,6 @@ public:
     else
       cR = mStyle.roundness * (handleBounds.H() / 2.f);
     
-    
     const float topLeftR = roundTopLeft ? cR : 0.f;
     const float topRightR = roundTopRight ? cR : 0.f;
     const float bottomLeftR = roundBottomLeft ? cR : 0.f;
@@ -980,7 +979,7 @@ protected:
   bool mMouseDown = false;
 };
 
-/** A base class for slider/fader controls, to handle mouse action and ballistics. */
+/** A base class for slider/fader controls, to handle mouse action and Sender. */
 class ISliderControlBase : public IControl
 {
 public:
@@ -1328,7 +1327,7 @@ public:
 class ISVGControl : public IControl
 {
 public:
-  ISVGControl(const IRECT& bounds, ISVG& svg, bool useLayer = false)
+  ISVGControl(const IRECT& bounds, const ISVG& svg, bool useLayer = false)
     : IControl(bounds)
     , mSVG(svg)
     , mUseLayer(useLayer)

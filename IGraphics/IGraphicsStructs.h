@@ -597,6 +597,20 @@ struct IText
     return newText;
   }
   
+  IText WithAlign(EAlign align) const
+  {
+    IText newText = *this;
+    newText.mAlign = align;
+    return newText;
+  }
+  
+  IText WithVAlign(EVAlign valign) const
+  {
+    IText newText = *this;
+    newText.mVAlign = valign;
+    return newText;
+  }
+  
   char mFont[FONT_LEN];
   float mSize;
   IColor mFGColor;
