@@ -186,9 +186,7 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
       [subMenu release];
     }
     else if (pMenuItem->GetIsSeparator())
-    {
       [self addItem:[NSMenuItem separatorItem]];
-    }
     else
     {
       nsMenuItem = [self addItemWithTitle:nsMenuItemTitle action:@selector(onMenuSelection:) keyEquivalent:@""];
@@ -196,27 +194,17 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
       [nsMenuItem setTarget:pView];
       
       if (pMenuItem->GetIsTitle ())
-      {
         [nsMenuItem setIndentationLevel:1];
-      }
 
       if (pMenuItem->GetChecked())
-      {
         [nsMenuItem setState:NSOnState];
-      }
       else
-      {
         [nsMenuItem setState:NSOffState];
-      }
 
       if (pMenuItem->GetEnabled())
-      {
         [nsMenuItem setEnabled:YES];
-      }
       else
-      {
         [nsMenuItem setEnabled:NO];
-      }
 
     }
   }
