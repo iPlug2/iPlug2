@@ -658,6 +658,9 @@ public:
   
   void SetLabelStr(const char* label) { mLabelStr.Set(label); mControl->SetDirty(false); }
   void SetValueStr(const char* value) { mValueStr.Set(value); mControl->SetDirty(false); }
+  void SetWidgetFrac(float frac) { mStyle.widgetFrac = Clip(frac, 0.f, 1.f);  mControl->OnResize(); mControl->SetDirty(false); }
+  void SetShowLabel(bool show) { mStyle.showLabel = show;  mControl->OnResize(); mControl->SetDirty(false); }
+  void SetShowValue(bool show) { mStyle.showValue = show;  mControl->OnResize(); mControl->SetDirty(false); }
   void SetRoundness(float roundness) { mStyle.roundness = Clip(roundness, 0.f, 1.f); mControl->SetDirty(false); }
   void SetDrawFrame(bool draw) { mStyle.drawFrame = draw; mControl->SetDirty(false); }
   void SetDrawShadows(bool draw) { mStyle.drawShadows = draw; mControl->SetDirty(false); }
@@ -905,18 +908,18 @@ public:
       switch (mStyle.valueText.mVAlign)
       {
         case EVAlign::Middle:
-          mWidgetBounds = clickableArea.GetScaledAboutCentre(mWidgetFrac);
           mValueBounds = clickableArea.GetMidVPadded(textRect.H()/2.f).GetMidHPadded(valueDisplayWidth);
+          mWidgetBounds = clickableArea.GetScaledAboutCentre(mStyle.widgetFrac);
           break;
         case EVAlign::Bottom:
         {
           mValueBounds = clickableArea.GetFromBottom(textRect.H()).GetMidHPadded(valueDisplayWidth);
-          mWidgetBounds = clickableArea.GetReducedFromBottom(textRect.H()).GetScaledAboutCentre(mWidgetFrac);
+          mWidgetBounds = clickableArea.GetReducedFromBottom(textRect.H()).GetScaledAboutCentre(mStyle.widgetFrac);
           break;
         }
         case EVAlign::Top:
           mValueBounds = clickableArea.GetFromTop(textRect.H()).GetMidHPadded(valueDisplayWidth);
-          mWidgetBounds = clickableArea.GetReducedFromTop(textRect.H()).GetScaledAboutCentre(mWidgetFrac);
+          mWidgetBounds = clickableArea.GetReducedFromTop(textRect.H()).GetScaledAboutCentre(mStyle.widgetFrac);
           break;
         default:
           break;
@@ -924,11 +927,11 @@ public:
     }
     else
     {
-      mWidgetBounds = clickableArea;
+      mWidgetBounds = clickableArea.GetScaledAboutCentre(mStyle.widgetFrac);
     }
     
     if(hasHandle)
-      mWidgetBounds = GetAdjustedHandleBounds(clickableArea);
+      mWidgetBounds = GetAdjustedHandleBounds(clickableArea).GetScaledAboutCentre(mStyle.widgetFrac);
     
     if(mLabelInWidget)
       mLabelBounds = mWidgetBounds;
@@ -942,7 +945,6 @@ public:
 protected:
   IControl* mControl = nullptr;
   WDL_TypedBuf<IColor> mColors;
-  float mWidgetFrac = 1.f;
   IVStyle mStyle;
   bool mLabelInWidget = false;
   bool mValueInWidget = false;
@@ -955,7 +957,7 @@ protected:
   WDL_String mValueStr;
 };
 
-/** A base class for knob/dial controls, to handle mouse action and ballistics. */
+/** A base class for knob/dial controls, to handle mouse action and Sender. */
 class IKnobControlBase : public IControl
 {
 public:

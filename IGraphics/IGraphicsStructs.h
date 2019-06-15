@@ -2544,6 +2544,7 @@ static constexpr bool DEFAULT_EMBOSS = false;
 static constexpr float DEFAULT_ROUNDNESS = 0.f;
 static constexpr float DEFAULT_FRAME_THICKNESS = 1.f;
 static constexpr float DEFAULT_SHADOW_OFFSET = 3.f;
+static constexpr float DEFAULT_WIDGET_FRAC = 1.f;
 const IText DEFAULT_LABEL_TEXT {DEFAULT_TEXT_SIZE + 5.f, EVAlign::Top};
 const IText DEFAULT_VALUE_TEXT {DEFAULT_TEXT_SIZE, EVAlign::Bottom};
 
@@ -2558,6 +2559,7 @@ struct IVStyle
   float roundness = DEFAULT_ROUNDNESS;
   float frameThickness = DEFAULT_FRAME_THICKNESS;
   float shadowOffset = DEFAULT_SHADOW_OFFSET;
+  float widgetFrac = DEFAULT_WIDGET_FRAC;
   IVColorSpec colorSpec = DEFAULT_COLOR_SPEC;
   IText labelText = DEFAULT_LABEL_TEXT;
   IText valueText = DEFAULT_VALUE_TEXT;
@@ -2573,7 +2575,8 @@ struct IVStyle
           bool emboss = DEFAULT_EMBOSS,
           float roundness = DEFAULT_ROUNDNESS,
           float frameThickness = DEFAULT_FRAME_THICKNESS,
-          float shadowOffset = DEFAULT_SHADOW_OFFSET)
+          float shadowOffset = DEFAULT_SHADOW_OFFSET,
+          float widgetFrac = DEFAULT_WIDGET_FRAC)
   : showLabel(showLabel)
   , showValue(showValue)
   , colorSpec(colors)
@@ -2586,6 +2589,7 @@ struct IVStyle
   , roundness(roundness)
   , frameThickness(frameThickness)
   , shadowOffset(shadowOffset)
+  , widgetFrac(widgetFrac)
   {
   }
   
@@ -2606,6 +2610,7 @@ struct IVStyle
   IVStyle WithEmboss(bool v) const { IVStyle newStyle = *this; newStyle.emboss = v; return newStyle; }
   IVStyle WithDrawShadows(bool v) const { IVStyle newStyle = *this; newStyle.drawShadows = v; return newStyle; }
   IVStyle WithDrawFrame(bool v) const { IVStyle newStyle = *this; newStyle.drawFrame = v; return newStyle; }
+  IVStyle WithWidgetFrac(float v) const { IVStyle newStyle = *this; newStyle.widgetFrac = v; return newStyle; }
 };
 
 const IVStyle DEFAULT_STYLE = IVStyle();
