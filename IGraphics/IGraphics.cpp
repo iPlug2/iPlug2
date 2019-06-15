@@ -1707,10 +1707,10 @@ void IGraphics::DoMeasureTextRotation(const IText& text, const IRECT& bounds, IR
 
 void IGraphics::CalulateTextRotation(const IText& text, const IRECT& bounds, IRECT& rect, double& tx, double& ty) const
 {
-  if (!text.mOrientation)
+  if (!text.mAngle)
     return;
   
-  IMatrix m = IMatrix().Rotate(text.mOrientation);
+  IMatrix m = IMatrix().Rotate(text.mAngle);
   
   double x0 = rect.L;
   double y0 = rect.T;

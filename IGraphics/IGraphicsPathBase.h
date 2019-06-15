@@ -547,7 +547,7 @@ protected:
     
   void DoTextRotation(const IText& text, const IRECT& bounds, const IRECT& rect)
   {
-    if (!text.mOrientation)
+    if (!text.mAngle)
       return;
     
     IRECT rotated = rect;
@@ -555,7 +555,7 @@ protected:
     
     CalulateTextRotation(text, bounds, rotated, tx, ty);
     PathTransformTranslate(tx, ty);
-    PathTransformRotate(text.mOrientation);
+    PathTransformRotate(text.mAngle);
   }
   
   float GetBackingPixelScale() const override { return GetScreenScale() * GetDrawScale(); };

@@ -57,7 +57,7 @@ void IVButtonControl::DrawWidget(IGraphics& g)
       DrawPressableRectangle(g, mWidgetBounds, pressed, mMouseIsOver);
       break;
     case EVShape::Triangle:
-      DrawPressableTriangle(g, mWidgetBounds, mAngle, pressed, mMouseIsOver);
+      DrawPressableTriangle(g, mWidgetBounds, pressed, mMouseIsOver);
       break;
     case EVShape::EndsRounded:
       DrawPressableRectangle(g, mWidgetBounds, pressed, mMouseIsOver, true, true, false, false);
@@ -238,7 +238,7 @@ void IVTabSwitchControl::DrawButton(IGraphics& g, const IRECT& r, bool pressed, 
       DrawPressableRectangle(g, r, pressed, mouseOver);
       break;
     case EVShape::Triangle:
-      DrawPressableTriangle(g, r, 90., pressed, mouseOver);
+      DrawPressableTriangle(g, r, pressed, mouseOver);
       break;
     case EVShape::EndsRounded:
       if(mDirection == EDirection::Horizontal)
@@ -642,7 +642,7 @@ void IVSliderControl::DrawHandle(IGraphics& g, const IRECT& handleBounds)
       DrawPressableRectangle(g, handleBounds, mMouseDown, mMouseIsOver);
       break;
     case EVShape::Triangle:
-      DrawPressableTriangle(g, handleBounds, mMouseDown, mMouseDown, mMouseIsOver);
+      DrawPressableTriangle(g, handleBounds, mMouseDown, mMouseIsOver);
       break;
     case EVShape::EndsRounded:
       DrawPressableRectangle(g, handleBounds, mMouseDown, mMouseIsOver, true, true, false, false);

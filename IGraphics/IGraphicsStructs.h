@@ -539,7 +539,7 @@ struct IText
    * @param font /todo
    * @param align /todo
    * @param valign /todo
-   * @param orientation /todo
+   * @param angle /todo
    * @param TEBGColor /todo
    * @param TEFGColor /todo */
   explicit IText(float size = DEFAULT_TEXT_SIZE,
@@ -547,14 +547,14 @@ struct IText
         const char* font = nullptr,
         EAlign align = EAlign::Center,
         EVAlign valign = EVAlign::Middle,
-        float orientation = 0,
+        float angle = 0,
         const IColor& TEBGColor = DEFAULT_TEXTENTRY_BGCOLOR,
         const IColor& TEFGColor = DEFAULT_TEXTENTRY_FGCOLOR)
     : mSize(size)
     , mFGColor(color)
     , mAlign(align)
     , mVAlign(valign)
-    , mOrientation(orientation)
+    , mAngle(angle)
     , mTextEntryBGColor(TEBGColor)
     , mTextEntryFGColor(TEFGColor)
   {
@@ -597,26 +597,17 @@ struct IText
     return newText;
   }
   
-  IText WithAlign(EAlign align) const
-  {
-    IText newText = *this;
-    newText.mAlign = align;
-    return newText;
-  }
-  
-  IText WithVAlign(EVAlign valign) const
-  {
-    IText newText = *this;
-    newText.mVAlign = valign;
-    return newText;
-  }
-  
+  IText WithAlign(EAlign align) const { IText newText = *this; newText.mAlign = align; return newText; }
+  IText WithVAlign(EVAlign valign) const { IText newText = *this; newText.mVAlign = valign; return newText; }
+  IText WithSize(float size) const { IText newText = *this; newText.mSize = size; return newText; }
+  IText WithAngle(float v) const { IText newText = *this; newText.mAngle = v; return newText; }
+
   char mFont[FONT_LEN];
   float mSize;
   IColor mFGColor;
   IColor mTextEntryBGColor;
   IColor mTextEntryFGColor;
-  float mOrientation = 0.f; // Degrees ccwise from normal.
+  float mAngle = 0.f; // Degrees ccwise from normal.
   EAlign mAlign = EAlign::Near;
   EVAlign mVAlign = EVAlign::Middle;
 };
@@ -2559,6 +2550,7 @@ static constexpr float DEFAULT_ROUNDNESS = 0.f;
 static constexpr float DEFAULT_FRAME_THICKNESS = 1.f;
 static constexpr float DEFAULT_SHADOW_OFFSET = 3.f;
 static constexpr float DEFAULT_WIDGET_FRAC = 1.f;
+static constexpr float DEFAULT_WIDGET_ANGLE = 0.f;
 const IText DEFAULT_LABEL_TEXT {DEFAULT_TEXT_SIZE + 5.f, EVAlign::Top};
 const IText DEFAULT_VALUE_TEXT {DEFAULT_TEXT_SIZE, EVAlign::Bottom};
 
@@ -2574,6 +2566,7 @@ struct IVStyle
   float frameThickness = DEFAULT_FRAME_THICKNESS;
   float shadowOffset = DEFAULT_SHADOW_OFFSET;
   float widgetFrac = DEFAULT_WIDGET_FRAC;
+  float angle = DEFAULT_WIDGET_ANGLE;
   IVColorSpec colorSpec = DEFAULT_COLOR_SPEC;
   IText labelText = DEFAULT_LABEL_TEXT;
   IText valueText = DEFAULT_VALUE_TEXT;
@@ -2590,7 +2583,8 @@ struct IVStyle
           float roundness = DEFAULT_ROUNDNESS,
           float frameThickness = DEFAULT_FRAME_THICKNESS,
           float shadowOffset = DEFAULT_SHADOW_OFFSET,
-          float widgetFrac = DEFAULT_WIDGET_FRAC)
+          float widgetFrac = DEFAULT_WIDGET_FRAC,
+          float angle = DEFAULT_WIDGET_ANGLE)
   : showLabel(showLabel)
   , showValue(showValue)
   , colorSpec(colors)
@@ -2604,6 +2598,7 @@ struct IVStyle
   , frameThickness(frameThickness)
   , shadowOffset(shadowOffset)
   , widgetFrac(widgetFrac)
+  , angle(angle)
   {
   }
   
@@ -2625,6 +2620,7 @@ struct IVStyle
   IVStyle WithDrawShadows(bool v) const { IVStyle newStyle = *this; newStyle.drawShadows = v; return newStyle; }
   IVStyle WithDrawFrame(bool v) const { IVStyle newStyle = *this; newStyle.drawFrame = v; return newStyle; }
   IVStyle WithWidgetFrac(float v) const { IVStyle newStyle = *this; newStyle.widgetFrac = v; return newStyle; }
+  IVStyle WithAngle(float v) const { IVStyle newStyle = *this; newStyle.angle = v; return newStyle; }
 };
 
 const IVStyle DEFAULT_STYLE = IVStyle();

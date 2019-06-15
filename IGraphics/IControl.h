@@ -659,6 +659,7 @@ public:
   void SetLabelStr(const char* label) { mLabelStr.Set(label); mControl->SetDirty(false); }
   void SetValueStr(const char* value) { mValueStr.Set(value); mControl->SetDirty(false); }
   void SetWidgetFrac(float frac) { mStyle.widgetFrac = Clip(frac, 0.f, 1.f);  mControl->OnResize(); mControl->SetDirty(false); }
+  void SetAngle(float angle) { mStyle.angle = Clip(angle, 0.f, 360.f);  mControl->SetDirty(false); }
   void SetShowLabel(bool show) { mStyle.showLabel = show;  mControl->OnResize(); mControl->SetDirty(false); }
   void SetShowValue(bool show) { mStyle.showValue = show;  mControl->OnResize(); mControl->SetDirty(false); }
   void SetRoundness(float roundness) { mStyle.roundness = Clip(roundness, 0.f, 1.f); mControl->SetDirty(false); }
@@ -813,16 +814,15 @@ public:
   /** Draw a triangle-shaped vector button
    * @param g The IGraphics context used for drawing
    * @param bounds Where to draw the button
-   * @param angle Angle of rotation in degrees
    * @param pressed Whether to draw the button pressed or unpressed
    * @param mouseOver Whether mouse is currently hovering on control */
-  IRECT DrawPressableTriangle(IGraphics&g, const IRECT& bounds, float angle, bool pressed, bool mouseOver)
+  IRECT DrawPressableTriangle(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver)
   {
     g.FillRect(GetColor(kBG), bounds);
     
     float x1, x2, x3, y1, y2, y3;
     
-    float theta = DegToRad(angle);
+    float theta = DegToRad(mStyle.angle);
     
     IRECT handleBounds = GetAdjustedHandleBounds(bounds);
     
