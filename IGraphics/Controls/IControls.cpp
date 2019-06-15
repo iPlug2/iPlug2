@@ -140,7 +140,7 @@ bool IVSwitchControl::IsHit(float x, float y) const
   return mWidgetBounds.Contains(x, y);
 }
 
-IVToggleControl::IVToggleControl(const IRECT& bounds, int paramIdx, const char* offText, const char* onText, const char* label, const IVStyle& style)
+IVToggleControl::IVToggleControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, const char* offText, const char* onText)
 : IVSwitchControl(bounds, paramIdx, label, style, true)
 , mOnText(onText)
 , mOffText(offText)
@@ -148,7 +148,7 @@ IVToggleControl::IVToggleControl(const IRECT& bounds, int paramIdx, const char* 
   //TODO: assert boolean?
 }
 
-IVToggleControl::IVToggleControl(const IRECT& bounds, IActionFunction actionFunc, const char* offText, const char* onText, const char* label, const IVStyle& style, bool initialState)
+IVToggleControl::IVToggleControl(const IRECT& bounds, IActionFunction actionFunc, const char* label, const IVStyle& style, const char* offText, const char* onText, bool initialState)
 : IVSwitchControl(bounds, actionFunc, label, style, 2, true)
 , mOnText(onText)
 , mOffText(offText)
@@ -171,7 +171,6 @@ void IVToggleControl::DrawValue(IGraphics& g, bool mouseOver)
   else
     g.DrawText(mStyle.valueText, mOffText.Get(), mValueBounds);
 }
-
 
 IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, int paramIdx, IActionFunction actionFunc,
                                        const char* label, const IVStyle& style, EVShape shape, EDirection direction)
