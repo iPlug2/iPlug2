@@ -707,7 +707,7 @@ public:
   
   virtual void DrawLabel(IGraphics& g)
   {
-    if(mLabelBounds.H())
+    if(mLabelBounds.H() && mStyle.showLabel)
       g.DrawText(mStyle.labelText, mLabelStr.Get(), mLabelBounds);
   }
   
