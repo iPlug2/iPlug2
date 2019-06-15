@@ -30,6 +30,30 @@
  */
 
 #pragma mark - Vector Controls
+class IVLabelControl : public ITextControl
+                     , public IVectorBase
+{
+public:
+  IVLabelControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE)
+  : ITextControl(bounds, label)
+  {
+    mText = style.labelText;
+    AttachIControl(this, label);
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    g.FillRect(GetColor(kBG), mRECT);
+    
+    if (mStr.GetLength())
+    {
+      if(mStyle.drawShadows)
+        g.DrawText(mText.WithFGColor(GetColor(kSH)), mStr.Get(), mRECT.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset));
+      
+      g.DrawText(mText, mStr.Get(), mRECT);
+    }
+  }
+};
 
 /** A vector button/momentary switch control. */
 class IVButtonControl : public IButtonControlBase
