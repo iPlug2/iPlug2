@@ -128,7 +128,6 @@ public:
   void OnMouseOut() override { mMouseOverButton = -1; }
   void OnResize() override;
   virtual bool IsHit(float x, float y) const override;
-  int GetSelectedIdx() const { return int(0.5 + GetValue() * (double) (mNumStates - 1)); }
   void SetShape(EVShape shape) { mShape = shape; SetDirty(false); }
 protected:
   int mMouseOverButton = -1;
