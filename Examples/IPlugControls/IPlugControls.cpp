@@ -248,13 +248,9 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     dynamic_cast<IVButtonControl*>(pGraphics->GetControl(pGraphics->NControls()-1))->SetValueStr("one");
     
     pGraphics->AttachControl(new IVSwitchControl(nextCell().GetCentredInside(110.), kMode, "IVSwitchControl", style.WithValueText(IText(36.f, EAlign::Center))), kNoTag, "vcontrols");
-
     pGraphics->AttachControl(new IVToggleControl(nextCell().GetCentredInside(110.), SplashClickActionFunc, "IVToggleControl", style.WithValueText(forkAwesomeText), "", ICON_FK_CHECK), kNoTag, "vcontrols");
-
     pGraphics->AttachControl(new IVRadioButtonControl(nextCell().GetCentredInside(110.), kMode, SplashClickActionFunc, "IVRadioButtonControl", style, EVShape::Ellipse, EDirection::Vertical, 10.f), kCtrlTagRadioButton, "vcontrols");
-    
     pGraphics->AttachControl(new IVTabSwitchControl(nextCell().GetCentredInside(110.), SplashClickActionFunc, {"one", "two", "three"}, "IVTabSwitchControl", style, EVShape::EndsRounded), kCtrlTagTabSwitch, "vcontrols");
-
     pGraphics->AttachControl(new IVXYPadControl(nextCell(), {kFreq1, kFreq2}, "IVXYPadControl", style), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVMultiSliderControl<4>(nextCell(), "IVMultiSliderControl", style), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVMeterControl<2>(nextCell(), "IVMeterControl", style), kCtrlTagMeter, "vcontrols");
@@ -297,69 +293,60 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     
     cellIdx = 31;
     
-    pGraphics->AttachControl(new IVSliderControl(nextCell().GetGridCell(0, 0, 4, 1), [pGraphics](IControl* pCaller) {
-      pGraphics->ForControlInGroup("vcontrols", [pCaller](IControl& control) {
-        dynamic_cast<IVectorBase&>(control).SetWidgetFrac(pCaller->GetValue());
-      });
-    }, "Widget Frac", style, true, EDirection::Horizontal));
+    nextCell();
     
-    pGraphics->AttachControl(new IVSliderControl(sameCell().GetGridCell(1, 0, 4, 1), [pGraphics](IControl* pCaller) {
-      pGraphics->ForControlInGroup("vcontrols", [pCaller](IControl& control) {
-        dynamic_cast<IVectorBase&>(control).SetRoundness(pCaller->GetValue());
-      });
-    }, "Roundness", style, true, EDirection::Horizontal));
+    int slider = 0;
     
-    pGraphics->AttachControl(new IVSliderControl(sameCell().GetGridCell(2, 0, 4, 1), [pGraphics](IControl* pCaller) {
-      pGraphics->ForControlInGroup("vcontrols", [pCaller](IControl& control) {
-        dynamic_cast<IVectorBase&>(control).SetShadowOffset(pCaller->GetValue() * 5.f);
-      });
-    }, "Shadow Offset", style, true, EDirection::Horizontal));
+    for(auto label : {"Widget Frac", "Roundness", "Shadow Offset", "Frame Thickness", "Angle"})
+    {
+      pGraphics->AttachControl(new IVSliderControl(sameCell().GetGridCell(slider, 0, 5, 1), [pGraphics, slider](IControl* pCaller){
+        SplashClickActionFunc(pCaller);
+        pGraphics->ForControlInGroup("vcontrols", [pCaller, slider](IControl& control) {
+          
+          IVectorBase& vcontrol = dynamic_cast<IVectorBase&>(control);
+          double val = pCaller->GetValue();
+          
+          switch (slider) {
+            case 0 : vcontrol.SetWidgetFrac(val); break;
+            case 1 : vcontrol.SetRoundness(val); break;
+            case 2 : vcontrol.SetShadowOffset(val * 5.f); break;
+            case 3 : vcontrol.SetFrameThickness(val * 5.f); break;
+            case 4 : vcontrol.SetAngle(val * 360.f); break;
+            default: break;
+          }
+        });
+      }, label, style, true, EDirection::Horizontal));
+      
+      slider++;
+    }
     
-    pGraphics->AttachControl(new IVSliderControl(sameCell().GetGridCell(3, 0, 4, 1), [pGraphics](IControl* pCaller) {
-      pGraphics->ForControlInGroup("vcontrols", [pCaller](IControl& control) {
-        dynamic_cast<IVectorBase&>(control).SetFrameThickness(pCaller->GetValue() * 5.f);
-      });
-    }, "Frame Thickness", style, true, EDirection::Horizontal));
+    nextCell();
     
-//    pGraphics->AttachControl(new IVSliderControl(sameCell().GetGridCell(1, 0, 3, 1), [](IControl* pCaller) {
-//      dynamic_cast<IVButtonControl*>(pGraphics->GetControlWithTag(kCtrlTagVectorButton))->SetAngle(pCaller->GetValue() * 360.);
-//    }, "Angle", style, true, kHorizontal));
+    int toggle = 0;
     
-    pGraphics->AttachControl(new IVToggleControl(nextCell().GetGridCell(0, 0, 5, 1), [pGraphics](IControl* pCaller){
-      SplashClickActionFunc(pCaller);
-      pGraphics->ForControlInGroup("vcontrols", [pCaller](IControl& control) {
-        dynamic_cast<IVectorBase&>(control).SetDrawFrame((bool) pCaller->GetValue());
-      });
-    }, "Draw Frame", style.WithValueText(forkAwesomeText.WithAlign(EAlign::Near)).WithDrawFrame(false).WithDrawShadows(false), ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE, true));
+    for(auto label : {"Draw Frame", "Draw Shadows", "Emboss", "Show Label", "Show Value"})
+    {
+      pGraphics->AttachControl(new IVToggleControl(sameCell().GetGridCell(toggle, 0, 5, 1), [pGraphics, toggle](IControl* pCaller){
+        SplashClickActionFunc(pCaller);
+        pGraphics->ForControlInGroup("vcontrols", [pCaller, toggle](IControl& control) {
+          
+          IVectorBase& vcontrol = dynamic_cast<IVectorBase&>(control);
+          bool val = (bool) pCaller->GetValue();
+          
+          switch (toggle) {
+            case 0 : vcontrol.SetDrawFrame(val); break;
+            case 1 : vcontrol.SetDrawShadows(val); break;
+            case 2 : vcontrol.SetEmboss(val); break;
+            case 3 : vcontrol.SetShowLabel(val); break;
+            case 4 : vcontrol.SetShowValue(val); break;
+            default: break;
+          }
+        });
+      }, label, style.WithValueText(forkAwesomeText.WithSize(12.f)).WithDrawFrame(false).WithDrawShadows(false), ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE, true));
+      
+      toggle++;
+    }
 
-    pGraphics->AttachControl(new IVToggleControl(sameCell().GetGridCell(1, 0, 5, 1), [pGraphics](IControl* pCaller){
-      SplashClickActionFunc(pCaller);
-      pGraphics->ForControlInGroup("vcontrols", [pCaller](IControl& control) {
-        dynamic_cast<IVectorBase&>(control).SetDrawShadows((bool) pCaller->GetValue());
-      });
-    }, "Draw Shadows", style.WithValueText(forkAwesomeText).WithDrawFrame(false).WithDrawShadows(false), ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE, true));
-
-    pGraphics->AttachControl(new IVToggleControl(sameCell().GetGridCell(2, 0, 5, 1), [pGraphics](IControl* pCaller){
-      SplashClickActionFunc(pCaller);
-      pGraphics->ForControlInGroup("vcontrols", [pCaller](IControl& control) {
-        dynamic_cast<IVectorBase&>(control).SetEmboss((bool) pCaller->GetValue());
-      });
-    }, "Emboss", style.WithValueText(forkAwesomeText).WithDrawFrame(false).WithDrawShadows(false), ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE, false));
-
-    pGraphics->AttachControl(new IVToggleControl(sameCell().GetGridCell(3, 0, 5, 1), [pGraphics](IControl* pCaller){
-      SplashClickActionFunc(pCaller);
-      pGraphics->ForControlInGroup("vcontrols", [pCaller](IControl& control) {
-        dynamic_cast<IVectorBase&>(control).SetShowLabel((bool) pCaller->GetValue());
-      });
-    }, "Show Label", style.WithValueText(forkAwesomeText).WithDrawFrame(false).WithDrawShadows(false), ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE, false));
-
-    pGraphics->AttachControl(new IVToggleControl(sameCell().GetGridCell(4, 0, 5, 1), [pGraphics](IControl* pCaller){
-      SplashClickActionFunc(pCaller);
-      pGraphics->ForControlInGroup("vcontrols", [pCaller](IControl& control) {
-        dynamic_cast<IVectorBase&>(control).SetShowValue((bool) pCaller->GetValue());
-      });
-    }, "Show Value", style.WithValueText(forkAwesomeText).WithDrawFrame(false).WithDrawShadows(false), ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE, false));
-    
     pGraphics->AttachControl(new IVRadioButtonControl(nextCell(), [pGraphics](IControl* pCaller) {
       SplashClickActionFunc(pCaller);
       EVShape shape = (EVShape) dynamic_cast<IVRadioButtonControl*>(pCaller)->GetSelectedIdx();
