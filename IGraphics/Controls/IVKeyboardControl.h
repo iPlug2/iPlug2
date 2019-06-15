@@ -231,7 +231,17 @@ public:
   void DrawKey(IGraphics& g, const IRECT& bounds, const IColor& color)
   {
     if(mRoundedKeys)
-      g.FillRoundRect(color, bounds, 0., 0., mCurve, mCurve);
+    {
+      // TODO: move this elsewhere
+      float cR;
+      
+      if(bounds.W() < bounds.H())
+        cR = mStyle.roundness * (bounds.W() / 2.f);
+      else
+        cR = mStyle.roundness * (bounds.H() / 2.f);
+      
+      g.FillRoundRect(color, bounds, 0., 0., cR, cR);
+    }
     else
       g.FillRect(color, bounds);
   }
@@ -262,8 +272,20 @@ public:
           {
             IRECT shadowBounds = keyBounds;
             shadowBounds.R = shadowBounds.L + 0.35f * shadowBounds.W();
-            g.FillRect(shadowColor, shadowBounds);
-//            g.FillRoundRect(shadowColor, shadowBounds, 0., 0., mCurve, mCurve); // this one looks strange with rounded corners
+            
+            if(!mRoundedKeys)
+              g.FillRect(shadowColor, shadowBounds);
+            else {
+              // TODO: move this elsewhere
+              float cR;
+              
+              if(shadowBounds.W() < shadowBounds.H())
+                cR = mStyle.roundness * (shadowBounds.W() / 2.f);
+              else
+                cR = mStyle.roundness * (shadowBounds.H() / 2.f);
+              
+              g.FillRoundRect(shadowColor, shadowBounds, 0., 0., cR, cR); // this one looks strange with rounded corners
+            }
           }
         }
         if (mStyle.drawFrame && i != 0)
@@ -307,7 +329,7 @@ public:
           g.FillRect(cBP, keyBounds);
         }
 
-        if(mCurve == 0.)
+        if(mStyle.roundness == 0.)
         {
           // draw l, r and bottom if they don't overlay the mRECT borders
           if (mBKHeightRatio != 1.0)
@@ -707,7 +729,6 @@ protected:
   float mBKWidthRatio = 0.6f;
   float mBKHeightRatio = 0.6f;
   float mBKAlpha = 100.f;
-  float mCurve = 5.;
   int mLastTouchedKey = -1;
   float mLastVelocity = 0.f;
   int mMouseOverKey = -1;
