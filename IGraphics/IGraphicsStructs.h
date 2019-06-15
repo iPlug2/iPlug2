@@ -588,15 +588,8 @@ struct IText
     strcpy(mFont, (font ? font : DEFAULT_FONT));
   }
   
-  IText WithColors(const IColor& fgColor, const IColor& teBgColor = DEFAULT_TEXTENTRY_BGCOLOR, const IColor& teFgColor = DEFAULT_TEXTENTRY_FGCOLOR) const
-  {
-    IText newText = *this;
-    newText.mFGColor = fgColor;
-    newText.mTextEntryBGColor = teBgColor;
-    newText.mTextEntryFGColor = teFgColor;
-    return newText;
-  }
-  
+  IText WithFGColor(const IColor& fgColor) const { IText newText = *this; newText.mFGColor = fgColor; return newText; }
+  IText WithTEColors(const IColor& teBgColor, const IColor& teFgColor) const { IText newText = *this; newText.mTextEntryBGColor = teBgColor; newText.mTextEntryFGColor = teFgColor; return newText; }
   IText WithAlign(EAlign align) const { IText newText = *this; newText.mAlign = align; return newText; }
   IText WithVAlign(EVAlign valign) const { IText newText = *this; newText.mVAlign = valign; return newText; }
   IText WithSize(float size) const { IText newText = *this; newText.mSize = size; return newText; }
