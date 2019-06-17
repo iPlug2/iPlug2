@@ -232,14 +232,7 @@ public:
   {
     if(mRoundedKeys)
     {
-      // TODO: move this elsewhere
-      float cR;
-      
-      if(bounds.W() < bounds.H())
-        cR = mStyle.roundness * (bounds.W() / 2.f);
-      else
-        cR = mStyle.roundness * (bounds.H() / 2.f);
-      
+      float cR = GetRoundedCornerRadius(bounds);
       g.FillRoundRect(color, bounds, 0., 0., cR, cR);
     }
     else
@@ -276,14 +269,7 @@ public:
             if(!mRoundedKeys)
               g.FillRect(shadowColor, shadowBounds);
             else {
-              // TODO: move this elsewhere
-              float cR;
-              
-              if(shadowBounds.W() < shadowBounds.H())
-                cR = mStyle.roundness * (shadowBounds.W() / 2.f);
-              else
-                cR = mStyle.roundness * (shadowBounds.H() / 2.f);
-              
+              float cR = GetRoundedCornerRadius(shadowBounds);
               g.FillRoundRect(shadowColor, shadowBounds, 0., 0., cR, cR); // this one looks strange with rounded corners
             }
           }

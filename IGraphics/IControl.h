@@ -688,6 +688,14 @@ public:
     return handleBounds;
   }
   
+  float GetRoundedCornerRadius(const IRECT& bounds) const
+  {
+    if(bounds.W() < bounds.H())
+      return mStyle.roundness * (bounds.W() / 2.f);
+    else
+      return mStyle.roundness * (bounds.H() / 2.f);
+  }
+  
   void DrawSplash(IGraphics& g)
   {
     float mouseDownX, mouseDownY;
@@ -766,13 +774,8 @@ public:
                                bool roundTopLeft = true, bool roundTopRight = true, bool roundBottomLeft = true, bool roundBottomRight = true)
   {
     IRECT handleBounds = GetAdjustedHandleBounds(bounds);
-    float cR;
-    
-    if(handleBounds.W() < handleBounds.H())
-      cR = mStyle.roundness * (handleBounds.W() / 2.f);
-    else
-      cR = mStyle.roundness * (handleBounds.H() / 2.f);
-    
+    float cR = GetRoundedCornerRadius(handleBounds);
+        
     const float topLeftR = roundTopLeft ? cR : 0.f;
     const float topRightR = roundTopRight ? cR : 0.f;
     const float bottomLeftR = roundBottomLeft ? cR : 0.f;
