@@ -23,7 +23,7 @@ IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
 
     IRECT knobs = b.GetFromTop(100.);
     IRECT viz = b.GetReducedFromTop(100);
-    pGraphics->AttachCornerResizer(kUIResizerScale);
+    pGraphics->AttachCornerResizer(EUIResizerMode::Scale);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
 
     for (int i = 0; i < kNumParams; i++) {
@@ -44,7 +44,7 @@ IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
 void IPlugFaustDSP::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
   mFaustProcessor.ProcessBlock(inputs, outputs, nFrames);
-  mScopeBallistics.ProcessBlock(outputs, nFrames);
+  mScopeSender.ProcessBlock(outputs, nFrames);
 }
 
 void IPlugFaustDSP::OnReset()
@@ -59,6 +59,6 @@ void IPlugFaustDSP::OnParamChange(int paramIdx)
 
 void IPlugFaustDSP::OnIdle()
 {
-  mScopeBallistics.TransmitData(*this);
+  mScopeSender.TransmitData(*this);
 }
 #endif

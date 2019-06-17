@@ -421,7 +421,7 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   if (CStringHasContents(ext))
     pFileTypes = [[NSString stringWithUTF8String:ext] componentsSeparatedByString: @" "];
 
-  if (action == kFileSave)
+  if (action == EFileAction::Save)
   {
     NSSavePanel* pSavePanel = [NSSavePanel savePanel];
 

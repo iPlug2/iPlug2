@@ -1,7 +1,6 @@
 #pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
-#include <vector>
 
 const int kNumPrograms = 1;
 
@@ -25,7 +24,5 @@ public:
 public:
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void ProcessMidiMsg(const IMidiMsg& msg) override;
-private:
-  std::vector<int> mHeldKeys;
 #endif
 };
