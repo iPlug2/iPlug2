@@ -187,6 +187,115 @@ void IVToggleControl::DrawValue(IGraphics& g, bool mouseOver)
     g.DrawText(mStyle.valueText, mOffText.Get(), mValueBounds);
 }
 
+//TODO: Don't Repeat Yourself!
+IVSlideSwitchControl::IVSlideSwitchControl(const IRECT& bounds, int paramIdx, IActionFunction actionFunc, const char* label, const IVStyle& style, bool valueInButton, EDirection direction)
+: IVSwitchControl(bounds, paramIdx, label, style, valueInButton)
+, mDirection(direction)
+{
+  SetActionFunction([&](IControl* pCaller) {
+    SetAnimation([&](IControl* pCaller) {
+      auto progress = pCaller->GetAnimationProgress();
+      
+      IRECT::LinearInterpolateBetween(mStartRect, mEndRect, mHandleBounds, progress);
+
+      if(mValueInWidget)
+        mValueBounds = mHandleBounds;
+      
+      if(progress > 1.) {
+        pCaller->OnEndAnimation();
+        return;
+      }
+    },
+    DEFAULT_ANIMATION_DURATION);
+  });
+}
+
+IVSlideSwitchControl::IVSlideSwitchControl(const IRECT& bounds, IActionFunction actionFunc, const char* label, const IVStyle& style, bool valueInButton, EDirection direction, int numStates, int initialState)
+: IVSwitchControl(bounds, nullptr, label, style, numStates, valueInButton)
+, mDirection(direction)
+, mSecondaryActionFunc(actionFunc)
+{
+  SetValue((double) initialState);
+  
+  SetActionFunction([&](IControl* pCaller) {
+    SetAnimation([&](IControl* pCaller) {
+      auto progress = pCaller->GetAnimationProgress();
+      
+      IRECT::LinearInterpolateBetween(mStartRect, mEndRect, mHandleBounds, progress);
+      
+      if(mValueInWidget)
+        mValueBounds = mHandleBounds;
+      
+      if(progress > 1.) {
+        pCaller->OnEndAnimation();
+        return;
+      }
+      
+    },
+    DEFAULT_ANIMATION_DURATION);
+  });
+}
+
+void IVSlideSwitchControl::UpdateRects()
+{
+  mHandleBounds = mStartRect = mWidgetBounds.SubRect(mDirection, mNumStates, GetSelectedIdx());
+  mEndRect = mWidgetBounds.SubRect(mDirection, mNumStates, (GetSelectedIdx() + 1) % mNumStates);
+  
+  if(mValueInWidget)
+    mValueBounds = mHandleBounds;
+}
+
+void IVSlideSwitchControl::OnResize()
+{
+  IVSwitchControl::OnResize();
+  UpdateRects();
+}
+
+void IVSlideSwitchControl::OnEndAnimation()
+{
+  if(mSecondaryActionFunc)
+    mSecondaryActionFunc(this);
+  
+  UpdateRects();
+  
+  IControl::OnEndAnimation();
+}
+
+void IVSlideSwitchControl::Draw(IGraphics& g)
+{
+  DrawBackGround(g, mRECT);
+  DrawWidget(g);
+  DrawLabel(g);
+  
+  if(!GetAnimationFunction())
+    DrawValue(g, false);
+}
+
+void IVSlideSwitchControl::DrawWidget(IGraphics& g)
+{
+  DrawTrack(g, mWidgetBounds);
+  DrawHandle(g, mHandleBounds);
+}
+
+void IVSlideSwitchControl::DrawTrack(IGraphics& g, const IRECT& filledArea)
+{
+  float cR = GetRoundedCornerRadius(mWidgetBounds);
+  g.FillRoundRect(GetColor(kSH), mWidgetBounds, cR);
+}
+
+void IVSlideSwitchControl::DrawHandle(IGraphics& g, const IRECT& handleBounds)
+{
+  DrawPressableRectangle(g, handleBounds, mMouseDown, mMouseIsOver);
+}
+
+void IVSlideSwitchControl::SetDirty(bool push, int valIdx)
+{
+  IVSwitchControl::SetDirty(push, valIdx);
+  
+  if(!GetAnimationFunction())
+    UpdateRects();
+}
+
 IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, int paramIdx, IActionFunction actionFunc,
                                        const char* label, const IVStyle& style, EVShape shape, EDirection direction)
 : ISwitchControlBase(bounds, paramIdx, actionFunc)

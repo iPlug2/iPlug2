@@ -107,6 +107,31 @@ protected:
   WDL_String mOnText;
 };
 
+/** /todo. */
+class IVSlideSwitchControl : public IVSwitchControl
+{
+public:
+  IVSlideSwitchControl(const IRECT& bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = EmptyClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueInButton = false, EDirection direction = EDirection::Horizontal);
+  
+  IVSlideSwitchControl(const IRECT& bounds, IActionFunction actionFunc = EmptyClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueInButton = false, EDirection direction = EDirection::Horizontal, int numStates = 2, int initialState = 0);
+  
+  void Draw(IGraphics& g) override;
+  void DrawWidget(IGraphics& g) override;
+  virtual void DrawTrack(IGraphics& g, const IRECT& filledArea);
+  virtual void DrawHandle(IGraphics& g, const IRECT& handleBounds);
+
+  void OnResize() override;
+  void OnEndAnimation() override;
+  void SetDirty(bool push, int valIdx = kNoValIdx) override;
+protected:
+  void UpdateRects();
+
+  IRECT mStartRect, mEndRect;
+  IRECT mHandleBounds;
+  EDirection mDirection;
+  IActionFunction mSecondaryActionFunc = nullptr;
+};
+
 /** A vector "tab" multi switch control. Click tabs to cycle through states. */
 class IVTabSwitchControl : public ISwitchControlBase
                          , public IVectorBase
