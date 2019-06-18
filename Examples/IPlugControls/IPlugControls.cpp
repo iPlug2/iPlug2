@@ -129,7 +129,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->EnableTooltips(true);
     pGraphics->AttachTextEntryControl();
-    pGraphics->AttachPopupMenuControl();
+    pGraphics->AttachPopupMenuControl(DEFAULT_LABEL_TEXT);
     
     IRECT b = pGraphics->GetBounds().GetPadded(-5);
     
@@ -266,37 +266,21 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     nextCell();
     nextCell();
 #endif
-    
-//
-//    auto button2action = [pGraphics](IControl* pCaller) {
-//      SplashClickActionFunc(pCaller);
-//      WDL_String file, path;
-//      pGraphics->PromptForFile(file, path);
-//      dynamic_cast<ITextControl*>(pGraphics->GetControlWithTag(kCtrlTagDialogResult))->SetStr(file.Get());
-//    };
-//
-//    auto button3action = [pGraphics](IControl* pCaller) {
-//      SplashClickActionFunc(pCaller);
-//      WDL_String dir;
-//      pGraphics->PromptForDirectory(dir);
-//      dynamic_cast<ITextControl*>(pGraphics->GetControlWithTag(kCtrlTagDialogResult))->SetStr(dir.Get());
-//    };
-//
-//    pGraphics->AttachControl(new IVButtonControl(nextCell(), button2action, "Trigger open file dialog"));
-//    pGraphics->AttachControl(new IVButtonControl(nextCell(), button3action, "Trigger open directory dialog"));
-
     wideCell = nextCell().Union(nextCell()).Union(nextCell()).Union(nextCell());
     pGraphics->AttachControl(new ITextControl(wideCell.GetFromTop(20.f), "IVKeyboardControl", style.labelText));
     pGraphics->AttachControl(new IVKeyboardControl(wideCell.GetPadded(-25), 36, 72, true), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVLabelControl(nextCell(), "Test", DEFAULT_STYLE.WithLabelText(DEFAULT_LABEL_TEXT.WithSize(50.f).WithFGColor(COLOR_WHITE))), kNoTag, "vcontrols");
+    pGraphics->AttachControl(new IVSlideSwitchControl(nextCell(), kMode, [](IControl*){}, "IVSlideSwitchControl", style, true), kNoTag, "vcontrols");
+   
     
-    pGraphics->AttachControl(new IPanelControl(b.GetGridCell(4, 5, 1), COLOR_MID_GRAY));
-    
+#pragma mark -
     cellIdx = 31;
     
     nextCell();
     
     int slider = 0;
+    
+    pGraphics->AttachControl(new IPanelControl(b.GetGridCell(4, 5, 1), COLOR_MID_GRAY));
     
     for(auto label : {"Widget Frac", "Roundness", "Shadow Offset", "Frame Thickness", "Angle"})
     {
@@ -374,6 +358,16 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
       }, kVColorStrs[colorIdx], style.WithColor(kFG, DEFAULT_COLOR_SPEC.mColors[colorIdx]).WithDrawFrame(false).WithDrawShadows(false)));
     }
     
+    pGraphics->AttachControl(new IVButtonControl(nextCell(), [pGraphics](IControl* pCaller) {
+      SplashClickActionFunc(pCaller);
+      
+      IPanelControl* pPanel = dynamic_cast<IPanelControl*>(pGraphics->GetBackgroundControl());
+      IColor color = pPanel->GetPattern().GetStop(0).mColor;
+      pGraphics->PromptForColor(color, "", [pCaller, pGraphics, pPanel](const IColor& result){
+        pPanel->SetPattern(result);
+      });
+
+    }, "Background", style.WithColor(kFG, DEFAULT_GRAPHICS_BGCOLOR).WithDrawFrame(false).WithDrawShadows(false)));
   };
 #endif
 }
