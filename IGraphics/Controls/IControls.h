@@ -23,6 +23,7 @@
 #include "IVScopeControl.h"
 #include "IVMultiSliderControl.h"
 #include "IRTTextControl.h"
+#include "IVDisplayControl.h"
 
 /**
  * \addtogroup Controls
