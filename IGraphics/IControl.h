@@ -1232,6 +1232,8 @@ public:
     SetDirty(false);
   }
   
+  IPattern GetPattern() const { return mPattern; }
+  
 private:
   IPattern mPattern;
   bool mDrawFrame;
