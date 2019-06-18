@@ -140,6 +140,21 @@ bool IVSwitchControl::IsHit(float x, float y) const
   return mWidgetBounds.Contains(x, y);
 }
 
+void IVSwitchControl::OnInit()
+{
+  ISwitchControlBase::OnInit();
+  
+  const IParam* pParam = GetParam();
+  
+  if(pParam)
+  {
+    pParam->GetDisplayForHostWithLabel(mValueStr);
+  
+    if(!mLabelStr.GetLength())
+      mLabelStr.Set(pParam->GetNameForHost());
+  }
+}
+
 IVToggleControl::IVToggleControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, const char* offText, const char* onText)
 : IVSwitchControl(bounds, paramIdx, label, style, true)
 , mOnText(onText)
@@ -217,6 +232,9 @@ void IVTabSwitchControl::OnInit()
     {
       mTabLabels.Add(new WDL_String(GetParam()->GetDisplayText(i)));
     }
+    
+    if(!mLabelStr.GetLength())
+      mLabelStr.Set(pParam->GetNameForHost());
   }
 }
 
@@ -584,7 +602,12 @@ void IVKnobControl::OnInit()
   const IParam* pParam = GetParam();
   
   if(pParam)
+  {
     pParam->GetDisplayForHostWithLabel(mValueStr);
+    
+    if(!mLabelStr.GetLength())
+      mLabelStr.Set(pParam->GetNameForHost());
+  }
 }
 
 IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx,
@@ -755,7 +778,12 @@ void IVSliderControl::OnInit()
   const IParam* pParam = GetParam();
   
   if(pParam)
+  {
+    if(!mLabelStr.GetLength())
+      mLabelStr.Set(pParam->GetNameForHost());
+    
     pParam->GetDisplayForHostWithLabel(mValueStr);
+  }
 }
 
 IVRangeSliderControl::IVRangeSliderControl(const IRECT& bounds, int paramIdxLo, int paramIdxHi,

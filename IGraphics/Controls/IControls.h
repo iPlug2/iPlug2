@@ -89,6 +89,7 @@ public:
   bool IsHit(float x, float y) const override;
   void SetDirty(bool push, int valIdx = kNoValIdx) override;
   void OnResize() override;
+  void OnInit() override;
 };
 
 /** A vector toggle control. Click to cycle through two states. */
