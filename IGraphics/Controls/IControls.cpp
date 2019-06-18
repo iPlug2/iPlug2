@@ -509,14 +509,19 @@ void IVRadioButtonControl::DrawWidget(IGraphics& g)
 
 bool IVRadioButtonControl::IsHit(float x, float y) const
 {
-  bool hit = false;
-  
-  for (int i = 0; i < mNumStates; i++)
+  if(mOnlyButtonsRespondToMouse)
   {
-    hit |= mButtons.Get()[i].FracRectHorizontal(0.25f).Contains(x, y);
+    bool hit = false;
+    
+    for (int i = 0; i < mNumStates; i++)
+    {
+      hit |= mButtons.Get()[i].FracRectHorizontal(0.25f).Contains(x, y);
+    }
+    
+    return hit;
   }
-  
-  return hit;
+  else
+    return IVTabSwitchControl::IsHit(x, y);
 }
 
 void IVRadioButtonControl::OnMouseDown(float x, float y, const IMouseMod& mod)

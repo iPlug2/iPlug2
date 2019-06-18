@@ -180,6 +180,7 @@ public:
   virtual bool IsHit(float x, float y) const override;
 protected:
   float mButtonSize;
+  bool mOnlyButtonsRespondToMouse = false;
 };
 
 /** A vector knob control drawn using graphics primitves */
