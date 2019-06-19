@@ -781,17 +781,7 @@ public:
     const float bottomRightR = roundBottomRight ? cR : 0.f;
 
     if (pressed)
-    {
       g.FillRoundRect(GetColor(kPR), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
-      
-      //inner shadow
-      if (mStyle.drawShadows)
-      {
-        g.PathRoundRect(handleBounds.GetHSliced(mStyle.shadowOffset), topLeftR, topRightR, bottomLeftR, bottomRightR);
-        g.PathRoundRect(handleBounds.GetVSliced(mStyle.shadowOffset), topLeftR, topRightR, bottomLeftR, bottomRightR);
-        g.PathFill(GetColor(kSH));
-      }
-    }
     else
     {
       //outer shadow
