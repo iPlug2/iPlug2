@@ -231,7 +231,7 @@ class IVSliderControl : public ISliderControlBase
 public:
   IVSliderControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
   
-  IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
+  IVSliderControl(const IRECT& bounds, IActionFunction actionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
 
   virtual ~IVSliderControl() {}
   void Draw(IGraphics& g) override;

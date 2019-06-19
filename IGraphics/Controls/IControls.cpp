@@ -23,10 +23,7 @@ const IColor IVKeyboardControl::DEFAULT_WK_COLOR = IColor(255, 240, 240, 240);
 const IColor IVKeyboardControl::DEFAULT_PK_COLOR = IColor(60, 0, 0, 0);
 const IColor IVKeyboardControl::DEFAULT_FR_COLOR = DEFAULT_BK_COLOR;
 
-IVButtonControl::IVButtonControl(const IRECT& bounds, IActionFunction actionFunc,
-                                 const char* label,
-                                 const IVStyle& style,
-                                 bool labelInButton, bool valueInButton, EVShape shape, float angle)
+IVButtonControl::IVButtonControl(const IRECT& bounds, IActionFunction actionFunc, const char* label, const IVStyle& style, bool labelInButton, bool valueInButton, EVShape shape, float angle)
 : IButtonControlBase(bounds, actionFunc)
 , IVectorBase(style, labelInButton, valueInButton)
 , mShape(shape)
@@ -569,12 +566,7 @@ void IVRadioButtonControl::OnResize()
   SetDirty(false);
 }
 
-IVKnobControl::IVKnobControl(const IRECT& bounds, int paramIdx,
-                             const char* label,
-                             const IVStyle& style,
-                             bool valueIsEditable,
-                             float aMin, float aMax, float aAnchor,
-                             EDirection direction, double gearing)
+IVKnobControl::IVKnobControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueIsEditable, float aMin, float aMax, float aAnchor,  EDirection direction, double gearing)
 : IKnobControlBase(bounds, paramIdx, direction, gearing)
 , IVectorBase(style)
 , mAngleMin(aMin)
@@ -586,12 +578,7 @@ IVKnobControl::IVKnobControl(const IRECT& bounds, int paramIdx,
   AttachIControl(this, label);
 }
 
-IVKnobControl::IVKnobControl(const IRECT& bounds, IActionFunction actionFunction,
-                             const char* label,
-                             const IVStyle& style,
-                             bool valueIsEditable,
-                             float aMin, float aMax, float aAnchor,
-                             EDirection direction, double gearing)
+IVKnobControl::IVKnobControl(const IRECT& bounds, IActionFunction actionFunc, const char* label, const IVStyle& style, bool valueIsEditable, float aMin, float aMax, float aAnchor, EDirection direction, double gearing)
 : IKnobControlBase(bounds, kNoParameter, direction, gearing)
 , IVectorBase(style)
 , mAngleMin(aMin)
@@ -600,7 +587,7 @@ IVKnobControl::IVKnobControl(const IRECT& bounds, IActionFunction actionFunction
 {
   DisablePrompt(!valueIsEditable);
   mText = style.valueText;
-  SetActionFunction(actionFunction);
+  SetActionFunction(actionFunc);
   AttachIControl(this, label);
 }
 
@@ -718,11 +705,7 @@ void IVKnobControl::OnInit()
   }
 }
 
-IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx,
-                const char* label,
-                const IVStyle& style,
-                bool valueIsEditable,
-                EDirection dir, bool onlyHandle, float handleSize, float trackSize)
+IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, bool onlyHandle, float handleSize, float trackSize)
 : ISliderControlBase(bounds, paramIdx, dir, onlyHandle, handleSize)
 , IVectorBase(style)
 , mTrackSize(trackSize)
@@ -732,12 +715,8 @@ IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx,
   AttachIControl(this, label);
 }
 
-IVSliderControl::IVSliderControl(const IRECT& bounds, IActionFunction aF,
-                const char* label,
-                const IVStyle& style,
-                bool valueIsEditable,
-                EDirection dir, bool onlyHandle, float handleSize, float trackSize)
-: ISliderControlBase(bounds, aF, dir, onlyHandle, handleSize)
+IVSliderControl::IVSliderControl(const IRECT& bounds, IActionFunction actionFunc, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, bool onlyHandle, float handleSize, float trackSize)
+: ISliderControlBase(bounds, actionFunc, dir, onlyHandle, handleSize)
 , IVectorBase(style)
 , mTrackSize(trackSize)
 {
