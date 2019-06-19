@@ -35,7 +35,7 @@ public:
   
   void OnResize() override
   {
-    SetTargetRECT(CalculateRects(mRECT));
+    SetTargetRECT(MakeRects(mRECT));
   }
 };
 
@@ -226,7 +226,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 
     pGraphics->AttachControl(new IVKnobControl(nextCell().GetCentredInside(110.), kGain, "IVKnobControl", style, true), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVSliderControl(nextCell().GetCentredInside(110.), kGain, "IVSliderControl", style, true), kCtrlTagVectorSlider, "vcontrols");
-    pGraphics->AttachControl(new IVRangeSliderControl(nextCell().GetCentredInside(110.), kFreq1, kFreq2, "IVRangeSliderControl", style, EDirection::Vertical, true, 10.f, 50.f), kNoTag, "vcontrols");
+    pGraphics->AttachControl(new IVRangeSliderControl(nextCell().GetCentredInside(110.), {kFreq1, kFreq2}, "IVRangeSliderControl", style, EDirection::Horizontal, true, 8.f, 2.f), kNoTag, "vcontrols");
 
     pGraphics->AttachControl(new IVButtonControl(nextCell().GetCentredInside(110.), button1action, "IVButtonControl", style, false), kCtrlTagVectorButton, "vcontrols");
     AddLabel("IVButtonControl 2");
@@ -271,7 +271,10 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new IVKeyboardControl(wideCell.GetPadded(-25), 36, 72, true), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVLabelControl(nextCell(), "Test", DEFAULT_STYLE.WithLabelText(DEFAULT_LABEL_TEXT.WithSize(50.f).WithFGColor(COLOR_WHITE))), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVSlideSwitchControl(nextCell(), kMode, "IVSlideSwitchControl", style, true), kNoTag, "vcontrols");
-   
+    pGraphics->AttachControl(new IVPlotControl(nextCell(), {
+                                                            {COLOR_RED,  [](double x){ return std::sin(x * 6.2);} },
+                                                            {COLOR_BLUE, [](double x){ return std::cos(x * 6.2);} }
+                                                            }, 32, "IVPlotControl", style.WithFrameThickness(3.f)), kNoTag, "vcontrols");
     
 #pragma mark -
     cellIdx = 31;

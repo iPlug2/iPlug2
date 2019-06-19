@@ -295,6 +295,31 @@ protected:
   bool mMouseDown = false;
 };
 
+class IVPlotControl : public IControl
+                    , public IVectorBase
+{
+public:
+  using IPlotFunc = std::function<double(double)>;
+  
+  struct Plot
+  {
+    IColor color;
+    IPlotFunc func;
+  };
+  
+  IVPlotControl(const IRECT& bounds, const std::initializer_list<Plot>& funcs, int numPoints, const char* label = "", const IVStyle& style = DEFAULT_STYLE, float min = -1., float max = 1.);
+  void Draw(IGraphics& g) override;
+  void OnResize() override;
+
+  void AddPlotFunc(const IColor& color, const IPlotFunc& func);
+protected:
+  ILayerPtr mLayer;
+  std::vector<Plot> mPlots;
+  float mMin;
+  float mMax;
+  int mNumPoints;
+};
+
 #pragma mark - SVG Vector Controls
 
 /** A vector knob/dial control which rotates an SVG image */

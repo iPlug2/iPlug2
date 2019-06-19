@@ -1014,7 +1014,67 @@ void IVXYPadControl::OnMouseDrag(float x, float y, float dX, float dY, const IMo
 void IVXYPadControl::OnResize()
 {
   SetTargetRECT(MakeRects(mRECT));
+  SetDirty(false);
+}
 
+IVPlotControl::IVPlotControl(const IRECT& bounds, const std::initializer_list<Plot>& plots, int numPoints, const char* label, const IVStyle& style, float min, float max)
+: IControl(bounds)
+, IVectorBase(style)
+, mMin(min)
+, mMax(max)
+, mNumPoints(numPoints)
+{
+  AttachIControl(this, label);
+  
+  for(auto plot : plots)
+  {
+    AddPlotFunc(plot.color, plot.func);
+  }
+}
+
+void IVPlotControl::Draw(IGraphics& g)
+{
+  DrawBackGround(g, mRECT);
+  DrawLabel(g);
+  
+  if (!g.CheckLayer(mLayer))
+  {
+    g.StartLayer(mRECT);
+
+    g.DrawGrid(GetColor(kSH), mWidgetBounds, 8.f, 8.f);
+
+    float points[mNumPoints];
+
+    for (int p=0; p<mPlots.size(); p++)
+    {
+      for (int i=0; i<mNumPoints; i++)
+      {
+        auto v = mPlots[p].func(((float)i/(mNumPoints-1.f)));
+        v = (v - mMin) / (mMax-mMin);
+        points[i] = v;
+      }
+                              
+      g.DrawData(mPlots[p].color, mWidgetBounds, points, mNumPoints, nullptr, nullptr, mStyle.frameThickness);
+    }
+    mLayer = g.EndLayer();
+  }
+  
+  g.DrawLayer(mLayer);
+
+}
+
+void IVPlotControl::OnResize()
+{
+  SetTargetRECT(MakeRects(mRECT));
+  SetDirty(false);
+}
+
+void IVPlotControl::AddPlotFunc(const IColor& color, const IPlotFunc& func)
+{
+  mPlots.push_back({color, func});
+  
+  if(mLayer)
+    mLayer->Invalidate();
   SetDirty(false);
 }
 
