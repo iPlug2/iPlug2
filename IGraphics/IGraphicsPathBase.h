@@ -60,12 +60,11 @@ public:
   void DrawGrid(const IColor& color, const IRECT& bounds, float gridSizeH, float gridSizeV, const IBlend* pBlend, float thickness) override
   {
     PathClear();
-    
-    // Vertical Lines grid
 
+    // Vertical Lines grid
     if (gridSizeH > 1.f)
     {
-      for (float x = bounds.L; x < bounds.W(); x += gridSizeH)
+      for (float x = bounds.L; x < bounds.R; x += gridSizeH)
       {
         PathMoveTo(x, bounds.T);
         PathLineTo(x, bounds.B);
@@ -74,7 +73,7 @@ public:
     // Horizontal Lines grid
     if (gridSizeV > 1.f)
     {
-      for (float y = bounds.T; y < bounds.H(); y += gridSizeV)
+      for (float y = bounds.T; y < bounds.B; y += gridSizeV)
       {
         PathMoveTo(bounds.L, y);
         PathLineTo(bounds.R, y);
