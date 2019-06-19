@@ -146,13 +146,6 @@ public:
     SetDirty(true); // will send all param vals parameter value to delegate
   }
 
-  void OnResize() override
-  {
-    SetTargetRECT(CalculateRects(mRECT));
-    MakeTrackRects(mWidgetBounds);
-    SetDirty(false);
-  }
-  
   //  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override

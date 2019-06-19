@@ -854,7 +854,7 @@ public:
     return handleBounds;
   }
   
-  IRECT CalculateRects(const IRECT& parent, bool hasHandle = false)
+  IRECT MakeRects(const IRECT& parent, bool hasHandle = false)
   {
     IRECT clickableArea = parent;
     
@@ -1080,7 +1080,9 @@ private:
   
   virtual void OnResize() override
   {
-    MakeTrackRects(mRECT);
+    SetTargetRECT(MakeRects(mRECT));
+    MakeTrackRects(mWidgetBounds);
+    SetDirty(false);
   }
   
 protected:

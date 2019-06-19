@@ -45,7 +45,7 @@ public:
   
   void OnResize() override
   {
-    SetTargetRECT(CalculateRects(mRECT));
+    SetTargetRECT(MakeRects(mRECT));
     
     mPlotBounds = mWidgetBounds.GetPadded(mDirection == EDirection::Horizontal ? 0. : -mStrokeThickness,
                                 mDirection == EDirection::Horizontal ? -mStrokeThickness : 0.,
