@@ -188,7 +188,7 @@ void IVToggleControl::DrawValue(IGraphics& g, bool mouseOver)
 }
 
 //TODO: Don't Repeat Yourself!
-IVSlideSwitchControl::IVSlideSwitchControl(const IRECT& bounds, int paramIdx, IActionFunction actionFunc, const char* label, const IVStyle& style, bool valueInButton, EDirection direction)
+IVSlideSwitchControl::IVSlideSwitchControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueInButton, EDirection direction)
 : IVSwitchControl(bounds, paramIdx, label, style, valueInButton)
 , mDirection(direction)
 {
@@ -279,7 +279,7 @@ void IVSlideSwitchControl::DrawWidget(IGraphics& g)
 
 void IVSlideSwitchControl::DrawTrack(IGraphics& g, const IRECT& filledArea)
 {
-  float cR = GetRoundedCornerRadius(mWidgetBounds);
+  float cR = GetRoundedCornerRadius(mHandleBounds);
   g.FillRoundRect(GetColor(kSH), mWidgetBounds, cR);
 }
 
@@ -296,9 +296,8 @@ void IVSlideSwitchControl::SetDirty(bool push, int valIdx)
     UpdateRects();
 }
 
-IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, int paramIdx, IActionFunction actionFunc,
-                                       const char* label, const IVStyle& style, EVShape shape, EDirection direction)
-: ISwitchControlBase(bounds, paramIdx, actionFunc)
+IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, EVShape shape, EDirection direction)
+: ISwitchControlBase(bounds, paramIdx, SplashClickActionFunc)
 , IVectorBase(style)
 , mShape(shape)
 , mDirection(direction)
@@ -310,9 +309,7 @@ IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, int paramIdx, IActio
   mText.mVAlign = EVAlign::Middle; //TODO?
 }
 
-IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, IActionFunction actionFunc,
-                                       const std::initializer_list<const char*>& options,
-                                       const char* label, const IVStyle& style, EVShape shape, EDirection direction)
+IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, IActionFunction actionFunc, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction)
 : ISwitchControlBase(bounds, kNoParameter, actionFunc, static_cast<int>(options.size()))
 , IVectorBase(style)
 , mShape(shape)
@@ -471,17 +468,14 @@ void IVTabSwitchControl::OnResize()
   SetDirty(false);
 }
 
-IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, int paramIdx, IActionFunction actionFunc,
-                                           const char* label, const IVStyle& style, EVShape shape, EDirection direction, float buttonSize)
-: IVTabSwitchControl(bounds, paramIdx, actionFunc, label, style, shape, direction)
+IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, EVShape shape, EDirection direction, float buttonSize)
+: IVTabSwitchControl(bounds, paramIdx, label, style, shape, direction)
 , mButtonSize(buttonSize)
 {
   mText.mAlign = EAlign::Near; //TODO?
 }
 
-IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, IActionFunction actionFunc,
-                                           const std::initializer_list<const char*>& options,
-                                           const char* label, const IVStyle& style, EVShape shape, EDirection direction, float buttonSize)
+IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, IActionFunction actionFunc, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction, float buttonSize)
 : IVTabSwitchControl(bounds, actionFunc, options, label, style, shape, direction)
 , mButtonSize(buttonSize)
 {

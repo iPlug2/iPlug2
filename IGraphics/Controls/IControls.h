@@ -112,7 +112,7 @@ protected:
 class IVSlideSwitchControl : public IVSwitchControl
 {
 public:
-  IVSlideSwitchControl(const IRECT& bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = EmptyClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueInButton = false, EDirection direction = EDirection::Horizontal);
+  IVSlideSwitchControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueInButton = false, EDirection direction = EDirection::Horizontal);
   
   IVSlideSwitchControl(const IRECT& bounds, IActionFunction actionFunc = EmptyClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueInButton = false, EDirection direction = EDirection::Horizontal, int numStates = 2, int initialState = 0);
   
@@ -130,7 +130,7 @@ protected:
   IRECT mStartRect, mEndRect;
   IRECT mHandleBounds;
   EDirection mDirection;
-  IActionFunction mSecondaryActionFunc = nullptr;
+  IActionFunction mSecondaryActionFunc = EmptyClickActionFunc;
 };
 
 /** A vector "tab" multi switch control. Click tabs to cycle through states. */
@@ -140,7 +140,7 @@ class IVTabSwitchControl : public ISwitchControlBase
 public:
   enum class ETabSegment { Start, Mid, End };
 
-  IVTabSwitchControl(const IRECT& bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle, EDirection direction = EDirection::Horizontal);
+  IVTabSwitchControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle, EDirection direction = EDirection::Horizontal);
   
   IVTabSwitchControl(const IRECT& bounds, IActionFunction actionFunc, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle, EDirection direction = EDirection::Horizontal);
   
@@ -168,7 +168,7 @@ protected:
 class IVRadioButtonControl : public IVTabSwitchControl
 {
 public:
-  IVRadioButtonControl(const IRECT& bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 20.f);
+  IVRadioButtonControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 20.f);
 
   IVRadioButtonControl(const IRECT& bounds, IActionFunction actionFunc, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 20.f);
   
@@ -224,57 +224,14 @@ protected:
   bool mValueMouseOver = false;
 };
 
-/** A vector knob/dial control which rotates an SVG image */
-class ISVGKnob : public IKnobControlBase
-{
-public:
-  ISVGKnob(const IRECT& bounds, const ISVG& svg, int paramIdx = kNoParameter)
-    : IKnobControlBase(bounds, paramIdx)
-    , mSVG(svg)
-  {
-  }
-
-  void Draw(IGraphics& g) override
-  {
-    if (!g.CheckLayer(mLayer))
-    {
-      g.StartLayer(mRECT);
-      g.DrawSVG(mSVG, mRECT);
-      mLayer = g.EndLayer();
-    }
-
-    g.DrawRotatedLayer(mLayer, mStartAngle + GetValue() * (mEndAngle - mStartAngle));
-  }
-
-  void SetSVG(ISVG& svg)
-  {
-    mSVG = svg;
-    SetDirty(false);
-  }
-
-private:
-  ILayerPtr mLayer;
-  ISVG mSVG;
-  float mStartAngle = -135.f;
-  float mEndAngle = 135.f;
-};
-
 /** A vector slider control */
 class IVSliderControl : public ISliderControlBase
                       , public IVectorBase
 {
 public:
-  IVSliderControl(const IRECT& bounds, int paramIdx = kNoParameter,
-                  const char* label = "",
-                  const IVStyle& style = DEFAULT_STYLE,
-                  bool valueIsEditable = false,
-                  EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
+  IVSliderControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
   
-  IVSliderControl(const IRECT& bounds, IActionFunction aF,
-                  const char* label = "",
-                  const IVStyle& style = DEFAULT_STYLE,
-                  bool valueIsEditable = false,
-                  EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
+  IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
 
   virtual ~IVSliderControl() {}
   void Draw(IGraphics& g) override;
@@ -300,11 +257,7 @@ protected:
 class IVRangeSliderControl : public IVSliderControl
 {
 public:
-  IVRangeSliderControl(const IRECT& bounds, int paramIdxLo = kNoParameter, int paramIdxHi = kNoParameter,
-                       const char* label = "",
-                       const IVStyle& style = DEFAULT_STYLE,
-//                       bool valueIsEditable = false,
-                       EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
+  IVRangeSliderControl(const IRECT& bounds, int paramIdxLo = kNoParameter, int paramIdxHi = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
 
   void DrawWidget(IGraphics& g) override;
   void DrawValue(IGraphics& g, bool mouseover) override {};
@@ -321,10 +274,7 @@ class IVXYPadControl : public IControl
                      , public IVectorBase
 {
 public:
-  IVXYPadControl(const IRECT& bounds, const std::initializer_list<int>& params,
-                 const char* label = "",
-                 const IVStyle& style = DEFAULT_STYLE,
-                 float handleRadius = 10.f);
+  IVXYPadControl(const IRECT& bounds, const std::initializer_list<int>& params, const char* label = "", const IVStyle& style = DEFAULT_STYLE, float handleRadius = 10.f);
 
   void Draw(IGraphics& g) override;
   void DrawWidget(IGraphics& g) override;
@@ -335,6 +285,43 @@ public:
 protected:
   float mHandleRadius;
   bool mMouseDown = false;
+};
+
+#pragma mark - SVG Vector Controls
+
+/** A vector knob/dial control which rotates an SVG image */
+class ISVGKnob : public IKnobControlBase
+{
+public:
+  ISVGKnob(const IRECT& bounds, const ISVG& svg, int paramIdx = kNoParameter)
+  : IKnobControlBase(bounds, paramIdx)
+  , mSVG(svg)
+  {
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    if (!g.CheckLayer(mLayer))
+    {
+      g.StartLayer(mRECT);
+      g.DrawSVG(mSVG, mRECT);
+      mLayer = g.EndLayer();
+    }
+    
+    g.DrawRotatedLayer(mLayer, mStartAngle + GetValue() * (mEndAngle - mStartAngle));
+  }
+  
+  void SetSVG(ISVG& svg)
+  {
+    mSVG = svg;
+    SetDirty(false);
+  }
+  
+private:
+  ILayerPtr mLayer;
+  ISVG mSVG;
+  float mStartAngle = -135.f;
+  float mEndAngle = 135.f;
 };
 
 #pragma mark - Bitmap Controls
@@ -465,11 +452,9 @@ class IBSliderControl : public ISliderControlBase
                       , public IBitmapBase
 {
 public:
-  IBSliderControl(const IRECT& bounds, int paramIdx, const IBitmap& bitmap,
-                  EDirection dir = EDirection::Vertical, bool onlyHandle = false);
+  IBSliderControl(const IRECT& bounds, int paramIdx, const IBitmap& bitmap, EDirection dir = EDirection::Vertical, bool onlyHandle = false);
 
-  IBSliderControl(float x, float y, int len, int paramIdx,
-                  const IBitmap& bitmap, EDirection direction = EDirection::Vertical, bool onlyHandle = false);
+  IBSliderControl(float x, float y, int len, int paramIdx, const IBitmap& bitmap, EDirection direction = EDirection::Vertical, bool onlyHandle = false);
 
   virtual ~IBSliderControl() {}
 
