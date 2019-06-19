@@ -920,7 +920,7 @@ void IVRangeSliderControl::DrawWidget(IGraphics & g)
   ////Handles
   //for (int i = 0; i < 2; i++)
   //{
-  //  if (mDrawShadows && !mEmboss)
+  //  if (mDrawShadows)
   //    g.FillCircle(GetColor(kSH), cx[i] + mShadowOffset, cy[i] + mShadowOffset, halfHandleSize);
 
   //  g.FillCircle(GetColor(kFG), cx[i], cy[i], halfHandleSize);

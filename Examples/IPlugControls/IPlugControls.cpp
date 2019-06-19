@@ -309,7 +309,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     
     int toggle = 0;
     
-    for(auto label : {"Draw Frame", "Draw Shadows", "Emboss", "Show Label", "Show Value"})
+    for(auto label : {"Draw Frame", "Draw Shadows", "Show Label", "Show Value"})
     {
       pGraphics->AttachControl(new IVToggleControl(sameCell().GetGridCell(toggle, 0, 5, 1), [pGraphics, toggle](IControl* pCaller){
         SplashClickActionFunc(pCaller);
@@ -321,9 +321,8 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
           switch (toggle) {
             case 0 : vcontrol.SetDrawFrame(val); break;
             case 1 : vcontrol.SetDrawShadows(val); break;
-            case 2 : vcontrol.SetEmboss(val); break;
-            case 3 : vcontrol.SetShowLabel(val); break;
-            case 4 : vcontrol.SetShowValue(val); break;
+            case 2 : vcontrol.SetShowLabel(val); break;
+            case 3 : vcontrol.SetShowValue(val); break;
             default: break;
           }
         });

@@ -665,7 +665,6 @@ public:
   void SetRoundness(float roundness) { mStyle.roundness = Clip(roundness, 0.f, 1.f); mControl->SetDirty(false); }
   void SetDrawFrame(bool draw) { mStyle.drawFrame = draw; mControl->SetDirty(false); }
   void SetDrawShadows(bool draw) { mStyle.drawShadows = draw; mControl->SetDirty(false); }
-  void SetEmboss(bool emboss) { mStyle.emboss = emboss; mControl->SetDirty(false); }
   void SetShadowOffset(float offset) { mStyle.shadowOffset = offset; mControl->SetDirty(false); }
   void SetFrameThickness(float thickness) { mStyle.frameThickness = thickness; mControl->SetDirty(false); }
   void SetSplashRadius(float radius) { mSplashRadius = radius * mMaxSplashRadius; }
@@ -682,7 +681,7 @@ public:
     if(mStyle.drawFrame)
       handleBounds.Pad(- 0.5f * mStyle.frameThickness);
     
-    if (mStyle.drawShadows && !mStyle.emboss)
+    if (mStyle.drawShadows)
       handleBounds.Alter(0, 0, -mStyle.shadowOffset, -mStyle.shadowOffset);
     
     return handleBounds;
@@ -732,7 +731,7 @@ public:
   {
     const float cx = bounds.MW(), cy = bounds.MH();
     
-    if(!pressed && mStyle.drawShadows && !mStyle.emboss)
+    if(!pressed && mStyle.drawShadows)
       g.FillCircle(GetColor(kSH), cx + mStyle.shadowOffset, cy + mStyle.shadowOffset, radius);
     
 //    if(pressed)
@@ -749,7 +748,7 @@ public:
   
   void DrawPressableEllipse(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver)
   {
-    if(!pressed && mStyle.drawShadows && !mStyle.emboss)
+    if(!pressed && mStyle.drawShadows)
       g.FillEllipse(GetColor(kSH), bounds.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset));
    
     if(pressed)
@@ -786,7 +785,7 @@ public:
       g.FillRoundRect(GetColor(kPR), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
       
       //inner shadow
-      if (mStyle.drawShadows && mStyle.emboss)
+      if (mStyle.drawShadows)
       {
         g.PathRoundRect(handleBounds.GetHSliced(mStyle.shadowOffset), topLeftR, topRightR, bottomLeftR, bottomRightR);
         g.PathRoundRect(handleBounds.GetVSliced(mStyle.shadowOffset), topLeftR, topRightR, bottomLeftR, bottomRightR);
@@ -796,7 +795,7 @@ public:
     else
     {
       //outer shadow
-      if (mStyle.drawShadows && !mStyle.emboss)
+      if (mStyle.drawShadows)
         g.FillRoundRect(GetColor(kSH), handleBounds.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset), topLeftR, topRightR, bottomLeftR, bottomRightR);
       
       g.FillRoundRect(GetColor(kFG), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
@@ -843,23 +842,12 @@ public:
     y3 = centered.R * s + centered.B * c + yT;
     
     if (pressed)
-    {
       g.FillTriangle(GetColor(kPR), x1, y1, x2, y2, x3, y3);
-      
-      //inner shadow
-      if (mStyle.drawShadows && mStyle.emboss)
-      {
-        g.PathTriangle(x1 + mStyle.shadowOffset, y1, x2 + mStyle.shadowOffset, y2 + mStyle.shadowOffset, x3, y3);
-        g.PathFill(GetColor(kSH));
-      }
-    }
     else
     {
       //outer shadow
-      if (mStyle.drawShadows && !mStyle.emboss)
-      {
+      if (mStyle.drawShadows)
         g.FillTriangle(GetColor(kSH), x1 + mStyle.shadowOffset, y1 + mStyle.shadowOffset, x2 + mStyle.shadowOffset, y2 + mStyle.shadowOffset, x3 + mStyle.shadowOffset, y3 + mStyle.shadowOffset);
-      }
       
       g.FillTriangle(GetColor(kFG), x1, y1, x2, y2, x3, y3);
     }
