@@ -220,13 +220,13 @@ void IGraphics::AttachPanelBackground(const IPattern& color)
   mControls.Insert(0, pBG);
 }
 
-int IGraphics::AttachControl(IControl* pControl, int controlTag, const char* group)
+IControl* IGraphics::AttachControl(IControl* pControl, int controlTag, const char* group)
 {
   pControl->SetDelegate(*GetDelegate());
   pControl->SetTag(controlTag);
   pControl->SetGroup(group);
   mControls.Add(pControl);
-  return mControls.GetSize() - 1;
+  return pControl;
 }
 
 void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize)
