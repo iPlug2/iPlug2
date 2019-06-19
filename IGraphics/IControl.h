@@ -727,6 +727,29 @@ public:
       g.DrawText(mStyle.valueText, mValueStr.Get(), mValueBounds);
   }
   
+  void DrawHandle(IGraphics& g, EVShape shape, const IRECT& bounds, bool pressed, bool mouseOver)
+  {
+    switch (shape)
+    {
+      case EVShape::Ellipse:
+        DrawPressableEllipse(g, bounds, pressed, mouseOver);
+        break;
+      case EVShape::Rectangle:
+        DrawPressableRectangle(g, bounds, pressed, mouseOver);
+        break;
+      case EVShape::Triangle:
+        DrawPressableTriangle(g, bounds, pressed, mouseOver);
+        break;
+      case EVShape::EndsRounded:
+        DrawPressableRectangle(g, bounds, pressed, mouseOver, true, true, false, false);
+        break;
+      case EVShape::AllRounded:
+        DrawPressableRectangle(g, bounds, pressed, mouseOver, true, true, true, true);
+      default:
+        break;
+    }
+  }
+  
   void DrawPressableCircle(IGraphics&g, const IRECT& bounds, float radius, bool pressed, bool mouseOver)
   {
     const float cx = bounds.MW(), cy = bounds.MH();
@@ -1001,11 +1024,11 @@ public:
   }
 
   IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int lowParamidx, int maxNTracks = 1, EDirection dir = EDirection::Horizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
-    : IControl(bounds)
-    , IVectorBase(style)
-    , mMinTrackValue(minTrackValue)
-    , mMaxTrackValue(maxTrackValue)
-    , mDirection(dir)
+  : IControl(bounds)
+  , IVectorBase(style)
+  , mMinTrackValue(minTrackValue)
+  , mMaxTrackValue(maxTrackValue)
+  , mDirection(dir)
   {
     SetNVals(maxNTracks);
 
@@ -1018,7 +1041,26 @@ public:
     AttachIControl(this, label);
   }
   
-  void MakeTrackRects(const IRECT& bounds)
+  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, const std::initializer_list<int>& params, EDirection dir = EDirection::Horizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  : IControl(bounds)
+  , IVectorBase(style)
+  , mMinTrackValue(minTrackValue)
+  , mMaxTrackValue(maxTrackValue)
+  , mDirection(dir)
+  {
+    SetNVals(static_cast<int>(params.size()));
+  
+    int valIdx = 0;
+    for (auto param : params)
+    {
+      SetParamIdx(param, valIdx++);
+      mTrackBounds.Add(IRECT());
+    }
+    
+    AttachIControl(this, label);
+  }
+  
+  virtual void MakeTrackRects(const IRECT& bounds)
   {
     int nVals = NVals();
     int dir = static_cast<int>(mDirection); // 0 = horizontal, 1 = vertical
@@ -1041,9 +1083,9 @@ public:
   }
   
   //void SetAllTrackData(float val) { memset(mTrackData.Get(), (int) Clip(val, mMinTrackValue, mMaxTrackValue), mTrackData.GetSize() * sizeof(float) ); }
-private:
+protected:
   
-  virtual void DrawTrack(IGraphics& g, IRECT& r, int chIdx)
+  virtual void DrawTrack(IGraphics& g, const IRECT& r, int chIdx)
   {
     DrawTrackBG(g, r, chIdx);
     DrawTrackHandle(g, r, chIdx);
@@ -1052,12 +1094,12 @@ private:
       g.DrawRect(GetColor(kFR), r, nullptr, mStyle.frameThickness);
   }
   
-  virtual void DrawTrackBG(IGraphics& g, IRECT& r, int chIdx)
+  virtual void DrawTrackBG(IGraphics& g, const IRECT& r, int chIdx)
   {
     g.FillRect(kBG, r);
   }
   
-  virtual void DrawTrackHandle(IGraphics& g, IRECT& r, int chIdx)
+  virtual void DrawTrackHandle(IGraphics& g, const IRECT& r, int chIdx)
   {
     IRECT fillRect = r.FracRect(mDirection, GetValue(chIdx));
     
@@ -1073,7 +1115,7 @@ private:
     DrawPeak(g, peakRect, chIdx);
   }
   
-  virtual void DrawPeak(IGraphics& g, IRECT& r, int chIdx)
+  virtual void DrawPeak(IGraphics& g, const IRECT& r, int chIdx)
   {
     g.FillRect(GetColor(kFR), r);
   }

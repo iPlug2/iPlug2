@@ -119,7 +119,6 @@ public:
   void Draw(IGraphics& g) override;
   void DrawWidget(IGraphics& g) override;
   virtual void DrawTrack(IGraphics& g, const IRECT& filledArea);
-  virtual void DrawHandle(IGraphics& g, const IRECT& handleBounds);
 
   void OnResize() override;
   void OnEndAnimation() override;
@@ -131,6 +130,7 @@ protected:
   IRECT mHandleBounds;
   EDirection mDirection;
   IActionFunction mSecondaryActionFunc = EmptyClickActionFunc;
+  EVShape mShape = EVShape::Rectangle;
 };
 
 /** A vector "tab" multi switch control. Click tabs to cycle through states. */
@@ -237,7 +237,6 @@ public:
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
   virtual void DrawTrack(IGraphics& g, const IRECT& filledArea);
-  virtual void DrawHandle(IGraphics& g, const IRECT& handleBounds);
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
@@ -254,19 +253,28 @@ protected:
   EVShape mShape = EVShape::Ellipse;
 };
 
-class IVRangeSliderControl : public IVSliderControl
+class IVRangeSliderControl : public IVTrackControlBase
 {
 public:
-  IVRangeSliderControl(const IRECT& bounds, int paramIdxLo = kNoParameter, int paramIdxHi = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
+  IVRangeSliderControl(const IRECT& bounds, const std::initializer_list<int>& params, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
 
+  void Draw(IGraphics& g) override;
+  void DrawTrackHandle(IGraphics& g, const IRECT& r, int chIdx) override;
+  void DrawTrack(IGraphics& g, const IRECT& r, int chIdx) override;
   void DrawWidget(IGraphics& g) override;
-  void DrawValue(IGraphics& g, bool mouseover) override {};
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOut() override { mMouseOverHandle = -1; IVTrackControlBase::OnMouseOut(); }
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
-  void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, int valIdx = -1, float scalar = 1.) override;
 
 protected:
-  double mMouseDownVal = 0.f;
+  void MakeTrackRects(const IRECT& bounds) override;
+  IRECT GetHandleBounds(int trackIdx);
+  
+  int mMouseOverHandle = -1;
+  float mTrackSize;
+  float mHandleSize;
+  EVShape mShape = EVShape::Ellipse;
 };
 
 
