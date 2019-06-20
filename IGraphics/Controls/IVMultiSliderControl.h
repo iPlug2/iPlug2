@@ -67,7 +67,7 @@ public:
     return kNoValIdx;
   }
 
-  void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, int valIdx = -1 /* TODO:: not used*/, float scalar = 1.) override
+  void SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx = -1 /* TODO:: not used*/, float scalar = 1.f, double minClip = 0., double maxClip = 1.) override
   {
     bounds.Constrain(x, y);
     int nVals = NVals();

@@ -998,7 +998,7 @@ struct IRECT
   /** /todo 
    * @param x /todo
    * @param y /todo */
-  inline void Constrain(float& x, float& y)
+  inline void Constrain(float& x, float& y) const
   {
     if (x < L) x = L;
     else if (x > R) x = R;
