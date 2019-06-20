@@ -259,12 +259,12 @@ public:
   IVRangeSliderControl(const IRECT& bounds, const std::initializer_list<int>& params, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
 
   void Draw(IGraphics& g) override;
-  void DrawTrackHandle(IGraphics& g, const IRECT& r, int chIdx) override;
   void DrawTrack(IGraphics& g, const IRECT& r, int chIdx) override;
   void DrawWidget(IGraphics& g) override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override { mMouseOverHandle = -1; IVTrackControlBase::OnMouseOut(); }
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override { mMouseIsDown = false; }
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
 
 protected:
@@ -274,6 +274,7 @@ protected:
   int mMouseOverHandle = -1;
   float mTrackSize;
   float mHandleSize;
+  bool mMouseIsDown = false;
   EVShape mShape = EVShape::Ellipse;
 };
 

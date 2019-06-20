@@ -45,25 +45,7 @@ void IVButtonControl::Draw(IGraphics& g)
 void IVButtonControl::DrawWidget(IGraphics& g)
 {
   bool pressed = (bool) GetValue();
-  switch (mShape)
-  {
-    case EVShape::Ellipse:
-      DrawPressableEllipse(g, mWidgetBounds, pressed, mMouseIsOver);
-      break;
-    case EVShape::Rectangle:
-      DrawPressableRectangle(g, mWidgetBounds, pressed, mMouseIsOver);
-      break;
-    case EVShape::Triangle:
-      DrawPressableTriangle(g, mWidgetBounds, pressed, mMouseIsOver);
-      break;
-    case EVShape::EndsRounded:
-      DrawPressableRectangle(g, mWidgetBounds, pressed, mMouseIsOver, true, true, false, false);
-      break;
-    case EVShape::AllRounded:
-      DrawPressableRectangle(g, mWidgetBounds, pressed, mMouseIsOver, true, true, true, true);
-    default:
-      break;
-  }
+  DrawHandle(g, mShape, mWidgetBounds, pressed, mMouseIsOver);
 }
 
 void IVButtonControl::OnResize()
@@ -347,15 +329,6 @@ void IVTabSwitchControl::DrawButton(IGraphics& g, const IRECT& r, bool pressed, 
 {
   switch (mShape)
   {
-    case EVShape::Ellipse:
-      DrawPressableEllipse(g, r, pressed, mouseOver);
-      break;
-    case EVShape::Rectangle:
-      DrawPressableRectangle(g, r, pressed, mouseOver);
-      break;
-    case EVShape::Triangle:
-      DrawPressableTriangle(g, r, pressed, mouseOver);
-      break;
     case EVShape::EndsRounded:
       if(mDirection == EDirection::Horizontal)
         DrawPressableRectangle(g, r, pressed, mouseOver, segment == ETabSegment::Start, segment == ETabSegment::End, false, false);
@@ -369,6 +342,7 @@ void IVTabSwitchControl::DrawButton(IGraphics& g, const IRECT& r, bool pressed, 
         DrawPressableRectangle(g, r, pressed, mouseOver, false, true, false, true);
       break;
     default:
+      DrawHandle(g, mShape, r, pressed, mouseOver);
       break;
   }
 }
@@ -873,7 +847,8 @@ void IVRangeSliderControl::MakeTrackRects(const IRECT& bounds)
 
 void IVRangeSliderControl::DrawTrack(IGraphics& g, const IRECT& r, int chIdx)
 {
-  DrawTrackHandle(g, r, chIdx);
+  bool thisTrack = mMouseOverHandle == chIdx;
+  DrawPressableTriangle(g, GetHandleBounds(chIdx), thisTrack && mMouseIsDown, thisTrack, chIdx % 2 ? 180.f : 0.f);
 }
 
 IRECT IVRangeSliderControl::GetHandleBounds(int trackIdx)
@@ -885,18 +860,22 @@ IRECT IVRangeSliderControl::GetHandleBounds(int trackIdx)
   {
     cx = filledTrack.MW() + offset;
     cy = filledTrack.T;
+    
+    if(trackIdx % 2)
+      return IRECT(cx-mHandleSize, cy-mHandleSize, cx+mHandleSize, cy+mHandleSize);
+    else
+      return IRECT(cx-mHandleSize, cy-mHandleSize, cx+mHandleSize, cy+mHandleSize);
   }
   else
   {
     cx = filledTrack.R;
     cy = filledTrack.MH() + offset;
+    
+    if(trackIdx % 2)
+      return IRECT(cx-mHandleSize, cy-(2.f*mHandleSize), cx+mHandleSize, cy);
+    else
+      return IRECT(cx-mHandleSize, cy, cx+mHandleSize, cy+(2.f*mHandleSize));
   }
-  return IRECT(cx-mHandleSize, cy-mHandleSize, cx+mHandleSize, cy+mHandleSize);
-}
-
-void IVRangeSliderControl::DrawTrackHandle(IGraphics& g, const IRECT& r, int chIdx)
-{
-  DrawHandle(g, mShape, GetHandleBounds(chIdx), false, mMouseOverHandle == chIdx);
 }
 
 void IVRangeSliderControl::DrawWidget(IGraphics& g)
@@ -945,6 +924,7 @@ void IVRangeSliderControl::OnMouseOver(float x, float y, const IMouseMod& mod)
 
 void IVRangeSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
+  mMouseIsDown = true;
   SnapToMouse(x, y, mDirection, mWidgetBounds, mMouseOverHandle);
 }
 
@@ -1053,7 +1033,7 @@ void IVPlotControl::Draw(IGraphics& g)
         v = (v - mMin) / (mMax-mMin);
         points[i] = v;
       }
-                              
+
       g.DrawData(mPlots[p].color, mWidgetBounds, points, mNumPoints, nullptr, nullptr, mStyle.frameThickness);
     }
     mLayer = g.EndLayer();
