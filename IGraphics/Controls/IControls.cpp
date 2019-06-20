@@ -848,7 +848,14 @@ void IVRangeSliderControl::MakeTrackRects(const IRECT& bounds)
 void IVRangeSliderControl::DrawTrack(IGraphics& g, const IRECT& r, int chIdx)
 {
   bool thisTrack = mMouseOverHandle == chIdx;
-  DrawPressableTriangle(g, GetHandleBounds(chIdx), thisTrack && mMouseIsDown, thisTrack, chIdx % 2 ? 180.f : 0.f);
+  float angle = 0.f;
+  
+  if(mDirection == EDirection::Horizontal)
+    angle = chIdx % 2 ? 180.f : 0.f;
+  else
+    angle = chIdx % 2 ? 270.f : 90.f;
+    
+  DrawPressableTriangle(g, GetHandleBounds(chIdx), thisTrack && mMouseIsDown, thisTrack, angle);
 }
 
 IRECT IVRangeSliderControl::GetHandleBounds(int trackIdx)
@@ -862,9 +869,9 @@ IRECT IVRangeSliderControl::GetHandleBounds(int trackIdx)
     cy = filledTrack.T;
     
     if(trackIdx % 2)
-      return IRECT(cx-mHandleSize, cy-mHandleSize, cx+mHandleSize, cy+mHandleSize);
+      return IRECT(cx+mTrackSize, cy-mHandleSize, cx+(2.f*mHandleSize)+mTrackSize, cy+mHandleSize);
     else
-      return IRECT(cx-mHandleSize, cy-mHandleSize, cx+mHandleSize, cy+mHandleSize);
+      return IRECT(cx-(2.f*mHandleSize), cy-mHandleSize, cx, cy+mHandleSize);
   }
   else
   {
@@ -874,7 +881,7 @@ IRECT IVRangeSliderControl::GetHandleBounds(int trackIdx)
     if(trackIdx % 2)
       return IRECT(cx-mHandleSize, cy-(2.f*mHandleSize), cx+mHandleSize, cy);
     else
-      return IRECT(cx-mHandleSize, cy, cx+mHandleSize, cy+(2.f*mHandleSize));
+      return IRECT(cx-mHandleSize, cy+mTrackSize, cx+mHandleSize, cy+(2.f*mHandleSize)+mTrackSize);
   }
 }
 
@@ -925,12 +932,17 @@ void IVRangeSliderControl::OnMouseOver(float x, float y, const IMouseMod& mod)
 void IVRangeSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   mMouseIsDown = true;
-  SnapToMouse(x, y, mDirection, mWidgetBounds, mMouseOverHandle);
+  OnMouseDrag(x, y, 0., 0., mod);
 }
 
 void IVRangeSliderControl::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
 {
-  SnapToMouse(x, y, mDirection, mWidgetBounds, mMouseOverHandle);
+  if(mMouseOverHandle == -1)
+    return;
+  
+  auto minClip = mMouseOverHandle == 0 ? 0. : GetValue(mMouseOverHandle-1);
+  auto maxClip = mMouseOverHandle == NVals()-1 ? 1. : GetValue(mMouseOverHandle+1);
+  SnapToMouse(x, y, mDirection, mWidgetBounds, mMouseOverHandle, 1.f /*scalar*/, minClip, maxClip);
 }
 
 IVXYPadControl::IVXYPadControl(const IRECT& bounds, const std::initializer_list<int>& params, const char* label, const IVStyle& style, float handleRadius)
