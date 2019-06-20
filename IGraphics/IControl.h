@@ -738,7 +738,7 @@ public:
         DrawPressableRectangle(g, bounds, pressed, mouseOver);
         break;
       case EVShape::Triangle:
-        DrawPressableTriangle(g, bounds, pressed, mouseOver);
+        DrawPressableTriangle(g, bounds, pressed, mouseOver, mStyle.angle);
         break;
       case EVShape::EndsRounded:
         DrawPressableRectangle(g, bounds, pressed, mouseOver, true, true, false, false);
@@ -831,11 +831,11 @@ public:
    * @param bounds Where to draw the button
    * @param pressed Whether to draw the button pressed or unpressed
    * @param mouseOver Whether mouse is currently hovering on control */
-  IRECT DrawPressableTriangle(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver)
+  IRECT DrawPressableTriangle(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver, float angle)
   {
     float x1, x2, x3, y1, y2, y3;
     
-    float theta = DegToRad(mStyle.angle);
+    float theta = DegToRad(angle);
     
     IRECT handleBounds = GetAdjustedHandleBounds(bounds);
     
