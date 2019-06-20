@@ -330,7 +330,7 @@ void IControl::DrawPTHighlight(IGraphics& g)
   }
 }
 
-void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, int valIdx, float scalar /* TODO: scalar! */)
+void IControl::SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx, float scalar /* TODO: scalar! */)
 {
   bounds.Constrain(x, y);
 
@@ -344,8 +344,7 @@ void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds
     //mValue = (double) (x - (mRECT.R - (mRECT.W()*lengthMult)) - mHandleHeadroom / 2) / (double) ((mLen*lengthMult) - mHandleHeadroom);
     val = (x-bounds.L) / bounds.W();
 
-  auto valFunc = [&](int v)
-  {
+  auto valFunc = [&](int v) {
     SetValue(std::round(val / 0.001 ) * 0.001, v);
   };
   

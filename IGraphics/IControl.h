@@ -404,7 +404,7 @@ public:
    * @param bounds The area in which the track of e.g. a slider should be snapped
    * @param valIdx /todo
    * @param scalar A scalar to speedup/slowdown mousing along the track */
-  virtual void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, int valIdx = -1, float scalar = 1.);
+  virtual void SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx = -1, float scalar = 1.);
 
   virtual void OnEndAnimation() // if you override this you must call the base implementation, to free mAnimationFunc
   {
