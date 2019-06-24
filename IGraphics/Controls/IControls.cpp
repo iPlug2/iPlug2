@@ -1009,12 +1009,13 @@ void IVXYPadControl::OnResize()
   SetDirty(false);
 }
 
-IVPlotControl::IVPlotControl(const IRECT& bounds, const std::initializer_list<Plot>& plots, int numPoints, const char* label, const IVStyle& style, float min, float max)
+IVPlotControl::IVPlotControl(const IRECT& bounds, const std::initializer_list<Plot>& plots, int numPoints, const char* label, const IVStyle& style, float min, float max, bool useLayer)
 : IControl(bounds)
 , IVectorBase(style)
 , mMin(min)
 , mMax(max)
 , mNumPoints(numPoints)
+, mUseLayer(useLayer)
 {
   AttachIControl(this, label);
   
@@ -1029,14 +1030,11 @@ void IVPlotControl::Draw(IGraphics& g)
   DrawBackGround(g, mRECT);
   DrawLabel(g);
   
-  if (!g.CheckLayer(mLayer))
-  {
-    g.StartLayer(mRECT);
-
+  auto drawFunc = [&](){
     g.DrawGrid(GetColor(kSH), mWidgetBounds, 8.f, 8.f);
-
+    
     float points[mNumPoints];
-
+    
     for (int p=0; p<mPlots.size(); p++)
     {
       for (int i=0; i<mNumPoints; i++)
@@ -1045,14 +1043,24 @@ void IVPlotControl::Draw(IGraphics& g)
         v = (v - mMin) / (mMax-mMin);
         points[i] = v;
       }
-
+      
       g.DrawData(mPlots[p].color, mWidgetBounds, points, mNumPoints, nullptr, nullptr, mStyle.frameThickness);
     }
-    mLayer = g.EndLayer();
-  }
+  };
   
-  g.DrawLayer(mLayer);
-
+  if(mUseLayer)
+  {
+    if (!g.CheckLayer(mLayer))
+    {
+      g.StartLayer(mRECT);
+      drawFunc();
+      mLayer = g.EndLayer();
+    }
+    
+    g.DrawLayer(mLayer);
+  }
+  else
+    drawFunc();
 }
 
 void IVPlotControl::OnResize()

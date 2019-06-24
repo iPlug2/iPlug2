@@ -302,13 +302,12 @@ class IVPlotControl : public IControl
 public:
   using IPlotFunc = std::function<double(double)>;
   
-  struct Plot
-  {
+  struct Plot {
     IColor color;
     IPlotFunc func;
   };
   
-  IVPlotControl(const IRECT& bounds, const std::initializer_list<Plot>& funcs, int numPoints, const char* label = "", const IVStyle& style = DEFAULT_STYLE, float min = -1., float max = 1.);
+  IVPlotControl(const IRECT& bounds, const std::initializer_list<Plot>& funcs, int numPoints, const char* label = "", const IVStyle& style = DEFAULT_STYLE, float min = -1., float max = 1., bool useLayer = false);
   void Draw(IGraphics& g) override;
   void OnResize() override;
 
@@ -319,6 +318,7 @@ protected:
   float mMin;
   float mMax;
   int mNumPoints;
+  bool mUseLayer = true;
 };
 
 #pragma mark - SVG Vector Controls
