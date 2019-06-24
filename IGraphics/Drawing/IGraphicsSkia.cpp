@@ -42,18 +42,18 @@ inline SkBlendMode SkiaBlendMode(const IBlend* pBlend)
 {
   switch (pBlend->mMethod)
   {
-    case kBlendDefault:         // fall through
-    case kBlendClobber:         // fall through
-    case kBlendSourceOver:      return SkBlendMode::kSrcOver;
-    case kBlendSourceIn:        return SkBlendMode::kSrcIn;
-    case kBlendSourceOut:       return SkBlendMode::kSrcOut;
-    case kBlendSourceAtop:      return SkBlendMode::kSrcATop;
-    case kBlendDestOver:        return SkBlendMode::kDstOver;
-    case kBlendDestIn:          return SkBlendMode::kDstIn;
-    case kBlendDestOut:         return SkBlendMode::kDstOut;
-    case kBlendDestAtop:        return SkBlendMode::kDstATop;
-    case kBlendAdd:             return SkBlendMode::kPlus;
-    case kBlendXOR:             return SkBlendMode::kXor;
+    case EBlend::Default:         // fall through
+    case EBlend::Clobber:         // fall through
+    case EBlend::SourceOver:      return SkBlendMode::kSrcOver;
+    case EBlend::SourceIn:        return SkBlendMode::kSrcIn;
+    case EBlend::SourceOut:       return SkBlendMode::kSrcOut;
+    case EBlend::SourceAtop:      return SkBlendMode::kSrcATop;
+    case EBlend::DestOver:        return SkBlendMode::kDstOver;
+    case EBlend::DestIn:          return SkBlendMode::kDstIn;
+    case EBlend::DestOut:         return SkBlendMode::kDstOut;
+    case EBlend::DestAtop:        return SkBlendMode::kDstATop;
+    case EBlend::Add:             return SkBlendMode::kPlus;
+    case EBlend::XOR:             return SkBlendMode::kXor;
   }
   
   return SkBlendMode::kClear;
@@ -64,7 +64,7 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
   SkPaint paint;
   paint.setAntiAlias(true);
   
-  if(pattern.mType == kSolidPattern)
+  if(pattern.mType == EPatternType::Solid)
     paint.setColor(SkiaColor(pattern.GetStop(0).mColor, pBlend));
   else
   {
@@ -81,7 +81,7 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
     for(int i = 0; i < pattern.NStops(); i++)
       colors[i] = SkiaColor(pattern.GetStop(i).mColor);
    
-    if(pattern.mType == kLinearPattern)
+    if(pattern.mType == EPatternType::Linear)
       paint.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, pattern.NStops(), SkTileMode::kClamp, 0, nullptr));
     else
       paint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(128.0f, 128.0f) /*TODO: points*/, 180.0f, colors, nullptr, pattern.NStops(), SkTileMode::kClamp, 0, nullptr));
@@ -181,7 +181,7 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
 {
   SkPaint p;
   p.setFilterQuality(kHigh_SkFilterQuality);
-  mCanvas->drawImage(dynamic_cast<SkImage*>(bitmap.GetAPIBitmap()->GetBitmap()), dest.L, dest.T, &p);
+  mCanvas->drawImage(static_cast<SkImage*>(bitmap.GetAPIBitmap()->GetBitmap()), dest.L, dest.T, &p);
 }
 
 IColor IGraphicsSkia::GetPoint(int x, int y)
@@ -202,7 +202,7 @@ void IGraphicsSkia::DoDrawText(const IText& text, const char* str, const IRECT& 
   SkPaint paint;
   paint.setColor(SkiaColor(text.mFGColor, pBlend));
   
-  mCanvas->drawSimpleText(str, strlen(str), kUTF8_SkTextEncoding, bounds.L, bounds.T, font, paint);
+  mCanvas->drawSimpleText(str, strlen(str), SkTextEncoding::kUTF8, bounds.L, bounds.T, font, paint);
 }
 
 void IGraphicsSkia::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
@@ -214,16 +214,16 @@ void IGraphicsSkia::PathStroke(const IPattern& pattern, float thickness, const I
 
   switch (options.mCapOption)
   {
-    case kCapButt:   paint.setStrokeCap(SkPaint::kButt_Cap);     break;
-    case kCapRound:  paint.setStrokeCap(SkPaint::kRound_Cap);    break;
-    case kCapSquare: paint.setStrokeCap(SkPaint::kSquare_Cap);   break;
+    case ELineCap::Butt:   paint.setStrokeCap(SkPaint::kButt_Cap);     break;
+    case ELineCap::Round:  paint.setStrokeCap(SkPaint::kRound_Cap);    break;
+    case ELineCap::Square: paint.setStrokeCap(SkPaint::kSquare_Cap);   break;
   }
 
   switch (options.mJoinOption)
   {
-    case kJoinMiter: paint.setStrokeJoin(SkPaint::kMiter_Join);   break;
-    case kJoinRound: paint.setStrokeJoin(SkPaint::kRound_Join);   break;
-    case kJoinBevel: paint.setStrokeJoin(SkPaint::kBevel_Join);   break;
+    case ELineJoin::Miter: paint.setStrokeJoin(SkPaint::kMiter_Join);   break;
+    case ELineJoin::Round: paint.setStrokeJoin(SkPaint::kRound_Join);   break;
+    case ELineJoin::Bevel: paint.setStrokeJoin(SkPaint::kBevel_Join);   break;
   }
   
   if(options.mDash.GetCount())
@@ -248,7 +248,7 @@ void IGraphicsSkia::PathFill(const IPattern& pattern, const IFillOptions& option
   SkPaint paint = SkiaPaint(pattern, pBlend);
   paint.setStyle(SkPaint::kFill_Style);
   
-  if (options.mFillRule == EFillRule::kFillWinding)
+  if (options.mFillRule == EFillRule::Winding)
     mMainPath.setFillType(SkPath::kWinding_FillType);
   else
     mMainPath.setFillType(SkPath::kEvenOdd_FillType);
