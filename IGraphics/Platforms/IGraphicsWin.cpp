@@ -319,7 +319,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           TrackMouseEvent(&eventTrack);
         }
       }
-      else if (GetCapture() == hWnd && !pGraphics->mParamEditWnd)
+      else if (GetCapture() == hWnd && !pGraphics->IsInTextEntry())
       {
         float dX, dY;
         IMouseInfo info = pGraphics->GetMouseInfoDeltas(dX, dY, lParam, wParam);
@@ -670,7 +670,7 @@ void IGraphicsWin::ForceEndUserEdit()
 
 #define SETPOS_FLAGS SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE
 
-void IGraphicsWin::PlatformResize()
+void IGraphicsWin::PlatformResize(bool parentHasResized)
 {
   if (WindowIsOpen())
   {
@@ -693,18 +693,15 @@ void IGraphicsWin::PlatformResize()
 
     SetWindowPos(mPlugWnd, 0, 0, 0, dlgW + dw, dlgH + dh, SETPOS_FLAGS);
 
-    // don't want to touch the host window in VST3
-#ifndef VST3_API
-    if(pParent)
+    if(pParent && !parentHasResized)
     {
       SetWindowPos(pParent, 0, 0, 0, parentW + dw, parentH + dh, SETPOS_FLAGS);
     }
 
-    if(pGrandparent)
+    if(pGrandparent && !parentHasResized)
     {
       SetWindowPos(pGrandparent, 0, 0, 0, grandparentW + dw, grandparentH + dh, SETPOS_FLAGS);
     }
-#endif
 
     RECT r = { 0, 0, WindowWidth(), WindowHeight() };
     InvalidateRect(mPlugWnd, &r, FALSE);
@@ -868,10 +865,16 @@ void IGraphicsWin::DeactivateGLContext()
 }
 #endif
 
-int IGraphicsWin::ShowMessageBox(const char* text, const char* caption, EMessageBoxType type)
+EMsgBoxResult IGraphicsWin::ShowMessageBox(const char* text, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
 {
   ReleaseMouseCapture();
-  return MessageBox(GetMainWnd(), text, caption, (int) type);
+  
+  EMsgBoxResult result = static_cast<EMsgBoxResult>(MessageBox(GetMainWnd(), text, caption, static_cast<int>(type)));
+  
+  if(completionHandler)
+    completionHandler(result);
+  
+  return result;
 }
 
 void* IGraphicsWin::OpenWindow(void* pParent)
@@ -1225,9 +1228,9 @@ void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
 
   switch ( text.mAlign )
   {
-    case IText::kAlignNear:   editStyle = ES_LEFT;   break;
-    case IText::kAlignFar:    editStyle = ES_RIGHT;  break;
-    case IText::kAlignCenter:
+    case EAlign::Near:   editStyle = ES_LEFT;   break;
+    case EAlign::Far:    editStyle = ES_RIGHT;  break;
+    case EAlign::Center:
     default:                  editStyle = ES_CENTER; break;
   }
 
@@ -1370,12 +1373,12 @@ void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
     
   switch (action)
   {
-    case kFileSave:
+    case EFileAction::Save:
       ofn.Flags |= OFN_OVERWRITEPROMPT;
       rc = GetSaveFileNameW(&ofn);
       break;
             
-    case kFileOpen:
+    case EFileAction::Open:
       default:
       ofn.Flags |= OFN_FILEMUSTEXIST;
       rc = GetOpenFileNameW(&ofn);
@@ -1451,17 +1454,20 @@ UINT_PTR CALLBACK CCHookProc(HWND hdlg, UINT uiMsg, WPARAM wParam, LPARAM lParam
     {
       char* str = (char*) cc->lCustData;
       SetWindowText(hdlg, str);
+      UINT uiSetRGB;
+      uiSetRGB = RegisterWindowMessage(SETRGBSTRING);
+      SendMessage(hdlg, uiSetRGB, 0, (LPARAM) cc->rgbResult);
     }
   }
   return 0;
 }
 
-bool IGraphicsWin::PromptForColor(IColor& color, const char* prompt)
+bool IGraphicsWin::PromptForColor(IColor& color, const char* prompt, IColorPickerHandlerFunc func)
 {
+  ReleaseMouseCapture();
+
   if (!mPlugWnd)
-  {
     return false;
-  }
 
   const COLORREF w = RGB(255, 255, 255);
   static COLORREF customColorStorage[16] = { w, w, w, w, w, w, w, w, w, w, w, w, w, w, w, w };
@@ -1481,6 +1487,10 @@ bool IGraphicsWin::PromptForColor(IColor& color, const char* prompt)
     color.R = GetRValue(cc.rgbResult);
     color.G = GetGValue(cc.rgbResult);
     color.B = GetBValue(cc.rgbResult);
+    
+    if(func)
+      func(color);
+    
     return true;
   }
   return false;
@@ -1720,8 +1730,8 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
 
 PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
 {
-  int weight = style == kTextStyleBold ? FW_BOLD : FW_REGULAR;
-  bool italic = style == kTextStyleItalic;
+  int weight = style == ETextStyle::Bold ? FW_BOLD : FW_REGULAR;
+  bool italic = style == ETextStyle::Italic;
   bool underline = false;
   DWORD quality = DEFAULT_QUALITY;
 

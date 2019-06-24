@@ -18,23 +18,23 @@ IPlugInstrument::IPlugInstrument(IPlugInstanceInfo instanceInfo)
   };
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
-    pGraphics->AttachCornerResizer(kUIResizerScale, false);
+    pGraphics->AttachCornerResizer(EUIResizerMode::Scale, false);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->HandleMouseOver(true);
 //    pGraphics->EnableLiveEdit(true);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     const IRECT b = pGraphics->GetBounds();
     pGraphics->AttachControl(new IVKeyboardControl(IRECT(10, 335, PLUG_WIDTH-10, PLUG_HEIGHT-10)), kCtrlTagKeyboard);
-    pGraphics->AttachControl(new IVMultiSliderControl<4>(b.GetGridCell(0, 2, 2).GetPadded(-30), kParamAttack));
+    pGraphics->AttachControl(new IVMultiSliderControl<4>(b.GetGridCell(0, 2, 2).GetPadded(-30), "", DEFAULT_STYLE, kParamAttack, EDirection::Vertical, 0.f, 1.f));
     const IRECT controls = b.GetGridCell(1, 2, 2);
-    pGraphics->AttachControl(new IVKnobControl(controls.GetGridCell(0, 2, 6).GetCentredInside(90), kParamGain, "Gain", true));
+    pGraphics->AttachControl(new IVKnobControl(controls.GetGridCell(0, 2, 6).GetCentredInside(90), kParamGain, "Gain"));
     pGraphics->AttachControl(new IVKnobControl(controls.GetGridCell(1, 2, 6).GetCentredInside(90), kParamNoteGlideTime, "Glide"));
     const IRECT sliders = controls.GetGridCell(2, 2, 6).Union(controls.GetGridCell(3, 2, 6));
     pGraphics->AttachControl(new IVSliderControl(sliders.GetGridCell(0, 1, 4).GetMidHPadded(10.), kParamAttack));
     pGraphics->AttachControl(new IVSliderControl(sliders.GetGridCell(1, 1, 4).GetMidHPadded(10.), kParamDecay));
     pGraphics->AttachControl(new IVSliderControl(sliders.GetGridCell(2, 1, 4).GetMidHPadded(10.), kParamSustain));
     pGraphics->AttachControl(new IVSliderControl(sliders.GetGridCell(3, 1, 4).GetMidHPadded(10.), kParamRelease));
-    pGraphics->AttachControl(new IVMeterControl<1>(controls.GetFromRight(100).GetPadded(-30)), kCtrlTagMeter);
+    pGraphics->AttachControl(new IVMeterControl<1>(controls.GetFromRight(100).GetPadded(-30), ""), kCtrlTagMeter);
     
     pGraphics->SetKeyHandlerFunc([&](const IKeyPress& key, bool isUp)
                                  {
@@ -118,12 +118,12 @@ void IPlugInstrument::ProcessBlock(sample** inputs, sample** outputs, int nFrame
     }
   }
 
-  mMeterBallistics.ProcessBlock(outputs, nFrames);
+  mMeterSender.ProcessBlock(outputs, nFrames);
 }
 
 void IPlugInstrument::OnIdle()
 {
-  mMeterBallistics.TransmitData(*this);
+  mMeterSender.TransmitData(*this);
 }
 
 void IPlugInstrument::OnReset()

@@ -33,8 +33,10 @@ IPlugAPP::IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   CreateTimer();
 }
 
-void IPlugAPP::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
+bool IPlugAPP::EditorResizeFromDelegate(int viewWidth, int viewHeight)
 {
+  bool parentResized = false;
+    
   if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
   {
     #ifdef OS_MAC
@@ -42,10 +44,12 @@ void IPlugAPP::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight
     RECT r;
     GetWindowRect(gHWND, &r);
     SetWindowPos(gHWND, 0, r.left, r.bottom - viewHeight - TITLEBAR_BODGE, viewWidth, viewHeight + TITLEBAR_BODGE, 0);
+    parentResized = true;
     #endif
+    IPlugAPIBase::EditorResizeFromDelegate(viewWidth, viewHeight);
   }
   
-  IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
+  return parentResized;
 }
 
 bool IPlugAPP::SendMidiMsg(const IMidiMsg& msg)

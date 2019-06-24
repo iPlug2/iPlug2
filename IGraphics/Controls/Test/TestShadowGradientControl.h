@@ -23,7 +23,7 @@ class TestShadowGradientControl : public IControl
 {
 public:
     
-  TestShadowGradientControl(IRECT rect)
+  TestShadowGradientControl(const IRECT& rect)
   : IControl(rect)
   {
   }

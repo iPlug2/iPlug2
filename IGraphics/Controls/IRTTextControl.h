@@ -58,7 +58,7 @@ public:
     IPlugQueue<T> mQueue {QUEUE_SIZE};
   };
   
-  IRTTextControl(IRECT bounds, const char* fmtStr = "%f", const char* initStr = "", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR)
+  IRTTextControl(const IRECT& bounds, const char* fmtStr = "%f", const char* initStr = "", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR)
   : ITextControl(bounds, initStr, text, BGColor)
   , mFMTStr(fmtStr)
   {

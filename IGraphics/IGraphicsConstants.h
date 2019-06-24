@@ -12,28 +12,27 @@
 
 #include "IPlugPlatform.h"
 
-static const int DEFAULT_FPS = 25; // TODO: default 60 FPS?
+static constexpr int DEFAULT_FPS = 25; // TODO: default 60 FPS?
 
 // If not dirty for this many timer ticks, we call OnGUIIDle.
 // Only looked at if USE_IDLE_CALLS is defined.
-static const int IDLE_TICKS = 20;
+static constexpr int IDLE_TICKS = 20;
 
-#define DEFAULT_ANIMATION_DURATION 100
+static constexpr int DEFAULT_ANIMATION_DURATION = 100;
 
 #ifndef CONTROL_BOUNDS_COLOR
 #define CONTROL_BOUNDS_COLOR COLOR_GREEN
 #endif
 
-#define PARAM_EDIT_W 40
-#define PARAM_EDIT_H 16
+static constexpr float PARAM_EDIT_W = 40.f; // TODO: remove?
+static constexpr float PARAM_EDIT_H = 16.f; // TODO: remove?
 
 #define MAX_URL_LEN 256
 #define MAX_NET_ERR_MSG_LEN 1024
 
-#define MAX_IMG_SCALE 3
-
-static const int DEFAULT_TEXT_ENTRY_LEN = 7;
-static const double DEFAULT_GEARING = 4.0;
+static constexpr int MAX_IMG_SCALE = 3;
+static constexpr int DEFAULT_TEXT_ENTRY_LEN = 7;
+static constexpr double DEFAULT_GEARING = 4.0;
 
 //what is this stuff
 #define MAX_INET_ERR_CODE 32
@@ -42,48 +41,52 @@ static const double DEFAULT_GEARING = 4.0;
 #define MAX_CLASSNAME_LEN 128
 //
 
-static const float GRAYED_ALPHA = 0.25f;
+static constexpr float GRAYED_ALPHA = 0.25f;
 
 #ifndef DEFAULT_PATH
 static const char* DEFAULT_PATH = "~/Desktop";
 #endif
 
 const char* const DEFAULT_FONT = "Roboto-Regular";
-const int DEFAULT_TEXT_SIZE = 14;
-const int FONT_LEN = 64;
+static constexpr float DEFAULT_TEXT_SIZE = 14.f;
+static constexpr int FONT_LEN = 64;
 
 /** @enum EType Blend type
  * \todo This could use some documentation
  */
-enum EBlendType
+enum class EBlend
 {
-  kBlendDefault,
-  kBlendClobber,
-  kBlendSourceOver,
-  kBlendSourceIn,
-  kBlendSourceOut,
-  kBlendSourceAtop,
-  kBlendDestOver,
-  kBlendDestIn,
-  kBlendDestOut,
-  kBlendDestAtop,
-  kBlendAdd,
-  kBlendXOR,
-  kBlendNone = kBlendDefault
+  Default,
+  Clobber,
+  SourceOver,
+  SourceIn,
+  SourceOut,
+  SourceAtop,
+  DestOver,
+  DestIn,
+  DestOut,
+  DestAtop,
+  Add,
+  XOR,
+  None = EBlend::Default
 };
 
-enum EFileAction
-{
-  kFileOpen,
-  kFileSave  
-};
+/** /todo */
+enum class EFileAction { Open, Save };
 
-enum EDirection
-{
-  kVertical = 0,
-  kHorizontal = 1
-};
+/** /todo */
+enum class EDirection { Vertical, Horizontal };
 
+/** Used to specify text styles when loading fonts. */
+enum class ETextStyle { Normal, Bold, Italic };
+
+/** /todo */
+enum class EAlign { Near, Center, Far };
+
+/** /todo */
+enum class EVAlign { Top, Middle, Bottom };
+
+/** /todo */
 enum EVColor
 {
   kBG = 0,    // background color: All vector controls should fill their BG with this color, which is transparent by default
@@ -95,53 +98,48 @@ enum EVColor
   kHL,        // highlight: mouse over or focus
   kSH,        // shadow
   kX1,        // extra1
+  kGR = kX1,  // greyed
   kX2,        // extra2
   kX3,        // extra3
   kNumDefaultVColors
 };
 
-enum EFillRule
+static const char* kVColorStrs[kNumDefaultVColors] =
 {
-  kFillWinding,
-  kFillEvenOdd
+  "background",
+  "foreground/off states",
+  "pressed/on states",
+  "frame",
+  "highlight",
+  "shadow",
+  "extra1/greyed",
+  "extra2",
+  "extra3"
 };
 
-enum ELineCap
-{
-  kCapButt,
-  kCapRound,
-  kCapSquare
-};
+/** /todo */
+enum class EWinding { CW, CCW };
 
-enum ELineJoin
-{
-  kJoinMiter,
-  kJoinRound,
-  kJoinBevel
-};
+/** /todo */
+enum class EFillRule { Winding, EvenOdd };
 
-enum EPatternType
-{
-  kSolidPattern,
-  kLinearPattern,
-  kRadialPattern
-};
+/** /todo */
+enum class ELineCap { Butt, Round, Square };
 
-enum EPatternExtend
-{
-  kExtendNone,
-  kExtendPad,
-  kExtendReflect,
-  kExtendRepeat
-};
+/** /todo */
+enum class ELineJoin { Miter, Round, Bevel };
 
-enum EUIResizerMode
-{
-  kUIResizerScale,
-  kUIResizerSize
-};
+/** /todo */
+enum class EPatternType { Solid, Linear, Radial };
 
-enum ECursor
+/** /todo */
+enum class EPatternExtend { None, Pad, Reflect, Repeat };
+
+/** /todo */
+enum class EUIResizerMode { Scale, Size };
+
+/** /todo */
+enum class ECursor
 {
   ARROW,
   IBEAM,
@@ -160,7 +158,7 @@ enum ECursor
 };
 
 // This enumeration must match win32 message box options
-enum EMessageBoxType
+enum EMsgBoxType
 {
   kMB_OK = 0,
   kMB_OKCANCEL = 1,
@@ -170,8 +168,9 @@ enum EMessageBoxType
 };
 
 // This enumeration must match win32 message box results
-enum EMessageBoxResult
+enum EMsgBoxResult
 {
+  kNoResult, //If IGraphics::ShowMessageBox can't return inline (e.g. because it requires an asynchronous call)
   kOK = 1,
   kCANCEL = 2,
   kABORT = 3,
@@ -315,4 +314,3 @@ enum EVirtualKey
   kVK_NUMLOCK =     0x90,
   kVK_SCROLL =      0x91
 };
-

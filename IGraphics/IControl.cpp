@@ -57,7 +57,7 @@ void SplashAnimationFunc(IControl* pCaller)
 void DefaultClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(DefaultAnimationFunc, DEFAULT_ANIMATION_DURATION); };
 void SplashClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(SplashAnimationFunc, DEFAULT_ANIMATION_DURATION); }
 
-IControl::IControl(IRECT bounds, int paramIdx, IActionFunction actionFunc)
+IControl::IControl(const IRECT& bounds, int paramIdx, IActionFunction actionFunc)
 : mRECT(bounds)
 , mTargetRECT(bounds)
 , mActionFunc(actionFunc)
@@ -65,7 +65,7 @@ IControl::IControl(IRECT bounds, int paramIdx, IActionFunction actionFunc)
   mVals[0].idx = paramIdx;
 }
 
-IControl::IControl(IRECT bounds, const std::initializer_list<int>& params, IActionFunction actionFunc)
+IControl::IControl(const IRECT& bounds, const std::initializer_list<int>& params, IActionFunction actionFunc)
 : mRECT(bounds)
 , mTargetRECT(bounds)
 , mActionFunc(actionFunc)
@@ -76,7 +76,7 @@ IControl::IControl(IRECT bounds, const std::initializer_list<int>& params, IActi
   }
 }
 
-IControl::IControl(IRECT bounds, IActionFunction actionFunc)
+IControl::IControl(const IRECT& bounds, IActionFunction actionFunc)
 : mRECT(bounds)
 , mTargetRECT(bounds)
 , mActionFunc(actionFunc)
@@ -278,8 +278,8 @@ void IControl::PromptUserInput(int valIdx)
     {
       float cX = mRECT.MW();
       float cY = mRECT.MH();
-      float halfW = float(PARAM_EDIT_W)/2.f;
-      float halfH = float(PARAM_EDIT_H)/2.f;
+      float halfW = PARAM_EDIT_W/2.f;
+      float halfH = PARAM_EDIT_H/2.f;
 
       IRECT txtRECT = IRECT(cX - halfW, cY - halfH, cX + halfW,cY + halfH);
       GetUI()->PromptUserInput(*this, txtRECT, valIdx);
@@ -337,7 +337,7 @@ void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds
 
   //val = 1.f - (y - (mRECT.B - (mRECT.H()*lengthMult)) / 2) / ((mLen*lengthMult));
   
-  if(direction == kVertical)
+  if(direction == EDirection::Vertical)
     val = 1.f - (y-bounds.T) / bounds.H();
   else
     //mValue = (double) (x - (mRECT.R - (mRECT.W()*lengthMult)) - mHandleHeadroom / 2) / (double) ((mLen*lengthMult) - mHandleHeadroom);
@@ -369,6 +369,15 @@ void IBitmapControl::OnRescale()
   mBitmap = GetUI()->GetScaledBitmap(mBitmap);
 }
 
+ITextControl::ITextControl(const IRECT& bounds, const char* str, const IText& text, const IColor& BGColor)
+: IControl(bounds)
+, mStr(str)
+, mBGColor(BGColor)
+{
+  mIgnoreMouse = true;
+  IControl::mText = text;
+}
+
 void ITextControl::SetStr(const char* str)
 {
   if (strcmp(mStr.Get(), str))
@@ -395,8 +404,54 @@ void ITextControl::Draw(IGraphics& g)
     g.DrawText(mText, mStr.Get(), mRECT);
 }
 
-ICaptionControl::ICaptionControl(IRECT bounds, int paramIdx, const IText& text, bool showParamLabel)
-: ITextControl(bounds, "", text)
+void ITextControl::SetBoundsBasedOnTextDimensions()
+{
+  IRECT r;
+  GetUI()->MeasureText(mText, mStr.Get(), r);
+  SetTargetAndDrawRECTs({mRECT.L, mRECT.T, mRECT.L + r.W(), mRECT.T + r.H()});
+}
+
+ITextToggleControl::ITextToggleControl(const IRECT& bounds, int paramIdx, const char* offText, const char* onText, const IText& text, const IColor& bgColor)
+: ITextControl(bounds, offText, text, bgColor)
+, mOnText(onText)
+, mOffText(offText)
+{
+  SetParamIdx(paramIdx);
+  //TODO: assert boolean?
+  mIgnoreMouse = false;
+  mDblAsSingleClick = true;
+}
+
+ITextToggleControl::ITextToggleControl(const IRECT& bounds, IActionFunction aF, const char* offText, const char* onText, const IText& text, const IColor& bgColor)
+: ITextControl(bounds, offText, text, bgColor)
+, mOnText(onText)
+, mOffText(offText)
+{
+  SetActionFunction(aF);
+  mDblAsSingleClick = true;
+  //TODO: assert boolean?
+  mIgnoreMouse = false;
+}
+
+void ITextToggleControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  if(GetValue() < 0.5)
+  {
+    SetValue(1.);
+    SetStr(mOnText.Get());
+  }
+  else
+  {
+    SetValue(0.);
+    SetStr(mOffText.Get());
+  }
+  
+  SetDirty(true);
+}
+
+
+ICaptionControl::ICaptionControl(const IRECT& bounds, int paramIdx, const IText& text, const IColor& bgColor, bool showParamLabel)
+: ITextControl(bounds, "", text, bgColor)
 , mShowParamLabel(showParamLabel)
 {
   SetParamIdx(paramIdx);
@@ -443,7 +498,7 @@ void ICaptionControl::OnResize()
   }
 }
 
-IButtonControlBase::IButtonControlBase(IRECT bounds, IActionFunction actionFunc)
+IButtonControlBase::IButtonControlBase(const IRECT& bounds, IActionFunction actionFunc)
 : IControl(bounds, kNoParameter, actionFunc)
 {
 }
@@ -460,7 +515,7 @@ void IButtonControlBase::OnEndAnimation()
   IControl::OnEndAnimation();
 }
 
-ISwitchControlBase::ISwitchControlBase(IRECT bounds, int paramIdx, IActionFunction actionFunc,
+ISwitchControlBase::ISwitchControlBase(const IRECT& bounds, int paramIdx, IActionFunction actionFunc,
   int numStates)
   : IControl(bounds, paramIdx, actionFunc)
   , mNumStates(numStates)
@@ -517,7 +572,7 @@ void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const I
 {
   double gearing = IsFineControl(mod, false) ? mGearing * 10.0 : mGearing;
 
-  if (mDirection == kVertical)
+  if (mDirection == EDirection::Vertical)
     SetValue(GetValue() + (double)dY / (double)(mRECT.T - mRECT.B) / gearing);
   else
     SetValue(GetValue() + (double)dX / (double)(mRECT.R - mRECT.L) / gearing);
@@ -669,7 +724,7 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
 #endif
 }
 
-ISliderControlBase::ISliderControlBase(IRECT bounds, int paramIdx, EDirection dir, bool onlyHandle, float handleSize)
+ISliderControlBase::ISliderControlBase(const IRECT& bounds, int paramIdx, EDirection dir, bool onlyHandle, float handleSize)
 : IControl(bounds, paramIdx)
 , mDirection(dir)
 , mOnlyHandle(onlyHandle)
@@ -677,7 +732,7 @@ ISliderControlBase::ISliderControlBase(IRECT bounds, int paramIdx, EDirection di
   handleSize == 0 ? mHandleSize = bounds.W() : mHandleSize = handleSize;
 }
 
- ISliderControlBase::ISliderControlBase(IRECT bounds, IActionFunction aF, EDirection dir, bool onlyHandle, float handleSize)
+ ISliderControlBase::ISliderControlBase(const IRECT& bounds, IActionFunction aF, EDirection dir, bool onlyHandle, float handleSize)
 : IControl(bounds, aF)
 , mDirection(dir)
 , mOnlyHandle(onlyHandle)

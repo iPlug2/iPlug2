@@ -50,10 +50,10 @@ public:
   };
 
   /** Used on the DSP side in order to queue sample values and transfer data to low priority thread. */
-  class IVMeterBallistics
+  class Sender
   {
   public:
-    IVMeterBallistics(int controlTag)
+    Sender(int controlTag)
     : mControlTag(controlTag)
     {
     }
@@ -98,12 +98,28 @@ public:
     IPlugQueue<Data> mQueue {QUEUE_SIZE};
   };
 
-  IVMeterControl(IRECT bounds, EDirection dir = kHorizontal, const char* trackNames = 0, ...)
-  : IVTrackControlBase(bounds, MAXNC, dir, 0, 1., trackNames)
+  IVMeterControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, const char* trackNames = 0, ...)
+  : IVTrackControlBase(bounds, label, style, MAXNC, dir, 0, 1., trackNames)
   {
   }
 
-  //  void OnResize() override;
+  void Draw(IGraphics& g) override
+  {
+    DrawBackGround(g, mRECT);
+    DrawWidget(g);
+    DrawLabel(g);
+    
+    if(mStyle.drawFrame)
+      g.DrawRect(GetColor(kFR), mWidgetBounds, nullptr, mStyle.frameThickness);
+  }
+  
+  void OnResize() override
+  {
+    SetTargetRECT(CalculateRects(mRECT));
+    MakeTrackRects(mWidgetBounds);
+    SetDirty(false);
+  }
+
   //  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
   //  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
 

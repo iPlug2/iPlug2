@@ -24,12 +24,12 @@ public:
   void* OpenWindow(void* pWindow) override;
   void CloseWindow() override;
   bool WindowIsOpen() override;
-  void PlatformResize() override;
+  void PlatformResize(bool parentHasResized) override;
 
   void HideMouseCursor() override;
   void ShowMouseCursor() override;
 
-  int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) override;
+  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
   void ForceEndUserEdit() override;
 
   const char* GetPlatformAPIStr() override;
@@ -37,7 +37,7 @@ public:
   void UpdateTooltips() override;
 
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
-  void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action,  const char* ext) override;
+  void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action,  const char* ext, IColorPickerHandlerFunc func) override;
   bool PromptForColor(IColor& color, const char* str) override;
 
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;

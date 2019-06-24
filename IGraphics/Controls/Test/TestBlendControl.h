@@ -23,7 +23,7 @@ class TestBlendControl : public IKnobControlBase
                        , public IBitmapBase
 {
 public:
-  TestBlendControl(IRECT bounds, const IBitmap& bitmap)
+  TestBlendControl(const IRECT& bounds, const IBitmap& bitmap)
   : IKnobControlBase(bounds)
   , IBitmapBase(bitmap)
   {
@@ -40,7 +40,7 @@ public:
       return mRECT.GetGridCell(cell++, 4, 4);
     };
 
-    auto drawBlendPic = [this](IGraphics& g, IRECT r, EBlendType blend, const char* name, float alpha)
+    auto drawBlendPic = [this](IGraphics& g, IRECT r, EBlend blend, const char* name, float alpha)
     {
       IBlend blendMode { blend, alpha };
       g.FillCircle(IColor(128, 255, 0, 0), r.MW(), r.MH(), r.W() / 2.0);
@@ -49,18 +49,18 @@ public:
     };
 
     g.StartLayer(mRECT);
-    drawBlendPic(g, nextCell(), kBlendDefault, "Default", alpha);
-    drawBlendPic(g, nextCell(), kBlendClobber, "Clobber", alpha);
-    drawBlendPic(g, nextCell(), kBlendAdd, "Add", alpha);
-    drawBlendPic(g, nextCell(), kBlendXOR, "XOR", alpha);
-    drawBlendPic(g, nextCell(), kBlendSourceOver, "Src Over", alpha);
-    drawBlendPic(g, nextCell(), kBlendSourceIn, "Src In", alpha);
-    drawBlendPic(g, nextCell(), kBlendSourceOut, "Src Out", alpha);
-    drawBlendPic(g, nextCell(), kBlendSourceAtop, "Src Atop", alpha);
-    drawBlendPic(g, nextCell(), kBlendDestOver, "Dst Over", alpha);
-    drawBlendPic(g, nextCell(), kBlendDestIn, "Dst In", alpha);
-    drawBlendPic(g, nextCell(), kBlendDestOut, "Dst Out", alpha);
-    drawBlendPic(g, nextCell(), kBlendDestAtop, "Dst Atop", alpha);
+    drawBlendPic(g, nextCell(), EBlend::Default, "Default", alpha);
+    drawBlendPic(g, nextCell(), EBlend::Clobber, "Clobber", alpha);
+    drawBlendPic(g, nextCell(), EBlend::Add, "Add", alpha);
+    drawBlendPic(g, nextCell(), EBlend::XOR, "XOR", alpha);
+    drawBlendPic(g, nextCell(), EBlend::SourceOver, "Src Over", alpha);
+    drawBlendPic(g, nextCell(), EBlend::SourceIn, "Src In", alpha);
+    drawBlendPic(g, nextCell(), EBlend::SourceOut, "Src Out", alpha);
+    drawBlendPic(g, nextCell(), EBlend::SourceAtop, "Src Atop", alpha);
+    drawBlendPic(g, nextCell(), EBlend::DestOver, "Dst Over", alpha);
+    drawBlendPic(g, nextCell(), EBlend::DestIn, "Dst In", alpha);
+    drawBlendPic(g, nextCell(), EBlend::DestOut, "Dst Out", alpha);
+    drawBlendPic(g, nextCell(), EBlend::DestAtop, "Dst Atop", alpha);
     mLayer = g.EndLayer();
     g.DrawLayer(mLayer);
   }

@@ -19,7 +19,7 @@ std::unique_ptr<PLUG_CLASS_NAME> gPlug;
 RECT gPrevBounds;
 int gErrorCount = 0;
 
-struct action
+struct ReaperAction
 {
   int* pToggle = nullptr;
   gaccel_register_t accel = {{0,0,0}, ""};
@@ -27,7 +27,7 @@ struct action
   bool addMenuItem = false;
 };
 
-std::vector<action> gActions;
+std::vector<ReaperAction> gActions;
 
 //TODO: don't #include cpp here
 #include "ReaperExtBase.cpp"
