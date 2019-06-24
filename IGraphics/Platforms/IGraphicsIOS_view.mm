@@ -19,7 +19,72 @@
 #include "IControl.h"
 #include "IPlugParameter.h"
 
-@implementation IGraphicsIOS_View
+@implementation IGRAPHICS_POPOVER_VIEW_CONTROLLER
+
+- (void)viewDidLoad
+{
+  [super viewDidLoad];
+  self.tableView = [[UITableView alloc] initWithFrame:self.view.frame];
+  [self.view addSubview:self.tableView];
+  self.tableView.dataSource = self;
+  self.tableView.delegate = self;
+  self.tableView.scrollEnabled = YES;
+  self.items = [[NSMutableArray alloc] initWithObjects:@"green",@"gray", @"blue",@"purple", @"yellow", nil];
+}
+
+- (id) initWithIPopupMenu:(IPopupMenu&) menu
+{
+  self = [super init];
+  
+  mMenu = &menu;
+  
+  return self;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+  return self.items.count;
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+  return 1;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  static NSString *identifer = @"cell";
+  UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifer];
+  if (cell == nil) {
+    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifer];
+  }
+  cell.textLabel.text = [NSString stringWithFormat:@"%@", self.items[indexPath.row]];
+  return cell;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  [[NSNotificationCenter defaultCenter] postNotificationName:@"click" object:indexPath];
+}
+
+- (CGSize)preferredContentSize
+{
+  if (self.presentingViewController && self.tableView != nil)
+  {
+    CGSize tempSize = self.presentingViewController.view.bounds.size;
+    tempSize.width = 300;
+    CGSize size = [self.tableView sizeThatFits:tempSize];
+    return size;
+  } else {
+    return [super preferredContentSize];
+  }
+}
+
+- (void)setPreferredContentSize:(CGSize)preferredContentSize{
+  super.preferredContentSize = preferredContentSize;
+}
+
+@end
+
+@implementation IGRAPHICS_VIEW
 
 - (id) initWithIGraphics: (IGraphicsIOS*) pGraphics
 {
@@ -182,8 +247,28 @@
 {
 }
 
-- (IPopupMenu*) createPopupMenu: (const IPopupMenu&) menu : (CGRect) bounds;
+- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller
 {
+  return UIModalPresentationNone;
+}
+
+- (BOOL)popoverPresentationControllerShouldDismissPopover:(UIPopoverPresentationController *)popoverPresentationController
+{
+  return YES;
+}
+
+- (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (CGRect) bounds;
+{
+  mPopoverViewController = [[IGRAPHICS_POPOVER_VIEW_CONTROLLER alloc] initWithIPopupMenu:menu];
+  
+  mPopoverViewController.modalPresentationStyle = UIModalPresentationPopover;
+  mPopoverViewController.popoverPresentationController.sourceView = self;
+  mPopoverViewController.popoverPresentationController.sourceRect = bounds;
+//  mPopoverViewController.popoverPresentationController.permittedArrowDirections = UIPopoverArrowDirectionUp;
+  mPopoverViewController.popoverPresentationController.delegate = self;
+  
+  [self.window.rootViewController presentViewController:mPopoverViewController animated:YES completion:nil]; // TODO: linked to plugin view (e.g. can be covered by keyboard)
+  
   return nullptr;
 }
 

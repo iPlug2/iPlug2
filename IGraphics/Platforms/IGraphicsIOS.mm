@@ -35,7 +35,7 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
 {
   TRACE;
   CloseWindow();
-  IGraphicsIOS_View* view = (IGraphicsIOS_View*) [[IGraphicsIOS_View alloc] initWithIGraphics: this];
+  IGRAPHICS_VIEW* view = (IGRAPHICS_VIEW*) [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
   mView = view;
   
   OnViewInitialized([view layer]);
@@ -66,7 +66,7 @@ void IGraphicsIOS::CloseWindow()
     }
 #endif
     
-    IGraphicsIOS_View* view = (IGraphicsIOS_View*) mView;
+    IGRAPHICS_VIEW* view = (IGRAPHICS_VIEW*) mView;
     [view removeFromSuperview];
     [view release];
 
@@ -90,7 +90,7 @@ void IGraphicsIOS::PlatformResize(bool parentHasResized)
 EMsgBoxResult IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
 {
   ReleaseMouseCapture();
-  [(IGraphicsIOS_View*) mView showMessageBox:str :caption :type :completionHandler];
+  [(IGRAPHICS_VIEW*) mView showMessageBox:str :caption :type :completionHandler];
   return EMsgBoxResult::kNoResult; // we need to rely on completionHandler
 }
 
@@ -98,7 +98,7 @@ void IGraphicsIOS::ForceEndUserEdit()
 {
   if (mView)
   {
-    [(IGraphicsIOS_View*) mView endUserInput];
+    [(IGRAPHICS_VIEW*) mView endUserInput];
   }
 }
 
@@ -127,7 +127,7 @@ IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
   if (mView)
   {
     CGRect areaRect = ToCGRect(this, bounds);
-    pReturnMenu = [(IGraphicsIOS_View*) mView createPopupMenu: menu: areaRect];
+    pReturnMenu = [(IGRAPHICS_VIEW*) mView createPopupMenu: menu: areaRect];
   }
   
   //synchronous
@@ -141,7 +141,7 @@ void IGraphicsIOS::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
 {
   ReleaseMouseCapture();
   CGRect areaRect = ToCGRect(this, bounds);
-  [(IGraphicsIOS_View*) mView createTextEntry: paramIdx : text: str: length: areaRect];
+  [(IGRAPHICS_VIEW*) mView createTextEntry: paramIdx : text: str: length: areaRect];
 }
 
 bool IGraphicsIOS::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)

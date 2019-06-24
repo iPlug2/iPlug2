@@ -17,17 +17,28 @@ inline CGRect ToCGRect(IGraphics* pGraphics, const IRECT& bounds)
   return CGRectMake(bounds.L, B, bounds.W(), bounds.H());
 }
 
-@interface IGraphicsIOS_View : UIView
+@interface IGRAPHICS_POPOVER_VIEW_CONTROLLER : UIViewController<UITableViewDataSource, UITableViewDelegate>//UITableViewController
+{
+  IPopupMenu* mMenu;
+}
+@property (strong, nonatomic) UITableView* tableView;
+@property (strong, nonatomic) NSMutableArray* items;
+- (id) initWithIPopupMenu: (IPopupMenu&) menu;
+
+@end
+
+@interface IGRAPHICS_VIEW : UIView<UIPopoverPresentationControllerDelegate>
 {  
 @public
   IGraphicsIOS* mGraphics;
+  IGRAPHICS_POPOVER_VIEW_CONTROLLER* mPopoverViewController;
 }
 - (id) initWithIGraphics: (IGraphicsIOS*) pGraphics;
 - (BOOL) isOpaque;
 - (BOOL) acceptsFirstResponder;
 - (void) removeFromSuperview;
 - (void) controlTextDidEndEditing: (NSNotification*) aNotification;
-- (IPopupMenu*) createPopupMenu: (const IPopupMenu&) menu : (CGRect) bounds;
+- (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (CGRect) bounds;
 - (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (CGRect) areaRect;
 - (void) endUserInput;
 - (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHanderFunc) completionHandler;
