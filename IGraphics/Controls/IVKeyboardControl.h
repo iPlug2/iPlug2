@@ -71,11 +71,8 @@ public:
     //kFR = kFR
   };
 
-  IVKeyboardControl(const IRECT& bounds,
-                    int minNote = 36, int maxNote = 84,
-                    bool roundedKeys = false,
-                    IActionFunction actionFunc = nullptr)
-  : IControl(bounds, kNoParameter, actionFunc)
+  IVKeyboardControl(const IRECT& bounds,  int minNote = 36, int maxNote = 84, bool roundedKeys = false)
+  : IControl(bounds, kNoParameter)
   , IVectorBase(&DEFAULT_WK_COLOR, &DEFAULT_BK_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR)
   , mRoundedKeys(roundedKeys)
   {
@@ -254,7 +251,7 @@ public:
         float kL = *GetKeyXPos(i);
         IRECT keyBounds = IRECT(kL, mRECT.T, kL + mWKWidth, mRECT.B);
 
-        DrawKey(g, keyBounds, GetColor(kWK));
+        DrawKey(g, keyBounds, i == mHighlight ? GetColor(kX1) : GetColor(kWK));
 
         if (GetKeyIsPressed(i))
         {
@@ -305,7 +302,7 @@ public:
           shadowBounds.R = shadowBounds.L + w;
           DrawKey(g, shadowBounds, shadowColor);
         }
-        DrawKey(g, keyBounds, GetColor(kBK));
+        DrawKey(g, keyBounds, i == mHighlight ? GetColor(kX1) : GetColor(kBK));
 
         if (GetKeyIsPressed(i))
         {
@@ -329,7 +326,7 @@ public:
     }
 
     if (mStyle.drawFrame)
-      g.DrawRect(GetColor(kFR), mRECT);
+      g.DrawRect(GetColor(kFR), mRECT, nullptr, mStyle.frameThickness);
 
     if (mShowNoteAndVel)
     {
@@ -403,6 +400,12 @@ public:
   void SetKeyIsPressed(int key, bool pressed)
   {
     mPressedKeys.Get()[key] = pressed;
+    SetDirty(false);
+  }
+  
+  void SetKeyHighlight(int key)
+  {
+    mHighlight = key;
     SetDirty(false);
   }
 
@@ -545,8 +548,7 @@ private:
     float WKPadStart = 0.f; // 1st note may be black
     float WKPadEnd = 0.f;   // last note may be black
 
-    auto GetShiftForPitchClass = [this](int pitch)
-    {
+    auto GetShiftForPitchClass = [this](int pitch) {
       // usually black key width + distance to the closest black key = white key width,
       // and often b width is ~0.6 * w width
       if (pitch == 0) return 0.f;
@@ -723,4 +725,5 @@ protected:
   WDL_TypedBuf<bool> mIsBlackKeyList;
   WDL_TypedBuf<bool> mPressedKeys;
   WDL_TypedBuf<float> mKeyXPos;
+  int mHighlight = -1;
 };
