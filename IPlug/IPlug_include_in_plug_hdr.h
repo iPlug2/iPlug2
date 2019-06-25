@@ -28,6 +28,18 @@
 //  #define SWELL_PROVIDED_BY_APP
   #include "IPlugReaperVST2.h"
   using IPlug = IPlugReaperVST2;
+
+
+  #ifdef FillRect
+  #undef FillRect
+  #endif
+  #ifdef DrawText
+  #undef DrawText
+  #endif
+  #ifdef Polygon
+  #undef Polygon
+  #endif
+
 #else
   #include "IPlugVST2.h"
   using IPlug = IPlugVST2;

@@ -278,8 +278,8 @@ void IControl::PromptUserInput(int valIdx)
     {
       float cX = mRECT.MW();
       float cY = mRECT.MH();
-      float halfW = float(PARAM_EDIT_W)/2.f;
-      float halfH = float(PARAM_EDIT_H)/2.f;
+      float halfW = PARAM_EDIT_W/2.f;
+      float halfH = PARAM_EDIT_H/2.f;
 
       IRECT txtRECT = IRECT(cX - halfW, cY - halfH, cX + halfW,cY + halfH);
       GetUI()->PromptUserInput(*this, txtRECT, valIdx);
@@ -337,7 +337,7 @@ void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds
 
   //val = 1.f - (y - (mRECT.B - (mRECT.H()*lengthMult)) / 2) / ((mLen*lengthMult));
   
-  if(direction == kVertical)
+  if(direction == EDirection::Vertical)
     val = 1.f - (y-bounds.T) / bounds.H();
   else
     //mValue = (double) (x - (mRECT.R - (mRECT.W()*lengthMult)) - mHandleHeadroom / 2) / (double) ((mLen*lengthMult) - mHandleHeadroom);
@@ -367,6 +367,15 @@ void IBitmapControl::Draw(IGraphics& g)
 void IBitmapControl::OnRescale()
 {
   mBitmap = GetUI()->GetScaledBitmap(mBitmap);
+}
+
+ITextControl::ITextControl(const IRECT& bounds, const char* str, const IText& text, const IColor& BGColor)
+: IControl(bounds)
+, mStr(str)
+, mBGColor(BGColor)
+{
+  mIgnoreMouse = true;
+  IControl::mText = text;
 }
 
 void ITextControl::SetStr(const char* str)
@@ -563,7 +572,7 @@ void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const I
 {
   double gearing = IsFineControl(mod, false) ? mGearing * 10.0 : mGearing;
 
-  if (mDirection == kVertical)
+  if (mDirection == EDirection::Vertical)
     SetValue(GetValue() + (double)dY / (double)(mRECT.T - mRECT.B) / gearing);
   else
     SetValue(GetValue() + (double)dX / (double)(mRECT.R - mRECT.L) / gearing);

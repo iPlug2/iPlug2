@@ -493,16 +493,16 @@ void IGraphicsLice::PrepareAndMeasureText(const IText& text, const char* str, IR
 
   switch (text.mAlign)
   {
-    case IText::kAlignNear:     x = r.L;                          break;
-    case IText::kAlignCenter:   x = r.MW() - (textWidth / 2.f);   break;
-    case IText::kAlignFar:      x = r.R - textWidth;              break;
+    case EAlign::Near:     x = r.L;                          break;
+    case EAlign::Center:   x = r.MW() - (textWidth / 2.f);   break;
+    case EAlign::Far:      x = r.R - textWidth;              break;
   }
   
   switch (text.mVAlign)
   {
-    case IText::kVAlignTop:      y = r.T;                           break;
-    case IText::kVAlignMiddle:   y = r.MH() - (textHeight / 2.f);   break;
-    case IText::kVAlignBottom:   y = r.B - textHeight;              break;
+    case EVAlign::Top:      y = r.T;                           break;
+    case EVAlign::Middle:   y = r.MH() - (textHeight / 2.f);   break;
+    case EVAlign::Bottom:   y = r.B - textHeight;              break;
   }
   
   r = IRECT(x, y, x + textWidth, y + textHeight);

@@ -604,7 +604,7 @@ public:
    * @param r /todo
    * @param aMin /todo
    * @param aMax /todo */
-  virtual void PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding = kWindingCW) {}
+  virtual void PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding = EWinding::CW) {}
 
   /** /todo 
    * @param cx /todo
@@ -640,15 +640,22 @@ public:
    * @param y /todo */
   virtual void PathLineTo(float x, float y) {}
 
-  /** /todo 
-   * @param x1 /todo
-   * @param y1 /todo
-   * @param x2 /todo
-   * @param y2 /todo
-   * @param x3 /todo
-   * @param y3 /todo */
-  virtual void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) {}
+  /** /todo
+   * @param c1x  /todo
+   * @param c1y  /todo
+   * @param c2x  /todo
+   * @param c2y  /todo
+   * @param x2  /todo
+   * @param y2  /todo */
+  virtual void PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2) {}
 
+  /** /todo
+   * @param cx /todo
+   * @param cy /todo
+   * @param x2 /todo
+   * @param y2 /todo */
+  virtual void PathQuadraticBezierTo(float cx, float cy, float x2, float y2) {}
+  
   /** /todo 
    * @param pattern /todo
    * @param thickness /todo
@@ -777,7 +784,7 @@ public:
    * @param path WDL_String reference where the path will be put on success or empty string on failure/user cancelled
    * @param action Determines whether this is an open dialog or a save dialog
    * @param extensions A comma separated CString list of file extensions to filter in the dialog (e.g. “.wav, .aif” \todo check */
-  virtual void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action = kFileOpen, const char* extensions = 0) = 0;
+  virtual void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action = EFileAction::Open, const char* extensions = 0) = 0;
 
   /** Create a platform file prompt dialog to choose a directory path for opening/saving a directory. NOTE: this method will block the main thread
    * @param dir Non const WDL_String reference specifying the directory path. Set this prior to calling the method for save dialogs, to provide a default path. For load dialogs, on successful selection of a directory this will get set to the full path. */
@@ -1128,12 +1135,12 @@ public:
   
   /** Attach the default control to scale or increase the UI size by dragging the plug-in bottom right-hand corner
    * @param sizeMode Choose whether to scale or size the UI */
-  void AttachCornerResizer(EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale, bool layoutOnResize = false);
+  void AttachCornerResizer(EUIResizerMode sizeMode = EUIResizerMode::Scale, bool layoutOnResize = false);
 
   /** Attach your own control to scale or increase the UI size by dragging the plug-in bottom right-hand corner
    * @param pControl control a control that inherits from ICornerResizerControl
    * @param sizeMode Choose whether to scale or size the UI */
-  void AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerMode sizeMode = EUIResizerMode::kUIResizerScale, bool layoutOnResize = false);
+  void AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerMode sizeMode = EUIResizerMode::Scale, bool layoutOnResize = false);
 
   /** Attach a control for pop-up menus, to override platform style menus
    @param text The text style to use for the menu
@@ -1465,7 +1472,7 @@ private:
   
   IPopupMenu mPromptPopupMenu;
   
-  ECursor mCursorType = ARROW;
+  ECursor mCursorType = ECursor::ARROW;
   int mWidth;
   int mHeight;
   int mFPS;
@@ -1496,7 +1503,7 @@ private:
   bool mShowAreaDrawn = false;
   bool mResizingInProcess = false;
   bool mLayoutOnResize = false;
-  EUIResizerMode mGUISizeMode = EUIResizerMode::kUIResizerScale;
+  EUIResizerMode mGUISizeMode = EUIResizerMode::Scale;
   double mPrevTimestamp = 0.;
   IKeyHandlerFunc mKeyHandlerFunc = nullptr;
 protected:

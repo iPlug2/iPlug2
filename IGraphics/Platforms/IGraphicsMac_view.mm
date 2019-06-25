@@ -1023,7 +1023,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 
   mTextFieldView = [[IGRAPHICS_TEXTFIELD alloc] initWithFrame: areaRect];
   
-  if (text.mVAlign == IText::kVAlignMiddle)
+  if (text.mVAlign == EVAlign::Middle)
   {
     IGRAPHICS_TEXTFIELDCELL* pCell = [[IGRAPHICS_TEXTFIELDCELL alloc] initTextCell:@"textfield"];
     [mTextFieldView setCell: pCell];
@@ -1038,13 +1038,13 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   
   switch (text.mAlign)
   {
-    case IText::kAlignNear:
+    case EAlign::Near:
       [mTextFieldView setAlignment: NSLeftTextAlignment];
       break;
-    case IText::kAlignCenter:
+    case EAlign::Center:
       [mTextFieldView setAlignment: NSCenterTextAlignment];
       break;
-    case IText::kAlignFar:
+    case EAlign::Far:
       [mTextFieldView setAlignment: NSRightTextAlignment];
       break;
     default:
@@ -1195,9 +1195,9 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 //  float scaleX = width / mGraphics->Width();
 //  float scaleY = height / mGraphics->Height();
 //
-//  if(mGraphics->GetUIResizerMode() == EUIResizerMode::kUIResizerScale)
+//  if(mGraphics->GetUIResizerMode() == EUIResizerMode::Scale)
 //    mGraphics->Resize(width, height, mGraphics->GetDrawScale());
-//  else // EUIResizerMode::kUIResizerSize
+//  else // EUIResizerMode::Size
 //    mGraphics->Resize(mGraphics->Width(), mGraphics->Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
 //}
 //
@@ -1212,9 +1212,9 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 //  float scaleX = width / mGraphics->Width();
 //  float scaleY = height / mGraphics->Height();
 //
-//  if(mGraphics->GetUIResizerMode() == EUIResizerMode::kUIResizerScale)
+//  if(mGraphics->GetUIResizerMode() == EUIResizerMode::Scale)
 //    mGraphics->Resize(width, height, mGraphics->GetDrawScale());
-//  else // EUIResizerMode::kUIResizerSize
+//  else // EUIResizerMode::Size
 //    mGraphics->Resize(mGraphics->Width(), mGraphics->Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
 //}
 

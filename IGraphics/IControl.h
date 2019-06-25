@@ -526,7 +526,7 @@ private:
 class IBitmapBase
 {
 public:
-  IBitmapBase(const IBitmap& bitmap, EBlendType blend = kBlendDefault)
+  IBitmapBase(const IBitmap& bitmap, EBlend blend = EBlend::Default)
   : mBitmap(bitmap)
   , mBlend(blend)
   {
@@ -880,17 +880,17 @@ public:
 
       switch (mStyle.valueText.mVAlign)
       {
-        case IText::kVAlignMiddle:
+        case EVAlign::Middle:
           mWidgetBounds = clickableArea.GetScaledAboutCentre(mWidgetFrac);
           mValueBounds = clickableArea.GetMidVPadded(textRect.H()/2.f).GetMidHPadded(valueDisplayWidth);
           break;
-        case IText::kVAlignBottom:
+        case EVAlign::Bottom:
         {
           mValueBounds = clickableArea.GetFromBottom(textRect.H()).GetMidHPadded(valueDisplayWidth);
           mWidgetBounds = clickableArea.GetReducedFromBottom(textRect.H()).GetScaledAboutCentre(mWidgetFrac);
           break;
         }
-        case IText::kVAlignTop:
+        case EVAlign::Top:
           mValueBounds = clickableArea.GetFromTop(textRect.H()).GetMidHPadded(valueDisplayWidth);
           mWidgetBounds = clickableArea.GetReducedFromTop(textRect.H()).GetScaledAboutCentre(mWidgetFrac);
           break;
@@ -899,9 +899,8 @@ public:
       }
     }
     
-    if(hasHandle) {
+    if(hasHandle)
       mWidgetBounds = GetAdjustedHandleBounds(clickableArea);
-    }
     
     if(mLabelInWidget)
       mLabelBounds = mWidgetBounds;
@@ -933,7 +932,7 @@ class IKnobControlBase : public IControl
 {
 public:
   IKnobControlBase(const IRECT& bounds, int paramIdx = kNoParameter,
-    EDirection direction = kVertical, double gearing = DEFAULT_GEARING)
+    EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING)
     : IControl(bounds, paramIdx)
     , mDirection(direction)
     , mGearing(gearing)
@@ -953,8 +952,8 @@ protected:
 class ISliderControlBase : public IControl
 {
 public:
-  ISliderControlBase(const IRECT& bounds, int paramIdx = kNoParameter,  EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 0.f);
-  ISliderControlBase(const IRECT& bounds, IActionFunction aF = nullptr, EDirection dir = kVertical, bool onlyHandle = false, float handleSize = 0.f);
+  ISliderControlBase(const IRECT& bounds, int paramIdx = kNoParameter,  EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 0.f);
+  ISliderControlBase(const IRECT& bounds, IActionFunction aF = nullptr, EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 0.f);
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
@@ -971,7 +970,7 @@ class IVTrackControlBase : public IControl
                          , public IVectorBase
 {
 public:
-  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int maxNTracks = 1, EDirection dir = kHorizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int maxNTracks = 1, EDirection dir = EDirection::Horizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
   : IControl(bounds)
   , IVectorBase(style)
   , mMinTrackValue(minTrackValue)
@@ -989,7 +988,7 @@ public:
     AttachIControl(this, label);
   }
 
-  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int lowParamidx, int maxNTracks = 1, EDirection dir = kHorizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int lowParamidx, int maxNTracks = 1, EDirection dir = EDirection::Horizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
     : IControl(bounds)
     , IVectorBase(style)
     , mMinTrackValue(minTrackValue)
@@ -1010,11 +1009,12 @@ public:
   void MakeTrackRects(const IRECT& bounds)
   {
     int nVals = NVals();
+    int dir = static_cast<int>(mDirection); // 0 = horizontal, 1 = vertical
     for (int ch = 0; ch < nVals; ch++)
     {
       mTrackBounds.Get()[ch] = bounds.GetPadded(-mOuterPadding).
-                                     SubRect(EDirection(!mDirection), nVals, ch).
-                                     GetPadded(0, -mTrackPadding * (float) mDirection, -mTrackPadding * (float) !mDirection, -mTrackPadding);
+                                     SubRect(EDirection(!dir), nVals, ch).
+                                     GetPadded(0, -mTrackPadding * (float) dir, -mTrackPadding * (float) !dir, -mTrackPadding);
     }
   }
   
@@ -1053,7 +1053,7 @@ private:
     
     IRECT peakRect;
     
-    if(mDirection == kVertical)
+    if(mDirection == EDirection::Vertical)
       peakRect = IRECT(fillRect.L, fillRect.T, fillRect.R, fillRect.T + mPeakSize);
     else
       peakRect = IRECT(fillRect.R - mPeakSize, fillRect.T, fillRect.R, fillRect.B);
@@ -1072,7 +1072,7 @@ private:
   }
   
 protected:
-  EDirection mDirection = EDirection::kVertical;
+  EDirection mDirection = EDirection::Vertical;
   WDL_TypedBuf<IRECT> mTrackBounds;
   float mMinTrackValue;
   float mMaxTrackValue;
@@ -1265,12 +1265,12 @@ public:
   /** Creates a bitmap control
    * @param paramIdx Parameter index (-1 or kNoParameter, if this should not be linked to a parameter)
    * @param bitmap Image to be drawn */
-  IBitmapControl(float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendDefault)
+  IBitmapControl(float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlend blend = EBlend::Default)
   : IControl(IRECT(x, y, bitmap), paramIdx)
   , IBitmapBase(bitmap, blend)
   {}
   
-  IBitmapControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlendType blend = kBlendDefault)
+  IBitmapControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlend blend = EBlend::Default)
   : IControl(bounds, paramIdx)
   , IBitmapBase(bitmap, blend)
   {}
@@ -1334,14 +1334,7 @@ private:
 class ITextControl : public IControl
 {
 public:
-  ITextControl(const IRECT& bounds, const char* str = "", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR)
-  : IControl(bounds)
-  , mStr(str)
-  , mBGColor(BGColor)
-  {
-    mIgnoreMouse = true;
-    IControl::mText = text;
-  }
+  ITextControl(const IRECT& bounds, const char* str = "", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR);
 
   void Draw(IGraphics& g) override;
 

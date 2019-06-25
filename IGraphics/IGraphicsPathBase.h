@@ -449,14 +449,14 @@ private:
       {
         NSVGgradient* pGrad = paint.gradient;
         
-        IPattern pattern(paint.type == NSVG_PAINT_LINEAR_GRADIENT ? kLinearPattern : kRadialPattern);
+        IPattern pattern(paint.type == NSVG_PAINT_LINEAR_GRADIENT ? EPatternType::Linear : EPatternType::Radial);
         
         // Set Extend Rule
         switch (pGrad->spread)
         {
-          case NSVG_SPREAD_PAD:       pattern.mExtend = kExtendPad;       break;
-          case NSVG_SPREAD_REFLECT:   pattern.mExtend = kExtendReflect;   break;
-          case NSVG_SPREAD_REPEAT:    pattern.mExtend = kExtendRepeat;    break;
+          case NSVG_SPREAD_PAD:       pattern.mExtend = EPatternExtend::Pad;       break;
+          case NSVG_SPREAD_REFLECT:   pattern.mExtend = EPatternExtend::Reflect;   break;
+          case NSVG_SPREAD_REPEAT:    pattern.mExtend = EPatternExtend::Repeat;    break;
         }
         
         // Copy Stops        
@@ -494,7 +494,7 @@ private:
         for (int i = 1; i < pPath->npts; i += 3)
         {
           float *p = pPath->pts + i * 2;
-          PathCurveTo(p[0], p[1], p[2], p[3], p[4], p[5]);
+          PathCubicBezierTo(p[0], p[1], p[2], p[3], p[4], p[5]);
         }
         
         if (pPath->closed)
@@ -507,9 +507,9 @@ private:
         IFillOptions options;
         
         if (pShape->fillRule == NSVG_FILLRULE_EVENODD)
-          options.mFillRule = kFillEvenOdd;
+          options.mFillRule = EFillRule::EvenOdd;
         else
-          options.mFillRule = kFillWinding;
+          options.mFillRule = EFillRule::Winding;
         
         options.mPreserve = pShape->stroke.type != NSVG_PAINT_NONE;
         PathFill(GetSVGPattern(pShape->fill, pShape->opacity), options, nullptr);
@@ -524,16 +524,16 @@ private:
         
         switch (pShape->strokeLineCap)
         {
-          case NSVG_CAP_BUTT:   options.mCapOption = kCapButt;    break;
-          case NSVG_CAP_ROUND:  options.mCapOption = kCapRound;   break;
-          case NSVG_CAP_SQUARE: options.mCapOption = kCapSquare;  break;
+          case NSVG_CAP_BUTT:   options.mCapOption = ELineCap::Butt;    break;
+          case NSVG_CAP_ROUND:  options.mCapOption = ELineCap::Round;   break;
+          case NSVG_CAP_SQUARE: options.mCapOption = ELineCap::Square;  break;
         }
         
         switch (pShape->strokeLineJoin)
         {
-          case NSVG_JOIN_MITER:   options.mJoinOption = kJoinMiter;   break;
-          case NSVG_JOIN_ROUND:   options.mJoinOption = kJoinRound;   break;
-          case NSVG_JOIN_BEVEL:   options.mJoinOption = kJoinBevel;   break;
+          case NSVG_JOIN_MITER:   options.mJoinOption = ELineJoin::Miter;   break;
+          case NSVG_JOIN_ROUND:   options.mJoinOption = ELineJoin::Round;   break;
+          case NSVG_JOIN_BEVEL:   options.mJoinOption = ELineJoin::Bevel;   break;
         }
         
         options.mDash.SetDash(pShape->strokeDashArray, pShape->strokeDashOffset, pShape->strokeDashCount);

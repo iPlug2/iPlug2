@@ -735,7 +735,7 @@ PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const char* f
 {
   const char* styles[] = { "normal", "bold", "italic" };
   
-  return PlatformFontPtr(new WebFont(fontName, styles[style]));
+  return PlatformFontPtr(new WebFont(fontName, styles[static_cast<int>(style)]));
 }
 
 #if defined IGRAPHICS_CANVAS

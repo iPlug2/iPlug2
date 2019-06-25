@@ -26,7 +26,7 @@ public:
   : IControl(bounds)
   {
     mIgnoreMouse = true;
-    mText = IText(15, COLOR_BLACK, nullptr, IText::kAlignNear);
+    mText = IText(15, COLOR_BLACK, nullptr, EAlign::Near);
   }
 
   void Draw(IGraphics& g) override

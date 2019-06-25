@@ -104,7 +104,7 @@ void ITextEntryControl::Draw(IGraphics& g)
     }
     IRECT selectionRect(selectionStart, mRECT.T + row.ymin, selectionEnd, mRECT.T + row.ymax);
     selectionRect = selectionRect.GetVPadded(-mText.mSize*0.1f);
-    IBlend blend(kBlendDefault, 0.2);
+    IBlend blend(EBlend::Default, 0.2);
     g.FillRect(mText.mTextEntryFGColor, selectionRect, &blend);
   }
 
@@ -398,19 +398,19 @@ void ITextEntryControl::Layout(StbTexteditRow* row, ITextEntryControl* _this, in
 
   switch (_this->GetText().mAlign)
   {
-    case IText::kAlignNear:
+    case EAlign::Near:
     {
       row->x0 = _this->GetRECT().L + 1; 
       row->x1 = row->x0 + textWidth;
       break;
     }
-    case IText::kAlignCenter:
+    case EAlign::Center:
     {
       row->x0 = roundf(_this->GetRECT().MW() - (textWidth * 0.5f));
       row->x1 = row->x0 + textWidth;
       break;
     }
-    case IText::kAlignFar:
+    case EAlign::Far:
     {
       row->x0 = _this->GetRECT().R - textWidth;
       row->x1 = row->x0 + textWidth;
@@ -424,19 +424,19 @@ void ITextEntryControl::Layout(StbTexteditRow* row, ITextEntryControl* _this, in
 
   switch (_this->GetText().mVAlign)
   {
-    case IText::kVAlignTop:
+    case EVAlign::Top:
     {
       row->ymin = 0;
       break;
     }
 
-    case IText::kVAlignMiddle:
+    case EVAlign::Middle:
     {
       row->ymin = _this->GetRECT().H()*0.5f - _this->GetText().mSize*0.5f;
       break;
     }
 
-    case IText::kVAlignBottom:
+    case EVAlign::Bottom:
     {
       row->ymin = _this->GetRECT().H() - _this->GetText().mSize;
       break;
