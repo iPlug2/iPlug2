@@ -21,10 +21,14 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
   IRECT bounds = pGraphics->GetBounds();
   
   if(pGraphics->NControls()) {
-    pGraphics->GetControl(0)->SetTargetAndDrawRECTs(bounds);
+    pGraphics->GetBackgroundControl()->SetTargetAndDrawRECTs(bounds);
     pGraphics->GetControl(1)->SetTargetAndDrawRECTs(bounds);
     pGraphics->GetControlWithTag(kCtrlTagNumThings)->SetTargetAndDrawRECTs(bounds.GetGridCell(0, 2, 1));
     pGraphics->GetControlWithTag(kCtrlTagTestNum)->SetTargetAndDrawRECTs(bounds.GetGridCell(1, 2, 1));
+    
+    auto bottomButtons = bounds.GetFromBRHC(400, 50).GetPadded(-10.);
+    for(int button=0;button<5;button++)
+      pGraphics->GetControlWithTag(kCtrlTagButton1 + button)->SetTargetAndDrawRECTs(bottomButtons.GetGridCell(button, 1, 5));
     
     return;
   }
@@ -129,8 +133,7 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
         case 0:
         {
           static IPopupMenu menu {{"DrawRect", "FillRect", "DrawRoundRect", "FillRoundRect", "DrawEllipse", "FillEllipse", "DrawArc", "FillArc", "DrawLine", "DrawDottedLine", "DrawFittedBitmap", "DrawSVG"},
-            [DoFunc](int indexInMenu, IPopupMenu::Item* itemChosen)
-            {
+            [DoFunc](int indexInMenu, IPopupMenu::Item* itemChosen) {
               DoFunc(EFunc::Set, indexInMenu);
             }};
           
@@ -143,7 +146,7 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
         default:
           break;
       }
-    }, buttonLabel, DEFAULT_STYLE.WithLabelText(DEFAULT_TEXT.WithVAlign(EVAlign::Middle))));
+    }, buttonLabel, DEFAULT_STYLE.WithLabelText(DEFAULT_TEXT.WithVAlign(EVAlign::Middle))), kCtrlTagButton1 + button);
     
     button++;
   }
