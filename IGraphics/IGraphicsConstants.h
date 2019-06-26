@@ -118,6 +118,9 @@ static const char* kVColorStrs[kNumDefaultVColors] =
 };
 
 /** /todo */
+enum class EVShape { Rectangle, Ellipse, Triangle, EndsRounded, AllRounded };
+
+/** /todo */
 enum class EWinding { CW, CCW };
 
 /** /todo */

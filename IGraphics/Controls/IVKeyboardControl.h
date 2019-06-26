@@ -71,11 +71,8 @@ public:
     //kFR = kFR
   };
 
-  IVKeyboardControl(const IRECT& bounds,
-                    int minNote = 36, int maxNote = 84,
-                    bool roundedKeys = false,
-                    IActionFunction actionFunc = nullptr)
-  : IControl(bounds, kNoParameter, actionFunc)
+  IVKeyboardControl(const IRECT& bounds,  int minNote = 36, int maxNote = 84, bool roundedKeys = false)
+  : IControl(bounds, kNoParameter)
   , IVectorBase(&DEFAULT_WK_COLOR, &DEFAULT_BK_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR)
   , mRoundedKeys(roundedKeys)
   {
@@ -231,7 +228,10 @@ public:
   void DrawKey(IGraphics& g, const IRECT& bounds, const IColor& color)
   {
     if(mRoundedKeys)
-      g.FillRoundRect(color, bounds, 0., 0., mCurve, mCurve);
+    {
+      float cR = GetRoundedCornerRadius(bounds);
+      g.FillRoundRect(color, bounds, 0., 0., cR, cR);
+    }
     else
       g.FillRect(color, bounds);
   }
@@ -251,7 +251,7 @@ public:
         float kL = *GetKeyXPos(i);
         IRECT keyBounds = IRECT(kL, mRECT.T, kL + mWKWidth, mRECT.B);
 
-        DrawKey(g, keyBounds, GetColor(kWK));
+        DrawKey(g, keyBounds, i == mHighlight ? GetColor(kX1) : GetColor(kWK));
 
         if (GetKeyIsPressed(i))
         {
@@ -262,8 +262,13 @@ public:
           {
             IRECT shadowBounds = keyBounds;
             shadowBounds.R = shadowBounds.L + 0.35f * shadowBounds.W();
-            g.FillRect(shadowColor, shadowBounds);
-//            g.FillRoundRect(shadowColor, shadowBounds, 0., 0., mCurve, mCurve); // this one looks strange with rounded corners
+            
+            if(!mRoundedKeys)
+              g.FillRect(shadowColor, shadowBounds);
+            else {
+              float cR = GetRoundedCornerRadius(shadowBounds);
+              g.FillRoundRect(shadowColor, shadowBounds, 0., 0., cR, cR); // this one looks strange with rounded corners
+            }
           }
         }
         if (mStyle.drawFrame && i != 0)
@@ -297,7 +302,7 @@ public:
           shadowBounds.R = shadowBounds.L + w;
           DrawKey(g, shadowBounds, shadowColor);
         }
-        DrawKey(g, keyBounds, GetColor(kBK));
+        DrawKey(g, keyBounds, i == mHighlight ? GetColor(kX1) : GetColor(kBK));
 
         if (GetKeyIsPressed(i))
         {
@@ -307,7 +312,7 @@ public:
           g.FillRect(cBP, keyBounds);
         }
 
-        if(mCurve == 0.)
+        if(mStyle.roundness == 0.)
         {
           // draw l, r and bottom if they don't overlay the mRECT borders
           if (mBKHeightRatio != 1.0)
@@ -321,7 +326,7 @@ public:
     }
 
     if (mStyle.drawFrame)
-      g.DrawRect(GetColor(kFR), mRECT);
+      g.DrawRect(GetColor(kFR), mRECT, nullptr, mStyle.frameThickness);
 
     if (mShowNoteAndVel)
     {
@@ -395,6 +400,12 @@ public:
   void SetKeyIsPressed(int key, bool pressed)
   {
     mPressedKeys.Get()[key] = pressed;
+    SetDirty(false);
+  }
+  
+  void SetKeyHighlight(int key)
+  {
+    mHighlight = key;
     SetDirty(false);
   }
 
@@ -537,8 +548,7 @@ private:
     float WKPadStart = 0.f; // 1st note may be black
     float WKPadEnd = 0.f;   // last note may be black
 
-    auto GetShiftForPitchClass = [this](int pitch)
-    {
+    auto GetShiftForPitchClass = [this](int pitch) {
       // usually black key width + distance to the closest black key = white key width,
       // and often b width is ~0.6 * w width
       if (pitch == 0) return 0.f;
@@ -707,7 +717,6 @@ protected:
   float mBKWidthRatio = 0.6f;
   float mBKHeightRatio = 0.6f;
   float mBKAlpha = 100.f;
-  float mCurve = 5.;
   int mLastTouchedKey = -1;
   float mLastVelocity = 0.f;
   int mMouseOverKey = -1;
@@ -716,4 +725,5 @@ protected:
   WDL_TypedBuf<bool> mIsBlackKeyList;
   WDL_TypedBuf<bool> mPressedKeys;
   WDL_TypedBuf<float> mKeyXPos;
+  int mHighlight = -1;
 };
