@@ -525,7 +525,7 @@ void IGraphicsLice::DoDrawText(const IText& text, const char* str, const IRECT& 
   NeedsClipping();
   PrepareAndMeasureText(text, str, measured, pFont);
   
-  if (text.mOrientation)
+  if (text.mAngle)
   {
     float pad = std::max(measured.W(), measured.H()) * 0.5;
     IRECT layerRect(measured.GetPadded(pad));
@@ -541,7 +541,7 @@ void IGraphicsLice::DoDrawText(const IText& text, const char* str, const IRECT& 
   pFont->SetTextColor(LiceColor(text.mFGColor, pBlend));
   pFont->DrawText(mRenderBitmap, str, -1, &R, fmt);
   
-  if (text.mOrientation)
+  if (text.mAngle)
   {
     ILayerPtr layer = EndLayer();
     LICE_IBitmap* pLICEBitmap = layer->GetAPIBitmap()->GetBitmap();
@@ -549,7 +549,7 @@ void IGraphicsLice::DoDrawText(const IText& text, const char* str, const IRECT& 
   
     DoMeasureTextRotation(text, bounds, measured);
     
-    float radians = DegToRad(text.mOrientation);
+    float radians = DegToRad(text.mAngle);
     
     IRECT r2 = measured;
     r2.Translate(-mDrawOffsetX, -mDrawOffsetY);
