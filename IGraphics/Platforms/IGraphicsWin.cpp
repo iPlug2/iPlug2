@@ -1200,7 +1200,7 @@ IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
               IPopupMenu* pReturnMenu = GetItemMenu(res, idx, offsetIdx, menu);
               if (pReturnMenu)
               {
-                result = resultMenu;
+                result = pReturnMenu;
                 result->SetChosenItemIdx(idx);
                 
                 //synchronous
