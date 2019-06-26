@@ -125,8 +125,8 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
     };
 
     pGraphics->AttachControl(new IVKnobControl(nextCell().GetCentredInside(110.), kParamGain, "IVKnobControl", style, true), kNoTag, "vcontrols");
-    pGraphics->AttachControl(new IVKnobSwitchControl(nextCell().GetCentredInside(110.), kParamMode, "IVKnobSwitchControl", style), kNoTag, "vcontrols");
-//    pGraphics->AttachControl(new IVSliderControl(nextCell().GetCentredInside(110.), kParamGain, "IVSliderControl", style, true), kCtrlTagVectorSlider, "vcontrols");
+//    pGraphics->AttachControl(new IVKnobSwitchControl(nextCell().GetCentredInside(110.), kParamMode, "IVKnobSwitchControl", style), kNoTag, "vcontrols");
+    pGraphics->AttachControl(new IVSliderControl(nextCell().GetCentredInside(110.), kParamGain, "IVSliderControl", style, true), kCtrlTagVectorSlider, "vcontrols");
     pGraphics->AttachControl(new IVRangeSliderControl(nextCell().GetCentredInside(110.), {kParamFreq1, kParamFreq2}, "IVRangeSliderControl", style, EDirection::Horizontal, true, 8.f, 2.f), kNoTag, "vcontrols");
 
     pGraphics->AttachControl(new IVButtonControl(nextCell().GetCentredInside(110.), button1action, "IVButtonControl", style, false), kCtrlTagVectorButton, "vcontrols");
