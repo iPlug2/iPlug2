@@ -317,8 +317,8 @@ protected:
   std::vector<Plot> mPlots;
   float mMin;
   float mMax;
-  int mNumPoints;
   bool mUseLayer = true;
+  std::vector<float> mPoints;
 };
 
 #pragma mark - SVG Vector Controls

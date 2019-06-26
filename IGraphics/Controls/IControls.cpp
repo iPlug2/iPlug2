@@ -1014,9 +1014,10 @@ IVPlotControl::IVPlotControl(const IRECT& bounds, const std::initializer_list<Pl
 , IVectorBase(style)
 , mMin(min)
 , mMax(max)
-, mNumPoints(numPoints)
 , mUseLayer(useLayer)
 {
+  mPoints.resize(numPoints);
+
   AttachIControl(this, label);
   
   for(auto plot : plots)
@@ -1032,19 +1033,17 @@ void IVPlotControl::Draw(IGraphics& g)
   
   auto drawFunc = [&](){
     g.DrawGrid(GetColor(kSH), mWidgetBounds, 8.f, 8.f);
-    
-    float points[mNumPoints];
-    
+        
     for (int p=0; p<mPlots.size(); p++)
     {
-      for (int i=0; i<mNumPoints; i++)
+      for (int i=0; i< mPoints.size(); i++)
       {
-        auto v = mPlots[p].func(((float)i/(mNumPoints-1.f)));
+        auto v = mPlots[p].func(((float)i/(mPoints.size() -1.f)));
         v = (v - mMin) / (mMax-mMin);
-        points[i] = v;
+        mPoints[i] = v;
       }
       
-      g.DrawData(mPlots[p].color, mWidgetBounds, points, mNumPoints, nullptr, nullptr, mStyle.frameThickness);
+      g.DrawData(mPlots[p].color, mWidgetBounds, mPoints.data(), mPoints.size(), nullptr, nullptr, mStyle.frameThickness);
     }
   };
   
