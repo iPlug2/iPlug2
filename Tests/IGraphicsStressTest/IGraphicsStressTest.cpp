@@ -72,7 +72,7 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
     static ISVG tiger = g.LoadSVG(TIGER_FN);
     
     if(mKindOfThing == 0)
-      g.DrawText(IText(40).WithAngle(30.f), "Press tab to go to next test, up/down to change the # of things", r);
+      g.DrawText(IText(40), "Press tab to go to next test, up/down to change the # of things", r);
     
     //      if (!g.CheckLayer(pCaller->mLayer))
     {
@@ -128,7 +128,7 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
       switch (button) {
         case 0:
         {
-          IPopupMenu menu {{"DrawRect", "FillRect", "DrawRoundRect", "FillRoundRect", "DrawEllipse", "FillEllipse", "DrawArc", "FillArc", "DrawLine", "DrawDottedLine", "DrawFittedBitmap", "DrawSVG"},
+          static IPopupMenu menu {{"DrawRect", "FillRect", "DrawRoundRect", "FillRoundRect", "DrawEllipse", "FillEllipse", "DrawArc", "FillArc", "DrawLine", "DrawDottedLine", "DrawFittedBitmap", "DrawSVG"},
             [DoFunc](int indexInMenu, IPopupMenu::Item* itemChosen)
             {
               DoFunc(EFunc::Set, indexInMenu);
