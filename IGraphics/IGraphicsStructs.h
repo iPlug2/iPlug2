@@ -55,6 +55,7 @@ using IKeyHandlerFunc = std::function<bool(const IKeyPress& key, bool isUp)>;
 using IMsgBoxCompletionHanderFunc = std::function<void(EMsgBoxResult result)>;
 using IColorPickerHandlerFunc = std::function<void(const IColor& result)>;
 
+void EmptyClickActionFunc(IControl* pCaller);
 void DefaultClickActionFunc(IControl* pCaller);
 void DefaultAnimationFunc(IControl* pCaller);
 void SplashClickActionFunc(IControl* pCaller);
@@ -428,7 +429,7 @@ const IColor DEFAULT_PRCOLOR = COLOR_LIGHT_GRAY;
 const IColor DEFAULT_FRCOLOR = COLOR_DARK_GRAY;
 const IColor DEFAULT_HLCOLOR = COLOR_TRANSLUCENT;
 const IColor DEFAULT_SHCOLOR = IColor(60, 0, 0, 0);
-const IColor DEFAULT_X1COLOR = COLOR_RED;
+const IColor DEFAULT_X1COLOR = COLOR_BLACK;
 const IColor DEFAULT_X2COLOR = COLOR_GREEN;
 const IColor DEFAULT_X3COLOR = COLOR_BLUE;
 
@@ -542,7 +543,7 @@ struct IText
    * @param font /todo
    * @param align /todo
    * @param valign /todo
-   * @param orientation /todo
+   * @param angle /todo
    * @param TEBGColor /todo
    * @param TEFGColor /todo */
   explicit IText(float size = DEFAULT_TEXT_SIZE,
@@ -550,14 +551,14 @@ struct IText
         const char* font = nullptr,
         EAlign align = EAlign::Center,
         EVAlign valign = EVAlign::Middle,
-        float orientation = 0,
+        float angle = 0,
         const IColor& TEBGColor = DEFAULT_TEXTENTRY_BGCOLOR,
         const IColor& TEFGColor = DEFAULT_TEXTENTRY_FGCOLOR)
     : mSize(size)
     , mFGColor(color)
     , mAlign(align)
     , mVAlign(valign)
-    , mOrientation(orientation)
+    , mAngle(angle)
     , mTextEntryBGColor(TEBGColor)
     , mTextEntryFGColor(TEFGColor)
   {
@@ -591,21 +592,19 @@ struct IText
     strcpy(mFont, (font ? font : DEFAULT_FONT));
   }
   
-  IText WithColors(const IColor& fgColor, const IColor& teBgColor = DEFAULT_TEXTENTRY_BGCOLOR, const IColor& teFgColor = DEFAULT_TEXTENTRY_FGCOLOR) const
-  {
-    IText newText = *this;
-    newText.mFGColor = fgColor;
-    newText.mTextEntryBGColor = teBgColor;
-    newText.mTextEntryFGColor = teFgColor;
-    return newText;
-  }
-  
+  IText WithFGColor(const IColor& fgColor) const { IText newText = *this; newText.mFGColor = fgColor; return newText; }
+  IText WithTEColors(const IColor& teBgColor, const IColor& teFgColor) const { IText newText = *this; newText.mTextEntryBGColor = teBgColor; newText.mTextEntryFGColor = teFgColor; return newText; }
+  IText WithAlign(EAlign align) const { IText newText = *this; newText.mAlign = align; return newText; }
+  IText WithVAlign(EVAlign valign) const { IText newText = *this; newText.mVAlign = valign; return newText; }
+  IText WithSize(float size) const { IText newText = *this; newText.mSize = size; return newText; }
+  IText WithAngle(float v) const { IText newText = *this; newText.mAngle = v; return newText; }
+
   char mFont[FONT_LEN];
   float mSize;
   IColor mFGColor;
   IColor mTextEntryBGColor;
   IColor mTextEntryFGColor;
-  float mOrientation = 0.f; // Degrees ccwise from normal.
+  float mAngle = 0.f; // Degrees ccwise from normal.
   EAlign mAlign = EAlign::Near;
   EVAlign mVAlign = EVAlign::Middle;
 };
@@ -1002,7 +1001,7 @@ struct IRECT
   /** /todo 
    * @param x /todo
    * @param y /todo */
-  inline void Constrain(float& x, float& y)
+  inline void Constrain(float& x, float& y) const
   {
     if (x < L) x = L;
     else if (x > R) x = R;
@@ -1165,6 +1164,26 @@ struct IRECT
    * @param amount Size in X to reduce by
    * @return IRECT The resulting subrect */
   inline IRECT GetReducedFromRight(float amount) const { return IRECT(L, T, R-amount, B); }
+  
+  /** Reduce in height from the top edge by 'amount' and return the removed region
+   * @param amount Size in Y to reduce by
+   * @return IRECT The removed subrect */
+  inline IRECT ReduceFromTop(float amount) { IRECT r = GetFromTop(amount); T+=amount; return r; }
+  
+  /** Reduce in height from the bottom edge by 'amount' and return the removed region
+   * @param amount Size in Y to reduce by
+   * @return IRECT The removed subrect */
+  inline IRECT ReduceFromBottom(float amount) { IRECT r = GetFromBottom(amount); B-=amount; return r; }
+  
+  /** Reduce in width from the left edge by 'amount' and return the removed region
+   * @param amount Size in X to reduce by
+   * @return IRECT The removed subrect */
+  inline IRECT ReduceFromLeft(float amount) { IRECT r = GetFromLeft(amount); L+=amount; return r; }
+  
+  /** Reduce in width from the right edge by 'amount' and return the removed region
+   * @param amount Size in X to reduce by
+   * @return IRECT The removed subrect */
+  inline IRECT ReduceFromRight(float amount) { IRECT r = GetFromRight(amount); R-=amount; return r; }
   
   /** Get a subrect (by row, column) of this IRECT which is a cell in a grid of size (nRows * nColumns)
    * @param row Row index of the desired subrect
@@ -2442,8 +2461,6 @@ private:
   WDL_PtrList<DataKey> mDatas;
 };
 
-enum class EVShape { Circle, Rectangle, Triangle };
-
 /** Contains a set of colors used to theme IVControls */
 struct IVColorSpec
 {
@@ -2525,10 +2542,11 @@ static constexpr bool DEFAULT_SHOW_VALUE = true;
 static constexpr bool DEFAULT_SHOW_LABEL = true;
 static constexpr bool DEFAULT_DRAW_FRAME = true;
 static constexpr bool DEFAULT_DRAW_SHADOWS = true;
-static constexpr bool DEFAULT_EMBOSS = false;
 static constexpr float DEFAULT_ROUNDNESS = 0.f;
-static constexpr float DEFAULT_FRAME_THICKNESS = 2.f;
+static constexpr float DEFAULT_FRAME_THICKNESS = 1.f;
 static constexpr float DEFAULT_SHADOW_OFFSET = 3.f;
+static constexpr float DEFAULT_WIDGET_FRAC = 1.f;
+static constexpr float DEFAULT_WIDGET_ANGLE = 0.f;
 const IText DEFAULT_LABEL_TEXT {DEFAULT_TEXT_SIZE + 5.f, EVAlign::Top};
 const IText DEFAULT_VALUE_TEXT {DEFAULT_TEXT_SIZE, EVAlign::Bottom};
 
@@ -2539,10 +2557,11 @@ struct IVStyle
   bool showValue = DEFAULT_SHOW_VALUE;
   bool drawFrame = DEFAULT_DRAW_FRAME;
   bool drawShadows = DEFAULT_DRAW_SHADOWS;
-  bool emboss = DEFAULT_EMBOSS;
   float roundness = DEFAULT_ROUNDNESS;
   float frameThickness = DEFAULT_FRAME_THICKNESS;
   float shadowOffset = DEFAULT_SHADOW_OFFSET;
+  float widgetFrac = DEFAULT_WIDGET_FRAC;
+  float angle = DEFAULT_WIDGET_ANGLE;
   IVColorSpec colorSpec = DEFAULT_COLOR_SPEC;
   IText labelText = DEFAULT_LABEL_TEXT;
   IText valueText = DEFAULT_VALUE_TEXT;
@@ -2555,10 +2574,11 @@ struct IVStyle
           bool hideCursor = DEFAULT_HIDE_CURSOR,
           bool drawFrame = DEFAULT_DRAW_FRAME,
           bool drawShadows = DEFAULT_DRAW_SHADOWS,
-          bool emboss = DEFAULT_EMBOSS,
           float roundness = DEFAULT_ROUNDNESS,
           float frameThickness = DEFAULT_FRAME_THICKNESS,
-          float shadowOffset = DEFAULT_SHADOW_OFFSET)
+          float shadowOffset = DEFAULT_SHADOW_OFFSET,
+          float widgetFrac = DEFAULT_WIDGET_FRAC,
+          float angle = DEFAULT_WIDGET_ANGLE)
   : showLabel(showLabel)
   , showValue(showValue)
   , colorSpec(colors)
@@ -2567,10 +2587,11 @@ struct IVStyle
   , hideCursor(hideCursor)
   , drawFrame(drawFrame)
   , drawShadows(drawShadows)
-  , emboss(emboss)
   , roundness(roundness)
   , frameThickness(frameThickness)
   , shadowOffset(shadowOffset)
+  , widgetFrac(widgetFrac)
+  , angle(angle)
   {
   }
   
@@ -2588,9 +2609,10 @@ struct IVStyle
   IVStyle WithRoundness(float r) const { IVStyle newStyle = *this; newStyle.roundness = r; return newStyle; }
   IVStyle WithFrameThickness(float t) const { IVStyle newStyle = *this; newStyle.frameThickness = t; return newStyle; }
   IVStyle WithShadowOffset(float t) const { IVStyle newStyle = *this; newStyle.shadowOffset = t; return newStyle; }
-  IVStyle WithEmboss(bool v) const { IVStyle newStyle = *this; newStyle.emboss = v; return newStyle; }
   IVStyle WithDrawShadows(bool v) const { IVStyle newStyle = *this; newStyle.drawShadows = v; return newStyle; }
   IVStyle WithDrawFrame(bool v) const { IVStyle newStyle = *this; newStyle.drawFrame = v; return newStyle; }
+  IVStyle WithWidgetFrac(float v) const { IVStyle newStyle = *this; newStyle.widgetFrac = v; return newStyle; }
+  IVStyle WithAngle(float v) const { IVStyle newStyle = *this; newStyle.angle = v; return newStyle; }
 };
 
 const IVStyle DEFAULT_STYLE = IVStyle();

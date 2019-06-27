@@ -31,10 +31,7 @@ IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
     }
     
     pGraphics->AttachPanelBackground(COLOR_GRAY);
-    IVScopeControl<>* pScopeCtrl = new IVScopeControl<>(viz);
-    pGraphics->AttachControl(pScopeCtrl, kControlTagScope);
-    pScopeCtrl->SetColor(kBG, COLOR_BLACK);
-    pScopeCtrl->SetColor(kFG, COLOR_GREEN);
+    pGraphics->AttachControl(new IVScopeControl<>(viz, "", DEFAULT_STYLE.WithColor(kBG, COLOR_BLACK).WithColor(kFG, COLOR_GREEN)), kControlTagScope);
   };
 #endif
 }

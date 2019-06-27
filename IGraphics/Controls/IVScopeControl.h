@@ -173,7 +173,7 @@ public:
   
   void OnResize() override
   {
-    SetTargetRECT(CalculateRects(mRECT));
+    SetTargetRECT(MakeRects(mRECT));
     SetDirty(false);
   }
 

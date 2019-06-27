@@ -67,7 +67,7 @@ public:
     return kNoValIdx;
   }
 
-  void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, int valIdx = -1 /* TODO:: not used*/, float scalar = 1.) override
+  void SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx = -1 /* TODO:: not used*/, float scalar = 1.f, double minClip = 0., double maxClip = 1.) override
   {
     bounds.Constrain(x, y);
     int nVals = NVals();
@@ -146,13 +146,6 @@ public:
     SetDirty(true); // will send all param vals parameter value to delegate
   }
 
-  void OnResize() override
-  {
-    SetTargetRECT(CalculateRects(mRECT));
-    MakeTrackRects(mWidgetBounds);
-    SetDirty(false);
-  }
-  
   //  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override

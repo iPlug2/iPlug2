@@ -54,6 +54,7 @@ void SplashAnimationFunc(IControl* pCaller)
   pCaller->SetDirty(false);
 };
 
+void EmptyClickActionFunc(IControl* pCaller) { };
 void DefaultClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(DefaultAnimationFunc, DEFAULT_ANIMATION_DURATION); };
 void SplashClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(SplashAnimationFunc, DEFAULT_ANIMATION_DURATION); }
 
@@ -329,7 +330,7 @@ void IControl::DrawPTHighlight(IGraphics& g)
   }
 }
 
-void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, int valIdx, float scalar /* TODO: scalar! */)
+void IControl::SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx, float scalar /* TODO: scalar! */, double minClip, double maxClip)
 {
   bounds.Constrain(x, y);
 
@@ -343,9 +344,8 @@ void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds
     //mValue = (double) (x - (mRECT.R - (mRECT.W()*lengthMult)) - mHandleHeadroom / 2) / (double) ((mLen*lengthMult) - mHandleHeadroom);
     val = (x-bounds.L) / bounds.W();
 
-  auto valFunc = [&](int v)
-  {
-    SetValue(std::round(val / 0.001 ) * 0.001, v);
+  auto valFunc = [&](int valIdx) {
+    SetValue(Clip(std::round(val / 0.001 ) * 0.001, minClip, maxClip), valIdx);
   };
   
   ForValIdx(valIdx, valFunc);
@@ -429,24 +429,27 @@ ITextToggleControl::ITextToggleControl(const IRECT& bounds, IActionFunction aF, 
 {
   SetActionFunction(aF);
   mDblAsSingleClick = true;
-  //TODO: assert boolean?
   mIgnoreMouse = false;
 }
 
 void ITextToggleControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   if(GetValue() < 0.5)
-  {
     SetValue(1.);
-    SetStr(mOnText.Get());
-  }
   else
-  {
     SetValue(0.);
-    SetStr(mOffText.Get());
-  }
   
   SetDirty(true);
+}
+
+void ITextToggleControl::SetDirty(bool push, int valIdx)
+{
+  IControl::SetDirty(push);
+  
+  if(GetValue() > 0.5)
+    SetStr(mOnText.Get());
+  else
+    SetStr(mOffText.Get());
 }
 
 
@@ -485,7 +488,7 @@ void ICaptionControl::Draw(IGraphics& g)
 
   ITextControl::Draw(g);
   
-  if(mTri.W()) {
+  if(mTri.W() > 0.f) {
     g.FillTriangle(COLOR_DARK_GRAY, mTri.L, mTri.T, mTri.R, mTri.T, mTri.MW(), mTri.B, GetMouseIsOver() ? 0 : &BLEND_50);
   }
 }

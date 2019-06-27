@@ -220,13 +220,13 @@ void IGraphics::AttachPanelBackground(const IPattern& color)
   mControls.Insert(0, pBG);
 }
 
-int IGraphics::AttachControl(IControl* pControl, int controlTag, const char* group)
+IControl* IGraphics::AttachControl(IControl* pControl, int controlTag, const char* group)
 {
   pControl->SetDelegate(*GetDelegate());
   pControl->SetTag(controlTag);
   pControl->SetGroup(group);
   mControls.Add(pControl);
-  return mControls.GetSize() - 1;
+  return pControl;
 }
 
 void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize)
@@ -1707,10 +1707,10 @@ void IGraphics::DoMeasureTextRotation(const IText& text, const IRECT& bounds, IR
 
 void IGraphics::CalulateTextRotation(const IText& text, const IRECT& bounds, IRECT& rect, double& tx, double& ty) const
 {
-  if (!text.mOrientation)
+  if (!text.mAngle)
     return;
   
-  IMatrix m = IMatrix().Rotate(text.mOrientation);
+  IMatrix m = IMatrix().Rotate(text.mAngle);
   
   double x0 = rect.L;
   double y0 = rect.T;

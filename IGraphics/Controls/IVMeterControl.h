@@ -113,13 +113,6 @@ public:
       g.DrawRect(GetColor(kFR), mWidgetBounds, nullptr, mStyle.frameThickness);
   }
   
-  void OnResize() override
-  {
-    SetTargetRECT(CalculateRects(mRECT));
-    MakeTrackRects(mWidgetBounds);
-    SetDirty(false);
-  }
-
   //  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
   //  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
 

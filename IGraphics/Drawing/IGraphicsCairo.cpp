@@ -520,7 +520,7 @@ void IGraphicsCairo::DoDrawText(const IText& text, const char* str, const IRECT&
 
 #ifdef OS_WIN
   IMatrix m = GetTransformMatrix();
-  useNativeTransforms = !text.mOrientation && !m.mXY && !m.mYX;
+  useNativeTransforms = !text.mAngle && !m.mXY && !m.mYX;
 #endif 
 
   PrepareAndMeasureText(text, str, measured, x, y, pGlyphs, numGlyphs);
