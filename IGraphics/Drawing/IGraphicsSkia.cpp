@@ -41,7 +41,7 @@ SkiaBitmap::SkiaBitmap(const char* path, double sourceScale)
 #pragma mark -
 
 // Utility conversions
-inline SkColor SkiaColor(const IColor& color, const IBlend* pBlend = 0)
+inline SkColor SkiaColor(const IColor& color)
 {
   return SkColorSetARGB(color.A, color.R, color.G, color.B);
 }
@@ -82,7 +82,7 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
   paint.setBlendMode(SkiaBlendMode(pBlend));
     
   if (pattern.mType == EPatternType::Solid)
-    paint.setColor(SkiaColor(pattern.GetStop(0).mColor, pBlend));
+    paint.setColor(SkiaColor(pattern.GetStop(0).mColor));
   else
   {
     double x1 = 0.0;
@@ -120,6 +120,9 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
     }
   }
   
+  if (pBlend)
+    paint.setAlpha(Clip(static_cast<int>(pBlend->mWeight * 255), 0, 255));
+    
   return paint;
 }
 
@@ -252,8 +255,6 @@ void IGraphicsSkia::DoDrawText(const IText& text, const char* str, const IRECT& 
 
 void IGraphicsSkia::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
 {
-  float dashArray[8];
-
   SkPaint paint = SkiaPaint(pattern, pBlend);
   paint.setStyle(SkPaint::kStroke_Style);
 
