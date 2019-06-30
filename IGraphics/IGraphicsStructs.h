@@ -2023,7 +2023,7 @@ struct IMatrix
    * @param y /todo
    * @param x0 /todo
    * @param y0 /todo */
-  void TransformPoint(double& x, double& y, double x0, double y0)
+  void TransformPoint(double& x, double& y, double x0, double y0) const
   {
     x = x0 * mXX + y0 * mXY + mTX;
     y = x0 * mYX + y0 * mYY + mTY;
@@ -2032,7 +2032,7 @@ struct IMatrix
   /** /todo 
    * @param x /todo
    * @param y /todo */
-  void TransformPoint(double& x, double& y)
+  void TransformPoint(double& x, double& y) const
   {
     TransformPoint(x, y, x, y);
   };
