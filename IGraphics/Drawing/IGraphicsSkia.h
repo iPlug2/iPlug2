@@ -20,9 +20,13 @@
 class SkiaBitmap : public APIBitmap
 {
 public:
+    
+  SkiaBitmap(int width, int height, int scale, float drawScale);
   SkiaBitmap(const char* path, double sourceScale);
+    
 private:
-  sk_sp<SkImage> mImage;
+    
+ SkiaDrawable mDrawable;
 };
 
 /** IGraphics draw class using Skia
@@ -62,14 +66,15 @@ public:
   int AlphaChannel() const override { return 0; } // TODO:
   bool FlippedBitmap() const override { return false; }
 
-  IBitmap ScaleBitmap(const IBitmap& bitmap, const char* name, int targetScale) override { return bitmap; } // NO-OP
-  void ReleaseBitmap(const IBitmap& bitmap) override { }; // NO-OP
-  void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override { }; // NO-OP
-  APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) override { return nullptr; }; // TODO:
+  void ReleaseBitmap(const IBitmap& bitmap) override { } // NO-OP
+  void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override { } // NO-OP
+  APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) override;
 
-  void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override {}; // TODO:
-  void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override {}; // TODO:
+  void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override {} // TODO:
+  void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override {} // TODO:
 
+  void UpdateLayer() override;
+    
 protected:
   void DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
   void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;

@@ -17,12 +17,25 @@
 #include <OpenGL/gl.h>
 
 
+SkiaBitmap::SkiaBitmap(int width, int height, int scale, float drawScale)
+{
+#ifdef GRAPHICS_GL
+    mDrawable.mSurface = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRenderTarget, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, nullptr, nullptr);
+#else
+    mDrawable.mSurface = SkSurface::MakeRasterN32Premul(width, height);
+#endif
+    mDrawable.mIsSurface = true;
+    
+    SetBitmap(&mDrawable, width, height, scale, drawScale);
+}
+
 SkiaBitmap::SkiaBitmap(const char* path, double sourceScale)
 {
   auto data = SkData::MakeFromFileName(path);
-  mImage = SkImage::MakeFromEncoded(data);
+  mDrawable.mImage = SkImage::MakeFromEncoded(data);
 
-  SetBitmap(mImage.get(), mImage->width(), mImage->height(), sourceScale, 1.f);
+  mDrawable.mIsSurface = false;
+  SetBitmap(&mDrawable, mDrawable.mImage->width(), mDrawable.mImage->height(), sourceScale, 1.f);
 }
 
 #pragma mark -
@@ -148,12 +161,10 @@ void IGraphicsSkia::OnViewInitialized(void* pContext)
   auto backendRenderTarget = GrBackendRenderTarget(WindowWidth(), WindowHeight(), samples, stencilBits, fbinfo);
 
   mSurface = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRenderTarget, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, nullptr, nullptr);
-  mCanvas = mSurface->getCanvas();
 #else
-  mSurface = SkSurface::MakeRasterN32Premul(WindowWidth()* GetScreenScale(), WindowHeight()* GetScreenScale());
-  mCanvas = mSurface->getCanvas();
+  mSurface = SkSurface::MakeRasterN32Premul(WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
 #endif
-  
+  mCanvas = mSurface->getCanvas();
 }
 
 void IGraphicsSkia::OnViewDestroyed()
@@ -191,7 +202,13 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
 {
   SkPaint p;
   p.setFilterQuality(kHigh_SkFilterQuality);
-  mCanvas->drawImage(static_cast<SkImage*>(bitmap.GetAPIBitmap()->GetBitmap()), dest.L, dest.T, &p);
+
+  SkiaDrawable* image = bitmap.GetAPIBitmap()->GetBitmap();
+
+  if (image->mIsSurface)
+    image->mSurface->draw(mCanvas, dest.L, dest.T, &p);
+  else
+    mCanvas->drawImage(image->mImage, dest.L, dest.T, &p);
 }
 
 IColor IGraphicsSkia::GetPoint(int x, int y)
@@ -298,4 +315,13 @@ void IGraphicsSkia::SetClipRegion(const IRECT& r)
   mCanvas->save();
   mCanvas->clipRect(skrect);
 }
+
+APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, int scale, double drawScale)
+{
+  return new SkiaBitmap(width, height, scale, drawScale);
+}
+
+void IGraphicsSkia::UpdateLayer()
+{
+    mCanvas = mLayers.empty() ? mSurface->getCanvas() : mLayers.top()->GetAPIBitmap()->GetBitmap()->mSurface->getCanvas();
 }

@@ -88,7 +88,14 @@ inline T DegToRad(T degrees)
   using BitmapData = int;
 #elif defined IGRAPHICS_SKIA
   #include "SkImage.h"
-  using BitmapData = SkImage*;
+  #include "SkSurface.h"
+  struct SkiaDrawable
+  {
+    bool mIsSurface;
+    sk_sp<SkImage> mImage;
+    sk_sp<SkSurface> mSurface;
+  };
+  using BitmapData = SkiaDrawable*;
 #elif defined IGRAPHICS_LICE
   #include "lice.h"
   using BitmapData = LICE_IBitmap*;
