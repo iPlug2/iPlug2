@@ -190,13 +190,13 @@ void IGraphicsSkia::DoMeasureText(const IText& text, const char* str, IRECT& bou
 
 void IGraphicsSkia::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
 {
-  SkFont font;
-  font.setSubpixel(true);
-  font.setSize(text.mSize);
-  SkPaint paint;
-  paint.setColor(SkiaColor(text.mFGColor, pBlend));
-  
-  mCanvas->drawSimpleText(str, strlen(str), SkTextEncoding::kUTF8, bounds.L, bounds.T, font, paint);
+//  SkFont font;
+//  font.setSubpixel(true);
+//  font.setSize(text.mSize);
+//  SkPaint paint;
+//  paint.setColor(SkiaColor(text.mFGColor, pBlend));
+//  
+//  mCanvas->drawSimpleText(str, strlen(str), SkTextEncoding::kUTF8, bounds.L, bounds.T, font, paint);
 }
 
 void IGraphicsSkia::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
@@ -255,16 +255,17 @@ void IGraphicsSkia::PathFill(const IPattern& pattern, const IFillOptions& option
 
 void IGraphicsSkia::PathTransformSetMatrix(const IMatrix& m)
 {
-//  SkMatrix::MakeAll(XX, <#SkScalar skewX#>, <#SkScalar transX#>, <#SkScalar skewY#>, <#SkScalar scaleY#>, <#SkScalar transY#>, <#SkScalar pers0#>, <#SkScalar pers1#>, <#SkScalar pers2#>)
+  //  double mXX, mYX, mXY, mYY, mTX, mTY;
+  SkMatrix skMatrix = SkMatrix::MakeAll(m.mXX, m.mYX, m.mTX, m.mYY, m.mXY, m.mTY, 0, 0, 1);
+//  skMatrix.setAffine(static_cast<SkScalar*>(m));
+  mCanvas->setMatrix(skMatrix);
 //  mCanvas->scale(GetDrawScale(), GetDrawScale());
 //  //TODO:
 }
 
 void IGraphicsSkia::SetClipRegion(const IRECT& r)
 {
-  //TODO:
-
-//  SkRect skrect;
-//  skrect.set(r.L, r.T, r.R, r.B);
-//  mCanvas->clipRect(skrect);
+  SkRect skrect;
+  skrect.set(r.L, r.T, r.R, r.B);
+  mCanvas->clipRect(skrect);
 }
