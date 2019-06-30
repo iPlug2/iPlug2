@@ -75,15 +75,15 @@ public:
   void* GetDrawContext() override { return (void*) mCanvas; }
 
   bool BitmapExtSupported(const char* ext) override;
-  int AlphaChannel() const override { return 0; } // TODO:
+  int AlphaChannel() const override { return 3; } // TODO:
   bool FlippedBitmap() const override { return false; }
 
   void ReleaseBitmap(const IBitmap& bitmap) override { } // NO-OP
   void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override { } // NO-OP
   APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) override;
 
-  void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override {} // TODO:
-  void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override {} // TODO:
+  void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
+  void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
 
   void UpdateLayer() override;
     

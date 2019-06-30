@@ -376,10 +376,73 @@ void IGraphicsSkia::SetClipRegion(const IRECT& r)
 
 APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, int scale, double drawScale)
 {
-  return new SkiaBitmap(width, height, scale, drawScale);
+  return new SkiaBitmap(mGrContext.get(), width, height, scale, drawScale);
 }
 
 void IGraphicsSkia::UpdateLayer()
 {
     mCanvas = mLayers.empty() ? mSurface->getCanvas() : mLayers.top()->GetAPIBitmap()->GetBitmap()->mSurface->getCanvas();
 }
+
+size_t CalcRowBytes(int width)
+{
+    width = ((width + 7) & (-8));
+    return width * sizeof(uint32_t);
+}
+
+void IGraphicsSkia::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
+{
+  SkiaDrawable* pDrawable = layer->GetAPIBitmap()->GetBitmap();
+  size_t rowBytes = CalcRowBytes(pDrawable->mSurface->width());
+  int size = pDrawable->mSurface->height() * static_cast<int>(rowBytes);
+    
+  data.Resize(size);
+   
+  if (data.GetSize() >= size)
+  {
+      SkImageInfo info = SkImageInfo::MakeN32Premul(pDrawable->mSurface->width(), pDrawable->mSurface->height());
+      pDrawable->mSurface->readPixels(info, data.Get(), rowBytes, 0, 0);
+  }
+}
+
+void IGraphicsSkia::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow)
+{
+  SkiaDrawable* pDrawable = layer->GetAPIBitmap()->GetBitmap();
+  int width = pDrawable->mSurface->width();
+  int height = pDrawable->mSurface->height();
+  size_t rowBytes = CalcRowBytes(width);
+  double scale = layer->GetAPIBitmap()->GetDrawScale() * layer->GetAPIBitmap()->GetScale();
+  
+  SkCanvas* pCanvas = pDrawable->mSurface->getCanvas();
+    
+  if (!shadow.mDrawForeground)
+  {
+    pCanvas->clear(SK_ColorTRANSPARENT);
+  }
+    
+  // Rework the alpha bitmap into an alpha only bitmap
+    
+  for (int i = 0; i < height; i++)
+  {
+    uint8_t* row = mask.Get() + rowBytes * i;
+    
+    for (int j = 0; j < width; j++)
+        row[j] = row[j * 4 + IGraphicsSkia::AlphaChannel()];
+  }
+    
+  SkMatrix m;
+  m.reset();
+  
+  SkImageInfo info = SkImageInfo::MakeA8(width, height);
+  SkPixmap pixMap(info, mask.Get(), rowBytes);
+  sk_sp<SkImage> image = SkImage::MakeFromRaster(pixMap, nullptr, nullptr);
+    
+  IBlend blend(EBlend::Default, shadow.mOpacity);
+  pCanvas->setMatrix(m);
+  pCanvas->translate(-layer->Bounds().L, -layer->Bounds().T);
+  SkPaint p = SkiaPaint(shadow.mPattern, &blend);
+  p.setBlendMode(shadow.mDrawForeground ? SkBlendMode::kDstOver : SkBlendMode::kSrc);
+  pCanvas->setMatrix(m);
+  pCanvas->drawImage(image.get(), shadow.mXOffset * scale, shadow.mYOffset * scale, &p);
+}
+
