@@ -6,6 +6,7 @@
 #include "SkGradientShader.h"
 #include "SkFont.h"
 #include "SkFontMetrics.h"
+#include "SkTypeface.h"
 
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLUtil.h"
@@ -17,6 +18,16 @@
 
 #include <OpenGL/gl.h>
 
+struct SkiaFont
+{
+  SkiaFont(IFontDataPtr&& data, sk_sp<SkTypeface> typeFace)
+    : mData(std::move(data)), mTypeface(typeFace) {}
+    
+  IFontDataPtr mData;
+  sk_sp<SkTypeface> mTypeface;
+};
+
+static StaticStorage<SkiaFont> sFontCache;
 
 SkiaBitmap::SkiaBitmap(GrContext* context, int width, int height, int scale, float drawScale)
 {
@@ -154,10 +165,15 @@ IGraphicsSkia::IGraphicsSkia(IGEditorDelegate& dlg, int w, int h, int fps, float
 : IGraphicsPathBase(dlg, w, h, fps, scale)
 {
   DBGMSG("IGraphics Skia @ %i FPS\n", fps);
+  
+  StaticStorage<SkiaFont>::Accessor storage(sFontCache);
+  storage.Retain();
 }
 
 IGraphicsSkia::~IGraphicsSkia()
 {
+  StaticStorage<SkiaFont>::Accessor storage(sFontCache);
+  storage.Release();
 }
 
 bool IGraphicsSkia::BitmapExtSupported(const char* ext)
@@ -266,29 +282,50 @@ IColor IGraphicsSkia::GetPoint(int x, int y)
 
 bool IGraphicsSkia::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 {
-    //SkFont font;
-    return false;
+  StaticStorage<SkiaFont>::Accessor storage(sFontCache);
+  SkiaFont* cached = storage.Find(fontID);
+  
+  if (cached)
+    return true;
+  
+  IFontDataPtr data = font->GetFontData();
+  
+  if (data->IsValid())
+  {
+    auto wrappedData = SkData::MakeWithoutCopy(data->Get(), data->GetSize());
+    int index = data->GetFaceIdx();
+    auto typeface = SkTypeface::MakeFromData(wrappedData, index);
+    
+    if (typeface)
+    {
+      storage.Add(new SkiaFont(std::move(data), typeface), fontID);
+      return true;
+    }
+  }
+  
+  return false;
 }
 
-void IGraphicsSkia::PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y, SkFont*& pFont) const
+void IGraphicsSkia::PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y, SkFont& font) const
 {
   SkFontMetrics metrics;
   SkPaint paint;
   SkRect bounds;
   
-  //StaticStorage<CairoFont>::Accessor storage(sFontCache);
-  static SkFont sFont;
-  sFont.setSubpixel(true);
-  sFont.setSize(text.mSize);
-  
-  pFont = &sFont;//storage.Find(text.mFont);
+  StaticStorage<SkiaFont>::Accessor storage(sFontCache);
+  SkiaFont* pFont = storage.Find(text.mFont);
   
   assert(pFont && "No font found - did you forget to load it?");
+
+  font.setTypeface(pFont->mTypeface);
+  font.setSubpixel(true);
+  font.setSize(text.mSize);
+  
   
   // Draw / measure
 
-  pFont->measureText(str, strlen(str), SkTextEncoding::kUTF8, &bounds);
-  pFont->getMetrics(&metrics);
+  font.measureText(str, strlen(str), SkTextEncoding::kUTF8, &bounds);
+  font.getMetrics(&metrics);
   
   const double textWidth = bounds.width();// + textExtents.x_bearing;
   const double textHeight = text.mSize;
@@ -314,11 +351,11 @@ void IGraphicsSkia::PrepareAndMeasureText(const IText& text, const char* str, IR
 
 void IGraphicsSkia::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
-  SkFont* pFont;
+  SkFont font;
 
   IRECT r = bounds;
   double x, y;
-  PrepareAndMeasureText(text, str, bounds, x, y, pFont);
+  PrepareAndMeasureText(text, str, bounds, x, y, font);
   DoMeasureTextRotation(text, r, bounds);
 }
 
@@ -326,15 +363,15 @@ void IGraphicsSkia::DoDrawText(const IText& text, const char* str, const IRECT& 
 {
   IRECT measured = bounds;
   
-  SkFont* pFont;
+  SkFont font;
   double x, y;
   
-  PrepareAndMeasureText(text, str, measured, x, y, pFont);
+  PrepareAndMeasureText(text, str, measured, x, y, font);
   PathTransformSave();
   DoTextRotation(text, bounds, measured);
   SkPaint paint;
   paint.setColor(SkiaColor(text.mFGColor, pBlend));
-  mCanvas->drawSimpleText(str, strlen(str), SkTextEncoding::kUTF8, x, y, *pFont, paint);
+  mCanvas->drawSimpleText(str, strlen(str), SkTextEncoding::kUTF8, x, y, font, paint);
   PathTransformRestore();
 }
 

@@ -97,7 +97,7 @@ protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
 private:
     
-  void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y, SkFont*& pFont) const;
+  void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y, SkFont& font) const;
 
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
