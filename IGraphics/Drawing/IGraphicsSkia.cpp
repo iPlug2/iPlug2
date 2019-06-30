@@ -255,17 +255,17 @@ void IGraphicsSkia::PathFill(const IPattern& pattern, const IFillOptions& option
 
 void IGraphicsSkia::PathTransformSetMatrix(const IMatrix& m)
 {
-  //  double mXX, mYX, mXY, mYY, mTX, mTY;
-  SkMatrix skMatrix = SkMatrix::MakeAll(m.mXX, m.mYX, m.mTX, m.mYY, m.mXY, m.mTY, 0, 0, 1);
-//  skMatrix.setAffine(static_cast<SkScalar*>(m));
-  mCanvas->setMatrix(skMatrix);
-//  mCanvas->scale(GetDrawScale(), GetDrawScale());
-//  //TODO:
+//  //  double mXX, mYX, mXY, mYY, mTX, mTY;
+//  SkMatrix skMatrix = SkMatrix::MakeAll(m.mXX, m.mYX, m.mTX, m.mYY, m.mXY, m.mTY, 0, 0, 1);
+////  skMatrix.setAffine(static_cast<SkScalar*>(m));
+//  mCanvas->setMatrix(skMatrix);
+////  mCanvas->scale(GetDrawScale(), GetDrawScale());
+////  //TODO:
 }
 
 void IGraphicsSkia::SetClipRegion(const IRECT& r)
 {
-  SkRect skrect;
-  skrect.set(r.L, r.T, r.R, r.B);
-  mCanvas->clipRect(skrect);
+//  SkRect skrect;
+//  skrect.set(r.L, r.T, r.R, r.B);
+//  mCanvas->clipRect(skrect);
 }
