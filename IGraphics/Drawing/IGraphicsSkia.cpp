@@ -271,12 +271,21 @@ void IGraphicsSkia::PathStroke(const IPattern& pattern, float thickness, const I
     case ELineJoin::Bevel: paint.setStrokeJoin(SkPaint::kBevel_Join);   break;
   }
   
-  if(options.mDash.GetCount())
+  if (options.mDash.GetCount())
   {
-    for (int i = 0; i < options.mDash.GetCount(); i++)
-      dashArray[i] = *(options.mDash.GetArray() + i);
+    // N.B. support odd counts by reading the array twice
+      
+    int dashCount = options.mDash.GetCount();
+    int dashMax = dashCount & 1 ? dashCount * 2 : dashCount;
+    float dashArray[16];
+      
+    for (int i = 0; i < dashMax; i += 2)
+    {
+        dashArray[i + 0] = options.mDash.GetArray()[i % dashCount];
+        dashArray[i + 1] = options.mDash.GetArray()[(i + 1) % dashCount];
+    }
     
-    paint.setPathEffect(SkDashPathEffect::Make(dashArray, options.mDash.GetCount(), 0));
+    paint.setPathEffect(SkDashPathEffect::Make(dashArray, dashMax, 0));
   }
   
   paint.setStrokeWidth(thickness);
