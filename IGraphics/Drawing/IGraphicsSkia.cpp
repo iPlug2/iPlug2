@@ -276,6 +276,20 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
     mCanvas->restore();
 }
 
+void IGraphicsSkia::PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding)
+{
+  float sweep = (aMax - aMin);
+  
+  if (sweep >= 360.f || sweep <= -360.f)
+  {
+    mMainPath.addCircle(cx, cy, r);
+  }
+  else
+  {
+    mMainPath.arcTo(SkRect::MakeLTRB(cx - r, cy - r, cx + r, cy + r), aMin - 90.f, (aMax - aMin), false);
+  }
+}
+
 IColor IGraphicsSkia::GetPoint(int x, int y)
 {
   return COLOR_BLACK; //TODO:

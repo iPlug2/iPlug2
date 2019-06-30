@@ -50,19 +50,7 @@ public:
   void PathClear() override { mMainPath.reset(); }
   void PathClose() override { mMainPath.close(); }
 
-  void PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding) override
-  {
-    float sweep = (aMax - aMin);
-      
-    if (sweep >= 360.f || sweep <= -360.f)
-    {
-      mMainPath.addCircle(cx, cy, r);
-    }
-    else
-    {
-      mMainPath.arcTo(SkRect::MakeLTRB(cx - r, cy - r, cx + r, cy + r), aMin - 90.f, (aMax - aMin), false);
-    }
-  }
+  void PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding) override;
 
   void PathMoveTo(float x, float y) override { mMainPath.moveTo(x, y); }
   void PathLineTo(float x, float y) override { mMainPath.lineTo(x, y); }
