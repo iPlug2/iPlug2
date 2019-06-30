@@ -230,6 +230,7 @@ void IGraphicsSkia::DrawResize()
 void IGraphicsSkia::BeginFrame()
 {
   //mCanvas->clear(SK_ColorWHITE);
+  IGraphics::BeginFrame();
 }
 
 void IGraphicsSkia::EndFrame()
