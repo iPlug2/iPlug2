@@ -415,34 +415,36 @@ void IGraphicsSkia::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const
   
   SkCanvas* pCanvas = pDrawable->mSurface->getCanvas();
     
-  if (!shadow.mDrawForeground)
-  {
-    pCanvas->clear(SK_ColorTRANSPARENT);
-  }
-    
-  // Rework the alpha bitmap into an alpha only bitmap
-    
-  for (int i = 0; i < height; i++)
-  {
-    uint8_t* row = mask.Get() + rowBytes * i;
-    
-    for (int j = 0; j < width; j++)
-        row[j] = row[j * 4 + IGraphicsSkia::AlphaChannel()];
-  }
-    
   SkMatrix m;
   m.reset();
-  
-  SkImageInfo info = SkImageInfo::MakeA8(width, height);
+    
+  SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
   SkPixmap pixMap(info, mask.Get(), rowBytes);
   sk_sp<SkImage> image = SkImage::MakeFromRaster(pixMap, nullptr, nullptr);
+  sk_sp<SkImage> foreground;
     
+  // Copy the foreground if needed
+    
+  if (shadow.mDrawForeground)
+    foreground = pDrawable->mSurface->makeImageSnapshot();
+ 
+  pCanvas->clear(SK_ColorTRANSPARENT);
+ 
   IBlend blend(EBlend::Default, shadow.mOpacity);
+  pCanvas->setMatrix(m);
+  pCanvas->drawImage(image.get(), shadow.mXOffset * scale, shadow.mYOffset * scale);
+  m = SkMatrix::MakeScale(scale);
   pCanvas->setMatrix(m);
   pCanvas->translate(-layer->Bounds().L, -layer->Bounds().T);
   SkPaint p = SkiaPaint(shadow.mPattern, &blend);
-  p.setBlendMode(shadow.mDrawForeground ? SkBlendMode::kDstOver : SkBlendMode::kSrc);
-  pCanvas->setMatrix(m);
-  pCanvas->drawImage(image.get(), shadow.mXOffset * scale, shadow.mYOffset * scale, &p);
+  p.setBlendMode(SkBlendMode::kSrcIn);
+  pCanvas->drawPaint(p);
+
+  if (shadow.mDrawForeground)
+  {
+    m.reset();
+    pCanvas->setMatrix(m);
+    pCanvas->drawImage(foreground.get(), 0.0, 0.0);
+  }
 }
 
