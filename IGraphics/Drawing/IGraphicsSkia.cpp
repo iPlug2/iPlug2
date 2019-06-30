@@ -175,25 +175,11 @@ APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
 void IGraphicsSkia::OnViewInitialized(void* pContext)
 {
 #if defined IGRAPHICS_GL
-  int fbo = 0, samples = 0, stencilBits = 0;
-  glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
-  glGetIntegerv(GL_SAMPLES, &samples);
-  glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
-  
   auto interface = GrGLMakeNativeInterface();
   mGrContext = GrContext::MakeGL(interface);
-  
-  GrGLFramebufferInfo fbinfo;
-  fbinfo.fFBOID = fbo;
-  fbinfo.fFormat = 0x8058;
-  
-  auto backendRenderTarget = GrBackendRenderTarget(WindowWidth(), WindowHeight(), samples, stencilBits, fbinfo);
-
-  mSurface = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRenderTarget, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, nullptr, nullptr);
-#else
-  mSurface = SkSurface::MakeRasterN32Premul(WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
 #endif
-  mCanvas = mSurface->getCanvas();
+    
+  DrawResize();
 }
 
 void IGraphicsSkia::OnViewDestroyed()
@@ -202,15 +188,32 @@ void IGraphicsSkia::OnViewDestroyed()
 
 void IGraphicsSkia::DrawResize()
 {
-#if defined IGRAPHICS_CPU
-   mSurface = SkSurface::MakeRasterN32Premul(WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
-   mCanvas = mSurface->getCanvas();
+#if defined IGRAPHICS_GL
+  if (mGrContext.get())
+  {
+    int fbo = 0, samples = 0, stencilBits = 0;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
+    glGetIntegerv(GL_SAMPLES, &samples);
+    glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
+  
+    GrGLFramebufferInfo fbinfo;
+    fbinfo.fFBOID = fbo;
+    fbinfo.fFormat = 0x8058;
+  
+    auto backendRenderTarget = GrBackendRenderTarget(WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale(), samples, stencilBits, fbinfo);
+  
+    mSurface = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRenderTarget, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, nullptr, nullptr);
+  }
+#else
+  mSurface = SkSurface::MakeRasterN32Premul(WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
 #endif
+  if (mSurface)
+    mCanvas = mSurface->getCanvas();
 }
 
 void IGraphicsSkia::BeginFrame()
 {
-  mCanvas->clear(SK_ColorWHITE);
+  //mCanvas->clear(SK_ColorWHITE);
 }
 
 void IGraphicsSkia::EndFrame()
@@ -243,11 +246,6 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
   SkiaDrawable* image = bitmap.GetAPIBitmap()->GetBitmap();
 
   double scale = 1.0 / (bitmap.GetScale() * bitmap.GetDrawScale());
-  
-#ifdef IGRAPHICS_GL
-  if (image->mIsSurface)
-    scale = 1.0 / (bitmap.GetDrawScale());
-#endif
   
   mCanvas->save();
   mCanvas->translate(dest.L, dest.T);
@@ -403,7 +401,7 @@ void IGraphicsSkia::PathFill(const IPattern& pattern, const IFillOptions& option
 
 void IGraphicsSkia::PathTransformSetMatrix(const IMatrix& m)
 {
-  double scale = 1.0;
+  double scale = GetScreenScale() * GetDrawScale();
   double xTranslate = 0.0;
   double yTranslate = 0.0;
     
@@ -417,10 +415,6 @@ void IGraphicsSkia::PathTransformSetMatrix(const IMatrix& m)
     xTranslate = -bounds.L;
     yTranslate = -bounds.T;
   }
-    
-#if defined IGRAPHICS_CPU
-  scale = GetScreenScale() * GetDrawScale();
-#endif
     
   SkMatrix globalMatrix = SkMatrix::MakeScale(scale);
   SkMatrix skMatrix = SkMatrix::MakeAll(m.mXX, m.mXY, m.mTX, m.mYX, m.mYY, m.mTY, 0, 0, 1);

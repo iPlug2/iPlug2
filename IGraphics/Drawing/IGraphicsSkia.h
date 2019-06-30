@@ -75,7 +75,7 @@ public:
   void* GetDrawContext() override { return (void*) mCanvas; }
 
   bool BitmapExtSupported(const char* ext) override;
-  int AlphaChannel() const override { return 3; } // TODO:
+  int AlphaChannel() const override { return 3; }
   bool FlippedBitmap() const override { return false; }
 
   void ReleaseBitmap(const IBitmap& bitmap) override { } // NO-OP
