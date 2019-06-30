@@ -68,10 +68,20 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
     paint.setColor(SkiaColor(pattern.GetStop(0).mColor, pBlend));
   else
   {
-    //TODO: points?
-    SkPoint points[2] = {
-      SkPoint::Make(0.0f, 0.0f),
-      SkPoint::Make(256.0f, 256.0f)
+    double x1 = 0.0;
+    double y1 = 0.0;
+    double x2 = 0.0;
+    double y2 = 1.0;
+      
+    IMatrix m = pattern.mTransform;
+    m.Invert();
+    m.TransformPoint(x1, y1);
+    m.TransformPoint(x2, y2);
+      
+    SkPoint points[2] =
+    {
+      SkPoint::Make(x1, y1),
+      SkPoint::Make(x2, y2)
     };
     
     SkColor colors[8];
@@ -84,7 +94,13 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
     if(pattern.mType == EPatternType::Linear)
       paint.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, pattern.NStops(), SkTileMode::kClamp, 0, nullptr));
     else
-      paint.setShader(SkGradientShader::MakeRadial(SkPoint::Make(128.0f, 128.0f) /*TODO: points*/, 180.0f, colors, nullptr, pattern.NStops(), SkTileMode::kClamp, 0, nullptr));
+    {
+      float xd = points[0].x() - points[1].x();
+      float yd = points[0].y() - points[1].y();
+      float radius = std::sqrt(xd * xd + yd * yd);
+        
+      paint.setShader(SkGradientShader::MakeRadial(points[0], radius, colors, nullptr, pattern.NStops(), SkTileMode::kClamp, 0, nullptr));
+    }
   }
   
   return paint;
