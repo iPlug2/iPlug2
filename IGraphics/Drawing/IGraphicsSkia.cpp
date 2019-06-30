@@ -45,7 +45,7 @@ SkiaBitmap::SkiaBitmap(const char* path, double sourceScale)
 inline SkColor SkiaColor(const IColor& color, const IBlend* pBlend)
 {
   if (pBlend)
-    SkColorSetARGB(Clip(static_cast<int>(pBlend->mWeight * color.A), 0, 255), color.R, color.G, color.B);
+    return SkColorSetARGB(Clip(static_cast<int>(pBlend->mWeight * color.A), 0, 255), color.R, color.G, color.B);
   else
     return SkColorSetARGB(color.A, color.R, color.G, color.B);
 }
