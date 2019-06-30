@@ -114,16 +114,6 @@ APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
   return new SkiaBitmap(fileNameOrResID, scale);
 }
 
-void IGraphicsSkia::SetPlatformContext(void* pContext)
-{
-  mPlatformContext = pContext;
-  
-#if defined IGRAPHICS_CPU
-  mSurface = SkSurface::MakeRasterN32Premul(WindowWidth() * GetDrawScale(), WindowHeight() * GetDrawScale());
-  mCanvas = mSurface->getCanvas();
-#endif
-}
-
 void IGraphicsSkia::OnViewInitialized(void* pContext)
 {
 #if defined IGRAPHICS_GL
@@ -139,11 +129,15 @@ void IGraphicsSkia::OnViewInitialized(void* pContext)
   fbinfo.fFBOID = fbo;
   fbinfo.fFormat = 0x8058;
   
-  auto backendRenderTarget = GrBackendRenderTarget(WindowWidth() * GetDrawScale(), WindowHeight() * GetDrawScale(), samples, stencilBits, fbinfo);
+  auto backendRenderTarget = GrBackendRenderTarget(WindowWidth(), WindowHeight(), samples, stencilBits, fbinfo);
 
   mSurface = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRenderTarget, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, nullptr, nullptr);
   mCanvas = mSurface->getCanvas();
+#else
+  mSurface = SkSurface::MakeRasterN32Premul(WindowWidth()* GetScreenScale(), WindowHeight()* GetScreenScale());
+  mCanvas = mSurface->getCanvas();
 #endif
+  
 }
 
 void IGraphicsSkia::OnViewDestroyed()
