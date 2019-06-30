@@ -177,9 +177,10 @@ void IGraphicsSkia::OnViewDestroyed()
 
 void IGraphicsSkia::DrawResize()
 {
-//  if(mSurface != nullptr);
-  
-//  mSurface = SkSurface::MakeRasterN32Premul(WindowWidth() * GetDrawScale(), WindowHeight() * GetDrawScale());
+#if defined IGRAPHICS_CPU
+   mSurface = SkSurface::MakeRasterN32Premul(WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
+   mCanvas = mSurface->getCanvas();
+#endif
 }
 
 void IGraphicsSkia::BeginFrame()
@@ -195,7 +196,11 @@ void IGraphicsSkia::EndFrame()
     mSurface->peekPixels(&pixmap);
     SkBitmap bmp;
     bmp.installPixels(pixmap);
-    SkCGDrawBitmap((CGContextRef) mPlatformContext, bmp, 0, 0);
+    CGContext* pCGContext = (CGContextRef) mPlatformContext;
+    CGContextSaveGState(pCGContext);
+    CGContextScaleCTM(pCGContext, 1.0 / GetScreenScale(), 1.0 / GetScreenScale());
+    SkCGDrawBitmap(pCGContext, bmp, 0, 0);
+    CGContextRestoreGState(pCGContext);
   #endif
 #else
   mCanvas->flush();
@@ -210,10 +215,18 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
     
   SkiaDrawable* image = bitmap.GetAPIBitmap()->GetBitmap();
 
+  double scale = 1.0 / (bitmap.GetScale() * bitmap.GetDrawScale());
+    
+  mCanvas->save();
+  mCanvas->translate(dest.L, dest.T);
+  mCanvas->scale(scale, scale);
+
   if (image->mIsSurface)
-    image->mSurface->draw(mCanvas, dest.L, dest.T, &p);
+    image->mSurface->draw(mCanvas, 0.0, 0.0, &p);
   else
-    mCanvas->drawImage(image->mImage, dest.L, dest.T, &p);
+    mCanvas->drawImage(image->mImage, 0.0, 0.0, &p);
+    
+    mCanvas->restore();
 }
 
 IColor IGraphicsSkia::GetPoint(int x, int y)
@@ -307,8 +320,10 @@ void IGraphicsSkia::PathTransformSetMatrix(const IMatrix& m)
     yTranslate = -bounds.T;
   }
     
+  SkMatrix globalMatix = SkMatrix::MakeScale(GetScreenScale() * GetDrawScale());
   SkMatrix skMatrix = SkMatrix::MakeAll(m.mXX, m.mYX, m.mTX, m.mXY, m.mYY, m.mTY, 0, 0, 1);
-  skMatrix.preTranslate(xTranslate, yTranslate);
+  globalMatix.preTranslate(xTranslate, yTranslate);
+  skMatrix.postConcat(globalMatix);
   mCanvas->setMatrix(skMatrix);
 }
 
