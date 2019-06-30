@@ -52,7 +52,16 @@ public:
 
   void PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding) override
   {
-    mMainPath.arcTo(SkRect::MakeLTRB(cx - r, cy - r, cx + r, cy + r), aMin - 90.f, (aMax - aMin) - 0.01f /* TODO: ? */, false);
+    float sweep = (aMax - aMin);
+      
+    if (sweep >= 360.f || sweep <= -360.f)
+    {
+      mMainPath.addCircle(cx, cy, r);
+    }
+    else
+    {
+      mMainPath.arcTo(SkRect::MakeLTRB(cx - r, cy - r, cx + r, cy + r), aMin - 90.f, (aMax - aMin), false);
+    }
   }
 
   void PathMoveTo(float x, float y) override { mMainPath.moveTo(x, y); }
