@@ -191,14 +191,14 @@ public:
   IVKnobControl(const IRECT& bounds, int paramIdx,
                 const char* label = "",
                 const IVStyle& style = DEFAULT_STYLE,
-                bool valueIsEditable = false,
+                bool valueIsEditable = false, bool valueInWidget = false,
                 float aMin = -135.f, float aMax = 135.f, float aAnchor = -135.f,
                 EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING);
 
   IVKnobControl(const IRECT& bounds, IActionFunction actionFunction,
                 const char* label = "",
                 const IVStyle& style = DEFAULT_STYLE,
-                bool valueIsEditable = false,
+                bool valueIsEditable = false, bool valueInWidget = false,
                 float aMin = -135.f, float aMax = 135.f, float aAnchor = -135.f,
                 EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING);
 
