@@ -15,6 +15,10 @@
 
 
 #include "IPlugPaths.h"
+#include <string>
+#include <map>
+
+extern std::map<std::string, void*> gTextureMap;
 
 #ifdef OS_MAC
 void HostPath(WDL_String& path, const char* bundleID)
@@ -238,6 +242,16 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
 {
   if(CStringHasContents(name))
   {
+    std::map<std::string, void*>::iterator it;
+
+    it = gTextureMap.find(name);
+    
+    if (it != gTextureMap.end())
+    {
+      result.Set(name);
+      return EResourceLocation::kPreloadedTexture;
+    }
+    
     if(GetResourcePathFromBundle(name, type, result, bundleID))
       return EResourceLocation::kAbsolutePath;
   }
