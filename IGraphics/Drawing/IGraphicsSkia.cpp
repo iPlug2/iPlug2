@@ -53,6 +53,9 @@ inline SkRect SkiaRect(const IRECT& r)
 
 inline SkBlendMode SkiaBlendMode(const IBlend* pBlend)
 {
+  if (!pBlend)
+    return SkBlendMode::kSrcOver;
+    
   switch (pBlend->mMethod)
   {
     case EBlend::Default:         // fall through
@@ -76,8 +79,9 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
 {
   SkPaint paint;
   paint.setAntiAlias(true);
-  
-  if(pattern.mType == EPatternType::Solid)
+  paint.setBlendMode(SkiaBlendMode(pBlend));
+    
+  if (pattern.mType == EPatternType::Solid)
     paint.setColor(SkiaColor(pattern.GetStop(0).mColor, pBlend));
   else
   {
@@ -202,7 +206,8 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
 {
   SkPaint p;
   p.setFilterQuality(kHigh_SkFilterQuality);
-
+  p.setBlendMode(SkiaBlendMode(pBlend));
+    
   SkiaDrawable* image = bitmap.GetAPIBitmap()->GetBitmap();
 
   if (image->mIsSurface)
