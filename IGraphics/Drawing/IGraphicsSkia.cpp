@@ -5,6 +5,7 @@
 #include "SkDashPathEffect.h"
 #include "SkGradientShader.h"
 #include "SkFont.h"
+#include "SkFontMetrics.h"
 
 #include "gl/GrGLInterface.h"
 #include "gl/GrGLUtil.h"
@@ -265,20 +266,78 @@ IColor IGraphicsSkia::GetPoint(int x, int y)
   return COLOR_BLACK; //TODO:
 }
 
+bool IGraphicsSkia::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
+{
+    //SkFont font;
+    return false;
+}
+
+void IGraphicsSkia::PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y, SkFont*& pFont) const
+{
+  SkFontMetrics metrics;
+  SkPaint paint;
+  SkRect bounds;
+  
+  //StaticStorage<CairoFont>::Accessor storage(sFontCache);
+  static SkFont sFont;
+  sFont.setSubpixel(true);
+  sFont.setSize(text.mSize);
+  
+  pFont = &sFont;//storage.Find(text.mFont);
+  
+  assert(pFont && "No font found - did you forget to load it?");
+  
+  // Draw / measure
+
+  pFont->measureText(str, strlen(str), SkTextEncoding::kUTF8, &bounds);
+  pFont->getMetrics(&metrics);
+  
+  const double textWidth = bounds.width();// + textExtents.x_bearing;
+  const double textHeight = text.mSize;
+  const double ascender = metrics.fAscent;
+  const double descender = metrics.fDescent;
+  
+  switch (text.mAlign)
+  {
+    case EAlign::Near:     x = r.L;                          break;
+    case EAlign::Center:   x = r.MW() - (textWidth / 2.0);   break;
+    case EAlign::Far:      x = r.R - textWidth;              break;
+  }
+  
+  switch (text.mVAlign)
+  {
+    case EVAlign::Top:      y = r.T + textHeight;                            break;
+    case EVAlign::Middle:   y = r.MH() - descender + (textHeight / 2.0);   break;
+    case EVAlign::Bottom:   y = r.B - descender;                           break;
+  }
+  
+  r = IRECT((float) x, (float) y - textHeight, (float) (x + textWidth), (float) (y));
+}
+
 void IGraphicsSkia::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
-  
+  SkFont* pFont;
+
+  IRECT r = bounds;
+  double x, y;
+  PrepareAndMeasureText(text, str, bounds, x, y, pFont);
+  DoMeasureTextRotation(text, r, bounds);
 }
 
 void IGraphicsSkia::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
 {
-//  SkFont font;
-//  font.setSubpixel(true);
-//  font.setSize(text.mSize);
-//  SkPaint paint;
-//  paint.setColor(SkiaColor(text.mFGColor, pBlend));
-//  
-//  mCanvas->drawSimpleText(str, strlen(str), SkTextEncoding::kUTF8, bounds.L, bounds.T, font, paint);
+  IRECT measured = bounds;
+  
+  SkFont* pFont;
+  double x, y;
+  
+  PrepareAndMeasureText(text, str, measured, x, y, pFont);
+  PathTransformSave();
+  DoTextRotation(text, bounds, measured);
+  SkPaint paint;
+  paint.setColor(SkiaColor(text.mFGColor, pBlend));
+  mCanvas->drawSimpleText(str, strlen(str), SkTextEncoding::kUTF8, x, y, *pFont, paint);
+  PathTransformRestore();
 }
 
 void IGraphicsSkia::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
@@ -364,7 +423,7 @@ void IGraphicsSkia::PathTransformSetMatrix(const IMatrix& m)
 #endif
     
   SkMatrix globalMatrix = SkMatrix::MakeScale(scale);
-  SkMatrix skMatrix = SkMatrix::MakeAll(m.mXX, m.mYX, m.mTX, m.mXY, m.mYY, m.mTY, 0, 0, 1);
+  SkMatrix skMatrix = SkMatrix::MakeAll(m.mXX, m.mXY, m.mTX, m.mYX, m.mYY, m.mTY, 0, 0, 1);
   globalMatrix.preTranslate(xTranslate, yTranslate);
   skMatrix.postConcat(globalMatrix);
   mCanvas->setMatrix(skMatrix);

@@ -88,13 +88,17 @@ public:
   void UpdateLayer() override;
     
 protected:
+    
   void DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
   void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
 
-  bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override { return false; } // TODO:
+  bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override;
 
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
 private:
+    
+  void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y, SkFont*& pFont) const;
+
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
   sk_sp<SkSurface> mSurface;
