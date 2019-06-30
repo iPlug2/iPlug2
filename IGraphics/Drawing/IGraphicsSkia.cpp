@@ -286,7 +286,7 @@ void IGraphicsSkia::PathArc(float cx, float cy, float r, float aMin, float aMax,
   }
   else
   {
-    mMainPath.arcTo(SkRect::MakeLTRB(cx - r, cy - r, cx + r, cy + r), aMin - 90.f, (aMax - aMin), false);
+    mMainPath.arcTo(SkRect::MakeLTRB(cx - r, cy - r, cx + r, cy + r), aMin - 90.f, sweep, false);
   }
 }
 
