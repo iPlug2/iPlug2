@@ -319,9 +319,10 @@ void IGraphicsSkia::PrepareAndMeasureText(const IText& text, const char* str, IR
   assert(pFont && "No font found - did you forget to load it?");
 
   font.setTypeface(pFont->mTypeface);
+  font.setHinting(SkFontHinting::kNone);
+  font.setForceAutoHinting(false);
   font.setSubpixel(true);
-  font.setSize(text.mSize);
-  
+  font.setSize(text.mSize * pFont->mData->GetHeightEMRatio());
   
   // Draw / measure
 
@@ -342,12 +343,12 @@ void IGraphicsSkia::PrepareAndMeasureText(const IText& text, const char* str, IR
   
   switch (text.mVAlign)
   {
-    case EVAlign::Top:      y = r.T + textHeight;                            break;
+    case EVAlign::Top:      y = r.T - ascender;                            break;
     case EVAlign::Middle:   y = r.MH() - descender + (textHeight / 2.0);   break;
     case EVAlign::Bottom:   y = r.B - descender;                           break;
   }
   
-  r = IRECT((float) x, (float) y - textHeight, (float) (x + textWidth), (float) (y));
+  r = IRECT((float) x, (float) y + ascender, (float) (x + textWidth), (float) (y + ascender + textHeight));
 }
 
 void IGraphicsSkia::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
