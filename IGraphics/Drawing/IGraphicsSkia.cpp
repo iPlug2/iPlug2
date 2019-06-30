@@ -94,7 +94,7 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
   paint.setAntiAlias(true);
   paint.setBlendMode(SkiaBlendMode(pBlend));
     
-  if (pattern.mType == EPatternType::Solid)
+  if (pattern.mType == EPatternType::Solid || pattern.NStops() <  2)
   {
     paint.setColor(SkiaColor(pattern.GetStop(0).mColor));
   }
