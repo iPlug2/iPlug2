@@ -41,9 +41,12 @@ SkiaBitmap::SkiaBitmap(const char* path, double sourceScale)
 #pragma mark -
 
 // Utility conversions
-inline SkColor SkiaColor(const IColor& color)
+inline SkColor SkiaColor(const IColor& color, const IBlend* pBlend)
 {
-  return SkColorSetARGB(color.A, color.R, color.G, color.B);
+  if (pBlend)
+    SkColorSetARGB(Clip(static_cast<int>(pBlend->mWeight * color.A), 0, 255), color.R, color.G, color.B);
+  else
+    return SkColorSetARGB(color.A, color.R, color.G, color.B);
 }
 
 inline SkRect SkiaRect(const IRECT& r)
@@ -96,7 +99,7 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
     
   if (pattern.mType == EPatternType::Solid || pattern.NStops() <  2)
   {
-    paint.setColor(SkiaColor(pattern.GetStop(0).mColor));
+    paint.setColor(SkiaColor(pattern.GetStop(0).mColor, pBlend));
   }
   else
   {
@@ -121,7 +124,7 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
     assert(pattern.NStops() <= 8);
     
     for(int i = 0; i < pattern.NStops(); i++)
-      colors[i] = SkiaColor(pattern.GetStop(i).mColor);
+      colors[i] = SkiaColor(pattern.GetStop(i).mColor, pBlend);
    
     if(pattern.mType == EPatternType::Linear)
       paint.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, pattern.NStops(), SkiaTileMode(pattern), 0, nullptr));
@@ -134,9 +137,6 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
       paint.setShader(SkGradientShader::MakeRadial(points[0], radius, colors, nullptr, pattern.NStops(), SkiaTileMode(pattern), 0, nullptr));
     }
   }
-  
-  if (pBlend)
-    paint.setAlpha(Clip(static_cast<int>(pBlend->mWeight * 255), 0, 255));
     
   return paint;
 }
@@ -230,6 +230,8 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
   SkPaint p;
   p.setFilterQuality(kHigh_SkFilterQuality);
   p.setBlendMode(SkiaBlendMode(pBlend));
+  if (pBlend)
+    p.setAlpha(Clip(static_cast<int>(pBlend->mWeight * 255), 0, 255));
     
   SkiaDrawable* image = bitmap.GetAPIBitmap()->GetBitmap();
 
