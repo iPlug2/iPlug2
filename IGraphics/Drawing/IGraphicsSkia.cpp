@@ -17,16 +17,17 @@
 #include <OpenGL/gl.h>
 
 
-SkiaBitmap::SkiaBitmap(int width, int height, int scale, float drawScale)
+SkiaBitmap::SkiaBitmap(GrContext* context, int width, int height, int scale, float drawScale)
 {
-#ifdef GRAPHICS_GL
-    mDrawable.mSurface = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRenderTarget, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, nullptr, nullptr);
+#ifdef IGRAPHICS_GL
+  SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
+  mDrawable.mSurface = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info);
 #else
-    mDrawable.mSurface = SkSurface::MakeRasterN32Premul(width, height);
+  mDrawable.mSurface = SkSurface::MakeRasterN32Premul(width, height);
 #endif
-    mDrawable.mIsSurface = true;
+  mDrawable.mIsSurface = true;
     
-    SetBitmap(&mDrawable, width, height, scale, drawScale);
+  SetBitmap(&mDrawable, width, height, scale, drawScale);
 }
 
 SkiaBitmap::SkiaBitmap(const char* path, double sourceScale)
@@ -236,7 +237,12 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
   SkiaDrawable* image = bitmap.GetAPIBitmap()->GetBitmap();
 
   double scale = 1.0 / (bitmap.GetScale() * bitmap.GetDrawScale());
-    
+  
+#ifdef IGRAPHICS_GL
+  if (image->mIsSurface)
+    scale = 1.0 / (bitmap.GetDrawScale());
+#endif
+  
   mCanvas->save();
   mCanvas->translate(dest.L, dest.T);
   mCanvas->scale(scale, scale);
@@ -333,6 +339,7 @@ void IGraphicsSkia::PathFill(const IPattern& pattern, const IFillOptions& option
 
 void IGraphicsSkia::PathTransformSetMatrix(const IMatrix& m)
 {
+  double scale = 1.0;
   double xTranslate = 0.0;
   double yTranslate = 0.0;
     
@@ -347,10 +354,14 @@ void IGraphicsSkia::PathTransformSetMatrix(const IMatrix& m)
     yTranslate = -bounds.T;
   }
     
-  SkMatrix globalMatix = SkMatrix::MakeScale(GetScreenScale() * GetDrawScale());
+#if defined IGRAPHICS_CPU
+  scale = GetScreenScale() * GetDrawScale();
+#endif
+    
+  SkMatrix globalMatrix = SkMatrix::MakeScale(scale);
   SkMatrix skMatrix = SkMatrix::MakeAll(m.mXX, m.mYX, m.mTX, m.mXY, m.mYY, m.mTY, 0, 0, 1);
-  globalMatix.preTranslate(xTranslate, yTranslate);
-  skMatrix.postConcat(globalMatix);
+  globalMatrix.preTranslate(xTranslate, yTranslate);
+  skMatrix.postConcat(globalMatrix);
   mCanvas->setMatrix(skMatrix);
 }
 
