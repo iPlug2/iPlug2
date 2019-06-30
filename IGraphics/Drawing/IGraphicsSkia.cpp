@@ -75,6 +75,19 @@ inline SkBlendMode SkiaBlendMode(const IBlend* pBlend)
   return SkBlendMode::kClear;
 }
 
+inline SkTileMode SkiaTileMode(const IPattern& pattern)
+{
+  switch (pattern.mExtend)
+  {
+    case EPatternExtend::None:      return SkTileMode::kDecal;
+    case EPatternExtend::Reflect:   return SkTileMode::kMirror;
+    case EPatternExtend::Repeat:    return SkTileMode::kRepeat;
+    case EPatternExtend::Pad:       return SkTileMode::kClamp;
+  }
+
+  return SkTileMode::kClamp;
+}
+
 SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
 {
   SkPaint paint;
@@ -82,7 +95,9 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
   paint.setBlendMode(SkiaBlendMode(pBlend));
     
   if (pattern.mType == EPatternType::Solid)
+  {
     paint.setColor(SkiaColor(pattern.GetStop(0).mColor));
+  }
   else
   {
     double x1 = 0.0;
@@ -109,14 +124,14 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
       colors[i] = SkiaColor(pattern.GetStop(i).mColor);
    
     if(pattern.mType == EPatternType::Linear)
-      paint.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, pattern.NStops(), SkTileMode::kClamp, 0, nullptr));
+      paint.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, pattern.NStops(), SkiaTileMode(pattern), 0, nullptr));
     else
     {
       float xd = points[0].x() - points[1].x();
       float yd = points[0].y() - points[1].y();
       float radius = std::sqrt(xd * xd + yd * yd);
         
-      paint.setShader(SkGradientShader::MakeRadial(points[0], radius, colors, nullptr, pattern.NStops(), SkTileMode::kClamp, 0, nullptr));
+      paint.setShader(SkGradientShader::MakeRadial(points[0], radius, colors, nullptr, pattern.NStops(), SkiaTileMode(pattern), 0, nullptr));
     }
   }
   
