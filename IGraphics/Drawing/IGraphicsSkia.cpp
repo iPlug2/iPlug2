@@ -8,15 +8,17 @@
 #include "SkFontMetrics.h"
 #include "SkTypeface.h"
 
-#include "gl/GrGLInterface.h"
-#include "gl/GrGLUtil.h"
 #include "GrContext.h"
 
 #ifdef OS_MAC
-#include "SkCGUtils.h"
+  #include "SkCGUtils.h"
 #endif
 
-#include <OpenGL/gl.h>
+#if defined IGRAPHICS_GL
+  #include "gl/GrGLInterface.h"
+  #include "gl/GrGLUtil.h"
+  #include <OpenGL/gl.h>
+#endif
 
 struct SkiaFont
 {

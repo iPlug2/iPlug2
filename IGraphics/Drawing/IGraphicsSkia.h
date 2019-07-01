@@ -8,15 +8,6 @@
 #include "SkCanvas.h"
 #include "SkImage.h"
 
-#ifdef IGRAPHICS_GL2
-#define IGRAPHICS_GL
-#elif defined IGRAPHICS_CPU
-//todo
-#else
-#error you must define either IGRAPHICS_GL2, IGRAPHICS_GL3 or IGRAPHICS_CPU when using IGRAPHICS_SKIA
-#endif
-
-
 class SkiaBitmap : public APIBitmap
 {
 public:
