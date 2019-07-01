@@ -257,27 +257,6 @@ void INIPath(WDL_String& path, const char* pluginName)
   path.Set("");
 }
 
-EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char* bundleID, void*)
-{
-  if(CStringHasContents(name))
-  {
-    std::map<std::string, void*>::iterator it;
-
-    it = gTextureMap.find(name);
-    
-    if (it != gTextureMap.end())
-    {
-      result.Set(name);
-      return EResourceLocation::kPreloadedTexture;
-    }
-    
-    if(GetResourcePathFromBundle(name, type, result, bundleID))
-      return EResourceLocation::kAbsolutePath;
-  }
-  
-  return EResourceLocation::kNotFound;
-}
-
 bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath, const char* bundleID)
 {
   @autoreleasepool
@@ -326,13 +305,23 @@ bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_
 
 EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char* bundleID, void*)
 {
-    if(CStringHasContents(name))
+  if(CStringHasContents(name))
+  {
+    std::map<std::string, void*>::iterator it;
+
+    it = gTextureMap.find(name);
+    
+    if (it != gTextureMap.end())
     {
-        if(GetResourcePathFromBundle(name, type, result, bundleID))
-            return EResourceLocation::kAbsolutePath;
+      result.Set(name);
+      return EResourceLocation::kPreloadedTexture;
     }
     
-    return EResourceLocation::kNotFound;
+    if(GetResourcePathFromBundle(name, type, result, bundleID))
+      return EResourceLocation::kAbsolutePath;
+  }
+  
+  return EResourceLocation::kNotFound;
 }
 
 #endif
