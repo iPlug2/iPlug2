@@ -63,9 +63,13 @@
   #error you must define either IGRAPHICS_GL2, IGRAPHICS_GLES2 etc or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
 #endif
 
+#include <string>
+#include <map>
 
 // Fonts
 StaticStorage<IFontData> sFontCache;
+
+extern std::map<std::string, void*> gTextureMap;
 
 // Retrieving pixels
 void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData)
@@ -77,12 +81,12 @@ void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int
 #endif
 }
 
-// Bitmaps
-NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID)
+NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID, bool shared)
 {
   assert(nvgImageID > 0);
 
   mVG = pContext;
+  mSharedTexture = shared;
   int w = 0, h = 0;
   nvgImageSize(mVG, nvgImageID, &w, &h);
   
@@ -119,10 +123,13 @@ NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, const ui
 
 NanoVGBitmap::~NanoVGBitmap()
 {
-  if(mFBO)
-    mGraphics->DeleteFBO(mFBO);
-  else
-    nvgDeleteImage(mVG, GetBitmap());
+  if(!mSharedTexture)
+  {
+    if(mFBO)
+      mGraphics->DeleteFBO(mFBO);
+    else
+      nvgDeleteImage(mVG, GetBitmap());
+  }
 }
 
 #pragma mark -
@@ -251,7 +258,7 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
     int sourceScale = 0;
     EResourceLocation resourceFound = SearchImageResource(name, ext, fullPathOrResourceID, targetScale, sourceScale);
 
-    bool bitmapTypeSupported = BitmapExtSupported(ext);
+    bool bitmapTypeSupported = BitmapExtSupported(ext); // KTX textures pass this test (since ext is png)
     
     if(resourceFound == EResourceLocation::kNotFound || !bitmapTypeSupported)
     {
@@ -273,6 +280,14 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
 {
   int idx = 0;
 
+#ifdef OS_IOS
+  if (location == EResourceLocation::kPreloadedTexture)
+  {
+    idx = mnvgCreateImageFromHandle(mVG, gTextureMap[fileNameOrResID], 0 /*flags*/);
+  }
+  else
+#endif
+  
 #ifdef OS_WIN
   if (location == EResourceLocation::kWinBinary)
   {
@@ -291,7 +306,7 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
     idx = nvgCreateImage(mVG, fileNameOrResID, 0);
   }
 
-  return new NanoVGBitmap(mVG, fileNameOrResID, scale, idx);
+  return new NanoVGBitmap(mVG, fileNameOrResID, scale, idx, location == EResourceLocation::kPreloadedTexture);
 }
 
 APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height, int scale, double drawScale)
