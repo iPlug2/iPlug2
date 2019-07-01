@@ -246,6 +246,14 @@ void IGraphicsSkia::EndFrame()
     CGContextScaleCTM(pCGContext, 1.0 / GetScreenScale(), 1.0 / GetScreenScale());
     SkCGDrawBitmap(pCGContext, bmp, 0, 0);
     CGContextRestoreGState(pCGContext);
+  #elif defined OS_WIN
+  //PAINTSTRUCT ps;
+  //HWND hWnd = (HWND) GetWindow();
+  //HDC dc = BeginPaint(hWnd, &ps);
+  //BitBlt(dc, 0, 0, pixmap.width(), pixmap->height(), mPixelContext, 0, 0, SRCCOPY);
+  //EndPaint(hWnd, &ps);
+  #else
+  #error NOT IMPLEMENTED
   #endif
 #else
   mCanvas->flush();
