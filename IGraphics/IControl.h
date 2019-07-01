@@ -298,7 +298,7 @@ public:
    * By default, mouse double click has its own handler. A control can set mDblAsSingleClick to true 
    * which maps double click to single click for this control (and also causes the mouse to be captured by the control on double click).
    * @return /c true if double clicks should be mapped to single clicks */
-  bool GetMouseDblAsSingleClick() { return mDblAsSingleClick; }
+  bool GetMouseDblAsSingleClick() const { return mDblAsSingleClick; }
 
   /** Shows or hides the IControl.
    * @param hide Set to \c true to hide the control */
