@@ -307,11 +307,9 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
 {
   if(CStringHasContents(name))
   {
-    std::map<std::string, void*>::iterator it;
-
-    it = gTextureMap.find(name);
+    auto itr = gTextureMap.find(name);
     
-    if (it != gTextureMap.end())
+    if (itr != gTextureMap.end())
     {
       result.Set(name);
       return EResourceLocation::kPreloadedTexture;
