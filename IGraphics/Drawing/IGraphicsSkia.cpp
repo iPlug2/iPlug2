@@ -294,6 +294,17 @@ void IGraphicsSkia::PathArc(float cx, float cy, float r, float aMin, float aMax,
   }
   else
   {
+    if (winding == EWinding::CW)
+    {
+      while (sweep < 0)
+        sweep += 360.f;
+    }
+    else
+    {
+      while (sweep > 0)
+        sweep -= 360.f;
+    }
+      
     mMainPath.arcTo(SkRect::MakeLTRB(cx - r, cy - r, cx + r, cy + r), aMin - 90.f, sweep, false);
   }
 }
