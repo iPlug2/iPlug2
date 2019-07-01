@@ -289,7 +289,7 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
   else
     mCanvas->drawImage(image->mImage, 0.0, 0.0, &p);
     
-    mCanvas->restore();
+  mCanvas->restore();
 }
 
 void IGraphicsSkia::PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding)
@@ -447,8 +447,8 @@ void IGraphicsSkia::PathStroke(const IPattern& pattern, float thickness, const I
       
     for (int i = 0; i < dashMax; i += 2)
     {
-        dashArray[i + 0] = options.mDash.GetArray()[i % dashCount];
-        dashArray[i + 1] = options.mDash.GetArray()[(i + 1) % dashCount];
+      dashArray[i + 0] = options.mDash.GetArray()[i % dashCount];
+      dashArray[i + 1] = options.mDash.GetArray()[(i + 1) % dashCount];
     }
     
     paint.setPathEffect(SkDashPathEffect::Make(dashArray, dashMax, 0));
@@ -519,13 +519,13 @@ APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, int scale, doub
 
 void IGraphicsSkia::UpdateLayer()
 {
-    mCanvas = mLayers.empty() ? mSurface->getCanvas() : mLayers.top()->GetAPIBitmap()->GetBitmap()->mSurface->getCanvas();
+  mCanvas = mLayers.empty() ? mSurface->getCanvas() : mLayers.top()->GetAPIBitmap()->GetBitmap()->mSurface->getCanvas();
 }
 
 size_t CalcRowBytes(int width)
 {
-    width = ((width + 7) & (-8));
-    return width * sizeof(uint32_t);
+  width = ((width + 7) & (-8));
+  return width * sizeof(uint32_t);
 }
 
 void IGraphicsSkia::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
@@ -538,8 +538,8 @@ void IGraphicsSkia::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& da
    
   if (data.GetSize() >= size)
   {
-      SkImageInfo info = SkImageInfo::MakeN32Premul(pDrawable->mSurface->width(), pDrawable->mSurface->height());
-      pDrawable->mSurface->readPixels(info, data.Get(), rowBytes, 0, 0);
+    SkImageInfo info = SkImageInfo::MakeN32Premul(pDrawable->mSurface->width(), pDrawable->mSurface->height());
+    pDrawable->mSurface->readPixels(info, data.Get(), rowBytes, 0, 0);
   }
 }
 
