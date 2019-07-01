@@ -263,6 +263,8 @@ void IGraphicsSkia::EndFrame()
 void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
   SkPaint p;
+  SkRect skrect;
+  
   p.setFilterQuality(kHigh_SkFilterQuality);
   p.setBlendMode(SkiaBlendMode(pBlend));
   if (pBlend)
@@ -270,12 +272,16 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
     
   SkiaDrawable* image = bitmap.GetAPIBitmap()->GetBitmap();
 
-  double scale = 1.0 / (bitmap.GetScale() * bitmap.GetDrawScale());
+  double scale1 = 1.0 / (bitmap.GetScale() * bitmap.GetDrawScale());
+  double scale2 = bitmap.GetScale() * bitmap.GetDrawScale();
   
   mCanvas->save();
+  skrect.set(dest.L, dest.T, dest.R, dest.B);
+  mCanvas->clipRect(skrect);
   mCanvas->translate(dest.L, dest.T);
-  mCanvas->scale(scale, scale);
-
+  mCanvas->scale(scale1, scale1);
+  mCanvas->translate(-srcX * scale2, -srcY * scale2);
+  
   if (image->mIsSurface)
     image->mSurface->draw(mCanvas, 0.0, 0.0, &p);
   else
