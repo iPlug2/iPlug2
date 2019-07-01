@@ -284,9 +284,9 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
     mCanvas->restore();
 }
 
-void IGraphicsSkia::PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding)
+void IGraphicsSkia::PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding)
 {
-  float sweep = (aMax - aMin);
+  float sweep = (a2 - a1);
   
   if (sweep >= 360.f || sweep <= -360.f)
   {
@@ -305,7 +305,7 @@ void IGraphicsSkia::PathArc(float cx, float cy, float r, float aMin, float aMax,
         sweep -= 360.f;
     }
       
-    mMainPath.arcTo(SkRect::MakeLTRB(cx - r, cy - r, cx + r, cy + r), aMin - 90.f, sweep, false);
+    mMainPath.arcTo(SkRect::MakeLTRB(cx - r, cy - r, cx + r, cy + r), a1 - 90.f, sweep, false);
   }
 }
 

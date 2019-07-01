@@ -202,11 +202,11 @@ public:
    * @param cx The X coordinate in the graphics context of the centre of the circle on which the arc lies
    * @param cy The Y coordinate in the graphics context of the centre of the circle on which the arc lies
    * @param r The radius of the circle on which the arc lies
-   * @param aMin the start angle  of the arc at in degrees clockwise where 0 is up
-   * @param aMax the end angle  of the arc at in degrees clockwise where 0 is up
+   * @param a1 the start angle  of the arc at in degrees clockwise where 0 is up
+   * @param a2 the end angle  of the arc at in degrees clockwise where 0 is up
    * @param pBlend Optional blend method, see IBlend documentation
    * @param thickness Optional line thickness */
-  virtual void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
+  virtual void DrawArc(const IColor& color, float cx, float cy, float r, float a1, float a2, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
 
   /** Draw a circle to the graphics context
    * @param color The color to draw the shape with
@@ -314,10 +314,10 @@ public:
    * @param cx The X coordinate in the graphics context of the centre of the circle on which the arc lies
    * @param cy The Y coordinate in the graphics context of the centre of the circle on which the arc lies
    * @param r The radius of the circle on which the arc lies
-   * @param aMin the start angle  of the arc at in degrees clockwise where 0 is up
-   * @param aMax the end angle  of the arc at in degrees clockwise where 0 is up
+   * @param a1 the start angle  of the arc at in degrees clockwise where 0 is up
+   * @param a2 the end angle  of the arc at in degrees clockwise where 0 is up
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend = 0) = 0;
+  virtual void FillArc(const IColor& color, float cx, float cy, float r, float a1, float a2, const IBlend* pBlend = 0) = 0;
 
   /** Fill a convex polygon in the graphics context with a color
    * @param color The color to fill the shape with
@@ -602,9 +602,9 @@ public:
    * @param cx /todo
    * @param cy /todo
    * @param r /todo
-   * @param aMin /todo
-   * @param aMax /todo */
-  virtual void PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding = EWinding::CW) {}
+   * @param a1 /todo
+   * @param a2 /todo */
+  virtual void PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding = EWinding::CW) {}
 
   /** /todo 
    * @param cx /todo

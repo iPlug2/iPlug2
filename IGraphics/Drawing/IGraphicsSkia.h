@@ -50,7 +50,7 @@ public:
   void PathClear() override { mMainPath.reset(); }
   void PathClose() override { mMainPath.close(); }
 
-  void PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding) override;
+  void PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding) override;
 
   void PathMoveTo(float x, float y) override { mMainPath.moveTo(x, y); }
   void PathLineTo(float x, float y) override { mMainPath.lineTo(x, y); }
