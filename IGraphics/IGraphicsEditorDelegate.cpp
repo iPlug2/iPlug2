@@ -24,23 +24,7 @@ IGEditorDelegate::~IGEditorDelegate()
 void IGEditorDelegate::OnUIOpen()
 {
   IEditorDelegate::OnUIOpen();
-  
-  int width = GetEditorWidth();
-  int height = GetEditorHeight();
-  float scale = 1.f;
-    
-  // Recall size data (if not present use the defaults above)
-    
-  const IByteChunk& data = GetEditorData();
-    
-  int pos = data.Get(&width, 0);
-  pos = data.Get(&height, pos);
-  pos = data.Get(&scale, pos);
-    
-  if (pos > 0)
-    GetUI()->Resize(width, height, scale);
-    
-  pos = UnSerializeEditorProperties(data, pos);
+  UpdateData(GetEditorData(), 0);
 }
 
 void* IGEditorDelegate::OpenWindow(void* pParent)
@@ -75,6 +59,18 @@ void IGEditorDelegate::CloseWindow()
     }
     mClosing = false;
   }
+}
+
+int IGEditorDelegate::SetEditorData(const IByteChunk& data, int startPos)
+{
+  int endPos = UpdateData(data, startPos);
+
+  mEditorData.Clear();
+    
+  if (endPos > 0)
+   mEditorData.PutBytes(data.GetData() +  startPos, endPos - startPos);
+    
+  return endPos;
 }
 
 void IGEditorDelegate::SendControlValueFromDelegate(int controlTag, double normalizedValue)
@@ -169,7 +165,13 @@ void IGEditorDelegate::AttachGraphics(IGraphics* pGraphics)
   mIGraphicsTransient = false;
 }
 
-void IGEditorDelegate::EditorPropertiesModified()
+bool IGEditorDelegate::EditorResize()
+{
+  EditorDataModified();
+  return EditorResizeFromUI(mGraphics->WindowWidth(), mGraphics->WindowHeight());
+}
+
+void IGEditorDelegate::EditorDataModified()
 {
   IByteChunk data;
     
@@ -181,7 +183,27 @@ void IGEditorDelegate::EditorPropertiesModified()
   data.Put(&height);
   data.Put(&scale);
     
-  SerializeEditorProperties(data);
+  SerializeCustomEditorData(data);
     
-  EditorPropertiesChangedFromUI(mGraphics->WindowWidth(), mGraphics->WindowHeight(), data);
+  EditorDataChangedFromUI(data);
+}
+
+int IGEditorDelegate::UpdateData(const IByteChunk& data, int startPos)
+{
+  int width = GetEditorWidth();
+  int height = GetEditorHeight();
+  float scale = 1.f;
+    
+  // Recall size data (if not present use the defaults above)
+    
+  startPos = data.Get(&width, startPos);
+  startPos = data.Get(&height, startPos);
+  startPos = data.Get(&scale, startPos);
+    
+  // This may resize the editor
+    
+  if (startPos > 0 && GetUI())
+    GetUI()->Resize(width, height, scale);
+    
+  return UnserializeCustomEditorData(data, startPos);
 }

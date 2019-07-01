@@ -69,7 +69,7 @@ public:
     }
     
     void SetText(const char* str) { mText.Set(str); }
-    const char* GetText() const { return mText.Get(); };
+    const char* GetText() const { return mText.Get(); }; // TODO: Text -> Str!
     
     bool GetEnabled() const { return !(mFlags & kDisabled); }
     bool GetChecked() const { return (mFlags & kChecked) != 0; }
@@ -102,7 +102,7 @@ public:
     int mTag = -1;
   };
   
-  typedef std::function<void(int indexInMenu, IPopupMenu::Item* itemChosen)> IPopupFunction;
+  using IPopupFunction = std::function<void(int indexInMenu, IPopupMenu::Item* itemChosen)>;
 
   #pragma mark -
   
@@ -112,6 +112,16 @@ public:
   {
     for (auto& item : items)
       AddItem(item);
+  }
+  
+  IPopupMenu(const std::initializer_list<const char*>& items, IPopupFunction func)
+  : mPrefix(0)
+  , mCanMultiCheck(false)
+  {
+    for (auto& item : items)
+      AddItem(item);
+    
+    SetFunction(func);
   }
   
   ~IPopupMenu()

@@ -72,6 +72,6 @@ public:
 private:
   float mSize;
   bool mMouseOver = false;
-  ECursor mPrevCursorType = ARROW;
+  ECursor mPrevCursorType = ECursor::ARROW;
   IRECT mInitialGraphicsBounds;
 };

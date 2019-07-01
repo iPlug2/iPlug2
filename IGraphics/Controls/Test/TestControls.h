@@ -36,7 +36,5 @@
 #include "TestTextSizeControl.h"
 #include "TestSizeControl.h"
 #include "TestGFXLabel.h"
-#ifdef IGRAPHICS_METAL
 #include "TestMPSControl.h"
-#endif
-
+#include "TestBezierControl.h"

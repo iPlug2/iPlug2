@@ -25,9 +25,9 @@ public:
   void* OpenWindow(void* pWindow) override;
   void CloseWindow() override;
   bool WindowIsOpen() override;
-  void PlatformResize() override;
+  void PlatformResize(bool parentHasResized) override;
 
-  int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) override;
+  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
   void ForceEndUserEdit() override;
 
   const char* GetPlatformAPIStr() override;
@@ -36,7 +36,7 @@ public:
 
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext) override;
   void PromptForDirectory(WDL_String& dir) override;
-  bool PromptForColor(IColor& color, const char* str) override;
+  bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
   
   void HideMouseCursor(bool hide, bool lock) override {}; // NOOP
   void MoveMouseCursor(float x, float y) override {}; // NOOP

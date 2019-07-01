@@ -10,6 +10,8 @@
 
 #pragma once
 
+#if defined IGRAPHICS_NANOVG && defined IGRAPHICS_METAL
+
 /**
  * @file
  * @copydoc TestMPSControl
@@ -24,7 +26,7 @@ class TestMPSControl : public IKnobControlBase
                      , public IBitmapBase
 {
 public:
-  TestMPSControl(IRECT bounds, const IBitmap& bitmap)
+  TestMPSControl(const IRECT& bounds, const IBitmap& bitmap)
   : IKnobControlBase(bounds)
   , IBitmapBase(bitmap)
   {
@@ -58,3 +60,20 @@ private:
   NVGframebuffer* mFBO = nullptr;
   IPopupMenu mMenu {0, false, {"MPSImageGaussianBlur", "MPSImageSobel", "MPSImageThresholdToZero"}};
 };
+
+#else
+class TestMPSControl : public IControl
+{
+public:
+  TestMPSControl(IRECT rect, const IBitmap& bmp)
+  : IControl(rect)
+  {
+    SetTooltip("TestMPSControl");
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    g.DrawText(mText, "UNSUPPORTED", mRECT);
+  }
+};
+#endif

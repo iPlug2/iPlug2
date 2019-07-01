@@ -45,6 +45,7 @@ public:
   bool OnKeyDown(float x, float y, const IKeyPress& key) override;
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
+  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
 //  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
 //  void OnMouseOut() override;
 //  void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
@@ -72,7 +73,9 @@ private:
   void CalcCursorSizes();
   float GetCharWidth (char c, char nc);
   void CopySelection();
-
+  void Paste();
+  void Cut();
+  
   bool mDrawCursor = false;
 
   bool mEditing = false;

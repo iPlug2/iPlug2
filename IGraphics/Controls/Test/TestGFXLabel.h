@@ -22,9 +22,10 @@
 class GFXLabelControl : public IControl
 {
 public:
-  GFXLabelControl(IRECT rect)
+  GFXLabelControl(const IRECT& rect)
   : IControl(rect)
   {
+    mIgnoreMouse = true;
   }
   
   void Draw(IGraphics& g) override
@@ -32,10 +33,21 @@ public:
     if (!g.CheckLayer(mLayer))
     {
       g.StartLayer(mRECT);
-      static IText text {14, COLOR_WHITE, "Roboto-Regular", IText::kAlignCenter, IText::kVAlignMiddle, 0};
-      g.FillRect(COLOR_BLACK, mRECT.GetMidVPadded(text.mSize/2.));
+#ifdef IGRAPHICS_NANOVG
+      static IText text {14, COLOR_WHITE, "Roboto-Regular", EAlign::Center, EVAlign::Middle, 0};
+#else
+      static IText text {24, COLOR_WHITE, "Roboto-Regular", EAlign::Center, EVAlign::Middle, 0};
+#endif
+      IRECT r = mRECT;
+      g.MeasureText(text, g.GetDrawingAPIStr(), r);
+      r.Pad(50, 0, 50, 0);
+      
+      g.FillRect(COLOR_BLACK, r);
+      
       g.DrawText(text, g.GetDrawingAPIStr(), mRECT);
       mLayer = g.EndLayer();
+      IShadow shadow(COLOR_BLACK_DROP_SHADOW, 10.0, 3.0, 6.0, 0.7f, true);
+      g.ApplyLayerDropShadow(mLayer, shadow);
     }
     
     g.DrawRotatedLayer(mLayer, 45);

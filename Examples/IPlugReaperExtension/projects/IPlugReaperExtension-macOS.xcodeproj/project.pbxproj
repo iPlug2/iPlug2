@@ -10,7 +10,6 @@
 		4F56E31B227F43A400F3E839 /* IGraphicsCoreText.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F56E319227F43A400F3E839 /* IGraphicsCoreText.mm */; };
 		4F56E325227F9C3200F3E839 /* IGraphicsNanoVG_src.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8C2521EA55BD00C1EF1B /* IGraphicsNanoVG_src.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F56E32A227FA3C400F3E839 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F56E328227FA3C400F3E839 /* IPlugTimer.cpp */; };
-		4FB401CF2280684300F35D81 /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FB401CC2280684300F35D81 /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4FB401D222806B3B00F35D81 /* IGraphicsAGG_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FB401D122806B3B00F35D81 /* IGraphicsAGG_src.mm */; };
 		4FBA83B120ECB19100423B90 /* IPlugReaperExtension.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA837B20ECAE7B00423B90 /* IPlugReaperExtension.cpp */; };
 		4FBA83B420ECB63400423B90 /* swell-modstub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA83A720ECAED000423B90 /* swell-modstub.mm */; };
@@ -37,14 +36,11 @@
 		4F56E328227FA3C400F3E839 /* IPlugTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugTimer.cpp; path = ../../../IPlug/IPlugTimer.cpp; sourceTree = "<group>"; };
 		4F56E329227FA3C400F3E839 /* IPlugTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugTimer.h; path = ../../../IPlug/IPlugTimer.h; sourceTree = "<group>"; };
 		4F56E32B227FADCD00F3E839 /* IPlugEditorDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugEditorDelegate.h; path = ../../../IPlug/IPlugEditorDelegate.h; sourceTree = "<group>"; };
+		4F74D1D722AA8E760079E7DF /* ReaperExt_include_in_plug_src.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaperExt_include_in_plug_src.h; sourceTree = "<group>"; };
+		4F74D1D822AA8E760079E7DF /* ReaperExt_include_in_plug_hdr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaperExt_include_in_plug_hdr.h; sourceTree = "<group>"; };
+		4F74D1D922AA8E760079E7DF /* ReaperExtBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaperExtBase.h; sourceTree = "<group>"; };
+		4F74D1DA22AA8E760079E7DF /* ReaperExtBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReaperExtBase.cpp; sourceTree = "<group>"; };
 		4F78D8BD13B63A4E0032E0F3 /* wdltypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdltypes.h; path = ../../../WDL/wdltypes.h; sourceTree = SOURCE_ROOT; };
-		4FA39B00228064A900C6FCAE /* ReaperExt_include_in_plug_src.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaperExt_include_in_plug_src.h; sourceTree = "<group>"; };
-		4FA39B01228064A900C6FCAE /* ReaperExt_include_in_plug_hdr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaperExt_include_in_plug_hdr.h; sourceTree = "<group>"; };
-		4FA39B02228064A900C6FCAE /* ReaperExtBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaperExtBase.h; sourceTree = "<group>"; };
-		4FA39B03228064A900C6FCAE /* ReaperExtBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReaperExtBase.cpp; sourceTree = "<group>"; };
-		4FB401CC2280684300F35D81 /* IGraphicsImGui_src.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsImGui_src.mm; path = ../Extras/IGraphicsImGui_src.mm; sourceTree = "<group>"; };
-		4FB401CD2280684300F35D81 /* IGraphicsImGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsImGui.h; path = ../Extras/IGraphicsImGui.h; sourceTree = "<group>"; };
-		4FB401CE2280684300F35D81 /* IGraphicsImGui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsImGui.cpp; path = ../Extras/IGraphicsImGui.cpp; sourceTree = "<group>"; };
 		4FB401D122806B3B00F35D81 /* IGraphicsAGG_src.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsAGG_src.mm; sourceTree = "<group>"; };
 		4FBA837B20ECAE7B00423B90 /* IPlugReaperExtension.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = IPlugReaperExtension.cpp; path = ../IPlugReaperExtension.cpp; sourceTree = "<group>"; };
 		4FBA83A720ECAED000423B90 /* swell-modstub.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-modstub.mm"; path = "../../../WDL/swell/swell-modstub.mm"; sourceTree = "<group>"; };
@@ -147,6 +143,9 @@
 		4FDA1E0E2012CDB30027C868 /* main.rc_mac_menu */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc_mac_menu; path = ../resources/main.rc_mac_menu; sourceTree = "<group>"; };
 		4FDA1E0F2012CDB30027C868 /* main.rc_mac_dlg */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc_mac_dlg; path = ../resources/main.rc_mac_dlg; sourceTree = "<group>"; };
 		4FDA1E102012CDB30027C868 /* resource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = resource.h; path = ../resources/resource.h; sourceTree = "<group>"; };
+		4FDDFDE8229171CF007519F4 /* IGraphicsImGui_src.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsImGui_src.mm; sourceTree = "<group>"; };
+		4FDDFDE9229171CF007519F4 /* IGraphicsImGui.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IGraphicsImGui.h; sourceTree = "<group>"; };
+		4FDDFDEA229171CF007519F4 /* IGraphicsImGui.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsImGui.cpp; sourceTree = "<group>"; };
 		4FF016F4134E14E2001447BA /* mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mutex.h; path = ../../../WDL/mutex.h; sourceTree = SOURCE_ROOT; };
 		4FF016F5134E14E2001447BA /* ptrlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ptrlist.h; path = ../../../WDL/ptrlist.h; sourceTree = SOURCE_ROOT; };
 		4FF016F6134E14E2001447BA /* wdlstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlstring.h; path = ../../../WDL/wdlstring.h; sourceTree = SOURCE_ROOT; };
@@ -220,27 +219,16 @@
 			name = "Other Sources";
 			sourceTree = "<group>";
 		};
-		4FA39AFF228064A900C6FCAE /* ReaperExtension */ = {
+		4F74D1D622AA8E760079E7DF /* ReaperExt */ = {
 			isa = PBXGroup;
 			children = (
-				4FA39B00228064A900C6FCAE /* ReaperExt_include_in_plug_src.h */,
-				4FA39B01228064A900C6FCAE /* ReaperExt_include_in_plug_hdr.h */,
-				4FA39B02228064A900C6FCAE /* ReaperExtBase.h */,
-				4FA39B03228064A900C6FCAE /* ReaperExtBase.cpp */,
+				4F74D1D722AA8E760079E7DF /* ReaperExt_include_in_plug_src.h */,
+				4F74D1D822AA8E760079E7DF /* ReaperExt_include_in_plug_hdr.h */,
+				4F74D1D922AA8E760079E7DF /* ReaperExtBase.h */,
+				4F74D1DA22AA8E760079E7DF /* ReaperExtBase.cpp */,
 			);
-			name = ReaperExtension;
-			path = ../../../IPlug/ReaperExtension;
-			sourceTree = "<group>";
-		};
-		4FB401CB2280682F00F35D81 /* Extras */ = {
-			isa = PBXGroup;
-			children = (
-				4FB401CC2280684300F35D81 /* IGraphicsImGui_src.mm */,
-				4FB401CE2280684300F35D81 /* IGraphicsImGui.cpp */,
-				4FB401CD2280684300F35D81 /* IGraphicsImGui.h */,
-			);
-			name = Extras;
-			path = "New Group";
+			name = ReaperExt;
+			path = ../../../IPlug/ReaperExt;
 			sourceTree = "<group>";
 		};
 		4FBA83BF20ECBBBE00423B90 /* Reaper */ = {
@@ -259,7 +247,7 @@
 		4FBB8C1921EA55BD00C1EF1B /* IGraphics */ = {
 			isa = PBXGroup;
 			children = (
-				4FB401CB2280682F00F35D81 /* Extras */,
+				4FDDFDE7229171CF007519F4 /* Extras */,
 				4FBB8C1A21EA55BD00C1EF1B /* Drawing */,
 				4FBB8C2B21EA55BD00C1EF1B /* Platforms */,
 				4FBB8C4021EA55BD00C1EF1B /* Controls */,
@@ -380,7 +368,7 @@
 		4FBB8C8021EA56AF00C1EF1B /* IPlug */ = {
 			isa = PBXGroup;
 			children = (
-				4FA39AFF228064A900C6FCAE /* ReaperExtension */,
+				4F74D1D622AA8E760079E7DF /* ReaperExt */,
 				4FBB8C8221EA56C600C1EF1B /* IPlugParameter.cpp */,
 				4FBB8C8321EA56C600C1EF1B /* IPlugParameter.h */,
 				4FBB8C8421EA56C600C1EF1B /* IPlugPaths.cpp */,
@@ -391,6 +379,16 @@
 				4F56E32B227FADCD00F3E839 /* IPlugEditorDelegate.h */,
 			);
 			name = IPlug;
+			sourceTree = "<group>";
+		};
+		4FDDFDE7229171CF007519F4 /* Extras */ = {
+			isa = PBXGroup;
+			children = (
+				4FDDFDE8229171CF007519F4 /* IGraphicsImGui_src.mm */,
+				4FDDFDE9229171CF007519F4 /* IGraphicsImGui.h */,
+				4FDDFDEA229171CF007519F4 /* IGraphicsImGui.cpp */,
+			);
+			path = Extras;
 			sourceTree = "<group>";
 		};
 		4FF01613134E0BCD001447BA /* WDL */ = {
@@ -500,7 +498,6 @@
 				4FBB8C7B21EA55BD00C1EF1B /* IGraphics.cpp in Sources */,
 				4FBA83B120ECB19100423B90 /* IPlugReaperExtension.cpp in Sources */,
 				4FBB8C7A21EA55BD00C1EF1B /* IGraphicsEditorDelegate.cpp in Sources */,
-				4FB401CF2280684300F35D81 /* IGraphicsImGui_src.mm in Sources */,
 				4FBB8C7C21EA55BD00C1EF1B /* ITextEntryControl.cpp in Sources */,
 				4FBB8C8821EA56C600C1EF1B /* IPlugPaths.cpp in Sources */,
 				4FBB8C7421EA55BD00C1EF1B /* IGraphicsMac.mm in Sources */,
@@ -686,7 +683,6 @@
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 686EDA2T8T;
 				EXECUTABLE_PREFIX = reaper_;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -722,7 +718,6 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 686EDA2T8T;
 				ENABLE_NS_ASSERTIONS = NO;
 				EXECUTABLE_PREFIX = reaper_;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -755,7 +750,6 @@
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				DEVELOPMENT_TEAM = 686EDA2T8T;
 				ENABLE_NS_ASSERTIONS = NO;
 				EXECUTABLE_PREFIX = reaper_;
 				GCC_C_LANGUAGE_STANDARD = gnu11;

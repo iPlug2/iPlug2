@@ -22,7 +22,7 @@
 class TestLayerControl : public IKnobControlBase
 {
 public:
-  TestLayerControl(IRECT rect)
+  TestLayerControl(const IRECT& rect)
   : IKnobControlBase(rect, kNoParameter)
   {
     SetTooltip("TestLayerControl");
@@ -37,7 +37,7 @@ public:
       if (!g.CheckLayer(mLayer))
       {
         IText text;
-        text.mVAlign = IText::kVAlignTop;
+        text.mVAlign = EVAlign::Top;
         text.mSize = 15;
         g.StartLayer(mRECT);
         g.FillRoundRect(COLOR_LIGHT_GRAY, mRECT.GetPadded(-5.5f), mRECT.W() / 4.0);

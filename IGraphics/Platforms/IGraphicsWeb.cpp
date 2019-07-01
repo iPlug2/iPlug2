@@ -311,7 +311,7 @@ EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent
       emscripten_set_mouseup_callback("#window", pGraphics, 1, nullptr);
       break;
     case EMSCRIPTEN_EVENT_MOUSEMOVE:
-      if(pEvent->buttons != 0)
+      if(pEvent->buttons != 0 && !pGraphics->IsInTextEntry())
         pGraphics->OnMouseDrag(x, y, pEvent->movementX, pEvent->movementY, modifiers);
       break;
     default:
@@ -346,7 +346,10 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
       if(pEvent->buttons == 0)
         pGraphics->OnMouseOver(x, y, modifiers);
       else
-        pGraphics->OnMouseDrag(x, y, pEvent->movementX, pEvent->movementY, modifiers);
+      {
+        if(!pGraphics->IsInTextEntry())
+          pGraphics->OnMouseDrag(x, y, pEvent->movementX, pEvent->movementY, modifiers);
+      }
       break;
     case EMSCRIPTEN_EVENT_MOUSEENTER:
       pGraphics->OnSetCursor();
@@ -389,6 +392,29 @@ EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* pEvent, void* 
   }
   
   return true;
+}
+
+IColorPickerHandlerFunc gColorPickerHandlerFunc = nullptr;
+
+static void color_picker_callback(val e)
+{
+  if(gColorPickerHandlerFunc)
+  {
+    std::string colorStrHex = e["target"]["value"].as<std::string>();
+    
+    if (colorStrHex[0] == '#')
+      colorStrHex = colorStrHex.erase(0, 1);
+    
+    IColor result;
+    result.A = 255;
+    sscanf(colorStrHex.c_str(), "%02x%02x%02x", &result.R, &result.G, &result.B);
+    
+    gColorPickerHandlerFunc(result);
+  }
+}
+
+EMSCRIPTEN_BINDINGS(events) {
+  function("color_picker_callback", color_picker_callback);
 }
 
 #pragma mark -
@@ -521,18 +547,35 @@ bool IGraphicsWeb::GetTextFromClipboard(WDL_String& str)
   return true; // TODO: return?
 }
 
-int IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, EMessageBoxType type)
+EMsgBoxResult IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
 {
+  ReleaseMouseCapture();
+  
+  EMsgBoxResult result = kNoResult;
+  
   switch (type)
   {
-    case kMB_OK: val::global("window").call<val>("alert", std::string(str)); return 0;
+    case kMB_OK:
+    {
+      val::global("window").call<val>("alert", std::string(str));
+      result = EMsgBoxResult::kOK;
+      break;
+    }
     case kMB_YESNO:
     case kMB_OKCANCEL:
-      return val::global("window").call<val>("confirm", std::string(str)).as<int>();
+    {
+      result = static_cast<EMsgBoxResult>(val::global("window").call<val>("confirm", std::string(str)).as<int>());
+    }
     // case MB_CANCEL:
     //   break;
-    default: return 0;
+    default:
+      return result = kNoResult;
   }
+  
+  if(completionHandler)
+    completionHandler(result);
+  
+  return result;
 }
 
 void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext)
@@ -550,6 +593,22 @@ void IGraphicsWeb::PromptForDirectory(WDL_String& path)
   inputEl.call<void>("setAttribute", std::string("directory"));
   inputEl.call<void>("setAttribute", std::string("webkitdirectory"));
   inputEl.call<void>("click");
+}
+
+bool IGraphicsWeb::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
+{
+  gColorPickerHandlerFunc = func;
+
+  val inputEl = val::global("document").call<val>("createElement", std::string("input"));
+  inputEl.call<void>("setAttribute", std::string("type"), std::string("color"));
+  WDL_String colorStr;
+  colorStr.SetFormatted(64, "#%02x%02x%02x", color.R, color.G, color.B);
+  inputEl.call<void>("setAttribute", std::string("value"), std::string(colorStr.Get()));
+  inputEl.call<void>("click");
+  inputEl.call<void>("addEventListener", std::string("input"), val::module_property("color_picker_callback"), false);
+  inputEl.call<void>("addEventListener", std::string("onChange"), val::module_property("color_picker_callback"), false);
+
+  return false;
 }
 
 EM_BOOL complete_text_entry(int eventType, const EmscriptenFocusEvent* focusEvent, void* pUserData)
@@ -676,7 +735,7 @@ PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const char* f
 {
   const char* styles[] = { "normal", "bold", "italic" };
   
-  return PlatformFontPtr(new WebFont(fontName, styles[style]));
+  return PlatformFontPtr(new WebFont(fontName, styles[static_cast<int>(style)]));
 }
 
 #if defined IGRAPHICS_CANVAS

@@ -53,16 +53,16 @@ public:
 
   void RandomiseGradient()
   {
-    //IPattern tmp(kLinearPattern);
+    //IPattern tmp(EPatternType::Linear);
     //tmp.SetTransform(1.0/mRECT.W(), 0, 0, 1.0/mRECT.W(), 1.0/mRECT.W()*-mRECT.L, 1.0/mRECT.W()*-mRECT.T);
-    IPattern tmp(kSolidPattern);
+    IPattern tmp(EPatternType::Solid);
 
     if (std::rand() & 0x100)
       tmp = IPattern::CreateRadialGradient(mRECT.MW(), mRECT.MH(), mRECT.MH());
     else
       tmp = IPattern::CreateLinearGradient(mRECT.L, mRECT.MH(), mRECT.L + mRECT.W() * 0.5, mRECT.MH());
 
-    tmp.mExtend = (std::rand() & 0x10) ? ((std::rand() & 0x1000) ? kExtendNone : kExtendPad) : ((std::rand() & 0x1000) ? kExtendRepeat : kExtendReflect);
+    tmp.mExtend = (std::rand() & 0x10) ? ((std::rand() & 0x1000) ? EPatternExtend::None : EPatternExtend::Pad) : ((std::rand() & 0x1000) ? EPatternExtend::Repeat : EPatternExtend::Reflect);
 
     tmp.AddStop(IColor::GetRandomColor(), 0.0);
     tmp.AddStop(IColor::GetRandomColor(), 0.1);
@@ -74,5 +74,5 @@ public:
   }
 
 private:
-  IPattern mPattern = IPattern(kLinearPattern);
+  IPattern mPattern = IPattern(EPatternType::Linear);
 };

@@ -56,9 +56,9 @@
   #define nvgBindFramebuffer(fb) nvgluBindFramebuffer(fb)
   #define nvgCreateFramebuffer(ctx, w, h, flags) nvgluCreateFramebuffer(ctx, w, h, flags)
   #define nvgDeleteFramebuffer(fb) nvgluDeleteFramebuffer(fb)
-  typedef NVGLUframebuffer NVGframebuffer;
+  using NVGframebuffer = NVGLUframebuffer;
 #elif defined IGRAPHICS_METAL
-  typedef MNVGframebuffer NVGframebuffer;
+  using NVGframebuffer = MNVGframebuffer;
 #endif
 
 void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData);
@@ -107,10 +107,11 @@ public:
 
   void PathClear() override;
   void PathClose() override;
-  void PathArc(float cx, float cy, float r, float aMin, float aMax) override;
+  void PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding) override;
   void PathMoveTo(float x, float y) override;
   void PathLineTo(float x, float y) override;
-  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override;
+  void PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2) override;
+  void PathQuadraticBezierTo(float cx, float cy, float x2, float y2) override;
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
   

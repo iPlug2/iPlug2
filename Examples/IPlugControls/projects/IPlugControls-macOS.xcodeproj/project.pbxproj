@@ -453,6 +453,7 @@
 		4F5369DA20C446430089212E /* SVF.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SVF.h; sourceTree = "<group>"; };
 		4F5369DB20C446430089212E /* Oscillator_table.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Oscillator_table.h; sourceTree = "<group>"; };
 		4F5369DC20C446430089212E /* Oversampler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Oversampler.h; sourceTree = "<group>"; };
+		4F54BD10229712BB001372B0 /* IconsForkAwesome.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IconsForkAwesome.h; path = ../IconsForkAwesome.h; sourceTree = "<group>"; };
 		4F5C5F6A21BED08700E024A7 /* swell-appstub.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-appstub.mm"; path = "../../../WDL/swell/swell-appstub.mm"; sourceTree = "<group>"; };
 		4F5F344020C0226200487201 /* IPlugPaths.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugPaths.mm; path = ../../../IPlug/IPlugPaths.mm; sourceTree = "<group>"; };
 		4F63695220A463090022C370 /* IControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControls.h; sourceTree = "<group>"; };
@@ -634,7 +635,6 @@
 		4FB1F58820E4AFEF004157C8 /* IGraphicsMac_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsMac_view.h; path = ../../../IGraphics/Platforms/IGraphicsMac_view.h; sourceTree = "<group>"; };
 		4FB600331567CB0A0020189A /* IPlugControls.aaxplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugControls.aaxplugin; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FBAA593207918230054E717 /* IPlugDelegate_select.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugDelegate_select.h; path = ../../../IPlug/IPlugDelegate_select.h; sourceTree = "<group>"; };
-		4FBBD7F320B6AB9800A37DE2 /* config */ = {isa = PBXFileReference; lastKnownFileType = folder; name = config; path = ../config; sourceTree = "<group>"; };
 		4FC3EFC42086C0A600BD11FA /* IPlugControlsVST3Controller.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = IPlugControlsVST3Controller.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FC3EFDC2086CE5600BD11FA /* eventlist.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = eventlist.cpp; sourceTree = "<group>"; };
 		4FC3EFDD2086CE5600BD11FA /* eventlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = eventlist.h; sourceTree = "<group>"; };
@@ -784,6 +784,7 @@
 				52FBBED30D0CF143001C8B8A /* config.h */,
 				4F3862EE2014BBEC0009F402 /* IPlugControls.h */,
 				4F3862ED2014BBEC0009F402 /* IPlugControls.cpp */,
+				4F54BD10229712BB001372B0 /* IconsForkAwesome.h */,
 				089C167CFE841241C02AAC07 /* Resources */,
 				32C88E010371C26100C91783 /* Other Sources */,
 				089C1671FE841209C02AAC07 /* Frameworks */,
@@ -843,7 +844,6 @@
 		32C88E010371C26100C91783 /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
-				4FBBD7F320B6AB9800A37DE2 /* config */,
 				4F3862FF2014BCC70009F402 /* scripts */,
 				4FF7B0D4156A825000E6CB12 /* common-mac.xcconfig */,
 				4FDA600620B586AC00C49ABA /* IPlugControls-mac.xcconfig */,
@@ -1889,7 +1889,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = $SCRIPTS_PATH/clear_audiounit_caches.command;
+			shellScript = "$SCRIPTS_PATH/clear_audiounit_caches.command\n";
 		};
 		4FBCC1A21FD59C7300EFE550 /* Run Script - prepare_resources-mac.py */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2538,7 +2538,6 @@
 				CODE_SIGN_ENTITLEMENTS = "IPlugControls-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = 686EDA2T8T;
 				EXECUTABLE_EXTENSION = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2583,7 +2582,6 @@
 				CODE_SIGN_ENTITLEMENTS = "IPlugControls-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				DEVELOPMENT_TEAM = 686EDA2T8T;
 				ENABLE_NS_ASSERTIONS = NO;
 				EXECUTABLE_EXTENSION = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -2629,7 +2627,6 @@
 				CODE_SIGN_ENTITLEMENTS = "IPlugControls-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				DEVELOPMENT_TEAM = 686EDA2T8T;
 				ENABLE_NS_ASSERTIONS = NO;
 				EXECUTABLE_EXTENSION = "";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -3106,7 +3103,6 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "IPlugControls-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 686EDA2T8T;
 				DSTROOT = "$(APP_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_APP_DEFS)",
@@ -3133,7 +3129,6 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "IPlugControls-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 686EDA2T8T;
 				DSTROOT = "$(APP_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_APP_DEFS)",
@@ -3160,7 +3155,6 @@
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "IPlugControls-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 686EDA2T8T;
 				DSTROOT = "$(APP_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_APP_DEFS)",
