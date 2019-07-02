@@ -209,18 +209,13 @@ void IGraphicsSkia::DrawResize()
 #if defined IGRAPHICS_GL
   if (mGrContext.get())
   {
-    int fbo = 0, samples = 0, stencilBits = 0;
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
-    glGetIntegerv(GL_SAMPLES, &samples);
-    glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
-  
-    GrGLFramebufferInfo fbinfo;
-    fbinfo.fFBOID = fbo;
-    fbinfo.fFormat = 0x8058;
-  
-    auto backendRenderTarget = GrBackendRenderTarget(WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale(), samples, stencilBits, fbinfo);
-  
-    mSurface = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRenderTarget, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, nullptr, nullptr);
+    // Create FBO
+    
+    int width = WindowWidth() * GetScreenScale();
+    int height = WindowHeight() * GetScreenScale();
+      
+    SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
+    mSurface = SkSurface::MakeRenderTarget(mGrContext.get(), SkBudgeted::kYes, info);
   }
 #else
   mSurface = SkSurface::MakeRasterN32Premul(WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
@@ -231,7 +226,29 @@ void IGraphicsSkia::DrawResize()
 
 void IGraphicsSkia::BeginFrame()
 {
-  //mCanvas->clear(SK_ColorWHITE);
+#if defined IGRAPHICS_GL
+  if (mGrContext.get())
+  {
+    // Bind to the current main framebuffer
+    
+    int fbo = 0, samples = 0, stencilBits = 0;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
+    glGetIntegerv(GL_SAMPLES, &samples);
+    glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
+    
+    GrGLFramebufferInfo fbinfo;
+    fbinfo.fFBOID = fbo;
+    fbinfo.fFormat = 0x8058;
+    
+    int width = WindowWidth() * GetScreenScale();
+    int height = WindowHeight() * GetScreenScale();
+    
+    auto backendRenderTarget = GrBackendRenderTarget(width, height, samples, stencilBits, fbinfo);
+    
+    mScreenSurface = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRenderTarget, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, nullptr, nullptr);
+  }
+#endif
+
   IGraphics::BeginFrame();
 }
 
@@ -258,7 +275,8 @@ void IGraphicsSkia::EndFrame()
   #error NOT IMPLEMENTED
   #endif
 #else
-  mCanvas->flush();
+  mSurface->draw(mScreenSurface->getCanvas(), 0.0, 0.0, nullptr);
+  mScreenSurface->getCanvas()->flush();
 #endif
 }
 

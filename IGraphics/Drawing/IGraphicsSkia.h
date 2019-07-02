@@ -88,6 +88,7 @@ private:
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
   sk_sp<SkSurface> mSurface;
+  sk_sp<SkSurface> mScreenSurface;
   SkCanvas* mCanvas = nullptr;
   sk_sp<GrContext> mGrContext;
   std::unique_ptr<GrBackendRenderTarget> mBackendRenderTarget;
