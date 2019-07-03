@@ -7,6 +7,7 @@
 #include "SkPath.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
+#include "src/core/SkAutoMalloc.h"
 
 class SkiaBitmap : public APIBitmap
 {
@@ -93,4 +94,8 @@ private:
   sk_sp<GrContext> mGrContext;
   std::unique_ptr<GrBackendRenderTarget> mBackendRenderTarget;
   SkPath mMainPath;
+
+#ifdef OS_WIN
+  SkAutoMalloc mSurfaceMemory;
+#endif
 };

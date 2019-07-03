@@ -12,12 +12,19 @@
 
 #ifdef OS_MAC
   #include "SkCGUtils.h"
+  #ifdef IGRAPHICS_GL
+    #include <OpenGL/gl.h>
+  #endif
+#elif defined OS_WIN
+  #pragma comment(lib, "skia.lib")
+  #ifdef IGRAPHICS_GL
+    #pragma comment(lib, "opengl32.lib")
+  #endif
 #endif
 
 #if defined IGRAPHICS_GL
   #include "gl/GrGLInterface.h"
   #include "gl/GrGLUtil.h"
-  #include <OpenGL/gl.h>
 #endif
 
 struct SkiaFont
@@ -218,7 +225,27 @@ void IGraphicsSkia::DrawResize()
     mSurface = SkSurface::MakeRenderTarget(mGrContext.get(), SkBudgeted::kYes, info);
   }
 #else
-  mSurface = SkSurface::MakeRasterN32Premul(WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
+  auto w = WindowWidth() * GetScreenScale();
+  auto h = WindowHeight() * GetScreenScale();
+  #ifdef OS_WIN
+    mSurface.reset();
+    const size_t bmpSize = sizeof(BITMAPINFOHEADER) + WindowWidth() * WindowHeight() * GetScreenScale() * sizeof(uint32_t);
+    mSurfaceMemory.reset(bmpSize);
+    BITMAPINFO* bmpInfo = reinterpret_cast<BITMAPINFO*>(mSurfaceMemory.get());
+    ZeroMemory(bmpInfo, sizeof(BITMAPINFO));
+    bmpInfo->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmpInfo->bmiHeader.biWidth = w;
+    bmpInfo->bmiHeader.biHeight = -h; // negative means top-down bitmap. Skia draws top-down.
+    bmpInfo->bmiHeader.biPlanes = 1;
+    bmpInfo->bmiHeader.biBitCount = 32;
+    bmpInfo->bmiHeader.biCompression = BI_RGB;
+    void* pixels = bmpInfo->bmiColors;
+
+    SkImageInfo info = SkImageInfo::Make(w, h, kN32_SkColorType, kPremul_SkAlphaType, nullptr);
+    mSurface = SkSurface::MakeRasterDirect(info, pixels, sizeof(uint32_t) * w);
+  #else
+    mSurface = SkSurface::MakeRasterN32Premul(WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
+  #endif
 #endif
   if (mSurface)
     mCanvas = mSurface->getCanvas();
@@ -266,13 +293,15 @@ void IGraphicsSkia::EndFrame()
     SkCGDrawBitmap(pCGContext, bmp, 0, 0);
     CGContextRestoreGState(pCGContext);
   #elif defined OS_WIN
-  //PAINTSTRUCT ps;
-  //HWND hWnd = (HWND) GetWindow();
-  //HDC dc = BeginPaint(hWnd, &ps);
-  //BitBlt(dc, 0, 0, pixmap.width(), pixmap->height(), mPixelContext, 0, 0, SRCCOPY);
-  //EndPaint(hWnd, &ps);
+    auto w = WindowWidth() * GetScreenScale();
+    auto h = WindowHeight() * GetScreenScale();
+    BITMAPINFO* bmpInfo = reinterpret_cast<BITMAPINFO*>(mSurfaceMemory.get());
+    HWND hwnd = (HWND)GetWindow();
+    HDC dc = GetDC(hwnd);
+    StretchDIBits(dc, 0, 0, w, h, 0, 0, w, h, bmpInfo->bmiColors, bmpInfo,  DIB_RGB_COLORS, SRCCOPY);
+    ReleaseDC(hwnd, dc);
   #else
-  #error NOT IMPLEMENTED
+    #error NOT IMPLEMENTED
   #endif
 #else
   mSurface->draw(mScreenSurface->getCanvas(), 0.0, 0.0, nullptr);
