@@ -15,6 +15,8 @@
 #include "IGraphicsCairo.h"
 #include "ITextEntryControl.h"
 
+//#define IMG_TEST
+
 struct CairoFont
 {
   CairoFont(cairo_font_face_t* font, double EMRatio) : mFont(font), mEMRatio(EMRatio) {}
@@ -590,8 +592,13 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
   else if(!mSurface)
   {
 #ifdef OS_MAC
+#ifndef IMG_TEST
     mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), WindowWidth(), WindowHeight());
     cairo_surface_set_device_scale(mSurface, GetDrawScale(), GetDrawScale());
+#else
+    mSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, WindowWidth() * GetScreenScale(), WindowHeight()  * GetScreenScale());
+    cairo_surface_set_device_scale(mSurface, GetBackingPixelScale(), GetBackingPixelScale());
+#endif
 #elif defined OS_WIN
     mSurface = cairo_win32_surface_create_with_ddb((HDC) pContext, CAIRO_FORMAT_ARGB32, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
     cairo_surface_set_device_scale(mSurface, GetBackingPixelScale(), GetBackingPixelScale());
@@ -615,6 +622,54 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
 void IGraphicsCairo::EndFrame()
 {
 #ifdef OS_MAC
+#ifdef IMG_TEST
+  cairo_surface_flush(mSurface);
+  
+    CGImageRef img = NULL;
+    CGRect r = CGRectMake(0, 0, WindowWidth() * GetScreenScale(), WindowHeight()  * GetScreenScale());
+    static CGColorSpaceRef mColorSpace = nullptr;
+    if (!mColorSpace)
+    {
+        int v = GetSystemVersion();
+        
+        if (v >= 0x1070)
+        {
+#ifdef MAC_OS_X_VERSION_10_11
+            mColorSpace = CGDisplayCopyColorSpace(CGMainDisplayID());
+#else
+            CMProfileRef systemMonitorProfile = NULL;
+            CMError getProfileErr = CMGetSystemProfile(&systemMonitorProfile);
+            if(noErr == getProfileErr)
+            {
+                mColorSpace = CGColorSpaceCreateWithPlatformColorSpace(systemMonitorProfile);
+                CMCloseProfile(systemMonitorProfile);
+            }
+#endif
+        }
+        if (!mColorSpace)
+            mColorSpace = CGColorSpaceCreateDeviceRGB();
+    }
+    
+    int sw = cairo_image_surface_get_stride(mSurface);
+    int h = cairo_image_surface_get_height(mSurface);
+    int w = cairo_image_surface_get_width(mSurface);
+    
+    unsigned char*p = cairo_image_surface_get_data(mSurface);
+    CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, p, sw * h, NULL);
+    img = CGImageCreate(w, h, 8, 32, sw,(CGColorSpaceRef) mColorSpace, kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Host, provider, NULL, false, kCGRenderingIntentDefault);
+    CGDataProviderRelease(provider);
+    
+    if (img)
+    {
+        CGContext* pCGContext = (CGContext*) GetPlatformContext();
+        CGContextSaveGState(pCGContext);
+        CGContextTranslateCTM(pCGContext, 0.0, WindowHeight());
+        CGContextScaleCTM(pCGContext, 1./GetScreenScale(), -1./GetScreenScale());
+        CGContextDrawImage(pCGContext, r, img);
+        CGContextRestoreGState(pCGContext);
+        CGImageRelease(img);
+    }
+#endif
 #elif defined OS_WIN
   cairo_surface_flush(mSurface);
   PAINTSTRUCT ps;
