@@ -16,6 +16,8 @@
     #include <OpenGL/gl.h>
   #endif
 #elif defined OS_WIN
+  #pragma comment(lib, "libpng.lib")
+  #pragma comment(lib, "zlib.lib")
   #pragma comment(lib, "skia.lib")
   #ifdef IGRAPHICS_GL
     #pragma comment(lib, "opengl32.lib")
@@ -54,6 +56,15 @@ SkiaBitmap::SkiaBitmap(GrContext* context, int width, int height, int scale, flo
 SkiaBitmap::SkiaBitmap(const char* path, double sourceScale)
 {
   auto data = SkData::MakeFromFileName(path);
+  mDrawable.mImage = SkImage::MakeFromEncoded(data);
+
+  mDrawable.mIsSurface = false;
+  SetBitmap(&mDrawable, mDrawable.mImage->width(), mDrawable.mImage->height(), sourceScale, 1.f);
+}
+
+SkiaBitmap::SkiaBitmap(const void* pData, int size, double sourceScale)
+{
+  auto data = SkData::MakeWithoutCopy(pData, size);
   mDrawable.mImage = SkImage::MakeFromEncoded(data);
 
   mDrawable.mIsSurface = false;
@@ -194,6 +205,15 @@ bool IGraphicsSkia::BitmapExtSupported(const char* ext)
 
 APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext)
 {
+#ifdef OS_WIN
+  if (location == EResourceLocation::kWinBinary)
+  {
+    int size = 0;
+    const void* pData = LoadWinResource(fileNameOrResID, "png", size, GetWinModuleHandle());
+    return new SkiaBitmap(pData, size, scale);
+  }
+  else
+#endif
   return new SkiaBitmap(fileNameOrResID, scale);
 }
 

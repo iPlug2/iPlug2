@@ -14,7 +14,8 @@ class SkiaBitmap : public APIBitmap
 public:
   SkiaBitmap(GrContext* context, int width, int height, int scale, float drawScale);
   SkiaBitmap(const char* path, double sourceScale);
-    
+  SkiaBitmap(const void* pData, int size, double sourceScale);
+
 private:
  SkiaDrawable mDrawable;
 };
