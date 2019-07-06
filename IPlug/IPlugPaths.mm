@@ -277,7 +277,7 @@ bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_
     if(isAppExtension)
       pBundle = [NSBundle bundleWithIdentifier:[NSString stringWithCString:bundleID encoding:NSUTF8StringEncoding]];
     
-    NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
+    NSString* pFile = [[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] stringByDeletingPathExtension];
     NSString* pExt = [NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding];
     
     if (isCorrectType && pBundle && pFile)
