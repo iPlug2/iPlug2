@@ -220,8 +220,8 @@ APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
 void IGraphicsSkia::OnViewInitialized(void* pContext)
 {
 #if defined IGRAPHICS_GL
-  auto interface = GrGLMakeNativeInterface();
-  mGrContext = GrContext::MakeGL(interface);
+  auto glInterface = GrGLMakeNativeInterface();
+  mGrContext = GrContext::MakeGL(glInterface);
 #endif
     
   DrawResize();
