@@ -75,6 +75,7 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
   SetScreenScale([UIScreen mainScreen].scale);
   
   GetDelegate()->LayoutUI(this);
+  GetDelegate()->OnUIOpen();
 
   if (pParent)
   {
