@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style type="text/css">
+    * {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+    }
+  
+    p, h1 {
+      pointer-events: none;
+    }
+  </style>
+  
+  <script src="script.js"></script>
+  <script>
+    function OnParamChange(param, value) {
+      if(param == 0) {
+        document.getElementById("slider").value = value;
+      }
+    }
+  </script>
+</head>
+<body>
+<h1>IPlugWebView</h1>
+<div>
+<p>Gain</p>
+<input id="slider" type="range" onmousedown="BPCFUI(0)" oninput="SPVFUI(0, this.value/100.)" onmouseup="EPCFUI(0)">
+<input type="button" value="Click Me" onclick="SAMFUI(0)">
+</div>
+</body>
+</html>
