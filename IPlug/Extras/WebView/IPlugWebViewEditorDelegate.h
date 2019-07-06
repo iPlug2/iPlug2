@@ -26,7 +26,7 @@ public:
   void LoadFileFromBundle(const char* fileName);
   void EvaluateJavaScript(const char* scriptStr);
   void EnableScroll(bool enable);
-  
+  virtual void OnWebContentLoaded() { OnUIOpen(); };
 protected:
   std::function<void()> mEditorInitFunc = nullptr;
 

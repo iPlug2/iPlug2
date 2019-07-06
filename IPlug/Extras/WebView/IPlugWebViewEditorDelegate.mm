@@ -20,7 +20,7 @@
 //TODO remove!
 std::map<std::string, void*> gTextureMap;
 
-@interface ScriptHandler : NSObject <WKScriptMessageHandler>
+@interface ScriptHandler : NSObject <WKScriptMessageHandler, WKNavigationDelegate>
 {
   WebViewEditorDelegate* mWebViewEditorDelegate;
 }
@@ -72,6 +72,11 @@ std::map<std::string, void*> gTextureMap;
   }
 }
 
+- (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation
+{
+  mWebViewEditorDelegate->OnWebContentLoaded();
+}
+
 @end
 
 WebViewEditorDelegate::WebViewEditorDelegate(int nParams)
@@ -95,7 +100,6 @@ void* WebViewEditorDelegate::OpenWindow(void* pParent)
 
   ScriptHandler* scriptHandler = [[ScriptHandler alloc] initWithWebViewEditorDelegate: this];
   [controller addScriptMessageHandler: scriptHandler name:@"callback"];
-
   [preferences setValue:@YES forKey:@"developerExtrasEnabled"];
   webConfig.preferences = preferences;
   
@@ -104,11 +108,18 @@ void* WebViewEditorDelegate::OpenWindow(void* pParent)
 #if defined OS_IOS
   [webView.scrollView setScrollEnabled:NO];
 #endif
+
+#ifdef OS_MAC
+  [webView setAllowsMagnification:NO];
+#endif
+  
+  [webView setNavigationDelegate:scriptHandler];
   
   [pNSView addSubview:webView];
   
   mWebConfig = webConfig;
   mWKWebView = webView;
+  mScriptHandler = scriptHandler;
   
   if(mEditorInitFunc)
     mEditorInitFunc();
@@ -123,7 +134,7 @@ void WebViewEditorDelegate::CloseWindow()
 void WebViewEditorDelegate::SendControlValueFromDelegate(int controlTag, double normalizedValue)
 {
   WDL_String str;
-  str.SetFormatted(50, "SCVDD(%i, %f)", controlTag, normalizedValue);
+  str.SetFormatted(50, "SCVFD(%i, %f)", controlTag, normalizedValue);
   EvaluateJavaScript(str.Get());
 }
 
@@ -165,6 +176,7 @@ void WebViewEditorDelegate::LoadHTML(const WDL_String& html)
 void WebViewEditorDelegate::LoadURL(const char* url)
 {
   WKWebView* webView = (WKWebView*) mWKWebView;
+  
   NSURL* nsurl = [NSURL URLWithString:[NSString stringWithUTF8String:url] relativeToURL:nil];
   NSURLRequest* req = [[NSURLRequest alloc] initWithURL:nsurl];
   [webView loadRequest:req];
@@ -194,13 +206,13 @@ void WebViewEditorDelegate::EvaluateJavaScript(const char* scriptStr)
 {
   WKWebView* webView = (WKWebView*) mWKWebView;
   
-  [webView evaluateJavaScript:[NSString stringWithUTF8String:scriptStr] completionHandler:^(NSString *result, NSError *error)
-  {
-    if(error == nil)
-      NSLog(@"Result %@",result);
-    else
-      NSLog(@"Error %@",error);
-  }];
+  if (![webView isLoading]) {
+    [webView evaluateJavaScript:[NSString stringWithUTF8String:scriptStr] completionHandler:^(NSString *result, NSError *error)
+     {
+       if(error != nil)
+         NSLog(@"Error %@",error);
+     }];
+  }
 }
 
 void WebViewEditorDelegate::EnableScroll(bool enable)

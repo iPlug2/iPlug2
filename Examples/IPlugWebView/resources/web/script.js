@@ -5,8 +5,9 @@ function SPVFD(paramIdx, val) {
   OnParamChange(paramIdx, val);
 }
 
-function SCVDD(ctrlTag, val) {
-  console.log("SCVDD ctrlTag: " + ctrlTag + " value:" + val);
+function SCVFD(ctrlTag, val) {
+  OnControlChange(ctrlTag, val);
+//  console.log("SCVFD ctrlTag: " + ctrlTag + " value:" + val);
 }
 
 function SCMFD(ctrlTag, msgTag, dataSize, msg) {

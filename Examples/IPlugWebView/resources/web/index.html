@@ -20,6 +20,15 @@
         document.getElementById("slider").value = value;
       }
     }
+  
+    function OnControlChange(ctrlTag, value) {
+      if(ctrlTag == 0) {
+        document.getElementById("left_meter").value = value;
+      }
+      else if(ctrlTag == 1) {
+        document.getElementById("right_meter").value = value;
+      }
+    }
   </script>
 </head>
 <body>
@@ -28,6 +37,8 @@
 <p>Gain</p>
 <input id="slider" type="range" onmousedown="BPCFUI(0)" oninput="SPVFUI(0, this.value/100.)" onmouseup="EPCFUI(0)">
 <input type="button" value="Click Me" onclick="SAMFUI(0)">
+<progress id="left_meter">
+<progress id="right_meter">
 </div>
 </body>
 </html>
