@@ -126,13 +126,13 @@ jobs:
     displayName: Build CivetWeb
 
   - bash: |
-      rm ./Dependencies/Build/*.log
-      rm -r ./Dependencies/Build/tmp
-      # mv ./Dependencies/Build/src/skia/include ./Dependencies/Build/skia_include_tmp 
-      # rm -r ./Dependencies/Build/src
-      # mkdir ./Dependencies/Build/src
-      # mkdir ./Dependencies/Build/src/skia
-      # mv ./Dependencies/Build/skia_include_tmp ./Dependencies/Build/src/skia/include
+      cd ./Dependencies/Build
+      rm *.log
+      rm -r tmp
+      mv ./src/skia/include ./skia_include_tmp 
+      rm -r src
+      mkdir -p ./src/skia
+      mv ./skia_include_tmp ./src/skia/include
     displayName: Delete unwanted files
 
   - task: PublishPipelineArtifact@0
