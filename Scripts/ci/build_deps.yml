@@ -130,7 +130,8 @@ jobs:
       rm -r ./Dependencies/Build/tmp
       mv ./Dependencies/Build/src/skia/include ./Dependencies/Build/skia_include_tmp 
       rm -r ./Dependencies/Build/src
-      mkdir -p ./Dependencies/Build/src/skia/
+      mkdir ./Dependencies/Build/src
+      mkdir ./Dependencies/Build/src/skia
       mv ./Dependencies/Build/skia_include_tmp ./Dependencies/Build/src/skia/include
     displayName: Delete unwanted files
 
