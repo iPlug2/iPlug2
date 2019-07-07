@@ -7,7 +7,6 @@
 #include "SkPath.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
-#include "src/core/SkAutoMalloc.h"
 
 class SkiaBitmap : public APIBitmap
 {
