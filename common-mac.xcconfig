@@ -104,7 +104,7 @@ AGG_PATH = $(IGRAPHICS_DEPS_PATH)/AGG/agg-2.4
 AGG_INC_PATHS = $(AGG_PATH)/include $(AGG_PATH)/font_freetype $(AGG_PATH)/include/util $(AGG_PATH)/include/platform/mac $(AGG_PATH)/src $(AGG_PATH)/src/platform/mac
 STB_PATH = $(DEPS_PATH)/IGraphics/STB
 FT_PATH = $(BUILT_LIBS_INC_PATH)/freetype2
-SKIA_PATH = /Users/oli/Dev/skia/
+SKIA_PATH = $(DEPS_PATH)/Build/src/skia
 
 SKIA_INC_PATHS = $(SKIA_PATH) $(SKIA_PATH)/include/core $(SKIA_PATH)/include/effects $(SKIA_PATH)/include/config $(SKIA_PATH)/include/utils $(SKIA_PATH)/include/utils/mac $(SKIA_PATH)/include/gpu $(SKIA_PATH)/src/gpu $(SKIA_PATH)/include/private
 
@@ -121,7 +121,7 @@ LIB_PIXMAN = $(BUILT_LIBS_LIB_PATH)/libpixman-1.a
 LIB_PNG = $(BUILT_LIBS_LIB_PATH)/libpng.a
 LIB_Z = $(BUILT_LIBS_LIB_PATH)/libz.a
 LIB_CIVET = $(BUILT_LIBS_LIB_PATH)/libcivetweb.a
-LIB_SKIA = $(SKIA_PATH)/out/Static/libskia.a
+LIB_SKIA = $(BUILT_LIBS_LIB_PATH)/libskia.a
 
 // you can optionally include this build setting, by adding it to EXTRA_LNK_FLAGS in your plug-ins xcconfig, in order to get all varieties of IGraphics support
 CAIRO_LNK_FLAGS = $(LIB_CAIRO) $(LIB_FT) $(LIB_PIXMAN) $(LIB_PNG) $(LIB_Z) //$(LIB_HB) $(LIB_HB_ICU) $(LIB_GF)
