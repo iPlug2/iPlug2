@@ -26,7 +26,6 @@
 
 #if defined IGRAPHICS_GL
   #include "gl/GrGLInterface.h"
-  #include "gl/GrGLUtil.h"
 #endif
 
 struct SkiaFont
