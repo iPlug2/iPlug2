@@ -8,18 +8,18 @@ jobs:
 
   strategy:
     matrix:
-      x86_RELEASE:
-        buildPlatform: 'Win32'
-        buildConfiguration: 'Release'
+      # x86_RELEASE:
+      #   buildPlatform: 'Win32'
+      #   buildConfiguration: 'Release'
       x64_RELEASE:
         buildPlatform: 'x64'
         buildConfiguration: 'Release'
-      x86_DEBUG:
-        buildPlatform: 'Win32'
-        buildConfiguration: 'Debug'
-      x64_DEBUG:
-        buildPlatform: 'x64'
-        buildConfiguration: 'Debug'
+      # x86_DEBUG:
+      #   buildPlatform: 'Win32'
+      #   buildConfiguration: 'Debug'
+      # x64_DEBUG:
+      #   buildPlatform: 'x64'
+      #   buildConfiguration: 'Debug'
 
   pool:
     vmImage: 'vs2017-win2016'
@@ -35,6 +35,46 @@ jobs:
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'
     displayName: Build Windows Dependencies
+
+  - powershell: |
+      curl https://storage.googleapis.com/chrome-infra/depot_tools.zip --output depot_tools.zip
+      unzip depot_tools.zip -d depot_tools
+      Write-Host "##vso[task.setvariable variable=PATH;]$(Build.SourcesDirectory)\depot_tools;${env:PATH};";
+      gclient
+    displayName: (SKIA) Setup Depot Tools
+
+  - powershell: |
+      cd Dependencies/Build/src/skia
+      python.bat tools/git-sync-deps
+    displayName: (SKIA) git sync deps
+
+  - powershell: |
+      cd Dependencies/Build/src/skia         
+      bin/gn gen $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/Release --args='
+      is_official_build=true
+      target_cpu=\"x64\"
+      skia_use_icu=false
+      skia_enable_pdf=false
+      skia_enable_gpu=true
+      skia_use_dng_sdk=false
+      skia_use_expat=true
+      skia_use_libwebp=false
+      skia_use_piex=false
+      skia_use_sfntly=false
+      skia_use_system_libjpeg_turbo=false
+      extra_cflags=[
+        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\libpng\",
+        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\libpng\",
+        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\zlib\",
+        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\expat\lib\",
+      \"/MTd\",]'
+    displayName: (SKIA) Configure with GN tool
+
+  - powershell: |
+      cd skia
+      ninja -C $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/Release
+    continueOnError: true
+    displayName: (SKIA) Build with NINJA
 
   - task: PublishPipelineArtifact@0
     inputs:
