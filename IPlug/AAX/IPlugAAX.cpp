@@ -39,9 +39,8 @@ void AAX_CEffectGUI_IPLUG::CreateViewContainer()
   
   if (pWindow && mPlug->HasUI())
   {
-    if (mPlug->OpenWindow(pWindow))
-      mPlug->OnUIOpen();
-      
+    mPlug->OpenWindow(pWindow);
+    
     IPlugAAXView_Interface* pViewInterface = (IPlugAAXView_Interface*) mPlug->GetAAXViewInterface();
     
     if(pViewInterface)

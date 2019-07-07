@@ -948,6 +948,8 @@ void* IGraphicsWin::OpenWindow(void* pParent)
     if (!ok) EnableTooltips(ok);
   }
 
+  GetDelegate()->OnUIOpen();
+  
   return mPlugWnd;
 }
 

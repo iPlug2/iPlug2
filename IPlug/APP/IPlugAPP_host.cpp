@@ -73,13 +73,7 @@ bool IPlugAPPHost::Init()
 
 bool IPlugAPPHost::OpenWindow(HWND pParent)
 {
-  if (mIPlug->OpenWindow(pParent) != nullptr)
-  {
-    mIPlug->OnUIOpen();
-    return true;
-  }
-  
-  return false;
+  return mIPlug->OpenWindow(pParent) != nullptr;
 }
 
 void IPlugAPPHost::CloseWindow()

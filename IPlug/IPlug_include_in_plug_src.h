@@ -370,7 +370,6 @@ extern "C"
       gPlug = std::unique_ptr<IPlugWeb>(MakePlug());
       gPlug->SetHost("www", 0);
       gPlug->OpenWindow(nullptr);
-      gPlug->OnUIOpen();
       iplug_syncfs(); // plug in may initialise settings in constructor, write to persistent data after init
     }
   }

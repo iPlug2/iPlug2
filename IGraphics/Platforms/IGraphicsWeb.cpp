@@ -460,6 +460,7 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
   SetScreenScale(std::ceil(std::max(emscripten_get_device_pixel_ratio(), 1.)));
 
   GetDelegate()->LayoutUI(this);
+  GetDelegate()->OnUIOpen();
   
   return nullptr;
 }
