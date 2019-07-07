@@ -43,9 +43,12 @@ jobs:
 
   - powershell: |
       Write-Host "##vso[task.setvariable variable=PATH;]$(Build.SourcesDirectory)\depot_tools;${env:PATH};";
+    displayName: (SKIA) Setup Depot Tools
+
+  - script: |
       cd depot_tools
       gclient
-    displayName: (SKIA) Setup Depot Tools
+    displayName: (SKIA) Setup Depot Tools 2
 
   - powershell: |
       cd Dependencies/Build/src/skia
