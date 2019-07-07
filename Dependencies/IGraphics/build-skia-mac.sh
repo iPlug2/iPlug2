@@ -6,7 +6,7 @@ export PATH="${PWD}/../../tmp/depot_tools:${PATH}"
 
 cd ../Build/src/skia
 python tools/git-sync-deps
-bin/gn gen ../../tmp/skia --args='
+bin/gn gen ../../tmp/skia/Release --args='
 is_official_build=true
 skia_use_metal=true
 skia_use_icu=false
@@ -22,5 +22,5 @@ skia_use_system_libjpeg_turbo=false
 extra_cflags=["-Wno-error"]
 extra_cflags_c=["-Wno-error"]
 '
-ninja -C ../../tmp/skia
-mv ../../tmp/skia/libskia.a ../../mac/lib
+ninja -C ../../tmp/skia/Release
+mv ../../tmp/skia/Release/libskia.a ../../mac/lib
