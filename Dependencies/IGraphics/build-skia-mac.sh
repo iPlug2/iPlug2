@@ -23,3 +23,4 @@ extra_cflags=["-Wno-error"]
 extra_cflags_c=["-Wno-error"]
 '
 ninja -C ../../tmp/skia
+mv ../../tmp/skia/libskia.a ../../mac/lib
