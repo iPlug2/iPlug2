@@ -29,12 +29,12 @@ jobs:
 
   - template: get_src_artifact.yml
 
-  # - task: VSBuild@1
-  #   inputs:
-  #     solution: 'Dependencies/IGraphics/IGraphicsLibraries.sln'
-  #     platform: '$(buildPlatform)'
-  #     configuration: '$(buildConfiguration)'
-  #   displayName: Build Windows Dependencies
+  - task: VSBuild@1
+    inputs:
+      solution: 'Dependencies/IGraphics/IGraphicsLibraries.sln'
+      platform: '$(buildPlatform)'
+      configuration: '$(buildConfiguration)'
+    displayName: Build Windows Dependencies
 
   - bash: |
       curl https://storage.googleapis.com/chrome-infra/depot_tools.zip --output depot_tools.zip
@@ -56,7 +56,7 @@ jobs:
     displayName: (SKIA) git sync deps
 
   - powershell: |
-      cd Dependencies/Build/src/skia         
+      cd Dependencies/Build/src/skia
       bin/gn gen $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/Release --args='
       is_official_build=true
       target_cpu=\"x64\"
@@ -78,10 +78,21 @@ jobs:
     displayName: (SKIA) Configure with GN tool
 
   - powershell: |
-      cd Dependencies/Build/src/skia         
+      cd Dependencies/Build/src/skia
       ninja -C $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/Release
     continueOnError: true
     displayName: (SKIA) Build with NINJA
+
+  - bash: |
+      cd ./Dependencies/Build
+      mv ./tmp/skia/Release/skia.lib ./win/x64/Release/skia.lib
+      rm *.log
+      rm -r tmp
+      mv ./src/skia/include ./skia_include_tmp 
+      rm -r src
+      mkdir -p ./src/skia
+      mv ./skia_include_tmp ./src/skia/include
+    displayName: Delete unwanted files
 
   - task: PublishPipelineArtifact@0
     inputs:
@@ -95,17 +106,17 @@ jobs:
   steps:
   - checkout: none
 
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'DEPS_BUILD_WIN_Win32_Release'
-      targetPath: 'Dependencies/Build/'
-    displayName: Download Win32_Release Artifact
+  # - task: DownloadPipelineArtifact@0
+  #   inputs:
+  #     artifactName: 'DEPS_BUILD_WIN_Win32_Release'
+  #     targetPath: 'Dependencies/Build/'
+  #   displayName: Download Win32_Release Artifact
 
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'DEPS_BUILD_WIN_Win32_Debug'
-      targetPath: 'Dependencies/Build/'
-    displayName: Download Win32_Debug Artifact
+  # - task: DownloadPipelineArtifact@0
+  #   inputs:
+  #     artifactName: 'DEPS_BUILD_WIN_Win32_Debug'
+  #     targetPath: 'Dependencies/Build/'
+  #   displayName: Download Win32_Debug Artifact
 
   - task: DownloadPipelineArtifact@0
     inputs:
@@ -113,11 +124,11 @@ jobs:
       targetPath: 'Dependencies/Build/'
     displayName: Download x64_Release Artifact
 
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'DEPS_BUILD_WIN_x64_Debug'
-      targetPath: 'Dependencies/Build/'
-    displayName: Download x64_Debug Artifact
+  # - task: DownloadPipelineArtifact@0
+  #   inputs:
+  #     artifactName: 'DEPS_BUILD_WIN_x64_Debug'
+  #     targetPath: 'Dependencies/Build/'
+  #   displayName: Download x64_Debug Artifact
 
   - task: DeleteFiles@1
     inputs:
