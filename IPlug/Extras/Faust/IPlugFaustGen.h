@@ -34,7 +34,7 @@ using FaustGen = IPlugFaust; // not used, except for CompileCPP();
 #include <sys/stat.h>
 
 #if defined OS_MAC || defined OS_LINUX
-typedef struct stat;
+typedef struct stat StatType;
 typedef timespec StatTime;
 
 static inline int GetStat(const char* path, StatType* pStatbuf) { return stat(path, pStatbuf); }
@@ -135,7 +135,6 @@ class FaustGen : public IPlugFaust
 
     llvm_dsp_factory* CreateFactoryFromBitCode();
     llvm_dsp_factory* CreateFactoryFromSourceCode();
-    
     
     /** If DSP allready exists will return it, otherwise create it
      * @return pointer to the DSP instance */
@@ -244,6 +243,8 @@ public:
 
   void SetAutoRecompile(bool enable);
   
+  void SetCompileFunc(std::function<void()> func) { mOnCompileFunc = func; }
+  
   void OnTimer(Timer& timer);
   
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
@@ -258,6 +259,7 @@ private:
   int mMaxNInputs = -1;
   int mMaxNOutputs = -1;
   bool mErrored = false;
+  std::function<void()> mOnCompileFunc = nullptr;
   
   WDL_Mutex mMutex;
 };

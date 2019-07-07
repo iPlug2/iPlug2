@@ -47,7 +47,7 @@ public:
       yarray[i] = mRECT.MH() + cosf(angle + (float) i * incr) * mRECT.W() * 0.45f;
     }
 
-    //IBlend blend { kBlendDefault, 0.5 };
+    //IBlend blend { EBlend::Default, 0.5 };
     g.FillConvexPolygon(IColor(120, 255, 127, 0), xarray, yarray, npoints);//, &blend);
     g.DrawConvexPolygon(COLOR_BLACK, xarray, yarray, npoints);
   }

@@ -17,6 +17,14 @@
 
 #include "IPlugUtilities.h"
 
+#if defined OS_MAC || defined OS_IOS
+using PluginIDType = const char *;
+#elif defined OS_WIN
+using PluginIDType = HMODULE;
+#else
+using PluginIDType = void *;
+#endif
+
 #if defined OS_WIN
 #include <windows.h>
  // Unicode helpers
@@ -29,11 +37,11 @@ extern void HostPath(WDL_String& path, const char* bundleID = 0);
 
 /** @param path WDL_String reference where the path will be put on success or empty string on failure
  *  @param pExtra This should either be a const char* to bundleID (macOS) or an HMODULE handle (windows) */
-extern void PluginPath(WDL_String& path, void* pExtra);
+extern void PluginPath(WDL_String& path, PluginIDType pExtra);
 
 /** @param path WDL_String reference where the path will be put on success or empty string on failure
  *  @param pExtra This should either be a const char* to bundleID (macOS) or an HMODULE handle (windows) */
-extern void BundleResourcePath(WDL_String& path, void* pExtra = 0);
+extern void BundleResourcePath(WDL_String& path, PluginIDType pExtra = 0);
 
 /** @param path WDL_String reference where the path will be put on success or empty string on failure */
 extern void DesktopPath(WDL_String& path);
@@ -78,21 +86,3 @@ extern EResourceLocation LocateResource(const char* fileNameOrResID, const char*
  * @param type The resource type in lower or upper case, e.g. ttf or TTF for a truetype font
  * @return const void pointer to the data if successfull on windows. Returns nullptr if unsuccessfull or on platforms other than windows */
 extern const void* LoadWinResource(const char* resID, const char* type, int& sizeInBytes, void* pHInstance);
-
-/** /todo  
- * @param fileName /todo
- * @param searchExt /todo
- * @param fullPath /todo
- * @param bundleID /todo
- * @return true /todo
- * @return false /todo */
-extern bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath, const char* bundleID = nullptr);
-
-/** /todo 
- * @param fileName /todo
- * @param searchExt /todo
- * @param fullPath /todo
- * @param subfolder /todo
- * @return true /todo
- * @return false /todo */
-extern bool GetResourcePathFromSharedLocation(const char* fileName, const char* searchExt, WDL_String& fullPath, const char* subfolder);

@@ -281,6 +281,10 @@ public:
    * @param value /todo
    * @param str /todo */
   void SetDisplayText(double value, const char* str);
+  
+  /** Set the parameters label after creation. WARNING: if this is called after the host has queried plugin parameters, the host may display the label as it was previously
+   * @param label /todo */
+  void SetLabel(const char* label) { strcpy(mLabel, label); }
 
   /** Gets a readable value of the parameter
    * @return Current value of the parameter */
@@ -306,6 +310,13 @@ public:
    * @param withDisplayText /todo */
   void GetDisplayForHost(WDL_String& display, bool withDisplayText = true) const { GetDisplayForHost(mValue.load(), false, display, withDisplayText); }
 
+  void GetDisplayForHostWithLabel(WDL_String& display, bool withDisplayText = true) const
+  {
+    GetDisplayForHost(mValue.load(), false, display, withDisplayText);
+    display.Append(" ");
+    display.Append(GetLabelForHost());
+  }
+  
   /** /todo 
    * @param value /todo
    * @param normalized /todo

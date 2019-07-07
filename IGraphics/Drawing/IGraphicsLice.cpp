@@ -493,16 +493,16 @@ void IGraphicsLice::PrepareAndMeasureText(const IText& text, const char* str, IR
 
   switch (text.mAlign)
   {
-    case IText::kAlignNear:     x = r.L;                          break;
-    case IText::kAlignCenter:   x = r.MW() - (textWidth / 2.f);   break;
-    case IText::kAlignFar:      x = r.R - textWidth;              break;
+    case EAlign::Near:     x = r.L;                          break;
+    case EAlign::Center:   x = r.MW() - (textWidth / 2.f);   break;
+    case EAlign::Far:      x = r.R - textWidth;              break;
   }
   
   switch (text.mVAlign)
   {
-    case IText::kVAlignTop:      y = r.T;                           break;
-    case IText::kVAlignMiddle:   y = r.MH() - (textHeight / 2.f);   break;
-    case IText::kVAlignBottom:   y = r.B - textHeight;              break;
+    case EVAlign::Top:      y = r.T;                           break;
+    case EVAlign::Middle:   y = r.MH() - (textHeight / 2.f);   break;
+    case EVAlign::Bottom:   y = r.B - textHeight;              break;
   }
   
   r = IRECT(x, y, x + textWidth, y + textHeight);
@@ -525,7 +525,7 @@ void IGraphicsLice::DoDrawText(const IText& text, const char* str, const IRECT& 
   NeedsClipping();
   PrepareAndMeasureText(text, str, measured, pFont);
   
-  if (text.mOrientation)
+  if (text.mAngle)
   {
     float pad = std::max(measured.W(), measured.H()) * 0.5;
     IRECT layerRect(measured.GetPadded(pad));
@@ -541,7 +541,7 @@ void IGraphicsLice::DoDrawText(const IText& text, const char* str, const IRECT& 
   pFont->SetTextColor(LiceColor(text.mFGColor, pBlend));
   pFont->DrawText(mRenderBitmap, str, -1, &R, fmt);
   
-  if (text.mOrientation)
+  if (text.mAngle)
   {
     ILayerPtr layer = EndLayer();
     LICE_IBitmap* pLICEBitmap = layer->GetAPIBitmap()->GetBitmap();
@@ -549,7 +549,7 @@ void IGraphicsLice::DoDrawText(const IText& text, const char* str, const IRECT& 
   
     DoMeasureTextRotation(text, bounds, measured);
     
-    float radians = DegToRad(text.mOrientation);
+    float radians = DegToRad(text.mAngle);
     
     IRECT r2 = measured;
     r2.Translate(-mDrawOffsetX, -mDrawOffsetY);

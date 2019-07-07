@@ -40,6 +40,6 @@ public:
   bool OnKeyUp(const IKeyPress& key) override;
 private:
   IPlugInstrumentDSP mDSP {16};
-  IVMeterControl<1>::IVMeterBallistics mMeterBallistics {kCtrlTagMeter};
+  IVMeterControl<1>::Sender mMeterSender {kCtrlTagMeter};
 #endif
 };

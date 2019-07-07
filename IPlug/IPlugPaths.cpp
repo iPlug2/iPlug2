@@ -85,15 +85,15 @@ void HostPath(WDL_String& path, const char* bundleID)
   GetModulePath(0, path);
 }
 
-void PluginPath(WDL_String& path, void* pExtra)
+void PluginPath(WDL_String& path, HMODULE pExtra)
 {
-  GetModulePath((HMODULE) pExtra, path);
+  GetModulePath(pExtra, path);
 }
 
-void BundleResourcePath(WDL_String& path, void* pExtra)
+void BundleResourcePath(WDL_String& path, HMODULE pExtra)
 {
 #ifdef VST3_API
-  GetModulePath((HMODULE)pExtra, path);
+  GetModulePath(pExtra, path);
 #ifdef ARCH_64BIT
   path.SetLen(path.GetLength() - strlen("x86_64-win/"));
 #else

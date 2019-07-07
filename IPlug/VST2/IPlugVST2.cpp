@@ -103,7 +103,7 @@ static int VSTKeyCodeToVK(int code, int ascii)
   case VKEY_SHIFT: return kVK_SHIFT;
   case VKEY_CONTROL: return kVK_CONTROL;
   case VKEY_ALT: return kVK_MENU;
-  case VKEY_EQUALS: return kVK_NONE; 
+  case VKEY_EQUALS: return kVK_NONE;
   }
 
   return kVK_NONE;
@@ -196,8 +196,10 @@ void IPlugVST2::InformHostOfProgramChange()
   mHostCallback(&mAEffect, audioMasterUpdateDisplay, 0, 0, 0, 0.0f);
 }
 
-void IPlugVST2::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
+bool IPlugVST2::EditorResizeFromDelegate(int viewWidth, int viewHeight)
 {
+  bool resized = false;
+
   if (HasUI())
   {
     if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
@@ -206,11 +208,13 @@ void IPlugVST2::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeigh
       mEditRect.right = viewWidth;
       mEditRect.bottom = viewHeight;
 
-      mHostCallback(&mAEffect, audioMasterSizeWindow, viewWidth, viewHeight, 0, 0.f);
+      resized = mHostCallback(&mAEffect, audioMasterSizeWindow, viewWidth, viewHeight, 0, 0.f);
     }
 
-    IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
+    IPlugAPIBase::EditorResizeFromDelegate(viewWidth, viewHeight);
   }
+
+  return resized;
 }
 
 void IPlugVST2::SetLatency(int samples)

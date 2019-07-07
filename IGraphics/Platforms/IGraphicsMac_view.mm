@@ -186,9 +186,7 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
       [subMenu release];
     }
     else if (pMenuItem->GetIsSeparator())
-    {
       [self addItem:[NSMenuItem separatorItem]];
-    }
     else
     {
       nsMenuItem = [self addItemWithTitle:nsMenuItemTitle action:@selector(onMenuSelection:) keyEquivalent:@""];
@@ -196,27 +194,17 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
       [nsMenuItem setTarget:pView];
       
       if (pMenuItem->GetIsTitle ())
-      {
         [nsMenuItem setIndentationLevel:1];
-      }
 
       if (pMenuItem->GetChecked())
-      {
         [nsMenuItem setState:NSOnState];
-      }
       else
-      {
         [nsMenuItem setState:NSOffState];
-      }
 
       if (pMenuItem->GetEnabled())
-      {
         [nsMenuItem setEnabled:YES];
-      }
       else
-      {
         [nsMenuItem setEnabled:NO];
-      }
 
     }
   }
@@ -717,7 +705,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   float prevX = mPrevX;
   float prevY = mPrevY;
   IMouseInfo info = [self getMouseLeft:pEvent];
-  if (mGraphics && !mTextFieldView)
+  if (mGraphics && !mGraphics->IsInTextEntry())
     mGraphics->OnMouseDrag(info.x, info.y, info.x - prevX, info.y - prevY, info.ms);
 }
 
@@ -1023,7 +1011,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 
   mTextFieldView = [[IGRAPHICS_TEXTFIELD alloc] initWithFrame: areaRect];
   
-  if (text.mVAlign == IText::kVAlignMiddle)
+  if (text.mVAlign == EVAlign::Middle)
   {
     IGRAPHICS_TEXTFIELDCELL* pCell = [[IGRAPHICS_TEXTFIELDCELL alloc] initTextCell:@"textfield"];
     [mTextFieldView setCell: pCell];
@@ -1038,13 +1026,13 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   
   switch (text.mAlign)
   {
-    case IText::kAlignNear:
+    case EAlign::Near:
       [mTextFieldView setAlignment: NSLeftTextAlignment];
       break;
-    case IText::kAlignCenter:
+    case EAlign::Center:
       [mTextFieldView setAlignment: NSCenterTextAlignment];
       break;
-    case IText::kAlignFar:
+    case EAlign::Far:
       [mTextFieldView setAlignment: NSRightTextAlignment];
       break;
     default:
@@ -1107,6 +1095,25 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   [pWindow makeFirstResponder: self];
 
   mTextFieldView = nullptr;
+}
+
+- (BOOL) promptForColor: (IColor&) color : (IColorPickerHandlerFunc) func;
+{
+  NSColorPanel* colorPicker = [NSColorPanel sharedColorPanel];
+  mColorPickerFunc = func;
+
+  [colorPicker setShowsAlpha:TRUE];
+  [colorPicker setColor:ToNSColor(color)];
+  [colorPicker setTarget:self];
+  [colorPicker setAction:@selector(onColorPicked:)];
+  [colorPicker orderFront:nil];
+  
+  return colorPicker != nil;
+}
+
+- (void) onColorPicked: (NSColorPanel*) colorPanel
+{
+  mColorPickerFunc(FromNSColor(colorPanel.color));
 }
 
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData
@@ -1176,9 +1183,9 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 //  float scaleX = width / mGraphics->Width();
 //  float scaleY = height / mGraphics->Height();
 //
-//  if(mGraphics->GetUIResizerMode() == EUIResizerMode::kUIResizerScale)
+//  if(mGraphics->GetUIResizerMode() == EUIResizerMode::Scale)
 //    mGraphics->Resize(width, height, mGraphics->GetDrawScale());
-//  else // EUIResizerMode::kUIResizerSize
+//  else // EUIResizerMode::Size
 //    mGraphics->Resize(mGraphics->Width(), mGraphics->Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
 //}
 //
@@ -1193,9 +1200,9 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 //  float scaleX = width / mGraphics->Width();
 //  float scaleY = height / mGraphics->Height();
 //
-//  if(mGraphics->GetUIResizerMode() == EUIResizerMode::kUIResizerScale)
+//  if(mGraphics->GetUIResizerMode() == EUIResizerMode::Scale)
 //    mGraphics->Resize(width, height, mGraphics->GetDrawScale());
-//  else // EUIResizerMode::kUIResizerSize
+//  else // EUIResizerMode::Size
 //    mGraphics->Resize(mGraphics->Width(), mGraphics->Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
 //}
 

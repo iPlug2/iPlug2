@@ -98,15 +98,13 @@ void ITextEntryControl::Draw(IGraphics& g)
     for (int i = 0; i < mCharWidths.GetSize() && i < end; ++i)
     {
       if (i < start)
-      {
         selectionStart += mCharWidths.Get()[i];
-      }
 
       selectionEnd += mCharWidths.Get()[i];
     }
     IRECT selectionRect(selectionStart, mRECT.T + row.ymin, selectionEnd, mRECT.T + row.ymax);
     selectionRect = selectionRect.GetVPadded(-mText.mSize*0.1f);
-    IBlend blend(kBlendDefault, 0.2);
+    IBlend blend(EBlend::Default, 0.2);
     g.FillRect(mText.mTextEntryFGColor, selectionRect, &blend);
   }
 
@@ -148,13 +146,29 @@ void ITextEntryControl::OnMouseDown(float x, float y, const IMouseMod& mod)
     return;
   }
     
-  if (mod.L)
+  if(mod.L)
   {
     CallSTB ([&]() {
       stb_textedit_click(this, &mEditState, x - mRECT.L, y - mRECT.T);
     });
     
     SetDirty(true);
+  }
+  
+  if(mod.R)
+  {
+    static IPopupMenu menu {{"Cut", "Copy", "Paste"}, [&](int indexInMenu, IPopupMenu::Item* itemChosen) {
+      switch (indexInMenu) {
+        case 0: Cut(); break;
+        case 1: CopySelection(); break;
+        case 2: Paste(); break;
+        default:
+          break;
+      }
+    }
+    };
+    
+    GetUI()->CreatePopupMenu(*this, menu, x, y);
   }
 }
 
@@ -206,10 +220,7 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
       }
       case 'X':
       {
-        CopySelection();
-        CallSTB([&] {
-          stb_textedit_cut(this, &mEditState);
-        });
+        Cut();
         return true;
       }
       case 'C':
@@ -219,25 +230,15 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
       }
       case 'V':
       {
-        WDL_String fromClipboard;
-        if (GetUI()->GetTextFromClipboard(fromClipboard))
-        {
-          CallSTB([&] {
-            stb_textedit_paste(this, &mEditState, fromClipboard.Get(), fromClipboard.GetLength());
-          });
-        }
+        Paste();
         return true;
       }
       case 'Z':
       {
         if (key.S)
-        {
           CallSTB([&]() { stb_textedit_key(this, &mEditState, STB_TEXTEDIT_K_REDO); });
-        }
         else
-        {
           CallSTB([&]() { stb_textedit_key(this, &mEditState, STB_TEXTEDIT_K_UNDO); });
-        }
         return true;
       }
     
@@ -332,6 +333,25 @@ void ITextEntryControl::CopySelection()
   }
 }
 
+void ITextEntryControl::Paste()
+{
+  WDL_String fromClipboard;
+  if (GetUI()->GetTextFromClipboard(fromClipboard))
+  {
+    CallSTB([&] {
+      stb_textedit_paste(this, &mEditState, fromClipboard.Get(), fromClipboard.GetLength());
+    });
+  }
+}
+
+void ITextEntryControl::Cut()
+{
+  CopySelection();
+  CallSTB([&] {
+    stb_textedit_cut(this, &mEditState);
+  });
+}
+
 //static
 int ITextEntryControl::DeleteChars(ITextEntryControl* _this, size_t pos, size_t num)
 {
@@ -378,19 +398,19 @@ void ITextEntryControl::Layout(StbTexteditRow* row, ITextEntryControl* _this, in
 
   switch (_this->GetText().mAlign)
   {
-    case IText::kAlignNear:
+    case EAlign::Near:
     {
       row->x0 = _this->GetRECT().L + 1; 
       row->x1 = row->x0 + textWidth;
       break;
     }
-    case IText::kAlignCenter:
+    case EAlign::Center:
     {
       row->x0 = roundf(_this->GetRECT().MW() - (textWidth * 0.5f));
       row->x1 = row->x0 + textWidth;
       break;
     }
-    case IText::kAlignFar:
+    case EAlign::Far:
     {
       row->x0 = _this->GetRECT().R - textWidth;
       row->x1 = row->x0 + textWidth;
@@ -404,19 +424,19 @@ void ITextEntryControl::Layout(StbTexteditRow* row, ITextEntryControl* _this, in
 
   switch (_this->GetText().mVAlign)
   {
-    case IText::kVAlignTop:
+    case EVAlign::Top:
     {
       row->ymin = 0;
       break;
     }
 
-    case IText::kVAlignMiddle:
+    case EVAlign::Middle:
     {
       row->ymin = _this->GetRECT().H()*0.5f - _this->GetText().mSize*0.5f;
       break;
     }
 
-    case IText::kVAlignBottom:
+    case EVAlign::Bottom:
     {
       row->ymin = _this->GetRECT().H() - _this->GetText().mSize;
       break;

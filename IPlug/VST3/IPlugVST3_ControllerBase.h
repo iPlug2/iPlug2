@@ -121,20 +121,27 @@ public:
      */
   }
   
+  ParamValue PLUGIN_API getParamNormalized(IPlugAPIBase* pPlug, ParamID tag)
+  {
+    IParam* param = pPlug->GetParam(tag);
+        
+    if (param)
+    {
+      return param->GetNormalized();
+    }
+        
+    return 0.0;
+  }
+    
   void PLUGIN_API setParamNormalized(IPlugAPIBase* pPlug, ParamID tag, ParamValue value)
   {
     if (tag >= kBypassParam)
     {
       switch (tag)
       {
-//        case kBypassParam:
-//        {
-//          break;
-//        }
         case kPresetParam:
         {
           pPlug->RestorePreset(pPlug->NPresets() * value);
-          
           break;
         }
         default:

@@ -24,7 +24,7 @@
 class TestGLControl : public IControl
 {
 public:
-  TestGLControl(IRECT rect)
+  TestGLControl(const IRECT& rect)
     : IControl(rect, kNoParameter)
   {
     SetTooltip("TestGLControl");
@@ -207,7 +207,7 @@ private:
 class TestGLControl : public IControl
 {
 public:
-  TestGLControl(IRECT rect)
+  TestGLControl(const IRECT& rect)
   : IControl(rect)
   {
     SetTooltip("TestGLControl");

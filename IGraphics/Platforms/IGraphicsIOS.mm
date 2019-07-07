@@ -9,11 +9,15 @@
 */
 
 #import <QuartzCore/QuartzCore.h>
+#import <MetalKit/MetalKit.h>
 
 #include "IGraphicsIOS.h"
 #include "IGraphicsCoreText.h"
 
 #import "IGraphicsIOS_view.h"
+
+#include <map>
+#include <string>
 
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
@@ -21,9 +25,37 @@ StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 #pragma mark -
 
+std::map<std::string, void*> gTextureMap;
+
 IGraphicsIOS::IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphicsNanoVG(dlg, w, h, fps, scale)
 {
+ 
+  if(!gTextureMap.size())
+  {
+    MTKTextureLoader* textureLoader = [[MTKTextureLoader alloc] initWithDevice:MTLCreateSystemDefaultDevice()];
+
+    NSBundle* pBundle = [NSBundle mainBundle];
+   
+    if([[pBundle bundleIdentifier] containsString:@"AUv3"])
+    {
+      pBundle = [NSBundle bundleWithPath: [[[pBundle bundlePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent]];
+    }
+    
+    NSArray<NSURL*>* textureFiles = [pBundle URLsForResourcesWithExtension:@"ktx" subdirectory:@""];
+
+    NSError* pError = nil;
+    NSDictionary* textureOptions = @{ MTKTextureLoaderOptionSRGB: [[NSNumber alloc] initWithBool:NO] };
+
+    NSArray<id<MTLTexture>>* textures = [textureLoader newTexturesWithContentsOfURLs:textureFiles options:textureOptions error:&pError];
+
+    for(int i=0; i < textures.count; i++)
+    {
+      gTextureMap.insert(std::make_pair([[[textureFiles[i] lastPathComponent] stringByDeletingPathExtension] cStringUsingEncoding:NSUTF8StringEncoding], textures[i]));
+    }
+    
+    DBGMSG("Loaded %i textures\n", (int) textures.count);
+  }
 }
 
 IGraphicsIOS::~IGraphicsIOS()
@@ -35,9 +67,8 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
 {
   TRACE;
   CloseWindow();
-  mView = (IGraphicsIOS_View*) [[IGraphicsIOS_View alloc] initWithIGraphics: this];
-  
-  IGraphicsIOS_View* view = (IGraphicsIOS_View*) mView;
+  IGraphicsIOS_View* view = (IGraphicsIOS_View*) [[IGraphicsIOS_View alloc] initWithIGraphics: this];
+  mView = view;
   
   OnViewInitialized([view layer]);
   
@@ -47,7 +78,7 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
 
   if (pParent)
   {
-    [(UIView*) pParent addSubview: (IGraphicsIOS_View*) mView];
+    [(UIView*) pParent addSubview: view];
   }
 
   return mView;
@@ -80,7 +111,7 @@ bool IGraphicsIOS::WindowIsOpen()
   return mView;
 }
 
-void IGraphicsIOS::PlatformResize()
+void IGraphicsIOS::PlatformResize(bool parentHasResized)
 {
   if (mView)
   {
@@ -88,10 +119,11 @@ void IGraphicsIOS::PlatformResize()
   }
 }
 
-int IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, EMessageBoxType type)
+EMsgBoxResult IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
 {
-  //TODO
-  return 0;
+  ReleaseMouseCapture();
+  [(IGraphicsIOS_View*) mView showMessageBox:str :caption :type :completionHandler];
+  return EMsgBoxResult::kNoResult; // we need to rely on completionHandler
 }
 
 void IGraphicsIOS::ForceEndUserEdit()
@@ -115,7 +147,7 @@ void IGraphicsIOS::PromptForDirectory(WDL_String& dir)
 {
 }
 
-bool IGraphicsIOS::PromptForColor(IColor& color, const char* str)
+bool IGraphicsIOS::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
 {
   return false;
 }
@@ -139,6 +171,9 @@ IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
 
 void IGraphicsIOS::CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str)
 {
+  ReleaseMouseCapture();
+  CGRect areaRect = ToCGRect(this, bounds);
+  [(IGraphicsIOS_View*) mView createTextEntry: paramIdx : text: str: length: areaRect];
 }
 
 bool IGraphicsIOS::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
@@ -175,7 +210,7 @@ void IGraphicsIOS::CreatePlatformImGui()
 #ifdef IGRAPHICS_IMGUI
   if(mView)
   {
-    IGraphicsIOS_View* pView = (IGraphicsIOS_View*) mView;
+    IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
     
     IGRAPHICS_IMGUIVIEW* pImGuiView = [[IGRAPHICS_IMGUIVIEW alloc] initWithIGraphicsView:pView];
     [pView addSubview: pImGuiView];

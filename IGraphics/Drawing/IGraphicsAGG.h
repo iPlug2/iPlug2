@@ -176,13 +176,13 @@ public:
     }
     
     template <typename VertexSourceType>
-    void Rasterize(VertexSourceType& path, const IPattern& pattern, agg::comp_op_e op, float opacity, EFillRule rule = kFillWinding)
+    void Rasterize(VertexSourceType& path, const IPattern& pattern, agg::comp_op_e op, float opacity, EFillRule rule = EFillRule::Winding)
     {
       SetPath(path);
       Rasterize(pattern, op, opacity, rule);
     }
     
-    void Rasterize(const IPattern& pattern, agg::comp_op_e op, float opacity, EFillRule rule = kFillWinding);
+    void Rasterize(const IPattern& pattern, agg::comp_op_e op, float opacity, EFillRule rule = EFillRule::Winding);
 
     template <typename VertexSourceType>
     void SetPath(VertexSourceType& path)
@@ -243,11 +243,12 @@ public:
   void PathClear() override { mPath.remove_all(); }
   void PathClose() override { mPath.close_polygon(); }
 
-  void PathArc(float cx, float cy, float r, float aMin, float aMax) override;
+  void PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding) override;
 
   void PathMoveTo(float x, float y) override;
   void PathLineTo(float x, float y) override;
-  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override;
+  void PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2) override;
+  void PathQuadraticBezierTo(float cx, float cy, float x2, float y2) override;
 
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;

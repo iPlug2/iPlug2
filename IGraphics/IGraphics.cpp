@@ -116,8 +116,7 @@ void IGraphics::Resize(int w, int h, float scale)
   if (mCornerResizer)
     mCornerResizer->OnRescale();
 
-  GetDelegate()->EditorPropertiesModified();
-  PlatformResize();
+  PlatformResize(GetDelegate()->EditorResize());
   ForAllControls(&IControl::OnResize);
   SetAllControlsDirty();
   DrawResize();
@@ -209,25 +208,25 @@ void IGraphics::SetControlValueAfterPopupMenu(IPopupMenu* pMenu)
 void IGraphics::AttachBackground(const char* name)
 {
   IBitmap bg = LoadBitmap(name, 1, false);
-  IControl* pBG = new IBitmapControl(0, 0, bg, kNoParameter, kBlendClobber);
+  IControl* pBG = new IBitmapControl(0, 0, bg, kNoParameter, EBlend::Clobber);
   pBG->SetDelegate(*GetDelegate());
   mControls.Insert(0, pBG);
 }
 
-void IGraphics::AttachPanelBackground(const IColor& color)
+void IGraphics::AttachPanelBackground(const IPattern& color)
 {
   IControl* pBG = new IPanelControl(GetBounds(), color);
   pBG->SetDelegate(*GetDelegate());
   mControls.Insert(0, pBG);
 }
 
-int IGraphics::AttachControl(IControl* pControl, int controlTag, const char* group)
+IControl* IGraphics::AttachControl(IControl* pControl, int controlTag, const char* group)
 {
   pControl->SetDelegate(*GetDelegate());
   pControl->SetTag(controlTag);
   pControl->SetGroup(group);
   mControls.Add(pControl);
-  return mControls.GetSize() - 1;
+  return pControl;
 }
 
 void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize)
@@ -517,11 +516,11 @@ void IGraphics::DrawBitmapedText(const IBitmap& bitmap, IRECT& bounds, IText& te
     else
       basicYOffset = bounds.T;
 
-    if (text.mAlign == IText::kAlignCenter)
+    if (text.mAlign == EAlign::Center)
       basicXOffset = bounds.L + ((bounds.W() - (stringLength * charWidth)) / 2.f);
-    else if (text.mAlign == IText::kAlignNear)
+    else if (text.mAlign == EAlign::Near)
       basicXOffset = bounds.L;
-    else if (text.mAlign == IText::kAlignFar)
+    else if (text.mAlign == EAlign::Far)
       basicXOffset = bounds.R - (stringLength * charWidth);
 
     int widthAsOneLine = charWidth * stringLength;
@@ -711,7 +710,6 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
   }
 }
 
-// Draw a region of the graphics (redrawing all contained items)
 void IGraphics::Draw(const IRECT& bounds, float scale)
 {
   ForAllControlsFunc([this, bounds, scale](IControl& control) { DrawControl(&control, bounds, scale); });
@@ -728,7 +726,6 @@ void IGraphics::Draw(const IRECT& bounds, float scale)
 #endif
 }
 
-// Called indicating a number of rectangles in the UI that need to redraw
 void IGraphics::Draw(IRECTList& rects)
 {
   if (!rects.Size())
@@ -853,7 +850,7 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
   if (mResizingInProcess)
   {
     mResizingInProcess = false;
-    if (GetResizerMode() == EUIResizerMode::kUIResizerScale)
+    if (GetResizerMode() == EUIResizerMode::Scale)
     {
       // If scaling up we may want to load in high DPI bitmaps if scale > 1.
       ForAllControls(&IControl::OnRescale);
@@ -905,7 +902,7 @@ void IGraphics::OnMouseOut()
   Trace("IGraphics::OnMouseOut", __LINE__, "");
 
   // Store the old cursor type so this gets restored when the mouse enters again
-  mCursorType = SetMouseCursor(ARROW);
+  mCursorType = SetMouseCursor(ECursor::ARROW);
   ForAllControls(&IControl::OnMouseOut);
   ClearMouseOver();
 }
@@ -1208,7 +1205,7 @@ void IGraphics::OnGUIIdle()
 
 void IGraphics::OnResizeGesture(float x, float y)
 {
-  if(mGUISizeMode == EUIResizerMode::kUIResizerScale)
+  if(mGUISizeMode == EUIResizerMode::Scale)
   {
     float scaleX = (x * GetDrawScale()) / mMouseDownX;
     float scaleY = (y * GetDrawScale()) / mMouseDownY;
@@ -1251,6 +1248,8 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
   }
   
   ClearMouseOver();
+  ReleaseMouseCapture();
+  SetMouseCursor(ECursor::ARROW);
   SetAllControlsDirty();
 #endif
 }
@@ -1448,13 +1447,13 @@ APIBitmap* IGraphics::SearchBitmapInCache(const char* name, int targetScale, int
   return nullptr;
 }
 
-void IGraphics::StyleAllVectorControls(bool drawFrame, bool drawShadow, bool emboss, float roundness, float frameThickness, float shadowOffset, const IVColorSpec& spec)
+void IGraphics::StyleAllVectorControls(const IVStyle& style)
 {
   for (auto c = 0; c < NControls(); c++)
   {
     IVectorBase* pVB = dynamic_cast<IVectorBase*>(GetControl(c));
     if (pVB)
-      pVB->Style(drawFrame, drawShadow, emboss, roundness, frameThickness, shadowOffset, spec);
+      pVB->SetStyle(style);
   }
 }
 
@@ -1708,10 +1707,10 @@ void IGraphics::DoMeasureTextRotation(const IText& text, const IRECT& bounds, IR
 
 void IGraphics::CalulateTextRotation(const IText& text, const IRECT& bounds, IRECT& rect, double& tx, double& ty) const
 {
-  if (!text.mOrientation)
+  if (!text.mAngle)
     return;
   
-  IMatrix m = IMatrix().Rotate(text.mOrientation);
+  IMatrix m = IMatrix().Rotate(text.mAngle);
   
   double x0 = rect.L;
   double y0 = rect.T;
@@ -1733,16 +1732,16 @@ void IGraphics::CalulateTextRotation(const IText& text, const IRECT& bounds, IRE
   
   switch (text.mAlign)
   {
-    case IText::kAlignNear:     tx = bounds.L - rect.L;         break;
-    case IText::kAlignCenter:   tx = bounds.MW() - rect.MW();   break;
-    case IText::kAlignFar:      tx = bounds.R - rect.R;         break;
+    case EAlign::Near:     tx = bounds.L - rect.L;         break;
+    case EAlign::Center:   tx = bounds.MW() - rect.MW();   break;
+    case EAlign::Far:      tx = bounds.R - rect.R;         break;
   }
   
   switch (text.mVAlign)
   {
-    case IText::kVAlignTop:      ty = bounds.T - rect.T;        break;
-    case IText::kVAlignMiddle:   ty = bounds.MH() - rect.MH();  break;
-    case IText::kVAlignBottom:   ty = bounds.B - rect.B;        break;
+    case EVAlign::Top:      ty = bounds.T - rect.T;        break;
+    case EVAlign::Middle:   ty = bounds.MH() - rect.MH();  break;
+    case EVAlign::Bottom:   ty = bounds.B - rect.B;        break;
   }
 }
 

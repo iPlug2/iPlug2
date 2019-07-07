@@ -15,6 +15,7 @@
 #endif
 
 #include "IGraphicsMac.h"
+#include "IGraphicsStructs.h"
 
 inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& bounds)
 {
@@ -38,6 +39,12 @@ inline NSColor* ToNSColor(const IColor& c)
 {
   return [NSColor colorWithDeviceRed:(double) c.R / 255.0 green:(double) c.G / 255.0 blue:(double) c.B / 255.0 alpha:(double) c.A / 255.0];
 }
+
+inline IColor FromNSColor(const NSColor* c)
+{
+  return IColor(c.alphaComponent * 255., c.redComponent* 255., c.greenComponent * 255., c.blueComponent * 255.);
+}
+
 
 // based on code by Scott Gruby http://blog.gruby.com/2008/03/30/filtering-nstextfield-take-2/
 @interface IGRAPHICS_FORMATTER : NSFormatter
@@ -91,6 +98,7 @@ inline NSColor* ToNSColor(const IColor& c)
   NSCursor* mMoveCursor;
   float mPrevX, mPrevY;
   IRECTList mDirtyRects;
+  IColorPickerHandlerFunc mColorPickerFunc;
 @public
   IGraphicsMac* mGraphics; // OBJC instance variables have to be pointers
 }
@@ -127,6 +135,10 @@ inline NSColor* ToNSColor(const IColor& c)
 - (void) endUserInput;
 //pop-up menu
 - (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (NSRect) bounds;
+//color picker
+- (BOOL) promptForColor: (IColor&) color : (IColorPickerHandlerFunc) func;
+- (void) onColorPicked: (NSColorPanel*) colorPanel;
+
 //tooltip
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData;
 - (void) registerToolTip: (IRECT&) bounds;
