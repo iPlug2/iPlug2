@@ -29,12 +29,12 @@ jobs:
 
   - template: get_src_artifact.yml
 
-  - task: VSBuild@1
-    inputs:
-      solution: 'Dependencies/IGraphics/IGraphicsLibraries.sln'
-      platform: '$(buildPlatform)'
-      configuration: '$(buildConfiguration)'
-    displayName: Build Windows Dependencies
+  # - task: VSBuild@1
+  #   inputs:
+  #     solution: 'Dependencies/IGraphics/IGraphicsLibraries.sln'
+  #     platform: '$(buildPlatform)'
+  #     configuration: '$(buildConfiguration)'
+  #   displayName: Build Windows Dependencies
 
   - bash: |
       curl https://storage.googleapis.com/chrome-infra/depot_tools.zip --output depot_tools.zip
@@ -78,7 +78,7 @@ jobs:
     displayName: (SKIA) Configure with GN tool
 
   - powershell: |
-      cd skia
+      cd Dependencies/Build/src/skia         
       ninja -C $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/Release
     continueOnError: true
     displayName: (SKIA) Build with NINJA
