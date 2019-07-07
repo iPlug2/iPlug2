@@ -97,33 +97,33 @@ jobs:
 
   - template: get_src_artifact.yml
 
-  - bash: |
-      #tmp force cairo rebuild
-      rm -r ./Dependencies/Build/src/cairo
-      cd ./Dependencies/IGraphics
-      ./build-igraphics-libs-mac.sh
-    displayName: Build Graphics Dependencies
+  # - bash: |
+  #     #tmp force cairo rebuild
+  #     rm -r ./Dependencies/Build/src/cairo
+  #     cd ./Dependencies/IGraphics
+  #     ./build-igraphics-libs-mac.sh
+  #   displayName: Build Graphics Dependencies
 
   - bash: |
       cd ./Dependencies/IGraphics
       ./build-skia-mac.sh
     displayName: Build Skia
 
-  - bash: |
-      cd $BUILD_SOURCESDIRECTORY
-      wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
-      tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
-      export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
-      echo "##vso[task.setvariable variable=PATH]$PATH"
+  # - bash: |
+  #     cd $BUILD_SOURCESDIRECTORY
+  #     wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
+  #     tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
+  #     export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
+  #     echo "##vso[task.setvariable variable=PATH]$PATH"
 
-      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/faust
-      ./build-faust-mac.sh
-    displayName: Build FAUST
+  #     cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/faust
+  #     ./build-faust-mac.sh
+  #   displayName: Build FAUST
 
-  - bash: |
-      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/civetweb
-      ./build-civetweb-mac.sh
-    displayName: Build CivetWeb
+  # - bash: |
+  #     cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/civetweb
+  #     ./build-civetweb-mac.sh
+  #   displayName: Build CivetWeb
 
   - bash: |
       rm ./Dependencies/Build/*.log
