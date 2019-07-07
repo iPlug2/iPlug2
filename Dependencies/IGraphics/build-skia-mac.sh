@@ -17,6 +17,7 @@ skia_use_expat=true
 skia_use_libwebp=false
 skia_use_piex=false
 skia_use_sfntly=false
+skia_use_system_libpng=false
 skia_use_system_libjpeg_turbo=false
 extra_cflags=["-Wno-error"]
 extra_cflags_c=["-Wno-error"]
