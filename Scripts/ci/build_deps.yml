@@ -36,9 +36,12 @@ jobs:
       configuration: '$(buildConfiguration)'
     displayName: Build Windows Dependencies
 
-  - powershell: |
+  - bash: |
       curl https://storage.googleapis.com/chrome-infra/depot_tools.zip --output depot_tools.zip
       unzip depot_tools.zip -d depot_tools
+    displayName: (SKIA) Get Depot Tools
+
+  - powershell: |
       Write-Host "##vso[task.setvariable variable=PATH;]$(Build.SourcesDirectory)\depot_tools;${env:PATH};";
       gclient
     displayName: (SKIA) Setup Depot Tools
