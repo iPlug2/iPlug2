@@ -25,14 +25,7 @@ private:
 class IGraphicsSkia : public IGraphicsPathBase
 {
 public:
-  const char* GetDrawingAPIStr() override 
-  { 
-    #ifdef IGRAPHICS_CPU
-      return "SKIA_CPU"; 
-    #else
-      return "SKIA_GPU"; 
-    #endif
-  }
+  const char* GetDrawingAPIStr() override ;
 
   IGraphicsSkia(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsSkia();

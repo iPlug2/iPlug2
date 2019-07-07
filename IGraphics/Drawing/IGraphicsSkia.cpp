@@ -653,3 +653,15 @@ void IGraphicsSkia::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const
   }
 }
 
+const char* IGraphicsSkia::GetDrawingAPIStr()
+{
+#ifdef IGRAPHICS_CPU
+  return "SKIA | CPU";
+#elif defined IGRAPHICS_GL2
+  return "SKIA | OpenGL2";
+#elif defined IGRAPHICS_GL3
+  return "SKIA | OpenGL3";
+#elif defined IGRAPHICS_METAL
+  return "SKIA | Metal";
+#endif
+}
