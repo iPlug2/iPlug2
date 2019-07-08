@@ -77,7 +77,7 @@ jobs:
         \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\expat\lib\",
       \"/MTd\",]'
     displayName: (SKIA) Configure with GN tool (Debug Win32)
-    condition: and(eq(variables.buildConfiguration, 'Debug'), variables.buildPlatform, 'Win32'))
+    condition: and(eq(variables.buildConfiguration, 'Debug'), eq(variables.buildPlatform, 'Win32'))
     
   - powershell: |
       cd Dependencies/Build/src/skia
@@ -100,14 +100,14 @@ jobs:
         \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\expat\lib\",
       \"/MT\",]'
     displayName: (SKIA) Configure with GN tool (Release Win32)
-    condition: and(eq(variables.buildConfiguration, 'Release'), variables.buildPlatform, 'Win32'))
+    condition: and(eq(variables.buildConfiguration, 'Release'), eq(variables.buildPlatform, 'Win32'))
 
   - powershell: |
       cd Dependencies/Build/src/skia
       ninja -C $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/$env:BUILDCONFIGURATION
     continueOnError: true
     displayName: (SKIA) Build with NINJA
-    
+
   - powershell: |
       cd Dependencies/Build/src/skia
       bin/gn gen $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/$env:BUILDCONFIGURATION --args='
@@ -129,7 +129,7 @@ jobs:
         \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\expat\lib\",
       \"/MTd\",]'
     displayName: (SKIA) Configure with GN tool (Debug x64)
-    condition: and(eq(variables.buildConfiguration, 'Debug'), variables.buildPlatform, 'x64'))
+    condition: and(eq(variables.buildConfiguration, 'Debug'), eq(variables.buildPlatform, 'x64'))
     
   - powershell: |
       cd Dependencies/Build/src/skia
@@ -152,7 +152,7 @@ jobs:
         \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\expat\lib\",
       \"/MT\",]'
     displayName: (SKIA) Configure with GN tool (Release x64)
-    condition: and(eq(variables.buildConfiguration, 'Release'), variables.buildPlatform, 'x64'))
+    condition: and(eq(variables.buildConfiguration, 'Release'), eq(variables.buildPlatform, 'x64'))
 
   - powershell: |
       cd Dependencies/Build/src/skia
