@@ -17,9 +17,9 @@ jobs:
       # x86_DEBUG:
       #   buildPlatform: 'Win32'
       #   buildConfiguration: 'Debug'
-      # x64_DEBUG:
-      #   buildPlatform: 'x64'
-      #   buildConfiguration: 'Debug'
+      x64_DEBUG:
+        buildPlatform: 'x64'
+        buildConfiguration: 'Debug'
 
   pool:
     vmImage: 'vs2017-win2016'
@@ -55,9 +55,10 @@ jobs:
       python.bat tools/git-sync-deps
     displayName: (SKIA) git sync deps
 
+# TODO: tidy this up!
   - powershell: |
       cd Dependencies/Build/src/skia
-      bin/gn gen $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/Release --args='
+      bin/gn gen $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/$env:BUILDCONFIGURATION --args='
       is_official_build=true
       target_cpu=\"x64\"
       skia_use_icu=false
@@ -75,17 +76,41 @@ jobs:
         \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\zlib\",
         \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\expat\lib\",
       \"/MTd\",]'
-    displayName: (SKIA) Configure with GN tool
+    displayName: (SKIA) Configure with GN tool (Debug x64)
+    condition: eq(variables.buildConfiguration, 'Debug')
+    
+  - powershell: |
+      cd Dependencies/Build/src/skia
+      bin/gn gen $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/$env:BUILDCONFIGURATION --args='
+      is_official_build=true
+      target_cpu=\"x64\"
+      skia_use_icu=false
+      skia_enable_pdf=false
+      skia_enable_gpu=true
+      skia_use_dng_sdk=false
+      skia_use_expat=true
+      skia_use_libwebp=false
+      skia_use_piex=false
+      skia_use_sfntly=false
+      skia_use_system_libjpeg_turbo=false
+      extra_cflags=[
+        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\libpng\",
+        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\libpng\",
+        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\zlib\",
+        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\expat\lib\",
+      \"/MT\",]'
+    displayName: (SKIA) Configure with GN tool (Release x64)
+    condition: eq(variables.buildConfiguration, 'Release')
 
   - powershell: |
       cd Dependencies/Build/src/skia
-      ninja -C $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/Release
+      ninja -C $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/$env:BUILDCONFIGURATION
     continueOnError: true
     displayName: (SKIA) Build with NINJA
 
   - bash: |
       cd ./Dependencies/Build
-      mv ./tmp/skia/Release/skia.lib ./win/x64/Release/skia.lib
+      mv ./tmp/skia/$BUILDCONFIGURATION/skia.lib ./win/x64/$BUILDCONFIGURATION/skia.lib
       rm *.log
       rm -r tmp
       mv ./src/skia/include ./skia_include_tmp
@@ -124,11 +149,11 @@ jobs:
       targetPath: 'Dependencies/Build/'
     displayName: Download x64_Release Artifact
 
-  # - task: DownloadPipelineArtifact@0
-  #   inputs:
-  #     artifactName: 'DEPS_BUILD_WIN_x64_Debug'
-  #     targetPath: 'Dependencies/Build/'
-  #   displayName: Download x64_Debug Artifact
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'DEPS_BUILD_WIN_x64_Debug'
+      targetPath: 'Dependencies/Build/'
+    displayName: Download x64_Debug Artifact
 
   - task: DeleteFiles@1
     inputs:
