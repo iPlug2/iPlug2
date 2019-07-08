@@ -12,8 +12,14 @@
 
 #ifdef OS_MAC
   #include "SkCGUtils.h"
-  #ifdef IGRAPHICS_GL
+  #if defined IGRAPHICS_GL2
     #include <OpenGL/gl.h>
+  #elif defined IGRAPHICS_GL3
+    #include <OpenGL/gl3.h>
+  #elif defined IGRAPHICS_METAL
+  //even though this is a .cpp we are in an objc(pp) compilation unit
+    #import <Metal/Metal.h>
+    #import <QuartzCore/CAMetalLayer.h>
   #endif
 #elif defined OS_WIN
   #pragma comment(lib, "libpng.lib")
@@ -221,6 +227,16 @@ void IGraphicsSkia::OnViewInitialized(void* pContext)
 #if defined IGRAPHICS_GL
   auto glInterface = GrGLMakeNativeInterface();
   mGrContext = GrContext::MakeGL(glInterface);
+#elif defined IGRAPHICS_METAL
+  @autoreleasepool {
+    id<MTLDevice> device = MTLCreateSystemDefaultDevice();
+    id<MTLCommandQueue> commandQueue = [device newCommandQueue];
+    mGrContext = GrContext::MakeMetal(device, commandQueue);
+    mMTLDevice = device;
+    mMTLCommandQueue = commandQueue;
+    mMTLLayer = pContext;
+    ((CAMetalLayer*) pContext).device = device;
+  }
 #endif
     
   DrawResize();
@@ -232,20 +248,16 @@ void IGraphicsSkia::OnViewDestroyed()
 
 void IGraphicsSkia::DrawResize()
 {
-#if defined IGRAPHICS_GL
+  auto w = WindowWidth() * GetScreenScale();
+  auto h = WindowHeight() * GetScreenScale();
+  
+#if defined IGRAPHICS_GL || defined IGRAPHICS_METAL
   if (mGrContext.get())
   {
-    // Create FBO
-    
-    int width = WindowWidth() * GetScreenScale();
-    int height = WindowHeight() * GetScreenScale();
-      
-    SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
+    SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
     mSurface = SkSurface::MakeRenderTarget(mGrContext.get(), SkBudgeted::kYes, info);
   }
 #else
-  auto w = WindowWidth() * GetScreenScale();
-  auto h = WindowHeight() * GetScreenScale();
   #ifdef OS_WIN
     mSurface.reset();
     const size_t bmpSize = sizeof(BITMAPINFOHEADER) + WindowWidth() * WindowHeight() * GetScreenScale() * sizeof(uint32_t);
@@ -263,7 +275,7 @@ void IGraphicsSkia::DrawResize()
     SkImageInfo info = SkImageInfo::Make(w, h, kN32_SkColorType, kPremul_SkAlphaType, nullptr);
     mSurface = SkSurface::MakeRasterDirect(info, pixels, sizeof(uint32_t) * w);
   #else
-    mSurface = SkSurface::MakeRasterN32Premul(WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
+    mSurface = SkSurface::MakeRasterN32Premul(w, h);
   #endif
 #endif
   if (mSurface)
@@ -272,11 +284,13 @@ void IGraphicsSkia::DrawResize()
 
 void IGraphicsSkia::BeginFrame()
 {
+  int width = WindowWidth() * GetScreenScale();
+  int height = WindowHeight() * GetScreenScale();
+  
 #if defined IGRAPHICS_GL
   if (mGrContext.get())
   {
     // Bind to the current main framebuffer
-    
     int fbo = 0, samples = 0, stencilBits = 0;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
     glGetIntegerv(GL_SAMPLES, &samples);
@@ -285,15 +299,27 @@ void IGraphicsSkia::BeginFrame()
     GrGLFramebufferInfo fbinfo;
     fbinfo.fFBOID = fbo;
     fbinfo.fFormat = 0x8058;
-    
-    int width = WindowWidth() * GetScreenScale();
-    int height = WindowHeight() * GetScreenScale();
-    
+
     auto backendRenderTarget = GrBackendRenderTarget(width, height, samples, stencilBits, fbinfo);
     
     mScreenSurface = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRenderTarget, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, nullptr, nullptr);
   }
+#elif defined IGRAPHICS_METAL
+  if (mGrContext.get())
+  {
+    id<CAMetalDrawable> currentDrawable = [(CAMetalLayer*) mMTLLayer nextDrawable];
+    
+    GrMtlTextureInfo fbInfo;
+    fbInfo.fTexture = currentDrawable.texture;
+    
+    GrBackendRenderTarget backendRT(width, height, 1 /* sample count/MSAA */, fbInfo);
+    
+    mScreenSurface = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRT, kTopLeft_GrSurfaceOrigin, kBGRA_8888_SkColorType, nullptr, nullptr);
+    
+    mMTLDrawable = currentDrawable;
+  }
 #endif
+  assert(mScreenSurface);
 
   IGraphics::BeginFrame();
 }
@@ -325,6 +351,14 @@ void IGraphicsSkia::EndFrame()
 #else
   mSurface->draw(mScreenSurface->getCanvas(), 0.0, 0.0, nullptr);
   mScreenSurface->getCanvas()->flush();
+  
+  #ifdef IGRAPHICS_METAL
+    id<MTLCommandBuffer> commandBuffer = [(id<MTLCommandQueue>) mMTLCommandQueue commandBuffer];
+    commandBuffer.label = @"Present";
+  
+    [commandBuffer presentDrawable:(id<CAMetalDrawable>) mMTLDrawable];
+    [commandBuffer commit];
+  #endif
 #endif
 }
 

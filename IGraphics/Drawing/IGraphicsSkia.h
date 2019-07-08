@@ -3,6 +3,10 @@
 #include "IPlugPlatform.h"
 #include "IGraphicsPathBase.h"
 
+#if defined IGRAPHICS_METAL
+#define SK_METAL
+#endif
+
 #include "SkSurface.h"
 #include "SkPath.h"
 #include "SkCanvas.h"
@@ -95,7 +99,14 @@ private:
   std::unique_ptr<GrBackendRenderTarget> mBackendRenderTarget;
   SkPath mMainPath;
 
-#ifdef OS_WIN
+#if defined OS_WIN && defined IGRAPHICS_CPU
   WDL_TypedBuf<uint8_t> mSurfaceMemory;
+#endif
+  
+#ifdef IGRAPHICS_METAL
+  void* mMTLDevice;
+  void* mMTLCommandQueue;
+  void* mMTLDrawable;
+  void* mMTLLayer;
 #endif
 };
