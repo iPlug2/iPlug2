@@ -56,57 +56,51 @@ jobs:
     displayName: (SKIA) git sync deps
 
 # TODO: tidy this up!
-  - powershell: |
-      cd Dependencies/Build/src/skia
-      bin/gn gen $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/$env:BUILDCONFIGURATION --args='
-      is_official_build=true
-      target_cpu=\"x86\"
-      skia_use_icu=false
-      skia_enable_pdf=false
-      skia_enable_gpu=true
-      skia_use_dng_sdk=false
-      skia_use_expat=true
-      skia_use_libwebp=false
-      skia_use_piex=false
-      skia_use_sfntly=false
-      skia_use_system_libjpeg_turbo=false
-      extra_cflags=[
-        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\libpng\",
-        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\libpng\",
-        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\zlib\",
-        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\expat\lib\",
-      \"/MTd\",]'
-    displayName: (SKIA) Configure with GN tool (Debug Win32)
-    condition: and(eq(variables.buildConfiguration, 'Debug'), eq(variables.buildPlatform, 'Win32'))
+  # - powershell: |
+  #     cd Dependencies/Build/src/skia
+  #     bin/gn gen $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/$env:BUILDCONFIGURATION --args='
+  #     is_official_build=true
+  #     target_cpu=\"x86\"
+  #     skia_use_icu=false
+  #     skia_enable_pdf=false
+  #     skia_enable_gpu=true
+  #     skia_use_dng_sdk=false
+  #     skia_use_expat=true
+  #     skia_use_libwebp=false
+  #     skia_use_piex=false
+  #     skia_use_sfntly=false
+  #     skia_use_system_libjpeg_turbo=false
+  #     extra_cflags=[
+  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\libpng\",
+  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\libpng\",
+  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\zlib\",
+  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\expat\lib\",
+  #     \"/MTd\",]'
+  #   displayName: (SKIA) Configure with GN tool (Debug Win32)
+  #   condition: and(eq(variables.buildConfiguration, 'Debug'), eq(variables.buildPlatform, 'Win32'))
     
-  - powershell: |
-      cd Dependencies/Build/src/skia
-      bin/gn gen $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/$env:BUILDCONFIGURATION --args='
-      is_official_build=true
-      target_cpu=\"x86\"
-      skia_use_icu=false
-      skia_enable_pdf=false
-      skia_enable_gpu=true
-      skia_use_dng_sdk=false
-      skia_use_expat=true
-      skia_use_libwebp=false
-      skia_use_piex=false
-      skia_use_sfntly=false
-      skia_use_system_libjpeg_turbo=false
-      extra_cflags=[
-        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\libpng\",
-        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\libpng\",
-        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\zlib\",
-        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\expat\lib\",
-      \"/MT\",]'
-    displayName: (SKIA) Configure with GN tool (Release Win32)
-    condition: and(eq(variables.buildConfiguration, 'Release'), eq(variables.buildPlatform, 'Win32'))
-
-  - powershell: |
-      cd Dependencies/Build/src/skia
-      ninja -C $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/$env:BUILDCONFIGURATION
-    continueOnError: true
-    displayName: (SKIA) Build with NINJA
+  # - powershell: |
+  #     cd Dependencies/Build/src/skia
+  #     bin/gn gen $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/$env:BUILDCONFIGURATION --args='
+  #     is_official_build=true
+  #     target_cpu=\"x86\"
+  #     skia_use_icu=false
+  #     skia_enable_pdf=false
+  #     skia_enable_gpu=true
+  #     skia_use_dng_sdk=false
+  #     skia_use_expat=true
+  #     skia_use_libwebp=false
+  #     skia_use_piex=false
+  #     skia_use_sfntly=false
+  #     skia_use_system_libjpeg_turbo=false
+  #     extra_cflags=[
+  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\libpng\",
+  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\libpng\",
+  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\zlib\",
+  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\expat\lib\",
+  #     \"/MT\",]'
+  #   displayName: (SKIA) Configure with GN tool (Release Win32)
+  #   condition: and(eq(variables.buildConfiguration, 'Release'), eq(variables.buildPlatform, 'Win32'))
 
   - powershell: |
       cd Dependencies/Build/src/skia
