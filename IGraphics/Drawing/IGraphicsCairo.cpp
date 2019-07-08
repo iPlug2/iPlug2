@@ -615,13 +615,21 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
       cairo_fill(mContext);
     }
   }
-
+  
   IGraphics::SetPlatformContext(pContext);
+}
+
+void IGraphicsCairo::BeginFrame()
+{
+  IGraphics::BeginFrame();
+  cairo_push_group(mContext);
 }
 
 void IGraphicsCairo::EndFrame()
 {
 #ifdef OS_MAC
+  cairo_pop_group_to_source(mContext);
+  cairo_paint(mContext);
 #ifdef IMG_TEST
   cairo_surface_flush(mSurface);
   

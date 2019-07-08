@@ -68,7 +68,8 @@ public:
   
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return (void*) mContext; }
-    
+  
+  void BeginFrame() override;
   void EndFrame() override;
   void SetPlatformContext(void* pContext) override;
   void DrawResize() override;
