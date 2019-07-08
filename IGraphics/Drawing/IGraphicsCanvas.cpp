@@ -112,9 +112,9 @@ void IGraphicsCanvas::PathClose()
   GetContext().call<void>("closePath");
 }
 
-void IGraphicsCanvas::PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding)
+void IGraphicsCanvas::PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding)
 {
-  GetContext().call<void>("arc", cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f), winding == EWinding::CCW);
+  GetContext().call<void>("arc", cx, cy, r, DegToRad(a1 - 90.f), DegToRad(a2 - 90.f), winding == EWinding::CCW);
 }
 
 void IGraphicsCanvas::PathMoveTo(float x, float y)
