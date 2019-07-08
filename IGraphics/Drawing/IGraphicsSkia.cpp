@@ -249,8 +249,8 @@ void IGraphicsSkia::DrawResize()
   #ifdef OS_WIN
     mSurface.reset();
     const size_t bmpSize = sizeof(BITMAPINFOHEADER) + WindowWidth() * WindowHeight() * GetScreenScale() * sizeof(uint32_t);
-    mSurfaceMemory.reset(bmpSize);
-    BITMAPINFO* bmpInfo = reinterpret_cast<BITMAPINFO*>(mSurfaceMemory.get());
+    mSurfaceMemory.Resize(bmpSize);
+    BITMAPINFO* bmpInfo = reinterpret_cast<BITMAPINFO*>(mSurfaceMemory.Get());
     ZeroMemory(bmpInfo, sizeof(BITMAPINFO));
     bmpInfo->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
     bmpInfo->bmiHeader.biWidth = w;
@@ -314,7 +314,7 @@ void IGraphicsSkia::EndFrame()
   #elif defined OS_WIN
     auto w = WindowWidth() * GetScreenScale();
     auto h = WindowHeight() * GetScreenScale();
-    BITMAPINFO* bmpInfo = reinterpret_cast<BITMAPINFO*>(mSurfaceMemory.get());
+    BITMAPINFO* bmpInfo = reinterpret_cast<BITMAPINFO*>(mSurfaceMemory.Get());
     HWND hwnd = (HWND)GetWindow();
     HDC dc = GetDC(hwnd);
     StretchDIBits(dc, 0, 0, w, h, 0, 0, w, h, bmpInfo->bmiColors, bmpInfo,  DIB_RGB_COLORS, SRCCOPY);
@@ -432,7 +432,6 @@ void IGraphicsSkia::PrepareAndMeasureText(const IText& text, const char* str, IR
   font.setSize(text.mSize * pFont->mData->GetHeightEMRatio());
   
   // Draw / measure
-
   font.measureText(str, strlen(str), SkTextEncoding::kUTF8, &bounds);
   font.getMetrics(&metrics);
   
@@ -506,7 +505,6 @@ void IGraphicsSkia::PathStroke(const IPattern& pattern, float thickness, const I
   if (options.mDash.GetCount())
   {
     // N.B. support odd counts by reading the array twice
-      
     int dashCount = options.mDash.GetCount();
     int dashMax = dashCount & 1 ? dashCount * 2 : dashCount;
     float dashArray[16];

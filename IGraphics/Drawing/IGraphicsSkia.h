@@ -96,6 +96,6 @@ private:
   SkPath mMainPath;
 
 #ifdef OS_WIN
-  SkAutoMalloc mSurfaceMemory;
+  WDL_TypedBuf<uint8_t> mSurfaceMemory;
 #endif
 };
