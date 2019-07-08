@@ -88,11 +88,11 @@ jobs:
       mv ./tmp/skia/Release/skia.lib ./win/x64/Release/skia.lib
       rm *.log
       rm -r tmp
-      mv ./src/skia/include ./skia_include_tmp 
+      mv ./src/skia/include ./skia_include_tmp
       rm -r src/skia
       mkdir -p ./src/skia
       mv ./skia_include_tmp ./src/skia/include
-    displayName: Delete unwanted files
+    displayName: (SKIA) Delete unwanted files
 
   - task: PublishPipelineArtifact@0
     inputs:
@@ -187,7 +187,7 @@ jobs:
       cd ./Dependencies/Build
       rm *.log
       rm -r tmp
-      mv ./src/skia/include ./skia_include_tmp 
+      mv ./src/skia/include ./skia_include_tmp
       rm -r src
       mkdir -p ./src/skia
       mv ./skia_include_tmp ./src/skia/include
