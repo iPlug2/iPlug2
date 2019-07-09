@@ -34,7 +34,7 @@ bool IWebsocketEditorDelegate::OnWebsocketData(int connIdx, void* pData, size_t 
     int paramIdx = * ((int*)(pByteData + pos)); pos+= 4;
     double value = * ((double*)(pByteData + pos)); pos += 8;
     
-    mParamChangeFromClients.Push(IParamChange { paramIdx, value, true } );
+    mParamChangeFromClients.Push(ParamTuple { paramIdx, value } );
   }
   else if (memcmp(pData, "SMMFUI" , 6) == 0) // send midi message from user interface
   {
@@ -192,20 +192,20 @@ void IWebsocketEditorDelegate::ProcessWebsocketQueue()
 {
   while(mParamChangeFromClients.ElementsAvailable())
   {
-    IParamChange p;
+    ParamTuple p;
     mParamChangeFromClients.Pop(p);
     
     //FIXME: how do params get updated?
 //    ENTER_PARAMS_MUTEX;
 //    if(p.normalized)
-//      GetParam(p.paramIdx)->SetNormalized(p.value);
+//      GetParam(p.idx)->SetNormalized(p.value);
 //    else
-//      GetParam(p.paramIdx)->Set(p.value);
+//      GetParam(p.idx)->Set(p.value);
 //
-//    OnParamChange(p.paramIdx, kHost);
+//    OnParamChange(p.idx, kHost);
 //    LEAVE_PARAMS_MUTEX;
     
-    SendParameterValueFromDelegate(p.paramIdx, p.value, p.normalized); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
+    SendParameterValueFromDelegate(p.idx, p.value, true); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
   }
   
   while (mMIDIFromClients.ElementsAvailable()) {

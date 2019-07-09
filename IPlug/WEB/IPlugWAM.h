@@ -35,13 +35,13 @@ public:
   void terminate() override { DBGMSG("terminate"); }
   void resize(uint32_t bufsize) override { DBGMSG("resize"); }
 
-  virtual void onProcess(WAM::AudioBus* pAudio, void* pData) override;
-  virtual void onMidi(byte status, byte data1, byte data2) override;
-  virtual void onSysex(byte* pData, uint32_t size) override;
-  virtual void onMessage(char* verb, char* res, double data) override;
-  virtual void onMessage(char* verb, char* res, char* data) override;
-  virtual void onMessage(char* verb, char* res, void* data, uint32_t size) override;
-  virtual void onParam(uint32_t idparam, double value) override;
+  void onProcess(WAM::AudioBus* pAudio, void* pData) override;
+  void onMidi(byte status, byte data1, byte data2) override;
+  void onSysex(byte* pData, uint32_t size) override;
+  void onMessage(char* verb, char* res, double data) override;
+  void onMessage(char* verb, char* res, char* data) override;
+  void onMessage(char* verb, char* res, void* data, uint32_t size) override;
+  void onParam(uint32_t idparam, double value) override;
 
   //IPlugProcessor
   void SetLatency(int samples) override {};

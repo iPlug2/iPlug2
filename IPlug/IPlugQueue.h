@@ -104,7 +104,7 @@ public:
    * @return false /todo */
   bool WasFull() const
   {
-    const auto nextWriteIndex = increment(mWriteIndex.load());
+    const auto nextWriteIndex = Increment(mWriteIndex.load());
     return (nextWriteIndex == mReadIndex.load());
   }
 

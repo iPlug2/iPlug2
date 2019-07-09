@@ -303,10 +303,10 @@ void IGraphicsLice::DrawConvexPolygon(const IColor& color, float* x, float* y, i
 }
 
 //TODO: review floating point input support
-void IGraphicsLice::DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend, float thickness)
+void IGraphicsLice::DrawArc(const IColor& color, float cx, float cy, float r, float a1, float a2, const IBlend* pBlend, float thickness)
 {
   NeedsClipping();
-  LICE_Arc(mRenderBitmap, TransformX(cx), TransformY(cy), r * GetScreenScale(), DegToRad(aMin), DegToRad(aMax), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
+  LICE_Arc(mRenderBitmap, TransformX(cx), TransformY(cy), r * GetScreenScale(), DegToRad(a1), DegToRad(a2), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
 //TODO: review floating point input support
@@ -422,14 +422,14 @@ void IGraphicsLice::FillCircle(const IColor& color, float cx, float cy, float r,
   LICE_FillCircle(mRenderBitmap, TransformX(cx), TransformY(cy), r * GetScreenScale(), LiceColor(color), BlendWeight(pBlend), LiceBlendMode(pBlend), true);
 }
 
-void IGraphicsLice::FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend)
+void IGraphicsLice::FillArc(const IColor& color, float cx, float cy, float r, float a1, float a2,  const IBlend* pBlend)
 {
   NeedsClipping();
 
-  if (aMax < aMin)
-    std::swap(aMin, aMax);
+  if (a2 < a1)
+    std::swap(a1, a2);
   
-  if (aMax >= aMin + 360.f)
+  if (a2 >= a1 + 360.f)
   {
     FillCircle(color, cx, cy, r, pBlend);
     return;
@@ -438,27 +438,27 @@ void IGraphicsLice::FillArc(const IColor& color, float cx, float cy, float r, fl
   float xarray[181];
   float yarray[181];
   
-  if (aMax > aMin + 180.f)
+  if (a2 > a1 + 180.f)
   {
     if (!OpacityCheck(color, pBlend))
     {
-      OpacityLayer(&IGraphicsLice::FillArc, pBlend, color, cx, cy, r, aMin, aMax, nullptr);
+      OpacityLayer(&IGraphicsLice::FillArc, pBlend, color, cx, cy, r, a1, a2, nullptr);
       return;
     }
     
-    FillArc(color, cx, cy, r, aMin + 178.f, aMax, pBlend);
-    aMax = aMin + 180.f;
+    FillArc(color, cx, cy, r, a1 + 178.f, a2, pBlend);
+    a2 = a1 + 180.f;
   }
   
-  aMin = DegToRad(aMin-90.f);
-  aMax = DegToRad(aMax-90.f);
+  a1 = DegToRad(a1-90.f);
+  a2 = DegToRad(a2-90.f);
 
-  int arcpoints = 180.0 * std::min(1., (aMax - aMin) / PI);
-  double arcincrement = (aMax - aMin) / arcpoints;
+  int arcpoints = 180.0 * std::min(1., (a2 - a1) / PI);
+  double arcincrement = (a2 - a1) / arcpoints;
   for(int i = 0; i < arcpoints; i++)
   {
-    xarray[i] = cx + cosf(i * arcincrement + aMin) * r;
-    yarray[i] = cy + sinf(i * arcincrement + aMin) * r;
+    xarray[i] = cx + cosf(i * arcincrement + a1) * r;
+    yarray[i] = cy + sinf(i * arcincrement + a1) * r;
   }
     
   xarray[arcpoints] = cx;
@@ -493,16 +493,16 @@ void IGraphicsLice::PrepareAndMeasureText(const IText& text, const char* str, IR
 
   switch (text.mAlign)
   {
-    case IText::kAlignNear:     x = r.L;                          break;
-    case IText::kAlignCenter:   x = r.MW() - (textWidth / 2.f);   break;
-    case IText::kAlignFar:      x = r.R - textWidth;              break;
+    case EAlign::Near:     x = r.L;                          break;
+    case EAlign::Center:   x = r.MW() - (textWidth / 2.f);   break;
+    case EAlign::Far:      x = r.R - textWidth;              break;
   }
   
   switch (text.mVAlign)
   {
-    case IText::kVAlignTop:      y = r.T;                           break;
-    case IText::kVAlignMiddle:   y = r.MH() - (textHeight / 2.f);   break;
-    case IText::kVAlignBottom:   y = r.B - textHeight;              break;
+    case EVAlign::Top:      y = r.T;                           break;
+    case EVAlign::Middle:   y = r.MH() - (textHeight / 2.f);   break;
+    case EVAlign::Bottom:   y = r.B - textHeight;              break;
   }
   
   r = IRECT(x, y, x + textWidth, y + textHeight);
@@ -525,7 +525,7 @@ void IGraphicsLice::DoDrawText(const IText& text, const char* str, const IRECT& 
   NeedsClipping();
   PrepareAndMeasureText(text, str, measured, pFont);
   
-  if (text.mOrientation)
+  if (text.mAngle)
   {
     float pad = std::max(measured.W(), measured.H()) * 0.5;
     IRECT layerRect(measured.GetPadded(pad));
@@ -541,7 +541,7 @@ void IGraphicsLice::DoDrawText(const IText& text, const char* str, const IRECT& 
   pFont->SetTextColor(LiceColor(text.mFGColor, pBlend));
   pFont->DrawText(mRenderBitmap, str, -1, &R, fmt);
   
-  if (text.mOrientation)
+  if (text.mAngle)
   {
     ILayerPtr layer = EndLayer();
     LICE_IBitmap* pLICEBitmap = layer->GetAPIBitmap()->GetBitmap();
@@ -549,7 +549,7 @@ void IGraphicsLice::DoDrawText(const IText& text, const char* str, const IRECT& 
   
     DoMeasureTextRotation(text, bounds, measured);
     
-    float radians = DegToRad(text.mOrientation);
+    float radians = DegToRad(text.mAngle);
     
     IRECT r2 = measured;
     r2.Translate(-mDrawOffsetX, -mDrawOffsetY);

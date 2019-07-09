@@ -13,8 +13,6 @@
 #include <emscripten/key_codes.h>
 
 #include "IGraphicsWeb.h"
-#include "IControl.h"
-#include "IPopupMenuControl.h"
 
 using namespace emscripten;
 
@@ -114,16 +112,16 @@ static int domVKToWinVK(int dom_vk_code)
 //    case DOM_VK_PRINTSCREEN:          return 0;  // TODO
     case DOM_VK_INSERT:               return kVK_INSERT;
     case DOM_VK_DELETE:               return kVK_DELETE;
-//    case DOM_VK_0:                    return 0;  // TODO
-//    case DOM_VK_1:                    return 0;  // TODO
-//    case DOM_VK_2:                    return 0;  // TODO
-//    case DOM_VK_3:                    return 0;  // TODO
-//    case DOM_VK_4:                    return 0;  // TODO
-//    case DOM_VK_5:                    return 0;  // TODO
-//    case DOM_VK_6:                    return 0;  // TODO
-//    case DOM_VK_7:                    return 0;  // TODO
-//    case DOM_VK_8:                    return 0;  // TODO
-//    case DOM_VK_9:                    return 0;  // TODO
+    case DOM_VK_0:                    return kVK_0;
+    case DOM_VK_1:                    return kVK_1;
+    case DOM_VK_2:                    return kVK_2;
+    case DOM_VK_3:                    return kVK_3;
+    case DOM_VK_4:                    return kVK_4;
+    case DOM_VK_5:                    return kVK_5;
+    case DOM_VK_6:                    return kVK_6;
+    case DOM_VK_7:                    return kVK_7;
+    case DOM_VK_8:                    return kVK_8;
+    case DOM_VK_9:                    return kVK_9;
 //    case DOM_VK_COLON:                return 0;  // TODO
 //    case DOM_VK_SEMICOLON:            return 0;  // TODO
 //    case DOM_VK_LESS_THAN:            return 0;  // TODO
@@ -131,32 +129,32 @@ static int domVKToWinVK(int dom_vk_code)
 //    case DOM_VK_GREATER_THAN:         return 0;  // TODO
 //    case DOM_VK_QUESTION_MARK:        return 0;  // TODO
 //    case DOM_VK_AT:                   return 0;  // TODO
-//    case DOM_VK_A:                    return VK_A;
-//    case DOM_VK_B:                    return VK_B;
-//    case DOM_VK_C:                    return VK_C;
-//    case DOM_VK_D:                    return VK_D;
-//    case DOM_VK_E:                    return VK_E;
-//    case DOM_VK_F:                    return VK_F;
-//    case DOM_VK_G:                    return VK_G;
-//    case DOM_VK_H:                    return VK_H;
-//    case DOM_VK_I:                    return VK_I;
-//    case DOM_VK_J:                    return VK_J;
-//    case DOM_VK_K:                    return VK_K;
-//    case DOM_VK_L:                    return VK_L;
-//    case DOM_VK_M:                    return VK_M;
-//    case DOM_VK_N:                    return VK_N;
-//    case DOM_VK_O:                    return VK_O;
-//    case DOM_VK_P:                    return VK_P;
-//    case DOM_VK_Q:                    return VK_Q;
-//    case DOM_VK_R:                    return VK_R;
-//    case DOM_VK_S:                    return VK_S;
-//    case DOM_VK_T:                    return VK_T;
-//    case DOM_VK_U:                    return VK_U;
-//    case DOM_VK_V:                    return VK_V;
-//    case DOM_VK_W:                    return VK_W;
-//    case DOM_VK_X:                    return VK_X;
-//    case DOM_VK_Y:                    return VK_Y;
-//    case DOM_VK_Z:                    return VK_Z;
+    case DOM_VK_A:                    return kVK_A;
+    case DOM_VK_B:                    return kVK_B;
+    case DOM_VK_C:                    return kVK_C;
+    case DOM_VK_D:                    return kVK_D;
+    case DOM_VK_E:                    return kVK_E;
+    case DOM_VK_F:                    return kVK_F;
+    case DOM_VK_G:                    return kVK_G;
+    case DOM_VK_H:                    return kVK_H;
+    case DOM_VK_I:                    return kVK_I;
+    case DOM_VK_J:                    return kVK_J;
+    case DOM_VK_K:                    return kVK_K;
+    case DOM_VK_L:                    return kVK_L;
+    case DOM_VK_M:                    return kVK_M;
+    case DOM_VK_N:                    return kVK_N;
+    case DOM_VK_O:                    return kVK_O;
+    case DOM_VK_P:                    return kVK_P;
+    case DOM_VK_Q:                    return kVK_Q;
+    case DOM_VK_R:                    return kVK_R;
+    case DOM_VK_S:                    return kVK_S;
+    case DOM_VK_T:                    return kVK_T;
+    case DOM_VK_U:                    return kVK_U;
+    case DOM_VK_V:                    return kVK_V;
+    case DOM_VK_W:                    return kVK_W;
+    case DOM_VK_X:                    return kVK_X;
+    case DOM_VK_Y:                    return kVK_Y;
+    case DOM_VK_Z:                    return kVK_Z;
 //    case DOM_VK_WIN:                  return 0;  // TODO
 //    case DOM_VK_CONTEXT_MENU:         return 0;  // TODO
 //    case DOM_VK_SLEEP:                return 0;  // TODO
@@ -313,7 +311,7 @@ EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent
       emscripten_set_mouseup_callback("#window", pGraphics, 1, nullptr);
       break;
     case EMSCRIPTEN_EVENT_MOUSEMOVE:
-      if(pEvent->buttons != 0)
+      if(pEvent->buttons != 0 && !pGraphics->IsInTextEntry())
         pGraphics->OnMouseDrag(x, y, pEvent->movementX, pEvent->movementY, modifiers);
       break;
     default:
@@ -348,7 +346,10 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
       if(pEvent->buttons == 0)
         pGraphics->OnMouseOver(x, y, modifiers);
       else
-        pGraphics->OnMouseDrag(x, y, pEvent->movementX, pEvent->movementY, modifiers);
+      {
+        if(!pGraphics->IsInTextEntry())
+          pGraphics->OnMouseDrag(x, y, pEvent->movementX, pEvent->movementY, modifiers);
+      }
       break;
     case EMSCRIPTEN_EVENT_MOUSEENTER:
       pGraphics->OnSetCursor();
@@ -391,6 +392,29 @@ EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* pEvent, void* 
   }
   
   return true;
+}
+
+IColorPickerHandlerFunc gColorPickerHandlerFunc = nullptr;
+
+static void color_picker_callback(val e)
+{
+  if(gColorPickerHandlerFunc)
+  {
+    std::string colorStrHex = e["target"]["value"].as<std::string>();
+    
+    if (colorStrHex[0] == '#')
+      colorStrHex = colorStrHex.erase(0, 1);
+    
+    IColor result;
+    result.A = 255;
+    sscanf(colorStrHex.c_str(), "%02x%02x%02x", &result.R, &result.G, &result.B);
+    
+    gColorPickerHandlerFunc(result);
+  }
+}
+
+EMSCRIPTEN_BINDINGS(events) {
+  function("color_picker_callback", color_picker_callback);
 }
 
 #pragma mark -
@@ -436,6 +460,7 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
   SetScreenScale(std::ceil(std::max(emscripten_get_device_pixel_ratio(), 1.)));
 
   GetDelegate()->LayoutUI(this);
+  GetDelegate()->OnUIOpen();
   
   return nullptr;
 }
@@ -523,18 +548,35 @@ bool IGraphicsWeb::GetTextFromClipboard(WDL_String& str)
   return true; // TODO: return?
 }
 
-int IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, EMessageBoxType type)
+EMsgBoxResult IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
 {
+  ReleaseMouseCapture();
+  
+  EMsgBoxResult result = kNoResult;
+  
   switch (type)
   {
-    case kMB_OK: val::global("window").call<val>("alert", std::string(str)); return 0;
+    case kMB_OK:
+    {
+      val::global("window").call<val>("alert", std::string(str));
+      result = EMsgBoxResult::kOK;
+      break;
+    }
     case kMB_YESNO:
     case kMB_OKCANCEL:
-      return val::global("window").call<val>("confirm", std::string(str)).as<int>();
+    {
+      result = static_cast<EMsgBoxResult>(val::global("window").call<val>("confirm", std::string(str)).as<int>());
+    }
     // case MB_CANCEL:
     //   break;
-    default: return 0;
+    default:
+      return result = kNoResult;
   }
+  
+  if(completionHandler)
+    completionHandler(result);
+  
+  return result;
 }
 
 void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext)
@@ -554,54 +596,107 @@ void IGraphicsWeb::PromptForDirectory(WDL_String& path)
   inputEl.call<void>("click");
 }
 
-void IGraphicsWeb::CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str)
+bool IGraphicsWeb::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
 {
-    ShowMessageBox("Warning", "Text entry not yet implemented", kMB_OK);
-//  val input = val::global("document").call<val>("createElement", std::string("input"));
-//  
-//  val rect = GetCanvas().call<val>("getBoundingClientRect");
-//  
-//  WDL_String dimstr;
-//  
-//  input["style"].set("position", val("fixed"));
-//  dimstr.SetFormatted(32, "%fpx",  rect["left"].as<double>() + bounds.L);
-//  input["style"].set("left", std::string(dimstr.Get()));
-//  dimstr.SetFormatted(32, "%fpx",  rect["top"].as<double>() + bounds.T);
-//  input["style"].set("top", std::string(dimstr.Get()));
-//  dimstr.SetFormatted(32, "%fpx",  bounds.W());
-//  input["style"].set("width", std::string(dimstr.Get()));
-//  dimstr.SetFormatted(32, "%fpx",  bounds.H());
-//  input["style"].set("height", std::string(dimstr.Get()));
-//  
-//  if (control.ParamIdx() > kNoParameter)
-//  {
-//    const IParam* pParam = control.GetParam();
-//    
-//    switch ( pParam->Type() )
-//    {
-//      case IParam::kTypeEnum:
-//      case IParam::kTypeInt:
-//      case IParam::kTypeBool:
-//        input.set("type", val("number"));
-//        break;
-//      case IParam::kTypeDouble:
-//        input.set("type", val("number")); // TODO
-//        break;
-//      default:
-//        break;
-//    }
-//  }
-//  else
-//  {
-//    input.set("type", val("text"));
-//  }
-//
-//  val::global("document")["body"].call<void>("appendChild", input);
-//  
-//  input.call<void>("focus");
+  gColorPickerHandlerFunc = func;
+
+  val inputEl = val::global("document").call<val>("createElement", std::string("input"));
+  inputEl.call<void>("setAttribute", std::string("type"), std::string("color"));
+  WDL_String colorStr;
+  colorStr.SetFormatted(64, "#%02x%02x%02x", color.R, color.G, color.B);
+  inputEl.call<void>("setAttribute", std::string("value"), std::string(colorStr.Get()));
+  inputEl.call<void>("click");
+  inputEl.call<void>("addEventListener", std::string("input"), val::module_property("color_picker_callback"), false);
+  inputEl.call<void>("addEventListener", std::string("onChange"), val::module_property("color_picker_callback"), false);
+
+  return false;
 }
 
-IPopupMenu* IGraphicsWeb::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+EM_BOOL complete_text_entry(int eventType, const EmscriptenFocusEvent* focusEvent, void* pUserData)
+{
+  IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
+  
+  val input = val::global("document").call<val>("getElementById", std::string("textEntry"));
+  std::string str = input["value"].as<std::string>();
+  val::global("document")["body"].call<void>("removeChild", input);
+  pGraphics->SetControlValueAfterTextEdit(str.c_str());
+  
+  return true;
+}
+
+EM_BOOL text_entry_keydown(int eventType, const EmscriptenKeyboardEvent* pEvent, void* pUserData)
+{
+  IGraphicsWeb* pGraphicsWeb = (IGraphicsWeb*) pUserData;
+  
+  IKeyPress keyPress {pEvent->key, domVKToWinVK(pEvent->keyCode),
+    static_cast<bool>(pEvent->shiftKey),
+    static_cast<bool>(pEvent->ctrlKey),
+    static_cast<bool>(pEvent->altKey)};
+  
+  if (keyPress.VK == kVK_RETURN || keyPress.VK ==  kVK_TAB)
+    return complete_text_entry(0, nullptr, pUserData);
+  
+  return false;
+}
+
+void IGraphicsWeb::CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str)
+{
+  val input = val::global("document").call<val>("createElement", std::string("input"));
+  val rect = GetCanvas().call<val>("getBoundingClientRect");
+
+  auto setDim = [&input](const char *dimName, double pixels)
+  {
+    WDL_String dimstr;
+    dimstr.SetFormatted(32, "%fpx",  pixels);
+    input["style"].set(dimName, std::string(dimstr.Get()));
+  };
+  
+  auto setColor = [&input](const char *colorName, IColor color)
+  {
+    WDL_String str;
+    str.SetFormatted(64, "rgba(%d, %d, %d, %d)", color.R, color.G, color.B, color.A);
+    input["style"].set(colorName, std::string(str.Get()));
+  };
+
+  input.set("id", std::string("textEntry"));
+  input["style"].set("position", val("fixed"));
+  setDim("left", rect["left"].as<double>() + bounds.L);
+  setDim("top", rect["top"].as<double>() + bounds.T);
+  setDim("width", bounds.W());
+  setDim("height", bounds.H());
+  
+  setColor("color", text.mTextEntryFGColor);
+  setColor("background-color", text.mTextEntryBGColor);
+  if (paramIdx > kNoParameter)
+  {
+    const IParam* pParam = GetDelegate()->GetParam(paramIdx);
+
+    switch (pParam->Type())
+    {
+      case IParam::kTypeEnum:
+      case IParam::kTypeInt:
+      case IParam::kTypeBool:
+        input.set("type", val("number")); // TODO
+        break;
+      case IParam::kTypeDouble:
+        input.set("type", val("number"));
+        break;
+      default:
+        break;
+    }
+  }
+  else
+  {
+    input.set("type", val("text"));
+  }
+
+  val::global("document")["body"].call<void>("appendChild", input);
+  input.call<void>("focus");
+  emscripten_set_focusout_callback("textEntry", this, 1, complete_text_entry);
+  emscripten_set_keydown_callback("textEntry", this, 1, text_entry_keydown);
+}
+
+IPopupMenu* IGraphicsWeb::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds)
 {
   return nullptr;
 }
@@ -641,7 +736,7 @@ PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const char* f
 {
   const char* styles[] = { "normal", "bold", "italic" };
   
-  return PlatformFontPtr(new WebFont(fontName, styles[style]));
+  return PlatformFontPtr(new WebFont(fontName, styles[static_cast<int>(style)]));
 }
 
 #if defined IGRAPHICS_CANVAS

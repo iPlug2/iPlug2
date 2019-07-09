@@ -335,7 +335,7 @@ void IPopupMenuControl::DrawCellText(IGraphics& g, const IRECT& bounds, const IP
       mText.mFGColor = COLOR_GRAY;
   }
   
-  mText.mAlign = IText::kAlignNear;
+  mText.mAlign = EAlign::Near;
   g.DrawText(mText, pItem->GetText(), textRect, pBlend);
 }
 
@@ -369,18 +369,15 @@ void IPopupMenuControl::DrawSeparator(IGraphics& g, const IRECT& bounds, IBlend*
     g.FillRect(COLOR_MID_GRAY, bounds, &BLEND_25);
 }
 
-IPopupMenu* IPopupMenuControl::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+void IPopupMenuControl::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds)
 {
   mMenu = &menu;
-  mCaller = pCaller;
   
   if(mMaxBounds.W() == 0)
     mMaxBounds = GetUI()->GetBounds();
     
   if(GetState() == kCollapsed)
     Expand(bounds);
-  
-  return mMenu;
 }
 
 IRECT IPopupMenuControl::GetLargestCellRectForMenu(IPopupMenu& menu, float x, float y) const
@@ -559,20 +556,7 @@ void IPopupMenuControl::CollapseEverything()
   if(pClickedMenu->GetFunction())
     pClickedMenu->ExecFunction();
   
-  if(mCaller)
-  {
-    if(mIsContextMenu)
-      mCaller->OnContextSelection(pClickedMenu->GetChosenItemIdx());
-    else
-    {
-      if(pClickedMenu->GetChosenItemIdx() == -1)
-        mCaller->OnPopupMenuSelection(nullptr);
-      else
-        mCaller->OnPopupMenuSelection(pClickedMenu);
-    }
-    
-    mIsContextMenu = false;
-  }
+  GetUI()->SetControlValueAfterPopupMenu(pClickedMenu);
     
   mActiveMenuPanel = nullptr;
 

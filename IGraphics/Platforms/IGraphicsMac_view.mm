@@ -186,9 +186,7 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
       [subMenu release];
     }
     else if (pMenuItem->GetIsSeparator())
-    {
       [self addItem:[NSMenuItem separatorItem]];
-    }
     else
     {
       nsMenuItem = [self addItemWithTitle:nsMenuItemTitle action:@selector(onMenuSelection:) keyEquivalent:@""];
@@ -196,27 +194,17 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
       [nsMenuItem setTarget:pView];
       
       if (pMenuItem->GetIsTitle ())
-      {
         [nsMenuItem setIndentationLevel:1];
-      }
 
       if (pMenuItem->GetChecked())
-      {
         [nsMenuItem setState:NSOnState];
-      }
       else
-      {
         [nsMenuItem setState:NSOffState];
-      }
 
       if (pMenuItem->GetEnabled())
-      {
         [nsMenuItem setEnabled:YES];
-      }
       else
-      {
         [nsMenuItem setEnabled:NO];
-      }
 
     }
   }
@@ -467,7 +455,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   NSRect r = NSMakeRect(0.f, 0.f, (float) pGraphics->WindowWidth(), (float) pGraphics->WindowHeight());
   self = [super initWithFrame:r];
   
-#if defined IGRAPHICS_NANOVG
+#if defined IGRAPHICS_NANOVG || defined IGRAPHICS_SKIA
   if (!self.wantsLayer) {
     #if defined IGRAPHICS_METAL
     self.layer = [CAMetalLayer new];
@@ -567,7 +555,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 #if defined IGRAPHICS_GL
   self.layer.contentsScale = 1./newScale;
-#else if defined IGRAPHICS_METAL
+#elif defined IGRAPHICS_METAL
   [(CAMetalLayer*)[self layer] setDrawableSize:CGSizeMake(self.frame.size.width * newScale,
                                                           self.frame.size.height * newScale)];
 #endif
@@ -606,7 +594,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (void) render
 {
-#if !defined IGRAPHICS_NANOVG // for layer-backed views setNeedsDisplayInRect/drawRect is not called
+#if !defined IGRAPHICS_GL && !defined IGRAPHICS_METAL // for layer-backed views setNeedsDisplayInRect/drawRect is not called
   for (int i = 0; i < mDirtyRects.Size(); i++)
     [self setNeedsDisplayInRect:ToNSRect(mGraphics, mDirtyRects.Get(i))];
 #else
@@ -717,7 +705,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   float prevX = mPrevX;
   float prevY = mPrevY;
   IMouseInfo info = [self getMouseLeft:pEvent];
-  if (mGraphics && !mTextFieldView)
+  if (mGraphics && !mGraphics->IsInTextEntry())
     mGraphics->OnMouseDrag(info.x, info.y, info.x - prevX, info.y - prevY, info.ms);
 }
 
@@ -987,7 +975,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 {
   char* txt = (char*)[[mTextFieldView stringValue] UTF8String];
 
-  mGraphics->SetControlValueFromStringAfterPrompt(*mEdControl, txt);
+  mGraphics->SetControlValueAfterTextEdit(txt);
   mGraphics->SetAllControlsDirty();
 
   [self endUserInput ];
@@ -1016,14 +1004,14 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   else return nullptr;
 }
 
-- (void) createTextEntry: (IControl&) control : (const IText&) text : (const char*) str : (NSRect) areaRect;
+- (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (NSRect) areaRect;
 {
   if (mTextFieldView)
     return;
 
   mTextFieldView = [[IGRAPHICS_TEXTFIELD alloc] initWithFrame: areaRect];
   
-  if (text.mVAlign == IText::kVAlignMiddle)
+  if (text.mVAlign == EVAlign::Middle)
   {
     IGRAPHICS_TEXTFIELDCELL* pCell = [[IGRAPHICS_TEXTFIELDCELL alloc] initTextCell:@"textfield"];
     [mTextFieldView setCell: pCell];
@@ -1038,20 +1026,20 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   
   switch (text.mAlign)
   {
-    case IText::kAlignNear:
+    case EAlign::Near:
       [mTextFieldView setAlignment: NSLeftTextAlignment];
       break;
-    case IText::kAlignCenter:
+    case EAlign::Center:
       [mTextFieldView setAlignment: NSCenterTextAlignment];
       break;
-    case IText::kAlignFar:
+    case EAlign::Far:
       [mTextFieldView setAlignment: NSRightTextAlignment];
       break;
     default:
       break;
   }
 
-  const IParam* pParam = control.GetParam();
+  const IParam* pParam = paramIdx > kNoParameter ? mGraphics->GetDelegate()->GetParam(paramIdx) : nullptr;
 
   // set up formatter
   if (pParam)
@@ -1074,7 +1062,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 
     [mTextFieldView setFormatter:[[[IGRAPHICS_FORMATTER alloc] init] autorelease]];
     [[mTextFieldView formatter] setAcceptableCharacterSet:characterSet];
-    [[mTextFieldView formatter] setMaximumLength:control.GetTextEntryLength()];
+    [[mTextFieldView formatter] setMaximumLength:length];
     [characterSet release];
   }
 
@@ -1096,8 +1084,6 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   NSWindow* pWindow = [self window];
   [pWindow makeKeyAndOrderFront:nil];
   [pWindow makeFirstResponder: mTextFieldView];
-
-  mEdControl = &control;
 }
 
 - (void) endUserInput
@@ -1109,7 +1095,25 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   [pWindow makeFirstResponder: self];
 
   mTextFieldView = nullptr;
-  mEdControl = nullptr;
+}
+
+- (BOOL) promptForColor: (IColor&) color : (IColorPickerHandlerFunc) func;
+{
+  NSColorPanel* colorPicker = [NSColorPanel sharedColorPanel];
+  mColorPickerFunc = func;
+
+  [colorPicker setShowsAlpha:TRUE];
+  [colorPicker setColor:ToNSColor(color)];
+  [colorPicker setTarget:self];
+  [colorPicker setAction:@selector(onColorPicked:)];
+  [colorPicker orderFront:nil];
+  
+  return colorPicker != nil;
+}
+
+- (void) onColorPicked: (NSColorPanel*) colorPanel
+{
+  mColorPickerFunc(FromNSColor(colorPanel.color));
 }
 
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData
@@ -1179,9 +1183,9 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 //  float scaleX = width / mGraphics->Width();
 //  float scaleY = height / mGraphics->Height();
 //
-//  if(mGraphics->GetUIResizerMode() == EUIResizerMode::kUIResizerScale)
+//  if(mGraphics->GetUIResizerMode() == EUIResizerMode::Scale)
 //    mGraphics->Resize(width, height, mGraphics->GetDrawScale());
-//  else // EUIResizerMode::kUIResizerSize
+//  else // EUIResizerMode::Size
 //    mGraphics->Resize(mGraphics->Width(), mGraphics->Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
 //}
 //
@@ -1196,9 +1200,9 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 //  float scaleX = width / mGraphics->Width();
 //  float scaleY = height / mGraphics->Height();
 //
-//  if(mGraphics->GetUIResizerMode() == EUIResizerMode::kUIResizerScale)
+//  if(mGraphics->GetUIResizerMode() == EUIResizerMode::Scale)
 //    mGraphics->Resize(width, height, mGraphics->GetDrawScale());
-//  else // EUIResizerMode::kUIResizerSize
+//  else // EUIResizerMode::Size
 //    mGraphics->Resize(mGraphics->Width(), mGraphics->Height(), Clip(std::min(scaleX, scaleY), 0.1f, 10.f));
 //}
 

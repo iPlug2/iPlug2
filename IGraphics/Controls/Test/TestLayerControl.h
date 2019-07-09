@@ -22,7 +22,7 @@
 class TestLayerControl : public IKnobControlBase
 {
 public:
-  TestLayerControl(IRECT rect)
+  TestLayerControl(const IRECT& rect)
   : IKnobControlBase(rect, kNoParameter)
   {
     SetTooltip("TestLayerControl");
@@ -37,7 +37,7 @@ public:
       if (!g.CheckLayer(mLayer))
       {
         IText text;
-        text.mVAlign = IText::kVAlignTop;
+        text.mVAlign = EVAlign::Top;
         text.mSize = 15;
         g.StartLayer(mRECT);
         g.FillRoundRect(COLOR_LIGHT_GRAY, mRECT.GetPadded(-5.5f), mRECT.W() / 4.0);
@@ -49,7 +49,7 @@ public:
     }
 
     g.FillCircle(COLOR_BLUE, mRECT.MW(), mRECT.MH(), mRECT.H() / 4.0);
-    g.DrawRadialLine(COLOR_BLACK, mRECT.MW(), mRECT.MH(), -120.0 + mValue * 240.0, 0.0, mRECT.H() / 4.0, nullptr, 3.0);
+    g.DrawRadialLine(COLOR_BLACK, mRECT.MW(), mRECT.MH(), -120.0 + GetValue() * 240.0, 0.0, mRECT.H() / 4.0, nullptr, 3.0);
   }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override

@@ -25,7 +25,7 @@
 class IColorPickerControl : public IControl
 {
 public:
-  IColorPickerControl(IRECT bounds)
+  IColorPickerControl(const IRECT& bounds)
   : IControl(bounds)
   {
   }

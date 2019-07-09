@@ -99,7 +99,7 @@ public:
   static constexpr int kVoiceMostRecent = 1 << 7;
 
   // one voice worth of ramp generators
-  typedef std::array<ControlRampProcessor, kNumVoiceControlRamps> VoiceControlRamps;
+  using VoiceControlRamps = std::array<ControlRampProcessor, kNumVoiceControlRamps>;
 
   VoiceAllocator();
   ~VoiceAllocator();
@@ -145,8 +145,7 @@ public:
   void SetPitchOffset(float offset) { mPitchOffset = offset; }
 
 private:
-
-  typedef std::bitset<UCHAR_MAX> VoiceBitsArray;
+  using VoiceBitsArray = std::bitset<UCHAR_MAX>;
 
   VoiceBitsArray VoicesMatchingAddress(VoiceAddress va);
 

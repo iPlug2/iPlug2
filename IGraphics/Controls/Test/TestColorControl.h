@@ -22,7 +22,7 @@
 class TestColorControl : public IControl
 {
 public:
-  TestColorControl(IRECT rect)
+  TestColorControl(const IRECT& rect)
   : IControl(rect)
   {
     SetTooltip("TestColorControl");
@@ -53,5 +53,5 @@ public:
   }
 
 private:
-  IPattern mPattern = IPattern(kLinearPattern);
+  IPattern mPattern = IPattern(EPatternType::Linear);
 };

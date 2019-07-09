@@ -101,8 +101,10 @@ void IPlugVST2::InformHostOfProgramChange()
   mHostCallback(&mAEffect, audioMasterUpdateDisplay, 0, 0, 0, 0.0f);
 }
 
-void IPlugVST2::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
+bool IPlugVST2::EditorResizeFromDelegate(int viewWidth, int viewHeight)
 {
+  bool resized = false;
+
   if (HasUI())
   {
     if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
@@ -111,11 +113,13 @@ void IPlugVST2::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeigh
       mEditRect.right = viewWidth;
       mEditRect.bottom = viewHeight;
     
-      mHostCallback(&mAEffect, audioMasterSizeWindow, viewWidth, viewHeight, 0, 0.f);
+      resized = mHostCallback(&mAEffect, audioMasterSizeWindow, viewWidth, viewHeight, 0, 0.f);
     }
     
-    IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
+    IPlugAPIBase::EditorResizeFromDelegate(viewWidth, viewHeight);
   }
+
+  return resized;
 }
 
 void IPlugVST2::SetLatency(int samples)
@@ -360,14 +364,12 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
 #if defined OS_WIN || defined ARCH_64BIT
       if (_this->OpenWindow(ptr))
       {
-        _this->OnUIOpen();
         return 1;
       }
 #else   // OSX 32 bit, check if we are in a Cocoa VST host, otherwise tough luck
       bool iscocoa = (_this->mHasVSTExtensions&VSTEXT_COCOA);
       if (iscocoa && _this->OpenWindow(ptr))
       {
-        _this->OnUIOpen();
         return 1; // cocoa supported open cocoa
       }
 #endif

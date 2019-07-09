@@ -22,8 +22,9 @@
 class TestImageControl : public IControl
 {
 public:
-  TestImageControl(IRECT bounds)
+  TestImageControl(const IRECT& bounds, const IBitmap& bmp)
   : IControl(bounds)
+  , mBitmap(bmp)
   {
     SetTooltip("TestImageControl - Click or Drag 'n drop here to load a new bitmap");
   }
@@ -44,7 +45,7 @@ public:
     WDL_String file;
     WDL_String path;
 
-    GetUI()->PromptForFile(file, path, kFileOpen, "");
+    GetUI()->PromptForFile(file, path, EFileAction::Open, "");
 
     if(file.GetLength())
       SetBitmap(file.Get());

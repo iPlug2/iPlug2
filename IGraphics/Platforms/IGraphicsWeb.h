@@ -56,12 +56,13 @@ public:
   void* GetWindow() override { return nullptr; } // TODO:
   bool WindowIsOpen() override { return GetWindow(); } // TODO: ??
   bool GetTextFromClipboard(WDL_String& str) override;
+  bool SetTextInClipboard(const WDL_String& str) override { return false; } // TODO
   void UpdateTooltips() override {} // TODO:
-  int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) override;
+  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
   
   void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext) override;
   void PromptForDirectory(WDL_String& path) override;
-  bool PromptForColor(IColor& color, const char* str) override { return false; } // TODO:
+  bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
   
   //IGraphicsWeb
@@ -70,8 +71,8 @@ public:
   double mPrevY = 0.;
   
 protected:
-  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
-  void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
+  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds) override;
+  void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
     
 private:
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;

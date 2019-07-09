@@ -24,7 +24,7 @@ class TestFontControl : public IControl
   static const int size = 20;
     
 public:
-    TestFontControl(IRECT bounds)
+    TestFontControl(const IRECT& bounds)
   : IControl(bounds), mCount(-1), mFontCount(0), mStrCount(0)
   {
     SetTooltip("TestFontControl");
@@ -70,23 +70,23 @@ public:
     IColor c = DEFAULT_TEXT_FGCOLOR;
     const char* font = mFontCount ? "Roboto-Regular" : "Alternative Font";
     if (mCount == 0)
-      mText = IText(size, c, font, IText::kAlignNear, IText::kVAlignTop);
+      mText = IText(size, c, font, EAlign::Near, EVAlign::Top);
     else if (mCount == 1)
-      mText = IText(size, c, font, IText::kAlignCenter, IText::kVAlignTop);
+      mText = IText(size, c, font, EAlign::Center, EVAlign::Top);
     else if (mCount == 2)
-      mText = IText(size, c, font, IText::kAlignFar, IText::kVAlignTop);
+      mText = IText(size, c, font, EAlign::Far, EVAlign::Top);
     else if (mCount == 3)
-      mText = IText(size, c, font, IText::kAlignNear, IText::kVAlignMiddle);
+      mText = IText(size, c, font, EAlign::Near, EVAlign::Middle);
     else if (mCount == 4)
-      mText = IText(size, c, font, IText::kAlignCenter, IText::kVAlignMiddle);
+      mText = IText(size, c, font, EAlign::Center, EVAlign::Middle);
     else if (mCount == 5)
-      mText = IText(size, c, font, IText::kAlignFar, IText::kVAlignMiddle);
+      mText = IText(size, c, font, EAlign::Far, EVAlign::Middle);
     else if (mCount == 6)
-      mText = IText(size, c, font, IText::kAlignNear, IText::kVAlignBottom);
+      mText = IText(size, c, font, EAlign::Near, EVAlign::Bottom);
     else if (mCount == 7)
-      mText = IText(size, c, font, IText::kAlignCenter, IText::kVAlignBottom);
+      mText = IText(size, c, font, EAlign::Center, EVAlign::Bottom);
     else
-      mText = IText(size, c, font, IText::kAlignFar, IText::kVAlignBottom);
+      mText = IText(size, c, font, EAlign::Far, EVAlign::Bottom);
   }
 
 private:

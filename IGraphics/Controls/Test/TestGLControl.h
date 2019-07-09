@@ -24,7 +24,7 @@
 class TestGLControl : public IControl
 {
 public:
-  TestGLControl(IRECT rect)
+  TestGLControl(const IRECT& rect)
     : IControl(rect, kNoParameter)
   {
     SetTooltip("TestGLControl");
@@ -203,4 +203,19 @@ private:
   bool invalidateFBO = true;
 };
 
+#else
+class TestGLControl : public IControl
+{
+public:
+  TestGLControl(const IRECT& rect)
+  : IControl(rect)
+  {
+    SetTooltip("TestGLControl");
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    g.DrawText(mText, "UNSUPPORTED", mRECT);
+  }
+};
 #endif
