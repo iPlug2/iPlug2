@@ -109,4 +109,13 @@ private:
     
   cairo_t* mContext;
   cairo_surface_t* mSurface;
+
+#ifdef OS_MAC
+  double mPrevTimeStamp = 0.;
+  double mTotTime = 0.;
+  cairo_surface_t* mSurfaceImage;
+  cairo_surface_t* mSurfaceQuartz;
+  bool mUseImageSurface = false;
+  int mFrameCount = 0;
+#endif
 };

@@ -592,13 +592,12 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
   else if(!mSurface)
   {
 #ifdef OS_MAC
-#ifndef IMG_TEST
-    mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), WindowWidth(), WindowHeight());
-    cairo_surface_set_device_scale(mSurface, GetDrawScale(), GetDrawScale());
-#else
-    mSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, WindowWidth() * GetScreenScale(), WindowHeight()  * GetScreenScale());
-    cairo_surface_set_device_scale(mSurface, GetBackingPixelScale(), GetBackingPixelScale());
-#endif
+    mSurfaceQuartz = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), WindowWidth(), WindowHeight());
+    cairo_surface_set_device_scale(mSurfaceQuartz, GetDrawScale(), GetDrawScale());
+    mSurfaceImage = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, WindowWidth() * GetScreenScale(), WindowHeight()  * GetScreenScale());
+    cairo_surface_set_device_scale(mSurfaceImage, GetBackingPixelScale(), GetBackingPixelScale());
+    // default to quartz surface
+    mSurface = mSurfaceQuartz;
 #elif defined OS_WIN
     mSurface = cairo_win32_surface_create_with_ddb((HDC) pContext, CAIRO_FORMAT_ARGB32, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
     cairo_surface_set_device_scale(mSurface, GetBackingPixelScale(), GetBackingPixelScale());
@@ -622,7 +621,26 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
 void IGraphicsCairo::BeginFrame()
 {
   IGraphics::BeginFrame();
-  cairo_push_group(mContext);
+  
+#ifdef OS_MAC
+  // evaluate time to render a frame, if it's too slow (less than required FPS)
+  // switch to image rendering as Quartz is not always the fastest method...
+  const double timestamp = GetTimestamp();
+  const double timeDiff = timestamp - mPrevTimeStamp;
+  mPrevTimeStamp = timestamp;
+  mTotTime += timeDiff;
+  if(mFrameCount > FPS()
+     && mTotTime / mFrameCount > 1. / FPS()
+     && mUseImageSurface == false) {
+    
+    mSurface = mSurfaceImage;
+    UpdateCairoContext();
+    mUseImageSurface = true;
+  }
+  mFrameCount++;
+#endif
+  if(mContext)
+    cairo_push_group(mContext);
 }
 
 void IGraphicsCairo::EndFrame()
@@ -630,8 +648,9 @@ void IGraphicsCairo::EndFrame()
 #ifdef OS_MAC
   cairo_pop_group_to_source(mContext);
   cairo_paint(mContext);
-#ifdef IMG_TEST
-  cairo_surface_flush(mSurface);
+  
+  if (mUseImageSurface) {
+    cairo_surface_flush(mSurface);
   
     CGImageRef img = NULL;
     CGRect r = CGRectMake(0, 0, WindowWidth() * GetScreenScale(), WindowHeight()  * GetScreenScale());
@@ -677,7 +696,7 @@ void IGraphicsCairo::EndFrame()
         CGContextRestoreGState(pCGContext);
         CGImageRelease(img);
     }
-#endif
+  }
 #elif defined OS_WIN
   cairo_surface_flush(mSurface);
   PAINTSTRUCT ps;
