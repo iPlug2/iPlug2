@@ -82,7 +82,8 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
     {
       //        g.StartLayer(r);
       
-      for (int i=0; i<this->mNumberOfThings; i++)
+      //for (int i=0; i<this->mNumberOfThings; i++)
+      for (int i=0; i<1000; i++)
       {
         IRECT rr = r.GetRandomSubRect();
         IColor rc = IColor::GetRandomColor();
@@ -118,7 +119,7 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
     
     //      g.DrawLayer(pCaller->mLayer);
     
-  }, 10000, false, false));
+  }, 10000, true, true));
   
   pGraphics->AttachControl(new ITextControl(bounds.GetGridCell(0, 2, 1), "", IText(100)), kCtrlTagNumThings);
   pGraphics->AttachControl(new ITextControl(bounds.GetGridCell(1, 2, 1), "", IText(100)), kCtrlTagTestNum);
