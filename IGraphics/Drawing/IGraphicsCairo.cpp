@@ -632,23 +632,18 @@ void IGraphicsCairo::BeginFrame()
   if(mFrameCount > FPS()
      && mTotTime / mFrameCount > 1. / FPS()
      && mUseImageSurface == false) {
-    
+
     mSurface = mSurfaceImage;
     UpdateCairoContext();
     mUseImageSurface = true;
   }
   mFrameCount++;
 #endif
-  if(mContext)
-    cairo_push_group(mContext);
 }
 
 void IGraphicsCairo::EndFrame()
 {
 #ifdef OS_MAC
-  cairo_pop_group_to_source(mContext);
-  cairo_paint(mContext);
-  
   if (mUseImageSurface) {
     cairo_surface_flush(mSurface);
   
