@@ -240,6 +240,16 @@
         combo.removeAttribute("disabled");
       }
 
+      //https://www.mattmontag.com/web/unlock-web-audio-in-safari-for-ios-and-macos
+      function unlockAudioContext(audioCtx) {
+        if (audioCtx.state !== 'suspended') return;
+        const b = document.body;
+        const events = ['touchstart','touchend', 'mousedown','keydown'];
+        events.forEach(e => b.addEventListener(e, unlock, false));
+        function unlock() { audioCtx.resume().then(clean); }
+        function clean() { events.forEach(e => b.removeEventListener(e, unlock)); }
+      }
+
       function audioWorkletSupported(supported) {
         if(supported)
           console.log("AudioWorklet Supported");
@@ -260,6 +270,8 @@
 
       function main() {
         var actx = new AudioContext();
+        unlockAudioContext(actx);
+        
         AWPF.polyfill(actx).then( function () {
           var script1 = document.createElement("script");
           script1.src = "scripts/wam-controller.js";
