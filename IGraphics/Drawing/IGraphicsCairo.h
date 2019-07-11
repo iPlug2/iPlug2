@@ -117,5 +117,6 @@ private:
   cairo_surface_t* mSurfaceQuartz;
   bool mUseImageSurface = false;
   int mFrameCount = 0;
+  CGColorSpaceRef mColorSpace = nullptr;
 #endif
 };

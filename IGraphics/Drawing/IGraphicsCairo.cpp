@@ -649,7 +649,8 @@ void IGraphicsCairo::EndFrame()
   
     CGImageRef img = NULL;
     CGRect r = CGRectMake(0, 0, WindowWidth() * GetScreenScale(), WindowHeight()  * GetScreenScale());
-    static CGColorSpaceRef mColorSpace = nullptr;
+    
+    // we should set mColorSpace only the first time the GUI is open
     if (!mColorSpace)
     {
         int v = GetSystemVersion();
