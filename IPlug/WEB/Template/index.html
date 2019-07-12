@@ -106,6 +106,12 @@
     <script type='text/javascript'>
       var NAME_PLACEHOLDER_WAM; // the variable for the wam controller
 
+      function preventBehavior(e) {
+        e.preventDefault(); 
+      };
+
+      document.addEventListener("touchmove", preventBehavior, {passive: false});
+
       function toggleFullScreen() {
         if ((document.fullScreenElement && document.fullScreenElement !== null) ||
         (!document.mozFullScreen && !document.webkitIsFullScreen)) {
