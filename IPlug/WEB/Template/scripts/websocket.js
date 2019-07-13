@@ -4,6 +4,10 @@ function setupWebSocket(onCompleted) {
   ws = new WebSocket('ws://' + window.location.host + '/ws');
   ws.binaryType = 'arraybuffer';
 
+  ws.onopen = function() {
+    console.log("websocket connected");
+  };
+
   ws.onclose = function() {
   };
 
