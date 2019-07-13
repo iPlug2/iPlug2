@@ -1,6 +1,6 @@
 /* Sets up a websocket client connection, for iPlug2 remote editors */
 
-function setupWebSocket() {
+function setupWebSocket(onCompleted) {
   ws = new WebSocket('ws://' + window.location.host + '/ws');
   ws.binaryType = 'arraybuffer';
 
@@ -77,4 +77,6 @@ function setupWebSocket() {
       alert('WebSocket error');
       //ws.close();
   }
+
+  onCompleted();
 }

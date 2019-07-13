@@ -5,7 +5,7 @@
     <title>NAME_PLACEHOLDER WAM</title>
     <link href="styles/style.css" rel="stylesheet" type="text/css"/>
     <script src="scripts/audioworklet.js"></script>
-    <!-- <script src="scripts/websocket.js"></script> -->
+    <script src="scripts/websocket.js"></script>
     <script async src="fonts.js"></script>
     <script async src="svgs.js"></script>
     <script async src="imgs.js"></script>
@@ -22,7 +22,7 @@
         <progress value="0" max="100" id="progress"></progress>
       </div>
       <div id="greyout">
-        <div id="status">downloading ...</div>
+        <div id="status">downloading...</div>
       </div>
       <div id="wam" hidden=1>
       <input id="pluginInput" type="file" style="visibility:hidden"/>
@@ -175,7 +175,10 @@
         postRun: function() {
           document.getElementById('startWebAudioButton').removeAttribute("disabled");
         },
-        // onRuntimeInitialized: setupWebSocket(),
+        onRuntimeInitialized: setupWebSocket(function() {
+          document.getElementById('wam').hidden = false;
+          document.getElementById('buttons').hidden = true;
+        }),
         setStatus: function(text) {
           if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
           if (text === Module.setStatus.text) return;
