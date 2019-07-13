@@ -408,7 +408,41 @@ void ITextControl::SetBoundsBasedOnTextDimensions()
 {
   IRECT r;
   GetUI()->MeasureText(mText, mStr.Get(), r);
+  
+  //TODO look at text align/valign?
   SetTargetAndDrawRECTs({mRECT.L, mRECT.T, mRECT.L + r.W(), mRECT.T + r.H()});
+}
+
+IURLControl::IURLControl(const IRECT& bounds, const char* str, const char* urlStr, const IText& text, const IColor& BGColor, const IColor& MOColor, const IColor& CLColor)
+: ITextControl(bounds, str, text, BGColor)
+, mURLStr(urlStr)
+, mMOColor(MOColor)
+, mCLColor(CLColor)
+, mOriginalColor(text.mFGColor)
+{
+  mIgnoreMouse = false;
+  IControl::mText = text;
+}
+
+void IURLControl::Draw(IGraphics& g)
+{
+  g.FillRect(mBGColor, mRECT);
+  
+  if(mMouseIsOver)
+    mText.mFGColor = mMOColor;
+  else
+    mText.mFGColor = mClicked ? mCLColor : mOriginalColor;
+  
+  g.DrawLine(mText.mFGColor, mRECT.L, mRECT.B, mRECT.R, mRECT.B);
+  
+  if (mStr.GetLength())
+    g.DrawText(mText, mStr.Get(), mRECT);
+}
+
+void IURLControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  GetUI()->OpenURL(mURLStr.Get());
+  mClicked = true;
 }
 
 ITextToggleControl::ITextToggleControl(const IRECT& bounds, int paramIdx, const char* offText, const char* onText, const IText& text, const IColor& bgColor)
