@@ -3,83 +3,9 @@
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>NAME_PLACEHOLDER WAM</title>
-    <style>
-      body {
-        font-family: arial;
-        margin: 0;
-        padding: none;
-        background: white;
-        background-size: cover;
-        text-align: center;
-        overflow: hidden;
-
-        /* disable selection */
-        -webkit-touch-callout: none; /* iOS Safari */
-        -webkit-user-select: none;   /* Safari */
-        -khtml-user-select: none;    /* Konqueror HTML */
-        -moz-user-select: none; /* Firefox */
-        -ms-user-select: none; /* Internet Explorer/Edge */
-        user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
-      }
-
-      #buttons {
-        display: inline-block;
-        /* vertical-align: top; */
-        margin-top: 50px;
-        margin-bottom: 10px;
-        margin-left: 20px;
-        font-weight: bold;
-        color: rgb(120, 120, 120);
-      }
-
-      #status {
-        display: inline-block;
-        vertical-align: top;
-        margin-top: 50px;
-        margin-left: 20px;
-        font-weight: bold;
-        color: black;
-      }
-
-      #greyout { position: relative; text-align: center; color: black; }
-
-      a, u { text-decoration: none; }
-      a:link { color: #222; }
-      a:visited { color: #222; }
-      a:hover { color: black; }
-      a:active { color: #222; }
-      label  { color:#bbb; font-size:12px; }
-      select { background:#222; color:#eee; height:20px; margin-top:10px; cursor:pointer; }
-      img { pointer-events: none; } /*stops dragging imgs */
-
-      .pluginArea { margin-right: auto; margin-left: auto; margin-right: auto; display: block; outline:0; }
-      div.pluginArea { text-align: center; }
-      /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
-      canvas.pluginArea { border: 0px none; background-color: black; display: block; box-shadow: 10px 10px 5px rgba(0,0,0,0.3); }
-
-      * { -webkit-tap-highlight-color:rgba(0,0,0,0); }
-
-    </style>
-<!--
-    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/manifest.json">
-    <meta name="msapplication-TileColor" content="#ffffff">
-    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
-    <meta name="theme-color" content="#ffffff">
- -->
+    <link href="styles/style.css" rel="stylesheet" type="text/css"/>
     <script src="scripts/audioworklet.js"></script>
+    <!-- <script src="scripts/websocket.js"></script> -->
     <script async src="fonts.js"></script>
     <script async src="svgs.js"></script>
     <script async src="imgs.js"></script>
@@ -87,10 +13,9 @@
     <script async src="scripts/NAME_PLACEHOLDER-web.js"></script>
   </head>
   <body>
-    <div id="main">
-    </div>
+    <div id="main"></div>
     <div id="buttons">
-        <button type="button" id="startWebAudioButton" onclick="main()" disabled>Start web audio!</button>
+        <button type="button" id="startWebAudioButton" onclick="startWebAudio()" disabled>Start web audio!</button>
         <button type="button" onclick="toggleFullScreen()">Fullscreen</button>
         <select id="midiInSelect" disabled="true"><option value="default">Midi input</option></select>
         <select id="midiOutSelect" disabled="true"><option value="default">Midi output</option></select>
@@ -104,7 +29,7 @@
       <canvas class="pluginArea" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
     </div>
     <script type='text/javascript'>
-      var NAME_PLACEHOLDER_WAM; // the variable for the wam controller
+      var NAME_PLACEHOLDER_WAM; // the WAM controller
 
       function preventBehavior(e) {
         e.preventDefault(); 
@@ -130,87 +55,6 @@
           } else if (document.webkitCancelFullScreen) {
             document.webkitCancelFullScreen();
           }
-        }
-      }
-
-      // only used for remote editor
-      function setupWebSocket() {
-        ws = new WebSocket('ws://' + window.location.host + '/ws');
-        ws.binaryType = 'arraybuffer';
-
-        ws.onclose = function() {
-        };
-
-        ws.onmessage = function (e) {
-          var msg = e.data;
-
-          if(e.data.byteLength)
-          {
-              var buf = new Uint8Array(msg).buffer;
-              var dv = new DataView(buf);
-              var pos = 0;
-              var strlen = dv.getInt32(pos, true); pos += 4;
-              var prefix = new TextDecoder("utf-8").decode(new Uint8Array(buf, pos, strlen)); pos += strlen;
-
-              if(prefix == "SPVFD")
-              {
-                var paramIdx = dv.getInt32(pos, true); pos += 4;
-                var value = dv.getFloat64(pos, true); pos += 8;
-                Module.SPVFD(paramIdx, value);
-              }
-              else if(prefix == "SCVDD")
-              {
-                var controlTag = dv.getInt32(pos, true); pos += 4;
-                var value = dv.getFloat64(pos, true); pos += 8;
-                Module.SCVFD(controlTag, value);
-              }
-              else if(prefix == "SCMFD")
-              {
-                var controlTag = dv.getInt32(pos, true); pos += 4;
-                var msgTag = dv.getInt32(pos, true); pos += 4;
-                var dataSize = dv.getInt32(pos, true); pos += 4;
-                var data = new Uint8Array(buf, pos, dataSize);
-
-                const esbuf = Module._malloc(data.length);
-                Module.HEAPU8.set(data, esbuf);
-                Module.SCMFD(controlTag, msgTag, data.length, esbuf);
-                Module._free(esbuf);
-              }
-              else if(prefix == "SAMFD")
-              {
-                var msgTag = dv.getInt32(pos, true); pos += 4;
-                var dataSize = dv.getInt32(pos, true); pos += 4;
-                var data = new Uint8Array(buf, pos, dataSize);
-
-                const esbuf = Module._malloc(data.length);
-                Module.HEAPU8.set(data, esbuf);
-                Module.SAMFD(controlTag, msgTag, data.length, esbuf);
-                Module._free(esbuf);
-              }
-              else if(prefix == "SMMFD")
-              {
-                var status = dv.getUint8(pos, true); pos ++;
-                var data1 = dv.getUint8(pos, true); pos ++;
-                var data2 = dv.getUint8(pos, true); pos ++;
-                Module.SMMFD(status, data1, data2);
-              }
-              else if(prefix == "SSMFD")
-              {
-                var msgTag = dv.getInt32(pos, true); pos += 4;
-                var dataSize = dv.getInt32(pos, true); pos += 4;
-                var data = new Uint8Array(buf, pos, dataSize);
-
-                const esbuf = Module._malloc(data.length);
-                Module.HEAPU8.set(data, esbuf);
-                Module.SSMFD(controlTag, msgTag, data.length, esbuf);
-                Module._free(esbuf);
-              }
-          }
-        }
-
-        ws.onerror = function (error) {
-            alert('WebSocket error');
-            //ws.close();
         }
       }
 
@@ -261,7 +105,6 @@
           console.log("AudioWorklet Supported");
         else {
           console.log("AudioWorklet NOT Supported");
-          //document.getElementById("unsupported").style.display = "block";
         }
       }
 
@@ -274,7 +117,7 @@
         initMidiComboBox(true, "#midiOutSelect");
       }
 
-      function main() {
+      function startWebAudio() {
         var actx = new AudioContext();
         unlockAudioContext(actx);
         
@@ -286,7 +129,11 @@
             script2.src = "scripts/NAME_PLACEHOLDER-awn.js";
             script2.onload = () => {
 
-              audioWorkletSupported(!AWPF.isAudioWorkletPolyfilled);
+              if(AWPF.isAudioWorkletPolyfilled)
+                console.log("AudioWorklet NOT Supported");
+              else
+                console.log("AudioWorklet Supported");
+        
               NAME_PLACEHOLDERController.importScripts(actx).then(() => {
                 NAME_PLACEHOLDER_WAM = new NAME_PLACEHOLDERController(actx);
 
