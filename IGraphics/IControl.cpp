@@ -442,6 +442,7 @@ void IURLControl::Draw(IGraphics& g)
 void IURLControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   GetUI()->OpenURL(mURLStr.Get());
+  GetUI()->ReleaseMouseCapture();
   mClicked = true;
 }
 
