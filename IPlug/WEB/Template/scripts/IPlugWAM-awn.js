@@ -4,9 +4,10 @@ class NAME_PLACEHOLDERController extends WAMController
 {
   constructor (actx, options) {
     options = options || {};
-    options.numberOfInputs  = 0;
-    options.numberOfOutputs = 1;
-    options.outputChannelCount = [2];
+    if (options.numberOfInputs === undefined)       options.numberOfInputs = 0;
+    if (options.numberOfOutputs === undefined)      options.numberOfOutputs = 1;
+    if (options.outputChannelCount === undefined)   options.outputChannelCount = [2];
+    if (options.processorOptions.inputChannelCount === undefined) options.processorOptions = {inputChannelCount:[]};
 
     if( navigator.userAgent.toLowerCase().indexOf('firefox') > -1 ){
       console.log("Firefox detected: SPN buffersize = 512")

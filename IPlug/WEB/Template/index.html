@@ -14,9 +14,9 @@
   </head>
   <body>
     <div id="main"></div>
-    <div id="buttons">
+      <div id="buttons">
         <button type="button" id="startWebAudioButton" onclick="startWebAudio()" disabled>Start web audio!</button>
-        <button type="button" onclick="toggleFullScreen()">Fullscreen</button>
+        <button type="button" id="fullScreenButton" onclick="toggleFullScreen()">Fullscreen</button>
         <select id="midiInSelect" disabled="true"><option value="default">Midi input</option></select>
         <select id="midiOutSelect" disabled="true"><option value="default">Midi output</option></select>
         <progress value="0" max="100" id="progress"></progress>
@@ -29,6 +29,11 @@
       </div>
     <script type='text/javascript'>
       var NAME_PLACEHOLDER_WAM; // the WAM controller
+      let WEBSOCKET_MODE=false; // this constant will be set by the makedist-web.sh script 
+
+      if(WEBSOCKET_MODE==true) {
+        document.getElementById('buttons').style.display = 'none';
+      }
 
       function preventBehavior(e) {
         e.preventDefault(); 
@@ -90,21 +95,13 @@
       }
 
       //https://www.mattmontag.com/web/unlock-web-audio-in-safari-for-ios-and-macos
-      function unlockAudioContext(audioCtx) {
+      function safariUnlock(audioCtx) {
         if (audioCtx.state !== 'suspended') return;
         const b = document.body;
         const events = ['touchstart','touchend', 'mousedown','keydown'];
         events.forEach(e => b.addEventListener(e, unlock, false));
         function unlock() { audioCtx.resume().then(clean); }
         function clean() { events.forEach(e => b.removeEventListener(e, unlock)); }
-      }
-
-      function audioWorkletSupported(supported) {
-        if(supported)
-          console.log("AudioWorklet Supported");
-        else {
-          console.log("AudioWorklet NOT Supported");
-        }
       }
 
       function connectToOutput(wam, actx) {
@@ -118,7 +115,7 @@
 
       function startWebAudio() {
         var actx = new AudioContext();
-        unlockAudioContext(actx);
+        safariUnlock(actx);
         
         AWPF.polyfill(actx).then( function () {
           var script1 = document.createElement("script");
@@ -132,15 +129,17 @@
                 console.log("AudioWorklet NOT Supported");
               else
                 console.log("AudioWorklet Supported");
-        
+              
+              let inputBuses = [MAXNINPUTS_PLACEHOLDER];
+              let outputBuses = [MAXNOUTPUTS_PLACEHOLDER];
+              let options = {numberOfInputs: inputBuses.length, numberOfOutputs: outputBuses.length, outputChannelCount: outputBuses, processorOptions: {inputChannelCount: inputBuses}};
+
               NAME_PLACEHOLDERController.importScripts(actx).then(() => {
-                NAME_PLACEHOLDER_WAM = new NAME_PLACEHOLDERController(actx);
+                NAME_PLACEHOLDER_WAM = new NAME_PLACEHOLDERController(actx, options);
 
-                if(NAME_PLACEHOLDER_WAM != undefined) {
+                if(NAME_PLACEHOLDER_WAM !== undefined) {
 
-                  //not yet working out of the box for effects
-                  if(/*NAME_PLACEHOLDER_WAM.numberOfInputs > 0*/ false)
-                  {
+                  if(NAME_PLACEHOLDER_WAM.numberOfInputs > 0) {
                     var constraints = { audio: true, video:false }
                     navigator.mediaDevices.getUserMedia(constraints)
                     .then((stream) => {
@@ -174,10 +173,14 @@
         postRun: function() {
           document.getElementById('startWebAudioButton').removeAttribute("disabled");
         },
-        onRuntimeInitialized: setupWebSocket(function() {
-          document.getElementById('wam').hidden = false;
-          document.getElementById('buttons').hidden = true;
-        }),
+        onRuntimeInitialized: function() {
+          
+          if(WEBSOCKET_MODE==true) {
+            setupWebSocket(function() {
+              document.getElementById('wam').hidden = false;
+            });
+          }
+        },
         setStatus: function(text) {
           if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
           if (text === Module.setStatus.text) return;
