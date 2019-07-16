@@ -122,6 +122,8 @@ if [ "$WEBSOCKET_MODE" -eq "0" ]; then
   # replace ORIGIN_PLACEHOLDER in the template -awn.js script
   sed -i.bak s,ORIGIN_PLACEHOLDER,$SITE_ORIGIN,g $PROJECT_NAME-awn.js
 
+  rm *.bak
+
   cd ..
 else
   echo "WAM not being built in websocket mode"
