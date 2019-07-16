@@ -195,7 +195,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
         pGraphics->ForControlInGroup("vcontrols", [pCaller, slider](IControl& control) {
           
           IVectorBase& vcontrol = dynamic_cast<IVectorBase&>(control);
-          double val = pCaller->GetValue();
+          float val = static_cast<float>(pCaller->GetValue());
           
           switch (slider) {
             case 0 : vcontrol.SetWidgetFrac(val); break;
