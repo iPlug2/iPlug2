@@ -14,6 +14,11 @@ class NAME_PLACEHOLDERController extends WAMController
       options.buflenSPN = 512
     }
 
+    if( navigator.userAgent.toLowerCase().indexOf('firefox') > -1 ){
+      console.log("Firefox detected: SPN buffersize = 512")
+      options.buflenSPN = 512
+    }
+
     super(actx, "NAME_PLACEHOLDER", options);
   }
 
