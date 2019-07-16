@@ -17,10 +17,12 @@
 using namespace emscripten;
 
 extern IGraphics* gGraphics;
+std::function<void()> gMouseDownFunc = nullptr;
+double gPrevMouseDownTime = 0.;
+
 bool gGraphicsLoaded = false;
 
 // Fonts
-
 class WebFont : public PlatformFont
 {
 public:
@@ -338,11 +340,36 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
   
   switch (eventType)
   {
-    case EMSCRIPTEN_EVENT_CLICK: break;
-    case EMSCRIPTEN_EVENT_MOUSEDOWN: pGraphics->OnMouseDown(x, y, modifiers); break;
+    case EMSCRIPTEN_EVENT_MOUSEDOWN:
+    {
+      const double timestamp = GetTimestamp();
+      const double timeDiff = timestamp - gPrevMouseDownTime;
+      
+      if(timeDiff < 0.2)
+      {
+        gMouseDownFunc = nullptr;
+        pGraphics->OnMouseDblClick(x, y, modifiers);
+      }
+      else
+      {
+        gMouseDownFunc = [pGraphics, x, y, &modifiers]() {
+          pGraphics->OnMouseDown(x, y, modifiers);
+        };
+      }
+        
+      gPrevMouseDownTime = timestamp;
+      
+      break;
+    }
     case EMSCRIPTEN_EVENT_MOUSEUP: pGraphics->OnMouseUp(x, y, modifiers); break;
-    case EMSCRIPTEN_EVENT_DBLCLICK: pGraphics->OnMouseDblClick(x, y, modifiers); break;
     case EMSCRIPTEN_EVENT_MOUSEMOVE:
+    {
+      if(gMouseDownFunc)
+      {
+        gMouseDownFunc();
+        gMouseDownFunc = nullptr;
+      }
+      
       if(pEvent->buttons == 0)
         pGraphics->OnMouseOver(x, y, modifiers);
       else
@@ -351,6 +378,7 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
           pGraphics->OnMouseDrag(x, y, pEvent->movementX, pEvent->movementY, modifiers);
       }
       break;
+    }
     case EMSCRIPTEN_EVENT_MOUSEENTER:
       pGraphics->OnSetCursor();
       pGraphics->OnMouseOver(x, y, modifiers);
@@ -426,10 +454,8 @@ IGraphicsWeb::IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float s
   
   DBGMSG("Preloaded %i images\n", keys["length"].as<int>());
   
-  emscripten_set_click_callback("canvas", this, 1, mouse_callback);
   emscripten_set_mousedown_callback("canvas", this, 1, mouse_callback);
   emscripten_set_mouseup_callback("canvas", this, 1, mouse_callback);
-  emscripten_set_dblclick_callback("canvas", this, 1, mouse_callback);
   emscripten_set_mousemove_callback("canvas", this, 1, mouse_callback);
   emscripten_set_mouseenter_callback("canvas", this, 1, mouse_callback);
   emscripten_set_mouseleave_callback("canvas", this, 1, mouse_callback);
@@ -516,6 +542,17 @@ ECursor IGraphicsWeb::SetMouseCursor(ECursor cursorType)
 //static
 void IGraphicsWeb::OnMainLoopTimer()
 {
+  if(gMouseDownFunc)
+  {
+    const double timestamp = GetTimestamp();
+    const double timeDiff = timestamp - gPrevMouseDownTime;
+    
+    if(timeDiff > 0.2) {
+      gMouseDownFunc();
+      gMouseDownFunc = nullptr;
+    }
+  }
+  
   IRECTList rects;
   int screenScale = (int) std::ceil(std::max(emscripten_get_device_pixel_ratio(), 1.));
 
