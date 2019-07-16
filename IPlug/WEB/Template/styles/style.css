@@ -49,6 +49,7 @@ img { pointer-events: none; } /*stops dragging imgs */
 .pluginArea { margin-right: auto; margin-left: auto; margin-right: auto; display: block; outline:0; }
 div.pluginArea { text-align: center; }
 /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
-canvas.pluginArea { border: 0px none; background-color: black; display: block; box-shadow: 10px 10px 5px rgba(0,0,0,0.3); }
+canvas.pluginArea { border: 0px none; background-color: rgba(0, 0, 0, 0); display: block; box-shadow: 10px 10px 5px rgba(0,0,0,0.3); }
+.pluginInput { visibility:hidden }
 
 * { -webkit-tap-highlight-color:rgba(0,0,0,0); }
