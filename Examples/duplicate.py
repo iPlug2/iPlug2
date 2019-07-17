@@ -216,7 +216,7 @@ def main():
   if numargs == 4:
     configpath = os.path.join(inputprojectname, "config")
     xcconfig = parse_xcconfig(configpath + "/" + inputprojectname + "-mac.xcconfig")
-    oldroot = xcconfig["ROOT"]
+    oldroot = xcconfig["IPLUG2_ROOT"]
     iplug2folder = os.path.abspath(os.path.join(configpath, oldroot))
     newroot = os.path.relpath(iplug2folder, os.path.join(outputpath, "config"))
   else:
