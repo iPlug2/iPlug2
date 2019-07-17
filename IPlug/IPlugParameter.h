@@ -123,14 +123,17 @@ public:
 
   IParam();
 
-  /** /todo 
-   * @param name /todo
-   * @param defaultValue /todo
-   * @param label /todo
-   * @param flags /todo
-   * @param group /todo
-   * @param offText /todo
-   * @param onText /todo */
+  /** Initialization method of a boolean IParam object
+   * @param name The parameter's name. This can be retrieved by calling GetNameForHost().
+   * @param defaultValue The default assigned value. This can be changed by SetDefault(double value) and retrieved by SetToDefault().
+   * @param label The parameter's label. This is shown on those linked IControls (if any) not having a proper label.
+   * @param flags One of the possible "EFlags" enum value (default is kFlagsNone).
+   * @param group The parameter's group. This can be retrieved by calling GetGroupForHost().
+   * @param offText The assigned text when its value == 0.
+   * @param onText The assigned text when its value == 1.
+   * You can retrieve values related text by calling GetDisplayText(double value) or GetDisplayForHost(double value, bool normalized, WDL_String& str, bool withDisplayText).
+   * Use mDisplayFunction to be notified about the parameter values changes
+   */
   void InitBool(const char* name, bool defaultValue, const char* label = "", int flags = 0, const char* group = "", const char* offText = "off", const char* onText = "on"); // // LABEL not used here TODO: so why have it?
   
   /** /todo 

@@ -164,7 +164,17 @@ protected:
   EVShape mShape;
 };
 
-/** A vector radio button control. Click buttons to select state */
+/** A vector radio button control. Click buttons to select state
+ * bounds Parameter reference to the area where the control stays
+ * paramIdx The index of its related parameter. You normally create an IParam pointer by calling GetParam(paramIdx), then use the same paramIdx to link the param to the control
+ * label The label of the control. It overrides the parameter's label
+ * style IVStyle struct reference to define graphical components
+ * shape Buttons shape
+ * direction RadioButton direction
+ * buttonSize Define the size of the buttons
+ *
+ * the number of buttons and the label near each button is defined by the linked IParam
+ */
 class IVRadioButtonControl : public IVTabSwitchControl
 {
 public:
