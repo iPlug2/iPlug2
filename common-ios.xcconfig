@@ -1,5 +1,6 @@
 // this is used for macOS Developer ID / Appstore code-signing
 CERTIFICATE_ID = Oliver Larkin
+DEVELOPMENT_TEAM = 686EDA2T8T // log in to developer.apple.com and see the end of the URL e.g. https://developer.apple.com/account/#/overview/686EDA2T8T
 
 // Which compiler to use
 //COMPILER = com.intel.compilers.icc.12_1_0
@@ -8,7 +9,7 @@ COMPILER = com.apple.compilers.llvm.clang.1_0
 // which osx sdk to compile against - defaults to latest SDK available
 BASE_SDK_IOS = iphoneos // latest SDK
 
-CLANG_CXX_LANGUAGE_STANDARD = c++11
+CLANG_CXX_LANGUAGE_STANDARD = c++14
 CLANG_CXX_LIBRARY = libc++
 
 CLANG_WARN_DOCUMENTATION_COMMENTS = NO
@@ -70,6 +71,6 @@ IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(CONTROLS_PATH) $(PLATFORMS_PATH) $(DRA
 
 FAUST_INC_PATHS = /usr/local/include /usr/local/opt/include
 
-AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework CoreAudioKit -framework Metal -framework MetalKit -framework QuartzCore -framework UIKit
+AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework CoreAudioKit -framework Metal -framework MetalKit -framework QuartzCore -framework UIKit -framework CoreText
 
 

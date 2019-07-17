@@ -67,7 +67,7 @@ IMGUI_LDFLAGS = -s BINARYEN_TRAP_MODE=clamp
 
 # CFLAGS for both WAM and WEB targets
 CFLAGS = $(INCLUDE_PATHS) \
--std=c++11  \
+-std=c++14  \
 -Wno-bitwise-op-parentheses \
 -DWDL_NO_DEFINE_MINMAX
 

@@ -74,7 +74,9 @@
   IMouseInfo info;
   info.ms.L = true;
   [self getTouchXY:pt x:&info.x y:&info.y];
-  mGraphics->OnMouseDown(info.x, info.y, info.ms);
+  
+  if(mGraphics)
+    mGraphics->OnMouseDown(info.x, info.y, info.ms);
 }
 
 - (void) touchesMoved: (NSSet*) pTouches withEvent: (UIEvent*) pEvent
@@ -92,7 +94,8 @@
   float dX = info.x - prevX;
   float dY = info.y - prevY;
   
-  mGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
+  if(mGraphics)
+    mGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
 }
 
 - (void) touchesEnded: (NSSet*) pTouches withEvent: (UIEvent*) pEvent
@@ -103,7 +106,9 @@
   
   IMouseInfo info;
   [self getTouchXY:pt x:&info.x y:&info.y];
-  mGraphics->OnMouseUp(info.x, info.y, info.ms);
+  
+  if(mGraphics)
+    mGraphics->OnMouseUp(info.x, info.y, info.ms);
 }
 
 - (void) touchesCancelled: (NSSet*) pTouches withEvent: (UIEvent*) pEvent
@@ -142,10 +147,13 @@
 {
   IRECTList rects;
   
-  if (mGraphics->IsDirty(rects))
+  if(mGraphics)
   {
-    mGraphics->SetAllControlsClean();
-    mGraphics->Draw(rects);
+    if (mGraphics->IsDirty(rects))
+    {
+      mGraphics->SetAllControlsClean();
+      mGraphics->Draw(rects);
+    }
   }
 }
 
@@ -179,13 +187,106 @@
   return nullptr;
 }
 
-- (void) createTextEntry: (IControl&) control : (const IText&) text : (const char*) str : (CGRect) areaRect;
+- (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (CGRect) areaRect
 {
- 
+  NSString* titleNString = [NSString stringWithUTF8String:"Please input a value"];
+  NSString* captionNString = [NSString stringWithUTF8String:""];
+  
+  UIAlertController* alertController = [UIAlertController alertControllerWithTitle:titleNString
+                                                                 message:captionNString
+                                                          preferredStyle:UIAlertControllerStyleAlert];
+  
+  [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+    textField.placeholder = [NSString stringWithUTF8String:str];
+    textField.textColor = [UIColor blueColor];
+    textField.clearButtonMode = UITextFieldViewModeWhileEditing;
+    textField.borderStyle = UITextBorderStyleRoundedRect;
+  }];
+  
+  void (^handlerBlock)(UIAlertAction*) =
+  ^(UIAlertAction* action) {
+    
+    NSString* result = alertController.textFields[0].text;
+
+    char* txt = (char*)[result UTF8String];
+    
+    mGraphics->SetControlValueAfterTextEdit(txt);
+    mGraphics->SetAllControlsDirty();
+    
+  };
+  
+  UIAlertAction* okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:handlerBlock];
+  [alertController addAction:okAction];
+  UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:handlerBlock];
+  [alertController addAction:cancelAction];
+  
+  [self.window.rootViewController presentViewController:alertController animated:YES completion:nil]; // TODO: linked to plugin view (e.g. can be covered by keyboard)
 }
 
 - (void) endUserInput
 {
+}
+
+- (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHanderFunc) completionHandler
+{
+  NSString* titleNString = [NSString stringWithUTF8String:str];
+  NSString* captionNString = [NSString stringWithUTF8String:caption];
+  
+  UIAlertController* alertController = [UIAlertController alertControllerWithTitle:titleNString
+                                                                 message:captionNString
+                                                          preferredStyle:UIAlertControllerStyleAlert];
+  
+  void (^handlerBlock)(UIAlertAction*) =
+  ^(UIAlertAction* action) {
+    
+    if(completionHandler != nullptr)
+    {
+      EMsgBoxResult result = EMsgBoxResult::kCANCEL;
+      
+      if([action.title isEqualToString:@"OK"])
+        result = EMsgBoxResult::kOK;
+      if([action.title isEqualToString:@"Cancel"])
+        result = EMsgBoxResult::kCANCEL;
+      if([action.title isEqualToString:@"Yes"])
+        result = EMsgBoxResult::kYES;
+      if([action.title isEqualToString:@"No"])
+        result = EMsgBoxResult::kNO;
+      if([action.title isEqualToString:@"Retry"])
+        result = EMsgBoxResult::kRETRY;
+      
+      completionHandler(result);
+    }
+    
+  };
+  
+  if(type == kMB_OK || type == kMB_OKCANCEL)
+  {
+    UIAlertAction* okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:handlerBlock];
+    [alertController addAction:okAction];
+  }
+  
+  if(type == kMB_YESNO || type == kMB_YESNOCANCEL)
+  {
+    UIAlertAction* yesAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:handlerBlock];
+    [alertController addAction:yesAction];
+    
+    UIAlertAction* noAction = [UIAlertAction actionWithTitle:@"No" style:UIAlertActionStyleDefault handler:handlerBlock];
+    [alertController addAction:noAction];
+  }
+  
+  if(type == kMB_RETRYCANCEL)
+  {
+    UIAlertAction* retryAction = [UIAlertAction actionWithTitle:@"Retry" style:UIAlertActionStyleDefault handler:handlerBlock];
+    [alertController addAction:retryAction];
+  }
+  
+  if(type == kMB_OKCANCEL || type == kMB_YESNOCANCEL || type == kMB_RETRYCANCEL)
+  {
+    UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:handlerBlock];
+    [alertController addAction:cancelAction];
+  }
+  
+  [self.window.rootViewController presentViewController:alertController animated:YES completion:nil];
 }
 
 + (Class)layerClass

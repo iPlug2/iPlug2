@@ -46,7 +46,7 @@ public:
     g.DrawText(mText, mLabel.Get(), but);
     g.FillTriangle(COLOR_GRAY, arrow.L, arrow.T, arrow.R, arrow.T, arrow.MW(), arrow.B);
     
-    g.DrawText(IText(DEFAULT_TEXT_SIZE, IText::kAlignNear), "Use platform menu", useplat);
+    g.DrawText(IText(DEFAULT_TEXT_SIZE, EAlign::Near), "Use platform menu", useplat);
     
     g.DrawRect(COLOR_BLACK, useplatbut);
 
@@ -54,7 +54,7 @@ public:
       g.FillRect(COLOR_BLACK, useplatbut.GetPadded(-2));
   }
   
-  void OnPopupMenuSelection(IPopupMenu* pMenu)override
+  void OnPopupMenuSelection(IPopupMenu* pMenu, int valIdx) override
   {
     if(pMenu)
     {
@@ -75,7 +75,7 @@ public:
   {
     if(but.Contains(x, y))
     {
-      GetUI()->CreatePopupMenu(mMainMenu, x, y, this);
+      GetUI()->CreatePopupMenu(*this, mMainMenu, x, y);
     }
     else if(useplatbut.Contains(x, y))
     {

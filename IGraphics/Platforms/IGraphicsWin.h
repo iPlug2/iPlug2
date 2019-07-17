@@ -21,21 +21,6 @@
 class IGraphicsWin final : public IGRAPHICS_DRAW_CLASS
 {
 public:
-
-  class WinFont : public PlatformFont
-  {
-  public:
-    WinFont(HFONT font, const char* styleName = "") : mFont(font), mStyleName(styleName) {}
-    ~WinFont();
-
-    const void* GetDescriptor() override { return reinterpret_cast<const void*>(mFont); }
-    IFontDataPtr GetFontData() override;
-      
-  private:
-    HFONT mFont;
-    WDL_String mStyleName;
-  };
-
   IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsWin();
 
@@ -44,7 +29,7 @@ public:
 
   void ForceEndUserEdit() override;
 
-  void PlatformResize() override;
+  void PlatformResize(bool parentHasResized) override;
 
 #ifdef IGRAPHICS_GL
   void DrawResize() override; // overriden here to deal with GL graphics context capture
@@ -57,7 +42,7 @@ public:
   void MoveMouseCursor(float x, float y) override;
   ECursor SetMouseCursor(ECursor cursorType) override;
 
-  int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) override;
+  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
 
   void* OpenWindow(void* pParent) override;
   void CloseWindow() override;
@@ -68,7 +53,7 @@ public:
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext) override;
   void PromptForDirectory(WDL_String& dir) override;
-  bool PromptForColor(IColor& color, const char* str) override;
+  bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
 
   IPopupMenu* GetItemMenu(long idx, long& idxInMenu, long& offsetIdx, IPopupMenu& baseMenu);
   HMENU CreateMenu(IPopupMenu& menu, long* pOffsetIdx);
@@ -86,10 +71,11 @@ public:
   const char* GetPlatformAPIStr() override { return "win32"; };
 
   bool GetTextFromClipboard(WDL_String& str) override;
+  bool SetTextInClipboard(const WDL_String& str) override;
   
 protected:
-  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
-  void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
+  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds) override;
+  void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
 
   void SetTooltip(const char* tooltip);
   void ShowTooltip();
@@ -109,8 +95,8 @@ private:
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
   void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override;
 
-  inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam);
-  inline IMouseInfo IGraphicsWin::GetMouseInfoDeltas(float&dX, float& dY, LPARAM lParam, WPARAM wParam);
+  inline IMouseInfo GetMouseInfo(LPARAM lParam, WPARAM wParam);
+  inline IMouseInfo GetMouseInfoDeltas(float&dX, float& dY, LPARAM lParam, WPARAM wParam);
   bool MouseCursorIsLocked();
 
 #ifdef IGRAPHICS_GL
@@ -137,7 +123,10 @@ private:
   HFONT mEditFont = nullptr;
   DWORD mPID = 0;
 
-  IControl* mEdControl = nullptr;
+  const IParam* mEditParam = nullptr;
+  IText mEditText;
+  IRECT mEditRECT;
+
   EParamEditMsg mParamEditMsg = kNone;
   bool mShowingTooltip = false;
   float mHiddenCursorX;

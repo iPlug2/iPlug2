@@ -22,8 +22,8 @@
 #define PLUG_DOES_MPE 0
 #define PLUG_DOES_STATE_CHUNKS 0
 #define PLUG_HAS_UI 1
-#define PLUG_WIDTH 900
-#define PLUG_HEIGHT 600
+#define PLUG_WIDTH 950
+#define PLUG_HEIGHT 650
 #define PLUG_FPS 60
 #define PLUG_SHARED_RESOURCES 0
 
@@ -49,13 +49,9 @@
 #define APP_RESIZABLE 0
 #define APP_SIGNAL_VECTOR_SIZE 64
 
-#define ROBOTTO_FN "Roboto-Regular.ttf"
+#define ROBOTO_FN "Roboto-Regular.ttf"
 #define MONTSERRAT_FN "Montserrat-LightItalic.ttf"
 #define TIGER_FN "23.svg"
 #define ORBS_FN "orbs.svg"
 #define SMILEY_FN "smiley.png"
-#define BASE_FN "IKRMC_Base.png"
-#define MASK_FN "IKRMC_Mask.png"
-#define TOP_FN "IKRMC_Top.png"
-
-
+#define IPLUG_FN "iplug.png"

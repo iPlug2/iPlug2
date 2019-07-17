@@ -56,9 +56,9 @@
   #define nvgBindFramebuffer(fb) nvgluBindFramebuffer(fb)
   #define nvgCreateFramebuffer(ctx, w, h, flags) nvgluCreateFramebuffer(ctx, w, h, flags)
   #define nvgDeleteFramebuffer(fb) nvgluDeleteFramebuffer(fb)
-  typedef NVGLUframebuffer NVGframebuffer;
+  using NVGframebuffer = NVGLUframebuffer;
 #elif defined IGRAPHICS_METAL
-  typedef MNVGframebuffer NVGframebuffer;
+  using NVGframebuffer = MNVGframebuffer;
 #endif
 
 void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData);
@@ -72,7 +72,7 @@ class IGraphicsNanoVG;
 class NanoVGBitmap : public APIBitmap
 {
 public:
-  NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID);
+  NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID, bool shared = false);
   NanoVGBitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, int scale, float drawScale);
   NanoVGBitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, int scale, float drawScale);
   virtual ~NanoVGBitmap();
@@ -81,6 +81,7 @@ private:
   IGraphicsNanoVG *mGraphics = nullptr;
   NVGcontext* mVG;
   NVGframebuffer* mFBO = nullptr;
+  bool mSharedTexture = false;
 };
 
 /** IGraphics draw class using NanoVG  
@@ -107,10 +108,11 @@ public:
 
   void PathClear() override;
   void PathClose() override;
-  void PathArc(float cx, float cy, float r, float aMin, float aMax) override;
+  void PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding) override;
   void PathMoveTo(float x, float y) override;
   void PathLineTo(float x, float y) override;
-  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override;
+  void PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2) override;
+  void PathQuadraticBezierTo(float cx, float cy, float x2, float y2) override;
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
   
@@ -144,9 +146,11 @@ protected:
   void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
   void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
 
-  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
+  void DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
+  void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
 
 private:
+  void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y) const;
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
   void UpdateLayer() override;

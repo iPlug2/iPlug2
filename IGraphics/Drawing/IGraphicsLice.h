@@ -49,9 +49,9 @@ inline int LiceBlendMode(const IBlend* pBlend)
   }
   switch (pBlend->mMethod)
   {
-    case EBlendType::kBlendClobber:     return LICE_BLIT_MODE_COPY;
-    case EBlendType::kBlendAdd:         return LICE_BLIT_MODE_ADD | LICE_BLIT_USE_ALPHA;
-    case EBlendType::kBlendDefault:
+    case EBlend::Clobber:     return LICE_BLIT_MODE_COPY;
+    case EBlend::Add:         return LICE_BLIT_MODE_ADD | LICE_BLIT_USE_ALPHA;
+    case EBlend::Default:
     default:
     {
       return LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA;
@@ -90,7 +90,6 @@ public:
 
   void DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedBitmap(const IBitmap& bitmap, float destCtrX, float destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
-  void DrawRotatedMask(const IBitmap& base, const IBitmap& mask, const IBitmap& top, float x, float y, double angle, const IBlend* pBlend) override;
   void DrawFittedBitmap(const IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend) override;
   
   void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override;
@@ -100,7 +99,7 @@ public:
   void DrawRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness) override;
   void DrawRoundRect(const IColor& color, const IRECT& bounds, float cr, const IBlend* pBlend, float thickness) override;
   void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend, float thickness) override;
-  void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend, float thickness) override;
+  void DrawArc(const IColor& color, float cx, float cy, float r, float a1, float a2,  const IBlend* pBlend, float thickness) override;
   void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend, float thickness) override;
   void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness, float dashLen) override;
 
@@ -108,7 +107,7 @@ public:
   void FillRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend) override;
   void FillRoundRect(const IColor& color, const IRECT& bounds, float cr, const IBlend* pBlend) override;
   void FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override;
-  void FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
+  void FillArc(const IColor& color, float cx, float cy, float r, float a1, float a2,  const IBlend* pBlend) override;
   void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
     
   IColor GetPoint(int x, int y) override;
@@ -136,13 +135,15 @@ protected:
   void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
   void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
 
-  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
+  void DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
+  void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
 
   void EndFrame() override;
     
   float GetBackingPixelScale() const override { return (float) GetScreenScale(); };
 
 private:
+  void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, LICE_IFont*& pFont) const;
     
   bool OpacityCheck(const IColor& color, const IBlend* pBlend)
   {
@@ -176,7 +177,7 @@ private:
     
   void UpdateLayer() override;
     
-  LICE_IFont* CacheFont(const IText& text);
+  LICE_IFont* CacheFont(const IText& text) const;
 
   IRECT mDrawRECT;
   IRECT mClipRECT;
@@ -185,7 +186,6 @@ private:
   int mDrawOffsetY = 0;
   
   std::unique_ptr<LICE_SysBitmap> mDrawBitmap;
-  std::unique_ptr<LICE_MemBitmap> mTmpBitmap;
 #ifdef OS_WIN
   std::unique_ptr<LICE_SysBitmap> mScaleBitmap;
 #endif

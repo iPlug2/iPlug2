@@ -45,11 +45,11 @@ public:
 
   void PathClear() override;
   void PathClose() override;
-  void PathArc(float cx, float cy, float r, float aMin, float aMax) override;
+  void PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding) override;
   void PathMoveTo(float x, float y) override;
   void PathLineTo(float x, float y) override;
-  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override;
-
+  void PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2) override;
+  void PathQuadraticBezierTo(float cx, float cy, float x2, float y2) override;
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
 
@@ -69,17 +69,20 @@ protected:
   void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
   void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
 
-  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
-
+  void DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
+  void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
+    
 private:
-  
-  val GetContext()
+  void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y) const;
+    
+  val GetContext() const
   {
     val canvas = mLayers.empty() ? val::global("document").call<val>("getElementById", std::string("canvas")) : *(mLayers.top()->GetAPIBitmap()->GetBitmap());
       
     return canvas.call<val>("getContext", std::string("2d"));
   }
     
+  void GetFontMetrics(const char* font, const char* style, double& ascenderRatio, double& EMRatio);
   bool CompareFontMetrics(const char* style, const char* font1, const char* font2, int size);
     
   double XTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().L; }

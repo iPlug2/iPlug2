@@ -10,12 +10,14 @@
 
 #pragma once
 
+#include "IControl.h"
+#if defined IGRAPHICS_NANOVG && defined IGRAPHICS_METAL
+
 /**
  * @file
  * @copydoc TestMPSControl
  */
 
-#include "IControl.h"
 #include "IGraphicsNanoVG.h"
 
 /** Control to test IGraphicsNanoVG with Metal Performance Shaders
@@ -24,7 +26,7 @@ class TestMPSControl : public IKnobControlBase
                      , public IBitmapBase
 {
 public:
-  TestMPSControl(IRECT bounds, const IBitmap& bitmap)
+  TestMPSControl(const IRECT& bounds, const IBitmap& bitmap)
   : IKnobControlBase(bounds)
   , IBitmapBase(bitmap)
   {
@@ -42,12 +44,12 @@ public:
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     if(mod.R)
-      GetUI()->CreatePopupMenu(mMenu, x, y, this);
+      GetUI()->CreatePopupMenu(*this, mMenu, x, y);
     
     SetDirty(false);
   }
   
-  void OnPopupMenuSelection(IPopupMenu* pSelectedMenu) override
+  void OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx) override
   {
     if(pSelectedMenu)
       mKernelType = pSelectedMenu->GetChosenItemIdx();
@@ -58,3 +60,20 @@ private:
   NVGframebuffer* mFBO = nullptr;
   IPopupMenu mMenu {0, false, {"MPSImageGaussianBlur", "MPSImageSobel", "MPSImageThresholdToZero"}};
 };
+
+#else
+class TestMPSControl : public IControl
+{
+public:
+  TestMPSControl(IRECT rect, const IBitmap& bmp)
+  : IControl(rect)
+  {
+    SetTooltip("TestMPSControl");
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    g.DrawText(mText, "UNSUPPORTED", mRECT);
+  }
+};
+#endif

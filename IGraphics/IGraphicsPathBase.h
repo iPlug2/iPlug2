@@ -44,21 +44,6 @@ public:
     PathTransformRestore();
   }
   
-  void DrawRotatedMask(const IBitmap& base, const IBitmap& mask, const IBitmap& top, float x, float y, double angle, const IBlend* pBlend) override
-  {
-    float width = (float) base.W();
-    float height = (float) base.H();
-    
-    IBlend addBlend(kBlendAdd);
-    PathTransformSave();
-    DrawBitmap(base, IRECT(x, y, x + width, y + height), 0, 0, pBlend);
-    PathTransformTranslate(x + 0.5f * width, y + 0.5f * height);
-    PathTransformRotate((float) angle);
-    DrawBitmap(mask, IRECT(-width * 0.5f, - height * 0.5f, width * 0.5f, height * 0.5f), 0, 0, &addBlend);
-    DrawBitmap(top, IRECT(-width * 0.5f, - height * 0.5f, width * 0.5f, height * 0.5f), 0, 0, pBlend);
-    PathTransformRestore();
-  }
-  
   void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override
   {
     FillRect(color, IRECT(x, y, x+1.f, y+1.f), pBlend);
@@ -75,12 +60,11 @@ public:
   void DrawGrid(const IColor& color, const IRECT& bounds, float gridSizeH, float gridSizeV, const IBlend* pBlend, float thickness) override
   {
     PathClear();
-    
-    // Vertical Lines grid
 
+    // Vertical Lines grid
     if (gridSizeH > 1.f)
     {
-      for (float x = bounds.L; x < bounds.W(); x += gridSizeH)
+      for (float x = bounds.L; x < bounds.R; x += gridSizeH)
       {
         PathMoveTo(x, bounds.T);
         PathLineTo(x, bounds.B);
@@ -89,7 +73,7 @@ public:
     // Horizontal Lines grid
     if (gridSizeV > 1.f)
     {
-      for (float y = bounds.T; y < bounds.H(); y += gridSizeV)
+      for (float y = bounds.T; y < bounds.B; y += gridSizeV)
       {
         PathMoveTo(bounds.L, y);
         PathLineTo(bounds.R, y);
@@ -166,10 +150,10 @@ public:
     PathStroke(color, thickness, IStrokeOptions(), pBlend);
   }
   
-  void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend, float thickness) override
+  void DrawArc(const IColor& color, float cx, float cy, float r, float a1, float a2, const IBlend* pBlend, float thickness) override
   {
     PathClear();
-    PathArc(cx, cy, r, aMin, aMax);
+    PathArc(cx, cy, r, a1, a2);
     PathStroke(color, thickness, IStrokeOptions(), pBlend);
   }
   
@@ -238,11 +222,11 @@ public:
     PathFill(color, IFillOptions(), pBlend);
   }
   
-  void FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax, const IBlend* pBlend) override
+  void FillArc(const IColor& color, float cx, float cy, float r, float a1, float a2, const IBlend* pBlend) override
   {
     PathClear();
     PathMoveTo(cx, cy);
-    PathArc(cx, cy, r, aMin, aMax);
+    PathArc(cx, cy, r, a1, a2);
     PathClose();
     PathFill(color, IFillOptions(), pBlend);
   }
@@ -310,7 +294,7 @@ public:
     PathRoundRect(bounds, cr, cr, cr, cr);
   }
   
-  virtual void PathEllipse(float x, float y, float r1, float r2, float angle = 0.0) override
+  void PathEllipse(float x, float y, float r1, float r2, float angle = 0.0) override
   {
     PathTransformSave();
     
@@ -464,14 +448,14 @@ private:
       {
         NSVGgradient* pGrad = paint.gradient;
         
-        IPattern pattern(paint.type == NSVG_PAINT_LINEAR_GRADIENT ? kLinearPattern : kRadialPattern);
+        IPattern pattern(paint.type == NSVG_PAINT_LINEAR_GRADIENT ? EPatternType::Linear : EPatternType::Radial);
         
         // Set Extend Rule
         switch (pGrad->spread)
         {
-          case NSVG_SPREAD_PAD:       pattern.mExtend = kExtendPad;       break;
-          case NSVG_SPREAD_REFLECT:   pattern.mExtend = kExtendReflect;   break;
-          case NSVG_SPREAD_REPEAT:    pattern.mExtend = kExtendRepeat;    break;
+          case NSVG_SPREAD_PAD:       pattern.mExtend = EPatternExtend::Pad;       break;
+          case NSVG_SPREAD_REFLECT:   pattern.mExtend = EPatternExtend::Reflect;   break;
+          case NSVG_SPREAD_REPEAT:    pattern.mExtend = EPatternExtend::Repeat;    break;
         }
         
         // Copy Stops        
@@ -509,7 +493,7 @@ private:
         for (int i = 1; i < pPath->npts; i += 3)
         {
           float *p = pPath->pts + i * 2;
-          PathCurveTo(p[0], p[1], p[2], p[3], p[4], p[5]);
+          PathCubicBezierTo(p[0], p[1], p[2], p[3], p[4], p[5]);
         }
         
         if (pPath->closed)
@@ -522,9 +506,9 @@ private:
         IFillOptions options;
         
         if (pShape->fillRule == NSVG_FILLRULE_EVENODD)
-          options.mFillRule = kFillEvenOdd;
+          options.mFillRule = EFillRule::EvenOdd;
         else
-          options.mFillRule = kFillWinding;
+          options.mFillRule = EFillRule::Winding;
         
         options.mPreserve = pShape->stroke.type != NSVG_PAINT_NONE;
         PathFill(GetSVGPattern(pShape->fill, pShape->opacity), options, nullptr);
@@ -539,16 +523,16 @@ private:
         
         switch (pShape->strokeLineCap)
         {
-          case NSVG_CAP_BUTT:   options.mCapOption = kCapButt;    break;
-          case NSVG_CAP_ROUND:  options.mCapOption = kCapRound;   break;
-          case NSVG_CAP_SQUARE: options.mCapOption = kCapSquare;  break;
+          case NSVG_CAP_BUTT:   options.mCapOption = ELineCap::Butt;    break;
+          case NSVG_CAP_ROUND:  options.mCapOption = ELineCap::Round;   break;
+          case NSVG_CAP_SQUARE: options.mCapOption = ELineCap::Square;  break;
         }
         
         switch (pShape->strokeLineJoin)
         {
-          case NSVG_JOIN_MITER:   options.mJoinOption = kJoinMiter;   break;
-          case NSVG_JOIN_ROUND:   options.mJoinOption = kJoinRound;   break;
-          case NSVG_JOIN_BEVEL:   options.mJoinOption = kJoinBevel;   break;
+          case NSVG_JOIN_MITER:   options.mJoinOption = ELineJoin::Miter;   break;
+          case NSVG_JOIN_ROUND:   options.mJoinOption = ELineJoin::Round;   break;
+          case NSVG_JOIN_BEVEL:   options.mJoinOption = ELineJoin::Bevel;   break;
         }
         
         options.mDash.SetDash(pShape->strokeDashArray, pShape->strokeDashOffset, pShape->strokeDashCount);
@@ -560,10 +544,24 @@ private:
   
 protected:
     
+  void DoTextRotation(const IText& text, const IRECT& bounds, const IRECT& rect)
+  {
+    if (!text.mAngle)
+      return;
+    
+    IRECT rotated = rect;
+    double tx, ty;
+    
+    CalulateTextRotation(text, bounds, rotated, tx, ty);
+    PathTransformTranslate(tx, ty);
+    PathTransformRotate(text.mAngle);
+  }
+  
   float GetBackingPixelScale() const override { return GetScreenScale() * GetDrawScale(); };
 
+  IMatrix GetTransformMatrix() const { return mTransform; }
+  
 private:
-
   void PrepareRegion(const IRECT& r) override
   {
     PathTransformReset(true);

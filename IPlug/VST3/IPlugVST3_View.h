@@ -89,9 +89,6 @@ public:
       else // Carbon
         return kResultFalse;
 #endif
-      if (pView)
-        mOwner.OnUIOpen();
-      
       return kResultTrue;
     }
     

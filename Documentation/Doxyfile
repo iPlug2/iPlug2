@@ -134,7 +134,7 @@ EXCLUDE                = ../IGraphics/NanoVG \
                          ../IPlug/AUv3/BufferedAudioBus.hpp \
                          ../IPlug/AUv3/IPlugAUAudioUnit.h \
                          ../IPlug/AUv3/IPlugAUAudioUnit.mm \
-                         ../IPlug/AUv3/IPlugViewController.mm \
+                         ../IPlug/AUv3/IPlugAUViewController.mm \
                          ../IPlug/AUv2/dfx-au-utilities.h \
                          ../IPlug/AUv2/dfx-au-utilities.c \
                          ../IPlug/AUv2/IPlugAU_view_factory.mm

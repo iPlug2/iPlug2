@@ -81,7 +81,7 @@ double IParam::ShapeExp::ValueToNormalized(double value, const IParam& param) co
 
 IParam::IParam()
 {
-  mShape.reset(new ShapeLinear);
+  mShape = std::make_unique<ShapeLinear>();
   memset(mName, 0, MAX_PARAM_NAME_LEN * sizeof(char));
   memset(mLabel, 0, MAX_PARAM_LABEL_LEN * sizeof(char));
   memset(mParamGroup, 0, MAX_PARAM_LABEL_LEN * sizeof(char));
@@ -151,7 +151,7 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
     ;
   }
     
-  mShape.reset(shape.Clone());
+  mShape = std::unique_ptr<Shape>(shape.Clone());
   mShape->Init(*this);
 }
 

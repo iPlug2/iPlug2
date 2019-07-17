@@ -20,7 +20,7 @@ inline CGRect ToCGRect(IGraphics* pGraphics, const IRECT& bounds)
 @interface IGraphicsIOS_View : UIView
 {  
 @public
-  IGraphicsIOS* mGraphics; // OBJC instance variables have to be pointers
+  IGraphicsIOS* mGraphics;
 }
 - (id) initWithIGraphics: (IGraphicsIOS*) pGraphics;
 - (BOOL) isOpaque;
@@ -28,8 +28,9 @@ inline CGRect ToCGRect(IGraphics* pGraphics, const IRECT& bounds)
 - (void) removeFromSuperview;
 - (void) controlTextDidEndEditing: (NSNotification*) aNotification;
 - (IPopupMenu*) createPopupMenu: (const IPopupMenu&) menu : (CGRect) bounds;
-- (void) createTextEntry: (IControl&) control : (const IText&) text : (const char*) str : (CGRect) areaRect;
+- (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (CGRect) areaRect;
 - (void) endUserInput;
+- (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHanderFunc) completionHandler;
 - (void) getTouchXY: (CGPoint) pt x: (float*) pX y: (float*) pY;
 @property (readonly) CAMetalLayer* metalLayer;
 @property (nonatomic, strong) CADisplayLink *displayLink;
@@ -41,7 +42,7 @@ inline CGRect ToCGRect(IGraphics* pGraphics, const IRECT& bounds)
 
 @interface IGRAPHICS_IMGUIVIEW : MTKView
 {
-  IGraphicsIOS_View* mView; // OBJC instance variables have to be pointers
+  IGraphicsIOS_View* mView;
 }
 @property (nonatomic, strong) id <MTLCommandQueue> commandQueue;
 - (id) initWithIGraphicsView: (IGraphicsIOS_View*) pView;

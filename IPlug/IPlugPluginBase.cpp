@@ -100,22 +100,6 @@ void IPluginBase::GetBuildInfoStr(WDL_String& str) const
 }
 
 #pragma mark -
-void IPluginBase::OnParamChange(int paramIdx, EParamSource source, int sampleOffset)
-{
-  Trace(TRACELOC, "idx:%i src:%s\n", paramIdx, ParamSourceStrs[source]);
-  OnParamChange(paramIdx);
-}
-
-void IPluginBase::OnParamReset(EParamSource source)
-{
-  for (int i = 0; i < NParams(); ++i)
-  {
-    OnParamChange(i, source);
-    OnParamChangeUI(i, source);
-  }
-}
-
-#pragma mark -
 
 bool IPluginBase::SerializeParams(IByteChunk& chunk) const
 {
@@ -150,6 +134,16 @@ int IPluginBase::UnserializeParams(const IByteChunk& chunk, int startPos)
 
   LEAVE_PARAMS_MUTEX;
   return pos;
+}
+
+bool IPluginBase::SerializeEditorData(IByteChunk& chunk) const
+{
+  return chunk.PutChunk(&GetEditorData()) > 0;
+}
+
+int IPluginBase::UnserializeEditorData(const IByteChunk& chunk, int startPos)
+{
+  return SetEditorData(chunk, startPos);
 }
 
 void IPluginBase::InitParamRange(int startIdx, int endIdx, int countStart, const char* nameFmtStr, double defaultVal, double minVal, double maxVal, double step, const char *label, int flags, const char *group, const IParam::Shape& shape, IParam::EParamUnit unit, IParam::DisplayFunc displayFunc)
@@ -348,7 +342,7 @@ void IPluginBase::MakePresetFromNamedParams(const char* name, int nParamsNamed, 
       int paramIdx = (int) va_arg(vp, int);
       // This assert will fire if any of the passed-in param values do not match
       // the type that the param was initialized with (int for bool, int, enum; double for double).
-      assert(paramIdx >= 0 && paramIdx < n);
+      assert(paramIdx > kNoParameter && paramIdx < n);
       GET_PARAM_FROM_VARARG(GetParam(paramIdx)->Type(), vp, *(vals.Get() + paramIdx));
     }
     va_end(vp);

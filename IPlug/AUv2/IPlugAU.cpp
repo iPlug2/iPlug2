@@ -176,7 +176,8 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
 
   if (select == kComponentOpenSelect)
   {
-    IPlugAU* _this = MakePlug();
+    // N.B. calling this with nullptr will call through to new (hence the delete below)
+    IPlugAU* _this = MakePlug(nullptr);
     
     _this->PruneUninitializedPresets();
     _this->mCI = GET_COMP_PARAM(ComponentInstance, 0, 1);
@@ -189,7 +190,7 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
   if (select == kComponentCloseSelect)
   {
     _this->ClearConnections();
-    DELETE_NULL(_this);
+    delete _this;
     return noErr;
   }
 
@@ -1911,6 +1912,8 @@ void IPlugAU::PreProcess()
     if (currentMeasureDownBeat>0.0)
       timeInfo.mLastBar=currentMeasureDownBeat;
   }
+    
+  SetTimeInfo(timeInfo);
 }
 
 void IPlugAU::ResizeScratchBuffers()

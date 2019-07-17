@@ -104,23 +104,7 @@ public:
   
   /** Implemented by the API class, call this if you update parameter labels and hopefully the host should update it's displays (not applicable to all APIs) */
   virtual void InformHostOfParameterDetailsChange() {};
-  
-#pragma mark - Parameter Change
-  /** Override this method to do something to your DSP when a parameter changes.
-   * WARNING: this method can in some cases be called on the realtime audio thread
-   * @param paramIdx The index of the parameter that changed
-   * @param source One of the EParamSource options to indicate where the parameter change came from.
-   * @param sampleOffset For sample accurate parameter changes - index into current block */
-  virtual void OnParamChange(int paramIdx, EParamSource source, int sampleOffset = -1);
-  
-  /** Another version of the OnParamChange method without an EParamSource, for backwards compatibility / simplicity.
-   * WARNING: this method can in some cases be called on the realtime audio thread */
-  virtual void OnParamChange(int paramIdx) {}
-  
-  /** Calls OnParamChange() and OnParamChangeUI() for each parameter.
-   * @param source Specifies the source of the parameter changes */
-  void OnParamReset(EParamSource source);
-  
+    
 #pragma mark - State Serialization
   /** @return \c true if the plug-in has been set up to do state chunks, via config.h */
   bool DoesStateChunks() const { return mStateChunks; }
@@ -135,6 +119,17 @@ public:
    * @param startPos The start position in the chunk where parameter values are stored
    * @return The new chunk position (endPos) */
   int UnserializeParams(const IByteChunk& chunk, int startPos);
+    
+  /** Serializes the editor data (such as scale) into a binary chunk.
+   * @param chunk The output chunk to serialize to. Will append data if the chunk has already been started.
+   * @return \c true if the serialization was successful */
+  bool SerializeEditorData(IByteChunk& chunk) const;
+    
+  /** Unserializes editor data (such as scale) into a byte chunk into the plugin.
+   * @param chunk The incoming chunk where editor data stored to unserialize
+   * @param startPos The start position in the chunk where parameter values are stored
+   * @return The new chunk position (endPos) */
+  int UnserializeEditorData(const IByteChunk& chunk, int startPos);
   
   /** Override this method to serialize custom state data, if your plugin does state chunks.
    * @param chunk The output bytechunk where data can be serialized

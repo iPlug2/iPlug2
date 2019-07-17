@@ -337,7 +337,8 @@ extern "C"
   }
 #pragma mark - WEB
 #elif defined WEB_API
-  #include "config.h"
+#include <memory>
+#include "config.h"
 
   IPlug* MakePlug()
   {
@@ -345,7 +346,7 @@ extern "C"
     return new PLUG_CLASS_NAME(instanceInfo);
   }
 
-  IPlugWeb* gPlug = nullptr;
+  std::unique_ptr<IPlugWeb> gPlug;
   extern void StartMainLoopTimer();
 
   extern "C"
@@ -366,10 +367,9 @@ extern "C"
     
     EMSCRIPTEN_KEEPALIVE void iplug_fsready()
     {
-      gPlug = MakePlug();
+      gPlug = std::unique_ptr<IPlugWeb>(MakePlug());
       gPlug->SetHost("www", 0);
       gPlug->OpenWindow(nullptr);
-      gPlug->OnUIOpen();
       iplug_syncfs(); // plug in may initialise settings in constructor, write to persistent data after init
     }
   }
@@ -390,11 +390,11 @@ extern "C"
             ccall('iplug_fsready', 'v');
           });
         , PLUG_NAME);
-    
+
     StartMainLoopTimer();
 
-    // TODO: when do we delete!
-    // delete gPlug;
+    // TODO: this code never runs, so when do we delete?!
+    gPlug = nullptr;
     
     return 0;
   }

@@ -46,28 +46,31 @@
 
   #if defined IGRAPHICS_LICE
     #include "IGraphicsLice.h"
-    typedef IGraphicsLice IGRAPHICS_DRAW_CLASS;
+    using IGRAPHICS_DRAW_CLASS = IGraphicsLice;
     #if defined IGRAPHICS_GL || defined IGRAPHICS_METAL
       #error When using IGRAPHICS_LICE, don't define IGRAPHICS_METAL or IGRAPHICS_GL*
     #endif
   #elif defined IGRAPHICS_AGG
     #include "IGraphicsAGG.h"
-    typedef IGraphicsAGG IGRAPHICS_DRAW_CLASS;
+    using IGRAPHICS_DRAW_CLASS = IGraphicsAGG;
     #if defined IGRAPHICS_GL || defined IGRAPHICS_METAL
       #error When using IGRAPHICS_AGG, don't define IGRAPHICS_METAL or IGRAPHICS_GL*
     #endif
   #elif defined IGRAPHICS_CAIRO
     #include "IGraphicsCairo.h"
-    typedef IGraphicsCairo IGRAPHICS_DRAW_CLASS;
+    using IGRAPHICS_DRAW_CLASS = IGraphicsCairo;
     #if defined IGRAPHICS_GL || defined IGRAPHICS_METAL
       #error When using IGRAPHICS_CAIRO, don't define IGRAPHICS_METAL or IGRAPHICS_GL*
     #endif
   #elif defined IGRAPHICS_NANOVG
     #include "IGraphicsNanoVG.h"
-    typedef IGraphicsNanoVG IGRAPHICS_DRAW_CLASS;
+    using IGRAPHICS_DRAW_CLASS = IGraphicsNanoVG;
+  #elif defined IGRAPHICS_SKIA
+    #include "IGraphicsSkia.h"
+    using IGRAPHICS_DRAW_CLASS = IGraphicsSkia;
   #elif defined IGRAPHICS_CANVAS
      #include "IGraphicsCanvas.h"
-     typedef IGraphicsCanvas IGRAPHICS_DRAW_CLASS;
+     using IGRAPHICS_DRAW_CLASS = IGraphicsCanvas;
     #if defined IGRAPHICS_GL || defined IGRAPHICS_METAL
       #error When using IGRAPHICS_CANVAS, don't define IGRAPHICS_METAL or IGRAPHICS_GL*
     #endif
