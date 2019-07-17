@@ -1,6 +1,6 @@
-include ./../../common-web.mk
+include ../../../common-web.mk
 
-SRC += MetaParamTest.cpp
+SRC += $(PROJECT_ROOT)/MetaParamTest.cpp
 
 # WAM_SRC +=
 

@@ -1,6 +1,6 @@
-include ./config/IGraphicsStressTest-web.mk
+include ../config/IGraphicsStressTest-web.mk
 
-TARGET = ./build-web/scripts/IGraphicsStressTest-wam.js
+TARGET = ../build-web/scripts/IGraphicsStressTest-wam.js
 
 SRC += $(WAM_SRC)
 CFLAGS += $(WAM_CFLAGS)

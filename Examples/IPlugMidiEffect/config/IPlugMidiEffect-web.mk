@@ -2,9 +2,9 @@
 # By default, that is two directories up from /Examples/IPlugMidiEffect
 IPLUG2_ROOT = ./../../
 
-include ./../../common-web.mk
+include ../../../common-web.mk
 
-SRC += IPlugMidiEffect.cpp
+SRC += $(PROJECT_ROOT)/IPlugMidiEffect.cpp
 
 # WAM_SRC +=
 
