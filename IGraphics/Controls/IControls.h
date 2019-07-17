@@ -164,12 +164,28 @@ protected:
   EVShape mShape;
 };
 
-/** A vector radio button control. Click buttons to select state */
 class IVRadioButtonControl : public IVTabSwitchControl
 {
 public:
+  /** Constructs a vector radio button control, linked to a parameter
+   * @bounds The control's bounds
+   * @paramIdx The parameter index to link this control to
+   * @label The label for the vector control, leave empty for no label
+   * @style The styling of this vector control \see IVStyle
+   * @shape The buttons shape \see IVShape
+   * @direction The direction of the buttons
+   * @buttonSize The size of the buttons */
   IVRadioButtonControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 20.f);
 
+  /** Constructs a vector radio button control, with an action function (no parameter)
+   * @bounds The control's bounds
+   * @actionFunc An action function to execute when a button is clicked \see IActionFunction
+   * @options An initializer list of CStrings for the button labels. The size of the list decides the number of buttons
+   * @label The label for the vector control, leave empty for no label
+   * @style The styling of this vector control \see IVStyle
+   * @shape The buttons shape \see IVShape
+   * @direction The direction of the buttons
+   * @buttonSize The size of the buttons */
   IVRadioButtonControl(const IRECT& bounds, IActionFunction actionFunc, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 20.f);
   
   virtual void DrawWidget(IGraphics& g) override;
