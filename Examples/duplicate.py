@@ -15,7 +15,7 @@
 # this involves adding the python folder e.g. C:\Python27\ to your %PATH% environment variable
 
 # USAGE:
-# duplicate.py [inputprojectname] [outputprojectname] [manufacturername]
+# duplicate.py [inputprojectname] [outputprojectname] [manufacturername] (outputpath)
 
 # TODO:
 # - indentation of directory structure
@@ -34,7 +34,7 @@ sys.path.insert(0, scriptpath + '/../Scripts/')
 
 from parse_config import parse_config, parse_xcconfig, set_uniqueid
 
-VERSION = "0.93"
+VERSION = "0.94"
 
 # binary files that we don't want to do find and replace inside
 FILTERED_FILE_EXTENSIONS = [".ico",".icns", ".pdf", ".png", ".zip", ".exe", ".wav", ".aif"]
