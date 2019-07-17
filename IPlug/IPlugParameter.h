@@ -123,18 +123,15 @@ public:
 
   IParam();
 
-  /** Initialization method of a boolean IParam object
-   * @param name The parameter's name. This can be retrieved by calling GetNameForHost().
-   * @param defaultValue The default assigned value. This can be changed by SetDefault(double value) and retrieved by SetToDefault().
-   * @param label The parameter's label. This is shown on those linked IControls (if any) not having a proper label.
-   * @param flags One of the possible "EFlags" enum value (default is kFlagsNone).
-   * @param group The parameter's group. This can be retrieved by calling GetGroupForHost().
-   * @param offText The assigned text when its value == 0.
-   * @param onText The assigned text when its value == 1.
-   * You can retrieve values related text by calling GetDisplayText(double value) or GetDisplayForHost(double value, bool normalized, WDL_String& str, bool withDisplayText).
-   * Use mDisplayFunction to be notified about the parameter values changes
-   */
-  void InitBool(const char* name, bool defaultValue, const char* label = "", int flags = 0, const char* group = "", const char* offText = "off", const char* onText = "on"); // // LABEL not used here TODO: so why have it?
+  /** Initialize the parameter as boolean
+   * @param name The parameter's name
+   * @param defaultValue The default value of the parameter
+   * @param label The parameter's label
+   * @param flags The parameter's flags \see IParam::EFlags
+   * @param group The parameter's group
+   * @param offText The display text when the parameter value == 0.
+   * @param onText The display text when the parameter value == 1. */
+  void InitBool(const char* name, bool defaultValue, const char* label = "", int flags = 0, const char* group = "", const char* offText = "off", const char* onText = "on"); // TODO: LABEL not used here TODO: so why have it?
   
   /** /todo 
    * @param name /todo
@@ -145,7 +142,7 @@ public:
    * @param group /todo
    * @param listItems /todo
    * @param ... /todo */
-  void InitEnum(const char* name, int defaultValue, int nEnums, const char* label = "", int flags = 0, const char* group = "", const char* listItems = 0, ...); // LABEL not used here TODO: so why have it?
+  void InitEnum(const char* name, int defaultValue, int nEnums, const char* label = "", int flags = 0, const char* group = "", const char* listItems = 0, ...); // TODO: LABEL not used here TODO: so why have it?
   
   /** /todo 
    * @param name /todo

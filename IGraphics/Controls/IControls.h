@@ -164,22 +164,28 @@ protected:
   EVShape mShape;
 };
 
-/** A vector radio button control. Click buttons to select state
- * bounds Parameter reference to the area where the control stays
- * paramIdx The index of its related parameter. You normally create an IParam pointer by calling GetParam(paramIdx), then use the same paramIdx to link the param to the control
- * label The label of the control. It overrides the parameter's label
- * style IVStyle struct reference to define graphical components
- * shape Buttons shape
- * direction RadioButton direction
- * buttonSize Define the size of the buttons
- *
- * the number of buttons and the label near each button is defined by the linked IParam
- */
 class IVRadioButtonControl : public IVTabSwitchControl
 {
 public:
+  /** Constructs a vector radio button control, linked to a parameter
+   * @bounds The control's bounds
+   * @paramIdx The parameter index to link this control to
+   * @label The label for the vector control, leave empty for no label
+   * @style The styling of this vector control \see IVStyle
+   * @shape The buttons shape \see IVShape
+   * @direction The direction of the buttons
+   * @buttonSize The size of the buttons */
   IVRadioButtonControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 20.f);
 
+  /** Constructs a vector radio button control, with an action function (no parameter)
+   * @bounds The control's bounds
+   * @actionFunc An action function to execute when a button is clicked \see IActionFunction
+   * @options An initializer list of CStrings for the button labels. The size of the list decides the number of buttons
+   * @label The label for the vector control, leave empty for no label
+   * @style The styling of this vector control \see IVStyle
+   * @shape The buttons shape \see IVShape
+   * @direction The direction of the buttons
+   * @buttonSize The size of the buttons */
   IVRadioButtonControl(const IRECT& bounds, IActionFunction actionFunc, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 20.f);
   
   virtual void DrawWidget(IGraphics& g) override;
