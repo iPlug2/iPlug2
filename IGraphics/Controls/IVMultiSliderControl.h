@@ -26,6 +26,16 @@ class IVMultiSliderControl : public IVTrackControlBase
 {
 public:
 
+    /** Constructs a vector multi slider control
+     * if you use this constructor method you can get feedbacks from values changes by calling SetParamIdx(int, int) and SetTag(int) on created object, then implementing OnParamChange(int) in your IPluginBase subclass. \see IControl
+     * @param bounds The control's bounds
+     * @param label The label for the vector control, leave empty for no label
+     * @param style The styling of this vector control \see IVStyle
+     * @param direction The direction of the sliders
+     * @param minTrackValue It defines the low level range used from the slider to store new incoming values (not the minimum value itself, control values are always from 0 to 1).
+     * @param maxTrackValue It defines the high level range used from the slider to store new incoming values (not the maximum value itself, control values are always from 0 to 1).
+     * @param trackNames
+     */
   IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
   : IVTrackControlBase(bounds, label, style, MAXNC, dir, minTrackValue, maxTrackValue, trackNames)
   {

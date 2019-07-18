@@ -29,7 +29,15 @@ class IParam
 {
 public:
 
-  /** /todo */
+  /** This Enum defines five possible parameter types that determine how other objects handle the parameter itself. You don't set manually the parameter type, it is a private class member and it is automatically assigned into the class constructor.
+   * You can access the parameter type by calling Type() on it.
+   * @param kTypeNone
+   * @param kTypeBool
+   * @param kTypeInt
+   * @param kTypeInt
+   * @param kTypeEnum
+   * @param kTypeDouble
+   */
   enum EParamType { kTypeNone, kTypeBool, kTypeInt, kTypeEnum, kTypeDouble };
 
   /** /todo */
