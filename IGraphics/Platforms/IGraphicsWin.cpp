@@ -178,27 +178,18 @@ void IGraphicsWin::DestroyEditWindow()
  }
 }
 
+UINT(WINAPI *__GetDpiForWindow)(HWND);
+
 static int GetScaleForWindow(HWND hWnd)
 {
-  double scale = 1.;
-
-  static UINT(WINAPI *__GetDpiForWindow)(HWND);
-
-  if (!__GetDpiForWindow)
-  {
-    HINSTANCE h = LoadLibrary("user32.dll");
-    if (h) *(void **)&__GetDpiForWindow = GetProcAddress(h, "GetDpiForWindow");
-    if (!__GetDpiForWindow)
-      *(void **)&__GetDpiForWindow = (void*)(INT_PTR)1;
-  }
-  if (hWnd && (UINT_PTR)__GetDpiForWindow > (UINT_PTR)1)
+  if (hWnd && __GetDpiForWindow)
   {
     int dpi = __GetDpiForWindow(hWnd);
     if (dpi != USER_DEFAULT_SCREEN_DPI)
-      scale = static_cast<double>(dpi) / USER_DEFAULT_SCREEN_DPI;
+      return std::round(static_cast<double>(dpi) / USER_DEFAULT_SCREEN_DPI);
   }
 
-  return std::round(scale);
+  return 1;
 }
 
 // static
@@ -238,13 +229,6 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   
   switch (msg)
   {
-    case WM_MOVE:
-    {
-      int scale = GetScaleForWindow(pGraphics->mMainWnd);
-      if (scale != pGraphics->GetScreenScale())
-        pGraphics->SetScreenScale(scale);
-      return true;
-    }
     case WM_TIMER:
     {
       if (wParam == IPLUG_TIMER_ID)
@@ -270,6 +254,10 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           pGraphics->mParamEditMsg = kNone;
           return 0; // TODO: check this!
         }
+
+        int scale = GetScaleForWindow(pGraphics->mPlugWnd);
+        if (scale != pGraphics->GetScreenScale())
+          pGraphics->SetScreenScale(scale);
 
         IRECTList rects;
          
@@ -653,6 +641,12 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
 IGraphicsWin::IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
   : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
 {
+  if (!__GetDpiForWindow)
+  {
+    HINSTANCE h = LoadLibrary("user32.dll");
+    if (h) *(void **)&__GetDpiForWindow = GetProcAddress(h, "GetDpiForWindow");
+  }
+
   StaticStorage<WinInstalledFont>::Accessor fontStorage(sPlatformFontCache);
   StaticStorage<WinFontDescriptor>::Accessor descriptorStorage(sFontDescriptorCache);
   fontStorage.Retain();
