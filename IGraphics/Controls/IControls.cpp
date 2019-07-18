@@ -535,11 +535,11 @@ void IVRadioButtonControl::OnResize()
   SetDirty(false);
 }
 
-IVKnobControl::IVKnobControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueIsEditable, float aMin, float aMax, float aAnchor,  EDirection direction, double gearing)
+IVKnobControl::IVKnobControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueIsEditable, bool valueInWidget, float a1, float a2, float aAnchor,  EDirection direction, double gearing)
 : IKnobControlBase(bounds, paramIdx, direction, gearing)
-, IVectorBase(style)
-, mAngleMin(aMin)
-, mAngleMax(aMax)
+, IVectorBase(style, false, valueInWidget)
+, mAngle1(a1)
+, mAngle2(a2)
 , mAnchorAngle(aAnchor)
 {
   DisablePrompt(!valueIsEditable);
@@ -547,11 +547,11 @@ IVKnobControl::IVKnobControl(const IRECT& bounds, int paramIdx, const char* labe
   AttachIControl(this, label);
 }
 
-IVKnobControl::IVKnobControl(const IRECT& bounds, IActionFunction actionFunc, const char* label, const IVStyle& style, bool valueIsEditable, float aMin, float aMax, float aAnchor, EDirection direction, double gearing)
+IVKnobControl::IVKnobControl(const IRECT& bounds, IActionFunction actionFunc, const char* label, const IVStyle& style, bool valueIsEditable, bool valueInWidget,  float a1, float a2, float aAnchor, EDirection direction, double gearing)
 : IKnobControlBase(bounds, kNoParameter, direction, gearing)
-, IVectorBase(style)
-, mAngleMin(aMin)
-, mAngleMax(aMax)
+, IVectorBase(style, false, valueInWidget)
+, mAngle1(a1)
+, mAngle2(a2)
 , mAnchorAngle(aAnchor)
 {
   DisablePrompt(!valueIsEditable);
@@ -582,7 +582,7 @@ void IVKnobControl::DrawWidget(IGraphics& g)
   if(!IsGrayed())
   {
     /*TODO: constants! */
-    const float v = mAngleMin + ((float) GetValue() * (mAngleMax - mAngleMin));
+    const float v = mAngle1 + ((float) GetValue() * (mAngle2 - mAngle1));
     
     g.DrawArc(GetColor(kX1), cx, cy, (radius * 0.8f) + 3.f, v >= mAnchorAngle ? mAnchorAngle : mAnchorAngle - (mAnchorAngle-v), v >= mAnchorAngle ? v : mAnchorAngle, 0, 2.f);
     

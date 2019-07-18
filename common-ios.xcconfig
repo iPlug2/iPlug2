@@ -36,14 +36,13 @@ AUv3_DEFS = AUv3_API IPLUG_EDITOR=1 IPLUG_DSP=1
 // Where the SDKs etc. are located in relation to the plug-in Xcode project (which is in the projects subfolder of an IPlug project)
 
 // the top level iPlug2 folder e.g. where this common.xcconfig is
-ROOT = $(SRCROOT)/../../..
 PROJECT_ROOT = $(SRCROOT)/..
 
-DEPS_PATH = $(ROOT)/Dependencies
+DEPS_PATH = $(IPLUG2_ROOT)/Dependencies
 
 // IPlug dependencies
-WDL_PATH = $(ROOT)/WDL
-IPLUG_PATH = $(ROOT)/IPlug
+WDL_PATH = $(IPLUG2_ROOT)/WDL
+IPLUG_PATH = $(IPLUG2_ROOT)/IPlug
 AUv3_PATH = $(IPLUG_PATH)/AUv3
 EXTRAS_PATH = $(IPLUG_PATH)/Extras
 EXTRAS_INC_PATHS = $(EXTRAS_PATH) $(EXTRAS_PATH)/Faust $(EXTRAS_PATH)/OSC $(EXTRAS_PATH)/HIIR $(EXTRAS_PATH)/WebSocket
@@ -51,7 +50,7 @@ EXTRAS_INC_PATHS = $(EXTRAS_PATH) $(EXTRAS_PATH)/Faust $(EXTRAS_PATH)/OSC $(EXTR
 // this build setting is included at the xcode project level, since we need all these include paths
 IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(IPLUG_PATH) $(EXTRAS_INC_PATHS) $(AUv3_PATH)
 
-IGRAPHICS_PATH = $(ROOT)/IGraphics
+IGRAPHICS_PATH = $(IPLUG2_ROOT)/IGraphics
 CONTROLS_PATH = $(IGRAPHICS_PATH)/Controls
 PLATFORMS_PATH = $(IGRAPHICS_PATH)/Platforms
 DRAWING_PATH = $(IGRAPHICS_PATH)/Drawing

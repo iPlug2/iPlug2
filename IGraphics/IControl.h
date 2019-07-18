@@ -298,7 +298,7 @@ public:
    * By default, mouse double click has its own handler. A control can set mDblAsSingleClick to true 
    * which maps double click to single click for this control (and also causes the mouse to be captured by the control on double click).
    * @return /c true if double clicks should be mapped to single clicks */
-  bool GetMouseDblAsSingleClick() { return mDblAsSingleClick; }
+  bool GetMouseDblAsSingleClick() const { return mDblAsSingleClick; }
 
   /** Shows or hides the IControl.
    * @param hide Set to \c true to hide the control */
@@ -1407,6 +1407,23 @@ public:
 protected:
   WDL_String mStr;
   IColor mBGColor;
+};
+
+class IURLControl : public ITextControl
+{
+public:
+  IURLControl(const IRECT& bounds, const char* str, const char* url, const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR, const IColor& MOColor = COLOR_WHITE, const IColor& CLColor = COLOR_BLUE);
+  
+  void Draw(IGraphics& g) override;
+  
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override { GetUI()->SetMouseCursor(ECursor::HAND); IControl::OnMouseOver(x, y, mod); };
+  void OnMouseOut() override { GetUI()->SetMouseCursor(); IControl::OnMouseOut(); }
+
+protected:
+  WDL_String mURLStr;
+  IColor mOriginalColor, mMOColor, mCLColor;
+  bool mClicked = false;
 };
 
 class ITextToggleControl : public ITextControl

@@ -460,6 +460,7 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
   SetScreenScale(std::ceil(std::max(emscripten_get_device_pixel_ratio(), 1.)));
 
   GetDelegate()->LayoutUI(this);
+  GetDelegate()->OnUIOpen();
   
   return nullptr;
 }
@@ -580,7 +581,7 @@ EMsgBoxResult IGraphicsWeb::ShowMessageBox(const char* str, const char* caption,
 
 void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext)
 {
-  val inputEl = val::global("document").call<val>("getElementById", std::string("pluginInput"));
+  val inputEl = val::global("document").call<val>("createElement", std::string("input"));
   
   inputEl.call<void>("setAttribute", std::string("accept"), std::string(ext));
   inputEl.call<void>("click");
@@ -588,8 +589,8 @@ void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAc
 
 void IGraphicsWeb::PromptForDirectory(WDL_String& path)
 {
-  val inputEl = val::global("document").call<val>("getElementById", std::string("pluginInput"));
-  
+  val inputEl = val::global("document").call<val>("createElement", std::string("input"));
+
   inputEl.call<void>("setAttribute", std::string("directory"));
   inputEl.call<void>("setAttribute", std::string("webkitdirectory"));
   inputEl.call<void>("click");

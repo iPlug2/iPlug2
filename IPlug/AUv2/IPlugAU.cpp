@@ -1912,6 +1912,8 @@ void IPlugAU::PreProcess()
     if (currentMeasureDownBeat>0.0)
       timeInfo.mLastBar=currentMeasureDownBeat;
   }
+    
+  SetTimeInfo(timeInfo);
 }
 
 void IPlugAU::ResizeScratchBuffers()
