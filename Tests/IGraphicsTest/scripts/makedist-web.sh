@@ -7,9 +7,10 @@
 # 2nd argument : site origin -
 # 3rd argument : browser - either "chrome", "safari", "firefox" - if you want to launch a browser other than chrome, you must specify the correct origin for argument #2
 
-IPLUG2_ROOT="../../.."  
-PROJECT_ROOT="$(PWD)/.."
-IPLUG2_ROOT="$(PWD)/"$IPLUG2_ROOT
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+IPLUG2_ROOT=../../..
+PROJECT_ROOT=$SCRIPT_DIR/..
+IPLUG2_ROOT=$SCRIPT_DIR/$IPLUG2_ROOT
 
 PROJECT_NAME=IGraphicsTest
 WEBSOCKET_MODE=0
