@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # makedist-web.sh builds a Web version of an iPlug2 project using emscripten
 # it copies a template folder from the iPlug2 tree and does a find and replace on various JavaScript and HTML files

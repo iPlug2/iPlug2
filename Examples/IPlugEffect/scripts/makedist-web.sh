@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # makedist-web.sh builds a Web version of an iPlug2 project using emscripten
 # it copies a template folder from the iPlug2 tree and does a find and replace on various JavaScript and HTML files
@@ -7,7 +7,7 @@
 # 2nd argument : site origin -
 # 3rd argument : browser - either "chrome", "safari", "firefox" - if you want to launch a browser other than chrome, you must specify the correct origin for argument #2
 
-IPLUG2_ROOT="../../.."  
+IPLUG2_ROOT="../../.."
 PROJECT_ROOT="$(PWD)/.."
 IPLUG2_ROOT="$(PWD)/"$IPLUG2_ROOT
 
