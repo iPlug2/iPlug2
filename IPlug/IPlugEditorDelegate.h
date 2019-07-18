@@ -242,7 +242,7 @@ public:
     
   /** If the editor changes arbitrary data (such as layout/scale) this is called to store data into the plugin*/
   virtual void EditorDataChangedFromUI(const IByteChunk& data) {}
-  
+
   /** SendMidiMsgFromUI (Abbreviation: SMMFUI)
    * This method should be used  when  sending a MIDI message from the UI. For example clicking on a key in a virtual keyboard.
    * Eventually the MIDI message can be handled in IPlugProcessor::ProcessMidiMsg(), from where it can be used to trigger sound and or forwarded to the API's MIDI output.
@@ -286,6 +286,10 @@ public:
    * @param startPos Starting point in the chunk
    * @return The new chunk position (endPos)*/
   virtual int SetEditorData(const IByteChunk& data, int startPos) { return startPos; }
+
+  /** Can be used by a host API to inform the editor of screen scale changes
+   *@param scale The new screen scale*/
+  virtual void SetScreenScale(double scale) {}
 
 protected:
   /** The width of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist. */

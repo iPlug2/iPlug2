@@ -121,11 +121,27 @@ IFontDataPtr WinFont::GetFontData()
 static StaticStorage<WinInstalledFont> sPlatformFontCache;
 static StaticStorage<WinFontDescriptor> sFontDescriptorCache;
 
+// DPI helper
+UINT(WINAPI *__GetDpiForWindow)(HWND);
+
+// Mouse and tablet helpers
+int GetScaleForWindow(HWND hWnd)
+{
+  if (hWnd && __GetDpiForWindow)
+  {
+    int dpi = __GetDpiForWindow(hWnd);
+    if (dpi != USER_DEFAULT_SCREEN_DPI)
+      return std::round(static_cast<double>(dpi) / USER_DEFAULT_SCREEN_DPI);
+  }
+
+  return 1;
+}
+
 inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 {
   IMouseInfo info;
-  info.x = mCursorX = GET_X_LPARAM(lParam) / GetDrawScale();
-  info.y = mCursorY = GET_Y_LPARAM(lParam) / GetDrawScale();
+  info.x = mCursorX = GET_X_LPARAM(lParam) / (GetDrawScale() * GetScreenScale());
+  info.y = mCursorY = GET_Y_LPARAM(lParam) / (GetDrawScale() * GetScreenScale());
   info.ms = IMouseMod((wParam & MK_LBUTTON), (wParam & MK_RBUTTON), (wParam & MK_SHIFT), (wParam & MK_CONTROL),
 #ifdef AAX_API
     GetAsyncKeyState(VK_MENU) < 0
@@ -241,6 +257,10 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           return 0; // TODO: check this!
         }
 
+        int scale = GetScaleForWindow(pGraphics->mPlugWnd);
+        if (scale != pGraphics->GetScreenScale())
+          pGraphics->SetScreenScale(scale);
+
         IRECTList rects;
          
         if (pGraphics->IsDirty(rects))
@@ -250,7 +270,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           for (int i = 0; i < rects.Size(); i++)
           {
             IRECT dirtyR = rects.Get(i);
-            dirtyR.Scale(pGraphics->GetDrawScale());
+            dirtyR.Scale(pGraphics->GetDrawScale() * pGraphics->GetScreenScale());
             dirtyR.PixelAlign();
             RECT r = { (LONG)dirtyR.L, (LONG)dirtyR.T, (LONG)dirtyR.R, (LONG)dirtyR.B };
 
@@ -260,7 +280,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           if (pGraphics->mParamEditWnd)
           {
             IRECT notDirtyR = pGraphics->mEditRECT;
-            notDirtyR.Scale(pGraphics->GetDrawScale());
+            notDirtyR.Scale(pGraphics->GetDrawScale() * pGraphics->GetScreenScale());
             notDirtyR.PixelAlign();
             RECT r2 = { (LONG) notDirtyR.L, (LONG) notDirtyR.T, (LONG) notDirtyR.R, (LONG) notDirtyR.B };
             ValidateRect(hWnd, &r2); // make sure we dont redraw the edit box area
@@ -372,7 +392,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       {
         IMouseInfo info = pGraphics->GetMouseInfo(lParam, wParam);
         float d = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
-        float scale = pGraphics->GetDrawScale();
+        float scale = pGraphics->GetDrawScale() * pGraphics->GetScreenScale();
         RECT r;
         GetWindowRect(hWnd, &r);
         pGraphics->OnMouseWheel(info.x - (r.left / scale), info.y - (r.top / scale), info.ms, d);
@@ -408,10 +428,12 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
                             static_cast<bool>(GetKeyState(VK_CONTROL) & 0x8000),
                             static_cast<bool>(GetKeyState(VK_MENU) & 0x8000) };
 
+        double scale = pGraphics->GetDrawScale() * pGraphics->GetScreenScale();
+
         if(msg == WM_KEYDOWN)
-          handle = pGraphics->OnKeyDown(p.x, p.y, keyPress);
+          handle = pGraphics->OnKeyDown(p.x / scale, p.y / scale, keyPress);
         else
-          handle = pGraphics->OnKeyUp(p.x, p.y, keyPress);
+          handle = pGraphics->OnKeyUp(p.x / scale, p.y / scale, keyPress);
       }
 
       if (!handle)
@@ -427,7 +449,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     {
       auto addDrawRect = [pGraphics](IRECTList& rects, RECT r) {
         IRECT ir(r.left, r.top, r.right, r.bottom);
-        ir.Scale(1.f / pGraphics->GetDrawScale());
+        ir.Scale(1.f / (pGraphics->GetDrawScale() * pGraphics->GetScreenScale()));
         ir.PixelAlign();
         rects.Add(ir);
       };
@@ -621,6 +643,12 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
 IGraphicsWin::IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
   : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
 {
+  if (!__GetDpiForWindow)
+  {
+    HINSTANCE h = LoadLibrary("user32.dll");
+    if (h) *(void **)&__GetDpiForWindow = GetProcAddress(h, "GetDpiForWindow");
+  }
+
   StaticStorage<WinInstalledFont>::Accessor fontStorage(sPlatformFontCache);
   StaticStorage<WinFontDescriptor>::Accessor descriptorStorage(sFontDescriptorCache);
   fontStorage.Retain();
@@ -677,7 +705,7 @@ void IGraphicsWin::PlatformResize(bool parentHasResized)
     HWND pParent = 0, pGrandparent = 0;
     int dlgW = 0, dlgH = 0, parentW = 0, parentH = 0, grandparentW = 0, grandparentH = 0;
     GetWindowSize(mPlugWnd, &dlgW, &dlgH);
-    int dw = WindowWidth() - dlgW, dh = WindowHeight() - dlgH;
+    int dw = (WindowWidth() * GetScreenScale()) - dlgW, dh = (WindowHeight()* GetScreenScale()) - dlgH;
       
     if (IsChildWindow(mPlugWnd))
     {
@@ -691,6 +719,9 @@ void IGraphicsWin::PlatformResize(bool parentHasResized)
       }
     }
 
+    if (!dw && !dh)
+      return;
+
     SetWindowPos(mPlugWnd, 0, 0, 0, dlgW + dw, dlgH + dh, SETPOS_FLAGS);
 
     if(pParent && !parentHasResized)
@@ -703,7 +734,7 @@ void IGraphicsWin::PlatformResize(bool parentHasResized)
       SetWindowPos(pGrandparent, 0, 0, 0, grandparentW + dw, grandparentH + dh, SETPOS_FLAGS);
     }
 
-    RECT r = { 0, 0, WindowWidth(), WindowHeight() };
+    RECT r = { 0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale() };
     InvalidateRect(mPlugWnd, &r, FALSE);
   }
 }
@@ -807,7 +838,6 @@ bool IGraphicsWin::MouseCursorIsLocked()
 #ifdef IGRAPHICS_GL
 void IGraphicsWin::CreateGLContext()
 {
-
   PIXELFORMATDESCRIPTOR pfd =
   {
     sizeof(PIXELFORMATDESCRIPTOR),
@@ -879,8 +909,9 @@ EMsgBoxResult IGraphicsWin::ShowMessageBox(const char* text, const char* caption
 
 void* IGraphicsWin::OpenWindow(void* pParent)
 {
-  int x = 0, y = 0, w = WindowWidth(), h = WindowHeight();
   mParentWnd = (HWND) pParent;
+  int screenScale = GetScaleForWindow(mParentWnd);
+  int x = 0, y = 0, w = WindowWidth() * screenScale, h = WindowHeight() * screenScale;
 
   if (mPlugWnd)
   {
@@ -913,7 +944,7 @@ void* IGraphicsWin::OpenWindow(void* pParent)
 
   OnViewInitialized((void*) dc);
 
-  SetScreenScale(1); // CHECK!
+  SetScreenScale(screenScale); // resizes draw context
 
   GetDelegate()->LayoutUI(this);
 
@@ -1182,8 +1213,8 @@ IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
     {
       POINT cPos;
 
-      cPos.x = bounds.L * GetDrawScale();
-      cPos.y = bounds.B * GetDrawScale();
+      cPos.x = bounds.L * (GetDrawScale() * GetScreenScale());
+      cPos.y = bounds.B * (GetDrawScale() * GetScreenScale());
 
       ::ClientToScreen(mPlugWnd, &cPos);
 
@@ -1215,7 +1246,7 @@ IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
       }
       DestroyMenu(hMenu);
 
-      RECT r = { 0, 0, WindowWidth(), WindowHeight() };
+      RECT r = { 0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale() };
       InvalidateRect(mPlugWnd, &r, FALSE);
     }
 
@@ -1240,7 +1271,8 @@ void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
     default:                  editStyle = ES_CENTER; break;
   }
 
-  IRECT scaledBounds = bounds.GetScaled(GetDrawScale());
+  double scale = GetDrawScale() * GetScreenScale();
+  IRECT scaledBounds = bounds.GetScaled(scale);
 
   mParamEditWnd = CreateWindow("EDIT", str, ES_AUTOHSCROLL /*only works for left aligned text*/ | WS_CHILD | WS_VISIBLE | ES_MULTILINE | editStyle,
     scaledBounds.L, scaledBounds.T, scaledBounds.W()+1, scaledBounds.H()+1,
@@ -1251,7 +1283,7 @@ void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
   LOGFONT lFont = { 0 };
   WinFontDescriptor* descriptor = descriptorStorage.Find(text.mFont);
   GetObject(descriptor->mDescriptor, sizeof(LOGFONT), &lFont);
-  lFont.lfHeight = text.mSize;
+  lFont.lfHeight = text.mSize * scale;
   mEditFont = CreateFontIndirect(&lFont);
 
   assert(descriptor && "font not found - did you forget to load it?");
