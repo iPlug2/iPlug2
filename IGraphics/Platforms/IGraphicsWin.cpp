@@ -121,6 +121,22 @@ IFontDataPtr WinFont::GetFontData()
 static StaticStorage<WinInstalledFont> sPlatformFontCache;
 static StaticStorage<WinFontDescriptor> sFontDescriptorCache;
 
+// DPI helper
+UINT(WINAPI *__GetDpiForWindow)(HWND);
+
+// Mouse and tablet helpers
+int GetScaleForWindow(HWND hWnd)
+{
+  if (hWnd && __GetDpiForWindow)
+  {
+    int dpi = __GetDpiForWindow(hWnd);
+    if (dpi != USER_DEFAULT_SCREEN_DPI)
+      return std::round(static_cast<double>(dpi) / USER_DEFAULT_SCREEN_DPI);
+  }
+
+  return 1;
+}
+
 inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 {
   IMouseInfo info;
@@ -176,20 +192,6 @@ void IGraphicsWin::DestroyEditWindow()
    DeleteObject(mEditFont);
    mEditFont = nullptr;
  }
-}
-
-UINT(WINAPI *__GetDpiForWindow)(HWND);
-
-static int GetScaleForWindow(HWND hWnd)
-{
-  if (hWnd && __GetDpiForWindow)
-  {
-    int dpi = __GetDpiForWindow(hWnd);
-    if (dpi != USER_DEFAULT_SCREEN_DPI)
-      return std::round(static_cast<double>(dpi) / USER_DEFAULT_SCREEN_DPI);
-  }
-
-  return 1;
 }
 
 // static
