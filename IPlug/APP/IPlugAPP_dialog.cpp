@@ -503,6 +503,29 @@ void ClientResize(HWND hWnd, int nWidth, int nHeight)
   POINT ptDiff;
   int screenwidth, screenheight;
   int x, y;
+
+#ifdef OS_WIN
+  static UINT (WINAPI *__GetDpiForWindow)(HWND);
+
+  double scale = 1.;
+  
+  if (!__GetDpiForWindow)
+  {
+    HINSTANCE h = LoadLibrary("user32.dll");
+    if (h) *(void **)&__GetDpiForWindow = GetProcAddress(h,"GetDpiForWindow");
+    if (!__GetDpiForWindow)
+      *(void **)&__GetDpiForWindow = (void*)(INT_PTR)1;
+  }
+  if (hWnd && (UINT_PTR)__GetDpiForWindow > (UINT_PTR)1)
+  {
+    int dpi = __GetDpiForWindow(hWnd);
+    if (dpi != 96)
+      scale = static_cast<double>(dpi / USER_DEFAULT_SCREEN_DPI);
+  }
+  
+  nWidth *= scale;
+  nHeight *= scale;
+#endif
   
   screenwidth  = GetSystemMetrics(SM_CXSCREEN);
   screenheight = GetSystemMetrics(SM_CYSCREEN);

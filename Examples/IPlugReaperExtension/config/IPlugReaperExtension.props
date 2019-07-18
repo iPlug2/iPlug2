@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ImportGroup Label="PropertySheets">
-    <Import Project="$(SolutionDir)..\..\common-win.props" />
-  </ImportGroup>
   <PropertyGroup Label="UserMacros">
-    <BINARY_NAME>reaper_IPlugReaperExtension</BINARY_NAME>
+    <IPLUG2_ROOT>$(ProjectDir)..\..\..</IPLUG2_ROOT>
+    <BINARY_NAME>reaper_ReaperExtension</BINARY_NAME>
     <EXTRA_ALL_DEFS>IGRAPHICS_NANOVG;IGRAPHICS_GL2</EXTRA_ALL_DEFS>
     <EXTRA_DEBUG_DEFS />
     <EXTRA_RELEASE_DEFS />
     <EXTRA_TRACER_DEFS />
   </PropertyGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(IPLUG2_ROOT)\common-win.props" />
+  </ImportGroup>
   <PropertyGroup>
     <TargetName>$(BINARY_NAME)</TargetName>
   </PropertyGroup>

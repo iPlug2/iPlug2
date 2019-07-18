@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # makedist-web.sh builds a Web version of an iPlug2 project using emscripten
 # it copies a template folder from the iPlug2 tree and does a find and replace on various JavaScript and HTML files
@@ -7,6 +7,11 @@
 # 2nd argument : site origin -
 # 3rd argument : browser - either "chrome", "safari", "firefox" - if you want to launch a browser other than chrome, you must specify the correct origin for argument #2
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+IPLUG2_ROOT=../../..
+PROJECT_ROOT=$SCRIPT_DIR/..
+IPLUG2_ROOT=$SCRIPT_DIR/$IPLUG2_ROOT
+
 PROJECT_NAME=IGraphicsTest
 WEBSOCKET_MODE=0
 EMRUN_BROWSER=chrome
@@ -14,12 +19,8 @@ LAUNCH_EMRUN=1
 EMRUN_SERVER=1
 EMRUN_SERVER_PORT=8001
 SITE_ORIGIN="/"
-IPLUG2_ROOT="$(pwd)/../../.."
-PROJECT_ROOT="$(pwd)/.."
 
-cd "$(dirname "$0")"
-
-cd ..
+cd $PROJECT_ROOT
 
 if [ "$1" = "ws" ]; then
   LAUNCH_EMRUN=0
@@ -51,6 +52,7 @@ fi
 mkdir build-web/scripts
 
 echo BUNDLING RESOURCES -----------------------------
+
 cd build-web
 
 if [ -f imgs.js ]; then rm imgs.js; fi
@@ -93,20 +95,21 @@ cd ..
 
 if [ "$WEBSOCKET_MODE" -eq "0" ]; then
   echo MAKING  - WAM WASM MODULE -----------------------------
-  emmake make --makefile projects/$PROJECT_NAME-wam-processor.mk
+  cd $PROJECT_ROOT/projects
+  emmake make --makefile $PROJECT_NAME-wam-processor.mk
 
   if [ $? -ne "0" ]; then
     echo IPlugWAM WASM compilation failed
     exit 1
   fi
 
-  cd build-web/scripts
+  cd $PROJECT_ROOT/build-web/scripts
 
   # prefix the -wam.js script with scope
   echo "AudioWorkletGlobalScope.WAM = AudioWorkletGlobalScope.WAM || {}; AudioWorkletGlobalScope.WAM.$PROJECT_NAME = { ENVIRONMENT: 'WEB' };" > $PROJECT_NAME-wam.tmp.js;
   cat $PROJECT_NAME-wam.js >> $PROJECT_NAME-wam.tmp.js
   mv $PROJECT_NAME-wam.tmp.js $PROJECT_NAME-wam.js
-
+  
   # copy in WAM SDK and AudioWorklet polyfill scripts
   cp $IPLUG2_ROOT/Dependencies/IPlug/WAM_SDK/wamsdk/*.js .
   cp $IPLUG2_ROOT/Dependencies/IPlug/WAM_AWP/*.js .
@@ -123,12 +126,11 @@ if [ "$WEBSOCKET_MODE" -eq "0" ]; then
   sed -i.bak s,ORIGIN_PLACEHOLDER,$SITE_ORIGIN,g $PROJECT_NAME-awn.js
 
   rm *.bak
-
-  cd ..
 else
   echo "WAM not being built in websocket mode"
-  cd build-web
 fi
+
+cd $PROJECT_ROOT/build-web
 
 # copy in the template HTML - comment this out if you have customised the HTML
 cp $IPLUG2_ROOT/IPlug/WEB/Template/index.html index.html
@@ -163,18 +165,18 @@ mkdir styles
 cp $IPLUG2_ROOT/IPlug/WEB/Template/styles/style.css styles/style.css
 cp $IPLUG2_ROOT/IPlug/WEB/Template/favicon.ico favicon.ico
 
-cd ../
-
 echo MAKING  - WEB WASM MODULE -----------------------------
 
-emmake make --makefile projects/$PROJECT_NAME-wam-controller.mk EXTRA_CFLAGS=-DWEBSOCKET_CLIENT=$WEBSOCKET_MODE
+cd $PROJECT_ROOT/projects
+
+emmake make --makefile $PROJECT_NAME-wam-controller.mk EXTRA_CFLAGS=-DWEBSOCKET_CLIENT=$WEBSOCKET_MODE
 
 if [ $? -ne "0" ]; then
   echo IPlugWEB WASM compilation failed
   exit 1
 fi
 
-cd build-web
+cd $PROJECT_ROOT/build-web
 
 # print payload
 echo payload:

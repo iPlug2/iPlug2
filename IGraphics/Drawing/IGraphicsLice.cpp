@@ -908,13 +908,12 @@ void IGraphicsLice::EndFrame()
   
   if (GetDrawScale() == 1.0)
   {
-    BitBlt(dc, 0, 0, Width(), Height(), mDrawBitmap->getDC(), 0, 0, SRCCOPY);
+    BitBlt(dc, 0, 0, Width() * GetScreenScale(), Height() * GetScreenScale(), mDrawBitmap->getDC(), 0, 0, SRCCOPY);
   }
   else
   {
-    LICE_ScaledBlit(mScaleBitmap.get(), mDrawBitmap.get(), 0, 0, WindowWidth(), WindowHeight(), 0, 0, Width(), Height(), 1.0, LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR
-    );
-    BitBlt(dc, 0, 0, WindowWidth(), WindowHeight(), mScaleBitmap->getDC(), 0, 0, SRCCOPY);
+    LICE_ScaledBlit(mScaleBitmap.get(), mDrawBitmap.get(), 0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale(), 0, 0, Width() * GetScreenScale(), Height() * GetScreenScale(), 1.0, LICE_BLIT_MODE_COPY | LICE_BLIT_FILTER_BILINEAR);
+    BitBlt(dc, 0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale(), mScaleBitmap->getDC(), 0, 0, SRCCOPY);
   }
   
   EndPaint(hWnd, &ps);

@@ -105,6 +105,8 @@ public:
 
   tresult PLUGIN_API setContentScaleFactor(ScaleFactor factor) override
   {
+    mOwner.SetScreenScale(factor);
+
     return Steinberg::kResultOk;
   }
 

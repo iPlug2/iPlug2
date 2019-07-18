@@ -57,11 +57,14 @@ public:
   void* GetDrawContext() override { return nullptr; }
 
   bool BitmapExtSupported(const char* ext) override;
+    
 protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) override;
 
   bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override;
+
+  bool AssetsLoaded() override;
 
   int AlphaChannel() const override { return 3; }
   bool FlippedBitmap() const override { return false; }
@@ -83,7 +86,8 @@ private:
   }
     
   void GetFontMetrics(const char* font, const char* style, double& ascenderRatio, double& EMRatio);
-  bool CompareFontMetrics(const char* style, const char* font1, const char* font2, int size);
+  bool CompareFontMetrics(const char* style, const char* font1, const char* font2);
+  bool FontExists(const char* font, const char* style);
     
   double XTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().L; }
   double YTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().T; }
@@ -93,4 +97,6 @@ private:
     
   void SetCanvasSourcePattern(val& context, const IPattern& pattern, const IBlend* pBlend = nullptr);
   void SetCanvasBlendMode(val& context, const IBlend* pBlend);
+    
+  std::vector<std::pair<WDL_String, WDL_String>> mCustomFonts;
 };

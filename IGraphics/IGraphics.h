@@ -1049,7 +1049,11 @@ public:
 
   /** /todo */
   void AttachImGui(std::function<void(IGraphics*)> drawFunc, std::function<void()> setupFunc = nullptr);
-  
+
+  /** Returns a scaling factor for resizing parent windows via the host/plugin API
+   * @return A scaling factor for resizing parent windows */
+  virtual int GetPlatformWindowScale() const { return 1; }
+
 private:
   /* /todo */
   virtual void CreatePlatformImGui() {}
@@ -1390,6 +1394,9 @@ protected:
   virtual bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) = 0;
 
   /** /todo */
+  virtual bool AssetsLoaded() { return true; }
+    
+  /** /todo */
   virtual int AlphaChannel() const = 0;
 
   /** /todo */
@@ -1513,8 +1520,9 @@ protected:
 
   friend class IGraphicsLiveEdit;
   friend class ICornerResizerControl;
+
   friend class ITextEntryControl;
-  
+
   std::stack<ILayer*> mLayers;
   
 #ifdef IGRAPHICS_IMGUI

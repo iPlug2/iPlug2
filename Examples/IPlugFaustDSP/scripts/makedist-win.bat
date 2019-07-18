@@ -9,14 +9,15 @@ REM - AAX codesigning requires wraptool tool added to %PATH% env variable and aa
 if %1 == 1 (echo Making IPlugFaustDSP Windows DEMO VERSION distribution ...) else (echo Making IPlugFaustDSP Windows FULL VERSION distribution ...)
 
 echo "touching source"
-cd ..\
-copy /b *.cpp+,,
+copy /b ..\*.cpp+,,
 
 echo ------------------------------------------------------------------
 echo Updating version numbers ...
 
-call python scripts\prepare_resources-win.py %1
-call python scripts\update_installer_version.py %1
+call python prepare_resources-win.py %1
+call python update_installer_version.py %1
+
+cd ..\
 
 echo ------------------------------------------------------------------
 echo Building ...

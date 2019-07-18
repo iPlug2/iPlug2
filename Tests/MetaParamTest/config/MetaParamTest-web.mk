@@ -1,6 +1,10 @@
-include ./../../common-web.mk
+# IPLUG2_ROOT should point to the top level IPLUG2 folder from the project folder
+# By default, that is three directories up from /Examples/MetaParamTest/config
+IPLUG2_ROOT = ../../..
 
-SRC += MetaParamTest.cpp
+include ../../../common-web.mk
+
+SRC += $(PROJECT_ROOT)/MetaParamTest.cpp
 
 # WAM_SRC +=
 

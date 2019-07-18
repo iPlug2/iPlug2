@@ -3,14 +3,13 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <RTAUDIOMIDI_PATH>$(IPLUG_PATH)\APP\RTAudioMidi</RTAUDIOMIDI_PATH>
-    <ROOT_PATH>$(SolutionDir)..\..</ROOT_PATH>
-    <WDL_PATH>$(ROOT_PATH)\WDL</WDL_PATH>
+    <WDL_PATH>$(IPLUG2_ROOT)\WDL</WDL_PATH>
     <LICE_PATH>$(WDL_PATH)\lice</LICE_PATH>
-    <IPLUG_PATH>$(ROOT_PATH)\IPlug</IPLUG_PATH>
+    <IPLUG_PATH>$(IPLUG2_ROOT)\IPlug</IPLUG_PATH>
     <EXTRAS_PATH>$(IPLUG_PATH)\Extras</EXTRAS_PATH>
     <IPLUG_INC_PATHS>$(WDL_PATH);$(IPLUG_PATH);$(EXTRAS_PATH);$(EXTRAS_PATH)\Synth;$(EXTRAS_PATH)\Faust;$(SolutionDir)\resources</IPLUG_INC_PATHS>
-    <IGRAPHICS_PATH>$(ROOT_PATH)\IGraphics</IGRAPHICS_PATH>
-    <DEPS_PATH>$(ROOT_PATH)\Dependencies</DEPS_PATH>
+    <IGRAPHICS_PATH>$(IPLUG2_ROOT)\IGraphics</IGRAPHICS_PATH>
+    <DEPS_PATH>$(IPLUG2_ROOT)\Dependencies</DEPS_PATH>
     <IPLUG_DEPS_PATH>$(DEPS_PATH)\IPlug</IPLUG_DEPS_PATH>
     <IGRAPHICS_DEPS_PATH>$(DEPS_PATH)\IGraphics</IGRAPHICS_DEPS_PATH>
     <NANOVG_PATH>$(IGRAPHICS_DEPS_PATH)\NanoVG\src</NANOVG_PATH>
@@ -93,8 +92,8 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <BuildMacro Include="ROOT_PATH">
-      <Value>$(ROOT_PATH)</Value>
+    <BuildMacro Include="IPLUG2_ROOT">
+      <Value>$(IPLUG2_ROOT)</Value>
     </BuildMacro>
     <BuildMacro Include="WDL_PATH">
       <Value>$(WDL_PATH)</Value>
