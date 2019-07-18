@@ -19,7 +19,7 @@
 
 using namespace emscripten;
 
-extern IGraphics* gGraphics;
+extern IGraphicsWeb* gGraphics;
 
 extern val GetPreloadedImages();
 extern val GetCanvas();
@@ -376,13 +376,14 @@ void IGraphicsCanvas::GetFontMetrics(const char* font, const char* style, double
   ascenderRatio = ascent / height;
 }
 
-bool IGraphicsCanvas::CompareFontMetrics(const char* style, const char* font1, const char* font2, int size)
+bool IGraphicsCanvas::CompareFontMetrics(const char* style, const char* font1, const char* font2)
 {
   WDL_String fontCombination;
-  fontCombination.SetFormatted(FONT_LEN * 2, "%s %s", font1, font2);
+  fontCombination.SetFormatted(FONT_LEN * 2 + 2, "%s, %s", font1, font2);
   val context = GetContext();
   std::string textString("@BmwdWMoqPYyzZr1234567890.+-=_~'");
-  
+  const int size = 72;
+    
   context.set("font", GetFontString(font2, style, size));
   val metrics1 = context.call<val>("measureText", textString);
 
@@ -392,12 +393,23 @@ bool IGraphicsCanvas::CompareFontMetrics(const char* style, const char* font1, c
   return metrics1["width"].as<double>() == metrics2["width"].as<double>();
 }
 
+bool IGraphicsCanvas::FontExists(const char* font, const char* style)
+{
+    return !CompareFontMetrics(style, font, "monospace") ||
+    !CompareFontMetrics(style, font, "sans-serif") ||
+    !CompareFontMetrics(style, font, "serif");
+}
+
 bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 {
   StaticStorage<CanvasFont>::Accessor storage(sFontCache);
 
   if (storage.Find(fontID))
+  {
+    if (!font->IsSystem())
+      mCustomFonts.push_back(*font->GetDescriptor());
     return true;
+  }
 
   if (!font->IsSystem())
   {
@@ -429,10 +441,11 @@ bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& fon
       const double EMRatio = data->GetHeightEMRatio();
       storage.Add(new CanvasFont({descriptor->first, descriptor->second}, ascenderRatio, EMRatio), fontID);
       
-      // Load and draw the font to the canvas
-      GetContext().set("font", GetFontString(descriptor->first.Get(), descriptor->second.Get(), 12));
-      GetContext().call<void>("fillText", std::string("Load"), 0, 0);
+      // Add to store and encourage to load by using the font immediately
       
+      mCustomFonts.push_back(*descriptor);
+      CompareFontMetrics(descriptor->second.Get(), descriptor->first.Get(), "monospace");
+        
       return true;
     }
   }
@@ -442,9 +455,7 @@ bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& fon
     const char* fontName = descriptor->first.Get();
     const char* styleName = descriptor->second.Get();
     
-    if (!CompareFontMetrics(styleName, fontName, "monospace", 72) ||
-        !CompareFontMetrics(styleName, fontName, "sans-serif", 72) ||
-        !CompareFontMetrics(styleName, fontName, "serif", 72))
+    if (FontExists(fontName, styleName))
     {
       double ascenderRatio, EMRatio;
       
@@ -455,6 +466,19 @@ bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& fon
   }
   
   return false;
+}
+
+bool IGraphicsCanvas::AssetsLoaded()
+{
+  for (auto it = mCustomFonts.begin(); it != mCustomFonts.end(); it++)
+  {
+    if (!FontExists(it->first.Get(), it->second.Get()))
+      return false;
+  }
+  
+  mCustomFonts.clear();
+    
+  return true;
 }
 
 void IGraphicsCanvas::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
