@@ -1390,6 +1390,9 @@ protected:
   virtual bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) = 0;
 
   /** /todo */
+  virtual bool AssetsLoaded() { return true; }
+    
+  /** /todo */
   virtual int AlphaChannel() const = 0;
 
   /** /todo */
