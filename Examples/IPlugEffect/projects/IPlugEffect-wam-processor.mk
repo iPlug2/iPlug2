@@ -1,6 +1,6 @@
-include ./config/IPlugEffect-web.mk
+include ../config/IPlugEffect-web.mk
 
-TARGET = ./build-web/scripts/IPlugEffect-wam.js
+TARGET = ../build-web/scripts/IPlugEffect-wam.js
 
 SRC += $(WAM_SRC)
 CFLAGS += $(WAM_CFLAGS)

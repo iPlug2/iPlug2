@@ -44,12 +44,14 @@ APP_DEFS = APP_API __MACOSX_CORE__ IPLUG_EDITOR=1 IPLUG_DSP=1 SWELL_COMPILED// _
 // Where the SDKs etc. are located in relation to the plug-in Xcode project (which is in the projects subfolder of an IPlug project)
 
 // the top level iPlug2 folder e.g. where this common-mac.xcconfig is
-ROOT = $(SRCROOT)/../../..
+// should be specified in the project's xcconfig
+//IPLUG2_ROOT should be 
+
 PROJECT_ROOT = $(SRCROOT)/..
 
 PKGMAN_PATH = /usr/local
 
-DEPS_PATH = $(ROOT)/Dependencies
+DEPS_PATH = $(IPLUG2_ROOT)/Dependencies
 
 // if you want to use the homebrew or macports package managers, rather than building static libraries yourself (not advised) you can modify the BUILT_LIBS_PATH build setting to point to PKGMAN_PATH
 BUILT_LIBS_PATH = $(DEPS_PATH)/Build/mac
@@ -57,11 +59,11 @@ BUILT_LIBS_INC_PATH = $(BUILT_LIBS_PATH)/include
 BUILT_LIBS_LIB_PATH = $(BUILT_LIBS_PATH)/lib
 
 // IPlug dependencies
-SCRIPTS_PATH = $(ROOT)/Scripts
-WDL_PATH = $(ROOT)/WDL
+SCRIPTS_PATH = $(IPLUG2_ROOT)/Scripts
+WDL_PATH = $(IPLUG2_ROOT)/WDL
 SWELL_PATH = $(WDL_PATH)/swell
 SWELL_FOR_IPLUG_PATH = $(DEPS_PATH)/IPlug/SWELL
-IPLUG_PATH = $(ROOT)/IPlug
+IPLUG_PATH = $(IPLUG2_ROOT)/IPlug
 RTAUDIO_PATH = $(DEPS_PATH)/IPlug/RTAudio
 RTMIDI_PATH = $(DEPS_PATH)/IPlug/RTMidi
 
@@ -92,7 +94,7 @@ IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(SWELL_PATH) $(SWELL_FOR_IPLUG_PA
 
 IMGUI_INC_PATHS = $(IMGUI_PATH) $(IMGUI_PATH)/examples
 
-IGRAPHICS_PATH = $(ROOT)/IGraphics
+IGRAPHICS_PATH = $(IPLUG2_ROOT)/IGraphics
 
 // IGraphics dependencies
 IGRAPHICS_DEPS_PATH = $(DEPS_PATH)/IGraphics

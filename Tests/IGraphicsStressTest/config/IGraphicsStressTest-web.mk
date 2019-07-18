@@ -1,6 +1,9 @@
-include ./../../common-web.mk
+# IPLUG2_ROOT should point to the top level IPLUG2 folder from the project folder
+# By default, that is three directories up from /Examples/IPlugEffect/config
+IPLUG2_ROOT = ../../..
+include ../../../common-web.mk
 
-SRC += IGraphicsStressTest.cpp
+SRC += $(PROJECT_ROOT)/IGraphicsStressTest.cpp
 
 # WAM_SRC +=
 
