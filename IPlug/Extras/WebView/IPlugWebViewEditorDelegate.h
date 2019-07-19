@@ -19,7 +19,8 @@ public:
   void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) override;
   void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
   void SendArbitraryMsgFromDelegate(int messageTag, int dataSize, const void* pData) override;
-  
+  void Resize(int width, int height);
+
   //WebViewEditorDelegate
   void LoadHTML(const WDL_String& html);
   void LoadURL(const char* url);

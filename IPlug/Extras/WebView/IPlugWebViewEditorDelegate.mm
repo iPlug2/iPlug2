@@ -83,7 +83,7 @@ WebViewEditorDelegate::~WebViewEditorDelegate()
 
 void* WebViewEditorDelegate::OpenWindow(void* pParent)
 {
-  VIEW* pNSView = (VIEW*) pParent;
+  VIEW* parentView = (VIEW*) pParent;
   
   WKWebViewConfiguration* webConfig = [[WKWebViewConfiguration alloc] init];
   WKPreferences* preferences = [[WKPreferences alloc] init] ;
@@ -108,7 +108,14 @@ void* WebViewEditorDelegate::OpenWindow(void* pParent)
   
   [webView setNavigationDelegate:scriptHandler];
   
-  [pNSView addSubview:webView];
+  [parentView addSubview:webView];
+  
+//#ifdef OS_MAC
+//  [webView setAutoresizingMask: NSViewHeightSizable|NSViewWidthSizable|NSViewMinXMargin|NSViewMaxXMargin|NSViewMinYMargin|NSViewMaxYMargin ];
+//#else
+//  [webView setAutoresizingMask: UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleTopMargin];
+//#endif
+//  [parentView setAutoresizesSubviews:YES];
   
   mWebConfig = webConfig;
   mWKWebView = webView;
@@ -190,7 +197,7 @@ void WebViewEditorDelegate::LoadFileFromBundle(const char* fileName)
   NSString* str = @"file:";
   NSString* webroot = [str stringByAppendingString:[pPath stringByReplacingOccurrencesOfString:[NSString stringWithUTF8String:fileName] withString:@""]];
   NSURL* pageUrl = [NSURL URLWithString:[webroot stringByAppendingString:[NSString stringWithUTF8String:fileName]] relativeToURL:nil];
-  NSURL* rootUrl = [NSURL URLWithString:webroot relativeToURL:nil];
+  NSURL* rootUrl = [NSURL URLWithString:[webroot stringByAppendingString:@"web"] relativeToURL:nil];
 
   [webView loadFileURL:pageUrl allowingReadAccessToURL:rootUrl];
 }
@@ -214,4 +221,13 @@ void WebViewEditorDelegate::EnableScroll(bool enable)
   WKWebView* webView = (WKWebView*) mWKWebView;
   [webView.scrollView setScrollEnabled:enable];
 #endif
+}
+
+void WebViewEditorDelegate::Resize(int width, int height)
+{
+//  [NSAnimationContext beginGrouping]; // Prevent animated resizing
+//  [[NSAnimationContext currentContext] setDuration:0.0];
+  [(WKWebView*) mWKWebView setFrame: MAKERECT(0.f, 0.f, (float) width, (float) height) ];
+//  [NSAnimationContext endGrouping];
+  EditorResizeFromUI(width, height);
 }
