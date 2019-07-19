@@ -221,10 +221,7 @@ public:
   , mFramesAreHorizontal(false)
   {
   }
-
-  IBitmap(const IBitmap&) = delete;
-  IBitmap& operator=(const IBitmap&) = delete;
-
+    
   /** @return overall bitmap width in pixels */
   int W() const { return mW; }
 
@@ -273,17 +270,15 @@ private:
   WDL_String mResourceName;
 };
 
-/** Used to manage SVG images used by the graphics context */
+/** User-facing SVG abstraction that you use to manage SVG data
+ * ISVG doesn't actually own the image data */
 struct ISVG
 {  
   ISVG(NSVGimage* pImage)
   {
     mImage = pImage;
   }
-
-  ISVG(const ISVG&) = delete;
-  ISVG& operator=(const ISVG&) = delete;
-
+    
   /** /todo */
   float W() const
   {
