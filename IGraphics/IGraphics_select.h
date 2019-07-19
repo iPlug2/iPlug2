@@ -65,6 +65,9 @@
   #elif defined IGRAPHICS_NANOVG
     #include "IGraphicsNanoVG.h"
     using IGRAPHICS_DRAW_CLASS = IGraphicsNanoVG;
+  #elif defined IGRAPHICS_SKIA
+    #include "IGraphicsSkia.h"
+    using IGRAPHICS_DRAW_CLASS = IGraphicsSkia;
   #elif defined IGRAPHICS_CANVAS
      #include "IGraphicsCanvas.h"
      using IGRAPHICS_DRAW_CLASS = IGraphicsCanvas;

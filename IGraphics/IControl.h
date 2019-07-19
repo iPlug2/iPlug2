@@ -1409,6 +1409,23 @@ protected:
   IColor mBGColor;
 };
 
+class IURLControl : public ITextControl
+{
+public:
+  IURLControl(const IRECT& bounds, const char* str, const char* url, const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR, const IColor& MOColor = COLOR_WHITE, const IColor& CLColor = COLOR_BLUE);
+  
+  void Draw(IGraphics& g) override;
+  
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override { GetUI()->SetMouseCursor(ECursor::HAND); IControl::OnMouseOver(x, y, mod); };
+  void OnMouseOut() override { GetUI()->SetMouseCursor(); IControl::OnMouseOut(); }
+
+protected:
+  WDL_String mURLStr;
+  IColor mOriginalColor, mMOColor, mCLColor;
+  bool mClicked = false;
+};
+
 class ITextToggleControl : public ITextControl
 {
 public:

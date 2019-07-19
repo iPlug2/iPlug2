@@ -86,6 +86,16 @@ inline T DegToRad(T degrees)
   using BitmapData = cairo_surface_t*;
 #elif defined IGRAPHICS_NANOVG
   using BitmapData = int;
+#elif defined IGRAPHICS_SKIA
+  #include "SkImage.h"
+  #include "SkSurface.h"
+  struct SkiaDrawable
+  {
+    bool mIsSurface;
+    sk_sp<SkImage> mImage;
+    sk_sp<SkSurface> mSurface;
+  };
+  using BitmapData = SkiaDrawable*;
 #elif defined IGRAPHICS_LICE
   #include "lice.h"
   using BitmapData = LICE_IBitmap*;
@@ -2020,7 +2030,7 @@ struct IMatrix
    * @param y /todo
    * @param x0 /todo
    * @param y0 /todo */
-  void TransformPoint(double& x, double& y, double x0, double y0)
+  void TransformPoint(double& x, double& y, double x0, double y0) const
   {
     x = x0 * mXX + y0 * mXY + mTX;
     y = x0 * mYX + y0 * mYY + mTY;
@@ -2029,7 +2039,7 @@ struct IMatrix
   /** /todo 
    * @param x /todo
    * @param y /todo */
-  void TransformPoint(double& x, double& y)
+  void TransformPoint(double& x, double& y) const
   {
     TransformPoint(x, y, x, y);
   };

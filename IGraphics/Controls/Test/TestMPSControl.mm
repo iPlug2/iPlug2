@@ -1,4 +1,4 @@
-#ifdef IGRAPHICS_METAL
+#if defined IGRAPHICS_NANOVG && defined IGRAPHICS_METAL
 
 #include "TestMPSControl.h"
 #include "nanovg_mtl.h"

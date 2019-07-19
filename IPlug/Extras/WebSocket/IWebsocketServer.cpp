@@ -21,7 +21,7 @@ IWebsocketServer::~IWebsocketServer()
 
 bool IWebsocketServer::CreateServer(const char* DOCUMENT_ROOT, const char* PORT)
 {
-  const char *options[] = {"document_root", DOCUMENT_ROOT, "listening_ports", PORT, 0};
+  const char *options[] = {"document_root", DOCUMENT_ROOT, "listening_ports", PORT, "extra_mime_types", ".wasm=application/wasm", 0};
 
   std::vector<std::string> cpp_options;
   for (auto i=0; i<(sizeof(options)/sizeof(options[0])-1); i++) {

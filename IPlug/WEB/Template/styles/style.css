@@ -1,0 +1,55 @@
+body {
+  font-family: arial;
+  margin: 0;
+  padding: none;
+  background: white;
+  background-size: cover;
+  text-align: center;
+  overflow: hidden;
+
+  /* disable selection */
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Safari */
+  -khtml-user-select: none;    /* Konqueror HTML */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+}
+
+#buttons {
+  display: inline-block;
+  /* vertical-align: top; */
+  margin-top: 50px;
+  margin-bottom: 10px;
+  margin-left: 20px;
+  font-weight: bold;
+  color: rgb(120, 120, 120);
+}
+
+#status {
+  display: inline-block;
+  vertical-align: top;
+  margin-top: 50px;
+  margin-left: 20px;
+  font-weight: bold;
+  color: black;
+}
+
+#greyout { position: relative; text-align: center; color: black; }
+
+a, u { text-decoration: none; }
+a:link { color: #222; }
+a:visited { color: #222; }
+a:hover { color: black; }
+a:active { color: #222; }
+label  { color:#bbb; font-size:12px; }
+select { background:#222; color:#eee; height:20px; margin-top:10px; cursor:pointer; }
+img { pointer-events: none; } /*stops dragging imgs */
+
+.pluginArea { margin-right: auto; margin-left: auto; margin-right: auto; display: block; outline:0; }
+div.pluginArea { text-align: center; }
+/* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+canvas.pluginArea { border: 0px none; background-color: rgba(0, 0, 0, 0); display: block; box-shadow: 10px 10px 5px rgba(0,0,0,0.3); }
+.pluginInput { visibility:hidden }
+
+* { -webkit-tap-highlight-color:rgba(0,0,0,0); }

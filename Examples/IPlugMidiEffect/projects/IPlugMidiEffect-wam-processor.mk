@@ -1,6 +1,6 @@
-include ./config/IPlugMidiEffect-web.mk
+include ../config/IPlugMidiEffect-web.mk
 
-TARGET = ./build-web/scripts/IPlugMidiEffect-wam.js
+TARGET = ../build-web/scripts/IPlugMidiEffect-wam.js
 
 SRC += $(WAM_SRC)
 CFLAGS += $(WAM_CFLAGS)

@@ -6,11 +6,11 @@ parameters:
   artifactName: ''
   srcRepo: 'none' # the git repository to clone into path/name for building
   srcBranch: 'master' # the branch to clone for building
-  
+
   #WEB AUDIO MODULE publishing via git
   publishRepo: 'none' # the git repository to publish the WAM to
   publishBranch: gh-pages # the branch to publish the WAM to
-  publishOrigin: '' # the origin URL where the WAM will be hosted. NOTE: should end with / 
+  publishOrigin: '' # the origin URL where the WAM will be hosted. NOTE: should end with /
   user: '' # the git username to commit with when publishing
   email: '' # the git email address to commit with when publishing
 
@@ -25,12 +25,12 @@ steps:
         cd ./${{ parameters.path }}
         git clone --recursive -b ${{ parameters.srcBranch }} ${{ parameters.srcRepo }} ${{ parameters.name }}
       else
-        echo no remote repo argument supplied, building local project ${{ parameters.path }}/${{ parameters.name }} ... 
+        echo no remote repo argument supplied, building local project ${{ parameters.path }}/${{ parameters.name }} ...
       fi
     env:
       GITHUB_PAT: $(GITHUB_PAT)
     displayName: (Optionally) clone ${{ parameters.name }} repo
-  
+
   - bash: |
       graphics=${{parameters.graphics}}
       if [ $graphics = "CANVAS" ]
@@ -49,11 +49,6 @@ steps:
       chmod +x *.sh # in case executable bit was lost (e.g. project duplicated on windows)
       ./makedist-web.sh off
     displayName: Compile ${{ parameters.name }} WAM
-
-  # - bash: |
-  #     mkdir -p ${{ parameters.path }}/${{ parameters.name }}/build-web/
-  #     echo "hello ${{parameters.graphics}}" > ${{ parameters.path }}/${{ parameters.name }}/build-web/${{parameters.graphics}}.txt
-  #   displayName: TEST PAYLOAD
 
   - task: PublishPipelineArtifact@0
     inputs:
@@ -90,4 +85,3 @@ steps:
       GITHUB_PAT: $(GITHUB_PAT)
     displayName: (Optionally) Publish ${{ parameters.name }} WAM to github pages
 
-  

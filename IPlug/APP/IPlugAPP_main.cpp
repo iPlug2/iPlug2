@@ -54,6 +54,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 
     HACCEL hAccel = LoadAccelerators(gHINSTANCE, MAKEINTRESOURCE(IDR_ACCELERATOR1));
 
+    static UINT(WINAPI *__SetProcessDpiAwarenessContext)(DPI_AWARENESS_CONTEXT);
+
+    double scale = 1.;
+
+    if (!__SetProcessDpiAwarenessContext)
+    {
+      HINSTANCE h = LoadLibrary("user32.dll");
+      if (h) *(void **)&__SetProcessDpiAwarenessContext = GetProcAddress(h, "SetProcessDpiAwarenessContext");
+      if (!__SetProcessDpiAwarenessContext)
+        *(void **)&__SetProcessDpiAwarenessContext = (void*)(INT_PTR)1;
+    }
+    if ((UINT_PTR)__SetProcessDpiAwarenessContext > (UINT_PTR)1)
+    {
+      __SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+    }
+
     CreateDialog(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_MAIN), GetDesktopWindow(), IPlugAPPHost::MainDlgProc);
 
 #ifndef _DEBUG
