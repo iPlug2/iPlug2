@@ -99,6 +99,6 @@ public:
 private:
   IPlugAPIBase& mPlug;
   Vst::ProcessContext mProcessContext;
-  IMidiQueue mMidiOutputQueue;
+  IPlugQueue<IMidiMsg> mMidiOutputQueue;
   bool mSidechainActive = false;
 };

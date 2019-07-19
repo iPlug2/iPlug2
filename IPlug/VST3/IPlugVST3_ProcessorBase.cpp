@@ -48,6 +48,7 @@ uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, 
 
 IPlugVST3ProcessorBase::IPlugVST3ProcessorBase(IPlugConfig c, IPlugAPIBase& plug)
 : IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST3)
+, mMidiOutputQueue(MIDI_TRANSFER_SIZE)
 , mPlug(plug)
 {
   SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
@@ -122,14 +123,16 @@ void IPlugVST3ProcessorBase::ProcessMidiIn(IEventList* eventList, IPlugQueue<IMi
 void IPlugVST3ProcessorBase::ProcessMidiOut(IPlugQueue<SysExData>& sysExQueue, SysExData& sysExBuf, IEventList* outputEvents, int32 numSamples)
 {
   // MIDI
-  if (!mMidiOutputQueue.Empty() && outputEvents)
+  if (mMidiOutputQueue.ElementsAvailable() && outputEvents)
   {
     Event toAdd = {0};
     IMidiMsg msg;
     
-    while (!mMidiOutputQueue.Empty())
+    while (mMidiOutputQueue.ElementsAvailable())
     {
-      IMidiMsg& msg = mMidiOutputQueue.Peek();
+      IMidiMsg msg;
+      
+      mMidiOutputQueue.Pop(msg);
       
       if (msg.StatusMsg() == IMidiMsg::kNoteOn)
       {
@@ -179,12 +182,9 @@ void IPlugVST3ProcessorBase::ProcessMidiOut(IPlugQueue<SysExData>& sysExQueue, S
         toAdd.midiCCOut.value = msg.mData2;
       }
       
-      mMidiOutputQueue.Remove();
       // don't add any midi messages other than noteon/noteoff
     }
   }
-  
-  mMidiOutputQueue.Flush(numSamples);
   
   // Output SYSEX from the editor, which has bypassed the processors' ProcessSysEx()
   if (sysExQueue.ElementsAvailable())
@@ -446,6 +446,6 @@ void IPlugVST3ProcessorBase::Process(ProcessData& data, ProcessSetup& setup, con
 
 bool IPlugVST3ProcessorBase::SendMidiMsg(const IMidiMsg& msg)
 {
-  mMidiOutputQueue.Add(msg);
+  mMidiOutputQueue.Push(msg);
   return true;
 }

@@ -72,7 +72,6 @@ private:
   tresult PLUGIN_API notify(IMessage* message) override;
   
   ParameterChanges mOutputParamChanges;
-  IPlugQueue<IMidiMsg> mMidiOutputQueue;
 };
 
 IPlugVST3Processor* MakeProcessor();

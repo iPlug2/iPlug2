@@ -94,7 +94,7 @@ AAX_Result AAX_CEffectGUI_IPLUG::SetControlHighlightInfo(AAX_CParamID paramID, A
 IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPlugAPIBase(c, kAPIAAX)
 , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAAX)
-, mMidiOutputQueue(DEFAULT_BLOCK_SIZE)
+, mMidiOutputQueue(MIDI_TRANSFER_SIZE)
 {
   Trace(TRACELOC, "%s%s", c.pluginName, c.channelIOStr);
 
