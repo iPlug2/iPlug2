@@ -11,10 +11,12 @@ function SCVFD(ctrlTag, val) {
 }
 
 function SCMFD(ctrlTag, msgTag, dataSize, msg) {
+//  var decodedData = window.atob(msg);
   console.log("SCMFD ctrlTag: " + ctrlTag + " msgTag:" + msgTag + "msg:" + msg);
 }
 
 function SAMFD(msgTag, dataSize, msg) {
+  //  var decodedData = window.atob(msg);
   console.log("SAMFD msgTag:" + msgTag + " msg:" + msg);
 }
 
