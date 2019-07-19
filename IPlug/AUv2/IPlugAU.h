@@ -89,7 +89,7 @@ private:
     bool mConnected;
     int mNHostChannels;
     int mNPlugChannels;
-    int mPlugChannelStartIdx;;
+    int mPlugChannelStartIdx;
   };
   
   struct BufferList
@@ -197,7 +197,7 @@ private:
   friend class IPlugAUFactory;
 };
 
-IPlugAU* MakePlug(void* memory = 0);
+IPlugAU* MakePlug(void* memory);
 
 #endif
 

@@ -8,6 +8,18 @@
  ==============================================================================
 */
 
+#pragma once
+
+#include "pluginterfaces/base/ustring.h"
+#include "public.sdk/source/vst/vstparameters.h"
+#include "base/source/fstring.h"
+
+#include "IPlugParameter.h"
+
+using namespace Steinberg;
+using namespace Vst;
+
+/** VST3 parameter helper */
 class IPlugVST3Parameter : public Parameter
 {
 public:
@@ -35,27 +47,27 @@ public:
     info.unitId = unitID;
   }
 
-  virtual void toString(ParamValue valueNormalized, String128 string) const override
+  void toString(ParamValue valueNormalized, String128 string) const override
   {
     WDL_String display;
     mIPlugParam->GetDisplayForHost(valueNormalized, true, display);
     Steinberg::UString(string, 128).fromAscii(display.Get());
   }
 
-  virtual bool fromString(const TChar* string, ParamValue& valueNormalized) const override
+  bool fromString(const TChar* string, ParamValue& valueNormalized) const override
   {
     String str((TChar*)string);
-    valueNormalized = mIPlugParam->ToNormalized(atof(str.text8()));
+    valueNormalized = mIPlugParam->ToNormalized(mIPlugParam->StringToValue(str.text8()));
 
     return true;
   }
 
-  virtual Steinberg::Vst::ParamValue toPlain(ParamValue valueNormalized) const override
+  Steinberg::Vst::ParamValue toPlain(ParamValue valueNormalized) const override
   {
     return mIPlugParam->FromNormalized(valueNormalized);
   }
 
-  virtual Steinberg::Vst::ParamValue toNormalized(ParamValue plainValue) const override
+  Steinberg::Vst::ParamValue toNormalized(ParamValue plainValue) const override
   {
     return mIPlugParam->ToNormalized(valueNormalized);
   }
@@ -64,4 +76,29 @@ public:
 
 protected:
   IParam* mIPlugParam = nullptr;
+};
+
+/** VST3 preset parameter helper */
+class IPlugVST3PresetParameter : public Parameter
+{
+public:
+    IPlugVST3PresetParameter(int nPresets)
+    : Parameter(STR16("Preset"), kPresetParam, STR16(""), 0, nPresets, ParameterInfo::kIsProgramChange)
+    {}
+    
+    OBJ_METHODS(IPlugVST3PresetParameter, Parameter)
+};
+
+/** VST3 bypass parameter helper */
+class IPlugVST3BypassParameter : public StringListParameter
+{
+public:
+  IPlugVST3BypassParameter()
+  : StringListParameter(STR16("Bypass"), kBypassParam, 0, ParameterInfo::kCanAutomate | ParameterInfo::kIsBypass | ParameterInfo::kIsList)
+  {
+    appendString(STR16("off"));
+    appendString(STR16("on"));
+  }
+  
+  OBJ_METHODS(IPlugVST3BypassParameter, StringListParameter)
 };

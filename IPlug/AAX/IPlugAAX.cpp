@@ -39,9 +39,8 @@ void AAX_CEffectGUI_IPLUG::CreateViewContainer()
   
   if (pWindow && mPlug->HasUI())
   {
-    if (mPlug->OpenWindow(pWindow))
-      mPlug->OnUIOpen();
-      
+    mPlug->OpenWindow(pWindow);
+    
     IPlugAAXView_Interface* pViewInterface = (IPlugAAXView_Interface*) mPlug->GetAAXViewInterface();
     
     if(pViewInterface)
@@ -234,7 +233,7 @@ AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID paramID, double
   
   int paramIdx = atoi(paramID) - kAAXParamIdxOffset;
   
-  if ((paramIdx >= 0) && (paramIdx < NParams())) 
+  if ((paramIdx > kNoParameter) && (paramIdx < NParams())) 
   {
     ENTER_PARAMS_MUTEX;
     GetParam(paramIdx)->SetNormalized(iValue);
@@ -510,7 +509,7 @@ void IPlugAAX::EndInformHostOfParamChange(int idx)
   ReleaseParameter(mParamIDs.Get(idx)->Get());
 }
 
-void IPlugAAX::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
+bool IPlugAAX::EditorResizeFromDelegate(int viewWidth, int viewHeight)
 {
   if (HasUI())
   {
@@ -523,8 +522,10 @@ void IPlugAAX::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight
     if (pViewInterface && (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight()))
       pViewInterface->GetViewContainer()->SetViewSize(oEffectViewSize);
 
-    IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
+    IPlugAPIBase::EditorResizeFromDelegate(viewWidth, viewHeight);
   }
+  
+  return true;
 }
 
 void IPlugAAX::SetLatency(int latency)

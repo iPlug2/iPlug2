@@ -291,7 +291,7 @@ void IPlugAPPHost::PopulatePreferencesDialog(HWND hwndDlg)
 
 WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-  IPlugAPPHost* _this = sInstance;
+  IPlugAPPHost* _this = sInstance.get();
   AppState& mState = _this->mState;
   AppState& mTempState = _this->mTempState;
   AppState& mActiveState = _this->mActiveState;
@@ -503,6 +503,29 @@ void ClientResize(HWND hWnd, int nWidth, int nHeight)
   POINT ptDiff;
   int screenwidth, screenheight;
   int x, y;
+
+#ifdef OS_WIN
+  static UINT (WINAPI *__GetDpiForWindow)(HWND);
+
+  double scale = 1.;
+  
+  if (!__GetDpiForWindow)
+  {
+    HINSTANCE h = LoadLibrary("user32.dll");
+    if (h) *(void **)&__GetDpiForWindow = GetProcAddress(h,"GetDpiForWindow");
+    if (!__GetDpiForWindow)
+      *(void **)&__GetDpiForWindow = (void*)(INT_PTR)1;
+  }
+  if (hWnd && (UINT_PTR)__GetDpiForWindow > (UINT_PTR)1)
+  {
+    int dpi = __GetDpiForWindow(hWnd);
+    if (dpi != 96)
+      scale = static_cast<double>(dpi / USER_DEFAULT_SCREEN_DPI);
+  }
+  
+  nWidth *= scale;
+  nHeight *= scale;
+#endif
   
   screenwidth  = GetSystemMetrics(SM_CXSCREEN);
   screenheight = GetSystemMetrics(SM_CYSCREEN);
@@ -521,7 +544,7 @@ void ClientResize(HWND hWnd, int nWidth, int nHeight)
 //static
 WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-  IPlugAPPHost* pAppHost = IPlugAPPHost::sInstance;
+  IPlugAPPHost* pAppHost = IPlugAPPHost::sInstance.get();
 
   switch (uMsg)
   {
@@ -538,7 +561,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
     case WM_DESTROY:
       pAppHost->CloseWindow();
       gHWND = NULL;
-      DELETE_NULL(IPlugAPPHost::sInstance);
+      IPlugAPPHost::sInstance = nullptr;
       
       #ifdef OS_WIN
       PostQuitMessage(0);

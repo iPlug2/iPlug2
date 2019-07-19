@@ -18,7 +18,7 @@ enum EControlTags
   kNumControlTags
 };
 
-const int kNumParams = 8;
+const int kNumParams = 4;
 
 class IPlugFaustDSP : public IPlug
 {
@@ -32,6 +32,6 @@ public:
   void OnIdle() override;
 private:
   FAUST_BLOCK(Faust1, mFaustProcessor, DSP_FILE, 1, 1);
-  IVScopeControl<1>::IVScopeBallistics mScopeBallistics { kControlTagScope };
+  IVScopeControl<1>::Sender mScopeSender { kControlTagScope };
 #endif
 };

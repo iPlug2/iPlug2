@@ -87,7 +87,7 @@ public:
   
   void InformHostOfProgramChange() override { }; //NA
   
-  void EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data) override;
+  bool EditorResizeFromDelegate(int viewWidth, int viewHeight) override;
   
   //IPlug Processor Overrides
   void SetLatency(int samples) override;

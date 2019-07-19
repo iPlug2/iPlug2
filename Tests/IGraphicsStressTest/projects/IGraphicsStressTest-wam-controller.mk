@@ -1,6 +1,6 @@
-include ./config/IGraphicsStressTest-web.mk
+include ../config/IGraphicsStressTest-web.mk
 
-TARGET = ./build-web/scripts/IGraphicsStressTest-web.js
+TARGET = ../build-web/scripts/IGraphicsStressTest-web.js
 
 SRC += $(WEB_SRC)
 CFLAGS += $(WEB_CFLAGS)

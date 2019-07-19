@@ -1,0 +1,222 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>NAME_PLACEHOLDER WAM</title>
+    <link href="styles/style.css" rel="stylesheet" type="text/css"/>
+    <script src="scripts/audioworklet.js"></script>
+    <script src="scripts/websocket.js"></script>
+    <script async src="fonts.js"></script>
+    <script async src="svgs.js"></script>
+    <script async src="imgs.js"></script>
+    <script async src="imgs@2x.js"></script>
+    <script async src="scripts/NAME_PLACEHOLDER-web.js"></script>
+  </head>
+  <body>
+    <div id="main"></div>
+      <div id="buttons">
+        <button type="button" id="startWebAudioButton" onclick="startWebAudio()" disabled>Start web audio!</button>
+        <button type="button" id="fullScreenButton" onclick="toggleFullScreen()">Fullscreen</button>
+        <select id="midiInSelect" disabled="true"><option value="default">Midi input</option></select>
+        <select id="midiOutSelect" disabled="true"><option value="default">Midi output</option></select>
+        <progress value="0" max="100" id="progress"></progress>
+      </div>
+      <div id="greyout">
+        <div id="status">downloading...</div>
+      </div>
+      <div id="wam" hidden=true>
+        <canvas class="pluginArea" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+      </div>
+    <script type='text/javascript'>
+      var NAME_PLACEHOLDER_WAM; // the WAM controller
+      let WEBSOCKET_MODE=false; // this constant will be set by the makedist-web.sh script 
+
+      if(WEBSOCKET_MODE==true) {
+        document.getElementById('buttons').style.display = 'none';
+      }
+
+      function preventBehavior(e) {
+        e.preventDefault(); 
+      };
+
+      document.addEventListener("touchmove", preventBehavior, {passive: false});
+
+      function toggleFullScreen() {
+        if ((document.fullScreenElement && document.fullScreenElement !== null) ||
+        (!document.mozFullScreen && !document.webkitIsFullScreen)) {
+          if (document.documentElement.requestFullScreen) {
+            document.documentElement.requestFullScreen();
+          } else if (document.documentElement.mozRequestFullScreen) {
+            document.documentElement.mozRequestFullScreen();
+          } else if (document.documentElement.webkitRequestFullScreen) {
+            document.documentElement.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+          }
+        } else {
+          if (document.cancelFullScreen) {
+            document.cancelFullScreen();
+          } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+          } else if (document.webkitCancelFullScreen) {
+            document.webkitCancelFullScreen();
+          }
+        }
+      }
+
+      function initMidiComboBox (isOutput, element) {
+        let combo = document.querySelector(element);
+        combo.options.length = 0;
+        navigator.requestMIDIAccess().then((midiIF) => {
+          if(isOutput) {
+            for (let output of midiIF.outputs.values()) {
+              let option = new Option(output.name);
+              option.port = output;
+              combo.appendChild(option);
+            }
+
+            combo.onchange = e => {
+              NAME_PLACEHOLDER_WAM.midiOut = e.target.options[e.target.selectedIndex].port;
+            }
+          } else {
+            for (let input of midiIF.inputs.values()) {
+              let option = new Option(input.name);
+              option.port = input;
+              combo.appendChild(option);
+            }
+
+            combo.onchange = e => {
+              NAME_PLACEHOLDER_WAM.midiIn = e.target.options[e.target.selectedIndex].port;
+            }
+          }
+
+          if (combo.options.length > 0)
+            combo.onchange({ target:combo });
+        })
+        combo.removeAttribute("disabled");
+      }
+
+      //https://www.mattmontag.com/web/unlock-web-audio-in-safari-for-ios-and-macos
+      function safariUnlock(audioCtx) {
+        if (audioCtx.state !== 'suspended') return;
+        const b = document.body;
+        const events = ['touchstart','touchend', 'mousedown','keydown'];
+        events.forEach(e => b.addEventListener(e, unlock, false));
+        function unlock() { audioCtx.resume().then(clean); }
+        function clean() { events.forEach(e => b.removeEventListener(e, unlock)); }
+      }
+
+      function connectToOutput(wam, actx) {
+        NAME_PLACEHOLDER_WAM.connect(actx.destination);
+
+        document.getElementById('wam').hidden = false;
+        document.getElementById('startWebAudioButton').setAttribute("disabled", "true");
+        initMidiComboBox(false, "#midiInSelect");
+        initMidiComboBox(true, "#midiOutSelect");
+      }
+
+      function startWebAudio() {
+        var actx = new AudioContext();
+        safariUnlock(actx);
+        
+        AWPF.polyfill(actx).then( function () {
+          var script1 = document.createElement("script");
+          script1.src = "scripts/wam-controller.js";
+          script1.onload = () => {
+            var script2 = document.createElement("script");
+            script2.src = "scripts/NAME_PLACEHOLDER-awn.js";
+            script2.onload = () => {
+
+              if(AWPF.isAudioWorkletPolyfilled)
+                console.log("AudioWorklet NOT Supported");
+              else
+                console.log("AudioWorklet Supported");
+              
+              let inputBuses = [MAXNINPUTS_PLACEHOLDER];
+              let outputBuses = [MAXNOUTPUTS_PLACEHOLDER];
+              let options = {numberOfInputs: inputBuses.length, numberOfOutputs: outputBuses.length, outputChannelCount: outputBuses, processorOptions: {inputChannelCount: inputBuses}};
+
+              NAME_PLACEHOLDERController.importScripts(actx).then(() => {
+                NAME_PLACEHOLDER_WAM = new NAME_PLACEHOLDERController(actx, options);
+
+                if(NAME_PLACEHOLDER_WAM !== undefined) {
+
+                  if(NAME_PLACEHOLDER_WAM.numberOfInputs > 0) {
+                    var constraints = { audio: true, video:false }
+                    navigator.mediaDevices.getUserMedia(constraints)
+                    .then((stream) => {
+                      let audioSource = actx.createMediaStreamSource(stream);
+                      audioSource.connect(NAME_PLACEHOLDER_WAM);
+                      connectToOutput(NAME_PLACEHOLDER_WAM, actx);
+                    })
+                    .catch((err) => {
+                      console.log('Error initializing user media stream: ' + err);
+                    });
+                  }
+                  else
+                    connectToOutput(NAME_PLACEHOLDER_WAM, actx); // instrument
+                }
+                else {
+                  console.log('NAME_PLACEHOLDER_WAM is undefined');
+                }
+              });
+            }
+            document.head.appendChild(script2);
+          }
+          document.head.appendChild(script1);
+        });
+      }
+
+      var statusElement = document.getElementById('status');
+      var progressElement = document.getElementById('progress');
+
+      var Module = {
+        preRun: [],
+        postRun: function() {
+          document.getElementById('startWebAudioButton').removeAttribute("disabled");
+        },
+        onRuntimeInitialized: function() {
+          
+          if(WEBSOCKET_MODE==true) {
+            setupWebSocket(function() {
+              document.getElementById('wam').hidden = false;
+            });
+          }
+        },
+        setStatus: function(text) {
+          if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+          if (text === Module.setStatus.text) return;
+          var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+          var now = Date.now();
+          if (m && now - Date.now() < 30) return; // if this is a progress update, skip it if too soon
+          if (m) {
+            text = m[1];
+            progressElement.value = parseInt(m[2])*100;
+            progressElement.max = parseInt(m[4])*100;
+            progressElement.hidden = false;
+          } else {
+            progressElement.value = null;
+            progressElement.max = null;
+            progressElement.hidden = true;
+          }
+          statusElement.innerHTML = text;
+        },
+        canvas: (function() {
+          var canvas = document.getElementById('canvas');
+          canvas.addEventListener("webglcontextlost", function(e) { alert('WebGL context lost. You will need to reload the page.'); e.preventDefault(); }, false);
+          return canvas;
+        })(),
+        totalDependencies: 0,
+        monitorRunDependencies: function(left) {
+          this.totalDependencies = Math.max(this.totalDependencies, left);
+          Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+        }
+      };
+      Module.setStatus('Downloading...');
+      window.onerror = function(event) {
+        Module.setStatus('Exception thrown, see JavaScript console');
+        Module.setStatus = function(text) {
+          if (text) Module.printErr('[post-exception status] ' + text);
+        };
+      };
+    </script>
+  </body>
+</html>

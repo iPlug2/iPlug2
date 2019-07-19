@@ -33,14 +33,17 @@ public:
   , mGridSize(gridSize)
   , mMouseOversEnabled(mouseOversEnabled)
   {
-    //dlg.GetUI()->HandleMouseOver(true); TODO:
-
     mTargetRECT = mRECT;
   }
   
   ~IGraphicsLiveEdit()
   {
-    GetUI()->HandleMouseOver(mMouseOversEnabled);
+    GetUI()->HandleMouseOver(mMouseOversEnabled); // Set it back to what it was
+  }
+  
+  void OnInit() override
+  {
+    GetUI()->HandleMouseOver(true);
   }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override

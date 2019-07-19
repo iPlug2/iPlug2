@@ -32,6 +32,7 @@
 #include <string>
 #include <vector>
 #include <limits>
+#include <memory>
 
 #include "RtAudio.h"
 #include "RtMidi.h"
@@ -53,12 +54,12 @@
   #define DEFAULT_INPUT_DEV "Default Device"
   #define DEFAULT_OUTPUT_DEV "Default Device"
 #elif defined(OS_MAC)
-  #include "swell.h"
+  #include <IPlugSWELL.h>
   #define SLEEP( milliseconds ) usleep( (unsigned long) (milliseconds * 1000.0) )
   #define DEFAULT_INPUT_DEV "Built-in Input"
   #define DEFAULT_OUTPUT_DEV "Built-in Output"
 #elif defined(OS_LINUX)
-  #include "swell.h"
+  #include <IPlugSWELL.h>
 #endif
 
 #define OFF_TEXT "off"
@@ -153,7 +154,7 @@ public:
   };
   
   static IPlugAPPHost* Create();
-  static IPlugAPPHost* sInstance;
+  static std::unique_ptr<IPlugAPPHost> sInstance;
   
   void PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* pInputDevInfo, RtAudio::DeviceInfo* pOutputDevInfo);
   void PopulateAudioInputList(HWND hwndDlg, RtAudio::DeviceInfo* pInfo);
@@ -208,12 +209,12 @@ public:
   static WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
   static WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-  IPlugAPP* GetPlug() { return mIPlug; }
+  IPlugAPP* GetPlug() { return mIPlug.get(); }
 private:
-  IPlugAPP* mIPlug = nullptr;
-  RtAudio* mDAC = nullptr;
-  RtMidiIn* mMidiIn = nullptr;
-  RtMidiOut* mMidiOut = nullptr;
+  std::unique_ptr<IPlugAPP> mIPlug = nullptr;
+  std::unique_ptr<RtAudio> mDAC = nullptr;
+  std::unique_ptr<RtMidiIn> mMidiIn = nullptr;
+  std::unique_ptr<RtMidiOut> mMidiOut = nullptr;
   int mMidiOutChannel = -1;
   int mMidiInChannel = -1;
   

@@ -9,6 +9,9 @@
 */
 
 #include "IPlugWeb.h"
+
+#include <memory>
+
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
@@ -74,7 +77,7 @@ void IPlugWeb::SendSysexMsgFromUI(const ISysEx& msg)
   DBGMSG("TODO: SendSysexMsgFromUI");
 
 //   EM_ASM({
-//     window[Module.Pointer_stringify($0)]["midiOut"].send(0x90, 0x45, 0x7f);
+//     window[Module.UTF8ToString($0)]["midiOut"].send(0x90, 0x45, 0x7f);
 //   }, mWAMCtrlrJSObjectName.Get());
 //  val::global(mWAMCtrlrJSObjectName.Get())["midiOut"].call<void>("send", {0x90, 0x45, 0x7f} );
 
@@ -91,7 +94,7 @@ void IPlugWeb::SendSysexMsgFromUI(const ISysEx& msg)
 //   }, (int) mSSMFUIBuf.GetData(), mSSMFUIBuf.Size());
 // #else
 //   EM_ASM({
-//     window[Module.Pointer_stringify($0)].sendMessage('SSMFUI', $1, Module.HEAPU8.slice($1, $1 + $2).buffer);
+//     window[Module.UTF8ToString($0)].sendMessage('SSMFUI', $1, Module.HEAPU8.slice($1, $1 + $2).buffer);
 //   }, mWAMCtrlrJSObjectName.Get(), (int) msg.mData, msg.mSize);
 // #endif
 }
@@ -114,12 +117,12 @@ void IPlugWeb::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSi
   }, (int) mSAMFUIBuf.GetData(), mSAMFUIBuf.Size());
 #else
   EM_ASM({
-    window[Module.Pointer_stringify($0)].sendMessage('SAMFUI', "", Module.HEAPU8.slice($1, $1 + $2).buffer);
+    window[Module.UTF8ToString($0)].sendMessage('SAMFUI', "", Module.HEAPU8.slice($1, $1 + $2).buffer);
   }, mWAMCtrlrJSObjectName.Get(), (int) mSAMFUIBuf.GetData() + kNumMsgHeaderBytes, mSAMFUIBuf.Size() - kNumMsgHeaderBytes); // Non websocket doesn't need "SAMFUI" bytes at beginning
 #endif
 }
 
-extern IPlugWeb* gPlug;
+extern std::unique_ptr<IPlugWeb> gPlug;
 
 // could probably do this without these extra functions
 // https://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/embind.html#deriving-from-c-classes-in-javascript

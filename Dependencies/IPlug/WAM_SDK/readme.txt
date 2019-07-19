@@ -1,6 +1,6 @@
-Place the Web Audio Modules SDK here
+Place the Web Audio Modules SDK (iPlug2 fork) here
 
-https://github.com/webaudiomodules/api
+https://github.com/iPlug2/api
 
 So it looks like this...
 
