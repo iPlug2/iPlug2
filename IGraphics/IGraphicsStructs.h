@@ -2378,6 +2378,8 @@ public:
     StaticStorage& mStorage;
   };
   
+  StaticStorage() {}
+    
   ~StaticStorage()
   {
     Clear();
