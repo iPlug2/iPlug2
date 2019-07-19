@@ -366,7 +366,8 @@ struct IMidiMsg
    * @return /todo = on */
   static int QueueSize(int blockSize, double sampleRate)
   {
-    return static_cast<int>(std::round(MAX_MIDI_MSG_PER_SECOND * blockSize / sampleRate));
+    int size = static_cast<int>(std::round(MAX_MIDI_MSG_PER_SECOND * blockSize / sampleRate));
+    return std::max(256, size);
   }
   
   /** /todo */
