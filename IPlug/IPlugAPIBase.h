@@ -183,8 +183,8 @@ public:
   
   void DeferSysexMsg(const ISysEx& msg) override
   {
-    SysExData data(msg.mOffset, msg.mSize, msg.mData); // copies data
-    mSysExDataFromEditor.Push(data);
+    SysExData sysex(msg.mOffset, msg.mSize, msg.mData); // copies data
+    mSysExDataFromEditor.Push(sysex);
   }
 
   /** /todo */
