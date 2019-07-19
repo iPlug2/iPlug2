@@ -716,7 +716,6 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
 {
 #if !defined OS_IOS
   WDL_DirScan d;
-  IPopupMenu& parentDirMenu = menuToAddTo;
 
   if (!d.First(path))
   {
@@ -730,7 +729,7 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
           WDL_String subdir;
           d.GetCurrentFullFN(&subdir);
           IPopupMenu* pNewMenu = new IPopupMenu();
-          parentDirMenu.AddItem(d.GetCurrentFN(), pNewMenu, -2);
+          menuToAddTo.AddItem(d.GetCurrentFN(), pNewMenu, -2);
           ScanDirectory(subdir.Get(), *pNewMenu);
         }
         else
@@ -744,7 +743,7 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
               menuEntry.Set(f, (int) (a - f));
             
             IPopupMenu::Item* pItem = new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize());
-            parentDirMenu.AddItem(pItem, -2 /* sort alphabetically */);
+            menuToAddTo.AddItem(pItem, -2 /* sort alphabetically */);
             WDL_String* pFullPath = new WDL_String("");
             d.GetCurrentFullFN(pFullPath);
             mFiles.Add(pFullPath);
@@ -752,12 +751,10 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
         }
       }
     } while (!d.Next());
-    
-    menuToAddTo = parentDirMenu;
   }
   
   if(!mShowEmptySubmenus)
-    parentDirMenu.RemoveEmptySubmenus();
+    menuToAddTo.RemoveEmptySubmenus();
 
 #endif
 }
