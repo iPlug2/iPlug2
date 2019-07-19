@@ -133,10 +133,10 @@ private:
     MenuPanel(IPopupMenuControl& owner, IPopupMenu& menu, float x, float y, int parentIdx);
     ~MenuPanel();
 
-    /** Get's the width of a cell */
+    /** Gets the width of a cell */
     float CellWidth() const { return mSingleCellBounds.W(); }
 
-    /** Get's the height of a cell */
+    /** Gets the height of a cell */
     float CellHeight() const { return mSingleCellBounds.H(); }
 
     void ScrollUp() { mScrollItemOffset--; mScrollItemOffset = Clip(mScrollItemOffset, 0, mCellBounds.GetSize()-1); }
