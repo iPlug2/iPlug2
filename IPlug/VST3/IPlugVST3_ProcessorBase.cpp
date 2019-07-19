@@ -256,7 +256,7 @@ bool IPlugVST3ProcessorBase::SetupProcessing(const ProcessSetup& setup, ProcessS
   
   SetSampleRate(setup.sampleRate);
   IPlugProcessor::SetBlockSize(setup.maxSamplesPerBlock); // TODO: should IPlugVST3Processor call SetBlockSize in construct unlike other APIs?
-  mMidiOutputQueue.Resize(IMidiMsg::(setup.maxSamplesPerBlock, setup.sampleRate));
+  mMidiOutputQueue.Resize(IMidiMsg::QueueSize(setup.maxSamplesPerBlock, setup.sampleRate));
   OnReset();
   
   return true;
