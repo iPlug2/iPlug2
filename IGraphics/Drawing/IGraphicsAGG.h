@@ -88,6 +88,9 @@ public:
   public:
     Rasterizer(IGraphicsAGG& graphics) : mGraphics(graphics) {}
     
+    Rasterizer(const Rasterizer&) = delete;
+    Rasterizer& operator=(const Rasterizer&) = delete;
+      
     agg::rgba8 GetPixel(int x, int y) { return mRenBase.pixel(x, y); }
 
     void SetOutput(agg::rendering_buffer& renBuf)
