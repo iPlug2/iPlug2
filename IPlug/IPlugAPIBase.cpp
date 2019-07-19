@@ -149,44 +149,39 @@ void IPlugAPIBase::OnTimer(Timer& t)
 {
   if(HasUI())
   {
+    IMidiMsg msg;
+    SysExData sysex;
+    
     // in distributed VST 3, parameter changes are managed by the host
   #if !defined VST3C_API && !defined VST3P_API
-    while(mParamChangeFromProcessor.ElementsAvailable())
+    ParamTuple p;
+    
+    while(mParamChangeFromProcessor.Pop(p))
     {
-      ParamTuple p;
-      mParamChangeFromProcessor.Pop(p);
       SendParameterValueFromDelegate(p.idx, p.value, false); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
     }
     
-    while (mMidiMsgsFromProcessor.ElementsAvailable())
+    while (mMidiMsgsFromProcessor.Pop(msg))
     {
-      IMidiMsg msg;
-      mMidiMsgsFromProcessor.Pop(msg);
       SendMidiMsgFromDelegate(msg);
     }
     
-    while (mSysExDataFromProcessor.ElementsAvailable())
+    while (mSysExDataFromProcessor.Pop(sysex))
     {
-      SysExData msg;
-      mSysExDataFromProcessor.Pop(msg);
-      SendSysexMsgFromDelegate({msg.mOffset, msg.mData, msg.mSize});
+      SendSysexMsgFromDelegate({sysex.mOffset, sysex.mData, sysex.mSize});
     }
   #endif
     
     // Midi messages from the processor to the controller, are sent as IMessages and SendMidiMsgFromDelegate gets triggered on the other side's notify
   #if defined VST3P_API
-    while (mMidiMsgsFromProcessor.ElementsAvailable())
+    while (mMidiMsgsFromProcessor.Pop(msg))
     {
-      IMidiMsg msg;
-      mMidiMsgsFromProcessor.Pop(msg);
       TransmitMidiMsgFromProcessor(msg);
     }
     
-    while (mSysExDataFromProcessor.ElementsAvailable())
+    while (mSysExDataFromProcessor.Pop(sysex))
     {
-      SysExData data;
-      mSysExDataFromProcessor.Pop(data);
-      TransmitSysExDataFromProcessor(data);
+      TransmitSysExDataFromProcessor(sysex);
     }
   #endif
   }

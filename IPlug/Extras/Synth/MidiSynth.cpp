@@ -398,7 +398,7 @@ bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nInputs, int
 {
   assert(NVoices());
 
-  if (mVoicesAreActive | mMidiQueue.ElementsAvailable())
+  if (mVoicesAreActive | !mMidiQueue.WasEmpty())
   {
     int blockSize = mBlockSize;
     int samplesRemaining = nFrames;
@@ -409,12 +409,10 @@ bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nInputs, int
       if(samplesRemaining < blockSize)
         blockSize = samplesRemaining;
 
-      while (mMidiQueue.ElementsAvailable())
+      IMidiMsg msg;
+        
+      while (mMidiQueue.Pop(msg))
       {
-        IMidiMsg msg;
-          
-        mMidiQueue.Pop(msg);
-
         // we assume the messages are in chronological order. If we find one later than the current block we are done.
         if (msg.mOffset > startIndex + blockSize) break;
 

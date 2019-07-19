@@ -107,39 +107,27 @@ void IPlugAPP::AppProcess(double** inputs, double** outputs, int nFrames)
   AttachBuffers(ERoute::kInput, 0, NChannelsConnected(ERoute::kInput), inputs, GetBlockSize());
   AttachBuffers(ERoute::kOutput, 0, NChannelsConnected(ERoute::kOutput), outputs, GetBlockSize());
   
-  if(mMidiMsgsFromCallback.ElementsAvailable())
+  IMidiMsg msg;
+  SysExData sysex;
+  
+  while (mMidiMsgsFromCallback.Pop(msg))
   {
-    IMidiMsg msg;
-    
-    while (mMidiMsgsFromCallback.Pop(msg))
-    {
-      ProcessMidiMsg(msg);
-      mMidiMsgsFromProcessor.Push(msg); // queue incoming MIDI for UI
-    }
+    ProcessMidiMsg(msg);
+    mMidiMsgsFromProcessor.Push(msg); // queue incoming MIDI for UI
   }
   
-  if(mSysExMsgsFromCallback.ElementsAvailable())
+  while (mSysExMsgsFromCallback.Pop(sysex))
   {
-    SysExData data;
-    
-    while (mSysExMsgsFromCallback.Pop(data))
-    {
-      ISysEx msg { data.mOffset, data.mData, data.mSize };
-      ProcessSysEx(msg);
-      mSysExDataFromProcessor.Push(data); // queue incoming Sysex for UI
-    }
+    ISysEx smsg { sysex.mOffset, sysex.mData, sysex.mSize };
+    ProcessSysEx(smsg);
+    mSysExDataFromProcessor.Push(sysex); // queue incoming Sysex for UI
   }
   
-  if(mMidiMsgsFromEditor.ElementsAvailable())
+  while (mMidiMsgsFromEditor.Pop(msg))
   {
-    IMidiMsg msg;
-
-    while (mMidiMsgsFromEditor.Pop(msg))
-    {
-      ProcessMidiMsg(msg);
-    }
+    ProcessMidiMsg(msg);
   }
-
+  
   //Do not handle Sysex messages here - SendSysexMsgFromUI overridden
 
   ProcessBuffers(0.0, GetBlockSize());

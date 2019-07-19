@@ -338,55 +338,47 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
     if(midiOut)
     {
       //MIDI
-      if (mMidiOutputQueue.ElementsAvailable())
-      {        
-        while (mMidiOutputQueue.ElementsAvailable())
-        {
-          IMidiMsg msg;
-            
-          mMidiOutputQueue.Pop(msg);
+      IMidiMsg msg;
+      
+      while (mMidiOutputQueue.Pop(msg))
+      {
+        AAX_CMidiPacket packet;
           
-          AAX_CMidiPacket packet;
+        packet.mIsImmediate = true; // TODO: how does this affect sample accuracy?
           
-          packet.mIsImmediate = true; // TODO: how does this affect sample accuracy?
+        packet.mTimestamp = (uint32_t) msg.mOffset;
+        packet.mLength = 3;
           
-          packet.mTimestamp = (uint32_t) msg.mOffset;
-          packet.mLength = 3;
+        packet.mData[0] = msg.mStatus;
+        packet.mData[1] = msg.mData1;
+        packet.mData[2] = msg.mData2;
           
-          packet.mData[0] = msg.mStatus;
-          packet.mData[1] = msg.mData1;
-          packet.mData[2] = msg.mData2;
-          
-          midiOut->PostMIDIPacket (&packet);
-        }
+        midiOut->PostMIDIPacket (&packet);
       }
         
       //Output SYSEX from the editor, which has bypassed ProcessSysEx()
-      if(mSysExDataFromEditor.ElementsAvailable())
+      while (mSysExDataFromEditor.Pop(mSysexBuf))
       {
-        while (mSysExDataFromEditor.Pop(mSysexBuf))
-        {
-          int numPackets = (int) ceil((float) mSysexBuf.mSize/4.); // each packet can store 4 bytes of data
-          int bytesPos = 0;
+        int numPackets = (int) ceil((float) mSysexBuf.mSize/4.); // each packet can store 4 bytes of data
+        int bytesPos = 0;
           
-          for (int p = 0; p < numPackets; p++)
+        for (int p = 0; p < numPackets; p++)
+        {
+          AAX_CMidiPacket packet;
+            
+          packet.mTimestamp = (uint32_t) mSysexBuf.mOffset;
+          packet.mIsImmediate = true;
+            
+          int b = 0;
+            
+          while (b < 4 && bytesPos < mSysexBuf.mSize)
           {
-            AAX_CMidiPacket packet;
-            
-            packet.mTimestamp = (uint32_t) mSysexBuf.mOffset;
-            packet.mIsImmediate = true;
-            
-            int b = 0;
-            
-            while (b < 4 && bytesPos < mSysexBuf.mSize)
-            {
-              packet.mData[b++] = mSysexBuf.mData[bytesPos++];
-            }
-            
-            packet.mLength = (uint32_t) b;
-            
-            midiOut->PostMIDIPacket (&packet);
+            packet.mData[b++] = mSysexBuf.mData[bytesPos++];
           }
+            
+          packet.mLength = (uint32_t) b;
+            
+          midiOut->PostMIDIPacket (&packet);
         }
       }
     }

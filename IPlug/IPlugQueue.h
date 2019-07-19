@@ -75,23 +75,6 @@ public:
   }
 
   /** /todo 
-   * @return size_t /todo */
-  size_t ElementsAvailable() const
-  {
-    return (mWriteIndex.load(std::memory_order_acquire) - mReadIndex.load(std::memory_order_relaxed))%mData.GetSize();
-  }
-
-  /** /todo
-   * useful for reading elements while a criterion is met. Can be used like
-   * while IPlugQueue.ElementsAvailable() && q.peek().mTime < 100 { elem = q.pop() ... }
-   * @return const T& /todo */
-  const T& Peek()
-  {
-    const auto currentReadIndex = mReadIndex.load(std::memory_order_relaxed);
-    return mData[currentReadIndex];
-  }
-
-  /** /todo 
    * @return true /todo
    * @return false /todo */
   bool WasEmpty() const

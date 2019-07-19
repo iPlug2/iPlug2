@@ -110,9 +110,8 @@ public:
     {
       Data d;
 
-      while(mQueue.ElementsAvailable())
+      while(mQueue.Pop(d))
       {
-        mQueue.Pop(d);
         dlg.SendControlMsgFromDelegate(mControlTag, kUpdateMessage, sizeof(Data), (void*) &d);
       }
     }

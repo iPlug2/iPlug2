@@ -66,17 +66,16 @@ void IPlugWAM::onProcess(WAM::AudioBus* pAudio, void* pData)
   //emulate IPlugAPIBase::OnTimer - should be called on the main thread - how to do that in audio worklet processor?
   if(mBlockCounter == 0)
   {
-    while(mParamChangeFromProcessor.ElementsAvailable())
+    ParamTuple p;
+    IMidiMsg msg;
+
+    while(mParamChangeFromProcessor.Pop(p))
     {
-      ParamTuple p;
-      mParamChangeFromProcessor.Pop(p);
       SendParameterValueFromDelegate(p.idx, p.value, false);
     }
     
-    while (mMidiMsgsFromProcessor.ElementsAvailable())
+    while (mMidiMsgsFromProcessor.Pop(msg))
     {
-      IMidiMsg msg;
-      mMidiMsgsFromProcessor.Pop(msg);
       SendMidiMsgFromDelegate(msg);
     }
         

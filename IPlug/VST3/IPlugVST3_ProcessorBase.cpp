@@ -122,84 +122,75 @@ void IPlugVST3ProcessorBase::ProcessMidiIn(IEventList* eventList, IPlugQueue<IMi
 
 void IPlugVST3ProcessorBase::ProcessMidiOut(IPlugQueue<SysExData>& sysExQueue, SysExData& sysExBuf, IEventList* outputEvents, int32 numSamples)
 {
+  if (!outputEvents)
+    return;
+  
+  Event toAdd = {0};
+  IMidiMsg msg;
+  
   // MIDI
-  if (mMidiOutputQueue.ElementsAvailable() && outputEvents)
+  while (mMidiOutputQueue.Pop(msg))
   {
-    Event toAdd = {0};
-    IMidiMsg msg;
-    
-    while (mMidiOutputQueue.ElementsAvailable())
+    if (msg.StatusMsg() == IMidiMsg::kNoteOn)
     {
-      IMidiMsg msg;
-      
-      mMidiOutputQueue.Pop(msg);
-      
-      if (msg.StatusMsg() == IMidiMsg::kNoteOn)
-      {
-        toAdd.type = Event::kNoteOnEvent;
-        toAdd.noteOn.channel = msg.Channel();
-        toAdd.noteOn.pitch = msg.NoteNumber();
-        toAdd.noteOn.tuning = 0.;
-        toAdd.noteOn.velocity = (float) msg.Velocity() * (1.f / 127.f);
-        toAdd.noteOn.length = -1;
-        toAdd.noteOn.noteId = -1; // TODO ?
-        toAdd.sampleOffset = msg.mOffset;
-        outputEvents->addEvent(toAdd);
-      }
-      else if (msg.StatusMsg() == IMidiMsg::kNoteOff)
-      {
-        toAdd.type = Event::kNoteOffEvent;
-        toAdd.noteOff.channel = msg.Channel();
-        toAdd.noteOff.pitch = msg.NoteNumber();
-        toAdd.noteOff.velocity = (float) msg.Velocity() * (1.f / 127.f);
-        toAdd.noteOff.noteId = -1; // TODO ?
-        toAdd.sampleOffset = msg.mOffset;
-        outputEvents->addEvent(toAdd);
-      }
-      else if (msg.StatusMsg() == IMidiMsg::kPolyAftertouch)
-      {
-        toAdd.type = Event::kPolyPressureEvent;
-        toAdd.polyPressure.channel = msg.Channel();
-        toAdd.polyPressure.pitch = msg.NoteNumber();
-        toAdd.polyPressure.pressure = (float) msg.PolyAfterTouch() * (1.f / 127.f);
-        toAdd.polyPressure.noteId = -1; // TODO ?
-        toAdd.sampleOffset = msg.mOffset;
-        outputEvents->addEvent(toAdd);
-      }
-      else if (msg.StatusMsg() == IMidiMsg::kControlChange)
-      {
-        toAdd.type = Event::kLegacyMIDICCOutEvent;
-        toAdd.midiCCOut.channel = msg.Channel();
-        toAdd.midiCCOut.controlNumber = msg.mData1;
-        toAdd.midiCCOut.value = msg.mData2;
-        toAdd.midiCCOut.value2 = 0;
-      }
-      else if (msg.StatusMsg() == IMidiMsg::kPitchWheel)
-      {
-        toAdd.type = Event::kLegacyMIDICCOutEvent;
-        toAdd.midiCCOut.channel = msg.Channel();
-        toAdd.midiCCOut.value = msg.mData1;
-        toAdd.midiCCOut.value = msg.mData2;
-      }
-      
-      // don't add any midi messages other than noteon/noteoff
+      toAdd.type = Event::kNoteOnEvent;
+      toAdd.noteOn.channel = msg.Channel();
+      toAdd.noteOn.pitch = msg.NoteNumber();
+      toAdd.noteOn.tuning = 0.;
+      toAdd.noteOn.velocity = (float) msg.Velocity() * (1.f / 127.f);
+      toAdd.noteOn.length = -1;
+      toAdd.noteOn.noteId = -1; // TODO ?
+      toAdd.sampleOffset = msg.mOffset;
+      outputEvents->addEvent(toAdd);
     }
+    else if (msg.StatusMsg() == IMidiMsg::kNoteOff)
+    {
+      toAdd.type = Event::kNoteOffEvent;
+      toAdd.noteOff.channel = msg.Channel();
+      toAdd.noteOff.pitch = msg.NoteNumber();
+      toAdd.noteOff.velocity = (float) msg.Velocity() * (1.f / 127.f);
+      toAdd.noteOff.noteId = -1; // TODO ?
+      toAdd.sampleOffset = msg.mOffset;
+      outputEvents->addEvent(toAdd);
+    }
+    else if (msg.StatusMsg() == IMidiMsg::kPolyAftertouch)
+    {
+      toAdd.type = Event::kPolyPressureEvent;
+      toAdd.polyPressure.channel = msg.Channel();
+      toAdd.polyPressure.pitch = msg.NoteNumber();
+      toAdd.polyPressure.pressure = (float) msg.PolyAfterTouch() * (1.f / 127.f);
+      toAdd.polyPressure.noteId = -1; // TODO ?
+      toAdd.sampleOffset = msg.mOffset;
+      outputEvents->addEvent(toAdd);
+    }
+    else if (msg.StatusMsg() == IMidiMsg::kControlChange)
+    {
+      toAdd.type = Event::kLegacyMIDICCOutEvent;
+      toAdd.midiCCOut.channel = msg.Channel();
+      toAdd.midiCCOut.controlNumber = msg.mData1;
+      toAdd.midiCCOut.value = msg.mData2;
+      toAdd.midiCCOut.value2 = 0;
+    }
+    else if (msg.StatusMsg() == IMidiMsg::kPitchWheel)
+    {
+      toAdd.type = Event::kLegacyMIDICCOutEvent;
+      toAdd.midiCCOut.channel = msg.Channel();
+      toAdd.midiCCOut.value = msg.mData1;
+      toAdd.midiCCOut.value = msg.mData2;
+    }
+      
+    // don't add any midi messages other than noteon/noteoff
   }
   
   // Output SYSEX from the editor, which has bypassed the processors' ProcessSysEx()
-  if (sysExQueue.ElementsAvailable())
+  while (sysExQueue.Pop(sysExBuf))
   {
-    Event toAdd = {0};
-    
-    while (sysExQueue.Pop(sysExBuf))
-    {
-      toAdd.type = Event::kDataEvent;
-      toAdd.sampleOffset = sysExBuf.mOffset;
-      toAdd.data.type = DataEvent::kMidiSysEx;
-      toAdd.data.size = sysExBuf.mSize;
-      toAdd.data.bytes = (uint8*) sysExBuf.mData; // TODO!  this is a problem if more than one message in this block!
-      outputEvents->addEvent(toAdd);
-    }
+    toAdd.type = Event::kDataEvent;
+    toAdd.sampleOffset = sysExBuf.mOffset;
+    toAdd.data.type = DataEvent::kMidiSysEx;
+    toAdd.data.size = sysExBuf.mSize;
+    toAdd.data.bytes = (uint8*) sysExBuf.mData; // TODO!  this is a problem if more than one message in this block!
+    outputEvents->addEvent(toAdd);
   }
 }
 

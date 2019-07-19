@@ -1709,14 +1709,11 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
     }
     else
     {
-      if(_this->mMidiMsgsFromEditor.ElementsAvailable())
-      {
-        IMidiMsg msg;
+      IMidiMsg msg;
         
-        while (_this->mMidiMsgsFromEditor.Pop(msg))
-        {
-          _this->ProcessMidiMsg(msg);
-        }
+      while (_this->mMidiMsgsFromEditor.Pop(msg))
+      {
+        _this->ProcessMidiMsg(msg);
       }
       
       _this->PreProcess();
@@ -2054,13 +2051,10 @@ bool IPlugAU::SendSysEx(const ISysEx& sysEx)
 void IPlugAU::OutputSysexFromEditor()
 {
   //Output SYSEX from the editor, which has bypassed ProcessSysEx()
-  if(mSysExDataFromEditor.ElementsAvailable())
+  while (mSysExDataFromEditor.Pop(mSysexBuf))
   {
-    while (mSysExDataFromEditor.Pop(mSysexBuf))
-    {
-      ISysEx smsg {mSysexBuf.mOffset, mSysexBuf.mData, mSysexBuf.mSize};
-      SendSysEx(smsg);
-    }
+    ISysEx smsg {mSysexBuf.mOffset, mSysexBuf.mData, mSysexBuf.mSize};
+    SendSysEx(smsg);
   }
 }
 

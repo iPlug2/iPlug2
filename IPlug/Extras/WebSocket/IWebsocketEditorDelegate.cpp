@@ -185,11 +185,10 @@ void IWebsocketEditorDelegate::SendSysexMsgFromDelegate(const ISysEx& msg)
 
 void IWebsocketEditorDelegate::ProcessWebsocketQueue()
 {
-  while(mParamChangeFromClients.ElementsAvailable())
-  {
-    ParamTupleCX p;
-    mParamChangeFromClients.Pop(p);
+  ParamTupleCX p;
     
+  while(mParamChangeFromClients.Pop(p))
+  {
     ENTER_PARAMS_MUTEX;
     IParam* pParam = GetParam(p.idx);
     
@@ -205,9 +204,10 @@ void IWebsocketEditorDelegate::ProcessWebsocketQueue()
     SendParameterValueFromDelegate(p.idx, p.value, true); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
   }
   
-  while (mMIDIFromClients.ElementsAvailable()) {
-    IMidiMsg msg;
-    mMIDIFromClients.Pop(msg);
+  IMidiMsg msg;
+    
+  while (mMIDIFromClients.Pop(msg))
+  {
     IGEditorDelegate::SendMidiMsgFromDelegate(msg); // Call the superclass, since we don't want to send another MIDI message to the websocket
     DeferMidiMsg(msg); // can't just call SendMidiMsgFromUI here which would cause a feedback loop
   }

@@ -195,10 +195,10 @@ void VoiceAllocator::SendProgramChangeToVoices(VoiceBitsArray v, int pgm)
 
 void VoiceAllocator::ProcessEvents(int blockSize, int64_t sampleTime)
 {
-  while(mInputQueue.ElementsAvailable())
+  VoiceInputEvent event;
+    
+  while(mInputQueue.Pop(event))
   {
-    VoiceInputEvent event;
-    mInputQueue.Pop(event);
     VoiceAllocator::VoiceBitsArray voices = VoicesMatchingAddress(event.mAddress);
 
     switch(event.mAction)

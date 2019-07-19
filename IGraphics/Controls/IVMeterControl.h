@@ -84,10 +84,9 @@ public:
     // this must be called on the main thread - typically in MyPlugin::OnIdle()
     void TransmitData(IEditorDelegate& dlg)
     {
-      while(mQueue.ElementsAvailable())
+      Data d;
+      while(mQueue.Pop(d))
       {
-        Data d;
-        mQueue.Pop(d);
         dlg.SendControlMsgFromDelegate(mControlTag, kUpdateMessage, sizeof(Data), (void*) &d);
       }
     }
