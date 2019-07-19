@@ -34,6 +34,9 @@ public:
 
   ~IPlugQueue(){}
 
+  IPlugQueue(const IPlugQueue&) = delete;
+  IPlugQueue& operator=(const IPlugQueue&) = delete;
+    
   /** /todo 
    * @param size /todo */
   void Resize(int size)

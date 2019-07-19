@@ -220,7 +220,7 @@ public:
   }
 
   IBitmap(const IBitmap&) = delete;
-  void operator=(const IBitmap&) = delete;
+  IBitmap& operator=(const IBitmap&) = delete;
 
   /** @return overall bitmap width in pixels */
   int W() const { return mW; }
@@ -279,7 +279,7 @@ struct ISVG
   }
 
   ISVG(const ISVG&) = delete;
-  void operator=(const ISVG&) = delete;
+  ISVG& operator=(const ISVG&) = delete;
 
   /** /todo */
   float W() const
@@ -1769,7 +1769,7 @@ public:
   {}
   
   IRECTList(const IRECTList&) = delete;
-  void operator=(const IRECTList&) = delete;
+  IRECTList& operator=(const IRECTList&) = delete;
 
   /** /todo
    * @return int /todo */

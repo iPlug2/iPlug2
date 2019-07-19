@@ -29,6 +29,9 @@ public:
   IGEditorDelegate(int nParams);
   ~IGEditorDelegate();
 
+  IGEditorDelegate(const IGEditorDelegate&) = delete;
+  IGEditorDelegate& operator = (const IGEditorDelegate&) = delete;
+    
   //IEditorDelegate
   void* OpenWindow(void* pHandle) final;
   void CloseWindow() final;
