@@ -221,7 +221,7 @@ public:
   , mFramesAreHorizontal(false)
   {
   }
-    
+  
   /** @return overall bitmap width in pixels */
   int W() const { return mW; }
 
@@ -278,7 +278,7 @@ struct ISVG
   {
     mImage = pImage;
   }
-    
+  
   /** /todo */
   float W() const
   {
