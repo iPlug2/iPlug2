@@ -2013,17 +2013,17 @@ bool IPlugAU::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
   return result;
 }
 
-bool IPlugAU::SendSysEx(const ISysEx& sysEx)
+bool IPlugAU::SendSysEx(const ISysEx& msg)
 {
   bool result = false;
 
   if(mMidiCallback.midiOutputCallback == nullptr)
     return false;
 
-  assert(sysEx.mSize <= 65536); // maximum packet list size
+  assert(msg.mSize <= 65536); // maximum packet list size
   
   WDL_HeapBuf heapBuf;
-  MIDIPacketList* pPktlist = (MIDIPacketList*) heapBuf.ResizeOK(sysEx.mSize);
+  MIDIPacketList* pPktlist = (MIDIPacketList*) heapBuf.ResizeOK(msg.mSize);
   MIDIPacket* pPkt = MIDIPacketListInit(pPktlist);
   
   ByteCount listSize = heapBuf.GetSize();
@@ -2031,7 +2031,7 @@ bool IPlugAU::SendSysEx(const ISysEx& sysEx)
   
   while (bytesLeft) {
     ByteCount packetSize = listSize < 256 ? listSize : 256;
-    pPkt = MIDIPacketListAdd(pPktlist, listSize, pPkt, sysEx.mOffset /* TODO: is this correct? */, packetSize, sysEx.mData);
+    pPkt = MIDIPacketListAdd(pPktlist, listSize, pPkt, msg.mOffset /* TODO: is this correct? */, packetSize, msg.mData);
     bytesLeft -= packetSize;
   }
   
@@ -2410,11 +2410,11 @@ OSStatus IPlugAU::DoSysEx(IPlugAU* _this, const UInt8* inData, UInt32 inLength)
 {
   if(_this->DoesMIDIIn())
   {
-    ISysEx sysex;
-    sysex.mData = inData;
-    sysex.mSize = inLength;
-    sysex.mOffset = 0;
-    _this->ProcessSysEx(sysex);
+    ISysEx smsg;
+    smsg.mData = inData;
+    smsg.mSize = inLength;
+    smsg.mOffset = 0;
+    _this->ProcessSysEx(smsg);
     return noErr;
   }
   else

@@ -470,8 +470,8 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
             else if (pEvent->type == kVstSysExType)
             {
               VstMidiSysexEvent* pSE = (VstMidiSysexEvent*) pEvent;
-              ISysEx sysex(pSE->deltaFrames, (const uint8_t*)pSE->sysexDump, pSE->dumpBytes);
-              _this->ProcessSysEx(sysex);
+              ISysEx smsg(pSE->deltaFrames, (const uint8_t*)pSE->sysexDump, pSE->dumpBytes);
+              _this->ProcessSysEx(smsg);
             }
           }
         }

@@ -104,8 +104,8 @@ void IPlugVST3ProcessorBase::ProcessMidiIn(IEventList* eventList, IPlugQueue<IMi
           }
           case Event::kDataEvent:
           {
-            ISysEx syx = ISysEx(event.sampleOffset, event.data.bytes, event.data.size);
-            ProcessSysEx(syx);
+            ISysEx smsg = ISysEx(event.sampleOffset, event.data.bytes, event.data.size);
+            ProcessSysEx(smsg);
             //mSysexMsgsFromProcessor.Push
             break;
           }

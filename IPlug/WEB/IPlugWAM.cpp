@@ -157,8 +157,8 @@ void IPlugWAM::onParam(uint32_t idparam, double value)
 
 void IPlugWAM::onSysex(byte* pData, uint32_t size)
 {
-  ISysEx sysex = {0 /* no offset */, pData, (int) size };
-  ProcessSysEx(sysex);
+  ISysEx smsg = {0 /* no offset */, pData, (int) size };
+  ProcessSysEx(smsg);
   
   WDL_String dataStr;
   dataStr.SetFormatted(16, "%i", size);
