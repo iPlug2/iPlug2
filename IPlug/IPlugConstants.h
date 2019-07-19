@@ -113,6 +113,7 @@ static const int MAX_PARAM_DISPLAY_PRECISION = 6;
 #define PARAM_TRANSFER_SIZE 512
 #define MIDI_TRANSFER_SIZE 32
 #define SYSEX_TRANSFER_SIZE 4
+#define MAX_MIDI_MSG_PER_SECOND 65536
 
 // All version ints are stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision.
 #define IPLUG_VERSION 0x010000

@@ -11,7 +11,7 @@
 #include "MidiSynth.h"
 
 MidiSynth::MidiSynth(VoiceAllocator::EPolyMode mode, int blockSize)
-: mBlockSize(blockSize), mMidiQueue(256)
+: mBlockSize(blockSize), mMidiQueue(IMidiMsg::QueueSize(blockSize, DEFAULT_SAMPLE_RATE))
 {
   SetPolyMode(mode);
   const int kPitchBendDefault = 7;
@@ -471,7 +471,7 @@ void MidiSynth::SetSampleRateAndBlockSize(double sampleRate, int blockSize)
   Reset();
 
   mSampleRate = sampleRate;
-  mMidiQueue.Resize(blockSize);
+  mMidiQueue.Resize(IMidiMsg::QueueSize(blockSize, sampleRate));
   mVoiceAllocator.SetSampleRate(sampleRate);
 
   for(int v = 0; v < NVoices(); v++)

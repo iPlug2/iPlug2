@@ -48,7 +48,7 @@ uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, 
 
 IPlugVST3ProcessorBase::IPlugVST3ProcessorBase(IPlugConfig c, IPlugAPIBase& plug)
 : IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST3)
-, mMidiOutputQueue(MIDI_TRANSFER_SIZE)
+, mMidiOutputQueue(IMidiMsg::QueueSize(DEFAULT_BLOCK_SIZE, DEFAULT_SAMPLE_RATE))
 , mPlug(plug)
 {
   SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
@@ -256,7 +256,7 @@ bool IPlugVST3ProcessorBase::SetupProcessing(const ProcessSetup& setup, ProcessS
   
   SetSampleRate(setup.sampleRate);
   IPlugProcessor::SetBlockSize(setup.maxSamplesPerBlock); // TODO: should IPlugVST3Processor call SetBlockSize in construct unlike other APIs?
-  mMidiOutputQueue.Resize(setup.maxSamplesPerBlock);
+  mMidiOutputQueue.Resize(IMidiMsg::(setup.maxSamplesPerBlock, setup.sampleRate));
   OnReset();
   
   return true;

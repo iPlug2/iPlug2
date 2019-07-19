@@ -21,6 +21,7 @@
 #include <cstdio>
 #include <algorithm>
 
+#include "IPlugConstants.h"
 #include "IPlugLogger.h"
 
 /** Encapsulates a MIDI message and provides helper functions
@@ -357,6 +358,15 @@ struct IMidiMsg
       case kPitchWheel: return "pitchwheel";
       default:  return "unknown";
     };
+  }
+  
+  /** /todo
+   * @param blockSize /todo
+   * @param sampleRate /todo
+   * @return /todo = on */
+  static int QueueSize(int blockSize, double sampleRate)
+  {
+    return static_cast<int>(std::round(MAX_MIDI_MSG_PER_SECOND * blockSize / sampleRate));
   }
   
   /** /todo */

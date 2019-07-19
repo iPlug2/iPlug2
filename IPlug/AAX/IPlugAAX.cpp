@@ -94,7 +94,7 @@ AAX_Result AAX_CEffectGUI_IPLUG::SetControlHighlightInfo(AAX_CParamID paramID, A
 IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPlugAPIBase(c, kAPIAAX)
 , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAAX)
-, mMidiOutputQueue(MIDI_TRANSFER_SIZE)
+, mMidiOutputQueue(IMidiMsg::QueueSize(DEFAULT_BLOCK_SIZE, DEFAULT_SAMPLE_RATE))
 {
   Trace(TRACELOC, "%s%s", c.pluginName, c.channelIOStr);
 
@@ -212,6 +212,7 @@ AAX_Result IPlugAAX::EffectInit()
   AAX_CSampleRate sr;
   Controller()->GetSampleRate(&sr);
   SetSampleRate(sr);
+  mMidiOutputQueue.Resize(IMidiMsg::QueueSize(DEFAULT_BLOCK_SIZE, sr));
   OnReset();
   
   return AAX_SUCCESS;
