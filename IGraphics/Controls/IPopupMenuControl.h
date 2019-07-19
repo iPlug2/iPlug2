@@ -132,7 +132,10 @@ private:
   public:
     MenuPanel(IPopupMenuControl& owner, IPopupMenu& menu, float x, float y, int parentIdx);
     ~MenuPanel();
-
+      
+    MenuPanel(const MenuPanel&) = delete;
+    MenuPanel& operator=(const MenuPanel&) = delete;
+      
     /** Gets the width of a cell */
     float CellWidth() const { return mSingleCellBounds.W(); }
 
