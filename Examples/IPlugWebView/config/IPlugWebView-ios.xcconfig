@@ -1,3 +1,5 @@
+IPLUG2_ROOT = ../../..
+
 #include "../../../common-ios.xcconfig"
 
 //------------------------------
