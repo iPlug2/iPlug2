@@ -559,7 +559,7 @@ struct IText
    * @param angle /todo
    * @param TEBGColor /todo
    * @param TEFGColor /todo */
-  explicit IText(float size = DEFAULT_TEXT_SIZE,
+  IText(float size = DEFAULT_TEXT_SIZE,
         const IColor& color = DEFAULT_TEXT_FGCOLOR,
         const char* font = nullptr,
         EAlign align = EAlign::Center,
@@ -581,7 +581,7 @@ struct IText
   /** /todo 
     * @param size /todo
     * @param valign /todo */
-  explicit IText(float size, EVAlign valign)
+  IText(float size, EVAlign valign)
   : IText()
   {
     mSize = size;
@@ -591,14 +591,14 @@ struct IText
   /** /todo 
    * @param size /todo
    * @param align /todo */
-  explicit IText(float size, EAlign align)
+  IText(float size, EAlign align)
   : IText()
   {
     mSize = size;
     mAlign = align;
   }
   
-  explicit IText(float size, const char* font)
+  IText(float size, const char* font)
   : IText()
   {
     mSize = size;
@@ -2585,7 +2585,7 @@ struct IVStyle
   IText labelText = DEFAULT_LABEL_TEXT;
   IText valueText = DEFAULT_VALUE_TEXT;
   
-  explicit IVStyle(bool showLabel = DEFAULT_SHOW_LABEL,
+  IVStyle(bool showLabel = DEFAULT_SHOW_LABEL,
           bool showValue = DEFAULT_SHOW_VALUE,
           const std::initializer_list<IColor>& colors = {DEFAULT_BGCOLOR, DEFAULT_FGCOLOR, DEFAULT_PRCOLOR, DEFAULT_FRCOLOR, DEFAULT_HLCOLOR, DEFAULT_SHCOLOR, DEFAULT_X1COLOR, DEFAULT_X2COLOR, DEFAULT_X3COLOR},
           const IText& labelText = DEFAULT_LABEL_TEXT,
@@ -2614,7 +2614,7 @@ struct IVStyle
   {
   }
   
-  explicit IVStyle(const std::initializer_list<IColor>& colors)
+  IVStyle(const std::initializer_list<IColor>& colors)
   : colorSpec(colors)
   {
   }
