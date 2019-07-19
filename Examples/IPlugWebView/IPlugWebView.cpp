@@ -39,9 +39,14 @@ void IPlugWebView::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 
 bool IPlugWebView::OnMessage(int messageTag, int controlTag, int dataSize, const void* pData)
 {
-  if(messageTag == kMsgTagButton)
-  {
-    DBGMSG("Button Clicked\n");
+  if(messageTag == kMsgTagButton1) {
+    Resize(512, 335);
+  }
+  else if(messageTag == kMsgTagButton2) {
+    Resize(1024, 335);
+  }
+  else if(messageTag == kMsgTagButton3) {
+    Resize(1024, 768);
   }
   
   return false;

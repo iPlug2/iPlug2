@@ -13,7 +13,9 @@ enum EParams
 
 enum EMsgTags
 {
-  kMsgTagButton = 0,
+  kMsgTagButton1 = 0,
+  kMsgTagButton2 = 1,
+  kMsgTagButton3 = 2,
 };
 
 class IPlugWebView : public IPlug
