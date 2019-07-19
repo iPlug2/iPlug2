@@ -5,10 +5,6 @@
 #include "IPlugPaths.h"
 #include "wdl_base64.h"
 
-//TODO remove!
-#include <map>
-#include <string>
-
 #if defined OS_MAC
   #define VIEW NSView
   #define MAKERECT NSMakeRect
@@ -16,9 +12,6 @@
   #define VIEW UIView
   #define MAKERECT CGRectMake
 #endif
-
-//TODO remove!
-std::map<std::string, void*> gTextureMap;
 
 @interface ScriptHandler : NSObject <WKScriptMessageHandler, WKNavigationDelegate>
 {

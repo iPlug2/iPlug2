@@ -18,7 +18,9 @@
 #include <string>
 #include <map>
 
+#ifdef IGRAPHICS_METAL
 extern std::map<std::string, void*> gTextureMap;
+#endif
 
 #ifdef OS_MAC
 void HostPath(WDL_String& path, const char* bundleID)
@@ -307,6 +309,7 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
 {
   if(CStringHasContents(name))
   {
+#ifdef IGRAPHICS_METAL
     auto itr = gTextureMap.find(name);
     
     if (itr != gTextureMap.end())
@@ -314,6 +317,7 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
       result.Set(name);
       return EResourceLocation::kPreloadedTexture;
     }
+#endif
     
     if(GetResourcePathFromBundle(name, type, result, bundleID))
       return EResourceLocation::kAbsolutePath;
