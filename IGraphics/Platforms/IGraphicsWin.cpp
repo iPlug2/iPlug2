@@ -35,8 +35,9 @@ static double sFPS = 0.0;
 
 // Fonts
 
-struct WinInstalledFont
+class WinInstalledFont
 {
+public:
   WinInstalledFont(void* data, int resSize)
   : mFontHandle(nullptr)
   {
@@ -53,8 +54,12 @@ struct WinInstalledFont
       RemoveFontMemResourceEx(mFontHandle);
   }
   
-  virtual bool IsValid() { return mFontHandle; }
+  WinInstalledFont(const WinInstalledFont&) = delete;
+  WinInstalledFont& operator=(const WinInstalledFont&) = delete;
+    
+  bool IsValid() const { return mFontHandle; }
   
+private:
   HANDLE mFontHandle;
 };
 
