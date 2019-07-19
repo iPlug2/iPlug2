@@ -151,6 +151,9 @@ public:
 
   virtual ~APIBitmap() {}
 
+  APIBitmap(const APIBitmap&) = delete;
+  APIBitmap& operator=(const APIBitmap&) = delete;
+    
   /** Used to initialise the members after construction
    * @param pBitmap pointer or integer index (NanoVG) to the image data
    * @param w The width of the bitmap
@@ -854,6 +857,10 @@ class PlatformFont
 public:
   PlatformFont(bool system) : mSystem(system) {}
   virtual ~PlatformFont() {}
+    
+  PlatformFont(const PlatformFont&) = delete;
+  PlatformFont& operator=(const PlatformFont&) = delete;
+
   virtual FontDescriptor GetDescriptor() { return nullptr; }
   virtual IFontDataPtr GetFontData() { return IFontDataPtr(new IFontData()); }
   bool IsSystem() { return mSystem; }
@@ -2381,6 +2388,9 @@ public:
     Clear();
   }
 
+  StaticStorage(const StaticStorage&) = delete;
+  StaticStorage& operator=(const StaticStorage&) = delete;
+    
 private:
   /** /todo */
   struct DataKey
