@@ -36,6 +36,135 @@ jobs:
       configuration: '$(buildConfiguration)'
     displayName: Build Windows Dependencies
 
+  - bash: |
+      curl https://storage.googleapis.com/chrome-infra/depot_tools.zip --output depot_tools.zip
+      unzip depot_tools.zip -d depot_tools
+    displayName: (SKIA) Get Depot Tools
+
+  - powershell: |
+      Write-Host "##vso[task.setvariable variable=PATH;]$(Build.SourcesDirectory)\depot_tools;${env:PATH};";
+    displayName: (SKIA) Setup Depot Tools
+
+  - script: |
+      cd depot_tools
+      gclient
+    displayName: (SKIA) Setup Depot Tools 2
+
+  - powershell: |
+      cd Dependencies/Build/src/skia
+      python.bat tools/git-sync-deps
+    displayName: (SKIA) git sync deps
+
+# TODO: tidy this up!
+  # - powershell: |
+  #     cd Dependencies/Build/src/skia
+  #     bin/gn gen $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/$env:BUILDCONFIGURATION --args='
+  #     is_official_build=true
+  #     target_cpu=\"x86\"
+  #     skia_use_icu=false
+  #     skia_enable_pdf=false
+  #     skia_enable_gpu=true
+  #     skia_use_dng_sdk=false
+  #     skia_use_expat=true
+  #     skia_use_libwebp=false
+  #     skia_use_piex=false
+  #     skia_use_sfntly=false
+  #     skia_use_system_libjpeg_turbo=false
+  #     extra_cflags=[
+  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\libpng\",
+  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\libpng\",
+  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\zlib\",
+  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\expat\lib\",
+  #     \"/MTd\",]'
+  #   displayName: (SKIA) Configure with GN tool (Debug Win32)
+  #   condition: and(eq(variables.buildConfiguration, 'Debug'), eq(variables.buildPlatform, 'Win32'))
+    
+  # - powershell: |
+  #     cd Dependencies/Build/src/skia
+  #     bin/gn gen $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/$env:BUILDCONFIGURATION --args='
+  #     is_official_build=true
+  #     target_cpu=\"x86\"
+  #     skia_use_icu=false
+  #     skia_enable_pdf=false
+  #     skia_enable_gpu=true
+  #     skia_use_dng_sdk=false
+  #     skia_use_expat=true
+  #     skia_use_libwebp=false
+  #     skia_use_piex=false
+  #     skia_use_sfntly=false
+  #     skia_use_system_libjpeg_turbo=false
+  #     extra_cflags=[
+  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\libpng\",
+  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\libpng\",
+  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\zlib\",
+  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\expat\lib\",
+  #     \"/MT\",]'
+  #   displayName: (SKIA) Configure with GN tool (Release Win32)
+  #   condition: and(eq(variables.buildConfiguration, 'Release'), eq(variables.buildPlatform, 'Win32'))
+
+  - powershell: |
+      cd Dependencies/Build/src/skia
+      bin/gn gen $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/$env:BUILDCONFIGURATION --args='
+      is_official_build=true
+      target_cpu=\"x64\"
+      skia_use_icu=false
+      skia_enable_pdf=false
+      skia_enable_gpu=true
+      skia_use_dng_sdk=false
+      skia_use_expat=true
+      skia_use_libwebp=false
+      skia_use_piex=false
+      skia_use_sfntly=false
+      skia_use_system_libjpeg_turbo=false
+      extra_cflags=[
+        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\libpng\",
+        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\libpng\",
+        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\zlib\",
+        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\expat\lib\",
+      \"/MTd\",]'
+    displayName: (SKIA) Configure with GN tool (Debug x64)
+    condition: and(eq(variables.buildConfiguration, 'Debug'), eq(variables.buildPlatform, 'x64'))
+    
+  - powershell: |
+      cd Dependencies/Build/src/skia
+      bin/gn gen $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/$env:BUILDCONFIGURATION --args='
+      is_official_build=true
+      target_cpu=\"x64\"
+      skia_use_icu=false
+      skia_enable_pdf=false
+      skia_enable_gpu=true
+      skia_use_dng_sdk=false
+      skia_use_expat=true
+      skia_use_libwebp=false
+      skia_use_piex=false
+      skia_use_sfntly=false
+      skia_use_system_libjpeg_turbo=false
+      extra_cflags=[
+        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\libpng\",
+        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\libpng\",
+        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\zlib\",
+        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\expat\lib\",
+      \"/MT\",]'
+    displayName: (SKIA) Configure with GN tool (Release x64)
+    condition: and(eq(variables.buildConfiguration, 'Release'), eq(variables.buildPlatform, 'x64'))
+
+  - powershell: |
+      cd Dependencies/Build/src/skia
+      ninja -C $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/$env:BUILDCONFIGURATION
+    continueOnError: true
+    displayName: (SKIA) Build with NINJA
+
+  - bash: |
+      cd ./Dependencies/Build
+      mv ./tmp/skia/$BUILDCONFIGURATION/skia.lib ./win/x64/$BUILDCONFIGURATION/skia.lib
+      rm *.log
+      rm -r tmp
+      mv ./src/skia/include ./skia_include_tmp
+      rm -r src/skia
+      mkdir -p ./src/skia
+      mv ./skia_include_tmp ./src/skia/include
+    displayName: (SKIA) Delete unwanted files
+
   - task: PublishPipelineArtifact@0
     inputs:
       artifactName: 'DEPS_BUILD_WIN_$(buildPlatform)_$(buildConfiguration)'
@@ -102,7 +231,14 @@ jobs:
       rm -r ./Dependencies/Build/src/cairo
       cd ./Dependencies/IGraphics
       ./build-igraphics-libs-mac.sh
+    displayName: Build Graphics Dependencies
 
+  - bash: |
+      cd ./Dependencies/IGraphics
+      ./build-skia-mac.sh
+    displayName: Build Skia
+
+  - bash: |
       cd $BUILD_SOURCESDIRECTORY
       wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
       tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
@@ -111,15 +247,21 @@ jobs:
 
       cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/faust
       ./build-faust-mac.sh
-
-      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/civetweb
-      ./build-civetweb-mac.sh
-    displayName: Build macOS Dependencies
+    displayName: Build FAUST
 
   - bash: |
-      rm ./Dependencies/Build/*.log
-      rm -r ./Dependencies/Build/tmp
-      rm -r ./Dependencies/Build/src
+      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/civetweb
+      ./build-civetweb-mac.sh
+    displayName: Build CivetWeb
+
+  - bash: |
+      cd ./Dependencies/Build
+      rm *.log
+      rm -r tmp
+      mv ./src/skia/include ./skia_include_tmp
+      rm -r src
+      mkdir -p ./src/skia
+      mv ./skia_include_tmp ./src/skia/include
     displayName: Delete unwanted files
 
   - task: PublishPipelineArtifact@0

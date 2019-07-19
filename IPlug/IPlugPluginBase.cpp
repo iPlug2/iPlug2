@@ -100,22 +100,6 @@ void IPluginBase::GetBuildInfoStr(WDL_String& str) const
 }
 
 #pragma mark -
-void IPluginBase::OnParamChange(int paramIdx, EParamSource source, int sampleOffset)
-{
-  Trace(TRACELOC, "idx:%i src:%s\n", paramIdx, ParamSourceStrs[source]);
-  OnParamChange(paramIdx);
-}
-
-void IPluginBase::OnParamReset(EParamSource source)
-{
-  for (int i = 0; i < NParams(); ++i)
-  {
-    OnParamChange(i, source);
-    OnParamChangeUI(i, source);
-  }
-}
-
-#pragma mark -
 
 bool IPluginBase::SerializeParams(IByteChunk& chunk) const
 {

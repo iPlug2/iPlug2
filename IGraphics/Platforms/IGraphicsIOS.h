@@ -25,7 +25,7 @@ public:
   void* OpenWindow(void* pWindow) override;
   void CloseWindow() override;
   bool WindowIsOpen() override;
-  void PlatformResize() override;
+  void PlatformResize(bool parentHasResized) override;
 
   EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
   void ForceEndUserEdit() override;

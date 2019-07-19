@@ -15,7 +15,7 @@
 # this involves adding the python folder e.g. C:\Python27\ to your %PATH% environment variable
 
 # USAGE:
-# duplicate.py [inputprojectname] [outputprojectname] [manufacturername]
+# duplicate.py [inputprojectname] [outputprojectname] [manufacturername] (outputpath)
 
 # TODO:
 # - indentation of directory structure
@@ -34,7 +34,7 @@ sys.path.insert(0, scriptpath + '/../Scripts/')
 
 from parse_config import parse_config, parse_xcconfig, set_uniqueid
 
-VERSION = "0.93"
+VERSION = "0.94"
 
 # binary files that we don't want to do find and replace inside
 FILTERED_FILE_EXTENSIONS = [".ico",".icns", ".pdf", ".png", ".zip", ".exe", ".wav", ".aif"]
@@ -83,7 +83,7 @@ def replacestrsChop(filename, s, r):
       line = r + "\n"
     sys.stdout.write(line)
 
-def dirwalk(dir, searchproject, replaceproject, searchman, replaceman):
+def dirwalk(dir, searchproject, replaceproject, searchman, replaceman, oldroot= "", newroot=""):
   for f in os.listdir(dir):
     fullpath = os.path.join(dir, f)
 
@@ -93,32 +93,32 @@ def dirwalk(dir, searchproject, replaceproject, searchman, replaceman):
         fullpath = os.path.join(dir, replaceproject + "-macOS.xcodeproj")
 
         print("recursing in macOS xcode project directory: ")
-        for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman):
+        for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman, oldroot, newroot):
           yield x
       elif checkdirname(f, searchproject + "-iOS.xcodeproj"):
         os.rename(fullpath, os.path.join(dir, replaceproject + "-iOS.xcodeproj"))
         fullpath = os.path.join(dir, replaceproject + "-iOS.xcodeproj")
 
         print("recursing in iOS xcode project directory: ")
-        for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman):
+        for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman, oldroot, newroot):
           yield x
       elif checkdirname(f, searchproject + ".xcworkspace"):
         os.rename(fullpath, os.path.join(dir, replaceproject + ".xcworkspace"))
         fullpath = os.path.join(dir, replaceproject + ".xcworkspace")
 
         print("recursing in main xcode workspace directory: ")
-        for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman):
+        for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman, oldroot, newroot):
           yield x
       elif checkdirname(f, searchproject + "iOSAppIcon.appiconset"):
         os.rename(fullpath, os.path.join(dir, replaceproject + "iOSAppIcon.appiconset"))
         fullpath = os.path.join(dir, replaceproject + "iOSAppIcon.appiconset")
 
         print("recursing in iOSAppIcon directory: ")
-        for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman):
+        for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman, oldroot, newroot):
           yield x
       elif (f in SUBFOLDERS_TO_SEARCH):
         print('recursing in ' + f + ' directory: ')
-        for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman):
+        for x in dirwalk(fullpath, searchproject, replaceproject, searchman, replaceman, oldroot, newroot):
           yield x
 
     if os.path.isfile(fullpath):
@@ -127,6 +127,7 @@ def dirwalk(dir, searchproject, replaceproject, searchman, replaceman):
       base, extension = os.path.splitext(filename)
 
       if (not(extension in FILTERED_FILE_EXTENSIONS)):
+
         print("Replacing project name strings in file " + filename)
         replacestrs(fullpath, searchproject, replaceproject)
 
@@ -135,6 +136,12 @@ def dirwalk(dir, searchproject, replaceproject, searchman, replaceman):
 
         print("Replacing manufacturer name strings in file " + filename)
         replacestrs(fullpath, searchman, replaceman)
+
+        if (oldroot and newroot):
+          print ("Replacing iPlug2 root folder in file  " + filename)
+          replacestrs(fullpath, oldroot, newroot)
+          replacestrs(fullpath, oldroot.replace('/', '\\'), newroot.replace('/', '\\'))
+
       else:
         print("NOT replacing name strings in file " + filename)
 
@@ -150,65 +157,89 @@ def main():
   global VERSION
   print("\nIPlug Project Duplicator v" + VERSION + " by Oli Larkin ------------------------------\n")
 
-  if len(sys.argv) != 4:
-    print("Usage: duplicate.py inputprojectname outputprojectname manufacturername")
+  numargs = len(sys.argv) - 1
+
+  if not (numargs == 3 or numargs == 4):
+    print("Usage: duplicate.py inputprojectname outputprojectname manufacturername (outputprojectpath)")
     sys.exit(1)
   else:
-    input=sys.argv[1]
-    output=sys.argv[2]
+    inputprojectname=sys.argv[1]
+    outputprojectname=sys.argv[2]
     manufacturer=sys.argv[3]
 
-    if ' ' in input:
-      print("error: input project name has spaces")
-      sys.exit(1)
+  if numargs == 4:
+    outputbasepath=os.path.abspath(sys.argv[4])
+  else:
+    outputbasepath=os.getcwd()
 
-    if ' ' in output:
-      print("error: output project name has spaces")
-      sys.exit(1)
+  if not (os.path.isdir(outputbasepath)):
+    print("error: Output path does not exist")
+    sys.exit(1)
 
-    if ' ' in manufacturer:
-      print("error: manufacturer name has spaces")
-      sys.exit(1)
+  outputpath = os.path.join(outputbasepath, outputprojectname)
 
-    # remove a trailing slash if it exists
-    if input[-1:] == "/":
-      input = input[0:-1]
+  if ' ' in inputprojectname:
+    print("error: input project name has spaces")
+    sys.exit(1)
 
-    if output[-1:] == "/":
-      output = output[0:-1]
+  if ' ' in outputprojectname:
+    print("error: output project name has spaces")
+    sys.exit(1)
 
-    #check that the folders are OK
-    if os.path.isdir(input) == False:
-      print("error: input project not found")
-      sys.exit(1)
+  if ' ' in manufacturer:
+    print("error: manufacturer name has spaces")
+    sys.exit(1)
 
-    if os.path.isdir(output):
-      print("error: output folder allready exists")
-      sys.exit(1)
-    # rmtree(output)
+  # remove a trailing slash if it exists
+  if inputprojectname[-1:] == "/":
+    inputprojectname = inputprojectname[0:-1]
 
-    print("copying " + input + " folder to " + output)
-    copytree(input, output, ignore=ignore_patterns(*DONT_COPY))
-    cpath = os.path.join(os.getcwd(), output)
+  if outputprojectname[-1:] == "/":
+    outputprojectname = outputprojectname[0:-1]
 
-    #replace manufacturer name strings
-    for dir in dirwalk(cpath, input, output, "AcmeInc", manufacturer):
-      pass
+  #check that the folders are OK
+  if os.path.isdir(inputprojectname) == False:
+    print("error: input project not found")
+    sys.exit(1)
 
-    print("\ncopying gitignore template into project folder\n")
+  if os.path.isdir(outputpath):
+    print("error: output project allready exists")
+    sys.exit(1)
+  # rmtree(output)
 
-    copy('gitignore_template', output + "/.gitignore")
+  print("copying " + inputprojectname + " folder to " + outputpath)
+  copytree(inputprojectname, outputpath, ignore=ignore_patterns(*DONT_COPY))
 
-    config = parse_config(output)
+  oldroot = ""
+  newroot = ""
+  
+  if numargs == 4:
+    configpath = os.path.join(inputprojectname, "config")
+    xcconfig = parse_xcconfig(configpath + "/" + inputprojectname + "-mac.xcconfig")
+    oldroot = xcconfig["IPLUG2_ROOT"]
+    iplug2folder = os.path.abspath(os.path.join(configpath, oldroot))
+    newroot = os.path.relpath(iplug2folder, os.path.join(outputpath, "config"))
+  else:
+    newroot = ""
 
-    config["PLUG_UNIQUE_ID"] = randomFourChar()
+  #replace manufacturer name strings
+  for dir in dirwalk(outputpath, inputprojectname, outputprojectname, "AcmeInc", manufacturer, oldroot, newroot):
+    pass
 
-    set_uniqueid(output, config["PLUG_UNIQUE_ID"])
+  print("\ncopying gitignore template into project folder\n")
 
-    pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(config)
+  copy('gitignore_template', outputpath + "/.gitignore")
 
-    print("\ndone - don't forget to change MFR_UID in config.h")
+  config = parse_config(outputpath)
+
+  config["PLUG_UNIQUE_ID"] = randomFourChar()
+
+  set_uniqueid(outputpath, config["PLUG_UNIQUE_ID"])
+
+  pp = pprint.PrettyPrinter(indent=4)
+  pp.pprint(config)
+
+  print("\ndone - don't forget to change MFR_UID in config.h")
 
 if __name__ == '__main__':
   main()

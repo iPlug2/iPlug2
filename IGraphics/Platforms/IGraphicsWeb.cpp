@@ -16,8 +16,7 @@
 
 using namespace emscripten;
 
-extern IGraphics* gGraphics;
-bool gGraphicsLoaded = false;
+extern IGraphicsWeb* gGraphics;
 
 // Fonts
 
@@ -460,6 +459,7 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
   SetScreenScale(std::ceil(std::max(emscripten_get_device_pixel_ratio(), 1.)));
 
   GetDelegate()->LayoutUI(this);
+  GetDelegate()->OnUIOpen();
   
   return nullptr;
 }
@@ -517,20 +517,16 @@ void IGraphicsWeb::OnMainLoopTimer()
 {
   IRECTList rects;
   int screenScale = (int) std::ceil(std::max(emscripten_get_device_pixel_ratio(), 1.));
-
-  // Only draw on the second timer so that fonts will be loaded
-  if (!gGraphics || !gGraphicsLoaded)
-  {
-    if (gGraphics)
-      gGraphicsLoaded = true;
+  
+  // Don't draw if there are no graphics or if assets are still loading
+  if (!gGraphics || !gGraphics->AssetsLoaded())
     return;
-  }
   
   if (screenScale != gGraphics->GetScreenScale())
   {
     gGraphics->SetScreenScale(screenScale);
   }
-
+  
   if (gGraphics->IsDirty(rects))
   {
     gGraphics->SetAllControlsClean();
@@ -580,7 +576,7 @@ EMsgBoxResult IGraphicsWeb::ShowMessageBox(const char* str, const char* caption,
 
 void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext)
 {
-  val inputEl = val::global("document").call<val>("getElementById", std::string("pluginInput"));
+  val inputEl = val::global("document").call<val>("createElement", std::string("input"));
   
   inputEl.call<void>("setAttribute", std::string("accept"), std::string(ext));
   inputEl.call<void>("click");
@@ -588,8 +584,8 @@ void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAc
 
 void IGraphicsWeb::PromptForDirectory(WDL_String& path)
 {
-  val inputEl = val::global("document").call<val>("getElementById", std::string("pluginInput"));
-  
+  val inputEl = val::global("document").call<val>("createElement", std::string("input"));
+
   inputEl.call<void>("setAttribute", std::string("directory"));
   inputEl.call<void>("setAttribute", std::string("webkitdirectory"));
   inputEl.call<void>("click");
@@ -735,7 +731,7 @@ PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const char* f
 {
   const char* styles[] = { "normal", "bold", "italic" };
   
-  return PlatformFontPtr(new WebFont(fontName, styles[style]));
+  return PlatformFontPtr(new WebFont(fontName, styles[static_cast<int>(style)]));
 }
 
 #if defined IGRAPHICS_CANVAS

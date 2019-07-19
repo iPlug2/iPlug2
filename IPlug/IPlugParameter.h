@@ -123,15 +123,15 @@ public:
 
   IParam();
 
-  /** /todo 
-   * @param name /todo
-   * @param defaultValue /todo
-   * @param label /todo
-   * @param flags /todo
-   * @param group /todo
-   * @param offText /todo
-   * @param onText /todo */
-  void InitBool(const char* name, bool defaultValue, const char* label = "", int flags = 0, const char* group = "", const char* offText = "off", const char* onText = "on"); // // LABEL not used here TODO: so why have it?
+  /** Initialize the parameter as boolean
+   * @param name The parameter's name
+   * @param defaultValue The default value of the parameter
+   * @param label The parameter's label
+   * @param flags The parameter's flags \see IParam::EFlags
+   * @param group The parameter's group
+   * @param offText The display text when the parameter value == 0.
+   * @param onText The display text when the parameter value == 1. */
+  void InitBool(const char* name, bool defaultValue, const char* label = "", int flags = 0, const char* group = "", const char* offText = "off", const char* onText = "on"); // TODO: LABEL not used here TODO: so why have it?
   
   /** /todo 
    * @param name /todo
@@ -142,7 +142,7 @@ public:
    * @param group /todo
    * @param listItems /todo
    * @param ... /todo */
-  void InitEnum(const char* name, int defaultValue, int nEnums, const char* label = "", int flags = 0, const char* group = "", const char* listItems = 0, ...); // LABEL not used here TODO: so why have it?
+  void InitEnum(const char* name, int defaultValue, int nEnums, const char* label = "", int flags = 0, const char* group = "", const char* listItems = 0, ...); // TODO: LABEL not used here TODO: so why have it?
   
   /** /todo 
    * @param name /todo
@@ -281,6 +281,10 @@ public:
    * @param value /todo
    * @param str /todo */
   void SetDisplayText(double value, const char* str);
+  
+  /** Set the parameters label after creation. WARNING: if this is called after the host has queried plugin parameters, the host may display the label as it was previously
+   * @param label /todo */
+  void SetLabel(const char* label) { strcpy(mLabel, label); }
 
   /** Gets a readable value of the parameter
    * @return Current value of the parameter */

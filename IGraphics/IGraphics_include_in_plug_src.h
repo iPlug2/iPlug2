@@ -21,7 +21,7 @@
 
 #ifndef NO_IGRAPHICS
 
- #if defined OS_WIN
+  #if defined OS_WIN
   extern HINSTANCE gHINSTANCE;
 
   IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)

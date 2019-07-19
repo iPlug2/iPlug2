@@ -95,6 +95,9 @@
     <ClCompile Include="..\..\..\IPlug\IPlugPaths.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.cpp">
+      <Filter>IGraphics\Drawing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\IPlugInstrument.h" />
@@ -293,6 +296,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugPaths.h">
       <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.h">
+      <Filter>IGraphics\Drawing</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

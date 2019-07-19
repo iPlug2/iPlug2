@@ -1,6 +1,6 @@
-include ./config/MetaParamTest-web.mk
+include ../config/MetaParamTest-web.mk
 
-TARGET = ./build-web/scripts/MetaParamTest-wam.js
+TARGET = ../build-web/scripts/MetaParamTest-wam.js
 
 SRC += $(WAM_SRC)
 CFLAGS += $(WAM_CFLAGS)

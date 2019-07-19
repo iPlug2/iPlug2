@@ -97,7 +97,7 @@ const char* vk_to_string(int vk_code)
 class TestKeyboardControl : public IControl
 {
 public:
-  TestKeyboardControl(IRECT rect)
+  TestKeyboardControl(const IRECT& rect)
   : IControl(rect)
   {
     mX = rect.MW();

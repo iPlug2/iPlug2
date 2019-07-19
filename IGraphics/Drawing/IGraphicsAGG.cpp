@@ -62,18 +62,18 @@ inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case kBlendDefault:         // fall through
-    case kBlendClobber:         // fall through
-    case kBlendSourceOver:      return agg::comp_op_src_over;
-    case kBlendSourceIn:        return agg::comp_op_src_in;
-    case kBlendSourceOut:       return agg::comp_op_src_out;
-    case kBlendSourceAtop:      return agg::comp_op_src_atop;
-    case kBlendDestOver:        return agg::comp_op_dst_over;
-    case kBlendDestIn:          return agg::comp_op_dst_in;
-    case kBlendDestOut:         return agg::comp_op_dst_out;
-    case kBlendDestAtop:        return agg::comp_op_dst_atop;
-    case kBlendAdd:             return agg::comp_op_plus;
-    case kBlendXOR:             return agg::comp_op_xor;
+    case EBlend::Default:         // fall through
+    case EBlend::Clobber:         // fall through
+    case EBlend::SourceOver:      return agg::comp_op_src_over;
+    case EBlend::SourceIn:        return agg::comp_op_src_in;
+    case EBlend::SourceOut:       return agg::comp_op_src_out;
+    case EBlend::SourceAtop:      return agg::comp_op_src_atop;
+    case EBlend::DestOver:        return agg::comp_op_dst_over;
+    case EBlend::DestIn:          return agg::comp_op_dst_in;
+    case EBlend::DestOut:         return agg::comp_op_dst_out;
+    case EBlend::DestAtop:        return agg::comp_op_dst_atop;
+    case EBlend::Add:             return agg::comp_op_plus;
+    case EBlend::XOR:             return agg::comp_op_xor;
   }
 }
 
@@ -108,14 +108,14 @@ void GradientRasterizeAdapt(IGraphicsAGG::Rasterizer& rasterizer, EPatternExtend
 {
   switch (extend)
   {
-    case kExtendNone: //TODO:  extend none
-    case kExtendPad:
+    case EPatternExtend::None: //TODO:  extend none
+    case EPatternExtend::Pad:
       GradientRasterize(rasterizer, gradientFunc, xform, colorArray, op);
       break;
-    case kExtendReflect:
+    case EPatternExtend::Reflect:
       GradientRasterize(rasterizer, agg::gradient_reflect_adaptor<FuncType>(gradientFunc), xform, colorArray, op);
       break;
-    case kExtendRepeat:
+    case EPatternExtend::Repeat:
       GradientRasterize(rasterizer, agg::gradient_repeat_adaptor<FuncType>(gradientFunc), xform, colorArray, op);
       break;
   }
@@ -123,15 +123,15 @@ void GradientRasterizeAdapt(IGraphicsAGG::Rasterizer& rasterizer, EPatternExtend
 
 void IGraphicsAGG::Rasterizer::Rasterize(const IPattern& pattern, agg::comp_op_e op, float opacity, EFillRule rule)
 {
-  mRasterizer.filling_rule(rule == kFillWinding ? agg::fill_non_zero : agg::fill_even_odd );
+  mRasterizer.filling_rule(rule == EFillRule::Winding ? agg::fill_non_zero : agg::fill_even_odd );
   
   switch (pattern.mType)
   {
-    case kSolidPattern:
+    case EPatternType::Solid:
       Rasterize(AGGColor(pattern.GetStop(0).mColor, opacity), op);
     break;
-    case kLinearPattern:
-    case kRadialPattern:
+    case EPatternType::Linear:
+    case EPatternType::Radial:
     {
       // Common gradient objects
       const IMatrix& m = pattern.mTransform;
@@ -155,7 +155,7 @@ void IGraphicsAGG::Rasterizer::Rasterize(const IPattern& pattern, agg::comp_op_e
       colorArray.build_lut();
       
       // Rasterize
-      if (pattern.mType == kLinearPattern)
+      if (pattern.mType == EPatternType::Linear)
         GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_y(), gradientMTX, colorArray, op);
       else
         GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_radial_d(), gradientMTX, colorArray, op);
@@ -279,11 +279,11 @@ void IGraphicsAGG::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX
   }
 }
 
-void IGraphicsAGG::PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding)
+void IGraphicsAGG::PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding)
 {
   agg::path_storage transformedPath;
     
-  agg::arc arc(cx, cy, r, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f), winding == kWindingCW);
+  agg::arc arc(cx, cy, r, r, DegToRad(a1 - 90.f), DegToRad(a2 - 90.f), winding == EWinding::CW);
   arc.approximation_scale(mTransform.scale());
     
   transformedPath.join_path(arc);
@@ -310,20 +310,33 @@ void IGraphicsAGG::PathLineTo(float x, float y)
   mPath.line_to(xd, yd);
 }
 
-void IGraphicsAGG::PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
+void IGraphicsAGG::PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2)
 {
-  double x1d = x1;
-  double y1d = y1;
-  double x2d = x2;
-  double y2d = y2;
-  double x3d = x3;
-  double y3d = y3;
+  double x1d = c1x;
+  double y1d = c1y;
+  double x2d = c2x;
+  double y2d = c2y;
+  double x3d = x2;
+  double y3d = y2;
   
   mTransform.transform(&x1d, &y1d);
   mTransform.transform(&x2d, &y2d);
   mTransform.transform(&x3d, &y3d);
 
   mPath.curve4(x1d, y1d, x2d, y2d, x3d, y3d);
+}
+
+void IGraphicsAGG::PathQuadraticBezierTo(float cx, float cy, float x2, float y2)
+{
+  double x1d = cx;
+  double y1d = cy;
+  double x2d = x2;
+  double y2d = y2;
+  
+  mTransform.transform(&x1d, &y1d);
+  mTransform.transform(&x2d, &y2d);
+  
+  mPath.curve3(x1d, y1d, x2d, y2d);
 }
 
 template<typename StrokeType>
@@ -333,16 +346,16 @@ void StrokeOptions(StrokeType& strokes, double thickness, const IStrokeOptions& 
   
   switch (options.mCapOption)
   {
-    case kCapButt:   strokes.line_cap(agg::butt_cap);     break;
-    case kCapRound:  strokes.line_cap(agg::round_cap);    break;
-    case kCapSquare: strokes.line_cap(agg::square_cap);   break;
+    case ELineCap::Butt:   strokes.line_cap(agg::butt_cap);     break;
+    case ELineCap::Round:  strokes.line_cap(agg::round_cap);    break;
+    case ELineCap::Square: strokes.line_cap(agg::square_cap);   break;
   }
   
   switch (options.mJoinOption)
   {
-    case kJoinMiter:   strokes.line_join(agg::miter_join);   break;
-    case kJoinRound:   strokes.line_join(agg::round_join);   break;
-    case kJoinBevel:   strokes.line_join(agg::bevel_join);   break;
+    case ELineJoin::Miter:   strokes.line_join(agg::miter_join);   break;
+    case ELineJoin::Round:   strokes.line_join(agg::round_join);   break;
+    case ELineJoin::Bevel:   strokes.line_join(agg::bevel_join);   break;
   }
   
   strokes.miter_limit(options.mMiterLimit);
@@ -478,11 +491,11 @@ void IGraphicsAGG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const 
     PushLayer(layer.get());
     PushLayer(&shadowLayer);
     PathRect(layer->Bounds());
-    IBlend blend1(kBlendSourceIn, 1.0);
+    IBlend blend1(EBlend::SourceIn, 1.0);
     PathTransformTranslate(-shadow.mXOffset, -shadow.mYOffset);
     PathFill(shadow.mPattern, IFillOptions(), &blend1);
     PopLayer();
-    IBlend blend2(kBlendDestOver, shadow.mOpacity);
+    IBlend blend2(EBlend::DestOver, shadow.mOpacity);
     bounds.Translate(shadow.mXOffset, shadow.mYOffset);
     DrawBitmap(bitmap, bounds, 0, 0, &blend2);
     PopLayer();
@@ -557,16 +570,16 @@ void IGraphicsAGG::PrepareAndMeasureText(const IText& text, const char* str, IRE
   
   switch (text.mAlign)
   {
-    case IText::kAlignNear:     x = r.L;                          break;
-    case IText::kAlignCenter:   x = r.MW() - (textWidth / 2.0);   break;
-    case IText::kAlignFar:      x = r.R - textWidth;              break;
+    case EAlign::Near:     x = r.L;                          break;
+    case EAlign::Center:   x = r.MW() - (textWidth / 2.0);   break;
+    case EAlign::Far:      x = r.R - textWidth;              break;
   }
   
   switch (text.mVAlign)
   {
-    case IText::kVAlignTop:      y = r.T + ascender;                            break;
-    case IText::kVAlignMiddle:   y = r.MH() + descender + (textHeight / 2.0);   break;
-    case IText::kVAlignBottom:   y = r.B + descender;                           break;
+    case EVAlign::Top:      y = r.T + ascender;                            break;
+    case EVAlign::Middle:   y = r.MH() + descender + (textHeight / 2.0);   break;
+    case EVAlign::Bottom:   y = r.B + descender;                           break;
   }
   
   r = IRECT((float) x, (float) y - ascender, (float) (x + textWidth), (float) (y + textHeight - ascender));

@@ -18,6 +18,7 @@
     #if defined IGRAPHICS_GL2
       #define NANOVG_GL2_IMPLEMENTATION
     #elif defined IGRAPHICS_GL3
+      #include <OpenGL/gl3.h>
       #define NANOVG_GL3_IMPLEMENTATION
     #else
       #error Define either IGRAPHICS_GL2 or IGRAPHICS_GL3 for IGRAPHICS_NANOVG with OS_MAC
@@ -63,9 +64,13 @@
   #error you must define either IGRAPHICS_GL2, IGRAPHICS_GLES2 etc or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
 #endif
 
+#include <string>
+#include <map>
 
 // Fonts
 StaticStorage<IFontData> sFontCache;
+
+extern std::map<std::string, void*> gTextureMap;
 
 // Retrieving pixels
 void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData)
@@ -77,12 +82,12 @@ void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int
 #endif
 }
 
-// Bitmaps
-NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID)
+NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID, bool shared)
 {
   assert(nvgImageID > 0);
 
   mVG = pContext;
+  mSharedTexture = shared;
   int w = 0, h = 0;
   nvgImageSize(mVG, nvgImageID, &w, &h);
   
@@ -119,10 +124,13 @@ NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, const ui
 
 NanoVGBitmap::~NanoVGBitmap()
 {
-  if(mFBO)
-    mGraphics->DeleteFBO(mFBO);
-  else
-    nvgDeleteImage(mVG, GetBitmap());
+  if(!mSharedTexture)
+  {
+    if(mFBO)
+      mGraphics->DeleteFBO(mFBO);
+    else
+      nvgDeleteImage(mVG, GetBitmap());
+  }
 }
 
 #pragma mark -
@@ -148,18 +156,18 @@ inline void NanoVGSetBlendMode(NVGcontext* context, const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case kBlendDefault:       // fall through
-    case kBlendClobber:       // fall through
-    case kBlendSourceOver:    nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);                break;
-    case kBlendSourceIn:      nvgGlobalCompositeOperation(context, NVG_SOURCE_IN);                  break;
-    case kBlendSourceOut:     nvgGlobalCompositeOperation(context, NVG_SOURCE_OUT);                 break;
-    case kBlendSourceAtop:    nvgGlobalCompositeOperation(context, NVG_ATOP);                       break;
-    case kBlendDestOver:      nvgGlobalCompositeOperation(context, NVG_DESTINATION_OVER);           break;
-    case kBlendDestIn:        nvgGlobalCompositeOperation(context, NVG_DESTINATION_IN);             break;
-    case kBlendDestOut:       nvgGlobalCompositeOperation(context, NVG_DESTINATION_OUT);            break;
-    case kBlendDestAtop:      nvgGlobalCompositeOperation(context, NVG_DESTINATION_ATOP);           break;
-    case kBlendAdd:           nvgGlobalCompositeBlendFunc(context, NVG_SRC_ALPHA, NVG_DST_ALPHA);   break;
-    case kBlendXOR:           nvgGlobalCompositeOperation(context, NVG_XOR);                        break;
+    case EBlend::Default:       // fall through
+    case EBlend::Clobber:       // fall through
+    case EBlend::SourceOver:    nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);                break;
+    case EBlend::SourceIn:      nvgGlobalCompositeOperation(context, NVG_SOURCE_IN);                  break;
+    case EBlend::SourceOut:     nvgGlobalCompositeOperation(context, NVG_SOURCE_OUT);                 break;
+    case EBlend::SourceAtop:    nvgGlobalCompositeOperation(context, NVG_ATOP);                       break;
+    case EBlend::DestOver:      nvgGlobalCompositeOperation(context, NVG_DESTINATION_OVER);           break;
+    case EBlend::DestIn:        nvgGlobalCompositeOperation(context, NVG_DESTINATION_IN);             break;
+    case EBlend::DestOut:       nvgGlobalCompositeOperation(context, NVG_DESTINATION_OUT);            break;
+    case EBlend::DestAtop:      nvgGlobalCompositeOperation(context, NVG_DESTINATION_ATOP);           break;
+    case EBlend::Add:           nvgGlobalCompositeBlendFunc(context, NVG_SRC_ALPHA, NVG_DST_ALPHA);   break;
+    case EBlend::XOR:           nvgGlobalCompositeOperation(context, NVG_XOR);                        break;
   }
 }
 
@@ -174,7 +182,7 @@ NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend
   IMatrix inverse = IMatrix(pattern.mTransform).Invert();
   inverse.TransformPoint(s[0], s[1], 0.0, 0.0);
 
-  if (pattern.mType == kRadialPattern)
+  if (pattern.mType == EPatternType::Radial)
   {
     return nvgRadialGradient(pContext, s[0], s[1], 0.0, inverse.mXX, icol, ocol);
   }
@@ -251,7 +259,7 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
     int sourceScale = 0;
     EResourceLocation resourceFound = SearchImageResource(name, ext, fullPathOrResourceID, targetScale, sourceScale);
 
-    bool bitmapTypeSupported = BitmapExtSupported(ext);
+    bool bitmapTypeSupported = BitmapExtSupported(ext); // KTX textures pass this test (since ext is png)
     
     if(resourceFound == EResourceLocation::kNotFound || !bitmapTypeSupported)
     {
@@ -273,6 +281,14 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
 {
   int idx = 0;
 
+#ifdef OS_IOS
+  if (location == EResourceLocation::kPreloadedTexture)
+  {
+    idx = mnvgCreateImageFromHandle(mVG, gTextureMap[fileNameOrResID], 0 /*flags*/);
+  }
+  else
+#endif
+  
 #ifdef OS_WIN
   if (location == EResourceLocation::kWinBinary)
   {
@@ -291,7 +307,7 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
     idx = nvgCreateImage(mVG, fileNameOrResID, 0);
   }
 
-  return new NanoVGBitmap(mVG, fileNameOrResID, scale, idx);
+  return new NanoVGBitmap(mVG, fileNameOrResID, scale, idx, location == EResourceLocation::kPreloadedTexture);
 }
 
 APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height, int scale, double drawScale)
@@ -358,12 +374,12 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
     PushLayer(layer.get());
     PushLayer(&shadowLayer);
     DrawBitmap(maskBitmap, bounds, 0, 0, nullptr);
-    IBlend blend1(kBlendSourceIn, 1.0);
+    IBlend blend1(EBlend::SourceIn, 1.0);
     PathRect(layer->Bounds());
     PathTransformTranslate(-shadow.mXOffset, -shadow.mYOffset);
     PathFill(shadow.mPattern, IFillOptions(), &blend1);
     PopLayer();
-    IBlend blend2(kBlendDestOver, shadow.mOpacity);
+    IBlend blend2(EBlend::DestOver, shadow.mOpacity);
     bounds.Translate(shadow.mXOffset, shadow.mYOffset);
     DrawBitmap(tempLayerBitmap, bounds, 0, 0, &blend2);
     PopLayer();
@@ -407,7 +423,8 @@ void IGraphicsNanoVG::DrawResize()
   if (mMainFrameBuffer != nullptr)
     nvgDeleteFramebuffer(mMainFrameBuffer);
   
-  mMainFrameBuffer = nvgCreateFramebuffer(mVG, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale(), 0);
+  if (mVG)
+    mMainFrameBuffer = nvgCreateFramebuffer(mVG, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale(), 0);
   
   if (mMainFrameBuffer == nullptr)
     DBGMSG("Could not init FBO.\n");
@@ -505,9 +522,9 @@ void IGraphicsNanoVG::PathClose()
   nvgClosePath(mVG);
 }
 
-void IGraphicsNanoVG::PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding)
+void IGraphicsNanoVG::PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding)
 {
-  nvgArc(mVG, cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f), winding == kWindingCW ? NVG_CW : NVG_CCW);
+  nvgArc(mVG, cx, cy, r, DegToRad(a1 - 90.f), DegToRad(a2 - 90.f), winding == EWinding::CW ? NVG_CW : NVG_CCW);
 }
 
 void IGraphicsNanoVG::PathMoveTo(float x, float y)
@@ -520,9 +537,14 @@ void IGraphicsNanoVG::PathLineTo(float x, float y)
   nvgLineTo(mVG, x, y);
 }
 
-void IGraphicsNanoVG::PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
+void IGraphicsNanoVG::PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2)
 {
-  nvgBezierTo(mVG, x1, y1, x2, y2, x3, y3);
+  nvgBezierTo(mVG, c1x, c1y, c2x, c2y, x2, y2);
+}
+
+void IGraphicsNanoVG::PathQuadraticBezierTo(float cx, float cy, float x2, float y2)
+{
+  nvgQuadTo(mVG, cx, cy, x2, y2);
 }
 
 IColor IGraphicsNanoVG::GetPoint(int x, int y)
@@ -544,16 +566,16 @@ void IGraphicsNanoVG::PrepareAndMeasureText(const IText& text, const char* str, 
   
   switch (text.mAlign)
   {
-    case IText::kAlignNear:     align = NVG_ALIGN_LEFT;     x = r.L;        break;
-    case IText::kAlignCenter:   align = NVG_ALIGN_CENTER;   x = r.MW();     break;
-    case IText::kAlignFar:      align = NVG_ALIGN_RIGHT;    x = r.R;        break;
+    case EAlign::Near:     align = NVG_ALIGN_LEFT;     x = r.L;        break;
+    case EAlign::Center:   align = NVG_ALIGN_CENTER;   x = r.MW();     break;
+    case EAlign::Far:      align = NVG_ALIGN_RIGHT;    x = r.R;        break;
   }
   
   switch (text.mVAlign)
   {
-    case IText::kVAlignTop:     align |= NVG_ALIGN_TOP;     y = r.T;        break;
-    case IText::kVAlignMiddle:  align |= NVG_ALIGN_MIDDLE;  y = r.MH();     break;
-    case IText::kVAlignBottom:  align |= NVG_ALIGN_BOTTOM;  y = r.B;        break;
+    case EVAlign::Top:     align |= NVG_ALIGN_TOP;     y = r.T;        break;
+    case EVAlign::Middle:  align |= NVG_ALIGN_MIDDLE;  y = r.MH();     break;
+    case EVAlign::Bottom:  align |= NVG_ALIGN_BOTTOM;  y = r.B;        break;
   }
   
   nvgTextAlign(mVG, align);
@@ -590,23 +612,23 @@ void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const
   // First set options
   switch (options.mCapOption)
   {
-    case kCapButt:   nvgLineCap(mVG, NVG_BUTT);     break;
-    case kCapRound:  nvgLineCap(mVG, NVG_ROUND);    break;
-    case kCapSquare: nvgLineCap(mVG, NVG_SQUARE);   break;
+    case ELineCap::Butt:   nvgLineCap(mVG, NVG_BUTT);     break;
+    case ELineCap::Round:  nvgLineCap(mVG, NVG_ROUND);    break;
+    case ELineCap::Square: nvgLineCap(mVG, NVG_SQUARE);   break;
   }
   
   switch (options.mJoinOption)
   {
-    case kJoinMiter: nvgLineJoin(mVG, NVG_MITER);   break;
-    case kJoinRound: nvgLineJoin(mVG, NVG_ROUND);   break;
-    case kJoinBevel: nvgLineJoin(mVG, NVG_BEVEL);   break;
+    case ELineJoin::Miter: nvgLineJoin(mVG, NVG_MITER);   break;
+    case ELineJoin::Round: nvgLineJoin(mVG, NVG_ROUND);   break;
+    case ELineJoin::Bevel: nvgLineJoin(mVG, NVG_BEVEL);   break;
   }
   
   nvgMiterLimit(mVG, options.mMiterLimit);
   nvgStrokeWidth(mVG, thickness);
  
   // NanoVG does not support dashed paths
-  if (pattern.mType == kSolidPattern)
+  if (pattern.mType == EPatternType::Solid)
     nvgStrokeColor(mVG, NanoVGColor(pattern.GetStop(0).mColor, pBlend));
   else
     nvgStrokePaint(mVG, NanoVGPaint(mVG, pattern, pBlend));
@@ -622,9 +644,9 @@ void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const
 
 void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
 {
-  nvgPathWinding(mVG, options.mFillRule == kFillWinding ? NVG_CCW : NVG_CW);
+  nvgPathWinding(mVG, options.mFillRule == EFillRule::Winding ? NVG_CCW : NVG_CW);
   
-  if (pattern.mType == kSolidPattern)
+  if (pattern.mType == EPatternType::Solid)
     nvgFillColor(mVG, NanoVGColor(pattern.GetStop(0).mColor, pBlend));
   else
     nvgFillPaint(mVG, NanoVGPaint(mVG, pattern, pBlend));

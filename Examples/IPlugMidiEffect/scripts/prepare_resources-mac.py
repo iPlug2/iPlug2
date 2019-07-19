@@ -14,13 +14,15 @@ import plistlib, os, datetime, fileinput, glob, sys, string, shutil
 scriptpath = os.path.dirname(os.path.realpath(__file__))
 projectpath = os.path.abspath(os.path.join(scriptpath, os.pardir))
 
-sys.path.insert(0, projectpath + '/../../scripts/')
+IPLUG2_ROOT = "../../.."
+
+sys.path.insert(0, os.path.join(os.getcwd(), IPLUG2_ROOT + '/scripts'))
 
 from parse_config import parse_config, parse_xcconfig
 
 def main():
   config = parse_config(projectpath)
-  xcconfig = parse_xcconfig(projectpath + '/../../common-mac.xcconfig')
+  xcconfig = parse_xcconfig(os.path.join(os.getcwd(), IPLUG2_ROOT +  '/common-mac.xcconfig'))
 
   CFBundleGetInfoString = config['BUNDLE_NAME'] + " v" + config['FULL_VER_STR'] + " " + config['PLUG_COPYRIGHT_STR']
   CFBundleVersion = config['FULL_VER_STR']
@@ -199,7 +201,7 @@ def main():
   macOSapp['NSMainNibFile'] = config['BUNDLE_NAME'] + "-macOS-MainMenu"
   macOSapp['LSApplicationCategoryType'] = "public.app-category.music"
   macOSapp['CFBundleIconFile'] = config['BUNDLE_NAME'] + ".icns"
-#  macOSapp['NSMicrophoneUsageDescription'] = 	"This app needs mic access to process audio."
+  macOSapp['NSMicrophoneUsageDescription'] = 	"This app needs mic access to process audio."
 
   plistlib.writePlist(macOSapp, plistpath)
 

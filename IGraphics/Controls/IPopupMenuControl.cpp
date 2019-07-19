@@ -335,7 +335,7 @@ void IPopupMenuControl::DrawCellText(IGraphics& g, const IRECT& bounds, const IP
       mText.mFGColor = COLOR_GRAY;
   }
   
-  mText.mAlign = IText::kAlignNear;
+  mText.mAlign = EAlign::Near;
   g.DrawText(mText, pItem->GetText(), textRect, pBlend);
 }
 

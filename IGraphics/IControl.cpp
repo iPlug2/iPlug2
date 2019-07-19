@@ -54,6 +54,7 @@ void SplashAnimationFunc(IControl* pCaller)
   pCaller->SetDirty(false);
 };
 
+void EmptyClickActionFunc(IControl* pCaller) { };
 void DefaultClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(DefaultAnimationFunc, DEFAULT_ANIMATION_DURATION); };
 void SplashClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(SplashAnimationFunc, DEFAULT_ANIMATION_DURATION); }
 
@@ -278,8 +279,8 @@ void IControl::PromptUserInput(int valIdx)
     {
       float cX = mRECT.MW();
       float cY = mRECT.MH();
-      float halfW = float(PARAM_EDIT_W)/2.f;
-      float halfH = float(PARAM_EDIT_H)/2.f;
+      float halfW = PARAM_EDIT_W/2.f;
+      float halfH = PARAM_EDIT_H/2.f;
 
       IRECT txtRECT = IRECT(cX - halfW, cY - halfH, cX + halfW,cY + halfH);
       GetUI()->PromptUserInput(*this, txtRECT, valIdx);
@@ -329,7 +330,7 @@ void IControl::DrawPTHighlight(IGraphics& g)
   }
 }
 
-void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, int valIdx, float scalar /* TODO: scalar! */)
+void IControl::SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx, float scalar /* TODO: scalar! */, double minClip, double maxClip)
 {
   bounds.Constrain(x, y);
 
@@ -337,15 +338,14 @@ void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds
 
   //val = 1.f - (y - (mRECT.B - (mRECT.H()*lengthMult)) / 2) / ((mLen*lengthMult));
   
-  if(direction == kVertical)
+  if(direction == EDirection::Vertical)
     val = 1.f - (y-bounds.T) / bounds.H();
   else
     //mValue = (double) (x - (mRECT.R - (mRECT.W()*lengthMult)) - mHandleHeadroom / 2) / (double) ((mLen*lengthMult) - mHandleHeadroom);
     val = (x-bounds.L) / bounds.W();
 
-  auto valFunc = [&](int v)
-  {
-    SetValue(std::round(val / 0.001 ) * 0.001, v);
+  auto valFunc = [&](int valIdx) {
+    SetValue(Clip(std::round(val / 0.001 ) * 0.001, minClip, maxClip), valIdx);
   };
   
   ForValIdx(valIdx, valFunc);
@@ -367,6 +367,15 @@ void IBitmapControl::Draw(IGraphics& g)
 void IBitmapControl::OnRescale()
 {
   mBitmap = GetUI()->GetScaledBitmap(mBitmap);
+}
+
+ITextControl::ITextControl(const IRECT& bounds, const char* str, const IText& text, const IColor& BGColor)
+: IControl(bounds)
+, mStr(str)
+, mBGColor(BGColor)
+{
+  mIgnoreMouse = true;
+  IControl::mText = text;
 }
 
 void ITextControl::SetStr(const char* str)
@@ -399,7 +408,42 @@ void ITextControl::SetBoundsBasedOnTextDimensions()
 {
   IRECT r;
   GetUI()->MeasureText(mText, mStr.Get(), r);
+  
+  //TODO look at text align/valign?
   SetTargetAndDrawRECTs({mRECT.L, mRECT.T, mRECT.L + r.W(), mRECT.T + r.H()});
+}
+
+IURLControl::IURLControl(const IRECT& bounds, const char* str, const char* urlStr, const IText& text, const IColor& BGColor, const IColor& MOColor, const IColor& CLColor)
+: ITextControl(bounds, str, text, BGColor)
+, mURLStr(urlStr)
+, mMOColor(MOColor)
+, mCLColor(CLColor)
+, mOriginalColor(text.mFGColor)
+{
+  mIgnoreMouse = false;
+  IControl::mText = text;
+}
+
+void IURLControl::Draw(IGraphics& g)
+{
+  g.FillRect(mBGColor, mRECT);
+  
+  if(mMouseIsOver)
+    mText.mFGColor = mMOColor;
+  else
+    mText.mFGColor = mClicked ? mCLColor : mOriginalColor;
+  
+  g.DrawLine(mText.mFGColor, mRECT.L, mRECT.B, mRECT.R, mRECT.B);
+  
+  if (mStr.GetLength())
+    g.DrawText(mText, mStr.Get(), mRECT);
+}
+
+void IURLControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  GetUI()->OpenURL(mURLStr.Get());
+  GetUI()->ReleaseMouseCapture();
+  mClicked = true;
 }
 
 ITextToggleControl::ITextToggleControl(const IRECT& bounds, int paramIdx, const char* offText, const char* onText, const IText& text, const IColor& bgColor)
@@ -420,24 +464,27 @@ ITextToggleControl::ITextToggleControl(const IRECT& bounds, IActionFunction aF, 
 {
   SetActionFunction(aF);
   mDblAsSingleClick = true;
-  //TODO: assert boolean?
   mIgnoreMouse = false;
 }
 
 void ITextToggleControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   if(GetValue() < 0.5)
-  {
     SetValue(1.);
-    SetStr(mOnText.Get());
-  }
   else
-  {
     SetValue(0.);
-    SetStr(mOffText.Get());
-  }
   
   SetDirty(true);
+}
+
+void ITextToggleControl::SetDirty(bool push, int valIdx)
+{
+  IControl::SetDirty(push);
+  
+  if(GetValue() > 0.5)
+    SetStr(mOnText.Get());
+  else
+    SetStr(mOffText.Get());
 }
 
 
@@ -476,7 +523,7 @@ void ICaptionControl::Draw(IGraphics& g)
 
   ITextControl::Draw(g);
   
-  if(mTri.W()) {
+  if(mTri.W() > 0.f) {
     g.FillTriangle(COLOR_DARK_GRAY, mTri.L, mTri.T, mTri.R, mTri.T, mTri.MW(), mTri.B, GetMouseIsOver() ? 0 : &BLEND_50);
   }
 }
@@ -563,7 +610,7 @@ void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const I
 {
   double gearing = IsFineControl(mod, false) ? mGearing * 10.0 : mGearing;
 
-  if (mDirection == kVertical)
+  if (mDirection == EDirection::Vertical)
     SetValue(GetValue() + (double)dY / (double)(mRECT.T - mRECT.B) / gearing);
   else
     SetValue(GetValue() + (double)dX / (double)(mRECT.R - mRECT.L) / gearing);

@@ -45,7 +45,7 @@ public:
     WDL_String file;
     WDL_String path;
 
-    GetUI()->PromptForFile(file, path, kFileOpen, "");
+    GetUI()->PromptForFile(file, path, EFileAction::Open, "");
 
     if(file.GetLength())
       SetBitmap(file.Get());

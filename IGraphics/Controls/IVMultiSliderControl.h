@@ -26,7 +26,7 @@ class IVMultiSliderControl : public IVTrackControlBase
 {
 public:
 
-  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = kVertical, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
   : IVTrackControlBase(bounds, label, style, MAXNC, dir, minTrackValue, maxTrackValue, trackNames)
   {
     mOuterPadding = 0.f;
@@ -67,7 +67,7 @@ public:
     return kNoValIdx;
   }
 
-  void SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, int valIdx = -1 /* TODO:: not used*/, float scalar = 1.) override
+  void SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx = -1 /* TODO:: not used*/, float scalar = 1.f, double minClip = 0., double maxClip = 1.) override
   {
     bounds.Constrain(x, y);
     int nVals = NVals();
@@ -75,7 +75,7 @@ public:
     float value = 0.;
     int sliderTest = -1;
 
-    if(direction == kVertical)
+    if(direction == EDirection::Vertical)
     {
       value = 1. - (y-bounds.T) / bounds.H();
       
@@ -146,13 +146,6 @@ public:
     SetDirty(true); // will send all param vals parameter value to delegate
   }
 
-  void OnResize() override
-  {
-    SetTargetRECT(CalculateRects(mRECT));
-    MakeTrackRects(mWidgetBounds);
-    SetDirty(false);
-  }
-  
   //  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
