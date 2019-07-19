@@ -39,6 +39,8 @@ public:
   void Resize(int size)
   {
     mData.Resize(size + 1);
+    mReadIndex.store(0);
+    mWriteIndex.store(0);
   }
 
   /** /todo 
@@ -55,7 +57,7 @@ public:
       mWriteIndex.store(nextWriteIndex, std::memory_order_release);
       return true;
     }
-    return false;
+    return false; // full queue
   }
 
   /** /todo 
@@ -67,7 +69,7 @@ public:
     const auto currentReadIndex = mReadIndex.load(std::memory_order_relaxed);
     if(currentReadIndex == mWriteIndex.load(std::memory_order_acquire))
     {
-      return false; // empty the queue
+      return false; // empty queue
     }
     item = mData.Get()[currentReadIndex];
     mReadIndex.store(Increment(currentReadIndex), std::memory_order_release);
