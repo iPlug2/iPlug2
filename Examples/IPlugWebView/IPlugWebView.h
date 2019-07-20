@@ -18,6 +18,26 @@ enum EMsgTags
   kMsgTagButton3 = 2,
 };
 
+enum ECtrlTags
+{
+  kCtrlTagMeter = 0,
+};
+
+class ParamSmooth
+{
+private:
+  sample mA = 0.99;
+  sample mB = 0.01;
+  sample mOutM1 = 0.;
+  
+public:
+  inline sample Process(sample input)
+  {
+    mOutM1 = (input * mB) + (mOutM1 * mA);
+    return mOutM1;
+  }
+};
+
 class IPlugWebView : public IPlug
 {
 public:
@@ -28,7 +48,7 @@ public:
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   
 private:
-  float mLastPeakL = 0.;
-  float mLastPeakR = 0.;
+  float mLastPeak = 0.;
   FastSinOscillator<sample> mOscillator {0., 440.};
+  ParamSmooth mGainSmoother;
 };

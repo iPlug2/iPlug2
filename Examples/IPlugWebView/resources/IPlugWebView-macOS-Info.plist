@@ -30,6 +30,11 @@
 	<string>public.app-category.music</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>10.11.0</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 	<key>NSMainNibFile</key>
 	<string>IPlugWebView-macOS-MainMenu</string>
 	<key>NSMicrophoneUsageDescription</key>
