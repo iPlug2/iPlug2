@@ -190,14 +190,17 @@ void WebViewEditorDelegate::LoadFileFromBundle(const char* fileName)
   WKWebView* webView = (WKWebView*) mWKWebView;
 
   WDL_String fullPath;
-  GetResourcePathFromBundle(fileName, "html", fullPath, pPlug->GetBundleID());
+  WDL_String fileNameWeb("web/");
+  fileNameWeb.Append(fileName);
+  
+  GetResourcePathFromBundle(fileNameWeb.Get(), "html", fullPath, pPlug->GetBundleID());
   
   NSString* pPath = [NSString stringWithUTF8String:fullPath.Get()];
   
   NSString* str = @"file:";
   NSString* webroot = [str stringByAppendingString:[pPath stringByReplacingOccurrencesOfString:[NSString stringWithUTF8String:fileName] withString:@""]];
   NSURL* pageUrl = [NSURL URLWithString:[webroot stringByAppendingString:[NSString stringWithUTF8String:fileName]] relativeToURL:nil];
-  NSURL* rootUrl = [NSURL URLWithString:[webroot stringByAppendingString:@"web"] relativeToURL:nil];
+  NSURL* rootUrl = [NSURL URLWithString:webroot relativeToURL:nil];
 
   [webView loadFileURL:pageUrl allowingReadAccessToURL:rootUrl];
 }
