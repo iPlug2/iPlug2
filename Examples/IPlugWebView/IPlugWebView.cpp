@@ -34,7 +34,7 @@ void IPlugWebView::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   {
     sample smoothGain = mGainSmoother.Process(gain);
     outputs[0][s] = inputs[0][s] * smoothGain;
-    outputs[1][s] = inputs[0][s] * smoothGain;
+    outputs[1][s] = outputs[0][s];
     
     maxVal += std::fabs(outputs[0][s]);
   }
