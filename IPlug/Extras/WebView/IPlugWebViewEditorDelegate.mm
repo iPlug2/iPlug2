@@ -86,9 +86,9 @@ void* WebViewEditorDelegate::OpenWindow(void* pParent)
   VIEW* parentView = (VIEW*) pParent;
   
   WKWebViewConfiguration* webConfig = [[WKWebViewConfiguration alloc] init];
-  WKPreferences* preferences = [[WKPreferences alloc] init] ;
+  WKPreferences* preferences = [[[WKPreferences alloc] init] autorelease];
   
-  WKUserContentController* controller = [[WKUserContentController alloc] init];
+  WKUserContentController* controller = [[[WKUserContentController alloc] init] autorelease];
   webConfig.userContentController = controller;
 
   ScriptHandler* scriptHandler = [[ScriptHandler alloc] initWithWebViewEditorDelegate: this];
@@ -129,6 +129,9 @@ void* WebViewEditorDelegate::OpenWindow(void* pParent)
 
 void WebViewEditorDelegate::CloseWindow()
 {
+  [(WKWebViewConfiguration*) mWebConfig release];
+  [(WKWebView*) mWKWebView release];
+  [(ScriptHandler*) mScriptHandler release];
 }
 
 void WebViewEditorDelegate::SendControlValueFromDelegate(int controlTag, double normalizedValue)
@@ -178,7 +181,7 @@ void WebViewEditorDelegate::LoadURL(const char* url)
   WKWebView* webView = (WKWebView*) mWKWebView;
   
   NSURL* nsurl = [NSURL URLWithString:[NSString stringWithUTF8String:url] relativeToURL:nil];
-  NSURLRequest* req = [[NSURLRequest alloc] initWithURL:nsurl];
+  NSURLRequest* req = [[NSURLRequest alloc] initWithURL:nsurl]; //TODO: release
   [webView loadRequest:req];
 }
 
