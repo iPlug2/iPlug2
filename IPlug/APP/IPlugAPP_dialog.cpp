@@ -520,7 +520,7 @@ void ClientResize(HWND hWnd, int nWidth, int nHeight)
   {
     int dpi = __GetDpiForWindow(hWnd);
     if (dpi != 96)
-      scale = static_cast<double>(dpi / USER_DEFAULT_SCREEN_DPI);
+      scale = std::round(static_cast<double>(dpi / USER_DEFAULT_SCREEN_DPI));
   }
   
   nWidth *= scale;
