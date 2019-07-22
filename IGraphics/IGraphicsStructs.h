@@ -151,6 +151,9 @@ public:
 
   virtual ~APIBitmap() {}
 
+  APIBitmap(const APIBitmap&) = delete;
+  APIBitmap& operator=(const APIBitmap&) = delete;
+    
   /** Used to initialise the members after construction
    * @param pBitmap pointer or integer index (NanoVG) to the image data
    * @param w The width of the bitmap
@@ -218,7 +221,7 @@ public:
   , mFramesAreHorizontal(false)
   {
   }
-
+  
   /** @return overall bitmap width in pixels */
   int W() const { return mW; }
 
@@ -267,14 +270,15 @@ private:
   WDL_String mResourceName;
 };
 
-/** Used to manage SVG images used by the graphics context */
+/** User-facing SVG abstraction that you use to manage SVG data
+ * ISVG doesn't actually own the image data */
 struct ISVG
 {  
   ISVG(NSVGimage* pImage)
   {
     mImage = pImage;
   }
-
+  
   /** /todo */
   float W() const
   {
@@ -553,7 +557,7 @@ struct IText
    * @param angle /todo
    * @param TEBGColor /todo
    * @param TEFGColor /todo */
-  explicit IText(float size = DEFAULT_TEXT_SIZE,
+  IText(float size = DEFAULT_TEXT_SIZE,
         const IColor& color = DEFAULT_TEXT_FGCOLOR,
         const char* font = nullptr,
         EAlign align = EAlign::Center,
@@ -575,7 +579,7 @@ struct IText
   /** /todo 
     * @param size /todo
     * @param valign /todo */
-  explicit IText(float size, EVAlign valign)
+  IText(float size, EVAlign valign)
   : IText()
   {
     mSize = size;
@@ -585,14 +589,14 @@ struct IText
   /** /todo 
    * @param size /todo
    * @param align /todo */
-  explicit IText(float size, EAlign align)
+  IText(float size, EAlign align)
   : IText()
   {
     mSize = size;
     mAlign = align;
   }
   
-  explicit IText(float size, const char* font)
+  IText(float size, const char* font)
   : IText()
   {
     mSize = size;
@@ -848,6 +852,10 @@ class PlatformFont
 public:
   PlatformFont(bool system) : mSystem(system) {}
   virtual ~PlatformFont() {}
+    
+  PlatformFont(const PlatformFont&) = delete;
+  PlatformFont& operator=(const PlatformFont&) = delete;
+
   virtual FontDescriptor GetDescriptor() { return nullptr; }
   virtual IFontDataPtr GetFontData() { return IFontDataPtr(new IFontData()); }
   bool IsSystem() { return mSystem; }
@@ -1759,6 +1767,12 @@ struct IMouseInfo
 class IRECTList
 {
 public:
+  IRECTList()
+  {}
+  
+  IRECTList(const IRECTList&) = delete;
+  IRECTList& operator=(const IRECTList&) = delete;
+
   /** /todo
    * @return int /todo */
   int Size() const { return mRects.GetSize(); }
@@ -2285,7 +2299,7 @@ public:
   {}
 
   ILayer(const ILayer&) = delete;
-  ILayer operator =(const ILayer&) = delete;
+  ILayer operator=(const ILayer&) = delete;
   
   /** /todo */
   void Invalidate() { mInvalid = true; }
@@ -2364,11 +2378,16 @@ public:
     StaticStorage& mStorage;
   };
   
+  StaticStorage() {}
+    
   ~StaticStorage()
   {
     Clear();
   }
 
+  StaticStorage(const StaticStorage&) = delete;
+  StaticStorage& operator=(const StaticStorage&) = delete;
+    
 private:
   /** /todo */
   struct DataKey
@@ -2573,7 +2592,7 @@ struct IVStyle
   IText labelText = DEFAULT_LABEL_TEXT;
   IText valueText = DEFAULT_VALUE_TEXT;
   
-  explicit IVStyle(bool showLabel = DEFAULT_SHOW_LABEL,
+  IVStyle(bool showLabel = DEFAULT_SHOW_LABEL,
           bool showValue = DEFAULT_SHOW_VALUE,
           const std::initializer_list<IColor>& colors = {DEFAULT_BGCOLOR, DEFAULT_FGCOLOR, DEFAULT_PRCOLOR, DEFAULT_FRCOLOR, DEFAULT_HLCOLOR, DEFAULT_SHCOLOR, DEFAULT_X1COLOR, DEFAULT_X2COLOR, DEFAULT_X3COLOR},
           const IText& labelText = DEFAULT_LABEL_TEXT,
@@ -2602,7 +2621,7 @@ struct IVStyle
   {
   }
   
-  explicit IVStyle(const std::initializer_list<IColor>& colors)
+  IVStyle(const std::initializer_list<IColor>& colors)
   : colorSpec(colors)
   {
   }
