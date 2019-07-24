@@ -82,7 +82,7 @@ IPlugInstrument::IPlugInstrument(IPlugInstanceInfo instanceInfo)
                                    if(!isUp)
                                    {
                                      if(keysDown[pitch] == false) {
-                                       msg.MakeNoteOnMsg(pitch, 127, 0);
+                                       msg.MakeNoteOnMsg(pitch, 127);
                                        keysDown[pitch] = true;
                                        SendMidiMsgFromUI(msg);
                                        dynamic_cast<IVKeyboardControl*>(GetUI()->GetControlWithTag(kCtrlTagKeyboard))->SetNoteFromMidi(pitch, true);
@@ -91,7 +91,7 @@ IPlugInstrument::IPlugInstrument(IPlugInstanceInfo instanceInfo)
                                    else
                                    {
                                      if(keysDown[pitch] == true) {
-                                       msg.MakeNoteOffMsg(pitch, 127, 0);
+                                       msg.MakeNoteOffMsg(pitch);
                                        keysDown[pitch] = false;
                                        SendMidiMsgFromUI(msg);
                                        dynamic_cast<IVKeyboardControl*>(GetUI()->GetControlWithTag(kCtrlTagKeyboard))->SetNoteFromMidi(pitch, false);
