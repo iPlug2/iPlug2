@@ -107,7 +107,7 @@
 		4F722020225C1EB100FF0E7C /* commoniids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F72201E225C1EB100FF0E7C /* commoniids.cpp */; };
 		4F722021225C1EB100FF0E7C /* commoniids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F72201E225C1EB100FF0E7C /* commoniids.cpp */; };
 		4F78BE0922E73D0800AD537E /* AUv3Framework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F78BE0222E73D0800AD537E /* AUv3Framework.framework */; };
-		4F78BE0A22E73D0800AD537E /* AUv3Framework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4F78BE0222E73D0800AD537E /* AUv3Framework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		4F78BE0A22E73D0800AD537E /* AUv3Framework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4F78BE0222E73D0800AD537E /* AUv3Framework.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4F78BE1222E73DD900AD537E /* AUv3Framework.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78BE1022E73DD900AD537E /* AUv3Framework.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F78BE1422E7406D00AD537E /* IPlugEffect.h in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862EE2014BBEC0009F402 /* IPlugEffect.h */; };
 		4F78BE1522E7406D00AD537E /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */; };
@@ -123,9 +123,9 @@
 		4F78BE1F22E7406D00AD537E /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F03A55820A4621000EBDFFB /* IGraphics.cpp */; };
 		4F78BE2022E7406D00AD537E /* IGraphicsEditorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8C10DE20BA2796006320CD /* IGraphicsEditorDelegate.cpp */; };
 		4F78BE2122E7406D00AD537E /* IControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F6369E920A466470022C370 /* IControl.cpp */; };
-		4F78BE2222E7406D00AD537E /* IPlugAUAudioUnit.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F39077A2013EC0400DDA490 /* IPlugAUAudioUnit.mm */; };
-		4F78BE2322E7406D00AD537E /* IPlugAUv3.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F1A5286205D915B00CF2908 /* IPlugAUv3.mm */; };
-		4F78BE2422E7406D00AD537E /* IPlugAUViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3907772013EC0400DDA490 /* IPlugAUViewController.mm */; };
+		4F78BE2222E7406D00AD537E /* IPlugAUAudioUnit.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F39077A2013EC0400DDA490 /* IPlugAUAudioUnit.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F78BE2322E7406D00AD537E /* IPlugAUv3.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F1A5286205D915B00CF2908 /* IPlugAUv3.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F78BE2422E7406D00AD537E /* IPlugAUViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3907772013EC0400DDA490 /* IPlugAUViewController.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F78BE2522E7406D00AD537E /* IPlugPluginBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */; };
 		4F78BE2622E7406D00AD537E /* IPlugAPIBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugAPIBase.cpp */; };
 		4F78BE2822E7406D00AD537E /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
@@ -134,7 +134,7 @@
 		4F78BE2C22E7412300AD537E /* IGraphicsAGG_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FA9F80C21F76177004E6FE2 /* IGraphicsAGG_src.mm */; };
 		4F78BE2D22E7412300AD537E /* IGraphicsNanoVG_src.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6369DC20A464BB0022C370 /* IGraphicsNanoVG_src.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F78BE3222E7429B00AD537E /* IPlugAUv3Appex.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F78BE3022E7429700AD537E /* IPlugAUv3Appex.m */; };
-		4F78BE3822E7448300AD537E /* IPlugEffect.appex in Embed AUv3 */ = {isa = PBXBuildFile; fileRef = 4F3907602013EBA300DDA490 /* IPlugEffect.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		4F78BE3822E7448300AD537E /* IPlugEffect.appex in Embed AUv3 App Extension */ = {isa = PBXBuildFile; fileRef = 4F3907602013EBA300DDA490 /* IPlugEffect.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4F78BE3C22E74CD000AD537E /* IPlugAUViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F98C32C20A7678800F120A9 /* IPlugAUViewController.xib */; };
 		4F78D88613B6382B0032E0F3 /* IPlugEffect.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4FD290A8137C34D700CEBE7E /* IPlugEffect.icns */; };
 		4F78D90B13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugAPIBase.cpp */; };
@@ -305,13 +305,6 @@
 			remoteGlobalIDString = 4FB600121567CB0A0020189A;
 			remoteInfo = "AAX_32&64_intel";
 		};
-		4F78BE0722E73D0800AD537E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 4F78BE0122E73D0800AD537E;
-			remoteInfo = AUv3Framework;
-		};
 		4F78BE3522E742DE00AD537E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
@@ -361,6 +354,13 @@
 			remoteGlobalIDString = 4F9828AA140A9EB700F3FCC1;
 			remoteInfo = "VST3_32&64_intel";
 		};
+		4FA61F9A22E8AAF900A92C58 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4F78BE0122E73D0800AD537E;
+			remoteInfo = AUv3Framework;
+		};
 		4FC3EFD22086C46800BD11FA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
@@ -382,15 +382,15 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4F78BE3722E7447400AD537E /* Embed AUv3 */ = {
+		4F78BE3722E7447400AD537E /* Embed AUv3 App Extension */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				4F78BE3822E7448300AD537E /* IPlugEffect.appex in Embed AUv3 */,
+				4F78BE3822E7448300AD537E /* IPlugEffect.appex in Embed AUv3 App Extension */,
 			);
-			name = "Embed AUv3";
+			name = "Embed AUv3 App Extension";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -665,6 +665,7 @@
 		4F9A82F3213DE80200BE63A4 /* IPopupMenuControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPopupMenuControl.h; sourceTree = "<group>"; };
 		4F9A82F5213DE80300BE63A4 /* IPopupMenuControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPopupMenuControl.cpp; sourceTree = "<group>"; };
 		4F9C097E224D26B40050309D /* IPlugVST3_ControllerBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugVST3_ControllerBase.h; path = ../../../IPlug/VST3/IPlugVST3_ControllerBase.h; sourceTree = "<group>"; };
+		4FA61F9922E8A96300A92C58 /* tex */ = {isa = PBXFileReference; lastKnownFileType = folder; name = tex; path = ../resources/tex; sourceTree = "<group>"; };
 		4FA9F80321F760C1004E6FE2 /* IGraphicsLice_src.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsLice_src.mm; sourceTree = "<group>"; };
 		4FA9F80C21F76177004E6FE2 /* IGraphicsAGG_src.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsAGG_src.mm; sourceTree = "<group>"; };
 		4FB1F57B20E4AFEE004157C8 /* IGraphicsIOS_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsIOS_view.mm; path = ../../../IGraphics/Platforms/IGraphicsIOS_view.mm; sourceTree = "<group>"; };
@@ -868,6 +869,7 @@
 			children = (
 				4FC82B4620BD522B00722133 /* fonts */,
 				4FC82B4520BD522B00722133 /* img */,
+				4FA61F9922E8A96300A92C58 /* tex */,
 				4F1B4AE32014D33600BC64D4 /* IPlugEffect-macOS-MainMenu.xib */,
 				4F3FB118202273A500622761 /* IPlugEffect-macOS.entitlements */,
 				4F98C32C20A7678800F120A9 /* IPlugAUViewController.xib */,
@@ -1687,7 +1689,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4F3907742013EBA400DDA490 /* Build configuration list for PBXNativeTarget "AUv3" */;
 			buildPhases = (
-				4F78BE3B22E74A7E00AD537E /* Run Script - touch dummy file */,
+				4F78BE3B22E74A7E00AD537E /* Run Script - Touch dummy file */,
 				4F39075C2013EBA300DDA490 /* Sources */,
 				4F39075D2013EBA300DDA490 /* Frameworks */,
 				4F39075E2013EBA300DDA490 /* Resources */,
@@ -1806,12 +1808,12 @@
 				4FD16A0613B63081001D0217 /* Sources */,
 				4FD16A0713B63081001D0217 /* Frameworks */,
 				4F78BE0F22E73D0800AD537E /* Embed Frameworks */,
-				4F78BE3722E7447400AD537E /* Embed AUv3 */,
+				4F78BE3722E7447400AD537E /* Embed AUv3 App Extension */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				4F78BE0822E73D0800AD537E /* PBXTargetDependency */,
+				4FA61F9B22E8AAF900A92C58 /* PBXTargetDependency */,
 			);
 			name = APP;
 			productName = "OSXAPP_32&64_intel";
@@ -2051,9 +2053,9 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "pluginkit -a $BUILT_PRODUCTS_DIR/IPlugEffect.appex\n";
+			shellScript = "#pluginkit -a $APP_PATH/IPlugEffect.app/Contents/PlugIns/IPlugEffect.appex\n";
 		};
-		4F78BE3B22E74A7E00AD537E /* Run Script - touch dummy file */ = {
+		4F78BE3B22E74A7E00AD537E /* Run Script - Touch dummy file */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -2062,7 +2064,7 @@
 			);
 			inputPaths = (
 			);
-			name = "Run Script - touch dummy file";
+			name = "Run Script - Touch dummy file";
 			outputFileListPaths = (
 			);
 			outputPaths = (
@@ -2460,11 +2462,6 @@
 			target = 4FB600121567CB0A0020189A /* AAX */;
 			targetProxy = 4F789ECF16763E47009EF688 /* PBXContainerItemProxy */;
 		};
-		4F78BE0822E73D0800AD537E /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 4F78BE0122E73D0800AD537E /* AUv3Framework */;
-			targetProxy = 4F78BE0722E73D0800AD537E /* PBXContainerItemProxy */;
-		};
 		4F78BE3622E742DE00AD537E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 4F78BE0122E73D0800AD537E /* AUv3Framework */;
@@ -2494,6 +2491,11 @@
 			isa = PBXTargetDependency;
 			target = 4F9828AA140A9EB700F3FCC1 /* VST3 */;
 			targetProxy = 4F9828F7140A9F0200F3FCC1 /* PBXContainerItemProxy */;
+		};
+		4FA61F9B22E8AAF900A92C58 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4F78BE0122E73D0800AD537E /* AUv3Framework */;
+			targetProxy = 4FA61F9A22E8AAF900A92C58 /* PBXContainerItemProxy */;
 		};
 		4FC3EFD32086C46800BD11FA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -2950,6 +2952,7 @@
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GENERATE_PKGINFO_FILE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugEffect-macOS-AUv3Framework-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @loader_path/Frameworks";
@@ -3007,6 +3010,7 @@
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GENERATE_PKGINFO_FILE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugEffect-macOS-AUv3Framework-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @loader_path/Frameworks";
@@ -3064,6 +3068,7 @@
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GENERATE_PKGINFO_FILE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugEffect-macOS-AUv3Framework-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @loader_path/Frameworks";
