@@ -413,9 +413,6 @@ bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nInputs, int
         
       while (mMidiQueue.Pop(msg))
       {
-        // we assume the messages are in chronological order. If we find one later than the current block we are done.
-        if (msg.mOffset > startIndex + blockSize) break;
-
         if(IsRPNMessage(msg))
         {
           HandleRPN(msg);
