@@ -140,7 +140,7 @@ struct IMidiMsg
    * @param velocity /todo
    * @param offset /todo
    * @param channel /todo */
-  void MakeNoteOnMsg(int noteNumber, int velocity, int offset, int channel = 0)
+  void MakeNoteOnMsg(int noteNumber, int velocity, int offset = 0, int channel = 0)
   {
     Clear();
     mStatus = channel | (kNoteOn << 4) ;
@@ -153,7 +153,7 @@ struct IMidiMsg
    * @param noteNumber /todo
    * @param offset /todo
    * @param channel /todo */
-  void MakeNoteOffMsg(int noteNumber, int offset, int channel = 0)
+  void MakeNoteOffMsg(int noteNumber, int offset = 0, int channel = 0)
   {
     Clear();
     mStatus = channel | (kNoteOff << 4);
