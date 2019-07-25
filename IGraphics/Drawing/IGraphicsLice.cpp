@@ -44,6 +44,9 @@ public:
     CGFontRelease(mCGFont);
   }
 
+  MacRegisteredFont(const MacRegisteredFont&) = delete;
+  MacRegisteredFont& operator=(const MacRegisteredFont&) = delete;
+    
 private:
   CGFontRef mCGFont;
 };

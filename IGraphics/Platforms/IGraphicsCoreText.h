@@ -33,8 +33,9 @@ private:
 };
 
 template <class T>
-struct CFLocal
+class CFLocal
 {
+public:
   CFLocal(T obj)
   : mObject(obj)
   {}
@@ -44,7 +45,10 @@ struct CFLocal
     if (mObject)
       CFRelease(mObject);
   }
-  
+      
+  CFLocal(const CFLocal&) = delete;
+  CFLocal& operator=(const CFLocal&) = delete;
+    
   T Get() { return mObject;  }
   
   T Release()
@@ -54,11 +58,13 @@ struct CFLocal
     return prev;
   }
   
+private:
   T mObject;
 };
 
-struct CoreTextFontDescriptor
+class CoreTextFontDescriptor
 {
+public:
   CoreTextFontDescriptor(CTFontDescriptorRef descriptor, double EMRatio)
   : mDescriptor(descriptor)
   , mEMRatio(EMRatio)
@@ -71,6 +77,13 @@ struct CoreTextFontDescriptor
     CFRelease(mDescriptor);
   }
   
+  CoreTextFontDescriptor(const CoreTextFontDescriptor&) = delete;
+  CoreTextFontDescriptor& operator=(const CoreTextFontDescriptor&) = delete;
+    
+  CTFontDescriptorRef GetDescriptor() const { return mDescriptor; }
+  double GetEMRatio() const { return mEMRatio; }
+    
+private:
   CTFontDescriptorRef mDescriptor;
   double mEMRatio;
 };
