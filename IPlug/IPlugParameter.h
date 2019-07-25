@@ -123,6 +123,9 @@ public:
 
   IParam();
 
+  IParam(const IParam&) = delete;
+  IParam& operator=(const IParam&) = delete;
+
   /** Initialize the parameter as boolean
    * @param name The parameter's name
    * @param defaultValue The default value of the parameter

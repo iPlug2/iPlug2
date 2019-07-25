@@ -42,6 +42,9 @@ public:
   IPlugProcessor(IPlugConfig config, EAPI plugAPI);
   virtual ~IPlugProcessor();
 
+  IPlugProcessor(const IPlugProcessor&) = delete;
+  IPlugProcessor& operator=(const IPlugProcessor&) = delete;
+  
 #pragma mark - Methods you implement in your plug-in class - you do not call these methods
 
   /** Override in your plug-in class to process audio
