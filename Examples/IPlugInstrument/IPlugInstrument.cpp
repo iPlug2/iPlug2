@@ -36,8 +36,7 @@ IPlugInstrument::IPlugInstrument(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new IVSliderControl(sliders.GetGridCell(3, 1, 4).GetMidHPadded(30.), kParamRelease, "Release"));
     pGraphics->AttachControl(new IVMeterControl<1>(controls.GetFromRight(100).GetPadded(-30), ""), kCtrlTagMeter);
     
-    pGraphics->SetKeyHandlerFunc([&](const IKeyPress& key, bool isUp)
-                                 {
+    pGraphics->SetKeyHandlerFunc([&](const IKeyPress& key, bool isUp) {
                                    IMidiMsg msg;
                                    
                                    int note = 0;
