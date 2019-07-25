@@ -26,26 +26,30 @@ class IVMultiSliderControl : public IVTrackControlBase
 {
 public:
 
-    /** Constructs a vector multi slider control
-     * This constructor is mainly thought for cases when your multislider is not linked to parameters
+  /** Constructs a vector multi slider control that is not linked to parameters
      * @param bounds The control's bounds
      * @param label The label for the vector control, leave empty for no label
      * @param style The styling of this vector control \see IVStyle
      * @param direction The direction of the sliders
-     * @param minTrackValue It defines the low level range used from the slider to store new incoming values (not the minimum value itself, control values are always from 0 to 1).
-     * @param maxTrackValue It defines the high level range used from the slider to store new incoming values (not the maximum value itself, control values are always from 0 to 1).
-     * @param trackNames
-     */
-  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
-  : IVTrackControlBase(bounds, label, style, MAXNC, dir, minTrackValue, maxTrackValue, trackNames)
+     * @param minTrackValue Defines the minimum value of each slider
+     * @param maxTrackValue Defines the maximum value of each slider */
+  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, float minTrackValue = 0.f, float maxTrackValue = 1.f)
+  : IVTrackControlBase(bounds, label, style, MAXNC, dir, minTrackValue, maxTrackValue)
   {
     mOuterPadding = 0.f;
     mDrawTrackFrame = false;
     mTrackPadding = 1.f;
   }
 
-  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style, int loParamIdx, EDirection dir, float minTrackValue, float maxTrackValue, const char* trackNames = 0, ...)
-  : IVTrackControlBase(bounds, label, style, loParamIdx, MAXNC, dir, minTrackValue, maxTrackValue, trackNames)
+  /** Constructs a vector multi slider control that is linked to parameters
+   * @param bounds The control's bounds
+   * @param label The label for the vector control, leave empty for no label
+   * @param style The styling of this vector control \see IVStyle
+   * @param direction The direction of the sliders
+   * @param minTrackValue Defines the minimum value of each slider
+   * @param maxTrackValue Defines the maximum value of each slider */
+  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style, int loParamIdx, EDirection dir, float minTrackValue, float maxTrackValue)
+  : IVTrackControlBase(bounds, label, style, loParamIdx, MAXNC, dir, minTrackValue, maxTrackValue)
   {
     mOuterPadding = 0.f;
     mDrawTrackFrame = false;
