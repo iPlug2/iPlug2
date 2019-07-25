@@ -27,7 +27,7 @@ class IVMultiSliderControl : public IVTrackControlBase
 public:
 
     /** Constructs a vector multi slider control
-     * if you use this constructor method you can get feedbacks from values changes by calling SetParamIdx(int, int) and SetTag(int) on created object, then implementing OnParamChange(int) in your IPluginBase subclass. \see IControl
+     * This constructor is mainly thought for cases when your multislider is not linked to parameters
      * @param bounds The control's bounds
      * @param label The label for the vector control, leave empty for no label
      * @param style The styling of this vector control \see IVStyle
