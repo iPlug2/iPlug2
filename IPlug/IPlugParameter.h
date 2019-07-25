@@ -56,6 +56,10 @@ public:
   /** Base struct for parameter shaping */
   struct Shape
   {
+    Shape() = default;
+    Shape(const Shape&) = delete;
+    Shape& operator=(const Shape&) = delete;
+    
     virtual ~Shape() {}
 
     /** /todo 
