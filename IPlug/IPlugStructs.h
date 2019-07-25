@@ -163,7 +163,8 @@ public:
    * @tparam T 
    * @param pVal /todo
    * @return int /todo */
-  template <class T> inline int Put(const T* pVal)
+  template <class T>
+  inline int Put(const T* pVal)
   {
     return PutBytes(pVal, sizeof(T));
   }
@@ -173,7 +174,8 @@ public:
    * @param pVal /todo
    * @param startPos /todo
    * @return int /todo */
-  template <class T> inline int Get(T* pVal, int startPos) const
+  template <class T>
+  inline int Get(T* pVal, int startPos) const
   {
     return GetBytes(pVal, sizeof(T), startPos);
   }
@@ -281,7 +283,8 @@ public:
    * @param pVal /todo
    * @param startPos /todo
    * @return int /todo */
-  template <class T> inline int Get(T* pVal, int startPos) const
+  template <class T>
+  inline int Get(T* pVal, int startPos) const
   {
     return GetBytes(pVal, sizeof(T), startPos);
   }
