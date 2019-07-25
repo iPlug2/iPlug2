@@ -29,24 +29,24 @@ class IParam
 {
 public:
 
-  /** /todo */
+  /** Defines types or parameter. */
   enum EParamType { kTypeNone, kTypeBool, kTypeInt, kTypeEnum, kTypeDouble };
 
-  /** /todo */
+  /** Used by AudioUnit plugins to determine the appearance of parameters, based on the kind of data they represent */
   enum EParamUnit { kUnitPercentage, kUnitSeconds, kUnitMilliseconds, kUnitSamples, kUnitDB, kUnitLinearGain, kUnitPan, kUnitPhase, kUnitDegrees, kUnitMeters, kUnitRate, kUnitRatio, kUnitFrequency, kUnitOctaves, kUnitCents, kUnitAbsCents, kUnitSemitones, kUnitMIDINote, kUnitMIDICtrlNum, kUnitBPM, kUnitBeats, kUnitCustom };
 
-  /** /todo */
+  /** Used by AudioUnit plugins to determine the mapping of parameters */
   enum EDisplayType { kDisplayLinear, kDisplayLog, kDisplayExp, kDisplaySquared, kDisplaySquareRoot, kDisplayCubed, kDisplayCubeRoot };
 
-  /** /todo */
+  /** Flags to determine characteristics of the parameter */
   enum EFlags
   {
     kFlagsNone            = 0,
-    kFlagCannotAutomate   = 0x1,
-    kFlagStepped          = 0x2,
-    kFlagNegateDisplay    = 0x4,
-    kFlagSignDisplay      = 0x8,
-    kFlagMeta             = 0x10,
+    kFlagCannotAutomate   = 0x1, /** Indicates that the parameter is not automatable */
+    kFlagStepped          = 0x2, /** Indicates that the parameter ???  */
+    kFlagNegateDisplay    = 0x4, /** Indicates that the parameter should be displayed as a negative value */
+    kFlagSignDisplay      = 0x8, /** Indicates that the parameter should be displayed as a signed value */
+    kFlagMeta             = 0x10, /** Indicates that the parameter may influence the state of other parameters */
   };
   
   using DisplayFunc = std::function<void(double, WDL_String&)>;
