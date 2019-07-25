@@ -59,7 +59,7 @@ public:
   {}
 
   PNGStream(const PNGStream&) = delete;
-  PNGStream& operator = (const PNGStream&) = delete;
+  PNGStream& operator=(const PNGStream&) = delete;
     
   static cairo_status_t Read(void *object, uint8_t* data, uint32_t length)
   {

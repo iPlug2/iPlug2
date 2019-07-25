@@ -877,7 +877,7 @@ public:
   virtual ~IGraphics();
     
   IGraphics(const IGraphics&) = delete;
-  IGraphics& operator = (const IGraphics&) = delete;
+  IGraphics& operator=(const IGraphics&) = delete;
     
   /** Called by the platform IGraphics class XXXXX /todo and when moving to a new screen with different DPI
    * @param scale The scale of the display, typically 2 on a macOS retina screen */
