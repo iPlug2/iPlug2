@@ -58,7 +58,7 @@ struct SysExData
   uint8_t mData[MAX_SYSEX_SIZE];
 };
 
-/** A helper class for IBtyeChunk and IBtyeStream that avoids code duplication **/
+/** A helper class for IByteChunk and IByteStream that avoids code duplication **/
 struct IByteGetter
 {
   /** /todo 
