@@ -46,6 +46,9 @@ public:
   MidiSynth(VoiceAllocator::EPolyMode mode, int blockSize = kDefaultBlockSize);
   ~MidiSynth();
 
+  MidiSynth(const MidiSynth&) = delete;
+  MidiSynth& operator=(const MidiSynth&) = delete;
+    
   void Reset()
   {
     mSampleTime = 0;

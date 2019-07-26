@@ -104,6 +104,9 @@ public:
   VoiceAllocator();
   ~VoiceAllocator();
 
+  VoiceAllocator(const VoiceAllocator&) = delete;
+  VoiceAllocator& operator=(const VoiceAllocator&) = delete;
+
   void Clear();
 
   void SetSampleRate(double r) { mSampleRate = r; CalcGlideTimesInSamples(); }
