@@ -56,7 +56,13 @@ void SplashAnimationFunc(IControl* pCaller)
 
 void EmptyClickActionFunc(IControl* pCaller) { };
 void DefaultClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(DefaultAnimationFunc, DEFAULT_ANIMATION_DURATION); };
-void SplashClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(SplashAnimationFunc, DEFAULT_ANIMATION_DURATION); }
+void SplashClickActionFunc(IControl* pCaller)
+{
+  float x, y;
+  pCaller->GetUI()->GetMouseDownPoint(x, y);
+  dynamic_cast<IVectorBase*>(pCaller)->SetSplashPoint(x, y);
+  pCaller->SetAnimation(SplashAnimationFunc, DEFAULT_ANIMATION_DURATION);
+}
 
 IControl::IControl(const IRECT& bounds, int paramIdx, IActionFunction actionFunc)
 : mRECT(bounds)

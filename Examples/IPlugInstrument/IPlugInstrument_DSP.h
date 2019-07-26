@@ -24,7 +24,7 @@ private:
 
     bool GetBusy() const override
     {
-      return mADSR1.GetBusy();;
+      return mADSR1.GetBusy();
     }
 
     void Trigger(double level, bool isRetrigger) override
