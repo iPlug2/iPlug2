@@ -169,7 +169,7 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 #endif
     wideCell = nextCell().Union(nextCell()).Union(nextCell()).Union(nextCell());
     pGraphics->AttachControl(new ITextControl(wideCell.GetFromTop(20.f), "IVKeyboardControl", style.labelText));
-    pGraphics->AttachControl(new IVKeyboardControl(wideCell.GetPadded(-25), 36, 72, true), kNoTag, "vcontrols");
+    pGraphics->AttachControl(new IVKeyboardControl(wideCell.GetPadded(-25), 36, 72), kNoTag);
     pGraphics->AttachControl(new IVLabelControl(nextCell(), "Test", DEFAULT_STYLE.WithLabelText(DEFAULT_LABEL_TEXT.WithSize(50.f).WithFGColor(COLOR_WHITE))), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVSlideSwitchControl(nextCell(), kParamMode, "IVSlideSwitchControl", style, true), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVPlotControl(nextCell(), {
