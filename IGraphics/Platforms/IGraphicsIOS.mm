@@ -234,3 +234,10 @@ void IGraphicsIOS::CachePlatformFont(const char* fontID, const PlatformFontPtr& 
 {
   CoreTextHelpers::CachePlatformFont(fontID, font, sFontDescriptorCache);
 }
+
+void IGraphicsIOS::LaunchBluetoothMidiDialog(float x, float y)
+{
+  NSDictionary* dic = @{@"x": @(x), @"y": @(y)};
+
+  [[NSNotificationCenter defaultCenter] postNotificationName:@"LaunchBTMidiDialog" object:nil userInfo:dic];
+}
