@@ -74,8 +74,7 @@ public:
    @param nInputs The number of input channels that contain valid data
    @param nOutputs input channels that contain valid data
    @param startIdx The start index of the block of samples to process
-   @param nFrames The number of samples the process in this block
-  */
+   @param nFrames The number of samples the process in this block */
   virtual void ProcessSamplesAccumulating(sample** inputs, sample** outputs, int nInputs, int nOutputs, int startIdx, int nFrames)
   {
     for (auto c = 0; c < nOutputs; c++)
@@ -96,8 +95,7 @@ public:
   virtual void SetProgramNumber(int pgm) {};
 
   /** Implement this to respond to control numbers for which there are not ramps. A synthesizer could
-   * use its own ramps internally if needed.
-   */
+   * use its own ramps internally if needed. */
   virtual void SetControl(int controlNumber, float value) {};
 
 protected:

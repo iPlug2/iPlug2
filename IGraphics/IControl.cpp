@@ -54,8 +54,15 @@ void SplashAnimationFunc(IControl* pCaller)
   pCaller->SetDirty(false);
 };
 
+void EmptyClickActionFunc(IControl* pCaller) { };
 void DefaultClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(DefaultAnimationFunc, DEFAULT_ANIMATION_DURATION); };
-void SplashClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(SplashAnimationFunc, DEFAULT_ANIMATION_DURATION); }
+void SplashClickActionFunc(IControl* pCaller)
+{
+  float x, y;
+  pCaller->GetUI()->GetMouseDownPoint(x, y);
+  dynamic_cast<IVectorBase*>(pCaller)->SetSplashPoint(x, y);
+  pCaller->SetAnimation(SplashAnimationFunc, DEFAULT_ANIMATION_DURATION);
+}
 
 IControl::IControl(const IRECT& bounds, int paramIdx, IActionFunction actionFunc)
 : mRECT(bounds)
@@ -329,7 +336,7 @@ void IControl::DrawPTHighlight(IGraphics& g)
   }
 }
 
-void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds, int valIdx, float scalar /* TODO: scalar! */)
+void IControl::SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx, float scalar /* TODO: scalar! */, double minClip, double maxClip)
 {
   bounds.Constrain(x, y);
 
@@ -343,9 +350,8 @@ void IControl::SnapToMouse(float x, float y, EDirection direction, IRECT& bounds
     //mValue = (double) (x - (mRECT.R - (mRECT.W()*lengthMult)) - mHandleHeadroom / 2) / (double) ((mLen*lengthMult) - mHandleHeadroom);
     val = (x-bounds.L) / bounds.W();
 
-  auto valFunc = [&](int v)
-  {
-    SetValue(std::round(val / 0.001 ) * 0.001, v);
+  auto valFunc = [&](int valIdx) {
+    SetValue(Clip(std::round(val / 0.001 ) * 0.001, minClip, maxClip), valIdx);
   };
   
   ForValIdx(valIdx, valFunc);
@@ -408,7 +414,42 @@ void ITextControl::SetBoundsBasedOnTextDimensions()
 {
   IRECT r;
   GetUI()->MeasureText(mText, mStr.Get(), r);
+  
+  //TODO look at text align/valign?
   SetTargetAndDrawRECTs({mRECT.L, mRECT.T, mRECT.L + r.W(), mRECT.T + r.H()});
+}
+
+IURLControl::IURLControl(const IRECT& bounds, const char* str, const char* urlStr, const IText& text, const IColor& BGColor, const IColor& MOColor, const IColor& CLColor)
+: ITextControl(bounds, str, text, BGColor)
+, mURLStr(urlStr)
+, mMOColor(MOColor)
+, mCLColor(CLColor)
+, mOriginalColor(text.mFGColor)
+{
+  mIgnoreMouse = false;
+  IControl::mText = text;
+}
+
+void IURLControl::Draw(IGraphics& g)
+{
+  g.FillRect(mBGColor, mRECT);
+  
+  if(mMouseIsOver)
+    mText.mFGColor = mMOColor;
+  else
+    mText.mFGColor = mClicked ? mCLColor : mOriginalColor;
+  
+  g.DrawLine(mText.mFGColor, mRECT.L, mRECT.B, mRECT.R, mRECT.B);
+  
+  if (mStr.GetLength())
+    g.DrawText(mText, mStr.Get(), mRECT);
+}
+
+void IURLControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  GetUI()->OpenURL(mURLStr.Get());
+  GetUI()->ReleaseMouseCapture();
+  mClicked = true;
 }
 
 ITextToggleControl::ITextToggleControl(const IRECT& bounds, int paramIdx, const char* offText, const char* onText, const IText& text, const IColor& bgColor)
@@ -429,24 +470,27 @@ ITextToggleControl::ITextToggleControl(const IRECT& bounds, IActionFunction aF, 
 {
   SetActionFunction(aF);
   mDblAsSingleClick = true;
-  //TODO: assert boolean?
   mIgnoreMouse = false;
 }
 
 void ITextToggleControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   if(GetValue() < 0.5)
-  {
     SetValue(1.);
-    SetStr(mOnText.Get());
-  }
   else
-  {
     SetValue(0.);
-    SetStr(mOffText.Get());
-  }
   
   SetDirty(true);
+}
+
+void ITextToggleControl::SetDirty(bool push, int valIdx)
+{
+  IControl::SetDirty(push);
+  
+  if(GetValue() > 0.5)
+    SetStr(mOnText.Get());
+  else
+    SetStr(mOffText.Get());
 }
 
 
@@ -485,7 +529,7 @@ void ICaptionControl::Draw(IGraphics& g)
 
   ITextControl::Draw(g);
   
-  if(mTri.W()) {
+  if(mTri.W() > 0.f) {
     g.FillTriangle(COLOR_DARK_GRAY, mTri.L, mTri.T, mTri.R, mTri.T, mTri.MW(), mTri.B, GetMouseIsOver() ? 0 : &BLEND_50);
   }
 }
@@ -678,7 +722,6 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
 {
 #if !defined OS_IOS
   WDL_DirScan d;
-  IPopupMenu& parentDirMenu = menuToAddTo;
 
   if (!d.First(path))
   {
@@ -692,7 +735,7 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
           WDL_String subdir;
           d.GetCurrentFullFN(&subdir);
           IPopupMenu* pNewMenu = new IPopupMenu();
-          parentDirMenu.AddItem(d.GetCurrentFN(), pNewMenu, -2);
+          menuToAddTo.AddItem(d.GetCurrentFN(), pNewMenu, -2);
           ScanDirectory(subdir.Get(), *pNewMenu);
         }
         else
@@ -706,7 +749,7 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
               menuEntry.Set(f, (int) (a - f));
             
             IPopupMenu::Item* pItem = new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize());
-            parentDirMenu.AddItem(pItem, -2 /* sort alphabetically */);
+            menuToAddTo.AddItem(pItem, -2 /* sort alphabetically */);
             WDL_String* pFullPath = new WDL_String("");
             d.GetCurrentFullFN(pFullPath);
             mFiles.Add(pFullPath);
@@ -714,12 +757,10 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
         }
       }
     } while (!d.Next());
-    
-    menuToAddTo = parentDirMenu;
   }
   
   if(!mShowEmptySubmenus)
-    parentDirMenu.RemoveEmptySubmenus();
+    menuToAddTo.RemoveEmptySubmenus();
 
 #endif
 }

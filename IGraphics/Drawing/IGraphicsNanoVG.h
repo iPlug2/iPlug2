@@ -72,7 +72,7 @@ class IGraphicsNanoVG;
 class NanoVGBitmap : public APIBitmap
 {
 public:
-  NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID);
+  NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID, bool shared = false);
   NanoVGBitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, int scale, float drawScale);
   NanoVGBitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, int scale, float drawScale);
   virtual ~NanoVGBitmap();
@@ -81,6 +81,7 @@ private:
   IGraphicsNanoVG *mGraphics = nullptr;
   NVGcontext* mVG;
   NVGframebuffer* mFBO = nullptr;
+  bool mSharedTexture = false;
 };
 
 /** IGraphics draw class using NanoVG  
@@ -107,7 +108,7 @@ public:
 
   void PathClear() override;
   void PathClose() override;
-  void PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding) override;
+  void PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding) override;
   void PathMoveTo(float x, float y) override;
   void PathLineTo(float x, float y) override;
   void PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2) override;

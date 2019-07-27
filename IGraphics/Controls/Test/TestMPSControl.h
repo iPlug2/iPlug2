@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include "IControl.h"
 #if defined IGRAPHICS_NANOVG && defined IGRAPHICS_METAL
 
 /**
@@ -17,7 +18,6 @@
  * @copydoc TestMPSControl
  */
 
-#include "IControl.h"
 #include "IGraphicsNanoVG.h"
 
 /** Control to test IGraphicsNanoVG with Metal Performance Shaders

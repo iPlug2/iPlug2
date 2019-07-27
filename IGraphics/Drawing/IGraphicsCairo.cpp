@@ -15,11 +15,19 @@
 #include "IGraphicsCairo.h"
 #include "ITextEntryControl.h"
 
-struct CairoFont
+class CairoFont
 {
+public:
   CairoFont(cairo_font_face_t* font, double EMRatio) : mFont(font), mEMRatio(EMRatio) {}
   virtual ~CairoFont() { if (mFont) cairo_font_face_destroy(mFont); }
 
+  CairoFont(const CairoFont&) = delete;
+  CairoFont& operator=(const CairoFont&) = delete;
+    
+  cairo_font_face_t* GetFont() const { return mFont; }
+  double GetEMRatio() const { return mEMRatio; }
+    
+protected:
   cairo_font_face_t* mFont;
   double mEMRatio;
 };
@@ -50,6 +58,9 @@ public:
   PNGStream(const uint8_t* pData, int size) : mData(pData), mSize(size)
   {}
 
+  PNGStream(const PNGStream&) = delete;
+  PNGStream& operator = (const PNGStream&) = delete;
+    
   static cairo_status_t Read(void *object, uint8_t* data, uint32_t length)
   {
     PNGStream* reader = reinterpret_cast<PNGStream*>(object);
@@ -286,12 +297,12 @@ void IGraphicsCairo::PathClose()
   cairo_close_path(mContext);
 }
 
-void IGraphicsCairo::PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding)
+void IGraphicsCairo::PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding)
 {
   if (winding == EWinding::CW)
-    cairo_arc(mContext, cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f));
+    cairo_arc(mContext, cx, cy, r, DegToRad(a1 - 90.f), DegToRad(a2 - 90.f));
   else
-    cairo_arc_negative(mContext, cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f));
+    cairo_arc_negative(mContext, cx, cy, r, DegToRad(a1 - 90.f), DegToRad(a2 - 90.f));
 }
 
 void IGraphicsCairo::PathMoveTo(float x, float y)
@@ -459,8 +470,8 @@ void IGraphicsCairo::PrepareAndMeasureText(const IText& text, const char* str, I
     
   // Get the correct font face
   
-  cairo_set_font_face(context, pCachedFont->mFont);
-  cairo_set_font_size(context, text.mSize * pCachedFont->mEMRatio);
+  cairo_set_font_face(context, pCachedFont->GetFont());
+  cairo_set_font_size(context, text.mSize * pCachedFont->GetEMRatio());
   cairo_font_extents(context, &fontExtents);
 
   // Draw / measure
@@ -520,7 +531,7 @@ void IGraphicsCairo::DoDrawText(const IText& text, const char* str, const IRECT&
 
 #ifdef OS_WIN
   IMatrix m = GetTransformMatrix();
-  useNativeTransforms = !text.mOrientation && !m.mXY && !m.mYX;
+  useNativeTransforms = !text.mAngle && !m.mXY && !m.mYX;
 #endif 
 
   PrepareAndMeasureText(text, str, measured, x, y, pGlyphs, numGlyphs);
@@ -555,6 +566,9 @@ void IGraphicsCairo::UpdateCairoContext()
 {
   if (mContext)
   {
+#ifdef OS_MAC
+    CGContextSaveGState((CGContextRef) GetPlatformContext());
+#endif
     cairo_destroy(mContext);
     mContext = nullptr;
   }
@@ -621,7 +635,7 @@ void IGraphicsCairo::EndFrame()
   HWND hWnd = (HWND) GetWindow();
   HDC dc = BeginPaint(hWnd, &ps);
   HDC cdc = cairo_win32_surface_get_dc(mSurface);
-  BitBlt(dc, 0, 0, WindowWidth(), WindowHeight(), cdc, 0, 0, SRCCOPY);
+  BitBlt(dc, 0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale(), cdc, 0, 0, SRCCOPY);
   EndPaint(hWnd, &ps);
 #else
 #error NOT IMPLEMENTED
@@ -642,7 +656,7 @@ bool IGraphicsCairo::LoadAPIFont(const char* fontID, const PlatformFontPtr& font
     
   std::unique_ptr<CairoPlatformFont> cairoFont(new CairoPlatformFont(font->GetDescriptor(), data->GetHeightEMRatio()));
 
-  if (cairo_font_face_status(cairoFont->mFont) == CAIRO_STATUS_SUCCESS)
+  if (cairo_font_face_status(cairoFont->GetFont()) == CAIRO_STATUS_SUCCESS)
   {
     storage.Add(cairoFont.release(), fontID);
     return true;

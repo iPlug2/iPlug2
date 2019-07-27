@@ -232,7 +232,8 @@ enum EResourceLocation
 {
   kNotFound = 0,
   kAbsolutePath,
-  kWinBinary
+  kWinBinary,
+  kPreloadedTexture
 };
 
 /**@}*/

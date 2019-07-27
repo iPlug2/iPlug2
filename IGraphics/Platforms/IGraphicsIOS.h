@@ -53,6 +53,8 @@ public:
 
   void CreatePlatformImGui() override;
 
+  void LaunchBluetoothMidiDialog(float x, float y);
+  
 protected:
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;

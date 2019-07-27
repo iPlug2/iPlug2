@@ -29,9 +29,14 @@ public:
   IGEditorDelegate(int nParams);
   ~IGEditorDelegate();
 
+  IGEditorDelegate(const IGEditorDelegate&) = delete;
+  IGEditorDelegate& operator = (const IGEditorDelegate&) = delete;
+    
   //IEditorDelegate
   void* OpenWindow(void* pHandle) final;
   void CloseWindow() final;
+  void SetScreenScale(double scale) final;
+
   //The rest should be final, but the WebSocketEditorDelegate needs to override them
   void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;
   void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize = 0, const void* pData = nullptr) override;
@@ -73,7 +78,7 @@ public:
         
   /** Should be called when editor data changes*/
   void EditorDataModified();
-  
+
   /** Override this method to serialize custom editor state data.
   * @param chunk The output bytechunk where data can be serialized
   * @return \c true if serialization was successful*/

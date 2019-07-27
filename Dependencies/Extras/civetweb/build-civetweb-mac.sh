@@ -17,7 +17,7 @@ else
 fi
 cd $REPO_DIR
 
-export MACOSX_DEPLOYMENT_TARGET=10.7
+export MACOSX_DEPLOYMENT_TARGET=10.9
 make lib WITH_CPP=1 WITH_WEBSOCKET=1
 
 if [ ! -d "$INSTALL_DIR/lib" ];

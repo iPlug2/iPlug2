@@ -92,6 +92,9 @@
     <ClCompile Include="..\..\..\IPlug\ReaperExt\ReaperExtBase.cpp">
       <Filter>Source Files\IPlug\ReaperExt</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.cpp">
+      <Filter>Source Files\IGraphics\Drawing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resources\main.rc">
@@ -230,6 +233,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\ReaperExt\ReaperExt_include_in_plug_src.h">
       <Filter>Source Files\IPlug\ReaperExt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.h">
+      <Filter>Source Files\IGraphics\Drawing</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

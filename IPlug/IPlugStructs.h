@@ -58,7 +58,7 @@ struct SysExData
   uint8_t mData[MAX_SYSEX_SIZE];
 };
 
-/** A helper class for IBtyeChunk and IBtyeStream that avoids code duplication **/
+/** A helper class for IByteChunk and IByteStream that avoids code duplication **/
 struct IByteGetter
 {
   /** /todo 
@@ -163,7 +163,8 @@ public:
    * @tparam T 
    * @param pVal /todo
    * @return int /todo */
-  template <class T> inline int Put(const T* pVal)
+  template <class T>
+  inline int Put(const T* pVal)
   {
     return PutBytes(pVal, sizeof(T));
   }
@@ -173,7 +174,8 @@ public:
    * @param pVal /todo
    * @param startPos /todo
    * @return int /todo */
-  template <class T> inline int Get(T* pVal, int startPos) const
+  template <class T>
+  inline int Get(T* pVal, int startPos) const
   {
     return GetBytes(pVal, sizeof(T), startPos);
   }
@@ -281,7 +283,8 @@ public:
    * @param pVal /todo
    * @param startPos /todo
    * @return int /todo */
-  template <class T> inline int Get(T* pVal, int startPos) const
+  template <class T>
+  inline int Get(T* pVal, int startPos) const
   {
     return GetBytes(pVal, sizeof(T), startPos);
   }

@@ -101,6 +101,7 @@ void IGraphicsMac::ContextReady(void* pLayer)
   SetScreenScale([[NSScreen mainScreen] backingScaleFactor]);
   GetDelegate()->LayoutUI(this);
   UpdateTooltips();
+  GetDelegate()->OnUIOpen();
 }
 
 void* IGraphicsMac::OpenWindow(void* pParent)
@@ -623,6 +624,10 @@ void IGraphicsMac::CreatePlatformImGui()
   #include "IGraphicsCairo.cpp"
 #elif defined IGRAPHICS_NANOVG
   #include "IGraphicsNanoVG.cpp"
-#else
+#elif defined IGRAPHICS_SKIA
+  #include "IGraphicsSkia.cpp"
+#elif defined IGRAPHICS_LICE
   #include "IGraphicsLice.cpp"
+#else
+  #error Either NO_IGRAPHICS or one and only one choice of graphics library must be defined!
 #endif

@@ -28,6 +28,7 @@ public:
   void* GetWinModuleHandle() override { return mHInstance; }
 
   void ForceEndUserEdit() override;
+  int GetPlatformWindowScale() const override { return GetScreenScale(); }
 
   void PlatformResize(bool parentHasResized) override;
 

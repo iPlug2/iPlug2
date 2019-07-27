@@ -523,6 +523,9 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 {
   IPlugAPPHost* pAppHost = IPlugAPPHost::sInstance.get();
 
+  int width = 0;
+  int height = 0;
+
   switch (uMsg)
   {
     case WM_INITDIALOG:
@@ -531,7 +534,9 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       if(!pAppHost->OpenWindow(gHWND))
         DBGMSG("couldn't attach gui\n");
 
-      ClientResize(hwndDlg, PLUG_WIDTH, PLUG_HEIGHT);
+      width = pAppHost->GetPlug()->GetEditorWidth();
+      height = pAppHost->GetPlug()->GetEditorHeight();
+      ClientResize(hwndDlg, width, height);
 
       ShowWindow(hwndDlg,SW_SHOW);
       return 1;

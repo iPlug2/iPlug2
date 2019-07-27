@@ -93,6 +93,7 @@ IGraphics::~IGraphics()
 void IGraphics::SetScreenScale(int scale)
 {
   mScreenScale = scale;
+  PlatformResize(GetDelegate()->EditorResize());
   ForAllControls(&IControl::OnRescale);
   SetAllControlsDirty();
   DrawResize();
@@ -220,13 +221,13 @@ void IGraphics::AttachPanelBackground(const IPattern& color)
   mControls.Insert(0, pBG);
 }
 
-int IGraphics::AttachControl(IControl* pControl, int controlTag, const char* group)
+IControl* IGraphics::AttachControl(IControl* pControl, int controlTag, const char* group)
 {
   pControl->SetDelegate(*GetDelegate());
   pControl->SetTag(controlTag);
   pControl->SetGroup(group);
   mControls.Add(pControl);
-  return mControls.GetSize() - 1;
+  return pControl;
 }
 
 void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize)
@@ -1707,10 +1708,10 @@ void IGraphics::DoMeasureTextRotation(const IText& text, const IRECT& bounds, IR
 
 void IGraphics::CalulateTextRotation(const IText& text, const IRECT& bounds, IRECT& rect, double& tx, double& ty) const
 {
-  if (!text.mOrientation)
+  if (!text.mAngle)
     return;
   
-  IMatrix m = IMatrix().Rotate(text.mOrientation);
+  IMatrix m = IMatrix().Rotate(text.mAngle);
   
   double x0 = rect.L;
   double y0 = rect.T;
@@ -1743,6 +1744,74 @@ void IGraphics::CalulateTextRotation(const IText& text, const IRECT& bounds, IRE
     case EVAlign::Middle:   ty = bounds.MH() - rect.MH();  break;
     case EVAlign::Bottom:   ty = bounds.B - rect.B;        break;
   }
+}
+
+void IGraphics::SetQwertyMidiKeyHandlerFunc(std::function<void(const IMidiMsg& msg)> func)
+{
+  SetKeyHandlerFunc([&, func](const IKeyPress& key, bool isUp) {
+    IMidiMsg msg;
+    
+    int note = 0;
+    static int base = 60;
+    static bool keysDown[128] = {};
+    
+    auto onOctSwitch = [&]() {
+      base = Clip(base, 24, 96);
+      
+      for(auto i=0;i<128;i++) {
+        if(keysDown[i]) {
+          msg.MakeNoteOffMsg(i, 0);
+          GetDelegate()->SendMidiMsgFromUI(msg);
+          if(func)
+            func(msg);
+        }
+      }
+    };
+    
+    switch (key.VK) {
+      case kVK_A: note = 0; break;
+      case kVK_W: note = 1; break;
+      case kVK_S: note = 2; break;
+      case kVK_E: note = 3; break;
+      case kVK_D: note = 4; break;
+      case kVK_F: note = 5; break;
+      case kVK_T: note = 6; break;
+      case kVK_G: note = 7; break;
+      case kVK_Y: note = 8; break;
+      case kVK_H: note = 9; break;
+      case kVK_U: note = 10; break;
+      case kVK_J: note = 11; break;
+      case kVK_K: note = 12; break;
+      case kVK_O: note = 13; break;
+      case kVK_L: note = 14; break;
+      case kVK_Z: base -= 12; onOctSwitch(); return true;
+      case kVK_X: base += 12; onOctSwitch(); return true;
+      default: return true; // don't beep, but don't do anything
+    }
+    
+    int pitch = base + note;
+    
+    if(!isUp) {
+      if(keysDown[pitch] == false) {
+        msg.MakeNoteOnMsg(pitch, 127, 0);
+        keysDown[pitch] = true;
+        GetDelegate()->SendMidiMsgFromUI(msg);
+        if(func)
+          func(msg);
+      }
+    }
+    else {
+      if(keysDown[pitch] == true) {
+        msg.MakeNoteOffMsg(pitch, 127, 0);
+        keysDown[pitch] = false;
+        GetDelegate()->SendMidiMsgFromUI(msg);
+        if(func)
+          func(msg);
+      }
+    }
+    
+    return true;
+  });
 }
 
 #ifdef IGRAPHICS_IMGUI

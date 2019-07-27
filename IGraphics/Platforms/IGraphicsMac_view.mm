@@ -186,9 +186,7 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
       [subMenu release];
     }
     else if (pMenuItem->GetIsSeparator())
-    {
       [self addItem:[NSMenuItem separatorItem]];
-    }
     else
     {
       nsMenuItem = [self addItemWithTitle:nsMenuItemTitle action:@selector(onMenuSelection:) keyEquivalent:@""];
@@ -196,27 +194,17 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
       [nsMenuItem setTarget:pView];
       
       if (pMenuItem->GetIsTitle ())
-      {
         [nsMenuItem setIndentationLevel:1];
-      }
 
       if (pMenuItem->GetChecked())
-      {
         [nsMenuItem setState:NSOnState];
-      }
       else
-      {
         [nsMenuItem setState:NSOffState];
-      }
 
       if (pMenuItem->GetEnabled())
-      {
         [nsMenuItem setEnabled:YES];
-      }
       else
-      {
         [nsMenuItem setEnabled:NO];
-      }
 
     }
   }
@@ -467,7 +455,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   NSRect r = NSMakeRect(0.f, 0.f, (float) pGraphics->WindowWidth(), (float) pGraphics->WindowHeight());
   self = [super initWithFrame:r];
   
-#if defined IGRAPHICS_NANOVG
+#if defined IGRAPHICS_NANOVG || defined IGRAPHICS_SKIA
   if (!self.wantsLayer) {
     #if defined IGRAPHICS_METAL
     self.layer = [CAMetalLayer new];
@@ -606,7 +594,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (void) render
 {
-#if !defined IGRAPHICS_NANOVG // for layer-backed views setNeedsDisplayInRect/drawRect is not called
+#if !defined IGRAPHICS_GL && !defined IGRAPHICS_METAL // for layer-backed views setNeedsDisplayInRect/drawRect is not called
   for (int i = 0; i < mDirtyRects.Size(); i++)
     [self setNeedsDisplayInRect:ToNSRect(mGraphics, mDirtyRects.Get(i))];
 #else
@@ -621,14 +609,14 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   
   if (mGraphics->IsDirty(mDirtyRects))
   {
+    mGraphics->SetAllControlsClean();
+      
 #ifdef IGRAPHICS_GL
     [self.layer setNeedsDisplay];
 #else
     [self render];
 #endif
   }
-  
-  mGraphics->SetAllControlsClean();
 }
 
 - (void) getMouseXY: (NSEvent*) pEvent x: (float&) pX y: (float&) pY
@@ -1032,7 +1020,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   }
 
   CoreTextFontDescriptor* CTFontDescriptor = CoreTextHelpers::GetCTFontDescriptor(text, sFontDescriptorCache);
-  NSFontDescriptor* fontDescriptor = (NSFontDescriptor*) CTFontDescriptor->mDescriptor;
+  NSFontDescriptor* fontDescriptor = (NSFontDescriptor*) CTFontDescriptor->GetDescriptor();
   NSFont* font = [NSFont fontWithDescriptor: fontDescriptor size: text.mSize * 0.75];
   [mTextFieldView setFont: font];
   

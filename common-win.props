@@ -3,14 +3,13 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <RTAUDIOMIDI_PATH>$(IPLUG_PATH)\APP\RTAudioMidi</RTAUDIOMIDI_PATH>
-    <ROOT_PATH>$(SolutionDir)..\..</ROOT_PATH>
-    <WDL_PATH>$(ROOT_PATH)\WDL</WDL_PATH>
+    <WDL_PATH>$(IPLUG2_ROOT)\WDL</WDL_PATH>
     <LICE_PATH>$(WDL_PATH)\lice</LICE_PATH>
-    <IPLUG_PATH>$(ROOT_PATH)\IPlug</IPLUG_PATH>
+    <IPLUG_PATH>$(IPLUG2_ROOT)\IPlug</IPLUG_PATH>
     <EXTRAS_PATH>$(IPLUG_PATH)\Extras</EXTRAS_PATH>
     <IPLUG_INC_PATHS>$(WDL_PATH);$(IPLUG_PATH);$(EXTRAS_PATH);$(EXTRAS_PATH)\Synth;$(EXTRAS_PATH)\Faust;$(SolutionDir)\resources</IPLUG_INC_PATHS>
-    <IGRAPHICS_PATH>$(ROOT_PATH)\IGraphics</IGRAPHICS_PATH>
-    <DEPS_PATH>$(ROOT_PATH)\Dependencies</DEPS_PATH>
+    <IGRAPHICS_PATH>$(IPLUG2_ROOT)\IGraphics</IGRAPHICS_PATH>
+    <DEPS_PATH>$(IPLUG2_ROOT)\Dependencies</DEPS_PATH>
     <IPLUG_DEPS_PATH>$(DEPS_PATH)\IPlug</IPLUG_DEPS_PATH>
     <IGRAPHICS_DEPS_PATH>$(DEPS_PATH)\IGraphics</IGRAPHICS_DEPS_PATH>
     <NANOVG_PATH>$(IGRAPHICS_DEPS_PATH)\NanoVG\src</NANOVG_PATH>
@@ -19,16 +18,17 @@
     <FREETYPE_PATH>$(DEPS_PATH)\Build\src\freetype\include</FREETYPE_PATH>
     <AGG_PATH>$(IGRAPHICS_DEPS_PATH)\AGG\agg-2.4</AGG_PATH>
     <AGG_INC_PATHS>$(AGG_PATH)\include;$(AGG_PATH)\font_freetype;$(AGG_PATH)\include\util;$(AGG_PATH)\include\platform\win32;$(AGG_PATH)\src;$(AGG_PATH)\src\platform\win32</AGG_INC_PATHS>
-    <IMGUI_PATHS>$(IGRAPHICS_DEPS_PATH)\imgui;$(IGRAPHICS_DEPS_PATH)\imgui\examples;</IMGUI_PATHS>
+    <SKIA_PATH>$(DEPS_PATH)\Build\src\skia</SKIA_PATH>
+    <SKIA_INC_PATHS>$(SKIA_PATH);$(SKIA_PATH)\include\core;$(SKIA_PATH)\include\effects;$(SKIA_PATH)\include\config;$(SKIA_PATH)\include\utils;$(SKIA_PATH)\include\gpu;</SKIA_INC_PATHS>
     <GLAD_GL2_PATHS>$(IGRAPHICS_DEPS_PATH)\glad_GL2\include;$(IGRAPHICS_DEPS_PATH)\glad_GL2\src</GLAD_GL2_PATHS>
     <GLAD_GL3_PATHS>$(IGRAPHICS_DEPS_PATH)\glad_GL3\include;$(IGRAPHICS_DEPS_PATH)\glad_GL3\src</GLAD_GL3_PATHS>
     <PNG_PATH>$(WDL_PATH)\libpng</PNG_PATH>
     <ZLIB_PATH>$(WDL_PATH)\zlib</ZLIB_PATH>
     <STB_PATH>$(IGRAPHICS_DEPS_PATH)\STB</STB_PATH>
     <FAUST_INC_PATHS>$(ProgramW6432)\Faust\include;</FAUST_INC_PATHS>
-    <FAUST_LIB_PATH>$(ProgramW6432)\Faust\lib</FAUST_LIB_PATH>
     <STATIC_LIBS_PATH>$(DEPS_PATH)\Build\win\$(Platform)\$(Configuration)</STATIC_LIBS_PATH>
-    <IGRAPHICS_INC_PATHS>$(IGRAPHICS_PATH);$(IGRAPHICS_PATH)\Controls;$(IGRAPHICS_PATH)\Drawing;$(IGRAPHICS_PATH)\Platforms;$(IGRAPHICS_PATH)\Extras;$(LICE_PATH);$(NANOSVG_PATH);$(NANOVG_PATH);$(AGG_INC_PATHS);$(CAIRO_PATHS);$(PNG_PATH);$(ZLIB_PATH);$(FREETYPE_PATH);$(STB_PATH);$(IMGUI_PATHS)</IGRAPHICS_INC_PATHS>
+    <IMGUI_PATHS>$(IGRAPHICS_DEPS_PATH)\imgui;$(IGRAPHICS_DEPS_PATH)\imgui\examples;</IMGUI_PATHS>
+    <IGRAPHICS_INC_PATHS>$(IGRAPHICS_PATH);$(IGRAPHICS_PATH)\Controls;$(IGRAPHICS_PATH)\Drawing;$(IGRAPHICS_PATH)\Platforms;$(IGRAPHICS_PATH)\Extras;$(LICE_PATH);$(NANOSVG_PATH);$(NANOVG_PATH);$(AGG_INC_PATHS);$(CAIRO_PATHS);$(PNG_PATH);$(ZLIB_PATH);$(FREETYPE_PATH);$(STB_PATH);$(IMGUI_PATHS);$(SKIA_INC_PATHS);</IGRAPHICS_INC_PATHS>
     <VST2_SDK>$(IPLUG_DEPS_PATH)\VST2_SDK</VST2_SDK>
     <VST3_SDK>$(IPLUG_DEPS_PATH)\VST3_SDK</VST3_SDK>
     <ASIO_SDK>$(IPLUG_DEPS_PATH)\RTAudio\include</ASIO_SDK>
@@ -66,6 +66,7 @@
     <REAPER_INC_PATHS>$(IPLUG_DEPS_PATH)/Reaper;$(IPLUG_PATH)\ReaperExt;</REAPER_INC_PATHS>
     <AAX_ICON>$(AAX_SDK)\Utilities\PlugIn.ico</AAX_ICON>
     <VST_ICON>$(VST3_SDK)\doc\artwork\VST_Logo_Steinberg.ico</VST_ICON>
+    <FAUST_LIB_PATH>$(ProgramW6432)\Faust\lib</FAUST_LIB_PATH>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
@@ -91,8 +92,8 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <BuildMacro Include="ROOT_PATH">
-      <Value>$(ROOT_PATH)</Value>
+    <BuildMacro Include="IPLUG2_ROOT">
+      <Value>$(IPLUG2_ROOT)</Value>
     </BuildMacro>
     <BuildMacro Include="WDL_PATH">
       <Value>$(WDL_PATH)</Value>
@@ -139,8 +140,11 @@
     <BuildMacro Include="AGG_INC_PATHS">
       <Value>$(AGG_INC_PATHS)</Value>
     </BuildMacro>
-    <BuildMacro Include="GLEW_PATH">
-      <Value>$(GLEW_PATH)</Value>
+    <BuildMacro Include="SKIA_PATH">
+      <Value>$(SKIA_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="SKIA_INC_PATHS">
+      <Value>$(SKIA_INC_PATHS)</Value>
     </BuildMacro>
     <BuildMacro Include="GLAD_GL2_PATHS">
       <Value>$(GLAD_GL2_PATHS)</Value>

@@ -88,6 +88,9 @@ public:
   public:
     Rasterizer(IGraphicsAGG& graphics) : mGraphics(graphics) {}
     
+    Rasterizer(const Rasterizer&) = delete;
+    Rasterizer& operator=(const Rasterizer&) = delete;
+      
     agg::rgba8 GetPixel(int x, int y) { return mRenBase.pixel(x, y); }
 
     void SetOutput(agg::rendering_buffer& renBuf)
@@ -243,7 +246,7 @@ public:
   void PathClear() override { mPath.remove_all(); }
   void PathClose() override { mPath.close_polygon(); }
 
-  void PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding) override;
+  void PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding) override;
 
   void PathMoveTo(float x, float y) override;
   void PathLineTo(float x, float y) override;
