@@ -315,7 +315,7 @@ public:
     
     if (!r)
     {
-      std::unique_ptr device(new OSCDevice(nullptr, 0, -1, &addr))
+      std::unique_ptr<OSCDevice> device(new OSCDevice(nullptr, 0, -1, &addr));
 
       if (device->m_sendsock == INVALID_SOCKET)
       {
@@ -362,7 +362,7 @@ public:
     if (!r)
     {
       is_reuse = false;
-      std::unique_ptr device(new OSCDevice(dp.Get(), 0, -1, nullptr));
+      std::unique_ptr<OSCDevice> device(new OSCDevice(dp.Get(), 0, -1, nullptr));
       if (device->m_sendsock == INVALID_SOCKET)
       {
         results.AppendFormatted(1024,"\tWarning: failed creating destination for output '%s' OSC '%s'\r\n", dp.Get(), dp.Get());
