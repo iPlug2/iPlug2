@@ -237,7 +237,7 @@ void IGraphicsIOS::CachePlatformFont(const char* fontID, const PlatformFontPtr& 
 
 void IGraphicsIOS::LaunchBluetoothMidiDialog(float x, float y)
 {
+  ReleaseMouseCapture();
   NSDictionary* dic = @{@"x": @(x), @"y": @(y)};
-
   [[NSNotificationCenter defaultCenter] postNotificationName:@"LaunchBTMidiDialog" object:nil userInfo:dic];
 }
