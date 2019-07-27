@@ -1050,6 +1050,10 @@ public:
    * @param keyHandlerFunc /todo */
   void SetKeyHandlerFunc(IKeyHandlerFunc func) { mKeyHandlerFunc = func; }
 
+  /** A helper to set the IGraphics KeyHandlerFunc in order to make an instrument playable via QWERTY keys
+   * @param func A function to do something when a MIDI message is triggered */
+  void SetQwertyMidiKeyHandlerFunc(std::function<void(const IMidiMsg& msg)> func = nullptr);
+  
   /** /todo */
   void AttachImGui(std::function<void(IGraphics*)> drawFunc, std::function<void()> setupFunc = nullptr);
 

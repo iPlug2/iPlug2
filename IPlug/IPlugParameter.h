@@ -181,6 +181,15 @@ public:
    * @param group /todo */
   void InitSeconds(const char* name, double defaultVal = 1., double minVal = 0., double maxVal = 10., double step = 0.1, int flags = 0, const char* group = "");
   
+  /** /todo
+   * @param name /todo
+   * @param defaultVal /todo
+   * @param minVal /todo
+   * @param maxVal /todo
+   * @param step /todo
+   * @param flags /todo
+   * @param group /todo */
+  void InitMilliseconds(const char* name, double defaultVal = 1., double minVal = 0., double maxVal = 100., int flags = 0, const char* group = "");
   /** /todo 
    * @param name /todo
    * @param defaultVal /todo

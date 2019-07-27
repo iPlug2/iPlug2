@@ -26,8 +26,7 @@
  * It describes a piecewise function in three pieces:
  * from [0, startValue] to [transitionStart, startValue]
  * from [transitionStart, startValue] to [transitionEnd, endValue]
- * from [transitionEnd, endValue] to [blockSize, endValue]
- */
+ * from [transitionEnd, endValue] to [blockSize, endValue] */
 struct ControlRamp
 {
   double startValue;

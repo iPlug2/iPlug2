@@ -1,7 +1,6 @@
 #pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
-#include "IPlugInstrument_DSP.h"
 #include "IVMeterControl.h"
 
 const int kNumPrograms = 1;
@@ -16,6 +15,9 @@ enum EParams
   kParamRelease,
   kNumParams
 };
+
+// will use EParams in IPlugInstrument_DSP.h
+#include "IPlugInstrument_DSP.h"
 
 enum ECtrlTags
 {
@@ -37,7 +39,7 @@ public:
   void OnParamChange(int paramIdx) override;
   void OnIdle() override;
 private:
-  IPlugInstrumentDSP mDSP {16};
+  IPlugInstrumentDSP<sample> mDSP {16};
   IVMeterControl<1>::Sender mMeterSender {kCtrlTagMeter};
 #endif
 };

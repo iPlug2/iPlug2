@@ -103,7 +103,13 @@ public:
   {
     return mVoiceAllocator.GetVoice(voiceIdx);
   }
-
+  
+  void ForEachVoice(std::function<void(SynthVoice& voice)> func)
+  {
+    for (auto v = 0; v < NVoices(); v++)
+      func(*GetVoice(v));
+  }
+  
   size_t NVoices() const
   {
     return mVoiceAllocator.GetNVoices();
