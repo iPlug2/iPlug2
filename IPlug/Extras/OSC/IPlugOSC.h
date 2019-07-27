@@ -28,6 +28,8 @@
 #include "IPlugOSC_msg.h"
 #include "IPlugTimer.h"
 
+extern void Sleep(int ms);
+
 class IODevice
 {
 protected:
@@ -309,7 +311,7 @@ public:
     
     if (!r)
     {
-      std::unique_ptr device(new OSCDevice(nullptr, 0, -1, &addr))
+      std::unique_ptr<OSCDevice> device(new OSCDevice(nullptr, 0, -1, &addr));
 
       if (device->m_sendsock == INVALID_SOCKET)
       {
@@ -356,7 +358,7 @@ public:
     if (!r)
     {
       is_reuse = false;
-      std::unique_ptr device(new OSCDevice(dp.Get(), 0, -1, nullptr));
+      std::unique_ptr<OSCDevice> device(new OSCDevice(dp.Get(), 0, -1, nullptr));
       if (device->m_sendsock == INVALID_SOCKET)
       {
         results.AppendFormatted(1024,"\tWarning: failed creating destination for output '%s' OSC '%s'\r\n", dp.Get(), dp.Get());
@@ -502,23 +504,22 @@ public:
     
     mInputProc = [&]()
     {
-      //      const int sizeOfData = results.GetLength();
+      const int sizeOfData = results.GetLength();
       
       for (auto x = 0; x < g_devices.GetSize(); x++)
         g_devices.Get(x)->run_input(results);
       
-      //      if (results.GetLength() != sizeOfData) // if some input device added results
-      //      {
-      //        OscMessageRead msg{mReadBuf, sizeOfData};
-      //        OnOSCMessage(msg);
-      //      }
+      if (results.GetLength() != sizeOfData) // if some input device added results
+      {
+        OscMessageRead msg{mReadBuf, sizeOfData};
+        OnOSCMessage(msg);
+      }
     };
   }
   
   virtual void OnOSCMessage(OscMessageRead& msg) = 0;
   
 private:
-  const char* mTest = "TEST";
   char mReadBuf[MAX_OSC_MSG_LEN] = {};
 };
 
