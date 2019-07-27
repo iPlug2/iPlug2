@@ -28,6 +28,8 @@
 #include "IPlugOSC_msg.h"
 #include "IPlugTimer.h"
 
+extern void Sleep(int ms);
+
 class IODevice
 {
 protected:
@@ -508,23 +510,22 @@ public:
     
     mInputProc = [&]()
     {
-      //      const int sizeOfData = results.GetLength();
+      const int sizeOfData = results.GetLength();
       
       for (auto x = 0; x < g_devices.GetSize(); x++)
         g_devices.Get(x)->run_input(results);
       
-      //      if (results.GetLength() != sizeOfData) // if some input device added results
-      //      {
-      //        OscMessageRead msg{mReadBuf, sizeOfData};
-      //        OnOSCMessage(msg);
-      //      }
+      if (results.GetLength() != sizeOfData) // if some input device added results
+      {
+        OscMessageRead msg{mReadBuf, sizeOfData};
+        OnOSCMessage(msg);
+      }
     };
   }
   
   virtual void OnOSCMessage(OscMessageRead& msg) = 0;
   
 private:
-  const char* mTest = "TEST";
   char mReadBuf[MAX_OSC_MSG_LEN] = {};
 };
 
