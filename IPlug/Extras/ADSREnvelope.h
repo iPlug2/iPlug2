@@ -12,7 +12,7 @@ template <typename T>
 class ADSREnvelope
 {
 public:
-  enum EStages
+  enum EStage
   {
     kReleasedToEndEarly = -3,
     kReleasedToRetrigger = -2,

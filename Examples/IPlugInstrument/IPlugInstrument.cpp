@@ -6,11 +6,11 @@ IPlugInstrument::IPlugInstrument(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
 {
   GetParam(kParamGain)->InitDouble("Gain", 100., 0., 100.0, 0.01, "%");
-  GetParam(kParamNoteGlideTime)->InitSeconds("Note Glide Time", 0.1, 2.);
+  GetParam(kParamNoteGlideTime)->InitMilliseconds("Note Glide Time", 0., 0.0, 30.);
   GetParam(kParamAttack)->InitDouble("Attack", 10., 1., 1000., 0.1, "ms", IParam::kFlagsNone, "ADSR", IParam::ShapePowCurve(3.));
   GetParam(kParamDecay)->InitDouble("Decay", 10., 1., 1000., 0.1, "ms", IParam::kFlagsNone, "ADSR", IParam::ShapePowCurve(3.));
   GetParam(kParamSustain)->InitDouble("Sustain", 50., 0., 100., 1, "%", IParam::kFlagsNone, "ADSR");
-  GetParam(kParamRelease)->InitDouble("Release", 10., 1., 1000., 0.1, "ms", IParam::kFlagsNone, "ADSR");
+  GetParam(kParamRelease)->InitDouble("Release", 10., 2., 1000., 0.1, "ms", IParam::kFlagsNone, "ADSR");
   
 #if IPLUG_EDITOR // All UI methods and member variables should be within an IPLUG_EDITOR guard, should you want distributed UI
   mMakeGraphicsFunc = [&]() {
@@ -36,6 +36,16 @@ IPlugInstrument::IPlugInstrument(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachControl(new IVSliderControl(sliders.GetGridCell(3, 1, 4).GetMidHPadded(30.), kParamRelease, "Release"));
     pGraphics->AttachControl(new IVMeterControl<1>(controls.GetFromRight(100).GetPadded(-30), ""), kCtrlTagMeter);
     
+#ifdef OS_IOS
+    if(!IsAuv3AppExtension())
+    {
+      pGraphics->AttachControl(new IVButtonControl(b.GetFromTRHC(100, 100), [pGraphics](IControl* pCaller) {
+                               dynamic_cast<IGraphicsIOS*>(pGraphics)->LaunchBluetoothMidiDialog(pCaller->GetRECT().L, pCaller->GetRECT().MH());
+                               SplashClickActionFunc(pCaller);
+                             }, "BTMIDI"));
+    }
+#endif
+    
     pGraphics->SetQwertyMidiKeyHandlerFunc([pGraphics](const IMidiMsg& msg) {
                                               dynamic_cast<IVKeyboardControl*>(pGraphics->GetControlWithTag(kCtrlTagKeyboard))->SetNoteFromMidi(msg.NoteNumber(), msg.StatusMsg() == IMidiMsg::kNoteOn);
                                            });
@@ -46,17 +56,7 @@ IPlugInstrument::IPlugInstrument(IPlugInstanceInfo instanceInfo)
 #if IPLUG_DSP
 void IPlugInstrument::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
-  const double gain = GetParam(kParamGain)->Value() / 100.;
-  const int nChans = NOutChansConnected();
-
-  mDSP.ProcessBlock(inputs, outputs, 2, nFrames);
-  
-  for (auto s = 0; s < nFrames; s++) {
-    for (auto c = 0; c < nChans; c++) {
-      outputs[c][s] = outputs[c][s] * gain;
-    }
-  }
-
+  mDSP.ProcessBlock(nullptr, outputs, 2, nFrames);
   mMeterSender.ProcessBlock(outputs, nFrames);
 }
 
@@ -99,14 +99,6 @@ handle:
 
 void IPlugInstrument::OnParamChange(int paramIdx)
 {
-  switch (paramIdx)
-  {
-    case kParamNoteGlideTime:
-//      mDSP.mSynth.SetNoteGlideTime(GetParam(paramIdx)->Value());
-      break;
-      
-    default:
-      break;
-  }
+  mDSP.SetParam(paramIdx, GetParam(paramIdx)->Value());
 }
 #endif
