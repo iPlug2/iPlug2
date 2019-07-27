@@ -71,7 +71,7 @@ public:
     //kFR = kFR
   };
 
-  IVKeyboardControl(const IRECT& bounds,  int minNote = 36, int maxNote = 84, bool roundedKeys = false)
+  IVKeyboardControl(const IRECT& bounds, int minNote = 36, int maxNote = 84, bool roundedKeys = false)
   : IControl(bounds, kNoParameter)
   , IVectorBase(&DEFAULT_WK_COLOR, &DEFAULT_BK_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR)
   , mRoundedKeys(roundedKeys)
