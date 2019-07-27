@@ -1746,6 +1746,74 @@ void IGraphics::CalulateTextRotation(const IText& text, const IRECT& bounds, IRE
   }
 }
 
+void IGraphics::SetQwertyMidiKeyHandlerFunc(std::function<void(const IMidiMsg& msg)> func)
+{
+  SetKeyHandlerFunc([&, func](const IKeyPress& key, bool isUp) {
+    IMidiMsg msg;
+    
+    int note = 0;
+    static int base = 60;
+    static bool keysDown[128] = {};
+    
+    auto onOctSwitch = [&]() {
+      base = Clip(base, 24, 96);
+      
+      for(auto i=0;i<128;i++) {
+        if(keysDown[i]) {
+          msg.MakeNoteOffMsg(i, 0);
+          GetDelegate()->SendMidiMsgFromUI(msg);
+          if(func)
+            func(msg);
+        }
+      }
+    };
+    
+    switch (key.VK) {
+      case kVK_A: note = 0; break;
+      case kVK_W: note = 1; break;
+      case kVK_S: note = 2; break;
+      case kVK_E: note = 3; break;
+      case kVK_D: note = 4; break;
+      case kVK_F: note = 5; break;
+      case kVK_T: note = 6; break;
+      case kVK_G: note = 7; break;
+      case kVK_Y: note = 8; break;
+      case kVK_H: note = 9; break;
+      case kVK_U: note = 10; break;
+      case kVK_J: note = 11; break;
+      case kVK_K: note = 12; break;
+      case kVK_O: note = 13; break;
+      case kVK_L: note = 14; break;
+      case kVK_Z: base -= 12; onOctSwitch(); return true;
+      case kVK_X: base += 12; onOctSwitch(); return true;
+      default: return true; // don't beep, but don't do anything
+    }
+    
+    int pitch = base + note;
+    
+    if(!isUp) {
+      if(keysDown[pitch] == false) {
+        msg.MakeNoteOnMsg(pitch, 127, 0);
+        keysDown[pitch] = true;
+        GetDelegate()->SendMidiMsgFromUI(msg);
+        if(func)
+          func(msg);
+      }
+    }
+    else {
+      if(keysDown[pitch] == true) {
+        msg.MakeNoteOffMsg(pitch, 127, 0);
+        keysDown[pitch] = false;
+        GetDelegate()->SendMidiMsgFromUI(msg);
+        if(func)
+          func(msg);
+      }
+    }
+    
+    return true;
+  });
+}
+
 #ifdef IGRAPHICS_IMGUI
 void IGraphics::AttachImGui(std::function<void(IGraphics*)> drawFunc, std::function<void()> setupFunc)
 {
