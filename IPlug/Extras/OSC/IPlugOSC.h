@@ -31,13 +31,16 @@
 class IODevice
 {
 protected:
-  IODevice ()
+  IODevice()
   {
     m_has_input = false;
     m_has_output = false;
     m_last_open_time = 0.0;
   }
   
+  IODevice(const IODevice&) = delete;
+  IODevice& operator=(const IODevice&) = delete;
+    
   struct rec
   {
     void (*callback)(void *d1, int dev_idx, char type, int msglen, void *msg); // type=0 for MIDI, 1=osc
@@ -273,6 +276,9 @@ public:
       mTimer = nullptr;
   }
   
+  OSCInterface(const OSCInterface&) = delete;
+  OSCInterface& operator=(const OSCInterface&) = delete;
+    
   static void MessageCallback(void *d1, int dev_idx, char type, int msglen, void *msg);
   
   void CreateReciever(WDL_String& results, int port = 8000)
