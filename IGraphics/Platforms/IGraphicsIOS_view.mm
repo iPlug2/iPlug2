@@ -135,6 +135,7 @@
   {
     self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(redraw:)];
     [self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
+    self.displayLink.preferredFramesPerSecond = mGraphics->FPS();
   }
   else
   {
