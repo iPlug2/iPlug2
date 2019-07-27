@@ -287,7 +287,7 @@ public:
           g.FillRect(cBP, keyBounds);
         }
 
-        if(mRoundness == 0.)
+        if(!mRoundedKeys)
         {
           // draw l, r and bottom if they don't overlay the mRECT borders
           if (mBKHeightRatio != 1.0)
