@@ -165,6 +165,11 @@ void IParam::InitSeconds(const char *name, double defaultVal, double minVal, dou
   InitDouble(name, defaultVal, minVal, maxVal, step, "Seconds", flags, group, ShapeLinear(), kUnitSeconds);
 }
 
+void IParam::InitMilliseconds(const char *name, double defaultVal, double minVal, double maxVal, int flags, const char *group)
+{
+  InitDouble(name, defaultVal, minVal, maxVal, 1, "ms", flags, group, ShapeLinear(), kUnitMilliseconds);
+}
+
 void IParam::InitPitch(const char *name, int defaultVal, int minVal, int maxVal, int flags, const char *group)
 {
   InitEnum(name, defaultVal, (maxVal - minVal) + 1, "", flags, group);

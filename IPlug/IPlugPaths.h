@@ -86,3 +86,7 @@ extern EResourceLocation LocateResource(const char* fileNameOrResID, const char*
  * @param type The resource type in lower or upper case, e.g. ttf or TTF for a truetype font
  * @return const void pointer to the data if successfull on windows. Returns nullptr if unsuccessfull or on platforms other than windows */
 extern const void* LoadWinResource(const char* resID, const char* type, int& sizeInBytes, void* pHInstance);
+
+#ifdef OS_IOS
+extern bool IsAuv3AppExtension();
+#endif

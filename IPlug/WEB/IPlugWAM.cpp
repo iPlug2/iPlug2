@@ -49,6 +49,7 @@ const char* IPlugWAM::init(uint32_t bufsize, uint32_t sr, void* pDesc)
 
   //TODO: correct place? - do we need a WAM reset message?
   OnReset();
+  OnParamReset(kReset);
 
   return json.Get();
 }

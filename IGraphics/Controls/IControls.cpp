@@ -21,7 +21,8 @@
 const IColor IVKeyboardControl::DEFAULT_BK_COLOR = IColor(255, 70, 70, 70);
 const IColor IVKeyboardControl::DEFAULT_WK_COLOR = IColor(255, 240, 240, 240);
 const IColor IVKeyboardControl::DEFAULT_PK_COLOR = IColor(60, 0, 0, 0);
-const IColor IVKeyboardControl::DEFAULT_FR_COLOR = DEFAULT_BK_COLOR;
+const IColor IVKeyboardControl::DEFAULT_FR_COLOR = COLOR_BLACK;
+const IColor IVKeyboardControl::DEFAULT_HK_COLOR = COLOR_ORANGE;
 
 IVButtonControl::IVButtonControl(const IRECT& bounds, IActionFunction actionFunc, const char* label, const IVStyle& style, bool labelInButton, bool valueInButton, EVShape shape, float angle)
 : IButtonControlBase(bounds, actionFunc)
