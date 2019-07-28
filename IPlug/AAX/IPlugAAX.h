@@ -64,7 +64,7 @@ private:
   void CreateViewContents();
   void CreateViewContainer();
   void DeleteViewContainer();
-  AAX_Result GetViewSize ( AAX_Point *oEffectViewSize ) const;
+  AAX_Result GetViewSize(AAX_Point *oEffectViewSize) const;
   AAX_Result ParameterUpdated (const char* iParameterID);
 private:
   IPlugAAX* mPlug = nullptr;
@@ -93,7 +93,7 @@ public:
   void SetLatency(int samples) override;
   bool SendMidiMsg(const IMidiMsg& msg) override;
   
-  AAX_Result UpdateParameterNormalizedValue(AAX_CParamID iParameterID, double iValue, AAX_EUpdateSource iSource ) override;
+  AAX_Result UpdateParameterNormalizedValue(AAX_CParamID iParameterID, double iValue, AAX_EUpdateSource iSource) override;
   
   //AAX_CIPlugParameters Overrides
   static AAX_CEffectParameters *AAX_CALLBACK Create();

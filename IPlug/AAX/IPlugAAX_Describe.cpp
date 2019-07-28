@@ -116,7 +116,7 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
   else if(strcmp(AAX_PLUG_CATEGORY_STR, "Effect") == (0)) category = AAX_ePlugInCategory_None;
   err |= pDesc->AddCategory(category);
   
-  //err |= effectDescriptor->AddResourceInfo ( AAX_eResourceType_PageTable, PLUG_NAME ".xml" );
+  //err |= effectDescriptor->AddResourceInfo(AAX_eResourceType_PageTable, PLUG_NAME ".xml");
   
   AAX_TYPE_ID_ARRAY(aaxTypeIDs,(AAX_TYPE_IDS));
 #ifdef AAX_TYPE_IDS_AUDIOSUITE
@@ -169,15 +169,15 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
   }
 
   // Data model
-  err |= pDesc->AddProcPtr( (void*) IPlugAAX::Create, kAAX_ProcPtrID_Create_EffectParameters );
+  err |= pDesc->AddProcPtr((void*) IPlugAAX::Create, kAAX_ProcPtrID_Create_EffectParameters);
   
   // GUI
 #if PLUG_HAS_UI
-  err |= pDesc->AddProcPtr( (void*) AAX_CEffectGUI_IPLUG::Create, kAAX_ProcPtrID_Create_EffectGUI );
+  err |= pDesc->AddProcPtr((void*) AAX_CEffectGUI_IPLUG::Create, kAAX_ProcPtrID_Create_EffectGUI);
 #endif
   
-  if ( err == AAX_SUCCESS )
-    err = pC->AddEffect(BUNDLE_ID, pDesc );
+  if (err == AAX_SUCCESS)
+    err = pC->AddEffect(BUNDLE_ID, pDesc);
   
   AAX_ASSERT (err == AAX_SUCCESS);
   

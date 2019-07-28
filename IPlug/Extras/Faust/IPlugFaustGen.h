@@ -133,6 +133,9 @@ class FaustGen : public IPlugFaust
     Factory(const char* name, const char* libPath, const char* drawPath, const char* inputDSP);
     ~Factory();
 
+    Factory(const Factory&) = delete;
+    Factory& operator=(const Factory&) = delete;
+      
     llvm_dsp_factory* CreateFactoryFromBitCode();
     llvm_dsp_factory* CreateFactoryFromSourceCode();
     
@@ -220,6 +223,9 @@ public:
 
   ~FaustGen();
 
+  FaustGen(const FaustGen&) = delete;
+  FaustGen& operator=(const FaustGen&) = delete;
+    
   /** Call this method after constructing the class to inform FaustGen what the maximum I/O count is
    * @param maxNInputs Specify a number here to tell FaustGen the maximum number of inputs the hosting code can accommodate
    * @param maxNOutputs Specify a number here to tell FaustGen the maximum number of outputs the hosting code can accommodate */

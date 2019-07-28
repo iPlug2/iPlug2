@@ -22,6 +22,11 @@ using namespace Vst;
 class IPlugVST3ControllerBase
 {
 public:
+    
+  IPlugVST3ControllerBase() = default;
+  IPlugVST3ControllerBase(const IPlugVST3ControllerBase&) = delete;
+  IPlugVST3ControllerBase& operator=(const IPlugVST3ControllerBase&) = delete;
+    
   void Initialize(IPlugAPIBase* pPlug, ParameterContainer& parameters, bool plugIsInstrument/*, bool midiIn*/)
   {
     if (pPlug->NPresets())
