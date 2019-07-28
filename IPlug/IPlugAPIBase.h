@@ -43,7 +43,10 @@ class IPlugAPIBase : public IPluginBase
 public:
   IPlugAPIBase(IPlugConfig config, EAPI plugAPI);
   virtual ~IPlugAPIBase();
-
+  
+  IPlugAPIBase(const IPlugAPIBase&) = delete;
+  IPlugAPIBase& operator=(const IPlugAPIBase&) = delete;
+  
 #pragma mark - Methods you can implement/override in your plug-in class - you do not call these methods
 
   /** Override this method to implement a custom comparison of incoming state data with your plug-ins state data, in order

@@ -99,10 +99,13 @@ public:
   static constexpr int kVoiceMostRecent = 1 << 7;
 
   // one voice worth of ramp generators
-  using VoiceControlRamps = std::array<ControlRampProcessor, kNumVoiceControlRamps>;
+  using VoiceControlRamps = ControlRampProcessor::ProcessorArray<kNumVoiceControlRamps>;
 
   VoiceAllocator();
   ~VoiceAllocator();
+
+  VoiceAllocator(const VoiceAllocator&) = delete;
+  VoiceAllocator& operator=(const VoiceAllocator&) = delete;
 
   void Clear();
 

@@ -26,6 +26,10 @@ class IWebsocketServer : public CivetWebSocketHandler
 public:
   IWebsocketServer();
   virtual ~IWebsocketServer();
+    
+  IWebsocketServer(const IWebsocketServer&) = delete;
+  IWebsocketServer& operator=(const IWebsocketServer&) = delete;
+    
   bool CreateServer(const char* DOCUMENT_ROOT, const char* PORT = "8001");
 
   void DestroyServer();

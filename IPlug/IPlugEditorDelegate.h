@@ -56,6 +56,9 @@ public:
     mParams.Empty(true);
   }
   
+  IEditorDelegate(const IEditorDelegate&) = delete;
+  IEditorDelegate& operator=(const IEditorDelegate&) = delete;
+  
   /** Adds an IParam to the parameters ptr list
    * Note: This is only used in special circumstances, since most plug-in formats don't support dynamic parameters
    * @return Ptr to the newly created IParam object */

@@ -28,6 +28,10 @@
 
 struct AudioComponentPlugInInstance
 {
+  AudioComponentPlugInInstance() = default;
+  AudioComponentPlugInInstance(const AudioComponentPlugInInstance&) = delete;
+  AudioComponentPlugInInstance& operator=(const AudioComponentPlugInInstance&) = delete;
+    
   AudioComponentPlugInInterface mPlugInInterface;
   void* (*mConstruct)(void* pMemory, AudioComponentInstance ci);
   void (*mDestruct)(void* pMemory);

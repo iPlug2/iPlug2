@@ -53,6 +53,9 @@ public:
     mParams.Empty(true);
   }
 
+  IPlugFaust(const IPlugFaust&) = delete;
+  IPlugFaust& operator=(const IPlugFaust&) = delete;
+    
   virtual void Init() = 0;
 
   // NO-OP in the base class

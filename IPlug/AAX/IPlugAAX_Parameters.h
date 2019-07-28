@@ -79,7 +79,7 @@ struct AAX_SIPlugSetupInfo
     mNeedsTransport = false;
     mTransportMIDINodeName = "Transport";
     mNumMeters = 0;
-    mMeterIDs = 0;
+    mMeterIDs = nullptr;
     mInputStemFormat = AAX_eStemFormat_Mono;
     mOutputStemFormat = AAX_eStemFormat_Mono;
     mUseHostGeneratedGUI = false;

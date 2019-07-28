@@ -117,6 +117,9 @@
       fclose(mFP);
       mFP = nullptr;
     }
+    
+    LogFile(const LogFile&) = delete;
+    LogFile& operator=(const LogFile&) = delete;
   };
 
   static bool IsWhitespace(char c)
