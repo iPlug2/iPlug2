@@ -15,7 +15,10 @@
  * @copydoc ControlRamp
  */
 
+#include <array>
+#include <functional>
 #include <iostream>
+#include <utility>
 
 /** A ControlRamp describes one value changing over time. It can
  * be easily converted into a signal for more processing,
@@ -26,7 +29,6 @@
  * from [transitionEnd, endValue] to [blockSize, endValue] */
 struct ControlRamp
 {
-public:
   double startValue;
   double endValue;
   int transitionStart;
@@ -65,16 +67,32 @@ public:
       buffer[i] = val;
     }
   }
+    
+  template<size_t N>
+  using RampArray = std::array<ControlRamp, N>;
 };
 
-struct ControlRampProcessor
+class ControlRampProcessor
 {
 public:
+
+  template<size_t N>
+  using RampArray = ControlRamp::RampArray<N>;
+    
+  template<size_t N>
+  using ProcessorArray = std::array<ControlRampProcessor, N>;
+
+  ControlRampProcessor(ControlRamp& output) : mpOutput(output) {}
+  ControlRampProcessor(const ControlRampProcessor&) = delete;
+  ControlRampProcessor& operator=(const ControlRampProcessor&) = delete;
+  ControlRampProcessor(ControlRampProcessor&&) = default;
+  ControlRampProcessor& operator=(ControlRampProcessor&&) = default;
+    
   // process the glide and write changes to the output ramp.
   void Process(int blockSize)
   {
     // always connect with previous block
-    mpOutput->startValue = mpOutput->endValue;
+    mpOutput.startValue = mpOutput.endValue;
 
     if(mSamplesRemaining)
     {
@@ -85,34 +103,34 @@ public:
         {
           // start with ramp to block end
           int glideStartSamples = blockSize - mStartOffset;
-          mpOutput->endValue = mpOutput->startValue + glideStartSamples*mChangePerSample;
-          mpOutput->transitionStart = mStartOffset;
-          mpOutput->transitionEnd = blockSize;
+          mpOutput.endValue = mpOutput.startValue + glideStartSamples*mChangePerSample;
+          mpOutput.transitionStart = mStartOffset;
+          mpOutput.transitionEnd = blockSize;
           mSamplesRemaining -= glideStartSamples;
         }
         else
         {
           // glide starts and finishes within block
-          mpOutput->endValue = mTargetValue;
-          mpOutput->transitionStart = mStartOffset;
-          mpOutput->transitionEnd = mStartOffset + mGlideSamples;
+          mpOutput.endValue = mTargetValue;
+          mpOutput.transitionStart = mStartOffset;
+          mpOutput.transitionEnd = mStartOffset + mGlideSamples;
           mSamplesRemaining = 0;
         }
       }
       else if(mSamplesRemaining > blockSize)
       {
         // continue glide
-        mpOutput->endValue = mpOutput->startValue + mChangePerSample*blockSize;
-        mpOutput->transitionStart = 0;
-        mpOutput->transitionEnd = blockSize;
+        mpOutput.endValue = mpOutput.startValue + mChangePerSample*blockSize;
+        mpOutput.transitionStart = 0;
+        mpOutput.transitionEnd = blockSize;
         mSamplesRemaining -= blockSize;
       }
       else
       {
         // finish glide
-        mpOutput->endValue = mTargetValue;
-        mpOutput->transitionStart = 0;
-        mpOutput->transitionEnd = mSamplesRemaining;
+        mpOutput.endValue = mTargetValue;
+        mpOutput.transitionStart = 0;
+        mpOutput.transitionEnd = mSamplesRemaining;
         mSamplesRemaining = 0;
       }
     }
@@ -125,11 +143,26 @@ public:
     if(glideSamples < 1) glideSamples = 1;
     mGlideSamples = glideSamples;
     mSamplesRemaining = glideSamples;
-    mChangePerSample = (targetValue - mpOutput->endValue)/glideSamples;
+    mChangePerSample = (targetValue - mpOutput.endValue)/glideSamples;
     mStartOffset = startOffset;
   }
-
-  ControlRamp* mpOutput {nullptr};
+    
+  // create an array of processors for an array of ramps
+  template<size_t N>
+  static ProcessorArray<N>* Create(RampArray<N>& inputs)
+  {
+    return CreateImpl<N>(inputs, std::make_index_sequence<N>());
+  }
+    
+private:
+    
+  template<size_t N, size_t ...Is>
+  static ProcessorArray<N>* CreateImpl(RampArray<N>& inputs, std::index_sequence<Is...>)
+  {
+    return new ProcessorArray<N>{std::ref(inputs[Is]).get()...};
+  }
+    
+  ControlRamp& mpOutput;
   double mTargetValue {0.};
   double mChangePerSample {0.};
   int mGlideSamples {0};

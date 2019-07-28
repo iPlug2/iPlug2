@@ -27,6 +27,9 @@ public:
   IPluginBase(int nParams, int nPresets);
   virtual ~IPluginBase();
   
+  IPluginBase(const IPluginBase&) = delete;
+  IPluginBase& operator=(const IPluginBase&) = delete;
+
 #pragma mark - Plug-in properties
   /** @return the name of the plug-in as a CString */
   const char* GetPluginName() const { return mPluginName.Get(); }

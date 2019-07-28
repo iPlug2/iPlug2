@@ -128,6 +128,9 @@ public:
     mDownsampler16x.Empty(true);
   }
 
+  OverSampler(const OverSampler&) = delete;
+  OverSampler& operator=(const OverSampler&) = delete;
+    
   void Reset(int blockSize = DEFAULT_BLOCK_SIZE)
   {
     int numBufSamples = 1;

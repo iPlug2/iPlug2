@@ -22,17 +22,26 @@ inline CFStringRef MakeCFString(const char* cStr)
   return CFStringCreateWithCString(0, cStr, kCFStringEncodingUTF8);
 }
 
-struct CFStrLocal
+class CFStrLocal
 {
-  CFStringRef mCFStr;
+public:
   CFStrLocal(const char* cStr)
   {
     mCFStr = MakeCFString(cStr);
   }
+    
   ~CFStrLocal()
   {
     CFRelease(mCFStr);
   }
+    
+  CFStrLocal(const CFStrLocal&) = delete;
+  CFStrLocal& operator=(const CFStrLocal&) = delete;
+    
+  CFStringRef Get() { return mCFStr; }
+    
+private:
+  CFStringRef mCFStr;
 };
 
 struct CStrLocal : WDL_TypedBuf<char>
@@ -51,7 +60,7 @@ inline void PutNumberInDict(CFMutableDictionaryRef pDict, const char* key, void*
 {
   CFStrLocal cfKey(key);
   CFNumberRef pValue = CFNumberCreate(0, type, pNumber);
-  CFDictionarySetValue(pDict, cfKey.mCFStr, pValue);
+  CFDictionarySetValue(pDict, cfKey.Get(), pValue);
   CFRelease(pValue);
 }
 
@@ -59,21 +68,21 @@ inline void PutStrInDict(CFMutableDictionaryRef pDict, const char* key, const ch
 {
   CFStrLocal cfKey(key);
   CFStrLocal cfValue(value);
-  CFDictionarySetValue(pDict, cfKey.mCFStr, cfValue.mCFStr);
+  CFDictionarySetValue(pDict, cfKey.Get(), cfValue.Get());
 }
 
 inline void PutDataInDict(CFMutableDictionaryRef pDict, const char* key, IByteChunk* pChunk)
 {
   CFStrLocal cfKey(key);
   CFDataRef pData = CFDataCreate(0, pChunk->GetData(), pChunk->Size());
-  CFDictionarySetValue(pDict, cfKey.mCFStr, pData);
+  CFDictionarySetValue(pDict, cfKey.Get(), pData);
   CFRelease(pData);
 }
 
 inline bool GetNumberFromDict(CFDictionaryRef pDict, const char* key, void* pNumber, CFNumberType type)
 {
   CFStrLocal cfKey(key);
-  CFNumberRef pValue = (CFNumberRef) CFDictionaryGetValue(pDict, cfKey.mCFStr);
+  CFNumberRef pValue = (CFNumberRef) CFDictionaryGetValue(pDict, cfKey.Get());
   if (pValue)
   {
     CFNumberGetValue(pValue, type, pNumber);
@@ -85,7 +94,7 @@ inline bool GetNumberFromDict(CFDictionaryRef pDict, const char* key, void* pNum
 inline bool GetStrFromDict(CFDictionaryRef pDict, const char* key, char* value)
 {
   CFStrLocal cfKey(key);
-  CFStringRef pValue = (CFStringRef) CFDictionaryGetValue(pDict, cfKey.mCFStr);
+  CFStringRef pValue = (CFStringRef) CFDictionaryGetValue(pDict, cfKey.Get());
   if (pValue)
   {
     CStrLocal cStr(pValue);
@@ -99,7 +108,7 @@ inline bool GetStrFromDict(CFDictionaryRef pDict, const char* key, char* value)
 inline bool GetDataFromDict(CFDictionaryRef pDict, const char* key, IByteChunk* pChunk)
 {
   CFStrLocal cfKey(key);
-  CFDataRef pData = (CFDataRef) CFDictionaryGetValue(pDict, cfKey.mCFStr);
+  CFDataRef pData = (CFDataRef) CFDictionaryGetValue(pDict, cfKey.Get());
   if (pData)
   {
     CFIndex n = CFDataGetLength(pData);
@@ -745,8 +754,8 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         for (int i = 0; i < n; ++i)
         {
           const char* str = pParam->GetDisplayText(i);
-          CFStrLocal cfstr = CFStrLocal(str);
-          CFArrayAppendValue(nameArray, cfstr.mCFStr);
+          CFStrLocal cfstr(str);
+          CFArrayAppendValue(nameArray, cfstr.Get());
         }
         *((CFArrayRef*) pData) = nameArray;
       }
@@ -823,8 +832,8 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
 
         for (i = 0; i < n; ++i)
         {
-          CFStrLocal presetName = CFStrLocal(GetPresetName(i));
-          CFAUPresetRef newPreset = CFAUPresetCreate(kCFAllocatorDefault, i, presetName.mCFStr); // todo should i be 0 based?
+          CFStrLocal presetName(GetPresetName(i));
+          CFAUPresetRef newPreset = CFAUPresetCreate(kCFAllocatorDefault, i, presetName.Get()); // todo should i be 0 based?
 
           if (newPreset != NULL)
           {
@@ -886,7 +895,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         {
           AudioUnitCocoaViewInfo* pViewInfo = (AudioUnitCocoaViewInfo*) pData;
           CFStrLocal bundleID(mBundleID.Get());
-          CFBundleRef pBundle = CFBundleGetBundleWithIdentifier(bundleID.mCFStr);
+          CFBundleRef pBundle = CFBundleGetBundleWithIdentifier(bundleID.Get());
           CFURLRef url = CFBundleCopyBundleURL(pBundle);
           pViewInfo->mCocoaAUViewBundleLocation = url;
           pViewInfo->mCocoaAUViewClass[0] = CFStringCreateWithCString(0, mCocoaViewFactoryClassName.Get(), kCFStringEncodingUTF8);

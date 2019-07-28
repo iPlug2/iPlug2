@@ -30,6 +30,10 @@
 /** Base class for timer */
 struct Timer
 {
+  Timer() = default;
+  Timer(const Timer&) = delete;
+  Timer& operator=(const Timer&) = delete;
+  
   using ITimerFunction = std::function<void(Timer& t)>;
 
   static Timer* Create(ITimerFunction func, uint32_t intervalMs)
@@ -45,6 +49,10 @@ struct Timer
 /** Base class for timer */
 struct Timer
 {
+  Timer() = default;
+  Timer(const Timer&) = delete;
+  Timer& operator=(const Timer&) = delete;
+  
   using ITimerFunction = std::function<void(Timer& t)>;
 
   static Timer* Create(ITimerFunction func, uint32_t intervalMs);
