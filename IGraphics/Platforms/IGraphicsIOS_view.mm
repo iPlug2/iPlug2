@@ -25,11 +25,69 @@
 {
   [super viewDidLoad];
   self.tableView = [[UITableView alloc] initWithFrame:self.view.frame];
-  [self.view addSubview:self.tableView];
   self.tableView.dataSource = self;
   self.tableView.delegate = self;
   self.tableView.scrollEnabled = YES;
-  self.items = [[NSMutableArray alloc] initWithObjects:@"green",@"gray", @"blue",@"purple", @"yellow", nil];
+  [self.view addSubview:self.tableView];
+
+//  self.tableView.tableHeaderView = [[UILabel alloc] ]
+//  [self.tableView registerClass:NewTableViewCell.class forCellReuseIdentifier:@"Cell"];
+
+  self.items = [[NSMutableArray alloc] init];
+  
+  int numItems = mMenu->NItems();
+
+  NSMutableString* elementTitle;
+  
+  for (int i = 0; i < numItems; ++i)
+  {
+    IPopupMenu::Item* pMenuItem = mMenu->GetItem(i);
+
+    elementTitle = [[[NSMutableString alloc] initWithCString:pMenuItem->GetText() encoding:NSUTF8StringEncoding] autorelease];
+
+    if (mMenu->GetPrefix())
+    {
+      NSString* prefixString = 0;
+
+      switch (mMenu->GetPrefix())
+      {
+        case 0: prefixString = [NSString stringWithUTF8String:""]; break;
+        case 1: prefixString = [NSString stringWithFormat:@"%1d: ", i+1]; break;
+        case 2: prefixString = [NSString stringWithFormat:@"%02d: ", i+1]; break;
+        case 3: prefixString = [NSString stringWithFormat:@"%03d: ", i+1]; break;
+      }
+
+      [elementTitle insertString:prefixString atIndex:0];
+    }
+
+//    if (pMenuItem->GetSubmenu())
+//    {
+//      nsMenuItem = [self addItemWithTitle:nsMenuItemTitle action:nil keyEquivalent:@""];
+//      NSMenu* subMenu = [[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReciever:pMenuItem->GetSubmenu() :pView];
+//      [self setSubmenu: subMenu forItem:nsMenuItem];
+//      [subMenu release];
+//    }
+//    else if (pMenuItem->GetIsSeparator())
+//      [self addItem:[NSMenuItem separatorItem]];
+//    else
+//    {
+    [self.items addObject:elementTitle];
+
+//      if (pMenuItem->GetIsTitle ())
+//        [nsMenuItem setIndentationLevel:1];
+//
+//      if (pMenuItem->GetChecked())
+//        [nsMenuItem setState:NSOnState];
+//      else
+//        [nsMenuItem setState:NSOffState];
+//
+//      if (pMenuItem->GetEnabled())
+//        [nsMenuItem setEnabled:YES];
+//      else
+//        [nsMenuItem setEnabled:NO];
+//
+//    }
+  }
 }
 
 - (id) initWithIPopupMenu:(IPopupMenu&) menu
@@ -69,6 +127,15 @@
 {
   if (self.presentingViewController && self.tableView != nil)
   {
+    
+    UIView* headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 300, 20)];
+    UILabel* labelView = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 20)];
+    [labelView setText:@"Things"];
+    [headerView addSubview:labelView];
+    self.tableView.tableHeaderView = headerView;
+    [labelView release];
+    [headerView release];
+    
     CGSize tempSize = self.presentingViewController.view.bounds.size;
     tempSize.width = 300;
     CGSize size = [self.tableView sizeThatFits:tempSize];
