@@ -37,15 +37,13 @@ IGraphicsIOS::IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float s
 
     NSBundle* pBundle = [NSBundle mainBundle];
    
-    if([[pBundle bundleIdentifier] containsString:@"AUv3"])
-    {
+    if(IsAuv3AppExtension())
       pBundle = [NSBundle bundleWithPath: [[[pBundle bundlePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent]];
-    }
     
     NSArray<NSURL*>* textureFiles = [pBundle URLsForResourcesWithExtension:@"ktx" subdirectory:@""];
 
     NSError* pError = nil;
-    NSDictionary* textureOptions = @{ MTKTextureLoaderOptionSRGB: [[NSNumber alloc] initWithBool:NO] };
+    NSDictionary* textureOptions = @{ MTKTextureLoaderOptionSRGB: [NSNumber numberWithBool:NO] };
 
     NSArray<id<MTLTexture>>* textures = [textureLoader newTexturesWithContentsOfURLs:textureFiles options:textureOptions error:&pError];
 
@@ -55,6 +53,8 @@ IGraphicsIOS::IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float s
     }
     
     DBGMSG("Loaded %i textures\n", (int) textures.count);
+    
+    [textureLoader release];
   }
 }
 

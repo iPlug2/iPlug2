@@ -181,7 +181,7 @@ void WebViewEditorDelegate::LoadURL(const char* url)
   WKWebView* webView = (WKWebView*) mWKWebView;
   
   NSURL* nsurl = [NSURL URLWithString:[NSString stringWithUTF8String:url] relativeToURL:nil];
-  NSURLRequest* req = [[NSURLRequest alloc] initWithURL:nsurl]; //TODO: release
+  NSURLRequest* req = [[[NSURLRequest alloc] initWithURL:nsurl] autorelease];
   [webView loadRequest:req];
 }
 

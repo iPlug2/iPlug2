@@ -11,7 +11,7 @@
 	<key>CFBundleIconFile</key>
 	<string>IPlugWebView.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.OliLarkin.app.IPlugWebView</string>
+	<string>com.AcmeInc.app.IPlugWebView</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

@@ -9,7 +9,7 @@
 	<key>CFBundleExecutable</key>
 	<string>IPlugWebViewAppExtension</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.OliLarkin.app.IPlugWebView.AUv3</string>
+	<string>com.AcmeInc.app.IPlugWebView.AUv3</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -36,7 +36,7 @@
 					<key>manufacturer</key>
 					<string>Acme</string>
 					<key>name</key>
-					<string>OliLarkin: IPlugWebView</string>
+					<string>AcmeInc: IPlugWebView</string>
 					<key>sandboxSafe</key>
 					<true/>
 					<key>subtype</key>
