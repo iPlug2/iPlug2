@@ -2177,7 +2177,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "../resources/IPlugWebView-VST2-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.OliLarkin.vst.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.vst.${BINARY_NAME}";
 				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = "-Wno-main";
 				WRAPPER_EXTENSION = vst;
@@ -2196,7 +2196,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "../resources/IPlugWebView-VST2-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.OliLarkin.vst.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.vst.${BINARY_NAME}";
 				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = "-Wno-main";
 				WRAPPER_EXTENSION = vst;
@@ -2215,7 +2215,7 @@
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = "../resources/IPlugWebView-VST2-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.OliLarkin.vst.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.vst.${BINARY_NAME}";
 				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = "-Wno-main";
 				WRAPPER_EXTENSION = vst;
@@ -2259,7 +2259,7 @@
 					"$(AUv3_FRAMEWORKS)",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.OliLarkin.standalone.IPlugWebView.AUv3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.standalone.IPlugWebView.AUv3;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = appex;
@@ -2304,7 +2304,7 @@
 					"$(AUv3_FRAMEWORKS)",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.OliLarkin.standalone.IPlugWebView.AUv3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.standalone.IPlugWebView.AUv3;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = appex;
@@ -2349,7 +2349,7 @@
 					"$(AUv3_FRAMEWORKS)",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.OliLarkin.standalone.IPlugWebView.AUv3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.standalone.IPlugWebView.AUv3;
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = appex;
@@ -2373,7 +2373,7 @@
 					"$(inherited)",
 				);
 				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I $CA_SDK/AudioUnits/AUPublic/AUBase";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.OliLarkin.audiounit.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.audiounit.${BINARY_NAME}";
 				REZ_SEARCH_PATHS = (
 					/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers,
 					$CA_SDK/AudioUnits/AUPublic/AUBase,
@@ -2400,7 +2400,7 @@
 					"$(inherited)",
 				);
 				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I $CA_SDK/AudioUnits/AUPublic/AUBase";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.OliLarkin.audiounit.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.audiounit.${BINARY_NAME}";
 				REZ_SEARCH_PATHS = (
 					/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers,
 					$CA_SDK/AudioUnits/AUPublic/AUBase,
@@ -2427,7 +2427,7 @@
 					"$(inherited)",
 				);
 				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I $CA_SDK/AudioUnits/AUPublic/AUBase";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.OliLarkin.audiounit.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.audiounit.${BINARY_NAME}";
 				REZ_SEARCH_PATHS = (
 					/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers,
 					$CA_SDK/AudioUnits/AUPublic/AUBase,
@@ -2480,7 +2480,7 @@
 					"$(VST3_SDK)",
 				);
 				INFOPLIST_FILE = "../resources/IPlugWebView-VST3-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.OliLarkin.vst3.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.vst3.${BINARY_NAME}";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = vst3;
 			};
@@ -2502,7 +2502,7 @@
 					"$(VST3_SDK)",
 				);
 				INFOPLIST_FILE = "../resources/IPlugWebView-VST3-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.OliLarkin.vst3.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.vst3.${BINARY_NAME}";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = vst3;
 			};
@@ -2524,7 +2524,7 @@
 					"$(VST3_SDK)",
 				);
 				INFOPLIST_FILE = "../resources/IPlugWebView-VST3-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.OliLarkin.vst3.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.vst3.${BINARY_NAME}";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = vst3;
 			};
@@ -2567,7 +2567,7 @@
 					"$(AAX_SDK)/Libs/Debug",
 				);
 				MACOSX_DEPLOYMENT_TARGET = "$(DEPLOYMENT_TARGET)";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.OliLarkin.aax.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.aax.${BINARY_NAME}";
 				SDKROOT = "$(BASE_SDK_MAC)";
 				SKIP_INSTALL = NO;
 				SYMROOT = "../build-mac";
@@ -2627,7 +2627,7 @@
 					"-Xlinker",
 					1500,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.OliLarkin.aax.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.aax.${BINARY_NAME}";
 				SDKROOT = "$(BASE_SDK_MAC)";
 				SKIP_INSTALL = NO;
 				SYMROOT = "../build-mac";
@@ -2687,7 +2687,7 @@
 					"-Xlinker",
 					1500,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.OliLarkin.aax.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.aax.${BINARY_NAME}";
 				SDKROOT = "$(BASE_SDK_MAC)";
 				SKIP_INSTALL = NO;
 				SYMROOT = "../build-mac";
@@ -2819,7 +2819,7 @@
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.OliLarkin.standalone.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.standalone.${BINARY_NAME}";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = app;
@@ -2845,7 +2845,7 @@
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.OliLarkin.standalone.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.standalone.${BINARY_NAME}";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = app;
@@ -2871,7 +2871,7 @@
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.OliLarkin.standalone.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.standalone.${BINARY_NAME}";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = app;
@@ -2894,7 +2894,7 @@
 					"$(VST3_SDK)",
 				);
 				INFOPLIST_FILE = "../resources/IPlugWebView-VST3-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.OliLarkin.vst3.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.vst3.${BINARY_NAME}";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = vst3;
 			};
@@ -2916,7 +2916,7 @@
 					"$(VST3_SDK)",
 				);
 				INFOPLIST_FILE = "../resources/IPlugWebView-VST3-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.OliLarkin.vst3.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.vst3.${BINARY_NAME}";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = vst3;
 			};
@@ -2938,7 +2938,7 @@
 					"$(VST3_SDK)",
 				);
 				INFOPLIST_FILE = "../resources/IPlugWebView-VST3-Info.plist";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.OliLarkin.vst3.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.vst3.${BINARY_NAME}";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = vst3;
 			};
