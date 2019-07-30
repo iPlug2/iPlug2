@@ -42,6 +42,7 @@
 
 #include "IPlugPlatform.h"
 #include "IPlugConstants.h"
+#include "IPlugTimer.h"
 
 #include "IPlugAPP.h"
 
@@ -202,6 +203,28 @@ public:
   bool TryToChangeAudio();
   bool SelectMIDIDevice(ERoute direction, const char* portName);
   
+#if APP_HAS_TRANSPORT_BAR
+  /**
+   * Changes the playback status updating the values in the internal transport info structure
+   * @param toggle true starts the playback, false stops it
+   */
+  void TogglePlay(bool toggle);
+  
+  /**
+   * Sets the ITimeinfo "tempo" value of the internal timeinfo structure and changes
+   * the internal tempo to the set BPM value
+   * @param BPM the new tempo
+   */
+  void SetBPM(double BPM);
+  
+  /**
+   * Counts MIDI clock messages and every 24 counts a beat. used to set internal tempo
+   * and stay synced to an external device
+   * @param deltatime the time delta provided by RtMidi
+   */
+  void CountClock(double deltatime);
+#endif
+  
   static int AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_t nFrames, double streamTime, RtAudioStreamStatus status, void* pUserData);
   static void MIDICallback(double deltatime, std::vector<uint8_t>* pMsg, void* pUserData);
   static void ErrorCallback(RtAudioError::Type type, const std::string& errorText);
@@ -210,6 +233,7 @@ public:
   static WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
   IPlugAPP* GetPlug() { return mIPlug.get(); }
+  
 private:
   std::unique_ptr<IPlugAPP> mIPlug = nullptr;
   std::unique_ptr<RtAudio> mDAC = nullptr;
@@ -244,6 +268,13 @@ private:
   std::vector<std::string> mAudioIDDevNames;
   std::vector<std::string> mMidiInputDevNames;
   std::vector<std::string> mMidiOutputDevNames;
+  
+#if APP_HAS_TRANSPORT_BAR
+  uint32_t mLastClockCount = 0; // store number of midi clock in count
+  uint32_t mMidiSPP = 0;
+  ITimeInfo mTimeInfo;
+  bool mMidiMaster = true;
+#endif
   
   friend class IPlugAPP;
 };

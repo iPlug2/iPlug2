@@ -26,6 +26,10 @@
 
   IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
   {
+#if APP_API && APP_HAS_TRANSPORT_BAR
+    // change window height to make room for transport bar
+    h += APP_TRANSPORT_BAR_HEIGHT;
+#endif
     IGraphicsWin* pGraphics = new IGraphicsWin(dlg, w, h, fps, scale);
     pGraphics->SetWinModuleHandle(gHINSTANCE);
     return pGraphics;
@@ -33,6 +37,10 @@
   #elif defined OS_MAC
   IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
   {
+#if APP_API && APP_HAS_TRANSPORT_BAR
+    // change window height to make room for transport bar
+    h += APP_TRANSPORT_BAR_HEIGHT;
+#endif
     IGraphicsMac* pGraphics = new IGraphicsMac(dlg, w, h, fps, scale);
     pGraphics->SetBundleID(BUNDLE_ID);
     

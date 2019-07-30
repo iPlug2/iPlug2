@@ -54,7 +54,7 @@ IPlugAPPHost* IPlugAPPHost::Create()
 bool IPlugAPPHost::Init()
 {
   mIPlug->SetHost("standalone", mIPlug->GetPluginVersion(false));
-    
+  
   if (!InitState())
     return false;
   
@@ -595,11 +595,22 @@ bool IPlugAPPHost::InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_
   mIPlug->SetSampleRate(mSampleRate);
   mIPlug->OnReset();
 
+#if APP_HAS_TRANSPORT_BAR
+  mTimeInfo.mTempo = 120;
+  mTimeInfo.mNumerator = 4;
+  mTimeInfo.mDenominator = 4;
+  mTimeInfo.mTransportLoopEnabled = false;
+  mTimeInfo.mTransportIsRunning = false;
+  mTimeInfo.mPPQPos = 0;
+  mTimeInfo.mSamplePos = 0;
+  
+  mLastClockCount = 0;
+#endif
+  
   try
   {
     mDAC->openStream(&oParams, &iParams, RTAUDIO_FLOAT64, sr, &mBufferSize, &AudioCallback, NULL, &options /*, &ErrorCallback */);
     mDAC->startStream();
-
     mActiveState = mState;
   }
   catch (RtAudioError& e)
@@ -636,10 +647,47 @@ bool IPlugAPPHost::InitMidi()
   }
 
   mMidiIn->setCallback(&MIDICallback, this);
-  mMidiIn->ignoreTypes(false, true, false );
+  mMidiIn->ignoreTypes(false, false, false );
 
   return true;
 }
+
+#if APP_HAS_TRANSPORT_BAR
+void IPlugAPPHost::TogglePlay(bool toggle)
+{
+  mTimeInfo.mTransportIsRunning = toggle;
+  if(toggle) {
+    IMidiMsg midiStart;
+    midiStart.mStatus = 0xFA;
+    mIPlug->SendMidiMsg(midiStart);
+  } else {
+    IMidiMsg midiStop;
+    midiStop.mStatus = 0xFC;
+    mIPlug->SendMidiMsg(midiStop);
+    mTimeInfo.mSamplePos = 0;
+  }
+  mIPlug->SetTimeInfo(mTimeInfo);
+}
+
+void IPlugAPPHost::SetBPM(double BPM)
+{
+  mTimeInfo.mTempo = BPM;
+  mIPlug->SetTimeInfo(mTimeInfo);
+}
+
+void IPlugAPPHost::CountClock(double deltatime)
+{
+  mMidiMaster = false;
+  mTimeInfo.mPPQPos += 1./24.;
+  mIPlug->SetTimeInfo(mTimeInfo);
+  mLastClockCount++;
+  if (mLastClockCount == 24) {
+    double bpm = 60.0 / 24.0 / deltatime;
+    SetBPM(bpm);
+    mLastClockCount = 0;
+  }
+}
+#endif
 
 // static
 int IPlugAPPHost::AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_t nFrames, double streamTime, RtAudioStreamStatus status, void* pUserData)
@@ -668,10 +716,37 @@ int IPlugAPPHost::AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_
         double* inputs[2] = {pInputBufferD + i, pInputBufferD + inRightOffset + i};
         double* outputs[2] = {pOutputBufferD + i, pOutputBufferD + nFrames + i};
 
+#if APP_HAS_TRANSPORT_BAR
+        // set the timeinfo stuff for the plugin code
+        if(_this->mTimeInfo.mTransportIsRunning) {
+          if(_this->mMidiMaster) {
+            unsigned int samplesPerBeat = (_this->mSampleRate * 60) / _this->mTimeInfo.mTempo;
+            int samplesPerMidiClock = samplesPerBeat / 24;
+            _this->mTimeInfo.mPPQPos = (double)_this->mTimeInfo.mSamplePos / samplesPerBeat;
+            if(_this->mMidiOut) {
+              for (int spl = 0; spl < APP_SIGNAL_VECTOR_SIZE; spl++) {
+                if((int)(_this->mTimeInfo.mSamplePos + spl) % samplesPerMidiClock == 0) {
+                  IMidiMsg midiClock;
+                  midiClock.mStatus = 0xF8;
+                  midiClock.mOffset = spl;
+                  _this->mIPlug->SendMidiMsg(midiClock);
+                }
+              }
+            }
+          }
+          // set timeinfo here even if we are not midi master because we need to
+          // update samplepos
+          _this->mIPlug->SetTimeInfo(_this->mTimeInfo);
+        }
+        
         _this->mIPlug->AppProcess(inputs, outputs, APP_SIGNAL_VECTOR_SIZE);
-
         _this->mSamplesElapsed += APP_SIGNAL_VECTOR_SIZE;
+        
+        if(_this->mTimeInfo.mTransportIsRunning)
+          _this->mTimeInfo.mSamplePos += APP_SIGNAL_VECTOR_SIZE;
+#endif
       }
+
 
       // fade in
       if (_this->mFadeMult < 1.)
@@ -719,6 +794,30 @@ void IPlugAPPHost::MIDICallback(double deltatime, std::vector<uint8_t>* pMsg, vo
     _this->mIPlug->mSysExMsgsFromCallback.Push(data);
     return;
   }
+  
+#if APP_HAS_TRANSPORT_BAR
+  else if (pMsg->size() == 1) // MIDI clock, start & stop
+  {
+    if(pMsg->at(0) == 0xFA || pMsg->at(0) == 0xFB) { // MIDI Start and continue
+      _this->TogglePlay(true);
+      _this->mIPlug->GrayOutTransport(true);
+    } else if (pMsg->at(0) == 0xFC) { // MIDI Stop
+      _this->TogglePlay(false);
+      _this->mIPlug->GrayOutTransport(false);
+    } else if (pMsg->at(0) == 0xF8) { // MIDI Clock
+      _this->CountClock(deltatime);
+    }
+  }
+  else if (pMsg->size() == 3 && pMsg->at(0) == 0xF2) // MIDI song position pointer
+  {
+    // MIDI SPP works like the pitch wheel see:
+    // http://midi.teragonaudio.com/tech/midispec/ssp.htm
+    int midiSPP = (pMsg->at(2) << 7) + pMsg->at(1);
+    int clocks = midiSPP * 6;
+    _this->mTimeInfo.mPPQPos = clocks / 24.;
+    _this->mIPlug->SetTimeInfo(_this->mTimeInfo);
+  }
+#endif
   else if (pMsg->size())
   {
     IMidiMsg msg;
@@ -735,4 +834,5 @@ void IPlugAPPHost::ErrorCallback(RtAudioError::Type type, const std::string &err
 {
   //TODO:
 }
+
 
