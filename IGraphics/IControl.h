@@ -537,6 +537,11 @@ public:
   
   virtual ~IBitmapBase() {}
   
+  void AttachIControl(IControl* pControl)
+  {
+    mControl = pControl;
+  }
+  
   void GrayOut(bool gray)
   {
     mBlend.mWeight = (gray ? GRAYED_ALPHA : 1.0f);
@@ -546,10 +551,23 @@ public:
   {
     mBlend = blend;
   }
+  
+  void DrawBitmap(IGraphics& g)
+  {
+    int i = 1;
+    if (mBitmap.N() > 1)
+    {
+      i = 1 + int(0.5 + mControl->GetValue() * (double) (mBitmap.N() - 1));
+      i = Clip(i, 1, mBitmap.N());
+    }
+    
+    g.DrawBitmap(mBitmap, mControl->GetRECT(), i, &mBlend);
+  }
 
 protected:
   IBitmap mBitmap;
   IBlend mBlend;
+  IControl* mControl;
 };
 
 /** A base interface to be combined with IControl for vectorial controls "IVControls", in order for them to share a common style
