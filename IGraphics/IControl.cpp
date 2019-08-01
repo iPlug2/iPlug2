@@ -358,23 +358,6 @@ void IControl::SnapToMouse(float x, float y, EDirection direction, const IRECT& 
   SetDirty(true, valIdx);
 }
 
-void IBitmapControl::Draw(IGraphics& g)
-{
-  int i = 1;
-  if (mBitmap.N() > 1)
-  {
-    i = 1 + int(0.5 + GetValue() * (double) (mBitmap.N() - 1));
-    i = Clip(i, 1, mBitmap.N());
-  }
-
-  g.DrawBitmap(mBitmap, mRECT, i, &mBlend);
-}
-
-void IBitmapControl::OnRescale()
-{
-  mBitmap = GetUI()->GetScaledBitmap(mBitmap);
-}
-
 ITextControl::ITextControl(const IRECT& bounds, const char* str, const IText& text, const IColor& BGColor)
 : IControl(bounds)
 , mStr(str)

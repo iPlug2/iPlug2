@@ -1350,26 +1350,25 @@ public:
   IBitmapControl(float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlend blend = EBlend::Default)
   : IControl(IRECT(x, y, bitmap), paramIdx)
   , IBitmapBase(bitmap, blend)
-  {}
+  {
+    AttachIControl(this);
+  }
   
   IBitmapControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlend blend = EBlend::Default)
   : IControl(bounds, paramIdx)
   , IBitmapBase(bitmap, blend)
-  {}
+  {
+    AttachIControl(this);
+  }
   
   virtual ~IBitmapControl() {}
 
-  void Draw(IGraphics& g) override;
+  void Draw(IGraphics& g) override { DrawBitmap(g); }
 
   /** Implement to do something when graphics is scaled globally (e.g. moves to high DPI screen),
    *  if you override this make sure you call the parent method in order to rescale mBitmap */
-  void OnRescale() override;
-  
-  void GrayOut(bool gray) override
-  {
-    IBitmapBase::GrayOut(gray);
-    IControl::GrayOut(gray);
-  }
+  void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
+  void GrayOut(bool gray) override { IBitmapBase::GrayOut(gray); IControl::GrayOut(gray); }
 };
 
 /** A basic control to draw an SVG image to the screen. Optionally, cache SVG to an ILayer. */
