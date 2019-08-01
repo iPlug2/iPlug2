@@ -460,6 +460,7 @@ void IGraphicsNanoVG::EndFrame()
 
   nvgSave(mVG);
   nvgResetTransform(mVG);
+  nvgTranslate(mVG, mXTranslation, mYTranslation);
   nvgBeginPath(mVG);
   nvgRect(mVG, 0, 0, WindowWidth(), WindowHeight());
   nvgFillPaint(mVG, img);

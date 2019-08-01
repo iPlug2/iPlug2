@@ -13,20 +13,39 @@
 
 inline CGRect ToCGRect(IGraphics* pGraphics, const IRECT& bounds)
 {
-  float B = (pGraphics->Height() - bounds.B);
-  return CGRectMake(bounds.L, B, bounds.W(), bounds.H());
+  float scale = pGraphics->GetDrawScale();
+  float x = floor(bounds.L * scale);
+  float y = floor(bounds.T * scale);
+  float x2 = ceil(bounds.R * scale);
+  float y2 = ceil(bounds.B * scale);
+  
+  return CGRectMake(x, y, x2 - x, y2 - y);
 }
 
-@interface IGraphicsIOS_View : UIView
+inline UIColor* ToUIColor(const IColor& c)
+{
+  return [UIColor colorWithRed:(double) c.R / 255.0 green:(double) c.G / 255.0 blue:(double) c.B / 255.0 alpha:(double) c.A / 255.0];
+}
+
+inline IColor FromUIColor(const UIColor* c)
+{
+  CGFloat r,g,b,a;
+  [c getRed:&r green:&g blue:&b alpha:&a];
+  return IColor(a * 255., r * 255., g * 255., b * 255.);
+}
+
+@interface IGraphicsIOS_View : UIScrollView <UITextFieldDelegate, UIScrollViewDelegate>
 {  
 @public
   IGraphicsIOS* mGraphics;
+  UITextField* mTextField;
+  int mTextFieldLength;
 }
 - (id) initWithIGraphics: (IGraphicsIOS*) pGraphics;
 - (BOOL) isOpaque;
 - (BOOL) acceptsFirstResponder;
+- (BOOL) delaysContentTouches;
 - (void) removeFromSuperview;
-- (void) controlTextDidEndEditing: (NSNotification*) aNotification;
 - (IPopupMenu*) createPopupMenu: (const IPopupMenu&) menu : (CGRect) bounds;
 - (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (CGRect) areaRect;
 - (void) endUserInput;

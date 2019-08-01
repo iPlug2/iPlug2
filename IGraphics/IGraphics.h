@@ -879,10 +879,12 @@ public:
   IGraphics(const IGraphics&) = delete;
   IGraphics& operator=(const IGraphics&) = delete;
     
-  /** Called by the platform IGraphics class XXXXX /todo and when moving to a new screen with different DPI
+  /** Called by the platform IGraphics class when moving to a new screen to set DPI
    * @param scale The scale of the display, typically 2 on a macOS retina screen */
   void SetScreenScale(int scale);
-    
+  
+  void SetTranslation(float x, float y) { mXTranslation = x; mYTranslation = y; }
+  
   /** Called repeatedly at frame rate by the platform class to check what the graphics context says is dirty.
    * @param rects The rectangular regions which will be added to to mark what is dirty in the context
    * @return /c true if a control is dirty */
@@ -1007,6 +1009,9 @@ public:
   
   /** @return True if text entry in progress */
   bool IsInTextEntry() { return mInTextEntry != nullptr; }
+  
+  /** @return Ptr to the control that launched the text entry */
+  IControl* GetControlInTextEntry() { return mInTextEntry; }
   
   /** @return \c true if tool tips are enabled */
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
@@ -1488,6 +1493,7 @@ private:
   int mFPS;
   int mScreenScale = 1; // the scaling of the display that the UI is currently on e.g. 2 for retina
   float mDrawScale = 1.f; // scale deviation from  default width and height i.e stretching the UI by dragging bottom right hand corner
+
   int mIdleTicks = 0;
   IControl* mMouseCapture = nullptr;
   IControl* mMouseOver = nullptr;
@@ -1524,10 +1530,11 @@ protected:
   bool mTabletInput = false;
   float mCursorX = -1.f;
   float mCursorY = -1.f;
-
+  float mXTranslation = 0.f;
+  float mYTranslation = 0.f;
+  
   friend class IGraphicsLiveEdit;
   friend class ICornerResizerControl;
-
   friend class ITextEntryControl;
 
   std::stack<ILayer*> mLayers;

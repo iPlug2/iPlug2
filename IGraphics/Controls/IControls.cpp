@@ -1044,7 +1044,7 @@ void IVPlotControl::Draw(IGraphics& g)
         mPoints[i] = v;
       }
       
-      g.DrawData(mPlots[p].color, mWidgetBounds, mPoints.data(), mPoints.size(), nullptr, nullptr, mStyle.frameThickness);
+      g.DrawData(mPlots[p].color, mWidgetBounds, mPoints.data(), (int) mPoints.size(), nullptr, nullptr, mStyle.frameThickness);
     }
   };
   
