@@ -102,6 +102,7 @@ void IGraphicsIOS::CloseWindow()
     IGraphicsIOS_View* view = (IGraphicsIOS_View*) mView;
     [view removeFromSuperview];
     [view release];
+    mView = nullptr;
 
     OnViewDestroyed();
   }
