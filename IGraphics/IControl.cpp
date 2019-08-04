@@ -703,7 +703,6 @@ void IDirBrowseControlBase::SetUpMenu()
 
 void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAddTo)
 {
-#if !defined OS_IOS
   WDL_DirScan d;
 
   if (!d.First(path))
@@ -744,8 +743,6 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
   
   if(!mShowEmptySubmenus)
     menuToAddTo.RemoveEmptySubmenus();
-
-#endif
 }
 
 ISliderControlBase::ISliderControlBase(const IRECT& bounds, int paramIdx, EDirection dir, bool onlyHandle, float handleSize)
