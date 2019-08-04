@@ -114,7 +114,7 @@ void AppSupportPath(WDL_String& path, bool isSystem)
   path.Set([pApplicationSupportDirectory UTF8String]);
 }
 
-void SandboxSafeAppSupportPath(WDL_String& path)
+void SandboxSafeAppSupportPath(WDL_String& path, const char* appGroupID = "")
 {
   NSArray* pPaths = NSSearchPathForDirectoriesInDomains(NSMusicDirectory, NSUserDomainMask, YES);
   NSString* pUserMusicDirectory = [pPaths objectAtIndex:0];
@@ -247,8 +247,11 @@ void AppSupportPath(WDL_String& path, bool isSystem)
 {
 }
 
-void SandboxSafeAppSupportPath(WDL_String& path)
+void SandboxSafeAppSupportPath(WDL_String& path, const char* appGroupID)
 {
+  NSFileManager* mgr = [NSFileManager defaultManager];
+  NSURL* url = [mgr containerURLForSecurityApplicationGroupIdentifier:[NSString stringWithUTF8String:appGroupID]];
+  path.Set([[url path] UTF8String]);
 }
 
 void DesktopPath(WDL_String& path)
