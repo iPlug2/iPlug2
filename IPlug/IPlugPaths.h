@@ -54,7 +54,7 @@ extern void UserHomePath(WDL_String& path);
 extern void AppSupportPath(WDL_String& path, bool isSystem = false);
 
 /** @param path WDL_String reference where the path will be put on success or empty string on failure */
-extern void SandboxSafeAppSupportPath(WDL_String& path);
+extern void SandboxSafeAppSupportPath(WDL_String& path, const char* appGroupID = "");
 
 /** @param path WDL_String reference where the path will be put on success or empty string on failure
  * @param mfrName CString to specify the manufacturer name, which will be the top level folder for .vstpreset files for this manufacturer's product

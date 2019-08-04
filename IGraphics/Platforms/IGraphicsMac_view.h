@@ -45,7 +45,6 @@ inline IColor FromNSColor(const NSColor* c)
   return IColor(c.alphaComponent * 255., c.redComponent* 255., c.greenComponent * 255., c.blueComponent * 255.);
 }
 
-
 // based on code by Scott Gruby http://blog.gruby.com/2008/03/30/filtering-nstextfield-take-2/
 @interface IGRAPHICS_FORMATTER : NSFormatter
 {

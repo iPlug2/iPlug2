@@ -62,7 +62,7 @@ public:
   static const IColor DEFAULT_FR_COLOR;
   static const IColor DEFAULT_HK_COLOR;
 
-  IVKeyboardControl(const IRECT& bounds, int minNote = 36, int maxNote = 60, bool roundedKeys = false,
+  IVKeyboardControl(const IRECT& bounds, int minNote = 48, int maxNote = 72, bool roundedKeys = false,
                     const IColor& WK_COLOR = DEFAULT_WK_COLOR,
                     const IColor& BK_COLOR = DEFAULT_BK_COLOR,
                     const IColor& PK_COLOR = DEFAULT_PK_COLOR,

@@ -294,7 +294,6 @@ protected:
   EVShape mShape = EVShape::Ellipse;
 };
 
-
 class IVXYPadControl : public IControl
                      , public IVectorBase
 {
@@ -384,23 +383,20 @@ public:
   IBButtonControl(float x, float y, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
   : IButtonControlBase(IRECT(x, y, bitmap), actionFunc)
   , IBitmapBase(bitmap)
-  {}
+  {
+    AttachIControl(this);
+  }
 
   IBButtonControl(const IRECT& bounds, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
   : IButtonControlBase(bounds.GetCentredInside(bitmap), actionFunc)
   , IBitmapBase(bitmap)
-  {}
+  {
+    AttachIControl(this);
+  }
 
   void Draw(IGraphics& g) override
   {
-    int i = 1;
-    if (mBitmap.N() > 1)
-    {
-      i = 1 + int(0.5 + GetValue() * (double) (mBitmap.N() - 1));
-      i = Clip(i, 1, mBitmap.N());
-    }
-    
-    g.DrawBitmap(mBitmap, mRECT, i, &mBlend);
+    DrawBitmap(g);
   }
 
   void OnRescale() override
@@ -416,25 +412,31 @@ public:
 };
 
 /** A bitmap switch control. Click to cycle through states. */
-class IBSwitchControl : public IBitmapControl
+class IBSwitchControl : public ISwitchControlBase
+                      , public IBitmapBase
 {
 public:
   IBSwitchControl(float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter)
-  : IBitmapControl(x, y, bitmap, paramIdx) {}
+  : ISwitchControlBase(IRECT(x, y, bitmap), paramIdx)
+  , IBitmapBase(bitmap)
+  {
+    AttachIControl(this);
+    mDblAsSingleClick = true;
+  }
 
   IBSwitchControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter)
-  : IBitmapControl(bounds.GetCentredInside(bitmap), bitmap, paramIdx) {}
-
-  virtual ~IBSwitchControl() {}
-
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {  OnMouseDown(x, y, mod); }
-
-  void GrayOut(bool gray) override
+  : ISwitchControlBase(bounds.GetCentredInside(bitmap), paramIdx)
+  , IBitmapBase(bitmap)
   {
-    IBitmapBase::GrayOut(gray);
-    IControl::GrayOut(gray);
+    AttachIControl(this);
+    mDblAsSingleClick = true;
   }
+  
+  virtual ~IBSwitchControl() {}
+  void Draw(IGraphics& g) override { DrawBitmap(g); }
+  void GrayOut(bool gray) override { IBitmapBase::GrayOut(gray); IControl::GrayOut(gray); }
+  void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
 };
 
 /** A bitmap knob/dial control that draws a frame from a stacked bitmap */
@@ -446,32 +448,20 @@ public:
   : IKnobControlBase(IRECT(x, y, bitmap), paramIdx, direction, gearing)
   , IBitmapBase(bitmap)
   {
+    AttachIControl(this);
   }
 
   IBKnobControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx, EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING)
   : IKnobControlBase(bounds.GetCentredInside(bitmap), paramIdx, direction, gearing)
   , IBitmapBase(bitmap)
   {
+    AttachIControl(this);
   }
 
   virtual ~IBKnobControl() {}
-
-  void Draw(IGraphics& g) override
-  {
-    int i = 1 + int(0.5 + GetValue() * (double) (mBitmap.N() - 1));
-    g.DrawBitmap(mBitmap, mRECT, i, &mBlend);
-  }
-
-  void OnRescale() override
-  {
-    mBitmap = GetUI()->GetScaledBitmap(mBitmap);
-  }
-
-  void GrayOut(bool gray) override
-  {
-    IBitmapBase::GrayOut(gray);
-    IControl::GrayOut(gray);
-  }
+  void Draw(IGraphics& g) override { DrawBitmap(g); }
+  void GrayOut(bool gray) override { IBitmapBase::GrayOut(gray); IControl::GrayOut(gray); }
+  void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
 };
 
 /** A bitmap knob/dial control that rotates an image */
@@ -479,14 +469,10 @@ class IBKnobRotaterControl : public IBKnobControl
 {
 public:
   IBKnobRotaterControl(float x, float y, const IBitmap& bitmap, int paramIdx)
-  : IBKnobControl(IRECT(x, y, bitmap), bitmap, paramIdx)
-  {
-  }
+  : IBKnobControl(IRECT(x, y, bitmap), bitmap, paramIdx) {}
 
   IBKnobRotaterControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx)
-  : IBKnobControl(bounds.GetCentredInside(bitmap), bitmap, paramIdx)
-  {
-  }
+  : IBKnobControl(bounds.GetCentredInside(bitmap), bitmap, paramIdx) {}
 
   virtual ~IBKnobRotaterControl() {}
 
@@ -509,16 +495,11 @@ public:
   virtual ~IBSliderControl() {}
 
   void Draw(IGraphics& g) override;
-  void OnRescale() override;
-  void OnResize() override;
-
+  void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
+  void OnResize() override { SetDirty(false); }
+  void GrayOut(bool gray) override  { IBitmapBase::GrayOut(gray); IControl::GrayOut(gray); }
+  
   IRECT GetHandleBounds(double value = -1.0) const;
-
-  void GrayOut(bool gray) override
-  {
-    IBitmapBase::GrayOut(gray);
-    IControl::GrayOut(gray);
-  }
 };
 
 /** A control to display text using a monospace bitmap font */
@@ -545,16 +526,8 @@ public:
     g.DrawBitmapedText(mBitmap, mRECT, mText, &mBlend, mStr.Get(), mVCentre, mMultiLine, mCharWidth, mCharHeight, mCharOffset);
   }
 
-  void GrayOut(bool gray) override
-  {
-    IBitmapBase::GrayOut(gray);
-    IControl::GrayOut(gray);
-  }
-
-  void OnRescale() override
-  {
-    mBitmap = GetUI()->GetScaledBitmap(mBitmap);
-  }
+  void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
+  void GrayOut(bool gray) override  { IBitmapBase::GrayOut(gray); IControl::GrayOut(gray); }
 
 protected:
   WDL_String mStr;

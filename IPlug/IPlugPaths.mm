@@ -114,7 +114,7 @@ void AppSupportPath(WDL_String& path, bool isSystem)
   path.Set([pApplicationSupportDirectory UTF8String]);
 }
 
-void SandboxSafeAppSupportPath(WDL_String& path)
+void SandboxSafeAppSupportPath(WDL_String& path, const char* appGroupID = "")
 {
   NSArray* pPaths = NSSearchPathForDirectoriesInDomains(NSMusicDirectory, NSUserDomainMask, YES);
   NSString* pUserMusicDirectory = [pPaths objectAtIndex:0];
@@ -235,14 +235,23 @@ void PluginPath(WDL_String& path, PluginIDType bundleID)
 
 void BundleResourcePath(WDL_String& path, PluginIDType bundleID)
 {
+  NSBundle* pBundle = [NSBundle mainBundle];
+  
+  if([[pBundle bundleIdentifier] containsString:@"AUv3"])
+    pBundle = [NSBundle bundleWithIdentifier:[NSString stringWithCString:bundleID encoding:NSUTF8StringEncoding]];
+  
+  path.Set([[pBundle resourcePath] UTF8String]);
 }
 
 void AppSupportPath(WDL_String& path, bool isSystem)
 {
 }
 
-void SandboxSafeAppSupportPath(WDL_String& path)
+void SandboxSafeAppSupportPath(WDL_String& path, const char* appGroupID)
 {
+  NSFileManager* mgr = [NSFileManager defaultManager];
+  NSURL* url = [mgr containerURLForSecurityApplicationGroupIdentifier:[NSString stringWithUTF8String:appGroupID]];
+  path.Set([[url path] UTF8String]);
 }
 
 void DesktopPath(WDL_String& path)

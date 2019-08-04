@@ -262,7 +262,7 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
     default:
     {
       // validate input based on param type
-      const IParam* pParam = GetUI()->mInTextEntry->GetParam();
+      const IParam* pParam = GetUI()->GetControlInTextEntry()->GetParam();
 
       if(pParam)
       {

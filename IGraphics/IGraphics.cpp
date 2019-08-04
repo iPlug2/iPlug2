@@ -1752,7 +1752,7 @@ void IGraphics::SetQwertyMidiKeyHandlerFunc(std::function<void(const IMidiMsg& m
     IMidiMsg msg;
     
     int note = 0;
-    static int base = 60;
+    static int base = 48;
     static bool keysDown[128] = {};
     
     auto onOctSwitch = [&]() {
