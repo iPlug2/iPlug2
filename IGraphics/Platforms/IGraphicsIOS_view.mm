@@ -131,15 +131,6 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   if (self.presentingViewController && self.tableView != nil)
   {
-    
-    UIView* headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 300, 20)];
-    UILabel* labelView = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 20)];
-    [labelView setText:@"Things"];
-    [headerView addSubview:labelView];
-    self.tableView.tableHeaderView = headerView;
-    [labelView release];
-    [headerView release];
-    
     CGSize tempSize = self.presentingViewController.view.bounds.size;
     tempSize.width = 300;
     CGSize size = [self.tableView sizeThatFits:tempSize];
