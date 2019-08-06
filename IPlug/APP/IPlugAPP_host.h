@@ -104,7 +104,7 @@ public:
     , mMidiInDev(OFF_TEXT)
     , mMidiOutDev(OFF_TEXT)
     , mAudioDriverType(0) // DirectSound / CoreAudio by default
-    , mBufferSize(512)
+    , mBufferSize(APP_DEFAULT_BUFFER_SIZE)
     , mAudioSR(44100)
     , mMidiInChan(0)
     , mMidiOutChan(0)
@@ -253,7 +253,7 @@ private:
   double mSampleRate = 44100.;
   uint32_t mSamplesElapsed = 0;
   uint32_t mVecElapsed = 0;
-  uint32_t mBufferSize = 512;
+  uint32_t mBufferSize = APP_DEFAULT_BUFFER_SIZE;
   uint32_t mBufIndex; // index for signal vector, loops from 0 to mSigVS
   
   /** The index of the operating systems default input device, -1 if not detected */
