@@ -125,6 +125,27 @@ public:
     }
   }
   
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override
+  {
+    mMouseOverPlay = false;
+    mMouseOverNew = false;
+    mMouseOverOpen = false;
+    mMouseOverSave = false;
+    if(mPlayBtnRect.Contains(x,y)) {
+      mMouseOverPlay = true;
+      SetDirty(false);
+    } else if (mNewBtnRect.Contains(x, y)) {
+      mMouseOverNew = true;
+      SetDirty(false);
+    } else if (mOpenBtnRect.Contains(x,y)) {
+      mMouseOverOpen = true;
+      SetDirty(false);
+    } else if(mSaveBtnRect.Contains(x,y)) {
+      mMouseOverSave = true;
+      SetDirty(false);
+    }
+  }
+  
   /**
    * Handles clicks on the various active area of the transport bar (buttons and
    * tempo box, overrides the standard IControl method
@@ -206,7 +227,7 @@ public:
     g.DrawText(mStyle.valueText, bpm.c_str(), mBpmRect);
     
     // draw play / stop button
-    DrawPressableRectangle(g, mPlayBtnRect, mPlay, mMouseIsOver);
+    DrawPressableRectangle(g, mPlayBtnRect, mPlay, mMouseOverPlay);
     IRECT symbolRect = mPlayBtnRect.GetCentredInside(mPlayBtnRect.H()*0.5, mPlayBtnRect.H()*0.5);
     if(mPlay) {
       g.FillRect(mStyle.valueText.mFGColor, symbolRect);
@@ -216,7 +237,7 @@ public:
 
 #if APP_TRANSPORT_BAR_OPEN_BUTTON
     // draw open button
-    DrawPressableRectangle(g, mOpenBtnRect, false, mMouseIsOver);
+    DrawPressableRectangle(g, mOpenBtnRect, false, mMouseOverOpen);
     mStyle.valueText.mSize = mOpenBtnRect.W() * 0.8;
     g.MeasureText(mStyle.valueText, "open", txtRealSize);
     while(txtRealSize.H() >= mOpenBtnRect.H() * 0.7) {
@@ -227,7 +248,7 @@ public:
 #endif
 #if APP_TRANSPORT_BAR_SAVE_BUTTON
     // draw save button
-    DrawPressableRectangle(g, mSaveBtnRect, false, mMouseIsOver);
+    DrawPressableRectangle(g, mSaveBtnRect, false, mMouseOverSave);
     mStyle.valueText.mSize = mSaveBtnRect.W() * 0.8;
     g.MeasureText(mStyle.valueText, "save", txtRealSize);
     while(txtRealSize.H() >= mSaveBtnRect.H() * 0.7) {
@@ -238,7 +259,7 @@ public:
 #endif
 #if APP_TRANSPORT_BAR_NEW_BUTTON
     // draw new button
-    DrawPressableRectangle(g, mNewBtnRect, false, mMouseIsOver);
+    DrawPressableRectangle(g, mNewBtnRect, false, mMouseOverNew);
     mStyle.valueText.mSize = mNewBtnRect.W() * 0.8;
     g.MeasureText(mStyle.valueText, "new", txtRealSize);
     while(txtRealSize.H() >= mNewBtnRect.H() * 0.7) {
@@ -260,6 +281,10 @@ private:
   
   double mBPMVal = 0.0;
   bool mPlay = false;
+  bool mMouseOverPlay = false;
+  bool mMouseOverNew = false;
+  bool mMouseOverOpen = false;
+  bool mMouseOverSave = false;
   IRECT mBpmRect;
   IRECT mPlayBtnRect;
   IRECT mOpenBtnRect;
