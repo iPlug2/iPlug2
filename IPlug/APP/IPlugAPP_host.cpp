@@ -695,6 +695,10 @@ int IPlugAPPHost::AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_
     std::cout << "Stream underflow detected!" << std::endl;
 
   IPlugAPPHost* _this = sInstance.get();
+  // safety...
+  if(_this == nullptr) {
+    return 0;
+  }
 
   double* pInputBufferD = static_cast<double*>(pInputBuffer);
   double* pOutputBufferD = static_cast<double*>(pOutputBuffer);
@@ -815,7 +819,6 @@ void IPlugAPPHost::MIDICallback(double deltatime, std::vector<uint8_t>* pMsg, vo
     int midiSPP = (pMsg->at(2) << 7) + pMsg->at(1);
     int clocks = midiSPP * 6;
     _this->mTimeInfo.mPPQPos = clocks / 24.;
-    _this->mIPlug->SetTimeInfo(_this->mTimeInfo);
   }
 #endif
   else if (pMsg->size())
