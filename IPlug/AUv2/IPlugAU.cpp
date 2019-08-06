@@ -1892,7 +1892,7 @@ void IPlugAU::PreProcess()
     mHostCallbacks.beatAndTempoProc(mHostCallbacks.hostUserData, &currentBeat, &tempo);
 
     if (tempo > 0.0) timeInfo.mTempo = tempo;
-    if (currentBeat> 0.0) timeInfo.mPPQPos = currentBeat;
+    if (currentBeat>= 0.0) timeInfo.mPPQPos = currentBeat;
   }
 
   if (mHostCallbacks.transportStateProc)
