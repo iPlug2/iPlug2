@@ -1474,7 +1474,7 @@ void IGraphics::CreateTextEntry(IControl& control, const IText& text, const IREC
 void IGraphics::DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx, bool isContext)
 {
   ReleaseMouseCapture();
-    
+  
   mInPopupMenu = &control;
   mPopupMenuValIdx = valIdx;
   mIsContextMenu = isContext;
@@ -1486,7 +1486,9 @@ void IGraphics::DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRE
   else
   {
     IPopupMenu* pReturnMenu = CreatePlatformPopupMenu(menu, bounds);
-    SetControlValueAfterPopupMenu(pReturnMenu);
+    
+    if(pReturnMenu) // if synchronous
+      SetControlValueAfterPopupMenu(pReturnMenu);
   }
 }
 
