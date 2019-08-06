@@ -197,7 +197,7 @@ void IGraphics::SetControlValueAfterPopupMenu(IPopupMenu* pMenu)
 {
   if (!mInPopupMenu)
     return;
-    
+  
   if (mIsContextMenu)
     mInPopupMenu->OnContextSelection(pMenu ? pMenu->GetChosenItemIdx() : -1);
   else
@@ -446,6 +446,8 @@ void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds, int valI
           mPromptPopupMenu.AddItem( new IPopupMenu::Item(str, IPopupMenu::Item::kChecked), -1 );
         else // not equal
           mPromptPopupMenu.AddItem( new IPopupMenu::Item(str), -1 );
+        
+        mPromptPopupMenu.SetRootTitle(pParam->GetNameForHost());
       }
 
       CreatePopupMenu(control, mPromptPopupMenu, bounds, valIdx);
