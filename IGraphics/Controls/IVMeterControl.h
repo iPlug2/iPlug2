@@ -81,6 +81,11 @@ public:
       mPrevAboveThreshold = d.AboveThreshold();
     }
 
+    void ProcessData(Data d)
+    {
+      mQueue.Push(d);
+    }
+
     // this must be called on the main thread - typically in MyPlugin::OnIdle()
     void TransmitData(IEditorDelegate& dlg)
     {
@@ -108,11 +113,11 @@ public:
     DrawBackGround(g, mRECT);
     DrawWidget(g);
     DrawLabel(g);
-    
+
     if(mStyle.drawFrame)
       g.DrawRect(GetColor(kFR), mWidgetBounds, nullptr, mStyle.frameThickness);
   }
-  
+
   //  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
   //  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
 
