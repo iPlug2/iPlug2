@@ -185,6 +185,16 @@ void IPlugAPP::LayoutUI(IGraphics* pGraphics)
   mCurrentFileName.Set("untitled");
   SetWindowTitle();
   
+  // toggle star and stop on spacebar press
+  GetUI()->SetKeyHandlerFunc([&](const IKeyPress &key, bool isUp) -> bool {
+    // 32 == spacebar
+    if (key.VK == 32 && isUp) {
+      mAppHost->TogglePlay(!mTimeInfo.mTransportIsRunning);
+      return true;
+    } else {
+      return false;
+    }
+  });
 }
 
 bool IPlugAPP::OnMessage(int messageTag, int controlTag, int dataSize, const void* pData)
@@ -216,11 +226,17 @@ bool IPlugAPP::OnMessage(int messageTag, int controlTag, int dataSize, const voi
       SetWindowTitle();
       break;
     case IVTransportControl::EMsgTags::blank:
-      DefaultParamValues();
-      OnParamReset(kReset);
-      OnRestoreState();
-      mCurrentFileName.Set("untitled");
-      SetWindowTitle();
+      EMsgBoxResult res = GetUI()->ShowMessageBox("Start a new project",
+                                                  "Are you sure you want to start blank \
+                                                  (you will lose unsaved work)?",
+                                                  EMsgBoxType::kMB_OKCANCEL);
+      if (res == EMsgBoxResult::kOK) {
+        DefaultParamValues();
+        OnParamReset(kReset);
+        OnRestoreState();
+        mCurrentFileName.Set("untitled");
+        SetWindowTitle();
+      }
       break;
   }
   return true;
@@ -241,7 +257,12 @@ void IPlugAPP::SetWindowTitle()
   windowTitle.Set(BUNDLE_NAME);
   mCurrentFileName.remove_fileext();
   windowTitle.Append(" - ");
-  windowTitle.Append(mCurrentFileName.get_filepart());
+  const char* filename = mCurrentFileName.get_filepart();
+  if(filename && !filename[0]) {
+    windowTitle.Append("untitled");
+  } else {
+    windowTitle.Append(filename);
+  }
   SetWindowText(gHWND, windowTitle.Get());
 }
 
@@ -252,5 +273,6 @@ void IPlugAPP::GrayOutTransport(bool toggle)
     transport->GrayOut(toggle);
   }
 }
+
 #endif
 
