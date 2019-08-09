@@ -372,7 +372,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     case WM_LBUTTONUP:
     case WM_RBUTTONUP:
     {
-      ReleaseCapture();
+      //ReleaseCapture();
       IMouseInfo info = pGraphics->GetMouseInfo(lParam, wParam);
       pGraphics->OnMouseUp(info.x, info.y, info.ms);
       return 0;
@@ -902,7 +902,7 @@ void IGraphicsWin::DeactivateGLContext()
 
 EMsgBoxResult IGraphicsWin::ShowMessageBox(const char* text, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
 {
-  ReleaseMouseCapture();
+  //ReleaseMouseCapture();
   
   EMsgBoxResult result = static_cast<EMsgBoxResult>(MessageBox(GetMainWnd(), text, caption, static_cast<int>(type)));
   
