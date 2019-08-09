@@ -667,13 +667,15 @@ void IPlugAPPHost::TogglePlay(bool toggle)
     mTimeInfo.mSamplePos = 0;
     mTimeInfo.mPPQPos = 0;
   }
-  // this is needed here to force the update of the GUI of the transport bar
+  // this is needed here to force the update of the GUI of the transport bar when transposrt is stopped
   mIPlug->SetTimeInfo(mTimeInfo);
 }
 
 void IPlugAPPHost::SetBPM(double BPM)
 {
   mTimeInfo.mTempo = BPM;
+  // this is needed here to force the update of the GUI of the transport bar when transposrt is stopped
+  mIPlug->SetTimeInfo(mTimeInfo);
 }
 
 void IPlugAPPHost::CountClock(double deltatime)
