@@ -61,7 +61,10 @@ public:
     : mControlTag(controlTag)
     {
     }
-    
+      
+  /** add an array of multichannel sample data, one for each channel to the queue. Will crash if size of inputs < MAXNC
+   @param inputs data to visualize
+   **/
     void Process(sample* inputs)
     {
       if(mBufCount == MAXBUF)
@@ -82,6 +85,10 @@ public:
       mBufCount++;
     }
 
+  /** add a block of multichannel sample data to the queue. Will crash if size of inputs < MAXNC
+   @param inputs data to visualize, typically multichannel non interleaved audio samples
+   @param nFrames number of frames to process
+   **/
     void ProcessBlock(sample** inputs, int nFrames)
     {
       for (auto s = 0; s < nFrames; s++)

@@ -61,6 +61,17 @@ class IVButtonControl : public IButtonControlBase
                       , public IVectorBase
 {
 public:
+    /** Constructs a vector button control, with an action function
+     * @param bounds The control's bounds
+     * @param actionFunc An action function to execute when a button is clicked \see IActionFunction
+     * @param label The label for the vector control, leave empty for no label
+     * @param style The styling of this vector control \see IVStyle
+     * @param labelInButton whows the label inside or outside the button. \see IVStyle for align options
+     * @param valueInButton whows the value inside or outside the button. \see IVStyle for align options
+     * @param shape The buttons shape \see IVShape
+     * @param angle ? ? ? 
+     */
+    
   IVButtonControl(const IRECT& bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool labelInButton = true, bool valueInButton = true, EVShape shape = EVShape::Rectangle, float angle = 0.f);
 
   void Draw(IGraphics& g) override;
@@ -311,21 +322,40 @@ protected:
   bool mMouseDown = false;
 };
 
+/** a vector plot to display functions and waveforms **/
 class IVPlotControl : public IControl
                     , public IVectorBase
 {
 public:
+    /** IVPlotControl passes values between 0 and 1 to this object, that are the plot normalized x values
+     */
   using IPlotFunc = std::function<double(double)>;
-  
+    
+    /** This struct specifies a plot function
+     * @param color The color of the function
+     * @param func A callable object that must contain the function to display
+     */
   struct Plot {
     IColor color;
     IPlotFunc func;
   };
   
+    /** Constructs a vector plot
+     * @param bounds The control's bounds
+     * @param funcs A function list reference containing the functions to display
+     * @param numPoints The number of points used to draw the functions
+     * @param label The label for the vector control, leave empty for no label
+     * @param style The styling of this vector control \see IVStyle
+     * @param shape The buttons shape \see IVShape
+     * @param min The minimum y axis plot value
+     * @param max The maximum y axis plot value
+     * @param useLayer A flag to draw the control layer */
   IVPlotControl(const IRECT& bounds, const std::initializer_list<Plot>& funcs, int numPoints, const char* label = "", const IVStyle& style = DEFAULT_STYLE, float min = -1., float max = 1., bool useLayer = false);
   void Draw(IGraphics& g) override;
   void OnResize() override;
-
+    /** add a new function to the plot
+     * @param color The function color
+     * @param func A reference object containing the function implementation to display*/
   void AddPlotFunc(const IColor& color, const IPlotFunc& func);
 protected:
   ILayerPtr mLayer;
