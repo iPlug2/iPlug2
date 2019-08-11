@@ -415,7 +415,6 @@ class gFFTAnalyzer : public IControl
 
     void SetdbFloor(const WDL_FFT_REAL f)
     {
-      ampFloor = DBToAmp(f);
       dBFloor = f;
       ResetValuestoFloor();
       mDirty = true;
