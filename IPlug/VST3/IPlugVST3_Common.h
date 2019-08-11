@@ -39,9 +39,7 @@ struct IPlugVST3State
       pState->write(chunk.GetData(), chunk.Size());
     }
     else
-    {
       return false;
-    }
     
     int32 toSaveBypass = pPlug->GetBypassed() ? 1 : 0;
     pState->write(&toSaveBypass, sizeof (int32));
@@ -75,7 +73,7 @@ struct IPlugVST3State
     
     pState->seek(pos,IBStream::IStreamSeekMode::kIBSeekSet);
     if (pState->read (&savedBypass, sizeof (Steinberg::int32)) != kResultOk) {
-      return kResultFalse;
+      return false;
     }
     
     IPlugVST3ControllerBase* pController = dynamic_cast<IPlugVST3ControllerBase*>(pPlug);
@@ -87,7 +85,8 @@ struct IPlugVST3State
     }
     
     pPlug->OnRestoreState();
-    return kResultOk;
+    
+    return true;
   }
 };
 

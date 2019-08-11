@@ -84,7 +84,7 @@ tresult PLUGIN_API IPlugVST3Processor::setState(IBStream* pState)
 {
   TRACE;
   
-  return IPlugVST3State::SetState(this, pState) ? kResultOk :kResultFalse;
+  return IPlugVST3State::SetState(this, pState) ? kResultOk : kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3Processor::getState(IBStream* pState)
