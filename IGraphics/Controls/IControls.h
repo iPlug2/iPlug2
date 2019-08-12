@@ -61,30 +61,25 @@ class IVButtonControl : public IButtonControlBase
                       , public IVectorBase
 {
 public:
-    /** Constructs a vector button control, with an action function
-     * @param bounds The control's bounds
-     * @param actionFunc An action function to execute when a button is clicked \see IActionFunction
-     * @param label The label for the vector control, leave empty for no label
-     * @param style The styling of this vector control \see IVStyle
-     * @param labelInButton whows the label inside or outside the button. \see IVStyle for align options
-     * @param valueInButton whows the value inside or outside the button. \see IVStyle for align options
-     * @param shape The buttons shape \see IVShape
-     * @param angle ? ? ? 
-     */
-    
-  IVButtonControl(const IRECT& bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool labelInButton = true, bool valueInButton = true, EVShape shape = EVShape::Rectangle, float angle = 0.f);
+  /** Constructs a vector button control, with an action function
+   * @param bounds The control's bounds
+   * @param actionFunc An action function to execute when a button is clicked \see IActionFunction
+   * @param label The label for the vector control, leave empty for no label
+   * @param style The styling of this vector control \see IVStyle
+   * @param labelInButton if the label inside or outside the button
+   * @param valueInButton if the value inside or outside the button
+   * @param shape The shape of the button */
+  IVButtonControl(const IRECT& bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool labelInButton = true, bool valueInButton = true, EVShape shape = EVShape::Rectangle);
 
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
   bool IsHit(float x, float y) const override;
   void OnResize() override;
-  
-  void SetAngle(float angle) { mAngle = angle; SetDirty(false); }
+
   void SetShape(EVShape shape) { mShape = shape; SetDirty(false); }
-  
+
 protected:
-  EVShape mShape = EVShape::Rectangle;
-  float mAngle = 0.; // only used for triangle
+  EVShape mShape;
 };
 
 /** A vector switch control. Click to cycle through states. */

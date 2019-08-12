@@ -63,8 +63,7 @@ public:
     }
       
   /** add an array of multichannel sample data, one for each channel to the queue. Will crash if size of inputs < MAXNC
-   @param inputs data to visualize
-   **/
+   * @param inputs data to visualize **/
     void Process(sample* inputs)
     {
       if(mBufCount == MAXBUF)
@@ -86,9 +85,8 @@ public:
     }
 
   /** add a block of multichannel sample data to the queue. Will crash if size of inputs < MAXNC
-   @param inputs data to visualize, typically multichannel non interleaved audio samples
-   @param nFrames number of frames to process
-   **/
+   * @param inputs data to visualize, typically multichannel non interleaved audio samples
+   * @param nFrames number of frames to process **/
     void ProcessBlock(sample** inputs, int nFrames)
     {
       for (auto s = 0; s < nFrames; s++)
@@ -112,7 +110,7 @@ public:
       }
     }
 
-    // this must be called on the main thread - typically in MyPlugin::OnIdle()
+    /** Sends data in the queue via IEditorDelegate. This must be called on the main thread - typically in MyPlugin::OnIdle() */
     void TransmitData(IEditorDelegate& dlg)
     {
       Data d;
@@ -132,7 +130,11 @@ public:
     bool mPrevAboveThreshold = true;
   };
 
-  IVScopeControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE, const char* trackNames = 0, ...)
+  /** Constructs an IVScopeControl 
+   * @param bounds The rectangular area that the control occupies
+   * @param label A CString to label the control
+   * @param style, /see IVStyle */
+  IVScopeControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE)
   : IControl(bounds)
   , IVectorBase(style)
   {
