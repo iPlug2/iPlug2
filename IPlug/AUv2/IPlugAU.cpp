@@ -1891,8 +1891,11 @@ void IPlugAU::PreProcess()
     double currentBeat = 0.0, tempo = 0.0;
     mHostCallbacks.beatAndTempoProc(mHostCallbacks.hostUserData, &currentBeat, &tempo);
 
-    if (tempo > 0.0) timeInfo.mTempo = tempo;
-    if (currentBeat> 0.0) timeInfo.mPPQPos = currentBeat;
+    if (tempo > 0.0)
+      timeInfo.mTempo = tempo;
+    
+    if (currentBeat >= 0.0)
+      timeInfo.mPPQPos = currentBeat;
   }
 
   if (mHostCallbacks.transportStateProc)
@@ -1901,9 +1904,15 @@ void IPlugAU::PreProcess()
     Boolean playing, changed, looping;
     mHostCallbacks.transportStateProc(mHostCallbacks.hostUserData, &playing, &changed, &samplePos, &looping, &loopStartBeat, &loopEndBeat);
 
-    if (samplePos>0.0)timeInfo.mSamplePos = samplePos;
-    if (loopStartBeat>0.0) timeInfo.mCycleStart = loopStartBeat;
-    if (loopEndBeat>0.0) timeInfo.mCycleEnd = loopEndBeat;
+    if (samplePos > 0.0)
+      timeInfo.mSamplePos = samplePos;
+    
+    if (loopStartBeat > 0.0)
+      timeInfo.mCycleStart = loopStartBeat;
+    
+    if (loopEndBeat > 0.0)
+      timeInfo.mCycleEnd = loopEndBeat;
+    
     timeInfo.mTransportIsRunning = playing;
     timeInfo.mTransportLoopEnabled = looping;
   }
