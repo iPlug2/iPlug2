@@ -837,14 +837,18 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
   
   if (mMouseCapture)
   {
-    int nVals = mMouseCapture->NVals();
-    mMouseCapture->OnMouseUp(x, y, mod);
+    IControl* pCapturedControl = mMouseCapture; // OnMouseUp could clear mMouseCapture, so stash here
     
+    pCapturedControl->OnMouseUp(x, y, mod);
+    
+    int nVals = pCapturedControl->NVals();
+
     for (int v = 0; v < nVals; v++)
     {
-      if (mMouseCapture->GetParamIdx(v) > kNoParameter)
-        GetDelegate()->EndInformHostOfParamChangeFromUI(mMouseCapture->GetParamIdx(v));
+      if (pCapturedControl->GetParamIdx(v) > kNoParameter)
+        GetDelegate()->EndInformHostOfParamChangeFromUI(pCapturedControl->GetParamIdx(v));
     }
+    
     ReleaseMouseCapture();
   }
 
