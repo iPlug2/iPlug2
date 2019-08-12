@@ -24,11 +24,10 @@ const IColor IVKeyboardControl::DEFAULT_PK_COLOR = IColor(60, 0, 0, 0);
 const IColor IVKeyboardControl::DEFAULT_FR_COLOR = COLOR_BLACK;
 const IColor IVKeyboardControl::DEFAULT_HK_COLOR = COLOR_ORANGE;
 
-IVButtonControl::IVButtonControl(const IRECT& bounds, IActionFunction actionFunc, const char* label, const IVStyle& style, bool labelInButton, bool valueInButton, EVShape shape, float angle)
+IVButtonControl::IVButtonControl(const IRECT& bounds, IActionFunction actionFunc, const char* label, const IVStyle& style, bool labelInButton, bool valueInButton, EVShape shape)
 : IButtonControlBase(bounds, actionFunc)
 , IVectorBase(style, labelInButton, valueInButton)
 , mShape(shape)
-, mAngle(angle)
 {
   mText = style.valueText;
   AttachIControl(this, label);
