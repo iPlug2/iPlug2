@@ -11,7 +11,7 @@
 	<key>CFBundleIconFile</key>
 	<string>IPlugSpectFFT.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.LVC-Audio.app.IPlugSpectFFT</string>
+	<string>com.IPlug2.app.IPlugSpectFFT</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -21,7 +21,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.0.0</string>
 	<key>CFBundleSignature</key>
-	<string>Ipef</string>
+	<string>ElvF</string>
 	<key>CFBundleVersion</key>
 	<string>1.0.0</string>
 	<key>CSResourcesFileMapped</key>

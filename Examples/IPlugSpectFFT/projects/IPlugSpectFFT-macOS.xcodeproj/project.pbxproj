@@ -289,6 +289,15 @@
 		4FFBB93520863B0E00DDD0E7 /* vstnoteexpressiontypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F81588E205D50EB00393585 /* vstnoteexpressiontypes.cpp */; };
 		B8E22A0C220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8E22A0A220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp */; };
 		B8E22A0D220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B8E22A0A220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp */; };
+		CD26B9A223005467009E0FF9 /* FFTRect.h in Headers */ = {isa = PBXBuildFile; fileRef = CD26B9A123005467009E0FF9 /* FFTRect.h */; };
+		CD26B9A5230056C2009E0FF9 /* fft.c in Sources */ = {isa = PBXBuildFile; fileRef = CD26B9A4230056C2009E0FF9 /* fft.c */; };
+		CD26B9A6230056C2009E0FF9 /* fft.c in Sources */ = {isa = PBXBuildFile; fileRef = CD26B9A4230056C2009E0FF9 /* fft.c */; };
+		CD26B9A7230056C2009E0FF9 /* fft.c in Sources */ = {isa = PBXBuildFile; fileRef = CD26B9A4230056C2009E0FF9 /* fft.c */; };
+		CD26B9A8230056C2009E0FF9 /* fft.c in Sources */ = {isa = PBXBuildFile; fileRef = CD26B9A4230056C2009E0FF9 /* fft.c */; };
+		CD26B9A9230056C2009E0FF9 /* fft.c in Sources */ = {isa = PBXBuildFile; fileRef = CD26B9A4230056C2009E0FF9 /* fft.c */; };
+		CD26B9AA230056C2009E0FF9 /* fft.c in Sources */ = {isa = PBXBuildFile; fileRef = CD26B9A4230056C2009E0FF9 /* fft.c */; };
+		CD26B9AB230056C2009E0FF9 /* fft.c in Sources */ = {isa = PBXBuildFile; fileRef = CD26B9A4230056C2009E0FF9 /* fft.c */; };
+		CD26B9AC230056C2009E0FF9 /* fft.c in Sources */ = {isa = PBXBuildFile; fileRef = CD26B9A4230056C2009E0FF9 /* fft.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -718,6 +727,8 @@
 		B8E22A0A220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugVST3_ProcessorBase.cpp; path = ../../../IPlug/VST3/IPlugVST3_ProcessorBase.cpp; sourceTree = "<group>"; tabWidth = 2; };
 		B8E22A0B220268C4007CBF4C /* IPlugVST3_ProcessorBase.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugVST3_ProcessorBase.h; path = ../../../IPlug/VST3/IPlugVST3_ProcessorBase.h; sourceTree = "<group>"; tabWidth = 2; };
 		B8EA6B932203868500D23A86 /* IPlugVST3_Common.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugVST3_Common.h; path = ../../../IPlug/VST3/IPlugVST3_Common.h; sourceTree = "<group>"; tabWidth = 2; };
+		CD26B9A123005467009E0FF9 /* FFTRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FFTRect.h; path = ../FFTRect.h; sourceTree = "<group>"; };
+		CD26B9A4230056C2009E0FF9 /* fft.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = fft.c; path = ../../../WDL/fft.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -785,6 +796,8 @@
 		089C166AFE841209C02AAC07 /* IPlugExample */ = {
 			isa = PBXGroup;
 			children = (
+				CD26B9A4230056C2009E0FF9 /* fft.c */,
+				CD26B9A123005467009E0FF9 /* FFTRect.h */,
 				52FBBED30D0CF143001C8B8A /* config.h */,
 				4F3862EE2014BBEC0009F402 /* IPlugSpectFFT.h */,
 				4F3862ED2014BBEC0009F402 /* IPlugSpectFFT.cpp */,
@@ -1572,6 +1585,7 @@
 				4FCE29D621D6ED70004BCBA1 /* ITextEntryControl.h in Headers */,
 				4F03A5D420A4621100EBDFFB /* IGraphicsUtilities.h in Headers */,
 				4F03A5AA20A4621100EBDFFB /* IGraphicsLiveEdit.h in Headers */,
+				CD26B9A223005467009E0FF9 /* FFTRect.h in Headers */,
 				4F6369EA20A466470022C370 /* IControl.h in Headers */,
 				4F63696520A463090022C370 /* IVKeyboardControl.h in Headers */,
 				4F03A5D520A4621100EBDFFB /* IGraphicsConstants.h in Headers */,
@@ -2039,6 +2053,7 @@
 				4F6369DE20A464BB0022C370 /* IGraphicsNanoVG_src.m in Sources */,
 				4F8D9707209EF5AC006E2A11 /* IPlugSpectFFT.cpp in Sources */,
 				4F78D9BB13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
+				CD26B9A6230056C2009E0FF9 /* fft.c in Sources */,
 				4FB1F59020E4B010004157C8 /* IGraphicsMac_view.mm in Sources */,
 				4FA9F80E21F76177004E6FE2 /* IGraphicsAGG_src.mm in Sources */,
 				4F35DEAE207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
@@ -2051,6 +2066,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CD26B9AB230056C2009E0FF9 /* fft.c in Sources */,
 				4FB1F59520E4B015004157C8 /* IGraphicsMac_view.mm in Sources */,
 				4F03A5B120A4621100EBDFFB /* IGraphics.cpp in Sources */,
 				4FAEBD30209DAF76002E6392 /* IPlugAUv3.mm in Sources */,
@@ -2079,6 +2095,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CD26B9A8230056C2009E0FF9 /* fft.c in Sources */,
 				4F03A5AF20A4621100EBDFFB /* IGraphics.cpp in Sources */,
 				4F6369E020A464BB0022C370 /* IGraphicsNanoVG_src.m in Sources */,
 				4F6369EE20A466470022C370 /* IControl.cpp in Sources */,
@@ -2113,6 +2130,7 @@
 				4F3862F12014BBEC0009F402 /* IPlugSpectFFT.cpp in Sources */,
 				4F81591F205D50EB00393585 /* pluginfactory.cpp in Sources */,
 				4F63696F20A463090022C370 /* IControls.cpp in Sources */,
+				CD26B9A7230056C2009E0FF9 /* fft.c in Sources */,
 				4F6FD2B322675B6300FC59E6 /* IGraphicsCoreText.mm in Sources */,
 				4F815973205D50EB00393585 /* vstinitiids.cpp in Sources */,
 				4F81597E205D50EB00393585 /* fdebug.cpp in Sources */,
@@ -2166,6 +2184,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F9A82FB213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */,
+				CD26B9A9230056C2009E0FF9 /* fft.c in Sources */,
 				4FDAC0EE207D76C600299363 /* IPlugTimer.cpp in Sources */,
 				4F8C10E420BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */,
 				4F6369E120A464BB0022C370 /* IGraphicsNanoVG_src.m in Sources */,
@@ -2200,6 +2219,7 @@
 				4F6FD2B722675B6300FC59E6 /* IGraphicsCoreText.mm in Sources */,
 				4FA9F80A21F760C1004E6FE2 /* IGraphicsLice_src.mm in Sources */,
 				4F8C10E620BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */,
+				CD26B9AC230056C2009E0FF9 /* fft.c in Sources */,
 				4FC3EFF92086CE5700BD11FA /* parameterchanges.cpp in Sources */,
 				4FC3EFCE2086C35D00BD11FA /* IPlugPluginBase.cpp in Sources */,
 				4F722021225C1EB100FF0E7C /* commoniids.cpp in Sources */,
@@ -2222,6 +2242,7 @@
 				4F6369EB20A466470022C370 /* IControl.cpp in Sources */,
 				4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */,
 				4FD16D1613B634D2001D0217 /* swell-ini.cpp in Sources */,
+				CD26B9A5230056C2009E0FF9 /* fft.c in Sources */,
 				4F5C5F6921BED05B00E024A7 /* swellappmain.mm in Sources */,
 				4FD16D3A13B63582001D0217 /* swell-kb.mm in Sources */,
 				4FCE29D721D6ED70004BCBA1 /* ITextEntryControl.cpp in Sources */,
@@ -2283,6 +2304,7 @@
 				4FA9F80B21F760C4004E6FE2 /* IGraphicsNanoVG_src.m in Sources */,
 				4FFBB91D20863B0E00DDD0E7 /* ustring.cpp in Sources */,
 				4FFBB91E20863B0E00DDD0E7 /* fobject.cpp in Sources */,
+				CD26B9AA230056C2009E0FF9 /* fft.c in Sources */,
 				4FFBB91F20863B0E00DDD0E7 /* vstparameters.cpp in Sources */,
 				4FFBB92120863B0E00DDD0E7 /* vstcomponentbase.cpp in Sources */,
 				4FFBB92220863B0E00DDD0E7 /* IPlugVST3_Processor.cpp in Sources */,
@@ -2591,7 +2613,7 @@
 					"$(AUv3_FRAMEWORKS)",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.LVC-Audio.standalone.IPlugSpectFFT.AUv3;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.LVC-Audio.standalone.IPlugSpectFFT.AUv3";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = appex;
@@ -2636,7 +2658,7 @@
 					"$(AUv3_FRAMEWORKS)",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.LVC-Audio.standalone.IPlugSpectFFT.AUv3;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.LVC-Audio.standalone.IPlugSpectFFT.AUv3";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = appex;
@@ -2681,7 +2703,7 @@
 					"$(AUv3_FRAMEWORKS)",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.LVC-Audio.standalone.IPlugSpectFFT.AUv3;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.LVC-Audio.standalone.IPlugSpectFFT.AUv3";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = appex;

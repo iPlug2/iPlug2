@@ -10,13 +10,13 @@
 			<key>factoryFunction</key>
 			<string>IPlugSpectFFT_Factory</string>
 			<key>manufacturer</key>
-			<string>Acme</string>
+			<string>IPlg</string>
 			<key>name</key>
-			<string>LVC-Audio: IPlugSpectFFT</string>
+			<string>IPlug2: IPlugSpectFFT</string>
 			<key>sandboxSafe</key>
 			<true/>
 			<key>subtype</key>
-			<string>Ipef</string>
+			<string>ElvF</string>
 			<key>type</key>
 			<string>aufx</string>
 			<key>version</key>
@@ -32,7 +32,7 @@
 	<key>CFBundleGetInfoString</key>
 	<string>IPlugSpectFFT v1.0.0 Copyright 2019 Acme Inc</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.LVC-Audio.audiounit.IPlugSpectFFT</string>
+	<string>com.IPlug2.audiounit.IPlugSpectFFT</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -42,7 +42,7 @@
 	<key>CFBundleShortVersionString</key>
 	<string>1.0.0</string>
 	<key>CFBundleSignature</key>
-	<string>Ipef</string>
+	<string>ElvF</string>
 	<key>CFBundleVersion</key>
 	<string>1.0.0</string>
 	<key>CSResourcesFileMapped</key>

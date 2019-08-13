@@ -6,8 +6,7 @@ IPlugSpectFFT::IPlugSpectFFT(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
 {
   //adding new FFT class with size and overlap, and setting the window function
- // const int fftSize = 4096;
-  GetParam(kGain)->InitDouble("Gain", 0., -24., 24., 0.01, "dB", IParam::kFlagsNone, "", IParam::ShapePowCurve(3.));
+  GetParam(kGain)->InitDouble("Gain", 0., -24., 24., 0.01, "dB", IParam::kFlagsNone, "");
   mGain = 1.;
 
 #if IPLUG_EDITOR // All UI methods and member variables should be within an IPLUG_EDITOR guard, should you want distributed UI
@@ -22,23 +21,6 @@ IPlugSpectFFT::IPlugSpectFFT(IPlugInstanceInfo instanceInfo)
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
 
-    const IVStyle style{
-    true, // Show label
-    true, // Show value
-    {
-      DEFAULT_BGCOLOR, // Background
-      DEFAULT_FGCOLOR, // Foreground
-      DEFAULT_PRCOLOR, // Pressed
-      COLOR_BLACK, // Frame
-      DEFAULT_HLCOLOR, // Highlight
-      DEFAULT_SHCOLOR, // Shadow
-      COLOR_BLACK, // Extra 1
-      DEFAULT_X2COLOR, // Extra 2
-      DEFAULT_X3COLOR  // Extra 3
-    }, // Colors
-    IText(12.f, EAlign::Center) // Label text
-    };
-
     const IBitmap knob = pGraphics->LoadBitmap(KNOB_FN, 60);
     pGraphics->AttachControl(new IBKnobControl(20., 20., knob,  kGain));
 
@@ -47,7 +29,6 @@ IPlugSpectFFT::IPlugSpectFFT(IPlugInstanceInfo instanceInfo)
 
     const IText textLabel{ 14, COLOR_BLACK, "Roboto-Regular", EAlign::Center, EVAlign::Middle, 0 };
     pFFTFreqDraw = pGraphics->AttachControl(new gFFTFreqDraw(iView, textLabel), -1, "FFT");
-
 
     dynamic_cast<gFFTAnalyzer<>*>(pFFTAnalyzer)->getFFT()->SetWindowType(Spect_FFT::win_BlackmanHarris);
 
@@ -89,7 +70,8 @@ void IPlugSpectFFT::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 
 void IPlugSpectFFT::OnReset()
 {
-//  dynamic_cast<gFFTAnalyzer*>(pFFTAnalyzer)->SetSampleRate(this->GetSampleRate());
+    if(pFFTAnalyzer != NULL)
+  dynamic_cast<gFFTAnalyzer<>*>(pFFTAnalyzer)->SetSampleRate(this->GetSampleRate());
 }
 
 void IPlugSpectFFT::OnParamChange(int paramIdx)

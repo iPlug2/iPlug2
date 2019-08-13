@@ -1,14 +1,10 @@
 #pragma once
 
-//#include <cmath>
-//#include <vector>
-//#include <algorithm>
-#include <sstream>
 #include "fft.h"
+#include <sstream>
 #include "IControl.h"
 #include "IPlugQueue.h"
 #include "IPlugStructs.h"
-//#include <mutex>
 
 /*
 
@@ -53,7 +49,6 @@ To Do:
 
 
 //WDL_FFT_REAL is typedef to either float or double, depending what is defined in fft.h
-static const WDL_FFT_REAL pi = 3.141592653589793238462643383279502884197169399375105820974944;
 static const WDL_FFT_REAL pi2 = 2. * pi;
 static const WDL_FFT_REAL pi4 = 4. * pi;
 
@@ -646,19 +641,17 @@ class gFFTAnalyzer : public IControl
         switch (item)
         {
         case 0: {
-          IColor pC = mColorFill;
-          int alpha = pC.A;
-          GetUI()->PromptForColor(pC, "FFT Fill Color");
-          pC.A = alpha;
-          mColorFill = pC;
+            IColor pC = mColorFill;
+            GetUI()->PromptForColor(pC, "FFT Fill Color", [&](const IColor& clr) {
+                mColorFill = clr;
+            });
         }
                 break;
         case 1: {
           IColor pC = mColorPeak;
-          int alpha = pC.A;
-          GetUI()->PromptForColor(pC, "FFT Peak Color");
-          pC.A = alpha;
-          mColorPeak = pC;
+            GetUI()->PromptForColor(pC, "FFT Fill Color", [&](const IColor& clr) {
+                mColorPeak = clr;
+            });
         }
                 break;
         case 2: 

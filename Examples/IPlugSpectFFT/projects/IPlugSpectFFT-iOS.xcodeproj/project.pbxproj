@@ -42,6 +42,9 @@
 		4FDF6D7F2267CEBA0007B686 /* IPlugAUPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D7D2267CEBA0007B686 /* IPlugAUPlayer.mm */; };
 		4FFE371D226F2B0C00CFAC71 /* IGraphicsNanoVG_src.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D7DCB224AE821002A1A2A /* IGraphicsNanoVG_src.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		91236D811B08F59300734C5E /* IPlugSpectFFTAppExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 91236D771B08F59300734C5E /* IPlugSpectFFTAppExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		CD26B9AE230056CD009E0FF9 /* fft.c in Sources */ = {isa = PBXBuildFile; fileRef = CD26B9AD230056CD009E0FF9 /* fft.c */; };
+		CD26B9AF230056CD009E0FF9 /* fft.c in Sources */ = {isa = PBXBuildFile; fileRef = CD26B9AD230056CD009E0FF9 /* fft.c */; };
+		CD26B9B0230056CD009E0FF9 /* fft.c in Sources */ = {isa = PBXBuildFile; fileRef = CD26B9AD230056CD009E0FF9 /* fft.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -261,6 +264,8 @@
 		4FFF108820A1036200D3092F /* IPlugSpectFFT.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugSpectFFT.h; path = ../IPlugSpectFFT.h; sourceTree = "<group>"; };
 		91236D0D1B08F42B00734C5E /* IPlugSpectFFT.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPlugSpectFFT.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		91236D771B08F59300734C5E /* IPlugSpectFFTAppExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = IPlugSpectFFTAppExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		CD26B9A323005471009E0FF9 /* FFTRect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FFTRect.h; path = ../FFTRect.h; sourceTree = "<group>"; };
+		CD26B9AD230056CD009E0FF9 /* fft.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = fft.c; path = ../../../WDL/fft.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -582,6 +587,8 @@
 		91D3DA0B1B023C03008FFFBB = {
 			isa = PBXGroup;
 			children = (
+				CD26B9AD230056CD009E0FF9 /* fft.c */,
+				CD26B9A323005471009E0FF9 /* FFTRect.h */,
 				4FFF108420A1036200D3092F /* config.h */,
 				4FFF108820A1036200D3092F /* IPlugSpectFFT.h */,
 				4FFF108720A1036200D3092F /* IPlugSpectFFT.cpp */,
@@ -742,13 +749,9 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
 			inputPaths = (
 			);
 			name = "Run Script - prepare_resources-ios.py";
-			outputFileListPaths = (
-			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -776,6 +779,7 @@
 				4F2602C42269F15000C7E97E /* ITextEntryControl.cpp in Sources */,
 				4F2602CA2269F15000C7E97E /* GenericUI.mm in Sources */,
 				4F2602CB2269F15000C7E97E /* IPlugAUAudioUnit.mm in Sources */,
+				CD26B9B0230056CD009E0FF9 /* fft.c in Sources */,
 				4F2602CC2269F15000C7E97E /* IPlugAUv3.mm in Sources */,
 				4F2602CE2269F15000C7E97E /* IPlugPluginBase.cpp in Sources */,
 				4F2602CF2269F15000C7E97E /* IPlugAPIBase.cpp in Sources */,
@@ -792,6 +796,7 @@
 				4F2602D52269F38900C7E97E /* IPlugSpectFFT.cpp in Sources */,
 				4FDF6D7F2267CEBA0007B686 /* IPlugAUPlayer.mm in Sources */,
 				4FDF6D7B2267CE540007B686 /* AppDelegate.m in Sources */,
+				CD26B9AE230056CD009E0FF9 /* fft.c in Sources */,
 				4FDF6D772267CE540007B686 /* AppViewController.mm in Sources */,
 				4FDF6D792267CE540007B686 /* main.m in Sources */,
 			);
@@ -801,6 +806,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CD26B9AF230056CD009E0FF9 /* fft.c in Sources */,
 				4F2602D82269F4C100C7E97E /* IPlugAUViewController.mm in Sources */,
 				4F2602D62269F39100C7E97E /* IPlugSpectFFT.cpp in Sources */,
 			);
@@ -938,7 +944,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.LVC-Audio.IPlugSpectFFTApp;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.LVC-Audio.IPlugSpectFFTApp";
 				PRODUCT_NAME = IPlugSpectFFT;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -982,7 +988,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugSpectFFT-iOS-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.LVC-Audio.IPlugSpectFFTApp;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.LVC-Audio.IPlugSpectFFTApp";
 				PRODUCT_NAME = IPlugSpectFFT;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
@@ -1029,7 +1035,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.LVC-Audio.IPlugSpectFFTApp.IPlugSpectFFTAppExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.LVC-Audio.IPlugSpectFFTApp.IPlugSpectFFTAppExtension";
 				PRODUCT_NAME = IPlugSpectFFTAppExtension;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1073,7 +1079,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugSpectFFT-iOS-AUv3-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.LVC-Audio.IPlugSpectFFTApp.IPlugSpectFFTAppExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.LVC-Audio.IPlugSpectFFTApp.IPlugSpectFFTAppExtension";
 				PRODUCT_NAME = IPlugSpectFFTAppExtension;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
