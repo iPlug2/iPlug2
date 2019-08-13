@@ -57,6 +57,12 @@ public:
   : IOscillator<T>(startPhase, startFreq)
   {
   }
+  
+  inline T Process()
+  {
+    IOscillator<T>::mPhase = IOscillator<T>::mPhase + IOscillator<T>::mPhaseIncr;
+    return std::sin(IOscillator<T>::mPhase * PI * 2.);
+  }
 
   inline T Process(double freqHz) override
   {
