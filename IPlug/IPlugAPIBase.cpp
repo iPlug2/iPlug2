@@ -20,6 +20,8 @@
 
 #include "IPlugAPIBase.h"
 
+using namespace IPlug;
+
 IPlugAPIBase::IPlugAPIBase(IPlugConfig c, EAPI plugAPI)
   : IPluginBase(c.nParams, c.nPresets)
 {

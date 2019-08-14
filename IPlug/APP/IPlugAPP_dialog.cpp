@@ -23,6 +23,8 @@
 #include "IGraphics.h"
 #endif
 
+using namespace IPlug;
+
 // check the input and output devices, find matching srs
 void IPlugAPPHost::PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* inputDevInfo, RtAudio::DeviceInfo* outputDevInfo)
 {

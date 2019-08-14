@@ -18,6 +18,10 @@
  * @{
  */
 
+#include "IPlugPlatform.h"
+
+BEGIN_IPLUG_NAMESPACE
+
 #if !defined(SAMPLE_TYPE_FLOAT) && !defined(SAMPLE_TYPE_DOUBLE)
 #define SAMPLE_TYPE_DOUBLE
 #endif
@@ -236,5 +240,8 @@ enum EResourceLocation
   kPreloadedTexture
 };
 
+END_IPLUG_NAMESPACE
+
 /**@}*/
+
 

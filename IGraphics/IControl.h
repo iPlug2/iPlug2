@@ -33,6 +33,8 @@
 
 #include "IGraphics.h"
 
+using namespace IPlug;
+
 /** The lowest level base class of an IGraphics control. A control is anything on the GUI 
 *  @ingroup BaseControls */
 class IControl

@@ -70,7 +70,12 @@ class IPopupMenuControl;
 class ITextEntryControl;
 class ICornerResizerControl;
 class IFPSDisplayControl;
+
+BEGIN_IPLUG_NAMESPACE
 class IParam;
+END_IPLUG_NAMESPACE
+
+using namespace IPlug;
 
 /**  The lowest level base class of an IGraphics context */
 class IGraphics

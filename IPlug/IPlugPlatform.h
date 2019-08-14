@@ -55,3 +55,6 @@
   #define ENTER_PARAMS_MUTEX_STATIC
   #define LEAVE_PARAMS_MUTEX_STATIC
 #endif
+
+#define BEGIN_IPLUG_NAMESPACE namespace IPlug {
+#define END_IPLUG_NAMESPACE }

@@ -12,6 +12,10 @@
 
 #include <cstring>
 #include <cstdint>
+#include <ctime>
+#include <cmath>
+#include <cstdio>
+#include <cassert>
 #include <memory>
 
 #include "ptrlist.h"
@@ -26,6 +30,8 @@
  * @file
  * @copydoc IPlugProcessor
 */
+
+BEGIN_IPLUG_NAMESPACE
 
 struct IPlugConfig;
 
@@ -309,4 +315,6 @@ protected: // these members are protected because they need to be access by the 
   ITimeInfo mTimeInfo;
 };
 
+END_IPLUG_NAMESPACE
+  
 #include "IPlugProcessor.cpp"

@@ -19,6 +19,8 @@
 #include "IPlugParameter.h"
 #include "IPlugLogger.h"
 
+using namespace IPlug;
+
 #pragma mark - Shape
 
 double IParam::ShapeLinear::NormalizedToValue(double value, const IParam& param) const

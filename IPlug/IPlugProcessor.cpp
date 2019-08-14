@@ -14,16 +14,13 @@
  * This file #included in the header file... don't include it in regular sources
  */
 
-#include <cmath>
-#include <cstdio>
-#include <ctime>
-#include <cassert>
-
 //#include "IPlugProcessor.h"
 
 #ifdef OS_WIN
 #define strtok_r strtok_s
 #endif
+
+using namespace IPlug;
 
 template<typename T>
 IPlugProcessor<T>::IPlugProcessor(IPlugConfig c, EAPI plugAPI)

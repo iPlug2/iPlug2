@@ -40,6 +40,8 @@
 #include "IPlugLogger.h"
 #include "IGraphicsConstants.h"
 
+using namespace IPlug;
+
 class IGraphics;
 class IControl;
 class ILambdaControl;
@@ -69,7 +71,7 @@ using RawBitmapData = WDL_TypedBuf<uint8_t>;
 template <typename T>
 inline T DegToRad(T degrees)
 {
-  return static_cast<T>(::PI) * (degrees / static_cast<T>(180.0));
+  return static_cast<T>(IPlug::PI) * (degrees / static_cast<T>(180.0));
 }
 
 #ifdef IGRAPHICS_AGG

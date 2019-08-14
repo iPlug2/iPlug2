@@ -29,6 +29,8 @@
 
 #include "dirscan.h"
 
+using namespace IPlug;
+
 void DefaultAnimationFunc(IControl* pCaller)
 {
   auto progress = pCaller->GetAnimationProgress();

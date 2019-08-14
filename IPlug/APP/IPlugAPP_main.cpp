@@ -17,6 +17,8 @@
 #include "config.h"
 #include "resource.h"
 
+using namespace IPlug;
+
 #pragma mark - WINDOWS
 #if defined OS_WIN
 #include <windows.h>

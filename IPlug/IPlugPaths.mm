@@ -18,6 +18,8 @@
 #include <string>
 #include <map>
 
+BEGIN_IPLUG_NAMESPACE
+
 #ifdef IGRAPHICS_METAL
 extern std::map<std::string, void*> gTextureMap;
 #endif
@@ -341,3 +343,5 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
 }
 
 #endif
+
+END_IPLUG_NAMESPACE

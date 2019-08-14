@@ -22,6 +22,8 @@
 class IGraphics;
 class IControl;
 
+using namespace IPlug;
+
 /** An editor delegate base class for a SOMETHING that uses IGraphics for it's UI */
 class IGEditorDelegate : public IEditorDelegate
 {

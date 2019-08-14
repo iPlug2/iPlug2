@@ -21,6 +21,8 @@
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 struct IPlugInstanceInfo
 {
   void* pAppHost;
@@ -60,6 +62,8 @@ private:
 
   friend class IPlugAPPHost;
 };
+  
+END_IPLUG_NAMESPACE
 
 IPlugAPP* MakePlug(void* pAPPHost);
 

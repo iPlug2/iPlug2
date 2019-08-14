@@ -33,6 +33,8 @@
 #include "IPlugConstants.h"
 #include "IPlugUtilities.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 #ifdef NDEBUG
   #define DBGMSG(...)
 #else
@@ -653,3 +655,4 @@ static const char* VSTOpcodeStr(int opCode) { return ""; }
   static const char* AUScopeStr(int scope) { return ""; }
 #endif // !TRACER_BUILD
 
+END_IPLUG_NAMESPACE

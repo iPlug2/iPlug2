@@ -15,6 +15,8 @@
 #include <IPlugSWELL.h>
 #endif
 
+using namespace IPlug;
+
 extern HWND gHWND;
 
 IPlugAPP::IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig c)

@@ -15,6 +15,8 @@
 
 #include "IPlugTimer.h"
 
+using namespace IPlug;
+
 #if defined OS_MAC || defined OS_IOS
 
 Timer* Timer::Create(ITimerFunction func, uint32_t intervalMs)

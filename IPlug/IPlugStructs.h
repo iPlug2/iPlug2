@@ -26,6 +26,8 @@
 #include "IPlugMidi.h" // <- Midi related structs in here
 #include "IPlugUtilities.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 /** In certain cases we need to queue parameter changes for transferral between threads */
 struct ParamTuple
 {
@@ -531,5 +533,7 @@ struct IPreset
     sprintf(mName, "%s", UNUSED_PRESET_NAME);
   }
 };
+
+END_IPLUG_NAMESPACE
 
 /**@}*/

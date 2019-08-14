@@ -33,6 +33,8 @@
  * An IPlug API class is the base class for a particular audio plug-in API
 */
 
+BEGIN_IPLUG_NAMESPACE
+
 struct IPlugConfig;
 
 /** The base class of an IPlug plug-in, which interacts with the different plug-in APIs.
@@ -219,3 +221,5 @@ protected:
   IPlugQueue<SysExData> mSysExDataFromProcessor {SYSEX_TRANSFER_SIZE}; // a queue of SYSEX data to send to the editor
   SysExData mSysexBuf;
 };
+
+END_IPLUG_NAMESPACE
