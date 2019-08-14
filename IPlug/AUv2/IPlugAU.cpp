@@ -17,6 +17,8 @@
 #include "IPlugAU.h"
 #include "IPlugAU_ioconfig.h"
 
+using namespace iplug;
+
 inline CFStringRef MakeCFString(const char* cStr)
 {
   return CFStringCreateWithCString(0, cStr, kCFStringEncodingUTF8);
