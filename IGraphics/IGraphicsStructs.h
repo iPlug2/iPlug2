@@ -75,9 +75,12 @@ inline T DegToRad(T degrees)
   return static_cast<T>(iplug::PI) * (degrees / static_cast<T>(180.0));
 }
 
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+
 #ifdef IGRAPHICS_AGG
   #include "IGraphicsAGG_src.h"
-  using BitmapData = agg::pixel_map*;
+  #define BITMAP_DATA_TYPE agg::pixel_map*
 #elif defined IGRAPHICS_CAIRO
   #if defined OS_MAC || defined OS_LINUX
     #include "cairo/cairo.h"
@@ -86,9 +89,9 @@ inline T DegToRad(T degrees)
   #else
     #error NOT IMPLEMENTED
   #endif
-  using BitmapData = cairo_surface_t*;
+  #define BITMAP_DATA_TYPE cairo_surface_t*
 #elif defined IGRAPHICS_NANOVG
-  using BitmapData = int;
+  #define BITMAP_DATA_TYPE int;
 #elif defined IGRAPHICS_SKIA
   #include "SkImage.h"
   #include "SkSurface.h"
@@ -98,30 +101,35 @@ inline T DegToRad(T degrees)
     sk_sp<SkImage> mImage;
     sk_sp<SkSurface> mSurface;
   };
-  using BitmapData = SkiaDrawable*;
+  #define BITMAP_DATA_TYPE SkiaDrawable*
 #elif defined IGRAPHICS_LICE
   #include "lice.h"
-  using BitmapData = LICE_IBitmap*;
+  #define BITMAP_DATA_TYPE LICE_IBitmap*
 #elif defined IGRAPHICS_CANVAS
   #include <emscripten.h>
   #include <emscripten/val.h>
-  using BitmapData = emscripten::val*;
+  #define BITMAP_DATA_TYPE emscripten::val*
 #else // NO_IGRAPHICS
-  using BitmapData = void*;
+  #define BITMAP_DATA_TYPE void*;
 #endif
 
 #if defined OS_MAC || defined OS_IOS
   #include <CoreText/CoreText.h>
-  using FontDescriptor = CTFontDescriptorRef;
+  #define FONT_DESCRIPTOR_TYPE CTFontDescriptorRef
 #elif defined OS_WIN
   #include "wingdi.h"
   #include "Stringapiset.h"
-  using FontDescriptor = HFONT;
+  #define FONT_DESCRIPTOR_TYPE HFONT
 #elif defined OS_WEB
-  using FontDescriptor = std::pair<WDL_String, WDL_String>*;
+  #define FONT_DESCRIPTOR_TYPE std::pair<WDL_String, WDL_String>*
 #else 
   // NO_IGRAPHICS
 #endif
+
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+using BitmapData = BITMAP_DATA_TYPE;
+using FontDescriptor = FONT_DESCRIPTOR_TYPE;
 
 /** A bitmap abstraction around the different drawing back end bitmap representations.
  * In most cases it does own the bitmap data, the exception being with NanoVG, where the image is loaded onto the GPU as a texture,
