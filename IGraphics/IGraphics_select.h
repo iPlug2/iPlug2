@@ -46,31 +46,31 @@
 
   #if defined IGRAPHICS_LICE
     #include "IGraphicsLice.h"
-    #define IGRAPHICS_DRAW_CLASS_DEF IGraphicsLice;
+    #define IGRAPHICS_DRAW_CLASS_TYPE IGraphicsLice
     #if defined IGRAPHICS_GL || defined IGRAPHICS_METAL
       #error When using IGRAPHICS_LICE, don't define IGRAPHICS_METAL or IGRAPHICS_GL*
     #endif
   #elif defined IGRAPHICS_AGG
     #include "IGraphicsAGG.h"
-    #define IGRAPHICS_DRAW_CLASS_DEF IGraphicsAGG;
+    #define IGRAPHICS_DRAW_CLASS_TYPE IGraphicsAGG
     #if defined IGRAPHICS_GL || defined IGRAPHICS_METAL
       #error When using IGRAPHICS_AGG, don't define IGRAPHICS_METAL or IGRAPHICS_GL*
     #endif
   #elif defined IGRAPHICS_CAIRO
     #include "IGraphicsCairo.h"
-    #define IGRAPHICS_DRAW_CLASS_DEF IGraphicsCairo;
+    #define IGRAPHICS_DRAW_CLASS_TYPE IGraphicsCairo
     #if defined IGRAPHICS_GL || defined IGRAPHICS_METAL
       #error When using IGRAPHICS_CAIRO, don't define IGRAPHICS_METAL or IGRAPHICS_GL*
     #endif
   #elif defined IGRAPHICS_NANOVG
     #include "IGraphicsNanoVG.h"
-    #define IGRAPHICS_DRAW_CLASS_DEF IGraphicsNanoVG;
+    #define IGRAPHICS_DRAW_CLASS_TYPE IGraphicsNanoVG
   #elif defined IGRAPHICS_SKIA
     #include "IGraphicsSkia.h"
-    #define IGRAPHICS_DRAW_CLASS_DEF IGraphicsSkia;
+    #define IGRAPHICS_DRAW_CLASS_TYPE IGraphicsSkia
   #elif defined IGRAPHICS_CANVAS
      #include "IGraphicsCanvas.h"
-     #define IGRAPHICS_DRAW_CLASS_DEF IGraphicsCanvas;
+     #define IGRAPHICS_DRAW_CLASS_TYPE IGraphicsCanvas
     #if defined IGRAPHICS_GL || defined IGRAPHICS_METAL
       #error When using IGRAPHICS_CANVAS, don't define IGRAPHICS_METAL or IGRAPHICS_GL*
     #endif
@@ -81,7 +81,7 @@
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
-using IGRAPHICS_DRAW_CLASS = IGRAPHICS_DRAW_CLASS_DEF;
+using IGRAPHICS_DRAW_CLASS = IGRAPHICS_DRAW_CLASS_TYPE;
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
 
