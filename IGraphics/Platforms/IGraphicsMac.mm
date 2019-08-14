@@ -16,6 +16,9 @@
 
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
+using namespace IPlug;
+using namespace IGraphics;
+
 int GetSystemVersion()
 {
   static int32_t v;

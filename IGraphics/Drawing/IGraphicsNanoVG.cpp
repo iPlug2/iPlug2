@@ -67,6 +67,9 @@
 #include <string>
 #include <map>
 
+using namespace IPlug;
+using namespace IGraphics;
+
 // Fonts
 StaticStorage<IFontData> sFontCache;
 

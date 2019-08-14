@@ -58,3 +58,6 @@
 
 #define BEGIN_IPLUG_NAMESPACE namespace IPlug {
 #define END_IPLUG_NAMESPACE }
+
+#define BEGIN_IGRAPHICS_NAMESPACE namespace IGraphics {
+#define END_IGRAPHICS_NAMESPACE }

@@ -63,6 +63,9 @@
 
 void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData);
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 // Forward declaration
 
 class IGraphicsNanoVG;
@@ -165,3 +168,6 @@ private:
   NVGframebuffer* mMainFrameBuffer = nullptr;
   int mInitialFBO = 0;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE

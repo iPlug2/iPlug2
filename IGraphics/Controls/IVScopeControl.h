@@ -20,6 +20,9 @@
 #include "IPlugStructs.h"
 #include "IPlugQueue.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /** Vectorial multichannel capable oscilloscope control
  * @ingroup IControls */
 template <int MAXNC = 1, int MAXBUF = 128, int QUEUE_SIZE = 1024>
@@ -208,4 +211,7 @@ private:
   Data mBuf;
   float mPadding = 2.f;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
 

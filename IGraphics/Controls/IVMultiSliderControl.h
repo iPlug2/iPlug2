@@ -17,6 +17,9 @@
 
 #include "IControl.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 #define LERP(a,b,f) ((b-a)*f+a)
 
 /** A vectorial multi-slider control
@@ -187,3 +190,6 @@ protected:
   int mSliderHit = -1;
   float mGrain = 0.001f;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE

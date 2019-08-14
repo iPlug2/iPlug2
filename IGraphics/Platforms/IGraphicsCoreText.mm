@@ -11,6 +11,9 @@
 #include "IGraphicsCoreText.h"
 #include "IPlugPaths.h"
 
+using namespace IPlug;
+using namespace IGraphics;
+
 IFontDataPtr CoreTextFont::GetFontData()
 {
   char styleCString[64];

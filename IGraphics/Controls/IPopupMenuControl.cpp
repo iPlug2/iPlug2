@@ -20,6 +20,9 @@
 #include "nanovg.h"
 #endif
 
+using namespace IPlug;
+using namespace IGraphics;
+
 IPopupMenuControl::IPopupMenuControl(int paramIdx, IText text, IRECT collapsedBounds, IRECT expandedBounds)
 : IControl(collapsedBounds, paramIdx)
 , mSpecifiedCollapsedBounds(collapsedBounds)

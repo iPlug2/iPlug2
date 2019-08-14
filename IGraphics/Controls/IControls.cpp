@@ -16,6 +16,9 @@
 
 #include "IControls.h"
 
+using namespace IPlug;
+using namespace IGraphics;
+
 #pragma mark - VECTOR CONTROLS
 
 const IColor IVKeyboardControl::DEFAULT_BK_COLOR = IColor(255, 70, 70, 70);

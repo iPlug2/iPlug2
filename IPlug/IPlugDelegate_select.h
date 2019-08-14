@@ -32,6 +32,6 @@
     using EDITOR_DELEGATE_CLASS = IWebsocketEditorDelegate;
   #else
     #include "IGraphicsEditorDelegate.h"
-    using EDITOR_DELEGATE_CLASS = IGEditorDelegate;
+    using EDITOR_DELEGATE_CLASS = IPlug::IGraphics::IGEditorDelegate;
   #endif
 #endif

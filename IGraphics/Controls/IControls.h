@@ -25,6 +25,9 @@
 #include "IRTTextControl.h"
 #include "IVDisplayControl.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /**
  * \addtogroup Controls
  * @{
@@ -560,6 +563,9 @@ protected:
   bool mMultiLine;
   bool mVCentre;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
 
 /**@}*/
 

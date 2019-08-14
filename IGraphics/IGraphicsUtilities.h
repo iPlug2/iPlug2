@@ -12,6 +12,9 @@
 #include "IGraphicsConstants.h"
 #include "IGraphicsStructs.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 // these are macros to shorten the instantiation of IControls
 // for a paramater ID MyParam, define constants named MyParam_X, MyParam_Y, MyParam_W, MyParam_H to specify the Control's IRect
 // then when instantiating a Control you can just call MakeIRect(MyParam) to specify the IRect
@@ -82,4 +85,7 @@ static uint32_t GetAAXModifiersFromIMouseMod(const IMouseMod& mod)
 //  if (aax_mods & AAX_eModifiers_SecondaryButton) pModOut->R = true;
 //}
 #endif
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
 

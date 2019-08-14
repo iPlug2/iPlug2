@@ -21,6 +21,9 @@
 
 #ifndef NO_IGRAPHICS
 
+  BEGIN_IPLUG_NAMESPACE
+  BEGIN_IGRAPHICS_NAMESPACE
+
   #if defined OS_WIN
   extern HINSTANCE gHINSTANCE;
 
@@ -64,6 +67,9 @@
   #else
     #error "No OS defined!"
   #endif
+
+  END_IGRAPHICS_NAMESPACE
+  END_IPLUG_NAMESPACE
 
 #endif //NO_IGRAPHICS
 

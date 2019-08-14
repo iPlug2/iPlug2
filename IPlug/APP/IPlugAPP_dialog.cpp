@@ -19,11 +19,12 @@
 #define GET_MENU() SWELL_GetCurrentMenu()
 #endif
 
+using namespace IPlug;
+
 #if defined _DEBUG && !defined NO_IGRAPHICS
 #include "IGraphics.h"
+using namespace IGraphics;
 #endif
-
-using namespace IPlug;
 
 // check the input and output devices, find matching srs
 void IPlugAPPHost::PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* inputDevInfo, RtAudio::DeviceInfo* outputDevInfo)

@@ -40,7 +40,8 @@
 #include "IPlugLogger.h"
 #include "IGraphicsConstants.h"
 
-using namespace IPlug;
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
 
 class IGraphics;
 class IControl;
@@ -2644,4 +2645,8 @@ struct IVStyle
 };
 
 const IVStyle DEFAULT_STYLE = IVStyle();
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+
 /**@}*/

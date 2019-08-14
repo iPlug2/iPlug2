@@ -35,6 +35,9 @@ using VST3_API_BASE = IPlugVST3Controller;
 #include "IPopupMenuControl.h"
 #include "ITextEntryControl.h"
 
+using namespace IPlug;
+using namespace IGraphics;
+
 struct SVGHolder
 {
   NSVGimage* mImage = nullptr;

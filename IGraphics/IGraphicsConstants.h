@@ -12,6 +12,9 @@
 
 #include "IPlugPlatform.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 static constexpr int DEFAULT_FPS = 25; // TODO: default 60 FPS?
 
 // If not dirty for this many timer ticks, we call OnGUIIDle.
@@ -317,3 +320,6 @@ enum EVirtualKey
   kVK_NUMLOCK =     0x90,
   kVK_SCROLL =      0x91
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE

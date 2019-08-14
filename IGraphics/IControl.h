@@ -33,7 +33,8 @@
 
 #include "IGraphics.h"
 
-using namespace IPlug;
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
 
 /** The lowest level base class of an IGraphics control. A control is anything on the GUI 
 *  @ingroup BaseControls */
@@ -1192,42 +1193,42 @@ protected:
 };
 
 /** An abstract IControl base class that you can inherit from in order to make a control that pops up a menu to browse files */
-class IDirBrowseControlBase : public IControl
-{
-public:
-  IDirBrowseControlBase(const IRECT& bounds, const char* extension /* e.g. ".txt"*/)
-  : IControl(bounds)
-  {
-    mExtension.Set(extension);
-  }
-
-  virtual ~IDirBrowseControlBase();
-
-  int NItems();
-
-  void AddPath(const char* path, const char* label);
-
-  void SetUpMenu();
-
-//  void GetSelectedItemLabel(WDL_String& label);
-//  void GetSelectedItemPath(WDL_String& path);
-
-private:
-  void ScanDirectory(const char* path, IPopupMenu& menuToAddTo);
-  void CollectSortedItems(IPopupMenu* pMenu);
-  
-protected:
-  bool mShowEmptySubmenus = false;
-  bool mShowFileExtensions = true;
-  int mSelectedIndex = -1;
-  IPopupMenu* mSelectedMenu = nullptr;
-  IPopupMenu mMainMenu;
-  WDL_PtrList<WDL_String> mPaths;
-  WDL_PtrList<WDL_String> mPathLabels;
-  WDL_PtrList<WDL_String> mFiles;
-  WDL_PtrList<IPopupMenu::Item> mItems; // ptr to item for each file
-  WDL_String mExtension;
-};
+//class IDirBrowseControlBase : public IControl
+//{
+//public:
+//  IDirBrowseControlBase(const IRECT& bounds, const char* extension /* e.g. ".txt"*/)
+//  : IControl(bounds)
+//  {
+//    mExtension.Set(extension);
+//  }
+//
+//  virtual ~IDirBrowseControlBase();
+//
+//  int NItems();
+//
+//  void AddPath(const char* path, const char* label);
+//
+//  void SetUpMenu();
+//
+////  void GetSelectedItemLabel(WDL_String& label);
+////  void GetSelectedItemPath(WDL_String& path);
+//
+//private:
+//  void ScanDirectory(const char* path, IPopupMenu& menuToAddTo);
+//  void CollectSortedItems(IPopupMenu* pMenu);
+//  
+//protected:
+//  bool mShowEmptySubmenus = false;
+//  bool mShowFileExtensions = true;
+//  int mSelectedIndex = -1;
+//  IPopupMenu* mSelectedMenu = nullptr;
+//  IPopupMenu mMainMenu;
+//  WDL_PtrList<WDL_String> mPaths;
+//  WDL_PtrList<WDL_String> mPathLabels;
+//  WDL_PtrList<WDL_String> mFiles;
+//  WDL_PtrList<IPopupMenu::Item> mItems; // ptr to item for each file
+//  WDL_String mExtension;
+//};
 
 /**@}*/
 
@@ -1475,5 +1476,8 @@ protected:
   bool mShowParamLabel;
   IRECT mTri;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
 
 /**@}*/

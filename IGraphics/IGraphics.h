@@ -65,17 +65,15 @@
 #undef DrawText
 #endif
 
+BEGIN_IPLUG_NAMESPACE
+class IParam;
+BEGIN_IGRAPHICS_NAMESPACE
 class IControl;
 class IPopupMenuControl;
 class ITextEntryControl;
 class ICornerResizerControl;
 class IFPSDisplayControl;
 
-BEGIN_IPLUG_NAMESPACE
-class IParam;
-END_IPLUG_NAMESPACE
-
-using namespace IPlug;
 
 /**  The lowest level base class of an IGraphics context */
 class IGraphics
@@ -1549,3 +1547,6 @@ public:
   std::unique_ptr<ImGuiRenderer> mImGuiRenderer;
 #endif
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
