@@ -38,7 +38,7 @@ public:
   }
 };
 
-class IPlugWebView : public IPlug
+class IPlugWebView : public Plugin
 {
 public:
   IPlugWebView(IPlugInstanceInfo instanceInfo);

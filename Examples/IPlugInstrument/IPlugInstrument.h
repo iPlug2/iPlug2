@@ -26,7 +26,7 @@ enum ECtrlTags
   kNumCtrlTags
 };
 
-class IPlugInstrument : public IPlug
+class IPlugInstrument : public Plugin
 {
 public:
   IPlugInstrument(IPlugInstanceInfo instanceInfo);

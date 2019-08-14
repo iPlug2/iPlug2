@@ -2,7 +2,7 @@
 
 #include "IPlug_include_in_plug_hdr.h"
 
-class IGraphicsTest : public IPlug
+class IGraphicsTest : public Plugin
 {
 public:
   IGraphicsTest(IPlugInstanceInfo instanceInfo);

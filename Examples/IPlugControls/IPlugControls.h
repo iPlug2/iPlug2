@@ -126,7 +126,7 @@ public:
 };
 
 
-class IPlugControls : public IPlug
+class IPlugControls : public Plugin
 {
 public:
   IPlugControls(IPlugInstanceInfo instanceInfo);

@@ -26,7 +26,7 @@ enum ECtrlTags
   kCtrlRightYKnob
 };
 
-class MetaParamTest : public IPlug
+class MetaParamTest : public Plugin
 {
 public:
   MetaParamTest(IPlugInstanceInfo instanceInfo);

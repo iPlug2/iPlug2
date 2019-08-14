@@ -15,7 +15,7 @@ enum ECtrlTags
   kNumCtrlTags
 };
 
-class IPlugMidiEffect : public IPlug
+class IPlugMidiEffect : public Plugin
 {
 public:
   IPlugMidiEffect(IPlugInstanceInfo instanceInfo);

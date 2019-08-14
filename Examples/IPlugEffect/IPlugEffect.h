@@ -10,7 +10,7 @@ enum EParams
   kNumParams
 };
 
-class IPlugEffect : public IPlug
+class IPlugEffect : public Plugin
 {
 public:
   IPlugEffect(IPlugInstanceInfo instanceInfo);

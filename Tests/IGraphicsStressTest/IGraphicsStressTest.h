@@ -19,7 +19,7 @@ enum EControlTags
   kCtrlTagButton5
 };
 
-class IGraphicsStressTest : public IPlug
+class IGraphicsStressTest : public Plugin
 {
 public:
   IGraphicsStressTest(IPlugInstanceInfo instanceInfo);
