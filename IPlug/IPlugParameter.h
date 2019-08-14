@@ -313,7 +313,7 @@ public:
   
   /** /todo 
    * @return double /todo */
-  double DBToAmp() const { return IPlug::DBToAmp(mValue.load()); }
+  double DBToAmp() const { return iplug::DBToAmp(mValue.load()); }
 
   /** /todo 
    * @return double /todo */

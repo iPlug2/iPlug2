@@ -19,11 +19,11 @@
 #define GET_MENU() SWELL_GetCurrentMenu()
 #endif
 
-using namespace IPlug;
+using namespace iplug;
 
 #if defined _DEBUG && !defined NO_IGRAPHICS
 #include "IGraphics.h"
-using namespace IGraphics;
+using namespace igraphics;
 #endif
 
 // check the input and output devices, find matching srs

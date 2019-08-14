@@ -15,7 +15,7 @@
 #include <IPlugSWELL.h>
 #endif
 
-using namespace IPlug;
+using namespace iplug;
 
 extern HWND gHWND;
 

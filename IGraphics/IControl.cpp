@@ -66,8 +66,8 @@ void SplashClickActionFunc(IControl* pCaller)
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
 
-using namespace IPlug;
-using namespace IGraphics;
+using namespace iplug;
+using namespace igraphics;
 
 IControl::IControl(const IRECT& bounds, int paramIdx, IActionFunction actionFunc)
 : mRECT(bounds)

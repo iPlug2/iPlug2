@@ -11,8 +11,8 @@
 #include "IGraphicsCoreText.h"
 #include "IPlugPaths.h"
 
-using namespace IPlug;
-using namespace IGraphics;
+using namespace iplug;
+using namespace igraphics;
 
 IFontDataPtr CoreTextFont::GetFontData()
 {

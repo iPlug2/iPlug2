@@ -16,8 +16,8 @@
 
 #include "IControls.h"
 
-using namespace IPlug;
-using namespace IGraphics;
+using namespace iplug;
+using namespace igraphics;
 
 #pragma mark - VECTOR CONTROLS
 

@@ -35,8 +35,8 @@ using VST3_API_BASE = IPlugVST3Controller;
 #include "IPopupMenuControl.h"
 #include "ITextEntryControl.h"
 
-using namespace IPlug;
-using namespace IGraphics;
+using namespace iplug;
+using namespace igraphics;
 
 struct SVGHolder
 {

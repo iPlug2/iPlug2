@@ -20,7 +20,7 @@
 
 #define STB_TEXTEDIT_CHARTYPE char
 #define STB_TEXTEDIT_POSITIONTYPE int
-#define STB_TEXTEDIT_STRING IPlug::IGraphics::ITextEntryControl
+#define STB_TEXTEDIT_STRING iplug::igraphics::ITextEntryControl
 #define STB_TEXTEDIT_KEYTYPE uint32_t
 
 #include "stb_textedit.h"

@@ -16,7 +16,7 @@
 
 #include "IPlugLogger.h"
 
-using namespace IPlug;
+using namespace iplug;
 
 #ifndef MAX_PATH_LEN
 #define MAX_PATH_LEN 2048

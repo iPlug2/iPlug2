@@ -20,7 +20,7 @@
 
 #include "IPlugAPIBase.h"
 
-using namespace IPlug;
+using namespace iplug;
 
 IPlugAPIBase::IPlugAPIBase(IPlugConfig c, EAPI plugAPI)
   : IPluginBase(c.nParams, c.nPresets)

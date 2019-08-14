@@ -17,7 +17,7 @@ BEGIN_IPLUG_NAMESPACE
 extern bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath, const char* bundleID);
 END_IPLUG_NAMESPACE
 
-using namespace IPlug;
+using namespace iplug;
 
 @interface ScriptHandler : NSObject <WKScriptMessageHandler, WKNavigationDelegate>
 {

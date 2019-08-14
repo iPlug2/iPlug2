@@ -19,7 +19,7 @@
 #include "IPlugParameter.h"
 #include "IPlugLogger.h"
 
-using namespace IPlug;
+using namespace iplug;
 
 #pragma mark - Shape
 

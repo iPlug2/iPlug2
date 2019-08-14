@@ -15,7 +15,7 @@
 
 #include "IPlugTimer.h"
 
-using namespace IPlug;
+using namespace iplug;
 
 #if defined OS_MAC || defined OS_IOS
 

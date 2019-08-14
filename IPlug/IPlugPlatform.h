@@ -56,8 +56,8 @@
   #define LEAVE_PARAMS_MUTEX_STATIC
 #endif
 
-#define BEGIN_IPLUG_NAMESPACE namespace IPlug {
+#define BEGIN_IPLUG_NAMESPACE namespace iplug {
 #define END_IPLUG_NAMESPACE }
 
-#define BEGIN_IGRAPHICS_NAMESPACE namespace IGraphics {
+#define BEGIN_IGRAPHICS_NAMESPACE namespace igraphics {
 #define END_IGRAPHICS_NAMESPACE }
