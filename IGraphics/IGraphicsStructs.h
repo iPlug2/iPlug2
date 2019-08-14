@@ -75,9 +75,16 @@ inline T DegToRad(T degrees)
   return static_cast<T>(iplug::PI) * (degrees / static_cast<T>(180.0));
 }
 
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+
 #ifdef IGRAPHICS_AGG
   #include "IGraphicsAGG_src.h"
+  BEGIN_IPLUG_NAMESPACE
+  BEGIN_IGRAPHICS_NAMESPACE
   using BitmapData = agg::pixel_map*;
+  END_IGRAPHICS_NAMESPACE
+  END_IPLUG_NAMESPACE
 #elif defined IGRAPHICS_CAIRO
   #if defined OS_MAC || defined OS_LINUX
     #include "cairo/cairo.h"
@@ -86,12 +93,22 @@ inline T DegToRad(T degrees)
   #else
     #error NOT IMPLEMENTED
   #endif
+  BEGIN_IPLUG_NAMESPACE
+  BEGIN_IGRAPHICS_NAMESPACE
   using BitmapData = cairo_surface_t*;
+  END_IGRAPHICS_NAMESPACE
+  END_IPLUG_NAMESPACE
 #elif defined IGRAPHICS_NANOVG
+  BEGIN_IPLUG_NAMESPACE
+  BEGIN_IGRAPHICS_NAMESPACE
   using BitmapData = int;
+  END_IGRAPHICS_NAMESPACE
+  END_IPLUG_NAMESPACE
 #elif defined IGRAPHICS_SKIA
   #include "SkImage.h"
   #include "SkSurface.h"
+  BEGIN_IPLUG_NAMESPACE
+  BEGIN_IGRAPHICS_NAMESPACE
   struct SkiaDrawable
   {
     bool mIsSurface;
@@ -99,30 +116,58 @@ inline T DegToRad(T degrees)
     sk_sp<SkSurface> mSurface;
   };
   using BitmapData = SkiaDrawable*;
+  END_IGRAPHICS_NAMESPACE
+  END_IPLUG_NAMESPACE
 #elif defined IGRAPHICS_LICE
   #include "lice.h"
+  BEGIN_IPLUG_NAMESPACE
+  BEGIN_IGRAPHICS_NAMESPACE
   using BitmapData = LICE_IBitmap*;
+  END_IGRAPHICS_NAMESPACE
+  END_IPLUG_NAMESPACE
 #elif defined IGRAPHICS_CANVAS
   #include <emscripten.h>
   #include <emscripten/val.h>
+  BEGIN_IPLUG_NAMESPACE
+  BEGIN_IGRAPHICS_NAMESPACE
   using BitmapData = emscripten::val*;
+  END_IGRAPHICS_NAMESPACE
+  END_IPLUG_NAMESPACE
 #else // NO_IGRAPHICS
+  BEGIN_IPLUG_NAMESPACE
+  BEGIN_IGRAPHICS_NAMESPACE
   using BitmapData = void*;
+  END_IGRAPHICS_NAMESPACE
+  END_IPLUG_NAMESPACE
 #endif
 
 #if defined OS_MAC || defined OS_IOS
   #include <CoreText/CoreText.h>
+  BEGIN_IPLUG_NAMESPACE
+  BEGIN_IGRAPHICS_NAMESPACE
   using FontDescriptor = CTFontDescriptorRef;
+  END_IGRAPHICS_NAMESPACE
+  END_IPLUG_NAMESPACE
 #elif defined OS_WIN
   #include "wingdi.h"
   #include "Stringapiset.h"
+  BEGIN_IPLUG_NAMESPACE
+  BEGIN_IGRAPHICS_NAMESPACE
   using FontDescriptor = HFONT;
+  END_IGRAPHICS_NAMESPACE
+  END_IPLUG_NAMESPACE
 #elif defined OS_WEB
+  BEGIN_IPLUG_NAMESPACE
+  BEGIN_IGRAPHICS_NAMESPACE
   using FontDescriptor = std::pair<WDL_String, WDL_String>*;
+  END_IGRAPHICS_NAMESPACE
+  END_IPLUG_NAMESPACE
 #else 
   // NO_IGRAPHICS
 #endif
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
 /** A bitmap abstraction around the different drawing back end bitmap representations.
  * In most cases it does own the bitmap data, the exception being with NanoVG, where the image is loaded onto the GPU as a texture,
  * but still needs to be freed. Most of the time  end-users will deal with IBitmap rather than APIBitmap, which is used behind the scenes. */
