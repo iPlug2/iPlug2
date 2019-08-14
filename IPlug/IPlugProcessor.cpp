@@ -14,7 +14,7 @@
  * This file #included in the header file... don't include it in regular sources
  */
 
-//#include "IPlugProcessor.h"
+#include "IPlugProcessor.h"
 
 #ifdef OS_WIN
 #define strtok_r strtok_s
@@ -514,3 +514,7 @@ void IPlugProcessor<T>::SetBlockSize(int blockSize)
     mBlockSize = blockSize;
   }
 }
+
+// Tell the compiler/linker which versions of the template we need
+
+template class iplug::IPlugProcessor<sample>;

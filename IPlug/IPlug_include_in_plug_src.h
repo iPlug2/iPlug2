@@ -312,6 +312,8 @@ extern "C"
   }
 #pragma mark - APP
 #elif defined APP_API
+
+BEGIN_IPLUG_NAMESPACE
   Plugin* MakePlug(void* pAppHost)
   {
     IPlugInstanceInfo instanceInfo;
@@ -319,6 +321,8 @@ extern "C"
     
     return new PLUG_CLASS_NAME(instanceInfo);
   }
+END_IPLUG_NAMESPACE
+
 #pragma mark - WAM
 #elif defined WAM_API
   Plugin* MakePlug()

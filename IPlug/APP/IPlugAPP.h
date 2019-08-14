@@ -62,9 +62,9 @@ private:
 
   friend class IPlugAPPHost;
 };
-  
-END_IPLUG_NAMESPACE
 
 IPlugAPP* MakePlug(void* pAPPHost);
+
+END_IPLUG_NAMESPACE
 
 #endif

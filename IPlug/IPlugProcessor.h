@@ -316,5 +316,3 @@ protected: // these members are protected because they need to be access by the 
 };
 
 END_IPLUG_NAMESPACE
-  
-#include "IPlugProcessor.cpp"
