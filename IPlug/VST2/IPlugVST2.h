@@ -21,6 +21,8 @@
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 /** Used to pass various instance info to the API class */
 struct IPlugInstanceInfo
 {
@@ -91,5 +93,7 @@ protected:
 };
 
 IPlugVST2* MakePlug();
+
+END_IPLUG_NAMESPACE
 
 #endif

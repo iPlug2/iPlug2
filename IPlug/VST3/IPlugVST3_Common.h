@@ -19,6 +19,8 @@
 using namespace Steinberg;
 using namespace Vst;
 
+BEGIN_IPLUG_NAMESPACE
+
 /** Shared VST3 State management code */
 struct IPlugVST3State
 {
@@ -104,3 +106,5 @@ static void IPlugVST3GetHost(IPlugAPIBase* pPlug, FUnknown* context)
     pPlug->SetHost(hostNameCString, 0); // Can't get version in VST3
   }
 }
+
+END_IPLUG_NAMESPACE
