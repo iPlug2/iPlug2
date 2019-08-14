@@ -20,7 +20,8 @@ STB_PATH = $(DEPS_PATH)/IGraphics/STB
 IPLUG_SRC = $(IPLUG_PATH)/IPlugAPIBase.cpp \
 	$(IPLUG_PATH)/IPlugParameter.cpp \
 	$(IPLUG_PATH)/IPlugPluginBase.cpp \
-	$(IPLUG_PATH)/IPlugPaths.cpp
+	$(IPLUG_PATH)/IPlugPaths.cpp \
+	$(IPLUG_PATH)/IPlugProcessor.cpp
 	# $(IPLUG_PATH)/IPlugTimer.cpp
 
 IGRAPHICS_SRC = $(IGRAPHICS_PATH)/IGraphics.cpp \

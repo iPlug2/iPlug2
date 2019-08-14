@@ -21,10 +21,11 @@
 
 #ifndef NO_IGRAPHICS
 
+  #if defined OS_WIN
+
   BEGIN_IPLUG_NAMESPACE
   BEGIN_IGRAPHICS_NAMESPACE
 
-  #if defined OS_WIN
   extern HINSTANCE gHINSTANCE;
 
   IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
@@ -33,7 +34,15 @@
     pGraphics->SetWinModuleHandle(gHINSTANCE);
     return pGraphics;
   }
+
+  END_IGRAPHICS_NAMESPACE
+  END_IPLUG_NAMESPACE
+
   #elif defined OS_MAC
+
+  BEGIN_IPLUG_NAMESPACE
+  BEGIN_IGRAPHICS_NAMESPACE
+
   IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
   {
     IGraphicsMac* pGraphics = new IGraphicsMac(dlg, w, h, fps, scale);
@@ -41,7 +50,15 @@
     
     return pGraphics;
   }
+
+  END_IGRAPHICS_NAMESPACE
+  END_IPLUG_NAMESPACE
+
   #elif defined OS_IOS
+
+  BEGIN_IPLUG_NAMESPACE
+  BEGIN_IGRAPHICS_NAMESPACE
+
   IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
   {
     IGraphicsIOS* pGraphics = new IGraphicsIOS(dlg, w, h, fps, scale);
@@ -49,10 +66,18 @@
 
     return pGraphics;
   }
+
+  END_IGRAPHICS_NAMESPACE
+  END_IPLUG_NAMESPACE
+
   #elif defined OS_WEB
+
   #include <emscripten.h>
 
-  IGraphicsWeb* gGraphics = nullptr;
+  iplug::igraphics::IGraphicsWeb* gGraphics = nullptr;
+
+  BEGIN_IPLUG_NAMESPACE
+  BEGIN_IGRAPHICS_NAMESPACE
 
   IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
   {
@@ -60,16 +85,18 @@
     return gGraphics;
   }
 
+  END_IGRAPHICS_NAMESPACE
+  END_IPLUG_NAMESPACE
+
   void StartMainLoopTimer()
   {
-    emscripten_set_main_loop(gGraphics->OnMainLoopTimer, 0 /*gGraphics->FPS()*/, 1);
+      iplug::igraphics::IGraphicsWeb* pGraphics = gGraphics;
+      emscripten_set_main_loop(pGraphics->OnMainLoopTimer, 0 /*pGraphics->FPS()*/, 1);
   }
+
   #else
     #error "No OS defined!"
   #endif
-
-  END_IGRAPHICS_NAMESPACE
-  END_IPLUG_NAMESPACE
 
 #endif //NO_IGRAPHICS
 

@@ -19,6 +19,9 @@
 
 using namespace emscripten;
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /** An HTML5 canvas API bitmap
  * @ingroup APIBitmaps */
 class CanvasBitmap : public APIBitmap
@@ -100,3 +103,7 @@ private:
     
   std::vector<std::pair<WDL_String, WDL_String>> mCustomFonts;
 };
+
+END_IPLUG_NAMESPACE
+END_IGRAPHICS_NAMESPACE
+

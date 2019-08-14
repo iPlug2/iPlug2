@@ -251,7 +251,7 @@ void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginNa
 using namespace iplug;
 using namespace emscripten;
 
-EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char*, void*)
+EResourceLocation iplug::LocateResource(const char* name, const char* type, WDL_String& result, const char*, void*)
 {
   if (CStringHasContents(name))
   {

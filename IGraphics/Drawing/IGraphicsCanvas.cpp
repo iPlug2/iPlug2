@@ -17,6 +17,8 @@
 
 #include "wdl_base64.h"
 
+using namespace iplug;
+using namespace igraphics;
 using namespace emscripten;
 
 extern IGraphicsWeb* gGraphics;

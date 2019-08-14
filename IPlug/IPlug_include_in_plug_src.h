@@ -389,11 +389,10 @@ END_IPLUG_NAMESPACE
     IPlugInstanceInfo instanceInfo;
     return new PLUG_CLASS_NAME(instanceInfo);
   }
-
-  std::unique_ptr<IPlugWeb> gPlug;
-  extern void StartMainLoopTimer();
-
   END_IPLUG_NAMESPACE
+
+  std::unique_ptr<iplug::IPlugWeb> gPlug;
+  extern void StartMainLoopTimer();
 
   extern "C"
   {
@@ -413,9 +412,9 @@ END_IPLUG_NAMESPACE
     
     EMSCRIPTEN_KEEPALIVE void iplug_fsready()
     {
-      iplug::gPlug = std::unique_ptr<iplug::IPlugWeb>(iplug::MakePlug());
-      iplug::gPlug->SetHost("www", 0);
-      iplug::gPlug->OpenWindow(nullptr);
+      gPlug = std::unique_ptr<iplug::IPlugWeb>(iplug::MakePlug());
+      gPlug->SetHost("www", 0);
+      gPlug->OpenWindow(nullptr);
       iplug_syncfs(); // plug in may initialise settings in constructor, write to persistent data after init
     }
   }
@@ -437,10 +436,10 @@ END_IPLUG_NAMESPACE
           });
         , PLUG_NAME);
 
-    iplug::StartMainLoopTimer();
+    StartMainLoopTimer();
 
     // TODO: this code never runs, so when do we delete?!
-    iplug::gPlug = nullptr;
+    gPlug = nullptr;
     
     return 0;
   }
