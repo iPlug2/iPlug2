@@ -35,8 +35,6 @@ BEGIN_IPLUG_NAMESPACE
 
 struct IPlugConfig;
 
-//TODO: can we replace this templated class with typdefs in order to avoid #including .cpp nastiness
-
 /** The base class for IPlug Audio Processing. It knows nothing about presets or parameters or user interface.  */
 class IPlugProcessor
 {
