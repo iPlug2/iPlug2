@@ -102,6 +102,9 @@ bool DeinitModule()
 #endif
 
 #if defined VST3P_API
+
+BEGIN_IPLUG_NAMESPACE
+
 Plugin* MakeProcessor()
 {
   static WDL_Mutex sMutex;
@@ -115,13 +118,18 @@ static Steinberg::FUnknown* createProcessorInstance (void*) {
   return (Steinberg::Vst::IAudioProcessor*) MakeProcessor();
 }
 
-extern IPlug* MakeController();
+extern Plugin* MakeController();
 
 static Steinberg::FUnknown* createControllerInstance (void*) {
   return (Steinberg::Vst::IEditController*) MakeController();
 }
 
+END_IPLUG_NAMESPACE
+
 #elif defined VST3C_API
+
+BEGIN_IPLUG_NAMESPACE
+
 Plugin* MakeController()
 {
   static WDL_Mutex sMutex;
@@ -133,6 +141,9 @@ Plugin* MakeController()
   //you need to replace all instances of PLUG_CLASS_NAME in your plug-in class, with the macro PLUG_CLASS_NAME
   return new PLUG_CLASS_NAME(instanceInfo);
 }
+
+END_IPLUG_NAMESPACE
+
 #elif defined VST3_API
 
 BEGIN_IPLUG_NAMESPACE
@@ -169,6 +180,9 @@ END_IPLUG_NAMESPACE
 #endif
 
 #if defined VST3P_API
+
+BEGIN_IPLUG_NAMESPACE
+
 BEGIN_FACTORY_DEF (PLUG_MFR, PLUG_URL_STR, PLUG_EMAIL_STR)
 
 DEF_CLASS2 (INLINE_UID(PROC_GUID_DATA1, PROC_GUID_DATA2, GUID_DATA3, GUID_DATA4),
@@ -191,6 +205,9 @@ DEF_CLASS2 (INLINE_UID(CTRL_GUID_DATA1, CTRL_GUID_DATA2, GUID_DATA3, GUID_DATA4)
             createControllerInstance)// function pointer called when this component should be instantiated
 
 END_FACTORY
+
+END_IPLUG_NAMESPACE
+
 #endif
 #pragma mark - AUv2
 #elif defined AU_API

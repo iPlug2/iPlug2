@@ -16,7 +16,7 @@
 #if defined VST3_API
 #include "pluginterfaces/base/ustring.h"
 #include "IPlugVST3.h"
-using VST3_API_BASE = IPlugVST3;
+using VST3_API_BASE = iplug::IPlugVST3;
 #elif defined VST3C_API
 #include "pluginterfaces/base/ustring.h"
 #include "IPlugVST3_Controller.h"

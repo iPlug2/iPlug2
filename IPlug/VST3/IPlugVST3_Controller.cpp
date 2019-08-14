@@ -17,6 +17,7 @@
 
 #include "IPlugVST3_Parameter.h"
 
+using namespace iplug;
 using namespace Steinberg;
 using namespace Steinberg::Vst;
 
