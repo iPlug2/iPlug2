@@ -100,7 +100,7 @@ bool DeinitModule()
 #endif
 
 #if defined VST3P_API
-IPlug* MakeProcessor()
+Plugin* MakeProcessor()
 {
   static WDL_Mutex sMutex;
   WDL_MutexLock lock(&sMutex);
@@ -120,7 +120,7 @@ static Steinberg::FUnknown* createControllerInstance (void*) {
 }
 
 #elif defined VST3C_API
-IPlug* MakeController()
+Plugin* MakeController()
 {
   static WDL_Mutex sMutex;
   WDL_MutexLock lock(&sMutex);
@@ -132,7 +132,7 @@ IPlug* MakeController()
   return new PLUG_CLASS_NAME(instanceInfo);
 }
 #elif defined VST3_API
-IPlug* MakePlug()
+Plugin* MakePlug()
 {
   static WDL_Mutex sMutex;
   WDL_MutexLock lock(&sMutex);
@@ -187,7 +187,7 @@ END_FACTORY
 #pragma mark - AUv2
 #elif defined AU_API
 //#include <AvailabilityMacros.h>
-  IPlug* MakePlug(void* pMemory)
+  Plugin* MakePlug(void* pMemory)
   {
     IPlugInstanceInfo instanceInfo;
     instanceInfo.mCocoaViewFactoryClassName.Set(AUV2_VIEW_CLASS_STR);
@@ -297,14 +297,14 @@ extern "C"
   };
 #pragma mark - AUv3
 #elif defined AUv3_API
-  IPlug* MakePlug()
+  Plugin* MakePlug()
   {
     IPlugInstanceInfo instanceInfo;
     return new PLUG_CLASS_NAME(instanceInfo);
   }
 #pragma mark - AAX
 #elif defined AAX_API
-  IPlug* MakePlug()
+  Plugin* MakePlug()
   {
     IPlugInstanceInfo instanceInfo;
 
@@ -312,7 +312,7 @@ extern "C"
   }
 #pragma mark - APP
 #elif defined APP_API
-  IPlug* MakePlug(void* pAppHost)
+  Plugin* MakePlug(void* pAppHost)
   {
     IPlugInstanceInfo instanceInfo;
     instanceInfo.pAppHost = pAppHost;
@@ -321,7 +321,7 @@ extern "C"
   }
 #pragma mark - WAM
 #elif defined WAM_API
-  IPlug* MakePlug()
+  Plugin* MakePlug()
   {
     IPlugInstanceInfo instanceInfo;
     return new PLUG_CLASS_NAME(instanceInfo);
@@ -340,7 +340,7 @@ extern "C"
 #include <memory>
 #include "config.h"
 
-  IPlug* MakePlug()
+  Plugin* MakePlug()
   {
     IPlugInstanceInfo instanceInfo;
     return new PLUG_CLASS_NAME(instanceInfo);
@@ -418,7 +418,7 @@ extern "C"
 #define PUBLIC_NAME PLUG_NAME
 
 #define IPLUG_CTOR(nParams, nPresets, instanceInfo) \
-  IPlug(instanceInfo, IPlugConfig(nParams, nPresets, PLUG_CHANNEL_IO,\
+  Plugin(instanceInfo, IPlugConfig(nParams, nPresets, PLUG_CHANNEL_IO,\
     PUBLIC_NAME, "", PLUG_MFR, PLUG_VERSION_HEX, PLUG_UNIQUE_ID, PLUG_MFR_ID, \
     PLUG_LATENCY, PLUG_DOES_MIDI_IN, PLUG_DOES_MIDI_OUT, PLUG_DOES_MPE, PLUG_DOES_STATE_CHUNKS, PLUG_TYPE, \
     PLUG_HAS_UI, PLUG_WIDTH, PLUG_HEIGHT, BUNDLE_ID))
