@@ -12,6 +12,7 @@
 
 #include "IControl.h"
 #include "IPlugParameter.h"
+#include "dirscan.h"
 
 // avoid some UNICODE issues with VST3 SDK and WDL dirscan
 #if defined VST3_API && defined OS_WIN
@@ -620,68 +621,68 @@ void IKnobControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, floa
   SetDirty();
 }
 
-//IDirBrowseControlBase::~IDirBrowseControlBase()
-//{
-//  mFiles.Empty(true);
-//  mPaths.Empty(true);
-//  mPathLabels.Empty(true);
-//  mItems.Empty(false);
-//}
-//
-//int IDirBrowseControlBase::NItems()
-//{
-//  return mItems.GetSize();
-//}
-//
-//void IDirBrowseControlBase::AddPath(const char* path, const char* label)
-//{
-//  assert(strlen(path));
-//
-//  mPaths.Add(new WDL_String(path));
-//  mPathLabels.Add(new WDL_String(label));
-//}
-//
-//void IDirBrowseControlBase::CollectSortedItems(IPopupMenu* pMenu)
-//{
-//  int nItems = pMenu->NItems();
-//  
-//  for (int i = 0; i < nItems; i++)
-//  {
-//    IPopupMenu::Item* pItem = pMenu->GetItem(i);
-//    
-//    if(pItem->GetSubmenu())
-//      CollectSortedItems(pItem->GetSubmenu());
-//    else
-//      mItems.Add(pItem);
-//  }
-//}
-//
-//void IDirBrowseControlBase::SetUpMenu()
-//{
-//  mFiles.Empty(true);
-//  mItems.Empty(false);
-//  
-//  mMainMenu.Clear();
-//  mSelectedIndex = -1;
-//
-//  int idx = 0;
-//
-//  if (mPaths.GetSize() == 1)
-//  {
-//    ScanDirectory(mPaths.Get(0)->Get(), mMainMenu);
-//  }
-//  else
-//  {
-//    for (int p = 0; p<mPaths.GetSize(); p++)
-//    {
-//      IPopupMenu* pNewMenu = new IPopupMenu();
-//      mMainMenu.AddItem(mPathLabels.Get(p)->Get(), idx++, pNewMenu);
-//      ScanDirectory(mPaths.Get(p)->Get(), *pNewMenu);
-//    }
-//  }
-//  
-//  CollectSortedItems(&mMainMenu);
-//}
+IDirBrowseControlBase::~IDirBrowseControlBase()
+{
+  mFiles.Empty(true);
+  mPaths.Empty(true);
+  mPathLabels.Empty(true);
+  mItems.Empty(false);
+}
+
+int IDirBrowseControlBase::NItems()
+{
+  return mItems.GetSize();
+}
+
+void IDirBrowseControlBase::AddPath(const char* path, const char* label)
+{
+  assert(strlen(path));
+
+  mPaths.Add(new WDL_String(path));
+  mPathLabels.Add(new WDL_String(label));
+}
+
+void IDirBrowseControlBase::CollectSortedItems(IPopupMenu* pMenu)
+{
+  int nItems = pMenu->NItems();
+  
+  for (int i = 0; i < nItems; i++)
+  {
+    IPopupMenu::Item* pItem = pMenu->GetItem(i);
+    
+    if(pItem->GetSubmenu())
+      CollectSortedItems(pItem->GetSubmenu());
+    else
+      mItems.Add(pItem);
+  }
+}
+
+void IDirBrowseControlBase::SetUpMenu()
+{
+  mFiles.Empty(true);
+  mItems.Empty(false);
+  
+  mMainMenu.Clear();
+  mSelectedIndex = -1;
+
+  int idx = 0;
+
+  if (mPaths.GetSize() == 1)
+  {
+    ScanDirectory(mPaths.Get(0)->Get(), mMainMenu);
+  }
+  else
+  {
+    for (int p = 0; p<mPaths.GetSize(); p++)
+    {
+      IPopupMenu* pNewMenu = new IPopupMenu();
+      mMainMenu.AddItem(mPathLabels.Get(p)->Get(), idx++, pNewMenu);
+      ScanDirectory(mPaths.Get(p)->Get(), *pNewMenu);
+    }
+  }
+  
+  CollectSortedItems(&mMainMenu);
+}
 
 //void IDirBrowseControlBase::GetSelectedItemLabel(WDL_String& label)
 //{
@@ -706,49 +707,49 @@ void IKnobControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, floa
 //    path.Set("");
 //}
 
-//void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAddTo)
-//{
-//  WDL_DirScan d;
-//
-//  if (!d.First(path))
-//  {
-//    do
-//    {
-//      const char* f = d.GetCurrentFN();
-//      if (f && f[0] != '.')
-//      {
-//        if (d.GetCurrentIsDirectory())
-//        {
-//          WDL_String subdir;
-//          d.GetCurrentFullFN(&subdir);
-//          IPopupMenu* pNewMenu = new IPopupMenu();
-//          menuToAddTo.AddItem(d.GetCurrentFN(), pNewMenu, -2);
-//          ScanDirectory(subdir.Get(), *pNewMenu);
-//        }
-//        else
-//        {
-//          const char* a = strstr(f, mExtension.Get());
-//          if (a && a > f && strlen(a) == strlen(mExtension.Get()))
-//          {
-//            WDL_String menuEntry {f};
-//            
-//            if(!mShowFileExtensions)
-//              menuEntry.Set(f, (int) (a - f));
-//            
-//            IPopupMenu::Item* pItem = new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize());
-//            menuToAddTo.AddItem(pItem, -2 /* sort alphabetically */);
-//            WDL_String* pFullPath = new WDL_String("");
-//            d.GetCurrentFullFN(pFullPath);
-//            mFiles.Add(pFullPath);
-//          }
-//        }
-//      }
-//    } while (!d.Next());
-//  }
-//  
-//  if(!mShowEmptySubmenus)
-//    menuToAddTo.RemoveEmptySubmenus();
-//}
+void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAddTo)
+{
+  WDL_DirScan d;
+
+  if (!d.First(path))
+  {
+    do
+    {
+      const char* f = d.GetCurrentFN();
+      if (f && f[0] != '.')
+      {
+        if (d.GetCurrentIsDirectory())
+        {
+          WDL_String subdir;
+          d.GetCurrentFullFN(&subdir);
+          IPopupMenu* pNewMenu = new IPopupMenu();
+          menuToAddTo.AddItem(d.GetCurrentFN(), pNewMenu, -2);
+          ScanDirectory(subdir.Get(), *pNewMenu);
+        }
+        else
+        {
+          const char* a = strstr(f, mExtension.Get());
+          if (a && a > f && strlen(a) == strlen(mExtension.Get()))
+          {
+            WDL_String menuEntry {f};
+            
+            if(!mShowFileExtensions)
+              menuEntry.Set(f, (int) (a - f));
+            
+            IPopupMenu::Item* pItem = new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize());
+            menuToAddTo.AddItem(pItem, -2 /* sort alphabetically */);
+            WDL_String* pFullPath = new WDL_String("");
+            d.GetCurrentFullFN(pFullPath);
+            mFiles.Add(pFullPath);
+          }
+        }
+      }
+    } while (!d.Next());
+  }
+  
+  if(!mShowEmptySubmenus)
+    menuToAddTo.RemoveEmptySubmenus();
+}
 
 ISliderControlBase::ISliderControlBase(const IRECT& bounds, int paramIdx, EDirection dir, bool onlyHandle, float handleSize)
 : IControl(bounds, paramIdx)
