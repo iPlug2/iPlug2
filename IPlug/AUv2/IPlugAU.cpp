@@ -1790,7 +1790,7 @@ void IPlugAU::ClearConnections()
 
 IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPlugAPIBase(c, kAPIAU)
-, IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAU)
+, IPlugProcessor(c, kAPIAU)
 {
   Trace(TRACELOC, "%s", c.pluginName);
 
@@ -1975,7 +1975,7 @@ void IPlugAU::SetLatency(int samples)
     }
   }
   
-  IPlugProcessor<PLUG_SAMPLE_DST>::SetLatency(samples);
+  IPlugProcessor::SetLatency(samples);
 }
 
 bool IPlugAU::SendMidiMsg(const IMidiMsg& msg)

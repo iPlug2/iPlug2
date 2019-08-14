@@ -73,7 +73,7 @@ private:
 /**  AAX API base class for an IPlug plug-in
 *   @ingroup APIClasses */
 class IPlugAAX : public IPlugAPIBase
-               , public IPlugProcessor<PLUG_SAMPLE_DST>
+               , public IPlugProcessor
                , public AAX_CIPlugParameters
 {
 public:

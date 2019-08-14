@@ -21,7 +21,7 @@ extern HWND gHWND;
 
 IPlugAPP::IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 : IPlugAPIBase(c, kAPIAPP)
-, IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAPP)
+, IPlugProcessor(c, kAPIAPP)
 {
   mAppHost = (IPlugAPPHost*) instanceInfo.pAppHost;
   

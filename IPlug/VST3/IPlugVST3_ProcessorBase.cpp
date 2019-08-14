@@ -47,7 +47,7 @@ uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, 
 #endif
 
 IPlugVST3ProcessorBase::IPlugVST3ProcessorBase(IPlugConfig c, IPlugAPIBase& plug)
-: IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST3)
+: IPlugProcessor(c, kAPIVST3)
 , mPlug(plug)
 {
   SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);

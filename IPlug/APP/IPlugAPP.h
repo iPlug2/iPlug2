@@ -33,7 +33,7 @@ class IPlugAPPHost;
 /**  Standalone application base class for an IPlug plug-in
 *   @ingroup APIClasses */
 class IPlugAPP : public IPlugAPIBase
-               , public IPlugProcessor<PLUG_SAMPLE_DST>
+               , public IPlugProcessor
 {
 public:
   IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig config);

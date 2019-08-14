@@ -30,7 +30,7 @@ struct IPlugInstanceInfo
 /**  VST2.4 API base class for an IPlug plug-in
 *   @ingroup APIClasses */
 class IPlugVST2 : public IPlugAPIBase
-                , public IPlugProcessor<PLUG_SAMPLE_DST>
+                , public IPlugProcessor
 {
 public:
   IPlugVST2(IPlugInstanceInfo instanceInfo, IPlugConfig config);

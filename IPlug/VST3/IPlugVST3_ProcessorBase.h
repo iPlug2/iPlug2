@@ -27,7 +27,7 @@ extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoutingDir dir, 
 #endif
 
 /** Shared VST3 processor code */
-class IPlugVST3ProcessorBase : public IPlugProcessor<PLUG_SAMPLE_DST>
+class IPlugVST3ProcessorBase : public IPlugProcessor
 {
 public:
   IPlugVST3ProcessorBase(IPlugConfig c, IPlugAPIBase& plug);

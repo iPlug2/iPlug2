@@ -24,7 +24,7 @@ struct IPlugInstanceInfo
 /** WebAudioModule (WAM) API base class. This is used for the DSP processor side of a WAM, which is sandboxed and lives in the AudioWorkletGlobalScope
  * @ingroup APIClasses */
 class IPlugWAM : public IPlugAPIBase
-               , public IPlugProcessor<float>
+               , public IPlugProcessor
                , public Processor
 {
 public:

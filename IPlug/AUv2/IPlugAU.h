@@ -51,7 +51,7 @@ struct IPlugInstanceInfo
 /**  AudioUnit v2 API base class for an IPlug plug-in
 *   @ingroup APIClasses */
 class IPlugAU : public IPlugAPIBase
-              , public IPlugProcessor<PLUG_SAMPLE_DST>
+              , public IPlugProcessor
 {
 public:
   IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig config);

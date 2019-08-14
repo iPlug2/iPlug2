@@ -24,7 +24,7 @@ int VSTSpkrArrType(int nchan)
 
 IPlugVST2::IPlugVST2(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   : IPlugAPIBase(c, kAPIVST2)
-  , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST2)
+  , IPlugProcessor(c, kAPIVST2)
   , mHostCallback(instanceInfo.mVSTHostCallback)
 {
   Trace(TRACELOC, "%s", c.pluginName);

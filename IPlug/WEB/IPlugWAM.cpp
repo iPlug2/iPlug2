@@ -12,7 +12,7 @@
 
 IPlugWAM::IPlugWAM(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   : IPlugAPIBase(c, kAPIWAM)
-  , IPlugProcessor<float>(c, kAPIWAM)
+  , IPlugProcessor(c, kAPIWAM)
 {
   int nInputs = MaxNChannels(ERoute::kInput), nOutputs = MaxNChannels(ERoute::kOutput);
 
