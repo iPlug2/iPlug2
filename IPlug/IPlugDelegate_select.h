@@ -22,10 +22,10 @@
   using EDITOR_DELEGATE_CLASS = UIKitEditorDelegate;
 #elif defined WEBVIEW_EDITOR_DELEGATE
   #include "IPlugWebViewEditorDelegate.h"
-  using EDITOR_DELEGATE_CLASS = WebViewEditorDelegate;
+  using EDITOR_DELEGATE_CLASS = IPlug::WebViewEditorDelegate;
 #elif defined NO_IGRAPHICS
   #include "IPlugEditorDelegate.h"
-  using EDITOR_DELEGATE_CLASS = IEditorDelegate;
+  using EDITOR_DELEGATE_CLASS = IPlug::IEditorDelegate;
 #else
   #if defined WEBSOCKET_SERVER
     #include "IWebsocketEditorDelegate.h"
