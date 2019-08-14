@@ -22,6 +22,8 @@
 #include <Shlobj.h>
 #include <Shlwapi.h>
 
+using namespace iplug;
+
 // Unicode helpers
 void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
 {
@@ -246,6 +248,7 @@ void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginNa
 
 #include <emscripten/val.h>
 
+using namespace iplug;
 using namespace emscripten;
 
 EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char*, void*)

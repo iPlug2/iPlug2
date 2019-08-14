@@ -357,24 +357,32 @@ END_IPLUG_NAMESPACE
 
 #pragma mark - WAM
 #elif defined WAM_API
+
+  BEGIN_IPLUG_NAMESPACE
+
   Plugin* MakePlug()
   {
     IPlugInstanceInfo instanceInfo;
     return new PLUG_CLASS_NAME(instanceInfo);
   }
 
+  END_IPLUG_NAMESPACE
+
   extern "C"
   {
     EMSCRIPTEN_KEEPALIVE void* createModule()
     {
-      Processor* pWAM = dynamic_cast<Processor*>(MakePlug());
+      Processor* pWAM = dynamic_cast<Processor*>(iplug::MakePlug());
       return (void*) pWAM;
     }
   }
+
 #pragma mark - WEB
 #elif defined WEB_API
 #include <memory>
 #include "config.h"
+
+  BEGIN_IPLUG_NAMESPACE
 
   Plugin* MakePlug()
   {
@@ -384,6 +392,8 @@ END_IPLUG_NAMESPACE
 
   std::unique_ptr<IPlugWeb> gPlug;
   extern void StartMainLoopTimer();
+
+  END_IPLUG_NAMESPACE
 
   extern "C"
   {
@@ -403,9 +413,9 @@ END_IPLUG_NAMESPACE
     
     EMSCRIPTEN_KEEPALIVE void iplug_fsready()
     {
-      gPlug = std::unique_ptr<IPlugWeb>(MakePlug());
-      gPlug->SetHost("www", 0);
-      gPlug->OpenWindow(nullptr);
+      iplug::gPlug = std::unique_ptr<iplug::IPlugWeb>(iplug::MakePlug());
+      iplug::gPlug->SetHost("www", 0);
+      iplug::gPlug->OpenWindow(nullptr);
       iplug_syncfs(); // plug in may initialise settings in constructor, write to persistent data after init
     }
   }
@@ -427,13 +437,14 @@ END_IPLUG_NAMESPACE
           });
         , PLUG_NAME);
 
-    StartMainLoopTimer();
+    iplug::StartMainLoopTimer();
 
     // TODO: this code never runs, so when do we delete?!
-    gPlug = nullptr;
+    iplug::gPlug = nullptr;
     
     return 0;
   }
+
 #else
   #error "No API defined!"
 #endif

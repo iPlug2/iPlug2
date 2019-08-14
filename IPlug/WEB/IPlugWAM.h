@@ -17,6 +17,8 @@
 
 using namespace WAM;
 
+BEGIN_IPLUG_NAMESPACE
+
 /** Used to pass various instance info to the API class */
 struct IPlugInstanceInfo
 {};
@@ -59,5 +61,7 @@ private:
 };
 
 IPlugWAM* MakePlug();
+
+END_IPLUG_NAMESPACE
 
 #endif

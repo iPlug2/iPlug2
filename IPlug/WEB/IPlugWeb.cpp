@@ -15,6 +15,7 @@
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
+using namespace iplug;
 using namespace emscripten;
 
 const int kNumMsgHeaderBytes = 6;

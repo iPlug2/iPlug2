@@ -14,6 +14,8 @@
 #include "IPlugAPIBase.h"
 #include <emscripten/val.h>
 
+BEGIN_IPLUG_NAMESPACE
+
 /** Used to pass various instance info to the API class */
 struct IPlugInstanceInfo
 {};
@@ -42,5 +44,7 @@ private:
 };
 
 IPlugWeb* MakePlug();
+
+END_IPLUG_NAMESPACE
 
 #endif

@@ -10,6 +10,8 @@
 
 #include "IPlugWAM.h"
 
+using namespace iplug;
+
 IPlugWAM::IPlugWAM(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   : IPlugAPIBase(c, kAPIWAM)
   , IPlugProcessor(c, kAPIWAM)
