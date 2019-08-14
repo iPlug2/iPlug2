@@ -27,7 +27,7 @@
   #define LICE_PROVIDED_BY_APP
 //  #define SWELL_PROVIDED_BY_APP
   #include "IPlugReaperVST2.h"
-  #define PLUGIN_API_BASE IPlugReaperVST2;
+  #define PLUGIN_API_BASE IPlugReaperVST2
 
   #ifdef FillRect
   #undef FillRect
@@ -41,50 +41,50 @@
 
 #else
   #include "IPlugVST2.h"
-  #define PLUGIN_API_BASE IPlugVST2;
+  #define PLUGIN_API_BASE IPlugVST2
 #endif
   #define API_EXT "vst"
 #elif defined AU_API
   #include "IPlugAU.h"
-  #define PLUGIN_API_BASE IPlugAU;
+  #define PLUGIN_API_BASE IPlugAU
   #define API_EXT "audiounit"
 #elif defined AUv3_API
   #include "IPlugAUv3.h"
-  #define PLUGIN_API_BASE IPlugAUv3;
+  #define PLUGIN_API_BASE IPlugAUv3
   #define API_EXT "app"
   #undef API_EXT2
   #define API_EXT2 ".AUv3"
 #elif defined AAX_API
   #include "IPlugAAX.h"
-  #define PLUGIN_API_BASE IPlugAAX;
+  #define PLUGIN_API_BASE IPlugAAX
   #define API_EXT "aax"
   #define PROTOOLS
 #elif defined APP_API
   #include "IPlugAPP.h"
-  #define PLUGIN_API_BASE IPlugAPP;
+  #define PLUGIN_API_BASE IPlugAPP
   #define API_EXT "app"
 #elif defined WAM_API
   #include "IPlugWAM.h"
-  #define PLUGIN_API_BASE IPlugWAM;
+  #define PLUGIN_API_BASE IPlugWAM
 #elif defined WEB_API
   #include "IPlugWeb.h"
-  #define PLUGIN_API_BASE IPlugWeb;
+  #define PLUGIN_API_BASE IPlugWeb
 #elif defined VST3_API
   #define IPLUG_VST3
   #include "IPlugVST3.h"
-  #define PLUGIN_API_BASE IPlugVST3;
+  #define PLUGIN_API_BASE IPlugVST3
   #define API_EXT "vst3"
 #elif defined VST3C_API
   #define IPLUG_VST3
   #include "IPlugVST3_Controller.h"
-  #define PLUGIN_API_BASE IPlugVST3Controller;
+  #define PLUGIN_API_BASE IPlugVST3Controller
   #undef PLUG_CLASS_NAME
   #define PLUG_CLASS_NAME VST3Controller
   #define API_EXT "vst3"
 #elif defined VST3P_API
   #define IPLUG_VST3
   #include "IPlugVST3_Processor.h"
-  #define PLUGIN_API_BASE IPlugVST3Processor;
+  #define PLUGIN_API_BASE IPlugVST3Processor
   #define API_EXT "vst3"
 #else
   #error "No API defined!"
