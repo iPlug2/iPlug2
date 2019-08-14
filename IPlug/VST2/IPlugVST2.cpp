@@ -12,6 +12,8 @@
 #include "IPlugVST2.h"
 #include "IPlugPluginBase.h"
 
+using namespace iplug;
+
 const int VST_VERSION = 2400;
 
 int VSTSpkrArrType(int nchan)

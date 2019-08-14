@@ -13,6 +13,7 @@
 
 #include "IPlugVST3_ProcessorBase.h"
 
+using namespace iplug;
 using namespace Steinberg;
 using namespace Vst;
 

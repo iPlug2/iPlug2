@@ -26,6 +26,8 @@
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 struct AudioComponentPlugInInstance
 {
   AudioComponentPlugInInstance() = default;
@@ -202,6 +204,8 @@ private:
 };
 
 IPlugAU* MakePlug(void* memory);
+
+END_IPLUG_NAMESPACE
 
 #endif
 

@@ -18,6 +18,8 @@
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 using namespace Steinberg;
 
 #ifndef CUSTOM_BUSTYPE_FUNC
@@ -102,3 +104,5 @@ private:
   IMidiQueue mMidiOutputQueue;
   bool mSidechainActive = false;
 };
+
+END_IPLUG_NAMESPACE

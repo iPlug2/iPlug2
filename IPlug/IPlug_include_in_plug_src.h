@@ -36,6 +36,7 @@
 #if defined VST2_API
   extern "C"
   {
+    BEGIN_IPLUG_NAMESPACE
     EXPORT void* VSTPluginMain(audioMasterCallback hostCallback)
     {
       IPlugInstanceInfo instanceInfo;
@@ -59,6 +60,7 @@
       return (int) VSTPluginMain((audioMasterCallback)hostCallback);
     #endif
     }
+    END_IPLUG_NAMESPACE
   };
 
 #pragma mark - VST3

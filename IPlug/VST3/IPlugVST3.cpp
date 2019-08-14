@@ -17,6 +17,7 @@
 
 #include "IPlugVST3.h"
 
+using namespace iplug;
 using namespace Steinberg;
 using namespace Vst;
 

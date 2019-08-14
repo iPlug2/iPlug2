@@ -34,6 +34,8 @@
 #include "IPlugVST3_ProcessorBase.h"
 #include "IPlugVST3_View.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 /** Used to pass various instance info to the API class, where needed */
 struct IPlugInstanceInfo {};
 
@@ -116,4 +118,7 @@ private:
 };
 
 IPlugVST3* MakePlug();
+
+END_IPLUG_NAMESPACE
+
 #endif
