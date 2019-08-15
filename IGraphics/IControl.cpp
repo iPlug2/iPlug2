@@ -9,6 +9,7 @@
 */
 
 #include <cmath>
+#include <cstring>
 #include "dirscan.h"
 
 #include "IControl.h"
