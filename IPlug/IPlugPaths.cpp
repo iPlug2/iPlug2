@@ -59,7 +59,7 @@ void iplug::UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* utf16Str)
 }
 
  // Helper for getting a known folder in UTF8
-void iplug::GetKnownFolder(WDL_String &path, int identifier, int flags = 0)
+void iplug::GetKnownFolder(WDL_String &path, int identifier, int flags)
 {
   wchar_t wideBuffer[1024];
 
