@@ -61,8 +61,6 @@
   using NVGframebuffer = MNVGframebuffer;
 #endif
 
-void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData);
-
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
