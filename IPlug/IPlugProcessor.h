@@ -42,7 +42,7 @@ public:
   /** IPlugProcessor constructor
    * @param config /todo
    * @param plugAPI /todo */
-  IPlugProcessor(Config config, EAPI plugAPI);
+  IPlugProcessor(const Config& config, EAPI plugAPI);
   virtual ~IPlugProcessor();
 
   IPlugProcessor(const IPlugProcessor&) = delete;

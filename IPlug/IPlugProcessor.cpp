@@ -21,17 +21,17 @@
 
 using namespace iplug;
 
-IPlugProcessor::IPlugProcessor(Config c, EAPI plugAPI)
-  : mLatency(c.latency)
-  , mPlugType((EIPlugPluginType) c.plugType)
-  , mDoesMIDIIn(c.plugDoesMidiIn)
-  , mDoesMIDIOut(c.plugDoesMidiOut)
-  , mDoesMPE(c.plugDoesMPE)
+IPlugProcessor::IPlugProcessor(const Config& config, EAPI plugAPI)
+: mLatency(config.latency)
+, mPlugType((EIPlugPluginType) config.plugType)
+, mDoesMIDIIn(config.plugDoesMidiIn)
+, mDoesMIDIOut(config.plugDoesMidiOut)
+, mDoesMPE(config.plugDoesMPE)
 {
   int totalNInBuses, totalNOutBuses;
   int totalNInChans, totalNOutChans;
 
-  ParseChannelIOStr(c.channelIOStr, mIOConfigs, totalNInChans, totalNOutChans, totalNInBuses, totalNOutBuses);
+  ParseChannelIOStr(config.channelIOStr, mIOConfigs, totalNInChans, totalNOutChans, totalNInBuses, totalNOutBuses);
 
   mScratchData[ERoute::kInput].Resize(totalNInChans);
   mScratchData[ERoute::kOutput].Resize(totalNOutChans);
