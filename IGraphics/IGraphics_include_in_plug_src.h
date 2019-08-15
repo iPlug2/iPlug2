@@ -23,10 +23,10 @@
 
   #if defined OS_WIN
 
+  extern HINSTANCE gHINSTANCE;
+
   BEGIN_IPLUG_NAMESPACE
   BEGIN_IGRAPHICS_NAMESPACE
-
-  extern HINSTANCE gHINSTANCE;
 
   IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
   {

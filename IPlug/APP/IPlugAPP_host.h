@@ -65,6 +65,7 @@
 #define OFF_TEXT "off"
 
 extern HWND gHWND;
+extern HINSTANCE gHINSTANCE;
 
 BEGIN_IPLUG_NAMESPACE
 
@@ -72,7 +73,6 @@ const int kNumBufferSizeOptions = 11;
 const std::string kBufferSizeOptions[kNumBufferSizeOptions] = {"32", "64", "96", "128", "192", "256", "512", "1024", "2048", "4096", "8192" };
 const int kDeviceDS = 0; const int kDeviceCoreAudio = 0; const int kDeviceAlsa = 0;
 const int kDeviceASIO = 1; const int kDeviceJack = 1;
-extern HINSTANCE gHINSTANCE;
 extern UINT gSCROLLMSG;
 
 class IPlugAPP;
