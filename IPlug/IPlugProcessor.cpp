@@ -11,7 +11,6 @@
 /**
  * @file
  * @brief IPlugProcessor implementation.
- * This file #included in the header file... don't include it in regular sources
  */
 
 #include "IPlugProcessor.h"

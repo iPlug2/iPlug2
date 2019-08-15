@@ -61,3 +61,6 @@
 
 #define BEGIN_IGRAPHICS_NAMESPACE namespace igraphics {
 #define END_IGRAPHICS_NAMESPACE }
+
+namespace iplug {namespace igraphics {}};
+
