@@ -58,7 +58,7 @@ void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* utf16Str)
 }
 
  // Helper for getting a known folder in UTF8
-void GetKnownFolder(WDL_String &path, int identifier, int flags)
+void GetKnownFolder(WDL_String &path, int identifier, int flags = 0)
 {
   wchar_t wideBuffer[1024];
 
