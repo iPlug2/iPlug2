@@ -15,6 +15,9 @@ enum ECtrlTags
   kNumCtrlTags
 };
 
+using namespace iplug;
+using namespace igraphics;
+
 class IPlugMidiEffect : public Plugin
 {
 public:

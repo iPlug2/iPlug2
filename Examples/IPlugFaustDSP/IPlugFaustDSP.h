@@ -20,6 +20,9 @@ enum EControlTags
 
 const int kNumParams = 4;
 
+using namespace iplug;
+using namespace igraphics;
+
 class IPlugFaustDSP : public Plugin
 {
 public:

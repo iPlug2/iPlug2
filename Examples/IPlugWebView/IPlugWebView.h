@@ -3,6 +3,8 @@
 #include "IPlug_include_in_plug_hdr.h"
 #include "Oscillator.h"
 
+using namespace iplug;
+
 const int kNumPrograms = 3;
 
 enum EParams

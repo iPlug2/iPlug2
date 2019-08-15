@@ -26,6 +26,9 @@ enum ECtrlTags
   kCtrlRightYKnob
 };
 
+using namespace iplug;
+using namespace igraphics;
+
 class MetaParamTest : public Plugin
 {
 public:

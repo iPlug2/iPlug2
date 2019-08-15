@@ -26,6 +26,9 @@ enum ECtrlTags
   kNumCtrlTags
 };
 
+using namespace iplug;
+using namespace igraphics;
+
 class IPlugInstrument : public Plugin
 {
 public:

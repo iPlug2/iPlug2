@@ -19,6 +19,9 @@ enum EControlTags
   kCtrlTagButton5
 };
 
+using namespace iplug;
+using namespace igraphics;
+
 class IGraphicsStressTest : public Plugin
 {
 public:

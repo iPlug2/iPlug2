@@ -10,6 +10,9 @@ enum EParams
   kNumParams
 };
 
+using namespace iplug;
+using namespace igraphics;
+
 class IPlugEffect : public Plugin
 {
 public:

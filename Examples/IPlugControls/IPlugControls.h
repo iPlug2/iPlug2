@@ -26,8 +26,11 @@ enum ECtrlTags
   kCtrlTags
 };
 
+using namespace iplug;
+using namespace igraphics;
+
 class IVCustomControl : public IControl
-, public IVectorBase
+                      , public IVectorBase
 {
 public:
   IVCustomControl(const IRECT& bounds, const char* label, const IVStyle& style)
