@@ -238,7 +238,7 @@ void iplug::AppSupportPath(WDL_String& path, bool isSystem)
   path.Set("Settings");
 }
 
-void iplug::SandboxSafeAppSupportPath(WDL_String& path)
+void iplug::SandboxSafeAppSupportPath(WDL_String& path, const char* appGroupID)
 {
   path.Set("Settings");
 }
