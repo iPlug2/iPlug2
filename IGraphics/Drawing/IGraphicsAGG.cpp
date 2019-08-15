@@ -57,12 +57,12 @@ private:
   int m_row_bytes;
 };
 
-inline const agg::rgba8 AGGColor(const IColor& color, float opacity)
+static inline const agg::rgba8 AGGColor(const IColor& color, float opacity)
 {
   return agg::rgba8(color.R, color.G, color.B, (opacity * color.A));
 }
 
-inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
+static inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
 {
   if (!pBlend)
     return agg::comp_op_src_over;
@@ -84,12 +84,12 @@ inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
   }
 }
 
-inline agg::cover_type AGGCover(const IBlend* pBlend = nullptr)
+static inline agg::cover_type AGGCover(const IBlend* pBlend = nullptr)
 {
   return std::max(agg::cover_type(0), std::min(agg::cover_type(roundf(BlendWeight(pBlend) * 255.f)), agg::cover_type(255)));
 }
 
-agg::pixel_map* CreatePixmap(int w, int h)
+static agg::pixel_map* CreatePixmap(int w, int h)
 {
   agg::pixel_map* pPixelMap = new IGraphicsAGG::PixelMapType();
   
@@ -101,7 +101,7 @@ agg::pixel_map* CreatePixmap(int w, int h)
 // Rasterizing
 
 template <typename FuncType, typename ColorArrayType>
-void GradientRasterize(IGraphicsAGG::Rasterizer& rasterizer, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray, agg::comp_op_e op)
+static void GradientRasterize(IGraphicsAGG::Rasterizer& rasterizer, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray, agg::comp_op_e op)
 {
   using SpanGradientType = agg::span_gradient<agg::rgba8, IGraphicsAGG::InterpolatorType, FuncType, ColorArrayType>;
   
@@ -111,7 +111,7 @@ void GradientRasterize(IGraphicsAGG::Rasterizer& rasterizer, const FuncType& gra
 }
 
 template <typename FuncType, typename ColorArrayType>
-void GradientRasterizeAdapt(IGraphicsAGG::Rasterizer& rasterizer, EPatternExtend extend, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray, agg::comp_op_e op)
+static void GradientRasterizeAdapt(IGraphicsAGG::Rasterizer& rasterizer, EPatternExtend extend, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray, agg::comp_op_e op)
 {
   switch (extend)
   {

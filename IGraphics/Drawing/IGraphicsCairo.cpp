@@ -115,7 +115,7 @@ CairoBitmap::~CairoBitmap()
 
 #pragma mark -
 
-inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
+static inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
 {
   if (!pBlend)
   {

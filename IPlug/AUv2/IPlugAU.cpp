@@ -19,7 +19,7 @@
 
 using namespace iplug;
 
-inline CFStringRef MakeCFString(const char* cStr)
+static inline CFStringRef MakeCFString(const char* cStr)
 {
   return CFStringCreateWithCString(0, cStr, kCFStringEncodingUTF8);
 }
@@ -58,7 +58,7 @@ struct CStrLocal : WDL_TypedBuf<char>
   }
 };
 
-inline void PutNumberInDict(CFMutableDictionaryRef pDict, const char* key, void* pNumber, CFNumberType type)
+static inline void PutNumberInDict(CFMutableDictionaryRef pDict, const char* key, void* pNumber, CFNumberType type)
 {
   CFStrLocal cfKey(key);
   CFNumberRef pValue = CFNumberCreate(0, type, pNumber);
@@ -66,14 +66,14 @@ inline void PutNumberInDict(CFMutableDictionaryRef pDict, const char* key, void*
   CFRelease(pValue);
 }
 
-inline void PutStrInDict(CFMutableDictionaryRef pDict, const char* key, const char* value)
+static inline void PutStrInDict(CFMutableDictionaryRef pDict, const char* key, const char* value)
 {
   CFStrLocal cfKey(key);
   CFStrLocal cfValue(value);
   CFDictionarySetValue(pDict, cfKey.Get(), cfValue.Get());
 }
 
-inline void PutDataInDict(CFMutableDictionaryRef pDict, const char* key, IByteChunk* pChunk)
+static inline void PutDataInDict(CFMutableDictionaryRef pDict, const char* key, IByteChunk* pChunk)
 {
   CFStrLocal cfKey(key);
   CFDataRef pData = CFDataCreate(0, pChunk->GetData(), pChunk->Size());
@@ -81,7 +81,7 @@ inline void PutDataInDict(CFMutableDictionaryRef pDict, const char* key, IByteCh
   CFRelease(pData);
 }
 
-inline bool GetNumberFromDict(CFDictionaryRef pDict, const char* key, void* pNumber, CFNumberType type)
+static inline bool GetNumberFromDict(CFDictionaryRef pDict, const char* key, void* pNumber, CFNumberType type)
 {
   CFStrLocal cfKey(key);
   CFNumberRef pValue = (CFNumberRef) CFDictionaryGetValue(pDict, cfKey.Get());
@@ -93,7 +93,7 @@ inline bool GetNumberFromDict(CFDictionaryRef pDict, const char* key, void* pNum
   return false;
 }
 
-inline bool GetStrFromDict(CFDictionaryRef pDict, const char* key, char* value)
+static inline bool GetStrFromDict(CFDictionaryRef pDict, const char* key, char* value)
 {
   CFStrLocal cfKey(key);
   CFStringRef pValue = (CFStringRef) CFDictionaryGetValue(pDict, cfKey.Get());
@@ -107,7 +107,7 @@ inline bool GetStrFromDict(CFDictionaryRef pDict, const char* key, char* value)
   return false;
 }
 
-inline bool GetDataFromDict(CFDictionaryRef pDict, const char* key, IByteChunk* pChunk)
+static inline bool GetDataFromDict(CFDictionaryRef pDict, const char* key, IByteChunk* pChunk)
 {
   CFStrLocal cfKey(key);
   CFDataRef pData = (CFDataRef) CFDictionaryGetValue(pDict, cfKey.Get());
@@ -126,7 +126,7 @@ inline bool GetDataFromDict(CFDictionaryRef pDict, const char* key, IByteChunk* 
 
 typedef AudioStreamBasicDescription STREAM_DESC;
 
-/* inline */ void MakeDefaultASBD(STREAM_DESC* pASBD, double sampleRate, int nChannels, bool interleaved)
+static /* inline */ void MakeDefaultASBD(STREAM_DESC* pASBD, double sampleRate, int nChannels, bool interleaved)
 {
   memset(pASBD, 0, sizeof(STREAM_DESC));
   pASBD->mSampleRate = sampleRate;
@@ -148,7 +148,7 @@ typedef AudioStreamBasicDescription STREAM_DESC;
 }
 
 template <class C>
-int PtrListAddFromStack(WDL_PtrList<C>* pList, C* pStackInstance)
+static int PtrListAddFromStack(WDL_PtrList<C>* pList, C* pStackInstance)
 {
   C* pNew = new C;
   memcpy(pNew, pStackInstance, sizeof(C));
@@ -157,7 +157,7 @@ int PtrListAddFromStack(WDL_PtrList<C>* pList, C* pStackInstance)
 }
 
 template <class C>
-int PtrListInitialize(WDL_PtrList<C>* pList, int size)
+static int PtrListInitialize(WDL_PtrList<C>* pList, int size)
 {
   for (int i = 0; i < size; ++i)
   {
@@ -1559,7 +1559,7 @@ OSStatus IPlugAU::SetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioU
   return noErr;
 }
 
-inline OSStatus RenderCallback(AURenderCallbackStruct* pCB, AudioUnitRenderActionFlags* pFlags, const AudioTimeStamp* pTimestamp, UInt32 inputBusIdx, UInt32 nFrames, AudioBufferList* pOutBufList)
+static inline OSStatus RenderCallback(AURenderCallbackStruct* pCB, AudioUnitRenderActionFlags* pFlags, const AudioTimeStamp* pTimestamp, UInt32 inputBusIdx, UInt32 nFrames, AudioBufferList* pOutBufList)
 {
   TRACE;
   return pCB->inputProc(pCB->inputProcRefCon, pFlags, pTimestamp, inputBusIdx, nFrames, pOutBufList);
@@ -2088,7 +2088,10 @@ void IPlugAU::OutputSysexFromEditor()
 
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
 
-IPlugAU* GetPlug(void *x) { return (IPlugAU*) &((AudioComponentPlugInInstance *) x)->mInstanceStorage; }
+static IPlugAU* GetPlug(void *x)
+{
+  return (IPlugAU*) &((AudioComponentPlugInInstance *) x)->mInstanceStorage;
+}
 
 //static
 OSStatus IPlugAU::AUMethodInitialize(void* pSelf)

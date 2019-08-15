@@ -61,7 +61,7 @@ static StaticStorage<LICE_IFont> sFontCache;
 static StaticStorage<LICEFontInfo> sLICEFontInfoCache;
 
 // Utilities for pre-multiplied blits (LICE assumes sources are not pre-multiplied)
-inline void PreMulCompositeSourceOver(LICE_pixel_chan* out, LICE_pixel_chan* in)
+static inline void PreMulCompositeSourceOver(LICE_pixel_chan* out, LICE_pixel_chan* in)
 {
   unsigned int alphaCmp = 256 - in[LICE_PIXEL_A];
   
@@ -73,7 +73,7 @@ inline void PreMulCompositeSourceOver(LICE_pixel_chan* out, LICE_pixel_chan* in)
   _LICE_MakePixelClamp(out, R, G, B, A);
 }
 
-inline void PreMulCompositeAdd(LICE_pixel_chan* out, LICE_pixel_chan* in)
+static inline void PreMulCompositeAdd(LICE_pixel_chan* out, LICE_pixel_chan* in)
 {
   unsigned int alpha = in[LICE_PIXEL_A];
   
@@ -85,7 +85,7 @@ inline void PreMulCompositeAdd(LICE_pixel_chan* out, LICE_pixel_chan* in)
   _LICE_MakePixelClamp(out, R, G, B, A);
 }
 
-void PreMulBlit(LICE_IBitmap *dest, LICE_IBitmap *src, int dstx, int dsty, int srcx, int srcy, int srcw, int srch, float alpha, int mode)
+static void PreMulBlit(LICE_IBitmap *dest, LICE_IBitmap *src, int dstx, int dsty, int srcx, int srcy, int srcw, int srch, float alpha, int mode)
 {
   srcx = dstx < 0 ? srcx - dstx : srcx;
   srcy = dsty < 0 ? srcy - dsty : srcy;
@@ -578,7 +578,7 @@ void IGraphicsLice::DoDrawText(const IText& text, const char* str, const IRECT& 
 #undef DrawText
 #endif
 
-bool OpacityCheck(const IBlend* pBlend)
+static bool OpacityCheck(const IBlend* pBlend)
 {
   return BlendWeight(pBlend) >= 1.f;
 }

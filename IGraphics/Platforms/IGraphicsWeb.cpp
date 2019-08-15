@@ -263,7 +263,7 @@ static int domVKToWinVK(int dom_vk_code)
   }
 }
 
-EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent* pEvent, void* pUserData)
+static EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent* pEvent, void* pUserData)
 {
   IGraphicsWeb* pGraphicsWeb = (IGraphicsWeb*) pUserData;
   
@@ -292,7 +292,7 @@ EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent* pEvent, void*
   return 0;
 }
 
-EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* pUserData)
+static EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* pUserData)
 {
   IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
   
@@ -325,7 +325,7 @@ EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent
   return true;
 }
 
-EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* pUserData)
+static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* pUserData)
 {
   IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
   
@@ -374,7 +374,7 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
   return true;
 }
 
-EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* pEvent, void* pUserData)
+static EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* pEvent, void* pUserData)
 {
   IGraphics* pGraphics = (IGraphics*) pUserData;
   
@@ -609,7 +609,7 @@ bool IGraphicsWeb::PromptForColor(IColor& color, const char* str, IColorPickerHa
   return false;
 }
 
-EM_BOOL complete_text_entry(int eventType, const EmscriptenFocusEvent* focusEvent, void* pUserData)
+static EM_BOOL complete_text_entry(int eventType, const EmscriptenFocusEvent* focusEvent, void* pUserData)
 {
   IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
   
@@ -621,7 +621,7 @@ EM_BOOL complete_text_entry(int eventType, const EmscriptenFocusEvent* focusEven
   return true;
 }
 
-EM_BOOL text_entry_keydown(int eventType, const EmscriptenKeyboardEvent* pEvent, void* pUserData)
+static EM_BOOL text_entry_keydown(int eventType, const EmscriptenKeyboardEvent* pEvent, void* pUserData)
 {
   IGraphicsWeb* pGraphicsWeb = (IGraphicsWeb*) pUserData;
   

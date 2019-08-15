@@ -282,7 +282,7 @@ bool IPlugVST3ProcessorBase::CanProcessSampleSize(int32 symbolicSampleSize)
   }
 }
 
-bool IsBusActive(const BusList& list, int32 idx)
+static bool IsBusActive(const BusList& list, int32 idx)
 {
   bool exists = false;
   if (idx < static_cast<int32> (list.size()))

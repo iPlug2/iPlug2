@@ -76,7 +76,7 @@ StaticStorage<IFontData> sFontCache;
 extern std::map<std::string, void*> gTextureMap;
 
 // Retrieving pixels
-void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData)
+static void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData)
 {
 #if defined(IGRAPHICS_GL)
   glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pData);
@@ -139,7 +139,7 @@ NanoVGBitmap::~NanoVGBitmap()
 #pragma mark -
 
 // Utility conversions
-inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0)
+static inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0)
 {
   NVGcolor c;
   c.r = (float) color.R / 255.0f;
@@ -149,7 +149,7 @@ inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0)
   return c;
 }
 
-inline void NanoVGSetBlendMode(NVGcontext* context, const IBlend* pBlend)
+static inline void NanoVGSetBlendMode(NVGcontext* context, const IBlend* pBlend)
 {
   if (!pBlend)
   {
@@ -174,7 +174,7 @@ inline void NanoVGSetBlendMode(NVGcontext* context, const IBlend* pBlend)
   }
 }
 
-NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend* pBlend)
+static NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend* pBlend)
 {
   double s[2], e[2];
   
