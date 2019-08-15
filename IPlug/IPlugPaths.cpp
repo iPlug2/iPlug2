@@ -25,7 +25,7 @@
 using namespace iplug;
 
 // Unicode helpers
-void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
+void iplug::UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
 {
   int requiredSize = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
 
@@ -38,7 +38,7 @@ void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
   utf16Str[0] = 0;
 }
 
-void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* utf16Str)
+void iplug::UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* utf16Str)
 {
   int requiredSize = WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, NULL, 0, NULL, NULL);
 
@@ -52,7 +52,7 @@ void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* utf16Str)
 }
 
  // Helper for getting a known folder in UTF8
-void GetKnownFolder(WDL_String &path, int identifier, int flags = 0)
+void iplug::GetKnownFolder(WDL_String &path, int identifier, int flags = 0)
 {
   wchar_t wideBuffer[1024];
 
@@ -82,17 +82,17 @@ static void GetModulePath(HMODULE hModule, WDL_String& path)
   }
 }
 
-void HostPath(WDL_String& path, const char* bundleID)
+void iplug::HostPath(WDL_String& path, const char* bundleID)
 {
   GetModulePath(0, path);
 }
 
-void PluginPath(WDL_String& path, HMODULE pExtra)
+void iplug::PluginPath(WDL_String& path, HMODULE pExtra)
 {
   GetModulePath(pExtra, path);
 }
 
-void BundleResourcePath(WDL_String& path, HMODULE pExtra)
+void iplug::BundleResourcePath(WDL_String& path, HMODULE pExtra)
 {
 #ifdef VST3_API
   GetModulePath(pExtra, path);
@@ -105,22 +105,22 @@ void BundleResourcePath(WDL_String& path, HMODULE pExtra)
 #endif
 }
 
-void DesktopPath(WDL_String& path)
+void iplug::DesktopPath(WDL_String& path)
 {
   GetKnownFolder(path, CSIDL_DESKTOP);
 }
 
-void UserHomePath(WDL_String & path)
+void iplug::UserHomePath(WDL_String & path)
 {
   GetKnownFolder(path, CSIDL_PROFILE);
 }
 
-void AppSupportPath(WDL_String& path, bool isSystem)
+void iplug::AppSupportPath(WDL_String& path, bool isSystem)
 {
   GetKnownFolder(path, isSystem ? CSIDL_COMMON_APPDATA : CSIDL_LOCAL_APPDATA);
 }
 
-void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem)
+void iplug::VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem)
 {
   if (!isSystem)
     GetKnownFolder(path, CSIDL_PERSONAL, SHGFP_TYPE_CURRENT);
@@ -130,19 +130,19 @@ void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginNa
   path.AppendFormatted(MAX_WIN32_PATH_LEN, "\\VST3 Presets\\%s\\%s", mfrName, pluginName);
 }
 
-void SandboxSafeAppSupportPath(WDL_String& path, const char* appGroupID)
+void iplug::SandboxSafeAppSupportPath(WDL_String& path, const char* appGroupID)
 {
   AppSupportPath(path);
 }
 
-void INIPath(WDL_String& path, const char * pluginName)
+void iplug::INIPath(WDL_String& path, const char * pluginName)
 {
   GetKnownFolder(path, CSIDL_LOCAL_APPDATA);
 
   path.AppendFormatted(MAX_WIN32_PATH_LEN, "\\%s", pluginName);
 }
 
-static BOOL EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG_PTR param)
+static BOOL iplug::EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG_PTR param)
 {
   if (IS_INTRESOURCE(name)) return true; // integer resources not wanted
   else {
@@ -164,7 +164,7 @@ static BOOL EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG_PTR p
   return true; // keep enumerating
 }
 
-EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char*, void* pHInstance)
+EResourceLocation iplug::LocateResource(const char* name, const char* type, WDL_String& result, const char*, void* pHInstance)
 {
   if (CStringHasContents(name))
   {
@@ -192,7 +192,7 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
   return EResourceLocation::kNotFound;
 }
 
-const void* LoadWinResource(const char* resid, const char* type, int& sizeInBytes, void* pHInstance)
+const void* iplug::LoadWinResource(const char* resid, const char* type, int& sizeInBytes, void* pHInstance)
 {
   WDL_String typeUpper(type);
 
@@ -226,22 +226,22 @@ const void* LoadWinResource(const char* resid, const char* type, int& sizeInByte
 
 #elif defined OS_WEB
 
-void AppSupportPath(WDL_String& path, bool isSystem)
+void iplug::AppSupportPath(WDL_String& path, bool isSystem)
 {
   path.Set("Settings");
 }
 
-void SandboxSafeAppSupportPath(WDL_String& path)
+void iplug::SandboxSafeAppSupportPath(WDL_String& path)
 {
   path.Set("Settings");
 }
 
-void DesktopPath(WDL_String& path)
+void iplug::DesktopPath(WDL_String& path)
 {
   path.Set("");
 }
 
-void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem)
+void iplug::VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem)
 {
   path.Set("Presets");
 }
