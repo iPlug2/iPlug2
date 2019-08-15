@@ -116,7 +116,7 @@ public:
 
 #pragma mark -
   /** @return The number of samples elapsed since start of project timeline. */
-  int GetSamplePos() const { return mTimeInfo.mSamplePos; }
+  double GetSamplePos() const { return mTimeInfo.mSamplePos; }
 
   /** @return The Tempo in beats per minute */
   double GetTempo() const { return mTimeInfo.mTempo; }
