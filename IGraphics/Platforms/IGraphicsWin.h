@@ -16,6 +16,9 @@
 
 #include "IGraphics_select.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /** IGraphics platform class for Windows
 * @ingroup PlatformClasses */
 class IGraphicsWin final : public IGRAPHICS_DRAW_CLASS
@@ -140,3 +143,8 @@ public:
   static LRESULT CALLBACK ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
   static BOOL CALLBACK FindMainWindow(HWND hWnd, LPARAM lParam);
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+
+

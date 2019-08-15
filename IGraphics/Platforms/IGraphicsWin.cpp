@@ -21,6 +21,9 @@
 
 #include <wininet.h>
 
+using namespace iplug;
+using namespace igraphics;
+
 #pragma warning(disable:4244) // Pointer size cast mismatch.
 #pragma warning(disable:4312) // Pointer size cast mismatch.
 #pragma warning(disable:4311) // Pointer size cast mismatch.
