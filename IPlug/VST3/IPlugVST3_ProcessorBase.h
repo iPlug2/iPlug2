@@ -20,13 +20,17 @@
 
 using namespace Steinberg;
 
-#ifndef CUSTOM_BUSTYPE_FUNC
-uint64_t iplug::GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig);
-#else
+// Custom bus type function (in global namespace)
+#ifdef CUSTOM_BUSTYPE_FUNC
 extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, iplug::ERoute dir, int busIdx, iplug::IOConfig* pConfig);
 #endif
 
 BEGIN_IPLUG_NAMESPACE
+
+// Default bus type function (in iplug namespace)
+#ifndef CUSTOM_BUSTYPE_FUNC
+uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig);
+#endif
 
 /** Shared VST3 processor code */
 class IPlugVST3ProcessorBase : public IPlugProcessor
