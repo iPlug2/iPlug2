@@ -12,6 +12,9 @@
 
 #include "IGraphics_select.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /** IGraphics platform class for IOS
 *   @ingroup PlatformClasses */
 class IGraphicsIOS final : public IGRAPHICS_DRAW_CLASS
@@ -69,3 +72,6 @@ private:
 
   WDL_String mBundleID;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE

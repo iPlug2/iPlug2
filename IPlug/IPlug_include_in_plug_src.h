@@ -329,11 +329,17 @@ extern "C"
 
 #pragma mark - AUv3
 #elif defined AUv3_API
+
+  BEGIN_IPLUG_NAMESPACE
+
   Plugin* MakePlug()
   {
     IPlugInstanceInfo instanceInfo;
     return new PLUG_CLASS_NAME(instanceInfo);
   }
+
+END_IPLUG_NAMESPACE
+
 #pragma mark - AAX
 #elif defined AAX_API
 
