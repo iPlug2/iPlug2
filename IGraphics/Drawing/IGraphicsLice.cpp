@@ -18,8 +18,6 @@
 using namespace iplug;
 using namespace igraphics;
 
-extern int GetSystemVersion();
-
 struct LICEFontInfo
 {
   WDL_String mFontName;
@@ -867,22 +865,17 @@ void IGraphicsLice::EndFrame()
 
   if (!mColorSpace)
   {
-    int v = GetSystemVersion();
-    
-    if (v >= 0x1070)
-    {
 #ifdef MAC_OS_X_VERSION_10_11
-      mColorSpace = CGDisplayCopyColorSpace(CGMainDisplayID());
+    mColorSpace = CGDisplayCopyColorSpace(CGMainDisplayID());
 #else
-      CMProfileRef systemMonitorProfile = NULL;
-      CMError getProfileErr = CMGetSystemProfile(&systemMonitorProfile);
-      if(noErr == getProfileErr)
-      {
-        mColorSpace = CGColorSpaceCreateWithPlatformColorSpace(systemMonitorProfile);
-        CMCloseProfile(systemMonitorProfile);
-      }
-#endif
+    CMProfileRef systemMonitorProfile = NULL;
+    CMError getProfileErr = CMGetSystemProfile(&systemMonitorProfile);
+    if(noErr == getProfileErr)
+    {
+      mColorSpace = CGColorSpaceCreateWithPlatformColorSpace(systemMonitorProfile);
+      CMCloseProfile(systemMonitorProfile);
     }
+#endif
     if (!mColorSpace)
       mColorSpace = CGColorSpaceCreateDeviceRGB();
   }

@@ -19,7 +19,7 @@
 using namespace iplug;
 using namespace igraphics;
 
-int GetSystemVersion()
+static int GetSystemVersion()
 {
   static int32_t v;
   if (!v)
