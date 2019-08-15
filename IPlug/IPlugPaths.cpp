@@ -22,13 +22,6 @@
 #include <Shlobj.h>
 #include <Shlwapi.h>
 
-// Local functions
-BEGIN_IPLUG_NAMESPACE
-void GetKnownFolder(WDL_String &path, int identifier, int flags = 0);
-static void GetModulePath(HMODULE hModule, WDL_String& path);
-static BOOL EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG_PTR param);
-END_IPLUG_NAMESPACE
-
 using namespace iplug;
 
 // Unicode helpers
@@ -67,7 +60,7 @@ void iplug::GetKnownFolder(WDL_String &path, int identifier, int flags)
   UTF16ToUTF8(path, wideBuffer);
 }
 
-static void iplug::GetModulePath(HMODULE hModule, WDL_String& path)
+static void GetModulePath(HMODULE hModule, WDL_String& path)
 {
   path.Set("");
   char pathCStr[MAX_WIN32_PATH_LEN];
