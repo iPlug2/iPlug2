@@ -21,6 +21,8 @@
 
 struct reaper_plugin_info_t;
 
+BEGIN_IPLUG_NAMESPACE
+
 class ReaperExtBase : public EDITOR_DELEGATE_CLASS
 {
 public:
@@ -67,3 +69,5 @@ private:
   std::unique_ptr<Timer> mTimer;
   bool mDocked = false;
 };
+
+END_IPLUG_NAMESPACE
