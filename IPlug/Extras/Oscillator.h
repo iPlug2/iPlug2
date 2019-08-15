@@ -10,6 +10,10 @@
 
 #pragma once
 
+#include "IPlugPlatform.h"
+
+BEGIN_IPLUG_NAMESPACE
+
 template <typename T>
 class IOscillator
 {
@@ -208,3 +212,5 @@ private:
 } ALIGNED(8);
 
 #include "Oscillator_table.h"
+
+END_IPLUG_NAMESPACE

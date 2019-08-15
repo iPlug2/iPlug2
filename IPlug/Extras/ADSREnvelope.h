@@ -8,6 +8,10 @@
  ==============================================================================
  */
 
+#include "IPlugPlatform.h"
+
+BEGIN_IPLUG_NAMESPACE
+
 template <typename T>
 class ADSREnvelope
 {
@@ -268,3 +272,5 @@ private:
     }
   }
 };
+
+END_IPLUG_NAMESPACE

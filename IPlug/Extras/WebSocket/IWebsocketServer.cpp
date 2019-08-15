@@ -10,6 +10,8 @@
 
 #include "IWebsocketServer.h"
 
+using namespace iplug;
+
 IWebsocketServer::IWebsocketServer()
 {
 }

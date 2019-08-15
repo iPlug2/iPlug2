@@ -28,8 +28,9 @@
 #include "IPlugQueue.h"
 #include "ControlRamp.h"
 
-/** A generic synthesizer voice to be controlled by a voice allocator. */
+BEGIN_IPLUG_NAMESPACE
 
+/** A generic synthesizer voice to be controlled by a voice allocator. */
 namespace voiceControlNames
 {
   /** This enum names the control ramps by which we connect a controller to a synth voice.
@@ -113,3 +114,4 @@ protected:
   friend class VoiceAllocator;
 };
 
+END_IPLUG_NAMESPACE
