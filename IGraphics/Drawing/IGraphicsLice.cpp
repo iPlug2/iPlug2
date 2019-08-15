@@ -15,6 +15,9 @@
 
 #include "lice_combine.h"
 
+using namespace iplug;
+using namespace igraphics;
+
 extern int GetSystemVersion();
 
 struct LICEFontInfo
