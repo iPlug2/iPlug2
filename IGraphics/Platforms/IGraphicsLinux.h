@@ -12,6 +12,9 @@
 
 #include "IGraphics_select.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /** IGraphics platform class for linux
 *   @ingroup PlatformClasses
 */
@@ -50,3 +53,6 @@ protected:
   IPopupMenu* CreatePlatformPopupMenu(const IPopupMenu& menu, IRECT& bounds) override;
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
 }
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
