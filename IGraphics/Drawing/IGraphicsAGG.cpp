@@ -13,6 +13,13 @@
 
 #include "IGraphicsAGG.h"
 
+// Source for AGG
+
+#include "IGraphicsAGG_src.cpp"
+
+using namespace iplug;
+using namespace igraphics;
+
 static StaticStorage<IFontData> sFontCache;
 
 const bool textKerning = true;
@@ -624,5 +631,3 @@ void IGraphicsAGG::DoDrawText(const IText& text, const char* str, const IRECT& b
   }
   PathTransformRestore();
 }
-
-#include "IGraphicsAGG_src.cpp"

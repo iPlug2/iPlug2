@@ -34,6 +34,9 @@
   #include "gl/GrGLInterface.h"
 #endif
 
+using namespace iplug;
+using namespace igraphics;
+
 struct SkiaFont
 {
   SkiaFont(IFontDataPtr&& data, sk_sp<SkTypeface> typeFace)

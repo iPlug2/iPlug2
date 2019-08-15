@@ -15,6 +15,9 @@
 #include "IGraphicsCairo.h"
 #include "ITextEntryControl.h"
 
+using namespace iplug;
+using namespace igraphics;
+
 class CairoFont
 {
 public:
