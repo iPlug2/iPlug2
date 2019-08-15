@@ -49,6 +49,7 @@ To Do:
 
 
 //WDL_FFT_REAL is typedef to either float or double, depending what is defined in fft.h
+static const WDL_FFT_REAL pi = 3.141592653589793238462643383279502884197169399375105820974944;
 static const WDL_FFT_REAL pi2 = 2. * pi;
 static const WDL_FFT_REAL pi4 = 4. * pi;
 
@@ -447,38 +448,45 @@ class gFFTAnalyzer : public IControl
 
     void OnInit() override
     {
+      fftsizemenu = new IPopupMenu;
+      fftwindowmenu = new IPopupMenu;
+      fftframes = new IPopupMenu;
+
       menu.AddItem("Change FFT Fill Color");//0
       menu.AddItem("Change FFT Peak Color");//1
       menu.AddItem("Fill");//2
       menu.AddItem("Gradient");//3
-      menu.AddItem("FFT Size...", &fftsizemenu, 111);//4
-      fftsizemenu.AddItem("256");//0
-      fftsizemenu.AddItem("512");//1
-      fftsizemenu.AddItem("1024");//2
-      fftsizemenu.AddItem("2048");//3
-      fftsizemenu.AddItem("4096");//4
-      fftsizemenu.AddItem("8192");//5
-      fftsizemenu.AddItem("16384");//6
-      fftsizemenu.AddItem("32768");//7
-      menu.AddItem("FFT Window...", &fftwindowmenu, 222);//5
-      fftwindowmenu.AddItem("Hann");//0
-      fftwindowmenu.AddItem("Blackman"); //1
-      fftwindowmenu.AddItem("Blackman-Harris");//2
-      fftwindowmenu.AddItem("Hamming");//3
-      fftwindowmenu.AddItem("Flattop");//4
-      fftwindowmenu.AddItem("Kaiser-Bessel");//5
-      fftwindowmenu.AddItem("Blackman-Nuttall");//6
-      fftwindowmenu.AddItem("Rectangular");//7
-      menu.AddItem("FFT Frames...", &fftframes, 333);//6
-      fftframes.AddItem("2");
-      fftframes.AddItem("3");
-      fftframes.AddItem("4");
-      fftframes.AddItem("5");
-      fftframes.AddItem("6");
-      fftframes.AddItem("7");
-      fftframes.AddItem("8");
-      fftframes.AddItem("9");
-      fftframes.AddItem("10");
+
+      menu.AddItem("FFT Size...", fftsizemenu, 111);//4
+      fftsizemenu->AddItem("256");//0
+      fftsizemenu->AddItem("512");//1
+      fftsizemenu->AddItem("1024");//2
+      fftsizemenu->AddItem("2048");//3
+      fftsizemenu->AddItem("4096");//4
+      fftsizemenu->AddItem("8192");//5
+      fftsizemenu->AddItem("16384");//6
+      fftsizemenu->AddItem("32768");//7
+
+      menu.AddItem("FFT Window...", fftwindowmenu, 222);//5
+      fftwindowmenu->AddItem("Hann");//0
+      fftwindowmenu->AddItem("Blackman"); //1
+      fftwindowmenu->AddItem("Blackman-Harris");//2
+      fftwindowmenu->AddItem("Hamming");//3
+      fftwindowmenu->AddItem("Flattop");//4
+      fftwindowmenu->AddItem("Kaiser-Bessel");//5
+      fftwindowmenu->AddItem("Blackman-Nuttall");//6
+      fftwindowmenu->AddItem("Rectangular");//7
+
+      menu.AddItem("FFT Frames...", fftframes, 333);//6
+      fftframes->AddItem("2");
+      fftframes->AddItem("3");
+      fftframes->AddItem("4");
+      fftframes->AddItem("5");
+      fftframes->AddItem("6");
+      fftframes->AddItem("7");
+      fftframes->AddItem("8");
+      fftframes->AddItem("9");
+      fftframes->AddItem("10");
     }
 
     void Draw(IGraphics& g) override
@@ -592,7 +600,7 @@ class gFFTAnalyzer : public IControl
         menu.CheckItem(2, showFill);
         menu.CheckItem(3, showGradient);
         int frames = pFFT->GetFrameSize();
-        fftframes.CheckItemAlone(frames - 2);
+        fftframes->CheckItemAlone(frames - 2);
 
         int fftcurrentsize = pFFT->GetSize();
         int check = -1;
@@ -608,7 +616,7 @@ class gFFTAnalyzer : public IControl
         case 32768: check = 7; break;
         default:  break;
         }
-        fftsizemenu.CheckItemAlone(check);
+        fftsizemenu->CheckItemAlone(check);
 
         int fftcurrentwindow = pFFT->GetWindowType();
         int winT = -1;
@@ -624,7 +632,7 @@ class gFFTAnalyzer : public IControl
         case Spect_FFT::win_Rectangular: winT = 7; break;
         default:  break;
         }
-        fftwindowmenu.CheckItemAlone(winT);
+        fftwindowmenu->CheckItemAlone(winT);
         
         GetUI()->CreatePopupMenu(*this, menu, x, y);
       }
@@ -633,9 +641,9 @@ class gFFTAnalyzer : public IControl
     void OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx) override
     {
       int item = menu.GetChosenItemIdx();
-      int fftsizepick = fftsizemenu.GetChosenItemIdx();
-      int fftwindow = fftwindowmenu.GetChosenItemIdx();
-      int fftframenumber = fftframes.GetChosenItemIdx();
+      int fftsizepick = fftsizemenu->GetChosenItemIdx();
+      int fftwindow = fftwindowmenu->GetChosenItemIdx();
+      int fftframenumber = fftframes->GetChosenItemIdx();
 
       if (item >= 0) {
         switch (item)
@@ -706,9 +714,9 @@ class gFFTAnalyzer : public IControl
       }
 
       menu.SetChosenItemIdx(-1);
-      fftsizemenu.SetChosenItemIdx(-1);
-      fftwindowmenu.SetChosenItemIdx(-1);
-      fftframes.SetChosenItemIdx(-1);
+      fftsizemenu->SetChosenItemIdx(-1);
+      fftwindowmenu->SetChosenItemIdx(-1);
+      fftframes->SetChosenItemIdx(-1);
 
 
       SetDirty(false);
@@ -725,7 +733,8 @@ class gFFTAnalyzer : public IControl
 		WDL_FFT_REAL minFreq, maxFreq;
     WDL_FFT_REAL dBFloor;
 		WDL_FFT_REAL OctaveGain;
-     IPopupMenu fftsizemenu, fftwindowmenu, fftframes, menu;
+    IPopupMenu *fftsizemenu, *fftwindowmenu, *fftframes;
+    IPopupMenu menu;
      Spect_FFT* pFFT;
     };
 

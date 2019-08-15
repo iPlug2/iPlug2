@@ -132,7 +132,6 @@ public:
   
   ~IPopupMenu()
   {
-    RemoveSubmenus();
     mMenuItems.Empty(true);
   }
 
@@ -199,30 +198,6 @@ public:
       }
     }
     
-    for (int i = 0; i < toDelete.GetSize(); i++)
-    {
-      mMenuItems.DeletePtr(toDelete.Get(i));
-    }
-  }
-
-  void RemoveSubmenus()
-  {
-    int n = mMenuItems.GetSize();
-
-    WDL_PtrList<IPopupMenu::Item> toDelete;
-
-    for (int i = 0; i < n; i++)
-    {
-      IPopupMenu::Item* pItem = GetItem(i);
-
-      IPopupMenu* pSubmenu = pItem->GetSubmenu();
-
-      if (pSubmenu)
-      {
-        toDelete.Add(pItem);
-      }
-    }
-
     for (int i = 0; i < toDelete.GetSize(); i++)
     {
       mMenuItems.DeletePtr(toDelete.Get(i));

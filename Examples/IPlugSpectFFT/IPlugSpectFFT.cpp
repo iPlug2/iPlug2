@@ -5,6 +5,9 @@
 IPlugSpectFFT::IPlugSpectFFT(IPlugInstanceInfo instanceInfo)
 : IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
 {
+  //set to nullptr so OnReset is able to determine if control is setup before calling SetSampleRate()
+  pFFTAnalyzer = nullptr;
+
   //adding new FFT class with size and overlap, and setting the window function
   GetParam(kGain)->InitDouble("Gain", 0., -24., 24., 0.01, "dB", IParam::kFlagsNone, "");
   mGain = 1.;
@@ -70,7 +73,7 @@ void IPlugSpectFFT::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 
 void IPlugSpectFFT::OnReset()
 {
-    if(pFFTAnalyzer != NULL)
+    if(pFFTAnalyzer != nullptr)
   dynamic_cast<gFFTAnalyzer<>*>(pFFTAnalyzer)->SetSampleRate(this->GetSampleRate());
 }
 
