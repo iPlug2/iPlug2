@@ -336,12 +336,17 @@ extern "C"
   }
 #pragma mark - AAX
 #elif defined AAX_API
+
+BEGIN_IPLUG_NAMESPACE
+
   Plugin* MakePlug()
   {
     IPlugInstanceInfo instanceInfo;
 
     return new PLUG_CLASS_NAME(instanceInfo);
   }
+END_IPLUG_NAMESPACE
+
 #pragma mark - APP
 #elif defined APP_API
 

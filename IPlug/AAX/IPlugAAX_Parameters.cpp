@@ -10,6 +10,8 @@
 
 #include "IPlugAAX_Parameters.h"
 
+using namespace iplug;
+
 AAX_Result AAX_CIPlugParameters::ResetFieldData(AAX_CFieldIndex iFieldIndex, void * oData, uint32_t iDataSize) const  //override from CEffectParameters.
 {   
   //If this is the IPlugparameters field, let's initialize it to our this pointer.

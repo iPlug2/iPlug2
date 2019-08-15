@@ -21,8 +21,12 @@
 #include "AAX_IMIDINode.h"
 #include "AAX_IString.h"
 
+#include "IPlugPlatform.h"
+
 //#define kMaxAdditionalMIDINodes 15
 #define kMaxAuxOutputStems  16
+
+BEGIN_IPLUG_NAMESPACE
 
 struct AAX_SIPlugSetupInfo
 {
@@ -139,3 +143,6 @@ public:
   static  AAX_Result  StaticDescribe (AAX_IEffectDescriptor * ioDescriptor, const AAX_SIPlugSetupInfo & setupInfo);
   static  void  AAX_CALLBACK  StaticRenderAudio(AAX_SIPlugRenderInfo* const inInstancesBegin [], const void* inInstancesEnd); 
 };
+
+END_IPLUG_NAMESPACE
+

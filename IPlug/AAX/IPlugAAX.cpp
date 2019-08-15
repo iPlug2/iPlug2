@@ -20,6 +20,8 @@
 #include "AAX_CNumberDisplayDelegate.h"
 #include "AAX_CUnitDisplayDelegateDecorator.h"
 
+using namespace iplug;
+
 AAX_CEffectParameters *AAX_CALLBACK IPlugAAX::Create()
 {
   return MakePlug();

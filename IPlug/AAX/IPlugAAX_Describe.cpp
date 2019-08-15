@@ -28,6 +28,8 @@
 
 #ifndef CUSTOM_BUSTYPE_FUNC
 
+using namespace iplug;
+
 /**
  A method to get a sensible API tag for a particular number of channels allocated to a bus in the channel i/o string
 

@@ -44,6 +44,8 @@
   #endif
 #endif
 
+BEGIN_IPLUG_NAMESPACE
+
 const int kAAXParamIdxOffset = 1;
 
 /** Used to pass various instance info to the API class */
@@ -122,5 +124,7 @@ private:
 IPlugAAX* MakePlug();
 
 #include "AAX_PopStructAlignment.h"
+
+END_IGRAPHICS_NAMESPACE
 
 #endif
