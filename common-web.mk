@@ -20,8 +20,7 @@ STB_PATH = $(DEPS_PATH)/IGraphics/STB
 IPLUG_SRC = $(IPLUG_PATH)/IPlugAPIBase.cpp \
 	$(IPLUG_PATH)/IPlugParameter.cpp \
 	$(IPLUG_PATH)/IPlugPluginBase.cpp \
-	$(IPLUG_PATH)/IPlugPaths.cpp \
-	$(IPLUG_PATH)/IPlugProcessor.cpp
+	$(IPLUG_PATH)/IPlugPaths.cpp
 	# $(IPLUG_PATH)/IPlugTimer.cpp
 
 IGRAPHICS_SRC = $(IGRAPHICS_PATH)/IGraphics.cpp \
@@ -55,7 +54,8 @@ SRC = $(IPLUG_SRC)
 
 #every cpp file that is needed for the WAM audio processor WASM module running in the audio worklet
 WAM_SRC = $(IPLUG_WEB_PATH)/IPlugWAM.cpp \
-$(WAM_SDK_PATH)/processor.cpp
+	$(WAM_SDK_PATH)/processor.cpp \
+	$(IPLUG_PATH)/IPlugProcessor.cpp
 
 #every cpp file that is needed for the "WEB" graphics WASM module
 WEB_SRC = $(IGRAPHICS_SRC) \
