@@ -3,8 +3,8 @@
 
 #include "IControls.h"
 
-IGraphicsStressTest::IGraphicsStressTest(IPlugInstanceInfo instanceInfo)
-: Plugin(instanceInfo, MakeConfig(kNumParams, 1))
+IGraphicsStressTest::IGraphicsStressTest(const InstanceInfo& info)
+: Plugin(info, MakeConfig(kNumParams, 1))
 {
   GetParam(0)->InitGain("Dummy");
   

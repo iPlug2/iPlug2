@@ -41,12 +41,12 @@ class IPlugVST3Controller : public EditControllerEx1
 public:
   using ViewType = IPlugVST3View<IPlugVST3Controller>;
   
-  struct IPlugInstanceInfo
+  struct InstanceInfo
   {
     Steinberg::FUID mOtherGUID;
   };
   
-  IPlugVST3Controller(IPlugInstanceInfo instanceInfo, IPlugConfig c);
+  IPlugVST3Controller(const InstanceInfo& info, const Config& config);
   virtual ~IPlugVST3Controller();
 
   // IEditController

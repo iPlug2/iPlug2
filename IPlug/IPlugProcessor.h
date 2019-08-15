@@ -33,7 +33,7 @@
 
 BEGIN_IPLUG_NAMESPACE
 
-struct IPlugConfig;
+struct Config;
 
 /** The base class for IPlug Audio Processing. It knows nothing about presets or parameters or user interface.  */
 class IPlugProcessor
@@ -42,7 +42,7 @@ public:
   /** IPlugProcessor constructor
    * @param config /todo
    * @param plugAPI /todo */
-  IPlugProcessor(IPlugConfig config, EAPI plugAPI);
+  IPlugProcessor(Config config, EAPI plugAPI);
   virtual ~IPlugProcessor();
 
   IPlugProcessor(const IPlugProcessor&) = delete;

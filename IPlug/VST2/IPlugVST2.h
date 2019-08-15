@@ -24,7 +24,7 @@
 BEGIN_IPLUG_NAMESPACE
 
 /** Used to pass various instance info to the API class */
-struct IPlugInstanceInfo
+struct InstanceInfo
 {
   audioMasterCallback mVSTHostCallback;
 };
@@ -35,7 +35,7 @@ class IPlugVST2 : public IPlugAPIBase
                 , public IPlugProcessor
 {
 public:
-  IPlugVST2(IPlugInstanceInfo instanceInfo, IPlugConfig config);
+  IPlugVST2(const InstanceInfo& info, const Config& config);
 
   //IPlugAPIBase
   void BeginInformHostOfParamChange(int idx) override;

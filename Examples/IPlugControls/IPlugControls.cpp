@@ -3,8 +3,8 @@
 #include "IPlugPaths.h"
 #include "IconsForkAwesome.h"
 
-IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
-: Plugin(instanceInfo, MakeConfig(kNumParams, kNumPrograms))
+IPlugControls::IPlugControls(const InstanceInfo& info)
+: Plugin(info, MakeConfig(kNumParams, kNumPrograms))
 {
   GetParam(kParamGain)->InitDouble("Gain", 100., 0., 100.0, 0.01, "%");
   GetParam(kParamMode)->InitEnum("Mode", 0, 4, "", IParam::kFlagsNone, "", "one", "two", "three", "four");

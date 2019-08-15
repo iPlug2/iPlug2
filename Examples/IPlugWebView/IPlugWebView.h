@@ -43,7 +43,7 @@ public:
 class IPlugWebView : public Plugin
 {
 public:
-  IPlugWebView(IPlugInstanceInfo instanceInfo);
+  IPlugWebView(const InstanceInfo& info);
   
   void OnIdle() override;
   bool OnMessage(int messageTag, int controlTag, int dataSize, const void* pData) override;

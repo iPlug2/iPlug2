@@ -21,7 +21,7 @@
 
 using namespace iplug;
 
-IPlugProcessor::IPlugProcessor(IPlugConfig c, EAPI plugAPI)
+IPlugProcessor::IPlugProcessor(Config c, EAPI plugAPI)
   : mLatency(c.latency)
   , mPlugType((EIPlugPluginType) c.plugType)
   , mDoesMIDIIn(c.plugDoesMidiIn)

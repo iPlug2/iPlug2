@@ -93,11 +93,11 @@ AAX_Result AAX_CEffectGUI_IPLUG::SetControlHighlightInfo(AAX_CParamID paramID, A
 
 #pragma mark IPlugAAX Construct
 
-IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPlugAPIBase(c, kAPIAAX)
-, IPlugProcessor(c, kAPIAAX)
+IPlugAAX::IPlugAAX(const InstanceInfo& info, const Config& config)
+: IPlugAPIBase(config, kAPIAAX)
+, IPlugProcessor(config, kAPIAAX)
 {
-  Trace(TRACELOC, "%s%s", c.pluginName, c.channelIOStr);
+  Trace(TRACELOC, "%s%s", config.pluginName, config.channelIOStr);
 
   SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
   SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);

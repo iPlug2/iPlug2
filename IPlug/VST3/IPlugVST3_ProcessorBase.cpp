@@ -47,7 +47,7 @@ uint64_t iplug::GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int b
 }
 #endif
 
-IPlugVST3ProcessorBase::IPlugVST3ProcessorBase(IPlugConfig c, IPlugAPIBase& plug)
+IPlugVST3ProcessorBase::IPlugVST3ProcessorBase(Config c, IPlugAPIBase& plug)
 : IPlugProcessor(c, kAPIVST3)
 , mPlug(plug)
 {

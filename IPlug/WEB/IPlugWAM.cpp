@@ -12,9 +12,9 @@
 
 using namespace iplug;
 
-IPlugWAM::IPlugWAM(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-  : IPlugAPIBase(c, kAPIWAM)
-  , IPlugProcessor(c, kAPIWAM)
+IPlugWAM::IPlugWAM(const InstanceInfo& info, const Config& config)
+: IPlugAPIBase(config, kAPIWAM)
+, IPlugProcessor(config, kAPIWAM)
 {
   int nInputs = MaxNChannels(ERoute::kInput), nOutputs = MaxNChannels(ERoute::kOutput);
 

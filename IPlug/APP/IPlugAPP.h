@@ -23,7 +23,7 @@
 
 BEGIN_IPLUG_NAMESPACE
 
-struct IPlugInstanceInfo
+struct InstanceInfo
 {
   void* pAppHost;
 };
@@ -36,7 +36,7 @@ class IPlugAPP : public IPlugAPIBase
                , public IPlugProcessor
 {
 public:
-  IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig config);
+  IPlugAPP(const InstanceInfo& info, const Config& config);
   
   //IPlugAPIBase
   void BeginInformHostOfParamChange(int idx) override {};

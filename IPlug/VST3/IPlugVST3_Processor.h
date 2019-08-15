@@ -37,12 +37,12 @@ class IPlugVST3Processor : public AudioEffect
                          , public IPlugVST3ProcessorBase
 {
 public:
-  struct IPlugInstanceInfo
+  struct InstanceInfo
   {
     Steinberg::FUID mOtherGUID;
   };
   
-  IPlugVST3Processor(IPlugInstanceInfo instanceInfo, IPlugConfig c);
+  IPlugVST3Processor(const InstanceInfo& info, const Config& config);
   virtual ~IPlugVST3Processor();
 
   // AudioEffect overrides:

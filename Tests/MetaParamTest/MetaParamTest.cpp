@@ -50,8 +50,8 @@ struct FourValues : public IControl
 };
 #endif
 
-MetaParamTest::MetaParamTest(IPlugInstanceInfo instanceInfo)
-: Plugin(instanceInfo, MakeConfig(kNumParams, kNumPrograms))
+MetaParamTest::MetaParamTest(const InstanceInfo& info)
+: Plugin(info, MakeConfig(kNumParams, kNumPrograms))
 {
   GetParam(kParamLeftX)->InitDouble("X1", 100., 0., 100.0, 0.01, "%");
   GetParam(kParamLeftY)->InitDouble("Y1", 100., 0., 100.0, 0.01, "%");
