@@ -9,10 +9,10 @@
 */
 
 #include <cmath>
+#include "dirscan.h"
 
 #include "IControl.h"
 #include "IPlugParameter.h"
-#include "dirscan.h"
 
 // avoid some UNICODE issues with VST3 SDK and WDL dirscan
 #if defined VST3_API && defined OS_WIN
