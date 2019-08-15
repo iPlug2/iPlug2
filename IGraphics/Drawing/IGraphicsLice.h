@@ -29,6 +29,9 @@
 
 #include <memory>
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 inline LICE_pixel LiceColor(const IColor& color)
 {
   auto preMul = [](int color, int A) {return (color * (A + 1)) >> 8; };
@@ -198,3 +201,7 @@ private:
   CGColorSpaceRef mColorSpace = nullptr;
 #endif
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+

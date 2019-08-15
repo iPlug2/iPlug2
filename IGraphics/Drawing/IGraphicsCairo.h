@@ -34,6 +34,9 @@
 
 #include "IGraphicsPathBase.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /** A Cairo API bitmap
  * @ingroup APIBitmaps */
 class CairoBitmap : public APIBitmap
@@ -109,3 +112,7 @@ private:
   cairo_t* mContext;
   cairo_surface_t* mSurface;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+

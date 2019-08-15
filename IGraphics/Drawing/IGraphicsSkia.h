@@ -12,6 +12,9 @@
 #include "SkCanvas.h"
 #include "SkImage.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 class SkiaBitmap : public APIBitmap
 {
 public:
@@ -110,3 +113,7 @@ private:
   void* mMTLLayer;
 #endif
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+
