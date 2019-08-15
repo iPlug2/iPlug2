@@ -39,7 +39,7 @@ using namespace iplug;
  @param pConfig The config struct derived from the channel i/o string token, this already contains data but \todo
  @return an integer corresponding to one of the AAX_eStemFormat
  */
-uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig)
+static uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig)
 {
   assert(pConfig != nullptr);
   assert(busIdx >= 0 && busIdx < pConfig->NBuses(dir));
