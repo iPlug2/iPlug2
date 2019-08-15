@@ -102,6 +102,13 @@
 		4F9828B8140A9EB700F3FCC1 /* IPlugAPIBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugAPIBase.cpp */; };
 		4F9828C1140A9EB700F3FCC1 /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
 		4F98C32D20A7678800F120A9 /* IPlugAUViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F98C32C20A7678800F120A9 /* IPlugAUViewController.xib */; };
+		4F993F5323055A84000313AF /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
+		4F993F5423055A84000313AF /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
+		4F993F5523055A85000313AF /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
+		4F993F5623055A85000313AF /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
+		4F993F5723055A85000313AF /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
+		4F993F5823055A87000313AF /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
+		4F993F5923055A87000313AF /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
 		4FA4F15322D0EC5C006C75D7 /* web in Resources */ = {isa = PBXBuildFile; fileRef = 4F150EDD22CF609800EA9ED1 /* web */; };
 		4FA4F15422D0EDE5006C75D7 /* web in Resources */ = {isa = PBXBuildFile; fileRef = 4F150EDD22CF609800EA9ED1 /* web */; };
 		4FA4F15D22D1148E006C75D7 /* IPlugWebViewEditorDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FA4F15C22D1148E006C75D7 /* IPlugWebViewEditorDelegate.mm */; };
@@ -1775,6 +1782,7 @@
 				4F5F344220C0226200487201 /* IPlugPaths.mm in Sources */,
 				4F1A527B205D910000CF2908 /* IPlugVST2.cpp in Sources */,
 				4F8D9707209EF5AC006E2A11 /* IPlugWebView.cpp in Sources */,
+				4F993F5423055A84000313AF /* IPlugProcessor.cpp in Sources */,
 				4F78D9BB13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
 				4F35DEAE207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4F78D9C813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
@@ -1793,6 +1801,7 @@
 				4FAEBD35209DAF87002E6392 /* IPlugTimer.cpp in Sources */,
 				4F5F344620C0226200487201 /* IPlugPaths.mm in Sources */,
 				4FAEBD32209DAF76002E6392 /* IPlugAUViewController.mm in Sources */,
+				4F993F5923055A87000313AF /* IPlugProcessor.cpp in Sources */,
 				4FAEBD33209DAF87002E6392 /* IPlugAPIBase.cpp in Sources */,
 				4FA4F16322D1148E006C75D7 /* IPlugWebViewEditorDelegate.mm in Sources */,
 			);
@@ -1810,6 +1819,7 @@
 				4F5F344420C0226200487201 /* IPlugPaths.mm in Sources */,
 				4F35DEB0207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4F78D95C13B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
+				4F993F5623055A85000313AF /* IPlugProcessor.cpp in Sources */,
 				4F3862F22014BBEC0009F402 /* IPlugWebView.cpp in Sources */,
 				4FA4F16022D1148E006C75D7 /* IPlugWebViewEditorDelegate.mm in Sources */,
 			);
@@ -1847,6 +1857,7 @@
 				4F815994205D51F000393585 /* vstparameters.cpp in Sources */,
 				4F815991205D51F000393585 /* vstcomponentbase.cpp in Sources */,
 				4F815987205D50EB00393585 /* conststringtable.cpp in Sources */,
+				4F993F5523055A85000313AF /* IPlugProcessor.cpp in Sources */,
 				4F722020225C1EB100FF0E7C /* commoniids.cpp in Sources */,
 				4F81598D205D51F000393585 /* vstaudioeffect.cpp in Sources */,
 				4F81598C205D51CF00393585 /* vstsinglecomponenteffect.cpp in Sources */,
@@ -1874,6 +1885,7 @@
 				4F0848292015129A00F9E881 /* IPlugAAX_Parameters.cpp in Sources */,
 				4FA4F16122D1148E006C75D7 /* IPlugWebViewEditorDelegate.mm in Sources */,
 				4F3862F32014BBEC0009F402 /* IPlugWebView.cpp in Sources */,
+				4F993F5723055A85000313AF /* IPlugProcessor.cpp in Sources */,
 				4FB600231567CB0A0020189A /* IPlugParameter.cpp in Sources */,
 				4FB600261567CB0A0020189A /* AAX_Exports.cpp in Sources */,
 				4FB600281567CB0A0020189A /* IPlugAAX_Describe.cpp in Sources */,
@@ -1907,6 +1919,7 @@
 				4F5C5F6B21BED08700E024A7 /* swell-appstub.mm in Sources */,
 				4FA4F15D22D1148E006C75D7 /* IPlugWebViewEditorDelegate.mm in Sources */,
 				4FD16D4013B635A0001D0217 /* swell-misc.mm in Sources */,
+				4F993F5323055A84000313AF /* IPlugProcessor.cpp in Sources */,
 				4FD16D4213B635AB001D0217 /* swell-wnd.mm in Sources */,
 				4FD16D4413B635B2001D0217 /* swell.cpp in Sources */,
 				4F690CA3203A45C700A4A13E /* IPlugAPP_host.cpp in Sources */,
@@ -1963,6 +1976,7 @@
 				4FFBB92D20863B0E00DDD0E7 /* vstrepresentation.cpp in Sources */,
 				4FFBB92E20863B0E00DDD0E7 /* fcondition.cpp in Sources */,
 				4FFBB93020863B0E00DDD0E7 /* fbuffer.cpp in Sources */,
+				4F993F5823055A87000313AF /* IPlugProcessor.cpp in Sources */,
 				4FFBB93420863B0E00DDD0E7 /* coreiids.cpp in Sources */,
 				4F5F344720C0226200487201 /* IPlugPaths.mm in Sources */,
 				4FFBB93520863B0E00DDD0E7 /* vstnoteexpressiontypes.cpp in Sources */,
