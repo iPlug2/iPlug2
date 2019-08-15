@@ -36,9 +36,10 @@
 #if defined VST2_API
   extern "C"
   {
-    BEGIN_IPLUG_NAMESPACE
     EXPORT void* VSTPluginMain(audioMasterCallback hostCallback)
     {
+      using namespace iplug;
+
       IPlugInstanceInfo instanceInfo;
       instanceInfo.mVSTHostCallback = hostCallback;
       IPlugVST2* pPlug = new PLUG_CLASS_NAME(instanceInfo);
@@ -60,7 +61,6 @@
       return (int) VSTPluginMain((audioMasterCallback)hostCallback);
     #endif
     }
-    END_IPLUG_NAMESPACE
   };
 
 #pragma mark - VST3
@@ -181,8 +181,6 @@ END_IPLUG_NAMESPACE
 
 #if defined VST3P_API
 
-BEGIN_IPLUG_NAMESPACE
-
 BEGIN_FACTORY_DEF (PLUG_MFR, PLUG_URL_STR, PLUG_EMAIL_STR)
 
 DEF_CLASS2 (INLINE_UID(PROC_GUID_DATA1, PROC_GUID_DATA2, GUID_DATA3, GUID_DATA4),
@@ -206,8 +204,6 @@ DEF_CLASS2 (INLINE_UID(CTRL_GUID_DATA1, CTRL_GUID_DATA2, GUID_DATA3, GUID_DATA4)
 
 END_FACTORY
 
-END_IPLUG_NAMESPACE
-
 #endif
 #pragma mark - AUv2
 #elif defined AU_API
@@ -216,16 +212,16 @@ END_IPLUG_NAMESPACE
 
 BEGIN_IPLUG_NAMESPACE
 
-  Plugin* MakePlug(void* pMemory)
-  {
-    IPlugInstanceInfo instanceInfo;
-    instanceInfo.mCocoaViewFactoryClassName.Set(AUV2_VIEW_CLASS_STR);
+Plugin* MakePlug(void* pMemory)
+{
+  IPlugInstanceInfo instanceInfo;
+  instanceInfo.mCocoaViewFactoryClassName.Set(AUV2_VIEW_CLASS_STR);
 
-    if(pMemory)
-      return new(pMemory) PLUG_CLASS_NAME(instanceInfo);
-    else
-      return new PLUG_CLASS_NAME(instanceInfo);
-  }
+  if(pMemory)
+    return new(pMemory) PLUG_CLASS_NAME(instanceInfo);
+  else
+    return new PLUG_CLASS_NAME(instanceInfo);
+}
 
 class IPlugAUFactory
 {
@@ -344,32 +340,31 @@ END_IPLUG_NAMESPACE
 #elif defined AAX_API
 
 BEGIN_IPLUG_NAMESPACE
+Plugin* MakePlug()
+{
+  IPlugInstanceInfo instanceInfo;
 
-  Plugin* MakePlug()
-  {
-    IPlugInstanceInfo instanceInfo;
-
-    return new PLUG_CLASS_NAME(instanceInfo);
-  }
+  return new PLUG_CLASS_NAME(instanceInfo);
+}
 END_IPLUG_NAMESPACE
 
 #pragma mark - APP
 #elif defined APP_API
 
 BEGIN_IPLUG_NAMESPACE
-  Plugin* MakePlug(void* pAppHost)
-  {
-    IPlugInstanceInfo instanceInfo;
-    instanceInfo.pAppHost = pAppHost;
-    
-    return new PLUG_CLASS_NAME(instanceInfo);
-  }
+Plugin* MakePlug(void* pAppHost)
+{
+  IPlugInstanceInfo instanceInfo;
+  instanceInfo.pAppHost = pAppHost;
+  
+  return new PLUG_CLASS_NAME(instanceInfo);
+}
 END_IPLUG_NAMESPACE
 
 #pragma mark - WAM
 #elif defined WAM_API
 
-  BEGIN_IPLUG_NAMESPACE
+BEGIN_IPLUG_NAMESPACE
 
   Plugin* MakePlug()
   {
@@ -377,7 +372,7 @@ END_IPLUG_NAMESPACE
     return new PLUG_CLASS_NAME(instanceInfo);
   }
 
-  END_IPLUG_NAMESPACE
+END_IPLUG_NAMESPACE
 
   extern "C"
   {
@@ -393,14 +388,13 @@ END_IPLUG_NAMESPACE
 #include <memory>
 #include "config.h"
 
-  BEGIN_IPLUG_NAMESPACE
-
+BEGIN_IPLUG_NAMESPACE
   Plugin* MakePlug()
   {
     IPlugInstanceInfo instanceInfo;
     return new PLUG_CLASS_NAME(instanceInfo);
   }
-  END_IPLUG_NAMESPACE
+END_IPLUG_NAMESPACE
 
   std::unique_ptr<iplug::IPlugWeb> gPlug;
   extern void StartMainLoopTimer();
