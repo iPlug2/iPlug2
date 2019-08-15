@@ -1790,16 +1790,16 @@ void IPlugAU::ClearConnections()
 
 #pragma mark - IPlugAU Constructor
 
-IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPlugAPIBase(c, kAPIAU)
-, IPlugProcessor(c, kAPIAU)
+IPlugAU::IPlugAU(const InstanceInfo& info, const Config& config)
+: IPlugAPIBase(config, kAPIAU)
+, IPlugProcessor(config, kAPIAU)
 {
-  Trace(TRACELOC, "%s", c.pluginName);
+  Trace(TRACELOC, "%s", config.pluginName);
 
   memset(&mHostCallbacks, 0, sizeof(HostCallbackInfo));
   memset(&mMidiCallback, 0, sizeof(AUMIDIOutputCallbackStruct));
 
-  mCocoaViewFactoryClassName.Set(instanceInfo.mCocoaViewFactoryClassName.Get());
+  mCocoaViewFactoryClassName.Set(info.mCocoaViewFactoryClassName.Get());
 
   const int maxNIBuses = MaxNBuses(ERoute::kInput);
   const int maxNOBuses = MaxNBuses(ERoute::kOutput);

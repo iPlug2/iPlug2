@@ -37,7 +37,7 @@
 BEGIN_IPLUG_NAMESPACE
 
 /** Used to pass various instance info to the API class, where needed */
-struct IPlugInstanceInfo {};
+struct InstanceInfo {};
 
 using namespace Steinberg;
 
@@ -51,7 +51,7 @@ class IPlugVST3 : public IPlugAPIBase
 public:
   using ViewType = IPlugVST3View<IPlugVST3>;
     
-  IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig config);
+  IPlugVST3(const InstanceInfo& info, const Config& config);
   ~IPlugVST3();
 
   // IPlugAPIBase

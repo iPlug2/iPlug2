@@ -17,7 +17,7 @@
 BEGIN_IPLUG_NAMESPACE
 
 /** Used to pass various instance info to the API class */
-struct IPlugInstanceInfo
+struct InstanceInfo
 {};
 
 /** This is used for the UI "editor" - controller side of a WAM or remote editors that communicate with desktop iPlug plug-ins via web sockets
@@ -25,7 +25,7 @@ struct IPlugInstanceInfo
 class IPlugWeb : public IPlugAPIBase
 {
 public:
-  IPlugWeb(IPlugInstanceInfo instanceInfo, IPlugConfig config);
+  IPlugWeb(const InstanceInfo& info, const Config& config);
 
   //IEditorDelegate  
   void SendParameterValueFromUI(int paramIdx, double value) override;

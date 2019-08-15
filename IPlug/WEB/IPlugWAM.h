@@ -20,7 +20,7 @@ using namespace WAM;
 BEGIN_IPLUG_NAMESPACE
 
 /** Used to pass various instance info to the API class */
-struct IPlugInstanceInfo
+struct InstanceInfo
 {};
 
 /** WebAudioModule (WAM) API base class. This is used for the DSP processor side of a WAM, which is sandboxed and lives in the AudioWorkletGlobalScope
@@ -30,7 +30,7 @@ class IPlugWAM : public IPlugAPIBase
                , public Processor
 {
 public:
-  IPlugWAM(IPlugInstanceInfo instanceInfo, IPlugConfig config);
+  IPlugWAM(const InstanceInfo& info, const Config& config);
 
   //WAM
   const char* init(uint32_t bufsize, uint32_t sr, void* pDesc) override;

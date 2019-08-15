@@ -1,8 +1,8 @@
 #include "IPlugFaustDSP.h"
 #include "IPlug_include_in_plug_src.h"
 
-IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
-: Plugin(instanceInfo, MakeConfig(kNumParams, 1))
+IPlugFaustDSP::IPlugFaustDSP(const InstanceInfo& info)
+: Plugin(info, MakeConfig(kNumParams, 1))
 {
   InitParamRange(0, kNumParams-1, 0, "Param %i", 0., 0., 1., 0.01, "", IParam::kFlagsNone);
   

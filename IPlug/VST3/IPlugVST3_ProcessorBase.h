@@ -32,7 +32,7 @@ extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoutingDir dir, 
 class IPlugVST3ProcessorBase : public IPlugProcessor
 {
 public:
-  IPlugVST3ProcessorBase(IPlugConfig c, IPlugAPIBase& plug);
+  IPlugVST3ProcessorBase(Config c, IPlugAPIBase& plug);
   
   template <class T>
   void Initialize(T* plug)

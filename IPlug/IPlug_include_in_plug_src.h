@@ -40,9 +40,9 @@
     {
       using namespace iplug;
 
-      IPlugInstanceInfo instanceInfo;
-      instanceInfo.mVSTHostCallback = hostCallback;
-      IPlugVST2* pPlug = new PLUG_CLASS_NAME(instanceInfo);
+      InstanceInfo info;
+      info.mVSTHostCallback = hostCallback;
+      IPlugVST2* pPlug = new PLUG_CLASS_NAME(info);
 
       if (pPlug)
       {
@@ -109,9 +109,9 @@ Plugin* MakeProcessor()
 {
   static WDL_Mutex sMutex;
   WDL_MutexLock lock(&sMutex);
-  IPlugVST3Processor::IPlugInstanceInfo instanceInfo;
-  instanceInfo.mOtherGUID = FUID(CTRL_GUID_DATA1, CTRL_GUID_DATA2, GUID_DATA3, GUID_DATA4);
-  return new PLUG_CLASS_NAME(instanceInfo);
+  IPlugVST3Processor::InstanceInfo info;
+  info.mOtherGUID = FUID(CTRL_GUID_DATA1, CTRL_GUID_DATA2, GUID_DATA3, GUID_DATA4);
+  return new PLUG_CLASS_NAME(info);
 }
 
 static Steinberg::FUnknown* createProcessorInstance (void*) {
@@ -134,12 +134,12 @@ Plugin* MakeController()
 {
   static WDL_Mutex sMutex;
   WDL_MutexLock lock(&sMutex);
-  IPlugVST3Controller::IPlugInstanceInfo instanceInfo;
-  instanceInfo.mOtherGUID = FUID(PROC_GUID_DATA1, PROC_GUID_DATA2, GUID_DATA3, GUID_DATA4);
+  IPlugVST3Controller::InstanceInfo info;
+  info.mOtherGUID = FUID(PROC_GUID_DATA1, PROC_GUID_DATA2, GUID_DATA3, GUID_DATA4);
   
   //If you are trying to build a distributed VST3 plug-in and you hit an error here "no matching constructor...",
   //you need to replace all instances of PLUG_CLASS_NAME in your plug-in class, with the macro PLUG_CLASS_NAME
-  return new PLUG_CLASS_NAME(instanceInfo);
+  return new PLUG_CLASS_NAME(info);
 }
 
 END_IPLUG_NAMESPACE
@@ -152,9 +152,9 @@ Plugin* MakePlug()
 {
   static WDL_Mutex sMutex;
   WDL_MutexLock lock(&sMutex);
-  IPlugInstanceInfo instanceInfo;
+  InstanceInfo info;
   
-  return new PLUG_CLASS_NAME(instanceInfo);
+  return new PLUG_CLASS_NAME(info);
 }
 
 static Steinberg::FUnknown* createInstance (void*) {
@@ -214,13 +214,13 @@ BEGIN_IPLUG_NAMESPACE
 
 Plugin* MakePlug(void* pMemory)
 {
-  IPlugInstanceInfo instanceInfo;
-  instanceInfo.mCocoaViewFactoryClassName.Set(AUV2_VIEW_CLASS_STR);
+  InstanceInfo info;
+  info.mCocoaViewFactoryClassName.Set(AUV2_VIEW_CLASS_STR);
 
   if(pMemory)
-    return new(pMemory) PLUG_CLASS_NAME(instanceInfo);
+    return new(pMemory) PLUG_CLASS_NAME(info);
   else
-    return new PLUG_CLASS_NAME(instanceInfo);
+    return new PLUG_CLASS_NAME(info);
 }
 
 class IPlugAUFactory
@@ -330,8 +330,8 @@ extern "C"
 
   Plugin* MakePlug()
   {
-    IPlugInstanceInfo instanceInfo;
-    return new PLUG_CLASS_NAME(instanceInfo);
+    InstanceInfo info;
+    return new PLUG_CLASS_NAME(info);
   }
 
 END_IPLUG_NAMESPACE
@@ -342,9 +342,9 @@ END_IPLUG_NAMESPACE
 BEGIN_IPLUG_NAMESPACE
 Plugin* MakePlug()
 {
-  IPlugInstanceInfo instanceInfo;
+  InstanceInfo info;
 
-  return new PLUG_CLASS_NAME(instanceInfo);
+  return new PLUG_CLASS_NAME(info);
 }
 END_IPLUG_NAMESPACE
 
@@ -354,10 +354,10 @@ END_IPLUG_NAMESPACE
 BEGIN_IPLUG_NAMESPACE
 Plugin* MakePlug(void* pAppHost)
 {
-  IPlugInstanceInfo instanceInfo;
-  instanceInfo.pAppHost = pAppHost;
+  InstanceInfo info;
+  info.pAppHost = pAppHost;
   
-  return new PLUG_CLASS_NAME(instanceInfo);
+  return new PLUG_CLASS_NAME(info);
 }
 END_IPLUG_NAMESPACE
 
@@ -368,8 +368,8 @@ BEGIN_IPLUG_NAMESPACE
 
   Plugin* MakePlug()
   {
-    IPlugInstanceInfo instanceInfo;
-    return new PLUG_CLASS_NAME(instanceInfo);
+    InstanceInfo info;
+    return new PLUG_CLASS_NAME(info);
   }
 
 END_IPLUG_NAMESPACE
@@ -391,8 +391,8 @@ END_IPLUG_NAMESPACE
 BEGIN_IPLUG_NAMESPACE
   Plugin* MakePlug()
   {
-    IPlugInstanceInfo instanceInfo;
-    return new PLUG_CLASS_NAME(instanceInfo);
+    InstanceInfo info;
+    return new PLUG_CLASS_NAME(info);
   }
 END_IPLUG_NAMESPACE
 
@@ -469,9 +469,9 @@ END_IPLUG_NAMESPACE
 #define PUBLIC_NAME PLUG_NAME
 
 BEGIN_IPLUG_NAMESPACE
-IPlugConfig MakeConfig(int nParams, int nPresets)
+Config MakeConfig(int nParams, int nPresets)
 {
-  return IPlugConfig(nParams, nPresets, PLUG_CHANNEL_IO, PUBLIC_NAME, "", PLUG_MFR, PLUG_VERSION_HEX, PLUG_UNIQUE_ID, PLUG_MFR_ID, PLUG_LATENCY, PLUG_DOES_MIDI_IN, PLUG_DOES_MIDI_OUT, PLUG_DOES_MPE, PLUG_DOES_STATE_CHUNKS, PLUG_TYPE, PLUG_HAS_UI, PLUG_WIDTH, PLUG_HEIGHT, BUNDLE_ID);
+  return Config(nParams, nPresets, PLUG_CHANNEL_IO, PUBLIC_NAME, "", PLUG_MFR, PLUG_VERSION_HEX, PLUG_UNIQUE_ID, PLUG_MFR_ID, PLUG_LATENCY, PLUG_DOES_MIDI_IN, PLUG_DOES_MIDI_OUT, PLUG_DOES_MPE, PLUG_DOES_STATE_CHUNKS, PLUG_TYPE, PLUG_HAS_UI, PLUG_WIDTH, PLUG_HEIGHT, BUNDLE_ID);
 }
 END_IPLUG_NAMESPACE
 

@@ -35,7 +35,7 @@
 
 BEGIN_IPLUG_NAMESPACE
 
-struct IPlugConfig;
+struct Config;
 
 /** The base class of an IPlug plug-in, which interacts with the different plug-in APIs.
  *  This interface does not handle audio processing, see @IPlugProcessor  */
@@ -43,7 +43,7 @@ class IPlugAPIBase : public IPluginBase
 {
 
 public:
-  IPlugAPIBase(IPlugConfig config, EAPI plugAPI);
+  IPlugAPIBase(Config config, EAPI plugAPI);
   virtual ~IPlugAPIBase();
   
   IPlugAPIBase(const IPlugAPIBase&) = delete;

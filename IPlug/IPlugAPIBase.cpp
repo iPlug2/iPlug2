@@ -22,7 +22,7 @@
 
 using namespace iplug;
 
-IPlugAPIBase::IPlugAPIBase(IPlugConfig c, EAPI plugAPI)
+IPlugAPIBase::IPlugAPIBase(Config c, EAPI plugAPI)
   : IPluginBase(c.nParams, c.nPresets)
 {
   mUniqueID = c.uniqueID;

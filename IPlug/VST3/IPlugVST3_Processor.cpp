@@ -12,11 +12,11 @@
 
 #pragma mark - IPlugVST3Processor Constructor/Destructor
 
-IPlugVST3Processor::IPlugVST3Processor(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPlugAPIBase(c, kAPIVST3)
-, IPlugVST3ProcessorBase(c, *this)
+IPlugVST3Processor::IPlugVST3Processor(const InstanceInfo& info, const Config& config)
+: IPlugAPIBase(config, kAPIVST3)
+, IPlugVST3ProcessorBase(config, *this)
 {
-  setControllerClass(instanceInfo.mOtherGUID);
+  setControllerClass(info.mOtherGUID);
   CreateTimer();
 }
 

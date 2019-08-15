@@ -2,8 +2,8 @@
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
 
-IPlugMidiEffect::IPlugMidiEffect(IPlugInstanceInfo instanceInfo)
-: Plugin(instanceInfo, MakeConfig(kNumParams, kNumPrograms))
+IPlugMidiEffect::IPlugMidiEffect(const InstanceInfo& info)
+: Plugin(info, MakeConfig(kNumParams, kNumPrograms))
 {
   GetParam(kParamGain)->InitDouble("Gain", 100., 0., 100.0, 0.01, "%");
   

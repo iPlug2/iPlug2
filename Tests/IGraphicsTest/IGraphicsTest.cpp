@@ -16,8 +16,8 @@ enum EControlTags
   kCtrlTagSize = 0
 };
 
-IGraphicsTest::IGraphicsTest(IPlugInstanceInfo instanceInfo)
-: Plugin(instanceInfo, MakeConfig(kNumParams, 1))
+IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
+: Plugin(info, MakeConfig(kNumParams, 1))
 {
   GetParam(kParamDummy)->InitGain("Dummy");
   
