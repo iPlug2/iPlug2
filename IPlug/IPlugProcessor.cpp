@@ -132,19 +132,19 @@ int IPlugProcessor::MaxNChannelsForBus(ERoute direction, int busIdx) const
     return -1;
 
   const int maxNBuses = MaxNBuses(direction);
-  int maxChansOnBuses[maxNBuses];
-  memset(maxChansOnBuses, 0, maxNBuses * sizeof(int));
+  WDL_TypedBuf<int> maxChansOnBuses;
+  maxChansOnBuses.Resize(maxNBuses);
 
   //find the maximum channel count for each input or output bus
   for (auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
   {
     IOConfig* pIOConfig = mIOConfigs.Get(configIdx);
 
-    for (auto bus = 0; bus < maxNBuses; bus++)
-      maxChansOnBuses[bus] = std::max(pIOConfig->NChansOnBusSAFE(direction, bus), maxChansOnBuses[bus]);
+    for (int bus = 0; bus < maxNBuses; bus++)
+      maxChansOnBuses.Get()[bus] = std::max(pIOConfig->NChansOnBusSAFE(direction, bus), maxChansOnBuses.Get()[bus]);
   }
 
-  return maxChansOnBuses[busIdx];
+  return maxChansOnBuses.Get()[busIdx];
 }
 
 int IPlugProcessor::NChannelsConnected(ERoute direction) const
