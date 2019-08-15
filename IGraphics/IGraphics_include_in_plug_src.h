@@ -76,6 +76,12 @@
 
   iplug::igraphics::IGraphicsWeb* gGraphics = nullptr;
 
+  void StartMainLoopTimer()
+  {
+    iplug::igraphics::IGraphicsWeb* pGraphics = gGraphics;
+    emscripten_set_main_loop(pGraphics->OnMainLoopTimer, 0 /*pGraphics->FPS()*/, 1);
+  }
+
   BEGIN_IPLUG_NAMESPACE
   BEGIN_IGRAPHICS_NAMESPACE
 
@@ -87,12 +93,6 @@
 
   END_IGRAPHICS_NAMESPACE
   END_IPLUG_NAMESPACE
-
-  void StartMainLoopTimer()
-  {
-      iplug::igraphics::IGraphicsWeb* pGraphics = gGraphics;
-      emscripten_set_main_loop(pGraphics->OnMainLoopTimer, 0 /*pGraphics->FPS()*/, 1);
-  }
 
   #else
     #error "No OS defined!"
