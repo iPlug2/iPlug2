@@ -14,7 +14,7 @@
 
 using namespace iplug;
 
-const int VST_VERSION = 2400;
+static const int VST_VERSION = 2400;
 
 static int VSTSpkrArrType(int nchan)
 {
