@@ -19,12 +19,14 @@
 
 using namespace iplug;
 
+#pragma mark - CFString and CString Utilities
+
 static inline CFStringRef MakeCFString(const char* cStr)
 {
   return CFStringCreateWithCString(0, cStr, kCFStringEncodingUTF8);
 }
 
-class CFStrLocal
+class IPlugAU::CFStrLocal
 {
 public:
   CFStrLocal(const char* cStr)
@@ -46,7 +48,7 @@ private:
   CFStringRef mCFStr;
 };
 
-struct CStrLocal : WDL_TypedBuf<char>
+struct IPlugAU::CStrLocal : WDL_TypedBuf<char>
 {
   CStrLocal(CFStringRef cfStr)
   {
@@ -58,7 +60,9 @@ struct CStrLocal : WDL_TypedBuf<char>
   }
 };
 
-static inline void PutNumberInDict(CFMutableDictionaryRef pDict, const char* key, void* pNumber, CFNumberType type)
+#pragma mark - Utilities
+
+inline void IPlugAU::PutNumberInDict(CFMutableDictionaryRef pDict, const char* key, void* pNumber, CFNumberType type)
 {
   CFStrLocal cfKey(key);
   CFNumberRef pValue = CFNumberCreate(0, type, pNumber);
@@ -66,14 +70,14 @@ static inline void PutNumberInDict(CFMutableDictionaryRef pDict, const char* key
   CFRelease(pValue);
 }
 
-static inline void PutStrInDict(CFMutableDictionaryRef pDict, const char* key, const char* value)
+inline void IPlugAU::PutStrInDict(CFMutableDictionaryRef pDict, const char* key, const char* value)
 {
   CFStrLocal cfKey(key);
   CFStrLocal cfValue(value);
   CFDictionarySetValue(pDict, cfKey.Get(), cfValue.Get());
 }
 
-static inline void PutDataInDict(CFMutableDictionaryRef pDict, const char* key, IByteChunk* pChunk)
+inline void IPlugAU::PutDataInDict(CFMutableDictionaryRef pDict, const char* key, IByteChunk* pChunk)
 {
   CFStrLocal cfKey(key);
   CFDataRef pData = CFDataCreate(0, pChunk->GetData(), pChunk->Size());
@@ -81,7 +85,7 @@ static inline void PutDataInDict(CFMutableDictionaryRef pDict, const char* key, 
   CFRelease(pData);
 }
 
-static inline bool GetNumberFromDict(CFDictionaryRef pDict, const char* key, void* pNumber, CFNumberType type)
+inline bool IPlugAU::GetNumberFromDict(CFDictionaryRef pDict, const char* key, void* pNumber, CFNumberType type)
 {
   CFStrLocal cfKey(key);
   CFNumberRef pValue = (CFNumberRef) CFDictionaryGetValue(pDict, cfKey.Get());
@@ -93,7 +97,7 @@ static inline bool GetNumberFromDict(CFDictionaryRef pDict, const char* key, voi
   return false;
 }
 
-static inline bool GetStrFromDict(CFDictionaryRef pDict, const char* key, char* value)
+inline bool IPlugAU::GetStrFromDict(CFDictionaryRef pDict, const char* key, char* value)
 {
   CFStrLocal cfKey(key);
   CFStringRef pValue = (CFStringRef) CFDictionaryGetValue(pDict, cfKey.Get());
@@ -107,7 +111,7 @@ static inline bool GetStrFromDict(CFDictionaryRef pDict, const char* key, char* 
   return false;
 }
 
-static inline bool GetDataFromDict(CFDictionaryRef pDict, const char* key, IByteChunk* pChunk)
+inline bool IPlugAU::GetDataFromDict(CFDictionaryRef pDict, const char* key, IByteChunk* pChunk)
 {
   CFStrLocal cfKey(key);
   CFDataRef pData = (CFDataRef) CFDictionaryGetValue(pDict, cfKey.Get());
@@ -120,7 +124,6 @@ static inline bool GetDataFromDict(CFDictionaryRef pDict, const char* key, IByte
   }
   return false;
 }
-
 
 #define kAudioUnitRemovePropertyListenerWithUserDataSelect 0x0012
 

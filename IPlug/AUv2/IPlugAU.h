@@ -184,8 +184,19 @@ private:
   static OSStatus DoMIDIEvent(IPlugAU* pPlug, UInt32 inStatus, UInt32 inData1, UInt32 inData2, UInt32 inOffsetSampleFrame);
   static OSStatus DoSysEx(IPlugAU* pPlug, const UInt8 *inData, UInt32 inLength);
   
-#pragma mark -
 private:
+  
+#pragma mark - Utilities
+
+  static inline void PutNumberInDict(CFMutableDictionaryRef pDict, const char* key, void* pNumber, CFNumberType type);
+  static inline void PutStrInDict(CFMutableDictionaryRef pDict, const char* key, const char* value);
+  static inline void PutDataInDict(CFMutableDictionaryRef pDict, const char* key, IByteChunk* pChunk);
+  static inline bool GetNumberFromDict(CFDictionaryRef pDict, const char* key, void* pNumber, CFNumberType type);
+  static inline bool GetStrFromDict(CFDictionaryRef pDict, const char* key, char* value);
+  static inline bool GetDataFromDict(CFDictionaryRef pDict, const char* key, IByteChunk* pChunk);
+  
+#pragma mark -
+
   bool mActive = false; // TODO: is this necessary? is it correct?
   double mLastRenderSampleTime = -1.0;
   WDL_String mCocoaViewFactoryClassName;
@@ -201,6 +212,9 @@ private:
   AudioTimeStamp mLastRenderTimeStamp;
 
   friend class IPlugAUFactory;
+  
+  struct CStrLocal;
+  class CFStrLocal;
 };
 
 IPlugAU* MakePlug(void* memory);
