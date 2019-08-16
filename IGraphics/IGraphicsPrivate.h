@@ -158,7 +158,7 @@ class IFontInfo
 {
 public:
   IFontInfo(const void* data, uint32_t dataSize, uint32_t faceIdx)
-  : mData(reinterpret_cast<const unsigned char*>(data)), mHeadLocation(0), mNameLocation(0), mHheaLocation(0), mMacStyle(0), mUnitsPerEM(0), mAscender(0), mDescender(0), mLineGap(0)
+  : mData(reinterpret_cast<const unsigned char*>(data))
   {
     if (mData)
       FindFace(faceIdx);
@@ -205,7 +205,6 @@ public:
   int16_t GetLineHeight() const  { return (mAscender - mDescender) + mLineGap; }
   
 private:
-  
   bool MatchTag(uint32_t loc, const char* tag)
   {
     return mData[loc+0] == tag[0] && mData[loc+1] == tag[1] && mData[loc+2] == tag[2] && mData[loc+3] == tag[3];
@@ -307,24 +306,24 @@ private:
   }
   
 #if defined WDL_LITTLE_ENDIAN
-  uint16_t   GetUInt16(uint32_t loc)  { return (((uint16_t)mData[loc + 0]) << 8) | (uint16_t)mData[loc + 1]; }
-  int16_t    GetSInt16(uint32_t loc)  { return (((uint16_t)mData[loc + 0]) << 8) | (uint16_t)mData[loc + 1]; }
-  uint32_t   GetUInt32(uint32_t loc)  { return (((uint32_t)GetUInt16(loc + 0)) << 16) | (uint32_t)GetUInt16(loc + 2); }
-  int32_t    GetSInt32(uint32_t loc)  { return (((uint32_t)GetUInt16(loc + 0)) << 16) | (uint32_t)GetUInt16(loc + 2); }
+  uint16_t GetUInt16(uint32_t loc) { return (((uint16_t)mData[loc + 0]) << 8) | (uint16_t)mData[loc + 1]; }
+  int16_t GetSInt16(uint32_t loc) { return (((uint16_t)mData[loc + 0]) << 8) | (uint16_t)mData[loc + 1]; }
+  uint32_t GetUInt32(uint32_t loc) { return (((uint32_t)GetUInt16(loc + 0)) << 16) | (uint32_t)GetUInt16(loc + 2); }
+  int32_t GetSInt32(uint32_t loc) { return (((uint32_t)GetUInt16(loc + 0)) << 16) | (uint32_t)GetUInt16(loc + 2); }
 #else
-  uint16_t   GetUInt16(uint32_t loc)  { return (((uint16_t)mData[loc + 1]) << 8) | (uint16_t)mData[loc + 0]; }
-  int16_t    GetSInt16(uint32_t loc)  { return (((uint16_t)mData[loc + 1]) << 8) | (uint16_t)mData[loc + 0]; }
-  uint32_t   GetUInt32(uint32_t loc)  { return (((uint32_t)GetUInt16(loc + 2)) << 16) | (uint32_t)GetUInt16(loc + 0); }
-  int32_t    GetSInt32(uint32_t loc)  { return (((uint32_t)GetUInt16(loc + 2)) << 16) | (uint32_t)GetUInt16(loc + 0); }
+  uint16_t GetUInt16(uint32_t loc) { return (((uint16_t)mData[loc + 1]) << 8) | (uint16_t)mData[loc + 0]; }
+  int16_t GetSInt16(uint32_t loc) { return (((uint16_t)mData[loc + 1]) << 8) | (uint16_t)mData[loc + 0]; }
+  uint32_t GetUInt32(uint32_t loc) { return (((uint32_t)GetUInt16(loc + 2)) << 16) | (uint32_t)GetUInt16(loc + 0); }
+  int32_t GetSInt32(uint32_t loc) { return (((uint32_t)GetUInt16(loc + 2)) << 16) | (uint32_t)GetUInt16(loc + 0); }
 #endif
   
-  // Data
+private:
   const unsigned char* mData;
   
-  uint32_t mHeadLocation;
-  uint32_t mNameLocation;
-  uint32_t mHheaLocation;
-  uint32_t mFDscLocation;
+  uint32_t mHeadLocation = 0;
+  uint32_t mNameLocation = 0;
+  uint32_t mHheaLocation = 0;
+  uint32_t mFDscLocation = 0;
   
   // Font Identifiers
   WDL_String mFamily;
@@ -332,10 +331,10 @@ private:
   uint16_t mMacStyle;
   
   // Metrics
-  uint16_t mUnitsPerEM;
-  int16_t mAscender;
-  int16_t mDescender;
-  int16_t mLineGap;
+  uint16_t mUnitsPerEM = 0;
+  int16_t mAscender = 0;
+  int16_t mDescender = 0;
+  int16_t mLineGap = 0;
 };
 
 /** Used to manage raw font data. */
@@ -416,23 +415,23 @@ using PlatformFontPtr = std::unique_ptr<PlatformFont>;
 /** Used internally to manage SVG data*/
 struct SVGHolder
 {
-    NSVGimage* mImage = nullptr;
+  NSVGimage* mImage = nullptr;
+  
+  SVGHolder(NSVGimage* pImage)
+  : mImage(pImage)
+  {
+  }
+  
+  ~SVGHolder()
+  {
+    if(mImage)
+      nsvgDelete(mImage);
     
-    SVGHolder(NSVGimage* pImage)
-    : mImage(pImage)
-    {
-    }
-    
-    ~SVGHolder()
-    {
-        if(mImage)
-            nsvgDelete(mImage);
-        
-        mImage = nullptr;
-    }
-    
-    SVGHolder(const SVGHolder&) = delete;
-    SVGHolder& operator=(const SVGHolder&) = delete;
+    mImage = nullptr;
+  }
+  
+  SVGHolder(const SVGHolder&) = delete;
+  SVGHolder& operator=(const SVGHolder&) = delete;
 };
 
 /** Used internally to store data statically, making sure memory is not wasted when there are multiple plug-in instances loaded */
