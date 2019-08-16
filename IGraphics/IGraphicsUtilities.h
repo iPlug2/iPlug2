@@ -9,8 +9,8 @@
 */
 
 #pragma once
+#include "IPlugConstants.h"
 #include "IGraphicsConstants.h"
-#include "IGraphicsStructs.h"
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
@@ -27,6 +27,12 @@ static double GetTimestamp()
 {
   static auto start = std::chrono::steady_clock::now();
   return std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
+}
+
+template <typename T>
+inline T DegToRad(T degrees)
+{
+  return static_cast<T>(iplug::PI) * (degrees / static_cast<T>(180.0));
 }
 
 /** Calculate evenly distributed points on a radial line. NOTE: will crash if the nPoints and data array do not match size.

@@ -46,7 +46,6 @@
 
 #include "IGraphicsConstants.h"
 #include "IGraphicsStructs.h"
-#include "IGraphicsUtilities.h"
 #include "IGraphicsPopupMenu.h"
 #include "IGraphicsEditorDelegate.h"
 
