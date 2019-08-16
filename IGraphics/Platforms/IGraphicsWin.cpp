@@ -98,7 +98,7 @@ private:
   WDL_String mStyleName;
 };
 
-IFontDataPtr Font::GetFontData()
+IFontDataPtr IGraphicsWin::Font::GetFontData()
 {
   HDC hdc = CreateCompatibleDC(NULL);
   IFontDataPtr fontData(new IFontData());
