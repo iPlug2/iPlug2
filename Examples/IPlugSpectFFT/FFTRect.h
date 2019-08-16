@@ -49,7 +49,11 @@ To Do:
 
 
 //WDL_FFT_REAL is typedef to either float or double, depending what is defined in fft.h
+
+//check if pi is already defined in CarbonCore/fp.h
+#ifndef __FP__
 static const WDL_FFT_REAL pi = 3.141592653589793238462643383279502884197169399375105820974944;
+#endif
 static const WDL_FFT_REAL pi2 = 2. * pi;
 static const WDL_FFT_REAL pi4 = 4. * pi;
 
@@ -489,7 +493,7 @@ class gFFTAnalyzer : public IControl
       fftframes->AddItem("10");
     }
 
-    void Draw(IGraphics& g) override
+    void Draw(IGraphics &g) override
     {
       GetFFTData();
       int width = mRECT.W();
