@@ -18,11 +18,11 @@
 using namespace iplug;
 using namespace emscripten;
 
-const int kNumMsgHeaderBytes = 6;
-const int kNumSPVFUIBytes = 18;
-const int kNumSMMFUIBytes = 9;
-const int kNumSSMFUIBytes = 10; // + data size
-const int kNumSAMFUIBytes = 18; // + data size
+static const int kNumMsgHeaderBytes = 6;
+static const int kNumSPVFUIBytes = 18;
+static const int kNumSMMFUIBytes = 9;
+static const int kNumSSMFUIBytes = 10; // + data size
+static const int kNumSAMFUIBytes = 18; // + data size
 
 IPlugWeb::IPlugWeb(const InstanceInfo& info, const Config& config)
 : IPlugAPIBase(config, kAPIWEB)
