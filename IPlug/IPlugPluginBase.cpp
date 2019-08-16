@@ -642,9 +642,6 @@ void IPluginBase::DumpBankBlob(const char* filename) const
   fclose(fp);
 }
 
-const int kFXPVersionNum = 1;
-const int kFXBVersionNum = 2;
-
 // confusing... IByteChunk will force storage as little endian on big endian platforms,
 // so when we use it here, since vst fxp/fxb files are big endian, we need to swap the endianess
 // regardless of the endianness of the host, and on big endian hosts it will get swapped back to

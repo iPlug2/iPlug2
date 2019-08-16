@@ -270,6 +270,10 @@ static const int32_t kClassIDSize = 32; // ASCII-encoded FUID
 static const int32_t kHeaderSize = sizeof (ChunkID) + sizeof (int32_t) + kClassIDSize + sizeof (int64_t);
 //static const int32_t kListOffsetPos = kHeaderSize - sizeof (int64_t);
 
+// Preset Version Constants
+static const int kFXPVersionNum = 1;
+static const int kFXBVersionNum = 2;
+
 END_IPLUG_NAMESPACE
 
 /**@}*/
