@@ -204,7 +204,7 @@ APIBitmap* IGraphicsCairo::LoadAPIBitmap(const char* fileNameOrResID, int scale,
 
   assert(!pSurface || cairo_surface_status(pSurface) == CAIRO_STATUS_SUCCESS);
 
-  return new CairoBitmap(pSurface, scale, 1.f);
+  return new Bitmap(pSurface, scale, 1.f);
 }
 
 APIBitmap* IGraphicsCairo::CreateAPIBitmap(int width, int height, int scale, double drawScale)
