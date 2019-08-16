@@ -269,7 +269,7 @@ void IPluginBase::PrintParamValues()
 }
 
 #ifndef NO_PRESETS
-IPreset* GetNextUninitializedPreset(WDL_PtrList<IPreset>* pPresets)
+static IPreset* GetNextUninitializedPreset(WDL_PtrList<IPreset>* pPresets)
 {
   int n = pPresets->GetSize();
   for (int i = 0; i < n; ++i)
@@ -382,7 +382,7 @@ void IPluginBase::MakePresetFromBlob(const char* name, const char* blob, int siz
   MakePresetFromChunk(name, presetChunk);
 }
 
-void MakeDefaultUserPresetName(WDL_PtrList<IPreset>* pPresets, char* str)
+static void MakeDefaultUserPresetName(WDL_PtrList<IPreset>* pPresets, char* str)
 {
   int nDefaultNames = 0;
   int n = pPresets->GetSize();
@@ -1083,7 +1083,7 @@ static const int32_t kClassIDSize = 32; // ASCII-encoded FUID
 static const int32_t kHeaderSize = sizeof (ChunkID) + sizeof (int32_t) + kClassIDSize + sizeof (int64_t);
 //static const int32_t kListOffsetPos = kHeaderSize - sizeof (int64_t);
 
-inline bool isEqualID (const ChunkID id1, const ChunkID id2)
+static inline bool isEqualID (const ChunkID id1, const ChunkID id2)
 {
   return memcmp (id1, id2, sizeof (ChunkID)) == 0;
 }

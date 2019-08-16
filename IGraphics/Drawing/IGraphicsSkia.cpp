@@ -82,7 +82,7 @@ SkiaBitmap::SkiaBitmap(const void* pData, int size, double sourceScale)
 #pragma mark -
 
 // Utility conversions
-inline SkColor SkiaColor(const IColor& color, const IBlend* pBlend)
+static inline SkColor SkiaColor(const IColor& color, const IBlend* pBlend)
 {
   if (pBlend)
     return SkColorSetARGB(Clip(static_cast<int>(pBlend->mWeight * color.A), 0, 255), color.R, color.G, color.B);
@@ -90,12 +90,12 @@ inline SkColor SkiaColor(const IColor& color, const IBlend* pBlend)
     return SkColorSetARGB(color.A, color.R, color.G, color.B);
 }
 
-inline SkRect SkiaRect(const IRECT& r)
+static inline SkRect SkiaRect(const IRECT& r)
 {
   return SkRect::MakeLTRB(r.L, r.T, r.R, r.B);
 }
 
-inline SkBlendMode SkiaBlendMode(const IBlend* pBlend)
+static inline SkBlendMode SkiaBlendMode(const IBlend* pBlend)
 {
   if (!pBlend)
     return SkBlendMode::kSrcOver;
@@ -119,7 +119,7 @@ inline SkBlendMode SkiaBlendMode(const IBlend* pBlend)
   return SkBlendMode::kClear;
 }
 
-inline SkTileMode SkiaTileMode(const IPattern& pattern)
+static inline SkTileMode SkiaTileMode(const IPattern& pattern)
 {
   switch (pattern.mExtend)
   {
@@ -132,7 +132,7 @@ inline SkTileMode SkiaTileMode(const IPattern& pattern)
   return SkTileMode::kClamp;
 }
 
-SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
+static SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
 {
   SkPaint paint;
   paint.setAntiAlias(true);
@@ -624,7 +624,7 @@ void IGraphicsSkia::UpdateLayer()
   mCanvas = mLayers.empty() ? mSurface->getCanvas() : mLayers.top()->GetAPIBitmap()->GetBitmap()->mSurface->getCanvas();
 }
 
-size_t CalcRowBytes(int width)
+static size_t CalcRowBytes(int width)
 {
   width = ((width + 7) & (-8));
   return width * sizeof(uint32_t);

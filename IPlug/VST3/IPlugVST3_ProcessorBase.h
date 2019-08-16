@@ -18,14 +18,18 @@
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
-BEGIN_IPLUG_NAMESPACE
-
 using namespace Steinberg;
 
+// Custom bus type function (in global namespace)
+#ifdef CUSTOM_BUSTYPE_FUNC
+extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, iplug::ERoute dir, int busIdx, iplug::IOConfig* pConfig);
+#endif
+
+BEGIN_IPLUG_NAMESPACE
+
+// Default bus type function (in iplug namespace)
 #ifndef CUSTOM_BUSTYPE_FUNC
 uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig);
-#else
-extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoutingDir dir, int busIdx, IOConfig* pConfig);
 #endif
 
 /** Shared VST3 processor code */

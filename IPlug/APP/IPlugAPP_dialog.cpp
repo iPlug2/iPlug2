@@ -500,7 +500,7 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
   return TRUE;
 }
 
-void ClientResize(HWND hWnd, int nWidth, int nHeight)
+static void ClientResize(HWND hWnd, int nWidth, int nHeight)
 {
   RECT rcClient, rcWindow;
   POINT ptDiff;

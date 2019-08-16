@@ -16,7 +16,7 @@ using namespace iplug;
 
 const int VST_VERSION = 2400;
 
-int VSTSpkrArrType(int nchan)
+static int VSTSpkrArrType(int nchan)
 {
   if (!nchan) return kSpeakerArrEmpty;
   if (nchan == 1) return kSpeakerArrMono;

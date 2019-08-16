@@ -38,7 +38,7 @@ struct CanvasFont
   double mEMRatio;
 };
 
-std::string GetFontString(const char* fontName, const char* styleName, double size)
+static std::string GetFontString(const char* fontName, const char* styleName, double size)
 {
   WDL_String fontString;
   fontString.SetFormatted(FONT_LEN + 64, "%s %lfpx %s", styleName, size, fontName);

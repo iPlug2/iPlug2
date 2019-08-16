@@ -26,9 +26,9 @@
 #define args(...) __VA_ARGS__
 #define AAX_TYPE_ID_ARRAY(VARNAME, ARR_DATA) AAX_CTypeID VARNAME[] = {args ARR_DATA}
 
-#ifndef CUSTOM_BUSTYPE_FUNC
-
 using namespace iplug;
+
+#ifndef CUSTOM_BUSTYPE_FUNC
 
 /**
  A method to get a sensible API tag for a particular number of channels allocated to a bus in the channel i/o string
@@ -39,7 +39,7 @@ using namespace iplug;
  @param pConfig The config struct derived from the channel i/o string token, this already contains data but \todo
  @return an integer corresponding to one of the AAX_eStemFormat
  */
-uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig)
+static uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig)
 {
   assert(pConfig != nullptr);
   assert(busIdx >= 0 && busIdx < pConfig->NBuses(dir));
@@ -67,7 +67,7 @@ uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, 
   }
 }
 #else
-extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoutingDir dir, int busIdx, IOConfig* pConfig);
+extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, iplug::ERoute dir, int busIdx, iplug::IOConfig* pConfig);
 #endif //CUSTOM_BUSTYPE_FUNC
 
 AAX_Result GetEffectDescriptions(AAX_ICollection* pC)

@@ -8,10 +8,11 @@
  ==============================================================================
 */
 
+#ifndef CUSTOM_BUSTYPE_FUNC
+
 BEGIN_IPLUG_NAMESPACE
 
-#ifndef CUSTOM_BUSTYPE_FUNC
-static uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig, WDL_TypedBuf<uint64_t>* APIBusTypes = nullptr)
+static uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig, WDL_TypedBuf<uint64_t>* APIBusTypes)
 {
   assert(pConfig != nullptr);
   assert(busIdx >= 0 && busIdx < pConfig->NBuses(dir));
@@ -67,8 +68,10 @@ static uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int b
   }
   return true;
 }
-#else
-extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoutingDir dir, int busIdx, IOConfig* pConfig, WDL_TypedBuf<uint64_t>* APIBusTypes = nullptr);
-#endif //CUSTOM_BUSTYPE_FUNC
 
 END_IPLUG_NAMESPACE
+
+#else
+extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, iplug::ERoute dir, int busIdx, iplug::IOConfig* pConfig, WDL_TypedBuf<uint64_t>* APIBusTypes);
+#endif //CUSTOM_BUSTYPE_FUNC
+
