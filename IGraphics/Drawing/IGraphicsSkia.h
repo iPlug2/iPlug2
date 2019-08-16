@@ -15,17 +15,6 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
-class SkiaBitmap : public APIBitmap
-{
-public:
-  SkiaBitmap(GrContext* context, int width, int height, int scale, float drawScale);
-  SkiaBitmap(const char* path, double sourceScale);
-  SkiaBitmap(const void* pData, int size, double sourceScale);
-
-private:
- SkiaDrawable mDrawable;
-};
-
 /** IGraphics draw class using Skia
 *   @ingroup DrawClasses */
 class IGraphicsSkia : public IGraphicsPathBase
@@ -112,6 +101,10 @@ private:
   void* mMTLDrawable;
   void* mMTLLayer;
 #endif
+    
+  class SkiaBitmap;
+  struct SkiaFont;
+  static StaticStorage<SkiaFont> sFontCache;
 };
 
 END_IGRAPHICS_NAMESPACE

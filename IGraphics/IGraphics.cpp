@@ -38,24 +38,6 @@ using VST3_API_BASE = IPlugVST3Controller;
 using namespace iplug;
 using namespace igraphics;
 
-struct SVGHolder
-{
-  NSVGimage* mImage = nullptr;
-
-  SVGHolder(NSVGimage* pImage)
-  : mImage(pImage)
-  {
-  }
-
-  ~SVGHolder()
-  {
-    if(mImage)
-      nsvgDelete(mImage);
-
-    mImage = nullptr;
-  }
-};
-
 static StaticStorage<APIBitmap> sBitmapCache;
 static StaticStorage<SVGHolder> sSVGCache;
 
