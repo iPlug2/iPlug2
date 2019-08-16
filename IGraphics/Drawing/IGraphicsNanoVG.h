@@ -64,27 +64,6 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
-// Forward declaration
-
-class IGraphicsNanoVG;
-
-/** An NanoVG API bitmap
- * @ingroup APIBitmaps */
-class NanoVGBitmap : public APIBitmap
-{
-public:
-  NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID, bool shared = false);
-  NanoVGBitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, int scale, float drawScale);
-  NanoVGBitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, int scale, float drawScale);
-  virtual ~NanoVGBitmap();
-  NVGframebuffer* GetFBO() const { return mFBO; }
-private:
-  IGraphicsNanoVG *mGraphics = nullptr;
-  NVGcontext* mVG;
-  NVGframebuffer* mFBO = nullptr;
-  bool mSharedTexture = false;
-};
-
 /** IGraphics draw class using NanoVG  
 *   @ingroup DrawClasses */
 class IGraphicsNanoVG : public IGraphicsPathBase
@@ -165,6 +144,8 @@ private:
   NVGcontext* mVG = nullptr;
   NVGframebuffer* mMainFrameBuffer = nullptr;
   int mInitialFBO = 0;
+    
+  class NanoVGBitmap;
 };
 
 END_IGRAPHICS_NAMESPACE

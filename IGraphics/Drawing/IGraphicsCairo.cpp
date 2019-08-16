@@ -18,7 +18,45 @@
 using namespace iplug;
 using namespace igraphics;
 
-class CairoFont
+#pragma mark - Private Classes and Structs
+
+class IGraphicsCairo::CairoBitmap : public APIBitmap
+{
+public:
+  CairoBitmap(cairo_surface_t* pSurface, int scale, float drawScale);
+  CairoBitmap(cairo_surface_t* pSurfaceType, int width, int height, int scale, float drawScale);
+  virtual ~CairoBitmap();
+};
+
+IGraphicsCairo::CairoBitmap::CairoBitmap(cairo_surface_t* pSurface, int scale, float drawScale)
+{
+  cairo_surface_set_device_scale(pSurface, scale * drawScale, scale * drawScale);
+  int width = cairo_image_surface_get_width(pSurface);
+  int height = cairo_image_surface_get_height(pSurface);
+  
+  SetBitmap(pSurface, width, height, scale, drawScale);
+}
+
+IGraphicsCairo::CairoBitmap::CairoBitmap(cairo_surface_t* pSurfaceType, int width, int height, int scale, float drawScale)
+{
+  cairo_surface_t* pSurface;
+  
+  if (pSurfaceType)
+    pSurface = cairo_surface_create_similar_image(pSurfaceType, CAIRO_FORMAT_ARGB32, width, height);
+  else
+    pSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
+  
+  cairo_surface_set_device_scale(pSurface, scale * drawScale, scale * drawScale);
+  
+  SetBitmap(pSurface, width, height, scale, drawScale);
+}
+
+IGraphicsCairo::CairoBitmap::~CairoBitmap()
+{
+  cairo_surface_destroy(GetBitmap());
+}
+
+class IGraphicsCairo::CairoFont
 {
 public:
   CairoFont(cairo_font_face_t* font, double EMRatio) : mFont(font), mEMRatio(EMRatio) {}
@@ -36,7 +74,7 @@ protected:
 };
 
 #ifdef OS_MAC
-struct CairoPlatformFont : CairoFont
+struct IGraphicsCairo::CairoPlatformFont : CairoFont
 {
   CairoPlatformFont(const FontDescriptor fontRef, double EMRatio) : CairoFont(nullptr, EMRatio)
   {
@@ -48,14 +86,14 @@ struct CairoPlatformFont : CairoFont
   }
 };
 #elif defined OS_WIN
-struct CairoPlatformFont : CairoFont
+struct IGraphicsCairo::CairoPlatformFont : CairoFont
 {
   CairoPlatformFont(const FontDescriptor fontRef, double EMRatio)
   : CairoFont(cairo_win32_font_face_create_for_hfont(fontRef), EMRatio)
   {}
 };
 
-class PNGStream
+class IGraphicsCairo::PNGStream
 {
 public:
   PNGStream(const uint8_t* pData, int size) : mData(pData), mSize(size)
@@ -83,37 +121,10 @@ private:
 };
 #endif
 
-static StaticStorage<CairoFont> sFontCache;
+// Fonts
+StaticStorage<IGraphicsCairo::CairoFont> IGraphicsCairo::sFontCache;
 
-CairoBitmap::CairoBitmap(cairo_surface_t* pSurface, int scale, float drawScale)
-{
-  cairo_surface_set_device_scale(pSurface, scale * drawScale, scale * drawScale);
-  int width = cairo_image_surface_get_width(pSurface);
-  int height = cairo_image_surface_get_height(pSurface);
-  
-  SetBitmap(pSurface, width, height, scale, drawScale);
-}
-
-CairoBitmap::CairoBitmap(cairo_surface_t* pSurfaceType, int width, int height, int scale, float drawScale)
-{
-  cairo_surface_t* pSurface;
-    
-  if (pSurfaceType)
-    pSurface = cairo_surface_create_similar_image(pSurfaceType, CAIRO_FORMAT_ARGB32, width, height);
-  else
-    pSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, width, height);
-    
-  cairo_surface_set_device_scale(pSurface, scale * drawScale, scale * drawScale);
-  
-  SetBitmap(pSurface, width, height, scale, drawScale);
-}
-  
-CairoBitmap::~CairoBitmap()
-{
-  cairo_surface_destroy(GetBitmap());
-}
-
-#pragma mark -
+#pragma mark - Utilites
 
 static inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
 {

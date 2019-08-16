@@ -22,16 +22,6 @@ using namespace emscripten;
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
-/** An HTML5 canvas API bitmap
- * @ingroup APIBitmaps */
-class CanvasBitmap : public APIBitmap
-{
-public:
-  CanvasBitmap(val imageCanvas, const char* name, int scale);
-  CanvasBitmap(int width, int height, int scale, float drawScale);
-  ~CanvasBitmap();
-};
-
 /** IGraphics draw class HTML5 canvas
 * @ingroup DrawClasses */
 class IGraphicsCanvas : public IGraphicsPathBase
@@ -102,6 +92,11 @@ private:
   void SetCanvasBlendMode(val& context, const IBlend* pBlend);
     
   std::vector<std::pair<WDL_String, WDL_String>> mCustomFonts;
+    
+  class CanvasBitmap;
+  struct CanvasFont;
+    
+  static StaticStorage<CanvasFont> sFontCache;
 };
 
 END_IPLUG_NAMESPACE

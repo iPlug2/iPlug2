@@ -70,25 +70,27 @@
 using namespace iplug;
 using namespace igraphics;
 
-// Fonts
-StaticStorage<IFontData> sFontCache;
+#pragma mark - Private Classes and Structs
 
-extern std::map<std::string, void*> gTextureMap;
-
-// Retrieving pixels
-static void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData)
+class IGraphicsNanoVG::NanoVGBitmap : public APIBitmap
 {
-#if defined(IGRAPHICS_GL)
-  glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pData);
-#elif defined(IGRAPHICS_METAL)
-  mnvgReadPixels(pContext, image, x, y, width, height, pData);
-#endif
-}
+public:
+  NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID, bool shared = false);
+  NanoVGBitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, int scale, float drawScale);
+  NanoVGBitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, int scale, float drawScale);
+  virtual ~NanoVGBitmap();
+  NVGframebuffer* GetFBO() const { return mFBO; }
+private:
+  IGraphicsNanoVG *mGraphics = nullptr;
+  NVGcontext* mVG;
+  NVGframebuffer* mFBO = nullptr;
+  bool mSharedTexture = false;
+};
 
-NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID, bool shared)
+IGraphicsNanoVG::NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID, bool shared)
 {
   assert(nvgImageID > 0);
-
+  
   mVG = pContext;
   mSharedTexture = shared;
   int w = 0, h = 0;
@@ -97,7 +99,7 @@ NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double source
   SetBitmap(nvgImageID, w, h, sourceScale, 1.f);
 }
 
-NanoVGBitmap::NanoVGBitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, int scale, float drawScale)
+IGraphicsNanoVG::NanoVGBitmap::NanoVGBitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, int scale, float drawScale)
 {
   mGraphics = pGraphics;
   mVG = pContext;
@@ -118,14 +120,14 @@ NanoVGBitmap::NanoVGBitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int
   SetBitmap(mFBO->image, width, height, scale, drawScale);
 }
 
-NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, int scale, float drawScale)
+IGraphicsNanoVG::NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, int scale, float drawScale)
 {
   int idx = nvgCreateImageRGBA(pContext, width, height, 0, pData);
   mVG = pContext;
   SetBitmap(idx, width, height, scale, drawScale);
 }
 
-NanoVGBitmap::~NanoVGBitmap()
+IGraphicsNanoVG::NanoVGBitmap::~NanoVGBitmap()
 {
   if(!mSharedTexture)
   {
@@ -136,9 +138,23 @@ NanoVGBitmap::~NanoVGBitmap()
   }
 }
 
-#pragma mark -
+// Fonts
+static StaticStorage<IFontData> sFontCache;
 
-// Utility conversions
+extern std::map<std::string, void*> gTextureMap;
+
+// Retrieving pixels
+static void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData)
+{
+#if defined(IGRAPHICS_GL)
+  glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pData);
+#elif defined(IGRAPHICS_METAL)
+  mnvgReadPixels(pContext, image, x, y, width, height, pData);
+#endif
+}
+
+#pragma mark - Utilities
+
 static inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0)
 {
   NVGcolor c;

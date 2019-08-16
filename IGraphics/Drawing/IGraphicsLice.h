@@ -32,50 +32,6 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
-inline LICE_pixel LiceColor(const IColor& color)
-{
-  auto preMul = [](int color, int A) {return (color * (A + 1)) >> 8; };
-  return LICE_RGBA(preMul(color.R, color.A), preMul(color.G, color.A), preMul(color.B, color.A), color.A);
-}
-
-inline LICE_pixel LiceColor(const IColor& color, const IBlend* pBlend)
-{
-    int alpha = std::round(color.A * BlendWeight(pBlend));
-    return LICE_RGBA(color.R, color.G, color.B, alpha);
-}
-
-inline int LiceBlendMode(const IBlend* pBlend)
-{
-  if (!pBlend)
-  {
-    return LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA;
-  }
-  switch (pBlend->mMethod)
-  {
-    case EBlend::Clobber:     return LICE_BLIT_MODE_COPY;
-    case EBlend::Add:         return LICE_BLIT_MODE_ADD | LICE_BLIT_USE_ALPHA;
-    case EBlend::Default:
-    default:
-    {
-      return LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA;
-    }
-  }
-}
-
-/** A LICE API bitmap
- * @ingroup APIBitmaps */
-class LICEBitmap : public APIBitmap
-{
-public:
-  LICEBitmap(LICE_IBitmap* pBitmap, int scale, bool preMultiplied)
-    : APIBitmap(pBitmap, pBitmap->getWidth(), pBitmap->getHeight(), scale, 1.f), mPremultiplied(preMultiplied)
-    {}
-  virtual ~LICEBitmap() { delete GetBitmap(); }
-  bool IsPreMultiplied() { return mPremultiplied; }
-private:
-  bool mPremultiplied;
-};
-
 /** IGraphics draw class using Cockos' LICE  
 *   @ingroup DrawClasses */
 class IGraphicsLice : public IGraphics
@@ -197,7 +153,15 @@ private:
     
   ILayerPtr mClippingLayer;
     
+  class LICEBitmap;
+  struct LICEFontInfo;
+    
+  static StaticStorage<LICE_IFont> IGraphicsLice::sFontCache;
+  static StaticStorage<LICEFontInfo> IGraphicsLice::sLICEFontInfoCache
+    
 #ifdef OS_MAC
+  class MacRegisteredFont;
+  static StaticStorage<MacRegisteredFont> IGraphicsLice::sMacRegistedFontCache;
   CGColorSpaceRef mColorSpace = nullptr;
 #endif
 };

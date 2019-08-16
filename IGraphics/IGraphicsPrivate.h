@@ -413,6 +413,28 @@ protected:
 
 using PlatformFontPtr = std::unique_ptr<PlatformFont>;
 
+/** Used internally to manage SVG data*/
+struct SVGHolder
+{
+    NSVGimage* mImage = nullptr;
+    
+    SVGHolder(NSVGimage* pImage)
+    : mImage(pImage)
+    {
+    }
+    
+    ~SVGHolder()
+    {
+        if(mImage)
+            nsvgDelete(mImage);
+        
+        mImage = nullptr;
+    }
+    
+    SVGHolder(const SVGHolder&) = delete;
+    SVGHolder& operator=(const SVGHolder&) = delete;
+};
+
 /** Used internally to store data statically, making sure memory is not wasted when there are multiple plug-in instances loaded */
 template <class T>
 class StaticStorage

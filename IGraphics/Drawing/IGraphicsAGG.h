@@ -18,46 +18,32 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
-template <class SpanGeneratorType>
-class alpha_span_generator : public SpanGeneratorType
-{
-public:
-  alpha_span_generator(typename SpanGeneratorType::source_type& source, typename SpanGeneratorType::interpolator_type& interpolator, agg::cover_type a)
-  : SpanGeneratorType(source, interpolator), alpha(a) {}
-  
-  void generate(typename SpanGeneratorType::color_type* span, int x, int y, unsigned len)
-  {
-    SpanGeneratorType::generate(span, x, y, len);
-    
-    if (alpha != 255)
-    {
-      for (unsigned i = 0; i < len; i++, span++)
-        span->a = (span->a * alpha + SpanGeneratorType::base_mask) >> SpanGeneratorType::base_shift;
-    }
-  }
-  
-private:
-  agg::cover_type alpha;
-};
-
-/** An AGG API bitmap
- * @ingroup APIBitmaps */
-class AGGBitmap : public APIBitmap
-{
-public:
-  AGGBitmap(agg::pixel_map* pPixMap, int scale, float drawScale, bool preMultiplied)
-    : APIBitmap(pPixMap, pPixMap->width(), pPixMap->height(), scale, drawScale), mPreMultiplied(preMultiplied)
-    {}
-  virtual ~AGGBitmap() { delete GetBitmap(); }
-  bool IsPreMultiplied() const { return mPreMultiplied; }
-private:
-  bool mPreMultiplied;
-};
-
 /** IGraphics draw class using Antigrain Geometry
 *   @ingroup DrawClasses*/
 class IGraphicsAGG : public IGraphicsPathBase
 {
+  template <class SpanGeneratorType>
+  class alpha_span_generator : public SpanGeneratorType
+  {
+  public:
+    alpha_span_generator(typename SpanGeneratorType::source_type& source, typename SpanGeneratorType::interpolator_type& interpolator, agg::cover_type a)
+    : SpanGeneratorType(source, interpolator), alpha(a) {}
+    
+    void generate(typename SpanGeneratorType::color_type* span, int x, int y, unsigned len)
+    {
+      SpanGeneratorType::generate(span, x, y, len);
+      
+      if (alpha != 255)
+      {
+        for (unsigned i = 0; i < len; i++, span++)
+          span->a = (span->a * alpha + SpanGeneratorType::base_mask) >> SpanGeneratorType::base_shift;
+      }
+    }
+    
+  private:
+    agg::cover_type alpha;
+  };
+    
 public:
 #ifdef OS_WIN
   using PixelOrder = agg::order_bgra;
@@ -313,6 +299,9 @@ private:
   //pipeline to process the vectors glyph paths(curves + contour)
   agg::conv_curve<FontManagerType::path_adaptor_type> mFontCurves;
   agg::conv_transform<agg::conv_curve<FontManagerType::path_adaptor_type>> mFontCurvesTransformed;
+    
+  class AGGBitmap;
+  class pixel_wrapper;
 };
 
 END_IGRAPHICS_NAMESPACE

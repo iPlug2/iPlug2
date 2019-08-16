@@ -20,11 +20,21 @@
 using namespace iplug;
 using namespace igraphics;
 
-static StaticStorage<IFontData> sFontCache;
+#pragma mark - Private Classes and Structs
 
-const bool textKerning = true;
+class IGraphicsAGG::AGGBitmap : public APIBitmap
+{
+public:
+  AGGBitmap(agg::pixel_map* pPixMap, int scale, float drawScale, bool preMultiplied)
+  : APIBitmap(pPixMap, pPixMap->width(), pPixMap->height(), scale, drawScale), mPreMultiplied(preMultiplied)
+  {}
+  virtual ~AGGBitmap() { delete GetBitmap(); }
+  bool IsPreMultiplied() const { return mPreMultiplied; }
+private:
+  bool mPreMultiplied;
+};
 
-class pixel_wrapper : public agg::pixel_map
+class IGraphicsAGG::pixel_wrapper : public agg::pixel_map
 {
 public:
   pixel_wrapper(unsigned char* buf, unsigned w, unsigned h, unsigned bpp, int row_bytes)
@@ -56,6 +66,13 @@ private:
   unsigned m_bpp;
   int m_row_bytes;
 };
+
+static const bool textKerning = true;
+
+//Fonts
+static StaticStorage<IFontData> sFontCache;
+
+#pragma mark - Utilites
 
 static inline const agg::rgba8 AGGColor(const IColor& color, float opacity)
 {
@@ -98,7 +115,7 @@ static agg::pixel_map* CreatePixmap(int w, int h)
   return pPixelMap;
 }
 
-// Rasterizing
+#pragma mark - Rasterizing
 
 template <typename FuncType, typename ColorArrayType>
 static void GradientRasterize(IGraphicsAGG::Rasterizer& rasterizer, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray, agg::comp_op_e op)

@@ -26,7 +26,30 @@ extern IGraphicsWeb* gGraphics;
 extern val GetPreloadedImages();
 extern val GetCanvas();
 
-struct CanvasFont
+class IGraphicsCanvas::CanvasBitmap : public APIBitmap
+{
+public:
+  CanvasBitmap(val imageCanvas, const char* name, int scale)
+  {
+    SetBitmap(new val(imageCanvas), imageCanvas["width"].as<int>(), imageCanvas["height"].as<int>(), scale, 1.f);
+  }
+  
+  CanvasBitmap(int width, int height, int scale, float drawScale)
+  {
+    val canvas = val::global("document").call<val>("createElement", std::string("canvas"));
+    canvas.set("width", width);
+    canvas.set("height", height);
+    
+    SetBitmap(new val(canvas), width, height, scale, drawScale);
+  }
+  
+  virtual ~CanvasBitmap()
+  {
+    delete GetBitmap();
+  }
+};
+
+struct IGraphicsCanvas::CanvasFont
 {
   using FontDesc = std::remove_pointer<FontDescriptor>::type;
   
@@ -45,7 +68,9 @@ static std::string GetFontString(const char* fontName, const char* styleName, do
   return std::string(fontString.Get());
 }
 
-StaticStorage<CanvasFont> sFontCache;
+StaticStorage<IGraphicsCanvas::CanvasFont> IGraphicsCanvas::sFontCache;
+
+#pragma mark - Utilities
 
 static std::string CanvasColor(const IColor& color, float alpha = 1.0)
 {
@@ -54,24 +79,7 @@ static std::string CanvasColor(const IColor& color, float alpha = 1.0)
   return str.Get();
 }
 
-CanvasBitmap::CanvasBitmap(val imageCanvas, const char* name, int scale)
-{
-  SetBitmap(new val(imageCanvas), imageCanvas["width"].as<int>(), imageCanvas["height"].as<int>(), scale, 1.f);
-}
-
-CanvasBitmap::CanvasBitmap(int width, int height, int scale, float drawScale)
-{
-  val canvas = val::global("document").call<val>("createElement", std::string("canvas"));
-  canvas.set("width", width);
-  canvas.set("height", height);
-
-  SetBitmap(new val(canvas), width, height, scale, drawScale);
-}
-
-CanvasBitmap::~CanvasBitmap()
-{
-  delete GetBitmap();
-}
+#pragma mark -
 
 IGraphicsCanvas::IGraphicsCanvas(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphicsPathBase(dlg, w, h, fps, scale)

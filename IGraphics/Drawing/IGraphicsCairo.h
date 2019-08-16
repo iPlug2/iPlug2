@@ -37,16 +37,6 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
-/** A Cairo API bitmap
- * @ingroup APIBitmaps */
-class CairoBitmap : public APIBitmap
-{
-public:
-  CairoBitmap(cairo_surface_t* pSurface, int scale, float drawScale);
-  CairoBitmap(cairo_surface_t* pSurfaceType, int width, int height, int scale, float drawScale);
-  virtual ~CairoBitmap();
-};
-
 /** IGraphics draw class using Cairo
 *   @ingroup DrawClasses */
 class IGraphicsCairo : public IGraphicsPathBase
@@ -111,6 +101,16 @@ private:
     
   cairo_t* mContext;
   cairo_surface_t* mSurface;
+    
+  class CairoBitmap;
+  class CairoFont;
+  struct CairoPlatformFont;
+    
+#ifdef OS_WIN
+  class PNGStream;
+#endif
+    
+  static StaticStorage<CairoFont> sFontCache;
 };
 
 END_IGRAPHICS_NAMESPACE

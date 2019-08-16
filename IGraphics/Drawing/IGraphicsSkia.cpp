@@ -37,18 +37,20 @@
 using namespace iplug;
 using namespace igraphics;
 
-struct SkiaFont
+#pragma mark - Private Classes and Structs
+
+class IGraphicsSkia::SkiaBitmap : public APIBitmap
 {
-  SkiaFont(IFontDataPtr&& data, sk_sp<SkTypeface> typeFace)
-    : mData(std::move(data)), mTypeface(typeFace) {}
-    
-  IFontDataPtr mData;
-  sk_sp<SkTypeface> mTypeface;
+public:
+  SkiaBitmap(GrContext* context, int width, int height, int scale, float drawScale);
+  SkiaBitmap(const char* path, double sourceScale);
+  SkiaBitmap(const void* pData, int size, double sourceScale);
+  
+private:
+  SkiaDrawable mDrawable;
 };
-
-static StaticStorage<SkiaFont> sFontCache;
-
-SkiaBitmap::SkiaBitmap(GrContext* context, int width, int height, int scale, float drawScale)
+  
+IGraphicsSkia::SkiaBitmap::SkiaBitmap(GrContext* context, int width, int height, int scale, float drawScale)
 {
 #ifdef IGRAPHICS_GL
   SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
@@ -57,27 +59,39 @@ SkiaBitmap::SkiaBitmap(GrContext* context, int width, int height, int scale, flo
   mDrawable.mSurface = SkSurface::MakeRasterN32Premul(width, height);
 #endif
   mDrawable.mIsSurface = true;
-    
+  
   SetBitmap(&mDrawable, width, height, scale, drawScale);
 }
 
-SkiaBitmap::SkiaBitmap(const char* path, double sourceScale)
+IGraphicsSkia::SkiaBitmap::SkiaBitmap(const char* path, double sourceScale)
 {
   auto data = SkData::MakeFromFileName(path);
   mDrawable.mImage = SkImage::MakeFromEncoded(data);
-
+  
   mDrawable.mIsSurface = false;
   SetBitmap(&mDrawable, mDrawable.mImage->width(), mDrawable.mImage->height(), sourceScale, 1.f);
 }
 
-SkiaBitmap::SkiaBitmap(const void* pData, int size, double sourceScale)
+IGraphicsSkia::SkiaBitmap::SkiaBitmap(const void* pData, int size, double sourceScale)
 {
   auto data = SkData::MakeWithoutCopy(pData, size);
   mDrawable.mImage = SkImage::MakeFromEncoded(data);
-
+  
   mDrawable.mIsSurface = false;
   SetBitmap(&mDrawable, mDrawable.mImage->width(), mDrawable.mImage->height(), sourceScale, 1.f);
 }
+
+struct IGraphicsSkia::SkiaFont
+{
+  SkiaFont(IFontDataPtr&& data, sk_sp<SkTypeface> typeFace)
+    : mData(std::move(data)), mTypeface(typeFace) {}
+    
+  IFontDataPtr mData;
+  sk_sp<SkTypeface> mTypeface;
+};
+
+// Fonts
+StaticStorage<IGraphicsSkia::SkiaFont> IGraphicsSkia::sFontCache;
 
 #pragma mark -
 
