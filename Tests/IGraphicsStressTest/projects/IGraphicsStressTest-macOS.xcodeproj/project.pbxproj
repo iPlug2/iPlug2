@@ -1776,7 +1776,6 @@
 					};
 					4F39075F2013EBA300DDA490 = {
 						CreatedOnToolsVersion = 9.2;
-						DevelopmentTeam = 686EDA2T8T;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.Mac = {
@@ -1804,7 +1803,6 @@
 						DevelopmentTeam = 686EDA2T8T;
 					};
 					4FD16A0813B63081001D0217 = {
-						DevelopmentTeam = 686EDA2T8T;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.Mac = {

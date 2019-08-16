@@ -652,12 +652,10 @@
 				TargetAttributes = {
 					4F2602B12269F00000C7E97E = {
 						CreatedOnToolsVersion = 10.1;
-						DevelopmentTeam = 686EDA2T8T;
 						ProvisioningStyle = Automatic;
 					};
 					91236D0C1B08F42B00734C5E = {
 						CreatedOnToolsVersion = 7.0;
-						DevelopmentTeam = 686EDA2T8T;
 						LastSwiftMigration = 1010;
 						SystemCapabilities = {
 							com.apple.InterAppAudio = {
@@ -667,7 +665,6 @@
 					};
 					91236D761B08F59300734C5E = {
 						CreatedOnToolsVersion = 7.0;
-						DevelopmentTeam = 686EDA2T8T;
 						LastSwiftMigration = 1010;
 					};
 				};
