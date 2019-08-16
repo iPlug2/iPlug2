@@ -18,6 +18,7 @@
  * @{
  */
 
+#include <stdint.h>
 #include "IPlugPlatform.h"
 
 BEGIN_IPLUG_NAMESPACE
