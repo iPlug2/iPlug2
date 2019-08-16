@@ -129,7 +129,7 @@ IFontDataPtr IGraphicsWin::Font::GetFontData()
 }
 
 StaticStorage<IGraphicsWin::InstalledFont> IGraphicsWin::sPlatformFontCache;
-StaticStorage<IGraphicsWin::HFontHolder> IGraphicsWin::sHFontHolderCache;
+StaticStorage<IGraphicsWin::HFontHolder> IGraphicsWin::sHFontCache;
 
 #pragma mark - DPI Helper
 
