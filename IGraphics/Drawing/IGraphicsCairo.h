@@ -104,7 +104,7 @@ private:
     
   class Bitmap;
   class Font;
-  struct PlatformFont;
+  struct OSFont;
     
 #ifdef OS_WIN
   class PNGStream;

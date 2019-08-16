@@ -74,9 +74,9 @@ protected:
 };
 
 #ifdef OS_MAC
-struct IGraphicsCairo::PlatformFont : Font
+struct IGraphicsCairo::OSFont : Font
 {
-  PlatformFont(const FontDescriptor fontRef, double EMRatio) : Font(nullptr, EMRatio)
+  OSFont(const FontDescriptor fontRef, double EMRatio) : Font(nullptr, EMRatio)
   {
     CTFontRef ctFont = CTFontCreateWithFontDescriptor(fontRef, 0.f, NULL);
     CGFontRef cgFont = CTFontCopyGraphicsFont(ctFont, NULL);
@@ -86,9 +86,9 @@ struct IGraphicsCairo::PlatformFont : Font
   }
 };
 #elif defined OS_WIN
-struct IGraphicsCairo::PlatformFont : Font
+struct IGraphicsCairo::OSFont : Font
 {
-  PlatformFont(const FontDescriptor fontRef, double EMRatio)
+  OSFont(const FontDescriptor fontRef, double EMRatio)
   : Font(cairo_win32_font_face_create_for_hfont(fontRef), EMRatio)
   {}
 };
@@ -668,7 +668,7 @@ bool IGraphicsCairo::LoadAPIFont(const char* fontID, const PlatformFontPtr& font
   if (!data->IsValid())
     return false;
     
-  std::unique_ptr<PlatformFont> cairoFont(new PlatformFont(font->GetDescriptor(), data->GetHeightEMRatio()));
+  std::unique_ptr<OSFont> cairoFont(new OSFont(font->GetDescriptor(), data->GetHeightEMRatio()));
 
   if (cairo_font_face_status(cairoFont->GetFont()) == CAIRO_STATUS_SUCCESS)
   {
