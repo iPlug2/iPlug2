@@ -18,6 +18,9 @@
   #endif
 #endif
 
+using namespace iplug;
+using namespace igraphics;
+
 ImGuiRenderer::ImGuiRenderer(IGraphics* pGraphics, std::function<void(IGraphics*)> drawFunc, std::function<void()> setupFunc)
 : mGraphics(pGraphics)
 , mDrawFunc(drawFunc)

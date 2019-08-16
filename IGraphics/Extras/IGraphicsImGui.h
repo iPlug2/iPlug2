@@ -4,6 +4,9 @@
 #include "imgui.h"
 #include "IGraphicsStructs.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 class IGraphics;
 
 class ImGuiRenderer
@@ -41,4 +44,8 @@ private:
   std::function<void(IGraphics*)> mDrawFunc = nullptr;
   friend IGraphics;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+
 #endif
