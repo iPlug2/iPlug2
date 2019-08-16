@@ -52,7 +52,7 @@ private:
   WDL_String mPath;
 };
 
-IFontDataPtr FileFont::GetFontData()
+IFontDataPtr IGraphicsWeb::FileFont::GetFontData()
 {
   IFontDataPtr fontData(new IFontData());
   FILE* fp = fopen(mPath.Get(), "rb");
