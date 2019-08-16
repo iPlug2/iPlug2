@@ -20,12 +20,14 @@ using namespace emscripten;
 
 extern IGraphicsWeb* gGraphics;
 
+#pragma mark - Private Classes and Structs
+
 // Fonts
 
-class WebFont : public PlatformFont
+class IGraphicsWeb::Font : public PlatformFont
 {
 public:
-  WebFont(const char* fontName, const char* fontStyle)
+  Font(const char* fontName, const char* fontStyle)
   : PlatformFont(true), mDescriptor{fontName, fontStyle}
   {}
   
@@ -35,11 +37,11 @@ private:
   std::pair<WDL_String, WDL_String> mDescriptor;
 };
 
-class WebFileFont : public WebFont
+class IGraphicsWeb::FileFont : public Font
 {
 public:
-  WebFileFont(const char* fontName, const char* fontStyle, const char* fontPath)
-  : WebFont(fontName, fontStyle), mPath(fontPath)
+  FileFont(const char* fontName, const char* fontStyle, const char* fontPath)
+  : Font(fontName, fontStyle), mPath(fontPath)
   {
     mSystem = false;
   }
@@ -50,7 +52,7 @@ private:
   WDL_String mPath;
 };
 
-IFontDataPtr WebFileFont::GetFontData()
+IFontDataPtr FileFont::GetFontData()
 {
   IFontDataPtr fontData(new IFontData());
   FILE* fp = fopen(mPath.Get(), "rb");
@@ -74,6 +76,8 @@ IFontDataPtr WebFileFont::GetFontData()
   
   return fontData;
 }
+
+#pragma mark - Utilities and Callbacks
 
 // Key combos
 
@@ -726,14 +730,14 @@ PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const char* f
   if (fontLocation == kNotFound)
     return nullptr;
 
-  return PlatformFontPtr(new WebFileFont(fontID, "", fullPath.Get()));
+  return PlatformFontPtr(new FileFont(fontID, "", fullPath.Get()));
 }
 
 PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
 {
   const char* styles[] = { "normal", "bold", "italic" };
   
-  return PlatformFontPtr(new WebFont(fontName, styles[static_cast<int>(style)]));
+  return PlatformFontPtr(new Font(fontName, styles[static_cast<int>(style)]));
 }
 
 #if defined IGRAPHICS_CANVAS

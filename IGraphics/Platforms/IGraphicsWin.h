@@ -77,6 +77,10 @@ public:
   bool GetTextFromClipboard(WDL_String& str) override;
   bool SetTextInClipboard(const WDL_String& str) override;
   
+  static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+  static LRESULT CALLBACK ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+  static BOOL CALLBACK FindMainWindow(HWND hWnd, LPARAM lParam);
+    
 protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds) override;
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
@@ -138,10 +142,13 @@ private:
   int mTooltipIdx = -1;
 
   WDL_String mMainWndClassName;
-public:
-  static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-  static LRESULT CALLBACK ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-  static BOOL CALLBACK FindMainWindow(HWND hWnd, LPARAM lParam);
+    
+  class Font;
+  class InstalledFont;
+  struct FontDescriptor;
+    
+  static StaticStorage<InstalledFont> sPlatformFontCache;
+  static StaticStorage<FontDescriptor> sFontDescriptorCache;
 };
 
 END_IGRAPHICS_NAMESPACE

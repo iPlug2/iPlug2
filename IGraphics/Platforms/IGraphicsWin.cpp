@@ -36,9 +36,11 @@ static double sFPS = 0.0;
 #define IPLUG_TIMER_ID 2
 #define IPLUG_WIN_MAX_WIDE_PATH 4096
 
+#pragma mark - Private Classes and Structs
+
 // Fonts
 
-class WinInstalledFont
+class IGraphicsWin::InstalledFont
 {
 public:
   WinInstalledFont(void* data, int resSize)
@@ -66,7 +68,7 @@ private:
   HANDLE mFontHandle;
 };
 
-struct WinFontDescriptor
+struct IGraphicsWin::FontDescriptor
 {
   WinFontDescriptor(HFONT descriptor) : mDescriptor(nullptr)
   {
@@ -78,7 +80,7 @@ struct WinFontDescriptor
   HFONT mDescriptor;
 };
 
-class WinFont : public PlatformFont
+class IGraphicsWin::Font : public PlatformFont
 {
 public:
   WinFont(HFONT font, const char* styleName, bool system)
@@ -126,14 +128,16 @@ IFontDataPtr WinFont::GetFontData()
   return fontData;
 }
 
-static StaticStorage<WinInstalledFont> sPlatformFontCache;
-static StaticStorage<WinFontDescriptor> sFontDescriptorCache;
+StaticStorage<IGraphicsWin::InstalledFont> IGraphicsWin::sPlatformFontCache;
+StaticStorage<IGraphicsWin::FontDescriptor> IGraphicsWin::sFontDescriptorCache;
+
+#pragma mark - DPI Helper
 
 // DPI helper
 UINT(WINAPI *__GetDpiForWindow)(HWND);
 
 // Mouse and tablet helpers
-int GetScaleForWindow(HWND hWnd)
+static int GetScaleForWindow(HWND hWnd)
 {
   if (hWnd && __GetDpiForWindow)
   {
@@ -144,6 +148,8 @@ int GetScaleForWindow(HWND hWnd)
 
   return 1;
 }
+
+#pragma mark -
 
 inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 {
@@ -673,7 +679,7 @@ IGraphicsWin::~IGraphicsWin()
   CloseWindow();
 }
 
-void GetWindowSize(HWND pWnd, int* pW, int* pH)
+static void GetWindowSize(HWND pWnd, int* pW, int* pH)
 {
   if (pWnd)
   {
@@ -688,7 +694,7 @@ void GetWindowSize(HWND pWnd, int* pW, int* pH)
   }
 }
 
-bool IsChildWindow(HWND pWnd)
+static bool IsChildWindow(HWND pWnd)
 {
   if (pWnd)
   {
@@ -704,7 +710,7 @@ void IGraphicsWin::ForceEndUserEdit()
   mParamEditMsg = kCancel;
 }
 
-#define SETPOS_FLAGS SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE
+static UINT SETPOS_FLAGS = SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE;
 
 void IGraphicsWin::PlatformResize(bool parentHasResized)
 {
@@ -992,7 +998,7 @@ void* IGraphicsWin::OpenWindow(void* pParent)
   return mPlugWnd;
 }
 
-void GetWndClassName(HWND hWnd, WDL_String* pStr)
+static void GetWndClassName(HWND hWnd, WDL_String* pStr)
 {
   char cStr[MAX_CLASSNAME_LEN];
   cStr[0] = '\0';
@@ -1491,7 +1497,7 @@ void IGraphicsWin::PromptForDirectory(WDL_String& dir)
   ::OleUninitialize();
 }
 
-UINT_PTR CALLBACK CCHookProc(HWND hdlg, UINT uiMsg, WPARAM wParam, LPARAM lParam)
+static UINT_PTR CALLBACK CCHookProc(HWND hdlg, UINT uiMsg, WPARAM wParam, LPARAM lParam)
 {
   if (uiMsg == WM_INITDIALOG && lParam)
   {
@@ -1671,7 +1677,7 @@ bool IGraphicsWin::SetTextInClipboard(const WDL_String& str)
   return len > 0;
 }
 
-HFONT GetHFont(const char* fontName, int weight, bool italic, bool underline, DWORD quality = DEFAULT_QUALITY, bool enumerate = false)
+static HFONT GetHFont(const char* fontName, int weight, bool italic, bool underline, DWORD quality = DEFAULT_QUALITY, bool enumerate = false)
 {
   HDC hdc = GetDC(NULL);
   HFONT font = nullptr;
