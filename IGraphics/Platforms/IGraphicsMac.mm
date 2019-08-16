@@ -42,6 +42,7 @@ static int GetSystemVersion()
 }
 
 StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
+
 #pragma mark -
 
 IGraphicsMac::IGraphicsMac(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
