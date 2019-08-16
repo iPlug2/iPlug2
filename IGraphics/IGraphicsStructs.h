@@ -21,6 +21,7 @@
 #include <numeric>
 
 #include "IGraphicsPrivate.h"
+#include "IGraphicsUtilities.h"
 #include "IPlugUtilities.h"
 #include "IPlugLogger.h"
 #include "IGraphicsConstants.h"
@@ -51,12 +52,6 @@ void SplashAnimationFunc(IControl* pCaller);
 
 using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
 using Milliseconds = std::chrono::duration<double, std::chrono::milliseconds::period>;
-
-template <typename T>
-inline T DegToRad(T degrees)
-{
-  return static_cast<T>(iplug::PI) * (degrees / static_cast<T>(180.0));
-}
 
 /** User-facing bitmap abstraction that you use to manage bitmap data, independant of draw class/platform.
  * IBitmap doesn't actually own the image data \see APIBitmap
