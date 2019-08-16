@@ -22,50 +22,53 @@ using namespace igraphics;
 
 #pragma mark - Private Classes and Structs
 
-class IGraphicsAGG::AGGBitmap : public APIBitmap
+class IGraphicsAGG::Bitmap : public APIBitmap
 {
 public:
-  AGGBitmap(agg::pixel_map* pPixMap, int scale, float drawScale, bool preMultiplied)
+  Bitmap(agg::pixel_map* pPixMap, int scale, float drawScale, bool preMultiplied)
   : APIBitmap(pPixMap, pPixMap->width(), pPixMap->height(), scale, drawScale), mPreMultiplied(preMultiplied)
   {}
-  virtual ~AGGBitmap() { delete GetBitmap(); }
+  virtual ~Bitmap() { delete GetBitmap(); }
   bool IsPreMultiplied() const { return mPreMultiplied; }
 private:
   bool mPreMultiplied;
 };
 
-class IGraphicsAGG::pixel_wrapper : public agg::pixel_map
+namespace agg
 {
-public:
-  pixel_wrapper(unsigned char* buf, unsigned w, unsigned h, unsigned bpp, int row_bytes)
-  : m_buf(buf)
-  , m_width(w)
-  , m_height(h)
-  , m_bpp(bpp)
-  , m_row_bytes(row_bytes)
-  {}
-  
-  unsigned char* buf() override { return m_buf; }
-  unsigned width() const override { return m_width; }
-  unsigned height() const override { return m_height; }
-  
-  int row_bytes() const override { return m_row_bytes; }
-  unsigned bpp() const override  { return m_bpp; }
-  
-private:
-  
-  // Do not use!
-  
-  void create(unsigned width, unsigned height, unsigned clear_val=255) override {};
-  void clear(unsigned clear_val=255) override {};
-  void destroy() override {};
-  
-  unsigned char* m_buf;
-  unsigned m_width;
-  unsigned m_height;
-  unsigned m_bpp;
-  int m_row_bytes;
-};
+  class pixel_wrapper : public agg::pixel_map
+  {
+  public:
+    pixel_wrapper(unsigned char* buf, unsigned w, unsigned h, unsigned bpp, int row_bytes)
+    : m_buf(buf)
+    , m_width(w)
+    , m_height(h)
+    , m_bpp(bpp)
+    , m_row_bytes(row_bytes)
+    {}
+    
+    unsigned char* buf() override { return m_buf; }
+    unsigned width() const override { return m_width; }
+    unsigned height() const override { return m_height; }
+    
+    int row_bytes() const override { return m_row_bytes; }
+    unsigned bpp() const override  { return m_bpp; }
+    
+  private:
+    
+    // Do not use!
+    
+    void create(unsigned width, unsigned height, unsigned clear_val=255) override {};
+    void clear(unsigned clear_val=255) override {};
+    void destroy() override {};
+    
+    unsigned char* m_buf;
+    unsigned m_width;
+    unsigned m_height;
+    unsigned m_bpp;
+    int m_row_bytes;
+  };
+}
 
 static const bool textKerning = true;
 
@@ -262,11 +265,11 @@ bool CheckTransform(const agg::trans_affine& mtx)
 
 void IGraphicsAGG::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
-  bool preMultiplied = static_cast<AGGBitmap*>(bitmap.GetAPIBitmap())->IsPreMultiplied();
+  bool preMultiplied = static_cast<Bitmap*>(bitmap.GetAPIBitmap())->IsPreMultiplied();
   IRECT bounds = mClipRECT.Empty() ? dest : mClipRECT.Intersect(dest);
   bounds.Scale(GetBackingPixelScale());
 
-  APIBitmap* pAPIBitmap = dynamic_cast<AGGBitmap*>(bitmap.GetAPIBitmap());
+  APIBitmap* pAPIBitmap = dynamic_cast<Bitmap*>(bitmap.GetAPIBitmap());
   agg::pixel_map* pSource = pAPIBitmap->GetBitmap();
   agg::rendering_buffer src(pSource->buf(), pSource->width(), pSource->height(), pSource->row_bytes());
 
@@ -456,13 +459,13 @@ APIBitmap* IGraphicsAGG::LoadAPIBitmap(const char* fileNameOrResID, int scale, E
   if (location != EResourceLocation::kNotFound && ispng)
   {
     if (pixelMap->load_img((HINSTANCE)GetWinModuleHandle(), fileNameOrResID, agg::pixel_map::format_png))
-      return new AGGBitmap(pixelMap.release(), scale, 1.f, false);
+      return new Bitmap(pixelMap.release(), scale, 1.f, false);
   }
 #else
   if (location == EResourceLocation::kAbsolutePath && ispng)
   {
     if (pixelMap->load_img(fileNameOrResID, agg::pixel_map::format_png))
-      return new AGGBitmap(pixelMap.release(), scale, 1.f, false);
+      return new Bitmap(pixelMap.release(), scale, 1.f, false);
   }
 #endif
 
@@ -471,7 +474,7 @@ APIBitmap* IGraphicsAGG::LoadAPIBitmap(const char* fileNameOrResID, int scale, E
 
 APIBitmap* IGraphicsAGG::CreateAPIBitmap(int width, int height, int scale, double drawScale)
 {
-  return new AGGBitmap(CreatePixmap(width, height), scale, drawScale, true);
+  return new Bitmap(CreatePixmap(width, height), scale, drawScale, true);
 }
 
 bool IGraphicsAGG::BitmapExtSupported(const char* ext)
@@ -506,8 +509,8 @@ void IGraphicsAGG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const 
     }
     
     IRECT bounds(layer->Bounds());
-    pixel_wrapper* shadowSource = new pixel_wrapper(mask.Get(), pPixMap->width(), pPixMap->height(), pPixMap->bpp(), pPixMap->row_bytes());
-    APIBitmap* shadowBitmap = new AGGBitmap(shadowSource, pBitmap->GetScale(), pBitmap->GetDrawScale(), true);
+    agg::pixel_wrapper* shadowSource = new agg::pixel_wrapper(mask.Get(), pPixMap->width(), pPixMap->height(), pPixMap->bpp(), pPixMap->row_bytes());
+    APIBitmap* shadowBitmap = new Bitmap(shadowSource, pBitmap->GetScale(), pBitmap->GetDrawScale(), true);
     IBitmap bitmap(shadowBitmap, 1, false);
     ILayer shadowLayer(shadowBitmap, layer->Bounds());
       

@@ -300,8 +300,7 @@ private:
   agg::conv_curve<FontManagerType::path_adaptor_type> mFontCurves;
   agg::conv_transform<agg::conv_curve<FontManagerType::path_adaptor_type>> mFontCurvesTransformed;
     
-  class AGGBitmap;
-  class pixel_wrapper;
+  class Bitmap;
 };
 
 END_IGRAPHICS_NAMESPACE

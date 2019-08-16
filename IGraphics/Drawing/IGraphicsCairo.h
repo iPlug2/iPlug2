@@ -102,15 +102,15 @@ private:
   cairo_t* mContext;
   cairo_surface_t* mSurface;
     
-  class CairoBitmap;
-  class CairoFont;
-  struct CairoPlatformFont;
+  class Bitmap;
+  class Font;
+  struct PlatformFont;
     
 #ifdef OS_WIN
   class PNGStream;
 #endif
     
-  static StaticStorage<CairoFont> sFontCache;
+  static StaticStorage<Font> sFontCache;
 };
 
 END_IGRAPHICS_NAMESPACE

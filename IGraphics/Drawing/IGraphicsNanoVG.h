@@ -145,7 +145,7 @@ private:
   NVGframebuffer* mMainFrameBuffer = nullptr;
   int mInitialFBO = 0;
     
-  class NanoVGBitmap;
+  class Bitmap;
 };
 
 END_IGRAPHICS_NAMESPACE

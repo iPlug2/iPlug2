@@ -153,11 +153,11 @@ private:
     
   ILayerPtr mClippingLayer;
     
-  class LICEBitmap;
-  struct LICEFontInfo;
+  class Bitmap;
+  struct FontInfo;
     
   static StaticStorage<LICE_IFont> sFontCache;
-  static StaticStorage<LICEFontInfo> sLICEFontInfoCache;
+  static StaticStorage<FontInfo> sFontInfoCache;
     
 #ifdef OS_MAC
   class MacRegisteredFont;

@@ -93,10 +93,10 @@ private:
     
   std::vector<std::pair<WDL_String, WDL_String>> mCustomFonts;
     
-  class CanvasBitmap;
-  struct CanvasFont;
+  class Bitmap;
+  struct Font;
     
-  static StaticStorage<CanvasFont> sFontCache;
+  static StaticStorage<Font> sFontCache;
 };
 
 END_IPLUG_NAMESPACE

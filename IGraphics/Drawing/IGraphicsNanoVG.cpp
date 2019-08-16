@@ -72,13 +72,13 @@ using namespace igraphics;
 
 #pragma mark - Private Classes and Structs
 
-class IGraphicsNanoVG::NanoVGBitmap : public APIBitmap
+class IGraphicsNanoVG::Bitmap : public APIBitmap
 {
 public:
-  NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID, bool shared = false);
-  NanoVGBitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, int scale, float drawScale);
-  NanoVGBitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, int scale, float drawScale);
-  virtual ~NanoVGBitmap();
+  Bitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID, bool shared = false);
+  Bitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, int scale, float drawScale);
+  Bitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, int scale, float drawScale);
+  virtual ~Bitmap();
   NVGframebuffer* GetFBO() const { return mFBO; }
 private:
   IGraphicsNanoVG *mGraphics = nullptr;
@@ -87,7 +87,7 @@ private:
   bool mSharedTexture = false;
 };
 
-IGraphicsNanoVG::NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID, bool shared)
+IGraphicsNanoVG::Bitmap::Bitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID, bool shared)
 {
   assert(nvgImageID > 0);
   
@@ -99,7 +99,7 @@ IGraphicsNanoVG::NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* pa
   SetBitmap(nvgImageID, w, h, sourceScale, 1.f);
 }
 
-IGraphicsNanoVG::NanoVGBitmap::NanoVGBitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, int scale, float drawScale)
+IGraphicsNanoVG::Bitmap::Bitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, int scale, float drawScale)
 {
   mGraphics = pGraphics;
   mVG = pContext;
@@ -120,14 +120,14 @@ IGraphicsNanoVG::NanoVGBitmap::NanoVGBitmap(IGraphicsNanoVG* pGraphics, NVGconte
   SetBitmap(mFBO->image, width, height, scale, drawScale);
 }
 
-IGraphicsNanoVG::NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, int scale, float drawScale)
+IGraphicsNanoVG::Bitmap::Bitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, int scale, float drawScale)
 {
   int idx = nvgCreateImageRGBA(pContext, width, height, 0, pData);
   mVG = pContext;
   SetBitmap(idx, width, height, scale, drawScale);
 }
 
-IGraphicsNanoVG::NanoVGBitmap::~NanoVGBitmap()
+IGraphicsNanoVG::Bitmap::~Bitmap()
 {
   if(!mSharedTexture)
   {
@@ -326,7 +326,7 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
     idx = nvgCreateImage(mVG, fileNameOrResID, 0);
   }
 
-  return new NanoVGBitmap(mVG, fileNameOrResID, scale, idx, location == EResourceLocation::kPreloadedTexture);
+  return new Bitmap(mVG, fileNameOrResID, scale, idx, location == EResourceLocation::kPreloadedTexture);
 }
 
 APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height, int scale, double drawScale)
@@ -336,7 +336,7 @@ APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height, int scale, do
     nvgEndFrame(mVG);
   }
   
-  APIBitmap* pAPIBitmap =  new NanoVGBitmap(this, mVG, width, height, scale, drawScale);
+  APIBitmap* pAPIBitmap =  new Bitmap(this, mVG, width, height, scale, drawScale);
 
   if (mInDraw)
   {
@@ -383,7 +383,7 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
     
     IRECT bounds(layer->Bounds());
     
-    NanoVGBitmap maskRawBitmap(mVG, width, height, mask.Get(), pBitmap->GetScale(), pBitmap->GetDrawScale());
+    Bitmap maskRawBitmap(mVG, width, height, mask.Get(), pBitmap->GetScale(), pBitmap->GetDrawScale());
     APIBitmap* shadowBitmap = CreateAPIBitmap(width, height, pBitmap->GetScale(), pBitmap->GetDrawScale());
     IBitmap tempLayerBitmap(shadowBitmap, 1, false);
     IBitmap maskBitmap(&maskRawBitmap, 1, false);
@@ -719,7 +719,7 @@ void IGraphicsNanoVG::UpdateLayer()
     const double scale = GetBackingPixelScale();
     glViewport(0, 0, mLayers.top()->Bounds().W() * scale, mLayers.top()->Bounds().H() * scale);
 #endif
-    nvgBindFramebuffer(dynamic_cast<const NanoVGBitmap*>(mLayers.top()->GetAPIBitmap())->GetFBO());
+    nvgBindFramebuffer(dynamic_cast<const Bitmap*>(mLayers.top()->GetAPIBitmap())->GetFBO());
     nvgBeginFrame(mVG, mLayers.top()->Bounds().W() * GetDrawScale(), mLayers.top()->Bounds().H() * GetDrawScale(), GetScreenScale());
   }
 }

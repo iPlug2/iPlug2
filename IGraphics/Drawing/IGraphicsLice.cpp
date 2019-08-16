@@ -20,19 +20,19 @@ using namespace igraphics;
 
 #pragma mark - Private Classes and Structs
 
-class IGraphicsLice::LICEBitmap : public APIBitmap
+class IGraphicsLice::Bitmap : public APIBitmap
 {
 public:
-  LICEBitmap(LICE_IBitmap* pBitmap, int scale, bool preMultiplied)
+  Bitmap(LICE_IBitmap* pBitmap, int scale, bool preMultiplied)
   : APIBitmap(pBitmap, pBitmap->getWidth(), pBitmap->getHeight(), scale, 1.f), mPremultiplied(preMultiplied)
   {}
-  virtual ~LICEBitmap() { delete GetBitmap(); }
+  virtual ~Bitmap() { delete GetBitmap(); }
   bool IsPreMultiplied() { return mPremultiplied; }
 private:
   bool mPremultiplied;
 };
 
-struct IGraphicsLice::LICEFontInfo
+struct IGraphicsLice::FontInfo
 {
   WDL_String mFontName;
   bool mBold;
@@ -71,7 +71,7 @@ StaticStorage<IGraphicsLice::MacRegisteredFont> IGraphicsLice::sMacRegistedFontC
 
 // Fonts
 StaticStorage<LICE_IFont> IGraphicsLice::sFontCache;
-StaticStorage<IGraphicsLice::LICEFontInfo> IGraphicsLice::sLICEFontInfoCache;
+StaticStorage<IGraphicsLice::FontInfo> IGraphicsLice::sFontInfoCache;
 
 #pragma mark - Utilites
 
@@ -172,7 +172,7 @@ IGraphicsLice::IGraphicsLice(IGEditorDelegate& dlg, int w, int h, int fps, float
 {
   DBGMSG("IGraphics Lice @ %i FPS\n", fps);
   StaticStorage<LICE_IFont>::Accessor fontStorage(sFontCache);
-  StaticStorage<LICEFontInfo>::Accessor fontInfoStorage(sLICEFontInfoCache);
+  StaticStorage<FontInfo>::Accessor fontInfoStorage(sFontInfoCache);
   fontStorage.Retain();
   fontInfoStorage.Retain();
 #ifdef OS_MAC
@@ -184,7 +184,7 @@ IGraphicsLice::IGraphicsLice(IGEditorDelegate& dlg, int w, int h, int fps, float
 IGraphicsLice::~IGraphicsLice() 
 {
   StaticStorage<LICE_IFont>::Accessor fontStorage(sFontCache);
-  StaticStorage<LICEFontInfo>::Accessor fontInfoStorage(sLICEFontInfoCache);
+  StaticStorage<FontInfo>::Accessor fontInfoStorage(sFontInfoCache);
   fontStorage.Release();
   fontInfoStorage.Release();
 #ifdef OS_MAC
@@ -236,7 +236,7 @@ void IGraphicsLice::DrawRotatedSVG(const ISVG& svg, float destCtrX, float destCt
 
 void IGraphicsLice::DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend)
 {
-  bool preMultiplied = static_cast<LICEBitmap*>(bitmap.GetAPIBitmap())->IsPreMultiplied();
+  bool preMultiplied = static_cast<Bitmap*>(bitmap.GetAPIBitmap())->IsPreMultiplied();
   const int ds = GetScreenScale();
   
   IRECT sr = TransformRECT(bounds);
@@ -690,8 +690,8 @@ void IGraphicsLice::UpdateLayer()
 
 LICE_IFont* IGraphicsLice::CacheFont(const IText& text) const
 {
-  StaticStorage<LICEFontInfo>::Accessor fontInfoStorage(sLICEFontInfoCache);
-  LICEFontInfo* pFontInfo = fontInfoStorage.Find(text.mFont);
+  StaticStorage<FontInfo>::Accessor fontInfoStorage(sFontInfoCache);
+  FontInfo* pFontInfo = fontInfoStorage.Find(text.mFont);
   
   assert(pFontInfo && "No font found - did you forget to load it?");
   
@@ -729,8 +729,8 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text) const
 
 bool IGraphicsLice::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 {
-  StaticStorage<LICEFontInfo>::Accessor fontInfoStorage(sLICEFontInfoCache);
-  LICEFontInfo* cached = fontInfoStorage.Find(fontID);
+  StaticStorage<FontInfo>::Accessor fontInfoStorage(sFontInfoCache);
+  FontInfo* cached = fontInfoStorage.Find(fontID);
   
   if (cached)
     return true;
@@ -750,14 +750,14 @@ bool IGraphicsLice::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
       fontName.Append(" ");
       fontName.Append(&data->GetStyle());
     }
-    fontInfoStorage.Add(new LICEFontInfo{fontName, false, false, false, EMRatio}, fontID);
+    fontInfoStorage.Add(new FontInfo{fontName, false, false, false, EMRatio}, fontID);
       
     if (!font->IsSystem())
     {
       registeredFontStorage.Add(new MacRegisteredFont(font->GetDescriptor()), fontID);
     }
 #else
-    fontInfoStorage.Add(new LICEFontInfo{data->GetFamily(), data->IsBold(), data->IsItalic(), data->IsUnderline(), EMRatio}, fontID);
+    fontInfoStorage.Add(new FontInfo{data->GetFamily(), data->IsBold(), data->IsItalic(), data->IsUnderline(), EMRatio}, fontID);
 #endif
     return true;
   }
@@ -796,10 +796,10 @@ APIBitmap* IGraphicsLice::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
   {
 #if defined OS_WIN
     if (location == EResourceLocation::kWinBinary)
-      return new LICEBitmap(LICE_LoadPNGFromResource((HINSTANCE) GetWinModuleHandle(), fileNameOrResID, 0), scale, false);
+      return new Bitmap(LICE_LoadPNGFromResource((HINSTANCE) GetWinModuleHandle(), fileNameOrResID, 0), scale, false);
     else
 #endif
-      return new LICEBitmap(LICE_LoadPNG(fileNameOrResID), scale, false);
+      return new Bitmap(LICE_LoadPNG(fileNameOrResID), scale, false);
   }
 
 #ifdef LICE_JPEG_SUPPORT
@@ -809,10 +809,10 @@ APIBitmap* IGraphicsLice::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
   {
     #if defined OS_WIN
     if (location == EResourceLocation::kWinBinary)
-      return new LICEBitmap(LICE_LoadJPGFromResource((HINSTANCE)GetWinModuleHandle(), fileNameOrResID, 0), scale, false);
+      return new Bitmap(LICE_LoadJPGFromResource((HINSTANCE)GetWinModuleHandle(), fileNameOrResID, 0), scale, false);
     else
     #endif
-      return new LICEBitmap(LICE_LoadJPG(fileNameOrResID), scale, false);
+      return new Bitmap(LICE_LoadJPG(fileNameOrResID), scale, false);
   }
 #endif
 
@@ -823,7 +823,7 @@ APIBitmap* IGraphicsLice::CreateAPIBitmap(int width, int height, int scale, doub
 {
   LICE_IBitmap* pBitmap = new LICE_MemBitmap(width, height);
   memset(pBitmap->getBits(), 0, pBitmap->getRowSpan() * pBitmap->getHeight() * sizeof(LICE_pixel));
-  return new LICEBitmap(pBitmap, scale, true);
+  return new Bitmap(pBitmap, scale, true);
 }
 
 void IGraphicsLice::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)

@@ -102,9 +102,9 @@ private:
   void* mMTLLayer;
 #endif
     
-  class SkiaBitmap;
-  struct SkiaFont;
-  static StaticStorage<SkiaFont> sFontCache;
+  class Bitmap;
+  struct Font;
+  static StaticStorage<Font> sFontCache;
 };
 
 END_IGRAPHICS_NAMESPACE

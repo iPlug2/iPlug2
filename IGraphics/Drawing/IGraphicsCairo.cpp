@@ -20,15 +20,15 @@ using namespace igraphics;
 
 #pragma mark - Private Classes and Structs
 
-class IGraphicsCairo::CairoBitmap : public APIBitmap
+class IGraphicsCairo::Bitmap : public APIBitmap
 {
 public:
-  CairoBitmap(cairo_surface_t* pSurface, int scale, float drawScale);
-  CairoBitmap(cairo_surface_t* pSurfaceType, int width, int height, int scale, float drawScale);
-  virtual ~CairoBitmap();
+  Bitmap(cairo_surface_t* pSurface, int scale, float drawScale);
+  Bitmap(cairo_surface_t* pSurfaceType, int width, int height, int scale, float drawScale);
+  virtual ~Bitmap();
 };
 
-IGraphicsCairo::CairoBitmap::CairoBitmap(cairo_surface_t* pSurface, int scale, float drawScale)
+IGraphicsCairo::Bitmap::Bitmap(cairo_surface_t* pSurface, int scale, float drawScale)
 {
   cairo_surface_set_device_scale(pSurface, scale * drawScale, scale * drawScale);
   int width = cairo_image_surface_get_width(pSurface);
@@ -37,7 +37,7 @@ IGraphicsCairo::CairoBitmap::CairoBitmap(cairo_surface_t* pSurface, int scale, f
   SetBitmap(pSurface, width, height, scale, drawScale);
 }
 
-IGraphicsCairo::CairoBitmap::CairoBitmap(cairo_surface_t* pSurfaceType, int width, int height, int scale, float drawScale)
+IGraphicsCairo::Bitmap::Bitmap(cairo_surface_t* pSurfaceType, int width, int height, int scale, float drawScale)
 {
   cairo_surface_t* pSurface;
   
@@ -51,19 +51,19 @@ IGraphicsCairo::CairoBitmap::CairoBitmap(cairo_surface_t* pSurfaceType, int widt
   SetBitmap(pSurface, width, height, scale, drawScale);
 }
 
-IGraphicsCairo::CairoBitmap::~CairoBitmap()
+IGraphicsCairo::Bitmap::~Bitmap()
 {
   cairo_surface_destroy(GetBitmap());
 }
 
-class IGraphicsCairo::CairoFont
+class IGraphicsCairo::Font
 {
 public:
-  CairoFont(cairo_font_face_t* font, double EMRatio) : mFont(font), mEMRatio(EMRatio) {}
-  virtual ~CairoFont() { if (mFont) cairo_font_face_destroy(mFont); }
+  Font(cairo_font_face_t* font, double EMRatio) : mFont(font), mEMRatio(EMRatio) {}
+  virtual ~Font() { if (mFont) cairo_font_face_destroy(mFont); }
 
-  CairoFont(const CairoFont&) = delete;
-  CairoFont& operator=(const CairoFont&) = delete;
+  Font(const Font&) = delete;
+  Font& operator=(const Font&) = delete;
     
   cairo_font_face_t* GetFont() const { return mFont; }
   double GetEMRatio() const { return mEMRatio; }
@@ -74,9 +74,9 @@ protected:
 };
 
 #ifdef OS_MAC
-struct IGraphicsCairo::CairoPlatformFont : CairoFont
+struct IGraphicsCairo::PlatformFont : Font
 {
-  CairoPlatformFont(const FontDescriptor fontRef, double EMRatio) : CairoFont(nullptr, EMRatio)
+  PlatformFont(const FontDescriptor fontRef, double EMRatio) : Font(nullptr, EMRatio)
   {
     CTFontRef ctFont = CTFontCreateWithFontDescriptor(fontRef, 0.f, NULL);
     CGFontRef cgFont = CTFontCopyGraphicsFont(ctFont, NULL);
@@ -86,10 +86,10 @@ struct IGraphicsCairo::CairoPlatformFont : CairoFont
   }
 };
 #elif defined OS_WIN
-struct IGraphicsCairo::CairoPlatformFont : CairoFont
+struct IGraphicsCairo::PlatformFont : Font
 {
-  CairoPlatformFont(const FontDescriptor fontRef, double EMRatio)
-  : CairoFont(cairo_win32_font_face_create_for_hfont(fontRef), EMRatio)
+  PlatformFont(const FontDescriptor fontRef, double EMRatio)
+  : Font(cairo_win32_font_face_create_for_hfont(fontRef), EMRatio)
   {}
 };
 
@@ -122,7 +122,7 @@ private:
 #endif
 
 // Fonts
-StaticStorage<IGraphicsCairo::CairoFont> IGraphicsCairo::sFontCache;
+StaticStorage<IGraphicsCairo::Font> IGraphicsCairo::sFontCache;
 
 #pragma mark - Utilites
 
@@ -158,13 +158,13 @@ IGraphicsCairo::IGraphicsCairo(IGEditorDelegate& dlg, int w, int h, int fps, flo
 {
   DBGMSG("IGraphics Cairo @ %i FPS\n", fps);
   
-  StaticStorage<CairoFont>::Accessor storage(sFontCache);
+  StaticStorage<Font>::Accessor storage(sFontCache);
   storage.Retain();
 }
 
 IGraphicsCairo::~IGraphicsCairo() 
 {
-  StaticStorage<CairoFont>::Accessor storage(sFontCache);
+  StaticStorage<Font>::Accessor storage(sFontCache);
   storage.Release();
   
   // N.B. calls through to destroy context and surface
@@ -209,7 +209,7 @@ APIBitmap* IGraphicsCairo::LoadAPIBitmap(const char* fileNameOrResID, int scale,
 
 APIBitmap* IGraphicsCairo::CreateAPIBitmap(int width, int height, int scale, double drawScale)
 {
-  return new CairoBitmap(mSurface, width, height, scale, drawScale);
+  return new Bitmap(mSurface, width, height, scale, drawScale);
 }
 
 bool IGraphicsCairo::BitmapExtSupported(const char* ext)
@@ -477,8 +477,8 @@ void IGraphicsCairo::PrepareAndMeasureText(const IText& text, const char* str, I
   else
     context = mContext;
   
-  StaticStorage<CairoFont>::Accessor storage(sFontCache);
-  CairoFont* pCachedFont = storage.Find(text.mFont);
+  StaticStorage<Font>::Accessor storage(sFontCache);
+  Font* pCachedFont = storage.Find(text.mFont);
     
   assert(pCachedFont && "No font found - did you forget to load it?");
     
@@ -658,7 +658,7 @@ void IGraphicsCairo::EndFrame()
 
 bool IGraphicsCairo::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 {
-  StaticStorage<CairoFont>::Accessor storage(sFontCache);
+  StaticStorage<Font>::Accessor storage(sFontCache);
   
   if (storage.Find(fontID))
     return true;
@@ -668,7 +668,7 @@ bool IGraphicsCairo::LoadAPIFont(const char* fontID, const PlatformFontPtr& font
   if (!data->IsValid())
     return false;
     
-  std::unique_ptr<CairoPlatformFont> cairoFont(new CairoPlatformFont(font->GetDescriptor(), data->GetHeightEMRatio()));
+  std::unique_ptr<PlatformFont> cairoFont(new PlatformFont(font->GetDescriptor(), data->GetHeightEMRatio()));
 
   if (cairo_font_face_status(cairoFont->GetFont()) == CAIRO_STATUS_SUCCESS)
   {
