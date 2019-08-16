@@ -68,16 +68,16 @@ private:
   HANDLE mFontHandle;
 };
 
-struct IGraphicsWin::FontDescriptor
+struct IGraphicsWin::HFontHolder
 {
-  FontDescriptor(HFONT descriptor) : mDescriptor(nullptr)
+  HFontHolder(HFONT hfont) : mHFont(nullptr)
   {
     LOGFONT lFont = { 0 };
-    GetObject(descriptor, sizeof(LOGFONT), &lFont);
-    mDescriptor = CreateFontIndirect(&lFont);
+    GetObject(hfont, sizeof(LOGFONT), &lFont);
+    mHFont = CreateFontIndirect(&lFont);
   }
   
-  HFONT mDescriptor;
+  HFONT mHFont;
 };
 
 class IGraphicsWin::Font : public PlatformFont
@@ -129,7 +129,7 @@ IFontDataPtr IGraphicsWin::Font::GetFontData()
 }
 
 StaticStorage<IGraphicsWin::InstalledFont> IGraphicsWin::sPlatformFontCache;
-StaticStorage<IGraphicsWin::FontDescriptor> IGraphicsWin::sFontDescriptorCache;
+StaticStorage<IGraphicsWin::HFontHolder> IGraphicsWin::sHFontHolderCache;
 
 #pragma mark - DPI Helper
 
@@ -664,17 +664,17 @@ IGraphicsWin::IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float s
   }
 
   StaticStorage<InstalledFont>::Accessor fontStorage(sPlatformFontCache);
-  StaticStorage<FontDescriptor>::Accessor descriptorStorage(sFontDescriptorCache);
+  StaticStorage<HFontHolder>::Accessor hfontStorage(sHFontCache);
   fontStorage.Retain();
-  descriptorStorage.Retain();
+  hfontStorage.Retain();
 }
 
 IGraphicsWin::~IGraphicsWin()
 {
   StaticStorage<InstalledFont>::Accessor fontStorage(sPlatformFontCache);
-  StaticStorage<FontDescriptor>::Accessor descriptorStorage(sFontDescriptorCache);
+  StaticStorage<HFontHolder>::Accessor hfontStorage(sHFontCache);
   fontStorage.Release();
-  descriptorStorage.Release();
+  hfontStorage.Release();
   DestroyEditWindow();
   CloseWindow();
 }
@@ -1292,15 +1292,15 @@ void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
     scaledBounds.L, scaledBounds.T, scaledBounds.W()+1, scaledBounds.H()+1,
     mPlugWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
 
-  StaticStorage<FontDescriptor>::Accessor descriptorStorage(sFontDescriptorCache);
+  StaticStorage<HFontHolder>::Accessor hfontStorage(sHFontCache);
 
   LOGFONT lFont = { 0 };
-  FontDescriptor* descriptor = descriptorStorage.Find(text.mFont);
-  GetObject(descriptor->mDescriptor, sizeof(LOGFONT), &lFont);
+  HFontHolder* hfontHolder = hfontStorage.Find(text.mFont);
+  GetObject(hfontHolder->mHFont, sizeof(LOGFONT), &lFont);
   lFont.lfHeight = text.mSize * scale;
   mEditFont = CreateFontIndirect(&lFont);
 
-  assert(descriptor && "font not found - did you forget to load it?");
+  assert(hfontHolder && "font not found - did you forget to load it?");
 
   mEditParam = paramIdx > kNoParameter ? GetDelegate()->GetParam(paramIdx) : nullptr;
   mEditText = text;
@@ -1794,12 +1794,12 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
 
 void IGraphicsWin::CachePlatformFont(const char* fontID, const PlatformFontPtr& font)
 {
-  StaticStorage<FontDescriptor>::Accessor descriptorStorage(sFontDescriptorCache);
+  StaticStorage<HFontHolder>::Accessor hfontStorage(sHFontCache);
 
-  HFONT descriptor = font->GetDescriptor();
+  HFONT hfont = font->GetDescriptor();
 
-  if (!descriptorStorage.Find(fontID))
-    descriptorStorage.Add(new FontDescriptor(descriptor), fontID);
+  if (!hfontStorage.Find(fontID))
+    hfontStorage.Add(new HFontHolder(hfont), fontID);
 }
 
 #ifndef NO_IGRAPHICS

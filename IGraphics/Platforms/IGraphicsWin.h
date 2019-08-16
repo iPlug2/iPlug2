@@ -145,10 +145,10 @@ private:
     
   class Font;
   class InstalledFont;
-  struct FontDescriptor;
+  struct HFontHolder;
     
   static StaticStorage<InstalledFont> sPlatformFontCache;
-  static StaticStorage<FontDescriptor> sFontDescriptorCache;
+  static StaticStorage<HFontHolder> sHFontCache;
 };
 
 END_IGRAPHICS_NAMESPACE
