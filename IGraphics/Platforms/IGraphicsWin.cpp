@@ -43,7 +43,7 @@ static double sFPS = 0.0;
 class IGraphicsWin::InstalledFont
 {
 public:
-  WinInstalledFont(void* data, int resSize)
+  InstalledFont(void* data, int resSize)
   : mFontHandle(nullptr)
   {
     if (data)
@@ -53,14 +53,14 @@ public:
     }
   }
   
-  ~WinInstalledFont()
+  ~InstalledFont()
   {
     if (IsValid())
       RemoveFontMemResourceEx(mFontHandle);
   }
   
-  WinInstalledFont(const WinInstalledFont&) = delete;
-  WinInstalledFont& operator=(const WinInstalledFont&) = delete;
+  InstalledFont(const InstalledFont&) = delete;
+  InstalledFont& operator=(const InstalledFont&) = delete;
     
   bool IsValid() const { return mFontHandle; }
   
@@ -70,7 +70,7 @@ private:
 
 struct IGraphicsWin::FontDescriptor
 {
-  WinFontDescriptor(HFONT descriptor) : mDescriptor(nullptr)
+  FontDescriptor(HFONT descriptor) : mDescriptor(nullptr)
   {
     LOGFONT lFont = { 0 };
     GetObject(descriptor, sizeof(LOGFONT), &lFont);
@@ -83,9 +83,9 @@ struct IGraphicsWin::FontDescriptor
 class IGraphicsWin::Font : public PlatformFont
 {
 public:
-  WinFont(HFONT font, const char* styleName, bool system)
+  Font(HFONT font, const char* styleName, bool system)
   : PlatformFont(system), mFont(font), mStyleName(styleName) {}
-  ~WinFont()
+  ~Font()
   {
     DeleteObject(mFont);
   }
@@ -98,7 +98,7 @@ private:
   WDL_String mStyleName;
 };
 
-IFontDataPtr WinFont::GetFontData()
+IFontDataPtr Font::GetFontData()
 {
   HDC hdc = CreateCompatibleDC(NULL);
   IFontDataPtr fontData(new IFontData());
@@ -663,16 +663,16 @@ IGraphicsWin::IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float s
     if (h) *(void **)&__GetDpiForWindow = GetProcAddress(h, "GetDpiForWindow");
   }
 
-  StaticStorage<WinInstalledFont>::Accessor fontStorage(sPlatformFontCache);
-  StaticStorage<WinFontDescriptor>::Accessor descriptorStorage(sFontDescriptorCache);
+  StaticStorage<InstalledFont>::Accessor fontStorage(sPlatformFontCache);
+  StaticStorage<FontDescriptor>::Accessor descriptorStorage(sFontDescriptorCache);
   fontStorage.Retain();
   descriptorStorage.Retain();
 }
 
 IGraphicsWin::~IGraphicsWin()
 {
-  StaticStorage<WinInstalledFont>::Accessor fontStorage(sPlatformFontCache);
-  StaticStorage<WinFontDescriptor>::Accessor descriptorStorage(sFontDescriptorCache);
+  StaticStorage<InstalledFont>::Accessor fontStorage(sPlatformFontCache);
+  StaticStorage<FontDescriptor>::Accessor descriptorStorage(sFontDescriptorCache);
   fontStorage.Release();
   descriptorStorage.Release();
   DestroyEditWindow();
@@ -1292,10 +1292,10 @@ void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
     scaledBounds.L, scaledBounds.T, scaledBounds.W()+1, scaledBounds.H()+1,
     mPlugWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
 
-  StaticStorage<WinFontDescriptor>::Accessor descriptorStorage(sFontDescriptorCache);
+  StaticStorage<FontDescriptor>::Accessor descriptorStorage(sFontDescriptorCache);
 
   LOGFONT lFont = { 0 };
-  WinFontDescriptor* descriptor = descriptorStorage.Find(text.mFont);
+  FontDescriptor* descriptor = descriptorStorage.Find(text.mFont);
   GetObject(descriptor->mDescriptor, sizeof(LOGFONT), &lFont);
   lFont.lfHeight = text.mSize * scale;
   mEditFont = CreateFontIndirect(&lFont);
@@ -1727,9 +1727,9 @@ static HFONT GetHFont(const char* fontName, int weight, bool italic, bool underl
 
 PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
 {
-  StaticStorage<WinInstalledFont>::Accessor fontStorage(sPlatformFontCache);
+  StaticStorage<InstalledFont>::Accessor fontStorage(sPlatformFontCache);
 
-  std::unique_ptr<WinInstalledFont> pFont;
+  std::unique_ptr<InstalledFont> pFont;
   void* pFontMem = nullptr;
   int resSize = 0;
   WDL_String fullPath;
@@ -1746,7 +1746,7 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
       HANDLE file = CreateFile(fullPath.Get(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
       HANDLE mapping = CreateFileMapping(file, NULL, PAGE_READONLY, 0, 0, NULL);
       pFontMem = MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
-      pFont = std::make_unique<WinInstalledFont>(pFontMem, resSize);
+      pFont = std::make_unique<InstalledFont>(pFontMem, resSize);
       UnmapViewOfFile(pFontMem);
       CloseHandle(mapping);
       CloseHandle(file);
@@ -1755,7 +1755,7 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
     case kWinBinary:
     {
       pFontMem = const_cast<void *>(LoadWinResource(fullPath.Get(), "ttf", resSize, GetWinModuleHandle()));
-      pFont = std::make_unique<WinInstalledFont>(pFontMem, resSize);
+      pFont = std::make_unique<InstalledFont>(pFontMem, resSize);
     }
     break;
   } 
@@ -1773,7 +1773,7 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
     if (font)
     {
       fontStorage.Add(pFont.release(), fileNameOrResID);
-      return PlatformFontPtr(new WinFont(font, "", false));
+      return PlatformFontPtr(new Font(font, "", false));
     }
   }
 
@@ -1789,17 +1789,17 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
 
   HFONT font = GetHFont(fontName, weight, italic, underline, quality, true);
 
-  return PlatformFontPtr(font ? new WinFont(font, TextStyleString(style), true) : nullptr);
+  return PlatformFontPtr(font ? new Font(font, TextStyleString(style), true) : nullptr);
 }
 
 void IGraphicsWin::CachePlatformFont(const char* fontID, const PlatformFontPtr& font)
 {
-  StaticStorage<WinFontDescriptor>::Accessor descriptorStorage(sFontDescriptorCache);
+  StaticStorage<FontDescriptor>::Accessor descriptorStorage(sFontDescriptorCache);
 
   HFONT descriptor = font->GetDescriptor();
 
   if (!descriptorStorage.Find(fontID))
-    descriptorStorage.Add(new WinFontDescriptor(descriptor), fontID);
+    descriptorStorage.Add(new FontDescriptor(descriptor), fontID);
 }
 
 #ifndef NO_IGRAPHICS
