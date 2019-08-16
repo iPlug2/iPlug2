@@ -156,12 +156,12 @@ private:
   class LICEBitmap;
   struct LICEFontInfo;
     
-  static StaticStorage<LICE_IFont> IGraphicsLice::sFontCache;
-  static StaticStorage<LICEFontInfo> IGraphicsLice::sLICEFontInfoCache
+  static StaticStorage<LICE_IFont> sFontCache;
+  static StaticStorage<LICEFontInfo> sLICEFontInfoCache;
     
 #ifdef OS_MAC
   class MacRegisteredFont;
-  static StaticStorage<MacRegisteredFont> IGraphicsLice::sMacRegistedFontCache;
+  static StaticStorage<MacRegisteredFont> sMacRegistedFontCache;
   CGColorSpaceRef mColorSpace = nullptr;
 #endif
 };

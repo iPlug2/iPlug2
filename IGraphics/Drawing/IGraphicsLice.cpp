@@ -20,7 +20,7 @@ using namespace igraphics;
 
 #pragma mark - Private Classes and Structs
 
-class LICEBitmap : public APIBitmap
+class IGraphicsLice::LICEBitmap : public APIBitmap
 {
 public:
   LICEBitmap(LICE_IBitmap* pBitmap, int scale, bool preMultiplied)
@@ -66,12 +66,12 @@ private:
   CGFontRef mCGFont;
 };
 
-StaticStorage<MacRegisteredFont> IGraphicsLice::sMacRegistedFontCache;
+StaticStorage<IGraphicsLice::MacRegisteredFont> IGraphicsLice::sMacRegistedFontCache;
 #endif
 
 // Fonts
 StaticStorage<LICE_IFont> IGraphicsLice::sFontCache;
-StaticStorage<LICEFontInfo> IGraphicsLice::sLICEFontInfoCache;
+StaticStorage<IGraphicsLice::LICEFontInfo> IGraphicsLice::sLICEFontInfoCache;
 
 #pragma mark - Utilites
 
