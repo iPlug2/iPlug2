@@ -21,56 +21,7 @@
 
 #ifndef NO_IGRAPHICS
 
-  #if defined OS_WIN
-
-  extern HINSTANCE gHINSTANCE;
-
-  BEGIN_IPLUG_NAMESPACE
-  BEGIN_IGRAPHICS_NAMESPACE
-
-  IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
-  {
-    IGraphicsWin* pGraphics = new IGraphicsWin(dlg, w, h, fps, scale);
-    pGraphics->SetWinModuleHandle(gHINSTANCE);
-    return pGraphics;
-  }
-
-  END_IGRAPHICS_NAMESPACE
-  END_IPLUG_NAMESPACE
-
-  #elif defined OS_MAC
-
-  BEGIN_IPLUG_NAMESPACE
-  BEGIN_IGRAPHICS_NAMESPACE
-
-  IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
-  {
-    IGraphicsMac* pGraphics = new IGraphicsMac(dlg, w, h, fps, scale);
-    pGraphics->SetBundleID(BUNDLE_ID);
-    
-    return pGraphics;
-  }
-
-  END_IGRAPHICS_NAMESPACE
-  END_IPLUG_NAMESPACE
-
-  #elif defined OS_IOS
-
-  BEGIN_IPLUG_NAMESPACE
-  BEGIN_IGRAPHICS_NAMESPACE
-
-  IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
-  {
-    IGraphicsIOS* pGraphics = new IGraphicsIOS(dlg, w, h, fps, scale);
-    pGraphics->SetBundleID(BUNDLE_ID);
-
-    return pGraphics;
-  }
-
-  END_IGRAPHICS_NAMESPACE
-  END_IPLUG_NAMESPACE
-
-  #elif defined OS_WEB
+  #if defined OS_WEB
 
   #include <emscripten.h>
 
@@ -82,21 +33,49 @@
     emscripten_set_main_loop(pGraphics->OnMainLoopTimer, 0 /*pGraphics->FPS()*/, 1);
   }
 
+  #elif defined OS_WIN
+
+  extern HINSTANCE gHINSTANCE;
+#endif
+
   BEGIN_IPLUG_NAMESPACE
   BEGIN_IGRAPHICS_NAMESPACE
 
+  #if defined OS_WIN
+  IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
+  {
+    IGraphicsWin* pGraphics = new IGraphicsWin(dlg, w, h, fps, scale);
+    pGraphics->SetWinModuleHandle(gHINSTANCE);
+    return pGraphics;
+  }
+  #elif defined OS_MAC
+  IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
+  {
+    IGraphicsMac* pGraphics = new IGraphicsMac(dlg, w, h, fps, scale);
+    pGraphics->SetBundleID(BUNDLE_ID);
+    
+    return pGraphics;
+  }
+  #elif defined OS_IOS
+  IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
+  {
+    IGraphicsIOS* pGraphics = new IGraphicsIOS(dlg, w, h, fps, scale);
+    pGraphics->SetBundleID(BUNDLE_ID);
+
+    return pGraphics;
+  }
+  #elif defined OS_WEB
   IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
   {
     gGraphics = new IGraphicsWeb(dlg, w, h, fps, scale);
     return gGraphics;
   }
-
-  END_IGRAPHICS_NAMESPACE
-  END_IPLUG_NAMESPACE
-
   #else
     #error "No OS defined!"
   #endif
+
+  END_IGRAPHICS_NAMESPACE
+  END_IPLUG_NAMESPACE
 
 #endif //NO_IGRAPHICS
 
