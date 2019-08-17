@@ -46,16 +46,14 @@
     {
       using namespace iplug;
 
-      InstanceInfo info;
-      info.mVSTHostCallback = hostCallback;
-      IPlugVST2* pPlug = MakePlug(info);
+      IPlugVST2* pPlug = MakePlug(InstanceInfo{hostCallback});
 
       if (pPlug)
       {
         AEffect& aEffect = pPlug->GetAEffect();
         pPlug->EnsureDefaultPreset();
         aEffect.numPrograms = std::max(aEffect.numPrograms, 1); // some hosts don't like 0 presets
-        return &(aEffect);
+        return &aEffect;
       }
       return 0;
     }
@@ -75,12 +73,12 @@
   #include "pluginterfaces/vst/ivstcomponent.h"
   #include "pluginterfaces/vst/ivsteditcontroller.h"
 
-  static unsigned int PROC_GUID_DATA1 = 0xF2AEE70D;
-  static unsigned int PROC_GUID_DATA2 = 0x00DE4F4E;
-  static unsigned int CTRL_GUID_DATA1 = 0xF2AEE70E;
-  static unsigned int CTRL_GUID_DATA2 = 0x00DE4F4F;
-  static unsigned int GUID_DATA3 = PLUG_MFR_ID;
-  static unsigned int GUID_DATA4 = PLUG_UNIQUE_ID;
+  static unsigned int PROC_GUID1 = 0xF2AEE70D;
+  static unsigned int PROC_GUID2 = 0x00DE4F4E;
+  static unsigned int CTRL_GUID1 = 0xF2AEE70E;
+  static unsigned int CTRL_GUID2 = 0x00DE4F4F;
+  static unsigned int VST3_GUID3 = PLUG_MFR_ID;
+  static unsigned int VST3_GUID4 = PLUG_UNIQUE_ID;
 
   #ifndef EFFECT_TYPE_VST3
     #if PLUG_TYPE == 1
@@ -115,7 +113,7 @@
 
   BEGIN_FACTORY_DEF(PLUG_MFR, PLUG_URL_STR, PLUG_EMAIL_STR)
 
-  DEF_CLASS2(INLINE_UID(PROC_GUID_DATA1, PROC_GUID_DATA2, GUID_DATA3, GUID_DATA4),
+  DEF_CLASS2(INLINE_UID(PROC_GUID1, PROC_GUID2, VST3_GUID3, VST3_GUID4),
               Steinberg::PClassInfo::kManyInstances,          // cardinality
               kVstAudioEffectClass,                           // the component category (don't change this)
               PLUG_NAME,                                      // plug-in name
@@ -135,7 +133,7 @@
 
   BEGIN_FACTORY_DEF(PLUG_MFR, PLUG_URL_STR, PLUG_EMAIL_STR)
 
-  DEF_CLASS2 (INLINE_UID(PROC_GUID_DATA1, PROC_GUID_DATA2, GUID_DATA3, GUID_DATA4),
+  DEF_CLASS2 (INLINE_UID(PROC_GUID1, PROC_GUID2, VST3_GUID3, VST3_GUID4),
               PClassInfo::kManyInstances,                     // cardinality
               kVstAudioEffectClass,                           // the component category (do not changed this)
               PLUG_NAME,                                      // here the Plug-in name (to be changed)
@@ -155,7 +153,7 @@
 
   BEGIN_FACTORY_DEF(PLUG_MFR, PLUG_URL_STR, PLUG_EMAIL_STR)
 
-  DEF_CLASS2(INLINE_UID(CTRL_GUID_DATA1, CTRL_GUID_DATA2, GUID_DATA3, GUID_DATA4),
+  DEF_CLASS2(INLINE_UID(CTRL_GUID1, CTRL_GUID2, VST3_GUID3, VST3_GUID4),
               PClassInfo::kManyInstances,                     // cardinality
               kVstComponentControllerClass,                   // the Controller category (do not changed this)
               PLUG_NAME " Controller",                        // controller name (could be the same than component name)
@@ -304,7 +302,7 @@ Plugin* MakeController()
   static WDL_Mutex sMutex;
   WDL_MutexLock lock(&sMutex);
   IPlugVST3Controller::InstanceInfo info;
-  info.mOtherGUID = FUID(PROC_GUID_DATA1, PROC_GUID_DATA2, GUID_DATA3, GUID_DATA4);
+  info.mOtherGUID = FUID(PROC_GUID1, PROC_GUID2, VST3_GUID3, VST3_GUID4);
   
   //If you are trying to build a distributed VST3 plug-in and you hit an error here "no matching constructor...",
   //you need to replace all instances of PLUG_CLASS_NAME in your plug-in class, with the macro PLUG_CLASS_NAME
@@ -319,7 +317,7 @@ Plugin* MakeProcessor()
   static WDL_Mutex sMutex;
   WDL_MutexLock lock(&sMutex);
   IPlugVST3Processor::InstanceInfo info;
-  info.mOtherGUID = FUID(CTRL_GUID_DATA1, CTRL_GUID_DATA2, GUID_DATA3, GUID_DATA4);
+  info.mOtherGUID = FUID(CTRL_GUID1, CTRL_GUID2, VST3_GUID3, VST3_GUID4);
   return new PLUG_CLASS_NAME(info);
 }
 
