@@ -18,7 +18,6 @@
  * Depending on the API macro defined, a different entry point and helper methods are activated
 */
 
-#pragma mark - VST2
 #if defined OS_WIN
   HINSTANCE gHINSTANCE = 0;
   #if defined(VST2_API) || defined(AAX_API)
@@ -32,6 +31,8 @@
   }
   #endif
 #endif
+
+#pragma mark - VST2
 
 #if defined VST2_API
   extern "C"
