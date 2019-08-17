@@ -92,8 +92,6 @@ private:
   Steinberg::FUID mProcessorGUID;
 };
 
-IPlugVST3Controller* MakeController();
-
 END_IPLUG_NAMESPACE
 
 #endif // _IPLUGAPI_

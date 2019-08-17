@@ -263,8 +263,7 @@ BEGIN_IPLUG_NAMESPACE
 #pragma mark WAM
 #pragma mark WEB
 
-#if defined VST2_API || defined VST3_API || defined AAX_API || defined AUv3_API || \
-defined APP_API  || defined WAM_API || defined WEB_API
+#if defined VST2_API || defined VST3_API || defined AAX_API || defined AUv3_API || defined APP_API  || defined WAM_API || defined WEB_API
 
 Plugin* MakePlug(const InstanceInfo& info)
 {

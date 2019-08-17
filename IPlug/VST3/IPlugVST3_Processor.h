@@ -77,7 +77,8 @@ private:
   IMidiQueue mMidiOutputQueue;
 };
 
-IPlugVST3Processor* MakeProcessor();
+Steinberg::FUnknown* MakeProcessor();
+extern Steinberg::FUnknown* MakeController();
 
 END_IPLUG_NAMESPACE
 
