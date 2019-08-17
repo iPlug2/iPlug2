@@ -41,11 +41,18 @@ BEGIN_IGRAPHICS_NAMESPACE
 *   @ingroup DrawClasses */
 class IGraphicsCairo : public IGraphicsPathBase
 {
+private:
+  class Bitmap;
+  class Font;
+  struct OSFont;
+#ifdef OS_WIN
+  class PNGStream;
+#endif
 public:
-  const char* GetDrawingAPIStr() override { return "CAIRO"; }
-
   IGraphicsCairo(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsCairo();
+
+  const char* GetDrawingAPIStr() override { return "CAIRO"; }
 
   void DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
       
@@ -101,15 +108,7 @@ private:
     
   cairo_t* mContext;
   cairo_surface_t* mSurface;
-    
-  class Bitmap;
-  class Font;
-  struct OSFont;
-    
-#ifdef OS_WIN
-  class PNGStream;
-#endif
-    
+
   static StaticStorage<Font> sFontCache;
 };
 

@@ -68,12 +68,14 @@ BEGIN_IGRAPHICS_NAMESPACE
 *   @ingroup DrawClasses */
 class IGraphicsNanoVG : public IGraphicsPathBase
 {
-public:
+private:
+  class Bitmap;
   
-  const char* GetDrawingAPIStr() override;
-
+public:
   IGraphicsNanoVG(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsNanoVG();
+
+  const char* GetDrawingAPIStr() override;
 
   void BeginFrame() override;
   void EndFrame() override;
@@ -135,7 +137,6 @@ private:
   void SetClipRegion(const IRECT& r) override;
   void UpdateLayer() override;
   void ClearFBOStack();
-    
   
   bool mInDraw = false;
   WDL_Mutex mFBOMutex;
@@ -144,8 +145,6 @@ private:
   NVGcontext* mVG = nullptr;
   NVGframebuffer* mMainFrameBuffer = nullptr;
   int mInitialFBO = 0;
-    
-  class Bitmap;
 };
 
 END_IGRAPHICS_NAMESPACE

@@ -22,6 +22,9 @@ BEGIN_IGRAPHICS_NAMESPACE
 *   @ingroup DrawClasses*/
 class IGraphicsAGG : public IGraphicsPathBase
 {
+private:
+  class Bitmap;
+  
   template <class SpanGeneratorType>
   class alpha_span_generator : public SpanGeneratorType
   {
@@ -43,8 +46,7 @@ class IGraphicsAGG : public IGraphicsPathBase
   private:
     agg::cover_type alpha;
   };
-    
-public:
+  
 #ifdef OS_WIN
   using PixelOrder = agg::order_bgra;
   using PixelMapType = agg::pixel_map_win32;
@@ -224,9 +226,11 @@ public:
     PixfmtPreType mPixfPre;
     agg::rasterizer_scanline_aa<> mRasterizer;
   };
-
+public:
   IGraphicsAGG(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsAGG();
+
+  const char* GetDrawingAPIStr() override { return "AGG"; }
 
   void DrawResize() override;
 
@@ -234,20 +238,16 @@ public:
 
   void PathClear() override { mPath.remove_all(); }
   void PathClose() override { mPath.close_polygon(); }
-
   void PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding) override;
-
   void PathMoveTo(float x, float y) override;
   void PathLineTo(float x, float y) override;
   void PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2) override;
   void PathQuadraticBezierTo(float cx, float cy, float x2, float y2) override;
-
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
     
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return nullptr; } //TODO
-  const char* GetDrawingAPIStr() override { return "AGG"; }
 
   void UpdateLayer() override;
     
@@ -299,8 +299,6 @@ private:
   //pipeline to process the vectors glyph paths(curves + contour)
   agg::conv_curve<FontManagerType::path_adaptor_type> mFontCurves;
   agg::conv_transform<agg::conv_curve<FontManagerType::path_adaptor_type>> mFontCurvesTransformed;
-    
-  class Bitmap;
 };
 
 END_IGRAPHICS_NAMESPACE

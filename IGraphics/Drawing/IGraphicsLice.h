@@ -36,11 +36,15 @@ BEGIN_IGRAPHICS_NAMESPACE
 *   @ingroup DrawClasses */
 class IGraphicsLice : public IGraphics
 {
+private:
+  class Bitmap;
+  struct FontInfo;
+  
 public:
-  const char* GetDrawingAPIStr() override { return "LICE"; }
-
   IGraphicsLice(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsLice();
+
+  const char* GetDrawingAPIStr() override { return "LICE"; }
 
   void DrawResize() override;
 
@@ -152,10 +156,7 @@ private:
   LICE_IBitmap* mRenderBitmap = nullptr;
     
   ILayerPtr mClippingLayer;
-    
-  class Bitmap;
-  struct FontInfo;
-    
+  
   static StaticStorage<LICE_IFont> sFontCache;
   static StaticStorage<FontInfo> sFontInfoCache;
     
