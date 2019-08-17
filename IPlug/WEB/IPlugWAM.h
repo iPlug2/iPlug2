@@ -60,7 +60,7 @@ private:
   int mBlockCounter = 0;
 };
 
-IPlugWAM* MakePlug();
+IPlugWAM* MakePlug(const InstanceInfo& info);
 
 END_IPLUG_NAMESPACE
 

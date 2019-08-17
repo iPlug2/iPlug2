@@ -43,7 +43,7 @@ private:
   IByteChunk mSAMFUIBuf;
 };
 
-IPlugWeb* MakePlug();
+IPlugWeb* MakePlug(const InstanceInfo& info);
 
 END_IPLUG_NAMESPACE
 

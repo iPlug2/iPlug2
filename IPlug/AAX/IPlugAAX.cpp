@@ -24,7 +24,7 @@ using namespace iplug;
 
 AAX_CEffectParameters *AAX_CALLBACK IPlugAAX::Create()
 {
-  return MakePlug();
+  return MakePlug(InstanceInfo());
 }
 
 void AAX_CEffectGUI_IPLUG::CreateViewContents() 

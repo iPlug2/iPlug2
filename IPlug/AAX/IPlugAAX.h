@@ -121,7 +121,7 @@ private:
   IMidiQueue mMidiOutputQueue;
 };
 
-IPlugAAX* MakePlug();
+IPlugAAX* MakePlug(const InstanceInfo& info);
 
 #include "AAX_PopStructAlignment.h"
 
