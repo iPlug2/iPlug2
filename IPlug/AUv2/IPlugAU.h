@@ -212,7 +212,7 @@ private:
   AUMIDIOutputCallbackStruct mMidiCallback;
   AudioTimeStamp mLastRenderTimeStamp;
 
-  template <class Plug, bool DoesMIDI>
+  template <class Plug, bool DoesMIDIIn>
   friend class IPlugAUFactory;
 };
 
@@ -220,7 +220,7 @@ IPlugAU* MakePlug(void* memory);
 
 /**  AudioUnit v2 Factory Class Template */
 
-template <class Plug, bool DoesMIDI>
+template <class Plug, bool MIDIIn>
 class IPlugAUFactory
 {
 public:
@@ -259,8 +259,8 @@ public:
       case kAudioUnitRenderSelect:                  return (Method)IPlugAU::AUMethodRender;
       case kAudioUnitResetSelect:                   return (Method)IPlugAU::AUMethodReset;
 
-      case kMusicDeviceMIDIEventSelect:             return DoesMIDI ? (Method)IPlugAU::AUMethodMIDIEvent : NULL;
-      case kMusicDeviceSysExSelect:                 return DoesMIDI ? (Method)IPlugAU::AUMethodSysEx : NULL;
+      case kMusicDeviceMIDIEventSelect:             return MIDIIn ? (Method)IPlugAU::AUMethodMIDIEvent : NULL;
+      case kMusicDeviceSysExSelect:                 return MIDIIn ? (Method)IPlugAU::AUMethodSysEx : NULL;
 
       default:
         break;
