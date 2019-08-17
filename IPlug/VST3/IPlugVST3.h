@@ -40,6 +40,7 @@ BEGIN_IPLUG_NAMESPACE
 struct InstanceInfo {};
 
 using namespace Steinberg;
+using namespace Vst;
 
 /**  VST3 base class for a non-distributed IPlug VST3 plug-in
 *   @ingroup APIClasses */

@@ -19,6 +19,7 @@
 #include "IPlugProcessor.h"
 
 using namespace Steinberg;
+using namespace Vst;
 
 // Custom bus type function (in global namespace)
 #ifdef CUSTOM_BUSTYPE_FUNC

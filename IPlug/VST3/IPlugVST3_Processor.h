@@ -30,6 +30,8 @@
 using namespace Steinberg;
 using namespace Vst;
 
+BEGIN_IPLUG_NAMESPACE
+
 /**  VST3 Processor API-base class for a distributed IPlug VST3 plug-in
  *   @ingroup APIClasses */
 class IPlugVST3Processor : public AudioEffect
@@ -76,5 +78,7 @@ private:
 };
 
 IPlugVST3Processor* MakeProcessor();
+
+END_IPLUG_NAMESPACE
 
 #endif //_IPLUGAPI_

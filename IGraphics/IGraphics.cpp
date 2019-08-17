@@ -21,7 +21,7 @@ using VST3_API_BASE = iplug::IPlugVST3;
 #include "pluginterfaces/base/ustring.h"
 #include "IPlugVST3_Controller.h"
 #include "IPlugVST3_View.h"
-using VST3_API_BASE = IPlugVST3Controller;
+using VST3_API_BASE = iplug::IPlugVST3Controller;
 #endif
 
 #include "IPlugParameter.h"

@@ -19,7 +19,7 @@
 
 using namespace iplug;
 using namespace Steinberg;
-using namespace Steinberg::Vst;
+using namespace Vst;
 
 IPlugVST3Controller::IPlugVST3Controller(const InstanceInfo& info, const Config& config)
 : IPlugAPIBase(config, kAPIVST3)

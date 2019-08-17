@@ -12,6 +12,10 @@
 
 #pragma mark - IPlugVST3Processor Constructor/Destructor
 
+using namespace iplug;
+using namespace Steinberg;
+using namespace Vst;
+
 IPlugVST3Processor::IPlugVST3Processor(const InstanceInfo& info, const Config& config)
 : IPlugAPIBase(config, kAPIVST3)
 , IPlugVST3ProcessorBase(config, *this)
