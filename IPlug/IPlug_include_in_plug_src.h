@@ -39,7 +39,6 @@
 #pragma mark - ** Global Functions and Defines **
 
 #pragma mark - VST2
-
 #if defined VST2_API
   extern "C"
   {
@@ -70,113 +69,104 @@
     #endif
     }
   };
-
 #pragma mark - VST3 (All)
 #elif defined VST3_API || VST3C_API || defined VST3P_API
-#include "public.sdk/source/main/pluginfactory.h"
-#include "pluginterfaces/vst/ivstcomponent.h"
-#include "pluginterfaces/vst/ivsteditcontroller.h"
+  #include "public.sdk/source/main/pluginfactory.h"
+  #include "pluginterfaces/vst/ivstcomponent.h"
+  #include "pluginterfaces/vst/ivsteditcontroller.h"
 
-static unsigned int PROC_GUID_DATA1 = 0xF2AEE70D;
-static unsigned int PROC_GUID_DATA2 = 0x00DE4F4E;
-static unsigned int CTRL_GUID_DATA1 = 0xF2AEE70E;
-static unsigned int CTRL_GUID_DATA2 = 0x00DE4F4F;
-static unsigned int GUID_DATA3 = PLUG_MFR_ID;
-static unsigned int GUID_DATA4 = PLUG_UNIQUE_ID;
+  static unsigned int PROC_GUID_DATA1 = 0xF2AEE70D;
+  static unsigned int PROC_GUID_DATA2 = 0x00DE4F4E;
+  static unsigned int CTRL_GUID_DATA1 = 0xF2AEE70E;
+  static unsigned int CTRL_GUID_DATA2 = 0x00DE4F4F;
+  static unsigned int GUID_DATA3 = PLUG_MFR_ID;
+  static unsigned int GUID_DATA4 = PLUG_UNIQUE_ID;
 
-#ifndef EFFECT_TYPE_VST3
-  #if PLUG_TYPE == 1
-    #define EFFECT_TYPE_VST3 kInstrumentSynth
-  #else
-    #define EFFECT_TYPE_VST3 kFx
+  #ifndef EFFECT_TYPE_VST3
+    #if PLUG_TYPE == 1
+      #define EFFECT_TYPE_VST3 kInstrumentSynth
+    #else
+      #define EFFECT_TYPE_VST3 kFx
+    #endif
   #endif
-#endif
 
-#if defined VST3P_API || defined VST3_API
-bool InitModule()
-{
-#ifdef OS_WIN
-  extern void* moduleHandle;
-  gHINSTANCE = (HINSTANCE) moduleHandle;
-#endif
-  return true;
-}
+  #if defined VST3P_API || defined VST3_API
+  bool InitModule()
+  {
+    #ifdef OS_WIN
+    extern void* moduleHandle;
+    gHINSTANCE = (HINSTANCE) moduleHandle;
+    #endif
+    return true;
+  }
 
-// called after library is unloaded
-bool DeinitModule()
-{
-  return true;
-}
-#endif
+  // called after library is unloaded
+  bool DeinitModule()
+  {
+    return true;
+  }
+  #endif
+  #pragma mark - VST3
+  #if defined VST3_API
+  static Steinberg::FUnknown* createInstance(void*)
+  {
+    return (Steinberg::Vst::IAudioProcessor*) MakePlug(InstanceInfo());
+  }
 
-#pragma mark - VST3
-#if defined VST3_API
+  BEGIN_FACTORY_DEF(PLUG_MFR, PLUG_URL_STR, PLUG_EMAIL_STR)
 
-static Steinberg::FUnknown* createInstance(void*)
-{
-  return (Steinberg::Vst::IAudioProcessor*) MakePlug(InstanceInfo());
-}
+  DEF_CLASS2(INLINE_UID(PROC_GUID_DATA1, PROC_GUID_DATA2, GUID_DATA3, GUID_DATA4),
+              Steinberg::PClassInfo::kManyInstances,          // cardinality
+              kVstAudioEffectClass,                           // the component category (don't change this)
+              PLUG_NAME,                                      // plug-in name
+              Steinberg::Vst::kSimpleModeSupported,           // means gui and plugin aren't split
+              VST3_SUBCATEGORY,                               // Subcategory for this plug-in
+              PLUG_VERSION_STR,                               // plug-in version
+              kVstVersionString,                              // the VST 3 SDK version (don't change - use define)
+              createInstance)                                 // function pointer called to be instantiate
 
-BEGIN_FACTORY_DEF(PLUG_MFR, PLUG_URL_STR, PLUG_EMAIL_STR)
+  END_FACTORY
+  #pragma mark - VST3 Processor
+  #elif defined VST3P_API
+  static Steinberg::FUnknown* createProcessorInstance(void*)
+  {
+      return (Steinberg::Vst::IAudioProcessor*) MakeProcessor();
+  }
 
-DEF_CLASS2(INLINE_UID(PROC_GUID_DATA1, PROC_GUID_DATA2, GUID_DATA3, GUID_DATA4),
-            Steinberg::PClassInfo::kManyInstances,          // cardinality
-            kVstAudioEffectClass,                           // the component category (don't change this)
-            PLUG_NAME,                                      // plug-in name
-            Steinberg::Vst::kSimpleModeSupported,           // means gui and plugin aren't split
-            VST3_SUBCATEGORY,                               // Subcategory for this plug-in
-            PLUG_VERSION_STR,                               // plug-in version
-            kVstVersionString,                              // the VST 3 SDK version (don't change - use define)
-            createInstance)                                 // function pointer called to be instantiate
+  BEGIN_FACTORY_DEF(PLUG_MFR, PLUG_URL_STR, PLUG_EMAIL_STR)
 
-END_FACTORY
+  DEF_CLASS2 (INLINE_UID(PROC_GUID_DATA1, PROC_GUID_DATA2, GUID_DATA3, GUID_DATA4),
+              PClassInfo::kManyInstances,                     // cardinality
+              kVstAudioEffectClass,                           // the component category (do not changed this)
+              PLUG_NAME,                                      // here the Plug-in name (to be changed)
+              Vst::kDistributable,                            // means component/controller can on different computers
+              VST3_SUBCATEGORY,                               // Subcategory for this Plug-in (to be changed)
+              PLUG_VERSION_STR,                               // Plug-in version (to be changed)
+              kVstVersionString,                              // the VST 3 SDK version (don't change - use define)
+              createProcessorInstance)                        // function pointer called to be instantiate
 
-#pragma mark - VST3 Processor
-#elif defined VST3P_API
+  END_FACTORY
+  #pragma mark - VST3 Controller
+  #elif defined VST3C_API
+  static Steinberg::FUnknown* createControllerInstance (void*)
+  {
+      return (Steinberg::Vst::IEditController*) MakeController();
+  }
 
-static Steinberg::FUnknown* createProcessorInstance(void*)
-{
-    return (Steinberg::Vst::IAudioProcessor*) MakeProcessor();
-}
+  BEGIN_FACTORY_DEF(PLUG_MFR, PLUG_URL_STR, PLUG_EMAIL_STR)
 
-BEGIN_FACTORY_DEF(PLUG_MFR, PLUG_URL_STR, PLUG_EMAIL_STR)
+  DEF_CLASS2(INLINE_UID(CTRL_GUID_DATA1, CTRL_GUID_DATA2, GUID_DATA3, GUID_DATA4),
+              PClassInfo::kManyInstances,                     // cardinality
+              kVstComponentControllerClass,                   // the Controller category (do not changed this)
+              PLUG_NAME " Controller",                        // controller name (could be the same than component name)
+              0,                                              // not used here
+              "",                                             // not used here
+              PLUG_VERSION_STR,                               // Plug-in version (to be changed)
+              kVstVersionString,                              // the VST 3 SDK version (don't change - use define)
+              createControllerInstance)                       // function pointer called to be instantiate
 
-DEF_CLASS2 (INLINE_UID(PROC_GUID_DATA1, PROC_GUID_DATA2, GUID_DATA3, GUID_DATA4),
-            PClassInfo::kManyInstances,                     // cardinality
-            kVstAudioEffectClass,                           // the component category (do not changed this)
-            PLUG_NAME,                                      // here the Plug-in name (to be changed)
-            Vst::kDistributable,                            // means component/controller can on different computers
-            VST3_SUBCATEGORY,                               // Subcategory for this Plug-in (to be changed)
-            PLUG_VERSION_STR,                               // Plug-in version (to be changed)
-            kVstVersionString,                              // the VST 3 SDK version (don't change - use define)
-            createProcessorInstance)                        // function pointer called to be instantiate
-
-END_FACTORY
-
-#pragma mark - VST3 Controller
-#elif defined VST3C_API
-
-static Steinberg::FUnknown* createControllerInstance (void*)
-{
-    return (Steinberg::Vst::IEditController*) MakeController();
-}
-
-BEGIN_FACTORY_DEF(PLUG_MFR, PLUG_URL_STR, PLUG_EMAIL_STR)
-
-DEF_CLASS2(INLINE_UID(CTRL_GUID_DATA1, CTRL_GUID_DATA2, GUID_DATA3, GUID_DATA4),
-            PClassInfo::kManyInstances,                     // cardinality
-            kVstComponentControllerClass,                   // the Controller category (do not changed this)
-            PLUG_NAME " Controller",                        // controller name (could be the same than component name)
-            0,                                              // not used here
-            "",                                             // not used here
-            PLUG_VERSION_STR,                               // Plug-in version (to be changed)
-            kVstVersionString,                              // the VST 3 SDK version (don't change - use define)
-            createControllerInstance)                       // function pointer called to be instantiate
-
-END_FACTORY
-
-#endif
-
+  END_FACTORY
+  #endif
 #pragma mark - AUv2
 #elif defined AU_API
   extern "C"
