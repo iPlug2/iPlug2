@@ -34,9 +34,8 @@
   }
 
   #elif defined OS_WIN
-
   extern HINSTANCE gHINSTANCE;
-#endif
+  #endif
 
   BEGIN_IPLUG_NAMESPACE
   BEGIN_IGRAPHICS_NAMESPACE
