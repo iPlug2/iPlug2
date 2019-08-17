@@ -345,7 +345,26 @@ struct IColor
     n.B = std::min(n.B += mod, 255);
     return n;
   }
+  
+  /** Get the color as a 3 float array
+   * @param rgbf ptr to array of 3 floats */
+  void GetRGBf(float* rgbf) const
+  {
+    rgbf[0] = R / 255.f;
+    rgbf[1] = G / 255.f;
+    rgbf[2] = B / 255.f;
+  }
 
+  /** Get the color as a 4 float array
+   * @param rgbaf ptr to array of 4 floats */
+  void GetRGBAf(float* rgbaf) const
+  {
+    rgbaf[0] = R / 255.f;
+    rgbaf[1] = G / 255.f;
+    rgbaf[2] = B / 255.f;
+    rgbaf[3] = A / 255.f;
+  }
+  
   /** /todo 
    * @param randomAlpha /todo
    * @return IColor /todo */
@@ -359,6 +378,32 @@ struct IColor
     return IColor(A, R, G, B);
   }
 
+  /** Create an IColor from a 3 float RGB array
+   * @param rgbf ptr to array of 3 floats
+   * @return IColor A new IColor based on the input array */
+  static IColor FromRGBf(float* rgbf)
+  {
+    int A = 255;
+    int R = rgbf[0] * 255;
+    int G = rgbf[1] * 255;
+    int B = rgbf[2] * 255;
+    
+    return IColor(A, R, G, B);
+  }
+  
+  /** Create an IColor from a 4 float RGBA array
+   * @param rgbaf ptr to array of 3 floats
+   * @return IColor A new IColor based on the input array */
+  static IColor FromRGBAf(float* rgbaf)
+  {
+    int R = rgbaf[0] * 255;
+    int G = rgbaf[1] * 255;
+    int B = rgbaf[2] * 255;
+    int A = rgbaf[3] * 255;
+
+    return IColor(A, R, G, B);
+  }
+  
   /** /todo 
    * @param h /todo
    * @param s /todo
