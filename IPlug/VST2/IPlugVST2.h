@@ -92,7 +92,7 @@ protected:
   audioMasterCallback mHostCallback;
 };
 
-IPlugVST2* MakePlug();
+IPlugVST2* MakePlug(const InstanceInfo& info);
 
 END_IPLUG_NAMESPACE
 

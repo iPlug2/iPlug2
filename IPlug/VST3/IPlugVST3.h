@@ -118,7 +118,7 @@ private:
   ViewType* mView;
 };
 
-IPlugVST3* MakePlug();
+IPlugVST3* MakePlug(const InstanceInfo& info);
 
 END_IPLUG_NAMESPACE
 

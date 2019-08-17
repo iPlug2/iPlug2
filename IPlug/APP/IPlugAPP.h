@@ -63,7 +63,7 @@ private:
   friend class IPlugAPPHost;
 };
 
-IPlugAPP* MakePlug(void* pAPPHost);
+IPlugAPP* MakePlug(const InstanceInfo& info);
 
 END_IPLUG_NAMESPACE
 

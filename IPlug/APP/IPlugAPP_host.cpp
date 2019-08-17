@@ -28,7 +28,7 @@ std::unique_ptr<IPlugAPPHost> IPlugAPPHost::sInstance;
 UINT gSCROLLMSG;
 
 IPlugAPPHost::IPlugAPPHost()
-: mIPlug(MakePlug(this))
+: mIPlug(MakePlug(InstanceInfo{this}))
 {
 }
 
