@@ -255,13 +255,7 @@
 BEGIN_IPLUG_NAMESPACE
 
 #pragma mark -
-#pragma mark VST2
-#pragma mark VST3
-#pragma mark AAX
-#pragma mark AUv3
-#pragma mark APP
-#pragma mark WAM
-#pragma mark WEB
+#pragma mark VST2, VST3, AAX, AUv3, APP, WAM, WEB
 
 #if defined VST2_API || defined VST3_API || defined AAX_API || defined AUv3_API || defined APP_API  || defined WAM_API || defined WEB_API
 
