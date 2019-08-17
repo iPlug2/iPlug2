@@ -55,6 +55,8 @@ struct InstanceInfo
 class IPlugAU : public IPlugAPIBase
               , public IPlugProcessor
 {
+  struct CStrLocal;
+  class CFStrLocal;
 public:
   IPlugAU(const InstanceInfo& info, const Config& config);
   ~IPlugAU();
@@ -212,9 +214,6 @@ private:
   AudioTimeStamp mLastRenderTimeStamp;
 
   friend class IPlugAUFactory;
-  
-  struct CStrLocal;
-  class CFStrLocal;
 };
 
 IPlugAU* MakePlug(void* memory);

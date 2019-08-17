@@ -23,6 +23,9 @@ BEGIN_IGRAPHICS_NAMESPACE
 * @ingroup PlatformClasses */
 class IGraphicsWin final : public IGRAPHICS_DRAW_CLASS
 {
+  class Font;
+  class InstalledFont;
+  struct HFontHolder;
 public:
   IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsWin();
@@ -142,10 +145,6 @@ private:
   int mTooltipIdx = -1;
 
   WDL_String mMainWndClassName;
-    
-  class Font;
-  class InstalledFont;
-  struct HFontHolder;
     
   static StaticStorage<InstalledFont> sPlatformFontCache;
   static StaticStorage<HFontHolder> sHFontCache;

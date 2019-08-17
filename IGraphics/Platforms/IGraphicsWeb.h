@@ -40,6 +40,8 @@ static val GetPreloadedImages()
 * @ingroup PlatformClasses */
 class IGraphicsWeb final : public IGRAPHICS_DRAW_CLASS
 {
+  class Font;
+  class FileFont;
 public:
   IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsWeb();
@@ -80,9 +82,6 @@ private:
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
   void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override {}
-    
-  class Font;
-  class FileFont;
 };
 
 END_IGRAPHICS_NAMESPACE
