@@ -109,9 +109,10 @@ static inline agg::cover_type AGGCover(const IBlend* pBlend = nullptr)
   return std::max(agg::cover_type(0), std::min(agg::cover_type(roundf(BlendWeight(pBlend) * 255.f)), agg::cover_type(255)));
 }
 
+template <class PixelMapType>
 static agg::pixel_map* CreatePixmap(int w, int h)
 {
-  agg::pixel_map* pPixelMap = new IGraphicsAGG::PixelMapType();
+  agg::pixel_map* pPixelMap = new PixelMapType();
   
   pPixelMap->create(w, h, 0);
   
@@ -120,30 +121,34 @@ static agg::pixel_map* CreatePixmap(int w, int h)
 
 #pragma mark - Rasterizing
 
-template <typename FuncType, typename ColorArrayType>
-static void GradientRasterize(IGraphicsAGG::Rasterizer& rasterizer, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray, agg::comp_op_e op)
+template <typename Rasterizer, typename FuncType, typename ColorArrayType>
+static void GradientRasterize(Rasterizer& rasterizer, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colors, agg::comp_op_e op)
 {
-  using SpanGradientType = agg::span_gradient<agg::rgba8, IGraphicsAGG::InterpolatorType, FuncType, ColorArrayType>;
+  using InterpolatorType = agg::span_interpolator_linear<>;
+  using SpanGradientType = agg::span_gradient<agg::rgba8, InterpolatorType, FuncType, ColorArrayType>;
   
-  IGraphicsAGG::InterpolatorType spanInterpolator(xform);
-  SpanGradientType spanGradient(spanInterpolator, gradientFunc, colorArray, 0, 512);
+  InterpolatorType spanInterpolator(xform);
+  SpanGradientType spanGradient(spanInterpolator, gradientFunc, colors, 0, 512);
   rasterizer.Rasterize(spanGradient, op);
 }
 
-template <typename FuncType, typename ColorArrayType>
-static void GradientRasterizeAdapt(IGraphicsAGG::Rasterizer& rasterizer, EPatternExtend extend, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray, agg::comp_op_e op)
+template <typename Rasterizer, typename FuncType, typename ColorArrayType>
+static void GradientRasterizeAdapt(Rasterizer& rasterizer, EPatternExtend extend, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colors, agg::comp_op_e op)
 {
+  using reflect = agg::gradient_reflect_adaptor<FuncType>;
+  using repeat = agg::gradient_repeat_adaptor<FuncType>;
+    
   switch (extend)
   {
     case EPatternExtend::None: //TODO:  extend none
     case EPatternExtend::Pad:
-      GradientRasterize(rasterizer, gradientFunc, xform, colorArray, op);
+      GradientRasterize(rasterizer, gradientFunc, xform, colors, op);
       break;
     case EPatternExtend::Reflect:
-      GradientRasterize(rasterizer, agg::gradient_reflect_adaptor<FuncType>(gradientFunc), xform, colorArray, op);
+      GradientRasterize(rasterizer, reflect(gradientFunc), xform, colors, op);
       break;
     case EPatternExtend::Repeat:
-      GradientRasterize(rasterizer, agg::gradient_repeat_adaptor<FuncType>(gradientFunc), xform, colorArray, op);
+      GradientRasterize(rasterizer, repeat(gradientFunc), xform, colors, op);
       break;
   }
 }
@@ -164,28 +169,28 @@ void IGraphicsAGG::Rasterizer::Rasterize(const IPattern& pattern, agg::comp_op_e
       const IMatrix& m = pattern.mTransform;
       
       agg::trans_affine gradientMTX(m.mXX, m.mYX , m.mXY, m.mYY, m.mTX, m.mTY);
-      agg::gradient_lut<agg::color_interpolator<agg::rgba8>, 512> colorArray;
+      agg::gradient_lut<agg::color_interpolator<agg::rgba8>, 512> colors;
       
       // Scaling
       gradientMTX = (agg::trans_affine() / mGraphics.mTransform) * gradientMTX * agg::trans_affine_scaling(512.0);
       
       // Make gradient lut
-      colorArray.remove_all();
+      colors.remove_all();
       
       for (int i = 0; i < pattern.NStops(); i++)
       {
         const IColorStop& stop = pattern.GetStop(i);
         float offset = stop.mOffset;
-        colorArray.add_color(offset, AGGColor(stop.mColor, opacity));
+        colors.add_color(offset, AGGColor(stop.mColor, opacity));
       }
       
-      colorArray.build_lut();
+      colors.build_lut();
       
       // Rasterize
       if (pattern.mType == EPatternType::Linear)
-        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_y(), gradientMTX, colorArray, op);
+        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_y(), gradientMTX, colors, op);
       else
-        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_radial_d(), gradientMTX, colorArray, op);
+        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_radial_d(), gradientMTX, colors, op);
     }
     break;
   }
@@ -474,7 +479,7 @@ APIBitmap* IGraphicsAGG::LoadAPIBitmap(const char* fileNameOrResID, int scale, E
 
 APIBitmap* IGraphicsAGG::CreateAPIBitmap(int width, int height, int scale, double drawScale)
 {
-  return new Bitmap(CreatePixmap(width, height), scale, drawScale, true);
+  return new Bitmap(CreatePixmap<PixelMapType>(width, height), scale, drawScale, true);
 }
 
 bool IGraphicsAGG::BitmapExtSupported(const char* ext)
