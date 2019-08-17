@@ -128,7 +128,12 @@
   #elif defined VST3P_API
   static Steinberg::FUnknown* createProcessorInstance(void*)
   {
-      return (Steinberg::Vst::IAudioProcessor*) MakeProcessor();
+      return MakeProcessor();
+  }
+
+  static Steinberg::FUnknown* createControllerInstance(void*)
+  {
+    return MakeController();
   }
 
   BEGIN_FACTORY_DEF(PLUG_MFR, PLUG_URL_STR, PLUG_EMAIL_STR)
@@ -142,16 +147,6 @@
               PLUG_VERSION_STR,                               // Plug-in version (to be changed)
               kVstVersionString,                              // the VST 3 SDK version (don't change - use define)
               createProcessorInstance)                        // function pointer called to be instantiate
-
-  END_FACTORY
-  #pragma mark - VST3 Controller
-  #elif defined VST3C_API
-  static Steinberg::FUnknown* createControllerInstance (void*)
-  {
-      return (Steinberg::Vst::IEditController*) MakeController();
-  }
-
-  BEGIN_FACTORY_DEF(PLUG_MFR, PLUG_URL_STR, PLUG_EMAIL_STR)
 
   DEF_CLASS2(INLINE_UID(CTRL_GUID1, CTRL_GUID2, VST3_GUID3, VST3_GUID4),
               PClassInfo::kManyInstances,                     // cardinality
@@ -297,28 +292,27 @@ Plugin* MakePlug(void* pMemory)
 #pragma mark - VST3 Controller
 #elif defined VST3C_API
 
-Plugin* MakeController()
+Steinberg::FUnknown* MakeController()
 {
   static WDL_Mutex sMutex;
   WDL_MutexLock lock(&sMutex);
   IPlugVST3Controller::InstanceInfo info;
   info.mOtherGUID = FUID(PROC_GUID1, PROC_GUID2, VST3_GUID3, VST3_GUID4);
-  
   //If you are trying to build a distributed VST3 plug-in and you hit an error here "no matching constructor...",
   //you need to replace all instances of PLUG_CLASS_NAME in your plug-in class, with the macro PLUG_CLASS_NAME
-  return new PLUG_CLASS_NAME(info);
+  return static_cast<Steinberg::Vst::IEditController*>(new PLUG_CLASS_NAME(info));
 }
 
 #pragma mark - VST3 Processor
 #elif defined VST3P_API
 
-Plugin* MakeProcessor()
+Steinberg::FUnknown* MakeProcessor()
 {
   static WDL_Mutex sMutex;
   WDL_MutexLock lock(&sMutex);
   IPlugVST3Processor::InstanceInfo info;
   info.mOtherGUID = FUID(CTRL_GUID1, CTRL_GUID2, VST3_GUID3, VST3_GUID4);
-  return new PLUG_CLASS_NAME(info);
+  return static_cast<Steinberg::Vst::IAudioProcessor*>(new PLUG_CLASS_NAME(info));
 }
 
 #else
@@ -327,7 +321,7 @@ Plugin* MakeProcessor()
 
 #pragma mark - ** Config Utility **
 
-Config MakeConfig(int nParams, int nPresets)
+static Config MakeConfig(int nParams, int nPresets)
 {
   return Config(nParams, nPresets, PLUG_CHANNEL_IO, PUBLIC_NAME, "", PLUG_MFR, PLUG_VERSION_HEX, PLUG_UNIQUE_ID, PLUG_MFR_ID, PLUG_LATENCY, PLUG_DOES_MIDI_IN, PLUG_DOES_MIDI_OUT, PLUG_DOES_MPE, PLUG_DOES_STATE_CHUNKS, PLUG_TYPE, PLUG_HAS_UI, PLUG_WIDTH, PLUG_HEIGHT, BUNDLE_ID);
 }
