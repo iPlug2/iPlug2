@@ -174,9 +174,10 @@ enum EMsgBoxType
 };
 
 // This enumeration must match win32 message box results
+ //If IGraphics::ShowMessageBox can't return inline, it returns kNoResult (e.g. because it requires an asynchronous call)
 enum EMsgBoxResult
 {
-  kNoResult, //If IGraphics::ShowMessageBox can't return inline (e.g. because it requires an asynchronous call)
+  kNoResult,
   kOK = 1,
   kCANCEL = 2,
   kABORT = 3,
