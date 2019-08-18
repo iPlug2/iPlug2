@@ -17,6 +17,10 @@
  *
  */
 
+#include "IPlugPlatform.h"
+
+BEGIN_IPLUG_NAMESPACE
+
 #define MAX_OSC_MSG_LEN 1024
 
 static void OSC_BSWAPINTMEM(void *buf)
@@ -33,6 +37,9 @@ class OscMessageWrite
 {
 public:
   OscMessageWrite();
+  OscMessageWrite(const OscMessageWrite&) = delete;
+  OscMessageWrite& operator=(const OscMessageWrite&) = delete;
+    
   bool PushWord(const char* word);
   bool PushInt(int val); // push an int onto the message (not an int arg)
   bool PushIntArg(int val);
@@ -53,6 +60,9 @@ class OscMessageRead
 {
 public:
   OscMessageRead(char* buf, int len); // writes over buf
+  OscMessageRead(const OscMessageRead&) = delete;
+  OscMessageRead& operator=(const OscMessageRead&) = delete;
+    
   const char* GetMessage() const; // get the entire message string, no args
   int GetNumArgs() const;
   const char* PopWord();
@@ -71,3 +81,4 @@ private:
   bool m_msgok;
 };
 
+END_IPLUG_NAMESPACE

@@ -151,8 +151,8 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          CStrLocal \
                          "AudioComponentPlugInInstance	" \
                          BufferList \
-                         IPlugConfig \
-                         IPlugInstanceInfo \
+                         Config \
+                         InstanceInfo \
                          IPlugVST3View \
                          VIEW_CLASS \
                          ChannelIO \
@@ -164,7 +164,20 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          IGRAPHICS_MENU_RCVR \
                          IGRAPHICS_VIEW \
                          IGRAPHICS_TEXTFIELD \
-                         IGRAPHICS_TEXTFIELD_CELL \
+                         IGRAPHICS_TEXTFIELDCELL \
+                         IGRAPHICS_GLLAYER \
+                         CoreTextFont \
+                         CCoreTextFontDescriptor \
+                         CFLocal \
+                         CanvasFont \
+                         CairoFont \
+                         LICEFontInfo \
+                         SkiaFont \
+                         WebFont \
+                         WebFileFont \
+                         WinFont \
+                         WinFontDescriptor \
+                         WinInstalledFont \
                          IGraphicsIOS_View \
                          LineInfo \
                          StaticStorage \
@@ -186,7 +199,11 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          CairoBitmap \
                          CanvasBitmap \
                          LICEBitmap \
-                         NanoVGBitmap    
+                         NanoVGBitmap \
+                         SkiaBitmap \
+                         IFontInfo \
+                         IFontData \
+                         PlatformFont   
 
 EXAMPLE_PATH           =
 EXAMPLE_PATTERNS       = *

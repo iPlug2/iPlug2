@@ -1,8 +1,8 @@
 #include "IPlugWebView.h"
 #include "IPlug_include_in_plug_src.h"
 
-IPlugWebView::IPlugWebView(IPlugInstanceInfo instanceInfo)
-: IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
+IPlugWebView::IPlugWebView(const InstanceInfo& info)
+: Plugin(info, MakeConfig(kNumParams, kNumPrograms))
 {
   GetParam(kGain)->InitDouble("Gain", 0., 0., 100.0, 0.01, "%");
   

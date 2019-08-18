@@ -30,6 +30,8 @@
 using namespace Steinberg;
 using namespace Vst;
 
+BEGIN_IPLUG_NAMESPACE
+
 /**  VST3 Processor API-base class for a distributed IPlug VST3 plug-in
  *   @ingroup APIClasses */
 class IPlugVST3Processor : public AudioEffect
@@ -37,12 +39,12 @@ class IPlugVST3Processor : public AudioEffect
                          , public IPlugVST3ProcessorBase
 {
 public:
-  struct IPlugInstanceInfo
+  struct InstanceInfo
   {
     Steinberg::FUID mOtherGUID;
   };
   
-  IPlugVST3Processor(IPlugInstanceInfo instanceInfo, IPlugConfig c);
+  IPlugVST3Processor(const InstanceInfo& info, const Config& config);
   virtual ~IPlugVST3Processor();
 
   // AudioEffect overrides:
@@ -75,6 +77,9 @@ private:
   IMidiQueue mMidiOutputQueue;
 };
 
-IPlugVST3Processor* MakeProcessor();
+Steinberg::FUnknown* MakeProcessor();
+extern Steinberg::FUnknown* MakeController();
+
+END_IPLUG_NAMESPACE
 
 #endif //_IPLUGAPI_

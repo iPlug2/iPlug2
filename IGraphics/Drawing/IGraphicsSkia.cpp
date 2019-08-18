@@ -20,6 +20,8 @@
   //even though this is a .cpp we are in an objc(pp) compilation unit
     #import <Metal/Metal.h>
     #import <QuartzCore/CAMetalLayer.h>
+  #else
+    #error Define either IGRAPHICS_GL2, IGRAPHICS_GL3, IGRAPHICS_METAL, or IGRAPHICS_CPU for IGRAPHICS_SKIA with OS_MAC
   #endif
 #elif defined OS_WIN
   #pragma comment(lib, "libpng.lib")
@@ -34,18 +36,23 @@
   #include "gl/GrGLInterface.h"
 #endif
 
-struct SkiaFont
+using namespace iplug;
+using namespace igraphics;
+
+#pragma mark - Private Classes and Structs
+
+class IGraphicsSkia::Bitmap : public APIBitmap
 {
-  SkiaFont(IFontDataPtr&& data, sk_sp<SkTypeface> typeFace)
-    : mData(std::move(data)), mTypeface(typeFace) {}
-    
-  IFontDataPtr mData;
-  sk_sp<SkTypeface> mTypeface;
+public:
+  Bitmap(GrContext* context, int width, int height, int scale, float drawScale);
+  Bitmap(const char* path, double sourceScale);
+  Bitmap(const void* pData, int size, double sourceScale);
+  
+private:
+  SkiaDrawable mDrawable;
 };
-
-static StaticStorage<SkiaFont> sFontCache;
-
-SkiaBitmap::SkiaBitmap(GrContext* context, int width, int height, int scale, float drawScale)
+  
+IGraphicsSkia::Bitmap::Bitmap(GrContext* context, int width, int height, int scale, float drawScale)
 {
 #ifdef IGRAPHICS_GL
   SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
@@ -54,32 +61,44 @@ SkiaBitmap::SkiaBitmap(GrContext* context, int width, int height, int scale, flo
   mDrawable.mSurface = SkSurface::MakeRasterN32Premul(width, height);
 #endif
   mDrawable.mIsSurface = true;
-    
+  
   SetBitmap(&mDrawable, width, height, scale, drawScale);
 }
 
-SkiaBitmap::SkiaBitmap(const char* path, double sourceScale)
+IGraphicsSkia::Bitmap::Bitmap(const char* path, double sourceScale)
 {
   auto data = SkData::MakeFromFileName(path);
   mDrawable.mImage = SkImage::MakeFromEncoded(data);
-
+  
   mDrawable.mIsSurface = false;
   SetBitmap(&mDrawable, mDrawable.mImage->width(), mDrawable.mImage->height(), sourceScale, 1.f);
 }
 
-SkiaBitmap::SkiaBitmap(const void* pData, int size, double sourceScale)
+IGraphicsSkia::Bitmap::Bitmap(const void* pData, int size, double sourceScale)
 {
   auto data = SkData::MakeWithoutCopy(pData, size);
   mDrawable.mImage = SkImage::MakeFromEncoded(data);
-
+  
   mDrawable.mIsSurface = false;
   SetBitmap(&mDrawable, mDrawable.mImage->width(), mDrawable.mImage->height(), sourceScale, 1.f);
 }
+
+struct IGraphicsSkia::Font
+{
+  Font(IFontDataPtr&& data, sk_sp<SkTypeface> typeFace)
+    : mData(std::move(data)), mTypeface(typeFace) {}
+    
+  IFontDataPtr mData;
+  sk_sp<SkTypeface> mTypeface;
+};
+
+// Fonts
+StaticStorage<IGraphicsSkia::Font> IGraphicsSkia::sFontCache;
 
 #pragma mark -
 
 // Utility conversions
-inline SkColor SkiaColor(const IColor& color, const IBlend* pBlend)
+static inline SkColor SkiaColor(const IColor& color, const IBlend* pBlend)
 {
   if (pBlend)
     return SkColorSetARGB(Clip(static_cast<int>(pBlend->mWeight * color.A), 0, 255), color.R, color.G, color.B);
@@ -87,12 +106,12 @@ inline SkColor SkiaColor(const IColor& color, const IBlend* pBlend)
     return SkColorSetARGB(color.A, color.R, color.G, color.B);
 }
 
-inline SkRect SkiaRect(const IRECT& r)
+static inline SkRect SkiaRect(const IRECT& r)
 {
   return SkRect::MakeLTRB(r.L, r.T, r.R, r.B);
 }
 
-inline SkBlendMode SkiaBlendMode(const IBlend* pBlend)
+static inline SkBlendMode SkiaBlendMode(const IBlend* pBlend)
 {
   if (!pBlend)
     return SkBlendMode::kSrcOver;
@@ -116,7 +135,7 @@ inline SkBlendMode SkiaBlendMode(const IBlend* pBlend)
   return SkBlendMode::kClear;
 }
 
-inline SkTileMode SkiaTileMode(const IPattern& pattern)
+static inline SkTileMode SkiaTileMode(const IPattern& pattern)
 {
   switch (pattern.mExtend)
   {
@@ -129,7 +148,7 @@ inline SkTileMode SkiaTileMode(const IPattern& pattern)
   return SkTileMode::kClamp;
 }
 
-SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
+static SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
 {
   SkPaint paint;
   paint.setAntiAlias(true);
@@ -191,13 +210,13 @@ IGraphicsSkia::IGraphicsSkia(IGEditorDelegate& dlg, int w, int h, int fps, float
 {
   DBGMSG("IGraphics Skia @ %i FPS\n", fps);
   
-  StaticStorage<SkiaFont>::Accessor storage(sFontCache);
+  StaticStorage<Font>::Accessor storage(sFontCache);
   storage.Retain();
 }
 
 IGraphicsSkia::~IGraphicsSkia()
 {
-  StaticStorage<SkiaFont>::Accessor storage(sFontCache);
+  StaticStorage<Font>::Accessor storage(sFontCache);
   storage.Release();
 }
 
@@ -215,11 +234,11 @@ APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
   {
     int size = 0;
     const void* pData = LoadWinResource(fileNameOrResID, "png", size, GetWinModuleHandle());
-    return new SkiaBitmap(pData, size, scale);
+    return new Bitmap(pData, size, scale);
   }
   else
 #endif
-  return new SkiaBitmap(fileNameOrResID, scale);
+  return new Bitmap(fileNameOrResID, scale);
 }
 
 void IGraphicsSkia::OnViewInitialized(void* pContext)
@@ -425,8 +444,8 @@ IColor IGraphicsSkia::GetPoint(int x, int y)
 
 bool IGraphicsSkia::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 {
-  StaticStorage<SkiaFont>::Accessor storage(sFontCache);
-  SkiaFont* cached = storage.Find(fontID);
+  StaticStorage<Font>::Accessor storage(sFontCache);
+  Font* cached = storage.Find(fontID);
   
   if (cached)
     return true;
@@ -441,7 +460,7 @@ bool IGraphicsSkia::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
     
     if (typeface)
     {
-      storage.Add(new SkiaFont(std::move(data), typeface), fontID);
+      storage.Add(new Font(std::move(data), typeface), fontID);
       return true;
     }
   }
@@ -455,8 +474,8 @@ void IGraphicsSkia::PrepareAndMeasureText(const IText& text, const char* str, IR
   SkPaint paint;
   SkRect bounds;
   
-  StaticStorage<SkiaFont>::Accessor storage(sFontCache);
-  SkiaFont* pFont = storage.Find(text.mFont);
+  StaticStorage<Font>::Accessor storage(sFontCache);
+  Font* pFont = storage.Find(text.mFont);
   
   assert(pFont && "No font found - did you forget to load it?");
 
@@ -613,7 +632,7 @@ void IGraphicsSkia::SetClipRegion(const IRECT& r)
 
 APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, int scale, double drawScale)
 {
-  return new SkiaBitmap(mGrContext.get(), width, height, scale, drawScale);
+  return new Bitmap(mGrContext.get(), width, height, scale, drawScale);
 }
 
 void IGraphicsSkia::UpdateLayer()
@@ -621,7 +640,7 @@ void IGraphicsSkia::UpdateLayer()
   mCanvas = mLayers.empty() ? mSurface->getCanvas() : mLayers.top()->GetAPIBitmap()->GetBitmap()->mSurface->getCanvas();
 }
 
-size_t CalcRowBytes(int width)
+static size_t CalcRowBytes(int width)
 {
   width = ((width + 7) & (-8));
   return width * sizeof(uint32_t);

@@ -20,10 +20,13 @@ enum EControlTags
 
 const int kNumParams = 4;
 
-class IPlugFaustDSP : public IPlug
+using namespace iplug;
+using namespace igraphics;
+
+class IPlugFaustDSP : public Plugin
 {
 public:
-  IPlugFaustDSP(IPlugInstanceInfo instanceInfo);
+  IPlugFaustDSP(const InstanceInfo& info);
 
 #if IPLUG_DSP
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;

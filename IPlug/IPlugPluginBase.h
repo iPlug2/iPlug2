@@ -20,6 +20,8 @@
 #include "IPlugStructs.h"
 #include "IPlugLogger.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 /** Base class that contains plug-in info and state manipulation methods */
 class IPluginBase : public EDITOR_DELEGATE_CLASS
 {
@@ -27,6 +29,9 @@ public:
   IPluginBase(int nParams, int nPresets);
   virtual ~IPluginBase();
   
+  IPluginBase(const IPluginBase&) = delete;
+  IPluginBase& operator=(const IPluginBase&) = delete;
+
 #pragma mark - Plug-in properties
   /** @return the name of the plug-in as a CString */
   const char* GetPluginName() const { return mPluginName.Get(); }
@@ -493,3 +498,5 @@ protected:
   WDL_Mutex mParams_mutex;
 #endif  
 };
+
+END_IPLUG_NAMESPACE

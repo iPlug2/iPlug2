@@ -25,6 +25,8 @@
 #include "IPlugMidi.h"
 #include "IPlugStructs.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 /** This pure virtual interface delegates communication in both directions between a UI editor and something else (which is usually a plug-in)
  *  It is also the class that owns parameter objects (for historical reasons) - although it's not necessary to allocate them
  *
@@ -55,6 +57,9 @@ public:
   {
     mParams.Empty(true);
   }
+  
+  IEditorDelegate(const IEditorDelegate&) = delete;
+  IEditorDelegate& operator=(const IEditorDelegate&) = delete;
   
   /** Adds an IParam to the parameters ptr list
    * Note: This is only used in special circumstances, since most plug-in formats don't support dynamic parameters
@@ -301,3 +306,5 @@ protected:
   /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plug-in class implementation constructor */
   WDL_PtrList<IParam> mParams;
 };
+
+END_IPLUG_NAMESPACE

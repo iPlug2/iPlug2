@@ -19,25 +19,22 @@
 
 using namespace emscripten;
 
-/** An HTML5 canvas API bitmap
- * @ingroup APIBitmaps */
-class CanvasBitmap : public APIBitmap
-{
-public:
-  CanvasBitmap(val imageCanvas, const char* name, int scale);
-  CanvasBitmap(int width, int height, int scale, float drawScale);
-  ~CanvasBitmap();
-};
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
 
 /** IGraphics draw class HTML5 canvas
 * @ingroup DrawClasses */
 class IGraphicsCanvas : public IGraphicsPathBase
 {
+private:
+  class Bitmap;
+  struct Font;
+  
 public:
-  const char* GetDrawingAPIStr() override { return "HTML5 Canvas"; }
-
   IGraphicsCanvas(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsCanvas();
+
+  const char* GetDrawingAPIStr() override { return "HTML5 Canvas"; }
 
   void DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend) override;
 
@@ -99,4 +96,10 @@ private:
   void SetCanvasBlendMode(val& context, const IBlend* pBlend);
     
   std::vector<std::pair<WDL_String, WDL_String>> mCustomFonts;
+
+  static StaticStorage<Font> sFontCache;
 };
+
+END_IPLUG_NAMESPACE
+END_IGRAPHICS_NAMESPACE
+

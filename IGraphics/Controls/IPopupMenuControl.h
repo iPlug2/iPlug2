@@ -18,6 +18,9 @@
 
 #include "IControl.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /** A base control for a pop-up menu/drop-down list that stays within the bounds of the IGraphics context.
  * This is mainly used as a special control that lives outside the main IGraphics control stack.
  * For replacing generic menus this can be added with IGraphics::AttachPopupMenu().
@@ -132,11 +135,14 @@ private:
   public:
     MenuPanel(IPopupMenuControl& owner, IPopupMenu& menu, float x, float y, int parentIdx);
     ~MenuPanel();
-
-    /** Get's the width of a cell */
+      
+    MenuPanel(const MenuPanel&) = delete;
+    MenuPanel& operator=(const MenuPanel&) = delete;
+      
+    /** Gets the width of a cell */
     float CellWidth() const { return mSingleCellBounds.W(); }
 
-    /** Get's the height of a cell */
+    /** Gets the height of a cell */
     float CellHeight() const { return mSingleCellBounds.H(); }
 
     void ScrollUp() { mScrollItemOffset--; mScrollItemOffset = Clip(mScrollItemOffset, 0, mCellBounds.GetSize()-1); }
@@ -204,3 +210,6 @@ protected:
   IRECT mSpecifiedCollapsedBounds;
   IRECT mSpecifiedExpandedBounds;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE

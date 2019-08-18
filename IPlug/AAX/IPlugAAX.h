@@ -44,10 +44,12 @@
   #endif
 #endif
 
+BEGIN_IPLUG_NAMESPACE
+
 const int kAAXParamIdxOffset = 1;
 
 /** Used to pass various instance info to the API class */
-struct IPlugInstanceInfo {};
+struct InstanceInfo {};
 
 class IPlugAAX;
 
@@ -64,7 +66,7 @@ private:
   void CreateViewContents();
   void CreateViewContainer();
   void DeleteViewContainer();
-  AAX_Result GetViewSize ( AAX_Point *oEffectViewSize ) const;
+  AAX_Result GetViewSize(AAX_Point *oEffectViewSize) const;
   AAX_Result ParameterUpdated (const char* iParameterID);
 private:
   IPlugAAX* mPlug = nullptr;
@@ -73,11 +75,11 @@ private:
 /**  AAX API base class for an IPlug plug-in
 *   @ingroup APIClasses */
 class IPlugAAX : public IPlugAPIBase
-               , public IPlugProcessor<PLUG_SAMPLE_DST>
+               , public IPlugProcessor
                , public AAX_CIPlugParameters
 {
 public:
-  IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig config);
+  IPlugAAX(const InstanceInfo& info, const Config& config);
   ~IPlugAAX();
   
   //IPlugAPIBase Overrides
@@ -93,7 +95,7 @@ public:
   void SetLatency(int samples) override;
   bool SendMidiMsg(const IMidiMsg& msg) override;
   
-  AAX_Result UpdateParameterNormalizedValue(AAX_CParamID iParameterID, double iValue, AAX_EUpdateSource iSource ) override;
+  AAX_Result UpdateParameterNormalizedValue(AAX_CParamID iParameterID, double iValue, AAX_EUpdateSource iSource) override;
   
   //AAX_CIPlugParameters Overrides
   static AAX_CEffectParameters *AAX_CALLBACK Create();
@@ -119,8 +121,10 @@ private:
   IMidiQueue mMidiOutputQueue;
 };
 
-IPlugAAX* MakePlug();
+IPlugAAX* MakePlug(const InstanceInfo& info);
 
 #include "AAX_PopStructAlignment.h"
+
+END_IGRAPHICS_NAMESPACE
 
 #endif

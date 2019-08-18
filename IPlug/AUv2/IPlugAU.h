@@ -26,8 +26,14 @@
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 struct AudioComponentPlugInInstance
 {
+  AudioComponentPlugInInstance() = default;
+  AudioComponentPlugInInstance(const AudioComponentPlugInInstance&) = delete;
+  AudioComponentPlugInInstance& operator=(const AudioComponentPlugInInstance&) = delete;
+    
   AudioComponentPlugInInterface mPlugInInterface;
   void* (*mConstruct)(void* pMemory, AudioComponentInstance ci);
   void (*mDestruct)(void* pMemory);
@@ -38,19 +44,20 @@ struct AudioComponentPlugInInstance
 static const AudioUnitPropertyID kIPlugObjectPropertyID = UINT32_MAX-100;
 
 /** Used to pass various instance info to the API class */
-struct IPlugInstanceInfo
+struct InstanceInfo
 {
-  WDL_String mBundleID;
   WDL_String mCocoaViewFactoryClassName;
 };
 
 /**  AudioUnit v2 API base class for an IPlug plug-in
 *   @ingroup APIClasses */
 class IPlugAU : public IPlugAPIBase
-              , public IPlugProcessor<PLUG_SAMPLE_DST>
+              , public IPlugProcessor
 {
+  struct CStrLocal;
+  class CFStrLocal;
 public:
-  IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig config);
+  IPlugAU(const InstanceInfo& info, const Config& config);
   ~IPlugAU();
 
 //IPlugAPIBase
@@ -178,8 +185,19 @@ private:
   static OSStatus DoMIDIEvent(IPlugAU* pPlug, UInt32 inStatus, UInt32 inData1, UInt32 inData2, UInt32 inOffsetSampleFrame);
   static OSStatus DoSysEx(IPlugAU* pPlug, const UInt8 *inData, UInt32 inLength);
   
-#pragma mark -
 private:
+  
+#pragma mark - Utilities
+
+  static inline void PutNumberInDict(CFMutableDictionaryRef pDict, const char* key, void* pNumber, CFNumberType type);
+  static inline void PutStrInDict(CFMutableDictionaryRef pDict, const char* key, const char* value);
+  static inline void PutDataInDict(CFMutableDictionaryRef pDict, const char* key, IByteChunk* pChunk);
+  static inline bool GetNumberFromDict(CFDictionaryRef pDict, const char* key, void* pNumber, CFNumberType type);
+  static inline bool GetStrFromDict(CFDictionaryRef pDict, const char* key, char* value);
+  static inline bool GetDataFromDict(CFDictionaryRef pDict, const char* key, IByteChunk* pChunk);
+  
+#pragma mark -
+
   bool mActive = false; // TODO: is this necessary? is it correct?
   double mLastRenderSampleTime = -1.0;
   WDL_String mCocoaViewFactoryClassName;
@@ -194,10 +212,102 @@ private:
   AUMIDIOutputCallbackStruct mMidiCallback;
   AudioTimeStamp mLastRenderTimeStamp;
 
+  template <class Plug, bool DoesMIDIIn>
   friend class IPlugAUFactory;
 };
 
 IPlugAU* MakePlug(void* memory);
+
+/**  AudioUnit v2 Factory Class Template */
+
+template <class Plug, bool MIDIIn>
+class IPlugAUFactory
+{
+public:
+  static void* Construct(void* pMemory, AudioComponentInstance compInstance)
+  {
+    return MakePlug(pMemory);
+  }
+  
+  static void Destruct(void* pMemory)
+  {
+    ((Plug*) pMemory)->~Plug();
+  }
+  
+  static AudioComponentMethod Lookup(SInt16 selector)
+  {
+    using Method = AudioComponentMethod;
+    
+    switch (selector)
+    {
+      case kAudioUnitInitializeSelect:              return (Method)IPlugAU::AUMethodInitialize;
+      case kAudioUnitUninitializeSelect:            return (Method)IPlugAU::AUMethodUninitialize;
+      case kAudioUnitGetPropertyInfoSelect:         return (Method)IPlugAU::AUMethodGetPropertyInfo;
+      case kAudioUnitGetPropertySelect:             return (Method)IPlugAU::AUMethodGetProperty;
+      case kAudioUnitSetPropertySelect:             return (Method)IPlugAU::AUMethodSetProperty;
+        
+      case kAudioUnitAddPropertyListenerSelect:     return (Method)IPlugAU::AUMethodAddPropertyListener;
+      case kAudioUnitRemovePropertyListenerSelect:  return (Method)IPlugAU::AUMethodRemovePropertyListener;
+      case kAudioUnitRemovePropertyListenerWithUserDataSelect:
+        return (Method)IPlugAU::AUMethodRemovePropertyListenerWithUserData;
+        
+      case kAudioUnitAddRenderNotifySelect:         return (Method)IPlugAU::AUMethodAddRenderNotify;
+      case kAudioUnitRemoveRenderNotifySelect:      return (Method)IPlugAU::AUMethodRemoveRenderNotify;
+      case kAudioUnitGetParameterSelect:            return (Method)IPlugAU::AUMethodGetParameter;
+      case kAudioUnitSetParameterSelect:            return (Method)IPlugAU::AUMethodSetParameter;
+      case kAudioUnitScheduleParametersSelect:      return (Method)IPlugAU::AUMethodScheduleParameters;
+      case kAudioUnitRenderSelect:                  return (Method)IPlugAU::AUMethodRender;
+      case kAudioUnitResetSelect:                   return (Method)IPlugAU::AUMethodReset;
+
+      case kMusicDeviceMIDIEventSelect:             return MIDIIn ? (Method)IPlugAU::AUMethodMIDIEvent : NULL;
+      case kMusicDeviceSysExSelect:                 return MIDIIn ? (Method)IPlugAU::AUMethodSysEx : NULL;
+
+      default:
+        break;
+    }
+    return NULL;
+  }
+  
+  static OSStatus Open(void* pSelf, AudioUnit compInstance)
+  {
+    AudioComponentPlugInInstance* acpi = (AudioComponentPlugInInstance *) pSelf;
+    assert(acpi);
+    
+    (*acpi->mConstruct)(&acpi->mInstanceStorage, compInstance);
+    IPlugAU* plug = (IPlugAU*) &acpi->mInstanceStorage;
+    
+    plug->mCI = compInstance;
+    plug->PruneUninitializedPresets();
+    
+    return noErr;
+  }
+  
+  static OSStatus Close(void* pSelf)
+  {
+    AudioComponentPlugInInstance* acpi = (AudioComponentPlugInInstance *) pSelf;
+    assert(acpi);
+    (*acpi->mDestruct)(&acpi->mInstanceStorage);
+    free(pSelf);
+    return noErr;
+  }
+  
+  static AudioComponentPlugInInterface* Factory(const AudioComponentDescription* pInDesc)
+  {
+    void *ptr = malloc(offsetof(AudioComponentPlugInInstance, mInstanceStorage) + sizeof(Plug));
+    AudioComponentPlugInInstance* acpi = reinterpret_cast<AudioComponentPlugInInstance*>(ptr);
+    acpi->mPlugInInterface.Open = Open;
+    acpi->mPlugInInterface.Close = Close;
+    acpi->mPlugInInterface.Lookup = Lookup;
+    acpi->mPlugInInterface.reserved = NULL;
+    acpi->mConstruct = Construct;
+    acpi->mDestruct = Destruct;
+    acpi->mPad[0] = NULL;
+    acpi->mPad[1] = NULL;
+    return (AudioComponentPlugInInterface*)acpi;
+  }
+};
+
+END_IPLUG_NAMESPACE
 
 #endif
 

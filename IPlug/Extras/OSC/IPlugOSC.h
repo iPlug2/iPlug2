@@ -25,19 +25,27 @@
 
 #include "jnetlib/jnetlib.h"
 
+#include "IPlugPlatform.h"
 #include "IPlugOSC_msg.h"
 #include "IPlugTimer.h"
+
+extern void Sleep(int ms);
+
+BEGIN_IPLUG_NAMESPACE
 
 class IODevice
 {
 protected:
-  IODevice ()
+  IODevice()
   {
     m_has_input = false;
     m_has_output = false;
     m_last_open_time = 0.0;
   }
   
+  IODevice(const IODevice&) = delete;
+  IODevice& operator=(const IODevice&) = delete;
+    
   struct rec
   {
     void (*callback)(void *d1, int dev_idx, char type, int msglen, void *msg); // type=0 for MIDI, 1=osc
@@ -82,7 +90,7 @@ public:
     m_has_input = true;
     m_has_output = false;
     
-    //    m_has_output = m_has_input = true;
+    // m_has_output = m_has_input = true;
     memset(&m_sendaddr, 0, sizeof(m_sendaddr));
     m_maxpacketsz = maxpacket > 0 ? maxpacket : 1024;
     m_sendsleep = sendsleep >= 0 ? sendsleep : 10;
@@ -273,6 +281,9 @@ public:
       mTimer = nullptr;
   }
   
+  OSCInterface(const OSCInterface&) = delete;
+  OSCInterface& operator=(const OSCInterface&) = delete;
+    
   static void MessageCallback(void *d1, int dev_idx, char type, int msglen, void *msg);
   
   void CreateReciever(WDL_String& results, int port = 8000)
@@ -309,7 +320,7 @@ public:
     
     if (!r)
     {
-      std::unique_ptr device(new OSCDevice(nullptr, 0, -1, &addr))
+      std::unique_ptr<OSCDevice> device(new OSCDevice(nullptr, 0, -1, &addr));
 
       if (device->m_sendsock == INVALID_SOCKET)
       {
@@ -356,7 +367,7 @@ public:
     if (!r)
     {
       is_reuse = false;
-      std::unique_ptr device(new OSCDevice(dp.Get(), 0, -1, nullptr));
+      std::unique_ptr<OSCDevice> device(new OSCDevice(dp.Get(), 0, -1, nullptr));
       if (device->m_sendsock == INVALID_SOCKET)
       {
         results.AppendFormatted(1024,"\tWarning: failed creating destination for output '%s' OSC '%s'\r\n", dp.Get(), dp.Get());
@@ -502,23 +513,22 @@ public:
     
     mInputProc = [&]()
     {
-      //      const int sizeOfData = results.GetLength();
+      const int sizeOfData = results.GetLength();
       
       for (auto x = 0; x < g_devices.GetSize(); x++)
         g_devices.Get(x)->run_input(results);
       
-      //      if (results.GetLength() != sizeOfData) // if some input device added results
-      //      {
-      //        OscMessageRead msg{mReadBuf, sizeOfData};
-      //        OnOSCMessage(msg);
-      //      }
+      if (results.GetLength() != sizeOfData) // if some input device added results
+      {
+        OscMessageRead msg{mReadBuf, sizeOfData};
+        OnOSCMessage(msg);
+      }
     };
   }
   
   virtual void OnOSCMessage(OscMessageRead& msg) = 0;
   
 private:
-  const char* mTest = "TEST";
   char mReadBuf[MAX_OSC_MSG_LEN] = {};
 };
 
@@ -550,3 +560,4 @@ void OSCInterface::MessageCallback(void *d1, int dev_idx, char type, int len, vo
   }
 }
 
+END_IPLUG_NAMESPACE

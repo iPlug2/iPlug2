@@ -23,6 +23,9 @@
 #include "IPlugParameter.h"
 #include "IPlugLogger.h"
 
+using namespace iplug;
+using namespace igraphics;
+
 static int MacKeyCodeToVK(int code)
 {
   switch (code)
@@ -236,11 +239,6 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
 }
 
 @end
-
-inline int GetMouseOver(IGraphicsMac* pGraphics)
-{
-  return pGraphics->GetMouseOver();
-}
 
 // IGRAPHICS_TEXTFIELDCELL based on...
 
@@ -1020,7 +1018,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   }
 
   CoreTextFontDescriptor* CTFontDescriptor = CoreTextHelpers::GetCTFontDescriptor(text, sFontDescriptorCache);
-  NSFontDescriptor* fontDescriptor = (NSFontDescriptor*) CTFontDescriptor->mDescriptor;
+  NSFontDescriptor* fontDescriptor = (NSFontDescriptor*) CTFontDescriptor->GetDescriptor();
   NSFont* font = [NSFont fontWithDescriptor: fontDescriptor size: text.mSize * 0.75];
   [mTextFieldView setFont: font];
   

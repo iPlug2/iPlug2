@@ -5,6 +5,8 @@
 
 /** This EditorDelegate allows using WKWebKitView for an iPlug user interface on macOS/iOS... */
 
+BEGIN_IPLUG_NAMESPACE
+
 class WebViewEditorDelegate : public IEditorDelegate
 {
 public:
@@ -36,3 +38,5 @@ private:
   void* mWebConfig = nullptr;
   void* mScriptHandler = nullptr;
 };
+
+END_IPLUG_NAMESPACE

@@ -3,49 +3,55 @@
 #include "MidiSynth.h"
 #include "Oscillator.h"
 #include "ADSREnvelope.h"
+#include "Smoothers.h"
 
+using namespace iplug;
+
+enum EModulations
+{
+  kModGainSmoother = 0,
+  kModSustainSmoother,
+  kNumModulations,
+};
+
+template<typename T>
 class IPlugInstrumentDSP
 {
-private:
+public:
 #pragma mark - Voice
-  class IPlugInstrumentVoice : public SynthVoice
+  class Voice : public SynthVoice
   {
   public:
-    IPlugInstrumentVoice()
-    : mOsc1(0.75)
-    , mADSR1("gain")
+    Voice()
+    : mAMPEnv("gain", [&](){ mOSC.Reset(); }) // capture ok on RT thread?
     {
       DBGMSG("new Voice: %i control inputs.\n", static_cast<int>(mInputs.size()));
     }
 
-    ~IPlugInstrumentVoice()
-    {
-    }
-
     bool GetBusy() const override
     {
-      return mADSR1.GetBusy();;
+      return mAMPEnv.GetBusy();
     }
 
     void Trigger(double level, bool isRetrigger) override
     {
-      mOsc1.Reset();
+      mOSC.Reset();
       
       if(isRetrigger)
-        mADSR1.Retrigger(level);
+        mAMPEnv.Retrigger(level);
       else
-        mADSR1.Start(level);
+        mAMPEnv.Start(level);
     }
     
     void Release() override
     {
-      mADSR1.Release();
+      mAMPEnv.Release();
     }
 
-    void ProcessSamplesAccumulating(sample** inputs, sample** outputs, int nInputs, int nOutputs, int startIdx, int nFrames) override
+    void ProcessSamplesAccumulating(T** inputs, T** outputs, int nInputs, int nOutputs, int startIdx, int nFrames) override
     {
       // inputs to the synthesizer can just fetch a value every block, like this:
-      double gate = mInputs[kVoiceControlGate].endValue;
+//      double gate = mInputs[kVoiceControlGate].endValue;
       double pitch = mInputs[kVoiceControlPitch].endValue;
       double pitchBend = mInputs[kVoiceControlPitchBend].endValue;
 
@@ -54,41 +60,26 @@ private:
 
       // convert from "1v/oct" pitch space to frequency in Hertz
       double osc1Freq = 440. * pow(2., pitch + pitchBend);
-
-      // add a second oscillator, up a fifth
-      double osc2Freq = osc1Freq * 3. / 2.;
-
+      
       // make sound output for each output channel
       for(auto i = startIdx; i < startIdx + nFrames; i++)
       {
         float noise = mTimbreBuffer[i] * Rand();
-
         // an MPE synth can use pressure here in addition to gain
-        outputs[0][i] += (mOsc1.Process(osc1Freq) + mOsc2.Process(osc2Freq) * mOsc2Gain + noise) * mADSR1.Process(1.) * mGain;
+        outputs[0][i] += (mOSC.Process(osc1Freq) + noise) * mAMPEnv.Process(inputs[kModSustainSmoother][i]) * mGain;
         outputs[1][i] = outputs[0][i];
       }
     }
 
     void SetSampleRate(double sampleRate) override
     {
-      mOsc1.SetSampleRate(sampleRate);
-      mOsc2.SetSampleRate(sampleRate);
+      mOSC.SetSampleRate(sampleRate);
+      mAMPEnv.SetSampleRate(sampleRate);
     }
 
     void SetProgramNumber(int pgm) override
     {
-      // just set osc2 gain based on the program number.
-      // in a real synth this is where we would load a program from disk.
-      switch(pgm)
-      {
-        case 0:
-        default:
-          mOsc2Gain = 0.;
-          break;
-        case 1:
-          mOsc2Gain = 1.;
-          break;
-      }
+      //TODO:
     }
 
     // this is called by the VoiceAllocator to set generic control values.
@@ -97,13 +88,11 @@ private:
       DBGMSG("setting control %i to value %f\n", controlNumber, value);
     }
 
+  public:
+    FastSinOscillator<T> mOSC;
+    ADSREnvelope<T> mAMPEnv;
+
   private:
-    FastSinOscillator<sample> mOsc1;
-    FastSinOscillator<sample> mOsc2;
-    ADSREnvelope<sample> mADSR1;
-
-    float mOsc2Gain = 0.;
-
     // would be allocated dynamically in a real example
     static constexpr int kMaxBlockSize = 1024;
     float mTimbreBuffer[kMaxBlockSize];
@@ -128,7 +117,7 @@ public:
     for (auto i = 0; i < nVoices; i++)
     {
       // add a voice to Zone 0.
-      mSynth.AddVoice(new IPlugInstrumentVoice(), 0);
+      mSynth.AddVoice(new Voice(), 0);
     }
 
     // some MidiSynth API examples:
@@ -136,21 +125,36 @@ public:
     // mSynth.SetNoteGlideTime(0.5); // portamento
   }
 
-  void ProcessBlock(sample** inputs, sample** outputs, int nOutputs, int nFrames)
+  void ProcessBlock(T** inputs, T** outputs, int nOutputs, int nFrames)
   {
     // clear outputs
     for(auto i = 0; i < nOutputs; i++)
     {
-      memset(outputs[i], 0, nFrames * sizeof(sample));
+      memset(outputs[i], 0, nFrames * sizeof(T));
     }
-
-    mSynth.ProcessBlock(inputs, outputs, 0, nOutputs, nFrames);
+    
+    mParamSmoother.ProcessBlock(mParamsToSmooth, mModulations.GetList(), nFrames);
+    mSynth.ProcessBlock(mModulations.GetList(), outputs, 0, nOutputs, nFrames);
+    for(int s=0; s < nFrames;s++)
+    {
+      T smoothedGain = mModulations.GetList()[kModGainSmoother][s];
+      outputs[0][s] *= smoothedGain;
+      outputs[1][s] *= smoothedGain;
+    }
   }
 
   void Reset(double sampleRate, int blockSize)
   {
     mSynth.SetSampleRateAndBlockSize(sampleRate, blockSize);
     mSynth.Reset();
+    
+    mModulationsData.Resize(blockSize);
+    mModulations.Empty();
+    
+    for(int i = 0; i < kNumModulations; i++)
+    {
+      mModulations.Add(mModulationsData.Get() + (blockSize * i));
+    }
   }
 
   void ProcessMidiMsg(const IMidiMsg& msg)
@@ -158,6 +162,39 @@ public:
     mSynth.AddMidiMsgToQueue(msg);
   }
 
+  void SetParam(int paramIdx, double value)
+  {
+    using EEnvStage = ADSREnvelope<sample>::EStage;
+    
+    switch (paramIdx) {
+      case kParamNoteGlideTime:
+        mSynth.SetNoteGlideTime(value / 1000.);
+        break;
+      case kParamGain:
+        mParamsToSmooth[kModGainSmoother] = (T) value / 100.;
+        break;
+      case kParamSustain:
+        mParamsToSmooth[kModSustainSmoother] = (T) value / 100.;
+        break;
+      case kParamAttack:
+      case kParamDecay:
+      case kParamRelease:
+      {
+        EEnvStage stage = static_cast<EEnvStage>(EEnvStage::kAttack + (paramIdx - kParamAttack));
+        mSynth.ForEachVoice([stage, value](SynthVoice& voice) {
+          dynamic_cast<IPlugInstrumentDSP::Voice&>(voice).mAMPEnv.SetStageTime(stage, value);
+        });
+        break;
+      }
+      default:
+        break;
+    }
+  }
+  
 public:
   MidiSynth mSynth { VoiceAllocator::kPolyModePoly, MidiSynth::kDefaultBlockSize };
+  WDL_TypedBuf<T> mModulationsData; // Sample data for global modulations (e.g. smoothed sustain)
+  WDL_PtrList<T> mModulations; // Ptrlist for global modulations
+  LogParamSmooth<T, kNumModulations> mParamSmoother;
+  sample mParamsToSmooth[kNumModulations];
 };

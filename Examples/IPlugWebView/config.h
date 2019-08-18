@@ -1,5 +1,5 @@
 #define PLUG_NAME "IPlugWebView"
-#define PLUG_MFR "OliLarkin"
+#define PLUG_MFR "AcmeInc"
 #define PLUG_VERSION_HEX 0x00010000
 #define PLUG_VERSION_STR "1.0.0"
 #define PLUG_UNIQUE_ID '5r9C'
@@ -10,7 +10,7 @@
 #define PLUG_CLASS_NAME IPlugWebView
 
 #define BUNDLE_NAME "IPlugWebView"
-#define BUNDLE_MFR "OliLarkin"
+#define BUNDLE_MFR "AcmeInc"
 #define BUNDLE_DOMAIN "com"
 
 #define PLUG_CHANNEL_IO "2-2"

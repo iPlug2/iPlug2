@@ -12,7 +12,7 @@
 			<key>manufacturer</key>
 			<string>Acme</string>
 			<key>name</key>
-			<string>OliLarkin: IPlugWebView</string>
+			<string>AcmeInc: IPlugWebView</string>
 			<key>sandboxSafe</key>
 			<true/>
 			<key>subtype</key>
@@ -32,7 +32,7 @@
 	<key>CFBundleGetInfoString</key>
 	<string>IPlugWebView v1.0.0 Copyright 2019 Acme Inc</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.OliLarkin.audiounit.IPlugWebView</string>
+	<string>com.AcmeInc.audiounit.IPlugWebView</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
