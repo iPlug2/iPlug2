@@ -202,9 +202,9 @@
 		4FA9F84821F7667E004E6FE2 /* IGraphicsAGG_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FA9F84321F7667E004E6FE2 /* IGraphicsAGG_src.mm */; };
 		4FA9F84921F7667E004E6FE2 /* IGraphicsAGG_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FA9F84321F7667E004E6FE2 /* IGraphicsAGG_src.mm */; };
 		4FA9F84A21F7667E004E6FE2 /* IGraphicsAGG_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FA9F84321F7667E004E6FE2 /* IGraphicsAGG_src.mm */; };
-		4FAEBD30209DAF76002E6392 /* IPlugAUv3.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F1A5286205D915B00CF2908 /* IPlugAUv3.mm */; };
-		4FAEBD31209DAF76002E6392 /* IPlugAUAudioUnit.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F39077A2013EC0400DDA490 /* IPlugAUAudioUnit.mm */; };
-		4FAEBD32209DAF76002E6392 /* IPlugAUViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3907772013EC0400DDA490 /* IPlugAUViewController.mm */; };
+		4FAEBD30209DAF76002E6392 /* IPlugAUv3.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F1A5286205D915B00CF2908 /* IPlugAUv3.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4FAEBD31209DAF76002E6392 /* IPlugAUAudioUnit.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F39077A2013EC0400DDA490 /* IPlugAUAudioUnit.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4FAEBD32209DAF76002E6392 /* IPlugAUViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3907772013EC0400DDA490 /* IPlugAUViewController.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4FAEBD33209DAF87002E6392 /* IPlugAPIBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugAPIBase.cpp */; };
 		4FAEBD34209DAF87002E6392 /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
 		4FAEBD35209DAF87002E6392 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };

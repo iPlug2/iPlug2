@@ -15,8 +15,8 @@
 		4F2602BD2269F0A000C7E97E /* IPlugWebViewShared.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F2602B22269F00000C7E97E /* IPlugWebViewShared.a */; };
 		4F2602C02269F0B500C7E97E /* IPlugWebViewShared.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F2602B22269F00000C7E97E /* IPlugWebViewShared.a */; };
 		4F2602CA2269F15000C7E97E /* GenericUI.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F97F45D22564D6600EB54ED /* GenericUI.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F2602CB2269F15000C7E97E /* IPlugAUAudioUnit.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105320A0E57000D3092F /* IPlugAUAudioUnit.mm */; };
-		4F2602CC2269F15000C7E97E /* IPlugAUv3.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105820A0E57100D3092F /* IPlugAUv3.mm */; };
+		4F2602CB2269F15000C7E97E /* IPlugAUAudioUnit.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105320A0E57000D3092F /* IPlugAUAudioUnit.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F2602CC2269F15000C7E97E /* IPlugAUv3.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105820A0E57100D3092F /* IPlugAUv3.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F2602CE2269F15000C7E97E /* IPlugPluginBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF106620A0E58600D3092F /* IPlugPluginBase.cpp */; };
 		4F2602CF2269F15000C7E97E /* IPlugAPIBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF103A20A0E55900D3092F /* IPlugAPIBase.cpp */; };
 		4F2602D12269F15000C7E97E /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF103220A0E55900D3092F /* IPlugParameter.cpp */; };
@@ -823,6 +823,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
@@ -870,6 +871,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
