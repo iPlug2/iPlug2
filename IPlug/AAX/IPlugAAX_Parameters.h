@@ -23,8 +23,8 @@
 
 #include "IPlugPlatform.h"
 
-//static const int = kMaxAdditionalMIDINodes 15;
-static const int = kMaxAuxOutputStems  16;
+//static const int kMaxAdditionalMIDINodes = 15;
+static const int kMaxAuxOutputStems = 16;
 
 BEGIN_IPLUG_NAMESPACE
 

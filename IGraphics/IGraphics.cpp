@@ -779,17 +779,34 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
     #ifdef AAX_API
     if (mAAXViewContainer && paramIdx > kNoParameter)
     {
-      uint32_t mods = GetAAXModifiersFromIMouseMod(mod);
+      auto GetAAXModifiersFromIMouseMod = [](const IMouseMod& mod) {
+        uint32_t modifiers = 0;
+      
+        if (mod.A) modifiers |= AAX_eModifiers_Option; // ALT Key on Windows, ALT/Option key on mac
+      
+      #ifdef OS_WIN
+        if (mod.C) modifiers |= AAX_eModifiers_Command;
+      #else
+        if (mod.C) modifiers |= AAX_eModifiers_Control;
+        if (mod.R) modifiers |= AAX_eModifiers_Command;
+      #endif
+        if (mod.S) modifiers |= AAX_eModifiers_Shift;
+        if (mod.R) modifiers |= AAX_eModifiers_SecondaryButton;
+      
+        return modifiers;
+      };
+      
+      uint32_t aaxModifiersForPT = GetAAXModifiersFromIMouseMod(mod);
       #ifdef OS_WIN
       // required to get start/windows and alt keys
-      uint32_t aaxViewMods = 0;
-      mAAXViewContainer->GetModifiers(&aaxViewMods);
-      mods |= aaxViewMods;
+      uint32_t aaxModifiersFromPT = 0;
+      mAAXViewContainer->GetModifiers(&aaxModifiersFromPT);
+      aaxModifiersForPT |= aaxModifiersFromPT;
       #endif
       WDL_String paramID;
       paramID.SetFormatted(32, "%i", paramIdx+1);
 
-      if (mAAXViewContainer->HandleParameterMouseDown(paramID.Get(), mods) == AAX_SUCCESS)
+      if (mAAXViewContainer->HandleParameterMouseDown(paramID.Get(), aaxModifiersForPT) == AAX_SUCCESS)
       {
         return; // event handled by PT
       }
