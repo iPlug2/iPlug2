@@ -141,6 +141,9 @@
     <ClInclude Include="..\..\..\IGraphics\IGraphicsStructs.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsPrivate.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\IGraphicsUtilities.h">
       <Filter>IGraphics</Filter>
     </ClInclude>

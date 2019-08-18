@@ -17,12 +17,16 @@
 #include "IPlugAU.h"
 #include "IPlugAU_ioconfig.h"
 
-inline CFStringRef MakeCFString(const char* cStr)
+using namespace iplug;
+
+#pragma mark - CFString and CString Utilities
+
+static inline CFStringRef MakeCFString(const char* cStr)
 {
   return CFStringCreateWithCString(0, cStr, kCFStringEncodingUTF8);
 }
 
-class CFStrLocal
+class IPlugAU::CFStrLocal
 {
 public:
   CFStrLocal(const char* cStr)
@@ -44,7 +48,7 @@ private:
   CFStringRef mCFStr;
 };
 
-struct CStrLocal : WDL_TypedBuf<char>
+struct IPlugAU::CStrLocal : WDL_TypedBuf<char>
 {
   CStrLocal(CFStringRef cfStr)
   {
@@ -56,7 +60,9 @@ struct CStrLocal : WDL_TypedBuf<char>
   }
 };
 
-inline void PutNumberInDict(CFMutableDictionaryRef pDict, const char* key, void* pNumber, CFNumberType type)
+#pragma mark - Utilities
+
+inline void IPlugAU::PutNumberInDict(CFMutableDictionaryRef pDict, const char* key, void* pNumber, CFNumberType type)
 {
   CFStrLocal cfKey(key);
   CFNumberRef pValue = CFNumberCreate(0, type, pNumber);
@@ -64,14 +70,14 @@ inline void PutNumberInDict(CFMutableDictionaryRef pDict, const char* key, void*
   CFRelease(pValue);
 }
 
-inline void PutStrInDict(CFMutableDictionaryRef pDict, const char* key, const char* value)
+inline void IPlugAU::PutStrInDict(CFMutableDictionaryRef pDict, const char* key, const char* value)
 {
   CFStrLocal cfKey(key);
   CFStrLocal cfValue(value);
   CFDictionarySetValue(pDict, cfKey.Get(), cfValue.Get());
 }
 
-inline void PutDataInDict(CFMutableDictionaryRef pDict, const char* key, IByteChunk* pChunk)
+inline void IPlugAU::PutDataInDict(CFMutableDictionaryRef pDict, const char* key, IByteChunk* pChunk)
 {
   CFStrLocal cfKey(key);
   CFDataRef pData = CFDataCreate(0, pChunk->GetData(), pChunk->Size());
@@ -79,7 +85,7 @@ inline void PutDataInDict(CFMutableDictionaryRef pDict, const char* key, IByteCh
   CFRelease(pData);
 }
 
-inline bool GetNumberFromDict(CFDictionaryRef pDict, const char* key, void* pNumber, CFNumberType type)
+inline bool IPlugAU::GetNumberFromDict(CFDictionaryRef pDict, const char* key, void* pNumber, CFNumberType type)
 {
   CFStrLocal cfKey(key);
   CFNumberRef pValue = (CFNumberRef) CFDictionaryGetValue(pDict, cfKey.Get());
@@ -91,7 +97,7 @@ inline bool GetNumberFromDict(CFDictionaryRef pDict, const char* key, void* pNum
   return false;
 }
 
-inline bool GetStrFromDict(CFDictionaryRef pDict, const char* key, char* value)
+inline bool IPlugAU::GetStrFromDict(CFDictionaryRef pDict, const char* key, char* value)
 {
   CFStrLocal cfKey(key);
   CFStringRef pValue = (CFStringRef) CFDictionaryGetValue(pDict, cfKey.Get());
@@ -105,7 +111,7 @@ inline bool GetStrFromDict(CFDictionaryRef pDict, const char* key, char* value)
   return false;
 }
 
-inline bool GetDataFromDict(CFDictionaryRef pDict, const char* key, IByteChunk* pChunk)
+inline bool IPlugAU::GetDataFromDict(CFDictionaryRef pDict, const char* key, IByteChunk* pChunk)
 {
   CFStrLocal cfKey(key);
   CFDataRef pData = (CFDataRef) CFDictionaryGetValue(pDict, cfKey.Get());
@@ -119,12 +125,11 @@ inline bool GetDataFromDict(CFDictionaryRef pDict, const char* key, IByteChunk* 
   return false;
 }
 
-
 #define kAudioUnitRemovePropertyListenerWithUserDataSelect 0x0012
 
 typedef AudioStreamBasicDescription STREAM_DESC;
 
-/* inline */ void MakeDefaultASBD(STREAM_DESC* pASBD, double sampleRate, int nChannels, bool interleaved)
+static /* inline */ void MakeDefaultASBD(STREAM_DESC* pASBD, double sampleRate, int nChannels, bool interleaved)
 {
   memset(pASBD, 0, sizeof(STREAM_DESC));
   pASBD->mSampleRate = sampleRate;
@@ -146,7 +151,7 @@ typedef AudioStreamBasicDescription STREAM_DESC;
 }
 
 template <class C>
-int PtrListAddFromStack(WDL_PtrList<C>* pList, C* pStackInstance)
+static int PtrListAddFromStack(WDL_PtrList<C>* pList, C* pStackInstance)
 {
   C* pNew = new C;
   memcpy(pNew, pStackInstance, sizeof(C));
@@ -155,7 +160,7 @@ int PtrListAddFromStack(WDL_PtrList<C>* pList, C* pStackInstance)
 }
 
 template <class C>
-int PtrListInitialize(WDL_PtrList<C>* pList, int size)
+static int PtrListInitialize(WDL_PtrList<C>* pList, int size)
 {
   for (int i = 0; i < size; ++i)
   {
@@ -1557,7 +1562,7 @@ OSStatus IPlugAU::SetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioU
   return noErr;
 }
 
-inline OSStatus RenderCallback(AURenderCallbackStruct* pCB, AudioUnitRenderActionFlags* pFlags, const AudioTimeStamp* pTimestamp, UInt32 inputBusIdx, UInt32 nFrames, AudioBufferList* pOutBufList)
+static inline OSStatus RenderCallback(AURenderCallbackStruct* pCB, AudioUnitRenderActionFlags* pFlags, const AudioTimeStamp* pTimestamp, UInt32 inputBusIdx, UInt32 nFrames, AudioBufferList* pOutBufList)
 {
   TRACE;
   return pCB->inputProc(pCB->inputProcRefCon, pFlags, pTimestamp, inputBusIdx, nFrames, pOutBufList);
@@ -1785,16 +1790,16 @@ void IPlugAU::ClearConnections()
 
 #pragma mark - IPlugAU Constructor
 
-IPlugAU::IPlugAU(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPlugAPIBase(c, kAPIAU)
-, IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAU)
+IPlugAU::IPlugAU(const InstanceInfo& info, const Config& config)
+: IPlugAPIBase(config, kAPIAU)
+, IPlugProcessor(config, kAPIAU)
 {
-  Trace(TRACELOC, "%s", c.pluginName);
+  Trace(TRACELOC, "%s", config.pluginName);
 
   memset(&mHostCallbacks, 0, sizeof(HostCallbackInfo));
   memset(&mMidiCallback, 0, sizeof(AUMIDIOutputCallbackStruct));
 
-  mCocoaViewFactoryClassName.Set(instanceInfo.mCocoaViewFactoryClassName.Get());
+  mCocoaViewFactoryClassName.Set(info.mCocoaViewFactoryClassName.Get());
 
   const int maxNIBuses = MaxNBuses(ERoute::kInput);
   const int maxNOBuses = MaxNBuses(ERoute::kOutput);
@@ -1888,8 +1893,11 @@ void IPlugAU::PreProcess()
     double currentBeat = 0.0, tempo = 0.0;
     mHostCallbacks.beatAndTempoProc(mHostCallbacks.hostUserData, &currentBeat, &tempo);
 
-    if (tempo > 0.0) timeInfo.mTempo = tempo;
-    if (currentBeat> 0.0) timeInfo.mPPQPos = currentBeat;
+    if (tempo > 0.0)
+      timeInfo.mTempo = tempo;
+    
+    if (currentBeat >= 0.0)
+      timeInfo.mPPQPos = currentBeat;
   }
 
   if (mHostCallbacks.transportStateProc)
@@ -1898,9 +1906,15 @@ void IPlugAU::PreProcess()
     Boolean playing, changed, looping;
     mHostCallbacks.transportStateProc(mHostCallbacks.hostUserData, &playing, &changed, &samplePos, &looping, &loopStartBeat, &loopEndBeat);
 
-    if (samplePos>0.0)timeInfo.mSamplePos = samplePos;
-    if (loopStartBeat>0.0) timeInfo.mCycleStart = loopStartBeat;
-    if (loopEndBeat>0.0) timeInfo.mCycleEnd = loopEndBeat;
+    if (samplePos > 0.0)
+      timeInfo.mSamplePos = samplePos;
+    
+    if (loopStartBeat > 0.0)
+      timeInfo.mCycleStart = loopStartBeat;
+    
+    if (loopEndBeat > 0.0)
+      timeInfo.mCycleEnd = loopEndBeat;
+    
     timeInfo.mTransportIsRunning = playing;
     timeInfo.mTransportLoopEnabled = looping;
   }
@@ -1963,7 +1977,7 @@ void IPlugAU::SetLatency(int samples)
     }
   }
   
-  IPlugProcessor<PLUG_SAMPLE_DST>::SetLatency(samples);
+  IPlugProcessor::SetLatency(samples);
 }
 
 bool IPlugAU::SendMidiMsg(const IMidiMsg& msg)
@@ -2071,7 +2085,10 @@ void IPlugAU::OutputSysexFromEditor()
 
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
 
-IPlugAU* GetPlug(void *x) { return (IPlugAU*) &((AudioComponentPlugInInstance *) x)->mInstanceStorage; }
+static IPlugAU* GetPlug(void *x)
+{
+  return (IPlugAU*) &((AudioComponentPlugInInstance *) x)->mInstanceStorage;
+}
 
 //static
 OSStatus IPlugAU::AUMethodInitialize(void* pSelf)

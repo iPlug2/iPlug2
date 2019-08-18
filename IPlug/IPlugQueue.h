@@ -18,6 +18,8 @@
 #include <atomic>
 #include <cstddef>
 
+BEGIN_IPLUG_NAMESPACE
+
 /** A lock-free SPSC queue used to transfer data between threads
  * based on MLQueue.h by Randy Jones
  * based on https://kjellkod.wordpress.com/2012/11/28/c-debt-paid-in-full-wait-free-lock-free-queue/ */
@@ -110,3 +112,4 @@ private:
   std::atomic<size_t> mReadIndex{0};
 };
 
+END_IPLUG_NAMESPACE

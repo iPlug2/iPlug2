@@ -15,15 +15,16 @@
 #include <emscripten.h>
 #include <emscripten/bind.h>
 
+using namespace iplug;
 using namespace emscripten;
 
-const int kNumMsgHeaderBytes = 6;
-const int kNumSPVFUIBytes = 18;
-const int kNumSMMFUIBytes = 9;
-const int kNumSSMFUIBytes = 10; // + data size
-const int kNumSAMFUIBytes = 18; // + data size
+static const int kNumMsgHeaderBytes = 6;
+static const int kNumSPVFUIBytes = 18;
+static const int kNumSMMFUIBytes = 9;
+static const int kNumSSMFUIBytes = 10; // + data size
+static const int kNumSAMFUIBytes = 18; // + data size
 
-IPlugWeb::IPlugWeb(IPlugInstanceInfo instanceInfo, IPlugConfig config)
+IPlugWeb::IPlugWeb(const InstanceInfo& info, const Config& config)
 : IPlugAPIBase(config, kAPIWEB)
 {
   mSPVFUIBuf.Resize(kNumSPVFUIBytes); memcpy(mSPVFUIBuf.GetData(), "SPVFUI", kNumMsgHeaderBytes);
@@ -126,35 +127,35 @@ extern std::unique_ptr<IPlugWeb> gPlug;
 
 // could probably do this without these extra functions
 // https://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/embind.html#deriving-from-c-classes-in-javascript
-void _SendArbitraryMsgFromDelegate(int messageTag, int dataSize, uintptr_t pData)
+static void _SendArbitraryMsgFromDelegate(int messageTag, int dataSize, uintptr_t pData)
 {
   const uint8_t* pDataPtr = reinterpret_cast<uint8_t*>(pData); // embind doesn't allow us to pass raw pointers
   gPlug->SendArbitraryMsgFromDelegate(messageTag, dataSize, pDataPtr);
 }
 
-void _SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, uintptr_t pData)
+static void _SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, uintptr_t pData)
 {
   const uint8_t* pDataPtr = reinterpret_cast<uint8_t*>(pData); // embind doesn't allow us to pass raw pointers
   gPlug->SendControlMsgFromDelegate(controlTag, messageTag, dataSize, pDataPtr);
 }
 
-void _SendControlValueFromDelegate(int controlTag, double normalizedValue)
+static void _SendControlValueFromDelegate(int controlTag, double normalizedValue)
 {
   gPlug->SendControlValueFromDelegate(controlTag, normalizedValue);
 }
 
-void _SendParameterValueFromDelegate(int paramIdx, double normalizedValue)
+static void _SendParameterValueFromDelegate(int paramIdx, double normalizedValue)
 {
   gPlug->SendParameterValueFromDelegate(paramIdx, normalizedValue, true);
 }
 
-void _SendMidiMsgFromDelegate(int status, int data1, int data2)
+static void _SendMidiMsgFromDelegate(int status, int data1, int data2)
 {
   IMidiMsg msg {0, (uint8_t) status, (uint8_t) data1, (uint8_t) data2};
   gPlug->SendMidiMsgFromDelegate(msg);
 }
 
-void _SendSysexMsgFromDelegate(int dataSize, uintptr_t pData)
+static void _SendSysexMsgFromDelegate(int dataSize, uintptr_t pData)
 {
   const uint8_t* pDataPtr = reinterpret_cast<uint8_t*>(pData); // embind doesn't allow us to pass raw pointers
   ISysEx msg(0, pDataPtr, dataSize);

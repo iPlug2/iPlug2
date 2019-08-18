@@ -9,7 +9,7 @@
 	<key>CFBundleGetInfoString</key>
 	<string>IPlugWebView v1.0.0 Copyright 2019 Acme Inc</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.OliLarkin.aax.IPlugWebView</string>
+	<string>com.AcmeInc.aax.IPlugWebView</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>

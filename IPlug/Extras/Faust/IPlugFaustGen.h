@@ -62,7 +62,7 @@ static inline bool Equal(StatTime a, StatTime b) { return a == b; }
 static inline StatTime TimeZero() { return (StatTime) 0; }
 #endif
 
-#define FAUSTFLOAT sample
+#define FAUSTFLOAT iplug::sample
 
 #include "faust/dsp/llvm-dsp.h"
 #include "IPlugFaust.h"
@@ -100,6 +100,8 @@ static inline StatTime TimeZero() { return (StatTime) 0; }
     #define FAUST_DLL_PATH "C:\\Program Files\\Faust\\lib"
   #endif
 #endif
+
+BEGIN_IPLUG_NAMESPACE
 
 class FaustGen : public IPlugFaust
 {
@@ -269,5 +271,7 @@ private:
   
   WDL_Mutex mMutex;
 };
+
+END_IPLUG_NAMESPACE
 
 #endif // #ifndef FAUST_COMPILED

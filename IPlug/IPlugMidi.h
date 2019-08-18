@@ -24,6 +24,8 @@
 #include "IPlugConstants.h"
 #include "IPlugLogger.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 /** Encapsulates a MIDI message and provides helper functions
  * @ingroup IPlugStructs */
 struct IMidiMsg
@@ -441,4 +443,7 @@ struct ISysEx
     Trace(TRACELOC, "sysex:(%d:%s)", mSize, SysExStr(str, sizeof(str), mData, mSize));
   }
 };
+
+END_IPLUG_NAMESPACE
+
 

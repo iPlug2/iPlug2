@@ -20,12 +20,15 @@
 
 #define STB_TEXTEDIT_CHARTYPE char
 #define STB_TEXTEDIT_POSITIONTYPE int
-#define STB_TEXTEDIT_STRING ITextEntryControl
+#define STB_TEXTEDIT_STRING iplug::igraphics::ITextEntryControl
 #define STB_TEXTEDIT_KEYTYPE uint32_t
 
 #include "stb_textedit.h"
 
 #include "IControl.h"
+
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
 
 /** A Text entry widget drawn by IGraphics.
  * This is a special control that lives outside the main IGraphics control stack.
@@ -88,3 +91,6 @@ private:
   WDL_String mEditString;
   WDL_TypedBuf<float> mCharWidths;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE

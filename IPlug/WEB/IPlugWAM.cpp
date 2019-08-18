@@ -10,9 +10,11 @@
 
 #include "IPlugWAM.h"
 
-IPlugWAM::IPlugWAM(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-  : IPlugAPIBase(c, kAPIWAM)
-  , IPlugProcessor<float>(c, kAPIWAM)
+using namespace iplug;
+
+IPlugWAM::IPlugWAM(const InstanceInfo& info, const Config& config)
+: IPlugAPIBase(config, kAPIWAM)
+, IPlugProcessor(config, kAPIWAM)
 {
   int nInputs = MaxNChannels(ERoute::kInput), nOutputs = MaxNChannels(ERoute::kOutput);
 

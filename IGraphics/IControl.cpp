@@ -9,6 +9,8 @@
 */
 
 #include <cmath>
+#include <cstring>
+#include "dirscan.h"
 
 #include "IControl.h"
 #include "IPlugParameter.h"
@@ -27,8 +29,8 @@
   #endif
 #endif
 
-#include "dirscan.h"
-
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
 void DefaultAnimationFunc(IControl* pCaller)
 {
   auto progress = pCaller->GetAnimationProgress();
@@ -63,6 +65,11 @@ void SplashClickActionFunc(IControl* pCaller)
   dynamic_cast<IVectorBase*>(pCaller)->SetSplashPoint(x, y);
   pCaller->SetAnimation(SplashAnimationFunc, DEFAULT_ANIMATION_DURATION);
 }
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+
+using namespace iplug;
+using namespace igraphics;
 
 IControl::IControl(const IRECT& bounds, int paramIdx, IActionFunction actionFunc)
 : mRECT(bounds)
@@ -358,30 +365,20 @@ void IControl::SnapToMouse(float x, float y, EDirection direction, const IRECT& 
   SetDirty(true, valIdx);
 }
 
-void IBitmapControl::Draw(IGraphics& g)
-{
-  int i = 1;
-  if (mBitmap.N() > 1)
-  {
-    i = 1 + int(0.5 + GetValue() * (double) (mBitmap.N() - 1));
-    i = Clip(i, 1, mBitmap.N());
-  }
-
-  g.DrawBitmap(mBitmap, mRECT, i, &mBlend);
-}
-
-void IBitmapControl::OnRescale()
-{
-  mBitmap = GetUI()->GetScaledBitmap(mBitmap);
-}
-
-ITextControl::ITextControl(const IRECT& bounds, const char* str, const IText& text, const IColor& BGColor)
+ITextControl::ITextControl(const IRECT& bounds, const char* str, const IText& text, const IColor& BGColor, bool setBoundsBasedOnStr)
 : IControl(bounds)
 , mStr(str)
 , mBGColor(BGColor)
+, mSetBoundsBasedOnStr(setBoundsBasedOnStr)
 {
   mIgnoreMouse = true;
   IControl::mText = text;
+}
+
+void ITextControl::OnInit()
+{
+  if(mSetBoundsBasedOnStr)
+    SetBoundsBasedOnStr();
 }
 
 void ITextControl::SetStr(const char* str)
@@ -389,6 +386,10 @@ void ITextControl::SetStr(const char* str)
   if (strcmp(mStr.Get(), str))
   {
     mStr.Set(str);
+    
+    if(mSetBoundsBasedOnStr)
+      SetBoundsBasedOnStr();
+    
     SetDirty(false);
   }
 }
@@ -410,13 +411,11 @@ void ITextControl::Draw(IGraphics& g)
     g.DrawText(mText, mStr.Get(), mRECT);
 }
 
-void ITextControl::SetBoundsBasedOnTextDimensions()
+void ITextControl::SetBoundsBasedOnStr()
 {
   IRECT r;
   GetUI()->MeasureText(mText, mStr.Get(), r);
-  
-  //TODO look at text align/valign?
-  SetTargetAndDrawRECTs({mRECT.L, mRECT.T, mRECT.L + r.W(), mRECT.T + r.H()});
+  SetTargetAndDrawRECTs({mRECT.MW()-(r.W()/2.f), mRECT.MH()-(r.H()/2.f), mRECT.MW()+(r.W()/2.f), mRECT.MH()+(r.H()/2.f)});
 }
 
 IURLControl::IURLControl(const IRECT& bounds, const char* str, const char* urlStr, const IText& text, const IColor& BGColor, const IColor& MOColor, const IColor& CLColor)
@@ -720,7 +719,6 @@ void IDirBrowseControlBase::SetUpMenu()
 
 void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAddTo)
 {
-#if !defined OS_IOS
   WDL_DirScan d;
 
   if (!d.First(path))
@@ -761,8 +759,6 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
   
   if(!mShowEmptySubmenus)
     menuToAddTo.RemoveEmptySubmenus();
-
-#endif
 }
 
 ISliderControlBase::ISliderControlBase(const IRECT& bounds, int paramIdx, EDirection dir, bool onlyHandle, float handleSize)

@@ -21,8 +21,10 @@
 
 #include "IGraphics_select.h"
 
-
 using namespace emscripten;
+
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
 
 static val GetCanvas()
 {
@@ -38,6 +40,8 @@ static val GetPreloadedImages()
 * @ingroup PlatformClasses */
 class IGraphicsWeb final : public IGRAPHICS_DRAW_CLASS
 {
+  class Font;
+  class FileFont;
 public:
   IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsWeb();
@@ -79,3 +83,7 @@ private:
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
   void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override {}
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+

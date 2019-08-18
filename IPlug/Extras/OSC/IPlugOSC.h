@@ -25,10 +25,13 @@
 
 #include "jnetlib/jnetlib.h"
 
+#include "IPlugPlatform.h"
 #include "IPlugOSC_msg.h"
 #include "IPlugTimer.h"
 
 extern void Sleep(int ms);
+
+BEGIN_IPLUG_NAMESPACE
 
 class IODevice
 {
@@ -87,7 +90,7 @@ public:
     m_has_input = true;
     m_has_output = false;
     
-    //    m_has_output = m_has_input = true;
+    // m_has_output = m_has_input = true;
     memset(&m_sendaddr, 0, sizeof(m_sendaddr));
     m_maxpacketsz = maxpacket > 0 ? maxpacket : 1024;
     m_sendsleep = sendsleep >= 0 ? sendsleep : 10;
@@ -557,3 +560,4 @@ void OSCInterface::MessageCallback(void *d1, int dev_idx, char type, int len, vo
   }
 }
 
+END_IPLUG_NAMESPACE

@@ -17,6 +17,10 @@
  *
  */
 
+#include "IPlugPlatform.h"
+
+BEGIN_IPLUG_NAMESPACE
+
 #define MAX_OSC_MSG_LEN 1024
 
 static void OSC_BSWAPINTMEM(void *buf)
@@ -77,3 +81,4 @@ private:
   bool m_msgok;
 };
 
+END_IPLUG_NAMESPACE

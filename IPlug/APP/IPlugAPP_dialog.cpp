@@ -19,8 +19,11 @@
 #define GET_MENU() SWELL_GetCurrentMenu()
 #endif
 
+using namespace iplug;
+
 #if defined _DEBUG && !defined NO_IGRAPHICS
 #include "IGraphics.h"
+using namespace igraphics;
 #endif
 
 // check the input and output devices, find matching srs
@@ -497,7 +500,7 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
   return TRUE;
 }
 
-void ClientResize(HWND hWnd, int nWidth, int nHeight)
+static void ClientResize(HWND hWnd, int nWidth, int nHeight)
 {
   RECT rcClient, rcWindow;
   POINT ptDiff;

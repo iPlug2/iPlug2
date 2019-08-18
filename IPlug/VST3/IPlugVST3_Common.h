@@ -19,6 +19,8 @@
 using namespace Steinberg;
 using namespace Vst;
 
+BEGIN_IPLUG_NAMESPACE
+
 /** Shared VST3 State management code */
 struct IPlugVST3State
 {
@@ -39,9 +41,7 @@ struct IPlugVST3State
       pState->write(chunk.GetData(), chunk.Size());
     }
     else
-    {
       return false;
-    }
     
     int32 toSaveBypass = pPlug->GetBypassed() ? 1 : 0;
     pState->write(&toSaveBypass, sizeof (int32));
@@ -75,7 +75,7 @@ struct IPlugVST3State
     
     pState->seek(pos,IBStream::IStreamSeekMode::kIBSeekSet);
     if (pState->read (&savedBypass, sizeof (Steinberg::int32)) != kResultOk) {
-      return kResultFalse;
+      return false;
     }
     
     IPlugVST3ControllerBase* pController = dynamic_cast<IPlugVST3ControllerBase*>(pPlug);
@@ -87,7 +87,8 @@ struct IPlugVST3State
     }
     
     pPlug->OnRestoreState();
-    return kResultOk;
+    
+    return true;
   }
 };
 
@@ -105,3 +106,5 @@ static void IPlugVST3GetHost(IPlugAPIBase* pPlug, FUnknown* context)
     pPlug->SetHost(hostNameCString, 0); // Can't get version in VST3
   }
 }
+
+END_IPLUG_NAMESPACE

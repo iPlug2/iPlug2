@@ -1,6 +1,8 @@
 #include "IWebsocketEditorDelegate.h"
 #include "IPlugStructs.h"
 
+using namespace iplug;
+
 IWebsocketEditorDelegate::IWebsocketEditorDelegate(int nParams)
 : IGEditorDelegate(nParams)
 {

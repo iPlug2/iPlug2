@@ -20,7 +20,9 @@
 
 #include "IPlugAPIBase.h"
 
-IPlugAPIBase::IPlugAPIBase(IPlugConfig c, EAPI plugAPI)
+using namespace iplug;
+
+IPlugAPIBase::IPlugAPIBase(Config c, EAPI plugAPI)
   : IPluginBase(c.nParams, c.nPresets)
 {
   mUniqueID = c.uniqueID;

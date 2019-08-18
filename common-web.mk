@@ -54,7 +54,8 @@ SRC = $(IPLUG_SRC)
 
 #every cpp file that is needed for the WAM audio processor WASM module running in the audio worklet
 WAM_SRC = $(IPLUG_WEB_PATH)/IPlugWAM.cpp \
-$(WAM_SDK_PATH)/processor.cpp
+	$(WAM_SDK_PATH)/processor.cpp \
+	$(IPLUG_PATH)/IPlugProcessor.cpp
 
 #every cpp file that is needed for the "WEB" graphics WASM module
 WEB_SRC = $(IGRAPHICS_SRC) \

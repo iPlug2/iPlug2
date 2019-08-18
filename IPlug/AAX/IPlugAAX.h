@@ -44,10 +44,12 @@
   #endif
 #endif
 
+BEGIN_IPLUG_NAMESPACE
+
 const int kAAXParamIdxOffset = 1;
 
 /** Used to pass various instance info to the API class */
-struct IPlugInstanceInfo {};
+struct InstanceInfo {};
 
 class IPlugAAX;
 
@@ -73,11 +75,11 @@ private:
 /**  AAX API base class for an IPlug plug-in
 *   @ingroup APIClasses */
 class IPlugAAX : public IPlugAPIBase
-               , public IPlugProcessor<PLUG_SAMPLE_DST>
+               , public IPlugProcessor
                , public AAX_CIPlugParameters
 {
 public:
-  IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig config);
+  IPlugAAX(const InstanceInfo& info, const Config& config);
   ~IPlugAAX();
   
   //IPlugAPIBase Overrides
@@ -119,8 +121,10 @@ private:
   IPlugQueue<IMidiMsg> mMidiOutputQueue;
 };
 
-IPlugAAX* MakePlug();
+IPlugAAX* MakePlug(const InstanceInfo& info);
 
 #include "AAX_PopStructAlignment.h"
+
+END_IGRAPHICS_NAMESPACE
 
 #endif

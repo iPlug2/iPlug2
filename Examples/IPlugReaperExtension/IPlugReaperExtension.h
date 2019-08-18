@@ -8,6 +8,9 @@ enum EControlTags
   kNumControlTags
 };
 
+using namespace iplug;
+using namespace igraphics;
+
 class IPlugReaperExtension : public ReaperExtBase
 {
 public:

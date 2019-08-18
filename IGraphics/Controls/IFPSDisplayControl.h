@@ -18,6 +18,9 @@
 
 #include "IControl.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /** Performance display meter, based on code from NanoVG
  *  This is a special control that lives outside the main IGraphics control stack.
  * @ingroup SpecialControls */
@@ -164,3 +167,5 @@ private:
   IText mBottomLabelText = IText(15, GetColor(kFR), DEFAULT_FONT, EAlign::Far, EVAlign::Bottom);
 };
 
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
