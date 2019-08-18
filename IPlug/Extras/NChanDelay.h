@@ -9,6 +9,9 @@
 */
 
 #pragma once
+#include "IPlugPlatform.h"
+
+BEGIN_IPLUG_NAMESPACE
 
 // A static delayline used to delay bypassed signals to match mLatency in AAX/VST3/AU
 template<typename T>
@@ -65,3 +68,4 @@ private:
   uint32_t mDTSamples = 0;
 } WDL_FIXALIGN;
 
+END_IPLUG_NAMESPACE

@@ -26,6 +26,8 @@
 #define args(...) __VA_ARGS__
 #define AAX_TYPE_ID_ARRAY(VARNAME, ARR_DATA) AAX_CTypeID VARNAME[] = {args ARR_DATA}
 
+using namespace iplug;
+
 #ifndef CUSTOM_BUSTYPE_FUNC
 
 /**
@@ -37,7 +39,7 @@
  @param pConfig The config struct derived from the channel i/o string token, this already contains data but \todo
  @return an integer corresponding to one of the AAX_eStemFormat
  */
-uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig)
+static uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig)
 {
   assert(pConfig != nullptr);
   assert(busIdx >= 0 && busIdx < pConfig->NBuses(dir));
@@ -65,7 +67,7 @@ uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, 
   }
 }
 #else
-extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoutingDir dir, int busIdx, IOConfig* pConfig);
+extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, iplug::ERoute dir, int busIdx, iplug::IOConfig* pConfig);
 #endif //CUSTOM_BUSTYPE_FUNC
 
 AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
@@ -116,7 +118,7 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
   else if(strcmp(AAX_PLUG_CATEGORY_STR, "Effect") == (0)) category = AAX_ePlugInCategory_None;
   err |= pDesc->AddCategory(category);
   
-  //err |= effectDescriptor->AddResourceInfo ( AAX_eResourceType_PageTable, PLUG_NAME ".xml" );
+  //err |= effectDescriptor->AddResourceInfo(AAX_eResourceType_PageTable, PLUG_NAME ".xml");
   
   AAX_TYPE_ID_ARRAY(aaxTypeIDs,(AAX_TYPE_IDS));
 #ifdef AAX_TYPE_IDS_AUDIOSUITE
@@ -127,7 +129,7 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
   int totalNInChans = 0, totalNOutChans = 0;
   int totalNInBuses = 0, totalNOutBuses = 0;
   
-  const int NIOConfigs = IPlugProcessor<PLUG_SAMPLE_DST>::ParseChannelIOStr(PLUG_CHANNEL_IO, channelIO, totalNInChans, totalNOutChans, totalNInBuses, totalNOutBuses);
+  const int NIOConfigs = IPlugProcessor::ParseChannelIOStr(PLUG_CHANNEL_IO, channelIO, totalNInChans, totalNOutChans, totalNInBuses, totalNOutBuses);
   
   for (int configIdx = 0; configIdx < NIOConfigs; configIdx++)
   {
@@ -169,15 +171,15 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
   }
 
   // Data model
-  err |= pDesc->AddProcPtr( (void*) IPlugAAX::Create, kAAX_ProcPtrID_Create_EffectParameters );
+  err |= pDesc->AddProcPtr((void*) IPlugAAX::Create, kAAX_ProcPtrID_Create_EffectParameters);
   
   // GUI
 #if PLUG_HAS_UI
-  err |= pDesc->AddProcPtr( (void*) AAX_CEffectGUI_IPLUG::Create, kAAX_ProcPtrID_Create_EffectGUI );
+  err |= pDesc->AddProcPtr((void*) AAX_CEffectGUI_IPLUG::Create, kAAX_ProcPtrID_Create_EffectGUI);
 #endif
   
-  if ( err == AAX_SUCCESS )
-    err = pC->AddEffect(BUNDLE_ID, pDesc );
+  if (err == AAX_SUCCESS)
+    err = pC->AddEffect(BUNDLE_ID, pDesc);
   
   AAX_ASSERT (err == AAX_SUCCESS);
   

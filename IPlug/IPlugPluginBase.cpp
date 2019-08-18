@@ -17,6 +17,8 @@
 #include "wdlendian.h"
 #include "wdl_base64.h"
 
+using namespace iplug;
+
 IPluginBase::IPluginBase(int nParams, int nPresets)
 : EDITOR_DELEGATE_CLASS(nParams)
 {  
@@ -97,22 +99,6 @@ void IPluginBase::GetBuildInfoStr(WDL_String& str) const
   WDL_String version;
   GetPluginVersionStr(version);
   str.SetFormatted(MAX_BUILD_INFO_STR_LEN, "%s version %s %s (%s), built on %s at %.5s ", GetPluginName(), version.Get(), GetAPIStr(), GetArchStr(), __DATE__, __TIME__);
-}
-
-#pragma mark -
-void IPluginBase::OnParamChange(int paramIdx, EParamSource source, int sampleOffset)
-{
-  Trace(TRACELOC, "idx:%i src:%s\n", paramIdx, ParamSourceStrs[source]);
-  OnParamChange(paramIdx);
-}
-
-void IPluginBase::OnParamReset(EParamSource source)
-{
-  for (int i = 0; i < NParams(); ++i)
-  {
-    OnParamChange(i, source);
-    OnParamChangeUI(i, source);
-  }
 }
 
 #pragma mark -
@@ -283,7 +269,7 @@ void IPluginBase::PrintParamValues()
 }
 
 #ifndef NO_PRESETS
-IPreset* GetNextUninitializedPreset(WDL_PtrList<IPreset>* pPresets)
+static IPreset* GetNextUninitializedPreset(WDL_PtrList<IPreset>* pPresets)
 {
   int n = pPresets->GetSize();
   for (int i = 0; i < n; ++i)
@@ -396,7 +382,7 @@ void IPluginBase::MakePresetFromBlob(const char* name, const char* blob, int siz
   MakePresetFromChunk(name, presetChunk);
 }
 
-void MakeDefaultUserPresetName(WDL_PtrList<IPreset>* pPresets, char* str)
+static void MakeDefaultUserPresetName(WDL_PtrList<IPreset>* pPresets, char* str)
 {
   int nDefaultNames = 0;
   int n = pPresets->GetSize();
@@ -655,9 +641,6 @@ void IPluginBase::DumpBankBlob(const char* filename) const
   
   fclose(fp);
 }
-
-const int kFXPVersionNum = 1;
-const int kFXBVersionNum = 2;
 
 // confusing... IByteChunk will force storage as little endian on big endian platforms,
 // so when we use it here, since vst fxp/fxb files are big endian, we need to swap the endianess
@@ -1068,42 +1051,12 @@ bool IPluginBase::LoadBankFromFXB(const char* file)
   return false;
 }
 
-// These constants come from vstpreset.cpp, allowing saving of VST3 format presets without including the VST3 SDK
-typedef char ChunkID[4];
-
-enum ChunkType
-{
-  kHeader,
-  kComponentState,
-  kControllerState,
-  kProgramData,
-  kMetaInfo,
-  kChunkList,
-  kNumPresetChunks
-};
-
-static const ChunkID commonChunks[kNumPresetChunks] = {
-  {'V', 'S', 'T', '3'},  // kHeader
-  {'C', 'o', 'm', 'p'},  // kComponentState
-  {'C', 'o', 'n', 't'},  // kControllerState
-  {'P', 'r', 'o', 'g'},  // kProgramData
-  {'I', 'n', 'f', 'o'},  // kMetaInfo
-  {'L', 'i', 's', 't'}   // kChunkList
-};
-
-// Preset Header: header id + version + class id + list offset
-static const int32_t kFormatVersion = 1;
-static const int32_t kClassIDSize = 32; // ASCII-encoded FUID
-static const int32_t kHeaderSize = sizeof (ChunkID) + sizeof (int32_t) + kClassIDSize + sizeof (int64_t);
-//static const int32_t kListOffsetPos = kHeaderSize - sizeof (int64_t);
-
-inline bool isEqualID (const ChunkID id1, const ChunkID id2)
-{
-  return memcmp (id1, id2, sizeof (ChunkID)) == 0;
-}
-
 bool IPluginBase::LoadProgramFromVSTPreset(const char* path)
 {
+  auto isEqualID = [](const ChunkID id1, const ChunkID id2) {
+    return memcmp (id1, id2, sizeof (ChunkID)) == 0;
+  };
+  
   FILE* fp = fopen(path, "rb");
   
   if (fp)

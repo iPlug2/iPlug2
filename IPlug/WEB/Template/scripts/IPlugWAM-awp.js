@@ -1,3 +1,5 @@
+/* Declares the NAME_PLACEHOLDER Audio Worklet Processor */
+
 class NAME_PLACEHOLDER_AWP extends AudioWorkletGlobalScope.WAMProcessor
 {
   constructor(options) {

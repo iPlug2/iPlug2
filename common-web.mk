@@ -1,11 +1,10 @@
-ROOT = ../..
-PROJECT_ROOT = .
-DEPS_PATH = $(ROOT)/Dependencies
+PROJECT_ROOT = $(PWD)/..
+DEPS_PATH = $(IPLUG2_ROOT)/Dependencies
 WAM_SDK_PATH = $(DEPS_PATH)/IPlug/WAM_SDK/wamsdk
-WDL_PATH = $(ROOT)/WDL
-IPLUG_PATH = $(ROOT)/IPlug
+WDL_PATH = $(IPLUG2_ROOT)/WDL
+IPLUG_PATH = $(IPLUG2_ROOT)/IPlug
 SWELL_PATH = $(WDL_PATH)/swell
-IGRAPHICS_PATH = $(ROOT)/IGraphics
+IGRAPHICS_PATH = $(IPLUG2_ROOT)/IGraphics
 CONTROLS_PATH = $(IGRAPHICS_PATH)/Controls
 PLATFORMS_PATH = $(IGRAPHICS_PATH)/Platforms
 DRAWING_PATH = $(IGRAPHICS_PATH)/Drawing
@@ -55,7 +54,8 @@ SRC = $(IPLUG_SRC)
 
 #every cpp file that is needed for the WAM audio processor WASM module running in the audio worklet
 WAM_SRC = $(IPLUG_WEB_PATH)/IPlugWAM.cpp \
-$(WAM_SDK_PATH)/processor.cpp
+	$(WAM_SDK_PATH)/processor.cpp \
+	$(IPLUG_PATH)/IPlugProcessor.cpp
 
 #every cpp file that is needed for the "WEB" graphics WASM module
 WEB_SRC = $(IGRAPHICS_SRC) \

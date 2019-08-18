@@ -12,6 +12,9 @@
 #include "IGraphics.h"
 #include "IControl.h"
 
+using namespace iplug;
+using namespace igraphics;
+
 IGEditorDelegate::IGEditorDelegate(int nParams)
 : IEditorDelegate(nParams)
 {  
@@ -59,6 +62,12 @@ void IGEditorDelegate::CloseWindow()
     }
     mClosing = false;
   }
+}
+
+void IGEditorDelegate::SetScreenScale(double scale)
+{
+  if (GetUI())
+    mGraphics->SetScreenScale(std::round(scale));
 }
 
 int IGEditorDelegate::SetEditorData(const IByteChunk& data, int startPos)
@@ -167,8 +176,9 @@ void IGEditorDelegate::AttachGraphics(IGraphics* pGraphics)
 
 bool IGEditorDelegate::EditorResize()
 {
+  int scale = mGraphics->GetPlatformWindowScale();
   EditorDataModified();
-  return EditorResizeFromUI(mGraphics->WindowWidth(), mGraphics->WindowHeight());
+  return EditorResizeFromUI(mGraphics->WindowWidth() * scale, mGraphics->WindowHeight() * scale);
 }
 
 void IGEditorDelegate::EditorDataModified()

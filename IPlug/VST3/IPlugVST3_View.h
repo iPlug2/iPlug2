@@ -18,7 +18,6 @@ using namespace Vst;
 template <class T>
 class IPlugVST3View : public CPluginView
                     , public IPlugViewContentScaleSupport
-
 {
 public:
   IPlugVST3View(T& owner)
@@ -31,6 +30,9 @@ public:
   {
     mOwner.release();
   }
+  
+  IPlugVST3View(const IPlugVST3View&) = delete;
+  IPlugVST3View& operator=(const IPlugVST3View&) = delete;
   
   tresult PLUGIN_API isPlatformTypeSupported(FIDString type) override
   {
@@ -89,9 +91,6 @@ public:
       else // Carbon
         return kResultFalse;
 #endif
-      if (pView)
-        mOwner.OnUIOpen();
-      
       return kResultTrue;
     }
     
@@ -108,6 +107,8 @@ public:
 
   tresult PLUGIN_API setContentScaleFactor(ScaleFactor factor) override
   {
+    mOwner.SetScreenScale(factor);
+
     return Steinberg::kResultOk;
   }
 

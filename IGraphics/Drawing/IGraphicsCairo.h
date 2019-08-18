@@ -34,34 +34,35 @@
 
 #include "IGraphicsPathBase.h"
 
-/** A Cairo API bitmap
- * @ingroup APIBitmaps */
-class CairoBitmap : public APIBitmap
-{
-public:
-  CairoBitmap(cairo_surface_t* pSurface, int scale, float drawScale);
-  CairoBitmap(cairo_surface_t* pSurfaceType, int width, int height, int scale, float drawScale);
-  virtual ~CairoBitmap();
-};
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
 
 /** IGraphics draw class using Cairo
 *   @ingroup DrawClasses */
 class IGraphicsCairo : public IGraphicsPathBase
 {
+private:
+  class Bitmap;
+  class Font;
+  struct OSFont;
+#ifdef OS_WIN
+  class PNGStream;
+#endif
 public:
-  const char* GetDrawingAPIStr() override { return "CAIRO"; }
-
   IGraphicsCairo(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsCairo();
+
+  const char* GetDrawingAPIStr() override { return "CAIRO"; }
 
   void DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
       
   void PathClear() override;
   void PathClose() override;
-  void PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding) override;
+  void PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding) override;
   void PathMoveTo(float x, float y) override;
   void PathLineTo(float x, float y) override;
-  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override;
+  void PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2) override;
+  void PathQuadraticBezierTo(float cx, float cy, float x2, float y2) override;
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
   
@@ -107,4 +108,10 @@ private:
     
   cairo_t* mContext;
   cairo_surface_t* mSurface;
+
+  static StaticStorage<Font> sFontCache;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+

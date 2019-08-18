@@ -19,6 +19,9 @@
 #include "IControl.h"
 #include "IPlugMidi.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /*
 
  IVKeyboardControl by Eugene Yakshin, 2018
@@ -54,34 +57,29 @@
 /** Vectorial keyboard control
  * @ingroup IControls */
 class IVKeyboardControl : public IControl
-                        , public IVectorBase
 {
 public:
   static const IColor DEFAULT_BK_COLOR;
   static const IColor DEFAULT_WK_COLOR;
   static const IColor DEFAULT_PK_COLOR;
   static const IColor DEFAULT_FR_COLOR;
+  static const IColor DEFAULT_HK_COLOR;
 
-  // map to IVectorBase colors
-  enum EVKColor
-  {
-    kBK = kFG, // Black Keys
-    kWK = kBG, // White Keys
-    kPK = kHL, // Pressed Keys
-    //kFR = kFR
-  };
-
-  IVKeyboardControl(const IRECT& bounds,
-                    int minNote = 36, int maxNote = 84,
-                    bool roundedKeys = false,
-                    IActionFunction actionFunc = nullptr)
-  : IControl(bounds, kNoParameter, actionFunc)
-  , IVectorBase(&DEFAULT_WK_COLOR, &DEFAULT_BK_COLOR, &DEFAULT_FR_COLOR, &DEFAULT_PK_COLOR)
+  IVKeyboardControl(const IRECT& bounds, int minNote = 48, int maxNote = 72, bool roundedKeys = false,
+                    const IColor& WK_COLOR = DEFAULT_WK_COLOR,
+                    const IColor& BK_COLOR = DEFAULT_BK_COLOR,
+                    const IColor& PK_COLOR = DEFAULT_PK_COLOR,
+                    const IColor& FR_COLOR = DEFAULT_FR_COLOR,
+                    const IColor& HK_COLOR = DEFAULT_HK_COLOR)
+  : IControl(bounds, kNoParameter)
+  , mWK_COLOR(WK_COLOR)
+  , mBK_COLOR(BK_COLOR)
+  , mPK_COLOR(PK_COLOR)
+  , mFR_COLOR(FR_COLOR)
+  , mHK_COLOR(HK_COLOR)
   , mRoundedKeys(roundedKeys)
   {
-    AttachIControl(this, "");
-
-    mText.mFGColor = GetColor(kFR);
+    mText.mFGColor = FR_COLOR;
     mDblAsSingleClick = true;
     bool keepWidth = !(bounds.W() <= 0.0);
     if (bounds.W() <= 0.0)
@@ -105,7 +103,6 @@ public:
 
     if(mLastTouchedKey != prevKey)
     {
-      //    if (!mVelByWheel)
       mLastVelocity = GetVelocity(y);
 
       TriggerMidiMsgFromKeyPress(mLastTouchedKey, (int) (mLastVelocity * 127.f));
@@ -151,8 +148,7 @@ public:
 
     if(mLastTouchedKey != prevKey)
     {
-//      if (!mVelByWheel)
-        mLastVelocity = GetVelocity(y);
+      mLastVelocity = GetVelocity(y);
 
       TriggerMidiMsgFromKeyPress(mLastTouchedKey, (int) (mLastVelocity * 127.f));
 
@@ -163,25 +159,6 @@ public:
     SetDirty(true);
 
   }
-
-//  void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override
-//  {
-//    int key = GetKeyAtPoint(x, y);
-//
-//    if (key > -1)
-//    {
-//      if (mod.C || mod.S) mVelocity += 0.003f * d;
-//      else mLastVelocity += 0.03f * d;
-//      mVelByWheel = true;
-//      mLastVelocity = Clip(mLastVelocity, 1.f / 127.f, 1.f);
-//#ifdef _DEBUG
-//      SetDirty(false);
-//#else
-//      if (mShowNoteAndVel)
-//        SetDirty(false);
-//#endif
-//    }
-//  }
 
   void OnMouseOver(float x, float y, const IMouseMod& mod) override
   {
@@ -231,7 +208,9 @@ public:
   void DrawKey(IGraphics& g, const IRECT& bounds, const IColor& color)
   {
     if(mRoundedKeys)
-      g.FillRoundRect(color, bounds, 0., 0., mCurve, mCurve);
+    {
+      g.FillRoundRect(color, bounds, 0., 0., mRoundness, mRoundness);
+    }
     else
       g.FillRect(color, bounds);
   }
@@ -251,26 +230,30 @@ public:
         float kL = *GetKeyXPos(i);
         IRECT keyBounds = IRECT(kL, mRECT.T, kL + mWKWidth, mRECT.B);
 
-        DrawKey(g, keyBounds, GetColor(kWK));
+        DrawKey(g, keyBounds, i == mHighlight ? mHK_COLOR : mWK_COLOR);
 
         if (GetKeyIsPressed(i))
         {
           // draw played white key
-          DrawKey(g, keyBounds, GetColor(kPK));
+          DrawKey(g, keyBounds, mPK_COLOR);
 
-          if (mStyle.drawShadows)
+          if (mDrawShadows)
           {
             IRECT shadowBounds = keyBounds;
             shadowBounds.R = shadowBounds.L + 0.35f * shadowBounds.W();
-            g.FillRect(shadowColor, shadowBounds);
-//            g.FillRoundRect(shadowColor, shadowBounds, 0., 0., mCurve, mCurve); // this one looks strange with rounded corners
+            
+            if(!mRoundedKeys)
+              g.FillRect(shadowColor, shadowBounds);
+            else {
+              g.FillRoundRect(shadowColor, shadowBounds, 0., 0., mRoundness, mRoundness); // this one looks strange with rounded corners
+            }
           }
         }
-        if (mStyle.drawFrame && i != 0)
-        { // only draw the left border if it doesn't overlay mRECT l border
-          g.DrawLine(GetColor(kFR), kL, mRECT.T, kL, mRECT.B);
+        if (mDrawFrame && i != 0)
+        { // only draw the left border if it doesn't overlay mRECT left border
+          g.DrawLine(mFR_COLOR, kL, mRECT.T, kL, mRECT.B, nullptr, mFrameThickness);
           if (i == NKeys() - 2 && IsBlackKey(NKeys() - 1))
-            g.DrawLine(GetColor(kFR), kL + mWKWidth, mRECT.T, kL + mWKWidth, mRECT.B);
+            g.DrawLine(mFR_COLOR, kL + mWKWidth, mRECT.T, kL + mWKWidth, mRECT.B, nullptr, mFrameThickness);
         }
       }
     }
@@ -283,7 +266,7 @@ public:
         float kL = *GetKeyXPos(i);
         IRECT keyBounds = IRECT(kL, mRECT.T, kL + BKWidth, BKBottom);
         // first draw underlying shadows
-        if (mStyle.drawShadows && !GetKeyIsPressed(i) && i < NKeys() - 1)
+        if (mDrawShadows && !GetKeyIsPressed(i) && i < NKeys() - 1)
         {
           IRECT shadowBounds = keyBounds;
           float w = shadowBounds.W();
@@ -297,31 +280,31 @@ public:
           shadowBounds.R = shadowBounds.L + w;
           DrawKey(g, shadowBounds, shadowColor);
         }
-        DrawKey(g, keyBounds, GetColor(kBK));
+        DrawKey(g, keyBounds, i == mHighlight ? mHK_COLOR : mBK_COLOR);
 
         if (GetKeyIsPressed(i))
         {
           // draw pressed black key
-          IColor cBP = GetColor(kPK);
+          IColor cBP = mPK_COLOR;
           cBP.A = (int) mBKAlpha;
           g.FillRect(cBP, keyBounds);
         }
 
-        if(mCurve == 0.)
+        if(!mRoundedKeys)
         {
           // draw l, r and bottom if they don't overlay the mRECT borders
           if (mBKHeightRatio != 1.0)
-            g.DrawLine(GetColor(kFR), kL, BKBottom, kL + BKWidth, BKBottom);
+            g.DrawLine(mFR_COLOR, kL, BKBottom, kL + BKWidth, BKBottom);
           if (i > 0)
-            g.DrawLine(GetColor(kFR), kL, mRECT.T, kL, BKBottom);
+            g.DrawLine(mFR_COLOR, kL, mRECT.T, kL, BKBottom);
           if (i != NKeys() - 1)
-            g.DrawLine(GetColor(kFR), kL + BKWidth, mRECT.T, kL + BKWidth, BKBottom);
+            g.DrawLine(mFR_COLOR, kL + BKWidth, mRECT.T, kL + BKWidth, BKBottom);
         }
       }
     }
 
-    if (mStyle.drawFrame)
-      g.DrawRect(GetColor(kFR), mRECT);
+    if (mDrawFrame)
+      g.DrawRect(mFR_COLOR, mRECT, nullptr, mFrameThickness);
 
     if (mShowNoteAndVel)
     {
@@ -343,14 +326,11 @@ public:
           r.L -= e;
           r.R -= e;
         }
-        g.FillRect(GetColor(kWK), r);
-        g.DrawRect(GetColor(kFR), r);
+        g.FillRect(mWK_COLOR, r);
+        g.DrawRect(mFR_COLOR, r);
         g.DrawText(mText, t.Get(), r);
       }
     }
-
-    if(GetAnimationFunction())
-      DrawSplash(g);
 
 #ifdef _DEBUG
     //g.DrawRect(COLOR_GREEN, mTargetRECT);
@@ -395,6 +375,12 @@ public:
   void SetKeyIsPressed(int key, bool pressed)
   {
     mPressedKeys.Get()[key] = pressed;
+    SetDirty(false);
+  }
+  
+  void SetKeyHighlight(int key)
+  {
+    mHighlight = key;
     SetDirty(false);
   }
 
@@ -470,12 +456,12 @@ public:
 
   void SetColors(const IColor BKColor, const IColor& WKColor, const IColor& PKColor = DEFAULT_PK_COLOR, const IColor& FRColor = DEFAULT_FR_COLOR)
   {
-    SetColor(kBK, BKColor);
-    SetColor(kWK, WKColor);
-    SetColor(kPK, PKColor);
-    SetColor(kFR, FRColor);
+    mBK_COLOR = BKColor;
+    mWK_COLOR = WKColor;
+    mPK_COLOR = PKColor;
+    mFR_COLOR = FRColor;
 
-    mBKAlpha = (float)PKColor.A;
+    mBKAlpha = (float) PKColor.A;
 
     if (mBKAlpha < 240.f)
     {
@@ -537,8 +523,7 @@ private:
     float WKPadStart = 0.f; // 1st note may be black
     float WKPadEnd = 0.f;   // last note may be black
 
-    auto GetShiftForPitchClass = [this](int pitch)
-    {
+    auto GetShiftForPitchClass = [this](int pitch) {
       // usually black key width + distance to the closest black key = white key width,
       // and often b width is ~0.6 * w width
       if (pitch == 0) return 0.f;
@@ -701,19 +686,31 @@ private:
   }
 
 protected:
-  bool mRoundedKeys;
+  IColor mWK_COLOR;
+  IColor mBK_COLOR;
+  IColor mPK_COLOR;
+  IColor mFR_COLOR;
+  IColor mHK_COLOR;
+
+  bool mRoundedKeys = false;
+  float mRoundness = 5.f;
+  bool mDrawShadows = false;
+  bool mDrawFrame = true;
+  float mFrameThickness = 1.f;
   bool mShowNoteAndVel = false;
   float mWKWidth = 0.f;
   float mBKWidthRatio = 0.6f;
   float mBKHeightRatio = 0.6f;
   float mBKAlpha = 100.f;
-  float mCurve = 5.;
   int mLastTouchedKey = -1;
   float mLastVelocity = 0.f;
   int mMouseOverKey = -1;
-//  bool mVelByWheel = false;
   int mMinNote, mMaxNote;
   WDL_TypedBuf<bool> mIsBlackKeyList;
   WDL_TypedBuf<bool> mPressedKeys;
   WDL_TypedBuf<float> mKeyXPos;
+  int mHighlight = -1;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE

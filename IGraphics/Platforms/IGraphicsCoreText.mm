@@ -11,13 +11,16 @@
 #include "IGraphicsCoreText.h"
 #include "IPlugPaths.h"
 
+using namespace iplug;
+using namespace igraphics;
+
 IFontDataPtr CoreTextFont::GetFontData()
 {
   char styleCString[64];
   
-  CFLocal<CFDataRef> rawData = CGDataProviderCopyData(mProvider);
+  CFLocal<CFDataRef> rawData(CGDataProviderCopyData(mProvider));
   const UInt8* bytes = CFDataGetBytePtr(rawData.Get());
-  CFLocal<CFStringRef> styleString = (CFStringRef) CTFontDescriptorCopyAttribute(mDescriptor, kCTFontStyleNameAttribute);
+  CFLocal<CFStringRef> styleString((CFStringRef) CTFontDescriptorCopyAttribute(mDescriptor, kCTFontStyleNameAttribute));
   CFStringGetCString(styleString.Get(), styleCString, 64, kCFStringEncodingUTF8);
   IFontDataPtr fontData(new IFontData(bytes, static_cast<int>(CFDataGetLength(rawData.Get())), GetFaceIdx(bytes, static_cast<int>(CFDataGetLength(rawData.Get())), styleCString)));
   
@@ -39,12 +42,12 @@ PlatformFontPtr CoreTextHelpers::LoadPlatformFont(const char* fontID, const char
   if (fontLocation == kNotFound)
     return nullptr;
   
-  CFLocal<CFStringRef> path = CFStringCreateWithCString(NULL, fullPath.Get(), kCFStringEncodingUTF8);
-  CFLocal<CFURLRef> url = CFURLCreateWithFileSystemPath(NULL, path.Get(), kCFURLPOSIXPathStyle, false);
-  CFLocal<CGDataProviderRef> provider = url.Get() ? CGDataProviderCreateWithURL(url.Get()) : nullptr;
-  CFLocal<CGFontRef> cgFont = CGFontCreateWithDataProvider(provider.Get());
-  CFLocal<CTFontRef> ctFont = CTFontCreateWithGraphicsFont(cgFont.Get(), 0.f, NULL, NULL);
-  CFLocal<CTFontDescriptorRef> descriptor = CTFontCopyFontDescriptor(ctFont.Get());
+  CFLocal<CFStringRef> path(CFStringCreateWithCString(NULL, fullPath.Get(), kCFStringEncodingUTF8));
+  CFLocal<CFURLRef> url(CFURLCreateWithFileSystemPath(NULL, path.Get(), kCFURLPOSIXPathStyle, false));
+  CFLocal<CGDataProviderRef> provider(url.Get() ? CGDataProviderCreateWithURL(url.Get()) : nullptr);
+  CFLocal<CGFontRef> cgFont(CGFontCreateWithDataProvider(provider.Get()));
+  CFLocal<CTFontRef> ctFont(CTFontCreateWithGraphicsFont(cgFont.Get(), 0.f, NULL, NULL));
+  CFLocal<CTFontDescriptorRef> descriptor(CTFontCopyFontDescriptor(ctFont.Get()));
   
   if (!descriptor.Get())
     return nullptr;
@@ -54,16 +57,16 @@ PlatformFontPtr CoreTextHelpers::LoadPlatformFont(const char* fontID, const char
 
 PlatformFontPtr CoreTextHelpers::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
 {
-  CFLocal<CFStringRef> fontStr = CFStringCreateWithCString(NULL, fontName, kCFStringEncodingUTF8);
-  CFLocal<CFStringRef> styleStr = CFStringCreateWithCString(NULL, TextStyleString(style), kCFStringEncodingUTF8);
+  CFLocal<CFStringRef> fontStr(CFStringCreateWithCString(NULL, fontName, kCFStringEncodingUTF8));
+  CFLocal<CFStringRef> styleStr(CFStringCreateWithCString(NULL, TextStyleString(style), kCFStringEncodingUTF8));
   
   CFStringRef keys[] = { kCTFontFamilyNameAttribute, kCTFontStyleNameAttribute };
   CFTypeRef values[] = { fontStr.Get(), styleStr.Get() };
   
-  CFLocal<CFDictionaryRef> dictionary = CFDictionaryCreate(NULL, (const void**)&keys, (const void**)&values, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-  CFLocal<CTFontDescriptorRef> descriptor = CTFontDescriptorCreateWithAttributes(dictionary.Get());
-  CFLocal<CFURLRef> url = (CFURLRef) CTFontDescriptorCopyAttribute(descriptor.Get(), kCTFontURLAttribute);
-  CFLocal<CGDataProviderRef> provider = url.Get() ? CGDataProviderCreateWithURL(url.Get()) : nullptr;
+  CFLocal<CFDictionaryRef> dictionary(CFDictionaryCreate(NULL, (const void**)&keys, (const void**)&values, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
+  CFLocal<CTFontDescriptorRef> descriptor(CTFontDescriptorCreateWithAttributes(dictionary.Get()));
+  CFLocal<CFURLRef> url((CFURLRef) CTFontDescriptorCopyAttribute(descriptor.Get(), kCTFontURLAttribute));
+  CFLocal<CGDataProviderRef> provider(url.Get() ? CGDataProviderCreateWithURL(url.Get()) : nullptr);
   
   if (!provider.Get())
     return nullptr;

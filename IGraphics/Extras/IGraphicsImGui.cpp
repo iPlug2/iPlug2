@@ -18,6 +18,9 @@
   #endif
 #endif
 
+using namespace iplug;
+using namespace igraphics;
+
 ImGuiRenderer::ImGuiRenderer(IGraphics* pGraphics, std::function<void(IGraphics*)> drawFunc, std::function<void()> setupFunc)
 : mGraphics(pGraphics)
 , mDrawFunc(drawFunc)
@@ -98,14 +101,14 @@ void ImGuiRenderer::DoFrame()
     {
       switch(imgui_cursor)
       {
-        case ImGuiMouseCursor_Arrow: mGraphics->SetMouseCursor(ARROW); break;
-        case ImGuiMouseCursor_TextInput: mGraphics->SetMouseCursor(IBEAM); break;
-        case ImGuiMouseCursor_ResizeAll: mGraphics->SetMouseCursor(SIZEALL); break;
-        case ImGuiMouseCursor_ResizeNS: mGraphics->SetMouseCursor(SIZENS); break;
-        case ImGuiMouseCursor_ResizeEW: mGraphics->SetMouseCursor(SIZEWE); break;
-        case ImGuiMouseCursor_ResizeNESW: mGraphics->SetMouseCursor(SIZENESW); break;
-        case ImGuiMouseCursor_ResizeNWSE: mGraphics->SetMouseCursor(SIZENWSE); break;
-        case ImGuiMouseCursor_Hand: mGraphics->SetMouseCursor(HAND); break;
+        case ImGuiMouseCursor_Arrow: mGraphics->SetMouseCursor(ECursor::ARROW); break;
+        case ImGuiMouseCursor_TextInput: mGraphics->SetMouseCursor(ECursor::IBEAM); break;
+        case ImGuiMouseCursor_ResizeAll: mGraphics->SetMouseCursor(ECursor::SIZEALL); break;
+        case ImGuiMouseCursor_ResizeNS: mGraphics->SetMouseCursor(ECursor::SIZENS); break;
+        case ImGuiMouseCursor_ResizeEW: mGraphics->SetMouseCursor(ECursor::SIZEWE); break;
+        case ImGuiMouseCursor_ResizeNESW: mGraphics->SetMouseCursor(ECursor::SIZENESW); break;
+        case ImGuiMouseCursor_ResizeNWSE: mGraphics->SetMouseCursor(ECursor::SIZENWSE); break;
+        case ImGuiMouseCursor_Hand: mGraphics->SetMouseCursor(ECursor::HAND); break;
       }
       mGraphics->HideMouseCursor(false);
     }

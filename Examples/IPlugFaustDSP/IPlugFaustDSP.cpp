@@ -1,8 +1,8 @@
 #include "IPlugFaustDSP.h"
 #include "IPlug_include_in_plug_src.h"
 
-IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
-: IPLUG_CTOR(kNumParams, 1, instanceInfo)
+IPlugFaustDSP::IPlugFaustDSP(const InstanceInfo& info)
+: Plugin(info, MakeConfig(kNumParams, 1))
 {
   InitParamRange(0, kNumParams-1, 0, "Param %i", 0., 0., 1., 0.01, "", IParam::kFlagsNone);
   
@@ -31,10 +31,7 @@ IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
     }
     
     pGraphics->AttachPanelBackground(COLOR_GRAY);
-    IVScopeControl<>* pScopeCtrl = new IVScopeControl<>(viz);
-    pGraphics->AttachControl(pScopeCtrl, kControlTagScope);
-    pScopeCtrl->SetColor(kBG, COLOR_BLACK);
-    pScopeCtrl->SetColor(kFG, COLOR_GREEN);
+    pGraphics->AttachControl(new IVScopeControl<>(viz, "", DEFAULT_STYLE.WithColor(kBG, COLOR_BLACK).WithColor(kFG, COLOR_GREEN)), kControlTagScope);
   };
 #endif
 }

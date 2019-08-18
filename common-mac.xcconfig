@@ -44,12 +44,14 @@ APP_DEFS = APP_API __MACOSX_CORE__ IPLUG_EDITOR=1 IPLUG_DSP=1 SWELL_COMPILED// _
 // Where the SDKs etc. are located in relation to the plug-in Xcode project (which is in the projects subfolder of an IPlug project)
 
 // the top level iPlug2 folder e.g. where this common-mac.xcconfig is
-ROOT = $(SRCROOT)/../../..
+// should be specified in the project's xcconfig
+//IPLUG2_ROOT should be 
+
 PROJECT_ROOT = $(SRCROOT)/..
 
 PKGMAN_PATH = /usr/local
 
-DEPS_PATH = $(ROOT)/Dependencies
+DEPS_PATH = $(IPLUG2_ROOT)/Dependencies
 
 // if you want to use the homebrew or macports package managers, rather than building static libraries yourself (not advised) you can modify the BUILT_LIBS_PATH build setting to point to PKGMAN_PATH
 BUILT_LIBS_PATH = $(DEPS_PATH)/Build/mac
@@ -57,11 +59,11 @@ BUILT_LIBS_INC_PATH = $(BUILT_LIBS_PATH)/include
 BUILT_LIBS_LIB_PATH = $(BUILT_LIBS_PATH)/lib
 
 // IPlug dependencies
-SCRIPTS_PATH = $(ROOT)/Scripts
-WDL_PATH = $(ROOT)/WDL
+SCRIPTS_PATH = $(IPLUG2_ROOT)/Scripts
+WDL_PATH = $(IPLUG2_ROOT)/WDL
 SWELL_PATH = $(WDL_PATH)/swell
 SWELL_FOR_IPLUG_PATH = $(DEPS_PATH)/IPlug/SWELL
-IPLUG_PATH = $(ROOT)/IPlug
+IPLUG_PATH = $(IPLUG2_ROOT)/IPlug
 RTAUDIO_PATH = $(DEPS_PATH)/IPlug/RTAudio
 RTMIDI_PATH = $(DEPS_PATH)/IPlug/RTMidi
 
@@ -92,7 +94,7 @@ IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(SWELL_PATH) $(SWELL_FOR_IPLUG_PA
 
 IMGUI_INC_PATHS = $(IMGUI_PATH) $(IMGUI_PATH)/examples
 
-IGRAPHICS_PATH = $(ROOT)/IGraphics
+IGRAPHICS_PATH = $(IPLUG2_ROOT)/IGraphics
 
 // IGraphics dependencies
 IGRAPHICS_DEPS_PATH = $(DEPS_PATH)/IGraphics
@@ -104,9 +106,13 @@ AGG_PATH = $(IGRAPHICS_DEPS_PATH)/AGG/agg-2.4
 AGG_INC_PATHS = $(AGG_PATH)/include $(AGG_PATH)/font_freetype $(AGG_PATH)/include/util $(AGG_PATH)/include/platform/mac $(AGG_PATH)/src $(AGG_PATH)/src/platform/mac
 STB_PATH = $(DEPS_PATH)/IGraphics/STB
 FT_PATH = $(BUILT_LIBS_INC_PATH)/freetype2
+SKIA_PATH = $(DEPS_PATH)/Build/src/skia
 
+SKIA_INC_PATHS = $(SKIA_PATH) $(SKIA_PATH)/include/core $(SKIA_PATH)/include/effects $(SKIA_PATH)/include/config $(SKIA_PATH)/include/utils $(SKIA_PATH)/include/utils/mac $(SKIA_PATH)/include/gpu
+
+//HB_PATH = /usr/local/Cellar/harfbuzz/1.8.7/include/harfbuzz
 // you can optionally include this build setting, by adding it to EXTRA_INC_PATHS in MyProject.xcconfig in order to get all varieties of IGraphics support
-IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(IGRAPHICS_PATH)/Controls $(IGRAPHICS_PATH)/Platforms $(IGRAPHICS_PATH)/Drawing $(IGRAPHICS_PATH)/Extras $(LICE_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(AGG_INC_PATHS) $(BUILT_LIBS_INC_PATH) $(FT_PATH) $(STB_PATH) $(IMGUI_INC_PATHS)//$(HB_PATH)
+IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(IGRAPHICS_PATH)/Controls $(IGRAPHICS_PATH)/Platforms $(IGRAPHICS_PATH)/Drawing $(IGRAPHICS_PATH)/Extras $(LICE_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(AGG_INC_PATHS) $(BUILT_LIBS_INC_PATH) $(FT_PATH) $(STB_PATH) $(IMGUI_INC_PATHS) $(SKIA_INC_PATHS)
 
 // *****  LINKER/LIBRARY INCLUDE PATHS AND LINKER FLAGS
 
@@ -117,9 +123,13 @@ LIB_PIXMAN = $(BUILT_LIBS_LIB_PATH)/libpixman-1.a
 LIB_PNG = $(BUILT_LIBS_LIB_PATH)/libpng.a
 LIB_Z = $(BUILT_LIBS_LIB_PATH)/libz.a
 LIB_CIVET = $(BUILT_LIBS_LIB_PATH)/libcivetweb.a
+LIB_SKIA = $(BUILT_LIBS_LIB_PATH)/libskia.a
 
-// you can optionally include this build setting, by adding it to EXTRA_LIB_PATHS, in order to get all varieties of IGraphics support
-IGRAPHICS_LNK_FLAGS = $(LIB_CAIRO) $(LIB_FT) $(LIB_PIXMAN) $(LIB_PNG) $(LIB_Z)
+// you can optionally include this build setting, by adding it to EXTRA_LNK_FLAGS in your plug-ins xcconfig, in order to get all varieties of IGraphics support
+CAIRO_LNK_FLAGS = $(LIB_CAIRO) $(LIB_FT) $(LIB_PIXMAN) $(LIB_PNG) $(LIB_Z) //$(LIB_HB) $(LIB_HB_ICU) $(LIB_GF)
+SKIA_LNK_FLAGS = $(LIB_SKIA)
+LICE_LNK_FLAGS = $(LIB_PNG) $(LIB_Z)
+IGRAPHICS_LNK_FLAGS = $(SKIA_LNK_FLAGS) $(LICE_LNK_FLAGS) $(CAIRO_LNK_FLAGS)
 
 ALL_FRAMEWORKS = -framework Cocoa -framework Carbon -framework CoreFoundation -framework CoreData -framework Foundation -framework CoreServices -framework Metal -framework MetalKit -framework QuartzCore -framework WebKit -framework OpenGL
 APP_FRAMEWORKS = -framework AppKit -framework CoreMIDI -framework CoreAudio

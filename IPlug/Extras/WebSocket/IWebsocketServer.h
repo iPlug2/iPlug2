@@ -14,6 +14,7 @@
 
 #include "ptrlist.h"
 #include "IPlugLogger.h"
+#include "IPlugPlatform.h"
 
 #ifdef OS_WIN
 #include <windows.h>
@@ -21,11 +22,17 @@
 #include <unistd.h>
 #endif
 
+BEGIN_IPLUG_NAMESPACE
+
 class IWebsocketServer : public CivetWebSocketHandler
 {
 public:
   IWebsocketServer();
   virtual ~IWebsocketServer();
+    
+  IWebsocketServer(const IWebsocketServer&) = delete;
+  IWebsocketServer& operator=(const IWebsocketServer&) = delete;
+    
   bool CreateServer(const char* DOCUMENT_ROOT, const char* PORT = "8001");
 
   void DestroyServer();
@@ -63,3 +70,5 @@ private:
 protected:
   WDL_Mutex mMutex;
 };
+
+END_IPLUG_NAMESPACE

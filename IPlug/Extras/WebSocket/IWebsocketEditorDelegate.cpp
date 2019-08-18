@@ -1,10 +1,10 @@
 #include "IWebsocketEditorDelegate.h"
 #include "IPlugStructs.h"
 
+using namespace iplug;
+
 IWebsocketEditorDelegate::IWebsocketEditorDelegate(int nParams)
 : IGEditorDelegate(nParams)
-, mParamChangeFromClients(PARAM_TRANSFER_SIZE)
-, mMIDIFromClients(MIDI_TRANSFER_SIZE)
 {
   
 }
@@ -29,14 +29,16 @@ bool IWebsocketEditorDelegate::OnWebsocketData(int connIdx, void* pData, size_t 
   uint8_t* pByteData = (uint8_t*) pData;
   int pos = 6;
 
-  if (memcmp(pData, "SPVFUI" , 6) == 0) // send parameter value from user interface
+  // Send Parameter Value from UI
+  if (memcmp(pData, "SPVFUI" , 6) == 0)
   {
     int paramIdx = * ((int*)(pByteData + pos)); pos+= 4;
     double value = * ((double*)(pByteData + pos)); pos += 8;
     
-    mParamChangeFromClients.Push(ParamTuple { paramIdx, value } );
+    mParamChangeFromClients.Push(ParamTupleCX { paramIdx, value, connIdx } );
   }
-  else if (memcmp(pData, "SMMFUI" , 6) == 0) // send midi message from user interface
+  // Send MIDI Message from UI
+  else if (memcmp(pData, "SMMFUI" , 6) == 0)
   {
     IMidiMsg msg;
     msg.mStatus = * ((uint8_t*)(pByteData + pos)); pos++;
@@ -45,10 +47,12 @@ bool IWebsocketEditorDelegate::OnWebsocketData(int connIdx, void* pData, size_t 
 
     mMIDIFromClients.Push(msg);
   }
-  else if (memcmp(pData, "SSMFUI" , 6) == 0) // send sysex message from user interface
+  // Send Sysex Message from UI
+  else if (memcmp(pData, "SSMFUI" , 6) == 0)
   {
     //TODO: how are we going to queue
   }
+  // Send Arbitary Message from UI
   else if (memcmp(pData, "SAMFUI" , 6) == 0) // send arbitrary message from user interface
   {
   }
@@ -106,17 +110,10 @@ void IWebsocketEditorDelegate::SendArbitraryMsgFromUI(int messageTag, int contro
 //  IGEditorDelegate::BeginInformHostOfParamChangeFromUI(paramIdx);
 //}
 
-void IWebsocketEditorDelegate::SendParameterValueFromUI(int paramIdx, double normalizedValue)
+void IWebsocketEditorDelegate::SendParameterValueFromUI(int paramIdx, double value)
 {
-  IByteChunk data;
-  data.PutStr("SPVFD");
-  data.Put(&paramIdx);
-  data.Put(&normalizedValue);
-  
-  // Server side UI edit, send to clients
-  SendDataToConnection(-1, data.GetData(), data.Size());
-
-  IGEditorDelegate::SendParameterValueFromUI(paramIdx, normalizedValue);
+  DoSPVFDToClients(paramIdx, value, -1 /*Server-side UI edit, send to all clients*/);
+  IGEditorDelegate::SendParameterValueFromUI(paramIdx, value);
 }
 
 //void IWebsocketEditorDelegate::EndInformHostOfParamChangeFromUI(int paramIdx)
@@ -192,18 +189,20 @@ void IWebsocketEditorDelegate::ProcessWebsocketQueue()
 {
   while(mParamChangeFromClients.ElementsAvailable())
   {
-    ParamTuple p;
+    ParamTupleCX p;
     mParamChangeFromClients.Pop(p);
     
-    //FIXME: how do params get updated?
-//    ENTER_PARAMS_MUTEX;
-//    if(p.normalized)
-//      GetParam(p.idx)->SetNormalized(p.value);
-//    else
-//      GetParam(p.idx)->Set(p.value);
-//
-//    OnParamChange(p.idx, kHost);
-//    LEAVE_PARAMS_MUTEX;
+    ENTER_PARAMS_MUTEX;
+    IParam* pParam = GetParam(p.idx);
+    
+    if(pParam)
+      pParam->SetNormalized(p.value);
+    LEAVE_PARAMS_MUTEX;
+
+    OnParamChange(p.idx, kHost, -1);
+    OnParamChangeUI(p.idx, kHost);
+
+    DoSPVFDToClients(p.idx, p.value, p.connection /* exclude = connection */);
     
     SendParameterValueFromDelegate(p.idx, p.value, true); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
   }
@@ -214,4 +213,13 @@ void IWebsocketEditorDelegate::ProcessWebsocketQueue()
     IGEditorDelegate::SendMidiMsgFromDelegate(msg); // Call the superclass, since we don't want to send another MIDI message to the websocket
     DeferMidiMsg(msg); // can't just call SendMidiMsgFromUI here which would cause a feedback loop
   }
+}
+
+void IWebsocketEditorDelegate::DoSPVFDToClients(int paramIdx, double value, int excludeIdx)
+{
+  IByteChunk data;
+  data.PutStr("SPVFD");
+  data.Put(&paramIdx);
+  data.Put(&value);
+  SendDataToConnection(-1, data.GetData(), data.Size(), excludeIdx);
 }

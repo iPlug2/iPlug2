@@ -37,7 +37,7 @@ public:
   {
     IRECT drawRECT = mRECT;
     const char* str = "Some Text To Rotate";
-    mText.mOrientation = GetValue() * 360.0 - 180.0;
+    mText.mAngle = GetValue() * 360.0 - 180.0;
     
     g.MeasureText(mText, str, drawRECT);
     g.FillRect(COLOR_WHITE, mRECT);

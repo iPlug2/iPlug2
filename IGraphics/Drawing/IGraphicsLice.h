@@ -29,59 +29,22 @@
 
 #include <memory>
 
-inline LICE_pixel LiceColor(const IColor& color)
-{
-  auto preMul = [](int color, int A) {return (color * (A + 1)) >> 8; };
-  return LICE_RGBA(preMul(color.R, color.A), preMul(color.G, color.A), preMul(color.B, color.A), color.A);
-}
-
-inline LICE_pixel LiceColor(const IColor& color, const IBlend* pBlend)
-{
-    int alpha = std::round(color.A * BlendWeight(pBlend));
-    return LICE_RGBA(color.R, color.G, color.B, alpha);
-}
-
-inline int LiceBlendMode(const IBlend* pBlend)
-{
-  if (!pBlend)
-  {
-    return LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA;
-  }
-  switch (pBlend->mMethod)
-  {
-    case EBlend::Clobber:     return LICE_BLIT_MODE_COPY;
-    case EBlend::Add:         return LICE_BLIT_MODE_ADD | LICE_BLIT_USE_ALPHA;
-    case EBlend::Default:
-    default:
-    {
-      return LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA;
-    }
-  }
-}
-
-/** A LICE API bitmap
- * @ingroup APIBitmaps */
-class LICEBitmap : public APIBitmap
-{
-public:
-  LICEBitmap(LICE_IBitmap* pBitmap, int scale, bool preMultiplied)
-    : APIBitmap(pBitmap, pBitmap->getWidth(), pBitmap->getHeight(), scale, 1.f), mPremultiplied(preMultiplied)
-    {}
-  virtual ~LICEBitmap() { delete GetBitmap(); }
-  bool IsPreMultiplied() { return mPremultiplied; }
-private:
-  bool mPremultiplied;
-};
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
 
 /** IGraphics draw class using Cockos' LICE  
 *   @ingroup DrawClasses */
 class IGraphicsLice : public IGraphics
 {
+private:
+  class Bitmap;
+  struct FontInfo;
+  
 public:
-  const char* GetDrawingAPIStr() override { return "LICE"; }
-
   IGraphicsLice(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsLice();
+
+  const char* GetDrawingAPIStr() override { return "LICE"; }
 
   void DrawResize() override;
 
@@ -99,7 +62,7 @@ public:
   void DrawRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness) override;
   void DrawRoundRect(const IColor& color, const IRECT& bounds, float cr, const IBlend* pBlend, float thickness) override;
   void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend, float thickness) override;
-  void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend, float thickness) override;
+  void DrawArc(const IColor& color, float cx, float cy, float r, float a1, float a2,  const IBlend* pBlend, float thickness) override;
   void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend, float thickness) override;
   void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness, float dashLen) override;
 
@@ -107,7 +70,7 @@ public:
   void FillRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend) override;
   void FillRoundRect(const IColor& color, const IRECT& bounds, float cr, const IBlend* pBlend) override;
   void FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override;
-  void FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
+  void FillArc(const IColor& color, float cx, float cy, float r, float a1, float a2,  const IBlend* pBlend) override;
   void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
     
   IColor GetPoint(int x, int y) override;
@@ -193,8 +156,17 @@ private:
   LICE_IBitmap* mRenderBitmap = nullptr;
     
   ILayerPtr mClippingLayer;
+  
+  static StaticStorage<LICE_IFont> sFontCache;
+  static StaticStorage<FontInfo> sFontInfoCache;
     
 #ifdef OS_MAC
+  class MacRegisteredFont;
+  static StaticStorage<MacRegisteredFont> sMacRegistedFontCache;
   CGColorSpaceRef mColorSpace = nullptr;
 #endif
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+

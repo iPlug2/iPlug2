@@ -20,9 +20,11 @@
 #include "AAX_CNumberDisplayDelegate.h"
 #include "AAX_CUnitDisplayDelegateDecorator.h"
 
+using namespace iplug;
+
 AAX_CEffectParameters *AAX_CALLBACK IPlugAAX::Create()
 {
-  return MakePlug();
+  return MakePlug(InstanceInfo());
 }
 
 void AAX_CEffectGUI_IPLUG::CreateViewContents() 
@@ -39,9 +41,8 @@ void AAX_CEffectGUI_IPLUG::CreateViewContainer()
   
   if (pWindow && mPlug->HasUI())
   {
-    if (mPlug->OpenWindow(pWindow))
-      mPlug->OnUIOpen();
-      
+    mPlug->OpenWindow(pWindow);
+    
     IPlugAAXView_Interface* pViewInterface = (IPlugAAXView_Interface*) mPlug->GetAAXViewInterface();
     
     if(pViewInterface)
@@ -92,11 +93,11 @@ AAX_Result AAX_CEffectGUI_IPLUG::SetControlHighlightInfo(AAX_CParamID paramID, A
 
 #pragma mark IPlugAAX Construct
 
-IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPlugAPIBase(c, kAPIAAX)
-, IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAAX)
+IPlugAAX::IPlugAAX(const InstanceInfo& info, const Config& config)
+: IPlugAPIBase(config, kAPIAAX)
+, IPlugProcessor(config, kAPIAAX)
 {
-  Trace(TRACELOC, "%s%s", c.pluginName, c.channelIOStr);
+  Trace(TRACELOC, "%s%s", config.pluginName, config.channelIOStr);
 
   SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
   SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
@@ -104,7 +105,7 @@ IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   if (MaxNChannels(ERoute::kInput)) 
   {
     mLatencyDelay = std::unique_ptr<NChanDelayLine<PLUG_SAMPLE_DST>>(new NChanDelayLine<PLUG_SAMPLE_DST>(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput)));
-    mLatencyDelay->SetDelayTime(c.latency);
+    mLatencyDelay->SetDelayTime(config.latency);
   }
   
   SetBlockSize(DEFAULT_BLOCK_SIZE);
@@ -125,15 +126,15 @@ AAX_Result IPlugAAX::EffectInit()
     SetHost("ProTools", 0); // TODO:vendor version correct?
     
   AAX_CString bypassID = NULL;
-  this->GetMasterBypassParameter( &bypassID );
+  this->GetMasterBypassParameter(&bypassID);
   mBypassParameter = new AAX_CParameter<bool>(bypassID.CString(), 
                                               AAX_CString("Master Bypass"), 
                                               false, 
                                               AAX_CBinaryTaperDelegate<bool>(),
                                               AAX_CBinaryDisplayDelegate<bool>("bypass", "on"), 
                                               true);
-  mBypassParameter->SetNumberOfSteps( 2 );
-  mBypassParameter->SetType( AAX_eParameterType_Discrete );
+  mBypassParameter->SetNumberOfSteps(2);
+  mBypassParameter->SetType(AAX_eParameterType_Discrete);
   mParameterManager.AddParameter(mBypassParameter);
       
   for (int i=0; i<NParams(); i++)
@@ -153,7 +154,7 @@ AAX_Result IPlugAAX::EffectInit()
                                           AAX_CString(pParam->GetNameForHost()),
                                           pParam->GetDefault(),
                                           AAX_CIPlugTaperDelegate<double>(*pParam),
-                                          AAX_CUnitDisplayDelegateDecorator<double>( AAX_CNumberDisplayDelegate<double>(), AAX_CString(pParam->GetLabelForHost())),
+                                          AAX_CUnitDisplayDelegateDecorator<double>(AAX_CNumberDisplayDelegate<double>(), AAX_CString(pParam->GetLabelForHost())),
                                           pParam->GetCanAutomate());
         
         pAAXParam->SetNumberOfSteps(128); // TODO: check this https://developer.digidesign.com/index.php?L1=5&L2=13&L3=56
@@ -167,7 +168,7 @@ AAX_Result IPlugAAX::EffectInit()
                                         AAX_CString(pParam->GetNameForHost()),
                                         (int)pParam->GetDefault(),
                                         AAX_CLinearTaperDelegate<int,1>((int)pParam->GetMin(), (int)pParam->GetMax()),
-                                        AAX_CUnitDisplayDelegateDecorator<int>( AAX_CNumberDisplayDelegate<int,0>(), AAX_CString(pParam->GetLabelForHost())),
+                                        AAX_CUnitDisplayDelegateDecorator<int>(AAX_CNumberDisplayDelegate<int,0>(), AAX_CString(pParam->GetLabelForHost())),
                                         pParam->GetCanAutomate());
         
         pAAXParam->SetNumberOfSteps(128);
@@ -187,7 +188,7 @@ AAX_Result IPlugAAX::EffectInit()
           double value;
           const char* text = pParam->GetDisplayTextAtIdx(j, &value);
           
-          displayTexts.insert(std::pair<int, AAX_CString>(value, AAX_CString(text)) );
+          displayTexts.insert(std::pair<int, AAX_CString>(value, AAX_CString(text)));
         }
         
         pAAXParam = new AAX_CParameter<int>(pParamIDStr->Get(),
@@ -217,7 +218,7 @@ AAX_Result IPlugAAX::EffectInit()
   return AAX_SUCCESS;
 }
 
-AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID paramID, double iValue, AAX_EUpdateSource iSource )
+AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID paramID, double iValue, AAX_EUpdateSource iSource)
 {
   TRACE;
   
@@ -310,6 +311,9 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
     mTransport->GetCurrentTickPosition(&ppqPos);
     timeInfo.mPPQPos = (double) ppqPos / 960000.0;
     
+    if(timeInfo.mPPQPos < 0)
+      timeInfo.mPPQPos = 0;
+ 
     mTransport->GetCurrentNativeSampleLocation(&samplePos);
     timeInfo.mSamplePos = (double) samplePos;
     
@@ -395,7 +399,7 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
   }
 }
 
-AAX_Result IPlugAAX::GetChunkIDFromIndex( int32_t index, AAX_CTypeID* pChunkID) const
+AAX_Result IPlugAAX::GetChunkIDFromIndex(int32_t index, AAX_CTypeID* pChunkID) const
 {
   if (index != 0)
   {
@@ -467,7 +471,7 @@ AAX_Result IPlugAAX::SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk* pChun
     pos = UnserializeState(chunk, pos);
     
     for (int i = 0; i< NParams(); i++)
-      SetParameterNormalizedValue(mParamIDs.Get(i)->Get(), GetParam(i)->GetNormalized() );
+      SetParameterNormalizedValue(mParamIDs.Get(i)->Get(), GetParam(i)->GetNormalized());
     
     OnRestoreState();
     mNumPlugInChanges++; // necessary in order to cause CompareActiveChunk() to get called again and turn off the compare light 
@@ -502,7 +506,7 @@ void IPlugAAX::BeginInformHostOfParamChange(int idx)
 void IPlugAAX::InformHostOfParamChange(int idx, double normalizedValue)
 {
   TRACE;
-  SetParameterNormalizedValue(mParamIDs.Get(idx)->Get(), normalizedValue );
+  SetParameterNormalizedValue(mParamIDs.Get(idx)->Get(), normalizedValue);
 }
 
 void IPlugAAX::EndInformHostOfParamChange(int idx)

@@ -19,6 +19,8 @@
 #include "IPlugParameter.h"
 #include "IPlugLogger.h"
 
+using namespace iplug;
+
 #pragma mark - Shape
 
 double IParam::ShapeLinear::NormalizedToValue(double value, const IParam& param) const
@@ -163,6 +165,11 @@ void IParam::InitFrequency(const char *name, double defaultVal, double minVal, d
 void IParam::InitSeconds(const char *name, double defaultVal, double minVal, double maxVal, double step, int flags, const char *group)
 {
   InitDouble(name, defaultVal, minVal, maxVal, step, "Seconds", flags, group, ShapeLinear(), kUnitSeconds);
+}
+
+void IParam::InitMilliseconds(const char *name, double defaultVal, double minVal, double maxVal, int flags, const char *group)
+{
+  InitDouble(name, defaultVal, minVal, maxVal, 1, "ms", flags, group, ShapeLinear(), kUnitMilliseconds);
 }
 
 void IParam::InitPitch(const char *name, int defaultVal, int minVal, int maxVal, int flags, const char *group)

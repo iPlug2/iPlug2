@@ -20,6 +20,9 @@
 #include "IPlugQueue.h"
 #include "IPlugStructs.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /** Vectorial multichannel capable meter control
  * @ingroup IControls */
 template <int MAXNC = 1, int QUEUE_SIZE = 1024>
@@ -81,6 +84,11 @@ public:
       mPrevAboveThreshold = d.AboveThreshold();
     }
 
+    void ProcessData(Data d)
+    {
+      mQueue.Push(d);
+    }
+
     // this must be called on the main thread - typically in MyPlugin::OnIdle()
     void TransmitData(IEditorDelegate& dlg)
     {
@@ -108,16 +116,9 @@ public:
     DrawBackGround(g, mRECT);
     DrawWidget(g);
     DrawLabel(g);
-    
+
     if(mStyle.drawFrame)
       g.DrawRect(GetColor(kFR), mWidgetBounds, nullptr, mStyle.frameThickness);
-  }
-  
-  void OnResize() override
-  {
-    SetTargetRECT(CalculateRects(mRECT));
-    MakeTrackRects(mWidgetBounds);
-    SetDirty(false);
   }
 
   //  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
@@ -142,3 +143,6 @@ public:
     SetDirty(false);
   }
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE

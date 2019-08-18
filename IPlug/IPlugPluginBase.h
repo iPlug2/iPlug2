@@ -20,6 +20,8 @@
 #include "IPlugStructs.h"
 #include "IPlugLogger.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 /** Base class that contains plug-in info and state manipulation methods */
 class IPluginBase : public EDITOR_DELEGATE_CLASS
 {
@@ -27,6 +29,9 @@ public:
   IPluginBase(int nParams, int nPresets);
   virtual ~IPluginBase();
   
+  IPluginBase(const IPluginBase&) = delete;
+  IPluginBase& operator=(const IPluginBase&) = delete;
+
 #pragma mark - Plug-in properties
   /** @return the name of the plug-in as a CString */
   const char* GetPluginName() const { return mPluginName.Get(); }
@@ -104,23 +109,7 @@ public:
   
   /** Implemented by the API class, call this if you update parameter labels and hopefully the host should update it's displays (not applicable to all APIs) */
   virtual void InformHostOfParameterDetailsChange() {};
-  
-#pragma mark - Parameter Change
-  /** Override this method to do something to your DSP when a parameter changes.
-   * WARNING: this method can in some cases be called on the realtime audio thread
-   * @param paramIdx The index of the parameter that changed
-   * @param source One of the EParamSource options to indicate where the parameter change came from.
-   * @param sampleOffset For sample accurate parameter changes - index into current block */
-  virtual void OnParamChange(int paramIdx, EParamSource source, int sampleOffset = -1);
-  
-  /** Another version of the OnParamChange method without an EParamSource, for backwards compatibility / simplicity.
-   * WARNING: this method can in some cases be called on the realtime audio thread */
-  virtual void OnParamChange(int paramIdx) {}
-  
-  /** Calls OnParamChange() and OnParamChangeUI() for each parameter.
-   * @param source Specifies the source of the parameter changes */
-  void OnParamReset(EParamSource source);
-  
+    
 #pragma mark - State Serialization
   /** @return \c true if the plug-in has been set up to do state chunks, via config.h */
   bool DoesStateChunks() const { return mStateChunks; }
@@ -509,3 +498,5 @@ protected:
   WDL_Mutex mParams_mutex;
 #endif  
 };
+
+END_IPLUG_NAMESPACE

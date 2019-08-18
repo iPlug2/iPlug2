@@ -17,6 +17,9 @@
 #include "IGraphicsMac.h"
 #include "IGraphicsStructs.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& bounds)
 {
   float scale = pGraphics->GetDrawScale();
@@ -45,6 +48,13 @@ inline IColor FromNSColor(const NSColor* c)
   return IColor(c.alphaComponent * 255., c.redComponent* 255., c.greenComponent * 255., c.blueComponent * 255.);
 }
 
+inline int GetMouseOver(IGraphicsMac* pGraphics)
+{
+  return pGraphics->GetMouseOver();
+}
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
 
 // based on code by Scott Gruby http://blog.gruby.com/2008/03/30/filtering-nstextfield-take-2/
 @interface IGRAPHICS_FORMATTER : NSFormatter
@@ -66,6 +76,9 @@ inline IColor FromNSColor(const NSColor* c)
 }
 
 @end
+
+using namespace iplug;
+using namespace igraphics;
 
 @interface IGRAPHICS_MENU : NSMenu
 {
@@ -168,3 +181,4 @@ inline IColor FromNSColor(const NSColor* c)
 - (id) initWithIGraphicsView: (IGRAPHICS_VIEW*) pView;
 @end
 #endif
+

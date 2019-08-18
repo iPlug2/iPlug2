@@ -21,8 +21,12 @@
 #include "AAX_IMIDINode.h"
 #include "AAX_IString.h"
 
-//#define kMaxAdditionalMIDINodes 15
-#define kMaxAuxOutputStems  16
+#include "IPlugPlatform.h"
+
+//static const int kMaxAdditionalMIDINodes = 15;
+static const int kMaxAuxOutputStems = 16;
+
+BEGIN_IPLUG_NAMESPACE
 
 struct AAX_SIPlugSetupInfo
 {
@@ -79,7 +83,7 @@ struct AAX_SIPlugSetupInfo
     mNeedsTransport = false;
     mTransportMIDINodeName = "Transport";
     mNumMeters = 0;
-    mMeterIDs = 0;
+    mMeterIDs = nullptr;
     mInputStemFormat = AAX_eStemFormat_Mono;
     mOutputStemFormat = AAX_eStemFormat_Mono;
     mUseHostGeneratedGUI = false;
@@ -139,3 +143,6 @@ public:
   static  AAX_Result  StaticDescribe (AAX_IEffectDescriptor * ioDescriptor, const AAX_SIPlugSetupInfo & setupInfo);
   static  void  AAX_CALLBACK  StaticRenderAudio(AAX_SIPlugRenderInfo* const inInstancesBegin [], const void* inInstancesEnd); 
 };
+
+END_IPLUG_NAMESPACE
+

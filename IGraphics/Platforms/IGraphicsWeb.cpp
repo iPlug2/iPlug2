@@ -14,17 +14,20 @@
 
 #include "IGraphicsWeb.h"
 
+using namespace iplug;
+using namespace igraphics;
 using namespace emscripten;
 
-extern IGraphics* gGraphics;
-bool gGraphicsLoaded = false;
+extern IGraphicsWeb* gGraphics;
+
+#pragma mark - Private Classes and Structs
 
 // Fonts
 
-class WebFont : public PlatformFont
+class IGraphicsWeb::Font : public PlatformFont
 {
 public:
-  WebFont(const char* fontName, const char* fontStyle)
+  Font(const char* fontName, const char* fontStyle)
   : PlatformFont(true), mDescriptor{fontName, fontStyle}
   {}
   
@@ -34,11 +37,11 @@ private:
   std::pair<WDL_String, WDL_String> mDescriptor;
 };
 
-class WebFileFont : public WebFont
+class IGraphicsWeb::FileFont : public Font
 {
 public:
-  WebFileFont(const char* fontName, const char* fontStyle, const char* fontPath)
-  : WebFont(fontName, fontStyle), mPath(fontPath)
+  FileFont(const char* fontName, const char* fontStyle, const char* fontPath)
+  : Font(fontName, fontStyle), mPath(fontPath)
   {
     mSystem = false;
   }
@@ -49,7 +52,7 @@ private:
   WDL_String mPath;
 };
 
-IFontDataPtr WebFileFont::GetFontData()
+IFontDataPtr IGraphicsWeb::FileFont::GetFontData()
 {
   IFontDataPtr fontData(new IFontData());
   FILE* fp = fopen(mPath.Get(), "rb");
@@ -73,6 +76,8 @@ IFontDataPtr WebFileFont::GetFontData()
   
   return fontData;
 }
+
+#pragma mark - Utilities and Callbacks
 
 // Key combos
 
@@ -262,7 +267,7 @@ static int domVKToWinVK(int dom_vk_code)
   }
 }
 
-EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent* pEvent, void* pUserData)
+static EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent* pEvent, void* pUserData)
 {
   IGraphicsWeb* pGraphicsWeb = (IGraphicsWeb*) pUserData;
   
@@ -291,7 +296,7 @@ EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent* pEvent, void*
   return 0;
 }
 
-EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* pUserData)
+static EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* pUserData)
 {
   IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
   
@@ -324,7 +329,7 @@ EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent
   return true;
 }
 
-EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* pUserData)
+static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* pUserData)
 {
   IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
   
@@ -373,7 +378,7 @@ EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* 
   return true;
 }
 
-EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* pEvent, void* pUserData)
+static EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* pEvent, void* pUserData)
 {
   IGraphics* pGraphics = (IGraphics*) pUserData;
   
@@ -460,6 +465,7 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
   SetScreenScale(std::ceil(std::max(emscripten_get_device_pixel_ratio(), 1.)));
 
   GetDelegate()->LayoutUI(this);
+  GetDelegate()->OnUIOpen();
   
   return nullptr;
 }
@@ -517,20 +523,16 @@ void IGraphicsWeb::OnMainLoopTimer()
 {
   IRECTList rects;
   int screenScale = (int) std::ceil(std::max(emscripten_get_device_pixel_ratio(), 1.));
-
-  // Only draw on the second timer so that fonts will be loaded
-  if (!gGraphics || !gGraphicsLoaded)
-  {
-    if (gGraphics)
-      gGraphicsLoaded = true;
+  
+  // Don't draw if there are no graphics or if assets are still loading
+  if (!gGraphics || !gGraphics->AssetsLoaded())
     return;
-  }
   
   if (screenScale != gGraphics->GetScreenScale())
   {
     gGraphics->SetScreenScale(screenScale);
   }
-
+  
   if (gGraphics->IsDirty(rects))
   {
     gGraphics->SetAllControlsClean();
@@ -580,7 +582,7 @@ EMsgBoxResult IGraphicsWeb::ShowMessageBox(const char* str, const char* caption,
 
 void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext)
 {
-  val inputEl = val::global("document").call<val>("getElementById", std::string("pluginInput"));
+  val inputEl = val::global("document").call<val>("createElement", std::string("input"));
   
   inputEl.call<void>("setAttribute", std::string("accept"), std::string(ext));
   inputEl.call<void>("click");
@@ -588,8 +590,8 @@ void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAc
 
 void IGraphicsWeb::PromptForDirectory(WDL_String& path)
 {
-  val inputEl = val::global("document").call<val>("getElementById", std::string("pluginInput"));
-  
+  val inputEl = val::global("document").call<val>("createElement", std::string("input"));
+
   inputEl.call<void>("setAttribute", std::string("directory"));
   inputEl.call<void>("setAttribute", std::string("webkitdirectory"));
   inputEl.call<void>("click");
@@ -611,7 +613,7 @@ bool IGraphicsWeb::PromptForColor(IColor& color, const char* str, IColorPickerHa
   return false;
 }
 
-EM_BOOL complete_text_entry(int eventType, const EmscriptenFocusEvent* focusEvent, void* pUserData)
+static EM_BOOL complete_text_entry(int eventType, const EmscriptenFocusEvent* focusEvent, void* pUserData)
 {
   IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
   
@@ -623,7 +625,7 @@ EM_BOOL complete_text_entry(int eventType, const EmscriptenFocusEvent* focusEven
   return true;
 }
 
-EM_BOOL text_entry_keydown(int eventType, const EmscriptenKeyboardEvent* pEvent, void* pUserData)
+static EM_BOOL text_entry_keydown(int eventType, const EmscriptenKeyboardEvent* pEvent, void* pUserData)
 {
   IGraphicsWeb* pGraphicsWeb = (IGraphicsWeb*) pUserData;
   
@@ -728,14 +730,14 @@ PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const char* f
   if (fontLocation == kNotFound)
     return nullptr;
 
-  return PlatformFontPtr(new WebFileFont(fontID, "", fullPath.Get()));
+  return PlatformFontPtr(new FileFont(fontID, "", fullPath.Get()));
 }
 
 PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
 {
   const char* styles[] = { "normal", "bold", "italic" };
   
-  return PlatformFontPtr(new WebFont(fontName, styles[static_cast<int>(style)]));
+  return PlatformFontPtr(new Font(fontName, styles[static_cast<int>(style)]));
 }
 
 #if defined IGRAPHICS_CANVAS

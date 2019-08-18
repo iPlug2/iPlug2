@@ -33,6 +33,8 @@
   #endif
 #endif
 
+BEGIN_IPLUG_NAMESPACE
+
 /** This abstract interface is used by the IPlug FAUST architecture file and the IPlug libfaust JIT compiling class FaustGen
  * In order to provide a consistent interface to FAUST DSP whether using the JIT compiler or a compiled C++ class */
 class IPlugFaust : public UI, public Meta
@@ -53,6 +55,9 @@ public:
     mParams.Empty(true);
   }
 
+  IPlugFaust(const IPlugFaust&) = delete;
+  IPlugFaust& operator=(const IPlugFaust&) = delete;
+    
   virtual void Init() = 0;
 
   // NO-OP in the base class
@@ -322,3 +327,4 @@ protected:
   bool mInitialized = false;
 };
 
+END_IPLUG_NAMESPACE

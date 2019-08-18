@@ -31,10 +31,10 @@
 
 #define DEBUG_VOICE_COUNT 0
 
-/** A monophonic/polyphonic synthesiser base class which can be supplied with a custom voice.
- *  Supports different kinds of after touch, pitch bend, velocity and after touch curves, unison (currently monophonic mode only)
- */
+BEGIN_IPLUG_NAMESPACE
 
+/** A monophonic/polyphonic synthesiser base class which can be supplied with a custom voice.
+ *  Supports different kinds of after touch, pitch bend, velocity and after touch curves, unison (currently monophonic mode only) */
 class MidiSynth
 {
 public:
@@ -46,6 +46,9 @@ public:
   MidiSynth(VoiceAllocator::EPolyMode mode, int blockSize = kDefaultBlockSize);
   ~MidiSynth();
 
+  MidiSynth(const MidiSynth&) = delete;
+  MidiSynth& operator=(const MidiSynth&) = delete;
+    
   void Reset()
   {
     mSampleTime = 0;
@@ -100,7 +103,13 @@ public:
   {
     return mVoiceAllocator.GetVoice(voiceIdx);
   }
-
+  
+  void ForEachVoice(std::function<void(SynthVoice& voice)> func)
+  {
+    for (auto v = 0; v < NVoices(); v++)
+      func(*GetVoice(v));
+  }
+  
   size_t NVoices() const
   {
     return mVoiceAllocator.GetNVoices();
@@ -187,5 +196,5 @@ private:
   int mMPEUpperZoneChannels{0};
 };
 
-
+END_IPLUG_NAMESPACE
 

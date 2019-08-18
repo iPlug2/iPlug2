@@ -80,7 +80,7 @@ void ReaperExtBase::ToggleDocking()
 
 void ReaperExtBase::RegisterAction(const char* actionName, std::function<void()> func, bool addMenuItem, int* pToggle/*, IKeyPress keyCmd*/)
 {
-  action action;
+  ReaperAction action;
   
   int commandID = mRec->Register("command_id", (void*) actionName /* ?? */);
   
@@ -100,7 +100,7 @@ void ReaperExtBase::RegisterAction(const char* actionName, std::function<void()>
 //static
 bool ReaperExtBase::HookCommandProc(int command, int flag)
 {
-  std::vector<action>::iterator it = std::find_if (gActions.begin(), gActions.end(), [&](const auto& e) { return e.accel.accel.cmd == command; });
+  std::vector<ReaperAction>::iterator it = std::find_if (gActions.begin(), gActions.end(), [&](const auto& e) { return e.accel.accel.cmd == command; });
 
   if(it != gActions.end())
   {
@@ -113,7 +113,7 @@ bool ReaperExtBase::HookCommandProc(int command, int flag)
 //static
 int ReaperExtBase::ToggleActionCallback(int command)
 {
-  std::vector<action>::iterator it = std::find_if (gActions.begin(), gActions.end(), [&](const auto& e) { return e.accel.accel.cmd == command; });
+  std::vector<ReaperAction>::iterator it = std::find_if (gActions.begin(), gActions.end(), [&](const auto& e) { return e.accel.accel.cmd == command; });
   
   if(it != gActions.end())
   {

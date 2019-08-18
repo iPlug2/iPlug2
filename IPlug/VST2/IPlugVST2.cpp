@@ -12,9 +12,11 @@
 #include "IPlugVST2.h"
 #include "IPlugPluginBase.h"
 
-const int VST_VERSION = 2400;
+using namespace iplug;
 
-int VSTSpkrArrType(int nchan)
+static const int VST_VERSION = 2400;
+
+static int VSTSpkrArrType(int nchan)
 {
   if (!nchan) return kSpeakerArrEmpty;
   if (nchan == 1) return kSpeakerArrMono;
@@ -22,12 +24,12 @@ int VSTSpkrArrType(int nchan)
   return kSpeakerArrUserDefined;
 }
 
-IPlugVST2::IPlugVST2(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-  : IPlugAPIBase(c, kAPIVST2)
-  , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST2)
-  , mHostCallback(instanceInfo.mVSTHostCallback)
+IPlugVST2::IPlugVST2(const InstanceInfo& info, const Config& config)
+  : IPlugAPIBase(config, kAPIVST2)
+  , IPlugProcessor(config, kAPIVST2)
+  , mHostCallback(info.mVSTHostCallback)
 {
-  Trace(TRACELOC, "%s", c.pluginName);
+  Trace(TRACELOC, "%s", config.pluginName);
 
   mHasVSTExtensions = VSTEXT_NONE;
 
@@ -39,22 +41,22 @@ IPlugVST2::IPlugVST2(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   mAEffect.dispatcher = VSTDispatcher;
   mAEffect.getParameter = VSTGetParameter;
   mAEffect.setParameter = VSTSetParameter;
-  mAEffect.numPrograms = c.nPresets;
-  mAEffect.numParams = c.nParams;
+  mAEffect.numPrograms = config.nPresets;
+  mAEffect.numParams = config.nParams;
   mAEffect.numInputs = nInputs;
   mAEffect.numOutputs = nOutputs;
-  mAEffect.uniqueID = c.uniqueID;
+  mAEffect.uniqueID = config.uniqueID;
   mAEffect.version = GetPluginVersion(true);
   mAEffect.__ioRatioDeprecated = 1.0f;
   mAEffect.__processDeprecated = VSTProcess;
   mAEffect.processReplacing = VSTProcessReplacing;
   mAEffect.processDoubleReplacing = VSTProcessDoubleReplacing;
-  mAEffect.initialDelay = c.latency;
+  mAEffect.initialDelay = config.latency;
   mAEffect.flags = effFlagsCanReplacing | effFlagsCanDoubleReplacing;
 
-  if (c.plugDoesChunks) { mAEffect.flags |= effFlagsProgramChunks; }
+  if (config.plugDoesChunks) { mAEffect.flags |= effFlagsProgramChunks; }
   if (LegalIO(1, -1)) { mAEffect.flags |= __effFlagsCanMonoDeprecated; }
-  if (c.plugType == EIPlugPluginType::kInstrument) { mAEffect.flags |= effFlagsIsSynth; }
+  if (config.plugType == EIPlugPluginType::kInstrument) { mAEffect.flags |= effFlagsIsSynth; }
 
   memset(&mEditRect, 0, sizeof(ERect));
   memset(&mInputSpkrArr, 0, sizeof(VstSpeakerArrangement));
@@ -70,12 +72,12 @@ IPlugVST2::IPlugVST2(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 
   SetBlockSize(DEFAULT_BLOCK_SIZE);
 
-  if(c.plugHasUI)
+  if(config.plugHasUI)
   {
     mAEffect.flags |= effFlagsHasEditor;
     mEditRect.left = mEditRect.top = 0;
-    mEditRect.right = c.plugWidth;
-    mEditRect.bottom = c.plugHeight;
+    mEditRect.right = config.plugWidth;
+    mEditRect.bottom = config.plugHeight;
   }
   
   CreateTimer();
@@ -364,14 +366,12 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
 #if defined OS_WIN || defined ARCH_64BIT
       if (_this->OpenWindow(ptr))
       {
-        _this->OnUIOpen();
         return 1;
       }
 #else   // OSX 32 bit, check if we are in a Cocoa VST host, otherwise tough luck
       bool iscocoa = (_this->mHasVSTExtensions&VSTEXT_COCOA);
       if (iscocoa && _this->OpenWindow(ptr))
       {
-        _this->OnUIOpen();
         return 1; // cocoa supported open cocoa
       }
 #endif

@@ -27,6 +27,8 @@
 
 #include "SynthVoice.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 using namespace voiceControlNames;
 
 struct VoiceAddress
@@ -99,10 +101,13 @@ public:
   static constexpr int kVoiceMostRecent = 1 << 7;
 
   // one voice worth of ramp generators
-  using VoiceControlRamps = std::array<ControlRampProcessor, kNumVoiceControlRamps>;
+  using VoiceControlRamps = ControlRampProcessor::ProcessorArray<kNumVoiceControlRamps>;
 
   VoiceAllocator();
   ~VoiceAllocator();
+
+  VoiceAllocator(const VoiceAllocator&) = delete;
+  VoiceAllocator& operator=(const VoiceAllocator&) = delete;
 
   void Clear();
 
@@ -195,3 +200,4 @@ public:
   EATMode mATMode {kATModeChannel};
 };
 
+END_IPLUG_NAMESPACE

@@ -14,14 +14,14 @@ variables:
   build_vst2: false # build VST2 format plugins ( must have VST2_SDK secure file in azure pipeline )
 
   #TESTS
-  test_projects: true # test plug-ins with pluginval, auval, vstvalidator
+  test_projects: false # test plug-ins with pluginval, auval, vstvalidator
 
   #MISC
   configuration: 'Release' # the configuration to build, e.g. 'Debug', 'Release', 'Tracer'
 
   publish_downloads: false # publish project binaries to publish_site github releases
   publish_pages: false # publish web audio modules to github publish_site
-  publish_docs: false # publish documentation to docs_site
+  publish_docs: false # publish documentation to docs_site // NOT YET IMPLEMENTED
 
   publish_site: 'iPlug2/iPlug2.github.io'
   docs_site: 'iPlug2/docs'

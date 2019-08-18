@@ -17,18 +17,43 @@
 
 #include "wdl_base64.h"
 
+using namespace iplug;
+using namespace igraphics;
 using namespace emscripten;
 
-extern IGraphics* gGraphics;
+extern IGraphicsWeb* gGraphics;
 
 extern val GetPreloadedImages();
 extern val GetCanvas();
 
-struct CanvasFont
+class IGraphicsCanvas::Bitmap : public APIBitmap
+{
+public:
+  Bitmap(val imageCanvas, const char* name, int scale)
+  {
+    SetBitmap(new val(imageCanvas), imageCanvas["width"].as<int>(), imageCanvas["height"].as<int>(), scale, 1.f);
+  }
+  
+  Bitmap(int width, int height, int scale, float drawScale)
+  {
+    val canvas = val::global("document").call<val>("createElement", std::string("canvas"));
+    canvas.set("width", width);
+    canvas.set("height", height);
+    
+    SetBitmap(new val(canvas), width, height, scale, drawScale);
+  }
+  
+  virtual ~Bitmap()
+  {
+    delete GetBitmap();
+  }
+};
+
+struct IGraphicsCanvas::Font
 {
   using FontDesc = std::remove_pointer<FontDescriptor>::type;
   
-  CanvasFont(FontDesc descriptor, double ascenderRatio, double EMRatio)
+  Font(FontDesc descriptor, double ascenderRatio, double EMRatio)
   : mDescriptor(descriptor), mAscenderRatio(ascenderRatio), mEMRatio(EMRatio) {}
     
   FontDesc mDescriptor;
@@ -36,14 +61,16 @@ struct CanvasFont
   double mEMRatio;
 };
 
-std::string GetFontString(const char* fontName, const char* styleName, double size)
+static std::string GetFontString(const char* fontName, const char* styleName, double size)
 {
   WDL_String fontString;
   fontString.SetFormatted(FONT_LEN + 64, "%s %lfpx %s", styleName, size, fontName);
   return std::string(fontString.Get());
 }
 
-StaticStorage<CanvasFont> sFontCache;
+StaticStorage<IGraphicsCanvas::Font> IGraphicsCanvas::sFontCache;
+
+#pragma mark - Utilities
 
 static std::string CanvasColor(const IColor& color, float alpha = 1.0)
 {
@@ -52,35 +79,18 @@ static std::string CanvasColor(const IColor& color, float alpha = 1.0)
   return str.Get();
 }
 
-CanvasBitmap::CanvasBitmap(val imageCanvas, const char* name, int scale)
-{
-  SetBitmap(new val(imageCanvas), imageCanvas["width"].as<int>(), imageCanvas["height"].as<int>(), scale, 1.f);
-}
-
-CanvasBitmap::CanvasBitmap(int width, int height, int scale, float drawScale)
-{
-  val canvas = val::global("document").call<val>("createElement", std::string("canvas"));
-  canvas.set("width", width);
-  canvas.set("height", height);
-
-  SetBitmap(new val(canvas), width, height, scale, drawScale);
-}
-
-CanvasBitmap::~CanvasBitmap()
-{
-  delete GetBitmap();
-}
+#pragma mark -
 
 IGraphicsCanvas::IGraphicsCanvas(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphicsPathBase(dlg, w, h, fps, scale)
 {
-  StaticStorage<CanvasFont>::Accessor storage(sFontCache);
+  StaticStorage<Font>::Accessor storage(sFontCache);
   storage.Retain();
 }
 
 IGraphicsCanvas::~IGraphicsCanvas()
 {
-  StaticStorage<CanvasFont>::Accessor storage(sFontCache);
+  StaticStorage<Font>::Accessor storage(sFontCache);
   storage.Release();
 }
 
@@ -112,9 +122,9 @@ void IGraphicsCanvas::PathClose()
   GetContext().call<void>("closePath");
 }
 
-void IGraphicsCanvas::PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding)
+void IGraphicsCanvas::PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding)
 {
-  GetContext().call<void>("arc", cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f), winding == EWinding::CCW);
+  GetContext().call<void>("arc", cx, cy, r, DegToRad(a1 - 90.f), DegToRad(a2 - 90.f), winding == EWinding::CCW);
 }
 
 void IGraphicsCanvas::PathMoveTo(float x, float y)
@@ -127,9 +137,14 @@ void IGraphicsCanvas::PathLineTo(float x, float y)
   GetContext().call<void>("lineTo", x, y);
 }
 
-void IGraphicsCanvas::PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
+void IGraphicsCanvas::PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2)
 {
-  GetContext().call<void>("bezierCurveTo", x1, y1, x2, y2, x3, y3);
+  GetContext().call<void>("bezierCurveTo", c1x, c1y, c2x, c2y, x2, y2);
+}
+
+void IGraphicsCanvas::PathQuadraticBezierTo(float cx, float cy, float x2, float y2)
+{
+  GetContext().call<void>("quadraticCurveTo", cx, cy, x2, y2);
 }
 
 void IGraphicsCanvas::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
@@ -246,8 +261,8 @@ void IGraphicsCanvas::SetCanvasBlendMode(val& context, const IBlend* pBlend)
 
 void IGraphicsCanvas::PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y) const
 {
-  StaticStorage<CanvasFont>::Accessor storage(sFontCache);
-  CanvasFont* pFont = storage.Find(text.mFont);
+  StaticStorage<Font>::Accessor storage(sFontCache);
+  Font* pFont = storage.Find(text.mFont);
     
   assert(pFont && "No font found - did you forget to load it?");
   
@@ -333,12 +348,12 @@ bool IGraphicsCanvas::BitmapExtSupported(const char* ext)
 
 APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext)
 {
-  return new CanvasBitmap(GetPreloadedImages()[fileNameOrResID], fileNameOrResID + 1, scale);
+  return new Bitmap(GetPreloadedImages()[fileNameOrResID], fileNameOrResID + 1, scale);
 }
 
 APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height, int scale, double drawScale)
 {
-  return new CanvasBitmap(width, height, scale, drawScale);
+  return new Bitmap(width, height, scale, drawScale);
 }
 
 void IGraphicsCanvas::GetFontMetrics(const char* font, const char* style, double& ascenderRatio, double& EMRatio)
@@ -371,13 +386,14 @@ void IGraphicsCanvas::GetFontMetrics(const char* font, const char* style, double
   ascenderRatio = ascent / height;
 }
 
-bool IGraphicsCanvas::CompareFontMetrics(const char* style, const char* font1, const char* font2, int size)
+bool IGraphicsCanvas::CompareFontMetrics(const char* style, const char* font1, const char* font2)
 {
   WDL_String fontCombination;
-  fontCombination.SetFormatted(FONT_LEN * 2, "%s %s", font1, font2);
+  fontCombination.SetFormatted(FONT_LEN * 2 + 2, "%s, %s", font1, font2);
   val context = GetContext();
   std::string textString("@BmwdWMoqPYyzZr1234567890.+-=_~'");
-  
+  const int size = 72;
+    
   context.set("font", GetFontString(font2, style, size));
   val metrics1 = context.call<val>("measureText", textString);
 
@@ -387,12 +403,23 @@ bool IGraphicsCanvas::CompareFontMetrics(const char* style, const char* font1, c
   return metrics1["width"].as<double>() == metrics2["width"].as<double>();
 }
 
+bool IGraphicsCanvas::FontExists(const char* font, const char* style)
+{
+    return !CompareFontMetrics(style, font, "monospace") ||
+    !CompareFontMetrics(style, font, "sans-serif") ||
+    !CompareFontMetrics(style, font, "serif");
+}
+
 bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 {
-  StaticStorage<CanvasFont>::Accessor storage(sFontCache);
+  StaticStorage<Font>::Accessor storage(sFontCache);
 
   if (storage.Find(fontID))
+  {
+    if (!font->IsSystem())
+      mCustomFonts.push_back(*font->GetDescriptor());
     return true;
+  }
 
   if (!font->IsSystem())
   {
@@ -422,12 +449,13 @@ bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& fon
       FontDescriptor descriptor = font->GetDescriptor();
       const double ascenderRatio = data->GetAscender() / static_cast<double>(data->GetAscender() - data->GetDescender());
       const double EMRatio = data->GetHeightEMRatio();
-      storage.Add(new CanvasFont({descriptor->first, descriptor->second}, ascenderRatio, EMRatio), fontID);
+      storage.Add(new Font({descriptor->first, descriptor->second}, ascenderRatio, EMRatio), fontID);
       
-      // Load and draw the font to the canvas
-      GetContext().set("font", GetFontString(descriptor->first.Get(), descriptor->second.Get(), 12));
-      GetContext().call<void>("fillText", std::string("Load"), 0, 0);
+      // Add to store and encourage to load by using the font immediately
       
+      mCustomFonts.push_back(*descriptor);
+      CompareFontMetrics(descriptor->second.Get(), descriptor->first.Get(), "monospace");
+        
       return true;
     }
   }
@@ -437,19 +465,30 @@ bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& fon
     const char* fontName = descriptor->first.Get();
     const char* styleName = descriptor->second.Get();
     
-    if (!CompareFontMetrics(styleName, fontName, "monospace", 72) ||
-        !CompareFontMetrics(styleName, fontName, "sans-serif", 72) ||
-        !CompareFontMetrics(styleName, fontName, "serif", 72))
+    if (FontExists(fontName, styleName))
     {
       double ascenderRatio, EMRatio;
       
       GetFontMetrics(descriptor->first.Get(), descriptor->second.Get(), ascenderRatio, EMRatio);
-      storage.Add(new CanvasFont({descriptor->first, descriptor->second}, ascenderRatio, EMRatio), fontID);
+      storage.Add(new Font({descriptor->first, descriptor->second}, ascenderRatio, EMRatio), fontID);
       return true;
     }
   }
   
   return false;
+}
+
+bool IGraphicsCanvas::AssetsLoaded()
+{
+  for (auto it = mCustomFonts.begin(); it != mCustomFonts.end(); it++)
+  {
+    if (!FontExists(it->first.Get(), it->second.Get()))
+      return false;
+  }
+  
+  mCustomFonts.clear();
+    
+  return true;
 }
 
 void IGraphicsCanvas::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
@@ -492,7 +531,7 @@ void IGraphicsCanvas::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
       layerContext.call<void>("clearRect", 0, 0, width, height);
     }
     
-    CanvasBitmap localBitmap(width, height, pBitmap->GetScale(), pBitmap->GetDrawScale());
+    Bitmap localBitmap(width, height, pBitmap->GetScale(), pBitmap->GetDrawScale());
     val localCanvas = *localBitmap.GetBitmap();
     val localContext = localCanvas.call<val>("getContext", std::string("2d"));
     val imageData = localContext.call<val>("createImageData", width, height);

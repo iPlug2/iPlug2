@@ -30,6 +30,8 @@
 		4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlendian.h; path = ../../../WDL/wdlendian.h; sourceTree = SOURCE_ROOT; };
 		4F3862FF2014BCC70009F402 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
 		4F3D2B4520212D4E00842FF4 /* wdl_base64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wdl_base64.h; path = ../../../WDL/wdl_base64.h; sourceTree = "<group>"; };
+		4F4A44B722D361A400A9D1A1 /* IGraphicsSkia.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsSkia.cpp; sourceTree = "<group>"; };
+		4F4A44B822D361A400A9D1A1 /* IGraphicsSkia.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IGraphicsSkia.h; sourceTree = "<group>"; };
 		4F56E319227F43A400F3E839 /* IGraphicsCoreText.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsCoreText.mm; sourceTree = "<group>"; };
 		4F56E31A227F43A400F3E839 /* IGraphicsCoreText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsCoreText.h; sourceTree = "<group>"; };
 		4F56E327227F9E7C00F3E839 /* IPlugReaperExtension.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = IPlugReaperExtension.xcconfig; path = ../config/IPlugReaperExtension.xcconfig; sourceTree = "<group>"; };
@@ -274,6 +276,8 @@
 		4FBB8C1A21EA55BD00C1EF1B /* Drawing */ = {
 			isa = PBXGroup;
 			children = (
+				4F4A44B722D361A400A9D1A1 /* IGraphicsSkia.cpp */,
+				4F4A44B822D361A400A9D1A1 /* IGraphicsSkia.h */,
 				4FB401D122806B3B00F35D81 /* IGraphicsAGG_src.mm */,
 				4FBB8C1B21EA55BD00C1EF1B /* IGraphicsLice.h */,
 				4FBB8C1C21EA55BD00C1EF1B /* IGraphicsAGG.h */,
@@ -441,7 +445,6 @@
 				TargetAttributes = {
 					4FBA83AB20ECAF0B00423B90 = {
 						CreatedOnToolsVersion = 9.4.1;
-						DevelopmentTeam = 686EDA2T8T;
 						ProvisioningStyle = Automatic;
 					};
 				};

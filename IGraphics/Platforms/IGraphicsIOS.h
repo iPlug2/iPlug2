@@ -12,6 +12,9 @@
 
 #include "IGraphics_select.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /** IGraphics platform class for IOS
 *   @ingroup PlatformClasses */
 class IGraphicsIOS final : public IGRAPHICS_DRAW_CLASS
@@ -53,6 +56,8 @@ public:
 
   void CreatePlatformImGui() override;
 
+  void LaunchBluetoothMidiDialog(float x, float y);
+  
 protected:
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
@@ -67,3 +72,6 @@ private:
 
   WDL_String mBundleID;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE

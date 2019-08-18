@@ -18,6 +18,7 @@
     #if defined IGRAPHICS_GL2
       #define NANOVG_GL2_IMPLEMENTATION
     #elif defined IGRAPHICS_GL3
+      #include <OpenGL/gl3.h>
       #define NANOVG_GL3_IMPLEMENTATION
     #else
       #error Define either IGRAPHICS_GL2 or IGRAPHICS_GL3 for IGRAPHICS_NANOVG with OS_MAC
@@ -63,33 +64,42 @@
   #error you must define either IGRAPHICS_GL2, IGRAPHICS_GLES2 etc or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
 #endif
 
+#include <string>
+#include <map>
 
-// Fonts
-StaticStorage<IFontData> sFontCache;
+using namespace iplug;
+using namespace igraphics;
 
-// Retrieving pixels
-void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData)
+#pragma mark - Private Classes and Structs
+
+class IGraphicsNanoVG::Bitmap : public APIBitmap
 {
-#if defined(IGRAPHICS_GL)
-  glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pData);
-#elif defined(IGRAPHICS_METAL)
-  mnvgReadPixels(pContext, image, x, y, width, height, pData);
-#endif
-}
+public:
+  Bitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID, bool shared = false);
+  Bitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, int scale, float drawScale);
+  Bitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, int scale, float drawScale);
+  virtual ~Bitmap();
+  NVGframebuffer* GetFBO() const { return mFBO; }
+private:
+  IGraphicsNanoVG *mGraphics = nullptr;
+  NVGcontext* mVG;
+  NVGframebuffer* mFBO = nullptr;
+  bool mSharedTexture = false;
+};
 
-// Bitmaps
-NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID)
+IGraphicsNanoVG::Bitmap::Bitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID, bool shared)
 {
   assert(nvgImageID > 0);
-
+  
   mVG = pContext;
+  mSharedTexture = shared;
   int w = 0, h = 0;
   nvgImageSize(mVG, nvgImageID, &w, &h);
   
   SetBitmap(nvgImageID, w, h, sourceScale, 1.f);
 }
 
-NanoVGBitmap::NanoVGBitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, int scale, float drawScale)
+IGraphicsNanoVG::Bitmap::Bitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, int scale, float drawScale)
 {
   mGraphics = pGraphics;
   mVG = pContext;
@@ -110,25 +120,42 @@ NanoVGBitmap::NanoVGBitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int
   SetBitmap(mFBO->image, width, height, scale, drawScale);
 }
 
-NanoVGBitmap::NanoVGBitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, int scale, float drawScale)
+IGraphicsNanoVG::Bitmap::Bitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, int scale, float drawScale)
 {
   int idx = nvgCreateImageRGBA(pContext, width, height, 0, pData);
   mVG = pContext;
   SetBitmap(idx, width, height, scale, drawScale);
 }
 
-NanoVGBitmap::~NanoVGBitmap()
+IGraphicsNanoVG::Bitmap::~Bitmap()
 {
-  if(mFBO)
-    mGraphics->DeleteFBO(mFBO);
-  else
-    nvgDeleteImage(mVG, GetBitmap());
+  if(!mSharedTexture)
+  {
+    if(mFBO)
+      mGraphics->DeleteFBO(mFBO);
+    else
+      nvgDeleteImage(mVG, GetBitmap());
+  }
 }
 
-#pragma mark -
+// Fonts
+static StaticStorage<IFontData> sFontCache;
 
-// Utility conversions
-inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0)
+extern std::map<std::string, void*> gTextureMap;
+
+// Retrieving pixels
+static void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData)
+{
+#if defined(IGRAPHICS_GL)
+  glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pData);
+#elif defined(IGRAPHICS_METAL)
+  mnvgReadPixels(pContext, image, x, y, width, height, pData);
+#endif
+}
+
+#pragma mark - Utilities
+
+static inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0)
 {
   NVGcolor c;
   c.r = (float) color.R / 255.0f;
@@ -138,7 +165,7 @@ inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0)
   return c;
 }
 
-inline void NanoVGSetBlendMode(NVGcontext* context, const IBlend* pBlend)
+static inline void NanoVGSetBlendMode(NVGcontext* context, const IBlend* pBlend)
 {
   if (!pBlend)
   {
@@ -163,7 +190,7 @@ inline void NanoVGSetBlendMode(NVGcontext* context, const IBlend* pBlend)
   }
 }
 
-NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend* pBlend)
+static NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend* pBlend)
 {
   double s[2], e[2];
   
@@ -251,7 +278,7 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
     int sourceScale = 0;
     EResourceLocation resourceFound = SearchImageResource(name, ext, fullPathOrResourceID, targetScale, sourceScale);
 
-    bool bitmapTypeSupported = BitmapExtSupported(ext);
+    bool bitmapTypeSupported = BitmapExtSupported(ext); // KTX textures pass this test (since ext is png)
     
     if(resourceFound == EResourceLocation::kNotFound || !bitmapTypeSupported)
     {
@@ -273,6 +300,14 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
 {
   int idx = 0;
 
+#ifdef OS_IOS
+  if (location == EResourceLocation::kPreloadedTexture)
+  {
+    idx = mnvgCreateImageFromHandle(mVG, gTextureMap[fileNameOrResID], 0 /*flags*/);
+  }
+  else
+#endif
+  
 #ifdef OS_WIN
   if (location == EResourceLocation::kWinBinary)
   {
@@ -291,7 +326,7 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
     idx = nvgCreateImage(mVG, fileNameOrResID, 0);
   }
 
-  return new NanoVGBitmap(mVG, fileNameOrResID, scale, idx);
+  return new Bitmap(mVG, fileNameOrResID, scale, idx, location == EResourceLocation::kPreloadedTexture);
 }
 
 APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height, int scale, double drawScale)
@@ -301,7 +336,7 @@ APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height, int scale, do
     nvgEndFrame(mVG);
   }
   
-  APIBitmap* pAPIBitmap =  new NanoVGBitmap(this, mVG, width, height, scale, drawScale);
+  APIBitmap* pAPIBitmap =  new Bitmap(this, mVG, width, height, scale, drawScale);
 
   if (mInDraw)
   {
@@ -348,7 +383,7 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
     
     IRECT bounds(layer->Bounds());
     
-    NanoVGBitmap maskRawBitmap(mVG, width, height, mask.Get(), pBitmap->GetScale(), pBitmap->GetDrawScale());
+    Bitmap maskRawBitmap(mVG, width, height, mask.Get(), pBitmap->GetScale(), pBitmap->GetDrawScale());
     APIBitmap* shadowBitmap = CreateAPIBitmap(width, height, pBitmap->GetScale(), pBitmap->GetDrawScale());
     IBitmap tempLayerBitmap(shadowBitmap, 1, false);
     IBitmap maskBitmap(&maskRawBitmap, 1, false);
@@ -407,7 +442,8 @@ void IGraphicsNanoVG::DrawResize()
   if (mMainFrameBuffer != nullptr)
     nvgDeleteFramebuffer(mMainFrameBuffer);
   
-  mMainFrameBuffer = nvgCreateFramebuffer(mVG, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale(), 0);
+  if (mVG)
+    mMainFrameBuffer = nvgCreateFramebuffer(mVG, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale(), 0);
   
   if (mMainFrameBuffer == nullptr)
     DBGMSG("Could not init FBO.\n");
@@ -443,6 +479,7 @@ void IGraphicsNanoVG::EndFrame()
 
   nvgSave(mVG);
   nvgResetTransform(mVG);
+  nvgTranslate(mVG, mXTranslation, mYTranslation);
   nvgBeginPath(mVG);
   nvgRect(mVG, 0, 0, WindowWidth(), WindowHeight());
   nvgFillPaint(mVG, img);
@@ -505,9 +542,9 @@ void IGraphicsNanoVG::PathClose()
   nvgClosePath(mVG);
 }
 
-void IGraphicsNanoVG::PathArc(float cx, float cy, float r, float aMin, float aMax, EWinding winding)
+void IGraphicsNanoVG::PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding)
 {
-  nvgArc(mVG, cx, cy, r, DegToRad(aMin - 90.f), DegToRad(aMax - 90.f), winding == EWinding::CW ? NVG_CW : NVG_CCW);
+  nvgArc(mVG, cx, cy, r, DegToRad(a1 - 90.f), DegToRad(a2 - 90.f), winding == EWinding::CW ? NVG_CW : NVG_CCW);
 }
 
 void IGraphicsNanoVG::PathMoveTo(float x, float y)
@@ -520,9 +557,14 @@ void IGraphicsNanoVG::PathLineTo(float x, float y)
   nvgLineTo(mVG, x, y);
 }
 
-void IGraphicsNanoVG::PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3)
+void IGraphicsNanoVG::PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2)
 {
-  nvgBezierTo(mVG, x1, y1, x2, y2, x3, y3);
+  nvgBezierTo(mVG, c1x, c1y, c2x, c2y, x2, y2);
+}
+
+void IGraphicsNanoVG::PathQuadraticBezierTo(float cx, float cy, float x2, float y2)
+{
+  nvgQuadTo(mVG, cx, cy, x2, y2);
 }
 
 IColor IGraphicsNanoVG::GetPoint(int x, int y)
@@ -677,7 +719,7 @@ void IGraphicsNanoVG::UpdateLayer()
     const double scale = GetBackingPixelScale();
     glViewport(0, 0, mLayers.top()->Bounds().W() * scale, mLayers.top()->Bounds().H() * scale);
 #endif
-    nvgBindFramebuffer(dynamic_cast<const NanoVGBitmap*>(mLayers.top()->GetAPIBitmap())->GetFBO());
+    nvgBindFramebuffer(dynamic_cast<const Bitmap*>(mLayers.top()->GetAPIBitmap())->GetFBO());
     nvgBeginFrame(mVG, mLayers.top()->Bounds().W() * GetDrawScale(), mLayers.top()->Bounds().H() * GetDrawScale(), GetScreenScale());
   }
 }

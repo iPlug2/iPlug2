@@ -25,6 +25,8 @@
 #include "IPlugMidi.h"
 #include "IPlugStructs.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 /** This pure virtual interface delegates communication in both directions between a UI editor and something else (which is usually a plug-in)
  *  It is also the class that owns parameter objects (for historical reasons) - although it's not necessary to allocate them
  *
@@ -56,6 +58,9 @@ public:
     mParams.Empty(true);
   }
   
+  IEditorDelegate(const IEditorDelegate&) = delete;
+  IEditorDelegate& operator=(const IEditorDelegate&) = delete;
+  
   /** Adds an IParam to the parameters ptr list
    * Note: This is only used in special circumstances, since most plug-in formats don't support dynamic parameters
    * @return Ptr to the newly created IParam object */
@@ -79,33 +84,50 @@ public:
   /** @return Returns the number of parameters that belong to the plug-in. */
   int NParams() const { return mParams.GetSize(); }
   
-  /** Loops through all parameters, calling SendParameterValueFromDelegate() with the current value of the parameter
-   *  This is important when modifying groups of parameters, restoring state and opening the UI, in order to update it with the latest values*/
-  void SendCurrentParamValuesFromDelegate()
-  {
-    for (int i = 0; i < NParams(); ++i)
-    {
-      SendParameterValueFromDelegate(i, GetParam(i)->GetNormalized(), true);
-    }
-  }
-  
-  /** If you are not using IGraphics, you can implement this method to attach to the native parent view e.g. NSView, UIView, HWND */
+  /** If you are not using IGraphics, you can implement this method to attach to the native parent view e.g. NSView, UIView, HWND.
+   *  Defer calling OnUIOpen() if nessecary. */
   virtual void* OpenWindow(void* pParent) { OnUIOpen(); return nullptr; }
   
   /** If you are not using IGraphics you can if you need to free resources etc when the window closes. Call base implementation. */
   virtual void CloseWindow() { OnUIClose(); }
   
 #pragma mark - Methods you may want to override...
-  /** Override this method to do something before the UI is opened. Call base implementation. */
+  /** Override this method to do something before the UI is opened. You must call the base implementation to make sure controls linked to parameters get updated correctly. */
   virtual void OnUIOpen() { SendCurrentParamValuesFromDelegate(); }
   
   /** Override this method to do something before the UI is closed. */
   virtual void OnUIClose() {};
   
+  /** Override this method to do something to your DSP when a parameter changes.
+   * WARNING: this method can in some cases be called on the realtime audio thread
+   * @param paramIdx The index of the parameter that changed
+   * @param source One of the EParamSource options to indicate where the parameter change came from.
+   * @param sampleOffset For sample accurate parameter changes - index into current block */
+  virtual void OnParamChange(int paramIdx, EParamSource source, int sampleOffset = -1)
+  {
+    Trace(TRACELOC, "idx:%i src:%s\n", paramIdx, ParamSourceStrs[source]);
+    OnParamChange(paramIdx);
+  }
+  
+  /** Another version of the OnParamChange method without an EParamSource, for backwards compatibility / simplicity.
+   * WARNING: this method can in some cases be called on the realtime audio thread */
+  virtual void OnParamChange(int paramIdx) {}
+  
   /** This is an OnParamChange that will only trigger on the UI thread at low priority, and therefore is appropriate for hiding or showing elements of the UI.
    * You should not update parameter objects using this method.
    * @param paramIdx The index of the parameter that changed */
   virtual void OnParamChangeUI(int paramIdx, EParamSource source = kUnknown) {};
+  
+  /** Calls OnParamChange() and OnParamChangeUI() for each parameter.
+   * @param source Specifies the source of the parameter changes */
+  void OnParamReset(EParamSource source)
+  {
+    for (int i = 0; i < NParams(); ++i)
+    {
+      OnParamChange(i, source);
+      OnParamChangeUI(i, source);
+    }
+  }
   
   /** Handle incoming MIDI messages sent to the user interface
    * @param msg The MIDI message to process  */
@@ -124,6 +146,16 @@ public:
   virtual void OnRestoreState() { SendCurrentParamValuesFromDelegate(); };
   
 #pragma mark - Methods for sending values TO the user interface
+  /** Loops through all parameters, calling SendParameterValueFromDelegate() with the current value of the parameter
+   *  This is important when modifying groups of parameters, restoring state and opening the UI, in order to update it with the latest values*/
+  void SendCurrentParamValuesFromDelegate()
+  {
+    for (int i = 0; i < NParams(); ++i)
+    {
+      SendParameterValueFromDelegate(i, GetParam(i)->GetNormalized(), true);
+    }
+  }
+  
   /** SendControlValueFromDelegate (Abbreviation: SCVFD)
    * WARNING: should not be called on the realtime audio thread.
    * In IGraphics plug-ins, this method is used to update controls in the user interface from a class implementing IEditorDelegate, when the control is not linked to a parameter.
@@ -180,6 +212,10 @@ public:
 #pragma mark - Methods for sending values FROM the user interface
   // The following methods are called from the user interface in order to set or query values of parameters in the class implementing IEditorDelegate
   
+  /** When modifying a range of parameters in the editor, it can be necessary to broadcast that fact via the host, for instance in a distributed plug-in.
+   *  You can use it if you restore a preset using a custom preset mechanism. */
+  virtual void DirtyParametersFromUI() {};
+  
   /** Called by the UI at the beginning of a parameter change gesture, in order to notify the host
    * (via a call in the API class) that the parameter is going to be modified
    * The host may be trying to automate the parameter as well, so it needs to relinquish control when the user is modifying something in the user interface.
@@ -205,17 +241,13 @@ public:
    * @param paramIdx The index of the parameter that is changing value */
   virtual void EndInformHostOfParamChangeFromUI(int paramIdx) = 0;
   
-  /** When modifying a range of parameters in the editor, it can be necessary to broadcast that fact, for instance in a distributed plug-in.
-   *  You can use it if you restore a preset using a custom preset mechanism. */
-  virtual void DirtyParametersFromUI() {};
-  
   /** If the editor changes UI dimensions we need to call into the plug-in API to  resize the window in the plugin
    * returns a bool to indicate whether the DAW or plugin class has resized the host window */
   virtual bool EditorResizeFromUI(int viewWidth, int viewHeight) { return false; }
     
   /** If the editor changes arbitrary data (such as layout/scale) this is called to store data into the plugin*/
   virtual void EditorDataChangedFromUI(const IByteChunk& data) {}
-  
+
   /** SendMidiMsgFromUI (Abbreviation: SMMFUI)
    * This method should be used  when  sending a MIDI message from the UI. For example clicking on a key in a virtual keyboard.
    * Eventually the MIDI message can be handled in IPlugProcessor::ProcessMidiMsg(), from where it can be used to trigger sound and or forwarded to the API's MIDI output.
@@ -235,13 +267,16 @@ public:
   * @param dataSize The size in bytes of the data payload pointed to by pData. Note: if this is nonzero, pData must be valid.
   * @param pData Ptr to the opaque data payload for the message */
   virtual void SendArbitraryMsgFromUI(int messageTag, int controlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) {};
+  
 #pragma mark -
   /** This method is needed, for remote editors to avoid a feedback loop */
   virtual void DeferMidiMsg(const IMidiMsg& msg) {};
   
   /** This method is needed, for remote editors to avoid a feedback loop */
   virtual void DeferSysexMsg(const ISysEx& msg) {};
-#pragma mark
+
+#pragma mark - Editor resizing
+  
   /** @return The width of the plug-in editor in pixels */
   int GetEditorWidth() const { return mEditorWidth; }
   
@@ -257,6 +292,10 @@ public:
    * @return The new chunk position (endPos)*/
   virtual int SetEditorData(const IByteChunk& data, int startPos) { return startPos; }
 
+  /** Can be used by a host API to inform the editor of screen scale changes
+   *@param scale The new screen scale*/
+  virtual void SetScreenScale(double scale) {}
+
 protected:
   /** The width of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist. */
   int mEditorWidth = 0;
@@ -267,3 +306,5 @@ protected:
   /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plug-in class implementation constructor */
   WDL_PtrList<IParam> mParams;
 };
+
+END_IPLUG_NAMESPACE

@@ -12,11 +12,15 @@
 
 #pragma mark - IPlugVST3Processor Constructor/Destructor
 
-IPlugVST3Processor::IPlugVST3Processor(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPlugAPIBase(c, kAPIVST3)
-, IPlugVST3ProcessorBase(c, *this)
+using namespace iplug;
+using namespace Steinberg;
+using namespace Vst;
+
+IPlugVST3Processor::IPlugVST3Processor(const InstanceInfo& info, const Config& config)
+: IPlugAPIBase(config, kAPIVST3)
+, IPlugVST3ProcessorBase(config, *this)
 {
-  setControllerClass(instanceInfo.mOtherGUID);
+  setControllerClass(info.mOtherGUID);
   CreateTimer();
 }
 
@@ -84,7 +88,7 @@ tresult PLUGIN_API IPlugVST3Processor::setState(IBStream* pState)
 {
   TRACE;
   
-  return IPlugVST3State::SetState(this, pState) ? kResultOk :kResultFalse;
+  return IPlugVST3State::SetState(this, pState) ? kResultOk : kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3Processor::getState(IBStream* pState)

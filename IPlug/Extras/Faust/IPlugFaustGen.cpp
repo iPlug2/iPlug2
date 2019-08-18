@@ -20,6 +20,8 @@
 #include "faust/dsp/poly-dsp.h"
 #include "fileread.h"
 
+using namespace iplug;
+
 int FaustGen::sFaustGenCounter = 0;
 int FaustGen::Factory::sFactoryCounter = 0;
 bool FaustGen::sAutoRecompile = false;
@@ -357,7 +359,7 @@ bool FaustGen::Factory::LoadFile(const char* file)
   if (infile.IsOpen() == true)
   {
     std::vector<char> buffer(infile.GetSize() + 1); // +1 to have space for the terminating zero
-    infile.Read(buffer.data(), infile.GetSize());
+    infile.Read(buffer.data(), static_cast<int>(infile.GetSize()));
     buffer[infile.GetSize()] = '\0'; // put in the string terminating zero
 
     StatType buf;
@@ -381,7 +383,7 @@ bool FaustGen::Factory::LoadFile(const char* file)
     return true;
   }
   
-  assert(0); // The FAUST_BLOCK file was not found
+  assert(0); // The FAUST_BLOCK file was not found // TODO: warning about codesign
   
   return false;
 }
@@ -491,6 +493,9 @@ void FaustGen::Init()
   
   if(mPlug)
     mPlug->OnParamReset(EParamSource::kRecompile);
+  
+  if(mOnCompileFunc)
+    mOnCompileFunc();
 }
 
 void FaustGen::GetDrawPath(WDL_String& path)

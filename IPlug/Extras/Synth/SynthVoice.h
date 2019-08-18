@@ -28,8 +28,9 @@
 #include "IPlugQueue.h"
 #include "ControlRamp.h"
 
-/** A generic synthesizer voice to be controlled by a voice allocator. */
+BEGIN_IPLUG_NAMESPACE
 
+/** A generic synthesizer voice to be controlled by a voice allocator. */
 namespace voiceControlNames
 {
   /** This enum names the control ramps by which we connect a controller to a synth voice.
@@ -47,7 +48,7 @@ namespace voiceControlNames
 
 using namespace voiceControlNames;
 
-using VoiceInputs = std::array<ControlRamp, kNumVoiceControlRamps>;
+using VoiceInputs = ControlRamp::RampArray<kNumVoiceControlRamps>;
 
 #pragma mark - Voice class
 
@@ -74,8 +75,7 @@ public:
    @param nInputs The number of input channels that contain valid data
    @param nOutputs input channels that contain valid data
    @param startIdx The start index of the block of samples to process
-   @param nFrames The number of samples the process in this block
-  */
+   @param nFrames The number of samples the process in this block */
   virtual void ProcessSamplesAccumulating(sample** inputs, sample** outputs, int nInputs, int nOutputs, int startIdx, int nFrames)
   {
     for (auto c = 0; c < nOutputs; c++)
@@ -96,8 +96,7 @@ public:
   virtual void SetProgramNumber(int pgm) {};
 
   /** Implement this to respond to control numbers for which there are not ramps. A synthesizer could
-   * use its own ramps internally if needed.
-   */
+   * use its own ramps internally if needed. */
   virtual void SetControl(int controlNumber, float value) {};
 
 protected:
@@ -115,3 +114,4 @@ protected:
   friend class VoiceAllocator;
 };
 
+END_IPLUG_NAMESPACE

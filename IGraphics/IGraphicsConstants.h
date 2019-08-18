@@ -12,28 +12,30 @@
 
 #include "IPlugPlatform.h"
 
-static const int DEFAULT_FPS = 25; // TODO: default 60 FPS?
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
+static constexpr int DEFAULT_FPS = 25; // TODO: default 60 FPS?
 
 // If not dirty for this many timer ticks, we call OnGUIIDle.
 // Only looked at if USE_IDLE_CALLS is defined.
-static const int IDLE_TICKS = 20;
+static constexpr int IDLE_TICKS = 20;
 
-#define DEFAULT_ANIMATION_DURATION 100
+static constexpr int DEFAULT_ANIMATION_DURATION = 100;
 
 #ifndef CONTROL_BOUNDS_COLOR
 #define CONTROL_BOUNDS_COLOR COLOR_GREEN
 #endif
 
-#define PARAM_EDIT_W 40
-#define PARAM_EDIT_H 16
+static constexpr float PARAM_EDIT_W = 40.f; // TODO: remove?
+static constexpr float PARAM_EDIT_H = 16.f; // TODO: remove?
 
 #define MAX_URL_LEN 256
 #define MAX_NET_ERR_MSG_LEN 1024
 
-#define MAX_IMG_SCALE 3
-
-static const int DEFAULT_TEXT_ENTRY_LEN = 7;
-static const double DEFAULT_GEARING = 4.0;
+static constexpr int MAX_IMG_SCALE = 3;
+static constexpr int DEFAULT_TEXT_ENTRY_LEN = 7;
+static constexpr double DEFAULT_GEARING = 4.0;
 
 //what is this stuff
 #define MAX_INET_ERR_CODE 32
@@ -42,15 +44,15 @@ static const double DEFAULT_GEARING = 4.0;
 #define MAX_CLASSNAME_LEN 128
 //
 
-static const float GRAYED_ALPHA = 0.25f;
+static constexpr float GRAYED_ALPHA = 0.25f;
 
 #ifndef DEFAULT_PATH
 static const char* DEFAULT_PATH = "~/Desktop";
 #endif
 
 const char* const DEFAULT_FONT = "Roboto-Regular";
-const float DEFAULT_TEXT_SIZE = 14.f;
-const int FONT_LEN = 64;
+static constexpr float DEFAULT_TEXT_SIZE = 14.f;
+static constexpr int FONT_LEN = 64;
 
 /** @enum EType Blend type
  * \todo This could use some documentation
@@ -119,6 +121,9 @@ static const char* kVColorStrs[kNumDefaultVColors] =
 };
 
 /** /todo */
+enum class EVShape { Rectangle, Ellipse, Triangle, EndsRounded, AllRounded };
+
+/** /todo */
 enum class EWinding { CW, CCW };
 
 /** /todo */
@@ -169,9 +174,10 @@ enum EMsgBoxType
 };
 
 // This enumeration must match win32 message box results
+ //If IGraphics::ShowMessageBox can't return inline, it returns kNoResult (e.g. because it requires an asynchronous call)
 enum EMsgBoxResult
 {
-  kNoResult, //If IGraphics::ShowMessageBox can't return inline (e.g. because it requires an asynchronous call)
+  kNoResult,
   kOK = 1,
   kCANCEL = 2,
   kABORT = 3,
@@ -315,3 +321,6 @@ enum EVirtualKey
   kVK_NUMLOCK =     0x90,
   kVK_SCROLL =      0x91
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE

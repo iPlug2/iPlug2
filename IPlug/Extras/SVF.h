@@ -16,6 +16,10 @@
  * - http://www.cytomic.com/files/dsp/SvfLinearTrapOptimised2.pdf
  */
 
+#include "IPlugPlatform.h"
+
+BEGIN_IPLUG_NAMESPACE
+
 #define SVFMODES_VALIST "LowPass", "HighPass", "BandPass", "Notch", "Peak", "Bell", "LowPassShelf", "HighPassShelf"
 
 template<typename T = double, int NC = 1>
@@ -227,3 +231,5 @@ private:
 
   Settings mState, mNewState;
 };
+
+END_IPLUG_NAMESPACE

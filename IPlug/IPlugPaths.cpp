@@ -17,10 +17,18 @@
 #include "IPlugConstants.h"
 #include "IPlugPaths.h"
 
-#ifdef OS_WIN
+#if defined OS_WEB
+#include <emscripten/val.h>
+#elif defined OS_WIN
 #include <windows.h>
 #include <Shlobj.h>
 #include <Shlwapi.h>
+#endif
+
+BEGIN_IPLUG_NAMESPACE
+
+#if defined OS_WIN
+#pragma mark - OS_WIN
 
 // Unicode helpers
 void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
@@ -85,15 +93,15 @@ void HostPath(WDL_String& path, const char* bundleID)
   GetModulePath(0, path);
 }
 
-void PluginPath(WDL_String& path, void* pExtra)
+void PluginPath(WDL_String& path, HMODULE pExtra)
 {
-  GetModulePath((HMODULE) pExtra, path);
+  GetModulePath(pExtra, path);
 }
 
-void BundleResourcePath(WDL_String& path, void* pExtra)
+void BundleResourcePath(WDL_String& path, HMODULE pExtra)
 {
 #ifdef VST3_API
-  GetModulePath((HMODULE)pExtra, path);
+  GetModulePath(pExtra, path);
 #ifdef ARCH_64BIT
   path.SetLen(path.GetLength() - strlen("x86_64-win/"));
 #else
@@ -128,7 +136,7 @@ void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginNa
   path.AppendFormatted(MAX_WIN32_PATH_LEN, "\\VST3 Presets\\%s\\%s", mfrName, pluginName);
 }
 
-void SandboxSafeAppSupportPath(WDL_String& path)
+void SandboxSafeAppSupportPath(WDL_String& path, const char* appGroupID)
 {
   AppSupportPath(path);
 }
@@ -223,6 +231,7 @@ const void* LoadWinResource(const char* resid, const char* type, int& sizeInByte
 }
 
 #elif defined OS_WEB
+#pragma mark - OS_WEB
 
 void AppSupportPath(WDL_String& path, bool isSystem)
 {
@@ -244,10 +253,6 @@ void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginNa
   path.Set("Presets");
 }
 
-#include <emscripten/val.h>
-
-using namespace emscripten;
-
 EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char*, void*)
 {
   if (CStringHasContents(name))
@@ -260,7 +265,7 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
     
     if(strcmp(type, "png") == 0) { //TODO: lowercase/uppercase png
       plusSlash.SetFormatted(strlen("/resources/img/") + strlen(name) + 1, "/resources/img/%s", name);
-      foundResource = val::global("Module")["preloadedImages"].call<bool>("hasOwnProperty", std::string(plusSlash.Get()));
+      foundResource = emscripten::val::global("Module")["preloadedImages"].call<bool>("hasOwnProperty", std::string(plusSlash.Get()));
     }
     else if(strcmp(type, "ttf") == 0) { //TODO: lowercase/uppercase ttf
       plusSlash.SetFormatted(strlen("/resources/fonts/") + strlen(name) + 1, "/resources/fonts/%s", name);
@@ -281,3 +286,5 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
 }
 
 #endif
+
+END_IPLUG_NAMESPACE

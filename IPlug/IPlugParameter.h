@@ -24,29 +24,31 @@
 
 #include "IPlugUtilities.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 /** IPlug's parameter class */
 class IParam
 {
 public:
 
-  /** /todo */
+  /** Defines types or parameter. */
   enum EParamType { kTypeNone, kTypeBool, kTypeInt, kTypeEnum, kTypeDouble };
 
-  /** /todo */
+  /** Used by AudioUnit plugins to determine the appearance of parameters, based on the kind of data they represent */
   enum EParamUnit { kUnitPercentage, kUnitSeconds, kUnitMilliseconds, kUnitSamples, kUnitDB, kUnitLinearGain, kUnitPan, kUnitPhase, kUnitDegrees, kUnitMeters, kUnitRate, kUnitRatio, kUnitFrequency, kUnitOctaves, kUnitCents, kUnitAbsCents, kUnitSemitones, kUnitMIDINote, kUnitMIDICtrlNum, kUnitBPM, kUnitBeats, kUnitCustom };
 
-  /** /todo */
+  /** Used by AudioUnit plugins to determine the mapping of parameters */
   enum EDisplayType { kDisplayLinear, kDisplayLog, kDisplayExp, kDisplaySquared, kDisplaySquareRoot, kDisplayCubed, kDisplayCubeRoot };
 
-  /** /todo */
+  /** Flags to determine characteristics of the parameter */
   enum EFlags
   {
     kFlagsNone            = 0,
-    kFlagCannotAutomate   = 0x1,
-    kFlagStepped          = 0x2,
-    kFlagNegateDisplay    = 0x4,
-    kFlagSignDisplay      = 0x8,
-    kFlagMeta             = 0x10,
+    kFlagCannotAutomate   = 0x1, /** Indicates that the parameter is not automatable */
+    kFlagStepped          = 0x2, /** Indicates that the parameter ???  */
+    kFlagNegateDisplay    = 0x4, /** Indicates that the parameter should be displayed as a negative value */
+    kFlagSignDisplay      = 0x8, /** Indicates that the parameter should be displayed as a signed value */
+    kFlagMeta             = 0x10, /** Indicates that the parameter may influence the state of other parameters */
   };
   
   using DisplayFunc = std::function<void(double, WDL_String&)>;
@@ -86,7 +88,7 @@ public:
   /** Linear parameter shaping */
   struct ShapeLinear : public Shape
   {
-    Shape* Clone() const override { return new ShapeLinear(); };
+    Shape* Clone() const override { return new ShapeLinear(*this); };
     IParam::EDisplayType GetDisplayType() const override { return kDisplayLinear; }
     double NormalizedToValue(double value, const IParam& param) const override;
     double ValueToNormalized(double value, const IParam& param) const override;
@@ -98,7 +100,7 @@ public:
   struct ShapePowCurve : public Shape
   {
     ShapePowCurve(double shape);
-    Shape* Clone() const override { return new ShapePowCurve(mShape); };
+    Shape* Clone() const override { return new ShapePowCurve(*this); };
     IParam::EDisplayType GetDisplayType() const override;
     double NormalizedToValue(double value, const IParam& param) const override;
     double ValueToNormalized(double value, const IParam& param) const override;
@@ -110,7 +112,7 @@ public:
   struct ShapeExp : public Shape
   {
     void Init(const IParam& param) override;
-    Shape* Clone() const override { return new ShapeExp(); };
+    Shape* Clone() const override { return new ShapeExp(*this); };
     IParam::EDisplayType GetDisplayType() const override { return kDisplayLog; }
     double NormalizedToValue(double value, const IParam& param) const override;
     double ValueToNormalized(double value, const IParam& param) const override;
@@ -123,15 +125,18 @@ public:
 
   IParam();
 
-  /** /todo 
-   * @param name /todo
-   * @param defaultValue /todo
-   * @param label /todo
-   * @param flags /todo
-   * @param group /todo
-   * @param offText /todo
-   * @param onText /todo */
-  void InitBool(const char* name, bool defaultValue, const char* label = "", int flags = 0, const char* group = "", const char* offText = "off", const char* onText = "on"); // // LABEL not used here TODO: so why have it?
+  IParam(const IParam&) = delete;
+  IParam& operator=(const IParam&) = delete;
+
+  /** Initialize the parameter as boolean
+   * @param name The parameter's name
+   * @param defaultValue The default value of the parameter
+   * @param label The parameter's label
+   * @param flags The parameter's flags \see IParam::EFlags
+   * @param group The parameter's group
+   * @param offText The display text when the parameter value == 0.
+   * @param onText The display text when the parameter value == 1. */
+  void InitBool(const char* name, bool defaultValue, const char* label = "", int flags = 0, const char* group = "", const char* offText = "off", const char* onText = "on"); // TODO: LABEL not used here TODO: so why have it?
   
   /** /todo 
    * @param name /todo
@@ -142,7 +147,7 @@ public:
    * @param group /todo
    * @param listItems /todo
    * @param ... /todo */
-  void InitEnum(const char* name, int defaultValue, int nEnums, const char* label = "", int flags = 0, const char* group = "", const char* listItems = 0, ...); // LABEL not used here TODO: so why have it?
+  void InitEnum(const char* name, int defaultValue, int nEnums, const char* label = "", int flags = 0, const char* group = "", const char* listItems = 0, ...); // TODO: LABEL not used here TODO: so why have it?
   
   /** /todo 
    * @param name /todo
@@ -178,6 +183,15 @@ public:
    * @param group /todo */
   void InitSeconds(const char* name, double defaultVal = 1., double minVal = 0., double maxVal = 10., double step = 0.1, int flags = 0, const char* group = "");
   
+  /** /todo
+   * @param name /todo
+   * @param defaultVal /todo
+   * @param minVal /todo
+   * @param maxVal /todo
+   * @param step /todo
+   * @param flags /todo
+   * @param group /todo */
+  void InitMilliseconds(const char* name, double defaultVal = 1., double minVal = 0., double maxVal = 100., int flags = 0, const char* group = "");
   /** /todo 
    * @param name /todo
    * @param defaultVal /todo
@@ -281,6 +295,10 @@ public:
    * @param value /todo
    * @param str /todo */
   void SetDisplayText(double value, const char* str);
+  
+  /** Set the parameters label after creation. WARNING: if this is called after the host has queried plugin parameters, the host may display the label as it was previously
+   * @param label /todo */
+  void SetLabel(const char* label) { strcpy(mLabel, label); }
 
   /** Gets a readable value of the parameter
    * @return Current value of the parameter */
@@ -295,7 +313,7 @@ public:
   
   /** /todo 
    * @return double /todo */
-  double DBToAmp() const { return ::DBToAmp(mValue.load()); }
+  double DBToAmp() const { return iplug::DBToAmp(mValue.load()); }
 
   /** /todo 
    * @return double /todo */
@@ -456,3 +474,5 @@ private:
 
   WDL_TypedBuf<DisplayText> mDisplayTexts;
 } WDL_FIXALIGN;
+
+END_IPLUG_NAMESPACE

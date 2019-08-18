@@ -22,6 +22,10 @@
 #include "heapbuf.h"
 #include "ptrlist.h"
 
+#include "IPlugPlatform.h"
+
+BEGIN_IPLUG_NAMESPACE
+
 using namespace hiir;
 
 enum EFactor
@@ -128,6 +132,9 @@ public:
     mDownsampler16x.Empty(true);
   }
 
+  OverSampler(const OverSampler&) = delete;
+  OverSampler& operator=(const OverSampler&) = delete;
+    
   void Reset(int blockSize = DEFAULT_BLOCK_SIZE)
   {
     int numBufSamples = 1;
@@ -513,3 +520,5 @@ private:
   WDL_PtrList<Downsampler2xFPU<3, T>> mDownsampler8x;  // decimator for 8x to 4x SR
   WDL_PtrList<Downsampler2xFPU<2, T>> mDownsampler16x; // decimator for 16x to 8x SR
 };
+
+END_IPLUG_NAMESPACE

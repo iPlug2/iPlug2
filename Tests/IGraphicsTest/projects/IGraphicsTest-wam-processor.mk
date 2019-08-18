@@ -1,6 +1,6 @@
-include ./config/IGraphicsTest-web.mk
+include ../config/IGraphicsTest-web.mk
 
-TARGET = ./build-web/scripts/IGraphicsTest-wam.js
+TARGET = ../build-web/scripts/IGraphicsTest-wam.js
 
 SRC += $(WAM_SRC)
 CFLAGS += $(WAM_CFLAGS)

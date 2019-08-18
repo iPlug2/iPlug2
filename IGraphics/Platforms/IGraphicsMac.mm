@@ -16,7 +16,10 @@
 
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
-int GetSystemVersion()
+using namespace iplug;
+using namespace igraphics;
+
+static int GetSystemVersion()
 {
   static int32_t v;
   if (!v)
@@ -39,6 +42,7 @@ int GetSystemVersion()
 }
 
 StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
+
 #pragma mark -
 
 IGraphicsMac::IGraphicsMac(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
@@ -101,6 +105,7 @@ void IGraphicsMac::ContextReady(void* pLayer)
   SetScreenScale([[NSScreen mainScreen] backingScaleFactor]);
   GetDelegate()->LayoutUI(this);
   UpdateTooltips();
+  GetDelegate()->OnUIOpen();
 }
 
 void* IGraphicsMac::OpenWindow(void* pParent)
@@ -623,6 +628,10 @@ void IGraphicsMac::CreatePlatformImGui()
   #include "IGraphicsCairo.cpp"
 #elif defined IGRAPHICS_NANOVG
   #include "IGraphicsNanoVG.cpp"
-#else
+#elif defined IGRAPHICS_SKIA
+  #include "IGraphicsSkia.cpp"
+#elif defined IGRAPHICS_LICE
   #include "IGraphicsLice.cpp"
+#else
+  #error Either NO_IGRAPHICS or one and only one choice of graphics library must be defined!
 #endif
