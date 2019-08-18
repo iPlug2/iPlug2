@@ -358,13 +358,20 @@ void IControl::SnapToMouse(float x, float y, EDirection direction, const IRECT& 
   SetDirty(true, valIdx);
 }
 
-ITextControl::ITextControl(const IRECT& bounds, const char* str, const IText& text, const IColor& BGColor)
+ITextControl::ITextControl(const IRECT& bounds, const char* str, const IText& text, const IColor& BGColor, bool setBoundsBasedOnStr)
 : IControl(bounds)
 , mStr(str)
 , mBGColor(BGColor)
+, mSetBoundsBasedOnStr(setBoundsBasedOnStr)
 {
   mIgnoreMouse = true;
   IControl::mText = text;
+}
+
+void ITextControl::OnInit()
+{
+  if(mSetBoundsBasedOnStr)
+    SetBoundsBasedOnStr();
 }
 
 void ITextControl::SetStr(const char* str)
@@ -372,6 +379,10 @@ void ITextControl::SetStr(const char* str)
   if (strcmp(mStr.Get(), str))
   {
     mStr.Set(str);
+    
+    if(mSetBoundsBasedOnStr)
+      SetBoundsBasedOnStr();
+    
     SetDirty(false);
   }
 }
@@ -393,13 +404,11 @@ void ITextControl::Draw(IGraphics& g)
     g.DrawText(mText, mStr.Get(), mRECT);
 }
 
-void ITextControl::SetBoundsBasedOnTextDimensions()
+void ITextControl::SetBoundsBasedOnStr()
 {
   IRECT r;
   GetUI()->MeasureText(mText, mStr.Get(), r);
-  
-  //TODO look at text align/valign?
-  SetTargetAndDrawRECTs({mRECT.L, mRECT.T, mRECT.L + r.W(), mRECT.T + r.H()});
+  SetTargetAndDrawRECTs({mRECT.MW()-(r.W()/2.f), mRECT.MH()-(r.H()/2.f), mRECT.MW()+(r.W()/2.f), mRECT.MH()+(r.H()/2.f)});
 }
 
 IURLControl::IURLControl(const IRECT& bounds, const char* str, const char* urlStr, const IText& text, const IColor& BGColor, const IColor& MOColor, const IColor& CLColor)

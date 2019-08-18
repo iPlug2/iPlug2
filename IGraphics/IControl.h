@@ -1415,19 +1415,21 @@ private:
 class ITextControl : public IControl
 {
 public:
-  ITextControl(const IRECT& bounds, const char* str = "", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR);
+  ITextControl(const IRECT& bounds, const char* str = "", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR, bool setBoundsBasedOnStr = false);
 
   void Draw(IGraphics& g) override;
-
+  void OnInit() override;
+  
   virtual void SetStr(const char* str);
   virtual void SetStrFmt(int maxlen, const char* fmt, ...);
   virtual void ClearStr() { SetStr(""); }
   
-  void SetBoundsBasedOnTextDimensions();
+  void SetBoundsBasedOnStr();
   
 protected:
   WDL_String mStr;
   IColor mBGColor;
+  bool mSetBoundsBasedOnStr = false;
 };
 
 class IURLControl : public ITextControl
