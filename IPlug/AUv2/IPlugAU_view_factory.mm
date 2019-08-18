@@ -15,6 +15,8 @@
 #include "config.h"   // This is your plugin's config.h.
 #include "IPlugAPIBase.h"
 
+using namespace iplug;
+
 static const AudioUnitPropertyID kIPlugObjectPropertyID = UINT32_MAX-100;
 
 @interface AUV2_VIEW_CLASS : NSObject <AUCocoaUIBase>

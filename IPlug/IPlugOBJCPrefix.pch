@@ -43,5 +43,8 @@
   #define IGRAPHICS_TEXTFIELDCELL CONCAT(IGraphicsTextFieldCell_)
   #define IGRAPHICS_GLLAYER CONCAT(IGraphicsLayer_)
   #define IGRAPHICS_IMGUIVIEW CONCAT(IGraphicsImGuiView_)
+  #define MNVGtexture CONCAT(MNVGtexture_)
+  #define MNVGbuffers CONCAT(MNVGbuffers_)
+  #define MNVGcontext CONCAT(MNVGcontext_)
 #endif
 

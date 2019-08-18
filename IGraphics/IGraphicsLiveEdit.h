@@ -19,6 +19,9 @@
 
 #include "IControl.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /** A control to enable live modification of control layout in an IGraphics context in debug builds
  * This is based on the work of Youlean, who first included it in iPlug-Youlean
  * The lives outside the main IGraphics control stack and it can be added with IGraphics::EnableLiveEdit().
@@ -216,5 +219,8 @@ private:
   float mGridSize = 10;
   int mClickedOnControl = -1;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
 
 #endif // !NDEBUG

@@ -31,10 +31,10 @@
 
 #define DEBUG_VOICE_COUNT 0
 
-/** A monophonic/polyphonic synthesiser base class which can be supplied with a custom voice.
- *  Supports different kinds of after touch, pitch bend, velocity and after touch curves, unison (currently monophonic mode only)
- */
+BEGIN_IPLUG_NAMESPACE
 
+/** A monophonic/polyphonic synthesiser base class which can be supplied with a custom voice.
+ *  Supports different kinds of after touch, pitch bend, velocity and after touch curves, unison (currently monophonic mode only) */
 class MidiSynth
 {
 public:
@@ -196,5 +196,5 @@ private:
   int mMPEUpperZoneChannels{0};
 };
 
-
+END_IPLUG_NAMESPACE
 

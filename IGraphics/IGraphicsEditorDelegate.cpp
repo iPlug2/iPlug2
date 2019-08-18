@@ -12,6 +12,9 @@
 #include "IGraphics.h"
 #include "IControl.h"
 
+using namespace iplug;
+using namespace igraphics;
+
 IGEditorDelegate::IGEditorDelegate(int nParams)
 : IEditorDelegate(nParams)
 {  

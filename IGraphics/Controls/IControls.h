@@ -25,6 +25,9 @@
 #include "IRTTextControl.h"
 #include "IVDisplayControl.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /**
  * \addtogroup Controls
  * @{
@@ -61,19 +64,25 @@ class IVButtonControl : public IButtonControlBase
                       , public IVectorBase
 {
 public:
-  IVButtonControl(const IRECT& bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool labelInButton = true, bool valueInButton = true, EVShape shape = EVShape::Rectangle, float angle = 0.f);
+  /** Constructs a vector button control, with an action function
+   * @param bounds The control's bounds
+   * @param actionFunc An action function to execute when a button is clicked \see IActionFunction
+   * @param label The label for the vector control, leave empty for no label
+   * @param style The styling of this vector control \see IVStyle
+   * @param labelInButton if the label inside or outside the button
+   * @param valueInButton if the value inside or outside the button
+   * @param shape The shape of the button */
+  IVButtonControl(const IRECT& bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool labelInButton = true, bool valueInButton = true, EVShape shape = EVShape::Rectangle);
 
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
   bool IsHit(float x, float y) const override;
   void OnResize() override;
-  
-  void SetAngle(float angle) { mAngle = angle; SetDirty(false); }
+
   void SetShape(EVShape shape) { mShape = shape; SetDirty(false); }
-  
+
 protected:
-  EVShape mShape = EVShape::Rectangle;
-  float mAngle = 0.; // only used for triangle
+  EVShape mShape;
 };
 
 /** A vector switch control. Click to cycle through states. */
@@ -311,21 +320,40 @@ protected:
   bool mMouseDown = false;
 };
 
+/** a vector plot to display functions and waveforms **/
 class IVPlotControl : public IControl
                     , public IVectorBase
 {
 public:
+    /** IVPlotControl passes values between 0 and 1 to this object, that are the plot normalized x values
+     */
   using IPlotFunc = std::function<double(double)>;
-  
+    
+    /** This struct specifies a plot function
+     * @param color The color of the function
+     * @param func A callable object that must contain the function to display
+     */
   struct Plot {
     IColor color;
     IPlotFunc func;
   };
   
+    /** Constructs a vector plot
+     * @param bounds The control's bounds
+     * @param funcs A function list reference containing the functions to display
+     * @param numPoints The number of points used to draw the functions
+     * @param label The label for the vector control, leave empty for no label
+     * @param style The styling of this vector control \see IVStyle
+     * @param shape The buttons shape \see IVShape
+     * @param min The minimum y axis plot value
+     * @param max The maximum y axis plot value
+     * @param useLayer A flag to draw the control layer */
   IVPlotControl(const IRECT& bounds, const std::initializer_list<Plot>& funcs, int numPoints, const char* label = "", const IVStyle& style = DEFAULT_STYLE, float min = -1., float max = 1., bool useLayer = false);
   void Draw(IGraphics& g) override;
   void OnResize() override;
-
+    /** add a new function to the plot
+     * @param color The function color
+     * @param func A reference object containing the function implementation to display*/
   void AddPlotFunc(const IColor& color, const IPlotFunc& func);
 protected:
   ILayerPtr mLayer;
@@ -535,6 +563,9 @@ protected:
   bool mMultiLine;
   bool mVCentre;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
 
 /**@}*/
 

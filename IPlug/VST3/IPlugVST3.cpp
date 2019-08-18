@@ -17,6 +17,7 @@
 
 #include "IPlugVST3.h"
 
+using namespace iplug;
 using namespace Steinberg;
 using namespace Vst;
 
@@ -24,9 +25,9 @@ using namespace Vst;
 
 #pragma mark - IPlugVST3 Constructor/Destructor
 
-IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPlugAPIBase(c, kAPIVST3)
-, IPlugVST3ProcessorBase(c, *this)
+IPlugVST3::IPlugVST3(const InstanceInfo& info, const Config& config)
+: IPlugAPIBase(config, kAPIVST3)
+, IPlugVST3ProcessorBase(config, *this)
 , mView(nullptr)
 {
   CreateTimer();

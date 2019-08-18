@@ -11,6 +11,9 @@
 #import <UIKit/UIKit.h>
 #include "IGraphicsIOS.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 inline CGRect ToCGRect(IGraphics* pGraphics, const IRECT& bounds)
 {
   float scale = pGraphics->GetDrawScale();
@@ -33,6 +36,12 @@ inline IColor FromUIColor(const UIColor* c)
   [c getRed:&r green:&g blue:&b alpha:&a];
   return IColor(a * 255., r * 255., g * 255., b * 255.);
 }
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+
+using namespace iplug;
+using namespace igraphics;
 
 @interface IGRAPHICS_POPOVER_VIEW_CONTROLLER : UIViewController<UITableViewDataSource, UITableViewDelegate>//UITableViewController
 {

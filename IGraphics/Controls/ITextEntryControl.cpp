@@ -18,6 +18,9 @@
 #include "IPlugPlatform.h"
 #include "wdlutf8.h"
 
+using namespace iplug;
+using namespace igraphics;
+
 #define VIRTUAL_KEY_BIT 0x80000000
 #define STB_TEXTEDIT_K_SHIFT 0x40000000
 #define STB_TEXTEDIT_K_CONTROL 0x20000000
@@ -54,6 +57,7 @@
 
 #define STB_TEXTEDIT_IMPLEMENTATION
 #include "stb_textedit.h"
+
 
 ITextEntryControl::ITextEntryControl()
 : IControl(IRECT())

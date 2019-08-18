@@ -10,6 +10,10 @@
 
 #pragma once
 
+#include "IPlugPlatform.h"
+
+BEGIN_IPLUG_NAMESPACE
+
 template <typename T>
 class IOscillator
 {
@@ -56,6 +60,12 @@ public:
   SinOscillator(double startPhase = 0., double startFreq = 1.)
   : IOscillator<T>(startPhase, startFreq)
   {
+  }
+  
+  inline T Process()
+  {
+    IOscillator<T>::mPhase = IOscillator<T>::mPhase + IOscillator<T>::mPhaseIncr;
+    return std::sin(IOscillator<T>::mPhase * PI * 2.);
   }
 
   inline T Process(double freqHz) override
@@ -202,3 +212,5 @@ private:
 } ALIGNED(8);
 
 #include "Oscillator_table.h"
+
+END_IPLUG_NAMESPACE

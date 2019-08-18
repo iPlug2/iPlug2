@@ -19,6 +19,9 @@
 #include "IControl.h"
 #include "IPlugMidi.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /*
 
  IVKeyboardControl by Eugene Yakshin, 2018
@@ -708,3 +711,6 @@ protected:
   WDL_TypedBuf<float> mKeyXPos;
   int mHighlight = -1;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE

@@ -16,6 +16,9 @@
 
 #include "IControl.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /**  */
 class IVDisplayControl : public IControl
                        , public IVectorBase
@@ -117,3 +120,5 @@ private:
   IRECT mPlotBounds;
 };
 
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
