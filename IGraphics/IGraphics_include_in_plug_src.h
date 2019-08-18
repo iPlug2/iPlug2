@@ -21,9 +21,26 @@
 
 #ifndef NO_IGRAPHICS
 
- #if defined OS_WIN
-  extern HINSTANCE gHINSTANCE;
+  #if defined OS_WEB
 
+  #include <emscripten.h>
+
+  iplug::igraphics::IGraphicsWeb* gGraphics = nullptr;
+
+  void StartMainLoopTimer()
+  {
+    iplug::igraphics::IGraphicsWeb* pGraphics = gGraphics;
+    emscripten_set_main_loop(pGraphics->OnMainLoopTimer, 0 /*pGraphics->FPS()*/, 1);
+  }
+
+  #elif defined OS_WIN
+  extern HINSTANCE gHINSTANCE;
+  #endif
+
+  BEGIN_IPLUG_NAMESPACE
+  BEGIN_IGRAPHICS_NAMESPACE
+
+  #if defined OS_WIN
   IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
   {
     IGraphicsWin* pGraphics = new IGraphicsWin(dlg, w, h, fps, scale);
@@ -47,23 +64,17 @@
     return pGraphics;
   }
   #elif defined OS_WEB
-  #include <emscripten.h>
-
-  IGraphicsWeb* gGraphics = nullptr;
-
   IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
   {
     gGraphics = new IGraphicsWeb(dlg, w, h, fps, scale);
     return gGraphics;
   }
-
-  void StartMainLoopTimer()
-  {
-    emscripten_set_main_loop(gGraphics->OnMainLoopTimer, 0 /*gGraphics->FPS()*/, 1);
-  }
   #else
     #error "No OS defined!"
   #endif
+
+  END_IGRAPHICS_NAMESPACE
+  END_IPLUG_NAMESPACE
 
 #endif //NO_IGRAPHICS
 

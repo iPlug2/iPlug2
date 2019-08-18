@@ -12,18 +12,20 @@
 #include "IPlugAPP_host.h"
 
 #if defined OS_MAC || defined OS_LINUX
-#include "swell.h"
+#include <IPlugSWELL.h>
 #endif
+
+using namespace iplug;
 
 extern HWND gHWND;
 
-IPlugAPP::IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPlugAPIBase(c, kAPIAPP)
-, IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAPP)
+IPlugAPP::IPlugAPP(const InstanceInfo& info, const Config& config)
+: IPlugAPIBase(config, kAPIAPP)
+, IPlugProcessor(config, kAPIAPP)
 {
-  mAppHost = (IPlugAPPHost*) instanceInfo.pAppHost;
+  mAppHost = (IPlugAPPHost*) info.pAppHost;
   
-  Trace(TRACELOC, "%s%s", c.pluginName, c.channelIOStr);
+  Trace(TRACELOC, "%s%s", config.pluginName, config.channelIOStr);
 
   SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
   SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
@@ -33,8 +35,10 @@ IPlugAPP::IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   CreateTimer();
 }
 
-void IPlugAPP::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
+bool IPlugAPP::EditorResizeFromDelegate(int viewWidth, int viewHeight)
 {
+  bool parentResized = false;
+    
   if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
   {
     #ifdef OS_MAC
@@ -42,10 +46,12 @@ void IPlugAPP::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight
     RECT r;
     GetWindowRect(gHWND, &r);
     SetWindowPos(gHWND, 0, r.left, r.bottom - viewHeight - TITLEBAR_BODGE, viewWidth, viewHeight + TITLEBAR_BODGE, 0);
+    parentResized = true;
     #endif
+    IPlugAPIBase::EditorResizeFromDelegate(viewWidth, viewHeight);
   }
   
-  IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
+  return parentResized;
 }
 
 bool IPlugAPP::SendMidiMsg(const IMidiMsg& msg)

@@ -44,7 +44,7 @@
 						<string>Effects</string>
 					</array>
 					<key>type</key>
-					<string>aumf</string>
+					<string>aufx</string>
 					<key>version</key>
 					<integer>65536</integer>
 				</dict>
@@ -53,7 +53,7 @@
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.AudioUnit-UI</string>
 		<key>NSExtensionPrincipalClass</key>
-		<string>IPlugViewController</string>
+		<string>IPlugAUViewController</string>
 	</dict>
 </dict>
 </plist>

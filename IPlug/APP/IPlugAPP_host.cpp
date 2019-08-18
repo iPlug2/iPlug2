@@ -16,18 +16,20 @@
 
 #include "IPlugLogger.h"
 
+using namespace iplug;
+
 #ifndef MAX_PATH_LEN
 #define MAX_PATH_LEN 2048
 #endif
 
 #define STRBUFSZ 100
 
-IPlugAPPHost* IPlugAPPHost::sInstance = nullptr;
+std::unique_ptr<IPlugAPPHost> IPlugAPPHost::sInstance;
 UINT gSCROLLMSG;
 
 IPlugAPPHost::IPlugAPPHost()
+: mIPlug(MakePlug(InstanceInfo{this}))
 {
-  mIPlug = MakePlug(this);
 }
 
 IPlugAPPHost::~IPlugAPPHost()
@@ -43,18 +45,13 @@ IPlugAPPHost::~IPlugAPPHost()
     if(mDAC->isStreamOpen())
       mDAC->abortStream();
   }
-  
-  DELETE_NULL(mIPlug);
-  DELETE_NULL(mMidiIn);
-  DELETE_NULL(mMidiOut);
-  DELETE_NULL(mDAC);
 }
 
 //static
 IPlugAPPHost* IPlugAPPHost::Create()
 {
-  sInstance = new IPlugAPPHost();
-  return sInstance;
+  sInstance = std::make_unique<IPlugAPPHost>();
+  return sInstance.get();
 }
 
 bool IPlugAPPHost::Init()
@@ -79,13 +76,7 @@ bool IPlugAPPHost::Init()
 
 bool IPlugAPPHost::OpenWindow(HWND pParent)
 {
-  if (mIPlug->OpenWindow(pParent) != nullptr)
-  {
-    mIPlug->OnUIOpen();
-    return true;
-  }
-  
-  return false;
+  return mIPlug->OpenWindow(pParent) != nullptr;
 }
 
 void IPlugAPPHost::CloseWindow()
@@ -382,19 +373,19 @@ bool IPlugAPPHost::TryToChangeAudioDriverType()
       mDAC->closeStream();
     }
 
-    DELETE_NULL(mDAC);
+    mDAC = nullptr;
   }
 
 #if defined OS_WIN
   if(mState.mAudioDriverType == kDeviceASIO)
-    mDAC = new RtAudio(RtAudio::WINDOWS_ASIO);
+    mDAC = std::make_unique<RtAudio>(RtAudio::WINDOWS_ASIO);
   else
-    mDAC = new RtAudio(RtAudio::WINDOWS_DS);
+    mDAC = std::make_unique<RtAudio>(RtAudio::WINDOWS_DS);
 #elif defined OS_MAC
   if(mState.mAudioDriverType == kDeviceCoreAudio)
-    mDAC = new RtAudio(RtAudio::MACOSX_CORE);
+    mDAC = std::make_unique<RtAudio>(RtAudio::MACOSX_CORE);
   //else
-  //mDAC = new RtAudio(RtAudio::UNIX_JACK);
+  //mDAC = std::make_unique<RtAudio>(RtAudio::UNIX_JACK);
 #else
   #error NOT IMPLEMENTED
 #endif
@@ -639,22 +630,22 @@ bool IPlugAPPHost::InitMidi()
 {
   try
   {
-    mMidiIn = new RtMidiIn();
+    mMidiIn = std::make_unique<RtMidiIn>();
   }
-  catch ( RtMidiError &error )
+  catch (RtMidiError &error)
   {
-    DELETE_NULL(mMidiIn);
+    mMidiIn = nullptr;
     error.printMessage();
     return false;
   }
 
   try
   {
-    mMidiOut = new RtMidiOut();
+    mMidiOut = std::make_unique<RtMidiOut>();
   }
-  catch ( RtMidiError &error )
+  catch (RtMidiError &error)
   {
-    DELETE_NULL(mMidiOut);
+    mMidiOut = nullptr;
     error.printMessage();
     return false;
   }
@@ -668,7 +659,7 @@ bool IPlugAPPHost::InitMidi()
 // static
 int IPlugAPPHost::AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_t nFrames, double streamTime, RtAudioStreamStatus status, void* pUserData)
 {
-  IPlugAPPHost* _this = sInstance;
+  IPlugAPPHost* _this = sInstance.get();
   
   int nins = _this->GetPlug()->MaxNChannels(ERoute::kInput);
   int nouts = _this->GetPlug()->MaxNChannels(ERoute::kOutput);
@@ -746,10 +737,13 @@ void IPlugAPPHost::MIDICallback(double deltatime, std::vector<uint8_t>* pMsg, vo
     _this->mIPlug->mSysExMsgsFromCallback.Push(data);
     return;
   }
-  else
+  else if (pMsg->size())
   {
-    IMidiMsg msg(0, pMsg->at(0), pMsg->at(1), pMsg->at(2));
-    
+    IMidiMsg msg;
+    msg.mStatus = pMsg->at(0);
+    pMsg->size() > 1 ? msg.mData1 = pMsg->at(1) : msg.mData1 = 0;
+    pMsg->size() > 2 ? msg.mData2 = pMsg->at(2) : msg.mData2 = 0;
+
     _this->mIPlug->mMidiMsgsFromCallback.Push(msg);
   }
 }

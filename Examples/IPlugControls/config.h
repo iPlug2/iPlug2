@@ -17,7 +17,7 @@
 
 #define PLUG_LATENCY 0
 #define PLUG_TYPE 1
-#define PLUG_DOES_MIDI_IN 0
+#define PLUG_DOES_MIDI_IN 1
 #define PLUG_DOES_MIDI_OUT 0
 #define PLUG_DOES_MPE 0
 #define PLUG_DOES_STATE_CHUNKS 0
@@ -49,7 +49,12 @@
 #define APP_RESIZABLE 0
 #define APP_SIGNAL_VECTOR_SIZE 64
 
-#define ROBOTTO_FN "Roboto-Regular.ttf"
+#define ROBOTO_FN "Roboto-Regular.ttf"
+#define FORK_AWESOME_FN "forkawesome-webfont.ttf"
 #define PNGKNOB_FN "knob.png"
+#define PNGKNOB_2X_FN "knob@2x.png"
 #define PNGKNOBROTATE_FN "knob-rotate.png"
+#define PNGKNOBROTATE_2X_FN "knob-rotate@2x.png"
+#define PNGSWITCH_FN "switch.png"
+#define PNGBUTTON_FN "button.png"
 #define SVGKNOBROTATE_FN "vector-knob.svg"

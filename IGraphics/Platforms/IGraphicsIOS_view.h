@@ -8,34 +8,71 @@
  ==============================================================================
 */
 
-#ifndef NO_IGRAPHICS
-
 #import <UIKit/UIKit.h>
 #include "IGraphicsIOS.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 inline CGRect ToCGRect(IGraphics* pGraphics, const IRECT& bounds)
 {
-  float B = (pGraphics->Height() - bounds.B);
-  return CGRectMake(bounds.L, B, bounds.W(), bounds.H());
+  float scale = pGraphics->GetDrawScale();
+  float x = floor(bounds.L * scale);
+  float y = floor(bounds.T * scale);
+  float x2 = ceil(bounds.R * scale);
+  float y2 = ceil(bounds.B * scale);
+  
+  return CGRectMake(x, y, x2 - x, y2 - y);
 }
 
-@interface IGraphicsIOS_View : UIView
+inline UIColor* ToUIColor(const IColor& c)
+{
+  return [UIColor colorWithRed:(double) c.R / 255.0 green:(double) c.G / 255.0 blue:(double) c.B / 255.0 alpha:(double) c.A / 255.0];
+}
+
+inline IColor FromUIColor(const UIColor* c)
+{
+  CGFloat r,g,b,a;
+  [c getRed:&r green:&g blue:&b alpha:&a];
+  return IColor(a * 255., r * 255., g * 255., b * 255.);
+}
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+
+using namespace iplug;
+using namespace igraphics;
+
+@interface IGraphicsIOS_View : UIScrollView <UITextFieldDelegate, UIScrollViewDelegate>
 {  
 @public
-  IGraphicsIOS* mGraphics; // OBJC instance variables have to be pointers
+  IGraphicsIOS* mGraphics;
+  UITextField* mTextField;
+  int mTextFieldLength;
 }
 - (id) initWithIGraphics: (IGraphicsIOS*) pGraphics;
 - (BOOL) isOpaque;
 - (BOOL) acceptsFirstResponder;
+- (BOOL) delaysContentTouches;
 - (void) removeFromSuperview;
-- (void) controlTextDidEndEditing: (NSNotification*) aNotification;
 - (IPopupMenu*) createPopupMenu: (const IPopupMenu&) menu : (CGRect) bounds;
-- (void) createTextEntry: (IControl&) control : (const IText&) text : (const char*) str : (CGRect) areaRect;
+- (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (CGRect) areaRect;
 - (void) endUserInput;
+- (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHanderFunc) completionHandler;
 - (void) getTouchXY: (CGPoint) pt x: (float*) pX y: (float*) pY;
 @property (readonly) CAMetalLayer* metalLayer;
 @property (nonatomic, strong) CADisplayLink *displayLink;
 
 @end
 
-#endif //NO_IGRAPHICS
+#ifdef IGRAPHICS_IMGUI
+#import <MetalKit/MetalKit.h>
+
+@interface IGRAPHICS_IMGUIVIEW : MTKView
+{
+  IGraphicsIOS_View* mView;
+}
+@property (nonatomic, strong) id <MTLCommandQueue> commandQueue;
+- (id) initWithIGraphicsView: (IGraphicsIOS_View*) pView;
+@end
+#endif

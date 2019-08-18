@@ -22,11 +22,11 @@
 class TestSizeControl : public IControl
 {
 public:
-  TestSizeControl(IRECT bounds)
+  TestSizeControl(const IRECT& bounds)
   : IControl(bounds)
   {
     mIgnoreMouse = true;
-    mText = IText(15, COLOR_BLACK, nullptr, IText::kStyleNormal, IText::kAlignNear);
+    mText = IText(15, COLOR_BLACK, nullptr, EAlign::Near);
   }
 
   void Draw(IGraphics& g) override

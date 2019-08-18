@@ -22,73 +22,76 @@
 
 #include "IPlugAPIBase.h"
 
+#include "IPlugVST3_View.h"
+#include "IPlugVST3_ControllerBase.h"
+#include "IPlugVST3_Common.h"
+
 using namespace Steinberg;
 using namespace Vst;
 
-class IPlugVST3View;
+BEGIN_IPLUG_NAMESPACE
 
-/**  VST3 Controller base class for a distributed IPlug VST3 plug-in
+/**  VST3 Controller API-base class for a distributed IPlug VST3 plug-in
  *   @ingroup APIClasses */
 class IPlugVST3Controller : public EditControllerEx1
                           , public IMidiMapping
                           , public IPlugAPIBase
+                          , public IPlugVST3ControllerBase
 {
 public:
-  struct IPlugInstanceInfo
+  using ViewType = IPlugVST3View<IPlugVST3Controller>;
+  
+  struct InstanceInfo
   {
     Steinberg::FUID mOtherGUID;
   };
   
-  IPlugVST3Controller(IPlugInstanceInfo instanceInfo, IPlugConfig c);
+  IPlugVST3Controller(const InstanceInfo& info, const Config& config);
   virtual ~IPlugVST3Controller();
 
   // IEditController
-  tresult PLUGIN_API initialize (FUnknown* context) override;
-  IPlugView* PLUGIN_API createView (FIDString name) override;
-  tresult PLUGIN_API setComponentState (IBStream* state) override; // receives the processor's state
-  tresult PLUGIN_API setState (IBStream* state) override;
-  tresult PLUGIN_API getState (IBStream* state) override;
+  tresult PLUGIN_API initialize(FUnknown* context) override;
+  IPlugView* PLUGIN_API createView(FIDString name) override;
+  tresult PLUGIN_API setComponentState(IBStream* pState) override; // receives the processor's state
+  tresult PLUGIN_API setState(IBStream* pState) override;
+  tresult PLUGIN_API getState(IBStream* pState) override;
   
-  tresult PLUGIN_API setParamNormalized (ParamID tag, ParamValue value) override;
-  ParamValue PLUGIN_API getParamNormalized(ParamID tag) override;
-  ParamValue PLUGIN_API plainParamToNormalized(ParamID tag, ParamValue plainValue) override;
-  ParamValue PLUGIN_API normalizedParamToPlain (ParamID tag, ParamValue valueNormalized) override;
-  tresult PLUGIN_API getParamStringByValue (ParamID tag, ParamValue valueNormalized, String128 string) override;
-  tresult PLUGIN_API getParamValueByString (ParamID tag, TChar* string, ParamValue& valueNormalized) override;
+  ParamValue PLUGIN_API getParamNormalized (ParamID tag) override;
+  tresult PLUGIN_API setParamNormalized(ParamID tag, ParamValue value) override;
+  // ComponentBase
+  tresult PLUGIN_API notify(IMessage* message) override;
 
-  //ComponentBase
-  tresult PLUGIN_API notify (IMessage* message) override;
-
-  //IMidiMapping
+  // IMidiMapping
   tresult PLUGIN_API getMidiControllerAssignment(int32 busIndex, int16 channel, CtrlNumber midiControllerNumber, ParamID& tag) override;
 
-  //IEditControllerEx
-	tresult PLUGIN_API getProgramName (ProgramListID listId, int32 programIndex, String128 name /*out*/) override;
+  // IEditControllerEx
+  tresult PLUGIN_API getProgramName(ProgramListID listId, int32 programIndex, String128 name /*out*/) override;
   
-  DELEGATE_REFCOUNT (EditControllerEx1)
-  tresult PLUGIN_API queryInterface (const char* iid, void** obj) override;
+  DELEGATE_REFCOUNT(EditControllerEx1)
+  tresult PLUGIN_API queryInterface(const char* iid, void** obj) override;
   
-  //IPlugAPIBase
+  // IPlugAPIBase
   void BeginInformHostOfParamChange(int idx) override { beginEdit(idx); }
   void InformHostOfParamChange(int idx, double normalizedValue) override  { performEdit(idx, normalizedValue); }
   void EndInformHostOfParamChange(int idx) override  { endEdit(idx); }
   void InformHostOfProgramChange() override  { /* TODO: */}
-  void EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data) override;
+  bool EditorResizeFromDelegate(int viewWidth, int viewHeight) override;
   void DirtyParametersFromUI() override;
   
-  //IEditorDelegate
+  // IEditorDelegate
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
   void SendSysexMsgFromUI(const ISysEx& msg) override;
   void SendArbitraryMsgFromUI(int messageTag, int controlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) override;
 
   Vst::IComponentHandler* GetComponentHandler() const { return componentHandler; }
-  IPlugVST3View* GetView() const { return mView; }
+  ViewType* GetView() const { return mView; }
 
 private:
-  IPlugVST3View* mView = nullptr;
+  ViewType* mView = nullptr;
+  bool mPlugIsInstrument;
   Steinberg::FUID mProcessorGUID;
 };
 
-IPlugVST3Controller* MakeController();
+END_IPLUG_NAMESPACE
 
 #endif // _IPLUGAPI_

@@ -10,6 +10,8 @@
 
 #include "IWebsocketServer.h"
 
+using namespace iplug;
+
 IWebsocketServer::IWebsocketServer()
 {
 }
@@ -21,29 +23,30 @@ IWebsocketServer::~IWebsocketServer()
 
 bool IWebsocketServer::CreateServer(const char* DOCUMENT_ROOT, const char* PORT)
 {
-  const char *options[] = {"document_root", DOCUMENT_ROOT, "listening_ports", PORT, 0};
+  const char *options[] = {"document_root", DOCUMENT_ROOT, "listening_ports", PORT, "extra_mime_types", ".wasm=application/wasm", 0};
 
   std::vector<std::string> cpp_options;
   for (auto i=0; i<(sizeof(options)/sizeof(options[0])-1); i++) {
     cpp_options.push_back(options[i]);
   }
   
-  if(sInstances == 0 && sServer == nullptr)
+  if (!sServer)
   {
-    try { sServer = new CivetServer(cpp_options); }
+    try { sServer = std::make_unique<CivetServer>(cpp_options); }
     catch (const std::exception& e)
     {
-      DBGMSG("Couldn't create server, port probably allready in use\n");
+      DBGMSG("Couldn't create server, port probably already in use\n");
       return false;
     }
     
     sServer->addWebSocketHandler("/ws", this);
     DBGMSG("Websocket server running at http://localhost:%s/ws serving %s\n", PORT, DOCUMENT_ROOT);
   }
-  else {
+  else
+  {
     WDL_String url;
     GetURL(url);
-    DBGMSG("Websocket server allready running at %s\n", url.Get());
+    DBGMSG("Websocket server already running at %s\n", url.Get());
   }
   
   sInstances++;
@@ -53,20 +56,16 @@ bool IWebsocketServer::CreateServer(const char* DOCUMENT_ROOT, const char* PORT)
 
 void IWebsocketServer::DestroyServer()
 {
-  if(sInstances)
-    sInstances--;
-  
-  if(sInstances == 0) {
-    if(sServer) {
-      delete sServer;
-      sServer = nullptr;
-    }
+  if (sInstances && (--sInstances == 0))
+  {
+    sServer = nullptr;
   }
 }
   
 void IWebsocketServer::GetURL(WDL_String& url)
 {
-  if(sServer) {
+  if(sServer)
+  {
     std::vector<int> listeningPorts = sServer->getListeningPorts();
     url.SetFormatted(256, "http://localhost:%i", listeningPorts[0]);
   }
@@ -184,5 +183,5 @@ void IWebsocketServer::handleClose(CivetServer* pServer, const struct mg_connect
   DBGMSG("WS closed NClients %i\n", NClients());
 }
 
-CivetServer* IWebsocketServer::sServer = nullptr;
+std::unique_ptr<CivetServer> IWebsocketServer::sServer;
 int IWebsocketServer::sInstances = 0;

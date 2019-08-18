@@ -17,6 +17,8 @@
 #include "config.h"
 #include "resource.h"
 
+using namespace iplug;
+
 #pragma mark - WINDOWS
 #if defined OS_WIN
 #include <windows.h>
@@ -53,6 +55,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     pAppHost->TryToChangeAudio();
 
     HACCEL hAccel = LoadAccelerators(gHINSTANCE, MAKEINTRESOURCE(IDR_ACCELERATOR1));
+
+    static UINT(WINAPI *__SetProcessDpiAwarenessContext)(DPI_AWARENESS_CONTEXT);
+
+    double scale = 1.;
+
+    if (!__SetProcessDpiAwarenessContext)
+    {
+      HINSTANCE h = LoadLibrary("user32.dll");
+      if (h) *(void **)&__SetProcessDpiAwarenessContext = GetProcAddress(h, "SetProcessDpiAwarenessContext");
+      if (!__SetProcessDpiAwarenessContext)
+        *(void **)&__SetProcessDpiAwarenessContext = (void*)(INT_PTR)1;
+    }
+    if ((UINT_PTR)__SetProcessDpiAwarenessContext > (UINT_PTR)1)
+    {
+      __SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+    }
 
     CreateDialog(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_MAIN), GetDesktopWindow(), IPlugAPPHost::MainDlgProc);
 
@@ -122,7 +140,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 #pragma mark - MAC
 #elif defined(OS_MAC)
 #import <Cocoa/Cocoa.h>
-#include "swell.h"
+#include <IPlugSWELL.h>
 HWND gHWND;
 extern HMENU SWELL_app_stocksysmenu;
 
@@ -160,7 +178,7 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
       break;
     case SWELLAPP_LOADED:
     {
-      pAppHost = IPlugAPPHost::sInstance;
+      pAppHost = IPlugAPPHost::sInstance.get();
 
       HMENU menu = SWELL_GetCurrentMenu();
 
@@ -280,7 +298,7 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 
 #pragma mark - LINUX
 #elif defined(OS_LINUX)
-//#include "swell.h"
+//#include <IPlugSWELL.h>
 //#include "swell-internal.h" // fixes problem with HWND forward decl
 //
 //HWND gHWND;

@@ -19,9 +19,10 @@
 #include "IPlugParameter.h"
 #include "IPlugLogger.h"
 
+using namespace iplug;
+
 #pragma mark - Shape
 
-// Linear
 double IParam::ShapeLinear::NormalizedToValue(double value, const IParam& param) const
 {
   return param.mMin + value * (param.mMax - param.mMin);
@@ -32,7 +33,6 @@ double IParam::ShapeLinear::ValueToNormalized(double value, const IParam& param)
   return (value - param.mMin) / (param.mMax - param.mMin);
 }
 
-// Power curve shape
 IParam::ShapePowCurve::ShapePowCurve(double shape)
 : mShape(shape)
 {
@@ -58,7 +58,6 @@ double IParam::ShapePowCurve::ValueToNormalized(double value, const IParam& para
   return std::pow((value - param.GetMin()) / (param.GetMax() - param.GetMin()), 1.0 / mShape);
 }
 
-// Exponential shape
 void IParam::ShapeExp::Init(const IParam& param)
 {
   double min = param.GetMin();
@@ -84,7 +83,7 @@ double IParam::ShapeExp::ValueToNormalized(double value, const IParam& param) co
 
 IParam::IParam()
 {
-  mShape.reset(new ShapeLinear);
+  mShape = std::make_unique<ShapeLinear>();
   memset(mName, 0, MAX_PARAM_NAME_LEN * sizeof(char));
   memset(mLabel, 0, MAX_PARAM_LABEL_LEN * sizeof(char));
   memset(mParamGroup, 0, MAX_PARAM_LABEL_LEN * sizeof(char));
@@ -154,7 +153,7 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
     ;
   }
     
-  mShape.reset(shape.Clone());
+  mShape = std::unique_ptr<Shape>(shape.Clone());
   mShape->Init(*this);
 }
 
@@ -166,6 +165,11 @@ void IParam::InitFrequency(const char *name, double defaultVal, double minVal, d
 void IParam::InitSeconds(const char *name, double defaultVal, double minVal, double maxVal, double step, int flags, const char *group)
 {
   InitDouble(name, defaultVal, minVal, maxVal, step, "Seconds", flags, group, ShapeLinear(), kUnitSeconds);
+}
+
+void IParam::InitMilliseconds(const char *name, double defaultVal, double minVal, double maxVal, int flags, const char *group)
+{
+  InitDouble(name, defaultVal, minVal, maxVal, 1, "ms", flags, group, ShapeLinear(), kUnitMilliseconds);
 }
 
 void IParam::InitPitch(const char *name, int defaultVal, int minVal, int maxVal, int flags, const char *group)

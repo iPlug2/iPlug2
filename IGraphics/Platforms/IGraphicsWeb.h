@@ -15,11 +15,16 @@
 #include <emscripten/bind.h>
 #include <emscripten/html5.h>
 
+#include <utility>
+
 #include "IPlugPlatform.h"
 
 #include "IGraphics_select.h"
 
 using namespace emscripten;
+
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
 
 static val GetCanvas()
 {
@@ -35,6 +40,8 @@ static val GetPreloadedImages()
 * @ingroup PlatformClasses */
 class IGraphicsWeb final : public IGRAPHICS_DRAW_CLASS
 {
+  class Font;
+  class FileFont;
 public:
   IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsWeb();
@@ -42,8 +49,6 @@ public:
   void DrawResize() override;
 
   const char* GetPlatformAPIStr() override { return "WEB"; }
-
-  void SetPlatformContext(void* pContext) override {} // TODO:
 
   void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override { /* NOT SUPPORTABLE*/ }
@@ -55,12 +60,13 @@ public:
   void* GetWindow() override { return nullptr; } // TODO:
   bool WindowIsOpen() override { return GetWindow(); } // TODO: ??
   bool GetTextFromClipboard(WDL_String& str) override;
+  bool SetTextInClipboard(const WDL_String& str) override { return false; } // TODO
   void UpdateTooltips() override {} // TODO:
-  int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) override;
+  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
   
   void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext) override;
   void PromptForDirectory(WDL_String& path) override;
-  bool PromptForColor(IColor& color, const char* str) override { return false; } // TODO:
+  bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
   
   //IGraphicsWeb
@@ -69,7 +75,15 @@ public:
   double mPrevY = 0.;
   
 protected:
-  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
-  void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
-  EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result) override;
+  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds) override;
+  void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
+    
+private:
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
+  void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override {}
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+
