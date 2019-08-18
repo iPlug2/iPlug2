@@ -5,6 +5,8 @@
 #include "ADSREnvelope.h"
 #include "Smoothers.h"
 
+using namespace iplug;
+
 enum EModulations
 {
   kModGainSmoother = 0,

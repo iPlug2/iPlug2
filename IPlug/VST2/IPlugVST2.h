@@ -21,8 +21,10 @@
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 /** Used to pass various instance info to the API class */
-struct IPlugInstanceInfo
+struct InstanceInfo
 {
   audioMasterCallback mVSTHostCallback;
 };
@@ -30,10 +32,10 @@ struct IPlugInstanceInfo
 /**  VST2.4 API base class for an IPlug plug-in
 *   @ingroup APIClasses */
 class IPlugVST2 : public IPlugAPIBase
-                , public IPlugProcessor<PLUG_SAMPLE_DST>
+                , public IPlugProcessor
 {
 public:
-  IPlugVST2(IPlugInstanceInfo instanceInfo, IPlugConfig config);
+  IPlugVST2(const InstanceInfo& info, const Config& config);
 
   //IPlugAPIBase
   void BeginInformHostOfParamChange(int idx) override;
@@ -90,6 +92,8 @@ protected:
   audioMasterCallback mHostCallback;
 };
 
-IPlugVST2* MakePlug();
+IPlugVST2* MakePlug(const InstanceInfo& info);
+
+END_IPLUG_NAMESPACE
 
 #endif

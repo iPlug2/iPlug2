@@ -16,6 +16,8 @@
 
 #include "IPlugLogger.h"
 
+using namespace iplug;
+
 #ifndef MAX_PATH_LEN
 #define MAX_PATH_LEN 2048
 #endif
@@ -25,7 +27,8 @@
 std::unique_ptr<IPlugAPPHost> IPlugAPPHost::sInstance;
 UINT gSCROLLMSG;
 
-IPlugAPPHost::IPlugAPPHost() : mIPlug(MakePlug(this))
+IPlugAPPHost::IPlugAPPHost()
+: mIPlug(MakePlug(InstanceInfo{this}))
 {
 }
 

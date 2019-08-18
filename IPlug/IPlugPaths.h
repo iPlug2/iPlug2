@@ -17,6 +17,8 @@
 
 #include "IPlugUtilities.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 #if defined OS_MAC || defined OS_IOS
 using PluginIDType = const char *;
 #elif defined OS_WIN
@@ -90,3 +92,6 @@ extern const void* LoadWinResource(const char* resID, const char* type, int& siz
 #ifdef OS_IOS
 extern bool IsAuv3AppExtension();
 #endif
+  
+END_IPLUG_NAMESPACE
+

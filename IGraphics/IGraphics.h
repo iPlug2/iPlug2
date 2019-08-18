@@ -46,7 +46,6 @@
 
 #include "IGraphicsConstants.h"
 #include "IGraphicsStructs.h"
-#include "IGraphicsUtilities.h"
 #include "IGraphicsPopupMenu.h"
 #include "IGraphicsEditorDelegate.h"
 
@@ -65,12 +64,15 @@
 #undef DrawText
 #endif
 
+BEGIN_IPLUG_NAMESPACE
+class IParam;
+BEGIN_IGRAPHICS_NAMESPACE
 class IControl;
 class IPopupMenuControl;
 class ITextEntryControl;
 class ICornerResizerControl;
 class IFPSDisplayControl;
-class IParam;
+
 
 /**  The lowest level base class of an IGraphics context */
 class IGraphics
@@ -1544,3 +1546,6 @@ public:
   std::unique_ptr<ImGuiRenderer> mImGuiRenderer;
 #endif
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE

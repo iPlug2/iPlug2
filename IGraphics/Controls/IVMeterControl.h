@@ -20,6 +20,9 @@
 #include "IPlugQueue.h"
 #include "IPlugStructs.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /** Vectorial multichannel capable meter control
  * @ingroup IControls */
 template <int MAXNC = 1, int QUEUE_SIZE = 1024>
@@ -140,3 +143,6 @@ public:
     SetDirty(false);
   }
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE

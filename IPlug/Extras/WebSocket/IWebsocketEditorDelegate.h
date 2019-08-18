@@ -10,6 +10,8 @@
  * @copydoc IWebsocketEditorDelegate
  */
 
+BEGIN_IPLUG_NAMESPACE
+
 /** An IEditorDelegate base class that embeds a websocket server ... */
 class IWebsocketEditorDelegate : public IGEditorDelegate, public IWebsocketServer
 {
@@ -62,3 +64,5 @@ private:
   IPlugQueue<ParamTupleCX> mParamChangeFromClients {PARAM_TRANSFER_SIZE};
   IPlugQueue<IMidiMsg> mMIDIFromClients {MIDI_TRANSFER_SIZE};
 };
+
+END_IPLUG_NAMESPACE

@@ -15,6 +15,9 @@
 #include "IGraphics_select.h"
 #include "IGraphicsCoreText.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /** IGraphics platform class for macOS
 *   @ingroup PlatformClasses */
 class IGraphicsMac final : public IGRAPHICS_DRAW_CLASS
@@ -86,3 +89,6 @@ private:
   WDL_String mBundleID;
   friend int GetMouseOver(IGraphicsMac* pGraphics);
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE

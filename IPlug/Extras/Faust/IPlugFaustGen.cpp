@@ -20,6 +20,8 @@
 #include "faust/dsp/poly-dsp.h"
 #include "fileread.h"
 
+using namespace iplug;
+
 int FaustGen::sFaustGenCounter = 0;
 int FaustGen::Factory::sFactoryCounter = 0;
 bool FaustGen::sAutoRecompile = false;

@@ -36,6 +36,7 @@
 		4F2602D92269F4CD00C7E97E /* IPlugAUViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105A20A0E57100D3092F /* IPlugAUViewController.mm */; };
 		4F3E0F6A20A0BCD900A9C2BE /* IPlugInstrument-iOS.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6720A0BC5B00A9C2BE /* IPlugInstrument-iOS.storyboard */; };
 		4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */; };
+		4F993F6F23055C75000313AF /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF103420A0E55900D3092F /* IPlugProcessor.cpp */; };
 		4FB2269720A0D3A800614769 /* IPlugInstrument-iOS-LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* IPlugInstrument-iOS-LaunchScreen.storyboard */; };
 		4FDF6D772267CE540007B686 /* AppViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D732267CE540007B686 /* AppViewController.mm */; };
 		4FDF6D792267CE540007B686 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D742267CE540007B686 /* main.m */; };
@@ -673,6 +674,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -744,6 +746,7 @@
 				4FF07AF3226B90CC002828E3 /* MidiSynth.cpp in Sources */,
 				4F2602C32269F15000C7E97E /* IGraphicsIOS_view.mm in Sources */,
 				4F2602C72269F15000C7E97E /* IGraphics.cpp in Sources */,
+				4F993F6F23055C75000313AF /* IPlugProcessor.cpp in Sources */,
 				4F2602C82269F15000C7E97E /* IGraphicsEditorDelegate.cpp in Sources */,
 				4F2602C92269F15000C7E97E /* IControl.cpp in Sources */,
 				4F2602C52269F15000C7E97E /* IControls.cpp in Sources */,

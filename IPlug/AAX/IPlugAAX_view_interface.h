@@ -13,6 +13,9 @@
 
 #include "AAX_IViewContainer.h"
 
+#include "IPlugPlatform.h"
+
+BEGIN_IPLUG_NAMESPACE
 
 class IPlugAAXView_Interface
 {
@@ -24,3 +27,5 @@ public:
 protected:
   AAX_IViewContainer* mAAXViewContainer = nullptr;
 };
+
+END_IPLUG_NAMESPACE

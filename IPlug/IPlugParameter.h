@@ -24,6 +24,8 @@
 
 #include "IPlugUtilities.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 /** IPlug's parameter class */
 class IParam
 {
@@ -311,7 +313,7 @@ public:
   
   /** /todo 
    * @return double /todo */
-  double DBToAmp() const { return ::DBToAmp(mValue.load()); }
+  double DBToAmp() const { return iplug::DBToAmp(mValue.load()); }
 
   /** /todo 
    * @return double /todo */
@@ -472,3 +474,5 @@ private:
 
   WDL_TypedBuf<DisplayText> mDisplayTexts;
 } WDL_FIXALIGN;
+
+END_IPLUG_NAMESPACE

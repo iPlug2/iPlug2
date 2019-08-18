@@ -26,6 +26,8 @@
 #include "IPlugMidi.h" // <- Midi related structs in here
 #include "IPlugUtilities.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 /** In certain cases we need to queue parameter changes for transferral between threads */
 struct ParamTuple
 {
@@ -327,7 +329,7 @@ private:
 };
 
 /** Helper struct to set compile time options to an API class constructor  */
-struct IPlugConfig
+struct Config
 {
   int nParams;
   int nPresets;
@@ -349,7 +351,7 @@ struct IPlugConfig
   int plugHeight;
   const char* bundleID;
   
-  IPlugConfig(int nParams,
+  Config(int nParams,
               int nPresets,
               const char* channelIOStr,
               const char* pluginName,
@@ -531,5 +533,7 @@ struct IPreset
     sprintf(mName, "%s", UNUSED_PRESET_NAME);
   }
 };
+
+END_IPLUG_NAMESPACE
 
 /**@}*/

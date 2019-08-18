@@ -21,6 +21,9 @@
 
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
+using namespace iplug;
+using namespace igraphics;
+
 StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 #pragma mark -

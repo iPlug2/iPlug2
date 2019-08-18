@@ -9,6 +9,8 @@
 */
 
 #include <cmath>
+#include <cstring>
+#include "dirscan.h"
 
 #include "IControl.h"
 #include "IPlugParameter.h"
@@ -27,8 +29,8 @@
   #endif
 #endif
 
-#include "dirscan.h"
-
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
 void DefaultAnimationFunc(IControl* pCaller)
 {
   auto progress = pCaller->GetAnimationProgress();
@@ -63,6 +65,11 @@ void SplashClickActionFunc(IControl* pCaller)
   dynamic_cast<IVectorBase*>(pCaller)->SetSplashPoint(x, y);
   pCaller->SetAnimation(SplashAnimationFunc, DEFAULT_ANIMATION_DURATION);
 }
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+
+using namespace iplug;
+using namespace igraphics;
 
 IControl::IControl(const IRECT& bounds, int paramIdx, IActionFunction actionFunc)
 : mRECT(bounds)

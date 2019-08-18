@@ -15,15 +15,17 @@
 #include <IPlugSWELL.h>
 #endif
 
+using namespace iplug;
+
 extern HWND gHWND;
 
-IPlugAPP::IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPlugAPIBase(c, kAPIAPP)
-, IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAPP)
+IPlugAPP::IPlugAPP(const InstanceInfo& info, const Config& config)
+: IPlugAPIBase(config, kAPIAPP)
+, IPlugProcessor(config, kAPIAPP)
 {
-  mAppHost = (IPlugAPPHost*) instanceInfo.pAppHost;
+  mAppHost = (IPlugAPPHost*) info.pAppHost;
   
-  Trace(TRACELOC, "%s%s", c.pluginName, c.channelIOStr);
+  Trace(TRACELOC, "%s%s", config.pluginName, config.channelIOStr);
 
   SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
   SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);

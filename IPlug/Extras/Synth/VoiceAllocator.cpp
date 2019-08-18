@@ -14,6 +14,8 @@
 #include <numeric>
 #include <iostream>
 
+using namespace iplug;
+
 std::ostream& operator<< (std::ostream& out, const VoiceInputEvent& r)
 {
   out << "[z" << (int)r.mAddress.mZone << " c" << (int)r.mAddress.mChannel << " k" << (int)r.mAddress.mKey << " f" << (int)r.mAddress.mFlags << "]"  ;

@@ -14,12 +14,15 @@
 
 #include "ptrlist.h"
 #include "IPlugLogger.h"
+#include "IPlugPlatform.h"
 
 #ifdef OS_WIN
 #include <windows.h>
 #else
 #include <unistd.h>
 #endif
+
+BEGIN_IPLUG_NAMESPACE
 
 class IWebsocketServer : public CivetWebSocketHandler
 {
@@ -67,3 +70,5 @@ private:
 protected:
   WDL_Mutex mMutex;
 };
+
+END_IPLUG_NAMESPACE

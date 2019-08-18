@@ -20,6 +20,9 @@
 
 #include "IGraphicsNanoVG.h"
 
+using namespace iplug;
+using namespace igraphics;
+
 /** Control to test IGraphicsNanoVG with Metal Performance Shaders
  *   @ingroup TestControls */
 class TestMPSControl : public IKnobControlBase

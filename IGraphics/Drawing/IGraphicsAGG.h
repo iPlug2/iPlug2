@@ -15,47 +15,38 @@
 
 #include "heapbuf.h"
 
-template <class SpanGeneratorType>
-class alpha_span_generator : public SpanGeneratorType
-{
-public:
-  alpha_span_generator(typename SpanGeneratorType::source_type& source, typename SpanGeneratorType::interpolator_type& interpolator, agg::cover_type a)
-  : SpanGeneratorType(source, interpolator), alpha(a) {}
-  
-  void generate(typename SpanGeneratorType::color_type* span, int x, int y, unsigned len)
-  {
-    SpanGeneratorType::generate(span, x, y, len);
-    
-    if (alpha != 255)
-    {
-      for (unsigned i = 0; i < len; i++, span++)
-        span->a = (span->a * alpha + SpanGeneratorType::base_mask) >> SpanGeneratorType::base_shift;
-    }
-  }
-  
-private:
-  agg::cover_type alpha;
-};
-
-/** An AGG API bitmap
- * @ingroup APIBitmaps */
-class AGGBitmap : public APIBitmap
-{
-public:
-  AGGBitmap(agg::pixel_map* pPixMap, int scale, float drawScale, bool preMultiplied)
-    : APIBitmap(pPixMap, pPixMap->width(), pPixMap->height(), scale, drawScale), mPreMultiplied(preMultiplied)
-    {}
-  virtual ~AGGBitmap() { delete GetBitmap(); }
-  bool IsPreMultiplied() const { return mPreMultiplied; }
-private:
-  bool mPreMultiplied;
-};
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
 
 /** IGraphics draw class using Antigrain Geometry
 *   @ingroup DrawClasses*/
 class IGraphicsAGG : public IGraphicsPathBase
 {
-public:
+private:
+  class Bitmap;
+  
+  template <class SpanGeneratorType>
+  class alpha_span_generator : public SpanGeneratorType
+  {
+  public:
+    alpha_span_generator(typename SpanGeneratorType::source_type& source, typename SpanGeneratorType::interpolator_type& interpolator, agg::cover_type a)
+    : SpanGeneratorType(source, interpolator), alpha(a) {}
+    
+    void generate(typename SpanGeneratorType::color_type* span, int x, int y, unsigned len)
+    {
+      SpanGeneratorType::generate(span, x, y, len);
+      
+      if (alpha != 255)
+      {
+        for (unsigned i = 0; i < len; i++, span++)
+          span->a = (span->a * alpha + SpanGeneratorType::base_mask) >> SpanGeneratorType::base_shift;
+      }
+    }
+    
+  private:
+    agg::cover_type alpha;
+  };
+  
 #ifdef OS_WIN
   using PixelOrder = agg::order_bgra;
   using PixelMapType = agg::pixel_map_win32;
@@ -235,9 +226,11 @@ public:
     PixfmtPreType mPixfPre;
     agg::rasterizer_scanline_aa<> mRasterizer;
   };
-
+public:
   IGraphicsAGG(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsAGG();
+
+  const char* GetDrawingAPIStr() override { return "AGG"; }
 
   void DrawResize() override;
 
@@ -245,20 +238,16 @@ public:
 
   void PathClear() override { mPath.remove_all(); }
   void PathClose() override { mPath.close_polygon(); }
-
   void PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding) override;
-
   void PathMoveTo(float x, float y) override;
   void PathLineTo(float x, float y) override;
   void PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2) override;
   void PathQuadraticBezierTo(float cx, float cy, float x2, float y2) override;
-
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
     
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return nullptr; } //TODO
-  const char* GetDrawingAPIStr() override { return "AGG"; }
 
   void UpdateLayer() override;
     
@@ -311,3 +300,7 @@ private:
   agg::conv_curve<FontManagerType::path_adaptor_type> mFontCurves;
   agg::conv_transform<agg::conv_curve<FontManagerType::path_adaptor_type>> mFontCurvesTransformed;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+

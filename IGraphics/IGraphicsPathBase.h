@@ -22,6 +22,9 @@
 
 #include "nanosvg.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /** A base class to share implementations of IGraphics.h functionality across different path based graphics backends. */
 class IGraphicsPathBase : public IGraphics
 {
@@ -578,3 +581,5 @@ private:
   std::stack<IMatrix> mTransformStates;
 };
 
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE

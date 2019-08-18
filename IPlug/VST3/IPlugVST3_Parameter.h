@@ -16,6 +16,8 @@
 
 #include "IPlugParameter.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 using namespace Steinberg;
 using namespace Vst;
 
@@ -102,3 +104,6 @@ public:
   
   OBJ_METHODS(IPlugVST3BypassParameter, StringListParameter)
 };
+
+END_IPLUG_NAMESPACE
+

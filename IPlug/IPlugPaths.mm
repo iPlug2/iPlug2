@@ -18,9 +18,15 @@
 #include <string>
 #include <map>
 
+#if defined OS_IOS
+#import <Foundation/Foundation.h>
+#endif
+
 #ifdef IGRAPHICS_METAL
 extern std::map<std::string, void*> gTextureMap;
 #endif
+
+BEGIN_IPLUG_NAMESPACE
 
 #ifdef OS_MAC
 void HostPath(WDL_String& path, const char* bundleID)
@@ -222,8 +228,6 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
 
 #elif defined OS_IOS
 #pragma mark - IOS
-#import <Foundation/Foundation.h>
-
 
 void HostPath(WDL_String& path, const char* bundleID)
 {
@@ -341,3 +345,5 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
 }
 
 #endif
+
+END_IPLUG_NAMESPACE

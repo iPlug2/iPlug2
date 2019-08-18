@@ -33,6 +33,9 @@
 
 #include "IGraphics.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /** The lowest level base class of an IGraphics control. A control is anything on the GUI 
 *  @ingroup BaseControls */
 class IControl
@@ -1475,5 +1478,8 @@ protected:
   bool mShowParamLabel;
   IRECT mTri;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
 
 /**@}*/

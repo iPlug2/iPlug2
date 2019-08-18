@@ -17,13 +17,14 @@
 
 #include "IPlugVST3_Parameter.h"
 
+using namespace iplug;
 using namespace Steinberg;
-using namespace Steinberg::Vst;
+using namespace Vst;
 
-IPlugVST3Controller::IPlugVST3Controller(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPlugAPIBase(c, kAPIVST3)
-, mPlugIsInstrument(c.plugType == kInstrument)
-, mProcessorGUID(instanceInfo.mOtherGUID)
+IPlugVST3Controller::IPlugVST3Controller(const InstanceInfo& info, const Config& config)
+: IPlugAPIBase(config, kAPIVST3)
+, mPlugIsInstrument(config.plugType == kInstrument)
+, mProcessorGUID(info.mOtherGUID)
 {
 }
 
