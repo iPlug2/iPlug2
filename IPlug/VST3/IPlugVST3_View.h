@@ -18,7 +18,6 @@ using namespace Vst;
 template <class T>
 class IPlugVST3View : public CPluginView
                     , public IPlugViewContentScaleSupport
-
 {
 public:
   IPlugVST3View(T& owner)
@@ -31,6 +30,9 @@ public:
   {
     mOwner.release();
   }
+  
+  IPlugVST3View(const IPlugVST3View&) = delete;
+  IPlugVST3View& operator=(const IPlugVST3View&) = delete;
   
   tresult PLUGIN_API isPlatformTypeSupported(FIDString type) override
   {

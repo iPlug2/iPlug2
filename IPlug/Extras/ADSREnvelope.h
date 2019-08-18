@@ -8,11 +8,15 @@
  ==============================================================================
  */
 
+#include "IPlugPlatform.h"
+
+BEGIN_IPLUG_NAMESPACE
+
 template <typename T>
 class ADSREnvelope
 {
 public:
-  enum EStages
+  enum EStage
   {
     kReleasedToEndEarly = -3,
     kReleasedToRetrigger = -2,
@@ -23,12 +27,12 @@ public:
     kRelease
   };
 
-  static constexpr double EARLY_RELEASE_TIME = 20.; // ms
-  static constexpr double RETRIGGER_RELEASE_TIME = 3.; // ms
-  static constexpr double MIN_ENV_TIME_MS = 0.022675736961451; // 1 sample @44100
-  static constexpr double MAX_ENV_TIME_MS = 60000.;
-  static constexpr double ENV_VALUE_LOW = 0.000001; // -120dB
-  static constexpr double ENV_VALUE_HIGH = 0.999;
+  static constexpr T EARLY_RELEASE_TIME = 20.; // ms
+  static constexpr T RETRIGGER_RELEASE_TIME = 3.; // ms
+  static constexpr T MIN_ENV_TIME_MS = 0.022675736961451; // 1 sample @44100
+  static constexpr T MAX_ENV_TIME_MS = 60000.;
+  static constexpr T ENV_VALUE_LOW = 0.000001; // -120dB
+  static constexpr T ENV_VALUE_HIGH = 0.999;
   
 private:
 #if DEBUG_ENV
@@ -36,32 +40,35 @@ private:
 #endif
   
   const char* mName;
-  double mEarlyReleaseIncr = 0.;
-  double mRetriggerReleaseIncr = 0.;
-  double mAttackIncr = 0.;
-  double mDecayIncr = 0.;
-  double mReleaseIncr = 0.;
-  double mSampleRate;
-  double mEnvValue = 0.;          // current normalized value of the envelope
-  int mStage = kIdle;             // the current stage
-  double mLevel = 0.;             // envelope depth from velocity
-  double mReleaseLevel = 0.;      // the level when the env is released
-  double mNewStartLevel = 0.;     // envelope depth from velocity when retriggering
-  double mPrevResult = 0.;        // last value BEFORE velocity scaling
-  double mPrevOutput = 0.;        // last value AFTER velocity scaling
-  double mScalar = 1.;            // for key-follow scaling
+  T mEarlyReleaseIncr = 0.;
+  T mRetriggerReleaseIncr = 0.;
+  T mAttackIncr = 0.;
+  T mDecayIncr = 0.;
+  T mReleaseIncr = 0.;
+  T mSampleRate;
+  T mEnvValue = 0.;          // current normalized value of the envelope
+  int mStage = kIdle;        // the current stage
+  T mLevel = 0.;             // envelope depth from velocity
+  T mReleaseLevel = 0.;      // the level when the env is released
+  T mNewStartLevel = 0.;     // envelope depth from velocity when retriggering
+  T mPrevResult = 0.;        // last value BEFORE velocity scaling
+  T mPrevOutput = 0.;        // last value AFTER velocity scaling
+  T mScalar = 1.;            // for key-follow scaling
   bool mReleased = true;
+  bool mSustainEnabled = true; // when false env is AD only
+  
   std::function<void()> mResetFunc = nullptr; // reset func
 
 public:
-  ADSREnvelope(const char* name = "", std::function<void()> resetFunc = nullptr)
+  ADSREnvelope(const char* name = "", std::function<void()> resetFunc = nullptr, bool sustainEnabled = true)
   : mName(name)
   , mResetFunc(resetFunc)
+  , mSustainEnabled(sustainEnabled)
   {
     SetSampleRate(44100.);
   }
 
-  void SetStageTime(int stage, double timeMS)
+  void SetStageTime(int stage, T timeMS)
   {
     switch(stage)
     {
@@ -95,7 +102,7 @@ public:
     return mPrevOutput;
   }
   
-  inline void Start(double level, double timeScalar = 1.)
+  inline void Start(T level, T timeScalar = 1.)
   {
     mStage = kAttack;
     mEnvValue = 0.;
@@ -112,7 +119,7 @@ public:
     mReleased = true;
   }
 
-  inline void Retrigger(double newStartLevel, double timeScalar = 1.)
+  inline void Retrigger(T newStartLevel, T timeScalar = 1.)
   {
     mEnvValue = 1.;
     mNewStartLevel = newStartLevel;
@@ -156,16 +163,16 @@ public:
     }
   }
 
-  void SetSampleRate(double sr)
+  void SetSampleRate(T sr)
   {
     mSampleRate = sr;
     mEarlyReleaseIncr = CalcIncrFromTimeLinear(EARLY_RELEASE_TIME, sr);
     mRetriggerReleaseIncr = CalcIncrFromTimeLinear(RETRIGGER_RELEASE_TIME, sr);
   }
 
-  inline double Process(double sustainLevel)
+  inline T Process(T sustainLevel = 0.)
   {
-    double result = 0.;
+    T result = 0.;
 
     switch(mStage)
     {
@@ -186,9 +193,14 @@ public:
         result = (mEnvValue * (1.-sustainLevel)) + sustainLevel;
         if (mEnvValue < ENV_VALUE_LOW)
         {
-          mStage = kSustain;
-          mEnvValue = 1.;
-          result = sustainLevel;
+          if(mSustainEnabled)
+          {
+            mStage = kSustain;
+            mEnvValue = 1.;
+            result = sustainLevel;
+          }
+          else
+            Release();
         }
         break;
       case kSustain:
@@ -260,3 +272,5 @@ private:
     }
   }
 };
+
+END_IPLUG_NAMESPACE

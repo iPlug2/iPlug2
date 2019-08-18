@@ -21,6 +21,9 @@
 
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
+using namespace iplug;
+using namespace igraphics;
+
 StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 #pragma mark -
@@ -37,15 +40,13 @@ IGraphicsIOS::IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float s
 
     NSBundle* pBundle = [NSBundle mainBundle];
    
-    if([[pBundle bundleIdentifier] containsString:@"AUv3"])
-    {
+    if(IsAuv3AppExtension())
       pBundle = [NSBundle bundleWithPath: [[[pBundle bundlePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent]];
-    }
     
     NSArray<NSURL*>* textureFiles = [pBundle URLsForResourcesWithExtension:@"ktx" subdirectory:@""];
 
     NSError* pError = nil;
-    NSDictionary* textureOptions = @{ MTKTextureLoaderOptionSRGB: [[NSNumber alloc] initWithBool:NO] };
+    NSDictionary* textureOptions = @{ MTKTextureLoaderOptionSRGB: [NSNumber numberWithBool:NO] };
 
     NSArray<id<MTLTexture>>* textures = [textureLoader newTexturesWithContentsOfURLs:textureFiles options:textureOptions error:&pError];
 
@@ -55,6 +56,8 @@ IGraphicsIOS::IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float s
     }
     
     DBGMSG("Loaded %i textures\n", (int) textures.count);
+    
+    [textureLoader release];
   }
 }
 
@@ -102,6 +105,7 @@ void IGraphicsIOS::CloseWindow()
     IGraphicsIOS_View* view = (IGraphicsIOS_View*) mView;
     [view removeFromSuperview];
     [view release];
+    mView = nullptr;
 
     OnViewDestroyed();
   }
@@ -233,4 +237,11 @@ PlatformFontPtr IGraphicsIOS::LoadPlatformFont(const char* fontID, const char* f
 void IGraphicsIOS::CachePlatformFont(const char* fontID, const PlatformFontPtr& font)
 {
   CoreTextHelpers::CachePlatformFont(fontID, font, sFontDescriptorCache);
+}
+
+void IGraphicsIOS::LaunchBluetoothMidiDialog(float x, float y)
+{
+  ReleaseMouseCapture();
+  NSDictionary* dic = @{@"x": @(x), @"y": @(y)};
+  [[NSNotificationCenter defaultCenter] postNotificationName:@"LaunchBTMidiDialog" object:nil userInfo:dic];
 }

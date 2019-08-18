@@ -15,10 +15,13 @@ enum ECtrlTags
   kNumCtrlTags
 };
 
-class IPlugMidiEffect : public IPlug
+using namespace iplug;
+using namespace igraphics;
+
+class IPlugMidiEffect : public Plugin
 {
 public:
-  IPlugMidiEffect(IPlugInstanceInfo instanceInfo);
+  IPlugMidiEffect(const InstanceInfo& info);
 
 #if IPLUG_DSP // All DSP methods and member variables should be within an IPLUG_DSP guard, should you want distributed UI
 public:

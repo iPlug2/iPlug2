@@ -16,7 +16,10 @@
 
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
-int GetSystemVersion()
+using namespace iplug;
+using namespace igraphics;
+
+static int GetSystemVersion()
 {
   static int32_t v;
   if (!v)
@@ -39,6 +42,7 @@ int GetSystemVersion()
 }
 
 StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
+
 #pragma mark -
 
 IGraphicsMac::IGraphicsMac(IGEditorDelegate& dlg, int w, int h, int fps, float scale)

@@ -13,6 +13,12 @@
   #define MAKERECT CGRectMake
 #endif
 
+BEGIN_IPLUG_NAMESPACE
+extern bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath, const char* bundleID);
+END_IPLUG_NAMESPACE
+
+using namespace iplug;
+
 @interface ScriptHandler : NSObject <WKScriptMessageHandler, WKNavigationDelegate>
 {
   WebViewEditorDelegate* mWebViewEditorDelegate;
@@ -181,11 +187,9 @@ void WebViewEditorDelegate::LoadURL(const char* url)
   WKWebView* webView = (WKWebView*) mWKWebView;
   
   NSURL* nsurl = [NSURL URLWithString:[NSString stringWithUTF8String:url] relativeToURL:nil];
-  NSURLRequest* req = [[NSURLRequest alloc] initWithURL:nsurl]; //TODO: release
+  NSURLRequest* req = [[[NSURLRequest alloc] initWithURL:nsurl] autorelease];
   [webView loadRequest:req];
 }
-
-extern bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath, const char* bundleID);
 
 void WebViewEditorDelegate::LoadFileFromBundle(const char* fileName)
 {

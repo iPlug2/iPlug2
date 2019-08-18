@@ -19,10 +19,13 @@ enum EControlTags
   kCtrlTagButton5
 };
 
-class IGraphicsStressTest : public IPlug
+using namespace iplug;
+using namespace igraphics;
+
+class IGraphicsStressTest : public Plugin
 {
 public:
-  IGraphicsStressTest(IPlugInstanceInfo instanceInfo);
+  IGraphicsStressTest(const InstanceInfo& info);
 #if IPLUG_EDITOR
   void LayoutUI(IGraphics* pGraphics) override;
 public:

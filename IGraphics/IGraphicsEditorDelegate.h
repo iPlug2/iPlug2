@@ -19,6 +19,9 @@
  * @copydoc IGEditorDelegate
  */
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 class IGraphics;
 class IControl;
 
@@ -30,7 +33,7 @@ public:
   ~IGEditorDelegate();
 
   IGEditorDelegate(const IGEditorDelegate&) = delete;
-  IGEditorDelegate& operator = (const IGEditorDelegate&) = delete;
+  IGEditorDelegate& operator=(const IGEditorDelegate&) = delete;
     
   //IEditorDelegate
   void* OpenWindow(void* pHandle) final;
@@ -101,3 +104,6 @@ private:
   bool mIGraphicsTransient = false; // If creating IGraphics on demand this will be true
   bool mClosing = false; // used to prevent re-entrancy on closing
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE

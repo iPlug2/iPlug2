@@ -2,8 +2,8 @@
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
 
-IPlugEffect::IPlugEffect(IPlugInstanceInfo instanceInfo)
-: IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
+IPlugEffect::IPlugEffect(const InstanceInfo& info)
+: Plugin(info, MakeConfig(kNumParams, kNumPrograms))
 {
   GetParam(kGain)->InitDouble("Gain", 0., 0., 100.0, 0.01, "%");
 

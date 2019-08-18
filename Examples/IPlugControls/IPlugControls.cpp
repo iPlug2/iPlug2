@@ -3,8 +3,8 @@
 #include "IPlugPaths.h"
 #include "IconsForkAwesome.h"
 
-IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
-: IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
+IPlugControls::IPlugControls(const InstanceInfo& info)
+: Plugin(info, MakeConfig(kNumParams, kNumPrograms))
 {
   GetParam(kParamGain)->InitDouble("Gain", 100., 0., 100.0, 0.01, "%");
   GetParam(kParamMode)->InitEnum("Mode", 0, 4, "", IParam::kFlagsNone, "", "one", "two", "three", "four");
@@ -169,11 +169,10 @@ IPlugControls::IPlugControls(IPlugInstanceInfo instanceInfo)
 #endif
     wideCell = nextCell().Union(nextCell()).Union(nextCell()).Union(nextCell());
     pGraphics->AttachControl(new ITextControl(wideCell.GetFromTop(20.f), "IVKeyboardControl", style.labelText));
-    pGraphics->AttachControl(new IVKeyboardControl(wideCell.GetPadded(-25), 36, 72, true), kNoTag, "vcontrols");
+    pGraphics->AttachControl(new IVKeyboardControl(wideCell.GetPadded(-25), 36, 72), kNoTag);
     pGraphics->AttachControl(new IVLabelControl(nextCell(), "Test", DEFAULT_STYLE.WithLabelText(DEFAULT_LABEL_TEXT.WithSize(50.f).WithFGColor(COLOR_WHITE))), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVSlideSwitchControl(nextCell(), kParamMode, "IVSlideSwitchControl", style, true), kNoTag, "vcontrols");
-    pGraphics->AttachControl(new IVPlotControl(nextCell(), {
-                                                            {COLOR_RED,  [](double x){ return std::sin(x * 6.2);} },
+    pGraphics->AttachControl(new IVPlotControl(nextCell(), {{COLOR_RED,  [](double x){ return std::sin(x * 6.2);} },
                                                             {COLOR_BLUE, [](double x){ return std::cos(x * 6.2);} },
                                                             {COLOR_GREEN, [](double x){ return x > 0.5;} }
 

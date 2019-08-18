@@ -33,6 +33,9 @@
 
 #include "IGraphics.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /** The lowest level base class of an IGraphics control. A control is anything on the GUI 
 *  @ingroup BaseControls */
 class IControl
@@ -537,6 +540,11 @@ public:
   
   virtual ~IBitmapBase() {}
   
+  void AttachIControl(IControl* pControl)
+  {
+    mControl = pControl;
+  }
+  
   void GrayOut(bool gray)
   {
     mBlend.mWeight = (gray ? GRAYED_ALPHA : 1.0f);
@@ -546,10 +554,23 @@ public:
   {
     mBlend = blend;
   }
+  
+  void DrawBitmap(IGraphics& g)
+  {
+    int i = 1;
+    if (mBitmap.N() > 1)
+    {
+      i = 1 + int(0.5 + mControl->GetValue() * (double) (mBitmap.N() - 1));
+      i = Clip(i, 1, mBitmap.N());
+    }
+    
+    g.DrawBitmap(mBitmap, mControl->GetRECT(), i, &mBlend);
+  }
 
 protected:
   IBitmap mBitmap;
   IBlend mBlend;
+  IControl* mControl;
 };
 
 /** A base interface to be combined with IControl for vectorial controls "IVControls", in order for them to share a common style
@@ -671,7 +692,8 @@ public:
   void SetShadowOffset(float offset) { mStyle.shadowOffset = offset; mControl->SetDirty(false); }
   void SetFrameThickness(float thickness) { mStyle.frameThickness = thickness; mControl->SetDirty(false); }
   void SetSplashRadius(float radius) { mSplashRadius = radius * mMaxSplashRadius; }
-
+  void SetSplashPoint(float x, float y) { mSplashX = x; mSplashY = y; }
+  
   void SetStyle(const IVStyle& style)
   {
     mStyle = style;
@@ -700,9 +722,7 @@ public:
   
   void DrawSplash(IGraphics& g)
   {
-    float mouseDownX, mouseDownY;
-    g.GetMouseDownPoint(mouseDownX, mouseDownY);
-    g.FillCircle(GetColor(kHL), mouseDownX, mouseDownY, mSplashRadius);
+    g.FillCircle(GetColor(kHL), mSplashX, mSplashY, mSplashRadius);
   }
   
   virtual void DrawBackGround(IGraphics& g, const IRECT& rect)
@@ -953,6 +973,8 @@ protected:
   bool mLabelInWidget = false;
   bool mValueInWidget = false;
   float mSplashRadius = 0.f;
+  float mSplashX = 0.f;
+  float mSplashY = 0.f;
   float mMaxSplashRadius = 50.f;
   IRECT mWidgetBounds; // The knob/slider/button
   IRECT mLabelBounds; // A piece of text above the control
@@ -1331,26 +1353,25 @@ public:
   IBitmapControl(float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlend blend = EBlend::Default)
   : IControl(IRECT(x, y, bitmap), paramIdx)
   , IBitmapBase(bitmap, blend)
-  {}
+  {
+    AttachIControl(this);
+  }
   
   IBitmapControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlend blend = EBlend::Default)
   : IControl(bounds, paramIdx)
   , IBitmapBase(bitmap, blend)
-  {}
+  {
+    AttachIControl(this);
+  }
   
   virtual ~IBitmapControl() {}
 
-  void Draw(IGraphics& g) override;
+  void Draw(IGraphics& g) override { DrawBitmap(g); }
 
   /** Implement to do something when graphics is scaled globally (e.g. moves to high DPI screen),
    *  if you override this make sure you call the parent method in order to rescale mBitmap */
-  void OnRescale() override;
-  
-  void GrayOut(bool gray) override
-  {
-    IBitmapBase::GrayOut(gray);
-    IControl::GrayOut(gray);
-  }
+  void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
+  void GrayOut(bool gray) override { IBitmapBase::GrayOut(gray); IControl::GrayOut(gray); }
 };
 
 /** A basic control to draw an SVG image to the screen. Optionally, cache SVG to an ILayer. */
@@ -1455,5 +1476,8 @@ protected:
   bool mShowParamLabel;
   IRECT mTri;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
 
 /**@}*/

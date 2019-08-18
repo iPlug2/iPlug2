@@ -26,6 +26,9 @@
  * @{
  */
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /** @brief A class for setting the contents of a pop up menu.
  *
  * An IPopupMenu must not be declared as a temporary. In order for a receiving IControl or lambda function
@@ -311,5 +314,8 @@ private:
   WDL_PtrList<Item> mMenuItems;
   IPopupFunction mPopupFunc = nullptr;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
 
 /**@}*/

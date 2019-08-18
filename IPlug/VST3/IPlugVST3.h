@@ -34,10 +34,13 @@
 #include "IPlugVST3_ProcessorBase.h"
 #include "IPlugVST3_View.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 /** Used to pass various instance info to the API class, where needed */
-struct IPlugInstanceInfo {};
+struct InstanceInfo {};
 
 using namespace Steinberg;
+using namespace Vst;
 
 /**  VST3 base class for a non-distributed IPlug VST3 plug-in
 *   @ingroup APIClasses */
@@ -49,7 +52,7 @@ class IPlugVST3 : public IPlugAPIBase
 public:
   using ViewType = IPlugVST3View<IPlugVST3>;
     
-  IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig config);
+  IPlugVST3(const InstanceInfo& info, const Config& config);
   ~IPlugVST3();
 
   // IPlugAPIBase
@@ -115,5 +118,8 @@ private:
   ViewType* mView;
 };
 
-IPlugVST3* MakePlug();
+IPlugVST3* MakePlug(const InstanceInfo& info);
+
+END_IPLUG_NAMESPACE
+
 #endif

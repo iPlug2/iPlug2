@@ -25,6 +25,9 @@
 #include "IRTTextControl.h"
 #include "IVDisplayControl.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /**
  * \addtogroup Controls
  * @{
@@ -61,19 +64,25 @@ class IVButtonControl : public IButtonControlBase
                       , public IVectorBase
 {
 public:
-  IVButtonControl(const IRECT& bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool labelInButton = true, bool valueInButton = true, EVShape shape = EVShape::Rectangle, float angle = 0.f);
+  /** Constructs a vector button control, with an action function
+   * @param bounds The control's bounds
+   * @param actionFunc An action function to execute when a button is clicked \see IActionFunction
+   * @param label The label for the vector control, leave empty for no label
+   * @param style The styling of this vector control \see IVStyle
+   * @param labelInButton if the label inside or outside the button
+   * @param valueInButton if the value inside or outside the button
+   * @param shape The shape of the button */
+  IVButtonControl(const IRECT& bounds, IActionFunction actionFunc = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool labelInButton = true, bool valueInButton = true, EVShape shape = EVShape::Rectangle);
 
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
   bool IsHit(float x, float y) const override;
   void OnResize() override;
-  
-  void SetAngle(float angle) { mAngle = angle; SetDirty(false); }
+
   void SetShape(EVShape shape) { mShape = shape; SetDirty(false); }
-  
+
 protected:
-  EVShape mShape = EVShape::Rectangle;
-  float mAngle = 0.; // only used for triangle
+  EVShape mShape;
 };
 
 /** A vector switch control. Click to cycle through states. */
@@ -168,24 +177,24 @@ class IVRadioButtonControl : public IVTabSwitchControl
 {
 public:
   /** Constructs a vector radio button control, linked to a parameter
-   * @bounds The control's bounds
-   * @paramIdx The parameter index to link this control to
-   * @label The label for the vector control, leave empty for no label
-   * @style The styling of this vector control \see IVStyle
-   * @shape The buttons shape \see IVShape
-   * @direction The direction of the buttons
-   * @buttonSize The size of the buttons */
+   * @param bounds The control's bounds
+   * @param paramIdx The parameter index to link this control to
+   * @param label The label for the vector control, leave empty for no label
+   * @param style The styling of this vector control \see IVStyle
+   * @param shape The buttons shape \see IVShape
+   * @param direction The direction of the buttons
+   * @param buttonSize The size of the buttons */
   IVRadioButtonControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 20.f);
 
   /** Constructs a vector radio button control, with an action function (no parameter)
-   * @bounds The control's bounds
-   * @actionFunc An action function to execute when a button is clicked \see IActionFunction
-   * @options An initializer list of CStrings for the button labels. The size of the list decides the number of buttons
-   * @label The label for the vector control, leave empty for no label
-   * @style The styling of this vector control \see IVStyle
-   * @shape The buttons shape \see IVShape
-   * @direction The direction of the buttons
-   * @buttonSize The size of the buttons */
+   * @param bounds The control's bounds
+   * @param actionFunc An action function to execute when a button is clicked \see IActionFunction
+   * @param options An initializer list of CStrings for the button labels. The size of the list decides the number of buttons
+   * @param label The label for the vector control, leave empty for no label
+   * @param style The styling of this vector control \see IVStyle
+   * @param shape The buttons shape \see IVShape
+   * @param direction The direction of the buttons
+   * @param buttonSize The size of the buttons */
   IVRadioButtonControl(const IRECT& bounds, IActionFunction actionFunc, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 20.f);
   
   virtual void DrawWidget(IGraphics& g) override;
@@ -294,7 +303,6 @@ protected:
   EVShape mShape = EVShape::Ellipse;
 };
 
-
 class IVXYPadControl : public IControl
                      , public IVectorBase
 {
@@ -312,21 +320,40 @@ protected:
   bool mMouseDown = false;
 };
 
+/** a vector plot to display functions and waveforms **/
 class IVPlotControl : public IControl
                     , public IVectorBase
 {
 public:
+    /** IVPlotControl passes values between 0 and 1 to this object, that are the plot normalized x values
+     */
   using IPlotFunc = std::function<double(double)>;
-  
+    
+    /** This struct specifies a plot function
+     * @param color The color of the function
+     * @param func A callable object that must contain the function to display
+     */
   struct Plot {
     IColor color;
     IPlotFunc func;
   };
   
+    /** Constructs a vector plot
+     * @param bounds The control's bounds
+     * @param funcs A function list reference containing the functions to display
+     * @param numPoints The number of points used to draw the functions
+     * @param label The label for the vector control, leave empty for no label
+     * @param style The styling of this vector control \see IVStyle
+     * @param shape The buttons shape \see IVShape
+     * @param min The minimum y axis plot value
+     * @param max The maximum y axis plot value
+     * @param useLayer A flag to draw the control layer */
   IVPlotControl(const IRECT& bounds, const std::initializer_list<Plot>& funcs, int numPoints, const char* label = "", const IVStyle& style = DEFAULT_STYLE, float min = -1., float max = 1., bool useLayer = false);
   void Draw(IGraphics& g) override;
   void OnResize() override;
-
+    /** add a new function to the plot
+     * @param color The function color
+     * @param func A reference object containing the function implementation to display*/
   void AddPlotFunc(const IColor& color, const IPlotFunc& func);
 protected:
   ILayerPtr mLayer;
@@ -384,23 +411,20 @@ public:
   IBButtonControl(float x, float y, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
   : IButtonControlBase(IRECT(x, y, bitmap), actionFunc)
   , IBitmapBase(bitmap)
-  {}
+  {
+    AttachIControl(this);
+  }
 
   IBButtonControl(const IRECT& bounds, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
   : IButtonControlBase(bounds.GetCentredInside(bitmap), actionFunc)
   , IBitmapBase(bitmap)
-  {}
+  {
+    AttachIControl(this);
+  }
 
   void Draw(IGraphics& g) override
   {
-    int i = 1;
-    if (mBitmap.N() > 1)
-    {
-      i = 1 + int(0.5 + GetValue() * (double) (mBitmap.N() - 1));
-      i = Clip(i, 1, mBitmap.N());
-    }
-    
-    g.DrawBitmap(mBitmap, mRECT, i, &mBlend);
+    DrawBitmap(g);
   }
 
   void OnRescale() override
@@ -416,25 +440,31 @@ public:
 };
 
 /** A bitmap switch control. Click to cycle through states. */
-class IBSwitchControl : public IBitmapControl
+class IBSwitchControl : public ISwitchControlBase
+                      , public IBitmapBase
 {
 public:
   IBSwitchControl(float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter)
-  : IBitmapControl(x, y, bitmap, paramIdx) {}
+  : ISwitchControlBase(IRECT(x, y, bitmap), paramIdx)
+  , IBitmapBase(bitmap)
+  {
+    AttachIControl(this);
+    mDblAsSingleClick = true;
+  }
 
   IBSwitchControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter)
-  : IBitmapControl(bounds.GetCentredInside(bitmap), bitmap, paramIdx) {}
-
-  virtual ~IBSwitchControl() {}
-
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {  OnMouseDown(x, y, mod); }
-
-  void GrayOut(bool gray) override
+  : ISwitchControlBase(bounds.GetCentredInside(bitmap), paramIdx)
+  , IBitmapBase(bitmap)
   {
-    IBitmapBase::GrayOut(gray);
-    IControl::GrayOut(gray);
+    AttachIControl(this);
+    mDblAsSingleClick = true;
   }
+  
+  virtual ~IBSwitchControl() {}
+  void Draw(IGraphics& g) override { DrawBitmap(g); }
+  void GrayOut(bool gray) override { IBitmapBase::GrayOut(gray); IControl::GrayOut(gray); }
+  void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
 };
 
 /** A bitmap knob/dial control that draws a frame from a stacked bitmap */
@@ -446,32 +476,20 @@ public:
   : IKnobControlBase(IRECT(x, y, bitmap), paramIdx, direction, gearing)
   , IBitmapBase(bitmap)
   {
+    AttachIControl(this);
   }
 
   IBKnobControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx, EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING)
   : IKnobControlBase(bounds.GetCentredInside(bitmap), paramIdx, direction, gearing)
   , IBitmapBase(bitmap)
   {
+    AttachIControl(this);
   }
 
   virtual ~IBKnobControl() {}
-
-  void Draw(IGraphics& g) override
-  {
-    int i = 1 + int(0.5 + GetValue() * (double) (mBitmap.N() - 1));
-    g.DrawBitmap(mBitmap, mRECT, i, &mBlend);
-  }
-
-  void OnRescale() override
-  {
-    mBitmap = GetUI()->GetScaledBitmap(mBitmap);
-  }
-
-  void GrayOut(bool gray) override
-  {
-    IBitmapBase::GrayOut(gray);
-    IControl::GrayOut(gray);
-  }
+  void Draw(IGraphics& g) override { DrawBitmap(g); }
+  void GrayOut(bool gray) override { IBitmapBase::GrayOut(gray); IControl::GrayOut(gray); }
+  void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
 };
 
 /** A bitmap knob/dial control that rotates an image */
@@ -479,14 +497,10 @@ class IBKnobRotaterControl : public IBKnobControl
 {
 public:
   IBKnobRotaterControl(float x, float y, const IBitmap& bitmap, int paramIdx)
-  : IBKnobControl(IRECT(x, y, bitmap), bitmap, paramIdx)
-  {
-  }
+  : IBKnobControl(IRECT(x, y, bitmap), bitmap, paramIdx) {}
 
   IBKnobRotaterControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx)
-  : IBKnobControl(bounds.GetCentredInside(bitmap), bitmap, paramIdx)
-  {
-  }
+  : IBKnobControl(bounds.GetCentredInside(bitmap), bitmap, paramIdx) {}
 
   virtual ~IBKnobRotaterControl() {}
 
@@ -509,16 +523,11 @@ public:
   virtual ~IBSliderControl() {}
 
   void Draw(IGraphics& g) override;
-  void OnRescale() override;
-  void OnResize() override;
-
+  void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
+  void OnResize() override { SetDirty(false); }
+  void GrayOut(bool gray) override  { IBitmapBase::GrayOut(gray); IControl::GrayOut(gray); }
+  
   IRECT GetHandleBounds(double value = -1.0) const;
-
-  void GrayOut(bool gray) override
-  {
-    IBitmapBase::GrayOut(gray);
-    IControl::GrayOut(gray);
-  }
 };
 
 /** A control to display text using a monospace bitmap font */
@@ -545,16 +554,8 @@ public:
     g.DrawBitmapedText(mBitmap, mRECT, mText, &mBlend, mStr.Get(), mVCentre, mMultiLine, mCharWidth, mCharHeight, mCharOffset);
   }
 
-  void GrayOut(bool gray) override
-  {
-    IBitmapBase::GrayOut(gray);
-    IControl::GrayOut(gray);
-  }
-
-  void OnRescale() override
-  {
-    mBitmap = GetUI()->GetScaledBitmap(mBitmap);
-  }
+  void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
+  void GrayOut(bool gray) override  { IBitmapBase::GrayOut(gray); IControl::GrayOut(gray); }
 
 protected:
   WDL_String mStr;
@@ -562,6 +563,9 @@ protected:
   bool mMultiLine;
   bool mVCentre;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
 
 /**@}*/
 

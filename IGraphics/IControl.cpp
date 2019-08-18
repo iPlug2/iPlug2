@@ -9,6 +9,8 @@
 */
 
 #include <cmath>
+#include <cstring>
+#include "dirscan.h"
 
 #include "IControl.h"
 #include "IPlugParameter.h"
@@ -27,8 +29,8 @@
   #endif
 #endif
 
-#include "dirscan.h"
-
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
 void DefaultAnimationFunc(IControl* pCaller)
 {
   auto progress = pCaller->GetAnimationProgress();
@@ -56,7 +58,18 @@ void SplashAnimationFunc(IControl* pCaller)
 
 void EmptyClickActionFunc(IControl* pCaller) { };
 void DefaultClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(DefaultAnimationFunc, DEFAULT_ANIMATION_DURATION); };
-void SplashClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(SplashAnimationFunc, DEFAULT_ANIMATION_DURATION); }
+void SplashClickActionFunc(IControl* pCaller)
+{
+  float x, y;
+  pCaller->GetUI()->GetMouseDownPoint(x, y);
+  dynamic_cast<IVectorBase*>(pCaller)->SetSplashPoint(x, y);
+  pCaller->SetAnimation(SplashAnimationFunc, DEFAULT_ANIMATION_DURATION);
+}
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+
+using namespace iplug;
+using namespace igraphics;
 
 IControl::IControl(const IRECT& bounds, int paramIdx, IActionFunction actionFunc)
 : mRECT(bounds)
@@ -350,23 +363,6 @@ void IControl::SnapToMouse(float x, float y, EDirection direction, const IRECT& 
   
   ForValIdx(valIdx, valFunc);
   SetDirty(true, valIdx);
-}
-
-void IBitmapControl::Draw(IGraphics& g)
-{
-  int i = 1;
-  if (mBitmap.N() > 1)
-  {
-    i = 1 + int(0.5 + GetValue() * (double) (mBitmap.N() - 1));
-    i = Clip(i, 1, mBitmap.N());
-  }
-
-  g.DrawBitmap(mBitmap, mRECT, i, &mBlend);
-}
-
-void IBitmapControl::OnRescale()
-{
-  mBitmap = GetUI()->GetScaledBitmap(mBitmap);
 }
 
 ITextControl::ITextControl(const IRECT& bounds, const char* str, const IText& text, const IColor& BGColor)
@@ -714,7 +710,6 @@ void IDirBrowseControlBase::SetUpMenu()
 
 void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAddTo)
 {
-#if !defined OS_IOS
   WDL_DirScan d;
 
   if (!d.First(path))
@@ -755,8 +750,6 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
   
   if(!mShowEmptySubmenus)
     menuToAddTo.RemoveEmptySubmenus();
-
-#endif
 }
 
 ISliderControlBase::ISliderControlBase(const IRECT& bounds, int paramIdx, EDirection dir, bool onlyHandle, float handleSize)
