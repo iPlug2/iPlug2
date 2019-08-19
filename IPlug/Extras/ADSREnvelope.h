@@ -58,6 +58,8 @@ private:
   bool mSustainEnabled = true; // when false env is AD only
   
   std::function<void()> mResetFunc = nullptr; // reset func
+    
+  std::function<void()> mEndReleaseFunc = nullptr; // end release func
 
 public:
   ADSREnvelope(const char* name = "", std::function<void()> resetFunc = nullptr, bool sustainEnabled = true)
@@ -212,6 +214,8 @@ public:
         {
           mStage = kIdle;
           mEnvValue = 0.;
+            if(mEndReleaseFunc)
+                mEndReleaseFunc();
         }
         result = mEnvValue * mReleaseLevel;
         break;
@@ -239,6 +243,8 @@ public:
           mEnvValue = 0.;
           mPrevResult = 0.;
           mReleaseLevel = 0.;
+            if(mEndReleaseFunc)
+                mEndReleaseFunc();
         }
         result = mEnvValue * mReleaseLevel;
         break;
@@ -251,6 +257,9 @@ public:
     mPrevOutput = (result * mLevel);
     return mPrevOutput;
   }
+    
+    inline void SetEndReleaseFunc(std::function<void()> func) { mEndReleaseFunc = func; }
+    
 private:
   inline T CalcIncrFromTimeLinear(T timeMS, T sr) const
   {
