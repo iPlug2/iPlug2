@@ -102,6 +102,8 @@ public:
     return mPrevOutput;
   }
   
+  // Change the stage to "attack".
+  // Envelope values will be scaled by the "level" input parameter and paced according to the "timeScalar" parameter
   inline void Start(T level, T timeScalar = 1.)
   {
     mStage = kAttack;
@@ -119,6 +121,8 @@ public:
     mReleased = true;
   }
 
+    // Set the envelope to be retriggered once is released.
+    // the caller can be notified by 'resetFunc' when the envelope cycle restart
   inline void Retrigger(T newStartLevel, T timeScalar = 1.)
   {
     mEnvValue = 1.;
@@ -133,6 +137,7 @@ public:
     #endif
   }
 
+    // Release the envelope or stop immediately if "hard" is chosen
   inline void Kill(bool hard)
   {
     if(hard)
@@ -170,6 +175,8 @@ public:
     mRetriggerReleaseIncr = CalcIncrFromTimeLinear(RETRIGGER_RELEASE_TIME, sr);
   }
 
+    // Process the next value according to the current envelope stage
+    // sustainLevel taken in input can be modulated into the real time thread
   inline T Process(T sustainLevel = 0.)
   {
     T result = 0.;
