@@ -251,22 +251,22 @@ public:
    * @return double /todo */
   double StringToValue(const char* str) const;
 
-  /** Constrains the input value between \c mMin and \c mMax, according to \c mFlags
+  /** Constrains the input value between \c mMin and \c mMax
    * @param value The input value to constrain
    * @return double The resulting constrained value */
   inline double Constrain(double value) const { return Clip((mFlags & kFlagStepped ? round(value / mStep) * mStep : value), mMin, mMax); }
 
-  /** Maps the input value between 0. and 1. to get a linearized excursion according to \c mShape
-   * @param nonNormalizedValue The input value
-   * @return double The corresponding normalized value */
+  /** Convert a real value to normalized value for this parameter
+   * @param nonNormalizedValue The real input value
+   * @return The corresponding normalized value, for this parameter */
   inline double ToNormalized(double nonNormalizedValue) const
   {
     return Clip(mShape->ValueToNormalized(Constrain(nonNormalizedValue), *this), 0., 1.);
   }
 
-  /** Maps the input value between \c mMin and \c mMax, according to the given \c mShape
-   * @param normalizedValue The input value normalized between 0. and 1.
-   * @return double The resulting parameter value */
+  /** Convert a normalized value to real value for this parameter
+   * @param normalizedValue The normalized input value in the range 0. to 1.
+   * @return The corresponding real value, for this parameter */
   inline double FromNormalized(double normalizedValue) const
   {
     return Constrain(mShape->NormalizedToValue(normalizedValue, *this));

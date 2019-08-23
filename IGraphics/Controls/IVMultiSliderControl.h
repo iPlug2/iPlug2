@@ -46,7 +46,7 @@ public:
    * @param bounds The control's bounds
    * @param label The label for the vector control, leave empty for no label
    * @param style The styling of this vector control \see IVStyle
-   * @param loParamIdx The lowest param index value that is linked to the control. The total number is template dependant
+   * @param loParamIdx The parameter index for the first slider in the multislider. The total number of sliders/parameters covered depends on the template argument, and is contiguous from loParamIdx
    * @param direction The direction of the sliders
    * @param minTrackValue Defines the minimum value of each slider
    * @param maxTrackValue Defines the maximum value of each slider */
