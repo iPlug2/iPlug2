@@ -251,22 +251,22 @@ public:
    * @return double /todo */
   double StringToValue(const char* str) const;
 
-  /** /todo 
-   * @param value /todo
-   * @return double /todo */
+  /** Constrains the input value between \c mMin and \c mMax, according to \c mFlags
+   * @param value The input value to constrain
+   * @return double The resulting constrained value */
   inline double Constrain(double value) const { return Clip((mFlags & kFlagStepped ? round(value / mStep) * mStep : value), mMin, mMax); }
 
-  /** /todo 
-   * @param nonNormalizedValue /todo
-   * @return double /todo */
+  /** Maps the input value between 0. and 1. to get a linearized excursion according to \c mShape
+   * @param nonNormalizedValue The input value
+   * @return double The corresponding normalized value */
   inline double ToNormalized(double nonNormalizedValue) const
   {
     return Clip(mShape->ValueToNormalized(Constrain(nonNormalizedValue), *this), 0., 1.);
   }
 
-  /** /todo 
-   * @param normalizedValue /todo
-   * @return double /todo */
+  /** Maps the input value between \c mMin and \c mMax, according to the given \c mShape
+   * @param normalizedValue The input value normalized between 0. and 1.
+   * @return double The resulting parameter value */
   inline double FromNormalized(double normalizedValue) const
   {
     return Constrain(mShape->NormalizedToValue(normalizedValue, *this));
@@ -276,8 +276,8 @@ public:
    * @param value Value to be set. Will be stepped and clamped between \c mMin and \c mMax */
   void Set(double value) { mValue.store(Constrain(value)); }
 
-  /** /todo 
-   * @param normalizedValue /todo */
+  /** Sets the parameter value from a normalized range (usually coming from the linked IControl)
+   * @param normalizedValue The expected normalized value between 0. and 1. */
   void SetNormalized(double normalizedValue) { Set(FromNormalized(normalizedValue)); }
 
   /** /todo 
