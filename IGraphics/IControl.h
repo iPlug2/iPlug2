@@ -1428,6 +1428,11 @@ public:
   virtual void ClearStr() { SetStr(""); }
   
   void SetBoundsBasedOnStr();
+
+  void GrayOut(bool gray)
+  {
+    mText.mFGColor.A = (gray ? GRAYED_ALPHA : 1.0f) * 255;
+  }
   
 protected:
   WDL_String mStr;
