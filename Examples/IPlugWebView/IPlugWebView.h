@@ -3,6 +3,8 @@
 #include "IPlug_include_in_plug_hdr.h"
 #include "Oscillator.h"
 
+using namespace iplug;
+
 const int kNumPrograms = 3;
 
 enum EParams
@@ -38,10 +40,10 @@ public:
   }
 };
 
-class IPlugWebView : public IPlug
+class IPlugWebView : public Plugin
 {
 public:
-  IPlugWebView(IPlugInstanceInfo instanceInfo);
+  IPlugWebView(const InstanceInfo& info);
   
   void OnIdle() override;
   bool OnMessage(int messageTag, int controlTag, int dataSize, const void* pData) override;

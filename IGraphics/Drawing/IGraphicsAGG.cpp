@@ -13,49 +13,76 @@
 
 #include "IGraphicsAGG.h"
 
-static StaticStorage<IFontData> sFontCache;
+// Source for AGG
 
-const bool textKerning = true;
+#include "IGraphicsAGG_src.cpp"
 
-class pixel_wrapper : public agg::pixel_map
+using namespace iplug;
+using namespace igraphics;
+
+#pragma mark - Private Classes and Structs
+
+class IGraphicsAGG::Bitmap : public APIBitmap
 {
 public:
-  pixel_wrapper(unsigned char* buf, unsigned w, unsigned h, unsigned bpp, int row_bytes)
-  : m_buf(buf)
-  , m_width(w)
-  , m_height(h)
-  , m_bpp(bpp)
-  , m_row_bytes(row_bytes)
+  Bitmap(agg::pixel_map* pPixMap, int scale, float drawScale, bool preMultiplied)
+  : APIBitmap(pPixMap, pPixMap->width(), pPixMap->height(), scale, drawScale), mPreMultiplied(preMultiplied)
   {}
-  
-  unsigned char* buf() override { return m_buf; }
-  unsigned width() const override { return m_width; }
-  unsigned height() const override { return m_height; }
-  
-  int row_bytes() const override { return m_row_bytes; }
-  unsigned bpp() const override  { return m_bpp; }
-  
+  virtual ~Bitmap() { delete GetBitmap(); }
+  bool IsPreMultiplied() const { return mPreMultiplied; }
 private:
-  
-  // Do not use!
-  
-  void create(unsigned width, unsigned height, unsigned clear_val=255) override {};
-  void clear(unsigned clear_val=255) override {};
-  void destroy() override {};
-  
-  unsigned char* m_buf;
-  unsigned m_width;
-  unsigned m_height;
-  unsigned m_bpp;
-  int m_row_bytes;
+  bool mPreMultiplied;
 };
 
-inline const agg::rgba8 AGGColor(const IColor& color, float opacity)
+namespace agg
+{
+  class pixel_wrapper : public agg::pixel_map
+  {
+  public:
+    pixel_wrapper(unsigned char* buf, unsigned w, unsigned h, unsigned bpp, int row_bytes)
+    : m_buf(buf)
+    , m_width(w)
+    , m_height(h)
+    , m_bpp(bpp)
+    , m_row_bytes(row_bytes)
+    {}
+    
+    unsigned char* buf() override { return m_buf; }
+    unsigned width() const override { return m_width; }
+    unsigned height() const override { return m_height; }
+    
+    int row_bytes() const override { return m_row_bytes; }
+    unsigned bpp() const override  { return m_bpp; }
+    
+  private:
+    
+    // Do not use!
+    
+    void create(unsigned width, unsigned height, unsigned clear_val=255) override {};
+    void clear(unsigned clear_val=255) override {};
+    void destroy() override {};
+    
+    unsigned char* m_buf;
+    unsigned m_width;
+    unsigned m_height;
+    unsigned m_bpp;
+    int m_row_bytes;
+  };
+}
+
+static const bool textKerning = true;
+
+//Fonts
+static StaticStorage<IFontData> sFontCache;
+
+#pragma mark - Utilites
+
+static inline const agg::rgba8 AGGColor(const IColor& color, float opacity)
 {
   return agg::rgba8(color.R, color.G, color.B, (opacity * color.A));
 }
 
-inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
+static inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
 {
   if (!pBlend)
     return agg::comp_op_src_over;
@@ -77,46 +104,51 @@ inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
   }
 }
 
-inline agg::cover_type AGGCover(const IBlend* pBlend = nullptr)
+static inline agg::cover_type AGGCover(const IBlend* pBlend = nullptr)
 {
   return std::max(agg::cover_type(0), std::min(agg::cover_type(roundf(BlendWeight(pBlend) * 255.f)), agg::cover_type(255)));
 }
 
-agg::pixel_map* CreatePixmap(int w, int h)
+template <class PixelMapType>
+static agg::pixel_map* CreatePixmap(int w, int h)
 {
-  agg::pixel_map* pPixelMap = new IGraphicsAGG::PixelMapType();
+  agg::pixel_map* pPixelMap = new PixelMapType();
   
   pPixelMap->create(w, h, 0);
   
   return pPixelMap;
 }
 
-// Rasterizing
+#pragma mark - Rasterizing
 
-template <typename FuncType, typename ColorArrayType>
-void GradientRasterize(IGraphicsAGG::Rasterizer& rasterizer, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray, agg::comp_op_e op)
+template <typename Rasterizer, typename FuncType, typename ColorArrayType>
+static void GradientRasterize(Rasterizer& rasterizer, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colors, agg::comp_op_e op)
 {
-  using SpanGradientType = agg::span_gradient<agg::rgba8, IGraphicsAGG::InterpolatorType, FuncType, ColorArrayType>;
+  using InterpolatorType = agg::span_interpolator_linear<>;
+  using SpanGradientType = agg::span_gradient<agg::rgba8, InterpolatorType, FuncType, ColorArrayType>;
   
-  IGraphicsAGG::InterpolatorType spanInterpolator(xform);
-  SpanGradientType spanGradient(spanInterpolator, gradientFunc, colorArray, 0, 512);
+  InterpolatorType spanInterpolator(xform);
+  SpanGradientType spanGradient(spanInterpolator, gradientFunc, colors, 0, 512);
   rasterizer.Rasterize(spanGradient, op);
 }
 
-template <typename FuncType, typename ColorArrayType>
-void GradientRasterizeAdapt(IGraphicsAGG::Rasterizer& rasterizer, EPatternExtend extend, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colorArray, agg::comp_op_e op)
+template <typename Rasterizer, typename FuncType, typename ColorArrayType>
+static void GradientRasterizeAdapt(Rasterizer& rasterizer, EPatternExtend extend, const FuncType& gradientFunc, agg::trans_affine& xform, ColorArrayType& colors, agg::comp_op_e op)
 {
+  using reflect = agg::gradient_reflect_adaptor<FuncType>;
+  using repeat = agg::gradient_repeat_adaptor<FuncType>;
+    
   switch (extend)
   {
     case EPatternExtend::None: //TODO:  extend none
     case EPatternExtend::Pad:
-      GradientRasterize(rasterizer, gradientFunc, xform, colorArray, op);
+      GradientRasterize(rasterizer, gradientFunc, xform, colors, op);
       break;
     case EPatternExtend::Reflect:
-      GradientRasterize(rasterizer, agg::gradient_reflect_adaptor<FuncType>(gradientFunc), xform, colorArray, op);
+      GradientRasterize(rasterizer, reflect(gradientFunc), xform, colors, op);
       break;
     case EPatternExtend::Repeat:
-      GradientRasterize(rasterizer, agg::gradient_repeat_adaptor<FuncType>(gradientFunc), xform, colorArray, op);
+      GradientRasterize(rasterizer, repeat(gradientFunc), xform, colors, op);
       break;
   }
 }
@@ -137,28 +169,28 @@ void IGraphicsAGG::Rasterizer::Rasterize(const IPattern& pattern, agg::comp_op_e
       const IMatrix& m = pattern.mTransform;
       
       agg::trans_affine gradientMTX(m.mXX, m.mYX , m.mXY, m.mYY, m.mTX, m.mTY);
-      agg::gradient_lut<agg::color_interpolator<agg::rgba8>, 512> colorArray;
+      agg::gradient_lut<agg::color_interpolator<agg::rgba8>, 512> colors;
       
       // Scaling
       gradientMTX = (agg::trans_affine() / mGraphics.mTransform) * gradientMTX * agg::trans_affine_scaling(512.0);
       
       // Make gradient lut
-      colorArray.remove_all();
+      colors.remove_all();
       
       for (int i = 0; i < pattern.NStops(); i++)
       {
         const IColorStop& stop = pattern.GetStop(i);
         float offset = stop.mOffset;
-        colorArray.add_color(offset, AGGColor(stop.mColor, opacity));
+        colors.add_color(offset, AGGColor(stop.mColor, opacity));
       }
       
-      colorArray.build_lut();
+      colors.build_lut();
       
       // Rasterize
       if (pattern.mType == EPatternType::Linear)
-        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_y(), gradientMTX, colorArray, op);
+        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_y(), gradientMTX, colors, op);
       else
-        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_radial_d(), gradientMTX, colorArray, op);
+        GradientRasterizeAdapt(*this, pattern.mExtend, agg::gradient_radial_d(), gradientMTX, colors, op);
     }
     break;
   }
@@ -238,11 +270,11 @@ bool CheckTransform(const agg::trans_affine& mtx)
 
 void IGraphicsAGG::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
-  bool preMultiplied = static_cast<AGGBitmap*>(bitmap.GetAPIBitmap())->IsPreMultiplied();
+  bool preMultiplied = static_cast<Bitmap*>(bitmap.GetAPIBitmap())->IsPreMultiplied();
   IRECT bounds = mClipRECT.Empty() ? dest : mClipRECT.Intersect(dest);
   bounds.Scale(GetBackingPixelScale());
 
-  APIBitmap* pAPIBitmap = dynamic_cast<AGGBitmap*>(bitmap.GetAPIBitmap());
+  APIBitmap* pAPIBitmap = dynamic_cast<Bitmap*>(bitmap.GetAPIBitmap());
   agg::pixel_map* pSource = pAPIBitmap->GetBitmap();
   agg::rendering_buffer src(pSource->buf(), pSource->width(), pSource->height(), pSource->row_bytes());
 
@@ -432,13 +464,13 @@ APIBitmap* IGraphicsAGG::LoadAPIBitmap(const char* fileNameOrResID, int scale, E
   if (location != EResourceLocation::kNotFound && ispng)
   {
     if (pixelMap->load_img((HINSTANCE)GetWinModuleHandle(), fileNameOrResID, agg::pixel_map::format_png))
-      return new AGGBitmap(pixelMap.release(), scale, 1.f, false);
+      return new Bitmap(pixelMap.release(), scale, 1.f, false);
   }
 #else
   if (location == EResourceLocation::kAbsolutePath && ispng)
   {
     if (pixelMap->load_img(fileNameOrResID, agg::pixel_map::format_png))
-      return new AGGBitmap(pixelMap.release(), scale, 1.f, false);
+      return new Bitmap(pixelMap.release(), scale, 1.f, false);
   }
 #endif
 
@@ -447,7 +479,7 @@ APIBitmap* IGraphicsAGG::LoadAPIBitmap(const char* fileNameOrResID, int scale, E
 
 APIBitmap* IGraphicsAGG::CreateAPIBitmap(int width, int height, int scale, double drawScale)
 {
-  return new AGGBitmap(CreatePixmap(width, height), scale, drawScale, true);
+  return new Bitmap(CreatePixmap<PixelMapType>(width, height), scale, drawScale, true);
 }
 
 bool IGraphicsAGG::BitmapExtSupported(const char* ext)
@@ -482,8 +514,8 @@ void IGraphicsAGG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const 
     }
     
     IRECT bounds(layer->Bounds());
-    pixel_wrapper* shadowSource = new pixel_wrapper(mask.Get(), pPixMap->width(), pPixMap->height(), pPixMap->bpp(), pPixMap->row_bytes());
-    APIBitmap* shadowBitmap = new AGGBitmap(shadowSource, pBitmap->GetScale(), pBitmap->GetDrawScale(), true);
+    agg::pixel_wrapper* shadowSource = new agg::pixel_wrapper(mask.Get(), pPixMap->width(), pPixMap->height(), pPixMap->bpp(), pPixMap->row_bytes());
+    APIBitmap* shadowBitmap = new Bitmap(shadowSource, pBitmap->GetScale(), pBitmap->GetDrawScale(), true);
     IBitmap bitmap(shadowBitmap, 1, false);
     ILayer shadowLayer(shadowBitmap, layer->Bounds());
       
@@ -624,5 +656,3 @@ void IGraphicsAGG::DoDrawText(const IText& text, const char* str, const IRECT& b
   }
   PathTransformRestore();
 }
-
-#include "IGraphicsAGG_src.cpp"

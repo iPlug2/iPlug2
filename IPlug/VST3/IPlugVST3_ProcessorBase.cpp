@@ -13,11 +13,12 @@
 
 #include "IPlugVST3_ProcessorBase.h"
 
+using namespace iplug;
 using namespace Steinberg;
 using namespace Vst;
 
 #ifndef CUSTOM_BUSTYPE_FUNC
-uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig)
+uint64_t iplug::GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig)
 {
   assert(pConfig != nullptr);
   assert(busIdx >= 0 && busIdx < pConfig->NBuses(dir));
@@ -46,8 +47,8 @@ uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, 
 }
 #endif
 
-IPlugVST3ProcessorBase::IPlugVST3ProcessorBase(IPlugConfig c, IPlugAPIBase& plug)
-: IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST3)
+IPlugVST3ProcessorBase::IPlugVST3ProcessorBase(Config c, IPlugAPIBase& plug)
+: IPlugProcessor(c, kAPIVST3)
 , mPlug(plug)
 {
   SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
@@ -281,7 +282,7 @@ bool IPlugVST3ProcessorBase::CanProcessSampleSize(int32 symbolicSampleSize)
   }
 }
 
-bool IsBusActive(const BusList& list, int32 idx)
+static bool IsBusActive(const BusList& list, int32 idx)
 {
   bool exists = false;
   if (idx < static_cast<int32> (list.size()))

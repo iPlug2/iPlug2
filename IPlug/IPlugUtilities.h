@@ -40,6 +40,8 @@
 #pragma warning(disable:4805)		// Compare bool and BOOL.
 #endif
 
+BEGIN_IPLUG_NAMESPACE
+
 /** Clips the value \p x between \p lo and \p hi
  * @param x Input value
  * @param lo Minimum value to be allowed
@@ -361,5 +363,7 @@ static void MidiNoteName(double midiPitch, WDL_String& noteName, bool cents = fa
     noteName.SetFormatted(32, "%s%i", noteNames[pitchClass], octave);
   }
 }
+
+END_IPLUG_NAMESPACE
 
 /**@}*/

@@ -11,6 +11,8 @@
 #include "denormal.h"
 #include "IPlugConstants.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 template<typename T, int NC = 1>
 class LogParamSmooth
 {
@@ -79,3 +81,5 @@ public:
   }
 
 } WDL_FIXALIGN;
+
+END_IPLUG_NAMESPACE

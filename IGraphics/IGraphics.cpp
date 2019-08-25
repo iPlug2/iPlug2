@@ -16,12 +16,12 @@
 #if defined VST3_API
 #include "pluginterfaces/base/ustring.h"
 #include "IPlugVST3.h"
-using VST3_API_BASE = IPlugVST3;
+using VST3_API_BASE = iplug::IPlugVST3;
 #elif defined VST3C_API
 #include "pluginterfaces/base/ustring.h"
 #include "IPlugVST3_Controller.h"
 #include "IPlugVST3_View.h"
-using VST3_API_BASE = IPlugVST3Controller;
+using VST3_API_BASE = iplug::IPlugVST3Controller;
 #endif
 
 #include "IPlugParameter.h"
@@ -35,23 +35,8 @@ using VST3_API_BASE = IPlugVST3Controller;
 #include "IPopupMenuControl.h"
 #include "ITextEntryControl.h"
 
-struct SVGHolder
-{
-  NSVGimage* mImage = nullptr;
-
-  SVGHolder(NSVGimage* pImage)
-  : mImage(pImage)
-  {
-  }
-
-  ~SVGHolder()
-  {
-    if(mImage)
-      nsvgDelete(mImage);
-
-    mImage = nullptr;
-  }
-};
+using namespace iplug;
+using namespace igraphics;
 
 static StaticStorage<APIBitmap> sBitmapCache;
 static StaticStorage<SVGHolder> sSVGCache;
@@ -794,17 +779,34 @@ void IGraphics::OnMouseDown(float x, float y, const IMouseMod& mod)
     #ifdef AAX_API
     if (mAAXViewContainer && paramIdx > kNoParameter)
     {
-      uint32_t mods = GetAAXModifiersFromIMouseMod(mod);
+      auto GetAAXModifiersFromIMouseMod = [](const IMouseMod& mod) {
+        uint32_t modifiers = 0;
+      
+        if (mod.A) modifiers |= AAX_eModifiers_Option; // ALT Key on Windows, ALT/Option key on mac
+      
+      #ifdef OS_WIN
+        if (mod.C) modifiers |= AAX_eModifiers_Command;
+      #else
+        if (mod.C) modifiers |= AAX_eModifiers_Control;
+        if (mod.R) modifiers |= AAX_eModifiers_Command;
+      #endif
+        if (mod.S) modifiers |= AAX_eModifiers_Shift;
+        if (mod.R) modifiers |= AAX_eModifiers_SecondaryButton;
+      
+        return modifiers;
+      };
+      
+      uint32_t aaxModifiersForPT = GetAAXModifiersFromIMouseMod(mod);
       #ifdef OS_WIN
       // required to get start/windows and alt keys
-      uint32_t aaxViewMods = 0;
-      mAAXViewContainer->GetModifiers(&aaxViewMods);
-      mods |= aaxViewMods;
+      uint32_t aaxModifiersFromPT = 0;
+      mAAXViewContainer->GetModifiers(&aaxModifiersFromPT);
+      aaxModifiersForPT |= aaxModifiersFromPT;
       #endif
       WDL_String paramID;
       paramID.SetFormatted(32, "%i", paramIdx+1);
 
-      if (mAAXViewContainer->HandleParameterMouseDown(paramID.Get(), mods) == AAX_SUCCESS)
+      if (mAAXViewContainer->HandleParameterMouseDown(paramID.Get(), aaxModifiersForPT) == AAX_SUCCESS)
       {
         return; // event handled by PT
       }
@@ -837,14 +839,18 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
   
   if (mMouseCapture)
   {
-    int nVals = mMouseCapture->NVals();
-    mMouseCapture->OnMouseUp(x, y, mod);
+    IControl* pCapturedControl = mMouseCapture; // OnMouseUp could clear mMouseCapture, so stash here
     
+    pCapturedControl->OnMouseUp(x, y, mod);
+    
+    int nVals = pCapturedControl->NVals();
+
     for (int v = 0; v < nVals; v++)
     {
-      if (mMouseCapture->GetParamIdx(v) > kNoParameter)
-        GetDelegate()->EndInformHostOfParamChangeFromUI(mMouseCapture->GetParamIdx(v));
+      if (pCapturedControl->GetParamIdx(v) > kNoParameter)
+        GetDelegate()->EndInformHostOfParamChangeFromUI(pCapturedControl->GetParamIdx(v));
     }
+    
     ReleaseMouseCapture();
   }
 

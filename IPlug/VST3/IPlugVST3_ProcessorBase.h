@@ -19,18 +19,25 @@
 #include "IPlugProcessor.h"
 
 using namespace Steinberg;
+using namespace Vst;
 
+// Custom bus type function (in global namespace)
+#ifdef CUSTOM_BUSTYPE_FUNC
+extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, iplug::ERoute dir, int busIdx, iplug::IOConfig* pConfig);
+#endif
+
+BEGIN_IPLUG_NAMESPACE
+
+// Default bus type function (in iplug namespace)
 #ifndef CUSTOM_BUSTYPE_FUNC
 uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig);
-#else
-extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoutingDir dir, int busIdx, IOConfig* pConfig);
 #endif
 
 /** Shared VST3 processor code */
-class IPlugVST3ProcessorBase : public IPlugProcessor<PLUG_SAMPLE_DST>
+class IPlugVST3ProcessorBase : public IPlugProcessor
 {
 public:
-  IPlugVST3ProcessorBase(IPlugConfig c, IPlugAPIBase& plug);
+  IPlugVST3ProcessorBase(Config c, IPlugAPIBase& plug);
   
   template <class T>
   void Initialize(T* plug)
@@ -102,3 +109,5 @@ private:
   IMidiQueue mMidiOutputQueue;
   bool mSidechainActive = false;
 };
+
+END_IPLUG_NAMESPACE

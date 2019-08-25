@@ -11,12 +11,14 @@
 #pragma once
 
 #include "pluginterfaces/base/ibstream.h"
-#
+
 #include "IPlugAPIBase.h"
 #include "IPlugVST3_Parameter.h"
 
 using namespace Steinberg;
 using namespace Vst;
+
+BEGIN_IPLUG_NAMESPACE
 
 /** Shared VST3 controller code */
 class IPlugVST3ControllerBase
@@ -169,3 +171,5 @@ public:
 public:
   IPlugVST3BypassParameter* mBypassParameter = nullptr;
 };
+
+END_IPLUG_NAMESPACE

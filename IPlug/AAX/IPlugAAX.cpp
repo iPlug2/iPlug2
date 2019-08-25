@@ -20,9 +20,11 @@
 #include "AAX_CNumberDisplayDelegate.h"
 #include "AAX_CUnitDisplayDelegateDecorator.h"
 
+using namespace iplug;
+
 AAX_CEffectParameters *AAX_CALLBACK IPlugAAX::Create()
 {
-  return MakePlug();
+  return MakePlug(InstanceInfo());
 }
 
 void AAX_CEffectGUI_IPLUG::CreateViewContents() 
@@ -91,11 +93,11 @@ AAX_Result AAX_CEffectGUI_IPLUG::SetControlHighlightInfo(AAX_CParamID paramID, A
 
 #pragma mark IPlugAAX Construct
 
-IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPlugAPIBase(c, kAPIAAX)
-, IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIAAX)
+IPlugAAX::IPlugAAX(const InstanceInfo& info, const Config& config)
+: IPlugAPIBase(config, kAPIAAX)
+, IPlugProcessor(config, kAPIAAX)
 {
-  Trace(TRACELOC, "%s%s", c.pluginName, c.channelIOStr);
+  Trace(TRACELOC, "%s%s", config.pluginName, config.channelIOStr);
 
   SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
   SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
@@ -103,7 +105,7 @@ IPlugAAX::IPlugAAX(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   if (MaxNChannels(ERoute::kInput)) 
   {
     mLatencyDelay = std::unique_ptr<NChanDelayLine<PLUG_SAMPLE_DST>>(new NChanDelayLine<PLUG_SAMPLE_DST>(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput)));
-    mLatencyDelay->SetDelayTime(c.latency);
+    mLatencyDelay->SetDelayTime(config.latency);
   }
   
   SetBlockSize(DEFAULT_BLOCK_SIZE);
@@ -309,6 +311,9 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
     mTransport->GetCurrentTickPosition(&ppqPos);
     timeInfo.mPPQPos = (double) ppqPos / 960000.0;
     
+    if(timeInfo.mPPQPos < 0)
+      timeInfo.mPPQPos = 0;
+ 
     mTransport->GetCurrentNativeSampleLocation(&samplePos);
     timeInfo.mSamplePos = (double) samplePos;
     

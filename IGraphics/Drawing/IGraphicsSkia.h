@@ -12,26 +12,21 @@
 #include "SkCanvas.h"
 #include "SkImage.h"
 
-class SkiaBitmap : public APIBitmap
-{
-public:
-  SkiaBitmap(GrContext* context, int width, int height, int scale, float drawScale);
-  SkiaBitmap(const char* path, double sourceScale);
-  SkiaBitmap(const void* pData, int size, double sourceScale);
-
-private:
- SkiaDrawable mDrawable;
-};
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
 
 /** IGraphics draw class using Skia
 *   @ingroup DrawClasses */
 class IGraphicsSkia : public IGraphicsPathBase
 {
+private:
+  class Bitmap;
+  struct Font;
 public:
-  const char* GetDrawingAPIStr() override ;
-
   IGraphicsSkia(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsSkia();
+
+  const char* GetDrawingAPIStr() override ;
 
   void BeginFrame() override;
   void EndFrame() override;
@@ -43,12 +38,11 @@ public:
 
   void PathClear() override { mMainPath.reset(); }
   void PathClose() override { mMainPath.close(); }
-
   void PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding) override;
 
   void PathMoveTo(float x, float y) override { mMainPath.moveTo(x, y); }
   void PathLineTo(float x, float y) override { mMainPath.lineTo(x, y); }
-  
+
   void PathCubicBezierTo(float x1, float y1, float x2, float y2, float x3, float y3) override
   {
     mMainPath.cubicTo({x1, y1}, {x2, y2}, {x3, y3});
@@ -109,4 +103,10 @@ private:
   void* mMTLDrawable;
   void* mMTLLayer;
 #endif
+  
+  static StaticStorage<Font> sFontCache;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+

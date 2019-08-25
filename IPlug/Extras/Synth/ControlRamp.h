@@ -20,6 +20,8 @@
 #include <iostream>
 #include <utility>
 
+BEGIN_IPLUG_NAMESPACE
+
 /** A ControlRamp describes one value changing over time. It can
  * be easily converted into a signal for more processing,
  * or if sample accuracy is not needed, just the end value can be used.
@@ -169,3 +171,5 @@ private:
   int mSamplesRemaining {0};
   int mStartOffset {0};
 };
+
+END_IPLUG_NAMESPACE

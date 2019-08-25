@@ -8,6 +8,10 @@
  ==============================================================================
  */
 
+#include "IPlugPlatform.h"
+
+BEGIN_IPLUG_NAMESPACE
+
 template <typename T>
 class ADSREnvelope
 {
@@ -56,6 +60,10 @@ private:
   std::function<void()> mResetFunc = nullptr; // reset func
 
 public:
+  /** Constructs an ADSREnvelope object 
+  * @param name CString to identify the envelope in debug mode, when DEBUG_ENV=1 is set as a global preprocessor macro
+  * @param resetFunc A function to call when the envelope gets retriggered, called when the fade out ramp is at zero, usefule for example to reset an oscillator's phase
+  * @param sustainEnabled if true the envelope is an ADSR envelope. If false, it's is an AD envelope (suitable for drums). */
   ADSREnvelope(const char* name = "", std::function<void()> resetFunc = nullptr, bool sustainEnabled = true)
   : mName(name)
   , mResetFunc(resetFunc)
@@ -64,6 +72,9 @@ public:
     SetSampleRate(44100.);
   }
 
+  /** Sets the time for a particular envelope stage 
+  * @param stage The stage to set the time for /see EStage
+  * @param timeMS The time in milliseconds for that stage */
   void SetStageTime(int stage, T timeMS)
   {
     switch(stage)
@@ -83,21 +94,21 @@ public:
     }
   }
 
+  /** @return /c true if the envelope is not idle */
   bool GetBusy() const
   {
     return mStage != kIdle;
   }
 
-  bool GetReleased() const
-  {
-    return mStage != kIdle;
-  }
-
+  /** @return the previously output value */
   T GetPrevOutput() const
   {
     return mPrevOutput;
   }
   
+  /** Trigger/Start the envelope 
+   * @param level The overall depth of the envelope (usually linked to MIDI velocity)  
+   * @param timeScalar Factor to scale the envelope's rates. Use this, for example to adjust the envelope stage rates based on the key pressed */
   inline void Start(T level, T timeScalar = 1.)
   {
     mStage = kAttack;
@@ -107,6 +118,7 @@ public:
     mReleased = false;
   }
 
+  /** Release the envelope */
   inline void Release()
   {
     mStage = kRelease;
@@ -114,7 +126,10 @@ public:
     mEnvValue = 1.;
     mReleased = true;
   }
-
+  
+  /** Retrigger the envelope. This method will cause the envelope to move to a "releasedToRetrigger" stage, which is a fast ramp to zero in RETRIGGER_RELEASE_TIME, used when voices are stolen to avoid clicks.
+  * @param newStartLevel When the envelope retstarts, what should be its overall depth (usually linked to MIDI velocity)
+  * @param timeScalar Factor to scale the envelope's rates. Use this, for example to adjust the envelope stage rates based on the key pressed */
   inline void Retrigger(T newStartLevel, T timeScalar = 1.)
   {
     mEnvValue = 1.;
@@ -129,6 +144,8 @@ public:
     #endif
   }
 
+  /** Kill the envelope 
+  * @param hard If true, the envelope will get reset automatically, probably causing an audible glitch. If false, it's a "soft kill", which will fade out in EARLY_RELEASE_TIME */
   inline void Kill(bool hard)
   {
     if(hard)
@@ -159,6 +176,9 @@ public:
     }
   }
 
+  /** Set the sample rate for processing, with updates the early release time and retrigger release time coefficents.
+  * NOTE: you also need to think about updating the Attack, Decay and Release times when the sample rate changes 
+  * @param sr SampleRate in samples per second */
   void SetSampleRate(T sr)
   {
     mSampleRate = sr;
@@ -166,6 +186,8 @@ public:
     mRetriggerReleaseIncr = CalcIncrFromTimeLinear(RETRIGGER_RELEASE_TIME, sr);
   }
 
+  /** Process the envelope, returning the value according to the current envelope stage
+  * @param sustainLevel Since the sustain level could be changed during processing, it is supplied as an argument, so that it can be smoothed extenally if nessecary, to avoid discontinuities */
   inline T Process(T sustainLevel = 0.)
   {
     T result = 0.;
@@ -268,3 +290,5 @@ private:
     }
   }
 };
+
+END_IPLUG_NAMESPACE

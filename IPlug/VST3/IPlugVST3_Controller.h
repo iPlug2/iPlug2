@@ -29,6 +29,8 @@
 using namespace Steinberg;
 using namespace Vst;
 
+BEGIN_IPLUG_NAMESPACE
+
 /**  VST3 Controller API-base class for a distributed IPlug VST3 plug-in
  *   @ingroup APIClasses */
 class IPlugVST3Controller : public EditControllerEx1
@@ -39,12 +41,12 @@ class IPlugVST3Controller : public EditControllerEx1
 public:
   using ViewType = IPlugVST3View<IPlugVST3Controller>;
   
-  struct IPlugInstanceInfo
+  struct InstanceInfo
   {
     Steinberg::FUID mOtherGUID;
   };
   
-  IPlugVST3Controller(IPlugInstanceInfo instanceInfo, IPlugConfig c);
+  IPlugVST3Controller(const InstanceInfo& info, const Config& config);
   virtual ~IPlugVST3Controller();
 
   // IEditController
@@ -90,6 +92,6 @@ private:
   Steinberg::FUID mProcessorGUID;
 };
 
-IPlugVST3Controller* MakeController();
+END_IPLUG_NAMESPACE
 
 #endif // _IPLUGAPI_
