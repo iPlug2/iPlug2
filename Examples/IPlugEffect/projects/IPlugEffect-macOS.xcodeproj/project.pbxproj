@@ -57,6 +57,7 @@
 		4F1A528C205D916F00CF2908 /* IPlugAU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1A528A205D916F00CF2908 /* IPlugAU.cpp */; };
 		4F1B4AE42014D33600BC64D4 /* IPlugEffect-macOS-MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F1B4AE32014D33600BC64D4 /* IPlugEffect-macOS-MainMenu.xib */; };
 		4F2EA978203A50EA008E4850 /* IPlugAPP_dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F2EA977203A50E9008E4850 /* IPlugAPP_dialog.cpp */; };
+		4F32AE7C231427EC00710734 /* AUv3Framework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F78BE0222E73D0800AD537E /* AUv3Framework.framework */; };
 		4F35DEAD207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */; };
 		4F35DEAE207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */; };
 		4F35DEAF207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */; };
@@ -790,6 +791,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F32AE7C231427EC00710734 /* AUv3Framework.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
