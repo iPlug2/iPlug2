@@ -47,6 +47,8 @@ To Do:
 
 */
 
+using namespace iplug;
+using namespace igraphics;
 
 //WDL_FFT_REAL is typedef to either float or double, depending what is defined in fft.h
 

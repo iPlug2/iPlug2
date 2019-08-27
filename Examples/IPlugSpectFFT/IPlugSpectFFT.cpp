@@ -2,8 +2,8 @@
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
 
-IPlugSpectFFT::IPlugSpectFFT(IPlugInstanceInfo instanceInfo)
-: IPLUG_CTOR(kNumParams, kNumPrograms, instanceInfo)
+IPlugSpectFFT::IPlugSpectFFT(const InstanceInfo& info)
+: Plugin(info, MakeConfig(kNumParams, kNumPrograms))
 {
   //set to nullptr so OnReset is able to determine if control is setup before calling SetSampleRate()
   pFFTAnalyzer = nullptr;
