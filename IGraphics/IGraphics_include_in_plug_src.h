@@ -52,6 +52,7 @@
   {
     IGraphicsMac* pGraphics = new IGraphicsMac(dlg, w, h, fps, scale);
     pGraphics->SetBundleID(BUNDLE_ID);
+    pGraphics->SetSharedResourcesSubPath(SHARED_RESOURCES_SUBPATH);
     
     return pGraphics;
   }
