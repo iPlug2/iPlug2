@@ -138,7 +138,9 @@ static void deleteDrvStruct (LPASIODRVSTRUCT lpdrv)
 		deleteDrvStruct(lpdrv->next);
 		if (lpdrv->asiodrv) {
 			iasio = (IASIO *)lpdrv->asiodrv;
-			iasio->Release();
+			if (iasio->outputReady() >= ASE_OK){
+				iasio->Release();
+			}
 		}
 		delete lpdrv;
 	}
@@ -240,13 +242,15 @@ LONG AsioDriverList::asioOpenDriver (int drvID,LPVOID *asiodrv)
 LONG AsioDriverList::asioCloseDriver (int drvID)
 {
 	LPASIODRVSTRUCT	lpdrv = 0;
-	IASIO			*iasio;
+	IASIO	*iasio;
 
 	if ((lpdrv = getDrvStruct(drvID,lpdrvlist)) != 0) {
 		if (lpdrv->asiodrv) {
 			iasio = (IASIO *)lpdrv->asiodrv;
-			iasio->Release();
-			lpdrv->asiodrv = 0;
+			if (iasio->outputReady() >= ASE_OK) {
+				iasio->Release();
+				lpdrv->asiodrv = 0;
+			}
 		}
 	}
 
