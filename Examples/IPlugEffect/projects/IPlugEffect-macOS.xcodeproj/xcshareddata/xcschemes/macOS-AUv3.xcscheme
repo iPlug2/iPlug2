@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
    LastUpgradeVersion = "1030"
+   wasCreatedForAppExtension = "YES"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,10 +15,24 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4F2602B12269F00000C7E97E"
-               BuildableName = "IPlugEffectShared.a"
-               BlueprintName = "Shared"
-               ReferencedContainer = "container:IPlugEffect-iOS.xcodeproj">
+               BlueprintIdentifier = "4F39075F2013EBA300DDA490"
+               BuildableName = "IPlugEffect.appex"
+               BlueprintName = "AUv3"
+               ReferencedContainer = "container:IPlugEffect-macOS.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "4F3EE1BA231438D000004786"
+               BuildableName = "IPlugEffect.app"
+               BlueprintName = "AUv3App"
+               ReferencedContainer = "container:IPlugEffect-macOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -41,16 +56,29 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
+      enableGPUFrameCaptureMode = "3"
+      enableGPUValidationMode = "1"
       allowLocationSimulation = "YES">
+      <PathRunnable
+         runnableDebuggingMode = "0"
+         BundleIdentifier = "com.example.apple-samplecode.AUv3Host686EDA2T8T"
+         FilePath = "/Applications/AUv3Host.app">
+      </PathRunnable>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4F2602B12269F00000C7E97E"
-            BuildableName = "IPlugEffectShared.a"
-            BlueprintName = "Shared"
-            ReferencedContainer = "container:IPlugEffect-iOS.xcodeproj">
+            BlueprintIdentifier = "4F39075F2013EBA300DDA490"
+            BuildableName = "IPlugEffect.appex"
+            BlueprintName = "AUv3"
+            ReferencedContainer = "container:IPlugEffect-macOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "-v aufx Ipef Acme"
+            isEnabled = "NO">
+         </CommandLineArgument>
+      </CommandLineArguments>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -59,14 +87,15 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
-      debugDocumentVersioning = "YES">
+      debugDocumentVersioning = "YES"
+      launchAutomaticallySubstyle = "2">
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4F2602B12269F00000C7E97E"
-            BuildableName = "IPlugEffectShared.a"
-            BlueprintName = "Shared"
-            ReferencedContainer = "container:IPlugEffect-iOS.xcodeproj">
+            BlueprintIdentifier = "4F39075F2013EBA300DDA490"
+            BuildableName = "IPlugEffect.appex"
+            BlueprintName = "AUv3"
+            ReferencedContainer = "container:IPlugEffect-macOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

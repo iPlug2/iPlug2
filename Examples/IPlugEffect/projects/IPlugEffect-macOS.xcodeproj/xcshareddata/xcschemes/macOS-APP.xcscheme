@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "91236D0C1B08F42B00734C5E"
+               BlueprintIdentifier = "4FD16A0813B63081001D0217"
                BuildableName = "IPlugEffect.app"
-               BlueprintName = "App"
-               ReferencedContainer = "container:IPlugEffect-iOS.xcodeproj">
+               BlueprintName = "APP"
+               ReferencedContainer = "container:IPlugEffect-macOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +32,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "91236D0C1B08F42B00734C5E"
+            BlueprintIdentifier = "4FD16A0813B63081001D0217"
             BuildableName = "IPlugEffect.app"
-            BlueprintName = "App"
-            ReferencedContainer = "container:IPlugEffect-iOS.xcodeproj">
+            BlueprintName = "APP"
+            ReferencedContainer = "container:IPlugEffect-macOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -50,17 +50,15 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
-      enableGPUFrameCaptureMode = "3"
-      enableGPUValidationMode = "1"
       allowLocationSimulation = "YES">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "91236D0C1B08F42B00734C5E"
+            BlueprintIdentifier = "4FD16A0813B63081001D0217"
             BuildableName = "IPlugEffect.app"
-            BlueprintName = "App"
-            ReferencedContainer = "container:IPlugEffect-iOS.xcodeproj">
+            BlueprintName = "APP"
+            ReferencedContainer = "container:IPlugEffect-macOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -76,10 +74,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "91236D0C1B08F42B00734C5E"
+            BlueprintIdentifier = "4FD16A0813B63081001D0217"
             BuildableName = "IPlugEffect.app"
-            BlueprintName = "App"
-            ReferencedContainer = "container:IPlugEffect-iOS.xcodeproj">
+            BlueprintName = "APP"
+            ReferencedContainer = "container:IPlugEffect-macOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
