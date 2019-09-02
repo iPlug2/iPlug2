@@ -12,6 +12,8 @@
 #include "IPlugConstants.h"
 #include "IGraphicsConstants.h"
 
+#include <cmath>
+
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
@@ -46,8 +48,8 @@ inline T DegToRad(T degrees)
 static inline void RadialPoints(float angleDegrees, float cx, float cy, float rMin, float rMax, int nPoints, float data[][2])
 {
   const float angleRadians = DegToRad(angleDegrees - 90.f);
-  const float sinV = sinf(angleRadians);
-  const float cosV = cosf(angleRadians);
+  const float sinV = std::sin(angleRadians);
+  const float cosV = std::cos(angleRadians);
   
   for(auto i = 0; i < nPoints; i++)
   {
