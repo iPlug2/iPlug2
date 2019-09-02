@@ -16,6 +16,7 @@
  */
 
 #include <string>
+#include <memory>
 
 #include "mutex.h"
 #include "wdlstring.h"
