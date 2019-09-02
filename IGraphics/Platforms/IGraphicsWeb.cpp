@@ -19,8 +19,8 @@ using namespace igraphics;
 using namespace emscripten;
 
 extern IGraphicsWeb* gGraphics;
-std::function<void()> gMouseDownFunc = nullptr;
 double gPrevMouseDownTime = 0.;
+bool firstClick = false;
 
 bool gGraphicsLoaded = false;
 
@@ -352,16 +352,15 @@ static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent,
       const double timestamp = GetTimestamp();
       const double timeDiff = timestamp - gPrevMouseDownTime;
       
-      if(timeDiff < 0.2)
+      if (firstClick && timeDiff < 0.3)
       {
-        gMouseDownFunc = nullptr;
+        firstClick = false;
         pGraphics->OnMouseDblClick(x, y, modifiers);
       }
       else
       {
-        gMouseDownFunc = [pGraphics, x, y, &modifiers]() {
-          pGraphics->OnMouseDown(x, y, modifiers);
-        };
+        firstClick = true;
+        pGraphics->OnMouseDown(x, y, modifiers);
       }
         
       gPrevMouseDownTime = timestamp;
@@ -371,11 +370,7 @@ static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent,
     case EMSCRIPTEN_EVENT_MOUSEUP: pGraphics->OnMouseUp(x, y, modifiers); break;
     case EMSCRIPTEN_EVENT_MOUSEMOVE:
     {
-      if(gMouseDownFunc)
-      {
-        gMouseDownFunc();
-        gMouseDownFunc = nullptr;
-      }
+      firstClick = false;
       
       if(pEvent->buttons == 0)
         pGraphics->OnMouseOver(x, y, modifiers);
@@ -549,17 +544,6 @@ ECursor IGraphicsWeb::SetMouseCursor(ECursor cursorType)
 //static
 void IGraphicsWeb::OnMainLoopTimer()
 {
-  if(gMouseDownFunc)
-  {
-    const double timestamp = GetTimestamp();
-    const double timeDiff = timestamp - gPrevMouseDownTime;
-    
-    if(timeDiff > 0.2) {
-      gMouseDownFunc();
-      gMouseDownFunc = nullptr;
-    }
-  }
-  
   IRECTList rects;
   int screenScale = (int) std::ceil(std::max(emscripten_get_device_pixel_ratio(), 1.));
   
