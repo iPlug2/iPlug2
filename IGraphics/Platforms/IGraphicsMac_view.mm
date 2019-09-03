@@ -679,7 +679,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   IMouseInfo info = [self getMouseLeft:pEvent];
   if (mGraphics)
   {
-    if ([pEvent clickCount] % 2)
+    if (([pEvent clickCount] - 1) % 2)
     {
       mGraphics->OnMouseDblClick(info.x, info.y, info.ms);
     }
