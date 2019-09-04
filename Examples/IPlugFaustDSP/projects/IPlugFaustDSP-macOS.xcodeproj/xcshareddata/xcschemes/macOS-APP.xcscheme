@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4F9828AA140A9EB700F3FCC1"
-               BuildableName = "IPlugFaustDSP.vst3"
-               BlueprintName = "VST3"
+               BlueprintIdentifier = "4FD16A0813B63081001D0217"
+               BuildableName = "IPlugFaustDSP.app"
+               BlueprintName = "APP"
                ReferencedContainer = "container:IPlugFaustDSP-macOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -29,6 +29,15 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "4FD16A0813B63081001D0217"
+            BuildableName = "IPlugFaustDSP.app"
+            BlueprintName = "APP"
+            ReferencedContainer = "container:IPlugFaustDSP-macOS.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -41,23 +50,17 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
-      enableGPUFrameCaptureMode = "3"
-      enableGPUValidationMode = "1"
       allowLocationSimulation = "YES">
-      <PathRunnable
-         runnableDebuggingMode = "0"
-         BundleIdentifier = "com.steinberg.vst3.plugintesthost"
-         FilePath = "/Applications/VST3PluginTestHost.app">
-      </PathRunnable>
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4F9828AA140A9EB700F3FCC1"
-            BuildableName = "IPlugFaustDSP.vst3"
-            BlueprintName = "VST3"
+            BlueprintIdentifier = "4FD16A0813B63081001D0217"
+            BuildableName = "IPlugFaustDSP.app"
+            BlueprintName = "APP"
             ReferencedContainer = "container:IPlugFaustDSP-macOS.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -67,10 +70,16 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <PathRunnable
-         runnableDebuggingMode = "0"
-         FilePath = "/Applications/VST3PluginTestHost.app">
-      </PathRunnable>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "4FD16A0813B63081001D0217"
+            BuildableName = "IPlugFaustDSP.app"
+            BlueprintName = "APP"
+            ReferencedContainer = "container:IPlugFaustDSP-macOS.xcodeproj">
+         </BuildableReference>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

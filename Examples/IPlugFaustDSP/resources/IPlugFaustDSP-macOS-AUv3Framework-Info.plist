@@ -3,21 +3,19 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>en</string>
+	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>IPlugFaustDSPFramework</string>
+	<string>AUv3Framework</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.AcmeInc.IPlugFaustDSPApp.Framework</string>
+	<string>com.AcmeInc.app.IPlugFaustDSP.AUv3Framework</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>IPlugFaustDSPFramework</string>
+	<string>AUv3Framework</string>
 	<key>CFBundlePackageType</key>
 	<string>FMWK</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.0.0</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>1.0.0</string>
 </dict>
