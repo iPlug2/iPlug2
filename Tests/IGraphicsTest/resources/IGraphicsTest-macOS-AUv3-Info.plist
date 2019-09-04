@@ -26,6 +26,8 @@
 	<dict>
 		<key>NSExtensionAttributes</key>
 		<dict>
+			<key>AudioComponentBundle</key>
+			<string>com.AcmeInc.app.IGraphicsTest.AUv3Framework</string>
 			<key>AudioComponents</key>
 			<array>
 				<dict>
@@ -38,13 +40,13 @@
 					<key>sandboxSafe</key>
 					<true/>
 					<key>subtype</key>
-					<string>Ipgt</string>
+					<string>Ipef</string>
 					<key>tags</key>
 					<array>
-						<string>Synth</string>
+						<string>Effects</string>
 					</array>
 					<key>type</key>
-					<string>aumu</string>
+					<string>aufx</string>
 					<key>version</key>
 					<integer>65536</integer>
 				</dict>
