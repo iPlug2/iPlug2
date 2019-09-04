@@ -61,7 +61,7 @@ public:
 private:
   int mKernelType = 0;
   NVGframebuffer* mFBO = nullptr;
-  IPopupMenu mMenu {0, false, {"MPSImageGaussianBlur", "MPSImageSobel", "MPSImageThresholdToZero"}};
+  IPopupMenu mMenu {"MPS Type", 0, false, {"MPSImageGaussianBlur", "MPSImageSobel", "MPSImageThresholdToZero"}};
 };
 
 #else
