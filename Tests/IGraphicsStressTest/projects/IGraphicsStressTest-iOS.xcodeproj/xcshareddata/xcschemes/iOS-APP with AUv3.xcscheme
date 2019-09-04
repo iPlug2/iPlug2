@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4FD16A0813B63081001D0217"
+               BlueprintIdentifier = "91236D0C1B08F42B00734C5E"
                BuildableName = "IGraphicsStressTest.app"
-               BlueprintName = "APP"
-               ReferencedContainer = "container:IGraphicsStressTest-macOS.xcodeproj">
+               BlueprintName = "App"
+               ReferencedContainer = "container:IGraphicsStressTest-iOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +32,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4FD16A0813B63081001D0217"
+            BlueprintIdentifier = "91236D0C1B08F42B00734C5E"
             BuildableName = "IGraphicsStressTest.app"
-            BlueprintName = "APP"
-            ReferencedContainer = "container:IGraphicsStressTest-macOS.xcodeproj">
+            BlueprintName = "App"
+            ReferencedContainer = "container:IGraphicsStressTest-iOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -57,18 +57,12 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4FD16A0813B63081001D0217"
+            BlueprintIdentifier = "91236D0C1B08F42B00734C5E"
             BuildableName = "IGraphicsStressTest.app"
-            BlueprintName = "APP"
-            ReferencedContainer = "container:IGraphicsStressTest-macOS.xcodeproj">
+            BlueprintName = "App"
+            ReferencedContainer = "container:IGraphicsStressTest-iOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <CommandLineArguments>
-         <CommandLineArgument
-            argument = "registerauv3"
-            isEnabled = "YES">
-         </CommandLineArgument>
-      </CommandLineArguments>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -82,10 +76,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4FD16A0813B63081001D0217"
+            BlueprintIdentifier = "91236D0C1B08F42B00734C5E"
             BuildableName = "IGraphicsStressTest.app"
-            BlueprintName = "APP"
-            ReferencedContainer = "container:IGraphicsStressTest-macOS.xcodeproj">
+            BlueprintName = "App"
+            ReferencedContainer = "container:IGraphicsStressTest-iOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
