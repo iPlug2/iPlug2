@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4FD16A0813B63081001D0217"
-               BuildableName = "IPlugWebView.app"
-               BlueprintName = "APP"
-               ReferencedContainer = "container:IPlugWebView-macOS.xcodeproj">
+               BlueprintIdentifier = "4FA61F6D22E899B500A92C58"
+               BuildableName = "AUv3Framework.framework"
+               BlueprintName = "AUv3Framework"
+               ReferencedContainer = "container:IPlugWebView-iOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -29,15 +29,6 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4FD16A0813B63081001D0217"
-            BuildableName = "IPlugWebView.app"
-            BlueprintName = "APP"
-            ReferencedContainer = "container:IPlugWebView-macOS.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -50,25 +41,16 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
-      enableGPUFrameCaptureMode = "3"
-      enableGPUValidationMode = "1"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4FD16A0813B63081001D0217"
-            BuildableName = "IPlugWebView.app"
-            BlueprintName = "APP"
-            ReferencedContainer = "container:IPlugWebView-macOS.xcodeproj">
+            BlueprintIdentifier = "4FA61F6D22E899B500A92C58"
+            BuildableName = "AUv3Framework.framework"
+            BlueprintName = "AUv3Framework"
+            ReferencedContainer = "container:IPlugWebView-iOS.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
-      <CommandLineArguments>
-         <CommandLineArgument
-            argument = "registerauv3"
-            isEnabled = "YES">
-         </CommandLineArgument>
-      </CommandLineArguments>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -78,16 +60,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4FD16A0813B63081001D0217"
-            BuildableName = "IPlugWebView.app"
-            BlueprintName = "APP"
-            ReferencedContainer = "container:IPlugWebView-macOS.xcodeproj">
+            BlueprintIdentifier = "4FA61F6D22E899B500A92C58"
+            BuildableName = "AUv3Framework.framework"
+            BlueprintName = "AUv3Framework"
+            ReferencedContainer = "container:IPlugWebView-iOS.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
