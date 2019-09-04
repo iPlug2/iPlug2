@@ -36,6 +36,13 @@
 		4F11D43123201FEF003E1647 /* IPlugWebViewEditorDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F11D42A23201FEF003E1647 /* IPlugWebViewEditorDelegate.mm */; };
 		4F11D43223201FEF003E1647 /* IPlugWebViewEditorDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F11D42A23201FEF003E1647 /* IPlugWebViewEditorDelegate.mm */; };
 		4F11D43323201FEF003E1647 /* IPlugWebViewEditorDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F11D42B23201FEF003E1647 /* IPlugWebViewEditorDelegate.h */; };
+		4F11D43C232020EF003E1647 /* web in Resources */ = {isa = PBXBuildFile; fileRef = 4FC46E57231440B4000045E7 /* web */; };
+		4F11D43E23203015003E1647 /* web in Resources */ = {isa = PBXBuildFile; fileRef = 4FC46E57231440B4000045E7 /* web */; };
+		4F11D43F23203019003E1647 /* web in Resources */ = {isa = PBXBuildFile; fileRef = 4FC46E57231440B4000045E7 /* web */; };
+		4F11D4402320301E003E1647 /* web in Resources */ = {isa = PBXBuildFile; fileRef = 4FC46E57231440B4000045E7 /* web */; };
+		4F11D44123203023003E1647 /* web in Resources */ = {isa = PBXBuildFile; fileRef = 4FC46E57231440B4000045E7 /* web */; };
+		4F11D44223203028003E1647 /* web in Resources */ = {isa = PBXBuildFile; fileRef = 4FC46E57231440B4000045E7 /* web */; };
+		4F11D44323203031003E1647 /* web in Resources */ = {isa = PBXBuildFile; fileRef = 4FC46E57231440B4000045E7 /* web */; };
 		4F1A527B205D910000CF2908 /* IPlugVST2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1A527A205D910000CF2908 /* IPlugVST2.cpp */; };
 		4F1A527E205D911A00CF2908 /* IPlugVST3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1A527C205D911900CF2908 /* IPlugVST3.cpp */; };
 		4F1A5282205D913300CF2908 /* IPlugAPP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1A5280205D913300CF2908 /* IPlugAPP.cpp */; };
@@ -1752,6 +1759,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F11D43E23203015003E1647 /* web in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1759,6 +1767,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F11D4402320301E003E1647 /* web in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1773,6 +1782,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F11D44323203031003E1647 /* web in Resources */,
 				4F3EE1BF231438D000004786 /* IPlugWebView.icns in Resources */,
 				4F3EE1C0231438D000004786 /* IPlugWebView-macOS-MainMenu.xib in Resources */,
 			);
@@ -1790,6 +1800,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F11D43F23203019003E1647 /* web in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1797,6 +1808,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F11D44123203023003E1647 /* web in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1804,6 +1816,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F11D43C232020EF003E1647 /* web in Resources */,
 				4F78D88613B6382B0032E0F3 /* IPlugWebView.icns in Resources */,
 				4F1B4AE42014D33600BC64D4 /* IPlugWebView-macOS-MainMenu.xib in Resources */,
 			);
@@ -1813,6 +1826,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F11D44223203028003E1647 /* web in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
