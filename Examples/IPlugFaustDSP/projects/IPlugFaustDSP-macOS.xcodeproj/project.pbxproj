@@ -793,6 +793,7 @@
 		4FD16D4513B635C8001D0217 /* swellappmain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = swellappmain.h; path = ../../../WDL/swell/swellappmain.h; sourceTree = SOURCE_ROOT; };
 		4FD16D4613B635C8001D0217 /* swellappmain.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = swellappmain.mm; path = ../../../WDL/swell/swellappmain.mm; sourceTree = SOURCE_ROOT; };
 		4FD290A8137C34D700CEBE7E /* IPlugFaustDSP.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = IPlugFaustDSP.icns; path = ../resources/IPlugFaustDSP.icns; sourceTree = "<group>"; };
+		4FD3B62D232009C5007EE42B /* FaustCode.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = FaustCode.hpp; path = ../FaustCode.hpp; sourceTree = "<group>"; };
 		4FD5212E202A5B9B00A4D22A /* IPlugAU_view_factory.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugAU_view_factory.mm; path = ../../../IPlug/AUv2/IPlugAU_view_factory.mm; sourceTree = "<group>"; tabWidth = 2; };
 		4FD52130202A5B9B00A4D22A /* IPlugAU.r */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.rez; name = IPlugAU.r; path = ../../../IPlug/AUv2/IPlugAU.r; sourceTree = "<group>"; tabWidth = 2; };
 		4FD52134202A5BD000A4D22A /* dfx-au-utilities.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; name = "dfx-au-utilities.c"; path = "../../../IPlug/AUv2/dfx-au-utilities.c"; sourceTree = "<group>"; tabWidth = 2; };
@@ -905,6 +906,7 @@
 			isa = PBXGroup;
 			children = (
 				52FBBED30D0CF143001C8B8A /* config.h */,
+				4FD3B62D232009C5007EE42B /* FaustCode.hpp */,
 				4F3862EE2014BBEC0009F402 /* IPlugFaustDSP.h */,
 				4F3862ED2014BBEC0009F402 /* IPlugFaustDSP.cpp */,
 				4FF262AE232008200076F5D4 /* IPlugFaustDSP.dsp */,

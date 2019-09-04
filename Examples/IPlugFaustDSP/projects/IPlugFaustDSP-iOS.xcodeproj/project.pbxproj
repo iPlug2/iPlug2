@@ -191,6 +191,7 @@
 		4FC82B4820BD524700722133 /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fonts; path = ../resources/fonts; sourceTree = "<group>"; };
 		4FCE29DE21D6ED81004BCBA1 /* ITextEntryControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ITextEntryControl.h; sourceTree = "<group>"; };
 		4FCE29DF21D6ED81004BCBA1 /* ITextEntryControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ITextEntryControl.cpp; sourceTree = "<group>"; };
+		4FD3B62C232009B8007EE42B /* FaustCode.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = FaustCode.hpp; path = ../FaustCode.hpp; sourceTree = "<group>"; };
 		4FDA600520B5868D00C49ABA /* IPlugFaustDSP-ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "IPlugFaustDSP-ios.xcconfig"; path = "../config/IPlugFaustDSP-ios.xcconfig"; sourceTree = "<group>"; };
 		4FDF6D692267CDBE0007B686 /* IGraphicsCoreText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsCoreText.h; sourceTree = "<group>"; };
 		4FDF6D6A2267CDBE0007B686 /* IGraphicsCoreText.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsCoreText.mm; sourceTree = "<group>"; };
@@ -556,6 +557,7 @@
 			isa = PBXGroup;
 			children = (
 				4FFF108420A1036200D3092F /* config.h */,
+				4FD3B62C232009B8007EE42B /* FaustCode.hpp */,
 				4FFF108820A1036200D3092F /* IPlugFaustDSP.h */,
 				4FFF108720A1036200D3092F /* IPlugFaustDSP.cpp */,
 				4FF262AF232008270076F5D4 /* IPlugFaustDSP.dsp */,
