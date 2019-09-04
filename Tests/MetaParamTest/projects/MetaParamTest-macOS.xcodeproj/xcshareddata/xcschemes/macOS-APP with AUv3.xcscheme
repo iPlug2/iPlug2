@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "91236D0C1B08F42B00734C5E"
+               BlueprintIdentifier = "4F3EE1BA231438D000004786"
                BuildableName = "MetaParamTest.app"
-               BlueprintName = "App"
-               ReferencedContainer = "container:MetaParamTest-iOS.xcodeproj">
+               BlueprintName = "AUv3App"
+               ReferencedContainer = "container:MetaParamTest-macOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -27,17 +27,19 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
+      <Testables>
+      </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "91236D0C1B08F42B00734C5E"
+            BlueprintIdentifier = "4F3EE1BA231438D000004786"
             BuildableName = "MetaParamTest.app"
-            BlueprintName = "App"
-            ReferencedContainer = "container:MetaParamTest-iOS.xcodeproj">
+            BlueprintName = "AUv3App"
+            ReferencedContainer = "container:MetaParamTest-macOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
-      <Testables>
-      </Testables>
+      <AdditionalOptions>
+      </AdditionalOptions>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -48,19 +50,19 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
-      enableGPUFrameCaptureMode = "3"
-      enableGPUValidationMode = "1"
       allowLocationSimulation = "YES">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "91236D0C1B08F42B00734C5E"
+            BlueprintIdentifier = "4F3EE1BA231438D000004786"
             BuildableName = "MetaParamTest.app"
-            BlueprintName = "App"
-            ReferencedContainer = "container:MetaParamTest-iOS.xcodeproj">
+            BlueprintName = "AUv3App"
+            ReferencedContainer = "container:MetaParamTest-macOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <AdditionalOptions>
+      </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -72,10 +74,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "91236D0C1B08F42B00734C5E"
+            BlueprintIdentifier = "4F3EE1BA231438D000004786"
             BuildableName = "MetaParamTest.app"
-            BlueprintName = "App"
-            ReferencedContainer = "container:MetaParamTest-iOS.xcodeproj">
+            BlueprintName = "AUv3App"
+            ReferencedContainer = "container:MetaParamTest-macOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
