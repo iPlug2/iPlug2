@@ -292,6 +292,20 @@
 		4FD16D4013B635A0001D0217 /* swell-misc.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3F13B635A0001D0217 /* swell-misc.mm */; };
 		4FD16D4213B635AB001D0217 /* swell-wnd.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4113B635AB001D0217 /* swell-wnd.mm */; settings = {COMPILER_FLAGS = "-Wno-unreachable-code"; }; };
 		4FD16D4413B635B2001D0217 /* swell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4313B635B2001D0217 /* swell.cpp */; };
+		4FD3B6312320118D007EE42B /* libfaust.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FD3B6302320118D007EE42B /* libfaust.dylib */; };
+		4FD3B6322320118D007EE42B /* libfaust.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FD3B6302320118D007EE42B /* libfaust.dylib */; };
+		4FD3B6332320118D007EE42B /* libfaust.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FD3B6302320118D007EE42B /* libfaust.dylib */; };
+		4FD3B6342320118D007EE42B /* libfaust.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FD3B6302320118D007EE42B /* libfaust.dylib */; };
+		4FD3B6352320118D007EE42B /* libfaust.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FD3B6302320118D007EE42B /* libfaust.dylib */; };
+		4FD3B6362320118D007EE42B /* libfaust.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FD3B6302320118D007EE42B /* libfaust.dylib */; };
+		4FD3B6372320118D007EE42B /* libfaust.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FD3B6302320118D007EE42B /* libfaust.dylib */; };
+		4FD3B63F23201237007EE42B /* libfaust.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4FD3B6302320118D007EE42B /* libfaust.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FD3B64123201258007EE42B /* libfaust.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4FD3B6302320118D007EE42B /* libfaust.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FD3B64323201269007EE42B /* libfaust.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4FD3B6302320118D007EE42B /* libfaust.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FD3B64523201277007EE42B /* libfaust.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4FD3B6302320118D007EE42B /* libfaust.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FD3B6472320127F007EE42B /* libfaust.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4FD3B6302320118D007EE42B /* libfaust.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FD3B64923201288007EE42B /* libfaust.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4FD3B6302320118D007EE42B /* libfaust.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4FD3B64B23201291007EE42B /* libfaust.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4FD3B6302320118D007EE42B /* libfaust.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		4FD52131202A5B9B00A4D22A /* IPlugAU_view_factory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD5212E202A5B9B00A4D22A /* IPlugAU_view_factory.mm */; };
 		4FD52133202A5B9B00A4D22A /* IPlugAU.r in Rez */ = {isa = PBXBuildFile; fileRef = 4FD52130202A5B9B00A4D22A /* IPlugAU.r */; };
 		4FD52136202A5BD000A4D22A /* dfx-au-utilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 4FD52134202A5BD000A4D22A /* dfx-au-utilities.c */; };
@@ -446,6 +460,76 @@
 				4F3EE1EB231438D000004786 /* IPlugFaustDSP.appex in Embed AUv3 App Extension */,
 			);
 			name = "Embed AUv3 App Extension";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FD3B63E23201230007EE42B /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				4FD3B63F23201237007EE42B /* libfaust.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FD3B64023201254007EE42B /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				4FD3B64123201258007EE42B /* libfaust.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FD3B64223201266007EE42B /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				4FD3B64323201269007EE42B /* libfaust.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FD3B64423201272007EE42B /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				4FD3B64523201277007EE42B /* libfaust.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FD3B6462320127C007EE42B /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				4FD3B6472320127F007EE42B /* libfaust.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FD3B64823201286007EE42B /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				4FD3B64923201288007EE42B /* libfaust.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FD3B64A2320128F007EE42B /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				4FD3B64B23201291007EE42B /* libfaust.dylib in CopyFiles */,
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -794,6 +878,7 @@
 		4FD16D4613B635C8001D0217 /* swellappmain.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = swellappmain.mm; path = ../../../WDL/swell/swellappmain.mm; sourceTree = SOURCE_ROOT; };
 		4FD290A8137C34D700CEBE7E /* IPlugFaustDSP.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = IPlugFaustDSP.icns; path = ../resources/IPlugFaustDSP.icns; sourceTree = "<group>"; };
 		4FD3B62D232009C5007EE42B /* FaustCode.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = FaustCode.hpp; path = ../FaustCode.hpp; sourceTree = "<group>"; };
+		4FD3B6302320118D007EE42B /* libfaust.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfaust.dylib; path = ../../../Dependencies/Build/mac/lib/libfaust.dylib; sourceTree = "<group>"; };
 		4FD5212E202A5B9B00A4D22A /* IPlugAU_view_factory.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugAU_view_factory.mm; path = ../../../IPlug/AUv2/IPlugAU_view_factory.mm; sourceTree = "<group>"; tabWidth = 2; };
 		4FD52130202A5B9B00A4D22A /* IPlugAU.r */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.rez; name = IPlugAU.r; path = ../../../IPlug/AUv2/IPlugAU.r; sourceTree = "<group>"; tabWidth = 2; };
 		4FD52134202A5BD000A4D22A /* dfx-au-utilities.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; name = "dfx-au-utilities.c"; path = "../../../IPlug/AUv2/dfx-au-utilities.c"; sourceTree = "<group>"; tabWidth = 2; };
@@ -836,6 +921,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FD3B6312320118D007EE42B /* libfaust.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -851,6 +937,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FD3B6372320118D007EE42B /* libfaust.dylib in Frameworks */,
 				4F3EE1E7231438D000004786 /* AUv3Framework.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -859,6 +946,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FD3B6362320118D007EE42B /* libfaust.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -866,6 +954,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FD3B6322320118D007EE42B /* libfaust.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -873,6 +962,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FD3B6342320118D007EE42B /* libfaust.dylib in Frameworks */,
 				4F815999205D525A00393585 /* libAAXLibrary_libcpp.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -881,6 +971,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FD3B6332320118D007EE42B /* libfaust.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -895,6 +986,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FD3B6352320118D007EE42B /* libfaust.dylib in Frameworks */,
 				4FC3EFD42086C49D00BD11FA /* IPlugFaustDSPVST3Controller.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -905,6 +997,7 @@
 		089C166AFE841209C02AAC07 /* IPlugExample */ = {
 			isa = PBXGroup;
 			children = (
+				4FD3B6302320118D007EE42B /* libfaust.dylib */,
 				52FBBED30D0CF143001C8B8A /* config.h */,
 				4FD3B62D232009C5007EE42B /* FaustCode.hpp */,
 				4F3862EE2014BBEC0009F402 /* IPlugFaustDSP.h */,
@@ -1742,6 +1835,7 @@
 				4F20EEC9132C69FE0030E34C /* Resources */,
 				4F20EECA132C69FE0030E34C /* Sources */,
 				4F20EF2C132C69FE0030E34C /* Frameworks */,
+				4FD3B64023201254007EE42B /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -1761,6 +1855,7 @@
 				4F39075C2013EBA300DDA490 /* Sources */,
 				4F39075D2013EBA300DDA490 /* Frameworks */,
 				4F39075E2013EBA300DDA490 /* Resources */,
+				4FD3B64A2320128F007EE42B /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -1782,6 +1877,7 @@
 				4F3AE1DA12C0E5E2001FD7A4 /* Rez */,
 				4F744D4C14005ADA002FAD90 /* Run Script - clear_audiounit_caches.sh */,
 				4FBDD26520A319580054B111 /* Frameworks */,
+				4FD3B64423201272007EE42B /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -1840,6 +1936,7 @@
 				4F9828AF140A9EB700F3FCC1 /* Resources */,
 				4F9828B5140A9EB700F3FCC1 /* Sources */,
 				4F9828D7140A9EB700F3FCC1 /* Frameworks */,
+				4FD3B64223201266007EE42B /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -1859,6 +1956,7 @@
 				4FB600151567CB0A0020189A /* Resources */,
 				4FB600171567CB0A0020189A /* Sources */,
 				4FB6002A1567CB0A0020189A /* Frameworks */,
+				4FD3B6462320127C007EE42B /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -1895,6 +1993,7 @@
 				4FBCC1B21FD5AE8500EFE550 /* Run Script - prepare_resources-mac.py */,
 				4FD16A0513B63081001D0217 /* Resources */,
 				4FD16A0613B63081001D0217 /* Sources */,
+				4FD3B63E23201230007EE42B /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -1913,6 +2012,7 @@
 				4FFBB8FA20863B0E00DDD0E7 /* Resources */,
 				4FFBB90420863B0E00DDD0E7 /* Sources */,
 				4FFBB93620863B0E00DDD0E7 /* Frameworks */,
+				4FD3B64823201286007EE42B /* CopyFiles */,
 			);
 			buildRules = (
 			);
