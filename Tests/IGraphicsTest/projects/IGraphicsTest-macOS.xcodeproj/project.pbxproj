@@ -301,6 +301,13 @@
 		4FDAC0ED207D76C600299363 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
 		4FDAC0EE207D76C600299363 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
 		4FE599E62320323A0012B628 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestMPSControl.mm */; };
+		4FE59A232320345A0012B628 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestMPSControl.mm */; };
+		4FE59A242320345A0012B628 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestMPSControl.mm */; };
+		4FE59A252320345B0012B628 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestMPSControl.mm */; };
+		4FE59A262320345C0012B628 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestMPSControl.mm */; };
+		4FE59A272320345D0012B628 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestMPSControl.mm */; };
+		4FE59A282320345F0012B628 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestMPSControl.mm */; };
+		4FE59A29232034600012B628 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestMPSControl.mm */; };
 		4FF0A83221BE708700B2C9D1 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; };
 		4FF3205820B2BFAB00269268 /* IPlugPaths.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF3204F20B2BFAB00269268 /* IPlugPaths.h */; };
 		4FFBB90520863B0E00DDD0E7 /* baseiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158BF205D50EB00393585 /* baseiids.cpp */; };
@@ -2345,6 +2352,7 @@
 				4F1A527B205D910000CF2908 /* IPlugVST2.cpp in Sources */,
 				4F8C10E120BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */,
 				4F6369DE20A464BB0022C370 /* IGraphicsNanoVG_src.m in Sources */,
+				4FE59A232320345A0012B628 /* TestMPSControl.mm in Sources */,
 				4F8D9707209EF5AC006E2A11 /* IGraphicsTest.cpp in Sources */,
 				4F78D9BB13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
 				4FB1F59020E4B010004157C8 /* IGraphicsMac_view.mm in Sources */,
@@ -2383,6 +2391,7 @@
 				4FDAC0ED207D76C600299363 /* IPlugTimer.cpp in Sources */,
 				4F78D94513B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
 				4FB1F59320E4B013004157C8 /* IGraphicsMac_view.mm in Sources */,
+				4FE59A252320345B0012B628 /* TestMPSControl.mm in Sources */,
 				4FD52136202A5BD000A4D22A /* dfx-au-utilities.c in Sources */,
 				4FCE29DA21D6ED70004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4F5F344420C0226200487201 /* IPlugPaths.mm in Sources */,
@@ -2427,6 +2436,7 @@
 				4F3EE1DD231438D000004786 /* IGraphicsMac.mm in Sources */,
 				4F3EE1DE231438D000004786 /* IGraphicsTest.cpp in Sources */,
 				4F3EE1DF231438D000004786 /* IPopupMenuControl.cpp in Sources */,
+				4FE59A29232034600012B628 /* TestMPSControl.mm in Sources */,
 				4F3EE1E0231438D000004786 /* IPlugAPIBase.cpp in Sources */,
 				4F3EE1E1231438D000004786 /* IPlugPluginBase.cpp in Sources */,
 				4F3EE1E2231438D000004786 /* IGraphicsEditorDelegate.cpp in Sources */,
@@ -2458,6 +2468,7 @@
 				4F78BE2222E7406D00AD537E /* IPlugAUAudioUnit.mm in Sources */,
 				4F78BE2322E7406D00AD537E /* IPlugAUv3.mm in Sources */,
 				4F78BE2422E7406D00AD537E /* IPlugAUViewController.mm in Sources */,
+				4FE59A282320345F0012B628 /* TestMPSControl.mm in Sources */,
 				4F78BE2522E7406D00AD537E /* IPlugPluginBase.cpp in Sources */,
 				4F78BE2622E7406D00AD537E /* IPlugAPIBase.cpp in Sources */,
 				4F78BE2822E7406D00AD537E /* IPlugParameter.cpp in Sources */,
@@ -2495,6 +2506,7 @@
 				4F35DEAF207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4F81591E205D50EB00393585 /* macmain.cpp in Sources */,
 				4F993F7323055C96000313AF /* IPlugProcessor.cpp in Sources */,
+				4FE59A242320345A0012B628 /* TestMPSControl.mm in Sources */,
 				4F815986205D50EB00393585 /* flock.cpp in Sources */,
 				4FCE29D921D6ED70004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4F5F344320C0226200487201 /* IPlugPaths.mm in Sources */,
@@ -2547,6 +2559,7 @@
 				4F3862F32014BBEC0009F402 /* IGraphicsTest.cpp in Sources */,
 				4FCE29DB21D6ED70004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4FB600231567CB0A0020189A /* IPlugParameter.cpp in Sources */,
+				4FE59A262320345C0012B628 /* TestMPSControl.mm in Sources */,
 				4FB600261567CB0A0020189A /* AAX_Exports.cpp in Sources */,
 				4FA9F81121F76177004E6FE2 /* IGraphicsAGG_src.mm in Sources */,
 				4F6FD2B522675B6300FC59E6 /* IGraphicsCoreText.mm in Sources */,
@@ -2629,6 +2642,7 @@
 			files = (
 				4FFBB90520863B0E00DDD0E7 /* baseiids.cpp in Sources */,
 				4FFBB90620863B0E00DDD0E7 /* IPlugTimer.cpp in Sources */,
+				4FE59A272320345D0012B628 /* TestMPSControl.mm in Sources */,
 				4FFBB90720863B0E00DDD0E7 /* IGraphicsTest.cpp in Sources */,
 				4FFBB90820863B0E00DDD0E7 /* pluginfactory.cpp in Sources */,
 				4FFBB90920863B0E00DDD0E7 /* vstinitiids.cpp in Sources */,
