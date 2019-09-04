@@ -35,12 +35,6 @@
     <ClCompile Include="..\..\..\IGraphics\Controls\ITextEntryControl.cpp">
       <Filter>IGraphics\Controls</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\Extras\Synth\MidiSynth.cpp">
-      <Filter>IPlug\Extras\Synth</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\Extras\Synth\VoiceAllocator.cpp">
-      <Filter>IPlug\Extras\Synth</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IGraphics\Controls\IPopupMenuControl.cpp">
       <Filter>IGraphics\Controls</Filter>
     </ClCompile>
@@ -148,6 +142,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.cpp">
       <Filter>IGraphics\Drawing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\Synth\MidiSynth.cpp">
+      <Filter>IPlug\Extras\Synth</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\Synth\VoiceAllocator.cpp">
+      <Filter>IPlug\Extras\Synth</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
