@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "91236D0C1B08F42B00734C5E"
+               BlueprintIdentifier = "4F3EE1BA231438D000004786"
                BuildableName = "IPlugMidiEffect.app"
-               BlueprintName = "App"
-               ReferencedContainer = "container:IPlugMidiEffect-iOS.xcodeproj">
+               BlueprintName = "AUv3App"
+               ReferencedContainer = "container:IPlugMidiEffect-macOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +32,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "91236D0C1B08F42B00734C5E"
+            BlueprintIdentifier = "4F3EE1BA231438D000004786"
             BuildableName = "IPlugMidiEffect.app"
-            BlueprintName = "App"
-            ReferencedContainer = "container:IPlugMidiEffect-iOS.xcodeproj">
+            BlueprintName = "AUv3App"
+            ReferencedContainer = "container:IPlugMidiEffect-macOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -55,10 +55,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "91236D0C1B08F42B00734C5E"
+            BlueprintIdentifier = "4F3EE1BA231438D000004786"
             BuildableName = "IPlugMidiEffect.app"
-            BlueprintName = "App"
-            ReferencedContainer = "container:IPlugMidiEffect-iOS.xcodeproj">
+            BlueprintName = "AUv3App"
+            ReferencedContainer = "container:IPlugMidiEffect-macOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -74,10 +74,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "91236D0C1B08F42B00734C5E"
+            BlueprintIdentifier = "4F3EE1BA231438D000004786"
             BuildableName = "IPlugMidiEffect.app"
-            BlueprintName = "App"
-            ReferencedContainer = "container:IPlugMidiEffect-iOS.xcodeproj">
+            BlueprintName = "AUv3App"
+            ReferencedContainer = "container:IPlugMidiEffect-macOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

@@ -9,6 +9,7 @@ REM - AAX codesigning requires wraptool tool added to %PATH% env variable and aa
 if %1 == 1 (echo Making IPlugMidiEffect Windows DEMO VERSION distribution ...) else (echo Making IPlugMidiEffect Windows FULL VERSION distribution ...)
 
 echo "touching source"
+
 copy /b ..\*.cpp+,,
 
 echo ------------------------------------------------------------------

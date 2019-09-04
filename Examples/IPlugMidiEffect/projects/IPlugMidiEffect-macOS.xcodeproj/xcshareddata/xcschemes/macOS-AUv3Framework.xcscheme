@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4F2602B12269F00000C7E97E"
-               BuildableName = "IPlugMidiEffectShared.a"
-               BlueprintName = "Shared"
-               ReferencedContainer = "container:IPlugMidiEffect-iOS.xcodeproj">
+               BlueprintIdentifier = "4F78BE0122E73D0800AD537E"
+               BuildableName = "AUv3Framework.framework"
+               BlueprintName = "AUv3Framework"
+               ReferencedContainer = "container:IPlugMidiEffect-macOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,10 +45,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4F2602B12269F00000C7E97E"
-            BuildableName = "IPlugMidiEffectShared.a"
-            BlueprintName = "Shared"
-            ReferencedContainer = "container:IPlugMidiEffect-iOS.xcodeproj">
+            BlueprintIdentifier = "4F78BE0122E73D0800AD537E"
+            BuildableName = "AUv3Framework.framework"
+            BlueprintName = "AUv3Framework"
+            ReferencedContainer = "container:IPlugMidiEffect-macOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -63,10 +63,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4F2602B12269F00000C7E97E"
-            BuildableName = "IPlugMidiEffectShared.a"
-            BlueprintName = "Shared"
-            ReferencedContainer = "container:IPlugMidiEffect-iOS.xcodeproj">
+            BlueprintIdentifier = "4F78BE0122E73D0800AD537E"
+            BuildableName = "AUv3Framework.framework"
+            BlueprintName = "AUv3Framework"
+            ReferencedContainer = "container:IPlugMidiEffect-macOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>
