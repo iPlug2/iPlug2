@@ -135,7 +135,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
 
     pGraphics->AttachControl(new IVButtonControl(nextCell().GetCentredInside(110.), [pGraphics](IControl* pCaller){
       SplashClickActionFunc(pCaller);
-      static IPopupMenu menu {{"one", "two", "three"}, [pCaller](int indexInMenu, IPopupMenu::Item* itemChosen) {
+      static IPopupMenu menu {"Menu", {"one", "two", "three"}, [pCaller](int indexInMenu, IPopupMenu::Item* itemChosen) {
           if(itemChosen)
             dynamic_cast<IVButtonControl*>(pCaller)->SetValueStr(itemChosen->GetText());
         }
