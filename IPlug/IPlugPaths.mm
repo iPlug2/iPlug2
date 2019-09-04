@@ -136,31 +136,18 @@ bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_
     ++ext;
     
     bool isCorrectType = !strcasecmp(ext, searchExt);
-    bool isAppExtension = false;
     
     NSBundle* pBundle = [NSBundle bundleWithIdentifier:[NSString stringWithCString:bundleID encoding:NSUTF8StringEncoding]];
-    
-    if([[pBundle bundleIdentifier] containsString:@"AUv3"])
-      isAppExtension = true;
-    
     NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
-    NSString* pExt = [NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding];
 
     if (isCorrectType && pBundle && pFile)
     {
-      NSString* pRootPath;
-      
-      if(isAppExtension)
-        pRootPath = [[[[pBundle bundlePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent];
-      else
-        pRootPath = [pBundle bundlePath];
-      
-      NSString* pPath = [[[[pRootPath stringByAppendingString:@"/Contents/Resources/"] stringByAppendingString:pFile] stringByAppendingString: @"."] stringByAppendingString:pExt];
+      NSString* pPath = [pBundle pathForResource:pFile ofType:[NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding]];
 
       if (!pPath)
       {
-        pFile = [[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] stringByDeletingPathExtension];
-        pPath = [pBundle pathForResource:pFile ofType:[NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding]];
+          pFile = [[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] stringByDeletingPathExtension];
+          pPath = [pBundle pathForResource:pFile ofType:[NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding]];
       }
         
       if (pPath)
