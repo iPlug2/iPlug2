@@ -29,9 +29,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4FD16A0813B63081001D0217"
+               BlueprintIdentifier = "4F3EE1BA231438D000004786"
                BuildableName = "IPlugInstrument.app"
-               BlueprintName = "APP"
+               BlueprintName = "AUv3App"
                ReferencedContainer = "container:IPlugInstrument-macOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -44,39 +44,32 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
+      <AdditionalOptions>
+      </AdditionalOptions>
+   </TestAction>
+   <LaunchAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      launchStyle = "0"
+      useCustomWorkingDirectory = "NO"
+      ignoresPersistentStateOnLaunch = "NO"
+      debugDocumentVersioning = "YES"
+      debugServiceExtension = "internal"
+      enableGPUFrameCaptureMode = "3"
+      enableGPUValidationMode = "1"
+      allowLocationSimulation = "YES">
+      <PathRunnable
+         runnableDebuggingMode = "0"
+         BundleIdentifier = "com.example.apple-samplecode.AUv3Host686EDA2T8T"
+         FilePath = "/Applications/AUv3Host.app">
+      </PathRunnable>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4F39075F2013EBA300DDA490"
             BuildableName = "IPlugInstrument.appex"
             BlueprintName = "AUv3"
-            ReferencedContainer = "container:IPlugInstrument-macOS.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
-      <AdditionalOptions>
-      </AdditionalOptions>
-   </TestAction>
-   <LaunchAction
-      buildConfiguration = "Debug"
-      selectedDebuggerIdentifier = ""
-      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
-      launchStyle = "0"
-      useCustomWorkingDirectory = "NO"
-      ignoresPersistentStateOnLaunch = "NO"
-      debugDocumentVersioning = "YES"
-      debugServiceExtension = "internal"
-      allowLocationSimulation = "YES">
-      <PathRunnable
-         runnableDebuggingMode = "0"
-         BundleIdentifier = "com.apple.garageband10"
-         FilePath = "/Applications/GarageBand.app">
-      </PathRunnable>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4FD16A0813B63081001D0217"
-            BuildableName = "IPlugInstrument.app"
-            BlueprintName = "APP"
             ReferencedContainer = "container:IPlugInstrument-macOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -96,16 +89,15 @@
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES"
       launchAutomaticallySubstyle = "2">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4FD16A0813B63081001D0217"
-            BuildableName = "IPlugInstrument.app"
-            BlueprintName = "APP"
+            BlueprintIdentifier = "4F39075F2013EBA300DDA490"
+            BuildableName = "IPlugInstrument.appex"
+            BlueprintName = "AUv3"
             ReferencedContainer = "container:IPlugInstrument-macOS.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

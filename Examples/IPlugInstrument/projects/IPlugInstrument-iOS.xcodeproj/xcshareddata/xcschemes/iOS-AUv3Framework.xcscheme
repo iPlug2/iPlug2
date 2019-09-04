@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4F2602B12269F00000C7E97E"
-               BuildableName = "IPlugInstrumentShared.a"
-               BlueprintName = "Shared"
+               BlueprintIdentifier = "4FA61F6D22E899B500A92C58"
+               BuildableName = "AUv3Framework.framework"
+               BlueprintName = "AUv3Framework"
                ReferencedContainer = "container:IPlugInstrument-iOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,9 +45,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4F2602B12269F00000C7E97E"
-            BuildableName = "IPlugInstrumentShared.a"
-            BlueprintName = "Shared"
+            BlueprintIdentifier = "4FA61F6D22E899B500A92C58"
+            BuildableName = "AUv3Framework.framework"
+            BlueprintName = "AUv3Framework"
             ReferencedContainer = "container:IPlugInstrument-iOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -63,9 +63,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4F2602B12269F00000C7E97E"
-            BuildableName = "IPlugInstrumentShared.a"
-            BlueprintName = "Shared"
+            BlueprintIdentifier = "4FA61F6D22E899B500A92C58"
+            BuildableName = "AUv3Framework.framework"
+            BlueprintName = "AUv3Framework"
             ReferencedContainer = "container:IPlugInstrument-iOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
