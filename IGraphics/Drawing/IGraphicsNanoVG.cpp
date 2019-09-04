@@ -299,11 +299,12 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
 APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext)
 {
   int idx = 0;
-
+  int nvgImageFlags = 0;
+  
 #ifdef OS_IOS
   if (location == EResourceLocation::kPreloadedTexture)
   {
-    idx = mnvgCreateImageFromHandle(mVG, gTextureMap[fileNameOrResID], 0 /*flags*/);
+    idx = mnvgCreateImageFromHandle(mVG, gTextureMap[fileNameOrResID], nvgImageFlags);
   }
   else
 #endif
@@ -317,13 +318,13 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
     pResData = LoadWinResource(fileNameOrResID, ext, size, GetWinModuleHandle());
 
     if (pResData)
-      idx = nvgCreateImageMem(mVG, 0 /*flags*/, (unsigned char*)pResData, size);
+      idx = nvgCreateImageMem(mVG, nvgImageFlags, (unsigned char*)pResData, size);
   }
   else
 #endif
   if (location == EResourceLocation::kAbsolutePath)
   {
-    idx = nvgCreateImage(mVG, fileNameOrResID, 0);
+    idx = nvgCreateImage(mVG, fileNameOrResID, nvgImageFlags);
   }
 
   return new Bitmap(mVG, fileNameOrResID, scale, idx, location == EResourceLocation::kPreloadedTexture);
