@@ -132,7 +132,7 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
       switch (button) {
         case 0:
         {
-          static IPopupMenu menu {{"DrawRect", "FillRect", "DrawRoundRect", "FillRoundRect", "DrawEllipse", "FillEllipse", "DrawArc", "FillArc", "DrawLine", "DrawDottedLine", "DrawFittedBitmap", "DrawSVG"},
+          static IPopupMenu menu {"Test", {"DrawRect", "FillRect", "DrawRoundRect", "FillRoundRect", "DrawEllipse", "FillEllipse", "DrawArc", "FillArc", "DrawLine", "DrawDottedLine", "DrawFittedBitmap", "DrawSVG"},
             [DoFunc](int indexInMenu, IPopupMenu::Item* itemChosen) {
               DoFunc(EFunc::Set, indexInMenu);
             }};

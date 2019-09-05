@@ -9,6 +9,7 @@ REM - AAX codesigning requires wraptool tool added to %PATH% env variable and aa
 if %1 == 1 (echo Making IPlugFaustDSP Windows DEMO VERSION distribution ...) else (echo Making IPlugFaustDSP Windows FULL VERSION distribution ...)
 
 echo "touching source"
+
 copy /b ..\*.cpp+,,
 
 echo ------------------------------------------------------------------

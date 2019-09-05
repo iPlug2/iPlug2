@@ -9,9 +9,6 @@
 	<key>CFBundleIcons</key>
 	<dict>
 	</dict>
-	<key>CFBundleIcons~ipad</key>
-	<dict>
-	</dict>
 	<key>CFBundleIdentifier</key>
 	<string>com.AcmeInc.app.IPlugMidiEffect</string>
 	<key>CFBundleInfoDictionaryVersion</key>
