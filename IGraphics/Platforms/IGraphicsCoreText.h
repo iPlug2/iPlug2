@@ -93,7 +93,7 @@ private:
 
 namespace CoreTextHelpers
 {
-  extern PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID, const char* bundleID);
+  extern PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID, const char* bundleID, const char* sharedResourceSubPath = nullptr);
 
   extern PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style);
 

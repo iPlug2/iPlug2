@@ -856,7 +856,7 @@ public:
 
   /** Get the bundle ID on macOS and iOS, returns emtpy string on other OSs */
   virtual const char* GetBundleID() { return ""; }
-  
+
 protected:
   /** /todo
    * @param control /todo
@@ -1096,7 +1096,7 @@ private:
    * @param isContext Determines if the menu is a contextual menu or not
    * @param valIdx The value index for the control value that the prompt relates to */
   void DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx, bool isContext);
-    
+  
 protected: // TODO: correct?
   /** /todo */
   void StartResizeGesture() { mResizingInProcess = true; };
@@ -1370,7 +1370,13 @@ public:
   void PopupHostContextMenuForParam(IControl* pControl, int paramIdx, float x, float y);
   
 #pragma mark - Resource/File Loading
-    
+  
+  /** Gets the name of the shared resources subpath. */
+  const char* GetSharedResourcesSubPath() const { return mSharedResourcesSubPath.Get(); }
+  
+  /** Sets the name of the shared resources subpath. */
+  void SetSharedResourcesSubPath(const char* sharedResourcesSubPath) { mSharedResourcesSubPath.Set(sharedResourcesSubPath); }
+  
   /** Load a bitmap image from disk or from windows resource
    * @param fileNameOrResID CString file name or resource ID
    * @param nStates The number of states/frames in a multi-frame stacked bitmap
@@ -1488,6 +1494,8 @@ private:
   std::unique_ptr<IControl> mLiveEdit;
   
   IPopupMenu mPromptPopupMenu;
+  
+  WDL_String mSharedResourcesSubPath;
   
   ECursor mCursorType = ECursor::ARROW;
   int mWidth;

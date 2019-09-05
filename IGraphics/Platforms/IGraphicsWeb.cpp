@@ -746,7 +746,7 @@ void IGraphicsWeb::DrawResize()
 PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
 {
   WDL_String fullPath;
-  const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, GetBundleID(), nullptr);
+  const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, GetBundleID(), nullptr, nullptr);
   
   if (fontLocation == kNotFound)
     return nullptr;

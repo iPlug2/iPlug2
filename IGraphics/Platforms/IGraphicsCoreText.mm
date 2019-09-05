@@ -34,17 +34,21 @@ CoreTextFont::~CoreTextFont()
     CFRelease(mDescriptor);
 };
 
-PlatformFontPtr CoreTextHelpers::LoadPlatformFont(const char* fontID, const char* fileNameOrResID, const char* bundleID)
+PlatformFontPtr CoreTextHelpers::LoadPlatformFont(const char* fontID, const char* fileNameOrResID, const char* bundleID, const char* sharedResourceSubPath)
 {
   WDL_String fullPath;
-  const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, bundleID, nullptr);
+  const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, bundleID, nullptr, sharedResourceSubPath);
   
   if (fontLocation == kNotFound)
     return nullptr;
   
   CFLocal<CFStringRef> path(CFStringCreateWithCString(NULL, fullPath.Get(), kCFStringEncodingUTF8));
   CFLocal<CFURLRef> url(CFURLCreateWithFileSystemPath(NULL, path.Get(), kCFURLPOSIXPathStyle, false));
-  CFLocal<CGDataProviderRef> provider(url.Get() ? CGDataProviderCreateWithURL(url.Get()) : nullptr);
+  CFLocal<CGDataProviderRef> provider(url.Get() ? CGDataProviderCreateWithURL(url.Get()) : nullptr); // CGDataProviderCreateWithURL will fail in macOS sandbox!
+  
+  if (!provider.Get())
+    return nullptr;
+  
   CFLocal<CGFontRef> cgFont(CGFontCreateWithDataProvider(provider.Get()));
   CFLocal<CTFontRef> ctFont(CTFontCreateWithGraphicsFont(cgFont.Get(), 0.f, NULL, NULL));
   CFLocal<CTFontDescriptorRef> descriptor(CTFontCopyFontDescriptor(ctFont.Get()));

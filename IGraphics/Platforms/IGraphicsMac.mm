@@ -74,7 +74,7 @@ bool IGraphicsMac::IsSandboxed()
 
 PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
 {
-  return CoreTextHelpers::LoadPlatformFont(fontID, fileNameOrResID, GetBundleID());
+  return CoreTextHelpers::LoadPlatformFont(fontID, fileNameOrResID, GetBundleID(), GetSharedResourcesSubPath());
 }
 
 PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
