@@ -387,13 +387,8 @@ const IBlend BLEND_01 = IBlend(EBlend::Default, 0.01f);
 /** Used to manage fill behaviour for path based drawing back ends */
 struct IFillOptions
 {
-  IFillOptions()
-  : mFillRule(EFillRule::Winding)
-  , mPreserve(false)
-  {}
-
-  EFillRule mFillRule;
-  bool mPreserve;
+  EFillRule mFillRule { EFillRule::Winding };
+  bool mPreserve { false };
 };
 
 /** Used to manage stroke behaviour for path based drawing back ends */
