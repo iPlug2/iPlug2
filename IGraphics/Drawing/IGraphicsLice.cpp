@@ -653,7 +653,7 @@ void IGraphicsLice::NeedsClipping()
     const int w = static_cast<int>(std::round(alignedBounds.W() * GetBackingPixelScale()));
     const int h = static_cast<int>(std::round(alignedBounds.H() * GetBackingPixelScale()));
     
-    mClippingLayer = std::make_unique<ILayer>(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds);
+    mClippingLayer = std::make_unique<ILayer>(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds, nullptr);
     UpdateLayer();
   }
 }
