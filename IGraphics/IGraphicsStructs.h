@@ -1937,11 +1937,13 @@ class ILayer
 public:
   /** /todo 
    * @param pBitmap /todo
-   * @param r /todo */
-  ILayer(APIBitmap* pBitmap, IRECT r, IControl* owner)
+   * @param r /todo
+   * @param pControl /todo
+   * @param cr /todo */
+  ILayer(APIBitmap* pBitmap, const IRECT& r, IControl* pControl, const IRECT& cr)
   : mBitmap(pBitmap)
-  , mControl(owner)
-  , mControlRECT()
+  , mControl(pControl)
+  , mControlRECT(cr)
   , mRECT(r)
   , mInvalid(false)
   {}
