@@ -4,12 +4,12 @@ if exist "%ProgramFiles(x86)%" (goto 64-Bit) else (goto 32-Bit)
 
 :32-Bit
 echo 32-Bit O/S detected
-call "%ProgramFiles%\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x86_x64 8.1
+call "%ProgramFiles%\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x86_x64 10.0
 goto END
 
 :64-Bit
 echo 64-Bit Host O/S detected
-call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x86_x64 8.1
+call "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x86_x64 10.0
 goto END
 :END
 
