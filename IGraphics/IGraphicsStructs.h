@@ -1938,8 +1938,10 @@ public:
   /** /todo 
    * @param pBitmap /todo
    * @param r /todo */
-  ILayer(APIBitmap* pBitmap, IRECT r)
+  ILayer(APIBitmap* pBitmap, IRECT r, IControl* owner)
   : mBitmap(pBitmap)
+  , mControl(owner)
+  , mControlRECT()
   , mRECT(r)
   , mInvalid(false)
   {}
@@ -1963,6 +1965,8 @@ private:
   APIBitmap* AccessAPIBitmap() { return mBitmap.get(); }
   
   std::unique_ptr<APIBitmap> mBitmap;
+  IControl* mControl;
+  IRECT mControlRECT;
   IRECT mRECT;
   bool mInvalid;
 };
