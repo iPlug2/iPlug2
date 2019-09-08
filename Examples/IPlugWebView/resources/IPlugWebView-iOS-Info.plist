@@ -29,6 +29,10 @@
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Needs microphone access to process audio</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>IPlugWebView-iOS-LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
