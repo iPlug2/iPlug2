@@ -399,6 +399,16 @@ struct IStrokeOptions
   {
   public:
 
+    DashOptions()
+    : mCount(0)
+    , mOffset(0)
+    {}
+
+    DashOptions(float* array, float offset, int count)
+    {
+      SetDash(array, offset, count);
+    }
+
     /** @return int /todo */
     int GetCount() const { return mCount; }
 
@@ -425,8 +435,8 @@ struct IStrokeOptions
 
   private:
     float mArray[8];
-    float mOffset = 0;
-    int mCount = 0;
+    float mOffset;
+    int mCount;
   };
 
   float mMiterLimit = 10.f;
