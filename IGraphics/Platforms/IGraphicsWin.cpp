@@ -750,6 +750,9 @@ void IGraphicsWin::PlatformResize(bool parentHasResized)
 
     RECT r = { 0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale() };
     InvalidateRect(mPlugWnd, &r, FALSE);
+
+    // Fix white background while resizing
+    UpdateWindow(mPlugWnd);
   }
 }
 
