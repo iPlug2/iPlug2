@@ -163,8 +163,6 @@ void IGraphicsMac::PlatformResize(bool parentHasResized)
   {
     NSSize size = { static_cast<CGFloat>(WindowWidth()), static_cast<CGFloat>(WindowHeight()) };
 
-    DBGMSG("%f, %f\n", size.width, size.height);
-
     [NSAnimationContext beginGrouping]; // Prevent animated resizing
     [[NSAnimationContext currentContext] setDuration:0.0];
     [(IGRAPHICS_VIEW*) mView setFrameSize: size ];
