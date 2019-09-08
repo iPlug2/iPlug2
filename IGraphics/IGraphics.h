@@ -486,7 +486,7 @@ public:
   
   /** /todo 
    * @param r /todo*/
-  void StartLayer(const IRECT& r);
+  void StartLayer(IControl *owner, const IRECT& r);
   
   /** /todo
    * @param layer /todo*/

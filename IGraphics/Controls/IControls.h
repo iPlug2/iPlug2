@@ -380,7 +380,7 @@ public:
   {
     if (!g.CheckLayer(mLayer))
     {
-      g.StartLayer(mRECT);
+      g.StartLayer(this, mRECT);
       g.DrawSVG(mSVG, mRECT);
       mLayer = g.EndLayer();
     }
