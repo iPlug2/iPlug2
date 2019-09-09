@@ -541,6 +541,54 @@ void ICaptionControl::OnResize()
   }
 }
 
+PlaceHolder::PlaceHolder(const IRECT& bounds, const char* str)
+: ITextControl(bounds, str, IText(20))
+{
+  mBGColor = COLOR_WHITE;
+  mDisablePrompt = false;
+  mDblAsSingleClick = false;
+  mIgnoreMouse = false;
+}
+
+void PlaceHolder::Draw(IGraphics& g)
+{
+  g.FillRect(mBGColor, mRECT);
+  g.DrawLine(COLOR_RED, mRECT.L, mRECT.T, mRECT.R, mRECT.B, &BLEND_50, 2.f);
+  g.DrawLine(COLOR_RED, mRECT.L, mRECT.B, mRECT.R, mRECT.T, &BLEND_50, 2.f);
+  
+  IRECT r = {};
+  g.MeasureText(mHeightText, mHeightStr.Get(), r);
+  g.FillRect(mBGColor, r.GetTranslated(mRECT.L + mInset, mRECT.MH()), &BLEND_50);
+  g.DrawText(mHeightText, mHeightStr.Get(), mRECT.L + mInset, mRECT.MH());
+  
+  r = {};
+  g.MeasureText(mWidthText, mWidthStr.Get(), r);
+  g.FillRect(mBGColor, r.GetTranslated(mRECT.MW(), mRECT.T + mInset), &BLEND_75);
+  g.DrawText(mWidthText, mWidthStr.Get(), mRECT.MW(), mRECT.T + mInset);
+  
+  r = {};
+  g.MeasureText(mTLGCText, mTLHCStr.Get(), r);
+  g.FillRect(mBGColor, r.GetTranslated(mRECT.L + mInset, mRECT.T + mInset), &BLEND_50);
+  g.DrawText(mTLGCText, mTLHCStr.Get(), mRECT.L + mInset, mRECT.T + mInset);
+  
+  if (mStr.GetLength())
+  {
+    r = mRECT;
+    g.MeasureText(mText, mStr.Get(), r);
+    g.FillRect(mBGColor, r, &BLEND_75);
+    g.DrawText(mText, mStr.Get(), r);
+    
+    mCentreLabelBounds = r;
+  }
+}
+
+void PlaceHolder::OnResize()
+{
+  mTLHCStr.SetFormatted(32, "%0.1f, %0.1f", mRECT.L, mRECT.T);
+  mWidthStr.SetFormatted(32, "%0.1f", mRECT.W());
+  mHeightStr.SetFormatted(32, "%0.1f", mRECT.H());
+}
+
 IButtonControlBase::IButtonControlBase(const IRECT& bounds, IActionFunction actionFunc)
 : IControl(bounds, kNoParameter, actionFunc)
 {

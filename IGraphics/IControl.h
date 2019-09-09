@@ -1479,6 +1479,28 @@ protected:
   IRECT mTri;
 };
 
+/** A control to use as a placeholder during development */
+class PlaceHolder : public ITextControl
+{
+public:
+  PlaceHolder(const IRECT& bounds, const char* str = "Place Holder");
+  
+  void Draw(IGraphics& g) override;
+  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override { GetUI()->CreateTextEntry(*this, mText, mRECT, mStr.Get()); }
+  void OnTextEntryCompletion(const char* str, int valIdx) override { SetStr(str); }
+  void OnResize() override;
+
+protected:
+  IRECT mCentreLabelBounds;
+  WDL_String mTLHCStr;
+  WDL_String mWidthStr;
+  WDL_String mHeightStr;
+  IText mTLGCText = DEFAULT_TEXT.WithAlign(EAlign::Near);
+  IText mWidthText = DEFAULT_TEXT;
+  IText mHeightText = DEFAULT_TEXT.WithAngle(270.f);
+  static constexpr float mInset = 10.f;
+};
+
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
 
