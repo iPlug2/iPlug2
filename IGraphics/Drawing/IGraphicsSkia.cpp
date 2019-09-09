@@ -327,16 +327,15 @@ void IGraphicsSkia::BeginFrame()
 #elif defined IGRAPHICS_METAL
   if (mGrContext.get())
   {
-    id<CAMetalDrawable> currentDrawable = [(CAMetalLayer*) mMTLLayer nextDrawable];
+    id<CAMetalDrawable> drawable = [(CAMetalLayer*) mMTLLayer nextDrawable];
     
     GrMtlTextureInfo fbInfo;
-    fbInfo.fTexture = currentDrawable.texture;
-    
+    fbInfo.fTexture.retain((__bridge const void*)(drawable.texture));
     GrBackendRenderTarget backendRT(width, height, 1 /* sample count/MSAA */, fbInfo);
     
     mScreenSurface = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRT, kTopLeft_GrSurfaceOrigin, kBGRA_8888_SkColorType, nullptr, nullptr);
     
-    mMTLDrawable = currentDrawable;
+    mMTLDrawable = drawable;
   }
   assert(mScreenSurface);
 #endif
@@ -347,11 +346,11 @@ void IGraphicsSkia::BeginFrame()
 void IGraphicsSkia::EndFrame()
 {
 #ifdef IGRAPHICS_CPU
-  #ifdef OS_MAC
+  #if defined OS_MAC || defined OS_IOS
     SkPixmap pixmap;
     mSurface->peekPixels(&pixmap);
     SkBitmap bmp;
-    bmp.installPixels(pixmap);
+    bmp.installPixels(pixmap);  
     CGContext* pCGContext = (CGContextRef) mPlatformContext;
     CGContextSaveGState(pCGContext);
     CGContextScaleCTM(pCGContext, 1.0 / GetScreenScale(), 1.0 / GetScreenScale());
