@@ -10,7 +10,7 @@
 
 #include "GrContext.h"
 
-#ifdef OS_MAC
+#if defined OS_MAC || defined OS_IOS
   #include "SkCGUtils.h"
   #if defined IGRAPHICS_GL2
     #include <OpenGL/gl.h>
