@@ -60,6 +60,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   if (self.window)
     scale = self.window.screen.scale;
   
+  #ifdef IGRAPHICS_METAL
   CGSize drawableSize = self.bounds.size;
   
   // Since drawable size is in pixels, we need to multiply by the scale to move from points to pixels
@@ -67,6 +68,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   drawableSize.height *= scale;
   
   self.metalLayer.drawableSize = drawableSize;
+  #endif
 }
 
 - (void) getTouchXY: (CGPoint) pt x: (float*) pX y: (float*) pY
@@ -133,7 +135,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (CAMetalLayer*) metalLayer
 {
-  return (CAMetalLayer *)self.layer;
+  return (CAMetalLayer*) self.layer;
 }
 
 - (void)dealloc
@@ -387,7 +389,11 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 + (Class) layerClass
 {
+#ifdef IGRAPHICS_METAL
   return [CAMetalLayer class];
+#else
+  return [CALayer class];
+#endif
 }
 
 - (void)keyboardWillShow:(NSNotification*) notification
