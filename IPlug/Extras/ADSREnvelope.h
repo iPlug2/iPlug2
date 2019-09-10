@@ -128,7 +128,7 @@ public:
   }
   
   /** Retrigger the envelope. This method will cause the envelope to move to a "releasedToRetrigger" stage, which is a fast ramp to zero in RETRIGGER_RELEASE_TIME, used when voices are stolen to avoid clicks.
-  * @param newStartLevel When the envelope retstarts, what should be its overall depth (usually linked to MIDI velocity)
+  * @param newStartLevel When the envelope restarts, what should be its overall depth (usually linked to MIDI velocity)
   * @param timeScalar Factor to scale the envelope's rates. Use this, for example to adjust the envelope stage rates based on the key pressed */
   inline void Retrigger(T newStartLevel, T timeScalar = 1.)
   {
