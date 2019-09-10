@@ -135,9 +135,10 @@ private:
  * ISVG doesn't actually own the image data */
 struct ISVG
 {  
-  ISVG(NSVGimage* pImage)
+  ISVG(NSVGimage* pImage, const char* filePathOrResourceID = "")
+  : mImage(pImage)
+  , mFileName(filePathOrResourceID)
   {
-    mImage = pImage;
   }
   
   /** /todo */
@@ -162,6 +163,7 @@ struct ISVG
   inline bool IsValid() const { return mImage != nullptr; }
   
   NSVGimage* mImage = nullptr;
+  WDL_String mFileName;
 };
 
 /** Used to manage color data, independent of draw class/platform. */

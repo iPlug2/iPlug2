@@ -1308,7 +1308,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
     storage.Add(pHolder, path.Get());
   }
 
-  return ISVG(pHolder->mImage);
+  return ISVG(pHolder->mImage, fileName);
 }
 
 IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale)
