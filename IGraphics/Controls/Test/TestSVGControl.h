@@ -23,9 +23,10 @@
 class TestSVGControl : public IControl
 {
 public:
-  TestSVGControl(const IRECT& bounds, const ISVG& svg)
+  TestSVGControl(const IRECT& bounds, const ISVG& svg, bool hq = false)
   : IControl(bounds)
   , mSVG(svg)
+  , mHQ(hq)
   {
     SetTooltip("TestSVGControl - Click or Drag 'n drop here to load a new SVG.");
   }
@@ -42,11 +43,11 @@ public:
       {
         auto layerBitmap = g.StartLayer(this, mRECT);
         
-        #ifdef IGRAPHICS_RESVG
-        g.RasterizeSVGToLayer(mSVG, layerBitmap);
-        #else
-        g.DrawSVG(mSVG, mRECT);
-        #endif
+        if(mHQ)
+          g.RasterizeSVGToLayer(mSVG, layerBitmap);
+        else
+          g.DrawSVG(mSVG, mRECT);
+        
         mLayer = g.EndLayer();
       }
       g.DrawLayer(mLayer);
@@ -88,4 +89,5 @@ public:
 private:
   ILayerPtr mLayer;
   ISVG mSVG;
+  bool mHQ = false;
 };
