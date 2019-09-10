@@ -1716,6 +1716,8 @@ void IGraphics::RasterizeSVGToLayer(const ISVG& svg, APIBitmap* pAPIBitmap)
   StaticStorage<SVGHolder>::Accessor storage(sSVGCache);
   SVGHolder* pHolder = storage.Find(svg.mFileName.Get());
  
+  assert(pHolder);
+  
 #if !defined IGRAPHICS_CAIRO
   RawBitmapData data;
   int stride = cairo_format_stride_for_width (CAIRO_FORMAT_ARGB32, pAPIBitmap->GetWidth());
