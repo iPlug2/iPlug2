@@ -1271,10 +1271,11 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 {
   StaticStorage<SVGHolder>::Accessor storage(sSVGCache);
   SVGHolder* pHolder = storage.Find(fileName);
-  WDL_String path;
 
   if(!pHolder)
   {
+    WDL_String path;
+
     EResourceLocation resourceFound = LocateResource(fileName, "svg", path, GetBundleID(), GetWinModuleHandle(), GetSharedResourcesSubPath());
 
     if (resourceFound == EResourceLocation::kNotFound)
@@ -1333,10 +1334,10 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
     pHolder = new SVGHolder(pImage);
 #endif
     
-    storage.Add(pHolder, path.Get());
+    storage.Add(pHolder, fileName);
   }
 
-  return ISVG(pHolder->mImage, path.Get());
+  return ISVG(pHolder->mImage, fileName);
 }
 
 IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale)
@@ -1754,7 +1755,7 @@ void IGraphics::RasterizeSVGToLayer(const ISVG& svg, APIBitmap* pAPIBitmap)
   #endif
   
   #ifdef IGRAPHICS_LICE
-  memcpy(pBitmap->GetBitmap()->getBits(), data.Get(), data.GetSize());
+  memcpy(pAPIBitmap->GetBitmap()->getBits(), data.Get(), data.GetSize());
   #endif
   
   #ifdef IGRAPHICS_AGG
