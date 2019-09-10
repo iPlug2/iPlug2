@@ -110,7 +110,8 @@ SKIA_PATH = $(DEPS_PATH)/Build/src/skia
 
 SKIA_INC_PATHS = $(SKIA_PATH) $(SKIA_PATH)/include/core $(SKIA_PATH)/include/effects $(SKIA_PATH)/include/config $(SKIA_PATH)/include/utils $(SKIA_PATH)/include/utils/mac $(SKIA_PATH)/include/gpu
 
-//HB_PATH = /usr/local/Cellar/harfbuzz/1.8.7/include/harfbuzz
+//TODO: don't use brew harfbuzz!
+HB_PATH = /usr/local/lib
 // you can optionally include this build setting, by adding it to EXTRA_INC_PATHS in MyProject.xcconfig in order to get all varieties of IGraphics support
 IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(IGRAPHICS_PATH)/Controls $(IGRAPHICS_PATH)/Platforms $(IGRAPHICS_PATH)/Drawing $(IGRAPHICS_PATH)/Extras $(LICE_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(AGG_INC_PATHS) $(BUILT_LIBS_INC_PATH) $(FT_PATH) $(STB_PATH) $(IMGUI_INC_PATHS) $(SKIA_INC_PATHS)
 
@@ -124,6 +125,10 @@ LIB_PNG = $(BUILT_LIBS_LIB_PATH)/libpng.a
 LIB_Z = $(BUILT_LIBS_LIB_PATH)/libz.a
 LIB_CIVET = $(BUILT_LIBS_LIB_PATH)/libcivetweb.a
 LIB_SKIA = $(BUILT_LIBS_LIB_PATH)/libskia.a
+LIB_RESVG =  $(BUILT_LIBS_LIB_PATH)/libresvg.a
+
+//TODO: don't use brew harfbuzz!
+LIB_HB = -lharfbuzz
 
 // you can optionally include this build setting, by adding it to EXTRA_LNK_FLAGS in your plug-ins xcconfig, in order to get all varieties of IGraphics support
 CAIRO_LNK_FLAGS = $(LIB_CAIRO) $(LIB_FT) $(LIB_PIXMAN) $(LIB_PNG) $(LIB_Z) //$(LIB_HB) $(LIB_HB_ICU) $(LIB_GF)
