@@ -486,8 +486,8 @@ public:
   
   /** /todo 
    * @param r /todo*/
-  void StartLayer(IControl *owner, const IRECT& r);
-  
+  APIBitmap* StartLayer(IControl *owner, const IRECT& r);
+
   /** /todo
    * @param layer /todo*/
   void ResumeLayer(ILayerPtr& layer);

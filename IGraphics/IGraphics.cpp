@@ -1501,13 +1501,16 @@ void IGraphics::CreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT
   DoCreatePopupMenu(control, menu, bounds, valIdx, false);
 }
 
-void IGraphics::StartLayer(IControl* pControl, const IRECT& r)
+APIBitmap* IGraphics::StartLayer(IControl* pControl, const IRECT& r)
 {
   IRECT alignedBounds = r.GetPixelAligned(GetBackingPixelScale());
   const int w = static_cast<int>(std::ceil(GetBackingPixelScale() * std::ceil(alignedBounds.W())));
   const int h = static_cast<int>(std::ceil(GetBackingPixelScale() * std::ceil(alignedBounds.H())));
 
-  PushLayer(new ILayer(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds, pControl, pControl->GetRECT()));
+  APIBitmap* pAPIBitmap = CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale());
+  PushLayer(new ILayer(pAPIBitmap, alignedBounds, pControl, pControl->GetRECT()));
+  
+  return pAPIBitmap;
 }
 
 void IGraphics::ResumeLayer(ILayerPtr& layer)
