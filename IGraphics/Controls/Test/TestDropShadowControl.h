@@ -36,13 +36,17 @@ public:
 
     if (!g.CheckLayer(mLayer))
     {
-      g.StartLayer(this, mRECT);
-      
+      APIBitmap* pLayerBitmap = g.StartLayer(this, mRECT);
+
+#if 1
+      g.RasterizeSVGToLayer(mSVG, pLayerBitmap);
+#else
       if (g.HasPathSupport())
         g.DrawSVG(mSVG, mRECT);
       else
         g.FillCircle(COLOR_BLUE, mRECT.MW(), mRECT.MH(), mRECT.W() / 3);
-
+#endif
+      
       mLayer = g.EndLayer();
       IShadow shadow(COLOR_BLACK, 10.0, 5.0, 10.0, 0.7f, true);
       g.ApplyLayerDropShadow(mLayer, shadow);
