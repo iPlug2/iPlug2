@@ -35,18 +35,25 @@ public:
     g.DrawDottedRect(COLOR_BLACK, mRECT);
     g.FillRect(mMouseIsOver ? COLOR_TRANSLUCENT : COLOR_TRANSPARENT, mRECT);
 
-#if 1
-    if (!g.CheckLayer(mLayer))
+    if(mSVG.IsValid())
     {
-      g.StartLayer(this, mRECT);
-      g.DrawSVG(mSVG, mRECT);
-      mLayer = g.EndLayer();
-    }
-
-    g.DrawLayer(mLayer);
+#if 1
+      if (!g.CheckLayer(mLayer))
+      {
+        auto layerBitmap = g.StartLayer(this, mRECT);
+        
+        #ifdef IGRAPHICS_RESVG
+        g.RasterizeSVGToLayer(mSVG, layerBitmap);
+        #else
+        g.DrawSVG(mSVG, mRECT);
+        #endif
+        mLayer = g.EndLayer();
+      }
+      g.DrawLayer(mLayer);
 #else
-    g.DrawSVG(mSVG, mRECT);
+      g.DrawSVG(mSVG, mRECT);
 #endif
+    }
   }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
@@ -57,21 +64,25 @@ public:
     GetUI()->PromptForFile(file, path, EFileAction::Open, "svg");
 
     if(file.GetLength())
-      SetSVG(GetUI()->LoadSVG(file.Get()));
-
-    SetDirty(false);
+      LoadSVG(file.Get());
   }
 
   void OnDrop(const char* str) override
   {
-    SetSVG(GetUI()->LoadSVG(str));
-    SetDirty(false);
+    LoadSVG(str);
   }
 
-  void SetSVG(const ISVG& svg)
+  void LoadSVG(const char* str)
   {
-    mSVG = svg;
-    mLayer->Invalidate();
+    ISVG svg = GetUI()->LoadSVG(str);
+
+    if(svg.IsValid())
+    {
+      mSVG = svg;
+      if(mLayer)
+        mLayer->Invalidate();
+      SetDirty(false);
+    }
   }
 
 private:
