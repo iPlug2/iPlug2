@@ -76,6 +76,10 @@
   // NO_IGRAPHICS
 #endif
 
+#ifdef IGRAPHICS_RESVG
+#include "resvg.h"
+#endif
+
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 using BitmapData = BITMAP_DATA_TYPE;
@@ -417,16 +421,34 @@ using PlatformFontPtr = std::unique_ptr<PlatformFont>;
 struct SVGHolder
 {
   NSVGimage* mImage = nullptr;
+#ifdef IGRAPHICS_RESVG
+  resvg_render_tree* mRenderTree = nullptr;
+  resvg_options mOptions;
+#endif
   
+#ifdef IGRAPHICS_RESVG
+  SVGHolder(NSVGimage* pImage, resvg_render_tree* pRenderTree, const resvg_options& opt)
+  : mImage(pImage)
+  , mRenderTree(pRenderTree)
+  , mOptions(opt)
+  {
+  }
+#else
   SVGHolder(NSVGimage* pImage)
   : mImage(pImage)
   {
   }
+#endif
   
   ~SVGHolder()
   {
     if(mImage)
       nsvgDelete(mImage);
+    
+#ifdef IGRAPHICS_RESVG
+    if(mRenderTree)
+      resvg_tree_destroy(mRenderTree);
+#endif
     
     mImage = nullptr;
   }

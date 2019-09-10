@@ -35,6 +35,10 @@ using VST3_API_BASE = iplug::IPlugVST3Controller;
 #include "IPopupMenuControl.h"
 #include "ITextEntryControl.h"
 
+#ifdef IGRAPHICS_RESVG
+#include "cairo/cairo.h"
+#endif
+
 using namespace iplug;
 using namespace igraphics;
 
@@ -1267,17 +1271,22 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 {
   StaticStorage<SVGHolder>::Accessor storage(sSVGCache);
   SVGHolder* pHolder = storage.Find(fileName);
+  WDL_String path;
 
   if(!pHolder)
   {
-    WDL_String path;
     EResourceLocation resourceFound = LocateResource(fileName, "svg", path, GetBundleID(), GetWinModuleHandle(), GetSharedResourcesSubPath());
 
     if (resourceFound == EResourceLocation::kNotFound)
       return ISVG(nullptr); // return invalid SVG
 
     NSVGimage* pImage = nullptr;
-
+#ifdef IGRAPHICS_RESVG
+    resvg_render_tree* pRenderTree = nullptr;
+    resvg_options opt;
+    resvg_init_options(&opt);
+#endif
+    
 #ifdef OS_WIN    
     if (resourceFound == EResourceLocation::kWinBinary)
     {
@@ -1298,17 +1307,36 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
     if (resourceFound == EResourceLocation::kAbsolutePath)
     {
       pImage = nsvgParseFromFile(path.Get(), units, dpi);
-
+      
       if(!pImage)
         return ISVG(nullptr); // return invalid SVG
+      
+#ifdef IGRAPHICS_RESVG
+      opt.path = path.Get();
+      opt.font_family = "Times New Roman";
+      opt.languages = "en";
+      int err = resvg_parse_tree_from_file(path.Get(), &opt, &pRenderTree);
+      
+      if (err != RESVG_OK)
+      {
+        if(pImage)
+          nsvgDelete(pImage);
+        
+        return ISVG(nullptr); // return invalid SVG
+      }
+#endif
     }
 
+#ifdef IGRAPHICS_RESVG
+    pHolder = new SVGHolder(pImage, pRenderTree, opt);
+#else
     pHolder = new SVGHolder(pImage);
+#endif
     
     storage.Add(pHolder, path.Get());
   }
 
-  return ISVG(pHolder->mImage, fileName);
+  return ISVG(pHolder->mImage, path.Get());
 }
 
 IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale)
@@ -1681,6 +1709,71 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
   // Apply alphas to the pattern and recombine/replace the image
   ApplyShadowMask(layer, temp1, shadow);
 }
+
+#ifdef IGRAPHICS_RESVG
+void IGraphics::RasterizeSVGToLayer(const ISVG& svg, APIBitmap* pAPIBitmap)
+{
+  StaticStorage<SVGHolder>::Accessor storage(sSVGCache);
+  SVGHolder* pHolder = storage.Find(svg.mFileName.Get());
+ 
+#if !defined IGRAPHICS_CAIRO
+  RawBitmapData data;
+  int stride = cairo_format_stride_for_width (CAIRO_FORMAT_ARGB32, pAPIBitmap->GetWidth());
+  data.Resize(stride * pAPIBitmap->GetHeight());
+  memset(data.Get(), 0, data.GetSize());
+  cairo_surface_t* pSurface = cairo_image_surface_create_for_data(data.Get(), CAIRO_FORMAT_ARGB32, pAPIBitmap->GetWidth(), pAPIBitmap->GetHeight(), stride);
+  cairo_t* cr = cairo_create(pSurface);
+  resvg_cairo_render_to_canvas(pHolder->mRenderTree, &pHolder->mOptions, {static_cast<uint32_t>(pAPIBitmap->GetWidth()), static_cast<uint32_t>(pAPIBitmap->GetHeight())}, cr);
+  cairo_surface_flush(pSurface);
+  
+  #ifdef IGRAPHICS_NANOVG
+    //ARGB -> RGBA (from Cairo png)
+    for (uint32_t i = 0; i < data.GetSize(); i += 4)
+    {
+      uint8_t* b = data.Get() + i;
+      uint32_t pixel;
+      uint8_t  alpha;
+      memcpy (&pixel, b, sizeof (uint32_t));
+      alpha = (pixel & 0xff000000) >> 24;
+      
+      if (alpha == 0)
+      {
+        b[0] = b[1] = b[2] = b[3] = 0;
+      }
+      else
+      {
+        b[0] = (((pixel & 0xff0000) >> 16) * 255 + alpha / 2) / alpha;
+        b[1] = (((pixel & 0x00ff00) >>  8) * 255 + alpha / 2) / alpha;
+        b[2] = (((pixel & 0x0000ff) >>  0) * 255 + alpha / 2) / alpha;
+        b[3] = alpha;
+      }
+    }
+    nvgUpdateImage(static_cast<NVGcontext*>(GetDrawContext()), pAPIBitmap->GetBitmap(), data.Get());
+  #endif
+  
+  #ifdef IGRAPHICS_LICE
+  memcpy(pBitmap->GetBitmap()->getBits(), data.Get(), data.GetSize());
+  #endif
+  
+  #ifdef IGRAPHICS_AGG
+  #error "Not implemented yet!"
+  #endif
+  
+  #ifdef IGRAPHICS_SKIA
+  #error "Not implemented yet!"
+  #endif
+  
+  cairo_destroy(cr);
+  cairo_surface_destroy(pSurface);
+#else // IGRAPHICS_CAIRO
+  cairo_t* cr = cairo_create(pAPIBitmap->GetBitmap());
+  auto scale = GetScreenScale() * GetDrawScale();
+  resvg_cairo_render_to_canvas(pHolder->mRenderTree, &pHolder->mOptions, {static_cast<uint32_t>(pAPIBitmap->GetWidth()/scale), static_cast<uint32_t>(pAPIBitmap->GetHeight()/scale)}, cr);
+  cairo_surface_flush(pAPIBitmap->GetBitmap());
+  cairo_destroy(cr);
+#endif
+}
+#endif
 
 bool IGraphics::LoadFont(const char* fontID, const char* fileNameOrResID)
 {
