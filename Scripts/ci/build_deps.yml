@@ -54,28 +54,6 @@ jobs:
     condition: eq(variables.buildPlatform, 'x64')
     displayName: Build SKIA
 
-  # - bash: |
-  #     curl https://storage.googleapis.com/chrome-infra/depot_tools.zip --output depot_tools.zip
-  #     unzip depot_tools.zip -d depot_tools
-  #   displayName: (SKIA) Get Depot Tools
-
-  # - powershell: |
-  #     Write-Host "##vso[task.setvariable variable=PATH;]$(Build.SourcesDirectory)\depot_tools;${env:PATH};";
-  #   displayName: (SKIA) Setup Depot Tools
-
-  # - script: |
-  #     cd depot_tools
-  #     gclient
-  #   displayName: (SKIA) Setup Depot Tools 2
-
-  # - powershell: |
-  #     cd Dependencies/Build/src/skia
-  #     python.bat tools/git-sync-deps
-  #   displayName: (SKIA) git sync deps
-
-  #   displayName: (SKIA) Configure with GN tool (Release x64)
-  #   condition: and(eq(variables.buildConfiguration, 'Release'), eq(variables.buildPlatform, 'x64'))
-
   - bash: |
       cd ./Dependencies/Build
       rm *.log

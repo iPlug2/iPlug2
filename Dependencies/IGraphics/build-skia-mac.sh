@@ -1,8 +1,11 @@
 #!/bin/sh
 
-# comment if you allready have depot tools!
-#git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git' ../../tmp/depot_tools
-#export PATH="${PWD}/../../tmp/depot_tools:${PATH}"
+DEPOT_TOOLS_PATH=../Build/tmp/depot_tools
+
+if [ ! -d $DEPOT_TOOLS_PATH ]; then
+  git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git' $DEPOT_TOOLS_PATH
+  export PATH="${PWD}/$DEPOT_TOOLS_PATH:${PATH}"
+fi
 
 cd ../Build/src/skia
 python tools/git-sync-deps
