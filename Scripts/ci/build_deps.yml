@@ -8,18 +8,18 @@ jobs:
 
   strategy:
     matrix:
-      # x86_RELEASE:
-      #   buildPlatform: 'Win32'
-      #   buildConfiguration: 'Release'
+      x86_RELEASE:
+        buildPlatform: 'Win32'
+        buildConfiguration: 'Release'
       x64_RELEASE:
         buildPlatform: 'x64'
         buildConfiguration: 'Release'
-      # x86_DEBUG:
-      #   buildPlatform: 'Win32'
-      #   buildConfiguration: 'Debug'
-      # x64_DEBUG:
-      #   buildPlatform: 'x64'
-      #   buildConfiguration: 'Debug'
+      x86_DEBUG:
+        buildPlatform: 'Win32'
+        buildConfiguration: 'Debug'
+      x64_DEBUG:
+        buildPlatform: 'x64'
+        buildConfiguration: 'Debug'
 
   pool:
     vmImage: 'windows-2019'
@@ -49,8 +49,9 @@ jobs:
 
   - bash: |
       cd ./Dependencies/IGraphics
-      ./build-skia-win.sh
-    condition: and(eq(variables.buildConfiguration, 'Release'), eq(variables.buildPlatform, 'x64'))
+      echo $(buildConfiguration)
+      ./build-skia-win.sh $(buildConfiguration)
+    condition: eq(variables.buildPlatform, 'x64')
     displayName: Build SKIA
 
   # - bash: |
