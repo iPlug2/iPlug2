@@ -361,10 +361,12 @@ void IGraphicsSkia::EndFrame()
     auto w = WindowWidth() * GetScreenScale();
     auto h = WindowHeight() * GetScreenScale();
     BITMAPINFO* bmpInfo = reinterpret_cast<BITMAPINFO*>(mSurfaceMemory.Get());
-    HWND hwnd = (HWND)GetWindow();
-    HDC dc = GetDC(hwnd);
-    StretchDIBits(dc, 0, 0, w, h, 0, 0, w, h, bmpInfo->bmiColors, bmpInfo,  DIB_RGB_COLORS, SRCCOPY);
-    ReleaseDC(hwnd, dc);
+    HWND hWnd = (HWND) GetWindow();
+    PAINTSTRUCT ps;
+    HDC hdc = BeginPaint(hWnd, &ps);
+    StretchDIBits(hdc, 0, 0, w, h, 0, 0, w, h, bmpInfo->bmiColors, bmpInfo,  DIB_RGB_COLORS, SRCCOPY);
+    ReleaseDC(hWnd, hdc);
+    EndPaint(hWnd, &ps);
   #else
     #error NOT IMPLEMENTED
   #endif
