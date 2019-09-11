@@ -7,7 +7,7 @@ cargo build --release --features "cairo-backend"
 cd capi
 mkdir .cargo
 echo [build] > .cargo/config
-echo rustflags = ["-C", "link-args=-L../../../mac/lib/"] >> .cargo/config
+echo rustflags = [\"-C\", \"link-args=-L../../../mac/lib/\"] >> .cargo/config
 cargo build --release --features "cairo-backend"
 cd ..
 mv capi/include/resvg.h ../../mac/include
