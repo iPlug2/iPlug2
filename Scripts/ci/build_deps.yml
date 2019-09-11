@@ -8,18 +8,18 @@ jobs:
 
   strategy:
     matrix:
-      x86_RELEASE:
-        buildPlatform: 'Win32'
-        buildConfiguration: 'Release'
+      # x86_RELEASE:
+      #   buildPlatform: 'Win32'
+      #   buildConfiguration: 'Release'
       x64_RELEASE:
         buildPlatform: 'x64'
         buildConfiguration: 'Release'
-      x86_DEBUG:
-        buildPlatform: 'Win32'
-        buildConfiguration: 'Debug'
-      x64_DEBUG:
-        buildPlatform: 'x64'
-        buildConfiguration: 'Debug'
+      # x86_DEBUG:
+      #   buildPlatform: 'Win32'
+      #   buildConfiguration: 'Debug'
+      # x64_DEBUG:
+      #   buildPlatform: 'x64'
+      #   buildConfiguration: 'Debug'
 
   pool:
     vmImage: 'windows-2019'
@@ -35,6 +35,10 @@ jobs:
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'
     displayName: Build Windows Dependencies (except SKIA)
+
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '2.7'
 
   - bash: |
       cd ./Dependencies/IGraphics
@@ -73,7 +77,7 @@ jobs:
       mkdir -p ./src/skia
       mv ./skia_include_tmp ./src/skia/include
     condition: and(eq(variables.buildConfiguration, 'Release'), eq(variables.buildPlatform, 'x64'))
-    displayName: (SKIA) Delete unwanted files
+    displayName: Delete unwanted SKIA files
 
   - task: PublishPipelineArtifact@0
     inputs:
