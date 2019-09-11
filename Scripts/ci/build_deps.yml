@@ -145,7 +145,7 @@ jobs:
       echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
     displayName: Install SDK Headers & Rust
 
-    - bash: |
+  - bash: |
       cd ./Dependencies/IGraphics
       ./build-resvg-mac.sh
     displayName: Build Resvg
