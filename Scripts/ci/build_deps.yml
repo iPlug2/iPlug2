@@ -63,7 +63,7 @@ jobs:
       rm -r src/skia
       mkdir -p ./src/skia
       mv ./skia_include_tmp ./src/skia/include
-    condition: and(eq(variables.buildConfiguration, 'Release'), eq(variables.buildPlatform, 'x64'))
+    condition: eq(variables.buildPlatform, 'x64')
     displayName: Delete unwanted SKIA files
 
   - task: PublishPipelineArtifact@0
