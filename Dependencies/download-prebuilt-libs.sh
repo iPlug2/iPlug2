@@ -1,13 +1,21 @@
 #!/usr/bin/env bash
 
-if [ "$(uname)" == "Darwin" ]; then
-ZIP_FILE=IPLUG2_DEPS_MAC
-FOLDER=mac
-elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-exit
-else
-ZIP_FILE=IPLUG2_DEPS_WIN
-FOLDER=win
+if [ "$1" == "" ]; then
+  if [ "$(uname)" == "Darwin" ]; then
+  ZIP_FILE=IPLUG2_DEPS_MAC
+  FOLDER=mac
+  elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+  exit
+  else
+  ZIP_FILE=IPLUG2_DEPS_WIN
+  FOLDER=win
+  fi
+elif [ "$1" == "mac" ]; then
+  ZIP_FILE=IPLUG2_DEPS_MAC
+  FOLDER=mac
+elif [ "$1" == "win" ]; then
+  ZIP_FILE=IPLUG2_DEPS_WIN
+  FOLDER=win
 fi
 
 curl https://github.com/iPlug2/iPlug2/releases/download/setup/$ZIP_FILE.zip -L -J -O
