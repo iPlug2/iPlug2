@@ -43,9 +43,11 @@ public:
       {
         auto layerBitmap = g.StartLayer(this, mRECT);
         
+#ifdef IGRAPHICS_RESVG
         if(mHQ)
           g.RasterizeSVGToLayer(mSVG, layerBitmap);
         else
+#endif
           g.DrawSVG(mSVG, mRECT);
         
         mLayer = g.EndLayer();
