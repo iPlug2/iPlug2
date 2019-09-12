@@ -165,15 +165,15 @@ jobs:
   #     ./build-civetweb-mac.sh
   #   displayName: Build CivetWeb
 
-  # - bash: |
-  #     cd ./Dependencies/Build
-  #     rm *.log
-  #     rm -r tmp
-  #     mv ./src/skia/include ./skia_include_tmp
-  #     rm -r src
-  #     mkdir -p ./src/skia
-  #     mv ./skia_include_tmp ./src/skia/include
-  #   displayName: Delete unwanted files
+  - bash: |
+      cd ./Dependencies/Build
+      rm *.log
+      rm -r tmp
+      mv ./src/skia/include ./skia_include_tmp
+      rm -r src
+      mkdir -p ./src/skia
+      mv ./skia_include_tmp ./src/skia/include
+    displayName: Delete unwanted files
 
   - task: PublishPipelineArtifact@0
     inputs:
