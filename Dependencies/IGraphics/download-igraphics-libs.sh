@@ -17,6 +17,7 @@ EXPAT_VERSION=expat-2.2.5
 PNG_VERSION=v1.6.35
 ZLIB_VERSION=zlib-1.2.11
 SKIA_VERSION=chrome/m77
+RESVG_VERSION=v0.8.0
 
 # URLs where tarballs of releases can be downloaded - no trailing slash
 #CAIRO tarball is compressed using xz which is not available on git-bash shell, so checkout tag via git
@@ -26,6 +27,7 @@ ZLIB_URL=https://www.zlib.net
 PIXMAN_URL=https://cairographics.org/releases
 FREETYPE_URL=https://download.savannah.gnu.org/releases/freetype
 SKIA_URL=https://github.com/google/skia.git
+RESVG_URL=https://github.com/RazrFalcon/resvg.git
 
 echo "IGRAPHICS_DEPS_DIR:" $IGRAPHICS_DEPS_DIR
 echo "BUILD_DIR:" $BUILD_DIR
@@ -214,6 +216,21 @@ else
   git clone $SKIA_URL "$SRC_DIR/skia"
   cd "$SRC_DIR/skia"
   git checkout $SKIA_VERSION
+  rm -r -f .git
+  cd "$IGRAPHICS_DEPS_DIR"
+fi
+
+#######################################################################
+
+#resvg
+if [ -d "$SRC_DIR/resvg" ]
+then
+  echo "Found resvg"
+else
+  echo "Downloading resvg"
+  git clone $RESVG_URL "$SRC_DIR/resvg"
+  cd "$SRC_DIR/resvg"
+#  git checkout tags/$RESVG_VERSION
   rm -r -f .git
   cd "$IGRAPHICS_DEPS_DIR"
 fi
