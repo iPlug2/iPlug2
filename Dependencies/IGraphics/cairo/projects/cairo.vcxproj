@@ -103,7 +103,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <UseFullPaths>true</UseFullPaths>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\..\glew\include;$(BUILD_DIR)\src\pixman\pixman;$(BUILD_DIR)\src\freetype\freetype\include;$(BUILD_DIR)\src\libpng;$(BUILD_DIR)\src\cairo\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\..\glew\include;$(BUILD_DIR)\src\pixman\pixman;$(BUILD_DIR)\src\freetype\freetype\include;$(BUILD_DIR)\src\libpng;$(BUILD_DIR)\src\cairo\src;$(BUILD_DIR)\src\zlib</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4146;4312;4267;4996;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -128,7 +128,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <UseFullPaths>true</UseFullPaths>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\..\glew\include;$(BUILD_DIR)\src\pixman\pixman;$(BUILD_DIR)\src\freetype\freetype\include;$(BUILD_DIR)\src\libpng;$(BUILD_DIR)\src\cairo\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\..\glew\include;$(BUILD_DIR)\src\pixman\pixman;$(BUILD_DIR)\src\freetype\freetype\include;$(BUILD_DIR)\src\libpng;$(BUILD_DIR)\src\cairo\src;$(BUILD_DIR)\src\zlib</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4146;4312;4267;4996;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -153,7 +153,7 @@
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\..\glew\include;$(BUILD_DIR)\src\pixman\pixman;$(BUILD_DIR)\src\freetype\freetype\include;$(BUILD_DIR)\src\libpng;$(BUILD_DIR)\src\cairo\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\..\glew\include;$(BUILD_DIR)\src\pixman\pixman;$(BUILD_DIR)\src\freetype\freetype\include;$(BUILD_DIR)\src\libpng;$(BUILD_DIR)\src\cairo\src;$(BUILD_DIR)\src\zlib</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4146;4312;4267;4996;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -180,7 +180,7 @@
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <DebugInformationFormat>OldStyle</DebugInformationFormat>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\..\glew\include;$(BUILD_DIR)\src\pixman\pixman;$(BUILD_DIR)\src\freetype\freetype\include;$(BUILD_DIR)\src\libpng;$(BUILD_DIR)\src\cairo\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\..\glew\include;$(BUILD_DIR)\src\pixman\pixman;$(BUILD_DIR)\src\freetype\freetype\include;$(BUILD_DIR)\src\libpng;$(BUILD_DIR)\src\cairo\src;$(BUILD_DIR)\src\zlib</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4146;4312;4267;4996;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
