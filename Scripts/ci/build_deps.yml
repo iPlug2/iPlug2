@@ -60,7 +60,6 @@ jobs:
       rm *.log
       rm -r tmp
       mv ./src/skia/include ./skia_include_tmp
-      rm -r src
       mkdir -p ./src/skia
       mv ./skia_include_tmp ./src/skia/include
     displayName: Delete unwanted SKIA files
