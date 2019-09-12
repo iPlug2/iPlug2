@@ -25,6 +25,6 @@ if [ -d Build/src ]; then
 fi
 
 unzip -o $ZIP_FILE.zip
-mv -u $ZIP_FILE/* Build
+mv $ZIP_FILE/* Build
 rm -r $ZIP_FILE
 rm *.zip
