@@ -13,7 +13,7 @@ jobs:
   - bash: |
       cd ./Dependencies/
       ./download-prebuilt-libs.sh
-    displayName: Download IGraphics Dependencies SRC
+    displayName: Download Prebuilt IGraphics Dependencies
     condition: eq(variables.build_deps, false)
 
   # - bash: |
