@@ -65,6 +65,11 @@ jobs:
       mv ./skia_include_tmp ./src/skia/include
     displayName: Delete unwanted SKIA files
 
+  - script: |
+      cd Dependencies\IGraphics
+      call build-resvg-win.bat
+    displayName: Build Resvg
+
   - task: PublishPipelineArtifact@0
     inputs:
       artifactName: 'DEPS_BUILD_WIN_$(buildPlatform)_$(buildConfiguration)'
