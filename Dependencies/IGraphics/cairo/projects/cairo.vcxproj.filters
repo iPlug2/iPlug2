@@ -767,5 +767,11 @@
     <ClCompile Include="..\..\..\Build\src\cairo\src\win32\cairo-win32-system.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\Build\src\cairo\src\cairo-ft-font.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Build\src\cairo\src\cairo-script-surface.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
