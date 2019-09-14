@@ -360,10 +360,12 @@ void IGraphicsSkia::EndFrame()
     auto w = WindowWidth() * GetScreenScale();
     auto h = WindowHeight() * GetScreenScale();
     BITMAPINFO* bmpInfo = reinterpret_cast<BITMAPINFO*>(mSurfaceMemory.Get());
-    HWND hwnd = (HWND)GetWindow();
-    HDC dc = GetDC(hwnd);
-    StretchDIBits(dc, 0, 0, w, h, 0, 0, w, h, bmpInfo->bmiColors, bmpInfo,  DIB_RGB_COLORS, SRCCOPY);
-    ReleaseDC(hwnd, dc);
+    HWND hWnd = (HWND) GetWindow();
+    PAINTSTRUCT ps;
+    HDC hdc = BeginPaint(hWnd, &ps);
+    StretchDIBits(hdc, 0, 0, w, h, 0, 0, w, h, bmpInfo->bmiColors, bmpInfo,  DIB_RGB_COLORS, SRCCOPY);
+    ReleaseDC(hWnd, hdc);
+    EndPaint(hWnd, &ps);
   #else
     #error NOT IMPLEMENTED
   #endif
@@ -413,11 +415,13 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
 
 void IGraphicsSkia::PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding)
 {
+  SkPath arc;
   float sweep = (a2 - a1);
-  
+
   if (sweep >= 360.f || sweep <= -360.f)
   {
-    mMainPath.addCircle(cx, cy, r);
+    arc.addCircle(cx, cy, r);
+    mMainPath.addPath(arc, mMatrix, SkPath::kAppend_AddPathMode);
   }
   else
   {
@@ -432,7 +436,8 @@ void IGraphicsSkia::PathArc(float cx, float cy, float r, float a1, float a2, EWi
         sweep -= 360.f;
     }
       
-    mMainPath.arcTo(SkRect::MakeLTRB(cx - r, cy - r, cx + r, cy + r), a1 - 90.f, sweep, false);
+    arc.arcTo(SkRect::MakeLTRB(cx - r, cy - r, cx + r, cy + r), a1 - 90.f, sweep, false);
+    mMainPath.addPath(arc, mMatrix, SkPath::kExtend_AddPathMode);
   }
 }
 
@@ -573,8 +578,8 @@ void IGraphicsSkia::PathStroke(const IPattern& pattern, float thickness, const I
   
   paint.setStrokeWidth(thickness);
   paint.setStrokeMiter(options.mMiterLimit);
-  
-  mCanvas->drawPath(mMainPath, paint);
+    
+  RenderPath(paint);
   
   if (!options.mPreserve)
     mMainPath.reset();
@@ -590,10 +595,26 @@ void IGraphicsSkia::PathFill(const IPattern& pattern, const IFillOptions& option
   else
     mMainPath.setFillType(SkPath::kEvenOdd_FillType);
   
-  mCanvas->drawPath(mMainPath, paint);
+  RenderPath(paint);
   
   if (!options.mPreserve)
     mMainPath.reset();
+}
+
+void IGraphicsSkia::RenderPath(SkPaint& paint)
+{
+  SkMatrix invMatrix;
+    
+  if (!mMatrix.isIdentity() && mMatrix.invert(&invMatrix))
+  {
+    SkPath path;
+    mMainPath.transform(invMatrix, &path);
+    mCanvas->drawPath(path, paint);
+  }
+  else
+  {
+    mCanvas->drawPath(mMainPath, paint);
+  }
 }
 
 void IGraphicsSkia::PathTransformSetMatrix(const IMatrix& m)
@@ -612,9 +633,10 @@ void IGraphicsSkia::PathTransformSetMatrix(const IMatrix& m)
     xTranslate = -bounds.L;
     yTranslate = -bounds.T;
   }
-    
+
+  mMatrix = SkMatrix::MakeAll(m.mXX, m.mXY, m.mTX, m.mYX, m.mYY, m.mTY, 0, 0, 1);
   SkMatrix globalMatrix = SkMatrix::MakeScale(scale);
-  SkMatrix skMatrix = SkMatrix::MakeAll(m.mXX, m.mXY, m.mTX, m.mYX, m.mYY, m.mTY, 0, 0, 1);
+  SkMatrix skMatrix = mMatrix;
   globalMatrix.preTranslate(xTranslate, yTranslate);
   skMatrix.postConcat(globalMatrix);
   mCanvas->setMatrix(skMatrix);

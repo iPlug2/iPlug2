@@ -1403,26 +1403,16 @@ void IPlugAU::AssessInputConnections()
 
 OSStatus IPlugAU::GetState(CFPropertyListRef* ppPropList)
 {
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
-  AudioComponentDescription cd;
-  AudioComponent comp = AudioComponentInstanceGetComponent(mCI);
-  OSStatus r = AudioComponentGetDescription(comp, &cd);
-#else
-  AudioComponentDescription cd;
-  OSStatus r = GetComponentInfo((Component) mCI, &cd, 0, 0, 0);
-#endif
-  
-  if (r != noErr)
-  {
-    return r;
-  }
+  int plugType = GetAUPluginType();
+  int plugSubType = GetUniqueID();
+  int plugManID = GetMfrID();
 
   CFMutableDictionaryRef pDict = CFDictionaryCreateMutable(0, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
   int version = GetPluginVersion(false);
   PutNumberInDict(pDict, kAUPresetVersionKey, &version, kCFNumberSInt32Type);
-  PutNumberInDict(pDict, kAUPresetTypeKey, &(cd.componentType), kCFNumberSInt32Type);
-  PutNumberInDict(pDict, kAUPresetSubtypeKey, &(cd.componentSubType), kCFNumberSInt32Type);
-  PutNumberInDict(pDict, kAUPresetManufacturerKey, &(cd.componentManufacturer), kCFNumberSInt32Type);
+  PutNumberInDict(pDict, kAUPresetTypeKey, &(plugType), kCFNumberSInt32Type);
+  PutNumberInDict(pDict, kAUPresetSubtypeKey, &(plugSubType), kCFNumberSInt32Type);
+  PutNumberInDict(pDict, kAUPresetManufacturerKey, &(plugManID), kCFNumberSInt32Type);
   PutStrInDict(pDict, kAUPresetNameKey, GetPresetName(GetCurrentPresetIdx()));
 
   IByteChunk chunk;
@@ -1440,20 +1430,6 @@ OSStatus IPlugAU::GetState(CFPropertyListRef* ppPropList)
 
 OSStatus IPlugAU::SetState(CFPropertyListRef pPropList)
 {
-#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
-  AudioComponentDescription cd;
-  AudioComponent comp = AudioComponentInstanceGetComponent(mCI);
-  OSStatus r = AudioComponentGetDescription(comp, &cd);
-#else
-  AudioComponentDescription cd;
-  OSStatus r = GetComponentInfo((Component) mCI, &cd, 0, 0, 0);
-#endif
-  
-  if (r != noErr)
-  {
-    return r;
-  }
-
   CFDictionaryRef pDict = (CFDictionaryRef) pPropList;
   int version, type, subtype, mfr;
   char presetName[64];
@@ -1463,9 +1439,9 @@ OSStatus IPlugAU::SetState(CFPropertyListRef pPropList)
       !GetNumberFromDict(pDict, kAUPresetManufacturerKey, &mfr, kCFNumberSInt32Type) ||
       !GetStrFromDict(pDict, kAUPresetNameKey, presetName) ||
       //version != GetPluginVersion(false) ||
-      type != cd.componentType ||
-      subtype != cd.componentSubType ||
-      mfr != cd.componentManufacturer)
+      type != GetAUPluginType() ||
+      subtype != GetUniqueID() ||
+      mfr != GetMfrID())
   {
     return kAudioUnitErr_InvalidPropertyValue;
   }
