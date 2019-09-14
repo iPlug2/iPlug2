@@ -1470,6 +1470,12 @@ protected:
 class ICaptionControl : public ITextControl
 {
 public:
+  /** Constructs a caption control
+   * @param bounds The control's bounds
+   * @param paramIdx The parameter index to link this control to
+   * @param text The styling of this control's text
+   * @param BGColor The control background color
+   * @param showParamLabel A boolean defining if parameter text shall be visible */
   ICaptionControl(const IRECT& bounds, int paramIdx, const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR, bool showParamLabel = true);
   void Draw(IGraphics& g) override;
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;

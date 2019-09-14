@@ -205,16 +205,16 @@ public:
   /**  @return int The number of "baked-in" factory presets */
   int NPresets() const { return mPresets.GetSize(); }
 
-  /** /todo 
-   * @param idx /todo
-   * @return true /todo
-   * @return false /todo */
+  /** Restores the preset from stored state (or saves the preset state if not initialized)
+   * @param idx The \mPresets index
+   * @return true Is returned if the restoration was successful. Parameters and user interface are updated by consequence
+   * @return false Is returned if restoration failed */
   bool RestorePreset(int idx);
 
-  /** /todo 
-   * @param name /todo
-   * @return true /todo
-   * @return false /todo */
+  /** Restore the preset by name
+   * @param name The name of the preset to restore
+   * @return true Is returned if the restoration was successful
+   * @return false Is returned if restoration failed */
   bool RestorePreset(const char* name);
 
   /** /todo 
@@ -227,9 +227,10 @@ public:
    * @param nPresets /todo */
   void MakeDefaultPreset(const char* name = 0, int nPresets = 1);
 
-  /** usage: MakePreset(name, param1, param2, ..., paramN)
-   * @param name /todo
-   * @param ... /todo */
+  /** This method can be used from Plugin class to create a baked-in factory preset
+   * usage: MakePreset(name, param1, param2, ..., paramN)
+   * @param name The preset name
+   * @param ... The list of parameter values, ordered acording to paramIdx */
   void MakePreset(const char* name, ...);
 
   /** /todo
@@ -240,15 +241,15 @@ public:
    * @param ... /todo  */
   void MakePresetFromNamedParams(const char* name, int nParamsNamed, ...);
   
-  /** /todo 
-   * @param name /todo
-   * @param chunk /todo */
+  /** This method is primary called by chunk based plugins
+   * @param name The preset name
+   * @param chunk The block of memory to use */
   void MakePresetFromChunk(const char* name, IByteChunk& chunk);
 
-  /** /todo 
-   * @param name /todo
-   * @param blob /todo
-   * @param sizeOfChunk /todo */
+  /** This method makes a preset from a Binary large object (blob)
+   * @param name The preset name
+   * @param blob The binary string
+   * @param sizeOfChunk The binary string size */
   void MakePresetFromBlob(const char* name, const char* blob, int sizeOfChunk);
   
   /** /todo */
