@@ -1475,7 +1475,7 @@ public:
    * @param paramIdx The parameter index to link this control to
    * @param text The styling of this control's text
    * @param BGColor The control background color
-   * @param showParamLabel A boolean defining if parameter label shall be visible */
+   * @param showParamLabel A boolean defining if parameter label shall be appended to the caption text. This is intended to be used for not text based parameters (e.g. double typed) */
   ICaptionControl(const IRECT& bounds, int paramIdx, const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR, bool showParamLabel = true);
   void Draw(IGraphics& g) override;
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
