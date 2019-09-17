@@ -473,6 +473,30 @@ else
   cd "$SRC_DIR"
 fi
 
+#harfbuzz
+if [ -e "$LIB_DIR/libharfbuzz.a" ]
+then
+  echo "Found harfbuzz"
+else
+  echo "Installing harfbuzz"
+  cd "$SRC_DIR/harfbuzz"
+  echo -n "Configuring..."
+  echo "---------------------------- Configure harfbuzz ----------------------------" >> $LOG_DIR/$LOG_NAME 2>&1
+  ./configure --enable-static --disable-shared --prefix "$INSTALL_DIR" PKG_CONFIG="$BIN_DIR/pkg-config" PKG_CONFIG_LIBDIR="$LIB_DIR/pkgconfig" >> $LOG_DIR/$LOG_NAME 2>&1 &
+  spin
+  echo "done."
+  echo -n "Building..."
+  echo "---------------------------- Build harfbuzz ----------------------------" >> $LOG_DIR/$LOG_NAME 2>&1
+  make -s install >> $LOG_DIR/$LOG_NAME 2>&1 &
+  spin
+  make -s clean >> $LOG_DIR/$LOG_NAME 2>&1 &
+  spin
+  echo "done."
+  echo "harfbuzz Installed!"
+  echo
+  cd "$SRC_DIR"
+fi
+
 #remove unwanted dirs
 #rm -r $INSTALL_DIR/man/
 #rm -r $INSTALL_DIR/share/

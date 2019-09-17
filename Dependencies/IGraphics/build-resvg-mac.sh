@@ -13,8 +13,8 @@ fi
 echo ---------------------------------
 mkdir .cargo
 echo [build] > .cargo/config
-echo rustflags = [\"-C\", \"link-arg=-L/Users/oli/Dev/MyPlugins/Dependencies/Build/mac/lib\", \"-C\", \"link-arg=-lpixman-1\"] >> .cargo/config
-
+echo rustflags = [\"-L/Users/oli/Dev/MyPlugins/Dependencies/Build/mac/lib\", \"-ldylib=pixman-1\", \"-lframework=Metal\", \"-lframework=Foundation\"] >> .cargo/config
+export MACOSX_DEPLOYMENT_TARGET=10.9
 SKIA_DIR=/Users/oli/Dev/MyPlugins/Dependencies/Build/src/skia/ SKIA_LIB_DIR=/Users/oli/Dev/MyPlugins/Dependencies/Build/mac/lib cargo build --verbose --release --features "skia-backend cairo-backend"
 cd ..
 sed -i.bak s/"#include <cairo.h>"/"#include <cairo\/cairo.h>"/g capi/include/resvg.h

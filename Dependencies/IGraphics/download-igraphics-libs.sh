@@ -18,6 +18,7 @@ PNG_VERSION=v1.6.35
 ZLIB_VERSION=zlib-1.2.11
 SKIA_VERSION=chrome/m77
 RESVG_VERSION=v0.8.0
+HB_VERSION=harfbuzz-2.6.1
 
 # URLs where tarballs of releases can be downloaded - no trailing slash
 #CAIRO tarball is compressed using xz which is not available on git-bash shell, so checkout tag via git
@@ -28,6 +29,7 @@ PIXMAN_URL=https://cairographics.org/releases
 FREETYPE_URL=https://download.savannah.gnu.org/releases/freetype
 SKIA_URL=https://github.com/google/skia.git
 RESVG_URL=https://github.com/RazrFalcon/resvg.git
+HB_URL=https://www.freedesktop.org/software/harfbuzz/release
 
 echo "IGRAPHICS_DEPS_DIR:" $IGRAPHICS_DEPS_DIR
 echo "BUILD_DIR:" $BUILD_DIR
@@ -222,6 +224,28 @@ fi
 
 #######################################################################
 
+#harfbuzz
+if [ -d "$SRC_DIR/harfbuzz" ]
+then
+  echo "Found harfbuzz"
+else
+  echo
+  echo "Downloading harfbuzz"
+  if [ -e $HB_VERSION.tar.xz ]
+  then
+    echo "Tarball Present..."
+  else
+    echo "Downloading..."
+    curl --progress-bar -OL --disable-epsv $HB_URL/$HB_VERSION.tar.xz
+  fi
+  echo "Unpacking..."
+  tar -xf $HB_VERSION.tar.xz
+  mv $HB_VERSION "$SRC_DIR/harfbuzz"
+  cd "$IGRAPHICS_DEPS_DIR"
+fi
+
+#######################################################################
+
 #resvg
 if [ -d "$SRC_DIR/resvg" ]
 then
@@ -230,7 +254,7 @@ else
   echo "Downloading resvg"
   git clone $RESVG_URL "$SRC_DIR/resvg"
   cd "$SRC_DIR/resvg"
-#  git checkout tags/$RESVG_VERSION
+  git checkout $RESVG_VERSION
   rm -r -f .git
   cd "$IGRAPHICS_DEPS_DIR"
 fi
