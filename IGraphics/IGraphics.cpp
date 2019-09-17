@@ -1313,9 +1313,10 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
         return ISVG(nullptr); // return invalid SVG
       
 #ifdef IGRAPHICS_RESVG
-      opt.path = path.Get();
+//      opt.path = "/Users/oli/Desktop/Test.svg";
       opt.font_family = "Times New Roman";
       opt.languages = "en";
+      opt.dpi = dpi;
       int err = resvg_parse_tree_from_file(path.Get(), &opt, &pRenderTree);
       
       if (err != RESVG_OK)
