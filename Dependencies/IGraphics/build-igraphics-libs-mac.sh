@@ -91,11 +91,17 @@ cd "$SRC_DIR"
 
 echo
 
-export MACOSX_DEPLOYMENT_TARGET=10.7
+# export MACOSX_DEPLOYMENT_TARGET=10.7
 
-export LDFLAGS="-arch i386 -arch x86_64"
-export CFLAGS="-Os -arch i386 -arch x86_64"
-export CXXFLAGS="-Os -arch i386 -arch x86_64"
+# export LDFLAGS="-arch i386 -arch x86_64"
+# export CFLAGS="-Os -arch i386 -arch x86_64"
+# export CXXFLAGS="-Os -arch i386 -arch x86_64"
+
+export MACOSX_DEPLOYMENT_TARGET=10.9
+
+export LDFLAGS="-arch x86_64"
+export CFLAGS="-Os -arch x86_64"
+export CXXFLAGS="-Os -arch x86_64"
 
 # remove old log file if exists
 if [ -e $LOG_DIR/$LOG_NAME ]
@@ -242,7 +248,7 @@ else
   echo -n "Configuring..."
   cd "$SRC_DIR/zlib"
   echo "---------------------------- Configure zlib ----------------------------" >> $LOG_DIR/$LOG_NAME 2>&1
-  ./configure --static --archs="-arch i386 -arch x86_64" --prefix "$INSTALL_DIR" >> $LOG_DIR/$LOG_NAME 2>&1 &
+  ./configure --static --archs="-arch x86_64" --prefix "$INSTALL_DIR" >> $LOG_DIR/$LOG_NAME 2>&1 &
   spin
   echo "done."
   echo -n "Building..."
@@ -335,9 +341,6 @@ else
   echo "done."
   echo
   cp pixman-1.pc "$LIB_DIR/pkgconfig/pixman-1.pc"
-  #Must remove this after build, as building without them fails
-  rm "$LIB_DIR/libpixman-1.0.dylib"
-  rm "$LIB_DIR/libpixman-1.dylib"
   echo "pixman Installed!"
   echo
   cd "$SRC_DIR"
@@ -475,15 +478,19 @@ fi
 #rm -r $INSTALL_DIR/share/
 #rm -r $INSTALL_DIR/bin/
 
-echo "Verify UB Builds..."
-# file "$LIB_DIR/libbz2.a"
-# file "$LIB_DIR/libexpat.a"
-file "$LIB_DIR/libz.a"
-file "$LIB_DIR/libpixman-1.a"
-file "$LIB_DIR/libpng16.a"
-file "$LIB_DIR/libfreetype.a"
-# file "$LIB_DIR/libfontconfig.a"
-file "$LIB_DIR/libcairo.a"
-exit
+#Must remove this after build, as building without them fails
+rm "$LIB_DIR/libpixman-1.0.dylib"
+rm "$LIB_DIR/libpixman-1.dylib"
+
+# echo "Verify UB Builds..."
+# # file "$LIB_DIR/libbz2.a"
+# # file "$LIB_DIR/libexpat.a"
+# file "$LIB_DIR/libz.a"
+# file "$LIB_DIR/libpixman-1.a"
+# file "$LIB_DIR/libpng16.a"
+# file "$LIB_DIR/libfreetype.a"
+# # file "$LIB_DIR/libfontconfig.a"
+# file "$LIB_DIR/libcairo.a"
+# exit
 
 #rm -r $SRC_DIR
