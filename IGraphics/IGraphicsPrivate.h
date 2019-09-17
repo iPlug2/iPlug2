@@ -77,7 +77,14 @@
 #endif
 
 #ifdef IGRAPHICS_RESVG
-#include "resvg.h"
+  #ifdef IGRAPHICS_SKIA
+    #define RESVG_SKIA_BACKEND
+  #elif defined IGRAPHICS_CAIRO || defined IGRAPHICS_NANOVG
+    #define RESVG_CAIRO_BACKEND
+  #else
+    #error IGRAPHICS_RESVG not supported with this backend
+  #endif
+  #include "resvg.h"
 #endif
 
 BEGIN_IPLUG_NAMESPACE
