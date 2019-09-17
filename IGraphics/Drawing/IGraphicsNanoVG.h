@@ -130,6 +130,7 @@ protected:
 
   void DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
   void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
+  void DoRasterizeSVGToAPIBitmap(SVGHolder* pHolder, APIBitmap* pAPIBitmap, float x, float y) override;
 
 private:
   void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y) const;

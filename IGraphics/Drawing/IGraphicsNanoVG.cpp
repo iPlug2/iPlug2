@@ -849,3 +849,43 @@ void IGraphicsNanoVG::ClearFBOStack()
     mFBOStack.pop();
   }
 }
+
+void IGraphicsNanoVG::DoRasterizeSVGToAPIBitmap(SVGHolder* pHolder, APIBitmap* pAPIBitmap, float x, float y)
+{
+#ifdef RESVG_CAIRO_BACKEND
+  RawBitmapData data;
+  int stride = cairo_format_stride_for_width (CAIRO_FORMAT_ARGB32, pAPIBitmap->GetWidth());
+  data.Resize(stride * pAPIBitmap->GetHeight());
+  memset(data.Get(), 0, data.GetSize());
+  cairo_surface_t* pSurface = cairo_image_surface_create_for_data(data.Get(), CAIRO_FORMAT_ARGB32, pAPIBitmap->GetWidth(), pAPIBitmap->GetHeight(), stride);
+  cairo_t* cr = cairo_create(pSurface);
+  resvg_cairo_render_to_canvas(pHolder->mRenderTree, &pHolder->mOptions, {static_cast<uint32_t>(pAPIBitmap->GetWidth()), static_cast<uint32_t>(pAPIBitmap->GetHeight())}, cr);
+  cairo_surface_flush(pSurface);
+
+  //ARGB -> RGBA (from Cairo png)
+  for (uint32_t i = 0; i < data.GetSize(); i += 4)
+  {
+    uint8_t* b = data.Get() + i;
+    uint32_t pixel;
+    uint8_t  alpha;
+    memcpy (&pixel, b, sizeof (uint32_t));
+    alpha = (pixel & 0xff000000) >> 24;
+
+    if (alpha == 0)
+    {
+      b[0] = b[1] = b[2] = b[3] = 0;
+    }
+    else
+    {
+      b[0] = (((pixel & 0xff0000) >> 16) * 255 + alpha / 2) / alpha;
+      b[1] = (((pixel & 0x00ff00) >>  8) * 255 + alpha / 2) / alpha;
+      b[2] = (((pixel & 0x0000ff) >>  0) * 255 + alpha / 2) / alpha;
+      b[3] = alpha;
+    }
+  }
+  nvgUpdateImage(static_cast<NVGcontext*>(GetDrawContext()), pAPIBitmap->GetBitmap(), data.Get());
+
+  cairo_destroy(cr);
+  cairo_surface_destroy(pSurface);
+#endif
+}

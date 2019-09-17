@@ -310,19 +310,20 @@ void IGraphicsSkia::BeginFrame()
   if (mGrContext.get())
   {
     // Bind to the current main framebuffer
-    int fbo = 0, samples = 0, stencilBits = 0;
+    GrGLint fbo = 0, samples = 0, stencilBits = 0;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
     glGetIntegerv(GL_SAMPLES, &samples);
     glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
     
     GrGLFramebufferInfo fbinfo;
     fbinfo.fFBOID = fbo;
-    fbinfo.fFormat = 0x8058;
+    fbinfo.fFormat = 0x8058; //GR_GL_RGBA8
 
-    auto backendRenderTarget = GrBackendRenderTarget(width, height, samples, stencilBits, fbinfo);
+    auto backendRenderTarget = GrBackendRenderTarget(width, height, 0, stencilBits, fbinfo);
     
+    assert(backendRenderTarget.isValid());
+
     mScreenSurface = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRenderTarget, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, nullptr, nullptr);
-    assert(mScreenSurface);
   }
 #elif defined IGRAPHICS_METAL
   if (mGrContext.get())
@@ -659,6 +660,20 @@ APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, int scale, doub
 void IGraphicsSkia::UpdateLayer()
 {
   mCanvas = mLayers.empty() ? mSurface->getCanvas() : mLayers.top()->GetAPIBitmap()->GetBitmap()->mSurface->getCanvas();
+}
+
+void IGraphicsSkia::DoRasterizeSVGToAPIBitmap(SVGHolder* pHolder, APIBitmap* pAPIBitmap, float x, float y)
+{
+  auto scale = 1.f/(GetScreenScale() * GetDrawScale());
+  uint32_t width = pAPIBitmap->GetWidth();
+  uint32_t height = pAPIBitmap->GetHeight();
+  auto pSurface = pAPIBitmap->GetBitmap()->mSurface.get();
+  auto pCanvas = pSurface->getCanvas();
+  
+  pCanvas->translate(x, y);
+  pCanvas->scale(scale, scale);
+  pAPIBitmap->GetBitmap()->mSurface->ref(); // The capi unrefs the surface pointer before returning, so it’s necessary to increment the ref count before calling resvg_skia_render_to_canvas to keep it balanced.
+  resvg_skia_render_to_canvas(pHolder->mRenderTree, &pHolder->mOptions, {width, height}, pSurface);
 }
 
 static size_t CalcRowBytes(int width)

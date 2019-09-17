@@ -45,7 +45,7 @@ public:
         
 #ifdef IGRAPHICS_RESVG
         if(mHQ)
-          g.RasterizeSVGToLayer(mSVG, layerBitmap);
+          g.RasterizeSVGToBitmap(mSVG, layerBitmap, mRECT.L, mRECT.T);
         else
 #endif
           g.DrawSVG(mSVG, mRECT);

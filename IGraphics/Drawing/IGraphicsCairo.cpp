@@ -716,3 +716,15 @@ void IGraphicsCairo::SetClipRegion(const IRECT& r)
     cairo_clip(mContext);
   }
 }
+
+void IGraphicsCairo::DoRasterizeSVGToAPIBitmap(SVGHolder* pHolder, APIBitmap* pAPIBitmap, float x, float y)
+{
+  auto scale = GetScreenScale() * GetDrawScale();
+  uint32_t width = pAPIBitmap->GetWidth() / scale;
+  uint32_t height = pAPIBitmap->GetHeight() / scale;
+
+  cairo_t* cr = cairo_create(pAPIBitmap->GetBitmap());
+  resvg_cairo_render_to_canvas(pHolder->mRenderTree, &pHolder->mOptions, {width, height}, cr);
+  cairo_surface_flush(pAPIBitmap->GetBitmap());
+  cairo_destroy(cr);
+}
