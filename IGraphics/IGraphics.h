@@ -544,10 +544,8 @@ public:
    * @return ILayer* /todo */
   ILayer* PopLayer();
   
-#ifdef IGRAPHICS_RESVG
   void RasterizeSVGToBitmap(const ISVG& svg, APIBitmap* pBitmap, float x, float y);
   virtual void DoRasterizeSVGToAPIBitmap(SVGHolder* pHolder, APIBitmap* pBitmap, float x, float y) {};
-#endif
   
 #pragma mark - Drawing API path support
 public:
