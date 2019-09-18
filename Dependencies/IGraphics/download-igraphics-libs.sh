@@ -9,7 +9,7 @@ LOG_PATH="$BUILD_DIR"
 LOG_NAME="download.log"
 
 # Basename part of tarballs to download
-CAIRO_VERSION=1.16.0
+CAIRO_VERSION=cairo-1.16.0
 FREETYPE_VERSION=freetype-2.9.1
 PKGCONFIG_VERSION=pkg-config-0.28
 PIXMAN_VERSION=pixman-0.34.0
@@ -22,7 +22,7 @@ HB_VERSION=harfbuzz-2.6.1
 
 # URLs where tarballs of releases can be downloaded - no trailing slash
 #CAIRO tarball is compressed using xz which is not available on git-bash shell, so checkout tag via git
-CAIRO_URL=git://git.cairographics.org/git/cairo
+CAIRO_URL=https://cairographics.org/releases/
 PNG_URL=https://github.com/glennrp/libpng/archive
 ZLIB_URL=https://www.zlib.net
 PIXMAN_URL=https://cairographics.org/releases
@@ -76,7 +76,7 @@ cd "${0%/*}"
 echo
 echo "###################################################################################"
 echo
-echo "     This script will download libraries required for IGraphics on windows,"
+echo "     This script will download and extract libraries required for IGraphics,"
 echo "     please relax and have a cup of tea, it'll take a while..."
 echo
 echo "###################################################################################"
@@ -115,7 +115,6 @@ if [ -d "$SRC_DIR/zlib" ]
 then
   echo "Found zlib"
 else
-  echo
   echo "Downloading zlib"
   if [ -e $ZLIB_VERSION.tar.gz ]
   then
@@ -135,7 +134,6 @@ if [ -d "$SRC_DIR/libpng" ]
  then
   echo "Found libpng"
  else
-  echo
   echo "Downloading libpng..."
   if [ -e $PNG_VERSION.tar.gz ]
   then
@@ -157,7 +155,6 @@ if [ -d "$SRC_DIR/pixman" ]
  then
    echo "Found pixman"
  else
-  echo
   echo "Downloading pixman"
   if [ -e $PIXMAN_VERSION.tar.gz ]
   then
@@ -178,7 +175,6 @@ if [ -d "$SRC_DIR/freetype" ]
 then
   echo "Found freetype"
 else
-  echo
   echo "Downloading freetype"
   if [ -e $FREETYPE_VERSION.tar.gz ]
   then
@@ -200,11 +196,16 @@ then
   echo "Found cairo"
 else
   echo "Downloading cairo"
-  git clone $CAIRO_URL "$SRC_DIR/cairo"
-  cd "$SRC_DIR/cairo"
-  git checkout -b build $CAIRO_VERSION
-  rm -r -f .git
-  cd "$IGRAPHICS_DEPS_DIR"
+  if [ -e $CAIRO_VERSION.tar.gz ]
+  then
+    echo "Tarball Present..."
+  else
+    echo "Downloading..."
+    curl --progress-bar -OL $CAIRO_URL/$CAIRO_VERSION.tar.xz
+  fi
+  echo "Unpacking..."
+  tar -xf $CAIRO_VERSION.tar.xz
+  mv $CAIRO_VERSION "$SRC_DIR/cairo"
 fi
 
 #######################################################################

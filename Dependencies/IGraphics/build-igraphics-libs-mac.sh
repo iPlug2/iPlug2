@@ -12,14 +12,6 @@ BIN_DIR="$INSTALL_DIR/bin"
 LOG_DIR="$BUILD_DIR"
 LOG_NAME="build-mac.log"
 
-CAIRO_VERSION=cairo-1.17.2
-FREETYPE_VERSION=freetype-2.9.1
-PKGCONFIG_VERSION=pkg-config-0.28
-PIXMAN_VERSION=pixman-0.38.4
-EXPAT_VERSION=expat-2.2.5
-PNG_VERSION=libpng-1.6.34
-ZLIB_VERSION=zlib-1.2.11
-
 [[ -e "$PWD/build-igraphics-libs-mac.sh" ]] ||
 {
   echo "*******************************************************************************"
@@ -61,7 +53,7 @@ cd "${0%/*}"
 echo
 echo "###################################################################################"
 echo
-echo "     This script will download and build libraries required for IGraphics on macOS,"
+echo "     This script will build libraries required for IGraphics on macOS,"
 echo "     please relax and have a cup of tea, it'll take a while..."
 echo
 echo "###################################################################################"
@@ -70,11 +62,6 @@ echo
 if [ ! -d "$BUILD_DIR" ]
 then
   mkdir "$BUILD_DIR"
-fi
-
-if [ ! -d "$DL_DIR" ]
-then
-  mkdir "$DL_DIR"
 fi
 
 if [ ! -d "$SRC_DIR" ]
@@ -118,18 +105,7 @@ fi
 # then
 #   echo "Found bzip2"
 # else
-#   echo
-#   echo "Installing bzip2"
-#   if [ -e bzip2-1.0.6.tar.gz ]
-#   then
-#     echo "Tarball Present..."
-#   else
-#     echo "Downloading..."
-#     curl -O -L --progress-bar http://www.bzip.org/1.0.6/bzip2-1.0.6.tar.gz
-#   fi
-#   echo "Unpacking..."
-#   tar -xf bzip2-1.0.6.tar.gz >> $LOG_DIR/$LOG_NAME 2>&1
-#   cd bzip2-1.0.6
+#   cd $(SRC_DIR)/bzip2
 #   echo -n "Building..."
 #   echo "---------------------------- Build bzip2 ----------------------------" >> $LOG_DIR/$LOG_NAME 2>&1
 #   make CFLAGS="$CFLAGS -Wno-format" PREFIX="$INSTALL_DIR" -s install >> $LOG_DIR/$LOG_NAME 2>&1 &
@@ -150,20 +126,6 @@ if [ -e "$BIN_DIR/pkg-config" ]
 then
   echo "Found pkg-config"
 else
-  echo "Installing pkg-config"
-  cd $DL_DIR
-  if [ -e "$PKGCONFIG_VERSION.tar.gz" ]
-  then
-    echo "Tarball Present..."
-  else
-    echo "Downloading..."
-    curl -L --progress-bar -O https://pkg-config.freedesktop.org/releases/$PKGCONFIG_VERSION.tar.gz
-  fi
-  echo "Unpacking..."
-  tar xfz $PKGCONFIG_VERSION.tar.gz
-  mv $PKGCONFIG_VERSION "$SRC_DIR/pkgconfig"
-
-  echo -n "Configuring..."
   cd "$SRC_DIR/pkgconfig"
   echo "---------------------------- Configure pkg-config ----------------------------" >> $LOG_DIR/$LOG_NAME 2>&1
   ./configure CFLAGS="-Os -arch x86_64" LDFLAGS="-arch x86_64" --prefix "$INSTALL_DIR" --with-internal-glib >> $LOG_DIR/$LOG_NAME 2>&1 &
@@ -191,21 +153,6 @@ fi
 # then
 #   echo "Found expat"
 # else
-#   echo
-#   echo "Installing expat"
-#   cd $DL_DIR
-#   if [ -e $EXPAT_VERSION.tar.bz2 ]
-#   then
-#     echo "Tarball Present..."
-#   else
-#     echo "Downloading..."
-#     curl -L --progress-bar -O https://github.com/libexpat/libexpat/releases/download/R_2_2_5/$EXPAT_VERSION.tar.bz2
-#   fi
-#   echo "Unpacking..."
-#   tar -jxf "$EXPAT_VERSION.tar.bz2"
-#   mv $EXPAT_VERSION "$SRC_DIR/expat"
-
-#   echo -n "Configuring..."
 #   cd "$SRC_DIR/expat"
 #   echo "---------------------------- Configure expat ----------------------------" >> $LOG_DIR/$LOG_NAME 2>&1
 #   ./configure --disable-shared --enable-static --prefix "$INSTALL_DIR" >> $LOG_DIR/$LOG_NAME 2>&1 &
@@ -230,22 +177,6 @@ if [ -e "$LIB_DIR/libz.a" ]
 then
   echo "Found zlib"
 else
-  COPTZL="-Wno-shift-negative-value"
-  echo
-  echo "Installing zlib"
-  cd $DL_DIR
-  if [ -e $ZLIB_VERSION.tar.gz ]
-  then
-    echo "Tarball Present..."
-  else
-    echo "Downloading..."
-    curl -L --progress-bar -O https://www.zlib.net/$ZLIB_VERSION.tar.gz
-  fi
-  echo "Unpacking..."
-  tar -xf $ZLIB_VERSION.tar.gz
-  mv $ZLIB_VERSION "$SRC_DIR/zlib"
-
-  echo -n "Configuring..."
   cd "$SRC_DIR/zlib"
   echo "---------------------------- Configure zlib ----------------------------" >> $LOG_DIR/$LOG_NAME 2>&1
   ./configure --static --archs="-arch x86_64" --prefix "$INSTALL_DIR" >> $LOG_DIR/$LOG_NAME 2>&1 &
@@ -253,7 +184,7 @@ else
   echo "done."
   echo -n "Building..."
   echo "---------------------------- Build zlib ----------------------------" >> $LOG_DIR/$LOG_NAME 2>&1
-  make CFLAGS="$CFLAGS $COPTZL" -s install >> $LOG_DIR/$LOG_NAME 2>&1 &
+  make CFLAGS="$CFLAGS -Wno-shift-negative-value" -s install >> $LOG_DIR/$LOG_NAME 2>&1 &
   spin
   make -s clean >> $LOG_DIR/$LOG_NAME 2>&1 &
   spin
@@ -271,21 +202,6 @@ if [ -e "$LIB_DIR/libpng16.a" ]
 then
   echo "Found libpng"
 else
-  echo
-  echo "Installing libpng"
-  cd $DL_DIR
-  if [ -e $PNG_VERSION.tar.xz ]
-  then
-    echo "Tarball Present..."
-  else
-    echo "Downloading..."
-    curl -L --progress-bar -O http://github.com/glennrp/libpng-releases/raw/master/$PNG_VERSION.tar.xz
-  fi
-  echo "Unpacking..."
-  tar -xf $PNG_VERSION.tar.xz
-  mv $PNG_VERSION "$SRC_DIR/libpng"
-
-  echo -n "Configuring..."
   cd "$SRC_DIR/libpng"
   echo "---------------------------- Configure libpng ----------------------------" >> $LOG_DIR/$LOG_NAME 2>&1
   ./configure --disable-dependency-tracking --enable-static --disable-shared --prefix "$INSTALL_DIR" >> $LOG_DIR/$LOG_NAME 2>&1 &
@@ -311,22 +227,6 @@ if [ -e "$LIB_DIR/libpixman-1.a" ]
 then
   echo "Found pixman"
 else
-  COPTPX="-Wno-unknown-attributes -Wno-unused-command-line-argument -Wno-shift-negative-value -Wno-tautological-constant-out-of-range-compare"
-  echo
-  echo "Installing pixman"
-  cd $DL_DIR
-  if [ -e $PIXMAN_VERSION.tar.gz ]
-  then
-    echo "Tarball Present..."
-  else
-    echo "Downloading..."
-    curl -L --progress-bar -O https://cairographics.org/releases/$PIXMAN_VERSION.tar.gz
-  fi
-  echo "Unpacking..."
-  tar -xf $PIXMAN_VERSION.tar.gz
-  mv $PIXMAN_VERSION "$SRC_DIR/pixman"
-
-  echo -n "Configuring..."
   cd "$SRC_DIR/pixman"
   echo "---------------------------- Configure pixman ----------------------------" >> $LOG_DIR/$LOG_NAME 2>&1
   ./configure --enable-static --disable-dependency-tracking --disable-gtk --prefix "$INSTALL_DIR" PKG_CONFIG="$BIN_DIR/pkg-config" PKG_CONFIG_LIBDIR="$LIB_DIR/pkgconfig" >> $LOG_DIR/$LOG_NAME 2>&1 &
@@ -334,7 +234,7 @@ else
   echo "done."
   echo -n "Building..."
   echo "---------------------------- Build pixman ----------------------------" >> $LOG_DIR/$LOG_NAME 2>&1
-  make CFLAGS="-DHAVE_CONFIG_H $COPTPX $CFLAGS" -s install >> $LOG_DIR/$LOG_NAME 2>&1 &
+  make CFLAGS="-DHAVE_CONFIG_H -Wno-unknown-attributes -Wno-unused-command-line-argument -Wno-shift-negative-value -Wno-tautological-constant-out-of-range-compare $CFLAGS" -s install >> $LOG_DIR/$LOG_NAME 2>&1 &
   spin
   make -s clean >> $LOG_DIR/$LOG_NAME 2>&1 &
   spin
@@ -353,21 +253,6 @@ if [ -e "$LIB_DIR/libfreetype.a" ]
 then
   echo "Found freetype"
 else
-  echo
-  echo "Installing freetype"
-  cd $DL_DIR
-  if [ -e $FREETYPE_VERSION.tar.gz ]
-  then
-    echo "Tarball Present..."
-  else
-    echo "Downloading..."
-    curl  --progress-bar -OL --disable-epsv https://download.savannah.gnu.org/releases/freetype/$FREETYPE_VERSION.tar.gz
-  fi
-  echo "Unpacking..."
-  tar -xf $FREETYPE_VERSION.tar.gz
-  mv $FREETYPE_VERSION "$SRC_DIR/freetype"
-
-  echo -n "Configuring..."
   cd "$SRC_DIR/freetype"
   echo "---------------------------- Configure freetype ----------------------------" >> $LOG_DIR/$LOG_NAME 2>&1
   ./configure --prefix "$INSTALL_DIR" --disable-shared --enable-biarch-config --without-zlib --without-bzip2 PKG_CONFIG="$BIN_DIR/pkg-config" PKG_CONFIG_LIBDIR="$LIB_DIR/pkgconfig" >> $LOG_DIR/$LOG_NAME 2>&1 &
@@ -394,29 +279,9 @@ fi
 # then
 #   echo "Found fontconfig"
 # else
-#   COPTFC="-Wno-macro-redefined -Wno-unused-command-line-argument -Wno-non-literal-null-conversion -Wno-pointer-bool-conversion -Wno-unused-function"
-#   echo
-#   echo "Installing fontconfig"
-#   cd $DL_DIR
-#   if [ -e fontconfig-2.12.6.tar.bz2 ] || [ -e fontconfig-2.12.6.tar ]
-#   then
-#     echo "Tarball Present..."
-#   else
-#     echo "Downloading..."
-#     curl -L --progress-bar -O https://www.freedesktop.org/software/fontconfig/release/fontconfig-2.12.6.tar.bz2
-#   fi
-#   echo "Unpacking..."
-#   if [ ! -e fontconfig-2.12.6.tar ]
-#   then
-#     "$INSTALL_DIR/bin/bunzip2" "$SRC_DIR/fontconfig-2.12.6.tar.bz2"
-#   fi
-#   tar -xf fontconfig-2.12.6.tar
-#   mv fontconfig-2.12.6. "$SRC_DIR/fontconfig"
-
-#   echo -n "Configuring..."
 #   cd "$SRC_DIR/fontconfig"
 #   echo "---------------------------- Configure fontconfig ----------------------------" >> $LOG_DIR/$LOG_NAME 2>&1
-#   ./configure --disable-dependency-tracking --disable-shared --enable-static --silent CFLAGS="$CFLAGS $COPTFC" --prefix "$INSTALL_DIR" LDFLAGS="$LDFLAGS -L$LIB_DIR" LIBS="-lbz2" PKG_CONFIG="$BIN_DIR/pkg-config" PKG_CONFIG_LIBDIR="$LIB_DIR/pkgconfig" >> $LOG_DIR/$LOG_NAME 2>&1 &
+#   ./configure --disable-dependency-tracking --disable-shared --enable-static --silent CFLAGS="$CFLAGS -Wno-macro-redefined -Wno-unused-command-line-argument -Wno-non-literal-null-conversion -Wno-pointer-bool-conversion -Wno-unused-function" --prefix "$INSTALL_DIR" LDFLAGS="$LDFLAGS -L$LIB_DIR" LIBS="-lbz2" PKG_CONFIG="$BIN_DIR/pkg-config" PKG_CONFIG_LIBDIR="$LIB_DIR/pkgconfig" >> $LOG_DIR/$LOG_NAME 2>&1 &
 #   spin
 #   echo "done."
 #   echo -n "Building..."
@@ -438,27 +303,12 @@ if [ -e "$LIB_DIR/libcairo.a" ]
 then
   echo "Found cairo"
 else
-  COPTCR="-Wno-logical-not-parentheses -Wno-parentheses-equality -Wno-enum-conversion -Wno-unused-command-line-argument -Wno-unused-function -Wno-unused-variable -Wno-unused-local-typedef -Wno-tautological-constant-out-of-range-compare -Wno-absolute-value -Wno-literal-conversion"
-  echo
-  echo "Installing cairo"
-  cd $DL_DIR
-  if [ -e $CAIRO_VERSION.tar.xz ]
-  then
-    echo "Tarball Present..."
-  else
-    echo "Downloading..."
-    curl -L --progress-bar -O https://cairographics.org/releases/$CAIRO_VERSION.tar.xz
-  fi
-  echo "Unpacking..."
-  tar -xf $CAIRO_VERSION.tar.xz
-  mv $CAIRO_VERSION "$SRC_DIR/cairo"
   cd "$SRC_DIR/cairo"
   echo "Patching for macOS 10.13 compiliation..."
   sed -i.bu 's/if test "x$cairo_cc_stderr" != "x"; then/if 0; then/' configure
 
-  echo -n "Configuring..."
   echo "---------------------------- Configure cairo ----------------------------" >> $LOG_DIR/$LOG_NAME 2>&1
-  ./configure --disable-shared --enable-static --disable-dependency-tracking --disable-svg --disable-pdf --disable-ps --disable-fc --enable-quartz-image=yes --disable-interpreter --disable-trace CFLAGS="$CFLAGS $COPTCR" --prefix "$INSTALL_DIR" PKG_CONFIG="$BIN_DIR/pkg-config" PKG_CONFIG_LIBDIR="$LIB_DIR/pkgconfig" LDFLAGS="$LDFLAGS -framework CoreFoundation -framework CoreGraphics -framework CoreText" >> $LOG_DIR/$LOG_NAME 2>&1 &
+  ./configure --disable-shared --enable-static --disable-dependency-tracking --disable-svg --disable-pdf --disable-ps --disable-fc --enable-quartz-image=yes --disable-interpreter --disable-trace CFLAGS="$CFLAGS -Wno-logical-not-parentheses -Wno-parentheses-equality -Wno-enum-conversion -Wno-unused-command-line-argument -Wno-unused-function -Wno-unused-variable -Wno-unused-local-typedef -Wno-tautological-constant-out-of-range-compare -Wno-absolute-value -Wno-literal-conversion" --prefix "$INSTALL_DIR" PKG_CONFIG="$BIN_DIR/pkg-config" PKG_CONFIG_LIBDIR="$LIB_DIR/pkgconfig" LDFLAGS="$LDFLAGS -framework CoreFoundation -framework CoreGraphics -framework CoreText" >> $LOG_DIR/$LOG_NAME 2>&1 &
   spin
   echo "done."
   echo -n "Building..."
@@ -478,9 +328,8 @@ if [ -e "$LIB_DIR/libharfbuzz.a" ]
 then
   echo "Found harfbuzz"
 else
-  echo "Installing harfbuzz"
   cd "$SRC_DIR/harfbuzz"
-  echo -n "Configuring..."
+
   echo "---------------------------- Configure harfbuzz ----------------------------" >> $LOG_DIR/$LOG_NAME 2>&1
   ./configure --enable-static --disable-shared --prefix "$INSTALL_DIR" PKG_CONFIG="$BIN_DIR/pkg-config" PKG_CONFIG_LIBDIR="$LIB_DIR/pkgconfig" >> $LOG_DIR/$LOG_NAME 2>&1 &
   spin
