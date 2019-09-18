@@ -268,24 +268,15 @@ struct IColor
   /** Create an IColor from a color code. Can be used to convert a hex code into an IColor object.
    * @code
    *   IColor color = IColor::FromColorCode(0x55a6ff);
-   *   IColor colorWithAlpha = IColor::FromColorCode(0x8855a6ff, true); // alpha is 0x88
+   *   IColor colorWithAlpha = IColor::FromColorCode(0x55a6ff, 0x88); // alpha is 0x88
    * @endcode
    * 
    * @param colorCode integer representation of the color. Use with hex numbers, e.g. 0xff38a2
-   * @param hasAlpha if true alpha channel is extrated from colorCode as well
+   * @param alpha integer representation of the alpha channel
    * @return IColor A new IColor based on the color code provided */
-  static IColor FromColorCode(unsigned int colorCode, bool hasAlpha = false)
+  static IColor FromColorCode(unsigned int colorCode, unsigned int alpha = 0xFF)
   {
-    int A;
-    if (hasAlpha)
-    {
-        A = (colorCode >> 24) & 0xFF;
-    }
-    else
-    {
-        A = 0xFF;
-    }
-
+    int A = alpha;
     int R = (colorCode >> 16) & 0xFF;
     int G = (colorCode >> 8) & 0xFF;
     int B = colorCode & 0xFF;
