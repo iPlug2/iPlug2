@@ -399,7 +399,7 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
   double scale2 = bitmap.GetScale() * bitmap.GetDrawScale();
   
   mCanvas->save();
-  skrect.set(dest.L, dest.T, dest.R, dest.B);
+  skrect.setLTRB(dest.L, dest.T, dest.R, dest.B);
   mCanvas->clipRect(skrect);
   mCanvas->translate(dest.L, dest.T);
   mCanvas->scale(scale1, scale1);
@@ -645,7 +645,7 @@ void IGraphicsSkia::PathTransformSetMatrix(const IMatrix& m)
 void IGraphicsSkia::SetClipRegion(const IRECT& r)
 {
   SkRect skrect;
-  skrect.set(r.L, r.T, r.R, r.B);
+  skrect.setLTRB(r.L, r.T, r.R, r.B);
   mCanvas->restore();
   mCanvas->save();
   mCanvas->clipRect(skrect);
