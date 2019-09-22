@@ -1534,7 +1534,7 @@ APIBitmap* IGraphics::StartLayer(IControl* pControl, const IRECT& r)
   const int h = static_cast<int>(std::ceil(GetBackingPixelScale() * std::ceil(alignedBounds.H())));
 
   APIBitmap* pAPIBitmap = CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale());
-  PushLayer(new ILayer(pAPIBitmap, alignedBounds, pControl, pControl->GetRECT()));
+  PushLayer(new ILayer(pAPIBitmap, alignedBounds, pControl, pControl ? pControl->GetRECT() : IRECT()));
   
   return pAPIBitmap;
 }
