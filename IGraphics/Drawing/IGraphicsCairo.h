@@ -91,8 +91,10 @@ protected:
   void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
 
   void SetCairoSourcePattern(cairo_t* context, const IPattern& pattern, const IBlend* pBlend);
-  
+
+#ifdef IGRAPHICS_RESVG
   void DoRasterizeSVGToAPIBitmap(SVGHolder* pHolder, APIBitmap* pAPIBitmap, float x, float y) override;
+#endif
 
 private:
   

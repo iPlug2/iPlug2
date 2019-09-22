@@ -53,6 +53,13 @@
 #include "IGraphicsImGui.h"
 #endif
 
+#ifdef IGRAPHICS_RESVG
+#pragma comment(lib, "resvg.lib")
+#pragma comment(lib, "Ws2_32.lib")
+#pragma comment(lib, "userenv.lib")
+#pragma comment(lib, "Msimg32.lib")
+#endif
+
 #include <stack>
 #include <memory>
 
