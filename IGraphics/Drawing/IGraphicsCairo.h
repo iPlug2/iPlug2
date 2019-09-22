@@ -26,8 +26,8 @@
   #pragma comment(lib, "libpng.lib")
   #pragma comment(lib, "zlib.lib")
 
-  #include "cairo/src/cairo.h"
-  #include "cairo/src/cairo-win32.h"
+  #include "cairo.h"
+  #include "cairo-win32.h"
 #else
   #error NOT IMPLEMENTED
 #endif

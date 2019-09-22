@@ -14,7 +14,7 @@
     <IGRAPHICS_DEPS_PATH>$(DEPS_PATH)\IGraphics</IGRAPHICS_DEPS_PATH>
     <NANOVG_PATH>$(IGRAPHICS_DEPS_PATH)\NanoVG\src</NANOVG_PATH>
     <NANOSVG_PATH>$(IGRAPHICS_DEPS_PATH)\NanoSVG\src</NANOSVG_PATH>
-    <CAIRO_PATHS>$(IGRAPHICS_DEPS_PATH)\Cairo;$(DEPS_PATH)\Build\src</CAIRO_PATHS>
+    <CAIRO_PATHS>$(IGRAPHICS_DEPS_PATH)\Cairo;$(DEPS_PATH)\Build\src;$(DEPS_PATH)\Build\src\cairo\src</CAIRO_PATHS>
     <FREETYPE_PATH>$(DEPS_PATH)\Build\src\freetype\include</FREETYPE_PATH>
     <AGG_PATH>$(IGRAPHICS_DEPS_PATH)\AGG\agg-2.4</AGG_PATH>
     <AGG_INC_PATHS>$(AGG_PATH)\include;$(AGG_PATH)\font_freetype;$(AGG_PATH)\include\util;$(AGG_PATH)\include\platform\win32;$(AGG_PATH)\src;$(AGG_PATH)\src\platform\win32</AGG_INC_PATHS>
