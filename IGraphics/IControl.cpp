@@ -109,12 +109,12 @@ void IControl::SetParamIdx(int paramIdx, int valIdx)
   mVals.at(valIdx).idx = paramIdx;
 }
 
-const IParam* IControl::GetParam(int valIdx)
+const IParam* IControl::GetParam(int valIdx) const
 {
   int paramIdx = GetParamIdx(valIdx);
   
   if(paramIdx > kNoParameter)
-    return GetDelegate()->GetParam(paramIdx);
+    return mDelegate->GetParam(paramIdx);
   else
     return nullptr;
 }
