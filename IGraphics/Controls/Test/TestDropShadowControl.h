@@ -39,7 +39,7 @@ public:
       APIBitmap* pLayerBitmap = g.StartLayer(this, mRECT);
 
 #ifdef IGRAPHICS_RESVG
-      g.RasterizeSVGToLayer(mSVG, pLayerBitmap);
+      g.RasterizeSVGToBitmap(mSVG, pLayerBitmap, mRECT.L, mRECT.T);
 #else
       if (g.HasPathSupport())
         g.DrawSVG(mSVG, mRECT);
