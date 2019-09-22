@@ -19,7 +19,6 @@ echo rustflags = ["-C", "link-arg=/LIBPATH:%LIBPATH%", "-C", "link-arg=pixman.li
 cargo build --features=%BACKENDS%
 cd .. 
 
-copy capi\include\resvg.h ..\resvg.h 
 copy target\debug\resvg.lib ..\..\win\x64\Debug
 
 cd ..\..\..\IGraphics
@@ -40,7 +39,6 @@ echo rustflags = ["-C", "link-arg=/LIBPATH:%LIBPATH%", "-C", "link-arg=pixman.li
 cargo build --release --features=%BACKENDS%
 cd .. 
 
-copy capi\include\resvg.h ..\resvg.h 
 copy target\release\resvg.lib ..\..\win\x64\Release
 
 cd ..\..\..\IGraphics

@@ -60,6 +60,7 @@ jobs:
       rm *.log
       rm -r tmp
       mv ./src/skia/include ./skia_include_tmp
+      rm -r ./src/skia
       mkdir -p ./src/skia
       mv ./skia_include_tmp ./src/skia/include
     displayName: Delete unwanted SKIA files
@@ -68,6 +69,13 @@ jobs:
       cd Dependencies\IGraphics
       call build-resvg-win.bat
     displayName: Build Resvg
+    
+  - bash: |
+      mv ./src/resvg/capi/include ./resvg_include_tmp
+      rm -r ./src/resvg
+      mkdir -p ./src/resvg/capi
+      mv ./resvg_include_tmp ./src/resvg/capi/include
+    displayName: Delete unwanted RESVG files
 
   - task: PublishPipelineArtifact@0
     inputs:

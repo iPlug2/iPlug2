@@ -20,6 +20,7 @@
     <AGG_INC_PATHS>$(AGG_PATH)\include;$(AGG_PATH)\font_freetype;$(AGG_PATH)\include\util;$(AGG_PATH)\include\platform\win32;$(AGG_PATH)\src;$(AGG_PATH)\src\platform\win32</AGG_INC_PATHS>
     <SKIA_PATH>$(DEPS_PATH)\Build\src\skia</SKIA_PATH>
     <SKIA_INC_PATHS>$(SKIA_PATH);$(SKIA_PATH)\include\core;$(SKIA_PATH)\include\effects;$(SKIA_PATH)\include\config;$(SKIA_PATH)\include\utils;$(SKIA_PATH)\include\gpu;</SKIA_INC_PATHS>
+	<RESVG_INC_PATH>$(DEPS_PATH)\Build\src\resvg\capi\include</RESVG_INC_PATH>
     <GLAD_GL2_PATHS>$(IGRAPHICS_DEPS_PATH)\glad_GL2\include;$(IGRAPHICS_DEPS_PATH)\glad_GL2\src</GLAD_GL2_PATHS>
     <GLAD_GL3_PATHS>$(IGRAPHICS_DEPS_PATH)\glad_GL3\include;$(IGRAPHICS_DEPS_PATH)\glad_GL3\src</GLAD_GL3_PATHS>
     <PNG_PATH>$(WDL_PATH)\libpng</PNG_PATH>
@@ -28,7 +29,7 @@
     <FAUST_INC_PATHS>$(ProgramW6432)\Faust\include;</FAUST_INC_PATHS>
     <STATIC_LIBS_PATH>$(DEPS_PATH)\Build\win\$(Platform)\$(Configuration)</STATIC_LIBS_PATH>
     <IMGUI_PATHS>$(IGRAPHICS_DEPS_PATH)\imgui;$(IGRAPHICS_DEPS_PATH)\imgui\examples;</IMGUI_PATHS>
-    <IGRAPHICS_INC_PATHS>$(IGRAPHICS_PATH);$(IGRAPHICS_PATH)\Controls;$(IGRAPHICS_PATH)\Drawing;$(IGRAPHICS_PATH)\Platforms;$(IGRAPHICS_PATH)\Extras;$(LICE_PATH);$(NANOSVG_PATH);$(NANOVG_PATH);$(AGG_INC_PATHS);$(CAIRO_PATHS);$(PNG_PATH);$(ZLIB_PATH);$(FREETYPE_PATH);$(STB_PATH);$(IMGUI_PATHS);$(SKIA_INC_PATHS);</IGRAPHICS_INC_PATHS>
+    <IGRAPHICS_INC_PATHS>$(IGRAPHICS_PATH);$(IGRAPHICS_PATH)\Controls;$(IGRAPHICS_PATH)\Drawing;$(IGRAPHICS_PATH)\Platforms;$(IGRAPHICS_PATH)\Extras;$(LICE_PATH);$(NANOSVG_PATH);$(NANOVG_PATH);$(AGG_INC_PATHS);$(CAIRO_PATHS);$(PNG_PATH);$(ZLIB_PATH);$(FREETYPE_PATH);$(STB_PATH);$(IMGUI_PATHS);$(SKIA_INC_PATHS);$(RESVG_INC_PATH)</IGRAPHICS_INC_PATHS>
     <VST2_SDK>$(IPLUG_DEPS_PATH)\VST2_SDK</VST2_SDK>
     <VST3_SDK>$(IPLUG_DEPS_PATH)\VST3_SDK</VST3_SDK>
     <ASIO_SDK>$(IPLUG_DEPS_PATH)\RTAudio\include</ASIO_SDK>
@@ -142,6 +143,9 @@
     </BuildMacro>
     <BuildMacro Include="SKIA_PATH">
       <Value>$(SKIA_PATH)</Value>
+    </BuildMacro>
+	<BuildMacro Include="RESVG_INC_PATH">
+      <Value>$(RESVG_INC_PATH)</Value>
     </BuildMacro>
     <BuildMacro Include="SKIA_INC_PATHS">
       <Value>$(SKIA_INC_PATHS)</Value>
