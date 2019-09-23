@@ -859,7 +859,17 @@ void IGraphicsNanoVG::DoRasterizeSVGToAPIBitmap(SVGHolder* pHolder, APIBitmap* p
   memset(data.Get(), 0, data.GetSize());
   cairo_surface_t* pSurface = cairo_image_surface_create_for_data(data.Get(), CAIRO_FORMAT_ARGB32, pAPIBitmap->GetWidth(), pAPIBitmap->GetHeight(), stride);
   cairo_t* cr = cairo_create(pSurface);
+
+#ifdef IGRAPHICS_GL
+  cairo_matrix_t x_reflection_matrix;
+  cairo_matrix_init_identity(&x_reflection_matrix);
+  x_reflection_matrix.yy = -1.0;
+  cairo_set_matrix(cr, &x_reflection_matrix);
+  cairo_translate(cr, 0, -pAPIBitmap->GetHeight());
+#endif
+
   resvg_cairo_render_to_canvas(pHolder->mRenderTree, &pHolder->mOptions, {static_cast<uint32_t>(pAPIBitmap->GetWidth()), static_cast<uint32_t>(pAPIBitmap->GetHeight())}, cr);
+
   cairo_surface_flush(pSurface);
 
   //ARGB -> RGBA (from Cairo png)
