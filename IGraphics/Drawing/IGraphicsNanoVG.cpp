@@ -861,10 +861,10 @@ void IGraphicsNanoVG::DoRasterizeSVGToAPIBitmap(SVGHolder* pHolder, APIBitmap* p
   cairo_t* cr = cairo_create(pSurface);
 
 #ifdef IGRAPHICS_GL
-  cairo_matrix_t x_reflection_matrix;
-  cairo_matrix_init_identity(&x_reflection_matrix);
-  x_reflection_matrix.yy = -1.0;
-  cairo_set_matrix(cr, &x_reflection_matrix);
+  cairo_matrix_t mat;
+  cairo_matrix_init_identity(&mat);
+  mat.yy = -1.0;
+  cairo_set_matrix(cr, &mat);
   cairo_translate(cr, 0, -pAPIBitmap->GetHeight());
 #endif
 
