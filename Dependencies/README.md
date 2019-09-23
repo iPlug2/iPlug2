@@ -6,7 +6,7 @@ Some optional dependencies can be downloaded and built locally using scripts in 
 
 The subfolder "Build" should contain these built libraries with sub-folders for each platform.
 
-You can download the zip file for your platform by running the shell script **download-prebuilt-libs.sh**, (located in the folder above this one) from a posix terminal (macOS terminal or windows git bash/mingw terminal) 
+You can download the zip file for your platform by running the shell script **download-prebuilt-libs.sh** from a posix terminal (macOS terminal or windows git bash/mingw terminal) 
 
 ## macOS
 
