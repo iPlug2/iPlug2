@@ -12,7 +12,7 @@ You can download the zip file for your platform by running the shell script **do
 
 Pre-built macOS dependencies can be downloaded here: [IPLUG2_DEPS_MAC.zip](https://github.com/iPlug2/iPlug2/releases/download/setup/IPLUG2_DEPS_MAC.zip)
 
-The contents of the zip files IPLUG2_DEPS_MAC.zip should be extracted to iPlug2/Dependencies/Build so it looks like this...
+The contents of the zip file IPLUG2_DEPS_MAC.zip should be extracted to iPlug2/Dependencies/Build so it looks like this...
 
 ```
 iPlug2/Dependencies/Build/mac/
@@ -26,7 +26,7 @@ iPlug2/Dependencies/Build/mac/share
 
 Pre-built Windows dependencies can be downloaded here: [IPLUG2_DEPS_WIN.zip](https://github.com/iPlug2/iPlug2/releases/download/setup/IPLUG2_DEPS_WIN.zip)
 
-The contents of the zip files IPLUG2_DEPS_WIN.zip should be extracted to iPlug2/Dependencies/Build so it looks like this...
+The contents of the zip file IPLUG2_DEPS_WIN.zip should be extracted to iPlug2/Dependencies/Build so it looks like this...
 
 ```
 iPlug2/Dependencies/Build/win/src
