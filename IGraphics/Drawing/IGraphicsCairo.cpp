@@ -580,9 +580,6 @@ void IGraphicsCairo::UpdateCairoContext()
 {
   if (mContext)
   {
-#ifdef OS_MAC
-    CGContextSaveGState((CGContextRef) GetPlatformContext());
-#endif
     cairo_destroy(mContext);
     mContext = nullptr;
   }
