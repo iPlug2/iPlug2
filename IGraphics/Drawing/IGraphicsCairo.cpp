@@ -717,6 +717,7 @@ void IGraphicsCairo::SetClipRegion(const IRECT& r)
   }
 }
 
+#ifdef IGRAPHICS_RESVG
 void IGraphicsCairo::DoRasterizeSVGToAPIBitmap(SVGHolder* pHolder, APIBitmap* pAPIBitmap, float x, float y)
 {
   auto scale = GetScreenScale() * GetDrawScale();
@@ -728,3 +729,4 @@ void IGraphicsCairo::DoRasterizeSVGToAPIBitmap(SVGHolder* pHolder, APIBitmap* pA
   cairo_surface_flush(pAPIBitmap->GetBitmap());
   cairo_destroy(cr);
 }
+#endif

@@ -850,9 +850,9 @@ void IGraphicsNanoVG::ClearFBOStack()
   }
 }
 
+#ifdef IGRAPHICS_RESVG
 void IGraphicsNanoVG::DoRasterizeSVGToAPIBitmap(SVGHolder* pHolder, APIBitmap* pAPIBitmap, float x, float y)
 {
-#ifdef RESVG_CAIRO_BACKEND
   RawBitmapData data;
   int stride = cairo_format_stride_for_width (CAIRO_FORMAT_ARGB32, pAPIBitmap->GetWidth());
   data.Resize(stride * pAPIBitmap->GetHeight());
@@ -887,5 +887,5 @@ void IGraphicsNanoVG::DoRasterizeSVGToAPIBitmap(SVGHolder* pHolder, APIBitmap* p
 
   cairo_destroy(cr);
   cairo_surface_destroy(pSurface);
-#endif
 }
+#endif

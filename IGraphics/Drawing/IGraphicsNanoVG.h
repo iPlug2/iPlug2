@@ -61,6 +61,15 @@
   using NVGframebuffer = MNVGframebuffer;
 #endif
 
+// if using RESVG with NANOVG, cairo is used to rasterize the SVG
+#if defined OS_WIN && defined IGRAPHICS_RESVG
+  #pragma comment(lib, "cairo.lib")
+  #pragma comment(lib, "pixman.lib")
+  #pragma comment(lib, "freetype.lib")
+  #pragma comment(lib, "libpng.lib")
+  #pragma comment(lib, "zlib.lib")
+#endif
+
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
@@ -130,7 +139,10 @@ protected:
 
   void DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
   void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
+
+#ifdef IGRAPHICS_RESVG
   void DoRasterizeSVGToAPIBitmap(SVGHolder* pHolder, APIBitmap* pAPIBitmap, float x, float y) override;
+#endif
 
 private:
   void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y) const;
