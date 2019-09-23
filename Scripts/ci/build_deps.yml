@@ -68,9 +68,11 @@ jobs:
   - script: |
       cd Dependencies\IGraphics
       call build-resvg-win.bat
+    condition: eq(variables.buildPlatform, 'x64')
     displayName: Build Resvg
     
   - bash: |
+      cd ./Dependencies/Build
       mv ./src/resvg/capi/include ./resvg_include_tmp
       rm -r ./src/resvg
       mkdir -p ./src/resvg/capi
