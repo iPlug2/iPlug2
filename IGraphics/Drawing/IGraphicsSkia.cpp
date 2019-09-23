@@ -319,11 +319,10 @@ void IGraphicsSkia::BeginFrame()
     fbinfo.fFBOID = fbo;
     fbinfo.fFormat = 0x8058; //GR_GL_RGBA8
 
-    auto backendRenderTarget = GrBackendRenderTarget(width, height, 0, stencilBits, fbinfo);
+    GrBackendRenderTarget backendRT(width, height, samples, stencilBits, fbinfo);
     
-    assert(backendRenderTarget.isValid());
-
-    mScreenSurface = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRenderTarget, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, nullptr, nullptr);
+    mScreenSurface = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRT, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, nullptr, nullptr);
+    assert(mScreenSurface);
   }
 #elif defined IGRAPHICS_METAL
   if (mGrContext.get())
