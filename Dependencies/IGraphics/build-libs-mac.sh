@@ -12,7 +12,7 @@ BIN_DIR="$INSTALL_DIR/bin"
 LOG_DIR="$BUILD_DIR"
 LOG_NAME="build-mac.log"
 
-[[ -e "$PWD/build-igraphics-libs-mac.sh" ]] ||
+[[ -e "$PWD/build-libs-mac.sh" ]] ||
 {
   echo "*******************************************************************************"
   echo "Error: Please cd into the folder containing this script before running it.";
@@ -101,6 +101,7 @@ fi
 #######################################################################
 
 #bzip
+#echo "bzip ----------------------"
 # if [ -e $LIB_DIR/libbz2.a ]
 # then
 #   echo "Found bzip2"
@@ -121,7 +122,7 @@ fi
 #######################################################################
 
 #pkg-config
-
+echo "pkg-config ----------------------"
 if [ -e "$BIN_DIR/pkg-config" ]
 then
   echo "Found pkg-config"
@@ -149,6 +150,7 @@ fi
 #######################################################################
 
 #expat
+#echo "expat ----------------------"
 # if [ -e "$LIB_DIR/libexpat.a" ]
 # then
 #   echo "Found expat"
@@ -173,6 +175,7 @@ fi
 #######################################################################
 
 #zlib
+echo "zlib ----------------------"
 if [ -e "$LIB_DIR/libz.a" ]
 then
   echo "Found zlib"
@@ -198,6 +201,7 @@ fi
 #######################################################################
 
 #libpng
+echo "libpng ----------------------"
 if [ -e "$LIB_DIR/libpng16.a" ]
 then
   echo "Found libpng"
@@ -223,6 +227,7 @@ fi
 #######################################################################
 
 #pixman
+echo "pixman ----------------------"
 if [ -e "$LIB_DIR/libpixman-1.a" ]
 then
   echo "Found pixman"
@@ -249,6 +254,7 @@ fi
 #######################################################################
 
 #freetype
+echo "freetype ----------------------"
 if [ -e "$LIB_DIR/libfreetype.a" ]
 then
   echo "Found freetype"
@@ -274,7 +280,7 @@ fi
 #######################################################################
 
 #fontconfig
-
+#echo "fontconfig ----------------------"
 # if [ -e "$LIB_DIR/libfontconfig.a" ]
 # then
 #   echo "Found fontconfig"
@@ -299,6 +305,7 @@ fi
 #######################################################################
 
 #cairo
+echo "cairo ----------------------"
 if [ -e "$LIB_DIR/libcairo.a" ]
 then
   echo "Found cairo"
@@ -324,6 +331,7 @@ else
 fi
 
 #harfbuzz
+echo "harfbuzz ----------------------"
 if [ -e "$LIB_DIR/libharfbuzz.a" ]
 then
   echo "Found harfbuzz"
@@ -352,8 +360,13 @@ fi
 #rm -r $INSTALL_DIR/bin/
 
 #Must remove this after build, as building without them fails
-rm "$LIB_DIR/libpixman-1.0.dylib"
-rm "$LIB_DIR/libpixman-1.dylib"
+if [ -f "$LIB_DIR/libpixman-1.0.dylib" ]; then
+  rm "$LIB_DIR/libpixman-1.0.dylib"
+fi
+
+if [ -f "$LIB_DIR/libpixman-1.dylib" ]; then
+  rm "$LIB_DIR/libpixman-1.dylib"
+fi
 
 # echo "Verify UB Builds..."
 # # file "$LIB_DIR/libbz2.a"

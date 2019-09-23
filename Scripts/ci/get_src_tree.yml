@@ -6,7 +6,7 @@ jobs:
 
   - bash: |
       cd ./Dependencies/IGraphics
-      ./download-igraphics-libs.sh
+      ./download-lib-src.sh
     displayName: Download IGraphics Dependencies SRC
     condition: eq(variables.build_deps, true)
 

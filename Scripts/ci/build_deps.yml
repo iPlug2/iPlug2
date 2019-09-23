@@ -144,7 +144,7 @@ jobs:
       #tmp force cairo rebuild
       rm -r ./Dependencies/Build/src/cairo
       cd ./Dependencies/IGraphics
-      ./build-igraphics-libs-mac.sh
+      ./build-libs-mac.sh
     displayName: Build Graphics Dependencies
 
   - bash: |

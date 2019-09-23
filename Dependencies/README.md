@@ -6,11 +6,13 @@ Some optional dependencies can be downloaded and built locally using scripts in 
 
 The subfolder "Build" should contain these built libraries with sub-folders for each platform.
 
+You can download the zip file for your platform by running the shell script **download-prebuilt-libs.sh**, (located in the folder above this one) from a posix terminal (macOS terminal or windows git bash/mingw terminal) 
+
 ## macOS
 
 Pre-built macOS dependencies can be downloaded here: [IPLUG2_DEPS_MAC.zip](https://github.com/iPlug2/iPlug2/releases/download/setup/IPLUG2_DEPS_MAC.zip)
 
-and should be extracted so it looks like this...
+The contents of the zip files IPLUG2_DEPS_MAC.zip should be extracted to iPlug2/Dependencies/Build so it looks like this...
 
 ```
 iPlug2/Dependencies/Build/mac/
@@ -20,11 +22,17 @@ iPlug2/Dependencies/Build/mac/lib
 iPlug2/Dependencies/Build/mac/share
 ```
 
-IGraphics static libraries (Cairo, libpng etc) are built for x64 only with MACOSX_DEPLOYMENT_TARGET=10.9
-
-FAUST dependencies are built as x64 only with MACOSX_DEPLOYMENT_TARGET=10.11
-
 ## Windows
 
 Pre-built Windows dependencies can be downloaded here: [IPLUG2_DEPS_WIN.zip](https://github.com/iPlug2/iPlug2/releases/download/setup/IPLUG2_DEPS_WIN.zip)
+
+The contents of the zip files IPLUG2_DEPS_WIN.zip should be extracted to iPlug2/Dependencies/Build so it looks like this...
+
+```
+iPlug2/Dependencies/Build/win/src
+iPlug2/Dependencies/Build/win/x64
+iPlug2/Dependencies/Build/win/win32
+```
+
+
 

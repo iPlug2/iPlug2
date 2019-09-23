@@ -1,16 +1,21 @@
 # IGraphics dependencies
 
-This folder contains IGraphics dependencies, which may or may not be needed depending on which backend you want to use. Some dependencies (NanoVG, NanoSVG) are included directly in the iPlug 2 repository, but others must be downloaded and built as static libraries. Alternatively a zip file with prebuilt static libraries (and header includes etc) and may be downloaded from the github releases page.
+This folder contains IGraphics dependencies, which may or may not be needed depending on which backend you want to use. Some dependencies (NanoVG, NanoSVG) are included directly in the iPlug2 repository, but others must be downloaded or built locally as static libraries. 
 
-## Mac
-The build script **build-igraphics-libs-mac.sh** will download and build all the libraries required for IGraphics, and will install them in a unix style hierarchy in the folder **iPlug2/Dependencies/Build/mac**. Build settings defined in **iPlug2/common-mac.xcconfig**  will allow your plug-in project to link to these libraries. Libraries are built as universal binaries.
+## Downloading prebuilt libraries
 
-##  Windows
-Windows static libraries are built in two stages and source files are located differently. First open a command prompt using git-bash and navigate to **iPlug2/Dependencies/IGraphics**.  Execute the shell script **download-igraphics-libs.sh**. 
+A zip file with prebuilt static libraries, including igraphics libraries (and header includes etc) and may be downloaded for each platform from the github releases page https://github.com/iPlug2/iPlug2/releases.
 
-```
-Oliver Larkin@Oli-PC MINGW64 ~/Dev/iPlug2/Dependencies/IGraphics (master)
-$ ./download-igraphics-libs.sh
-```
+The contents of the zip files IPLUG2_DEPS_***.zip should be extracted to iPlug2/Dependencies/Build
 
-This will download the various dependencies and move the source code into the correct folders. Once  that is complete,  launch a regular Windows command prompt and execute the Windows batch script **build-igraphics-libs-win.bat**,  which will compile all the static libraries (for debug/release) configurations and (win32/x64  architectures) using the IGraphicsLibraries visual studio solution. 
+You can download the zip file for your platform by running the shell script **download-prebuilt-libs.sh**, (located in the folder above this one) from a posix terminal (macOS terminal or windows git bash/mingw terminal) 
+
+## Building libraries locally
+
+To build libraries locally, you must first download the tarballs for each library. To do this execute the shell script **download-libs-src.sh** from a posix terminal. 
+
+### Mac
+The build script **build-libs-mac.sh** will build all the libraries required for IGraphics on macOS, and will install them in a unix style hierarchy in the folder **iPlug2/Dependencies/Build/mac**. Build settings defined in **iPlug2/common-mac.xcconfig**  will allow your plug-in project to link to these libraries. Libraries are built as universal binaries.
+
+###  Windows
+Execute the Windows batch script **build-libs-win.bat** from a regular Windows command prompt (cmd.exe). This will compile all the static libraries (for debug/release) configurations and (win32/x64 architectures) using the IGraphicsLibraries visual studio solution. 
