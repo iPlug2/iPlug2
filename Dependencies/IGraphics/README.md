@@ -15,7 +15,7 @@ You can download the zip file for your platform by running the shell script **do
 To build libraries locally, you must first download the tarballs for each library. To do this execute the shell script **download-libs-src.sh** from a posix terminal. 
 
 ### Mac
-The build script **build-libs-mac.sh** will build all the libraries required for IGraphics on macOS, and will install them in a unix style hierarchy in the folder **iPlug2/Dependencies/Build/mac**. Build settings defined in **iPlug2/common-mac.xcconfig**  will allow your plug-in project to link to these libraries. Libraries are built as universal binaries.
+Execute the build script **build-libs-mac.sh**, which will build all the libraries required for IGraphics on macOS, and will install them in a unix style hierarchy in the folder **iPlug2/Dependencies/Build/mac**. Build settings defined in **iPlug2/common-mac.xcconfig**  will allow your plug-in project to link to these libraries.
 
 ###  Windows
 Execute the Windows batch script **build-libs-win.bat** from a regular Windows command prompt (cmd.exe). This will compile all the static libraries (for debug/release) configurations and (win32/x64 architectures) using the IGraphicsLibraries visual studio solution. 
