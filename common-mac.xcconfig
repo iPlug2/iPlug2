@@ -105,13 +105,15 @@ NVGMTL_PATH = $(IGRAPHICS_DEPS_PATH)/MetalNanoVG/src
 AGG_PATH = $(IGRAPHICS_DEPS_PATH)/AGG/agg-2.4
 AGG_INC_PATHS = $(AGG_PATH)/include $(AGG_PATH)/font_freetype $(AGG_PATH)/include/util $(AGG_PATH)/include/platform/mac $(AGG_PATH)/src $(AGG_PATH)/src/platform/mac
 STB_PATH = $(DEPS_PATH)/IGraphics/STB
+CAIRO_PATH = $(BUILT_LIBS_INC_PATH)/cairo
 FT_PATH = $(BUILT_LIBS_INC_PATH)/freetype2
 SKIA_PATH = $(DEPS_PATH)/Build/src/skia
+RESVG_PATH = $(DEPS_PATH)/Build/src/resvg/capi/include
 
 SKIA_INC_PATHS = $(SKIA_PATH) $(SKIA_PATH)/include/core $(SKIA_PATH)/include/effects $(SKIA_PATH)/include/config $(SKIA_PATH)/include/utils $(SKIA_PATH)/include/utils/mac $(SKIA_PATH)/include/gpu
 
 // you can optionally include this build setting, by adding it to EXTRA_INC_PATHS in MyProject.xcconfig in order to get all varieties of IGraphics support
-IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(IGRAPHICS_PATH)/Controls $(IGRAPHICS_PATH)/Platforms $(IGRAPHICS_PATH)/Drawing $(IGRAPHICS_PATH)/Extras $(LICE_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(AGG_INC_PATHS) $(BUILT_LIBS_INC_PATH) $(FT_PATH) $(STB_PATH) $(IMGUI_INC_PATHS) $(SKIA_INC_PATHS)
+IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(IGRAPHICS_PATH)/Controls $(IGRAPHICS_PATH)/Platforms $(IGRAPHICS_PATH)/Drawing $(IGRAPHICS_PATH)/Extras $(LICE_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(AGG_INC_PATHS) $(BUILT_LIBS_INC_PATH) $(CAIRO_PATH) $(FT_PATH) $(STB_PATH) $(IMGUI_INC_PATHS) $(SKIA_INC_PATHS) $(RESVG_PATH)
 
 // *****  LINKER/LIBRARY INCLUDE PATHS AND LINKER FLAGS
 
