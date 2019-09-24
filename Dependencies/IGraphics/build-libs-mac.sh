@@ -359,15 +359,6 @@ fi
 #rm -r $INSTALL_DIR/share/
 #rm -r $INSTALL_DIR/bin/
 
-#Must remove this after build, as building without them fails
-if [ -f "$LIB_DIR/libpixman-1.0.dylib" ]; then
-  rm "$LIB_DIR/libpixman-1.0.dylib"
-fi
-
-if [ -f "$LIB_DIR/libpixman-1.dylib" ]; then
-  rm "$LIB_DIR/libpixman-1.dylib"
-fi
-
 # echo "Verify UB Builds..."
 # # file "$LIB_DIR/libbz2.a"
 # # file "$LIB_DIR/libexpat.a"

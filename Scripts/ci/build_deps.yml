@@ -184,6 +184,17 @@ jobs:
       rm -r src
       mkdir -p ./src/skia
       mv ./skia_include_tmp ./src/skia/include
+
+      rm ./mac/lib/libpixman-1.0.dylib
+      rm ./mac/lib/libpixman-1.dylib
+      rm ./mac/lib/*.la
+      rm -r ./mac/lib/cmake
+      rm -r ./mac/lib/pkgconfig
+      rm -r ./mac/share/man
+      rm -r ./mac/share/gtk-doc
+      rm -r ./mac/share/aclocal
+      rm -r ./mac/share/doc
+    continueOnError: true
     displayName: Delete unwanted files
 
   - task: PublishPipelineArtifact@0
