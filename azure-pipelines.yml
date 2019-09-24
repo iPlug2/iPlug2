@@ -3,8 +3,8 @@ variables:
 
   #PLATFORMS
   build_web: true # build web audio module versions of projects
-  build_mac: true # build mac binaries
-  build_win: true # build windows binaries
+  build_mac: true # build mac binaries/deps
+  build_win: false # build windows binaries/deps
 
   #FORMATS
   build_app: true # build standalone app
