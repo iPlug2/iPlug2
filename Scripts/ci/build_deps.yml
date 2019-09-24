@@ -181,10 +181,22 @@ jobs:
       rm *.log
       rm -r tmp
       mv ./src/skia/include ./skia_include_tmp
-      rm -r src
+      rm -r ./src/skia
       mkdir -p ./src/skia
       mv ./skia_include_tmp ./src/skia/include
+    displayName: Delete unwanted SKIA files
 
+  - bash: |
+      cd ./Dependencies/Build
+      mv ./src/resvg/capi/include ./resvg_include_tmp
+      rm -r ./src/resvg
+      mkdir -p ./src/resvg/capi
+      mv ./resvg_include_tmp ./src/resvg/capi/include
+    displayName: Delete unwanted RESVG files
+
+  - bash: |
+      rm ./mac/lib/libpixman-1.0.dylib
+      rm ./mac/lib/libpixman-1.dylib
       rm ./mac/lib/libpixman-1.0.dylib
       rm ./mac/lib/libpixman-1.dylib
       rm ./mac/lib/*.la
@@ -194,8 +206,9 @@ jobs:
       rm -r ./mac/share/gtk-doc
       rm -r ./mac/share/aclocal
       rm -r ./mac/share/doc
+      rm ./mac/bin/faust2*
     continueOnError: true
-    displayName: Delete unwanted files
+    displayName: Delete MISC unwanted files
 
   - task: PublishPipelineArtifact@0
     inputs:
