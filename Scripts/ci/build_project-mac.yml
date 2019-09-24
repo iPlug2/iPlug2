@@ -64,7 +64,7 @@ steps:
 
   - task: Xcode@5
     inputs:
-      sdk: 'macosx10.14'
+      sdk: 'macOS-10.14'
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
       args: '-target VST2 -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
@@ -74,7 +74,7 @@ steps:
 
   - task: Xcode@5
     inputs:
-      sdk: 'macosx10.14'
+      sdk: 'macOS-10.14'
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
       args: '-target VST3 -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
@@ -84,7 +84,7 @@ steps:
 
   - task: Xcode@5
     inputs:
-      sdk: 'macosx10.14'
+      sdk: 'macOS-10.14'
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
       args: '-target AAX -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: '${{parameters.configuration}}'
@@ -94,7 +94,7 @@ steps:
 
   - task: Xcode@5
     inputs:
-      sdk: 'macosx10.14'
+      sdk: 'macOS-10.14'
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
       args: '-target AU -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
@@ -104,7 +104,7 @@ steps:
 
   - task: Xcode@5
     inputs:
-      sdk: 'macosx10.14'
+      sdk: 'macOS-10.14'
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
       args: '-target APP -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
