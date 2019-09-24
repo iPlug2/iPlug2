@@ -15,7 +15,7 @@ fi
 echo ---------------------------------
 mkdir .cargo
 echo [build] > .cargo/config
-echo rustflags = [\"-L$(SKIA_LIB_DIR)\", \"-ldylib=pixman-1\", \"-lframework=Metal\", \"-lframework=Foundation\"] >> .cargo/config
+echo rustflags = [\"-L$SKIA_LIB_DIR\", \"-ldylib=pixman-1\", \"-lframework=Metal\", \"-lframework=Foundation\"] >> .cargo/config
 
 cargo build --verbose --release --features "skia-backend cairo-backend"
 cd ..
