@@ -55,16 +55,6 @@ jobs:
     condition: eq(variables.buildPlatform, 'x64')
     displayName: Build SKIA
 
-  - bash: |
-      cd ./Dependencies/Build
-      rm *.log
-      rm -r tmp
-      mv ./src/skia/include ./skia_include_tmp
-      rm -r ./src/skia
-      mkdir -p ./src/skia
-      mv ./skia_include_tmp ./src/skia/include
-    displayName: Delete unwanted SKIA files
-
   - script: |
       cd Dependencies\IGraphics
       call build-resvg-win.bat
@@ -73,11 +63,19 @@ jobs:
     
   - bash: |
       cd ./Dependencies/Build
+      rm *.log
+      rm -r tmp
+      mv ./src/cairo/src ./cairo_include_tmp
+      mv ./src/skia/include ./skia_include_tmp
       mv ./src/resvg/capi/include ./resvg_include_tmp
-      rm -r ./src/resvg
+      rm -r ./src
+      mkdir -p ./src/cairo/src
+      mv ./cairo_include_tmp ./src/cairo/src
+      mkdir -p ./src/skia
+      mv ./skia_include_tmp ./src/skia/include
       mkdir -p ./src/resvg/capi
       mv ./resvg_include_tmp ./src/resvg/capi/include
-    displayName: Delete unwanted RESVG files
+    displayName: Delete unwanted files
 
   - task: PublishPipelineArtifact@0
     inputs:
@@ -181,20 +179,16 @@ jobs:
       rm *.log
       rm -r tmp
       mv ./src/skia/include ./skia_include_tmp
-      rm -r ./src/skia
+      mv ./src/resvg/capi/include ./resvg_include_tmp
+      rm -r ./src
       mkdir -p ./src/skia
       mv ./skia_include_tmp ./src/skia/include
-    displayName: Delete unwanted SKIA files
+      mkdir -p ./src/resvg/capi
+      mv ./resvg_include_tmp ./src/resvg/capi/include
+    displayName: Delete unwanted SKIA & RESVG files
 
   - bash: |
       cd ./Dependencies/Build
-      mv ./src/resvg/capi/include ./resvg_include_tmp
-      rm -r ./src/resvg
-      mkdir -p ./src/resvg/capi
-      mv ./resvg_include_tmp ./src/resvg/capi/include
-    displayName: Delete unwanted RESVG files
-
-  - bash: |
       rm ./mac/lib/libpixman-1.0.dylib
       rm ./mac/lib/libpixman-1.dylib
       rm ./mac/lib/libpixman-1.0.dylib
