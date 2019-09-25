@@ -200,16 +200,34 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
       colors[i] = SkiaColor(stop.mColor, pBlend);
       positions[i] = stop.mOffset;
     }
-   
-    if(pattern.mType == EPatternType::Linear)
+
+    switch (pattern.mType)
+    {
+    case EPatternType::Linear:
       paint.setShader(SkGradientShader::MakeLinear(points, colors, positions, pattern.NStops(), SkiaTileMode(pattern), 0, nullptr));
-    else
+      break;
+
+    case EPatternType::Radial:
     {
       float xd = points[0].x() - points[1].x();
       float yd = points[0].y() - points[1].y();
       float radius = std::sqrt(xd * xd + yd * yd);
-        
       paint.setShader(SkGradientShader::MakeRadial(points[0], radius, colors, positions, pattern.NStops(), SkiaTileMode(pattern), 0, nullptr));
+      break;
+    }
+
+    case EPatternType::Sweep:
+    {
+      SkMatrix matrix = SkMatrix::MakeAll(m.mXX, m.mYX, 0, m.mXY, m.mYY, 0, 0, 0, 1);
+      
+      paint.setShader(SkGradientShader::MakeSweep(x1, y1, colors, positions, pattern.NStops(), SkTileMode::kDecal,
+        0, 360*positions[pattern.NStops()-1], 0, &matrix));
+
+      break;
+    }
+
+    default:
+      break;
     }
   }
     

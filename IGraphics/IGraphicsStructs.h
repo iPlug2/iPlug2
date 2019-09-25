@@ -2149,6 +2149,24 @@ struct IPattern
     
     return pattern;
   }
+
+  static IPattern CreateSweepGradient(float x1, float y1, const std::initializer_list<IColorStop>& stops = {},
+    float angleStart = 0.0, float angleEnd = 360.0)
+  {
+    IPattern pattern(EPatternType::Sweep);
+
+    float rad = DegToRad(angleStart);
+    float c = std::cos(rad);
+    float s = std::sin(rad);
+
+    pattern.SetTransform(c, s, -s, c, -x1, -y1);
+
+    for (auto& stop : stops)
+    {
+      pattern.AddStop(stop.mColor, stop.mOffset * (angleEnd - angleStart) / 360.0);
+    }
+    return pattern;
+  }
   
   /** /todo 
    * @return int /todo */
