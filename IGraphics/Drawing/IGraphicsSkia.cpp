@@ -221,8 +221,8 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
     {
       SkMatrix matrix = SkMatrix::MakeAll(m.mXX, m.mYX, 0, m.mXY, m.mYY, 0, 0, 0, 1);
       
-      paint.setShader(SkGradientShader::MakeSweep(x1, y1, colors, positions, numStops, SkTileMode::kDecal,
-        0, 360*positions[numStops - 1], 0, &matrix));
+      paint.setShader(SkGradientShader::MakeSweep(x1, y1, colors, nullptr, numStops, SkTileMode::kDecal,
+        0, 360 * positions[numStops - 1], 0, &matrix));
 
       break;
     }
