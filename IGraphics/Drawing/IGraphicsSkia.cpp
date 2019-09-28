@@ -166,8 +166,9 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
   SkPaint paint;
   paint.setAntiAlias(true);
   paint.setBlendMode(SkiaBlendMode(pBlend));
+  int numStops = pattern.NStops();
     
-  if (pattern.mType == EPatternType::Solid || pattern.NStops() <  2)
+  if (pattern.mType == EPatternType::Solid || numStops <  2)
   {
     paint.setColor(SkiaColor(pattern.GetStop(0).mColor, pBlend));
   }
@@ -192,9 +193,9 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
     SkColor colors[8];
     SkScalar positions[8];
       
-    assert(pattern.NStops() <= 8);
+    assert(numStops <= 8);
     
-    for(int i = 0; i < pattern.NStops(); i++)
+    for(int i = 0; i < numStops; i++)
     {
       const IColorStop& stop = pattern.GetStop(i);
       colors[i] = SkiaColor(stop.mColor, pBlend);
@@ -204,7 +205,7 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
     switch (pattern.mType)
     {
     case EPatternType::Linear:
-      paint.setShader(SkGradientShader::MakeLinear(points, colors, positions, pattern.NStops(), SkiaTileMode(pattern), 0, nullptr));
+      paint.setShader(SkGradientShader::MakeLinear(points, colors, positions, numStops, SkiaTileMode(pattern), 0, nullptr));
       break;
 
     case EPatternType::Radial:
@@ -212,7 +213,7 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
       float xd = points[0].x() - points[1].x();
       float yd = points[0].y() - points[1].y();
       float radius = std::sqrt(xd * xd + yd * yd);
-      paint.setShader(SkGradientShader::MakeRadial(points[0], radius, colors, positions, pattern.NStops(), SkiaTileMode(pattern), 0, nullptr));
+      paint.setShader(SkGradientShader::MakeRadial(points[0], radius, colors, positions, numStops, SkiaTileMode(pattern), 0, nullptr));
       break;
     }
 
@@ -220,8 +221,8 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
     {
       SkMatrix matrix = SkMatrix::MakeAll(m.mXX, m.mYX, 0, m.mXY, m.mYY, 0, 0, 0, 1);
       
-      paint.setShader(SkGradientShader::MakeSweep(x1, y1, colors, positions, pattern.NStops(), SkTileMode::kDecal,
-        0, 360*positions[pattern.NStops()-1], 0, &matrix));
+      paint.setShader(SkGradientShader::MakeSweep(x1, y1, colors, positions, numStops, SkTileMode::kDecal,
+        0, 360*positions[numStops - 1], 0, &matrix));
 
       break;
     }
