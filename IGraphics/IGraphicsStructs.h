@@ -271,17 +271,36 @@ struct IColor
    *   IColor colorWithAlpha = IColor::FromColorCode(0x55a6ff, 0x88); // alpha is 0x88
    * @endcode
    * 
-   * @param colorCode integer representation of the color. Use with hex numbers, e.g. 0xff38a2
-   * @param alpha integer representation of the alpha channel
+   * @param colorCode Integer representation of the color. Use with hexadecimal numbers, e.g. 0xff38a2
+   * @param A Integer representation of the alpha channel
    * @return IColor A new IColor based on the color code provided */
-  static IColor FromColorCode(unsigned int colorCode, unsigned int alpha = 0xFF)
+  static IColor FromColorCode(int colorCode, int A = 0xFF)
   {
-    int A = alpha;
     int R = (colorCode >> 16) & 0xFF;
     int G = (colorCode >> 8) & 0xFF;
     int B = colorCode & 0xFF;
 
     return IColor(A, R, G, B);
+  }
+  
+  /** Create an IColor from a color code in a CString. Can be used to convert a hex code into an IColor object.
+   * @param colorCode CString representation of the color code (no alpha). Use with hex numbers, e.g. "#ff38a2". WARNING: This does very little error checking
+   * @return IColor A new IColor based on the color code provided */
+  static IColor FromColorCodeStr(const char* hexStr)
+  {
+    WDL_String str(hexStr);
+    
+    if(str.GetLength() == 7 && str.Get()[0] == '#')
+    {
+      str.DeleteSub(0, 1);
+
+      return FromColorCode(static_cast<int>(std::stoul(str.Get(), nullptr, 16)));
+    }
+    else
+    {
+      assert(0 && "Invalid color code str, returning black");
+      return IColor();
+    }
   }
   
   /** /todo 
