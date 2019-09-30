@@ -52,6 +52,8 @@
 
 #define ROBOTO_FN "Roboto-Regular.ttf"
 #define FORK_AWESOME_FN "forkawesome-webfont.ttf"
+#define FONTAUDIO_FN "fontaudio.ttf"
+
 #define PNGKNOB_FN "knob.png"
 #define PNGKNOB_2X_FN "knob@2x.png"
 #define PNGKNOBROTATE_FN "knob-rotate.png"
