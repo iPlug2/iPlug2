@@ -16,3 +16,5 @@ then
 echo deleting "$HOME/Library/Caches/AudioUnitCache/com.apple.audiounits.sandboxed.cache"
 rm "$HOME/Library/Caches/AudioUnitCache/com.apple.audiounits.sandboxed.cache"
 fi
+
+killall -9 AudioComponentRegistrar
