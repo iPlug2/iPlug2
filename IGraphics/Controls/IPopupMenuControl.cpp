@@ -20,6 +20,9 @@
 #include "nanovg.h"
 #endif
 
+using namespace iplug;
+using namespace igraphics;
+
 IPopupMenuControl::IPopupMenuControl(int paramIdx, IText text, IRECT collapsedBounds, IRECT expandedBounds)
 : IControl(collapsedBounds, paramIdx)
 , mSpecifiedCollapsedBounds(collapsedBounds)
@@ -305,7 +308,7 @@ void IPopupMenuControl::DrawPanelShadow(IGraphics& g, MenuPanel* panel)
 #else
   if (!g.CheckLayer(panel->mShadowLayer))
   {
-    g.StartLayer(panel->mRECT);
+    g.StartLayer(this, panel->mRECT);
     g.FillRoundRect(COLOR_BLACK, inner, mRoundness);
     panel->mShadowLayer = g.EndLayer();
     g.ApplyLayerDropShadow(panel->mShadowLayer, IShadow(COLOR_BLACK_DROP_SHADOW, 20.0, 0.0, yDrop, 1.0, true));
@@ -335,7 +338,7 @@ void IPopupMenuControl::DrawCellText(IGraphics& g, const IRECT& bounds, const IP
       mText.mFGColor = COLOR_GRAY;
   }
   
-  mText.mAlign = IText::kAlignNear;
+  mText.mAlign = EAlign::Near;
   g.DrawText(mText, pItem->GetText(), textRect, pBlend);
 }
 
@@ -369,18 +372,15 @@ void IPopupMenuControl::DrawSeparator(IGraphics& g, const IRECT& bounds, IBlend*
     g.FillRect(COLOR_MID_GRAY, bounds, &BLEND_25);
 }
 
-IPopupMenu* IPopupMenuControl::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller)
+void IPopupMenuControl::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds)
 {
   mMenu = &menu;
-  mCaller = pCaller;
   
   if(mMaxBounds.W() == 0)
     mMaxBounds = GetUI()->GetBounds();
     
   if(GetState() == kCollapsed)
     Expand(bounds);
-  
-  return mMenu;
 }
 
 IRECT IPopupMenuControl::GetLargestCellRectForMenu(IPopupMenu& menu, float x, float y) const
@@ -392,14 +392,14 @@ IRECT IPopupMenuControl::GetLargestCellRectForMenu(IPopupMenu& menu, float x, fl
     IPopupMenu::Item* pItem = menu.GetItem(i);
     IRECT textBounds;
     
-    IGraphics* pGraphics = const_cast<IPopupMenuControl*>(this)->GetUI();
+    const IGraphics* pGraphics = GetUI();
     
     pGraphics->MeasureText(mText, pItem->GetText(), textBounds);
     span = span.Union(textBounds);
   }
   
   span.HPad(TEXT_HPAD); // add some padding because we don't want to be flush to the edges
-  span.Pad(-TICK_SIZE, 0, ARROW_SIZE, 0);
+  span.Pad(TICK_SIZE, 0, ARROW_SIZE, 0);
   
   return IRECT(x, y, x + span.W(), y + span.H());
 }
@@ -559,20 +559,7 @@ void IPopupMenuControl::CollapseEverything()
   if(pClickedMenu->GetFunction())
     pClickedMenu->ExecFunction();
   
-  if(mCaller)
-  {
-    if(mIsContextMenu)
-      mCaller->OnContextSelection(pClickedMenu->GetChosenItemIdx());
-    else
-    {
-      if(pClickedMenu->GetChosenItemIdx() == -1)
-        mCaller->OnPopupMenuSelection(nullptr);
-      else
-        mCaller->OnPopupMenuSelection(pClickedMenu);
-    }
-    
-    mIsContextMenu = false;
-  }
+  GetUI()->SetControlValueAfterPopupMenu(pClickedMenu);
     
   mActiveMenuPanel = nullptr;
 

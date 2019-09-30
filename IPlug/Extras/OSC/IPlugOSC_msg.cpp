@@ -17,6 +17,8 @@
 #include <string.h>
 #include "IPlugOSC_msg.h"
 
+using namespace iplug;
+
 static int pad4(int len)
 {
   return (len+4)&~3;

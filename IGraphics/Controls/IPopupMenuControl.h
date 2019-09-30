@@ -18,6 +18,9 @@
 
 #include "IControl.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /** A base control for a pop-up menu/drop-down list that stays within the bounds of the IGraphics context.
  * This is mainly used as a special control that lives outside the main IGraphics control stack.
  * For replacing generic menus this can be added with IGraphics::AttachPopupMenu().
@@ -96,18 +99,14 @@ public:
   /** Call this to create a pop-up menu
    @param menu Reference to a menu from which to populate this user interface control. NOTE: this object should not be a temporary, otherwise when the menu returns asynchronously, it may not exist.
    @param bounds \todo
-   @param pCaller The IControl that called this method, and will receive the call back after menu selection
-   @return the menu */
-  IPopupMenu* CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller);
+   @param pCaller The IControl that called this method, and will receive the call back after menu selection */
+  void CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds);
 
   /** @return \true if the pop-up is fully expanded */
   bool GetExpanded() const { return mState == kExpanded; }
 
   /** @return EPopupState indicating the state of the pop-up */
   EPopupState GetState() const { return mState; }
-
-  /** This is called by the IGraphics class when a context menu is being created (a special popup that certain plug-in formats (e.g. VST3) may append to)  */
-  void SetMenuIsContextMenu(bool isContextMenu) { mIsContextMenu = isContextMenu; }
 
   /** Force the menu to open with a specific bounds - useful on small screens for making it modal.*/
   void SetExpandedBounds(const IRECT& bounds) { mSpecifiedExpandedBounds = bounds; }
@@ -136,11 +135,14 @@ private:
   public:
     MenuPanel(IPopupMenuControl& owner, IPopupMenu& menu, float x, float y, int parentIdx);
     ~MenuPanel();
-
-    /** Get's the width of a cell */
+      
+    MenuPanel(const MenuPanel&) = delete;
+    MenuPanel& operator=(const MenuPanel&) = delete;
+      
+    /** Gets the width of a cell */
     float CellWidth() const { return mSingleCellBounds.W(); }
 
-    /** Get's the height of a cell */
+    /** Gets the height of a cell */
     float CellHeight() const { return mSingleCellBounds.H(); }
 
     void ScrollUp() { mScrollItemOffset--; mScrollItemOffset = Clip(mScrollItemOffset, 0, mCellBounds.GetSize()-1); }
@@ -161,7 +163,7 @@ private:
     IRECT mTargetRECT; // The mouse target bounds for this panel
     int mScrollMaxRows = 0; // 0 when no scroll
     bool mShouldDraw = true; // boolean determining whether this panel should be drawn
-    IBlend mBlend = { kBlendNone, 0.f }; // blend for sub panels appearing
+    IBlend mBlend = { EBlend::Default, 0.f }; // blend for sub panels appearing
 
     IRECT mSingleCellBounds; // The dimensions of the largest cell for the menu
     IRECT* mHighlightedCell = nullptr; // A pointer to one of the IRECTs in mCellBounds, if one should be highlighted
@@ -181,8 +183,6 @@ private:
   EPopupState mState = kCollapsed; // The state of the pop-up, mainly used for animation
   IRECT* mMouseCellBounds = nullptr;
   IRECT* mPrevMouseCellBounds = nullptr;
-  IControl* mCaller = nullptr; // Pointer to the IControl that created this pop-up menu, for callback
-  bool mIsContextMenu = false;
   IPopupMenu* mMenu = nullptr; // Pointer to the main IPopupMenu, that this control is visualising. This control does not own the menu.
     
   int mMaxColumnItems = 0; // How long the list can get before adding a new column - 0 equals no limit
@@ -210,3 +210,6 @@ protected:
   IRECT mSpecifiedCollapsedBounds;
   IRECT mSpecifiedExpandedBounds;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE

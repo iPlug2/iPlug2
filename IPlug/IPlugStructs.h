@@ -13,6 +13,7 @@
 /**
  * @file Structures in small classes used throughout the IPlug code base
  * @defgroup IPlugStructs IPlug::Structs
+ * Structures in small classes used throughout the IPlug code base
  * @{
  */
 
@@ -25,12 +26,18 @@
 #include "IPlugMidi.h" // <- Midi related structs in here
 #include "IPlugUtilities.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 /** In certain cases we need to queue parameter changes for transferral between threads */
-struct IParamChange
+struct ParamTuple
 {
-  int paramIdx;
+  int idx;
   double value;
-  bool normalized; // TODO: Remove this
+  
+  ParamTuple(int idx = kNoParameter, double value = 0.)
+  : idx(idx)
+  , value(value)
+  {}
 };
 
 /** This structure is used when queueing Sysex messages. You may need to set MAX_SYSEX_SIZE to reflect the max sysex payload in bytes */
@@ -53,9 +60,16 @@ struct SysExData
   uint8_t mData[MAX_SYSEX_SIZE];
 };
 
-/** A helper class for IBtyeChunk and IBtyeStream that avoids code duplication **/
+/** A helper class for IByteChunk and IByteStream that avoids code duplication **/
 struct IByteGetter
 {
+  /** /todo 
+   * @param pData /todo
+   * @param dataSize /todo
+   * @param pBuf /todo
+   * @param size /todo
+   * @param startPos /todo
+   * @return int /todo */
   static inline int GetBytes(const uint8_t* pData, int dataSize, void* pBuf, int size, int startPos)
   {
     int endPos = startPos + size;
@@ -67,6 +81,12 @@ struct IByteGetter
     return -1;
   }
   
+  /** /todo 
+   * @param pData /todo
+   * @param dataSize /todo
+   * @param str /todo
+   * @param startPos /todo
+   * @return int /todo  */
   static inline int GetStr(const uint8_t* pData, int dataSize, WDL_String& str, int startPos)
   {
     int len;
@@ -107,7 +127,7 @@ public:
   
   /** Helper method to retrieve the IPlug version number from the beginning of the byte chunk
    * @param chunk The incoming byte chunk that contains the version number
-   * @param pos The position (in bytes) to start looking
+   * @param position The position (in bytes) to start looking
    * @return The IPlug version number, retrieved from the chunk, or 0 if it failed */
   static int GetIPlugVerFromChunk(const IByteChunk& chunk, int& position)
   {
@@ -120,11 +140,9 @@ public:
     return ver;
   }
   
-  /**
-   * Copies data into the chunk
+  /** Copies data into the chunk
    * @param pBuf Pointer to the object to copy data from
-   * @param size Number of bytes to copy
-   */
+   * @param size Number of bytes to copy */
   inline int PutBytes(const void* pBuf, int size)
   {
     int n = mBytes.GetSize();
@@ -133,21 +151,40 @@ public:
     return mBytes.GetSize();
   }
   
+  /** /todo  
+   * @param pBuf /todo
+   * @param size /todo
+   * @param startPos /todo
+   * @return int /todo */
   inline int GetBytes(void* pBuf, int size, int startPos) const
   {
     return IByteGetter::GetBytes(mBytes.Get(), Size(), pBuf, size, startPos);
   }
   
-  template <class T> inline int Put(const T* pVal)
+  /** /todo 
+   * @tparam T 
+   * @param pVal /todo
+   * @return int /todo */
+  template <class T>
+  inline int Put(const T* pVal)
   {
     return PutBytes(pVal, sizeof(T));
   }
   
-  template <class T> inline int Get(T* pVal, int startPos) const
+  /** /todo 
+   * @tparam T 
+   * @param pVal /todo
+   * @param startPos /todo
+   * @return int /todo */
+  template <class T>
+  inline int Get(T* pVal, int startPos) const
   {
     return GetBytes(pVal, sizeof(T), startPos);
   }
   
+  /** /todo 
+   * @param str /todo
+   * @return int /todo */
   inline int PutStr(const char* str)
   {
     int slen = (int) strlen(str);
@@ -155,11 +192,18 @@ public:
     return PutBytes(str, slen);
   }
   
+  /** /todo 
+   * @param str /todo
+   * @param startPos /todo
+   * @return int /todo */
   inline int GetStr(WDL_String& str, int startPos) const
   {
     return IByteGetter::GetStr(mBytes.Get(), Size(), str, startPos);
   }
   
+  /** /todo 
+   * @param pRHS /todo
+   * @return int /todo */
   inline int PutChunk(const IByteChunk* pRHS)
   {
     return PutBytes(pRHS->GetData(), pRHS->Size());
@@ -171,10 +215,8 @@ public:
     mBytes.Resize(0);
   }
   
-  /**
-   * Returns the current size of the chunk
-   * @return Current size (in bytes)
-   */
+  /** Returns the current size of the chunk
+   * @return Current size (in bytes) */
   inline int Size() const
   {
     return mBytes.GetSize();
@@ -194,16 +236,24 @@ public:
     return n;
   }
   
+  /** /todo 
+   * @return uint8_t* /todo */
   inline uint8_t* GetData()
   {
     return mBytes.Get();
   }
-    
+  
+  /** /todo 
+   * @return const uint8_t* /todo */
   inline const uint8_t* GetData() const
   {
     return mBytes.Get();
   }
   
+  /** /todo 
+   * @param otherChunk /todo
+   * @return true /todo
+   * @return false /todo */
   inline bool IsEqual(IByteChunk& otherChunk) const
   {
     return (otherChunk.Size() == Size() && !memcmp(otherChunk.mBytes.Get(), mBytes.Get(), Size()));
@@ -220,16 +270,31 @@ public:
   IByteStream(const void *pData, int dataSize) : mBytes(reinterpret_cast<const uint8_t *>(pData)), mSize(dataSize) {}
   ~IByteStream() {}
   
+  /** /todo 
+   * @param pBuf /todo
+   * @param size /todo
+   * @param startPos /todo
+   * @return int /todo */
   inline int GetBytes(void* pBuf, int size, int startPos) const
   {
     return IByteGetter::GetBytes(mBytes, Size(), pBuf, size, startPos);
   }
   
-  template <class T> inline int Get(T* pVal, int startPos) const
+  /** /todo 
+   * @tparam T 
+   * @param pVal /todo
+   * @param startPos /todo
+   * @return int /todo */
+  template <class T>
+  inline int Get(T* pVal, int startPos) const
   {
     return GetBytes(pVal, sizeof(T), startPos);
   }
   
+  /** /todo  
+   * @param str /todo
+   * @param startPos /todo
+   * @return int /todo */
   inline int GetStr(WDL_String& str, int startPos) const
   {
     return IByteGetter::GetStr(mBytes, Size(), str, startPos);
@@ -242,11 +307,17 @@ public:
     return mSize;
   }
   
+  /** /todo  
+   * @param otherStream /todo
+   * @return true /todo
+   * @return false /todo */
   inline bool IsEqual(IByteStream& otherStream) const
   {
     return (otherStream.Size() == Size() && !memcmp(otherStream.mBytes, mBytes, Size()));
   }
   
+  /** /todo  
+   * @return const uint8_t* /todo */
   inline const uint8_t* GetData()
   {
     return mBytes;
@@ -258,7 +329,7 @@ private:
 };
 
 /** Helper struct to set compile time options to an API class constructor  */
-struct IPlugConfig
+struct Config
 {
   int nParams;
   int nPresets;
@@ -280,7 +351,7 @@ struct IPlugConfig
   int plugHeight;
   const char* bundleID;
   
-  IPlugConfig(int nParams,
+  Config(int nParams,
               int nPresets,
               const char* channelIOStr,
               const char* pluginName,
@@ -362,17 +433,29 @@ struct IOConfig
     mBusInfo[1].Empty(true);
   }
   
+  /** /todo 
+   * @param direction /todo
+   * @param NChans /todo
+   * @param label /todo */
   void AddBusInfo(ERoute direction, int NChans, const char* label = "")
   {
     mBusInfo[direction].Add(new IBusInfo(direction, NChans, label));
   }
   
+  /** /todo
+   * @param direction /todo
+   * @param index /todo
+   * @return IBusInfo* /todo */
   IBusInfo* GetBusInfo(ERoute direction, int index)
   {
     assert(index >= 0 && index < mBusInfo[direction].GetSize());
     return mBusInfo[direction].Get(index);
   }
   
+  /** /todo 
+   * @param direction /todo
+   * @param index /todo
+   * @return int /todo */
   int NChansOnBusSAFE(ERoute direction, int index)
   {
     int NChans = 0;
@@ -383,12 +466,17 @@ struct IOConfig
     return NChans;
   }
   
+  /** /todo  
+   * @param direction /todo
+   * @return int /todo */
   int NBuses(ERoute direction)
   {
     return mBusInfo[direction].GetSize();
   }
   
-  /** Get the total number of channels across all direction buses for this IOConfig */
+  /** Get the total number of channels across all direction buses for this IOConfig
+   * @param direction /todo
+   * @return int /todo */
   int GetTotalNChannels(ERoute direction) const
   {
     int total = 0;
@@ -399,6 +487,10 @@ struct IOConfig
     return total;
   }
   
+  /** /todo  
+   * @param direction /todo
+   * @return true /todo
+   * @return false /todo */
   bool ContainsWildcard(ERoute direction)
   {
     for(auto i = 0; i < mBusInfo[direction].GetSize(); i++)
@@ -441,5 +533,7 @@ struct IPreset
     sprintf(mName, "%s", UNUSED_PRESET_NAME);
   }
 };
+
+END_IPLUG_NAMESPACE
 
 /**@}*/

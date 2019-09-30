@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>IPlugControls</string>
 	<key>CFBundleGetInfoString</key>
-	<string>IPlugControls v1.0.0 Copyright 2017 Acme Inc</string>
+	<string>IPlugControls v1.0.0 Copyright 2019 Acme Inc</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.AcmeInc.app.IPlugControls.AUv3</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -26,6 +26,8 @@
 	<dict>
 		<key>NSExtensionAttributes</key>
 		<dict>
+			<key>AudioComponentBundle</key>
+			<string>com.AcmeInc.app.IPlugControls.AUv3Framework</string>
 			<key>AudioComponents</key>
 			<array>
 				<dict>
@@ -53,7 +55,7 @@
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.AudioUnit-UI</string>
 		<key>NSExtensionPrincipalClass</key>
-		<string>IPlugViewController</string>
+		<string>IPlugAUViewController</string>
 	</dict>
 </dict>
 </plist>

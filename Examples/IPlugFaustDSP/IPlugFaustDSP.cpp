@@ -1,17 +1,13 @@
 #include "IPlugFaustDSP.h"
 #include "IPlug_include_in_plug_src.h"
 
-#if IPLUG_EDITOR
-#include "IPlugFaust_edit.h"
-#endif
-
-IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
-: IPLUG_CTOR(kNumParams, 1, instanceInfo)
+IPlugFaustDSP::IPlugFaustDSP(const InstanceInfo& info)
+: Plugin(info, MakeConfig(kNumParams, 1))
 {
   InitParamRange(0, kNumParams-1, 0, "Param %i", 0., 0., 1., 0.01, "", IParam::kFlagsNone);
   
 #if IPLUG_DSP
-  mFaustProcessor.SetMaxChannelCount(MaxNChannels(kInput), MaxNChannels(kOutput));
+  mFaustProcessor.SetMaxChannelCount(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput));
   mFaustProcessor.Init();
   mFaustProcessor.CompileCPP();
   mFaustProcessor.SetAutoRecompile(true);
@@ -24,21 +20,18 @@ IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
     IRECT b = pGraphics->GetBounds().GetPadded(-20);
-    
-    pGraphics->AttachCornerResizer(kUIResizerScale);
-    pGraphics->LoadFont(ROBOTTO_FN);
-    
-    pGraphics->AttachPanelBackground(COLOR_BLACK);
-    pGraphics->AttachControl(new IVScopeControl<>(b.GetReducedFromTop(50)), kControlTagScope);
-    
-#ifndef FAUST_COMPILED
-    pGraphics->AttachControl(new IVButtonControl(b.GetFromTRHC(150, 30), [](IControl* pCaller)
-                                                 {
-                                                   FlashCircleClickActionFunc(pCaller);
 
-                                                   OpenFaustEditorWindow(DSP_FILE);
-                                                 }, "Edit FAUST File"));
-#endif
+    IRECT knobs = b.GetFromTop(100.);
+    IRECT viz = b.GetReducedFromTop(100);
+    pGraphics->AttachCornerResizer(EUIResizerMode::Scale);
+    pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
+
+    for (int i = 0; i < kNumParams; i++) {
+      pGraphics->AttachControl(new IVKnobControl(knobs.GetGridCell(i, 1, kNumParams), i));
+    }
+    
+    pGraphics->AttachPanelBackground(COLOR_GRAY);
+    pGraphics->AttachControl(new IVScopeControl<2>(viz, "", DEFAULT_STYLE.WithColor(kBG, COLOR_BLACK).WithColor(kFG, COLOR_GREEN)), kControlTagScope);
   };
 #endif
 }
@@ -48,7 +41,7 @@ IPlugFaustDSP::IPlugFaustDSP(IPlugInstanceInfo instanceInfo)
 void IPlugFaustDSP::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
   mFaustProcessor.ProcessBlock(inputs, outputs, nFrames);
-  mScopeBallistics.ProcessBlock(outputs, nFrames);
+  mScopeSender.ProcessBlock(outputs, nFrames);
 }
 
 void IPlugFaustDSP::OnReset()
@@ -63,6 +56,6 @@ void IPlugFaustDSP::OnParamChange(int paramIdx)
 
 void IPlugFaustDSP::OnIdle()
 {
-  mScopeBallistics.TransmitData(*this);
+  mScopeSender.TransmitData(*this);
 }
 #endif

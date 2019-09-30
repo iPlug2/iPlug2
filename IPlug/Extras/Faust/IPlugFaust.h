@@ -15,6 +15,8 @@
  * @copydoc IPlugFaust
  */
 
+#include <memory>
+
 #include "faust/gui/UI.h"
 #include "faust/gui/MidiUI.h"
 #include "assocarray.h"
@@ -25,11 +27,13 @@
 
 #ifndef DEFAULT_FAUST_LIBRARY_PATH
   #if defined OS_MAC || defined OS_LINUX
-  #define DEFAULT_FAUST_LIBRARY_PATH "/usr/local/share/faust/"
+    #define DEFAULT_FAUST_LIBRARY_PATH "/usr/local/share/faust/"
   #else
-  #define DEFAULT_FAUST_LIBRARY_PATH "" //TODO
+   #define DEFAULT_FAUST_LIBRARY_PATH "C:\\Program Files\\Faust\\share\\faust"
   #endif
 #endif
+
+BEGIN_IPLUG_NAMESPACE
 
 /** This abstract interface is used by the IPlug FAUST architecture file and the IPlug libfaust JIT compiling class FaustGen
  * In order to provide a consistent interface to FAUST DSP whether using the JIT compiler or a compiled C++ class */
@@ -41,20 +45,19 @@ public:
   : mNVoices(nVoices)
   {
     if(rate > 1)
-      mOverSampler = new OverSampler<sample>(OverSampler<sample>::RateToFactor(rate), true, 1 /* TODO: */);
+      mOverSampler = std::make_unique<OverSampler<sample>>(OverSampler<sample>::RateToFactor(rate), true, 2 /* TODO: flexible channel count */);
     
     mName.Set(name);
   }
 
   virtual ~IPlugFaust()
   {
-    if(mOverSampler)
-      delete mOverSampler;
-    //delete mMidiUI;
-
     mParams.Empty(true);
   }
 
+  IPlugFaust(const IPlugFaust&) = delete;
+  IPlugFaust& operator=(const IPlugFaust&) = delete;
+    
   virtual void Init() = 0;
 
   // NO-OP in the base class
@@ -74,7 +77,7 @@ public:
   
   void FreeDSP()
   {
-    DELETE_NULL(mDSP);
+    mDSP = nullptr;
   }
   
   void SetOverSamplingRate(int rate)
@@ -106,13 +109,13 @@ public:
     {
       assert(mDSP->getSampleRate() != 0); // did you forget to call SetSampleRate?
       
-//      if(mOverSampler)
-//        mOverSampler->ProcessBlock(inputs, outputs, nFrames, 1 /* DOESN'T YET WORK WITH MC */,
-//                                   [&](sample** inputs, sample** outputs, int nFrames)
-//                                   {
-//                                     mDSP->compute(nFrames, inputs, outputs);
-//                                   });
-//      else
+      if(mOverSampler)
+        mOverSampler->ProcessBlock(inputs, outputs, nFrames, 2 /* TODO: flexible channel count */,
+                                   [&](sample** inputs, sample** outputs, int nFrames) //TODO:: badness capture = allocated
+                                   {
+                                     mDSP->compute(nFrames, inputs, outputs);
+                                   });
+      else
         mDSP->compute(nFrames, inputs, outputs);
     }
 //    else silence?
@@ -261,10 +264,10 @@ protected:
         pParam->InitBool(label, 0);
         break;
       case IParam::EParamType::kTypeInt:
-        pParam->InitInt(label, init, min, max);
+        pParam->InitInt(label, static_cast<int>(init), static_cast<int>(min), static_cast<int>(max));
         break;
       case IParam::EParamType::kTypeEnum:
-        pParam->InitEnum(label, init, max - min);
+        pParam->InitEnum(label, static_cast<int>(init), static_cast<int>(max - min));
         //TODO: metadata
         break;
       case IParam::EParamType::kTypeDouble:
@@ -311,11 +314,11 @@ protected:
     return -1;
   }
   
-  OverSampler<sample>* mOverSampler = nullptr;
+  std::unique_ptr<OverSampler<sample>> mOverSampler;
   WDL_String mName;
   int mNVoices;
-  ::dsp* mDSP = nullptr;
-  MidiUI* mMidiUI = nullptr;
+  std::unique_ptr<::dsp> mDSP;
+  std::unique_ptr<MidiUI> mMidiUI;
   WDL_PtrList<IParam> mParams;
   WDL_PtrList<FAUSTFLOAT> mZones;
   WDL_StringKeyedArray<FAUSTFLOAT*> mMap; // map is used for setting FAUST parameters by name, also used to reconnect existing parameters
@@ -324,3 +327,4 @@ protected:
   bool mInitialized = false;
 };
 
+END_IPLUG_NAMESPACE

@@ -10,9 +10,11 @@
 
 #include "CivetServer.h"
 #include <cstring>
+#include <memory>
 
 #include "ptrlist.h"
 #include "IPlugLogger.h"
+#include "IPlugPlatform.h"
 
 #ifdef OS_WIN
 #include <windows.h>
@@ -20,11 +22,17 @@
 #include <unistd.h>
 #endif
 
+BEGIN_IPLUG_NAMESPACE
+
 class IWebsocketServer : public CivetWebSocketHandler
 {
 public:
   IWebsocketServer();
   virtual ~IWebsocketServer();
+    
+  IWebsocketServer(const IWebsocketServer&) = delete;
+  IWebsocketServer& operator=(const IWebsocketServer&) = delete;
+    
   bool CreateServer(const char* DOCUMENT_ROOT, const char* PORT = "8001");
 
   void DestroyServer();
@@ -56,9 +64,11 @@ private:
   void handleClose(CivetServer* pServer, const struct mg_connection* pConn) override;
   
   WDL_PtrList<mg_connection> mConnections;
-  static CivetServer* sServer;
+  static std::unique_ptr<CivetServer> sServer;
   static int sInstances;
 
 protected:
   WDL_Mutex mMutex;
 };
+
+END_IPLUG_NAMESPACE

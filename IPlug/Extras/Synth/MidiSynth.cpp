@@ -10,6 +10,8 @@
 
 #include "MidiSynth.h"
 
+using namespace iplug;
+
 MidiSynth::MidiSynth(VoiceAllocator::EPolyMode mode, int blockSize)
 : mBlockSize(blockSize)
 {

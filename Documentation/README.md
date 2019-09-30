@@ -12,18 +12,11 @@ In the meantime, you can read two academic papers that we wrote about the projec
 
 2 - Web Audio Conference (WAC2018) [PAPER](https://github.com/iPlug2/iPlug2/raw/master/Documentation/Papers/WAC2018.pdf) | [VIDEO](https://youtu.be/DDrgW4Qyz8Y)
 
-
-Try iPlug 2 examples online here:
-
-* **IGraphicsTest** : [WebGL](https://iplug2.github.io/webgl/IGraphicsTest/) | [HTML5 Canvas](https://iplug2.github.io/canvas/IGraphicsTest/)
-* **IPlugEffect** : [WebGL](https://iplug2.github.io/webgl/IPlugEffect/)
-* **IPlugInstrument (Work in progress)** : [WebGL](https://iplug2.github.io/webgl/IPlugInstrument/) | [HTML5 Canvas](https://iplug2.github.io/canvas/IPlugInstrument/)
-
 <!--
 ## Introduction
 
 ### Requirements
-iPlug 2 requires a compiler that supports C++11, and is tested with MS Visual Studio 2017 and Xcode 10. It is developed to target Windows 7 or higher and macOS 10.7+. If you wish to compile for older operating systems it may be possible, but will require adjusting some settings.
+iPlug 2 requires a compiler that supports C++11, and is tested with MS Visual Studio 2019 and Xcode 10. It is developed to target Windows 7 or higher and macOS 10.7+. If you wish to compile for older operating systems it may be possible, but will require adjusting some settings.
 
 ## About this documentation
 ### Where do I begin?

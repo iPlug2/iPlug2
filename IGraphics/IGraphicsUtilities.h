@@ -9,8 +9,13 @@
 */
 
 #pragma once
+#include "IPlugConstants.h"
 #include "IGraphicsConstants.h"
-#include "IGraphicsStructs.h"
+
+#include <cmath>
+
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
 
 // these are macros to shorten the instantiation of IControls
 // for a paramater ID MyParam, define constants named MyParam_X, MyParam_Y, MyParam_W, MyParam_H to specify the Control's IRect
@@ -20,21 +25,20 @@
 #define MakeIRectVOffset(a, yoffs) IRECT(a##_X, a##_Y + yoffs, a##_X + a##_W, a##_Y + a##_H + yoffs)
 #define MakeIRectHVOffset(a, xoffs, yoffs) IRECT(a##_X + xoffs, a##_Y + yoffs, a##_X + a##_W + xoffs, a##_Y + a##_H + yoffs)
 
-
-template <typename T>
-inline T DegToRad(T degrees)
-{
-  return static_cast<T>(::PI) * (degrees / static_cast<T>(180.0));
-}
-
 static double GetTimestamp()
 {
   static auto start = std::chrono::steady_clock::now();
   return std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
 }
 
+template <typename T>
+inline T DegToRad(T degrees)
+{
+  return static_cast<T>(iplug::PI) * (degrees / static_cast<T>(180.0));
+}
+
 /** Calculate evenly distributed points on a radial line. NOTE: will crash if the nPoints and data array do not match size.
- * @param angle The angle to draw at in degrees clockwise where 0 is up
+ * @param angleDegrees The angle to draw at in degrees clockwise where 0 is up
  * @param cx centre point x coordinate
  * @param cy centre point y coordinate
  * @param rMin minima of the radial line (distance from cx,cy)
@@ -44,8 +48,8 @@ static double GetTimestamp()
 static inline void RadialPoints(float angleDegrees, float cx, float cy, float rMin, float rMax, int nPoints, float data[][2])
 {
   const float angleRadians = DegToRad(angleDegrees - 90.f);
-  const float sinV = sinf(angleRadians);
-  const float cosV = cosf(angleRadians);
+  const float sinV = std::sin(angleRadians);
+  const float cosV = std::cos(angleRadians);
   
   for(auto i = 0; i < nPoints; i++)
   {
@@ -56,51 +60,19 @@ static inline void RadialPoints(float angleDegrees, float cx, float cy, float rM
 }
 
 // Return the intersection of line(p0, p1) with line(p2, p3) as a fraction of the distance along (p2, p3).
-static float getLineCrossing(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3) 
+static float GetLineCrossing(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3)
 {
-	auto b = p2 - p0;
-	auto d = p1 - p0;
-	auto e = p3 - p2;
-	float m = d.x * e.y - d.y * e.x;
-	
-	float epsilon = 1e-8;
-	if (std::abs(m) < epsilon)
-		return NAN;
-	return -(d.x * b.y - d.y * b.x) / m;
+  auto b = p2 - p0;
+  auto d = p1 - p0;
+  auto e = p3 - p2;
+  float m = d.x * e.y - d.y * e.x;
+  
+  float epsilon = 1e-8;
+  if (std::abs(m) < epsilon)
+    return NAN;
+  return -(d.x * b.y - d.y * b.x) / m;
 }
 
-#ifdef AAX_API
-#include "AAX_Enums.h"
-
-static uint32_t GetAAXModifiersFromIMouseMod(const IMouseMod& mod)
-{
-  uint32_t aax_mods = 0;
-  
-  if (mod.A) aax_mods |= AAX_eModifiers_Option; // ALT Key on Windows, ALT/Option key on mac
-  
-#ifdef OS_WIN
-  if (mod.C) aax_mods |= AAX_eModifiers_Command;
-#else
-  if (mod.C) aax_mods |= AAX_eModifiers_Control;
-  if (mod.R) aax_mods |= AAX_eModifiers_Command;
-#endif
-  if (mod.S) aax_mods |= AAX_eModifiers_Shift;
-  if (mod.R) aax_mods |= AAX_eModifiers_SecondaryButton;
-  
-  return aax_mods;
-}
-
-//static void GetIMouseModFromAAXModifiers(uint32_t aax_mods, IMouseMod* pModOut)
-//{
-//  if (aax_mods & AAX_eModifiers_Option) pModOut->A = true; // ALT Key on Windows, ALT/Option key on mac
-//#ifdef OS_WIN
-//  if (aax_mods & AAX_eModifiers_Command) pModOut->C = true;
-//#else
-//  if (aax_mods & AAX_eModifiers_Control) pModOut->C = true;
-//  if (aax_mods & AAX_eModifiers_Command) pModOut->R = true;
-//#endif
-//  if (aax_mods & AAX_eModifiers_Shift) pModOut->S = true;
-//  if (aax_mods & AAX_eModifiers_SecondaryButton) pModOut->R = true;
-//}
-#endif
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
 

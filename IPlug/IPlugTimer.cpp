@@ -15,6 +15,8 @@
 
 #include "IPlugTimer.h"
 
+using namespace iplug;
+
 #if defined OS_MAC || defined OS_IOS
 
 Timer* Timer::Create(ITimerFunction func, uint32_t intervalMs)
@@ -25,7 +27,6 @@ Timer* Timer::Create(ITimerFunction func, uint32_t intervalMs)
 Timer_impl::Timer_impl(ITimerFunction func, uint32_t intervalMs)
 : mTimerFunc(func)
 , mIntervalMs(intervalMs)
-
 {
   CFRunLoopTimerContext context;
   context.version = 0;

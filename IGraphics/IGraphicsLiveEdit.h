@@ -19,6 +19,9 @@
 
 #include "IControl.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /** A control to enable live modification of control layout in an IGraphics context in debug builds
  * This is based on the work of Youlean, who first included it in iPlug-Youlean
  * The lives outside the main IGraphics control stack and it can be added with IGraphics::EnableLiveEdit().
@@ -33,14 +36,17 @@ public:
   , mGridSize(gridSize)
   , mMouseOversEnabled(mouseOversEnabled)
   {
-    //dlg.GetUI()->HandleMouseOver(true); TODO:
-
     mTargetRECT = mRECT;
   }
   
   ~IGraphicsLiveEdit()
   {
-    GetUI()->HandleMouseOver(mMouseOversEnabled);
+    GetUI()->HandleMouseOver(mMouseOversEnabled); // Set it back to what it was
+  }
+  
+  void OnInit() override
+  {
+    GetUI()->HandleMouseOver(true);
   }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
@@ -52,22 +58,26 @@ public:
       IControl* pControl = GetUI()->GetControl(c);
       mMouseDownRECT = pControl->GetRECT();
       mMouseDownTargetRECT = pControl->GetTargetRECT();
-      mClickedOnControl = c;
       
-      if(GetHandleRect(mMouseDownRECT).Contains(x, y))
+      if(mod.A)
       {
-        mMouseClickedOnResizeHandle = true;
+        GetUI()->AttachControl(new PlaceHolder(mMouseDownRECT));
+        mClickedOnControl = GetUI()->NControls() - 1;
+        mMouseClickedOnResizeHandle = false;
       }
-      
-      //TODO: add control?
+      else
+      {
+        mClickedOnControl = c;
+        
+        if(GetHandleRect(mMouseDownRECT).Contains(x, y))
+        {
+          mMouseClickedOnResizeHandle = true;
+        }
+      }
     }
     else if(mod.R)
     {
-//      IPopupMenu menu;
-//      menu.AddItem("IBitmapControl");
-//      menu.AddItem("IVKnobControl");
-//      
-//      GetUI()->CreatePopupMenu(menu, x, y);
+      GetUI()->CreatePopupMenu(*this, mRightClickMenu, x, y);
     }
   }
   
@@ -150,6 +160,25 @@ public:
     }
   }
   
+  void OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx) override
+  {
+    if(pSelectedMenu)
+    {
+      auto idx = pSelectedMenu->GetChosenItemIdx();
+      float x, y;
+      GetUI()->GetMouseDownPoint(x, y);
+      IRECT b = IRECT(x, y, x + 100.f, y + 100.f);
+      
+      switch(idx)
+      {
+        case 0 : GetUI()->AttachControl(new PlaceHolder(b)); break;
+        case 1 : GetUI()->AttachControl(new IVKnobControl(b, nullptr)); break;
+        case 2 : GetUI()->AttachControl(new IVSliderControl(b, nullptr)); break;
+        default: break;
+      }
+    }
+  }
+  
   void Draw(IGraphics& g) override
   {
     g.DrawGrid(mGridColor, g.GetBounds(), mGridSize, mGridSize, &BLEND_25);
@@ -195,6 +224,7 @@ public:
   }
 
 private:
+  IPopupMenu mRightClickMenu {"Add an item", {"Add Place Holder", "Add IVKnobControl", "Add IVButtonControl"}};
   bool mMouseOversEnabled;
 //  bool mEditModeActive = false;
 //  bool mLiveEditingEnabled = false;
@@ -213,5 +243,8 @@ private:
   float mGridSize = 10;
   int mClickedOnControl = -1;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
 
 #endif // !NDEBUG

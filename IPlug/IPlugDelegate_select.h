@@ -15,19 +15,23 @@
 
 //#if defined PUGL_EDITOR_DELEGATE
 //  #include "PUGLEditorDelegate.h"
-//  typedef PUGLEditorDelegate EDITOR_DELEGATE_CLASS;
-//#elif defined UIKIT_EDITOR_DELEGATE
-//  #include "UIKitEditorDelegate.h"
-//  typedef UIKitEditorDelegate EDITOR_DELEGATE_CLASS;
-#if defined NO_IGRAPHICS
+//  using EDITOR_DELEGATE_CLASS = PUGLEditorDelegate;
+//#el
+#if defined UIKIT_EDITOR_DELEGATE
+  #include "IPlugUIKitEditorDelegate.h"
+  using EDITOR_DELEGATE_CLASS = UIKitEditorDelegate;
+#elif defined WEBVIEW_EDITOR_DELEGATE
+  #include "IPlugWebViewEditorDelegate.h"
+  using EDITOR_DELEGATE_CLASS = iplug::WebViewEditorDelegate;
+#elif defined NO_IGRAPHICS
   #include "IPlugEditorDelegate.h"
-  typedef IEditorDelegate EDITOR_DELEGATE_CLASS;
+  using EDITOR_DELEGATE_CLASS = iplug::IEditorDelegate;
 #else
   #if defined WEBSOCKET_SERVER
     #include "IWebsocketEditorDelegate.h"
-    typedef IWebsocketEditorDelegate EDITOR_DELEGATE_CLASS;
+    using EDITOR_DELEGATE_CLASS = iplug::IWebsocketEditorDelegate;
   #else
     #include "IGraphicsEditorDelegate.h"
-    typedef IGEditorDelegate EDITOR_DELEGATE_CLASS;
+    using EDITOR_DELEGATE_CLASS = iplug::igraphics::IGEditorDelegate;
   #endif
 #endif

@@ -19,38 +19,34 @@
 
 using namespace emscripten;
 
-/** An HTML5 canvas API bitmap
- * @ingroup APIBitmaps */
-class CanvasBitmap : public APIBitmap
-{
-public:
-  CanvasBitmap(val imageCanvas, const char* name, int scale);
-  CanvasBitmap(int width, int height, int scale, float drawScale);
-  ~CanvasBitmap();
-};
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
 
 /** IGraphics draw class HTML5 canvas
 * @ingroup DrawClasses */
 class IGraphicsCanvas : public IGraphicsPathBase
 {
+private:
+  class Bitmap;
+  struct Font;
+  
 public:
-  const char* GetDrawingAPIStr() override { return "HTML5 Canvas"; }
-
   IGraphicsCanvas(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsCanvas();
 
-  void DrawBitmap(IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend) override;
-  void DrawRotatedBitmap(IBitmap& bitmap, float destCentreX, float destCentreY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
+  const char* GetDrawingAPIStr() override { return "HTML5 Canvas"; }
+
+  void DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend) override;
 
   void DrawResize() override {};
 
   void PathClear() override;
   void PathClose() override;
-  void PathArc(float cx, float cy, float r, float aMin, float aMax) override;
+  void PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding) override;
   void PathMoveTo(float x, float y) override;
   void PathLineTo(float x, float y) override;
-  void PathCurveTo(float x1, float y1, float x2, float y2, float x3, float y3) override;
-
+  void PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2) override;
+  void PathQuadraticBezierTo(float cx, float cy, float x2, float y2) override;
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
 
@@ -58,10 +54,14 @@ public:
   void* GetDrawContext() override { return nullptr; }
 
   bool BitmapExtSupported(const char* ext) override;
+    
 protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
-  APIBitmap* ScaleAPIBitmap(const APIBitmap* pBitmap, int scale) override;
-  APIBitmap* CreateAPIBitmap(int width, int height) override;
+  APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) override;
+
+  bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override;
+
+  bool AssetsLoaded() override;
 
   int AlphaChannel() const override { return 3; }
   bool FlippedBitmap() const override { return false; }
@@ -69,16 +69,22 @@ protected:
   void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
   void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
 
-  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
-
+  void DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
+  void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
+    
 private:
-  
-  val GetContext()
+  void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y) const;
+    
+  val GetContext() const
   {
     val canvas = mLayers.empty() ? val::global("document").call<val>("getElementById", std::string("canvas")) : *(mLayers.top()->GetAPIBitmap()->GetBitmap());
       
     return canvas.call<val>("getContext", std::string("2d"));
   }
+    
+  void GetFontMetrics(const char* font, const char* style, double& ascenderRatio, double& EMRatio);
+  bool CompareFontMetrics(const char* style, const char* font1, const char* font2);
+  bool FontExists(const char* font, const char* style);
     
   double XTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().L; }
   double YTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().T; }
@@ -87,5 +93,13 @@ private:
   void SetClipRegion(const IRECT& r) override;
     
   void SetCanvasSourcePattern(val& context, const IPattern& pattern, const IBlend* pBlend = nullptr);
-  void SetCanvasBlendMode(const IBlend* pBlend);
+  void SetCanvasBlendMode(val& context, const IBlend* pBlend);
+    
+  std::vector<std::pair<WDL_String, WDL_String>> mCustomFonts;
+
+  static StaticStorage<Font> sFontCache;
 };
+
+END_IPLUG_NAMESPACE
+END_IGRAPHICS_NAMESPACE
+

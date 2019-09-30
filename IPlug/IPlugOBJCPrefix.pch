@@ -14,7 +14,7 @@
   //objective-c has a flat namespace, we need to customise the class name for all of our objective-c classes
   //so that binaries using different versions don't conflict
   #ifndef OBJC_PREFIX
-    #define OBJC_PREFIX vWDLOL
+    #define OBJC_PREFIX vIPLUG2
   #endif
 
   #if defined(VST2_API)
@@ -39,6 +39,12 @@
   #define IGRAPHICS_MENU CONCAT(IGraphicsMenu_)
   #define IGRAPHICS_MENU_RCVR CONCAT(IGraphicsMenuRcvr_)
   #define IGRAPHICS_FORMATTER CONCAT(IGraphicsFormatter_)
+  #define IGRAPHICS_TEXTFIELD CONCAT(IGraphicsTextField_)
   #define IGRAPHICS_TEXTFIELDCELL CONCAT(IGraphicsTextFieldCell_)
+  #define IGRAPHICS_GLLAYER CONCAT(IGraphicsLayer_)
+  #define IGRAPHICS_IMGUIVIEW CONCAT(IGraphicsImGuiView_)
+  #define MNVGtexture CONCAT(MNVGtexture_)
+  #define MNVGbuffers CONCAT(MNVGbuffers_)
+  #define MNVGcontext CONCAT(MNVGcontext_)
 #endif
 

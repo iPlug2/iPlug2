@@ -5,7 +5,7 @@ NanoVG is small antialiased vector graphics rendering library for OpenGL. It has
 
 ## Screenshot
 
-![screenshot of some text rendered with the sample program](/Dependencies/IGraphics/NanoVG/example/screenshot-01.png?raw=true)
+![screenshot of some text rendered with the sample program](/example/screenshot-01.png?raw=true)
 
 Usage
 =====
@@ -107,6 +107,7 @@ See the header file [nanovg.h](/src/nanovg.h) for API reference.
 ## Projects using NanoVG
 
 - [Processing API simulation by vinjn](https://github.com/vinjn/island/blob/master/examples/01-processing/sketch2d.h)
+- [NanoVG for .NET, C# P/Invoke binding](https://github.com/sbarisic/nanovg_dotnet)
 
 ## License
 The library is licensed under [zlib license](LICENSE.txt)

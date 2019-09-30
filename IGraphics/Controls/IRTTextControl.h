@@ -20,6 +20,9 @@
 #include "IPlugStructs.h"
 #include "IPlugQueue.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /** A control to display some text in the UI, driven by values in the RT audio thread */
 template <typename T = double>
 class IRTTextControl : public ITextControl
@@ -58,7 +61,7 @@ public:
     IPlugQueue<T> mQueue {QUEUE_SIZE};
   };
   
-  IRTTextControl(IRECT bounds, const char* fmtStr = "%f", const char* initStr = "", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR)
+  IRTTextControl(const IRECT& bounds, const char* fmtStr = "%f", const char* initStr = "", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR)
   : ITextControl(bounds, initStr, text, BGColor)
   , mFMTStr(fmtStr)
   {
@@ -79,3 +82,6 @@ public:
 protected:
   WDL_String mFMTStr;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE

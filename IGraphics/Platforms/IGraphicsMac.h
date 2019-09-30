@@ -10,10 +10,13 @@
 
 #pragma once
 
-#ifndef NO_IGRAPHICS
+#include <CoreGraphics/CoreGraphics.h>
 
 #include "IGraphics_select.h"
-#include <CoreGraphics/CGGeometry.h>
+#include "IGraphicsCoreText.h"
+
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
 
 /** IGraphics platform class for macOS
 *   @ingroup PlatformClasses */
@@ -30,7 +33,7 @@ public:
   void* OpenWindow(void* pWindow) override;
   void CloseWindow() override;
   bool WindowIsOpen() override;
-  void PlatformResize() override;
+  void PlatformResize(bool parentHasResized) override;
   
   void PointToScreen(float& x, float& y);
   void ScreenToPoint(float& x, float& y);
@@ -41,7 +44,7 @@ public:
     
   void DoCursorLock(float x, float y, float& prevX, float& prevY);
     
-  int ShowMessageBox(const char* str, const char* caption, EMessageBoxType type) override;
+  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
   void ForceEndUserEdit() override;
 
   const char* GetPlatformAPIStr() override;
@@ -51,10 +54,8 @@ public:
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext) override;
   void PromptForDirectory(WDL_String& dir) override;
-  bool PromptForColor(IColor& color, const char* str) override;
-
-//  void CreateWebView(const IRECT& bounds, const char* url) override;
-  
+  bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
+    
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
 
   void* GetWindow() override;
@@ -63,23 +64,31 @@ public:
   static int GetUserOSVersion();
 
   bool GetTextFromClipboard(WDL_String& str) override;
+  bool SetTextInClipboard(const WDL_String& str) override;
 
-  bool MeasureText(const IText& text, const char* str, IRECT& bounds) override;
+  void MeasureText(const IText& text, const char* str, IRECT& bounds) const override;
+
+  void ContextReady(void* pLayer);
 
 protected:
-  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, IControl* pCaller) override;
-  void CreatePlatformTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str) override;
+  void CreatePlatformImGui() override;
+
+  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds) override;
+  void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
 private:
-  EResourceLocation OSFindResource(const char* name, const char* type, WDL_String& result) override;
-  bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath);
-  bool GetResourcePathFromUsersMusicFolder(const char* fileName, const char* searchExt, WDL_String& fullPath);
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
+  PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
+  void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override;
+
   void RepositionCursor(CGPoint point);
   void StoreCursorPosition();
-
+  
   void* mView = nullptr;
+  void* mImGuiView = nullptr;
   CGPoint mCursorLockPosition;
   WDL_String mBundleID;
   friend int GetMouseOver(IGraphicsMac* pGraphics);
 };
 
-#endif // NO_IGRAPHICS
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE

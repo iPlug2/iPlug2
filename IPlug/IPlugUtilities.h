@@ -14,6 +14,7 @@
  * @file
  * Utility functions and macros
  * @defgroup IPlugUtilities IPlug::Utilities
+ * Utility functions and macros
  * @{
  */
 
@@ -39,9 +40,7 @@
 #pragma warning(disable:4805)		// Compare bool and BOOL.
 #endif
 
-#define FREE_NULL(p) {free(p);p=nullptr;}
-#define DELETE_NULL(p) {delete(p); p=nullptr;}
-#define DELETE_ARRAY(p) {delete[](p); (p)=nullptr;}
+BEGIN_IPLUG_NAMESPACE
 
 /** Clips the value \p x between \p lo and \p hi
  * @param x Input value
@@ -95,16 +94,19 @@ static inline double DBToAmp(double dB)
   return exp(IAMP_DB * dB);
 }
 
-/**
- * @return dB calculated as an approximation of
+/** @return dB calculated as an approximation of
  * \f$ 20*log_{10}(x) \f$
- * @see #AMP_DB
- */
+ * @see #AMP_DB */
 static inline double AmpToDB(double amp)
 {
-  return AMP_DB * log(fabs(amp));
+  return AMP_DB * log(std::fabs(amp));
 }
 
+/** /todo  
+ * @param version /todo
+ * @param ver /todo
+ * @param maj /todo
+ * @param min /todo */
 static inline void GetVersionParts(int version, int& ver, int& maj, int& min)
 {
   ver = (version & 0xFFFF0000) >> 16;
@@ -112,6 +114,9 @@ static inline void GetVersionParts(int version, int& ver, int& maj, int& min)
   min = version & 0x000000FF;
 }
 
+/** /todo  
+ * @param version /todo
+ * @return int /todo */
 static inline int GetDecimalVersion(int version)
 {
   int ver, rmaj, rmin;
@@ -119,6 +124,9 @@ static inline int GetDecimalVersion(int version)
   return 10000 * ver + 100 * rmaj + rmin;
 }
 
+/** /todo 
+ * @param version /todo
+ * @param str /todo */
 static inline void GetVersionStr(int version, WDL_String& str)
 {
   int ver, rmaj, rmin;
@@ -126,6 +134,12 @@ static inline void GetVersionStr(int version, WDL_String& str)
   str.SetFormatted(MAX_VERSION_STR_LEN, "v%d.%d.%d", ver, rmaj, rmin);
 }
 
+/** /todo  
+ * @tparam SRC 
+ * @tparam DEST 
+ * @param pDest /todo
+ * @param pSrc /todo
+ * @param n /todo */
 template <class SRC, class DEST>
 void CastCopy(DEST* pDest, SRC* pSrc, int n)
 {
@@ -135,6 +149,9 @@ void CastCopy(DEST* pDest, SRC* pSrc, int n)
   }
 }
 
+/** /todo  
+ * @param cDest /todo
+ * @param cSrc /todo */
 static void ToLower(char* cDest, const char* cSrc)
 {
   int i, n = (int) strlen(cSrc);
@@ -145,6 +162,10 @@ static void ToLower(char* cDest, const char* cSrc)
   cDest[i] = '\0';
 }
 
+/** /todo  
+ * @param txt /todo
+ * @param numLines /todo
+ * @param maxLineWidth /todo */
 inline void BasicTextMeasure(const char* txt, float& numLines, float& maxLineWidth) {
   float w = 0.0;
   maxLineWidth = 0.0;
@@ -166,8 +187,7 @@ inline void BasicTextMeasure(const char* txt, float& numLines, float& maxLineWid
 
 /** Gets the host ID from a human-readable name
  * @param inHost Host name to search for
- * @return Identifier of the host (see ::EHost)
- */
+ * @return Identifier of the host (see ::EHost) */
 static EHost LookUpHost(const char* inHost)
 {
   char host[256];
@@ -209,8 +229,7 @@ static EHost LookUpHost(const char* inHost)
   return kHostUnknown;
 }
 
-/**
- * Gets a human-readable name from host identifier
+/** Gets a human-readable name from host identifier
  * @param host Host identifier (see ::EHost)
  * @param pHostName Pointer to a string to write to
  * @code
@@ -220,8 +239,7 @@ static EHost LookUpHost(const char* inHost)
  * @endcode
  *
  * The longest string returned by GetHostNameStr is 18 characters long (+1 for the null terminator).
- * Make sure your buffer can handle the size!
- */
+ * Make sure your buffer can handle the size! */
 static void GetHostNameStr(EHost host, char* pHostName)
 {
   switch (host)
@@ -322,6 +340,11 @@ static void GetHostNameStr(EHost host, char* pHostName)
   }
 }
 
+/** /todo 
+ * @param midiPitch /todo
+ * @param noteName /todo
+ * @param cents /todo
+ * @param middleCisC4 /todo */
 static void MidiNoteName(double midiPitch, WDL_String& noteName, bool cents = false/*, bool middleCisC4 = false*/)
 {
   static const char noteNames[12][3] = {"C ","C#","D ","D#","E ","F ","F#","G ","G#","A ","A#","B "};
@@ -340,5 +363,7 @@ static void MidiNoteName(double midiPitch, WDL_String& noteName, bool cents = fa
     noteName.SetFormatted(32, "%s%i", noteNames[pitchClass], octave);
   }
 }
+
+END_IPLUG_NAMESPACE
 
 /**@}*/

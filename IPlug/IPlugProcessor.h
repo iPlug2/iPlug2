@@ -12,6 +12,10 @@
 
 #include <cstring>
 #include <cstdint>
+#include <ctime>
+#include <cmath>
+#include <cstdio>
+#include <cassert>
 #include <memory>
 
 #include "ptrlist.h"
@@ -27,18 +31,23 @@
  * @copydoc IPlugProcessor
 */
 
-struct IPlugConfig;
+BEGIN_IPLUG_NAMESPACE
 
-//TODO: can we replace this templated class with typdefs in order to avoid #including .cpp nastiness
+struct Config;
 
 /** The base class for IPlug Audio Processing. It knows nothing about presets or parameters or user interface.  */
-template<typename T>
 class IPlugProcessor
 {
 public:
-  IPlugProcessor(IPlugConfig config, EAPI plugAPI);
+  /** IPlugProcessor constructor
+   * @param config /todo
+   * @param plugAPI /todo */
+  IPlugProcessor(const Config& config, EAPI plugAPI);
   virtual ~IPlugProcessor();
 
+  IPlugProcessor(const IPlugProcessor&) = delete;
+  IPlugProcessor& operator=(const IPlugProcessor&) = delete;
+  
 #pragma mark - Methods you implement in your plug-in class - you do not call these methods
 
   /** Override in your plug-in class to process audio
@@ -49,7 +58,7 @@ public:
    * @param inputs Two-dimensional array containing the non-interleaved input buffers of audio samples for all channels
    * @param outputs Two-dimensional array for audio output (non-interleaved).
    * @param nFrames The block size for this block: number of samples per channel.*/
-  virtual void ProcessBlock(T** inputs, T** outputs, int nFrames);
+  virtual void ProcessBlock(sample** inputs, sample** outputs, int nFrames);
 
   /** Override this method to handle incoming MIDI messages. The method is called prior to ProcessBlock().
    * You can use IMidiQueue in combination with this method in order to queue the message and process at the appropriate time in ProcessBlock()
@@ -78,7 +87,7 @@ public:
   virtual bool SendMidiMsg(const IMidiMsg& msg) = 0;
 
   /** Send a collection of MIDI messages // TODO: info about what thread should this be called on or not called on!
-   * @param msg The IMidiMsg to send
+   * @param msgs The IMidiMsg to send
    * @return \c true if successful */
   virtual bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs);
 
@@ -107,7 +116,7 @@ public:
 
 #pragma mark -
   /** @return The number of samples elapsed since start of project timeline. */
-  int GetSamplePos() const { return mTimeInfo.mSamplePos; }
+  double GetSamplePos() const { return mTimeInfo.mSamplePos; }
 
   /** @return The Tempo in beats per minute */
   double GetTempo() const { return mTimeInfo.mTempo; }
@@ -180,13 +189,17 @@ public:
 
   /** @return \c true if the plug-in was configured as an instrument at compile time */
   bool IsInstrument() const { return mPlugType == EIPlugPluginType::kInstrument; }
+
+  /** @return \c true if the plug-in was configured as an MFX at compile time */
+  bool IsMidiEffect() const { return mPlugType == EIPlugPluginType::kMIDIEffect; }
   
-  /**  */
+  /** /todo 
+   * @return int /todo */
   int GetAUPluginType() const
   {
-    if(mPlugType == EIPlugPluginType::kEffect)
+    if (mPlugType == EIPlugPluginType::kEffect)
     {
-      if(DoesMIDIIn())
+      if (DoesMIDIIn())
         return 'aumf';
       else
         return 'aufx';
@@ -216,19 +229,19 @@ public:
    * * For example a 4 channel plug-in that deals with FuMa BFormat first order ambisonic material, might label these channels
    "W", "X", "Y", "Z", rather than the default "input 1", "input 2", "input 3", "input 4"
    * @param idx The index of the channel that you wish to label
-   * @param limited printf style format string to compose label for the channel - where %i will be the channel index
+   * @param formatStr printf style format string to compose label for the channel - where %i will be the channel index
    * @param zeroBased If \c true the index in the format string will be zero based */
   void SetChannelLabel(ERoute direction, int idx, const char* formatStr, bool zeroBased = false);
 
   /** Call this if the latency of your plug-in changes after initialization (perhaps from OnReset() )
    * This may not be supported by the host. The method is virtual because it's overridden in API classes.
-   @param samples Latency in samples */
+   @param latency Latency in samples */
   virtual void SetLatency(int latency);
 
   /** Call this method if you need to update the tail size at runtime, for example if the decay time of your reverb effect changes
    * Some apis have special interpretations of certain numbers. For VST3 set to 0xffffffff for infinite tail, or 0 for none (default)
    * For VST2 setting to 1 means no tail
-   * @param tailSizeSamples the new tailsize in samples*/
+   * @param tailSize the new tailsize in samples*/
   void SetTailSize(int tailSize) { mTailSize = tailSize; }
 
   /** A static method to parse the config.h channel I/O string.
@@ -289,14 +302,14 @@ private:
   /** A list of IOConfig structures populated by ParseChannelIOStr in the IPlugProcessor constructor */
   WDL_PtrList<IOConfig> mIOConfigs;
   /* Manages pointers to the actual data for each channel */
-  WDL_TypedBuf<T*> mScratchData[2];
+  WDL_TypedBuf<sample*> mScratchData[2];
   /* A list of IChannelData structures corresponding to every input/output channel */
   WDL_PtrList<IChannelData<>> mChannelData[2];
 protected: // these members are protected because they need to be access by the API classes, and don't want a setter/getter
   /** A multichannel delay line used to delay the bypassed signal when a plug-in with latency is bypassed. */
-  std::unique_ptr<NChanDelayLine<T>> mLatencyDelay = nullptr;
+  std::unique_ptr<NChanDelayLine<sample>> mLatencyDelay = nullptr;
   /** Contains detailed information about the transport state */
   ITimeInfo mTimeInfo;
 };
 
-#include "IPlugProcessor.cpp"
+END_IPLUG_NAMESPACE

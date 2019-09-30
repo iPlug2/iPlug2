@@ -1,0 +1,181 @@
+jobs:
+# comment out this job if you don't have access to the AAX_SDK.zip secure file set up
+# - template: build_aax_libs.yml
+
+- job: BUILD_WIN_DEPS
+  dependsOn: GET_SRC_TREE
+  condition: and(eq(variables.build_deps, true), eq(variables.build_win, true))
+
+  strategy:
+    matrix:
+      x86_RELEASE:
+        buildPlatform: 'Win32'
+        buildConfiguration: 'Release'
+      x64_RELEASE:
+        buildPlatform: 'x64'
+        buildConfiguration: 'Release'
+      x86_DEBUG:
+        buildPlatform: 'Win32'
+        buildConfiguration: 'Debug'
+      x64_DEBUG:
+        buildPlatform: 'x64'
+        buildConfiguration: 'Debug'
+
+  pool:
+    vmImage: 'windows-2019'
+
+  steps:
+  - checkout: none
+
+  - template: get_src_artifact.yml
+
+  - task: VSBuild@1
+    inputs:
+      solution: 'Dependencies/IGraphics/IGraphicsLibraries.sln'
+      platform: '$(buildPlatform)'
+      configuration: '$(buildConfiguration)'
+    displayName: Build Windows Dependencies (except SKIA)
+
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '2.7'
+
+  - script: |
+      curl -sSf -o rustup-init.exe https://win.rustup.rs
+      rustup-init.exe -y --default-toolchain stable
+      echo "##vso[task.setvariable variable=PATH;]%PATH%;%USERPROFILE%\.cargo\bin"
+      choco install llvm --version 8.0.0
+    condition: eq(variables.buildPlatform, 'x64')
+    displayName: Install Rust and LLVM
+
+  - bash: |
+      cd ./Dependencies/IGraphics
+      echo $(buildConfiguration)
+      ./build-skia-win.sh $(buildConfiguration)
+    condition: eq(variables.buildPlatform, 'x64')
+    displayName: Build SKIA
+
+  - bash: |
+      cd ./Dependencies/Build
+      rm *.log
+      rm -r tmp
+      mv ./src/skia/include ./skia_include_tmp
+      rm -r src/skia
+      mkdir -p ./src/skia
+      mv ./skia_include_tmp ./src/skia/include
+    displayName: Delete unwanted SKIA files
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'DEPS_BUILD_WIN_$(buildPlatform)_$(buildConfiguration)'
+      targetPath: 'Dependencies/Build/'
+    displayName: Publish Windows $(buildPlatform) $(buildConfiguration) Dependencies Artifacts
+
+- job: PUBLISH_WIN_DEPS
+  condition: and(eq(variables.build_deps, true), eq(variables.build_win, true))
+  dependsOn: BUILD_WIN_DEPS
+  steps:
+  - checkout: none
+
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'DEPS_BUILD_WIN_Win32_Release'
+      targetPath: 'Dependencies/Build/'
+    displayName: Download Win32_Release Artifact
+
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'DEPS_BUILD_WIN_Win32_Debug'
+      targetPath: 'Dependencies/Build/'
+    displayName: Download Win32_Debug Artifact
+
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'DEPS_BUILD_WIN_x64_Release'
+      targetPath: 'Dependencies/Build/'
+    displayName: Download x64_Release Artifact
+
+  - task: DownloadPipelineArtifact@0
+    inputs:
+      artifactName: 'DEPS_BUILD_WIN_x64_Debug'
+      targetPath: 'Dependencies/Build/'
+    displayName: Download x64_Debug Artifact
+
+  - task: DeleteFiles@1
+    inputs:
+      contents: 'Dependencies/Build/*.log'
+
+  - task: DeleteFiles@1
+    inputs:
+      contents: 'Dependencies/Build/tmp'
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'IPLUG2_DEPS_WIN'
+      targetPath: 'Dependencies/Build/'
+    displayName: Publish Windows Dependencies Artifacts
+
+- job: BUILD_MAC_DEPS
+  dependsOn: GET_SRC_TREE
+  condition: and(eq(variables.build_deps, true), eq(variables.build_mac, true))
+
+  pool:
+    vmImage: 'macos-10.13'
+  steps:
+  - checkout: none
+
+  - template: get_src_artifact.yml
+
+  - bash: |
+      #tmp force cairo rebuild
+      rm -r ./Dependencies/Build/src/cairo
+      cd ./Dependencies/IGraphics
+      ./build-igraphics-libs-mac.sh
+    displayName: Build Graphics Dependencies
+
+  - bash: |
+      cd ./Dependencies/IGraphics
+      ./build-skia-mac.sh
+    displayName: Build Skia
+
+  - bash: |
+      curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
+      echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
+    displayName: Install Rust
+
+  - bash: |
+      cd ./Dependencies/IGraphics
+      ./build-resvg-mac.sh
+    displayName: Build Resvg
+
+  - bash: |
+      cd $BUILD_SOURCESDIRECTORY
+      wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
+      tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
+      export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
+      echo "##vso[task.setvariable variable=PATH]$PATH"
+
+      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/faust
+      ./build-faust-mac.sh
+    displayName: Build FAUST
+
+  - bash: |
+      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/civetweb
+      ./build-civetweb-mac.sh
+    displayName: Build CivetWeb
+
+  - bash: |
+      cd ./Dependencies/Build
+      rm *.log
+      rm -r tmp
+      mv ./src/skia/include ./skia_include_tmp
+      rm -r src
+      mkdir -p ./src/skia
+      mv ./skia_include_tmp ./src/skia/include
+    displayName: Delete unwanted files
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'IPLUG2_DEPS_MAC'
+      targetPath: 'Dependencies/Build/'
+    displayName: Publish Mac Dependencies Artifacts

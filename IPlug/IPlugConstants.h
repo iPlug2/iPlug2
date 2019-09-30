@@ -14,22 +14,28 @@
  * @file
  * @brief IPlug Constant definitions, Types, magic numbers
  * @defgroup IPlugConstants IPlug::Constants
+ * IPlug Constant definitions, Types, magic numbers
  * @{
  */
+
+#include <stdint.h>
+#include "IPlugPlatform.h"
+
+BEGIN_IPLUG_NAMESPACE
 
 #if !defined(SAMPLE_TYPE_FLOAT) && !defined(SAMPLE_TYPE_DOUBLE)
 #define SAMPLE_TYPE_DOUBLE
 #endif
 
 #ifdef SAMPLE_TYPE_DOUBLE
-typedef double PLUG_SAMPLE_DST;
-typedef float PLUG_SAMPLE_SRC;
+using PLUG_SAMPLE_DST = double;
+using PLUG_SAMPLE_SRC = float;
 #else
-typedef float PLUG_SAMPLE_DST;
-typedef double PLUG_SAMPLE_SRC;
+using PLUG_SAMPLE_DST = float;
+using PLUG_SAMPLE_SRC = double;
 #endif
 
-typedef PLUG_SAMPLE_DST sample;
+using sample = PLUG_SAMPLE_DST;
 
 #define LOGFILE "IPlugLog.txt"
 #define MAX_PROCESS_TRACE_COUNT 100
@@ -120,6 +126,7 @@ static const int MAX_PARAM_DISPLAY_PRECISION = 6;
 static const int DEFAULT_BLOCK_SIZE = 1024;
 static const double DEFAULT_TEMPO = 120.0;
 static const int kNoParameter = -1;
+static const int kNoValIdx = -1;
 static const int kNoTag = -1;
 
 #define MAX_BUS_CHANS 64 // wild cards in channel i/o strings will result in this many channels
@@ -226,5 +233,49 @@ enum EHost
   // MiniHost
 };
 
+enum EResourceLocation
+{
+  kNotFound = 0,
+  kAbsolutePath,
+  kWinBinary,
+  kPreloadedTexture
+};
+
+// These constants come from vstpreset.cpp, allowing saving of VST3 format presets without including the VST3 SDK
+typedef char ChunkID[4];
+
+enum ChunkType
+{
+  kHeader,
+  kComponentState,
+  kControllerState,
+  kProgramData,
+  kMetaInfo,
+  kChunkList,
+  kNumPresetChunks
+};
+
+static const ChunkID commonChunks[kNumPresetChunks] = {
+  {'V', 'S', 'T', '3'},  // kHeader
+  {'C', 'o', 'm', 'p'},  // kComponentState
+  {'C', 'o', 'n', 't'},  // kControllerState
+  {'P', 'r', 'o', 'g'},  // kProgramData
+  {'I', 'n', 'f', 'o'},  // kMetaInfo
+  {'L', 'i', 's', 't'}   // kChunkList
+};
+
+// Preset Header: header id + version + class id + list offset
+static const int32_t kFormatVersion = 1;
+static const int32_t kClassIDSize = 32; // ASCII-encoded FUID
+static const int32_t kHeaderSize = sizeof (ChunkID) + sizeof (int32_t) + kClassIDSize + sizeof (int64_t);
+//static const int32_t kListOffsetPos = kHeaderSize - sizeof (int64_t);
+
+// Preset Version Constants
+static const int kFXPVersionNum = 1;
+static const int kFXBVersionNum = 2;
+
+END_IPLUG_NAMESPACE
+
 /**@}*/
+
 

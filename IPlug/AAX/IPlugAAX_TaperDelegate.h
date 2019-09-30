@@ -17,6 +17,8 @@
 
 #include "IPlugParameter.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 template <typename T>
 class AAX_CIPlugTaperDelegate : public AAX_ITaperDelegate<T>
 {
@@ -64,3 +66,5 @@ double AAX_CIPlugTaperDelegate<T>::RealToNormalized(T realValue) const
 {
   return mParam.ToNormalized(realValue);
 }
+
+END_IPLUG_NAMESPACE

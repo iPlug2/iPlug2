@@ -134,7 +134,7 @@ EXCLUDE                = ../IGraphics/NanoVG \
                          ../IPlug/AUv3/BufferedAudioBus.hpp \
                          ../IPlug/AUv3/IPlugAUAudioUnit.h \
                          ../IPlug/AUv3/IPlugAUAudioUnit.mm \
-                         ../IPlug/AUv3/IPlugViewController.mm \
+                         ../IPlug/AUv3/IPlugAUViewController.mm \
                          ../IPlug/AUv2/dfx-au-utilities.h \
                          ../IPlug/AUv2/dfx-au-utilities.c \
                          ../IPlug/AUv2/IPlugAU_view_factory.mm
@@ -151,8 +151,8 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          CStrLocal \
                          "AudioComponentPlugInInstance	" \
                          BufferList \
-                         IPlugConfig \
-                         IPlugInstanceInfo \
+                         Config \
+                         InstanceInfo \
                          IPlugVST3View \
                          VIEW_CLASS \
                          ChannelIO \
@@ -163,6 +163,22 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          IGRAPHICS_MENU \
                          IGRAPHICS_MENU_RCVR \
                          IGRAPHICS_VIEW \
+                         IGRAPHICS_TEXTFIELD \
+                         IGRAPHICS_TEXTFIELDCELL \
+                         IGRAPHICS_GLLAYER \
+                         CoreTextFont \
+                         CCoreTextFontDescriptor \
+                         CFLocal \
+                         CanvasFont \
+                         CairoFont \
+                         LICEFontInfo \
+                         SkiaFont \
+                         WebFont \
+                         WebFileFont \
+                         WinFont \
+                         WinFontDescriptor \
+                         WinInstalledFont \
+                         IGraphicsIOS_View \
                          LineInfo \
                          StaticStorage \
                          CocoaAutoReleasePool \
@@ -183,7 +199,11 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          CairoBitmap \
                          CanvasBitmap \
                          LICEBitmap \
-                         NanoVGBitmap    
+                         NanoVGBitmap \
+                         SkiaBitmap \
+                         IFontInfo \
+                         IFontData \
+                         PlatformFont   
 
 EXAMPLE_PATH           =
 EXAMPLE_PATTERNS       = *
@@ -354,12 +374,12 @@ GROUP_GRAPHS           = YES
 UML_LOOK               = NO
 UML_LIMIT_NUM_FIELDS   = 10
 TEMPLATE_RELATIONS     = NO
-INCLUDE_GRAPH          = YES
-INCLUDED_BY_GRAPH      = YES
+INCLUDE_GRAPH          = NO
+INCLUDED_BY_GRAPH      = NO
 CALL_GRAPH             = NO
 CALLER_GRAPH           = NO
 GRAPHICAL_HIERARCHY    = YES
-DIRECTORY_GRAPH        = YES
+DIRECTORY_GRAPH        = NO
 DOT_IMAGE_FORMAT       = svg
 INTERACTIVE_SVG        = YES
 DOT_PATH               = /usr/local/bin
