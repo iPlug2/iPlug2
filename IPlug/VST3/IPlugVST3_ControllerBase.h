@@ -148,7 +148,7 @@ public:
       {
         case kPresetParam:
         {
-          pPlug->RestorePreset(pPlug->NPresets() * value);
+          pPlug->RestorePreset(std::round(pPlug->NPresets() * value));
           break;
         }
         default:
