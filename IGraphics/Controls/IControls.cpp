@@ -1085,8 +1085,26 @@ IVGroupControl::IVGroupControl(const IRECT& bounds, const char* label, const IVS
 , IVectorBase(style)
 {
   AttachIControl(this, label);
+  mIgnoreMouse = true;
 }
 
+IVGroupControl::IVGroupControl(const char* labelAndGroupName, float innerPadding, const IVStyle& style)
+: IControl(IRECT())
+, IVectorBase(style)
+, mGroupName(labelAndGroupName)
+, mInnerPadding(innerPadding)
+{
+  AttachIControl(this, labelAndGroupName);
+  mIgnoreMouse = true;
+}
+
+void IVGroupControl::OnInit()
+{
+  if(mGroupName.GetLength())
+  {
+    SetBoundsBasedOnGroup(mGroupName.Get(), mInnerPadding);
+  }
+}
 void IVGroupControl::Draw(IGraphics& g)
 {
   DrawWidget(g);
@@ -1116,7 +1134,7 @@ void IVGroupControl::DrawWidget(IGraphics& g)
     g.PathArc(b.L + cr + hft - offset, b.B - cr - hft - offset, cr, 180.f, 270.f);
     g.PathArc(b.L + cr + hft - offset, b.T + cr + hft - offset, cr, 270.f, 360.f);
     g.PathLineTo(labelL, b.T + hft - offset);
-    g.PathStroke(GetColor(i == 0 ? kFG : kSH), ft);
+    g.PathStroke(GetColor(i == 0 ? kSH : kFG), ft);
   }
 }
 
@@ -1129,11 +1147,14 @@ void IVGroupControl::OnResize()
 
 void IVGroupControl::SetBoundsBasedOnGroup(const char* groupName, float padding)
 {
+  mGroupName.Set(groupName);
+  mInnerPadding = padding;
+  
   IRECT unionRect;
   
-  GetUI()->ForControlInGroup(groupName, [&unionRect](IControl& control) { unionRect = unionRect.Union(control.GetRECT()); });
+  GetUI()->ForControlInGroup(mGroupName.Get(), [&unionRect](IControl& control) { unionRect = unionRect.Union(control.GetRECT()); });
   
-  mRECT = unionRect.GetPadded((mLabelBounds.H()/2.f) + padding);
+  mRECT = unionRect.GetPadded((mLabelBounds.H()/2.f) + mInnerPadding);
   
   OnResize();
 }

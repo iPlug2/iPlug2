@@ -369,13 +369,19 @@ class IVGroupControl : public IControl
                      , public IVectorBase
 {
 public:
-  IVGroupControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE);
+  IVGroupControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE.WithDrawShadows(false));
+  
+  IVGroupControl(const char* labelAndGroupName, float innerPadding = 0.f, const IVStyle& style = DEFAULT_STYLE.WithDrawShadows(false));
   
   void Draw(IGraphics& g) override;
   void DrawWidget(IGraphics& g) override;
   void OnResize() override;
+  void OnInit() override;
   
   void SetBoundsBasedOnGroup(const char* groupName, float padding);
+protected:
+  WDL_String mGroupName;
+  float mInnerPadding = 0.f;
 };
 
 #pragma mark - SVG Vector Controls
