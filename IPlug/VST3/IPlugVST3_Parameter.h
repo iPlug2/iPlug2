@@ -84,11 +84,21 @@ protected:
 class IPlugVST3PresetParameter : public Parameter
 {
 public:
-    IPlugVST3PresetParameter(int nPresets)
-    : Parameter(STR16("Preset"), kPresetParam, STR16(""), 0, nPresets, ParameterInfo::kIsProgramChange)
-    {}
-    
-    OBJ_METHODS(IPlugVST3PresetParameter, Parameter)
+  IPlugVST3PresetParameter(int nPresets)
+  : Parameter(STR16("Preset"), kPresetParam, STR16(""), 0, nPresets - 1, ParameterInfo::kIsProgramChange)
+  {}
+  
+  ParamValue toPlain(ParamValue valueNormalized) const override
+  {
+    return std::round(valueNormalized * info.stepCount);
+  }
+  
+  ParamValue toNormalized(ParamValue plainValue) const override
+  {
+    return plainValue / info.stepCount;
+  }
+  
+  OBJ_METHODS(IPlugVST3PresetParameter, Parameter)
 };
 
 /** VST3 bypass parameter helper */
