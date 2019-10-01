@@ -1080,6 +1080,64 @@ void IVPlotControl::AddPlotFunc(const IColor& color, const IPlotFunc& func)
   SetDirty(false);
 }
 
+IVGroupControl::IVGroupControl(const IRECT& bounds, const char* label, const IVStyle& style)
+: IControl(bounds)
+, IVectorBase(style)
+{
+  AttachIControl(this, label);
+}
+
+void IVGroupControl::Draw(IGraphics& g)
+{
+  DrawWidget(g);
+  DrawLabel(g);
+}
+
+void IVGroupControl::DrawWidget(IGraphics& g)
+{
+  const float cr = mStyle.roundness;
+  const float ft = mStyle.frameThickness;
+  const float hft = ft/2.f;
+  
+  int nPaths = mStyle.drawShadows ? 2 : 1;
+  
+  auto b = mWidgetBounds.GetPadded(mStyle.drawShadows ? -mStyle.shadowOffset : 0.f);
+  
+  auto labelR = mLabelBounds.Empty() ? mRECT.MW() : mLabelBounds.R;
+  auto labelL = mLabelBounds.Empty() ? mRECT.MW() : mLabelBounds.L;
+
+  for(int i=0; i < nPaths; i++)
+  {
+    const float offset = i == 0 ? 0.f : mStyle.shadowOffset;
+    g.PathClear();
+    g.PathMoveTo(labelR, b.T + hft - offset);
+    g.PathArc(b.R - cr - hft - offset, b.T + cr + hft - offset, cr, 0.f, 90.f);
+    g.PathArc(b.R - cr - hft - offset, b.B - cr - hft - offset, cr, 90.f, 180.f);
+    g.PathArc(b.L + cr + hft - offset, b.B - cr - hft - offset, cr, 180.f, 270.f);
+    g.PathArc(b.L + cr + hft - offset, b.T + cr + hft - offset, cr, 270.f, 360.f);
+    g.PathLineTo(labelL, b.T + hft - offset);
+    g.PathStroke(GetColor(i == 0 ? kFG : kSH), ft);
+  }
+}
+
+void IVGroupControl::OnResize()
+{
+  SetTargetRECT(MakeRects(mRECT));
+  mWidgetBounds.Alter(0, -(mLabelBounds.H()/2.f) - (mStyle.frameThickness/2.f), 0, 0);
+  SetDirty(false);
+}
+
+void IVGroupControl::SetBoundsBasedOnGroup(const char* groupName, float padding)
+{
+  IRECT unionRect;
+  
+  GetUI()->ForControlInGroup(groupName, [&unionRect](IControl& control) { unionRect = unionRect.Union(control.GetRECT()); });
+  
+  mRECT = unionRect.GetPadded((mLabelBounds.H()/2.f) + padding);
+  
+  OnResize();
+}
+
 #pragma mark - BITMAP CONTROLS
 
 void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)

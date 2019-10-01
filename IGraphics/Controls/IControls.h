@@ -365,6 +365,19 @@ protected:
   std::vector<float> mPoints;
 };
 
+class IVGroupControl : public IControl
+                     , public IVectorBase
+{
+public:
+  IVGroupControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE);
+  
+  void Draw(IGraphics& g) override;
+  void DrawWidget(IGraphics& g) override;
+  void OnResize() override;
+  
+  void SetBoundsBasedOnGroup(const char* groupName, float padding);
+};
+
 #pragma mark - SVG Vector Controls
 
 /** A vector knob/dial control which rotates an SVG image */
