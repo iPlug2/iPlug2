@@ -18,3 +18,4 @@ END
 ```
 const IBitmap bitmap1 = pGraphics->LoadBitmap(MYPNG_FN, 1/* num frames*/);
 ```
+5. To allow read access to the plug-in at runtime, macOS image resources must have read permissons set to owner, group and world
