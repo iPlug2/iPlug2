@@ -174,7 +174,9 @@ struct IColor
   bool operator==(const IColor& rhs) { return (rhs.A == A && rhs.R == R && rhs.G == G && rhs.B == B); }
   
   bool operator!=(const IColor& rhs) { return !operator==(rhs); }
-  
+
+  void Set(int a, int r, int g, int b) { A = a; R = r; G = g; B = b; }
+
   /** /todo */
   bool Empty() const { return A == 0 && R == 0 && G == 0 && B == 0; }
   
