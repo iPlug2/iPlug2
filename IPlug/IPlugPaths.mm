@@ -146,8 +146,8 @@ bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_
 
       if (!pPath)
       {
-          pFile = [[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] stringByDeletingPathExtension];
-          pPath = [pBundle pathForResource:pFile ofType:[NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding]];
+        pFile = [[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] stringByDeletingPathExtension];
+        pPath = [pBundle pathForResource:pFile ofType:[NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding]];
       }
         
       if (pPath)
@@ -210,7 +210,7 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
     if(GetResourcePathFromBundle(name, type, result, bundleID))
       return EResourceLocation::kAbsolutePath;
     
-    // then check ~/Music/PLUG_NAME, which is a shared folder that can be accessed from app sandbox
+    // then check ~/Music/sharedResourcesSubPath, which is a shared folder that can be accessed from app sandbox
     if(GetResourcePathFromSharedLocation(name, type, result, sharedResourcesSubPath))
       return EResourceLocation::kAbsolutePath;
     
