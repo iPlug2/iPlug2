@@ -345,13 +345,13 @@ static void GetHostNameStr(EHost host, char* pHostName)
  * @param noteName /todo
  * @param cents /todo
  * @param middleCisC4 /todo */
-static void MidiNoteName(double midiPitch, WDL_String& noteName, bool cents = false/*, bool middleCisC4 = false*/)
+static void MidiNoteName(double midiPitch, WDL_String& noteName, bool cents = false, bool middleCisC4 = false)
 {
   static const char noteNames[12][3] = {"C ","C#","D ","D#","E ","F ","F#","G ","G#","A ","A#","B "};
   
   int midiPitchR = (int) std::round(midiPitch);
   int pitchClass = midiPitchR % 12;
-  int octave = (midiPitchR / 12) - 2;
+  int octave = (midiPitchR / 12) - (middleCisC4? 1 : 2);
   
   if (cents)
   {
