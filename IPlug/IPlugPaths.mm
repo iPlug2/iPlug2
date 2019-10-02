@@ -18,7 +18,7 @@
 #include <string>
 #include <map>
 
-#if defined OS_IOS
+#if defined(OS_IOS) || defined(OS_MAC)
 #import <Foundation/Foundation.h>
 #endif
 
