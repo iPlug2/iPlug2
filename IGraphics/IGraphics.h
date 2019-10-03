@@ -204,8 +204,8 @@ public:
    * @param cx The X coordinate in the graphics context of the centre of the circle on which the arc lies
    * @param cy The Y coordinate in the graphics context of the centre of the circle on which the arc lies
    * @param r The radius of the circle on which the arc lies
-   * @param a1 the start angle  of the arc at in degrees clockwise where 0 is up
-   * @param a2 the end angle  of the arc at in degrees clockwise where 0 is up
+   * @param a1 the start angle of the arc at in degrees clockwise where 0 is up
+   * @param a2 the end angle of the arc at in degrees clockwise where 0 is up
    * @param pBlend Optional blend method, see IBlend documentation
    * @param thickness Optional line thickness */
   virtual void DrawArc(const IColor& color, float cx, float cy, float r, float a1, float a2, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
@@ -486,7 +486,7 @@ public:
   
   /** /todo 
    * @param r /todo*/
-  void StartLayer(const IRECT& r);
+  void StartLayer(IControl *owner, const IRECT& r);
   
   /** /todo
    * @param layer /todo*/
@@ -856,7 +856,7 @@ public:
 
   /** Get the bundle ID on macOS and iOS, returns emtpy string on other OSs */
   virtual const char* GetBundleID() { return ""; }
-  
+
 protected:
   /** /todo
    * @param control /todo
@@ -1096,7 +1096,7 @@ private:
    * @param isContext Determines if the menu is a contextual menu or not
    * @param valIdx The value index for the control value that the prompt relates to */
   void DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx, bool isContext);
-    
+  
 protected: // TODO: correct?
   /** /todo */
   void StartResizeGesture() { mResizingInProcess = true; };
@@ -1370,7 +1370,13 @@ public:
   void PopupHostContextMenuForParam(IControl* pControl, int paramIdx, float x, float y);
   
 #pragma mark - Resource/File Loading
-    
+  
+  /** Gets the name of the shared resources subpath. */
+  const char* GetSharedResourcesSubPath() const { return mSharedResourcesSubPath.Get(); }
+  
+  /** Sets the name of the shared resources subpath. */
+  void SetSharedResourcesSubPath(const char* sharedResourcesSubPath) { mSharedResourcesSubPath.Set(sharedResourcesSubPath); }
+  
   /** Load a bitmap image from disk or from windows resource
    * @param fileNameOrResID CString file name or resource ID
    * @param nStates The number of states/frames in a multi-frame stacked bitmap
@@ -1488,6 +1494,8 @@ private:
   std::unique_ptr<IControl> mLiveEdit;
   
   IPopupMenu mPromptPopupMenu;
+  
+  WDL_String mSharedResourcesSubPath;
   
   ECursor mCursorType = ECursor::ARROW;
   int mWidth;

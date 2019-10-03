@@ -39,7 +39,7 @@ public:
         IText text;
         text.mVAlign = EVAlign::Top;
         text.mSize = 15;
-        g.StartLayer(mRECT);
+        g.StartLayer(this, mRECT);
         g.FillRoundRect(COLOR_LIGHT_GRAY, mRECT.GetPadded(-5.5f), mRECT.W() / 4.0);
         g.DrawText(text, "Cached Layer", mRECT.GetPadded(-10));
         mLayer = g.EndLayer();

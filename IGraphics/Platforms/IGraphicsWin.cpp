@@ -750,6 +750,9 @@ void IGraphicsWin::PlatformResize(bool parentHasResized)
 
     RECT r = { 0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale() };
     InvalidateRect(mPlugWnd, &r, FALSE);
+
+    // Fix white background while resizing
+    UpdateWindow(mPlugWnd);
   }
 }
 
@@ -1734,7 +1737,7 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
   int resSize = 0;
   WDL_String fullPath;
  
-  const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, GetBundleID(), GetWinModuleHandle());
+  const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, GetBundleID(), GetWinModuleHandle(), nullptr);
 
   if (fontLocation == kNotFound)
     return nullptr;

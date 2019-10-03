@@ -264,6 +264,44 @@ struct IColor
 
     return IColor(A, R, G, B);
   }
+
+  /** Create an IColor from a color code. Can be used to convert a hex code into an IColor object.
+   * @code
+   *   IColor color = IColor::FromColorCode(0x55a6ff);
+   *   IColor colorWithAlpha = IColor::FromColorCode(0x55a6ff, 0x88); // alpha is 0x88
+   * @endcode
+   * 
+   * @param colorCode Integer representation of the color. Use with hexadecimal numbers, e.g. 0xff38a2
+   * @param A Integer representation of the alpha channel
+   * @return IColor A new IColor based on the color code provided */
+  static IColor FromColorCode(int colorCode, int A = 0xFF)
+  {
+    int R = (colorCode >> 16) & 0xFF;
+    int G = (colorCode >> 8) & 0xFF;
+    int B = colorCode & 0xFF;
+
+    return IColor(A, R, G, B);
+  }
+  
+  /** Create an IColor from a color code in a CString. Can be used to convert a hex code into an IColor object.
+   * @param colorCode CString representation of the color code (no alpha). Use with hex numbers, e.g. "#ff38a2". WARNING: This does very little error checking
+   * @return IColor A new IColor based on the color code provided */
+  static IColor FromColorCodeStr(const char* hexStr)
+  {
+    WDL_String str(hexStr);
+    
+    if(str.GetLength() == 7 && str.Get()[0] == '#')
+    {
+      str.DeleteSub(0, 1);
+
+      return FromColorCode(static_cast<int>(std::stoul(str.Get(), nullptr, 16)));
+    }
+    else
+    {
+      assert(0 && "Invalid color code str, returning black");
+      return IColor();
+    }
+  }
   
   /** /todo 
    * @param h /todo
@@ -387,13 +425,8 @@ const IBlend BLEND_01 = IBlend(EBlend::Default, 0.01f);
 /** Used to manage fill behaviour for path based drawing back ends */
 struct IFillOptions
 {
-  IFillOptions()
-  : mFillRule(EFillRule::Winding)
-  , mPreserve(false)
-  {}
-
-  EFillRule mFillRule;
-  bool mPreserve;
+  EFillRule mFillRule { EFillRule::Winding };
+  bool mPreserve { false };
 };
 
 /** Used to manage stroke behaviour for path based drawing back ends */
@@ -403,6 +436,16 @@ struct IStrokeOptions
   class DashOptions
   {
   public:
+
+    DashOptions()
+    : mCount(0)
+    , mOffset(0)
+    {}
+
+    DashOptions(float* array, float offset, int count)
+    {
+      SetDash(array, offset, count);
+    }
 
     /** @return int /todo */
     int GetCount() const { return mCount; }
@@ -430,8 +473,8 @@ struct IStrokeOptions
 
   private:
     float mArray[8];
-    float mOffset = 0;
-    int mCount = 0;
+    float mOffset;
+    int mCount;
   };
 
   float mMiterLimit = 10.f;
@@ -1937,9 +1980,13 @@ class ILayer
 public:
   /** /todo 
    * @param pBitmap /todo
-   * @param r /todo */
-  ILayer(APIBitmap* pBitmap, IRECT r)
+   * @param r /todo
+   * @param pControl /todo
+   * @param cr /todo */
+  ILayer(APIBitmap* pBitmap, const IRECT& r, IControl* pControl, const IRECT& cr)
   : mBitmap(pBitmap)
+  , mControl(pControl)
+  , mControlRECT(cr)
   , mRECT(r)
   , mInvalid(false)
   {}
@@ -1963,6 +2010,8 @@ private:
   APIBitmap* AccessAPIBitmap() { return mBitmap.get(); }
   
   std::unique_ptr<APIBitmap> mBitmap;
+  IControl* mControl;
+  IRECT mControlRECT;
   IRECT mRECT;
   bool mInvalid;
 };
@@ -2106,7 +2155,7 @@ struct IVStyle
   
   IVStyle(bool showLabel = DEFAULT_SHOW_LABEL,
           bool showValue = DEFAULT_SHOW_VALUE,
-          const std::initializer_list<IColor>& colors = {DEFAULT_BGCOLOR, DEFAULT_FGCOLOR, DEFAULT_PRCOLOR, DEFAULT_FRCOLOR, DEFAULT_HLCOLOR, DEFAULT_SHCOLOR, DEFAULT_X1COLOR, DEFAULT_X2COLOR, DEFAULT_X3COLOR},
+          const IVColorSpec& colors = {DEFAULT_BGCOLOR, DEFAULT_FGCOLOR, DEFAULT_PRCOLOR, DEFAULT_FRCOLOR, DEFAULT_HLCOLOR, DEFAULT_SHCOLOR, DEFAULT_X1COLOR, DEFAULT_X2COLOR, DEFAULT_X3COLOR},
           const IText& labelText = DEFAULT_LABEL_TEXT,
           const IText& valueText = DEFAULT_VALUE_TEXT,
           bool hideCursor = DEFAULT_HIDE_CURSOR,

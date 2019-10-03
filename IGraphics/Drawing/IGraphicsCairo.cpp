@@ -562,7 +562,7 @@ void IGraphicsCairo::DoDrawText(const IText& text, const char* str, const IRECT&
   {
     PathTransformSave();
     PathTransformReset();
-    StartLayer(measured);
+    StartLayer(nullptr, measured);
     cairo_set_source_rgba(mContext, c.R / 255.0, c.G / 255.0, c.B / 255.0, (BlendWeight(pBlend) * c.A) / 255.0);
     cairo_translate(mContext, x, y);
     cairo_show_glyphs(mContext, pGlyphs, numGlyphs);
@@ -580,9 +580,6 @@ void IGraphicsCairo::UpdateCairoContext()
 {
   if (mContext)
   {
-#ifdef OS_MAC
-    CGContextSaveGState((CGContextRef) GetPlatformContext());
-#endif
     cairo_destroy(mContext);
     mContext = nullptr;
   }

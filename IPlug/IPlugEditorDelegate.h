@@ -303,7 +303,7 @@ protected:
   int mEditorHeight = 0;
   /** Any arbitrary data that the editor need to store (e.g. scale etc.) */
   IByteChunk mEditorData;
-  /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plug-in class implementation constructor */
+  /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to MakeConfig() in the plug-in class implementation constructor */
   WDL_PtrList<IParam> mParams;
 };
 

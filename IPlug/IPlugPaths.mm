@@ -202,7 +202,7 @@ bool GetResourcePathFromSharedLocation(const char* fileName, const char* searchE
   }
 }
 
-EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char* bundleID, void*)
+EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char* bundleID, void*, const char* sharedResourcesSubPath)
 {
   if(CStringHasContents(name))
   {
@@ -211,7 +211,7 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
       return EResourceLocation::kAbsolutePath;
     
     // then check ~/Music/PLUG_NAME, which is a shared folder that can be accessed from app sandbox
-    if(GetResourcePathFromSharedLocation(name, type, result, "VirtualCZ")) //TODO: Hardcoded! This will change
+    if(GetResourcePathFromSharedLocation(name, type, result, sharedResourcesSubPath))
       return EResourceLocation::kAbsolutePath;
     
     // finally check name, which might be a full path - if the plug-in is trying to load a resource at runtime (e.g. skin-able UI)
@@ -323,7 +323,7 @@ bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_
   }
 }
 
-EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char* bundleID, void*)
+EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char* bundleID, void*, const char*)
 {
   if(CStringHasContents(name))
   {

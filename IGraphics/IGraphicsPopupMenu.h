@@ -112,17 +112,19 @@ public:
 
   #pragma mark -
   
-  IPopupMenu(int prefix = 0, bool multicheck = false, const std::initializer_list<const char*>& items = {})
+  IPopupMenu(const char* rootTitle = "", int prefix = 0, bool multicheck = false, const std::initializer_list<const char*>& items = {})
   : mPrefix(prefix)
   , mCanMultiCheck(multicheck)
+  , mRootTitle(rootTitle)
   {
     for (auto& item : items)
       AddItem(item);
   }
   
-  IPopupMenu(const std::initializer_list<const char*>& items, IPopupFunction func)
+  IPopupMenu(const char* rootTitle, const std::initializer_list<const char*>& items, IPopupFunction func = nullptr)
   : mPrefix(0)
   , mCanMultiCheck(false)
+  , mRootTitle(rootTitle)
   {
     for (auto& item : items)
       AddItem(item);
@@ -307,12 +309,23 @@ public:
     mPopupFunc(mChosenItemIdx, GetItem(mChosenItemIdx));
   }
   
+  const char* GetRootTitle() const
+  {
+    return mRootTitle.Get();
+  }
+  
+  void SetRootTitle(const char* rootTitle)
+  {
+    return mRootTitle.Set(rootTitle);
+  }
+  
 private:
   int mPrefix; // 0 = no prefix, 1 = numbers no leading zeros, 2 = 1 lz, 3 = 2lz
   int mChosenItemIdx = -1;
   bool mCanMultiCheck; // multicheck = 0 doesn't actually prohibit multichecking, you should do that in your code, by calling CheckItemAlone instead of CheckItem
   WDL_PtrList<Item> mMenuItems;
   IPopupFunction mPopupFunc = nullptr;
+  WDL_String mRootTitle;
 };
 
 END_IGRAPHICS_NAMESPACE

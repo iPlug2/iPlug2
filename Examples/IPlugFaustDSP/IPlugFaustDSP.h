@@ -35,6 +35,6 @@ public:
   void OnIdle() override;
 private:
   FAUST_BLOCK(Faust1, mFaustProcessor, DSP_FILE, 1, 1);
-  IVScopeControl<1>::Sender mScopeSender { kControlTagScope };
+  IVScopeControl<2>::Sender mScopeSender { kControlTagScope };
 #endif
 };

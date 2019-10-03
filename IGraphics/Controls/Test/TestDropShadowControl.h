@@ -36,7 +36,7 @@ public:
 
     if (!g.CheckLayer(mLayer))
     {
-      g.StartLayer(mRECT);
+      g.StartLayer(this, mRECT);
       
       if (g.HasPathSupport())
         g.DrawSVG(mSVG, mRECT);

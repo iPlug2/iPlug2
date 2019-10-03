@@ -237,5 +237,8 @@
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.h">
       <Filter>Source Files\IGraphics\Drawing</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsPrivate.h">
+      <Filter>Source Files\IGraphics</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

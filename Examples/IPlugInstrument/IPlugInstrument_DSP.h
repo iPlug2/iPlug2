@@ -148,7 +148,7 @@ public:
     mSynth.SetSampleRateAndBlockSize(sampleRate, blockSize);
     mSynth.Reset();
     
-    mModulationsData.Resize(blockSize);
+    mModulationsData.Resize(blockSize * kNumModulations);
     mModulations.Empty();
     
     for(int i = 0; i < kNumModulations; i++)

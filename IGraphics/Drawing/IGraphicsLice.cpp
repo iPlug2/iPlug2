@@ -582,7 +582,7 @@ void IGraphicsLice::DoDrawText(const IText& text, const char* str, const IRECT& 
   {
     float pad = std::max(measured.W(), measured.H()) * 0.5;
     IRECT layerRect(measured.GetPadded(pad));
-    StartLayer(layerRect);
+    StartLayer(nullptr, layerRect);
   }
 
   IRECT r0(measured);
@@ -639,7 +639,7 @@ void IGraphicsLice::OpacityLayer(T method, const IBlend* pBlend, const IColor& c
   drawColor.A = 255;
   ILayer* currentLayer = mLayers.empty() ? mClippingLayer.get() : mLayers.top();
   IRECT layerBounds = currentLayer ? currentLayer->Bounds() : GetBounds();
-  StartLayer(layerBounds);
+  StartLayer(nullptr, layerBounds);
   (this->*method)(drawColor, args...);
   ILayerPtr layer = EndLayer();
   DrawLayer(layer, &blend);
@@ -653,7 +653,7 @@ void IGraphicsLice::NeedsClipping()
     const int w = static_cast<int>(std::round(alignedBounds.W() * GetBackingPixelScale()));
     const int h = static_cast<int>(std::round(alignedBounds.H() * GetBackingPixelScale()));
     
-    mClippingLayer = std::make_unique<ILayer>(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds);
+    mClippingLayer = std::make_unique<ILayer>(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds, nullptr, IRECT());
     UpdateLayer();
   }
 }

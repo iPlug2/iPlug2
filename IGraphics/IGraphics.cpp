@@ -182,7 +182,7 @@ void IGraphics::SetControlValueAfterPopupMenu(IPopupMenu* pMenu)
 {
   if (!mInPopupMenu)
     return;
-    
+  
   if (mIsContextMenu)
     mInPopupMenu->OnContextSelection(pMenu ? pMenu->GetChosenItemIdx() : -1);
   else
@@ -431,6 +431,8 @@ void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds, int valI
           mPromptPopupMenu.AddItem( new IPopupMenu::Item(str, IPopupMenu::Item::kChecked), -1 );
         else // not equal
           mPromptPopupMenu.AddItem( new IPopupMenu::Item(str), -1 );
+        
+        mPromptPopupMenu.SetRootTitle(pParam->GetNameForHost());
       }
 
       CreatePopupMenu(control, mPromptPopupMenu, bounds, valIdx);
@@ -1269,7 +1271,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
   if(!pHolder)
   {
     WDL_String path;
-    EResourceLocation resourceFound = LocateResource(fileName, "svg", path, GetBundleID(), GetWinModuleHandle());
+    EResourceLocation resourceFound = LocateResource(fileName, "svg", path, GetBundleID(), GetWinModuleHandle(), GetSharedResourcesSubPath());
 
     if (resourceFound == EResourceLocation::kNotFound)
       return ISVG(nullptr); // return invalid SVG
@@ -1392,7 +1394,7 @@ IBitmap IGraphics::ScaleBitmap(const IBitmap& inBitmap, const char* name, int sc
   mDrawScale = inBitmap.GetDrawScale();
 
   IRECT bounds = IRECT(0, 0, inBitmap.W() / inBitmap.GetDrawScale(), inBitmap.H() / inBitmap.GetDrawScale());
-  StartLayer(bounds);
+  StartLayer(nullptr, bounds);
   DrawBitmap(inBitmap, bounds, 0, 0, nullptr);
   ILayerPtr layer = EndLayer();
   IBitmap bitmap = IBitmap(layer->mBitmap.release(), inBitmap.N(), inBitmap.GetFramesAreHorizontal(), name);
@@ -1429,7 +1431,7 @@ EResourceLocation IGraphics::SearchImageResource(const char* name, const char* t
       fullName.SetFormatted((int) (strlen(name) + strlen("@2x")), "%s@%dx%s", baseName.Get(), sourceScale, ext.Get());
     }
 
-    EResourceLocation found = LocateResource(fullName.Get(), type, result, GetBundleID(), GetWinModuleHandle());
+    EResourceLocation found = LocateResource(fullName.Get(), type, result, GetBundleID(), GetWinModuleHandle(), GetSharedResourcesSubPath());
 
     if (found > EResourceLocation::kNotFound)
       return found;
@@ -1499,13 +1501,13 @@ void IGraphics::CreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT
   DoCreatePopupMenu(control, menu, bounds, valIdx, false);
 }
 
-void IGraphics::StartLayer(const IRECT& r)
+void IGraphics::StartLayer(IControl* pControl, const IRECT& r)
 {
   IRECT alignedBounds = r.GetPixelAligned(GetBackingPixelScale());
   const int w = static_cast<int>(std::ceil(GetBackingPixelScale() * std::ceil(alignedBounds.W())));
   const int h = static_cast<int>(std::ceil(GetBackingPixelScale() * std::ceil(alignedBounds.H())));
 
-  PushLayer(new ILayer(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds));
+  PushLayer(new ILayer(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds, pControl, pControl ? pControl->GetRECT() : IRECT()));
 }
 
 void IGraphics::ResumeLayer(ILayerPtr& layer)
@@ -1556,6 +1558,13 @@ ILayer* IGraphics::PopLayer()
 bool IGraphics::CheckLayer(const ILayerPtr& layer)
 {
   const APIBitmap* pBitmap = layer ? layer->GetAPIBitmap() : nullptr;
+    
+  if (pBitmap && layer->mControl && layer->mControlRECT != layer->mControl->GetRECT())
+  {
+    layer->mControlRECT = layer->mControl->GetRECT();
+    layer->Invalidate();
+  }
+
   return pBitmap && !layer->mInvalid && pBitmap->GetDrawScale() == GetDrawScale() && pBitmap->GetScale() == GetScreenScale();
 }
 
