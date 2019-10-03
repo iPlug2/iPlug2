@@ -30,6 +30,7 @@ RTMIDI_PATH = $(DEPS_PATH)/IPlug/RTMidi
 IPLUG_SRC = $(IPLUG_PATH)/IPlugAPIBase.cpp \
 	$(IPLUG_PATH)/IPlugParameter.cpp \
 	$(IPLUG_PATH)/IPlugPluginBase.cpp \
+	$(IPLUG_PATH)/IPlugProcessor.cpp \
 	$(IPLUG_PATH)/IPlugPaths.cpp \
 	$(IPLUG_PATH)/IPlugTimer.cpp
 
