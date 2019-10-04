@@ -113,7 +113,8 @@ public:
    * WARNING: this method can in some cases be called on the realtime audio thread */
   virtual void OnParamChange(int paramIdx) {}
   
-  /** This is an OnParamChange that will only trigger on the UI thread at low priority, and therefore is appropriate for hiding or showing elements of the UI.
+  /** Override this method to do something to your UI when a parameter changes.
+   * Like OnParamChange, OnParamChangeUI will be called when a parameter changes. However, whereas OnParamChange may be called on the audio thread and should be used to update DSP state, OnParamChangeUI is always called on the low-priority thread, should be used to update UI (e.g. for hiding or showing controls).
    * You should not update parameter objects using this method.
    * @param paramIdx The index of the parameter that changed */
   virtual void OnParamChangeUI(int paramIdx, EParamSource source = kUnknown) {};
