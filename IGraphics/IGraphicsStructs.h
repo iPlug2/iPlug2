@@ -20,10 +20,12 @@
 #include <chrono>
 #include <numeric>
 
-#include "IGraphicsPrivate.h"
-#include "IGraphicsUtilities.h"
 #include "IPlugUtilities.h"
 #include "IPlugLogger.h"
+#include "IPlugStructs.h"
+
+#include "IGraphicsPrivate.h"
+#include "IGraphicsUtilities.h"
 #include "IGraphicsConstants.h"
 
 BEGIN_IPLUG_NAMESPACE
@@ -34,7 +36,6 @@ class IControl;
 class ILambdaControl;
 struct IRECT;
 struct IMouseInfo;
-struct IKeyPress;
 struct IColor;
 
 using IActionFunction = std::function<void(IControl*)>;
@@ -1403,29 +1404,6 @@ struct IRECT
     else
       return H();
   }
-};
-
-/** Used for key press info, such as ASCII representation, virtual key (mapped to win32 codes) and modifiers */
-struct IKeyPress
-{
-  int VK; // Windows VK_XXX
-  char utf8[5] = {0}; // UTF8 key
-  bool S, C, A; // SHIFT / CTRL(WIN) or CMD (MAC) / ALT
-  
-  /** /todo 
-   * @param _utf8 /todo
-   * @param vk /todo
-   * @param s /todo
-   * @param c /todo
-   * @param a /todo */
-  IKeyPress(const char* _utf8, int vk, bool s = false, bool c = false, bool a = false)
-  : VK(vk)
-  , S(s), C(c), A(a)
-  {
-    strcpy(utf8, _utf8);
-  }
-  
-  void DBGPrint() const { DBGMSG("VK: %i\n", VK); }
 };
 
 /** Used to manage mouse modifiers i.e. right click and shift/control/alt keys. */

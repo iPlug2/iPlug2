@@ -84,6 +84,16 @@ public:
    * @param height The selected height */
   virtual void OnHostSelectedViewConfiguration(int width, int height) {}
 
+  /** KeyDown handler for VST2, in order to get keystrokes from certain hosts 
+   * @param key Information about the key that was pressed
+   * @return \c true if the key was handled by the plug-in */
+  virtual bool OnKeyDown(const IKeyPress& key) { return false; }
+
+  /** KeyDown handler for VST2, in order to get keystrokes from certain hosts
+   * @param key Information about the key that was released
+   * @return \c true if the key was handled by the plug-in */
+  virtual bool OnKeyUp(const IKeyPress& key) { return false; }
+
   /** Override this method to provide custom text linked to MIDI note numbers in API classes that support that (VST2)
    * Typically this might be used for a drum machine plug-in, in order to label a certainty "kick drum" etc.
    * @param noteNumber MIDI note to get the textual description for
