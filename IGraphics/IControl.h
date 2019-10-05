@@ -381,7 +381,7 @@ public:
   /** Gets a pointer to the class implementing the IEditorDelegate interface that handles parameter changes from this IGraphics instance.
    * If you need to call other methods on that class, you can use static_cast<PLUG_CLASS_NAME>(GetDelegate();
    * @return The class implementing the IEditorDelegate interface that handles communication to/from from this IGraphics instance.*/
-  IEditorDelegate* GetDelegate() { return mDelegate; }
+  IGEditorDelegate* GetDelegate() { return mDelegate; }
   
   /** Used internally to set the mDelegate (and mGraphics) variables */
   void SetDelegate(IGEditorDelegate& dlg)
@@ -512,7 +512,7 @@ protected:
 #endif
   
 private:
-  IEditorDelegate* mDelegate = nullptr;
+  IGEditorDelegate* mDelegate = nullptr;
   IGraphics* mGraphics = nullptr;
   IActionFunction mActionFunc = nullptr;
   IAnimationFunction mAnimationFunc = nullptr;
@@ -1470,6 +1470,12 @@ protected:
 class ICaptionControl : public ITextControl
 {
 public:
+  /** Creates an ICaptionControl
+   * @param bounds The control's bounds
+   * @param paramIdx The parameter index to link this control to
+   * @param text The styling of this control's text
+   * @param BGColor The control's background color
+   * @param showParamLabel Whether the parameter's label, e.g. "Hz" should be appended to the caption */
   ICaptionControl(const IRECT& bounds, int paramIdx, const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR, bool showParamLabel = true);
   void Draw(IGraphics& g) override;
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
