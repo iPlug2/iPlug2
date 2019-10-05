@@ -271,10 +271,35 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
       IPanelControl* pPanel = dynamic_cast<IPanelControl*>(pGraphics->GetBackgroundControl());
       IColor color = pPanel->GetPattern().GetStop(0).mColor;
       pGraphics->PromptForColor(color, "", [pCaller, pGraphics, pPanel](const IColor& result){
+        dynamic_cast<IVButtonControl*>(pCaller)->SetColor(kFG, result);
         pPanel->SetPattern(result);
       });
 
     }, "Background", style.WithColor(kFG, DEFAULT_GRAPHICS_BGCOLOR).WithDrawFrame(false).WithDrawShadows(false)));
+
+    nextCell();
+    toggle = 0;
+    
+    for(auto label : {"Gray Out"})
+    {
+      pGraphics->AttachControl(new IVToggleControl(sameCell().GetGridCell(toggle, 0, 5, 1), [pGraphics, toggle](IControl* pCaller){
+        SplashClickActionFunc(pCaller);
+        bool grayOut = pCaller->GetValue() > 0.5f;
+        pGraphics->ForStandardControlsFunc([pCaller, toggle, grayOut](IControl& control) {
+          
+          switch (toggle) {
+            case 0 :
+              if(&control != pCaller)
+                control.GrayOut(grayOut); break;
+            default:
+              break;
+          }
+        });
+      }, label, style.WithValueText(forkAwesomeText.WithSize(12.f)).WithDrawFrame(false).WithDrawShadows(false), ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE));
+      
+      toggle++;
+    }
+    
   };
 #endif
 }
