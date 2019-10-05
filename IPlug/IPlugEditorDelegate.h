@@ -119,9 +119,10 @@ public:
    * @param paramIdx The index of the parameter that changed */
   virtual void OnParamChangeUI(int paramIdx, EParamSource source = kUnknown) {};
   
-  /** Calls OnParamChange() and OnParamChangeUI() for each parameter.
+  /** Called when parameteres have changed to inform the plugin of the changes
+   * Override only if you need to handle notifications and updates in a specialist manner (e.g. if the ordering of updating parameters has an effect or if you need to avoid multiple settings of linked parameters). This must update both DSP and UI. The default implementation calls OnParamChange() and OnParamChangeUI() for each parameter.
    * @param source Specifies the source of the parameter changes */
-  void OnParamReset(EParamSource source)
+  virtual void OnParamReset(EParamSource source)
   {
     for (int i = 0; i < NParams(); ++i)
     {
