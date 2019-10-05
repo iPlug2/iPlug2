@@ -275,6 +275,30 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
       });
 
     }, "Background", style.WithColor(kFG, DEFAULT_GRAPHICS_BGCOLOR).WithDrawFrame(false).WithDrawShadows(false)));
+
+    nextCell();
+    toggle = 0;
+    
+    for(auto label : {"Gray Out"})
+    {
+      pGraphics->AttachControl(new IVToggleControl(sameCell().GetGridCell(toggle, 0, 5, 1), [pGraphics, toggle](IControl* pCaller){
+        SplashClickActionFunc(pCaller);
+        bool grayOut = pCaller->GetValue() > 0.5f;
+        pGraphics->ForStandardControlsFunc([pCaller, toggle, grayOut](IControl& control) {
+          
+          switch (toggle) {
+            case 0 :
+              if(&control != pCaller)
+                control.GrayOut(grayOut); break;
+            default:
+              break;
+          }
+        });
+      }, label, style.WithValueText(forkAwesomeText.WithSize(12.f)).WithDrawFrame(false).WithDrawShadows(false), ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE));
+      
+      toggle++;
+    }
+    
   };
 #endif
 }
