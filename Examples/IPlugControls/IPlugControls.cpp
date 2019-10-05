@@ -271,6 +271,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
       IPanelControl* pPanel = dynamic_cast<IPanelControl*>(pGraphics->GetBackgroundControl());
       IColor color = pPanel->GetPattern().GetStop(0).mColor;
       pGraphics->PromptForColor(color, "", [pCaller, pGraphics, pPanel](const IColor& result){
+        dynamic_cast<IVButtonControl*>(pCaller)->SetColor(kFG, result);
         pPanel->SetPattern(result);
       });
 
