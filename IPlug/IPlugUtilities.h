@@ -50,6 +50,9 @@ BEGIN_IPLUG_NAMESPACE
 template <typename T>
 T Clip(T x, T lo, T hi) { return std::min(std::max(x, lo), hi); }
 
+template <typename T>
+T ClipLo(T x, T lo) { return std::max(x, lo); }
+
 static inline bool CStringHasContents(const char* str) { return str && str[0] != '\0'; }
 
 #define MAKE_QUOTE(str) #str

@@ -182,7 +182,10 @@ struct IColor
   
   /** /todo */
   void Clamp() { A = Clip(A, 0, 255); R = Clip(R, 0, 255); Clip(G, 0, 255); B = Clip(B, 0, 255); }
-  
+
+  /** /todo */
+  void ClampZero() { A = ClipLo(A, 0); R = ClipLo(R, 0); ClipLo(G, 0); B = ClipLo(B, 0); }
+
   /** /todo 
    * @param alpha */
   void Randomise(int alpha = 255) { A = alpha; R = std::rand() % 255; G = std::rand() % 255; B = std::rand() % 255; }
