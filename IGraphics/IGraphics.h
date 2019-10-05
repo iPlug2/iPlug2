@@ -1216,6 +1216,18 @@ public:
   
   /** Removes all regular IControls from the control list, as well as special controls (frees memory). */
   void RemoveAllControls();
+
+  /** Removes a single control
+   * @param pControl The pointer to the control to be removed
+   * @param wantsDelete will also delete the control object
+   * @return True on success */
+  bool RemoveControl(IControl* pControl, bool wantsDelete = false);
+
+  /** Removes a single control at a given index
+   * @param idx index of control to be removed
+   * @param wantsDelete will also delete the control object
+   * @return True on success */
+  bool RemoveControl(int idx, bool wantsDelete = false);
   
   /** Hide controls linked to a specific parameter
    * @param paramIdx The parameter index
