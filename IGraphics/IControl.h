@@ -382,7 +382,11 @@ public:
    * If you need to call other methods on that class, you can use static_cast<PLUG_CLASS_NAME>(GetDelegate();
    * @return The class implementing the IEditorDelegate interface that handles communication to/from from this IGraphics instance.*/
   IEditorDelegate* GetDelegate() { return mDelegate; }
-  
+
+  IGEditorDelegate* GetGDelegate() {
+    return static_cast<IGEditorDelegate *>(GetDelegate());
+  }
+
   /** Used internally to set the mDelegate (and mGraphics) variables */
   void SetDelegate(IGEditorDelegate& dlg)
   {
