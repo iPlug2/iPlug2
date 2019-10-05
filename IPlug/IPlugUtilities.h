@@ -50,6 +50,13 @@ BEGIN_IPLUG_NAMESPACE
 template <typename T>
 T Clip(T x, T lo, T hi) { return std::min(std::max(x, lo), hi); }
 
+/** Clips the value \p x to \p lo
+ * @param x Input value
+ * @param lo Minimum value to be allowed
+ * If \p x is lower than the low value, it will be set to \p lo */
+template <typename T>
+T ClipLo(T x, T lo) { return std::max(x, lo); }
+
 static inline bool CStringHasContents(const char* str) { return str && str[0] != '\0'; }
 
 #define MAKE_QUOTE(str) #str
