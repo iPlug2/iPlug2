@@ -285,6 +285,12 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
   int32_t numInChannels = AAX_STEM_FORMAT_CHANNEL_COUNT(inFormat);
   int32_t numOutChannels = AAX_STEM_FORMAT_CHANNEL_COUNT(outFormat);
 
+  if (numSamples > GetBlockSize())
+  {
+    SetBlockSize(numSamples);
+    OnReset();
+  }
+
   SetChannelConnections(ERoute::kInput, 0, numInChannels, true);
   SetChannelConnections(ERoute::kInput, numInChannels, MaxNChannels(ERoute::kInput) - numInChannels, false);
   AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), pRenderInfo->mAudioInputs, numSamples);
