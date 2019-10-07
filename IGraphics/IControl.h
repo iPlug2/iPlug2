@@ -295,6 +295,12 @@ public:
    * @param bounds The control's new draw and target bounds within the graphics context */
   void SetTargetAndDrawRECTs(const IRECT& bounds) { mRECT = mTargetRECT = bounds; mMouseIsOver = false; OnResize(); }
 
+  /** Set the position of the control, including the draw rect and target area */
+  void SetPosition(float x, float y);
+
+  /** Set the size of the control, including the draw rect and target area */
+  void SetSize(float w, float h);
+
   /** Used internally by the AAX wrapper view interface to set the control parmeter highlight 
    * @param isHighlighted /c true if the control should be highlighted 
    * @param color An integer representing one of three colors that ProTools assigns automated controls */
