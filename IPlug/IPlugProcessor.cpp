@@ -413,7 +413,7 @@ void IPlugProcessor::ProcessBuffers(PLUG_SAMPLE_DST type, int nFrames)
 
 void IPlugProcessor::ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames)
 {
-  ProcessBlock(mScratchData[ERoute::kInput].Get(), mScratchData[ERoute::kOutput].Get(), nFrames);
+  ProcessBuffers((PLUG_SAMPLE_DST) 0, nFrames);
   int i, n = MaxNChannels(ERoute::kOutput);
   IChannelData<>** ppOutChannel = mChannelData[ERoute::kOutput].GetList();
 
@@ -430,7 +430,7 @@ void IPlugProcessor::ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames)
 
 void IPlugProcessor::ProcessBuffersAccumulating(int nFrames)
 {
-  ProcessBlock(mScratchData[ERoute::kInput].Get(), mScratchData[ERoute::kOutput].Get(), nFrames);
+  ProcessBuffers((PLUG_SAMPLE_DST) 0, nFrames);
   int i, n = MaxNChannels(ERoute::kOutput);
   IChannelData<>** ppOutChannel = mChannelData[ERoute::kOutput].GetList();
 

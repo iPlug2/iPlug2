@@ -419,10 +419,12 @@ void IPlugVST3ProcessorBase::ProcessAudio(ProcessData& data, ProcessSetup& setup
     }
     else
     {
+      ENTER_PARAMS_MUTEX;
       if (sampleSize == kSample32)
         ProcessBuffers(0.f, data.numSamples); // single precision
       else
         ProcessBuffers(0.0, data.numSamples); // double precision
+      LEAVE_PARAMS_MUTEX;
     }
   }
 }

@@ -337,7 +337,9 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
       ProcessMidiMsg(msg);
     }
     
+    ENTER_PARAMS_MUTEX;
     ProcessBuffers(0.0f, numSamples);
+    LEAVE_PARAMS_MUTEX;
   }
   
   // Midi Out
