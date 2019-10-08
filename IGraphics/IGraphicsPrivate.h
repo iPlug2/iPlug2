@@ -399,12 +399,12 @@ protected:
       IFontInfo fontInfo(data, dataSize, idx);
       
       if (!fontInfo.IsValid())
-      return -1;
+        return -1;
       
       const WDL_String& style = fontInfo.GetStyle();
       
       if (style.GetLength() && (!styleName[0] || !strcmp(style.Get(), styleName)))
-      return idx;
+        return idx;
     }
   }
 
