@@ -1113,7 +1113,7 @@ void IVGroupControl::Draw(IGraphics& g)
 
 void IVGroupControl::DrawWidget(IGraphics& g)
 {
-  const float cr = mStyle.roundness;
+  const float cr = GetRoundedCornerRadius(mWidgetBounds);
   const float ft = mStyle.frameThickness;
   const float hft = ft/2.f;
   
