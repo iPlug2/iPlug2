@@ -956,7 +956,9 @@ void VSTCALLBACK IPlugVST2::VSTProcess(AEffect* pEffect, float** inputs, float**
   TRACE;
   IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
+  ENTER_PARAMS_MUTEX_STATIC;
   _this->ProcessBuffersAccumulating(nFrames);
+  LEAVE_PARAMS_MUTEX_STATIC;
   _this->OutputSysexFromEditor();
 }
 
@@ -965,7 +967,9 @@ void VSTCALLBACK IPlugVST2::VSTProcessReplacing(AEffect* pEffect, float** inputs
   TRACE;
   IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
+  ENTER_PARAMS_MUTEX_STATIC;
   _this->ProcessBuffers((float) 0.0f, nFrames);
+  LEAVE_PARAMS_MUTEX_STATIC;
   _this->OutputSysexFromEditor();
 }
 
@@ -974,7 +978,9 @@ void VSTCALLBACK IPlugVST2::VSTProcessDoubleReplacing(AEffect* pEffect, double**
   TRACE;
   IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
+  ENTER_PARAMS_MUTEX_STATIC;
   _this->ProcessBuffers((double) 0.0, nFrames);
+  LEAVE_PARAMS_MUTEX_STATIC;
   _this->OutputSysexFromEditor();
 }
 
