@@ -15,6 +15,7 @@
  * @{
  */
 
+#include <codecvt>
 #include <string>
 #include <memory>
 
@@ -65,11 +66,9 @@
 
 #if defined OS_MAC || defined OS_IOS
   #include <CoreText/CoreText.h>
-  #include <CoreFoundation/CoreFoundation.h>
   #define FONT_DESCRIPTOR_TYPE CTFontDescriptorRef
 #elif defined OS_WIN
   #include "wingdi.h"
-  #include "Stringapiset.h"
   #define FONT_DESCRIPTOR_TYPE HFONT
 #elif defined OS_WEB
   #define FONT_DESCRIPTOR_TYPE std::pair<WDL_String, WDL_String>*
@@ -274,23 +273,20 @@ private:
           case EStringID::Windows:
           {
             WDL_TypedBuf<char> utf8;
-            WDL_TypedBuf<uint16_t> utf16;
-            utf16.Resize(length / sizeof(uint16_t));
+            WDL_TypedBuf<char16_t> utf16;
+            utf8.Resize((length * 3) / 2);
+            utf16.Resize(length / sizeof(char16_t));
             
             for (int j = 0; j < length; j++)
               utf16.Get()[j] = GetUInt16(mNameLocation + stringLocation + j * 2);
             
-#ifdef OS_WIN
-            int convertedLength = WideCharToMultiByte(CP_UTF8, 0, utf16.Get(), utf16.GetSize(), 0, 0, NULL, NULL);
-            utf8.Resize(convertedLength);
-            WideCharToMultiByte(CP_UTF8, 0, utf16.Get(), utf16.GetSize(), utf8.Get(), utf8.GetSize(), NULL, NULL);
-#elif defined OS_MAC || defined OS_IOS
-            CFStringRef str = CFStringCreateWithBytes(NULL, (const UInt8 *) utf16.Get(), length, kCFStringEncodingUTF16, false);
-            utf8.Resize((int) CFStringGetMaximumSizeForEncoding(CFStringGetLength(str), kCFStringEncodingUTF8));
-            CFStringGetCString(str, utf8.Get(), utf8.GetSize(), kCFStringEncodingUTF8);
-            CFRelease(str);
-#elif defined OS_WEB
-#endif
+            std::codecvt_utf8_utf16<char16_t> conv;
+            const char16_t *a;
+            char *b;
+            mbstate_t mbs;
+            memset(&mbs, 0, sizeof(mbs));
+            conv.out(mbs, utf16.Get(), utf16.Get() + utf16.GetSize(), a, utf8.Get(), utf8.Get() + utf8.GetSize(), b);
+            
             return WDL_String(utf8.Get(), utf8.GetSize());
           }
             
