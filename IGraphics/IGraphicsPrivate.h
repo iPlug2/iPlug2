@@ -287,7 +287,7 @@ private:
             memset(&mbs, 0, sizeof(mbs));
             conv.out(mbs, utf16.Get(), utf16.Get() + utf16.GetSize(), a, utf8.Get(), utf8.Get() + utf8.GetSize(), b);
             
-            return WDL_String(utf8.Get(), utf8.GetSize());
+            return WDL_String(utf8.Get(), (int) (b - utf8.Get()));
           }
             
           case EStringID::Mac:
