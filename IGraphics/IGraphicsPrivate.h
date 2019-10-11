@@ -184,7 +184,7 @@ public:
     }
   }
   
-  bool IsValid() const       { return mData && mHeadLocation && mNameLocation && mHheaLocation; }
+  bool IsValid() const      { return mData && mHeadLocation && mNameLocation && mHheaLocation; }
   
   const WDL_String& GetFamily() const   { return mFamily; }
   const WDL_String& GetStyle() const    { return mStyle; }
