@@ -280,6 +280,22 @@ void IControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx)
   }
 }
 
+void IControl::SetPosition(float x, float y)
+{
+  if (x < 0.f) x = 0.f;
+  if (y < 0.f) y = 0.f;
+
+  SetTargetAndDrawRECTs({x, y, x + mRECT.W(), mRECT.H()});
+}
+
+void IControl::SetSize(float w, float h)
+{
+  if (w < 0.f) w = 0.f;
+  if (h < 0.f) h = 0.f;
+
+  SetTargetAndDrawRECTs({mRECT.L, mRECT.T, mRECT.L + w, mRECT.T + h});
+}
+
 void IControl::PromptUserInput(int valIdx)
 {
   if (valIdx > kNoValIdx && GetParamIdx(valIdx) > kNoParameter && !mDisablePrompt)
