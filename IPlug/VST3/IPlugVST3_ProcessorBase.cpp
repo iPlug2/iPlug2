@@ -272,6 +272,14 @@ bool IPlugVST3ProcessorBase::SetupProcessing(const ProcessSetup& setup, ProcessS
   return true;
 }
 
+void IPlugVST3ProcessorBase::SetProcessing(bool state)
+{
+  if (!state)
+    OnReset();
+  
+  return true;
+}
+
 bool IPlugVST3ProcessorBase::CanProcessSampleSize(int32 symbolicSampleSize)
 {
   switch (symbolicSampleSize)

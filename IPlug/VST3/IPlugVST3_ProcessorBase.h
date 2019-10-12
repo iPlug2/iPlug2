@@ -93,7 +93,8 @@ public:
   void AttachBuffers(ERoute direction, int idx, int n, Vst::AudioBusBuffers& pBus, int nFrames, int32 sampleSize);
   bool SetupProcessing(const Vst::ProcessSetup& setup, Vst::ProcessSetup& storedSetup);
   bool CanProcessSampleSize(int32 symbolicSampleSize);
-
+  bool SetProcessing(bool state);
+  
   // Audio Processing
   void PrepareProcessContext(Vst::ProcessData& data, Vst::ProcessSetup& setup);
   void ProcessParameterChanges(Vst::ProcessData& data);
