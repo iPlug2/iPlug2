@@ -1532,8 +1532,8 @@ private:
   EUIResizerMode mGUISizeMode = EUIResizerMode::Scale;
   double mPrevTimestamp = 0.;
   IKeyHandlerFunc mKeyHandlerFunc = nullptr;
-protected:
   IGEditorDelegate* mDelegate;
+protected:
   void* mPlatformContext = nullptr;
   bool mCursorHidden = false;
   bool mCursorLock = false;
