@@ -272,7 +272,7 @@ bool IPlugVST3ProcessorBase::SetupProcessing(const ProcessSetup& setup, ProcessS
   return true;
 }
 
-void IPlugVST3ProcessorBase::SetProcessing(bool state)
+bool IPlugVST3ProcessorBase::SetProcessing(bool state)
 {
   if (!state)
     OnReset();
