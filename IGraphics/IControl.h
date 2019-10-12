@@ -388,6 +388,7 @@ public:
   {
     mDelegate = &dlg;
     mGraphics = dlg.GetUI();
+    assert(mGraphics && "Graphics not attached");
     OnInit();
     OnResize();
     OnRescale();
