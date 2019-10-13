@@ -75,6 +75,7 @@ const char* IPluginBase::GetAPIStr() const
     case kAPIVST2: return "VST2";
     case kAPIVST3: return "VST3";
     case kAPIAU: return "AU";
+    case kAPIAUv3: return "AUv3";
     case kAPIAAX: return "AAX";
     case kAPIAPP: return "APP";
     case kAPIWAM: return "WAM";
