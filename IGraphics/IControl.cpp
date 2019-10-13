@@ -228,9 +228,9 @@ void IControl::Hide(bool hide)
   SetDirty(false);
 }
 
-void IControl::GrayOut(bool gray)
+void IControl::SetDisabled(bool disable)
 {
-  mGrayed = gray;
+  mDisabled = disable;
   SetDirty(false);
 }
 

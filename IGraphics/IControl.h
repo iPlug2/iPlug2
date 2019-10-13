@@ -323,12 +323,12 @@ public:
   /** @return \c true if the control is hidden. */
   bool IsHidden() const { return mHide; }
 
-  /** Sets gray out mode for the control
-   * @param gray \c true for grayed out*/
-  virtual void GrayOut(bool gray);
+  /** Sets disabled mode for the control
+   * @param disable \c true for disabled */
+  virtual void SetDisabled(bool disable);
   
-  /** @return \c true if the control is grayed */
-  bool IsGrayed() const { return mGrayed; }
+  /** @return \c true if the control is disabled */
+  bool IsDisabled() const { return mDisabled; }
 
   /** Specify whether the control should respond to mouse overs when grayed out
    * @param allow \c true if it should respond to mouse overs when grayed out (false by default) */
@@ -493,7 +493,7 @@ protected:
   int mTextEntryLength = DEFAULT_TEXT_ENTRY_LEN;
   bool mDirty = true;
   bool mHide = false;
-  bool mGrayed = false;
+  bool mDisabled = false;
   bool mDisablePrompt = true;
   bool mDblAsSingleClick = false;
   bool mMOWhenGrayed = false;
@@ -555,9 +555,9 @@ public:
     mControl = pControl;
   }
   
-  void GrayOut(bool gray)
+  void SetDisabled(bool disable)
   {
-    mBlend.mWeight = (gray ? GRAYED_ALPHA : 1.0f);
+    mBlend.mWeight = (disable ? GRAYED_ALPHA : 1.0f);
   }
   
   void SetBlend(const IBlend& blend)
@@ -1381,7 +1381,7 @@ public:
   /** Implement to do something when graphics is scaled globally (e.g. moves to high DPI screen),
    *  if you override this make sure you call the parent method in order to rescale mBitmap */
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
-  void GrayOut(bool gray) override { IBitmapBase::GrayOut(gray); IControl::GrayOut(gray); }
+  void SetDisabled(bool disable) override { IBitmapBase::SetDisabled(disable); IControl::SetDisabled(disable); }
 };
 
 /** A basic control to draw an SVG image to the screen. Optionally, cache SVG to an ILayer. */
