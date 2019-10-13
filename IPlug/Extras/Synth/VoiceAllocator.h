@@ -111,7 +111,7 @@ public:
 
   void Clear();
 
-  void SetSampleRate(double r) { mSampleRate = r; CalcGlideTimesInSamples(); }
+  void SetSampleRateAndBlockSize(double sampleRate, int blockSize) { mSampleRate = sampleRate; CalcGlideTimesInSamples(); }
   void SetNoteGlideTime(double t) { mNoteGlideTime = t; CalcGlideTimesInSamples(); }
   void SetControlGlideTime(double t) { mControlGlideTime = t; CalcGlideTimesInSamples(); }
 
