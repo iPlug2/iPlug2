@@ -74,8 +74,7 @@ public:
   void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
     
   IColor GetPoint(int x, int y) override;
-  void* GetDrawContext() override { return mDrawBitmap->getBits(); }
-  inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap.get(); }
+  void* GetDrawContext() override { return mDrawBitmap.get(); }
 
   // Not implemented
   void DrawRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend, float thickness) override { /* TODO - mark unsupported */ }
