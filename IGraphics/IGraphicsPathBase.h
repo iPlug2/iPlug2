@@ -67,7 +67,7 @@ public:
     // Vertical Lines grid
     if (gridSizeH > 1.f)
     {
-      for (float x = bounds.L; x < bounds.R; x += gridSizeH)
+      for (float x = bounds.L + gridSizeH; x < bounds.R; x += gridSizeH)
       {
         PathMoveTo(x, bounds.T);
         PathLineTo(x, bounds.B);
@@ -76,7 +76,7 @@ public:
     // Horizontal Lines grid
     if (gridSizeV > 1.f)
     {
-      for (float y = bounds.T; y < bounds.B; y += gridSizeV)
+      for (float y = bounds.T + gridSizeV; y < bounds.B; y += gridSizeV)
       {
         PathMoveTo(bounds.L, y);
         PathLineTo(bounds.R, y);

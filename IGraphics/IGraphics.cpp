@@ -598,7 +598,7 @@ void IGraphics::DrawGrid(const IColor& color, const IRECT& bounds, float gridSiz
   // Vertical Lines grid
   if (gridSizeH > 1.f)
   {
-    for (float x = 0; x < bounds.W(); x += gridSizeH)
+    for (float x = gridSizeH; x < bounds.W(); x += gridSizeH)
     {
       DrawVerticalLine(color, bounds, x/bounds.W(), pBlend, thickness);
     }
@@ -606,7 +606,7 @@ void IGraphics::DrawGrid(const IColor& color, const IRECT& bounds, float gridSiz
     // Horizontal Lines grid
   if (gridSizeV > 1.f)
   {
-    for (float y = 0; y < bounds.H(); y += gridSizeV)
+    for (float y = gridSizeV; y < bounds.H(); y += gridSizeV)
     {
       DrawHorizontalLine(color, bounds, y/bounds.H(), pBlend, thickness);
     }
