@@ -1432,7 +1432,8 @@ public:
 
   void Draw(IGraphics& g) override;
   void OnInit() override;
-  
+  void SetDisabled(bool disabled) override { mText.mFGColor.A = (disabled ? GRAYED_ALPHA : 1.0f) * 255; }
+
   virtual void SetStr(const char* str);
   virtual void SetStrFmt(int maxlen, const char* fmt, ...);
   virtual void ClearStr() { SetStr(""); }
