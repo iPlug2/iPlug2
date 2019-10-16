@@ -1064,7 +1064,7 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
 #endif
         if (!pControl->IsHidden() && !pControl->GetIgnoreMouse())
         {
-          if ((!pControl->IsDisabled() || (mouseOver ? pControl->GetMOWhenGrayed() : pControl->GetMEWhenGrayed())))
+          if ((!pControl->IsDisabled() || (mouseOver ? pControl->GetMouseOverWhenDisabled() : pControl->GetMouseEventsWhenDisabled())))
           {
             if (pControl->IsHit(x, y))
             {
