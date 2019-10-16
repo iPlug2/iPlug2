@@ -1222,10 +1222,10 @@ public:
    * @param hide /true to hide */
   void HideControl(int paramIdx, bool hide);
 
-  /** Gray-out controls linked to a specific parameter
+  /** Disable or enable controls linked to a specific parameter
    * @param paramIdx The parameter index
-   * @param gray /true to gray-out */
-  void GrayOutControl(int paramIdx, bool gray);
+   * @param disable /true to disable */
+  void DisableControl(int paramIdx, bool diable);
 
   /** Calls SetDirty() on every control */
   void SetAllControlsDirty();

@@ -323,26 +323,26 @@ public:
   /** @return \c true if the control is hidden. */
   bool IsHidden() const { return mHide; }
 
-  /** Sets gray out mode for the control
-   * @param gray \c true for grayed out*/
-  virtual void GrayOut(bool gray);
+  /** Sets disabled mode for the control
+   * @param disable \c true for disabled */
+  virtual void SetDisabled(bool disable);
   
-  /** @return \c true if the control is grayed */
-  bool IsGrayed() const { return mGrayed; }
+  /** @return \c true if the control is disabled */
+  bool IsDisabled() const { return mDisabled; }
 
-  /** Specify whether the control should respond to mouse overs when grayed out
-   * @param allow \c true if it should respond to mouse overs when grayed out (false by default) */
-  void SetMOWhenGrayed(bool allow) { mMOWhenGrayed = allow; }
+  /** Specify whether the control should respond to mouse overs when disabled
+   * @param allow \c true if it should respond to mouse overs when disabled (false by default) */
+  void SetMouseOverWhenDisabled(bool allow) { mMouseOverWhenDisabled = allow; }
 
-  /** Specify whether the control should respond to other mouse events when grayed out
-   * @param allow \c true if it should respond to other mouse events when grayed out (false by default) */
-  void SetMEWhenGrayed(bool allow) { mMEWhenGrayed = allow; }
+  /** Specify whether the control should respond to other mouse events when disabled
+   * @param allow \c true if it should respond to other mouse events when disabled (false by default) */
+  void SetMouseEventsWhenDisabled(bool allow) { mMouseEventsWhenDisabled = allow; }
 
-  /** @return \c true if the control responds to mouse overs when grayed out */
-  bool GetMOWhenGrayed() const { return mMOWhenGrayed; }
+  /** @return \c true if the control responds to mouse overs when disabled */
+  bool GetMouseOverWhenDisabled() const { return mMouseOverWhenDisabled; }
 
-  /** @return \c true if the control responds to other mouse events when grayed out */
-  bool GetMEWhenGrayed() const { return mMEWhenGrayed; }
+  /** @return \c true if the control responds to other mouse events when disabled */
+  bool GetMouseEventsWhenDisabled() const { return mMouseEventsWhenDisabled; }
   
   /** @return \c true if the control ignores mouse events */
   bool GetIgnoreMouse() const { return mIgnoreMouse; }
@@ -493,11 +493,11 @@ protected:
   int mTextEntryLength = DEFAULT_TEXT_ENTRY_LEN;
   bool mDirty = true;
   bool mHide = false;
-  bool mGrayed = false;
+  bool mDisabled = false;
   bool mDisablePrompt = true;
   bool mDblAsSingleClick = false;
-  bool mMOWhenGrayed = false;
-  bool mMEWhenGrayed = false;
+  bool mMouseOverWhenDisabled = false;
+  bool mMouseEventsWhenDisabled = false;
   bool mIgnoreMouse = false;
   bool mWantsMidi = false;
   /** if mGraphics::mHandleMouseOver = true, this will be true when the mouse is over control. If you need finer grained control of mouseovers, you can override OnMouseOver() and OnMouseOut() */
@@ -555,9 +555,9 @@ public:
     mControl = pControl;
   }
   
-  void GrayOut(bool gray)
+  void SetDisabled(bool disable)
   {
-    mBlend.mWeight = (gray ? GRAYED_ALPHA : 1.0f);
+    mBlend.mWeight = (disable ? GRAYED_ALPHA : 1.0f);
   }
   
   void SetBlend(const IBlend& blend)
@@ -1381,7 +1381,7 @@ public:
   /** Implement to do something when graphics is scaled globally (e.g. moves to high DPI screen),
    *  if you override this make sure you call the parent method in order to rescale mBitmap */
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
-  void GrayOut(bool gray) override { IBitmapBase::GrayOut(gray); IControl::GrayOut(gray); }
+  void SetDisabled(bool disable) override { IBitmapBase::SetDisabled(disable); IControl::SetDisabled(disable); }
 };
 
 /** A basic control to draw an SVG image to the screen. Optionally, cache SVG to an ILayer. */
