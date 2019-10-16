@@ -291,9 +291,9 @@ void IGraphics::HideControl(int paramIdx, bool hide)
   ForMatchingControls(&IControl::Hide, paramIdx, hide);
 }
 
-void IGraphics::GrayOutControl(int paramIdx, bool gray)
+void IGraphics::DisableControl(int paramIdx, bool disable)
 {
-  ForMatchingControls(&IControl::GrayOut, paramIdx, gray);
+  ForMatchingControls(&IControl::SetDisabled, paramIdx, disable);
 }
 
 void IGraphics::ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func)
@@ -1064,7 +1064,7 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
 #endif
         if (!pControl->IsHidden() && !pControl->GetIgnoreMouse())
         {
-          if ((!pControl->IsGrayed() || (mouseOver ? pControl->GetMOWhenGrayed() : pControl->GetMEWhenGrayed())))
+          if ((!pControl->IsDisabled() || (mouseOver ? pControl->GetMouseOverWhenDisabled() : pControl->GetMouseEventsWhenDisabled())))
           {
             if (pControl->IsHit(x, y))
             {

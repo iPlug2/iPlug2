@@ -582,7 +582,7 @@ void IVKnobControl::DrawWidget(IGraphics& g)
   
   const float cx = mWidgetBounds.MW(), cy = mWidgetBounds.MH();
   
-  if(!IsGrayed())
+  if(!IsDisabled())
   {
     /*TODO: constants! */
     const float v = mAngle1 + ((float) GetValue() * (mAngle2 - mAngle1));

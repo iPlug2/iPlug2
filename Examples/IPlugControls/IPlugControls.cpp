@@ -280,17 +280,17 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     nextCell();
     toggle = 0;
     
-    for(auto label : {"Gray Out"})
+    for(auto label : {"Disable"})
     {
       pGraphics->AttachControl(new IVToggleControl(sameCell().GetGridCell(toggle, 0, 5, 1), [pGraphics, toggle](IControl* pCaller){
         SplashClickActionFunc(pCaller);
-        bool grayOut = pCaller->GetValue() > 0.5f;
-        pGraphics->ForStandardControlsFunc([pCaller, toggle, grayOut](IControl& control) {
+        bool disable = pCaller->GetValue() > 0.5f;
+        pGraphics->ForStandardControlsFunc([pCaller, toggle, disable](IControl& control) {
           
           switch (toggle) {
             case 0 :
               if(&control != pCaller)
-                control.GrayOut(grayOut); break;
+                control.SetDisabled(disable); break;
             default:
               break;
           }

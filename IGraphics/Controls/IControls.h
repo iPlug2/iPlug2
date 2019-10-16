@@ -452,10 +452,10 @@ public:
     mBitmap = GetUI()->GetScaledBitmap(mBitmap);
   }
 
-  void GrayOut(bool gray) override
+  void SetDisabled(bool disable) override
   {
-    IBitmapBase::GrayOut(gray);
-    IControl::GrayOut(gray);
+    IBitmapBase::SetDisabled(disable);
+    IControl::SetDisabled(disable);
   }
 };
 
@@ -491,7 +491,7 @@ public:
   
   virtual ~IBSwitchControl() {}
   void Draw(IGraphics& g) override { DrawBitmap(g); }
-  void GrayOut(bool gray) override { IBitmapBase::GrayOut(gray); IControl::GrayOut(gray); }
+  void SetDisabled(bool disable) override { IBitmapBase::SetDisabled(disable); IControl::SetDisabled(disable); }
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
 };
@@ -517,7 +517,7 @@ public:
 
   virtual ~IBKnobControl() {}
   void Draw(IGraphics& g) override { DrawBitmap(g); }
-  void GrayOut(bool gray) override { IBitmapBase::GrayOut(gray); IControl::GrayOut(gray); }
+  void SetDisabled(bool disable) override { IBitmapBase::SetDisabled(disable); IControl::SetDisabled(disable); }
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
 };
 
@@ -554,7 +554,7 @@ public:
   void Draw(IGraphics& g) override;
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
   void OnResize() override { SetDirty(false); }
-  void GrayOut(bool gray) override  { IBitmapBase::GrayOut(gray); IControl::GrayOut(gray); }
+  void SetDisabled(bool disable) override  { IBitmapBase::SetDisabled(disable); IControl::SetDisabled(disable); }
   
   IRECT GetHandleBounds(double value = -1.0) const;
 };
@@ -584,7 +584,7 @@ public:
   }
 
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
-  void GrayOut(bool gray) override  { IBitmapBase::GrayOut(gray); IControl::GrayOut(gray); }
+  void SetDisabled(bool disable) override  { IBitmapBase::SetDisabled(disable); IControl::SetDisabled(disable); }
 
 protected:
   WDL_String mStr;
