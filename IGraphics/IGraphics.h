@@ -1182,6 +1182,11 @@ public:
    * @return A pointer to the IControl object at idx or nullptr if not found */
   IControl* GetControl(int idx) { return mControls.Get(idx); }
 
+  /** @param x The x coordinate for the hitscan
+   * @param y The y coordinate for the hitscan
+   * @return A pointer to the IControl object at the position or nullptr if not found */
+  IControl* GetControl(int x, int y);
+
   /** @param controlTag The tag to look for
    * @return A pointer to the IControl object with the tag of nullptr if not found */
   IControl* GetControlWithTag(int controlTag);

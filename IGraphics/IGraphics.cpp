@@ -223,6 +223,16 @@ IControl* IGraphics::AttachControl(IControl* pControl, int controlTag, const cha
   return pControl;
 }
 
+IControl* IGraphics::GetControl(int x, int y) {
+  IRECT target(x, y, x + 1, y + 1);
+  for (int i = mControls.GetSize() - 1; i > 0; i--) {
+    if (mControls.Get(i)->GetTargetRECT().Contains(target)) {
+      return mControls.Get(i);
+    }
+  }
+  return nullptr;
+}
+
 void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize)
 {
   AttachCornerResizer(new ICornerResizerControl(GetBounds(), 20), sizeMode, layoutOnResize);
