@@ -228,6 +228,17 @@ enum EHost
   kHostTwistedWave,
   kHostBitwig,
   kHostWWW,
+  
+  kHostReason,			
+  kHostGoldWave5x,	
+  kHostWaveform,		
+  kHostAudacity,		
+  kHostAcoustica,		
+  kHostPluginDoctor,
+  kHostiZotopeRX,		
+  kHostSAVIHost,		
+  kHostBlueCat,			
+
   // These hosts don't report the host name:
   // EnergyXT2
   // MiniHost
