@@ -124,7 +124,13 @@ public:
    * @param startPos The start position in the chunk where parameter values are stored
    * @return The new chunk position (endPos) */
   int UnserializeParams(const IByteChunk& chunk, int startPos);
-    
+
+  /** Override this method to prevent setting/overwriting parameters from unserializing
+   * @param paramidx The index of the parameter that would be set/overwritten
+   * @param value Reference to the parameter value that would be set, can be changed to a custom value
+   * @return true if the parameter will be set/overwritten */
+  virtual bool OnUnserializeParamSet(int paramidx, double& value) { return true; }
+
   /** Serializes the editor data (such as scale) into a binary chunk.
    * @param chunk The output chunk to serialize to. Will append data if the chunk has already been started.
    * @return \c true if the serialization was successful */
