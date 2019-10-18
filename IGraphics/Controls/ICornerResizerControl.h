@@ -49,6 +49,11 @@ public:
       GetUI()->StartResizeGesture();
   }
 
+  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override
+  {
+    GetUI()->Resize((int)mInitialGraphicsBounds.W(), (int)mInitialGraphicsBounds.H(), 1.f);
+  }
+
   void OnRescale() override
   {
     float size = mSize * (1.f/GetUI()->GetDrawScale());
