@@ -321,11 +321,16 @@ void IGraphicsLice::DrawRect(const IColor& color, const IRECT& bounds, const IBl
     OpacityLayer(&IGraphicsLice::DrawRect, pBlend, color, bounds, nullptr, thickness);
     return;
   }
-    
-  DrawLine(color, bounds.L, bounds.T, bounds.R, bounds.T, pBlend, thickness);
-  DrawLine(color, bounds.L, bounds.B, bounds.R, bounds.B, pBlend, thickness);
-  DrawLine(color, bounds.L, bounds.T, bounds.L, bounds.B, pBlend, thickness);
-  DrawLine(color, bounds.R, bounds.T, bounds.R, bounds.B, pBlend, thickness);
+
+  if (bounds.W() >= 1.f && bounds.H() >= 1.f)
+  {
+    float r = bounds.R - 1.f;
+    float b = bounds.B - 1.f;
+    DrawLine(color, bounds.L, bounds.T, r, bounds.T, pBlend, thickness);
+    DrawLine(color, bounds.L, b, r, b, pBlend, thickness);
+    DrawLine(color, bounds.L, bounds.T, bounds.L, b, pBlend, thickness);
+    DrawLine(color, r, bounds.T, r, b, pBlend, thickness);
+  }
 }
 
 //TODO: review floating point input support
