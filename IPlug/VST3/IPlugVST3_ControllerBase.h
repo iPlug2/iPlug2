@@ -15,9 +15,6 @@
 #include "IPlugAPIBase.h"
 #include "IPlugVST3_Parameter.h"
 
-using namespace Steinberg;
-using namespace Vst;
-
 BEGIN_IPLUG_NAMESPACE
 
 /** Shared VST3 controller code */

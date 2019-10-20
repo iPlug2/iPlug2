@@ -26,9 +26,6 @@
 #include "IPlugVST3_ControllerBase.h"
 #include "IPlugVST3_Common.h"
 
-using namespace Steinberg;
-using namespace Vst;
-
 BEGIN_IPLUG_NAMESPACE
 
 /**  VST3 Controller API-base class for a distributed IPlug VST3 plug-in

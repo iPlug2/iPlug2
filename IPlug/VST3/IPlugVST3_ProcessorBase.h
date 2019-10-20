@@ -18,9 +18,6 @@
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
-using namespace Steinberg;
-using namespace Vst;
-
 // Custom bus type function (in global namespace)
 #ifdef CUSTOM_BUSTYPE_FUNC
 extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, iplug::ERoute dir, int busIdx, iplug::IOConfig* pConfig);

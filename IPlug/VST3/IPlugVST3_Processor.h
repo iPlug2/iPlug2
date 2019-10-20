@@ -27,9 +27,6 @@
  * @copydoc IPlugVST3Processor
  */
 
-using namespace Steinberg;
-using namespace Vst;
-
 BEGIN_IPLUG_NAMESPACE
 
 /**  VST3 Processor API-base class for a distributed IPlug VST3 plug-in

@@ -18,9 +18,6 @@
 
 BEGIN_IPLUG_NAMESPACE
 
-using namespace Steinberg;
-using namespace Vst;
-
 /** VST3 parameter helper */
 class IPlugVST3Parameter : public Parameter
 {
