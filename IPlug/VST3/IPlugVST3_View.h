@@ -37,7 +37,7 @@ public:
     {
 #ifdef OS_WIN
       if (strcmp(type, Steinberg::kPlatformTypeHWND) == 0)
-        return kResultTrue;
+        return Steinberg::kResultTrue;
       
 #elif defined OS_MAC
       if (strcmp (type, Steinberg::kPlatformTypeNSView) == 0)
