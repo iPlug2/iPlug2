@@ -80,7 +80,7 @@ public:
     {
       void* pView = nullptr;
 #ifdef OS_WIN
-      if (strcmp(type, kPlatformTypeHWND) == 0)
+      if (strcmp(type, Steinberg::kPlatformTypeHWND) == 0)
         pView = mOwner.OpenWindow(pParent);
 #elif defined OS_MAC
       if (strcmp (type, Steinberg::kPlatformTypeNSView) == 0)
