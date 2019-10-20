@@ -36,6 +36,8 @@ static double sFPS = 0.0;
 #define IPLUG_TIMER_ID 2
 #define IPLUG_WIN_MAX_WIDE_PATH 4096
 
+#define TOOLTIPWND_MAXWIDTH 250
+
 #pragma mark - Private Classes and Structs
 
 // Fonts
@@ -989,6 +991,7 @@ void* IGraphicsWin::OpenWindow(void* pParent)
         TOOLINFO ti = { TTTOOLINFOA_V2_SIZE, TTF_IDISHWND | TTF_SUBCLASS, mPlugWnd, (UINT_PTR)mPlugWnd };
         ti.lpszText = (LPTSTR)NULL;
         SendMessage(mTooltipWnd, TTM_ADDTOOL, 0, (LPARAM)&ti);
+        SendMessage(mTooltipWnd, TTM_SETMAXTIPWIDTH, 0, TOOLTIPWND_MAXWIDTH);
         ok = true;
       }
     }

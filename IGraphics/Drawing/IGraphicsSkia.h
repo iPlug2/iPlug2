@@ -3,7 +3,8 @@
 #include "IPlugPlatform.h"
 #include "IGraphicsPathBase.h"
 
-#if defined IGRAPHICS_METAL
+// N.B. - this must be defined according to the skia build, not the iPlug build
+#if defined OS_MAC || defined OS_IOS
 #define SK_METAL
 #endif
 

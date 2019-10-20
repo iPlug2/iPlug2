@@ -172,13 +172,13 @@ void IParam::InitMilliseconds(const char *name, double defaultVal, double minVal
   InitDouble(name, defaultVal, minVal, maxVal, 1, "ms", flags, group, ShapeLinear(), kUnitMilliseconds);
 }
 
-void IParam::InitPitch(const char *name, int defaultVal, int minVal, int maxVal, int flags, const char *group)
+void IParam::InitPitch(const char *name, int defaultVal, int minVal, int maxVal, int flags, const char *group, bool middleCisC)
 {
   InitEnum(name, defaultVal, (maxVal - minVal) + 1, "", flags, group);
   WDL_String displayText;
   for (auto i = minVal; i <= maxVal; i++)
   {
-    MidiNoteName(i, displayText);
+    MidiNoteName(i, displayText, /*cents*/false, middleCisC);
     SetDisplayText(i - minVal, displayText.Get());
   }
 }

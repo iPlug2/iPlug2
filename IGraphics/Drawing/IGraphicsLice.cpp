@@ -954,7 +954,7 @@ void IGraphicsLice::EndFrame()
   HWND hWnd = (HWND) GetWindow();
   HDC dc = BeginPaint(hWnd, &ps);
   
-  if (GetDrawScale() == 1.0)
+  if (!mScaleBitmap)
   {
     BitBlt(dc, 0, 0, Width() * GetScreenScale(), Height() * GetScreenScale(), mDrawBitmap->getDC(), 0, 0, SRCCOPY);
   }

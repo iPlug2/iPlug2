@@ -18,18 +18,15 @@
 
 BEGIN_IPLUG_NAMESPACE
 
-using namespace Steinberg;
-using namespace Vst;
-
 /** VST3 parameter helper */
-class IPlugVST3Parameter : public Parameter
+class IPlugVST3Parameter : public Steinberg::Vst::Parameter
 {
 public:
-  IPlugVST3Parameter(IParam* pParam, ParamID tag, UnitID unitID)
+  IPlugVST3Parameter(IParam* pParam, Steinberg::Vst::ParamID tag, Steinberg::Vst::UnitID unitID)
   : mIPlugParam(pParam)
   {
-    UString(info.title, str16BufferSize(String128)).assign(pParam->GetNameForHost());
-    UString(info.units, str16BufferSize(String128)).assign(pParam->GetLabelForHost());
+    Steinberg::UString(info.title, str16BufferSize(Steinberg::Vst::String128)).assign(pParam->GetNameForHost());
+    Steinberg::UString(info.units, str16BufferSize(Steinberg::Vst::String128)).assign(pParam->GetLabelForHost());
 
     precision = pParam->GetDisplayPrecision();
 
@@ -38,10 +35,10 @@ public:
     else
       info.stepCount = 0; // continuous
 
-    int32 flags = 0;
+    Steinberg::int32 flags = 0;
 
-    if (pParam->GetCanAutomate()) flags |= ParameterInfo::kCanAutomate;
-    if (pParam->Type() == IParam::kTypeEnum) flags |= ParameterInfo::kIsList;
+    if (pParam->GetCanAutomate()) flags |= Steinberg::Vst::ParameterInfo::kCanAutomate;
+    if (pParam->Type() == IParam::kTypeEnum) flags |= Steinberg::Vst::ParameterInfo::kIsList;
 
     info.defaultNormalizedValue = valueNormalized = pParam->ToNormalized(pParam->GetDefault());
     info.flags = flags;
@@ -49,27 +46,27 @@ public:
     info.unitId = unitID;
   }
 
-  void toString(ParamValue valueNormalized, String128 string) const override
+  void toString(Steinberg::Vst::ParamValue valueNormalized, Steinberg::Vst::String128 string) const override
   {
     WDL_String display;
     mIPlugParam->GetDisplayForHost(valueNormalized, true, display);
     Steinberg::UString(string, 128).fromAscii(display.Get());
   }
 
-  bool fromString(const TChar* string, ParamValue& valueNormalized) const override
+  bool fromString(const Steinberg::Vst::TChar* string, Steinberg::Vst::ParamValue& valueNormalized) const override
   {
-    String str((TChar*)string);
+    Steinberg::String str((Steinberg::Vst::TChar*) string);
     valueNormalized = mIPlugParam->ToNormalized(mIPlugParam->StringToValue(str.text8()));
 
     return true;
   }
 
-  Steinberg::Vst::ParamValue toPlain(ParamValue valueNormalized) const override
+  Steinberg::Vst::ParamValue toPlain(Steinberg::Vst::ParamValue valueNormalized) const override
   {
     return mIPlugParam->FromNormalized(valueNormalized);
   }
 
-  Steinberg::Vst::ParamValue toNormalized(ParamValue plainValue) const override
+  Steinberg::Vst::ParamValue toNormalized(Steinberg::Vst::ParamValue plainValue) const override
   {
     return mIPlugParam->ToNormalized(valueNormalized);
   }
@@ -81,22 +78,32 @@ protected:
 };
 
 /** VST3 preset parameter helper */
-class IPlugVST3PresetParameter : public Parameter
+class IPlugVST3PresetParameter : public Steinberg::Vst::Parameter
 {
 public:
-    IPlugVST3PresetParameter(int nPresets)
-    : Parameter(STR16("Preset"), kPresetParam, STR16(""), 0, nPresets, ParameterInfo::kIsProgramChange)
-    {}
-    
-    OBJ_METHODS(IPlugVST3PresetParameter, Parameter)
+  IPlugVST3PresetParameter(int nPresets)
+  : Steinberg::Vst::Parameter(STR16("Preset"), kPresetParam, STR16(""), 0, nPresets - 1, Steinberg::Vst::ParameterInfo::kIsProgramChange)
+  {}
+  
+  Steinberg::Vst::ParamValue toPlain(Steinberg::Vst::ParamValue valueNormalized) const override
+  {
+    return std::round(valueNormalized * info.stepCount);
+  }
+  
+  Steinberg::Vst::ParamValue toNormalized(Steinberg::Vst::ParamValue plainValue) const override
+  {
+    return plainValue / info.stepCount;
+  }
+  
+  OBJ_METHODS(IPlugVST3PresetParameter, Steinberg::Vst::Parameter)
 };
 
 /** VST3 bypass parameter helper */
-class IPlugVST3BypassParameter : public StringListParameter
+class IPlugVST3BypassParameter : public Steinberg::Vst::StringListParameter
 {
 public:
   IPlugVST3BypassParameter()
-  : StringListParameter(STR16("Bypass"), kBypassParam, 0, ParameterInfo::kCanAutomate | ParameterInfo::kIsBypass | ParameterInfo::kIsList)
+  : Steinberg::Vst::StringListParameter(STR16("Bypass"), kBypassParam, 0, Steinberg::Vst::ParameterInfo::kCanAutomate | Steinberg::Vst::ParameterInfo::kIsBypass | Steinberg::Vst::ParameterInfo::kIsList)
   {
     appendString(STR16("off"));
     appendString(STR16("on"));

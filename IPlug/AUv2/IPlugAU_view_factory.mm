@@ -54,7 +54,11 @@ static const AudioUnitPropertyID kIPlugObjectPropertyID = UINT32_MAX-100;
     {
       if (mPlug->HasUI())
       {
+#if __has_feature(objc_arc)
+        NSView* pView = (__bridge NSView*) mPlug->OpenWindow(nullptr);
+#else
         NSView* pView = (NSView*) mPlug->OpenWindow(nullptr);
+#endif
         return pView;
       }
     }
