@@ -36,7 +36,7 @@ public:
     if (mOwner.HasUI()) // for no editor plugins
     {
 #ifdef OS_WIN
-      if (strcmp(type, kPlatformTypeHWND) == 0)
+      if (strcmp(type, Steinberg::kPlatformTypeHWND) == 0)
         return kResultTrue;
       
 #elif defined OS_MAC
