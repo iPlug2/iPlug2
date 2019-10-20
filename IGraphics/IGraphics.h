@@ -1020,7 +1020,10 @@ public:
   
   /** @return An EUIResizerMode Representing whether the graphics context should scale or be resized, e.g. when dragging a corner resizer */
   EUIResizerMode GetResizerMode() const { return mGUISizeMode; }
-  
+
+  /** @return true if resizing is in process */
+  bool GetResizingInProcess() const { return mResizingInProcess; }
+
   /** @param enable Set \c true to enable tool tips when the user mouses over a control */
   void EnableTooltips(bool enable);
   
@@ -1097,7 +1100,7 @@ private:
    * @param valIdx The value index for the control value that the prompt relates to */
   void DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx, bool isContext);
   
-protected: // TODO: correct?
+protected:
   /** /todo */
   void StartResizeGesture() { mResizingInProcess = true; };
   
