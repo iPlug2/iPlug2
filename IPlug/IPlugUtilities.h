@@ -217,18 +217,16 @@ static EHost LookUpHost(const char* inHost)
   if (strstr(host, "logic"))                return kHostLogic;
   if (strstr(host, "garageband"))           return kHostGarageBand;
   if (strstr(host, "digital"))              return kHostDigitalPerformer;
-  if (strstr(host, "standalone"))           return kHostStandalone;
   if (strstr(host, "audiomulch"))           return kHostAudioMulch;
   if (strstr(host, "presonus"))             return kHostStudioOne;
   if (strstr(host, "vst3plugintesthost"))   return kHostVST3TestHost;
   if (strstr(host, "ardour"))               return kHostArdour;
   if (strstr(host, "renoise"))              return kHostRenoise;
   if (strstr(host, "OpenMPT"))              return kHostOpenMPT;
-  if (strstr(host, "wavelab elements"))     return kHostWaveLabElements;    // check for wavelab elements should come before wavelab ...
+  if (strstr(host, "wavelab elements"))     return kHostWaveLabElements; // check for wavelab elements should come before wavelab ...
   if (strstr(host, "wavelab"))              return kHostWaveLab;
   if (strstr(host, "twistedwave"))          return kHostTwistedWave;
   if (strstr(host, "bitwig studio"))        return kHostBitwig;
-  if (strstr(host, "www"))                  return kHostWWW;
   if (strstr(host, "reason"))               return kHostReason;
   if (strstr(host, "gwvst"))                return kHostGoldWave5x;
   if (strstr(host, "waveform"))             return kHostWaveform;
@@ -238,8 +236,11 @@ static EHost LookUpHost(const char* inHost)
   if (strstr(host, "izotope rx"))           return kHostiZotopeRX;
   if (strstr(host, "savihost"))             return kHostSAVIHost;
   if (strstr(host, "blue cat's vst host"))  return kHostBlueCat;
-                                                   
-  return kHostUnknown;                             
+  
+  if (strstr(host, "standalone"))           return kHostStandalone;
+  if (strstr(host, "www"))                  return kHostWWW;
+
+  return kHostUnknown;
 
 }
 
@@ -258,50 +259,51 @@ static void GetHostNameStr(EHost host, char* pHostName)
 {
   switch (host)
   {
-      case kHostReaper:             strcpy(pHostName, "reaper"); break;
-      case kHostProTools:           strcpy(pHostName, "protools"); break;
-      case kHostCubase:             strcpy(pHostName, "cubase"); break;
-      case kHostNuendo:             strcpy(pHostName, "nuendo"); break;
-      case kHostSonar:              strcpy(pHostName, "cakewalk"); break;
-      case kHostVegas:              strcpy(pHostName, "vegas"); break;
-      case kHostFL:                 strcpy(pHostName, "fruity"); break;
-      case kHostSamplitude:         strcpy(pHostName, "samplitude"); break;
-      case kHostAbletonLive:        strcpy(pHostName, "live"); break;
-      case kHostTracktion:          strcpy(pHostName, "tracktion"); break;
-      case kHostNTracks:            strcpy(pHostName, "ntracks"); break;
-      case kHostMelodyneStudio:     strcpy(pHostName, "melodyne"); break;
-      case kHostVSTScanner:         strcpy(pHostName, "vstmanlib"); break;
-      case kHostAULab:              strcpy(pHostName, "aulab"); break;
-      case kHostForte:              strcpy(pHostName, "forte"); break;
-      case kHostChainer:            strcpy(pHostName, "chainer"); break;
-      case kHostAudition:           strcpy(pHostName, "audition"); break;
-      case kHostOrion:              strcpy(pHostName, "orion"); break;
-      case kHostBias:               strcpy(pHostName, "bias"); break;
-      case kHostSAWStudio:          strcpy(pHostName, "sawstudio"); break;
-      case kHostLogic:              strcpy(pHostName, "logic"); break;
-      case kHostGarageBand:         strcpy(pHostName, "garageband"); break;
-      case kHostDigitalPerformer:   strcpy(pHostName, "digital"); break;
-      case kHostStandalone:         strcpy(pHostName, "standalone"); break;
-      case kHostAudioMulch:         strcpy(pHostName, "audiomulch"); break;
-      case kHostStudioOne:          strcpy(pHostName, "presonus"); break;
-      case kHostVST3TestHost:       strcpy(pHostName, "vst3plugintesthost"); break;
-      case kHostArdour:             strcpy(pHostName, "ardour"); break;
-      case kHostRenoise:            strcpy(pHostName, "renoise"); break;
-      case kHostOpenMPT:            strcpy(pHostName, "OpenMPT"); break;
-      case kHostWaveLabElements:    strcpy(pHostName, "wavelab elements"); break;
-      case kHostWaveLab:            strcpy(pHostName, "wavelab"); break;
-      case kHostTwistedWave:        strcpy(pHostName, "twistedwave"); break;
-      case kHostBitwig:             strcpy(pHostName, "bitwig studio"); break;
-      case kHostWWW:                strcpy(pHostName, "www"); break;
-      case kHostReason:             strcpy(pHostName, "reason"); break;
-      case kHostGoldWave5x:         strcpy(pHostName, "gwvst"); break;
-      case kHostWaveform:           strcpy(pHostName, "waveform"); break;
-      case kHostAudacity:           strcpy(pHostName, "audacity"); break;
-      case kHostAcoustica:          strcpy(pHostName, "acoustica"); break;
-      case kHostPluginDoctor:       strcpy(pHostName, "plugindoctor"); break;
-      case kHostiZotopeRX:          strcpy(pHostName, "izotope rx"); break;
-      case kHostSAVIHost:           strcpy(pHostName, "savihost"); break;
+      case kHostReaper:             strcpy(pHostName, "reaper");              break;
+      case kHostProTools:           strcpy(pHostName, "protools");            break;
+      case kHostCubase:             strcpy(pHostName, "cubase");              break;
+      case kHostNuendo:             strcpy(pHostName, "nuendo");              break;
+      case kHostSonar:              strcpy(pHostName, "cakewalk");            break;
+      case kHostVegas:              strcpy(pHostName, "vegas");               break;
+      case kHostFL:                 strcpy(pHostName, "fruity");              break;
+      case kHostSamplitude:         strcpy(pHostName, "samplitude");          break;
+      case kHostAbletonLive:        strcpy(pHostName, "live");                break;
+      case kHostTracktion:          strcpy(pHostName, "tracktion");           break;
+      case kHostNTracks:            strcpy(pHostName, "ntracks");             break;
+      case kHostMelodyneStudio:     strcpy(pHostName, "melodyne");            break;
+      case kHostVSTScanner:         strcpy(pHostName, "vstmanlib");           break;
+      case kHostAULab:              strcpy(pHostName, "aulab");               break;
+      case kHostForte:              strcpy(pHostName, "forte");               break;
+      case kHostChainer:            strcpy(pHostName, "chainer");             break;
+      case kHostAudition:           strcpy(pHostName, "audition");            break;
+      case kHostOrion:              strcpy(pHostName, "orion");               break;
+      case kHostBias:               strcpy(pHostName, "bias");                break;
+      case kHostSAWStudio:          strcpy(pHostName, "sawstudio");           break;
+      case kHostLogic:              strcpy(pHostName, "logic");               break;
+      case kHostGarageBand:         strcpy(pHostName, "garageband");          break;
+      case kHostDigitalPerformer:   strcpy(pHostName, "digital");             break;
+      case kHostAudioMulch:         strcpy(pHostName, "audiomulch");          break;
+      case kHostStudioOne:          strcpy(pHostName, "presonus");            break;
+      case kHostVST3TestHost:       strcpy(pHostName, "vst3plugintesthost");  break;
+      case kHostArdour:             strcpy(pHostName, "ardour");              break;
+      case kHostRenoise:            strcpy(pHostName, "renoise");             break;
+      case kHostOpenMPT:            strcpy(pHostName, "OpenMPT");             break;
+      case kHostWaveLabElements:    strcpy(pHostName, "wavelab elements");    break;
+      case kHostWaveLab:            strcpy(pHostName, "wavelab");             break;
+      case kHostTwistedWave:        strcpy(pHostName, "twistedwave");         break;
+      case kHostBitwig:             strcpy(pHostName, "bitwig studio");       break;
+      case kHostReason:             strcpy(pHostName, "reason");              break;
+      case kHostGoldWave5x:         strcpy(pHostName, "gwvst");               break;
+      case kHostWaveform:           strcpy(pHostName, "waveform");            break;
+      case kHostAudacity:           strcpy(pHostName, "audacity");            break;
+      case kHostAcoustica:          strcpy(pHostName, "acoustica");           break;
+      case kHostPluginDoctor:       strcpy(pHostName, "plugindoctor");        break;
+      case kHostiZotopeRX:          strcpy(pHostName, "izotope rx");          break;
+      case kHostSAVIHost:           strcpy(pHostName, "savihost");            break;
       case kHostBlueCat:            strcpy(pHostName, "blue cat's vst host"); break;
+      
+      case kHostStandalone:         strcpy(pHostName, "standalone");          break;
+      case kHostWWW:                strcpy(pHostName, "www");                 break;
 
       default:                      strcpy(pHostName, "Unknown"); break;
   }
