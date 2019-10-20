@@ -1313,7 +1313,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
         return ISVG(nullptr);
       
       if(svgDOM->containerSize().width() == 0)
-        svgDOM->setContainerSize(SkSize::Make(100, 100));
+        svgDOM->setContainerSize(SkSize::Make(800, 800));
     }
     
     pHolder = new SVGHolder(svgDOM);
