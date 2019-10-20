@@ -1100,7 +1100,7 @@ private:
    * @param valIdx The value index for the control value that the prompt relates to */
   void DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx, bool isContext);
   
-protected: // TODO: correct?
+protected:
   /** /todo */
   void StartResizeGesture() { mResizingInProcess = true; };
   
