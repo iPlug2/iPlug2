@@ -1263,6 +1263,68 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 #endif
 }
 
+#ifdef IGRAPHICS_SKIA
+ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
+{
+  StaticStorage<SVGHolder>::Accessor storage(sSVGCache);
+  SVGHolder* pHolder = storage.Find(fileName);
+  
+  if(!pHolder)
+  {
+    WDL_String path;
+    EResourceLocation resourceFound = LocateResource(fileName, "svg", path, GetBundleID(), GetWinModuleHandle(), GetSharedResourcesSubPath());
+    
+    if (resourceFound == EResourceLocation::kNotFound)
+      return ISVG(nullptr); // return invalid SVG
+    
+    sk_sp<SkSVGDOM> svgDOM;
+    
+#ifdef OS_WIN
+    if (resourceFound == EResourceLocation::kWinBinary)
+    {
+      int size = 0;
+      const void* pResData = LoadWinResource(path.Get(), "svg", size, GetWinModuleHandle());
+
+      if (pResData)
+      {
+        WDL_String svgStr{ static_cast<const char*>(pResData) };
+
+        pImage = nsvgParse(svgStr.Get(), units, dpi);
+      }
+      else
+        return ISVG(nullptr); // return invalid SVG
+    }
+#endif
+
+    if (resourceFound == EResourceLocation::kAbsolutePath)
+    {
+      SkFILEStream svgStream(path.Get());
+      
+      if (!svgStream.isValid())
+        return ISVG(nullptr);
+
+      SkDOM xmlDom;
+      if (!xmlDom.build(svgStream))
+        return ISVG(nullptr);
+
+      svgDOM = SkSVGDOM::MakeFromDOM(xmlDom);
+      
+      if (!svgDOM)
+        return ISVG(nullptr);
+      
+      if(svgDOM->containerSize().width() == 0)
+        svgDOM->setContainerSize(SkSize::Make(100, 100));
+    }
+    
+    pHolder = new SVGHolder(svgDOM);
+    
+    storage.Add(pHolder, path.Get());
+  }
+  
+  return ISVG(pHolder->mSVGDom);
+}
+#else
+
 ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 {
   StaticStorage<SVGHolder>::Accessor storage(sSVGCache);
@@ -1310,6 +1372,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 
   return ISVG(pHolder->mImage);
 }
+#endif
 
 IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale)
 {

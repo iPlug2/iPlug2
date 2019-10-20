@@ -25,7 +25,14 @@
 #include "ptrlist.h"
 #include "heapbuf.h"
 
-#include "nanosvg.h"
+#ifdef IGRAPHICS_SKIA
+  #include "experimental/svg/model/SkSVGDOM.h"
+  #include "include/core/SkCanvas.h"
+  #include "include/core/SkStream.h"
+  #include "src/xml/SkDOM.h"
+#else
+  #include "nanosvg.h"
+#endif
 
 #include "IPlugPlatform.h"
 
@@ -443,11 +450,28 @@ protected:
 
 using PlatformFontPtr = std::unique_ptr<PlatformFont>;
 
+#ifdef IGRAPHICS_SKIA
+struct SVGHolder
+{
+  SVGHolder(sk_sp<SkSVGDOM> svgDom)
+  : mSVGDom(svgDom)
+  {
+  }
+  
+  ~SVGHolder()
+  {
+    mSVGDom = nullptr;
+  }
+  
+  SVGHolder(const SVGHolder&) = delete;
+  SVGHolder& operator=(const SVGHolder&) = delete;
+  
+  sk_sp<SkSVGDOM> mSVGDom;
+};
+#else
 /** Used internally to manage SVG data*/
 struct SVGHolder
 {
-  NSVGimage* mImage = nullptr;
-  
   SVGHolder(NSVGimage* pImage)
   : mImage(pImage)
   {
@@ -463,7 +487,10 @@ struct SVGHolder
   
   SVGHolder(const SVGHolder&) = delete;
   SVGHolder& operator=(const SVGHolder&) = delete;
+  
+  NSVGimage* mImage = nullptr;
 };
+#endif
 
 /** Used internally to store data statically, making sure memory is not wasted when there are multiple plug-in instances loaded */
 template <class T>
