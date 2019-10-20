@@ -20,10 +20,12 @@
 #include <chrono>
 #include <numeric>
 
-#include "IGraphicsPrivate.h"
-#include "IGraphicsUtilities.h"
 #include "IPlugUtilities.h"
 #include "IPlugLogger.h"
+#include "IPlugStructs.h"
+
+#include "IGraphicsPrivate.h"
+#include "IGraphicsUtilities.h"
 #include "IGraphicsConstants.h"
 
 BEGIN_IPLUG_NAMESPACE
@@ -34,7 +36,6 @@ class IControl;
 class ILambdaControl;
 struct IRECT;
 struct IMouseInfo;
-struct IKeyPress;
 struct IColor;
 
 using IActionFunction = std::function<void(IControl*)>;
@@ -177,6 +178,8 @@ struct IColor
   
   bool operator!=(const IColor& rhs) { return !operator==(rhs); }
   
+  void Set(int a = 255, int r = 0, int g = 0, int b = 0) { A = a; R = r; G = g; B = b; }
+  
   /** /todo */
   bool Empty() const { return A == 0 && R == 0 && G == 0 && B == 0; }
   
@@ -265,6 +268,44 @@ struct IColor
     int A = rgbaf[3] * 255;
 
     return IColor(A, R, G, B);
+  }
+
+  /** Create an IColor from a color code. Can be used to convert a hex code into an IColor object.
+   * @code
+   *   IColor color = IColor::FromColorCode(0x55a6ff);
+   *   IColor colorWithAlpha = IColor::FromColorCode(0x55a6ff, 0x88); // alpha is 0x88
+   * @endcode
+   * 
+   * @param colorCode Integer representation of the color. Use with hexadecimal numbers, e.g. 0xff38a2
+   * @param A Integer representation of the alpha channel
+   * @return IColor A new IColor based on the color code provided */
+  static IColor FromColorCode(int colorCode, int A = 0xFF)
+  {
+    int R = (colorCode >> 16) & 0xFF;
+    int G = (colorCode >> 8) & 0xFF;
+    int B = colorCode & 0xFF;
+
+    return IColor(A, R, G, B);
+  }
+  
+  /** Create an IColor from a color code in a CString. Can be used to convert a hex code into an IColor object.
+   * @param colorCode CString representation of the color code (no alpha). Use with hex numbers, e.g. "#ff38a2". WARNING: This does very little error checking
+   * @return IColor A new IColor based on the color code provided */
+  static IColor FromColorCodeStr(const char* hexStr)
+  {
+    WDL_String str(hexStr);
+    
+    if(str.GetLength() == 7 && str.Get()[0] == '#')
+    {
+      str.DeleteSub(0, 1);
+
+      return FromColorCode(static_cast<int>(std::stoul(str.Get(), nullptr, 16)));
+    }
+    else
+    {
+      assert(0 && "Invalid color code str, returning black");
+      return IColor();
+    }
   }
   
   /** /todo 
@@ -1365,29 +1406,8 @@ struct IRECT
     else
       return H();
   }
-};
-
-/** Used for key press info, such as ASCII representation, virtual key (mapped to win32 codes) and modifiers */
-struct IKeyPress
-{
-  int VK; // Windows VK_XXX
-  char utf8[5] = {0}; // UTF8 key
-  bool S, C, A; // SHIFT / CTRL(WIN) or CMD (MAC) / ALT
   
-  /** /todo 
-   * @param _utf8 /todo
-   * @param vk /todo
-   * @param s /todo
-   * @param c /todo
-   * @param a /todo */
-  IKeyPress(const char* _utf8, int vk, bool s = false, bool c = false, bool a = false)
-  : VK(vk)
-  , S(s), C(c), A(a)
-  {
-    strcpy(utf8, _utf8);
-  }
-  
-  void DBGPrint() const { DBGMSG("VK: %i\n", VK); }
+  void DBGPrint() { DBGMSG("L: %f, T: %f, R: %f, B: %f,: W: %f, H: %f\n", L, T, R, B, W(), H()); }
 };
 
 /** Used to manage mouse modifiers i.e. right click and shift/control/alt keys. */
@@ -2119,7 +2139,7 @@ struct IVStyle
   
   IVStyle(bool showLabel = DEFAULT_SHOW_LABEL,
           bool showValue = DEFAULT_SHOW_VALUE,
-          const std::initializer_list<IColor>& colors = {DEFAULT_BGCOLOR, DEFAULT_FGCOLOR, DEFAULT_PRCOLOR, DEFAULT_FRCOLOR, DEFAULT_HLCOLOR, DEFAULT_SHCOLOR, DEFAULT_X1COLOR, DEFAULT_X2COLOR, DEFAULT_X3COLOR},
+          const IVColorSpec& colors = {DEFAULT_BGCOLOR, DEFAULT_FGCOLOR, DEFAULT_PRCOLOR, DEFAULT_FRCOLOR, DEFAULT_HLCOLOR, DEFAULT_SHCOLOR, DEFAULT_X1COLOR, DEFAULT_X2COLOR, DEFAULT_X3COLOR},
           const IText& labelText = DEFAULT_LABEL_TEXT,
           const IText& valueText = DEFAULT_VALUE_TEXT,
           bool hideCursor = DEFAULT_HIDE_CURSOR,

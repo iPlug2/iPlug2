@@ -477,10 +477,10 @@ void MidiSynth::SetSampleRateAndBlockSize(double sampleRate, int blockSize)
 
   mSampleRate = sampleRate;
   mMidiQueue.Resize(blockSize);
-  mVoiceAllocator.SetSampleRate(sampleRate);
+  mVoiceAllocator.SetSampleRateAndBlockSize(sampleRate, blockSize);
 
   for(int v = 0; v < NVoices(); v++)
   {
-    GetVoice(v)->SetSampleRate(sampleRate);
+    GetVoice(v)->SetSampleRateAndBlockSize(sampleRate, blockSize);
   }
 }

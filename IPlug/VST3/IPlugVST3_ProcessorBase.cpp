@@ -272,6 +272,14 @@ bool IPlugVST3ProcessorBase::SetupProcessing(const ProcessSetup& setup, ProcessS
   return true;
 }
 
+bool IPlugVST3ProcessorBase::SetProcessing(bool state)
+{
+  if (!state)
+    OnReset();
+  
+  return true;
+}
+
 bool IPlugVST3ProcessorBase::CanProcessSampleSize(int32 symbolicSampleSize)
 {
   switch (symbolicSampleSize)
@@ -419,10 +427,12 @@ void IPlugVST3ProcessorBase::ProcessAudio(ProcessData& data, ProcessSetup& setup
     }
     else
     {
+      ENTER_PARAMS_MUTEX;
       if (sampleSize == kSample32)
         ProcessBuffers(0.f, data.numSamples); // single precision
       else
         ProcessBuffers(0.0, data.numSamples); // double precision
+      LEAVE_PARAMS_MUTEX;
     }
   }
 }

@@ -228,9 +228,9 @@ void IControl::Hide(bool hide)
   SetDirty(false);
 }
 
-void IControl::GrayOut(bool gray)
+void IControl::SetDisabled(bool disable)
 {
-  mGrayed = gray;
+  mDisabled = disable;
   SetDirty(false);
 }
 
@@ -278,6 +278,22 @@ void IControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx)
   {
     SetValueFromUserInput(GetParam()->ToNormalized( (double) pSelectedMenu->GetChosenItemIdx()), valIdx);
   }
+}
+
+void IControl::SetPosition(float x, float y)
+{
+  if (x < 0.f) x = 0.f;
+  if (y < 0.f) y = 0.f;
+
+  SetTargetAndDrawRECTs({x, y, x + mRECT.W(), y + mRECT.H()});
+}
+
+void IControl::SetSize(float w, float h)
+{
+  if (w < 0.f) w = 0.f;
+  if (h < 0.f) h = 0.f;
+
+  SetTargetAndDrawRECTs({mRECT.L, mRECT.T, mRECT.L + w, mRECT.T + h});
 }
 
 void IControl::PromptUserInput(int valIdx)
