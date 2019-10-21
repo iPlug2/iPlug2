@@ -9,7 +9,7 @@
 */
  
 #include "config.h"   // This is your plugin's config.h.
-#include <AudioUnit/AudioUnit.r>
+#include <AudioUnit.r>
 
 #define UseExtendedThingResource 1
 

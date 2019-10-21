@@ -32,7 +32,7 @@ public:
   {
     if (!g.CheckLayer(mLayer))
     {
-      g.StartLayer(mRECT);
+      g.StartLayer(this, mRECT);
 #ifdef IGRAPHICS_NANOVG
       static IText text {14, COLOR_WHITE, "Roboto-Regular", EAlign::Center, EVAlign::Middle, 0};
 #else

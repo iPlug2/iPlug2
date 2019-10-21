@@ -18,9 +18,6 @@
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
-using namespace Steinberg;
-using namespace Vst;
-
 // Custom bus type function (in global namespace)
 #ifdef CUSTOM_BUSTYPE_FUNC
 extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, iplug::ERoute dir, int busIdx, iplug::IOConfig* pConfig);
@@ -42,7 +39,7 @@ public:
   template <class T>
   void Initialize(T* plug)
   {
-    Vst::String128 tmpStringBuf;
+    Steinberg::Vst::String128 tmpStringBuf;
     
 //  for(auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
 //  {
@@ -56,8 +53,8 @@ public:
       uint64_t busType = GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kInput, busIdx, pConfig);
       
       int flags = 0; //busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
-      UString(tmpStringBuf, 128).fromAscii(pConfig->GetBusInfo(ERoute::kInput, busIdx)->mLabel.Get(), 128);
-      plug->addAudioInput(tmpStringBuf, busType, (Vst::BusTypes) busIdx > 0, flags);
+      Steinberg::UString(tmpStringBuf, 128).fromAscii(pConfig->GetBusInfo(ERoute::kInput, busIdx)->mLabel.Get(), 128);
+      plug->addAudioInput(tmpStringBuf, busType, (Steinberg::Vst::BusTypes) busIdx > 0, flags);
     }
     
     for (auto busIdx = 0; busIdx < pConfig->NBuses(ERoute::kOutput); busIdx++)
@@ -65,16 +62,16 @@ public:
       uint64_t busType = GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kOutput, busIdx, pConfig);
       
       int flags = 0; //busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
-      UString(tmpStringBuf, 128).fromAscii(pConfig->GetBusInfo(ERoute::kOutput, busIdx)->mLabel.Get(), 128);
-      plug->addAudioOutput(tmpStringBuf, busType, (Vst::BusTypes) busIdx > 0, flags);
+      Steinberg::UString(tmpStringBuf, 128).fromAscii(pConfig->GetBusInfo(ERoute::kOutput, busIdx)->mLabel.Get(), 128);
+      plug->addAudioOutput(tmpStringBuf, busType, (Steinberg::Vst::BusTypes) busIdx > 0, flags);
     }
 //  }
 
     if (IsMidiEffect() && pConfig->NBuses(ERoute::kOutput) == 0)
     {
       int flags = 0;
-      UString(tmpStringBuf, 128).fromAscii("Dummy Output", 128);
-      plug->addAudioOutput(tmpStringBuf, Steinberg::Vst::SpeakerArr::kEmpty, Vst::BusTypes::kMain, flags);
+      Steinberg::UString(tmpStringBuf, 128).fromAscii("Dummy Output", 128);
+      plug->addAudioOutput(tmpStringBuf, Steinberg::Vst::SpeakerArr::kEmpty, Steinberg::Vst::BusTypes::kMain, flags);
     }
     
     if (DoesMIDIIn())
@@ -85,27 +82,28 @@ public:
   }
   
   // MIDI Processing
-  void ProcessMidiIn(Vst::IEventList* eventList, IPlugQueue<IMidiMsg>& editorQueue, IPlugQueue<IMidiMsg>& processorQueue);
-  void ProcessMidiOut(IPlugQueue<SysExData>& sysExQueue, SysExData& sysExBuf, Vst::IEventList* outputEvents, int32 numSamples);
+  void ProcessMidiIn(Steinberg::Vst::IEventList* eventList, IPlugQueue<IMidiMsg>& editorQueue, IPlugQueue<IMidiMsg>& processorQueue);
+  void ProcessMidiOut(IPlugQueue<SysExData>& sysExQueue, SysExData& sysExBuf, Steinberg::Vst::IEventList* outputEvents, Steinberg::int32 numSamples);
   
   // Audio Processing Setup
-  void SetBusArrangments(Vst::SpeakerArrangement* pInputBusArrangements, int32 numInBuses, Vst::SpeakerArrangement* pOutputBusArrangements, int32 numOutBuses);
-  void AttachBuffers(ERoute direction, int idx, int n, Vst::AudioBusBuffers& pBus, int nFrames, int32 sampleSize);
-  bool SetupProcessing(const Vst::ProcessSetup& setup, Vst::ProcessSetup& storedSetup);
-  bool CanProcessSampleSize(int32 symbolicSampleSize);
-
+  void SetBusArrangments(Steinberg::Vst::SpeakerArrangement* pInputBusArrangements, Steinberg::int32 numInBuses, Steinberg::Vst::SpeakerArrangement* pOutputBusArrangements, Steinberg::int32 numOutBuses);
+  void AttachBuffers(ERoute direction, int idx, int n, Steinberg::Vst::AudioBusBuffers& pBus, int nFrames, Steinberg::int32 sampleSize);
+  bool SetupProcessing(const Steinberg::Vst::ProcessSetup& setup, Steinberg::Vst::ProcessSetup& storedSetup);
+  bool CanProcessSampleSize(Steinberg::int32 symbolicSampleSize);
+  bool SetProcessing(bool state);
+  
   // Audio Processing
-  void PrepareProcessContext(Vst::ProcessData& data, Vst::ProcessSetup& setup);
-  void ProcessParameterChanges(Vst::ProcessData& data);
-  void ProcessAudio(Vst::ProcessData& data, Vst::ProcessSetup& setup, const Vst::BusList& ins, const Vst::BusList& outs);
-  void Process(Vst::ProcessData& data, Vst::ProcessSetup& setup, const Vst::BusList& ins, const Vst::BusList& outs, IPlugQueue<IMidiMsg>& fromEditor, IPlugQueue<IMidiMsg>& fromProcessor, IPlugQueue<SysExData>& sysExFromEditor, SysExData& sysExBuf);
+  void PrepareProcessContext(Steinberg::Vst::ProcessData& data, Steinberg::Vst::ProcessSetup& setup);
+  void ProcessParameterChanges(Steinberg::Vst::ProcessData& data);
+  void ProcessAudio(Steinberg::Vst::ProcessData& data, Steinberg::Vst::ProcessSetup& setup, const Steinberg::Vst::BusList& ins, const Steinberg::Vst::BusList& outs);
+  void Process(Steinberg::Vst::ProcessData& data, Steinberg::Vst::ProcessSetup& setup, const Steinberg::Vst::BusList& ins, const Steinberg::Vst::BusList& outs, IPlugQueue<IMidiMsg>& fromEditor, IPlugQueue<IMidiMsg>& fromProcessor, IPlugQueue<SysExData>& sysExFromEditor, SysExData& sysExBuf);
   
   // IPlugProcessor overrides
   bool SendMidiMsg(const IMidiMsg& msg) override;
 
 private:
   IPlugAPIBase& mPlug;
-  Vst::ProcessContext mProcessContext;
+  Steinberg::Vst::ProcessContext mProcessContext;
   IMidiQueue mMidiOutputQueue;
   bool mSidechainActive = false;
 };

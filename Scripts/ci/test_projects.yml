@@ -62,7 +62,7 @@ jobs:
         graphics: 'SKIA'
 
   pool:
-    vmImage: 'vs2017-win2016'
+    vmImage: 'windows-2019'
 
   steps:
   - checkout: none
@@ -76,7 +76,7 @@ jobs:
       git clone --recursive https://github.com/steinbergmedia/vst3sdk.git VST3_SDK
       mkdir VST3_BUILD
       cd VST3_BUILD
-      cmake.exe -G"Visual Studio 15 2017 Win64" -DCMAKE_BUILD_TYPE=Release ../VST3_SDK
+      cmake.exe -G "Visual Studio 16 2019" -A x64 -DCMAKE_BUILD_TYPE=Release ../VST3_SDK
     displayName: Download VST3 SDK, run Cmake
     condition: eq(variables.build_vst3, True)
 

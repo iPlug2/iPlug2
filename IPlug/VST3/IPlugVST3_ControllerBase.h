@@ -15,9 +15,6 @@
 #include "IPlugAPIBase.h"
 #include "IPlugVST3_Parameter.h"
 
-using namespace Steinberg;
-using namespace Vst;
-
 BEGIN_IPLUG_NAMESPACE
 
 /** Shared VST3 controller code */
@@ -29,7 +26,7 @@ public:
   IPlugVST3ControllerBase(const IPlugVST3ControllerBase&) = delete;
   IPlugVST3ControllerBase& operator=(const IPlugVST3ControllerBase&) = delete;
     
-  void Initialize(IPlugAPIBase* pPlug, ParameterContainer& parameters, bool plugIsInstrument/*, bool midiIn*/)
+  void Initialize(IPlugAPIBase* pPlug, Steinberg::Vst::ParameterContainer& parameters, bool plugIsInstrument/*, bool midiIn*/)
   {
     if (pPlug->NPresets())
       parameters.addParameter(new IPlugVST3PresetParameter(pPlug->NPresets()));
@@ -41,7 +38,7 @@ public:
     {
       IParam *p = pPlug->GetParam(i);
       
-      UnitID unitID = kRootUnitId;
+      Steinberg::Vst::UnitID unitID = Steinberg::Vst::kRootUnitId;
       
       const char* paramGroupName = p->GetGroupForHost();
       
@@ -55,13 +52,13 @@ public:
           }
         }
         
-        if (unitID == kRootUnitId) // new unit, nothing found, so add it
+        if (unitID == Steinberg::Vst::kRootUnitId) // new unit, nothing found, so add it
         {
           unitID = pPlug->AddParamGroup(paramGroupName);
         }
       }
       
-      Parameter* pVST3Parameter = new IPlugVST3Parameter(p, i, unitID);
+      Steinberg::Vst::Parameter* pVST3Parameter = new IPlugVST3Parameter(p, i, unitID);
       parameters.addParameter(pVST3Parameter);
     }
 
@@ -74,7 +71,7 @@ public:
 //      name.fromAscii("MIDI Controllers");
 //      addUnit(new Unit(uinfo));
 //
-//      ParamID midiParamIdx = kMIDICCParamStartIdx;
+//      Steinberg::Vst::ParamID midiSteinberg::Vst::ParamIDx = kMIDICCParamStartIdx;
 //      UnitID midiControllersID = unitID;
 //
 //      char buf[32];
@@ -93,11 +90,11 @@ public:
 //        for (int i = 0; i < 128; i++)
 //        {
 //          name.fromAscii(ControlStr(i));
-//          parameters.addParameter(name, STR16(""), 0, 0, 0, midiParamIdx++, unitID);
+//          parameters.addParameter(name, STR16(""), 0, 0, 0, midiSteinberg::Vst::ParamIDx++, unitID);
 //        }
 //
-//        parameters.addParameter(STR16("Channel Aftertouch"), STR16(""), 0, 0, 0, midiParamIdx++, unitID);
-//        parameters.addParameter(STR16("Pitch Bend"), STR16(""), 0, 0.5, 0, midiParamIdx++, unitID);
+//        parameters.addParameter(STR16("Channel Aftertouch"), STR16(""), 0, 0, 0, midiSteinberg::Vst::ParamIDx++, unitID);
+//        parameters.addParameter(STR16("Pitch Bend"), STR16(""), 0, 0.5, 0, midiSteinberg::Vst::ParamIDx++, unitID);
 //      }
 //    }
      /*
@@ -128,7 +125,7 @@ public:
      */
   }
   
-  ParamValue PLUGIN_API getParamNormalized(IPlugAPIBase* pPlug, ParamID tag)
+  Steinberg::Vst::ParamValue PLUGIN_API getParamNormalized(IPlugAPIBase* pPlug, Steinberg::Vst::ParamID tag)
   {
     IParam* param = pPlug->GetParam(tag);
         
@@ -140,7 +137,7 @@ public:
     return 0.0;
   }
     
-  void PLUGIN_API setParamNormalized(IPlugAPIBase* pPlug, ParamID tag, ParamValue value)
+  void PLUGIN_API setParamNormalized(IPlugAPIBase* pPlug, Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue value)
   {
     if (tag >= kBypassParam)
     {
@@ -148,7 +145,7 @@ public:
       {
         case kPresetParam:
         {
-          pPlug->RestorePreset(pPlug->NPresets() * value);
+          pPlug->RestorePreset(std::round((pPlug->NPresets() - 1) * value));
           break;
         }
         default:

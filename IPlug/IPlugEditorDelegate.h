@@ -113,14 +113,16 @@ public:
    * WARNING: this method can in some cases be called on the realtime audio thread */
   virtual void OnParamChange(int paramIdx) {}
   
-  /** This is an OnParamChange that will only trigger on the UI thread at low priority, and therefore is appropriate for hiding or showing elements of the UI.
+  /** Override this method to do something to your UI when a parameter changes.
+   * Like OnParamChange, OnParamChangeUI will be called when a parameter changes. However, whereas OnParamChange may be called on the audio thread and should be used to update DSP state, OnParamChangeUI is always called on the low-priority thread, should be used to update UI (e.g. for hiding or showing controls).
    * You should not update parameter objects using this method.
    * @param paramIdx The index of the parameter that changed */
   virtual void OnParamChangeUI(int paramIdx, EParamSource source = kUnknown) {};
   
-  /** Calls OnParamChange() and OnParamChangeUI() for each parameter.
+  /** Called when parameteres have changed to inform the plugin of the changes
+   * Override only if you need to handle notifications and updates in a specialist manner (e.g. if the ordering of updating parameters has an effect or if you need to avoid multiple settings of linked parameters). This must update both DSP and UI. The default implementation calls OnParamChange() and OnParamChangeUI() for each parameter.
    * @param source Specifies the source of the parameter changes */
-  void OnParamReset(EParamSource source)
+  virtual void OnParamReset(EParamSource source)
   {
     for (int i = 0; i < NParams(); ++i)
     {
@@ -303,7 +305,7 @@ protected:
   int mEditorHeight = 0;
   /** Any arbitrary data that the editor need to store (e.g. scale etc.) */
   IByteChunk mEditorData;
-  /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to IPLUG_CTOR in the plug-in class implementation constructor */
+  /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to MakeConfig() in the plug-in class implementation constructor */
   WDL_PtrList<IParam> mParams;
 };
 

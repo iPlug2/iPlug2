@@ -192,6 +192,8 @@ static inline void NanoVGSetBlendMode(NVGcontext* context, const IBlend* pBlend)
 
 static NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend* pBlend)
 {
+  assert(pattern.NStops() > 0);
+  
   double s[2], e[2];
   
   NVGcolor icol = NanoVGColor(pattern.GetStop(0).mColor, pBlend);
@@ -388,7 +390,7 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
     APIBitmap* shadowBitmap = CreateAPIBitmap(width, height, pBitmap->GetScale(), pBitmap->GetDrawScale());
     IBitmap tempLayerBitmap(shadowBitmap, 1, false);
     IBitmap maskBitmap(&maskRawBitmap, 1, false);
-    ILayer shadowLayer(shadowBitmap, layer->Bounds());
+    ILayer shadowLayer(shadowBitmap, layer->Bounds(), nullptr, IRECT());
     
     PathTransformSave();
     PushLayer(layer.get());

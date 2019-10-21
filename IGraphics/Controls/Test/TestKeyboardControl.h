@@ -127,7 +127,7 @@ public:
     }
     else
     {
-      g.StartLayer(mRECT);
+      g.StartLayer(this, mRECT);
       g.DrawText(IText(20, COLOR_WHITE), mStr.Get(), mX, mY);
     }
 

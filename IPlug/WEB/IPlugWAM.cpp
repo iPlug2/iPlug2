@@ -64,7 +64,10 @@ void IPlugWAM::onProcess(WAM::AudioBus* pAudio, void* pData)
   SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true); //TODO: go elsewhere
   AttachBuffers(ERoute::kInput, 0, NChannelsConnected(ERoute::kInput), pAudio->inputs, blockSize);
   AttachBuffers(ERoute::kOutput, 0, NChannelsConnected(ERoute::kOutput), pAudio->outputs, blockSize);
+  
+  ENTER_PARAMS_MUTEX;
   ProcessBuffers((float) 0.0f, blockSize);
+  LEAVE_PARAMS_MUTEX;
   
   //emulate IPlugAPIBase::OnTimer - should be called on the main thread - how to do that in audio worklet processor?
   if(mBlockCounter == 0)

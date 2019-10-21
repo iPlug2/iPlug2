@@ -291,9 +291,9 @@ void IGraphics::HideControl(int paramIdx, bool hide)
   ForMatchingControls(&IControl::Hide, paramIdx, hide);
 }
 
-void IGraphics::GrayOutControl(int paramIdx, bool gray)
+void IGraphics::DisableControl(int paramIdx, bool disable)
 {
-  ForMatchingControls(&IControl::GrayOut, paramIdx, gray);
+  ForMatchingControls(&IControl::SetDisabled, paramIdx, disable);
 }
 
 void IGraphics::ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func)
@@ -598,7 +598,7 @@ void IGraphics::DrawGrid(const IColor& color, const IRECT& bounds, float gridSiz
   // Vertical Lines grid
   if (gridSizeH > 1.f)
   {
-    for (float x = 0; x < bounds.W(); x += gridSizeH)
+    for (float x = gridSizeH; x < bounds.W(); x += gridSizeH)
     {
       DrawVerticalLine(color, bounds, x/bounds.W(), pBlend, thickness);
     }
@@ -606,7 +606,7 @@ void IGraphics::DrawGrid(const IColor& color, const IRECT& bounds, float gridSiz
     // Horizontal Lines grid
   if (gridSizeV > 1.f)
   {
-    for (float y = 0; y < bounds.H(); y += gridSizeV)
+    for (float y = gridSizeV; y < bounds.H(); y += gridSizeV)
     {
       DrawHorizontalLine(color, bounds, y/bounds.H(), pBlend, thickness);
     }
@@ -1064,7 +1064,7 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
 #endif
         if (!pControl->IsHidden() && !pControl->GetIgnoreMouse())
         {
-          if ((!pControl->IsGrayed() || (mouseOver ? pControl->GetMOWhenGrayed() : pControl->GetMEWhenGrayed())))
+          if ((!pControl->IsDisabled() || (mouseOver ? pControl->GetMouseOverWhenDisabled() : pControl->GetMouseEventsWhenDisabled())))
           {
             if (pControl->IsHit(x, y))
             {
@@ -1394,7 +1394,7 @@ IBitmap IGraphics::ScaleBitmap(const IBitmap& inBitmap, const char* name, int sc
   mDrawScale = inBitmap.GetDrawScale();
 
   IRECT bounds = IRECT(0, 0, inBitmap.W() / inBitmap.GetDrawScale(), inBitmap.H() / inBitmap.GetDrawScale());
-  StartLayer(bounds);
+  StartLayer(nullptr, bounds);
   DrawBitmap(inBitmap, bounds, 0, 0, nullptr);
   ILayerPtr layer = EndLayer();
   IBitmap bitmap = IBitmap(layer->mBitmap.release(), inBitmap.N(), inBitmap.GetFramesAreHorizontal(), name);
@@ -1471,10 +1471,12 @@ void IGraphics::CreateTextEntry(IControl& control, const IText& text, const IREC
   mInTextEntry = &control;
   mTextEntryValIdx = valIdx;
     
+  int paramIdx = valIdx > kNoValIdx  ? control.GetParamIdx(valIdx) : kNoParameter;
+
   if (mTextEntryControl)
-    mTextEntryControl->CreateTextEntry(control.GetParamIdx(valIdx), text, bounds, control.GetTextEntryLength(), str);
+    mTextEntryControl->CreateTextEntry(paramIdx, text, bounds, control.GetTextEntryLength(), str);
   else
-    CreatePlatformTextEntry(control.GetParamIdx(valIdx), text, bounds, control.GetTextEntryLength(), str);
+    CreatePlatformTextEntry(paramIdx, text, bounds, control.GetTextEntryLength(), str);
 }
 
 void IGraphics::DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx, bool isContext)
@@ -1501,13 +1503,13 @@ void IGraphics::CreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT
   DoCreatePopupMenu(control, menu, bounds, valIdx, false);
 }
 
-void IGraphics::StartLayer(const IRECT& r)
+void IGraphics::StartLayer(IControl* pControl, const IRECT& r)
 {
   IRECT alignedBounds = r.GetPixelAligned(GetBackingPixelScale());
   const int w = static_cast<int>(std::ceil(GetBackingPixelScale() * std::ceil(alignedBounds.W())));
   const int h = static_cast<int>(std::ceil(GetBackingPixelScale() * std::ceil(alignedBounds.H())));
 
-  PushLayer(new ILayer(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds));
+  PushLayer(new ILayer(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds, pControl, pControl ? pControl->GetRECT() : IRECT()));
 }
 
 void IGraphics::ResumeLayer(ILayerPtr& layer)
@@ -1558,6 +1560,13 @@ ILayer* IGraphics::PopLayer()
 bool IGraphics::CheckLayer(const ILayerPtr& layer)
 {
   const APIBitmap* pBitmap = layer ? layer->GetAPIBitmap() : nullptr;
+    
+  if (pBitmap && layer->mControl && layer->mControlRECT != layer->mControl->GetRECT())
+  {
+    layer->mControlRECT = layer->mControl->GetRECT();
+    layer->Invalidate();
+  }
+
   return pBitmap && !layer->mInvalid && pBitmap->GetDrawScale() == GetDrawScale() && pBitmap->GetScale() == GetScreenScale();
 }
 

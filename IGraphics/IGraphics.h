@@ -204,8 +204,8 @@ public:
    * @param cx The X coordinate in the graphics context of the centre of the circle on which the arc lies
    * @param cy The Y coordinate in the graphics context of the centre of the circle on which the arc lies
    * @param r The radius of the circle on which the arc lies
-   * @param a1 the start angle  of the arc at in degrees clockwise where 0 is up
-   * @param a2 the end angle  of the arc at in degrees clockwise where 0 is up
+   * @param a1 the start angle of the arc at in degrees clockwise where 0 is up
+   * @param a2 the end angle of the arc at in degrees clockwise where 0 is up
    * @param pBlend Optional blend method, see IBlend documentation
    * @param thickness Optional line thickness */
   virtual void DrawArc(const IColor& color, float cx, float cy, float r, float a1, float a2, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
@@ -486,7 +486,7 @@ public:
   
   /** /todo 
    * @param r /todo*/
-  void StartLayer(const IRECT& r);
+  void StartLayer(IControl *owner, const IRECT& r);
   
   /** /todo
    * @param layer /todo*/
@@ -1020,7 +1020,10 @@ public:
   
   /** @return An EUIResizerMode Representing whether the graphics context should scale or be resized, e.g. when dragging a corner resizer */
   EUIResizerMode GetResizerMode() const { return mGUISizeMode; }
-  
+
+  /** @return true if resizing is in process */
+  bool GetResizingInProcess() const { return mResizingInProcess; }
+
   /** @param enable Set \c true to enable tool tips when the user mouses over a control */
   void EnableTooltips(bool enable);
   
@@ -1097,7 +1100,7 @@ private:
    * @param valIdx The value index for the control value that the prompt relates to */
   void DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx, bool isContext);
   
-protected: // TODO: correct?
+protected:
   /** /todo */
   void StartResizeGesture() { mResizingInProcess = true; };
   
@@ -1222,10 +1225,10 @@ public:
    * @param hide /true to hide */
   void HideControl(int paramIdx, bool hide);
 
-  /** Gray-out controls linked to a specific parameter
+  /** Disable or enable controls linked to a specific parameter
    * @param paramIdx The parameter index
-   * @param gray /true to gray-out */
-  void GrayOutControl(int paramIdx, bool gray);
+   * @param disable /true to disable */
+  void DisableControl(int paramIdx, bool diable);
 
   /** Calls SetDirty() on every control */
   void SetAllControlsDirty();

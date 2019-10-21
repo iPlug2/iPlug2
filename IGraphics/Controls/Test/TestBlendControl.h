@@ -48,7 +48,7 @@ public:
       g.DrawText(mText, name, r);
     };
 
-    g.StartLayer(mRECT);
+    g.StartLayer(this, mRECT);
     drawBlendPic(g, nextCell(), EBlend::Default, "Default", alpha);
     drawBlendPic(g, nextCell(), EBlend::Clobber, "Clobber", alpha);
     drawBlendPic(g, nextCell(), EBlend::Add, "Add", alpha);
