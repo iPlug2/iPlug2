@@ -477,6 +477,8 @@ protected:
 #endif
 
 #ifdef PARAMS_MUTEX
+  friend class IPlugVST3ProcessorBase;
+protected:
   /** Lock when accessing mParams (including via GetParam) from the audio thread */
   WDL_Mutex mParams_mutex;
 #endif  
