@@ -357,10 +357,10 @@ void IPlugVST3ProcessorBase::ProcessParameterChanges(ProcessData& data)
             {
               if (idx >= 0 && idx < mPlug.NParams())
               {
-                ENTER_PARAMS_MUTEX;
+                ENTER_PARAMS_MUTEX
                 mPlug.GetParam(idx)->SetNormalized((double)value); // TODO: In VST3 non distributed the same parameter value is also set via IPlugVST3Controller::setParamNormalized(ParamID tag, ParamValue value)
                 mPlug.OnParamChange(idx, kHost, offsetSamples);
-                LEAVE_PARAMS_MUTEX;
+                LEAVE_PARAMS_MUTEX
               }
             }
               break;
@@ -427,12 +427,12 @@ void IPlugVST3ProcessorBase::ProcessAudio(ProcessData& data, ProcessSetup& setup
     }
     else
     {
-      ENTER_PARAMS_MUTEX;
+      ENTER_PARAMS_MUTEX
       if (sampleSize == kSample32)
         ProcessBuffers(0.f, data.numSamples); // single precision
       else
         ProcessBuffers(0.0, data.numSamples); // double precision
-      LEAVE_PARAMS_MUTEX;
+      LEAVE_PARAMS_MUTEX
     }
   }
 }

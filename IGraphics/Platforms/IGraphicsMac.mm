@@ -110,7 +110,7 @@ void IGraphicsMac::ContextReady(void* pLayer)
 
 void* IGraphicsMac::OpenWindow(void* pParent)
 {
-  TRACE;
+  TRACE
   CloseWindow();
   mView = (IGRAPHICS_VIEW*) [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
   
