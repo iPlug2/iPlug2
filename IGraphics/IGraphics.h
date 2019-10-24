@@ -934,7 +934,14 @@ public:
   /** Called by PopupMenuControl in order to update a control with a new value after returning from the non-blocking menu. The base class has a record of the control, so it is not needed here.
    * @param pReturnMenu The new value as a CString */
   void SetControlValueAfterPopupMenu(IPopupMenu* pMenu);
-    
+
+  /** Call this before CreateTextEntry to set if return key will end text edit
+   * @param end true if return key will end text edit */
+  void SetReturnKeyEndsTextInput(bool end) { mReturnKeyEndsTextInput = end; };
+
+  /** @return true if the return key will end text edit */
+  bool GetReturnKeyEndsTextInput() { return mReturnKeyEndsTextInput; };
+
   /** /todo 
    * @param lo /todo
    * @param hi /todo */
@@ -1545,7 +1552,8 @@ protected:
   float mCursorY = -1.f;
   float mXTranslation = 0.f;
   float mYTranslation = 0.f;
-  
+  bool mReturnKeyEndsTextInput = true;
+
   friend class IGraphicsLiveEdit;
   friend class ICornerResizerControl;
   friend class ITextEntryControl;

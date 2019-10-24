@@ -600,7 +600,7 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
       {
         if (wParam == VK_RETURN)
         {
-          pGraphics->mParamEditMsg = kCommit;
+          if(pGraphics->GetReturnKeyEndsTextInput()) pGraphics->mParamEditMsg = kCommit;
           return 0;
         }
         else if (wParam == VK_ESCAPE)
