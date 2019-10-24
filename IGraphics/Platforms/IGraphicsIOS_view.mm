@@ -482,10 +482,3 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 #endif
 
-#if defined IGRAPHICS_NANOVG
-#include "IGraphicsNanoVG.cpp"
-#elif defined IGRAPHICS_SKIA
-#include "IGraphicsSkia.cpp"
-#else
-#error Either NO_IGRAPHICS or one and only one choice of graphics library must be defined!
-#endif
