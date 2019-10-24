@@ -533,16 +533,22 @@ IColor IGraphicsLice::GetPoint(int x, int y)
 
 void IGraphicsLice::PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, LICE_IFont*& pFont) const
 {
+  pFont = CacheFont(text);
   RECT R = {0, 0, 0, 0};
 
   UINT fmt = DT_NOCLIP | DT_TOP | DT_LEFT | LICE_DT_USEFGALPHA;
-  
   pFont->DrawText(mRenderBitmap, str, -1, &R, fmt | DT_CALCRECT);
-  
-  const float textWidth = R.right / static_cast<float>(GetScreenScale());
-  const float textHeight = R.bottom / static_cast<float>(GetScreenScale());
+
+  float textWidth = R.right / static_cast<float>(GetScreenScale());
+  float textHeight = R.bottom / static_cast<float>(GetScreenScale());
   float x = 0.f;
   float y = 0.f;
+
+  if (text.mClip)
+  {
+    if (textWidth > r.W()) textWidth = r.W();
+    if (textHeight > r.H()) textHeight = r.H();
+  }
 
   switch (text.mAlign)
   {
@@ -578,9 +584,7 @@ void IGraphicsLice::DoDrawText(const IText& text, const char* str, const IRECT& 
   fmt |= DT_TOP | DT_LEFT | LICE_DT_USEFGALPHA;
   
   NeedsClipping();
-
-  pFont = CacheFont(text);
-  if(!text.mClip) PrepareAndMeasureText(text, str, measured, pFont);
+  PrepareAndMeasureText(text, str, measured, pFont);
   
   if (text.mAngle)
   {
