@@ -63,6 +63,10 @@ public:
   /** @return The host if it has been identified, see EHost enum for a list of possible hosts */
    EHost GetHost() const { return mHost; }
   
+  /** Get the host name as a CString
+   * @param str string into which to write the host name */
+  void GetHostStr(WDL_String& str) const { GetHostNameStr(GetHost(), str); }
+  
   /** Get the host version number as an integer
    * @param decimal \c true indicates decimal format = VVVVRRMM, otherwise hexadecimal 0xVVVVRRMM.
    * @return The host version number as an integer. */
