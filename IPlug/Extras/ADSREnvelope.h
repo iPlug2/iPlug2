@@ -187,11 +187,13 @@ public:
     mRetriggerReleaseIncr = CalcIncrFromTimeLinear(RETRIGGER_RELEASE_TIME, sr);
   }
 
-  /** Set's a function to call when the envelope gets retriggered, called when the fade out ramp is at zero, useful for example to reset an oscillator's phase
+  /** Sets a function to call when the envelope gets retriggered, called when the fade out ramp is at zero, useful for example to reset an oscillator's phase
+   * WARNING: don't call this on the audio thread, std::function can malloc
    * @param func the reset function, or nullptr for none */
   void SetResetFunc(std::function<void()> func) { mResetFunc = func; }
   
-  /** Set's a function to call when the envelope gets released, called when the ramp is at zero
+  /** Sets a function to call when the envelope gets released, called when the ramp is at zero
+   * WARNING: don't call this on the audio thread, std::function can malloc
    * @param func the release function, or nullptr for none */
   void SetEndReleaseFunc(std::function<void()> func) { mEndReleaseFunc = func; }
   
