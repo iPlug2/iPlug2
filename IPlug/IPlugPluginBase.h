@@ -63,6 +63,10 @@ public:
   /** @return The host if it has been identified, see EHost enum for a list of possible hosts */
    EHost GetHost() const { return mHost; }
   
+  /** Get the host name as a CString
+   * @param str string into which to write the host name */
+  void GetHostStr(WDL_String& str) const { GetHostNameStr(GetHost(), str); }
+  
   /** Get the host version number as an integer
    * @param decimal \c true indicates decimal format = VVVVRRMM, otherwise hexadecimal 0xVVVVRRMM.
    * @return The host version number as an integer. */
@@ -139,14 +143,14 @@ public:
   /** Override this method to serialize custom state data, if your plugin does state chunks.
    * @param chunk The output bytechunk where data can be serialized
    * @return \c true if serialization was successful*/
-  virtual bool SerializeState(IByteChunk& chunk) const { TRACE; return SerializeParams(chunk); }
+  virtual bool SerializeState(IByteChunk& chunk) const { TRACE return SerializeParams(chunk); }
   
   /** Override this method to unserialize custom state data, if your plugin does state chunks.
    * Implementations should call UnserializeParams() after custom data is unserialized
    * @param chunk The incoming chunk containing the state data.
    * @param startPos The position in the chunk where the data starts
    * @return The new chunk position (endPos)*/
-  virtual int UnserializeState(const IByteChunk& chunk, int startPos) { TRACE; return UnserializeParams(chunk, startPos); }
+  virtual int UnserializeState(const IByteChunk& chunk, int startPos) { TRACE return UnserializeParams(chunk, startPos); }
   
   /** VST3 ONLY! - THIS IS ONLY INCLUDED FOR COMPATIBILITY - NOONE ELSE SHOULD NEED IT!
    * @param chunk The output bytechunk where data can be serialized.
@@ -477,6 +481,8 @@ protected:
 #endif
 
 #ifdef PARAMS_MUTEX
+  friend class IPlugVST3ProcessorBase;
+protected:
   /** Lock when accessing mParams (including via GetParam) from the audio thread */
   WDL_Mutex mParams_mutex;
 #endif  

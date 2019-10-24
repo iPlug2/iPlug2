@@ -1301,7 +1301,7 @@ class ILambdaControl : public IControl
 {
 public:
   ILambdaControl(const IRECT& bounds, ILambdaDrawFunction drawFunc, int animationDuration = DEFAULT_ANIMATION_DURATION,
-    bool loopAnimation = false, bool startImmediately = false, int paramIdx = kNoParameter)
+    bool loopAnimation = false, bool startImmediately = false, int paramIdx = kNoParameter, bool ignoreMouse = false)
   : IControl(bounds, paramIdx, DefaultClickActionFunc)
   , mDrawFunc(drawFunc)
   , mLoopAnimation(loopAnimation)
@@ -1312,6 +1312,8 @@ public:
       SetAnimation(DefaultAnimationFunc);
       StartAnimation(mAnimationDuration);
     }
+    
+    mIgnoreMouse = ignoreMouse;
   }
   
   void Draw(IGraphics& g) override
