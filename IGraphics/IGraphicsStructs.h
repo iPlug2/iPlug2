@@ -570,6 +570,7 @@ struct IText
   float mAngle = 0.f; // Degrees ccwise from normal.
   EAlign mAlign = EAlign::Near;
   EVAlign mVAlign = EVAlign::Middle;
+  bool mClip = false;
 };
 
 const IText DEFAULT_TEXT = IText();

@@ -533,8 +533,8 @@ IColor IGraphicsLice::GetPoint(int x, int y)
 
 void IGraphicsLice::PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, LICE_IFont*& pFont) const
 {
-  pFont = CacheFont(text);
   RECT R = {0, 0, 0, 0};
+
   UINT fmt = DT_NOCLIP | DT_TOP | DT_LEFT | LICE_DT_USEFGALPHA;
   
   pFont->DrawText(mRenderBitmap, str, -1, &R, fmt | DT_CALCRECT);
@@ -573,10 +573,14 @@ void IGraphicsLice::DoDrawText(const IText& text, const char* str, const IRECT& 
 {
   IRECT measured = bounds;
   LICE_IFont* pFont;
-  UINT fmt = DT_NOCLIP | DT_TOP | DT_LEFT | LICE_DT_USEFGALPHA;
+
+  UINT fmt = text.mClip ? 0 : DT_NOCLIP;
+  fmt |= DT_TOP | DT_LEFT | LICE_DT_USEFGALPHA;
   
   NeedsClipping();
-  PrepareAndMeasureText(text, str, measured, pFont);
+
+  pFont = CacheFont(text);
+  if(!text.mClip) PrepareAndMeasureText(text, str, measured, pFont);
   
   if (text.mAngle)
   {
