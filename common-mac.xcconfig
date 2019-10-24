@@ -69,7 +69,6 @@ RTMIDI_PATH = $(DEPS_PATH)/IPlug/RTMidi
 
 EXTRAS_PATH = $(IPLUG_PATH)/Extras
 YOGA_PATH = $(DEPS_PATH)/IGraphics/yoga/yoga
-PUGL_PATH = $(DEPS_PATH)/Extras/pugl
 IMGUI_PATH = $(DEPS_PATH)/IGraphics/imgui
 
 //faust is linked as a dynamic library

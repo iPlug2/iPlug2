@@ -33,14 +33,14 @@ static const AudioUnitPropertyID kIPlugObjectPropertyID = UINT32_MAX-100;
 
 - (id) init
 {
-  TRACE;  
+  TRACE  
   mPlug = nullptr;
   return [super init];
 }
 
 - (NSView*) uiViewForAudioUnit: (AudioUnit) audioUnit withSize: (NSSize) preferredSize
 {
-  TRACE;
+  TRACE
 
   void* pointers[1];
   UInt32 propertySize = sizeof (pointers);

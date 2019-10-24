@@ -1207,7 +1207,7 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
 
 void IGraphics::OnGUIIdle()
 {
-  TRACE;
+  TRACE
 
   ForAllControls(&IControl::OnGUIIdle);
 }

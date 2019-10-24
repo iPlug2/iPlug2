@@ -39,7 +39,7 @@ IPlugVST3::~IPlugVST3() {}
 
 tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
 {
-  TRACE;
+  TRACE
 
   if (SingleComponentEffect::initialize(context) == kResultOk)
   {
@@ -58,14 +58,14 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
 
 tresult PLUGIN_API IPlugVST3::terminate()
 {
-  TRACE;
+  TRACE
 
   return SingleComponentEffect::terminate();
 }
 
 tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* pInputBusArrangements, int32 numInBuses, SpeakerArrangement* pOutputBusArrangements, int32 numOutBuses)
 {
-  TRACE;
+  TRACE
 
   SetBusArrangments(pInputBusArrangements, numInBuses, pOutputBusArrangements, numOutBuses);
   return kResultTrue;
@@ -73,7 +73,7 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* pInputBusAr
 
 tresult PLUGIN_API IPlugVST3::setActive(TBool state)
 {
-  TRACE;
+  TRACE
 
   OnActivate((bool) state);
   return SingleComponentEffect::setActive(state);
@@ -81,14 +81,14 @@ tresult PLUGIN_API IPlugVST3::setActive(TBool state)
 
 tresult PLUGIN_API IPlugVST3::setupProcessing(ProcessSetup& newSetup)
 {
-  TRACE;
+  TRACE
 
   return SetupProcessing(newSetup, processSetup) ? kResultOk : kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3::setProcessing(TBool state)
 {
-  TRACE;
+  TRACE
   
   SetProcessing((bool) state);
   
@@ -97,7 +97,7 @@ tresult PLUGIN_API IPlugVST3::setProcessing(TBool state)
 
 tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 {
-  TRACE;
+  TRACE
 
   Process(data, processSetup, audioInputs, audioOutputs, mMidiMsgsFromEditor, mMidiMsgsFromProcessor, mSysExDataFromEditor, mSysexBuf);
   return kResultOk;
@@ -110,14 +110,14 @@ tresult PLUGIN_API IPlugVST3::canProcessSampleSize(int32 symbolicSampleSize)
 
 tresult PLUGIN_API IPlugVST3::setState(IBStream* pState)
 {
-  TRACE;
+  TRACE
   
   return IPlugVST3State::SetState(this, pState) ? kResultOk :kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3::getState(IBStream* pState)
 {
-  TRACE;
+  TRACE
   
   return IPlugVST3State::GetState(this, pState) ? kResultOk :kResultFalse;
 }
@@ -171,14 +171,14 @@ tresult PLUGIN_API IPlugVST3::setComponentState(IBStream* pState)
 
 int32 PLUGIN_API IPlugVST3::getUnitCount()
 {
-  TRACE;
+  TRACE
 
   return NParamGroups() + 1;
 }
 
 tresult PLUGIN_API IPlugVST3::getUnitInfo(int32 unitIndex, UnitInfo& info)
 {
-  TRACE;
+  TRACE
 
   if (unitIndex == 0)
   {

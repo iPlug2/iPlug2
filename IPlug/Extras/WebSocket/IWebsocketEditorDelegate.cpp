@@ -192,12 +192,12 @@ void IWebsocketEditorDelegate::ProcessWebsocketQueue()
     ParamTupleCX p;
     mParamChangeFromClients.Pop(p);
     
-    ENTER_PARAMS_MUTEX;
+    ENTER_PARAMS_MUTEX
     IParam* pParam = GetParam(p.idx);
     
     if(pParam)
       pParam->SetNormalized(p.value);
-    LEAVE_PARAMS_MUTEX;
+    LEAVE_PARAMS_MUTEX
 
     OnParamChange(p.idx, kHost, -1);
     OnParamChangeUI(p.idx, kHost);
