@@ -68,7 +68,7 @@ IGraphicsIOS::~IGraphicsIOS()
 
 void* IGraphicsIOS::OpenWindow(void* pParent)
 {
-  TRACE;
+  TRACE
   CloseWindow();
   IGraphicsIOS_View* view = (IGraphicsIOS_View*) [[IGraphicsIOS_View alloc] initWithIGraphics: this];
   mView = view;

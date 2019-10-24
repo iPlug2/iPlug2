@@ -27,7 +27,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (id) initWithIGraphics: (IGraphicsIOS*) pGraphics
 {
-  TRACE;
+  TRACE
 
   mGraphics = pGraphics;
   CGRect r = CGRectMake(0.f, 0.f, (float) pGraphics->WindowWidth(), (float) pGraphics->WindowHeight());
