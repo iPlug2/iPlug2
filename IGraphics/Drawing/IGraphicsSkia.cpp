@@ -40,7 +40,7 @@
 using namespace iplug;
 using namespace igraphics;
 
-extern std::map<std::string, void*> gTextureMap;
+extern std::map<std::string, MTLTexturePtr> gTextureMap;
 
 #pragma mark - Private Classes and Structs
 

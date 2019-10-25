@@ -28,7 +28,7 @@ StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 #pragma mark -
 
-std::map<std::string, void*> gTextureMap;
+std::map<std::string, MTLTexturePtr> gTextureMap;
 
 IGraphicsIOS::IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)

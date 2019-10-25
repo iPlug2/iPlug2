@@ -141,7 +141,7 @@ IGraphicsNanoVG::Bitmap::~Bitmap()
 // Fonts
 static StaticStorage<IFontData> sFontCache;
 
-extern std::map<std::string, void*> gTextureMap;
+extern std::map<std::string, MTLTexturePtr> gTextureMap;
 
 // Retrieving pixels
 static void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData)

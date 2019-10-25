@@ -51,6 +51,8 @@ void DefaultAnimationFunc(IControl* pCaller);
 void SplashClickActionFunc(IControl* pCaller);
 void SplashAnimationFunc(IControl* pCaller);
 
+using MTLTexturePtr = void*;
+
 using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
 using Milliseconds = std::chrono::duration<double, std::chrono::milliseconds::period>;
 
