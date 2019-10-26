@@ -15,8 +15,8 @@ BINARY_NAME = IPlugSwift
 
 // ------------------------------
 // HEADER AND LIBRARY SEARCH PATHS
-EXTRA_INC_PATHS = $(IGRAPHICS_INC_PATHS)
-EXTRA_LIB_PATHS = $(IGRAPHICS_LIB_PATHS)
+//EXTRA_INC_PATHS =
+//EXTRA_LIB_PATHS =
 //EXTRA_LNK_FLAGS =
 
 //------------------------------
