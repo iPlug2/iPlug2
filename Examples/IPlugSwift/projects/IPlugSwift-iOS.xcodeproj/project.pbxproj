@@ -29,17 +29,16 @@
 		4F304BCE2364BF9800372A88 /* libIPlugSwift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F304B9B2364BA9700372A88 /* libIPlugSwift.a */; };
 		4F304BCF2364BFA500372A88 /* libIPlugSwift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F304B9B2364BA9700372A88 /* libIPlugSwift.a */; };
 		4F304BD22364DC4F00372A88 /* GenericUI.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F304BD02364DC4F00372A88 /* GenericUI.mm */; };
-		4F304BD62364E08B00372A88 /* BlackKeyStyleKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F304B882364B4F500372A88 /* BlackKeyStyleKit.swift */; };
-		4F304BD72364E08B00372A88 /* ModWheelStyleKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F304B892364B4F500372A88 /* ModWheelStyleKit.swift */; };
-		4F304BD82364E08B00372A88 /* KeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F304B8A2364B4F500372A88 /* KeyboardView.swift */; };
-		4F304BD92364E08B00372A88 /* IPlugSwiftViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F304B822364B43000372A88 /* IPlugSwiftViewController.swift */; };
-		4F304BDA2364E08B00372A88 /* BlackKeyStyleKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F304B882364B4F500372A88 /* BlackKeyStyleKit.swift */; };
-		4F304BDB2364E08B00372A88 /* ModWheelStyleKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F304B892364B4F500372A88 /* ModWheelStyleKit.swift */; };
-		4F304BDC2364E08B00372A88 /* KeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F304B8A2364B4F500372A88 /* KeyboardView.swift */; };
-		4F304BDD2364E08B00372A88 /* IPlugSwiftViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F304B822364B43000372A88 /* IPlugSwiftViewController.swift */; };
+		4F304BEF2364E86100372A88 /* BlackKeyStyleKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F304B882364B4F500372A88 /* BlackKeyStyleKit.swift */; };
+		4F304BF02364E86100372A88 /* ModWheelStyleKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F304B892364B4F500372A88 /* ModWheelStyleKit.swift */; };
+		4F304BF12364E86100372A88 /* KeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F304B8A2364B4F500372A88 /* KeyboardView.swift */; };
+		4F304BF22364E86100372A88 /* IPlugSwiftViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F304B822364B43000372A88 /* IPlugSwiftViewController.swift */; };
+		4F304BF32364E86100372A88 /* BlackKeyStyleKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F304B882364B4F500372A88 /* BlackKeyStyleKit.swift */; };
+		4F304BF42364E86100372A88 /* ModWheelStyleKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F304B892364B4F500372A88 /* ModWheelStyleKit.swift */; };
+		4F304BF52364E86100372A88 /* KeyboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F304B8A2364B4F500372A88 /* KeyboardView.swift */; };
+		4F304BF62364E86100372A88 /* IPlugSwiftViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F304B822364B43000372A88 /* IPlugSwiftViewController.swift */; };
 		4F3E0F6A20A0BCD900A9C2BE /* IPlugSwift-iOS.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6720A0BC5B00A9C2BE /* IPlugSwift-iOS.storyboard */; };
 		4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */; };
-		4FA61F6822E8996C00A92C58 /* IPlugAUv3Appex.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FA61F6722E8996C00A92C58 /* IPlugAUv3Appex.m */; };
 		4FA61F9422E8A71D00A92C58 /* IPlugAUViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105A20A0E57100D3092F /* IPlugAUViewController.mm */; };
 		4FA61F9722E8A7E900A92C58 /* IPlugAUViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105A20A0E57100D3092F /* IPlugAUViewController.mm */; };
 		4FB2269720A0D3A800614769 /* IPlugSwift-iOS-LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* IPlugSwift-iOS-LaunchScreen.storyboard */; };
@@ -295,7 +294,6 @@
 				4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */,
 				4F3E0F6720A0BC5B00A9C2BE /* IPlugSwift-iOS.storyboard */,
 				4FB2269620A0D3A800614769 /* IPlugSwift-iOS-LaunchScreen.storyboard */,
-				4F10E7BF20B17EDB00F5B09B /* IPlugSwift-iOS-MainInterface.storyboard */,
 				4F3E0F6420A0BC1C00A9C2BE /* IPlugSwift-iOS-Info.plist */,
 				4F3E0F6520A0BC4000A9C2BE /* IPlugSwift-iOS-AUv3-Info.plist */,
 			);
@@ -446,6 +444,7 @@
 				4FFF108720A1036200D3092F /* IPlugSwift.mm */,
 				4F304B832364B43000372A88 /* IPlugSwiftSharedConstants.h */,
 				4F304B822364B43000372A88 /* IPlugSwiftViewController.swift */,
+				4F10E7BF20B17EDB00F5B09B /* IPlugSwift-iOS-MainInterface.storyboard */,
 				4F8D8BD82316701900EFA1FB /* README.md */,
 				4F8BF48D20A12D2E0081DF0A /* Resources */,
 				4F67D51620A121F60061FB8E /* Other Sources */,
@@ -654,13 +653,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FDF6D7F2267CEBA0007B686 /* IPlugAUPlayer.mm in Sources */,
-				4F304BDC2364E08B00372A88 /* KeyboardView.swift in Sources */,
+				4F304BF52364E86100372A88 /* KeyboardView.swift in Sources */,
 				4FDF6D7B2267CE540007B686 /* AppDelegate.m in Sources */,
-				4F304BDD2364E08B00372A88 /* IPlugSwiftViewController.swift in Sources */,
-				4F304BDA2364E08B00372A88 /* BlackKeyStyleKit.swift in Sources */,
+				4F304BF62364E86100372A88 /* IPlugSwiftViewController.swift in Sources */,
+				4F304BF32364E86100372A88 /* BlackKeyStyleKit.swift in Sources */,
 				4FDF6D772267CE540007B686 /* AppViewController.mm in Sources */,
 				4FA61F9422E8A71D00A92C58 /* IPlugAUViewController.mm in Sources */,
-				4F304BDB2364E08B00372A88 /* ModWheelStyleKit.swift in Sources */,
+				4F304BF42364E86100372A88 /* ModWheelStyleKit.swift in Sources */,
 				4FDF6D792267CE540007B686 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -669,12 +668,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F304BD92364E08B00372A88 /* IPlugSwiftViewController.swift in Sources */,
+				4F304BEF2364E86100372A88 /* BlackKeyStyleKit.swift in Sources */,
+				4F304BF22364E86100372A88 /* IPlugSwiftViewController.swift in Sources */,
+				4F304BF12364E86100372A88 /* KeyboardView.swift in Sources */,
 				4FA61F9722E8A7E900A92C58 /* IPlugAUViewController.mm in Sources */,
-				4FA61F6822E8996C00A92C58 /* IPlugAUv3Appex.m in Sources */,
-				4F304BD62364E08B00372A88 /* BlackKeyStyleKit.swift in Sources */,
-				4F304BD82364E08B00372A88 /* KeyboardView.swift in Sources */,
-				4F304BD72364E08B00372A88 /* ModWheelStyleKit.swift in Sources */,
+				4F304BF02364E86100372A88 /* ModWheelStyleKit.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
