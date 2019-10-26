@@ -37,14 +37,15 @@
 - (void)onParamChangeUI: (int) paramIdx : (double) value;
 - (void)onMidiMsgUI: (UInt8) status : (UInt8) data1 : (UInt8) data2 : (int) offset;
 - (void)onSysexMsgUI: (NSData*) msg : (int) offset;
-- (void)sendControlValueFromDelegate: (int) ctrlTag : (double) normalizedValue;
-- (void)sendControlMsgFromDelegate: (int) ctrlTag : (int) msgTag : (int) dataSize : (const void*) pData;
-- (void)sendParameterValueFromDelegate: (int) paramIdx : (double) value : (BOOL) normalized;
+- (void)sendControlValueFromDelegate: (int) ctrlTag : (double) normalizedValue NS_SWIFT_NAME(sendControlValueFromDelegate(ctrlTag:normalizedValue:));
+- (void)sendControlMsgFromDelegate: (int) ctrlTag : (int) msgTag : (int) dataSize : (const void*) pData NS_SWIFT_NAME(sendControlMsgFromDelegate(ctrlTag:msgTag:dataSize:data:));
+- (void)sendParameterValueFromDelegate: (int) paramIdx : (double) value : (BOOL) normalized NS_SWIFT_NAME(sendParameterValueFromDelegate(paramIdx:value:isNormalized:));
 
-- (void)sendParameterValueFromUI: (int) paramIdx : (double) normalizedValue;
-- (void)beginInformHostOfParamChangeFromUI: (int) paramIdx;
-- (void)endInformHostOfParamChangeFromUI: (int) paramIdx;
-- (void)sendMidiMsgFromUI: (UInt8) status : (UInt8) data1 : (UInt8) data2 : (int) offset;
-- (void)sendSysexMsgFromUI: (NSData*) msg : (int) offset;
-- (void)sendArbitraryMsgFromUI: (int) msgTag : (int) ctrlTag : (NSData*) msg;
+- (void)sendParameterValueFromUI: (int) paramIdx : (double) normalizedValue NS_SWIFT_NAME(sendParameterValueFromUI(paramIdx:normalizedValue:));
+- (void)beginInformHostOfParamChangeFromUI: (int) paramIdx NS_SWIFT_NAME(beginInformHostOfParamChangeFromUI(paramIdx:));
+- (void)endInformHostOfParamChangeFromUI: (int) paramIdx NS_SWIFT_NAME(endInformHostOfParamChangeFromUI(paramIdx:));
+
+- (void)sendMidiMsgFromUI: (UInt8) status : (UInt8) data1 : (UInt8) data2 : (int) offset NS_SWIFT_NAME(sendMidiMsgFromUI(status:data1:data2:offset:));
+- (void)sendSysexMsgFromUI: (NSData*) msg : (int) offset NS_SWIFT_NAME(sendSysexMsgFromUI(msg:offset:));
+- (void)sendArbitraryMsgFromUI: (int) msgTag : (int) ctrlTag : (NSData*) msg NS_SWIFT_NAME(sendArbitraryMsgFromUI(msgTag:ctrlTag:msg:));
 @end
