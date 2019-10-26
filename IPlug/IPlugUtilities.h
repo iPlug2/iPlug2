@@ -162,29 +162,6 @@ static void ToLower(char* cDest, const char* cSrc)
   cDest[i] = '\0';
 }
 
-/** /todo  
- * @param txt /todo
- * @param numLines /todo
- * @param maxLineWidth /todo */
-inline void BasicTextMeasure(const char* txt, float& numLines, float& maxLineWidth) {
-  float w = 0.0;
-  maxLineWidth = 0.0;
-  numLines = 0.0;
-  while (true) {
-    if (*txt == '\0' || *txt == '\n') {
-      ++numLines;
-      if (w > maxLineWidth)
-        maxLineWidth = w;
-      if (*txt == '\0')
-        break;
-      w = 0.0;
-      }
-    else
-      ++w;
-    ++txt;
-    }
-  }
-
 /** Gets the host ID from a human-readable name
  * @param inHost Host name to search for
  * @return Identifier of the host (see ::EHost) */

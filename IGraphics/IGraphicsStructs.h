@@ -51,6 +51,8 @@ void DefaultAnimationFunc(IControl* pCaller);
 void SplashClickActionFunc(IControl* pCaller);
 void SplashAnimationFunc(IControl* pCaller);
 
+using MTLTexturePtr = void*;
+
 using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
 using Milliseconds = std::chrono::duration<double, std::chrono::milliseconds::period>;
 
@@ -248,9 +250,9 @@ struct IColor
   static IColor FromRGBf(float* rgbf)
   {
     int A = 255;
-    int R = rgbf[0] * 255;
-    int G = rgbf[1] * 255;
-    int B = rgbf[2] * 255;
+    int R = static_cast<int>(rgbf[0] * 255.f);
+    int G = static_cast<int>(rgbf[1] * 255.f);
+    int B = static_cast<int>(rgbf[2] * 255.f);
     
     return IColor(A, R, G, B);
   }
@@ -260,10 +262,10 @@ struct IColor
    * @return IColor A new IColor based on the input array */
   static IColor FromRGBAf(float* rgbaf)
   {
-    int R = rgbaf[0] * 255;
-    int G = rgbaf[1] * 255;
-    int B = rgbaf[2] * 255;
-    int A = rgbaf[3] * 255;
+    int R = static_cast<int>(rgbaf[0] * 255.f);
+    int G = static_cast<int>(rgbaf[1] * 255.f);
+    int B = static_cast<int>(rgbaf[2] * 255.f);
+    int A = static_cast<int>(rgbaf[3] * 255.f);
 
     return IColor(A, R, G, B);
   }

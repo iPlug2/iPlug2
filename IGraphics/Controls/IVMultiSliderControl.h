@@ -50,7 +50,7 @@ public:
    * @param direction The direction of the sliders
    * @param minTrackValue Defines the minimum value of each slider
    * @param maxTrackValue Defines the maximum value of each slider */
-  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style, int loParamIdx, EDirection dir, float minTrackValue, float maxTrackValue)
+  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style, int loParamIdx, EDirection dir, float minTrackValue, float maxTrackValue) //FIXME: float minTrackValue, float maxTrackValue?
   : IVTrackControlBase(bounds, label, style, loParamIdx, MAXNC, dir, minTrackValue, maxTrackValue)
   {
     mOuterPadding = 0.f;

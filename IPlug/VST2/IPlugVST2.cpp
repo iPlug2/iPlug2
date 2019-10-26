@@ -341,9 +341,9 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     {
       if (idx >= 0 && idx < _this->NParams())
       {
-        ENTER_PARAMS_MUTEX_STATIC;
+        ENTER_PARAMS_MUTEX_STATIC
         strcpy((char*) ptr, _this->GetParam(idx)->GetLabelForHost());
-        LEAVE_PARAMS_MUTEX_STATIC;
+        LEAVE_PARAMS_MUTEX_STATIC
       }
       return 0;
     }
@@ -351,9 +351,9 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     {
       if (idx >= 0 && idx < _this->NParams())
       {
-        ENTER_PARAMS_MUTEX_STATIC;
+        ENTER_PARAMS_MUTEX_STATIC
         _this->GetParam(idx)->GetDisplayForHost(_this->mParamDisplayStr);
-        LEAVE_PARAMS_MUTEX_STATIC;
+        LEAVE_PARAMS_MUTEX_STATIC
         strcpy((char*) ptr, _this->mParamDisplayStr.Get());
       }
       return 0;
@@ -362,9 +362,9 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     {
       if (idx >= 0 && idx < _this->NParams())
       {
-        ENTER_PARAMS_MUTEX_STATIC;
+        ENTER_PARAMS_MUTEX_STATIC
         strcpy((char*) ptr, _this->GetParam(idx)->GetNameForHost());
-        LEAVE_PARAMS_MUTEX_STATIC;
+        LEAVE_PARAMS_MUTEX_STATIC
       }
       return 0;
     }
@@ -374,7 +374,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
       {
         VstParameterProperties* props = (VstParameterProperties*) ptr;
 
-        ENTER_PARAMS_MUTEX_STATIC;
+        ENTER_PARAMS_MUTEX_STATIC
         IParam* pParam = _this->GetParam(idx);
         switch (pParam->Type())
         {
@@ -396,7 +396,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         }
 
         strcpy(props->label, pParam->GetLabelForHost());
-        LEAVE_PARAMS_MUTEX_STATIC;
+        LEAVE_PARAMS_MUTEX_STATIC
 
         return 1;
       }
@@ -408,13 +408,13 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
       {
         if (ptr)
         {
-          ENTER_PARAMS_MUTEX_STATIC;
+          ENTER_PARAMS_MUTEX_STATIC
           IParam* pParam = _this->GetParam(idx);
           const double v = pParam->StringToValue((const char *)ptr);
           pParam->Set(v);
           _this->SendParameterValueFromAPI(idx, v, false);
           _this->OnParamChange(idx, kHost);
-          LEAVE_PARAMS_MUTEX_STATIC;
+          LEAVE_PARAMS_MUTEX_STATIC
         }
         return 1;
       }
@@ -953,34 +953,34 @@ void IPlugVST2::VSTPreProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt3
 // Deprecated.
 void VSTCALLBACK IPlugVST2::VSTProcess(AEffect* pEffect, float** inputs, float** outputs, VstInt32 nFrames)
 {
-  TRACE;
+  TRACE
   IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
-  ENTER_PARAMS_MUTEX_STATIC;
+  ENTER_PARAMS_MUTEX_STATIC
   _this->ProcessBuffersAccumulating(nFrames);
-  LEAVE_PARAMS_MUTEX_STATIC;
+  LEAVE_PARAMS_MUTEX_STATIC
   _this->OutputSysexFromEditor();
 }
 
 void VSTCALLBACK IPlugVST2::VSTProcessReplacing(AEffect* pEffect, float** inputs, float** outputs, VstInt32 nFrames)
 {
-  TRACE;
+  TRACE
   IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
-  ENTER_PARAMS_MUTEX_STATIC;
+  ENTER_PARAMS_MUTEX_STATIC
   _this->ProcessBuffers((float) 0.0f, nFrames);
-  LEAVE_PARAMS_MUTEX_STATIC;
+  LEAVE_PARAMS_MUTEX_STATIC
   _this->OutputSysexFromEditor();
 }
 
 void VSTCALLBACK IPlugVST2::VSTProcessDoubleReplacing(AEffect* pEffect, double** inputs, double** outputs, VstInt32 nFrames)
 {
-  TRACE;
+  TRACE
   IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
-  ENTER_PARAMS_MUTEX_STATIC;
+  ENTER_PARAMS_MUTEX_STATIC
   _this->ProcessBuffers((double) 0.0, nFrames);
-  LEAVE_PARAMS_MUTEX_STATIC;
+  LEAVE_PARAMS_MUTEX_STATIC
   _this->OutputSysexFromEditor();
 }
 
@@ -990,9 +990,9 @@ float VSTCALLBACK IPlugVST2::VSTGetParameter(AEffect *pEffect, VstInt32 idx)
   IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   if (idx >= 0 && idx < _this->NParams())
   {
-    ENTER_PARAMS_MUTEX_STATIC;
+    ENTER_PARAMS_MUTEX_STATIC
     const float val = (float) _this->GetParam(idx)->GetNormalized();
-    LEAVE_PARAMS_MUTEX_STATIC;
+    LEAVE_PARAMS_MUTEX_STATIC
 
     return val;
   }
@@ -1005,11 +1005,11 @@ void VSTCALLBACK IPlugVST2::VSTSetParameter(AEffect *pEffect, VstInt32 idx, floa
   IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   if (idx >= 0 && idx < _this->NParams())
   {
-    ENTER_PARAMS_MUTEX_STATIC;
+    ENTER_PARAMS_MUTEX_STATIC
     _this->GetParam(idx)->SetNormalized(value);
     _this->SendParameterValueFromAPI(idx, value, true);
     _this->OnParamChange(idx, kHost);
-    LEAVE_PARAMS_MUTEX_STATIC;
+    LEAVE_PARAMS_MUTEX_STATIC
   }
 }
 
