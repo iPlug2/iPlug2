@@ -477,7 +477,11 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 }
 
 - (void)dealloc
-{  
+{
+  if([NSColorPanel sharedColorPanelExists])
+    [[NSColorPanel sharedColorPanel] close];
+  
+  mColorPickerFunc = nullptr;
   [mMoveCursor release];
   [mTrackingArea release];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -1097,16 +1101,16 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 
 - (BOOL) promptForColor: (IColor&) color : (IColorPickerHandlerFunc) func;
 {
-  NSColorPanel* colorPicker = [NSColorPanel sharedColorPanel];
+  NSColorPanel* colorPanel = [NSColorPanel sharedColorPanel];
   mColorPickerFunc = func;
 
-  [colorPicker setShowsAlpha:TRUE];
-  [colorPicker setColor:ToNSColor(color)];
-  [colorPicker setTarget:self];
-  [colorPicker setAction:@selector(onColorPicked:)];
-  [colorPicker orderFront:nil];
-  
-  return colorPicker != nil;
+  [colorPanel setTarget:self];
+  [colorPanel setShowsAlpha: TRUE];
+  [colorPanel setAction:@selector(onColorPicked:)];
+  [colorPanel setColor:ToNSColor(color)];
+  [colorPanel orderFront:nil];
+
+  return colorPanel != nil;
 }
 
 - (void) onColorPicked: (NSColorPanel*) colorPanel
