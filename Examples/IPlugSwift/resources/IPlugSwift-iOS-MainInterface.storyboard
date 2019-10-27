@@ -44,8 +44,9 @@
                                 <rect key="frame" x="170" y="220" width="177" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <connections>
-                                    <action selector="editBegan:" destination="BYZ-38-t0r" eventType="editingDidBegin" id="neu-Jo-k49"/>
-                                    <action selector="editEnded:" destination="BYZ-38-t0r" eventType="editingDidEnd" id="lL5-xM-cdD"/>
+                                    <action selector="editBegan:" destination="BYZ-38-t0r" eventType="touchDown" id="XWh-TA-XuE"/>
+                                    <action selector="editEnded:" destination="BYZ-38-t0r" eventType="touchUpOutside" id="E4p-UU-eTS"/>
+                                    <action selector="editEnded:" destination="BYZ-38-t0r" eventType="touchUpInside" id="pLI-GW-AHR"/>
                                     <action selector="sliderChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="atF-J3-qbb"/>
                                 </connections>
                             </slider>

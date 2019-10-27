@@ -60,7 +60,7 @@ class IPlugSwiftViewController: IPlugCocoaViewController, AudioKitUI.AKKeyboardD
   
   @IBAction func editEnded(_ sender: UIControl) {
     if(sender.tag == kCtrlTagVolumeSlider) {
-      beginInformHostOfParamChangeFromUI(paramIdx: kParamGain)
+      endInformHostOfParamChangeFromUI(paramIdx:  kParamGain)
     }
   }
   
