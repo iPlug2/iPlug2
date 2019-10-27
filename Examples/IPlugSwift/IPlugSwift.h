@@ -3,6 +3,7 @@
 #include "IPlug_include_in_plug_hdr.h"
 #include "Oscillator.h"
 #include "Smoothers.h"
+#include "IPlugSwiftSharedConstants.h"
 
 using namespace iplug;
 
@@ -15,8 +16,13 @@ public:
   void ProcessMidiMsg(const IMidiMsg& msg) override;
   bool OnMessage(int messageTag, int controlTag, int dataSize, const void* pData) override;
   void OnParamChange(int paramIdx) override;
+  void OnIdle() override;
   
+private:
   FastSinOscillator<float> mOsc;
   float mFreqCPS = 440.f;
   LogParamSmooth<sample> mGainSmoother { 20.f };
+  float mVizBuffer[kDataPacketSize];
+  int mCount = 0;
+  bool mBufferFull = false;
 };

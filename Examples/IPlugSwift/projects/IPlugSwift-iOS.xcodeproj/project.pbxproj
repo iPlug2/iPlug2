@@ -44,6 +44,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		4F7314CE2365E8AE0002A45E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 91D3DA0C1B023C03008FFFBB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4F304B9A2364BA9700372A88;
+			remoteInfo = Shared;
+		};
+		4F7314D02365E8B20002A45E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 91D3DA0C1B023C03008FFFBB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4F304B9A2364BA9700372A88;
+			remoteInfo = Shared;
+		};
 		91236D7F1B08F59300734C5E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 91D3DA0C1B023C03008FFFBB /* Project object */;
@@ -492,6 +506,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				4F7314D12365E8B20002A45E /* PBXTargetDependency */,
 				91236D801B08F59300734C5E /* PBXTargetDependency */,
 			);
 			name = App;
@@ -511,6 +526,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				4F7314CF2365E8AE0002A45E /* PBXTargetDependency */,
 			);
 			name = AUv3;
 			productName = "FilterDemoAppExtension-iOS";
@@ -711,6 +727,16 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		4F7314CF2365E8AE0002A45E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4F304B9A2364BA9700372A88 /* Shared */;
+			targetProxy = 4F7314CE2365E8AE0002A45E /* PBXContainerItemProxy */;
+		};
+		4F7314D12365E8B20002A45E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4F304B9A2364BA9700372A88 /* Shared */;
+			targetProxy = 4F7314D02365E8B20002A45E /* PBXContainerItemProxy */;
+		};
 		91236D801B08F59300734C5E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 91236D761B08F59300734C5E /* AUv3 */;

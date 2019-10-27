@@ -9,3 +9,6 @@ const int kCtrlTagVolumeSlider = 1;
 const int kCtrlTagButton = 2;
 
 const int kMsgTagHello = 0;
+const int kMsgTagData = 1;
+
+const uint32_t kDataPacketSize = 1024; //floats

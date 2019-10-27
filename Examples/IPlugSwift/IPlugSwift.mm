@@ -1,6 +1,5 @@
 #include "IPlugSwift.h"
 #include "IPlug_include_in_plug_src.h"
-#include "IPlugSwiftSharedConstants.h"
 
 IPlugSwift::IPlugSwift(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPrograms))
@@ -20,6 +19,25 @@ void IPlugSwift::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   {
     outputs[0][s] = mOsc.Process(mFreqCPS) * mGainSmoother.Process(gain);
     outputs[1][s] = outputs[0][s]; // copy L to R
+    
+    mCount %= kDataPacketSize;
+    
+    if(mCount == 0)
+    {
+      mCount = 0;
+      mBufferFull = true;
+    }
+
+    mVizBuffer[mCount++] = outputs[0][s];
+  }
+}
+
+void IPlugSwift::OnIdle()
+{
+  if(mBufferFull)
+  {
+    SendArbitraryMsgFromDelegate(kMsgTagData, kDataPacketSize * sizeof(float), mVizBuffer);
+    mBufferFull = false;
   }
 }
 
@@ -48,7 +66,7 @@ bool IPlugSwift::OnMessage(int messageTag, int controlTag, int dataSize, const v
     return true;
   }
   
-  return false;
+  return CocoaEditorDelegate::OnMessage(messageTag, controlTag, dataSize, pData);
 }
 
 void IPlugSwift::OnParamChange(int paramIdx)

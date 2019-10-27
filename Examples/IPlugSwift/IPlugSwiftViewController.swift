@@ -8,7 +8,7 @@ class IPlugSwiftViewController: IPlugCocoaViewController, AudioKitUI.AKKeyboardD
   
   @IBOutlet var KeyboardView: AudioKitUI.AKKeyboardView!
   @IBOutlet var Sliders: [UISlider]!
-  @IBOutlet var Plot: EZAudioPlotGL!
+  @IBOutlet var Plot: AKNodeOutputPlot!
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -18,7 +18,12 @@ class IPlugSwiftViewController: IPlugCocoaViewController, AudioKitUI.AKKeyboardD
   override func onMessage(_ msgTag: Int32, _ ctrlTag: Int32, _ msg: Data!) -> Bool {
     if(msgTag == kMsgTagData)
     {
-//      Plot.updateBuffer(msg?.bytes, withBufferSize: msg.size)
+      msg.withUnsafeBytes { (outputBytes: UnsafeRawBufferPointer) in
+        let floatData = outputBytes.bindMemory(to: Float.self)
+        let mutablePtr = UnsafeMutablePointer<Float>.init(mutating: floatData.baseAddress)
+        Plot.updateBuffer(mutablePtr, withBufferSize: kDataPacketSize)
+      }
+
       return true
     }
     
