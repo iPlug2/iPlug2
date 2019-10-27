@@ -22,7 +22,9 @@ private:
   FastSinOscillator<float> mOsc;
   float mFreqCPS = 440.f;
   LogParamSmooth<sample> mGainSmoother { 20.f };
-  float mVizBuffer[kDataPacketSize];
+  float mVizBuffer1[kDataPacketSize];
+  float mVizBuffer2[kDataPacketSize];
+  float* mActiveBuffer = &mVizBuffer2[0];
   int mCount = 0;
   bool mBufferFull = false;
 };
