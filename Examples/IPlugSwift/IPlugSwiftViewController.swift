@@ -1,14 +1,35 @@
-class IPlugSwiftViewController: IPlugCocoaViewController {
-  @IBOutlet var KeyboardView: KeyboardView!
+import AudioKitUI
+
+public typealias MIDINoteNumber = UInt8
+public typealias MIDIVelocity = UInt8
+
+
+class IPlugSwiftViewController: IPlugCocoaViewController, AudioKitUI.AKKeyboardDelegate {
+  
+  @IBOutlet var KeyboardView: AudioKitUI.AKKeyboardView!
   @IBOutlet var Sliders: [UISlider]!
+  @IBOutlet var Plot: EZAudioPlotGL!
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    KeyboardView?.delegate = self
+    KeyboardView.delegate = self
+  }
+  
+  override func onMessage(_ msgTag: Int32, _ ctrlTag: Int32, _ msg: Data!) -> Bool {
+    if(msgTag == kMsgTagData)
+    {
+//      Plot.updateBuffer(msg?.bytes, withBufferSize: msg.size)
+      return true
+    }
+    
+    return false
   }
   
   override func onMidiMsgUI(_ status: UInt8, _ data1: UInt8, _ data2: UInt8, _ offset: Int32) {
     print("Midi message received in UI: status: \(status), data1: \(data1), data2: \(data2)")
+    
+    
+    KeyboardView.programmaticNoteOn(0);
   }
   
   override func onSysexMsgUI(_ msg: Data!, _ offset: Int32) {
@@ -53,9 +74,11 @@ class IPlugSwiftViewController: IPlugCocoaViewController {
   deinit {
     Sliders = nil;
   }
-}
-
-extension IPlugSwiftViewController: AKKeyboardDelegate {
+  
+  func noteOn(note: MIDINoteNumber) {
+    guard note < 128 else { return }
+    sendMidiMsgFromUI(status: 0x90, data1: note, data2: 127, offset: 0);
+  }
   
   public func noteOn(note: MIDINoteNumber, velocity: MIDIVelocity = 127) {
     guard note < 128 else { return }

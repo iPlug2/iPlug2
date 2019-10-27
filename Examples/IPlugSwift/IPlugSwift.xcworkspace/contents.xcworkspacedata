@@ -4,4 +4,7 @@
    <FileRef
       location = "group:projects/IPlugSwift-iOS.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:Pods/Pods.xcodeproj">
+   </FileRef>
 </Workspace>
