@@ -12,13 +12,14 @@ iPlug 2 targets the VST2, VST3, AudioUnit, AAX (Native) and the [Web Audio Modul
 iPlug 2 includes support for [the FAUST programming language](http://faust.grame.fr), and the libfaust JIT compiler. It was the winner of the 2018 FAUST award.
 
 You can discuss iPlug 2 on the [WDL forum](http://forum.cockos.com/forumdisplay.php?f=32
-) or on the [iPlug user's slack channel.](https://join.slack.com/t/iplug-users/shared_invite/enQtMzA1NzA1NzE0OTY1LWYyODdjNzkyYTk4MDRmYzZjZTI4ZGVkYTIxZTk0OWRiYWE2MTA0ZWVlODM1NjkzNDAyNDFhMDdjNGI4OTY2YTU)
+) or on the [iPlug user's slack channel.](https://join.slack.com/t/iplug-users/shared_invite/enQtNDIyNjk0NDY2ODAwLWE4Zjc1MTk3NWQzMDRlY2YyOTllMWQyMDY2YjRjMjBmYTMwYzBiMTIwNDM0YWY0MmM5NTBmYWJmMjBkYzRkZDc)
 
-Please consider supporting the project by helping out with bug fixes, features or documentation. You can support the project financially [via patreon.](https://www.patreon.com/olilarkin)
+We welcome any help with bug fixes, features or documentation. 
 
 **NOTE: THIS IS NOT YET PRODUCTION READY - zero commercial/free plug-ins are shipping with iPlug 2 - there are many bugs still to fix and a few features to add!** 
 
-
 You may like to check out the [Web Audio Module version of VirtualCZ](https://virtualcz.io/) which has been made using iPlug 2. 
 
-[![patreon](Documentation/img/become_a_patron_button.png)](https://www.patreon.com/olilarkin) [![paypal](Documentation/img/paypal_donate_button.gif)](https://paypal.me/olilarkin?locale.x=en_GB)[![slack](Documentation/img/join_slack_button.png)](https://join.slack.com/t/iplug-users/shared_invite/enQtMzA1NzA1NzE0OTY1LWYyODdjNzkyYTk4MDRmYzZjZTI4ZGVkYTIxZTk0OWRiYWE2MTA0ZWVlODM1NjkzNDAyNDFhMDdjNGI4OTY2YTU)
+You can help support the project financially in several ways, preferably via [github sponsors](https://github.com/sponsors/olilarkin) but also [via patreon](https://www.patreon.com/olilarkin) or [paypal donations](https://paypal.me/olilarkin?locale.x=en_GB). The more financial support, the quicker the project can progress to being "production ready".
+
+[![patreon](Documentation/img/become_a_patron_button.png)](https://www.patreon.com/olilarkin) [![paypal](Documentation/img/paypal_donate_button.gif)](https://paypal.me/olilarkin?locale.x=en_GB)[![slack](Documentation/img/join_slack_button.png)](https://join.slack.com/t/iplug-users/shared_invite/enQtNDIyNjk0NDY2ODAwLWE4Zjc1MTk3NWQzMDRlY2YyOTllMWQyMDY2YjRjMjBmYTMwYzBiMTIwNDM0YWY0MmM5NTBmYWJmMjBkYzRkZDc)
