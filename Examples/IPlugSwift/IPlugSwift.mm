@@ -6,9 +6,9 @@ IPlugSwift::IPlugSwift(const InstanceInfo& info)
 {
   GetParam(kParamGain)->InitGain("Volume");
   
-  MakePreset("One", 0.);
-  MakePreset("Two", -10.);
-  MakePreset("Three", -20.);
+  MakePreset("Gain = 0dB", 0.);
+  MakePreset("Gain = -10dB", -10.);
+  MakePreset("Gain = -20dB", -20.);
 }
 
 void IPlugSwift::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
@@ -74,6 +74,10 @@ bool IPlugSwift::OnMessage(int messageTag, int controlTag, int dataSize, const v
   {
     DBGMSG("MsgTagHello received\n");
     return true;
+  }
+  else if(messageTag == kMsgTagRestorePreset)
+  {
+    RestorePreset(controlTag);
   }
   
   return CocoaEditorDelegate::OnMessage(messageTag, controlTag, dataSize, pData);

@@ -77,4 +77,5 @@ using namespace iplug;
   ISysEx smsg { offset, reinterpret_cast<const uint8_t*>([msg bytes]), (int) [msg length] };
   ((CocoaEditorDelegate*) editorDelegate)->SendSysexMsgFromUI(smsg);
 }
+
 @end
