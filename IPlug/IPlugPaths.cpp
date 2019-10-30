@@ -23,6 +23,9 @@
 #include <windows.h>
 #include <Shlobj.h>
 #include <Shlwapi.h>
+#elif defined OS_LINUX
+#include <swell.h>
+#include <dlfcn.h>
 #endif
 
 BEGIN_IPLUG_NAMESPACE
