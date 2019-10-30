@@ -26,6 +26,7 @@
 #include "mutex.h"
 
 #include "IPlugPlatform.h"
+#include "swell.h"
 
 #if defined OS_MAC || defined OS_IOS
 #include <CoreFoundation/CoreFoundation.h>
@@ -84,7 +85,7 @@ private:
   ITimerFunction mTimerFunc;
   uint32_t mIntervalMs;
 };
-#elif defined OS_WIN
+#elif defined OS_WIN || defined OS_LINUX
 class Timer_impl : public Timer
 {
 public:
@@ -101,7 +102,6 @@ private:
   uint32_t mIntervalMs;
 };
 #elif defined OS_WEB
-#elif defined OS_LINUX
 #else
   #error NOT IMPLEMENTED
 #endif

@@ -19,6 +19,8 @@
 #include <cstring>
 #include <stdint.h>
 
+#include "wdltypes.h"
+#include <stdlib.h>
 #include "ptrlist.h"
 
 #include "IPlugParameter.h"

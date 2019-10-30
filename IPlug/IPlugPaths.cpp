@@ -285,6 +285,46 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
   return EResourceLocation::kNotFound;
 }
 
+#elif defined OS_LINUX
+#pragma mark - OS_LINUX
+
+EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char*, void* pHInstance, const char*)
+{
+  if (CStringHasContents(name))
+  {
+    char path[MAX_PATH], *s;
+    HINSTANCE hInstance = static_cast<HINSTANCE>(pHInstance);
+    GetModuleFileName(hInstance, path, sizeof(path));
+    for (s = path + strlen(path) - 1; s >= path; --s)
+    {
+      if(*s == WDL_DIRCHAR)
+      {
+	*s = 0;
+	break;
+      }
+    }
+
+    const char *subdir = "";
+    if(strcmp(type, "png") == 0) { //TODO: lowercase/uppercase png
+      subdir = "img";
+    }
+    else if(strcmp(type, "ttf") == 0) { //TODO: lowercase/uppercase ttf
+      subdir = "fonts";
+    }
+    else if(strcmp(type, "svg") == 0) { //TODO: lowercase/uppercase svg
+      subdir = "img";
+    }
+
+    result.SetFormatted(MAX_PATH, "%s%s%s%s%s", path, WDL_DIRCHAR_STR "resources" WDL_DIRCHAR_STR, subdir, WDL_DIRCHAR_STR, name);
+    struct stat st;
+    if (!stat(result.Get(), &st))
+    {
+      return EResourceLocation::kAbsolutePath;
+    }
+  }
+  return EResourceLocation::kNotFound;
+}
+
 #endif
 
 END_IPLUG_NAMESPACE

@@ -968,7 +968,7 @@ void IGraphicsLice::EndFrame()
 #endif
 }
 
-#ifdef OS_MAC
+#if defined OS_MAC || defined OS_LINUX
   #ifdef FillRect
     #undef FillRect
   #endif

@@ -491,6 +491,7 @@ static const char* TextStyleString(ETextStyle style)
     case ETextStyle::Normal:  return "Regular";
     case ETextStyle::Bold:    return "Bold";
     case ETextStyle::Italic:  return "Italic";
+    default:                  return "Regular";
   }
 }
 
