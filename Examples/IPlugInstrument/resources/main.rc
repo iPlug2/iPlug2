@@ -149,7 +149,7 @@ END
 3 TEXTINCLUDE
 BEGIN
     "#include ""..\\config.h""\r\n"
-    "ROBOTTO_FN TTF ROBOTTO_FN\0"
+    "ROBOTO_FN TTF ROBOTO_FN\0"
 END
 
 #endif    // APSTUDIO_INVOKED
@@ -163,7 +163,6 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_ICON1               ICON                    "IPlugInstrument.ico"
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -222,13 +221,15 @@ END
 #endif    // English (United Kingdom) resources
 /////////////////////////////////////////////////////////////////////////////
 
+
+
 #ifndef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
 #include "..\config.h"
-ROBOTTO_FN TTF ROBOTTO_FN
+ROBOTO_FN TTF ROBOTO_FN
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 

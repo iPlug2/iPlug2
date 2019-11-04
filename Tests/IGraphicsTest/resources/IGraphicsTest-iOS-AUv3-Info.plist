@@ -32,7 +32,7 @@
 					<key>description</key>
 					<string>IGraphicsTest</string>
 					<key>factoryFunction</key>
-					<string>IGraphicsTestViewController</string>
+					<string>IPlugAUViewController</string>
 					<key>manufacturer</key>
 					<string>Acme</string>
 					<key>name</key>

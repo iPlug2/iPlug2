@@ -1,6 +1,6 @@
-include ./config/IPlugInstrument-web.mk
+include ../config/IPlugInstrument-web.mk
 
-TARGET = ./build-web/scripts/IPlugInstrument-wam.js
+TARGET = ../build-web/scripts/IPlugInstrument-wam.js
 
 SRC += $(WAM_SRC)
 CFLAGS += $(WAM_CFLAGS)

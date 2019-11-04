@@ -22,7 +22,7 @@
 class TestTextControl : public IControl
 {
 public:
-  TestTextControl(IRECT bounds)
+  TestTextControl(const IRECT& bounds)
   : IControl(bounds)
   {
     SetTooltip("TestTextControl");
@@ -59,7 +59,7 @@ public:
 
     const char* types[] = { "Roboto-Regular", "Montserrat-LightItalic" };
 
-    mText = IText(size, IColor::GetRandomColor(), types[type], (IText::EAlign) align, (IText::EVAlign) valign);
+    mText = IText(size, IColor::GetRandomColor(), types[type], (EAlign) align, (EVAlign) valign);
   }
 
 private:

@@ -26,12 +26,18 @@
 #include "IPlugMidi.h" // <- Midi related structs in here
 #include "IPlugUtilities.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 /** In certain cases we need to queue parameter changes for transferral between threads */
-struct IParamChange
+struct ParamTuple
 {
-  int paramIdx;
+  int idx;
   double value;
-  bool normalized; // TODO: Remove this
+  
+  ParamTuple(int idx = kNoParameter, double value = 0.)
+  : idx(idx)
+  , value(value)
+  {}
 };
 
 /** This structure is used when queueing Sysex messages. You may need to set MAX_SYSEX_SIZE to reflect the max sysex payload in bytes */
@@ -54,7 +60,7 @@ struct SysExData
   uint8_t mData[MAX_SYSEX_SIZE];
 };
 
-/** A helper class for IBtyeChunk and IBtyeStream that avoids code duplication **/
+/** A helper class for IByteChunk and IByteStream that avoids code duplication **/
 struct IByteGetter
 {
   /** /todo 
@@ -159,7 +165,8 @@ public:
    * @tparam T 
    * @param pVal /todo
    * @return int /todo */
-  template <class T> inline int Put(const T* pVal)
+  template <class T>
+  inline int Put(const T* pVal)
   {
     return PutBytes(pVal, sizeof(T));
   }
@@ -169,7 +176,8 @@ public:
    * @param pVal /todo
    * @param startPos /todo
    * @return int /todo */
-  template <class T> inline int Get(T* pVal, int startPos) const
+  template <class T>
+  inline int Get(T* pVal, int startPos) const
   {
     return GetBytes(pVal, sizeof(T), startPos);
   }
@@ -277,7 +285,8 @@ public:
    * @param pVal /todo
    * @param startPos /todo
    * @return int /todo */
-  template <class T> inline int Get(T* pVal, int startPos) const
+  template <class T>
+  inline int Get(T* pVal, int startPos) const
   {
     return GetBytes(pVal, sizeof(T), startPos);
   }
@@ -320,7 +329,7 @@ private:
 };
 
 /** Helper struct to set compile time options to an API class constructor  */
-struct IPlugConfig
+struct Config
 {
   int nParams;
   int nPresets;
@@ -342,7 +351,7 @@ struct IPlugConfig
   int plugHeight;
   const char* bundleID;
   
-  IPlugConfig(int nParams,
+  Config(int nParams,
               int nPresets,
               const char* channelIOStr,
               const char* pluginName,
@@ -524,5 +533,30 @@ struct IPreset
     sprintf(mName, "%s", UNUSED_PRESET_NAME);
   }
 };
+
+/** Used for key press info, such as ASCII representation, virtual key (mapped to win32 codes) and modifiers */
+struct IKeyPress
+{
+  int VK; // Windows VK_XXX
+  char utf8[5] = { 0 }; // UTF8 key
+  bool S, C, A; // SHIFT / CTRL(WIN) or CMD (MAC) / ALT
+
+  /** /todo
+   * @param _utf8 /todo
+   * @param vk /todo
+   * @param s /todo
+   * @param c /todo
+   * @param a /todo */
+  IKeyPress(const char* _utf8, int vk, bool s = false, bool c = false, bool a = false)
+    : VK(vk)
+    , S(s), C(c), A(a)
+  {
+    strcpy(utf8, _utf8);
+  }
+
+  void DBGPrint() const { DBGMSG("VK: %i\n", VK); }
+};
+
+END_IPLUG_NAMESPACE
 
 /**@}*/

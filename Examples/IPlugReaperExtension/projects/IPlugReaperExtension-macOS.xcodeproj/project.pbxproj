@@ -1,0 +1,867 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 47;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		4F56E31B227F43A400F3E839 /* IGraphicsCoreText.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F56E319227F43A400F3E839 /* IGraphicsCoreText.mm */; };
+		4F56E325227F9C3200F3E839 /* IGraphicsNanoVG_src.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8C2521EA55BD00C1EF1B /* IGraphicsNanoVG_src.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F56E32A227FA3C400F3E839 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F56E328227FA3C400F3E839 /* IPlugTimer.cpp */; };
+		4FB401D222806B3B00F35D81 /* IGraphicsAGG_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FB401D122806B3B00F35D81 /* IGraphicsAGG_src.mm */; };
+		4FBA83B120ECB19100423B90 /* IPlugReaperExtension.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA837B20ECAE7B00423B90 /* IPlugReaperExtension.cpp */; };
+		4FBA83B420ECB63400423B90 /* swell-modstub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA83A720ECAED000423B90 /* swell-modstub.mm */; };
+		4FBB8C7421EA55BD00C1EF1B /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8C3221EA55BD00C1EF1B /* IGraphicsMac.mm */; };
+		4FBB8C7521EA55BD00C1EF1B /* IGraphicsMac_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8C3421EA55BD00C1EF1B /* IGraphicsMac_view.mm */; };
+		4FBB8C7A21EA55BD00C1EF1B /* IGraphicsEditorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8C3D21EA55BD00C1EF1B /* IGraphicsEditorDelegate.cpp */; };
+		4FBB8C7B21EA55BD00C1EF1B /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8C3E21EA55BD00C1EF1B /* IGraphics.cpp */; };
+		4FBB8C7C21EA55BD00C1EF1B /* ITextEntryControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8C5C21EA55BD00C1EF1B /* ITextEntryControl.cpp */; };
+		4FBB8C7D21EA55BD00C1EF1B /* IPopupMenuControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8C5F21EA55BD00C1EF1B /* IPopupMenuControl.cpp */; };
+		4FBB8C7E21EA55BD00C1EF1B /* IControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8C6121EA55BD00C1EF1B /* IControls.cpp */; };
+		4FBB8C7F21EA55BD00C1EF1B /* IControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8C6921EA55BD00C1EF1B /* IControl.cpp */; };
+		4FBB8C8621EA56C600C1EF1B /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8C8121EA56C600C1EF1B /* IPlugPaths.mm */; };
+		4FBB8C8721EA56C600C1EF1B /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8C8221EA56C600C1EF1B /* IPlugParameter.cpp */; };
+		4FBB8C8821EA56C600C1EF1B /* IPlugPaths.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8C8421EA56C600C1EF1B /* IPlugPaths.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlendian.h; path = ../../../WDL/wdlendian.h; sourceTree = SOURCE_ROOT; };
+		4F3862FF2014BCC70009F402 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
+		4F3D2B4520212D4E00842FF4 /* wdl_base64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = wdl_base64.h; path = ../../../WDL/wdl_base64.h; sourceTree = "<group>"; };
+		4F4A44B722D361A400A9D1A1 /* IGraphicsSkia.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsSkia.cpp; sourceTree = "<group>"; };
+		4F4A44B822D361A400A9D1A1 /* IGraphicsSkia.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IGraphicsSkia.h; sourceTree = "<group>"; };
+		4F56E319227F43A400F3E839 /* IGraphicsCoreText.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsCoreText.mm; sourceTree = "<group>"; };
+		4F56E31A227F43A400F3E839 /* IGraphicsCoreText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsCoreText.h; sourceTree = "<group>"; };
+		4F56E327227F9E7C00F3E839 /* IPlugReaperExtension.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = IPlugReaperExtension.xcconfig; path = ../config/IPlugReaperExtension.xcconfig; sourceTree = "<group>"; };
+		4F56E328227FA3C400F3E839 /* IPlugTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugTimer.cpp; path = ../../../IPlug/IPlugTimer.cpp; sourceTree = "<group>"; };
+		4F56E329227FA3C400F3E839 /* IPlugTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugTimer.h; path = ../../../IPlug/IPlugTimer.h; sourceTree = "<group>"; };
+		4F56E32B227FADCD00F3E839 /* IPlugEditorDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugEditorDelegate.h; path = ../../../IPlug/IPlugEditorDelegate.h; sourceTree = "<group>"; };
+		4F74D1D722AA8E760079E7DF /* ReaperExt_include_in_plug_src.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaperExt_include_in_plug_src.h; sourceTree = "<group>"; };
+		4F74D1D822AA8E760079E7DF /* ReaperExt_include_in_plug_hdr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaperExt_include_in_plug_hdr.h; sourceTree = "<group>"; };
+		4F74D1D922AA8E760079E7DF /* ReaperExtBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaperExtBase.h; sourceTree = "<group>"; };
+		4F74D1DA22AA8E760079E7DF /* ReaperExtBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReaperExtBase.cpp; sourceTree = "<group>"; };
+		4F78D8BD13B63A4E0032E0F3 /* wdltypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdltypes.h; path = ../../../WDL/wdltypes.h; sourceTree = SOURCE_ROOT; };
+		4FB401D122806B3B00F35D81 /* IGraphicsAGG_src.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsAGG_src.mm; sourceTree = "<group>"; };
+		4FBA837B20ECAE7B00423B90 /* IPlugReaperExtension.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = IPlugReaperExtension.cpp; path = ../IPlugReaperExtension.cpp; sourceTree = "<group>"; };
+		4FBA83A720ECAED000423B90 /* swell-modstub.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-modstub.mm"; path = "../../../WDL/swell/swell-modstub.mm"; sourceTree = "<group>"; };
+		4FBA83AC20ECAF0B00423B90 /* reaper_IPlugReaperExtension.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = reaper_IPlugReaperExtension.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FBA83B220ECB28900423B90 /* main.rc */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc; path = ../resources/main.rc; sourceTree = "<group>"; };
+		4FBA83C020ECBBBE00423B90 /* video_frame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = video_frame.h; sourceTree = "<group>"; };
+		4FBA83C120ECBBBE00423B90 /* reaper_plugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = reaper_plugin.h; sourceTree = "<group>"; };
+		4FBA83C220ECBBBE00423B90 /* reaper_plugin_functions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = reaper_plugin_functions.h; sourceTree = "<group>"; };
+		4FBA83C320ECBBBE00423B90 /* video_processor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = video_processor.h; sourceTree = "<group>"; };
+		4FBA83C420ECBBBE00423B90 /* README.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
+		4FBA83C720ECD9BD00423B90 /* swell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = swell.h; path = ../../../WDL/swell/swell.h; sourceTree = "<group>"; };
+		4FBA83C820ECD9DA00423B90 /* swell-dlggen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "swell-dlggen.h"; path = "../../../WDL/swell/swell-dlggen.h"; sourceTree = "<group>"; };
+		4FBA83C920ECD9DA00423B90 /* swell-types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "swell-types.h"; path = "../../../WDL/swell/swell-types.h"; sourceTree = "<group>"; };
+		4FBA83CA20ECD9DA00423B90 /* swell-functions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "swell-functions.h"; path = "../../../WDL/swell/swell-functions.h"; sourceTree = "<group>"; };
+		4FBB8C1B21EA55BD00C1EF1B /* IGraphicsLice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLice.h; sourceTree = "<group>"; };
+		4FBB8C1C21EA55BD00C1EF1B /* IGraphicsAGG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsAGG.h; sourceTree = "<group>"; };
+		4FBB8C1D21EA55BD00C1EF1B /* IGraphicsLice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsLice.cpp; sourceTree = "<group>"; };
+		4FBB8C1E21EA55BD00C1EF1B /* IGraphicsLice_src.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLice_src.h; sourceTree = "<group>"; };
+		4FBB8C1F21EA55BD00C1EF1B /* IGraphicsCairo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsCairo.h; sourceTree = "<group>"; };
+		4FBB8C2021EA55BD00C1EF1B /* IGraphicsAGG_src.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsAGG_src.cpp; sourceTree = "<group>"; };
+		4FBB8C2121EA55BD00C1EF1B /* IGraphicsNanoVG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsNanoVG.h; sourceTree = "<group>"; };
+		4FBB8C2221EA55BD00C1EF1B /* IGraphicsCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsCanvas.cpp; sourceTree = "<group>"; };
+		4FBB8C2321EA55BD00C1EF1B /* IGraphicsCairo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsCairo.cpp; sourceTree = "<group>"; };
+		4FBB8C2421EA55BD00C1EF1B /* IGraphicsAGG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsAGG.cpp; sourceTree = "<group>"; };
+		4FBB8C2521EA55BD00C1EF1B /* IGraphicsNanoVG_src.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IGraphicsNanoVG_src.m; sourceTree = "<group>"; };
+		4FBB8C2621EA55BD00C1EF1B /* IGraphicsAGG_src.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsAGG_src.h; sourceTree = "<group>"; };
+		4FBB8C2721EA55BD00C1EF1B /* IGraphicsNanoVG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsNanoVG.cpp; sourceTree = "<group>"; };
+		4FBB8C2821EA55BD00C1EF1B /* IGraphicsCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsCanvas.h; sourceTree = "<group>"; };
+		4FBB8C2921EA55BD00C1EF1B /* IGraphicsLice_src.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsLice_src.cpp; sourceTree = "<group>"; };
+		4FBB8C2A21EA55BD00C1EF1B /* IGraphics_include_in_plug_hdr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphics_include_in_plug_hdr.h; sourceTree = "<group>"; };
+		4FBB8C2C21EA55BD00C1EF1B /* IGraphicsIOS_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsIOS_view.h; sourceTree = "<group>"; };
+		4FBB8C2D21EA55BD00C1EF1B /* IGraphicsWeb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsWeb.cpp; sourceTree = "<group>"; };
+		4FBB8C2E21EA55BD00C1EF1B /* IGraphicsWeb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsWeb.h; sourceTree = "<group>"; };
+		4FBB8C2F21EA55BD00C1EF1B /* IGraphicsWin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsWin.h; sourceTree = "<group>"; };
+		4FBB8C3021EA55BD00C1EF1B /* IGraphicsLinux.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLinux.h; sourceTree = "<group>"; };
+		4FBB8C3121EA55BD00C1EF1B /* IGraphicsMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsMac.h; sourceTree = "<group>"; };
+		4FBB8C3221EA55BD00C1EF1B /* IGraphicsMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsMac.mm; sourceTree = "<group>"; };
+		4FBB8C3321EA55BD00C1EF1B /* IGraphicsMac_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsMac_view.h; sourceTree = "<group>"; };
+		4FBB8C3421EA55BD00C1EF1B /* IGraphicsMac_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsMac_view.mm; sourceTree = "<group>"; };
+		4FBB8C3521EA55BD00C1EF1B /* IGraphicsLinux.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsLinux.cpp; sourceTree = "<group>"; };
+		4FBB8C3621EA55BD00C1EF1B /* IGraphicsIOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsIOS.mm; sourceTree = "<group>"; };
+		4FBB8C3721EA55BD00C1EF1B /* IGraphicsWin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsWin.cpp; sourceTree = "<group>"; };
+		4FBB8C3821EA55BD00C1EF1B /* IGraphicsIOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsIOS.h; sourceTree = "<group>"; };
+		4FBB8C3921EA55BD00C1EF1B /* IGraphicsIOS_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsIOS_view.mm; sourceTree = "<group>"; };
+		4FBB8C3A21EA55BD00C1EF1B /* IGraphicsPopupMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsPopupMenu.h; sourceTree = "<group>"; };
+		4FBB8C3B21EA55BD00C1EF1B /* IControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControl.h; sourceTree = "<group>"; };
+		4FBB8C3C21EA55BD00C1EF1B /* IGraphicsUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsUtilities.h; sourceTree = "<group>"; };
+		4FBB8C3D21EA55BD00C1EF1B /* IGraphicsEditorDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsEditorDelegate.cpp; sourceTree = "<group>"; };
+		4FBB8C3E21EA55BD00C1EF1B /* IGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphics.cpp; sourceTree = "<group>"; };
+		4FBB8C3F21EA55BD00C1EF1B /* IGraphicsPathBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsPathBase.h; sourceTree = "<group>"; };
+		4FBB8C4121EA55BD00C1EF1B /* IControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControls.h; sourceTree = "<group>"; };
+		4FBB8C4321EA55BD00C1EF1B /* TestCursorControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestCursorControl.h; sourceTree = "<group>"; };
+		4FBB8C4421EA55BD00C1EF1B /* TestSizeControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestSizeControl.h; sourceTree = "<group>"; };
+		4FBB8C4521EA55BD00C1EF1B /* TestAnimationControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestAnimationControl.h; sourceTree = "<group>"; };
+		4FBB8C4621EA55BD00C1EF1B /* TestTextControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestTextControl.h; sourceTree = "<group>"; };
+		4FBB8C4721EA55BD00C1EF1B /* TestDrawContextControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestDrawContextControl.h; sourceTree = "<group>"; };
+		4FBB8C4821EA55BD00C1EF1B /* TestSVGControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestSVGControl.h; sourceTree = "<group>"; };
+		4FBB8C4921EA55BD00C1EF1B /* TestImageControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestImageControl.h; sourceTree = "<group>"; };
+		4FBB8C4A21EA55BD00C1EF1B /* TestDirBrowseControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestDirBrowseControl.h; sourceTree = "<group>"; };
+		4FBB8C4B21EA55BD00C1EF1B /* TestLayerControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestLayerControl.h; sourceTree = "<group>"; };
+		4FBB8C4C21EA55BD00C1EF1B /* TestControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestControls.h; sourceTree = "<group>"; };
+		4FBB8C4D21EA55BD00C1EF1B /* TestKeyboardControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestKeyboardControl.h; sourceTree = "<group>"; };
+		4FBB8C4E21EA55BD00C1EF1B /* TestColorControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestColorControl.h; sourceTree = "<group>"; };
+		4FBB8C4F21EA55BD00C1EF1B /* TestBlendControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestBlendControl.h; sourceTree = "<group>"; };
+		4FBB8C5021EA55BD00C1EF1B /* TestGradientControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestGradientControl.h; sourceTree = "<group>"; };
+		4FBB8C5121EA55BD00C1EF1B /* TestDropShadowControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestDropShadowControl.h; sourceTree = "<group>"; };
+		4FBB8C5221EA55BD00C1EF1B /* TestRotatingMaskControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestRotatingMaskControl.h; sourceTree = "<group>"; };
+		4FBB8C5321EA55BD00C1EF1B /* TestMultiPathControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestMultiPathControl.h; sourceTree = "<group>"; };
+		4FBB8C5421EA55BD00C1EF1B /* TestArcControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestArcControl.h; sourceTree = "<group>"; };
+		4FBB8C5521EA55BD00C1EF1B /* TestPolyControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestPolyControl.h; sourceTree = "<group>"; };
+		4FBB8C5621EA55BD00C1EF1B /* IVMultiSliderControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVMultiSliderControl.h; sourceTree = "<group>"; };
+		4FBB8C5721EA55BD00C1EF1B /* ITextEntryControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ITextEntryControl.h; sourceTree = "<group>"; };
+		4FBB8C5821EA55BD00C1EF1B /* IVScopeControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVScopeControl.h; sourceTree = "<group>"; };
+		4FBB8C5921EA55BD00C1EF1B /* IVMeterControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVMeterControl.h; sourceTree = "<group>"; };
+		4FBB8C5A21EA55BD00C1EF1B /* IRTTextControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IRTTextControl.h; sourceTree = "<group>"; };
+		4FBB8C5B21EA55BD00C1EF1B /* IColorPickerControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IColorPickerControl.h; sourceTree = "<group>"; };
+		4FBB8C5C21EA55BD00C1EF1B /* ITextEntryControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ITextEntryControl.cpp; sourceTree = "<group>"; };
+		4FBB8C5D21EA55BD00C1EF1B /* IVKeyboardControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IVKeyboardControl.h; sourceTree = "<group>"; };
+		4FBB8C5E21EA55BD00C1EF1B /* IFPSDisplayControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IFPSDisplayControl.h; sourceTree = "<group>"; };
+		4FBB8C5F21EA55BD00C1EF1B /* IPopupMenuControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPopupMenuControl.cpp; sourceTree = "<group>"; };
+		4FBB8C6021EA55BD00C1EF1B /* IPopupMenuControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPopupMenuControl.h; sourceTree = "<group>"; };
+		4FBB8C6121EA55BD00C1EF1B /* IControls.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IControls.cpp; sourceTree = "<group>"; };
+		4FBB8C6221EA55BD00C1EF1B /* ICornerResizerControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ICornerResizerControl.h; sourceTree = "<group>"; };
+		4FBB8C6321EA55BD00C1EF1B /* IGraphicsStructs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsStructs.h; sourceTree = "<group>"; };
+		4FBB8C6421EA55BD00C1EF1B /* IGraphicsConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsConstants.h; sourceTree = "<group>"; };
+		4FBB8C6521EA55BD00C1EF1B /* IGraphicsLiveEdit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLiveEdit.h; sourceTree = "<group>"; };
+		4FBB8C6621EA55BD00C1EF1B /* IGraphics_select.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphics_select.h; sourceTree = "<group>"; };
+		4FBB8C6721EA55BD00C1EF1B /* IGraphics_include_in_plug_src.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphics_include_in_plug_src.h; sourceTree = "<group>"; };
+		4FBB8C6821EA55BD00C1EF1B /* IGraphicsEditorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsEditorDelegate.h; sourceTree = "<group>"; };
+		4FBB8C6921EA55BD00C1EF1B /* IControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IControl.cpp; sourceTree = "<group>"; };
+		4FBB8C6A21EA55BD00C1EF1B /* IGraphics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphics.h; sourceTree = "<group>"; };
+		4FBB8C8121EA56C600C1EF1B /* IPlugPaths.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugPaths.mm; path = ../../../IPlug/IPlugPaths.mm; sourceTree = "<group>"; };
+		4FBB8C8221EA56C600C1EF1B /* IPlugParameter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugParameter.cpp; path = ../../../IPlug/IPlugParameter.cpp; sourceTree = "<group>"; };
+		4FBB8C8321EA56C600C1EF1B /* IPlugParameter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugParameter.h; path = ../../../IPlug/IPlugParameter.h; sourceTree = "<group>"; };
+		4FBB8C8421EA56C600C1EF1B /* IPlugPaths.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugPaths.cpp; path = ../../../IPlug/IPlugPaths.cpp; sourceTree = "<group>"; };
+		4FBB8C8521EA56C600C1EF1B /* IPlugPaths.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugPaths.h; path = ../../../IPlug/IPlugPaths.h; sourceTree = "<group>"; };
+		4FBB8C8C21EA59C900C1EF1B /* IPlugReaperExtension.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugReaperExtension.h; path = ../IPlugReaperExtension.h; sourceTree = "<group>"; };
+		4FBB8C8D21EA5B9000C1EF1B /* config.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../config.h; sourceTree = "<group>"; };
+		4FBBD7F320B6AB9800A37DE2 /* config */ = {isa = PBXFileReference; lastKnownFileType = folder; name = config; path = ../config; sourceTree = "<group>"; };
+		4FDA1E0E2012CDB30027C868 /* main.rc_mac_menu */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc_mac_menu; path = ../resources/main.rc_mac_menu; sourceTree = "<group>"; };
+		4FDA1E0F2012CDB30027C868 /* main.rc_mac_dlg */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc_mac_dlg; path = ../resources/main.rc_mac_dlg; sourceTree = "<group>"; };
+		4FDA1E102012CDB30027C868 /* resource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = resource.h; path = ../resources/resource.h; sourceTree = "<group>"; };
+		4FDDFDE8229171CF007519F4 /* IGraphicsImGui_src.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsImGui_src.mm; sourceTree = "<group>"; };
+		4FDDFDE9229171CF007519F4 /* IGraphicsImGui.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IGraphicsImGui.h; sourceTree = "<group>"; };
+		4FDDFDEA229171CF007519F4 /* IGraphicsImGui.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsImGui.cpp; sourceTree = "<group>"; };
+		4FF016F4134E14E2001447BA /* mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mutex.h; path = ../../../WDL/mutex.h; sourceTree = SOURCE_ROOT; };
+		4FF016F5134E14E2001447BA /* ptrlist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ptrlist.h; path = ../../../WDL/ptrlist.h; sourceTree = SOURCE_ROOT; };
+		4FF016F6134E14E2001447BA /* wdlstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlstring.h; path = ../../../WDL/wdlstring.h; sourceTree = SOURCE_ROOT; };
+		4FF01719134E153A001447BA /* heapbuf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = heapbuf.h; path = ../../../WDL/heapbuf.h; sourceTree = SOURCE_ROOT; };
+		4FF7B0D4156A825000E6CB12 /* common-mac.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = "common-mac.xcconfig"; path = "../../../common-mac.xcconfig"; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		4FBA83A920ECAF0B00423B90 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		089C166AFE841209C02AAC07 /* IPlugExample */ = {
+			isa = PBXGroup;
+			children = (
+				4FBB8C8D21EA5B9000C1EF1B /* config.h */,
+				4FBB8C8C21EA59C900C1EF1B /* IPlugReaperExtension.h */,
+				4FBA837B20ECAE7B00423B90 /* IPlugReaperExtension.cpp */,
+				089C167CFE841241C02AAC07 /* Resources */,
+				32C88E010371C26100C91783 /* Other Sources */,
+				089C1671FE841209C02AAC07 /* Frameworks */,
+				19C28FB8FE9D52D311CA2CBB /* Products */,
+			);
+			name = IPlugExample;
+			sourceTree = "<group>";
+		};
+		089C1671FE841209C02AAC07 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4FBB8C8021EA56AF00C1EF1B /* IPlug */,
+				4FBB8C1921EA55BD00C1EF1B /* IGraphics */,
+				4FBA83BF20ECBBBE00423B90 /* Reaper */,
+				4FF01613134E0BCD001447BA /* WDL */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		089C167CFE841241C02AAC07 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				4FBA83B220ECB28900423B90 /* main.rc */,
+				4FDA1E0F2012CDB30027C868 /* main.rc_mac_dlg */,
+				4FDA1E0E2012CDB30027C868 /* main.rc_mac_menu */,
+				4FDA1E102012CDB30027C868 /* resource.h */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		19C28FB8FE9D52D311CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4FBA83AC20ECAF0B00423B90 /* reaper_IPlugReaperExtension.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		32C88E010371C26100C91783 /* Other Sources */ = {
+			isa = PBXGroup;
+			children = (
+				4FBBD7F320B6AB9800A37DE2 /* config */,
+				4F3862FF2014BCC70009F402 /* scripts */,
+				4FF7B0D4156A825000E6CB12 /* common-mac.xcconfig */,
+				4F56E327227F9E7C00F3E839 /* IPlugReaperExtension.xcconfig */,
+			);
+			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		4F74D1D622AA8E760079E7DF /* ReaperExt */ = {
+			isa = PBXGroup;
+			children = (
+				4F74D1D722AA8E760079E7DF /* ReaperExt_include_in_plug_src.h */,
+				4F74D1D822AA8E760079E7DF /* ReaperExt_include_in_plug_hdr.h */,
+				4F74D1D922AA8E760079E7DF /* ReaperExtBase.h */,
+				4F74D1DA22AA8E760079E7DF /* ReaperExtBase.cpp */,
+			);
+			name = ReaperExt;
+			path = ../../../IPlug/ReaperExt;
+			sourceTree = "<group>";
+		};
+		4FBA83BF20ECBBBE00423B90 /* Reaper */ = {
+			isa = PBXGroup;
+			children = (
+				4FBA83C020ECBBBE00423B90 /* video_frame.h */,
+				4FBA83C120ECBBBE00423B90 /* reaper_plugin.h */,
+				4FBA83C220ECBBBE00423B90 /* reaper_plugin_functions.h */,
+				4FBA83C320ECBBBE00423B90 /* video_processor.h */,
+				4FBA83C420ECBBBE00423B90 /* README.txt */,
+			);
+			name = Reaper;
+			path = ../../../Dependencies/IPlug/Reaper;
+			sourceTree = "<group>";
+		};
+		4FBB8C1921EA55BD00C1EF1B /* IGraphics */ = {
+			isa = PBXGroup;
+			children = (
+				4FDDFDE7229171CF007519F4 /* Extras */,
+				4FBB8C1A21EA55BD00C1EF1B /* Drawing */,
+				4FBB8C2B21EA55BD00C1EF1B /* Platforms */,
+				4FBB8C4021EA55BD00C1EF1B /* Controls */,
+				4FBB8C3A21EA55BD00C1EF1B /* IGraphicsPopupMenu.h */,
+				4FBB8C3B21EA55BD00C1EF1B /* IControl.h */,
+				4FBB8C3C21EA55BD00C1EF1B /* IGraphicsUtilities.h */,
+				4FBB8C6821EA55BD00C1EF1B /* IGraphicsEditorDelegate.h */,
+				4FBB8C3D21EA55BD00C1EF1B /* IGraphicsEditorDelegate.cpp */,
+				4FBB8C3E21EA55BD00C1EF1B /* IGraphics.cpp */,
+				4FBB8C3F21EA55BD00C1EF1B /* IGraphicsPathBase.h */,
+				4FBB8C6321EA55BD00C1EF1B /* IGraphicsStructs.h */,
+				4FBB8C6421EA55BD00C1EF1B /* IGraphicsConstants.h */,
+				4FBB8C6521EA55BD00C1EF1B /* IGraphicsLiveEdit.h */,
+				4FBB8C6621EA55BD00C1EF1B /* IGraphics_select.h */,
+				4FBB8C2A21EA55BD00C1EF1B /* IGraphics_include_in_plug_hdr.h */,
+				4FBB8C6721EA55BD00C1EF1B /* IGraphics_include_in_plug_src.h */,
+				4FBB8C6921EA55BD00C1EF1B /* IControl.cpp */,
+				4FBB8C6A21EA55BD00C1EF1B /* IGraphics.h */,
+			);
+			name = IGraphics;
+			path = ../../../IGraphics;
+			sourceTree = "<group>";
+		};
+		4FBB8C1A21EA55BD00C1EF1B /* Drawing */ = {
+			isa = PBXGroup;
+			children = (
+				4F4A44B722D361A400A9D1A1 /* IGraphicsSkia.cpp */,
+				4F4A44B822D361A400A9D1A1 /* IGraphicsSkia.h */,
+				4FB401D122806B3B00F35D81 /* IGraphicsAGG_src.mm */,
+				4FBB8C1B21EA55BD00C1EF1B /* IGraphicsLice.h */,
+				4FBB8C1C21EA55BD00C1EF1B /* IGraphicsAGG.h */,
+				4FBB8C1D21EA55BD00C1EF1B /* IGraphicsLice.cpp */,
+				4FBB8C1E21EA55BD00C1EF1B /* IGraphicsLice_src.h */,
+				4FBB8C1F21EA55BD00C1EF1B /* IGraphicsCairo.h */,
+				4FBB8C2021EA55BD00C1EF1B /* IGraphicsAGG_src.cpp */,
+				4FBB8C2121EA55BD00C1EF1B /* IGraphicsNanoVG.h */,
+				4FBB8C2221EA55BD00C1EF1B /* IGraphicsCanvas.cpp */,
+				4FBB8C2321EA55BD00C1EF1B /* IGraphicsCairo.cpp */,
+				4FBB8C2421EA55BD00C1EF1B /* IGraphicsAGG.cpp */,
+				4FBB8C2521EA55BD00C1EF1B /* IGraphicsNanoVG_src.m */,
+				4FBB8C2621EA55BD00C1EF1B /* IGraphicsAGG_src.h */,
+				4FBB8C2721EA55BD00C1EF1B /* IGraphicsNanoVG.cpp */,
+				4FBB8C2821EA55BD00C1EF1B /* IGraphicsCanvas.h */,
+				4FBB8C2921EA55BD00C1EF1B /* IGraphicsLice_src.cpp */,
+			);
+			path = Drawing;
+			sourceTree = "<group>";
+		};
+		4FBB8C2B21EA55BD00C1EF1B /* Platforms */ = {
+			isa = PBXGroup;
+			children = (
+				4F56E31A227F43A400F3E839 /* IGraphicsCoreText.h */,
+				4F56E319227F43A400F3E839 /* IGraphicsCoreText.mm */,
+				4FBB8C2C21EA55BD00C1EF1B /* IGraphicsIOS_view.h */,
+				4FBB8C2D21EA55BD00C1EF1B /* IGraphicsWeb.cpp */,
+				4FBB8C2E21EA55BD00C1EF1B /* IGraphicsWeb.h */,
+				4FBB8C2F21EA55BD00C1EF1B /* IGraphicsWin.h */,
+				4FBB8C3021EA55BD00C1EF1B /* IGraphicsLinux.h */,
+				4FBB8C3121EA55BD00C1EF1B /* IGraphicsMac.h */,
+				4FBB8C3221EA55BD00C1EF1B /* IGraphicsMac.mm */,
+				4FBB8C3321EA55BD00C1EF1B /* IGraphicsMac_view.h */,
+				4FBB8C3421EA55BD00C1EF1B /* IGraphicsMac_view.mm */,
+				4FBB8C3521EA55BD00C1EF1B /* IGraphicsLinux.cpp */,
+				4FBB8C3621EA55BD00C1EF1B /* IGraphicsIOS.mm */,
+				4FBB8C3721EA55BD00C1EF1B /* IGraphicsWin.cpp */,
+				4FBB8C3821EA55BD00C1EF1B /* IGraphicsIOS.h */,
+				4FBB8C3921EA55BD00C1EF1B /* IGraphicsIOS_view.mm */,
+			);
+			path = Platforms;
+			sourceTree = "<group>";
+		};
+		4FBB8C4021EA55BD00C1EF1B /* Controls */ = {
+			isa = PBXGroup;
+			children = (
+				4FBB8C4121EA55BD00C1EF1B /* IControls.h */,
+				4FBB8C4221EA55BD00C1EF1B /* Test */,
+				4FBB8C5621EA55BD00C1EF1B /* IVMultiSliderControl.h */,
+				4FBB8C5721EA55BD00C1EF1B /* ITextEntryControl.h */,
+				4FBB8C5821EA55BD00C1EF1B /* IVScopeControl.h */,
+				4FBB8C5921EA55BD00C1EF1B /* IVMeterControl.h */,
+				4FBB8C5A21EA55BD00C1EF1B /* IRTTextControl.h */,
+				4FBB8C5B21EA55BD00C1EF1B /* IColorPickerControl.h */,
+				4FBB8C5C21EA55BD00C1EF1B /* ITextEntryControl.cpp */,
+				4FBB8C5D21EA55BD00C1EF1B /* IVKeyboardControl.h */,
+				4FBB8C5E21EA55BD00C1EF1B /* IFPSDisplayControl.h */,
+				4FBB8C5F21EA55BD00C1EF1B /* IPopupMenuControl.cpp */,
+				4FBB8C6021EA55BD00C1EF1B /* IPopupMenuControl.h */,
+				4FBB8C6121EA55BD00C1EF1B /* IControls.cpp */,
+				4FBB8C6221EA55BD00C1EF1B /* ICornerResizerControl.h */,
+			);
+			path = Controls;
+			sourceTree = "<group>";
+		};
+		4FBB8C4221EA55BD00C1EF1B /* Test */ = {
+			isa = PBXGroup;
+			children = (
+				4FBB8C4321EA55BD00C1EF1B /* TestCursorControl.h */,
+				4FBB8C4421EA55BD00C1EF1B /* TestSizeControl.h */,
+				4FBB8C4521EA55BD00C1EF1B /* TestAnimationControl.h */,
+				4FBB8C4621EA55BD00C1EF1B /* TestTextControl.h */,
+				4FBB8C4721EA55BD00C1EF1B /* TestDrawContextControl.h */,
+				4FBB8C4821EA55BD00C1EF1B /* TestSVGControl.h */,
+				4FBB8C4921EA55BD00C1EF1B /* TestImageControl.h */,
+				4FBB8C4A21EA55BD00C1EF1B /* TestDirBrowseControl.h */,
+				4FBB8C4B21EA55BD00C1EF1B /* TestLayerControl.h */,
+				4FBB8C4C21EA55BD00C1EF1B /* TestControls.h */,
+				4FBB8C4D21EA55BD00C1EF1B /* TestKeyboardControl.h */,
+				4FBB8C4E21EA55BD00C1EF1B /* TestColorControl.h */,
+				4FBB8C4F21EA55BD00C1EF1B /* TestBlendControl.h */,
+				4FBB8C5021EA55BD00C1EF1B /* TestGradientControl.h */,
+				4FBB8C5121EA55BD00C1EF1B /* TestDropShadowControl.h */,
+				4FBB8C5221EA55BD00C1EF1B /* TestRotatingMaskControl.h */,
+				4FBB8C5321EA55BD00C1EF1B /* TestMultiPathControl.h */,
+				4FBB8C5421EA55BD00C1EF1B /* TestArcControl.h */,
+				4FBB8C5521EA55BD00C1EF1B /* TestPolyControl.h */,
+			);
+			path = Test;
+			sourceTree = "<group>";
+		};
+		4FBB8C8021EA56AF00C1EF1B /* IPlug */ = {
+			isa = PBXGroup;
+			children = (
+				4F74D1D622AA8E760079E7DF /* ReaperExt */,
+				4FBB8C8221EA56C600C1EF1B /* IPlugParameter.cpp */,
+				4FBB8C8321EA56C600C1EF1B /* IPlugParameter.h */,
+				4FBB8C8421EA56C600C1EF1B /* IPlugPaths.cpp */,
+				4FBB8C8521EA56C600C1EF1B /* IPlugPaths.h */,
+				4FBB8C8121EA56C600C1EF1B /* IPlugPaths.mm */,
+				4F56E328227FA3C400F3E839 /* IPlugTimer.cpp */,
+				4F56E329227FA3C400F3E839 /* IPlugTimer.h */,
+				4F56E32B227FADCD00F3E839 /* IPlugEditorDelegate.h */,
+			);
+			name = IPlug;
+			sourceTree = "<group>";
+		};
+		4FDDFDE7229171CF007519F4 /* Extras */ = {
+			isa = PBXGroup;
+			children = (
+				4FDDFDE8229171CF007519F4 /* IGraphicsImGui_src.mm */,
+				4FDDFDE9229171CF007519F4 /* IGraphicsImGui.h */,
+				4FDDFDEA229171CF007519F4 /* IGraphicsImGui.cpp */,
+			);
+			path = Extras;
+			sourceTree = "<group>";
+		};
+		4FF01613134E0BCD001447BA /* WDL */ = {
+			isa = PBXGroup;
+			children = (
+				4FBA83C720ECD9BD00423B90 /* swell.h */,
+				4FBA83C820ECD9DA00423B90 /* swell-dlggen.h */,
+				4FBA83CA20ECD9DA00423B90 /* swell-functions.h */,
+				4FBA83C920ECD9DA00423B90 /* swell-types.h */,
+				4FBA83A720ECAED000423B90 /* swell-modstub.mm */,
+				4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */,
+				4FF01719134E153A001447BA /* heapbuf.h */,
+				4FF016F4134E14E2001447BA /* mutex.h */,
+				4FF016F5134E14E2001447BA /* ptrlist.h */,
+				4FF016F6134E14E2001447BA /* wdlstring.h */,
+				4F78D8BD13B63A4E0032E0F3 /* wdltypes.h */,
+				4F3D2B4520212D4E00842FF4 /* wdl_base64.h */,
+			);
+			name = WDL;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4FBA83AB20ECAF0B00423B90 /* IPlugReaperExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4FBA83AD20ECAF0B00423B90 /* Build configuration list for PBXNativeTarget "IPlugReaperExtension" */;
+			buildPhases = (
+				4FBA83B320ECB2D300423B90 /* Run Script - Generate SWELL Resource files */,
+				4FBA83A820ECAF0B00423B90 /* Sources */,
+				4FBA83A920ECAF0B00423B90 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = IPlugReaperExtension;
+			productName = IPlugReaperExtension;
+			productReference = 4FBA83AC20ECAF0B00423B90 /* reaper_IPlugReaperExtension.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		089C1669FE841209C02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1030;
+				TargetAttributes = {
+					4FBA83AB20ECAF0B00423B90 = {
+						CreatedOnToolsVersion = 9.4.1;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 1DEB913E08733D840010E9CD /* Build configuration list for PBXProject "IPlugReaperExtension-macOS" */;
+			compatibilityVersion = "Xcode 6.3";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+				Base,
+			);
+			mainGroup = 089C166AFE841209C02AAC07 /* IPlugExample */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4FBA83AB20ECAF0B00423B90 /* IPlugReaperExtension */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		4FBA83B320ECB2D300423B90 /* Run Script - Generate SWELL Resource files */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script - Generate SWELL Resource files";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "php ../../../WDL/swell/mac_resgen.php ../resources/main.rc";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4FBA83A820ECAF0B00423B90 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FBB8C7D21EA55BD00C1EF1B /* IPopupMenuControl.cpp in Sources */,
+				4F56E32A227FA3C400F3E839 /* IPlugTimer.cpp in Sources */,
+				4FBB8C8721EA56C600C1EF1B /* IPlugParameter.cpp in Sources */,
+				4F56E325227F9C3200F3E839 /* IGraphicsNanoVG_src.m in Sources */,
+				4FBA83B420ECB63400423B90 /* swell-modstub.mm in Sources */,
+				4FBB8C8621EA56C600C1EF1B /* IPlugPaths.mm in Sources */,
+				4FBB8C7E21EA55BD00C1EF1B /* IControls.cpp in Sources */,
+				4FBB8C7B21EA55BD00C1EF1B /* IGraphics.cpp in Sources */,
+				4FBA83B120ECB19100423B90 /* IPlugReaperExtension.cpp in Sources */,
+				4FBB8C7A21EA55BD00C1EF1B /* IGraphicsEditorDelegate.cpp in Sources */,
+				4FBB8C7C21EA55BD00C1EF1B /* ITextEntryControl.cpp in Sources */,
+				4FBB8C8821EA56C600C1EF1B /* IPlugPaths.cpp in Sources */,
+				4FBB8C7421EA55BD00C1EF1B /* IGraphicsMac.mm in Sources */,
+				4FBB8C7521EA55BD00C1EF1B /* IGraphicsMac_view.mm in Sources */,
+				4FB401D222806B3B00F35D81 /* IGraphicsAGG_src.mm in Sources */,
+				4F56E31B227F43A400F3E839 /* IGraphicsCoreText.mm in Sources */,
+				4FBB8C7F21EA55BD00C1EF1B /* IControl.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB913F08733D840010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
+				COPY_PHASE_STRIP = NO;
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = "$(REAPER_EXT_PATH)";
+				ENABLE_STRICT_OBJC_MSGSEND = NO;
+				ENABLE_TESTABILITY = YES;
+				EXECUTABLE_EXTENSION = dylib;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(DEBUG_DEFS)",
+					"$(EXTRA_DEBUG_DEFS)",
+					"$(ALL_DEFS)",
+					"$(EXTRA_ALL_DEFS)",
+				);
+				GCC_VERSION = "$(COMPILER)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = NO;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = NO;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_PKGINFO_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(EXTRA_INC_PATHS)",
+					"$(IPLUG_INC_PATHS)",
+				);
+				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
+				INFOPLIST_PREPROCESS = NO;
+				INSTALL_GROUP = admin;
+				INSTALL_OWNER = root;
+				INSTALL_PATH = /;
+				LIBRARY_SEARCH_PATHS = "$(EXTRA_LIB_PATHS)";
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"$(GCC_CFLAGS)",
+				);
+				OTHER_LDFLAGS = (
+					"$(EXTRA_LNK_FLAGS)",
+					"$(ALL_FRAMEWORKS)",
+				);
+				PREBINDING = NO;
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
+				PRODUCT_NAME = "$(BINARY_NAME)";
+				SDKROOT = "$(BASE_SDK_MAC)";
+				SKIP_INSTALL = NO;
+				STRIP_INSTALLED_PRODUCT = NO;
+				SYMROOT = "../build-mac";
+				VALID_ARCHS = "i386 x86_64";
+				WRAPPER_EXTENSION = "";
+			};
+			name = Debug;
+		};
+		1DEB914008733D840010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = "$(REAPER_EXT_PATH)";
+				ENABLE_STRICT_OBJC_MSGSEND = NO;
+				EXECUTABLE_EXTENSION = dylib;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = "$(RELEASE_OPTIMIZE)";
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(RELEASE_DEFS)",
+					"$(EXTRA_RELEASE_DEFS)",
+					"$(ALL_DEFS)",
+					"$(EXTRA_ALL_DEFS)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_VERSION = "$(COMPILER)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = NO;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = NO;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_PKGINFO_FILE = YES;
+				GENERATE_PROFILING_CODE = "$(PROFILE)";
+				HEADER_SEARCH_PATHS = (
+					"$(EXTRA_INC_PATHS)",
+					"$(IPLUG_INC_PATHS)",
+				);
+				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
+				INFOPLIST_PREPROCESS = NO;
+				INSTALL_GROUP = admin;
+				INSTALL_OWNER = root;
+				INSTALL_PATH = /;
+				LIBRARY_SEARCH_PATHS = "$(EXTRA_LIB_PATHS)";
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"$(GCC_CFLAGS)",
+				);
+				OTHER_LDFLAGS = (
+					"$(EXTRA_LNK_FLAGS)",
+					"$(ALL_FRAMEWORKS)",
+				);
+				PREBINDING = NO;
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
+				PRODUCT_NAME = "$(BINARY_NAME)";
+				SDKROOT = "$(BASE_SDK_MAC)";
+				SKIP_INSTALL = NO;
+				SYMROOT = "../build-mac";
+				VALID_ARCHS = "i386 x86_64";
+				WRAPPER_EXTENSION = "";
+			};
+			name = Release;
+		};
+		4FBA83AE20ECAF0B00423B90 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F56E327227F9E7C00F3E839 /* IPlugReaperExtension.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				EXECUTABLE_PREFIX = reaper_;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = NO;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				MACOSX_DEPLOYMENT_TARGET = "$(MACOSX_DEPLOYMENT_TARGET)";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugReaperExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		4FBA83AF20ECAF0B00423B90 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F56E327227F9E7C00F3E839 /* IPlugReaperExtension.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+
+				ENABLE_NS_ASSERTIONS = NO;
+				EXECUTABLE_PREFIX = reaper_;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = NO;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				MACOSX_DEPLOYMENT_TARGET = "$(MACOSX_DEPLOYMENT_TARGET)";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugReaperExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		4FBA83B020ECAF0B00423B90 /* Tracer */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4F56E327227F9E7C00F3E839 /* IPlugReaperExtension.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+
+				COPY_PHASE_STRIP = NO;
+				ENABLE_NS_ASSERTIONS = NO;
+				EXECUTABLE_PREFIX = reaper_;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = NO;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				MACOSX_DEPLOYMENT_TARGET = "$(MACOSX_DEPLOYMENT_TARGET)";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugReaperExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Tracer;
+		};
+		528359A90D7F0C3A00577159 /* Tracer */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = "$(REAPER_EXT_PATH)";
+				ENABLE_STRICT_OBJC_MSGSEND = NO;
+				EXECUTABLE_EXTENSION = dylib;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(TRACER_DEFS)",
+					"$(EXTRA_TRACER_DEFS)",
+					"$(ALL_DEFS)",
+					"$(EXTRA_ALL_DEFS)",
+				);
+				GCC_VERSION = "$(COMPILER)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = NO;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = NO;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_PKGINFO_FILE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(EXTRA_INC_PATHS)",
+					"$(IPLUG_INC_PATHS)",
+				);
+				INFOPLIST_EXPAND_BUILD_SETTINGS = YES;
+				INFOPLIST_PREPROCESS = NO;
+				INSTALL_GROUP = admin;
+				INSTALL_OWNER = root;
+				INSTALL_PATH = /;
+				LIBRARY_SEARCH_PATHS = "$(EXTRA_LIB_PATHS)";
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"$(GCC_CFLAGS)",
+				);
+				OTHER_LDFLAGS = (
+					"$(EXTRA_LNK_FLAGS)",
+					"$(ALL_FRAMEWORKS)",
+				);
+				PREBINDING = NO;
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
+				PRODUCT_NAME = "$(BINARY_NAME)";
+				SDKROOT = "$(BASE_SDK_MAC)";
+				SKIP_INSTALL = NO;
+				SYMROOT = "../build-mac";
+				VALID_ARCHS = "i386 x86_64";
+				WRAPPER_EXTENSION = "";
+			};
+			name = Tracer;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB913E08733D840010E9CD /* Build configuration list for PBXProject "IPlugReaperExtension-macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB913F08733D840010E9CD /* Debug */,
+				1DEB914008733D840010E9CD /* Release */,
+				528359A90D7F0C3A00577159 /* Tracer */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4FBA83AD20ECAF0B00423B90 /* Build configuration list for PBXNativeTarget "IPlugReaperExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4FBA83AE20ECAF0B00423B90 /* Debug */,
+				4FBA83AF20ECAF0B00423B90 /* Release */,
+				4FBA83B020ECAF0B00423B90 /* Tracer */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 089C1669FE841209C02AAC07 /* Project object */;
+}

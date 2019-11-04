@@ -1,7 +1,7 @@
 jobs:
 - job: TEST_MAC_PROJECTS
   condition: and(eq(variables.test_projects, true), eq(variables.build_mac, true))
-  dependsOn: 
+  dependsOn:
     - BUILD_MAC_PROJECTS
 
   strategy:
@@ -12,8 +12,10 @@ jobs:
         graphics: 'CAIRO'
       LICE:
         graphics: 'LICE'
-    # AGG:
-    #   graphics: 'AGG'
+      AGG:
+        graphics: 'AGG'
+      SKIA:
+        graphics: 'SKIA'
 
   pool:
     vmImage: 'macos-10.13'
@@ -43,22 +45,24 @@ jobs:
 
 - job: TEST_WIN_PROJECTS
   condition: and(eq(variables.test_projects, true), eq(variables.build_win, true))
-  dependsOn: 
+  dependsOn:
     - BUILD_WIN_PROJECTS
 
   strategy:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      # CAIRO:
-      #   graphics: 'CAIRO'
-      # LICE:
-      #   graphics: 'LICE'
-      # AGG:
-      #   graphics: 'AGG'
+      CAIRO:
+        graphics: 'CAIRO'
+      LICE:
+        graphics: 'LICE'
+      AGG:
+        graphics: 'AGG'
+      SKIA:
+        graphics: 'SKIA'
 
   pool:
-    vmImage: 'vs2017-win2016'
+    vmImage: 'windows-2019'
 
   steps:
   - checkout: none
@@ -72,7 +76,7 @@ jobs:
       git clone --recursive https://github.com/steinbergmedia/vst3sdk.git VST3_SDK
       mkdir VST3_BUILD
       cd VST3_BUILD
-      cmake.exe -G"Visual Studio 15 2017 Win64" -DCMAKE_BUILD_TYPE=Release ../VST3_SDK
+      cmake.exe -G "Visual Studio 16 2019" -A x64 -DCMAKE_BUILD_TYPE=Release ../VST3_SDK
     displayName: Download VST3 SDK, run Cmake
     condition: eq(variables.build_vst3, True)
 

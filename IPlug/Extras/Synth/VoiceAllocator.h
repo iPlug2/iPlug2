@@ -27,6 +27,8 @@
 
 #include "SynthVoice.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 using namespace voiceControlNames;
 
 struct VoiceAddress
@@ -99,14 +101,17 @@ public:
   static constexpr int kVoiceMostRecent = 1 << 7;
 
   // one voice worth of ramp generators
-  typedef std::array<ControlRampProcessor, kNumVoiceControlRamps> VoiceControlRamps;
+  using VoiceControlRamps = ControlRampProcessor::ProcessorArray<kNumVoiceControlRamps>;
 
   VoiceAllocator();
   ~VoiceAllocator();
 
+  VoiceAllocator(const VoiceAllocator&) = delete;
+  VoiceAllocator& operator=(const VoiceAllocator&) = delete;
+
   void Clear();
 
-  void SetSampleRate(double r) { mSampleRate = r; CalcGlideTimesInSamples(); }
+  void SetSampleRateAndBlockSize(double sampleRate, int blockSize) { mSampleRate = sampleRate; CalcGlideTimesInSamples(); }
   void SetNoteGlideTime(double t) { mNoteGlideTime = t; CalcGlideTimesInSamples(); }
   void SetControlGlideTime(double t) { mControlGlideTime = t; CalcGlideTimesInSamples(); }
 
@@ -145,8 +150,7 @@ public:
   void SetPitchOffset(float offset) { mPitchOffset = offset; }
 
 private:
-
-  typedef std::bitset<UCHAR_MAX> VoiceBitsArray;
+  using VoiceBitsArray = std::bitset<UCHAR_MAX>;
 
   VoiceBitsArray VoicesMatchingAddress(VoiceAddress va);
 
@@ -196,3 +200,4 @@ public:
   EATMode mATMode {kATModeChannel};
 };
 
+END_IPLUG_NAMESPACE

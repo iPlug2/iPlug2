@@ -1,6 +1,6 @@
-include ./config/IPlugInstrument-web.mk
+include ../config/IPlugInstrument-web.mk
 
-TARGET = ./build-web/scripts/IPlugInstrument-web.js
+TARGET = ../build-web/scripts/IPlugInstrument-web.js
 
 SRC += $(WEB_SRC)
 CFLAGS += $(WEB_CFLAGS)

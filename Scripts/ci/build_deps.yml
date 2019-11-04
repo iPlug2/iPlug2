@@ -22,7 +22,7 @@ jobs:
         buildConfiguration: 'Debug'
 
   pool:
-    vmImage: 'vs2017-win2016'
+    vmImage: 'windows-2019'
 
   steps:
   - checkout: none
@@ -34,7 +34,36 @@ jobs:
       solution: 'Dependencies/IGraphics/IGraphicsLibraries.sln'
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'
-    displayName: Build Windows Dependencies
+    displayName: Build Windows Dependencies (except SKIA)
+
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '2.7'
+
+  - script: |
+      curl -sSf -o rustup-init.exe https://win.rustup.rs
+      rustup-init.exe -y --default-toolchain stable
+      echo "##vso[task.setvariable variable=PATH;]%PATH%;%USERPROFILE%\.cargo\bin"
+      choco install llvm --version 8.0.0
+    condition: eq(variables.buildPlatform, 'x64')
+    displayName: Install Rust and LLVM
+
+  - bash: |
+      cd ./Dependencies/IGraphics
+      echo $(buildConfiguration)
+      ./build-skia-win.sh $(buildConfiguration)
+    condition: eq(variables.buildPlatform, 'x64')
+    displayName: Build SKIA
+
+  - bash: |
+      cd ./Dependencies/Build
+      rm *.log
+      rm -r tmp
+      mv ./src/skia/include ./skia_include_tmp
+      rm -r src/skia
+      mkdir -p ./src/skia
+      mv ./skia_include_tmp ./src/skia/include
+    displayName: Delete unwanted SKIA files
 
   - task: PublishPipelineArtifact@0
     inputs:
@@ -102,7 +131,24 @@ jobs:
       rm -r ./Dependencies/Build/src/cairo
       cd ./Dependencies/IGraphics
       ./build-igraphics-libs-mac.sh
+    displayName: Build Graphics Dependencies
 
+  - bash: |
+      cd ./Dependencies/IGraphics
+      ./build-skia-mac.sh
+    displayName: Build Skia
+
+  - bash: |
+      curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
+      echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
+    displayName: Install Rust
+
+  - bash: |
+      cd ./Dependencies/IGraphics
+      ./build-resvg-mac.sh
+    displayName: Build Resvg
+
+  - bash: |
       cd $BUILD_SOURCESDIRECTORY
       wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
       tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
@@ -111,15 +157,21 @@ jobs:
 
       cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/faust
       ./build-faust-mac.sh
-
-      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/civetweb
-      ./build-civetweb-mac.sh
-    displayName: Build macOS Dependencies
+    displayName: Build FAUST
 
   - bash: |
-      rm ./Dependencies/Build/*.log
-      rm -r ./Dependencies/Build/tmp
-      rm -r ./Dependencies/Build/src
+      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/civetweb
+      ./build-civetweb-mac.sh
+    displayName: Build CivetWeb
+
+  - bash: |
+      cd ./Dependencies/Build
+      rm *.log
+      rm -r tmp
+      mv ./src/skia/include ./skia_include_tmp
+      rm -r src
+      mkdir -p ./src/skia
+      mv ./skia_include_tmp ./src/skia/include
     displayName: Delete unwanted files
 
   - task: PublishPipelineArtifact@0

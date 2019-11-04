@@ -8,11 +8,15 @@
  ==============================================================================
  */
 
+#include "IPlugPlatform.h"
+
+BEGIN_IPLUG_NAMESPACE
+
 template <typename T>
 class ADSREnvelope
 {
 public:
-  enum EStages
+  enum EStage
   {
     kReleasedToEndEarly = -3,
     kReleasedToRetrigger = -2,
@@ -23,12 +27,12 @@ public:
     kRelease
   };
 
-  static constexpr double EARLY_RELEASE_TIME = 20.; // ms
-  static constexpr double RETRIGGER_RELEASE_TIME = 3.; // ms
-  static constexpr double MIN_ENV_TIME_MS = 0.022675736961451; // 1 sample @44100
-  static constexpr double MAX_ENV_TIME_MS = 60000.;
-  static constexpr double ENV_VALUE_LOW = 0.000001; // -120dB
-  static constexpr double ENV_VALUE_HIGH = 0.999;
+  static constexpr T EARLY_RELEASE_TIME = 20.; // ms
+  static constexpr T RETRIGGER_RELEASE_TIME = 3.; // ms
+  static constexpr T MIN_ENV_TIME_MS = 0.022675736961451; // 1 sample @44100
+  static constexpr T MAX_ENV_TIME_MS = 60000.;
+  static constexpr T ENV_VALUE_LOW = 0.000001; // -120dB
+  static constexpr T ENV_VALUE_HIGH = 0.999;
   
 private:
 #if DEBUG_ENV
@@ -36,32 +40,43 @@ private:
 #endif
   
   const char* mName;
-  double mEarlyReleaseIncr = 0.;
-  double mRetriggerReleaseIncr = 0.;
-  double mAttackIncr = 0.;
-  double mDecayIncr = 0.;
-  double mReleaseIncr = 0.;
-  double mSampleRate;
-  double mEnvValue = 0.;          // current normalized value of the envelope
-  int mStage = kIdle;             // the current stage
-  double mLevel = 0.;             // envelope depth from velocity
-  double mReleaseLevel = 0.;      // the level when the env is released
-  double mNewStartLevel = 0.;     // envelope depth from velocity when retriggering
-  double mPrevResult = 0.;        // last value BEFORE velocity scaling
-  double mPrevOutput = 0.;        // last value AFTER velocity scaling
-  double mScalar = 1.;            // for key-follow scaling
+  T mEarlyReleaseIncr = 0.;
+  T mRetriggerReleaseIncr = 0.;
+  T mAttackIncr = 0.;
+  T mDecayIncr = 0.;
+  T mReleaseIncr = 0.;
+  T mSampleRate;
+  T mEnvValue = 0.;          // current normalized value of the envelope
+  int mStage = kIdle;        // the current stage
+  T mLevel = 0.;             // envelope depth from velocity
+  T mReleaseLevel = 0.;      // the level when the env is released
+  T mNewStartLevel = 0.;     // envelope depth from velocity when retriggering
+  T mPrevResult = 0.;        // last value BEFORE velocity scaling
+  T mPrevOutput = 0.;        // last value AFTER velocity scaling
+  T mScalar = 1.;            // for key-follow scaling
   bool mReleased = true;
+  bool mSustainEnabled = true; // when false env is AD only
+  
   std::function<void()> mResetFunc = nullptr; // reset func
+  std::function<void()> mEndReleaseFunc = nullptr; // end release func
 
 public:
-  ADSREnvelope(const char* name = "", std::function<void()> resetFunc = nullptr)
+  /** Constructs an ADSREnvelope object 
+  * @param name CString to identify the envelope in debug mode, when DEBUG_ENV=1 is set as a global preprocessor macro
+  * @param resetFunc A function to call when the envelope gets retriggered, called when the fade out ramp is at zero, useful for example to reset an oscillator's phase
+  * @param sustainEnabled if true the envelope is an ADSR envelope. If false, it's is an AD envelope (suitable for drums). */
+  ADSREnvelope(const char* name = "", std::function<void()> resetFunc = nullptr, bool sustainEnabled = true)
   : mName(name)
   , mResetFunc(resetFunc)
+  , mSustainEnabled(sustainEnabled)
   {
     SetSampleRate(44100.);
   }
 
-  void SetStageTime(int stage, double timeMS)
+  /** Sets the time for a particular envelope stage 
+  * @param stage The stage to set the time for /see EStage
+  * @param timeMS The time in milliseconds for that stage */
+  void SetStageTime(int stage, T timeMS)
   {
     switch(stage)
     {
@@ -80,22 +95,22 @@ public:
     }
   }
 
+  /** @return /c true if the envelope is not idle */
   bool GetBusy() const
   {
     return mStage != kIdle;
   }
 
-  bool GetReleased() const
-  {
-    return mStage != kIdle;
-  }
-
+  /** @return the previously output value */
   T GetPrevOutput() const
   {
     return mPrevOutput;
   }
   
-  inline void Start(double level, double timeScalar = 1.)
+  /** Trigger/Start the envelope 
+   * @param level The overall depth of the envelope (usually linked to MIDI velocity)  
+   * @param timeScalar Factor to scale the envelope's rates. Use this, for example to adjust the envelope stage rates based on the key pressed */
+  inline void Start(T level, T timeScalar = 1.)
   {
     mStage = kAttack;
     mEnvValue = 0.;
@@ -104,6 +119,7 @@ public:
     mReleased = false;
   }
 
+  /** Release the envelope */
   inline void Release()
   {
     mStage = kRelease;
@@ -111,8 +127,11 @@ public:
     mEnvValue = 1.;
     mReleased = true;
   }
-
-  inline void Retrigger(double newStartLevel, double timeScalar = 1.)
+  
+  /** Retrigger the envelope. This method will cause the envelope to move to a "releasedToRetrigger" stage, which is a fast ramp to zero in RETRIGGER_RELEASE_TIME, used when voices are stolen to avoid clicks.
+  * @param newStartLevel the overall level when the envelope restarts (usually linked to MIDI velocity)
+  * @param timeScalar Factor to scale the envelope's rates. Use this, for example to adjust the envelope stage rates based on the key pressed */
+  inline void Retrigger(T newStartLevel, T timeScalar = 1.)
   {
     mEnvValue = 1.;
     mNewStartLevel = newStartLevel;
@@ -126,6 +145,8 @@ public:
     #endif
   }
 
+  /** Kill the envelope 
+  * @param hard If true, the envelope will get reset automatically, probably causing an audible glitch. If false, it's a "soft kill", which will fade out in EARLY_RELEASE_TIME */
   inline void Kill(bool hard)
   {
     if(hard)
@@ -156,16 +177,31 @@ public:
     }
   }
 
-  void SetSampleRate(double sr)
+  /** Set the sample rate for processing, with updates the early release time and retrigger release time coefficents.
+  * NOTE: you also need to think about updating the Attack, Decay and Release times when the sample rate changes 
+  * @param sr SampleRate in samples per second */
+  void SetSampleRate(T sr)
   {
     mSampleRate = sr;
     mEarlyReleaseIncr = CalcIncrFromTimeLinear(EARLY_RELEASE_TIME, sr);
     mRetriggerReleaseIncr = CalcIncrFromTimeLinear(RETRIGGER_RELEASE_TIME, sr);
   }
 
-  inline double Process(double sustainLevel)
+  /** Sets a function to call when the envelope gets retriggered, called when the fade out ramp is at zero, useful for example to reset an oscillator's phase
+   * WARNING: don't call this on the audio thread, std::function can malloc
+   * @param func the reset function, or nullptr for none */
+  void SetResetFunc(std::function<void()> func) { mResetFunc = func; }
+  
+  /** Sets a function to call when the envelope gets released, called when the ramp is at zero
+   * WARNING: don't call this on the audio thread, std::function can malloc
+   * @param func the release function, or nullptr for none */
+  void SetEndReleaseFunc(std::function<void()> func) { mEndReleaseFunc = func; }
+  
+  /** Process the envelope, returning the value according to the current envelope stage
+  * @param sustainLevel Since the sustain level could be changed during processing, it is supplied as an argument, so that it can be smoothed extenally if nessecary, to avoid discontinuities */
+  inline T Process(T sustainLevel = 0.)
   {
-    double result = 0.;
+    T result = 0.;
 
     switch(mStage)
     {
@@ -186,9 +222,14 @@ public:
         result = (mEnvValue * (1.-sustainLevel)) + sustainLevel;
         if (mEnvValue < ENV_VALUE_LOW)
         {
-          mStage = kSustain;
-          mEnvValue = 1.;
-          result = sustainLevel;
+          if(mSustainEnabled)
+          {
+            mStage = kSustain;
+            mEnvValue = 1.;
+            result = sustainLevel;
+          }
+          else
+            Release();
         }
         break;
       case kSustain:
@@ -200,6 +241,9 @@ public:
         {
           mStage = kIdle;
           mEnvValue = 0.;
+          
+          if(mEndReleaseFunc)
+            mEndReleaseFunc();
         }
         result = mEnvValue * mReleaseLevel;
         break;
@@ -227,6 +271,8 @@ public:
           mEnvValue = 0.;
           mPrevResult = 0.;
           mReleaseLevel = 0.;
+          if(mEndReleaseFunc)
+            mEndReleaseFunc();
         }
         result = mEnvValue * mReleaseLevel;
         break;
@@ -239,6 +285,7 @@ public:
     mPrevOutput = (result * mLevel);
     return mPrevOutput;
   }
+
 private:
   inline T CalcIncrFromTimeLinear(T timeMS, T sr) const
   {
@@ -260,3 +307,5 @@ private:
     }
   }
 };
+
+END_IPLUG_NAMESPACE

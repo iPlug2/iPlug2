@@ -1,6 +1,6 @@
-include ./config/IPlugFaustDSP-web.mk
+include ../config/IPlugFaustDSP-web.mk
 
-TARGET = ./build-web/scripts/IPlugFaustDSP-web.js
+TARGET = ../build-web/scripts/IPlugFaustDSP-web.js
 
 SRC += $(WEB_SRC)
 CFLAGS += $(WEB_CFLAGS)

@@ -1,6 +1,6 @@
-include ./config/IPlugControls-web.mk
+include ../config/IPlugControls-web.mk
 
-TARGET = ./build-web/scripts/IPlugControls-wam.js
+TARGET = ../build-web/scripts/IPlugControls-wam.js
 
 SRC += $(WAM_SRC)
 CFLAGS += $(WAM_CFLAGS)

@@ -6,7 +6,7 @@
 	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.io.github.iplug2.iplugeffect</string>
+		<string>group.io.github.iplug2</string>
 	</array>
 	<key>com.apple.security.assets.music.read-write</key>
 	<true/>

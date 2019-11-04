@@ -10,10 +10,14 @@
  * @copydoc IWebsocketEditorDelegate
  */
 
+BEGIN_IPLUG_NAMESPACE
+
 /** An IEditorDelegate base class that embeds a websocket server ... */
 class IWebsocketEditorDelegate : public IGEditorDelegate, public IWebsocketServer
 {
 public:
+  static constexpr int MAX_NUM_CLIENTS = 4;
+  
   IWebsocketEditorDelegate(int nParams);
   virtual ~IWebsocketEditorDelegate();
  
@@ -27,9 +31,9 @@ public:
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
   void SendSysexMsgFromUI(const ISysEx& msg) override;
   void SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData) override;
-//  virtual void BeginInformHostOfParamChangeFromUI(int paramIdx) override;
+//void BeginInformHostOfParamChangeFromUI(int paramIdx) override;
   void SendParameterValueFromUI(int paramIdx, double normalizedValue) override;
-//  virtual void EndInformHostOfParamChangeFromUI(int paramIdx) override;
+//void EndInformHostOfParamChangeFromUI(int paramIdx) override;
 
   void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;
   void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) override;
@@ -42,6 +46,23 @@ public:
   void ProcessWebsocketQueue();
   
 private:
-  IPlugQueue<IParamChange> mParamChangeFromClients; // TODO: This is a single producer single consumer queue - it is not sufficient, since each client connection will be on a different server thread
-  IPlugQueue<IMidiMsg> mMIDIFromClients; // TODO: This is a single producer single consumer queue - it is not sufficient, since each client connection will be on a different server thread
+  void DoSPVFDToClients(int paramIdx, double value, int excludeIdx);
+  
+  struct ParamTupleCX
+  {
+    int idx;
+    double value;
+    int connection;
+    
+    ParamTupleCX(int idx = kNoParameter, double value = 0., int connection = -1)
+    : idx(idx)
+    , value(value)
+    , connection(connection)
+    {}
+  };
+
+  IPlugQueue<ParamTupleCX> mParamChangeFromClients {PARAM_TRANSFER_SIZE};
+  IPlugQueue<IMidiMsg> mMIDIFromClients {MIDI_TRANSFER_SIZE};
 };
+
+END_IPLUG_NAMESPACE

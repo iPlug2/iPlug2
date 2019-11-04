@@ -23,7 +23,7 @@
 class TestSVGControl : public IControl
 {
 public:
-  TestSVGControl(IRECT bounds, const ISVG& svg)
+  TestSVGControl(const IRECT& bounds, const ISVG& svg)
   : IControl(bounds)
   , mSVG(svg)
   {
@@ -38,7 +38,7 @@ public:
 #if 1
     if (!g.CheckLayer(mLayer))
     {
-      g.StartLayer(mRECT);
+      g.StartLayer(this, mRECT);
       g.DrawSVG(mSVG, mRECT);
       mLayer = g.EndLayer();
     }
@@ -54,7 +54,7 @@ public:
     WDL_String file;
     WDL_String path;
 
-    GetUI()->PromptForFile(file, path, kFileOpen, "svg");
+    GetUI()->PromptForFile(file, path, EFileAction::Open, "svg");
 
     if(file.GetLength())
       SetSVG(GetUI()->LoadSVG(file.Get()));

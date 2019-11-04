@@ -16,14 +16,13 @@
 #include "IPlugVST3_Parameter.h"
 #include "IPlugVST3_ControllerBase.h"
 
-using namespace Steinberg;
-using namespace Vst;
+BEGIN_IPLUG_NAMESPACE
 
 /** Shared VST3 State management code */
 struct IPlugVST3State
 {
   template <class T>
-  static bool GetState(T* pPlug, IBStream* pState)
+  static bool GetState(T* pPlug, Steinberg::IBStream* pState)
   {
     IByteChunk chunk;
     
@@ -35,24 +34,22 @@ struct IPlugVST3State
       /*
        int chunkSize = chunk.Size();
        void* data = (void*) &chunkSize;
-       state->write(data, (int32) sizeof(int));*/
+       state->write(data, (Steinberg::int32) sizeof(int));*/
       pState->write(chunk.GetData(), chunk.Size());
     }
     else
-    {
       return false;
-    }
     
-    int32 toSaveBypass = pPlug->GetBypassed() ? 1 : 0;
-    pState->write(&toSaveBypass, sizeof (int32));
+    Steinberg::int32 toSaveBypass = pPlug->GetBypassed() ? 1 : 0;
+    pState->write(&toSaveBypass, sizeof (Steinberg::int32));
     
     return true;
   };
   
   template <class T>
-  static bool SetState(T* pPlug, IBStream* pState)
+  static bool SetState(T* pPlug, Steinberg::IBStream* pState)
   {
-    TRACE;
+    TRACE
     
     IByteChunk chunk;
     
@@ -64,18 +61,18 @@ struct IPlugVST3State
       Steinberg::int32 bytesRead = 0;
       auto status = pState->read(buffer, (Steinberg::int32) bytesPerBlock, &bytesRead);
       
-      if (bytesRead <= 0 || (status != kResultTrue && pPlug->GetHost() != kHostWaveLab))
+      if (bytesRead <= 0 || (status != Steinberg::kResultTrue && pPlug->GetHost() != kHostWaveLab))
         break;
       
       chunk.PutBytes(buffer, bytesRead);
     }
     int pos = pPlug->UnserializeState(chunk,0);
     
-    int32 savedBypass = 0;
+    Steinberg::int32 savedBypass = 0;
     
-    pState->seek(pos,IBStream::IStreamSeekMode::kIBSeekSet);
-    if (pState->read (&savedBypass, sizeof (Steinberg::int32)) != kResultOk) {
-      return kResultFalse;
+    pState->seek(pos,Steinberg::IBStream::IStreamSeekMode::kIBSeekSet);
+    if (pState->read (&savedBypass, sizeof (Steinberg::int32)) != Steinberg::kResultOk) {
+      return false;
     }
     
     IPlugVST3ControllerBase* pController = dynamic_cast<IPlugVST3ControllerBase*>(pPlug);
@@ -87,16 +84,17 @@ struct IPlugVST3State
     }
     
     pPlug->OnRestoreState();
-    return kResultOk;
+    
+    return true;
   }
 };
 
 // Host
-static void IPlugVST3GetHost(IPlugAPIBase* pPlug, FUnknown* context)
+static void IPlugVST3GetHost(IPlugAPIBase* pPlug, Steinberg::FUnknown* context)
 {
-  String128 tmpStringBuf;
+  Steinberg::Vst::String128 tmpStringBuf;
   char hostNameCString[128];
-  FUnknownPtr<IHostApplication>pApp(context);
+  Steinberg::FUnknownPtr<Steinberg::Vst::IHostApplication>pApp(context);
   
   if ((pPlug->GetHost() == kHostUninit) && pApp)
   {
@@ -105,3 +103,5 @@ static void IPlugVST3GetHost(IPlugAPIBase* pPlug, FUnknown* context)
     pPlug->SetHost(hostNameCString, 0); // Can't get version in VST3
   }
 }
+
+END_IPLUG_NAMESPACE

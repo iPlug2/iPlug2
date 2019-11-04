@@ -39,7 +39,7 @@ public:
   {
     mCursor++;
     
-    if (mCursor > (int) ECursor::HELP)
+    if (mCursor > static_cast<int>(ECursor::HELP))
       mCursor = -1;
     
     GetUI()->SetMouseCursor((ECursor) std::max(0, mCursor));
@@ -50,7 +50,7 @@ public:
   void OnMouseOut() override
   {
     mCursor = -1;
-    GetUI()->SetMouseCursor(ARROW);
+    GetUI()->SetMouseCursor(ECursor::ARROW);
     
     IControl::OnMouseOut();
   }
@@ -58,23 +58,25 @@ public:
 private:
   const char* GetCursorStr(int cursor)
   {
-    switch (cursor)
+    if(cursor == -1)
+      return "Click to set cursor";
+    
+    switch (static_cast<ECursor>(cursor))
     {
-      case -1:           return "Click to set cursor";
-      case ARROW:        return "arrow";
-      case IBEAM:        return "ibeam";
-      case WAIT:         return "wait";
-      case CROSS:        return "cross";
-      case UPARROW:      return "up arrow";
-      case SIZENWSE:     return "size NW-SE";
-      case SIZENESW:     return "size NE-SW";
-      case SIZEWE:       return "size WE";
-      case SIZENS:       return "size NS";
-      case SIZEALL:      return "size all";
-      case INO:          return "no";
-      case HAND:         return "hand";
-      case APPSTARTING:  return "app starting";
-      case HELP:         return "help";
+      case ECursor::ARROW:        return "arrow";
+      case ECursor::IBEAM:        return "ibeam";
+      case ECursor::WAIT:         return "wait";
+      case ECursor::CROSS:        return "cross";
+      case ECursor::UPARROW:      return "up arrow";
+      case ECursor::SIZENWSE:     return "size NW-SE";
+      case ECursor::SIZENESW:     return "size NE-SW";
+      case ECursor::SIZEWE:       return "size WE";
+      case ECursor::SIZENS:       return "size NS";
+      case ECursor::SIZEALL:      return "size all";
+      case ECursor::INO:          return "no";
+      case ECursor::HAND:         return "hand";
+      case ECursor::APPSTARTING:  return "app starting";
+      case ECursor::HELP:         return "help";
     }
     
     return "";

@@ -15,6 +15,8 @@
  * @copydoc IPlugFaust
  */
 
+#include <memory>
+
 #include "faust/gui/UI.h"
 #include "faust/gui/MidiUI.h"
 #include "assocarray.h"
@@ -31,6 +33,8 @@
   #endif
 #endif
 
+BEGIN_IPLUG_NAMESPACE
+
 /** This abstract interface is used by the IPlug FAUST architecture file and the IPlug libfaust JIT compiling class FaustGen
  * In order to provide a consistent interface to FAUST DSP whether using the JIT compiler or a compiled C++ class */
 class IPlugFaust : public UI, public Meta
@@ -41,20 +45,19 @@ public:
   : mNVoices(nVoices)
   {
     if(rate > 1)
-      mOverSampler = new OverSampler<sample>(OverSampler<sample>::RateToFactor(rate), true, 2 /* TODO: flexible channel count */);
+      mOverSampler = std::make_unique<OverSampler<sample>>(OverSampler<sample>::RateToFactor(rate), true, 2 /* TODO: flexible channel count */);
     
     mName.Set(name);
   }
 
   virtual ~IPlugFaust()
   {
-    if(mOverSampler)
-      delete mOverSampler;
-    //delete mMidiUI;
-
     mParams.Empty(true);
   }
 
+  IPlugFaust(const IPlugFaust&) = delete;
+  IPlugFaust& operator=(const IPlugFaust&) = delete;
+    
   virtual void Init() = 0;
 
   // NO-OP in the base class
@@ -74,7 +77,7 @@ public:
   
   void FreeDSP()
   {
-    DELETE_NULL(mDSP);
+    mDSP = nullptr;
   }
   
   void SetOverSamplingRate(int rate)
@@ -311,11 +314,11 @@ protected:
     return -1;
   }
   
-  OverSampler<sample>* mOverSampler = nullptr;
+  std::unique_ptr<OverSampler<sample>> mOverSampler;
   WDL_String mName;
   int mNVoices;
-  ::dsp* mDSP = nullptr;
-  MidiUI* mMidiUI = nullptr;
+  std::unique_ptr<::dsp> mDSP;
+  std::unique_ptr<MidiUI> mMidiUI;
   WDL_PtrList<IParam> mParams;
   WDL_PtrList<FAUSTFLOAT> mZones;
   WDL_StringKeyedArray<FAUSTFLOAT*> mMap; // map is used for setting FAUST parameters by name, also used to reconnect existing parameters
@@ -324,3 +327,4 @@ protected:
   bool mInitialized = false;
 };
 
+END_IPLUG_NAMESPACE

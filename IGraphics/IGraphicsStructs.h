@@ -11,154 +11,50 @@
 #pragma once
 
 /**
- * @file Structs and small classes used throughout IGraphics code
+ * @file Public structs and small classes used throughout IGraphics code
  * \addtogroup IGraphicsStructs
  * @{
  */
 
-
-#include <cmath>
-#include <cassert>
-#include <cstdint>
 #include <functional>
-#include <algorithm>
-#include <numeric>
 #include <chrono>
-#include <string>
+#include <numeric>
 
-#include "mutex.h"
-#include "wdlstring.h"
-#include "wdlendian.h"
-#include "ptrlist.h"
-#include "heapbuf.h"
-
-#include "nanosvg.h"
-
-#include "IPlugPlatform.h"
 #include "IPlugUtilities.h"
 #include "IPlugLogger.h"
+#include "IPlugStructs.h"
+
+#include "IGraphicsPrivate.h"
+#include "IGraphicsUtilities.h"
 #include "IGraphicsConstants.h"
+
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
 
 class IGraphics;
 class IControl;
 class ILambdaControl;
 struct IRECT;
 struct IMouseInfo;
-template <typename T = double>
-inline T DegToRad(T degrees);
+struct IColor;
 
-typedef std::function<void(IControl*)> IActionFunction;
-typedef std::function<void(IControl*)> IAnimationFunction;
-typedef std::function<void(ILambdaControl*, IGraphics&, IRECT&)> ILambdaDrawFunction;
+using IActionFunction = std::function<void(IControl*)>;
+using IAnimationFunction = std::function<void(IControl*)>;
+using ILambdaDrawFunction = std::function<void(ILambdaControl*, IGraphics&, IRECT&)>;
+using IKeyHandlerFunc = std::function<bool(const IKeyPress& key, bool isUp)>;
+using IMsgBoxCompletionHanderFunc = std::function<void(EMsgBoxResult result)>;
+using IColorPickerHandlerFunc = std::function<void(const IColor& result)>;
 
+void EmptyClickActionFunc(IControl* pCaller);
 void DefaultClickActionFunc(IControl* pCaller);
 void DefaultAnimationFunc(IControl* pCaller);
 void SplashClickActionFunc(IControl* pCaller);
 void SplashAnimationFunc(IControl* pCaller);
 
-typedef std::chrono::high_resolution_clock Time;
-typedef std::chrono::time_point<std::chrono::high_resolution_clock> TimePoint;
-typedef std::chrono::duration<double, std::chrono::milliseconds::period> Milliseconds;
+using MTLTexturePtr = void*;
 
-typedef WDL_TypedBuf<unsigned char> RawBitmapData;
-
-#ifdef IGRAPHICS_AGG
-  #include "IGraphicsAGG_src.h"
-  typedef agg::pixel_map* BitmapData;
-#elif defined IGRAPHICS_CAIRO
-  #if defined OS_MAC || defined OS_LINUX
-    #include "cairo/cairo.h"
-  #elif defined OS_WIN
-    #include "cairo/src/cairo.h"
-  #else
-    #error NOT IMPLEMENTED
-  #endif
-  typedef cairo_surface_t* BitmapData;
-#elif defined IGRAPHICS_NANOVG
-  typedef int BitmapData;
-#elif defined IGRAPHICS_LICE
-  #include "lice.h"
-  typedef LICE_IBitmap* BitmapData;
-#elif defined IGRAPHICS_CANVAS
-  #include <emscripten.h>
-  #include <emscripten/val.h>
-  typedef emscripten::val* BitmapData;
-#else // NO_IGRAPHICS
-  typedef void* BitmapData;
-#endif
-
-#ifdef OS_WIN
-#include "Stringapiset.h"
-#endif
-
-/** A bitmap abstraction around the different drawing back end bitmap representations.
- * In most cases it does own the bitmap data, the exception being with NanoVG, where the image is loaded onto the GPU as a texture,
- * but still needs to be freed. Most of the time  end-users will deal with IBitmap rather than APIBitmap, which is used behind the scenes. */
-class APIBitmap
-{
-public:
-  
-  /** APIBitmap constructor
-  * @param pBitmap pointer or integer index (NanoVG) to the image data
-  * @param w The width of the bitmap
-  * @param h The height of the bitmap
-  * @param scale An integer representing the scale of this bitmap in relation to a 1:1 pixel screen, e.g. 2 for an @2x bitmap
-  * @param drawScale The draw scale at which this API bitmap was created (used in the context of layers) */
-  APIBitmap(BitmapData pBitmap, int w, int h, int scale, float drawScale)
-  : mBitmap(pBitmap)
-  , mWidth(w)
-  , mHeight(h)
-  , mScale(scale)
-  , mDrawScale(drawScale)
-  {}
-
-  APIBitmap()
-  : mBitmap(0)
-  , mWidth(0)
-  , mHeight(0)
-  , mScale(0)
-  , mDrawScale(1.f)
-  {}
-
-  virtual ~APIBitmap() {}
-
-  /** Used to initialise the members after construction
-   * @param pBitmap pointer or integer index (NanoVG) to the image data
-   * @param w The width of the bitmap
-   * @param h The height of the bitmap
-   * @param scale An integer representing the scale of this bitmap in relation to a 1:1 pixel screen, e.g. 2 for an @2x bitmap
-   * @param drawScale The draw scale at which this API bitmap was created (used in the context of layers) */
-  void SetBitmap(BitmapData pBitmap, int w, int h, int scale, float drawScale)
-  {
-    mBitmap = pBitmap;
-    mWidth = w;
-    mHeight = h;
-    mScale = scale;
-    mDrawScale = drawScale;
-  }
-
-  /** @return BitmapData /todo */
-  BitmapData GetBitmap() const { return mBitmap; }
-
-  /** /todo */
-  int GetWidth() const { return mWidth; }
-
-  /** /todo */
-  int GetHeight() const { return mHeight; }
-
-  /** /todo */
-  int GetScale() const { return mScale; }
-  
-  /** /todo */
-  float GetDrawScale() const { return mDrawScale; }
-
-private:
-  BitmapData mBitmap; // for most drawing APIs BitmapData is a pointer. For Nanovg it is an integer index
-  int mWidth;
-  int mHeight;
-  int mScale;
-  float mDrawScale;
-};
+using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
+using Milliseconds = std::chrono::duration<double, std::chrono::milliseconds::period>;
 
 /** User-facing bitmap abstraction that you use to manage bitmap data, independant of draw class/platform.
  * IBitmap doesn't actually own the image data \see APIBitmap
@@ -189,7 +85,7 @@ public:
   , mFramesAreHorizontal(false)
   {
   }
-
+  
   /** @return overall bitmap width in pixels */
   int W() const { return mW; }
 
@@ -238,14 +134,15 @@ private:
   WDL_String mResourceName;
 };
 
-/** Used to manage SVG images used by the graphics context */
+/** User-facing SVG abstraction that you use to manage SVG data
+ * ISVG doesn't actually own the image data */
 struct ISVG
 {  
   ISVG(NSVGimage* pImage)
   {
     mImage = pImage;
   }
-
+  
   /** /todo */
   float W() const
   {
@@ -281,6 +178,8 @@ struct IColor
   
   bool operator!=(const IColor& rhs) { return !operator==(rhs); }
   
+  void Set(int a = 255, int r = 0, int g = 0, int b = 0) { A = a; R = r; G = g; B = b; }
+  
   /** /todo */
   bool Empty() const { return A == 0 && R == 0 && G == 0 && B == 0; }
   
@@ -312,7 +211,26 @@ struct IColor
     n.B = std::min(n.B += mod, 255);
     return n;
   }
+  
+  /** Get the color as a 3 float array
+   * @param rgbf ptr to array of 3 floats */
+  void GetRGBf(float* rgbf) const
+  {
+    rgbf[0] = R / 255.f;
+    rgbf[1] = G / 255.f;
+    rgbf[2] = B / 255.f;
+  }
 
+  /** Get the color as a 4 float array
+   * @param rgbaf ptr to array of 4 floats */
+  void GetRGBAf(float* rgbaf) const
+  {
+    rgbaf[0] = R / 255.f;
+    rgbaf[1] = G / 255.f;
+    rgbaf[2] = B / 255.f;
+    rgbaf[3] = A / 255.f;
+  }
+  
   /** /todo 
    * @param randomAlpha /todo
    * @return IColor /todo */
@@ -326,6 +244,70 @@ struct IColor
     return IColor(A, R, G, B);
   }
 
+  /** Create an IColor from a 3 float RGB array
+   * @param rgbf ptr to array of 3 floats
+   * @return IColor A new IColor based on the input array */
+  static IColor FromRGBf(float* rgbf)
+  {
+    int A = 255;
+    int R = static_cast<int>(rgbf[0] * 255.f);
+    int G = static_cast<int>(rgbf[1] * 255.f);
+    int B = static_cast<int>(rgbf[2] * 255.f);
+    
+    return IColor(A, R, G, B);
+  }
+  
+  /** Create an IColor from a 4 float RGBA array
+   * @param rgbaf ptr to array of 3 floats
+   * @return IColor A new IColor based on the input array */
+  static IColor FromRGBAf(float* rgbaf)
+  {
+    int R = static_cast<int>(rgbaf[0] * 255.f);
+    int G = static_cast<int>(rgbaf[1] * 255.f);
+    int B = static_cast<int>(rgbaf[2] * 255.f);
+    int A = static_cast<int>(rgbaf[3] * 255.f);
+
+    return IColor(A, R, G, B);
+  }
+
+  /** Create an IColor from a color code. Can be used to convert a hex code into an IColor object.
+   * @code
+   *   IColor color = IColor::FromColorCode(0x55a6ff);
+   *   IColor colorWithAlpha = IColor::FromColorCode(0x55a6ff, 0x88); // alpha is 0x88
+   * @endcode
+   * 
+   * @param colorCode Integer representation of the color. Use with hexadecimal numbers, e.g. 0xff38a2
+   * @param A Integer representation of the alpha channel
+   * @return IColor A new IColor based on the color code provided */
+  static IColor FromColorCode(int colorCode, int A = 0xFF)
+  {
+    int R = (colorCode >> 16) & 0xFF;
+    int G = (colorCode >> 8) & 0xFF;
+    int B = colorCode & 0xFF;
+
+    return IColor(A, R, G, B);
+  }
+  
+  /** Create an IColor from a color code in a CString. Can be used to convert a hex code into an IColor object.
+   * @param colorCode CString representation of the color code (no alpha). Use with hex numbers, e.g. "#ff38a2". WARNING: This does very little error checking
+   * @return IColor A new IColor based on the color code provided */
+  static IColor FromColorCodeStr(const char* hexStr)
+  {
+    WDL_String str(hexStr);
+    
+    if(str.GetLength() == 7 && str.Get()[0] == '#')
+    {
+      str.DeleteSub(0, 1);
+
+      return FromColorCode(static_cast<int>(std::stoul(str.Get(), nullptr, 16)));
+    }
+    else
+    {
+      assert(0 && "Invalid color code str, returning black");
+      return IColor();
+    }
+  }
+  
   /** /todo 
    * @param h /todo
    * @param s /todo
@@ -407,7 +389,7 @@ const IColor DEFAULT_PRCOLOR = COLOR_LIGHT_GRAY;
 const IColor DEFAULT_FRCOLOR = COLOR_DARK_GRAY;
 const IColor DEFAULT_HLCOLOR = COLOR_TRANSLUCENT;
 const IColor DEFAULT_SHCOLOR = IColor(60, 0, 0, 0);
-const IColor DEFAULT_X1COLOR = COLOR_RED;
+const IColor DEFAULT_X1COLOR = COLOR_BLACK;
 const IColor DEFAULT_X2COLOR = COLOR_GREEN;
 const IColor DEFAULT_X3COLOR = COLOR_BLUE;
 
@@ -415,48 +397,16 @@ const IColor DEFAULT_TEXT_FGCOLOR = COLOR_BLACK;
 const IColor DEFAULT_TEXTENTRY_BGCOLOR = COLOR_WHITE;
 const IColor DEFAULT_TEXTENTRY_FGCOLOR = COLOR_BLACK;
 
-/** Contains a set of colours used to theme IVControls */
-struct IVColorSpec
-{
-  IColor mBGColor = DEFAULT_BGCOLOR; // Background
-  IColor mFGColor = DEFAULT_FGCOLOR; // Foreground
-  IColor mPRColor = DEFAULT_PRCOLOR; // Pressed
-  IColor mFRColor = DEFAULT_FRCOLOR; // Frame
-  IColor mHLColor = DEFAULT_HLCOLOR; // Highlight
-  IColor mSHColor = DEFAULT_SHCOLOR; // Shadow
-  IColor mX1Color = DEFAULT_X1COLOR; // Extra 1
-  IColor mX2Color = DEFAULT_X2COLOR; // Extra 2
-  IColor mX3Color = DEFAULT_X3COLOR; // Extra 3
-
-  /** /todo  */
-  void SetColors(const IColor BGColor = DEFAULT_BGCOLOR,
-                 const IColor FGColor = DEFAULT_FGCOLOR,
-                 const IColor PRColor = DEFAULT_PRCOLOR,
-                 const IColor FRColor = DEFAULT_FRCOLOR,
-                 const IColor HLColor = DEFAULT_HLCOLOR,
-                 const IColor SHColor = DEFAULT_SHCOLOR,
-                 const IColor X1Color = DEFAULT_X1COLOR,
-                 const IColor X2Color = DEFAULT_X2COLOR,
-                 const IColor X3Color = DEFAULT_X3COLOR)
-  {
-  }
-
-  /** /todo  */
-  void ResetColors() { SetColors(); }
-};
-
-const IVColorSpec DEFAULT_SPEC = IVColorSpec();
-
 /** Used to manage composite/blend operations, independent of draw class/platform */
 struct IBlend
 {
-  EBlendType mMethod;
+  EBlend mMethod;
   float mWeight;
 
   /** Creates a new IBlend
    * @param type Blend type (defaults to none)
    * @param weight normalised alpha blending amount */
-  IBlend(EBlendType type = kBlendDefault, float weight = 1.0f)
+  IBlend(EBlend type = EBlend::Default, float weight = 1.0f)
   : mMethod(type)
   , mWeight(Clip(weight, 0.f, 1.f))
   {}
@@ -470,23 +420,18 @@ inline float BlendWeight(const IBlend* pBlend)
   return (pBlend ? pBlend->mWeight : 1.0f);
 }
 
-const IBlend BLEND_75 = IBlend(kBlendDefault, 0.75f);
-const IBlend BLEND_50 = IBlend(kBlendDefault, 0.5f);
-const IBlend BLEND_25 = IBlend(kBlendDefault, 0.25f);
-const IBlend BLEND_10 = IBlend(kBlendDefault, 0.1f);
-const IBlend BLEND_05 = IBlend(kBlendDefault, 0.05f);
-const IBlend BLEND_01 = IBlend(kBlendDefault, 0.01f);
+const IBlend BLEND_75 = IBlend(EBlend::Default, 0.75f);
+const IBlend BLEND_50 = IBlend(EBlend::Default, 0.5f);
+const IBlend BLEND_25 = IBlend(EBlend::Default, 0.25f);
+const IBlend BLEND_10 = IBlend(EBlend::Default, 0.1f);
+const IBlend BLEND_05 = IBlend(EBlend::Default, 0.05f);
+const IBlend BLEND_01 = IBlend(EBlend::Default, 0.01f);
 
 /** Used to manage fill behaviour for path based drawing back ends */
 struct IFillOptions
 {
-  IFillOptions()
-  : mFillRule(kFillWinding)
-  , mPreserve(false)
-  {}
-
-  EFillRule mFillRule;
-  bool mPreserve;
+  EFillRule mFillRule { EFillRule::Winding };
+  bool mPreserve { false };
 };
 
 /** Used to manage stroke behaviour for path based drawing back ends */
@@ -496,6 +441,16 @@ struct IStrokeOptions
   class DashOptions
   {
   public:
+
+    DashOptions()
+    : mCount(0)
+    , mOffset(0)
+    {}
+
+    DashOptions(float* array, float offset, int count)
+    {
+      SetDash(array, offset, count);
+    }
 
     /** @return int /todo */
     int GetCount() const { return mCount; }
@@ -523,67 +478,52 @@ struct IStrokeOptions
 
   private:
     float mArray[8];
-    float mOffset = 0;
-    int mCount = 0;
+    float mOffset;
+    int mCount;
   };
 
   float mMiterLimit = 10.f;
   bool mPreserve = false;
-  ELineCap mCapOption = kCapButt;
-  ELineJoin mJoinOption = kJoinMiter;
+  ELineCap mCapOption = ELineCap::Butt;
+  ELineJoin mJoinOption = ELineJoin::Miter;
   DashOptions mDash;
 };
-
-/** Used to specify text styles when loading fonts. */
-enum ETextStyle { kTextStyleNormal, kTextStyleBold, kTextStyleItalic };
 
 static const char* TextStyleString(ETextStyle style)
 {
   switch (style)
   {
-    case kTextStyleNormal:  return "Regular";
-    case kTextStyleBold:    return "Bold";
-    case kTextStyleItalic:  return "Italic";
+    case ETextStyle::Normal:  return "Regular";
+    case ETextStyle::Bold:    return "Bold";
+    case ETextStyle::Italic:  return "Italic";
   }
 }
 
 /** Used to manage font and text/text entry style for a piece of text on the UI, independent of draw class/platform.*/
 struct IText
 {
-  /** /todo */
-  enum EAlign { kAlignNear, kAlignCenter, kAlignFar } mAlign;
-
-  /** /todo */
-  enum EVAlign { kVAlignTop, kVAlignMiddle, kVAlignBottom } mVAlign;
-
-  /** /todo */
-  enum EQuality { kQualityDefault, kQualityNonAntiAliased, kQualityAntiAliased, kQualityClearType } mQuality = kQualityDefault;
-
   /** /todo 
    * @param size /todo
    * @param color /todo
    * @param font /todo
    * @param align /todo
    * @param valign /todo
-   * @param orientation /todo
-   * @param quality /todo
+   * @param angle /todo
    * @param TEBGColor /todo
    * @param TEFGColor /todo */
-  IText(int size = DEFAULT_TEXT_SIZE,
+  IText(float size = DEFAULT_TEXT_SIZE,
         const IColor& color = DEFAULT_TEXT_FGCOLOR,
         const char* font = nullptr,
-        EAlign align = kAlignCenter,
-        EVAlign valign = kVAlignMiddle,
-        int orientation = 0,
-        EQuality quality = kQualityDefault,
+        EAlign align = EAlign::Center,
+        EVAlign valign = EVAlign::Middle,
+        float angle = 0,
         const IColor& TEBGColor = DEFAULT_TEXTENTRY_BGCOLOR,
         const IColor& TEFGColor = DEFAULT_TEXTENTRY_FGCOLOR)
     : mSize(size)
     , mFGColor(color)
     , mAlign(align)
     , mVAlign(valign)
-    , mOrientation(orientation)
-    , mQuality(quality)
+    , mAngle(angle)
     , mTextEntryBGColor(TEBGColor)
     , mTextEntryFGColor(TEFGColor)
   {
@@ -593,7 +533,7 @@ struct IText
   /** /todo 
     * @param size /todo
     * @param valign /todo */
-  IText(int size, EVAlign valign)
+  IText(float size, EVAlign valign)
   : IText()
   {
     mSize = size;
@@ -603,244 +543,40 @@ struct IText
   /** /todo 
    * @param size /todo
    * @param align /todo */
-  IText(int size, EAlign align)
+  IText(float size, EAlign align)
   : IText()
   {
     mSize = size;
     mAlign = align;
   }
-    
+  
+  IText(float size, const char* font)
+  : IText()
+  {
+    mSize = size;
+    strcpy(mFont, (font ? font : DEFAULT_FONT));
+  }
+  
+  IText WithFGColor(const IColor& fgColor) const { IText newText = *this; newText.mFGColor = fgColor; return newText; }
+  IText WithTEColors(const IColor& teBgColor, const IColor& teFgColor) const { IText newText = *this; newText.mTextEntryBGColor = teBgColor; newText.mTextEntryFGColor = teFgColor; return newText; }
+  IText WithAlign(EAlign align) const { IText newText = *this; newText.mAlign = align; return newText; }
+  IText WithVAlign(EVAlign valign) const { IText newText = *this; newText.mVAlign = valign; return newText; }
+  IText WithSize(float size) const { IText newText = *this; newText.mSize = size; return newText; }
+  IText WithAngle(float v) const { IText newText = *this; newText.mAngle = v; return newText; }
+
   char mFont[FONT_LEN];
-  int mSize;
+  float mSize;
   IColor mFGColor;
   IColor mTextEntryBGColor;
   IColor mTextEntryFGColor;
-  int mOrientation = 0; // Degrees ccwise from normal.
+  float mAngle = 0.f; // Degrees ccwise from normal.
+  EAlign mAlign = EAlign::Near;
+  EVAlign mVAlign = EVAlign::Middle;
 };
 
 const IText DEFAULT_TEXT = IText();
 
-/** Used to manage raw font data. */
-class IFontData : private WDL_TypedBuf<unsigned char>
-{
-public:
-  IFontData() : mFaceIdx(-1) {}
-    
-  IFontData(const void* data, int size, int faceIdx) : mFaceIdx(faceIdx)
-  {
-    const unsigned char* src = reinterpret_cast<const unsigned char*>(data);
-    unsigned char* dest = ResizeOK(size);
-      
-    if (dest)
-      std::copy(src, src + size, dest);
-  }
-  
-  IFontData(int size) : mFaceIdx(-1)
-  {
-    Resize(size);
-  }
-
-  void SetFaceIdx(int faceIdx) { mFaceIdx = faceIdx; }
-
-  bool IsValid() const { return GetSize() && mFaceIdx >= 0; }
-    
-  unsigned char* Get() { return WDL_TypedBuf<unsigned char>::Get(); }
-  int GetSize() const { return WDL_TypedBuf<unsigned char>::GetSize(); }
-  int GetFaceIdx() const { return mFaceIdx; }
-    
-private:
-  int mFaceIdx;
-};
-
-/** IFontDataPtr is a managed pointer for transferring the ownership of font data */
-typedef std::unique_ptr<IFontData> IFontDataPtr;
-
-/** Used to retrieve font info directly from a raw memory buffer. */
-class IFontInfo
-{
-public:
-  IFontInfo(const void* data, uint32_t dataSize, uint32_t faceIdx)
-  : mData(reinterpret_cast<const unsigned char*>(data)), mHeadLocation(0), mNameLocation(0), mHheaLocation(0), mMacStyle(0), mUnitsPerEM(0), mAscender(0), mDescender(0), mLineGap(0), mLineHeight(0)
-  {
-    FindFace(faceIdx);
-    
-    if (mData)
-    {
-      mHeadLocation = LocateTable("head");
-      mNameLocation = LocateTable("name");
-      mHheaLocation = LocateTable("hhea");
-      mFDscLocation = LocateTable("fdsc");
-      
-      if (IsValid())
-      {
-        mUnitsPerEM = GetUInt16(mHeadLocation + 18);
-        mMacStyle = GetUInt16(mHeadLocation + 44);
-        mFamily = GetFontString(1);
-        mStyle = GetFontString(2);
-        mAscender = GetSInt16(mHheaLocation + 4);
-        mDescender = GetSInt16(mHheaLocation + 6);
-        mLineGap = GetSInt16(mHheaLocation + 8);
-        mLineHeight = (mAscender - mDescender) + mLineGap;
-      }
-    }
-  }
-  
-  bool IsValid() const       { return mData && mHeadLocation && mNameLocation && mHheaLocation; }
-  
-  const WDL_String& GetFamily() const   { return mFamily; }
-  const WDL_String& GetStyle() const    { return mStyle; }
-  
-  bool IsBold() const       { return mMacStyle & (1 << 0); }
-  bool IsItalic() const     { return mMacStyle & (1 << 1); }
-  bool IsUnderline() const  { return mMacStyle & (1 << 2); }
-  bool IsOutline() const    { return mMacStyle & (1 << 3); }
-  bool IsShadow() const     { return mMacStyle & (1 << 4); }
-  bool IsCondensed() const  { return mMacStyle & (1 << 5); }
-  bool IsExpanded() const   { return mMacStyle & (1 << 6); }
-  
-  uint16_t GetUnitsPerEM() const { return mUnitsPerEM; }
-  int16_t GetAscender() const    { return mAscender; }
-  int16_t GetDescender() const   { return mDescender; }
-  int16_t GetLineGap() const     { return mLineGap; }
-  int16_t GetLineHeight() const  { return mLineHeight; }
-  
-private:
-  
-  bool MatchTag(uint32_t loc, const char* tag)
-  {
-    return mData[loc+0] == tag[0] && mData[loc+1] == tag[1] && mData[loc+2] == tag[2] && mData[loc+3] == tag[3];
-  }
-  
-  uint32_t LocateTable(const char *tag)
-  {
-    uint16_t numTables = GetUInt16(4);
-    
-    for (uint16_t i = 0; i < numTables; ++i)
-    {
-      uint32_t tableLocation = 12 + (16 * i);
-      if (MatchTag(tableLocation, tag))
-        return GetUInt32(tableLocation + 8);
-    }
-    
-    return 0;
-  }
-  
-  WDL_String GetFontString(int nameID)
-  {
-#ifdef OS_WIN
-    int platformID = 3;
-    int encodingID = 1;
-    int languageID = 0x409;
-#else
-    int platformID = 1;
-    int encodingID = 0;
-    int languageID = 0;
-#endif
-    
-    for (uint16_t i = 0; i < GetUInt16(mNameLocation + 2); ++i)
-    {
-      uint32_t loc = mNameLocation + 6 + (12 * i);
-      
-      if (platformID == GetUInt16(loc + 0) && encodingID == GetUInt16(loc + 2)
-          && languageID == GetUInt16(loc + 4) && nameID == GetUInt16(loc + 6))
-      {
-        uint32_t stringLocation = GetUInt16(mNameLocation + 4) + GetUInt16(loc + 10);
-        uint16_t length = GetUInt16(loc + 8);
-        
-#ifdef OS_WIN
-        WDL_TypedBuf<WCHAR> utf16;
-        WDL_TypedBuf<char> utf8;
-        
-        utf16.Resize(length / sizeof(WCHAR));
-        
-        for (int j = 0; j < length; j++)
-          utf16.Get()[j] = GetUInt16(mNameLocation + stringLocation + j * 2);
-        
-        int convertedLength = WideCharToMultiByte(CP_UTF8, 0, utf16.Get(), utf16.GetSize(), 0, 0, NULL, NULL);
-        utf8.Resize(convertedLength);
-        WideCharToMultiByte(CP_UTF8, 0, utf16.Get(), utf16.GetSize(), utf8.Get(), utf8.GetSize(), NULL, NULL);
-        return WDL_String(utf8.Get(), convertedLength);
-#else
-        return WDL_String((const char*)(mData + mNameLocation + stringLocation), length);
-#endif
-      }
-    }
-    
-    return WDL_String();
-  }
-  
-  void FindFace(uint32_t faceIdx)
-  {
-    bool singleFont = IsSingleFont();
-    
-    if (singleFont && faceIdx == 0 )
-      return;
-    
-    // Check if it's a TTC file
-    if (!singleFont && MatchTag(0, "ttcf"))
-    {
-      // Check version
-      if (GetUInt32(4) == 0x00010000 || GetUInt32(4) == 0x00020000)
-      {
-        if (faceIdx < GetSInt32(8))
-        {
-          mData += GetUInt32(12 + faceIdx * 4);
-          return;
-        }
-      }
-    }
-    mData = nullptr;
-  }
-  
-  bool IsSingleFont()
-  {
-    char TTV1[4] = { '1', 0, 0, 0 };
-    char OTV1[4] = { 0, 1, 0, 0 };
-    
-    // Check the version number
-    if (MatchTag(0, TTV1)) return true;   // TrueType 1
-    if (MatchTag(0, "typ1")) return true; // TrueType with type 1 font -- we don't support this!
-    if (MatchTag(0, "OTTO")) return true; // OpenType with CFF
-    if (MatchTag(0, OTV1))  return true;  // OpenType 1.0
-    
-    return false;
-  }
-  
-#if defined WDL_LITTLE_ENDIAN
-  uint16_t   GetUInt16(uint32_t loc)  { return (((uint16_t)mData[loc + 0]) << 8) | (uint16_t)mData[loc + 1]; }
-  int16_t    GetSInt16(uint32_t loc)  { return (((uint16_t)mData[loc + 0]) << 8) | (uint16_t)mData[loc + 1]; }
-  uint32_t   GetUInt32(uint32_t loc)  { return (((uint32_t)GetUInt16(loc + 0)) << 16) | (uint32_t)GetUInt16(loc + 2); }
-  int32_t    GetSInt32(uint32_t loc)  { return (((uint32_t)GetUInt16(loc + 0)) << 16) | (uint32_t)GetUInt16(loc + 2); }
-#else
-  uint16_t   GetUInt16(uint32_t loc)  { return (((uint16_t)mData[loc + 1]) << 8) | (uint16_t)mData[loc + 0]; }
-  int16_t    GetSInt16(uint32_t loc)  { return (((uint16_t)mData[loc + 1]) << 8) | (uint16_t)mData[loc + 0]; }
-  uint32_t   GetUInt32(uint32_t loc)  { return (((uint32_t)GetUInt16(loc + 2)) << 16) | (uint32_t)GetUInt16(loc + 0); }
-  int32_t    GetSInt32(uint32_t loc)  { return (((uint32_t)GetUInt16(loc + 2)) << 16) | (uint32_t)GetUInt16(loc + 0); }
-#endif
-  
-  // Data
-  const unsigned char* mData;
-  
-  uint32_t mHeadLocation;
-  uint32_t mNameLocation;
-  uint32_t mHheaLocation;
-  uint32_t mFDscLocation;
-  
-  // Font Identifiers
-  WDL_String mFamily;
-  WDL_String mStyle;
-  uint16_t mMacStyle;
-  
-  // Metrics
-  uint16_t mUnitsPerEM;
-  int16_t mAscender;
-  int16_t mDescender;
-  int16_t mLineGap;
-  int16_t mLineHeight;
-};
-
 /** Used to manage a rectangular area, independent of draw class/platform.
-
  * An IRECT is always specified in 1:1 pixels, any scaling for high DPI happens in the drawing class.
  * In IGraphics 0,0 is top left. */
 struct IRECT
@@ -885,7 +621,7 @@ struct IRECT
   {
     L = T = R = B = 0.f;
   }
-
+  
   bool operator==(const IRECT& rhs) const
   {
     return (L == rhs.L && T == rhs.T && R == rhs.R && B == rhs.B);
@@ -974,7 +710,7 @@ struct IRECT
   /** /todo 
    * @param x /todo
    * @param y /todo */
-  inline void Constrain(float& x, float& y)
+  inline void Constrain(float& x, float& y) const
   {
     if (x < L) x = L;
     else if (x > R) x = R;
@@ -1003,7 +739,7 @@ struct IRECT
    * @return IRECT /todo */
   inline IRECT FracRect(EDirection layoutDir, float frac, bool fromTopOrRight = false) const
   {
-    if(layoutDir == EDirection::kVertical)
+    if(layoutDir == EDirection::Vertical)
       return FracRectVertical(frac, fromTopOrRight);
     else
       return FracRectHorizontal(frac, fromTopOrRight);
@@ -1068,7 +804,7 @@ struct IRECT
    * @return IRECT /todo */
   inline IRECT SubRect(EDirection layoutDir, int numSlices, int sliceIdx) const
   {
-    if(layoutDir == EDirection::kVertical)
+    if(layoutDir == EDirection::Vertical)
       return SubRectVertical(numSlices, sliceIdx);
     else
       return SubRectHorizontal(numSlices, sliceIdx);
@@ -1098,53 +834,73 @@ struct IRECT
    * @return IRECT /todo */
   inline IRECT GetFromBRHC(float w, float h) const { return IRECT(R-w, B-h, R, B); }
 
-  /** /todo 
-   * @param amount /todo
-   * @return IRECT /todo */
+  /** Get a subrect of this IRECT bounded in Y by the top edge and 'amount'
+   * @param amount Size in Y of the desired IRECT
+   * @return IRECT The resulting subrect */
   inline IRECT GetFromTop(float amount) const { return IRECT(L, T, R, T+amount); }
 
-  /** /todo 
-   * @param amount /todo
-   * @return IRECT /todo */
+  /** Get a subrect of this IRECT bounded in Y by 'amount' and the bottom edge
+   * @param amount Size in Y of the desired IRECT
+   * @return IRECT The resulting subrect */
   inline IRECT GetFromBottom(float amount) const { return IRECT(L, B-amount, R, B); }
 
-  /** /todo 
-   * @param amount /todo
-   * @return IRECT /todo */
+  /** Get a subrect of this IRECT bounded in X by the left edge and 'amount'
+   * @param amount Size in X of the desired IRECT
+   * @return IRECT The resulting subrect */
   inline IRECT GetFromLeft(float amount) const { return IRECT(L, T, L+amount, B); }
 
-  /** /todo 
-   * @param amount /todo
-   * @return IRECT /todo */
+  /** Get a subrect of this IRECT bounded in X by 'amount' and the right edge
+   * @param amount Size in X of the desired IRECT
+   * @return IRECT The resulting subrect */
   inline IRECT GetFromRight(float amount) const { return IRECT(R-amount, T, R, B); }
   
-  /** /todo 
-   * @param amount /todo
-   * @return IRECT /todo */
+  /** Get a subrect of this IRECT reduced in height from the top edge by 'amount'
+   * @param amount Size in Y to reduce by
+   * @return IRECT The resulting subrect */
   inline IRECT GetReducedFromTop(float amount) const { return IRECT(L, T+amount, R, B); }
 
-  /** /todo 
-   * @param amount /todo
-   * @return IRECT /todo */
+  /** Get a subrect of this IRECT reduced in height from the bottom edge by 'amount'
+   * @param amount Size in Y to reduce by
+   * @return IRECT The resulting subrect */
   inline IRECT GetReducedFromBottom(float amount) const { return IRECT(L, T, R, B-amount); }
 
-  /** /todo
-   * @param amount /todo
-   * @return IRECT /todo */
+  /** Get a subrect of this IRECT reduced in width from the left edge by 'amount'
+   * @param amount Size in X to reduce by
+   * @return IRECT The resulting subrect */
   inline IRECT GetReducedFromLeft(float amount) const { return IRECT(L+amount, T, R, B); }
 
-  /** /todo 
-   * @param amount /todo
-   * @return IRECT /todo  */
+  /** Get a subrect of this IRECT reduced in width from the right edge by 'amount'
+   * @param amount Size in X to reduce by
+   * @return IRECT The resulting subrect */
   inline IRECT GetReducedFromRight(float amount) const { return IRECT(L, T, R-amount, B); }
   
-  /** /todo 
-   * @param row /todo
-   * @param col /todo
-   * @param nRows /todo
-   * @param nColumns /todo
-   * @return IRECT /todo */
-  inline IRECT GetGridCell(int row, int col, int nRows, int nColumns/*, EDirection = kHorizontal*/) const
+  /** Reduce in height from the top edge by 'amount' and return the removed region
+   * @param amount Size in Y to reduce by
+   * @return IRECT The removed subrect */
+  inline IRECT ReduceFromTop(float amount) { IRECT r = GetFromTop(amount); T+=amount; return r; }
+  
+  /** Reduce in height from the bottom edge by 'amount' and return the removed region
+   * @param amount Size in Y to reduce by
+   * @return IRECT The removed subrect */
+  inline IRECT ReduceFromBottom(float amount) { IRECT r = GetFromBottom(amount); B-=amount; return r; }
+  
+  /** Reduce in width from the left edge by 'amount' and return the removed region
+   * @param amount Size in X to reduce by
+   * @return IRECT The removed subrect */
+  inline IRECT ReduceFromLeft(float amount) { IRECT r = GetFromLeft(amount); L+=amount; return r; }
+  
+  /** Reduce in width from the right edge by 'amount' and return the removed region
+   * @param amount Size in X to reduce by
+   * @return IRECT The removed subrect */
+  inline IRECT ReduceFromRight(float amount) { IRECT r = GetFromRight(amount); R-=amount; return r; }
+  
+  /** Get a subrect (by row, column) of this IRECT which is a cell in a grid of size (nRows * nColumns)
+   * @param row Row index of the desired subrect
+   * @param col Column index of the desired subrect
+   * @param nRows Number of rows in the cell grid
+   * @param nColumns Number of columns in the cell grid
+   * @return IRECT The resulting subrect */
+  inline IRECT GetGridCell(int row, int col, int nRows, int nColumns/*, EDirection = EDirection::Horizontal*/) const
   {
     assert(row * col <= nRows * nColumns); // not enough cells !
     
@@ -1152,19 +908,19 @@ struct IRECT
     return vrect.SubRectHorizontal(nColumns, col);
   }
   
-  /** /todo 
-   * @param cellIndex /todo
-   * @param nRows /todo
-   * @param nColumns /todo
-   * @param dir /todo
-   * @return IRECT /todo */
-  inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns, EDirection dir = kHorizontal) const
+  /** Get a subrect (by index) of this IRECT which is a cell in a grid of size (nRows * nColumns)
+   * @param cellIndex Index of the desired cell in the cell grid
+   * @param nRows Number of rows in the cell grid
+   * @param nColumns Number of columns in the cell grid
+   * @param dir Desired direction of indexing, by row (EDirection::Horizontal) or by column (EDirection::Vertical)
+   * @return IRECT The resulting subrect */
+  inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns, EDirection dir = EDirection::Horizontal) const
   {
     assert(cellIndex <= nRows * nColumns); // not enough cells !
 
     int cell = 0;
     
-    if(dir == kHorizontal)
+    if(dir == EDirection::Horizontal)
     {
       for(int row = 0; row < nRows; row++)
       {
@@ -1596,7 +1352,7 @@ struct IRECT
   /** /todo 
    * @param sr /todo
    * @return IRECT /todo */
-  IRECT GetCentredInside(IRECT sr) const
+  IRECT GetCentredInside(const IRECT& sr) const
   {
     IRECT r;
     r.L = MW() - sr.W() / 2.f;
@@ -1630,7 +1386,7 @@ struct IRECT
   /** /todo 
    * @param bitmap /todo
    * @return IRECT /todo */
-  IRECT GetCentredInside(IBitmap bitmap)
+  IRECT GetCentredInside(const IBitmap& bitmap) const
   {
     IRECT r;
     r.L = MW() - bitmap.FW() / 2.f;
@@ -1650,26 +1406,8 @@ struct IRECT
     else
       return H();
   }
-};
-
-/** Used for key press info, such as ASCII representation, virtual key (mapped to win32 codes) and modifiers */
-struct IKeyPress
-{
-  int VK; // Windows VK_XXX
-  char Ascii;
-  bool S, C, A; // SHIFT / CTRL(WIN) or CMD (MAC) / ALT
   
-  /** /todo 
-   * @param ascii /todo
-   * @param vk /todo
-   * @param s /todo
-   * @param c /todo
-   * @param a /todo */
-  IKeyPress(char ascii, int vk, bool s = false, bool c = false, bool a = false)
-  : VK(vk)
-  , Ascii(ascii)
-  , S(s), C(c), A(a)
-  {}
+  void DBGPrint() { DBGMSG("L: %f, T: %f, R: %f, B: %f,: W: %f, H: %f\n", L, T, R, B, W(), H()); }
 };
 
 /** Used to manage mouse modifiers i.e. right click and shift/control/alt keys. */
@@ -1702,6 +1440,12 @@ struct IMouseInfo
 class IRECTList
 {
 public:
+  IRECTList()
+  {}
+  
+  IRECTList(const IRECTList&) = delete;
+  IRECTList& operator=(const IRECTList&) = delete;
+
   /** /todo
    * @return int /todo */
   int Size() const { return mRects.GetSize(); }
@@ -1973,7 +1717,7 @@ struct IMatrix
    * @param y /todo
    * @param x0 /todo
    * @param y0 /todo */
-  void TransformPoint(double& x, double& y, double x0, double y0)
+  void TransformPoint(double& x, double& y, double x0, double y0) const
   {
     x = x0 * mXX + y0 * mXY + mTX;
     y = x0 * mYX + y0 * mYY + mTY;
@@ -1982,7 +1726,7 @@ struct IMatrix
   /** /todo 
    * @param x /todo
    * @param y /todo */
-  void TransformPoint(double& x, double& y)
+  void TransformPoint(double& x, double& y) const
   {
     TransformPoint(x, y, x, y);
   };
@@ -2072,13 +1816,13 @@ struct IPattern
   /** /todo 
    * @param type /todo */
   IPattern(EPatternType type)
-  : mType(type), mExtend(kExtendPad), mNStops(0)
+  : mType(type), mExtend(EPatternExtend::Pad), mNStops(0)
   {}
   
   /** /todo 
    * @param color /todo */
   IPattern(const IColor& color)
-  : mType(kSolidPattern), mExtend(kExtendPad), mNStops(1)
+  : mType(EPatternType::Solid), mExtend(EPatternExtend::Pad), mNStops(1)
   {
     mStops[0] = IColorStop(color, 0.0);
   }
@@ -2092,7 +1836,7 @@ struct IPattern
    * @return IPattern /todo */
   static IPattern CreateLinearGradient(float x1, float y1, float x2, float y2, const std::initializer_list<IColorStop>& stops = {})
   {
-    IPattern pattern(kLinearPattern);
+    IPattern pattern(EPatternType::Linear);
     
     // Calculate the affine transform from one line segment to another!
     const double xd = x2 - x1;
@@ -2127,13 +1871,13 @@ struct IPattern
   {
     float x1, y1, x2, y2;
     
-    if(direction == kHorizontal)
+    if(direction == EDirection::Horizontal)
     {
       y1 = bounds.MH(); y2 = y1;
       x1 = bounds.L;
       x2 = bounds.R;
     }
-    else//(direction == kVertical)
+    else//(direction == EDirection::Vertical)
     {
       x1 = bounds.MW(); x2 = x1;
       y1 = bounds.T;
@@ -2151,7 +1895,7 @@ struct IPattern
    * @return IPattern /todo */
   static IPattern CreateRadialGradient(float x1, float y1, float r, const std::initializer_list<IColorStop>& stops = {})
   {
-    IPattern pattern(kRadialPattern);
+    IPattern pattern(EPatternType::Radial);
     
     const float s = 1.f / r;
 
@@ -2183,7 +1927,7 @@ struct IPattern
    * @param offset /todo */
   void AddStop(IColor color, float offset)
   {
-    assert(mType != kSolidPattern && mNStops < 16);
+    assert(mType != EPatternType::Solid && mNStops < 16);
     assert(!mNStops || GetStop(mNStops - 1).mOffset < offset);
     if (mNStops < 16)
       mStops[mNStops++] = IColorStop(color, offset);
@@ -2220,15 +1964,19 @@ class ILayer
 public:
   /** /todo 
    * @param pBitmap /todo
-   * @param r /todo */
-  ILayer(APIBitmap* pBitmap, IRECT r)
+   * @param r /todo
+   * @param pControl /todo
+   * @param cr /todo */
+  ILayer(APIBitmap* pBitmap, const IRECT& r, IControl* pControl, const IRECT& cr)
   : mBitmap(pBitmap)
+  , mControl(pControl)
+  , mControlRECT(cr)
   , mRECT(r)
   , mInvalid(false)
   {}
 
   ILayer(const ILayer&) = delete;
-  ILayer operator =(const ILayer&) = delete;
+  ILayer operator=(const ILayer&) = delete;
   
   /** /todo */
   void Invalidate() { mInvalid = true; }
@@ -2246,17 +1994,19 @@ private:
   APIBitmap* AccessAPIBitmap() { return mBitmap.get(); }
   
   std::unique_ptr<APIBitmap> mBitmap;
+  IControl* mControl;
+  IRECT mControlRECT;
   IRECT mRECT;
   bool mInvalid;
 };
 
 /** ILayerPtr is a managed pointer for transferring the ownership of layers */
-typedef std::unique_ptr<ILayer> ILayerPtr;
+using ILayerPtr = std::unique_ptr<ILayer>;
 
 /** Used to specify a gaussian drop-shadow. */
 struct IShadow
 {
-  IShadow(){}
+  IShadow() {}
 
   /** /todo 
    * @param pattern /todo
@@ -2282,133 +2032,163 @@ struct IShadow
   bool mDrawForeground = true;
 };
 
-/** Used internally to store data statically, making sure memory is not wasted when there are multiple plug-in instances loaded */
-template <class T>
-class StaticStorage
+/** Contains a set of colors used to theme IVControls */
+struct IVColorSpec
 {
-public:
-  /** Accessor class that mantains thread safety when using static storage via RAII */
-  class Accessor : private WDL_MutexLock
-  {
-  public:
-    Accessor(StaticStorage& storage) 
-    : WDL_MutexLock(&storage.mMutex)
-    , mStorage(storage) 
-    {}
-    
-    T* Find(const char* str, double scale = 1.)               { return mStorage.Find(str, scale); }
-    void Add(T* pData, const char* str, double scale = 1.)    { return mStorage.Add(pData, str, scale); }
-    void Remove(T* pData)                                     { return mStorage.Remove(pData); }
-    void Clear()                                              { return mStorage.Clear(); }
-    void Retain()                                             { return mStorage.Retain(); }
-    void Release()                                            { return mStorage.Release(); }
-      
-  private:
-    StaticStorage& mStorage;
-  };
+  IColor mColors[kNumDefaultVColors];
   
-  ~StaticStorage()
+  void SetColors(const IColor BGColor = DEFAULT_BGCOLOR,
+                 const IColor FGColor = DEFAULT_FGCOLOR,
+                 const IColor PRColor = DEFAULT_PRCOLOR,
+                 const IColor FRColor = DEFAULT_FRCOLOR,
+                 const IColor HLColor = DEFAULT_HLCOLOR,
+                 const IColor SHColor = DEFAULT_SHCOLOR,
+                 const IColor X1Color = DEFAULT_X1COLOR,
+                 const IColor X2Color = DEFAULT_X2COLOR,
+                 const IColor X3Color = DEFAULT_X3COLOR)
   {
-    Clear();
   }
-
-private:
-  /** /todo */
-  struct DataKey
-  {
-    // N.B. - hashID is not guaranteed to be unique
-    size_t hashID;
-    WDL_String name;
-    double scale;
-    std::unique_ptr<T> data;
-  };
   
-  /** /todo 
-   * @param str /todo
-   * @return size_t /todo */
-  size_t Hash(const char* str)
+  const IColor& GetColor(EVColor color) const
   {
-    std::string string(str);
-    return std::hash<std::string>()(string);
+    return mColors[(int) color];
   }
-
-  /** /todo 
-   * @param str /todo
-   * @param scale /todo
-   * @return T* /todo */
-  T* Find(const char* str, double scale = 1.)
+  
+  static const IColor& GetDefaultColor(EVColor idx)
   {
-    WDL_String cacheName(str);
-    cacheName.AppendFormatted((int) strlen(str) + 6, "-%.1fx", scale);
-    
-    size_t hashID = Hash(cacheName.Get());
-    
-    int i, n = mDatas.GetSize();
-    for (i = 0; i < n; ++i)
+    switch(idx)
     {
-      DataKey* pKey = mDatas.Get(i);
-
-      // Use the hash id for a quick search and then confirm with the scale and identifier to ensure uniqueness
-      if (pKey->hashID == hashID && scale == pKey->scale && !strcmp(str, pKey->name.Get()))
-        return pKey->data.get();
+      case kBG: return DEFAULT_BGCOLOR; // Background
+      case kFG: return DEFAULT_FGCOLOR; // Foreground
+      case kPR: return DEFAULT_PRCOLOR; // Pressed
+      case kFR: return DEFAULT_FRCOLOR; // Frame
+      case kHL: return DEFAULT_HLCOLOR; // Highlight
+      case kSH: return DEFAULT_SHCOLOR; // Shadow
+      case kX1: return DEFAULT_X1COLOR; // Extra 1
+      case kX2: return DEFAULT_X2COLOR; // Extra 2
+      case kX3: return DEFAULT_X3COLOR; // Extra 3
+      default:
+        return COLOR_TRANSPARENT;
+    };
+  }
+  
+  IVColorSpec()
+  {
+    mColors[kBG] = DEFAULT_BGCOLOR; // Background
+    mColors[kFG] = DEFAULT_FGCOLOR; // Foreground
+    mColors[kPR] = DEFAULT_PRCOLOR; // Pressed
+    mColors[kFR] = DEFAULT_FRCOLOR; // Frame
+    mColors[kHL] = DEFAULT_HLCOLOR; // Highlight
+    mColors[kSH] = DEFAULT_SHCOLOR; // Shadow
+    mColors[kX1] = DEFAULT_X1COLOR; // Extra 1
+    mColors[kX2] = DEFAULT_X2COLOR; // Extra 2
+    mColors[kX3] = DEFAULT_X3COLOR; // Extra 3
+  }
+  
+  IVColorSpec(const std::initializer_list<IColor>& colors)
+  {
+    assert(colors.size() <= kNumDefaultVColors);
+    
+    int i = 0;
+    
+    for(auto& c : colors)
+    {
+      mColors[i++] = c;
     }
-    return nullptr;
-  }
-
-  /** /todo 
-   * @param pData /todo
-   * @param str /todo
-   * @param scale /todo scale where 2x = retina, omit if not needed */
-  void Add(T* pData, const char* str, double scale = 1.)
-  {
-    DataKey* pKey = mDatas.Add(new DataKey);
-
-    WDL_String cacheName(str);
-    cacheName.AppendFormatted((int) strlen(str) + 6, "-%.1fx", scale);
     
-    pKey->hashID = Hash(cacheName.Get());
-    pKey->data = std::unique_ptr<T>(pData);
-    pKey->scale = scale;
-    pKey->name.Set(str);
-
-    //DBGMSG("adding %s to the static storage at %.1fx the original scale\n", str, scale);
-  }
-
-  /** /todo @param pData /todo */
-  void Remove(T* pData)
-  {
-    for (int i = 0; i < mDatas.GetSize(); ++i)
+    for(;i < kNumDefaultVColors; i++)
     {
-      if (mDatas.Get(i)->data.get() == pData)
-      {
-        mDatas.Delete(i, true);
-        break;
-      }
+      mColors[i] = GetDefaultColor((EVColor) i);
     }
   }
-
-  /** /todo  */
-  void Clear()
-  {
-    mDatas.Empty(true);
-  };
-
-  /** /todo  */
-  void Retain()
-  {
-    mCount++;
-  }
   
   /** /todo  */
-  void Release()
-  {
-    if (--mCount == 0)
-      Clear();
-  }
-    
-  int mCount;
-  WDL_Mutex mMutex;
-  WDL_PtrList<DataKey> mDatas;
+  void ResetColors() { SetColors(); }
 };
+
+const IVColorSpec DEFAULT_COLOR_SPEC = IVColorSpec();
+
+static constexpr bool DEFAULT_HIDE_CURSOR = true;
+static constexpr bool DEFAULT_SHOW_VALUE = true;
+static constexpr bool DEFAULT_SHOW_LABEL = true;
+static constexpr bool DEFAULT_DRAW_FRAME = true;
+static constexpr bool DEFAULT_DRAW_SHADOWS = true;
+static constexpr float DEFAULT_ROUNDNESS = 0.f;
+static constexpr float DEFAULT_FRAME_THICKNESS = 1.f;
+static constexpr float DEFAULT_SHADOW_OFFSET = 3.f;
+static constexpr float DEFAULT_WIDGET_FRAC = 1.f;
+static constexpr float DEFAULT_WIDGET_ANGLE = 0.f;
+const IText DEFAULT_LABEL_TEXT {DEFAULT_TEXT_SIZE + 5.f, EVAlign::Top};
+const IText DEFAULT_VALUE_TEXT {DEFAULT_TEXT_SIZE, EVAlign::Bottom};
+
+struct IVStyle
+{
+  bool hideCursor = DEFAULT_HIDE_CURSOR;
+  bool showLabel = DEFAULT_SHOW_LABEL;
+  bool showValue = DEFAULT_SHOW_VALUE;
+  bool drawFrame = DEFAULT_DRAW_FRAME;
+  bool drawShadows = DEFAULT_DRAW_SHADOWS;
+  float roundness = DEFAULT_ROUNDNESS;
+  float frameThickness = DEFAULT_FRAME_THICKNESS;
+  float shadowOffset = DEFAULT_SHADOW_OFFSET;
+  float widgetFrac = DEFAULT_WIDGET_FRAC;
+  float angle = DEFAULT_WIDGET_ANGLE;
+  IVColorSpec colorSpec = DEFAULT_COLOR_SPEC;
+  IText labelText = DEFAULT_LABEL_TEXT;
+  IText valueText = DEFAULT_VALUE_TEXT;
+  
+  IVStyle(bool showLabel = DEFAULT_SHOW_LABEL,
+          bool showValue = DEFAULT_SHOW_VALUE,
+          const IVColorSpec& colors = {DEFAULT_BGCOLOR, DEFAULT_FGCOLOR, DEFAULT_PRCOLOR, DEFAULT_FRCOLOR, DEFAULT_HLCOLOR, DEFAULT_SHCOLOR, DEFAULT_X1COLOR, DEFAULT_X2COLOR, DEFAULT_X3COLOR},
+          const IText& labelText = DEFAULT_LABEL_TEXT,
+          const IText& valueText = DEFAULT_VALUE_TEXT,
+          bool hideCursor = DEFAULT_HIDE_CURSOR,
+          bool drawFrame = DEFAULT_DRAW_FRAME,
+          bool drawShadows = DEFAULT_DRAW_SHADOWS,
+          float roundness = DEFAULT_ROUNDNESS,
+          float frameThickness = DEFAULT_FRAME_THICKNESS,
+          float shadowOffset = DEFAULT_SHADOW_OFFSET,
+          float widgetFrac = DEFAULT_WIDGET_FRAC,
+          float angle = DEFAULT_WIDGET_ANGLE)
+  : showLabel(showLabel)
+  , showValue(showValue)
+  , colorSpec(colors)
+  , labelText(labelText)
+  , valueText(valueText)
+  , hideCursor(hideCursor)
+  , drawFrame(drawFrame)
+  , drawShadows(drawShadows)
+  , roundness(roundness)
+  , frameThickness(frameThickness)
+  , shadowOffset(shadowOffset)
+  , widgetFrac(widgetFrac)
+  , angle(angle)
+  {
+  }
+  
+  IVStyle(const std::initializer_list<IColor>& colors)
+  : colorSpec(colors)
+  {
+  }
+  
+  IVStyle WithShowLabel(bool show) const { IVStyle newStyle = *this; newStyle.showLabel = show; return newStyle; }
+  IVStyle WithShowValue(bool show) const { IVStyle newStyle = *this; newStyle.showValue = show; return newStyle; }
+  IVStyle WithLabelText(const IText& text) const { IVStyle newStyle = *this; newStyle.labelText = text; return newStyle;}
+  IVStyle WithValueText(const IText& text) const { IVStyle newStyle = *this; newStyle.valueText = text; return newStyle; }
+  IVStyle WithColor(EVColor idx, IColor color) const { IVStyle newStyle = *this; newStyle.colorSpec.mColors[idx] = color; return newStyle; }
+  IVStyle WithColors(IVColorSpec spec) const { IVStyle newStyle = *this; newStyle.colorSpec = spec; return newStyle; }
+  IVStyle WithRoundness(float r) const { IVStyle newStyle = *this; newStyle.roundness = r; return newStyle; }
+  IVStyle WithFrameThickness(float t) const { IVStyle newStyle = *this; newStyle.frameThickness = t; return newStyle; }
+  IVStyle WithShadowOffset(float t) const { IVStyle newStyle = *this; newStyle.shadowOffset = t; return newStyle; }
+  IVStyle WithDrawShadows(bool v) const { IVStyle newStyle = *this; newStyle.drawShadows = v; return newStyle; }
+  IVStyle WithDrawFrame(bool v) const { IVStyle newStyle = *this; newStyle.drawFrame = v; return newStyle; }
+  IVStyle WithWidgetFrac(float v) const { IVStyle newStyle = *this; newStyle.widgetFrac = v; return newStyle; }
+  IVStyle WithAngle(float v) const { IVStyle newStyle = *this; newStyle.angle = v; return newStyle; }
+};
+
+const IVStyle DEFAULT_STYLE = IVStyle();
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
 
 /**@}*/

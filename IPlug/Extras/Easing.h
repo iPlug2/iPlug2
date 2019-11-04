@@ -16,8 +16,10 @@
  * See here for visualizations: http://easings.net/
  */
 
-
 #include <math.h>
+#include "IPlugPlatform.h"
+
+BEGIN_IPLUG_NAMESPACE
 
 // line y = x ^ 1/c;
 template<class T>
@@ -344,3 +346,5 @@ T EaseBounceInOut(T x)
     return 0.5 * EaseBounceOut(x * 2 - 1) + 0.5;
   }
 }
+
+END_IPLUG_NAMESPACE

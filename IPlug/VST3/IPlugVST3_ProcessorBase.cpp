@@ -13,11 +13,12 @@
 
 #include "IPlugVST3_ProcessorBase.h"
 
+using namespace iplug;
 using namespace Steinberg;
 using namespace Vst;
 
 #ifndef CUSTOM_BUSTYPE_FUNC
-uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig)
+uint64_t iplug::GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig)
 {
   assert(pConfig != nullptr);
   assert(busIdx >= 0 && busIdx < pConfig->NBuses(dir));
@@ -46,8 +47,8 @@ uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, 
 }
 #endif
 
-IPlugVST3ProcessorBase::IPlugVST3ProcessorBase(IPlugConfig c, IPlugAPIBase& plug)
-: IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST3)
+IPlugVST3ProcessorBase::IPlugVST3ProcessorBase(Config c, IPlugAPIBase& plug)
+: IPlugProcessor(c, kAPIVST3)
 , mPlug(plug)
 {
   SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
@@ -271,6 +272,14 @@ bool IPlugVST3ProcessorBase::SetupProcessing(const ProcessSetup& setup, ProcessS
   return true;
 }
 
+bool IPlugVST3ProcessorBase::SetProcessing(bool state)
+{
+  if (!state)
+    OnReset();
+  
+  return true;
+}
+
 bool IPlugVST3ProcessorBase::CanProcessSampleSize(int32 symbolicSampleSize)
 {
   switch (symbolicSampleSize)
@@ -281,7 +290,7 @@ bool IPlugVST3ProcessorBase::CanProcessSampleSize(int32 symbolicSampleSize)
   }
 }
 
-bool IsBusActive(const BusList& list, int32 idx)
+static bool IsBusActive(const BusList& list, int32 idx)
 {
   bool exists = false;
   if (idx < static_cast<int32> (list.size()))
@@ -320,9 +329,6 @@ void IPlugVST3ProcessorBase::ProcessParameterChanges(ProcessData& data)
   {
     int32 numParamsChanged = paramChanges->getParameterCount();
     
-    // it is possible to get a finer resolution of control here by retrieving more values (points) from the queue
-    // for now we just grab the last one
-    
     for (int32 i = 0; i < numParamsChanged; i++)
     {
       IParamValueQueue* paramQueue = paramChanges->getParameterData(i);
@@ -341,25 +347,24 @@ void IPlugVST3ProcessorBase::ProcessParameterChanges(ProcessData& data)
             case kBypassParam:
             {
               const bool bypassed = (value > 0.5);
-              
+
               if (bypassed != GetBypassed())
                 SetBypassed(bypassed);
-              
+
               break;
             }
-            case kPresetParam:
-              //RestorePreset((int)round(FromNormalizedParam(value, 0, NPresets(), 1.))); // TODO
-              break;
-              //TODO: pitch bend, modwheel etc
             default:
             {
               if (idx >= 0 && idx < mPlug.NParams())
               {
-                ENTER_PARAMS_MUTEX;
-                mPlug.GetParam(idx)->SetNormalized((double)value);
-                mPlug.SendParameterValueFromAPI(idx, (double) value, true);
+#ifdef PARAMS_MUTEX
+                mPlug.mParams_mutex.Enter();
+#endif
+                mPlug.GetParam(idx)->SetNormalized((double)value); // TODO: In VST3 non distributed the same parameter value is also set via IPlugVST3Controller::setParamNormalized(ParamID tag, ParamValue value)
                 mPlug.OnParamChange(idx, kHost, offsetSamples);
-                LEAVE_PARAMS_MUTEX;
+#ifdef PARAMS_MUTEX
+                mPlug.mParams_mutex.Leave();
+#endif
               }
             }
               break;
@@ -426,10 +431,16 @@ void IPlugVST3ProcessorBase::ProcessAudio(ProcessData& data, ProcessSetup& setup
     }
     else
     {
+#ifdef PARAMS_MUTEX
+      mPlug.mParams_mutex.Enter();
+#endif
       if (sampleSize == kSample32)
         ProcessBuffers(0.f, data.numSamples); // single precision
       else
         ProcessBuffers(0.0, data.numSamples); // double precision
+#ifdef PARAMS_MUTEX
+      mPlug.mParams_mutex.Leave();
+#endif
     }
   }
 }

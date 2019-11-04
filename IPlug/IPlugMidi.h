@@ -23,6 +23,8 @@
 
 #include "IPlugLogger.h"
 
+BEGIN_IPLUG_NAMESPACE
+
 /** Encapsulates a MIDI message and provides helper functions
  * @ingroup IPlugStructs */
 struct IMidiMsg
@@ -640,3 +642,5 @@ protected:
   int mSize, mGrow;
   int mFront, mBack;
 };
+
+END_IPLUG_NAMESPACE

@@ -12,28 +12,30 @@
 
 #include "IPlugPlatform.h"
 
-static const int DEFAULT_FPS = 25; // TODO: default 60 FPS?
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
+static constexpr int DEFAULT_FPS = 25; // TODO: default 60 FPS?
 
 // If not dirty for this many timer ticks, we call OnGUIIDle.
 // Only looked at if USE_IDLE_CALLS is defined.
-static const int IDLE_TICKS = 20;
+static constexpr int IDLE_TICKS = 20;
 
-#define DEFAULT_ANIMATION_DURATION 100
+static constexpr int DEFAULT_ANIMATION_DURATION = 100;
 
 #ifndef CONTROL_BOUNDS_COLOR
 #define CONTROL_BOUNDS_COLOR COLOR_GREEN
 #endif
 
-#define PARAM_EDIT_W 40
-#define PARAM_EDIT_H 16
+static constexpr float PARAM_EDIT_W = 40.f; // TODO: remove?
+static constexpr float PARAM_EDIT_H = 16.f; // TODO: remove?
 
 #define MAX_URL_LEN 256
 #define MAX_NET_ERR_MSG_LEN 1024
 
-#define MAX_IMG_SCALE 3
-
-static const int DEFAULT_TEXT_ENTRY_LEN = 7;
-static const double DEFAULT_GEARING = 4.0;
+static constexpr int MAX_IMG_SCALE = 3;
+static constexpr int DEFAULT_TEXT_ENTRY_LEN = 7;
+static constexpr double DEFAULT_GEARING = 4.0;
 
 //what is this stuff
 #define MAX_INET_ERR_CODE 32
@@ -42,48 +44,52 @@ static const double DEFAULT_GEARING = 4.0;
 #define MAX_CLASSNAME_LEN 128
 //
 
-static const float GRAYED_ALPHA = 0.25f;
+static constexpr float GRAYED_ALPHA = 0.25f;
 
 #ifndef DEFAULT_PATH
 static const char* DEFAULT_PATH = "~/Desktop";
 #endif
 
 const char* const DEFAULT_FONT = "Roboto-Regular";
-const int DEFAULT_TEXT_SIZE = 14;
-const int FONT_LEN = 64;
+static constexpr float DEFAULT_TEXT_SIZE = 14.f;
+static constexpr int FONT_LEN = 64;
 
 /** @enum EType Blend type
  * \todo This could use some documentation
  */
-enum EBlendType
+enum class EBlend
 {
-  kBlendDefault,
-  kBlendClobber,
-  kBlendSourceOver,
-  kBlendSourceIn,
-  kBlendSourceOut,
-  kBlendSourceAtop,
-  kBlendDestOver,
-  kBlendDestIn,
-  kBlendDestOut,
-  kBlendDestAtop,
-  kBlendAdd,
-  kBlendXOR,
-  kBlendNone = kBlendDefault
+  Default,
+  Clobber,
+  SourceOver,
+  SourceIn,
+  SourceOut,
+  SourceAtop,
+  DestOver,
+  DestIn,
+  DestOut,
+  DestAtop,
+  Add,
+  XOR,
+  None = EBlend::Default
 };
 
-enum EFileAction
-{
-  kFileOpen,
-  kFileSave  
-};
+/** /todo */
+enum class EFileAction { Open, Save };
 
-enum EDirection
-{
-  kVertical = 0,
-  kHorizontal = 1
-};
+/** /todo */
+enum class EDirection { Vertical, Horizontal };
 
+/** Used to specify text styles when loading fonts. */
+enum class ETextStyle { Normal, Bold, Italic };
+
+/** /todo */
+enum class EAlign { Near, Center, Far };
+
+/** /todo */
+enum class EVAlign { Top, Middle, Bottom };
+
+/** /todo */
 enum EVColor
 {
   kBG = 0,    // background color: All vector controls should fill their BG with this color, which is transparent by default
@@ -95,53 +101,51 @@ enum EVColor
   kHL,        // highlight: mouse over or focus
   kSH,        // shadow
   kX1,        // extra1
+  kGR = kX1,  // greyed
   kX2,        // extra2
   kX3,        // extra3
   kNumDefaultVColors
 };
 
-enum EFillRule
+static const char* kVColorStrs[kNumDefaultVColors] =
 {
-  kFillWinding,
-  kFillEvenOdd
+  "background",
+  "foreground/off states",
+  "pressed/on states",
+  "frame",
+  "highlight",
+  "shadow",
+  "extra1/greyed",
+  "extra2",
+  "extra3"
 };
 
-enum ELineCap
-{
-  kCapButt,
-  kCapRound,
-  kCapSquare
-};
+/** /todo */
+enum class EVShape { Rectangle, Ellipse, Triangle, EndsRounded, AllRounded };
 
-enum ELineJoin
-{
-  kJoinMiter,
-  kJoinRound,
-  kJoinBevel
-};
+/** /todo */
+enum class EWinding { CW, CCW };
 
-enum EPatternType
-{
-  kSolidPattern,
-  kLinearPattern,
-  kRadialPattern
-};
+/** /todo */
+enum class EFillRule { Winding, EvenOdd };
 
-enum EPatternExtend
-{
-  kExtendNone,
-  kExtendPad,
-  kExtendReflect,
-  kExtendRepeat
-};
+/** /todo */
+enum class ELineCap { Butt, Round, Square };
 
-enum EUIResizerMode
-{
-  kUIResizerScale,
-  kUIResizerSize
-};
+/** /todo */
+enum class ELineJoin { Miter, Round, Bevel };
 
-enum ECursor
+/** /todo */
+enum class EPatternType { Solid, Linear, Radial };
+
+/** /todo */
+enum class EPatternExtend { None, Pad, Reflect, Repeat };
+
+/** /todo */
+enum class EUIResizerMode { Scale, Size };
+
+/** /todo */
+enum class ECursor
 {
   ARROW,
   IBEAM,
@@ -160,7 +164,7 @@ enum ECursor
 };
 
 // This enumeration must match win32 message box options
-enum EMessageBoxType
+enum EMsgBoxType
 {
   kMB_OK = 0,
   kMB_OKCANCEL = 1,
@@ -170,8 +174,10 @@ enum EMessageBoxType
 };
 
 // This enumeration must match win32 message box results
-enum EMessageBoxResult
+ //If IGraphics::ShowMessageBox can't return inline, it returns kNoResult (e.g. because it requires an asynchronous call)
+enum EMsgBoxResult
 {
+  kNoResult,
   kOK = 1,
   kCANCEL = 2,
   kABORT = 3,
@@ -183,99 +189,5 @@ enum EMessageBoxResult
 
 static const char* kMessageResultStrs[8] = {"", "OK", "CANCEL", "ABORT", "RETRY", "IGNORE", "YES", "NO"};
 
-// This enumeration must match win32 Fkeys as specified in winuser.h
-enum ESpecialKey
-{
-  kFVIRTKEY  = 0x01,
-  kFSHIFT    = 0x04,
-  kFCONTROL  = 0x08,
-  kFALT      = 0x10,
-  kFLWIN     = 0x20
-};
-
-// This enumeration must match win32 virtual keys as specified in winuser.h
-enum EVirtualKey
-{
-  kVK_NONE =        0x00,
-    
-  kVK_LBUTTON =     0x01,
-  kVK_RBUTTON =     0x02,
-  kVK_MBUTTON =     0x04,
-
-  kVK_BACK =        0x08,
-  kVK_TAB =         0x09,
-
-  kVK_CLEAR =       0x0C,
-  kVK_RETURN =      0x0D,
-
-  kVK_SHIFT =       0x10,
-  kVK_CONTROL =     0x11,
-  kVK_MENU =        0x12,
-  kVK_PAUSE =       0x13,
-  kVK_CAPITAL =     0x14,
-
-  kVK_ESCAPE =      0x1B,
-
-  kVK_SPACE =       0x20,
-  kVK_PRIOR =       0x21,
-  kVK_NEXT =        0x22,
-  kVK_END =         0x23,
-  kVK_HOME =        0x24,
-  kVK_LEFT =        0x25,
-  kVK_UP =          0x26,
-  kVK_RIGHT =       0x27,
-  kVK_DOWN =        0x28,
-  kVK_SELECT =      0x29,
-  kVK_PRINT =       0x2A,
-  kVK_SNAPSHOT =    0x2C,
-  kVK_INSERT =      0x2D,
-  kVK_DELETE =      0x2E,
-  kVK_HELP =        0x2F,
-
-  kVK_LWIN =        0x5B,
-
-  kVK_NUMPAD0 =     0x60,
-  kVK_NUMPAD1 =     0x61,
-  kVK_NUMPAD2 =     0x62,
-  kVK_NUMPAD3 =     0x63,
-  kVK_NUMPAD4 =     0x64,
-  kVK_NUMPAD5 =     0x65,
-  kVK_NUMPAD6 =     0x66,
-  kVK_NUMPAD7 =     0x67,
-  kVK_NUMPAD8 =     0x68,
-  kVK_NUMPAD9 =     0x69,
-  kVK_MULTIPLY =    0x6A,
-  kVK_ADD =         0x6B,
-  kVK_SEPARATOR =   0x6C,
-  kVK_SUBTRACT =    0x6D,
-  kVK_DECIMAL =     0x6E,
-  kVK_DIVIDE =      0x6F,
-  kVK_F1 =          0x70,
-  kVK_F2 =          0x71,
-  kVK_F3 =          0x72,
-  kVK_F4 =          0x73,
-  kVK_F5 =          0x74,
-  kVK_F6 =          0x75,
-  kVK_F7 =          0x76,
-  kVK_F8 =          0x77,
-  kVK_F9 =          0x78,
-  kVK_F10 =         0x79,
-  kVK_F11 =         0x7A,
-  kVK_F12 =         0x7B,
-  kVK_F13 =         0x7C,
-  kVK_F14 =         0x7D,
-  kVK_F15 =         0x7E,
-  kVK_F16 =         0x7F,
-  kVK_F17 =         0x80,
-  kVK_F18 =         0x81,
-  kVK_F19 =         0x82,
-  kVK_F20 =         0x83,
-  kVK_F21 =         0x84,
-  kVK_F22 =         0x85,
-  kVK_F23 =         0x86,
-  kVK_F24 =         0x87,
-
-  kVK_NUMLOCK =     0x90,
-  kVK_SCROLL =      0x91
-};
-
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE

@@ -1,4 +1,4 @@
-#ifdef IGRAPHICS_METAL
+#if defined IGRAPHICS_NANOVG && defined IGRAPHICS_METAL
 
 #include "TestMPSControl.h"
 #include "nanovg_mtl.h"
@@ -25,9 +25,9 @@ void TestMPSControl::Draw(IGraphics& g)
     MPSUnaryImageKernel* pKernel = nullptr;
   
     switch (mKernelType) {
-      case 0: pKernel = [[MPSImageGaussianBlur alloc] initWithDevice:dev sigma:mValue * 10.]; break;
+      case 0: pKernel = [[MPSImageGaussianBlur alloc] initWithDevice:dev sigma:GetValue() * 10.]; break;
       case 1: pKernel = [[MPSImageSobel alloc] initWithDevice:dev]; break;
-      case 2: pKernel = [[MPSImageThresholdToZero alloc] initWithDevice:dev thresholdValue:mValue linearGrayColorTransform:nil]; break;
+      case 2: pKernel = [[MPSImageThresholdToZero alloc] initWithDevice:dev thresholdValue:GetValue() linearGrayColorTransform:nil]; break;
       default: break;
     }
   

@@ -12,11 +12,15 @@
 
 #pragma mark - IPlugVST3Processor Constructor/Destructor
 
-IPlugVST3Processor::IPlugVST3Processor(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPlugAPIBase(c, kAPIVST3)
-, IPlugVST3ProcessorBase(c, *this)
+using namespace iplug;
+using namespace Steinberg;
+using namespace Vst;
+
+IPlugVST3Processor::IPlugVST3Processor(const InstanceInfo& info, const Config& config)
+: IPlugAPIBase(config, kAPIVST3)
+, IPlugVST3ProcessorBase(config, *this)
 {
-  setControllerClass(instanceInfo.mOtherGUID);
+  setControllerClass(info.mOtherGUID);
   CreateTimer();
 }
 
@@ -26,7 +30,7 @@ IPlugVST3Processor::~IPlugVST3Processor() {}
 
 tresult PLUGIN_API IPlugVST3Processor::initialize(FUnknown* context)
 {
-  TRACE;
+  TRACE
   
   if (AudioEffect::initialize(context) == kResultOk)
   {
@@ -46,7 +50,7 @@ tresult PLUGIN_API IPlugVST3Processor::terminate()
 
 tresult PLUGIN_API IPlugVST3Processor::setBusArrangements(SpeakerArrangement* pInputBusArrangements, int32 numInBuses, SpeakerArrangement* pOutputBusArrangements, int32 numOutBuses)
 {
-  TRACE;
+  TRACE
   
   SetBusArrangments(pInputBusArrangements, numInBuses, pOutputBusArrangements, numOutBuses);
   return kResultTrue;
@@ -54,7 +58,7 @@ tresult PLUGIN_API IPlugVST3Processor::setBusArrangements(SpeakerArrangement* pI
 
 tresult PLUGIN_API IPlugVST3Processor::setActive(TBool state)
 {
-  TRACE;
+  TRACE
   
   OnActivate((bool) state);
   return AudioEffect::setActive(state);
@@ -62,14 +66,23 @@ tresult PLUGIN_API IPlugVST3Processor::setActive(TBool state)
 
 tresult PLUGIN_API IPlugVST3Processor::setupProcessing(ProcessSetup& newSetup)
 {
-  TRACE;
+  TRACE
   
   return SetupProcessing(newSetup, processSetup) ? kResultOk : kResultFalse;
 }
 
+tresult PLUGIN_API IPlugVST3Processor::setProcessing(TBool state)
+{
+  TRACE
+  
+  SetProcessing((bool) state);
+  
+  return true;
+}
+
 tresult PLUGIN_API IPlugVST3Processor::process(ProcessData& data)
 {
-  TRACE;
+  TRACE
   
   Process(data, processSetup, audioInputs, audioOutputs, mMidiMsgsFromEditor, mMidiMsgsFromProcessor, mSysExDataFromEditor, mSysexBuf);
   return kResultOk;
@@ -82,14 +95,14 @@ tresult PLUGIN_API IPlugVST3Processor::canProcessSampleSize(int32 symbolicSample
 
 tresult PLUGIN_API IPlugVST3Processor::setState(IBStream* pState)
 {
-  TRACE;
+  TRACE
   
-  return IPlugVST3State::SetState(this, pState) ? kResultOk :kResultFalse;
+  return IPlugVST3State::SetState(this, pState) ? kResultOk : kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3Processor::getState(IBStream* pState)
 {
-  TRACE;
+  TRACE
     
   return IPlugVST3State::GetState(this, pState) ? kResultOk :kResultFalse;
 }

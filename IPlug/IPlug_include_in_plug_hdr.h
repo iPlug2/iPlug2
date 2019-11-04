@@ -27,57 +27,72 @@
   #define LICE_PROVIDED_BY_APP
 //  #define SWELL_PROVIDED_BY_APP
   #include "IPlugReaperVST2.h"
-  typedef IPlugReaperVST2 IPlug;
+  #define PLUGIN_API_BASE IPlugReaperVST2
+
+  #ifdef FillRect
+  #undef FillRect
+  #endif
+  #ifdef DrawText
+  #undef DrawText
+  #endif
+  #ifdef Polygon
+  #undef Polygon
+  #endif
+
 #else
   #include "IPlugVST2.h"
-  typedef IPlugVST2 IPlug;
+  #define PLUGIN_API_BASE IPlugVST2
 #endif
   #define API_EXT "vst"
 #elif defined AU_API
   #include "IPlugAU.h"
-  typedef IPlugAU IPlug;
+  #define PLUGIN_API_BASE IPlugAU
   #define API_EXT "audiounit"
 #elif defined AUv3_API
   #include "IPlugAUv3.h"
-  typedef IPlugAUv3 IPlug;
+  #define PLUGIN_API_BASE IPlugAUv3
   #define API_EXT "app"
   #undef API_EXT2
   #define API_EXT2 ".AUv3"
 #elif defined AAX_API
   #include "IPlugAAX.h"
-  typedef IPlugAAX IPlug;
+  #define PLUGIN_API_BASE IPlugAAX
   #define API_EXT "aax"
   #define PROTOOLS
 #elif defined APP_API
   #include "IPlugAPP.h"
-  typedef IPlugAPP IPlug;
+  #define PLUGIN_API_BASE IPlugAPP
   #define API_EXT "app"
 #elif defined WAM_API
   #include "IPlugWAM.h"
-  typedef IPlugWAM IPlug;
+  #define PLUGIN_API_BASE IPlugWAM
 #elif defined WEB_API
   #include "IPlugWeb.h"
-  typedef IPlugWeb IPlug;
+  #define PLUGIN_API_BASE IPlugWeb
 #elif defined VST3_API
   #define IPLUG_VST3
   #include "IPlugVST3.h"
-  typedef IPlugVST3 IPlug;
+  #define PLUGIN_API_BASE IPlugVST3
   #define API_EXT "vst3"
 #elif defined VST3C_API
   #define IPLUG_VST3
   #include "IPlugVST3_Controller.h"
-  typedef IPlugVST3Controller IPlug;
+  #define PLUGIN_API_BASE IPlugVST3Controller
   #undef PLUG_CLASS_NAME
   #define PLUG_CLASS_NAME VST3Controller
   #define API_EXT "vst3"
 #elif defined VST3P_API
   #define IPLUG_VST3
   #include "IPlugVST3_Processor.h"
-  typedef IPlugVST3Processor IPlug;
+  #define PLUGIN_API_BASE IPlugVST3Processor
   #define API_EXT "vst3"
 #else
   #error "No API defined!"
 #endif
+
+BEGIN_IPLUG_NAMESPACE
+using Plugin = PLUGIN_API_BASE;
+END_IPLUG_NAMESPACE
 
 #ifdef OS_WIN
   #define EXPORT __declspec(dllexport)
@@ -199,6 +214,11 @@
 #ifndef PLUG_SHARED_RESOURCES
   #pragma message WARN("PLUG_SHARED_RESOURCES not defined, setting to 0")
   #define PLUG_SHARED_RESOURCES 0
+#else
+  #ifndef SHARED_RESOURCES_SUBPATH
+    #pragma message WARN("SHARED_RESOURCES_SUBPATH not defined, setting to PLUG_NAME")
+    #define SHARED_RESOURCES_SUBPATH PLUG_NAME
+  #endif
 #endif
 
 #ifdef IPLUG_VST3

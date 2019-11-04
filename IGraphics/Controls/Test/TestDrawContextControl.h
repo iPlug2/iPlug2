@@ -22,7 +22,7 @@
 class TestDrawContextControl : public IControl
 {
 public:
-  TestDrawContextControl(IRECT bounds)
+  TestDrawContextControl(const IRECT& bounds)
   : IControl(bounds)
   {
     SetTooltip("TestDrawContextControl");
@@ -45,7 +45,6 @@ public:
     nvgFillColor(vg, nvgRGBA(255, 0, 0, 255));
     nvgFill(vg);
     nvgRestore(vg);
-#elif defined IGRAPHICS_LICE
 #elif defined IGRAPHICS_CAIRO
     cairo_t* cr = (cairo_t*) g.GetDrawContext();
 
@@ -58,8 +57,8 @@ public:
     cairo_rectangle(cr, r1.L, r1.T, r1.W(), r1.H());
     cairo_fill(cr);
     cairo_close_path(cr);
-#elif defined IGRAPHICS_AGG
-
+#else
+    g.DrawText(mText, "UNSUPPORTED", mRECT);
 #endif
   }
 };

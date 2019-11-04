@@ -1,10 +1,23 @@
+/* Declares the NAME_PLACEHOLDER Audio Worklet Node */
+
 class NAME_PLACEHOLDERController extends WAMController
 {
   constructor (actx, options) {
     options = options || {};
-    options.numberOfInputs  = 0;
-    options.numberOfOutputs = 1;
-    options.outputChannelCount = [2];
+    if (options.numberOfInputs === undefined)       options.numberOfInputs = 0;
+    if (options.numberOfOutputs === undefined)      options.numberOfOutputs = 1;
+    if (options.outputChannelCount === undefined)   options.outputChannelCount = [2];
+    if (options.processorOptions.inputChannelCount === undefined) options.processorOptions = {inputChannelCount:[]};
+
+    if( navigator.userAgent.toLowerCase().indexOf('firefox') > -1 ){
+      console.log("Firefox detected: SPN buffersize = 512")
+      options.buflenSPN = 512
+    }
+
+    if( navigator.userAgent.toLowerCase().indexOf('firefox') > -1 ){
+      console.log("Firefox detected: SPN buffersize = 512")
+      options.buflenSPN = 512
+    }
 
     super(actx, "NAME_PLACEHOLDER", options);
   }
@@ -22,13 +35,18 @@ class NAME_PLACEHOLDERController extends WAMController
   }
 
   onmessage(msg) {
-    //Received the WAM descriptor from the processor - could create a generic UI here
+    //Received the WAM descriptor from the processor - could create an HTML UI here, based on descriptor
     if(msg.type == "descriptor") {
       console.log("got WAM descriptor...");
     }
 
+    //Send Parameter Value From Delegate
     if(msg.verb == "SPVFD") {
       Module.SPVFD(parseInt(msg.prop), parseFloat(msg.data));
+    }
+    //Set Control Value From Delegate
+    else if(msg.verb == "SCVFD") {
+      Module.SCVFD(parseInt(msg.prop), parseFloat(msg.data));
     }
     //Send Control Message From Delegate
     else if(msg.verb == "SCMFD") {
@@ -47,11 +65,7 @@ class NAME_PLACEHOLDERController extends WAMController
       Module.SAMFD(parseInt(msg.prop), data.length, buffer);
       Module._free(buffer);
     }
-    //Set Control Value From Delegate
-    else if(msg.verb == "SCVFD") {
-      Module.SCVFD(parseInt(msg.prop), parseFloat(msg.data));
-    }
-    //Send Midi Message From Delegate
+    //Send MIDI Message From Delegate
     else if(msg.verb == "SMMFD") {
       var res = msg.prop.split(":");
       Module.SMMFD(parseInt(res[0]), parseInt(res[1]), parseInt(res[2]));

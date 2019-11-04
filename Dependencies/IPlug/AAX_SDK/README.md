@@ -1,4 +1,6 @@
-extract AAX_SDK_2p3p0.zip here 
+extract **AAX_SDK_2p3p2.zip** here 
+
+# macOS
 
   - You need to modify the AAXlibrary project in order to compile with the same SDK as your plug-ins
 

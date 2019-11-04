@@ -15,6 +15,8 @@
 #include "config.h"   // This is your plugin's config.h.
 #include "IPlugAPIBase.h"
 
+using namespace iplug;
+
 static const AudioUnitPropertyID kIPlugObjectPropertyID = UINT32_MAX-100;
 
 @interface AUV2_VIEW_CLASS : NSObject <AUCocoaUIBase>
@@ -31,14 +33,14 @@ static const AudioUnitPropertyID kIPlugObjectPropertyID = UINT32_MAX-100;
 
 - (id) init
 {
-  TRACE;  
+  TRACE  
   mPlug = nullptr;
   return [super init];
 }
 
 - (NSView*) uiViewForAudioUnit: (AudioUnit) audioUnit withSize: (NSSize) preferredSize
 {
-  TRACE;
+  TRACE
 
   void* pointers[1];
   UInt32 propertySize = sizeof (pointers);
@@ -52,9 +54,11 @@ static const AudioUnitPropertyID kIPlugObjectPropertyID = UINT32_MAX-100;
     {
       if (mPlug->HasUI())
       {
+#if __has_feature(objc_arc)
+        NSView* pView = (__bridge NSView*) mPlug->OpenWindow(nullptr);
+#else
         NSView* pView = (NSView*) mPlug->OpenWindow(nullptr);
-        if (pView)
-          mPlug->OnUIOpen();
+#endif
         return pView;
       }
     }

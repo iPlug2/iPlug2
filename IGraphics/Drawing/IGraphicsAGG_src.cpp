@@ -14,16 +14,12 @@
 #include "agg_bezier_arc.cpp"
 #include "agg_bspline.cpp"
 #include "agg_curves.cpp"
-#include "agg_embedded_raster_fonts.cpp"
 #include "agg_font_freetype.cpp"
-#include "agg_gsv_text.cpp"
 #include "agg_image_filters.cpp"
 #include "agg_line_aa_basics.cpp"
 #include "agg_line_profile_aa.cpp"
 #include "agg_rounded_rect.cpp"
 #include "agg_sqrt_tables.cpp"
-//#include "agg_svg_parser_utils.cpp"
-//#include "agg_svg_path_tokenizer.cpp"
 #include "agg_trans_affine.cpp"
 #include "agg_trans_double_path.cpp"
 #include "agg_trans_single_path.cpp"
@@ -38,7 +34,6 @@
 #include "agg_vpgen_clip_polyline.cpp"
 #include "agg_vpgen_segmentator.cpp"
 #ifdef OS_WIN
-//#include "agg_win312_pmap.cpp"
  #include "agg_win32_pmap.cpp"
 #endif
 #endif //IGRAPHICS_AGG

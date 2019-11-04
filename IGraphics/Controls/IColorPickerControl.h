@@ -20,12 +20,15 @@
 #include "nanovg.h"
 #endif
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /** A control for choosing a color
  * @ingroup IControls */
 class IColorPickerControl : public IControl
 {
 public:
-  IColorPickerControl(IRECT bounds)
+  IColorPickerControl(const IRECT& bounds)
   : IControl(bounds)
   {
   }
@@ -148,3 +151,6 @@ public:
   }
 private:
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE

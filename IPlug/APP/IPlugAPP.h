@@ -21,7 +21,9 @@
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
-struct IPlugInstanceInfo
+BEGIN_IPLUG_NAMESPACE
+
+struct InstanceInfo
 {
   void* pAppHost;
 };
@@ -31,17 +33,17 @@ class IPlugAPPHost;
 /**  Standalone application base class for an IPlug plug-in
 *   @ingroup APIClasses */
 class IPlugAPP : public IPlugAPIBase
-               , public IPlugProcessor<PLUG_SAMPLE_DST>
+               , public IPlugProcessor
 {
 public:
-  IPlugAPP(IPlugInstanceInfo instanceInfo, IPlugConfig config);
+  IPlugAPP(const InstanceInfo& info, const Config& config);
   
   //IPlugAPIBase
   void BeginInformHostOfParamChange(int idx) override {};
   void InformHostOfParamChange(int idx, double normalizedValue) override {};
   void EndInformHostOfParamChange(int idx) override {};
   void InformHostOfProgramChange() override {};
-  void EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data) override;
+  bool EditorResizeFromDelegate(int viewWidth, int viewHeight) override;
 
   //IEditorDelegate
   void SendSysexMsgFromUI(const ISysEx& msg) override;
@@ -61,6 +63,8 @@ private:
   friend class IPlugAPPHost;
 };
 
-IPlugAPP* MakePlug(void* pAPPHost);
+IPlugAPP* MakePlug(const InstanceInfo& info);
+
+END_IPLUG_NAMESPACE
 
 #endif

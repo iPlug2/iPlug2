@@ -1,6 +1,6 @@
-Place the AudioWorklet Polyfill code here 
+Place the AudioWorklet Polyfill (iPlug2 fork) code here 
 
-https://github.com/jariseon/audioworklet-polyfill
+https://github.com/iPlug2/audioworklet-polyfill
 
 so it looks like this...
 

@@ -29,59 +29,22 @@
 
 #include <memory>
 
-inline LICE_pixel LiceColor(const IColor& color)
-{
-  auto preMul = [](int color, int A) {return (color * (A + 1)) >> 8; };
-  return LICE_RGBA(preMul(color.R, color.A), preMul(color.G, color.A), preMul(color.B, color.A), color.A);
-}
-
-inline LICE_pixel LiceColor(const IColor& color, const IBlend* pBlend)
-{
-    int alpha = std::round(color.A * BlendWeight(pBlend));
-    return LICE_RGBA(color.R, color.G, color.B, alpha);
-}
-
-inline int LiceBlendMode(const IBlend* pBlend)
-{
-  if (!pBlend)
-  {
-    return LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA;
-  }
-  switch (pBlend->mMethod)
-  {
-    case EBlendType::kBlendClobber:     return LICE_BLIT_MODE_COPY;
-    case EBlendType::kBlendAdd:         return LICE_BLIT_MODE_ADD | LICE_BLIT_USE_ALPHA;
-    case EBlendType::kBlendDefault:
-    default:
-    {
-      return LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA;
-    }
-  }
-}
-
-/** A LICE API bitmap
- * @ingroup APIBitmaps */
-class LICEBitmap : public APIBitmap
-{
-public:
-  LICEBitmap(LICE_IBitmap* pBitmap, int scale, bool preMultiplied)
-    : APIBitmap(pBitmap, pBitmap->getWidth(), pBitmap->getHeight(), scale, 1.f), mPremultiplied(preMultiplied)
-    {}
-  virtual ~LICEBitmap() { delete GetBitmap(); }
-  bool IsPreMultiplied() { return mPremultiplied; }
-private:
-  bool mPremultiplied;
-};
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
 
 /** IGraphics draw class using Cockos' LICE  
 *   @ingroup DrawClasses */
 class IGraphicsLice : public IGraphics
 {
+private:
+  class Bitmap;
+  struct FontInfo;
+  
 public:
-  const char* GetDrawingAPIStr() override { return "LICE"; }
-
   IGraphicsLice(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsLice();
+
+  const char* GetDrawingAPIStr() override { return "LICE"; }
 
   void DrawResize() override;
 
@@ -90,7 +53,6 @@ public:
 
   void DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend) override;
   void DrawRotatedBitmap(const IBitmap& bitmap, float destCtrX, float destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend) override;
-  void DrawRotatedMask(const IBitmap& base, const IBitmap& mask, const IBitmap& top, float x, float y, double angle, const IBlend* pBlend) override;
   void DrawFittedBitmap(const IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend) override;
   
   void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override;
@@ -100,7 +62,7 @@ public:
   void DrawRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness) override;
   void DrawRoundRect(const IColor& color, const IRECT& bounds, float cr, const IBlend* pBlend, float thickness) override;
   void DrawConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend, float thickness) override;
-  void DrawArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend, float thickness) override;
+  void DrawArc(const IColor& color, float cx, float cy, float r, float a1, float a2,  const IBlend* pBlend, float thickness) override;
   void DrawCircle(const IColor& color, float cx, float cy, float r,const IBlend* pBlend, float thickness) override;
   void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness, float dashLen) override;
 
@@ -108,12 +70,11 @@ public:
   void FillRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend) override;
   void FillRoundRect(const IColor& color, const IRECT& bounds, float cr, const IBlend* pBlend) override;
   void FillConvexPolygon(const IColor& color, float* x, float* y, int npoints, const IBlend* pBlend) override;
-  void FillArc(const IColor& color, float cx, float cy, float r, float aMin, float aMax,  const IBlend* pBlend) override;
+  void FillArc(const IColor& color, float cx, float cy, float r, float a1, float a2,  const IBlend* pBlend) override;
   void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
     
   IColor GetPoint(int x, int y) override;
-  void* GetDrawContext() override { return mDrawBitmap->getBits(); }
-  inline LICE_SysBitmap* GetDrawBitmap() const { return mDrawBitmap.get(); }
+  void* GetDrawContext() override { return mDrawBitmap.get(); }
 
   // Not implemented
   void DrawRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend, float thickness) override { /* TODO - mark unsupported */ }
@@ -136,13 +97,15 @@ protected:
   void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
   void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
 
-  bool DoDrawMeasureText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend, bool measure) override;
+  void DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
+  void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
 
   void EndFrame() override;
     
   float GetBackingPixelScale() const override { return (float) GetScreenScale(); };
 
 private:
+  void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, LICE_IFont*& pFont) const;
     
   bool OpacityCheck(const IColor& color, const IBlend* pBlend)
   {
@@ -176,7 +139,7 @@ private:
     
   void UpdateLayer() override;
     
-  LICE_IFont* CacheFont(const IText& text);
+  LICE_IFont* CacheFont(const IText& text) const;
 
   IRECT mDrawRECT;
   IRECT mClipRECT;
@@ -185,7 +148,6 @@ private:
   int mDrawOffsetY = 0;
   
   std::unique_ptr<LICE_SysBitmap> mDrawBitmap;
-  std::unique_ptr<LICE_MemBitmap> mTmpBitmap;
 #ifdef OS_WIN
   std::unique_ptr<LICE_SysBitmap> mScaleBitmap;
 #endif
@@ -193,8 +155,17 @@ private:
   LICE_IBitmap* mRenderBitmap = nullptr;
     
   ILayerPtr mClippingLayer;
+  
+  static StaticStorage<LICE_IFont> sFontCache;
+  static StaticStorage<FontInfo> sFontInfoCache;
     
 #ifdef OS_MAC
+  class MacRegisteredFont;
+  static StaticStorage<MacRegisteredFont> sMacRegistedFontCache;
   CGColorSpaceRef mColorSpace = nullptr;
 #endif
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+

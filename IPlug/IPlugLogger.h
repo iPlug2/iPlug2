@@ -15,7 +15,7 @@
  * @brief IPlug logging a.k.a tracing functionality
  *
  * To trace some arbitrary data:                 Trace(TRACELOC, "%s:%d", myStr, myInt);
- * To simply create a trace entry in the log:    TRACE;
+ * To simply create a trace entry in the log:    TRACE
  * No need to wrap tracer calls in #ifdef TRACER_BUILD because Trace is a no-op unless TRACER_BUILD is defined.
  */
 
@@ -32,6 +32,8 @@
 
 #include "IPlugConstants.h"
 #include "IPlugUtilities.h"
+
+BEGIN_IPLUG_NAMESPACE
 
 #ifdef NDEBUG
   #define DBGMSG(...)
@@ -117,6 +119,9 @@
       fclose(mFP);
       mFP = nullptr;
     }
+    
+    LogFile(const LogFile&) = delete;
+    LogFile& operator=(const LogFile&) = delete;
   };
 
   static bool IsWhitespace(char c)
@@ -234,7 +239,7 @@
       WDL_MutexLock lock(&sLogMutex);
       intptr_t threadID = GetOrdinalThreadID(SYS_THREAD_ID);
       
-      if(strstr(funcName, "rocess") || strstr(funcName, "ender")) // These are not typos! by excluding the first character, we can use TRACE; in methods called ProcessXXX or process etc.
+      if(strstr(funcName, "rocess") || strstr(funcName, "ender")) // These are not typos! by excluding the first character, we can use TRACE in methods called ProcessXXX or process etc.
       {
         if(++sProcessCount > MAX_PROCESS_TRACE_COUNT)
         {
@@ -650,3 +655,4 @@ static const char* VSTOpcodeStr(int opCode) { return ""; }
   static const char* AUScopeStr(int scope) { return ""; }
 #endif // !TRACER_BUILD
 
+END_IPLUG_NAMESPACE

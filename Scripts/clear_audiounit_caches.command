@@ -16,3 +16,6 @@ then
 echo deleting "$HOME/Library/Caches/AudioUnitCache/com.apple.audiounits.sandboxed.cache"
 rm "$HOME/Library/Caches/AudioUnitCache/com.apple.audiounits.sandboxed.cache"
 fi
+
+
+pgrep -x AudioComponentRegistrar >/dev/null && killall -9 AudioComponentRegistrar; echo "killed AudioComponentRegistrar" || echo "AudioComponentRegistrar Process not found"

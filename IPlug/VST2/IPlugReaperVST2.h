@@ -19,12 +19,14 @@
 
 bool (*DoFxLastTweakParmCtxMenu2)(void* pFXDSP, void* pHWND, int xpos, int ypos, const char* headerStr);
 
+BEGIN_IPLUG_NAMESPACE
+
 /** Reaper specific VST2.4 API base class for an IPlug plug-in. */
 class IPlugReaperVST2 : public IPlugVST2
 {
 public:
-  IPlugReaperVST2(IPlugInstanceInfo instanceInfo, IPlugConfig config)
-  : IPlugVST2(instanceInfo, config)
+  IPlugReaperVST2(const InstanceInfo& info, const Config& config)
+  : IPlugVST2(info, config)
   {
     int errorCount = REAPERAPI_LoadAPI([this](const char* str) {
                                          return (void*) mHostCallback(NULL, 0xdeadbeef, 0xdeadf00d, 0, (void*) str, 0.0);
@@ -160,3 +162,7 @@ private:
   
   IREAPERVideoProcessor* mVideoProc = nullptr;
 };
+
+IPlugReaperVST2* MakePlug(const InstanceInfo& info);
+
+END_IPLUG_NAMESPACE

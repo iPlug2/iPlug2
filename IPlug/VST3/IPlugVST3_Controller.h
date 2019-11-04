@@ -26,53 +26,53 @@
 #include "IPlugVST3_ControllerBase.h"
 #include "IPlugVST3_Common.h"
 
-using namespace Steinberg;
-using namespace Vst;
+BEGIN_IPLUG_NAMESPACE
 
 /**  VST3 Controller API-base class for a distributed IPlug VST3 plug-in
  *   @ingroup APIClasses */
-class IPlugVST3Controller : public EditControllerEx1
-                          , public IMidiMapping
+class IPlugVST3Controller : public Steinberg::Vst::EditControllerEx1
+                          , public Steinberg::Vst::IMidiMapping
                           , public IPlugAPIBase
                           , public IPlugVST3ControllerBase
 {
 public:
-  typedef IPlugVST3View<IPlugVST3Controller> ViewType;
-    
-  struct IPlugInstanceInfo
+  using ViewType = IPlugVST3View<IPlugVST3Controller>;
+  
+  struct InstanceInfo
   {
     Steinberg::FUID mOtherGUID;
   };
   
-  IPlugVST3Controller(IPlugInstanceInfo instanceInfo, IPlugConfig c);
+  IPlugVST3Controller(const InstanceInfo& info, const Config& config);
   virtual ~IPlugVST3Controller();
 
   // IEditController
-  tresult PLUGIN_API initialize(FUnknown* context) override;
-  IPlugView* PLUGIN_API createView(FIDString name) override;
-  tresult PLUGIN_API setComponentState(IBStream* pState) override; // receives the processor's state
-  tresult PLUGIN_API setState(IBStream* pState) override;
-  tresult PLUGIN_API getState(IBStream* pState) override;
+  Steinberg::tresult PLUGIN_API initialize(Steinberg::FUnknown* context) override;
+  Steinberg::IPlugView* PLUGIN_API createView(Steinberg::FIDString name) override;
+  Steinberg::tresult PLUGIN_API setComponentState(Steinberg::IBStream* pState) override; // receives the processor's state
+  Steinberg::tresult PLUGIN_API setState(Steinberg::IBStream* pState) override;
+  Steinberg::tresult PLUGIN_API getState(Steinberg::IBStream* pState) override;
   
-  tresult PLUGIN_API setParamNormalized(ParamID tag, ParamValue value) override;
+  Steinberg::Vst::ParamValue PLUGIN_API getParamNormalized (Steinberg::Vst::ParamID tag) override;
+  Steinberg::tresult PLUGIN_API setParamNormalized(Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue value) override;
   // ComponentBase
-  tresult PLUGIN_API notify(IMessage* message) override;
+  Steinberg::tresult PLUGIN_API notify(Steinberg::Vst::IMessage* message) override;
 
   // IMidiMapping
-  tresult PLUGIN_API getMidiControllerAssignment(int32 busIndex, int16 channel, CtrlNumber midiControllerNumber, ParamID& tag) override;
+  Steinberg::tresult PLUGIN_API getMidiControllerAssignment(Steinberg::int32 busIndex, Steinberg::int16 channel, Steinberg::Vst::CtrlNumber midiControllerNumber, Steinberg::Vst::ParamID& tag) override;
 
   // IEditControllerEx
-  tresult PLUGIN_API getProgramName(ProgramListID listId, int32 programIndex, String128 name /*out*/) override;
+  Steinberg::tresult PLUGIN_API getProgramName(Steinberg::Vst::ProgramListID listId, Steinberg::int32 programIndex, Steinberg::Vst::String128 name /*out*/) override;
   
-  DELEGATE_REFCOUNT(EditControllerEx1)
-  tresult PLUGIN_API queryInterface(const char* iid, void** obj) override;
+  DELEGATE_REFCOUNT(Steinberg::Vst::EditControllerEx1)
+  Steinberg::tresult PLUGIN_API queryInterface(const char* iid, void** obj) override;
   
   // IPlugAPIBase
   void BeginInformHostOfParamChange(int idx) override { beginEdit(idx); }
   void InformHostOfParamChange(int idx, double normalizedValue) override  { performEdit(idx, normalizedValue); }
   void EndInformHostOfParamChange(int idx) override  { endEdit(idx); }
   void InformHostOfProgramChange() override  { /* TODO: */}
-  void EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data) override;
+  bool EditorResizeFromDelegate(int viewWidth, int viewHeight) override;
   void DirtyParametersFromUI() override;
   
   // IEditorDelegate
@@ -80,7 +80,7 @@ public:
   void SendSysexMsgFromUI(const ISysEx& msg) override;
   void SendArbitraryMsgFromUI(int messageTag, int controlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) override;
 
-  Vst::IComponentHandler* GetComponentHandler() const { return componentHandler; }
+  Steinberg::Vst::IComponentHandler* GetComponentHandler() const { return componentHandler; }
   ViewType* GetView() const { return mView; }
 
 private:
@@ -89,6 +89,6 @@ private:
   Steinberg::FUID mProcessorGUID;
 };
 
-IPlugVST3Controller* MakeController();
+END_IPLUG_NAMESPACE
 
 #endif // _IPLUGAPI_

@@ -9,14 +9,16 @@ REM - AAX codesigning requires wraptool tool added to %PATH% env variable and aa
 if %1 == 1 (echo Making IPlugFaustDSP Windows DEMO VERSION distribution ...) else (echo Making IPlugFaustDSP Windows FULL VERSION distribution ...)
 
 echo "touching source"
-cd ..\
-copy /b *.cpp+,,
+
+copy /b ..\*.cpp+,,
 
 echo ------------------------------------------------------------------
 echo Updating version numbers ...
 
-call python scripts\prepare_resources-win.py %1
-call python scripts\update_installer_version.py %1
+call python prepare_resources-win.py %1
+call python update_installer_version.py %1
+
+cd ..\
 
 echo ------------------------------------------------------------------
 echo Building ...
@@ -26,12 +28,12 @@ if exist "%ProgramFiles(x86)%" (goto 64-Bit) else (goto 32-Bit)
 if not defined DevEnvDir (
 :32-Bit
 echo 32-Bit O/S detected
-call "%ProgramFiles%\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x86_x64
+call "%ProgramFiles%\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x86_x64
 goto END
 
 :64-Bit
 echo 64-Bit Host O/S detected
-call "%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x86_x64
+call "%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x86_x64
 goto END
 :END
 )

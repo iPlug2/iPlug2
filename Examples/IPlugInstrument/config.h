@@ -14,6 +14,7 @@
 #define BUNDLE_DOMAIN "com"
 
 #define PLUG_CHANNEL_IO "0-2"
+#define SHARED_RESOURCES_SUBPATH "IPlugInstrument"
 
 #define PLUG_LATENCY 0
 #define PLUG_TYPE 1
@@ -48,4 +49,4 @@
 #define APP_RESIZABLE 0
 #define APP_SIGNAL_VECTOR_SIZE 64
 
-#define ROBOTTO_FN "Roboto-Regular.ttf"
+#define ROBOTO_FN "Roboto-Regular.ttf"

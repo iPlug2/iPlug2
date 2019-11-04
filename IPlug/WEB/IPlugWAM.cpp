@@ -10,9 +10,11 @@
 
 #include "IPlugWAM.h"
 
-IPlugWAM::IPlugWAM(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-  : IPlugAPIBase(c, kAPIWAM)
-  , IPlugProcessor<float>(c, kAPIWAM)
+using namespace iplug;
+
+IPlugWAM::IPlugWAM(const InstanceInfo& info, const Config& config)
+: IPlugAPIBase(config, kAPIWAM)
+, IPlugProcessor(config, kAPIWAM)
 {
   int nInputs = MaxNChannels(ERoute::kInput), nOutputs = MaxNChannels(ERoute::kOutput);
 
@@ -49,6 +51,7 @@ const char* IPlugWAM::init(uint32_t bufsize, uint32_t sr, void* pDesc)
 
   //TODO: correct place? - do we need a WAM reset message?
   OnReset();
+  OnParamReset(kReset);
 
   return json.Get();
 }
@@ -61,16 +64,19 @@ void IPlugWAM::onProcess(WAM::AudioBus* pAudio, void* pData)
   SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true); //TODO: go elsewhere
   AttachBuffers(ERoute::kInput, 0, NChannelsConnected(ERoute::kInput), pAudio->inputs, blockSize);
   AttachBuffers(ERoute::kOutput, 0, NChannelsConnected(ERoute::kOutput), pAudio->outputs, blockSize);
+  
+  ENTER_PARAMS_MUTEX
   ProcessBuffers((float) 0.0f, blockSize);
+  LEAVE_PARAMS_MUTEX
   
   //emulate IPlugAPIBase::OnTimer - should be called on the main thread - how to do that in audio worklet processor?
   if(mBlockCounter == 0)
   {
     while(mParamChangeFromProcessor.ElementsAvailable())
     {
-      IParamChange p;
+      ParamTuple p;
       mParamChangeFromProcessor.Pop(p);
-      SendParameterValueFromDelegate(p.paramIdx, p.value, p.normalized);
+      SendParameterValueFromDelegate(p.idx, p.value, false);
     }
     
     while (mMidiMsgsFromProcessor.ElementsAvailable())

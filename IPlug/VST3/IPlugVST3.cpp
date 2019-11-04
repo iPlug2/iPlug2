@@ -17,6 +17,7 @@
 
 #include "IPlugVST3.h"
 
+using namespace iplug;
 using namespace Steinberg;
 using namespace Vst;
 
@@ -24,9 +25,9 @@ using namespace Vst;
 
 #pragma mark - IPlugVST3 Constructor/Destructor
 
-IPlugVST3::IPlugVST3(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPlugAPIBase(c, kAPIVST3)
-, IPlugVST3ProcessorBase(c, *this)
+IPlugVST3::IPlugVST3(const InstanceInfo& info, const Config& config)
+: IPlugAPIBase(config, kAPIVST3)
+, IPlugVST3ProcessorBase(config, *this)
 , mView(nullptr)
 {
   CreateTimer();
@@ -38,7 +39,7 @@ IPlugVST3::~IPlugVST3() {}
 
 tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
 {
-  TRACE;
+  TRACE
 
   if (SingleComponentEffect::initialize(context) == kResultOk)
   {
@@ -57,14 +58,14 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
 
 tresult PLUGIN_API IPlugVST3::terminate()
 {
-  TRACE;
+  TRACE
 
   return SingleComponentEffect::terminate();
 }
 
 tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* pInputBusArrangements, int32 numInBuses, SpeakerArrangement* pOutputBusArrangements, int32 numOutBuses)
 {
-  TRACE;
+  TRACE
 
   SetBusArrangments(pInputBusArrangements, numInBuses, pOutputBusArrangements, numOutBuses);
   return kResultTrue;
@@ -72,7 +73,7 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* pInputBusAr
 
 tresult PLUGIN_API IPlugVST3::setActive(TBool state)
 {
-  TRACE;
+  TRACE
 
   OnActivate((bool) state);
   return SingleComponentEffect::setActive(state);
@@ -80,14 +81,23 @@ tresult PLUGIN_API IPlugVST3::setActive(TBool state)
 
 tresult PLUGIN_API IPlugVST3::setupProcessing(ProcessSetup& newSetup)
 {
-  TRACE;
+  TRACE
 
   return SetupProcessing(newSetup, processSetup) ? kResultOk : kResultFalse;
 }
 
+tresult PLUGIN_API IPlugVST3::setProcessing(TBool state)
+{
+  TRACE
+  
+  SetProcessing((bool) state);
+  
+  return true;
+}
+
 tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 {
-  TRACE;
+  TRACE
 
   Process(data, processSetup, audioInputs, audioOutputs, mMidiMsgsFromEditor, mMidiMsgsFromProcessor, mSysExDataFromEditor, mSysexBuf);
   return kResultOk;
@@ -100,19 +110,33 @@ tresult PLUGIN_API IPlugVST3::canProcessSampleSize(int32 symbolicSampleSize)
 
 tresult PLUGIN_API IPlugVST3::setState(IBStream* pState)
 {
-  TRACE;
+  TRACE
   
   return IPlugVST3State::SetState(this, pState) ? kResultOk :kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3::getState(IBStream* pState)
 {
-  TRACE;
+  TRACE
   
   return IPlugVST3State::GetState(this, pState) ? kResultOk :kResultFalse;
 }
 
 #pragma mark IEditController overrides
+ParamValue PLUGIN_API IPlugVST3::getParamNormalized(ParamID tag)
+{
+  if (tag >= kBypassParam)
+    return EditControllerEx1::getParamNormalized(tag);
+  
+  return IPlugVST3ControllerBase::getParamNormalized(this, tag);
+}
+
+tresult PLUGIN_API IPlugVST3::setParamNormalized(ParamID tag, ParamValue value)
+{
+  IPlugVST3ControllerBase::setParamNormalized(this, tag, value);
+  
+  return EditControllerEx1::setParamNormalized(tag, value);
+}
 
 IPlugView* PLUGIN_API IPlugVST3::createView(const char* name)
 {
@@ -147,14 +171,14 @@ tresult PLUGIN_API IPlugVST3::setComponentState(IBStream* pState)
 
 int32 PLUGIN_API IPlugVST3::getUnitCount()
 {
-  TRACE;
+  TRACE
 
   return NParamGroups() + 1;
 }
 
 tresult PLUGIN_API IPlugVST3::getUnitInfo(int32 unitIndex, UnitInfo& info)
 {
-  TRACE;
+  TRACE
 
   if (unitIndex == 0)
   {
@@ -242,15 +266,17 @@ void IPlugVST3::InformHostOfParameterDetailsChange()
   handler->restartComponent(kParamTitlesChanged);
 }
 
-void IPlugVST3::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
+bool IPlugVST3::EditorResizeFromDelegate(int viewWidth, int viewHeight)
 {
   if (HasUI())
   {
     if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
       mView->resize(viewWidth, viewHeight);
 
-    IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
+    IPlugAPIBase::EditorResizeFromDelegate(viewWidth, viewHeight);
   }
+  
+  return true;
 }
 
 void IPlugVST3::DirtyParametersFromUI()

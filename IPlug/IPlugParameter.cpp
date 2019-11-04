@@ -19,6 +19,8 @@
 #include "IPlugParameter.h"
 #include "IPlugLogger.h"
 
+using namespace iplug;
+
 #pragma mark - Shape
 
 double IParam::ShapeLinear::NormalizedToValue(double value, const IParam& param) const
@@ -81,7 +83,7 @@ double IParam::ShapeExp::ValueToNormalized(double value, const IParam& param) co
 
 IParam::IParam()
 {
-  mShape.reset(new ShapeLinear);
+  mShape = std::make_unique<ShapeLinear>();
   memset(mName, 0, MAX_PARAM_NAME_LEN * sizeof(char));
   memset(mLabel, 0, MAX_PARAM_LABEL_LEN * sizeof(char));
   memset(mParamGroup, 0, MAX_PARAM_LABEL_LEN * sizeof(char));
@@ -151,7 +153,7 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
     ;
   }
     
-  mShape.reset(shape.Clone());
+  mShape = std::unique_ptr<Shape>(shape.Clone());
   mShape->Init(*this);
 }
 
@@ -165,13 +167,18 @@ void IParam::InitSeconds(const char *name, double defaultVal, double minVal, dou
   InitDouble(name, defaultVal, minVal, maxVal, step, "Seconds", flags, group, ShapeLinear(), kUnitSeconds);
 }
 
-void IParam::InitPitch(const char *name, int defaultVal, int minVal, int maxVal, int flags, const char *group)
+void IParam::InitMilliseconds(const char *name, double defaultVal, double minVal, double maxVal, int flags, const char *group)
+{
+  InitDouble(name, defaultVal, minVal, maxVal, 1, "ms", flags, group, ShapeLinear(), kUnitMilliseconds);
+}
+
+void IParam::InitPitch(const char *name, int defaultVal, int minVal, int maxVal, int flags, const char *group, bool middleCisC)
 {
   InitEnum(name, defaultVal, (maxVal - minVal) + 1, "", flags, group);
   WDL_String displayText;
   for (auto i = minVal; i <= maxVal; i++)
   {
-    MidiNoteName(i, displayText);
+    MidiNoteName(i, displayText, /*cents*/false, middleCisC);
     SetDisplayText(i - minVal, displayText.Get());
   }
 }

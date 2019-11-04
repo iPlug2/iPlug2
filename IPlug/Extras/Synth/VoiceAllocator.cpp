@@ -14,6 +14,8 @@
 #include <numeric>
 #include <iostream>
 
+using namespace iplug;
+
 std::ostream& operator<< (std::ostream& out, const VoiceInputEvent& r)
 {
   out << "[z" << (int)r.mAddress.mZone << " c" << (int)r.mAddress.mChannel << " k" << (int)r.mAddress.mKey << " f" << (int)r.mAddress.mFlags << "]"  ;
@@ -58,14 +60,8 @@ void VoiceAllocator::AddVoice(SynthVoice* pVoice, uint8_t zone)
     pVoice->mKey = -1;
     pVoice->mZone = zone;
 
-    // make a glides structure and set the output for each glide to a control ramp of the new voice
-    mVoiceGlides.emplace_back( std::unique_ptr<VoiceControlRamps> (new VoiceControlRamps));
-    VoiceControlRamps* pRamps = mVoiceGlides.back().get();
-    
-    for(int i=0; i<kNumVoiceControlRamps; ++i)
-    {
-      pRamps->at(i).mpOutput = &(pVoice->mInputs[i]);
-    }
+    // make a glides structures for the control ramps of the new voice
+    mVoiceGlides.emplace_back(ControlRampProcessor::Create(pVoice->mInputs));
   }
   else
   {

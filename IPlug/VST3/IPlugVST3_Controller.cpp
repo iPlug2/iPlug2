@@ -17,13 +17,14 @@
 
 #include "IPlugVST3_Parameter.h"
 
+using namespace iplug;
 using namespace Steinberg;
-using namespace Steinberg::Vst;
+using namespace Vst;
 
-IPlugVST3Controller::IPlugVST3Controller(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-: IPlugAPIBase(c, kAPIVST3)
-, mPlugIsInstrument(c.plugType == kInstrument)
-, mProcessorGUID(instanceInfo.mOtherGUID)
+IPlugVST3Controller::IPlugVST3Controller(const InstanceInfo& info, const Config& config)
+: IPlugAPIBase(config, kAPIVST3)
+, mPlugIsInstrument(config.plugType == kInstrument)
+, mProcessorGUID(info.mOtherGUID)
 {
 }
 
@@ -61,7 +62,7 @@ IPlugView* PLUGIN_API IPlugVST3Controller::createView(const char* name)
 
 tresult PLUGIN_API IPlugVST3Controller::setComponentState(IBStream* pState)
 {
-  return IPlugVST3State::SetState(this, pState) ? kResultOk :kResultFalse;
+  return IPlugVST3State::SetState(this, pState) ? kResultOk : kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3Controller::setState(IBStream* pState)
@@ -76,42 +77,18 @@ tresult PLUGIN_API IPlugVST3Controller::getState(IBStream* pState)
   return kResultOk;
 }
 
-tresult PLUGIN_API IPlugVST3Controller::setParamNormalized(ParamID tag, ParamValue value)
+ParamValue PLUGIN_API IPlugVST3Controller::getParamNormalized(ParamID tag)
 {
   if (tag >= kBypassParam)
-  {
-    switch (tag)
-    {
-      case kBypassParam:
-      {
-//        bool bypassed = (value > 0.5);
-//
-//        if (bypassed != IsBypassed())
-//          mIsBypassed = bypassed;
-//
-        break;
-      }
-      case kPresetParam:
-      {
-        RestorePreset(NPresets() * value);
+    return EditControllerEx1::getParamNormalized(tag);
+  
+  return IPlugVST3ControllerBase::getParamNormalized(this, tag);
+}
 
-        break;
-      }
-      default:
-        break;
-    }
-  }
-  else
-  {
-    IParam* pParam = GetParam(tag);
-
-    if (pParam)
-    {
-      pParam->SetNormalized(value);
-      OnParamChangeUI(tag, kHost);
-    }
-  }
-
+tresult PLUGIN_API IPlugVST3Controller::setParamNormalized(ParamID tag, ParamValue value)
+{
+  IPlugVST3ControllerBase::setParamNormalized(this, tag, value);
+  
   return EditControllerEx1::setParamNormalized(tag, value);
 }
 
@@ -157,15 +134,17 @@ tresult PLUGIN_API IPlugVST3Controller::getProgramName(ProgramListID listId, int
 //  }
 //}
 
-void IPlugVST3Controller::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
+bool IPlugVST3Controller::EditorResizeFromDelegate(int viewWidth, int viewHeight)
 {
   if (HasUI())
   {
     if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
       mView->resize(viewWidth, viewHeight);
  
-    IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
+    IPlugAPIBase::EditorResizeFromDelegate(viewWidth, viewHeight);
   }
+  
+  return true;
 }
 
 void IPlugVST3Controller::DirtyParametersFromUI()

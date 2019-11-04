@@ -23,7 +23,7 @@ class TestShadowGradientControl : public IControl
 {
 public:
     
-  TestShadowGradientControl(IRECT rect)
+  TestShadowGradientControl(const IRECT& rect)
   : IControl(rect)
   {
   }
@@ -37,7 +37,7 @@ public:
     IShadow shadow(pattern, 0.0, mRECT.W() / 2.0, mRECT.H() / 2.0, 1.0, false);
     IRECT bounds(mRECT.L, mRECT.T, mRECT.L + mRECT.W() / 2.0, mRECT.T + mRECT.H() / 2.0);
         
-    g.StartLayer(mRECT);
+    g.StartLayer(this, mRECT);
     g.FillRect(COLOR_WHITE, bounds);
     mLayer = g.EndLayer();
     g.ApplyLayerDropShadow(mLayer, shadow);

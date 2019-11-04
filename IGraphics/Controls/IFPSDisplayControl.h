@@ -18,6 +18,9 @@
 
 #include "IControl.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 /** Performance display meter, based on code from NanoVG
  *  This is a special control that lives outside the main IGraphics control stack.
  * @ingroup SpecialControls */
@@ -35,16 +38,16 @@ public:
     kNumStyles
   };
 
-  IFPSDisplayControl(IRECT bounds, EStyle style = EStyle::kFPS, const char* label = "Frame Time")
+  IFPSDisplayControl(const IRECT& bounds, EStyle style = EStyle::kFPS, const char* label = "Frame Time")
   : IControl(bounds)
   , mStyle(style)
   , mNameLabel(label)
   {
-    AttachIControl(this);
+    AttachIControl(this, label);
 
     SetColor(kBG, COLOR_WHITE);
 
-    mNameLabelText = IText(14, GetColor(kFR), DEFAULT_FONT, IText::kAlignNear, IText::kVAlignBottom);
+    mNameLabelText = IText(14, GetColor(kFR), DEFAULT_FONT, EAlign::Near, EVAlign::Bottom);
   }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
@@ -159,8 +162,10 @@ private:
 
   float mPadding = 1.f;
   IText& mNameLabelText = mText;
-  IText mAPILabelText = IText(14, GetColor(kFR), DEFAULT_FONT, IText::kAlignNear, IText::kVAlignTop);
-  IText mTopLabelText = IText(18, GetColor(kFR), DEFAULT_FONT, IText::kAlignFar, IText::kVAlignTop);
-  IText mBottomLabelText = IText(15, GetColor(kFR), DEFAULT_FONT, IText::kAlignFar, IText::kVAlignBottom);
+  IText mAPILabelText = IText(14, GetColor(kFR), DEFAULT_FONT, EAlign::Near, EVAlign::Top);
+  IText mTopLabelText = IText(18, GetColor(kFR), DEFAULT_FONT, EAlign::Far, EVAlign::Top);
+  IText mBottomLabelText = IText(15, GetColor(kFR), DEFAULT_FONT, EAlign::Far, EVAlign::Bottom);
 };
 
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE

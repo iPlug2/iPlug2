@@ -12,9 +12,11 @@
 #include "IPlugVST2.h"
 #include "IPlugPluginBase.h"
 
-const int VST_VERSION = 2400;
+using namespace iplug;
 
-int VSTSpkrArrType(int nchan)
+static const int VST_VERSION = 2400;
+
+static int VSTSpkrArrType(int nchan)
 {
   if (!nchan) return kSpeakerArrEmpty;
   if (nchan == 1) return kSpeakerArrMono;
@@ -22,12 +24,106 @@ int VSTSpkrArrType(int nchan)
   return kSpeakerArrUserDefined;
 }
 
-IPlugVST2::IPlugVST2(IPlugInstanceInfo instanceInfo, IPlugConfig c)
-  : IPlugAPIBase(c, kAPIVST2)
-  , IPlugProcessor<PLUG_SAMPLE_DST>(c, kAPIVST2)
-  , mHostCallback(instanceInfo.mVSTHostCallback)
+static int AsciiToVK(int ascii) {
+#ifdef OS_WIN
+  HKL layout = GetKeyboardLayout(0);
+  return VkKeyScanExA((CHAR)ascii, layout);
+#else
+  // Numbers and uppercase alpha chars map directly to VK
+  if ((ascii >= 0x30 && ascii <= 0x39) || (ascii >= 0x41 && ascii <= 0x5A))
+  {
+    return ascii;
+  }
+
+  // Lowercase alpha chars map to VK but need shifting
+  if (ascii >= 0x61 && ascii <= 0x7A)
+  {
+    return ascii - 0x20;
+  }
+
+  return kVK_NONE;
+#endif
+}
+
+static int VSTKeyCodeToVK(int code, int ascii)
 {
-  Trace(TRACELOC, "%s", c.pluginName);
+  // If the keycode provided by the host is 0, we can still calculate the VK from the ascii value
+  // NOTE: VKEY_EQUALS Doesn't seem to map to a Windows VK, so get the VK from the ascii char instead
+  if (code == 0 || code == VKEY_EQUALS)
+  {
+    return AsciiToVK(ascii);
+  }
+
+  switch (code)
+  {
+    case VKEY_BACK: return kVK_BACK;
+    case VKEY_TAB: return kVK_TAB;
+    case VKEY_CLEAR: return kVK_CLEAR;
+    case VKEY_RETURN: return kVK_RETURN;
+    case VKEY_PAUSE: return kVK_PAUSE;
+    case VKEY_ESCAPE: return kVK_ESCAPE;
+    case VKEY_SPACE: return kVK_SPACE;
+    case VKEY_NEXT: return kVK_NEXT;
+    case VKEY_END: return kVK_END;
+    case VKEY_HOME: return kVK_HOME;
+    case VKEY_LEFT: return kVK_LEFT;
+    case VKEY_UP: return kVK_UP;
+    case VKEY_RIGHT: return kVK_RIGHT;
+    case VKEY_DOWN: return kVK_DOWN;
+    case VKEY_PAGEUP: return kVK_PRIOR;
+    case VKEY_PAGEDOWN: return kVK_NEXT;
+    case VKEY_SELECT: return kVK_SELECT;
+    case VKEY_PRINT: return kVK_PRINT;
+    case VKEY_ENTER: return kVK_RETURN;
+    case VKEY_SNAPSHOT: return kVK_SNAPSHOT;
+    case VKEY_INSERT: return kVK_INSERT;
+    case VKEY_DELETE: return kVK_DELETE;
+    case VKEY_HELP: return kVK_HELP;
+    case VKEY_NUMPAD0: return kVK_NUMPAD0;
+    case VKEY_NUMPAD1: return kVK_NUMPAD1;
+    case VKEY_NUMPAD2: return kVK_NUMPAD2;
+    case VKEY_NUMPAD3: return kVK_NUMPAD3;
+    case VKEY_NUMPAD4: return kVK_NUMPAD4;
+    case VKEY_NUMPAD5: return kVK_NUMPAD5;
+    case VKEY_NUMPAD6: return kVK_NUMPAD6;
+    case VKEY_NUMPAD7: return kVK_NUMPAD7;
+    case VKEY_NUMPAD8: return kVK_NUMPAD8;
+    case VKEY_NUMPAD9: return kVK_NUMPAD9;
+    case VKEY_MULTIPLY: return kVK_MULTIPLY;
+    case VKEY_ADD: return kVK_ADD;
+    case VKEY_SEPARATOR: return kVK_SEPARATOR;
+    case VKEY_SUBTRACT: return kVK_SUBTRACT;
+    case VKEY_DECIMAL: return kVK_DECIMAL;
+    case VKEY_DIVIDE: return kVK_DIVIDE;
+    case VKEY_F1: return kVK_F1;
+    case VKEY_F2: return kVK_F2;
+    case VKEY_F3: return kVK_F3;
+    case VKEY_F4: return kVK_F4;
+    case VKEY_F5: return kVK_F5;
+    case VKEY_F6: return kVK_F6;
+    case VKEY_F7: return kVK_F7;
+    case VKEY_F8: return kVK_F8;
+    case VKEY_F9: return kVK_F9;
+    case VKEY_F10: return kVK_F10;
+    case VKEY_F11: return kVK_F11;
+    case VKEY_F12: return kVK_F12;
+    case VKEY_NUMLOCK: return kVK_NUMLOCK;
+    case VKEY_SCROLL: return kVK_SCROLL;
+    case VKEY_SHIFT: return kVK_SHIFT;
+    case VKEY_CONTROL: return kVK_CONTROL;
+    case VKEY_ALT: return kVK_MENU;
+    case VKEY_EQUALS: return kVK_NONE;
+  }
+
+  return kVK_NONE;
+}
+
+IPlugVST2::IPlugVST2(const InstanceInfo& info, const Config& config)
+  : IPlugAPIBase(config, kAPIVST2)
+  , IPlugProcessor(config, kAPIVST2)
+  , mHostCallback(info.mVSTHostCallback)
+{
+  Trace(TRACELOC, "%s", config.pluginName);
 
   mHasVSTExtensions = VSTEXT_NONE;
 
@@ -39,22 +135,22 @@ IPlugVST2::IPlugVST2(IPlugInstanceInfo instanceInfo, IPlugConfig c)
   mAEffect.dispatcher = VSTDispatcher;
   mAEffect.getParameter = VSTGetParameter;
   mAEffect.setParameter = VSTSetParameter;
-  mAEffect.numPrograms = c.nPresets;
-  mAEffect.numParams = c.nParams;
+  mAEffect.numPrograms = config.nPresets;
+  mAEffect.numParams = config.nParams;
   mAEffect.numInputs = nInputs;
   mAEffect.numOutputs = nOutputs;
-  mAEffect.uniqueID = c.uniqueID;
+  mAEffect.uniqueID = config.uniqueID;
   mAEffect.version = GetPluginVersion(true);
   mAEffect.__ioRatioDeprecated = 1.0f;
   mAEffect.__processDeprecated = VSTProcess;
   mAEffect.processReplacing = VSTProcessReplacing;
   mAEffect.processDoubleReplacing = VSTProcessDoubleReplacing;
-  mAEffect.initialDelay = c.latency;
+  mAEffect.initialDelay = config.latency;
   mAEffect.flags = effFlagsCanReplacing | effFlagsCanDoubleReplacing;
 
-  if (c.plugDoesChunks) { mAEffect.flags |= effFlagsProgramChunks; }
+  if (config.plugDoesChunks) { mAEffect.flags |= effFlagsProgramChunks; }
   if (LegalIO(1, -1)) { mAEffect.flags |= __effFlagsCanMonoDeprecated; }
-  if (c.plugType == EIPlugPluginType::kInstrument) { mAEffect.flags |= effFlagsIsSynth; }
+  if (config.plugType == EIPlugPluginType::kInstrument) { mAEffect.flags |= effFlagsIsSynth; }
 
   memset(&mEditRect, 0, sizeof(ERect));
   memset(&mInputSpkrArr, 0, sizeof(VstSpeakerArrangement));
@@ -70,12 +166,12 @@ IPlugVST2::IPlugVST2(IPlugInstanceInfo instanceInfo, IPlugConfig c)
 
   SetBlockSize(DEFAULT_BLOCK_SIZE);
 
-  if(c.plugHasUI)
+  if(config.plugHasUI)
   {
     mAEffect.flags |= effFlagsHasEditor;
     mEditRect.left = mEditRect.top = 0;
-    mEditRect.right = c.plugWidth;
-    mEditRect.bottom = c.plugHeight;
+    mEditRect.right = config.plugWidth;
+    mEditRect.bottom = config.plugHeight;
   }
   
   CreateTimer();
@@ -101,8 +197,10 @@ void IPlugVST2::InformHostOfProgramChange()
   mHostCallback(&mAEffect, audioMasterUpdateDisplay, 0, 0, 0, 0.0f);
 }
 
-void IPlugVST2::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeight, const IByteChunk& data)
+bool IPlugVST2::EditorResizeFromDelegate(int viewWidth, int viewHeight)
 {
+  bool resized = false;
+
   if (HasUI())
   {
     if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
@@ -111,11 +209,13 @@ void IPlugVST2::EditorPropertiesChangedFromDelegate(int viewWidth, int viewHeigh
       mEditRect.right = viewWidth;
       mEditRect.bottom = viewHeight;
     
-      mHostCallback(&mAEffect, audioMasterSizeWindow, viewWidth, viewHeight, 0, 0.f);
+      resized = mHostCallback(&mAEffect, audioMasterSizeWindow, viewWidth, viewHeight, 0, 0.f);
     }
     
-    IPlugAPIBase::EditorPropertiesChangedFromDelegate(viewWidth, viewHeight, data);
+    IPlugAPIBase::EditorResizeFromDelegate(viewWidth, viewHeight);
   }
+
+  return resized;
 }
 
 void IPlugVST2::SetLatency(int samples)
@@ -234,16 +334,16 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     }
     case effClose:
     {
-      DELETE_NULL(_this);
+      delete _this;
       return 0;
     }
     case effGetParamLabel:
     {
       if (idx >= 0 && idx < _this->NParams())
       {
-        ENTER_PARAMS_MUTEX_STATIC;
+        ENTER_PARAMS_MUTEX_STATIC
         strcpy((char*) ptr, _this->GetParam(idx)->GetLabelForHost());
-        LEAVE_PARAMS_MUTEX_STATIC;
+        LEAVE_PARAMS_MUTEX_STATIC
       }
       return 0;
     }
@@ -251,9 +351,9 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     {
       if (idx >= 0 && idx < _this->NParams())
       {
-        ENTER_PARAMS_MUTEX_STATIC;
+        ENTER_PARAMS_MUTEX_STATIC
         _this->GetParam(idx)->GetDisplayForHost(_this->mParamDisplayStr);
-        LEAVE_PARAMS_MUTEX_STATIC;
+        LEAVE_PARAMS_MUTEX_STATIC
         strcpy((char*) ptr, _this->mParamDisplayStr.Get());
       }
       return 0;
@@ -262,9 +362,9 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     {
       if (idx >= 0 && idx < _this->NParams())
       {
-        ENTER_PARAMS_MUTEX_STATIC;
+        ENTER_PARAMS_MUTEX_STATIC
         strcpy((char*) ptr, _this->GetParam(idx)->GetNameForHost());
-        LEAVE_PARAMS_MUTEX_STATIC;
+        LEAVE_PARAMS_MUTEX_STATIC
       }
       return 0;
     }
@@ -274,7 +374,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
       {
         VstParameterProperties* props = (VstParameterProperties*) ptr;
 
-        ENTER_PARAMS_MUTEX_STATIC;
+        ENTER_PARAMS_MUTEX_STATIC
         IParam* pParam = _this->GetParam(idx);
         switch (pParam->Type())
         {
@@ -296,7 +396,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         }
 
         strcpy(props->label, pParam->GetLabelForHost());
-        LEAVE_PARAMS_MUTEX_STATIC;
+        LEAVE_PARAMS_MUTEX_STATIC
 
         return 1;
       }
@@ -308,13 +408,13 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
       {
         if (ptr)
         {
-          ENTER_PARAMS_MUTEX_STATIC;
+          ENTER_PARAMS_MUTEX_STATIC
           IParam* pParam = _this->GetParam(idx);
           const double v = pParam->StringToValue((const char *)ptr);
           pParam->Set(v);
           _this->SendParameterValueFromAPI(idx, v, false);
           _this->OnParamChange(idx, kHost);
-          LEAVE_PARAMS_MUTEX_STATIC;
+          LEAVE_PARAMS_MUTEX_STATIC
         }
         return 1;
       }
@@ -360,14 +460,12 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
 #if defined OS_WIN || defined ARCH_64BIT
       if (_this->OpenWindow(ptr))
       {
-        _this->OnUIOpen();
         return 1;
       }
 #else   // OSX 32 bit, check if we are in a Cocoa VST host, otherwise tough luck
       bool iscocoa = (_this->mHasVSTExtensions&VSTEXT_COCOA);
       if (iscocoa && _this->OpenWindow(ptr))
       {
-        _this->OnUIOpen();
         return 1; // cocoa supported open cocoa
       }
 #endif
@@ -768,6 +866,29 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     {
       return VST_VERSION;
     }
+    case effEditKeyDown:
+    case effEditKeyUp:
+    {
+      char str[2];
+      str[0] = static_cast<char>(idx);
+      str[1] = '\0';
+
+      int vk = VSTKeyCodeToVK(value, idx);
+      int modifiers = (int)opt;
+
+      IKeyPress keyPress{ str, static_cast<int>(vk),
+                          static_cast<bool>(modifiers & MODIFIER_SHIFT),
+                          static_cast<bool>(modifiers & MODIFIER_CONTROL),
+                          static_cast<bool>(modifiers & MODIFIER_ALTERNATE) };
+
+      bool handled;
+      if (opCode == effEditKeyDown)
+        handled = _this->OnKeyDown(keyPress);
+      else
+        handled = _this->OnKeyUp(keyPress);
+
+      return handled ? 1 : 0;
+    }
     case effEndSetProgram:
     case effBeginSetProgram:
     case effGetMidiProgramName:
@@ -832,28 +953,34 @@ void IPlugVST2::VSTPreProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt3
 // Deprecated.
 void VSTCALLBACK IPlugVST2::VSTProcess(AEffect* pEffect, float** inputs, float** outputs, VstInt32 nFrames)
 {
-  TRACE;
+  TRACE
   IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
+  ENTER_PARAMS_MUTEX_STATIC
   _this->ProcessBuffersAccumulating(nFrames);
+  LEAVE_PARAMS_MUTEX_STATIC
   _this->OutputSysexFromEditor();
 }
 
 void VSTCALLBACK IPlugVST2::VSTProcessReplacing(AEffect* pEffect, float** inputs, float** outputs, VstInt32 nFrames)
 {
-  TRACE;
+  TRACE
   IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
+  ENTER_PARAMS_MUTEX_STATIC
   _this->ProcessBuffers((float) 0.0f, nFrames);
+  LEAVE_PARAMS_MUTEX_STATIC
   _this->OutputSysexFromEditor();
 }
 
 void VSTCALLBACK IPlugVST2::VSTProcessDoubleReplacing(AEffect* pEffect, double** inputs, double** outputs, VstInt32 nFrames)
 {
-  TRACE;
+  TRACE
   IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
+  ENTER_PARAMS_MUTEX_STATIC
   _this->ProcessBuffers((double) 0.0, nFrames);
+  LEAVE_PARAMS_MUTEX_STATIC
   _this->OutputSysexFromEditor();
 }
 
@@ -863,9 +990,9 @@ float VSTCALLBACK IPlugVST2::VSTGetParameter(AEffect *pEffect, VstInt32 idx)
   IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   if (idx >= 0 && idx < _this->NParams())
   {
-    ENTER_PARAMS_MUTEX_STATIC;
+    ENTER_PARAMS_MUTEX_STATIC
     const float val = (float) _this->GetParam(idx)->GetNormalized();
-    LEAVE_PARAMS_MUTEX_STATIC;
+    LEAVE_PARAMS_MUTEX_STATIC
 
     return val;
   }
@@ -878,11 +1005,11 @@ void VSTCALLBACK IPlugVST2::VSTSetParameter(AEffect *pEffect, VstInt32 idx, floa
   IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   if (idx >= 0 && idx < _this->NParams())
   {
-    ENTER_PARAMS_MUTEX_STATIC;
+    ENTER_PARAMS_MUTEX_STATIC
     _this->GetParam(idx)->SetNormalized(value);
     _this->SendParameterValueFromAPI(idx, value, true);
     _this->OnParamChange(idx, kHost);
-    LEAVE_PARAMS_MUTEX_STATIC;
+    LEAVE_PARAMS_MUTEX_STATIC
   }
 }
 
