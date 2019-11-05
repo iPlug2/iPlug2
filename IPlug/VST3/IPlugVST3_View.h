@@ -123,7 +123,7 @@ public:
     TRACE
     
     Steinberg::ViewRect newSize = Steinberg::ViewRect(0, 0, w, h);
-    plugFrame->resizeView(this, &newSize);
+    if(plugFrame != nullptr) plugFrame->resizeView(this, &newSize);
   }
 
   T& mOwner;
