@@ -38,7 +38,6 @@ static constexpr int DEFAULT_TEXT_ENTRY_LEN = 7;
 static constexpr double DEFAULT_GEARING = 4.0;
 
 //what is this stuff
-#define MAX_INET_ERR_CODE 32
 #define TOOLWIN_BORDER_W 6
 #define TOOLWIN_BORDER_H 23
 #define MAX_CLASSNAME_LEN 128

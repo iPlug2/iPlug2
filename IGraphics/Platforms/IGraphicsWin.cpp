@@ -50,7 +50,7 @@ public:
   {
     if (data)
     {
-      DWORD numFonts;
+      DWORD numFonts = 0;
       mFontHandle = AddFontMemResourceEx(data, resSize, NULL, &numFonts);
     }
   }
@@ -226,7 +226,6 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
   IGraphicsWin* pGraphics = (IGraphicsWin*) GetWindowLongPtr(hWnd, GWLP_USERDATA);
   char txt[MAX_WIN32_PARAM_LEN];
-  double v;
 
   if (!pGraphics || hWnd != pGraphics->mPlugWnd)
   {
@@ -425,7 +424,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       ScreenToClient(hWnd, &p);
 
       BYTE keyboardState[256] = {};
-      GetKeyboardState(keyboardState);
+      BOOL state = GetKeyboardState(keyboardState);
       const int keyboardScanCode = (lParam >> 16) & 0x00ff;
       WORD character = 0;
       const int len = ToAscii(wParam, keyboardScanCode, keyboardState, &character, 0);
@@ -1477,7 +1476,7 @@ void IGraphicsWin::PromptForDirectory(WDL_String& dir)
   bi.lpszTitle = "Choose a Directory";
   
   // must call this if using BIF_USENEWUI
-  ::OleInitialize(NULL);
+  HRESULT result = ::OleInitialize(NULL);
   LPITEMIDLIST pIDL = ::SHBrowseForFolder(&bi);
   
   if(pIDL != NULL)
@@ -1565,7 +1564,7 @@ bool IGraphicsWin::OpenURL(const char* url, const char* msgWindowTitle, const ch
   {
     WCHAR urlWide[IPLUG_WIN_MAX_WIDE_PATH];
     UTF8ToUTF16(urlWide, url, IPLUG_WIN_MAX_WIDE_PATH);
-    if ((int) ShellExecuteW(mPlugWnd, L"open", urlWide, 0, 0, SW_SHOWNORMAL) > MAX_INET_ERR_CODE)
+    if (ShellExecuteW(mPlugWnd, L"open", urlWide, 0, 0, SW_SHOWNORMAL) > HINSTANCE(32))
     {
       return true;
     }
@@ -1750,12 +1749,18 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
     case kAbsolutePath:
     {
       HANDLE file = CreateFile(fullPath.Get(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-      HANDLE mapping = CreateFileMapping(file, NULL, PAGE_READONLY, 0, 0, NULL);
-      pFontMem = MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
-      pFont = std::make_unique<InstalledFont>(pFontMem, resSize);
-      UnmapViewOfFile(pFontMem);
-      CloseHandle(mapping);
-      CloseHandle(file);
+      if (file)
+      {
+        HANDLE mapping = CreateFileMapping(file, NULL, PAGE_READONLY, 0, 0, NULL);
+        if (mapping)
+        {
+          pFontMem = MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
+          pFont = std::make_unique<InstalledFont>(pFontMem, resSize);
+          UnmapViewOfFile(pFontMem);
+          CloseHandle(mapping);
+        }
+        CloseHandle(file);
+      }
     }
     break;
     case kWinBinary:

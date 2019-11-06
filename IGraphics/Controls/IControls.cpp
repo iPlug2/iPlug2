@@ -178,7 +178,7 @@ IVSlideSwitchControl::IVSlideSwitchControl(const IRECT& bounds, int paramIdx, co
     SetAnimation([&](IControl* pCaller) {
       auto progress = pCaller->GetAnimationProgress();
       
-      IRECT::LinearInterpolateBetween(mStartRect, mEndRect, mHandleBounds, progress);
+      IRECT::LinearInterpolateBetween(mStartRect, mEndRect, mHandleBounds, static_cast<float>(progress));
 
       if(mValueInWidget)
         mValueBounds = mHandleBounds;
@@ -203,7 +203,7 @@ IVSlideSwitchControl::IVSlideSwitchControl(const IRECT& bounds, IActionFunction 
     SetAnimation([&](IControl* pCaller) {
       auto progress = pCaller->GetAnimationProgress();
       
-      IRECT::LinearInterpolateBetween(mStartRect, mEndRect, mHandleBounds, progress);
+      IRECT::LinearInterpolateBetween(mStartRect, mEndRect, mHandleBounds, static_cast<float>(progress));
       
       if(mValueInWidget)
         mValueBounds = mHandleBounds;
@@ -723,7 +723,7 @@ void IVSliderControl::DrawWidget(IGraphics& g)
   
   float cx, cy;
   
-  const float offset = (mStyle.drawShadows && mShape != EVShape::Ellipse /* TODO? */) ? mStyle.shadowOffset * 0.5f : 0.;
+  const float offset = (mStyle.drawShadows && mShape != EVShape::Ellipse /* TODO? */) ? mStyle.shadowOffset * 0.5f : 0.f;
   
   if(mDirection == EDirection::Vertical)
   {
@@ -865,7 +865,7 @@ IRECT IVRangeSliderControl::GetHandleBounds(int trackIdx)
 {
   IRECT filledTrack = mTrackBounds.Get()[trackIdx].FracRect(mDirection, (float) GetValue(trackIdx));
   float cx, cy;
-  const float offset = (mStyle.drawShadows && mShape != EVShape::Ellipse /* TODO? */) ? mStyle.shadowOffset * 0.5f : 0.;
+  const float offset = (mStyle.drawShadows && mShape != EVShape::Ellipse /* TODO? */) ? mStyle.shadowOffset * 0.5f : 0.f;
   if(mDirection == EDirection::Vertical)
   {
     cx = filledTrack.MW() + offset;
@@ -969,12 +969,12 @@ void IVXYPadControl::Draw(IGraphics& g)
 
 void IVXYPadControl::DrawWidget(IGraphics& g)
 {
-  float xpos = GetValue(0) * mWidgetBounds.W();
-  float ypos = GetValue(1) * mWidgetBounds.H();
+  float xpos = static_cast<float>(GetValue(0)) * mWidgetBounds.W();
+  float ypos = static_cast<float>(GetValue(1)) * mWidgetBounds.H();
   
   g.DrawVerticalLine(GetColor(kSH), mWidgetBounds, 0.5);
   g.DrawHorizontalLine(GetColor(kSH), mWidgetBounds, 0.5);
-  g.PathClipRegion(mWidgetBounds.GetPadded(-0.5 * mStyle.frameThickness));
+  g.PathClipRegion(mWidgetBounds.GetPadded(-0.5f * mStyle.frameThickness));
   DrawPressableEllipse(g, IRECT(mWidgetBounds.L + xpos-mHandleRadius, mWidgetBounds.B - ypos-mHandleRadius, mWidgetBounds.L + xpos+mHandleRadius,  mWidgetBounds.B -ypos+mHandleRadius), mMouseDown, mMouseIsOver);
 }
 
@@ -1043,7 +1043,7 @@ void IVPlotControl::Draw(IGraphics& g)
       {
         auto v = mPlots[p].func(((float)i/(mPoints.size() -1.f)));
         v = (v - mMin) / (mMax-mMin);
-        mPoints[i] = v;
+        mPoints[i] = static_cast<float>(v);
       }
       
       g.DrawData(mPlots[p].color, mWidgetBounds, mPoints.data(), (int) mPoints.size(), nullptr, nullptr, mStyle.frameThickness);

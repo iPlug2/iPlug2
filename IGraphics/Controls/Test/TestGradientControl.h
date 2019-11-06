@@ -33,8 +33,8 @@ public:
   {
     if (g.HasPathSupport())
     {
-      double cr = GetValue() * (mRECT.H() / 2.0);
-      g.PathRoundRect(mRECT.GetPadded(-2), cr);
+      float cr = static_cast<float>(GetValue()) * (mRECT.H() / 2.f);
+      g.PathRoundRect(mRECT.GetPadded(-2.f), cr);
       IFillOptions fillOptions;
       IStrokeOptions strokeOptions;
       fillOptions.mPreserve = true;
@@ -60,7 +60,7 @@ public:
     if (std::rand() & 0x100)
       tmp = IPattern::CreateRadialGradient(mRECT.MW(), mRECT.MH(), mRECT.MH());
     else
-      tmp = IPattern::CreateLinearGradient(mRECT.L, mRECT.MH(), mRECT.L + mRECT.W() * 0.5, mRECT.MH());
+      tmp = IPattern::CreateLinearGradient(mRECT.L, mRECT.MH(), mRECT.L + mRECT.W() * 0.5f, mRECT.MH());
 
     tmp.mExtend = (std::rand() & 0x10) ? ((std::rand() & 0x1000) ? EPatternExtend::None : EPatternExtend::Pad) : ((std::rand() & 0x1000) ? EPatternExtend::Repeat : EPatternExtend::Reflect);
 

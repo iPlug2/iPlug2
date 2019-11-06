@@ -93,7 +93,7 @@ public:
     double NormalizedToValue(double value, const IParam& param) const override;
     double ValueToNormalized(double value, const IParam& param) const override;
   
-    double mShape;
+    double mShape = 1.;
   };
   
   /** PowCurve parameter shaping */

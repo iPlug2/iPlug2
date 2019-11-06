@@ -67,7 +67,7 @@ void IGEditorDelegate::CloseWindow()
 void IGEditorDelegate::SetScreenScale(double scale)
 {
   if (GetUI())
-    mGraphics->SetScreenScale(std::round(scale));
+    mGraphics->SetScreenScale(static_cast<int>(std::round(scale)));
 }
 
 int IGEditorDelegate::SetEditorData(const IByteChunk& data, int startPos)
