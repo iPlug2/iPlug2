@@ -493,9 +493,11 @@ static const char* TextStyleString(ETextStyle style)
 {
   switch (style)
   {
-    case ETextStyle::Normal:  return "Regular";
-    case ETextStyle::Bold:    return "Bold";
-    case ETextStyle::Italic:  return "Italic";
+    case ETextStyle::Bold: return "Bold";
+    case ETextStyle::Italic: return "Italic";
+    case ETextStyle::Normal:
+    default:
+      return "Regular";
   }
 }
 

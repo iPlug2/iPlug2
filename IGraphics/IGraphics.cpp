@@ -1388,7 +1388,7 @@ void IGraphics::RetainBitmap(const IBitmap& bitmap, const char* cacheName)
 IBitmap IGraphics::ScaleBitmap(const IBitmap& inBitmap, const char* name, int scale)
 {
   int screenScale = GetScreenScale();
-  double drawScale = GetDrawScale();
+  float drawScale = GetDrawScale();
 
   mScreenScale = scale;
   mDrawScale = inBitmap.GetDrawScale();
@@ -1720,7 +1720,7 @@ void IGraphics::DoMeasureTextRotation(const IText& text, const IRECT& bounds, IR
   double tx = 0.0, ty = 0.0;
   
   CalulateTextRotation(text, bounds, rect, tx, ty);
-  rect.Translate(tx, ty);
+  rect.Translate(static_cast<float>(tx), static_cast<float>(ty));
 }
 
 void IGraphics::CalulateTextRotation(const IText& text, const IRECT& bounds, IRECT& rect, double& tx, double& ty) const
@@ -1744,8 +1744,8 @@ void IGraphics::CalulateTextRotation(const IText& text, const IRECT& bounds, IRE
   m.TransformPoint(x2, y2);
   m.TransformPoint(x3, y3);
   
-  IRECT r1(std::min(x0, x3), std::min(y0, y3), std::max(x0, x3), std::max(y0, y3));
-  IRECT r2(std::min(x1, x2), std::min(y1, y2), std::max(x1, x2), std::max(y1, y2));
+  IRECT r1(static_cast<float>(std::min(x0, x3)), static_cast<float>(std::min(y0, y3)), static_cast<float>(std::max(x0, x3)), static_cast<float>(std::max(y0, y3)));
+  IRECT r2(static_cast<float>(std::min(x1, x2)), static_cast<float>(std::min(y1, y2)), static_cast<float>(std::max(x1, x2)), static_cast<float>(std::max(y1, y2)));
   rect = r1.Union(r2);
   
   switch (text.mAlign)

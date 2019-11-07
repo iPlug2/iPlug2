@@ -108,7 +108,7 @@ void ITextEntryControl::Draw(IGraphics& g)
     }
     IRECT selectionRect(selectionStart, mRECT.T + row.ymin, selectionEnd, mRECT.T + row.ymax);
     selectionRect = selectionRect.GetVPadded(-mText.mSize*0.1f);
-    IBlend blend(EBlend::Default, 0.2);
+    IBlend blend(EBlend::Default, 0.2f);
     g.FillRect(mText.mTextEntryFGColor, selectionRect, &blend);
   }
 
