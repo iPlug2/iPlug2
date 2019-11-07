@@ -59,6 +59,20 @@ static inline void RadialPoints(float angleDegrees, float cx, float cy, float rM
   }
 }
 
+// Return the intersection of line(p0, p1) with line(p2, p3) as a fraction of the distance along (p2, p3).
+static float GetLineCrossing(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3)
+{
+  auto b = p2 - p0;
+  auto d = p1 - p0;
+  auto e = p3 - p2;
+  float m = d.x * e.y - d.y * e.x;
+  
+  float epsilon = 1e-8;
+  if (std::abs(m) < epsilon)
+    return NAN;
+  return -(d.x * b.y - d.y * b.x) / m;
+}
+
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
 

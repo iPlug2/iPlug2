@@ -126,7 +126,7 @@ enum class EVShape { Rectangle, Ellipse, Triangle, EndsRounded, AllRounded };
 enum class EWinding { CW, CCW };
 
 /** /todo */
-enum class EFillRule { Winding, EvenOdd };
+enum class EFillRule { Winding, EvenOdd, Preserve };
 
 /** /todo */
 enum class ELineCap { Butt, Round, Square };

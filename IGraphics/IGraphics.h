@@ -643,6 +643,10 @@ public:
   virtual void PathLineTo(float x, float y) {}
 
   /** /todo
+  * @param clockwise /todo*/
+  virtual void PathSetWinding(bool clockwise) {}
+
+  /** /todo
    * @param c1x  /todo
    * @param c1y  /todo
    * @param c2x  /todo
