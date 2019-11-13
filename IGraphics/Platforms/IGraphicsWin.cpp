@@ -424,7 +424,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       ScreenToClient(hWnd, &p);
 
       BYTE keyboardState[256] = {};
-      BOOL state = GetKeyboardState(keyboardState);
+      GetKeyboardState(keyboardState);
       const int keyboardScanCode = (lParam >> 16) & 0x00ff;
       WORD character = 0;
       const int len = ToAscii(wParam, keyboardScanCode, keyboardState, &character, 0);
@@ -1476,7 +1476,7 @@ void IGraphicsWin::PromptForDirectory(WDL_String& dir)
   bi.lpszTitle = "Choose a Directory";
   
   // must call this if using BIF_USENEWUI
-  HRESULT result = ::OleInitialize(NULL);
+  ::OleInitialize(NULL);
   LPITEMIDLIST pIDL = ::SHBrowseForFolder(&bi);
   
   if(pIDL != NULL)
