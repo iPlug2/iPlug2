@@ -286,8 +286,8 @@ void VoiceAllocator::ProcessEvents(int blockSize, int64_t sampleTime)
 
 void VoiceAllocator::CalcGlideTimesInSamples()
 {
-  mNoteGlideSamples = mNoteGlideTime*mSampleRate;
-  mControlGlideSamples = mControlGlideTime*mSampleRate;
+  mNoteGlideSamples = int(mNoteGlideTime*mSampleRate);
+  mControlGlideSamples = int(mControlGlideTime*mSampleRate);
 }
 
 int VoiceAllocator::FindFreeVoiceIndex(int startIndex) const
@@ -404,7 +404,7 @@ void VoiceAllocator::NoteOn(VoiceInputEvent e, int64_t sampleTime)
   int key = e.mAddress.mKey;
   int offset = e.mSampleOffset;
   float velocity = e.mValue;
-  double pitch = mKeyToPitchFn(key + mPitchOffset);
+  auto pitch = float(mKeyToPitchFn(key + int(mPitchOffset)));
 
   switch(mPolyMode)
   {
@@ -511,7 +511,7 @@ void VoiceAllocator::NoteOff(VoiceInputEvent e, int64_t sampleTime)
     {
       // trigger the queued key for all voices in the zone at the minimum held velocity.
       // alternatively the release velocity of the note off could be used here.
-      double pitch = mKeyToPitchFn(queuedKey + mPitchOffset);
+      auto pitch = float(mKeyToPitchFn(queuedKey + int(mPitchOffset)));
       bool retrig = false;
 
       StartVoices(VoicesMatchingAddress({e.mAddress.mZone, kAllChannels, kAllKeys, 0}), channel, queuedKey, pitch, mMinHeldVelocity, offset, sampleTime, retrig);

@@ -67,7 +67,7 @@ static float GetLineCrossing(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3)
   auto e = p3 - p2;
   float m = d.x * e.y - d.y * e.x;
   
-  float epsilon = 1e-8;
+  float epsilon = 1e-8f;
   if (std::abs(m) < epsilon)
     return NAN;
   return -(d.x * b.y - d.y * b.x) / m;
