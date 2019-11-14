@@ -166,8 +166,8 @@ public:
   virtual bool IsHit(float x, float y) const override;
   void SetShape(EVShape shape) { mShape = shape; SetDirty(false); }
 protected:
-  int EntryIndexForPoint(float x, float y) const;
   /** @return the index of the entry at the given point or -1 if no entry was hit */
+  virtual int EntryIndexForPoint(float x, float y) const;
 
   int mMouseOverButton = -1;
   WDL_TypedBuf<IRECT> mButtons;
@@ -201,12 +201,10 @@ public:
   IVRadioButtonControl(const IRECT& bounds, IActionFunction actionFunc, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 20.f);
   
   virtual void DrawWidget(IGraphics& g) override;
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
-  void OnMouseOut() override { mMouseOverButton = -1; }
-  void OnResize() override;
-  virtual bool IsHit(float x, float y) const override;
 protected:
+  /** @return the index of the clickable entry at the given point or -1 if no entry was hit */
+  int EntryIndexForPoint(float x, float y) const override;
+
   float mButtonSize;
   bool mOnlyButtonsRespondToMouse = false;
 };
