@@ -21,7 +21,6 @@
 {
   IPlugAUPlayer* player;
   IPlugAUViewController* iplugViewController;
-  IBOutlet UIButton* playButton;
   IBOutlet UIView *auView;
 }
 @end
