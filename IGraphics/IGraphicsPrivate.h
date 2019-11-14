@@ -599,6 +599,17 @@ private:
   WDL_PtrList<DataKey> mDatas;
 };
 
+struct Vec2
+{
+  float x, y;
+  Vec2() = default;
+  Vec2(float x, float y) : x(x), y(y) {}
+  
+  Vec2 operator-(const Vec2 b) { return Vec2{x-b.x, y-b.y}; }
+  Vec2 operator+(const Vec2 b) { return Vec2{x+b.x, y+b.y}; }
+};
+
+
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
 

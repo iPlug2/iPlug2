@@ -116,7 +116,7 @@ public:
 
       if(mNewText)
       {
-        g.DrawText(IText((rand() % 50) + 10, COLOR_WHITE), mStr.Get(), mX, mY);
+        g.DrawText(IText(static_cast<float>((rand() % 50) + 10), COLOR_WHITE), mStr.Get(), mX, mY);
         mNewText = false;
       }
 
@@ -153,7 +153,7 @@ public:
     
     mNewText = true;
     SetAnimation(DefaultAnimationFunc);
-    StartAnimation(5000.);
+    StartAnimation(5000);
     mX = x;
     mY = y;
 

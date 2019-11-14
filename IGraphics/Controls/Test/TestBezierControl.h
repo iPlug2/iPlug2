@@ -69,7 +69,7 @@ public:
   void OnMouseDrag(float x, float y, float, float, const IMouseMod& mod) override
   {
     if(mMouseOverRect)
-      *mMouseOverRect = IRECT(x-2.5, y-2.5, x+2.5, y+2.5);
+      *mMouseOverRect = IRECT(x-2.5f, y-2.5f, x+2.5f, y+2.5f);
     SetDirty(false);
   }
   
