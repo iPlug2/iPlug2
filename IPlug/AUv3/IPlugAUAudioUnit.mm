@@ -617,7 +617,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
       {
         if (currentPreset.number == pFactoryPreset.number)
         {
-          //self->mPlug->RestorePreset(int(pFactoryPreset.number));
+          self->mPlug->RestorePreset(int(pFactoryPreset.number));
           self->mCurrentPreset = pFactoryPreset;
           
           for (int paramIdx = 0; paramIdx < self->mPlug->NParams(); paramIdx++) {
