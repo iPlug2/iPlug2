@@ -46,10 +46,16 @@
   return _audioUnit;
 }
 
+- (void) audioUnitInitialized
+{
+  //No-op
+}
+
 - (void)setAudioUnit:(IPlugAUAudioUnit*) audioUnit
 {
   TRACE
   _audioUnit = audioUnit;
+  [self audioUnitInitialized];
 }
 
 #if PLUG_HAS_UI

@@ -61,7 +61,7 @@
   [session setCategory: AVAudioSessionCategoryPlayAndRecord error:&error];
 //  [session overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:&error];
   [session setPreferredSampleRate:44100. error:nil];
-  
+//  [session setPreferredIOBufferDuration:1 error:nil];
   AVAudioMixerNode* mainMixer = [audioEngine mainMixerNode];
   mainMixer.outputVolume = 1;
   AVAudioFormat* format = [mainMixer outputFormatForBus:0];
