@@ -166,6 +166,9 @@ public:
   virtual bool IsHit(float x, float y) const override;
   void SetShape(EVShape shape) { mShape = shape; SetDirty(false); }
 protected:
+  int EntryIndexForPoint(float x, float y) const;
+  /** @return the index of the entry at the given point or -1 if no entry was hit */
+
   int mMouseOverButton = -1;
   WDL_TypedBuf<IRECT> mButtons;
   WDL_PtrList<WDL_String> mTabLabels;

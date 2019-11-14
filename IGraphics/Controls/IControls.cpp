@@ -374,49 +374,34 @@ void IVTabSwitchControl::DrawWidget(IGraphics& g)
   }
 }
 
-bool IVTabSwitchControl::IsHit(float x, float y) const
+int IVTabSwitchControl::EntryIndexForPoint(float x, float y) const
 {
-  bool hit = false;
-  
   for (int i = 0; i < mNumStates; i++)
   {
-    hit |= mButtons.Get()[i].Contains(x, y);
+    if (mButtons.Get()[i].Contains(x, y))
+      return i;
   }
   
-  return hit;
+  return -1;
+}
+
+bool IVTabSwitchControl::IsHit(float x, float y) const
+{
+  return EntryIndexForPoint(x, y) > -1;
 }
 
 void IVTabSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
-  int hit = -1;
-  
-  for (int i = 0; i < mNumStates; i++)
-  {
-    if(mButtons.Get()[i].Contains(x, y))
-    {
-      hit = i;
-      break;
-    }
-  }
-  
-  if(hit > -1)
-    SetValue(((double) hit * (1./(double) (mNumStates-1))));
+  int index = EntryIndexForPoint(x, y);
+  if (index > -1)
+    SetValue(((double) index * (1./(double) (mNumStates-1))));
   
   SetDirty(true);
 }
 
 void IVTabSwitchControl::OnMouseOver(float x, float y, const IMouseMod& mod)
 {
-  mMouseOverButton = -1;
-  
-  for (int i = 0; i < mNumStates; i++)
-  {
-    if(mButtons.Get()[i].Contains(x, y))
-    {
-      mMouseOverButton = i;
-      break;
-    }
-  }
+  mMouseOverButton = EntryIndexForPoint(x, y);
   
   ISwitchControlBase::OnMouseOver(x, y, mod);
   
