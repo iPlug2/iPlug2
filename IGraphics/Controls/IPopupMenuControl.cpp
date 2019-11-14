@@ -505,7 +505,7 @@ void IPopupMenuControl::Expand(const IRECT& anchorArea)
   mAnchorArea = anchorArea;
   
   float x = anchorArea.L;
-  float y = anchorArea.T;
+  float y = anchorArea.B;
   
   if(mCallOut)
   {
