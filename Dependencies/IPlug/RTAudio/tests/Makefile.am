@@ -1,5 +1,5 @@
 
-noinst_PROGRAMS = audioprobe playsaw playraw record duplex testall teststops
+noinst_PROGRAMS = audioprobe playsaw playraw record duplex apinames testall teststops
 
 AM_CXXFLAGS = -Wall -I$(top_srcdir)
 
@@ -18,10 +18,15 @@ record_LDADD = $(top_builddir)/librtaudio.la
 duplex_SOURCES = duplex.cpp
 duplex_LDADD = $(top_builddir)/librtaudio.la
 
+apinames_SOURCES = apinames.cpp
+apinames_LDADD = $(top_builddir)/librtaudio.la
+
 testall_SOURCES = testall.cpp
 testall_LDADD = $(top_builddir)/librtaudio.la
 
 teststops_SOURCES = teststops.cpp
 teststops_LDADD = $(top_builddir)/librtaudio.la
 
-EXTRA_DIST = Windows
+EXTRA_DIST = Windows CMakeLists.txt
+
+TESTS = apinames

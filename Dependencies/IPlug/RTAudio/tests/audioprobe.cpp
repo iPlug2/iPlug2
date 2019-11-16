@@ -17,7 +17,7 @@ int main()
   std::map<int, std::string> apiMap;
   apiMap[RtAudio::MACOSX_CORE] = "OS-X Core Audio";
   apiMap[RtAudio::WINDOWS_ASIO] = "Windows ASIO";
-  apiMap[RtAudio::WINDOWS_DS] = "Windows Direct Sound";
+  apiMap[RtAudio::WINDOWS_DS] = "Windows DirectSound";
   apiMap[RtAudio::WINDOWS_WASAPI] = "Windows WASAPI";
   apiMap[RtAudio::UNIX_JACK] = "Jack Client";
   apiMap[RtAudio::LINUX_ALSA] = "Linux ALSA";
@@ -46,6 +46,7 @@ int main()
     info = audio.getDeviceInfo(i);
 
     std::cout << "\nDevice Name = " << info.name << '\n';
+    std::cout << "Device ID = " << i << '\n';
     if ( info.probed == false )
       std::cout << "Probe Status = UNsuccessful\n";
     else {
