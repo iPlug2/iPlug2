@@ -86,7 +86,7 @@ public:
 
   void SetNoteOffset(double offset)
   {
-    mVoiceAllocator.SetPitchOffset(offset);
+    mVoiceAllocator.SetPitchOffset(static_cast<float>(offset));
   }
 
   void SetNoteGlideTime(double t)
