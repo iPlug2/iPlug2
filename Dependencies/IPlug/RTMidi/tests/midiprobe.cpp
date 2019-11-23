@@ -13,7 +13,7 @@ int main()
 {
   // Create an api map.
   std::map<int, std::string> apiMap;
-  apiMap[RtMidi::MACOSX_CORE] = "OS-X CoreMidi";
+  apiMap[RtMidi::MACOSX_CORE] = "OS-X CoreMIDI";
   apiMap[RtMidi::WINDOWS_MM] = "Windows MultiMedia";
   apiMap[RtMidi::UNIX_JACK] = "Jack Client";
   apiMap[RtMidi::LINUX_ALSA] = "Linux ALSA";
@@ -42,7 +42,7 @@ int main()
 
     for ( unsigned i=0; i<nPorts; i++ ) {
       std::string portName = midiin->getPortName(i);
-      std::cout << "  Input Port #" << i+1 << ": " << portName << '\n';
+      std::cout << "  Input Port #" << i << ": " << portName << '\n';
     }
 
     // RtMidiOut constructor ... exception possible
@@ -56,7 +56,7 @@ int main()
 
     for ( unsigned i=0; i<nPorts; i++ ) {
       std::string portName = midiout->getPortName(i);
-      std::cout << "  Output Port #" << i+1 << ": " << portName << std::endl;
+      std::cout << "  Output Port #" << i << ": " << portName << std::endl;
     }
     std::cout << std::endl;
 

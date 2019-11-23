@@ -43,7 +43,7 @@ public:
     auto drawBlendPic = [this](IGraphics& g, IRECT r, EBlend blend, const char* name, float alpha)
     {
       IBlend blendMode { blend, alpha };
-      g.FillCircle(IColor(128, 255, 0, 0), r.MW(), r.MH(), r.W() / 2.0);
+      g.FillCircle(IColor(128, 255, 0, 0), r.MW(), r.MH(), r.W() / 2.f);
       g.DrawFittedBitmap(mBitmap, r, &blendMode);
       g.DrawText(mText, name, r);
     };

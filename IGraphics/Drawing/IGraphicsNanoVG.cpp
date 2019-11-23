@@ -570,6 +570,11 @@ void IGraphicsNanoVG::PathQuadraticBezierTo(float cx, float cy, float x2, float 
   nvgQuadTo(mVG, cx, cy, x2, y2);
 }
 
+void IGraphicsNanoVG::PathSetWinding(bool clockwise)
+{
+  nvgPathWinding(mVG, clockwise ? NVG_CW : NVG_CCW);
+}
+
 IColor IGraphicsNanoVG::GetPoint(int x, int y)
 {
   return COLOR_BLACK; //TODO:
@@ -667,7 +672,22 @@ void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const
 
 void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
 {
-  nvgPathWinding(mVG, options.mFillRule == EFillRule::Winding ? NVG_CCW : NVG_CW);
+  switch(options.mFillRule)
+  {
+    // This concept of fill vs. even/odd winding does not really translate to nanovg.
+    // Instead the caller is responsible for settting winding correctly for each subpath
+    // based on whether it's a solid (NVG_CCW) or hole (NVG_CW).
+    case EFillRule::Winding:
+      nvgPathWinding(mVG, NVG_CCW);
+      break;
+    case EFillRule::EvenOdd:
+      nvgPathWinding(mVG, NVG_CW);
+      break;
+    case EFillRule::Preserve:
+      // don't set a winding rule for the path, to preserve individual windings on subpaths
+    default:
+      break;
+  }
   
   if (pattern.mType == EPatternType::Solid)
     nvgFillColor(mVG, NanoVGColor(pattern.GetStop(0).mColor, pBlend));

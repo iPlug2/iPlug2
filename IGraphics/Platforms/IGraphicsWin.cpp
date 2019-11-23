@@ -48,7 +48,7 @@ public:
   {
     if (data)
     {
-      DWORD numFonts;
+      DWORD numFonts = 0;
       mFontHandle = AddFontMemResourceEx(data, resSize, NULL, &numFonts);
     }
   }
@@ -241,7 +241,6 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   }
 
   char txt[MAX_WIN32_PARAM_LEN];
-  double v;
 
   IGraphicsWin* pGraphics = (IGraphicsWin*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
@@ -1580,7 +1579,7 @@ bool IGraphicsWin::OpenURL(const char* url, const char* msgWindowTitle, const ch
   {
     WCHAR urlWide[IPLUG_WIN_MAX_WIDE_PATH];
     UTF8ToUTF16(urlWide, url, IPLUG_WIN_MAX_WIDE_PATH);
-    if ((int) ShellExecuteW(mPlugWnd, L"open", urlWide, 0, 0, SW_SHOWNORMAL) > MAX_INET_ERR_CODE)
+    if (ShellExecuteW(mPlugWnd, L"open", urlWide, 0, 0, SW_SHOWNORMAL) > HINSTANCE(32))
     {
       return true;
     }
@@ -1765,12 +1764,18 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
     case kAbsolutePath:
     {
       HANDLE file = CreateFile(fullPath.Get(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-      HANDLE mapping = CreateFileMapping(file, NULL, PAGE_READONLY, 0, 0, NULL);
-      pFontMem = MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
-      pFont = std::make_unique<InstalledFont>(pFontMem, resSize);
-      UnmapViewOfFile(pFontMem);
-      CloseHandle(mapping);
-      CloseHandle(file);
+      if (file)
+      {
+        HANDLE mapping = CreateFileMapping(file, NULL, PAGE_READONLY, 0, 0, NULL);
+        if (mapping)
+        {
+          pFontMem = MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
+          pFont = std::make_unique<InstalledFont>(pFontMem, resSize);
+          UnmapViewOfFile(pFontMem);
+          CloseHandle(mapping);
+        }
+        CloseHandle(file);
+      }
     }
     break;
     case kWinBinary:

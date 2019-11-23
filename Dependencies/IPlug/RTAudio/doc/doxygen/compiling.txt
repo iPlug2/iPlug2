@@ -61,7 +61,7 @@ In order to compile RtAudio for a specific OS and audio API, it is necessary to 
 </TR>
 <TR>
   <TD>Windows</TD>
-  <TD>Direct Sound</TD>
+  <TD>DirectSound</TD>
   <TD>RtApiDs</TD>
   <TD>__WINDOWS_DS__</TD>
   <TD><TT>dsound.lib (ver. 5.0 or higher), multithreaded</TT></TD>
@@ -80,8 +80,8 @@ In order to compile RtAudio for a specific OS and audio API, it is necessary to 
   <TD>WASAPI</TD>
   <TD>RtApiWasapi</TD>
   <TD>__WINDOWS_WASAPI__</TD>
-  <TD>MinGW: <TT>FunctionDiscoveryKeys_devpkey.h, lksuser, luuid, lwinmm, lole32</TT></TD>
-  <TD>MinGW: <TT>g++ -Wall -D__WINDOWS_WASAPI__ -Iinclude -o audioprobe audioprobe.cpp RtAudio.cpp -lole32 -lwinmm -lksuser -luuid</TT></TD>
+  <TD>MinGW: <TT>FunctionDiscoveryKeys_devpkey.h, lksuser, lmfplat, lmfuuid, lwmcodecdspuuid, lwinmm, lole32</TT></TD>
+  <TD>MinGW: <TT>g++ -Wall -D__WINDOWS_WASAPI__ -Iinclude -o audioprobe audioprobe.cpp RtAudio.cpp -lole32 -lwinmm -lksuser -lmfplat -lmfuuid -lwmcodecdspuuid</TT></TD>
 </TR>
 </TABLE>
 <P>

@@ -15,40 +15,39 @@ struct rtaudio {
   char errmsg[MAX_ERROR_MESSAGE_LENGTH];
 };
 
-static const rtaudio_api_t compiled_api[] = {
-#if defined(__UNIX_JACK__)
-    RTAUDIO_API_UNIX_JACK,
-#endif
-#if defined(__LINUX_ALSA__)
-    RTAUDIO_API_LINUX_ALSA,
-#endif
-#if defined(__LINUX_PULSE__)
-    RTAUDIO_API_LINUX_PULSE,
-#endif
-#if defined(__LINUX_OSS__)
-    RTAUDIO_API_LINUX_OSS,
-#endif
-#if defined(__WINDOWS_ASIO__)
-    RTAUDIO_API_WINDOWS_ASIO,
-#endif
-#if defined(__WINDOWS_WASAPI__)
-    RTAUDIO_API_WINDOWS_WASAPI,
-#endif
-#if defined(__WINDOWS_DS__)
-    RTAUDIO_API_WINDOWS_DS,
-#endif
-#if defined(__MACOSX_CORE__)
-    RTAUDIO_API_MACOSX_CORE,
-#endif
-#if defined(__RTAUDIO_DUMMY__)
-    RTAUDIO_API_DUMMY,
-#endif
-    RTAUDIO_API_UNSPECIFIED,
-};
-
 const char *rtaudio_version() { return RTAUDIO_VERSION; }
 
-const rtaudio_api_t *rtaudio_compiled_api() { return compiled_api; }
+extern "C" const RtAudio::Api rtaudio_compiled_apis[];
+const rtaudio_api_t *rtaudio_compiled_api() {
+  return (rtaudio_api_t *) &rtaudio_compiled_apis[0];
+}
+
+extern "C" const unsigned int rtaudio_num_compiled_apis;
+unsigned int rtaudio_get_num_compiled_apis(void) {
+  return rtaudio_num_compiled_apis;
+}
+
+extern "C" const char* rtaudio_api_names[][2];
+const char *rtaudio_api_name(rtaudio_api_t api) {
+    if (api < 0 || api >= RTAUDIO_API_NUM)
+        return NULL;
+    return rtaudio_api_names[api][0];
+}
+
+const char *rtaudio_api_display_name(rtaudio_api_t api)
+{
+    if (api < 0 || api >= RTAUDIO_API_NUM)
+        return "Unknown";
+    return rtaudio_api_names[api][1];
+}
+
+rtaudio_api_t rtaudio_compiled_api_by_name(const char *name) {
+    RtAudio::Api api = RtAudio::UNSPECIFIED;
+    if (name) {
+        api = RtAudio::getCompiledApiByName(name);
+    }
+    return (rtaudio_api_t)api;
+}
 
 const char *rtaudio_error(rtaudio_t audio) {
   if (audio->has_error) {
