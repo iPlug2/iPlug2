@@ -1847,6 +1847,8 @@ void IGraphicsWin::CachePlatformFont(const char* fontID, const PlatformFontPtr& 
 #endif
   #include "nanovg.c"
   #include "glad.c"
+#elif defined IGRAPHICS_D2D
+  #include "IGraphicsD2D.cpp"
 #else
   #error
 #endif

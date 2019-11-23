@@ -74,6 +74,9 @@
     #if defined IGRAPHICS_GL || defined IGRAPHICS_METAL
       #error When using IGRAPHICS_CANVAS, don't define IGRAPHICS_METAL or IGRAPHICS_GL*
     #endif
+  #elif defined IGRAPHICS_D2D
+    #include "IGraphicsD2D.h"
+    #define IGRAPHICS_DRAW_CLASS_TYPE IGraphicsD2D
   #else
     #error NO IGRAPHICS_MODE defined
   #endif
