@@ -374,49 +374,34 @@ void IVTabSwitchControl::DrawWidget(IGraphics& g)
   }
 }
 
-bool IVTabSwitchControl::IsHit(float x, float y) const
+int IVTabSwitchControl::GetButtonForPoint(float x, float y) const
 {
-  bool hit = false;
-  
   for (int i = 0; i < mNumStates; i++)
   {
-    hit |= mButtons.Get()[i].Contains(x, y);
+    if (mButtons.Get()[i].Contains(x, y))
+      return i;
   }
   
-  return hit;
+  return -1;
+}
+
+bool IVTabSwitchControl::IsHit(float x, float y) const
+{
+  return GetButtonForPoint(x, y) > -1;
 }
 
 void IVTabSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
-  int hit = -1;
-  
-  for (int i = 0; i < mNumStates; i++)
-  {
-    if(mButtons.Get()[i].Contains(x, y))
-    {
-      hit = i;
-      break;
-    }
-  }
-  
-  if(hit > -1)
-    SetValue(((double) hit * (1./(double) (mNumStates-1))));
+  int index = GetButtonForPoint(x, y);
+  if (index > -1)
+    SetValue(((double) index * (1./(double) (mNumStates-1))));
   
   SetDirty(true);
 }
 
 void IVTabSwitchControl::OnMouseOver(float x, float y, const IMouseMod& mod)
 {
-  mMouseOverButton = -1;
-  
-  for (int i = 0; i < mNumStates; i++)
-  {
-    if(mButtons.Get()[i].Contains(x, y))
-    {
-      mMouseOverButton = i;
-      break;
-    }
-  }
+  mMouseOverButton = GetButtonForPoint(x, y);
   
   ISwitchControlBase::OnMouseOver(x, y, mod);
   
@@ -470,72 +455,20 @@ void IVRadioButtonControl::DrawWidget(IGraphics& g)
   }
 }
 
-bool IVRadioButtonControl::IsHit(float x, float y) const
+int IVRadioButtonControl::GetButtonForPoint(float x, float y) const
 {
-  if(mOnlyButtonsRespondToMouse)
+  if (mOnlyButtonsRespondToMouse)
   {
-    bool hit = false;
-    
     for (int i = 0; i < mNumStates; i++)
     {
-      hit |= mButtons.Get()[i].FracRectHorizontal(0.25f).Contains(x, y);
+      if (mButtons.Get()[i].FracRectHorizontal(0.25f).Contains(x, y))
+        return i;
     }
     
-    return hit;
+    return -1;
   }
   else
-    return IVTabSwitchControl::IsHit(x, y);
-}
-
-void IVRadioButtonControl::OnMouseDown(float x, float y, const IMouseMod& mod)
-{
-  int hit = -1;
-  
-  for (int i = 0; i < mNumStates; i++)
-  {
-    if(mButtons.Get()[i].FracRectHorizontal(0.25f).Contains(x, y))
-    {
-      hit = i;
-      break;
-    }
-  }
-  
-  if(hit > -1)
-    SetValue(((double) hit * (1./(double) (mNumStates-1))));
-  
-  SetDirty(true);
-}
-
-void IVRadioButtonControl::OnMouseOver(float x, float y, const IMouseMod& mod)
-{
-  mMouseOverButton = -1;
-  
-  for (int i = 0; i < mNumStates; i++)
-  {
-    if(mButtons.Get()[i].FracRectHorizontal(0.25f).Contains(x, y))
-    {
-      mMouseOverButton = i;
-      break;
-    }
-  }
-  
-  IVTabSwitchControl::OnMouseOver(x, y, mod);
-  
-  SetDirty(false);
-}
-
-void IVRadioButtonControl::OnResize()
-{
-  SetTargetRECT(MakeRects(mRECT));
-  
-  mButtons.Resize(0);
-  
-  for (int i = 0; i < mNumStates; i++)
-  {
-    mButtons.Add(mWidgetBounds.SubRect(mDirection, mNumStates, i));
-  }
-  
-  SetDirty(false);
+    return IVTabSwitchControl::GetButtonForPoint(x, y);
 }
 
 IVKnobControl::IVKnobControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueIsEditable, bool valueInWidget, float a1, float a2, float aAnchor,  EDirection direction, double gearing)
