@@ -208,6 +208,19 @@ public:
    * @return CString preset name */
   const char* GetPresetName(int idx) const;
   
+  /** Copy source preset to preset at index
+  * @param pPresetSrc source preset
+  * @param dest_idx index of internal dest preset */
+  void CopyPreset(IPreset* pPresetSrc, int dest_idx, bool copyname = false)
+  {
+    IPreset* pPresetTgt = mPresets.Get(dest_idx);
+
+    pPresetTgt->mChunk.Clear();
+    pPresetTgt->mChunk.PutChunk(&pPresetSrc->mChunk);
+    pPresetTgt->mInitialized = true;
+    strncpy(pPresetTgt->mName, pPresetSrc->mName, MAX_PRESET_NAME_LEN - 1);
+  }
+  
   /** /todo 
    * @param name /todo
    * @param nPresets /todo */
