@@ -774,6 +774,15 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   }
 }
 
+-(void) flagsChanged: (NSEvent *)pEvent{
+    int flag = 0;
+    const NSInteger mod = [pEvent modifierFlags];
+    if (mod & NSShiftKeyMask) flag |= kFSHIFT;
+    if (mod & NSCommandKeyMask) flag |= kFCONTROL; // todo: this should be command once we figure it out
+    if (mod & NSAlternateKeyMask) flag |= kFALT;
+    mGraphics->OnModifierKeysChange(mPrevX, mPrevY, flag);
+}
+
 - (void)keyUp: (NSEvent *)pEvent
 {
   int flag = 0;
