@@ -98,9 +98,9 @@ public:
 
   /** Call this to create a pop-up menu
    @param menu Reference to a menu from which to populate this user interface control. NOTE: this object should not be a temporary, otherwise when the menu returns asynchronously, it may not exist.
-   @param bounds \todo
+   @param anchorArea The pop-up menu opens adjacent to this area, but won't occupy it. At the moment, the menu is always below or right of that region.
    @param pCaller The IControl that called this method, and will receive the call back after menu selection */
-  void CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds);
+  void CreatePopupMenu(IPopupMenu& menu, const IRECT& anchorArea);
 
   /** @return \true if the pop-up is fully expanded */
   bool GetExpanded() const { return mState == kExpanded; }
@@ -200,7 +200,7 @@ private:
   const float ARROW_SIZE = 8; // The width of the area on the right of the cell where an arrow appears for new submenus
   const float PAD = 5.; // How much white space between the background and the cells
   const float CALLOUT_SPACE = 8; // The space between start bounds and callout
-  IRECT mOriginalBounds; // The rectangular area where the menu was triggered
+  IRECT mAnchorArea; // The area where the menu was triggered; menu will be adjacent, but won't occupy it.
   EArrowDir mCalloutArrowDir = kEast;
   IRECT mCalloutArrowBounds;
 
