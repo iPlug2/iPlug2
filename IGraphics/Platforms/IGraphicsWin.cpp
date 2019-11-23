@@ -208,15 +208,15 @@ void IGraphicsWin::DestroyEditWindow()
  }
 }
 
+
 // static
 void CALLBACK IGraphicsWin::TimerProc(void* param, BOOLEAN timerCalled)
 {
   IGraphicsWin* pGraphics = static_cast<IGraphicsWin*>(param);
 
-  InvalidateRect(pGraphics->mPlugWnd, &pGraphics->mInvalidRECT, FALSE);
-
-  if (pGraphics->mParamEditMsg == kNone)
-    ValidateRect(pGraphics->mPlugWnd, &pGraphics->mValidRECT); // make sure we dont redraw the edit box area
+  InvalidateRect(pGraphics->mPlugWnd, /*&pGraphics->mInvalidRECT*/ NULL, NULL);
+//  if (pGraphics->mParamEditMsg == kNone)
+//    ValidateRect(pGraphics->mPlugWnd, &pGraphics->mValidRECT); // make sure we dont redraw the edit box area
 };
 
 // static
@@ -228,15 +228,13 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     LPCREATESTRUCT lpcs = (LPCREATESTRUCT) lParam;
     SetWindowLongPtr(hWnd, GWLP_USERDATA, (LPARAM) (lpcs->lpCreateParams));
     IGraphicsWin* pGraphics = (IGraphicsWin*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-    DWORD mSec = static_cast<DWORD>(std::floor(1000.0 / (double) pGraphics->FPS()));
-    SetTimer(hWnd, IPLUG_TIMER_ID, mSec, NULL); // event timer
-
-    BOOL success = CreateTimerQueueTimer(&pGraphics->mTimer, NULL, TimerProc, pGraphics, 0, mSec, WT_EXECUTEINTIMERTHREAD);
-
-    assert(success);
+    DWORD timerDurationMs = static_cast<DWORD>(std::floor(1000.0 / (double)pGraphics->FPS()));
+    //SetTimer(hWnd, IPLUG_TIMER_ID, timerDurationMs, NULL); // event timer
+    CreateTimerQueueTimer(&pGraphics->mTimer, NULL, TimerProc, pGraphics, 0, 1 /* 1ms resolution */, WT_EXECUTEINTIMERTHREAD);
 
     SetFocus(hWnd); // gets scroll wheel working straight away
     DragAcceptFiles(hWnd, true);
+
     return 0;
   }
 
@@ -264,61 +262,61 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   
   switch (msg)
   {
-    case WM_TIMER:
-    {
-      if (wParam == IPLUG_TIMER_ID)
-      {
-        if (pGraphics->mParamEditWnd && pGraphics->mParamEditMsg != kNone)
-        {
-          switch (pGraphics->mParamEditMsg)
-          {
-            case kCommit:
-            {
-              SendMessage(pGraphics->mParamEditWnd, WM_GETTEXT, MAX_WIN32_PARAM_LEN, (LPARAM) txt);
-              pGraphics->SetControlValueAfterTextEdit(txt);
-              pGraphics->DestroyEditWindow();
-            }
-            break;
-                  
-            case kCancel:
-            {
-              pGraphics->DestroyEditWindow();
-            }
-            break;
-          }
-          pGraphics->mParamEditMsg = kNone;
-          pGraphics->mValidRECT = { 0,0,0,0 };
+    //case WM_TIMER:
+    //{
+    //  if (wParam == IPLUG_TIMER_ID)
+    //  {
+    //    if (pGraphics->mParamEditWnd && pGraphics->mParamEditMsg != kNone)
+    //    {
+    //      switch (pGraphics->mParamEditMsg)
+    //      {
+    //        case kCommit:
+    //        {
+    //          SendMessage(pGraphics->mParamEditWnd, WM_GETTEXT, MAX_WIN32_PARAM_LEN, (LPARAM) txt);
+    //          pGraphics->SetControlValueAfterTextEdit(txt);
+    //          pGraphics->DestroyEditWindow();
+    //        }
+    //        break;
+    //              
+    //        case kCancel:
+    //        {
+    //          pGraphics->DestroyEditWindow();
+    //        }
+    //        break;
+    //      }
+    //      pGraphics->mParamEditMsg = kNone;
+    //      pGraphics->mValidRECT = { 0,0,0,0 };
 
-          return 0; // TODO: check this!
-        }
+    //      return 0; // TODO: check this!
+    //    }
 
-        int scale = GetScaleForWindow(pGraphics->mPlugWnd);
-        if (scale != pGraphics->GetScreenScale())
-          pGraphics->SetScreenScale(scale);
+    //    int scale = GetScaleForWindow(pGraphics->mPlugWnd);
+    //    if (scale != pGraphics->GetScreenScale())
+    //      pGraphics->SetScreenScale(scale);
 
-        IRECTList rects;
-         
-        if (pGraphics->IsDirty(rects))
-        {
-          pGraphics->SetAllControlsClean();
+    //    IRECTList rects;
+    //     
+    //    if (pGraphics->IsDirty(rects))
+    //    {
+    //      pGraphics->SetAllControlsClean();
 
-          IRECT dirtyR = rects.Bounds();
-          dirtyR.Scale(pGraphics->GetDrawScale() * pGraphics->GetScreenScale());
-          dirtyR.PixelAlign();
-          pGraphics->mInvalidRECT = { (LONG)dirtyR.L, (LONG)dirtyR.T, (LONG)dirtyR.R, (LONG)dirtyR.B };
+    //      IRECT dirtyR = rects.Bounds();
+    //      dirtyR.Scale(pGraphics->GetDrawScale() * pGraphics->GetScreenScale());
+    //      dirtyR.PixelAlign();
+    //      pGraphics->mInvalidRECT = { (LONG)dirtyR.L, (LONG)dirtyR.T, (LONG)dirtyR.R, (LONG)dirtyR.B };
 
-          if (pGraphics->mParamEditWnd)
-          {
-            IRECT notDirtyR = pGraphics->mEditRECT;
-            notDirtyR.Scale(pGraphics->GetDrawScale() * pGraphics->GetScreenScale());
-            notDirtyR.PixelAlign();
-            pGraphics->mValidRECT = { (LONG) notDirtyR.L, (LONG) notDirtyR.T, (LONG) notDirtyR.R, (LONG) notDirtyR.B };
-            pGraphics->mParamEditMsg = kUpdate;
-          }
-        }
-      }
-      return 0;
-    }
+    //      if (pGraphics->mParamEditWnd)
+    //      {
+    //        IRECT notDirtyR = pGraphics->mEditRECT;
+    //        notDirtyR.Scale(pGraphics->GetDrawScale() * pGraphics->GetScreenScale());
+    //        notDirtyR.PixelAlign();
+    //        pGraphics->mValidRECT = { (LONG) notDirtyR.L, (LONG) notDirtyR.T, (LONG) notDirtyR.R, (LONG) notDirtyR.B };
+    //        pGraphics->mParamEditMsg = kUpdate;
+    //      }
+    //    }
+    //  }
+    //  return 0;
+    //}
 
     case WM_RBUTTONDOWN:
     case WM_LBUTTONDOWN:
@@ -483,12 +481,6 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
       if ((regionType == COMPLEXREGION) || (regionType == SIMPLEREGION))
       {
-        #ifdef IGRAPHICS_GL
-        pGraphics->ActivateGLContext();
-        PAINTSTRUCT ps;
-        BeginPaint(hWnd, &ps); // TODO: BeginPaint/EndPaint and GetDC/ReleaseDC ? issues closing reaper without this
-        #endif
-
         IRECTList rects;
         const int bufferSize = sizeof(RECT) * 64;
         unsigned char stackBuffer[sizeof(RGNDATA) + bufferSize];
@@ -506,13 +498,25 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           addDrawRect(rects, r);
         }
 
+#if defined IGRAPHICS_GL || IGRAPHICS_D3D
+        PAINTSTRUCT ps;
+        BeginPaint(hWnd, &ps);
+#endif
+
+#ifdef IGRAPHICS_GL
+        pGraphics->ActivateGLContext();
+#endif
+
         pGraphics->Draw(rects);
 
         #ifdef IGRAPHICS_GL
         SwapBuffers((HDC) pGraphics->mPlatformContext);
         pGraphics->DeactivateGLContext();
-        EndPaint(hWnd, &ps);
         #endif
+
+#if defined IGRAPHICS_GL || IGRAPHICS_D3D
+        EndPaint(hWnd, &ps);
+#endif
       }
 
       DeleteObject(region);
