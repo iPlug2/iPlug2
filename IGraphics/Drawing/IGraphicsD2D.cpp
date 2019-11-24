@@ -443,12 +443,55 @@ void IGraphicsD2D::FillEllipse(const IColor& color, float x, float y, float r1, 
 
 void IGraphicsD2D::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)
 {
-  //TODO
+  const APIBitmap* pBitmap = layer->GetAPIBitmap();
+
+  int width = pBitmap->GetWidth();
+  int height = pBitmap->GetHeight();
+
+  IWICBitmap* pWICBitmap = nullptr;
+  mWICFactory.Get()->CreateBitmap(width, height, GUID_WICPixelFormat32bppPBGRA, WICBitmapCacheOnLoad, &pWICBitmap);
+
+  ID2D1RenderTarget* pWICRenderTarget = nullptr;
+  mFactory->CreateWicBitmapRenderTarget(pWICBitmap,
+    D2D1::RenderTargetProperties(D2D1_RENDER_TARGET_TYPE_DEFAULT, D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED),
+    0.f, 0.f, D2D1_RENDER_TARGET_USAGE_GDI_COMPATIBLE),
+    &pWICRenderTarget);
+
+  WICRect rect = { 0, 0, width, height };
+  IWICBitmapLock* pWICLock = 0;
+  pWICBitmap->Lock(&rect, WICBitmapLockRead, &pWICLock);
+
+  BYTE* pBytes = 0;
+  UINT size = 0;
+  pWICLock->GetDataPointer(&size, &pBytes);
+
+  data.Resize(size);
+
+  if (data.GetSize() >= size)
+    memcpy(data.Get(), pBytes, size);
 }
 
 void IGraphicsD2D::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow)
 {
-  //TODO
+//  mD2DDeviceContext->SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
+//
+//  auto layerBitmap = layer->GetAPIBitmap()->GetBitmap();
+//
+//  ID2D1BitmapRenderTarget* pCompatibleRenderTarget = NULL;
+//  mD2DDeviceContext->CreateCompatibleRenderTarget(layerBitmap->GetSize(), &pCompatibleRenderTarget);
+//  layerBitmap->CopyFromRenderTarget(nullptr, pCompatibleRenderTarget, nullptr);
+//
+//  pCompatibleRenderTarget->SetAntialiasMode(D2D1_ANTIALIAS_MODE_ALIASED);
+//
+//  pCompatibleRenderTarget->FillOpacityMask()
+//    m_pBitmapMask,
+//    m_pOriginalBitmapBrush,
+//    D2D1_OPACITY_MASK_CONTENT_GRAPHICS,
+//    &rcBrushRect,
+//    NULL
+//  );
+//
+//  m_pRenderTarget->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
 }
 
 void IGraphicsD2D::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
