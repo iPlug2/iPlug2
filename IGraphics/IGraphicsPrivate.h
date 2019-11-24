@@ -60,6 +60,9 @@
   #include <emscripten.h>
   #include <emscripten/val.h>
   #define BITMAP_DATA_TYPE emscripten::val*
+#elif defined IGRAPHICS_D2D
+  #include <d2d1.h>
+  #define BITMAP_DATA_TYPE ID2D1Bitmap*
 #else // NO_IGRAPHICS
   #define BITMAP_DATA_TYPE void*;
 #endif

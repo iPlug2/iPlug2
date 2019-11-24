@@ -41,25 +41,25 @@ inline void SafeRelease(Interface** ppInterfaceToRelease)
 class IGraphicsD2D::Bitmap : public APIBitmap
 {
 public:
-  Bitmap(ID2D1Bitmap* pSurface, int scale, float drawScale);
-  Bitmap(ID2D1Bitmap* pSurfaceType, int width, int height, int scale, float drawScale);
+  Bitmap(ID2D1Bitmap* pD2DBitmap, int scale, float drawScale);
+  Bitmap(ID2D1Bitmap* pD2DBitmap, int width, int height, int scale, float drawScale);
   virtual ~Bitmap();
 };
 
-IGraphicsD2D::Bitmap::Bitmap(ID2D1Bitmap* pSurface, int scale, float drawScale)
+IGraphicsD2D::Bitmap::Bitmap(ID2D1Bitmap* pD2DBitmap, int scale, float drawScale)
 {
-  //TODO
-  //SetBitmap(pSurface, width, height, scale, drawScale);
+  auto size = pD2DBitmap->GetSize();
+  SetBitmap(pD2DBitmap, size.width, size.height, scale, drawScale);
 }
 
-IGraphicsD2D::Bitmap::Bitmap(ID2D1Bitmap* pSurfaceType, int width, int height, int scale, float drawScale)
+IGraphicsD2D::Bitmap::Bitmap(ID2D1Bitmap* pD2DBitmap, int width, int height, int scale, float drawScale)
 {
-  //TODO
-  //SetBitmap(pSurface, width, height, scale, drawScale);
+  SetBitmap(pD2DBitmap, width, height, scale, drawScale);
 }
 
 IGraphicsD2D::Bitmap::~Bitmap()
 {
+  //TODO: free the bitmap
 }
 
 class IGraphicsD2D::Font
@@ -136,10 +136,9 @@ IGraphicsD2D::IGraphicsD2D(IGEditorDelegate& dlg, int w, int h, int fps, float s
 
 IGraphicsD2D::~IGraphicsD2D()
 {
+  D2DFinalize();
   StaticStorage<Font>::Accessor storage(sFontCache);
   storage.Release();
-
-  D2DFinalize();
 }
 
 void IGraphicsD2D::DrawResize()
@@ -152,14 +151,47 @@ void IGraphicsD2D::DrawResize()
 
 APIBitmap* IGraphicsD2D::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext)
 {
-  //TODO
-  return new Bitmap(nullptr, scale, 1.f);
+  ID2D1Bitmap* pD2DBitmap = nullptr;
+  wchar_t fileNameOrResIDWideStr[_MAX_PATH];
+
+  UTF8ToUTF16(fileNameOrResIDWideStr, fileNameOrResID, _MAX_PATH);
+
+  if (location == EResourceLocation::kWinBinary)
+  {
+    int size = 0;
+    //const void* pData = LoadWinResource(fileNameOrResID, "png", size, GetWinModuleHandle());
+    HRESULT hr = LoadResourceBitmap(fileNameOrResIDWideStr, L"png", &pD2DBitmap);
+
+  }
+  else if (location == EResourceLocation::kAbsolutePath)
+  {
+    HRESULT hr = LoadBitmapFromFile(fileNameOrResIDWideStr, &pD2DBitmap);
+
+    assert(hr == 0); // TODO: remove
+  }
+
+  return new Bitmap(pD2DBitmap, scale, 1.f);
 }
 
 APIBitmap* IGraphicsD2D::CreateAPIBitmap(int width, int height, int scale, double drawScale)
 {
-  //TODO
-  return new Bitmap(nullptr, scale, 1.f);
+  ID2D1Bitmap* pD2DBitmap = nullptr;
+
+  D2D1_PIXEL_FORMAT desc2D = D2D1::PixelFormat();
+  desc2D.format = DXGI_FORMAT_R8G8B8A8_UNORM;
+  desc2D.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED;
+
+  D2D1_BITMAP_PROPERTIES props = D2D1::BitmapProperties();
+  props.dpiX = 96.0f;
+  props.dpiY = 96.0f;
+  props.pixelFormat = desc2D;
+
+  HRESULT hr = mD2DDeviceContext->CreateBitmap(D2D1::SizeU(width, height), props, &pD2DBitmap);
+
+  if (SUCCEEDED(hr))
+    return new Bitmap(pD2DBitmap, width, height, scale, drawScale);
+  else
+    return nullptr;
 }
 
 bool IGraphicsD2D::BitmapExtSupported(const char* ext)
@@ -227,10 +259,18 @@ void IGraphicsD2D::PathMoveTo(float x, float y)
     mFactory->CreatePathGeometry(&mPath);
     mPath->Open(&mPathSink);
     mPathSink->SetFillMode(D2D1_FILL_MODE_ALTERNATE);  // TODO: might need to be different
+    mPathSink->BeginFigure(D2D1::Point2F(x, y), D2D1_FIGURE_BEGIN_FILLED);
+    mInFigure = true;
   }
-
-  // looks like we don't know this
-  mPathSink->BeginFigure(D2D1::Point2F(x, y), D2D1_FIGURE_BEGIN_FILLED);
+  else
+  {
+    if (mInFigure)
+    {
+      mPathSink->EndFigure(D2D1_FIGURE_END_CLOSED);
+      mPathSink->Close();
+      mInFigure = false;
+    }
+  }
 }
 
 void IGraphicsD2D::PathLineTo(float x, float y)
@@ -276,6 +316,7 @@ void IGraphicsD2D::PathStroke(const IPattern& pattern, float thickness, const IS
   {
     mPathSink->EndFigure(D2D1_FIGURE_END_OPEN);
     mPathSink->Close();
+    mInFigure = false;
     SafeRelease(&mPathSink);
   }
   mD2DDeviceContext->DrawGeometry(mPath, GetBrush(pattern.GetStop(0).mColor), thickness);
@@ -287,6 +328,7 @@ void IGraphicsD2D::PathFill(const IPattern& pattern, const IFillOptions& options
   {
     mPathSink->EndFigure(D2D1_FIGURE_END_CLOSED);
     mPathSink->Close();
+    mInFigure = false;
     SafeRelease(&mPathSink);
   }
   mD2DDeviceContext->FillGeometry(mPath, GetBrush(pattern.GetStop(0).mColor));
@@ -411,7 +453,8 @@ void IGraphicsD2D::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const 
 
 void IGraphicsD2D::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
-  //TODO
+  const D2D1_RECT_F rect = D2DRect({ dest.L, dest.T, dest.L + static_cast<float>(bitmap.W()), dest.T + static_cast<float>(bitmap.H())});
+  mD2DDeviceContext->DrawBitmap(bitmap.GetAPIBitmap()->GetBitmap(), &rect, 1.0f, D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, NULL);
 }
 
 IColor IGraphicsD2D::GetPoint(int x, int y)
@@ -451,11 +494,11 @@ void IGraphicsD2D::PrepareAndMeasureText(const IText& text, const char* str, IRE
   std::wstring strString(s2ws(str));
   IDWriteTextLayout1* layout = nullptr;
   HRESULT hr = mDWriteFactory->CreateTextLayout(
-    strString.data(),				// The string to be laid out and formatted.
-    strString.length(),				// The length of the string.
-    font,			// The text format to apply to the string (contains font information, etc).
-    10000.0f,						// The width of the layout box.
-    10000.0f,						// The height of the layout box.
+    strString.data(), // The string to be laid out and formatted.
+    strString.length(), // The length of the string.
+    font, // The text format to apply to the string (contains font information, etc).
+    10000.0f,// The width of the layout box.
+    10000.0f,// The height of the layout box.
     (IDWriteTextLayout**)&layout);	// The IDWriteTextLayout interface pointer.
 
   DWRITE_TEXT_METRICS metrics;
@@ -543,7 +586,7 @@ void IGraphicsD2D::BeginFrame()
   }
 
   // check for occlusion
-//  if (SUCCEEDED(hr) && !(m_pRenderTarget->CheckWindowState() & D2D1_WINDOW_STATE_OCCLUDED))
+//  if (SUCCEEDED(hr) && !(m_mD2DDeviceContext->CheckWindowState() & D2D1_WINDOW_STATE_OCCLUDED))
 
   mTargetSize = mD2DDeviceContext->GetSize();
 
@@ -650,6 +693,9 @@ void IGraphicsD2D::D2DInitialize()
   ZeroMemory(&options, sizeof(D2D1_FACTORY_OPTIONS));
   hr = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, __uuidof(ID2D1Factory1), &options, reinterpret_cast<void**>(&mFactory));
   hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory1), reinterpret_cast<IUnknown**>(&mDWriteFactory));
+
+  // create WIC factory
+  hr = CoCreateInstance(CLSID_WICImagingFactory2, NULL, CLSCTX_INPROC_SERVER, IID_IWICImagingFactory2, &mWICFactory);
 
   D2DCreateFactoryResources();
 
@@ -916,4 +962,173 @@ void IGraphicsD2D::NukeFontCache()
     delete item.second;
   }
   mFontCache.clear();
+}
+
+HRESULT IGraphicsD2D::LoadBitmapFromFile(PCWSTR uri, ID2D1Bitmap** ppBitmap)
+{
+  IWICBitmapDecoder* pDecoder = NULL;
+  IWICBitmapFrameDecode* pSource = NULL;
+  IWICStream* pStream = NULL;
+  IWICFormatConverter* pConverter = NULL;
+  IWICBitmapScaler* pScaler = NULL;
+
+  HRESULT hr = mWICFactory.Get()->CreateDecoderFromFilename(
+    uri,
+    NULL,
+    GENERIC_READ,
+    WICDecodeMetadataCacheOnLoad,
+    &pDecoder
+  );
+
+  if (SUCCEEDED(hr))
+  {
+    // Create the initial frame.
+    hr = pDecoder->GetFrame(0, &pSource);
+  }
+
+  if (SUCCEEDED(hr))
+  {
+    // Convert the image format to 32bppPBGRA
+    // (DXGI_FORMAT_B8G8R8A8_UNORM + D2D1_ALPHA_MODE_PREMULTIPLIED).
+    hr = mWICFactory.Get()->CreateFormatConverter(&pConverter);
+  }
+
+  if (SUCCEEDED(hr))
+  {
+    hr = pConverter->Initialize(
+      pSource,
+      GUID_WICPixelFormat32bppPBGRA,
+      WICBitmapDitherTypeNone,
+      NULL,
+      0.f,
+      WICBitmapPaletteTypeMedianCut
+    );
+
+    if (SUCCEEDED(hr))
+    {
+
+      // Create a Direct2D bitmap from the WIC bitmap.
+      hr = mD2DDeviceContext->CreateBitmapFromWicBitmap(
+        pConverter,
+        NULL,
+        ppBitmap
+      );
+    }
+
+    SafeRelease(&pDecoder);
+    SafeRelease(&pSource);
+    SafeRelease(&pStream);
+    SafeRelease(&pConverter);
+    SafeRelease(&pScaler);
+
+    return hr;
+  }
+}
+
+HRESULT IGraphicsD2D::LoadResourceBitmap(PCWSTR resourceName, PCWSTR resourceType, ID2D1Bitmap** ppBitmap)
+{
+  IWICBitmapDecoder* pDecoder = NULL;
+  IWICBitmapFrameDecode* pSource = NULL;
+  IWICStream* pStream = NULL;
+  IWICFormatConverter* pConverter = NULL;
+  IWICBitmapScaler* pScaler = NULL;
+
+  HRSRC imageResHandle = NULL;
+  HGLOBAL imageResDataHandle = NULL;
+  void* pImageFile = NULL;
+  DWORD imageFileSize = 0;
+
+  // Locate the resource.
+  imageResHandle = FindResourceW(static_cast<HMODULE>(GetWinModuleHandle()), resourceName, resourceType);
+  HRESULT hr = imageResHandle ? S_OK : E_FAIL;
+  if (SUCCEEDED(hr))
+  {
+    // Load the resource.
+    imageResDataHandle = LoadResource(static_cast<HMODULE>(GetWinModuleHandle()), imageResHandle);
+
+    hr = imageResDataHandle ? S_OK : E_FAIL;
+  }
+
+  if (SUCCEEDED(hr))
+  {
+    // Lock it to get a system memory pointer.
+    pImageFile = LockResource(imageResDataHandle);
+
+    hr = pImageFile ? S_OK : E_FAIL;
+  }
+  if (SUCCEEDED(hr))
+  {
+    // Calculate the size.
+    imageFileSize = SizeofResource(static_cast<HMODULE>(GetWinModuleHandle()), imageResHandle);
+
+    hr = imageFileSize ? S_OK : E_FAIL;
+
+  }
+  if (SUCCEEDED(hr))
+  {
+    // Create a WIC stream to map onto the memory.
+    hr = mWICFactory.Get()->CreateStream(&pStream);
+  }
+  if (SUCCEEDED(hr))
+  {
+    // Initialize the stream with the memory pointer and size.
+    hr = pStream->InitializeFromMemory(
+      reinterpret_cast<BYTE*>(pImageFile),
+      imageFileSize
+    );
+  }
+  if (SUCCEEDED(hr))
+  {
+    // Create a decoder for the stream.
+    hr = mWICFactory.Get()->CreateDecoderFromStream(
+      pStream,
+      NULL,
+      WICDecodeMetadataCacheOnLoad,
+      &pDecoder
+    );
+  }
+  if (SUCCEEDED(hr))
+  {
+    // Create the initial frame.
+    hr = pDecoder->GetFrame(0, &pSource);
+  }
+  if (SUCCEEDED(hr))
+  {
+    // Convert the image format to 32bppPBGRA
+    // (DXGI_FORMAT_B8G8R8A8_UNORM + D2D1_ALPHA_MODE_PREMULTIPLIED).
+    hr = mWICFactory.Get()->CreateFormatConverter(&pConverter);
+  }
+
+  if (SUCCEEDED(hr))
+  {
+    hr = pConverter->Initialize(
+      pSource,
+      GUID_WICPixelFormat32bppPBGRA,
+      WICBitmapDitherTypeNone,
+      NULL,
+      0.f,
+      WICBitmapPaletteTypeMedianCut
+    );
+
+    if (SUCCEEDED(hr))
+    {
+      //create a Direct2D bitmap from the WIC bitmap.
+      hr = mD2DDeviceContext->CreateBitmapFromWicBitmap(
+        pConverter,
+        NULL,
+        ppBitmap
+      );
+
+    }
+
+    SafeRelease(&pDecoder);
+    SafeRelease(&pSource);
+    SafeRelease(&pStream);
+    SafeRelease(&pConverter);
+    SafeRelease(&pScaler);
+
+    return hr;
+  }
+
+  return 1;
 }

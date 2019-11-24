@@ -22,14 +22,17 @@
 #endif
 
 #include <d2d1_1.h>
-//#include <d2d1helper.h>
 #include <d3d11_1.h>
 #include <dwrite.h>
 #include <dwrite_1.h>
 #include <wincodec.h>
+#include <WTypes.h>
+#include <wrl/client.h>
+
 #pragma comment(lib, "d2d1.lib")
 #pragma comment(lib, "Dwrite.lib")
 #pragma comment(lib, "d3d11.lib")
+#pragma comment(lib, "Windowscodecs.lib")
 
 #include "IGraphicsPathBase.h"
 
@@ -148,14 +151,19 @@ private:
   void D2DReleaseDeviceDependantResources();
   void D2DReleaseSizeDependantResources();
 
+  HRESULT LoadBitmapFromFile(PCWSTR uri, ID2D1Bitmap** ppBitmap);
+  HRESULT LoadResourceBitmap(PCWSTR resourceName, PCWSTR resourceType, ID2D1Bitmap** ppBitmap);
+
   ID2D1Factory1* mFactory = nullptr;
   IDWriteFactory1* mDWriteFactory = nullptr;
   ID3D11Device* mD3DDevice = nullptr;
   ID2D1Device* mD2DDevice = nullptr;
   IDXGISwapChain1* mSwapChain = nullptr;
   ID2D1DeviceContext* mD2DDeviceContext = nullptr;
+  Microsoft::WRL::ComPtr<IWICImagingFactory2> mWICFactory;
 
   bool mInDraw = false;
+  bool mInFigure = false;
   UINT mLastVsync = 0;
   bool mPushClipCalled = false;
 
