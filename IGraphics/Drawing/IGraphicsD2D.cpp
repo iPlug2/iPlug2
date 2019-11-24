@@ -497,34 +497,34 @@ void IGraphicsD2D::PrepareAndMeasureText(const IText& text, const char* str, IRE
     strString.data(), // The string to be laid out and formatted.
     strString.length(), // The length of the string.
     font, // The text format to apply to the string (contains font information, etc).
-    10000.0f,// The width of the layout box.
-    10000.0f,// The height of the layout box.
+    r.W(),// The width of the layout box.
+    r.H(),// The height of the layout box.
     (IDWriteTextLayout**)&layout);	// The IDWriteTextLayout interface pointer.
 
   DWRITE_TEXT_METRICS metrics;
-  hr = layout->GetMetrics(&metrics);
+  DWRITE_TEXT_ALIGNMENT textAlign = DWRITE_TEXT_ALIGNMENT_CENTER;
+  DWRITE_PARAGRAPH_ALIGNMENT paraAlign = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;
 
-  //return D2D1::SizeF(metrics.width, metrics.height);
-  const double textWidth = metrics.width; // textExtents.width + textExtents.x_bearing;
-  const double textHeight = metrics.height; // fontExtents.height;
-  const double ascender = 0; // fontExtents.ascent;
-  const double descender = 0; // fontExtents.descent;
+  hr = layout->GetMetrics(&metrics);
 
   switch (text.mAlign)
   {
-    case EAlign::Near:     x = r.L;                          break;
-    case EAlign::Center:   x = r.MW() - (textWidth / 2.0);   break;
-    case EAlign::Far:      x = r.R - textWidth;              break;
+    case EAlign::Near:     textAlign = DWRITE_TEXT_ALIGNMENT_LEADING;     x = r.L;                          break;
+    case EAlign::Center:   textAlign = DWRITE_TEXT_ALIGNMENT_CENTER;      x = r.MW() - (metrics.width/2.f); break;
+    case EAlign::Far:      textAlign = DWRITE_TEXT_ALIGNMENT_TRAILING;    x = r.R - metrics.width;          break;
   }
 
   switch (text.mVAlign)
   {
-    case EVAlign::Top:      y = r.T + ascender;                            break;
-    case EVAlign::Middle:   y = r.MH() - descender + (textHeight / 2.0);   break;
-    case EVAlign::Bottom:   y = r.B - descender;                           break;
+    case EVAlign::Top:     paraAlign = DWRITE_PARAGRAPH_ALIGNMENT_NEAR;     y = r.T;                               break;
+    case EVAlign::Middle:  paraAlign = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;   y = r.MH() - (metrics.height / 2.f);   break;
+    case EVAlign::Bottom:  paraAlign = DWRITE_PARAGRAPH_ALIGNMENT_FAR;      y = r.B - metrics.height;              break;
   }
 
-  r = IRECT((float)x, (float)(y - ascender), (float)(x + textWidth), (float)(y + textHeight - ascender));
+  layout->SetTextAlignment(textAlign);
+  layout->SetParagraphAlignment(paraAlign);
+
+  r = IRECT(x, y, x + metrics.width, y + metrics.height);
 
   SafeRelease(&layout);
 }
