@@ -510,14 +510,14 @@ void IGraphicsD2D::PrepareAndMeasureText(const IText& text, const char* str, IRE
   switch (text.mAlign)
   {
     case EAlign::Near:     textAlign = DWRITE_TEXT_ALIGNMENT_LEADING;     x = r.L;                          break;
-    case EAlign::Center:   textAlign = DWRITE_TEXT_ALIGNMENT_CENTER;      x = r.MW() - (metrics.width/2.f); break;
+    case EAlign::Center:   textAlign = DWRITE_TEXT_ALIGNMENT_CENTER;      x = static_cast<double>(r.MW() - (metrics.width/2.f)); break;
     case EAlign::Far:      textAlign = DWRITE_TEXT_ALIGNMENT_TRAILING;    x = r.R - metrics.width;          break;
   }
 
   switch (text.mVAlign)
   {
     case EVAlign::Top:     paraAlign = DWRITE_PARAGRAPH_ALIGNMENT_NEAR;     y = r.T;                               break;
-    case EVAlign::Middle:  paraAlign = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;   y = r.MH() - (metrics.height / 2.f);   break;
+    case EVAlign::Middle:  paraAlign = DWRITE_PARAGRAPH_ALIGNMENT_CENTER;   y = static_cast<double>(r.MH() - (metrics.height / 2.f));   break;
     case EVAlign::Bottom:  paraAlign = DWRITE_PARAGRAPH_ALIGNMENT_FAR;      y = r.B - metrics.height;              break;
   }
 
@@ -546,13 +546,10 @@ void IGraphicsD2D::DoDrawText(const IText& text, const char* str, const IRECT& b
   double x, y;
 
   const IColor& c = text.mFGColor;
-  bool useNativeTransforms = true;
-
-  IMatrix m = GetTransformMatrix();
-  useNativeTransforms = !text.mAngle && !m.mXY && !m.mYX;
 
   PrepareAndMeasureText(text, str, measured, x, y, format);
-//  PathTransformSave();
+  PathTransformSave();
+  DoTextRotation(text, bounds, measured);
 
   std::wstring strString(s2ws(str));
   D2D1_RECT_F pos = D2DRect(bounds);
@@ -562,6 +559,8 @@ void IGraphicsD2D::DoDrawText(const IText& text, const char* str, const IRECT& b
   pos.bottom = y + bounds.H();
   mD2DDeviceContext->DrawTextA(strString.data(), strString.length(), format, pos, GetBrush(text.mFGColor));
     //(accidental.GetBuffer(), accidental.GetLength(), accidentalFont, incidentalBounds, m_brightTextBrush);
+
+  PathTransformRestore();
 }
 
 void IGraphicsD2D::SetPlatformContext(void* pContext)
