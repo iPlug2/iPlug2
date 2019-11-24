@@ -453,8 +453,9 @@ void IGraphicsD2D::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const 
 
 void IGraphicsD2D::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
-  const D2D1_RECT_F rect = D2DRect({ dest.L, dest.T, dest.L + static_cast<float>(bitmap.W()), dest.T + static_cast<float>(bitmap.H())});
-  mD2DDeviceContext->DrawBitmap(bitmap.GetAPIBitmap()->GetBitmap(), &rect, 1.0f, D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, NULL);
+  const D2D1_RECT_F srcRect = D2DRect({ static_cast<float>(srcX), static_cast<float>(srcY), static_cast<float>(srcX + bitmap.FW()), static_cast<float>(srcY + bitmap.FH()) });
+  const D2D1_RECT_F dstRect = D2DRect({ dest.L, dest.T, dest.L + static_cast<float>(bitmap.FW()), dest.T + static_cast<float>(bitmap.FH())});
+  mD2DDeviceContext->DrawBitmap(bitmap.GetAPIBitmap()->GetBitmap(), &dstRect, 1.0f, D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, &srcRect);
 }
 
 IColor IGraphicsD2D::GetPoint(int x, int y)
