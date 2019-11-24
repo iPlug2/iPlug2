@@ -296,7 +296,7 @@ void IGraphicsD2D::DrawLine(const IColor& color, float x1, float y1, float x2, f
 {
 #ifdef USE_NATIVE_SHAPES
   PathClear();
-  mD2DDeviceContext->DrawLine(D2D1::Point2F(x1,y1), D2D1::Point2F(x2, y2), GetBrush(color));
+  mD2DDeviceContext->DrawLine(D2D1::Point2F(x1,y1), D2D1::Point2F(x2, y2), GetBrush(color), thickness);
 #else
   IGraphicsPathBase::DrawLine(color, x1, y1, x2, y2, pBlend, thickness);
 #endif

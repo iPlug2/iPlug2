@@ -230,7 +230,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     IGraphicsWin* pGraphics = (IGraphicsWin*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
     DWORD timerDurationMs = static_cast<DWORD>(std::floor(1000.0 / (double)pGraphics->FPS()));
     //SetTimer(hWnd, IPLUG_TIMER_ID, timerDurationMs, NULL); // event timer
-    CreateTimerQueueTimer(&pGraphics->mTimer, NULL, TimerProc, pGraphics, 0, 1 /* 1ms resolution */, WT_EXECUTEINTIMERTHREAD);
+    //CreateTimerQueueTimer(&pGraphics->mTimer, NULL, TimerProc, pGraphics, 0, 1 /* 1ms resolution */, WT_EXECUTEINTIMERTHREAD);
 
     SetFocus(hWnd); // gets scroll wheel working straight away
     DragAcceptFiles(hWnd, true);
@@ -484,12 +484,12 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         IRECTList rects;
         const int bufferSize = sizeof(RECT) * 64;
         unsigned char stackBuffer[sizeof(RGNDATA) + bufferSize];
-        RGNDATA* regionData = (RGNDATA *) stackBuffer;
+        RGNDATA* regionData = (RGNDATA*)stackBuffer;
 
         if (regionType == COMPLEXREGION && GetRegionData(region, bufferSize, regionData))
         {
           for (int i = 0; i < regionData->rdh.nCount; i++)
-            addDrawRect(rects, *(((RECT*) regionData->Buffer) + i));
+            addDrawRect(rects, *(((RECT*)regionData->Buffer) + i));
         }
         else
         {
@@ -498,7 +498,13 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           addDrawRect(rects, r);
         }
 
-#if defined IGRAPHICS_GL || IGRAPHICS_D3D
+        //Temporarily put this here to e.g. make animations work
+        if (pGraphics->IsDirty(rects))
+        {
+          pGraphics->SetAllControlsClean();
+        }
+
+#if defined IGRAPHICS_GL //|| IGRAPHICS_D2D
         PAINTSTRUCT ps;
         BeginPaint(hWnd, &ps);
 #endif
@@ -514,7 +520,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         pGraphics->DeactivateGLContext();
         #endif
 
-#if defined IGRAPHICS_GL || IGRAPHICS_D3D
+#if defined IGRAPHICS_GL //|| IGRAPHICS_D2D
         EndPaint(hWnd, &ps);
 #endif
       }
