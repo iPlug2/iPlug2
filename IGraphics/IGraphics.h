@@ -1299,7 +1299,7 @@ public:
    * @return \c true if handled \todo check this */
   bool OnKeyUp(float x, float y, const IKeyPress& key);
   
-  void OnModifierKeysChange(float x, float y, int flag);
+  bool OnModifierKeysChange(float x, float y, int flag);
     
   bool GetModifierKeyPressed(int key);
     

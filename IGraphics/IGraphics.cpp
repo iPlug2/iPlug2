@@ -1037,25 +1037,25 @@ bool IGraphics::OnKeyUp(float x, float y, const IKeyPress& key)
   return handled;
 }
 
-void IGraphics::OnModifierKeysChange(float x, float y, int flag){
+bool IGraphics::OnModifierKeysChange(float x, float y, int flag){
     int changedKey = flag - mModifierKeys;
+    mModifierKeys = flag;
     int code;
     switch(abs(changedKey)){
         case kFSHIFT:   code = kVK_SHIFT;   break;
         case kFCONTROL: code = kVK_CONTROL; break;
         case kFALT:     code = kVK_MENU;    break;
+        default:                            return false;
     }
     
     IKeyPress keyPress {"", code, static_cast<bool>(flag & kFSHIFT),
-                                    static_cast<bool>(flag & kFCONTROL),
-                                    static_cast<bool>(flag & kFALT)};
+                                  static_cast<bool>(flag & kFCONTROL),
+                                  static_cast<bool>(flag & kFALT)};
     
     if (changedKey > 0)
-        OnKeyDown(x, y, keyPress);
+        return OnKeyDown(x, y, keyPress);
     else if (changedKey < 0)
-        OnKeyUp(x, y, keyPress);
-    
-    mModifierKeys = flag;
+        return OnKeyUp(x, y, keyPress);
 }
 
 bool IGraphics::GetModifierKeyPressed(int key){
