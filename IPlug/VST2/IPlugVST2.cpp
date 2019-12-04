@@ -164,6 +164,12 @@ IPlugVST2::IPlugVST2(const InstanceInfo& info, const Config& config)
   SetChannelConnections(ERoute::kInput, 0, nInputs, true);
   SetChannelConnections(ERoute::kOutput, 0, nOutputs, true);
 
+  if (MaxNChannels(ERoute::kInput))          // TBPROAUDIO 03102019 smart bypass handling
+  {
+    mLatencyDelay = std::unique_ptr<NChanDelayLine<PLUG_SAMPLE_DST>>(new NChanDelayLine<PLUG_SAMPLE_DST>(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput)));
+    mLatencyDelay->SetDelayTime(GetLatency());
+  }
+
   SetBlockSize(DEFAULT_BLOCK_SIZE);
 
   if(config.plugHasUI)
@@ -222,6 +228,7 @@ void IPlugVST2::SetLatency(int samples)
 {
   mAEffect.initialDelay = samples;
   IPlugProcessor::SetLatency(samples);
+  bool ret = mHostCallback(&mAEffect, audioMasterIOChanged, 0, 0, 0, 0.0f); //TBPROAUDIO 30092019, Notify host about latency changes 
 }
 
 bool IPlugVST2::SendVSTEvent(VstEvent& event)
@@ -718,6 +725,10 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
             return 1;
           }
         }
+        if (!strcmp((char*)ptr, "bypass"))  // TBPROAUDIO 03102019 smart bypass handling
+        {
+          return 1;
+        }
         // Support Reaper VST extensions: http://www.reaper.fm/sdk/vst/
         if (!strcmp((char*) ptr, "hasCockosExtensions"))
         {
@@ -889,13 +900,20 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
 
       return handled ? 1 : 0;
     }
+    case effSetBypass:                // TBPROAUDIO 03102019 smart bypass handling
+    {
+      const bool bypassed = (value > 0.5);
+      if (bypassed != _this->GetBypassed())
+        _this->SetBypassed(bypassed);
+      return 1;
+    }
     case effEndSetProgram:
     case effBeginSetProgram:
     case effGetMidiProgramName:
     case effHasMidiProgramsChanged:
     case effGetMidiProgramCategory:
     case effGetCurrentMidiProgram:
-    case effSetBypass:
+    //case effSetBypass:              // TBPROAUDIO 03102019 smart bypass handling
     default:
     {
       return 0;
@@ -909,6 +927,11 @@ void IPlugVST2::VSTPreProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt3
   if (DoesMIDIIn())
     mHostCallback(&mAEffect, __audioMasterWantMidiDeprecated, 0, 0, 0, 0.0f);
 
+  if (nFrames > GetBlockSize()) // TBPROAUDIO 03102019 if numSamples > block size adjust internal buffers and inform plug
+  {
+    SetBlockSize(nFrames);
+    OnReset();
+  }
   AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), inputs, nFrames);
   AttachBuffers(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), outputs, nFrames);
 
@@ -956,9 +979,16 @@ void VSTCALLBACK IPlugVST2::VSTProcess(AEffect* pEffect, float** inputs, float**
   TRACE
   IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
-  ENTER_PARAMS_MUTEX_STATIC
-  _this->ProcessBuffersAccumulating(nFrames);
-  LEAVE_PARAMS_MUTEX_STATIC
+  if (_this->GetBypassed())                         // TBPROAUDIO 03102019 smart bypass handling
+  {
+    _this->PassThroughBuffers((float) 0.f, nFrames); // single precision
+  }
+  else
+  {
+  	ENTER_PARAMS_MUTEX_STATIC
+    _this->ProcessBuffersAccumulating(nFrames);
+    LEAVE_PARAMS_MUTEX_STATIC
+  }
   _this->OutputSysexFromEditor();
 }
 
@@ -967,9 +997,16 @@ void VSTCALLBACK IPlugVST2::VSTProcessReplacing(AEffect* pEffect, float** inputs
   TRACE
   IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
-  ENTER_PARAMS_MUTEX_STATIC
-  _this->ProcessBuffers((float) 0.0f, nFrames);
-  LEAVE_PARAMS_MUTEX_STATIC
+  if (_this->GetBypassed())                         // TBPROAUDIO 03102019 smart bypass handling
+  {
+    _this->PassThroughBuffers((float) 0.f, nFrames); // single precision
+  }
+  else
+  {
+  	ENTER_PARAMS_MUTEX_STATIC
+    _this->ProcessBuffers((float) 0.0f, nFrames);
+    LEAVE_PARAMS_MUTEX_STATIC
+  }
   _this->OutputSysexFromEditor();
 }
 
@@ -978,9 +1015,16 @@ void VSTCALLBACK IPlugVST2::VSTProcessDoubleReplacing(AEffect* pEffect, double**
   TRACE
   IPlugVST2* _this = (IPlugVST2*) pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
-  ENTER_PARAMS_MUTEX_STATIC
-  _this->ProcessBuffers((double) 0.0, nFrames);
-  LEAVE_PARAMS_MUTEX_STATIC
+  if (_this->GetBypassed())                           // TBPROAUDIO 03102019 smart bypass handling
+  {
+    _this->PassThroughBuffers((double) 0.0, nFrames); // single precision
+  }
+  else
+  {
+  	ENTER_PARAMS_MUTEX_STATIC
+    _this->ProcessBuffers((double) 0.0, nFrames);
+    LEAVE_PARAMS_MUTEX_STATIC
+  }
   _this->OutputSysexFromEditor();
 }
 
