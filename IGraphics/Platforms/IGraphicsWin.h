@@ -153,7 +153,100 @@ public:
   static LRESULT CALLBACK ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
   static BOOL CALLBACK FindMainWindow(HWND hWnd, LPARAM lParam);
   static void CALLBACK TimerProc(void* param, BOOLEAN timerCalled);
+
+
+  // VBlank support.  Uses gdi.dll methods to sit in a high priority
+  // thread waiting for VBlank to occur, then posting a message to the
+  // main UI thread.  From there we can decide if we need to redraw
+public:
+  DWORD OnVBlankRun();
+  void StartVBlankThread(HWND hWnd);
+  void StopVBlankThread();
+protected:
+  HWND mVBlankWindow = 0;
+  bool mVBlankShutdown = false;
+  HANDLE mVBlankThread = INVALID_HANDLE_VALUE;
+
 };
+
+// TODO: move elsewhere
+
+
+// Defining a class to frame times to report once per x seconds.
+// This class uses the high precision timer internally.
+class RedrawProfiler
+{
+public:
+  class Report
+  {
+  public:
+    int periodSeconds = 0;
+    int startSeconds = 0;
+    int framesDuringPeriod = 0;
+    double fps = 0;
+
+    // amount of time for a particular redraw (inside the drawing code).
+    // Times are in ms.
+    double minRedrawTime = 0;
+    double maxRedrawTime = 0;
+    double avgRedrawTime = 0;
+
+    // Times are in ms.
+    double minRedrawPeriod = 0;
+    double maxRedrawPeriod = 0;
+    double avgRedrawPeriod = 0;
+
+    // Creates one line report
+    WDL_String ToString() const;
+  };
+
+  // constructs the profiler object
+  RedrawProfiler(int periodSeconds = 1);
+
+  // starts profiling (starts first period immediately)
+  void StartProfiling();
+
+  // stops profiling
+  void StopProfiling();
+
+  void StartDrawingOperation();
+  void StopDrawingOperation();
+
+  const Report& GetLastReport() const { return _lastReport; }
+
+private:
+
+  // Updates the report and resets the accumulators for the next one.
+  // Get the report in last report.
+  //
+  // 
+  void MakeReport();
+
+  double GetProfileTimestamp();
+
+  void ClearReportVariables();
+
+  // samples the time when calling StartProfiling so we start at the
+  // beginning of a peroid and more readable numbers.
+  double _epochTime = 0;
+
+  int _periodSeconds = 0;
+
+  // accumulated data need to make report periodically
+  int _startSeconds = 0;
+  int _framesPerPeriodAcc = 0;
+  bool _inDrawingOperation = false;
+  double _drawingOperationStart = 0;
+  double _minRedrawTime = 0;
+  double _maxRedrawTime = 0;
+  double _accRedrawTime = 0;
+  double _minRedrawPeriod = 0;
+  double _maxRedrawPeriod = 0;
+  double _avgRedrawPeriod = 0;
+
+  Report _lastReport;
+};
+
 
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE

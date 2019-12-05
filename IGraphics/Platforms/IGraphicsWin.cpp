@@ -31,6 +31,9 @@ using namespace igraphics;
 static int nWndClassReg = 0;
 static const char* wndClassName = "IPlugWndClass";
 
+//static RedrawProfiler _redrawProfiler;
+
+
 #define PARAM_EDIT_ID 99
 #define IPLUG_TIMER_ID 2
 #define IPLUG_WIN_MAX_WIDE_PATH 4096
@@ -214,7 +217,7 @@ void CALLBACK IGraphicsWin::TimerProc(void* param, BOOLEAN timerCalled)
 {
   IGraphicsWin* pGraphics = static_cast<IGraphicsWin*>(param);
 
-  InvalidateRect(pGraphics->mPlugWnd, /*&pGraphics->mInvalidRECT*/ NULL, NULL);
+//  InvalidateRect(pGraphics->mPlugWnd, /*&pGraphics->mInvalidRECT*/ NULL, NULL);
 //  if (pGraphics->mParamEditMsg == kNone)
 //    ValidateRect(pGraphics->mPlugWnd, &pGraphics->mValidRECT); // make sure we dont redraw the edit box area
 };
@@ -231,6 +234,10 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     DWORD timerDurationMs = static_cast<DWORD>(std::floor(1000.0 / (double)pGraphics->FPS()));
     //SetTimer(hWnd, IPLUG_TIMER_ID, timerDurationMs, NULL); // event timer
     //CreateTimerQueueTimer(&pGraphics->mTimer, NULL, TimerProc, pGraphics, 0, 1 /* 1ms resolution */, WT_EXECUTEINTIMERTHREAD);
+
+    // We also need to create a vblank listener thread that will post messages (or invalidate)
+    pGraphics->StartVBlankThread(hWnd);
+//    _redrawProfiler.StartProfiling();
 
     SetFocus(hWnd); // gets scroll wheel working straight away
     DragAcceptFiles(hWnd, true);
@@ -262,6 +269,21 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   
   switch (msg)
   {
+    case (WM_USER + 1):
+    {
+      // log out
+/*      LARGE_INTEGER qpcFreq;
+      LARGE_INTEGER qpcTime;
+      ::QueryPerformanceFrequency(&qpcFreq);
+      ::QueryPerformanceCounter(&qpcTime);
+      double t = (double)qpcTime.QuadPart / (double)qpcFreq.QuadPart;
+      DBGMSG("user\t\t%lf", t);
+      */
+
+      InvalidateRect(hWnd, 0, 0);
+      return 0;
+    }
+
     //case WM_TIMER:
     //{
     //  if (wParam == IPLUG_TIMER_ID)
@@ -469,6 +491,15 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     }
     case WM_PAINT:
     {
+      // log out begin
+/*      LARGE_INTEGER qpcFreq;
+      LARGE_INTEGER qpcTime;
+      ::QueryPerformanceFrequency(&qpcFreq);
+      ::QueryPerformanceCounter(&qpcTime);
+      double t = (double)qpcTime.QuadPart / (double)qpcFreq.QuadPart;
+      DBGMSG("pntbeg\t\t\t%lf", t);
+      */
+
       auto addDrawRect = [pGraphics](IRECTList& rects, RECT r) {
         IRECT ir(r.left, r.top, r.right, r.bottom);
         ir.Scale(1.f / (pGraphics->GetDrawScale() * pGraphics->GetScreenScale()));
@@ -513,7 +544,11 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         pGraphics->ActivateGLContext();
 #endif
 
+//        _redrawProfiler.StartDrawingOperation();
         pGraphics->Draw(rects);
+//        _redrawProfiler.StopDrawingOperation();
+
+//        pGraphics->Draw(rects);
 
         #ifdef IGRAPHICS_GL
         SwapBuffers((HDC) pGraphics->mPlatformContext);
@@ -525,7 +560,18 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 #endif
       }
 
+      // For the D2D if we don't call endpaint, then you really need to call ValidateRect otherwise
+      // we are just going to get another WM_PAINT to handle.  Bad!  It also exibits the odd property
+      // that windows will be popped under the window.
+      ValidateRect(hWnd, 0);
+
       DeleteObject(region);
+
+      // log out begin
+/*      ::QueryPerformanceCounter(&qpcTime);
+      t = (double)qpcTime.QuadPart / (double)qpcFreq.QuadPart;
+      DBGMSG("pntend\t\t\t\t%lf", t);
+      */
       return 0;
     }
 
@@ -558,6 +604,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     }
     case WM_CLOSE:
     {
+//      _redrawProfiler.StopProfiling();
+      pGraphics->StopVBlankThread();
       pGraphics->CloseWindow();
       return 0;
     }
@@ -1837,6 +1885,310 @@ void IGraphicsWin::CachePlatformFont(const char* fontID, const PlatformFontPtr& 
   if (!hfontStorage.Find(fontID))
     hfontStorage.Add(new HFontHolder(hfont), fontID);
 }
+
+
+////////////////////////////////////
+// VBlank notification support
+//
+
+
+// enrty point for thread, calls back into object. 
+DWORD WINAPI VBlankRun(LPVOID lpParam)
+{
+  IGraphicsWin* win = (IGraphicsWin*)lpParam;
+  return win->OnVBlankRun();
+}
+
+void IGraphicsWin::StartVBlankThread(HWND hWnd)
+{
+  mVBlankWindow = hWnd;
+  mVBlankShutdown = false;
+  DWORD threadId = 0;
+  mVBlankThread = ::CreateThread(NULL, 0, VBlankRun, this, 0, &threadId);
+
+}
+void IGraphicsWin::StopVBlankThread()
+{
+  if (mVBlankThread != INVALID_HANDLE_VALUE)
+  {
+    mVBlankShutdown = true;
+    ::WaitForSingleObject(mVBlankThread, 10000);
+    mVBlankThread = INVALID_HANDLE_VALUE;
+    mVBlankWindow = 0;
+  }
+}
+
+// Nasty kernel level definitions for wait for vblank.  Including the
+// proper include file requires "d3dkmthk.h" from the driver development
+// kit.  Instead we define the minimum needed to call the three methods we need.
+// and use LoadLibrary/GetProcAddress to accomplish the same thing.
+// See https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/d3dkmthk/
+//
+// Heres another link (rant) with a lot of good information about vsync on firefox
+// https://www.vsynctester.com/firefoxisbroken.html
+// https://bugs.chromium.org/p/chromium/issues/detail?id=467617
+
+// structs to use
+typedef UINT32 D3DKMT_HANDLE;
+typedef UINT D3DDDI_VIDEO_PRESENT_SOURCE_ID;
+typedef struct _D3DKMT_OPENADAPTERFROMHDC {
+  HDC                            hDc;
+  D3DKMT_HANDLE                  hAdapter;
+  LUID                           AdapterLuid;
+  D3DDDI_VIDEO_PRESENT_SOURCE_ID VidPnSourceId;
+} D3DKMT_OPENADAPTERFROMHDC;
+typedef struct _D3DKMT_CLOSEADAPTER {
+  D3DKMT_HANDLE hAdapter;
+} D3DKMT_CLOSEADAPTER;
+typedef struct _D3DKMT_WAITFORVERTICALBLANKEVENT {
+  D3DKMT_HANDLE                  hAdapter;
+  D3DKMT_HANDLE                  hDevice;
+  D3DDDI_VIDEO_PRESENT_SOURCE_ID VidPnSourceId;
+} D3DKMT_WAITFORVERTICALBLANKEVENT;
+
+// entry points
+typedef NTSTATUS(WINAPI* D3DKMTOpenAdapterFromHdc)(D3DKMT_OPENADAPTERFROMHDC* Arg1);
+typedef NTSTATUS(WINAPI* D3DKMTCloseAdapter)(const D3DKMT_CLOSEADAPTER* Arg1);
+typedef NTSTATUS(WINAPI* D3DKMTWaitForVerticalBlankEvent)(const D3DKMT_WAITFORVERTICALBLANKEVENT* Arg1);
+
+DWORD IGraphicsWin::OnVBlankRun()
+{
+//#ifndef _DEBUG
+  SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
+//#endif
+
+  // output QPC
+  LARGE_INTEGER qpcFreq;
+  LARGE_INTEGER qpcTime;
+  ::QueryPerformanceFrequency(&qpcFreq);
+  ::QueryPerformanceCounter(&qpcTime);
+  double t = (double)qpcTime.QuadPart / (double)qpcFreq.QuadPart;
+
+  // TODO: get expected vsync value.  For now we will use a fallback
+  // of 60Hz
+  float rateFallback = 60.0f;
+  int rateMS = (int)(1000.0f / rateFallback);
+
+  // We need to try to load the module and entry points to wait on v blank.
+  // if anything fails, we try to gracefully fallback to sleeping for some
+  // number of milliseconds.
+  //
+  // TODO: handle low power modes
+
+  D3DKMTOpenAdapterFromHdc pOpen = nullptr;
+  D3DKMTCloseAdapter pClose = nullptr;
+  D3DKMTWaitForVerticalBlankEvent pWait = nullptr;
+  HINSTANCE hInst = LoadLibrary("gdi32.dll");
+  if (hInst != nullptr) {
+    pOpen  = (D3DKMTOpenAdapterFromHdc)GetProcAddress((HMODULE)hInst, "D3DKMTOpenAdapterFromHdc");
+    pClose = (D3DKMTCloseAdapter)GetProcAddress((HMODULE)hInst, "D3DKMTCloseAdapter");
+    pWait  = (D3DKMTWaitForVerticalBlankEvent)GetProcAddress((HMODULE)hInst, "D3DKMTWaitForVerticalBlankEvent");
+  }
+
+  // if we don't get bindings to the methods we will fallback
+  // to a crummy sleep loop for now.  This is really just a last
+  // resort and not expected on modern hardawre and Windows OS
+  // installs.
+  if (!pOpen || !pClose || !pWait)
+  {
+    while (mVBlankShutdown == false)
+    {
+      Sleep(rateMS);
+      ::PostMessage(mVBlankWindow, WM_USER + 1, 0, 0);
+//      InvalidateRect(mVBlankWindow, 0, 0);
+    }
+  }
+  else
+  {
+    // we have a good set of functions to call.  We need to keep
+    // track of the adapter and reask for it if the device is lost.
+    bool adapterIsOpen = false;
+    DWORD adapterLastFailTime = 0;
+    _D3DKMT_WAITFORVERTICALBLANKEVENT we = { 0 };
+
+    while (mVBlankShutdown == false)
+    {
+      if (!adapterIsOpen)
+      {
+        // reacquire the adapter (at most once a second).
+        if (adapterLastFailTime < ::GetTickCount() - 1000)
+        {
+          // try to get adapter
+          D3DKMT_OPENADAPTERFROMHDC openAdapterData = { 0 };
+          HDC hDC = GetDC(mVBlankWindow);
+          openAdapterData.hDc = hDC;
+          NTSTATUS status = (*pOpen)(&openAdapterData);
+          if (status == S_OK)
+          {
+            // success, setup wait request parameters.
+            adapterLastFailTime = 0;
+            adapterIsOpen = true;
+            we.hAdapter = openAdapterData.hAdapter;
+            we.hDevice = 0;
+            we.VidPnSourceId = openAdapterData.VidPnSourceId;
+          }
+          else
+          {
+            // failed
+            adapterLastFailTime = ::GetTickCount();
+          }
+          DeleteDC(hDC);
+        }
+      }
+
+      if (adapterIsOpen)
+      {
+        NTSTATUS status = (*pWait)(&we);
+        if (status != S_OK)
+        {
+          // failed, close now
+          _D3DKMT_CLOSEADAPTER ca;
+          ca.hAdapter = we.hAdapter;
+          (*pClose)(&ca);
+          adapterIsOpen = false;
+        }
+        else
+        {
+          // success, snag time and output for debugging purposes
+/*          ::QueryPerformanceCounter(&qpcTime);
+          double t = (double)qpcTime.QuadPart / (double)qpcFreq.QuadPart;
+          DBGMSG("wait\t%lf", t);
+          */
+
+        }
+      }
+
+      if (!adapterIsOpen)
+      {
+        ::Sleep(rateMS);
+      }
+
+      // this is an OK way to redraw, but better if we want tighter timing
+      // while ignoring some events call 
+      ::PostMessage(mVBlankWindow, WM_USER + 1, 0, 0);
+//      InvalidateRect(mVBlankWindow, 0, 0);
+    }
+
+    // cleanup adapter before leaving
+    if (adapterIsOpen)
+    {
+      _D3DKMT_CLOSEADAPTER ca;
+      ca.hAdapter = we.hAdapter;
+      (*pClose)(&ca);
+      adapterIsOpen = false;
+    }
+  }
+
+  // release module resource
+  if (hInst != nullptr)
+  {
+    FreeLibrary((HMODULE)hInst);
+    hInst = nullptr;
+  }
+
+  return 0;
+}
+
+/////////////////////////////////
+// Redraw Profiler - move this class
+//
+
+#include "IGraphicsUtilities.h"
+#include "IPlugLogger.h"
+
+RedrawProfiler::RedrawProfiler(int periodSeconds)
+{
+  _periodSeconds = periodSeconds;
+}
+
+void RedrawProfiler::StartProfiling()
+{
+  _epochTime = iplug::igraphics::GetTimestamp();
+  ClearReportVariables();
+  _startSeconds = 0;
+}
+
+void RedrawProfiler::StopProfiling()
+{
+  _epochTime = 0;
+}
+
+void RedrawProfiler::StartDrawingOperation()
+{
+  _inDrawingOperation = true;
+  _drawingOperationStart = GetProfileTimestamp();
+}
+
+void RedrawProfiler::StopDrawingOperation()
+{
+  double end = GetProfileTimestamp();
+  _framesPerPeriodAcc++;
+
+  double t = end - _drawingOperationStart;
+  _accRedrawTime += t;
+  if (_framesPerPeriodAcc == 1) {
+    _minRedrawTime = t;
+    _maxRedrawTime = t;
+  }
+  else {
+    _minRedrawTime = wdl_min(t, _minRedrawTime);
+    _maxRedrawTime = wdl_max(t, _maxRedrawTime);
+  }
+
+  //  DBGMSG("frame time: %lf\n", t * 1000.0);
+
+    // round down to the second to see if we have passed on our next report
+  int truncSecond = (int)end;
+  if (truncSecond >= _startSeconds + _periodSeconds)
+  {
+    MakeReport();
+    ClearReportVariables();
+    _startSeconds = truncSecond;
+  }
+}
+
+void RedrawProfiler::MakeReport()
+{
+  // Generate report
+  _lastReport = Report();
+  _lastReport.periodSeconds = _periodSeconds;
+  _lastReport.framesDuringPeriod = _framesPerPeriodAcc;
+  _lastReport.fps = (double)_framesPerPeriodAcc / _periodSeconds;
+  _lastReport.minRedrawTime = _minRedrawTime * 1000.0;
+  _lastReport.maxRedrawTime = _maxRedrawTime * 1000.0;
+  _lastReport.avgRedrawTime = (double)_accRedrawTime / _framesPerPeriodAcc * 1000.0;
+
+  DBGMSG("report FPS=%lf Redraw(min=%lf,avg=%lf,max=%lf)\n",
+    _lastReport.fps,
+    _lastReport.minRedrawTime, _lastReport.avgRedrawTime, _lastReport.maxRedrawTime);
+}
+
+double RedrawProfiler::GetProfileTimestamp()
+{
+  return iplug::igraphics::GetTimestamp() - _epochTime;
+}
+
+void RedrawProfiler::ClearReportVariables()
+{
+  _framesPerPeriodAcc = 0;
+  _inDrawingOperation = false;
+  _drawingOperationStart = 0;
+  _minRedrawTime = 0;
+  _maxRedrawTime = 0;
+  _accRedrawTime = 0;
+  _minRedrawPeriod = 0;
+  _maxRedrawPeriod = 0;
+  _avgRedrawPeriod = 0;
+}
+
+WDL_String RedrawProfiler::Report::ToString() const
+{
+  WDL_String ret;
+  return ret;
+}
+
+
+
 
 #ifndef NO_IGRAPHICS
 #if defined IGRAPHICS_AGG

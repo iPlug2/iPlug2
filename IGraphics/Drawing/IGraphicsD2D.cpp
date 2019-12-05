@@ -14,8 +14,14 @@
 #include <cmath>
 #include <algorithm>
 #include <sstream>
+#include <vector>
+#include <algorithm>
 #include "IGraphicsD2D.h"
 #include <d2d1effects.h>
+
+
+static RedrawProfiler _redrawProfiler;
+
 
 using namespace iplug;
 using namespace igraphics;
@@ -618,6 +624,8 @@ void IGraphicsD2D::SetPlatformContext(void* pContext)
 
 void IGraphicsD2D::BeginFrame()
 {
+
+
   IGraphicsPathBase::BeginFrame();
 
   // lazy create d2d resources if necessary
@@ -642,10 +650,15 @@ void IGraphicsD2D::BeginFrame()
 
   // this is just for testing if the entire background is redrawn.
 //  mTarget->Clear(D2D1::ColorF(D2D1::ColorF::Green));
+
+  _redrawProfiler.StartDrawingOperation();
+
 }
 
 void IGraphicsD2D::EndFrame()
 {
+
+
   if (mInDraw)
   {
     // pop off the clipping region
@@ -664,8 +677,21 @@ void IGraphicsD2D::EndFrame()
     // finishes everything
     mD2DDeviceContext->EndDraw();
 
+    _redrawProfiler.StopDrawingOperation();
+
+
     DXGI_FRAME_STATISTICS stats;
     mSwapChain->GetFrameStatistics(&stats);
+
+    // compute the time left in the vsync
+    LARGE_INTEGER qpcFreq;
+    LARGE_INTEGER qpcTime;
+    ::QueryPerformanceFrequency(&qpcFreq);
+    ::QueryPerformanceCounter(&qpcTime);
+    double t = ((double)qpcTime.QuadPart - (double)stats.SyncQPCTime.QuadPart)/ (double)qpcFreq.QuadPart;
+    DBGMSG("left\t%lf", t);
+
+
 
     if (mLastVsync != 0)
     {
@@ -673,20 +699,30 @@ void IGraphicsD2D::EndFrame()
       if (mLastVsync + 1 < stats.PresentRefreshCount)
       {
         int framesMissed = stats.PresentRefreshCount - mLastVsync - 1;
-        DBGMSG("Missed %i vsyncs", framesMissed);
+        DBGMSG("Missed %i vsyncs after %i good vsyncs", framesMissed, mFramesGood);
+        mFramesGood = 0;
+      }
+      else
+      {
+        mFramesGood++;
       }
     }
     mLastVsync = stats.PresentRefreshCount;
 //    DBGMSG("%i %i %i", stats.PresentCount, stats.SyncRefreshCount, stats.PresentRefreshCount);
 
+
+
+
+
     // present to screen
-    D2D1_PRESENT_OPTIONS opts = D2D1_PRESENT_OPTIONS_NONE;
     DXGI_PRESENT_PARAMETERS presentParameters = { 0 };
-    HRESULT hr = mSwapChain->Present1(1, 0, &presentParameters);
+    HRESULT hr = mSwapChain->Present1(0, 0, &presentParameters);
     if (S_OK != hr && DXGI_STATUS_OCCLUDED != hr)
     {
       D2DReleaseDevice();
     }
+
+
 
     IGraphicsPathBase::EndFrame();
   }
@@ -784,6 +820,8 @@ HRESULT IGraphicsD2D::D2DCreateDeviceHelper(D3D_DRIVER_TYPE const type, ID3D11De
 
 void IGraphicsD2D::D2DCreateDevice()
 {
+  HWND hWnd = (HWND)GetWindow();
+
   HRESULT hr = S_OK;
   IDXGIDevice* dxgi = nullptr;
   IDXGIAdapter* dxadapt = nullptr;
@@ -827,7 +865,7 @@ void IGraphicsD2D::D2DCreateDevice()
   props.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL; // DXGI_SWAP_EFFECT_DISCARD;
   props.Flags = 0;
 
-  hr = dxgiFactory->CreateSwapChainForHwnd(mD3DDevice, (HWND) GetWindow(), &props, nullptr, nullptr, &mSwapChain);
+  hr = dxgiFactory->CreateSwapChainForHwnd(mD3DDevice, hWnd, &props, nullptr, nullptr, &mSwapChain);
 
   DXGI_SWAP_CHAIN_DESC1 desc;
   hr = mSwapChain->GetDesc1(&desc);
@@ -843,10 +881,15 @@ void IGraphicsD2D::D2DCreateDevice()
   SafeRelease(&dxgi);
   SafeRelease(&dxadapt);
   SafeRelease(&dxgiFactory);
+
+  _redrawProfiler.StartProfiling();
+
 }
 
 void IGraphicsD2D::D2DReleaseDevice()
 {
+  _redrawProfiler.StopProfiling();
+
   D2DReleaseSizeDependantResources();
   D2DReleaseSizeDependantResources();
   SafeRelease(&mD2DDeviceContext);
@@ -1175,3 +1218,5 @@ HRESULT IGraphicsD2D::LoadResourceBitmap(PCWSTR resourceName, PCWSTR resourceTyp
 
   return 1;
 }
+
+

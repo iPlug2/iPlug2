@@ -165,6 +165,7 @@ private:
   bool mInDraw = false;
   bool mInFigure = false;
   UINT mLastVsync = 0;
+  UINT mFramesGood = 0;
   bool mPushClipCalled = false;
 
   // bitmap frame size
@@ -217,6 +218,8 @@ private:
 
   std::map<std::string, FontCacheItem*> mFontCache;
   int mFontSequence = 0;
+
+
 };
 
 END_IGRAPHICS_NAMESPACE
