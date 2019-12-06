@@ -83,7 +83,9 @@ public:
   static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
   static LRESULT CALLBACK ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
   static BOOL CALLBACK FindMainWindow(HWND hWnd, LPARAM lParam);
-    
+
+  DWORD OnVBlankRun();
+
 protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds) override;
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
@@ -110,6 +112,9 @@ private:
   inline IMouseInfo GetMouseInfoDeltas(float&dX, float& dY, LPARAM lParam, WPARAM wParam);
   bool MouseCursorIsLocked();
 
+  void StartVBlankThread(HWND hWnd);
+  void StopVBlankThread();
+
 #ifdef IGRAPHICS_GL
   //OpenGL context management - TODO: RAII instead?
   void CreateGLContext();
@@ -133,6 +138,10 @@ private:
   WNDPROC mDefEditProc = nullptr;
   HFONT mEditFont = nullptr;
   DWORD mPID = 0;
+
+  HWND mVBlankWindow = 0;
+  bool mVBlankShutdown = false;
+  HANDLE mVBlankThread = INVALID_HANDLE_VALUE;
 
   const IParam* mEditParam = nullptr;
   IText mEditText;
