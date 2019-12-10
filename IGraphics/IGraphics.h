@@ -1059,7 +1059,11 @@ public:
    * This is useful for programatically arranging UI elements by slicing up the IRECT using the various IRECT methods
    * @return An IRECT that corresponds to the entire UI area, with, L = 0, T = 0, R = Width() and B  = Height() */
   IRECT GetBounds() const { return IRECT(0.f, 0.f, (float) Width(), (float) Height()); }
-  
+
+  /** Sets a function that is called at the frame rate, prior to checking for dirty controls 
+ * @param func The function to call */
+  void SetDisplayTickFunc(IDisplayTickFunc func) { mDisplayTickFunc = func; }
+
   /** /todo
    * @param keyHandlerFunc /todo */
   void SetKeyHandlerFunc(IKeyHandlerFunc func) { mKeyHandlerFunc = func; }
@@ -1539,6 +1543,8 @@ private:
   EUIResizerMode mGUISizeMode = EUIResizerMode::Scale;
   double mPrevTimestamp = 0.;
   IKeyHandlerFunc mKeyHandlerFunc = nullptr;
+  IDisplayTickFunc mDisplayTickFunc = nullptr;
+
 protected:
   IGEditorDelegate* mDelegate;
   void* mPlatformContext = nullptr;

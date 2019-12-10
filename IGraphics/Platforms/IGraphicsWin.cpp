@@ -235,8 +235,6 @@ void IGraphicsWin::OnDisplayTimer(int vBlankCount)
   }
 #endif
 
-  //TODO onvblank
-
   if (mParamEditWnd && mParamEditMsg != kNone)
   {
     switch (mParamEditMsg)

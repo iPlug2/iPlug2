@@ -620,6 +620,9 @@ void IGraphics::DrawData(const IColor& color, const IRECT& bounds, float* normYP
 
 bool IGraphics::IsDirty(IRECTList& rects)
 {
+  if (mDisplayTickFunc)
+    mDisplayTickFunc();
+
   bool dirty = false;
     
   auto func = [&dirty, &rects](IControl& control)
@@ -633,7 +636,7 @@ bool IGraphics::IsDirty(IRECTList& rects)
   };
     
   ForAllControlsFunc(func);
-  
+
 #ifdef USE_IDLE_CALLS
   if (dirty)
   {
