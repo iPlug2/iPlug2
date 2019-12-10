@@ -30,6 +30,13 @@
 #include "swell.h"
 #include "../wdlcstring.h"
 #import <Cocoa/Cocoa.h>
+
+struct swell_autoarp {
+  swell_autoarp() { pool = [[NSAutoreleasePool alloc] init]; }
+  ~swell_autoarp() { [pool release]; }
+  NSAutoreleasePool *pool;
+};
+
 static NSMutableArray *extensionsFromList(const char *extlist, const char *def_ext=NULL)
 {
 	NSMutableArray *fileTypes = [[NSMutableArray alloc] initWithCapacity:30];
@@ -177,6 +184,8 @@ static LRESULT fileTypeChooseProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
 bool BrowseForSaveFile(const char *text, const char *initialdir, const char *initialfile, const char *extlist,
                        char *fn, int fnsize)
 {
+  swell_autoarp auto_arp;
+
   NSSavePanel *panel = [NSSavePanel savePanel];
   NSMutableArray *fileTypes = extensionsFromList(extlist);	
   NSString *title=(NSString *)SWELL_CStringToCFString(text); 
@@ -221,7 +230,7 @@ bool BrowseForSaveFile(const char *text, const char *initialdir, const char *ini
     [(NSView *)av_parent setHidden:NO];
     [oldw release];
   }
-  else
+  else if ([fileTypes count]>0)
   {
     [panel setAllowedFileTypes:fileTypes];
   }
@@ -277,6 +286,8 @@ bool BrowseForSaveFile(const char *text, const char *initialdir, const char *ini
 
 bool BrowseForDirectory(const char *text, const char *initialdir, char *fn, int fnsize)
 {
+  swell_autoarp auto_arp;
+
   NSOpenPanel *panel = [NSOpenPanel openPanel];
   NSString *title=(NSString *)SWELL_CStringToCFString(text); 
   NSString *idir=NULL;
@@ -332,6 +343,8 @@ bool BrowseForDirectory(const char *text, const char *initialdir, char *fn, int 
 char *BrowseForFiles(const char *text, const char *initialdir, 
                      const char *initialfile, bool allowmul, const char *extlist)
 {
+  swell_autoarp auto_arp;
+
   NSOpenPanel *panel = [NSOpenPanel openPanel];
   NSString *title=(NSString *)SWELL_CStringToCFString(text); 
   NSString *ifn=NULL, *idir=NULL;
@@ -376,7 +389,7 @@ char *BrowseForFiles(const char *text, const char *initialdir,
   if (hm) hm=SWELL_DuplicateMenu(hm);
   SWELL_SetCurrentMenu(hm);
   
-  NSInteger result = [panel runModalForDirectory:idir file:ifn types:fileTypes];
+  NSInteger result = [panel runModalForDirectory:idir file:ifn types:([fileTypes count]>0 ? fileTypes : nil)];
 
   SWELL_SetCurrentMenu(GetMenu(GetFocus()));
   if (hm) DestroyMenu(hm);
@@ -437,6 +450,8 @@ char *BrowseForFiles(const char *text, const char *initialdir,
 
 int MessageBox(HWND hwndParent, const char *text, const char *caption, int type)
 {
+  swell_autoarp auto_arp;
+
   NSInteger ret=0;
 
   NSString *tit=(NSString *)SWELL_CStringToCFString(caption?caption:""); 
