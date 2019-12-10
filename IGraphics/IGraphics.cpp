@@ -716,18 +716,25 @@ void IGraphics::Draw(const IRECT& bounds, float scale)
 
 void IGraphics::Draw(IRECTList& rects)
 {
+  mDrawnRects.Clear();
+
   if (!rects.Size())
     return;
   
   float scale = GetBackingPixelScale();
     
   BeginFrame();
-    
+
+  mStrict = true;
   if (mStrict)
   {
     IRECT r = rects.Bounds();
     r.PixelAlign(scale);
     Draw(r, scale);
+
+    IRECT drawn = r;
+    drawn.Scale(scale);
+    mDrawnRects.Add(drawn);
   }
   else
   {
@@ -735,10 +742,18 @@ void IGraphics::Draw(IRECTList& rects)
     rects.Optimize();
 
     for (auto i = 0; i < rects.Size(); i++)
+    {
       Draw(rects.Get(i), scale);
+
+      IRECT drawn = rects.Get(i);
+      drawn.Scale(scale);
+      mDrawnRects.Add(drawn);
+    }
   }
   
   EndFrame();
+
+  mDrawnRects.Clear();
 }
 
 void IGraphics::SetStrictDrawing(bool strict)

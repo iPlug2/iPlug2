@@ -19,8 +19,9 @@
 #include "IGraphicsD2D.h"
 #include <d2d1effects.h>
 
+#ifdef IGRAPHICS_D2D
 
-static RedrawProfiler _redrawProfiler;
+//static RedrawProfiler _redrawProfiler;
 
 
 using namespace iplug;
@@ -622,10 +623,42 @@ void IGraphicsD2D::SetPlatformContext(void* pContext)
   IGraphics::SetPlatformContext(pContext);
 }
 
+/*
+void IGraphicsD2D::Draw(IRECTList& rects)
+{
+  // The Direct2D backend does its own version of Draw
+  // because we need to keep track to the dirty rects
+  // to pass to Present1 at the end of EndFrame.
+  if (!rects.Size())
+    return;
+
+  float scale = GetBackingPixelScale();
+
+  BeginFrame();
+
+
+  if (mStrict)
+  {
+    IRECT r = rects.Bounds();
+    r.PixelAlign(scale);
+    Draw(r, scale);
+  }
+  else
+
+  {
+    rects.PixelAlign(scale);
+    rects.Optimize();
+
+    for (auto i = 0; i < rects.Size(); i++)
+      Draw(rects.Get(i), scale);
+  }
+
+  EndFrame();
+}
+*/
+
 void IGraphicsD2D::BeginFrame()
 {
-
-
   IGraphicsPathBase::BeginFrame();
 
   // lazy create d2d resources if necessary
@@ -649,16 +682,12 @@ void IGraphicsD2D::BeginFrame()
   mD2DDeviceContext->SetTransform(mat);
 
   // this is just for testing if the entire background is redrawn.
-//  mTarget->Clear(D2D1::ColorF(D2D1::ColorF::Green));
-
-  _redrawProfiler.StartDrawingOperation();
-
+//  mD2DDeviceContext->Clear(D2D1::ColorF(D2D1::ColorF::Green));
+//  mD2DDeviceContext->DrawRectangle(D2D1::RectF(100,100,200,200), GetBrush(IColor(255, 255, 0, 0)));
 }
 
 void IGraphicsD2D::EndFrame()
 {
-
-
   if (mInDraw)
   {
     // pop off the clipping region
@@ -677,7 +706,7 @@ void IGraphicsD2D::EndFrame()
     // finishes everything
     mD2DDeviceContext->EndDraw();
 
-    _redrawProfiler.StopDrawingOperation();
+//    _redrawProfiler.StopDrawingOperation();
 
 
     DXGI_FRAME_STATISTICS stats;
@@ -689,10 +718,10 @@ void IGraphicsD2D::EndFrame()
     ::QueryPerformanceFrequency(&qpcFreq);
     ::QueryPerformanceCounter(&qpcTime);
     double t = ((double)qpcTime.QuadPart - (double)stats.SyncQPCTime.QuadPart)/ (double)qpcFreq.QuadPart;
-    DBGMSG("left\t%lf", t);
+//    DBGMSG("left\t%lf", t);
 
 
-
+/*
     if (mLastVsync != 0)
     {
       // see if the vsync is now one greater
@@ -709,19 +738,42 @@ void IGraphicsD2D::EndFrame()
     }
     mLastVsync = stats.PresentRefreshCount;
 //    DBGMSG("%i %i %i", stats.PresentCount, stats.SyncRefreshCount, stats.PresentRefreshCount);
-
-
-
-
+*/
 
     // present to screen
     DXGI_PRESENT_PARAMETERS presentParameters = { 0 };
+    presentParameters.DirtyRectsCount = mDrawnRects.Size();
+    RECT* presentRects = (RECT*)malloc(sizeof(RECT)*mDrawnRects.Size());
+    for (int i = 0; i < mDrawnRects.Size(); i++)
+    {
+      auto& r = mDrawnRects.Get(i);
+
+      // we need to clip to bounderies of the window to the swap chain will
+      // fail.
+      presentRects[i].left   = Clip((LONG)r.L, swapChainRect.left, swapChainRect.right);
+      presentRects[i].top    = Clip((LONG)r.T, swapChainRect.top, swapChainRect.bottom);
+      presentRects[i].right  = Clip((LONG)r.R, swapChainRect.left, swapChainRect.right);
+      presentRects[i].bottom = Clip((LONG)r.B, swapChainRect.top, swapChainRect.bottom);
+    }
+    presentParameters.pDirtyRects = presentRects;
+
     HRESULT hr = mSwapChain->Present1(0, 0, &presentParameters);
-    if (S_OK != hr && DXGI_STATUS_OCCLUDED != hr)
+    if (hr == DXGI_ERROR_INVALID_CALL)
+    {
+      // probably not handling resize properly
+      DBGMSG("Present failed --- invalid call");
+    }
+    else if (hr == DXGI_STATUS_OCCLUDED)
+    {
+      // the window content is not visible.
+      DBGMSG("Present failed --- occulued");
+    }
+    else if (S_OK != hr)
     {
       D2DReleaseDevice();
     }
 
+    free(presentRects);
 
 
     IGraphicsPathBase::EndFrame();
@@ -882,13 +934,13 @@ void IGraphicsD2D::D2DCreateDevice()
   SafeRelease(&dxadapt);
   SafeRelease(&dxgiFactory);
 
-  _redrawProfiler.StartProfiling();
+//  _redrawProfiler.StartProfiling();
 
 }
 
 void IGraphicsD2D::D2DReleaseDevice()
 {
-  _redrawProfiler.StopProfiling();
+//  _redrawProfiler.StopProfiling();
 
   D2DReleaseSizeDependantResources();
   D2DReleaseSizeDependantResources();
@@ -919,6 +971,9 @@ void IGraphicsD2D::D2DCreateDeviceSwapChainBitmap()
   float dpi = static_cast<float>(GetDpiForWindow(static_cast<HWND>(GetWindow())));
   mD2DDeviceContext->SetDpi(dpi, dpi);
 
+  int w = Width();
+  int h = Height();
+
   SafeRelease(&surface);
   SafeRelease(&bitmap);
 }
@@ -927,10 +982,16 @@ void IGraphicsD2D::D2DResizeSurface()
 {
   if (mD2DDeviceContext)
   {
+    // get the size of the surface to make
+    ::GetClientRect((HWND)GetWindow(), &swapChainRect);
+    int width = swapChainRect.right - swapChainRect.left;
+    int height = swapChainRect.bottom - swapChainRect.top;
+
     // clear the target and notify the swap chain of a new buffer
     mD2DDeviceContext->SetTarget(nullptr);
-    if (S_OK == mSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0))
+    if (S_OK == mSwapChain->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0))
     {
+      DBGMSG("resizing swap chain");
       // try to recreate the bitmap now.
       D2DCreateDeviceSwapChainBitmap();
       D2DReleaseSizeDependantResources();
@@ -1219,4 +1280,4 @@ HRESULT IGraphicsD2D::LoadResourceBitmap(PCWSTR resourceName, PCWSTR resourceTyp
   return 1;
 }
 
-
+#endif

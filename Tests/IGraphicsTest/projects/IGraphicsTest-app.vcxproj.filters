@@ -92,6 +92,9 @@
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.cpp">
       <Filter>IGraphics\Drawing</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsD2D.cpp">
+      <Filter>IGraphics\Drawing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\IGraphicsTest.h" />
@@ -352,6 +355,9 @@
       <Filter>IGraphics\Controls\Test</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.h">
+      <Filter>IGraphics\Drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsD2D.h">
       <Filter>IGraphics\Drawing</Filter>
     </ClInclude>
   </ItemGroup>

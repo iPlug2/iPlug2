@@ -162,6 +162,15 @@ private:
   ID2D1DeviceContext* mD2DDeviceContext = nullptr;
   Microsoft::WRL::ComPtr<IWICImagingFactory2> mWICFactory;
 
+  // the swap chain is tied to a surface of an exact size.  We need
+  // to make sure all draw calls match this.
+  RECT swapChainRect = { 0 };
+
+  // IPlug draws to a scratch surface (and render target)
+  // and updates just the changed parts between redraws.
+  IDXGISurface* mDxgiBackSurface = nullptr;
+  ID2D1RenderTarget* mD2DBackTarget = nullptr;
+
   bool mInDraw = false;
   bool mInFigure = false;
   UINT mLastVsync = 0;

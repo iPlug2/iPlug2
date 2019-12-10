@@ -1549,6 +1549,11 @@ protected:
   float mCursorY = -1.f;
   float mXTranslation = 0.f;
   float mYTranslation = 0.f;
+
+  // We need to keep a list of dirty rect that are temporary
+  // set during the call to Draw.  Some backends need this list
+  // during EndFrame
+  IRECTList mDrawnRects;
   
   friend class IGraphicsLiveEdit;
   friend class ICornerResizerControl;
