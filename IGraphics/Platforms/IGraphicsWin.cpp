@@ -605,11 +605,6 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     }
     case WM_CLOSE:
     {
-#ifdef IGRAPHICS_VSYNC
-      pGraphics->StopVBlankThread();
-#else
-      KillTimer(hWnd, IPLUG_TIMER_ID);
-#endif    
       pGraphics->CloseWindow();
       return 0;
     }
@@ -1145,6 +1140,12 @@ void IGraphicsWin::CloseWindow()
 {
   if (mPlugWnd)
   {
+#ifdef IGRAPHICS_VSYNC
+    StopVBlankThread();
+#else
+    KillTimer(hWnd, IPLUG_TIMER_ID);
+#endif
+
     OnViewDestroyed();
 
 #ifdef IGRAPHICS_GL
