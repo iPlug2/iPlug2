@@ -298,6 +298,10 @@ public:
    *@param scale The new screen scale*/
   virtual void SetScreenScale(double scale) {}
 
+  /** Can be used by a host API to specify event loop integration.
+   *@param platform specific pointer*/
+  virtual void SetIntegration(void *mainLoop) {}
+
 protected:
   /** The width of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist. */
   int mEditorWidth = 0;

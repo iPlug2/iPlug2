@@ -17,6 +17,7 @@ STB_PATH = $(DEPS_PATH)/IGraphics/STB
 WDL_PATH = $(ROOT)/WDL
 IPLUG_PATH = $(ROOT)/IPlug
 APP_PATH = $(IPLUG_PATH)/APP
+IVST3_PATH = $(IPLUG_PATH)/VST3
 SWELL_PATH = $(WDL_PATH)/swell
 IGRAPHICS_PATH = $(ROOT)/IGraphics
 CONTROLS_PATH = $(IGRAPHICS_PATH)/Controls
@@ -28,16 +29,29 @@ NANOVG_PATH = $(DEPS_PATH)/IGraphics/NanoVG/src
 NANOSVG_PATH = $(DEPS_PATH)/IGraphics/NanoSVG/src
 RTAUDIO_PATH = $(DEPS_PATH)/IPlug/RTAudio
 RTMIDI_PATH = $(DEPS_PATH)/IPlug/RTMidi
+VST3_SDK_PATH = $(DEPS_PATH)/IPlug/VST3_SDK
+XCBT_PATH = $(DEPS_PATH)/IGraphics/xcbt
 
 ifeq ($(IGRAPHICS_TYPE), IGRAPHICS_GL2)
 	GLAD_PATH = $(DEPS_PATH)/IGraphics/glad_GL2
 else ifeq ($(IGRAPHICS_TYPE), IGRAPHICS_GL3)
 	GLAD_PATH = $(DEPS_PATH)/IGraphics/glad_GL3
 endif
+GLAD_GLX_PATH = $(DEPS_PATH)/IGraphics/glad_GLX
 
 IPLUG_SRC := $(addprefix $(IPLUG_PATH)/, IPlugAPIBase.cpp IPlugParameter.cpp IPlugPluginBase.cpp IPlugProcessor.cpp IPlugPaths.cpp IPlugTimer.cpp)
 
 APP_SRC := $(addprefix $(APP_PATH)/, IPlugAPP.cpp IPlugAPP_main.cpp IPlugAPP_dialog.cpp IPlugAPP_host.cpp)
+
+IVST3_SRC := $(addprefix $(IVST3_PATH)/, IPlugVST3.cpp IPlugVST3_Controller.cpp IPlugVST3_Processor.cpp IPlugVST3_ProcessorBase.cpp IPlugVST3_RunLoop.cpp)
+
+VST3_SDK_SRC := $(addprefix $(VST3_SDK_PATH)/base/source/, fstring.cpp fobject.cpp updatehandler.cpp fdebug.cpp baseiids.cpp) 
+VST3_SDK_SRC += $(addprefix $(VST3_SDK_PATH)/base/thread/source/, flock.cpp)
+VST3_SDK_SRC += $(wildcard $(VST3_SDK_PATH)/pluginterfaces/base/*.cpp)
+VST3_SDK_SRC += $(wildcard $(VST3_SDK_PATH)/public.sdk/source/common/*.cpp)
+VST3_SDK_SRC += $(addprefix $(VST3_SDK_PATH)/public.sdk/source/vst/, vstaudioeffect.cpp vstcomponent.cpp vstcomponentbase.cpp vstinitiids.cpp vstsinglecomponenteffect.cpp vstparameters.cpp vstbus.cpp)
+VST3_SDK_SRC += $(addprefix $(VST3_SDK_PATH)/public.sdk/source/vst/hosting/, parameterchanges.cpp)
+VST3_SDK_SRC += $(addprefix $(VST3_SDK_PATH)/public.sdk/source/main/, pluginfactory.cpp linuxmain.cpp)
 
 CONTROLS_SRC := $(wildcard $(CONTROLS_PATH)/*.cpp)
 IGRAPHICS_SRC := $(addprefix $(IGRAPHICS_PATH)/, IGraphics.cpp IControl.cpp IGraphicsEditorDelegate.o) $(CONTROLS_SRC) $(PLATFORMS_PATH)/IGraphicsLinux.cpp
@@ -60,7 +74,10 @@ IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) \
 -I$(LICE_PATH) \
 -I$(DEPS_PATH)/IPlug/SWELL \
 -I$(GLAD_PATH)/include \
--I$(GLAD_PATH)/src
+-I$(GLAD_PATH)/src \
+-I$(GLAD_GLX_PATH)/include \
+-I$(GLAD_GLX_PATH)/src \
+-I$(XCBT_PATH)
 
 # AZ: CP from WDL/swell/Makefile
 #
@@ -78,14 +95,7 @@ UNAME_S := $(shell uname -s)
 PKG_CONFIG = pkg-config
 
 CFLAGS = -pipe -fvisibility=hidden -fno-math-errno -fPIC -DPIC -Wall -Wshadow -Wno-unused-function -Wno-multichar
-
-ifeq ($(UNAME_S),Darwin)
-  CFLAGS += -Wno-unused-private-field -DSWELL_FORCE_GENERIC
-  DLL_EXT=.dylib
-  COMPILER=CLANG
-else
-  DLL_EXT=.so
-endif
+DLL_EXT=.so
 
 ifeq ($(COMPILER),CLANG)
   CC = clang

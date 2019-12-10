@@ -11,6 +11,8 @@
 #pragma once
 #include "pluginterfaces/gui/iplugviewcontentscalesupport.h"
 
+#include "IPlugVST3_RunLoop.h"
+
 using namespace Steinberg;
 using namespace Vst;
 
@@ -44,6 +46,9 @@ public:
       
 #elif defined OS_MAC
       if (strcmp (type, kPlatformTypeNSView) == 0)
+        return kResultTrue;
+#elif defined OS_LINUX
+      if (strcmp (type, kPlatformTypeX11EmbedWindowID) == 0)
         return kResultTrue;
 #endif
     }
@@ -81,15 +86,17 @@ public:
   {
     if (mOwner.HasUI())
     {
-      void* pView = nullptr;
-#ifdef OS_WIN
+#if defined OS_WIN
       if (strcmp(type, kPlatformTypeHWND) == 0)
-        pView = mOwner.OpenWindow(pParent);
+        mOwner.OpenWindow(pParent);
 #elif defined OS_MAC
       if (strcmp (type, kPlatformTypeNSView) == 0)
-        pView = mOwner.OpenWindow(pParent);
+        mOwner.OpenWindow(pParent);
       else // Carbon
         return kResultFalse;
+#elif defined OS_LINUX
+      if (strcmp (type, kPlatformTypeX11EmbedWindowID) == 0)
+        mOwner.OpenWindow(pParent);
 #endif
       return kResultTrue;
     }
@@ -110,6 +117,13 @@ public:
     mOwner.SetScreenScale(factor);
 
     return Steinberg::kResultOk;
+  }
+
+  tresult PLUGIN_API setFrame (IPlugFrame* frame) override { 
+
+    mOwner.SetIntegration( iplug::IPlugVST3_EmbedFactory(frame) );
+    
+    return CPluginView::setFrame(frame);
   }
 
   tresult PLUGIN_API queryInterface(const TUID _iid, void** obj) override

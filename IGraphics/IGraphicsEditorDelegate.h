@@ -39,6 +39,7 @@ public:
   void* OpenWindow(void* pHandle) final;
   void CloseWindow() final;
   void SetScreenScale(double scale) final;
+  void SetIntegration(void *mainLoop) final;
 
   //The rest should be final, but the WebSocketEditorDelegate needs to override them
   void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;
@@ -101,8 +102,11 @@ private:
   int UpdateData(const IByteChunk& data, int startPos);
 
   std::unique_ptr<IGraphics> mGraphics;
-  bool mIGraphicsTransient = false; // If creating IGraphics on demand this will be true
+  bool mIGraphicsTransient = false; // If creating IGraphics on demand this will be true (AZ: mGraphics is private... how else can it be created?)
   bool mClosing = false; // used to prevent re-entrancy on closing
+  void *mMainLoop = nullptr; // that can be set in SetIntegration prior IGraphics is created 
+                   // AZ: how to manage its lifetime? it is set by frame (plug-in type specific), used in IGraphics implementation. 
+                  //      May be make it some interface and manage its lifetime there
 };
 
 END_IGRAPHICS_NAMESPACE

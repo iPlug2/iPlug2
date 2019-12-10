@@ -569,17 +569,26 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
   switch (uMsg)
   {
     case WM_INITDIALOG:
-      gHWND = hwndDlg;
+      {
+        gHWND = hwndDlg;
+        width = pAppHost->GetPlug()->GetEditorWidth();
+        height = pAppHost->GetPlug()->GetEditorHeight();
 
-      if(!pAppHost->OpenWindow(gHWND))
-        DBGMSG("couldn't attach gui\n");
+#ifdef OS_LINUX
+        RECT r = {0, 0, width, height};
+        DBGMSG("APP: Initial socket size: %dx%d\n", r.right, r.bottom);
+        pAppHost->mSite = SWELL_CreateXBridgeWindow(hwndDlg, &pAppHost->mSiteWnd, &r);
+        if(!pAppHost->OpenWindow(pAppHost->mSiteWnd))
+#else
+        if(!pAppHost->OpenWindow(gHWND))
+#endif
+          DBGMSG("couldn't attach gui\n");
 
-      width = pAppHost->GetPlug()->GetEditorWidth();
-      height = pAppHost->GetPlug()->GetEditorHeight();
-      ClientResize(hwndDlg, width, height);
+        ClientResize(hwndDlg, width, height);
 
-      ShowWindow(hwndDlg,SW_SHOW);
-      return 1;
+        ShowWindow(hwndDlg,SW_SHOW);
+        return 1;
+      }
     case WM_DESTROY:
       pAppHost->CloseWindow();
       gHWND = NULL;

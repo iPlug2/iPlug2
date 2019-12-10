@@ -172,8 +172,9 @@ public:
   
   IPlugAPPHost();
   ~IPlugAPPHost();
-  
-  bool OpenWindow(HWND pParent);
+
+  /* pParent is HWND on OSX/Windows but XID on Linux */
+  bool OpenWindow(void *pParent);
   void CloseWindow();
 
   bool Init();
@@ -250,6 +251,12 @@ private:
   std::vector<std::string> mAudioIDDevNames;
   std::vector<std::string> mMidiInputDevNames;
   std::vector<std::string> mMidiOutputDevNames;
+  
+#ifdef OS_LINUX
+  /** Site for embedding plug-in */
+  HWND  mSite = nullptr;
+  void *mSiteWnd = 0; // XID
+#endif
   
   friend class IPlugAPP;
 };

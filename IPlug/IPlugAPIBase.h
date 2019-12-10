@@ -192,8 +192,19 @@ public:
     mSysExDataFromEditor.Push(data);
   }
 
-  /** /todo */
+  /** /todo 
+   * On Linux there is no common main loop. SWELL based app has implicit one and soo it works for APP_API.
+   * 
+   * But other targets need custom solution. In general, it is not possible to create the timer at the object construction time.
+   * So the declaration is commented to avoid confusion and trigger compilation error in case custom method is not yet implemented. 
+   * 
+   * */
+#if not defined OS_LINUX || defined APP_API
   void CreateTimer();
+#endif
+
+  void OnTimer(Timer& t);
+
   
 private:
   /** Implemented by the API class, called by the UI via SetParameterValue() with the value of a parameter change gesture
@@ -208,7 +219,7 @@ private:
   /** /todo */
   virtual void TransmitSysExDataFromProcessor(const SysExData& data) {};
 
-  void OnTimer(Timer& t);
+  // AZ: temporary void OnTimer(Timer& t);
 
 protected:
   WDL_String mParamDisplayStr;

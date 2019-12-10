@@ -74,7 +74,7 @@ bool IPlugAPPHost::Init()
   return true;
 }
 
-bool IPlugAPPHost::OpenWindow(HWND pParent)
+bool IPlugAPPHost::OpenWindow(void *pParent)
 {
   return mIPlug->OpenWindow(pParent) != nullptr;
 }

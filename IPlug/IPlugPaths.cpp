@@ -291,19 +291,41 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
 #elif defined OS_LINUX
 #pragma mark - OS_LINUX
 
+/*
+ * Get the file path for the module where specified symbol is defined.
+ */
+static bool GetFileNameFor(void *code, char *path, int size)
+{
+  Dl_info info;
+
+  if(!code || !path || !size)
+  {
+    return false;
+  }
+
+  if(!dladdr(code, &info) || (strlen(info.dli_fname) + 1 > size))
+  {
+    *path = 0; // the path is too long
+    return false;
+  }
+
+  strcpy(path, info.dli_fname);
+  return true;
+}
+
+
 EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char*, void* pHInstance, const char*)
 {
-  if (CStringHasContents(name))
+  char path[MAX_PATH];
+  
+  if (CStringHasContents(name) && GetFileNameFor(reinterpret_cast<void *>(GetFileNameFor), path, MAX_PATH))
   {
-    char path[MAX_PATH], *s;
-    HINSTANCE hInstance = static_cast<HINSTANCE>(pHInstance);
-    GetModuleFileName(hInstance, path, sizeof(path));
-    for (s = path + strlen(path) - 1; s >= path; --s)
+    for (char *s = path + strlen(path) - 1; s >= path; --s)
     {
       if(*s == WDL_DIRCHAR)
       {
-	*s = 0;
-	break;
+        *s = 0;
+        break;
       }
     }
 

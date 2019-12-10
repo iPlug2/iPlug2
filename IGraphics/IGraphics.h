@@ -745,7 +745,11 @@ public:
 
   /** Call to force end text entry (will cancel any half input text \todo check) */
   virtual void ForceEndUserEdit() = 0;
-    
+
+  /** Set platform specific host GUI event loop integration
+   * @param mainLoop is something the host and graphics implementation should agree on*/
+  virtual void SetIntegration(void *mainLoop) {}
+
   /** Open a new platform view for this graphics context
    * @param pParentWnd void pointer to parent platform window or view handle (if applicable) \todo check
    * @return void pointer to newly created IGraphics platform view */
@@ -884,7 +888,7 @@ public:
   /** Called by the platform IGraphics class when moving to a new screen to set DPI
    * @param scale The scale of the display, typically 2 on a macOS retina screen */
   void SetScreenScale(int scale);
-  
+
   void SetTranslation(float x, float y) { mXTranslation = x; mYTranslation = y; }
   
   /** Called repeatedly at frame rate by the platform class to check what the graphics context says is dirty.

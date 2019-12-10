@@ -26,7 +26,9 @@
 #include "mutex.h"
 
 #include "IPlugPlatform.h"
+#if not defined OS_LINUX || defined APP_API
 #include "swell.h"
+#endif
 
 #if defined OS_MAC || defined OS_IOS
 #include <CoreFoundation/CoreFoundation.h>
@@ -43,12 +45,11 @@ struct Timer
   Timer& operator=(const Timer&) = delete;
   
   using ITimerFunction = std::function<void(Timer& t)>;
-  
+
   static Timer* Create(ITimerFunction func, uint32_t intervalMs)
   {
     return new Timer();
   }
-  
   void Stop()
   {
   }
@@ -63,7 +64,10 @@ struct Timer
   
   using ITimerFunction = std::function<void(Timer& t)>;
 
+#if not defined OS_LINUX || defined APP_API
   static Timer* Create(ITimerFunction func, uint32_t intervalMs);
+#endif
+
   virtual ~Timer() {};
   virtual void Stop() = 0;
 };
@@ -85,7 +89,7 @@ private:
   ITimerFunction mTimerFunc;
   uint32_t mIntervalMs;
 };
-#elif defined OS_WIN || defined OS_LINUX
+#elif defined OS_WIN || (defined OS_LINUX && defined APP_API)
 class Timer_impl : public Timer
 {
 public:
@@ -101,6 +105,8 @@ private:
   ITimerFunction mTimerFunc;
   uint32_t mIntervalMs;
 };
+#elif defined OS_LINUX
+// otherr API on Linux do not support unrelated timers
 #elif defined OS_WEB
 #else
   #error NOT IMPLEMENTED

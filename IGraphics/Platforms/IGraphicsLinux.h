@@ -12,9 +12,7 @@
 
 #include "IGraphics_select.h"
 
-#ifdef IGRAPHICS_GL
-  #include <X11/Xlib.h>
-#endif
+#include <xcbt.h>
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
@@ -33,17 +31,19 @@ public:
 
   void CloseWindow() override;
 
-  void* GetWindow() override { return mPlugWnd; }
+  void* GetWindow() override { return (void *)(intptr_t)mPlugWnd; }
 
   bool WindowIsOpen() override { return (mPlugWnd); }
 
   void PlatformResize(bool parentHasResized) override;
 
-  void HideMouseCursor(bool hide, bool lock) override;
-  void MoveMouseCursor(float x, float y) override;
+  void HideMouseCursor(bool hide, bool lock) override {} // TODO
+  void MoveMouseCursor(float x, float y) override {} // TODO
 
   EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
-  void ForceEndUserEdit() override;
+  void ForceEndUserEdit() override {} // TODO
+
+  void DrawResize() override;
 
   const char* GetPlatformAPIStr() override { return "Linux"; }
 
@@ -58,13 +58,15 @@ public:
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override { return false; } // TODO
 
   static int GetUserOSVersion();
-  bool GetTextFromClipboard(WDL_String& str) override;
+  bool GetTextFromClipboard(WDL_String& str) override { return false; } // TODO
   bool SetTextInClipboard(const WDL_String& str) override { return false; } // TODO
 
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
 
-  void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override { } // No reason to cache (no universal handle)
+  void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override { } // No reason to cache (no universal font handle)
+
+  void SetIntegration(void *mainLoop) override;
 
 protected:
   enum EParamEditMsg
@@ -83,56 +85,30 @@ protected:
   IPopupMenu *CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds) override { return nullptr; } // TODO
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override { } // TODO
 
-
 private:
 
-  HWND mPlugWnd = nullptr;
-  HWND mParentWnd = nullptr;
-  HWND mParamEditWnd = nullptr;
+  xcbt         mX = NULL;
+  xcbt_embed  *mEmbed = NULL;
+  
+  xcbt_window  mPlugWnd = NULL;
+  xcbt_window_handler mBaseWindowHandler;
+  void               *mBaseWindowData;
 
-  // SWELL does not define/use that
-  enum {
-    MK_SHIFT = 0x0004,
-    MK_CONTROL = 0x0008
-  };
-
-  int  mModKeys = 0;
-
-  EParamEditMsg mParamEditMsg = kNone;
-  bool mShowingTooltip = false;
-  float mHiddenCursorX;
-  float mHiddenCursorY;
-
-  static LRESULT  PlugWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-#ifdef IGRAPHICS_GL
-  Display *mGLDisplay = nullptr;
-  Window   mGLWnd = 0;
-  Colormap mGLColormap = 0;
-  void    *mGLContext = nullptr; // GLXContext
-  void    *mGLOldContext = nullptr;
-  HWND     mGLParent = nullptr;
-
-  void getGLRect(RECT *r);
-
-  bool CreateGLContext();
-  void DestroyGLContext();
-  void ActivateGLContext();
-  void DeactivateGLContext();
-
-  static bool GLFilter(XEvent *xevent, void *, void *me);
-#endif
-  bool mOpenBHDone = false;
-  bool OpenWindowBH();
-
-  PAINTSTRUCT mPS;
-  bool ActivateContext();
-  void DeactivateContext();
+  xcb_timestamp_t     mLastLeftClickStamp; // it will be not zero in case there is a chance for double click
 
   void Paint();
+  inline IMouseInfo GetMouseInfo(int16_t x, int16_t y, int16_t state);
+  inline IMouseInfo GetMouseInfoDeltas(float& dX, float& dY, int16_t x, int16_t y, int16_t state);
+  void WindowHandler(xcb_generic_event_t *evt);
+  void TimerHandler(int id);
 
-  inline IMouseInfo GetMouseInfo(LPARAM lParam);
-  inline IMouseInfo GetMouseInfoDeltas(float&dX, float& dY, LPARAM lParam);
+  static void WindowHandlerProxy(xcbt_window xw, xcb_generic_event_t *evt, IGraphicsLinux *_this) {
+    _this->WindowHandler(evt);
+  }
+  static void TimerHandlerProxy(xcbt x, int timer_id, IGraphicsLinux *_this) {
+    _this->TimerHandler(timer_id);
+  }
+  
 };
 
 END_IGRAPHICS_NAMESPACE
