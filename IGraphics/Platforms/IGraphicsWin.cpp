@@ -318,6 +318,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     IGraphicsWin* pGraphics = (IGraphicsWin*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
 #ifdef IGRAPHICS_VSYNC // use VBLANK Thread
+    assert((pGraphics->FPS() == 60) && "If you want to run at frame rates other than 60FPS remove IGRAPHICS_VSYNC");
     pGraphics->StartVBlankThread(hWnd);
 #else // use WM_TIMER -- its best to get below 16ms because the windows time quanta is slightly above 15ms.
     int mSec = static_cast<int>(std::floorf(1000.0f / (pGraphics->FPS())));
