@@ -38,6 +38,8 @@ static double sFPS = 0.0;
 
 #define TOOLTIPWND_MAXWIDTH 250
 
+#define WM_VBLANK (WM_USER+1)
+
 #pragma mark - Private Classes and Structs
 
 // Fonts
@@ -210,18 +212,120 @@ void IGraphicsWin::DestroyEditWindow()
  }
 }
 
+void IGraphicsWin::OnDisplayTimer(int vBlankCount)
+{
+#ifdef IGRAPHICS_VSYNC
+  // Check the message vblank with the current one to see if we are way behind. If so, then throw these away.
+  DWORD msgCount = vBlankCount;
+  DWORD curCount = mVBlankCount;
+
+  // skip until the actual vblank is at a certain number.
+  if (mVBlankSkipUntil != 0 && mVBlankSkipUntil > mVBlankCount)
+  {
+    return;
+  }
+
+  mVBlankSkipUntil = 0;
+
+  if (msgCount != curCount)
+  {
+    // we are late, just skip it until we can get a message soon after the vblank event.
+    // DBGMSG("vblank is late by %i frames.  Skipping.", (mVBlankCount - msgCount));
+    return;
+  }
+#endif
+
+  //TODO onvblank
+
+  if (mParamEditWnd && mParamEditMsg != kNone)
+  {
+    switch (mParamEditMsg)
+    {
+      case kCommit:
+      {
+        char txt[MAX_WIN32_PARAM_LEN];
+        SendMessage(mParamEditWnd, WM_GETTEXT, MAX_WIN32_PARAM_LEN, (LPARAM)txt);
+        SetControlValueAfterTextEdit(txt);
+        DestroyEditWindow();
+        break;
+      }
+      case kCancel:
+        DestroyEditWindow();
+        break;
+    }
+
+    mParamEditMsg = kNone;
+
+    return; // TODO: check this!
+  }
+
+  // TODO: move this... listen to the right messages in windows for screen resolution changes, etc.
+  int scale = GetScaleForWindow(mPlugWnd);
+  if (scale != GetScreenScale())
+    SetScreenScale(scale);
+
+  // TODO: this is far too aggressive for slow drawing animations and data changing.  We need to
+  // gate the rate of updates to a certain percentage of the wall clock time.
+  IRECTList rects;
+  if (IsDirty(rects))
+  {
+    SetAllControlsClean();
+
+    for (int i = 0; i < rects.Size(); i++)
+    {
+      IRECT dirtyR = rects.Get(i);
+      dirtyR.Scale(GetDrawScale() * GetScreenScale());
+      dirtyR.PixelAlign();
+      RECT r = { (LONG)dirtyR.L, (LONG)dirtyR.T, (LONG)dirtyR.R, (LONG)dirtyR.B };
+      InvalidateRect(mPlugWnd, &r, FALSE);
+    }
+
+    if (mParamEditWnd)
+    {
+      IRECT notDirtyR = mEditRECT;
+      notDirtyR.Scale(GetDrawScale() * GetScreenScale());
+      notDirtyR.PixelAlign();
+      RECT r2 = { (LONG)notDirtyR.L, (LONG)notDirtyR.T, (LONG)notDirtyR.R, (LONG)notDirtyR.B };
+      ValidateRect(mPlugWnd, &r2); // make sure we dont redraw the edit box area
+      UpdateWindow(mPlugWnd);
+      mParamEditMsg = kUpdate;
+    }
+    else
+    {
+      // Force a redraw right now
+      UpdateWindow(mPlugWnd);
+
+#ifdef IGRAPHICS_VSYNC
+      // Check and see if we are still in this frame.
+      curCount = mVBlankCount;
+      if (msgCount != curCount)
+      {
+        // we are late, skip the next vblank to give us a breather.
+        mVBlankSkipUntil = curCount+1;
+        DBGMSG("vblank painting was late by %i frames.", (mVBlankSkipUntil - msgCount));
+      }
+#endif
+    }
+  }
+  return;
+}
+
 // static
 LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-
   if (msg == WM_CREATE)
   {
     LPCREATESTRUCT lpcs = (LPCREATESTRUCT)lParam;
     SetWindowLongPtr(hWnd, GWLP_USERDATA, (LPARAM)(lpcs->lpCreateParams));
     IGraphicsWin* pGraphics = (IGraphicsWin*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
-    // We also need to create a vblank listener thread that will post messages (or invalidate)
+#ifdef IGRAPHICS_VSYNC // use VBLANK Thread
     pGraphics->StartVBlankThread(hWnd);
+#else // use WM_TIMER -- its best to get below 16ms because the windows time quanta is slightly above 15ms.
+    int mSec = static_cast<int>(std::floorf(1000.0f / (pGraphics->FPS())));
+    if (mSec < 20) mSec = 15;
+    SetTimer(hWnd, IPLUG_TIMER_ID, mSec, NULL);
+#endif
 
     SetFocus(hWnd); // gets scroll wheel working straight away
     DragAcceptFiles(hWnd, true);
@@ -229,7 +333,6 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   }
 
   IGraphicsWin* pGraphics = (IGraphicsWin*) GetWindowLongPtr(hWnd, GWLP_USERDATA);
-  char txt[MAX_WIN32_PARAM_LEN];
 
   if (!pGraphics || hWnd != pGraphics->mPlugWnd)
   {
@@ -250,67 +353,19 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
   switch (msg)
   {
-    case (WM_USER+1):
-    {
-      if (pGraphics->mParamEditWnd && pGraphics->mParamEditMsg != kNone)
-      {
-        switch (pGraphics->mParamEditMsg)
-        {
-          case kCommit:
-          {
-            SendMessage(pGraphics->mParamEditWnd, WM_GETTEXT, MAX_WIN32_PARAM_LEN, (LPARAM) txt);
-            pGraphics->SetControlValueAfterTextEdit(txt);
-            pGraphics->DestroyEditWindow();
-          }
-          break;
-                  
-          case kCancel:
-          {
-            pGraphics->DestroyEditWindow();
-          }
-          break;
-        }
-        pGraphics->mParamEditMsg = kNone;
-        return 0; // TODO: check this!
-      }
-
-      int scale = GetScaleForWindow(pGraphics->mPlugWnd);
-      if (scale != pGraphics->GetScreenScale())
-        pGraphics->SetScreenScale(scale);
-
-      IRECTList rects;
-         
-      if (pGraphics->IsDirty(rects))
-      {
-        pGraphics->SetAllControlsClean();
-
-        for (int i = 0; i < rects.Size(); i++)
-        {
-          IRECT dirtyR = rects.Get(i);
-          dirtyR.Scale(pGraphics->GetDrawScale() * pGraphics->GetScreenScale());
-          dirtyR.PixelAlign();
-          RECT r = { (LONG)dirtyR.L, (LONG)dirtyR.T, (LONG)dirtyR.R, (LONG)dirtyR.B };
-
-          InvalidateRect(hWnd, &r, FALSE);
-        }
-
-        if (pGraphics->mParamEditWnd)
-        {
-          IRECT notDirtyR = pGraphics->mEditRECT;
-          notDirtyR.Scale(pGraphics->GetDrawScale() * pGraphics->GetScreenScale());
-          notDirtyR.PixelAlign();
-          RECT r2 = { (LONG) notDirtyR.L, (LONG) notDirtyR.T, (LONG) notDirtyR.R, (LONG) notDirtyR.B };
-          ValidateRect(hWnd, &r2); // make sure we dont redraw the edit box area
-          UpdateWindow(hWnd);
-          pGraphics->mParamEditMsg = kUpdate;
-        }
-        else
-        {
-          UpdateWindow(hWnd);
-        }
-      }
+    case WM_VBLANK:
+      pGraphics->OnDisplayTimer(wParam);
       return 0;
-    }
+
+    case WM_TIMER:
+      if (wParam == IPLUG_TIMER_ID)
+        pGraphics->OnDisplayTimer(0);
+
+      return 0;
+
+    case WM_ERASEBKGND:
+      return 0;
+
     case WM_RBUTTONDOWN:
     case WM_LBUTTONDOWN:
     case WM_MBUTTONDOWN:
@@ -462,15 +517,6 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     }
     case WM_PAINT:
     {
-      // log out begin
-/*      LARGE_INTEGER qpcFreq;
-      LARGE_INTEGER qpcTime;
-      ::QueryPerformanceFrequency(&qpcFreq);
-      ::QueryPerformanceCounter(&qpcTime);
-      double t = (double)qpcTime.QuadPart / (double)qpcFreq.QuadPart;
-      DBGMSG("pntbeg\t\t\t%lf", t);
-      */
-
       auto addDrawRect = [pGraphics](IRECTList& rects, RECT r) {
         IRECT ir(r.left, r.top, r.right, r.bottom);
         ir.Scale(1.f / (pGraphics->GetDrawScale() * pGraphics->GetScreenScale()));
@@ -524,15 +570,10 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       // For the D2D if we don't call endpaint, then you really need to call ValidateRect otherwise
       // we are just going to get another WM_PAINT to handle.  Bad!  It also exibits the odd property
       // that windows will be popped under the window.
-      //ValidateRect(hWnd, 0);
+      ValidateRect(hWnd, 0);
 
       DeleteObject(region);
 
-      // log out begin
-/*      ::QueryPerformanceCounter(&qpcTime);
-      t = (double)qpcTime.QuadPart / (double)qpcFreq.QuadPart;
-      DBGMSG("pntend\t\t\t\t%lf", t);
-      */
       return 0;
     }
 
@@ -565,7 +606,11 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     }
     case WM_CLOSE:
     {
+#ifdef IGRAPHICS_VSYNC
       pGraphics->StopVBlankThread();
+#else
+      KillTimer(hWnd, IPLUG_TIMER_ID);
+#endif    
       pGraphics->CloseWindow();
       return 0;
     }
@@ -976,7 +1021,7 @@ void* IGraphicsWin::OpenWindow(void* pParent)
     RegisterClass(&wndClass);
   }
 
-  mPlugWnd = CreateWindow(wndClassName, "IPlug", WS_CHILD | WS_VISIBLE, x, y, w, h, mParentWnd, 0, mHInstance, this);
+  mPlugWnd = CreateWindow(wndClassName, "IPlug", WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, x, y, w, h, mParentWnd, 0, mHInstance, this);
 
   HDC dc = GetDC(mPlugWnd);
   SetPlatformContext(dc);
@@ -1008,7 +1053,7 @@ void* IGraphicsWin::OpenWindow(void* pParent)
 
     if (InitCommonControlsEx(&iccex))
     {
-      mTooltipWnd = CreateWindowEx(0, TOOLTIPS_CLASS, NULL, WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP,
+      mTooltipWnd = CreateWindowEx(0, TOOLTIPS_CLASS, NULL, WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | TTS_NOPREFIX | TTS_ALWAYSTIP,
                                    CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, mPlugWnd, NULL, mHInstance, NULL);
       if (mTooltipWnd)
       {
@@ -1319,7 +1364,7 @@ void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
   double scale = GetDrawScale() * GetScreenScale();
   IRECT scaledBounds = bounds.GetScaled(scale);
 
-  mParamEditWnd = CreateWindow("EDIT", str, ES_AUTOHSCROLL /*only works for left aligned text*/ | WS_CHILD | WS_VISIBLE | ES_MULTILINE | editStyle,
+  mParamEditWnd = CreateWindow("EDIT", str, ES_AUTOHSCROLL /*only works for left aligned text*/ | WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE | ES_MULTILINE | editStyle,
     scaledBounds.L, scaledBounds.T, scaledBounds.W()+1, scaledBounds.H()+1,
     mPlugWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
 
@@ -1839,6 +1884,7 @@ void IGraphicsWin::CachePlatformFont(const char* fontID, const PlatformFontPtr& 
     hfontStorage.Add(new HFontHolder(hfont), fontID);
 }
 
+#ifdef IGRAPHICS_VSYNC
 DWORD WINAPI VBlankRun(LPVOID lpParam)
 {
   IGraphicsWin* pGraphics = (IGraphicsWin*)lpParam;
@@ -1899,16 +1945,7 @@ typedef NTSTATUS(WINAPI* D3DKMTWaitForVerticalBlankEvent)(const D3DKMT_WAITFORVE
 
 DWORD IGraphicsWin::OnVBlankRun()
 {
-//#ifndef _DEBUG
   SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
-//#endif
-
-  // output QPC
-  LARGE_INTEGER qpcFreq;
-  LARGE_INTEGER qpcTime;
-  ::QueryPerformanceFrequency(&qpcFreq);
-  ::QueryPerformanceCounter(&qpcTime);
-  double t = (double)qpcTime.QuadPart / (double)qpcFreq.QuadPart;
 
   // TODO: get expected vsync value.  For now we will use a fallback
   // of 60Hz
@@ -1941,8 +1978,7 @@ DWORD IGraphicsWin::OnVBlankRun()
     while (mVBlankShutdown == false)
     {
       Sleep(rateMS);
-      ::PostMessage(mVBlankWindow, WM_USER + 1, 0, 0);
-//      InvalidateRect(mVBlankWindow, 0, 0);
+      VBlankNotify();
     }
   }
   else
@@ -1985,35 +2021,26 @@ DWORD IGraphicsWin::OnVBlankRun()
 
       if (adapterIsOpen)
       {
+        // Finally we can wait on VBlank
         NTSTATUS status = (*pWait)(&we);
         if (status != S_OK)
         {
-          // failed, close now
+          // failed, close now and try again on the next pass.
           _D3DKMT_CLOSEADAPTER ca;
           ca.hAdapter = we.hAdapter;
           (*pClose)(&ca);
           adapterIsOpen = false;
         }
-        else
-        {
-          // success, snag time and output for debugging purposes
-/*          ::QueryPerformanceCounter(&qpcTime);
-          double t = (double)qpcTime.QuadPart / (double)qpcFreq.QuadPart;
-          DBGMSG("wait\t%lf", t);
-          */
-
-        }
       }
 
+      // Temporary fallback for lost adapter or failed call.
       if (!adapterIsOpen)
       {
         ::Sleep(rateMS);
       }
 
-      // this is an OK way to redraw, but better if we want tighter timing
-      // while ignoring some events call 
-      ::PostMessage(mVBlankWindow, WM_USER + 1, 0, 0);
-//      InvalidateRect(mVBlankWindow, 0, 0);
+      // notify logic
+      VBlankNotify();
     }
 
     // cleanup adapter before leaving
@@ -2035,6 +2062,14 @@ DWORD IGraphicsWin::OnVBlankRun()
 
   return 0;
 }
+
+void IGraphicsWin::VBlankNotify()
+{
+  mVBlankCount++;
+  ::PostMessage(mVBlankWindow, WM_VBLANK, mVBlankCount, 0);
+}
+#endif
+
 
 #ifndef NO_IGRAPHICS
 #if defined IGRAPHICS_AGG
