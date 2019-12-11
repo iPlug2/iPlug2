@@ -322,6 +322,7 @@ void IGraphicsD2D::PathQuadraticBezierTo(float cx, float cy, float x2, float y2)
 
 void IGraphicsD2D::RenderCheck()
 {
+  return;
   if (!mInDraw)
   {
     DBGMSG("Do not access outside of mInDraw");
@@ -703,9 +704,9 @@ void IGraphicsD2D::BeginFrame()
 //  if (SUCCEEDED(hr) && !(m_mD2DDeviceContext->CheckWindowState() & D2D1_WINDOW_STATE_OCCLUDED))
 
 
-  assert(mInDraw == false);
-  mInDraw = true;
-  mD2DDeviceContext->BeginDraw();
+//  assert(mInDraw == false);
+//  mInDraw = true;
+//  mD2DDeviceContext->BeginDraw();
 
   mTargetSize = mD2DDeviceContext->GetSize();
   mLayerTransform = D2D1::Matrix3x2F::Scale(mTargetSize.width / Width(), mTargetSize.height / Height());
@@ -725,14 +726,9 @@ void IGraphicsD2D::EndFrame()
 
   if (mInDraw)
   {
-    // test at end of drawing to swapbuffer 
-//    mD2DDeviceContext->DrawRectangle(D2D1::RectF(100,100,200,200), GetBrush(IColor(255, 255, 0, 0)));
-
-
     // pop off the clipping region
     if (mPushClipCalled)
     {
-      DBGMSG("clippop");
       mD2DDeviceContext->PopAxisAlignedClip();
       mPushClipCalled = false;
     }
@@ -745,6 +741,7 @@ void IGraphicsD2D::EndFrame()
 
     // finishes everything
     hr = mD2DDeviceContext->EndDraw();
+    mInDraw = false;
     if (hr != S_OK)
     {
       DBGMSG("failed enddraw");
@@ -819,6 +816,11 @@ void IGraphicsD2D::EndFrame()
 
     free(presentRects);
 
+    // start over again
+    mD2DDeviceContext->BeginDraw();
+    mInDraw = true;
+
+
 
     IGraphicsPathBase::EndFrame();
   }
@@ -843,23 +845,17 @@ bool IGraphicsD2D::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 
 void IGraphicsD2D::PathTransformSetMatrix(const IMatrix& m)
 {
-  // Ding --- this does not work well with layers -- its only really setup for
-  // the swapbuffer
-
   if (!mInDraw) return;
-//  RenderCheck();
   D2D1::Matrix3x2F finalMat =
     D2D1::Matrix3x2F(m.mXX, -m.mXY, -m.mYX, m.mYY, m.mTX, m.mTY) *
     mLayerTransform;
-//    D2D1::Matrix3x2F::Scale(mTargetSize.width / Width(), mTargetSize.height / Height());
   mD2DDeviceContext->SetTransform(finalMat);
 }
 
 void IGraphicsD2D::SetClipRegion(const IRECT& r)
 {
   if (!mInDraw) return;
-//  RenderCheck();
-  DBGMSG("SetClipRegion(%f,%f,%f,%f)", r.L, r.T, r.R, r.B);
+//  DBGMSG("SetClipRegion(%f,%f,%f,%f)", r.L, r.T, r.R, r.B);
   if (mPushClipCalled)
     mD2DDeviceContext->PopAxisAlignedClip();
   
@@ -874,13 +870,16 @@ void IGraphicsD2D::UpdateLayer()
     // pop off the clipping region
     if (mPushClipCalled)
     {
-      DBGMSG("clippop");
       mD2DDeviceContext->PopAxisAlignedClip();
       mPushClipCalled = false;
     }
 
     HRESULT hr = mD2DDeviceContext->EndDraw();
     mInDraw = false;
+    if (hr != S_OK)
+    {
+      DBGMSG("Issue with enddraw");
+    }
   }
 
   // setup the current render context to either the swapchain bitmap or an offscreen bitmap.
@@ -889,6 +888,14 @@ void IGraphicsD2D::UpdateLayer()
     assert(mD2DDeviceContext);
     assert(mSwapChainBitmap);
     mD2DDeviceContext->SetTarget(mSwapChainBitmap);
+
+    //@@@
+    mD2DDeviceContext->BeginDraw();
+    mInDraw = true;
+    mTargetSize = mD2DDeviceContext->GetSize();
+    mLayerTransform = D2D1::Matrix3x2F::Scale(mTargetSize.width / Width(), mTargetSize.height / Height());
+    PathTransformReset();
+
   }
   else
   {
@@ -898,13 +905,12 @@ void IGraphicsD2D::UpdateLayer()
 
     // there is an implicit begin draw whenever switching layers to a bitmap
     mD2DDeviceContext->BeginDraw();
-
-    mLayerTransform = D2D1::Matrix3x2F::Identity();
-    PathTransformReset();
-//    mD2DDeviceContext->SetTransform(D2D1::Matrix3x2F::Identity());
-//    mD2DDeviceContext->DrawRectangle(D2D1::RectF(100,100,200,200), GetBrush(IColor(255, 255, 0, 0)), 10.0f);
     mInDraw = true;
-//    this->FillCircle(COLOR_BLACK, 10, 10, 20, 0);
+
+    IRECT bounds = mLayers.top()->Bounds();
+    mLayerTransform = D2D1::Matrix3x2F::Translation(-bounds.L, -bounds.T);
+
+    PathTransformReset();
   }
 }
 
@@ -1074,10 +1080,23 @@ void IGraphicsD2D::D2DCreateDeviceSwapChainBitmap()
   //  SafeRelease(&bitmap);
   mSwapChainBitmap = bitmap;
 
+  //@@@ setup for drawing now?
+  mD2DDeviceContext->SetTarget(mSwapChainBitmap);
+
+  //@@@
+  mD2DDeviceContext->BeginDraw();
+  mInDraw = true;
+  mTargetSize = mD2DDeviceContext->GetSize();
+  mLayerTransform = D2D1::Matrix3x2F::Scale(mTargetSize.width / Width(), mTargetSize.height / Height());
+  PathTransformReset();
+
+
 }
 
 void IGraphicsD2D::D2DResizeSurface()
 {
+  HRESULT hr = S_OK;
+
   if (mD2DDeviceContext)
   {
     // get the size of the surface to make
@@ -1086,9 +1105,17 @@ void IGraphicsD2D::D2DResizeSurface()
     int height = swapChainRect.bottom - swapChainRect.top;
 
     // clear the target and notify the swap chain of a new buffer
+
+    hr = mD2DDeviceContext->EndDraw();
+    mInDraw = false;
+    if (hr != S_OK)
+    {
+      DBGMSG("Issue during completion of resize");
+    }
     mD2DDeviceContext->SetTarget(nullptr);
     SafeRelease(&mSwapChainBitmap);
-    if (S_OK == mSwapChain->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0))
+    HRESULT hr = mSwapChain->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0);
+    if (hr == S_OK)
     {
       DBGMSG("resizing swap chain");
       // try to recreate the bitmap now.
