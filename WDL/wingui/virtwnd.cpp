@@ -324,18 +324,18 @@ void WDL_VWnd_Painter::PaintBegin(HWND hwnd, int bgcolor, const RECT *limitBGrec
 
         if (tr.left < tr.right && tr.top < tr.bottom)
         {
-          int w=lbg.right-lbg.left;
-          int h=lbg.bottom-lbg.top;
+          const int bgw = lbg.right-lbg.left, bgh = lbg.bottom-lbg.top;
 
-          int x=lbg.left - m_paint_xorig;
-          int y=lbg.top - m_paint_yorig;
-          LICE_SubBitmap bm(m_bm,x,y,w,h);
-          tr.left -= wdl_max(x,0);
-          tr.right -= wdl_max(x,0);
-          tr.bottom -= wdl_max(y,0);
-          tr.top -= wdl_max(y,0);
+          const int xl = lbg.left - m_paint_xorig, yl = lbg.top - m_paint_yorig;
+          const int xo = wdl_min(xl,0), yo = wdl_min(yl,0);
+          const int use_w = bgw + xo, use_h = bgh + yo;
+          if (use_w > 0 && use_h > 0)
+          {
+            LICE_SubBitmap bm(m_bm, wdl_max(xl,0), wdl_max(yl,0), use_w, use_h);
 
-          DoPaintBackground(&bm,bgcolor,&tr, w,h,-m_paint_xorig + wdl_min(x,0), -m_paint_yorig + wdl_min(y,0));
+            OffsetRect(&tr, -lbg.left,-lbg.top);
+            DoPaintBackground(&bm,bgcolor,&tr, bgw,bgh, xo, yo);
+          }
         }
       }
     }
@@ -1516,8 +1516,8 @@ void WDL_VirtualWnd_ScaledBlitBG(LICE_IBitmap *dest,
 
   if (clipx<destx) clipx=destx;
   if (clipy<desty) clipy=desty;
-  if (clipright>destx+destw) clipright=clipx+destw;
-  if (clipbottom>desty+desth) clipbottom=clipy+desth;
+  if (clipright>destx+destw) clipright=destx+destw;
+  if (clipbottom>desty+desth) clipbottom=desty+desth;
   
   if (left_margin<1||top_margin<1||right_margin<1||bottom_margin<1) 
   {
