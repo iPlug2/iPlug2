@@ -182,18 +182,22 @@ APIBitmap* IGraphicsD2D::LoadAPIBitmap(const char* fileNameOrResID, int scale, E
 
 APIBitmap* IGraphicsD2D::CreateAPIBitmap(int width, int height, int scale, double drawScale)
 {
-  ID2D1Bitmap* pD2DBitmap = nullptr;
+  ID2D1Bitmap1* pD2DBitmap = nullptr;
 
   D2D1_PIXEL_FORMAT desc2D = D2D1::PixelFormat();
   desc2D.format = DXGI_FORMAT_R8G8B8A8_UNORM;
   desc2D.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED;
 
-  D2D1_BITMAP_PROPERTIES props = D2D1::BitmapProperties();
-  props.dpiX = 96.0f;
-  props.dpiY = 96.0f;
+  // create the bitmap properties --- match the window dpi if we want the drawing operation to scale
+  // properly.
+  float dpi = GetDpiForWindow(static_cast<HWND>(GetWindow()));
+  D2D1_BITMAP_PROPERTIES1 props = D2D1::BitmapProperties1();
+  props.dpiX = dpi;
+  props.dpiY = dpi;
   props.pixelFormat = desc2D;
+  props.bitmapOptions = D2D1_BITMAP_OPTIONS_TARGET;
 
-  HRESULT hr = mD2DDeviceContext->CreateBitmap(D2D1::SizeU(width, height), props, &pD2DBitmap);
+  HRESULT hr = mD2DDeviceContext->CreateBitmap(D2D1::SizeU(width, height), 0, 0, props, &pD2DBitmap);
 
   if (SUCCEEDED(hr))
     return new Bitmap(pD2DBitmap, width, height, scale, drawScale);
@@ -316,6 +320,15 @@ void IGraphicsD2D::PathQuadraticBezierTo(float cx, float cy, float x2, float y2)
   }
 }
 
+void IGraphicsD2D::RenderCheck()
+{
+  if (!mInDraw)
+  {
+    DBGMSG("Do not access outside of mInDraw");
+  }
+}
+
+
 void IGraphicsD2D::PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend)
 {
   // close it open if necessary
@@ -326,6 +339,7 @@ void IGraphicsD2D::PathStroke(const IPattern& pattern, float thickness, const IS
     mInFigure = false;
     SafeRelease(&mPathSink);
   }
+  RenderCheck();
   mD2DDeviceContext->DrawGeometry(mPath, GetBrush(pattern.GetStop(0).mColor), thickness);
 }
 
@@ -338,6 +352,7 @@ void IGraphicsD2D::PathFill(const IPattern& pattern, const IFillOptions& options
     mInFigure = false;
     SafeRelease(&mPathSink);
   }
+  RenderCheck();
   mD2DDeviceContext->FillGeometry(mPath, GetBrush(pattern.GetStop(0).mColor));
 }
 
@@ -345,6 +360,7 @@ void IGraphicsD2D::DrawLine(const IColor& color, float x1, float y1, float x2, f
 {
 #ifdef USE_NATIVE_SHAPES
   PathClear();
+  RenderCheck();
   mD2DDeviceContext->DrawLine(D2D1::Point2F(x1,y1), D2D1::Point2F(x2, y2), GetBrush(color), thickness);
 #else
   IGraphicsPathBase::DrawLine(color, x1, y1, x2, y2, pBlend, thickness);
@@ -355,6 +371,7 @@ void IGraphicsD2D::DrawRect(const IColor& color, const IRECT& bounds, const IBle
 {
 #ifdef USE_NATIVE_SHAPES
   PathClear();
+  RenderCheck();
   mD2DDeviceContext->DrawRectangle(D2DRect(bounds), GetBrush(color));
 #else
   IGraphicsPathBase::DrawRect(color, bounds, pBlend, thickness);
@@ -369,6 +386,7 @@ void IGraphicsD2D::DrawRoundRect(const IColor& color, const IRECT& bounds, float
   rr.radiusX = cornerRadius;
   rr.radiusY = cornerRadius;
   rr.rect = D2DRect(bounds);
+  RenderCheck();
   mD2DDeviceContext->DrawRoundedRectangle(rr, GetBrush(color));
 #else
   IGraphicsPathBase::DrawRoundRect(color, bounds, cornerRadius, pBlend, thickness);
@@ -377,6 +395,7 @@ void IGraphicsD2D::DrawRoundRect(const IColor& color, const IRECT& bounds, float
 
 void IGraphicsD2D::FillRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend)
 {
+  RenderCheck();
 #ifdef USE_NATIVE_SHAPES
   PathClear();
   mD2DDeviceContext->FillRectangle(D2DRect(bounds), GetBrush(color));
@@ -387,6 +406,7 @@ void IGraphicsD2D::FillRect(const IColor& color, const IRECT& bounds, const IBle
 
 void IGraphicsD2D::FillRoundRect(const IColor& color, const IRECT& bounds, float cornerRadius, const IBlend* pBlend)
 {
+  RenderCheck();
 #ifdef USE_NATIVE_SHAPES
   PathClear();
   D2D1_ROUNDED_RECT rr;
@@ -401,6 +421,7 @@ void IGraphicsD2D::FillRoundRect(const IColor& color, const IRECT& bounds, float
 
 void IGraphicsD2D::FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
 {
+  RenderCheck();
 #ifdef USE_NATIVE_SHAPES
   PathClear();
   D2D1_ELLIPSE shape;
@@ -416,6 +437,7 @@ void IGraphicsD2D::FillCircle(const IColor& color, float cx, float cy, float r, 
 
 void IGraphicsD2D::FillEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend)
 {
+  RenderCheck();
   // TODO: support angle do the rotation here -- we can't rotate the path on its own easily.
 #ifdef USE_NATIVE_SHAPES
   PathClear();
@@ -433,6 +455,7 @@ void IGraphicsD2D::FillEllipse(const IColor& color, const IRECT& bounds, const I
 
 void IGraphicsD2D::FillEllipse(const IColor& color, float x, float y, float r1, float r2, float angle, const IBlend* pBlend)
 {
+  RenderCheck();
   // TODO: support angle do the rotation here -- we can't rotate the path on its own easily.
 #ifdef USE_NATIVE_SHAPES
   PathClear();
@@ -503,9 +526,15 @@ void IGraphicsD2D::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const 
 
 void IGraphicsD2D::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
+  RenderCheck();
   const D2D1_RECT_F srcRect = D2DRect({ static_cast<float>(srcX), static_cast<float>(srcY), static_cast<float>(srcX + bitmap.FW()), static_cast<float>(srcY + bitmap.FH()) });
   const D2D1_RECT_F dstRect = D2DRect({ dest.L, dest.T, dest.L + static_cast<float>(bitmap.FW()), dest.T + static_cast<float>(bitmap.FH())});
-  mD2DDeviceContext->DrawBitmap(bitmap.GetAPIBitmap()->GetBitmap(), &dstRect, 1.0f, D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, &srcRect);
+
+  // get the bitmap status just to see
+  ID2D1Bitmap* b = bitmap.GetAPIBitmap()->GetBitmap();
+//  D2D1_SIZE_F size = b->GetSize();
+
+  mD2DDeviceContext->DrawBitmap(b, &dstRect, 1.0f, D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, & srcRect);
 }
 
 IColor IGraphicsD2D::GetPoint(int x, int y)
@@ -592,6 +621,7 @@ void IGraphicsD2D::DoMeasureText(const IText& text, const char* str, IRECT& boun
 
 void IGraphicsD2D::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
 {
+  RenderCheck();
   IRECT measured = bounds;
   IDWriteTextFormat* format;
   double x, y;
@@ -672,14 +702,17 @@ void IGraphicsD2D::BeginFrame()
   // check for occlusion
 //  if (SUCCEEDED(hr) && !(m_mD2DDeviceContext->CheckWindowState() & D2D1_WINDOW_STATE_OCCLUDED))
 
-  mTargetSize = mD2DDeviceContext->GetSize();
 
   assert(mInDraw == false);
   mInDraw = true;
   mD2DDeviceContext->BeginDraw();
 
-  D2D1::Matrix3x2F mat = D2D1::Matrix3x2F::Scale(mTargetSize.width / Width(), mTargetSize.height / Height());
-  mD2DDeviceContext->SetTransform(mat);
+  mTargetSize = mD2DDeviceContext->GetSize();
+  mLayerTransform = D2D1::Matrix3x2F::Scale(mTargetSize.width / Width(), mTargetSize.height / Height());
+  PathTransformReset();
+
+//  D2D1::Matrix3x2F mat = D2D1::Matrix3x2F::Scale(mTargetSize.width / Width(), mTargetSize.height / Height());
+//  mD2DDeviceContext->SetTransform(mat);
 
   // this is just for testing if the entire background is redrawn.
 //  mD2DDeviceContext->Clear(D2D1::ColorF(D2D1::ColorF::Green));
@@ -688,11 +721,18 @@ void IGraphicsD2D::BeginFrame()
 
 void IGraphicsD2D::EndFrame()
 {
+  HRESULT hr = S_OK;
+
   if (mInDraw)
   {
+    // test at end of drawing to swapbuffer 
+//    mD2DDeviceContext->DrawRectangle(D2D1::RectF(100,100,200,200), GetBrush(IColor(255, 255, 0, 0)));
+
+
     // pop off the clipping region
     if (mPushClipCalled)
     {
+      DBGMSG("clippop");
       mD2DDeviceContext->PopAxisAlignedClip();
       mPushClipCalled = false;
     }
@@ -704,7 +744,11 @@ void IGraphicsD2D::EndFrame()
     GarbageCollectFontCache(100);
 
     // finishes everything
-    mD2DDeviceContext->EndDraw();
+    hr = mD2DDeviceContext->EndDraw();
+    if (hr != S_OK)
+    {
+      DBGMSG("failed enddraw");
+    }
 
 //    _redrawProfiler.StopDrawingOperation();
 
@@ -757,7 +801,7 @@ void IGraphicsD2D::EndFrame()
     }
     presentParameters.pDirtyRects = presentRects;
 
-    HRESULT hr = mSwapChain->Present1(0, 0, &presentParameters);
+    hr = mSwapChain->Present1(0, 0, &presentParameters);
     if (hr == DXGI_ERROR_INVALID_CALL)
     {
       // probably not handling resize properly
@@ -799,21 +843,72 @@ bool IGraphicsD2D::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 
 void IGraphicsD2D::PathTransformSetMatrix(const IMatrix& m)
 {
+  // Ding --- this does not work well with layers -- its only really setup for
+  // the swapbuffer
+
+  if (!mInDraw) return;
+//  RenderCheck();
   D2D1::Matrix3x2F finalMat =
     D2D1::Matrix3x2F(m.mXX, -m.mXY, -m.mYX, m.mYY, m.mTX, m.mTY) *
-    D2D1::Matrix3x2F::Scale(mTargetSize.width / Width(), mTargetSize.height / Height());
+    mLayerTransform;
+//    D2D1::Matrix3x2F::Scale(mTargetSize.width / Width(), mTargetSize.height / Height());
   mD2DDeviceContext->SetTransform(finalMat);
 }
 
 void IGraphicsD2D::SetClipRegion(const IRECT& r)
 {
-//  DBGMSG("SetClipRegion(%f,%f,%f,%f)", r.L, r.T, r.R, r.B);
+  if (!mInDraw) return;
+//  RenderCheck();
+  DBGMSG("SetClipRegion(%f,%f,%f,%f)", r.L, r.T, r.R, r.B);
   if (mPushClipCalled)
     mD2DDeviceContext->PopAxisAlignedClip();
   
   mD2DDeviceContext->PushAxisAlignedClip(D2DRect(r), D2D1_ANTIALIAS_MODE_ALIASED);
   mPushClipCalled = true;
 }
+
+void IGraphicsD2D::UpdateLayer()
+{
+  if (mInDraw)
+  {
+    // pop off the clipping region
+    if (mPushClipCalled)
+    {
+      DBGMSG("clippop");
+      mD2DDeviceContext->PopAxisAlignedClip();
+      mPushClipCalled = false;
+    }
+
+    HRESULT hr = mD2DDeviceContext->EndDraw();
+    mInDraw = false;
+  }
+
+  // setup the current render context to either the swapchain bitmap or an offscreen bitmap.
+  if (mLayers.empty())
+  {
+    assert(mD2DDeviceContext);
+    assert(mSwapChainBitmap);
+    mD2DDeviceContext->SetTarget(mSwapChainBitmap);
+  }
+  else
+  {
+    // use the top bitmap
+    ID2D1Bitmap* bitmap = mLayers.top()->GetAPIBitmap()->GetBitmap();
+    mD2DDeviceContext->SetTarget(bitmap);
+
+    // there is an implicit begin draw whenever switching layers to a bitmap
+    mD2DDeviceContext->BeginDraw();
+
+    mLayerTransform = D2D1::Matrix3x2F::Identity();
+    PathTransformReset();
+//    mD2DDeviceContext->SetTransform(D2D1::Matrix3x2F::Identity());
+//    mD2DDeviceContext->DrawRectangle(D2D1::RectF(100,100,200,200), GetBrush(IColor(255, 255, 0, 0)), 10.0f);
+    mInDraw = true;
+//    this->FillCircle(COLOR_BLACK, 10, 10, 20, 0);
+  }
+}
+
+
 
 void IGraphicsD2D::D2DInitialize()
 {
@@ -946,6 +1041,7 @@ void IGraphicsD2D::D2DReleaseDevice()
   D2DReleaseSizeDependantResources();
   SafeRelease(&mD2DDeviceContext);
   SafeRelease(&mSwapChain);
+  SafeRelease(&mSwapChainBitmap);
   SafeRelease(&mD2DDevice);
   SafeRelease(&mD3DDevice);
 }
@@ -956,8 +1052,6 @@ void IGraphicsD2D::D2DCreateDeviceSwapChainBitmap()
   ID2D1Bitmap1* bitmap = nullptr;
 
   // Get the back buffer as an IDXGISurface (Direct2D doesn't accept an ID3D11Texture2D directly as a render target)
-// IDXGISurface *dxgiBackBuffer;
-// DXGISwapChain->GetBuffer(0, IID_PPV_ARGS(&dxgiBackBuffer));
   HRESULT hr = mSwapChain->GetBuffer(0, __uuidof(IDXGISurface), (void**)&surface);
 
   auto bprops = D2D1::BitmapProperties1(
@@ -975,7 +1069,11 @@ void IGraphicsD2D::D2DCreateDeviceSwapChainBitmap()
   int h = Height();
 
   SafeRelease(&surface);
-  SafeRelease(&bitmap);
+
+  // keep the bitmap for later
+  //  SafeRelease(&bitmap);
+  mSwapChainBitmap = bitmap;
+
 }
 
 void IGraphicsD2D::D2DResizeSurface()
@@ -989,6 +1087,7 @@ void IGraphicsD2D::D2DResizeSurface()
 
     // clear the target and notify the swap chain of a new buffer
     mD2DDeviceContext->SetTarget(nullptr);
+    SafeRelease(&mSwapChainBitmap);
     if (S_OK == mSwapChain->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0))
     {
       DBGMSG("resizing swap chain");

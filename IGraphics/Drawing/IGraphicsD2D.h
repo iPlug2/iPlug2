@@ -131,7 +131,7 @@ private:
 
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
-  void UpdateLayer() override  {  DBGMSG("Not yet supported"); }
+  void UpdateLayer() override;
 
   static StaticStorage<Font> sFontCache;
 
@@ -158,9 +158,18 @@ private:
   IDWriteFactory1* mDWriteFactory = nullptr;
   ID3D11Device* mD3DDevice = nullptr;
   ID2D1Device* mD2DDevice = nullptr;
-  IDXGISwapChain1* mSwapChain = nullptr;
+
   ID2D1DeviceContext* mD2DDeviceContext = nullptr;
   Microsoft::WRL::ComPtr<IWICImagingFactory2> mWICFactory;
+
+  IDXGISwapChain1* mSwapChain = nullptr;
+  ID2D1Bitmap1* mSwapChainBitmap = nullptr;
+
+  // For any layer there is a transform that needs to be applied
+  // transparently.  We set this during updateLayer and beginFrame
+  D2D1::Matrix3x2F mLayerTransform;
+
+  void RenderCheck();
 
   // the swap chain is tied to a surface of an exact size.  We need
   // to make sure all draw calls match this.

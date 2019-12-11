@@ -625,7 +625,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       
       return 0;
     }
-    case WM_CLOSE:
+    case WM_DESTROY:
     {
 #ifdef VSYNC_SUPPORT
       pGraphics->StopVBlankThread();
