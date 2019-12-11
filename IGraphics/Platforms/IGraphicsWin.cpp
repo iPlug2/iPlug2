@@ -1143,7 +1143,7 @@ void IGraphicsWin::CloseWindow()
 #ifdef IGRAPHICS_VSYNC
     StopVBlankThread();
 #else
-    KillTimer(hWnd, IPLUG_TIMER_ID);
+    KillTimer(mPlugWnd, IPLUG_TIMER_ID);
 #endif
 
     OnViewDestroyed();
