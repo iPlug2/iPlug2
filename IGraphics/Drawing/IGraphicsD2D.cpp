@@ -19,7 +19,7 @@
 #include "IGraphicsD2D.h"
 #include <d2d1effects.h>
 
-#ifdef IGRAPHICS_D2D
+#ifndef IGRAPHICS_CAIRO
 
 //static RedrawProfiler _redrawProfiler;
 
@@ -527,15 +527,74 @@ void IGraphicsD2D::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const 
 
 void IGraphicsD2D::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
+  // example code
+/*  cairo_save(mContext);
+  cairo_rectangle(mContext, dest.L, dest.T, dest.W(), dest.H());
+  cairo_clip(mContext);
+  cairo_surface_t* surface = bitmap.GetAPIBitmap()->GetBitmap();
+  cairo_set_source_surface(mContext, surface, dest.L - srcX, dest.T - srcY);
+  cairo_set_operator(mContext, CairoBlendMode(pBlend));
+  cairo_paint_with_alpha(mContext, BlendWeight(pBlend));
+  cairo_restore(mContext);
+  */
+
+  ID2D1Bitmap* b = bitmap.GetAPIBitmap()->GetBitmap();
+  auto bitmapSize = b->GetPixelSize();
+  float dstDpiX, dstDpiY;
+  float srcDpiX, srcDpiY;
+  mD2DDeviceContext->GetDpi(&dstDpiX, &dstDpiY);
+  b->GetDpi(&srcDpiX, &srcDpiY);
+
+
+  double scale = 1.0f;
+  if (!mLayers.empty())
+  {
+//    scale = bitmap.GetDrawScale();
+  }
+  else
+  {
+//    scale = bitmap.GetScale();
+  }
+  scale = bitmap.GetDrawScale() * bitmap.GetScale();
+
+//  if (mLayers.empty())
+  {
+//    scale = bitmap.GetScale();
+//    scale = bitmap.GetDrawScale();
+//    scale = bitmap.GetScale()*bitmap.GetDrawScale();
+//    scale = dstDpiX / srcDpiX;
+//        scale = bitmap.GetScale()*bitmap.GetDrawScale();
+  }
+//  scale = dstDpiX / srcDpiX;
+
+
+  double scale1 = 1.0 / (bitmap.GetScale() * bitmap.GetDrawScale());
+  double scale2 = bitmap.GetScale() * bitmap.GetDrawScale();
+
   RenderCheck();
-  const D2D1_RECT_F srcRect = D2DRect({ static_cast<float>(srcX), static_cast<float>(srcY), static_cast<float>(srcX + bitmap.FW()), static_cast<float>(srcY + bitmap.FH()) });
-  const D2D1_RECT_F dstRect = D2DRect({ dest.L, dest.T, dest.L + static_cast<float>(bitmap.FW()), dest.T + static_cast<float>(bitmap.FH())});
+  float sX = srcX;
+  float sY = srcY;
+  D2D1_RECT_F srcRect = D2D1::RectF(
+    static_cast<float>(sX * scale),
+    static_cast<float>(sY * scale),
+    static_cast<float>(sX + dest.W() * scale),
+    static_cast<float>(sY + dest.H()) * scale);
+  D2D1_RECT_F dstRect = D2DRect(dest);
+
+
+
 
   // get the bitmap status just to see
-  ID2D1Bitmap* b = bitmap.GetAPIBitmap()->GetBitmap();
-//  D2D1_SIZE_F size = b->GetSize();
-
-  mD2DDeviceContext->DrawBitmap(b, &dstRect, 1.0f, D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, & srcRect);
+  D2D1_SIZE_F size = b->GetSize();
+  DBGMSG("DrawBitmap");
+  DBGMSG("  scale %f %f", scale1, scale2);
+  DBGMSG("  rect src %f %f %f %f (dpi %f %f)", srcRect.left, srcRect.top, srcRect.right, srcRect.bottom, srcDpiX, srcDpiY);
+  DBGMSG("  rect dst %f %f %f %f (dpi %f %f)", dstRect.left, dstRect.top, dstRect.right, dstRect.bottom, dstDpiX, dstDpiY);
+  mD2DDeviceContext->DrawBitmap(b, &dstRect, 1.0f, D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, &srcRect);
+  if (mLayers.empty())
+    mD2DDeviceContext->DrawRectangle(dstRect, GetBrush(IColor(255, 0, 255, 0)), 2.0f);
+  else
+    mD2DDeviceContext->DrawRectangle(dstRect, GetBrush(IColor(255, 255, 0, 0)), 2.0f);
 }
 
 IColor IGraphicsD2D::GetPoint(int x, int y)
@@ -1385,10 +1444,19 @@ HRESULT IGraphicsD2D::LoadResourceBitmap(PCWSTR resourceName, PCWSTR resourceTyp
 
     if (SUCCEEDED(hr))
     {
+      // force the dpi of the bitmap to match the device
+      D2D1_BITMAP_PROPERTIES bp;
+      bp.pixelFormat.alphaMode = D2D1_ALPHA_MODE_PREMULTIPLIED;
+      bp.pixelFormat.format = DXGI_FORMAT_R8G8B8A8_UNORM;
+      bp.pixelFormat = D2D1::PixelFormat();
+      int dpi = GetDpiForWindow((HWND)GetWindow());
+      bp.dpiX = dpi;
+      bp.dpiY = dpi;
+
       //create a Direct2D bitmap from the WIC bitmap.
       hr = mD2DDeviceContext->CreateBitmapFromWicBitmap(
         pConverter,
-        NULL,
+        bp,
         ppBitmap
       );
 

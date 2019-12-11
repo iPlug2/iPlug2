@@ -84,7 +84,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
       pGraphics->AttachControl(new ITextControl(nextCell().GetFromTop(20.f), label, style.labelText));
     };
   
-    
+    /*
     AddLabel("ITextControl");
     pGraphics->AttachControl(new ITextControl(sameCell().GetMidVPadded(20.f), "Result...", DEFAULT_TEXT, COLOR_LIGHT_GRAY), kCtrlTagDialogResult);
     
@@ -96,13 +96,16 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     AddLabel("ICaptionControl");
     pGraphics->AttachControl(new ICaptionControl(sameCell().FracRectVertical(0.5, true).GetMidVPadded(10.f), kParamGain, IText(24.f), DEFAULT_FGCOLOR, false));
     pGraphics->AttachControl(new ICaptionControl(sameCell().FracRectVertical(0.5, false).GetMidVPadded(10.f), kParamMode, IText(24.f), DEFAULT_FGCOLOR, false));
-
+   */ 
     AddLabel("IBKnobControl");
     pGraphics->AttachControl(new IBKnobControl(sameCell().GetPadded(-5.), bitmap1, kParamGain));
     AddLabel("IBKnobRotaterControl");
     pGraphics->AttachControl(new IBKnobRotaterControl(sameCell().GetPadded(-5.), bitmap2, kParamGain));
+
+  
     AddLabel("IBSwitchControl");
     pGraphics->AttachControl(new IBSwitchControl(sameCell(), switchBitmap));
+
     AddLabel("IBButtonControl");
     pGraphics->AttachControl(new IBButtonControl(sameCell(), buttonBitmap, [](IControl* pCaller) {
       pCaller->SetAnimation([](IControl* pCaller){
@@ -114,9 +117,10 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
         pCaller->SetValue(Clip(progress + .5, 0., 1.));
       }, 100);
     }));
-    
     AddLabel("ISVGKnob");
     pGraphics->AttachControl(new ISVGKnob(sameCell().GetCentredInside(100), knobSVG, kParamGain));
+
+    /*
 
     auto button1action = [pGraphics](IControl* pCaller){
       SplashClickActionFunc(pCaller);
@@ -150,7 +154,9 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
       
     }, "IVButtonControl 3", style.WithValueText(IText(36.f, EVAlign::Middle)),  false, true), kNoTag, "vcontrols");
     dynamic_cast<IVButtonControl*>(pGraphics->GetControl(pGraphics->NControls()-1))->SetValueStr("one");
-    
+*/
+
+    /*
     pGraphics->AttachControl(new IVSwitchControl(nextCell().GetCentredInside(110.), kParamMode, "IVSwitchControl", style.WithValueText(IText(36.f, EAlign::Center))), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVToggleControl(nextCell().GetCentredInside(110.), SplashClickActionFunc, "IVToggleControl", style.WithValueText(forkAwesomeText), "", ICON_FK_CHECK), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVRadioButtonControl(nextCell().GetCentredInside(110.), kParamMode, "IVRadioButtonControl", style, EVShape::Ellipse, EDirection::Vertical, 10.f), kCtrlTagRadioButton, "vcontrols");
@@ -173,6 +179,9 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     wideCell = nextCell().Union(nextCell()).Union(nextCell()).Union(nextCell());
     pGraphics->AttachControl(new ITextControl(wideCell.GetFromTop(20.f), "IVKeyboardControl", style.labelText));
     pGraphics->AttachControl(new IVKeyboardControl(wideCell.GetPadded(-25), 36, 72), kNoTag);
+    
+
+    
     pGraphics->AttachControl(new IVLabelControl(nextCell(), "Test", DEFAULT_STYLE.WithLabelText(DEFAULT_LABEL_TEXT.WithSize(50.f).WithFGColor(COLOR_WHITE))), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVSlideSwitchControl(nextCell(), kParamMode, "IVSlideSwitchControl", style, true), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVPlotControl(nextCell(), {{COLOR_RED,  [](double x){ return std::sin(x * 6.2);} },
@@ -299,7 +308,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
       
       toggle++;
     }
-    
+    */
   };
 #endif
 }

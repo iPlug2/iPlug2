@@ -724,6 +724,7 @@ void IGraphics::Draw(IRECTList& rects)
   float scale = GetBackingPixelScale();
     
   BeginFrame();
+//  DBGMSG("Begin frame");
 
   mStrict = true;
   if (mStrict)
@@ -735,6 +736,7 @@ void IGraphics::Draw(IRECTList& rects)
     IRECT drawn = r;
     drawn.Scale(scale);
     mDrawnRects.Add(drawn);
+//    DBGMSG("   Adding drawn rect %f %f %f %f", drawn.L, drawn.T, drawn.R, drawn.B);
   }
   else
   {
@@ -748,9 +750,11 @@ void IGraphics::Draw(IRECTList& rects)
       IRECT drawn = rects.Get(i);
       drawn.Scale(scale);
       mDrawnRects.Add(drawn);
+//      DBGMSG("   Adding drawn rect %f %f %f %f", drawn.L, drawn.T, drawn.R, drawn.B);
     }
   }
   
+//  DBGMSG("End frame");
   EndFrame();
 
   mDrawnRects.Clear();
