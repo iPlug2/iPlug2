@@ -1,5 +1,5 @@
 variables:
-  build_deps: true # set true to build optional dependencies, e.g. (Cairo, FAUST etc), if false, pre-built versions are downloaded
+  build_deps: false # set true to build optional dependencies, e.g. (Cairo, FAUST etc), if false, pre-built versions are downloaded
 
   #PLATFORMS
   build_web: true # build web audio module versions of projects
