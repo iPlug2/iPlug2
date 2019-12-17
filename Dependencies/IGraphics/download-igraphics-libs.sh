@@ -16,7 +16,7 @@ PIXMAN_VERSION=pixman-0.34.0
 EXPAT_VERSION=expat-2.2.5
 PNG_VERSION=v1.6.35
 ZLIB_VERSION=zlib-1.2.11
-SKIA_VERSION=chrome/m78
+SKIA_VERSION=chrome/m80
 
 # URLs where tarballs of releases can be downloaded - no trailing slash
 #CAIRO tarball is compressed using xz which is not available on git-bash shell, so checkout tag via git

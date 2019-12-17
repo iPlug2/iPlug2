@@ -34,9 +34,4 @@
 #include "SkSVGUse.cpp"
 #include "SkSVGValue.cpp"
 
-//#include "../externals/expat/lib/xmlparse.c"
-//#include "../externals/expat/lib/xmlrole.c"
-//#include "../externals/expat/lib/xmltok.c”
-
-
 #endif // IGRAPHICS_SKIA
