@@ -15,7 +15,7 @@ package rtaudio
 #cgo jack LDFLAGS: -ljack
 
 #cgo windows CXXFLAGS: -D__WINDOWS_WASAPI__
-#cgo windows LDFLAGS: -lm -luuid -lksuser -lwinmm -lole32 -static
+#cgo windows LDFLAGS: -lm -lksuser -lmfplat -lmfuuid -lwmcodecdspuuid -lwinmm -lole32 -static
 
 #cgo darwin CXXFLAGS: -D__MACOSX_CORE__
 #cgo darwin LDFLAGS: -framework CoreAudio -framework CoreFoundation
@@ -69,7 +69,7 @@ const (
 	APIWindowsWASAPI = C.RTAUDIO_API_WINDOWS_WASAPI
 	// APIWindowsASIO uses the Steinberg Audio Stream I/O API.
 	APIWindowsASIO = C.RTAUDIO_API_WINDOWS_ASIO
-	// APIWindowsDS uses the Microsoft Direct Sound API.
+	// APIWindowsDS uses the Microsoft DirectSound API.
 	APIWindowsDS = C.RTAUDIO_API_WINDOWS_DS
 	// APIDummy is a compilable but non-functional API.
 	APIDummy = C.RTAUDIO_API_DUMMY

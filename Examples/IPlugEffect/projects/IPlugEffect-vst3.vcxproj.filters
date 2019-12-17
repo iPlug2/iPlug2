@@ -17,9 +17,6 @@
     <ClCompile Include="..\..\..\IPlug\IPlugAPIBase.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\IGraphicsEditorDelegate.cpp">
-      <Filter>IPlug</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
@@ -143,6 +140,9 @@
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.cpp">
       <Filter>IGraphics\Drawing</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\IGraphicsEditorDelegate.cpp">
+      <Filter>IGraphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../config.h" />
@@ -241,9 +241,6 @@
       <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugEditorDelegate.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphicsEditorDelegate.h">
       <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugLogger.h">
@@ -377,6 +374,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.h">
       <Filter>IGraphics\Drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IGraphicsEditorDelegate.h">
+      <Filter>IGraphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

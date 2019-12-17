@@ -50,10 +50,10 @@ public:
   {
     SetTargetRECT(MakeRects(mRECT));
     
-    mPlotBounds = mWidgetBounds.GetPadded(mDirection == EDirection::Horizontal ? 0. : -mStrokeThickness,
-                                mDirection == EDirection::Horizontal ? -mStrokeThickness : 0.,
-                                mDirection == EDirection::Horizontal ? 0. : -mStrokeThickness,
-                                mDirection == EDirection::Horizontal ? -mStrokeThickness : 0.);
+    mPlotBounds = mWidgetBounds.GetPadded(mDirection == EDirection::Horizontal ? 0.f : -mStrokeThickness,
+                                mDirection == EDirection::Horizontal ? -mStrokeThickness : 0.f,
+                                mDirection == EDirection::Horizontal ? 0.f : -mStrokeThickness,
+                                mDirection == EDirection::Horizontal ? -mStrokeThickness : 0.f);
     
     SetDirty(false);
   }
