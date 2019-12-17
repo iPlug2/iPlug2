@@ -693,13 +693,14 @@ void IGraphicsSkia::DoRasterizeSVGToAPIBitmap(SVGHolder* pHolder, APIBitmap* pAP
   auto scale = 1.f/(GetScreenScale() * GetDrawScale());
   uint32_t width = pAPIBitmap->GetWidth();
   uint32_t height = pAPIBitmap->GetHeight();
-  auto pSurface = pAPIBitmap->GetBitmap()->mSurface.get();
-  auto pCanvas = pSurface->getCanvas();
+  SkCanvas* pCanvas = pAPIBitmap->GetBitmap()->mSurface->getCanvas();
   
   pCanvas->translate(x, y);
   pCanvas->scale(scale, scale);
-  pAPIBitmap->GetBitmap()->mSurface->ref(); // The capi unrefs the surface pointer before returning, so it’s necessary to increment the ref count before calling resvg_skia_render_to_canvas to keep it balanced.
-  resvg_skia_render_to_canvas(pHolder->mRenderTree, &pHolder->mOptions, {width, height}, pSurface);
+
+  assert(pHolder->mRenderTree);
+
+  resvg_skia_render_to_canvas(pHolder->mRenderTree, &pHolder->mOptions, { width, height }, pCanvas);
 #endif
 }
 
